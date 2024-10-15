@@ -3,7 +3,7 @@ import { dirname, resolve, extname } from 'path';
 import { readdir, readFile } from 'fs/promises';
 import { fileURLToPath } from 'url';
 import { strict as assert } from 'node:assert';
-import { compile, evaluate, remove } from './jsontoolkit.js';
+import { compile, evaluate, remove } from './blaze.js';
 
 test('simple 2020-12 pass', async (t) => {
   const schema = await compile({
