@@ -53,18 +53,3 @@ else()
     COMMAND "${CMAKE_COMMAND}" -E echo "Nothing to benchmark"
     COMMAND "${CMAKE_COMMAND}" -E false)
 endif()
-
-if(BLAZE_COMPILER AND BLAZE_EVALUATOR)
-  add_executable(sourcemeta_blaze_benchmark_validator_helper validator_helper.cc)
-  noa_add_default_options(PRIVATE sourcemeta_blaze_benchmark_validator_helper)
-  target_link_libraries(sourcemeta_blaze_benchmark_validator_helper
-    PRIVATE sourcemeta::jsontoolkit::json)
-  target_link_libraries(sourcemeta_blaze_benchmark_validator_helper
-    PRIVATE sourcemeta::jsontoolkit::jsonl)
-  target_link_libraries(sourcemeta_blaze_benchmark_validator_helper
-    PRIVATE sourcemeta::jsontoolkit::jsonschema)
-  target_link_libraries(sourcemeta_blaze_benchmark_validator_helper
-    PRIVATE sourcemeta::blaze::compiler)
-  target_link_libraries(sourcemeta_blaze_benchmark_validator_helper
-    PRIVATE sourcemeta::blaze::evaluator)
-endif()

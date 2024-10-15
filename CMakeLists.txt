@@ -10,6 +10,7 @@ option(BLAZE_COMPILER "Build the Blaze compiler library" ON)
 option(BLAZE_EVALUATOR "Build the Blaze evaluator library" ON)
 option(BLAZE_TESTS "Build the Blaze tests" OFF)
 option(BLAZE_BENCHMARK "Build the Blaze benchmarks" OFF)
+option(BLAZE_CONTRIB "Build the Blaze contrib programs" OFF)
 option(BLAZE_DOCS "Build the Blaze docs" OFF)
 option(BLAZE_INSTALL "Install the Blaze library" ON)
 option(BLAZE_ADDRESS_SANITIZER "Build Blaze with an address sanitizer" OFF)
@@ -44,6 +45,10 @@ if(BLAZE_EVALUATOR)
   add_subdirectory(src/evaluator)
 endif()
 
+if(BLAZE_CONTRIB)
+  add_subdirectory(contrib)
+endif()
+
 if(BLAZE_ADDRESS_SANITIZER)
   noa_sanitizer(TYPE address)
 elseif(BLAZE_UNDEFINED_SANITIZER)
@@ -57,7 +62,7 @@ endif()
 
 if(PROJECT_IS_TOP_LEVEL)
   noa_target_clang_format(SOURCES
-    bindings/*.cc
+    bindings/*.cc contrib/*.cc
     src/*.h src/*.cc
     benchmark/*.h benchmark/*.cc
     test/*.h test/*.cc)
