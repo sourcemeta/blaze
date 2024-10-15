@@ -72,6 +72,7 @@ CMake
 | `BLAZE_EVALUATOR`           | Boolean | `ON`    | Build the Blaze evaluator library       |
 | `BLAZE_TESTS`               | Boolean | `OFF`   | Build the Blaze tests                   |
 | `BLAZE_BENCHMARK`           | Boolean | `OFF`   | Build the Blaze benchmarks              |
+| `BLAZE_CONTRIB`             | Boolean | `OFF`   | Build the Blaze contrib programs        |
 | `BLAZE_DOCS`                | Boolean | `OFF`   | Build the Blaze docs                    |
 | `BLAZE_INSTALL`             | Boolean | `ON`    | Install the Blaze library               |
 | `BLAZE_ADDRESS_SANITIZER`   | Boolean | `OFF`   | Enable the address sanitizer            |
