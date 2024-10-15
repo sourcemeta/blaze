@@ -9,6 +9,12 @@ Blaze
 ![Draft 6](https://img.shields.io/endpoint?url=https%3A%2F%2Fbowtie.report%2Fbadges%2Fc%2B%2B-jsontoolkit%2Fcompliance%2Fdraft6.json)
 ![Draft 4](https://img.shields.io/endpoint?url=https%3A%2F%2Fbowtie.report%2Fbadges%2Fc%2B%2B-jsontoolkit%2Fcompliance%2Fdraft4.json)
 
+Documentation
+-------------
+
+Refer to the project website for documentation:
+[https://jsontoolkit.sourcemeta.com](https://jsontoolkit.sourcemeta.com).
+
 Commercial Use
 --------------
 
