@@ -131,7 +131,6 @@ private:
   std::vector<std::pair<std::size_t, std::size_t>> frame_sizes;
   const std::hash<std::string> hasher_{};
   std::vector<std::size_t> resources_;
-  // TODO: Try unordered_map
   std::map<std::size_t, const std::reference_wrapper<const Template>> labels;
   bool property_as_instance{false};
 
