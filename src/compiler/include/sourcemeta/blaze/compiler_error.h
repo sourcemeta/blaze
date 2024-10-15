@@ -14,6 +14,13 @@
 
 namespace sourcemeta::blaze {
 
+// Exporting symbols that depends on the standard C++ library is considered
+// safe.
+// https://learn.microsoft.com/en-us/cpp/error-messages/compiler-warnings/compiler-warning-level-2-c4275?view=msvc-170&redirectedfrom=MSDN
+#if defined(_MSC_VER)
+#pragma warning(disable : 4251 4275)
+#endif
+
 /// @ingroup jsonschema
 /// An error that represents a schema compilation failure event
 class SOURCEMETA_BLAZE_COMPILER_EXPORT SchemaCompilationError
