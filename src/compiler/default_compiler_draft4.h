@@ -22,19 +22,18 @@ static auto parse_regex(const std::string &pattern,
   } catch (const std::regex_error &) {
     std::ostringstream message;
     message << "Invalid regular expression: " << pattern;
-    throw sourcemeta::blaze::SchemaCompilationError(base, schema_location,
-                                                    message.str());
+    throw sourcemeta::blaze::CompilerError(base, schema_location,
+                                           message.str());
   }
 }
 
 namespace internal {
 using namespace sourcemeta::blaze;
 
-auto compiler_draft4_core_ref(
-    const SchemaCompilerContext &context,
-    const SchemaCompilerSchemaContext &schema_context,
-    const SchemaCompilerDynamicContext &dynamic_context)
-    -> SchemaCompilerTemplate {
+auto compiler_draft4_core_ref(const Context &context,
+                              const SchemaContext &schema_context,
+                              const DynamicContext &dynamic_context)
+    -> Template {
   // Determine the label
   const auto type{sourcemeta::jsontoolkit::ReferenceType::Static};
   const auto current{
@@ -55,9 +54,8 @@ auto compiler_draft4_core_ref(
 
   // The label is already registered, so just jump to it
   if (schema_context.labels.contains(label)) {
-    return {make<SchemaCompilerControlJump>(
-        true, context, schema_context, dynamic_context,
-        SchemaCompilerValueUnsignedInteger{label})};
+    return {make<ControlJump>(true, context, schema_context, dynamic_context,
+                              ValueUnsignedInteger{label})};
   }
 
   auto new_schema_context{schema_context};
@@ -85,7 +83,7 @@ auto compiler_draft4_core_ref(
       schema_context.references.contains(reference.destination)};
 
   if (!is_recursive && direct_children_references <= 5) {
-    if (context.mode == SchemaCompilerMode::FastValidation &&
+    if (context.mode == Mode::FastValidation &&
         // Expanding references inline when dynamic scoping is required
         // may not work, as we might omit the instruction that introduces
         // one of the necessary schema resources to the evaluator
@@ -95,9 +93,8 @@ auto compiler_draft4_core_ref(
                      sourcemeta::jsontoolkit::empty_pointer,
                      reference.destination);
     } else {
-      return {make<SchemaCompilerLogicalAnd>(
-          true, context, schema_context, dynamic_context,
-          SchemaCompilerValueNone{},
+      return {make<LogicalAnd>(
+          true, context, schema_context, dynamic_context, ValueNone{},
           compile(context, new_schema_context, relative_dynamic_context,
                   sourcemeta::jsontoolkit::empty_pointer,
                   sourcemeta::jsontoolkit::empty_pointer,
@@ -112,28 +109,27 @@ auto compiler_draft4_core_ref(
   // handler, without having to add logic to every single keyword to check
   // whether something points to them and add the "checkpoint" themselves.
   new_schema_context.labels.insert(label);
-  return {make<SchemaCompilerControlLabel>(
+  return {make<ControlLabel>(
       true, context, schema_context, dynamic_context,
-      SchemaCompilerValueUnsignedInteger{label},
+      ValueUnsignedInteger{label},
       compile(context, new_schema_context, relative_dynamic_context,
               sourcemeta::jsontoolkit::empty_pointer,
               sourcemeta::jsontoolkit::empty_pointer, reference.destination))};
 }
 
-auto compiler_draft4_validation_type(
-    const SchemaCompilerContext &context,
-    const SchemaCompilerSchemaContext &schema_context,
-    const SchemaCompilerDynamicContext &dynamic_context)
-    -> SchemaCompilerTemplate {
+auto compiler_draft4_validation_type(const Context &context,
+                                     const SchemaContext &schema_context,
+                                     const DynamicContext &dynamic_context)
+    -> Template {
   if (schema_context.schema.at(dynamic_context.keyword).is_string()) {
     const auto &type{
         schema_context.schema.at(dynamic_context.keyword).to_string()};
     if (type == "null") {
-      return {make<SchemaCompilerAssertionTypeStrict>(
+      return {make<AssertionTypeStrict>(
           true, context, schema_context, dynamic_context,
           sourcemeta::jsontoolkit::JSON::Type::Null)};
     } else if (type == "boolean") {
-      return {make<SchemaCompilerAssertionTypeStrict>(
+      return {make<AssertionTypeStrict>(
           true, context, schema_context, dynamic_context,
           sourcemeta::jsontoolkit::JSON::Type::Boolean)};
     } else if (type == "object") {
@@ -141,14 +137,14 @@ auto compiler_draft4_validation_type(
           unsigned_integer_property(schema_context.schema, "minProperties", 0)};
       const auto maximum{
           unsigned_integer_property(schema_context.schema, "maxProperties")};
-      if (context.mode == SchemaCompilerMode::FastValidation &&
+      if (context.mode == Mode::FastValidation &&
           (minimum > 0 || maximum.has_value())) {
-        return {make<SchemaCompilerAssertionTypeObjectBounded>(
-            true, context, schema_context, dynamic_context,
-            {minimum, maximum, false})};
+        return {make<AssertionTypeObjectBounded>(true, context, schema_context,
+                                                 dynamic_context,
+                                                 {minimum, maximum, false})};
       }
 
-      return {make<SchemaCompilerAssertionTypeStrict>(
+      return {make<AssertionTypeStrict>(
           true, context, schema_context, dynamic_context,
           sourcemeta::jsontoolkit::JSON::Type::Object)};
     } else if (type == "array") {
@@ -156,24 +152,24 @@ auto compiler_draft4_validation_type(
           unsigned_integer_property(schema_context.schema, "minItems", 0)};
       const auto maximum{
           unsigned_integer_property(schema_context.schema, "maxItems")};
-      if (context.mode == SchemaCompilerMode::FastValidation &&
+      if (context.mode == Mode::FastValidation &&
           (minimum > 0 || maximum.has_value())) {
-        return {make<SchemaCompilerAssertionTypeArrayBounded>(
-            true, context, schema_context, dynamic_context,
-            {minimum, maximum, false})};
+        return {make<AssertionTypeArrayBounded>(true, context, schema_context,
+                                                dynamic_context,
+                                                {minimum, maximum, false})};
       }
 
-      return {make<SchemaCompilerAssertionTypeStrict>(
+      return {make<AssertionTypeStrict>(
           true, context, schema_context, dynamic_context,
           sourcemeta::jsontoolkit::JSON::Type::Array)};
     } else if (type == "number") {
-      return {make<SchemaCompilerAssertionTypeStrictAny>(
+      return {make<AssertionTypeStrictAny>(
           true, context, schema_context, dynamic_context,
           std::vector<sourcemeta::jsontoolkit::JSON::Type>{
               sourcemeta::jsontoolkit::JSON::Type::Real,
               sourcemeta::jsontoolkit::JSON::Type::Integer})};
     } else if (type == "integer") {
-      return {make<SchemaCompilerAssertionTypeStrict>(
+      return {make<AssertionTypeStrict>(
           true, context, schema_context, dynamic_context,
           sourcemeta::jsontoolkit::JSON::Type::Integer)};
     } else if (type == "string") {
@@ -181,14 +177,14 @@ auto compiler_draft4_validation_type(
           unsigned_integer_property(schema_context.schema, "minLength", 0)};
       const auto maximum{
           unsigned_integer_property(schema_context.schema, "maxLength")};
-      if (context.mode == SchemaCompilerMode::FastValidation &&
+      if (context.mode == Mode::FastValidation &&
           (minimum > 0 || maximum.has_value())) {
-        return {make<SchemaCompilerAssertionTypeStringBounded>(
-            true, context, schema_context, dynamic_context,
-            {minimum, maximum, false})};
+        return {make<AssertionTypeStringBounded>(true, context, schema_context,
+                                                 dynamic_context,
+                                                 {minimum, maximum, false})};
       }
 
-      return {make<SchemaCompilerAssertionTypeStrict>(
+      return {make<AssertionTypeStrict>(
           true, context, schema_context, dynamic_context,
           sourcemeta::jsontoolkit::JSON::Type::String)};
     } else {
@@ -202,33 +198,33 @@ auto compiler_draft4_validation_type(
     const auto &type{
         schema_context.schema.at(dynamic_context.keyword).front().to_string()};
     if (type == "null") {
-      return {make<SchemaCompilerAssertionTypeStrict>(
+      return {make<AssertionTypeStrict>(
           true, context, schema_context, dynamic_context,
           sourcemeta::jsontoolkit::JSON::Type::Null)};
     } else if (type == "boolean") {
-      return {make<SchemaCompilerAssertionTypeStrict>(
+      return {make<AssertionTypeStrict>(
           true, context, schema_context, dynamic_context,
           sourcemeta::jsontoolkit::JSON::Type::Boolean)};
     } else if (type == "object") {
-      return {make<SchemaCompilerAssertionTypeStrict>(
+      return {make<AssertionTypeStrict>(
           true, context, schema_context, dynamic_context,
           sourcemeta::jsontoolkit::JSON::Type::Object)};
     } else if (type == "array") {
-      return {make<SchemaCompilerAssertionTypeStrict>(
+      return {make<AssertionTypeStrict>(
           true, context, schema_context, dynamic_context,
           sourcemeta::jsontoolkit::JSON::Type::Array)};
     } else if (type == "number") {
-      return {make<SchemaCompilerAssertionTypeStrictAny>(
+      return {make<AssertionTypeStrictAny>(
           true, context, schema_context, dynamic_context,
           std::vector<sourcemeta::jsontoolkit::JSON::Type>{
               sourcemeta::jsontoolkit::JSON::Type::Real,
               sourcemeta::jsontoolkit::JSON::Type::Integer})};
     } else if (type == "integer") {
-      return {make<SchemaCompilerAssertionTypeStrict>(
+      return {make<AssertionTypeStrict>(
           true, context, schema_context, dynamic_context,
           sourcemeta::jsontoolkit::JSON::Type::Integer)};
     } else if (type == "string") {
-      return {make<SchemaCompilerAssertionTypeStrict>(
+      return {make<AssertionTypeStrict>(
           true, context, schema_context, dynamic_context,
           sourcemeta::jsontoolkit::JSON::Type::String)};
     } else {
@@ -260,18 +256,17 @@ auto compiler_draft4_validation_type(
 
     assert(types.size() >=
            schema_context.schema.at(dynamic_context.keyword).size());
-    return {make<SchemaCompilerAssertionTypeStrictAny>(
-        true, context, schema_context, dynamic_context, std::move(types))};
+    return {make<AssertionTypeStrictAny>(true, context, schema_context,
+                                         dynamic_context, std::move(types))};
   }
 
   return {};
 }
 
-auto compiler_draft4_validation_required(
-    const SchemaCompilerContext &context,
-    const SchemaCompilerSchemaContext &schema_context,
-    const SchemaCompilerDynamicContext &dynamic_context)
-    -> SchemaCompilerTemplate {
+auto compiler_draft4_validation_required(const Context &context,
+                                         const SchemaContext &schema_context,
+                                         const DynamicContext &dynamic_context)
+    -> Template {
   assert(schema_context.schema.at(dynamic_context.keyword).is_array());
 
   if (schema_context.schema.defines("type") &&
@@ -291,35 +286,33 @@ auto compiler_draft4_validation_required(
     }
 
     if (properties.size() == 1) {
-      return {make<SchemaCompilerAssertionDefines>(
-          true, context, schema_context, dynamic_context,
-          SchemaCompilerValueString{*(properties.cbegin())})};
+      return {make<AssertionDefines>(true, context, schema_context,
+                                     dynamic_context,
+                                     ValueString{*(properties.cbegin())})};
     } else {
-      return {make<SchemaCompilerAssertionDefinesAll>(
-          true, context, schema_context, dynamic_context,
-          std::move(properties))};
+      return {make<AssertionDefinesAll>(true, context, schema_context,
+                                        dynamic_context,
+                                        std::move(properties))};
     }
   } else {
     assert(
         schema_context.schema.at(dynamic_context.keyword).front().is_string());
-    return {make<SchemaCompilerAssertionDefines>(
+    return {make<AssertionDefines>(
         true, context, schema_context, dynamic_context,
-        SchemaCompilerValueString{
-            schema_context.schema.at(dynamic_context.keyword)
-                .front()
-                .to_string()})};
+        ValueString{schema_context.schema.at(dynamic_context.keyword)
+                        .front()
+                        .to_string()})};
   }
 }
 
-auto compiler_draft4_applicator_allof(
-    const SchemaCompilerContext &context,
-    const SchemaCompilerSchemaContext &schema_context,
-    const SchemaCompilerDynamicContext &dynamic_context)
-    -> SchemaCompilerTemplate {
+auto compiler_draft4_applicator_allof(const Context &context,
+                                      const SchemaContext &schema_context,
+                                      const DynamicContext &dynamic_context)
+    -> Template {
   assert(schema_context.schema.at(dynamic_context.keyword).is_array());
   assert(!schema_context.schema.at(dynamic_context.keyword).empty());
 
-  SchemaCompilerTemplate children;
+  Template children;
   for (std::uint64_t index = 0;
        index < schema_context.schema.at(dynamic_context.keyword).size();
        index++) {
@@ -331,74 +324,67 @@ auto compiler_draft4_applicator_allof(
     }
   }
 
-  return {make<SchemaCompilerLogicalAnd>(
-      true, context, schema_context, dynamic_context, SchemaCompilerValueNone{},
-      std::move(children))};
+  return {make<LogicalAnd>(true, context, schema_context, dynamic_context,
+                           ValueNone{}, std::move(children))};
 }
 
-auto compiler_draft4_applicator_anyof(
-    const SchemaCompilerContext &context,
-    const SchemaCompilerSchemaContext &schema_context,
-    const SchemaCompilerDynamicContext &dynamic_context)
-    -> SchemaCompilerTemplate {
+auto compiler_draft4_applicator_anyof(const Context &context,
+                                      const SchemaContext &schema_context,
+                                      const DynamicContext &dynamic_context)
+    -> Template {
   assert(schema_context.schema.at(dynamic_context.keyword).is_array());
   assert(!schema_context.schema.at(dynamic_context.keyword).empty());
 
-  SchemaCompilerTemplate disjunctors;
+  Template disjunctors;
   for (std::uint64_t index = 0;
        index < schema_context.schema.at(dynamic_context.keyword).size();
        index++) {
-    disjunctors.push_back(make<SchemaCompilerLogicalAnd>(
-        false, context, schema_context, relative_dynamic_context,
-        SchemaCompilerValueNone{},
+    disjunctors.push_back(make<LogicalAnd>(
+        false, context, schema_context, relative_dynamic_context, ValueNone{},
         compile(context, schema_context, relative_dynamic_context,
                 {static_cast<sourcemeta::jsontoolkit::Pointer::Token::Index>(
                     index)})));
   }
 
-  const auto requires_exhaustive{
-      context.mode == SchemaCompilerMode::Exhaustive ||
-      context.uses_unevaluated_properties || context.uses_unevaluated_items};
+  const auto requires_exhaustive{context.mode == Mode::Exhaustive ||
+                                 context.uses_unevaluated_properties ||
+                                 context.uses_unevaluated_items};
 
-  return {make<SchemaCompilerLogicalOr>(
-      true, context, schema_context, dynamic_context,
-      SchemaCompilerValueBoolean{requires_exhaustive}, std::move(disjunctors))};
+  return {make<LogicalOr>(true, context, schema_context, dynamic_context,
+                          ValueBoolean{requires_exhaustive},
+                          std::move(disjunctors))};
 }
 
-auto compiler_draft4_applicator_oneof(
-    const SchemaCompilerContext &context,
-    const SchemaCompilerSchemaContext &schema_context,
-    const SchemaCompilerDynamicContext &dynamic_context)
-    -> SchemaCompilerTemplate {
+auto compiler_draft4_applicator_oneof(const Context &context,
+                                      const SchemaContext &schema_context,
+                                      const DynamicContext &dynamic_context)
+    -> Template {
   assert(schema_context.schema.at(dynamic_context.keyword).is_array());
   assert(!schema_context.schema.at(dynamic_context.keyword).empty());
 
-  SchemaCompilerTemplate disjunctors;
+  Template disjunctors;
   for (std::uint64_t index = 0;
        index < schema_context.schema.at(dynamic_context.keyword).size();
        index++) {
-    disjunctors.push_back(make<SchemaCompilerLogicalAnd>(
-        false, context, schema_context, relative_dynamic_context,
-        SchemaCompilerValueNone{},
+    disjunctors.push_back(make<LogicalAnd>(
+        false, context, schema_context, relative_dynamic_context, ValueNone{},
         compile(context, schema_context, relative_dynamic_context,
                 {static_cast<sourcemeta::jsontoolkit::Pointer::Token::Index>(
                     index)})));
   }
 
-  const auto requires_exhaustive{
-      context.mode == SchemaCompilerMode::Exhaustive ||
-      context.uses_unevaluated_properties || context.uses_unevaluated_items};
+  const auto requires_exhaustive{context.mode == Mode::Exhaustive ||
+                                 context.uses_unevaluated_properties ||
+                                 context.uses_unevaluated_items};
 
-  return {make<SchemaCompilerLogicalXor>(
-      true, context, schema_context, dynamic_context,
-      SchemaCompilerValueBoolean{requires_exhaustive}, std::move(disjunctors))};
+  return {make<LogicalXor>(true, context, schema_context, dynamic_context,
+                           ValueBoolean{requires_exhaustive},
+                           std::move(disjunctors))};
 }
 
 auto compiler_draft4_applicator_properties_conditional_annotation(
-    const SchemaCompilerContext &context,
-    const SchemaCompilerSchemaContext &schema_context,
-    const SchemaCompilerDynamicContext &dynamic_context, const bool annotate)
-    -> SchemaCompilerTemplate {
+    const Context &context, const SchemaContext &schema_context,
+    const DynamicContext &dynamic_context, const bool annotate) -> Template {
   assert(schema_context.schema.at(dynamic_context.keyword).is_object());
   if (schema_context.schema.at(dynamic_context.keyword).empty()) {
     return {};
@@ -438,7 +424,7 @@ auto compiler_draft4_applicator_properties_conditional_annotation(
   }
 
   std::size_t is_required = 0;
-  std::vector<std::pair<std::string, SchemaCompilerTemplate>> properties;
+  std::vector<std::pair<std::string, Template>> properties;
   for (const auto &entry :
        schema_context.schema.at(dynamic_context.keyword).as_object()) {
     properties.push_back(
@@ -488,35 +474,35 @@ auto compiler_draft4_applicator_properties_conditional_annotation(
       !is_directly_inside_oneof};
 
   if (prefer_loop_over_instance) {
-    SchemaCompilerValueNamedIndexes indexes;
-    SchemaCompilerTemplate children;
+    ValueNamedIndexes indexes;
+    Template children;
     std::size_t cursor = 0;
 
     for (auto &&[name, substeps] : properties) {
       indexes.emplace(name, cursor);
       if (annotate) {
-        substeps.push_back(make<SchemaCompilerAnnotationEmit>(
+        substeps.push_back(make<AnnotationEmit>(
             true, context, schema_context, relative_dynamic_context,
             sourcemeta::jsontoolkit::JSON{name}));
       }
 
       // Note that the evaluator completely ignores this wrapper anyway
-      children.push_back(make<SchemaCompilerLogicalAnd>(
-          false, context, schema_context, relative_dynamic_context,
-          SchemaCompilerValueNone{}, std::move(substeps)));
+      children.push_back(make<LogicalAnd>(false, context, schema_context,
+                                          relative_dynamic_context, ValueNone{},
+                                          std::move(substeps)));
       cursor += 1;
     }
 
-    return {make<SchemaCompilerLoopPropertiesMatch>(
-        true, context, schema_context, dynamic_context, std::move(indexes),
-        std::move(children))};
+    return {make<LoopPropertiesMatch>(true, context, schema_context,
+                                      dynamic_context, std::move(indexes),
+                                      std::move(children))};
   }
 
-  SchemaCompilerTemplate children;
+  Template children;
 
   for (auto &&[name, substeps] : properties) {
     if (annotate) {
-      substeps.push_back(make<SchemaCompilerAnnotationEmit>(
+      substeps.push_back(make<AnnotationEmit>(
           true, context, schema_context, relative_dynamic_context,
           sourcemeta::jsontoolkit::JSON{name}));
     }
@@ -541,81 +527,65 @@ auto compiler_draft4_applicator_properties_conditional_annotation(
       // Optimize `properties` where its subschemas just include a type check,
       // as that's a very common pattern
 
-    } else if (context.mode == SchemaCompilerMode::FastValidation &&
-               substeps.size() == 1 &&
-               std::holds_alternative<SchemaCompilerAssertionTypeStrict>(
-                   substeps.front())) {
-      const auto &type_step{
-          std::get<SchemaCompilerAssertionTypeStrict>(substeps.front())};
-      children.push_back(SchemaCompilerAssertionPropertyTypeStrict{
+    } else if (context.mode == Mode::FastValidation && substeps.size() == 1 &&
+               std::holds_alternative<AssertionTypeStrict>(substeps.front())) {
+      const auto &type_step{std::get<AssertionTypeStrict>(substeps.front())};
+      children.push_back(AssertionPropertyTypeStrict{
           type_step.relative_schema_location,
           dynamic_context.base_instance_location.concat(
               type_step.relative_instance_location),
           type_step.keyword_location, type_step.schema_resource,
           type_step.dynamic, type_step.report, type_step.value});
-    } else if (context.mode == SchemaCompilerMode::FastValidation &&
-               substeps.size() == 1 &&
-               std::holds_alternative<SchemaCompilerAssertionType>(
-                   substeps.front())) {
-      const auto &type_step{
-          std::get<SchemaCompilerAssertionType>(substeps.front())};
-      children.push_back(SchemaCompilerAssertionPropertyType{
+    } else if (context.mode == Mode::FastValidation && substeps.size() == 1 &&
+               std::holds_alternative<AssertionType>(substeps.front())) {
+      const auto &type_step{std::get<AssertionType>(substeps.front())};
+      children.push_back(AssertionPropertyType{
           type_step.relative_schema_location,
           dynamic_context.base_instance_location.concat(
               type_step.relative_instance_location),
           type_step.keyword_location, type_step.schema_resource,
           type_step.dynamic, type_step.report, type_step.value});
-    } else if (context.mode == SchemaCompilerMode::FastValidation &&
-               substeps.size() == 1 &&
-               std::holds_alternative<
-                   SchemaCompilerAssertionPropertyTypeStrict>(
+    } else if (context.mode == Mode::FastValidation && substeps.size() == 1 &&
+               std::holds_alternative<AssertionPropertyTypeStrict>(
                    substeps.front())) {
-      children.push_back(unroll<SchemaCompilerAssertionPropertyTypeStrict>(
+      children.push_back(unroll<AssertionPropertyTypeStrict>(
           relative_dynamic_context, substeps.front(),
           dynamic_context.base_instance_location));
-    } else if (context.mode == SchemaCompilerMode::FastValidation &&
-               substeps.size() == 1 &&
-               std::holds_alternative<SchemaCompilerAssertionPropertyType>(
+    } else if (context.mode == Mode::FastValidation && substeps.size() == 1 &&
+               std::holds_alternative<AssertionPropertyType>(
                    substeps.front())) {
-      children.push_back(unroll<SchemaCompilerAssertionPropertyType>(
+      children.push_back(unroll<AssertionPropertyType>(
           relative_dynamic_context, substeps.front(),
           dynamic_context.base_instance_location));
 
     } else {
-      children.push_back(make<SchemaCompilerLogicalWhenDefines>(
+      children.push_back(make<LogicalWhenDefines>(
           false, context, schema_context, relative_dynamic_context,
-          SchemaCompilerValueString{name}, std::move(substeps)));
+          ValueString{name}, std::move(substeps)));
     }
   }
 
   // Optimize away the wrapper when emitting a single instruction
-  if (context.mode == SchemaCompilerMode::FastValidation &&
-      children.size() == 1 &&
-      std::holds_alternative<SchemaCompilerAssertionPropertyTypeStrict>(
-          children.front())) {
-    return {unroll<SchemaCompilerAssertionPropertyTypeStrict>(
-        dynamic_context, children.front())};
+  if (context.mode == Mode::FastValidation && children.size() == 1 &&
+      std::holds_alternative<AssertionPropertyTypeStrict>(children.front())) {
+    return {
+        unroll<AssertionPropertyTypeStrict>(dynamic_context, children.front())};
   }
 
-  return {make<SchemaCompilerLogicalAnd>(
-      true, context, schema_context, dynamic_context, SchemaCompilerValueNone{},
-      std::move(children))};
+  return {make<LogicalAnd>(true, context, schema_context, dynamic_context,
+                           ValueNone{}, std::move(children))};
 }
 
 auto compiler_draft4_applicator_properties(
-    const SchemaCompilerContext &context,
-    const SchemaCompilerSchemaContext &schema_context,
-    const SchemaCompilerDynamicContext &dynamic_context)
-    -> SchemaCompilerTemplate {
+    const Context &context, const SchemaContext &schema_context,
+    const DynamicContext &dynamic_context) -> Template {
   return compiler_draft4_applicator_properties_conditional_annotation(
       context, schema_context, dynamic_context, false);
 }
 
 auto compiler_draft4_applicator_patternproperties_conditional_annotation(
-    const SchemaCompilerContext &context,
-    const SchemaCompilerSchemaContext &schema_context,
-    const SchemaCompilerDynamicContext &dynamic_context, const bool annotate)
-    -> SchemaCompilerTemplate {
+    const Context &context, const SchemaContext &schema_context,
+    const DynamicContext &dynamic_context, const bool annotate) -> Template {
   assert(schema_context.schema.at(dynamic_context.keyword).is_object());
   if (schema_context.schema.at(dynamic_context.keyword).empty()) {
     return {};
@@ -627,7 +597,7 @@ auto compiler_draft4_applicator_patternproperties_conditional_annotation(
     return {};
   }
 
-  SchemaCompilerTemplate children;
+  Template children;
 
   // To guarantee ordering
   std::vector<std::string> patterns;
@@ -647,21 +617,21 @@ auto compiler_draft4_applicator_patternproperties_conditional_annotation(
       // The evaluator will make sure the same annotation is not reported twice.
       // For example, if the same property matches more than one subschema in
       // `patternProperties`
-      substeps.push_back(make<SchemaCompilerAnnotationBasenameToParent>(
+      substeps.push_back(make<AnnotationBasenameToParent>(
           true, context, schema_context, relative_dynamic_context,
-          SchemaCompilerValueNone{}));
+          ValueNone{}));
     }
 
     // If the `patternProperties` subschema for the given pattern does
     // nothing, then we can avoid generating an entire loop for it
     if (!substeps.empty()) {
       // Loop over the instance properties
-      children.push_back(make<SchemaCompilerLoopPropertiesRegex>(
+      children.push_back(make<LoopPropertiesRegex>(
           // Treat this as an internal step
           false, context, schema_context, relative_dynamic_context,
-          SchemaCompilerValueRegex{parse_regex(pattern, schema_context.base,
-                                               schema_context.relative_pointer),
-                                   pattern},
+          ValueRegex{parse_regex(pattern, schema_context.base,
+                                 schema_context.relative_pointer),
+                     pattern},
           std::move(substeps)));
     }
   }
@@ -671,43 +641,37 @@ auto compiler_draft4_applicator_patternproperties_conditional_annotation(
   }
 
   // If the instance is an object...
-  return {make<SchemaCompilerLogicalWhenType>(
-      true, context, schema_context, dynamic_context,
-      sourcemeta::jsontoolkit::JSON::Type::Object, std::move(children))};
+  return {make<LogicalWhenType>(true, context, schema_context, dynamic_context,
+                                sourcemeta::jsontoolkit::JSON::Type::Object,
+                                std::move(children))};
 }
 
 auto compiler_draft4_applicator_patternproperties(
-    const SchemaCompilerContext &context,
-    const SchemaCompilerSchemaContext &schema_context,
-    const SchemaCompilerDynamicContext &dynamic_context)
-    -> SchemaCompilerTemplate {
+    const Context &context, const SchemaContext &schema_context,
+    const DynamicContext &dynamic_context) -> Template {
   return compiler_draft4_applicator_patternproperties_conditional_annotation(
       context, schema_context, dynamic_context, false);
 }
 
 auto compiler_draft4_applicator_additionalproperties_conditional_annotation(
-    const SchemaCompilerContext &context,
-    const SchemaCompilerSchemaContext &schema_context,
-    const SchemaCompilerDynamicContext &dynamic_context, const bool annotate)
-    -> SchemaCompilerTemplate {
+    const Context &context, const SchemaContext &schema_context,
+    const DynamicContext &dynamic_context, const bool annotate) -> Template {
   if (schema_context.schema.defines("type") &&
       schema_context.schema.at("type").is_string() &&
       schema_context.schema.at("type").to_string() != "object") {
     return {};
   }
 
-  SchemaCompilerTemplate children{
-      compile(context, schema_context, relative_dynamic_context,
-              sourcemeta::jsontoolkit::empty_pointer,
-              sourcemeta::jsontoolkit::empty_pointer)};
+  Template children{compile(context, schema_context, relative_dynamic_context,
+                            sourcemeta::jsontoolkit::empty_pointer,
+                            sourcemeta::jsontoolkit::empty_pointer)};
 
   if (annotate) {
-    children.push_back(make<SchemaCompilerAnnotationBasenameToParent>(
-        true, context, schema_context, relative_dynamic_context,
-        SchemaCompilerValueNone{}));
+    children.push_back(make<AnnotationBasenameToParent>(
+        true, context, schema_context, relative_dynamic_context, ValueNone{}));
   }
 
-  SchemaCompilerValuePropertyFilter filter;
+  ValuePropertyFilter filter;
 
   if (schema_context.schema.defines("properties") &&
       schema_context.schema.at("properties").is_object()) {
@@ -736,49 +700,40 @@ auto compiler_draft4_applicator_additionalproperties_conditional_annotation(
   }
 
   if (!filter.first.empty() || !filter.second.empty()) {
-    return {make<SchemaCompilerLoopPropertiesExcept>(
-        true, context, schema_context, dynamic_context, std::move(filter),
-        std::move(children))};
+    return {make<LoopPropertiesExcept>(true, context, schema_context,
+                                       dynamic_context, std::move(filter),
+                                       std::move(children))};
   } else {
-    if (context.mode == SchemaCompilerMode::FastValidation &&
-        children.size() == 1) {
+    if (context.mode == Mode::FastValidation && children.size() == 1) {
       // Optimize `additionalProperties` set to just `type`, which is a
       // pretty common pattern
-      if (std::holds_alternative<SchemaCompilerAssertionTypeStrict>(
-              children.front())) {
-        const auto &type_step{
-            std::get<SchemaCompilerAssertionTypeStrict>(children.front())};
-        return {make<SchemaCompilerLoopPropertiesTypeStrict>(
+      if (std::holds_alternative<AssertionTypeStrict>(children.front())) {
+        const auto &type_step{std::get<AssertionTypeStrict>(children.front())};
+        return {make<LoopPropertiesTypeStrict>(
             true, context, schema_context, dynamic_context, type_step.value)};
-      } else if (std::holds_alternative<SchemaCompilerAssertionType>(
-                     children.front())) {
-        const auto &type_step{
-            std::get<SchemaCompilerAssertionType>(children.front())};
-        return {make<SchemaCompilerLoopPropertiesType>(
-            true, context, schema_context, dynamic_context, type_step.value)};
+      } else if (std::holds_alternative<AssertionType>(children.front())) {
+        const auto &type_step{std::get<AssertionType>(children.front())};
+        return {make<LoopPropertiesType>(true, context, schema_context,
+                                         dynamic_context, type_step.value)};
       }
     }
 
-    return {make<SchemaCompilerLoopProperties>(
-        true, context, schema_context, dynamic_context,
-        SchemaCompilerValueNone{}, std::move(children))};
+    return {make<LoopProperties>(true, context, schema_context, dynamic_context,
+                                 ValueNone{}, std::move(children))};
   }
 }
 
 auto compiler_draft4_applicator_additionalproperties(
-    const SchemaCompilerContext &context,
-    const SchemaCompilerSchemaContext &schema_context,
-    const SchemaCompilerDynamicContext &dynamic_context)
-    -> SchemaCompilerTemplate {
+    const Context &context, const SchemaContext &schema_context,
+    const DynamicContext &dynamic_context) -> Template {
   return compiler_draft4_applicator_additionalproperties_conditional_annotation(
       context, schema_context, dynamic_context, false);
 }
 
-auto compiler_draft4_validation_pattern(
-    const SchemaCompilerContext &context,
-    const SchemaCompilerSchemaContext &schema_context,
-    const SchemaCompilerDynamicContext &dynamic_context)
-    -> SchemaCompilerTemplate {
+auto compiler_draft4_validation_pattern(const Context &context,
+                                        const SchemaContext &schema_context,
+                                        const DynamicContext &dynamic_context)
+    -> Template {
   assert(schema_context.schema.at(dynamic_context.keyword).is_string());
 
   if (schema_context.schema.defines("type") &&
@@ -789,18 +744,17 @@ auto compiler_draft4_validation_pattern(
 
   const auto &regex_string{
       schema_context.schema.at(dynamic_context.keyword).to_string()};
-  return {make<SchemaCompilerAssertionRegex>(
+  return {make<AssertionRegex>(
       true, context, schema_context, dynamic_context,
-      SchemaCompilerValueRegex{parse_regex(regex_string, schema_context.base,
-                                           schema_context.relative_pointer),
-                               regex_string})};
+      ValueRegex{parse_regex(regex_string, schema_context.base,
+                             schema_context.relative_pointer),
+                 regex_string})};
 }
 
-auto compiler_draft4_validation_format(
-    const SchemaCompilerContext &context,
-    const SchemaCompilerSchemaContext &schema_context,
-    const SchemaCompilerDynamicContext &dynamic_context)
-    -> SchemaCompilerTemplate {
+auto compiler_draft4_validation_format(const Context &context,
+                                       const SchemaContext &schema_context,
+                                       const DynamicContext &dynamic_context)
+    -> Template {
   if (!schema_context.schema.at(dynamic_context.keyword).is_string()) {
     return {};
   }
@@ -822,19 +776,17 @@ auto compiler_draft4_validation_format(
       schema_context.schema.at(dynamic_context.keyword).to_string()};
 
   if (format == "uri") {
-    return {make<SchemaCompilerAssertionStringType>(
-        true, context, schema_context, dynamic_context,
-        SchemaCompilerValueStringType::URI)};
+    return {make<AssertionStringType>(true, context, schema_context,
+                                      dynamic_context, ValueStringType::URI)};
   }
 
 #define COMPILE_FORMAT_REGEX(name, regular_expression)                         \
   if (format == (name)) {                                                      \
-    return {make<SchemaCompilerAssertionRegex>(                                \
+    return {make<AssertionRegex>(                                              \
         true, context, schema_context, dynamic_context,                        \
-        SchemaCompilerValueRegex{parse_regex(regular_expression,               \
-                                             schema_context.base,              \
-                                             schema_context.relative_pointer), \
-                                 (regular_expression)})};                      \
+        ValueRegex{parse_regex(regular_expression, schema_context.base,        \
+                               schema_context.relative_pointer),               \
+                   (regular_expression)})};                                    \
   }
 
   COMPILE_FORMAT_REGEX("ipv4", FORMAT_REGEX_IPV4)
@@ -844,25 +796,22 @@ auto compiler_draft4_validation_format(
   return {};
 }
 
-auto compiler_draft4_applicator_not(
-    const SchemaCompilerContext &context,
-    const SchemaCompilerSchemaContext &schema_context,
-    const SchemaCompilerDynamicContext &dynamic_context)
-    -> SchemaCompilerTemplate {
+auto compiler_draft4_applicator_not(const Context &context,
+                                    const SchemaContext &schema_context,
+                                    const DynamicContext &dynamic_context)
+    -> Template {
   // Only emit a `not` instruction that keeps track of
   // dropping annotations if we really need it
-  if (context.mode != SchemaCompilerMode::FastValidation ||
+  if (context.mode != Mode::FastValidation ||
       context.uses_unevaluated_properties || context.uses_unevaluated_items) {
-    return {make<SchemaCompilerAnnotationNot>(
-        true, context, schema_context, dynamic_context,
-        SchemaCompilerValueNone{},
+    return {make<AnnotationNot>(
+        true, context, schema_context, dynamic_context, ValueNone{},
         compile(context, schema_context, relative_dynamic_context,
                 sourcemeta::jsontoolkit::empty_pointer,
                 sourcemeta::jsontoolkit::empty_pointer))};
   } else {
-    return {make<SchemaCompilerLogicalNot>(
-        true, context, schema_context, dynamic_context,
-        SchemaCompilerValueNone{},
+    return {make<LogicalNot>(
+        true, context, schema_context, dynamic_context, ValueNone{},
         compile(context, schema_context, relative_dynamic_context,
                 sourcemeta::jsontoolkit::empty_pointer,
                 sourcemeta::jsontoolkit::empty_pointer))};
@@ -870,10 +819,8 @@ auto compiler_draft4_applicator_not(
 }
 
 auto compiler_draft4_applicator_items_array(
-    const SchemaCompilerContext &context,
-    const SchemaCompilerSchemaContext &schema_context,
-    const SchemaCompilerDynamicContext &dynamic_context, const bool annotate)
-    -> SchemaCompilerTemplate {
+    const Context &context, const SchemaContext &schema_context,
+    const DynamicContext &dynamic_context, const bool annotate) -> Template {
   assert(schema_context.schema.at(dynamic_context.keyword).is_array());
   const auto items_size{
       schema_context.schema.at(dynamic_context.keyword).size()};
@@ -896,7 +843,7 @@ auto compiler_draft4_applicator_items_array(
   // - [ {} ] if the instance array size is == 1
 
   // Precompile subschemas
-  std::vector<SchemaCompilerTemplate> subschemas;
+  std::vector<Template> subschemas;
   subschemas.reserve(items_size);
   const auto &array{
       schema_context.schema.at(dynamic_context.keyword).as_array()};
@@ -906,9 +853,9 @@ auto compiler_draft4_applicator_items_array(
                                  {subschemas.size()}));
   }
 
-  SchemaCompilerTemplate children;
+  Template children;
   for (std::size_t cursor = items_size; cursor > 0; cursor--) {
-    SchemaCompilerTemplate subchildren;
+    Template subchildren;
     for (std::size_t index = 0; index < cursor; index++) {
       for (const auto &substep : subschemas.at(index)) {
         subchildren.push_back(substep);
@@ -918,44 +865,39 @@ auto compiler_draft4_applicator_items_array(
     // The first entry
     if (cursor == items_size) {
       if (annotate) {
-        subchildren.push_back(make<SchemaCompilerAnnotationWhenArraySizeEqual>(
+        subchildren.push_back(make<AnnotationWhenArraySizeEqual>(
             true, context, schema_context, relative_dynamic_context,
-            SchemaCompilerValueIndexedJSON{
-                cursor, sourcemeta::jsontoolkit::JSON{true}}));
-        subchildren.push_back(
-            make<SchemaCompilerAnnotationWhenArraySizeGreater>(
-                true, context, schema_context, relative_dynamic_context,
-                SchemaCompilerValueIndexedJSON{
-                    cursor, sourcemeta::jsontoolkit::JSON{cursor - 1}}));
+            ValueIndexedJSON{cursor, sourcemeta::jsontoolkit::JSON{true}}));
+        subchildren.push_back(make<AnnotationWhenArraySizeGreater>(
+            true, context, schema_context, relative_dynamic_context,
+            ValueIndexedJSON{cursor,
+                             sourcemeta::jsontoolkit::JSON{cursor - 1}}));
       }
 
-      children.push_back(make<SchemaCompilerLogicalWhenArraySizeGreater>(
+      children.push_back(make<LogicalWhenArraySizeGreater>(
           false, context, schema_context, relative_dynamic_context,
-          SchemaCompilerValueUnsignedInteger{cursor - 1},
-          std::move(subchildren)));
+          ValueUnsignedInteger{cursor - 1}, std::move(subchildren)));
     } else {
       if (annotate) {
-        subchildren.push_back(make<SchemaCompilerAnnotationEmit>(
+        subchildren.push_back(make<AnnotationEmit>(
             true, context, schema_context, relative_dynamic_context,
             sourcemeta::jsontoolkit::JSON{cursor - 1}));
       }
 
-      children.push_back(make<SchemaCompilerLogicalWhenArraySizeEqual>(
+      children.push_back(make<LogicalWhenArraySizeEqual>(
           false, context, schema_context, relative_dynamic_context,
-          SchemaCompilerValueUnsignedInteger{cursor}, std::move(subchildren)));
+          ValueUnsignedInteger{cursor}, std::move(subchildren)));
     }
   }
 
-  return {make<SchemaCompilerLogicalWhenType>(
-      true, context, schema_context, dynamic_context,
-      sourcemeta::jsontoolkit::JSON::Type::Array, std::move(children))};
+  return {make<LogicalWhenType>(true, context, schema_context, dynamic_context,
+                                sourcemeta::jsontoolkit::JSON::Type::Array,
+                                std::move(children))};
 }
 
 auto compiler_draft4_applicator_items_conditional_annotation(
-    const SchemaCompilerContext &context,
-    const SchemaCompilerSchemaContext &schema_context,
-    const SchemaCompilerDynamicContext &dynamic_context, const bool annotate)
-    -> SchemaCompilerTemplate {
+    const Context &context, const SchemaContext &schema_context,
+    const DynamicContext &dynamic_context, const bool annotate) -> Template {
   if (schema_context.schema.defines("type") &&
       schema_context.schema.at("type").is_string() &&
       schema_context.schema.at("type").to_string() != "array") {
@@ -964,25 +906,24 @@ auto compiler_draft4_applicator_items_conditional_annotation(
 
   if (is_schema(schema_context.schema.at(dynamic_context.keyword))) {
     if (annotate) {
-      SchemaCompilerTemplate children;
-      children.push_back(make<SchemaCompilerLoopItems>(
+      Template children;
+      children.push_back(make<LoopItems>(
           true, context, schema_context, relative_dynamic_context,
-          SchemaCompilerValueUnsignedInteger{0},
+          ValueUnsignedInteger{0},
           compile(context, schema_context, relative_dynamic_context,
                   sourcemeta::jsontoolkit::empty_pointer,
                   sourcemeta::jsontoolkit::empty_pointer)));
-      children.push_back(make<SchemaCompilerAnnotationEmit>(
+      children.push_back(make<AnnotationEmit>(
           true, context, schema_context, relative_dynamic_context,
           sourcemeta::jsontoolkit::JSON{true}));
 
-      return {make<SchemaCompilerLogicalWhenType>(
+      return {make<LogicalWhenType>(
           false, context, schema_context, dynamic_context,
           sourcemeta::jsontoolkit::JSON::Type::Array, std::move(children))};
     }
 
-    return {make<SchemaCompilerLoopItems>(
-        true, context, schema_context, dynamic_context,
-        SchemaCompilerValueUnsignedInteger{0},
+    return {make<LoopItems>(
+        true, context, schema_context, dynamic_context, ValueUnsignedInteger{0},
         compile(context, schema_context, relative_dynamic_context,
                 sourcemeta::jsontoolkit::empty_pointer,
                 sourcemeta::jsontoolkit::empty_pointer))};
@@ -992,49 +933,45 @@ auto compiler_draft4_applicator_items_conditional_annotation(
                                                 dynamic_context, annotate);
 }
 
-auto compiler_draft4_applicator_items(
-    const SchemaCompilerContext &context,
-    const SchemaCompilerSchemaContext &schema_context,
-    const SchemaCompilerDynamicContext &dynamic_context)
-    -> SchemaCompilerTemplate {
+auto compiler_draft4_applicator_items(const Context &context,
+                                      const SchemaContext &schema_context,
+                                      const DynamicContext &dynamic_context)
+    -> Template {
   return compiler_draft4_applicator_items_conditional_annotation(
       context, schema_context, dynamic_context, false);
 }
 
 auto compiler_draft4_applicator_additionalitems_from_cursor(
-    const SchemaCompilerContext &context,
-    const SchemaCompilerSchemaContext &schema_context,
-    const SchemaCompilerDynamicContext &dynamic_context,
-    const std::size_t cursor, const bool annotate) -> SchemaCompilerTemplate {
+    const Context &context, const SchemaContext &schema_context,
+    const DynamicContext &dynamic_context, const std::size_t cursor,
+    const bool annotate) -> Template {
   if (schema_context.schema.defines("type") &&
       schema_context.schema.at("type").is_string() &&
       schema_context.schema.at("type").to_string() != "array") {
     return {};
   }
 
-  SchemaCompilerTemplate children{make<SchemaCompilerLoopItems>(
-      true, context, schema_context, relative_dynamic_context,
-      SchemaCompilerValueUnsignedInteger{cursor},
-      compile(context, schema_context, relative_dynamic_context,
-              sourcemeta::jsontoolkit::empty_pointer,
-              sourcemeta::jsontoolkit::empty_pointer))};
+  Template children{
+      make<LoopItems>(true, context, schema_context, relative_dynamic_context,
+                      ValueUnsignedInteger{cursor},
+                      compile(context, schema_context, relative_dynamic_context,
+                              sourcemeta::jsontoolkit::empty_pointer,
+                              sourcemeta::jsontoolkit::empty_pointer))};
 
   if (annotate) {
-    children.push_back(make<SchemaCompilerAnnotationEmit>(
+    children.push_back(make<AnnotationEmit>(
         true, context, schema_context, relative_dynamic_context,
         sourcemeta::jsontoolkit::JSON{true}));
   }
 
-  return {make<SchemaCompilerLogicalWhenArraySizeGreater>(
+  return {make<LogicalWhenArraySizeGreater>(
       false, context, schema_context, dynamic_context,
-      SchemaCompilerValueUnsignedInteger{cursor}, std::move(children))};
+      ValueUnsignedInteger{cursor}, std::move(children))};
 }
 
 auto compiler_draft4_applicator_additionalitems_conditional_annotation(
-    const SchemaCompilerContext &context,
-    const SchemaCompilerSchemaContext &schema_context,
-    const SchemaCompilerDynamicContext &dynamic_context, const bool annotate)
-    -> SchemaCompilerTemplate {
+    const Context &context, const SchemaContext &schema_context,
+    const DynamicContext &dynamic_context, const bool annotate) -> Template {
   if (schema_context.schema.defines("type") &&
       schema_context.schema.at("type").is_string() &&
       schema_context.schema.at("type").to_string() != "array") {
@@ -1059,19 +996,15 @@ auto compiler_draft4_applicator_additionalitems_conditional_annotation(
 }
 
 auto compiler_draft4_applicator_additionalitems(
-    const SchemaCompilerContext &context,
-    const SchemaCompilerSchemaContext &schema_context,
-    const SchemaCompilerDynamicContext &dynamic_context)
-    -> SchemaCompilerTemplate {
+    const Context &context, const SchemaContext &schema_context,
+    const DynamicContext &dynamic_context) -> Template {
   return compiler_draft4_applicator_additionalitems_conditional_annotation(
       context, schema_context, dynamic_context, false);
 }
 
 auto compiler_draft4_applicator_dependencies(
-    const SchemaCompilerContext &context,
-    const SchemaCompilerSchemaContext &schema_context,
-    const SchemaCompilerDynamicContext &dynamic_context)
-    -> SchemaCompilerTemplate {
+    const Context &context, const SchemaContext &schema_context,
+    const DynamicContext &dynamic_context) -> Template {
   if (schema_context.schema.defines("type") &&
       schema_context.schema.at("type").is_string() &&
       schema_context.schema.at("type").to_string() != "object") {
@@ -1079,16 +1012,16 @@ auto compiler_draft4_applicator_dependencies(
   }
 
   assert(schema_context.schema.at(dynamic_context.keyword).is_object());
-  SchemaCompilerTemplate children;
-  SchemaCompilerValueStringMap dependencies;
+  Template children;
+  ValueStringMap dependencies;
 
   for (const auto &entry :
        schema_context.schema.at(dynamic_context.keyword).as_object()) {
     if (is_schema(entry.second)) {
       if (!entry.second.is_boolean() || !entry.second.to_boolean()) {
-        children.push_back(make<SchemaCompilerLogicalWhenDefines>(
+        children.push_back(make<LogicalWhenDefines>(
             false, context, schema_context, relative_dynamic_context,
-            SchemaCompilerValueString{entry.first},
+            ValueString{entry.first},
             compile(context, schema_context, relative_dynamic_context,
                     {entry.first}, sourcemeta::jsontoolkit::empty_pointer)));
       }
@@ -1106,25 +1039,24 @@ auto compiler_draft4_applicator_dependencies(
   }
 
   if (!dependencies.empty()) {
-    children.push_back(make<SchemaCompilerAssertionPropertyDependencies>(
+    children.push_back(make<AssertionPropertyDependencies>(
         false, context, schema_context, relative_dynamic_context,
         std::move(dependencies)));
   }
 
-  return {make<SchemaCompilerLogicalWhenType>(
-      true, context, schema_context, dynamic_context,
-      sourcemeta::jsontoolkit::JSON::Type::Object, std::move(children))};
+  return {make<LogicalWhenType>(true, context, schema_context, dynamic_context,
+                                sourcemeta::jsontoolkit::JSON::Type::Object,
+                                std::move(children))};
 }
 
-auto compiler_draft4_validation_enum(
-    const SchemaCompilerContext &context,
-    const SchemaCompilerSchemaContext &schema_context,
-    const SchemaCompilerDynamicContext &dynamic_context)
-    -> SchemaCompilerTemplate {
+auto compiler_draft4_validation_enum(const Context &context,
+                                     const SchemaContext &schema_context,
+                                     const DynamicContext &dynamic_context)
+    -> Template {
   assert(schema_context.schema.at(dynamic_context.keyword).is_array());
 
   if (schema_context.schema.at(dynamic_context.keyword).size() == 1) {
-    return {make<SchemaCompilerAssertionEqual>(
+    return {make<AssertionEqual>(
         true, context, schema_context, dynamic_context,
         sourcemeta::jsontoolkit::JSON{
             schema_context.schema.at(dynamic_context.keyword).front()})};
@@ -1136,15 +1068,13 @@ auto compiler_draft4_validation_enum(
     options.push_back(option);
   }
 
-  return {make<SchemaCompilerAssertionEqualsAny>(
-      true, context, schema_context, dynamic_context, std::move(options))};
+  return {make<AssertionEqualsAny>(true, context, schema_context,
+                                   dynamic_context, std::move(options))};
 }
 
 auto compiler_draft4_validation_uniqueitems(
-    const SchemaCompilerContext &context,
-    const SchemaCompilerSchemaContext &schema_context,
-    const SchemaCompilerDynamicContext &dynamic_context)
-    -> SchemaCompilerTemplate {
+    const Context &context, const SchemaContext &schema_context,
+    const DynamicContext &dynamic_context) -> Template {
   if (!schema_context.schema.at(dynamic_context.keyword).is_boolean() ||
       !schema_context.schema.at(dynamic_context.keyword).to_boolean()) {
     return {};
@@ -1156,16 +1086,14 @@ auto compiler_draft4_validation_uniqueitems(
     return {};
   }
 
-  return {make<SchemaCompilerAssertionUnique>(true, context, schema_context,
-                                              dynamic_context,
-                                              SchemaCompilerValueNone{})};
+  return {make<AssertionUnique>(true, context, schema_context, dynamic_context,
+                                ValueNone{})};
 }
 
-auto compiler_draft4_validation_maxlength(
-    const SchemaCompilerContext &context,
-    const SchemaCompilerSchemaContext &schema_context,
-    const SchemaCompilerDynamicContext &dynamic_context)
-    -> SchemaCompilerTemplate {
+auto compiler_draft4_validation_maxlength(const Context &context,
+                                          const SchemaContext &schema_context,
+                                          const DynamicContext &dynamic_context)
+    -> Template {
   assert(schema_context.schema.at(dynamic_context.keyword).is_integer() ||
          schema_context.schema.at(dynamic_context.keyword).is_integer_real());
   assert(schema_context.schema.at(dynamic_context.keyword).is_positive());
@@ -1177,26 +1105,25 @@ auto compiler_draft4_validation_maxlength(
   }
 
   // We'll handle it at the type level as an optimization
-  if (context.mode == SchemaCompilerMode::FastValidation &&
+  if (context.mode == Mode::FastValidation &&
       schema_context.schema.defines("type") &&
       schema_context.schema.at("type").is_string() &&
       schema_context.schema.at("type").to_string() == "string") {
     return {};
   }
 
-  return {make<SchemaCompilerAssertionStringSizeLess>(
+  return {make<AssertionStringSizeLess>(
       true, context, schema_context, dynamic_context,
-      SchemaCompilerValueUnsignedInteger{
+      ValueUnsignedInteger{
           static_cast<unsigned long>(
               schema_context.schema.at(dynamic_context.keyword).as_integer()) +
           1})};
 }
 
-auto compiler_draft4_validation_minlength(
-    const SchemaCompilerContext &context,
-    const SchemaCompilerSchemaContext &schema_context,
-    const SchemaCompilerDynamicContext &dynamic_context)
-    -> SchemaCompilerTemplate {
+auto compiler_draft4_validation_minlength(const Context &context,
+                                          const SchemaContext &schema_context,
+                                          const DynamicContext &dynamic_context)
+    -> Template {
   assert(schema_context.schema.at(dynamic_context.keyword).is_integer() ||
          schema_context.schema.at(dynamic_context.keyword).is_integer_real());
   assert(schema_context.schema.at(dynamic_context.keyword).is_positive());
@@ -1208,26 +1135,25 @@ auto compiler_draft4_validation_minlength(
   }
 
   // We'll handle it at the type level as an optimization
-  if (context.mode == SchemaCompilerMode::FastValidation &&
+  if (context.mode == Mode::FastValidation &&
       schema_context.schema.defines("type") &&
       schema_context.schema.at("type").is_string() &&
       schema_context.schema.at("type").to_string() == "string") {
     return {};
   }
 
-  return {make<SchemaCompilerAssertionStringSizeGreater>(
+  return {make<AssertionStringSizeGreater>(
       true, context, schema_context, dynamic_context,
-      SchemaCompilerValueUnsignedInteger{
+      ValueUnsignedInteger{
           static_cast<unsigned long>(
               schema_context.schema.at(dynamic_context.keyword).as_integer()) -
           1})};
 }
 
-auto compiler_draft4_validation_maxitems(
-    const SchemaCompilerContext &context,
-    const SchemaCompilerSchemaContext &schema_context,
-    const SchemaCompilerDynamicContext &dynamic_context)
-    -> SchemaCompilerTemplate {
+auto compiler_draft4_validation_maxitems(const Context &context,
+                                         const SchemaContext &schema_context,
+                                         const DynamicContext &dynamic_context)
+    -> Template {
   assert(schema_context.schema.at(dynamic_context.keyword).is_integer() ||
          schema_context.schema.at(dynamic_context.keyword).is_integer_real());
   assert(schema_context.schema.at(dynamic_context.keyword).is_positive());
@@ -1239,26 +1165,25 @@ auto compiler_draft4_validation_maxitems(
   }
 
   // We'll handle it at the type level as an optimization
-  if (context.mode == SchemaCompilerMode::FastValidation &&
+  if (context.mode == Mode::FastValidation &&
       schema_context.schema.defines("type") &&
       schema_context.schema.at("type").is_string() &&
       schema_context.schema.at("type").to_string() == "array") {
     return {};
   }
 
-  return {make<SchemaCompilerAssertionArraySizeLess>(
+  return {make<AssertionArraySizeLess>(
       true, context, schema_context, dynamic_context,
-      SchemaCompilerValueUnsignedInteger{
+      ValueUnsignedInteger{
           static_cast<unsigned long>(
               schema_context.schema.at(dynamic_context.keyword).as_integer()) +
           1})};
 }
 
-auto compiler_draft4_validation_minitems(
-    const SchemaCompilerContext &context,
-    const SchemaCompilerSchemaContext &schema_context,
-    const SchemaCompilerDynamicContext &dynamic_context)
-    -> SchemaCompilerTemplate {
+auto compiler_draft4_validation_minitems(const Context &context,
+                                         const SchemaContext &schema_context,
+                                         const DynamicContext &dynamic_context)
+    -> Template {
   assert(schema_context.schema.at(dynamic_context.keyword).is_integer() ||
          schema_context.schema.at(dynamic_context.keyword).is_integer_real());
   assert(schema_context.schema.at(dynamic_context.keyword).is_positive());
@@ -1270,26 +1195,24 @@ auto compiler_draft4_validation_minitems(
   }
 
   // We'll handle it at the type level as an optimization
-  if (context.mode == SchemaCompilerMode::FastValidation &&
+  if (context.mode == Mode::FastValidation &&
       schema_context.schema.defines("type") &&
       schema_context.schema.at("type").is_string() &&
       schema_context.schema.at("type").to_string() == "array") {
     return {};
   }
 
-  return {make<SchemaCompilerAssertionArraySizeGreater>(
+  return {make<AssertionArraySizeGreater>(
       true, context, schema_context, dynamic_context,
-      SchemaCompilerValueUnsignedInteger{
+      ValueUnsignedInteger{
           static_cast<unsigned long>(
               schema_context.schema.at(dynamic_context.keyword).as_integer()) -
           1})};
 }
 
 auto compiler_draft4_validation_maxproperties(
-    const SchemaCompilerContext &context,
-    const SchemaCompilerSchemaContext &schema_context,
-    const SchemaCompilerDynamicContext &dynamic_context)
-    -> SchemaCompilerTemplate {
+    const Context &context, const SchemaContext &schema_context,
+    const DynamicContext &dynamic_context) -> Template {
   assert(schema_context.schema.at(dynamic_context.keyword).is_integer() ||
          schema_context.schema.at(dynamic_context.keyword).is_integer_real());
   assert(schema_context.schema.at(dynamic_context.keyword).is_positive());
@@ -1301,26 +1224,24 @@ auto compiler_draft4_validation_maxproperties(
   }
 
   // We'll handle it at the type level as an optimization
-  if (context.mode == SchemaCompilerMode::FastValidation &&
+  if (context.mode == Mode::FastValidation &&
       schema_context.schema.defines("type") &&
       schema_context.schema.at("type").is_string() &&
       schema_context.schema.at("type").to_string() == "object") {
     return {};
   }
 
-  return {make<SchemaCompilerAssertionObjectSizeLess>(
+  return {make<AssertionObjectSizeLess>(
       true, context, schema_context, dynamic_context,
-      SchemaCompilerValueUnsignedInteger{
+      ValueUnsignedInteger{
           static_cast<unsigned long>(
               schema_context.schema.at(dynamic_context.keyword).as_integer()) +
           1})};
 }
 
 auto compiler_draft4_validation_minproperties(
-    const SchemaCompilerContext &context,
-    const SchemaCompilerSchemaContext &schema_context,
-    const SchemaCompilerDynamicContext &dynamic_context)
-    -> SchemaCompilerTemplate {
+    const Context &context, const SchemaContext &schema_context,
+    const DynamicContext &dynamic_context) -> Template {
   assert(schema_context.schema.at(dynamic_context.keyword).is_integer() ||
          schema_context.schema.at(dynamic_context.keyword).is_integer_real());
   assert(schema_context.schema.at(dynamic_context.keyword).is_positive());
@@ -1332,26 +1253,25 @@ auto compiler_draft4_validation_minproperties(
   }
 
   // We'll handle it at the type level as an optimization
-  if (context.mode == SchemaCompilerMode::FastValidation &&
+  if (context.mode == Mode::FastValidation &&
       schema_context.schema.defines("type") &&
       schema_context.schema.at("type").is_string() &&
       schema_context.schema.at("type").to_string() == "object") {
     return {};
   }
 
-  return {make<SchemaCompilerAssertionObjectSizeGreater>(
+  return {make<AssertionObjectSizeGreater>(
       true, context, schema_context, dynamic_context,
-      SchemaCompilerValueUnsignedInteger{
+      ValueUnsignedInteger{
           static_cast<unsigned long>(
               schema_context.schema.at(dynamic_context.keyword).as_integer()) -
           1})};
 }
 
-auto compiler_draft4_validation_maximum(
-    const SchemaCompilerContext &context,
-    const SchemaCompilerSchemaContext &schema_context,
-    const SchemaCompilerDynamicContext &dynamic_context)
-    -> SchemaCompilerTemplate {
+auto compiler_draft4_validation_maximum(const Context &context,
+                                        const SchemaContext &schema_context,
+                                        const DynamicContext &dynamic_context)
+    -> Template {
   assert(schema_context.schema.at(dynamic_context.keyword).is_number());
 
   if (schema_context.schema.defines("type") &&
@@ -1368,23 +1288,22 @@ auto compiler_draft4_validation_maximum(
   if (schema_context.schema.defines("exclusiveMaximum") &&
       schema_context.schema.at("exclusiveMaximum").is_boolean() &&
       schema_context.schema.at("exclusiveMaximum").to_boolean()) {
-    return {make<SchemaCompilerAssertionLess>(
+    return {make<AssertionLess>(
         true, context, schema_context, dynamic_context,
         sourcemeta::jsontoolkit::JSON{
             schema_context.schema.at(dynamic_context.keyword)})};
   } else {
-    return {make<SchemaCompilerAssertionLessEqual>(
+    return {make<AssertionLessEqual>(
         true, context, schema_context, dynamic_context,
         sourcemeta::jsontoolkit::JSON{
             schema_context.schema.at(dynamic_context.keyword)})};
   }
 }
 
-auto compiler_draft4_validation_minimum(
-    const SchemaCompilerContext &context,
-    const SchemaCompilerSchemaContext &schema_context,
-    const SchemaCompilerDynamicContext &dynamic_context)
-    -> SchemaCompilerTemplate {
+auto compiler_draft4_validation_minimum(const Context &context,
+                                        const SchemaContext &schema_context,
+                                        const DynamicContext &dynamic_context)
+    -> Template {
   assert(schema_context.schema.at(dynamic_context.keyword).is_number());
 
   if (schema_context.schema.defines("type") &&
@@ -1401,12 +1320,12 @@ auto compiler_draft4_validation_minimum(
   if (schema_context.schema.defines("exclusiveMinimum") &&
       schema_context.schema.at("exclusiveMinimum").is_boolean() &&
       schema_context.schema.at("exclusiveMinimum").to_boolean()) {
-    return {make<SchemaCompilerAssertionGreater>(
+    return {make<AssertionGreater>(
         true, context, schema_context, dynamic_context,
         sourcemeta::jsontoolkit::JSON{
             schema_context.schema.at(dynamic_context.keyword)})};
   } else {
-    return {make<SchemaCompilerAssertionGreaterEqual>(
+    return {make<AssertionGreaterEqual>(
         true, context, schema_context, dynamic_context,
         sourcemeta::jsontoolkit::JSON{
             schema_context.schema.at(dynamic_context.keyword)})};
@@ -1414,10 +1333,8 @@ auto compiler_draft4_validation_minimum(
 }
 
 auto compiler_draft4_validation_multipleof(
-    const SchemaCompilerContext &context,
-    const SchemaCompilerSchemaContext &schema_context,
-    const SchemaCompilerDynamicContext &dynamic_context)
-    -> SchemaCompilerTemplate {
+    const Context &context, const SchemaContext &schema_context,
+    const DynamicContext &dynamic_context) -> Template {
   assert(schema_context.schema.at(dynamic_context.keyword).is_number());
   assert(schema_context.schema.at(dynamic_context.keyword).is_positive());
 
@@ -1428,7 +1345,7 @@ auto compiler_draft4_validation_multipleof(
     return {};
   }
 
-  return {make<SchemaCompilerAssertionDivisible>(
+  return {make<AssertionDivisible>(
       true, context, schema_context, dynamic_context,
       sourcemeta::jsontoolkit::JSON{
           schema_context.schema.at(dynamic_context.keyword)})};

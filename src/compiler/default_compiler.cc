@@ -11,10 +11,10 @@
 #include <string>  // std::string
 
 auto sourcemeta::blaze::default_schema_compiler(
-    const sourcemeta::blaze::SchemaCompilerContext &context,
-    const sourcemeta::blaze::SchemaCompilerSchemaContext &schema_context,
-    const sourcemeta::blaze::SchemaCompilerDynamicContext &dynamic_context)
-    -> sourcemeta::blaze::SchemaCompilerTemplate {
+    const sourcemeta::blaze::Context &context,
+    const sourcemeta::blaze::SchemaContext &schema_context,
+    const sourcemeta::blaze::DynamicContext &dynamic_context)
+    -> sourcemeta::blaze::Template {
   assert(!dynamic_context.keyword.empty());
 
   static std::set<std::string> SUPPORTED_VOCABULARIES{
@@ -510,7 +510,7 @@ auto sourcemeta::blaze::default_schema_compiler(
       return {};
     }
 
-    if (context.mode == SchemaCompilerMode::FastValidation) {
+    if (context.mode == Mode::FastValidation) {
       return {};
     }
 

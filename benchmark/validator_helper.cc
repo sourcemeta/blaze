@@ -35,9 +35,8 @@ auto main(int argc, char **argv) noexcept -> int {
 
   const sourcemeta::jsontoolkit::JSON template_json{
       sourcemeta::blaze::to_json(schema_template)};
-  sourcemeta::jsontoolkit::prettify(
-      template_json, std::cout,
-      sourcemeta::blaze::compiler_template_format_compare);
+  sourcemeta::jsontoolkit::prettify(template_json, std::cout,
+                                    sourcemeta::blaze::template_format_compare);
   std::cout << std::endl;
 
   std::cout << compile_duration.count() << "ms\n";

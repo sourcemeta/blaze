@@ -23,13 +23,11 @@ namespace sourcemeta::blaze {
 
 /// @ingroup jsonschema
 /// An error that represents a schema compilation failure event
-class SOURCEMETA_BLAZE_COMPILER_EXPORT SchemaCompilationError
-    : public std::exception {
+class SOURCEMETA_BLAZE_COMPILER_EXPORT CompilerError : public std::exception {
 public:
-  SchemaCompilationError(
-      const sourcemeta::jsontoolkit::URI &base,
-      const sourcemeta::jsontoolkit::Pointer &schema_location,
-      std::string message)
+  CompilerError(const sourcemeta::jsontoolkit::URI &base,
+                const sourcemeta::jsontoolkit::Pointer &schema_location,
+                std::string message)
       : base_{base}, schema_location_{schema_location},
         message_{std::move(message)} {}
   [[nodiscard]] auto what() const noexcept -> const char * override {

@@ -9,16 +9,14 @@ namespace internal {
 using namespace sourcemeta::blaze;
 
 // TODO: Don't generate `if` if neither `then` nor `else` is defined
-auto compiler_draft7_applicator_if(
-    const SchemaCompilerContext &context,
-    const SchemaCompilerSchemaContext &schema_context,
-    const SchemaCompilerDynamicContext &dynamic_context)
-    -> SchemaCompilerTemplate {
+auto compiler_draft7_applicator_if(const Context &context,
+                                   const SchemaContext &schema_context,
+                                   const DynamicContext &dynamic_context)
+    -> Template {
   // `if`
-  SchemaCompilerTemplate children{
-      compile(context, schema_context, dynamic_context,
-              sourcemeta::jsontoolkit::empty_pointer,
-              sourcemeta::jsontoolkit::empty_pointer)};
+  Template children{compile(context, schema_context, dynamic_context,
+                            sourcemeta::jsontoolkit::empty_pointer,
+                            sourcemeta::jsontoolkit::empty_pointer)};
 
   // `then`
   std::size_t then_cursor{0};
@@ -59,7 +57,7 @@ auto compiler_draft7_applicator_if(
     }
   }
 
-  return {make<SchemaCompilerLogicalCondition>(
+  return {make<LogicalCondition>(
       false, context,
       {schema_context.relative_pointer.initial(), schema_context.schema,
        schema_context.vocabularies, schema_context.base, schema_context.labels,
@@ -71,20 +69,16 @@ auto compiler_draft7_applicator_if(
 // We handle `then` as part of `if`
 // TODO: Stop collapsing this keyword on exhaustive mode for debuggability
 // purposes
-auto compiler_draft7_applicator_then(const SchemaCompilerContext &,
-                                     const SchemaCompilerSchemaContext &,
-                                     const SchemaCompilerDynamicContext &)
-    -> SchemaCompilerTemplate {
+auto compiler_draft7_applicator_then(const Context &, const SchemaContext &,
+                                     const DynamicContext &) -> Template {
   return {};
 }
 
 // We handle `else` as part of `if`
 // TODO: Stop collapsing this keyword on exhaustive mode for debuggability
 // purposes
-auto compiler_draft7_applicator_else(const SchemaCompilerContext &,
-                                     const SchemaCompilerSchemaContext &,
-                                     const SchemaCompilerDynamicContext &)
-    -> SchemaCompilerTemplate {
+auto compiler_draft7_applicator_else(const Context &, const SchemaContext &,
+                                     const DynamicContext &) -> Template {
   return {};
 }
 

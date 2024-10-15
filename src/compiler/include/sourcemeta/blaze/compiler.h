@@ -30,7 +30,7 @@ namespace sourcemeta::blaze {
 /// @ingroup compiler
 /// The schema compiler context is the current subschema information you have at
 /// your disposal to implement a keyword
-struct SchemaCompilerSchemaContext {
+struct SchemaContext {
   /// The schema location relative to the base URI
   const sourcemeta::jsontoolkit::Pointer &relative_pointer;
   /// The current subschema
@@ -48,7 +48,7 @@ struct SchemaCompilerSchemaContext {
 /// @ingroup compiler
 /// The dynamic compiler context is the read-write information you have at your
 /// disposal to implement a keyword
-struct SchemaCompilerDynamicContext {
+struct DynamicContext {
   /// The schema keyword
   const std::string &keyword;
   /// The schema base keyword path
@@ -58,20 +58,19 @@ struct SchemaCompilerDynamicContext {
 };
 
 #if !defined(DOXYGEN)
-struct SchemaCompilerContext;
+struct Context;
 #endif
 
 /// @ingroup compiler
 /// A compiler is represented as a function that maps a keyword compiler
 /// contexts into a compiler template. You can provide your own to implement
 /// your own keywords
-using SchemaCompiler = std::function<SchemaCompilerTemplate(
-    const SchemaCompilerContext &, const SchemaCompilerSchemaContext &,
-    const SchemaCompilerDynamicContext &)>;
+using Compiler = std::function<Template(const Context &, const SchemaContext &,
+                                        const DynamicContext &)>;
 
 /// @ingroup evaluator
 /// Represents the mode of compilation
-enum class SchemaCompilerMode : std::uint8_t {
+enum class Mode : std::uint8_t {
   /// Attempt to get to a boolean result as fast as possible
   FastValidation,
   /// Perform exhaustive evaluation, including annotations
@@ -82,7 +81,7 @@ enum class SchemaCompilerMode : std::uint8_t {
 /// The static compiler context is the information you have at your
 /// disposal to implement a keyword that will never change throughout
 /// the compilation process
-struct SchemaCompilerContext {
+struct Context {
   /// The root schema resource
   const sourcemeta::jsontoolkit::JSON &root;
   /// The reference frame of the entire schema
@@ -96,9 +95,9 @@ struct SchemaCompilerContext {
   /// The schema resolver in use
   const sourcemeta::jsontoolkit::SchemaResolver &resolver;
   /// The schema compiler in use
-  const SchemaCompiler &compiler;
+  const Compiler &compiler;
   /// The mode of the schema compiler
-  const SchemaCompilerMode mode;
+  const Mode mode;
   /// Whether the schema makes use of dynamic scoping
   const bool uses_dynamic_scopes;
   /// Whether the schema makes use of unevaluated properties
@@ -135,7 +134,7 @@ struct SchemaCompilerContext {
 ///
 /// const sourcemeta::jsontoolkit::JSON instance{5};
 ///
-/// sourcemeta::blaze::SchemaCompilerErrorTraceOutput output;
+/// sourcemeta::blaze::ErrorTraceOutput output;
 /// const auto result{sourcemeta::blaze::evaluate(
 ///   schema_template, instance, std::ref(output))};
 ///
@@ -149,18 +148,15 @@ struct SchemaCompilerContext {
 ///   }
 /// }
 /// ```
-class SOURCEMETA_BLAZE_COMPILER_EXPORT SchemaCompilerErrorTraceOutput {
+class SOURCEMETA_BLAZE_COMPILER_EXPORT ErrorTraceOutput {
 public:
-  SchemaCompilerErrorTraceOutput(
-      const sourcemeta::jsontoolkit::JSON &instance,
-      const sourcemeta::jsontoolkit::WeakPointer &base =
-          sourcemeta::jsontoolkit::empty_weak_pointer);
+  ErrorTraceOutput(const sourcemeta::jsontoolkit::JSON &instance,
+                   const sourcemeta::jsontoolkit::WeakPointer &base =
+                       sourcemeta::jsontoolkit::empty_weak_pointer);
 
   // Prevent accidental copies
-  SchemaCompilerErrorTraceOutput(const SchemaCompilerErrorTraceOutput &) =
-      delete;
-  auto operator=(const SchemaCompilerErrorTraceOutput &)
-      -> SchemaCompilerErrorTraceOutput & = delete;
+  ErrorTraceOutput(const ErrorTraceOutput &) = delete;
+  auto operator=(const ErrorTraceOutput &) -> ErrorTraceOutput & = delete;
 
   struct Entry {
     const std::string message;
@@ -168,8 +164,8 @@ public:
     const sourcemeta::jsontoolkit::WeakPointer evaluate_path;
   };
 
-  auto operator()(const SchemaCompilerEvaluationType type, const bool result,
-                  const SchemaCompilerTemplate::value_type &step,
+  auto operator()(const EvaluationType type, const bool result,
+                  const Template::value_type &step,
                   const sourcemeta::jsontoolkit::WeakPointer &evaluate_path,
                   const sourcemeta::jsontoolkit::WeakPointer &instance_location,
                   const sourcemeta::jsontoolkit::JSON &annotation) -> void;
@@ -202,7 +198,7 @@ private:
 /// This function translates a step execution into a human-readable string.
 /// Useful as the building block for producing user-friendly evaluation results.
 auto SOURCEMETA_BLAZE_COMPILER_EXPORT
-describe(const bool valid, const SchemaCompilerTemplate::value_type &step,
+describe(const bool valid, const Template::value_type &step,
          const sourcemeta::jsontoolkit::WeakPointer &evaluate_path,
          const sourcemeta::jsontoolkit::WeakPointer &instance_location,
          const sourcemeta::jsontoolkit::JSON &instance,
@@ -212,8 +208,7 @@ describe(const bool valid, const SchemaCompilerTemplate::value_type &step,
 /// A default compiler that aims to implement every keyword for official JSON
 /// Schema dialects.
 auto SOURCEMETA_BLAZE_COMPILER_EXPORT default_schema_compiler(
-    const SchemaCompilerContext &, const SchemaCompilerSchemaContext &,
-    const SchemaCompilerDynamicContext &) -> SchemaCompilerTemplate;
+    const Context &, const SchemaContext &, const DynamicContext &) -> Template;
 
 /// @ingroup compiler
 ///
@@ -243,10 +238,9 @@ auto SOURCEMETA_BLAZE_COMPILER_EXPORT
 compile(const sourcemeta::jsontoolkit::JSON &schema,
         const sourcemeta::jsontoolkit::SchemaWalker &walker,
         const sourcemeta::jsontoolkit::SchemaResolver &resolver,
-        const SchemaCompiler &compiler,
-        const SchemaCompilerMode mode = SchemaCompilerMode::FastValidation,
+        const Compiler &compiler, const Mode mode = Mode::FastValidation,
         const std::optional<std::string> &default_dialect = std::nullopt)
-    -> SchemaCompilerTemplate;
+    -> Template;
 
 /// @ingroup compiler
 ///
@@ -257,14 +251,12 @@ compile(const sourcemeta::jsontoolkit::JSON &schema,
 /// directly, but instead as a building block for supporting applicators on
 /// compiler functions.
 auto SOURCEMETA_BLAZE_COMPILER_EXPORT
-compile(const SchemaCompilerContext &context,
-        const SchemaCompilerSchemaContext &schema_context,
-        const SchemaCompilerDynamicContext &dynamic_context,
+compile(const Context &context, const SchemaContext &schema_context,
+        const DynamicContext &dynamic_context,
         const sourcemeta::jsontoolkit::Pointer &schema_suffix,
         const sourcemeta::jsontoolkit::Pointer &instance_suffix =
             sourcemeta::jsontoolkit::empty_pointer,
-        const std::optional<std::string> &uri = std::nullopt)
-    -> SchemaCompilerTemplate;
+        const std::optional<std::string> &uri = std::nullopt) -> Template;
 
 /// @ingroup compiler
 ///
@@ -295,8 +287,8 @@ compile(const SchemaCompilerContext &context,
 /// sourcemeta::jsontoolkit::prettify(result, std::cout);
 /// std::cout << "\n";
 /// ```
-auto SOURCEMETA_BLAZE_COMPILER_EXPORT
-to_json(const SchemaCompilerTemplate &steps) -> sourcemeta::jsontoolkit::JSON;
+auto SOURCEMETA_BLAZE_COMPILER_EXPORT to_json(const Template &steps)
+    -> sourcemeta::jsontoolkit::JSON;
 
 /// @ingroup compiler
 ///
@@ -326,9 +318,9 @@ to_json(const SchemaCompilerTemplate &steps) -> sourcemeta::jsontoolkit::JSON;
 ///     sourcemeta::blaze::to_json(schema_template)};
 ///
 /// sourcemeta::jsontoolkit::prettify(result, std::cout,
-/// compiler_template_format_compare); std::cout << "\n";
+/// template_format_compare); std::cout << "\n";
 /// ```
-auto SOURCEMETA_BLAZE_COMPILER_EXPORT compiler_template_format_compare(
+auto SOURCEMETA_BLAZE_COMPILER_EXPORT template_format_compare(
     const sourcemeta::jsontoolkit::JSON::String &left,
     const sourcemeta::jsontoolkit::JSON::String &right) -> bool;
 

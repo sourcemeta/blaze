@@ -882,7 +882,7 @@ TEST(Evaluator_draft4, ref_14) {
 
   const sourcemeta::jsontoolkit::JSON instance{true};
   EXPECT_THROW(sourcemeta::blaze::evaluate(compiled_schema, instance),
-               sourcemeta::blaze::SchemaEvaluationError);
+               sourcemeta::blaze::EvaluationError);
 }
 
 TEST(Evaluator_draft4, properties_1) {
@@ -1322,7 +1322,7 @@ TEST(Evaluator_draft4, pattern_4) {
                                sourcemeta::blaze::default_schema_compiler);
     // The pattern might succeed in some standard library implementations
     SUCCEED();
-  } catch (const sourcemeta::blaze::SchemaCompilationError &error) {
+  } catch (const sourcemeta::blaze::CompilerError &error) {
     EXPECT_STREQ(error.what(),
                  "Invalid regular expression: ^[a-zA-Z0-9\\/\\_]{1,32}$");
     EXPECT_EQ(error.location(), sourcemeta::jsontoolkit::Pointer({"pattern"}));
@@ -1351,7 +1351,7 @@ TEST(Evaluator_draft4, pattern_5) {
                                sourcemeta::blaze::default_schema_compiler);
     // The pattern might succeed in some standard library implementations
     SUCCEED();
-  } catch (const sourcemeta::blaze::SchemaCompilationError &error) {
+  } catch (const sourcemeta::blaze::CompilerError &error) {
     EXPECT_STREQ(error.what(),
                  "Invalid regular expression: ^[a-zA-Z0-9\\/\\_]{1,32}$");
     EXPECT_EQ(error.location(), sourcemeta::jsontoolkit::Pointer(
@@ -1382,7 +1382,7 @@ TEST(Evaluator_draft4, pattern_6) {
                                sourcemeta::blaze::default_schema_compiler);
     // The pattern might succeed in some standard library implementations
     SUCCEED();
-  } catch (const sourcemeta::blaze::SchemaCompilationError &error) {
+  } catch (const sourcemeta::blaze::CompilerError &error) {
     EXPECT_STREQ(error.what(),
                  "Invalid regular expression: ^[a-zA-Z0-9\\/\\_]{1,32}$");
     EXPECT_EQ(error.location(), sourcemeta::jsontoolkit::Pointer({"pattern"}));
@@ -1681,7 +1681,7 @@ TEST(Evaluator_draft4, patternProperties_9) {
                                sourcemeta::blaze::default_schema_compiler);
     // The pattern might succeed in some standard library implementations
     SUCCEED();
-  } catch (const sourcemeta::blaze::SchemaCompilationError &error) {
+  } catch (const sourcemeta::blaze::CompilerError &error) {
     EXPECT_STREQ(error.what(),
                  "Invalid regular expression: ^[a-zA-Z0-9\\_\\.\\-]*$");
     EXPECT_EQ(error.location(),

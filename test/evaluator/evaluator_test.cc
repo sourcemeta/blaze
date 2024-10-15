@@ -50,7 +50,7 @@ TEST(Evaluator, boolean_true) {
       schema, sourcemeta::jsontoolkit::default_schema_walker,
       sourcemeta::jsontoolkit::official_resolver,
       sourcemeta::blaze::default_schema_compiler,
-      sourcemeta::blaze::SchemaCompilerMode::FastValidation,
+      sourcemeta::blaze::Mode::FastValidation,
       "https://json-schema.org/draft/2020-12/schema")};
 
   const sourcemeta::jsontoolkit::JSON instance{"foo bar"};
@@ -65,7 +65,7 @@ TEST(Evaluator, boolean_false) {
       schema, sourcemeta::jsontoolkit::default_schema_walker,
       sourcemeta::jsontoolkit::official_resolver,
       sourcemeta::blaze::default_schema_compiler,
-      sourcemeta::blaze::SchemaCompilerMode::FastValidation,
+      sourcemeta::blaze::Mode::FastValidation,
       "https://json-schema.org/draft/2020-12/schema")};
 
   const sourcemeta::jsontoolkit::JSON instance{"foo bar"};

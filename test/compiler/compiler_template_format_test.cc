@@ -23,8 +23,8 @@ TEST(Compiler_template_format, example_1) {
   })JSON");
 
   std::ostringstream stream;
-  sourcemeta::jsontoolkit::prettify(
-      document, stream, sourcemeta::blaze::compiler_template_format_compare);
+  sourcemeta::jsontoolkit::prettify(document, stream,
+                                    sourcemeta::blaze::template_format_compare);
   EXPECT_EQ(stream.str(), R"JSON({
   "category": "annotation",
   "type": "public",

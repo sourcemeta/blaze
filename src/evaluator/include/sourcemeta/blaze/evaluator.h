@@ -28,7 +28,7 @@ namespace sourcemeta::blaze {
 
 /// @ingroup evaluator
 /// Represents the state of a step evaluation
-enum class SchemaCompilerEvaluationType : std::uint8_t { Pre, Post };
+enum class EvaluationType : std::uint8_t { Pre, Post };
 
 /// @ingroup evaluator
 /// A callback of this type is invoked after evaluating any keyword. The
@@ -43,9 +43,8 @@ enum class SchemaCompilerEvaluationType : std::uint8_t { Pre, Post };
 /// - The annotation result, if any (otherwise null)
 ///
 /// You can use this callback mechanism to implement arbitrary output formats.
-using SchemaCompilerEvaluationCallback =
-    std::function<void(const SchemaCompilerEvaluationType, bool,
-                       const SchemaCompilerTemplate::value_type &,
+using Callback =
+    std::function<void(const EvaluationType, bool, const Template::value_type &,
                        const sourcemeta::jsontoolkit::WeakPointer &,
                        const sourcemeta::jsontoolkit::WeakPointer &,
                        const sourcemeta::jsontoolkit::JSON &)>;
@@ -81,8 +80,8 @@ using SchemaCompilerEvaluationCallback =
 /// assert(result);
 /// ```
 auto SOURCEMETA_BLAZE_EVALUATOR_EXPORT
-evaluate(const SchemaCompilerTemplate &steps,
-         const sourcemeta::jsontoolkit::JSON &instance) -> bool;
+evaluate(const Template &steps, const sourcemeta::jsontoolkit::JSON &instance)
+    -> bool;
 
 /// @ingroup evaluator
 ///
@@ -112,7 +111,7 @@ evaluate(const SchemaCompilerTemplate &steps,
 ///
 /// static auto callback(
 ///     bool result,
-///     const sourcemeta::blaze::SchemaCompilerTemplate::value_type &step,
+///     const sourcemeta::blaze::Template::value_type &step,
 ///     const sourcemeta::jsontoolkit::Pointer &evaluate_path,
 ///     const sourcemeta::jsontoolkit::Pointer &instance_location,
 ///     const sourcemeta::jsontoolkit::JSON &document,
@@ -137,9 +136,8 @@ evaluate(const SchemaCompilerTemplate &steps,
 /// assert(result);
 /// ```
 auto SOURCEMETA_BLAZE_EVALUATOR_EXPORT
-evaluate(const SchemaCompilerTemplate &steps,
-         const sourcemeta::jsontoolkit::JSON &instance,
-         const SchemaCompilerEvaluationCallback &callback) -> bool;
+evaluate(const Template &steps, const sourcemeta::jsontoolkit::JSON &instance,
+         const Callback &callback) -> bool;
 
 /// @ingroup evaluator
 ///
@@ -175,8 +173,9 @@ evaluate(const SchemaCompilerTemplate &steps,
 ///   schema_template, context)};
 /// assert(result);
 /// ```
-auto SOURCEMETA_BLAZE_EVALUATOR_EXPORT evaluate(
-    const SchemaCompilerTemplate &steps, EvaluationContext &context) -> bool;
+auto SOURCEMETA_BLAZE_EVALUATOR_EXPORT evaluate(const Template &steps,
+                                                EvaluationContext &context)
+    -> bool;
 
 } // namespace sourcemeta::blaze
 

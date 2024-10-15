@@ -176,12 +176,12 @@ static auto test_resolver(std::string_view identifier)
   return sourcemeta::jsontoolkit::official_resolver(identifier);
 }
 
-static auto
-callback_noop(const sourcemeta::blaze::SchemaCompilerEvaluationType, bool,
-              const sourcemeta::blaze::SchemaCompilerTemplate::value_type &,
-              const sourcemeta::jsontoolkit::WeakPointer &,
-              const sourcemeta::jsontoolkit::WeakPointer &,
-              const sourcemeta::jsontoolkit::JSON &) noexcept -> void {}
+static auto callback_noop(const sourcemeta::blaze::EvaluationType, bool,
+                          const sourcemeta::blaze::Template::value_type &,
+                          const sourcemeta::jsontoolkit::WeakPointer &,
+                          const sourcemeta::jsontoolkit::WeakPointer &,
+                          const sourcemeta::jsontoolkit::JSON &) noexcept
+    -> void {}
 
 static auto slugify(const std::string &input, std::ostream &output) -> void {
   for (const auto character : input) {
@@ -192,7 +192,7 @@ static auto slugify(const std::string &input, std::ostream &output) -> void {
 class OfficialTest : public testing::Test {
 public:
   explicit OfficialTest(bool test_valid,
-                        sourcemeta::blaze::SchemaCompilerTemplate test_schema,
+                        sourcemeta::blaze::Template test_schema,
                         sourcemeta::jsontoolkit::JSON test_instance)
       : valid{test_valid}, schema{std::move(test_schema)},
         instance{std::move(test_instance)} {}
@@ -209,7 +209,7 @@ public:
 
 private:
   const bool valid;
-  const sourcemeta::blaze::SchemaCompilerTemplate schema;
+  const sourcemeta::blaze::Template schema;
   const sourcemeta::jsontoolkit::JSON instance;
 };
 
@@ -246,9 +246,8 @@ static auto register_tests(const std::filesystem::path &subdirectory,
       std::cerr << "    Compiling: " << test.at("description").to_string()
                 << "\n";
 
-      for (const auto mode :
-           {sourcemeta::blaze::SchemaCompilerMode::FastValidation,
-            sourcemeta::blaze::SchemaCompilerMode::Exhaustive}) {
+      for (const auto mode : {sourcemeta::blaze::Mode::FastValidation,
+                              sourcemeta::blaze::Mode::Exhaustive}) {
         const auto schema_template{sourcemeta::blaze::compile(
             test.at("schema"), sourcemeta::jsontoolkit::default_schema_walker,
             test_resolver, sourcemeta::blaze::default_schema_compiler, mode,
@@ -256,10 +255,10 @@ static auto register_tests(const std::filesystem::path &subdirectory,
 
         std::ostringstream title;
         switch (mode) {
-          case sourcemeta::blaze::SchemaCompilerMode::FastValidation:
+          case sourcemeta::blaze::Mode::FastValidation:
             title << "fast_validation";
             break;
-          case sourcemeta::blaze::SchemaCompilerMode::Exhaustive:
+          case sourcemeta::blaze::Mode::Exhaustive:
             title << "exhaustive";
             break;
           default:
