@@ -20,10 +20,10 @@ namespace sourcemeta::blaze {
 
 /// @ingroup evaluator
 /// An error that represents a schema evaluation error event
-class SOURCEMETA_BLAZE_EVALUATOR_EXPORT SchemaEvaluationError
+class SOURCEMETA_BLAZE_EVALUATOR_EXPORT EvaluationError
     : public std::exception {
 public:
-  SchemaEvaluationError(std::string message) : message_{std::move(message)} {}
+  EvaluationError(std::string message) : message_{std::move(message)} {}
   [[nodiscard]] auto what() const noexcept -> const char * override {
     return this->message_.c_str();
   }

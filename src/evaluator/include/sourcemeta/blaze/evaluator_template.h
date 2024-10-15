@@ -14,178 +14,161 @@ namespace sourcemeta::blaze {
 // Forward declarations for the sole purpose of being bale to define circular
 // structures
 #ifndef DOXYGEN
-struct SchemaCompilerAssertionFail;
-struct SchemaCompilerAssertionDefines;
-struct SchemaCompilerAssertionDefinesAll;
-struct SchemaCompilerAssertionPropertyDependencies;
-struct SchemaCompilerAssertionType;
-struct SchemaCompilerAssertionTypeAny;
-struct SchemaCompilerAssertionTypeStrict;
-struct SchemaCompilerAssertionTypeStrictAny;
-struct SchemaCompilerAssertionTypeStringBounded;
-struct SchemaCompilerAssertionTypeArrayBounded;
-struct SchemaCompilerAssertionTypeObjectBounded;
-struct SchemaCompilerAssertionRegex;
-struct SchemaCompilerAssertionStringSizeLess;
-struct SchemaCompilerAssertionStringSizeGreater;
-struct SchemaCompilerAssertionArraySizeLess;
-struct SchemaCompilerAssertionArraySizeGreater;
-struct SchemaCompilerAssertionObjectSizeLess;
-struct SchemaCompilerAssertionObjectSizeGreater;
-struct SchemaCompilerAssertionEqual;
-struct SchemaCompilerAssertionEqualsAny;
-struct SchemaCompilerAssertionGreaterEqual;
-struct SchemaCompilerAssertionLessEqual;
-struct SchemaCompilerAssertionGreater;
-struct SchemaCompilerAssertionLess;
-struct SchemaCompilerAssertionUnique;
-struct SchemaCompilerAssertionDivisible;
-struct SchemaCompilerAssertionStringType;
-struct SchemaCompilerAssertionPropertyType;
-struct SchemaCompilerAssertionPropertyTypeStrict;
-struct SchemaCompilerAnnotationEmit;
-struct SchemaCompilerAnnotationWhenArraySizeEqual;
-struct SchemaCompilerAnnotationWhenArraySizeGreater;
-struct SchemaCompilerAnnotationToParent;
-struct SchemaCompilerAnnotationBasenameToParent;
-struct SchemaCompilerAnnotationLoopPropertiesUnevaluated;
-struct SchemaCompilerAnnotationLoopItemsUnmarked;
-struct SchemaCompilerAnnotationLoopItemsUnevaluated;
-struct SchemaCompilerAnnotationNot;
-struct SchemaCompilerLogicalNot;
-struct SchemaCompilerLogicalOr;
-struct SchemaCompilerLogicalAnd;
-struct SchemaCompilerLogicalXor;
-struct SchemaCompilerLogicalCondition;
-struct SchemaCompilerLogicalWhenType;
-struct SchemaCompilerLogicalWhenDefines;
-struct SchemaCompilerLogicalWhenArraySizeGreater;
-struct SchemaCompilerLogicalWhenArraySizeEqual;
-struct SchemaCompilerLoopPropertiesMatch;
-struct SchemaCompilerLoopProperties;
-struct SchemaCompilerLoopPropertiesRegex;
-struct SchemaCompilerLoopPropertiesExcept;
-struct SchemaCompilerLoopPropertiesType;
-struct SchemaCompilerLoopPropertiesTypeStrict;
-struct SchemaCompilerLoopKeys;
-struct SchemaCompilerLoopItems;
-struct SchemaCompilerLoopContains;
-struct SchemaCompilerControlLabel;
-struct SchemaCompilerControlMark;
-struct SchemaCompilerControlJump;
-struct SchemaCompilerControlDynamicAnchorJump;
+struct AssertionFail;
+struct AssertionDefines;
+struct AssertionDefinesAll;
+struct AssertionPropertyDependencies;
+struct AssertionType;
+struct AssertionTypeAny;
+struct AssertionTypeStrict;
+struct AssertionTypeStrictAny;
+struct AssertionTypeStringBounded;
+struct AssertionTypeArrayBounded;
+struct AssertionTypeObjectBounded;
+struct AssertionRegex;
+struct AssertionStringSizeLess;
+struct AssertionStringSizeGreater;
+struct AssertionArraySizeLess;
+struct AssertionArraySizeGreater;
+struct AssertionObjectSizeLess;
+struct AssertionObjectSizeGreater;
+struct AssertionEqual;
+struct AssertionEqualsAny;
+struct AssertionGreaterEqual;
+struct AssertionLessEqual;
+struct AssertionGreater;
+struct AssertionLess;
+struct AssertionUnique;
+struct AssertionDivisible;
+struct AssertionStringType;
+struct AssertionPropertyType;
+struct AssertionPropertyTypeStrict;
+struct AnnotationEmit;
+struct AnnotationWhenArraySizeEqual;
+struct AnnotationWhenArraySizeGreater;
+struct AnnotationToParent;
+struct AnnotationBasenameToParent;
+struct AnnotationLoopPropertiesUnevaluated;
+struct AnnotationLoopItemsUnmarked;
+struct AnnotationLoopItemsUnevaluated;
+struct AnnotationNot;
+struct LogicalNot;
+struct LogicalOr;
+struct LogicalAnd;
+struct LogicalXor;
+struct LogicalCondition;
+struct LogicalWhenType;
+struct LogicalWhenDefines;
+struct LogicalWhenArraySizeGreater;
+struct LogicalWhenArraySizeEqual;
+struct LoopPropertiesMatch;
+struct LoopProperties;
+struct LoopPropertiesRegex;
+struct LoopPropertiesExcept;
+struct LoopPropertiesType;
+struct LoopPropertiesTypeStrict;
+struct LoopKeys;
+struct LoopItems;
+struct LoopContains;
+struct ControlLabel;
+struct ControlMark;
+struct ControlJump;
+struct ControlDynamicAnchorJump;
 #endif
 
 /// @ingroup evaluator
 /// Represents a schema compilation step that can be evaluated
-using SchemaCompilerTemplate = std::vector<std::variant<
-    SchemaCompilerAssertionFail, SchemaCompilerAssertionDefines,
-    SchemaCompilerAssertionDefinesAll,
-    SchemaCompilerAssertionPropertyDependencies, SchemaCompilerAssertionType,
-    SchemaCompilerAssertionTypeAny, SchemaCompilerAssertionTypeStrict,
-    SchemaCompilerAssertionTypeStrictAny,
-    SchemaCompilerAssertionTypeStringBounded,
-    SchemaCompilerAssertionTypeArrayBounded,
-    SchemaCompilerAssertionTypeObjectBounded, SchemaCompilerAssertionRegex,
-    SchemaCompilerAssertionStringSizeLess,
-    SchemaCompilerAssertionStringSizeGreater,
-    SchemaCompilerAssertionArraySizeLess,
-    SchemaCompilerAssertionArraySizeGreater,
-    SchemaCompilerAssertionObjectSizeLess,
-    SchemaCompilerAssertionObjectSizeGreater, SchemaCompilerAssertionEqual,
-    SchemaCompilerAssertionEqualsAny, SchemaCompilerAssertionGreaterEqual,
-    SchemaCompilerAssertionLessEqual, SchemaCompilerAssertionGreater,
-    SchemaCompilerAssertionLess, SchemaCompilerAssertionUnique,
-    SchemaCompilerAssertionDivisible, SchemaCompilerAssertionStringType,
-    SchemaCompilerAssertionPropertyType,
-    SchemaCompilerAssertionPropertyTypeStrict, SchemaCompilerAnnotationEmit,
-    SchemaCompilerAnnotationWhenArraySizeEqual,
-    SchemaCompilerAnnotationWhenArraySizeGreater,
-    SchemaCompilerAnnotationToParent, SchemaCompilerAnnotationBasenameToParent,
-    SchemaCompilerAnnotationLoopPropertiesUnevaluated,
-    SchemaCompilerAnnotationLoopItemsUnmarked,
-    SchemaCompilerAnnotationLoopItemsUnevaluated, SchemaCompilerAnnotationNot,
-    SchemaCompilerLogicalNot, SchemaCompilerLogicalOr, SchemaCompilerLogicalAnd,
-    SchemaCompilerLogicalXor, SchemaCompilerLogicalCondition,
-    SchemaCompilerLogicalWhenType, SchemaCompilerLogicalWhenDefines,
-    SchemaCompilerLogicalWhenArraySizeGreater,
-    SchemaCompilerLogicalWhenArraySizeEqual, SchemaCompilerLoopPropertiesMatch,
-    SchemaCompilerLoopProperties, SchemaCompilerLoopPropertiesRegex,
-    SchemaCompilerLoopPropertiesExcept, SchemaCompilerLoopPropertiesType,
-    SchemaCompilerLoopPropertiesTypeStrict, SchemaCompilerLoopKeys,
-    SchemaCompilerLoopItems, SchemaCompilerLoopContains,
-    SchemaCompilerControlLabel, SchemaCompilerControlMark,
-    SchemaCompilerControlJump, SchemaCompilerControlDynamicAnchorJump>>;
+using Template = std::vector<std::variant<
+    AssertionFail, AssertionDefines, AssertionDefinesAll,
+    AssertionPropertyDependencies, AssertionType, AssertionTypeAny,
+    AssertionTypeStrict, AssertionTypeStrictAny, AssertionTypeStringBounded,
+    AssertionTypeArrayBounded, AssertionTypeObjectBounded, AssertionRegex,
+    AssertionStringSizeLess, AssertionStringSizeGreater, AssertionArraySizeLess,
+    AssertionArraySizeGreater, AssertionObjectSizeLess,
+    AssertionObjectSizeGreater, AssertionEqual, AssertionEqualsAny,
+    AssertionGreaterEqual, AssertionLessEqual, AssertionGreater, AssertionLess,
+    AssertionUnique, AssertionDivisible, AssertionStringType,
+    AssertionPropertyType, AssertionPropertyTypeStrict, AnnotationEmit,
+    AnnotationWhenArraySizeEqual, AnnotationWhenArraySizeGreater,
+    AnnotationToParent, AnnotationBasenameToParent,
+    AnnotationLoopPropertiesUnevaluated, AnnotationLoopItemsUnmarked,
+    AnnotationLoopItemsUnevaluated, AnnotationNot, LogicalNot, LogicalOr,
+    LogicalAnd, LogicalXor, LogicalCondition, LogicalWhenType,
+    LogicalWhenDefines, LogicalWhenArraySizeGreater, LogicalWhenArraySizeEqual,
+    LoopPropertiesMatch, LoopProperties, LoopPropertiesRegex,
+    LoopPropertiesExcept, LoopPropertiesType, LoopPropertiesTypeStrict,
+    LoopKeys, LoopItems, LoopContains, ControlLabel, ControlMark, ControlJump,
+    ControlDynamicAnchorJump>>;
 
 #if !defined(DOXYGEN)
 // For fast internal instruction dispatching. It must stay
 // in sync with the variant ordering above
-enum class SchemaCompilerTemplateIndex : std::uint8_t {
-  SchemaCompilerAssertionFail = 0,
-  SchemaCompilerAssertionDefines,
-  SchemaCompilerAssertionDefinesAll,
-  SchemaCompilerAssertionPropertyDependencies,
-  SchemaCompilerAssertionType,
-  SchemaCompilerAssertionTypeAny,
-  SchemaCompilerAssertionTypeStrict,
-  SchemaCompilerAssertionTypeStrictAny,
-  SchemaCompilerAssertionTypeStringBounded,
-  SchemaCompilerAssertionTypeArrayBounded,
-  SchemaCompilerAssertionTypeObjectBounded,
-  SchemaCompilerAssertionRegex,
-  SchemaCompilerAssertionStringSizeLess,
-  SchemaCompilerAssertionStringSizeGreater,
-  SchemaCompilerAssertionArraySizeLess,
-  SchemaCompilerAssertionArraySizeGreater,
-  SchemaCompilerAssertionObjectSizeLess,
-  SchemaCompilerAssertionObjectSizeGreater,
-  SchemaCompilerAssertionEqual,
-  SchemaCompilerAssertionEqualsAny,
-  SchemaCompilerAssertionGreaterEqual,
-  SchemaCompilerAssertionLessEqual,
-  SchemaCompilerAssertionGreater,
-  SchemaCompilerAssertionLess,
-  SchemaCompilerAssertionUnique,
-  SchemaCompilerAssertionDivisible,
-  SchemaCompilerAssertionStringType,
-  SchemaCompilerAssertionPropertyType,
-  SchemaCompilerAssertionPropertyTypeStrict,
-  SchemaCompilerAnnotationEmit,
-  SchemaCompilerAnnotationWhenArraySizeEqual,
-  SchemaCompilerAnnotationWhenArraySizeGreater,
-  SchemaCompilerAnnotationToParent,
-  SchemaCompilerAnnotationBasenameToParent,
-  SchemaCompilerAnnotationLoopPropertiesUnevaluated,
-  SchemaCompilerAnnotationLoopItemsUnmarked,
-  SchemaCompilerAnnotationLoopItemsUnevaluated,
-  SchemaCompilerAnnotationNot,
-  SchemaCompilerLogicalNot,
-  SchemaCompilerLogicalOr,
-  SchemaCompilerLogicalAnd,
-  SchemaCompilerLogicalXor,
-  SchemaCompilerLogicalCondition,
-  SchemaCompilerLogicalWhenType,
-  SchemaCompilerLogicalWhenDefines,
-  SchemaCompilerLogicalWhenArraySizeGreater,
-  SchemaCompilerLogicalWhenArraySizeEqual,
-  SchemaCompilerLoopPropertiesMatch,
-  SchemaCompilerLoopProperties,
-  SchemaCompilerLoopPropertiesRegex,
-  SchemaCompilerLoopPropertiesExcept,
-  SchemaCompilerLoopPropertiesType,
-  SchemaCompilerLoopPropertiesTypeStrict,
-  SchemaCompilerLoopKeys,
-  SchemaCompilerLoopItems,
-  SchemaCompilerLoopContains,
-  SchemaCompilerControlLabel,
-  SchemaCompilerControlMark,
-  SchemaCompilerControlJump,
-  SchemaCompilerControlDynamicAnchorJump
+enum class TemplateIndex : std::uint8_t {
+  AssertionFail = 0,
+  AssertionDefines,
+  AssertionDefinesAll,
+  AssertionPropertyDependencies,
+  AssertionType,
+  AssertionTypeAny,
+  AssertionTypeStrict,
+  AssertionTypeStrictAny,
+  AssertionTypeStringBounded,
+  AssertionTypeArrayBounded,
+  AssertionTypeObjectBounded,
+  AssertionRegex,
+  AssertionStringSizeLess,
+  AssertionStringSizeGreater,
+  AssertionArraySizeLess,
+  AssertionArraySizeGreater,
+  AssertionObjectSizeLess,
+  AssertionObjectSizeGreater,
+  AssertionEqual,
+  AssertionEqualsAny,
+  AssertionGreaterEqual,
+  AssertionLessEqual,
+  AssertionGreater,
+  AssertionLess,
+  AssertionUnique,
+  AssertionDivisible,
+  AssertionStringType,
+  AssertionPropertyType,
+  AssertionPropertyTypeStrict,
+  AnnotationEmit,
+  AnnotationWhenArraySizeEqual,
+  AnnotationWhenArraySizeGreater,
+  AnnotationToParent,
+  AnnotationBasenameToParent,
+  AnnotationLoopPropertiesUnevaluated,
+  AnnotationLoopItemsUnmarked,
+  AnnotationLoopItemsUnevaluated,
+  AnnotationNot,
+  LogicalNot,
+  LogicalOr,
+  LogicalAnd,
+  LogicalXor,
+  LogicalCondition,
+  LogicalWhenType,
+  LogicalWhenDefines,
+  LogicalWhenArraySizeGreater,
+  LogicalWhenArraySizeEqual,
+  LoopPropertiesMatch,
+  LoopProperties,
+  LoopPropertiesRegex,
+  LoopPropertiesExcept,
+  LoopPropertiesType,
+  LoopPropertiesTypeStrict,
+  LoopKeys,
+  LoopItems,
+  LoopContains,
+  ControlLabel,
+  ControlMark,
+  ControlJump,
+  ControlDynamicAnchorJump
 };
 #endif
 
 #define DEFINE_STEP_WITH_VALUE(category, name, type)                           \
-  struct SchemaCompiler##category##name {                                      \
+  struct category##name {                                                      \
     const sourcemeta::jsontoolkit::Pointer relative_schema_location;           \
     const sourcemeta::jsontoolkit::Pointer relative_instance_location;         \
     const std::string keyword_location;                                        \
@@ -196,7 +179,7 @@ enum class SchemaCompilerTemplateIndex : std::uint8_t {
   };
 
 #define DEFINE_STEP_APPLICATOR(category, name, type)                           \
-  struct SchemaCompiler##category##name {                                      \
+  struct category##name {                                                      \
     const sourcemeta::jsontoolkit::Pointer relative_schema_location;           \
     const sourcemeta::jsontoolkit::Pointer relative_instance_location;         \
     const std::string keyword_location;                                        \
@@ -204,7 +187,7 @@ enum class SchemaCompilerTemplateIndex : std::uint8_t {
     const bool dynamic;                                                        \
     const bool report;                                                         \
     const type value;                                                          \
-    const SchemaCompilerTemplate children;                                     \
+    const Template children;                                                   \
   };
 
 /// @defgroup evaluator_instructions Instruction Set
@@ -217,305 +200,292 @@ enum class SchemaCompilerTemplateIndex : std::uint8_t {
 
 /// @ingroup evaluator_instructions
 /// @brief Represents a compiler assertion step that always fails
-DEFINE_STEP_WITH_VALUE(Assertion, Fail, SchemaCompilerValueNone)
+DEFINE_STEP_WITH_VALUE(Assertion, Fail, ValueNone)
 
 /// @ingroup evaluator_instructions
 /// @brief Represents a compiler assertion step that checks if an object defines
 /// a given property
-DEFINE_STEP_WITH_VALUE(Assertion, Defines, SchemaCompilerValueString)
+DEFINE_STEP_WITH_VALUE(Assertion, Defines, ValueString)
 
 /// @ingroup evaluator_instructions
 /// @brief Represents a compiler assertion step that checks if an object defines
 /// a set of properties
-DEFINE_STEP_WITH_VALUE(Assertion, DefinesAll, SchemaCompilerValueStrings)
+DEFINE_STEP_WITH_VALUE(Assertion, DefinesAll, ValueStrings)
 
 /// @ingroup evaluator_instructions
 /// @brief Represents a compiler assertion step that checks if an object defines
 /// a set of properties if it defines other set of properties
-DEFINE_STEP_WITH_VALUE(Assertion, PropertyDependencies,
-                       SchemaCompilerValueStringMap)
+DEFINE_STEP_WITH_VALUE(Assertion, PropertyDependencies, ValueStringMap)
 
 /// @ingroup evaluator_instructions
 /// @brief Represents a compiler assertion step that checks if a document is of
 /// the given type
-DEFINE_STEP_WITH_VALUE(Assertion, Type, SchemaCompilerValueType)
+DEFINE_STEP_WITH_VALUE(Assertion, Type, ValueType)
 
 /// @ingroup evaluator_instructions
 /// @brief Represents a compiler assertion step that checks if a document is of
 /// any of the given types
-DEFINE_STEP_WITH_VALUE(Assertion, TypeAny, SchemaCompilerValueTypes)
+DEFINE_STEP_WITH_VALUE(Assertion, TypeAny, ValueTypes)
 
 /// @ingroup evaluator_instructions
 /// @brief Represents a compiler assertion step that checks if a document is of
 /// the given type (strict version)
-DEFINE_STEP_WITH_VALUE(Assertion, TypeStrict, SchemaCompilerValueType)
+DEFINE_STEP_WITH_VALUE(Assertion, TypeStrict, ValueType)
 
 /// @ingroup evaluator_instructions
 /// @brief Represents a compiler assertion step that checks if a document is of
 /// any of the given types (strict version)
-DEFINE_STEP_WITH_VALUE(Assertion, TypeStrictAny, SchemaCompilerValueTypes)
+DEFINE_STEP_WITH_VALUE(Assertion, TypeStrictAny, ValueTypes)
 
 /// @ingroup evaluator_instructions
 /// @brief Represents a compiler assertion step that checks if a document is of
 /// type string and adheres to the given bounds
-DEFINE_STEP_WITH_VALUE(Assertion, TypeStringBounded, SchemaCompilerValueRange)
+DEFINE_STEP_WITH_VALUE(Assertion, TypeStringBounded, ValueRange)
 
 /// @ingroup evaluator_instructions
 /// @brief Represents a compiler assertion step that checks if a document is of
 /// type array and adheres to the given bounds
-DEFINE_STEP_WITH_VALUE(Assertion, TypeArrayBounded, SchemaCompilerValueRange)
+DEFINE_STEP_WITH_VALUE(Assertion, TypeArrayBounded, ValueRange)
 
 /// @ingroup evaluator_instructions
 /// @brief Represents a compiler assertion step that checks if a document is of
 /// type object and adheres to the given bounds
-DEFINE_STEP_WITH_VALUE(Assertion, TypeObjectBounded, SchemaCompilerValueRange)
+DEFINE_STEP_WITH_VALUE(Assertion, TypeObjectBounded, ValueRange)
 
 /// @ingroup evaluator_instructions
 /// @brief Represents a compiler assertion step that checks a string against an
 /// ECMA regular expression
-DEFINE_STEP_WITH_VALUE(Assertion, Regex, SchemaCompilerValueRegex)
+DEFINE_STEP_WITH_VALUE(Assertion, Regex, ValueRegex)
 
 /// @ingroup evaluator_instructions
 /// @brief Represents a compiler assertion step that checks a given string has
 /// less than a certain number of characters
-DEFINE_STEP_WITH_VALUE(Assertion, StringSizeLess,
-                       SchemaCompilerValueUnsignedInteger)
+DEFINE_STEP_WITH_VALUE(Assertion, StringSizeLess, ValueUnsignedInteger)
 
 /// @ingroup evaluator_instructions
 /// @brief Represents a compiler assertion step that checks a given string has
 /// greater than a certain number of characters
-DEFINE_STEP_WITH_VALUE(Assertion, StringSizeGreater,
-                       SchemaCompilerValueUnsignedInteger)
+DEFINE_STEP_WITH_VALUE(Assertion, StringSizeGreater, ValueUnsignedInteger)
 
 /// @ingroup evaluator_instructions
 /// @brief Represents a compiler assertion step that checks a given array has
 /// less than a certain number of items
-DEFINE_STEP_WITH_VALUE(Assertion, ArraySizeLess,
-                       SchemaCompilerValueUnsignedInteger)
+DEFINE_STEP_WITH_VALUE(Assertion, ArraySizeLess, ValueUnsignedInteger)
 
 /// @ingroup evaluator_instructions
 /// @brief Represents a compiler assertion step that checks a given array has
 /// greater than a certain number of items
-DEFINE_STEP_WITH_VALUE(Assertion, ArraySizeGreater,
-                       SchemaCompilerValueUnsignedInteger)
+DEFINE_STEP_WITH_VALUE(Assertion, ArraySizeGreater, ValueUnsignedInteger)
 
 /// @ingroup evaluator_instructions
 /// @brief Represents a compiler assertion step that checks a given object has
 /// less than a certain number of properties
-DEFINE_STEP_WITH_VALUE(Assertion, ObjectSizeLess,
-                       SchemaCompilerValueUnsignedInteger)
+DEFINE_STEP_WITH_VALUE(Assertion, ObjectSizeLess, ValueUnsignedInteger)
 
 /// @ingroup evaluator_instructions
 /// @brief Represents a compiler assertion step that checks a given object has
 /// greater than a certain number of properties
-DEFINE_STEP_WITH_VALUE(Assertion, ObjectSizeGreater,
-                       SchemaCompilerValueUnsignedInteger)
+DEFINE_STEP_WITH_VALUE(Assertion, ObjectSizeGreater, ValueUnsignedInteger)
 
 /// @ingroup evaluator_instructions
 /// @brief Represents a compiler assertion step that checks the instance equals
 /// a given JSON document
-DEFINE_STEP_WITH_VALUE(Assertion, Equal, SchemaCompilerValueJSON)
+DEFINE_STEP_WITH_VALUE(Assertion, Equal, ValueJSON)
 
 /// @ingroup evaluator_instructions
 /// @brief Represents a compiler assertion step that checks that a JSON document
 /// is equal to at least one of the given elements
-DEFINE_STEP_WITH_VALUE(Assertion, EqualsAny, SchemaCompilerValueArray)
+DEFINE_STEP_WITH_VALUE(Assertion, EqualsAny, ValueArray)
 
 /// @ingroup evaluator_instructions
 /// @brief Represents a compiler assertion step that checks a JSON document is
 /// greater than or equal to another JSON document
-DEFINE_STEP_WITH_VALUE(Assertion, GreaterEqual, SchemaCompilerValueJSON)
+DEFINE_STEP_WITH_VALUE(Assertion, GreaterEqual, ValueJSON)
 
 /// @ingroup evaluator_instructions
 /// @brief Represents a compiler assertion step that checks a JSON document is
 /// less than or equal to another JSON document
-DEFINE_STEP_WITH_VALUE(Assertion, LessEqual, SchemaCompilerValueJSON)
+DEFINE_STEP_WITH_VALUE(Assertion, LessEqual, ValueJSON)
 
 /// @ingroup evaluator_instructions
 /// @brief Represents a compiler assertion step that checks a JSON document is
 /// greater than another JSON document
-DEFINE_STEP_WITH_VALUE(Assertion, Greater, SchemaCompilerValueJSON)
+DEFINE_STEP_WITH_VALUE(Assertion, Greater, ValueJSON)
 
 /// @ingroup evaluator_instructions
 /// @brief Represents a compiler assertion step that checks a JSON document is
 /// less than another JSON document
-DEFINE_STEP_WITH_VALUE(Assertion, Less, SchemaCompilerValueJSON)
+DEFINE_STEP_WITH_VALUE(Assertion, Less, ValueJSON)
 
 /// @ingroup evaluator_instructions
 /// @brief Represents a compiler assertion step that checks a given JSON array
 /// does not contain duplicate items
-DEFINE_STEP_WITH_VALUE(Assertion, Unique, SchemaCompilerValueNone)
+DEFINE_STEP_WITH_VALUE(Assertion, Unique, ValueNone)
 
 /// @ingroup evaluator_instructions
 /// @brief Represents a compiler assertion step that checks a number is
 /// divisible by another number
-DEFINE_STEP_WITH_VALUE(Assertion, Divisible, SchemaCompilerValueJSON)
+DEFINE_STEP_WITH_VALUE(Assertion, Divisible, ValueJSON)
 
 /// @ingroup evaluator_instructions
 /// @brief Represents a compiler assertion step that checks that a string is of
 /// a certain type
-DEFINE_STEP_WITH_VALUE(Assertion, StringType, SchemaCompilerValueStringType)
+DEFINE_STEP_WITH_VALUE(Assertion, StringType, ValueStringType)
 
 /// @ingroup evaluator_instructions
 /// @brief Represents a compiler assertion step that checks that an instance
 /// property is of a given type if present
-DEFINE_STEP_WITH_VALUE(Assertion, PropertyType, SchemaCompilerValueType)
+DEFINE_STEP_WITH_VALUE(Assertion, PropertyType, ValueType)
 
 /// @ingroup evaluator_instructions
 /// @brief Represents a compiler assertion step that checks that an instance
 /// property is of a given type if present (strict mode)
-DEFINE_STEP_WITH_VALUE(Assertion, PropertyTypeStrict, SchemaCompilerValueType)
+DEFINE_STEP_WITH_VALUE(Assertion, PropertyTypeStrict, ValueType)
 
 /// @ingroup evaluator_instructions
 /// @brief Represents a compiler step that emits an annotation
-DEFINE_STEP_WITH_VALUE(Annotation, Emit, SchemaCompilerValueJSON)
+DEFINE_STEP_WITH_VALUE(Annotation, Emit, ValueJSON)
 
 /// @ingroup evaluator_instructions
 /// @brief Represents a compiler step that emits an annotation when the size of
 /// the array instance is equal to the given size
-DEFINE_STEP_WITH_VALUE(Annotation, WhenArraySizeEqual,
-                       SchemaCompilerValueIndexedJSON)
+DEFINE_STEP_WITH_VALUE(Annotation, WhenArraySizeEqual, ValueIndexedJSON)
 
 /// @ingroup evaluator_instructions
 /// @brief Represents a compiler step that emits an annotation when the size of
 /// the array instance is greater than the given size
-DEFINE_STEP_WITH_VALUE(Annotation, WhenArraySizeGreater,
-                       SchemaCompilerValueIndexedJSON)
+DEFINE_STEP_WITH_VALUE(Annotation, WhenArraySizeGreater, ValueIndexedJSON)
 
 /// @ingroup evaluator_instructions
 /// @brief Represents a compiler step that emits an annotation to the parent
-DEFINE_STEP_WITH_VALUE(Annotation, ToParent, SchemaCompilerValueJSON)
+DEFINE_STEP_WITH_VALUE(Annotation, ToParent, ValueJSON)
 
 /// @ingroup evaluator_instructions
 /// @brief Represents a compiler step that emits the current basename as an
 /// annotation to the parent
-DEFINE_STEP_WITH_VALUE(Annotation, BasenameToParent, SchemaCompilerValueNone)
+DEFINE_STEP_WITH_VALUE(Annotation, BasenameToParent, ValueNone)
 
 /// @ingroup evaluator_instructions
 /// @brief Represents a compiler step that loops over object properties that
 /// were not collected as annotations
-DEFINE_STEP_APPLICATOR(Annotation, LoopPropertiesUnevaluated,
-                       SchemaCompilerValueStrings)
+DEFINE_STEP_APPLICATOR(Annotation, LoopPropertiesUnevaluated, ValueStrings)
 
 /// @ingroup evaluator_instructions
 /// @brief Represents a compiler step that loops over array items when the array
 /// is considered unmarked
-DEFINE_STEP_APPLICATOR(Annotation, LoopItemsUnmarked, SchemaCompilerValueString)
+DEFINE_STEP_APPLICATOR(Annotation, LoopItemsUnmarked, ValueString)
 
 /// @ingroup evaluator_instructions
 /// @brief Represents a compiler step that loops over unevaluated array items
 DEFINE_STEP_APPLICATOR(Annotation, LoopItemsUnevaluated,
-                       SchemaCompilerValueItemsAnnotationKeywords)
+                       ValueItemsAnnotationKeywords)
 
 /// @ingroup evaluator_instructions
 /// @brief Represents an annotation-aware compiler logical step that represents
 /// a negation
-DEFINE_STEP_APPLICATOR(Annotation, Not, SchemaCompilerValueNone)
+DEFINE_STEP_APPLICATOR(Annotation, Not, ValueNone)
 
 /// @ingroup evaluator_instructions
 /// @brief Represents a compiler logical step that represents a negation
-DEFINE_STEP_APPLICATOR(Logical, Not, SchemaCompilerValueNone)
+DEFINE_STEP_APPLICATOR(Logical, Not, ValueNone)
 
 /// @ingroup evaluator_instructions
 /// @brief Represents a compiler logical step that represents a disjunction
-DEFINE_STEP_APPLICATOR(Logical, Or, SchemaCompilerValueBoolean)
+DEFINE_STEP_APPLICATOR(Logical, Or, ValueBoolean)
 
 /// @ingroup evaluator_instructions
 /// @brief Represents a compiler logical step that represents a conjunction
-DEFINE_STEP_APPLICATOR(Logical, And, SchemaCompilerValueNone)
+DEFINE_STEP_APPLICATOR(Logical, And, ValueNone)
 
 /// @ingroup evaluator_instructions
 /// @brief Represents a compiler logical step that represents an exclusive
 /// disjunction
-DEFINE_STEP_APPLICATOR(Logical, Xor, SchemaCompilerValueBoolean)
+DEFINE_STEP_APPLICATOR(Logical, Xor, ValueBoolean)
 
 /// @ingroup evaluator_instructions
 /// @brief Represents an imperative conditional compiler logical step
-DEFINE_STEP_APPLICATOR(Logical, Condition, SchemaCompilerValueIndexPair)
+DEFINE_STEP_APPLICATOR(Logical, Condition, ValueIndexPair)
 
 /// @ingroup evaluator_instructions
 /// @brief Represents a compiler logical step that represents a conjunction when
 /// the instance is of a given type
-DEFINE_STEP_APPLICATOR(Logical, WhenType, SchemaCompilerValueType)
+DEFINE_STEP_APPLICATOR(Logical, WhenType, ValueType)
 
 /// @ingroup evaluator_instructions
 /// @brief Represents a compiler logical step that represents a conjunction when
 /// the instance is an object and defines a given property
-DEFINE_STEP_APPLICATOR(Logical, WhenDefines, SchemaCompilerValueString)
+DEFINE_STEP_APPLICATOR(Logical, WhenDefines, ValueString)
 
 /// @ingroup evaluator_instructions
 /// @brief Represents a compiler logical step that represents a conjunction when
 /// the array instance size is greater than the given number
-DEFINE_STEP_APPLICATOR(Logical, WhenArraySizeGreater,
-                       SchemaCompilerValueUnsignedInteger)
+DEFINE_STEP_APPLICATOR(Logical, WhenArraySizeGreater, ValueUnsignedInteger)
 
 /// @ingroup evaluator_instructions
 /// @brief Represents a compiler logical step that represents a conjunction when
 /// the array instance size is equal to the given number
-DEFINE_STEP_APPLICATOR(Logical, WhenArraySizeEqual,
-                       SchemaCompilerValueUnsignedInteger)
+DEFINE_STEP_APPLICATOR(Logical, WhenArraySizeEqual, ValueUnsignedInteger)
 
 /// @ingroup evaluator_instructions
 /// @brief Represents a compiler step that matches steps to object properties
-DEFINE_STEP_APPLICATOR(Loop, PropertiesMatch, SchemaCompilerValueNamedIndexes)
+DEFINE_STEP_APPLICATOR(Loop, PropertiesMatch, ValueNamedIndexes)
 
 /// @ingroup evaluator_instructions
 /// @brief Represents a compiler step that loops over object properties
-DEFINE_STEP_APPLICATOR(Loop, Properties, SchemaCompilerValueNone)
+DEFINE_STEP_APPLICATOR(Loop, Properties, ValueNone)
 
 /// @ingroup evaluator_instructions
 /// @brief Represents a compiler step that loops over object properties that
 /// match a given ECMA regular expression
-DEFINE_STEP_APPLICATOR(Loop, PropertiesRegex, SchemaCompilerValueRegex)
+DEFINE_STEP_APPLICATOR(Loop, PropertiesRegex, ValueRegex)
 
 /// @ingroup evaluator_instructions
 /// @brief Represents a compiler step that loops over object properties that
 /// do not match the given property filters
-DEFINE_STEP_APPLICATOR(Loop, PropertiesExcept,
-                       SchemaCompilerValuePropertyFilter)
+DEFINE_STEP_APPLICATOR(Loop, PropertiesExcept, ValuePropertyFilter)
 
 /// @ingroup evaluator_instructions
 /// @brief Represents a compiler step that checks every object property is of a
 /// given type
-DEFINE_STEP_WITH_VALUE(Loop, PropertiesType, SchemaCompilerValueType)
+DEFINE_STEP_WITH_VALUE(Loop, PropertiesType, ValueType)
 
 /// @ingroup evaluator_instructions
 /// @brief Represents a compiler step that checks every object property is of a
 /// given type (strict mode)
-DEFINE_STEP_WITH_VALUE(Loop, PropertiesTypeStrict, SchemaCompilerValueType)
+DEFINE_STEP_WITH_VALUE(Loop, PropertiesTypeStrict, ValueType)
 
 /// @ingroup evaluator_instructions
 /// @brief Represents a compiler step that loops over object property keys
-DEFINE_STEP_APPLICATOR(Loop, Keys, SchemaCompilerValueNone)
+DEFINE_STEP_APPLICATOR(Loop, Keys, ValueNone)
 
 /// @ingroup evaluator_instructions
 /// @brief Represents a compiler step that loops over array items starting from
 /// a given index
-DEFINE_STEP_APPLICATOR(Loop, Items, SchemaCompilerValueUnsignedInteger)
+DEFINE_STEP_APPLICATOR(Loop, Items, ValueUnsignedInteger)
 
 /// @ingroup evaluator_instructions
 /// @brief Represents a compiler step that checks array items match a given
 /// criteria
-DEFINE_STEP_APPLICATOR(Loop, Contains, SchemaCompilerValueRange)
+DEFINE_STEP_APPLICATOR(Loop, Contains, ValueRange)
 
 /// @ingroup evaluator_instructions
 /// @brief Represents a compiler step that consists of a mark to jump to while
 /// executing children instructions
-DEFINE_STEP_APPLICATOR(Control, Label, SchemaCompilerValueUnsignedInteger)
+DEFINE_STEP_APPLICATOR(Control, Label, ValueUnsignedInteger)
 
 /// @ingroup evaluator_instructions
 /// @brief Represents a compiler step that consists of a mark to jump to, but
 /// without executing children instructions
-DEFINE_STEP_APPLICATOR(Control, Mark, SchemaCompilerValueUnsignedInteger)
+DEFINE_STEP_APPLICATOR(Control, Mark, ValueUnsignedInteger)
 
 /// @ingroup evaluator_instructions
 /// @brief Represents a compiler step that consists of jumping into a
 /// pre-registered label
-DEFINE_STEP_WITH_VALUE(Control, Jump, SchemaCompilerValueUnsignedInteger)
+DEFINE_STEP_WITH_VALUE(Control, Jump, ValueUnsignedInteger)
 
 /// @ingroup evaluator_instructions
 /// @brief Represents a compiler step that consists of jump to a dynamic anchor
-DEFINE_STEP_WITH_VALUE(Control, DynamicAnchorJump, SchemaCompilerValueString)
+DEFINE_STEP_WITH_VALUE(Control, DynamicAnchorJump, ValueString)
 
 #undef DEFINE_STEP_WITH_VALUE
 #undef DEFINE_STEP_APPLICATOR

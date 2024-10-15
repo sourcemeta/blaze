@@ -16,25 +16,25 @@ auto value_to_json(const T &value) -> sourcemeta::jsontoolkit::JSON {
   sourcemeta::jsontoolkit::JSON result{
       sourcemeta::jsontoolkit::JSON::make_object()};
   result.assign("category", sourcemeta::jsontoolkit::JSON{"value"});
-  if constexpr (std::is_same_v<SchemaCompilerValueJSON, T>) {
+  if constexpr (std::is_same_v<ValueJSON, T>) {
     result.assign("type", sourcemeta::jsontoolkit::JSON{"json"});
     result.assign("value", sourcemeta::jsontoolkit::JSON{value});
     return result;
-  } else if constexpr (std::is_same_v<SchemaCompilerValueBoolean, T>) {
+  } else if constexpr (std::is_same_v<ValueBoolean, T>) {
     result.assign("type", sourcemeta::jsontoolkit::JSON{"boolean"});
     result.assign("value", sourcemeta::jsontoolkit::JSON{value});
     return result;
-  } else if constexpr (std::is_same_v<SchemaCompilerValueRegex, T>) {
+  } else if constexpr (std::is_same_v<ValueRegex, T>) {
     result.assign("type", sourcemeta::jsontoolkit::JSON{"regex"});
     result.assign("value", sourcemeta::jsontoolkit::JSON{value.second});
     return result;
-  } else if constexpr (std::is_same_v<SchemaCompilerValueType, T>) {
+  } else if constexpr (std::is_same_v<ValueType, T>) {
     result.assign("type", sourcemeta::jsontoolkit::JSON{"type"});
     std::ostringstream type_string;
     type_string << value;
     result.assign("value", sourcemeta::jsontoolkit::JSON{type_string.str()});
     return result;
-  } else if constexpr (std::is_same_v<SchemaCompilerValueTypes, T>) {
+  } else if constexpr (std::is_same_v<ValueTypes, T>) {
     result.assign("type", sourcemeta::jsontoolkit::JSON{"types"});
     sourcemeta::jsontoolkit::JSON types{
         sourcemeta::jsontoolkit::JSON::make_array()};
@@ -46,11 +46,11 @@ auto value_to_json(const T &value) -> sourcemeta::jsontoolkit::JSON {
 
     result.assign("value", std::move(types));
     return result;
-  } else if constexpr (std::is_same_v<SchemaCompilerValueString, T>) {
+  } else if constexpr (std::is_same_v<ValueString, T>) {
     result.assign("type", sourcemeta::jsontoolkit::JSON{"string"});
     result.assign("value", sourcemeta::jsontoolkit::JSON{value});
     return result;
-  } else if constexpr (std::is_same_v<SchemaCompilerValueStrings, T>) {
+  } else if constexpr (std::is_same_v<ValueStrings, T>) {
     result.assign("type", sourcemeta::jsontoolkit::JSON{"strings"});
     sourcemeta::jsontoolkit::JSON items{
         sourcemeta::jsontoolkit::JSON::make_array()};
@@ -60,7 +60,7 @@ auto value_to_json(const T &value) -> sourcemeta::jsontoolkit::JSON {
 
     result.assign("value", std::move(items));
     return result;
-  } else if constexpr (std::is_same_v<SchemaCompilerValueArray, T>) {
+  } else if constexpr (std::is_same_v<ValueArray, T>) {
     result.assign("type", sourcemeta::jsontoolkit::JSON{"array"});
     sourcemeta::jsontoolkit::JSON items{
         sourcemeta::jsontoolkit::JSON::make_array()};
@@ -70,11 +70,11 @@ auto value_to_json(const T &value) -> sourcemeta::jsontoolkit::JSON {
 
     result.assign("value", std::move(items));
     return result;
-  } else if constexpr (std::is_same_v<SchemaCompilerValueUnsignedInteger, T>) {
+  } else if constexpr (std::is_same_v<ValueUnsignedInteger, T>) {
     result.assign("type", sourcemeta::jsontoolkit::JSON{"unsigned-integer"});
     result.assign("value", sourcemeta::jsontoolkit::JSON{value});
     return result;
-  } else if constexpr (std::is_same_v<SchemaCompilerValueRange, T>) {
+  } else if constexpr (std::is_same_v<ValueRange, T>) {
     result.assign("type", sourcemeta::jsontoolkit::JSON{"range"});
     sourcemeta::jsontoolkit::JSON values{
         sourcemeta::jsontoolkit::JSON::make_array()};
@@ -87,7 +87,7 @@ auto value_to_json(const T &value) -> sourcemeta::jsontoolkit::JSON {
     values.push_back(sourcemeta::jsontoolkit::JSON{std::get<2>(range)});
     result.assign("value", std::move(values));
     return result;
-  } else if constexpr (std::is_same_v<SchemaCompilerValueNamedIndexes, T>) {
+  } else if constexpr (std::is_same_v<ValueNamedIndexes, T>) {
     result.assign("type", sourcemeta::jsontoolkit::JSON{"named-indexes"});
     sourcemeta::jsontoolkit::JSON values{
         sourcemeta::jsontoolkit::JSON::make_object()};
@@ -97,7 +97,7 @@ auto value_to_json(const T &value) -> sourcemeta::jsontoolkit::JSON {
 
     result.assign("value", std::move(values));
     return result;
-  } else if constexpr (std::is_same_v<SchemaCompilerValueStringMap, T>) {
+  } else if constexpr (std::is_same_v<ValueStringMap, T>) {
     result.assign("type", sourcemeta::jsontoolkit::JSON{"string-map"});
     sourcemeta::jsontoolkit::JSON map{
         sourcemeta::jsontoolkit::JSON::make_object()};
@@ -113,8 +113,7 @@ auto value_to_json(const T &value) -> sourcemeta::jsontoolkit::JSON {
 
     result.assign("value", std::move(map));
     return result;
-  } else if constexpr (std::is_same_v<
-                           SchemaCompilerValueItemsAnnotationKeywords, T>) {
+  } else if constexpr (std::is_same_v<ValueItemsAnnotationKeywords, T>) {
     result.assign("type",
                   sourcemeta::jsontoolkit::JSON{"items-annotation-keywords"});
     sourcemeta::jsontoolkit::JSON data{
@@ -137,7 +136,7 @@ auto value_to_json(const T &value) -> sourcemeta::jsontoolkit::JSON {
 
     result.assign("value", std::move(data));
     return result;
-  } else if constexpr (std::is_same_v<SchemaCompilerValueIndexedJSON, T>) {
+  } else if constexpr (std::is_same_v<ValueIndexedJSON, T>) {
     result.assign("type", sourcemeta::jsontoolkit::JSON{"indexed-json"});
     sourcemeta::jsontoolkit::JSON data{
         sourcemeta::jsontoolkit::JSON::make_object()};
@@ -145,7 +144,7 @@ auto value_to_json(const T &value) -> sourcemeta::jsontoolkit::JSON {
     data.assign("value", value.second);
     result.assign("value", std::move(data));
     return result;
-  } else if constexpr (std::is_same_v<SchemaCompilerValuePropertyFilter, T>) {
+  } else if constexpr (std::is_same_v<ValuePropertyFilter, T>) {
     result.assign("type", sourcemeta::jsontoolkit::JSON{"property-filter"});
     sourcemeta::jsontoolkit::JSON data{
         sourcemeta::jsontoolkit::JSON::make_object()};
@@ -163,10 +162,10 @@ auto value_to_json(const T &value) -> sourcemeta::jsontoolkit::JSON {
 
     result.assign("value", std::move(data));
     return result;
-  } else if constexpr (std::is_same_v<SchemaCompilerValueStringType, T>) {
+  } else if constexpr (std::is_same_v<ValueStringType, T>) {
     result.assign("type", sourcemeta::jsontoolkit::JSON{"string-type"});
     switch (value) {
-      case SchemaCompilerValueStringType::URI:
+      case ValueStringType::URI:
         result.assign("value", sourcemeta::jsontoolkit::JSON{"uri"});
         break;
       default:
@@ -175,7 +174,7 @@ auto value_to_json(const T &value) -> sourcemeta::jsontoolkit::JSON {
     }
 
     return result;
-  } else if constexpr (std::is_same_v<SchemaCompilerValueIndexPair, T>) {
+  } else if constexpr (std::is_same_v<ValueIndexPair, T>) {
     result.assign("type", sourcemeta::jsontoolkit::JSON{"index-pair"});
     sourcemeta::jsontoolkit::JSON data{
         sourcemeta::jsontoolkit::JSON::make_array()};
@@ -184,14 +183,13 @@ auto value_to_json(const T &value) -> sourcemeta::jsontoolkit::JSON {
     result.assign("value", std::move(data));
     return result;
   } else {
-    static_assert(std::is_same_v<SchemaCompilerValueNone, T>);
+    static_assert(std::is_same_v<ValueNone, T>);
     return sourcemeta::jsontoolkit::JSON{nullptr};
   }
 }
 
 template <typename V>
-auto step_to_json(
-    const sourcemeta::blaze::SchemaCompilerTemplate::value_type &step)
+auto step_to_json(const sourcemeta::blaze::Template::value_type &step)
     -> sourcemeta::jsontoolkit::JSON {
   static V visitor;
   return std::visit(visitor, step);
@@ -235,88 +233,71 @@ struct StepVisitor {
     return encode_step<StepVisitor>(category, type, step);                     \
   }
 
-  HANDLE_STEP("assertion", "fail", SchemaCompilerAssertionFail)
-  HANDLE_STEP("assertion", "defines", SchemaCompilerAssertionDefines)
-  HANDLE_STEP("assertion", "defines-all", SchemaCompilerAssertionDefinesAll)
+  HANDLE_STEP("assertion", "fail", AssertionFail)
+  HANDLE_STEP("assertion", "defines", AssertionDefines)
+  HANDLE_STEP("assertion", "defines-all", AssertionDefinesAll)
   HANDLE_STEP("assertion", "property-dependencies",
-              SchemaCompilerAssertionPropertyDependencies)
-  HANDLE_STEP("assertion", "type", SchemaCompilerAssertionType)
-  HANDLE_STEP("assertion", "type-any", SchemaCompilerAssertionTypeAny)
-  HANDLE_STEP("assertion", "type-strict", SchemaCompilerAssertionTypeStrict)
-  HANDLE_STEP("assertion", "type-strict-any",
-              SchemaCompilerAssertionTypeStrictAny)
-  HANDLE_STEP("assertion", "type-string-bounded",
-              SchemaCompilerAssertionTypeStringBounded)
-  HANDLE_STEP("assertion", "type-array-bounded",
-              SchemaCompilerAssertionTypeArrayBounded)
-  HANDLE_STEP("assertion", "type-object-bounded",
-              SchemaCompilerAssertionTypeObjectBounded)
-  HANDLE_STEP("assertion", "regex", SchemaCompilerAssertionRegex)
-  HANDLE_STEP("assertion", "string-size-less",
-              SchemaCompilerAssertionStringSizeLess)
-  HANDLE_STEP("assertion", "string-size-greater",
-              SchemaCompilerAssertionStringSizeGreater)
-  HANDLE_STEP("assertion", "array-size-less",
-              SchemaCompilerAssertionArraySizeLess)
-  HANDLE_STEP("assertion", "array-size-greater",
-              SchemaCompilerAssertionArraySizeGreater)
-  HANDLE_STEP("assertion", "object-size-less",
-              SchemaCompilerAssertionObjectSizeLess)
-  HANDLE_STEP("assertion", "object-size-greater",
-              SchemaCompilerAssertionObjectSizeGreater)
-  HANDLE_STEP("assertion", "equal", SchemaCompilerAssertionEqual)
-  HANDLE_STEP("assertion", "greater-equal", SchemaCompilerAssertionGreaterEqual)
-  HANDLE_STEP("assertion", "less-equal", SchemaCompilerAssertionLessEqual)
-  HANDLE_STEP("assertion", "greater", SchemaCompilerAssertionGreater)
-  HANDLE_STEP("assertion", "less", SchemaCompilerAssertionLess)
-  HANDLE_STEP("assertion", "unique", SchemaCompilerAssertionUnique)
-  HANDLE_STEP("assertion", "divisible", SchemaCompilerAssertionDivisible)
-  HANDLE_STEP("assertion", "string-type", SchemaCompilerAssertionStringType)
-  HANDLE_STEP("assertion", "property-type", SchemaCompilerAssertionPropertyType)
-  HANDLE_STEP("assertion", "property-type-strict",
-              SchemaCompilerAssertionPropertyTypeStrict)
-  HANDLE_STEP("assertion", "equals-any", SchemaCompilerAssertionEqualsAny)
-  HANDLE_STEP("annotation", "emit", SchemaCompilerAnnotationEmit)
+              AssertionPropertyDependencies)
+  HANDLE_STEP("assertion", "type", AssertionType)
+  HANDLE_STEP("assertion", "type-any", AssertionTypeAny)
+  HANDLE_STEP("assertion", "type-strict", AssertionTypeStrict)
+  HANDLE_STEP("assertion", "type-strict-any", AssertionTypeStrictAny)
+  HANDLE_STEP("assertion", "type-string-bounded", AssertionTypeStringBounded)
+  HANDLE_STEP("assertion", "type-array-bounded", AssertionTypeArrayBounded)
+  HANDLE_STEP("assertion", "type-object-bounded", AssertionTypeObjectBounded)
+  HANDLE_STEP("assertion", "regex", AssertionRegex)
+  HANDLE_STEP("assertion", "string-size-less", AssertionStringSizeLess)
+  HANDLE_STEP("assertion", "string-size-greater", AssertionStringSizeGreater)
+  HANDLE_STEP("assertion", "array-size-less", AssertionArraySizeLess)
+  HANDLE_STEP("assertion", "array-size-greater", AssertionArraySizeGreater)
+  HANDLE_STEP("assertion", "object-size-less", AssertionObjectSizeLess)
+  HANDLE_STEP("assertion", "object-size-greater", AssertionObjectSizeGreater)
+  HANDLE_STEP("assertion", "equal", AssertionEqual)
+  HANDLE_STEP("assertion", "greater-equal", AssertionGreaterEqual)
+  HANDLE_STEP("assertion", "less-equal", AssertionLessEqual)
+  HANDLE_STEP("assertion", "greater", AssertionGreater)
+  HANDLE_STEP("assertion", "less", AssertionLess)
+  HANDLE_STEP("assertion", "unique", AssertionUnique)
+  HANDLE_STEP("assertion", "divisible", AssertionDivisible)
+  HANDLE_STEP("assertion", "string-type", AssertionStringType)
+  HANDLE_STEP("assertion", "property-type", AssertionPropertyType)
+  HANDLE_STEP("assertion", "property-type-strict", AssertionPropertyTypeStrict)
+  HANDLE_STEP("assertion", "equals-any", AssertionEqualsAny)
+  HANDLE_STEP("annotation", "emit", AnnotationEmit)
   HANDLE_STEP("annotation", "when-array-size-equal",
-              SchemaCompilerAnnotationWhenArraySizeEqual)
+              AnnotationWhenArraySizeEqual)
   HANDLE_STEP("annotation", "when-array-size-greater",
-              SchemaCompilerAnnotationWhenArraySizeGreater)
-  HANDLE_STEP("annotation", "to-parent", SchemaCompilerAnnotationToParent)
-  HANDLE_STEP("annotation", "basename-to-parent",
-              SchemaCompilerAnnotationBasenameToParent)
+              AnnotationWhenArraySizeGreater)
+  HANDLE_STEP("annotation", "to-parent", AnnotationToParent)
+  HANDLE_STEP("annotation", "basename-to-parent", AnnotationBasenameToParent)
   HANDLE_STEP("annotation", "loop-properties-unevaluated",
-              SchemaCompilerAnnotationLoopPropertiesUnevaluated)
-  HANDLE_STEP("annotation", "loop-items-unmarked",
-              SchemaCompilerAnnotationLoopItemsUnmarked)
+              AnnotationLoopPropertiesUnevaluated)
+  HANDLE_STEP("annotation", "loop-items-unmarked", AnnotationLoopItemsUnmarked)
   HANDLE_STEP("annotation", "loop-items-unevaluated",
-              SchemaCompilerAnnotationLoopItemsUnevaluated)
-  HANDLE_STEP("annotation", "not", SchemaCompilerAnnotationNot)
-  HANDLE_STEP("logical", "not", SchemaCompilerLogicalNot)
-  HANDLE_STEP("logical", "or", SchemaCompilerLogicalOr)
-  HANDLE_STEP("logical", "and", SchemaCompilerLogicalAnd)
-  HANDLE_STEP("logical", "xor", SchemaCompilerLogicalXor)
-  HANDLE_STEP("logical", "condition", SchemaCompilerLogicalCondition)
-  HANDLE_STEP("logical", "when-type", SchemaCompilerLogicalWhenType)
-  HANDLE_STEP("logical", "when-defines", SchemaCompilerLogicalWhenDefines)
-  HANDLE_STEP("logical", "when-array-size-greater",
-              SchemaCompilerLogicalWhenArraySizeGreater)
-  HANDLE_STEP("logical", "when-array-size-equal",
-              SchemaCompilerLogicalWhenArraySizeEqual)
-  HANDLE_STEP("loop", "properties-match", SchemaCompilerLoopPropertiesMatch)
-  HANDLE_STEP("loop", "properties", SchemaCompilerLoopProperties)
-  HANDLE_STEP("loop", "properties-regex", SchemaCompilerLoopPropertiesRegex)
-  HANDLE_STEP("loop", "properties-except", SchemaCompilerLoopPropertiesExcept)
-  HANDLE_STEP("loop", "properties-type", SchemaCompilerLoopPropertiesType)
-  HANDLE_STEP("loop", "properties-type-strict",
-              SchemaCompilerLoopPropertiesTypeStrict)
-  HANDLE_STEP("loop", "keys", SchemaCompilerLoopKeys)
-  HANDLE_STEP("loop", "items", SchemaCompilerLoopItems)
-  HANDLE_STEP("loop", "contains", SchemaCompilerLoopContains)
-  HANDLE_STEP("control", "label", SchemaCompilerControlLabel)
-  HANDLE_STEP("control", "mark", SchemaCompilerControlMark)
-  HANDLE_STEP("control", "jump", SchemaCompilerControlJump)
-  HANDLE_STEP("control", "dynamic-anchor-jump",
-              SchemaCompilerControlDynamicAnchorJump)
+              AnnotationLoopItemsUnevaluated)
+  HANDLE_STEP("annotation", "not", AnnotationNot)
+  HANDLE_STEP("logical", "not", LogicalNot)
+  HANDLE_STEP("logical", "or", LogicalOr)
+  HANDLE_STEP("logical", "and", LogicalAnd)
+  HANDLE_STEP("logical", "xor", LogicalXor)
+  HANDLE_STEP("logical", "condition", LogicalCondition)
+  HANDLE_STEP("logical", "when-type", LogicalWhenType)
+  HANDLE_STEP("logical", "when-defines", LogicalWhenDefines)
+  HANDLE_STEP("logical", "when-array-size-greater", LogicalWhenArraySizeGreater)
+  HANDLE_STEP("logical", "when-array-size-equal", LogicalWhenArraySizeEqual)
+  HANDLE_STEP("loop", "properties-match", LoopPropertiesMatch)
+  HANDLE_STEP("loop", "properties", LoopProperties)
+  HANDLE_STEP("loop", "properties-regex", LoopPropertiesRegex)
+  HANDLE_STEP("loop", "properties-except", LoopPropertiesExcept)
+  HANDLE_STEP("loop", "properties-type", LoopPropertiesType)
+  HANDLE_STEP("loop", "properties-type-strict", LoopPropertiesTypeStrict)
+  HANDLE_STEP("loop", "keys", LoopKeys)
+  HANDLE_STEP("loop", "items", LoopItems)
+  HANDLE_STEP("loop", "contains", LoopContains)
+  HANDLE_STEP("control", "label", ControlLabel)
+  HANDLE_STEP("control", "mark", ControlMark)
+  HANDLE_STEP("control", "jump", ControlJump)
+  HANDLE_STEP("control", "dynamic-anchor-jump", ControlDynamicAnchorJump)
 
 #undef HANDLE_STEP
 };
@@ -325,8 +306,7 @@ struct StepVisitor {
 
 namespace sourcemeta::blaze {
 
-auto to_json(const SchemaCompilerTemplate &steps)
-    -> sourcemeta::jsontoolkit::JSON {
+auto to_json(const Template &steps) -> sourcemeta::jsontoolkit::JSON {
   sourcemeta::jsontoolkit::JSON result{
       sourcemeta::jsontoolkit::JSON::make_array()};
   for (const auto &step : steps) {
@@ -336,9 +316,9 @@ auto to_json(const SchemaCompilerTemplate &steps)
   return result;
 }
 
-auto compiler_template_format_compare(
-    const sourcemeta::jsontoolkit::JSON::String &left,
-    const sourcemeta::jsontoolkit::JSON::String &right) -> bool {
+auto template_format_compare(const sourcemeta::jsontoolkit::JSON::String &left,
+                             const sourcemeta::jsontoolkit::JSON::String &right)
+    -> bool {
   using Rank = std::map<
       sourcemeta::jsontoolkit::JSON::String, std::uint64_t,
       std::less<sourcemeta::jsontoolkit::JSON::String>,

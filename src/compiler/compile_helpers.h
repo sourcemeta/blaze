@@ -11,11 +11,11 @@
 
 namespace sourcemeta::blaze {
 
-static const SchemaCompilerDynamicContext relative_dynamic_context{
+static const DynamicContext relative_dynamic_context{
     "", sourcemeta::jsontoolkit::empty_pointer,
     sourcemeta::jsontoolkit::empty_pointer};
 
-inline auto schema_resource_id(const SchemaCompilerContext &context,
+inline auto schema_resource_id(const Context &context,
                                const std::string &resource) -> std::size_t {
   const auto iterator{std::find(
       context.resources.cbegin(), context.resources.cend(),
@@ -31,9 +31,9 @@ inline auto schema_resource_id(const SchemaCompilerContext &context,
 
 // Instantiate a value-oriented step
 template <typename Step>
-auto make(const bool report, const SchemaCompilerContext &context,
-          const SchemaCompilerSchemaContext &schema_context,
-          const SchemaCompilerDynamicContext &dynamic_context,
+auto make(const bool report, const Context &context,
+          const SchemaContext &schema_context,
+          const DynamicContext &dynamic_context,
           // Take the value type from the "type" property of the step struct
           const decltype(std::declval<Step>().value) &value) -> Step {
   return {
@@ -51,12 +51,12 @@ auto make(const bool report, const SchemaCompilerContext &context,
 
 // Instantiate an applicator step
 template <typename Step>
-auto make(const bool report, const SchemaCompilerContext &context,
-          const SchemaCompilerSchemaContext &schema_context,
-          const SchemaCompilerDynamicContext &dynamic_context,
+auto make(const bool report, const Context &context,
+          const SchemaContext &schema_context,
+          const DynamicContext &dynamic_context,
           // Take the value type from the "value" property of the step struct
-          decltype(std::declval<Step>().value) &&value,
-          SchemaCompilerTemplate &&children) -> Step {
+          decltype(std::declval<Step>().value) &&value, Template &&children)
+    -> Step {
   return {
       dynamic_context.keyword.empty()
           ? dynamic_context.base_schema_location
@@ -72,8 +72,7 @@ auto make(const bool report, const SchemaCompilerContext &context,
 }
 
 template <typename Type, typename Step>
-auto unroll(const SchemaCompilerDynamicContext &dynamic_context,
-            const Step &step,
+auto unroll(const DynamicContext &dynamic_context, const Step &step,
             const sourcemeta::jsontoolkit::Pointer &base_instance_location =
                 sourcemeta::jsontoolkit::empty_pointer) -> Type {
   assert(std::holds_alternative<Type>(step));

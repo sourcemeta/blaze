@@ -86,10 +86,8 @@ public:
   auto hash(const std::size_t &resource,
             const std::string &fragment) const noexcept -> std::size_t;
   auto resources() const noexcept -> const std::vector<std::size_t> &;
-  auto mark(const std::size_t id, const SchemaCompilerTemplate &children)
-      -> void;
-  auto jump(const std::size_t id) const noexcept
-      -> const SchemaCompilerTemplate &;
+  auto mark(const std::size_t id, const Template &children) -> void;
+  auto jump(const std::size_t id) const noexcept -> const Template &;
   auto find_dynamic_anchor(const std::string &anchor) const
       -> std::optional<std::size_t>;
 
@@ -134,9 +132,7 @@ private:
   const std::hash<std::string> hasher_{};
   std::vector<std::size_t> resources_;
   // TODO: Try unordered_map
-  std::map<std::size_t,
-           const std::reference_wrapper<const SchemaCompilerTemplate>>
-      labels;
+  std::map<std::size_t, const std::reference_wrapper<const Template>> labels;
   bool property_as_instance{false};
 
   // For annotations

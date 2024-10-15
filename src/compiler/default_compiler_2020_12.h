@@ -11,21 +11,17 @@ namespace internal {
 using namespace sourcemeta::blaze;
 
 auto compiler_2020_12_applicator_prefixitems(
-    const SchemaCompilerContext &context,
-    const SchemaCompilerSchemaContext &schema_context,
-    const SchemaCompilerDynamicContext &dynamic_context)
-    -> SchemaCompilerTemplate {
+    const Context &context, const SchemaContext &schema_context,
+    const DynamicContext &dynamic_context) -> Template {
   return compiler_draft4_applicator_items_array(
       context, schema_context, dynamic_context,
-      context.uses_unevaluated_items ||
-          context.mode == SchemaCompilerMode::Exhaustive);
+      context.uses_unevaluated_items || context.mode == Mode::Exhaustive);
 }
 
-auto compiler_2020_12_applicator_items(
-    const SchemaCompilerContext &context,
-    const SchemaCompilerSchemaContext &schema_context,
-    const SchemaCompilerDynamicContext &dynamic_context)
-    -> SchemaCompilerTemplate {
+auto compiler_2020_12_applicator_items(const Context &context,
+                                       const SchemaContext &schema_context,
+                                       const DynamicContext &dynamic_context)
+    -> Template {
   const auto cursor{(schema_context.schema.defines("prefixItems") &&
                      schema_context.schema.at("prefixItems").is_array())
                         ? schema_context.schema.at("prefixItems").size()
@@ -33,26 +29,22 @@ auto compiler_2020_12_applicator_items(
 
   return compiler_draft4_applicator_additionalitems_from_cursor(
       context, schema_context, dynamic_context, cursor,
-      context.uses_unevaluated_items ||
-          context.mode == SchemaCompilerMode::Exhaustive);
+      context.uses_unevaluated_items || context.mode == Mode::Exhaustive);
 }
 
-auto compiler_2020_12_applicator_contains(
-    const SchemaCompilerContext &context,
-    const SchemaCompilerSchemaContext &schema_context,
-    const SchemaCompilerDynamicContext &dynamic_context)
-    -> SchemaCompilerTemplate {
+auto compiler_2020_12_applicator_contains(const Context &context,
+                                          const SchemaContext &schema_context,
+                                          const DynamicContext &dynamic_context)
+    -> Template {
   return compiler_2019_09_applicator_contains_conditional_annotate(
       context, schema_context, dynamic_context,
-      context.uses_unevaluated_items ||
-          context.mode == SchemaCompilerMode::Exhaustive);
+      context.uses_unevaluated_items || context.mode == Mode::Exhaustive);
 }
 
-auto compiler_2020_12_core_dynamicref(
-    const SchemaCompilerContext &context,
-    const SchemaCompilerSchemaContext &schema_context,
-    const SchemaCompilerDynamicContext &dynamic_context)
-    -> SchemaCompilerTemplate {
+auto compiler_2020_12_core_dynamicref(const Context &context,
+                                      const SchemaContext &schema_context,
+                                      const DynamicContext &dynamic_context)
+    -> Template {
   const auto current{
       to_uri(schema_context.relative_pointer, schema_context.base).recompose()};
   assert(context.frame.contains(
@@ -76,7 +68,7 @@ auto compiler_2020_12_core_dynamicref(
   // Note we don't need to even care about the static part of the dynamic
   // reference (if any), as even if we jump first there, we will still
   // look for the oldest dynamic anchor in the schema resource chain.
-  return {make<SchemaCompilerControlDynamicAnchorJump>(
+  return {make<ControlDynamicAnchorJump>(
       true, context, schema_context, dynamic_context,
       std::string{reference.fragment().value()})};
 }

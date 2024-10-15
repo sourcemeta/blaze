@@ -8,20 +8,19 @@
 namespace internal {
 using namespace sourcemeta::blaze;
 
-auto compiler_draft6_validation_type(
-    const SchemaCompilerContext &context,
-    const SchemaCompilerSchemaContext &schema_context,
-    const SchemaCompilerDynamicContext &dynamic_context)
-    -> SchemaCompilerTemplate {
+auto compiler_draft6_validation_type(const Context &context,
+                                     const SchemaContext &schema_context,
+                                     const DynamicContext &dynamic_context)
+    -> Template {
   if (schema_context.schema.at(dynamic_context.keyword).is_string()) {
     const auto &type{
         schema_context.schema.at(dynamic_context.keyword).to_string()};
     if (type == "null") {
-      return {make<SchemaCompilerAssertionTypeStrict>(
+      return {make<AssertionTypeStrict>(
           true, context, schema_context, dynamic_context,
           sourcemeta::jsontoolkit::JSON::Type::Null)};
     } else if (type == "boolean") {
-      return {make<SchemaCompilerAssertionTypeStrict>(
+      return {make<AssertionTypeStrict>(
           true, context, schema_context, dynamic_context,
           sourcemeta::jsontoolkit::JSON::Type::Boolean)};
     } else if (type == "object") {
@@ -30,12 +29,12 @@ auto compiler_draft6_validation_type(
       const auto maximum{
           unsigned_integer_property(schema_context.schema, "maxProperties")};
       if (minimum > 0 || maximum.has_value()) {
-        return {make<SchemaCompilerAssertionTypeObjectBounded>(
-            true, context, schema_context, dynamic_context,
-            {minimum, maximum, false})};
+        return {make<AssertionTypeObjectBounded>(true, context, schema_context,
+                                                 dynamic_context,
+                                                 {minimum, maximum, false})};
       }
 
-      return {make<SchemaCompilerAssertionTypeStrict>(
+      return {make<AssertionTypeStrict>(
           true, context, schema_context, dynamic_context,
           sourcemeta::jsontoolkit::JSON::Type::Object)};
     } else if (type == "array") {
@@ -44,36 +43,36 @@ auto compiler_draft6_validation_type(
       const auto maximum{
           unsigned_integer_property(schema_context.schema, "maxItems")};
       if (minimum > 0 || maximum.has_value()) {
-        return {make<SchemaCompilerAssertionTypeArrayBounded>(
-            true, context, schema_context, dynamic_context,
-            {minimum, maximum, false})};
+        return {make<AssertionTypeArrayBounded>(true, context, schema_context,
+                                                dynamic_context,
+                                                {minimum, maximum, false})};
       }
 
-      return {make<SchemaCompilerAssertionTypeStrict>(
+      return {make<AssertionTypeStrict>(
           true, context, schema_context, dynamic_context,
           sourcemeta::jsontoolkit::JSON::Type::Array)};
     } else if (type == "number") {
-      return {make<SchemaCompilerAssertionTypeStrictAny>(
+      return {make<AssertionTypeStrictAny>(
           true, context, schema_context, dynamic_context,
           std::vector<sourcemeta::jsontoolkit::JSON::Type>{
               sourcemeta::jsontoolkit::JSON::Type::Real,
               sourcemeta::jsontoolkit::JSON::Type::Integer})};
     } else if (type == "integer") {
-      return {make<SchemaCompilerAssertionType>(
-          true, context, schema_context, dynamic_context,
-          sourcemeta::jsontoolkit::JSON::Type::Integer)};
+      return {
+          make<AssertionType>(true, context, schema_context, dynamic_context,
+                              sourcemeta::jsontoolkit::JSON::Type::Integer)};
     } else if (type == "string") {
       const auto minimum{
           unsigned_integer_property(schema_context.schema, "minLength", 0)};
       const auto maximum{
           unsigned_integer_property(schema_context.schema, "maxLength")};
       if (minimum > 0 || maximum.has_value()) {
-        return {make<SchemaCompilerAssertionTypeStringBounded>(
-            true, context, schema_context, dynamic_context,
-            {minimum, maximum, false})};
+        return {make<AssertionTypeStringBounded>(true, context, schema_context,
+                                                 dynamic_context,
+                                                 {minimum, maximum, false})};
       }
 
-      return {make<SchemaCompilerAssertionTypeStrict>(
+      return {make<AssertionTypeStrict>(
           true, context, schema_context, dynamic_context,
           sourcemeta::jsontoolkit::JSON::Type::String)};
     } else {
@@ -87,33 +86,33 @@ auto compiler_draft6_validation_type(
     const auto &type{
         schema_context.schema.at(dynamic_context.keyword).front().to_string()};
     if (type == "null") {
-      return {make<SchemaCompilerAssertionTypeStrict>(
+      return {make<AssertionTypeStrict>(
           true, context, schema_context, dynamic_context,
           sourcemeta::jsontoolkit::JSON::Type::Null)};
     } else if (type == "boolean") {
-      return {make<SchemaCompilerAssertionTypeStrict>(
+      return {make<AssertionTypeStrict>(
           true, context, schema_context, dynamic_context,
           sourcemeta::jsontoolkit::JSON::Type::Boolean)};
     } else if (type == "object") {
-      return {make<SchemaCompilerAssertionTypeStrict>(
+      return {make<AssertionTypeStrict>(
           true, context, schema_context, dynamic_context,
           sourcemeta::jsontoolkit::JSON::Type::Object)};
     } else if (type == "array") {
-      return {make<SchemaCompilerAssertionTypeStrict>(
+      return {make<AssertionTypeStrict>(
           true, context, schema_context, dynamic_context,
           sourcemeta::jsontoolkit::JSON::Type::Array)};
     } else if (type == "number") {
-      return {make<SchemaCompilerAssertionTypeStrictAny>(
+      return {make<AssertionTypeStrictAny>(
           true, context, schema_context, dynamic_context,
           std::vector<sourcemeta::jsontoolkit::JSON::Type>{
               sourcemeta::jsontoolkit::JSON::Type::Real,
               sourcemeta::jsontoolkit::JSON::Type::Integer})};
     } else if (type == "integer") {
-      return {make<SchemaCompilerAssertionType>(
-          true, context, schema_context, dynamic_context,
-          sourcemeta::jsontoolkit::JSON::Type::Integer)};
+      return {
+          make<AssertionType>(true, context, schema_context, dynamic_context,
+                              sourcemeta::jsontoolkit::JSON::Type::Integer)};
     } else if (type == "string") {
-      return {make<SchemaCompilerAssertionTypeStrict>(
+      return {make<AssertionTypeStrict>(
           true, context, schema_context, dynamic_context,
           sourcemeta::jsontoolkit::JSON::Type::String)};
     } else {
@@ -145,29 +144,26 @@ auto compiler_draft6_validation_type(
 
     assert(types.size() >=
            schema_context.schema.at(dynamic_context.keyword).size());
-    return {make<SchemaCompilerAssertionTypeAny>(
-        true, context, schema_context, dynamic_context, std::move(types))};
+    return {make<AssertionTypeAny>(true, context, schema_context,
+                                   dynamic_context, std::move(types))};
   }
 
   return {};
 }
 
-auto compiler_draft6_validation_const(
-    const SchemaCompilerContext &context,
-    const SchemaCompilerSchemaContext &schema_context,
-    const SchemaCompilerDynamicContext &dynamic_context)
-    -> SchemaCompilerTemplate {
-  return {make<SchemaCompilerAssertionEqual>(
+auto compiler_draft6_validation_const(const Context &context,
+                                      const SchemaContext &schema_context,
+                                      const DynamicContext &dynamic_context)
+    -> Template {
+  return {make<AssertionEqual>(
       true, context, schema_context, dynamic_context,
       sourcemeta::jsontoolkit::JSON{
           schema_context.schema.at(dynamic_context.keyword)})};
 }
 
 auto compiler_draft6_validation_exclusivemaximum(
-    const SchemaCompilerContext &context,
-    const SchemaCompilerSchemaContext &schema_context,
-    const SchemaCompilerDynamicContext &dynamic_context)
-    -> SchemaCompilerTemplate {
+    const Context &context, const SchemaContext &schema_context,
+    const DynamicContext &dynamic_context) -> Template {
   assert(schema_context.schema.at(dynamic_context.keyword).is_number());
 
   if (schema_context.schema.defines("type") &&
@@ -177,17 +173,15 @@ auto compiler_draft6_validation_exclusivemaximum(
     return {};
   }
 
-  return {make<SchemaCompilerAssertionLess>(
+  return {make<AssertionLess>(
       true, context, schema_context, dynamic_context,
       sourcemeta::jsontoolkit::JSON{
           schema_context.schema.at(dynamic_context.keyword)})};
 }
 
 auto compiler_draft6_validation_exclusiveminimum(
-    const SchemaCompilerContext &context,
-    const SchemaCompilerSchemaContext &schema_context,
-    const SchemaCompilerDynamicContext &dynamic_context)
-    -> SchemaCompilerTemplate {
+    const Context &context, const SchemaContext &schema_context,
+    const DynamicContext &dynamic_context) -> Template {
   assert(schema_context.schema.at(dynamic_context.keyword).is_number());
 
   if (schema_context.schema.defines("type") &&
@@ -197,44 +191,41 @@ auto compiler_draft6_validation_exclusiveminimum(
     return {};
   }
 
-  return {make<SchemaCompilerAssertionGreater>(
+  return {make<AssertionGreater>(
       true, context, schema_context, dynamic_context,
       sourcemeta::jsontoolkit::JSON{
           schema_context.schema.at(dynamic_context.keyword)})};
 }
 
-auto compiler_draft6_applicator_contains(
-    const SchemaCompilerContext &context,
-    const SchemaCompilerSchemaContext &schema_context,
-    const SchemaCompilerDynamicContext &dynamic_context)
-    -> SchemaCompilerTemplate {
+auto compiler_draft6_applicator_contains(const Context &context,
+                                         const SchemaContext &schema_context,
+                                         const DynamicContext &dynamic_context)
+    -> Template {
   if (schema_context.schema.defines("type") &&
       schema_context.schema.at("type").is_string() &&
       schema_context.schema.at("type").to_string() != "array") {
     return {};
   }
 
-  return {make<SchemaCompilerLoopContains>(
-      true, context, schema_context, dynamic_context,
-      SchemaCompilerValueRange{1, std::nullopt, false},
-      compile(context, schema_context, relative_dynamic_context,
-              sourcemeta::jsontoolkit::empty_pointer,
-              sourcemeta::jsontoolkit::empty_pointer))};
+  return {make<LoopContains>(true, context, schema_context, dynamic_context,
+                             ValueRange{1, std::nullopt, false},
+                             compile(context, schema_context,
+                                     relative_dynamic_context,
+                                     sourcemeta::jsontoolkit::empty_pointer,
+                                     sourcemeta::jsontoolkit::empty_pointer))};
 }
 
 auto compiler_draft6_validation_propertynames(
-    const SchemaCompilerContext &context,
-    const SchemaCompilerSchemaContext &schema_context,
-    const SchemaCompilerDynamicContext &dynamic_context)
-    -> SchemaCompilerTemplate {
+    const Context &context, const SchemaContext &schema_context,
+    const DynamicContext &dynamic_context) -> Template {
   if (schema_context.schema.defines("type") &&
       schema_context.schema.at("type").is_string() &&
       schema_context.schema.at("type").to_string() != "string") {
     return {};
   }
 
-  return {make<SchemaCompilerLoopKeys>(
-      true, context, schema_context, dynamic_context, SchemaCompilerValueNone{},
+  return {make<LoopKeys>(
+      true, context, schema_context, dynamic_context, ValueNone{},
       compile(context, schema_context, relative_dynamic_context,
               sourcemeta::jsontoolkit::empty_pointer,
               sourcemeta::jsontoolkit::empty_pointer))};

@@ -12,12 +12,11 @@
 
 namespace {
 
-auto compile_subschema(
-    const sourcemeta::blaze::SchemaCompilerContext &context,
-    const sourcemeta::blaze::SchemaCompilerSchemaContext &schema_context,
-    const sourcemeta::blaze::SchemaCompilerDynamicContext &dynamic_context,
-    const std::optional<std::string> &default_dialect)
-    -> sourcemeta::blaze::SchemaCompilerTemplate {
+auto compile_subschema(const sourcemeta::blaze::Context &context,
+                       const sourcemeta::blaze::SchemaContext &schema_context,
+                       const sourcemeta::blaze::DynamicContext &dynamic_context,
+                       const std::optional<std::string> &default_dialect)
+    -> sourcemeta::blaze::Template {
   using namespace sourcemeta::blaze;
   assert(is_schema(schema_context.schema));
 
@@ -27,13 +26,12 @@ auto compile_subschema(
     if (schema_context.schema.to_boolean()) {
       return {};
     } else {
-      return {make<SchemaCompilerAssertionFail>(true, context, schema_context,
-                                                dynamic_context,
-                                                SchemaCompilerValueNone{})};
+      return {make<AssertionFail>(true, context, schema_context,
+                                  dynamic_context, ValueNone{})};
     }
   }
 
-  SchemaCompilerTemplate steps;
+  Template steps;
   for (const auto &entry : sourcemeta::jsontoolkit::SchemaKeywordIterator{
            schema_context.schema, context.walker, context.resolver,
            default_dialect}) {
@@ -68,9 +66,8 @@ namespace sourcemeta::blaze {
 auto compile(const sourcemeta::jsontoolkit::JSON &schema,
              const sourcemeta::jsontoolkit::SchemaWalker &walker,
              const sourcemeta::jsontoolkit::SchemaResolver &resolver,
-             const SchemaCompiler &compiler, const SchemaCompilerMode mode,
-             const std::optional<std::string> &default_dialect)
-    -> SchemaCompilerTemplate {
+             const Compiler &compiler, const Mode mode,
+             const std::optional<std::string> &default_dialect) -> Template {
   assert(is_schema(schema));
 
   // Make sure the input schema is bundled, otherwise we won't be able to
@@ -110,7 +107,7 @@ auto compile(const sourcemeta::jsontoolkit::JSON &schema,
     }
   }
 
-  SchemaCompilerSchemaContext schema_context{
+  SchemaContext schema_context{
       sourcemeta::jsontoolkit::empty_pointer,
       result,
       vocabularies(schema, resolver, root_frame_entry.dialect),
@@ -172,19 +169,19 @@ auto compile(const sourcemeta::jsontoolkit::JSON &schema,
   assert(resources.size() ==
          std::set<std::string>(resources.cbegin(), resources.cend()).size());
 
-  const SchemaCompilerContext context{result,
-                                      frame,
-                                      references,
-                                      std::move(resources),
-                                      walker,
-                                      resolver,
-                                      compiler,
-                                      mode,
-                                      uses_dynamic_scopes,
-                                      uses_unevaluated_properties,
-                                      uses_unevaluated_items};
-  const SchemaCompilerDynamicContext dynamic_context{relative_dynamic_context};
-  SchemaCompilerTemplate compiler_template;
+  const Context context{result,
+                        frame,
+                        references,
+                        std::move(resources),
+                        walker,
+                        resolver,
+                        compiler,
+                        mode,
+                        uses_dynamic_scopes,
+                        uses_unevaluated_properties,
+                        uses_unevaluated_items};
+  const DynamicContext dynamic_context{relative_dynamic_context};
+  Template compiler_template;
 
   if (uses_dynamic_scopes &&
       (schema_context.vocabularies.contains(
@@ -212,17 +209,16 @@ auto compile(const sourcemeta::jsontoolkit::JSON &schema,
       auto subschema{get(result, entry.second.pointer)};
       auto nested_vocabularies{
           vocabularies(subschema, resolver, entry.second.dialect)};
-      const SchemaCompilerSchemaContext nested_schema_context{
-          entry.second.relative_pointer,
-          std::move(subschema),
-          std::move(nested_vocabularies),
-          entry.second.base,
-          {},
-          {}};
+      const SchemaContext nested_schema_context{entry.second.relative_pointer,
+                                                std::move(subschema),
+                                                std::move(nested_vocabularies),
+                                                entry.second.base,
+                                                {},
+                                                {}};
 
-      compiler_template.push_back(make<SchemaCompilerControlMark>(
+      compiler_template.push_back(make<ControlMark>(
           true, context, nested_schema_context, dynamic_context,
-          SchemaCompilerValueUnsignedInteger{label},
+          ValueUnsignedInteger{label},
           compile(context, nested_schema_context, relative_dynamic_context,
                   sourcemeta::jsontoolkit::empty_pointer,
                   sourcemeta::jsontoolkit::empty_pointer, entry.first.second)));
@@ -241,12 +237,11 @@ auto compile(const sourcemeta::jsontoolkit::JSON &schema,
   }
 }
 
-auto compile(const SchemaCompilerContext &context,
-             const SchemaCompilerSchemaContext &schema_context,
-             const SchemaCompilerDynamicContext &dynamic_context,
+auto compile(const Context &context, const SchemaContext &schema_context,
+             const DynamicContext &dynamic_context,
              const sourcemeta::jsontoolkit::Pointer &schema_suffix,
              const sourcemeta::jsontoolkit::Pointer &instance_suffix,
-             const std::optional<std::string> &uri) -> SchemaCompilerTemplate {
+             const std::optional<std::string> &uri) -> Template {
   // Determine URI of the destination after recursion
   const std::string destination{
       uri.has_value()
@@ -295,44 +290,44 @@ auto compile(const SchemaCompilerContext &context,
       entry.dialect);
 }
 
-SchemaCompilerErrorTraceOutput::SchemaCompilerErrorTraceOutput(
+ErrorTraceOutput::ErrorTraceOutput(
     const sourcemeta::jsontoolkit::JSON &instance,
     const sourcemeta::jsontoolkit::WeakPointer &base)
     : instance_{instance}, base_{base} {}
 
-auto SchemaCompilerErrorTraceOutput::begin() const -> const_iterator {
+auto ErrorTraceOutput::begin() const -> const_iterator {
   return this->output.begin();
 }
 
-auto SchemaCompilerErrorTraceOutput::end() const -> const_iterator {
+auto ErrorTraceOutput::end() const -> const_iterator {
   return this->output.end();
 }
 
-auto SchemaCompilerErrorTraceOutput::cbegin() const -> const_iterator {
+auto ErrorTraceOutput::cbegin() const -> const_iterator {
   return this->output.cbegin();
 }
 
-auto SchemaCompilerErrorTraceOutput::cend() const -> const_iterator {
+auto ErrorTraceOutput::cend() const -> const_iterator {
   return this->output.cend();
 }
 
-auto SchemaCompilerErrorTraceOutput::operator()(
-    const SchemaCompilerEvaluationType type, const bool result,
-    const SchemaCompilerTemplate::value_type &step,
+auto ErrorTraceOutput::operator()(
+    const EvaluationType type, const bool result,
+    const Template::value_type &step,
     const sourcemeta::jsontoolkit::WeakPointer &evaluate_path,
     const sourcemeta::jsontoolkit::WeakPointer &instance_location,
     const sourcemeta::jsontoolkit::JSON &annotation) -> void {
   assert(!evaluate_path.empty());
   assert(evaluate_path.back().is_property());
 
-  if (type == SchemaCompilerEvaluationType::Pre) {
+  if (type == EvaluationType::Pre) {
     assert(result);
     const auto &keyword{evaluate_path.back().to_property()};
     // To ease the output
     if (keyword == "oneOf" || keyword == "not") {
       this->mask.insert(evaluate_path);
     }
-  } else if (type == SchemaCompilerEvaluationType::Post &&
+  } else if (type == EvaluationType::Post &&
              this->mask.contains(evaluate_path)) {
     this->mask.erase(evaluate_path);
   }

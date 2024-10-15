@@ -29,7 +29,7 @@ auto EvaluationContext::push_without_traverse(
   // ever-growing evaluate paths
   constexpr auto EVALUATE_PATH_LIMIT{300};
   if (this->evaluate_path_.size() > EVALUATE_PATH_LIMIT) [[unlikely]] {
-    throw sourcemeta::blaze::SchemaEvaluationError(
+    throw sourcemeta::blaze::EvaluationError(
         "The evaluation path depth limit was reached "
         "likely due to infinite recursion");
   }
@@ -294,13 +294,13 @@ auto EvaluationContext::resolve_string_target() -> std::optional<
   }
 }
 
-auto EvaluationContext::mark(const std::size_t id,
-                             const SchemaCompilerTemplate &children) -> void {
+auto EvaluationContext::mark(const std::size_t id, const Template &children)
+    -> void {
   this->labels.try_emplace(id, children);
 }
 
 auto EvaluationContext::jump(const std::size_t id) const noexcept
-    -> const SchemaCompilerTemplate & {
+    -> const Template & {
   assert(this->labels.contains(id));
   return this->labels.at(id).get();
 }

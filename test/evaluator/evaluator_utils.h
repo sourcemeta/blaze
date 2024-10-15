@@ -12,32 +12,28 @@ inline auto FIRST_PROPERTY_IS(const sourcemeta::jsontoolkit::JSON &document,
 }
 
 #define EVALUATE_WITH_TRACE(schema_template, instance, count)                  \
-  std::vector<                                                                 \
-      std::tuple<bool, sourcemeta::jsontoolkit::WeakPointer,                   \
-                 sourcemeta::jsontoolkit::WeakPointer,                         \
-                 sourcemeta::blaze::SchemaCompilerTemplate::value_type,        \
-                 sourcemeta::jsontoolkit::JSON>>                               \
+  std::vector<std::tuple<bool, sourcemeta::jsontoolkit::WeakPointer,           \
+                         sourcemeta::jsontoolkit::WeakPointer,                 \
+                         sourcemeta::blaze::Template::value_type,              \
+                         sourcemeta::jsontoolkit::JSON>>                       \
       trace_pre;                                                               \
-  std::vector<                                                                 \
-      std::tuple<bool, sourcemeta::jsontoolkit::WeakPointer,                   \
-                 sourcemeta::jsontoolkit::WeakPointer,                         \
-                 sourcemeta::blaze::SchemaCompilerTemplate::value_type,        \
-                 sourcemeta::jsontoolkit::JSON>>                               \
+  std::vector<std::tuple<bool, sourcemeta::jsontoolkit::WeakPointer,           \
+                         sourcemeta::jsontoolkit::WeakPointer,                 \
+                         sourcemeta::blaze::Template::value_type,              \
+                         sourcemeta::jsontoolkit::JSON>>                       \
       trace_post;                                                              \
   const auto result{sourcemeta::blaze::evaluate(                               \
       schema_template, instance,                                               \
       [&trace_pre, &trace_post](                                               \
-          const sourcemeta::blaze::SchemaCompilerEvaluationType type,          \
-          const bool valid,                                                    \
-          const sourcemeta::blaze::SchemaCompilerTemplate::value_type &step,   \
+          const sourcemeta::blaze::EvaluationType type, const bool valid,      \
+          const sourcemeta::blaze::Template::value_type &step,                 \
           const sourcemeta::jsontoolkit::WeakPointer &evaluate_path,           \
           const sourcemeta::jsontoolkit::WeakPointer &instance_location,       \
           const sourcemeta::jsontoolkit::JSON &annotation) {                   \
-        if (type == sourcemeta::blaze::SchemaCompilerEvaluationType::Pre) {    \
+        if (type == sourcemeta::blaze::EvaluationType::Pre) {                  \
           trace_pre.push_back(                                                 \
               {valid, evaluate_path, instance_location, step, annotation});    \
-        } else if (type ==                                                     \
-                   sourcemeta::blaze::SchemaCompilerEvaluationType::Post) {    \
+        } else if (type == sourcemeta::blaze::EvaluationType::Post) {          \
           trace_post.push_back(                                                \
               {valid, evaluate_path, instance_location, step, annotation});    \
         }                                                                      \
@@ -50,7 +46,7 @@ inline auto FIRST_PROPERTY_IS(const sourcemeta::jsontoolkit::JSON &document,
       schema, sourcemeta::jsontoolkit::default_schema_walker,                  \
       sourcemeta::jsontoolkit::official_resolver,                              \
       sourcemeta::blaze::default_schema_compiler,                              \
-      sourcemeta::blaze::SchemaCompilerMode::FastValidation)};                 \
+      sourcemeta::blaze::Mode::FastValidation)};                               \
   EVALUATE_WITH_TRACE(compiled_schema, instance, count)                        \
   EXPECT_TRUE(result);
 
@@ -59,7 +55,7 @@ inline auto FIRST_PROPERTY_IS(const sourcemeta::jsontoolkit::JSON &document,
       schema, sourcemeta::jsontoolkit::default_schema_walker,                  \
       sourcemeta::jsontoolkit::official_resolver,                              \
       sourcemeta::blaze::default_schema_compiler,                              \
-      sourcemeta::blaze::SchemaCompilerMode::FastValidation)};                 \
+      sourcemeta::blaze::Mode::FastValidation)};                               \
   EVALUATE_WITH_TRACE(compiled_schema, instance, count)                        \
   EXPECT_FALSE(result);
 
@@ -68,7 +64,7 @@ inline auto FIRST_PROPERTY_IS(const sourcemeta::jsontoolkit::JSON &document,
       schema, sourcemeta::jsontoolkit::default_schema_walker,                  \
       sourcemeta::jsontoolkit::official_resolver,                              \
       sourcemeta::blaze::default_schema_compiler,                              \
-      sourcemeta::blaze::SchemaCompilerMode::Exhaustive)};                     \
+      sourcemeta::blaze::Mode::Exhaustive)};                                   \
   EVALUATE_WITH_TRACE(compiled_schema, instance, count)                        \
   EXPECT_TRUE(result);
 
@@ -77,7 +73,7 @@ inline auto FIRST_PROPERTY_IS(const sourcemeta::jsontoolkit::JSON &document,
       schema, sourcemeta::jsontoolkit::default_schema_walker,                  \
       sourcemeta::jsontoolkit::official_resolver,                              \
       sourcemeta::blaze::default_schema_compiler,                              \
-      sourcemeta::blaze::SchemaCompilerMode::Exhaustive)};                     \
+      sourcemeta::blaze::Mode::Exhaustive)};                                   \
   EVALUATE_WITH_TRACE(compiled_schema, instance, count)                        \
   EXPECT_FALSE(result);
 
@@ -92,13 +88,12 @@ inline auto FIRST_PROPERTY_IS(const sourcemeta::jsontoolkit::JSON &document,
   EXPECT_EQ(                                                                   \
       sourcemeta::jsontoolkit::to_string(std::get<2>(trace_pre.at(index))),    \
       expected_instance_location);                                             \
-  EXPECT_TRUE(                                                                 \
-      std::holds_alternative<sourcemeta::blaze::SchemaCompiler##step_type>(    \
-          std::get<3>(trace_pre.at(index))));                                  \
-  EXPECT_EQ(std::get<sourcemeta::blaze::SchemaCompiler##step_type>(            \
-                std::get<3>(trace_pre.at(index)))                              \
-                .keyword_location,                                             \
-            expected_keyword_location);                                        \
+  EXPECT_TRUE(std::holds_alternative<sourcemeta::blaze::step_type>(            \
+      std::get<3>(trace_pre.at(index))));                                      \
+  EXPECT_EQ(                                                                   \
+      std::get<sourcemeta::blaze::step_type>(std::get<3>(trace_pre.at(index))) \
+          .keyword_location,                                                   \
+      expected_keyword_location);                                              \
   EXPECT_TRUE(std::get<4>(trace_pre.at(index)).is_null());
 
 #define EVALUATE_TRACE_POST(index, step_type, evaluate_path,                   \
@@ -110,10 +105,9 @@ inline auto FIRST_PROPERTY_IS(const sourcemeta::jsontoolkit::JSON &document,
   EXPECT_EQ(                                                                   \
       sourcemeta::jsontoolkit::to_string(std::get<2>(trace_post.at(index))),   \
       expected_instance_location);                                             \
-  EXPECT_TRUE(                                                                 \
-      std::holds_alternative<sourcemeta::blaze::SchemaCompiler##step_type>(    \
-          std::get<3>(trace_post.at(index))));                                 \
-  EXPECT_EQ(std::get<sourcemeta::blaze::SchemaCompiler##step_type>(            \
+  EXPECT_TRUE(std::holds_alternative<sourcemeta::blaze::step_type>(            \
+      std::get<3>(trace_post.at(index))));                                     \
+  EXPECT_EQ(std::get<sourcemeta::blaze::step_type>(                            \
                 std::get<3>(trace_post.at(index)))                             \
                 .keyword_location,                                             \
             expected_keyword_location);
@@ -128,25 +122,21 @@ inline auto FIRST_PROPERTY_IS(const sourcemeta::jsontoolkit::JSON &document,
 
 #define EVALUATE_TRACE_PRE_ANNOTATION(index, evaluate_path, keyword_location,  \
                                       instance_location)                       \
-  if (std::holds_alternative<                                                  \
-          sourcemeta::blaze::SchemaCompilerAnnotationBasenameToParent>(        \
+  if (std::holds_alternative<sourcemeta::blaze::AnnotationBasenameToParent>(   \
           std::get<3>(trace_pre.at(index)))) {                                 \
     EVALUATE_TRACE_PRE(index, AnnotationBasenameToParent, evaluate_path,       \
                        keyword_location, instance_location);                   \
-  } else if (std::holds_alternative<                                           \
-                 sourcemeta::blaze::SchemaCompilerAnnotationToParent>(         \
+  } else if (std::holds_alternative<sourcemeta::blaze::AnnotationToParent>(    \
                  std::get<3>(trace_pre.at(index)))) {                          \
     EVALUATE_TRACE_PRE(index, AnnotationToParent, evaluate_path,               \
                        keyword_location, instance_location);                   \
   } else if (std::holds_alternative<                                           \
-                 sourcemeta::blaze::                                           \
-                     SchemaCompilerAnnotationWhenArraySizeEqual>(              \
+                 sourcemeta::blaze::AnnotationWhenArraySizeEqual>(             \
                  std::get<3>(trace_pre.at(index)))) {                          \
     EVALUATE_TRACE_PRE(index, AnnotationWhenArraySizeEqual, evaluate_path,     \
                        keyword_location, instance_location);                   \
   } else if (std::holds_alternative<                                           \
-                 sourcemeta::blaze::                                           \
-                     SchemaCompilerAnnotationWhenArraySizeGreater>(            \
+                 sourcemeta::blaze::AnnotationWhenArraySizeGreater>(           \
                  std::get<3>(trace_pre.at(index)))) {                          \
     EVALUATE_TRACE_PRE(index, AnnotationWhenArraySizeGreater, evaluate_path,   \
                        keyword_location, instance_location);                   \
@@ -160,25 +150,21 @@ inline auto FIRST_PROPERTY_IS(const sourcemeta::jsontoolkit::JSON &document,
                                        instance_location, expected_annotation) \
   EXPECT_TRUE(index < trace_post.size());                                      \
   EXPECT_TRUE(std::get<0>(trace_post.at(index)));                              \
-  if (std::holds_alternative<                                                  \
-          sourcemeta::blaze::SchemaCompilerAnnotationBasenameToParent>(        \
+  if (std::holds_alternative<sourcemeta::blaze::AnnotationBasenameToParent>(   \
           std::get<3>(trace_post.at(index)))) {                                \
     EVALUATE_TRACE_POST(index, AnnotationBasenameToParent, evaluate_path,      \
                         keyword_location, instance_location);                  \
-  } else if (std::holds_alternative<                                           \
-                 sourcemeta::blaze::SchemaCompilerAnnotationToParent>(         \
+  } else if (std::holds_alternative<sourcemeta::blaze::AnnotationToParent>(    \
                  std::get<3>(trace_post.at(index)))) {                         \
     EVALUATE_TRACE_POST(index, AnnotationToParent, evaluate_path,              \
                         keyword_location, instance_location);                  \
   } else if (std::holds_alternative<                                           \
-                 sourcemeta::blaze::                                           \
-                     SchemaCompilerAnnotationWhenArraySizeEqual>(              \
+                 sourcemeta::blaze::AnnotationWhenArraySizeEqual>(             \
                  std::get<3>(trace_post.at(index)))) {                         \
     EVALUATE_TRACE_POST(index, AnnotationWhenArraySizeEqual, evaluate_path,    \
                         keyword_location, instance_location);                  \
   } else if (std::holds_alternative<                                           \
-                 sourcemeta::blaze::                                           \
-                     SchemaCompilerAnnotationWhenArraySizeGreater>(            \
+                 sourcemeta::blaze::AnnotationWhenArraySizeGreater>(           \
                  std::get<3>(trace_post.at(index)))) {                         \
     EVALUATE_TRACE_POST(index, AnnotationWhenArraySizeGreater, evaluate_path,  \
                         keyword_location, instance_location);                  \
