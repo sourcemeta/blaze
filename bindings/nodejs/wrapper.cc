@@ -1,6 +1,9 @@
 #include <sourcemeta/jsontoolkit/json.h>
 #include <sourcemeta/jsontoolkit/jsonschema.h>
 
+#include <sourcemeta/blaze/compiler.h>
+#include <sourcemeta/blaze/evaluator.h>
+
 // See
 // https://emscripten.org/docs/porting/connecting_cpp_and_javascript/embind.html
 #include <emscripten/bind.h>
@@ -16,11 +19,11 @@ class Wrapper {
 public:
   auto compile(const std::string &schema_string) -> emscripten::val {
     const auto schema{sourcemeta::jsontoolkit::parse(schema_string)};
-    this->schemas.emplace_back(sourcemeta::jsontoolkit::compile(
+    this->schemas.emplace_back(sourcemeta::blaze::compile(
         schema, sourcemeta::jsontoolkit::default_schema_walker,
         sourcemeta::jsontoolkit::official_resolver,
-        sourcemeta::jsontoolkit::default_schema_compiler,
-        sourcemeta::jsontoolkit::SchemaCompilerMode::FastValidation));
+        sourcemeta::blaze::default_schema_compiler,
+        sourcemeta::blaze::Mode::FastValidation));
     return emscripten::val(this->schemas.size() - 1);
   }
 
@@ -28,12 +31,11 @@ public:
                                     const std::string &default_dialect)
       -> emscripten::val {
     const auto schema{sourcemeta::jsontoolkit::parse(schema_string)};
-    this->schemas.emplace_back(sourcemeta::jsontoolkit::compile(
+    this->schemas.emplace_back(sourcemeta::blaze::compile(
         schema, sourcemeta::jsontoolkit::default_schema_walker,
         sourcemeta::jsontoolkit::official_resolver,
-        sourcemeta::jsontoolkit::default_schema_compiler,
-        sourcemeta::jsontoolkit::SchemaCompilerMode::FastValidation,
-        default_dialect));
+        sourcemeta::blaze::default_schema_compiler,
+        sourcemeta::blaze::Mode::FastValidation, default_dialect));
     return emscripten::val(this->schemas.size() - 1);
   }
 
@@ -43,8 +45,8 @@ public:
     assert(this->schemas[schema].has_value());
     const auto instance{sourcemeta::jsontoolkit::parse(instance_string)};
     this->context.prepare(instance);
-    const auto result{sourcemeta::jsontoolkit::evaluate(
-        this->schemas[schema].value(), context)};
+    const auto result{
+        sourcemeta::blaze::evaluate(this->schemas[schema].value(), context)};
     return emscripten::val(result);
   }
 
@@ -58,12 +60,11 @@ public:
   }
 
 private:
-  sourcemeta::jsontoolkit::EvaluationContext context;
-  std::vector<std::optional<sourcemeta::jsontoolkit::SchemaCompilerTemplate>>
-      schemas;
+  sourcemeta::blaze::EvaluationContext context;
+  std::vector<std::optional<sourcemeta::blaze::Template>> schemas;
 };
 
-EMSCRIPTEN_BINDINGS(jsontoolkit) {
+EMSCRIPTEN_BINDINGS(blaze) {
   emscripten::class_<Wrapper>("Wrapper")
       .constructor<>()
       .function("compile", &Wrapper::compile)

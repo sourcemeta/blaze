@@ -159,24 +159,23 @@ jobs:
           comment-always: true
           fail-on-alert: false
 
-  # TODO: Re-enable
-  # bindings:
-    # strategy:
-      # fail-fast: false
-      # matrix:
-        # binding:
-          # - name: nodejs
-    # env:
-      # EMSDK_VERSION: 3.1.58
-    # runs-on: ubuntu-latest
-    # steps:
-      # - uses: actions/checkout@v4
-      # - run: |
-          # git clone --depth 1 https://github.com/emscripten-core/emsdk.git
-          # ./emsdk/emsdk install ${{ env.EMSDK_VERSION }}
-          # ./emsdk/emsdk activate ${{ env.EMSDK_VERSION }}
-          # rm -rf emsdk/upstream/emscripten/cmake
-          # echo "$(pwd)/emsdk/upstream/emscripten" >> $GITHUB_PATH
-        # if: matrix.binding.name == 'nodejs'
-      # - run: make -C bindings/${{ matrix.binding.name }} compile
-      # - run: make -C bindings/${{ matrix.binding.name }} test
+  bindings:
+    strategy:
+      fail-fast: false
+      matrix:
+        binding:
+          - name: nodejs
+    env:
+      EMSDK_VERSION: 3.1.58
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - run: |
+          git clone --depth 1 https://github.com/emscripten-core/emsdk.git
+          ./emsdk/emsdk install ${{ env.EMSDK_VERSION }}
+          ./emsdk/emsdk activate ${{ env.EMSDK_VERSION }}
+          rm -rf emsdk/upstream/emscripten/cmake
+          echo "$(pwd)/emsdk/upstream/emscripten" >> $GITHUB_PATH
+        if: matrix.binding.name == 'nodejs'
+      - run: make -C bindings/${{ matrix.binding.name }} compile
+      - run: make -C bindings/${{ matrix.binding.name }} test
