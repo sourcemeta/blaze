@@ -10,14 +10,15 @@
 #include <sourcemeta/jsontoolkit/json.h>
 #include <sourcemeta/jsontoolkit/jsonpointer.h>
 
-#include <cassert>    // assert
-#include <cstdint>    // std::uint8_t
-#include <functional> // std::reference_wrapper
-#include <map>        // std::map
-#include <optional>   // std::optional
-#include <set>        // std::set
-#include <string>     // std::string
-#include <vector>     // std::vector
+#include <cassert>       // assert
+#include <cstdint>       // std::uint8_t
+#include <functional>    // std::reference_wrapper
+#include <map>           // std::map
+#include <optional>      // std::optional
+#include <set>           // std::set
+#include <string>        // std::string
+#include <unordered_map> // std::unordered_map
+#include <vector>        // std::vector
 
 namespace sourcemeta::blaze {
 
@@ -131,8 +132,8 @@ private:
   std::vector<std::pair<std::size_t, std::size_t>> frame_sizes;
   const std::hash<std::string> hasher_{};
   std::vector<std::size_t> resources_;
-  // TODO: Try unordered_map
-  std::map<std::size_t, const std::reference_wrapper<const Template>> labels;
+  std::unordered_map<std::size_t, const std::reference_wrapper<const Template>>
+      labels;
   bool property_as_instance{false};
 
   // For annotations
