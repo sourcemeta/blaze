@@ -1,0 +1,43 @@
+name: website
+on:
+  push:
+    branches: [ "main" ]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: website-deploy-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  deploy:
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - run: sudo apt update
+      - run: sudo apt install -y doxygen
+      - run: >
+          cmake -S . -B ./build
+          -DCMAKE_BUILD_TYPE:STRING=Release
+          -DCMAKE_BUILD_TYPE:STRING=Release
+          -DBLAZE_COMPILER:BOOL=OFF
+          -DBLAZE_EVALUATOR:BOOL=OFF
+          -DBLAZE_TESTS:BOOL=OFF
+          -DBLAZE_DOCS:BOOL=ON
+      - run: cmake --build ./build --config Release --target doxygen
+      - name: Setup Pages
+        uses: actions/configure-pages@v1
+      - name: Upload artifact
+        uses: actions/upload-pages-artifact@v1
+        with:
+          path: ./build/website
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v2

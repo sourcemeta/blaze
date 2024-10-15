@@ -1,0 +1,6 @@
+vendorpull https://github.com/sourcemeta/vendorpull dea311b5bfb53b6926a4140267959ae334d3ecf4
+noa https://github.com/sourcemeta/noa 837e1ff981f8df45d9e2977a50f5da61d8affed4
+jsontoolkit https://github.com/sourcemeta/jsontoolkit b19c02084362aff20b2517b1b2cd0fe80acc2382
+googletest https://github.com/google/googletest a7f443b80b105f940225332ed3c31f2790092f47
+googlebenchmark https://github.com/google/benchmark 378fe693a1ef51500db21b11ff05a8018c5f0e55
+jsonschema-test-suite https://github.com/json-schema-org/JSON-Schema-Test-Suite c2badb1298a8698f86dadf1aea7b44b3a894e5ac
