@@ -4,6 +4,9 @@
 #ifndef SOURCEMETA_BLAZE_COMPILER_EXPORT
 #include "compiler_export.h"
 #endif
+#ifndef SOURCEMETA_BLAZE_COMPILER_EXPORT
+#define SOURCEMETA_BLAZE_COMPILER_EXPORT
+#endif
 
 #include <sourcemeta/jsontoolkit/jsonpointer.h>
 #include <sourcemeta/jsontoolkit/uri.h>

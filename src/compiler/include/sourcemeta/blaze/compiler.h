@@ -4,6 +4,9 @@
 #ifndef SOURCEMETA_BLAZE_COMPILER_EXPORT
 #include "compiler_export.h"
 #endif
+#ifndef SOURCEMETA_BLAZE_COMPILER_EXPORT
+#define SOURCEMETA_BLAZE_COMPILER_EXPORT
+#endif
 
 #include <sourcemeta/blaze/compiler_error.h>
 #include <sourcemeta/blaze/evaluator.h>

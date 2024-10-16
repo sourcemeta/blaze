@@ -4,6 +4,9 @@
 #ifndef SOURCEMETA_BLAZE_EVALUATOR_EXPORT
 #include "evaluator_export.h"
 #endif
+#ifndef SOURCEMETA_BLAZE_EVALUATOR_EXPORT
+#define SOURCEMETA_BLAZE_EVALUATOR_EXPORT
+#endif
 
 #include <sourcemeta/blaze/evaluator_context.h>
 #include <sourcemeta/blaze/evaluator_error.h>
