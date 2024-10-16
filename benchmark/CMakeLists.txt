@@ -8,6 +8,7 @@ if(BLAZE_EVALUATOR)
     evaluator_draft4.cc
     evaluator_draft6.cc
     evaluator_draft7.cc
+    evaluator_2019_09.cc
     evaluator_2020_12.cc)
 endif()
 
