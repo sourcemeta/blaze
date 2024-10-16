@@ -182,6 +182,11 @@ auto value_to_json(const T &value) -> sourcemeta::jsontoolkit::JSON {
     data.push_back(sourcemeta::jsontoolkit::JSON{value.second});
     result.assign("value", std::move(data));
     return result;
+  } else if constexpr (std::is_same_v<ValuePointer, T>) {
+    result.assign("type", sourcemeta::jsontoolkit::JSON{"pointer"});
+    result.assign("value", sourcemeta::jsontoolkit::JSON{
+                               sourcemeta::jsontoolkit::to_string(value)});
+    return result;
   } else {
     static_assert(std::is_same_v<ValueNone, T>);
     return sourcemeta::jsontoolkit::JSON{nullptr};
@@ -296,6 +301,7 @@ struct StepVisitor {
   HANDLE_STEP("loop", "contains", LoopContains)
   HANDLE_STEP("control", "label", ControlLabel)
   HANDLE_STEP("control", "mark", ControlMark)
+  HANDLE_STEP("control", "evaluate", ControlEvaluate)
   HANDLE_STEP("control", "jump", ControlJump)
   HANDLE_STEP("control", "dynamic-anchor-jump", ControlDynamicAnchorJump)
 

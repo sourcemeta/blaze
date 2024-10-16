@@ -100,7 +100,7 @@ auto compiler_2019_09_core_annotation(const Context &context,
           schema_context.schema.at(dynamic_context.keyword)})};
 }
 
-auto compiler_2019_09_applicator_contains_conditional_annotate(
+auto compiler_2019_09_applicator_contains_with_options(
     const Context &context, const SchemaContext &schema_context,
     const DynamicContext &dynamic_context, const bool annotate) -> Template {
   if (schema_context.schema.defines("type") &&
@@ -170,23 +170,23 @@ auto compiler_2019_09_applicator_contains(const Context &context,
                                           const SchemaContext &schema_context,
                                           const DynamicContext &dynamic_context)
     -> Template {
-  return compiler_2019_09_applicator_contains_conditional_annotate(
+  return compiler_2019_09_applicator_contains_with_options(
       context, schema_context, dynamic_context, false);
 }
 
 auto compiler_2019_09_applicator_additionalproperties(
     const Context &context, const SchemaContext &schema_context,
     const DynamicContext &dynamic_context) -> Template {
-  return compiler_draft4_applicator_additionalproperties_conditional_annotation(
+  return compiler_draft4_applicator_additionalproperties_with_options(
       context, schema_context, dynamic_context,
-      context.uses_unevaluated_properties || context.mode == Mode::Exhaustive);
+      context.mode == Mode::Exhaustive, context.uses_unevaluated_properties);
 }
 
 auto compiler_2019_09_applicator_items(const Context &context,
                                        const SchemaContext &schema_context,
                                        const DynamicContext &dynamic_context)
     -> Template {
-  return compiler_draft4_applicator_items_conditional_annotation(
+  return compiler_draft4_applicator_items_with_options(
       context, schema_context, dynamic_context,
       context.uses_unevaluated_items || context.mode == Mode::Exhaustive);
 }
@@ -194,7 +194,7 @@ auto compiler_2019_09_applicator_items(const Context &context,
 auto compiler_2019_09_applicator_additionalitems(
     const Context &context, const SchemaContext &schema_context,
     const DynamicContext &dynamic_context) -> Template {
-  return compiler_draft4_applicator_additionalitems_conditional_annotation(
+  return compiler_draft4_applicator_additionalitems_with_options(
       context, schema_context, dynamic_context,
       context.uses_unevaluated_items || context.mode == Mode::Exhaustive);
 }
@@ -247,30 +247,22 @@ auto compiler_2019_09_applicator_unevaluatedproperties(
     return {};
   }
 
-  ValueStrings dependencies{"unevaluatedProperties"};
-
-  if (schema_context.vocabularies.contains(
-          "https://json-schema.org/draft/2019-09/vocab/applicator")) {
-    dependencies.push_back("properties");
-    dependencies.push_back("patternProperties");
-    dependencies.push_back("additionalProperties");
-  }
-
-  if (schema_context.vocabularies.contains(
-          "https://json-schema.org/draft/2020-12/vocab/applicator")) {
-    dependencies.push_back("properties");
-    dependencies.push_back("patternProperties");
-    dependencies.push_back("additionalProperties");
-  }
-
   Template children{compile(context, schema_context, relative_dynamic_context,
                             sourcemeta::jsontoolkit::empty_pointer,
                             sourcemeta::jsontoolkit::empty_pointer)};
-  children.push_back(make<AnnotationBasenameToParent>(
-      true, context, schema_context, relative_dynamic_context, ValueNone{}));
+
+  if (context.mode == Mode::Exhaustive) {
+    children.push_back(make<AnnotationBasenameToParent>(
+        true, context, schema_context, relative_dynamic_context, ValueNone{}));
+  }
+
+  // TODO: Do this out the box on LoopPropertiesUnevaluated?
+  children.push_back(make<ControlEvaluate>(false, context, schema_context,
+                                           relative_dynamic_context,
+                                           ValuePointer{}));
 
   return {make<AnnotationLoopPropertiesUnevaluated>(
-      true, context, schema_context, dynamic_context, std::move(dependencies),
+      true, context, schema_context, dynamic_context, ValueNone{},
       std::move(children))};
 }
 
@@ -297,17 +289,17 @@ auto compiler_2019_09_core_recursiveref(const Context &context,
 auto compiler_2019_09_applicator_properties(
     const Context &context, const SchemaContext &schema_context,
     const DynamicContext &dynamic_context) -> Template {
-  return compiler_draft4_applicator_properties_conditional_annotation(
+  return compiler_draft4_applicator_properties_with_options(
       context, schema_context, dynamic_context,
-      context.uses_unevaluated_properties || context.mode == Mode::Exhaustive);
+      context.mode == Mode::Exhaustive, context.uses_unevaluated_properties);
 }
 
 auto compiler_2019_09_applicator_patternproperties(
     const Context &context, const SchemaContext &schema_context,
     const DynamicContext &dynamic_context) -> Template {
-  return compiler_draft4_applicator_patternproperties_conditional_annotation(
+  return compiler_draft4_applicator_patternproperties_with_options(
       context, schema_context, dynamic_context,
-      context.uses_unevaluated_properties || context.mode == Mode::Exhaustive);
+      context.mode == Mode::Exhaustive, context.uses_unevaluated_properties);
 }
 
 } // namespace internal

@@ -636,6 +636,14 @@ auto evaluate_step(const sourcemeta::blaze::Template::value_type &step,
       return true;
     }
 
+    case IS_STEP(ControlEvaluate): {
+      SOURCEMETA_TRACE_START(trace_id, "ControlEvaluate");
+      const auto &control{std::get<ControlEvaluate>(step)};
+      context.evaluate(control.value);
+      SOURCEMETA_TRACE_END(trace_id, "ControlEvaluate");
+      return true;
+    }
+
     case IS_STEP(ControlJump): {
       EVALUATE_BEGIN_NO_PRECONDITION(control, ControlJump);
       result = true;
@@ -704,16 +712,9 @@ auto evaluate_step(const sourcemeta::blaze::Template::value_type &step,
       EVALUATE_BEGIN(loop, AnnotationLoopPropertiesUnevaluated,
                      target.is_object());
       result = true;
-      assert(!loop.value.empty());
 
       for (const auto &entry : target.as_object()) {
-        // TODO: It might be more efficient to get all the annotations we
-        // potentially care about as a set first, and the make the loop
-        // check for O(1) containment in that set?
-        if (context.defines_sibling_annotation(
-                loop.value,
-                // TODO: This conversion implies a string copy
-                sourcemeta::jsontoolkit::JSON{entry.first})) {
+        if (context.is_evaluated(entry.first)) {
           continue;
         }
 
