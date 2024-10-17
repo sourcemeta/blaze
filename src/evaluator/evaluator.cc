@@ -120,6 +120,16 @@ auto evaluate_step(const sourcemeta::blaze::Template::value_type &step,
   }                                                                            \
   bool result{false};
 
+#define EVALUATE_BEGIN_NO_PRECONDITION_AND_NO_PUSH(step_category, step_type)   \
+  SOURCEMETA_TRACE_END(trace_dispatch_id, "Dispatch");                         \
+  SOURCEMETA_TRACE_START(trace_id, STRINGIFY(step_type));                      \
+  const auto &step_category{std::get<step_type>(step)};                        \
+  if (step_category.report && callback.has_value()) {                          \
+    callback.value()(EvaluationType::Pre, true, step, context.evaluate_path(), \
+                     context.instance_location(), context.null);               \
+  }                                                                            \
+  bool result{true};
+
 #define EVALUATE_END(step_category, step_type)                                 \
   if (step_category.report && callback.has_value()) {                          \
     callback.value()(EvaluationType::Post, result, step,                       \
@@ -127,6 +137,15 @@ auto evaluate_step(const sourcemeta::blaze::Template::value_type &step,
                      context.null);                                            \
   }                                                                            \
   context.pop(step_category.dynamic);                                          \
+  SOURCEMETA_TRACE_END(trace_id, STRINGIFY(step_type));                        \
+  return result;
+
+#define EVALUATE_END_NO_POP(step_category, step_type)                          \
+  if (step_category.report && callback.has_value()) {                          \
+    callback.value()(EvaluationType::Post, result, step,                       \
+                     context.evaluate_path(), context.instance_location(),     \
+                     context.null);                                            \
+  }                                                                            \
   SOURCEMETA_TRACE_END(trace_id, STRINGIFY(step_type));                        \
   return result;
 
@@ -621,14 +640,13 @@ auto evaluate_step(const sourcemeta::blaze::Template::value_type &step,
     }
 
     case IS_STEP(ControlMark): {
-      SOURCEMETA_TRACE_START(trace_id, "ControlMark");
-      const auto &control{std::get<ControlMark>(step)};
+      EVALUATE_BEGIN_NO_PRECONDITION_AND_NO_PUSH(control, ControlMark);
       context.mark(control.value, control.children);
-      SOURCEMETA_TRACE_END(trace_id, "ControlMark");
-      return true;
+      EVALUATE_END_NO_POP(control, ControlMark);
     }
 
     case IS_STEP(ControlEvaluate): {
+      SOURCEMETA_TRACE_END(trace_dispatch_id, "Dispatch");
       SOURCEMETA_TRACE_START(trace_id, "ControlEvaluate");
       const auto &control{std::get<ControlEvaluate>(step)};
       context.evaluate(control.value);
@@ -1026,7 +1044,9 @@ auto evaluate_step(const sourcemeta::blaze::Template::value_type &step,
 #undef EVALUATE_BEGIN_NO_TARGET
 #undef EVALUATE_BEGIN_TRY_TARGET
 #undef EVALUATE_BEGIN_NO_PRECONDITION
+#undef EVALUATE_BEGIN_NO_PRECONDITION_AND_NO_PUSH
 #undef EVALUATE_END
+#undef EVALUATE_END_NO_POP
 #undef EVALUATE_ANNOTATION
 #undef EVALUATE_ANNOTATION_NO_PRECONDITION
 
