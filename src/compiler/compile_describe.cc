@@ -258,6 +258,10 @@ struct DescribeVisitor {
     return describe_reference(this->target);
   }
 
+  auto operator()(const ControlEvaluate &) const -> std::string {
+    return unknown();
+  }
+
   auto operator()(const ControlJump &) const -> std::string {
     return describe_reference(this->target);
   }

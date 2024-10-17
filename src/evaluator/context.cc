@@ -16,6 +16,7 @@ auto EvaluationContext::prepare(const sourcemeta::jsontoolkit::JSON &instance)
   this->instances_.emplace_back(instance);
   this->labels.clear();
   this->property_as_instance = false;
+  this->evaluated_.clear();
   this->annotation_blacklist.clear();
   this->annotations_.clear();
 }
@@ -79,8 +80,8 @@ auto EvaluationContext::pop(const bool dynamic) -> void {
   assert(!this->frame_sizes.empty());
   const auto &sizes{this->frame_sizes.back()};
   this->evaluate_path_.pop_back(sizes.first);
-  this->instance_location_.pop_back(sizes.second);
   if (sizes.second > 0) {
+    this->instance_location_.pop_back(sizes.second);
     this->instances_.pop_back();
   }
 
@@ -315,6 +316,47 @@ auto EvaluationContext::find_dynamic_anchor(const std::string &anchor) const
   }
 
   return std::nullopt;
+}
+
+auto EvaluationContext::evaluate(
+    const sourcemeta::jsontoolkit::Pointer &relative_instance_location)
+    -> void {
+  // TODO: Improve Pointer API to make this easier
+  auto new_instance_location = this->instance_location_;
+  for (const auto &token : relative_instance_location) {
+    if (token.is_property()) {
+      new_instance_location.push_back(token.to_property());
+    } else {
+      new_instance_location.push_back(token.to_index());
+    }
+  }
+
+  this->evaluated_.emplace_back(std::move(new_instance_location),
+                                this->evaluate_path_);
+}
+
+auto EvaluationContext::is_evaluated(
+    const sourcemeta::jsontoolkit::JSON::String &property) const -> bool {
+  auto expected_instance_location = this->instance_location_;
+  expected_instance_location.push_back(property);
+
+  for (const auto &entry : this->evaluated_) {
+    if (entry.first == expected_instance_location &&
+        // Its not possible to affect cousins
+        entry.second.starts_with(this->evaluate_path_.initial())) {
+      // Handle "not"
+      for (const auto &mask : this->annotation_blacklist) {
+        if (entry.second.starts_with(mask) &&
+            !this->evaluate_path_.starts_with(mask)) {
+          return false;
+        }
+      }
+
+      return true;
+    }
+  }
+
+  return false;
 }
 
 } // namespace sourcemeta::blaze

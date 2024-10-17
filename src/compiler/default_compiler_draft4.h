@@ -382,9 +382,10 @@ auto compiler_draft4_applicator_oneof(const Context &context,
                            std::move(disjunctors))};
 }
 
-auto compiler_draft4_applicator_properties_conditional_annotation(
+auto compiler_draft4_applicator_properties_with_options(
     const Context &context, const SchemaContext &schema_context,
-    const DynamicContext &dynamic_context, const bool annotate) -> Template {
+    const DynamicContext &dynamic_context, const bool annotate,
+    const bool track_evaluation) -> Template {
   assert(schema_context.schema.at(dynamic_context.keyword).is_object());
   if (schema_context.schema.at(dynamic_context.keyword).empty()) {
     return {};
@@ -501,6 +502,12 @@ auto compiler_draft4_applicator_properties_conditional_annotation(
   Template children;
 
   for (auto &&[name, substeps] : properties) {
+    if (track_evaluation) {
+      substeps.push_back(make<ControlEvaluate>(false, context, schema_context,
+                                               relative_dynamic_context,
+                                               ValuePointer{name}));
+    }
+
     if (annotate) {
       substeps.push_back(make<AnnotationEmit>(
           true, context, schema_context, relative_dynamic_context,
@@ -579,13 +586,14 @@ auto compiler_draft4_applicator_properties_conditional_annotation(
 auto compiler_draft4_applicator_properties(
     const Context &context, const SchemaContext &schema_context,
     const DynamicContext &dynamic_context) -> Template {
-  return compiler_draft4_applicator_properties_conditional_annotation(
-      context, schema_context, dynamic_context, false);
+  return compiler_draft4_applicator_properties_with_options(
+      context, schema_context, dynamic_context, false, false);
 }
 
-auto compiler_draft4_applicator_patternproperties_conditional_annotation(
+auto compiler_draft4_applicator_patternproperties_with_options(
     const Context &context, const SchemaContext &schema_context,
-    const DynamicContext &dynamic_context, const bool annotate) -> Template {
+    const DynamicContext &dynamic_context, const bool annotate,
+    const bool track_evaluation) -> Template {
   assert(schema_context.schema.at(dynamic_context.keyword).is_object());
   if (schema_context.schema.at(dynamic_context.keyword).empty()) {
     return {};
@@ -622,6 +630,12 @@ auto compiler_draft4_applicator_patternproperties_conditional_annotation(
           ValueNone{}));
     }
 
+    if (track_evaluation) {
+      substeps.push_back(make<ControlEvaluate>(false, context, schema_context,
+                                               relative_dynamic_context,
+                                               ValuePointer{}));
+    }
+
     // If the `patternProperties` subschema for the given pattern does
     // nothing, then we can avoid generating an entire loop for it
     if (!substeps.empty()) {
@@ -649,13 +663,14 @@ auto compiler_draft4_applicator_patternproperties_conditional_annotation(
 auto compiler_draft4_applicator_patternproperties(
     const Context &context, const SchemaContext &schema_context,
     const DynamicContext &dynamic_context) -> Template {
-  return compiler_draft4_applicator_patternproperties_conditional_annotation(
-      context, schema_context, dynamic_context, false);
+  return compiler_draft4_applicator_patternproperties_with_options(
+      context, schema_context, dynamic_context, false, false);
 }
 
-auto compiler_draft4_applicator_additionalproperties_conditional_annotation(
+auto compiler_draft4_applicator_additionalproperties_with_options(
     const Context &context, const SchemaContext &schema_context,
-    const DynamicContext &dynamic_context, const bool annotate) -> Template {
+    const DynamicContext &dynamic_context, const bool annotate,
+    const bool track_evaluation) -> Template {
   if (schema_context.schema.defines("type") &&
       schema_context.schema.at("type").is_string() &&
       schema_context.schema.at("type").to_string() != "object") {
@@ -669,6 +684,12 @@ auto compiler_draft4_applicator_additionalproperties_conditional_annotation(
   if (annotate) {
     children.push_back(make<AnnotationBasenameToParent>(
         true, context, schema_context, relative_dynamic_context, ValueNone{}));
+  }
+
+  if (track_evaluation) {
+    children.push_back(make<ControlEvaluate>(false, context, schema_context,
+                                             relative_dynamic_context,
+                                             ValuePointer{}));
   }
 
   ValuePropertyFilter filter;
@@ -726,8 +747,8 @@ auto compiler_draft4_applicator_additionalproperties_conditional_annotation(
 auto compiler_draft4_applicator_additionalproperties(
     const Context &context, const SchemaContext &schema_context,
     const DynamicContext &dynamic_context) -> Template {
-  return compiler_draft4_applicator_additionalproperties_conditional_annotation(
-      context, schema_context, dynamic_context, false);
+  return compiler_draft4_applicator_additionalproperties_with_options(
+      context, schema_context, dynamic_context, false, false);
 }
 
 auto compiler_draft4_validation_pattern(const Context &context,
@@ -895,7 +916,7 @@ auto compiler_draft4_applicator_items_array(
                                 std::move(children))};
 }
 
-auto compiler_draft4_applicator_items_conditional_annotation(
+auto compiler_draft4_applicator_items_with_options(
     const Context &context, const SchemaContext &schema_context,
     const DynamicContext &dynamic_context, const bool annotate) -> Template {
   if (schema_context.schema.defines("type") &&
@@ -937,8 +958,8 @@ auto compiler_draft4_applicator_items(const Context &context,
                                       const SchemaContext &schema_context,
                                       const DynamicContext &dynamic_context)
     -> Template {
-  return compiler_draft4_applicator_items_conditional_annotation(
-      context, schema_context, dynamic_context, false);
+  return compiler_draft4_applicator_items_with_options(context, schema_context,
+                                                       dynamic_context, false);
 }
 
 auto compiler_draft4_applicator_additionalitems_from_cursor(
@@ -969,7 +990,7 @@ auto compiler_draft4_applicator_additionalitems_from_cursor(
       ValueUnsignedInteger{cursor}, std::move(children))};
 }
 
-auto compiler_draft4_applicator_additionalitems_conditional_annotation(
+auto compiler_draft4_applicator_additionalitems_with_options(
     const Context &context, const SchemaContext &schema_context,
     const DynamicContext &dynamic_context, const bool annotate) -> Template {
   if (schema_context.schema.defines("type") &&
@@ -998,7 +1019,7 @@ auto compiler_draft4_applicator_additionalitems_conditional_annotation(
 auto compiler_draft4_applicator_additionalitems(
     const Context &context, const SchemaContext &schema_context,
     const DynamicContext &dynamic_context) -> Template {
-  return compiler_draft4_applicator_additionalitems_conditional_annotation(
+  return compiler_draft4_applicator_additionalitems_with_options(
       context, schema_context, dynamic_context, false);
 }
 

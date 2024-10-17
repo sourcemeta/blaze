@@ -72,6 +72,7 @@ struct LoopItems;
 struct LoopContains;
 struct ControlLabel;
 struct ControlMark;
+struct ControlEvaluate;
 struct ControlJump;
 struct ControlDynamicAnchorJump;
 #endif
@@ -97,8 +98,8 @@ using Template = std::vector<std::variant<
     LogicalWhenDefines, LogicalWhenArraySizeGreater, LogicalWhenArraySizeEqual,
     LoopPropertiesMatch, LoopProperties, LoopPropertiesRegex,
     LoopPropertiesExcept, LoopPropertiesType, LoopPropertiesTypeStrict,
-    LoopKeys, LoopItems, LoopContains, ControlLabel, ControlMark, ControlJump,
-    ControlDynamicAnchorJump>>;
+    LoopKeys, LoopItems, LoopContains, ControlLabel, ControlMark,
+    ControlEvaluate, ControlJump, ControlDynamicAnchorJump>>;
 
 #if !defined(DOXYGEN)
 // For fast internal instruction dispatching. It must stay
@@ -162,6 +163,7 @@ enum class TemplateIndex : std::uint8_t {
   LoopContains,
   ControlLabel,
   ControlMark,
+  ControlEvaluate,
   ControlJump,
   ControlDynamicAnchorJump
 };
@@ -367,8 +369,8 @@ DEFINE_STEP_WITH_VALUE(Annotation, BasenameToParent, ValueNone)
 
 /// @ingroup evaluator_instructions
 /// @brief Represents a compiler step that loops over object properties that
-/// were not collected as annotations
-DEFINE_STEP_APPLICATOR(Annotation, LoopPropertiesUnevaluated, ValueStrings)
+/// were not previously evaluated
+DEFINE_STEP_APPLICATOR(Annotation, LoopPropertiesUnevaluated, ValueNone)
 
 /// @ingroup evaluator_instructions
 /// @brief Represents a compiler step that loops over array items when the array
@@ -477,6 +479,11 @@ DEFINE_STEP_APPLICATOR(Control, Label, ValueUnsignedInteger)
 /// @brief Represents a compiler step that consists of a mark to jump to, but
 /// without executing children instructions
 DEFINE_STEP_APPLICATOR(Control, Mark, ValueUnsignedInteger)
+
+/// @ingroup evaluator_instructions
+/// @brief Represents a compiler step that marks the current instance location
+/// as evaluated
+DEFINE_STEP_WITH_VALUE(Control, Evaluate, ValuePointer)
 
 /// @ingroup evaluator_instructions
 /// @brief Represents a compiler step that consists of jumping into a

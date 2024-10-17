@@ -36,7 +36,7 @@ auto compiler_2020_12_applicator_contains(const Context &context,
                                           const SchemaContext &schema_context,
                                           const DynamicContext &dynamic_context)
     -> Template {
-  return compiler_2019_09_applicator_contains_conditional_annotate(
+  return compiler_2019_09_applicator_contains_with_options(
       context, schema_context, dynamic_context,
       context.uses_unevaluated_items || context.mode == Mode::Exhaustive);
 }

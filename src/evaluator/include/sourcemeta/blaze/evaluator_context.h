@@ -92,13 +92,19 @@ public:
       -> std::optional<std::size_t>;
 
   ///////////////////////////////////////////////
+  // Evaluation
+  ///////////////////////////////////////////////
+
+  auto
+  evaluate(const sourcemeta::jsontoolkit::Pointer &relative_instance_location)
+      -> void;
+  auto is_evaluated(const sourcemeta::jsontoolkit::JSON::String &property) const
+      -> bool;
+
+  ///////////////////////////////////////////////
   // Annotations
   ///////////////////////////////////////////////
 
-  // TODO: At least currently, we only need to mask if a schema
-  // makes use of `unevaluatedProperties` or `unevaluatedItems`
-  // Detect if a schema does need this so if not, we avoid
-  // an unnecessary copy
   auto mask() -> void;
   auto annotate(
       const sourcemeta::jsontoolkit::WeakPointer &current_instance_location,
@@ -133,6 +139,10 @@ private:
   std::vector<std::size_t> resources_;
   std::map<std::size_t, const std::reference_wrapper<const Template>> labels;
   bool property_as_instance{false};
+  // TODO: Turn this into a trie
+  std::vector<std::pair<sourcemeta::jsontoolkit::WeakPointer,
+                        sourcemeta::jsontoolkit::WeakPointer>>
+      evaluated_;
 
   // For annotations
   std::vector<sourcemeta::jsontoolkit::WeakPointer> annotation_blacklist;
