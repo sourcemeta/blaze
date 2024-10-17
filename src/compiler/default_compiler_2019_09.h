@@ -226,9 +226,9 @@ auto compiler_2019_09_applicator_unevaluateditems(
                                            relative_dynamic_context,
                                            ValuePointer{}));
 
-  return {make<AnnotationLoopItemsUnevaluated>(true, context, schema_context,
-                                               dynamic_context, ValueNone{},
-                                               std::move(children))};
+  return {make<LoopItemsUnevaluated>(true, context, schema_context,
+                                     dynamic_context, ValueNone{},
+                                     std::move(children))};
 }
 
 auto compiler_2019_09_applicator_unevaluatedproperties(
@@ -254,9 +254,9 @@ auto compiler_2019_09_applicator_unevaluatedproperties(
                                            relative_dynamic_context,
                                            ValuePointer{}));
 
-  return {make<AnnotationLoopPropertiesUnevaluated>(
-      true, context, schema_context, dynamic_context, ValueNone{},
-      std::move(children))};
+  return {make<LoopPropertiesUnevaluated>(true, context, schema_context,
+                                          dynamic_context, ValueNone{},
+                                          std::move(children))};
 }
 
 auto compiler_2019_09_core_recursiveref(const Context &context,

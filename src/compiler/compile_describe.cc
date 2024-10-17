@@ -246,18 +246,6 @@ struct DescribeVisitor {
     return message.str();
   }
 
-  auto operator()(const AnnotationNot &) const -> std::string {
-    std::ostringstream message;
-    message
-        << "The " << to_string(this->target.type())
-        << " value was expected to not validate against the given subschema";
-    if (!this->valid) {
-      message << ", but it did";
-    }
-
-    return message.str();
-  }
-
   auto operator()(const ControlLabel &) const -> std::string {
     return describe_reference(this->target);
   }
@@ -619,8 +607,7 @@ struct DescribeVisitor {
     return message.str();
   }
 
-  auto operator()(const AnnotationLoopPropertiesUnevaluated &step) const
-      -> std::string {
+  auto operator()(const LoopPropertiesUnevaluated &step) const -> std::string {
     if (this->keyword == "unevaluatedProperties") {
       std::ostringstream message;
       if (!step.children.empty() &&
@@ -712,7 +699,7 @@ struct DescribeVisitor {
     return message.str();
   }
 
-  auto operator()(const AnnotationLoopItemsUnevaluated &) const -> std::string {
+  auto operator()(const LoopItemsUnevaluated &) const -> std::string {
     assert(this->keyword == "unevaluatedItems");
     std::ostringstream message;
     message << "The array items not covered by other array keywords, if any, "

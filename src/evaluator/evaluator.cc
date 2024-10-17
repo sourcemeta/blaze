@@ -700,9 +700,25 @@ auto evaluate_step(const sourcemeta::blaze::Template::value_type &step,
           context.instance_location().back().to_json());
     }
 
-    case IS_STEP(AnnotationLoopPropertiesUnevaluated): {
-      EVALUATE_BEGIN(loop, AnnotationLoopPropertiesUnevaluated,
-                     target.is_object());
+    case IS_STEP(LogicalNot): {
+      EVALUATE_BEGIN_NO_PRECONDITION(logical, LogicalNot);
+
+      if (logical.value) {
+        context.mask();
+      }
+
+      for (const auto &child : logical.children) {
+        if (!evaluate_step(child, callback, context)) {
+          result = true;
+          break;
+        }
+      }
+
+      EVALUATE_END(logical, LogicalNot);
+    }
+
+    case IS_STEP(LoopPropertiesUnevaluated): {
+      EVALUATE_BEGIN(loop, LoopPropertiesUnevaluated, target.is_object());
       result = true;
 
       for (const auto &entry : target.as_object()) {
@@ -724,11 +740,11 @@ auto evaluate_step(const sourcemeta::blaze::Template::value_type &step,
       }
 
     evaluate_annotation_loop_properties_unevaluated_end:
-      EVALUATE_END(loop, AnnotationLoopPropertiesUnevaluated);
+      EVALUATE_END(loop, LoopPropertiesUnevaluated);
     }
 
-    case IS_STEP(AnnotationLoopItemsUnevaluated): {
-      EVALUATE_BEGIN(loop, AnnotationLoopItemsUnevaluated, target.is_array());
+    case IS_STEP(LoopItemsUnevaluated): {
+      EVALUATE_BEGIN(loop, LoopItemsUnevaluated, target.is_array());
       const auto &array{target.as_array()};
       result = true;
       for (auto iterator = array.cbegin(); iterator != array.cend();
@@ -751,33 +767,7 @@ auto evaluate_step(const sourcemeta::blaze::Template::value_type &step,
       }
 
     evaluate_compiler_annotation_loop_items_unevaluated_end:
-      EVALUATE_END(loop, AnnotationLoopItemsUnevaluated);
-    }
-
-    case IS_STEP(AnnotationNot): {
-      EVALUATE_BEGIN_NO_PRECONDITION(logical, AnnotationNot);
-      // Ignore annotations produced inside "not"
-      context.mask();
-      for (const auto &child : logical.children) {
-        if (!evaluate_step(child, callback, context)) {
-          result = true;
-          break;
-        }
-      }
-
-      EVALUATE_END(logical, AnnotationNot);
-    }
-
-    case IS_STEP(LogicalNot): {
-      EVALUATE_BEGIN_NO_PRECONDITION(logical, LogicalNot);
-      for (const auto &child : logical.children) {
-        if (!evaluate_step(child, callback, context)) {
-          result = true;
-          break;
-        }
-      }
-
-      EVALUATE_END(logical, LogicalNot);
+      EVALUATE_END(loop, LoopItemsUnevaluated);
     }
 
     case IS_STEP(LoopPropertiesMatch): {

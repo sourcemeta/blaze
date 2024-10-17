@@ -1303,14 +1303,14 @@ TEST(Evaluator_2020_12, unevaluatedItems_1) {
   EVALUATE_TRACE_PRE(0, LoopContains, "/contains", "#/contains", "");
   EVALUATE_TRACE_PRE(1, AssertionTypeStrict, "/contains/type",
                      "#/contains/type", "/0");
-  EVALUATE_TRACE_PRE(2, AnnotationLoopItemsUnevaluated, "/unevaluatedItems",
+  EVALUATE_TRACE_PRE(2, LoopItemsUnevaluated, "/unevaluatedItems",
                      "#/unevaluatedItems", "");
 
   EVALUATE_TRACE_POST_SUCCESS(0, AssertionTypeStrict, "/contains/type",
                               "#/contains/type", "/0");
   EVALUATE_TRACE_POST_SUCCESS(1, LoopContains, "/contains", "#/contains", "");
-  EVALUATE_TRACE_POST_SUCCESS(2, AnnotationLoopItemsUnevaluated,
-                              "/unevaluatedItems", "#/unevaluatedItems", "");
+  EVALUATE_TRACE_POST_SUCCESS(2, LoopItemsUnevaluated, "/unevaluatedItems",
+                              "#/unevaluatedItems", "");
 
   EVALUATE_TRACE_POST_DESCRIBE(instance, 0,
                                "The value was expected to be of type boolean");
@@ -1341,15 +1341,15 @@ TEST(Evaluator_2020_12, unevaluatedItems_1_exhaustive) {
   EVALUATE_TRACE_PRE(1, AssertionTypeStrict, "/contains/type",
                      "#/contains/type", "/0");
   EVALUATE_TRACE_PRE_ANNOTATION(2, "/contains", "#/contains", "");
-  EVALUATE_TRACE_PRE(3, AnnotationLoopItemsUnevaluated, "/unevaluatedItems",
+  EVALUATE_TRACE_PRE(3, LoopItemsUnevaluated, "/unevaluatedItems",
                      "#/unevaluatedItems", "");
 
   EVALUATE_TRACE_POST_SUCCESS(0, AssertionTypeStrict, "/contains/type",
                               "#/contains/type", "/0");
   EVALUATE_TRACE_POST_ANNOTATION(1, "/contains", "#/contains", "", 0);
   EVALUATE_TRACE_POST_SUCCESS(2, LoopContains, "/contains", "#/contains", "");
-  EVALUATE_TRACE_POST_SUCCESS(3, AnnotationLoopItemsUnevaluated,
-                              "/unevaluatedItems", "#/unevaluatedItems", "");
+  EVALUATE_TRACE_POST_SUCCESS(3, LoopItemsUnevaluated, "/unevaluatedItems",
+                              "#/unevaluatedItems", "");
 
   EVALUATE_TRACE_POST_DESCRIBE(instance, 0,
                                "The value was expected to be of type boolean");
@@ -1389,7 +1389,7 @@ TEST(Evaluator_2020_12, unevaluatedItems_2) {
                      "#/anyOf/0/items/type", "/0");
   EVALUATE_TRACE_PRE(3, AssertionTypeStrict, "/anyOf/0/items/type",
                      "#/anyOf/0/items/type", "/1");
-  EVALUATE_TRACE_PRE(4, AnnotationLoopItemsUnevaluated, "/unevaluatedItems",
+  EVALUATE_TRACE_PRE(4, LoopItemsUnevaluated, "/unevaluatedItems",
                      "#/unevaluatedItems", "");
   EVALUATE_TRACE_PRE(5, AssertionFail, "/unevaluatedItems",
                      "#/unevaluatedItems", "/0");
@@ -1403,8 +1403,8 @@ TEST(Evaluator_2020_12, unevaluatedItems_2) {
   EVALUATE_TRACE_POST_SUCCESS(3, LogicalOr, "/anyOf", "#/anyOf", "");
   EVALUATE_TRACE_POST_FAILURE(4, AssertionFail, "/unevaluatedItems",
                               "#/unevaluatedItems", "/0");
-  EVALUATE_TRACE_POST_FAILURE(5, AnnotationLoopItemsUnevaluated,
-                              "/unevaluatedItems", "#/unevaluatedItems", "");
+  EVALUATE_TRACE_POST_FAILURE(5, LoopItemsUnevaluated, "/unevaluatedItems",
+                              "#/unevaluatedItems", "");
 
   EVALUATE_TRACE_POST_DESCRIBE(instance, 0,
                                "The value was expected to be of type boolean");
@@ -1449,7 +1449,7 @@ TEST(Evaluator_2020_12, unevaluatedItems_2_exhaustive) {
                      "#/anyOf/0/items/type", "/0");
   EVALUATE_TRACE_PRE(3, AssertionTypeStrict, "/anyOf/0/items/type",
                      "#/anyOf/0/items/type", "/1");
-  EVALUATE_TRACE_PRE(4, AnnotationLoopItemsUnevaluated, "/unevaluatedItems",
+  EVALUATE_TRACE_PRE(4, LoopItemsUnevaluated, "/unevaluatedItems",
                      "#/unevaluatedItems", "");
   EVALUATE_TRACE_PRE(5, AssertionFail, "/unevaluatedItems",
                      "#/unevaluatedItems", "/0");
@@ -1463,8 +1463,8 @@ TEST(Evaluator_2020_12, unevaluatedItems_2_exhaustive) {
   EVALUATE_TRACE_POST_SUCCESS(3, LogicalOr, "/anyOf", "#/anyOf", "");
   EVALUATE_TRACE_POST_FAILURE(4, AssertionFail, "/unevaluatedItems",
                               "#/unevaluatedItems", "/0");
-  EVALUATE_TRACE_POST_FAILURE(5, AnnotationLoopItemsUnevaluated,
-                              "/unevaluatedItems", "#/unevaluatedItems", "");
+  EVALUATE_TRACE_POST_FAILURE(5, LoopItemsUnevaluated, "/unevaluatedItems",
+                              "#/unevaluatedItems", "");
 
   EVALUATE_TRACE_POST_DESCRIBE(instance, 0,
                                "The value was expected to be of type boolean");
@@ -1508,7 +1508,7 @@ TEST(Evaluator_2020_12, unevaluatedItems_3) {
                      "#/anyOf/0/prefixItems", "");
   EVALUATE_TRACE_PRE(2, AssertionTypeStrict, "/anyOf/0/prefixItems/0/type",
                      "#/anyOf/0/prefixItems/0/type", "/0");
-  EVALUATE_TRACE_PRE(3, AnnotationLoopItemsUnevaluated, "/unevaluatedItems",
+  EVALUATE_TRACE_PRE(3, LoopItemsUnevaluated, "/unevaluatedItems",
                      "#/unevaluatedItems", "");
   EVALUATE_TRACE_PRE(4, AssertionFail, "/unevaluatedItems",
                      "#/unevaluatedItems", "/0");
@@ -1521,8 +1521,8 @@ TEST(Evaluator_2020_12, unevaluatedItems_3) {
   EVALUATE_TRACE_POST_SUCCESS(2, LogicalOr, "/anyOf", "#/anyOf", "");
   EVALUATE_TRACE_POST_FAILURE(3, AssertionFail, "/unevaluatedItems",
                               "#/unevaluatedItems", "/0");
-  EVALUATE_TRACE_POST_FAILURE(4, AnnotationLoopItemsUnevaluated,
-                              "/unevaluatedItems", "#/unevaluatedItems", "");
+  EVALUATE_TRACE_POST_FAILURE(4, LoopItemsUnevaluated, "/unevaluatedItems",
+                              "#/unevaluatedItems", "");
 
   EVALUATE_TRACE_POST_DESCRIBE(instance, 0,
                                "The value was expected to be of type boolean "
@@ -1565,7 +1565,7 @@ TEST(Evaluator_2020_12, unevaluatedItems_3_exhaustive) {
                      "#/anyOf/0/prefixItems", "");
   EVALUATE_TRACE_PRE(2, AssertionTypeStrict, "/anyOf/0/prefixItems/0/type",
                      "#/anyOf/0/prefixItems/0/type", "/0");
-  EVALUATE_TRACE_PRE(3, AnnotationLoopItemsUnevaluated, "/unevaluatedItems",
+  EVALUATE_TRACE_PRE(3, LoopItemsUnevaluated, "/unevaluatedItems",
                      "#/unevaluatedItems", "");
   EVALUATE_TRACE_PRE(4, AssertionFail, "/unevaluatedItems",
                      "#/unevaluatedItems", "/0");
@@ -1578,8 +1578,8 @@ TEST(Evaluator_2020_12, unevaluatedItems_3_exhaustive) {
   EVALUATE_TRACE_POST_SUCCESS(2, LogicalOr, "/anyOf", "#/anyOf", "");
   EVALUATE_TRACE_POST_FAILURE(3, AssertionFail, "/unevaluatedItems",
                               "#/unevaluatedItems", "/0");
-  EVALUATE_TRACE_POST_FAILURE(4, AnnotationLoopItemsUnevaluated,
-                              "/unevaluatedItems", "#/unevaluatedItems", "");
+  EVALUATE_TRACE_POST_FAILURE(4, LoopItemsUnevaluated, "/unevaluatedItems",
+                              "#/unevaluatedItems", "");
 
   EVALUATE_TRACE_POST_DESCRIBE(instance, 0,
                                "The value was expected to be of type boolean "

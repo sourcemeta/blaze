@@ -48,9 +48,6 @@ struct AnnotationWhenArraySizeEqual;
 struct AnnotationWhenArraySizeGreater;
 struct AnnotationToParent;
 struct AnnotationBasenameToParent;
-struct AnnotationLoopPropertiesUnevaluated;
-struct AnnotationLoopItemsUnevaluated;
-struct AnnotationNot;
 struct LogicalNot;
 struct LogicalOr;
 struct LogicalAnd;
@@ -60,6 +57,8 @@ struct LogicalWhenType;
 struct LogicalWhenDefines;
 struct LogicalWhenArraySizeGreater;
 struct LogicalWhenArraySizeEqual;
+struct LoopPropertiesUnevaluated;
+struct LoopItemsUnevaluated;
 struct LoopPropertiesMatch;
 struct LoopProperties;
 struct LoopPropertiesRegex;
@@ -90,11 +89,10 @@ using Template = std::vector<std::variant<
     AssertionUnique, AssertionDivisible, AssertionStringType,
     AssertionPropertyType, AssertionPropertyTypeStrict, AnnotationEmit,
     AnnotationWhenArraySizeEqual, AnnotationWhenArraySizeGreater,
-    AnnotationToParent, AnnotationBasenameToParent,
-    AnnotationLoopPropertiesUnevaluated, AnnotationLoopItemsUnevaluated,
-    AnnotationNot, LogicalNot, LogicalOr, LogicalAnd, LogicalXor,
-    LogicalCondition, LogicalWhenType, LogicalWhenDefines,
-    LogicalWhenArraySizeGreater, LogicalWhenArraySizeEqual, LoopPropertiesMatch,
+    AnnotationToParent, AnnotationBasenameToParent, LogicalNot, LogicalOr,
+    LogicalAnd, LogicalXor, LogicalCondition, LogicalWhenType,
+    LogicalWhenDefines, LogicalWhenArraySizeGreater, LogicalWhenArraySizeEqual,
+    LoopPropertiesUnevaluated, LoopItemsUnevaluated, LoopPropertiesMatch,
     LoopProperties, LoopPropertiesRegex, LoopPropertiesExcept,
     LoopPropertiesType, LoopPropertiesTypeStrict, LoopKeys, LoopItems,
     LoopContains, ControlLabel, ControlMark, ControlEvaluate, ControlJump,
@@ -138,9 +136,6 @@ enum class TemplateIndex : std::uint8_t {
   AnnotationWhenArraySizeGreater,
   AnnotationToParent,
   AnnotationBasenameToParent,
-  AnnotationLoopPropertiesUnevaluated,
-  AnnotationLoopItemsUnevaluated,
-  AnnotationNot,
   LogicalNot,
   LogicalOr,
   LogicalAnd,
@@ -150,6 +145,8 @@ enum class TemplateIndex : std::uint8_t {
   LogicalWhenDefines,
   LogicalWhenArraySizeGreater,
   LogicalWhenArraySizeEqual,
+  LoopPropertiesUnevaluated,
+  LoopItemsUnevaluated,
   LoopPropertiesMatch,
   LoopProperties,
   LoopPropertiesRegex,
@@ -366,22 +363,8 @@ DEFINE_STEP_WITH_VALUE(Annotation, ToParent, ValueJSON)
 DEFINE_STEP_WITH_VALUE(Annotation, BasenameToParent, ValueNone)
 
 /// @ingroup evaluator_instructions
-/// @brief Represents a compiler step that loops over object properties that
-/// were not previously evaluated
-DEFINE_STEP_APPLICATOR(Annotation, LoopPropertiesUnevaluated, ValueNone)
-
-/// @ingroup evaluator_instructions
-/// @brief Represents a compiler step that loops over unevaluated array items
-DEFINE_STEP_APPLICATOR(Annotation, LoopItemsUnevaluated, ValueNone)
-
-/// @ingroup evaluator_instructions
-/// @brief Represents an annotation-aware compiler logical step that represents
-/// a negation
-DEFINE_STEP_APPLICATOR(Annotation, Not, ValueNone)
-
-/// @ingroup evaluator_instructions
 /// @brief Represents a compiler logical step that represents a negation
-DEFINE_STEP_APPLICATOR(Logical, Not, ValueNone)
+DEFINE_STEP_APPLICATOR(Logical, Not, ValueBoolean)
 
 /// @ingroup evaluator_instructions
 /// @brief Represents a compiler logical step that represents a disjunction
@@ -419,6 +402,15 @@ DEFINE_STEP_APPLICATOR(Logical, WhenArraySizeGreater, ValueUnsignedInteger)
 /// @brief Represents a compiler logical step that represents a conjunction when
 /// the array instance size is equal to the given number
 DEFINE_STEP_APPLICATOR(Logical, WhenArraySizeEqual, ValueUnsignedInteger)
+
+/// @ingroup evaluator_instructions
+/// @brief Represents a compiler step that loops over object properties that
+/// were not previously evaluated
+DEFINE_STEP_APPLICATOR(Loop, PropertiesUnevaluated, ValueNone)
+
+/// @ingroup evaluator_instructions
+/// @brief Represents a compiler step that loops over unevaluated array items
+DEFINE_STEP_APPLICATOR(Loop, ItemsUnevaluated, ValueNone)
 
 /// @ingroup evaluator_instructions
 /// @brief Represents a compiler step that matches steps to object properties
