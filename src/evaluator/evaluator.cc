@@ -639,7 +639,10 @@ auto evaluate_step(const sourcemeta::blaze::Template::value_type &step,
     case IS_STEP(ControlJump): {
       EVALUATE_BEGIN_NO_PRECONDITION(control, ControlJump);
       result = true;
-      for (const auto &child : context.jump(control.value)) {
+
+      assert(context.labels().contains(control.value));
+      for (const auto &child :
+           context.labels().find(control.value)->second.get()) {
         if (!evaluate_step(child, callback, context)) {
           result = false;
           break;
@@ -651,14 +654,19 @@ auto evaluate_step(const sourcemeta::blaze::Template::value_type &step,
 
     case IS_STEP(ControlDynamicAnchorJump): {
       EVALUATE_BEGIN_NO_PRECONDITION(control, ControlDynamicAnchorJump);
-      const auto id{context.find_dynamic_anchor(control.value)};
-      result = id.has_value();
-      if (id.has_value()) {
-        for (const auto &child : context.jump(id.value())) {
-          if (!evaluate_step(child, callback, context)) {
-            result = false;
-            break;
+      result = true;
+      for (const auto &resource : context.resources()) {
+        const auto label{context.hash(resource, control.value)};
+        if (context.labels().contains(label)) {
+          assert(context.labels().contains(label));
+          for (const auto &child : context.labels().find(label)->second.get()) {
+            if (!evaluate_step(child, callback, context)) {
+              result = false;
+              break;
+            }
           }
+
+          break;
         }
       }
 

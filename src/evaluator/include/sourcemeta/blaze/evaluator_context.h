@@ -87,9 +87,8 @@ public:
             const std::string &fragment) const noexcept -> std::size_t;
   auto resources() const noexcept -> const std::vector<std::size_t> &;
   auto mark(const std::size_t id, const Template &children) -> void;
-  auto jump(const std::size_t id) const noexcept -> const Template &;
-  auto find_dynamic_anchor(const std::string &anchor) const
-      -> std::optional<std::size_t>;
+  auto labels() const noexcept -> const
+      std::map<std::size_t, const std::reference_wrapper<const Template>>;
 
   ///////////////////////////////////////////////
   // Evaluation
@@ -120,7 +119,7 @@ private:
   std::vector<std::pair<std::size_t, std::size_t>> frame_sizes;
   const std::hash<std::string> hasher_{};
   std::vector<std::size_t> resources_;
-  std::map<std::size_t, const std::reference_wrapper<const Template>> labels;
+  std::map<std::size_t, const std::reference_wrapper<const Template>> labels_;
   bool property_as_instance{false};
 
   // TODO: Turn these into a trie

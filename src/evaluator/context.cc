@@ -14,7 +14,7 @@ auto EvaluationContext::prepare(const sourcemeta::jsontoolkit::JSON &instance)
   assert(this->resources_.empty());
   this->instances_.clear();
   this->instances_.emplace_back(instance);
-  this->labels.clear();
+  this->labels_.clear();
   this->property_as_instance = false;
   this->evaluated_.clear();
   this->evaluated_blacklist_.clear();
@@ -172,25 +172,12 @@ auto EvaluationContext::resolve_string_target() -> std::optional<
 
 auto EvaluationContext::mark(const std::size_t id, const Template &children)
     -> void {
-  this->labels.try_emplace(id, children);
+  this->labels_.try_emplace(id, children);
 }
 
-auto EvaluationContext::jump(const std::size_t id) const noexcept
-    -> const Template & {
-  assert(this->labels.contains(id));
-  return this->labels.at(id).get();
-}
-
-auto EvaluationContext::find_dynamic_anchor(const std::string &anchor) const
-    -> std::optional<std::size_t> {
-  for (const auto &resource : this->resources()) {
-    const auto label{this->hash(resource, anchor)};
-    if (this->labels.contains(label)) {
-      return label;
-    }
-  }
-
-  return std::nullopt;
+auto EvaluationContext::labels() const noexcept -> const
+    std::map<std::size_t, const std::reference_wrapper<const Template>> {
+  return this->labels_;
 }
 
 auto EvaluationContext::evaluate(
