@@ -758,6 +758,9 @@ auto evaluate_step(const sourcemeta::blaze::Template::value_type &step,
         context.leave();
       }
 
+      // Mark the entire object as evaluated
+      context.evaluate();
+
     evaluate_annotation_loop_properties_unevaluated_end:
       EVALUATE_END(loop, LoopPropertiesUnevaluated);
     }
@@ -785,6 +788,9 @@ auto evaluate_step(const sourcemeta::blaze::Template::value_type &step,
 
         context.leave();
       }
+
+      // Mark the entire array as evaluated
+      context.evaluate();
 
     evaluate_compiler_annotation_loop_items_unevaluated_end:
       EVALUATE_END(loop, LoopItemsUnevaluated);

@@ -95,6 +95,7 @@ public:
   // Evaluation
   ///////////////////////////////////////////////
 
+  auto evaluate() -> void;
   auto
   evaluate(const sourcemeta::jsontoolkit::Pointer &relative_instance_location)
       -> void;

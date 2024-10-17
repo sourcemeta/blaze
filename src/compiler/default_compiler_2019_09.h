@@ -221,10 +221,6 @@ auto compiler_2019_09_applicator_unevaluateditems(
         sourcemeta::jsontoolkit::JSON{true}));
   }
 
-  // TODO: Do this out the box on LoopItemsUnevaluated?
-  children.push_back(make<ControlEvaluate>(
-      true, context, schema_context, relative_dynamic_context, ValuePointer{}));
-
   return {make<LoopItemsUnevaluated>(true, context, schema_context,
                                      dynamic_context, ValueNone{},
                                      std::move(children))};
@@ -247,10 +243,6 @@ auto compiler_2019_09_applicator_unevaluatedproperties(
     children.push_back(make<AnnotationBasenameToParent>(
         true, context, schema_context, relative_dynamic_context, ValueNone{}));
   }
-
-  // TODO: Do this out the box on LoopPropertiesUnevaluated?
-  children.push_back(make<ControlEvaluate>(
-      true, context, schema_context, relative_dynamic_context, ValuePointer{}));
 
   return {make<LoopPropertiesUnevaluated>(true, context, schema_context,
                                           dynamic_context, ValueNone{},

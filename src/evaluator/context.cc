@@ -193,6 +193,10 @@ auto EvaluationContext::find_dynamic_anchor(const std::string &anchor) const
   return std::nullopt;
 }
 
+auto EvaluationContext::evaluate() -> void {
+  this->evaluated_.emplace_back(this->instance_location_, this->evaluate_path_);
+}
+
 auto EvaluationContext::evaluate(
     const sourcemeta::jsontoolkit::Pointer &relative_instance_location)
     -> void {
