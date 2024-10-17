@@ -703,15 +703,15 @@ auto evaluate_step(const sourcemeta::blaze::Template::value_type &step,
     case IS_STEP(LogicalNot): {
       EVALUATE_BEGIN_NO_PRECONDITION(logical, LogicalNot);
 
-      if (logical.value) {
-        context.mask();
-      }
-
       for (const auto &child : logical.children) {
         if (!evaluate_step(child, callback, context)) {
           result = true;
           break;
         }
+      }
+
+      if (logical.value) {
+        context.unevaluate();
       }
 
       EVALUATE_END(logical, LogicalNot);
@@ -722,7 +722,8 @@ auto evaluate_step(const sourcemeta::blaze::Template::value_type &step,
       result = true;
 
       for (const auto &entry : target.as_object()) {
-        if (context.is_evaluated(entry.first)) {
+        if (context.is_evaluated(
+                sourcemeta::jsontoolkit::WeakPointer::Token{entry.first})) {
           continue;
         }
 
@@ -750,7 +751,8 @@ auto evaluate_step(const sourcemeta::blaze::Template::value_type &step,
       for (auto iterator = array.cbegin(); iterator != array.cend();
            ++iterator) {
         const auto index{std::distance(array.cbegin(), iterator)};
-        if (context.is_evaluated(static_cast<Pointer::Token::Index>(index))) {
+        if (context.is_evaluated(
+                static_cast<WeakPointer::Token::Index>(index))) {
           continue;
         }
 

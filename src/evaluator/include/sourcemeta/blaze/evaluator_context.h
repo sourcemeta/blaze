@@ -98,15 +98,9 @@ public:
   auto
   evaluate(const sourcemeta::jsontoolkit::Pointer &relative_instance_location)
       -> void;
-  auto mask() -> void;
-
-  // TODO: Have a single is_evaluated() that operates on a Token?
-  auto is_evaluated(
-      const sourcemeta::jsontoolkit::Pointer::Token::Property &property) const
+  auto is_evaluated(sourcemeta::jsontoolkit::WeakPointer::Token &&token) const
       -> bool;
-  auto
-  is_evaluated(const sourcemeta::jsontoolkit::Pointer::Token::Index index) const
-      -> bool;
+  auto unevaluate() -> void;
 
 public:
   // TODO: Remove this
@@ -128,13 +122,12 @@ private:
   std::vector<std::size_t> resources_;
   std::map<std::size_t, const std::reference_wrapper<const Template>> labels;
   bool property_as_instance{false};
-  // TODO: Turn this into a trie
+
+  // TODO: Turn these into a trie
   std::vector<std::pair<sourcemeta::jsontoolkit::WeakPointer,
                         sourcemeta::jsontoolkit::WeakPointer>>
       evaluated_;
-
-  // TODO: Make this part of the trie above
-  std::vector<sourcemeta::jsontoolkit::WeakPointer> annotation_blacklist;
+  std::vector<sourcemeta::jsontoolkit::WeakPointer> evaluated_blacklist_;
 #if defined(_MSC_VER)
 #pragma warning(default : 4251 4275)
 #endif

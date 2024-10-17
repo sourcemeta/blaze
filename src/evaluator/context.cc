@@ -17,7 +17,7 @@ auto EvaluationContext::prepare(const sourcemeta::jsontoolkit::JSON &instance)
   this->labels.clear();
   this->property_as_instance = false;
   this->evaluated_.clear();
-  this->annotation_blacklist.clear();
+  this->evaluated_blacklist_.clear();
 }
 
 auto EvaluationContext::push_without_traverse(
@@ -90,14 +90,6 @@ auto EvaluationContext::pop(const bool dynamic) -> void {
     assert(!this->resources_.empty());
     this->resources_.pop_back();
   }
-}
-
-// TODO: At least currently, we only need to mask if a schema
-// makes use of `unevaluatedProperties` or `unevaluatedItems`
-// Detect if a schema does need this so if not, we avoid
-// an unnecessary copy
-auto EvaluationContext::mask() -> void {
-  this->annotation_blacklist.push_back(this->evaluate_path_);
 }
 
 auto EvaluationContext::enter(
@@ -219,17 +211,19 @@ auto EvaluationContext::evaluate(
 }
 
 auto EvaluationContext::is_evaluated(
-    const sourcemeta::jsontoolkit::Pointer::Token::Property &property) const
-    -> bool {
+    sourcemeta::jsontoolkit::WeakPointer::Token &&token) const -> bool {
   auto expected_instance_location = this->instance_location_;
-  expected_instance_location.push_back(property);
+  // TODO: Allow directly pushing back a token
+  expected_instance_location.push_back(
+      sourcemeta::jsontoolkit::WeakPointer{std::move(token)});
 
   for (const auto &entry : this->evaluated_) {
-    if (entry.first == expected_instance_location &&
+    if ((entry.first == expected_instance_location ||
+         entry.first == this->instance_location_) &&
         // Its not possible to affect cousins
         entry.second.starts_with(this->evaluate_path_.initial())) {
       // Handle "not"
-      for (const auto &mask : this->annotation_blacklist) {
+      for (const auto &mask : this->evaluated_blacklist_) {
         if (entry.second.starts_with(mask) &&
             !this->evaluate_path_.starts_with(mask)) {
           return false;
@@ -243,29 +237,8 @@ auto EvaluationContext::is_evaluated(
   return false;
 }
 
-auto EvaluationContext::is_evaluated(
-    const sourcemeta::jsontoolkit::Pointer::Token::Index index) const -> bool {
-  auto expected_instance_location = this->instance_location_;
-  expected_instance_location.push_back(index);
-
-  for (const auto &entry : this->evaluated_) {
-    if ((entry.first == expected_instance_location ||
-         entry.first == this->instance_location_) &&
-        // Its not possible to affect cousins
-        entry.second.starts_with(this->evaluate_path_.initial())) {
-      // Handle "not"
-      for (const auto &mask : this->annotation_blacklist) {
-        if (entry.second.starts_with(mask) &&
-            !this->evaluate_path_.starts_with(mask)) {
-          return false;
-        }
-      }
-
-      return true;
-    }
-  }
-
-  return false;
+auto EvaluationContext::unevaluate() -> void {
+  this->evaluated_blacklist_.push_back(this->evaluate_path_);
 }
 
 } // namespace sourcemeta::blaze
