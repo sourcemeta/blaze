@@ -503,7 +503,7 @@ auto compiler_draft4_applicator_properties_with_options(
 
   for (auto &&[name, substeps] : properties) {
     if (track_evaluation) {
-      substeps.push_back(make<ControlEvaluate>(false, context, schema_context,
+      substeps.push_back(make<ControlEvaluate>(true, context, schema_context,
                                                relative_dynamic_context,
                                                ValuePointer{name}));
     }
@@ -628,7 +628,7 @@ auto compiler_draft4_applicator_patternproperties_with_options(
     }
 
     if (track_evaluation) {
-      substeps.push_back(make<ControlEvaluate>(false, context, schema_context,
+      substeps.push_back(make<ControlEvaluate>(true, context, schema_context,
                                                relative_dynamic_context,
                                                ValuePointer{}));
     }
@@ -684,7 +684,7 @@ auto compiler_draft4_applicator_additionalproperties_with_options(
   }
 
   if (track_evaluation) {
-    children.push_back(make<ControlEvaluate>(false, context, schema_context,
+    children.push_back(make<ControlEvaluate>(true, context, schema_context,
                                              relative_dynamic_context,
                                              ValuePointer{}));
   }
@@ -865,7 +865,7 @@ auto compiler_draft4_applicator_items_array(
 
     if (track_evaluation) {
       children.push_back(make<ControlEvaluate>(
-          false, context, schema_context, relative_dynamic_context,
+          true, context, schema_context, relative_dynamic_context,
           ValuePointer{subschemas.size()}));
     }
 
@@ -943,7 +943,7 @@ auto compiler_draft4_applicator_items_with_options(
       }
 
       if (track_evaluation) {
-        children.push_back(make<ControlEvaluate>(false, context, schema_context,
+        children.push_back(make<ControlEvaluate>(true, context, schema_context,
                                                  relative_dynamic_context,
                                                  ValuePointer{}));
       }
@@ -957,7 +957,7 @@ auto compiler_draft4_applicator_items_with_options(
                               sourcemeta::jsontoolkit::empty_pointer,
                               sourcemeta::jsontoolkit::empty_pointer)};
     if (track_evaluation) {
-      children.push_back(make<ControlEvaluate>(false, context, schema_context,
+      children.push_back(make<ControlEvaluate>(true, context, schema_context,
                                                relative_dynamic_context,
                                                ValuePointer{}));
     }
@@ -1004,7 +1004,7 @@ auto compiler_draft4_applicator_additionalitems_from_cursor(
   }
 
   if (track_evaluation) {
-    children.push_back(make<ControlEvaluate>(false, context, schema_context,
+    children.push_back(make<ControlEvaluate>(true, context, schema_context,
                                              relative_dynamic_context,
                                              ValuePointer{}));
   }

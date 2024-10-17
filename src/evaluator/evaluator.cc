@@ -621,6 +621,7 @@ auto evaluate_step(const sourcemeta::blaze::Template::value_type &step,
     }
 
     case IS_STEP(ControlMark): {
+      SOURCEMETA_TRACE_END(trace_dispatch_id, "Dispatch");
       SOURCEMETA_TRACE_START(trace_id, "ControlMark");
       const auto &control{std::get<ControlMark>(step)};
       context.mark(control.value, control.children);
@@ -629,9 +630,30 @@ auto evaluate_step(const sourcemeta::blaze::Template::value_type &step,
     }
 
     case IS_STEP(ControlEvaluate): {
+      SOURCEMETA_TRACE_END(trace_dispatch_id, "Dispatch");
       SOURCEMETA_TRACE_START(trace_id, "ControlEvaluate");
       const auto &control{std::get<ControlEvaluate>(step)};
       context.evaluate(control.value);
+
+      if (control.report && callback.has_value()) {
+        // We only want to pay for the pointer overhead if
+        // reporting this step to the callback
+        // TODO: Improve Pointer API to make this easier
+        auto destination = context.instance_location();
+        for (const auto &token : control.value) {
+          if (token.is_property()) {
+            destination.push_back(token.to_property());
+          } else {
+            destination.push_back(token.to_index());
+          }
+        }
+
+        callback.value()(EvaluationType::Pre, true, step,
+                         context.evaluate_path(), destination, context.null);
+        callback.value()(EvaluationType::Post, true, step,
+                         context.evaluate_path(), destination, context.null);
+      }
+
       SOURCEMETA_TRACE_END(trace_id, "ControlEvaluate");
       return true;
     }
