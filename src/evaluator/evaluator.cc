@@ -649,7 +649,20 @@ auto evaluate_step(const sourcemeta::blaze::Template::value_type &step,
       SOURCEMETA_TRACE_END(trace_dispatch_id, "Dispatch");
       SOURCEMETA_TRACE_START(trace_id, "ControlEvaluate");
       const auto &control{std::get<ControlEvaluate>(step)};
-      context.evaluate(control.value);
+
+      if (control.report && callback.has_value()) {
+        // TODO: Optimize this case to avoid an extra pointer copy
+        auto destination = context.instance_location();
+        destination.push_back(control.value);
+        callback.value()(EvaluationType::Pre, true, step,
+                         context.evaluate_path(), destination, context.null);
+        context.evaluate(control.value);
+        callback.value()(EvaluationType::Post, true, step,
+                         context.evaluate_path(), destination, context.null);
+      } else {
+        context.evaluate(control.value);
+      }
+
       SOURCEMETA_TRACE_END(trace_id, "ControlEvaluate");
       return true;
     }

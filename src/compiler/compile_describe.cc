@@ -255,7 +255,7 @@ struct DescribeVisitor {
   }
 
   auto operator()(const ControlEvaluate &) const -> std::string {
-    return unknown();
+    return "The instance location was marked as evaluated";
   }
 
   auto operator()(const ControlJump &) const -> std::string {

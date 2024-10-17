@@ -1303,28 +1303,33 @@ TEST(Evaluator_2020_12, unevaluatedItems_1) {
   const sourcemeta::jsontoolkit::JSON instance{
       sourcemeta::jsontoolkit::parse("[ false ]")};
 
-  EVALUATE_WITH_TRACE_FAST_SUCCESS(schema, instance, 3);
+  EVALUATE_WITH_TRACE_FAST_SUCCESS(schema, instance, 4);
 
   EVALUATE_TRACE_PRE(0, LoopContains, "/contains", "#/contains", "");
   EVALUATE_TRACE_PRE(1, AssertionTypeStrict, "/contains/type",
                      "#/contains/type", "/0");
-  EVALUATE_TRACE_PRE(2, LoopItemsUnevaluated, "/unevaluatedItems",
+  EVALUATE_TRACE_PRE(2, ControlEvaluate, "/contains", "#/contains", "/0");
+  EVALUATE_TRACE_PRE(3, LoopItemsUnevaluated, "/unevaluatedItems",
                      "#/unevaluatedItems", "");
 
   EVALUATE_TRACE_POST_SUCCESS(0, AssertionTypeStrict, "/contains/type",
                               "#/contains/type", "/0");
-  EVALUATE_TRACE_POST_SUCCESS(1, LoopContains, "/contains", "#/contains", "");
-  EVALUATE_TRACE_POST_SUCCESS(2, LoopItemsUnevaluated, "/unevaluatedItems",
+  EVALUATE_TRACE_POST_SUCCESS(1, ControlEvaluate, "/contains", "#/contains",
+                              "/0");
+  EVALUATE_TRACE_POST_SUCCESS(2, LoopContains, "/contains", "#/contains", "");
+  EVALUATE_TRACE_POST_SUCCESS(3, LoopItemsUnevaluated, "/unevaluatedItems",
                               "#/unevaluatedItems", "");
 
   EVALUATE_TRACE_POST_DESCRIBE(instance, 0,
                                "The value was expected to be of type boolean");
+  EVALUATE_TRACE_POST_DESCRIBE(instance, 1,
+                               "The instance location was marked as evaluated");
   EVALUATE_TRACE_POST_DESCRIBE(
-      instance, 1,
+      instance, 2,
       "The array value was expected to contain at least 1 item that validates "
       "against the given subschema");
   EVALUATE_TRACE_POST_DESCRIBE(
-      instance, 2,
+      instance, 3,
       "The array items not covered by other array keywords, if any, were "
       "expected to validate against this subschema");
 }
@@ -1340,20 +1345,23 @@ TEST(Evaluator_2020_12, unevaluatedItems_1_exhaustive) {
   const sourcemeta::jsontoolkit::JSON instance{
       sourcemeta::jsontoolkit::parse("[ false ]")};
 
-  EVALUATE_WITH_TRACE_EXHAUSTIVE_SUCCESS(schema, instance, 4);
+  EVALUATE_WITH_TRACE_EXHAUSTIVE_SUCCESS(schema, instance, 5);
 
   EVALUATE_TRACE_PRE(0, LoopContains, "/contains", "#/contains", "");
   EVALUATE_TRACE_PRE(1, AssertionTypeStrict, "/contains/type",
                      "#/contains/type", "/0");
   EVALUATE_TRACE_PRE_ANNOTATION(2, "/contains", "#/contains", "");
-  EVALUATE_TRACE_PRE(3, LoopItemsUnevaluated, "/unevaluatedItems",
+  EVALUATE_TRACE_PRE(3, ControlEvaluate, "/contains", "#/contains", "/0");
+  EVALUATE_TRACE_PRE(4, LoopItemsUnevaluated, "/unevaluatedItems",
                      "#/unevaluatedItems", "");
 
   EVALUATE_TRACE_POST_SUCCESS(0, AssertionTypeStrict, "/contains/type",
                               "#/contains/type", "/0");
   EVALUATE_TRACE_POST_ANNOTATION(1, "/contains", "#/contains", "", 0);
-  EVALUATE_TRACE_POST_SUCCESS(2, LoopContains, "/contains", "#/contains", "");
-  EVALUATE_TRACE_POST_SUCCESS(3, LoopItemsUnevaluated, "/unevaluatedItems",
+  EVALUATE_TRACE_POST_SUCCESS(2, ControlEvaluate, "/contains", "#/contains",
+                              "/0");
+  EVALUATE_TRACE_POST_SUCCESS(3, LoopContains, "/contains", "#/contains", "");
+  EVALUATE_TRACE_POST_SUCCESS(4, LoopItemsUnevaluated, "/unevaluatedItems",
                               "#/unevaluatedItems", "");
 
   EVALUATE_TRACE_POST_DESCRIBE(instance, 0,
@@ -1362,12 +1370,14 @@ TEST(Evaluator_2020_12, unevaluatedItems_1_exhaustive) {
       instance, 1,
       "The item at index 0 of the array value successfully validated against "
       "the containment check subschema");
+  EVALUATE_TRACE_POST_DESCRIBE(instance, 2,
+                               "The instance location was marked as evaluated");
   EVALUATE_TRACE_POST_DESCRIBE(
-      instance, 2,
+      instance, 3,
       "The array value was expected to contain at least 1 item that validates "
       "against the given subschema");
   EVALUATE_TRACE_POST_DESCRIBE(
-      instance, 3,
+      instance, 4,
       "The array items not covered by other array keywords, if any, were "
       "expected to validate against this subschema");
 }
