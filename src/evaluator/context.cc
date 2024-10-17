@@ -200,16 +200,8 @@ auto EvaluationContext::evaluate() -> void {
 auto EvaluationContext::evaluate(
     const sourcemeta::jsontoolkit::Pointer &relative_instance_location)
     -> void {
-  // TODO: Improve Pointer API to make this easier
   auto new_instance_location = this->instance_location_;
-  for (const auto &token : relative_instance_location) {
-    if (token.is_property()) {
-      new_instance_location.push_back(token.to_property());
-    } else {
-      new_instance_location.push_back(token.to_index());
-    }
-  }
-
+  new_instance_location.push_back(relative_instance_location);
   this->evaluated_.emplace_back(std::move(new_instance_location),
                                 this->evaluate_path_);
 }
