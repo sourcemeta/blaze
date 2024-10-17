@@ -18,7 +18,6 @@ auto EvaluationContext::prepare(const sourcemeta::jsontoolkit::JSON &instance)
   this->property_as_instance = false;
   this->evaluated_.clear();
   this->annotation_blacklist.clear();
-  this->annotations_.clear();
 }
 
 auto EvaluationContext::push_without_traverse(
@@ -99,17 +98,6 @@ auto EvaluationContext::pop(const bool dynamic) -> void {
 // an unnecessary copy
 auto EvaluationContext::mask() -> void {
   this->annotation_blacklist.push_back(this->evaluate_path_);
-}
-
-auto EvaluationContext::annotate(
-    const sourcemeta::jsontoolkit::WeakPointer &current_instance_location,
-    const sourcemeta::jsontoolkit::JSON &value)
-    -> std::pair<std::reference_wrapper<const sourcemeta::jsontoolkit::JSON>,
-                 bool> {
-  const auto result{this->annotations_.insert({current_instance_location, {}})
-                        .first->second.insert({this->evaluate_path(), {}})
-                        .first->second.insert(value)};
-  return {*(result.first), result.second};
 }
 
 auto EvaluationContext::enter(
