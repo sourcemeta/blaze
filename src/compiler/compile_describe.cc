@@ -251,7 +251,7 @@ struct DescribeVisitor {
   }
 
   auto operator()(const ControlMark &) const -> std::string {
-    return describe_reference(this->target);
+    return "The schema location was marked for future use";
   }
 
   auto operator()(const ControlEvaluate &) const -> std::string {
