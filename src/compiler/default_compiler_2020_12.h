@@ -15,7 +15,7 @@ auto compiler_2020_12_applicator_prefixitems(
     const DynamicContext &dynamic_context) -> Template {
   return compiler_draft4_applicator_items_array(
       context, schema_context, dynamic_context,
-      context.uses_unevaluated_items || context.mode == Mode::Exhaustive);
+      context.mode == Mode::Exhaustive, context.uses_unevaluated_items);
 }
 
 auto compiler_2020_12_applicator_items(const Context &context,
@@ -29,7 +29,7 @@ auto compiler_2020_12_applicator_items(const Context &context,
 
   return compiler_draft4_applicator_additionalitems_from_cursor(
       context, schema_context, dynamic_context, cursor,
-      context.uses_unevaluated_items || context.mode == Mode::Exhaustive);
+      context.mode == Mode::Exhaustive, context.uses_unevaluated_items);
 }
 
 auto compiler_2020_12_applicator_contains(const Context &context,
@@ -38,7 +38,7 @@ auto compiler_2020_12_applicator_contains(const Context &context,
     -> Template {
   return compiler_2019_09_applicator_contains_with_options(
       context, schema_context, dynamic_context,
-      context.uses_unevaluated_items || context.mode == Mode::Exhaustive);
+      context.mode == Mode::Exhaustive, context.uses_unevaluated_items);
 }
 
 auto compiler_2020_12_core_dynamicref(const Context &context,

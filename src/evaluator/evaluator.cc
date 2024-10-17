@@ -735,64 +735,14 @@ auto evaluate_step(const sourcemeta::blaze::Template::value_type &step,
       EVALUATE_END(loop, AnnotationLoopPropertiesUnevaluated);
     }
 
-    case IS_STEP(AnnotationLoopItemsUnmarked): {
-      EVALUATE_BEGIN(loop, AnnotationLoopItemsUnmarked,
-                     target.is_array() &&
-                         !context.defines_any_annotation(loop.value));
-      // Otherwise you shouldn't be using this step?
-      assert(!loop.value.empty());
+    case IS_STEP(AnnotationLoopItemsUnevaluated): {
+      EVALUATE_BEGIN(loop, AnnotationLoopItemsUnevaluated, target.is_array());
       const auto &array{target.as_array()};
       result = true;
-
       for (auto iterator = array.cbegin(); iterator != array.cend();
            ++iterator) {
         const auto index{std::distance(array.cbegin(), iterator)};
-        context.enter(static_cast<Pointer::Token::Index>(index));
-        for (const auto &child : loop.children) {
-          if (!evaluate_step(child, callback, context)) {
-            result = false;
-            context.leave();
-            goto evaluate_compiler_annotation_loop_items_unmarked_end;
-          }
-        }
-
-        context.leave();
-      }
-
-    evaluate_compiler_annotation_loop_items_unmarked_end:
-      EVALUATE_END(loop, AnnotationLoopItemsUnmarked);
-    }
-
-    case IS_STEP(AnnotationLoopItemsUnevaluated): {
-      // TODO: This precondition is very expensive due to pointer manipulation
-      EVALUATE_BEGIN(
-          loop, AnnotationLoopItemsUnevaluated,
-          target.is_array() &&
-              !context.defines_sibling_annotation(
-                  loop.value.mask, sourcemeta::jsontoolkit::JSON{true}));
-      const auto &array{target.as_array()};
-      result = true;
-      auto iterator{array.cbegin()};
-
-      // Determine the proper start based on integer annotations collected for
-      // the current instance location by the keyword requested by the user.
-      const std::uint64_t start{
-          context.largest_annotation_index(loop.value.index)};
-
-      // We need this check, as advancing an iterator past its bounds
-      // is considered undefined behavior
-      // See https://en.cppreference.com/w/cpp/iterator/advance
-      std::advance(iterator,
-                   std::min(static_cast<std::ptrdiff_t>(start),
-                            static_cast<std::ptrdiff_t>(target.size())));
-
-      for (; iterator != array.cend(); ++iterator) {
-        const auto index{std::distance(array.cbegin(), iterator)};
-
-        // TODO: Can we avoid doing this expensive operation on a loop?
-        if (context.defines_sibling_annotation(
-                loop.value.filter, sourcemeta::jsontoolkit::JSON{
-                                       static_cast<std::size_t>(index)})) {
+        if (context.is_evaluated(static_cast<Pointer::Token::Index>(index))) {
           continue;
         }
 

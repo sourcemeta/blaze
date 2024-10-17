@@ -841,7 +841,8 @@ auto compiler_draft4_applicator_not(const Context &context,
 
 auto compiler_draft4_applicator_items_array(
     const Context &context, const SchemaContext &schema_context,
-    const DynamicContext &dynamic_context, const bool annotate) -> Template {
+    const DynamicContext &dynamic_context, const bool annotate,
+    const bool track_evaluation) -> Template {
   assert(schema_context.schema.at(dynamic_context.keyword).is_array());
   const auto items_size{
       schema_context.schema.at(dynamic_context.keyword).size()};
@@ -869,9 +870,16 @@ auto compiler_draft4_applicator_items_array(
   const auto &array{
       schema_context.schema.at(dynamic_context.keyword).as_array()};
   for (auto iterator{array.cbegin()}; iterator != array.cend(); ++iterator) {
-    subschemas.push_back(compile(context, schema_context,
-                                 relative_dynamic_context, {subschemas.size()},
-                                 {subschemas.size()}));
+    Template children{compile(context, schema_context, relative_dynamic_context,
+                              {subschemas.size()}, {subschemas.size()})};
+
+    if (track_evaluation) {
+      children.push_back(make<ControlEvaluate>(
+          false, context, schema_context, relative_dynamic_context,
+          ValuePointer{subschemas.size()}));
+    }
+
+    subschemas.push_back(std::move(children));
   }
 
   Template children;
@@ -918,7 +926,8 @@ auto compiler_draft4_applicator_items_array(
 
 auto compiler_draft4_applicator_items_with_options(
     const Context &context, const SchemaContext &schema_context,
-    const DynamicContext &dynamic_context, const bool annotate) -> Template {
+    const DynamicContext &dynamic_context, const bool annotate,
+    const bool track_evaluation) -> Template {
   if (schema_context.schema.defines("type") &&
       schema_context.schema.at("type").is_string() &&
       schema_context.schema.at("type").to_string() != "array") {
@@ -926,63 +935,88 @@ auto compiler_draft4_applicator_items_with_options(
   }
 
   if (is_schema(schema_context.schema.at(dynamic_context.keyword))) {
-    if (annotate) {
+    if (annotate || track_evaluation) {
       Template children;
+      Template subchildren{compile(context, schema_context,
+                                   relative_dynamic_context,
+                                   sourcemeta::jsontoolkit::empty_pointer,
+                                   sourcemeta::jsontoolkit::empty_pointer)};
+
       children.push_back(make<LoopItems>(
           true, context, schema_context, relative_dynamic_context,
-          ValueUnsignedInteger{0},
-          compile(context, schema_context, relative_dynamic_context,
-                  sourcemeta::jsontoolkit::empty_pointer,
-                  sourcemeta::jsontoolkit::empty_pointer)));
-      children.push_back(make<AnnotationEmit>(
-          true, context, schema_context, relative_dynamic_context,
-          sourcemeta::jsontoolkit::JSON{true}));
+          ValueUnsignedInteger{0}, std::move(subchildren)));
+
+      if (annotate) {
+        children.push_back(make<AnnotationEmit>(
+            true, context, schema_context, relative_dynamic_context,
+            sourcemeta::jsontoolkit::JSON{true}));
+      }
+
+      if (track_evaluation) {
+        children.push_back(make<ControlEvaluate>(false, context, schema_context,
+                                                 relative_dynamic_context,
+                                                 ValuePointer{}));
+      }
 
       return {make<LogicalWhenType>(
           false, context, schema_context, dynamic_context,
           sourcemeta::jsontoolkit::JSON::Type::Array, std::move(children))};
     }
 
-    return {make<LoopItems>(
-        true, context, schema_context, dynamic_context, ValueUnsignedInteger{0},
-        compile(context, schema_context, relative_dynamic_context,
-                sourcemeta::jsontoolkit::empty_pointer,
-                sourcemeta::jsontoolkit::empty_pointer))};
+    Template children{compile(context, schema_context, relative_dynamic_context,
+                              sourcemeta::jsontoolkit::empty_pointer,
+                              sourcemeta::jsontoolkit::empty_pointer)};
+    if (track_evaluation) {
+      children.push_back(make<ControlEvaluate>(false, context, schema_context,
+                                               relative_dynamic_context,
+                                               ValuePointer{}));
+    }
+
+    return {make<LoopItems>(true, context, schema_context, dynamic_context,
+                            ValueUnsignedInteger{0}, std::move(children))};
   }
 
-  return compiler_draft4_applicator_items_array(context, schema_context,
-                                                dynamic_context, annotate);
+  return compiler_draft4_applicator_items_array(
+      context, schema_context, dynamic_context, annotate, track_evaluation);
 }
 
 auto compiler_draft4_applicator_items(const Context &context,
                                       const SchemaContext &schema_context,
                                       const DynamicContext &dynamic_context)
     -> Template {
-  return compiler_draft4_applicator_items_with_options(context, schema_context,
-                                                       dynamic_context, false);
+  return compiler_draft4_applicator_items_with_options(
+      context, schema_context, dynamic_context, false, false);
 }
 
 auto compiler_draft4_applicator_additionalitems_from_cursor(
     const Context &context, const SchemaContext &schema_context,
     const DynamicContext &dynamic_context, const std::size_t cursor,
-    const bool annotate) -> Template {
+    const bool annotate, const bool track_evaluation) -> Template {
   if (schema_context.schema.defines("type") &&
       schema_context.schema.at("type").is_string() &&
       schema_context.schema.at("type").to_string() != "array") {
     return {};
   }
 
+  Template subchildren{compile(context, schema_context,
+                               relative_dynamic_context,
+                               sourcemeta::jsontoolkit::empty_pointer,
+                               sourcemeta::jsontoolkit::empty_pointer)};
+
   Template children{
       make<LoopItems>(true, context, schema_context, relative_dynamic_context,
-                      ValueUnsignedInteger{cursor},
-                      compile(context, schema_context, relative_dynamic_context,
-                              sourcemeta::jsontoolkit::empty_pointer,
-                              sourcemeta::jsontoolkit::empty_pointer))};
+                      ValueUnsignedInteger{cursor}, std::move(subchildren))};
 
   if (annotate) {
     children.push_back(make<AnnotationEmit>(
         true, context, schema_context, relative_dynamic_context,
         sourcemeta::jsontoolkit::JSON{true}));
+  }
+
+  if (track_evaluation) {
+    children.push_back(make<ControlEvaluate>(false, context, schema_context,
+                                             relative_dynamic_context,
+                                             ValuePointer{}));
   }
 
   return {make<LogicalWhenArraySizeGreater>(
@@ -992,7 +1026,8 @@ auto compiler_draft4_applicator_additionalitems_from_cursor(
 
 auto compiler_draft4_applicator_additionalitems_with_options(
     const Context &context, const SchemaContext &schema_context,
-    const DynamicContext &dynamic_context, const bool annotate) -> Template {
+    const DynamicContext &dynamic_context, const bool annotate,
+    const bool track_evaluation) -> Template {
   if (schema_context.schema.defines("type") &&
       schema_context.schema.at("type").is_string() &&
       schema_context.schema.at("type").to_string() != "array") {
@@ -1013,14 +1048,15 @@ auto compiler_draft4_applicator_additionalitems_with_options(
                         : 0};
 
   return compiler_draft4_applicator_additionalitems_from_cursor(
-      context, schema_context, dynamic_context, cursor, annotate);
+      context, schema_context, dynamic_context, cursor, annotate,
+      track_evaluation);
 }
 
 auto compiler_draft4_applicator_additionalitems(
     const Context &context, const SchemaContext &schema_context,
     const DynamicContext &dynamic_context) -> Template {
   return compiler_draft4_applicator_additionalitems_with_options(
-      context, schema_context, dynamic_context, false);
+      context, schema_context, dynamic_context, false, false);
 }
 
 auto compiler_draft4_applicator_dependencies(

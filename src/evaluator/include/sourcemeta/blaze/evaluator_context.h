@@ -98,7 +98,13 @@ public:
   auto
   evaluate(const sourcemeta::jsontoolkit::Pointer &relative_instance_location)
       -> void;
-  auto is_evaluated(const sourcemeta::jsontoolkit::JSON::String &property) const
+
+  // TODO: Have a single is_evaluated() that operates on a Token?
+  auto is_evaluated(
+      const sourcemeta::jsontoolkit::Pointer::Token::Property &property) const
+      -> bool;
+  auto
+  is_evaluated(const sourcemeta::jsontoolkit::Pointer::Token::Index index) const
       -> bool;
 
   ///////////////////////////////////////////////
@@ -111,13 +117,6 @@ public:
       const sourcemeta::jsontoolkit::JSON &value)
       -> std::pair<std::reference_wrapper<const sourcemeta::jsontoolkit::JSON>,
                    bool>;
-  auto defines_any_annotation(const std::string &keyword) const -> bool;
-  auto
-  defines_sibling_annotation(const std::vector<std::string> &keywords,
-                             const sourcemeta::jsontoolkit::JSON &value) const
-      -> bool;
-  auto largest_annotation_index(const std::string &keyword) const
-      -> std::uint64_t;
 
 public:
   // TODO: Remove this
@@ -144,8 +143,9 @@ private:
                         sourcemeta::jsontoolkit::WeakPointer>>
       evaluated_;
 
-  // For annotations
+  // TODO: Make this part of the trie above
   std::vector<sourcemeta::jsontoolkit::WeakPointer> annotation_blacklist;
+  // TODO: Delete this member
   std::map<sourcemeta::jsontoolkit::WeakPointer,
            std::map<sourcemeta::jsontoolkit::WeakPointer,
                     std::set<sourcemeta::jsontoolkit::JSON>>>

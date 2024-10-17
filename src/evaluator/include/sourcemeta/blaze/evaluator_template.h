@@ -49,7 +49,6 @@ struct AnnotationWhenArraySizeGreater;
 struct AnnotationToParent;
 struct AnnotationBasenameToParent;
 struct AnnotationLoopPropertiesUnevaluated;
-struct AnnotationLoopItemsUnmarked;
 struct AnnotationLoopItemsUnevaluated;
 struct AnnotationNot;
 struct LogicalNot;
@@ -92,14 +91,14 @@ using Template = std::vector<std::variant<
     AssertionPropertyType, AssertionPropertyTypeStrict, AnnotationEmit,
     AnnotationWhenArraySizeEqual, AnnotationWhenArraySizeGreater,
     AnnotationToParent, AnnotationBasenameToParent,
-    AnnotationLoopPropertiesUnevaluated, AnnotationLoopItemsUnmarked,
-    AnnotationLoopItemsUnevaluated, AnnotationNot, LogicalNot, LogicalOr,
-    LogicalAnd, LogicalXor, LogicalCondition, LogicalWhenType,
-    LogicalWhenDefines, LogicalWhenArraySizeGreater, LogicalWhenArraySizeEqual,
-    LoopPropertiesMatch, LoopProperties, LoopPropertiesRegex,
-    LoopPropertiesExcept, LoopPropertiesType, LoopPropertiesTypeStrict,
-    LoopKeys, LoopItems, LoopContains, ControlLabel, ControlMark,
-    ControlEvaluate, ControlJump, ControlDynamicAnchorJump>>;
+    AnnotationLoopPropertiesUnevaluated, AnnotationLoopItemsUnevaluated,
+    AnnotationNot, LogicalNot, LogicalOr, LogicalAnd, LogicalXor,
+    LogicalCondition, LogicalWhenType, LogicalWhenDefines,
+    LogicalWhenArraySizeGreater, LogicalWhenArraySizeEqual, LoopPropertiesMatch,
+    LoopProperties, LoopPropertiesRegex, LoopPropertiesExcept,
+    LoopPropertiesType, LoopPropertiesTypeStrict, LoopKeys, LoopItems,
+    LoopContains, ControlLabel, ControlMark, ControlEvaluate, ControlJump,
+    ControlDynamicAnchorJump>>;
 
 #if !defined(DOXYGEN)
 // For fast internal instruction dispatching. It must stay
@@ -140,7 +139,6 @@ enum class TemplateIndex : std::uint8_t {
   AnnotationToParent,
   AnnotationBasenameToParent,
   AnnotationLoopPropertiesUnevaluated,
-  AnnotationLoopItemsUnmarked,
   AnnotationLoopItemsUnevaluated,
   AnnotationNot,
   LogicalNot,
@@ -373,14 +371,8 @@ DEFINE_STEP_WITH_VALUE(Annotation, BasenameToParent, ValueNone)
 DEFINE_STEP_APPLICATOR(Annotation, LoopPropertiesUnevaluated, ValueNone)
 
 /// @ingroup evaluator_instructions
-/// @brief Represents a compiler step that loops over array items when the array
-/// is considered unmarked
-DEFINE_STEP_APPLICATOR(Annotation, LoopItemsUnmarked, ValueString)
-
-/// @ingroup evaluator_instructions
 /// @brief Represents a compiler step that loops over unevaluated array items
-DEFINE_STEP_APPLICATOR(Annotation, LoopItemsUnevaluated,
-                       ValueItemsAnnotationKeywords)
+DEFINE_STEP_APPLICATOR(Annotation, LoopItemsUnevaluated, ValueNone)
 
 /// @ingroup evaluator_instructions
 /// @brief Represents an annotation-aware compiler logical step that represents

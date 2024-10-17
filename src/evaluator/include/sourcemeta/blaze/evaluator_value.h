@@ -78,14 +78,6 @@ using ValueNamedIndexes = std::unordered_map<ValueString, ValueUnsignedInteger>;
 enum class ValueStringType : std::uint8_t { URI };
 
 /// @ingroup evaluator
-/// Represents an array loop compiler step annotation keywords
-struct ValueItemsAnnotationKeywords {
-  const ValueString index;
-  const ValueStrings filter;
-  const ValueStrings mask;
-};
-
-/// @ingroup evaluator
 /// Represents an compiler step that maps strings to strings
 using ValueStringMap = std::unordered_map<ValueString, ValueStrings>;
 
