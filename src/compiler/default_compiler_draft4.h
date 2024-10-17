@@ -818,22 +818,15 @@ auto compiler_draft4_applicator_not(const Context &context,
                                     const SchemaContext &schema_context,
                                     const DynamicContext &dynamic_context)
     -> Template {
-  // Only emit a `not` instruction that keeps track of
-  // dropping annotations if we really need it
-  if (context.mode != Mode::FastValidation ||
-      context.uses_unevaluated_properties || context.uses_unevaluated_items) {
-    return {make<AnnotationNot>(
-        true, context, schema_context, dynamic_context, ValueNone{},
-        compile(context, schema_context, relative_dynamic_context,
-                sourcemeta::jsontoolkit::empty_pointer,
-                sourcemeta::jsontoolkit::empty_pointer))};
-  } else {
-    return {make<LogicalNot>(
-        true, context, schema_context, dynamic_context, ValueNone{},
-        compile(context, schema_context, relative_dynamic_context,
-                sourcemeta::jsontoolkit::empty_pointer,
-                sourcemeta::jsontoolkit::empty_pointer))};
-  }
+  return {make<LogicalNot>(true, context, schema_context, dynamic_context,
+                           // Only emit a `not` instruction that keeps track of
+                           // evaluation if we really need it
+                           ValueBoolean{context.uses_unevaluated_properties ||
+                                        context.uses_unevaluated_items},
+                           compile(context, schema_context,
+                                   relative_dynamic_context,
+                                   sourcemeta::jsontoolkit::empty_pointer,
+                                   sourcemeta::jsontoolkit::empty_pointer))};
 }
 
 auto compiler_draft4_applicator_items_array(

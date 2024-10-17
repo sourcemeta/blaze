@@ -2234,12 +2234,12 @@ TEST(Evaluator_draft4, not_1_exhaustive) {
   const sourcemeta::jsontoolkit::JSON instance{5};
   EVALUATE_WITH_TRACE_EXHAUSTIVE_SUCCESS(schema, instance, 2);
 
-  EVALUATE_TRACE_PRE(0, AnnotationNot, "/not", "#/not", "");
+  EVALUATE_TRACE_PRE(0, LogicalNot, "/not", "#/not", "");
   EVALUATE_TRACE_PRE(1, AssertionTypeStrict, "/not/type", "#/not/type", "");
 
   EVALUATE_TRACE_POST_FAILURE(0, AssertionTypeStrict, "/not/type", "#/not/type",
                               "");
-  EVALUATE_TRACE_POST_SUCCESS(1, AnnotationNot, "/not", "#/not", "");
+  EVALUATE_TRACE_POST_SUCCESS(1, LogicalNot, "/not", "#/not", "");
 
   EVALUATE_TRACE_POST_DESCRIBE(
       instance, 0,
@@ -2287,12 +2287,12 @@ TEST(Evaluator_draft4, not_2_exhaustive) {
   const sourcemeta::jsontoolkit::JSON instance{"foo"};
   EVALUATE_WITH_TRACE_EXHAUSTIVE_FAILURE(schema, instance, 2);
 
-  EVALUATE_TRACE_PRE(0, AnnotationNot, "/not", "#/not", "");
+  EVALUATE_TRACE_PRE(0, LogicalNot, "/not", "#/not", "");
   EVALUATE_TRACE_PRE(1, AssertionTypeStrict, "/not/type", "#/not/type", "");
 
   EVALUATE_TRACE_POST_SUCCESS(0, AssertionTypeStrict, "/not/type", "#/not/type",
                               "");
-  EVALUATE_TRACE_POST_FAILURE(1, AnnotationNot, "/not", "#/not", "");
+  EVALUATE_TRACE_POST_FAILURE(1, LogicalNot, "/not", "#/not", "");
 
   EVALUATE_TRACE_POST_DESCRIBE(instance, 0,
                                "The value was expected to be of type string");

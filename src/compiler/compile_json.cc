@@ -252,11 +252,6 @@ struct StepVisitor {
               AnnotationWhenArraySizeGreater)
   HANDLE_STEP("annotation", "to-parent", AnnotationToParent)
   HANDLE_STEP("annotation", "basename-to-parent", AnnotationBasenameToParent)
-  HANDLE_STEP("annotation", "loop-properties-unevaluated",
-              AnnotationLoopPropertiesUnevaluated)
-  HANDLE_STEP("annotation", "loop-items-unevaluated",
-              AnnotationLoopItemsUnevaluated)
-  HANDLE_STEP("annotation", "not", AnnotationNot)
   HANDLE_STEP("logical", "not", LogicalNot)
   HANDLE_STEP("logical", "or", LogicalOr)
   HANDLE_STEP("logical", "and", LogicalAnd)
@@ -266,6 +261,8 @@ struct StepVisitor {
   HANDLE_STEP("logical", "when-defines", LogicalWhenDefines)
   HANDLE_STEP("logical", "when-array-size-greater", LogicalWhenArraySizeGreater)
   HANDLE_STEP("logical", "when-array-size-equal", LogicalWhenArraySizeEqual)
+  HANDLE_STEP("loop", "properties-unevaluated", LoopPropertiesUnevaluated)
+  HANDLE_STEP("loop", "items-unevaluated", LoopItemsUnevaluated)
   HANDLE_STEP("loop", "properties-match", LoopPropertiesMatch)
   HANDLE_STEP("loop", "properties", LoopProperties)
   HANDLE_STEP("loop", "properties-regex", LoopPropertiesRegex)
