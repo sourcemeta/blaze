@@ -622,9 +622,6 @@ auto compiler_draft4_applicator_patternproperties_with_options(
                           {pattern}, {})};
 
     if (annotate) {
-      // The evaluator will make sure the same annotation is not reported twice.
-      // For example, if the same property matches more than one subschema in
-      // `patternProperties`
       substeps.push_back(make<AnnotationBasenameToParent>(
           true, context, schema_context, relative_dynamic_context,
           ValueNone{}));

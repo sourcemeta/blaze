@@ -143,18 +143,14 @@ auto evaluate_step(const sourcemeta::blaze::Template::value_type &step,
     SOURCEMETA_TRACE_END(trace_id, STRINGIFY(step_type));                      \
     return true;                                                               \
   }                                                                            \
-  const auto annotation_result{                                                \
-      context.annotate(destination, annotation_value)};                        \
   context.push(step_category.relative_schema_location,                         \
                step_category.relative_instance_location,                       \
                step_category.schema_resource, step_category.dynamic);          \
-  if (annotation_result.second && step_category.report &&                      \
-      callback.has_value()) {                                                  \
+  if (step_category.report && callback.has_value()) {                          \
     callback.value()(EvaluationType::Pre, true, step, context.evaluate_path(), \
                      destination, context.null);                               \
     callback.value()(EvaluationType::Post, true, step,                         \
-                     context.evaluate_path(), destination,                     \
-                     annotation_result.first);                                 \
+                     context.evaluate_path(), destination, annotation_value);  \
   }                                                                            \
   context.pop(step_category.dynamic);                                          \
   SOURCEMETA_TRACE_END(trace_id, STRINGIFY(step_type));                        \
@@ -164,18 +160,14 @@ auto evaluate_step(const sourcemeta::blaze::Template::value_type &step,
                                             destination, annotation_value)     \
   SOURCEMETA_TRACE_START(trace_id, STRINGIFY(step_type));                      \
   const auto &step_category{std::get<step_type>(step)};                        \
-  const auto annotation_result{                                                \
-      context.annotate(destination, annotation_value)};                        \
   context.push(step_category.relative_schema_location,                         \
                step_category.relative_instance_location,                       \
                step_category.schema_resource, step_category.dynamic);          \
-  if (annotation_result.second && step_category.report &&                      \
-      callback.has_value()) {                                                  \
+  if (step_category.report && callback.has_value()) {                          \
     callback.value()(EvaluationType::Pre, true, step, context.evaluate_path(), \
                      destination, context.null);                               \
     callback.value()(EvaluationType::Post, true, step,                         \
-                     context.evaluate_path(), destination,                     \
-                     annotation_result.first);                                 \
+                     context.evaluate_path(), destination, annotation_value);  \
   }                                                                            \
   context.pop(step_category.dynamic);                                          \
   SOURCEMETA_TRACE_END(trace_id, STRINGIFY(step_type));                        \

@@ -3485,7 +3485,7 @@ TEST(Evaluator_2019_09, unevaluatedItems_2_exhaustive) {
   const sourcemeta::jsontoolkit::JSON instance{
       sourcemeta::jsontoolkit::parse("[ true, false ]")};
 
-  EVALUATE_WITH_TRACE_EXHAUSTIVE_SUCCESS(schema, instance, 4);
+  EVALUATE_WITH_TRACE_EXHAUSTIVE_SUCCESS(schema, instance, 5);
   EVALUATE_TRACE_PRE(0, AnnotationLoopItemsUnevaluated, "/unevaluatedItems",
                      "#/unevaluatedItems", "");
   EVALUATE_TRACE_PRE(1, AssertionTypeStrict, "/unevaluatedItems/type",
@@ -3494,6 +3494,8 @@ TEST(Evaluator_2019_09, unevaluatedItems_2_exhaustive) {
                                 "");
   EVALUATE_TRACE_PRE(3, AssertionTypeStrict, "/unevaluatedItems/type",
                      "#/unevaluatedItems/type", "/1");
+  EVALUATE_TRACE_PRE_ANNOTATION(4, "/unevaluatedItems", "#/unevaluatedItems",
+                                "");
 
   EVALUATE_TRACE_POST_SUCCESS(0, AssertionTypeStrict, "/unevaluatedItems/type",
                               "#/unevaluatedItems/type", "/0");
@@ -3501,7 +3503,10 @@ TEST(Evaluator_2019_09, unevaluatedItems_2_exhaustive) {
                                  "", true);
   EVALUATE_TRACE_POST_SUCCESS(2, AssertionTypeStrict, "/unevaluatedItems/type",
                               "#/unevaluatedItems/type", "/1");
-  EVALUATE_TRACE_POST_SUCCESS(3, AnnotationLoopItemsUnevaluated,
+  // TODO: Ideally we wouldn't emit this annotation twice
+  EVALUATE_TRACE_POST_ANNOTATION(3, "/unevaluatedItems", "#/unevaluatedItems",
+                                 "", true);
+  EVALUATE_TRACE_POST_SUCCESS(4, AnnotationLoopItemsUnevaluated,
                               "/unevaluatedItems", "#/unevaluatedItems", "");
 
   EVALUATE_TRACE_POST_DESCRIBE(instance, 0,
@@ -3514,6 +3519,10 @@ TEST(Evaluator_2019_09, unevaluatedItems_2_exhaustive) {
                                "The value was expected to be of type boolean");
   EVALUATE_TRACE_POST_DESCRIBE(
       instance, 3,
+      "At least one item of the array value successfully validated against the "
+      "subschema for unevaluated items");
+  EVALUATE_TRACE_POST_DESCRIBE(
+      instance, 4,
       "The array items not covered by other array keywords, if any, were "
       "expected to validate against this subschema");
 }
@@ -5255,7 +5264,7 @@ TEST(Evaluator_2019_09, patternProperties_3_exhaustive) {
   const sourcemeta::jsontoolkit::JSON instance{
       sourcemeta::jsontoolkit::parse("{ \"bar\": 2, \"foo\": 1 }")};
 
-  EVALUATE_WITH_TRACE_EXHAUSTIVE_SUCCESS(schema, instance, 4);
+  EVALUATE_WITH_TRACE_EXHAUSTIVE_SUCCESS(schema, instance, 5);
 
   EVALUATE_TRACE_PRE(0, LogicalWhenType, "/patternProperties",
                      "#/patternProperties", "");
@@ -5266,6 +5275,8 @@ TEST(Evaluator_2019_09, patternProperties_3_exhaustive) {
                                 "");
   EVALUATE_TRACE_PRE(3, AssertionType, "/patternProperties/o$/type",
                      "#/patternProperties/o$/type", "/foo");
+  EVALUATE_TRACE_PRE_ANNOTATION(4, "/patternProperties", "#/patternProperties",
+                                "");
 
   EVALUATE_TRACE_POST_SUCCESS(0, AssertionType, "/patternProperties/^f/type",
                               // Note that the caret needs to be URI escaped
@@ -5274,7 +5285,9 @@ TEST(Evaluator_2019_09, patternProperties_3_exhaustive) {
                                  "", "foo");
   EVALUATE_TRACE_POST_SUCCESS(2, AssertionType, "/patternProperties/o$/type",
                               "#/patternProperties/o$/type", "/foo");
-  EVALUATE_TRACE_POST_SUCCESS(3, LogicalWhenType, "/patternProperties",
+  EVALUATE_TRACE_POST_ANNOTATION(3, "/patternProperties", "#/patternProperties",
+                                 "", "foo");
+  EVALUATE_TRACE_POST_SUCCESS(4, LogicalWhenType, "/patternProperties",
                               "#/patternProperties", "");
 
   EVALUATE_TRACE_POST_DESCRIBE(instance, 0,
@@ -5287,6 +5300,10 @@ TEST(Evaluator_2019_09, patternProperties_3_exhaustive) {
                                "The value was expected to be of type integer");
   EVALUATE_TRACE_POST_DESCRIBE(
       instance, 3,
+      "The object property \"foo\" successfully validated against its pattern "
+      "property subschema");
+  EVALUATE_TRACE_POST_DESCRIBE(
+      instance, 4,
       "The object value was expected to validate against the 2 defined pattern "
       "properties subschemas");
 }
