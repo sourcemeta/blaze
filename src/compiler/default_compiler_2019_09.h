@@ -158,7 +158,7 @@ auto compiler_2019_09_applicator_contains_with_options(
   }
 
   if (track_evaluation) {
-    children.push_back(make<ControlEvaluate>(false, context, schema_context,
+    children.push_back(make<ControlEvaluate>(true, context, schema_context,
                                              relative_dynamic_context,
                                              ValuePointer{}));
   }
@@ -222,9 +222,8 @@ auto compiler_2019_09_applicator_unevaluateditems(
   }
 
   // TODO: Do this out the box on LoopItemsUnevaluated?
-  children.push_back(make<ControlEvaluate>(false, context, schema_context,
-                                           relative_dynamic_context,
-                                           ValuePointer{}));
+  children.push_back(make<ControlEvaluate>(
+      true, context, schema_context, relative_dynamic_context, ValuePointer{}));
 
   return {make<LoopItemsUnevaluated>(true, context, schema_context,
                                      dynamic_context, ValueNone{},
@@ -250,9 +249,8 @@ auto compiler_2019_09_applicator_unevaluatedproperties(
   }
 
   // TODO: Do this out the box on LoopPropertiesUnevaluated?
-  children.push_back(make<ControlEvaluate>(false, context, schema_context,
-                                           relative_dynamic_context,
-                                           ValuePointer{}));
+  children.push_back(make<ControlEvaluate>(
+      true, context, schema_context, relative_dynamic_context, ValuePointer{}));
 
   return {make<LoopPropertiesUnevaluated>(true, context, schema_context,
                                           dynamic_context, ValueNone{},
