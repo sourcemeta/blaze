@@ -39,7 +39,7 @@ auto compiler_2019_09_applicator_dependentschemas(
 
     if (!dependency.is_boolean() || !dependency.to_boolean()) {
       children.push_back(make<LogicalWhenDefines>(
-          false, context, schema_context, relative_dynamic_context,
+          true, context, schema_context, relative_dynamic_context,
           ValueString{dependent},
           compile(context, schema_context, relative_dynamic_context,
                   {dependent}, sourcemeta::jsontoolkit::empty_pointer)));

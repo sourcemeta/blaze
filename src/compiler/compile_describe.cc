@@ -1375,6 +1375,13 @@ struct DescribeVisitor {
     return message.str();
   }
 
+  auto operator()(const LogicalWhenDefines &step) const -> std::string {
+    std::ostringstream message;
+    message << "The object value defined the property \"" << step_value(step)
+            << "\"";
+    return message.str();
+  }
+
   auto operator()(const LogicalWhenType &step) const -> std::string {
     if (this->keyword == "patternProperties") {
       assert(!step.children.empty());
@@ -1684,9 +1691,6 @@ struct DescribeVisitor {
     return unknown();
   }
   auto operator()(const LogicalWhenArraySizeEqual &) const -> std::string {
-    return unknown();
-  }
-  auto operator()(const LogicalWhenDefines &) const -> std::string {
     return unknown();
   }
   auto operator()(const LoopPropertiesRegex &) const -> std::string {
