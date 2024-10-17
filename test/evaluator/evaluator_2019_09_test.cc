@@ -307,24 +307,30 @@ TEST(Evaluator_2019_09, dependentSchemas_2) {
 
   const sourcemeta::jsontoolkit::JSON instance{
       sourcemeta::jsontoolkit::parse("{ \"qux\": 1, \"extra\": 2 }")};
-  EVALUATE_WITH_TRACE_FAST_SUCCESS(schema, instance, 2);
+  EVALUATE_WITH_TRACE_FAST_SUCCESS(schema, instance, 3);
 
   EVALUATE_TRACE_PRE(0, LogicalWhenType, "/dependentSchemas",
                      "#/dependentSchemas", "");
-  EVALUATE_TRACE_PRE(1, AssertionDefines, "/dependentSchemas/qux/required",
+  EVALUATE_TRACE_PRE(1, LogicalWhenDefines, "/dependentSchemas",
+                     "#/dependentSchemas", "");
+  EVALUATE_TRACE_PRE(2, AssertionDefines, "/dependentSchemas/qux/required",
                      "#/dependentSchemas/qux/required", "");
 
   EVALUATE_TRACE_POST_SUCCESS(0, AssertionDefines,
                               "/dependentSchemas/qux/required",
                               "#/dependentSchemas/qux/required", "");
-  EVALUATE_TRACE_POST_SUCCESS(1, LogicalWhenType, "/dependentSchemas",
+  EVALUATE_TRACE_POST_SUCCESS(1, LogicalWhenDefines, "/dependentSchemas",
+                              "#/dependentSchemas", "");
+  EVALUATE_TRACE_POST_SUCCESS(2, LogicalWhenType, "/dependentSchemas",
                               "#/dependentSchemas", "");
 
   EVALUATE_TRACE_POST_DESCRIBE(
       instance, 0,
       "The object value was expected to define the property \"extra\"");
+  EVALUATE_TRACE_POST_DESCRIBE(instance, 1,
+                               "The object value defined the property \"qux\"");
   EVALUATE_TRACE_POST_DESCRIBE(
-      instance, 1,
+      instance, 2,
       "Because the object value defined the property \"qux\", it was also "
       "expected to validate against the corresponding subschema");
 }
@@ -365,32 +371,44 @@ TEST(Evaluator_2019_09, dependentSchemas_4) {
 
   const sourcemeta::jsontoolkit::JSON instance{sourcemeta::jsontoolkit::parse(
       "{ \"foo\": 1, \"bar\": 2, \"baz\": 3, \"qux\": 4 }")};
-  EVALUATE_WITH_TRACE_FAST_SUCCESS(schema, instance, 3);
+  EVALUATE_WITH_TRACE_FAST_SUCCESS(schema, instance, 5);
 
   EVALUATE_TRACE_PRE(0, LogicalWhenType, "/dependentSchemas",
                      "#/dependentSchemas", "");
-  EVALUATE_TRACE_PRE(1, AssertionDefines, "/dependentSchemas/baz/required",
+  EVALUATE_TRACE_PRE(1, LogicalWhenDefines, "/dependentSchemas",
+                     "#/dependentSchemas", "");
+  EVALUATE_TRACE_PRE(2, AssertionDefines, "/dependentSchemas/baz/required",
                      "#/dependentSchemas/baz/required", "");
-  EVALUATE_TRACE_PRE(2, AssertionDefines, "/dependentSchemas/foo/required",
+  EVALUATE_TRACE_PRE(3, LogicalWhenDefines, "/dependentSchemas",
+                     "#/dependentSchemas", "");
+  EVALUATE_TRACE_PRE(4, AssertionDefines, "/dependentSchemas/foo/required",
                      "#/dependentSchemas/foo/required", "");
 
   EVALUATE_TRACE_POST_SUCCESS(0, AssertionDefines,
                               "/dependentSchemas/baz/required",
                               "#/dependentSchemas/baz/required", "");
-  EVALUATE_TRACE_POST_SUCCESS(1, AssertionDefines,
+  EVALUATE_TRACE_POST_SUCCESS(1, LogicalWhenDefines, "/dependentSchemas",
+                              "#/dependentSchemas", "");
+  EVALUATE_TRACE_POST_SUCCESS(2, AssertionDefines,
                               "/dependentSchemas/foo/required",
                               "#/dependentSchemas/foo/required", "");
-  EVALUATE_TRACE_POST_SUCCESS(2, LogicalWhenType, "/dependentSchemas",
+  EVALUATE_TRACE_POST_SUCCESS(3, LogicalWhenDefines, "/dependentSchemas",
+                              "#/dependentSchemas", "");
+  EVALUATE_TRACE_POST_SUCCESS(4, LogicalWhenType, "/dependentSchemas",
                               "#/dependentSchemas", "");
 
   EVALUATE_TRACE_POST_DESCRIBE(
       instance, 0,
       "The object value was expected to define the property \"qux\"");
-  EVALUATE_TRACE_POST_DESCRIBE(
-      instance, 1,
-      "The object value was expected to define the property \"bar\"");
+  EVALUATE_TRACE_POST_DESCRIBE(instance, 1,
+                               "The object value defined the property \"baz\"");
   EVALUATE_TRACE_POST_DESCRIBE(
       instance, 2,
+      "The object value was expected to define the property \"bar\"");
+  EVALUATE_TRACE_POST_DESCRIBE(instance, 3,
+                               "The object value defined the property \"foo\"");
+  EVALUATE_TRACE_POST_DESCRIBE(
+      instance, 4,
       "Because the object value defined the properties \"baz\", and \"foo\", "
       "it was also expected to validate against the corresponding subschemas");
 }
