@@ -149,7 +149,15 @@ struct DescribeVisitor {
       return message.str();
     }
 
-    assert(this->keyword.empty());
+    if (this->keyword == "unevaluatedItems") {
+      std::ostringstream message;
+      assert(!this->instance_location.empty());
+      assert(this->instance_location.back().is_index());
+      message << "The array value was not expected to define the item at index "
+              << this->instance_location.back().to_index();
+      return message.str();
+    }
+
     return "No instance is expected to succeed against the false schema";
   }
 
@@ -704,18 +712,11 @@ struct DescribeVisitor {
     return message.str();
   }
 
-  auto operator()(const AnnotationLoopItemsUnmarked &) const -> std::string {
-    return unknown();
-  }
-
-  auto operator()(const AnnotationLoopItemsUnevaluated &step) const
-      -> std::string {
+  auto operator()(const AnnotationLoopItemsUnevaluated &) const -> std::string {
     assert(this->keyword == "unevaluatedItems");
-    const auto &value{step_value(step)};
     std::ostringstream message;
-    message << "The array items not evaluated by the keyword "
-            << escape_string(value.index)
-            << ", if any, were expected to validate against this subschema";
+    message << "The array items not covered by other array keywords, if any, "
+               "were expected to validate against this subschema";
     return message.str();
   }
 

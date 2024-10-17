@@ -102,7 +102,8 @@ auto compiler_2019_09_core_annotation(const Context &context,
 
 auto compiler_2019_09_applicator_contains_with_options(
     const Context &context, const SchemaContext &schema_context,
-    const DynamicContext &dynamic_context, const bool annotate) -> Template {
+    const DynamicContext &dynamic_context, const bool annotate,
+    const bool track_evaluation) -> Template {
   if (schema_context.schema.defines("type") &&
       schema_context.schema.at("type").is_string() &&
       schema_context.schema.at("type").to_string() != "array") {
@@ -156,13 +157,15 @@ auto compiler_2019_09_applicator_contains_with_options(
     // an annotation "true"
   }
 
+  if (track_evaluation) {
+    children.push_back(make<ControlEvaluate>(false, context, schema_context,
+                                             relative_dynamic_context,
+                                             ValuePointer{}));
+  }
+
   return {make<LoopContains>(
       true, context, schema_context, dynamic_context,
-      ValueRange{minimum, maximum,
-                 // TODO: We only need to be exhaustive here if
-                 // `unevaluatedItems` is in use on the schema. Can we
-                 // pre-determine that and speed things up if not?
-                 annotate},
+      ValueRange{minimum, maximum, annotate || track_evaluation},
       std::move(children))};
 }
 
@@ -171,7 +174,7 @@ auto compiler_2019_09_applicator_contains(const Context &context,
                                           const DynamicContext &dynamic_context)
     -> Template {
   return compiler_2019_09_applicator_contains_with_options(
-      context, schema_context, dynamic_context, false);
+      context, schema_context, dynamic_context, false, false);
 }
 
 auto compiler_2019_09_applicator_additionalproperties(
@@ -188,7 +191,7 @@ auto compiler_2019_09_applicator_items(const Context &context,
     -> Template {
   return compiler_draft4_applicator_items_with_options(
       context, schema_context, dynamic_context,
-      context.uses_unevaluated_items || context.mode == Mode::Exhaustive);
+      context.mode == Mode::Exhaustive, context.uses_unevaluated_items);
 }
 
 auto compiler_2019_09_applicator_additionalitems(
@@ -196,7 +199,7 @@ auto compiler_2019_09_applicator_additionalitems(
     const DynamicContext &dynamic_context) -> Template {
   return compiler_draft4_applicator_additionalitems_with_options(
       context, schema_context, dynamic_context,
-      context.uses_unevaluated_items || context.mode == Mode::Exhaustive);
+      context.mode == Mode::Exhaustive, context.uses_unevaluated_items);
 }
 
 auto compiler_2019_09_applicator_unevaluateditems(
@@ -211,31 +214,21 @@ auto compiler_2019_09_applicator_unevaluateditems(
   Template children{compile(context, schema_context, relative_dynamic_context,
                             sourcemeta::jsontoolkit::empty_pointer,
                             sourcemeta::jsontoolkit::empty_pointer)};
-  children.push_back(make<AnnotationToParent>(
-      true, context, schema_context, relative_dynamic_context,
-      sourcemeta::jsontoolkit::JSON{true}));
 
-  if (schema_context.vocabularies.contains(
-          "https://json-schema.org/draft/2019-09/vocab/applicator")) {
-    return {make<AnnotationLoopItemsUnevaluated>(
-        true, context, schema_context, dynamic_context,
-        ValueItemsAnnotationKeywords{
-            "items", {}, {"items", "additionalItems", "unevaluatedItems"}},
-        std::move(children))};
-  } else if (schema_context.vocabularies.contains(
-                 "https://json-schema.org/draft/2020-12/vocab/applicator")) {
-    return {make<AnnotationLoopItemsUnevaluated>(
-        true, context, schema_context, dynamic_context,
-        ValueItemsAnnotationKeywords{
-            "prefixItems",
-            {"contains"},
-            {"prefixItems", "items", "contains", "unevaluatedItems"}},
-        std::move(children))};
-  } else {
-    return {make<AnnotationLoopItemsUnmarked>(
-        true, context, schema_context, dynamic_context,
-        ValueString{"unevaluatedItems"}, std::move(children))};
+  if (context.mode == Mode::Exhaustive) {
+    children.push_back(make<AnnotationToParent>(
+        true, context, schema_context, relative_dynamic_context,
+        sourcemeta::jsontoolkit::JSON{true}));
   }
+
+  // TODO: Do this out the box on LoopItemsUnevaluated?
+  children.push_back(make<ControlEvaluate>(false, context, schema_context,
+                                           relative_dynamic_context,
+                                           ValuePointer{}));
+
+  return {make<AnnotationLoopItemsUnevaluated>(true, context, schema_context,
+                                               dynamic_context, ValueNone{},
+                                               std::move(children))};
 }
 
 auto compiler_2019_09_applicator_unevaluatedproperties(

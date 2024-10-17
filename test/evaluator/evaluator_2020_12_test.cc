@@ -1286,3 +1286,317 @@ TEST(Evaluator_2020_12, definitions_1_exhaustive) {
                                "The string value was expected to validate "
                                "against the statically referenced schema");
 }
+
+TEST(Evaluator_2020_12, unevaluatedItems_1) {
+  const sourcemeta::jsontoolkit::JSON schema{
+      sourcemeta::jsontoolkit::parse(R"JSON({
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "contains": { "type": "boolean" },
+    "unevaluatedItems": false
+  })JSON")};
+
+  const sourcemeta::jsontoolkit::JSON instance{
+      sourcemeta::jsontoolkit::parse("[ false ]")};
+
+  EVALUATE_WITH_TRACE_FAST_SUCCESS(schema, instance, 3);
+
+  EVALUATE_TRACE_PRE(0, LoopContains, "/contains", "#/contains", "");
+  EVALUATE_TRACE_PRE(1, AssertionTypeStrict, "/contains/type",
+                     "#/contains/type", "/0");
+  EVALUATE_TRACE_PRE(2, AnnotationLoopItemsUnevaluated, "/unevaluatedItems",
+                     "#/unevaluatedItems", "");
+
+  EVALUATE_TRACE_POST_SUCCESS(0, AssertionTypeStrict, "/contains/type",
+                              "#/contains/type", "/0");
+  EVALUATE_TRACE_POST_SUCCESS(1, LoopContains, "/contains", "#/contains", "");
+  EVALUATE_TRACE_POST_SUCCESS(2, AnnotationLoopItemsUnevaluated,
+                              "/unevaluatedItems", "#/unevaluatedItems", "");
+
+  EVALUATE_TRACE_POST_DESCRIBE(instance, 0,
+                               "The value was expected to be of type boolean");
+  EVALUATE_TRACE_POST_DESCRIBE(
+      instance, 1,
+      "The array value was expected to contain at least 1 item that validates "
+      "against the given subschema");
+  EVALUATE_TRACE_POST_DESCRIBE(
+      instance, 2,
+      "The array items not covered by other array keywords, if any, were "
+      "expected to validate against this subschema");
+}
+
+TEST(Evaluator_2020_12, unevaluatedItems_1_exhaustive) {
+  const sourcemeta::jsontoolkit::JSON schema{
+      sourcemeta::jsontoolkit::parse(R"JSON({
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "contains": { "type": "boolean" },
+    "unevaluatedItems": false
+  })JSON")};
+
+  const sourcemeta::jsontoolkit::JSON instance{
+      sourcemeta::jsontoolkit::parse("[ false ]")};
+
+  EVALUATE_WITH_TRACE_EXHAUSTIVE_SUCCESS(schema, instance, 4);
+
+  EVALUATE_TRACE_PRE(0, LoopContains, "/contains", "#/contains", "");
+  EVALUATE_TRACE_PRE(1, AssertionTypeStrict, "/contains/type",
+                     "#/contains/type", "/0");
+  EVALUATE_TRACE_PRE_ANNOTATION(2, "/contains", "#/contains", "");
+  EVALUATE_TRACE_PRE(3, AnnotationLoopItemsUnevaluated, "/unevaluatedItems",
+                     "#/unevaluatedItems", "");
+
+  EVALUATE_TRACE_POST_SUCCESS(0, AssertionTypeStrict, "/contains/type",
+                              "#/contains/type", "/0");
+  EVALUATE_TRACE_POST_ANNOTATION(1, "/contains", "#/contains", "", 0);
+  EVALUATE_TRACE_POST_SUCCESS(2, LoopContains, "/contains", "#/contains", "");
+  EVALUATE_TRACE_POST_SUCCESS(3, AnnotationLoopItemsUnevaluated,
+                              "/unevaluatedItems", "#/unevaluatedItems", "");
+
+  EVALUATE_TRACE_POST_DESCRIBE(instance, 0,
+                               "The value was expected to be of type boolean");
+  EVALUATE_TRACE_POST_DESCRIBE(
+      instance, 1,
+      "The item at index 0 of the array value successfully validated against "
+      "the containment check subschema");
+  EVALUATE_TRACE_POST_DESCRIBE(
+      instance, 2,
+      "The array value was expected to contain at least 1 item that validates "
+      "against the given subschema");
+  EVALUATE_TRACE_POST_DESCRIBE(
+      instance, 3,
+      "The array items not covered by other array keywords, if any, were "
+      "expected to validate against this subschema");
+}
+
+TEST(Evaluator_2020_12, unevaluatedItems_2) {
+  const sourcemeta::jsontoolkit::JSON schema{
+      sourcemeta::jsontoolkit::parse(R"JSON({
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "anyOf": [
+      { "items": { "type": "boolean" } },
+      true
+    ],
+    "unevaluatedItems": false
+  })JSON")};
+
+  const sourcemeta::jsontoolkit::JSON instance{
+      sourcemeta::jsontoolkit::parse("[ false, 1 ]")};
+
+  EVALUATE_WITH_TRACE_FAST_FAILURE(schema, instance, 6);
+
+  EVALUATE_TRACE_PRE(0, LogicalOr, "/anyOf", "#/anyOf", "");
+  EVALUATE_TRACE_PRE(1, LoopItems, "/anyOf/0/items", "#/anyOf/0/items", "");
+  EVALUATE_TRACE_PRE(2, AssertionTypeStrict, "/anyOf/0/items/type",
+                     "#/anyOf/0/items/type", "/0");
+  EVALUATE_TRACE_PRE(3, AssertionTypeStrict, "/anyOf/0/items/type",
+                     "#/anyOf/0/items/type", "/1");
+  EVALUATE_TRACE_PRE(4, AnnotationLoopItemsUnevaluated, "/unevaluatedItems",
+                     "#/unevaluatedItems", "");
+  EVALUATE_TRACE_PRE(5, AssertionFail, "/unevaluatedItems",
+                     "#/unevaluatedItems", "/0");
+
+  EVALUATE_TRACE_POST_SUCCESS(0, AssertionTypeStrict, "/anyOf/0/items/type",
+                              "#/anyOf/0/items/type", "/0");
+  EVALUATE_TRACE_POST_FAILURE(1, AssertionTypeStrict, "/anyOf/0/items/type",
+                              "#/anyOf/0/items/type", "/1");
+  EVALUATE_TRACE_POST_FAILURE(2, LoopItems, "/anyOf/0/items", "#/anyOf/0/items",
+                              "");
+  EVALUATE_TRACE_POST_SUCCESS(3, LogicalOr, "/anyOf", "#/anyOf", "");
+  EVALUATE_TRACE_POST_FAILURE(4, AssertionFail, "/unevaluatedItems",
+                              "#/unevaluatedItems", "/0");
+  EVALUATE_TRACE_POST_FAILURE(5, AnnotationLoopItemsUnevaluated,
+                              "/unevaluatedItems", "#/unevaluatedItems", "");
+
+  EVALUATE_TRACE_POST_DESCRIBE(instance, 0,
+                               "The value was expected to be of type boolean");
+  EVALUATE_TRACE_POST_DESCRIBE(instance, 1,
+                               "The value was expected to be of type boolean "
+                               "but it was of type integer");
+  EVALUATE_TRACE_POST_DESCRIBE(instance, 2,
+                               "Every item in the array value was expected to "
+                               "validate against the given subschema");
+  EVALUATE_TRACE_POST_DESCRIBE(
+      instance, 3,
+      "The array value was expected to validate against at least one of the 2 "
+      "given subschemas");
+  EVALUATE_TRACE_POST_DESCRIBE(
+      instance, 4,
+      "The array value was not expected to define the item at index 0");
+  EVALUATE_TRACE_POST_DESCRIBE(
+      instance, 5,
+      "The array items not covered by other array keywords, if any, were "
+      "expected to validate against this subschema");
+}
+
+TEST(Evaluator_2020_12, unevaluatedItems_2_exhaustive) {
+  const sourcemeta::jsontoolkit::JSON schema{
+      sourcemeta::jsontoolkit::parse(R"JSON({
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "anyOf": [
+      { "items": { "type": "boolean" } },
+      true
+    ],
+    "unevaluatedItems": false
+  })JSON")};
+
+  const sourcemeta::jsontoolkit::JSON instance{
+      sourcemeta::jsontoolkit::parse("[ false, 1 ]")};
+
+  EVALUATE_WITH_TRACE_EXHAUSTIVE_FAILURE(schema, instance, 6);
+
+  EVALUATE_TRACE_PRE(0, LogicalOr, "/anyOf", "#/anyOf", "");
+  EVALUATE_TRACE_PRE(1, LoopItems, "/anyOf/0/items", "#/anyOf/0/items", "");
+  EVALUATE_TRACE_PRE(2, AssertionTypeStrict, "/anyOf/0/items/type",
+                     "#/anyOf/0/items/type", "/0");
+  EVALUATE_TRACE_PRE(3, AssertionTypeStrict, "/anyOf/0/items/type",
+                     "#/anyOf/0/items/type", "/1");
+  EVALUATE_TRACE_PRE(4, AnnotationLoopItemsUnevaluated, "/unevaluatedItems",
+                     "#/unevaluatedItems", "");
+  EVALUATE_TRACE_PRE(5, AssertionFail, "/unevaluatedItems",
+                     "#/unevaluatedItems", "/0");
+
+  EVALUATE_TRACE_POST_SUCCESS(0, AssertionTypeStrict, "/anyOf/0/items/type",
+                              "#/anyOf/0/items/type", "/0");
+  EVALUATE_TRACE_POST_FAILURE(1, AssertionTypeStrict, "/anyOf/0/items/type",
+                              "#/anyOf/0/items/type", "/1");
+  EVALUATE_TRACE_POST_FAILURE(2, LoopItems, "/anyOf/0/items", "#/anyOf/0/items",
+                              "");
+  EVALUATE_TRACE_POST_SUCCESS(3, LogicalOr, "/anyOf", "#/anyOf", "");
+  EVALUATE_TRACE_POST_FAILURE(4, AssertionFail, "/unevaluatedItems",
+                              "#/unevaluatedItems", "/0");
+  EVALUATE_TRACE_POST_FAILURE(5, AnnotationLoopItemsUnevaluated,
+                              "/unevaluatedItems", "#/unevaluatedItems", "");
+
+  EVALUATE_TRACE_POST_DESCRIBE(instance, 0,
+                               "The value was expected to be of type boolean");
+  EVALUATE_TRACE_POST_DESCRIBE(instance, 1,
+                               "The value was expected to be of type boolean "
+                               "but it was of type integer");
+  EVALUATE_TRACE_POST_DESCRIBE(instance, 2,
+                               "Every item in the array value was expected to "
+                               "validate against the given subschema");
+  EVALUATE_TRACE_POST_DESCRIBE(
+      instance, 3,
+      "The array value was expected to validate against at least one of the 2 "
+      "given subschemas");
+  EVALUATE_TRACE_POST_DESCRIBE(
+      instance, 4,
+      "The array value was not expected to define the item at index 0");
+  EVALUATE_TRACE_POST_DESCRIBE(
+      instance, 5,
+      "The array items not covered by other array keywords, if any, were "
+      "expected to validate against this subschema");
+}
+
+TEST(Evaluator_2020_12, unevaluatedItems_3) {
+  const sourcemeta::jsontoolkit::JSON schema{
+      sourcemeta::jsontoolkit::parse(R"JSON({
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "anyOf": [
+      { "prefixItems": [ { "type": "boolean" } ] },
+      true
+    ],
+    "unevaluatedItems": false
+  })JSON")};
+
+  const sourcemeta::jsontoolkit::JSON instance{
+      sourcemeta::jsontoolkit::parse("[ 1, 2 ]")};
+
+  EVALUATE_WITH_TRACE_FAST_FAILURE(schema, instance, 5);
+
+  EVALUATE_TRACE_PRE(0, LogicalOr, "/anyOf", "#/anyOf", "");
+  EVALUATE_TRACE_PRE(1, LogicalWhenType, "/anyOf/0/prefixItems",
+                     "#/anyOf/0/prefixItems", "");
+  EVALUATE_TRACE_PRE(2, AssertionTypeStrict, "/anyOf/0/prefixItems/0/type",
+                     "#/anyOf/0/prefixItems/0/type", "/0");
+  EVALUATE_TRACE_PRE(3, AnnotationLoopItemsUnevaluated, "/unevaluatedItems",
+                     "#/unevaluatedItems", "");
+  EVALUATE_TRACE_PRE(4, AssertionFail, "/unevaluatedItems",
+                     "#/unevaluatedItems", "/0");
+
+  EVALUATE_TRACE_POST_FAILURE(0, AssertionTypeStrict,
+                              "/anyOf/0/prefixItems/0/type",
+                              "#/anyOf/0/prefixItems/0/type", "/0");
+  EVALUATE_TRACE_POST_FAILURE(1, LogicalWhenType, "/anyOf/0/prefixItems",
+                              "#/anyOf/0/prefixItems", "");
+  EVALUATE_TRACE_POST_SUCCESS(2, LogicalOr, "/anyOf", "#/anyOf", "");
+  EVALUATE_TRACE_POST_FAILURE(3, AssertionFail, "/unevaluatedItems",
+                              "#/unevaluatedItems", "/0");
+  EVALUATE_TRACE_POST_FAILURE(4, AnnotationLoopItemsUnevaluated,
+                              "/unevaluatedItems", "#/unevaluatedItems", "");
+
+  EVALUATE_TRACE_POST_DESCRIBE(instance, 0,
+                               "The value was expected to be of type boolean "
+                               "but it was of type integer");
+  EVALUATE_TRACE_POST_DESCRIBE(
+      instance, 1,
+      "The first item of the array value was expected to validate against the "
+      "corresponding subschemas");
+  EVALUATE_TRACE_POST_DESCRIBE(
+      instance, 2,
+      "The array value was expected to validate against at least one of the 2 "
+      "given subschemas");
+  EVALUATE_TRACE_POST_DESCRIBE(
+      instance, 3,
+      "The array value was not expected to define the item at index 0");
+  EVALUATE_TRACE_POST_DESCRIBE(
+      instance, 4,
+      "The array items not covered by other array keywords, if any, were "
+      "expected to validate against this subschema");
+}
+
+TEST(Evaluator_2020_12, unevaluatedItems_3_exhaustive) {
+  const sourcemeta::jsontoolkit::JSON schema{
+      sourcemeta::jsontoolkit::parse(R"JSON({
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "anyOf": [
+      { "prefixItems": [ { "type": "boolean" } ] },
+      true
+    ],
+    "unevaluatedItems": false
+  })JSON")};
+
+  const sourcemeta::jsontoolkit::JSON instance{
+      sourcemeta::jsontoolkit::parse("[ 1, 2 ]")};
+
+  EVALUATE_WITH_TRACE_EXHAUSTIVE_FAILURE(schema, instance, 5);
+
+  EVALUATE_TRACE_PRE(0, LogicalOr, "/anyOf", "#/anyOf", "");
+  EVALUATE_TRACE_PRE(1, LogicalWhenType, "/anyOf/0/prefixItems",
+                     "#/anyOf/0/prefixItems", "");
+  EVALUATE_TRACE_PRE(2, AssertionTypeStrict, "/anyOf/0/prefixItems/0/type",
+                     "#/anyOf/0/prefixItems/0/type", "/0");
+  EVALUATE_TRACE_PRE(3, AnnotationLoopItemsUnevaluated, "/unevaluatedItems",
+                     "#/unevaluatedItems", "");
+  EVALUATE_TRACE_PRE(4, AssertionFail, "/unevaluatedItems",
+                     "#/unevaluatedItems", "/0");
+
+  EVALUATE_TRACE_POST_FAILURE(0, AssertionTypeStrict,
+                              "/anyOf/0/prefixItems/0/type",
+                              "#/anyOf/0/prefixItems/0/type", "/0");
+  EVALUATE_TRACE_POST_FAILURE(1, LogicalWhenType, "/anyOf/0/prefixItems",
+                              "#/anyOf/0/prefixItems", "");
+  EVALUATE_TRACE_POST_SUCCESS(2, LogicalOr, "/anyOf", "#/anyOf", "");
+  EVALUATE_TRACE_POST_FAILURE(3, AssertionFail, "/unevaluatedItems",
+                              "#/unevaluatedItems", "/0");
+  EVALUATE_TRACE_POST_FAILURE(4, AnnotationLoopItemsUnevaluated,
+                              "/unevaluatedItems", "#/unevaluatedItems", "");
+
+  EVALUATE_TRACE_POST_DESCRIBE(instance, 0,
+                               "The value was expected to be of type boolean "
+                               "but it was of type integer");
+  EVALUATE_TRACE_POST_DESCRIBE(
+      instance, 1,
+      "The first item of the array value was expected to validate against the "
+      "corresponding subschemas");
+  EVALUATE_TRACE_POST_DESCRIBE(
+      instance, 2,
+      "The array value was expected to validate against at least one of the 2 "
+      "given subschemas");
+  EVALUATE_TRACE_POST_DESCRIBE(
+      instance, 3,
+      "The array value was not expected to define the item at index 0");
+  EVALUATE_TRACE_POST_DESCRIBE(
+      instance, 4,
+      "The array items not covered by other array keywords, if any, were "
+      "expected to validate against this subschema");
+}
