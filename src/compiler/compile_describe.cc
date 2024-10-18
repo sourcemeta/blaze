@@ -320,6 +320,24 @@ struct DescribeVisitor {
       return message.str();
     }
 
+    if (this->keyword == "items" && this->annotation.is_boolean() &&
+        this->annotation.to_boolean()) {
+      assert(this->target.is_array());
+      std::ostringstream message;
+      message << "At least one item of the array value successfully validated "
+                 "against the given subschema";
+      return message.str();
+    }
+
+    if (this->keyword == "prefixItems" && this->annotation.is_boolean() &&
+        this->annotation.to_boolean()) {
+      assert(this->target.is_array());
+      std::ostringstream message;
+      message << "Every item of the array value validated against the given "
+                 "positional subschemas";
+      return message.str();
+    }
+
     if (this->keyword == "title" || this->keyword == "description") {
       assert(this->annotation.is_string());
       std::ostringstream message;
@@ -488,28 +506,6 @@ struct DescribeVisitor {
             << " was collected as the annotation ";
     stringify(this->annotation, message);
     return message.str();
-  }
-
-  auto operator()(const AnnotationWhenArraySizeEqual &) const -> std::string {
-    if (this->keyword == "items" && this->annotation.is_boolean() &&
-        this->annotation.to_boolean()) {
-      assert(this->target.is_array());
-      std::ostringstream message;
-      message << "At least one item of the array value successfully validated "
-                 "against the given subschema";
-      return message.str();
-    }
-
-    if (this->keyword == "prefixItems" && this->annotation.is_boolean() &&
-        this->annotation.to_boolean()) {
-      assert(this->target.is_array());
-      std::ostringstream message;
-      message << "Every item of the array value validated against the given "
-                 "positional subschemas";
-      return message.str();
-    }
-
-    return unknown();
   }
 
   auto operator()(const AnnotationToParent &) const -> std::string {
@@ -1345,10 +1341,10 @@ struct DescribeVisitor {
 
     std::ostringstream message;
     message << "The first ";
-    if (step.children.size() == 1) {
+    if (step.children.size() <= 2) {
       message << "item of the array value was";
     } else {
-      message << step.children.size() << " items of the array value were";
+      message << (step.children.size() - 1) << " items of the array value were";
     }
 
     message << " expected to validate against the corresponding subschemas";

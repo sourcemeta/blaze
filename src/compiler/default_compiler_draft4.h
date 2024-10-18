@@ -870,11 +870,6 @@ auto compiler_draft4_applicator_items_array(
       subchildren.push_back(make<AnnotationEmit>(
           true, context, schema_context, relative_dynamic_context,
           sourcemeta::jsontoolkit::JSON{cursor}));
-      if (cursor == items_size - 1) {
-        subchildren.push_back(make<AnnotationWhenArraySizeEqual>(
-            true, context, schema_context, relative_dynamic_context,
-            ValueIndexedJSON{cursor + 1, sourcemeta::jsontoolkit::JSON{true}}));
-      }
     }
 
     // TODO: Can we "see through" this instruction and evaluate the children
@@ -883,6 +878,26 @@ auto compiler_draft4_applicator_items_array(
                                         relative_dynamic_context, ValueNone{},
                                         std::move(subchildren)));
   }
+
+  Template tail;
+  for (const auto &subschema : subschemas) {
+    for (const auto &substep : subschema) {
+      tail.push_back(substep);
+    }
+  }
+
+  if (annotate) {
+    tail.push_back(make<AnnotationEmit>(
+        true, context, schema_context, relative_dynamic_context,
+        sourcemeta::jsontoolkit::JSON{children.size() - 1}));
+    tail.push_back(make<AnnotationEmit>(true, context, schema_context,
+                                        relative_dynamic_context,
+                                        sourcemeta::jsontoolkit::JSON{true}));
+  }
+
+  children.push_back(make<LogicalAnd>(false, context, schema_context,
+                                      relative_dynamic_context, ValueNone{},
+                                      std::move(tail)));
 
   return {make<AssertionArrayPrefix>(
       true, context, schema_context, dynamic_context,

@@ -130,11 +130,6 @@ inline auto FIRST_PROPERTY_IS(const sourcemeta::jsontoolkit::JSON &document,
                  std::get<3>(trace_pre.at(index)))) {                          \
     EVALUATE_TRACE_PRE(index, AnnotationToParent, evaluate_path,               \
                        keyword_location, instance_location);                   \
-  } else if (std::holds_alternative<                                           \
-                 sourcemeta::blaze::AnnotationWhenArraySizeEqual>(             \
-                 std::get<3>(trace_pre.at(index)))) {                          \
-    EVALUATE_TRACE_PRE(index, AnnotationWhenArraySizeEqual, evaluate_path,     \
-                       keyword_location, instance_location);                   \
   } else {                                                                     \
     EVALUATE_TRACE_PRE(index, AnnotationEmit, evaluate_path, keyword_location, \
                        instance_location);                                     \
@@ -152,11 +147,6 @@ inline auto FIRST_PROPERTY_IS(const sourcemeta::jsontoolkit::JSON &document,
   } else if (std::holds_alternative<sourcemeta::blaze::AnnotationToParent>(    \
                  std::get<3>(trace_post.at(index)))) {                         \
     EVALUATE_TRACE_POST(index, AnnotationToParent, evaluate_path,              \
-                        keyword_location, instance_location);                  \
-  } else if (std::holds_alternative<                                           \
-                 sourcemeta::blaze::AnnotationWhenArraySizeEqual>(             \
-                 std::get<3>(trace_post.at(index)))) {                         \
-    EVALUATE_TRACE_POST(index, AnnotationWhenArraySizeEqual, evaluate_path,    \
                         keyword_location, instance_location);                  \
   } else {                                                                     \
     EVALUATE_TRACE_POST(index, AnnotationEmit, evaluate_path,                  \

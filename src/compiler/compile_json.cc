@@ -113,14 +113,6 @@ auto value_to_json(const T &value) -> sourcemeta::jsontoolkit::JSON {
 
     result.assign("value", std::move(map));
     return result;
-  } else if constexpr (std::is_same_v<ValueIndexedJSON, T>) {
-    result.assign("type", sourcemeta::jsontoolkit::JSON{"indexed-json"});
-    sourcemeta::jsontoolkit::JSON data{
-        sourcemeta::jsontoolkit::JSON::make_object()};
-    data.assign("index", sourcemeta::jsontoolkit::JSON{value.first});
-    data.assign("value", value.second);
-    result.assign("value", std::move(data));
-    return result;
   } else if constexpr (std::is_same_v<ValuePropertyFilter, T>) {
     result.assign("type", sourcemeta::jsontoolkit::JSON{"property-filter"});
     sourcemeta::jsontoolkit::JSON data{
@@ -247,8 +239,6 @@ struct StepVisitor {
   HANDLE_STEP("assertion", "array-prefix", AssertionArrayPrefix)
   HANDLE_STEP("assertion", "equals-any", AssertionEqualsAny)
   HANDLE_STEP("annotation", "emit", AnnotationEmit)
-  HANDLE_STEP("annotation", "when-array-size-equal",
-              AnnotationWhenArraySizeEqual)
   HANDLE_STEP("annotation", "to-parent", AnnotationToParent)
   HANDLE_STEP("annotation", "basename-to-parent", AnnotationBasenameToParent)
   HANDLE_STEP("logical", "not", LogicalNot)
