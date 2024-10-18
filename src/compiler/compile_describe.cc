@@ -295,10 +295,7 @@ struct DescribeVisitor {
     if ((this->keyword == "items" || this->keyword == "additionalItems") &&
         this->annotation.is_boolean() && this->annotation.to_boolean()) {
       assert(this->target.is_array());
-      std::ostringstream message;
-      message << "At least one item of the array value successfully validated "
-                 "against the given subschema";
-      return message.str();
+      return "Every item in the array value was successfully validated";
     }
 
     if ((this->keyword == "prefixItems" || this->keyword == "items") &&
@@ -317,15 +314,6 @@ struct DescribeVisitor {
                    "positional subschemas";
       }
 
-      return message.str();
-    }
-
-    if (this->keyword == "items" && this->annotation.is_boolean() &&
-        this->annotation.to_boolean()) {
-      assert(this->target.is_array());
-      std::ostringstream message;
-      message << "At least one item of the array value successfully validated "
-                 "against the given subschema";
       return message.str();
     }
 
