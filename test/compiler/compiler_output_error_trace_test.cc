@@ -41,6 +41,36 @@ TEST(Compiler_output_error_trace, success_string_1) {
   EXPECT_TRUE(traces.empty());
 }
 
+TEST(Compiler_output_error_trace, success_dynamic_anchor_1) {
+  const sourcemeta::jsontoolkit::JSON schema{
+      sourcemeta::jsontoolkit::parse(R"JSON({
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "$dynamicRef": "#foo",
+    "$defs": {
+      "test": {
+        "$dynamicAnchor": "foo",
+        "type": "string"
+      }
+    }
+  })JSON")};
+
+  const auto schema_template{sourcemeta::blaze::compile(
+      schema, sourcemeta::jsontoolkit::default_schema_walker,
+      sourcemeta::jsontoolkit::official_resolver,
+      sourcemeta::blaze::default_schema_compiler)};
+
+  const sourcemeta::jsontoolkit::JSON instance{"foo"};
+
+  sourcemeta::blaze::ErrorTraceOutput output{instance};
+  const auto result{
+      sourcemeta::blaze::evaluate(schema_template, instance, std::ref(output))};
+
+  EXPECT_TRUE(result);
+  std::vector<sourcemeta::blaze::ErrorTraceOutput::Entry> traces{
+      output.cbegin(), output.cend()};
+  EXPECT_TRUE(traces.empty());
+}
+
 TEST(Compiler_output_error_trace, success_oneof_1) {
   const sourcemeta::jsontoolkit::JSON schema{
       sourcemeta::jsontoolkit::parse(R"JSON({
