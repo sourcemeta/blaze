@@ -67,6 +67,7 @@ struct LoopPropertiesTypeStrict;
 struct LoopKeys;
 struct LoopItems;
 struct LoopContains;
+struct ControlGroup;
 struct ControlLabel;
 struct ControlMark;
 struct ControlEvaluate;
@@ -93,8 +94,8 @@ using Template = std::vector<std::variant<
     LoopPropertiesUnevaluated, LoopItemsUnevaluated, LoopPropertiesMatch,
     LoopProperties, LoopPropertiesRegex, LoopPropertiesExcept,
     LoopPropertiesType, LoopPropertiesTypeStrict, LoopKeys, LoopItems,
-    LoopContains, ControlLabel, ControlMark, ControlEvaluate, ControlJump,
-    ControlDynamicAnchorJump>>;
+    LoopContains, ControlGroup, ControlLabel, ControlMark, ControlEvaluate,
+    ControlJump, ControlDynamicAnchorJump>>;
 
 #if !defined(DOXYGEN)
 // For fast internal instruction dispatching. It must stay
@@ -153,6 +154,7 @@ enum class TemplateIndex : std::uint8_t {
   LoopKeys,
   LoopItems,
   LoopContains,
+  ControlGroup,
   ControlLabel,
   ControlMark,
   ControlEvaluate,
@@ -445,6 +447,11 @@ DEFINE_STEP_APPLICATOR(Loop, Items, ValueUnsignedInteger)
 /// @brief Represents a compiler step that checks array items match a given
 /// criteria
 DEFINE_STEP_APPLICATOR(Loop, Contains, ValueRange)
+
+/// @ingroup evaluator_instructions
+/// @brief Represents a compiler step that groups a set of steps but is not
+/// evaluated on its own
+DEFINE_STEP_APPLICATOR(Control, Group, ValueNone)
 
 /// @ingroup evaluator_instructions
 /// @brief Represents a compiler step that consists of a mark to jump to while
