@@ -3548,6 +3548,149 @@ TEST(Evaluator_2019_09, unevaluatedProperties_8_exhaustive) {
       "The object value was not expected to define unevaluated properties");
 }
 
+TEST(Evaluator_2019_09, unevaluatedProperties_9) {
+  const sourcemeta::jsontoolkit::JSON schema{
+      sourcemeta::jsontoolkit::parse(R"JSON({
+    "$schema": "https://json-schema.org/draft/2019-09/schema",
+    "unevaluatedProperties": false,
+    "properties": {
+      "a": { "type": "boolean" },
+      "b": { "type": "boolean" },
+      "c": { "type": "boolean" },
+      "d": { "type": "boolean" },
+      "e": { "type": "boolean" },
+      "f": { "type": "boolean" },
+      "g": { "type": "boolean" },
+      "h": { "type": "boolean" },
+      "i": { "type": "boolean" },
+      "j": { "type": "boolean" },
+      "k": { "type": "boolean" },
+      "l": { "type": "boolean" },
+      "m": { "type": "boolean" },
+      "n": { "type": "boolean" },
+      "o": { "type": "boolean" },
+      "p": { "type": "boolean" },
+      "q": { "type": "boolean" },
+      "r": { "type": "boolean" },
+      "s": { "type": "boolean" },
+      "t": { "type": "boolean" },
+      "u": { "type": "boolean" },
+      "v": { "type": "boolean" },
+      "w": { "type": "boolean" },
+      "x": { "type": "boolean" },
+      "y": { "type": "boolean" },
+      "z": { "type": "boolean" }
+    }
+  })JSON")};
+
+  const sourcemeta::jsontoolkit::JSON instance{
+      sourcemeta::jsontoolkit::parse("{ \"a\": true }")};
+
+  EVALUATE_WITH_TRACE_FAST_SUCCESS(schema, instance, 4);
+
+  EVALUATE_TRACE_PRE(0, LoopPropertiesMatch, "/properties", "#/properties", "");
+  EVALUATE_TRACE_PRE(1, AssertionTypeStrict, "/properties/a/type",
+                     "#/properties/a/type", "/a");
+  EVALUATE_TRACE_PRE(2, ControlEvaluate, "/properties", "#/properties", "/a");
+  EVALUATE_TRACE_PRE(3, LoopPropertiesUnevaluated, "/unevaluatedProperties",
+                     "#/unevaluatedProperties", "");
+
+  EVALUATE_TRACE_POST_SUCCESS(0, AssertionTypeStrict, "/properties/a/type",
+                              "#/properties/a/type", "/a");
+  EVALUATE_TRACE_POST_SUCCESS(1, ControlEvaluate, "/properties", "#/properties",
+                              "/a");
+  EVALUATE_TRACE_POST_SUCCESS(2, LoopPropertiesMatch, "/properties",
+                              "#/properties", "");
+  EVALUATE_TRACE_POST_SUCCESS(3, LoopPropertiesUnevaluated,
+                              "/unevaluatedProperties",
+                              "#/unevaluatedProperties", "");
+
+  EVALUATE_TRACE_POST_DESCRIBE(instance, 0,
+                               "The value was expected to be of type boolean");
+  EVALUATE_TRACE_POST_DESCRIBE(instance, 1,
+                               "The instance location was marked as evaluated");
+  EVALUATE_TRACE_POST_DESCRIBE(instance, 2,
+                               "The object value was expected to validate "
+                               "against the 26 defined properties subschemas");
+  EVALUATE_TRACE_POST_DESCRIBE(
+      instance, 3,
+      "The object value was not expected to define unevaluated properties");
+}
+
+TEST(Evaluator_2019_09, unevaluatedProperties_9_exhaustive) {
+  const sourcemeta::jsontoolkit::JSON schema{
+      sourcemeta::jsontoolkit::parse(R"JSON({
+    "$schema": "https://json-schema.org/draft/2019-09/schema",
+    "unevaluatedProperties": false,
+    "properties": {
+      "a": { "type": "boolean" },
+      "b": { "type": "boolean" },
+      "c": { "type": "boolean" },
+      "d": { "type": "boolean" },
+      "e": { "type": "boolean" },
+      "f": { "type": "boolean" },
+      "g": { "type": "boolean" },
+      "h": { "type": "boolean" },
+      "i": { "type": "boolean" },
+      "j": { "type": "boolean" },
+      "k": { "type": "boolean" },
+      "l": { "type": "boolean" },
+      "m": { "type": "boolean" },
+      "n": { "type": "boolean" },
+      "o": { "type": "boolean" },
+      "p": { "type": "boolean" },
+      "q": { "type": "boolean" },
+      "r": { "type": "boolean" },
+      "s": { "type": "boolean" },
+      "t": { "type": "boolean" },
+      "u": { "type": "boolean" },
+      "v": { "type": "boolean" },
+      "w": { "type": "boolean" },
+      "x": { "type": "boolean" },
+      "y": { "type": "boolean" },
+      "z": { "type": "boolean" }
+    }
+  })JSON")};
+
+  const sourcemeta::jsontoolkit::JSON instance{
+      sourcemeta::jsontoolkit::parse("{ \"a\": true }")};
+
+  EVALUATE_WITH_TRACE_EXHAUSTIVE_SUCCESS(schema, instance, 5);
+
+  EVALUATE_TRACE_PRE(0, LoopPropertiesMatch, "/properties", "#/properties", "");
+  EVALUATE_TRACE_PRE(1, AssertionTypeStrict, "/properties/a/type",
+                     "#/properties/a/type", "/a");
+  EVALUATE_TRACE_PRE(2, ControlEvaluate, "/properties", "#/properties", "/a");
+  EVALUATE_TRACE_PRE_ANNOTATION(3, "/properties", "#/properties", "");
+  EVALUATE_TRACE_PRE(4, LoopPropertiesUnevaluated, "/unevaluatedProperties",
+                     "#/unevaluatedProperties", "");
+
+  EVALUATE_TRACE_POST_SUCCESS(0, AssertionTypeStrict, "/properties/a/type",
+                              "#/properties/a/type", "/a");
+  EVALUATE_TRACE_POST_SUCCESS(1, ControlEvaluate, "/properties", "#/properties",
+                              "/a");
+  EVALUATE_TRACE_POST_ANNOTATION(2, "/properties", "#/properties", "", "a");
+  EVALUATE_TRACE_POST_SUCCESS(3, LoopPropertiesMatch, "/properties",
+                              "#/properties", "");
+  EVALUATE_TRACE_POST_SUCCESS(4, LoopPropertiesUnevaluated,
+                              "/unevaluatedProperties",
+                              "#/unevaluatedProperties", "");
+
+  EVALUATE_TRACE_POST_DESCRIBE(instance, 0,
+                               "The value was expected to be of type boolean");
+  EVALUATE_TRACE_POST_DESCRIBE(instance, 1,
+                               "The instance location was marked as evaluated");
+  EVALUATE_TRACE_POST_DESCRIBE(instance, 2,
+                               "The object property \"a\" successfully "
+                               "validated against its property subschema");
+  EVALUATE_TRACE_POST_DESCRIBE(instance, 3,
+                               "The object value was expected to validate "
+                               "against the 26 defined properties subschemas");
+  EVALUATE_TRACE_POST_DESCRIBE(
+      instance, 4,
+      "The object value was not expected to define unevaluated properties");
+}
+
 TEST(Evaluator_2019_09, unevaluatedItems_1) {
   const sourcemeta::jsontoolkit::JSON schema{
       sourcemeta::jsontoolkit::parse(R"JSON({

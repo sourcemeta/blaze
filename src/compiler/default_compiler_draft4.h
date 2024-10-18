@@ -481,6 +481,13 @@ auto compiler_draft4_applicator_properties_with_options(
 
     for (auto &&[name, substeps] : properties) {
       indexes.emplace(name, cursor);
+
+      if (track_evaluation) {
+        substeps.push_back(make<ControlEvaluate>(true, context, schema_context,
+                                                 relative_dynamic_context,
+                                                 ValuePointer{name}));
+      }
+
       if (annotate) {
         substeps.push_back(make<AnnotationEmit>(
             true, context, schema_context, relative_dynamic_context,
