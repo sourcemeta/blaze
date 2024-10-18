@@ -152,31 +152,8 @@ auto evaluate_step(const sourcemeta::blaze::Template::value_type &step,
   // As a safety guard, only emit the annotation if it didn't exist already.
   // Otherwise we risk confusing consumers
 
-#define EVALUATE_ANNOTATION(step_category, step_type, precondition,            \
-                            destination, annotation_value)                     \
-  SOURCEMETA_TRACE_START(trace_id, STRINGIFY(step_type));                      \
-  const auto &step_category{std::get<step_type>(step)};                        \
-  assert(step_category.relative_instance_location.empty());                    \
-  const auto &target{context.resolve_target()};                                \
-  if (!(precondition)) {                                                       \
-    SOURCEMETA_TRACE_END(trace_id, STRINGIFY(step_type));                      \
-    return true;                                                               \
-  }                                                                            \
-  context.push(step_category.relative_schema_location,                         \
-               step_category.relative_instance_location,                       \
-               step_category.schema_resource, step_category.dynamic);          \
-  if (step_category.report && callback.has_value()) {                          \
-    callback.value()(EvaluationType::Pre, true, step, context.evaluate_path(), \
-                     destination, context.null);                               \
-    callback.value()(EvaluationType::Post, true, step,                         \
-                     context.evaluate_path(), destination, annotation_value);  \
-  }                                                                            \
-  context.pop(step_category.dynamic);                                          \
-  SOURCEMETA_TRACE_END(trace_id, STRINGIFY(step_type));                        \
-  return true;
-
-#define EVALUATE_ANNOTATION_NO_PRECONDITION(step_category, step_type,          \
-                                            destination, annotation_value)     \
+#define EVALUATE_ANNOTATION(step_category, step_type, destination,             \
+                            annotation_value)                                  \
   SOURCEMETA_TRACE_START(trace_id, STRINGIFY(step_type));                      \
   const auto &step_category{std::get<step_type>(step)};                        \
   context.push(step_category.relative_schema_location,                         \
@@ -723,20 +700,19 @@ auto evaluate_step(const sourcemeta::blaze::Template::value_type &step,
     }
 
     case IS_STEP(AnnotationEmit): {
-      EVALUATE_ANNOTATION_NO_PRECONDITION(annotation, AnnotationEmit,
-                                          context.instance_location(),
-                                          annotation.value);
+      EVALUATE_ANNOTATION(annotation, AnnotationEmit,
+                          context.instance_location(), annotation.value);
     }
 
     case IS_STEP(AnnotationToParent): {
-      EVALUATE_ANNOTATION_NO_PRECONDITION(
+      EVALUATE_ANNOTATION(
           annotation, AnnotationToParent,
           // TODO: Can we avoid a copy of the instance location here?
           context.instance_location().initial(), annotation.value);
     }
 
     case IS_STEP(AnnotationBasenameToParent): {
-      EVALUATE_ANNOTATION_NO_PRECONDITION(
+      EVALUATE_ANNOTATION(
           annotation, AnnotationBasenameToParent,
           // TODO: Can we avoid a copy of the instance location here?
           context.instance_location().initial(),
@@ -1079,7 +1055,6 @@ auto evaluate_step(const sourcemeta::blaze::Template::value_type &step,
 #undef EVALUATE_END
 #undef EVALUATE_END_NO_POP
 #undef EVALUATE_ANNOTATION
-#undef EVALUATE_ANNOTATION_NO_PRECONDITION
 
     default:
       // We should never get here
