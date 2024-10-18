@@ -244,12 +244,11 @@ struct StepVisitor {
   HANDLE_STEP("assertion", "string-type", AssertionStringType)
   HANDLE_STEP("assertion", "property-type", AssertionPropertyType)
   HANDLE_STEP("assertion", "property-type-strict", AssertionPropertyTypeStrict)
+  HANDLE_STEP("assertion", "array-prefix", AssertionArrayPrefix)
   HANDLE_STEP("assertion", "equals-any", AssertionEqualsAny)
   HANDLE_STEP("annotation", "emit", AnnotationEmit)
   HANDLE_STEP("annotation", "when-array-size-equal",
               AnnotationWhenArraySizeEqual)
-  HANDLE_STEP("annotation", "when-array-size-greater",
-              AnnotationWhenArraySizeGreater)
   HANDLE_STEP("annotation", "to-parent", AnnotationToParent)
   HANDLE_STEP("annotation", "basename-to-parent", AnnotationBasenameToParent)
   HANDLE_STEP("logical", "not", LogicalNot)

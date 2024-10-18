@@ -846,72 +846,47 @@ auto compiler_draft4_applicator_items_array(
     return {};
   }
 
-  // The idea here is to precompile all possibilities depending on the size
-  // of the instance array up to the size of the `items` keyword array.
-  // For example, if `items` is set to `[ {}, {}, {} ]`, we create 3
-  // conjunctions:
-  // - [ {}, {}, {} ] if the instance array size is >= 3
-  // - [ {}, {} ] if the instance array size is == 2
-  // - [ {} ] if the instance array size is == 1
-
   // Precompile subschemas
   std::vector<Template> subschemas;
   subschemas.reserve(items_size);
   const auto &array{
       schema_context.schema.at(dynamic_context.keyword).as_array()};
   for (auto iterator{array.cbegin()}; iterator != array.cend(); ++iterator) {
-    Template children{compile(context, schema_context, relative_dynamic_context,
-                              {subschemas.size()}, {subschemas.size()})};
-
-    if (track_evaluation) {
-      children.push_back(make<ControlEvaluate>(
-          true, context, schema_context, relative_dynamic_context,
-          ValuePointer{subschemas.size()}));
-    }
-
-    subschemas.push_back(std::move(children));
+    subschemas.push_back(compile(context, schema_context,
+                                 relative_dynamic_context, {subschemas.size()},
+                                 {subschemas.size()}));
   }
 
   Template children;
-  for (std::size_t cursor = items_size; cursor > 0; cursor--) {
+  for (std::size_t cursor = 0; cursor < items_size; cursor++) {
     Template subchildren;
-    for (std::size_t index = 0; index < cursor; index++) {
+    for (std::size_t index = 0; index < cursor + 1; index++) {
       for (const auto &substep : subschemas.at(index)) {
         subchildren.push_back(substep);
       }
     }
 
-    // The first entry
-    if (cursor == items_size) {
-      if (annotate) {
+    if (annotate) {
+      subchildren.push_back(make<AnnotationEmit>(
+          true, context, schema_context, relative_dynamic_context,
+          sourcemeta::jsontoolkit::JSON{cursor}));
+      if (cursor == items_size - 1) {
         subchildren.push_back(make<AnnotationWhenArraySizeEqual>(
             true, context, schema_context, relative_dynamic_context,
-            ValueIndexedJSON{cursor, sourcemeta::jsontoolkit::JSON{true}}));
-        subchildren.push_back(make<AnnotationWhenArraySizeGreater>(
-            true, context, schema_context, relative_dynamic_context,
-            ValueIndexedJSON{cursor,
-                             sourcemeta::jsontoolkit::JSON{cursor - 1}}));
+            ValueIndexedJSON{cursor + 1, sourcemeta::jsontoolkit::JSON{true}}));
       }
-
-      children.push_back(make<LogicalWhenArraySizeGreater>(
-          false, context, schema_context, relative_dynamic_context,
-          ValueUnsignedInteger{cursor - 1}, std::move(subchildren)));
-    } else {
-      if (annotate) {
-        subchildren.push_back(make<AnnotationEmit>(
-            true, context, schema_context, relative_dynamic_context,
-            sourcemeta::jsontoolkit::JSON{cursor - 1}));
-      }
-
-      children.push_back(make<LogicalWhenArraySizeEqual>(
-          false, context, schema_context, relative_dynamic_context,
-          ValueUnsignedInteger{cursor}, std::move(subchildren)));
     }
+
+    // TODO: Can we "see through" this instruction and evaluate the children
+    // directly as an optimization?
+    children.push_back(make<LogicalAnd>(false, context, schema_context,
+                                        relative_dynamic_context, ValueNone{},
+                                        std::move(subchildren)));
   }
 
-  return {make<LogicalWhenType>(true, context, schema_context, dynamic_context,
-                                sourcemeta::jsontoolkit::JSON::Type::Array,
-                                std::move(children))};
+  return {make<AssertionArrayPrefix>(
+      true, context, schema_context, dynamic_context,
+      ValueBoolean{track_evaluation}, std::move(children))};
 }
 
 auto compiler_draft4_applicator_items_with_options(

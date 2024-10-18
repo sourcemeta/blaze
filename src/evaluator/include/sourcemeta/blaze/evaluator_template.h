@@ -43,9 +43,9 @@ struct AssertionDivisible;
 struct AssertionStringType;
 struct AssertionPropertyType;
 struct AssertionPropertyTypeStrict;
+struct AssertionArrayPrefix;
 struct AnnotationEmit;
 struct AnnotationWhenArraySizeEqual;
-struct AnnotationWhenArraySizeGreater;
 struct AnnotationToParent;
 struct AnnotationBasenameToParent;
 struct LogicalNot;
@@ -87,11 +87,11 @@ using Template = std::vector<std::variant<
     AssertionObjectSizeGreater, AssertionEqual, AssertionEqualsAny,
     AssertionGreaterEqual, AssertionLessEqual, AssertionGreater, AssertionLess,
     AssertionUnique, AssertionDivisible, AssertionStringType,
-    AssertionPropertyType, AssertionPropertyTypeStrict, AnnotationEmit,
-    AnnotationWhenArraySizeEqual, AnnotationWhenArraySizeGreater,
-    AnnotationToParent, AnnotationBasenameToParent, LogicalNot, LogicalOr,
-    LogicalAnd, LogicalXor, LogicalCondition, LogicalWhenType,
-    LogicalWhenDefines, LogicalWhenArraySizeGreater, LogicalWhenArraySizeEqual,
+    AssertionPropertyType, AssertionPropertyTypeStrict, AssertionArrayPrefix,
+    AnnotationEmit, AnnotationWhenArraySizeEqual, AnnotationToParent,
+    AnnotationBasenameToParent, LogicalNot, LogicalOr, LogicalAnd, LogicalXor,
+    LogicalCondition, LogicalWhenType, LogicalWhenDefines,
+    LogicalWhenArraySizeGreater, LogicalWhenArraySizeEqual,
     LoopPropertiesUnevaluated, LoopItemsUnevaluated, LoopPropertiesMatch,
     LoopProperties, LoopPropertiesRegex, LoopPropertiesExcept,
     LoopPropertiesType, LoopPropertiesTypeStrict, LoopKeys, LoopItems,
@@ -131,9 +131,9 @@ enum class TemplateIndex : std::uint8_t {
   AssertionStringType,
   AssertionPropertyType,
   AssertionPropertyTypeStrict,
+  AssertionArrayPrefix,
   AnnotationEmit,
   AnnotationWhenArraySizeEqual,
-  AnnotationWhenArraySizeGreater,
   AnnotationToParent,
   AnnotationBasenameToParent,
   LogicalNot,
@@ -340,6 +340,11 @@ DEFINE_STEP_WITH_VALUE(Assertion, PropertyType, ValueType)
 DEFINE_STEP_WITH_VALUE(Assertion, PropertyTypeStrict, ValueType)
 
 /// @ingroup evaluator_instructions
+/// @brief Represents a compiler assertion step that applies substeps to the
+/// beginning of an array
+DEFINE_STEP_APPLICATOR(Assertion, ArrayPrefix, ValueBoolean)
+
+/// @ingroup evaluator_instructions
 /// @brief Represents a compiler step that emits an annotation
 DEFINE_STEP_WITH_VALUE(Annotation, Emit, ValueJSON)
 
@@ -347,11 +352,6 @@ DEFINE_STEP_WITH_VALUE(Annotation, Emit, ValueJSON)
 /// @brief Represents a compiler step that emits an annotation when the size of
 /// the array instance is equal to the given size
 DEFINE_STEP_WITH_VALUE(Annotation, WhenArraySizeEqual, ValueIndexedJSON)
-
-/// @ingroup evaluator_instructions
-/// @brief Represents a compiler step that emits an annotation when the size of
-/// the array instance is greater than the given size
-DEFINE_STEP_WITH_VALUE(Annotation, WhenArraySizeGreater, ValueIndexedJSON)
 
 /// @ingroup evaluator_instructions
 /// @brief Represents a compiler step that emits an annotation to the parent

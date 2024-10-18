@@ -479,6 +479,31 @@ auto evaluate_step(const sourcemeta::blaze::Template::value_type &step,
       EVALUATE_END(assertion, AssertionPropertyTypeStrict);
     }
 
+    case IS_STEP(AssertionArrayPrefix): {
+      EVALUATE_BEGIN(assertion, AssertionArrayPrefix, target.is_array());
+      // Otherwise there is no point in emitting this step
+      assert(!assertion.children.empty());
+      result = target.empty();
+      const auto prefixes{assertion.children.size()};
+      const auto array_size{target.size()};
+
+      if (!result) [[likely]] {
+        const auto pointer{std::min(array_size, prefixes)};
+        if (evaluate_step(assertion.children[pointer - 1], callback, context)) {
+          result = true;
+          if (assertion.value) {
+            if (array_size <= prefixes) {
+              context.evaluate();
+            } else {
+              context.evaluate(0, pointer - 1);
+            }
+          }
+        }
+      }
+
+      EVALUATE_END(assertion, AssertionArrayPrefix);
+    }
+
     case IS_STEP(LogicalOr): {
       EVALUATE_BEGIN_NO_PRECONDITION(logical, LogicalOr);
       result = logical.children.empty();
@@ -706,13 +731,6 @@ auto evaluate_step(const sourcemeta::blaze::Template::value_type &step,
       EVALUATE_ANNOTATION(annotation, AnnotationWhenArraySizeEqual,
                           target.is_array() &&
                               target.size() == annotation.value.first,
-                          context.instance_location(), annotation.value.second);
-    }
-
-    case IS_STEP(AnnotationWhenArraySizeGreater): {
-      EVALUATE_ANNOTATION(annotation, AnnotationWhenArraySizeGreater,
-                          target.is_array() &&
-                              target.size() > annotation.value.first,
                           context.instance_location(), annotation.value.second);
     }
 
