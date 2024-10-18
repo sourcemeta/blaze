@@ -484,18 +484,19 @@ auto evaluate_step(const sourcemeta::blaze::Template::value_type &step,
       // Otherwise there is no point in emitting this step
       assert(!assertion.children.empty());
       result = target.empty();
-      const auto prefixes{assertion.children.size()};
+      const auto prefixes{assertion.children.size() - 1};
       const auto array_size{target.size()};
-
       if (!result) [[likely]] {
-        const auto pointer{std::min(array_size, prefixes)};
-        if (evaluate_step(assertion.children[pointer - 1], callback, context)) {
+        const auto pointer{array_size == prefixes
+                               ? prefixes
+                               : std::min(array_size, prefixes) - 1};
+        if (evaluate_step(assertion.children[pointer], callback, context)) {
           result = true;
           if (assertion.value) {
-            if (array_size <= prefixes) {
+            if (array_size == prefixes) {
               context.evaluate();
             } else {
-              context.evaluate(0, pointer - 1);
+              context.evaluate(0, pointer);
             }
           }
         }
@@ -725,13 +726,6 @@ auto evaluate_step(const sourcemeta::blaze::Template::value_type &step,
       EVALUATE_ANNOTATION_NO_PRECONDITION(annotation, AnnotationEmit,
                                           context.instance_location(),
                                           annotation.value);
-    }
-
-    case IS_STEP(AnnotationWhenArraySizeEqual): {
-      EVALUATE_ANNOTATION(annotation, AnnotationWhenArraySizeEqual,
-                          target.is_array() &&
-                              target.size() == annotation.value.first,
-                          context.instance_location(), annotation.value.second);
     }
 
     case IS_STEP(AnnotationToParent): {
