@@ -1876,9 +1876,7 @@ TEST(Evaluator_2019_09, items_2_exhaustive) {
                                "Every item in the array value was expected to "
                                "validate against the given subschema");
   EVALUATE_TRACE_POST_DESCRIBE(
-      instance, 4,
-      "At least one item of the array value successfully validated against the "
-      "given subschema");
+      instance, 4, "Every item in the array value was successfully validated");
 }
 
 TEST(Evaluator_2019_09, items_3) {
@@ -2211,9 +2209,7 @@ TEST(Evaluator_2019_09, items_9_exhaustive) {
       "The first 2 items of the array value successfully validated against the "
       "given positional subschemas");
   EVALUATE_TRACE_POST_DESCRIBE(
-      instance, 3,
-      "At least one item of the array value successfully validated against the "
-      "given subschema");
+      instance, 3, "Every item in the array value was successfully validated");
   EVALUATE_TRACE_POST_DESCRIBE(
       instance, 4,
       "The first 2 items of the array value were expected to validate against "
@@ -2332,9 +2328,7 @@ TEST(Evaluator_2019_09, additionalItems_2_exhaustive) {
                                "Every item in the array value was expected to "
                                "validate against the given subschema");
   EVALUATE_TRACE_POST_DESCRIBE(
-      instance, 4,
-      "At least one item of the array value successfully validated against the "
-      "given subschema");
+      instance, 4, "Every item in the array value was successfully validated");
 }
 
 TEST(Evaluator_2019_09, additionalItems_3) {
@@ -2412,9 +2406,7 @@ TEST(Evaluator_2019_09, additionalItems_3_exhaustive) {
       "The first 2 items of the array value successfully validated against the "
       "given positional subschemas");
   EVALUATE_TRACE_POST_DESCRIBE(
-      instance, 3,
-      "At least one item of the array value successfully validated against the "
-      "given subschema");
+      instance, 3, "Every item in the array value was successfully validated");
   EVALUATE_TRACE_POST_DESCRIBE(
       instance, 4,
       "The first 2 items of the array value were expected to validate against "
@@ -2539,9 +2531,7 @@ TEST(Evaluator_2019_09, additionalItems_4_exhaustive) {
       "Every item in the array value except for the first 2 was expected to "
       "validate against the given subschema");
   EVALUATE_TRACE_POST_DESCRIBE(
-      instance, 7,
-      "At least one item of the array value successfully validated against the "
-      "given subschema");
+      instance, 7, "Every item in the array value was successfully validated");
 }
 
 TEST(Evaluator_2019_09, additionalItems_5) {
@@ -3743,9 +3733,7 @@ TEST(Evaluator_2019_09, unevaluatedItems_3_exhaustive) {
                                "Every item in the array value was expected to "
                                "validate against the given subschema");
   EVALUATE_TRACE_POST_DESCRIBE(
-      instance, 2,
-      "At least one item of the array value successfully validated against the "
-      "given subschema");
+      instance, 2, "Every item in the array value was successfully validated");
   EVALUATE_TRACE_POST_DESCRIBE(instance, 3,
                                "The instance location was marked as evaluated");
   EVALUATE_TRACE_POST_DESCRIBE(
@@ -3907,9 +3895,7 @@ TEST(Evaluator_2019_09, unevaluatedItems_5_exhaustive) {
       "The first item of the array value successfully validated against the "
       "first positional subschema");
   EVALUATE_TRACE_POST_DESCRIBE(
-      instance, 2,
-      "At least one item of the array value successfully validated against the "
-      "given subschema");
+      instance, 2, "Every item in the array value was successfully validated");
   EVALUATE_TRACE_POST_DESCRIBE(
       instance, 3,
       "The first item of the array value was expected to validate against the "
@@ -4366,9 +4352,7 @@ TEST(Evaluator_2019_09, unevaluatedItems_9_exhaustive) {
       "Every item in the array value except for the first one was expected to "
       "validate against the given subschema");
   EVALUATE_TRACE_POST_DESCRIBE(
-      instance, 5,
-      "At least one item of the array value successfully validated against the "
-      "given subschema");
+      instance, 5, "Every item in the array value was successfully validated");
   EVALUATE_TRACE_POST_DESCRIBE(instance, 6,
                                "The instance location was marked as evaluated");
   EVALUATE_TRACE_POST_DESCRIBE(
@@ -5188,9 +5172,7 @@ TEST(Evaluator_2019_09, recursiveRef_5_exhaustive) {
       "The first item of the array value successfully validated against the "
       "first positional subschema");
   EVALUATE_TRACE_POST_DESCRIBE(
-      instance, 3,
-      "At least one item of the array value successfully validated against the "
-      "given subschema");
+      instance, 3, "Every item in the array value was successfully validated");
   EVALUATE_TRACE_POST_DESCRIBE(
       instance, 4,
       "The first item of the array value was expected to validate against the "
@@ -5199,9 +5181,7 @@ TEST(Evaluator_2019_09, recursiveRef_5_exhaustive) {
                                "Every item in the array value was expected to "
                                "validate against the given subschema");
   EVALUATE_TRACE_POST_DESCRIBE(
-      instance, 6,
-      "At least one item of the array value successfully validated against the "
-      "given subschema");
+      instance, 6, "Every item in the array value was successfully validated");
 }
 
 TEST(Evaluator_2019_09, recursiveRef_6) {

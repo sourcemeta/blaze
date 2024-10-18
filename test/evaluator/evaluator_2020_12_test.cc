@@ -160,9 +160,7 @@ TEST(Evaluator_2020_12, items_2_exhaustive) {
                                "Every item in the array value was expected to "
                                "validate against the given subschema");
   EVALUATE_TRACE_POST_DESCRIBE(
-      instance, 4,
-      "At least one item of the array value successfully validated against the "
-      "given subschema");
+      instance, 4, "Every item in the array value was successfully validated");
 }
 
 TEST(Evaluator_2020_12, items_3) {
@@ -410,9 +408,7 @@ TEST(Evaluator_2020_12, items_5_exhaustive) {
       "Every item in the array value except for the first 2 was expected to "
       "validate against the given subschema");
   EVALUATE_TRACE_POST_DESCRIBE(
-      instance, 7,
-      "At least one item of the array value successfully validated against the "
-      "given subschema");
+      instance, 7, "Every item in the array value was successfully validated");
 }
 
 TEST(Evaluator_2020_12, items_6) {
