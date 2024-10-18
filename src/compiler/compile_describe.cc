@@ -246,6 +246,10 @@ struct DescribeVisitor {
     return message.str();
   }
 
+  auto operator()(const ControlGroup &) const -> std::string {
+    return unknown();
+  }
+
   auto operator()(const ControlLabel &) const -> std::string {
     return describe_reference(this->target);
   }

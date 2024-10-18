@@ -339,8 +339,8 @@ auto compiler_draft4_applicator_anyof(const Context &context,
   for (std::uint64_t index = 0;
        index < schema_context.schema.at(dynamic_context.keyword).size();
        index++) {
-    disjunctors.push_back(make<LogicalAnd>(
-        false, context, schema_context, relative_dynamic_context, ValueNone{},
+    disjunctors.push_back(make<ControlGroup>(
+        true, context, schema_context, relative_dynamic_context, ValueNone{},
         compile(context, schema_context, relative_dynamic_context,
                 {static_cast<sourcemeta::jsontoolkit::Pointer::Token::Index>(
                     index)})));
@@ -366,8 +366,8 @@ auto compiler_draft4_applicator_oneof(const Context &context,
   for (std::uint64_t index = 0;
        index < schema_context.schema.at(dynamic_context.keyword).size();
        index++) {
-    disjunctors.push_back(make<LogicalAnd>(
-        false, context, schema_context, relative_dynamic_context, ValueNone{},
+    disjunctors.push_back(make<ControlGroup>(
+        true, context, schema_context, relative_dynamic_context, ValueNone{},
         compile(context, schema_context, relative_dynamic_context,
                 {static_cast<sourcemeta::jsontoolkit::Pointer::Token::Index>(
                     index)})));
@@ -488,9 +488,9 @@ auto compiler_draft4_applicator_properties_with_options(
       }
 
       // Note that the evaluator completely ignores this wrapper anyway
-      children.push_back(make<LogicalAnd>(false, context, schema_context,
-                                          relative_dynamic_context, ValueNone{},
-                                          std::move(substeps)));
+      children.push_back(make<ControlGroup>(true, context, schema_context,
+                                            relative_dynamic_context,
+                                            ValueNone{}, std::move(substeps)));
       cursor += 1;
     }
 
@@ -872,11 +872,9 @@ auto compiler_draft4_applicator_items_array(
           sourcemeta::jsontoolkit::JSON{cursor}));
     }
 
-    // TODO: Can we "see through" this instruction and evaluate the children
-    // directly as an optimization?
-    children.push_back(make<LogicalAnd>(false, context, schema_context,
-                                        relative_dynamic_context, ValueNone{},
-                                        std::move(subchildren)));
+    children.push_back(make<ControlGroup>(true, context, schema_context,
+                                          relative_dynamic_context, ValueNone{},
+                                          std::move(subchildren)));
   }
 
   Template tail;
@@ -895,9 +893,9 @@ auto compiler_draft4_applicator_items_array(
                                         sourcemeta::jsontoolkit::JSON{true}));
   }
 
-  children.push_back(make<LogicalAnd>(false, context, schema_context,
-                                      relative_dynamic_context, ValueNone{},
-                                      std::move(tail)));
+  children.push_back(make<ControlGroup>(true, context, schema_context,
+                                        relative_dynamic_context, ValueNone{},
+                                        std::move(tail)));
 
   return {make<AssertionArrayPrefix>(
       true, context, schema_context, dynamic_context,

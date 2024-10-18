@@ -261,6 +261,7 @@ struct StepVisitor {
   HANDLE_STEP("loop", "keys", LoopKeys)
   HANDLE_STEP("loop", "items", LoopItems)
   HANDLE_STEP("loop", "contains", LoopContains)
+  HANDLE_STEP("control", "group", ControlGroup)
   HANDLE_STEP("control", "label", ControlLabel)
   HANDLE_STEP("control", "mark", ControlMark)
   HANDLE_STEP("control", "evaluate", ControlEvaluate)

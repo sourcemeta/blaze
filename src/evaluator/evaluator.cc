@@ -467,7 +467,10 @@ auto evaluate_step(const sourcemeta::blaze::Template::value_type &step,
         const auto pointer{array_size == prefixes
                                ? prefixes
                                : std::min(array_size, prefixes) - 1};
-        if (evaluate_step(assertion.children[pointer], callback, context)) {
+        const auto &entry{assertion.children[pointer]};
+        // TODO: Directly evaluate the control group entries
+        assert(std::holds_alternative<ControlGroup>(entry));
+        if (evaluate_step(entry, callback, context)) {
           result = true;
           if (assertion.value) {
             if (array_size == prefixes) {
@@ -626,6 +629,23 @@ auto evaluate_step(const sourcemeta::blaze::Template::value_type &step,
       }
 
       EVALUATE_END(logical, LogicalCondition);
+    }
+
+    case IS_STEP(ControlGroup): {
+      // For this specialized step, we purposely avoid push/pop macros
+      // and avoid reporting it as a standalone step.
+      SOURCEMETA_TRACE_END(trace_dispatch_id, "Dispatch");
+      SOURCEMETA_TRACE_START(trace_id, "ControlGroup");
+      const auto &control{std::get<ControlGroup>(step)};
+      for (const auto &child : control.children) {
+        if (!evaluate_step(child, callback, context)) {
+          SOURCEMETA_TRACE_END(trace_id, "ControlEvaluate");
+          return false;
+        }
+      }
+
+      SOURCEMETA_TRACE_END(trace_id, "ControlEvaluate");
+      return true;
     }
 
     case IS_STEP(ControlLabel): {
@@ -808,8 +828,8 @@ auto evaluate_step(const sourcemeta::blaze::Template::value_type &step,
         }
 
         const auto &substep{loop.children[index->second]};
-        assert(std::holds_alternative<LogicalAnd>(substep));
-        for (const auto &child : std::get<LogicalAnd>(substep).children) {
+        assert(std::holds_alternative<ControlGroup>(substep));
+        for (const auto &child : std::get<ControlGroup>(substep).children) {
           if (!evaluate_step(child, callback, context)) {
             result = false;
             // For efficiently breaking from the outer loop too
