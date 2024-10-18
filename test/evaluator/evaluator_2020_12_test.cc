@@ -215,7 +215,8 @@ TEST(Evaluator_2020_12, items_4) {
       sourcemeta::jsontoolkit::parse("[ true, 5 ]")};
   EVALUATE_WITH_TRACE_FAST_SUCCESS(schema, instance, 3);
 
-  EVALUATE_TRACE_PRE(0, LogicalWhenType, "/prefixItems", "#/prefixItems", "");
+  EVALUATE_TRACE_PRE(0, AssertionArrayPrefix, "/prefixItems", "#/prefixItems",
+                     "");
   EVALUATE_TRACE_PRE(1, AssertionTypeStrict, "/prefixItems/0/type",
                      "#/prefixItems/0/type", "/0");
   EVALUATE_TRACE_PRE(2, AssertionType, "/prefixItems/1/type",
@@ -225,7 +226,7 @@ TEST(Evaluator_2020_12, items_4) {
                               "#/prefixItems/0/type", "/0");
   EVALUATE_TRACE_POST_SUCCESS(1, AssertionType, "/prefixItems/1/type",
                               "#/prefixItems/1/type", "/1");
-  EVALUATE_TRACE_POST_SUCCESS(2, LogicalWhenType, "/prefixItems",
+  EVALUATE_TRACE_POST_SUCCESS(2, AssertionArrayPrefix, "/prefixItems",
                               "#/prefixItems", "");
 
   EVALUATE_TRACE_POST_DESCRIBE(instance, 0,
@@ -251,32 +252,39 @@ TEST(Evaluator_2020_12, items_4_exhaustive) {
 
   const sourcemeta::jsontoolkit::JSON instance{
       sourcemeta::jsontoolkit::parse("[ true, 5 ]")};
-  EVALUATE_WITH_TRACE_EXHAUSTIVE_SUCCESS(schema, instance, 4);
+  EVALUATE_WITH_TRACE_EXHAUSTIVE_SUCCESS(schema, instance, 5);
 
-  EVALUATE_TRACE_PRE(0, LogicalWhenType, "/prefixItems", "#/prefixItems", "");
+  EVALUATE_TRACE_PRE(0, AssertionArrayPrefix, "/prefixItems", "#/prefixItems",
+                     "");
   EVALUATE_TRACE_PRE(1, AssertionTypeStrict, "/prefixItems/0/type",
                      "#/prefixItems/0/type", "/0");
   EVALUATE_TRACE_PRE(2, AssertionType, "/prefixItems/1/type",
                      "#/prefixItems/1/type", "/1");
   EVALUATE_TRACE_PRE_ANNOTATION(3, "/prefixItems", "#/prefixItems", "");
+  EVALUATE_TRACE_PRE_ANNOTATION(4, "/prefixItems", "#/prefixItems", "");
 
   EVALUATE_TRACE_POST_SUCCESS(0, AssertionTypeStrict, "/prefixItems/0/type",
                               "#/prefixItems/0/type", "/0");
   EVALUATE_TRACE_POST_SUCCESS(1, AssertionType, "/prefixItems/1/type",
                               "#/prefixItems/1/type", "/1");
-  EVALUATE_TRACE_POST_ANNOTATION(2, "/prefixItems", "#/prefixItems", "", true);
-  EVALUATE_TRACE_POST_SUCCESS(3, LogicalWhenType, "/prefixItems",
+  EVALUATE_TRACE_POST_ANNOTATION(2, "/prefixItems", "#/prefixItems", "", 1);
+  EVALUATE_TRACE_POST_ANNOTATION(3, "/prefixItems", "#/prefixItems", "", true);
+  EVALUATE_TRACE_POST_SUCCESS(4, AssertionArrayPrefix, "/prefixItems",
                               "#/prefixItems", "");
 
   EVALUATE_TRACE_POST_DESCRIBE(instance, 0,
                                "The value was expected to be of type boolean");
   EVALUATE_TRACE_POST_DESCRIBE(instance, 1,
                                "The value was expected to be of type integer");
-  EVALUATE_TRACE_POST_DESCRIBE(instance, 2,
+  EVALUATE_TRACE_POST_DESCRIBE(
+      instance, 2,
+      "The first 2 items of the array value successfully validated against the "
+      "given positional subschemas");
+  EVALUATE_TRACE_POST_DESCRIBE(instance, 3,
                                "Every item of the array value validated "
                                "against the given positional subschemas");
   EVALUATE_TRACE_POST_DESCRIBE(
-      instance, 3,
+      instance, 4,
       "The first 2 items of the array value were expected to validate against "
       "the corresponding subschemas");
 }
@@ -296,7 +304,8 @@ TEST(Evaluator_2020_12, items_5) {
       sourcemeta::jsontoolkit::parse("[ true, 5, \"foo\", \"bar\" ]")};
   EVALUATE_WITH_TRACE_FAST_SUCCESS(schema, instance, 6);
 
-  EVALUATE_TRACE_PRE(0, LogicalWhenType, "/prefixItems", "#/prefixItems", "");
+  EVALUATE_TRACE_PRE(0, AssertionArrayPrefix, "/prefixItems", "#/prefixItems",
+                     "");
   EVALUATE_TRACE_PRE(1, AssertionTypeStrict, "/prefixItems/0/type",
                      "#/prefixItems/0/type", "/0");
   EVALUATE_TRACE_PRE(2, AssertionType, "/prefixItems/1/type",
@@ -311,7 +320,7 @@ TEST(Evaluator_2020_12, items_5) {
                               "#/prefixItems/0/type", "/0");
   EVALUATE_TRACE_POST_SUCCESS(1, AssertionType, "/prefixItems/1/type",
                               "#/prefixItems/1/type", "/1");
-  EVALUATE_TRACE_POST_SUCCESS(2, LogicalWhenType, "/prefixItems",
+  EVALUATE_TRACE_POST_SUCCESS(2, AssertionArrayPrefix, "/prefixItems",
                               "#/prefixItems", "");
   EVALUATE_TRACE_POST_SUCCESS(3, AssertionTypeStrict, "/items/type",
                               "#/items/type", "/2");
@@ -352,7 +361,8 @@ TEST(Evaluator_2020_12, items_5_exhaustive) {
       sourcemeta::jsontoolkit::parse("[ true, 5, \"foo\", \"bar\" ]")};
   EVALUATE_WITH_TRACE_EXHAUSTIVE_SUCCESS(schema, instance, 8);
 
-  EVALUATE_TRACE_PRE(0, LogicalWhenType, "/prefixItems", "#/prefixItems", "");
+  EVALUATE_TRACE_PRE(0, AssertionArrayPrefix, "/prefixItems", "#/prefixItems",
+                     "");
   EVALUATE_TRACE_PRE(1, AssertionTypeStrict, "/prefixItems/0/type",
                      "#/prefixItems/0/type", "/0");
   EVALUATE_TRACE_PRE(2, AssertionType, "/prefixItems/1/type",
@@ -370,7 +380,7 @@ TEST(Evaluator_2020_12, items_5_exhaustive) {
   EVALUATE_TRACE_POST_SUCCESS(1, AssertionType, "/prefixItems/1/type",
                               "#/prefixItems/1/type", "/1");
   EVALUATE_TRACE_POST_ANNOTATION(2, "/prefixItems", "#/prefixItems", "", 1);
-  EVALUATE_TRACE_POST_SUCCESS(3, LogicalWhenType, "/prefixItems",
+  EVALUATE_TRACE_POST_SUCCESS(3, AssertionArrayPrefix, "/prefixItems",
                               "#/prefixItems", "");
   EVALUATE_TRACE_POST_SUCCESS(4, AssertionTypeStrict, "/items/type",
                               "#/items/type", "/2");
@@ -420,7 +430,8 @@ TEST(Evaluator_2020_12, items_6) {
       sourcemeta::jsontoolkit::parse("[ true, 5, 6, \"bar\" ]")};
   EVALUATE_WITH_TRACE_FAST_FAILURE(schema, instance, 5);
 
-  EVALUATE_TRACE_PRE(0, LogicalWhenType, "/prefixItems", "#/prefixItems", "");
+  EVALUATE_TRACE_PRE(0, AssertionArrayPrefix, "/prefixItems", "#/prefixItems",
+                     "");
   EVALUATE_TRACE_PRE(1, AssertionTypeStrict, "/prefixItems/0/type",
                      "#/prefixItems/0/type", "/0");
   EVALUATE_TRACE_PRE(2, AssertionType, "/prefixItems/1/type",
@@ -433,7 +444,7 @@ TEST(Evaluator_2020_12, items_6) {
                               "#/prefixItems/0/type", "/0");
   EVALUATE_TRACE_POST_SUCCESS(1, AssertionType, "/prefixItems/1/type",
                               "#/prefixItems/1/type", "/1");
-  EVALUATE_TRACE_POST_SUCCESS(2, LogicalWhenType, "/prefixItems",
+  EVALUATE_TRACE_POST_SUCCESS(2, AssertionArrayPrefix, "/prefixItems",
                               "#/prefixItems", "");
   EVALUATE_TRACE_POST_FAILURE(3, AssertionTypeStrict, "/items/type",
                               "#/items/type", "/2");
@@ -471,7 +482,8 @@ TEST(Evaluator_2020_12, items_6_exhaustive) {
       sourcemeta::jsontoolkit::parse("[ true, 5, 6, \"bar\" ]")};
   EVALUATE_WITH_TRACE_EXHAUSTIVE_FAILURE(schema, instance, 6);
 
-  EVALUATE_TRACE_PRE(0, LogicalWhenType, "/prefixItems", "#/prefixItems", "");
+  EVALUATE_TRACE_PRE(0, AssertionArrayPrefix, "/prefixItems", "#/prefixItems",
+                     "");
   EVALUATE_TRACE_PRE(1, AssertionTypeStrict, "/prefixItems/0/type",
                      "#/prefixItems/0/type", "/0");
   EVALUATE_TRACE_PRE(2, AssertionType, "/prefixItems/1/type",
@@ -486,7 +498,7 @@ TEST(Evaluator_2020_12, items_6_exhaustive) {
   EVALUATE_TRACE_POST_SUCCESS(1, AssertionType, "/prefixItems/1/type",
                               "#/prefixItems/1/type", "/1");
   EVALUATE_TRACE_POST_ANNOTATION(2, "/prefixItems", "#/prefixItems", "", 1);
-  EVALUATE_TRACE_POST_SUCCESS(3, LogicalWhenType, "/prefixItems",
+  EVALUATE_TRACE_POST_SUCCESS(3, AssertionArrayPrefix, "/prefixItems",
                               "#/prefixItems", "");
   EVALUATE_TRACE_POST_FAILURE(4, AssertionTypeStrict, "/items/type",
                               "#/items/type", "/2");
@@ -535,8 +547,9 @@ TEST(Evaluator_2020_12, prefixItems_2) {
       sourcemeta::jsontoolkit::parse("[]")};
   EVALUATE_WITH_TRACE_FAST_SUCCESS(schema, instance, 1);
 
-  EVALUATE_TRACE_PRE(0, LogicalWhenType, "/prefixItems", "#/prefixItems", "");
-  EVALUATE_TRACE_POST_SUCCESS(0, LogicalWhenType, "/prefixItems",
+  EVALUATE_TRACE_PRE(0, AssertionArrayPrefix, "/prefixItems", "#/prefixItems",
+                     "");
+  EVALUATE_TRACE_POST_SUCCESS(0, AssertionArrayPrefix, "/prefixItems",
                               "#/prefixItems", "");
 
   EVALUATE_TRACE_POST_DESCRIBE(
@@ -556,13 +569,14 @@ TEST(Evaluator_2020_12, prefixItems_3) {
       sourcemeta::jsontoolkit::parse("[ 5 ]")};
   EVALUATE_WITH_TRACE_FAST_SUCCESS(schema, instance, 2);
 
-  EVALUATE_TRACE_PRE(0, LogicalWhenType, "/prefixItems", "#/prefixItems", "");
+  EVALUATE_TRACE_PRE(0, AssertionArrayPrefix, "/prefixItems", "#/prefixItems",
+                     "");
   EVALUATE_TRACE_PRE(1, AssertionType, "/prefixItems/0/type",
                      "#/prefixItems/0/type", "/0");
 
   EVALUATE_TRACE_POST_SUCCESS(0, AssertionType, "/prefixItems/0/type",
                               "#/prefixItems/0/type", "/0");
-  EVALUATE_TRACE_POST_SUCCESS(1, LogicalWhenType, "/prefixItems",
+  EVALUATE_TRACE_POST_SUCCESS(1, AssertionArrayPrefix, "/prefixItems",
                               "#/prefixItems", "");
 
   EVALUATE_TRACE_POST_DESCRIBE(instance, 0,
@@ -584,7 +598,8 @@ TEST(Evaluator_2020_12, prefixItems_3_exhaustive) {
       sourcemeta::jsontoolkit::parse("[ 5 ]")};
   EVALUATE_WITH_TRACE_EXHAUSTIVE_SUCCESS(schema, instance, 3);
 
-  EVALUATE_TRACE_PRE(0, LogicalWhenType, "/prefixItems", "#/prefixItems", "");
+  EVALUATE_TRACE_PRE(0, AssertionArrayPrefix, "/prefixItems", "#/prefixItems",
+                     "");
   EVALUATE_TRACE_PRE(1, AssertionType, "/prefixItems/0/type",
                      "#/prefixItems/0/type", "/0");
   EVALUATE_TRACE_PRE_ANNOTATION(2, "/prefixItems", "#/prefixItems", "");
@@ -592,7 +607,7 @@ TEST(Evaluator_2020_12, prefixItems_3_exhaustive) {
   EVALUATE_TRACE_POST_SUCCESS(0, AssertionType, "/prefixItems/0/type",
                               "#/prefixItems/0/type", "/0");
   EVALUATE_TRACE_POST_ANNOTATION(1, "/prefixItems", "#/prefixItems", "", 0);
-  EVALUATE_TRACE_POST_SUCCESS(2, LogicalWhenType, "/prefixItems",
+  EVALUATE_TRACE_POST_SUCCESS(2, AssertionArrayPrefix, "/prefixItems",
                               "#/prefixItems", "");
 
   EVALUATE_TRACE_POST_DESCRIBE(instance, 0,
@@ -618,7 +633,8 @@ TEST(Evaluator_2020_12, prefixItems_4) {
       sourcemeta::jsontoolkit::parse("[ 5, true, \"extra\" ]")};
   EVALUATE_WITH_TRACE_FAST_SUCCESS(schema, instance, 3);
 
-  EVALUATE_TRACE_PRE(0, LogicalWhenType, "/prefixItems", "#/prefixItems", "");
+  EVALUATE_TRACE_PRE(0, AssertionArrayPrefix, "/prefixItems", "#/prefixItems",
+                     "");
   EVALUATE_TRACE_PRE(1, AssertionType, "/prefixItems/0/type",
                      "#/prefixItems/0/type", "/0");
   EVALUATE_TRACE_PRE(2, AssertionTypeStrict, "/prefixItems/1/type",
@@ -628,7 +644,7 @@ TEST(Evaluator_2020_12, prefixItems_4) {
                               "#/prefixItems/0/type", "/0");
   EVALUATE_TRACE_POST_SUCCESS(1, AssertionTypeStrict, "/prefixItems/1/type",
                               "#/prefixItems/1/type", "/1");
-  EVALUATE_TRACE_POST_SUCCESS(2, LogicalWhenType, "/prefixItems",
+  EVALUATE_TRACE_POST_SUCCESS(2, AssertionArrayPrefix, "/prefixItems",
                               "#/prefixItems", "");
 
   EVALUATE_TRACE_POST_DESCRIBE(instance, 0,
@@ -652,7 +668,8 @@ TEST(Evaluator_2020_12, prefixItems_4_exhaustive) {
       sourcemeta::jsontoolkit::parse("[ 5, true, \"extra\" ]")};
   EVALUATE_WITH_TRACE_EXHAUSTIVE_SUCCESS(schema, instance, 4);
 
-  EVALUATE_TRACE_PRE(0, LogicalWhenType, "/prefixItems", "#/prefixItems", "");
+  EVALUATE_TRACE_PRE(0, AssertionArrayPrefix, "/prefixItems", "#/prefixItems",
+                     "");
   EVALUATE_TRACE_PRE(1, AssertionType, "/prefixItems/0/type",
                      "#/prefixItems/0/type", "/0");
   EVALUATE_TRACE_PRE(2, AssertionTypeStrict, "/prefixItems/1/type",
@@ -664,7 +681,7 @@ TEST(Evaluator_2020_12, prefixItems_4_exhaustive) {
   EVALUATE_TRACE_POST_SUCCESS(1, AssertionTypeStrict, "/prefixItems/1/type",
                               "#/prefixItems/1/type", "/1");
   EVALUATE_TRACE_POST_ANNOTATION(2, "/prefixItems", "#/prefixItems", "", 1);
-  EVALUATE_TRACE_POST_SUCCESS(3, LogicalWhenType, "/prefixItems",
+  EVALUATE_TRACE_POST_SUCCESS(3, AssertionArrayPrefix, "/prefixItems",
                               "#/prefixItems", "");
 
   EVALUATE_TRACE_POST_DESCRIBE(instance, 0,
@@ -692,7 +709,8 @@ TEST(Evaluator_2020_12, prefixItems_5) {
       sourcemeta::jsontoolkit::parse("[ 5, 1, \"extra\" ]")};
   EVALUATE_WITH_TRACE_FAST_FAILURE(schema, instance, 3);
 
-  EVALUATE_TRACE_PRE(0, LogicalWhenType, "/prefixItems", "#/prefixItems", "");
+  EVALUATE_TRACE_PRE(0, AssertionArrayPrefix, "/prefixItems", "#/prefixItems",
+                     "");
   EVALUATE_TRACE_PRE(1, AssertionType, "/prefixItems/0/type",
                      "#/prefixItems/0/type", "/0");
   EVALUATE_TRACE_PRE(2, AssertionTypeStrict, "/prefixItems/1/type",
@@ -702,7 +720,7 @@ TEST(Evaluator_2020_12, prefixItems_5) {
                               "#/prefixItems/0/type", "/0");
   EVALUATE_TRACE_POST_FAILURE(1, AssertionTypeStrict, "/prefixItems/1/type",
                               "#/prefixItems/1/type", "/1");
-  EVALUATE_TRACE_POST_FAILURE(2, LogicalWhenType, "/prefixItems",
+  EVALUATE_TRACE_POST_FAILURE(2, AssertionArrayPrefix, "/prefixItems",
                               "#/prefixItems", "");
 
   EVALUATE_TRACE_POST_DESCRIBE(instance, 0,
@@ -727,7 +745,8 @@ TEST(Evaluator_2020_12, prefixItems_5_exhaustive) {
       sourcemeta::jsontoolkit::parse("[ 5, 1, \"extra\" ]")};
   EVALUATE_WITH_TRACE_EXHAUSTIVE_FAILURE(schema, instance, 3);
 
-  EVALUATE_TRACE_PRE(0, LogicalWhenType, "/prefixItems", "#/prefixItems", "");
+  EVALUATE_TRACE_PRE(0, AssertionArrayPrefix, "/prefixItems", "#/prefixItems",
+                     "");
   EVALUATE_TRACE_PRE(1, AssertionType, "/prefixItems/0/type",
                      "#/prefixItems/0/type", "/0");
   EVALUATE_TRACE_PRE(2, AssertionTypeStrict, "/prefixItems/1/type",
@@ -737,7 +756,7 @@ TEST(Evaluator_2020_12, prefixItems_5_exhaustive) {
                               "#/prefixItems/0/type", "/0");
   EVALUATE_TRACE_POST_FAILURE(1, AssertionTypeStrict, "/prefixItems/1/type",
                               "#/prefixItems/1/type", "/1");
-  EVALUATE_TRACE_POST_FAILURE(2, LogicalWhenType, "/prefixItems",
+  EVALUATE_TRACE_POST_FAILURE(2, AssertionArrayPrefix, "/prefixItems",
                               "#/prefixItems", "");
 
   EVALUATE_TRACE_POST_DESCRIBE(instance, 0,
@@ -762,7 +781,8 @@ TEST(Evaluator_2020_12, prefixItems_6) {
       sourcemeta::jsontoolkit::parse("[ 5, true ]")};
   EVALUATE_WITH_TRACE_FAST_SUCCESS(schema, instance, 3);
 
-  EVALUATE_TRACE_PRE(0, LogicalWhenType, "/prefixItems", "#/prefixItems", "");
+  EVALUATE_TRACE_PRE(0, AssertionArrayPrefix, "/prefixItems", "#/prefixItems",
+                     "");
   EVALUATE_TRACE_PRE(1, AssertionType, "/prefixItems/0/type",
                      "#/prefixItems/0/type", "/0");
   EVALUATE_TRACE_PRE(2, AssertionTypeStrict, "/prefixItems/1/type",
@@ -772,7 +792,7 @@ TEST(Evaluator_2020_12, prefixItems_6) {
                               "#/prefixItems/0/type", "/0");
   EVALUATE_TRACE_POST_SUCCESS(1, AssertionTypeStrict, "/prefixItems/1/type",
                               "#/prefixItems/1/type", "/1");
-  EVALUATE_TRACE_POST_SUCCESS(2, LogicalWhenType, "/prefixItems",
+  EVALUATE_TRACE_POST_SUCCESS(2, AssertionArrayPrefix, "/prefixItems",
                               "#/prefixItems", "");
 
   EVALUATE_TRACE_POST_DESCRIBE(instance, 0,
@@ -794,32 +814,39 @@ TEST(Evaluator_2020_12, prefixItems_6_exhaustive) {
 
   const sourcemeta::jsontoolkit::JSON instance{
       sourcemeta::jsontoolkit::parse("[ 5, true ]")};
-  EVALUATE_WITH_TRACE_EXHAUSTIVE_SUCCESS(schema, instance, 4);
+  EVALUATE_WITH_TRACE_EXHAUSTIVE_SUCCESS(schema, instance, 5);
 
-  EVALUATE_TRACE_PRE(0, LogicalWhenType, "/prefixItems", "#/prefixItems", "");
+  EVALUATE_TRACE_PRE(0, AssertionArrayPrefix, "/prefixItems", "#/prefixItems",
+                     "");
   EVALUATE_TRACE_PRE(1, AssertionType, "/prefixItems/0/type",
                      "#/prefixItems/0/type", "/0");
   EVALUATE_TRACE_PRE(2, AssertionTypeStrict, "/prefixItems/1/type",
                      "#/prefixItems/1/type", "/1");
   EVALUATE_TRACE_PRE_ANNOTATION(3, "/prefixItems", "#/prefixItems", "");
+  EVALUATE_TRACE_PRE_ANNOTATION(4, "/prefixItems", "#/prefixItems", "");
 
   EVALUATE_TRACE_POST_SUCCESS(0, AssertionType, "/prefixItems/0/type",
                               "#/prefixItems/0/type", "/0");
   EVALUATE_TRACE_POST_SUCCESS(1, AssertionTypeStrict, "/prefixItems/1/type",
                               "#/prefixItems/1/type", "/1");
-  EVALUATE_TRACE_POST_ANNOTATION(2, "/prefixItems", "#/prefixItems", "", true);
-  EVALUATE_TRACE_POST_SUCCESS(3, LogicalWhenType, "/prefixItems",
+  EVALUATE_TRACE_POST_ANNOTATION(2, "/prefixItems", "#/prefixItems", "", 1);
+  EVALUATE_TRACE_POST_ANNOTATION(3, "/prefixItems", "#/prefixItems", "", true);
+  EVALUATE_TRACE_POST_SUCCESS(4, AssertionArrayPrefix, "/prefixItems",
                               "#/prefixItems", "");
 
   EVALUATE_TRACE_POST_DESCRIBE(instance, 0,
                                "The value was expected to be of type integer");
   EVALUATE_TRACE_POST_DESCRIBE(instance, 1,
                                "The value was expected to be of type boolean");
-  EVALUATE_TRACE_POST_DESCRIBE(instance, 2,
+  EVALUATE_TRACE_POST_DESCRIBE(
+      instance, 2,
+      "The first 2 items of the array value successfully validated against the "
+      "given positional subschemas");
+  EVALUATE_TRACE_POST_DESCRIBE(instance, 3,
                                "Every item of the array value validated "
                                "against the given positional subschemas");
   EVALUATE_TRACE_POST_DESCRIBE(
-      instance, 3,
+      instance, 4,
       "The first 2 items of the array value were expected to validate against "
       "the corresponding subschemas");
 }
@@ -1519,7 +1546,7 @@ TEST(Evaluator_2020_12, unevaluatedItems_3) {
   EVALUATE_WITH_TRACE_FAST_FAILURE(schema, instance, 5);
 
   EVALUATE_TRACE_PRE(0, LogicalOr, "/anyOf", "#/anyOf", "");
-  EVALUATE_TRACE_PRE(1, LogicalWhenType, "/anyOf/0/prefixItems",
+  EVALUATE_TRACE_PRE(1, AssertionArrayPrefix, "/anyOf/0/prefixItems",
                      "#/anyOf/0/prefixItems", "");
   EVALUATE_TRACE_PRE(2, AssertionTypeStrict, "/anyOf/0/prefixItems/0/type",
                      "#/anyOf/0/prefixItems/0/type", "/0");
@@ -1531,7 +1558,7 @@ TEST(Evaluator_2020_12, unevaluatedItems_3) {
   EVALUATE_TRACE_POST_FAILURE(0, AssertionTypeStrict,
                               "/anyOf/0/prefixItems/0/type",
                               "#/anyOf/0/prefixItems/0/type", "/0");
-  EVALUATE_TRACE_POST_FAILURE(1, LogicalWhenType, "/anyOf/0/prefixItems",
+  EVALUATE_TRACE_POST_FAILURE(1, AssertionArrayPrefix, "/anyOf/0/prefixItems",
                               "#/anyOf/0/prefixItems", "");
   EVALUATE_TRACE_POST_SUCCESS(2, LogicalOr, "/anyOf", "#/anyOf", "");
   EVALUATE_TRACE_POST_FAILURE(3, AssertionFail, "/unevaluatedItems",
@@ -1576,7 +1603,7 @@ TEST(Evaluator_2020_12, unevaluatedItems_3_exhaustive) {
   EVALUATE_WITH_TRACE_EXHAUSTIVE_FAILURE(schema, instance, 5);
 
   EVALUATE_TRACE_PRE(0, LogicalOr, "/anyOf", "#/anyOf", "");
-  EVALUATE_TRACE_PRE(1, LogicalWhenType, "/anyOf/0/prefixItems",
+  EVALUATE_TRACE_PRE(1, AssertionArrayPrefix, "/anyOf/0/prefixItems",
                      "#/anyOf/0/prefixItems", "");
   EVALUATE_TRACE_PRE(2, AssertionTypeStrict, "/anyOf/0/prefixItems/0/type",
                      "#/anyOf/0/prefixItems/0/type", "/0");
@@ -1588,7 +1615,7 @@ TEST(Evaluator_2020_12, unevaluatedItems_3_exhaustive) {
   EVALUATE_TRACE_POST_FAILURE(0, AssertionTypeStrict,
                               "/anyOf/0/prefixItems/0/type",
                               "#/anyOf/0/prefixItems/0/type", "/0");
-  EVALUATE_TRACE_POST_FAILURE(1, LogicalWhenType, "/anyOf/0/prefixItems",
+  EVALUATE_TRACE_POST_FAILURE(1, AssertionArrayPrefix, "/anyOf/0/prefixItems",
                               "#/anyOf/0/prefixItems", "");
   EVALUATE_TRACE_POST_SUCCESS(2, LogicalOr, "/anyOf", "#/anyOf", "");
   EVALUATE_TRACE_POST_FAILURE(3, AssertionFail, "/unevaluatedItems",

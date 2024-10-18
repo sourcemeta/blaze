@@ -198,6 +198,14 @@ auto EvaluationContext::evaluate() -> void {
 }
 
 auto EvaluationContext::evaluate(
+    const sourcemeta::jsontoolkit::WeakPointer::Token::Index from,
+    const sourcemeta::jsontoolkit::WeakPointer::Token::Index to) -> void {
+  for (auto cursor = from; cursor <= to; cursor++) {
+    this->evaluate({cursor});
+  }
+}
+
+auto EvaluationContext::evaluate(
     const sourcemeta::jsontoolkit::Pointer &relative_instance_location)
     -> void {
   auto new_instance_location = this->instance_location_;

@@ -512,29 +512,6 @@ struct DescribeVisitor {
     return unknown();
   }
 
-  auto operator()(const AnnotationWhenArraySizeGreater &) const -> std::string {
-    if ((this->keyword == "prefixItems" || this->keyword == "items") &&
-        this->annotation.is_integer()) {
-      assert(this->target.is_array());
-      assert(this->annotation.is_positive());
-      std::ostringstream message;
-      if (this->annotation.to_integer() == 0) {
-        message << "The first item of the array value successfully validated "
-                   "against the first "
-                   "positional subschema";
-      } else {
-        message << "The first " << this->annotation.to_integer() + 1
-                << " items of the array value successfully validated against "
-                   "the given "
-                   "positional subschemas";
-      }
-
-      return message.str();
-    }
-
-    return unknown();
-  }
-
   auto operator()(const AnnotationToParent &) const -> std::string {
     if (this->keyword == "unevaluatedItems" && this->annotation.is_boolean() &&
         this->annotation.to_boolean()) {
@@ -1361,6 +1338,23 @@ struct DescribeVisitor {
     return message.str();
   }
 
+  auto operator()(const AssertionArrayPrefix &step) const -> std::string {
+    assert(this->keyword == "items" || this->keyword == "prefixItems");
+    assert(!step.children.empty());
+    assert(this->target.is_array());
+
+    std::ostringstream message;
+    message << "The first ";
+    if (step.children.size() == 1) {
+      message << "item of the array value was";
+    } else {
+      message << step.children.size() << " items of the array value were";
+    }
+
+    message << " expected to validate against the corresponding subschemas";
+    return message.str();
+  }
+
   auto operator()(const LoopPropertiesMatch &step) const -> std::string {
     assert(!step.children.empty());
     assert(this->target.is_object());
@@ -1395,21 +1389,6 @@ struct DescribeVisitor {
                 << " defined pattern properties subschemas";
       }
 
-      return message.str();
-    }
-
-    if (this->keyword == "items" || this->keyword == "prefixItems") {
-      assert(!step.children.empty());
-      assert(this->target.is_array());
-      std::ostringstream message;
-      message << "The first ";
-      if (step.children.size() == 1) {
-        message << "item of the array value was";
-      } else {
-        message << step.children.size() << " items of the array value were";
-      }
-
-      message << " expected to validate against the corresponding subschemas";
       return message.str();
     }
 

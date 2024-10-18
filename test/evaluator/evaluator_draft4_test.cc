@@ -2505,8 +2505,8 @@ TEST(Evaluator_draft4, items_5) {
       sourcemeta::jsontoolkit::parse("[]")};
   EVALUATE_WITH_TRACE_FAST_SUCCESS(schema, instance, 1);
 
-  EVALUATE_TRACE_PRE(0, LogicalWhenType, "/items", "#/items", "");
-  EVALUATE_TRACE_POST_SUCCESS(0, LogicalWhenType, "/items", "#/items", "");
+  EVALUATE_TRACE_PRE(0, AssertionArrayPrefix, "/items", "#/items", "");
+  EVALUATE_TRACE_POST_SUCCESS(0, AssertionArrayPrefix, "/items", "#/items", "");
 
   EVALUATE_TRACE_POST_DESCRIBE(
       instance, 0,
@@ -2525,13 +2525,13 @@ TEST(Evaluator_draft4, items_6) {
       sourcemeta::jsontoolkit::parse("[ 5 ]")};
   EVALUATE_WITH_TRACE_FAST_SUCCESS(schema, instance, 2);
 
-  EVALUATE_TRACE_PRE(0, LogicalWhenType, "/items", "#/items", "");
+  EVALUATE_TRACE_PRE(0, AssertionArrayPrefix, "/items", "#/items", "");
   EVALUATE_TRACE_PRE(1, AssertionTypeStrict, "/items/0/type", "#/items/0/type",
                      "/0");
 
   EVALUATE_TRACE_POST_SUCCESS(0, AssertionTypeStrict, "/items/0/type",
                               "#/items/0/type", "/0");
-  EVALUATE_TRACE_POST_SUCCESS(1, LogicalWhenType, "/items", "#/items", "");
+  EVALUATE_TRACE_POST_SUCCESS(1, AssertionArrayPrefix, "/items", "#/items", "");
 
   EVALUATE_TRACE_POST_DESCRIBE(instance, 0,
                                "The value was expected to be of type integer");
@@ -2552,7 +2552,7 @@ TEST(Evaluator_draft4, items_7) {
       sourcemeta::jsontoolkit::parse("[ 5, true, \"extra\" ]")};
   EVALUATE_WITH_TRACE_FAST_SUCCESS(schema, instance, 3);
 
-  EVALUATE_TRACE_PRE(0, LogicalWhenType, "/items", "#/items", "");
+  EVALUATE_TRACE_PRE(0, AssertionArrayPrefix, "/items", "#/items", "");
   EVALUATE_TRACE_PRE(1, AssertionTypeStrict, "/items/0/type", "#/items/0/type",
                      "/0");
   EVALUATE_TRACE_PRE(2, AssertionTypeStrict, "/items/1/type", "#/items/1/type",
@@ -2562,7 +2562,7 @@ TEST(Evaluator_draft4, items_7) {
                               "#/items/0/type", "/0");
   EVALUATE_TRACE_POST_SUCCESS(1, AssertionTypeStrict, "/items/1/type",
                               "#/items/1/type", "/1");
-  EVALUATE_TRACE_POST_SUCCESS(2, LogicalWhenType, "/items", "#/items", "");
+  EVALUATE_TRACE_POST_SUCCESS(2, AssertionArrayPrefix, "/items", "#/items", "");
 
   EVALUATE_TRACE_POST_DESCRIBE(instance, 0,
                                "The value was expected to be of type integer");
@@ -2585,7 +2585,7 @@ TEST(Evaluator_draft4, items_8) {
       sourcemeta::jsontoolkit::parse("[ 5, 1, \"extra\" ]")};
   EVALUATE_WITH_TRACE_FAST_FAILURE(schema, instance, 3);
 
-  EVALUATE_TRACE_PRE(0, LogicalWhenType, "/items", "#/items", "");
+  EVALUATE_TRACE_PRE(0, AssertionArrayPrefix, "/items", "#/items", "");
   EVALUATE_TRACE_PRE(1, AssertionTypeStrict, "/items/0/type", "#/items/0/type",
                      "/0");
   EVALUATE_TRACE_PRE(2, AssertionTypeStrict, "/items/1/type", "#/items/1/type",
@@ -2595,7 +2595,7 @@ TEST(Evaluator_draft4, items_8) {
                               "#/items/0/type", "/0");
   EVALUATE_TRACE_POST_FAILURE(1, AssertionTypeStrict, "/items/1/type",
                               "#/items/1/type", "/1");
-  EVALUATE_TRACE_POST_FAILURE(2, LogicalWhenType, "/items", "#/items", "");
+  EVALUATE_TRACE_POST_FAILURE(2, AssertionArrayPrefix, "/items", "#/items", "");
 
   EVALUATE_TRACE_POST_DESCRIBE(instance, 0,
                                "The value was expected to be of type integer");
@@ -2676,7 +2676,7 @@ TEST(Evaluator_draft4, additionalItems_3) {
       sourcemeta::jsontoolkit::parse("[ true, 5 ]")};
   EVALUATE_WITH_TRACE_FAST_SUCCESS(schema, instance, 3);
 
-  EVALUATE_TRACE_PRE(0, LogicalWhenType, "/items", "#/items", "");
+  EVALUATE_TRACE_PRE(0, AssertionArrayPrefix, "/items", "#/items", "");
   EVALUATE_TRACE_PRE(1, AssertionTypeStrict, "/items/0/type", "#/items/0/type",
                      "/0");
   EVALUATE_TRACE_PRE(2, AssertionTypeStrict, "/items/1/type", "#/items/1/type",
@@ -2686,7 +2686,7 @@ TEST(Evaluator_draft4, additionalItems_3) {
                               "#/items/0/type", "/0");
   EVALUATE_TRACE_POST_SUCCESS(1, AssertionTypeStrict, "/items/1/type",
                               "#/items/1/type", "/1");
-  EVALUATE_TRACE_POST_SUCCESS(2, LogicalWhenType, "/items", "#/items", "");
+  EVALUATE_TRACE_POST_SUCCESS(2, AssertionArrayPrefix, "/items", "#/items", "");
 
   EVALUATE_TRACE_POST_DESCRIBE(instance, 0,
                                "The value was expected to be of type boolean");
@@ -2713,7 +2713,7 @@ TEST(Evaluator_draft4, additionalItems_4) {
       sourcemeta::jsontoolkit::parse("[ true, 5, \"foo\", \"bar\" ]")};
   EVALUATE_WITH_TRACE_FAST_SUCCESS(schema, instance, 6);
 
-  EVALUATE_TRACE_PRE(0, LogicalWhenType, "/items", "#/items", "");
+  EVALUATE_TRACE_PRE(0, AssertionArrayPrefix, "/items", "#/items", "");
   EVALUATE_TRACE_PRE(1, AssertionTypeStrict, "/items/0/type", "#/items/0/type",
                      "/0");
   EVALUATE_TRACE_PRE(2, AssertionTypeStrict, "/items/1/type", "#/items/1/type",
@@ -2728,7 +2728,7 @@ TEST(Evaluator_draft4, additionalItems_4) {
                               "#/items/0/type", "/0");
   EVALUATE_TRACE_POST_SUCCESS(1, AssertionTypeStrict, "/items/1/type",
                               "#/items/1/type", "/1");
-  EVALUATE_TRACE_POST_SUCCESS(2, LogicalWhenType, "/items", "#/items", "");
+  EVALUATE_TRACE_POST_SUCCESS(2, AssertionArrayPrefix, "/items", "#/items", "");
   EVALUATE_TRACE_POST_SUCCESS(3, AssertionTypeStrict, "/additionalItems/type",
                               "#/additionalItems/type", "/2");
   EVALUATE_TRACE_POST_SUCCESS(4, AssertionTypeStrict, "/additionalItems/type",
@@ -2769,7 +2769,7 @@ TEST(Evaluator_draft4, additionalItems_4_exhaustive) {
       sourcemeta::jsontoolkit::parse("[ true, 5, \"foo\", \"bar\" ]")};
   EVALUATE_WITH_TRACE_EXHAUSTIVE_SUCCESS(schema, instance, 6);
 
-  EVALUATE_TRACE_PRE(0, LogicalWhenType, "/items", "#/items", "");
+  EVALUATE_TRACE_PRE(0, AssertionArrayPrefix, "/items", "#/items", "");
   EVALUATE_TRACE_PRE(1, AssertionTypeStrict, "/items/0/type", "#/items/0/type",
                      "/0");
   EVALUATE_TRACE_PRE(2, AssertionTypeStrict, "/items/1/type", "#/items/1/type",
@@ -2784,7 +2784,7 @@ TEST(Evaluator_draft4, additionalItems_4_exhaustive) {
                               "#/items/0/type", "/0");
   EVALUATE_TRACE_POST_SUCCESS(1, AssertionTypeStrict, "/items/1/type",
                               "#/items/1/type", "/1");
-  EVALUATE_TRACE_POST_SUCCESS(2, LogicalWhenType, "/items", "#/items", "");
+  EVALUATE_TRACE_POST_SUCCESS(2, AssertionArrayPrefix, "/items", "#/items", "");
   EVALUATE_TRACE_POST_SUCCESS(3, AssertionTypeStrict, "/additionalItems/type",
                               "#/additionalItems/type", "/2");
   EVALUATE_TRACE_POST_SUCCESS(4, AssertionTypeStrict, "/additionalItems/type",
@@ -2825,7 +2825,7 @@ TEST(Evaluator_draft4, additionalItems_5) {
       sourcemeta::jsontoolkit::parse("[ true, 5, 6, \"bar\" ]")};
   EVALUATE_WITH_TRACE_FAST_FAILURE(schema, instance, 5);
 
-  EVALUATE_TRACE_PRE(0, LogicalWhenType, "/items", "#/items", "");
+  EVALUATE_TRACE_PRE(0, AssertionArrayPrefix, "/items", "#/items", "");
   EVALUATE_TRACE_PRE(1, AssertionTypeStrict, "/items/0/type", "#/items/0/type",
                      "/0");
   EVALUATE_TRACE_PRE(2, AssertionTypeStrict, "/items/1/type", "#/items/1/type",
@@ -2838,7 +2838,7 @@ TEST(Evaluator_draft4, additionalItems_5) {
                               "#/items/0/type", "/0");
   EVALUATE_TRACE_POST_SUCCESS(1, AssertionTypeStrict, "/items/1/type",
                               "#/items/1/type", "/1");
-  EVALUATE_TRACE_POST_SUCCESS(2, LogicalWhenType, "/items", "#/items", "");
+  EVALUATE_TRACE_POST_SUCCESS(2, AssertionArrayPrefix, "/items", "#/items", "");
   EVALUATE_TRACE_POST_FAILURE(3, AssertionTypeStrict, "/additionalItems/type",
                               "#/additionalItems/type", "/2");
   EVALUATE_TRACE_POST_FAILURE(4, LoopItems, "/additionalItems",
