@@ -1080,7 +1080,7 @@ auto compiler_draft4_applicator_dependencies(
     if (is_schema(entry.second)) {
       if (!entry.second.is_boolean() || !entry.second.to_boolean()) {
         children.push_back(make<LogicalWhenDefines>(
-            false, context, schema_context, relative_dynamic_context,
+            true, context, schema_context, dynamic_context,
             ValueString{entry.first},
             compile(context, schema_context, relative_dynamic_context,
                     {entry.first}, sourcemeta::jsontoolkit::empty_pointer)));
@@ -1100,13 +1100,11 @@ auto compiler_draft4_applicator_dependencies(
 
   if (!dependencies.empty()) {
     children.push_back(make<AssertionPropertyDependencies>(
-        false, context, schema_context, relative_dynamic_context,
+        true, context, schema_context, dynamic_context,
         std::move(dependencies)));
   }
 
-  return {make<LogicalWhenType>(true, context, schema_context, dynamic_context,
-                                sourcemeta::jsontoolkit::JSON::Type::Object,
-                                std::move(children))};
+  return children;
 }
 
 auto compiler_draft4_validation_enum(const Context &context,
