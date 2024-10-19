@@ -928,36 +928,39 @@ auto compiler_draft4_applicator_items_with_options(
 
   if (is_schema(schema_context.schema.at(dynamic_context.keyword))) {
     if (annotate || track_evaluation) {
-      Template children;
       Template subchildren{compile(context, schema_context,
                                    relative_dynamic_context,
                                    sourcemeta::jsontoolkit::empty_pointer,
                                    sourcemeta::jsontoolkit::empty_pointer)};
 
-      children.push_back(make<LoopItems>(
-          true, context, schema_context, relative_dynamic_context,
-          ValueUnsignedInteger{0}, std::move(subchildren)));
+      Template children;
+      children.push_back(
+          make<LoopItems>(true, context, schema_context, dynamic_context,
+                          ValueUnsignedInteger{0}, std::move(subchildren)));
+
+      if (!annotate && !track_evaluation) {
+        return children;
+      }
+
+      Template tail;
 
       if (annotate) {
-        children.push_back(make<AnnotationEmit>(
+        tail.push_back(make<AnnotationEmit>(
             true, context, schema_context, relative_dynamic_context,
             sourcemeta::jsontoolkit::JSON{true}));
       }
 
       if (track_evaluation) {
-        children.push_back(make<ControlEvaluate>(true, context, schema_context,
-                                                 relative_dynamic_context,
-                                                 ValuePointer{}));
+        tail.push_back(make<ControlEvaluate>(true, context, schema_context,
+                                             relative_dynamic_context,
+                                             ValuePointer{}));
       }
 
-      // Avoid one extra instruction if possible
-      if (!annotate && !track_evaluation) {
-        return children;
-      }
-
-      return {make<LogicalWhenType>(
+      children.push_back(make<LogicalWhenType>(
           false, context, schema_context, dynamic_context,
-          sourcemeta::jsontoolkit::JSON::Type::Array, std::move(children))};
+          sourcemeta::jsontoolkit::JSON::Type::Array, std::move(tail)));
+
+      return children;
     }
 
     Template children{compile(context, schema_context, relative_dynamic_context,
