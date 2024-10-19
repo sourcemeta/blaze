@@ -41,6 +41,55 @@ TEST(Compiler_output_error_trace, success_string_1) {
   EXPECT_TRUE(traces.empty());
 }
 
+TEST(Compiler_output_error_trace, fail_meaningless_if_1) {
+  const sourcemeta::jsontoolkit::JSON schema{
+      sourcemeta::jsontoolkit::parse(R"JSON({
+    "$schema": "https://json-schema.org/draft/2019-09/schema",
+    "properties": {
+      "foo": { "type": "object", "unevaluatedProperties": false },
+      "bar": {
+        "additionalProperties": {
+          "if": {
+            "type": "object",
+            "required": [ "$ref" ]
+          }
+        }
+      }
+    }
+  })JSON")};
+
+  const auto schema_template{sourcemeta::blaze::compile(
+      schema, sourcemeta::jsontoolkit::default_schema_walker,
+      sourcemeta::jsontoolkit::official_resolver,
+      sourcemeta::blaze::default_schema_compiler)};
+
+  const sourcemeta::jsontoolkit::JSON instance{
+      sourcemeta::jsontoolkit::parse(R"JSON({
+    "foo": { "/baz": 1 },
+    "bar": { "qux": {} }
+  })JSON")};
+
+  sourcemeta::blaze::ErrorTraceOutput output{instance};
+  const auto result{
+      sourcemeta::blaze::evaluate(schema_template, instance, std::ref(output))};
+
+  EXPECT_FALSE(result);
+  std::vector<sourcemeta::blaze::ErrorTraceOutput::Entry> traces{
+      output.cbegin(), output.cend()};
+
+  EXPECT_EQ(traces.size(), 3);
+
+  EXPECT_OUTPUT(
+      traces, 0, "/foo/~1baz", "/properties/foo/unevaluatedProperties",
+      "The object value was not expected to define the property \"/baz\"");
+  EXPECT_OUTPUT(
+      traces, 1, "/foo", "/properties/foo/unevaluatedProperties",
+      "The object value was not expected to define unevaluated properties");
+  EXPECT_OUTPUT(traces, 2, "", "/properties",
+                "The object value was expected to validate against the defined "
+                "properties subschemas");
+}
+
 TEST(Compiler_output_error_trace, success_dynamic_anchor_1) {
   const sourcemeta::jsontoolkit::JSON schema{
       sourcemeta::jsontoolkit::parse(R"JSON({

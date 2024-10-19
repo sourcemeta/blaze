@@ -46,7 +46,7 @@ auto ErrorTraceOutput::operator()(
     assert(result);
     const auto &keyword{evaluate_path.back().to_property()};
     // To ease the output
-    if (keyword == "oneOf" || keyword == "not") {
+    if (keyword == "oneOf" || keyword == "not" || keyword == "if") {
       this->mask.insert(evaluate_path);
     }
   } else if (type == EvaluationType::Post &&
