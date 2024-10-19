@@ -130,6 +130,12 @@ auto evaluate_step(const sourcemeta::blaze::Template::value_type &step,
   }                                                                            \
   bool result{true};
 
+#define EVALUATE_BEGIN_PASS_THROUGH(step_category, step_type)                  \
+  SOURCEMETA_TRACE_END(trace_dispatch_id, "Dispatch");                         \
+  SOURCEMETA_TRACE_START(trace_id, STRINGIFY(step_type));                      \
+  const auto &step_category{std::get<step_type>(step)};                        \
+  bool result{true};
+
 #define EVALUATE_END(step_category, step_type)                                 \
   if (step_category.report && callback.has_value()) {                          \
     callback.value()(EvaluationType::Post, result, step,                       \
@@ -149,8 +155,9 @@ auto evaluate_step(const sourcemeta::blaze::Template::value_type &step,
   SOURCEMETA_TRACE_END(trace_id, STRINGIFY(step_type));                        \
   return result;
 
-  // As a safety guard, only emit the annotation if it didn't exist already.
-  // Otherwise we risk confusing consumers
+#define EVALUATE_END_PASS_THROUGH(step_type)                                   \
+  SOURCEMETA_TRACE_END(trace_id, STRINGIFY(step_type));                        \
+  return result;
 
 #define EVALUATE_ANNOTATION(step_category, step_type, destination,             \
                             annotation_value)                                  \
@@ -636,20 +643,15 @@ auto evaluate_step(const sourcemeta::blaze::Template::value_type &step,
     }
 
     case IS_STEP(ControlGroup): {
-      // For this specialized step, we purposely avoid push/pop macros
-      // and avoid reporting it as a standalone step.
-      SOURCEMETA_TRACE_END(trace_dispatch_id, "Dispatch");
-      SOURCEMETA_TRACE_START(trace_id, "ControlGroup");
-      const auto &control{std::get<ControlGroup>(step)};
+      EVALUATE_BEGIN_PASS_THROUGH(control, ControlGroup);
       for (const auto &child : control.children) {
         if (!evaluate_step(child, callback, context)) {
-          SOURCEMETA_TRACE_END(trace_id, "ControlEvaluate");
-          return false;
+          result = false;
+          break;
         }
       }
 
-      SOURCEMETA_TRACE_END(trace_id, "ControlEvaluate");
-      return true;
+      EVALUATE_END_PASS_THROUGH(ControlGroup);
     }
 
     case IS_STEP(ControlLabel): {
@@ -673,9 +675,7 @@ auto evaluate_step(const sourcemeta::blaze::Template::value_type &step,
     }
 
     case IS_STEP(ControlEvaluate): {
-      SOURCEMETA_TRACE_END(trace_dispatch_id, "Dispatch");
-      SOURCEMETA_TRACE_START(trace_id, "ControlEvaluate");
-      const auto &control{std::get<ControlEvaluate>(step)};
+      EVALUATE_BEGIN_PASS_THROUGH(control, ControlEvaluate);
 
       if (control.report && callback.has_value()) {
         // TODO: Optimize this case to avoid an extra pointer copy
@@ -690,8 +690,7 @@ auto evaluate_step(const sourcemeta::blaze::Template::value_type &step,
         context.evaluate(control.value);
       }
 
-      SOURCEMETA_TRACE_END(trace_id, "ControlEvaluate");
-      return true;
+      EVALUATE_END_PASS_THROUGH(ControlEvaluate);
     }
 
     case IS_STEP(ControlJump): {
@@ -1076,8 +1075,10 @@ auto evaluate_step(const sourcemeta::blaze::Template::value_type &step,
 #undef EVALUATE_BEGIN_TRY_TARGET
 #undef EVALUATE_BEGIN_NO_PRECONDITION
 #undef EVALUATE_BEGIN_NO_PRECONDITION_AND_NO_PUSH
+#undef EVALUATE_BEGIN_PASS_THROUGH
 #undef EVALUATE_END
 #undef EVALUATE_END_NO_POP
+#undef EVALUATE_END_PASS_THROUGH
 #undef EVALUATE_ANNOTATION
 
     default:
