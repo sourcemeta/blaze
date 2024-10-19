@@ -987,17 +987,12 @@ auto evaluate_step(const sourcemeta::blaze::Template::value_type &step,
     }
 
     case IS_STEP(LoopItems): {
-      EVALUATE_BEGIN(loop, LoopItems, target.is_array());
+      EVALUATE_BEGIN(loop, LoopItems,
+                     target.is_array() && loop.value < target.size());
       const auto &array{target.as_array()};
       result = true;
       auto iterator{array.cbegin()};
-
-      // We need this check, as advancing an iterator past its bounds
-      // is considered undefined behavior
-      // See https://en.cppreference.com/w/cpp/iterator/advance
-      std::advance(iterator,
-                   std::min(static_cast<std::ptrdiff_t>(loop.value),
-                            static_cast<std::ptrdiff_t>(target.size())));
+      std::advance(iterator, static_cast<std::ptrdiff_t>(loop.value));
 
       for (; iterator != array.cend(); ++iterator) {
         const auto index{std::distance(array.cbegin(), iterator)};
