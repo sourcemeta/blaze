@@ -1367,6 +1367,16 @@ struct DescribeVisitor {
     return message.str();
   }
 
+  auto operator()(const LoopPropertiesRegex &step) const -> std::string {
+    assert(this->target.is_object());
+    std::ostringstream message;
+    message << "The object properties that match the regular expression \""
+            << step_value(step).second
+            << "\" were expected to validate against the defined pattern "
+               "property subschema";
+    return message.str();
+  }
+
   auto operator()(const LogicalWhenType &step) const -> std::string {
     if (this->keyword == "patternProperties") {
       assert(!step.children.empty());
@@ -1661,9 +1671,6 @@ struct DescribeVisitor {
     return unknown();
   }
   auto operator()(const LogicalWhenArraySizeEqual &) const -> std::string {
-    return unknown();
-  }
-  auto operator()(const LoopPropertiesRegex &) const -> std::string {
     return unknown();
   }
 };
