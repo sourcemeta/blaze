@@ -3259,8 +3259,9 @@ TEST(Evaluator_draft4, dependencies_2) {
       sourcemeta::jsontoolkit::parse("{ \"foo\": 1, \"bar\": 2, \"baz\": 3 }")};
   EVALUATE_WITH_TRACE_FAST_SUCCESS(schema, instance, 1);
 
-  EVALUATE_TRACE_PRE(0, LogicalWhenType, "/dependencies", "#/dependencies", "");
-  EVALUATE_TRACE_POST_SUCCESS(0, LogicalWhenType, "/dependencies",
+  EVALUATE_TRACE_PRE(0, AssertionPropertyDependencies, "/dependencies",
+                     "#/dependencies", "");
+  EVALUATE_TRACE_POST_SUCCESS(0, AssertionPropertyDependencies, "/dependencies",
                               "#/dependencies", "");
 
   EVALUATE_TRACE_POST_DESCRIBE(
@@ -3282,8 +3283,9 @@ TEST(Evaluator_draft4, dependencies_3) {
   const sourcemeta::jsontoolkit::JSON instance{
       sourcemeta::jsontoolkit::parse("{ \"foo\": 1, \"baz\": 3 }")};
   EVALUATE_WITH_TRACE_FAST_FAILURE(schema, instance, 1);
-  EVALUATE_TRACE_PRE(0, LogicalWhenType, "/dependencies", "#/dependencies", "");
-  EVALUATE_TRACE_POST_FAILURE(0, LogicalWhenType, "/dependencies",
+  EVALUATE_TRACE_PRE(0, AssertionPropertyDependencies, "/dependencies",
+                     "#/dependencies", "");
+  EVALUATE_TRACE_POST_FAILURE(0, AssertionPropertyDependencies, "/dependencies",
                               "#/dependencies", "");
   EVALUATE_TRACE_POST_DESCRIBE(
       instance, 0,
@@ -3303,25 +3305,29 @@ TEST(Evaluator_draft4, dependencies_4) {
 
   const sourcemeta::jsontoolkit::JSON instance{
       sourcemeta::jsontoolkit::parse("{ \"qux\": 1, \"extra\": 2 }")};
-  EVALUATE_WITH_TRACE_FAST_SUCCESS(schema, instance, 2);
+  EVALUATE_WITH_TRACE_FAST_SUCCESS(schema, instance, 3);
 
-  EVALUATE_TRACE_PRE(0, LogicalWhenType, "/dependencies", "#/dependencies", "");
+  EVALUATE_TRACE_PRE(0, LogicalWhenDefines, "/dependencies", "#/dependencies",
+                     "");
   EVALUATE_TRACE_PRE(1, AssertionDefines, "/dependencies/qux/required",
                      "#/dependencies/qux/required", "");
+  EVALUATE_TRACE_PRE(2, AssertionPropertyDependencies, "/dependencies",
+                     "#/dependencies", "");
 
   EVALUATE_TRACE_POST_SUCCESS(0, AssertionDefines, "/dependencies/qux/required",
                               "#/dependencies/qux/required", "");
-  EVALUATE_TRACE_POST_SUCCESS(1, LogicalWhenType, "/dependencies",
+  EVALUATE_TRACE_POST_SUCCESS(1, LogicalWhenDefines, "/dependencies",
+                              "#/dependencies", "");
+  EVALUATE_TRACE_POST_SUCCESS(2, AssertionPropertyDependencies, "/dependencies",
                               "#/dependencies", "");
 
   EVALUATE_TRACE_POST_DESCRIBE(
       instance, 0,
       "The object value was expected to define the property \"extra\"");
+  EVALUATE_TRACE_POST_DESCRIBE(instance, 1,
+                               "The object value defined the property \"qux\"");
   EVALUATE_TRACE_POST_DESCRIBE(
-      instance, 1,
-      "Because the object value defined the property \"qux\", it was also "
-      "expected to successfully validate against the corresponding \"qux\" "
-      "subschema");
+      instance, 2, "The object value did not define the property \"foo\"");
 }
 
 TEST(Evaluator_draft4, dependencies_5) {
@@ -3338,23 +3344,21 @@ TEST(Evaluator_draft4, dependencies_5) {
       sourcemeta::jsontoolkit::parse("{ \"qux\": 1 }")};
   EVALUATE_WITH_TRACE_FAST_FAILURE(schema, instance, 2);
 
-  EVALUATE_TRACE_PRE(0, LogicalWhenType, "/dependencies", "#/dependencies", "");
+  EVALUATE_TRACE_PRE(0, LogicalWhenDefines, "/dependencies", "#/dependencies",
+                     "");
   EVALUATE_TRACE_PRE(1, AssertionDefines, "/dependencies/qux/required",
                      "#/dependencies/qux/required", "");
 
   EVALUATE_TRACE_POST_FAILURE(0, AssertionDefines, "/dependencies/qux/required",
                               "#/dependencies/qux/required", "");
-  EVALUATE_TRACE_POST_FAILURE(1, LogicalWhenType, "/dependencies",
+  EVALUATE_TRACE_POST_FAILURE(1, LogicalWhenDefines, "/dependencies",
                               "#/dependencies", "");
 
   EVALUATE_TRACE_POST_DESCRIBE(
       instance, 0,
       "The object value was expected to define the property \"extra\"");
-  EVALUATE_TRACE_POST_DESCRIBE(
-      instance, 1,
-      "Because the object value defined the property \"qux\", it was also "
-      "expected to successfully validate against the corresponding \"qux\" "
-      "subschema");
+  EVALUATE_TRACE_POST_DESCRIBE(instance, 1,
+                               "The object value defined the property \"qux\"");
 }
 
 TEST(Evaluator_draft4, dependencies_6) {
@@ -3370,12 +3374,12 @@ TEST(Evaluator_draft4, dependencies_6) {
   const sourcemeta::jsontoolkit::JSON instance{
       sourcemeta::jsontoolkit::parse("{ \"none\": 1 }")};
   EVALUATE_WITH_TRACE_FAST_SUCCESS(schema, instance, 1);
-  EVALUATE_TRACE_PRE(0, LogicalWhenType, "/dependencies", "#/dependencies", "");
-  EVALUATE_TRACE_POST_SUCCESS(0, LogicalWhenType, "/dependencies",
+  EVALUATE_TRACE_PRE(0, AssertionPropertyDependencies, "/dependencies",
+                     "#/dependencies", "");
+  EVALUATE_TRACE_POST_SUCCESS(0, AssertionPropertyDependencies, "/dependencies",
                               "#/dependencies", "");
   EVALUATE_TRACE_POST_DESCRIBE(
-      instance, 0,
-      "The object value did not define the properties \"foo\", or \"qux\"");
+      instance, 0, "The object value did not define the property \"foo\"");
 }
 
 TEST(Evaluator_draft4, dependencies_7) {
@@ -3390,8 +3394,9 @@ TEST(Evaluator_draft4, dependencies_7) {
   const sourcemeta::jsontoolkit::JSON instance{
       sourcemeta::jsontoolkit::parse("{ \"none\": 1 }")};
   EVALUATE_WITH_TRACE_FAST_SUCCESS(schema, instance, 1);
-  EVALUATE_TRACE_PRE(0, LogicalWhenType, "/dependencies", "#/dependencies", "");
-  EVALUATE_TRACE_POST_SUCCESS(0, LogicalWhenType, "/dependencies",
+  EVALUATE_TRACE_PRE(0, AssertionPropertyDependencies, "/dependencies",
+                     "#/dependencies", "");
+  EVALUATE_TRACE_POST_SUCCESS(0, AssertionPropertyDependencies, "/dependencies",
                               "#/dependencies", "");
   EVALUATE_TRACE_POST_DESCRIBE(
       instance, 0, "The object value did not define the property \"foo\"");
@@ -3410,24 +3415,22 @@ TEST(Evaluator_draft4, dependencies_8) {
   const sourcemeta::jsontoolkit::JSON instance{
       sourcemeta::jsontoolkit::parse("{ \"foo\": 1, \"qux\": 2 }")};
   EVALUATE_WITH_TRACE_FAST_FAILURE(schema, instance, 2);
-  EVALUATE_TRACE_PRE(0, LogicalWhenType, "/dependencies", "#/dependencies", "");
+
+  EVALUATE_TRACE_PRE(0, LogicalWhenDefines, "/dependencies", "#/dependencies",
+                     "");
   EVALUATE_TRACE_PRE(1, AssertionDefines, "/dependencies/qux/required",
                      "#/dependencies/qux/required", "");
 
   EVALUATE_TRACE_POST_FAILURE(0, AssertionDefines, "/dependencies/qux/required",
                               "#/dependencies/qux/required", "");
-  EVALUATE_TRACE_POST_FAILURE(1, LogicalWhenType, "/dependencies",
+  EVALUATE_TRACE_POST_FAILURE(1, LogicalWhenDefines, "/dependencies",
                               "#/dependencies", "");
 
   EVALUATE_TRACE_POST_DESCRIBE(
       instance, 0,
       "The object value was expected to define the property \"extra\"");
-  EVALUATE_TRACE_POST_DESCRIBE(
-      instance, 1,
-      "Because the object value defined the properties \"foo\", and \"qux\", "
-      "it was also expected to define the properties \"bar\", and \"baz\", and "
-      "it was also expected to successfully validate against the corresponding "
-      "\"qux\" subschema");
+  EVALUATE_TRACE_POST_DESCRIBE(instance, 1,
+                               "The object value defined the property \"qux\"");
 }
 
 TEST(Evaluator_draft4, enum_1) {

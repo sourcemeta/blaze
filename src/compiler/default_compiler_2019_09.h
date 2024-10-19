@@ -46,6 +46,7 @@ auto compiler_2019_09_applicator_dependentschemas(
     }
   }
 
+  // TODO: Is this wrapper really necessary?
   return {make<LogicalWhenType>(true, context, schema_context, dynamic_context,
                                 sourcemeta::jsontoolkit::JSON::Type::Object,
                                 std::move(children))};
