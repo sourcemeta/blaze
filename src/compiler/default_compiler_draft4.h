@@ -957,7 +957,7 @@ auto compiler_draft4_applicator_items_with_options(
       }
 
       children.push_back(make<LogicalWhenType>(
-          false, context, schema_context, dynamic_context,
+          true, context, schema_context, dynamic_context,
           sourcemeta::jsontoolkit::JSON::Type::Array, std::move(tail)));
 
       return children;
