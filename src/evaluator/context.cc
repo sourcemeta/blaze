@@ -24,21 +24,21 @@ auto EvaluationContext::prepare(const sourcemeta::jsontoolkit::JSON &instance)
 auto EvaluationContext::push_without_traverse(
     const sourcemeta::jsontoolkit::Pointer &relative_schema_location,
     const sourcemeta::jsontoolkit::Pointer &relative_instance_location,
-    const std::size_t &schema_resource, const bool dynamic,
-    const bool track_evaluate_path) -> void {
+    const std::size_t &schema_resource, const bool dynamic, const bool track)
+    -> void {
   // Guard against infinite recursion in a cheap manner, as
   // infinite recursion will manifest itself through huge
   // ever-growing evaluate paths
   constexpr auto EVALUATE_PATH_LIMIT{300};
-  const auto stack_size{track_evaluate_path ? this->evaluate_path_.size()
-                                            : this->evaluate_path_size_};
+  const auto stack_size{track ? this->evaluate_path_.size()
+                              : this->evaluate_path_size_};
   if (stack_size > EVALUATE_PATH_LIMIT) [[unlikely]] {
     throw sourcemeta::blaze::EvaluationError(
         "The evaluation path depth limit was reached "
         "likely due to infinite recursion");
   }
 
-  if (track_evaluate_path) {
+  if (track) {
     this->evaluate_path_.push_back(relative_schema_location);
   } else {
     // We still need to somewhat keep track of this to prevent infinite
@@ -62,11 +62,11 @@ auto EvaluationContext::push_without_traverse(
 auto EvaluationContext::push(
     const sourcemeta::jsontoolkit::Pointer &relative_schema_location,
     const sourcemeta::jsontoolkit::Pointer &relative_instance_location,
-    const std::size_t &schema_resource, const bool dynamic,
-    const bool track_evaluate_path) -> void {
+    const std::size_t &schema_resource, const bool dynamic, const bool track)
+    -> void {
   this->push_without_traverse(relative_schema_location,
                               relative_instance_location, schema_resource,
-                              dynamic, track_evaluate_path);
+                              dynamic, track);
   if (!relative_instance_location.empty()) {
     assert(!this->instances_.empty());
     this->instances_.emplace_back(
@@ -77,22 +77,20 @@ auto EvaluationContext::push(
 auto EvaluationContext::push(
     const sourcemeta::jsontoolkit::Pointer &relative_schema_location,
     const sourcemeta::jsontoolkit::Pointer &relative_instance_location,
-    const std::size_t &schema_resource, const bool dynamic,
-    const bool track_evaluate_path,
+    const std::size_t &schema_resource, const bool dynamic, const bool track,
     std::reference_wrapper<const sourcemeta::jsontoolkit::JSON> &&new_instance)
     -> void {
   this->push_without_traverse(relative_schema_location,
                               relative_instance_location, schema_resource,
-                              dynamic, track_evaluate_path);
+                              dynamic, track);
   assert(!relative_instance_location.empty());
   this->instances_.emplace_back(new_instance);
 }
 
-auto EvaluationContext::pop(const bool dynamic, const bool track_evaluate_path)
-    -> void {
+auto EvaluationContext::pop(const bool dynamic, const bool track) -> void {
   assert(!this->frame_sizes.empty());
   const auto &sizes{this->frame_sizes.back()};
-  if (track_evaluate_path) {
+  if (track) {
     this->evaluate_path_.pop_back(sizes.first);
   } else {
     this->evaluate_path_size_ -= sizes.first;

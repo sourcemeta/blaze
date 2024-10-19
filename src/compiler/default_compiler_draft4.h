@@ -549,7 +549,7 @@ auto compiler_draft4_applicator_properties_with_options(
           dynamic_context.base_instance_location.concat(
               type_step.relative_instance_location),
           type_step.keyword_location, type_step.schema_resource,
-          type_step.dynamic, type_step.report, type_step.evaluate_path,
+          type_step.dynamic, type_step.report, type_step.track,
           type_step.value});
     } else if (context.mode == Mode::FastValidation && substeps.size() == 1 &&
                std::holds_alternative<AssertionType>(substeps.front())) {
@@ -559,7 +559,7 @@ auto compiler_draft4_applicator_properties_with_options(
           dynamic_context.base_instance_location.concat(
               type_step.relative_instance_location),
           type_step.keyword_location, type_step.schema_resource,
-          type_step.dynamic, type_step.report, type_step.evaluate_path,
+          type_step.dynamic, type_step.report, type_step.track,
           type_step.value});
     } else if (context.mode == Mode::FastValidation && substeps.size() == 1 &&
                std::holds_alternative<AssertionPropertyTypeStrict>(

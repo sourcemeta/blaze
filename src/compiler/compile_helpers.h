@@ -91,7 +91,7 @@ auto unroll(const DynamicContext &dynamic_context, const Step &step,
           std::get<Type>(step).schema_resource,
           std::get<Type>(step).dynamic,
           std::get<Type>(step).report,
-          std::get<Type>(step).evaluate_path,
+          std::get<Type>(step).track,
           std::get<Type>(step).value};
 }
 

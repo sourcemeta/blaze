@@ -26,15 +26,13 @@ auto evaluate_step(const sourcemeta::blaze::Template::value_type &step,
   SOURCEMETA_TRACE_END(trace_dispatch_id, "Dispatch");                         \
   SOURCEMETA_TRACE_START(trace_id, STRINGIFY(step_type));                      \
   const auto &step_category{std::get<step_type>(step)};                        \
-  const auto track_evaluate_path{step_category.evaluate_path ||                \
-                                 callback.has_value()};                        \
+  const auto track{step_category.track || callback.has_value()};               \
   context.push(step_category.relative_schema_location,                         \
                step_category.relative_instance_location,                       \
-               step_category.schema_resource, step_category.dynamic,           \
-               track_evaluate_path);                                           \
+               step_category.schema_resource, step_category.dynamic, track);   \
   const auto &target{context.resolve_target()};                                \
   if (!(precondition)) {                                                       \
-    context.pop(step_category.dynamic, track_evaluate_path);                   \
+    context.pop(step_category.dynamic, track);                                 \
     SOURCEMETA_TRACE_END(trace_id, STRINGIFY(step_type));                      \
     return true;                                                               \
   }                                                                            \
@@ -48,15 +46,13 @@ auto evaluate_step(const sourcemeta::blaze::Template::value_type &step,
   SOURCEMETA_TRACE_END(trace_dispatch_id, "Dispatch");                         \
   SOURCEMETA_TRACE_START(trace_id, STRINGIFY(step_type));                      \
   const auto &step_category{std::get<step_type>(step)};                        \
-  const auto track_evaluate_path{step_category.evaluate_path ||                \
-                                 callback.has_value()};                        \
+  const auto track{step_category.track || callback.has_value()};               \
   context.push(step_category.relative_schema_location,                         \
                step_category.relative_instance_location,                       \
-               step_category.schema_resource, step_category.dynamic,           \
-               track_evaluate_path);                                           \
+               step_category.schema_resource, step_category.dynamic, track);   \
   const auto &maybe_target{context.resolve_string_target()};                   \
   if (!maybe_target.has_value()) {                                             \
-    context.pop(step_category.dynamic, track_evaluate_path);                   \
+    context.pop(step_category.dynamic, track);                                 \
     SOURCEMETA_TRACE_END(trace_id, STRINGIFY(step_type));                      \
     return true;                                                               \
   }                                                                            \
@@ -75,12 +71,10 @@ auto evaluate_step(const sourcemeta::blaze::Template::value_type &step,
     SOURCEMETA_TRACE_END(trace_id, STRINGIFY(step_type));                      \
     return true;                                                               \
   }                                                                            \
-  const auto track_evaluate_path{step_category.evaluate_path ||                \
-                                 callback.has_value()};                        \
+  const auto track{step_category.track || callback.has_value()};               \
   context.push(step_category.relative_schema_location,                         \
                step_category.relative_instance_location,                       \
-               step_category.schema_resource, step_category.dynamic,           \
-               track_evaluate_path);                                           \
+               step_category.schema_resource, step_category.dynamic, track);   \
   if (step_category.report && callback.has_value()) {                          \
     callback.value()(EvaluationType::Pre, true, step, context.evaluate_path(), \
                      context.instance_location(), context.null);               \
@@ -106,12 +100,11 @@ auto evaluate_step(const sourcemeta::blaze::Template::value_type &step,
     SOURCEMETA_TRACE_END(trace_id, STRINGIFY(step_type));                      \
     return true;                                                               \
   }                                                                            \
-  const auto track_evaluate_path{step_category.evaluate_path ||                \
-                                 callback.has_value()};                        \
+  const auto track{step_category.track || callback.has_value()};               \
   context.push(step_category.relative_schema_location,                         \
                step_category.relative_instance_location,                       \
-               step_category.schema_resource, step_category.dynamic,           \
-               track_evaluate_path, std::move(target_check.value()));          \
+               step_category.schema_resource, step_category.dynamic, track,    \
+               std::move(target_check.value()));                               \
   if (step_category.report && callback.has_value()) {                          \
     callback.value()(EvaluationType::Pre, true, step, context.evaluate_path(), \
                      context.instance_location(), context.null);               \
@@ -122,12 +115,10 @@ auto evaluate_step(const sourcemeta::blaze::Template::value_type &step,
   SOURCEMETA_TRACE_END(trace_dispatch_id, "Dispatch");                         \
   SOURCEMETA_TRACE_START(trace_id, STRINGIFY(step_type));                      \
   const auto &step_category{std::get<step_type>(step)};                        \
-  const auto track_evaluate_path{step_category.evaluate_path ||                \
-                                 callback.has_value()};                        \
+  const auto track{step_category.track || callback.has_value()};               \
   context.push(step_category.relative_schema_location,                         \
                step_category.relative_instance_location,                       \
-               step_category.schema_resource, step_category.dynamic,           \
-               track_evaluate_path);                                           \
+               step_category.schema_resource, step_category.dynamic, track);   \
   if (step_category.report && callback.has_value()) {                          \
     callback.value()(EvaluationType::Pre, true, step, context.evaluate_path(), \
                      context.instance_location(), context.null);               \
@@ -156,7 +147,7 @@ auto evaluate_step(const sourcemeta::blaze::Template::value_type &step,
                      context.evaluate_path(), context.instance_location(),     \
                      context.null);                                            \
   }                                                                            \
-  context.pop(step_category.dynamic, track_evaluate_path);                     \
+  context.pop(step_category.dynamic, track);                                   \
   SOURCEMETA_TRACE_END(trace_id, STRINGIFY(step_type));                        \
   return result;
 
@@ -177,19 +168,17 @@ auto evaluate_step(const sourcemeta::blaze::Template::value_type &step,
                             annotation_value)                                  \
   SOURCEMETA_TRACE_START(trace_id, STRINGIFY(step_type));                      \
   const auto &step_category{std::get<step_type>(step)};                        \
-  const auto track_evaluate_path{step_category.evaluate_path ||                \
-                                 callback.has_value()};                        \
+  const auto track{step_category.track || callback.has_value()};               \
   context.push(step_category.relative_schema_location,                         \
                step_category.relative_instance_location,                       \
-               step_category.schema_resource, step_category.dynamic,           \
-               track_evaluate_path);                                           \
+               step_category.schema_resource, step_category.dynamic, track);   \
   if (step_category.report && callback.has_value()) {                          \
     callback.value()(EvaluationType::Pre, true, step, context.evaluate_path(), \
                      destination, context.null);                               \
     callback.value()(EvaluationType::Post, true, step,                         \
                      context.evaluate_path(), destination, annotation_value);  \
   }                                                                            \
-  context.pop(step_category.dynamic, track_evaluate_path);                     \
+  context.pop(step_category.dynamic, track);                                   \
   SOURCEMETA_TRACE_END(trace_id, STRINGIFY(step_type));                        \
   return true;
 
@@ -629,7 +618,7 @@ auto evaluate_step(const sourcemeta::blaze::Template::value_type &step,
                                      : children_size};
       result = true;
       if (consequence_start > 0) {
-        if (track_evaluate_path) {
+        if (track) {
           context.retreat(logical.relative_schema_location);
 
           for (auto cursor = consequence_start; cursor < consequence_end;
@@ -781,7 +770,7 @@ auto evaluate_step(const sourcemeta::blaze::Template::value_type &step,
         }
       }
 
-      if (logical.value && track_evaluate_path) {
+      if (logical.value && track) {
         context.unevaluate();
       }
 
@@ -790,7 +779,7 @@ auto evaluate_step(const sourcemeta::blaze::Template::value_type &step,
 
     case IS_STEP(LoopPropertiesUnevaluated): {
       EVALUATE_BEGIN(loop, LoopPropertiesUnevaluated, target.is_object());
-      assert(track_evaluate_path);
+      assert(track);
       result = true;
 
       for (const auto &entry : target.as_object()) {
@@ -821,7 +810,7 @@ auto evaluate_step(const sourcemeta::blaze::Template::value_type &step,
 
     case IS_STEP(LoopItemsUnevaluated): {
       EVALUATE_BEGIN(loop, LoopItemsUnevaluated, target.is_array());
-      assert(track_evaluate_path);
+      assert(track);
       const auto &array{target.as_array()};
       result = true;
       for (auto iterator = array.cbegin(); iterator != array.cend();

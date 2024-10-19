@@ -45,16 +45,16 @@ public:
   auto push(const sourcemeta::jsontoolkit::Pointer &relative_schema_location,
             const sourcemeta::jsontoolkit::Pointer &relative_instance_location,
             const std::size_t &schema_resource, const bool dynamic,
-            const bool track_evaluate_path) -> void;
+            const bool track) -> void;
   // A performance shortcut for pushing without re-traversing the target
   // if we already know that the destination target will be
   auto push(const sourcemeta::jsontoolkit::Pointer &relative_schema_location,
             const sourcemeta::jsontoolkit::Pointer &relative_instance_location,
             const std::size_t &schema_resource, const bool dynamic,
-            const bool track_evaluate_path,
+            const bool track,
             std::reference_wrapper<const sourcemeta::jsontoolkit::JSON>
                 &&new_instance) -> void;
-  auto pop(const bool dynamic, const bool track_evaluate_path) -> void;
+  auto pop(const bool dynamic, const bool track) -> void;
   auto
   enter(const sourcemeta::jsontoolkit::WeakPointer::Token::Property &property)
       -> void;
@@ -70,8 +70,8 @@ private:
   auto push_without_traverse(
       const sourcemeta::jsontoolkit::Pointer &relative_schema_location,
       const sourcemeta::jsontoolkit::Pointer &relative_instance_location,
-      const std::size_t &schema_resource, const bool dynamic,
-      const bool track_evaluate_path) -> void;
+      const std::size_t &schema_resource, const bool dynamic, const bool track)
+      -> void;
 
 public:
   ///////////////////////////////////////////////
