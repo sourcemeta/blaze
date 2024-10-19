@@ -1665,9 +1665,6 @@ struct DescribeVisitor {
   auto operator()(const LogicalWhenArraySizeGreater &) const -> std::string {
     return unknown();
   }
-  auto operator()(const LogicalWhenArraySizeEqual &) const -> std::string {
-    return unknown();
-  }
 };
 
 } // namespace

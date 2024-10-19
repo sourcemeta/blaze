@@ -562,20 +562,6 @@ auto evaluate_step(const sourcemeta::blaze::Template::value_type &step,
       EVALUATE_END(logical, LogicalWhenArraySizeGreater);
     }
 
-    case IS_STEP(LogicalWhenArraySizeEqual): {
-      EVALUATE_BEGIN(logical, LogicalWhenArraySizeEqual,
-                     target.is_array() && target.size() == logical.value);
-      result = true;
-      for (const auto &child : logical.children) {
-        if (!evaluate_step(child, callback, context)) {
-          result = false;
-          break;
-        }
-      }
-
-      EVALUATE_END(logical, LogicalWhenArraySizeEqual);
-    }
-
     case IS_STEP(LogicalXor): {
       EVALUATE_BEGIN_NO_PRECONDITION(logical, LogicalXor);
       result = true;
