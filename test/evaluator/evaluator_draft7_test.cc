@@ -26,13 +26,20 @@ TEST(Evaluator_draft7, if_1) {
   })JSON")};
 
   const sourcemeta::jsontoolkit::JSON instance{1};
-  EVALUATE_WITH_TRACE_FAST_SUCCESS(schema, instance, 1);
+  EVALUATE_WITH_TRACE_FAST_SUCCESS(schema, instance, 2);
 
-  EVALUATE_TRACE_PRE(0, AssertionEqual, "/if/const", "#/if/const", "");
+  EVALUATE_TRACE_PRE(0, LogicalCondition, "/if", "#/if", "");
+  EVALUATE_TRACE_PRE(1, AssertionEqual, "/if/const", "#/if/const", "");
+
   EVALUATE_TRACE_POST_SUCCESS(0, AssertionEqual, "/if/const", "#/if/const", "");
+  EVALUATE_TRACE_POST_SUCCESS(1, LogicalCondition, "/if", "#/if", "");
+
   EVALUATE_TRACE_POST_DESCRIBE(
       instance, 0,
       "The integer value 1 was expected to equal the integer constant 1");
+  EVALUATE_TRACE_POST_DESCRIBE(instance, 1,
+                               "The integer value was expected to validate "
+                               "against the given conditional");
 }
 
 TEST(Evaluator_draft7, if_2) {
@@ -43,13 +50,20 @@ TEST(Evaluator_draft7, if_2) {
   })JSON")};
 
   const sourcemeta::jsontoolkit::JSON instance{2};
-  EVALUATE_WITH_TRACE_FAST_SUCCESS(schema, instance, 1);
+  EVALUATE_WITH_TRACE_FAST_SUCCESS(schema, instance, 2);
 
-  EVALUATE_TRACE_PRE(0, AssertionEqual, "/if/const", "#/if/const", "");
+  EVALUATE_TRACE_PRE(0, LogicalCondition, "/if", "#/if", "");
+  EVALUATE_TRACE_PRE(1, AssertionEqual, "/if/const", "#/if/const", "");
+
   EVALUATE_TRACE_POST_FAILURE(0, AssertionEqual, "/if/const", "#/if/const", "");
+  EVALUATE_TRACE_POST_SUCCESS(1, LogicalCondition, "/if", "#/if", "");
+
   EVALUATE_TRACE_POST_DESCRIBE(
       instance, 0,
       "The integer value 2 was expected to equal the integer constant 1");
+  EVALUATE_TRACE_POST_DESCRIBE(instance, 1,
+                               "The integer value was expected to validate "
+                               "against the given conditional");
 }
 
 TEST(Evaluator_draft7, then_1) {
@@ -72,15 +86,17 @@ TEST(Evaluator_draft7, then_2) {
   })JSON")};
 
   const sourcemeta::jsontoolkit::JSON instance{10};
-  EVALUATE_WITH_TRACE_FAST_SUCCESS(schema, instance, 2);
+  EVALUATE_WITH_TRACE_FAST_SUCCESS(schema, instance, 3);
 
-  EVALUATE_TRACE_PRE(0, AssertionEqual, "/if/const", "#/if/const", "");
-  EVALUATE_TRACE_PRE(1, AssertionDivisible, "/then/multipleOf",
+  EVALUATE_TRACE_PRE(0, LogicalCondition, "/if", "#/if", "");
+  EVALUATE_TRACE_PRE(1, AssertionEqual, "/if/const", "#/if/const", "");
+  EVALUATE_TRACE_PRE(2, AssertionDivisible, "/then/multipleOf",
                      "#/then/multipleOf", "");
 
   EVALUATE_TRACE_POST_SUCCESS(0, AssertionEqual, "/if/const", "#/if/const", "");
   EVALUATE_TRACE_POST_SUCCESS(1, AssertionDivisible, "/then/multipleOf",
                               "#/then/multipleOf", "");
+  EVALUATE_TRACE_POST_SUCCESS(2, LogicalCondition, "/if", "#/if", "");
 
   EVALUATE_TRACE_POST_DESCRIBE(
       instance, 0,
@@ -88,6 +104,9 @@ TEST(Evaluator_draft7, then_2) {
   EVALUATE_TRACE_POST_DESCRIBE(
       instance, 1,
       "The integer value 10 was expected to be divisible by the integer 5");
+  EVALUATE_TRACE_POST_DESCRIBE(instance, 2,
+                               "The integer value was expected to validate "
+                               "against the given conditional");
 }
 
 TEST(Evaluator_draft7, then_3) {
@@ -99,14 +118,20 @@ TEST(Evaluator_draft7, then_3) {
   })JSON")};
 
   const sourcemeta::jsontoolkit::JSON instance{5};
-  EVALUATE_WITH_TRACE_FAST_SUCCESS(schema, instance, 1);
+  EVALUATE_WITH_TRACE_FAST_SUCCESS(schema, instance, 2);
 
-  EVALUATE_TRACE_PRE(0, AssertionEqual, "/if/const", "#/if/const", "");
+  EVALUATE_TRACE_PRE(0, LogicalCondition, "/if", "#/if", "");
+  EVALUATE_TRACE_PRE(1, AssertionEqual, "/if/const", "#/if/const", "");
+
   EVALUATE_TRACE_POST_FAILURE(0, AssertionEqual, "/if/const", "#/if/const", "");
+  EVALUATE_TRACE_POST_SUCCESS(1, LogicalCondition, "/if", "#/if", "");
 
   EVALUATE_TRACE_POST_DESCRIBE(
       instance, 0,
       "The integer value 5 was expected to equal the integer constant 10");
+  EVALUATE_TRACE_POST_DESCRIBE(instance, 1,
+                               "The integer value was expected to validate "
+                               "against the given conditional");
 }
 
 TEST(Evaluator_draft7, then_4) {
@@ -172,13 +197,20 @@ TEST(Evaluator_draft7, else_2) {
   })JSON")};
 
   const sourcemeta::jsontoolkit::JSON instance{1};
-  EVALUATE_WITH_TRACE_FAST_SUCCESS(schema, instance, 1);
+  EVALUATE_WITH_TRACE_FAST_SUCCESS(schema, instance, 2);
 
-  EVALUATE_TRACE_PRE(0, AssertionEqual, "/if/const", "#/if/const", "");
+  EVALUATE_TRACE_PRE(0, LogicalCondition, "/if", "#/if", "");
+  EVALUATE_TRACE_PRE(1, AssertionEqual, "/if/const", "#/if/const", "");
+
   EVALUATE_TRACE_POST_SUCCESS(0, AssertionEqual, "/if/const", "#/if/const", "");
+  EVALUATE_TRACE_POST_SUCCESS(1, LogicalCondition, "/if", "#/if", "");
+
   EVALUATE_TRACE_POST_DESCRIBE(
       instance, 0,
       "The integer value 1 was expected to equal the integer constant 1");
+  EVALUATE_TRACE_POST_DESCRIBE(instance, 1,
+                               "The integer value was expected to validate "
+                               "against the given conditional");
 }
 
 TEST(Evaluator_draft7, else_3) {
@@ -190,15 +222,17 @@ TEST(Evaluator_draft7, else_3) {
   })JSON")};
 
   const sourcemeta::jsontoolkit::JSON instance{10};
-  EVALUATE_WITH_TRACE_FAST_SUCCESS(schema, instance, 2);
+  EVALUATE_WITH_TRACE_FAST_SUCCESS(schema, instance, 3);
 
-  EVALUATE_TRACE_PRE(0, AssertionEqual, "/if/const", "#/if/const", "");
-  EVALUATE_TRACE_PRE(1, AssertionDivisible, "/else/multipleOf",
+  EVALUATE_TRACE_PRE(0, LogicalCondition, "/if", "#/if", "");
+  EVALUATE_TRACE_PRE(1, AssertionEqual, "/if/const", "#/if/const", "");
+  EVALUATE_TRACE_PRE(2, AssertionDivisible, "/else/multipleOf",
                      "#/else/multipleOf", "");
 
   EVALUATE_TRACE_POST_FAILURE(0, AssertionEqual, "/if/const", "#/if/const", "");
   EVALUATE_TRACE_POST_SUCCESS(1, AssertionDivisible, "/else/multipleOf",
                               "#/else/multipleOf", "");
+  EVALUATE_TRACE_POST_SUCCESS(2, LogicalCondition, "/if", "#/if", "");
 
   EVALUATE_TRACE_POST_DESCRIBE(
       instance, 0,
@@ -206,6 +240,9 @@ TEST(Evaluator_draft7, else_3) {
   EVALUATE_TRACE_POST_DESCRIBE(
       instance, 1,
       "The integer value 10 was expected to be divisible by the integer 5");
+  EVALUATE_TRACE_POST_DESCRIBE(instance, 2,
+                               "The integer value was expected to validate "
+                               "against the given conditional");
 }
 
 TEST(Evaluator_draft7, else_4) {
@@ -217,15 +254,17 @@ TEST(Evaluator_draft7, else_4) {
   })JSON")};
 
   const sourcemeta::jsontoolkit::JSON instance{8};
-  EVALUATE_WITH_TRACE_FAST_FAILURE(schema, instance, 2);
+  EVALUATE_WITH_TRACE_FAST_FAILURE(schema, instance, 3);
 
-  EVALUATE_TRACE_PRE(0, AssertionEqual, "/if/const", "#/if/const", "");
-  EVALUATE_TRACE_PRE(1, AssertionDivisible, "/else/multipleOf",
+  EVALUATE_TRACE_PRE(0, LogicalCondition, "/if", "#/if", "");
+  EVALUATE_TRACE_PRE(1, AssertionEqual, "/if/const", "#/if/const", "");
+  EVALUATE_TRACE_PRE(2, AssertionDivisible, "/else/multipleOf",
                      "#/else/multipleOf", "");
 
   EVALUATE_TRACE_POST_FAILURE(0, AssertionEqual, "/if/const", "#/if/const", "");
   EVALUATE_TRACE_POST_FAILURE(1, AssertionDivisible, "/else/multipleOf",
                               "#/else/multipleOf", "");
+  EVALUATE_TRACE_POST_FAILURE(2, LogicalCondition, "/if", "#/if", "");
 
   EVALUATE_TRACE_POST_DESCRIBE(
       instance, 0,
@@ -233,6 +272,9 @@ TEST(Evaluator_draft7, else_4) {
   EVALUATE_TRACE_POST_DESCRIBE(
       instance, 1,
       "The integer value 8 was expected to be divisible by the integer 5");
+  EVALUATE_TRACE_POST_DESCRIBE(instance, 2,
+                               "The integer value was expected to validate "
+                               "against the given conditional");
 }
 
 TEST(Evaluator_draft7, invalid_ref_top_level) {
