@@ -1450,7 +1450,7 @@ TEST(Evaluator_draft4, patternProperties_4) {
 
   EVALUATE_WITH_TRACE_FAST_SUCCESS(schema, instance, 2);
 
-  EVALUATE_TRACE_PRE(0, LogicalWhenType, "/patternProperties",
+  EVALUATE_TRACE_PRE(0, LoopPropertiesRegex, "/patternProperties",
                      "#/patternProperties", "");
   EVALUATE_TRACE_PRE(1, AssertionTypeStrict, "/patternProperties/^f/type",
                      // Note that the caret needs to be URI escaped
@@ -1460,15 +1460,15 @@ TEST(Evaluator_draft4, patternProperties_4) {
                               "/patternProperties/^f/type",
                               // Note that the caret needs to be URI escaped
                               "#/patternProperties/%5Ef/type", "/foo");
-  EVALUATE_TRACE_POST_SUCCESS(1, LogicalWhenType, "/patternProperties",
+  EVALUATE_TRACE_POST_SUCCESS(1, LoopPropertiesRegex, "/patternProperties",
                               "#/patternProperties", "");
 
   EVALUATE_TRACE_POST_DESCRIBE(instance, 0,
                                "The value was expected to be of type integer");
   EVALUATE_TRACE_POST_DESCRIBE(
       instance, 1,
-      "The object value was expected to validate against the single defined "
-      "pattern property subschema");
+      "The object properties that match the regular expression \"^f\" were "
+      "expected to validate against the defined pattern property subschema");
 }
 
 TEST(Evaluator_draft4, patternProperties_4_exhaustive) {
@@ -1485,7 +1485,7 @@ TEST(Evaluator_draft4, patternProperties_4_exhaustive) {
 
   EVALUATE_WITH_TRACE_EXHAUSTIVE_SUCCESS(schema, instance, 2);
 
-  EVALUATE_TRACE_PRE(0, LogicalWhenType, "/patternProperties",
+  EVALUATE_TRACE_PRE(0, LoopPropertiesRegex, "/patternProperties",
                      "#/patternProperties", "");
   EVALUATE_TRACE_PRE(1, AssertionTypeStrict, "/patternProperties/^f/type",
                      // Note that the caret needs to be URI escaped
@@ -1495,15 +1495,15 @@ TEST(Evaluator_draft4, patternProperties_4_exhaustive) {
                               "/patternProperties/^f/type",
                               // Note that the caret needs to be URI escaped
                               "#/patternProperties/%5Ef/type", "/foo");
-  EVALUATE_TRACE_POST_SUCCESS(1, LogicalWhenType, "/patternProperties",
+  EVALUATE_TRACE_POST_SUCCESS(1, LoopPropertiesRegex, "/patternProperties",
                               "#/patternProperties", "");
 
   EVALUATE_TRACE_POST_DESCRIBE(instance, 0,
                                "The value was expected to be of type integer");
   EVALUATE_TRACE_POST_DESCRIBE(
       instance, 1,
-      "The object value was expected to validate against the single defined "
-      "pattern property subschema");
+      "The object properties that match the regular expression \"^f\" were "
+      "expected to validate against the defined pattern property subschema");
 }
 
 TEST(Evaluator_draft4, patternProperties_5) {
@@ -1520,7 +1520,7 @@ TEST(Evaluator_draft4, patternProperties_5) {
 
   EVALUATE_WITH_TRACE_FAST_FAILURE(schema, instance, 2);
 
-  EVALUATE_TRACE_PRE(0, LogicalWhenType, "/patternProperties",
+  EVALUATE_TRACE_PRE(0, LoopPropertiesRegex, "/patternProperties",
                      "#/patternProperties", "");
   EVALUATE_TRACE_PRE(1, AssertionTypeStrict, "/patternProperties/^f/type",
                      // Note that the caret needs to be URI escaped
@@ -1530,7 +1530,7 @@ TEST(Evaluator_draft4, patternProperties_5) {
                               "/patternProperties/^f/type",
                               // Note that the caret needs to be URI escaped
                               "#/patternProperties/%5Ef/type", "/foo");
-  EVALUATE_TRACE_POST_FAILURE(1, LogicalWhenType, "/patternProperties",
+  EVALUATE_TRACE_POST_FAILURE(1, LoopPropertiesRegex, "/patternProperties",
                               "#/patternProperties", "");
 
   EVALUATE_TRACE_POST_DESCRIBE(
@@ -1538,8 +1538,8 @@ TEST(Evaluator_draft4, patternProperties_5) {
       "The value was expected to be of type string but it was of type integer");
   EVALUATE_TRACE_POST_DESCRIBE(
       instance, 1,
-      "The object value was expected to validate against the single defined "
-      "pattern property subschema");
+      "The object properties that match the regular expression \"^f\" were "
+      "expected to validate against the defined pattern property subschema");
 }
 
 TEST(Evaluator_draft4, patternProperties_6) {
@@ -1555,34 +1555,42 @@ TEST(Evaluator_draft4, patternProperties_6) {
   const sourcemeta::jsontoolkit::JSON instance{
       sourcemeta::jsontoolkit::parse("{ \"bar\": 2, \"foo\": 1 }")};
 
-  EVALUATE_WITH_TRACE_FAST_SUCCESS(schema, instance, 3);
+  EVALUATE_WITH_TRACE_FAST_SUCCESS(schema, instance, 4);
 
-  EVALUATE_TRACE_PRE(0, LogicalWhenType, "/patternProperties",
+  EVALUATE_TRACE_PRE(0, LoopPropertiesRegex, "/patternProperties",
                      "#/patternProperties", "");
   EVALUATE_TRACE_PRE(1, AssertionTypeStrict, "/patternProperties/^f/type",
                      // Note that the caret needs to be URI escaped
                      "#/patternProperties/%5Ef/type", "/foo");
-  EVALUATE_TRACE_PRE(2, AssertionTypeStrict, "/patternProperties/o$/type",
+  EVALUATE_TRACE_PRE(2, LoopPropertiesRegex, "/patternProperties",
+                     "#/patternProperties", "");
+  EVALUATE_TRACE_PRE(3, AssertionTypeStrict, "/patternProperties/o$/type",
                      "#/patternProperties/o$/type", "/foo");
 
   EVALUATE_TRACE_POST_SUCCESS(0, AssertionTypeStrict,
                               "/patternProperties/^f/type",
                               // Note that the caret needs to be URI escaped
                               "#/patternProperties/%5Ef/type", "/foo");
-  EVALUATE_TRACE_POST_SUCCESS(1, AssertionTypeStrict,
+  EVALUATE_TRACE_POST_SUCCESS(1, LoopPropertiesRegex, "/patternProperties",
+                              "#/patternProperties", "");
+  EVALUATE_TRACE_POST_SUCCESS(2, AssertionTypeStrict,
                               "/patternProperties/o$/type",
                               "#/patternProperties/o$/type", "/foo");
-  EVALUATE_TRACE_POST_SUCCESS(2, LogicalWhenType, "/patternProperties",
+  EVALUATE_TRACE_POST_SUCCESS(3, LoopPropertiesRegex, "/patternProperties",
                               "#/patternProperties", "");
 
   EVALUATE_TRACE_POST_DESCRIBE(instance, 0,
                                "The value was expected to be of type integer");
-  EVALUATE_TRACE_POST_DESCRIBE(instance, 1,
+  EVALUATE_TRACE_POST_DESCRIBE(
+      instance, 1,
+      "The object properties that match the regular expression \"^f\" were "
+      "expected to validate against the defined pattern property subschema");
+  EVALUATE_TRACE_POST_DESCRIBE(instance, 2,
                                "The value was expected to be of type integer");
   EVALUATE_TRACE_POST_DESCRIBE(
-      instance, 2,
-      "The object value was expected to validate against the 2 defined pattern "
-      "properties subschemas");
+      instance, 3,
+      "The object properties that match the regular expression \"o$\" were "
+      "expected to validate against the defined pattern property subschema");
 }
 
 TEST(Evaluator_draft4, patternProperties_7) {
@@ -1603,9 +1611,9 @@ TEST(Evaluator_draft4, patternProperties_7) {
 
   EVALUATE_WITH_TRACE_FAST_SUCCESS(schema, instance, 3);
 
-  EVALUATE_TRACE_PRE(0, LogicalWhenType, "/patternProperties",
+  EVALUATE_TRACE_PRE(0, LoopPropertiesRegex, "/patternProperties",
                      "#/patternProperties", "");
-  EVALUATE_TRACE_PRE(1, LogicalWhenType,
+  EVALUATE_TRACE_PRE(1, LoopPropertiesRegex,
                      "/patternProperties/^f/patternProperties",
                      "#/patternProperties/%5Ef/patternProperties", "/foo");
   EVALUATE_TRACE_PRE(
@@ -1616,21 +1624,21 @@ TEST(Evaluator_draft4, patternProperties_7) {
       0, AssertionTypeStrict, "/patternProperties/^f/patternProperties/^b/type",
       "#/patternProperties/%5Ef/patternProperties/%5Eb/type", "/foo/bar");
   EVALUATE_TRACE_POST_SUCCESS(
-      1, LogicalWhenType, "/patternProperties/^f/patternProperties",
+      1, LoopPropertiesRegex, "/patternProperties/^f/patternProperties",
       "#/patternProperties/%5Ef/patternProperties", "/foo");
-  EVALUATE_TRACE_POST_SUCCESS(2, LogicalWhenType, "/patternProperties",
+  EVALUATE_TRACE_POST_SUCCESS(2, LoopPropertiesRegex, "/patternProperties",
                               "#/patternProperties", "");
 
   EVALUATE_TRACE_POST_DESCRIBE(instance, 0,
                                "The value was expected to be of type integer");
   EVALUATE_TRACE_POST_DESCRIBE(
       instance, 1,
-      "The object value was expected to validate against the single defined "
-      "pattern property subschema");
+      "The object properties that match the regular expression \"^b\" were "
+      "expected to validate against the defined pattern property subschema");
   EVALUATE_TRACE_POST_DESCRIBE(
       instance, 2,
-      "The object value was expected to validate against the single defined "
-      "pattern property subschema");
+      "The object properties that match the regular expression \"^f\" were "
+      "expected to validate against the defined pattern property subschema");
 }
 
 TEST(Evaluator_draft4, patternProperties_8) {
@@ -1909,7 +1917,7 @@ TEST(Evaluator_draft4, additionalProperties_4) {
 
   EVALUATE_WITH_TRACE_FAST_SUCCESS(schema, instance, 5);
 
-  EVALUATE_TRACE_PRE(0, LogicalWhenType, "/patternProperties",
+  EVALUATE_TRACE_PRE(0, LoopPropertiesRegex, "/patternProperties",
                      "#/patternProperties", "");
   EVALUATE_TRACE_PRE(1, AssertionTypeStrict, "/patternProperties/^bar$/type",
                      // Note that the caret needs to be URI escaped
@@ -1928,7 +1936,7 @@ TEST(Evaluator_draft4, additionalProperties_4) {
                               "/patternProperties/^bar$/type",
                               // Note that the caret needs to be URI escaped
                               "#/patternProperties/%5Ebar$/type", "/bar");
-  EVALUATE_TRACE_POST_SUCCESS(1, LogicalWhenType, "/patternProperties",
+  EVALUATE_TRACE_POST_SUCCESS(1, LoopPropertiesRegex, "/patternProperties",
                               "#/patternProperties", "");
 
   // `properties`
@@ -1947,8 +1955,8 @@ TEST(Evaluator_draft4, additionalProperties_4) {
                                "The value was expected to be of type integer");
   EVALUATE_TRACE_POST_DESCRIBE(
       instance, 1,
-      "The object value was expected to validate against the single defined "
-      "pattern property subschema");
+      "The object properties that match the regular expression \"^bar$\" were "
+      "expected to validate against the defined pattern property subschema");
   EVALUATE_TRACE_POST_DESCRIBE(instance, 2,
                                "The value was expected to be of type boolean");
   EVALUATE_TRACE_POST_DESCRIBE(instance, 3,
@@ -1977,7 +1985,7 @@ TEST(Evaluator_draft4, additionalProperties_4_exhaustive) {
 
   EVALUATE_WITH_TRACE_EXHAUSTIVE_SUCCESS(schema, instance, 6);
 
-  EVALUATE_TRACE_PRE(0, LogicalWhenType, "/patternProperties",
+  EVALUATE_TRACE_PRE(0, LoopPropertiesRegex, "/patternProperties",
                      "#/patternProperties", "");
   EVALUATE_TRACE_PRE(1, AssertionTypeStrict, "/patternProperties/^bar$/type",
                      // Note that the caret needs to be URI escaped
@@ -1997,7 +2005,7 @@ TEST(Evaluator_draft4, additionalProperties_4_exhaustive) {
                               "/patternProperties/^bar$/type",
                               // Note that the caret needs to be URI escaped
                               "#/patternProperties/%5Ebar$/type", "/bar");
-  EVALUATE_TRACE_POST_SUCCESS(1, LogicalWhenType, "/patternProperties",
+  EVALUATE_TRACE_POST_SUCCESS(1, LoopPropertiesRegex, "/patternProperties",
                               "#/patternProperties", "");
 
   // `properties`
@@ -2016,8 +2024,8 @@ TEST(Evaluator_draft4, additionalProperties_4_exhaustive) {
                                "The value was expected to be of type integer");
   EVALUATE_TRACE_POST_DESCRIBE(
       instance, 1,
-      "The object value was expected to validate against the single defined "
-      "pattern property subschema");
+      "The object properties that match the regular expression \"^bar$\" were "
+      "expected to validate against the defined pattern property subschema");
   EVALUATE_TRACE_POST_DESCRIBE(instance, 2,
                                "The value was expected to be of type boolean");
   EVALUATE_TRACE_POST_DESCRIBE(instance, 3,
@@ -2091,7 +2099,7 @@ TEST(Evaluator_draft4, additionalProperties_6) {
 
   EVALUATE_WITH_TRACE_FAST_SUCCESS(schema, instance, 3);
 
-  EVALUATE_TRACE_PRE(0, LogicalWhenType, "/patternProperties",
+  EVALUATE_TRACE_PRE(0, LoopPropertiesRegex, "/patternProperties",
                      "#/patternProperties", "");
   EVALUATE_TRACE_PRE(1, AssertionTypeStrict, "/patternProperties/^bar$/type",
                      // Note that the caret needs to be URI escaped
@@ -2105,7 +2113,7 @@ TEST(Evaluator_draft4, additionalProperties_6) {
                               "/patternProperties/^bar$/type",
                               // Note that the caret needs to be URI escaped
                               "#/patternProperties/%5Ebar$/type", "/bar");
-  EVALUATE_TRACE_POST_SUCCESS(1, LogicalWhenType, "/patternProperties",
+  EVALUATE_TRACE_POST_SUCCESS(1, LoopPropertiesRegex, "/patternProperties",
                               "#/patternProperties", "");
   EVALUATE_TRACE_POST_SUCCESS(2, AssertionPropertyTypeStrict,
                               "/properties/foo/type", "#/properties/foo/type",
@@ -2115,8 +2123,8 @@ TEST(Evaluator_draft4, additionalProperties_6) {
                                "The value was expected to be of type integer");
   EVALUATE_TRACE_POST_DESCRIBE(
       instance, 1,
-      "The object value was expected to validate against the single defined "
-      "pattern property subschema");
+      "The object properties that match the regular expression \"^bar$\" were "
+      "expected to validate against the defined pattern property subschema");
   EVALUATE_TRACE_POST_DESCRIBE(instance, 2,
                                "The value was expected to be of type boolean");
 }
@@ -2139,7 +2147,7 @@ TEST(Evaluator_draft4, additionalProperties_7) {
 
   EVALUATE_WITH_TRACE_FAST_SUCCESS(schema, instance, 3);
 
-  EVALUATE_TRACE_PRE(0, LogicalWhenType, "/patternProperties",
+  EVALUATE_TRACE_PRE(0, LoopPropertiesRegex, "/patternProperties",
                      "#/patternProperties", "");
   EVALUATE_TRACE_PRE(1, AssertionTypeStrict, "/patternProperties/^bar$/type",
                      // Note that the caret needs to be URI escaped
@@ -2153,7 +2161,7 @@ TEST(Evaluator_draft4, additionalProperties_7) {
                               "/patternProperties/^bar$/type",
                               // Note that the caret needs to be URI escaped
                               "#/patternProperties/%5Ebar$/type", "/bar");
-  EVALUATE_TRACE_POST_SUCCESS(1, LogicalWhenType, "/patternProperties",
+  EVALUATE_TRACE_POST_SUCCESS(1, LoopPropertiesRegex, "/patternProperties",
                               "#/patternProperties", "");
   EVALUATE_TRACE_POST_SUCCESS(2, AssertionPropertyTypeStrict,
                               "/properties/foo/type", "#/properties/foo/type",
@@ -2163,8 +2171,8 @@ TEST(Evaluator_draft4, additionalProperties_7) {
                                "The value was expected to be of type integer");
   EVALUATE_TRACE_POST_DESCRIBE(
       instance, 1,
-      "The object value was expected to validate against the single defined "
-      "pattern property subschema");
+      "The object properties that match the regular expression \"^bar$\" were "
+      "expected to validate against the defined pattern property subschema");
   EVALUATE_TRACE_POST_DESCRIBE(instance, 2,
                                "The value was expected to be of type boolean");
 }
