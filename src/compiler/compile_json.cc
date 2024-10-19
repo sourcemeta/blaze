@@ -188,8 +188,7 @@ auto encode_step(const std::string_view category, const std::string_view type,
                 sourcemeta::jsontoolkit::JSON{step.schema_resource});
   result.assign("dynamic", sourcemeta::jsontoolkit::JSON{step.dynamic});
   result.assign("report", sourcemeta::jsontoolkit::JSON{step.report});
-  result.assign("evaluatePath",
-                sourcemeta::jsontoolkit::JSON{step.evaluate_path});
+  result.assign("track", sourcemeta::jsontoolkit::JSON{step.track});
   result.assign("value", value_to_json(step.value));
 
   if constexpr (requires { step.children; }) {
