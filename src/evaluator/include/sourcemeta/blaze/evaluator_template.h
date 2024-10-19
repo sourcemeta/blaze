@@ -55,7 +55,6 @@ struct LogicalCondition;
 struct LogicalWhenType;
 struct LogicalWhenDefines;
 struct LogicalWhenArraySizeGreater;
-struct LogicalWhenArraySizeEqual;
 struct LoopPropertiesUnevaluated;
 struct LoopItemsUnevaluated;
 struct LoopPropertiesMatch;
@@ -91,12 +90,12 @@ using Template = std::vector<std::variant<
     AssertionPropertyType, AssertionPropertyTypeStrict, AssertionArrayPrefix,
     AnnotationEmit, AnnotationToParent, AnnotationBasenameToParent, LogicalNot,
     LogicalOr, LogicalAnd, LogicalXor, LogicalCondition, LogicalWhenType,
-    LogicalWhenDefines, LogicalWhenArraySizeGreater, LogicalWhenArraySizeEqual,
-    LoopPropertiesUnevaluated, LoopItemsUnevaluated, LoopPropertiesMatch,
-    LoopProperties, LoopPropertiesRegex, LoopPropertiesExcept,
-    LoopPropertiesType, LoopPropertiesTypeStrict, LoopKeys, LoopItems,
-    LoopContains, ControlGroup, ControlGroupWhenDefines, ControlLabel,
-    ControlMark, ControlEvaluate, ControlJump, ControlDynamicAnchorJump>>;
+    LogicalWhenDefines, LogicalWhenArraySizeGreater, LoopPropertiesUnevaluated,
+    LoopItemsUnevaluated, LoopPropertiesMatch, LoopProperties,
+    LoopPropertiesRegex, LoopPropertiesExcept, LoopPropertiesType,
+    LoopPropertiesTypeStrict, LoopKeys, LoopItems, LoopContains, ControlGroup,
+    ControlGroupWhenDefines, ControlLabel, ControlMark, ControlEvaluate,
+    ControlJump, ControlDynamicAnchorJump>>;
 
 #if !defined(DOXYGEN)
 // For fast internal instruction dispatching. It must stay
@@ -143,7 +142,6 @@ enum class TemplateIndex : std::uint8_t {
   LogicalWhenType,
   LogicalWhenDefines,
   LogicalWhenArraySizeGreater,
-  LogicalWhenArraySizeEqual,
   LoopPropertiesUnevaluated,
   LoopItemsUnevaluated,
   LoopPropertiesMatch,
@@ -393,11 +391,6 @@ DEFINE_STEP_APPLICATOR(Logical, WhenDefines, ValueString)
 /// @brief Represents a compiler logical step that represents a conjunction when
 /// the array instance size is greater than the given number
 DEFINE_STEP_APPLICATOR(Logical, WhenArraySizeGreater, ValueUnsignedInteger)
-
-/// @ingroup evaluator_instructions
-/// @brief Represents a compiler logical step that represents a conjunction when
-/// the array instance size is equal to the given number
-DEFINE_STEP_APPLICATOR(Logical, WhenArraySizeEqual, ValueUnsignedInteger)
 
 /// @ingroup evaluator_instructions
 /// @brief Represents a compiler step that loops over object properties that
