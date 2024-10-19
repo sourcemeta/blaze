@@ -1656,6 +1656,28 @@ struct DescribeVisitor {
     return message.str();
   }
 
+  auto operator()(const LogicalWhenArraySizeGreater &step) const
+      -> std::string {
+    if (this->keyword == "additionalItems" || this->keyword == "items") {
+      assert(this->target.is_array());
+      std::ostringstream message;
+
+      if (this->target.size() > step_value(step)) {
+        const auto rest{this->target.size() - step_value(step)};
+        message << "The array value contains " << rest << " additional"
+                << (rest == 1 ? " item" : " items")
+                << " not described by related keywords";
+      } else {
+        message << "The array value does not contain additional items not "
+                   "described by related keywords";
+      }
+
+      return message.str();
+    }
+
+    return unknown();
+  }
+
   // These steps are never described, at least not right now
 
   auto operator()(const ControlGroup &) const -> std::string {
@@ -1663,10 +1685,6 @@ struct DescribeVisitor {
   }
 
   auto operator()(const ControlGroupWhenDefines &) const -> std::string {
-    return unknown();
-  }
-
-  auto operator()(const LogicalWhenArraySizeGreater &) const -> std::string {
     return unknown();
   }
 };
