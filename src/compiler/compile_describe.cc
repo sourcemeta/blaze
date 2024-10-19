@@ -231,7 +231,10 @@ struct DescribeVisitor {
   }
 
   auto operator()(const LogicalCondition &) const -> std::string {
-    return unknown();
+    std::ostringstream message;
+    message << "The " << to_string(this->target.type())
+            << " value was expected to validate against the given conditional";
+    return message.str();
   }
 
   auto operator()(const LogicalNot &) const -> std::string {
