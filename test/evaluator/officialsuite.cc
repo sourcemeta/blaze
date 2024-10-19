@@ -253,20 +253,20 @@ static auto register_tests(const std::filesystem::path &subdirectory,
             test_resolver, sourcemeta::blaze::default_schema_compiler, mode,
             default_dialect)};
 
-        std::ostringstream title;
-        switch (mode) {
-          case sourcemeta::blaze::Mode::FastValidation:
-            title << "fast_validation";
-            break;
-          case sourcemeta::blaze::Mode::Exhaustive:
-            title << "exhaustive";
-            break;
-          default:
-            // We should never get here
-            assert(false);
-        }
-
         for (const auto &test_case : test.at("tests").as_array()) {
+          std::ostringstream title;
+          switch (mode) {
+            case sourcemeta::blaze::Mode::FastValidation:
+              title << "fast_validation";
+              break;
+            case sourcemeta::blaze::Mode::Exhaustive:
+              title << "exhaustive";
+              break;
+            default:
+              // We should never get here
+              assert(false);
+          }
+
           assert(test_case.is_object());
           assert(test_case.defines("data"));
           assert(test_case.defines("description"));
