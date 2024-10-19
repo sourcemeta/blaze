@@ -188,6 +188,8 @@ auto encode_step(const std::string_view category, const std::string_view type,
                 sourcemeta::jsontoolkit::JSON{step.schema_resource});
   result.assign("dynamic", sourcemeta::jsontoolkit::JSON{step.dynamic});
   result.assign("report", sourcemeta::jsontoolkit::JSON{step.report});
+  result.assign("evaluatePath",
+                sourcemeta::jsontoolkit::JSON{step.evaluate_path});
   result.assign("value", value_to_json(step.value));
 
   if constexpr (requires { step.children; }) {
@@ -301,8 +303,9 @@ auto template_format_compare(const sourcemeta::jsontoolkit::JSON::String &left,
                    {"relativeSchemaLocation", 5},
                    {"relativeInstanceLocation", 6},
                    {"report", 7},
-                   {"dynamic", 8},
-                   {"children", 9}};
+                   {"evaluatePath", 8},
+                   {"dynamic", 9},
+                   {"children", 10}};
 
   constexpr std::uint64_t DEFAULT_RANK{999};
   const auto left_rank{rank.contains(left) ? rank.at(left) : DEFAULT_RANK};

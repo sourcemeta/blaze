@@ -46,6 +46,8 @@ auto make(const bool report, const Context &context,
       schema_resource_id(context, schema_context.base.recompose()),
       context.uses_dynamic_scopes,
       report,
+      context.mode != Mode::FastValidation ||
+          context.uses_unevaluated_properties || context.uses_unevaluated_items,
       value};
 }
 
@@ -67,6 +69,8 @@ auto make(const bool report, const Context &context,
       schema_resource_id(context, schema_context.base.recompose()),
       context.uses_dynamic_scopes,
       report,
+      context.mode != Mode::FastValidation ||
+          context.uses_unevaluated_properties || context.uses_unevaluated_items,
       std::move(value),
       std::move(children)};
 }
@@ -87,6 +91,7 @@ auto unroll(const DynamicContext &dynamic_context, const Step &step,
           std::get<Type>(step).schema_resource,
           std::get<Type>(step).dynamic,
           std::get<Type>(step).report,
+          std::get<Type>(step).evaluate_path,
           std::get<Type>(step).value};
 }
 

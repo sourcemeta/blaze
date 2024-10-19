@@ -8,7 +8,7 @@ TEST(Compiler_json, defines_basic_root) {
   using namespace sourcemeta::blaze;
 
   const Template steps{AssertionDefines{Pointer{}, Pointer{}, "#", 0, true,
-                                        true, ValueString{"foo"}}};
+                                        true, true, ValueString{"foo"}}};
 
   const JSON result{to_json(steps)};
   const JSON expected{parse(R"EOF([
@@ -20,6 +20,7 @@ TEST(Compiler_json, defines_basic_root) {
       "schemaResource": 0,
       "dynamic": true,
       "report": true,
+      "evaluatePath": true,
       "absoluteKeywordLocation": "#",
       "value": {
         "category": "value",
@@ -37,7 +38,7 @@ TEST(Compiler_json, defines_basic_nested) {
   using namespace sourcemeta::blaze;
 
   const Template steps{AssertionDefines{Pointer{"foo", "bar"}, Pointer{},
-                                        "#/foo/bar", 0, true, true,
+                                        "#/foo/bar", 0, true, true, true,
                                         ValueString{"foo"}}};
 
   const JSON result{to_json(steps)};
@@ -50,6 +51,7 @@ TEST(Compiler_json, defines_basic_nested) {
       "schemaResource": 0,
       "dynamic": true,
       "report": true,
+      "evaluatePath": true,
       "absoluteKeywordLocation": "#/foo/bar",
       "value": {
         "category": "value",
@@ -66,8 +68,8 @@ TEST(Compiler_json, fail_basic_root) {
   using namespace sourcemeta::jsontoolkit;
   using namespace sourcemeta::blaze;
 
-  const Template steps{
-      AssertionFail{Pointer{}, Pointer{}, "#", 0, true, true, ValueNone{}}};
+  const Template steps{AssertionFail{Pointer{}, Pointer{}, "#", 0, true, true,
+                                     true, ValueNone{}}};
 
   const JSON result{to_json(steps)};
   const JSON expected{parse(R"EOF([
@@ -79,6 +81,7 @@ TEST(Compiler_json, fail_basic_root) {
       "schemaResource": 0,
       "dynamic": true,
       "report": true,
+      "evaluatePath": true,
       "absoluteKeywordLocation": "#",
       "value": null
     }
@@ -91,8 +94,9 @@ TEST(Compiler_json, type_basic_root) {
   using namespace sourcemeta::jsontoolkit;
   using namespace sourcemeta::blaze;
 
-  const Template steps{AssertionTypeStrict{
-      Pointer{}, Pointer{}, "#", 0, true, true, ValueType{JSON::Type::String}}};
+  const Template steps{AssertionTypeStrict{Pointer{}, Pointer{}, "#", 0, true,
+                                           true, true,
+                                           ValueType{JSON::Type::String}}};
 
   const JSON result{to_json(steps)};
   const JSON expected{parse(R"EOF([
@@ -104,6 +108,7 @@ TEST(Compiler_json, type_basic_root) {
       "schemaResource": 0,
       "dynamic": true,
       "report": true,
+      "evaluatePath": true,
       "absoluteKeywordLocation": "#",
       "value": {
         "category": "value",
@@ -121,7 +126,7 @@ TEST(Compiler_json, or_empty) {
   using namespace sourcemeta::blaze;
 
   const Template steps{
-      LogicalOr{Pointer{}, Pointer{}, "#", 0, true, true, false, {}}};
+      LogicalOr{Pointer{}, Pointer{}, "#", 0, true, true, true, false, {}}};
 
   const JSON result{to_json(steps)};
   const JSON expected{parse(R"EOF([
@@ -138,6 +143,7 @@ TEST(Compiler_json, or_empty) {
       "schemaResource": 0,
       "dynamic": true,
       "report": true,
+      "evaluatePath": true,
       "absoluteKeywordLocation": "#",
       "children": []
     }
@@ -150,11 +156,12 @@ TEST(Compiler_json, or_single_child) {
   using namespace sourcemeta::jsontoolkit;
   using namespace sourcemeta::blaze;
 
-  const Template children{AssertionTypeStrict{
-      Pointer{}, Pointer{}, "#", 0, true, true, ValueType{JSON::Type::String}}};
+  const Template children{AssertionTypeStrict{Pointer{}, Pointer{}, "#", 0,
+                                              true, true, true,
+                                              ValueType{JSON::Type::String}}};
 
-  const Template steps{
-      LogicalOr{Pointer{}, Pointer{}, "#", 0, true, true, false, children}};
+  const Template steps{LogicalOr{Pointer{}, Pointer{}, "#", 0, true, true, true,
+                                 false, children}};
 
   const JSON result{to_json(steps)};
   const JSON expected{parse(R"EOF([
@@ -171,6 +178,7 @@ TEST(Compiler_json, or_single_child) {
       "schemaResource": 0,
       "dynamic": true,
       "report": true,
+      "evaluatePath": true,
       "absoluteKeywordLocation": "#",
       "children": [
         {
@@ -181,6 +189,7 @@ TEST(Compiler_json, or_single_child) {
           "schemaResource": 0,
           "dynamic": true,
           "report": true,
+          "evaluatePath": true,
           "absoluteKeywordLocation": "#",
           "value": {
             "category": "value",
@@ -200,13 +209,13 @@ TEST(Compiler_json, or_multiple_children) {
   using namespace sourcemeta::blaze;
 
   const Template children{
-      AssertionTypeStrict{Pointer{}, Pointer{}, "#", 0, true, true,
+      AssertionTypeStrict{Pointer{}, Pointer{}, "#", 0, true, true, true,
                           ValueType{JSON::Type::String}},
-      AssertionTypeStrict{Pointer{}, Pointer{}, "#", 0, true, true,
+      AssertionTypeStrict{Pointer{}, Pointer{}, "#", 0, true, true, true,
                           ValueType{JSON::Type::Array}}};
 
-  const Template steps{
-      LogicalOr{Pointer{}, Pointer{}, "#", 0, true, true, false, children}};
+  const Template steps{LogicalOr{Pointer{}, Pointer{}, "#", 0, true, true, true,
+                                 false, children}};
 
   const JSON result{to_json(steps)};
   const JSON expected{parse(R"EOF([
@@ -223,6 +232,7 @@ TEST(Compiler_json, or_multiple_children) {
       "schemaResource": 0,
       "dynamic": true,
       "report": true,
+      "evaluatePath": true,
       "absoluteKeywordLocation": "#",
       "children": [
         {
@@ -233,6 +243,7 @@ TEST(Compiler_json, or_multiple_children) {
           "schemaResource": 0,
           "dynamic": true,
           "report": true,
+          "evaluatePath": true,
           "absoluteKeywordLocation": "#",
           "value": {
             "category": "value",
@@ -248,6 +259,7 @@ TEST(Compiler_json, or_multiple_children) {
           "schemaResource": 0,
           "dynamic": true,
           "report": true,
+          "evaluatePath": true,
           "absoluteKeywordLocation": "#",
           "value": {
             "category": "value",
@@ -266,8 +278,8 @@ TEST(Compiler_json, and_empty) {
   using namespace sourcemeta::jsontoolkit;
   using namespace sourcemeta::blaze;
 
-  const Template steps{
-      LogicalAnd{Pointer{}, Pointer{}, "#", 0, true, true, ValueNone{}, {}}};
+  const Template steps{LogicalAnd{
+      Pointer{}, Pointer{}, "#", 0, true, true, true, ValueNone{}, {}}};
 
   const JSON result{to_json(steps)};
   const JSON expected{parse(R"EOF([
@@ -280,6 +292,7 @@ TEST(Compiler_json, and_empty) {
       "schemaResource": 0,
       "dynamic": true,
       "report": true,
+      "evaluatePath": true,
       "absoluteKeywordLocation": "#",
       "children": []
     }
@@ -292,11 +305,12 @@ TEST(Compiler_json, and_single_child) {
   using namespace sourcemeta::jsontoolkit;
   using namespace sourcemeta::blaze;
 
-  const Template children{AssertionTypeStrict{
-      Pointer{}, Pointer{}, "#", 0, true, true, ValueType{JSON::Type::String}}};
+  const Template children{AssertionTypeStrict{Pointer{}, Pointer{}, "#", 0,
+                                              true, true, true,
+                                              ValueType{JSON::Type::String}}};
 
   const Template steps{LogicalAnd{Pointer{}, Pointer{}, "#", 0, true, true,
-                                  ValueNone{}, children}};
+                                  true, ValueNone{}, children}};
 
   const JSON result{to_json(steps)};
   const JSON expected{parse(R"EOF([
@@ -309,6 +323,7 @@ TEST(Compiler_json, and_single_child) {
       "schemaResource": 0,
       "dynamic": true,
       "report": true,
+      "evaluatePath": true,
       "absoluteKeywordLocation": "#",
       "children": [
         {
@@ -319,6 +334,7 @@ TEST(Compiler_json, and_single_child) {
           "schemaResource": 0,
           "dynamic": true,
           "report": true,
+          "evaluatePath": true,
           "absoluteKeywordLocation": "#",
           "value": {
             "category": "value",
@@ -338,13 +354,13 @@ TEST(Compiler_json, and_multiple_children) {
   using namespace sourcemeta::blaze;
 
   const Template children{
-      AssertionTypeStrict{Pointer{}, Pointer{}, "#", 0, true, true,
+      AssertionTypeStrict{Pointer{}, Pointer{}, "#", 0, true, true, true,
                           ValueType{JSON::Type::String}},
-      AssertionTypeStrict{Pointer{}, Pointer{}, "#", 0, true, true,
+      AssertionTypeStrict{Pointer{}, Pointer{}, "#", 0, true, true, true,
                           ValueType{JSON::Type::Array}}};
 
   const Template steps{LogicalAnd{Pointer{}, Pointer{}, "#", 0, true, true,
-                                  ValueNone{}, children}};
+                                  true, ValueNone{}, children}};
 
   const JSON result{to_json(steps)};
   const JSON expected{parse(R"EOF([
@@ -357,6 +373,7 @@ TEST(Compiler_json, and_multiple_children) {
       "schemaResource": 0,
       "dynamic": true,
       "report": true,
+      "evaluatePath": true,
       "absoluteKeywordLocation": "#",
       "children": [
         {
@@ -367,6 +384,7 @@ TEST(Compiler_json, and_multiple_children) {
           "schemaResource": 0,
           "dynamic": true,
           "report": true,
+          "evaluatePath": true,
           "absoluteKeywordLocation": "#",
           "value": {
             "category": "value",
@@ -382,6 +400,7 @@ TEST(Compiler_json, and_multiple_children) {
           "schemaResource": 0,
           "dynamic": true,
           "report": true,
+          "evaluatePath": true,
           "absoluteKeywordLocation": "#",
           "value": {
             "category": "value",
@@ -401,7 +420,7 @@ TEST(Compiler_json, regex_basic) {
   using namespace sourcemeta::blaze;
 
   const Template steps{AssertionRegex{
-      Pointer{}, Pointer{}, "#", 0, true, true,
+      Pointer{}, Pointer{}, "#", 0, true, true, true,
       ValueRegex{std::regex{"^a", std::regex::ECMAScript}, "^a"}}};
 
   const JSON result{to_json(steps)};
@@ -414,6 +433,7 @@ TEST(Compiler_json, regex_basic) {
       "schemaResource": 0,
       "dynamic": true,
       "report": true,
+      "evaluatePath": true,
       "absoluteKeywordLocation": "#",
       "value": {
         "category": "value",
