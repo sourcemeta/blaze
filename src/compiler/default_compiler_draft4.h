@@ -573,8 +573,8 @@ auto compiler_draft4_applicator_properties_with_options(
           dynamic_context.base_instance_location));
 
     } else {
-      children.push_back(make<LogicalWhenDefines>(
-          false, context, schema_context, relative_dynamic_context,
+      children.push_back(make<ControlGroupWhenDefines>(
+          true, context, schema_context, relative_dynamic_context,
           ValueString{name}, std::move(substeps)));
     }
   }

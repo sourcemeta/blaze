@@ -68,6 +68,7 @@ struct LoopKeys;
 struct LoopItems;
 struct LoopContains;
 struct ControlGroup;
+struct ControlGroupWhenDefines;
 struct ControlLabel;
 struct ControlMark;
 struct ControlEvaluate;
@@ -94,8 +95,8 @@ using Template = std::vector<std::variant<
     LoopPropertiesUnevaluated, LoopItemsUnevaluated, LoopPropertiesMatch,
     LoopProperties, LoopPropertiesRegex, LoopPropertiesExcept,
     LoopPropertiesType, LoopPropertiesTypeStrict, LoopKeys, LoopItems,
-    LoopContains, ControlGroup, ControlLabel, ControlMark, ControlEvaluate,
-    ControlJump, ControlDynamicAnchorJump>>;
+    LoopContains, ControlGroup, ControlGroupWhenDefines, ControlLabel,
+    ControlMark, ControlEvaluate, ControlJump, ControlDynamicAnchorJump>>;
 
 #if !defined(DOXYGEN)
 // For fast internal instruction dispatching. It must stay
@@ -155,6 +156,7 @@ enum class TemplateIndex : std::uint8_t {
   LoopItems,
   LoopContains,
   ControlGroup,
+  ControlGroupWhenDefines,
   ControlLabel,
   ControlMark,
   ControlEvaluate,
@@ -449,9 +451,14 @@ DEFINE_STEP_APPLICATOR(Loop, Items, ValueUnsignedInteger)
 DEFINE_STEP_APPLICATOR(Loop, Contains, ValueRange)
 
 /// @ingroup evaluator_instructions
-/// @brief Represents a compiler step that groups a set of steps but is not
+/// @brief Represents a compiler step that groups a set of steps, but is not
 /// evaluated on its own
 DEFINE_STEP_APPLICATOR(Control, Group, ValueNone)
+
+/// @ingroup evaluator_instructions
+/// @brief Represents a compiler step that groups a set of steps if a given
+/// object property exists, but is not evaluated on its own
+DEFINE_STEP_APPLICATOR(Control, GroupWhenDefines, ValueString)
 
 /// @ingroup evaluator_instructions
 /// @brief Represents a compiler step that consists of a mark to jump to while
