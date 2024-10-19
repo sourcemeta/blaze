@@ -1000,33 +1000,35 @@ auto compiler_draft4_applicator_additionalitems_from_cursor(
                                sourcemeta::jsontoolkit::empty_pointer,
                                sourcemeta::jsontoolkit::empty_pointer)};
 
-  // Avoid one extra wrapper instruction if possible
-  if (!annotate && !track_evaluation) {
-    return {make<LoopItems>(true, context, schema_context, dynamic_context,
-                            ValueUnsignedInteger{cursor},
-                            std::move(subchildren))};
-  }
-
   Template children{
-      make<LoopItems>(true, context, schema_context, relative_dynamic_context,
+      make<LoopItems>(true, context, schema_context, dynamic_context,
                       ValueUnsignedInteger{cursor}, std::move(subchildren))};
 
+  // Avoid one extra wrapper instruction if possible
+  if (!annotate && !track_evaluation) {
+    return children;
+  }
+
+  Template tail;
+
   if (annotate) {
-    children.push_back(make<AnnotationEmit>(
-        true, context, schema_context, relative_dynamic_context,
-        sourcemeta::jsontoolkit::JSON{true}));
+    tail.push_back(make<AnnotationEmit>(true, context, schema_context,
+                                        relative_dynamic_context,
+                                        sourcemeta::jsontoolkit::JSON{true}));
   }
 
   if (track_evaluation) {
-    children.push_back(make<ControlEvaluate>(true, context, schema_context,
-                                             relative_dynamic_context,
-                                             ValuePointer{}));
+    tail.push_back(make<ControlEvaluate>(true, context, schema_context,
+                                         relative_dynamic_context,
+                                         ValuePointer{}));
   }
 
-  assert(children.size() > 1);
-  return {make<LogicalWhenArraySizeGreater>(
-      false, context, schema_context, dynamic_context,
-      ValueUnsignedInteger{cursor}, std::move(children))};
+  assert(!tail.empty());
+  children.push_back(make<LogicalWhenArraySizeGreater>(
+      true, context, schema_context, dynamic_context,
+      ValueUnsignedInteger{cursor}, std::move(tail)));
+
+  return children;
 }
 
 auto compiler_draft4_applicator_additionalitems_with_options(

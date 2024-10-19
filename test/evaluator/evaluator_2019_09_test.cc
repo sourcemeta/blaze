@@ -2489,7 +2489,7 @@ TEST(Evaluator_2019_09, additionalItems_4_exhaustive) {
 
   const sourcemeta::jsontoolkit::JSON instance{
       sourcemeta::jsontoolkit::parse("[ true, 5, \"foo\", \"bar\" ]")};
-  EVALUATE_WITH_TRACE_EXHAUSTIVE_SUCCESS(schema, instance, 8);
+  EVALUATE_WITH_TRACE_EXHAUSTIVE_SUCCESS(schema, instance, 9);
 
   EVALUATE_TRACE_PRE(0, AssertionArrayPrefix, "/items", "#/items", "");
   EVALUATE_TRACE_PRE(1, AssertionTypeStrict, "/items/0/type", "#/items/0/type",
@@ -2501,7 +2501,9 @@ TEST(Evaluator_2019_09, additionalItems_4_exhaustive) {
                      "#/additionalItems/type", "/2");
   EVALUATE_TRACE_PRE(6, AssertionTypeStrict, "/additionalItems/type",
                      "#/additionalItems/type", "/3");
-  EVALUATE_TRACE_PRE_ANNOTATION(7, "/additionalItems", "#/additionalItems", "");
+  EVALUATE_TRACE_PRE(7, LogicalWhenArraySizeGreater, "/additionalItems",
+                     "#/additionalItems", "");
+  EVALUATE_TRACE_PRE_ANNOTATION(8, "/additionalItems", "#/additionalItems", "");
 
   EVALUATE_TRACE_POST_SUCCESS(0, AssertionTypeStrict, "/items/0/type",
                               "#/items/0/type", "/0");
@@ -2517,6 +2519,8 @@ TEST(Evaluator_2019_09, additionalItems_4_exhaustive) {
                               "#/additionalItems", "");
   EVALUATE_TRACE_POST_ANNOTATION(7, "/additionalItems", "#/additionalItems", "",
                                  true);
+  EVALUATE_TRACE_POST_SUCCESS(8, LogicalWhenArraySizeGreater,
+                              "/additionalItems", "#/additionalItems", "");
 
   EVALUATE_TRACE_POST_DESCRIBE(instance, 0,
                                "The value was expected to be of type boolean");
@@ -2540,6 +2544,9 @@ TEST(Evaluator_2019_09, additionalItems_4_exhaustive) {
       "validate against the given subschema");
   EVALUATE_TRACE_POST_DESCRIBE(
       instance, 7, "Every item in the array value was successfully validated");
+  EVALUATE_TRACE_POST_DESCRIBE(instance, 8,
+                               "The array value contains 2 additional items "
+                               "not described by related keywords");
 }
 
 TEST(Evaluator_2019_09, additionalItems_5) {
@@ -4415,7 +4422,7 @@ TEST(Evaluator_2019_09, unevaluatedItems_9) {
   const sourcemeta::jsontoolkit::JSON instance{
       sourcemeta::jsontoolkit::parse("[ true, false ]")};
 
-  EVALUATE_WITH_TRACE_FAST_SUCCESS(schema, instance, 6);
+  EVALUATE_WITH_TRACE_FAST_SUCCESS(schema, instance, 7);
 
   EVALUATE_TRACE_PRE(0, AssertionArrayPrefix, "/items", "#/items", "");
   EVALUATE_TRACE_PRE(1, AssertionTypeStrict, "/items/0/type", "#/items/0/type",
@@ -4423,9 +4430,11 @@ TEST(Evaluator_2019_09, unevaluatedItems_9) {
   EVALUATE_TRACE_PRE(2, LoopItems, "/additionalItems", "#/additionalItems", "");
   EVALUATE_TRACE_PRE(3, AssertionTypeStrict, "/additionalItems/type",
                      "#/additionalItems/type", "/1");
-  EVALUATE_TRACE_PRE(4, ControlEvaluate, "/additionalItems",
+  EVALUATE_TRACE_PRE(4, LogicalWhenArraySizeGreater, "/additionalItems",
                      "#/additionalItems", "");
-  EVALUATE_TRACE_PRE(5, LoopItemsUnevaluated, "/unevaluatedItems",
+  EVALUATE_TRACE_PRE(5, ControlEvaluate, "/additionalItems",
+                     "#/additionalItems", "");
+  EVALUATE_TRACE_PRE(6, LoopItemsUnevaluated, "/unevaluatedItems",
                      "#/unevaluatedItems", "");
 
   EVALUATE_TRACE_POST_SUCCESS(0, AssertionTypeStrict, "/items/0/type",
@@ -4437,7 +4446,9 @@ TEST(Evaluator_2019_09, unevaluatedItems_9) {
                               "#/additionalItems", "");
   EVALUATE_TRACE_POST_SUCCESS(4, ControlEvaluate, "/additionalItems",
                               "#/additionalItems", "");
-  EVALUATE_TRACE_POST_SUCCESS(5, LoopItemsUnevaluated, "/unevaluatedItems",
+  EVALUATE_TRACE_POST_SUCCESS(5, LogicalWhenArraySizeGreater,
+                              "/additionalItems", "#/additionalItems", "");
+  EVALUATE_TRACE_POST_SUCCESS(6, LoopItemsUnevaluated, "/unevaluatedItems",
                               "#/unevaluatedItems", "");
 
   EVALUATE_TRACE_POST_DESCRIBE(instance, 0,
@@ -4454,8 +4465,11 @@ TEST(Evaluator_2019_09, unevaluatedItems_9) {
       "validate against the given subschema");
   EVALUATE_TRACE_POST_DESCRIBE(instance, 4,
                                "The instance location was marked as evaluated");
+  EVALUATE_TRACE_POST_DESCRIBE(instance, 5,
+                               "The array value contains 1 additional item not "
+                               "described by related keywords");
   EVALUATE_TRACE_POST_DESCRIBE(
-      instance, 5,
+      instance, 6,
       "The array items not covered by other array keywords, if any, were "
       "expected to validate against this subschema");
 }
@@ -4472,7 +4486,7 @@ TEST(Evaluator_2019_09, unevaluatedItems_9_exhaustive) {
   const sourcemeta::jsontoolkit::JSON instance{
       sourcemeta::jsontoolkit::parse("[ true, false ]")};
 
-  EVALUATE_WITH_TRACE_EXHAUSTIVE_SUCCESS(schema, instance, 8);
+  EVALUATE_WITH_TRACE_EXHAUSTIVE_SUCCESS(schema, instance, 9);
 
   EVALUATE_TRACE_PRE(0, AssertionArrayPrefix, "/items", "#/items", "");
   EVALUATE_TRACE_PRE(1, AssertionTypeStrict, "/items/0/type", "#/items/0/type",
@@ -4481,10 +4495,12 @@ TEST(Evaluator_2019_09, unevaluatedItems_9_exhaustive) {
   EVALUATE_TRACE_PRE(3, LoopItems, "/additionalItems", "#/additionalItems", "");
   EVALUATE_TRACE_PRE(4, AssertionTypeStrict, "/additionalItems/type",
                      "#/additionalItems/type", "/1");
-  EVALUATE_TRACE_PRE_ANNOTATION(5, "/additionalItems", "#/additionalItems", "");
-  EVALUATE_TRACE_PRE(6, ControlEvaluate, "/additionalItems",
+  EVALUATE_TRACE_PRE(5, LogicalWhenArraySizeGreater, "/additionalItems",
                      "#/additionalItems", "");
-  EVALUATE_TRACE_PRE(7, LoopItemsUnevaluated, "/unevaluatedItems",
+  EVALUATE_TRACE_PRE_ANNOTATION(6, "/additionalItems", "#/additionalItems", "");
+  EVALUATE_TRACE_PRE(7, ControlEvaluate, "/additionalItems",
+                     "#/additionalItems", "");
+  EVALUATE_TRACE_PRE(8, LoopItemsUnevaluated, "/unevaluatedItems",
                      "#/unevaluatedItems", "");
 
   EVALUATE_TRACE_POST_SUCCESS(0, AssertionTypeStrict, "/items/0/type",
@@ -4499,7 +4515,9 @@ TEST(Evaluator_2019_09, unevaluatedItems_9_exhaustive) {
                                  true);
   EVALUATE_TRACE_POST_SUCCESS(6, ControlEvaluate, "/additionalItems",
                               "#/additionalItems", "");
-  EVALUATE_TRACE_POST_SUCCESS(7, LoopItemsUnevaluated, "/unevaluatedItems",
+  EVALUATE_TRACE_POST_SUCCESS(7, LogicalWhenArraySizeGreater,
+                              "/additionalItems", "#/additionalItems", "");
+  EVALUATE_TRACE_POST_SUCCESS(8, LoopItemsUnevaluated, "/unevaluatedItems",
                               "#/unevaluatedItems", "");
 
   EVALUATE_TRACE_POST_DESCRIBE(instance, 0,
@@ -4522,8 +4540,11 @@ TEST(Evaluator_2019_09, unevaluatedItems_9_exhaustive) {
       instance, 5, "Every item in the array value was successfully validated");
   EVALUATE_TRACE_POST_DESCRIBE(instance, 6,
                                "The instance location was marked as evaluated");
+  EVALUATE_TRACE_POST_DESCRIBE(instance, 7,
+                               "The array value contains 1 additional item not "
+                               "described by related keywords");
   EVALUATE_TRACE_POST_DESCRIBE(
-      instance, 7,
+      instance, 8,
       "The array items not covered by other array keywords, if any, were "
       "expected to validate against this subschema");
 }

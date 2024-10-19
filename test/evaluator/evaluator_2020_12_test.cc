@@ -130,7 +130,7 @@ TEST(Evaluator_2020_12, items_2_exhaustive) {
 
   const sourcemeta::jsontoolkit::JSON instance{
       sourcemeta::jsontoolkit::parse("[ \"foo\", \"bar\", \"baz\" ]")};
-  EVALUATE_WITH_TRACE_EXHAUSTIVE_SUCCESS(schema, instance, 5);
+  EVALUATE_WITH_TRACE_EXHAUSTIVE_SUCCESS(schema, instance, 6);
 
   EVALUATE_TRACE_PRE(0, LoopItems, "/items", "#/items", "");
   EVALUATE_TRACE_PRE(1, AssertionTypeStrict, "/items/type", "#/items/type",
@@ -139,7 +139,8 @@ TEST(Evaluator_2020_12, items_2_exhaustive) {
                      "/1");
   EVALUATE_TRACE_PRE(3, AssertionTypeStrict, "/items/type", "#/items/type",
                      "/2");
-  EVALUATE_TRACE_PRE_ANNOTATION(4, "/items", "#/items", "");
+  EVALUATE_TRACE_PRE(4, LogicalWhenArraySizeGreater, "/items", "#/items", "");
+  EVALUATE_TRACE_PRE_ANNOTATION(5, "/items", "#/items", "");
 
   EVALUATE_TRACE_POST_SUCCESS(0, AssertionTypeStrict, "/items/type",
                               "#/items/type", "/0");
@@ -149,6 +150,8 @@ TEST(Evaluator_2020_12, items_2_exhaustive) {
                               "#/items/type", "/2");
   EVALUATE_TRACE_POST_SUCCESS(3, LoopItems, "/items", "#/items", "");
   EVALUATE_TRACE_POST_ANNOTATION(4, "/items", "#/items", "", true);
+  EVALUATE_TRACE_POST_SUCCESS(5, LogicalWhenArraySizeGreater, "/items",
+                              "#/items", "");
 
   EVALUATE_TRACE_POST_DESCRIBE(instance, 0,
                                "The value was expected to be of type string");
@@ -161,6 +164,9 @@ TEST(Evaluator_2020_12, items_2_exhaustive) {
                                "validate against the given subschema");
   EVALUATE_TRACE_POST_DESCRIBE(
       instance, 4, "Every item in the array value was successfully validated");
+  EVALUATE_TRACE_POST_DESCRIBE(instance, 5,
+                               "The array value contains 3 additional items "
+                               "not described by related keywords");
 }
 
 TEST(Evaluator_2020_12, items_3) {
@@ -357,7 +363,7 @@ TEST(Evaluator_2020_12, items_5_exhaustive) {
 
   const sourcemeta::jsontoolkit::JSON instance{
       sourcemeta::jsontoolkit::parse("[ true, 5, \"foo\", \"bar\" ]")};
-  EVALUATE_WITH_TRACE_EXHAUSTIVE_SUCCESS(schema, instance, 8);
+  EVALUATE_WITH_TRACE_EXHAUSTIVE_SUCCESS(schema, instance, 9);
 
   EVALUATE_TRACE_PRE(0, AssertionArrayPrefix, "/prefixItems", "#/prefixItems",
                      "");
@@ -371,7 +377,8 @@ TEST(Evaluator_2020_12, items_5_exhaustive) {
                      "/2");
   EVALUATE_TRACE_PRE(6, AssertionTypeStrict, "/items/type", "#/items/type",
                      "/3");
-  EVALUATE_TRACE_PRE_ANNOTATION(7, "/items", "#/items", "");
+  EVALUATE_TRACE_PRE(7, LogicalWhenArraySizeGreater, "/items", "#/items", "");
+  EVALUATE_TRACE_PRE_ANNOTATION(8, "/items", "#/items", "");
 
   EVALUATE_TRACE_POST_SUCCESS(0, AssertionTypeStrict, "/prefixItems/0/type",
                               "#/prefixItems/0/type", "/0");
@@ -386,6 +393,8 @@ TEST(Evaluator_2020_12, items_5_exhaustive) {
                               "#/items/type", "/3");
   EVALUATE_TRACE_POST_SUCCESS(6, LoopItems, "/items", "#/items", "");
   EVALUATE_TRACE_POST_ANNOTATION(7, "/items", "#/items", "", true);
+  EVALUATE_TRACE_POST_SUCCESS(8, LogicalWhenArraySizeGreater, "/items",
+                              "#/items", "");
 
   EVALUATE_TRACE_POST_DESCRIBE(instance, 0,
                                "The value was expected to be of type boolean");
@@ -409,6 +418,9 @@ TEST(Evaluator_2020_12, items_5_exhaustive) {
       "validate against the given subschema");
   EVALUATE_TRACE_POST_DESCRIBE(
       instance, 7, "Every item in the array value was successfully validated");
+  EVALUATE_TRACE_POST_DESCRIBE(instance, 8,
+                               "The array value contains 2 additional items "
+                               "not described by related keywords");
 }
 
 TEST(Evaluator_2020_12, items_6) {
