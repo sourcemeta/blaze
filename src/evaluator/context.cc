@@ -110,6 +110,16 @@ auto EvaluationContext::leave() -> void {
   this->instances_.pop_back();
 }
 
+auto EvaluationContext::advance(
+    const sourcemeta::jsontoolkit::Pointer &relative_schema_location) -> void {
+  this->evaluate_path_.push_back(relative_schema_location);
+}
+
+auto EvaluationContext::retreat(
+    const sourcemeta::jsontoolkit::Pointer &relative_schema_location) -> void {
+  this->evaluate_path_.pop_back(relative_schema_location.size());
+}
+
 auto EvaluationContext::instances() const noexcept -> const
     std::vector<std::reference_wrapper<const sourcemeta::jsontoolkit::JSON>> & {
   return this->instances_;

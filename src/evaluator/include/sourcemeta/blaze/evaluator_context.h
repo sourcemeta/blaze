@@ -59,6 +59,10 @@ public:
   auto enter(const sourcemeta::jsontoolkit::WeakPointer::Token::Index &index)
       -> void;
   auto leave() -> void;
+  auto advance(const sourcemeta::jsontoolkit::Pointer &relative_schema_location)
+      -> void;
+  auto retreat(const sourcemeta::jsontoolkit::Pointer &relative_schema_location)
+      -> void;
 
 private:
   auto push_without_traverse(

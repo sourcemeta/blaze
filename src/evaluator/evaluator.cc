@@ -619,8 +619,7 @@ auto evaluate_step(const sourcemeta::blaze::Template::value_type &step,
                                      : children_size};
       result = true;
       if (consequence_start > 0) {
-        // TODO: Simplify and optimize this
-        context.pop(logical.dynamic);
+        context.retreat(logical.relative_schema_location);
 
         for (auto cursor = consequence_start; cursor < consequence_end;
              cursor++) {
@@ -630,10 +629,7 @@ auto evaluate_step(const sourcemeta::blaze::Template::value_type &step,
           }
         }
 
-        // TODO: Simplify and optimize this
-        context.push(logical.relative_schema_location,
-                     logical.relative_instance_location,
-                     logical.schema_resource, logical.dynamic);
+        context.advance(logical.relative_schema_location);
       }
 
       EVALUATE_END(logical, LogicalCondition);
