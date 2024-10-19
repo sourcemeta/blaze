@@ -176,13 +176,6 @@ static auto test_resolver(std::string_view identifier)
   return sourcemeta::jsontoolkit::official_resolver(identifier);
 }
 
-static auto callback_noop(const sourcemeta::blaze::EvaluationType, bool,
-                          const sourcemeta::blaze::Template::value_type &,
-                          const sourcemeta::jsontoolkit::WeakPointer &,
-                          const sourcemeta::jsontoolkit::WeakPointer &,
-                          const sourcemeta::jsontoolkit::JSON &) noexcept
-    -> void {}
-
 static auto slugify(const std::string &input, std::ostream &output) -> void {
   for (const auto character : input) {
     output << (std::isalnum(character) ? character : '_');
@@ -198,8 +191,8 @@ public:
         instance{std::move(test_instance)} {}
 
   auto TestBody() -> void override {
-    const auto result{sourcemeta::blaze::evaluate(this->schema, this->instance,
-                                                  callback_noop)};
+    const auto result{
+        sourcemeta::blaze::evaluate(this->schema, this->instance)};
     if (this->valid) {
       EXPECT_TRUE(result);
     } else {
