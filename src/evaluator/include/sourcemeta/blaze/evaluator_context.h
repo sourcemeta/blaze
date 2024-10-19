@@ -44,15 +44,17 @@ public:
       -> const sourcemeta::jsontoolkit::WeakPointer &;
   auto push(const sourcemeta::jsontoolkit::Pointer &relative_schema_location,
             const sourcemeta::jsontoolkit::Pointer &relative_instance_location,
-            const std::size_t &schema_resource, const bool dynamic) -> void;
+            const std::size_t &schema_resource, const bool dynamic,
+            const bool track_evaluate_path) -> void;
   // A performance shortcut for pushing without re-traversing the target
   // if we already know that the destination target will be
   auto push(const sourcemeta::jsontoolkit::Pointer &relative_schema_location,
             const sourcemeta::jsontoolkit::Pointer &relative_instance_location,
             const std::size_t &schema_resource, const bool dynamic,
+            const bool track_evaluate_path,
             std::reference_wrapper<const sourcemeta::jsontoolkit::JSON>
                 &&new_instance) -> void;
-  auto pop(const bool dynamic) -> void;
+  auto pop(const bool dynamic, const bool track_evaluate_path) -> void;
   auto
   enter(const sourcemeta::jsontoolkit::WeakPointer::Token::Property &property)
       -> void;
@@ -68,7 +70,8 @@ private:
   auto push_without_traverse(
       const sourcemeta::jsontoolkit::Pointer &relative_schema_location,
       const sourcemeta::jsontoolkit::Pointer &relative_instance_location,
-      const std::size_t &schema_resource, const bool dynamic) -> void;
+      const std::size_t &schema_resource, const bool dynamic,
+      const bool track_evaluate_path) -> void;
 
 public:
   ///////////////////////////////////////////////
@@ -124,6 +127,7 @@ private:
   std::vector<std::reference_wrapper<const sourcemeta::jsontoolkit::JSON>>
       instances_;
   sourcemeta::jsontoolkit::WeakPointer evaluate_path_;
+  std::uint64_t evaluate_path_size_{0};
   sourcemeta::jsontoolkit::WeakPointer instance_location_;
   std::vector<std::pair<std::size_t, std::size_t>> frame_sizes;
   const std::hash<std::string> hasher_{};
