@@ -654,6 +654,22 @@ auto evaluate_step(const sourcemeta::blaze::Template::value_type &step,
       EVALUATE_END_PASS_THROUGH(ControlGroup);
     }
 
+    case IS_STEP(ControlGroupWhenDefines): {
+      EVALUATE_BEGIN_PASS_THROUGH(control, ControlGroupWhenDefines);
+      const auto &target{context.resolve_target()};
+
+      if (target.is_object() && target.defines(control.value)) {
+        for (const auto &child : control.children) {
+          if (!evaluate_step(child, callback, context)) {
+            result = false;
+            break;
+          }
+        }
+      }
+
+      EVALUATE_END_PASS_THROUGH(ControlGroupWhenDefines);
+    }
+
     case IS_STEP(ControlLabel): {
       EVALUATE_BEGIN_NO_PRECONDITION(control, ControlLabel);
       context.mark(control.value, control.children);

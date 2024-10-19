@@ -249,10 +249,6 @@ struct DescribeVisitor {
     return message.str();
   }
 
-  auto operator()(const ControlGroup &) const -> std::string {
-    return unknown();
-  }
-
   auto operator()(const ControlLabel &) const -> std::string {
     return describe_reference(this->target);
   }
@@ -1662,9 +1658,18 @@ struct DescribeVisitor {
 
   // These steps are never described, at least not right now
 
+  auto operator()(const ControlGroup &) const -> std::string {
+    return unknown();
+  }
+
+  auto operator()(const ControlGroupWhenDefines &) const -> std::string {
+    return unknown();
+  }
+
   auto operator()(const LogicalWhenArraySizeGreater &) const -> std::string {
     return unknown();
   }
+
   auto operator()(const LogicalWhenArraySizeEqual &) const -> std::string {
     return unknown();
   }
