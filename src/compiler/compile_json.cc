@@ -187,7 +187,8 @@ auto encode_step(const std::string_view category, const std::string_view type,
   result.assign("schemaResource",
                 sourcemeta::jsontoolkit::JSON{step.schema_resource});
   result.assign("dynamic", sourcemeta::jsontoolkit::JSON{step.dynamic});
-  result.assign("track", sourcemeta::jsontoolkit::JSON{step.track});
+  result.assign("trackEvaluatePath",
+                sourcemeta::jsontoolkit::JSON{step.track_evaluate_path});
   result.assign("value", value_to_json(step.value));
 
   if constexpr (requires { step.children; }) {
@@ -300,7 +301,7 @@ auto template_format_compare(const sourcemeta::jsontoolkit::JSON::String &left,
                    {"absoluteKeywordLocation", 4},
                    {"relativeSchemaLocation", 5},
                    {"relativeInstanceLocation", 6},
-                   {"evaluatePath", 7},
+                   {"trackEvaluatePath", 7},
                    {"dynamic", 8},
                    {"children", 9}};
 

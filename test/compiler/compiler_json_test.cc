@@ -19,7 +19,7 @@ TEST(Compiler_json, defines_basic_root) {
       "relativeInstanceLocation": "",
       "schemaResource": 0,
       "dynamic": true,
-      "track": true,
+      "trackEvaluatePath": true,
       "absoluteKeywordLocation": "#",
       "value": {
         "category": "value",
@@ -49,7 +49,7 @@ TEST(Compiler_json, defines_basic_nested) {
       "relativeInstanceLocation": "",
       "schemaResource": 0,
       "dynamic": true,
-      "track": true,
+      "trackEvaluatePath": true,
       "absoluteKeywordLocation": "#/foo/bar",
       "value": {
         "category": "value",
@@ -78,7 +78,7 @@ TEST(Compiler_json, fail_basic_root) {
       "relativeInstanceLocation": "",
       "schemaResource": 0,
       "dynamic": true,
-      "track": true,
+      "trackEvaluatePath": true,
       "absoluteKeywordLocation": "#",
       "value": null
     }
@@ -103,7 +103,7 @@ TEST(Compiler_json, type_basic_root) {
       "relativeInstanceLocation": "",
       "schemaResource": 0,
       "dynamic": true,
-      "track": true,
+      "trackEvaluatePath": true,
       "absoluteKeywordLocation": "#",
       "value": {
         "category": "value",
@@ -137,7 +137,7 @@ TEST(Compiler_json, or_empty) {
       "relativeInstanceLocation": "",
       "schemaResource": 0,
       "dynamic": true,
-      "track": true,
+      "trackEvaluatePath": true,
       "absoluteKeywordLocation": "#",
       "children": []
     }
@@ -170,7 +170,7 @@ TEST(Compiler_json, or_single_child) {
       "relativeInstanceLocation": "",
       "schemaResource": 0,
       "dynamic": true,
-      "track": true,
+      "trackEvaluatePath": true,
       "absoluteKeywordLocation": "#",
       "children": [
         {
@@ -180,7 +180,7 @@ TEST(Compiler_json, or_single_child) {
           "relativeInstanceLocation": "",
           "schemaResource": 0,
           "dynamic": true,
-          "track": true,
+          "trackEvaluatePath": true,
           "absoluteKeywordLocation": "#",
           "value": {
             "category": "value",
@@ -222,7 +222,7 @@ TEST(Compiler_json, or_multiple_children) {
       "relativeInstanceLocation": "",
       "schemaResource": 0,
       "dynamic": true,
-      "track": true,
+      "trackEvaluatePath": true,
       "absoluteKeywordLocation": "#",
       "children": [
         {
@@ -232,7 +232,7 @@ TEST(Compiler_json, or_multiple_children) {
           "relativeInstanceLocation": "",
           "schemaResource": 0,
           "dynamic": true,
-          "track": true,
+          "trackEvaluatePath": true,
           "absoluteKeywordLocation": "#",
           "value": {
             "category": "value",
@@ -247,7 +247,7 @@ TEST(Compiler_json, or_multiple_children) {
           "relativeInstanceLocation": "",
           "schemaResource": 0,
           "dynamic": true,
-          "track": true,
+          "trackEvaluatePath": true,
           "absoluteKeywordLocation": "#",
           "value": {
             "category": "value",
@@ -279,7 +279,7 @@ TEST(Compiler_json, and_empty) {
       "relativeInstanceLocation": "",
       "schemaResource": 0,
       "dynamic": true,
-      "track": true,
+      "trackEvaluatePath": true,
       "absoluteKeywordLocation": "#",
       "children": []
     }
@@ -308,7 +308,7 @@ TEST(Compiler_json, and_single_child) {
       "relativeInstanceLocation": "",
       "schemaResource": 0,
       "dynamic": true,
-      "track": true,
+      "trackEvaluatePath": true,
       "absoluteKeywordLocation": "#",
       "children": [
         {
@@ -318,7 +318,7 @@ TEST(Compiler_json, and_single_child) {
           "relativeInstanceLocation": "",
           "schemaResource": 0,
           "dynamic": true,
-          "track": true,
+          "trackEvaluatePath": true,
           "absoluteKeywordLocation": "#",
           "value": {
             "category": "value",
@@ -356,7 +356,7 @@ TEST(Compiler_json, and_multiple_children) {
       "relativeInstanceLocation": "",
       "schemaResource": 0,
       "dynamic": true,
-      "track": true,
+      "trackEvaluatePath": true,
       "absoluteKeywordLocation": "#",
       "children": [
         {
@@ -366,7 +366,7 @@ TEST(Compiler_json, and_multiple_children) {
           "relativeInstanceLocation": "",
           "schemaResource": 0,
           "dynamic": true,
-          "track": true,
+          "trackEvaluatePath": true,
           "absoluteKeywordLocation": "#",
           "value": {
             "category": "value",
@@ -381,7 +381,7 @@ TEST(Compiler_json, and_multiple_children) {
           "relativeInstanceLocation": "",
           "schemaResource": 0,
           "dynamic": true,
-          "track": true,
+          "trackEvaluatePath": true,
           "absoluteKeywordLocation": "#",
           "value": {
             "category": "value",
@@ -413,7 +413,7 @@ TEST(Compiler_json, regex_basic) {
       "relativeInstanceLocation": "",
       "schemaResource": 0,
       "dynamic": true,
-      "track": true,
+      "trackEvaluatePath": true,
       "absoluteKeywordLocation": "#",
       "value": {
         "category": "value",

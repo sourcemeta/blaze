@@ -86,7 +86,7 @@ auto unroll(const DynamicContext &dynamic_context, const Step &step,
           std::get<Type>(step).keyword_location,
           std::get<Type>(step).schema_resource,
           std::get<Type>(step).dynamic,
-          std::get<Type>(step).track,
+          std::get<Type>(step).track_evaluate_path,
           std::get<Type>(step).value};
 }
 

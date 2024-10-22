@@ -9,7 +9,7 @@ TEST(Compiler_template_format, example_1) {
       sourcemeta::jsontoolkit::parse(R"JSON({
     "absoluteKeywordLocation": "#/properties",
     "category": "annotation",
-    "evaluatePath": true,
+    "trackEvaluatePath": true,
     "unknown": 1,
     "dynamic": true,
     "type": "public",
@@ -36,7 +36,7 @@ TEST(Compiler_template_format, example_1) {
   "absoluteKeywordLocation": "#/properties",
   "relativeSchemaLocation": "",
   "relativeInstanceLocation": "",
-  "evaluatePath": true,
+  "trackEvaluatePath": true,
   "dynamic": true,
   "unknown": 1
 })JSON");

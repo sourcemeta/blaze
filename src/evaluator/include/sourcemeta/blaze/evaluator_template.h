@@ -170,7 +170,7 @@ enum class TemplateIndex : std::uint8_t {
     const std::string keyword_location;                                        \
     const std::size_t schema_resource;                                         \
     const bool dynamic;                                                        \
-    const bool track;                                                          \
+    const bool track_evaluate_path;                                            \
     const type value;                                                          \
   };
 
@@ -181,7 +181,7 @@ enum class TemplateIndex : std::uint8_t {
     const std::string keyword_location;                                        \
     const std::size_t schema_resource;                                         \
     const bool dynamic;                                                        \
-    const bool track;                                                          \
+    const bool track_evaluate_path;                                            \
     const type value;                                                          \
     const Template children;                                                   \
   };
