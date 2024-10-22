@@ -39,7 +39,7 @@ auto compiler_2019_09_applicator_dependentschemas(
 
     if (!dependency.is_boolean() || !dependency.to_boolean()) {
       children.push_back(make<LogicalWhenDefines>(
-          true, context, schema_context, relative_dynamic_context,
+          context, schema_context, relative_dynamic_context,
           ValueString{dependent},
           compile(context, schema_context, relative_dynamic_context,
                   {dependent}, sourcemeta::jsontoolkit::empty_pointer)));
@@ -47,7 +47,7 @@ auto compiler_2019_09_applicator_dependentschemas(
   }
 
   // TODO: Is this wrapper really necessary?
-  return {make<LogicalWhenType>(true, context, schema_context, dynamic_context,
+  return {make<LogicalWhenType>(context, schema_context, dynamic_context,
                                 sourcemeta::jsontoolkit::JSON::Type::Object,
                                 std::move(children))};
 }
@@ -88,7 +88,7 @@ auto compiler_2019_09_validation_dependentrequired(
   }
 
   return {make<AssertionPropertyDependencies>(
-      true, context, schema_context, dynamic_context, std::move(dependencies))};
+      context, schema_context, dynamic_context, std::move(dependencies))};
 }
 
 auto compiler_2019_09_core_annotation(const Context &context,
@@ -96,7 +96,7 @@ auto compiler_2019_09_core_annotation(const Context &context,
                                       const DynamicContext &dynamic_context)
     -> Template {
   return {make<AnnotationEmit>(
-      true, context, schema_context, dynamic_context,
+      context, schema_context, dynamic_context,
       sourcemeta::jsontoolkit::JSON{
           schema_context.schema.at(dynamic_context.keyword)})};
 }
@@ -136,7 +136,7 @@ auto compiler_2019_09_applicator_contains_with_options(
   }
 
   if (maximum.has_value() && minimum > maximum.value()) {
-    return {make<AssertionFail>(true, context, schema_context, dynamic_context,
+    return {make<AssertionFail>(context, schema_context, dynamic_context,
                                 ValueNone{})};
   }
 
@@ -150,7 +150,7 @@ auto compiler_2019_09_applicator_contains_with_options(
 
   if (annotate) {
     children.push_back(make<AnnotationBasenameToParent>(
-        true, context, schema_context, relative_dynamic_context, ValueNone{}));
+        context, schema_context, relative_dynamic_context, ValueNone{}));
 
     // TODO: If after emitting the above annotation, the number of annotations
     // for the current schema location + instance location is equal to the
@@ -159,13 +159,12 @@ auto compiler_2019_09_applicator_contains_with_options(
   }
 
   if (track_evaluation) {
-    children.push_back(make<ControlEvaluate>(true, context, schema_context,
-                                             relative_dynamic_context,
-                                             ValuePointer{}));
+    children.push_back(make<ControlEvaluate>(
+        context, schema_context, relative_dynamic_context, ValuePointer{}));
   }
 
   return {make<LoopContains>(
-      true, context, schema_context, dynamic_context,
+      context, schema_context, dynamic_context,
       ValueRange{minimum, maximum, annotate || track_evaluation},
       std::move(children))};
 }
@@ -218,13 +217,12 @@ auto compiler_2019_09_applicator_unevaluateditems(
 
   if (context.mode == Mode::Exhaustive) {
     children.push_back(make<AnnotationToParent>(
-        true, context, schema_context, relative_dynamic_context,
+        context, schema_context, relative_dynamic_context,
         sourcemeta::jsontoolkit::JSON{true}));
   }
 
-  return {make<LoopItemsUnevaluated>(true, context, schema_context,
-                                     dynamic_context, ValueNone{},
-                                     std::move(children))};
+  return {make<LoopItemsUnevaluated>(context, schema_context, dynamic_context,
+                                     ValueNone{}, std::move(children))};
 }
 
 auto compiler_2019_09_applicator_unevaluatedproperties(
@@ -242,10 +240,10 @@ auto compiler_2019_09_applicator_unevaluatedproperties(
 
   if (context.mode == Mode::Exhaustive) {
     children.push_back(make<AnnotationBasenameToParent>(
-        true, context, schema_context, relative_dynamic_context, ValueNone{}));
+        context, schema_context, relative_dynamic_context, ValueNone{}));
   }
 
-  return {make<LoopPropertiesUnevaluated>(true, context, schema_context,
+  return {make<LoopPropertiesUnevaluated>(context, schema_context,
                                           dynamic_context, ValueNone{},
                                           std::move(children))};
 }
@@ -266,7 +264,7 @@ auto compiler_2019_09_core_recursiveref(const Context &context,
     return compiler_draft4_core_ref(context, schema_context, dynamic_context);
   }
 
-  return {make<ControlDynamicAnchorJump>(true, context, schema_context,
+  return {make<ControlDynamicAnchorJump>(context, schema_context,
                                          dynamic_context, "")};
 }
 
