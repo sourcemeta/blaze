@@ -80,8 +80,11 @@ public:
 
   auto instances() const noexcept -> const std::vector<
       std::reference_wrapper<const sourcemeta::jsontoolkit::JSON>> &;
-  enum class TargetType : std::uint8_t { Key, Value };
-  auto target_type(const TargetType type) noexcept -> void;
+  auto
+  set_property_target(const sourcemeta::jsontoolkit::JSON::String &property)
+      -> void;
+  auto unset_property_target() -> void;
+
   auto resolve_target() -> const sourcemeta::jsontoolkit::JSON &;
   auto resolve_string_target() -> std::optional<
       std::reference_wrapper<const sourcemeta::jsontoolkit::JSON::String>>;
@@ -133,7 +136,9 @@ private:
   const std::hash<std::string> hasher_{};
   std::vector<std::size_t> resources_;
   std::map<std::size_t, const std::reference_wrapper<const Template>> labels;
-  bool property_as_instance{false};
+  std::optional<
+      std::reference_wrapper<const sourcemeta::jsontoolkit::JSON::String>>
+      property_target;
 
   // TODO: Turn these into a trie
   std::vector<std::pair<sourcemeta::jsontoolkit::WeakPointer,

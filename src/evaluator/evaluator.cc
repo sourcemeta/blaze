@@ -978,22 +978,24 @@ auto evaluate_step(const sourcemeta::blaze::Template::value_type &step,
     case IS_STEP(LoopKeys): {
       EVALUATE_BEGIN(loop, LoopKeys, target.is_object());
       result = true;
-      context.target_type(EvaluationContext::TargetType::Key);
       for (const auto &entry : target.as_object()) {
         context.enter(entry.first);
+        context.set_property_target(entry.first);
+
         for (const auto &child : loop.children) {
           if (!evaluate_step(child, callback, context)) {
             result = false;
+            context.unset_property_target();
             context.leave();
             goto evaluate_loop_keys_end;
           }
         }
 
+        context.unset_property_target();
         context.leave();
       }
 
     evaluate_loop_keys_end:
-      context.target_type(EvaluationContext::TargetType::Value);
       EVALUATE_END(loop, LoopKeys);
     }
 
