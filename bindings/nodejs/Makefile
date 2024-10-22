@@ -30,7 +30,7 @@ CXXFLAGS ?= -O3 -std=c++20 -flto \
 	-DSOURCEMETA_BLAZE_COMPILER_EXPORT=
 
 # See https://emscripten.org/docs/tools_reference/settings_reference.html
-LDFLAGS ?= -lembind -s EXPORT_NAME=blaze \
+LDFLAGS ?= -lembind -s EXPORT_NAME=blaze -DNDEBUG \
 					 -s EVAL_CTORS=2 -s WASM=1 -s NO_EXIT_RUNTIME=1 -s ASSERTIONS=0 \
 					 -s MODULARIZE=1 -s EXPORT_ES6=1 -s ENVIRONMENT=node
 
