@@ -1854,7 +1854,7 @@ TEST(Evaluator_2019_09, items_2_exhaustive) {
 
   const sourcemeta::jsontoolkit::JSON instance{
       sourcemeta::jsontoolkit::parse("[ \"foo\", \"bar\", \"baz\" ]")};
-  EVALUATE_WITH_TRACE_EXHAUSTIVE_SUCCESS(schema, instance, 5);
+  EVALUATE_WITH_TRACE_EXHAUSTIVE_SUCCESS(schema, instance, 6);
 
   EVALUATE_TRACE_PRE(0, LoopItems, "/items", "#/items", "");
   EVALUATE_TRACE_PRE(1, AssertionTypeStrict, "/items/type", "#/items/type",
@@ -1863,7 +1863,8 @@ TEST(Evaluator_2019_09, items_2_exhaustive) {
                      "/1");
   EVALUATE_TRACE_PRE(3, AssertionTypeStrict, "/items/type", "#/items/type",
                      "/2");
-  EVALUATE_TRACE_PRE_ANNOTATION(4, "/items", "#/items", "");
+  EVALUATE_TRACE_PRE(4, LogicalWhenType, "/items", "#/items", "");
+  EVALUATE_TRACE_PRE_ANNOTATION(5, "/items", "#/items", "");
 
   EVALUATE_TRACE_POST_SUCCESS(0, AssertionTypeStrict, "/items/type",
                               "#/items/type", "/0");
@@ -1873,6 +1874,7 @@ TEST(Evaluator_2019_09, items_2_exhaustive) {
                               "#/items/type", "/2");
   EVALUATE_TRACE_POST_SUCCESS(3, LoopItems, "/items", "#/items", "");
   EVALUATE_TRACE_POST_ANNOTATION(4, "/items", "#/items", "", true);
+  EVALUATE_TRACE_POST_SUCCESS(5, LogicalWhenType, "/items", "#/items", "");
 
   EVALUATE_TRACE_POST_DESCRIBE(instance, 0,
                                "The value was expected to be of type string");
@@ -1885,6 +1887,8 @@ TEST(Evaluator_2019_09, items_2_exhaustive) {
                                "validate against the given subschema");
   EVALUATE_TRACE_POST_DESCRIBE(
       instance, 4, "Every item in the array value was successfully validated");
+  EVALUATE_TRACE_POST_DESCRIBE(instance, 5,
+                               "The value was expected to be of type array");
 }
 
 TEST(Evaluator_2019_09, items_3) {
@@ -2306,7 +2310,7 @@ TEST(Evaluator_2019_09, additionalItems_2_exhaustive) {
 
   const sourcemeta::jsontoolkit::JSON instance{
       sourcemeta::jsontoolkit::parse("[ \"foo\", \"bar\", \"baz\" ]")};
-  EVALUATE_WITH_TRACE_EXHAUSTIVE_SUCCESS(schema, instance, 5);
+  EVALUATE_WITH_TRACE_EXHAUSTIVE_SUCCESS(schema, instance, 6);
 
   EVALUATE_TRACE_PRE(0, LoopItems, "/items", "#/items", "");
   EVALUATE_TRACE_PRE(1, AssertionTypeStrict, "/items/type", "#/items/type",
@@ -2315,7 +2319,8 @@ TEST(Evaluator_2019_09, additionalItems_2_exhaustive) {
                      "/1");
   EVALUATE_TRACE_PRE(3, AssertionTypeStrict, "/items/type", "#/items/type",
                      "/2");
-  EVALUATE_TRACE_PRE_ANNOTATION(4, "/items", "#/items", "");
+  EVALUATE_TRACE_PRE(4, LogicalWhenType, "/items", "#/items", "");
+  EVALUATE_TRACE_PRE_ANNOTATION(5, "/items", "#/items", "");
 
   EVALUATE_TRACE_POST_SUCCESS(0, AssertionTypeStrict, "/items/type",
                               "#/items/type", "/0");
@@ -2325,6 +2330,7 @@ TEST(Evaluator_2019_09, additionalItems_2_exhaustive) {
                               "#/items/type", "/2");
   EVALUATE_TRACE_POST_SUCCESS(3, LoopItems, "/items", "#/items", "");
   EVALUATE_TRACE_POST_ANNOTATION(4, "/items", "#/items", "", true);
+  EVALUATE_TRACE_POST_SUCCESS(5, LogicalWhenType, "/items", "#/items", "");
 
   EVALUATE_TRACE_POST_DESCRIBE(instance, 0,
                                "The value was expected to be of type string");
@@ -2337,6 +2343,8 @@ TEST(Evaluator_2019_09, additionalItems_2_exhaustive) {
                                "validate against the given subschema");
   EVALUATE_TRACE_POST_DESCRIBE(
       instance, 4, "Every item in the array value was successfully validated");
+  EVALUATE_TRACE_POST_DESCRIBE(instance, 5,
+                               "The value was expected to be of type array");
 }
 
 TEST(Evaluator_2019_09, additionalItems_3) {
@@ -3843,20 +3851,22 @@ TEST(Evaluator_2019_09, unevaluatedItems_3) {
   const sourcemeta::jsontoolkit::JSON instance{
       sourcemeta::jsontoolkit::parse("[ \"foo\" ]")};
 
-  EVALUATE_WITH_TRACE_FAST_SUCCESS(schema, instance, 4);
+  EVALUATE_WITH_TRACE_FAST_SUCCESS(schema, instance, 5);
 
   EVALUATE_TRACE_PRE(0, LoopItems, "/items", "#/items", "");
   EVALUATE_TRACE_PRE(1, AssertionTypeStrict, "/items/type", "#/items/type",
                      "/0");
-  EVALUATE_TRACE_PRE(2, ControlEvaluate, "/items", "#/items", "");
-  EVALUATE_TRACE_PRE(3, LoopItemsUnevaluated, "/unevaluatedItems",
+  EVALUATE_TRACE_PRE(2, LogicalWhenType, "/items", "#/items", "");
+  EVALUATE_TRACE_PRE(3, ControlEvaluate, "/items", "#/items", "");
+  EVALUATE_TRACE_PRE(4, LoopItemsUnevaluated, "/unevaluatedItems",
                      "#/unevaluatedItems", "");
 
   EVALUATE_TRACE_POST_SUCCESS(0, AssertionTypeStrict, "/items/type",
                               "#/items/type", "/0");
   EVALUATE_TRACE_POST_SUCCESS(1, LoopItems, "/items", "#/items", "");
   EVALUATE_TRACE_POST_SUCCESS(2, ControlEvaluate, "/items", "#/items", "");
-  EVALUATE_TRACE_POST_SUCCESS(3, LoopItemsUnevaluated, "/unevaluatedItems",
+  EVALUATE_TRACE_POST_SUCCESS(3, LogicalWhenType, "/items", "#/items", "");
+  EVALUATE_TRACE_POST_SUCCESS(4, LoopItemsUnevaluated, "/unevaluatedItems",
                               "#/unevaluatedItems", "");
 
   EVALUATE_TRACE_POST_DESCRIBE(instance, 0,
@@ -3866,8 +3876,10 @@ TEST(Evaluator_2019_09, unevaluatedItems_3) {
                                "validate against the given subschema");
   EVALUATE_TRACE_POST_DESCRIBE(instance, 2,
                                "The instance location was marked as evaluated");
+  EVALUATE_TRACE_POST_DESCRIBE(instance, 3,
+                               "The value was expected to be of type array");
   EVALUATE_TRACE_POST_DESCRIBE(
-      instance, 3,
+      instance, 4,
       "The array items not covered by other array keywords, if any, were "
       "expected to validate against this subschema");
 }
@@ -3883,22 +3895,24 @@ TEST(Evaluator_2019_09, unevaluatedItems_3_exhaustive) {
   const sourcemeta::jsontoolkit::JSON instance{
       sourcemeta::jsontoolkit::parse("[ \"foo\" ]")};
 
-  EVALUATE_WITH_TRACE_EXHAUSTIVE_SUCCESS(schema, instance, 5);
+  EVALUATE_WITH_TRACE_EXHAUSTIVE_SUCCESS(schema, instance, 6);
 
   EVALUATE_TRACE_PRE(0, LoopItems, "/items", "#/items", "");
   EVALUATE_TRACE_PRE(1, AssertionTypeStrict, "/items/type", "#/items/type",
                      "/0");
-  EVALUATE_TRACE_PRE_ANNOTATION(2, "/items", "#/items", "");
-  EVALUATE_TRACE_PRE(3, ControlEvaluate, "/items", "#/items", "");
-  EVALUATE_TRACE_PRE(4, LoopItemsUnevaluated, "/unevaluatedItems",
+  EVALUATE_TRACE_PRE(2, LogicalWhenType, "/items", "#/items", "");
+  EVALUATE_TRACE_PRE_ANNOTATION(3, "/items", "#/items", "");
+  EVALUATE_TRACE_PRE(4, ControlEvaluate, "/items", "#/items", "");
+  EVALUATE_TRACE_PRE(5, LoopItemsUnevaluated, "/unevaluatedItems",
                      "#/unevaluatedItems", "");
 
   EVALUATE_TRACE_POST_SUCCESS(0, AssertionTypeStrict, "/items/type",
                               "#/items/type", "/0");
   EVALUATE_TRACE_POST_SUCCESS(1, LoopItems, "/items", "#/items", "");
   EVALUATE_TRACE_POST_ANNOTATION(2, "/items", "#/items", "", true);
-  EVALUATE_TRACE_PRE(3, ControlEvaluate, "/items", "#/items", "");
-  EVALUATE_TRACE_POST_SUCCESS(4, LoopItemsUnevaluated, "/unevaluatedItems",
+  EVALUATE_TRACE_POST_SUCCESS(3, ControlEvaluate, "/items", "#/items", "");
+  EVALUATE_TRACE_POST_SUCCESS(4, LogicalWhenType, "/items", "#/items", "");
+  EVALUATE_TRACE_POST_SUCCESS(5, LoopItemsUnevaluated, "/unevaluatedItems",
                               "#/unevaluatedItems", "");
 
   EVALUATE_TRACE_POST_DESCRIBE(instance, 0,
@@ -3910,8 +3924,10 @@ TEST(Evaluator_2019_09, unevaluatedItems_3_exhaustive) {
       instance, 2, "Every item in the array value was successfully validated");
   EVALUATE_TRACE_POST_DESCRIBE(instance, 3,
                                "The instance location was marked as evaluated");
+  EVALUATE_TRACE_POST_DESCRIBE(instance, 4,
+                               "The value was expected to be of type array");
   EVALUATE_TRACE_POST_DESCRIBE(
-      instance, 4,
+      instance, 5,
       "The array items not covered by other array keywords, if any, were "
       "expected to validate against this subschema");
 }
@@ -5315,7 +5331,7 @@ TEST(Evaluator_2019_09, recursiveRef_5_exhaustive) {
   const sourcemeta::jsontoolkit::JSON instance{
       sourcemeta::jsontoolkit::parse("[ [ 1 ] ]")};
 
-  EVALUATE_WITH_TRACE_EXHAUSTIVE_SUCCESS(schema, instance, 7);
+  EVALUATE_WITH_TRACE_EXHAUSTIVE_SUCCESS(schema, instance, 8);
 
   EVALUATE_TRACE_PRE(0, ControlMark, "", "https://example.com/nested", "");
   EVALUATE_TRACE_PRE(1, LoopItems, "/items",
@@ -5329,7 +5345,9 @@ TEST(Evaluator_2019_09, recursiveRef_5_exhaustive) {
                                 "https://example.com/nested#/items", "/0");
   EVALUATE_TRACE_PRE_ANNOTATION(5, "/items/items",
                                 "https://example.com/nested#/items", "/0");
-  EVALUATE_TRACE_PRE_ANNOTATION(6, "/items",
+  EVALUATE_TRACE_PRE(6, LogicalWhenType, "/items",
+                     "https://example.com/schema#/items", "");
+  EVALUATE_TRACE_PRE_ANNOTATION(7, "/items",
                                 "https://example.com/schema#/items", "");
 
   EVALUATE_TRACE_POST_SUCCESS(0, ControlMark, "", "https://example.com/nested",
@@ -5347,6 +5365,8 @@ TEST(Evaluator_2019_09, recursiveRef_5_exhaustive) {
                               "https://example.com/schema#/items", "");
   EVALUATE_TRACE_POST_ANNOTATION(6, "/items",
                                  "https://example.com/schema#/items", "", true);
+  EVALUATE_TRACE_POST_SUCCESS(7, LogicalWhenType, "/items",
+                              "https://example.com/schema#/items", "");
 
   EVALUATE_TRACE_POST_DESCRIBE(instance, 0,
                                "The schema location was marked for "
@@ -5370,6 +5390,8 @@ TEST(Evaluator_2019_09, recursiveRef_5_exhaustive) {
                                "validate against the given subschema");
   EVALUATE_TRACE_POST_DESCRIBE(
       instance, 6, "Every item in the array value was successfully validated");
+  EVALUATE_TRACE_POST_DESCRIBE(instance, 7,
+                               "The value was expected to be of type array");
 }
 
 TEST(Evaluator_2019_09, recursiveRef_6) {

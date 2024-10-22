@@ -1374,6 +1374,13 @@ struct DescribeVisitor {
   }
 
   auto operator()(const LogicalWhenType &step) const -> std::string {
+    if (this->keyword == "items") {
+      std::ostringstream message;
+      describe_type_check(this->valid, this->target.type(), step_value(step),
+                          message);
+      return message.str();
+    }
+
     if (this->keyword == "patternProperties") {
       assert(!step.children.empty());
       assert(this->target.is_object());
