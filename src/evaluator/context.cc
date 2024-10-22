@@ -11,12 +11,12 @@ auto EvaluationContext::prepare(const sourcemeta::jsontoolkit::JSON &instance)
   assert(this->evaluate_path_.empty());
   assert(this->evaluate_path_size_ == 0);
   assert(this->instance_location_.empty());
+  assert(!this->property_target.has_value());
   assert(this->frame_sizes.empty());
   assert(this->resources_.empty());
   this->instances_.clear();
   this->instances_.emplace_back(instance);
   this->labels.clear();
-  this->property_as_instance = false;
   this->evaluated_.clear();
   this->evaluated_blacklist_.clear();
 }
@@ -165,13 +165,20 @@ auto EvaluationContext::instance_location() const noexcept
   return this->instance_location_;
 }
 
-auto EvaluationContext::target_type(const TargetType type) noexcept -> void {
-  this->property_as_instance = (type == TargetType::Key);
+auto EvaluationContext::set_property_target(
+    const sourcemeta::jsontoolkit::JSON::String &property) -> void {
+  assert(!this->property_target.has_value());
+  this->property_target = std::cref(property);
+}
+
+auto EvaluationContext::unset_property_target() -> void {
+  assert(this->property_target.has_value());
+  this->property_target = std::nullopt;
 }
 
 auto EvaluationContext::resolve_target()
     -> const sourcemeta::jsontoolkit::JSON & {
-  if (this->property_as_instance) [[unlikely]] {
+  if (this->property_target.has_value()) [[unlikely]] {
     // In this case, we still need to return a string in order
     // to cope with non-string keywords inside `propertyNames`
     // that need to fail validation. But then, the actual string
@@ -185,10 +192,8 @@ auto EvaluationContext::resolve_target()
 
 auto EvaluationContext::resolve_string_target() -> std::optional<
     std::reference_wrapper<const sourcemeta::jsontoolkit::JSON::String>> {
-  if (this->property_as_instance) [[unlikely]] {
-    assert(!this->instance_location().empty());
-    assert(this->instance_location().back().is_property());
-    return this->instance_location().back().to_property();
+  if (this->property_target.has_value()) [[unlikely]] {
+    return this->property_target.value();
   } else {
     const auto &result{this->instances_.back().get()};
     if (!result.is_string()) {
