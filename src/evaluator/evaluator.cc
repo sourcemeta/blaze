@@ -949,19 +949,14 @@ auto evaluate_step(const sourcemeta::blaze::Template::value_type &step,
       EVALUATE_BEGIN(loop, LoopPropertiesType, target.is_object());
       result = true;
       for (const auto &entry : target.as_object()) {
-        context.enter(entry.first);
-        const auto &entry_target{context.resolve_target()};
-        if (entry_target.type() != loop.value &&
+        if (entry.second.type() != loop.value &&
             // In non-strict mode, we consider a real number that represents an
             // integer to be an integer
             (loop.value != sourcemeta::jsontoolkit::JSON::Type::Integer ||
-             !entry_target.is_integer_real())) {
+             !entry.second.is_integer_real())) {
           result = false;
-          context.leave();
           break;
         }
-
-        context.leave();
       }
 
       EVALUATE_END(loop, LoopPropertiesType);
@@ -971,14 +966,10 @@ auto evaluate_step(const sourcemeta::blaze::Template::value_type &step,
       EVALUATE_BEGIN(loop, LoopPropertiesTypeStrict, target.is_object());
       result = true;
       for (const auto &entry : target.as_object()) {
-        context.enter(entry.first);
-        if (context.resolve_target().type() != loop.value) {
+        if (entry.second.type() != loop.value) {
           result = false;
-          context.leave();
           break;
         }
-
-        context.leave();
       }
 
       EVALUATE_END(loop, LoopPropertiesTypeStrict);
