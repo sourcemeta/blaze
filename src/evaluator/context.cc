@@ -1,7 +1,8 @@
 #include <sourcemeta/blaze/evaluator_context.h>
 #include <sourcemeta/blaze/evaluator_error.h>
 
-#include <cassert> // assert
+#include <algorithm> // std::remove_if
+#include <cassert>   // assert
 
 namespace sourcemeta::blaze {
 
@@ -272,14 +273,6 @@ auto EvaluationContext::is_evaluated(
          entry.first == this->instance_location_) &&
         // Its not possible to affect cousins
         entry.second.starts_with(this->evaluate_path_.initial())) {
-      // Handle "not"
-      for (const auto &mask : this->evaluated_blacklist_) {
-        if (entry.second.starts_with(mask) &&
-            !this->evaluate_path_.starts_with(mask)) {
-          return false;
-        }
-      }
-
       return true;
     }
   }
@@ -288,7 +281,12 @@ auto EvaluationContext::is_evaluated(
 }
 
 auto EvaluationContext::unevaluate() -> void {
-  this->evaluated_blacklist_.push_back(this->evaluate_path_);
+  this->evaluated_.erase(
+      std::remove_if(this->evaluated_.begin(), this->evaluated_.end(),
+                     [this](const auto &pair) {
+                       return pair.second.starts_with(this->evaluate_path_);
+                     }),
+      this->evaluated_.end());
 }
 
 } // namespace sourcemeta::blaze
