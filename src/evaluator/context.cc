@@ -38,17 +38,17 @@ auto EvaluationContext::push_without_traverse(
         "likely due to infinite recursion");
   }
 
+  this->frame_sizes.emplace_back(relative_schema_location.size(),
+                                 relative_instance_location.size());
+
   if (track) {
     this->evaluate_path_.push_back(relative_schema_location);
+    this->instance_location_.push_back(relative_instance_location);
   } else {
     // We still need to somewhat keep track of this to prevent infinite
     // recursion
     this->evaluate_path_size_ += relative_schema_location.size();
   }
-
-  this->frame_sizes.emplace_back(relative_schema_location.size(),
-                                 relative_instance_location.size());
-  this->instance_location_.push_back(relative_instance_location);
 
   if (dynamic) {
     // Note that we are potentially repeatedly pushing back the
@@ -90,15 +90,17 @@ auto EvaluationContext::push(
 auto EvaluationContext::pop(const bool dynamic, const bool track) -> void {
   assert(!this->frame_sizes.empty());
   const auto &sizes{this->frame_sizes.back()};
-  if (track) {
-    this->evaluate_path_.pop_back(sizes.first);
-  } else {
-    this->evaluate_path_size_ -= sizes.first;
+  if (sizes.second > 0) {
+    this->instances_.pop_back();
   }
 
-  if (sizes.second > 0) {
-    this->instance_location_.pop_back(sizes.second);
-    this->instances_.pop_back();
+  if (track) {
+    this->evaluate_path_.pop_back(sizes.first);
+    if (sizes.second > 0) {
+      this->instance_location_.pop_back(sizes.second);
+    }
+  } else {
+    this->evaluate_path_size_ -= sizes.first;
   }
 
   this->frame_sizes.pop_back();
@@ -110,20 +112,30 @@ auto EvaluationContext::pop(const bool dynamic, const bool track) -> void {
 }
 
 auto EvaluationContext::enter(
-    const sourcemeta::jsontoolkit::WeakPointer::Token::Property &property)
-    -> void {
-  this->instance_location_.push_back(property);
+    const sourcemeta::jsontoolkit::WeakPointer::Token::Property &property,
+    const bool track) -> void {
+  if (track) {
+    this->instance_location_.push_back(property);
+  }
+
   this->instances_.emplace_back(this->instances_.back().get().at(property));
 }
 
 auto EvaluationContext::enter(
-    const sourcemeta::jsontoolkit::WeakPointer::Token::Index &index) -> void {
-  this->instance_location_.push_back(index);
+    const sourcemeta::jsontoolkit::WeakPointer::Token::Index &index,
+    const bool track) -> void {
+  if (track) {
+    this->instance_location_.push_back(index);
+  }
+
   this->instances_.emplace_back(this->instances_.back().get().at(index));
 }
 
-auto EvaluationContext::leave() -> void {
-  this->instance_location_.pop_back();
+auto EvaluationContext::leave(const bool track) -> void {
+  if (track) {
+    this->instance_location_.pop_back();
+  }
+
   this->instances_.pop_back();
 }
 
