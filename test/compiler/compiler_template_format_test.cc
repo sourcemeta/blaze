@@ -10,7 +10,6 @@ TEST(Compiler_template_format, example_1) {
     "absoluteKeywordLocation": "#/properties",
     "category": "annotation",
     "evaluatePath": true,
-    "report": true,
     "unknown": 1,
     "dynamic": true,
     "type": "public",
@@ -37,7 +36,6 @@ TEST(Compiler_template_format, example_1) {
   "absoluteKeywordLocation": "#/properties",
   "relativeSchemaLocation": "",
   "relativeInstanceLocation": "",
-  "report": true,
   "evaluatePath": true,
   "dynamic": true,
   "unknown": 1

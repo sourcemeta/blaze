@@ -57,7 +57,7 @@ auto compiler_draft7_applicator_if(const Context &context,
     }
   }
 
-  return {make<LogicalCondition>(true, context, schema_context, dynamic_context,
+  return {make<LogicalCondition>(context, schema_context, dynamic_context,
                                  {then_cursor, else_cursor},
                                  std::move(children))};
 }

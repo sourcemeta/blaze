@@ -31,8 +31,7 @@ inline auto schema_resource_id(const Context &context,
 
 // Instantiate a value-oriented step
 template <typename Step>
-auto make(const bool report, const Context &context,
-          const SchemaContext &schema_context,
+auto make(const Context &context, const SchemaContext &schema_context,
           const DynamicContext &dynamic_context,
           // Take the value type from the "type" property of the step struct
           const decltype(std::declval<Step>().value) &value) -> Step {
@@ -45,7 +44,6 @@ auto make(const bool report, const Context &context,
       to_uri(schema_context.relative_pointer, schema_context.base).recompose(),
       schema_resource_id(context, schema_context.base.recompose()),
       context.uses_dynamic_scopes,
-      report,
       context.mode != Mode::FastValidation ||
           context.uses_unevaluated_properties || context.uses_unevaluated_items,
       value};
@@ -53,8 +51,7 @@ auto make(const bool report, const Context &context,
 
 // Instantiate an applicator step
 template <typename Step>
-auto make(const bool report, const Context &context,
-          const SchemaContext &schema_context,
+auto make(const Context &context, const SchemaContext &schema_context,
           const DynamicContext &dynamic_context,
           // Take the value type from the "value" property of the step struct
           decltype(std::declval<Step>().value) &&value, Template &&children)
@@ -68,7 +65,6 @@ auto make(const bool report, const Context &context,
       to_uri(schema_context.relative_pointer, schema_context.base).recompose(),
       schema_resource_id(context, schema_context.base.recompose()),
       context.uses_dynamic_scopes,
-      report,
       context.mode != Mode::FastValidation ||
           context.uses_unevaluated_properties || context.uses_unevaluated_items,
       std::move(value),
@@ -90,7 +86,6 @@ auto unroll(const DynamicContext &dynamic_context, const Step &step,
           std::get<Type>(step).keyword_location,
           std::get<Type>(step).schema_resource,
           std::get<Type>(step).dynamic,
-          std::get<Type>(step).report,
           std::get<Type>(step).track,
           std::get<Type>(step).value};
 }

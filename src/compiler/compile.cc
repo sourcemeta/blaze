@@ -26,8 +26,8 @@ auto compile_subschema(const sourcemeta::blaze::Context &context,
     if (schema_context.schema.to_boolean()) {
       return {};
     } else {
-      return {make<AssertionFail>(true, context, schema_context,
-                                  dynamic_context, ValueNone{})};
+      return {make<AssertionFail>(context, schema_context, dynamic_context,
+                                  ValueNone{})};
     }
   }
 
@@ -217,7 +217,7 @@ auto compile(const sourcemeta::jsontoolkit::JSON &schema,
                                                 {}};
 
       compiler_template.push_back(make<ControlMark>(
-          true, context, nested_schema_context, dynamic_context,
+          context, nested_schema_context, dynamic_context,
           ValueUnsignedInteger{label},
           compile(context, nested_schema_context, relative_dynamic_context,
                   sourcemeta::jsontoolkit::empty_pointer,
