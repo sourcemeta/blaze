@@ -56,11 +56,11 @@ public:
                 &&new_instance) -> void;
   auto pop(const bool dynamic, const bool track) -> void;
   auto
-  enter(const sourcemeta::jsontoolkit::WeakPointer::Token::Property &property)
-      -> void;
-  auto enter(const sourcemeta::jsontoolkit::WeakPointer::Token::Index &index)
-      -> void;
-  auto leave() -> void;
+  enter(const sourcemeta::jsontoolkit::WeakPointer::Token::Property &property,
+        const bool track) -> void;
+  auto enter(const sourcemeta::jsontoolkit::WeakPointer::Token::Index &index,
+             const bool track) -> void;
+  auto leave(const bool track) -> void;
   auto advance(const sourcemeta::jsontoolkit::Pointer &relative_schema_location)
       -> void;
   auto retreat(const sourcemeta::jsontoolkit::Pointer &relative_schema_location)

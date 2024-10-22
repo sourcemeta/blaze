@@ -487,6 +487,7 @@ auto evaluate_step(const sourcemeta::blaze::Template::value_type &step,
         if (evaluate_step(entry, callback, context)) {
           result = true;
           if (assertion.value) {
+            assert(track);
             if (array_size == prefixes) {
               context.evaluate();
             } else {
@@ -789,17 +790,17 @@ auto evaluate_step(const sourcemeta::blaze::Template::value_type &step,
           continue;
         }
 
-        context.enter(entry.first);
+        context.enter(entry.first, true);
         for (const auto &child : loop.children) {
           if (!evaluate_step(child, callback, context)) {
             result = false;
-            context.leave();
+            context.leave(true);
             // For efficiently breaking from the outer loop too
             goto evaluate_annotation_loop_properties_unevaluated_end;
           }
         }
 
-        context.leave();
+        context.leave(true);
       }
 
       // Mark the entire object as evaluated
@@ -822,16 +823,16 @@ auto evaluate_step(const sourcemeta::blaze::Template::value_type &step,
           continue;
         }
 
-        context.enter(static_cast<Pointer::Token::Index>(index));
+        context.enter(static_cast<Pointer::Token::Index>(index), true);
         for (const auto &child : loop.children) {
           if (!evaluate_step(child, callback, context)) {
             result = false;
-            context.leave();
+            context.leave(true);
             goto evaluate_compiler_annotation_loop_items_unevaluated_end;
           }
         }
 
-        context.leave();
+        context.leave(true);
       }
 
       // Mark the entire array as evaluated
@@ -870,17 +871,18 @@ auto evaluate_step(const sourcemeta::blaze::Template::value_type &step,
       EVALUATE_BEGIN(loop, LoopProperties, target.is_object());
       result = true;
       for (const auto &entry : target.as_object()) {
-        context.enter(entry.first);
+        context.enter(entry.first, track);
         for (const auto &child : loop.children) {
           if (!evaluate_step(child, callback, context)) {
             result = false;
-            context.leave();
+            context.leave(track);
+
             // For efficiently breaking from the outer loop too
             goto evaluate_loop_properties_end;
           }
         }
 
-        context.leave();
+        context.leave(track);
       }
 
     evaluate_loop_properties_end:
@@ -895,17 +897,18 @@ auto evaluate_step(const sourcemeta::blaze::Template::value_type &step,
           continue;
         }
 
-        context.enter(entry.first);
+        context.enter(entry.first, track);
         for (const auto &child : loop.children) {
           if (!evaluate_step(child, callback, context)) {
             result = false;
-            context.leave();
+            context.leave(track);
+
             // For efficiently breaking from the outer loop too
             goto evaluate_loop_properties_regex_end;
           }
         }
 
-        context.leave();
+        context.leave(track);
       }
 
     evaluate_loop_properties_regex_end:
@@ -928,17 +931,18 @@ auto evaluate_step(const sourcemeta::blaze::Template::value_type &step,
           continue;
         }
 
-        context.enter(entry.first);
+        context.enter(entry.first, track);
         for (const auto &child : loop.children) {
           if (!evaluate_step(child, callback, context)) {
             result = false;
-            context.leave();
+            context.leave(track);
+
             // For efficiently breaking from the outer loop too
             goto evaluate_loop_properties_except_end;
           }
         }
 
-        context.leave();
+        context.leave(track);
       }
 
     evaluate_loop_properties_except_end:
@@ -979,20 +983,20 @@ auto evaluate_step(const sourcemeta::blaze::Template::value_type &step,
       EVALUATE_BEGIN(loop, LoopKeys, target.is_object());
       result = true;
       for (const auto &entry : target.as_object()) {
-        context.enter(entry.first);
+        context.enter(entry.first, track);
         context.set_property_target(entry.first);
 
         for (const auto &child : loop.children) {
           if (!evaluate_step(child, callback, context)) {
             result = false;
             context.unset_property_target();
-            context.leave();
+            context.leave(track);
             goto evaluate_loop_keys_end;
           }
         }
 
         context.unset_property_target();
-        context.leave();
+        context.leave(track);
       }
 
     evaluate_loop_keys_end:
@@ -1009,16 +1013,17 @@ auto evaluate_step(const sourcemeta::blaze::Template::value_type &step,
 
       for (; iterator != array.cend(); ++iterator) {
         const auto index{std::distance(array.cbegin(), iterator)};
-        context.enter(static_cast<Pointer::Token::Index>(index));
+        context.enter(static_cast<Pointer::Token::Index>(index), track);
         for (const auto &child : loop.children) {
           if (!evaluate_step(child, callback, context)) {
             result = false;
-            context.leave();
+            context.leave(track);
+
             goto evaluate_compiler_loop_items_end;
           }
         }
 
-        context.leave();
+        context.leave(track);
       }
 
     evaluate_compiler_loop_items_end:
@@ -1037,7 +1042,7 @@ auto evaluate_step(const sourcemeta::blaze::Template::value_type &step,
       for (auto iterator = array.cbegin(); iterator != array.cend();
            ++iterator) {
         const auto index{std::distance(array.cbegin(), iterator)};
-        context.enter(static_cast<Pointer::Token::Index>(index));
+        context.enter(static_cast<Pointer::Token::Index>(index), track);
         bool subresult{true};
         for (const auto &child : loop.children) {
           if (!evaluate_step(child, callback, context)) {
@@ -1046,7 +1051,7 @@ auto evaluate_step(const sourcemeta::blaze::Template::value_type &step,
           }
         }
 
-        context.leave();
+        context.leave(track);
 
         if (subresult) {
           match_count += 1;
