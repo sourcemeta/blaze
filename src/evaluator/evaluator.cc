@@ -169,6 +169,7 @@ auto evaluate_step(const sourcemeta::blaze::Template::value_type &step,
   SOURCEMETA_TRACE_START(trace_id, STRINGIFY(step_type));                      \
   const auto &step_category{std::get<step_type>(step)};                        \
   const auto track{step_category.track || callback.has_value()};               \
+  assert(track);                                                               \
   context.push(step_category.relative_schema_location,                         \
                step_category.relative_instance_location,                       \
                step_category.schema_resource, step_category.dynamic, track);   \
