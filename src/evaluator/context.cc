@@ -241,7 +241,7 @@ auto EvaluationContext::find_dynamic_anchor(const std::string &anchor) const
 }
 
 auto EvaluationContext::evaluate() -> void {
-  this->evaluated_.emplace_back(this->instance_location_, this->evaluate_path_);
+  this->evaluate(sourcemeta::jsontoolkit::empty_pointer);
 }
 
 auto EvaluationContext::evaluate(
@@ -262,22 +262,33 @@ auto EvaluationContext::evaluate(
 }
 
 auto EvaluationContext::is_evaluated(
-    sourcemeta::jsontoolkit::WeakPointer::Token &&token) const -> bool {
-  auto expected_instance_location = this->instance_location_;
-  // TODO: Allow directly pushing back a token
-  expected_instance_location.push_back(
-      sourcemeta::jsontoolkit::WeakPointer{std::move(token)});
-
-  for (const auto &entry : this->evaluated_) {
-    if ((entry.first == expected_instance_location ||
-         entry.first == this->instance_location_) &&
+    const sourcemeta::jsontoolkit::WeakPointer &pointer) const -> bool {
+  for (auto iterator = this->evaluated_.crbegin();
+       iterator != this->evaluated_.crend(); ++iterator) {
+    if (pointer.starts_with(iterator->first) &&
         // Its not possible to affect cousins
-        entry.second.starts_with(this->evaluate_path_.initial())) {
+        iterator->second.starts_with_initial(this->evaluate_path_)) {
       return true;
     }
   }
 
   return false;
+}
+
+auto EvaluationContext::is_evaluated(
+    sourcemeta::jsontoolkit::WeakPointer::Token::Property &&property) const
+    -> bool {
+  auto expected_instance_location = this->instance_location_;
+  expected_instance_location.push_back(std::move(property));
+  return this->is_evaluated(expected_instance_location);
+}
+
+auto EvaluationContext::is_evaluated(
+    const sourcemeta::jsontoolkit::WeakPointer::Token::Index index) const
+    -> bool {
+  auto expected_instance_location = this->instance_location_;
+  expected_instance_location.push_back(std::move(index));
+  return this->is_evaluated(expected_instance_location);
 }
 
 auto EvaluationContext::unevaluate() -> void {
