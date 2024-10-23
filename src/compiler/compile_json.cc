@@ -255,6 +255,8 @@ struct StepVisitor {
   HANDLE_STEP("logical", "when-defines", LogicalWhenDefines)
   HANDLE_STEP("logical", "when-array-size-greater", LogicalWhenArraySizeGreater)
   HANDLE_STEP("loop", "properties-unevaluated", LoopPropertiesUnevaluated)
+  HANDLE_STEP("loop", "properties-unevaluated-except",
+              LoopPropertiesUnevaluatedExcept)
   HANDLE_STEP("loop", "items-unevaluated", LoopItemsUnevaluated)
   HANDLE_STEP("loop", "properties-match", LoopPropertiesMatch)
   HANDLE_STEP("loop", "properties", LoopProperties)
