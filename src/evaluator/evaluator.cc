@@ -458,6 +458,30 @@ auto evaluate_step(const sourcemeta::blaze::Template::value_type &step,
       EVALUATE_END(assertion, AssertionPropertyType);
     }
 
+    case IS_STEP(AssertionPropertyTypeEvaluate): {
+      EVALUATE_BEGIN_TRY_TARGET(
+          assertion, AssertionPropertyTypeEvaluate,
+          // Note that here are are referring to the parent
+          // object that might hold the given property,
+          // before traversing into the actual property
+          target.is_object());
+      // Now here we refer to the actual property
+      const auto &effective_target{context.resolve_target()};
+      // In non-strict mode, we consider a real number that represents an
+      // integer to be an integer
+      result =
+          effective_target.type() == assertion.value ||
+          (assertion.value == sourcemeta::jsontoolkit::JSON::Type::Integer &&
+           effective_target.is_integer_real());
+
+      if (result) {
+        assert(track);
+        context.evaluate();
+      }
+
+      EVALUATE_END(assertion, AssertionPropertyTypeEvaluate);
+    }
+
     case IS_STEP(AssertionPropertyTypeStrict): {
       EVALUATE_BEGIN_TRY_TARGET(
           assertion, AssertionPropertyTypeStrict,
@@ -468,6 +492,24 @@ auto evaluate_step(const sourcemeta::blaze::Template::value_type &step,
       // Now here we refer to the actual property
       result = context.resolve_target().type() == assertion.value;
       EVALUATE_END(assertion, AssertionPropertyTypeStrict);
+    }
+
+    case IS_STEP(AssertionPropertyTypeStrictEvaluate): {
+      EVALUATE_BEGIN_TRY_TARGET(
+          assertion, AssertionPropertyTypeStrictEvaluate,
+          // Note that here are are referring to the parent
+          // object that might hold the given property,
+          // before traversing into the actual property
+          target.is_object());
+      // Now here we refer to the actual property
+      result = context.resolve_target().type() == assertion.value;
+
+      if (result) {
+        assert(track);
+        context.evaluate();
+      }
+
+      EVALUATE_END(assertion, AssertionPropertyTypeStrictEvaluate);
     }
 
     case IS_STEP(AssertionArrayPrefix): {

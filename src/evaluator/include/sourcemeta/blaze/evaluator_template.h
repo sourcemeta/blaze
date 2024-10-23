@@ -42,7 +42,9 @@ struct AssertionUnique;
 struct AssertionDivisible;
 struct AssertionStringType;
 struct AssertionPropertyType;
+struct AssertionPropertyTypeEvaluate;
 struct AssertionPropertyTypeStrict;
+struct AssertionPropertyTypeStrictEvaluate;
 struct AssertionArrayPrefix;
 struct AnnotationEmit;
 struct AnnotationToParent;
@@ -90,10 +92,12 @@ using Template = std::vector<std::variant<
     AssertionObjectSizeGreater, AssertionEqual, AssertionEqualsAny,
     AssertionGreaterEqual, AssertionLessEqual, AssertionGreater, AssertionLess,
     AssertionUnique, AssertionDivisible, AssertionStringType,
-    AssertionPropertyType, AssertionPropertyTypeStrict, AssertionArrayPrefix,
-    AnnotationEmit, AnnotationToParent, AnnotationBasenameToParent, LogicalNot,
-    LogicalOr, LogicalAnd, LogicalXor, LogicalCondition, LogicalWhenType,
-    LogicalWhenDefines, LogicalWhenArraySizeGreater, LoopPropertiesUnevaluated,
+    AssertionPropertyType, AssertionPropertyTypeEvaluate,
+    AssertionPropertyTypeStrict, AssertionPropertyTypeStrictEvaluate,
+    AssertionArrayPrefix, AnnotationEmit, AnnotationToParent,
+    AnnotationBasenameToParent, LogicalNot, LogicalOr, LogicalAnd, LogicalXor,
+    LogicalCondition, LogicalWhenType, LogicalWhenDefines,
+    LogicalWhenArraySizeGreater, LoopPropertiesUnevaluated,
     LoopItemsUnevaluated, LoopPropertiesMatch, LoopProperties,
     LoopPropertiesEvaluate, LoopPropertiesRegex, LoopPropertiesExcept,
     LoopPropertiesType, LoopPropertiesTypeEvaluate, LoopPropertiesTypeStrict,
@@ -133,7 +137,9 @@ enum class TemplateIndex : std::uint8_t {
   AssertionDivisible,
   AssertionStringType,
   AssertionPropertyType,
+  AssertionPropertyTypeEvaluate,
   AssertionPropertyTypeStrict,
+  AssertionPropertyTypeStrictEvaluate,
   AssertionArrayPrefix,
   AnnotationEmit,
   AnnotationToParent,
@@ -342,8 +348,18 @@ DEFINE_STEP_WITH_VALUE(Assertion, PropertyType, ValueType)
 
 /// @ingroup evaluator_instructions
 /// @brief Represents a compiler assertion step that checks that an instance
+/// property is of a given type if present and marks evaluation
+DEFINE_STEP_WITH_VALUE(Assertion, PropertyTypeEvaluate, ValueType)
+
+/// @ingroup evaluator_instructions
+/// @brief Represents a compiler assertion step that checks that an instance
 /// property is of a given type if present (strict mode)
 DEFINE_STEP_WITH_VALUE(Assertion, PropertyTypeStrict, ValueType)
+
+/// @ingroup evaluator_instructions
+/// @brief Represents a compiler assertion step that checks that an instance
+/// property is of a given type if present (strict mode) and marks evaluation
+DEFINE_STEP_WITH_VALUE(Assertion, PropertyTypeStrictEvaluate, ValueType)
 
 /// @ingroup evaluator_instructions
 /// @brief Represents a compiler assertion step that applies substeps to the

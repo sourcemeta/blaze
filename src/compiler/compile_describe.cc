@@ -1334,7 +1334,49 @@ struct DescribeVisitor {
     return message.str();
   }
 
+  auto operator()(const AssertionPropertyTypeEvaluate &step) const
+      -> std::string {
+    std::ostringstream message;
+    const auto &value{step_value(step)};
+    if (!this->valid && value == sourcemeta::jsontoolkit::JSON::Type::Real &&
+        this->target.type() == sourcemeta::jsontoolkit::JSON::Type::Integer) {
+      message
+          << "The value was expected to be a real number but it was an integer";
+    } else if (!this->valid &&
+               value == sourcemeta::jsontoolkit::JSON::Type::Integer &&
+               this->target.type() ==
+                   sourcemeta::jsontoolkit::JSON::Type::Real) {
+      message
+          << "The value was expected to be an integer but it was a real number";
+    } else {
+      describe_type_check(this->valid, this->target.type(), value, message);
+    }
+
+    return message.str();
+  }
+
   auto operator()(const AssertionPropertyTypeStrict &step) const
+      -> std::string {
+    std::ostringstream message;
+    const auto &value{step_value(step)};
+    if (!this->valid && value == sourcemeta::jsontoolkit::JSON::Type::Real &&
+        this->target.type() == sourcemeta::jsontoolkit::JSON::Type::Integer) {
+      message
+          << "The value was expected to be a real number but it was an integer";
+    } else if (!this->valid &&
+               value == sourcemeta::jsontoolkit::JSON::Type::Integer &&
+               this->target.type() ==
+                   sourcemeta::jsontoolkit::JSON::Type::Real) {
+      message
+          << "The value was expected to be an integer but it was a real number";
+    } else {
+      describe_type_check(this->valid, this->target.type(), value, message);
+    }
+
+    return message.str();
+  }
+
+  auto operator()(const AssertionPropertyTypeStrictEvaluate &step) const
       -> std::string {
     std::ostringstream message;
     const auto &value{step_value(step)};
