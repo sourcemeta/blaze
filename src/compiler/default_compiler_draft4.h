@@ -727,30 +727,37 @@ auto compiler_draft4_applicator_additionalproperties_with_options(
 
     return {make<LoopPropertiesExcept>(context, schema_context, dynamic_context,
                                        std::move(filter), std::move(children))};
-  } else {
-    if (!track_evaluation && context.mode == Mode::FastValidation &&
-        children.size() == 1) {
-      // Optimize `additionalProperties` set to just `type`, which is a
-      // pretty common pattern
-      if (std::holds_alternative<AssertionTypeStrict>(children.front())) {
-        const auto &type_step{std::get<AssertionTypeStrict>(children.front())};
-        return {make<LoopPropertiesTypeStrict>(
-            context, schema_context, dynamic_context, type_step.value)};
-      } else if (std::holds_alternative<AssertionType>(children.front())) {
-        const auto &type_step{std::get<AssertionType>(children.front())};
-        return {make<LoopPropertiesType>(context, schema_context,
-                                         dynamic_context, type_step.value)};
-      }
+
+    // Optimize `additionalProperties` set to just `type`, which is a
+    // pretty common pattern
+  } else if (context.mode == Mode::FastValidation && children.size() == 1 &&
+             std::holds_alternative<AssertionTypeStrict>(children.front())) {
+    const auto &type_step{std::get<AssertionTypeStrict>(children.front())};
+    if (track_evaluation) {
+      return {make<LoopPropertiesTypeStrictEvaluate>(
+          context, schema_context, dynamic_context, type_step.value)};
+    } else {
+      return {make<LoopPropertiesTypeStrict>(context, schema_context,
+                                             dynamic_context, type_step.value)};
+    }
+  } else if (context.mode == Mode::FastValidation && children.size() == 1 &&
+             std::holds_alternative<AssertionType>(children.front())) {
+    const auto &type_step{std::get<AssertionType>(children.front())};
+    if (track_evaluation) {
+      return {make<LoopPropertiesTypeEvaluate>(
+          context, schema_context, dynamic_context, type_step.value)};
+    } else {
+      return {make<LoopPropertiesType>(context, schema_context, dynamic_context,
+                                       type_step.value)};
     }
 
-    if (track_evaluation) {
-      return {make<LoopPropertiesEvaluate>(context, schema_context,
-                                           dynamic_context, ValueNone{},
-                                           std::move(children))};
-    } else {
-      return {make<LoopProperties>(context, schema_context, dynamic_context,
-                                   ValueNone{}, std::move(children))};
-    }
+  } else if (track_evaluation) {
+    return {make<LoopPropertiesEvaluate>(context, schema_context,
+                                         dynamic_context, ValueNone{},
+                                         std::move(children))};
+  } else {
+    return {make<LoopProperties>(context, schema_context, dynamic_context,
+                                 ValueNone{}, std::move(children))};
   }
 }
 

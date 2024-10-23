@@ -999,6 +999,27 @@ auto evaluate_step(const sourcemeta::blaze::Template::value_type &step,
       EVALUATE_END(loop, LoopPropertiesType);
     }
 
+    case IS_STEP(LoopPropertiesTypeEvaluate): {
+      EVALUATE_BEGIN(loop, LoopPropertiesTypeEvaluate, target.is_object());
+      result = true;
+      for (const auto &entry : target.as_object()) {
+        if (entry.second.type() != loop.value &&
+            // In non-strict mode, we consider a real number that represents an
+            // integer to be an integer
+            (loop.value != sourcemeta::jsontoolkit::JSON::Type::Integer ||
+             !entry.second.is_integer_real())) {
+          result = false;
+          goto evaluate_loop_properties_type_evaluate_end;
+        }
+      }
+
+      assert(track);
+      context.evaluate();
+
+    evaluate_loop_properties_type_evaluate_end:
+      EVALUATE_END(loop, LoopPropertiesTypeEvaluate);
+    }
+
     case IS_STEP(LoopPropertiesTypeStrict): {
       EVALUATE_BEGIN(loop, LoopPropertiesTypeStrict, target.is_object());
       result = true;
@@ -1010,6 +1031,24 @@ auto evaluate_step(const sourcemeta::blaze::Template::value_type &step,
       }
 
       EVALUATE_END(loop, LoopPropertiesTypeStrict);
+    }
+
+    case IS_STEP(LoopPropertiesTypeStrictEvaluate): {
+      EVALUATE_BEGIN(loop, LoopPropertiesTypeStrictEvaluate,
+                     target.is_object());
+      result = true;
+      for (const auto &entry : target.as_object()) {
+        if (entry.second.type() != loop.value) {
+          result = false;
+          goto evaluate_loop_properties_type_strict_evaluate_end;
+        }
+      }
+
+      assert(track);
+      context.evaluate();
+
+    evaluate_loop_properties_type_strict_evaluate_end:
+      EVALUATE_END(loop, LoopPropertiesTypeStrictEvaluate);
     }
 
     case IS_STEP(LoopKeys): {
