@@ -884,6 +884,10 @@ auto evaluate_step(const sourcemeta::blaze::Template::value_type &step,
         context.leave(track);
       }
 
+      if (loop.value && track) {
+        context.evaluate();
+      }
+
     evaluate_loop_properties_end:
       EVALUATE_END(loop, LoopProperties);
     }

@@ -3174,31 +3174,25 @@ TEST(Evaluator_2019_09, unevaluatedProperties_5) {
   const sourcemeta::jsontoolkit::JSON instance{
       sourcemeta::jsontoolkit::parse("{ \"foo\": \"baz\" }")};
 
-  EVALUATE_WITH_TRACE_FAST_SUCCESS(schema, instance, 3);
+  EVALUATE_WITH_TRACE_FAST_SUCCESS(schema, instance, 2);
 
   EVALUATE_TRACE_PRE(0, LoopProperties, "/additionalProperties",
                      "#/additionalProperties", "");
-  EVALUATE_TRACE_PRE(1, ControlEvaluate, "/additionalProperties",
-                     "#/additionalProperties", "/foo");
-  EVALUATE_TRACE_PRE(2, LoopPropertiesUnevaluated, "/unevaluatedProperties",
+  EVALUATE_TRACE_PRE(1, LoopPropertiesUnevaluated, "/unevaluatedProperties",
                      "#/unevaluatedProperties", "");
 
-  EVALUATE_TRACE_POST_SUCCESS(0, ControlEvaluate, "/additionalProperties",
-                              "#/additionalProperties", "/foo");
-  EVALUATE_TRACE_POST_SUCCESS(1, LoopProperties, "/additionalProperties",
+  EVALUATE_TRACE_POST_SUCCESS(0, LoopProperties, "/additionalProperties",
                               "#/additionalProperties", "");
-  EVALUATE_TRACE_POST_SUCCESS(2, LoopPropertiesUnevaluated,
+  EVALUATE_TRACE_POST_SUCCESS(1, LoopPropertiesUnevaluated,
                               "/unevaluatedProperties",
                               "#/unevaluatedProperties", "");
 
-  EVALUATE_TRACE_POST_DESCRIBE(instance, 0,
-                               "The instance location was marked as evaluated");
   EVALUATE_TRACE_POST_DESCRIBE(
-      instance, 1,
+      instance, 0,
       "The object properties not covered by other adjacent object keywords "
       "were expected to validate against this subschema");
   EVALUATE_TRACE_POST_DESCRIBE(
-      instance, 2,
+      instance, 1,
       "The object value was not expected to define unevaluated properties");
 }
 
@@ -3213,24 +3207,20 @@ TEST(Evaluator_2019_09, unevaluatedProperties_5_exhaustive) {
   const sourcemeta::jsontoolkit::JSON instance{
       sourcemeta::jsontoolkit::parse("{ \"foo\": \"baz\" }")};
 
-  EVALUATE_WITH_TRACE_EXHAUSTIVE_SUCCESS(schema, instance, 4);
+  EVALUATE_WITH_TRACE_EXHAUSTIVE_SUCCESS(schema, instance, 3);
 
   EVALUATE_TRACE_PRE(0, LoopProperties, "/additionalProperties",
                      "#/additionalProperties", "");
   EVALUATE_TRACE_PRE_ANNOTATION(1, "/additionalProperties",
                                 "#/additionalProperties", "");
-  EVALUATE_TRACE_PRE(2, ControlEvaluate, "/additionalProperties",
-                     "#/additionalProperties", "/foo");
-  EVALUATE_TRACE_PRE(3, LoopPropertiesUnevaluated, "/unevaluatedProperties",
+  EVALUATE_TRACE_PRE(2, LoopPropertiesUnevaluated, "/unevaluatedProperties",
                      "#/unevaluatedProperties", "");
 
   EVALUATE_TRACE_POST_ANNOTATION(0, "/additionalProperties",
                                  "#/additionalProperties", "", "foo");
-  EVALUATE_TRACE_POST_SUCCESS(1, ControlEvaluate, "/additionalProperties",
-                              "#/additionalProperties", "/foo");
-  EVALUATE_TRACE_POST_SUCCESS(2, LoopProperties, "/additionalProperties",
+  EVALUATE_TRACE_POST_SUCCESS(1, LoopProperties, "/additionalProperties",
                               "#/additionalProperties", "");
-  EVALUATE_TRACE_POST_SUCCESS(3, LoopPropertiesUnevaluated,
+  EVALUATE_TRACE_POST_SUCCESS(2, LoopPropertiesUnevaluated,
                               "/unevaluatedProperties",
                               "#/unevaluatedProperties", "");
 
@@ -3238,14 +3228,12 @@ TEST(Evaluator_2019_09, unevaluatedProperties_5_exhaustive) {
       instance, 0,
       "The object property \"foo\" successfully validated against the "
       "additional properties subschema");
-  EVALUATE_TRACE_POST_DESCRIBE(instance, 1,
-                               "The instance location was marked as evaluated");
   EVALUATE_TRACE_POST_DESCRIBE(
-      instance, 2,
+      instance, 1,
       "The object properties not covered by other adjacent object keywords "
       "were expected to validate against this subschema");
   EVALUATE_TRACE_POST_DESCRIBE(
-      instance, 3,
+      instance, 2,
       "The object value was not expected to define unevaluated properties");
 }
 

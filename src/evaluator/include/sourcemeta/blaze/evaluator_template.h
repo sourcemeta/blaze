@@ -407,7 +407,7 @@ DEFINE_STEP_APPLICATOR(Loop, PropertiesMatch, ValueNamedIndexes)
 
 /// @ingroup evaluator_instructions
 /// @brief Represents a compiler step that loops over object properties
-DEFINE_STEP_APPLICATOR(Loop, Properties, ValueNone)
+DEFINE_STEP_APPLICATOR(Loop, Properties, ValueBoolean)
 
 /// @ingroup evaluator_instructions
 /// @brief Represents a compiler step that loops over object properties that
