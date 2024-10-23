@@ -505,12 +505,6 @@ auto compiler_draft4_applicator_properties_with_options(
   Template children;
 
   for (auto &&[name, substeps] : properties) {
-    if (track_evaluation) {
-      substeps.push_back(make<ControlEvaluate>(context, schema_context,
-                                               relative_dynamic_context,
-                                               ValuePointer{name}));
-    }
-
     if (annotate) {
       substeps.push_back(make<AnnotationEmit>(
           context, schema_context, relative_dynamic_context,
@@ -523,7 +517,9 @@ auto compiler_draft4_applicator_properties_with_options(
                              schema_context.schema.at("type").to_string() ==
                                  "object"};
 
-    // We can avoid this "defines" condition if the property is a required one
+    // TODO: This means that for required properties we avoid the property type
+    // optimization? We can avoid this "defines" condition if the property is a
+    // required one
     if (imports_validation_vocabulary && assume_object &&
         schema_context.schema.defines("required") &&
         schema_context.schema.at("required").is_array() &&
@@ -534,27 +530,52 @@ auto compiler_draft4_applicator_properties_with_options(
         children.push_back(std::move(substep));
       }
 
+      if (track_evaluation) {
+        children.push_back(make<ControlEvaluate>(context, schema_context,
+                                                 relative_dynamic_context,
+                                                 ValuePointer{name}));
+      }
+
       // Optimize `properties` where its subschemas just include a type check,
       // as that's a very common pattern
 
     } else if (context.mode == Mode::FastValidation && substeps.size() == 1 &&
                std::holds_alternative<AssertionTypeStrict>(substeps.front())) {
       const auto &type_step{std::get<AssertionTypeStrict>(substeps.front())};
-      children.push_back(AssertionPropertyTypeStrict{
-          type_step.relative_schema_location,
-          dynamic_context.base_instance_location.concat(
-              type_step.relative_instance_location),
-          type_step.keyword_location, type_step.schema_resource,
-          type_step.dynamic, type_step.track, type_step.value});
+      if (track_evaluation) {
+        children.push_back(AssertionPropertyTypeStrictEvaluate{
+            type_step.relative_schema_location,
+            dynamic_context.base_instance_location.concat(
+                type_step.relative_instance_location),
+            type_step.keyword_location, type_step.schema_resource,
+            type_step.dynamic, type_step.track, type_step.value});
+      } else {
+        children.push_back(AssertionPropertyTypeStrict{
+            type_step.relative_schema_location,
+            dynamic_context.base_instance_location.concat(
+                type_step.relative_instance_location),
+            type_step.keyword_location, type_step.schema_resource,
+            type_step.dynamic, type_step.track, type_step.value});
+      }
     } else if (context.mode == Mode::FastValidation && substeps.size() == 1 &&
                std::holds_alternative<AssertionType>(substeps.front())) {
       const auto &type_step{std::get<AssertionType>(substeps.front())};
-      children.push_back(AssertionPropertyType{
-          type_step.relative_schema_location,
-          dynamic_context.base_instance_location.concat(
-              type_step.relative_instance_location),
-          type_step.keyword_location, type_step.schema_resource,
-          type_step.dynamic, type_step.track, type_step.value});
+      if (track_evaluation) {
+        children.push_back(AssertionPropertyTypeEvaluate{
+            type_step.relative_schema_location,
+            dynamic_context.base_instance_location.concat(
+                type_step.relative_instance_location),
+            type_step.keyword_location, type_step.schema_resource,
+            type_step.dynamic, type_step.track, type_step.value});
+      } else {
+        children.push_back(AssertionPropertyType{
+            type_step.relative_schema_location,
+            dynamic_context.base_instance_location.concat(
+                type_step.relative_instance_location),
+            type_step.keyword_location, type_step.schema_resource,
+            type_step.dynamic, type_step.track, type_step.value});
+      }
+
     } else if (context.mode == Mode::FastValidation && substeps.size() == 1 &&
                std::holds_alternative<AssertionPropertyTypeStrict>(
                    substeps.front())) {
@@ -569,6 +590,12 @@ auto compiler_draft4_applicator_properties_with_options(
           dynamic_context.base_instance_location));
 
     } else {
+      if (track_evaluation) {
+        substeps.push_back(make<ControlEvaluate>(context, schema_context,
+                                                 relative_dynamic_context,
+                                                 ValuePointer{name}));
+      }
+
       children.push_back(make<ControlGroupWhenDefines>(
           context, schema_context, relative_dynamic_context, ValueString{name},
           std::move(substeps)));
@@ -580,6 +607,11 @@ auto compiler_draft4_applicator_properties_with_options(
       std::holds_alternative<AssertionPropertyTypeStrict>(children.front())) {
     return {
         unroll<AssertionPropertyTypeStrict>(dynamic_context, children.front())};
+  } else if (context.mode == Mode::FastValidation && children.size() == 1 &&
+             std::holds_alternative<AssertionPropertyTypeStrictEvaluate>(
+                 children.front())) {
+    return {unroll<AssertionPropertyTypeStrictEvaluate>(dynamic_context,
+                                                        children.front())};
   }
 
   return {make<LogicalAnd>(context, schema_context, dynamic_context,

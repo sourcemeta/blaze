@@ -235,7 +235,11 @@ struct StepVisitor {
   HANDLE_STEP("assertion", "divisible", AssertionDivisible)
   HANDLE_STEP("assertion", "string-type", AssertionStringType)
   HANDLE_STEP("assertion", "property-type", AssertionPropertyType)
+  HANDLE_STEP("assertion", "property-type-evaluate",
+              AssertionPropertyTypeEvaluate)
   HANDLE_STEP("assertion", "property-type-strict", AssertionPropertyTypeStrict)
+  HANDLE_STEP("assertion", "property-type-strict-evaluate",
+              AssertionPropertyTypeStrictEvaluate)
   HANDLE_STEP("assertion", "array-prefix", AssertionArrayPrefix)
   HANDLE_STEP("assertion", "equals-any", AssertionEqualsAny)
   HANDLE_STEP("annotation", "emit", AnnotationEmit)
