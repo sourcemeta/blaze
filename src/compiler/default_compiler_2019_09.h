@@ -211,6 +211,27 @@ auto compiler_2019_09_applicator_unevaluateditems(
     return {};
   }
 
+  // TODO: Generalize this by extending the context to keep track
+  // of which are the keywords that rely on evaluation that must be
+  // executed.
+  if (schema_context.schema.defines("items") &&
+      schema_context.vocabularies.contains(
+          "https://json-schema.org/draft/2020-12/vocab/applicator")) {
+    return {};
+  } else if (schema_context.schema.defines("items") &&
+             sourcemeta::jsontoolkit::is_schema(
+                 schema_context.schema.at("items")) &&
+             schema_context.vocabularies.contains(
+                 "https://json-schema.org/draft/2019-09/vocab/applicator")) {
+    return {};
+  } else if (schema_context.schema.defines("items") &&
+             schema_context.schema.at("items").is_array() &&
+             schema_context.schema.defines("additionalItems") &&
+             schema_context.vocabularies.contains(
+                 "https://json-schema.org/draft/2019-09/vocab/applicator")) {
+    return {};
+  }
+
   Template children{compile(context, schema_context, relative_dynamic_context,
                             sourcemeta::jsontoolkit::empty_pointer,
                             sourcemeta::jsontoolkit::empty_pointer)};
@@ -231,6 +252,18 @@ auto compiler_2019_09_applicator_unevaluatedproperties(
   if (schema_context.schema.defines("type") &&
       schema_context.schema.at("type").is_string() &&
       schema_context.schema.at("type").to_string() != "object") {
+    return {};
+  }
+
+  // TODO: Generalize this by extending the context to keep track
+  // of which are the keywords that rely on evaluation that must be
+  // executed. As given the information we have in this case, we can
+  // already decide to not track evaluation on `additionalProperties`
+  if (schema_context.schema.defines("additionalProperties") &&
+      (schema_context.vocabularies.contains(
+           "https://json-schema.org/draft/2019-09/vocab/applicator") ||
+       schema_context.vocabularies.contains(
+           "https://json-schema.org/draft/2020-12/vocab/applicator"))) {
     return {};
   }
 
