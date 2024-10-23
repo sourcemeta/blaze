@@ -37,8 +37,8 @@ auto evaluate_step(const sourcemeta::blaze::Template::value_type &step,
     return true;                                                               \
   }                                                                            \
   if (callback.has_value()) {                                                  \
-    callback.value()(EvaluationType::Pre, true, step, context.evaluate_path(), \
-                     context.instance_location(), context.null);               \
+    callback.value()(EvaluationType::Pre, true, step, context.evaluate_path,   \
+                     context.instance_location, context.null);                 \
   }                                                                            \
   bool result{false};
 
@@ -57,8 +57,8 @@ auto evaluate_step(const sourcemeta::blaze::Template::value_type &step,
     return true;                                                               \
   }                                                                            \
   if (callback.has_value()) {                                                  \
-    callback.value()(EvaluationType::Pre, true, step, context.evaluate_path(), \
-                     context.instance_location(), context.null);               \
+    callback.value()(EvaluationType::Pre, true, step, context.evaluate_path,   \
+                     context.instance_location, context.null);                 \
   }                                                                            \
   const auto &target{maybe_target.value().get()};                              \
   bool result{false};
@@ -76,8 +76,8 @@ auto evaluate_step(const sourcemeta::blaze::Template::value_type &step,
                step_category.relative_instance_location,                       \
                step_category.schema_resource, step_category.dynamic, track);   \
   if (callback.has_value()) {                                                  \
-    callback.value()(EvaluationType::Pre, true, step, context.evaluate_path(), \
-                     context.instance_location(), context.null);               \
+    callback.value()(EvaluationType::Pre, true, step, context.evaluate_path,   \
+                     context.instance_location, context.null);                 \
   }                                                                            \
   bool result{false};
 
@@ -106,8 +106,8 @@ auto evaluate_step(const sourcemeta::blaze::Template::value_type &step,
                step_category.schema_resource, step_category.dynamic, track,    \
                std::move(target_check.value()));                               \
   if (callback.has_value()) {                                                  \
-    callback.value()(EvaluationType::Pre, true, step, context.evaluate_path(), \
-                     context.instance_location(), context.null);               \
+    callback.value()(EvaluationType::Pre, true, step, context.evaluate_path,   \
+                     context.instance_location, context.null);                 \
   }                                                                            \
   bool result{false};
 
@@ -120,8 +120,8 @@ auto evaluate_step(const sourcemeta::blaze::Template::value_type &step,
                step_category.relative_instance_location,                       \
                step_category.schema_resource, step_category.dynamic, track);   \
   if (callback.has_value()) {                                                  \
-    callback.value()(EvaluationType::Pre, true, step, context.evaluate_path(), \
-                     context.instance_location(), context.null);               \
+    callback.value()(EvaluationType::Pre, true, step, context.evaluate_path,   \
+                     context.instance_location, context.null);                 \
   }                                                                            \
   bool result{false};
 
@@ -130,8 +130,8 @@ auto evaluate_step(const sourcemeta::blaze::Template::value_type &step,
   SOURCEMETA_TRACE_START(trace_id, STRINGIFY(step_type));                      \
   const auto &step_category{std::get<step_type>(step)};                        \
   if (callback.has_value()) {                                                  \
-    callback.value()(EvaluationType::Pre, true, step, context.evaluate_path(), \
-                     context.instance_location(), context.null);               \
+    callback.value()(EvaluationType::Pre, true, step, context.evaluate_path,   \
+                     context.instance_location, context.null);                 \
   }                                                                            \
   bool result{true};
 
@@ -144,7 +144,7 @@ auto evaluate_step(const sourcemeta::blaze::Template::value_type &step,
 #define EVALUATE_END(step_category, step_type)                                 \
   if (callback.has_value()) {                                                  \
     callback.value()(EvaluationType::Post, result, step,                       \
-                     context.evaluate_path(), context.instance_location(),     \
+                     context.evaluate_path, context.instance_location,         \
                      context.null);                                            \
   }                                                                            \
   context.pop(step_category.dynamic, track);                                   \
@@ -154,7 +154,7 @@ auto evaluate_step(const sourcemeta::blaze::Template::value_type &step,
 #define EVALUATE_END_NO_POP(step_category, step_type)                          \
   if (callback.has_value()) {                                                  \
     callback.value()(EvaluationType::Post, result, step,                       \
-                     context.evaluate_path(), context.instance_location(),     \
+                     context.evaluate_path, context.instance_location,         \
                      context.null);                                            \
   }                                                                            \
   SOURCEMETA_TRACE_END(trace_id, STRINGIFY(step_type));                        \
@@ -174,10 +174,10 @@ auto evaluate_step(const sourcemeta::blaze::Template::value_type &step,
                step_category.relative_instance_location,                       \
                step_category.schema_resource, step_category.dynamic, track);   \
   if (callback.has_value()) {                                                  \
-    callback.value()(EvaluationType::Pre, true, step, context.evaluate_path(), \
+    callback.value()(EvaluationType::Pre, true, step, context.evaluate_path,   \
                      destination, context.null);                               \
-    callback.value()(EvaluationType::Post, true, step,                         \
-                     context.evaluate_path(), destination, annotation_value);  \
+    callback.value()(EvaluationType::Post, true, step, context.evaluate_path,  \
+                     destination, annotation_value);                           \
   }                                                                            \
   context.pop(step_category.dynamic, track);                                   \
   SOURCEMETA_TRACE_END(trace_id, STRINGIFY(step_type));                        \
@@ -621,7 +621,8 @@ auto evaluate_step(const sourcemeta::blaze::Template::value_type &step,
       result = true;
       if (consequence_start > 0) {
         if (track) {
-          context.retreat(logical.relative_schema_location);
+          context.evaluate_path.pop_back(
+              logical.relative_schema_location.size());
 
           for (auto cursor = consequence_start; cursor < consequence_end;
                cursor++) {
@@ -631,7 +632,7 @@ auto evaluate_step(const sourcemeta::blaze::Template::value_type &step,
             }
           }
 
-          context.advance(logical.relative_schema_location);
+          context.evaluate_path.push_back(logical.relative_schema_location);
         } else {
           for (auto cursor = consequence_start; cursor < consequence_end;
                cursor++) {
@@ -676,7 +677,7 @@ auto evaluate_step(const sourcemeta::blaze::Template::value_type &step,
 
     case IS_STEP(ControlLabel): {
       EVALUATE_BEGIN_NO_PRECONDITION(control, ControlLabel);
-      context.mark(control.value, control.children);
+      context.labels.try_emplace(control.value, control.children);
       result = true;
       for (const auto &child : control.children) {
         if (!evaluate_step(child, callback, context)) {
@@ -690,7 +691,7 @@ auto evaluate_step(const sourcemeta::blaze::Template::value_type &step,
 
     case IS_STEP(ControlMark): {
       EVALUATE_BEGIN_NO_PRECONDITION_AND_NO_PUSH(control, ControlMark);
-      context.mark(control.value, control.children);
+      context.labels.try_emplace(control.value, control.children);
       EVALUATE_END_NO_POP(control, ControlMark);
     }
 
@@ -699,13 +700,13 @@ auto evaluate_step(const sourcemeta::blaze::Template::value_type &step,
 
       if (callback.has_value()) {
         // TODO: Optimize this case to avoid an extra pointer copy
-        auto destination = context.instance_location();
+        auto destination = context.instance_location;
         destination.push_back(control.value);
-        callback.value()(EvaluationType::Pre, true, step,
-                         context.evaluate_path(), destination, context.null);
+        callback.value()(EvaluationType::Pre, true, step, context.evaluate_path,
+                         destination, context.null);
         context.evaluate(control.value);
         callback.value()(EvaluationType::Post, true, step,
-                         context.evaluate_path(), destination, context.null);
+                         context.evaluate_path, destination, context.null);
       } else {
         context.evaluate(control.value);
       }
@@ -716,7 +717,8 @@ auto evaluate_step(const sourcemeta::blaze::Template::value_type &step,
     case IS_STEP(ControlJump): {
       EVALUATE_BEGIN_NO_PRECONDITION(control, ControlJump);
       result = true;
-      for (const auto &child : context.jump(control.value)) {
+      assert(context.labels.contains(control.value));
+      for (const auto &child : context.labels.at(control.value).get()) {
         if (!evaluate_step(child, callback, context)) {
           result = false;
           break;
@@ -728,38 +730,45 @@ auto evaluate_step(const sourcemeta::blaze::Template::value_type &step,
 
     case IS_STEP(ControlDynamicAnchorJump): {
       EVALUATE_BEGIN_NO_PRECONDITION(control, ControlDynamicAnchorJump);
-      const auto id{context.find_dynamic_anchor(control.value)};
-      result = id.has_value();
-      if (id.has_value()) {
-        for (const auto &child : context.jump(id.value())) {
-          if (!evaluate_step(child, callback, context)) {
-            result = false;
-            break;
+      result = false;
+      for (const auto &resource : context.resources) {
+        const auto label{context.hash(resource, control.value)};
+        const auto match{context.labels.find(label)};
+        if (match != context.labels.cend()) {
+          result = true;
+          for (const auto &child : match->second.get()) {
+            if (!evaluate_step(child, callback, context)) {
+              result = false;
+              goto evaluate_control_dynamic_anchor_jump_end;
+            }
           }
+
+          break;
         }
       }
 
+    evaluate_control_dynamic_anchor_jump_end:
       EVALUATE_END(control, ControlDynamicAnchorJump);
     }
 
     case IS_STEP(AnnotationEmit): {
-      EVALUATE_ANNOTATION(annotation, AnnotationEmit,
-                          context.instance_location(), annotation.value);
+      EVALUATE_ANNOTATION(annotation, AnnotationEmit, context.instance_location,
+                          annotation.value);
     }
 
     case IS_STEP(AnnotationToParent): {
       EVALUATE_ANNOTATION(
           annotation, AnnotationToParent,
           // TODO: Can we avoid a copy of the instance location here?
-          context.instance_location().initial(), annotation.value);
+          context.instance_location.initial(), annotation.value);
     }
 
     case IS_STEP(AnnotationBasenameToParent): {
       EVALUATE_ANNOTATION(
           annotation, AnnotationBasenameToParent,
           // TODO: Can we avoid a copy of the instance location here?
-          context.instance_location().initial(),
-          context.instance_location().back().to_json());
+          context.instance_location.initial(),
+          context.instance_location.back().to_json());
     }
 
     case IS_STEP(LogicalNot): {
@@ -983,18 +992,21 @@ auto evaluate_step(const sourcemeta::blaze::Template::value_type &step,
       result = true;
       for (const auto &entry : target.as_object()) {
         context.enter(entry.first, track);
-        context.set_property_target(entry.first);
+        assert(!context.property_target.has_value());
+        context.property_target = std::cref(entry.first);
 
         for (const auto &child : loop.children) {
           if (!evaluate_step(child, callback, context)) {
             result = false;
-            context.unset_property_target();
+            assert(context.property_target.has_value());
+            context.property_target = std::nullopt;
             context.leave(track);
             goto evaluate_loop_keys_end;
           }
         }
 
-        context.unset_property_target();
+        assert(context.property_target.has_value());
+        context.property_target = std::nullopt;
         context.leave(track);
       }
 
@@ -1116,11 +1128,12 @@ evaluate_internal(sourcemeta::blaze::EvaluationContext &context,
 
   // The evaluation path and instance location must be empty by the time
   // we are done, otherwise there was a frame push/pop mismatch
-  assert(context.evaluate_path().empty());
-  assert(context.instance_location().empty());
-  assert(context.resources().empty());
+  assert(context.evaluate_path.empty());
+  assert(context.evaluate_path_size == 0);
+  assert(context.instance_location.empty());
+  assert(context.resources.empty());
   // We should end up at the root of the instance
-  assert(context.instances().size() == 1);
+  assert(context.instances.size() == 1);
   return overall;
 }
 

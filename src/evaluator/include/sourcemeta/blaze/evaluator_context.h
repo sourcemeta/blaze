@@ -38,10 +38,6 @@ public:
   // Evaluation stack
   ///////////////////////////////////////////////
 
-  auto evaluate_path() const noexcept
-      -> const sourcemeta::jsontoolkit::WeakPointer &;
-  auto instance_location() const noexcept
-      -> const sourcemeta::jsontoolkit::WeakPointer &;
   auto push(const sourcemeta::jsontoolkit::Pointer &relative_schema_location,
             const sourcemeta::jsontoolkit::Pointer &relative_instance_location,
             const std::size_t &schema_resource, const bool dynamic,
@@ -61,29 +57,15 @@ public:
   auto enter(const sourcemeta::jsontoolkit::WeakPointer::Token::Index &index,
              const bool track) -> void;
   auto leave(const bool track) -> void;
-  auto advance(const sourcemeta::jsontoolkit::Pointer &relative_schema_location)
-      -> void;
-  auto retreat(const sourcemeta::jsontoolkit::Pointer &relative_schema_location)
-      -> void;
-
-private:
   auto push_without_traverse(
       const sourcemeta::jsontoolkit::Pointer &relative_schema_location,
       const sourcemeta::jsontoolkit::Pointer &relative_instance_location,
       const std::size_t &schema_resource, const bool dynamic, const bool track)
       -> void;
 
-public:
   ///////////////////////////////////////////////
   // Target resolution
   ///////////////////////////////////////////////
-
-  auto instances() const noexcept -> const std::vector<
-      std::reference_wrapper<const sourcemeta::jsontoolkit::JSON>> &;
-  auto
-  set_property_target(const sourcemeta::jsontoolkit::JSON::String &property)
-      -> void;
-  auto unset_property_target() -> void;
 
   auto resolve_target() -> const sourcemeta::jsontoolkit::JSON &;
   auto resolve_string_target() -> std::optional<
@@ -95,11 +77,6 @@ public:
 
   auto hash(const std::size_t &resource,
             const std::string &fragment) const noexcept -> std::size_t;
-  auto resources() const noexcept -> const std::vector<std::size_t> &;
-  auto mark(const std::size_t id, const Template &children) -> void;
-  auto jump(const std::size_t id) const noexcept -> const Template &;
-  auto find_dynamic_anchor(const std::string &anchor) const
-      -> std::optional<std::size_t>;
 
   ///////////////////////////////////////////////
   // Evaluation
@@ -117,11 +94,9 @@ public:
       -> bool;
   auto unevaluate() -> void;
 
-public:
   // TODO: Remove this
   const sourcemeta::jsontoolkit::JSON null{nullptr};
 
-private:
 // Exporting symbols that depends on the standard C++ library is considered
 // safe.
 // https://learn.microsoft.com/en-us/cpp/error-messages/compiler-warnings/compiler-warning-level-2-c4275?view=msvc-170&redirectedfrom=MSDN
@@ -129,13 +104,13 @@ private:
 #pragma warning(disable : 4251 4275)
 #endif
   std::vector<std::reference_wrapper<const sourcemeta::jsontoolkit::JSON>>
-      instances_;
-  sourcemeta::jsontoolkit::WeakPointer evaluate_path_;
-  std::uint64_t evaluate_path_size_{0};
-  sourcemeta::jsontoolkit::WeakPointer instance_location_;
+      instances;
+  sourcemeta::jsontoolkit::WeakPointer evaluate_path;
+  std::uint64_t evaluate_path_size{0};
+  sourcemeta::jsontoolkit::WeakPointer instance_location;
   std::vector<std::pair<std::size_t, std::size_t>> frame_sizes;
   const std::hash<std::string> hasher_{};
-  std::vector<std::size_t> resources_;
+  std::vector<std::size_t> resources;
   std::map<std::size_t, const std::reference_wrapper<const Template>> labels;
   std::optional<
       std::reference_wrapper<const sourcemeta::jsontoolkit::JSON::String>>
