@@ -785,8 +785,7 @@ auto evaluate_step(const sourcemeta::blaze::Template::value_type &step,
       result = true;
 
       for (const auto &entry : target.as_object()) {
-        if (context.is_evaluated(
-                sourcemeta::jsontoolkit::WeakPointer::Token{entry.first})) {
+        if (context.is_evaluated(entry.first)) {
           continue;
         }
 
