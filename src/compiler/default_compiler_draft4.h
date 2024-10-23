@@ -855,15 +855,28 @@ auto compiler_draft4_applicator_not(const Context &context,
                                     const SchemaContext &schema_context,
                                     const DynamicContext &dynamic_context)
     -> Template {
-  return {make<LogicalNot>(context, schema_context, dynamic_context,
-                           // Only emit a `not` instruction that keeps track of
-                           // evaluation if we really need it
-                           ValueBoolean{context.uses_unevaluated_properties ||
-                                        context.uses_unevaluated_items},
-                           compile(context, schema_context,
-                                   relative_dynamic_context,
-                                   sourcemeta::jsontoolkit::empty_pointer,
-                                   sourcemeta::jsontoolkit::empty_pointer))};
+  std::size_t subschemas{0};
+  for (const auto &entry : sourcemeta::jsontoolkit::SchemaIterator{
+           schema_context.schema.at(dynamic_context.keyword), context.walker,
+           context.resolver, schema_context.base_dialect}) {
+    if (entry.pointer.empty()) {
+      continue;
+    }
+
+    subschemas += 1;
+  }
+
+  return {make<LogicalNot>(
+      context, schema_context, dynamic_context,
+      // Only emit a `not` instruction that keeps track of
+      // evaluation if we really need it. If the "not" subschema
+      // does not define applicators, then that's an easy case
+      // we can skip
+      ValueBoolean{subschemas > 0 && (context.uses_unevaluated_properties ||
+                                      context.uses_unevaluated_items)},
+      compile(context, schema_context, relative_dynamic_context,
+              sourcemeta::jsontoolkit::empty_pointer,
+              sourcemeta::jsontoolkit::empty_pointer))};
 }
 
 auto compiler_draft4_applicator_items_array(
