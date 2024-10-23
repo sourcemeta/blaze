@@ -823,11 +823,23 @@ auto evaluate_step(const sourcemeta::blaze::Template::value_type &step,
         }
       }
 
-      if (logical.value && track) {
-        context.unevaluate();
+      EVALUATE_END(logical, LogicalNot);
+    }
+
+    case IS_STEP(LogicalNotEvaluate): {
+      EVALUATE_BEGIN_NO_PRECONDITION(logical, LogicalNotEvaluate);
+
+      for (const auto &child : logical.children) {
+        if (!evaluate_step(child, callback, context)) {
+          result = true;
+          break;
+        }
       }
 
-      EVALUATE_END(logical, LogicalNot);
+      assert(track);
+      context.unevaluate();
+
+      EVALUATE_END(logical, LogicalNotEvaluate);
     }
 
     case IS_STEP(LoopPropertiesUnevaluated): {

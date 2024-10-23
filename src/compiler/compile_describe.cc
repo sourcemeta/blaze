@@ -249,6 +249,18 @@ struct DescribeVisitor {
     return message.str();
   }
 
+  auto operator()(const LogicalNotEvaluate &) const -> std::string {
+    std::ostringstream message;
+    message
+        << "The " << to_string(this->target.type())
+        << " value was expected to not validate against the given subschema";
+    if (!this->valid) {
+      message << ", but it did";
+    }
+
+    return message.str();
+  }
+
   auto operator()(const ControlLabel &) const -> std::string {
     return describe_reference(this->target);
   }

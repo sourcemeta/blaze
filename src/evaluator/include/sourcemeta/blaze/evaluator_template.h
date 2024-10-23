@@ -50,6 +50,7 @@ struct AnnotationEmit;
 struct AnnotationToParent;
 struct AnnotationBasenameToParent;
 struct LogicalNot;
+struct LogicalNotEvaluate;
 struct LogicalOr;
 struct LogicalAnd;
 struct LogicalXor;
@@ -95,9 +96,9 @@ using Template = std::vector<std::variant<
     AssertionPropertyType, AssertionPropertyTypeEvaluate,
     AssertionPropertyTypeStrict, AssertionPropertyTypeStrictEvaluate,
     AssertionArrayPrefix, AnnotationEmit, AnnotationToParent,
-    AnnotationBasenameToParent, LogicalNot, LogicalOr, LogicalAnd, LogicalXor,
-    LogicalCondition, LogicalWhenType, LogicalWhenDefines,
-    LogicalWhenArraySizeGreater, LoopPropertiesUnevaluated,
+    AnnotationBasenameToParent, LogicalNot, LogicalNotEvaluate, LogicalOr,
+    LogicalAnd, LogicalXor, LogicalCondition, LogicalWhenType,
+    LogicalWhenDefines, LogicalWhenArraySizeGreater, LoopPropertiesUnevaluated,
     LoopItemsUnevaluated, LoopPropertiesMatch, LoopProperties,
     LoopPropertiesEvaluate, LoopPropertiesRegex, LoopPropertiesExcept,
     LoopPropertiesType, LoopPropertiesTypeEvaluate, LoopPropertiesTypeStrict,
@@ -145,6 +146,7 @@ enum class TemplateIndex : std::uint8_t {
   AnnotationToParent,
   AnnotationBasenameToParent,
   LogicalNot,
+  LogicalNotEvaluate,
   LogicalOr,
   LogicalAnd,
   LogicalXor,
@@ -381,7 +383,12 @@ DEFINE_STEP_WITH_VALUE(Annotation, BasenameToParent, ValueNone)
 
 /// @ingroup evaluator_instructions
 /// @brief Represents a compiler logical step that represents a negation
-DEFINE_STEP_APPLICATOR(Logical, Not, ValueBoolean)
+DEFINE_STEP_APPLICATOR(Logical, Not, ValueNone)
+
+/// @ingroup evaluator_instructions
+/// @brief Represents a compiler logical step that represents a negation and
+/// discards evaluation marks after its execution
+DEFINE_STEP_APPLICATOR(Logical, NotEvaluate, ValueNone)
 
 /// @ingroup evaluator_instructions
 /// @brief Represents a compiler logical step that represents a disjunction

@@ -246,6 +246,7 @@ struct StepVisitor {
   HANDLE_STEP("annotation", "to-parent", AnnotationToParent)
   HANDLE_STEP("annotation", "basename-to-parent", AnnotationBasenameToParent)
   HANDLE_STEP("logical", "not", LogicalNot)
+  HANDLE_STEP("logical", "not-evaluate", LogicalNotEvaluate)
   HANDLE_STEP("logical", "or", LogicalOr)
   HANDLE_STEP("logical", "and", LogicalAnd)
   HANDLE_STEP("logical", "xor", LogicalXor)
