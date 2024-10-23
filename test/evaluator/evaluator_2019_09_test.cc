@@ -3720,6 +3720,87 @@ TEST(Evaluator_2019_09, unevaluatedProperties_9_exhaustive) {
       "The object value was not expected to define unevaluated properties");
 }
 
+TEST(Evaluator_2019_09, unevaluatedProperties_10) {
+  const sourcemeta::jsontoolkit::JSON schema{
+      sourcemeta::jsontoolkit::parse(R"JSON({
+    "$schema": "https://json-schema.org/draft/2019-09/schema",
+    "additionalProperties": { "type": "string" },
+    "unevaluatedProperties": false
+  })JSON")};
+
+  const sourcemeta::jsontoolkit::JSON instance{
+      sourcemeta::jsontoolkit::parse("{ \"foo\": \"baz\" }")};
+
+  EVALUATE_WITH_TRACE_FAST_SUCCESS(schema, instance, 2);
+
+  EVALUATE_TRACE_PRE(0, LoopPropertiesTypeStrictEvaluate,
+                     "/additionalProperties", "#/additionalProperties", "");
+  EVALUATE_TRACE_PRE(1, LoopPropertiesUnevaluated, "/unevaluatedProperties",
+                     "#/unevaluatedProperties", "");
+
+  EVALUATE_TRACE_POST_SUCCESS(0, LoopPropertiesTypeStrictEvaluate,
+                              "/additionalProperties", "#/additionalProperties",
+                              "");
+  EVALUATE_TRACE_POST_SUCCESS(1, LoopPropertiesUnevaluated,
+                              "/unevaluatedProperties",
+                              "#/unevaluatedProperties", "");
+
+  EVALUATE_TRACE_POST_DESCRIBE(
+      instance, 0, "The object properties were expected to be of type string");
+  EVALUATE_TRACE_POST_DESCRIBE(
+      instance, 1,
+      "The object value was not expected to define unevaluated properties");
+}
+
+TEST(Evaluator_2019_09, unevaluatedProperties_10_exhaustive) {
+  const sourcemeta::jsontoolkit::JSON schema{
+      sourcemeta::jsontoolkit::parse(R"JSON({
+    "$schema": "https://json-schema.org/draft/2019-09/schema",
+    "additionalProperties": { "type": "string" },
+    "unevaluatedProperties": false
+  })JSON")};
+
+  const sourcemeta::jsontoolkit::JSON instance{
+      sourcemeta::jsontoolkit::parse("{ \"foo\": \"baz\" }")};
+
+  EVALUATE_WITH_TRACE_EXHAUSTIVE_SUCCESS(schema, instance, 4);
+
+  EVALUATE_TRACE_PRE(0, LoopPropertiesEvaluate, "/additionalProperties",
+                     "#/additionalProperties", "");
+  EVALUATE_TRACE_PRE(1, AssertionTypeStrict, "/additionalProperties/type",
+                     "#/additionalProperties/type", "/foo");
+  EVALUATE_TRACE_PRE_ANNOTATION(2, "/additionalProperties",
+                                "#/additionalProperties", "");
+  EVALUATE_TRACE_PRE(3, LoopPropertiesUnevaluated, "/unevaluatedProperties",
+                     "#/unevaluatedProperties", "");
+
+  EVALUATE_TRACE_POST_SUCCESS(0, AssertionTypeStrict,
+                              "/additionalProperties/type",
+                              "#/additionalProperties/type", "/foo");
+  EVALUATE_TRACE_POST_ANNOTATION(1, "/additionalProperties",
+                                 "#/additionalProperties", "", "foo");
+  EVALUATE_TRACE_POST_SUCCESS(2, LoopPropertiesEvaluate,
+                              "/additionalProperties", "#/additionalProperties",
+                              "");
+  EVALUATE_TRACE_POST_SUCCESS(3, LoopPropertiesUnevaluated,
+                              "/unevaluatedProperties",
+                              "#/unevaluatedProperties", "");
+
+  EVALUATE_TRACE_POST_DESCRIBE(instance, 0,
+                               "The value was expected to be of type string");
+  EVALUATE_TRACE_POST_DESCRIBE(
+      instance, 1,
+      "The object property \"foo\" successfully validated against the "
+      "additional properties subschema");
+  EVALUATE_TRACE_POST_DESCRIBE(
+      instance, 2,
+      "The object properties not covered by other adjacent object keywords "
+      "were expected to validate against this subschema");
+  EVALUATE_TRACE_POST_DESCRIBE(
+      instance, 3,
+      "The object value was not expected to define unevaluated properties");
+}
+
 TEST(Evaluator_2019_09, unevaluatedItems_1) {
   const sourcemeta::jsontoolkit::JSON schema{
       sourcemeta::jsontoolkit::parse(R"JSON({

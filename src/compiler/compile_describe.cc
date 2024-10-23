@@ -626,7 +626,22 @@ struct DescribeVisitor {
     return message.str();
   }
 
+  auto operator()(const LoopPropertiesTypeEvaluate &step) const -> std::string {
+    std::ostringstream message;
+    message << "The object properties were expected to be of type "
+            << to_string(step.value);
+    return message.str();
+  }
+
   auto operator()(const LoopPropertiesTypeStrict &step) const -> std::string {
+    std::ostringstream message;
+    message << "The object properties were expected to be of type "
+            << to_string(step.value);
+    return message.str();
+  }
+
+  auto operator()(const LoopPropertiesTypeStrictEvaluate &step) const
+      -> std::string {
     std::ostringstream message;
     message << "The object properties were expected to be of type "
             << to_string(step.value);
