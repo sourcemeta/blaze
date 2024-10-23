@@ -1,8 +1,7 @@
 #include <sourcemeta/blaze/evaluator_context.h>
 #include <sourcemeta/blaze/evaluator_error.h>
 
-#include <algorithm> // std::remove_if
-#include <cassert>   // assert
+#include <cassert> // assert
 
 namespace sourcemeta::blaze {
 
@@ -19,7 +18,6 @@ auto EvaluationContext::prepare(const sourcemeta::jsontoolkit::JSON &instance)
   this->instances_.emplace_back(instance);
   this->labels.clear();
   this->evaluated_.clear();
-  this->evaluated_blacklist_.clear();
 }
 
 auto EvaluationContext::push_without_traverse(
@@ -257,17 +255,18 @@ auto EvaluationContext::evaluate(
     -> void {
   auto new_instance_location = this->instance_location_;
   new_instance_location.push_back(relative_instance_location);
-  this->evaluated_.emplace_back(std::move(new_instance_location),
-                                this->evaluate_path_);
+  Evaluation entry{std::move(new_instance_location), this->evaluate_path_,
+                   false};
+  this->evaluated_.emplace_back(std::move(entry));
 }
 
 auto EvaluationContext::is_evaluated(
     const sourcemeta::jsontoolkit::WeakPointer &pointer) const -> bool {
   for (auto iterator = this->evaluated_.crbegin();
        iterator != this->evaluated_.crend(); ++iterator) {
-    if (pointer.starts_with(iterator->first) &&
+    if (!iterator->skip && pointer.starts_with(iterator->instance_location) &&
         // Its not possible to affect cousins
-        iterator->second.starts_with_initial(this->evaluate_path_)) {
+        iterator->evaluate_path.starts_with_initial(this->evaluate_path_)) {
       return true;
     }
   }
@@ -292,12 +291,11 @@ auto EvaluationContext::is_evaluated(
 }
 
 auto EvaluationContext::unevaluate() -> void {
-  this->evaluated_.erase(
-      std::remove_if(this->evaluated_.begin(), this->evaluated_.end(),
-                     [this](const auto &pair) {
-                       return pair.second.starts_with(this->evaluate_path_);
-                     }),
-      this->evaluated_.end());
+  for (auto &entry : this->evaluated_) {
+    if (!entry.skip && entry.evaluate_path.starts_with(this->evaluate_path_)) {
+      entry.skip = true;
+    }
+  }
 }
 
 } // namespace sourcemeta::blaze
