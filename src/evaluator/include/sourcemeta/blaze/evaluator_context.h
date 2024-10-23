@@ -151,10 +151,13 @@ private:
       property_target;
 
   // TODO: Turn these into a trie
-  std::vector<std::pair<sourcemeta::jsontoolkit::WeakPointer,
-                        sourcemeta::jsontoolkit::WeakPointer>>
-      evaluated_;
-  std::vector<sourcemeta::jsontoolkit::WeakPointer> evaluated_blacklist_;
+  struct Evaluation {
+    sourcemeta::jsontoolkit::WeakPointer instance_location;
+    sourcemeta::jsontoolkit::WeakPointer evaluate_path;
+    bool skip;
+  };
+
+  std::vector<Evaluation> evaluated_;
 #if defined(_MSC_VER)
 #pragma warning(default : 4251 4275)
 #endif
