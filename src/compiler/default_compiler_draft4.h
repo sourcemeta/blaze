@@ -866,17 +866,22 @@ auto compiler_draft4_applicator_not(const Context &context,
     subschemas += 1;
   }
 
-  return {make<LogicalNot>(
-      context, schema_context, dynamic_context,
-      // Only emit a `not` instruction that keeps track of
-      // evaluation if we really need it. If the "not" subschema
-      // does not define applicators, then that's an easy case
-      // we can skip
-      ValueBoolean{subschemas > 0 && (context.uses_unevaluated_properties ||
-                                      context.uses_unevaluated_items)},
-      compile(context, schema_context, relative_dynamic_context,
-              sourcemeta::jsontoolkit::empty_pointer,
-              sourcemeta::jsontoolkit::empty_pointer))};
+  Template children{compile(context, schema_context, relative_dynamic_context,
+                            sourcemeta::jsontoolkit::empty_pointer,
+                            sourcemeta::jsontoolkit::empty_pointer)};
+
+  // Only emit a `not` instruction that keeps track of
+  // evaluation if we really need it. If the "not" subschema
+  // does not define applicators, then that's an easy case
+  // we can skip
+  if (subschemas > 0 &&
+      (context.uses_unevaluated_properties || context.uses_unevaluated_items)) {
+    return {make<LogicalNotEvaluate>(context, schema_context, dynamic_context,
+                                     ValueNone{}, std::move(children))};
+  } else {
+    return {make<LogicalNot>(context, schema_context, dynamic_context,
+                             ValueNone{}, std::move(children))};
+  }
 }
 
 auto compiler_draft4_applicator_items_array(

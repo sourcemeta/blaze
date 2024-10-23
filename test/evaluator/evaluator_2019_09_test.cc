@@ -3405,8 +3405,8 @@ TEST(Evaluator_2019_09, unevaluatedProperties_8) {
 
   EVALUATE_WITH_TRACE_FAST_FAILURE(schema, instance, 6);
 
-  EVALUATE_TRACE_PRE(0, LogicalNot, "/not", "#/not", "");
-  EVALUATE_TRACE_PRE(1, LogicalNot, "/not/not", "#/not/not", "");
+  EVALUATE_TRACE_PRE(0, LogicalNotEvaluate, "/not", "#/not", "");
+  EVALUATE_TRACE_PRE(1, LogicalNotEvaluate, "/not/not", "#/not/not", "");
   EVALUATE_TRACE_PRE(2, LogicalAnd, "/not/not/properties",
                      "#/not/not/properties", "");
   EVALUATE_TRACE_PRE(3, ControlEvaluate, "/not/not/properties",
@@ -3420,8 +3420,9 @@ TEST(Evaluator_2019_09, unevaluatedProperties_8) {
                               "#/not/not/properties", "/foo");
   EVALUATE_TRACE_POST_SUCCESS(1, LogicalAnd, "/not/not/properties",
                               "#/not/not/properties", "");
-  EVALUATE_TRACE_POST_FAILURE(2, LogicalNot, "/not/not", "#/not/not", "");
-  EVALUATE_TRACE_POST_SUCCESS(3, LogicalNot, "/not", "#/not", "");
+  EVALUATE_TRACE_POST_FAILURE(2, LogicalNotEvaluate, "/not/not", "#/not/not",
+                              "");
+  EVALUATE_TRACE_POST_SUCCESS(3, LogicalNotEvaluate, "/not", "#/not", "");
   EVALUATE_TRACE_POST_FAILURE(4, AssertionFail, "/unevaluatedProperties",
                               "#/unevaluatedProperties", "/foo");
   EVALUATE_TRACE_POST_FAILURE(5, LoopPropertiesUnevaluated,
@@ -3462,8 +3463,8 @@ TEST(Evaluator_2019_09, unevaluatedProperties_8_exhaustive) {
 
   EVALUATE_WITH_TRACE_EXHAUSTIVE_FAILURE(schema, instance, 7);
 
-  EVALUATE_TRACE_PRE(0, LogicalNot, "/not", "#/not", "");
-  EVALUATE_TRACE_PRE(1, LogicalNot, "/not/not", "#/not/not", "");
+  EVALUATE_TRACE_PRE(0, LogicalNotEvaluate, "/not", "#/not", "");
+  EVALUATE_TRACE_PRE(1, LogicalNotEvaluate, "/not/not", "#/not/not", "");
   EVALUATE_TRACE_PRE(2, LogicalAnd, "/not/not/properties",
                      "#/not/not/properties", "");
   EVALUATE_TRACE_PRE_ANNOTATION(3, "/not/not/properties",
@@ -3481,8 +3482,9 @@ TEST(Evaluator_2019_09, unevaluatedProperties_8_exhaustive) {
                               "#/not/not/properties", "/foo");
   EVALUATE_TRACE_POST_SUCCESS(2, LogicalAnd, "/not/not/properties",
                               "#/not/not/properties", "");
-  EVALUATE_TRACE_POST_FAILURE(3, LogicalNot, "/not/not", "#/not/not", "");
-  EVALUATE_TRACE_POST_SUCCESS(4, LogicalNot, "/not", "#/not", "");
+  EVALUATE_TRACE_POST_FAILURE(3, LogicalNotEvaluate, "/not/not", "#/not/not",
+                              "");
+  EVALUATE_TRACE_POST_SUCCESS(4, LogicalNotEvaluate, "/not", "#/not", "");
   EVALUATE_TRACE_POST_FAILURE(5, AssertionFail, "/unevaluatedProperties",
                               "#/unevaluatedProperties", "/foo");
   EVALUATE_TRACE_POST_FAILURE(6, LoopPropertiesUnevaluated,
