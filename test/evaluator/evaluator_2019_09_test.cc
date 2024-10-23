@@ -2672,8 +2672,8 @@ TEST(Evaluator_2019_09, unevaluatedProperties_1) {
 
   EVALUATE_TRACE_PRE(0, AssertionPropertyTypeStrictEvaluate,
                      "/properties/foo/type", "#/properties/foo/type", "/foo");
-  EVALUATE_TRACE_PRE(1, LoopPropertiesUnevaluated, "/unevaluatedProperties",
-                     "#/unevaluatedProperties", "");
+  EVALUATE_TRACE_PRE(1, LoopPropertiesUnevaluatedExcept,
+                     "/unevaluatedProperties", "#/unevaluatedProperties", "");
   EVALUATE_TRACE_PRE(2, AssertionTypeStrict, "/unevaluatedProperties/type",
                      "#/unevaluatedProperties/type", "/bar");
 
@@ -2683,7 +2683,7 @@ TEST(Evaluator_2019_09, unevaluatedProperties_1) {
   EVALUATE_TRACE_POST_SUCCESS(1, AssertionTypeStrict,
                               "/unevaluatedProperties/type",
                               "#/unevaluatedProperties/type", "/bar");
-  EVALUATE_TRACE_POST_SUCCESS(2, LoopPropertiesUnevaluated,
+  EVALUATE_TRACE_POST_SUCCESS(2, LoopPropertiesUnevaluatedExcept,
                               "/unevaluatedProperties",
                               "#/unevaluatedProperties", "");
 
@@ -2717,8 +2717,8 @@ TEST(Evaluator_2019_09, unevaluatedProperties_1_exhaustive) {
                      "#/properties/foo/type", "/foo");
   EVALUATE_TRACE_PRE_ANNOTATION(2, "/properties", "#/properties", "");
   EVALUATE_TRACE_PRE(3, ControlEvaluate, "/properties", "#/properties", "/foo");
-  EVALUATE_TRACE_PRE(4, LoopPropertiesUnevaluated, "/unevaluatedProperties",
-                     "#/unevaluatedProperties", "");
+  EVALUATE_TRACE_PRE(4, LoopPropertiesUnevaluatedExcept,
+                     "/unevaluatedProperties", "#/unevaluatedProperties", "");
   EVALUATE_TRACE_PRE(5, AssertionTypeStrict, "/unevaluatedProperties/type",
                      "#/unevaluatedProperties/type", "/bar");
   EVALUATE_TRACE_PRE_ANNOTATION(6, "/unevaluatedProperties",
@@ -2735,7 +2735,7 @@ TEST(Evaluator_2019_09, unevaluatedProperties_1_exhaustive) {
                               "#/unevaluatedProperties/type", "/bar");
   EVALUATE_TRACE_POST_ANNOTATION(5, "/unevaluatedProperties",
                                  "#/unevaluatedProperties", "", "bar");
-  EVALUATE_TRACE_POST_SUCCESS(6, LoopPropertiesUnevaluated,
+  EVALUATE_TRACE_POST_SUCCESS(6, LoopPropertiesUnevaluatedExcept,
                               "/unevaluatedProperties",
                               "#/unevaluatedProperties", "");
 
@@ -3034,8 +3034,8 @@ TEST(Evaluator_2019_09, unevaluatedProperties_4) {
 
   EVALUATE_TRACE_PRE(0, AssertionPropertyTypeStrictEvaluate,
                      "/properties/foo/type", "#/properties/foo/type", "/foo");
-  EVALUATE_TRACE_PRE(1, LoopPropertiesUnevaluated, "/unevaluatedProperties",
-                     "#/unevaluatedProperties", "");
+  EVALUATE_TRACE_PRE(1, LoopPropertiesUnevaluatedExcept,
+                     "/unevaluatedProperties", "#/unevaluatedProperties", "");
   EVALUATE_TRACE_PRE(2, AssertionFail, "/unevaluatedProperties",
                      "#/unevaluatedProperties", "/bar");
 
@@ -3044,7 +3044,7 @@ TEST(Evaluator_2019_09, unevaluatedProperties_4) {
                               "/foo");
   EVALUATE_TRACE_POST_FAILURE(1, AssertionFail, "/unevaluatedProperties",
                               "#/unevaluatedProperties", "/bar");
-  EVALUATE_TRACE_POST_FAILURE(2, LoopPropertiesUnevaluated,
+  EVALUATE_TRACE_POST_FAILURE(2, LoopPropertiesUnevaluatedExcept,
                               "/unevaluatedProperties",
                               "#/unevaluatedProperties", "");
 
@@ -3078,8 +3078,8 @@ TEST(Evaluator_2019_09, unevaluatedProperties_4_exhaustive) {
                      "#/properties/foo/type", "/foo");
   EVALUATE_TRACE_PRE_ANNOTATION(2, "/properties", "#/properties", "");
   EVALUATE_TRACE_PRE(3, ControlEvaluate, "/properties", "#/properties", "/foo");
-  EVALUATE_TRACE_PRE(4, LoopPropertiesUnevaluated, "/unevaluatedProperties",
-                     "#/unevaluatedProperties", "");
+  EVALUATE_TRACE_PRE(4, LoopPropertiesUnevaluatedExcept,
+                     "/unevaluatedProperties", "#/unevaluatedProperties", "");
   EVALUATE_TRACE_PRE(5, AssertionFail, "/unevaluatedProperties",
                      "#/unevaluatedProperties", "/bar");
 
@@ -3091,7 +3091,7 @@ TEST(Evaluator_2019_09, unevaluatedProperties_4_exhaustive) {
   EVALUATE_TRACE_POST_SUCCESS(3, LogicalAnd, "/properties", "#/properties", "");
   EVALUATE_TRACE_POST_FAILURE(4, AssertionFail, "/unevaluatedProperties",
                               "#/unevaluatedProperties", "/bar");
-  EVALUATE_TRACE_POST_FAILURE(5, LoopPropertiesUnevaluated,
+  EVALUATE_TRACE_POST_FAILURE(5, LoopPropertiesUnevaluatedExcept,
                               "/unevaluatedProperties",
                               "#/unevaluatedProperties", "");
 
@@ -3188,14 +3188,14 @@ TEST(Evaluator_2019_09, unevaluatedProperties_6) {
                      "#/patternProperties", "");
   EVALUATE_TRACE_PRE(1, ControlEvaluate, "/patternProperties",
                      "#/patternProperties", "/@foo");
-  EVALUATE_TRACE_PRE(2, LoopPropertiesUnevaluated, "/unevaluatedProperties",
-                     "#/unevaluatedProperties", "");
+  EVALUATE_TRACE_PRE(2, LoopPropertiesUnevaluatedExcept,
+                     "/unevaluatedProperties", "#/unevaluatedProperties", "");
 
   EVALUATE_TRACE_POST_SUCCESS(0, ControlEvaluate, "/patternProperties",
                               "#/patternProperties", "/@foo");
   EVALUATE_TRACE_POST_SUCCESS(1, LoopPropertiesRegex, "/patternProperties",
                               "#/patternProperties", "");
-  EVALUATE_TRACE_POST_SUCCESS(2, LoopPropertiesUnevaluated,
+  EVALUATE_TRACE_POST_SUCCESS(2, LoopPropertiesUnevaluatedExcept,
                               "/unevaluatedProperties",
                               "#/unevaluatedProperties", "");
 
@@ -3229,8 +3229,8 @@ TEST(Evaluator_2019_09, unevaluatedProperties_6_exhaustive) {
                                 "");
   EVALUATE_TRACE_PRE(2, ControlEvaluate, "/patternProperties",
                      "#/patternProperties", "/@foo");
-  EVALUATE_TRACE_PRE(3, LoopPropertiesUnevaluated, "/unevaluatedProperties",
-                     "#/unevaluatedProperties", "");
+  EVALUATE_TRACE_PRE(3, LoopPropertiesUnevaluatedExcept,
+                     "/unevaluatedProperties", "#/unevaluatedProperties", "");
 
   EVALUATE_TRACE_POST_ANNOTATION(0, "/patternProperties", "#/patternProperties",
                                  "", "@foo");
@@ -3238,7 +3238,7 @@ TEST(Evaluator_2019_09, unevaluatedProperties_6_exhaustive) {
                               "#/patternProperties", "/@foo");
   EVALUATE_TRACE_POST_SUCCESS(2, LoopPropertiesRegex, "/patternProperties",
                               "#/patternProperties", "");
-  EVALUATE_TRACE_POST_SUCCESS(3, LoopPropertiesUnevaluated,
+  EVALUATE_TRACE_POST_SUCCESS(3, LoopPropertiesUnevaluatedExcept,
                               "/unevaluatedProperties",
                               "#/unevaluatedProperties", "");
 
@@ -3539,8 +3539,8 @@ TEST(Evaluator_2019_09, unevaluatedProperties_9) {
   EVALUATE_TRACE_PRE(1, AssertionTypeStrict, "/properties/a/type",
                      "#/properties/a/type", "/a");
   EVALUATE_TRACE_PRE(2, ControlEvaluate, "/properties", "#/properties", "/a");
-  EVALUATE_TRACE_PRE(3, LoopPropertiesUnevaluated, "/unevaluatedProperties",
-                     "#/unevaluatedProperties", "");
+  EVALUATE_TRACE_PRE(3, LoopPropertiesUnevaluatedExcept,
+                     "/unevaluatedProperties", "#/unevaluatedProperties", "");
 
   EVALUATE_TRACE_POST_SUCCESS(0, AssertionTypeStrict, "/properties/a/type",
                               "#/properties/a/type", "/a");
@@ -3548,7 +3548,7 @@ TEST(Evaluator_2019_09, unevaluatedProperties_9) {
                               "/a");
   EVALUATE_TRACE_POST_SUCCESS(2, LoopPropertiesMatch, "/properties",
                               "#/properties", "");
-  EVALUATE_TRACE_POST_SUCCESS(3, LoopPropertiesUnevaluated,
+  EVALUATE_TRACE_POST_SUCCESS(3, LoopPropertiesUnevaluatedExcept,
                               "/unevaluatedProperties",
                               "#/unevaluatedProperties", "");
 
@@ -3609,8 +3609,8 @@ TEST(Evaluator_2019_09, unevaluatedProperties_9_exhaustive) {
                      "#/properties/a/type", "/a");
   EVALUATE_TRACE_PRE(2, ControlEvaluate, "/properties", "#/properties", "/a");
   EVALUATE_TRACE_PRE_ANNOTATION(3, "/properties", "#/properties", "");
-  EVALUATE_TRACE_PRE(4, LoopPropertiesUnevaluated, "/unevaluatedProperties",
-                     "#/unevaluatedProperties", "");
+  EVALUATE_TRACE_PRE(4, LoopPropertiesUnevaluatedExcept,
+                     "/unevaluatedProperties", "#/unevaluatedProperties", "");
 
   EVALUATE_TRACE_POST_SUCCESS(0, AssertionTypeStrict, "/properties/a/type",
                               "#/properties/a/type", "/a");
@@ -3619,7 +3619,7 @@ TEST(Evaluator_2019_09, unevaluatedProperties_9_exhaustive) {
   EVALUATE_TRACE_POST_ANNOTATION(2, "/properties", "#/properties", "", "a");
   EVALUATE_TRACE_POST_SUCCESS(3, LoopPropertiesMatch, "/properties",
                               "#/properties", "");
-  EVALUATE_TRACE_POST_SUCCESS(4, LoopPropertiesUnevaluated,
+  EVALUATE_TRACE_POST_SUCCESS(4, LoopPropertiesUnevaluatedExcept,
                               "/unevaluatedProperties",
                               "#/unevaluatedProperties", "");
 

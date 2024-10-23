@@ -872,6 +872,47 @@ auto evaluate_step(const sourcemeta::blaze::Template::value_type &step,
       EVALUATE_END(loop, LoopPropertiesUnevaluated);
     }
 
+    case IS_STEP(LoopPropertiesUnevaluatedExcept): {
+      EVALUATE_BEGIN(loop, LoopPropertiesUnevaluatedExcept, target.is_object());
+      assert(track);
+      result = true;
+      // Otherwise why emit this instruction?
+      assert(!loop.value.first.empty() || !loop.value.second.empty());
+
+      for (const auto &entry : target.as_object()) {
+        if (std::find(loop.value.first.cbegin(), loop.value.first.cend(),
+                      entry.first) != loop.value.first.cend() ||
+            std::any_of(loop.value.second.cbegin(), loop.value.second.cend(),
+                        [&entry](const auto &pattern) {
+                          return std::regex_search(entry.first, pattern.first);
+                        })) {
+          continue;
+        }
+
+        if (context.is_evaluated({entry.first})) {
+          continue;
+        }
+
+        context.enter(entry.first, true);
+        for (const auto &child : loop.children) {
+          if (!evaluate_step(child, callback, context)) {
+            result = false;
+            context.leave(true);
+            // For efficiently breaking from the outer loop too
+            goto evaluate_annotation_loop_properties_unevaluated_except_end;
+          }
+        }
+
+        context.leave(true);
+      }
+
+      // Mark the entire object as evaluated
+      context.evaluate();
+
+    evaluate_annotation_loop_properties_unevaluated_except_end:
+      EVALUATE_END(loop, LoopPropertiesUnevaluatedExcept);
+    }
+
     case IS_STEP(LoopItemsUnevaluated): {
       EVALUATE_BEGIN(loop, LoopItemsUnevaluated, target.is_array());
       assert(track);

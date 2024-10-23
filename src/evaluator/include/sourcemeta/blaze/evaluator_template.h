@@ -59,6 +59,7 @@ struct LogicalWhenType;
 struct LogicalWhenDefines;
 struct LogicalWhenArraySizeGreater;
 struct LoopPropertiesUnevaluated;
+struct LoopPropertiesUnevaluatedExcept;
 struct LoopItemsUnevaluated;
 struct LoopPropertiesMatch;
 struct LoopProperties;
@@ -99,12 +100,13 @@ using Template = std::vector<std::variant<
     AnnotationBasenameToParent, LogicalNot, LogicalNotEvaluate, LogicalOr,
     LogicalAnd, LogicalXor, LogicalCondition, LogicalWhenType,
     LogicalWhenDefines, LogicalWhenArraySizeGreater, LoopPropertiesUnevaluated,
-    LoopItemsUnevaluated, LoopPropertiesMatch, LoopProperties,
-    LoopPropertiesEvaluate, LoopPropertiesRegex, LoopPropertiesExcept,
-    LoopPropertiesType, LoopPropertiesTypeEvaluate, LoopPropertiesTypeStrict,
-    LoopPropertiesTypeStrictEvaluate, LoopKeys, LoopItems, LoopContains,
-    ControlGroup, ControlGroupWhenDefines, ControlLabel, ControlMark,
-    ControlEvaluate, ControlJump, ControlDynamicAnchorJump>>;
+    LoopPropertiesUnevaluatedExcept, LoopItemsUnevaluated, LoopPropertiesMatch,
+    LoopProperties, LoopPropertiesEvaluate, LoopPropertiesRegex,
+    LoopPropertiesExcept, LoopPropertiesType, LoopPropertiesTypeEvaluate,
+    LoopPropertiesTypeStrict, LoopPropertiesTypeStrictEvaluate, LoopKeys,
+    LoopItems, LoopContains, ControlGroup, ControlGroupWhenDefines,
+    ControlLabel, ControlMark, ControlEvaluate, ControlJump,
+    ControlDynamicAnchorJump>>;
 
 #if !defined(DOXYGEN)
 // For fast internal instruction dispatching. It must stay
@@ -155,6 +157,7 @@ enum class TemplateIndex : std::uint8_t {
   LogicalWhenDefines,
   LogicalWhenArraySizeGreater,
   LoopPropertiesUnevaluated,
+  LoopPropertiesUnevaluatedExcept,
   LoopItemsUnevaluated,
   LoopPropertiesMatch,
   LoopProperties,
@@ -426,6 +429,11 @@ DEFINE_STEP_APPLICATOR(Logical, WhenArraySizeGreater, ValueUnsignedInteger)
 /// @brief Represents a compiler step that loops over object properties that
 /// were not previously evaluated
 DEFINE_STEP_APPLICATOR(Loop, PropertiesUnevaluated, ValueNone)
+
+/// @ingroup evaluator_instructions
+/// @brief Represents a compiler step that loops over object properties are not
+/// in the given blacklist and were not previously evaluated
+DEFINE_STEP_APPLICATOR(Loop, PropertiesUnevaluatedExcept, ValuePropertyFilter)
 
 /// @ingroup evaluator_instructions
 /// @brief Represents a compiler step that loops over unevaluated array items

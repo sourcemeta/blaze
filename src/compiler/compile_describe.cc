@@ -616,6 +616,25 @@ struct DescribeVisitor {
     return unknown();
   }
 
+  auto operator()(const LoopPropertiesUnevaluatedExcept &step) const
+      -> std::string {
+    if (this->keyword == "unevaluatedProperties") {
+      std::ostringstream message;
+      if (!step.children.empty() &&
+          std::holds_alternative<AssertionFail>(step.children.front())) {
+        message << "The object value was not expected to define unevaluated "
+                   "properties";
+      } else {
+        message << "The object properties not covered by other object "
+                   "keywords were expected to validate against this subschema";
+      }
+
+      return message.str();
+    }
+
+    return unknown();
+  }
+
   auto operator()(const LoopPropertiesExcept &step) const -> std::string {
     assert(this->keyword == "additionalProperties");
     std::ostringstream message;
