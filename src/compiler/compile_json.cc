@@ -306,7 +306,8 @@ auto template_format_compare(const sourcemeta::jsontoolkit::JSON::String &left,
                    {"relativeInstanceLocation", 6},
                    {"evaluatePath", 7},
                    {"dynamic", 8},
-                   {"children", 9}};
+                   {"track", 9},
+                   {"children", 10}};
 
   constexpr std::uint64_t DEFAULT_RANK{999};
   const auto left_rank{rank.contains(left) ? rank.at(left) : DEFAULT_RANK};
