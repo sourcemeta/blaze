@@ -59,6 +59,7 @@ struct LoopPropertiesUnevaluated;
 struct LoopItemsUnevaluated;
 struct LoopPropertiesMatch;
 struct LoopProperties;
+struct LoopPropertiesEvaluate;
 struct LoopPropertiesRegex;
 struct LoopPropertiesExcept;
 struct LoopPropertiesType;
@@ -92,10 +93,10 @@ using Template = std::vector<std::variant<
     LogicalOr, LogicalAnd, LogicalXor, LogicalCondition, LogicalWhenType,
     LogicalWhenDefines, LogicalWhenArraySizeGreater, LoopPropertiesUnevaluated,
     LoopItemsUnevaluated, LoopPropertiesMatch, LoopProperties,
-    LoopPropertiesRegex, LoopPropertiesExcept, LoopPropertiesType,
-    LoopPropertiesTypeStrict, LoopKeys, LoopItems, LoopContains, ControlGroup,
-    ControlGroupWhenDefines, ControlLabel, ControlMark, ControlEvaluate,
-    ControlJump, ControlDynamicAnchorJump>>;
+    LoopPropertiesEvaluate, LoopPropertiesRegex, LoopPropertiesExcept,
+    LoopPropertiesType, LoopPropertiesTypeStrict, LoopKeys, LoopItems,
+    LoopContains, ControlGroup, ControlGroupWhenDefines, ControlLabel,
+    ControlMark, ControlEvaluate, ControlJump, ControlDynamicAnchorJump>>;
 
 #if !defined(DOXYGEN)
 // For fast internal instruction dispatching. It must stay
@@ -146,6 +147,7 @@ enum class TemplateIndex : std::uint8_t {
   LoopItemsUnevaluated,
   LoopPropertiesMatch,
   LoopProperties,
+  LoopPropertiesEvaluate,
   LoopPropertiesRegex,
   LoopPropertiesExcept,
   LoopPropertiesType,
@@ -408,6 +410,11 @@ DEFINE_STEP_APPLICATOR(Loop, PropertiesMatch, ValueNamedIndexes)
 /// @ingroup evaluator_instructions
 /// @brief Represents a compiler step that loops over object properties
 DEFINE_STEP_APPLICATOR(Loop, Properties, ValueNone)
+
+/// @ingroup evaluator_instructions
+/// @brief Represents a compiler step that loops over object properties and
+/// marks them as evaluated
+DEFINE_STEP_APPLICATOR(Loop, PropertiesEvaluate, ValueNone)
 
 /// @ingroup evaluator_instructions
 /// @brief Represents a compiler step that loops over object properties that
