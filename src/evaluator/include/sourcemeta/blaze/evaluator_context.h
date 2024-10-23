@@ -112,17 +112,8 @@ public:
   auto
   evaluate(const sourcemeta::jsontoolkit::Pointer &relative_instance_location)
       -> void;
-
-private:
-  auto is_evaluated(const sourcemeta::jsontoolkit::WeakPointer &pointer) const
-      -> bool;
-
-public:
-  auto is_evaluated(
-      sourcemeta::jsontoolkit::WeakPointer::Token::Property &&property) const
-      -> bool;
-  auto is_evaluated(
-      const sourcemeta::jsontoolkit::WeakPointer::Token::Index index) const
+  auto
+  is_evaluated(const sourcemeta::jsontoolkit::WeakPointer::Token &tail) const
       -> bool;
   auto unevaluate() -> void;
 
