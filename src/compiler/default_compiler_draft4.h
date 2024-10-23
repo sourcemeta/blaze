@@ -619,10 +619,6 @@ auto compiler_draft4_applicator_patternproperties_with_options(
 
   std::sort(patterns.begin(), patterns.end());
 
-  const auto needs_wrapper{annotate || track_evaluation};
-  const auto sub_dynamic_context{needs_wrapper ? relative_dynamic_context
-                                               : dynamic_context};
-
   // For each regular expression and corresponding subschema in the object
   for (const auto &pattern : patterns) {
     auto substeps{compile(context, schema_context, relative_dynamic_context,
@@ -630,12 +626,12 @@ auto compiler_draft4_applicator_patternproperties_with_options(
 
     if (annotate) {
       substeps.push_back(make<AnnotationBasenameToParent>(
-          context, schema_context, sub_dynamic_context, ValueNone{}));
+          context, schema_context, relative_dynamic_context, ValueNone{}));
     }
 
     if (track_evaluation) {
       substeps.push_back(make<ControlEvaluate>(
-          context, schema_context, sub_dynamic_context, ValuePointer{}));
+          context, schema_context, relative_dynamic_context, ValuePointer{}));
     }
 
     // If the `patternProperties` subschema for the given pattern does
@@ -643,7 +639,7 @@ auto compiler_draft4_applicator_patternproperties_with_options(
     if (!substeps.empty()) {
       // Loop over the instance properties
       children.push_back(make<LoopPropertiesRegex>(
-          context, schema_context, sub_dynamic_context,
+          context, schema_context, dynamic_context,
           ValueRegex{parse_regex(pattern, schema_context.base,
                                  schema_context.relative_pointer),
                      pattern},
@@ -651,18 +647,7 @@ auto compiler_draft4_applicator_patternproperties_with_options(
     }
   }
 
-  if (children.empty()) {
-    return {};
-  }
-
-  if (!needs_wrapper) {
-    return children;
-  }
-
-  // If the instance is an object...
-  return {make<LogicalWhenType>(context, schema_context, dynamic_context,
-                                sourcemeta::jsontoolkit::JSON::Type::Object,
-                                std::move(children))};
+  return children;
 }
 
 auto compiler_draft4_applicator_patternproperties(
