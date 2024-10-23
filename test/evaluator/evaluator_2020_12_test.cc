@@ -1650,3 +1650,146 @@ TEST(Evaluator_2020_12, unevaluatedItems_3_exhaustive) {
       "The array items not covered by other array keywords, if any, were "
       "expected to validate against this subschema");
 }
+
+TEST(Evaluator_2020_12, unevaluatedItems_4) {
+  const sourcemeta::jsontoolkit::JSON schema{
+      sourcemeta::jsontoolkit::parse(R"JSON({
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "items": { "type": "string" },
+    "unevaluatedItems": { "type": "boolean" }
+  })JSON")};
+
+  const sourcemeta::jsontoolkit::JSON instance{
+      sourcemeta::jsontoolkit::parse("[ \"foo\" ]")};
+
+  EVALUATE_WITH_TRACE_FAST_SUCCESS(schema, instance, 4);
+
+  EVALUATE_TRACE_PRE(0, LoopItems, "/items", "#/items", "");
+  EVALUATE_TRACE_PRE(1, AssertionTypeStrict, "/items/type", "#/items/type",
+                     "/0");
+  EVALUATE_TRACE_PRE(2, LogicalWhenArraySizeGreater, "/items", "#/items", "");
+  EVALUATE_TRACE_PRE(3, ControlEvaluate, "/items", "#/items", "");
+
+  EVALUATE_TRACE_POST_SUCCESS(0, AssertionTypeStrict, "/items/type",
+                              "#/items/type", "/0");
+  EVALUATE_TRACE_POST_SUCCESS(1, LoopItems, "/items", "#/items", "");
+  EVALUATE_TRACE_POST_SUCCESS(2, ControlEvaluate, "/items", "#/items", "");
+  EVALUATE_TRACE_POST_SUCCESS(3, LogicalWhenArraySizeGreater, "/items",
+                              "#/items", "");
+
+  EVALUATE_TRACE_POST_DESCRIBE(instance, 0,
+                               "The value was expected to be of type string");
+  EVALUATE_TRACE_POST_DESCRIBE(instance, 1,
+                               "Every item in the array value was expected to "
+                               "validate against the given subschema");
+  EVALUATE_TRACE_POST_DESCRIBE(instance, 2,
+                               "The instance location was marked as evaluated");
+  EVALUATE_TRACE_POST_DESCRIBE(instance, 3,
+                               "The array value contains 1 additional item not "
+                               "described by related keywords");
+}
+
+TEST(Evaluator_2020_12, unevaluatedItems_4_exhaustive) {
+  const sourcemeta::jsontoolkit::JSON schema{
+      sourcemeta::jsontoolkit::parse(R"JSON({
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "items": { "type": "string" },
+    "unevaluatedItems": { "type": "boolean" }
+  })JSON")};
+
+  const sourcemeta::jsontoolkit::JSON instance{
+      sourcemeta::jsontoolkit::parse("[ \"foo\" ]")};
+
+  EVALUATE_WITH_TRACE_EXHAUSTIVE_SUCCESS(schema, instance, 5);
+
+  EVALUATE_TRACE_PRE(0, LoopItems, "/items", "#/items", "");
+  EVALUATE_TRACE_PRE(1, AssertionTypeStrict, "/items/type", "#/items/type",
+                     "/0");
+  EVALUATE_TRACE_PRE(2, LogicalWhenArraySizeGreater, "/items", "#/items", "");
+  EVALUATE_TRACE_PRE_ANNOTATION(3, "/items", "#/items", "");
+  EVALUATE_TRACE_PRE(4, ControlEvaluate, "/items", "#/items", "");
+
+  EVALUATE_TRACE_POST_SUCCESS(0, AssertionTypeStrict, "/items/type",
+                              "#/items/type", "/0");
+  EVALUATE_TRACE_POST_SUCCESS(1, LoopItems, "/items", "#/items", "");
+  EVALUATE_TRACE_POST_ANNOTATION(2, "/items", "#/items", "", true);
+  EVALUATE_TRACE_POST_SUCCESS(3, ControlEvaluate, "/items", "#/items", "");
+  EVALUATE_TRACE_POST_SUCCESS(4, LogicalWhenArraySizeGreater, "/items",
+                              "#/items", "");
+
+  EVALUATE_TRACE_POST_DESCRIBE(instance, 0,
+                               "The value was expected to be of type string");
+  EVALUATE_TRACE_POST_DESCRIBE(instance, 1,
+                               "Every item in the array value was expected to "
+                               "validate against the given subschema");
+  EVALUATE_TRACE_POST_DESCRIBE(
+      instance, 2, "Every item in the array value was successfully validated");
+  EVALUATE_TRACE_POST_DESCRIBE(instance, 3,
+                               "The instance location was marked as evaluated");
+  EVALUATE_TRACE_POST_DESCRIBE(instance, 4,
+                               "The array value contains 1 additional item not "
+                               "described by related keywords");
+}
+
+TEST(Evaluator_2020_12, unevaluatedProperties_1) {
+  const sourcemeta::jsontoolkit::JSON schema{
+      sourcemeta::jsontoolkit::parse(R"JSON({
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "additionalProperties": { "type": "string" },
+    "unevaluatedProperties": false
+  })JSON")};
+
+  const sourcemeta::jsontoolkit::JSON instance{
+      sourcemeta::jsontoolkit::parse("{ \"foo\": \"baz\" }")};
+
+  EVALUATE_WITH_TRACE_FAST_SUCCESS(schema, instance, 1);
+
+  EVALUATE_TRACE_PRE(0, LoopPropertiesTypeStrictEvaluate,
+                     "/additionalProperties", "#/additionalProperties", "");
+  EVALUATE_TRACE_POST_SUCCESS(0, LoopPropertiesTypeStrictEvaluate,
+                              "/additionalProperties", "#/additionalProperties",
+                              "");
+  EVALUATE_TRACE_POST_DESCRIBE(
+      instance, 0, "The object properties were expected to be of type string");
+}
+
+TEST(Evaluator_2020_12, unevaluatedProperties_1_exhaustive) {
+  const sourcemeta::jsontoolkit::JSON schema{
+      sourcemeta::jsontoolkit::parse(R"JSON({
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "additionalProperties": { "type": "string" },
+    "unevaluatedProperties": false
+  })JSON")};
+
+  const sourcemeta::jsontoolkit::JSON instance{
+      sourcemeta::jsontoolkit::parse("{ \"foo\": \"baz\" }")};
+
+  EVALUATE_WITH_TRACE_EXHAUSTIVE_SUCCESS(schema, instance, 3);
+
+  EVALUATE_TRACE_PRE(0, LoopPropertiesEvaluate, "/additionalProperties",
+                     "#/additionalProperties", "");
+  EVALUATE_TRACE_PRE(1, AssertionTypeStrict, "/additionalProperties/type",
+                     "#/additionalProperties/type", "/foo");
+  EVALUATE_TRACE_PRE_ANNOTATION(2, "/additionalProperties",
+                                "#/additionalProperties", "");
+
+  EVALUATE_TRACE_POST_SUCCESS(0, AssertionTypeStrict,
+                              "/additionalProperties/type",
+                              "#/additionalProperties/type", "/foo");
+  EVALUATE_TRACE_POST_ANNOTATION(1, "/additionalProperties",
+                                 "#/additionalProperties", "", "foo");
+  EVALUATE_TRACE_POST_SUCCESS(2, LoopPropertiesEvaluate,
+                              "/additionalProperties", "#/additionalProperties",
+                              "");
+
+  EVALUATE_TRACE_POST_DESCRIBE(instance, 0,
+                               "The value was expected to be of type string");
+  EVALUATE_TRACE_POST_DESCRIBE(
+      instance, 1,
+      "The object property \"foo\" successfully validated against the "
+      "additional properties subschema");
+  EVALUATE_TRACE_POST_DESCRIBE(
+      instance, 2,
+      "The object properties not covered by other adjacent object keywords "
+      "were expected to validate against this subschema");
+}

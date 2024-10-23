@@ -3124,27 +3124,17 @@ TEST(Evaluator_2019_09, unevaluatedProperties_5) {
   const sourcemeta::jsontoolkit::JSON instance{
       sourcemeta::jsontoolkit::parse("{ \"foo\": \"baz\" }")};
 
-  EVALUATE_WITH_TRACE_FAST_SUCCESS(schema, instance, 2);
+  EVALUATE_WITH_TRACE_FAST_SUCCESS(schema, instance, 1);
 
   EVALUATE_TRACE_PRE(0, LoopPropertiesEvaluate, "/additionalProperties",
                      "#/additionalProperties", "");
-  EVALUATE_TRACE_PRE(1, LoopPropertiesUnevaluated, "/unevaluatedProperties",
-                     "#/unevaluatedProperties", "");
-
   EVALUATE_TRACE_POST_SUCCESS(0, LoopPropertiesEvaluate,
                               "/additionalProperties", "#/additionalProperties",
                               "");
-  EVALUATE_TRACE_POST_SUCCESS(1, LoopPropertiesUnevaluated,
-                              "/unevaluatedProperties",
-                              "#/unevaluatedProperties", "");
-
   EVALUATE_TRACE_POST_DESCRIBE(
       instance, 0,
       "The object properties not covered by other adjacent object keywords "
       "were expected to validate against this subschema");
-  EVALUATE_TRACE_POST_DESCRIBE(
-      instance, 1,
-      "The object value was not expected to define unevaluated properties");
 }
 
 TEST(Evaluator_2019_09, unevaluatedProperties_5_exhaustive) {
@@ -3158,23 +3148,18 @@ TEST(Evaluator_2019_09, unevaluatedProperties_5_exhaustive) {
   const sourcemeta::jsontoolkit::JSON instance{
       sourcemeta::jsontoolkit::parse("{ \"foo\": \"baz\" }")};
 
-  EVALUATE_WITH_TRACE_EXHAUSTIVE_SUCCESS(schema, instance, 3);
+  EVALUATE_WITH_TRACE_EXHAUSTIVE_SUCCESS(schema, instance, 2);
 
   EVALUATE_TRACE_PRE(0, LoopPropertiesEvaluate, "/additionalProperties",
                      "#/additionalProperties", "");
   EVALUATE_TRACE_PRE_ANNOTATION(1, "/additionalProperties",
                                 "#/additionalProperties", "");
-  EVALUATE_TRACE_PRE(2, LoopPropertiesUnevaluated, "/unevaluatedProperties",
-                     "#/unevaluatedProperties", "");
 
   EVALUATE_TRACE_POST_ANNOTATION(0, "/additionalProperties",
                                  "#/additionalProperties", "", "foo");
   EVALUATE_TRACE_POST_SUCCESS(1, LoopPropertiesEvaluate,
                               "/additionalProperties", "#/additionalProperties",
                               "");
-  EVALUATE_TRACE_POST_SUCCESS(2, LoopPropertiesUnevaluated,
-                              "/unevaluatedProperties",
-                              "#/unevaluatedProperties", "");
 
   EVALUATE_TRACE_POST_DESCRIBE(
       instance, 0,
@@ -3184,9 +3169,6 @@ TEST(Evaluator_2019_09, unevaluatedProperties_5_exhaustive) {
       instance, 1,
       "The object properties not covered by other adjacent object keywords "
       "were expected to validate against this subschema");
-  EVALUATE_TRACE_POST_DESCRIBE(
-      instance, 2,
-      "The object value was not expected to define unevaluated properties");
 }
 
 TEST(Evaluator_2019_09, unevaluatedProperties_6) {
@@ -3667,25 +3649,15 @@ TEST(Evaluator_2019_09, unevaluatedProperties_10) {
   const sourcemeta::jsontoolkit::JSON instance{
       sourcemeta::jsontoolkit::parse("{ \"foo\": \"baz\" }")};
 
-  EVALUATE_WITH_TRACE_FAST_SUCCESS(schema, instance, 2);
+  EVALUATE_WITH_TRACE_FAST_SUCCESS(schema, instance, 1);
 
   EVALUATE_TRACE_PRE(0, LoopPropertiesTypeStrictEvaluate,
                      "/additionalProperties", "#/additionalProperties", "");
-  EVALUATE_TRACE_PRE(1, LoopPropertiesUnevaluated, "/unevaluatedProperties",
-                     "#/unevaluatedProperties", "");
-
   EVALUATE_TRACE_POST_SUCCESS(0, LoopPropertiesTypeStrictEvaluate,
                               "/additionalProperties", "#/additionalProperties",
                               "");
-  EVALUATE_TRACE_POST_SUCCESS(1, LoopPropertiesUnevaluated,
-                              "/unevaluatedProperties",
-                              "#/unevaluatedProperties", "");
-
   EVALUATE_TRACE_POST_DESCRIBE(
       instance, 0, "The object properties were expected to be of type string");
-  EVALUATE_TRACE_POST_DESCRIBE(
-      instance, 1,
-      "The object value was not expected to define unevaluated properties");
 }
 
 TEST(Evaluator_2019_09, unevaluatedProperties_10_exhaustive) {
@@ -3699,7 +3671,7 @@ TEST(Evaluator_2019_09, unevaluatedProperties_10_exhaustive) {
   const sourcemeta::jsontoolkit::JSON instance{
       sourcemeta::jsontoolkit::parse("{ \"foo\": \"baz\" }")};
 
-  EVALUATE_WITH_TRACE_EXHAUSTIVE_SUCCESS(schema, instance, 4);
+  EVALUATE_WITH_TRACE_EXHAUSTIVE_SUCCESS(schema, instance, 3);
 
   EVALUATE_TRACE_PRE(0, LoopPropertiesEvaluate, "/additionalProperties",
                      "#/additionalProperties", "");
@@ -3707,8 +3679,6 @@ TEST(Evaluator_2019_09, unevaluatedProperties_10_exhaustive) {
                      "#/additionalProperties/type", "/foo");
   EVALUATE_TRACE_PRE_ANNOTATION(2, "/additionalProperties",
                                 "#/additionalProperties", "");
-  EVALUATE_TRACE_PRE(3, LoopPropertiesUnevaluated, "/unevaluatedProperties",
-                     "#/unevaluatedProperties", "");
 
   EVALUATE_TRACE_POST_SUCCESS(0, AssertionTypeStrict,
                               "/additionalProperties/type",
@@ -3718,9 +3688,6 @@ TEST(Evaluator_2019_09, unevaluatedProperties_10_exhaustive) {
   EVALUATE_TRACE_POST_SUCCESS(2, LoopPropertiesEvaluate,
                               "/additionalProperties", "#/additionalProperties",
                               "");
-  EVALUATE_TRACE_POST_SUCCESS(3, LoopPropertiesUnevaluated,
-                              "/unevaluatedProperties",
-                              "#/unevaluatedProperties", "");
 
   EVALUATE_TRACE_POST_DESCRIBE(instance, 0,
                                "The value was expected to be of type string");
@@ -3732,9 +3699,6 @@ TEST(Evaluator_2019_09, unevaluatedProperties_10_exhaustive) {
       instance, 2,
       "The object properties not covered by other adjacent object keywords "
       "were expected to validate against this subschema");
-  EVALUATE_TRACE_POST_DESCRIBE(
-      instance, 3,
-      "The object value was not expected to define unevaluated properties");
 }
 
 TEST(Evaluator_2019_09, unevaluatedItems_1) {
@@ -3858,23 +3822,19 @@ TEST(Evaluator_2019_09, unevaluatedItems_3) {
   const sourcemeta::jsontoolkit::JSON instance{
       sourcemeta::jsontoolkit::parse("[ \"foo\" ]")};
 
-  EVALUATE_WITH_TRACE_FAST_SUCCESS(schema, instance, 5);
+  EVALUATE_WITH_TRACE_FAST_SUCCESS(schema, instance, 4);
 
   EVALUATE_TRACE_PRE(0, LoopItems, "/items", "#/items", "");
   EVALUATE_TRACE_PRE(1, AssertionTypeStrict, "/items/type", "#/items/type",
                      "/0");
   EVALUATE_TRACE_PRE(2, LogicalWhenType, "/items", "#/items", "");
   EVALUATE_TRACE_PRE(3, ControlEvaluate, "/items", "#/items", "");
-  EVALUATE_TRACE_PRE(4, LoopItemsUnevaluated, "/unevaluatedItems",
-                     "#/unevaluatedItems", "");
 
   EVALUATE_TRACE_POST_SUCCESS(0, AssertionTypeStrict, "/items/type",
                               "#/items/type", "/0");
   EVALUATE_TRACE_POST_SUCCESS(1, LoopItems, "/items", "#/items", "");
   EVALUATE_TRACE_POST_SUCCESS(2, ControlEvaluate, "/items", "#/items", "");
   EVALUATE_TRACE_POST_SUCCESS(3, LogicalWhenType, "/items", "#/items", "");
-  EVALUATE_TRACE_POST_SUCCESS(4, LoopItemsUnevaluated, "/unevaluatedItems",
-                              "#/unevaluatedItems", "");
 
   EVALUATE_TRACE_POST_DESCRIBE(instance, 0,
                                "The value was expected to be of type string");
@@ -3885,10 +3845,6 @@ TEST(Evaluator_2019_09, unevaluatedItems_3) {
                                "The instance location was marked as evaluated");
   EVALUATE_TRACE_POST_DESCRIBE(instance, 3,
                                "The value was expected to be of type array");
-  EVALUATE_TRACE_POST_DESCRIBE(
-      instance, 4,
-      "The array items not covered by other array keywords, if any, were "
-      "expected to validate against this subschema");
 }
 
 TEST(Evaluator_2019_09, unevaluatedItems_3_exhaustive) {
@@ -3902,7 +3858,7 @@ TEST(Evaluator_2019_09, unevaluatedItems_3_exhaustive) {
   const sourcemeta::jsontoolkit::JSON instance{
       sourcemeta::jsontoolkit::parse("[ \"foo\" ]")};
 
-  EVALUATE_WITH_TRACE_EXHAUSTIVE_SUCCESS(schema, instance, 6);
+  EVALUATE_WITH_TRACE_EXHAUSTIVE_SUCCESS(schema, instance, 5);
 
   EVALUATE_TRACE_PRE(0, LoopItems, "/items", "#/items", "");
   EVALUATE_TRACE_PRE(1, AssertionTypeStrict, "/items/type", "#/items/type",
@@ -3910,8 +3866,6 @@ TEST(Evaluator_2019_09, unevaluatedItems_3_exhaustive) {
   EVALUATE_TRACE_PRE(2, LogicalWhenType, "/items", "#/items", "");
   EVALUATE_TRACE_PRE_ANNOTATION(3, "/items", "#/items", "");
   EVALUATE_TRACE_PRE(4, ControlEvaluate, "/items", "#/items", "");
-  EVALUATE_TRACE_PRE(5, LoopItemsUnevaluated, "/unevaluatedItems",
-                     "#/unevaluatedItems", "");
 
   EVALUATE_TRACE_POST_SUCCESS(0, AssertionTypeStrict, "/items/type",
                               "#/items/type", "/0");
@@ -3919,8 +3873,6 @@ TEST(Evaluator_2019_09, unevaluatedItems_3_exhaustive) {
   EVALUATE_TRACE_POST_ANNOTATION(2, "/items", "#/items", "", true);
   EVALUATE_TRACE_POST_SUCCESS(3, ControlEvaluate, "/items", "#/items", "");
   EVALUATE_TRACE_POST_SUCCESS(4, LogicalWhenType, "/items", "#/items", "");
-  EVALUATE_TRACE_POST_SUCCESS(5, LoopItemsUnevaluated, "/unevaluatedItems",
-                              "#/unevaluatedItems", "");
 
   EVALUATE_TRACE_POST_DESCRIBE(instance, 0,
                                "The value was expected to be of type string");
@@ -3933,10 +3885,6 @@ TEST(Evaluator_2019_09, unevaluatedItems_3_exhaustive) {
                                "The instance location was marked as evaluated");
   EVALUATE_TRACE_POST_DESCRIBE(instance, 4,
                                "The value was expected to be of type array");
-  EVALUATE_TRACE_POST_DESCRIBE(
-      instance, 5,
-      "The array items not covered by other array keywords, if any, were "
-      "expected to validate against this subschema");
 }
 
 TEST(Evaluator_2019_09, unevaluatedItems_4) {
@@ -4445,7 +4393,7 @@ TEST(Evaluator_2019_09, unevaluatedItems_9) {
   const sourcemeta::jsontoolkit::JSON instance{
       sourcemeta::jsontoolkit::parse("[ true, false ]")};
 
-  EVALUATE_WITH_TRACE_FAST_SUCCESS(schema, instance, 7);
+  EVALUATE_WITH_TRACE_FAST_SUCCESS(schema, instance, 6);
 
   EVALUATE_TRACE_PRE(0, AssertionArrayPrefix, "/items", "#/items", "");
   EVALUATE_TRACE_PRE(1, AssertionTypeStrict, "/items/0/type", "#/items/0/type",
@@ -4457,8 +4405,6 @@ TEST(Evaluator_2019_09, unevaluatedItems_9) {
                      "#/additionalItems", "");
   EVALUATE_TRACE_PRE(5, ControlEvaluate, "/additionalItems",
                      "#/additionalItems", "");
-  EVALUATE_TRACE_PRE(6, LoopItemsUnevaluated, "/unevaluatedItems",
-                     "#/unevaluatedItems", "");
 
   EVALUATE_TRACE_POST_SUCCESS(0, AssertionTypeStrict, "/items/0/type",
                               "#/items/0/type", "/0");
@@ -4471,8 +4417,6 @@ TEST(Evaluator_2019_09, unevaluatedItems_9) {
                               "#/additionalItems", "");
   EVALUATE_TRACE_POST_SUCCESS(5, LogicalWhenArraySizeGreater,
                               "/additionalItems", "#/additionalItems", "");
-  EVALUATE_TRACE_POST_SUCCESS(6, LoopItemsUnevaluated, "/unevaluatedItems",
-                              "#/unevaluatedItems", "");
 
   EVALUATE_TRACE_POST_DESCRIBE(instance, 0,
                                "The value was expected to be of type boolean");
@@ -4491,10 +4435,6 @@ TEST(Evaluator_2019_09, unevaluatedItems_9) {
   EVALUATE_TRACE_POST_DESCRIBE(instance, 5,
                                "The array value contains 1 additional item not "
                                "described by related keywords");
-  EVALUATE_TRACE_POST_DESCRIBE(
-      instance, 6,
-      "The array items not covered by other array keywords, if any, were "
-      "expected to validate against this subschema");
 }
 
 TEST(Evaluator_2019_09, unevaluatedItems_9_exhaustive) {
@@ -4509,7 +4449,7 @@ TEST(Evaluator_2019_09, unevaluatedItems_9_exhaustive) {
   const sourcemeta::jsontoolkit::JSON instance{
       sourcemeta::jsontoolkit::parse("[ true, false ]")};
 
-  EVALUATE_WITH_TRACE_EXHAUSTIVE_SUCCESS(schema, instance, 9);
+  EVALUATE_WITH_TRACE_EXHAUSTIVE_SUCCESS(schema, instance, 8);
 
   EVALUATE_TRACE_PRE(0, AssertionArrayPrefix, "/items", "#/items", "");
   EVALUATE_TRACE_PRE(1, AssertionTypeStrict, "/items/0/type", "#/items/0/type",
@@ -4523,8 +4463,6 @@ TEST(Evaluator_2019_09, unevaluatedItems_9_exhaustive) {
   EVALUATE_TRACE_PRE_ANNOTATION(6, "/additionalItems", "#/additionalItems", "");
   EVALUATE_TRACE_PRE(7, ControlEvaluate, "/additionalItems",
                      "#/additionalItems", "");
-  EVALUATE_TRACE_PRE(8, LoopItemsUnevaluated, "/unevaluatedItems",
-                     "#/unevaluatedItems", "");
 
   EVALUATE_TRACE_POST_SUCCESS(0, AssertionTypeStrict, "/items/0/type",
                               "#/items/0/type", "/0");
@@ -4540,8 +4478,6 @@ TEST(Evaluator_2019_09, unevaluatedItems_9_exhaustive) {
                               "#/additionalItems", "");
   EVALUATE_TRACE_POST_SUCCESS(7, LogicalWhenArraySizeGreater,
                               "/additionalItems", "#/additionalItems", "");
-  EVALUATE_TRACE_POST_SUCCESS(8, LoopItemsUnevaluated, "/unevaluatedItems",
-                              "#/unevaluatedItems", "");
 
   EVALUATE_TRACE_POST_DESCRIBE(instance, 0,
                                "The value was expected to be of type boolean");
@@ -4566,10 +4502,6 @@ TEST(Evaluator_2019_09, unevaluatedItems_9_exhaustive) {
   EVALUATE_TRACE_POST_DESCRIBE(instance, 7,
                                "The array value contains 1 additional item not "
                                "described by related keywords");
-  EVALUATE_TRACE_POST_DESCRIBE(
-      instance, 8,
-      "The array items not covered by other array keywords, if any, were "
-      "expected to validate against this subschema");
 }
 
 TEST(Evaluator_2019_09, unevaluatedItems_10) {
