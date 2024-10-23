@@ -1411,21 +1411,6 @@ struct DescribeVisitor {
       return message.str();
     }
 
-    if (this->keyword == "patternProperties") {
-      assert(!step.children.empty());
-      assert(this->target.is_object());
-      std::ostringstream message;
-      message << "The object value was expected to validate against the ";
-      if (step.children.size() == 1) {
-        message << "single defined pattern property subschema";
-      } else {
-        message << step.children.size()
-                << " defined pattern properties subschemas";
-      }
-
-      return message.str();
-    }
-
     if (this->keyword == "dependencies") {
       assert(this->target.is_object());
       assert(!step.children.empty());

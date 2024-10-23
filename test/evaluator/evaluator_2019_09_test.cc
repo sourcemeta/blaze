@@ -809,28 +809,26 @@ TEST(Evaluator_2019_09, additionalProperties_4_exhaustive) {
   const sourcemeta::jsontoolkit::JSON instance{sourcemeta::jsontoolkit::parse(
       "{ \"foo\": true, \"bar\": 2, \"baz\": \"qux\" }")};
 
-  EVALUATE_WITH_TRACE_EXHAUSTIVE_SUCCESS(schema, instance, 10);
+  EVALUATE_WITH_TRACE_EXHAUSTIVE_SUCCESS(schema, instance, 9);
 
-  EVALUATE_TRACE_PRE(0, LogicalWhenType, "/patternProperties",
+  EVALUATE_TRACE_PRE(0, LoopPropertiesRegex, "/patternProperties",
                      "#/patternProperties", "");
-  EVALUATE_TRACE_PRE(1, LoopPropertiesRegex, "/patternProperties",
-                     "#/patternProperties", "");
-  EVALUATE_TRACE_PRE(2, AssertionType, "/patternProperties/^bar$/type",
+  EVALUATE_TRACE_PRE(1, AssertionType, "/patternProperties/^bar$/type",
                      // Note that the caret needs to be URI escaped
                      "#/patternProperties/%5Ebar$/type", "/bar");
-  EVALUATE_TRACE_PRE_ANNOTATION(3, "/patternProperties", "#/patternProperties",
+  EVALUATE_TRACE_PRE_ANNOTATION(2, "/patternProperties", "#/patternProperties",
                                 "");
 
-  EVALUATE_TRACE_PRE(4, LogicalAnd, "/properties", "#/properties", "");
-  EVALUATE_TRACE_PRE(5, AssertionTypeStrict, "/properties/foo/type",
+  EVALUATE_TRACE_PRE(3, LogicalAnd, "/properties", "#/properties", "");
+  EVALUATE_TRACE_PRE(4, AssertionTypeStrict, "/properties/foo/type",
                      "#/properties/foo/type", "/foo");
-  EVALUATE_TRACE_PRE_ANNOTATION(6, "/properties", "#/properties", "");
+  EVALUATE_TRACE_PRE_ANNOTATION(5, "/properties", "#/properties", "");
 
-  EVALUATE_TRACE_PRE(7, LoopPropertiesExcept, "/additionalProperties",
+  EVALUATE_TRACE_PRE(6, LoopPropertiesExcept, "/additionalProperties",
                      "#/additionalProperties", "");
-  EVALUATE_TRACE_PRE(8, AssertionTypeStrict, "/additionalProperties/type",
+  EVALUATE_TRACE_PRE(7, AssertionTypeStrict, "/additionalProperties/type",
                      "#/additionalProperties/type", "/baz");
-  EVALUATE_TRACE_PRE_ANNOTATION(9, "/additionalProperties",
+  EVALUATE_TRACE_PRE_ANNOTATION(8, "/additionalProperties",
                                 "#/additionalProperties", "");
 
   // `patternProperties`
@@ -841,22 +839,20 @@ TEST(Evaluator_2019_09, additionalProperties_4_exhaustive) {
                                  "", "bar");
   EVALUATE_TRACE_POST_SUCCESS(2, LoopPropertiesRegex, "/patternProperties",
                               "#/patternProperties", "");
-  EVALUATE_TRACE_POST_SUCCESS(3, LogicalWhenType, "/patternProperties",
-                              "#/patternProperties", "");
 
   // `properties`
-  EVALUATE_TRACE_POST_SUCCESS(4, AssertionTypeStrict, "/properties/foo/type",
+  EVALUATE_TRACE_POST_SUCCESS(3, AssertionTypeStrict, "/properties/foo/type",
                               "#/properties/foo/type", "/foo");
-  EVALUATE_TRACE_POST_ANNOTATION(5, "/properties", "#/properties", "", "foo");
-  EVALUATE_TRACE_POST_SUCCESS(6, LogicalAnd, "/properties", "#/properties", "");
+  EVALUATE_TRACE_POST_ANNOTATION(4, "/properties", "#/properties", "", "foo");
+  EVALUATE_TRACE_POST_SUCCESS(5, LogicalAnd, "/properties", "#/properties", "");
 
   // `additionalProperties`
-  EVALUATE_TRACE_POST_SUCCESS(7, AssertionTypeStrict,
+  EVALUATE_TRACE_POST_SUCCESS(6, AssertionTypeStrict,
                               "/additionalProperties/type",
                               "#/additionalProperties/type", "/baz");
-  EVALUATE_TRACE_POST_ANNOTATION(8, "/additionalProperties",
+  EVALUATE_TRACE_POST_ANNOTATION(7, "/additionalProperties",
                                  "#/additionalProperties", "", "baz");
-  EVALUATE_TRACE_POST_SUCCESS(9, LoopPropertiesExcept, "/additionalProperties",
+  EVALUATE_TRACE_POST_SUCCESS(8, LoopPropertiesExcept, "/additionalProperties",
                               "#/additionalProperties", "");
 
   EVALUATE_TRACE_POST_DESCRIBE(instance, 0,
@@ -869,25 +865,21 @@ TEST(Evaluator_2019_09, additionalProperties_4_exhaustive) {
       instance, 2,
       "The object properties that match the regular expression \"^bar$\" were "
       "expected to validate against the defined pattern property subschema");
-  EVALUATE_TRACE_POST_DESCRIBE(
-      instance, 3,
-      "The object value was expected to validate against the single defined "
-      "pattern property subschema");
-  EVALUATE_TRACE_POST_DESCRIBE(instance, 4,
+  EVALUATE_TRACE_POST_DESCRIBE(instance, 3,
                                "The value was expected to be of type boolean");
-  EVALUATE_TRACE_POST_DESCRIBE(instance, 5,
+  EVALUATE_TRACE_POST_DESCRIBE(instance, 4,
                                "The object property \"foo\" successfully "
                                "validated against its property subschema");
-  EVALUATE_TRACE_POST_DESCRIBE(instance, 6,
+  EVALUATE_TRACE_POST_DESCRIBE(instance, 5,
                                "The object value was expected to validate "
                                "against the single defined property subschema");
-  EVALUATE_TRACE_POST_DESCRIBE(instance, 7,
+  EVALUATE_TRACE_POST_DESCRIBE(instance, 6,
                                "The value was expected to be of type string");
   EVALUATE_TRACE_POST_DESCRIBE(
-      instance, 8,
+      instance, 7,
       "The object property \"baz\" successfully validated against the "
       "additional properties subschema");
-  EVALUATE_TRACE_POST_DESCRIBE(instance, 9,
+  EVALUATE_TRACE_POST_DESCRIBE(instance, 8,
                                "The object properties not covered by other "
                                "adjacent object keywords were "
                                "expected to validate against this subschema");
@@ -3250,24 +3242,20 @@ TEST(Evaluator_2019_09, unevaluatedProperties_6) {
   const sourcemeta::jsontoolkit::JSON instance{
       sourcemeta::jsontoolkit::parse("{ \"@foo\": \"bar\" }")};
 
-  EVALUATE_WITH_TRACE_FAST_SUCCESS(schema, instance, 4);
+  EVALUATE_WITH_TRACE_FAST_SUCCESS(schema, instance, 3);
 
-  EVALUATE_TRACE_PRE(0, LogicalWhenType, "/patternProperties",
+  EVALUATE_TRACE_PRE(0, LoopPropertiesRegex, "/patternProperties",
                      "#/patternProperties", "");
-  EVALUATE_TRACE_PRE(1, LoopPropertiesRegex, "/patternProperties",
-                     "#/patternProperties", "");
-  EVALUATE_TRACE_PRE(2, ControlEvaluate, "/patternProperties",
+  EVALUATE_TRACE_PRE(1, ControlEvaluate, "/patternProperties",
                      "#/patternProperties", "/@foo");
-  EVALUATE_TRACE_PRE(3, LoopPropertiesUnevaluated, "/unevaluatedProperties",
+  EVALUATE_TRACE_PRE(2, LoopPropertiesUnevaluated, "/unevaluatedProperties",
                      "#/unevaluatedProperties", "");
 
   EVALUATE_TRACE_POST_SUCCESS(0, ControlEvaluate, "/patternProperties",
                               "#/patternProperties", "/@foo");
   EVALUATE_TRACE_POST_SUCCESS(1, LoopPropertiesRegex, "/patternProperties",
                               "#/patternProperties", "");
-  EVALUATE_TRACE_POST_SUCCESS(2, LogicalWhenType, "/patternProperties",
-                              "#/patternProperties", "");
-  EVALUATE_TRACE_POST_SUCCESS(3, LoopPropertiesUnevaluated,
+  EVALUATE_TRACE_POST_SUCCESS(2, LoopPropertiesUnevaluated,
                               "/unevaluatedProperties",
                               "#/unevaluatedProperties", "");
 
@@ -3279,10 +3267,6 @@ TEST(Evaluator_2019_09, unevaluatedProperties_6) {
       "expected to validate against the defined pattern property subschema");
   EVALUATE_TRACE_POST_DESCRIBE(
       instance, 2,
-      "The object value was expected to validate against the single defined "
-      "pattern property subschema");
-  EVALUATE_TRACE_POST_DESCRIBE(
-      instance, 3,
       "The object value was not expected to define unevaluated properties");
 }
 
@@ -3297,17 +3281,15 @@ TEST(Evaluator_2019_09, unevaluatedProperties_6_exhaustive) {
   const sourcemeta::jsontoolkit::JSON instance{
       sourcemeta::jsontoolkit::parse("{ \"@foo\": \"bar\" }")};
 
-  EVALUATE_WITH_TRACE_EXHAUSTIVE_SUCCESS(schema, instance, 5);
+  EVALUATE_WITH_TRACE_EXHAUSTIVE_SUCCESS(schema, instance, 4);
 
-  EVALUATE_TRACE_PRE(0, LogicalWhenType, "/patternProperties",
+  EVALUATE_TRACE_PRE(0, LoopPropertiesRegex, "/patternProperties",
                      "#/patternProperties", "");
-  EVALUATE_TRACE_PRE(1, LoopPropertiesRegex, "/patternProperties",
-                     "#/patternProperties", "");
-  EVALUATE_TRACE_PRE_ANNOTATION(2, "/patternProperties", "#/patternProperties",
+  EVALUATE_TRACE_PRE_ANNOTATION(1, "/patternProperties", "#/patternProperties",
                                 "");
-  EVALUATE_TRACE_PRE(3, ControlEvaluate, "/patternProperties",
+  EVALUATE_TRACE_PRE(2, ControlEvaluate, "/patternProperties",
                      "#/patternProperties", "/@foo");
-  EVALUATE_TRACE_PRE(4, LoopPropertiesUnevaluated, "/unevaluatedProperties",
+  EVALUATE_TRACE_PRE(3, LoopPropertiesUnevaluated, "/unevaluatedProperties",
                      "#/unevaluatedProperties", "");
 
   EVALUATE_TRACE_POST_ANNOTATION(0, "/patternProperties", "#/patternProperties",
@@ -3316,9 +3298,7 @@ TEST(Evaluator_2019_09, unevaluatedProperties_6_exhaustive) {
                               "#/patternProperties", "/@foo");
   EVALUATE_TRACE_POST_SUCCESS(2, LoopPropertiesRegex, "/patternProperties",
                               "#/patternProperties", "");
-  EVALUATE_TRACE_POST_SUCCESS(3, LogicalWhenType, "/patternProperties",
-                              "#/patternProperties", "");
-  EVALUATE_TRACE_POST_SUCCESS(4, LoopPropertiesUnevaluated,
+  EVALUATE_TRACE_POST_SUCCESS(3, LoopPropertiesUnevaluated,
                               "/unevaluatedProperties",
                               "#/unevaluatedProperties", "");
 
@@ -3334,10 +3314,6 @@ TEST(Evaluator_2019_09, unevaluatedProperties_6_exhaustive) {
       "expected to validate against the defined pattern property subschema");
   EVALUATE_TRACE_POST_DESCRIBE(
       instance, 3,
-      "The object value was expected to validate against the single defined "
-      "pattern property subschema");
-  EVALUATE_TRACE_POST_DESCRIBE(
-      instance, 4,
       "The object value was not expected to define unevaluated properties");
 }
 
@@ -5611,20 +5587,16 @@ TEST(Evaluator_2019_09, patternProperties_1_exhaustive) {
   const sourcemeta::jsontoolkit::JSON instance{
       sourcemeta::jsontoolkit::parse("{ \"foo\": 1, \"bar\": 2 }")};
 
-  EVALUATE_WITH_TRACE_EXHAUSTIVE_SUCCESS(schema, instance, 3);
+  EVALUATE_WITH_TRACE_EXHAUSTIVE_SUCCESS(schema, instance, 2);
 
-  EVALUATE_TRACE_PRE(0, LogicalWhenType, "/patternProperties",
+  EVALUATE_TRACE_PRE(0, LoopPropertiesRegex, "/patternProperties",
                      "#/patternProperties", "");
-  EVALUATE_TRACE_PRE(1, LoopPropertiesRegex, "/patternProperties",
-                     "#/patternProperties", "");
-  EVALUATE_TRACE_PRE_ANNOTATION(2, "/patternProperties", "#/patternProperties",
+  EVALUATE_TRACE_PRE_ANNOTATION(1, "/patternProperties", "#/patternProperties",
                                 "");
 
   EVALUATE_TRACE_POST_ANNOTATION(0, "/patternProperties", "#/patternProperties",
                                  "", "foo");
   EVALUATE_TRACE_POST_SUCCESS(1, LoopPropertiesRegex, "/patternProperties",
-                              "#/patternProperties", "");
-  EVALUATE_TRACE_POST_SUCCESS(2, LogicalWhenType, "/patternProperties",
                               "#/patternProperties", "");
 
   EVALUATE_TRACE_POST_DESCRIBE(
@@ -5635,10 +5607,6 @@ TEST(Evaluator_2019_09, patternProperties_1_exhaustive) {
       instance, 1,
       "The object properties that match the regular expression \"^f\" were "
       "expected to validate against the defined pattern property subschema");
-  EVALUATE_TRACE_POST_DESCRIBE(
-      instance, 2,
-      "The object value was expected to validate against the single defined "
-      "pattern property subschema");
 }
 
 TEST(Evaluator_2019_09, patternProperties_2) {
@@ -5687,16 +5655,14 @@ TEST(Evaluator_2019_09, patternProperties_2_exhaustive) {
   const sourcemeta::jsontoolkit::JSON instance{
       sourcemeta::jsontoolkit::parse("{ \"foo\": 1, \"bar\": 2 }")};
 
-  EVALUATE_WITH_TRACE_EXHAUSTIVE_SUCCESS(schema, instance, 4);
+  EVALUATE_WITH_TRACE_EXHAUSTIVE_SUCCESS(schema, instance, 3);
 
-  EVALUATE_TRACE_PRE(0, LogicalWhenType, "/patternProperties",
+  EVALUATE_TRACE_PRE(0, LoopPropertiesRegex, "/patternProperties",
                      "#/patternProperties", "");
-  EVALUATE_TRACE_PRE(1, LoopPropertiesRegex, "/patternProperties",
-                     "#/patternProperties", "");
-  EVALUATE_TRACE_PRE(2, AssertionType, "/patternProperties/^f/type",
+  EVALUATE_TRACE_PRE(1, AssertionType, "/patternProperties/^f/type",
                      // Note that the caret needs to be URI escaped
                      "#/patternProperties/%5Ef/type", "/foo");
-  EVALUATE_TRACE_PRE_ANNOTATION(3, "/patternProperties", "#/patternProperties",
+  EVALUATE_TRACE_PRE_ANNOTATION(2, "/patternProperties", "#/patternProperties",
                                 "");
 
   EVALUATE_TRACE_POST_SUCCESS(0, AssertionType, "/patternProperties/^f/type",
@@ -5705,8 +5671,6 @@ TEST(Evaluator_2019_09, patternProperties_2_exhaustive) {
   EVALUATE_TRACE_POST_ANNOTATION(1, "/patternProperties", "#/patternProperties",
                                  "", "foo");
   EVALUATE_TRACE_POST_SUCCESS(2, LoopPropertiesRegex, "/patternProperties",
-                              "#/patternProperties", "");
-  EVALUATE_TRACE_POST_SUCCESS(3, LogicalWhenType, "/patternProperties",
                               "#/patternProperties", "");
 
   EVALUATE_TRACE_POST_DESCRIBE(instance, 0,
@@ -5719,10 +5683,6 @@ TEST(Evaluator_2019_09, patternProperties_2_exhaustive) {
       instance, 2,
       "The object properties that match the regular expression \"^f\" were "
       "expected to validate against the defined pattern property subschema");
-  EVALUATE_TRACE_POST_DESCRIBE(
-      instance, 3,
-      "The object value was expected to validate against the single defined "
-      "pattern property subschema");
 }
 
 TEST(Evaluator_2019_09, patternProperties_3) {
@@ -5787,22 +5747,20 @@ TEST(Evaluator_2019_09, patternProperties_3_exhaustive) {
   const sourcemeta::jsontoolkit::JSON instance{
       sourcemeta::jsontoolkit::parse("{ \"bar\": 2, \"foo\": 1 }")};
 
-  EVALUATE_WITH_TRACE_EXHAUSTIVE_SUCCESS(schema, instance, 7);
+  EVALUATE_WITH_TRACE_EXHAUSTIVE_SUCCESS(schema, instance, 6);
 
-  EVALUATE_TRACE_PRE(0, LogicalWhenType, "/patternProperties",
+  EVALUATE_TRACE_PRE(0, LoopPropertiesRegex, "/patternProperties",
                      "#/patternProperties", "");
-  EVALUATE_TRACE_PRE(1, LoopPropertiesRegex, "/patternProperties",
-                     "#/patternProperties", "");
-  EVALUATE_TRACE_PRE(2, AssertionType, "/patternProperties/^f/type",
+  EVALUATE_TRACE_PRE(1, AssertionType, "/patternProperties/^f/type",
                      // Note that the caret needs to be URI escaped
                      "#/patternProperties/%5Ef/type", "/foo");
-  EVALUATE_TRACE_PRE_ANNOTATION(3, "/patternProperties", "#/patternProperties",
+  EVALUATE_TRACE_PRE_ANNOTATION(2, "/patternProperties", "#/patternProperties",
                                 "");
-  EVALUATE_TRACE_PRE(4, LoopPropertiesRegex, "/patternProperties",
+  EVALUATE_TRACE_PRE(3, LoopPropertiesRegex, "/patternProperties",
                      "#/patternProperties", "");
-  EVALUATE_TRACE_PRE(5, AssertionType, "/patternProperties/o$/type",
+  EVALUATE_TRACE_PRE(4, AssertionType, "/patternProperties/o$/type",
                      "#/patternProperties/o$/type", "/foo");
-  EVALUATE_TRACE_PRE_ANNOTATION(6, "/patternProperties", "#/patternProperties",
+  EVALUATE_TRACE_PRE_ANNOTATION(5, "/patternProperties", "#/patternProperties",
                                 "");
 
   EVALUATE_TRACE_POST_SUCCESS(0, AssertionType, "/patternProperties/^f/type",
@@ -5817,8 +5775,6 @@ TEST(Evaluator_2019_09, patternProperties_3_exhaustive) {
   EVALUATE_TRACE_POST_ANNOTATION(4, "/patternProperties", "#/patternProperties",
                                  "", "foo");
   EVALUATE_TRACE_POST_SUCCESS(5, LoopPropertiesRegex, "/patternProperties",
-                              "#/patternProperties", "");
-  EVALUATE_TRACE_POST_SUCCESS(6, LogicalWhenType, "/patternProperties",
                               "#/patternProperties", "");
 
   EVALUATE_TRACE_POST_DESCRIBE(instance, 0,
@@ -5841,10 +5797,6 @@ TEST(Evaluator_2019_09, patternProperties_3_exhaustive) {
       instance, 5,
       "The object properties that match the regular expression \"o$\" were "
       "expected to validate against the defined pattern property subschema");
-  EVALUATE_TRACE_POST_DESCRIBE(
-      instance, 6,
-      "The object value was expected to validate against the 2 defined pattern "
-      "properties subschemas");
 }
 
 TEST(Evaluator_2019_09, patternProperties_4) {
@@ -5911,25 +5863,20 @@ TEST(Evaluator_2019_09, patternProperties_4_exhaustive) {
   const sourcemeta::jsontoolkit::JSON instance{
       sourcemeta::jsontoolkit::parse("{ \"foo\": { \"bar\": 2 } }")};
 
-  EVALUATE_WITH_TRACE_EXHAUSTIVE_SUCCESS(schema, instance, 7);
+  EVALUATE_WITH_TRACE_EXHAUSTIVE_SUCCESS(schema, instance, 5);
 
-  EVALUATE_TRACE_PRE(0, LogicalWhenType, "/patternProperties",
+  EVALUATE_TRACE_PRE(0, LoopPropertiesRegex, "/patternProperties",
                      "#/patternProperties", "");
-  EVALUATE_TRACE_PRE(1, LoopPropertiesRegex, "/patternProperties",
-                     "#/patternProperties", "");
-  EVALUATE_TRACE_PRE(2, LogicalWhenType,
-                     "/patternProperties/^f/patternProperties",
-                     "#/patternProperties/%5Ef/patternProperties", "/foo");
-  EVALUATE_TRACE_PRE(3, LoopPropertiesRegex,
+  EVALUATE_TRACE_PRE(1, LoopPropertiesRegex,
                      "/patternProperties/^f/patternProperties",
                      "#/patternProperties/%5Ef/patternProperties", "/foo");
   EVALUATE_TRACE_PRE(
-      4, AssertionType, "/patternProperties/^f/patternProperties/^b/type",
+      2, AssertionType, "/patternProperties/^f/patternProperties/^b/type",
       "#/patternProperties/%5Ef/patternProperties/%5Eb/type", "/foo/bar");
-  EVALUATE_TRACE_PRE_ANNOTATION(5, "/patternProperties/^f/patternProperties",
+  EVALUATE_TRACE_PRE_ANNOTATION(3, "/patternProperties/^f/patternProperties",
                                 "#/patternProperties/%5Ef/patternProperties",
                                 "/foo");
-  EVALUATE_TRACE_PRE_ANNOTATION(6, "/patternProperties", "#/patternProperties",
+  EVALUATE_TRACE_PRE_ANNOTATION(4, "/patternProperties", "#/patternProperties",
                                 "");
 
   EVALUATE_TRACE_POST_SUCCESS(
@@ -5941,14 +5888,9 @@ TEST(Evaluator_2019_09, patternProperties_4_exhaustive) {
   EVALUATE_TRACE_POST_SUCCESS(
       2, LoopPropertiesRegex, "/patternProperties/^f/patternProperties",
       "#/patternProperties/%5Ef/patternProperties", "/foo");
-  EVALUATE_TRACE_POST_SUCCESS(
-      3, LogicalWhenType, "/patternProperties/^f/patternProperties",
-      "#/patternProperties/%5Ef/patternProperties", "/foo");
-  EVALUATE_TRACE_POST_ANNOTATION(4, "/patternProperties", "#/patternProperties",
+  EVALUATE_TRACE_POST_ANNOTATION(3, "/patternProperties", "#/patternProperties",
                                  "", "foo");
-  EVALUATE_TRACE_POST_SUCCESS(5, LoopPropertiesRegex, "/patternProperties",
-                              "#/patternProperties", "");
-  EVALUATE_TRACE_POST_SUCCESS(6, LogicalWhenType, "/patternProperties",
+  EVALUATE_TRACE_POST_SUCCESS(4, LoopPropertiesRegex, "/patternProperties",
                               "#/patternProperties", "");
 
   EVALUATE_TRACE_POST_DESCRIBE(instance, 0,
@@ -5963,20 +5905,12 @@ TEST(Evaluator_2019_09, patternProperties_4_exhaustive) {
       "expected to validate against the defined pattern property subschema");
   EVALUATE_TRACE_POST_DESCRIBE(
       instance, 3,
-      "The object value was expected to validate against the single defined "
-      "pattern property subschema");
-  EVALUATE_TRACE_POST_DESCRIBE(
-      instance, 4,
       "The object property \"foo\" successfully validated against its pattern "
       "property subschema");
   EVALUATE_TRACE_POST_DESCRIBE(
-      instance, 5,
+      instance, 4,
       "The object properties that match the regular expression \"^f\" were "
       "expected to validate against the defined pattern property subschema");
-  EVALUATE_TRACE_POST_DESCRIBE(
-      instance, 6,
-      "The object value was expected to validate against the single defined "
-      "pattern property subschema");
 }
 
 TEST(Evaluator_2019_09, patternProperties_5) {
@@ -6022,33 +5956,29 @@ TEST(Evaluator_2019_09, patternProperties_5_exhaustive) {
   const sourcemeta::jsontoolkit::JSON instance{
       sourcemeta::jsontoolkit::parse("{ \"@foo\": 1, \"bar\": \"baz\" }")};
 
-  EVALUATE_WITH_TRACE_EXHAUSTIVE_SUCCESS(schema, instance, 6);
+  EVALUATE_WITH_TRACE_EXHAUSTIVE_SUCCESS(schema, instance, 5);
 
-  EVALUATE_TRACE_PRE(0, LogicalWhenType, "/patternProperties",
+  EVALUATE_TRACE_PRE(0, LoopPropertiesRegex, "/patternProperties",
                      "#/patternProperties", "");
-  EVALUATE_TRACE_PRE(1, LoopPropertiesRegex, "/patternProperties",
-                     "#/patternProperties", "");
-  EVALUATE_TRACE_PRE_ANNOTATION(2, "/patternProperties", "#/patternProperties",
+  EVALUATE_TRACE_PRE_ANNOTATION(1, "/patternProperties", "#/patternProperties",
                                 "");
-  EVALUATE_TRACE_PRE(3, LoopPropertiesExcept, "/additionalProperties",
+  EVALUATE_TRACE_PRE(2, LoopPropertiesExcept, "/additionalProperties",
                      "#/additionalProperties", "");
-  EVALUATE_TRACE_PRE(4, AssertionTypeStrict, "/additionalProperties/type",
+  EVALUATE_TRACE_PRE(3, AssertionTypeStrict, "/additionalProperties/type",
                      "#/additionalProperties/type", "/bar");
-  EVALUATE_TRACE_PRE_ANNOTATION(5, "/additionalProperties",
+  EVALUATE_TRACE_PRE_ANNOTATION(4, "/additionalProperties",
                                 "#/additionalProperties", "");
 
   EVALUATE_TRACE_POST_ANNOTATION(0, "/patternProperties", "#/patternProperties",
                                  "", "@foo");
   EVALUATE_TRACE_POST_SUCCESS(1, LoopPropertiesRegex, "/patternProperties",
                               "#/patternProperties", "");
-  EVALUATE_TRACE_POST_SUCCESS(2, LogicalWhenType, "/patternProperties",
-                              "#/patternProperties", "");
-  EVALUATE_TRACE_POST_SUCCESS(3, AssertionTypeStrict,
+  EVALUATE_TRACE_POST_SUCCESS(2, AssertionTypeStrict,
                               "/additionalProperties/type",
                               "#/additionalProperties/type", "/bar");
-  EVALUATE_TRACE_POST_ANNOTATION(4, "/additionalProperties",
+  EVALUATE_TRACE_POST_ANNOTATION(3, "/additionalProperties",
                                  "#/additionalProperties", "", "bar");
-  EVALUATE_TRACE_POST_SUCCESS(5, LoopPropertiesExcept, "/additionalProperties",
+  EVALUATE_TRACE_POST_SUCCESS(4, LoopPropertiesExcept, "/additionalProperties",
                               "#/additionalProperties", "");
 
   EVALUATE_TRACE_POST_DESCRIBE(
@@ -6059,18 +5989,14 @@ TEST(Evaluator_2019_09, patternProperties_5_exhaustive) {
       instance, 1,
       "The object properties that match the regular expression \"^@\" were "
       "expected to validate against the defined pattern property subschema");
-  EVALUATE_TRACE_POST_DESCRIBE(
-      instance, 2,
-      "The object value was expected to validate against the single defined "
-      "pattern property subschema");
-  EVALUATE_TRACE_POST_DESCRIBE(instance, 3,
+  EVALUATE_TRACE_POST_DESCRIBE(instance, 2,
                                "The value was expected to be of type string");
   EVALUATE_TRACE_POST_DESCRIBE(
-      instance, 4,
+      instance, 3,
       "The object property \"bar\" successfully validated against the "
       "additional properties subschema");
   EVALUATE_TRACE_POST_DESCRIBE(
-      instance, 5,
+      instance, 4,
       "The object properties not covered by other adjacent object keywords "
       "were expected to validate against this subschema");
 }
