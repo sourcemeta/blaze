@@ -261,10 +261,12 @@ auto EvaluationContext::evaluate(
 }
 
 auto EvaluationContext::is_evaluated(
-    const sourcemeta::jsontoolkit::WeakPointer &pointer) const -> bool {
+    const sourcemeta::jsontoolkit::WeakPointer::Token &tail) const -> bool {
   for (auto iterator = this->evaluated_.crbegin();
        iterator != this->evaluated_.crend(); ++iterator) {
-    if (!iterator->skip && pointer.starts_with(iterator->instance_location) &&
+    if (!iterator->skip &&
+        this->instance_location_.starts_with(iterator->instance_location,
+                                             tail) &&
         // Its not possible to affect cousins
         iterator->evaluate_path.starts_with_initial(this->evaluate_path_)) {
       return true;
@@ -272,22 +274,6 @@ auto EvaluationContext::is_evaluated(
   }
 
   return false;
-}
-
-auto EvaluationContext::is_evaluated(
-    sourcemeta::jsontoolkit::WeakPointer::Token::Property &&property) const
-    -> bool {
-  auto expected_instance_location = this->instance_location_;
-  expected_instance_location.push_back(std::move(property));
-  return this->is_evaluated(expected_instance_location);
-}
-
-auto EvaluationContext::is_evaluated(
-    const sourcemeta::jsontoolkit::WeakPointer::Token::Index index) const
-    -> bool {
-  auto expected_instance_location = this->instance_location_;
-  expected_instance_location.push_back(std::move(index));
-  return this->is_evaluated(expected_instance_location);
 }
 
 auto EvaluationContext::unevaluate() -> void {
