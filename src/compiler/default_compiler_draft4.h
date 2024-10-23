@@ -691,11 +691,6 @@ auto compiler_draft4_applicator_additionalproperties_with_options(
         context, schema_context, relative_dynamic_context, ValueNone{}));
   }
 
-  if (track_evaluation) {
-    children.push_back(make<ControlEvaluate>(
-        context, schema_context, relative_dynamic_context, ValuePointer{}));
-  }
-
   ValuePropertyFilter filter;
 
   if (schema_context.schema.defines("properties") &&
@@ -720,15 +715,21 @@ auto compiler_draft4_applicator_additionalproperties_with_options(
 
   // For performance, if a schema sets `additionalProperties: true` (or its
   // variants), we don't need to do anything
-  if (children.empty()) {
+  if (!track_evaluation && children.empty()) {
     return {};
   }
 
   if (!filter.first.empty() || !filter.second.empty()) {
+    if (track_evaluation) {
+      children.push_back(make<ControlEvaluate>(
+          context, schema_context, relative_dynamic_context, ValuePointer{}));
+    }
+
     return {make<LoopPropertiesExcept>(context, schema_context, dynamic_context,
                                        std::move(filter), std::move(children))};
   } else {
-    if (context.mode == Mode::FastValidation && children.size() == 1) {
+    if (!track_evaluation && context.mode == Mode::FastValidation &&
+        children.size() == 1) {
       // Optimize `additionalProperties` set to just `type`, which is a
       // pretty common pattern
       if (std::holds_alternative<AssertionTypeStrict>(children.front())) {
@@ -742,8 +743,14 @@ auto compiler_draft4_applicator_additionalproperties_with_options(
       }
     }
 
-    return {make<LoopProperties>(context, schema_context, dynamic_context,
-                                 ValueNone{}, std::move(children))};
+    if (track_evaluation) {
+      return {make<LoopPropertiesEvaluate>(context, schema_context,
+                                           dynamic_context, ValueNone{},
+                                           std::move(children))};
+    } else {
+      return {make<LoopProperties>(context, schema_context, dynamic_context,
+                                   ValueNone{}, std::move(children))};
+    }
   }
 }
 
