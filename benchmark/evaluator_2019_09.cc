@@ -17,6 +17,9 @@ static void Evaluator_2019_09_Unevaluated_Properties(benchmark::State &state) {
       "name": true,
       "prohibited": false
     },
+    "not": {
+      "required": [ "prohibited" ]
+    },
     "unevaluatedProperties": false,
     "$ref": "#/$defs/extension",
     "$defs": {
