@@ -39,17 +39,14 @@ auto compile_subschema(const sourcemeta::blaze::Context &context,
     const auto &keyword{entry.pointer.back().to_property()};
     // Bases must not contain fragments
     assert(!schema_context.base.fragment().has_value());
-    for (auto &&step :
-         context.compiler(context,
-                          {schema_context.relative_pointer.concat({keyword}),
-                           schema_context.schema, entry.vocabularies,
-                           entry.base_dialect.value_or(default_dialect.value_or(
-                               schema_context.base_dialect)),
-                           schema_context.base,
-                           // TODO: This represents a copy
-                           schema_context.labels, schema_context.references},
-                          {keyword, dynamic_context.base_schema_location,
-                           dynamic_context.base_instance_location})) {
+    for (auto &&step : context.compiler(
+             context,
+             {schema_context.relative_pointer.concat({keyword}),
+              schema_context.schema, entry.vocabularies, schema_context.base,
+              // TODO: This represents a copy
+              schema_context.labels, schema_context.references},
+             {keyword, dynamic_context.base_schema_location,
+              dynamic_context.base_instance_location})) {
       // Just a sanity check to ensure every keyword location is indeed valid
       assert(context.frame.contains(
           {sourcemeta::jsontoolkit::ReferenceType::Static,
@@ -114,7 +111,6 @@ auto compile(const sourcemeta::jsontoolkit::JSON &schema,
       sourcemeta::jsontoolkit::empty_pointer,
       result,
       vocabularies(schema, resolver, root_frame_entry.dialect),
-      root_frame_entry.dialect,
       sourcemeta::jsontoolkit::URI{root_frame_entry.base}
           .canonicalize()
           .recompose(),
@@ -216,7 +212,6 @@ auto compile(const sourcemeta::jsontoolkit::JSON &schema,
       const SchemaContext nested_schema_context{entry.second.relative_pointer,
                                                 std::move(subschema),
                                                 std::move(nested_vocabularies),
-                                                entry.second.dialect,
                                                 entry.second.base,
                                                 {},
                                                 {}};
@@ -284,7 +279,7 @@ auto compile(const Context &context, const SchemaContext &schema_context,
   return compile_subschema(
       context,
       {entry.relative_pointer, new_schema,
-       vocabularies(new_schema, context.resolver, entry.dialect), entry.dialect,
+       vocabularies(new_schema, context.resolver, entry.dialect),
        sourcemeta::jsontoolkit::URI{entry.base}
            .recompose_without_fragment()
            .value_or(""),
