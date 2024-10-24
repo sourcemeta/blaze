@@ -1701,6 +1701,41 @@ TEST(Evaluator_draft4, patternProperties_9) {
   }
 }
 
+TEST(Evaluator_draft4, patternProperties_10) {
+  const sourcemeta::jsontoolkit::JSON schema{
+      sourcemeta::jsontoolkit::parse(R"JSON({
+    "$schema": "http://json-schema.org/draft-04/schema#",
+    "patternProperties": {
+      "^/": { "type": "integer" }
+    }
+  })JSON")};
+
+  const sourcemeta::jsontoolkit::JSON instance{
+      sourcemeta::jsontoolkit::parse("{ \"/foo\": 1, \"bar\": 2 }")};
+
+  EVALUATE_WITH_TRACE_FAST_SUCCESS(schema, instance, 2);
+
+  EVALUATE_TRACE_PRE(0, LoopPropertiesStartsWith, "/patternProperties",
+                     "#/patternProperties", "");
+  EVALUATE_TRACE_PRE(1, AssertionTypeStrict, "/patternProperties/^~1/type",
+                     // Note that the caret needs to be URI escaped
+                     "#/patternProperties/%5E~1/type", "/~1foo");
+
+  EVALUATE_TRACE_POST_SUCCESS(0, AssertionTypeStrict,
+                              "/patternProperties/^~1/type",
+                              // Note that the caret needs to be URI escaped
+                              "#/patternProperties/%5E~1/type", "/~1foo");
+  EVALUATE_TRACE_POST_SUCCESS(1, LoopPropertiesStartsWith, "/patternProperties",
+                              "#/patternProperties", "");
+
+  EVALUATE_TRACE_POST_DESCRIBE(instance, 0,
+                               "The value was expected to be of type integer");
+  EVALUATE_TRACE_POST_DESCRIBE(
+      instance, 1,
+      "The object properties that start with the string \"/\" were expected to "
+      "validate against the defined pattern property subschema");
+}
+
 TEST(Evaluator_draft4, additionalProperties_1) {
   const sourcemeta::jsontoolkit::JSON schema{
       sourcemeta::jsontoolkit::parse(R"JSON({
