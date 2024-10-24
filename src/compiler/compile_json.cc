@@ -246,6 +246,8 @@ struct StepVisitor {
   HANDLE_STEP("assertion", "property-type-strict-evaluate",
               AssertionPropertyTypeStrictEvaluate)
   HANDLE_STEP("assertion", "array-prefix", AssertionArrayPrefix)
+  HANDLE_STEP("assertion", "array-prefix-evaluate",
+              AssertionArrayPrefixEvaluate)
   HANDLE_STEP("assertion", "equals-any", AssertionEqualsAny)
   HANDLE_STEP("annotation", "emit", AnnotationEmit)
   HANDLE_STEP("annotation", "to-parent", AnnotationToParent)

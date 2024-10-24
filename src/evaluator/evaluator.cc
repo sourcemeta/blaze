@@ -528,18 +528,39 @@ auto evaluate_step(const sourcemeta::blaze::Template::value_type &step,
         assert(std::holds_alternative<ControlGroup>(entry));
         if (evaluate_step(entry, callback, context)) {
           result = true;
-          if (assertion.value) {
-            assert(track);
-            if (array_size == prefixes) {
-              context.evaluate();
-            } else {
-              context.evaluate(0, pointer);
-            }
-          }
         }
       }
 
       EVALUATE_END(assertion, AssertionArrayPrefix);
+    }
+
+    case IS_STEP(AssertionArrayPrefixEvaluate): {
+      EVALUATE_BEGIN(assertion, AssertionArrayPrefixEvaluate,
+                     target.is_array());
+      // Otherwise there is no point in emitting this step
+      assert(!assertion.children.empty());
+      result = target.empty();
+      assert(track);
+      const auto prefixes{assertion.children.size() - 1};
+      const auto array_size{target.size()};
+      if (!result) [[likely]] {
+        const auto pointer{array_size == prefixes
+                               ? prefixes
+                               : std::min(array_size, prefixes) - 1};
+        const auto &entry{assertion.children[pointer]};
+        // TODO: Directly evaluate the control group entries
+        assert(std::holds_alternative<ControlGroup>(entry));
+        if (evaluate_step(entry, callback, context)) {
+          result = true;
+          if (array_size == prefixes) {
+            context.evaluate();
+          } else {
+            context.evaluate(0, pointer);
+          }
+        }
+      }
+
+      EVALUATE_END(assertion, AssertionArrayPrefixEvaluate);
     }
 
     case IS_STEP(LogicalOr): {
