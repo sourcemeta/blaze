@@ -293,7 +293,8 @@ auto compiler_2019_09_applicator_unevaluatedproperties(
     }
   }
 
-  if (!filter_strings.empty() || !filter_regexes.empty()) {
+  if (!filter_strings.empty() || !filter_prefixes.empty() ||
+      !filter_regexes.empty()) {
     return {make<LoopPropertiesUnevaluatedExcept>(
         context, schema_context, dynamic_context,
         ValuePropertyFilter{std::move(filter_strings),
@@ -325,6 +326,16 @@ auto compiler_2019_09_core_recursiveref(const Context &context,
 auto compiler_2019_09_applicator_properties(
     const Context &context, const SchemaContext &schema_context,
     const DynamicContext &dynamic_context) -> Template {
+  // If there is a sibling `unevaluatedProperties`, then no need
+  // to track evaluation, as that keyword will statically consider
+  // these properties through `ValuePropertyFilter`
+  if (context.unevaluated_properties_schemas.contains(
+          static_frame_entry(context, schema_context).pointer.initial())) {
+    return compiler_draft4_applicator_properties_with_options(
+        context, schema_context, dynamic_context,
+        context.mode == Mode::Exhaustive, false);
+  }
+
   return compiler_draft4_applicator_properties_with_options(
       context, schema_context, dynamic_context,
       context.mode == Mode::Exhaustive,
@@ -334,6 +345,16 @@ auto compiler_2019_09_applicator_properties(
 auto compiler_2019_09_applicator_patternproperties(
     const Context &context, const SchemaContext &schema_context,
     const DynamicContext &dynamic_context) -> Template {
+  // If there is a sibling `unevaluatedProperties`, then no need
+  // to track evaluation, as that keyword will statically consider
+  // these properties through `ValuePropertyFilter`
+  if (context.unevaluated_properties_schemas.contains(
+          static_frame_entry(context, schema_context).pointer.initial())) {
+    return compiler_draft4_applicator_patternproperties_with_options(
+        context, schema_context, dynamic_context,
+        context.mode == Mode::Exhaustive, false);
+  }
+
   return compiler_draft4_applicator_patternproperties_with_options(
       context, schema_context, dynamic_context,
       context.mode == Mode::Exhaustive,

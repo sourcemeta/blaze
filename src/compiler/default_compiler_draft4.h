@@ -748,7 +748,8 @@ auto compiler_draft4_applicator_additionalproperties_with_options(
     return {};
   }
 
-  if (!filter_strings.empty() || !filter_regexes.empty()) {
+  if (!filter_strings.empty() || !filter_prefixes.empty() ||
+      !filter_regexes.empty()) {
     if (track_evaluation) {
       children.push_back(make<ControlEvaluate>(
           context, schema_context, relative_dynamic_context, ValuePointer{}));
