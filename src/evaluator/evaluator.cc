@@ -878,14 +878,26 @@ auto evaluate_step(const sourcemeta::blaze::Template::value_type &step,
       result = true;
       // Otherwise why emit this instruction?
       assert(!std::get<0>(loop.value).empty() ||
-             !std::get<1>(loop.value).empty());
+             !std::get<1>(loop.value).empty() ||
+             !std::get<2>(loop.value).empty());
 
       for (const auto &entry : target.as_object()) {
         if (std::find(std::get<0>(loop.value).cbegin(),
                       std::get<0>(loop.value).cend(),
-                      entry.first) != std::get<0>(loop.value).cend() ||
-            std::any_of(std::get<1>(loop.value).cbegin(),
+                      entry.first) != std::get<0>(loop.value).cend()) {
+          continue;
+        }
+
+        if (std::any_of(std::get<1>(loop.value).cbegin(),
                         std::get<1>(loop.value).cend(),
+                        [&entry](const auto &prefix) {
+                          return entry.first.starts_with(prefix);
+                        })) {
+          continue;
+        }
+
+        if (std::any_of(std::get<2>(loop.value).cbegin(),
+                        std::get<2>(loop.value).cend(),
                         [&entry](const auto &pattern) {
                           return std::regex_search(entry.first, pattern.first);
                         })) {
@@ -1077,14 +1089,26 @@ auto evaluate_step(const sourcemeta::blaze::Template::value_type &step,
       result = true;
       // Otherwise why emit this instruction?
       assert(!std::get<0>(loop.value).empty() ||
-             !std::get<1>(loop.value).empty());
+             !std::get<1>(loop.value).empty() ||
+             !std::get<2>(loop.value).empty());
 
       for (const auto &entry : target.as_object()) {
         if (std::find(std::get<0>(loop.value).cbegin(),
                       std::get<0>(loop.value).cend(),
-                      entry.first) != std::get<0>(loop.value).cend() ||
-            std::any_of(std::get<1>(loop.value).cbegin(),
+                      entry.first) != std::get<0>(loop.value).cend()) {
+          continue;
+        }
+
+        if (std::any_of(std::get<1>(loop.value).cbegin(),
                         std::get<1>(loop.value).cend(),
+                        [&entry](const auto &prefix) {
+                          return entry.first.starts_with(prefix);
+                        })) {
+          continue;
+        }
+
+        if (std::any_of(std::get<2>(loop.value).cbegin(),
+                        std::get<2>(loop.value).cend(),
                         [&entry](const auto &pattern) {
                           return std::regex_search(entry.first, pattern.first);
                         })) {

@@ -118,13 +118,18 @@ auto value_to_json(const T &value) -> sourcemeta::jsontoolkit::JSON {
     sourcemeta::jsontoolkit::JSON data{
         sourcemeta::jsontoolkit::JSON::make_object()};
     data.assign("names", sourcemeta::jsontoolkit::JSON::make_array());
+    data.assign("prefixes", sourcemeta::jsontoolkit::JSON::make_array());
     data.assign("patterns", sourcemeta::jsontoolkit::JSON::make_array());
 
     for (const auto &name : std::get<0>(value)) {
       data.at("names").push_back(sourcemeta::jsontoolkit::JSON{name});
     }
 
-    for (const auto &pattern : std::get<1>(value)) {
+    for (const auto &prefix : std::get<1>(value)) {
+      data.at("prefixes").push_back(sourcemeta::jsontoolkit::JSON{prefix});
+    }
+
+    for (const auto &pattern : std::get<2>(value)) {
       data.at("patterns")
           .push_back(sourcemeta::jsontoolkit::JSON{pattern.second});
     }
