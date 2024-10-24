@@ -256,7 +256,8 @@ auto compiler_2019_09_applicator_unevaluatedproperties(
         context, schema_context, relative_dynamic_context, ValueNone{}));
   }
 
-  ValuePropertyFilter filter;
+  ValueStrings filter_strings;
+  std::vector<ValueRegex> filter_regexes;
 
   if ((schema_context.vocabularies.contains(
            "https://json-schema.org/draft/2019-09/vocab/applicator") ||
@@ -266,7 +267,7 @@ auto compiler_2019_09_applicator_unevaluatedproperties(
       schema_context.schema.at("properties").is_object()) {
     for (const auto &entry :
          schema_context.schema.at("properties").as_object()) {
-      filter.first.push_back(entry.first);
+      filter_strings.push_back(entry.first);
     }
   }
 
@@ -278,7 +279,7 @@ auto compiler_2019_09_applicator_unevaluatedproperties(
       schema_context.schema.at("patternProperties").is_object()) {
     for (const auto &entry :
          schema_context.schema.at("patternProperties").as_object()) {
-      filter.second.push_back(
+      filter_regexes.push_back(
           {parse_regex(entry.first, schema_context.base,
                        schema_context.relative_pointer.initial().concat(
                            {"patternProperties"})),
@@ -286,9 +287,11 @@ auto compiler_2019_09_applicator_unevaluatedproperties(
     }
   }
 
-  if (!filter.first.empty() || !filter.second.empty()) {
+  if (!filter_strings.empty() || !filter_regexes.empty()) {
     return {make<LoopPropertiesUnevaluatedExcept>(
-        context, schema_context, dynamic_context, std::move(filter),
+        context, schema_context, dynamic_context,
+        ValuePropertyFilter{std::move(filter_strings),
+                            std::move(filter_regexes)},
         std::move(children))};
   } else {
     return {make<LoopPropertiesUnevaluated>(context, schema_context,
