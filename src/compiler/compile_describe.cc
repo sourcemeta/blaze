@@ -1476,6 +1476,16 @@ struct DescribeVisitor {
     return message.str();
   }
 
+  auto operator()(const LoopPropertiesStartsWith &step) const -> std::string {
+    assert(this->target.is_object());
+    std::ostringstream message;
+    message << "The object properties that start with the string \""
+            << step_value(step)
+            << "\" were expected to validate against the defined pattern "
+               "property subschema";
+    return message.str();
+  }
+
   auto operator()(const LogicalWhenType &step) const -> std::string {
     if (this->keyword == "items") {
       std::ostringstream message;

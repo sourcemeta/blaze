@@ -65,6 +65,7 @@ struct LoopPropertiesMatch;
 struct LoopProperties;
 struct LoopPropertiesEvaluate;
 struct LoopPropertiesRegex;
+struct LoopPropertiesStartsWith;
 struct LoopPropertiesExcept;
 struct LoopPropertiesType;
 struct LoopPropertiesTypeEvaluate;
@@ -102,11 +103,11 @@ using Template = std::vector<std::variant<
     LogicalWhenDefines, LogicalWhenArraySizeGreater, LoopPropertiesUnevaluated,
     LoopPropertiesUnevaluatedExcept, LoopItemsUnevaluated, LoopPropertiesMatch,
     LoopProperties, LoopPropertiesEvaluate, LoopPropertiesRegex,
-    LoopPropertiesExcept, LoopPropertiesType, LoopPropertiesTypeEvaluate,
-    LoopPropertiesTypeStrict, LoopPropertiesTypeStrictEvaluate, LoopKeys,
-    LoopItems, LoopContains, ControlGroup, ControlGroupWhenDefines,
-    ControlLabel, ControlMark, ControlEvaluate, ControlJump,
-    ControlDynamicAnchorJump>>;
+    LoopPropertiesStartsWith, LoopPropertiesExcept, LoopPropertiesType,
+    LoopPropertiesTypeEvaluate, LoopPropertiesTypeStrict,
+    LoopPropertiesTypeStrictEvaluate, LoopKeys, LoopItems, LoopContains,
+    ControlGroup, ControlGroupWhenDefines, ControlLabel, ControlMark,
+    ControlEvaluate, ControlJump, ControlDynamicAnchorJump>>;
 
 #if !defined(DOXYGEN)
 // For fast internal instruction dispatching. It must stay
@@ -163,6 +164,7 @@ enum class TemplateIndex : std::uint8_t {
   LoopProperties,
   LoopPropertiesEvaluate,
   LoopPropertiesRegex,
+  LoopPropertiesStartsWith,
   LoopPropertiesExcept,
   LoopPropertiesType,
   LoopPropertiesTypeEvaluate,
@@ -456,6 +458,11 @@ DEFINE_STEP_APPLICATOR(Loop, PropertiesEvaluate, ValueNone)
 /// @brief Represents a compiler step that loops over object properties that
 /// match a given ECMA regular expression
 DEFINE_STEP_APPLICATOR(Loop, PropertiesRegex, ValueRegex)
+
+/// @ingroup evaluator_instructions
+/// @brief Represents a compiler step that loops over object properties that
+/// start with a given string
+DEFINE_STEP_APPLICATOR(Loop, PropertiesStartsWith, ValueString)
 
 /// @ingroup evaluator_instructions
 /// @brief Represents a compiler step that loops over object properties that

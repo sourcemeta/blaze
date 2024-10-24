@@ -6,10 +6,10 @@
 
 #include <algorithm> // std::sort, std::any_of
 #include <cassert>   // assert
-#include <regex>     // std::regex, std::regex_error
-#include <set>       // std::set
-#include <sstream>   // std::ostringstream
-#include <utility>   // std::move
+#include <regex> // std::regex, std::regex_error, std::regex_match, std::smatch
+#include <set>   // std::set
+#include <sstream> // std::ostringstream
+#include <utility> // std::move
 
 #include "compile_helpers.h"
 
@@ -650,6 +650,8 @@ auto compiler_draft4_applicator_patternproperties_with_options(
 
   std::sort(patterns.begin(), patterns.end());
 
+  const std::regex starts_with_regex{R"(^\^([a-zA-Z0-9-_/]+)$)"};
+
   // For each regular expression and corresponding subschema in the object
   for (const auto &pattern : patterns) {
     auto substeps{compile(context, schema_context, relative_dynamic_context,
@@ -668,13 +670,19 @@ auto compiler_draft4_applicator_patternproperties_with_options(
     // If the `patternProperties` subschema for the given pattern does
     // nothing, then we can avoid generating an entire loop for it
     if (!substeps.empty()) {
-      // Loop over the instance properties
-      children.push_back(make<LoopPropertiesRegex>(
-          context, schema_context, dynamic_context,
-          ValueRegex{parse_regex(pattern, schema_context.base,
-                                 schema_context.relative_pointer),
-                     pattern},
-          std::move(substeps)));
+      std::smatch matches;
+      if (std::regex_match(pattern, matches, starts_with_regex)) {
+        children.push_back(make<LoopPropertiesStartsWith>(
+            context, schema_context, dynamic_context,
+            ValueString{matches[1].str()}, std::move(substeps)));
+      } else {
+        children.push_back(make<LoopPropertiesRegex>(
+            context, schema_context, dynamic_context,
+            ValueRegex{parse_regex(pattern, schema_context.base,
+                                   schema_context.relative_pointer),
+                       pattern},
+            std::move(substeps)));
+      }
     }
   }
 

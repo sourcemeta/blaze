@@ -1043,6 +1043,32 @@ auto evaluate_step(const sourcemeta::blaze::Template::value_type &step,
       EVALUATE_END(loop, LoopPropertiesRegex);
     }
 
+    case IS_STEP(LoopPropertiesStartsWith): {
+      EVALUATE_BEGIN(loop, LoopPropertiesStartsWith, target.is_object());
+      result = true;
+      for (const auto &entry : target.as_object()) {
+        if (!entry.first.starts_with(loop.value)) {
+          continue;
+        }
+
+        context.enter(entry.first, track);
+        for (const auto &child : loop.children) {
+          if (!evaluate_step(child, callback, context)) {
+            result = false;
+            context.leave(track);
+
+            // For efficiently breaking from the outer loop too
+            goto evaluate_loop_properties_starts_with_end;
+          }
+        }
+
+        context.leave(track);
+      }
+
+    evaluate_loop_properties_starts_with_end:
+      EVALUATE_END(loop, LoopPropertiesStartsWith);
+    }
+
     case IS_STEP(LoopPropertiesExcept): {
       EVALUATE_BEGIN(loop, LoopPropertiesExcept, target.is_object());
       result = true;
