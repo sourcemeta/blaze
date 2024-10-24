@@ -877,12 +877,15 @@ auto evaluate_step(const sourcemeta::blaze::Template::value_type &step,
       assert(track);
       result = true;
       // Otherwise why emit this instruction?
-      assert(!loop.value.first.empty() || !loop.value.second.empty());
+      assert(!std::get<0>(loop.value).empty() ||
+             !std::get<1>(loop.value).empty());
 
       for (const auto &entry : target.as_object()) {
-        if (std::find(loop.value.first.cbegin(), loop.value.first.cend(),
-                      entry.first) != loop.value.first.cend() ||
-            std::any_of(loop.value.second.cbegin(), loop.value.second.cend(),
+        if (std::find(std::get<0>(loop.value).cbegin(),
+                      std::get<0>(loop.value).cend(),
+                      entry.first) != std::get<0>(loop.value).cend() ||
+            std::any_of(std::get<1>(loop.value).cbegin(),
+                        std::get<1>(loop.value).cend(),
                         [&entry](const auto &pattern) {
                           return std::regex_search(entry.first, pattern.first);
                         })) {
@@ -1073,12 +1076,15 @@ auto evaluate_step(const sourcemeta::blaze::Template::value_type &step,
       EVALUATE_BEGIN(loop, LoopPropertiesExcept, target.is_object());
       result = true;
       // Otherwise why emit this instruction?
-      assert(!loop.value.first.empty() || !loop.value.second.empty());
+      assert(!std::get<0>(loop.value).empty() ||
+             !std::get<1>(loop.value).empty());
 
       for (const auto &entry : target.as_object()) {
-        if (std::find(loop.value.first.cbegin(), loop.value.first.cend(),
-                      entry.first) != loop.value.first.cend() ||
-            std::any_of(loop.value.second.cbegin(), loop.value.second.cend(),
+        if (std::find(std::get<0>(loop.value).cbegin(),
+                      std::get<0>(loop.value).cend(),
+                      entry.first) != std::get<0>(loop.value).cend() ||
+            std::any_of(std::get<1>(loop.value).cbegin(),
+                        std::get<1>(loop.value).cend(),
                         [&entry](const auto &pattern) {
                           return std::regex_search(entry.first, pattern.first);
                         })) {

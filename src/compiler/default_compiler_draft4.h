@@ -715,13 +715,14 @@ auto compiler_draft4_applicator_additionalproperties_with_options(
         context, schema_context, relative_dynamic_context, ValueNone{}));
   }
 
-  ValuePropertyFilter filter;
+  ValueStrings filter_strings;
+  std::vector<ValueRegex> filter_regexes;
 
   if (schema_context.schema.defines("properties") &&
       schema_context.schema.at("properties").is_object()) {
     for (const auto &entry :
          schema_context.schema.at("properties").as_object()) {
-      filter.first.push_back(entry.first);
+      filter_strings.push_back(entry.first);
     }
   }
 
@@ -729,7 +730,7 @@ auto compiler_draft4_applicator_additionalproperties_with_options(
       schema_context.schema.at("patternProperties").is_object()) {
     for (const auto &entry :
          schema_context.schema.at("patternProperties").as_object()) {
-      filter.second.push_back(
+      filter_regexes.push_back(
           {parse_regex(entry.first, schema_context.base,
                        schema_context.relative_pointer.initial().concat(
                            {"patternProperties"})),
@@ -743,14 +744,17 @@ auto compiler_draft4_applicator_additionalproperties_with_options(
     return {};
   }
 
-  if (!filter.first.empty() || !filter.second.empty()) {
+  if (!filter_strings.empty() || !filter_regexes.empty()) {
     if (track_evaluation) {
       children.push_back(make<ControlEvaluate>(
           context, schema_context, relative_dynamic_context, ValuePointer{}));
     }
 
-    return {make<LoopPropertiesExcept>(context, schema_context, dynamic_context,
-                                       std::move(filter), std::move(children))};
+    return {make<LoopPropertiesExcept>(
+        context, schema_context, dynamic_context,
+        ValuePropertyFilter{std::move(filter_strings),
+                            std::move(filter_regexes)},
+        std::move(children))};
 
     // Optimize `additionalProperties` set to just `type`, which is a
     // pretty common pattern
