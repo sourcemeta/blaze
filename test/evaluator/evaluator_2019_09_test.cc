@@ -5438,14 +5438,14 @@ TEST(Evaluator_2019_09, patternProperties_1_exhaustive) {
 
   EVALUATE_WITH_TRACE_EXHAUSTIVE_SUCCESS(schema, instance, 2);
 
-  EVALUATE_TRACE_PRE(0, LoopPropertiesRegex, "/patternProperties",
+  EVALUATE_TRACE_PRE(0, LoopPropertiesStartsWith, "/patternProperties",
                      "#/patternProperties", "");
   EVALUATE_TRACE_PRE_ANNOTATION(1, "/patternProperties", "#/patternProperties",
                                 "");
 
   EVALUATE_TRACE_POST_ANNOTATION(0, "/patternProperties", "#/patternProperties",
                                  "", "foo");
-  EVALUATE_TRACE_POST_SUCCESS(1, LoopPropertiesRegex, "/patternProperties",
+  EVALUATE_TRACE_POST_SUCCESS(1, LoopPropertiesStartsWith, "/patternProperties",
                               "#/patternProperties", "");
 
   EVALUATE_TRACE_POST_DESCRIBE(
@@ -5454,8 +5454,8 @@ TEST(Evaluator_2019_09, patternProperties_1_exhaustive) {
       "property subschema");
   EVALUATE_TRACE_POST_DESCRIBE(
       instance, 1,
-      "The object properties that match the regular expression \"^f\" were "
-      "expected to validate against the defined pattern property subschema");
+      "The object properties that start with the string \"f\" were expected to "
+      "validate against the defined pattern property subschema");
 }
 
 TEST(Evaluator_2019_09, patternProperties_2) {
@@ -5472,7 +5472,7 @@ TEST(Evaluator_2019_09, patternProperties_2) {
 
   EVALUATE_WITH_TRACE_FAST_SUCCESS(schema, instance, 2);
 
-  EVALUATE_TRACE_PRE(0, LoopPropertiesRegex, "/patternProperties",
+  EVALUATE_TRACE_PRE(0, LoopPropertiesStartsWith, "/patternProperties",
                      "#/patternProperties", "");
   EVALUATE_TRACE_PRE(1, AssertionType, "/patternProperties/^f/type",
                      // Note that the caret needs to be URI escaped
@@ -5481,15 +5481,15 @@ TEST(Evaluator_2019_09, patternProperties_2) {
   EVALUATE_TRACE_POST_SUCCESS(0, AssertionType, "/patternProperties/^f/type",
                               // Note that the caret needs to be URI escaped
                               "#/patternProperties/%5Ef/type", "/foo");
-  EVALUATE_TRACE_POST_SUCCESS(1, LoopPropertiesRegex, "/patternProperties",
+  EVALUATE_TRACE_POST_SUCCESS(1, LoopPropertiesStartsWith, "/patternProperties",
                               "#/patternProperties", "");
 
   EVALUATE_TRACE_POST_DESCRIBE(instance, 0,
                                "The value was expected to be of type integer");
   EVALUATE_TRACE_POST_DESCRIBE(
       instance, 1,
-      "The object properties that match the regular expression \"^f\" were "
-      "expected to validate against the defined pattern property subschema");
+      "The object properties that start with the string \"f\" were expected to "
+      "validate against the defined pattern property subschema");
 }
 
 TEST(Evaluator_2019_09, patternProperties_2_exhaustive) {
@@ -5506,7 +5506,7 @@ TEST(Evaluator_2019_09, patternProperties_2_exhaustive) {
 
   EVALUATE_WITH_TRACE_EXHAUSTIVE_SUCCESS(schema, instance, 3);
 
-  EVALUATE_TRACE_PRE(0, LoopPropertiesRegex, "/patternProperties",
+  EVALUATE_TRACE_PRE(0, LoopPropertiesStartsWith, "/patternProperties",
                      "#/patternProperties", "");
   EVALUATE_TRACE_PRE(1, AssertionType, "/patternProperties/^f/type",
                      // Note that the caret needs to be URI escaped
@@ -5519,7 +5519,7 @@ TEST(Evaluator_2019_09, patternProperties_2_exhaustive) {
                               "#/patternProperties/%5Ef/type", "/foo");
   EVALUATE_TRACE_POST_ANNOTATION(1, "/patternProperties", "#/patternProperties",
                                  "", "foo");
-  EVALUATE_TRACE_POST_SUCCESS(2, LoopPropertiesRegex, "/patternProperties",
+  EVALUATE_TRACE_POST_SUCCESS(2, LoopPropertiesStartsWith, "/patternProperties",
                               "#/patternProperties", "");
 
   EVALUATE_TRACE_POST_DESCRIBE(instance, 0,
@@ -5530,8 +5530,8 @@ TEST(Evaluator_2019_09, patternProperties_2_exhaustive) {
       "property subschema");
   EVALUATE_TRACE_POST_DESCRIBE(
       instance, 2,
-      "The object properties that match the regular expression \"^f\" were "
-      "expected to validate against the defined pattern property subschema");
+      "The object properties that start with the string \"f\" were expected to "
+      "validate against the defined pattern property subschema");
 }
 
 TEST(Evaluator_2019_09, patternProperties_3) {
@@ -5549,7 +5549,7 @@ TEST(Evaluator_2019_09, patternProperties_3) {
 
   EVALUATE_WITH_TRACE_FAST_SUCCESS(schema, instance, 4);
 
-  EVALUATE_TRACE_PRE(0, LoopPropertiesRegex, "/patternProperties",
+  EVALUATE_TRACE_PRE(0, LoopPropertiesStartsWith, "/patternProperties",
                      "#/patternProperties", "");
   EVALUATE_TRACE_PRE(1, AssertionType, "/patternProperties/^f/type",
                      // Note that the caret needs to be URI escaped
@@ -5562,7 +5562,7 @@ TEST(Evaluator_2019_09, patternProperties_3) {
   EVALUATE_TRACE_POST_SUCCESS(0, AssertionType, "/patternProperties/^f/type",
                               // Note that the caret needs to be URI escaped
                               "#/patternProperties/%5Ef/type", "/foo");
-  EVALUATE_TRACE_POST_SUCCESS(1, LoopPropertiesRegex, "/patternProperties",
+  EVALUATE_TRACE_POST_SUCCESS(1, LoopPropertiesStartsWith, "/patternProperties",
                               "#/patternProperties", "");
   EVALUATE_TRACE_POST_SUCCESS(2, AssertionType, "/patternProperties/o$/type",
                               "#/patternProperties/o$/type", "/foo");
@@ -5573,8 +5573,8 @@ TEST(Evaluator_2019_09, patternProperties_3) {
                                "The value was expected to be of type integer");
   EVALUATE_TRACE_POST_DESCRIBE(
       instance, 1,
-      "The object properties that match the regular expression \"^f\" were "
-      "expected to validate against the defined pattern property subschema");
+      "The object properties that start with the string \"f\" were expected to "
+      "validate against the defined pattern property subschema");
   EVALUATE_TRACE_POST_DESCRIBE(instance, 2,
                                "The value was expected to be of type integer");
   EVALUATE_TRACE_POST_DESCRIBE(
@@ -5598,7 +5598,7 @@ TEST(Evaluator_2019_09, patternProperties_3_exhaustive) {
 
   EVALUATE_WITH_TRACE_EXHAUSTIVE_SUCCESS(schema, instance, 6);
 
-  EVALUATE_TRACE_PRE(0, LoopPropertiesRegex, "/patternProperties",
+  EVALUATE_TRACE_PRE(0, LoopPropertiesStartsWith, "/patternProperties",
                      "#/patternProperties", "");
   EVALUATE_TRACE_PRE(1, AssertionType, "/patternProperties/^f/type",
                      // Note that the caret needs to be URI escaped
@@ -5617,7 +5617,7 @@ TEST(Evaluator_2019_09, patternProperties_3_exhaustive) {
                               "#/patternProperties/%5Ef/type", "/foo");
   EVALUATE_TRACE_POST_ANNOTATION(1, "/patternProperties", "#/patternProperties",
                                  "", "foo");
-  EVALUATE_TRACE_POST_SUCCESS(2, LoopPropertiesRegex, "/patternProperties",
+  EVALUATE_TRACE_POST_SUCCESS(2, LoopPropertiesStartsWith, "/patternProperties",
                               "#/patternProperties", "");
   EVALUATE_TRACE_POST_SUCCESS(3, AssertionType, "/patternProperties/o$/type",
                               "#/patternProperties/o$/type", "/foo");
@@ -5634,8 +5634,8 @@ TEST(Evaluator_2019_09, patternProperties_3_exhaustive) {
       "property subschema");
   EVALUATE_TRACE_POST_DESCRIBE(
       instance, 2,
-      "The object properties that match the regular expression \"^f\" were "
-      "expected to validate against the defined pattern property subschema");
+      "The object properties that start with the string \"f\" were expected to "
+      "validate against the defined pattern property subschema");
   EVALUATE_TRACE_POST_DESCRIBE(instance, 3,
                                "The value was expected to be of type integer");
   EVALUATE_TRACE_POST_DESCRIBE(
@@ -5666,9 +5666,9 @@ TEST(Evaluator_2019_09, patternProperties_4) {
 
   EVALUATE_WITH_TRACE_FAST_SUCCESS(schema, instance, 3);
 
-  EVALUATE_TRACE_PRE(0, LoopPropertiesRegex, "/patternProperties",
+  EVALUATE_TRACE_PRE(0, LoopPropertiesStartsWith, "/patternProperties",
                      "#/patternProperties", "");
-  EVALUATE_TRACE_PRE(1, LoopPropertiesRegex,
+  EVALUATE_TRACE_PRE(1, LoopPropertiesStartsWith,
                      "/patternProperties/^f/patternProperties",
                      "#/patternProperties/%5Ef/patternProperties", "/foo");
   EVALUATE_TRACE_PRE(
@@ -5679,21 +5679,21 @@ TEST(Evaluator_2019_09, patternProperties_4) {
       0, AssertionType, "/patternProperties/^f/patternProperties/^b/type",
       "#/patternProperties/%5Ef/patternProperties/%5Eb/type", "/foo/bar");
   EVALUATE_TRACE_POST_SUCCESS(
-      1, LoopPropertiesRegex, "/patternProperties/^f/patternProperties",
+      1, LoopPropertiesStartsWith, "/patternProperties/^f/patternProperties",
       "#/patternProperties/%5Ef/patternProperties", "/foo");
-  EVALUATE_TRACE_POST_SUCCESS(2, LoopPropertiesRegex, "/patternProperties",
+  EVALUATE_TRACE_POST_SUCCESS(2, LoopPropertiesStartsWith, "/patternProperties",
                               "#/patternProperties", "");
 
   EVALUATE_TRACE_POST_DESCRIBE(instance, 0,
                                "The value was expected to be of type integer");
   EVALUATE_TRACE_POST_DESCRIBE(
       instance, 1,
-      "The object properties that match the regular expression \"^b\" were "
-      "expected to validate against the defined pattern property subschema");
+      "The object properties that start with the string \"b\" were expected to "
+      "validate against the defined pattern property subschema");
   EVALUATE_TRACE_POST_DESCRIBE(
       instance, 2,
-      "The object properties that match the regular expression \"^f\" were "
-      "expected to validate against the defined pattern property subschema");
+      "The object properties that start with the string \"f\" were expected to "
+      "validate against the defined pattern property subschema");
 }
 
 TEST(Evaluator_2019_09, patternProperties_4_exhaustive) {
@@ -5714,9 +5714,9 @@ TEST(Evaluator_2019_09, patternProperties_4_exhaustive) {
 
   EVALUATE_WITH_TRACE_EXHAUSTIVE_SUCCESS(schema, instance, 5);
 
-  EVALUATE_TRACE_PRE(0, LoopPropertiesRegex, "/patternProperties",
+  EVALUATE_TRACE_PRE(0, LoopPropertiesStartsWith, "/patternProperties",
                      "#/patternProperties", "");
-  EVALUATE_TRACE_PRE(1, LoopPropertiesRegex,
+  EVALUATE_TRACE_PRE(1, LoopPropertiesStartsWith,
                      "/patternProperties/^f/patternProperties",
                      "#/patternProperties/%5Ef/patternProperties", "/foo");
   EVALUATE_TRACE_PRE(
@@ -5735,11 +5735,11 @@ TEST(Evaluator_2019_09, patternProperties_4_exhaustive) {
                                  "#/patternProperties/%5Ef/patternProperties",
                                  "/foo", "bar");
   EVALUATE_TRACE_POST_SUCCESS(
-      2, LoopPropertiesRegex, "/patternProperties/^f/patternProperties",
+      2, LoopPropertiesStartsWith, "/patternProperties/^f/patternProperties",
       "#/patternProperties/%5Ef/patternProperties", "/foo");
   EVALUATE_TRACE_POST_ANNOTATION(3, "/patternProperties", "#/patternProperties",
                                  "", "foo");
-  EVALUATE_TRACE_POST_SUCCESS(4, LoopPropertiesRegex, "/patternProperties",
+  EVALUATE_TRACE_POST_SUCCESS(4, LoopPropertiesStartsWith, "/patternProperties",
                               "#/patternProperties", "");
 
   EVALUATE_TRACE_POST_DESCRIBE(instance, 0,
@@ -5750,16 +5750,16 @@ TEST(Evaluator_2019_09, patternProperties_4_exhaustive) {
       "property subschema");
   EVALUATE_TRACE_POST_DESCRIBE(
       instance, 2,
-      "The object properties that match the regular expression \"^b\" were "
-      "expected to validate against the defined pattern property subschema");
+      "The object properties that start with the string \"b\" were expected to "
+      "validate against the defined pattern property subschema");
   EVALUATE_TRACE_POST_DESCRIBE(
       instance, 3,
       "The object property \"foo\" successfully validated against its pattern "
       "property subschema");
   EVALUATE_TRACE_POST_DESCRIBE(
       instance, 4,
-      "The object properties that match the regular expression \"^f\" were "
-      "expected to validate against the defined pattern property subschema");
+      "The object properties that start with the string \"f\" were expected to "
+      "validate against the defined pattern property subschema");
 }
 
 TEST(Evaluator_2019_09, patternProperties_5) {
