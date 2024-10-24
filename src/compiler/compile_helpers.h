@@ -45,7 +45,8 @@ auto make(const Context &context, const SchemaContext &schema_context,
       schema_resource_id(context, schema_context.base.recompose()),
       context.uses_dynamic_scopes,
       context.mode != Mode::FastValidation ||
-          context.uses_unevaluated_properties || context.uses_unevaluated_items,
+          !context.unevaluated_properties_schemas.empty() ||
+          !context.unevaluated_items_schemas.empty(),
       value};
 }
 
@@ -66,7 +67,8 @@ auto make(const Context &context, const SchemaContext &schema_context,
       schema_resource_id(context, schema_context.base.recompose()),
       context.uses_dynamic_scopes,
       context.mode != Mode::FastValidation ||
-          context.uses_unevaluated_properties || context.uses_unevaluated_items,
+          !context.unevaluated_properties_schemas.empty() ||
+          !context.unevaluated_items_schemas.empty(),
       std::move(value),
       std::move(children)};
 }
@@ -110,14 +112,20 @@ unsigned_integer_property(const sourcemeta::jsontoolkit::JSON &document,
   return unsigned_integer_property(document, property).value_or(otherwise);
 }
 
-inline auto walk_subschemas(const Context &context,
-                            const SchemaContext &schema_context,
-                            const DynamicContext &dynamic_context) -> auto {
+inline auto static_frame_entry(const Context &context,
+                               const SchemaContext &schema_context)
+    -> const sourcemeta::jsontoolkit::ReferenceFrameEntry & {
   const auto type{sourcemeta::jsontoolkit::ReferenceType::Static};
   const auto current{
       to_uri(schema_context.relative_pointer, schema_context.base).recompose()};
   assert(context.frame.contains({type, current}));
-  const auto &entry{context.frame.at({type, current})};
+  return context.frame.at({type, current});
+}
+
+inline auto walk_subschemas(const Context &context,
+                            const SchemaContext &schema_context,
+                            const DynamicContext &dynamic_context) -> auto {
+  const auto &entry{static_frame_entry(context, schema_context)};
   return sourcemeta::jsontoolkit::SchemaIterator{
       schema_context.schema.at(dynamic_context.keyword), context.walker,
       context.resolver, entry.dialect};

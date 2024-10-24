@@ -117,8 +117,9 @@ auto compile(const sourcemeta::jsontoolkit::JSON &schema,
       {},
       {}};
 
-  bool uses_unevaluated_properties{false};
-  bool uses_unevaluated_items{false};
+  std::set<sourcemeta::jsontoolkit::Pointer> unevaluated_properties_schemas;
+  std::set<sourcemeta::jsontoolkit::Pointer> unevaluated_items_schemas;
+
   if (schema_context.vocabularies.contains(
           "https://json-schema.org/draft/2019-09/vocab/core") ||
       schema_context.vocabularies.contains(
@@ -138,17 +139,54 @@ auto compile(const sourcemeta::jsontoolkit::JSON &schema,
         continue;
       }
 
-      if (!uses_unevaluated_properties &&
-          subschema.defines("unevaluatedProperties") &&
+      if (subschema.defines("unevaluatedProperties") &&
           sourcemeta::jsontoolkit::is_schema(
               subschema.at("unevaluatedProperties"))) {
-        uses_unevaluated_properties = true;
+
+        // No need to consider `unevaluatedProperties` if it has a sibling
+        // `additionalProperties`. By definition, nothing could remain
+        // unevaluated.
+
+        if (entry.vocabularies.contains(
+                "https://json-schema.org/draft/2019-09/vocab/applicator") &&
+            subschema.defines("additionalProperties")) {
+          continue;
+        }
+
+        if (entry.vocabularies.contains(
+                "https://json-schema.org/draft/2020-12/vocab/applicator") &&
+            subschema.defines("additionalProperties")) {
+          continue;
+        }
+
+        unevaluated_properties_schemas.insert(entry.pointer);
       }
 
-      if (!uses_unevaluated_items && subschema.defines("unevaluatedItems") &&
+      if (subschema.defines("unevaluatedItems") &&
           sourcemeta::jsontoolkit::is_schema(
               subschema.at("unevaluatedItems"))) {
-        uses_unevaluated_items = true;
+
+        // No need to consider `unevaluatedItems` if it has a
+        // sibling `items` schema (or its older equivalents).
+        // By definition, nothing could remain unevaluated.
+
+        if (entry.vocabularies.contains(
+                "https://json-schema.org/draft/2020-12/vocab/applicator") &&
+            subschema.defines("items")) {
+          continue;
+        } else if (entry.vocabularies.contains("https://json-schema.org/draft/"
+                                               "2019-09/vocab/applicator")) {
+          if (subschema.defines("items") &&
+              sourcemeta::jsontoolkit::is_schema(subschema.at("items"))) {
+            continue;
+          } else if (subschema.defines("items") &&
+                     subschema.at("items").is_array() &&
+                     subschema.defines("additionalItems")) {
+            continue;
+          }
+        }
+
+        unevaluated_items_schemas.insert(entry.pointer);
       }
     }
   }
@@ -178,8 +216,8 @@ auto compile(const sourcemeta::jsontoolkit::JSON &schema,
                         compiler,
                         mode,
                         uses_dynamic_scopes,
-                        uses_unevaluated_properties,
-                        uses_unevaluated_items};
+                        unevaluated_properties_schemas,
+                        unevaluated_items_schemas};
   const DynamicContext dynamic_context{relative_dynamic_context};
   Template compiler_template;
 

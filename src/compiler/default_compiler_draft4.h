@@ -35,11 +35,8 @@ auto compiler_draft4_core_ref(const Context &context,
                               const DynamicContext &dynamic_context)
     -> Template {
   // Determine the label
+  const auto &entry{static_frame_entry(context, schema_context)};
   const auto type{sourcemeta::jsontoolkit::ReferenceType::Static};
-  const auto current{
-      to_uri(schema_context.relative_pointer, schema_context.base).recompose()};
-  assert(context.frame.contains({type, current}));
-  const auto &entry{context.frame.at({type, current})};
   if (!context.references.contains({type, entry.pointer})) {
     assert(schema_context.schema.at(dynamic_context.keyword).is_string());
     throw sourcemeta::jsontoolkit::SchemaReferenceError(
@@ -343,9 +340,10 @@ auto compiler_draft4_applicator_anyof(const Context &context,
                     index)})));
   }
 
-  const auto requires_exhaustive{context.mode == Mode::Exhaustive ||
-                                 context.uses_unevaluated_properties ||
-                                 context.uses_unevaluated_items};
+  const auto requires_exhaustive{
+      context.mode == Mode::Exhaustive ||
+      !context.unevaluated_properties_schemas.empty() ||
+      !context.unevaluated_items_schemas.empty()};
 
   return {make<LogicalOr>(context, schema_context, dynamic_context,
                           ValueBoolean{requires_exhaustive},
@@ -370,9 +368,10 @@ auto compiler_draft4_applicator_oneof(const Context &context,
                     index)})));
   }
 
-  const auto requires_exhaustive{context.mode == Mode::Exhaustive ||
-                                 context.uses_unevaluated_properties ||
-                                 context.uses_unevaluated_items};
+  const auto requires_exhaustive{
+      context.mode == Mode::Exhaustive ||
+      !context.unevaluated_properties_schemas.empty() ||
+      !context.unevaluated_items_schemas.empty()};
 
   return {make<LogicalXor>(context, schema_context, dynamic_context,
                            ValueBoolean{requires_exhaustive},
@@ -873,8 +872,8 @@ auto compiler_draft4_applicator_not(const Context &context,
   // evaluation if we really need it. If the "not" subschema
   // does not define applicators, then that's an easy case
   // we can skip
-  if (subschemas > 0 &&
-      (context.uses_unevaluated_properties || context.uses_unevaluated_items)) {
+  if (subschemas > 0 && (!context.unevaluated_properties_schemas.empty() ||
+                         !context.unevaluated_items_schemas.empty())) {
     return {make<LogicalNotEvaluate>(context, schema_context, dynamic_context,
                                      ValueNone{}, std::move(children))};
   } else {
