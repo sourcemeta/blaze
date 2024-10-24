@@ -3834,7 +3834,7 @@ TEST(Evaluator_2019_09, unevaluatedItems_4) {
 
   EVALUATE_WITH_TRACE_FAST_SUCCESS(schema, instance, 3);
 
-  EVALUATE_TRACE_PRE(0, AssertionArrayPrefix, "/items", "#/items", "");
+  EVALUATE_TRACE_PRE(0, AssertionArrayPrefixEvaluate, "/items", "#/items", "");
   EVALUATE_TRACE_PRE(1, AssertionTypeStrict, "/items/0/type", "#/items/0/type",
                      "/0");
   EVALUATE_TRACE_PRE(2, LoopItemsUnevaluated, "/unevaluatedItems",
@@ -3842,7 +3842,8 @@ TEST(Evaluator_2019_09, unevaluatedItems_4) {
 
   EVALUATE_TRACE_POST_SUCCESS(0, AssertionTypeStrict, "/items/0/type",
                               "#/items/0/type", "/0");
-  EVALUATE_TRACE_POST_SUCCESS(1, AssertionArrayPrefix, "/items", "#/items", "");
+  EVALUATE_TRACE_POST_SUCCESS(1, AssertionArrayPrefixEvaluate, "/items",
+                              "#/items", "");
   EVALUATE_TRACE_POST_SUCCESS(2, LoopItemsUnevaluated, "/unevaluatedItems",
                               "#/unevaluatedItems", "");
 
@@ -3871,7 +3872,7 @@ TEST(Evaluator_2019_09, unevaluatedItems_4_exhaustive) {
 
   EVALUATE_WITH_TRACE_EXHAUSTIVE_SUCCESS(schema, instance, 4);
 
-  EVALUATE_TRACE_PRE(0, AssertionArrayPrefix, "/items", "#/items", "");
+  EVALUATE_TRACE_PRE(0, AssertionArrayPrefixEvaluate, "/items", "#/items", "");
   EVALUATE_TRACE_PRE(1, AssertionTypeStrict, "/items/0/type", "#/items/0/type",
                      "/0");
   EVALUATE_TRACE_PRE_ANNOTATION(2, "/items", "#/items", "");
@@ -3881,7 +3882,8 @@ TEST(Evaluator_2019_09, unevaluatedItems_4_exhaustive) {
   EVALUATE_TRACE_POST_SUCCESS(0, AssertionTypeStrict, "/items/0/type",
                               "#/items/0/type", "/0");
   EVALUATE_TRACE_POST_ANNOTATION(1, "/items", "#/items", "", 0);
-  EVALUATE_TRACE_POST_SUCCESS(2, AssertionArrayPrefix, "/items", "#/items", "");
+  EVALUATE_TRACE_POST_SUCCESS(2, AssertionArrayPrefixEvaluate, "/items",
+                              "#/items", "");
   EVALUATE_TRACE_POST_SUCCESS(3, LoopItemsUnevaluated, "/unevaluatedItems",
                               "#/unevaluatedItems", "");
 
@@ -3914,7 +3916,7 @@ TEST(Evaluator_2019_09, unevaluatedItems_5) {
 
   EVALUATE_WITH_TRACE_FAST_SUCCESS(schema, instance, 3);
 
-  EVALUATE_TRACE_PRE(0, AssertionArrayPrefix, "/items", "#/items", "");
+  EVALUATE_TRACE_PRE(0, AssertionArrayPrefixEvaluate, "/items", "#/items", "");
   EVALUATE_TRACE_PRE(1, AssertionTypeStrict, "/items/0/type", "#/items/0/type",
                      "/0");
   EVALUATE_TRACE_PRE(2, LoopItemsUnevaluated, "/unevaluatedItems",
@@ -3922,7 +3924,8 @@ TEST(Evaluator_2019_09, unevaluatedItems_5) {
 
   EVALUATE_TRACE_POST_SUCCESS(0, AssertionTypeStrict, "/items/0/type",
                               "#/items/0/type", "/0");
-  EVALUATE_TRACE_POST_SUCCESS(1, AssertionArrayPrefix, "/items", "#/items", "");
+  EVALUATE_TRACE_POST_SUCCESS(1, AssertionArrayPrefixEvaluate, "/items",
+                              "#/items", "");
   EVALUATE_TRACE_POST_SUCCESS(2, LoopItemsUnevaluated, "/unevaluatedItems",
                               "#/unevaluatedItems", "");
 
@@ -3951,7 +3954,7 @@ TEST(Evaluator_2019_09, unevaluatedItems_5_exhaustive) {
 
   EVALUATE_WITH_TRACE_EXHAUSTIVE_SUCCESS(schema, instance, 5);
 
-  EVALUATE_TRACE_PRE(0, AssertionArrayPrefix, "/items", "#/items", "");
+  EVALUATE_TRACE_PRE(0, AssertionArrayPrefixEvaluate, "/items", "#/items", "");
   EVALUATE_TRACE_PRE(1, AssertionTypeStrict, "/items/0/type", "#/items/0/type",
                      "/0");
   EVALUATE_TRACE_PRE_ANNOTATION(2, "/items", "#/items", "");
@@ -3963,7 +3966,8 @@ TEST(Evaluator_2019_09, unevaluatedItems_5_exhaustive) {
                               "#/items/0/type", "/0");
   EVALUATE_TRACE_POST_ANNOTATION(1, "/items", "#/items", "", 0);
   EVALUATE_TRACE_POST_ANNOTATION(2, "/items", "#/items", "", true);
-  EVALUATE_TRACE_POST_SUCCESS(3, AssertionArrayPrefix, "/items", "#/items", "");
+  EVALUATE_TRACE_POST_SUCCESS(3, AssertionArrayPrefixEvaluate, "/items",
+                              "#/items", "");
   EVALUATE_TRACE_POST_SUCCESS(4, LoopItemsUnevaluated, "/unevaluatedItems",
                               "#/unevaluatedItems", "");
 
@@ -3998,7 +4002,7 @@ TEST(Evaluator_2019_09, unevaluatedItems_6) {
 
   EVALUATE_WITH_TRACE_FAST_SUCCESS(schema, instance, 4);
 
-  EVALUATE_TRACE_PRE(0, AssertionArrayPrefix, "/items", "#/items", "");
+  EVALUATE_TRACE_PRE(0, AssertionArrayPrefixEvaluate, "/items", "#/items", "");
   EVALUATE_TRACE_PRE(1, AssertionTypeStrict, "/items/0/type", "#/items/0/type",
                      "/0");
   EVALUATE_TRACE_PRE(2, LoopItemsUnevaluated, "/unevaluatedItems",
@@ -4008,7 +4012,8 @@ TEST(Evaluator_2019_09, unevaluatedItems_6) {
 
   EVALUATE_TRACE_POST_SUCCESS(0, AssertionTypeStrict, "/items/0/type",
                               "#/items/0/type", "/0");
-  EVALUATE_TRACE_POST_SUCCESS(1, AssertionArrayPrefix, "/items", "#/items", "");
+  EVALUATE_TRACE_POST_SUCCESS(1, AssertionArrayPrefixEvaluate, "/items",
+                              "#/items", "");
   EVALUATE_TRACE_POST_SUCCESS(2, AssertionTypeStrict, "/unevaluatedItems/type",
                               "#/unevaluatedItems/type", "/1");
   EVALUATE_TRACE_POST_SUCCESS(3, LoopItemsUnevaluated, "/unevaluatedItems",
@@ -4041,7 +4046,7 @@ TEST(Evaluator_2019_09, unevaluatedItems_6_exhaustive) {
 
   EVALUATE_WITH_TRACE_EXHAUSTIVE_SUCCESS(schema, instance, 6);
 
-  EVALUATE_TRACE_PRE(0, AssertionArrayPrefix, "/items", "#/items", "");
+  EVALUATE_TRACE_PRE(0, AssertionArrayPrefixEvaluate, "/items", "#/items", "");
   EVALUATE_TRACE_PRE(1, AssertionTypeStrict, "/items/0/type", "#/items/0/type",
                      "/0");
   EVALUATE_TRACE_PRE_ANNOTATION(2, "/items", "#/items", "");
@@ -4055,7 +4060,8 @@ TEST(Evaluator_2019_09, unevaluatedItems_6_exhaustive) {
   EVALUATE_TRACE_POST_SUCCESS(0, AssertionTypeStrict, "/items/0/type",
                               "#/items/0/type", "/0");
   EVALUATE_TRACE_POST_ANNOTATION(1, "/items", "#/items", "", 0);
-  EVALUATE_TRACE_POST_SUCCESS(2, AssertionArrayPrefix, "/items", "#/items", "");
+  EVALUATE_TRACE_POST_SUCCESS(2, AssertionArrayPrefixEvaluate, "/items",
+                              "#/items", "");
   EVALUATE_TRACE_POST_SUCCESS(3, AssertionTypeStrict, "/unevaluatedItems/type",
                               "#/unevaluatedItems/type", "/1");
   EVALUATE_TRACE_POST_ANNOTATION(4, "/unevaluatedItems", "#/unevaluatedItems",
@@ -4101,7 +4107,7 @@ TEST(Evaluator_2019_09, unevaluatedItems_7) {
   EVALUATE_WITH_TRACE_FAST_SUCCESS(schema, instance, 5);
 
   EVALUATE_TRACE_PRE(0, LogicalAnd, "/allOf", "#/allOf", "");
-  EVALUATE_TRACE_PRE(1, AssertionArrayPrefix, "/allOf/0/items",
+  EVALUATE_TRACE_PRE(1, AssertionArrayPrefixEvaluate, "/allOf/0/items",
                      "#/allOf/0/items", "");
   EVALUATE_TRACE_PRE(2, AssertionTypeStrict, "/allOf/0/items/0/type",
                      "#/allOf/0/items/0/type", "/0");
@@ -4112,7 +4118,7 @@ TEST(Evaluator_2019_09, unevaluatedItems_7) {
 
   EVALUATE_TRACE_POST_SUCCESS(0, AssertionTypeStrict, "/allOf/0/items/0/type",
                               "#/allOf/0/items/0/type", "/0");
-  EVALUATE_TRACE_POST_SUCCESS(1, AssertionArrayPrefix, "/allOf/0/items",
+  EVALUATE_TRACE_POST_SUCCESS(1, AssertionArrayPrefixEvaluate, "/allOf/0/items",
                               "#/allOf/0/items", "");
   EVALUATE_TRACE_POST_SUCCESS(2, LogicalAnd, "/allOf", "#/allOf", "");
   EVALUATE_TRACE_POST_SUCCESS(3, AssertionTypeStrict, "/unevaluatedItems/type",
@@ -4153,7 +4159,7 @@ TEST(Evaluator_2019_09, unevaluatedItems_7_exhaustive) {
   EVALUATE_WITH_TRACE_EXHAUSTIVE_SUCCESS(schema, instance, 7);
 
   EVALUATE_TRACE_PRE(0, LogicalAnd, "/allOf", "#/allOf", "");
-  EVALUATE_TRACE_PRE(1, AssertionArrayPrefix, "/allOf/0/items",
+  EVALUATE_TRACE_PRE(1, AssertionArrayPrefixEvaluate, "/allOf/0/items",
                      "#/allOf/0/items", "");
   EVALUATE_TRACE_PRE(2, AssertionTypeStrict, "/allOf/0/items/0/type",
                      "#/allOf/0/items/0/type", "/0");
@@ -4168,7 +4174,7 @@ TEST(Evaluator_2019_09, unevaluatedItems_7_exhaustive) {
   EVALUATE_TRACE_POST_SUCCESS(0, AssertionTypeStrict, "/allOf/0/items/0/type",
                               "#/allOf/0/items/0/type", "/0");
   EVALUATE_TRACE_POST_ANNOTATION(1, "/allOf/0/items", "#/allOf/0/items", "", 0);
-  EVALUATE_TRACE_POST_SUCCESS(2, AssertionArrayPrefix, "/allOf/0/items",
+  EVALUATE_TRACE_POST_SUCCESS(2, AssertionArrayPrefixEvaluate, "/allOf/0/items",
                               "#/allOf/0/items", "");
   EVALUATE_TRACE_POST_SUCCESS(3, LogicalAnd, "/allOf", "#/allOf", "");
   EVALUATE_TRACE_POST_SUCCESS(4, AssertionTypeStrict, "/unevaluatedItems/type",
@@ -4219,7 +4225,7 @@ TEST(Evaluator_2019_09, unevaluatedItems_8) {
   EVALUATE_WITH_TRACE_FAST_FAILURE(schema, instance, 5);
 
   EVALUATE_TRACE_PRE(0, LogicalAnd, "/allOf", "#/allOf", "");
-  EVALUATE_TRACE_PRE(1, AssertionArrayPrefix, "/allOf/0/items",
+  EVALUATE_TRACE_PRE(1, AssertionArrayPrefixEvaluate, "/allOf/0/items",
                      "#/allOf/0/items", "");
   EVALUATE_TRACE_PRE(2, AssertionTypeStrict, "/allOf/0/items/0/type",
                      "#/allOf/0/items/0/type", "/0");
@@ -4230,7 +4236,7 @@ TEST(Evaluator_2019_09, unevaluatedItems_8) {
 
   EVALUATE_TRACE_POST_SUCCESS(0, AssertionTypeStrict, "/allOf/0/items/0/type",
                               "#/allOf/0/items/0/type", "/0");
-  EVALUATE_TRACE_POST_SUCCESS(1, AssertionArrayPrefix, "/allOf/0/items",
+  EVALUATE_TRACE_POST_SUCCESS(1, AssertionArrayPrefixEvaluate, "/allOf/0/items",
                               "#/allOf/0/items", "");
   EVALUATE_TRACE_POST_SUCCESS(2, LogicalAnd, "/allOf", "#/allOf", "");
   EVALUATE_TRACE_POST_FAILURE(3, AssertionTypeStrict, "/unevaluatedItems/type",
@@ -4272,7 +4278,7 @@ TEST(Evaluator_2019_09, unevaluatedItems_8_exhaustive) {
   EVALUATE_WITH_TRACE_EXHAUSTIVE_FAILURE(schema, instance, 6);
 
   EVALUATE_TRACE_PRE(0, LogicalAnd, "/allOf", "#/allOf", "");
-  EVALUATE_TRACE_PRE(1, AssertionArrayPrefix, "/allOf/0/items",
+  EVALUATE_TRACE_PRE(1, AssertionArrayPrefixEvaluate, "/allOf/0/items",
                      "#/allOf/0/items", "");
   EVALUATE_TRACE_PRE(2, AssertionTypeStrict, "/allOf/0/items/0/type",
                      "#/allOf/0/items/0/type", "/0");
@@ -4285,7 +4291,7 @@ TEST(Evaluator_2019_09, unevaluatedItems_8_exhaustive) {
   EVALUATE_TRACE_POST_SUCCESS(0, AssertionTypeStrict, "/allOf/0/items/0/type",
                               "#/allOf/0/items/0/type", "/0");
   EVALUATE_TRACE_POST_ANNOTATION(1, "/allOf/0/items", "#/allOf/0/items", "", 0);
-  EVALUATE_TRACE_POST_SUCCESS(2, AssertionArrayPrefix, "/allOf/0/items",
+  EVALUATE_TRACE_POST_SUCCESS(2, AssertionArrayPrefixEvaluate, "/allOf/0/items",
                               "#/allOf/0/items", "");
   EVALUATE_TRACE_POST_SUCCESS(3, LogicalAnd, "/allOf", "#/allOf", "");
   EVALUATE_TRACE_POST_FAILURE(4, AssertionTypeStrict, "/unevaluatedItems/type",

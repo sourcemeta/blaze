@@ -1445,6 +1445,24 @@ struct DescribeVisitor {
     return message.str();
   }
 
+  auto operator()(const AssertionArrayPrefixEvaluate &step) const
+      -> std::string {
+    assert(this->keyword == "items" || this->keyword == "prefixItems");
+    assert(!step.children.empty());
+    assert(this->target.is_array());
+
+    std::ostringstream message;
+    message << "The first ";
+    if (step.children.size() <= 2) {
+      message << "item of the array value was";
+    } else {
+      message << (step.children.size() - 1) << " items of the array value were";
+    }
+
+    message << " expected to validate against the corresponding subschemas";
+    return message.str();
+  }
+
   auto operator()(const LoopPropertiesMatch &step) const -> std::string {
     assert(!step.children.empty());
     assert(this->target.is_object());

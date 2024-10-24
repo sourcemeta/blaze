@@ -46,6 +46,7 @@ struct AssertionPropertyTypeEvaluate;
 struct AssertionPropertyTypeStrict;
 struct AssertionPropertyTypeStrictEvaluate;
 struct AssertionArrayPrefix;
+struct AssertionArrayPrefixEvaluate;
 struct AnnotationEmit;
 struct AnnotationToParent;
 struct AnnotationBasenameToParent;
@@ -97,17 +98,18 @@ using Template = std::vector<std::variant<
     AssertionUnique, AssertionDivisible, AssertionStringType,
     AssertionPropertyType, AssertionPropertyTypeEvaluate,
     AssertionPropertyTypeStrict, AssertionPropertyTypeStrictEvaluate,
-    AssertionArrayPrefix, AnnotationEmit, AnnotationToParent,
-    AnnotationBasenameToParent, LogicalNot, LogicalNotEvaluate, LogicalOr,
-    LogicalAnd, LogicalXor, LogicalCondition, LogicalWhenType,
-    LogicalWhenDefines, LogicalWhenArraySizeGreater, LoopPropertiesUnevaluated,
-    LoopPropertiesUnevaluatedExcept, LoopItemsUnevaluated, LoopPropertiesMatch,
-    LoopProperties, LoopPropertiesEvaluate, LoopPropertiesRegex,
-    LoopPropertiesStartsWith, LoopPropertiesExcept, LoopPropertiesType,
-    LoopPropertiesTypeEvaluate, LoopPropertiesTypeStrict,
-    LoopPropertiesTypeStrictEvaluate, LoopKeys, LoopItems, LoopContains,
-    ControlGroup, ControlGroupWhenDefines, ControlLabel, ControlMark,
-    ControlEvaluate, ControlJump, ControlDynamicAnchorJump>>;
+    AssertionArrayPrefix, AssertionArrayPrefixEvaluate, AnnotationEmit,
+    AnnotationToParent, AnnotationBasenameToParent, LogicalNot,
+    LogicalNotEvaluate, LogicalOr, LogicalAnd, LogicalXor, LogicalCondition,
+    LogicalWhenType, LogicalWhenDefines, LogicalWhenArraySizeGreater,
+    LoopPropertiesUnevaluated, LoopPropertiesUnevaluatedExcept,
+    LoopItemsUnevaluated, LoopPropertiesMatch, LoopProperties,
+    LoopPropertiesEvaluate, LoopPropertiesRegex, LoopPropertiesStartsWith,
+    LoopPropertiesExcept, LoopPropertiesType, LoopPropertiesTypeEvaluate,
+    LoopPropertiesTypeStrict, LoopPropertiesTypeStrictEvaluate, LoopKeys,
+    LoopItems, LoopContains, ControlGroup, ControlGroupWhenDefines,
+    ControlLabel, ControlMark, ControlEvaluate, ControlJump,
+    ControlDynamicAnchorJump>>;
 
 #if !defined(DOXYGEN)
 // For fast internal instruction dispatching. It must stay
@@ -145,6 +147,7 @@ enum class TemplateIndex : std::uint8_t {
   AssertionPropertyTypeStrict,
   AssertionPropertyTypeStrictEvaluate,
   AssertionArrayPrefix,
+  AssertionArrayPrefixEvaluate,
   AnnotationEmit,
   AnnotationToParent,
   AnnotationBasenameToParent,
@@ -371,7 +374,12 @@ DEFINE_STEP_WITH_VALUE(Assertion, PropertyTypeStrictEvaluate, ValueType)
 /// @ingroup evaluator_instructions
 /// @brief Represents a compiler assertion step that applies substeps to the
 /// beginning of an array
-DEFINE_STEP_APPLICATOR(Assertion, ArrayPrefix, ValueBoolean)
+DEFINE_STEP_APPLICATOR(Assertion, ArrayPrefix, ValueNone)
+
+/// @ingroup evaluator_instructions
+/// @brief Represents a compiler assertion step that applies substeps to the
+/// beginning of an array and marks evaluation
+DEFINE_STEP_APPLICATOR(Assertion, ArrayPrefixEvaluate, ValueNone)
 
 /// @ingroup evaluator_instructions
 /// @brief Represents a compiler step that emits an annotation

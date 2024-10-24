@@ -968,9 +968,14 @@ auto compiler_draft4_applicator_items_array(
                                         relative_dynamic_context, ValueNone{},
                                         std::move(tail)));
 
-  return {make<AssertionArrayPrefix>(context, schema_context, dynamic_context,
-                                     ValueBoolean{track_evaluation},
-                                     std::move(children))};
+  if (track_evaluation) {
+    return {make<AssertionArrayPrefixEvaluate>(context, schema_context,
+                                               dynamic_context, ValueNone{},
+                                               std::move(children))};
+  } else {
+    return {make<AssertionArrayPrefix>(context, schema_context, dynamic_context,
+                                       ValueNone{}, std::move(children))};
+  }
 }
 
 auto compiler_draft4_applicator_items_with_options(

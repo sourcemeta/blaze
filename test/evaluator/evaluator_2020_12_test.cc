@@ -1554,7 +1554,7 @@ TEST(Evaluator_2020_12, unevaluatedItems_3) {
   EVALUATE_WITH_TRACE_FAST_FAILURE(schema, instance, 5);
 
   EVALUATE_TRACE_PRE(0, LogicalOr, "/anyOf", "#/anyOf", "");
-  EVALUATE_TRACE_PRE(1, AssertionArrayPrefix, "/anyOf/0/prefixItems",
+  EVALUATE_TRACE_PRE(1, AssertionArrayPrefixEvaluate, "/anyOf/0/prefixItems",
                      "#/anyOf/0/prefixItems", "");
   EVALUATE_TRACE_PRE(2, AssertionTypeStrict, "/anyOf/0/prefixItems/0/type",
                      "#/anyOf/0/prefixItems/0/type", "/0");
@@ -1566,8 +1566,9 @@ TEST(Evaluator_2020_12, unevaluatedItems_3) {
   EVALUATE_TRACE_POST_FAILURE(0, AssertionTypeStrict,
                               "/anyOf/0/prefixItems/0/type",
                               "#/anyOf/0/prefixItems/0/type", "/0");
-  EVALUATE_TRACE_POST_FAILURE(1, AssertionArrayPrefix, "/anyOf/0/prefixItems",
-                              "#/anyOf/0/prefixItems", "");
+  EVALUATE_TRACE_POST_FAILURE(1, AssertionArrayPrefixEvaluate,
+                              "/anyOf/0/prefixItems", "#/anyOf/0/prefixItems",
+                              "");
   EVALUATE_TRACE_POST_SUCCESS(2, LogicalOr, "/anyOf", "#/anyOf", "");
   EVALUATE_TRACE_POST_FAILURE(3, AssertionFail, "/unevaluatedItems",
                               "#/unevaluatedItems", "/0");
@@ -1611,7 +1612,7 @@ TEST(Evaluator_2020_12, unevaluatedItems_3_exhaustive) {
   EVALUATE_WITH_TRACE_EXHAUSTIVE_FAILURE(schema, instance, 5);
 
   EVALUATE_TRACE_PRE(0, LogicalOr, "/anyOf", "#/anyOf", "");
-  EVALUATE_TRACE_PRE(1, AssertionArrayPrefix, "/anyOf/0/prefixItems",
+  EVALUATE_TRACE_PRE(1, AssertionArrayPrefixEvaluate, "/anyOf/0/prefixItems",
                      "#/anyOf/0/prefixItems", "");
   EVALUATE_TRACE_PRE(2, AssertionTypeStrict, "/anyOf/0/prefixItems/0/type",
                      "#/anyOf/0/prefixItems/0/type", "/0");
@@ -1623,8 +1624,9 @@ TEST(Evaluator_2020_12, unevaluatedItems_3_exhaustive) {
   EVALUATE_TRACE_POST_FAILURE(0, AssertionTypeStrict,
                               "/anyOf/0/prefixItems/0/type",
                               "#/anyOf/0/prefixItems/0/type", "/0");
-  EVALUATE_TRACE_POST_FAILURE(1, AssertionArrayPrefix, "/anyOf/0/prefixItems",
-                              "#/anyOf/0/prefixItems", "");
+  EVALUATE_TRACE_POST_FAILURE(1, AssertionArrayPrefixEvaluate,
+                              "/anyOf/0/prefixItems", "#/anyOf/0/prefixItems",
+                              "");
   EVALUATE_TRACE_POST_SUCCESS(2, LogicalOr, "/anyOf", "#/anyOf", "");
   EVALUATE_TRACE_POST_FAILURE(3, AssertionFail, "/unevaluatedItems",
                               "#/unevaluatedItems", "/0");
