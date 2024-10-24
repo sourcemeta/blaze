@@ -844,6 +844,7 @@ auto evaluate_step(const sourcemeta::blaze::Template::value_type &step,
 
     case IS_STEP(LoopPropertiesUnevaluated): {
       EVALUATE_BEGIN(loop, LoopPropertiesUnevaluated, target.is_object());
+      assert(!loop.children.empty());
       assert(track);
       result = true;
 
@@ -874,6 +875,7 @@ auto evaluate_step(const sourcemeta::blaze::Template::value_type &step,
 
     case IS_STEP(LoopPropertiesUnevaluatedExcept): {
       EVALUATE_BEGIN(loop, LoopPropertiesUnevaluatedExcept, target.is_object());
+      assert(!loop.children.empty());
       assert(track);
       result = true;
       // Otherwise why emit this instruction?
@@ -915,6 +917,7 @@ auto evaluate_step(const sourcemeta::blaze::Template::value_type &step,
 
     case IS_STEP(LoopItemsUnevaluated): {
       EVALUATE_BEGIN(loop, LoopItemsUnevaluated, target.is_array());
+      assert(!loop.children.empty());
       assert(track);
       const auto &array{target.as_array()};
       result = true;
@@ -972,6 +975,7 @@ auto evaluate_step(const sourcemeta::blaze::Template::value_type &step,
 
     case IS_STEP(LoopProperties): {
       EVALUATE_BEGIN(loop, LoopProperties, target.is_object());
+      assert(!loop.children.empty());
       result = true;
       for (const auto &entry : target.as_object()) {
         context.enter(entry.first, track);
@@ -994,6 +998,7 @@ auto evaluate_step(const sourcemeta::blaze::Template::value_type &step,
 
     case IS_STEP(LoopPropertiesEvaluate): {
       EVALUATE_BEGIN(loop, LoopPropertiesEvaluate, target.is_object());
+      assert(!loop.children.empty());
       result = true;
       for (const auto &entry : target.as_object()) {
         context.enter(entry.first, track);
@@ -1019,6 +1024,7 @@ auto evaluate_step(const sourcemeta::blaze::Template::value_type &step,
 
     case IS_STEP(LoopPropertiesRegex): {
       EVALUATE_BEGIN(loop, LoopPropertiesRegex, target.is_object());
+      assert(!loop.children.empty());
       result = true;
       for (const auto &entry : target.as_object()) {
         if (!std::regex_search(entry.first, loop.value.first)) {
@@ -1045,6 +1051,7 @@ auto evaluate_step(const sourcemeta::blaze::Template::value_type &step,
 
     case IS_STEP(LoopPropertiesStartsWith): {
       EVALUATE_BEGIN(loop, LoopPropertiesStartsWith, target.is_object());
+      assert(!loop.children.empty());
       result = true;
       for (const auto &entry : target.as_object()) {
         if (!entry.first.starts_with(loop.value)) {
@@ -1071,6 +1078,7 @@ auto evaluate_step(const sourcemeta::blaze::Template::value_type &step,
 
     case IS_STEP(LoopPropertiesExcept): {
       EVALUATE_BEGIN(loop, LoopPropertiesExcept, target.is_object());
+      assert(!loop.children.empty());
       result = true;
       // Otherwise why emit this instruction?
       assert(!loop.value.first.empty() || !loop.value.second.empty());
@@ -1174,6 +1182,7 @@ auto evaluate_step(const sourcemeta::blaze::Template::value_type &step,
 
     case IS_STEP(LoopKeys): {
       EVALUATE_BEGIN(loop, LoopKeys, target.is_object());
+      assert(!loop.children.empty());
       result = true;
       for (const auto &entry : target.as_object()) {
         context.enter(entry.first, track);
@@ -1202,6 +1211,7 @@ auto evaluate_step(const sourcemeta::blaze::Template::value_type &step,
     case IS_STEP(LoopItems): {
       EVALUATE_BEGIN(loop, LoopItems,
                      target.is_array() && loop.value < target.size());
+      assert(!loop.children.empty());
       const auto &array{target.as_array()};
       result = true;
       auto iterator{array.cbegin()};
@@ -1228,6 +1238,7 @@ auto evaluate_step(const sourcemeta::blaze::Template::value_type &step,
 
     case IS_STEP(LoopContains): {
       EVALUATE_BEGIN(loop, LoopContains, target.is_array());
+      assert(!loop.children.empty());
       const auto minimum{std::get<0>(loop.value)};
       const auto &maximum{std::get<1>(loop.value)};
       assert(!maximum.has_value() || maximum.value() >= minimum);
