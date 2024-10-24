@@ -7,6 +7,7 @@
 #include <algorithm> // std::find
 #include <cassert>   // assert
 #include <iterator>  // std::distance
+#include <regex>     // std::regex, std::regex_match, std::smatch
 #include <utility>   // std::declval, std::move
 
 namespace sourcemeta::blaze {
@@ -129,6 +130,17 @@ inline auto walk_subschemas(const Context &context,
   return sourcemeta::jsontoolkit::SchemaIterator{
       schema_context.schema.at(dynamic_context.keyword), context.walker,
       context.resolver, entry.dialect};
+}
+
+inline auto pattern_as_prefix(const std::string &pattern)
+    -> std::optional<std::string> {
+  static const std::regex starts_with_regex{R"(^\^([a-zA-Z0-9-_/]+)$)"};
+  std::smatch matches;
+  if (std::regex_match(pattern, matches, starts_with_regex)) {
+    return matches[1].str();
+  } else {
+    return std::nullopt;
+  }
 }
 
 } // namespace sourcemeta::blaze

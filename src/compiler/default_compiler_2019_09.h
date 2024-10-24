@@ -257,6 +257,7 @@ auto compiler_2019_09_applicator_unevaluatedproperties(
   }
 
   ValueStrings filter_strings;
+  ValueStrings filter_prefixes;
   std::vector<ValueRegex> filter_regexes;
 
   if ((schema_context.vocabularies.contains(
@@ -279,11 +280,16 @@ auto compiler_2019_09_applicator_unevaluatedproperties(
       schema_context.schema.at("patternProperties").is_object()) {
     for (const auto &entry :
          schema_context.schema.at("patternProperties").as_object()) {
-      filter_regexes.push_back(
-          {parse_regex(entry.first, schema_context.base,
-                       schema_context.relative_pointer.initial().concat(
-                           {"patternProperties"})),
-           entry.first});
+      const auto maybe_prefix{pattern_as_prefix(entry.first)};
+      if (maybe_prefix.has_value()) {
+        filter_prefixes.push_back(maybe_prefix.value());
+      } else {
+        filter_regexes.push_back(
+            {parse_regex(entry.first, schema_context.base,
+                         schema_context.relative_pointer.initial().concat(
+                             {"patternProperties"})),
+             entry.first});
+      }
     }
   }
 
@@ -291,6 +297,7 @@ auto compiler_2019_09_applicator_unevaluatedproperties(
     return {make<LoopPropertiesUnevaluatedExcept>(
         context, schema_context, dynamic_context,
         ValuePropertyFilter{std::move(filter_strings),
+                            std::move(filter_prefixes),
                             std::move(filter_regexes)},
         std::move(children))};
   } else {

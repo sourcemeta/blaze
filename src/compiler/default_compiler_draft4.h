@@ -6,10 +6,10 @@
 
 #include <algorithm> // std::sort, std::any_of
 #include <cassert>   // assert
-#include <regex> // std::regex, std::regex_error, std::regex_match, std::smatch
-#include <set>   // std::set
-#include <sstream> // std::ostringstream
-#include <utility> // std::move
+#include <regex>     // std::regex, std::regex_error
+#include <set>       // std::set
+#include <sstream>   // std::ostringstream
+#include <utility>   // std::move
 
 #include "compile_helpers.h"
 
@@ -650,8 +650,6 @@ auto compiler_draft4_applicator_patternproperties_with_options(
 
   std::sort(patterns.begin(), patterns.end());
 
-  const std::regex starts_with_regex{R"(^\^([a-zA-Z0-9-_/]+)$)"};
-
   // For each regular expression and corresponding subschema in the object
   for (const auto &pattern : patterns) {
     auto substeps{compile(context, schema_context, relative_dynamic_context,
@@ -670,11 +668,11 @@ auto compiler_draft4_applicator_patternproperties_with_options(
     // If the `patternProperties` subschema for the given pattern does
     // nothing, then we can avoid generating an entire loop for it
     if (!substeps.empty()) {
-      std::smatch matches;
-      if (std::regex_match(pattern, matches, starts_with_regex)) {
+      const auto maybe_prefix{pattern_as_prefix(pattern)};
+      if (maybe_prefix.has_value()) {
         children.push_back(make<LoopPropertiesStartsWith>(
             context, schema_context, dynamic_context,
-            ValueString{matches[1].str()}, std::move(substeps)));
+            ValueString{maybe_prefix.value()}, std::move(substeps)));
       } else {
         children.push_back(make<LoopPropertiesRegex>(
             context, schema_context, dynamic_context,
@@ -716,6 +714,7 @@ auto compiler_draft4_applicator_additionalproperties_with_options(
   }
 
   ValueStrings filter_strings;
+  ValueStrings filter_prefixes;
   std::vector<ValueRegex> filter_regexes;
 
   if (schema_context.schema.defines("properties") &&
@@ -730,11 +729,16 @@ auto compiler_draft4_applicator_additionalproperties_with_options(
       schema_context.schema.at("patternProperties").is_object()) {
     for (const auto &entry :
          schema_context.schema.at("patternProperties").as_object()) {
-      filter_regexes.push_back(
-          {parse_regex(entry.first, schema_context.base,
-                       schema_context.relative_pointer.initial().concat(
-                           {"patternProperties"})),
-           entry.first});
+      const auto maybe_prefix{pattern_as_prefix(entry.first)};
+      if (maybe_prefix.has_value()) {
+        filter_prefixes.push_back(maybe_prefix.value());
+      } else {
+        filter_regexes.push_back(
+            {parse_regex(entry.first, schema_context.base,
+                         schema_context.relative_pointer.initial().concat(
+                             {"patternProperties"})),
+             entry.first});
+      }
     }
   }
 
@@ -753,6 +757,7 @@ auto compiler_draft4_applicator_additionalproperties_with_options(
     return {make<LoopPropertiesExcept>(
         context, schema_context, dynamic_context,
         ValuePropertyFilter{std::move(filter_strings),
+                            std::move(filter_prefixes),
                             std::move(filter_regexes)},
         std::move(children))};
 
