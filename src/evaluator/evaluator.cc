@@ -1060,6 +1060,7 @@ auto evaluate_step(const sourcemeta::blaze::Template::value_type &step,
 
     case IS_STEP(LoopPropertiesRegex): {
       EVALUATE_BEGIN(loop, LoopPropertiesRegex, target.is_object());
+      assert(!loop.children.empty());
       result = true;
       for (const auto &entry : target.as_object()) {
         if (!std::regex_search(entry.first, loop.value.first)) {
