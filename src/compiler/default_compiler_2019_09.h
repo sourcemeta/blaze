@@ -182,7 +182,8 @@ auto compiler_2019_09_applicator_additionalproperties(
     const DynamicContext &dynamic_context) -> Template {
   return compiler_draft4_applicator_additionalproperties_with_options(
       context, schema_context, dynamic_context,
-      context.mode == Mode::Exhaustive, context.uses_unevaluated_properties);
+      context.mode == Mode::Exhaustive,
+      !context.unevaluated_properties_schemas.empty());
 }
 
 auto compiler_2019_09_applicator_items(const Context &context,
@@ -191,7 +192,8 @@ auto compiler_2019_09_applicator_items(const Context &context,
     -> Template {
   return compiler_draft4_applicator_items_with_options(
       context, schema_context, dynamic_context,
-      context.mode == Mode::Exhaustive, context.uses_unevaluated_items);
+      context.mode == Mode::Exhaustive,
+      !context.unevaluated_items_schemas.empty());
 }
 
 auto compiler_2019_09_applicator_additionalitems(
@@ -199,7 +201,8 @@ auto compiler_2019_09_applicator_additionalitems(
     const DynamicContext &dynamic_context) -> Template {
   return compiler_draft4_applicator_additionalitems_with_options(
       context, schema_context, dynamic_context,
-      context.mode == Mode::Exhaustive, context.uses_unevaluated_items);
+      context.mode == Mode::Exhaustive,
+      !context.unevaluated_items_schemas.empty());
 }
 
 auto compiler_2019_09_applicator_unevaluateditems(
@@ -211,24 +214,8 @@ auto compiler_2019_09_applicator_unevaluateditems(
     return {};
   }
 
-  // TODO: Generalize this by extending the context to keep track
-  // of which are the keywords that rely on evaluation that must be
-  // executed.
-  if (schema_context.schema.defines("items") &&
-      schema_context.vocabularies.contains(
-          "https://json-schema.org/draft/2020-12/vocab/applicator")) {
-    return {};
-  } else if (schema_context.schema.defines("items") &&
-             sourcemeta::jsontoolkit::is_schema(
-                 schema_context.schema.at("items")) &&
-             schema_context.vocabularies.contains(
-                 "https://json-schema.org/draft/2019-09/vocab/applicator")) {
-    return {};
-  } else if (schema_context.schema.defines("items") &&
-             schema_context.schema.at("items").is_array() &&
-             schema_context.schema.defines("additionalItems") &&
-             schema_context.vocabularies.contains(
-                 "https://json-schema.org/draft/2019-09/vocab/applicator")) {
+  if (!context.unevaluated_items_schemas.contains(
+          static_frame_entry(context, schema_context).pointer.initial())) {
     return {};
   }
 
@@ -255,15 +242,8 @@ auto compiler_2019_09_applicator_unevaluatedproperties(
     return {};
   }
 
-  // TODO: Generalize this by extending the context to keep track
-  // of which are the keywords that rely on evaluation that must be
-  // executed. As given the information we have in this case, we can
-  // already decide to not track evaluation on `additionalProperties`
-  if (schema_context.schema.defines("additionalProperties") &&
-      (schema_context.vocabularies.contains(
-           "https://json-schema.org/draft/2019-09/vocab/applicator") ||
-       schema_context.vocabularies.contains(
-           "https://json-schema.org/draft/2020-12/vocab/applicator"))) {
+  if (!context.unevaluated_properties_schemas.contains(
+          static_frame_entry(context, schema_context).pointer.initial())) {
     return {};
   }
 
@@ -321,12 +301,7 @@ auto compiler_2019_09_core_recursiveref(const Context &context,
                                         const SchemaContext &schema_context,
                                         const DynamicContext &dynamic_context)
     -> Template {
-  const auto current{
-      to_uri(schema_context.relative_pointer, schema_context.base).recompose()};
-  assert(context.frame.contains(
-      {sourcemeta::jsontoolkit::ReferenceType::Static, current}));
-  const auto &entry{context.frame.at(
-      {sourcemeta::jsontoolkit::ReferenceType::Static, current})};
+  const auto &entry{static_frame_entry(context, schema_context)};
   // In this case, just behave as a normal static reference
   if (!context.references.contains(
           {sourcemeta::jsontoolkit::ReferenceType::Dynamic, entry.pointer})) {
@@ -342,7 +317,8 @@ auto compiler_2019_09_applicator_properties(
     const DynamicContext &dynamic_context) -> Template {
   return compiler_draft4_applicator_properties_with_options(
       context, schema_context, dynamic_context,
-      context.mode == Mode::Exhaustive, context.uses_unevaluated_properties);
+      context.mode == Mode::Exhaustive,
+      !context.unevaluated_properties_schemas.empty());
 }
 
 auto compiler_2019_09_applicator_patternproperties(
@@ -350,7 +326,8 @@ auto compiler_2019_09_applicator_patternproperties(
     const DynamicContext &dynamic_context) -> Template {
   return compiler_draft4_applicator_patternproperties_with_options(
       context, schema_context, dynamic_context,
-      context.mode == Mode::Exhaustive, context.uses_unevaluated_properties);
+      context.mode == Mode::Exhaustive,
+      !context.unevaluated_properties_schemas.empty());
 }
 
 } // namespace internal

@@ -15,7 +15,8 @@ auto compiler_2020_12_applicator_prefixitems(
     const DynamicContext &dynamic_context) -> Template {
   return compiler_draft4_applicator_items_array(
       context, schema_context, dynamic_context,
-      context.mode == Mode::Exhaustive, context.uses_unevaluated_items);
+      context.mode == Mode::Exhaustive,
+      !context.unevaluated_items_schemas.empty());
 }
 
 auto compiler_2020_12_applicator_items(const Context &context,
@@ -29,7 +30,8 @@ auto compiler_2020_12_applicator_items(const Context &context,
 
   return compiler_draft4_applicator_additionalitems_from_cursor(
       context, schema_context, dynamic_context, cursor,
-      context.mode == Mode::Exhaustive, context.uses_unevaluated_items);
+      context.mode == Mode::Exhaustive,
+      !context.unevaluated_items_schemas.empty());
 }
 
 auto compiler_2020_12_applicator_contains(const Context &context,
@@ -38,19 +40,15 @@ auto compiler_2020_12_applicator_contains(const Context &context,
     -> Template {
   return compiler_2019_09_applicator_contains_with_options(
       context, schema_context, dynamic_context,
-      context.mode == Mode::Exhaustive, context.uses_unevaluated_items);
+      context.mode == Mode::Exhaustive,
+      !context.unevaluated_items_schemas.empty());
 }
 
 auto compiler_2020_12_core_dynamicref(const Context &context,
                                       const SchemaContext &schema_context,
                                       const DynamicContext &dynamic_context)
     -> Template {
-  const auto current{
-      to_uri(schema_context.relative_pointer, schema_context.base).recompose()};
-  assert(context.frame.contains(
-      {sourcemeta::jsontoolkit::ReferenceType::Static, current}));
-  const auto &entry{context.frame.at(
-      {sourcemeta::jsontoolkit::ReferenceType::Static, current})};
+  const auto &entry{static_frame_entry(context, schema_context)};
   // In this case, just behave as a normal static reference
   if (!context.references.contains(
           {sourcemeta::jsontoolkit::ReferenceType::Dynamic, entry.pointer})) {
