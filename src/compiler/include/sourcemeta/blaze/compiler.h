@@ -39,8 +39,6 @@ struct SchemaContext {
   const sourcemeta::jsontoolkit::JSON &schema;
   /// The schema vocabularies in use
   const std::map<std::string, bool> &vocabularies;
-  /// The base dialect of the schema
-  const std::string base_dialect;
   /// The schema base URI
   const sourcemeta::jsontoolkit::URI &base;
   /// The set of labels registered so far

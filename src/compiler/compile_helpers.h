@@ -110,6 +110,19 @@ unsigned_integer_property(const sourcemeta::jsontoolkit::JSON &document,
   return unsigned_integer_property(document, property).value_or(otherwise);
 }
 
+inline auto walk_subschemas(const Context &context,
+                            const SchemaContext &schema_context,
+                            const DynamicContext &dynamic_context) -> auto {
+  const auto type{sourcemeta::jsontoolkit::ReferenceType::Static};
+  const auto current{
+      to_uri(schema_context.relative_pointer, schema_context.base).recompose()};
+  assert(context.frame.contains({type, current}));
+  const auto &entry{context.frame.at({type, current})};
+  return sourcemeta::jsontoolkit::SchemaIterator{
+      schema_context.schema.at(dynamic_context.keyword), context.walker,
+      context.resolver, entry.dialect};
+}
+
 } // namespace sourcemeta::blaze
 
 #endif

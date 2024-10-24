@@ -856,10 +856,9 @@ auto compiler_draft4_applicator_not(const Context &context,
                                     const DynamicContext &dynamic_context)
     -> Template {
   std::size_t subschemas{0};
-  for (const auto &entry : sourcemeta::jsontoolkit::SchemaIterator{
-           schema_context.schema.at(dynamic_context.keyword), context.walker,
-           context.resolver, schema_context.base_dialect}) {
-    if (entry.pointer.empty()) {
+  for (const auto &subschema :
+       walk_subschemas(context, schema_context, dynamic_context)) {
+    if (subschema.pointer.empty()) {
       continue;
     }
 
