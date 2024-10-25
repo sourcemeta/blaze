@@ -1254,6 +1254,7 @@ auto evaluate_step(const sourcemeta::blaze::Template::value_type &step,
     case IS_STEP(LoopItems): {
       EVALUATE_BEGIN(loop, LoopItems,
                      target.is_array() && loop.value < target.size());
+      assert(!loop.children.empty());
       const auto &array{target.as_array()};
       result = true;
       auto iterator{array.cbegin()};
