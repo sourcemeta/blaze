@@ -260,35 +260,31 @@ auto compiler_2019_09_applicator_unevaluatedproperties(
   ValueStrings filter_prefixes;
   std::vector<ValueRegex> filter_regexes;
 
-  if ((schema_context.vocabularies.contains(
-           "https://json-schema.org/draft/2019-09/vocab/applicator") ||
-       schema_context.vocabularies.contains(
-           "https://json-schema.org/draft/2020-12/vocab/applicator")) &&
-      schema_context.schema.defines("properties") &&
-      schema_context.schema.at("properties").is_object()) {
-    for (const auto &entry :
-         schema_context.schema.at("properties").as_object()) {
-      filter_strings.push_back(entry.first);
+  for (const auto &entry : find_adjacent(
+           context, schema_context,
+           {"https://json-schema.org/draft/2019-09/vocab/applicator",
+            "https://json-schema.org/draft/2020-12/vocab/applicator"},
+           "properties", sourcemeta::jsontoolkit::JSON::Type::Object)) {
+    for (const auto &property : entry.get().as_object()) {
+      filter_strings.push_back(property.first);
     }
   }
 
-  if ((schema_context.vocabularies.contains(
-           "https://json-schema.org/draft/2019-09/vocab/applicator") ||
-       schema_context.vocabularies.contains(
-           "https://json-schema.org/draft/2020-12/vocab/applicator")) &&
-      schema_context.schema.defines("patternProperties") &&
-      schema_context.schema.at("patternProperties").is_object()) {
-    for (const auto &entry :
-         schema_context.schema.at("patternProperties").as_object()) {
-      const auto maybe_prefix{pattern_as_prefix(entry.first)};
+  for (const auto &entry : find_adjacent(
+           context, schema_context,
+           {"https://json-schema.org/draft/2019-09/vocab/applicator",
+            "https://json-schema.org/draft/2020-12/vocab/applicator"},
+           "patternProperties", sourcemeta::jsontoolkit::JSON::Type::Object)) {
+    for (const auto &property : entry.get().as_object()) {
+      const auto maybe_prefix{pattern_as_prefix(property.first)};
       if (maybe_prefix.has_value()) {
         filter_prefixes.push_back(maybe_prefix.value());
       } else {
         filter_regexes.push_back(
-            {parse_regex(entry.first, schema_context.base,
+            {parse_regex(property.first, schema_context.base,
                          schema_context.relative_pointer.initial().concat(
                              {"patternProperties"})),
-             entry.first});
+             property.first});
       }
     }
   }
