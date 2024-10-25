@@ -1081,6 +1081,7 @@ auto evaluate_step(const sourcemeta::blaze::Template::value_type &step,
 
     case IS_STEP(LoopPropertiesStartsWith): {
       EVALUATE_BEGIN(loop, LoopPropertiesStartsWith, target.is_object());
+      assert(!loop.children.empty());
       result = true;
       for (const auto &entry : target.as_object()) {
         if (!entry.first.starts_with(loop.value)) {
