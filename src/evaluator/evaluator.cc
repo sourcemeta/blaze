@@ -1225,6 +1225,7 @@ auto evaluate_step(const sourcemeta::blaze::Template::value_type &step,
 
     case IS_STEP(LoopKeys): {
       EVALUATE_BEGIN(loop, LoopKeys, target.is_object());
+      assert(!loop.children.empty());
       result = true;
       for (const auto &entry : target.as_object()) {
         context.enter(entry.first, track);

@@ -224,11 +224,16 @@ auto compiler_draft6_validation_propertynames(
     return {};
   }
 
-  return {
-      make<LoopKeys>(context, schema_context, dynamic_context, ValueNone{},
-                     compile(context, schema_context, relative_dynamic_context,
-                             sourcemeta::jsontoolkit::empty_pointer,
-                             sourcemeta::jsontoolkit::empty_pointer))};
+  Template children{compile(context, schema_context, relative_dynamic_context,
+                            sourcemeta::jsontoolkit::empty_pointer,
+                            sourcemeta::jsontoolkit::empty_pointer)};
+
+  if (children.empty()) {
+    return {};
+  }
+
+  return {make<LoopKeys>(context, schema_context, dynamic_context, ValueNone{},
+                         std::move(children))};
 }
 
 } // namespace internal
