@@ -1279,6 +1279,7 @@ auto evaluate_step(const sourcemeta::blaze::Template::value_type &step,
 
     case IS_STEP(LoopContains): {
       EVALUATE_BEGIN(loop, LoopContains, target.is_array());
+      assert(!loop.children.empty());
       const auto minimum{std::get<0>(loop.value)};
       const auto &maximum{std::get<1>(loop.value)};
       assert(!maximum.has_value() || maximum.value() >= minimum);
