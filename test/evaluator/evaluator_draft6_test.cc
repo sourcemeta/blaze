@@ -441,21 +441,11 @@ TEST(Evaluator_draft6, propertyNames_4) {
     "foo": {}
   })JSON")};
 
-  EVALUATE_WITH_TRACE_FAST_SUCCESS(schema, instance, 2);
+  EVALUATE_WITH_TRACE_FAST_SUCCESS(schema, instance, 1);
 
   EVALUATE_TRACE_PRE(0, LogicalAnd, "/properties", "#/properties", "");
-  EVALUATE_TRACE_PRE(1, LoopKeys, "/properties/foo/propertyNames",
-                     "#/properties/foo/propertyNames", "/foo");
-
-  EVALUATE_TRACE_POST_SUCCESS(0, LoopKeys, "/properties/foo/propertyNames",
-                              "#/properties/foo/propertyNames", "/foo");
-  EVALUATE_TRACE_POST_SUCCESS(1, LogicalAnd, "/properties", "#/properties", "");
-
-  EVALUATE_TRACE_POST_DESCRIBE(
-      instance, 0,
-      "The object is empty and no properties were expected to validate against "
-      "the given subschema");
-  EVALUATE_TRACE_POST_DESCRIBE(instance, 1,
+  EVALUATE_TRACE_POST_SUCCESS(0, LogicalAnd, "/properties", "#/properties", "");
+  EVALUATE_TRACE_POST_DESCRIBE(instance, 0,
                                "The object value was expected to validate "
                                "against the single defined property subschema");
 }
