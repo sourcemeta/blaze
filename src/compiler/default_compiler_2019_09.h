@@ -292,8 +292,11 @@ auto compiler_2019_09_applicator_unevaluatedproperties(
     }
   }
 
-  if (!filter_strings.empty() || !filter_prefixes.empty() ||
-      !filter_regexes.empty()) {
+  if (children.empty()) {
+    return {make<ControlEvaluate>(context, schema_context, dynamic_context,
+                                  ValuePointer{})};
+  } else if (!filter_strings.empty() || !filter_prefixes.empty() ||
+             !filter_regexes.empty()) {
     return {make<LoopPropertiesUnevaluatedExcept>(
         context, schema_context, dynamic_context,
         ValuePropertyFilter{std::move(filter_strings),
