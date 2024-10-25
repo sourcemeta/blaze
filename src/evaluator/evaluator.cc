@@ -865,6 +865,7 @@ auto evaluate_step(const sourcemeta::blaze::Template::value_type &step,
 
     case IS_STEP(LoopPropertiesUnevaluated): {
       EVALUATE_BEGIN(loop, LoopPropertiesUnevaluated, target.is_object());
+      assert(!loop.children.empty());
       assert(track);
       result = true;
 
@@ -895,6 +896,7 @@ auto evaluate_step(const sourcemeta::blaze::Template::value_type &step,
 
     case IS_STEP(LoopPropertiesUnevaluatedExcept): {
       EVALUATE_BEGIN(loop, LoopPropertiesUnevaluatedExcept, target.is_object());
+      assert(!loop.children.empty());
       assert(track);
       result = true;
       // Otherwise why emit this instruction?
