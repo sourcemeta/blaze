@@ -3667,6 +3667,53 @@ TEST(Evaluator_2019_09, unevaluatedProperties_10_exhaustive) {
       "were expected to validate against this subschema");
 }
 
+TEST(Evaluator_2019_09, unevaluatedProperties_11) {
+  const sourcemeta::jsontoolkit::JSON schema{
+      sourcemeta::jsontoolkit::parse(R"JSON({
+    "$schema": "https://json-schema.org/draft/2019-09/schema",
+    "unevaluatedProperties": false,
+    "allOf": [
+      { "patternProperties": { "^f": true } }
+    ]
+  })JSON")};
+
+  const sourcemeta::jsontoolkit::JSON instance{
+      sourcemeta::jsontoolkit::parse("{ \"foo\": \"bar\" }")};
+
+  EVALUATE_WITH_TRACE_FAST_SUCCESS(schema, instance, 4);
+
+  EVALUATE_TRACE_PRE(0, LogicalAnd, "/allOf", "#/allOf", "");
+  EVALUATE_TRACE_PRE(1, LoopPropertiesStartsWith, "/allOf/0/patternProperties",
+                     "#/allOf/0/patternProperties", "");
+  EVALUATE_TRACE_PRE(2, ControlEvaluate, "/allOf/0/patternProperties",
+                     "#/allOf/0/patternProperties", "/foo");
+  EVALUATE_TRACE_PRE(3, LoopPropertiesUnevaluated, "/unevaluatedProperties",
+                     "#/unevaluatedProperties", "");
+
+  EVALUATE_TRACE_POST_SUCCESS(0, ControlEvaluate, "/allOf/0/patternProperties",
+                              "#/allOf/0/patternProperties", "/foo");
+  EVALUATE_TRACE_POST_SUCCESS(1, LoopPropertiesStartsWith,
+                              "/allOf/0/patternProperties",
+                              "#/allOf/0/patternProperties", "");
+  EVALUATE_TRACE_POST_SUCCESS(2, LogicalAnd, "/allOf", "#/allOf", "");
+  EVALUATE_TRACE_POST_SUCCESS(3, LoopPropertiesUnevaluated,
+                              "/unevaluatedProperties",
+                              "#/unevaluatedProperties", "");
+
+  EVALUATE_TRACE_POST_DESCRIBE(instance, 0,
+                               "The instance location was marked as evaluated");
+  EVALUATE_TRACE_POST_DESCRIBE(
+      instance, 1,
+      "The object properties that start with the string \"f\" were expected to "
+      "validate against the defined pattern property subschema");
+  EVALUATE_TRACE_POST_DESCRIBE(
+      instance, 2,
+      "The object value was expected to validate against the given subschema");
+  EVALUATE_TRACE_POST_DESCRIBE(
+      instance, 3,
+      "The object value was not expected to define unevaluated properties");
+}
+
 TEST(Evaluator_2019_09, unevaluatedItems_1) {
   const sourcemeta::jsontoolkit::JSON schema{
       sourcemeta::jsontoolkit::parse(R"JSON({
