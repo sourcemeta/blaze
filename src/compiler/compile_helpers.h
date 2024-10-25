@@ -143,6 +143,46 @@ inline auto pattern_as_prefix(const std::string &pattern)
   }
 }
 
+inline auto find_adjacent(const Context &context,
+                          const SchemaContext &schema_context,
+                          const std::set<std::string> &vocabularies,
+                          const std::string &keyword,
+                          const sourcemeta::jsontoolkit::JSON::Type type)
+    -> auto {
+  std::vector<std::string> possible_keyword_uris;
+  possible_keyword_uris.push_back(
+      to_uri(schema_context.relative_pointer.initial().concat({keyword}),
+             schema_context.base)
+          .recompose());
+  std::vector<std::reference_wrapper<const sourcemeta::jsontoolkit::JSON>>
+      result;
+
+  for (const auto &possible_keyword_uri : possible_keyword_uris) {
+    if (!context.frame.contains({sourcemeta::jsontoolkit::ReferenceType::Static,
+                                 possible_keyword_uri})) {
+      continue;
+    }
+
+    const auto &frame_entry{
+        context.frame.at({sourcemeta::jsontoolkit::ReferenceType::Static,
+                          possible_keyword_uri})};
+    const auto &subschema{
+        sourcemeta::jsontoolkit::get(context.root, frame_entry.pointer)};
+    const auto &subschema_vocabularies{sourcemeta::jsontoolkit::vocabularies(
+        subschema, context.resolver, frame_entry.dialect)};
+
+    if (std::any_of(vocabularies.cbegin(), vocabularies.cend(),
+                    [&subschema_vocabularies](const auto &vocabulary) {
+                      return subschema_vocabularies.contains(vocabulary);
+                    }) &&
+        subschema.type() == type) {
+      result.emplace_back(subschema);
+    }
+  }
+
+  return result;
+}
+
 } // namespace sourcemeta::blaze
 
 #endif
