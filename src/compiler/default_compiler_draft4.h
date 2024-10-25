@@ -996,9 +996,12 @@ auto compiler_draft4_applicator_items_with_options(
                                    sourcemeta::jsontoolkit::empty_pointer)};
 
       Template children;
-      children.push_back(
-          make<LoopItems>(context, schema_context, dynamic_context,
-                          ValueUnsignedInteger{0}, std::move(subchildren)));
+
+      if (!subchildren.empty()) {
+        children.push_back(
+            make<LoopItems>(context, schema_context, dynamic_context,
+                            ValueUnsignedInteger{0}, std::move(subchildren)));
+      }
 
       if (!annotate && !track_evaluation) {
         return children;
@@ -1032,6 +1035,10 @@ auto compiler_draft4_applicator_items_with_options(
           context, schema_context, relative_dynamic_context, ValuePointer{}));
     }
 
+    if (children.empty()) {
+      return {};
+    }
+
     return {make<LoopItems>(context, schema_context, dynamic_context,
                             ValueUnsignedInteger{0}, std::move(children))};
   }
@@ -1063,9 +1070,13 @@ auto compiler_draft4_applicator_additionalitems_from_cursor(
                                sourcemeta::jsontoolkit::empty_pointer,
                                sourcemeta::jsontoolkit::empty_pointer)};
 
-  Template children{make<LoopItems>(context, schema_context, dynamic_context,
-                                    ValueUnsignedInteger{cursor},
-                                    std::move(subchildren))};
+  Template children;
+
+  if (!subchildren.empty()) {
+    children.push_back(make<LoopItems>(context, schema_context, dynamic_context,
+                                       ValueUnsignedInteger{cursor},
+                                       std::move(subchildren)));
+  }
 
   // Avoid one extra wrapper instruction if possible
   if (!annotate && !track_evaluation) {
