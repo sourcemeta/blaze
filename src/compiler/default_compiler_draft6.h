@@ -207,12 +207,19 @@ auto compiler_draft6_applicator_contains(const Context &context,
     return {};
   }
 
+  Template children{compile(context, schema_context, relative_dynamic_context,
+                            sourcemeta::jsontoolkit::empty_pointer,
+                            sourcemeta::jsontoolkit::empty_pointer)};
+
+  if (children.empty()) {
+    // We still need to check the instance is not empty
+    return {make<AssertionArraySizeGreater>(
+        context, schema_context, dynamic_context, ValueUnsignedInteger{0})};
+  }
+
   return {make<LoopContains>(context, schema_context, dynamic_context,
                              ValueRange{1, std::nullopt, false},
-                             compile(context, schema_context,
-                                     relative_dynamic_context,
-                                     sourcemeta::jsontoolkit::empty_pointer,
-                                     sourcemeta::jsontoolkit::empty_pointer))};
+                             std::move(children))};
 }
 
 auto compiler_draft6_validation_propertynames(

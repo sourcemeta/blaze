@@ -1054,35 +1054,31 @@ struct DescribeVisitor {
   }
 
   auto operator()(const AssertionArraySizeGreater &step) const -> std::string {
-    if (this->keyword == "minItems") {
-      assert(this->target.is_array());
-      std::ostringstream message;
-      const auto minimum{step_value(step) + 1};
-      message << "The array value was expected to contain at least " << minimum;
-      assert(minimum > 0);
-      if (minimum == 1) {
-        message << " item";
-      } else {
-        message << " items";
-      }
-
-      if (this->valid) {
-        message << " and";
-      } else {
-        message << " but";
-      }
-
-      message << " it contained " << this->target.size();
-      if (this->target.size() == 1) {
-        message << " item";
-      } else {
-        message << " items";
-      }
-
-      return message.str();
+    assert(this->target.is_array());
+    std::ostringstream message;
+    const auto minimum{step_value(step) + 1};
+    message << "The array value was expected to contain at least " << minimum;
+    assert(minimum > 0);
+    if (minimum == 1) {
+      message << " item";
+    } else {
+      message << " items";
     }
 
-    return unknown();
+    if (this->valid) {
+      message << " and";
+    } else {
+      message << " but";
+    }
+
+    message << " it contained " << this->target.size();
+    if (this->target.size() == 1) {
+      message << " item";
+    } else {
+      message << " items";
+    }
+
+    return message.str();
   }
 
   auto operator()(const AssertionObjectSizeLess &step) const -> std::string {

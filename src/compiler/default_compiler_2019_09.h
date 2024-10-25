@@ -163,6 +163,12 @@ auto compiler_2019_09_applicator_contains_with_options(
         context, schema_context, relative_dynamic_context, ValuePointer{}));
   }
 
+  if (children.empty()) {
+    // We still need to check the instance is not empty
+    return {make<AssertionArraySizeGreater>(
+        context, schema_context, dynamic_context, ValueUnsignedInteger{0})};
+  }
+
   return {make<LoopContains>(
       context, schema_context, dynamic_context,
       ValueRange{minimum, maximum, annotate || track_evaluation},

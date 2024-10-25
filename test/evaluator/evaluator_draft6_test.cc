@@ -253,6 +253,26 @@ TEST(Evaluator_draft6, contains_4) {
       "against the given subschema");
 }
 
+TEST(Evaluator_draft6, contains_5) {
+  const sourcemeta::jsontoolkit::JSON schema{
+      sourcemeta::jsontoolkit::parse(R"JSON({
+    "$schema": "http://json-schema.org/draft-06/schema#",
+    "contains": true
+  })JSON")};
+
+  const sourcemeta::jsontoolkit::JSON instance{
+      sourcemeta::jsontoolkit::parse("[ \"foo\", \"bar\", \"baz\" ]")};
+  EVALUATE_WITH_TRACE_FAST_SUCCESS(schema, instance, 1);
+
+  EVALUATE_TRACE_PRE(0, AssertionArraySizeGreater, "/contains", "#/contains",
+                     "");
+  EVALUATE_TRACE_POST_SUCCESS(0, AssertionArraySizeGreater, "/contains",
+                              "#/contains", "");
+  EVALUATE_TRACE_POST_DESCRIBE(instance, 0,
+                               "The array value was expected to contain at "
+                               "least 1 item and it contained 3 items");
+}
+
 TEST(Evaluator_draft6, propertyNames_1) {
   const sourcemeta::jsontoolkit::JSON schema{
       sourcemeta::jsontoolkit::parse(R"JSON({

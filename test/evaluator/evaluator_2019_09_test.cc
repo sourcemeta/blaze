@@ -1308,6 +1308,26 @@ TEST(Evaluator_2019_09, contains_12) {
       "The constraints declared for this keyword were not satisfiable");
 }
 
+TEST(Evaluator_2019_09, contains_13) {
+  const sourcemeta::jsontoolkit::JSON schema{
+      sourcemeta::jsontoolkit::parse(R"JSON({
+    "$schema": "https://json-schema.org/draft/2019-09/schema",
+    "contains": true
+  })JSON")};
+
+  const sourcemeta::jsontoolkit::JSON instance{
+      sourcemeta::jsontoolkit::parse("[ \"foo\", \"bar\", \"baz\" ]")};
+  EVALUATE_WITH_TRACE_FAST_SUCCESS(schema, instance, 1);
+
+  EVALUATE_TRACE_PRE(0, AssertionArraySizeGreater, "/contains", "#/contains",
+                     "");
+  EVALUATE_TRACE_POST_SUCCESS(0, AssertionArraySizeGreater, "/contains",
+                              "#/contains", "");
+  EVALUATE_TRACE_POST_DESCRIBE(instance, 0,
+                               "The array value was expected to contain at "
+                               "least 1 item and it contained 3 items");
+}
+
 TEST(Evaluator_2019_09, title) {
   const sourcemeta::jsontoolkit::JSON schema{
       sourcemeta::jsontoolkit::parse(R"JSON({
