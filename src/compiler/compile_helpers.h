@@ -154,6 +154,35 @@ inline auto find_adjacent(const Context &context,
       to_uri(schema_context.relative_pointer.initial().concat({keyword}),
              schema_context.base)
           .recompose());
+
+  // TODO: Do something similar with `allOf`
+
+  // Attempt to statically follow references
+  if (schema_context.schema.defines("$ref")) {
+    const auto reference_type{sourcemeta::jsontoolkit::ReferenceType::Static};
+    const auto destination_uri{
+        to_uri(schema_context.relative_pointer.initial().concat({"$ref"}),
+               schema_context.base)
+            .recompose()};
+    assert(context.frame.contains({reference_type, destination_uri}));
+    const auto &destination{
+        context.frame.at({reference_type, destination_uri})};
+    assert(context.references.contains({reference_type, destination.pointer}));
+    const auto &reference{
+        context.references.at({reference_type, destination.pointer})};
+    const auto keyword_uri{
+        sourcemeta::jsontoolkit::to_uri(
+            sourcemeta::jsontoolkit::to_pointer(reference.fragment.value_or(""))
+                .concat({keyword}))
+            .resolve_from_if_absolute(reference.base.value_or(""))};
+
+    // TODO: When this logic is used by
+    // `unevaluatedProperties`/`unevaluatedItems`, how can we let the
+    // applicators we detect here know that they have already been taken into
+    // consideration and thus do not have to track evaluation?
+    possible_keyword_uris.push_back(keyword_uri.recompose());
+  }
+
   std::vector<std::reference_wrapper<const sourcemeta::jsontoolkit::JSON>>
       result;
 
