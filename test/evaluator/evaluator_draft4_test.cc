@@ -1115,18 +1115,20 @@ TEST(Evaluator_draft4, properties_5) {
   EVALUATE_TRACE_PRE(0, AssertionTypeStrict, "/type", "#/type", "");
   EVALUATE_TRACE_PRE(1, AssertionDefinesAll, "/required", "#/required", "");
   EVALUATE_TRACE_PRE(2, LogicalAnd, "/properties", "#/properties", "");
-  EVALUATE_TRACE_PRE(3, AssertionTypeStrict, "/properties/bar/type",
+  EVALUATE_TRACE_PRE(3, AssertionPropertyTypeStrict, "/properties/bar/type",
                      "#/properties/bar/type", "/bar");
-  EVALUATE_TRACE_PRE(4, AssertionTypeStrict, "/properties/foo/type",
+  EVALUATE_TRACE_PRE(4, AssertionPropertyTypeStrict, "/properties/foo/type",
                      "#/properties/foo/type", "/foo");
 
   EVALUATE_TRACE_POST_SUCCESS(0, AssertionTypeStrict, "/type", "#/type", "");
   EVALUATE_TRACE_POST_SUCCESS(1, AssertionDefinesAll, "/required", "#/required",
                               "");
-  EVALUATE_TRACE_POST_SUCCESS(2, AssertionTypeStrict, "/properties/bar/type",
-                              "#/properties/bar/type", "/bar");
-  EVALUATE_TRACE_POST_SUCCESS(3, AssertionTypeStrict, "/properties/foo/type",
-                              "#/properties/foo/type", "/foo");
+  EVALUATE_TRACE_POST_SUCCESS(2, AssertionPropertyTypeStrict,
+                              "/properties/bar/type", "#/properties/bar/type",
+                              "/bar");
+  EVALUATE_TRACE_POST_SUCCESS(3, AssertionPropertyTypeStrict,
+                              "/properties/foo/type", "#/properties/foo/type",
+                              "/foo");
   EVALUATE_TRACE_POST_SUCCESS(4, LogicalAnd, "/properties", "#/properties", "");
 
   EVALUATE_TRACE_POST_DESCRIBE(instance, 0,
