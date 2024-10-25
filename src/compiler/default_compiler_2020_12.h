@@ -63,6 +63,11 @@ auto compiler_2020_12_core_dynamicref(const Context &context,
   // We handle the non-anchor variant by not treating it as a dynamic reference
   assert(reference.fragment().has_value());
 
+  // TODO: Here we can potentially optimize `$dynamicRef` as a static reference
+  // if we determine (by traversing the frame) that the given dynamic anchor
+  // is only defined once. That means there is only one schema resource, and
+  // the jump and be always statically determined
+
   // Note we don't need to even care about the static part of the dynamic
   // reference (if any), as even if we jump first there, we will still
   // look for the oldest dynamic anchor in the schema resource chain.
