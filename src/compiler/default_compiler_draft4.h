@@ -516,30 +516,11 @@ auto compiler_draft4_applicator_properties_with_options(
                              schema_context.schema.at("type").to_string() ==
                                  "object"};
 
-    // TODO: This means that for required properties we avoid the property type
-    // optimization? We can avoid this "defines" condition if the property is a
-    // required one
-    if (imports_validation_vocabulary && assume_object &&
-        schema_context.schema.defines("required") &&
-        schema_context.schema.at("required").is_array() &&
-        schema_context.schema.at("required")
-            .contains(sourcemeta::jsontoolkit::JSON{name})) {
-      // We can avoid the container too and just inline these steps
-      for (auto &&substep : substeps) {
-        children.push_back(std::move(substep));
-      }
+    // Optimize `properties` where its subschemas just include a type check,
+    // as that's a very common pattern
 
-      if (track_evaluation) {
-        children.push_back(make<ControlEvaluate>(context, schema_context,
-                                                 relative_dynamic_context,
-                                                 ValuePointer{name}));
-      }
-
-      // Optimize `properties` where its subschemas just include a type check,
-      // as that's a very common pattern
-
-    } else if (context.mode == Mode::FastValidation && substeps.size() == 1 &&
-               std::holds_alternative<AssertionTypeStrict>(substeps.front())) {
+    if (context.mode == Mode::FastValidation && substeps.size() == 1 &&
+        std::holds_alternative<AssertionTypeStrict>(substeps.front())) {
       const auto &type_step{std::get<AssertionTypeStrict>(substeps.front())};
       if (track_evaluation) {
         children.push_back(AssertionPropertyTypeStrictEvaluate{
@@ -595,9 +576,20 @@ auto compiler_draft4_applicator_properties_with_options(
                                                  ValuePointer{name}));
       }
 
-      children.push_back(make<ControlGroupWhenDefines>(
-          context, schema_context, relative_dynamic_context, ValueString{name},
-          std::move(substeps)));
+      if (imports_validation_vocabulary && assume_object &&
+          schema_context.schema.defines("required") &&
+          schema_context.schema.at("required").is_array() &&
+          schema_context.schema.at("required")
+              .contains(sourcemeta::jsontoolkit::JSON{name})) {
+        // We can avoid the container too and just inline these steps
+        for (auto &&substep : substeps) {
+          children.push_back(std::move(substep));
+        }
+      } else {
+        children.push_back(make<ControlGroupWhenDefines>(
+            context, schema_context, relative_dynamic_context,
+            ValueString{name}, std::move(substeps)));
+      }
     }
   }
 
