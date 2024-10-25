@@ -1107,6 +1107,7 @@ auto evaluate_step(const sourcemeta::blaze::Template::value_type &step,
 
     case IS_STEP(LoopPropertiesExcept): {
       EVALUATE_BEGIN(loop, LoopPropertiesExcept, target.is_object());
+      assert(!loop.children.empty());
       result = true;
       // Otherwise why emit this instruction?
       assert(!std::get<0>(loop.value).empty() ||
