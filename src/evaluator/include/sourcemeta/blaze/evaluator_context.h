@@ -116,7 +116,9 @@ public:
       std::reference_wrapper<const sourcemeta::jsontoolkit::JSON::String>>
       property_target;
 
-  // TODO: Turn these into a trie
+  // TODO: Revamp the data structure we use to track evaluation
+  // to provide more performant lookups that don't involve so many
+  // pointer token string comparisons
   struct Evaluation {
     sourcemeta::jsontoolkit::WeakPointer instance_location;
     sourcemeta::jsontoolkit::WeakPointer evaluate_path;

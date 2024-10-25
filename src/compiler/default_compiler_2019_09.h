@@ -229,6 +229,9 @@ auto compiler_2019_09_applicator_unevaluateditems(
         sourcemeta::jsontoolkit::JSON{true}));
   }
 
+  // TODO: Attempt to short-circuit evaluation tracking by looking at sibling
+  // and adjacent keywords like we do for `unevaluatedProperties`
+
   return {make<LoopItemsUnevaluated>(context, schema_context, dynamic_context,
                                      ValueNone{}, std::move(children))};
 }
