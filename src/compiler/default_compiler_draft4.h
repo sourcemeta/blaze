@@ -786,6 +786,11 @@ auto compiler_draft4_applicator_additionalproperties_with_options(
     }
 
   } else if (track_evaluation) {
+    if (children.empty()) {
+      return {make<ControlEvaluate>(context, schema_context, dynamic_context,
+                                    ValuePointer{})};
+    }
+
     return {make<LoopPropertiesEvaluate>(context, schema_context,
                                          dynamic_context, ValueNone{},
                                          std::move(children))};

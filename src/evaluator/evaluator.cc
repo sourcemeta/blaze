@@ -1008,6 +1008,7 @@ auto evaluate_step(const sourcemeta::blaze::Template::value_type &step,
 
     case IS_STEP(LoopProperties): {
       EVALUATE_BEGIN(loop, LoopProperties, target.is_object());
+      assert(!loop.children.empty());
       result = true;
       for (const auto &entry : target.as_object()) {
         context.enter(entry.first, track);
@@ -1030,6 +1031,7 @@ auto evaluate_step(const sourcemeta::blaze::Template::value_type &step,
 
     case IS_STEP(LoopPropertiesEvaluate): {
       EVALUATE_BEGIN(loop, LoopPropertiesEvaluate, target.is_object());
+      assert(!loop.children.empty());
       result = true;
       for (const auto &entry : target.as_object()) {
         context.enter(entry.first, track);
