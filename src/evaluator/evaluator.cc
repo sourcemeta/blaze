@@ -951,6 +951,7 @@ auto evaluate_step(const sourcemeta::blaze::Template::value_type &step,
 
     case IS_STEP(LoopItemsUnevaluated): {
       EVALUATE_BEGIN(loop, LoopItemsUnevaluated, target.is_array());
+      assert(!loop.children.empty());
       assert(track);
       const auto &array{target.as_array()};
       result = true;

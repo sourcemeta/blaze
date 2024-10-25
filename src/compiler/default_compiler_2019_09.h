@@ -229,6 +229,11 @@ auto compiler_2019_09_applicator_unevaluateditems(
         sourcemeta::jsontoolkit::JSON{true}));
   }
 
+  if (children.empty()) {
+    return {make<ControlEvaluate>(context, schema_context, dynamic_context,
+                                  ValuePointer{})};
+  }
+
   // TODO: Attempt to short-circuit evaluation tracking by looking at sibling
   // and adjacent keywords like we do for `unevaluatedProperties`
 
