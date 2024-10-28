@@ -8,7 +8,7 @@
 
 #include "evaluator_utils.h"
 
-TEST(Evaluator_draft4, metaschema) {
+TEST(Evaluator_draft4, metaschema_1) {
   const auto metaschema{sourcemeta::jsontoolkit::official_resolver(
       "http://json-schema.org/draft-04/schema#")};
   EXPECT_TRUE(metaschema.has_value());
@@ -16,6 +16,23 @@ TEST(Evaluator_draft4, metaschema) {
   const sourcemeta::jsontoolkit::JSON instance{
       sourcemeta::jsontoolkit::parse("{}")};
   EVALUATE_WITH_TRACE_FAST_SUCCESS(metaschema.value(), instance, 3);
+}
+
+TEST(Evaluator_draft4, metaschema_2) {
+  const auto metaschema{sourcemeta::jsontoolkit::official_resolver(
+      "http://json-schema.org/draft-04/schema#")};
+  EXPECT_TRUE(metaschema.has_value());
+
+  const auto instance{sourcemeta::jsontoolkit::parse(R"JSON({
+    "$schema": "http://json-schema.org/draft-04/schema#",
+    "definitions": {
+      "foo": {
+        "type": [ "string" ]
+      }
+    }
+  })JSON")};
+
+  EVALUATE_WITH_TRACE_FAST_SUCCESS(metaschema.value(), instance, 16);
 }
 
 TEST(Evaluator_draft4, unknown_keyword) {
