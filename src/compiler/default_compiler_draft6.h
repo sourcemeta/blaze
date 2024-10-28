@@ -8,7 +8,7 @@
 namespace internal {
 using namespace sourcemeta::blaze;
 
-auto compiler_draft6_validation_type(const Context &context,
+auto compiler_draft6_validation_type(Context &context,
                                      const SchemaContext &schema_context,
                                      const DynamicContext &dynamic_context)
     -> Template {
@@ -151,7 +151,7 @@ auto compiler_draft6_validation_type(const Context &context,
   return {};
 }
 
-auto compiler_draft6_validation_const(const Context &context,
+auto compiler_draft6_validation_const(Context &context,
                                       const SchemaContext &schema_context,
                                       const DynamicContext &dynamic_context)
     -> Template {
@@ -162,7 +162,7 @@ auto compiler_draft6_validation_const(const Context &context,
 }
 
 auto compiler_draft6_validation_exclusivemaximum(
-    const Context &context, const SchemaContext &schema_context,
+    Context &context, const SchemaContext &schema_context,
     const DynamicContext &dynamic_context) -> Template {
   assert(schema_context.schema.at(dynamic_context.keyword).is_number());
 
@@ -180,7 +180,7 @@ auto compiler_draft6_validation_exclusivemaximum(
 }
 
 auto compiler_draft6_validation_exclusiveminimum(
-    const Context &context, const SchemaContext &schema_context,
+    Context &context, const SchemaContext &schema_context,
     const DynamicContext &dynamic_context) -> Template {
   assert(schema_context.schema.at(dynamic_context.keyword).is_number());
 
@@ -197,7 +197,7 @@ auto compiler_draft6_validation_exclusiveminimum(
           schema_context.schema.at(dynamic_context.keyword)})};
 }
 
-auto compiler_draft6_applicator_contains(const Context &context,
+auto compiler_draft6_applicator_contains(Context &context,
                                          const SchemaContext &schema_context,
                                          const DynamicContext &dynamic_context)
     -> Template {
@@ -223,7 +223,7 @@ auto compiler_draft6_applicator_contains(const Context &context,
 }
 
 auto compiler_draft6_validation_propertynames(
-    const Context &context, const SchemaContext &schema_context,
+    Context &context, const SchemaContext &schema_context,
     const DynamicContext &dynamic_context) -> Template {
   if (schema_context.schema.defines("type") &&
       schema_context.schema.at("type").is_string() &&

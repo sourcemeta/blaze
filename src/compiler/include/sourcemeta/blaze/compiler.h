@@ -67,7 +67,7 @@ struct Context;
 /// A compiler is represented as a function that maps a keyword compiler
 /// contexts into a compiler template. You can provide your own to implement
 /// your own keywords
-using Compiler = std::function<Template(const Context &, const SchemaContext &,
+using Compiler = std::function<Template(Context &, const SchemaContext &,
                                         const DynamicContext &)>;
 
 /// @ingroup evaluator
@@ -78,6 +78,15 @@ enum class Mode : std::uint8_t {
   /// Perform exhaustive evaluation, including annotations
   Exhaustive
 };
+
+/// @ingroup compiler
+/// A memoization data structure to avoid compiling the same subschemas over and
+/// over again
+using CompilerCache =
+    std::map<std::tuple<std::string, sourcemeta::jsontoolkit::Pointer,
+                        sourcemeta::jsontoolkit::Pointer,
+                        sourcemeta::jsontoolkit::Pointer>,
+             std::vector<std::pair<Template, std::set<std::size_t>>>>;
 
 /// @ingroup compiler
 /// The static compiler context is the information you have at your
@@ -108,13 +117,15 @@ struct Context {
       unevaluated_properties_schemas;
   /// The list of subschemas that require keeping track of unevaluated items
   const std::set<sourcemeta::jsontoolkit::Pointer> unevaluated_items_schemas;
+  /// For memoization purposes
+  CompilerCache &cache;
 };
 
 /// @ingroup compiler
 /// A default compiler that aims to implement every keyword for official JSON
 /// Schema dialects.
 auto SOURCEMETA_BLAZE_COMPILER_EXPORT default_schema_compiler(
-    const Context &, const SchemaContext &, const DynamicContext &) -> Template;
+    Context &, const SchemaContext &, const DynamicContext &) -> Template;
 
 /// @ingroup compiler
 ///
@@ -157,7 +168,7 @@ compile(const sourcemeta::jsontoolkit::JSON &schema,
 /// directly, but instead as a building block for supporting applicators on
 /// compiler functions.
 auto SOURCEMETA_BLAZE_COMPILER_EXPORT
-compile(const Context &context, const SchemaContext &schema_context,
+compile(Context &context, const SchemaContext &schema_context,
         const DynamicContext &dynamic_context,
         const sourcemeta::jsontoolkit::Pointer &schema_suffix,
         const sourcemeta::jsontoolkit::Pointer &instance_suffix =
