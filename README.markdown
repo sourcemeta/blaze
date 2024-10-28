@@ -19,6 +19,7 @@ powerful [JSON Toolkit](https://github.com/sourcemeta/jsontoolkit) library.
 > We are working hard to get Blaze to its first stable release. This includes:
 >
 > - Improving the documentation to include a basic getting started guide
+> - Support running the validator on [simdjson](https://github.com/simdjson/simdjson)
 > - Bindings to higher-level programming languages, starting with Node.js
 > - Publishing an academic paper along with a reproducible benchmark
 > - Landing various other in-progress optimizations
