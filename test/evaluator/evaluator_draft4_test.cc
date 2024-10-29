@@ -902,6 +902,22 @@ TEST(Evaluator_draft4, ref_14) {
                sourcemeta::blaze::EvaluationError);
 }
 
+TEST(Evaluator_draft4, ref_15) {
+  const sourcemeta::jsontoolkit::JSON schema{
+      sourcemeta::jsontoolkit::parse(R"JSON({
+    "$schema": "http://json-schema.org/draft-04/schema#",
+    "properties": {
+      "definitions": { "$ref": "#" },
+      "a": { "$ref": "#" }
+    }
+  })JSON")};
+
+  const sourcemeta::jsontoolkit::JSON instance{
+      sourcemeta::jsontoolkit::parse("{ \"definitions\": {} }")};
+
+  EVALUATE_WITH_TRACE_FAST_SUCCESS(schema, instance, 1);
+}
+
 TEST(Evaluator_draft4, properties_1) {
   const sourcemeta::jsontoolkit::JSON schema{
       sourcemeta::jsontoolkit::parse(R"JSON({

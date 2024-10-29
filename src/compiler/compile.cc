@@ -297,23 +297,21 @@ auto compile(Context &context, const SchemaContext &schema_context,
   const CompilerCache::key_type cache_key{
       destination, dynamic_context.base_schema_location,
       dynamic_context.base_instance_location, instance_suffix};
-  if (uri.has_value()) {
-    const auto cache_entry{context.cache.find(cache_key)};
-    if (cache_entry != context.cache.cend()) {
-      for (const auto &pair : cache_entry->second) {
-        if (schema_context.labels.size() > pair.second.size()) {
-          continue;
-        }
+  const auto cache_entry{context.cache.find(cache_key)};
+  if (cache_entry != context.cache.cend()) {
+    for (const auto &pair : cache_entry->second) {
+      if (schema_context.labels.size() > pair.second.size()) {
+        continue;
+      }
 
-        // Only proceed with short-circuiting this if the labels we have
-        // are a subset of the labels recorded by the cache entry,
-        // otherwise we risk referring to labels that the evaluator
-        // didn't store yet.
-        if (std::includes(pair.second.cbegin(), pair.second.cend(),
-                          schema_context.labels.cbegin(),
-                          schema_context.labels.cend())) {
-          return pair.first;
-        }
+      // Only proceed with short-circuiting this if the labels we have
+      // are a subset of the labels recorded by the cache entry,
+      // otherwise we risk referring to labels that the evaluator
+      // didn't store yet.
+      if (std::includes(pair.second.cbegin(), pair.second.cend(),
+                        schema_context.labels.cbegin(),
+                        schema_context.labels.cend())) {
+        return pair.first;
       }
     }
   }
@@ -356,14 +354,11 @@ auto compile(Context &context, const SchemaContext &schema_context,
        dynamic_context.base_instance_location.concat(instance_suffix)},
       entry.dialect)};
 
-  if (uri.has_value()) {
-    if (!context.cache.contains(cache_key)) {
-      context.cache.emplace(cache_key, typename CompilerCache::mapped_type{});
-    }
-
-    context.cache[cache_key].emplace_back(result, schema_context.labels);
+  if (!context.cache.contains(cache_key)) {
+    context.cache.emplace(cache_key, typename CompilerCache::mapped_type{});
   }
 
+  context.cache[cache_key].emplace_back(result, schema_context.labels);
   return result;
 }
 
