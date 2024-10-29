@@ -294,23 +294,19 @@ auto compile(Context &context, const SchemaContext &schema_context,
   // For big schemas with lots of references (particularly recursive ones),
   // we might end up processing the exact same subschemas over and over
   // again. Here, we attempt to memoize compiled subschemas when possible
+  const auto current_labels{schema_context.labels};
   const CompilerCache::key_type cache_key{
       destination, dynamic_context.base_schema_location,
       dynamic_context.base_instance_location, instance_suffix};
   const auto cache_entry{context.cache.find(cache_key)};
   if (cache_entry != context.cache.cend()) {
     for (const auto &pair : cache_entry->second) {
-      if (schema_context.labels.size() > pair.second.size()) {
-        continue;
-      }
-
       // Only proceed with short-circuiting this if the labels we have
       // are a subset of the labels recorded by the cache entry,
       // otherwise we risk referring to labels that the evaluator
       // didn't store yet.
-      if (std::includes(pair.second.cbegin(), pair.second.cend(),
-                        schema_context.labels.cbegin(),
-                        schema_context.labels.cend())) {
+      if (std::includes(current_labels.cbegin(), current_labels.cend(),
+                        pair.second.cbegin(), pair.second.cend())) {
         return pair.first;
       }
     }
