@@ -3,7 +3,7 @@
 
 #include <sourcemeta/jsontoolkit/jsonschema.h>
 
-#include <algorithm> // std::move, std::sort, std::unique
+#include <algorithm> // std::move, std::sort, std::unique, std::includes
 #include <cassert>   // assert
 #include <iterator>  // std::back_inserter
 #include <utility>   // std::move
@@ -12,7 +12,7 @@
 
 namespace {
 
-auto compile_subschema(const sourcemeta::blaze::Context &context,
+auto compile_subschema(sourcemeta::blaze::Context &context,
                        const sourcemeta::blaze::SchemaContext &schema_context,
                        const sourcemeta::blaze::DynamicContext &dynamic_context,
                        const std::optional<std::string> &default_dialect)
@@ -207,17 +207,19 @@ auto compile(const sourcemeta::jsontoolkit::JSON &schema,
   assert(resources.size() ==
          std::set<std::string>(resources.cbegin(), resources.cend()).size());
 
-  const Context context{result,
-                        frame,
-                        references,
-                        std::move(resources),
-                        walker,
-                        resolver,
-                        compiler,
-                        mode,
-                        uses_dynamic_scopes,
-                        unevaluated_properties_schemas,
-                        unevaluated_items_schemas};
+  CompilerCache cache;
+  Context context{result,
+                  frame,
+                  references,
+                  std::move(resources),
+                  walker,
+                  resolver,
+                  compiler,
+                  mode,
+                  uses_dynamic_scopes,
+                  unevaluated_properties_schemas,
+                  unevaluated_items_schemas,
+                  cache};
   const DynamicContext dynamic_context{relative_dynamic_context};
   Template compiler_template;
 
@@ -275,7 +277,7 @@ auto compile(const sourcemeta::jsontoolkit::JSON &schema,
   }
 }
 
-auto compile(const Context &context, const SchemaContext &schema_context,
+auto compile(Context &context, const SchemaContext &schema_context,
              const DynamicContext &dynamic_context,
              const sourcemeta::jsontoolkit::Pointer &schema_suffix,
              const sourcemeta::jsontoolkit::Pointer &instance_suffix,
@@ -288,6 +290,27 @@ auto compile(const Context &context, const SchemaContext &schema_context,
                    schema_context.base)
                 .canonicalize()
                 .recompose()};
+
+  // For big schemas with lots of references (particularly recursive ones),
+  // we might end up processing the exact same subschemas over and over
+  // again. Here, we attempt to memoize compiled subschemas when possible
+  const auto current_labels{schema_context.labels};
+  const CompilerCache::key_type cache_key{
+      destination, dynamic_context.base_schema_location,
+      dynamic_context.base_instance_location, instance_suffix};
+  const auto cache_entry{context.cache.find(cache_key)};
+  if (cache_entry != context.cache.cend()) {
+    for (const auto &pair : cache_entry->second) {
+      // Only proceed with short-circuiting this if the labels we have
+      // are a subset of the labels recorded by the cache entry,
+      // otherwise we risk referring to labels that the evaluator
+      // didn't store yet.
+      if (std::includes(current_labels.cbegin(), current_labels.cend(),
+                        pair.second.cbegin(), pair.second.cend())) {
+        return pair.first;
+      }
+    }
+  }
 
   // Otherwise the recursion attempt is non-sense
   if (!context.frame.contains(
@@ -314,7 +337,7 @@ auto compile(const Context &context, const SchemaContext &schema_context,
                 .concat({dynamic_context.keyword})
                 .concat(schema_suffix)};
 
-  return compile_subschema(
+  const Template result{compile_subschema(
       context,
       {entry.relative_pointer, new_schema,
        vocabularies(new_schema, context.resolver, entry.dialect),
@@ -325,7 +348,14 @@ auto compile(const Context &context, const SchemaContext &schema_context,
        schema_context.labels, schema_context.references},
       {dynamic_context.keyword, destination_pointer,
        dynamic_context.base_instance_location.concat(instance_suffix)},
-      entry.dialect);
+      entry.dialect)};
+
+  if (!context.cache.contains(cache_key)) {
+    context.cache.emplace(cache_key, typename CompilerCache::mapped_type{});
+  }
+
+  context.cache[cache_key].emplace_back(result, schema_context.labels);
+  return result;
 }
 
 } // namespace sourcemeta::blaze

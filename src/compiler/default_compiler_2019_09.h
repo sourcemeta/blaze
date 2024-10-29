@@ -10,7 +10,7 @@ namespace internal {
 using namespace sourcemeta::blaze;
 
 auto compiler_2019_09_applicator_dependentschemas(
-    const Context &context, const SchemaContext &schema_context,
+    Context &context, const SchemaContext &schema_context,
     const DynamicContext &dynamic_context) -> Template {
   assert(schema_context.schema.at(dynamic_context.keyword).is_object());
 
@@ -53,7 +53,7 @@ auto compiler_2019_09_applicator_dependentschemas(
 }
 
 auto compiler_2019_09_validation_dependentrequired(
-    const Context &context, const SchemaContext &schema_context,
+    Context &context, const SchemaContext &schema_context,
     const DynamicContext &dynamic_context) -> Template {
   if (!schema_context.schema.at(dynamic_context.keyword).is_object()) {
     return {};
@@ -91,7 +91,7 @@ auto compiler_2019_09_validation_dependentrequired(
       context, schema_context, dynamic_context, std::move(dependencies))};
 }
 
-auto compiler_2019_09_core_annotation(const Context &context,
+auto compiler_2019_09_core_annotation(Context &context,
                                       const SchemaContext &schema_context,
                                       const DynamicContext &dynamic_context)
     -> Template {
@@ -102,7 +102,7 @@ auto compiler_2019_09_core_annotation(const Context &context,
 }
 
 auto compiler_2019_09_applicator_contains_with_options(
-    const Context &context, const SchemaContext &schema_context,
+    Context &context, const SchemaContext &schema_context,
     const DynamicContext &dynamic_context, const bool annotate,
     const bool track_evaluation) -> Template {
   if (schema_context.schema.defines("type") &&
@@ -175,7 +175,7 @@ auto compiler_2019_09_applicator_contains_with_options(
       std::move(children))};
 }
 
-auto compiler_2019_09_applicator_contains(const Context &context,
+auto compiler_2019_09_applicator_contains(Context &context,
                                           const SchemaContext &schema_context,
                                           const DynamicContext &dynamic_context)
     -> Template {
@@ -184,7 +184,7 @@ auto compiler_2019_09_applicator_contains(const Context &context,
 }
 
 auto compiler_2019_09_applicator_additionalproperties(
-    const Context &context, const SchemaContext &schema_context,
+    Context &context, const SchemaContext &schema_context,
     const DynamicContext &dynamic_context) -> Template {
   return compiler_draft4_applicator_additionalproperties_with_options(
       context, schema_context, dynamic_context,
@@ -192,7 +192,7 @@ auto compiler_2019_09_applicator_additionalproperties(
       !context.unevaluated_properties_schemas.empty());
 }
 
-auto compiler_2019_09_applicator_items(const Context &context,
+auto compiler_2019_09_applicator_items(Context &context,
                                        const SchemaContext &schema_context,
                                        const DynamicContext &dynamic_context)
     -> Template {
@@ -203,7 +203,7 @@ auto compiler_2019_09_applicator_items(const Context &context,
 }
 
 auto compiler_2019_09_applicator_additionalitems(
-    const Context &context, const SchemaContext &schema_context,
+    Context &context, const SchemaContext &schema_context,
     const DynamicContext &dynamic_context) -> Template {
   return compiler_draft4_applicator_additionalitems_with_options(
       context, schema_context, dynamic_context,
@@ -212,7 +212,7 @@ auto compiler_2019_09_applicator_additionalitems(
 }
 
 auto compiler_2019_09_applicator_unevaluateditems(
-    const Context &context, const SchemaContext &schema_context,
+    Context &context, const SchemaContext &schema_context,
     const DynamicContext &dynamic_context) -> Template {
   if (schema_context.schema.defines("type") &&
       schema_context.schema.at("type").is_string() &&
@@ -248,7 +248,7 @@ auto compiler_2019_09_applicator_unevaluateditems(
 }
 
 auto compiler_2019_09_applicator_unevaluatedproperties(
-    const Context &context, const SchemaContext &schema_context,
+    Context &context, const SchemaContext &schema_context,
     const DynamicContext &dynamic_context) -> Template {
   if (schema_context.schema.defines("type") &&
       schema_context.schema.at("type").is_string() &&
@@ -321,7 +321,7 @@ auto compiler_2019_09_applicator_unevaluatedproperties(
   }
 }
 
-auto compiler_2019_09_core_recursiveref(const Context &context,
+auto compiler_2019_09_core_recursiveref(Context &context,
                                         const SchemaContext &schema_context,
                                         const DynamicContext &dynamic_context)
     -> Template {
@@ -337,7 +337,7 @@ auto compiler_2019_09_core_recursiveref(const Context &context,
 }
 
 auto compiler_2019_09_applicator_properties(
-    const Context &context, const SchemaContext &schema_context,
+    Context &context, const SchemaContext &schema_context,
     const DynamicContext &dynamic_context) -> Template {
   // If there is a sibling `unevaluatedProperties`, then no need
   // to track evaluation, as that keyword will statically consider
@@ -356,7 +356,7 @@ auto compiler_2019_09_applicator_properties(
 }
 
 auto compiler_2019_09_applicator_patternproperties(
-    const Context &context, const SchemaContext &schema_context,
+    Context &context, const SchemaContext &schema_context,
     const DynamicContext &dynamic_context) -> Template {
   // If there is a sibling `unevaluatedProperties`, then no need
   // to track evaluation, as that keyword will statically consider

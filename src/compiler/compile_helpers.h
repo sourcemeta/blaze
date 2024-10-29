@@ -16,8 +16,8 @@ static const DynamicContext relative_dynamic_context{
     "", sourcemeta::jsontoolkit::empty_pointer,
     sourcemeta::jsontoolkit::empty_pointer};
 
-inline auto schema_resource_id(const Context &context,
-                               const std::string &resource) -> std::size_t {
+inline auto schema_resource_id(Context &context, const std::string &resource)
+    -> std::size_t {
   const auto iterator{std::find(
       context.resources.cbegin(), context.resources.cend(),
       sourcemeta::jsontoolkit::URI{resource}.canonicalize().recompose())};
@@ -32,7 +32,7 @@ inline auto schema_resource_id(const Context &context,
 
 // Instantiate a value-oriented step
 template <typename Step>
-auto make(const Context &context, const SchemaContext &schema_context,
+auto make(Context &context, const SchemaContext &schema_context,
           const DynamicContext &dynamic_context,
           // Take the value type from the "type" property of the step struct
           const decltype(std::declval<Step>().value) &value) -> Step {
@@ -53,7 +53,7 @@ auto make(const Context &context, const SchemaContext &schema_context,
 
 // Instantiate an applicator step
 template <typename Step>
-auto make(const Context &context, const SchemaContext &schema_context,
+auto make(Context &context, const SchemaContext &schema_context,
           const DynamicContext &dynamic_context,
           // Take the value type from the "value" property of the step struct
           decltype(std::declval<Step>().value) &&value, Template &&children)
@@ -113,7 +113,7 @@ unsigned_integer_property(const sourcemeta::jsontoolkit::JSON &document,
   return unsigned_integer_property(document, property).value_or(otherwise);
 }
 
-inline auto static_frame_entry(const Context &context,
+inline auto static_frame_entry(Context &context,
                                const SchemaContext &schema_context)
     -> const sourcemeta::jsontoolkit::ReferenceFrameEntry & {
   const auto type{sourcemeta::jsontoolkit::ReferenceType::Static};
@@ -123,7 +123,7 @@ inline auto static_frame_entry(const Context &context,
   return context.frame.at({type, current});
 }
 
-inline auto walk_subschemas(const Context &context,
+inline auto walk_subschemas(Context &context,
                             const SchemaContext &schema_context,
                             const DynamicContext &dynamic_context) -> auto {
   const auto &entry{static_frame_entry(context, schema_context)};
@@ -143,8 +143,7 @@ inline auto pattern_as_prefix(const std::string &pattern)
   }
 }
 
-inline auto find_adjacent(const Context &context,
-                          const SchemaContext &schema_context,
+inline auto find_adjacent(Context &context, const SchemaContext &schema_context,
                           const std::set<std::string> &vocabularies,
                           const std::string &keyword,
                           const sourcemeta::jsontoolkit::JSON::Type type)

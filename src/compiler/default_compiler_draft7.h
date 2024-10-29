@@ -9,7 +9,7 @@ namespace internal {
 using namespace sourcemeta::blaze;
 
 // TODO: Don't generate `if` if neither `then` nor `else` is defined
-auto compiler_draft7_applicator_if(const Context &context,
+auto compiler_draft7_applicator_if(Context &context,
                                    const SchemaContext &schema_context,
                                    const DynamicContext &dynamic_context)
     -> Template {
@@ -65,7 +65,7 @@ auto compiler_draft7_applicator_if(const Context &context,
 // We handle `then` as part of `if`
 // TODO: Stop collapsing this keyword on exhaustive mode for debuggability
 // purposes
-auto compiler_draft7_applicator_then(const Context &, const SchemaContext &,
+auto compiler_draft7_applicator_then(Context &, const SchemaContext &,
                                      const DynamicContext &) -> Template {
   return {};
 }
@@ -73,7 +73,7 @@ auto compiler_draft7_applicator_then(const Context &, const SchemaContext &,
 // We handle `else` as part of `if`
 // TODO: Stop collapsing this keyword on exhaustive mode for debuggability
 // purposes
-auto compiler_draft7_applicator_else(const Context &, const SchemaContext &,
+auto compiler_draft7_applicator_else(Context &, const SchemaContext &,
                                      const DynamicContext &) -> Template {
   return {};
 }
