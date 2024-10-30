@@ -59,6 +59,43 @@ auto compile_subschema(const sourcemeta::blaze::Context &context,
   return steps;
 }
 
+auto precompile(
+    const sourcemeta::blaze::Context &context,
+    sourcemeta::blaze::SchemaContext &schema_context,
+    const sourcemeta::blaze::DynamicContext &dynamic_context,
+    const sourcemeta::jsontoolkit::ReferenceFrame::value_type &entry)
+    -> sourcemeta::blaze::Template {
+  const sourcemeta::jsontoolkit::URI anchor_uri{entry.first.second};
+  const auto label{sourcemeta::blaze::EvaluationContext{}.hash(
+      schema_resource_id(context,
+                         anchor_uri.recompose_without_fragment().value_or("")),
+      std::string{anchor_uri.fragment().value_or("")})};
+  schema_context.labels.insert(label);
+
+  // Configure a schema context that corresponds to the
+  // schema resource that we are precompiling
+  auto subschema{
+      sourcemeta::jsontoolkit::get(context.root, entry.second.pointer)};
+  auto nested_vocabularies{sourcemeta::jsontoolkit::vocabularies(
+      subschema, context.resolver, entry.second.dialect)};
+  const sourcemeta::blaze::SchemaContext nested_schema_context{
+      entry.second.relative_pointer,
+      std::move(subschema),
+      std::move(nested_vocabularies),
+      entry.second.base,
+      {},
+      {}};
+
+  return {make<sourcemeta::blaze::ControlMark>(
+      context, nested_schema_context, dynamic_context,
+      sourcemeta::blaze::ValueUnsignedInteger{label},
+      sourcemeta::blaze::compile(context, nested_schema_context,
+                                 sourcemeta::blaze::relative_dynamic_context,
+                                 sourcemeta::jsontoolkit::empty_pointer,
+                                 sourcemeta::jsontoolkit::empty_pointer,
+                                 entry.first.second))};
+}
+
 } // namespace
 
 namespace sourcemeta::blaze {
@@ -235,31 +272,10 @@ auto compile(const sourcemeta::jsontoolkit::JSON &schema,
         continue;
       }
 
-      const sourcemeta::jsontoolkit::URI anchor_uri{entry.first.second};
-      const auto label{EvaluationContext{}.hash(
-          schema_resource_id(
-              context, anchor_uri.recompose_without_fragment().value_or("")),
-          std::string{anchor_uri.fragment().value_or("")})};
-      schema_context.labels.insert(label);
-
-      // Configure a schema context that corresponds to the
-      // schema resource that we are precompiling
-      auto subschema{get(result, entry.second.pointer)};
-      auto nested_vocabularies{
-          vocabularies(subschema, resolver, entry.second.dialect)};
-      const SchemaContext nested_schema_context{entry.second.relative_pointer,
-                                                std::move(subschema),
-                                                std::move(nested_vocabularies),
-                                                entry.second.base,
-                                                {},
-                                                {}};
-
-      compiler_template.push_back(make<ControlMark>(
-          context, nested_schema_context, dynamic_context,
-          ValueUnsignedInteger{label},
-          compile(context, nested_schema_context, relative_dynamic_context,
-                  sourcemeta::jsontoolkit::empty_pointer,
-                  sourcemeta::jsontoolkit::empty_pointer, entry.first.second)));
+      for (auto &&substep :
+           precompile(context, schema_context, dynamic_context, entry)) {
+        compiler_template.push_back(std::move(substep));
+      }
     }
   }
 
