@@ -63,6 +63,235 @@ TEST(Evaluator_draft6, const_2) {
       "The string value \"foo\" was expected to equal the integer constant 1");
 }
 
+TEST(Evaluator_draft6, const_3) {
+  const sourcemeta::jsontoolkit::JSON schema{
+      sourcemeta::jsontoolkit::parse(R"JSON({
+    "$schema": "http://json-schema.org/draft-06/schema#",
+    "type": "string",
+    "const": "foo"
+  })JSON")};
+
+  const sourcemeta::jsontoolkit::JSON instance{"foo"};
+  EVALUATE_WITH_TRACE_FAST_SUCCESS(schema, instance, 1);
+
+  EVALUATE_TRACE_PRE(0, AssertionEqual, "/const", "#/const", "");
+  EVALUATE_TRACE_POST_SUCCESS(0, AssertionEqual, "/const", "#/const", "");
+  EVALUATE_TRACE_POST_DESCRIBE(instance, 0,
+                               "The string value \"foo\" was expected to equal "
+                               "the string constant \"foo\"");
+}
+
+TEST(Evaluator_draft6, const_4) {
+  const sourcemeta::jsontoolkit::JSON schema{
+      sourcemeta::jsontoolkit::parse(R"JSON({
+    "$schema": "http://json-schema.org/draft-06/schema#",
+    "type": "null",
+    "const": null
+  })JSON")};
+
+  const sourcemeta::jsontoolkit::JSON instance{nullptr};
+  EVALUATE_WITH_TRACE_FAST_SUCCESS(schema, instance, 1);
+
+  EVALUATE_TRACE_PRE(0, AssertionEqual, "/const", "#/const", "");
+  EVALUATE_TRACE_POST_SUCCESS(0, AssertionEqual, "/const", "#/const", "");
+  EVALUATE_TRACE_POST_DESCRIBE(
+      instance, 0,
+      "The null value null was expected to equal the null constant null");
+}
+
+TEST(Evaluator_draft6, const_5) {
+  const sourcemeta::jsontoolkit::JSON schema{
+      sourcemeta::jsontoolkit::parse(R"JSON({
+    "$schema": "http://json-schema.org/draft-06/schema#",
+    "type": "boolean",
+    "const": true
+  })JSON")};
+
+  const sourcemeta::jsontoolkit::JSON instance{true};
+  EVALUATE_WITH_TRACE_FAST_SUCCESS(schema, instance, 1);
+
+  EVALUATE_TRACE_PRE(0, AssertionEqual, "/const", "#/const", "");
+  EVALUATE_TRACE_POST_SUCCESS(0, AssertionEqual, "/const", "#/const", "");
+  EVALUATE_TRACE_POST_DESCRIBE(
+      instance, 0,
+      "The boolean value true was expected to equal the boolean constant true");
+}
+
+TEST(Evaluator_draft6, const_6) {
+  const sourcemeta::jsontoolkit::JSON schema{
+      sourcemeta::jsontoolkit::parse(R"JSON({
+    "$schema": "http://json-schema.org/draft-06/schema#",
+    "type": "number",
+    "const": 3.14
+  })JSON")};
+
+  const sourcemeta::jsontoolkit::JSON instance{3.14};
+  EVALUATE_WITH_TRACE_FAST_SUCCESS(schema, instance, 1);
+
+  EVALUATE_TRACE_PRE(0, AssertionEqual, "/const", "#/const", "");
+  EVALUATE_TRACE_POST_SUCCESS(0, AssertionEqual, "/const", "#/const", "");
+  EVALUATE_TRACE_POST_DESCRIBE(
+      instance, 0,
+      "The number value 3.14 was expected to equal the number constant 3.14");
+}
+
+TEST(Evaluator_draft6, const_7) {
+  const sourcemeta::jsontoolkit::JSON schema{
+      sourcemeta::jsontoolkit::parse(R"JSON({
+    "$schema": "http://json-schema.org/draft-06/schema#",
+    "type": "integer",
+    "const": 3
+  })JSON")};
+
+  const sourcemeta::jsontoolkit::JSON instance{3};
+  EVALUATE_WITH_TRACE_FAST_SUCCESS(schema, instance, 1);
+
+  EVALUATE_TRACE_PRE(0, AssertionEqual, "/const", "#/const", "");
+  EVALUATE_TRACE_POST_SUCCESS(0, AssertionEqual, "/const", "#/const", "");
+  EVALUATE_TRACE_POST_DESCRIBE(
+      instance, 0,
+      "The integer value 3 was expected to equal the integer constant 3");
+}
+
+TEST(Evaluator_draft6, const_8) {
+  const sourcemeta::jsontoolkit::JSON schema{
+      sourcemeta::jsontoolkit::parse(R"JSON({
+    "$schema": "http://json-schema.org/draft-06/schema#",
+    "type": "integer",
+    "const": 3.0
+  })JSON")};
+
+  const sourcemeta::jsontoolkit::JSON instance{3.0};
+  EVALUATE_WITH_TRACE_FAST_SUCCESS(schema, instance, 1);
+
+  EVALUATE_TRACE_PRE(0, AssertionEqual, "/const", "#/const", "");
+  EVALUATE_TRACE_POST_SUCCESS(0, AssertionEqual, "/const", "#/const", "");
+  EVALUATE_TRACE_POST_DESCRIBE(
+      instance, 0,
+      "The number value 3.0 was expected to equal the number constant 3.0");
+}
+
+TEST(Evaluator_draft6, const_9) {
+  const sourcemeta::jsontoolkit::JSON schema{
+      sourcemeta::jsontoolkit::parse(R"JSON({
+    "$schema": "http://json-schema.org/draft-06/schema#",
+    "type": "array",
+    "const": []
+  })JSON")};
+
+  const sourcemeta::jsontoolkit::JSON instance{
+      sourcemeta::jsontoolkit::parse("[]")};
+  EVALUATE_WITH_TRACE_FAST_SUCCESS(schema, instance, 1);
+
+  EVALUATE_TRACE_PRE(0, AssertionEqual, "/const", "#/const", "");
+  EVALUATE_TRACE_POST_SUCCESS(0, AssertionEqual, "/const", "#/const", "");
+  EVALUATE_TRACE_POST_DESCRIBE(
+      instance, 0,
+      "The array value [] was expected to equal the array constant []");
+}
+
+TEST(Evaluator_draft6, const_10) {
+  const sourcemeta::jsontoolkit::JSON schema{
+      sourcemeta::jsontoolkit::parse(R"JSON({
+    "$schema": "http://json-schema.org/draft-06/schema#",
+    "type": "object",
+    "const": {}
+  })JSON")};
+
+  const sourcemeta::jsontoolkit::JSON instance{
+      sourcemeta::jsontoolkit::parse("{}")};
+  EVALUATE_WITH_TRACE_FAST_SUCCESS(schema, instance, 1);
+
+  EVALUATE_TRACE_PRE(0, AssertionEqual, "/const", "#/const", "");
+  EVALUATE_TRACE_POST_SUCCESS(0, AssertionEqual, "/const", "#/const", "");
+  EVALUATE_TRACE_POST_DESCRIBE(
+      instance, 0,
+      "The object value {} was expected to equal the object constant {}");
+}
+
+TEST(Evaluator_draft6, const_11) {
+  const sourcemeta::jsontoolkit::JSON schema{
+      sourcemeta::jsontoolkit::parse(R"JSON({
+    "$schema": "http://json-schema.org/draft-06/schema#",
+    "type": "object",
+    "minProperties": 1,
+    "const": { "foo": 1 }
+  })JSON")};
+
+  const sourcemeta::jsontoolkit::JSON instance{
+      sourcemeta::jsontoolkit::parse("{ \"foo\": 1 }")};
+  EVALUATE_WITH_TRACE_FAST_SUCCESS(schema, instance, 2);
+
+  EVALUATE_TRACE_PRE(0, AssertionEqual, "/const", "#/const", "");
+  EVALUATE_TRACE_PRE(1, AssertionTypeObjectBounded, "/type", "#/type", "");
+
+  EVALUATE_TRACE_POST_SUCCESS(0, AssertionEqual, "/const", "#/const", "");
+  EVALUATE_TRACE_POST_SUCCESS(1, AssertionTypeObjectBounded, "/type", "#/type",
+                              "");
+
+  EVALUATE_TRACE_POST_DESCRIBE(instance, 0,
+                               "The object value {\"foo\":1} was expected to "
+                               "equal the object constant {\"foo\":1}");
+  EVALUATE_TRACE_POST_DESCRIBE(
+      instance, 1,
+      "The value was expected to consist of an object of at least 1 property");
+}
+
+TEST(Evaluator_draft6, const_12) {
+  const sourcemeta::jsontoolkit::JSON schema{
+      sourcemeta::jsontoolkit::parse(R"JSON({
+    "$schema": "http://json-schema.org/draft-06/schema#",
+    "type": "array",
+    "minItems": 1,
+    "const": [ 1 ]
+  })JSON")};
+
+  const sourcemeta::jsontoolkit::JSON instance{
+      sourcemeta::jsontoolkit::parse("[1]")};
+  EVALUATE_WITH_TRACE_FAST_SUCCESS(schema, instance, 2);
+
+  EVALUATE_TRACE_PRE(0, AssertionEqual, "/const", "#/const", "");
+  EVALUATE_TRACE_PRE(1, AssertionTypeArrayBounded, "/type", "#/type", "");
+
+  EVALUATE_TRACE_POST_SUCCESS(0, AssertionEqual, "/const", "#/const", "");
+  EVALUATE_TRACE_POST_SUCCESS(1, AssertionTypeArrayBounded, "/type", "#/type",
+                              "");
+
+  EVALUATE_TRACE_POST_DESCRIBE(
+      instance, 0,
+      "The array value [1] was expected to equal the array constant [1]");
+  EVALUATE_TRACE_POST_DESCRIBE(
+      instance, 1,
+      "The value was expected to consist of an array of at least 1 item");
+}
+
+TEST(Evaluator_draft6, const_13) {
+  const sourcemeta::jsontoolkit::JSON schema{
+      sourcemeta::jsontoolkit::parse(R"JSON({
+    "$schema": "http://json-schema.org/draft-06/schema#",
+    "type": "string",
+    "minLength": 1,
+    "const": "foo"
+  })JSON")};
+
+  const sourcemeta::jsontoolkit::JSON instance{"foo"};
+  EVALUATE_WITH_TRACE_FAST_SUCCESS(schema, instance, 2);
+
+  EVALUATE_TRACE_PRE(0, AssertionEqual, "/const", "#/const", "");
+  EVALUATE_TRACE_PRE(1, AssertionTypeStringBounded, "/type", "#/type", "");
+
+  EVALUATE_TRACE_POST_SUCCESS(0, AssertionEqual, "/const", "#/const", "");
+  EVALUATE_TRACE_POST_SUCCESS(1, AssertionTypeStringBounded, "/type", "#/type",
+                              "");
+
+  EVALUATE_TRACE_POST_DESCRIBE(instance, 0,
+                               "The string value \"foo\" was expected to equal "
+                               "the string constant \"foo\"");
+  EVALUATE_TRACE_POST_DESCRIBE(
+      instance, 1,
+      "The value was expected to consist of a string of at least 1 character");
+}
+
 TEST(Evaluator_draft6, exclusiveMinimum_1) {
   const sourcemeta::jsontoolkit::JSON schema{
       sourcemeta::jsontoolkit::parse(R"JSON({
@@ -836,4 +1065,376 @@ TEST(Evaluator_draft6, maxProperties_3) {
   EVALUATE_TRACE_POST_DESCRIBE(
       instance, 0,
       "The value was expected to consist of an object of 1 to 2 properties");
+}
+
+TEST(Evaluator_draft6, enum_1) {
+  const sourcemeta::jsontoolkit::JSON schema{
+      sourcemeta::jsontoolkit::parse(R"JSON({
+    "$schema": "http://json-schema.org/draft-06/schema#",
+    "type": "string",
+    "enum": [ "foo" ]
+  })JSON")};
+
+  const sourcemeta::jsontoolkit::JSON instance{"foo"};
+  EVALUATE_WITH_TRACE_FAST_SUCCESS(schema, instance, 1);
+
+  EVALUATE_TRACE_PRE(0, AssertionEqual, "/enum", "#/enum", "");
+  EVALUATE_TRACE_POST_SUCCESS(0, AssertionEqual, "/enum", "#/enum", "");
+
+  EVALUATE_TRACE_POST_DESCRIBE(instance, 0,
+                               "The string value \"foo\" was expected to equal "
+                               "the string constant \"foo\"");
+}
+
+TEST(Evaluator_draft6, enum_1_exhaustive) {
+  const sourcemeta::jsontoolkit::JSON schema{
+      sourcemeta::jsontoolkit::parse(R"JSON({
+    "$schema": "http://json-schema.org/draft-06/schema#",
+    "type": "string",
+    "enum": [ "foo" ]
+  })JSON")};
+
+  const sourcemeta::jsontoolkit::JSON instance{"foo"};
+  EVALUATE_WITH_TRACE_EXHAUSTIVE_SUCCESS(schema, instance, 2);
+
+  EVALUATE_TRACE_PRE(0, AssertionEqual, "/enum", "#/enum", "");
+  EVALUATE_TRACE_PRE(1, AssertionTypeStrict, "/type", "#/type", "");
+
+  EVALUATE_TRACE_POST_SUCCESS(0, AssertionEqual, "/enum", "#/enum", "");
+  EVALUATE_TRACE_POST_SUCCESS(1, AssertionTypeStrict, "/type", "#/type", "");
+
+  EVALUATE_TRACE_POST_DESCRIBE(instance, 0,
+                               "The string value \"foo\" was expected to equal "
+                               "the string constant \"foo\"");
+  EVALUATE_TRACE_POST_DESCRIBE(instance, 1,
+                               "The value was expected to be of type string");
+}
+
+TEST(Evaluator_draft6, enum_2) {
+  const sourcemeta::jsontoolkit::JSON schema{
+      sourcemeta::jsontoolkit::parse(R"JSON({
+    "$schema": "http://json-schema.org/draft-06/schema#",
+    "type": "boolean",
+    "enum": [ true ]
+  })JSON")};
+
+  const sourcemeta::jsontoolkit::JSON instance{true};
+  EVALUATE_WITH_TRACE_FAST_SUCCESS(schema, instance, 1);
+
+  EVALUATE_TRACE_PRE(0, AssertionEqual, "/enum", "#/enum", "");
+  EVALUATE_TRACE_POST_SUCCESS(0, AssertionEqual, "/enum", "#/enum", "");
+
+  EVALUATE_TRACE_POST_DESCRIBE(
+      instance, 0,
+      "The boolean value true was expected to equal the boolean constant true");
+}
+
+TEST(Evaluator_draft6, enum_3) {
+  const sourcemeta::jsontoolkit::JSON schema{
+      sourcemeta::jsontoolkit::parse(R"JSON({
+    "$schema": "http://json-schema.org/draft-06/schema#",
+    "type": "number",
+    "enum": [ 3.14 ]
+  })JSON")};
+
+  const sourcemeta::jsontoolkit::JSON instance{3.14};
+  EVALUATE_WITH_TRACE_FAST_SUCCESS(schema, instance, 1);
+
+  EVALUATE_TRACE_PRE(0, AssertionEqual, "/enum", "#/enum", "");
+  EVALUATE_TRACE_POST_SUCCESS(0, AssertionEqual, "/enum", "#/enum", "");
+
+  EVALUATE_TRACE_POST_DESCRIBE(
+      instance, 0,
+      "The number value 3.14 was expected to equal the number constant 3.14");
+}
+
+TEST(Evaluator_draft6, enum_4) {
+  const sourcemeta::jsontoolkit::JSON schema{
+      sourcemeta::jsontoolkit::parse(R"JSON({
+    "$schema": "http://json-schema.org/draft-06/schema#",
+    "type": "number",
+    "enum": [ 3 ]
+  })JSON")};
+
+  const sourcemeta::jsontoolkit::JSON instance{3};
+  EVALUATE_WITH_TRACE_FAST_SUCCESS(schema, instance, 1);
+
+  EVALUATE_TRACE_PRE(0, AssertionEqual, "/enum", "#/enum", "");
+  EVALUATE_TRACE_POST_SUCCESS(0, AssertionEqual, "/enum", "#/enum", "");
+
+  EVALUATE_TRACE_POST_DESCRIBE(
+      instance, 0,
+      "The integer value 3 was expected to equal the integer constant 3");
+}
+
+TEST(Evaluator_draft6, enum_5) {
+  const sourcemeta::jsontoolkit::JSON schema{
+      sourcemeta::jsontoolkit::parse(R"JSON({
+    "$schema": "http://json-schema.org/draft-06/schema#",
+    "type": "integer",
+    "enum": [ 3 ]
+  })JSON")};
+
+  const sourcemeta::jsontoolkit::JSON instance{3};
+  EVALUATE_WITH_TRACE_FAST_SUCCESS(schema, instance, 1);
+
+  EVALUATE_TRACE_PRE(0, AssertionEqual, "/enum", "#/enum", "");
+  EVALUATE_TRACE_POST_SUCCESS(0, AssertionEqual, "/enum", "#/enum", "");
+
+  EVALUATE_TRACE_POST_DESCRIBE(
+      instance, 0,
+      "The integer value 3 was expected to equal the integer constant 3");
+}
+
+TEST(Evaluator_draft6, enum_6) {
+  const sourcemeta::jsontoolkit::JSON schema{
+      sourcemeta::jsontoolkit::parse(R"JSON({
+    "$schema": "http://json-schema.org/draft-06/schema#",
+    "type": "string",
+    "enum": [ "foo", "bar", "baz" ]
+  })JSON")};
+
+  const sourcemeta::jsontoolkit::JSON instance{"foo"};
+  EVALUATE_WITH_TRACE_FAST_SUCCESS(schema, instance, 1);
+
+  EVALUATE_TRACE_PRE(0, AssertionEqualsAny, "/enum", "#/enum", "");
+  EVALUATE_TRACE_POST_SUCCESS(0, AssertionEqualsAny, "/enum", "#/enum", "");
+
+  EVALUATE_TRACE_POST_DESCRIBE(instance, 0,
+                               "The string value \"foo\" was expected to equal "
+                               "one of the 3 declared values");
+}
+
+TEST(Evaluator_draft6, enum_7) {
+  const sourcemeta::jsontoolkit::JSON schema{
+      sourcemeta::jsontoolkit::parse(R"JSON({
+    "$schema": "http://json-schema.org/draft-06/schema#",
+    "type": "string",
+    "enum": [ "foo", 1 ]
+  })JSON")};
+
+  const sourcemeta::jsontoolkit::JSON instance{"foo"};
+  EVALUATE_WITH_TRACE_FAST_SUCCESS(schema, instance, 2);
+
+  EVALUATE_TRACE_PRE(0, AssertionEqualsAny, "/enum", "#/enum", "");
+  EVALUATE_TRACE_PRE(1, AssertionTypeStrict, "/type", "#/type", "");
+
+  EVALUATE_TRACE_POST_SUCCESS(0, AssertionEqualsAny, "/enum", "#/enum", "");
+  EVALUATE_TRACE_POST_SUCCESS(1, AssertionTypeStrict, "/type", "#/type", "");
+
+  EVALUATE_TRACE_POST_DESCRIBE(instance, 0,
+                               "The string value \"foo\" was expected to equal "
+                               "one of the 2 declared values");
+  EVALUATE_TRACE_POST_DESCRIBE(instance, 1,
+                               "The value was expected to be of type string");
+}
+
+TEST(Evaluator_draft6, enum_8) {
+  const sourcemeta::jsontoolkit::JSON schema{
+      sourcemeta::jsontoolkit::parse(R"JSON({
+    "$schema": "http://json-schema.org/draft-06/schema#",
+    "type": "array",
+    "enum": [ [1] ]
+  })JSON")};
+
+  const sourcemeta::jsontoolkit::JSON instance{
+      sourcemeta::jsontoolkit::parse("[1]")};
+  EVALUATE_WITH_TRACE_FAST_SUCCESS(schema, instance, 1);
+
+  EVALUATE_TRACE_PRE(0, AssertionEqual, "/enum", "#/enum", "");
+  EVALUATE_TRACE_POST_SUCCESS(0, AssertionEqual, "/enum", "#/enum", "");
+
+  EVALUATE_TRACE_POST_DESCRIBE(
+      instance, 0,
+      "The array value [1] was expected to equal the array constant [1]");
+}
+
+TEST(Evaluator_draft6, enum_8_exhaustive) {
+  const sourcemeta::jsontoolkit::JSON schema{
+      sourcemeta::jsontoolkit::parse(R"JSON({
+    "$schema": "http://json-schema.org/draft-06/schema#",
+    "type": "array",
+    "enum": [ [1] ]
+  })JSON")};
+
+  const sourcemeta::jsontoolkit::JSON instance{
+      sourcemeta::jsontoolkit::parse("[1]")};
+  EVALUATE_WITH_TRACE_EXHAUSTIVE_SUCCESS(schema, instance, 2);
+
+  EVALUATE_TRACE_PRE(0, AssertionEqual, "/enum", "#/enum", "");
+  EVALUATE_TRACE_PRE(1, AssertionTypeStrict, "/type", "#/type", "");
+
+  EVALUATE_TRACE_POST_SUCCESS(0, AssertionEqual, "/enum", "#/enum", "");
+  EVALUATE_TRACE_POST_SUCCESS(1, AssertionTypeStrict, "/type", "#/type", "");
+
+  EVALUATE_TRACE_POST_DESCRIBE(
+      instance, 0,
+      "The array value [1] was expected to equal the array constant [1]");
+  EVALUATE_TRACE_POST_DESCRIBE(instance, 1,
+                               "The value was expected to be of type array");
+}
+
+TEST(Evaluator_draft6, enum_9) {
+  const sourcemeta::jsontoolkit::JSON schema{
+      sourcemeta::jsontoolkit::parse(R"JSON({
+    "$schema": "http://json-schema.org/draft-06/schema#",
+    "type": "object",
+    "enum": [ {} ]
+  })JSON")};
+
+  const sourcemeta::jsontoolkit::JSON instance{
+      sourcemeta::jsontoolkit::parse("{}")};
+  EVALUATE_WITH_TRACE_FAST_SUCCESS(schema, instance, 1);
+
+  EVALUATE_TRACE_PRE(0, AssertionEqual, "/enum", "#/enum", "");
+  EVALUATE_TRACE_POST_SUCCESS(0, AssertionEqual, "/enum", "#/enum", "");
+
+  EVALUATE_TRACE_POST_DESCRIBE(
+      instance, 0,
+      "The object value {} was expected to equal the object constant {}");
+}
+
+TEST(Evaluator_draft6, enum_9_exhaustive) {
+  const sourcemeta::jsontoolkit::JSON schema{
+      sourcemeta::jsontoolkit::parse(R"JSON({
+    "$schema": "http://json-schema.org/draft-06/schema#",
+    "type": "object",
+    "enum": [ {} ]
+  })JSON")};
+
+  const sourcemeta::jsontoolkit::JSON instance{
+      sourcemeta::jsontoolkit::parse("{}")};
+  EVALUATE_WITH_TRACE_EXHAUSTIVE_SUCCESS(schema, instance, 2);
+
+  EVALUATE_TRACE_PRE(0, AssertionEqual, "/enum", "#/enum", "");
+  EVALUATE_TRACE_PRE(1, AssertionTypeStrict, "/type", "#/type", "");
+
+  EVALUATE_TRACE_POST_SUCCESS(0, AssertionEqual, "/enum", "#/enum", "");
+  EVALUATE_TRACE_POST_SUCCESS(1, AssertionTypeStrict, "/type", "#/type", "");
+
+  EVALUATE_TRACE_POST_DESCRIBE(
+      instance, 0,
+      "The object value {} was expected to equal the object constant {}");
+  EVALUATE_TRACE_POST_DESCRIBE(instance, 1,
+                               "The value was expected to be of type object");
+}
+
+TEST(Evaluator_draft6, enum_10) {
+  const sourcemeta::jsontoolkit::JSON schema{
+      sourcemeta::jsontoolkit::parse(R"JSON({
+    "$schema": "http://json-schema.org/draft-06/schema#",
+    "type": "null",
+    "enum": [ null ]
+  })JSON")};
+
+  const sourcemeta::jsontoolkit::JSON instance{nullptr};
+  EVALUATE_WITH_TRACE_FAST_SUCCESS(schema, instance, 1);
+
+  EVALUATE_TRACE_PRE(0, AssertionEqual, "/enum", "#/enum", "");
+  EVALUATE_TRACE_POST_SUCCESS(0, AssertionEqual, "/enum", "#/enum", "");
+
+  EVALUATE_TRACE_POST_DESCRIBE(
+      instance, 0,
+      "The null value null was expected to equal the null constant null");
+}
+
+TEST(Evaluator_draft6, enum_11) {
+  const sourcemeta::jsontoolkit::JSON schema{
+      sourcemeta::jsontoolkit::parse(R"JSON({
+    "$schema": "http://json-schema.org/draft-06/schema#",
+    "type": "string",
+    "minLength": 1,
+    "enum": [ "foo" ]
+  })JSON")};
+
+  const sourcemeta::jsontoolkit::JSON instance{"foo"};
+  EVALUATE_WITH_TRACE_FAST_SUCCESS(schema, instance, 2);
+
+  EVALUATE_TRACE_PRE(0, AssertionEqual, "/enum", "#/enum", "");
+  EVALUATE_TRACE_PRE(1, AssertionTypeStringBounded, "/type", "#/type", "");
+
+  EVALUATE_TRACE_POST_SUCCESS(0, AssertionEqual, "/enum", "#/enum", "");
+  EVALUATE_TRACE_POST_SUCCESS(1, AssertionTypeStringBounded, "/type", "#/type",
+                              "");
+
+  EVALUATE_TRACE_POST_DESCRIBE(instance, 0,
+                               "The string value \"foo\" was expected to equal "
+                               "the string constant \"foo\"");
+  EVALUATE_TRACE_POST_DESCRIBE(
+      instance, 1,
+      "The value was expected to consist of a string of at least 1 character");
+}
+
+TEST(Evaluator_draft6, enum_12) {
+  const sourcemeta::jsontoolkit::JSON schema{
+      sourcemeta::jsontoolkit::parse(R"JSON({
+    "$schema": "http://json-schema.org/draft-06/schema#",
+    "type": "array",
+    "minItems": 1,
+    "enum": [ [1] ]
+  })JSON")};
+
+  const sourcemeta::jsontoolkit::JSON instance{
+      sourcemeta::jsontoolkit::parse("[1]")};
+  EVALUATE_WITH_TRACE_FAST_SUCCESS(schema, instance, 2);
+
+  EVALUATE_TRACE_PRE(0, AssertionEqual, "/enum", "#/enum", "");
+  EVALUATE_TRACE_PRE(1, AssertionTypeArrayBounded, "/type", "#/type", "");
+
+  EVALUATE_TRACE_POST_SUCCESS(0, AssertionEqual, "/enum", "#/enum", "");
+  EVALUATE_TRACE_POST_SUCCESS(1, AssertionTypeArrayBounded, "/type", "#/type",
+                              "");
+
+  EVALUATE_TRACE_POST_DESCRIBE(
+      instance, 0,
+      "The array value [1] was expected to equal the array constant [1]");
+  EVALUATE_TRACE_POST_DESCRIBE(
+      instance, 1,
+      "The value was expected to consist of an array of at least 1 item");
+}
+
+TEST(Evaluator_draft6, enum_13) {
+  const sourcemeta::jsontoolkit::JSON schema{
+      sourcemeta::jsontoolkit::parse(R"JSON({
+    "$schema": "http://json-schema.org/draft-06/schema#",
+    "type": "object",
+    "minProperties": 1,
+    "enum": [ { "foo": 1 } ]
+  })JSON")};
+
+  const sourcemeta::jsontoolkit::JSON instance{
+      sourcemeta::jsontoolkit::parse("{ \"foo\": 1 }")};
+  EVALUATE_WITH_TRACE_FAST_SUCCESS(schema, instance, 2);
+
+  EVALUATE_TRACE_PRE(0, AssertionEqual, "/enum", "#/enum", "");
+  EVALUATE_TRACE_PRE(1, AssertionTypeObjectBounded, "/type", "#/type", "");
+
+  EVALUATE_TRACE_POST_SUCCESS(0, AssertionEqual, "/enum", "#/enum", "");
+  EVALUATE_TRACE_POST_SUCCESS(1, AssertionTypeObjectBounded, "/type", "#/type",
+                              "");
+
+  EVALUATE_TRACE_POST_DESCRIBE(instance, 0,
+                               "The object value {\"foo\":1} was expected to "
+                               "equal the object constant {\"foo\":1}");
+  EVALUATE_TRACE_POST_DESCRIBE(
+      instance, 1,
+      "The value was expected to consist of an object of at least 1 property");
+}
+
+TEST(Evaluator_draft6, enum_14) {
+  const sourcemeta::jsontoolkit::JSON schema{
+      sourcemeta::jsontoolkit::parse(R"JSON({
+    "$schema": "http://json-schema.org/draft-06/schema#",
+    "type": "integer",
+    "enum": [ 3.0 ]
+  })JSON")};
+
+  const sourcemeta::jsontoolkit::JSON instance{3.0};
+  EVALUATE_WITH_TRACE_FAST_SUCCESS(schema, instance, 1);
+
+  EVALUATE_TRACE_PRE(0, AssertionEqual, "/enum", "#/enum", "");
+  EVALUATE_TRACE_POST_SUCCESS(0, AssertionEqual, "/enum", "#/enum", "");
+  EVALUATE_TRACE_POST_DESCRIBE(
+      instance, 0,
+      "The number value 3.0 was expected to equal the number constant 3.0");
 }
