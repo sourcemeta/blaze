@@ -4,7 +4,7 @@
 #include <sourcemeta/blaze/compiler.h>
 #include <sourcemeta/blaze/evaluator_context.h>
 
-#include <algorithm> // std::sort, std::any_of
+#include <algorithm> // std::sort, std::any_of, std::all_of
 #include <cassert>   // assert
 #include <regex>     // std::regex, std::regex_error
 #include <set>       // std::set
@@ -122,10 +122,28 @@ auto compiler_draft4_validation_type(const Context &context,
     const auto &type{
         schema_context.schema.at(dynamic_context.keyword).to_string()};
     if (type == "null") {
+      if (context.mode == Mode::FastValidation &&
+          schema_context.schema.defines("enum") &&
+          schema_context.schema.at("enum").is_array() &&
+          std::all_of(schema_context.schema.at("enum").as_array().cbegin(),
+                      schema_context.schema.at("enum").as_array().cend(),
+                      [](const auto &value) { return value.is_null(); })) {
+        return {};
+      }
+
       return {
           make<AssertionTypeStrict>(context, schema_context, dynamic_context,
                                     sourcemeta::jsontoolkit::JSON::Type::Null)};
     } else if (type == "boolean") {
+      if (context.mode == Mode::FastValidation &&
+          schema_context.schema.defines("enum") &&
+          schema_context.schema.at("enum").is_array() &&
+          std::all_of(schema_context.schema.at("enum").as_array().cbegin(),
+                      schema_context.schema.at("enum").as_array().cend(),
+                      [](const auto &value) { return value.is_boolean(); })) {
+        return {};
+      }
+
       return {make<AssertionTypeStrict>(
           context, schema_context, dynamic_context,
           sourcemeta::jsontoolkit::JSON::Type::Boolean)};
@@ -139,6 +157,15 @@ auto compiler_draft4_validation_type(const Context &context,
         return {make<AssertionTypeObjectBounded>(context, schema_context,
                                                  dynamic_context,
                                                  {minimum, maximum, false})};
+      }
+
+      if (context.mode == Mode::FastValidation &&
+          schema_context.schema.defines("enum") &&
+          schema_context.schema.at("enum").is_array() &&
+          std::all_of(schema_context.schema.at("enum").as_array().cbegin(),
+                      schema_context.schema.at("enum").as_array().cend(),
+                      [](const auto &value) { return value.is_object(); })) {
+        return {};
       }
 
       return {make<AssertionTypeStrict>(
@@ -156,16 +183,43 @@ auto compiler_draft4_validation_type(const Context &context,
                                                 {minimum, maximum, false})};
       }
 
+      if (context.mode == Mode::FastValidation &&
+          schema_context.schema.defines("enum") &&
+          schema_context.schema.at("enum").is_array() &&
+          std::all_of(schema_context.schema.at("enum").as_array().cbegin(),
+                      schema_context.schema.at("enum").as_array().cend(),
+                      [](const auto &value) { return value.is_array(); })) {
+        return {};
+      }
+
       return {make<AssertionTypeStrict>(
           context, schema_context, dynamic_context,
           sourcemeta::jsontoolkit::JSON::Type::Array)};
     } else if (type == "number") {
+      if (context.mode == Mode::FastValidation &&
+          schema_context.schema.defines("enum") &&
+          schema_context.schema.at("enum").is_array() &&
+          std::all_of(schema_context.schema.at("enum").as_array().cbegin(),
+                      schema_context.schema.at("enum").as_array().cend(),
+                      [](const auto &value) { return value.is_number(); })) {
+        return {};
+      }
+
       return {make<AssertionTypeStrictAny>(
           context, schema_context, dynamic_context,
           std::vector<sourcemeta::jsontoolkit::JSON::Type>{
               sourcemeta::jsontoolkit::JSON::Type::Real,
               sourcemeta::jsontoolkit::JSON::Type::Integer})};
     } else if (type == "integer") {
+      if (context.mode == Mode::FastValidation &&
+          schema_context.schema.defines("enum") &&
+          schema_context.schema.at("enum").is_array() &&
+          std::all_of(schema_context.schema.at("enum").as_array().cbegin(),
+                      schema_context.schema.at("enum").as_array().cend(),
+                      [](const auto &value) { return value.is_integer(); })) {
+        return {};
+      }
+
       return {make<AssertionTypeStrict>(
           context, schema_context, dynamic_context,
           sourcemeta::jsontoolkit::JSON::Type::Integer)};
@@ -179,6 +233,15 @@ auto compiler_draft4_validation_type(const Context &context,
         return {make<AssertionTypeStringBounded>(context, schema_context,
                                                  dynamic_context,
                                                  {minimum, maximum, false})};
+      }
+
+      if (context.mode == Mode::FastValidation &&
+          schema_context.schema.defines("enum") &&
+          schema_context.schema.at("enum").is_array() &&
+          std::all_of(schema_context.schema.at("enum").as_array().cbegin(),
+                      schema_context.schema.at("enum").as_array().cend(),
+                      [](const auto &value) { return value.is_string(); })) {
+        return {};
       }
 
       return {make<AssertionTypeStrict>(
