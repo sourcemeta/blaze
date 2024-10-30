@@ -45,4 +45,25 @@ static void Evaluator_2019_09_Unevaluated_Properties(benchmark::State &state) {
   }
 }
 
+static void Evaluator_2019_09_OMC_JSON_V2_1(benchmark::State &state) {
+  const auto schema{sourcemeta::jsontoolkit::from_file(
+      std::filesystem::path{CURRENT_DIRECTORY} / "schemas" /
+      "2019_09_omc_json_v2.json")};
+
+  const auto instance{sourcemeta::jsontoolkit::from_file(
+      std::filesystem::path{CURRENT_DIRECTORY} / "instances" /
+      "2019_09_omc_json_v2_1.json")};
+
+  const auto schema_template{sourcemeta::blaze::compile(
+      schema, sourcemeta::jsontoolkit::default_schema_walker,
+      sourcemeta::jsontoolkit::official_resolver,
+      sourcemeta::blaze::default_schema_compiler)};
+  for (auto _ : state) {
+    auto result{sourcemeta::blaze::evaluate(schema_template, instance)};
+    assert(result);
+    benchmark::DoNotOptimize(result);
+  }
+}
+
 BENCHMARK(Evaluator_2019_09_Unevaluated_Properties);
+BENCHMARK(Evaluator_2019_09_OMC_JSON_V2_1);
