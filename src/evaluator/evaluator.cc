@@ -1287,6 +1287,52 @@ auto evaluate_step(const sourcemeta::blaze::Template::value_type &step,
       EVALUATE_END(loop, LoopItemsUnevaluated);
     }
 
+    case IS_STEP(LoopItemsType): {
+      EVALUATE_BEGIN(loop, LoopItemsType, target.is_array());
+      result = true;
+      for (const auto &entry : target.as_array()) {
+        if (entry.type() != loop.value &&
+            // In non-strict mode, we consider a real number that represents an
+            // integer to be an integer
+            (loop.value != sourcemeta::jsontoolkit::JSON::Type::Integer ||
+             !entry.is_integer_real())) {
+          result = false;
+          break;
+        }
+      }
+
+      EVALUATE_END(loop, LoopItemsType);
+    }
+
+    case IS_STEP(LoopItemsTypeStrict): {
+      EVALUATE_BEGIN(loop, LoopItemsTypeStrict, target.is_array());
+      result = true;
+      for (const auto &entry : target.as_array()) {
+        if (entry.type() != loop.value) {
+          result = false;
+          break;
+        }
+      }
+
+      EVALUATE_END(loop, LoopItemsTypeStrict);
+    }
+
+    case IS_STEP(LoopItemsTypeStrictAny): {
+      EVALUATE_BEGIN(loop, LoopItemsTypeStrictAny, target.is_array());
+      // Otherwise we are we even emitting this instruction?
+      assert(loop.value.size() > 1);
+      result = true;
+      for (const auto &entry : target.as_array()) {
+        if (std::find(loop.value.cbegin(), loop.value.cend(), entry.type()) ==
+            loop.value.cend()) {
+          result = false;
+          break;
+        }
+      }
+
+      EVALUATE_END(loop, LoopItemsTypeStrictAny);
+    }
+
     case IS_STEP(LoopContains): {
       EVALUATE_BEGIN(loop, LoopContains, target.is_array());
       assert(!loop.children.empty());

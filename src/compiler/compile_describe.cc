@@ -732,6 +732,35 @@ struct DescribeVisitor {
     return message.str();
   }
 
+  auto operator()(const LoopItemsType &step) const -> std::string {
+    std::ostringstream message;
+    message << "The array items were expected to be of type "
+            << to_string(step.value);
+    return message.str();
+  }
+
+  auto operator()(const LoopItemsTypeStrict &step) const -> std::string {
+    std::ostringstream message;
+    message << "The array items were expected to be of type "
+            << to_string(step.value);
+    return message.str();
+  }
+
+  auto operator()(const LoopItemsTypeStrictAny &step) const -> std::string {
+    std::ostringstream message;
+    message << "The array items were expected to be of type ";
+    const auto &types{step_value(step)};
+    for (auto iterator = types.cbegin(); iterator != types.cend(); ++iterator) {
+      if (std::next(iterator) == types.cend()) {
+        message << "or " << to_string(*iterator);
+      } else {
+        message << to_string(*iterator) << ", ";
+      }
+    }
+
+    return message.str();
+  }
+
   auto operator()(const LoopContains &step) const -> std::string {
     assert(this->target.is_array());
     std::ostringstream message;
