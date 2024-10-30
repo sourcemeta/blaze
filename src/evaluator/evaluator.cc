@@ -951,39 +951,6 @@ auto evaluate_step(const sourcemeta::blaze::Template::value_type &step,
       EVALUATE_END(loop, LoopPropertiesUnevaluatedExcept);
     }
 
-    case IS_STEP(LoopItemsUnevaluated): {
-      EVALUATE_BEGIN(loop, LoopItemsUnevaluated, target.is_array());
-      assert(!loop.children.empty());
-      assert(track);
-      const auto &array{target.as_array()};
-      result = true;
-      for (auto iterator = array.cbegin(); iterator != array.cend();
-           ++iterator) {
-        const auto index{std::distance(array.cbegin(), iterator)};
-        if (context.is_evaluated(
-                static_cast<WeakPointer::Token::Index>(index))) {
-          continue;
-        }
-
-        context.enter(static_cast<Pointer::Token::Index>(index), true);
-        for (const auto &child : loop.children) {
-          if (!evaluate_step(child, callback, context)) {
-            result = false;
-            context.leave(true);
-            goto evaluate_compiler_annotation_loop_items_unevaluated_end;
-          }
-        }
-
-        context.leave(true);
-      }
-
-      // Mark the entire array as evaluated
-      context.evaluate();
-
-    evaluate_compiler_annotation_loop_items_unevaluated_end:
-      EVALUATE_END(loop, LoopItemsUnevaluated);
-    }
-
     case IS_STEP(LoopPropertiesMatch): {
       EVALUATE_BEGIN(loop, LoopPropertiesMatch, target.is_object());
       assert(!loop.value.empty());
@@ -1285,6 +1252,39 @@ auto evaluate_step(const sourcemeta::blaze::Template::value_type &step,
 
     evaluate_compiler_loop_items_end:
       EVALUATE_END(loop, LoopItems);
+    }
+
+    case IS_STEP(LoopItemsUnevaluated): {
+      EVALUATE_BEGIN(loop, LoopItemsUnevaluated, target.is_array());
+      assert(!loop.children.empty());
+      assert(track);
+      const auto &array{target.as_array()};
+      result = true;
+      for (auto iterator = array.cbegin(); iterator != array.cend();
+           ++iterator) {
+        const auto index{std::distance(array.cbegin(), iterator)};
+        if (context.is_evaluated(
+                static_cast<WeakPointer::Token::Index>(index))) {
+          continue;
+        }
+
+        context.enter(static_cast<Pointer::Token::Index>(index), true);
+        for (const auto &child : loop.children) {
+          if (!evaluate_step(child, callback, context)) {
+            result = false;
+            context.leave(true);
+            goto evaluate_compiler_annotation_loop_items_unevaluated_end;
+          }
+        }
+
+        context.leave(true);
+      }
+
+      // Mark the entire array as evaluated
+      context.evaluate();
+
+    evaluate_compiler_annotation_loop_items_unevaluated_end:
+      EVALUATE_END(loop, LoopItemsUnevaluated);
     }
 
     case IS_STEP(LoopContains): {

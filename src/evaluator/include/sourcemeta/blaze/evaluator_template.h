@@ -61,7 +61,6 @@ struct LogicalWhenDefines;
 struct LogicalWhenArraySizeGreater;
 struct LoopPropertiesUnevaluated;
 struct LoopPropertiesUnevaluatedExcept;
-struct LoopItemsUnevaluated;
 struct LoopPropertiesMatch;
 struct LoopProperties;
 struct LoopPropertiesEvaluate;
@@ -74,6 +73,7 @@ struct LoopPropertiesTypeStrict;
 struct LoopPropertiesTypeStrictEvaluate;
 struct LoopKeys;
 struct LoopItems;
+struct LoopItemsUnevaluated;
 struct LoopContains;
 struct ControlGroup;
 struct ControlGroupWhenDefines;
@@ -103,13 +103,12 @@ using Template = std::vector<std::variant<
     LogicalNotEvaluate, LogicalOr, LogicalAnd, LogicalXor, LogicalCondition,
     LogicalWhenType, LogicalWhenDefines, LogicalWhenArraySizeGreater,
     LoopPropertiesUnevaluated, LoopPropertiesUnevaluatedExcept,
-    LoopItemsUnevaluated, LoopPropertiesMatch, LoopProperties,
-    LoopPropertiesEvaluate, LoopPropertiesRegex, LoopPropertiesStartsWith,
-    LoopPropertiesExcept, LoopPropertiesType, LoopPropertiesTypeEvaluate,
-    LoopPropertiesTypeStrict, LoopPropertiesTypeStrictEvaluate, LoopKeys,
-    LoopItems, LoopContains, ControlGroup, ControlGroupWhenDefines,
-    ControlLabel, ControlMark, ControlEvaluate, ControlJump,
-    ControlDynamicAnchorJump>>;
+    LoopPropertiesMatch, LoopProperties, LoopPropertiesEvaluate,
+    LoopPropertiesRegex, LoopPropertiesStartsWith, LoopPropertiesExcept,
+    LoopPropertiesType, LoopPropertiesTypeEvaluate, LoopPropertiesTypeStrict,
+    LoopPropertiesTypeStrictEvaluate, LoopKeys, LoopItems, LoopItemsUnevaluated,
+    LoopContains, ControlGroup, ControlGroupWhenDefines, ControlLabel,
+    ControlMark, ControlEvaluate, ControlJump, ControlDynamicAnchorJump>>;
 
 #if !defined(DOXYGEN)
 // For fast internal instruction dispatching. It must stay
@@ -162,7 +161,6 @@ enum class TemplateIndex : std::uint8_t {
   LogicalWhenArraySizeGreater,
   LoopPropertiesUnevaluated,
   LoopPropertiesUnevaluatedExcept,
-  LoopItemsUnevaluated,
   LoopPropertiesMatch,
   LoopProperties,
   LoopPropertiesEvaluate,
@@ -175,6 +173,7 @@ enum class TemplateIndex : std::uint8_t {
   LoopPropertiesTypeStrictEvaluate,
   LoopKeys,
   LoopItems,
+  LoopItemsUnevaluated,
   LoopContains,
   ControlGroup,
   ControlGroupWhenDefines,
@@ -446,10 +445,6 @@ DEFINE_STEP_APPLICATOR(Loop, PropertiesUnevaluated, ValueNone)
 DEFINE_STEP_APPLICATOR(Loop, PropertiesUnevaluatedExcept, ValuePropertyFilter)
 
 /// @ingroup evaluator_instructions
-/// @brief Represents a compiler step that loops over unevaluated array items
-DEFINE_STEP_APPLICATOR(Loop, ItemsUnevaluated, ValueNone)
-
-/// @ingroup evaluator_instructions
 /// @brief Represents a compiler step that matches steps to object properties
 DEFINE_STEP_APPLICATOR(Loop, PropertiesMatch, ValueNamedIndexes)
 
@@ -505,6 +500,10 @@ DEFINE_STEP_APPLICATOR(Loop, Keys, ValueNone)
 /// @brief Represents a compiler step that loops over array items starting from
 /// a given index
 DEFINE_STEP_APPLICATOR(Loop, Items, ValueUnsignedInteger)
+
+/// @ingroup evaluator_instructions
+/// @brief Represents a compiler step that loops over unevaluated array items
+DEFINE_STEP_APPLICATOR(Loop, ItemsUnevaluated, ValueNone)
 
 /// @ingroup evaluator_instructions
 /// @brief Represents a compiler step that checks array items match a given
