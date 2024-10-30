@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1730307341790,
+  "lastUpdate": 1730315526452,
   "repoUrl": "https://github.com/sourcemeta/blaze",
   "entries": {
     "Benchmark (macos/gcc)": [
@@ -14972,6 +14972,148 @@ window.BENCHMARK_DATA = {
             "value": 1301.678430029377,
             "unit": "ns/iter",
             "extra": "iterations: 495021\ncpu: 1301.1730815460553 ns\nthreads: 1"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "name": "Juan Cruz Viotti",
+            "username": "jviotti",
+            "email": "jv@jviotti.com"
+          },
+          "committer": {
+            "name": "GitHub",
+            "username": "web-flow",
+            "email": "noreply@github.com"
+          },
+          "id": "df43a0886184e5826036983f536b6f9ea06362a7",
+          "message": "Benchmark the OMC JSON v2 schema (#97)\n\nSee: https://github.com/MovieLabs/OMC/blob/main/OMC-JSON\r\nSigned-off-by: Juan Cruz Viotti <jv@jviotti.com>",
+          "timestamp": "2024-10-30T16:45:04Z",
+          "url": "https://github.com/sourcemeta/blaze/commit/df43a0886184e5826036983f536b6f9ea06362a7"
+        },
+        "date": 1730315524245,
+        "tool": "googlecpp",
+        "benches": [
+          {
+            "name": "Compiler_Draft6_AdaptiveCard",
+            "value": 11982939243.31665,
+            "unit": "ns/iter",
+            "extra": "iterations: 1\ncpu: 11979459000 ns\nthreads: 1"
+          },
+          {
+            "name": "Evaluator_Draft4_Meta_1_No_Callback",
+            "value": 537.2161359012811,
+            "unit": "ns/iter",
+            "extra": "iterations: 1368470\ncpu: 537.0333291924558 ns\nthreads: 1"
+          },
+          {
+            "name": "Evaluator_Draft4_Required_Properties",
+            "value": 840.5623316187348,
+            "unit": "ns/iter",
+            "extra": "iterations: 835831\ncpu: 840.4139114246778 ns\nthreads: 1"
+          },
+          {
+            "name": "Evaluator_Draft4_Many_Optional_Properties_Minimal_Match",
+            "value": 118.62569946116703,
+            "unit": "ns/iter",
+            "extra": "iterations: 5809611\ncpu: 118.61017889149541 ns\nthreads: 1"
+          },
+          {
+            "name": "Evaluator_Draft4_Few_Optional_Properties_Minimal_Match",
+            "value": 81.83984442185856,
+            "unit": "ns/iter",
+            "extra": "iterations: 8438615\ncpu: 81.83866665323652 ns\nthreads: 1"
+          },
+          {
+            "name": "Evaluator_Draft4_Items_Schema",
+            "value": 1988.6449521117186,
+            "unit": "ns/iter",
+            "extra": "iterations: 369545\ncpu: 1988.4046597843333 ns\nthreads: 1"
+          },
+          {
+            "name": "Evaluator_Draft4_Nested_Object",
+            "value": 24.944467631340416,
+            "unit": "ns/iter",
+            "extra": "iterations: 27939985\ncpu: 24.937844454819885 ns\nthreads: 1"
+          },
+          {
+            "name": "Evaluator_Draft4_Properties_Triad_Optional",
+            "value": 1471.7847611293007,
+            "unit": "ns/iter",
+            "extra": "iterations: 505116\ncpu: 1471.7173876891636 ns\nthreads: 1"
+          },
+          {
+            "name": "Evaluator_Draft4_Properties_Triad_Closed",
+            "value": 1207.288763285334,
+            "unit": "ns/iter",
+            "extra": "iterations: 578589\ncpu: 1206.192997101571 ns\nthreads: 1"
+          },
+          {
+            "name": "Evaluator_Draft4_Properties_Triad_Required",
+            "value": 1477.6470844183514,
+            "unit": "ns/iter",
+            "extra": "iterations: 474570\ncpu: 1477.2846998335322 ns\nthreads: 1"
+          },
+          {
+            "name": "Evaluator_Draft4_Non_Recursive_Ref",
+            "value": 60.87584149710586,
+            "unit": "ns/iter",
+            "extra": "iterations: 11722152\ncpu: 60.87593813832107 ns\nthreads: 1"
+          },
+          {
+            "name": "Evaluator_Draft4_Pattern_Properties_True",
+            "value": 1942.7538895098542,
+            "unit": "ns/iter",
+            "extra": "iterations: 348962\ncpu: 1942.5066339601447 ns\nthreads: 1"
+          },
+          {
+            "name": "Evaluator_Draft4_Ref_To_Single_Property",
+            "value": 78.59520145349273,
+            "unit": "ns/iter",
+            "extra": "iterations: 8715899\ncpu: 78.5801900641578 ns\nthreads: 1"
+          },
+          {
+            "name": "Evaluator_Draft4_Additional_Properties_Type",
+            "value": 79.91641376795464,
+            "unit": "ns/iter",
+            "extra": "iterations: 9448861\ncpu: 78.65191370684786 ns\nthreads: 1"
+          },
+          {
+            "name": "Evaluator_Draft4_Nested_Oneof",
+            "value": 197.28788241696301,
+            "unit": "ns/iter",
+            "extra": "iterations: 3634532\ncpu: 196.2690107006903 ns\nthreads: 1"
+          },
+          {
+            "name": "Evaluator_Draft6_Property_Names",
+            "value": 798.5506838551413,
+            "unit": "ns/iter",
+            "extra": "iterations: 905891\ncpu: 798.3819245361794 ns\nthreads: 1"
+          },
+          {
+            "name": "Evaluator_Draft7_If_Then_Else",
+            "value": 127.92712064260294,
+            "unit": "ns/iter",
+            "extra": "iterations: 5523293\ncpu: 127.90902094094984 ns\nthreads: 1"
+          },
+          {
+            "name": "Evaluator_2019_09_Unevaluated_Properties",
+            "value": 348.43554721228924,
+            "unit": "ns/iter",
+            "extra": "iterations: 2025281\ncpu: 348.3768425220973 ns\nthreads: 1"
+          },
+          {
+            "name": "Evaluator_2019_09_OMC_JSON_V2_1",
+            "value": 51457.16205283889,
+            "unit": "ns/iter",
+            "extra": "iterations: 12698\ncpu: 51446.52701212766 ns\nthreads: 1"
+          },
+          {
+            "name": "Evaluator_2020_12_Dynamic_Ref",
+            "value": 1074.8580645561617,
+            "unit": "ns/iter",
+            "extra": "iterations: 661476\ncpu: 1074.8281116775254 ns\nthreads: 1"
           }
         ]
       }
