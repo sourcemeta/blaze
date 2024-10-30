@@ -11,7 +11,7 @@ namespace internal {
 using namespace sourcemeta::blaze;
 
 auto compiler_2020_12_applicator_prefixitems(
-    Context &context, const SchemaContext &schema_context,
+    const Context &context, const SchemaContext &schema_context,
     const DynamicContext &dynamic_context) -> Template {
   return compiler_draft4_applicator_items_array(
       context, schema_context, dynamic_context,
@@ -19,7 +19,7 @@ auto compiler_2020_12_applicator_prefixitems(
       !context.unevaluated_items_schemas.empty());
 }
 
-auto compiler_2020_12_applicator_items(Context &context,
+auto compiler_2020_12_applicator_items(const Context &context,
                                        const SchemaContext &schema_context,
                                        const DynamicContext &dynamic_context)
     -> Template {
@@ -34,7 +34,7 @@ auto compiler_2020_12_applicator_items(Context &context,
       !context.unevaluated_items_schemas.empty());
 }
 
-auto compiler_2020_12_applicator_contains(Context &context,
+auto compiler_2020_12_applicator_contains(const Context &context,
                                           const SchemaContext &schema_context,
                                           const DynamicContext &dynamic_context)
     -> Template {
@@ -44,7 +44,7 @@ auto compiler_2020_12_applicator_contains(Context &context,
       !context.unevaluated_items_schemas.empty());
 }
 
-auto compiler_2020_12_core_dynamicref(Context &context,
+auto compiler_2020_12_core_dynamicref(const Context &context,
                                       const SchemaContext &schema_context,
                                       const DynamicContext &dynamic_context)
     -> Template {

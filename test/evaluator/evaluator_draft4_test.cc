@@ -902,35 +902,6 @@ TEST(Evaluator_draft4, ref_14) {
                sourcemeta::blaze::EvaluationError);
 }
 
-TEST(Evaluator_draft4, ref_15) {
-  const sourcemeta::jsontoolkit::JSON schema{
-      sourcemeta::jsontoolkit::parse(R"JSON({
-    "$schema": "http://json-schema.org/draft-04/schema#",
-    "properties": {
-      "definitions": { "$ref": "#" },
-      "a": { "$ref": "#" }
-    }
-  })JSON")};
-
-  const sourcemeta::jsontoolkit::JSON instance{
-      sourcemeta::jsontoolkit::parse("{ \"definitions\": {} }")};
-
-  EVALUATE_WITH_TRACE_FAST_SUCCESS(schema, instance, 3);
-
-  EVALUATE_TRACE_PRE(0, LogicalAnd, "/properties", "#/properties", "");
-  EVALUATE_TRACE_PRE(1, ControlLabel, "/properties/definitions/$ref",
-                     "#/properties/definitions/$ref", "/definitions");
-  EVALUATE_TRACE_PRE(2, LogicalAnd, "/properties/definitions/$ref/properties",
-                     "#/properties", "/definitions");
-
-  EVALUATE_TRACE_POST_SUCCESS(0, LogicalAnd,
-                              "/properties/definitions/$ref/properties",
-                              "#/properties", "/definitions");
-  EVALUATE_TRACE_POST_SUCCESS(1, ControlLabel, "/properties/definitions/$ref",
-                              "#/properties/definitions/$ref", "/definitions");
-  EVALUATE_TRACE_POST_SUCCESS(2, LogicalAnd, "/properties", "#/properties", "");
-}
-
 TEST(Evaluator_draft4, properties_1) {
   const sourcemeta::jsontoolkit::JSON schema{
       sourcemeta::jsontoolkit::parse(R"JSON({

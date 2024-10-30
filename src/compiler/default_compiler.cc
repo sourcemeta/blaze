@@ -11,7 +11,7 @@
 #include <string>  // std::string
 
 auto sourcemeta::blaze::default_schema_compiler(
-    sourcemeta::blaze::Context &context,
+    const sourcemeta::blaze::Context &context,
     const sourcemeta::blaze::SchemaContext &schema_context,
     const sourcemeta::blaze::DynamicContext &dynamic_context)
     -> sourcemeta::blaze::Template {
