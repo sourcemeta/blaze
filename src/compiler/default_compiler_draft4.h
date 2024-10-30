@@ -1100,6 +1100,23 @@ auto compiler_draft4_applicator_items_with_options(
       return {};
     }
 
+    if (context.mode == Mode::FastValidation && children.size() == 1) {
+      if (std::holds_alternative<AssertionTypeStrict>(children.front())) {
+        return {make<LoopItemsTypeStrict>(
+            context, schema_context, dynamic_context,
+            std::get<AssertionTypeStrict>(children.front()).value)};
+      } else if (std::holds_alternative<AssertionType>(children.front())) {
+        return {make<LoopItemsType>(
+            context, schema_context, dynamic_context,
+            std::get<AssertionType>(children.front()).value)};
+      } else if (std::holds_alternative<AssertionTypeStrictAny>(
+                     children.front())) {
+        return {make<LoopItemsTypeStrictAny>(
+            context, schema_context, dynamic_context,
+            std::get<AssertionTypeStrictAny>(children.front()).value)};
+      }
+    }
+
     return {make<LoopItems>(context, schema_context, dynamic_context,
                             ValueUnsignedInteger{0}, std::move(children))};
   }

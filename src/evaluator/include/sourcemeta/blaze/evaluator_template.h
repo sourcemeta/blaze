@@ -74,6 +74,9 @@ struct LoopPropertiesTypeStrictEvaluate;
 struct LoopKeys;
 struct LoopItems;
 struct LoopItemsUnevaluated;
+struct LoopItemsType;
+struct LoopItemsTypeStrict;
+struct LoopItemsTypeStrictAny;
 struct LoopContains;
 struct ControlGroup;
 struct ControlGroupWhenDefines;
@@ -107,8 +110,9 @@ using Template = std::vector<std::variant<
     LoopPropertiesRegex, LoopPropertiesStartsWith, LoopPropertiesExcept,
     LoopPropertiesType, LoopPropertiesTypeEvaluate, LoopPropertiesTypeStrict,
     LoopPropertiesTypeStrictEvaluate, LoopKeys, LoopItems, LoopItemsUnevaluated,
-    LoopContains, ControlGroup, ControlGroupWhenDefines, ControlLabel,
-    ControlMark, ControlEvaluate, ControlJump, ControlDynamicAnchorJump>>;
+    LoopItemsType, LoopItemsTypeStrict, LoopItemsTypeStrictAny, LoopContains,
+    ControlGroup, ControlGroupWhenDefines, ControlLabel, ControlMark,
+    ControlEvaluate, ControlJump, ControlDynamicAnchorJump>>;
 
 #if !defined(DOXYGEN)
 // For fast internal instruction dispatching. It must stay
@@ -174,6 +178,9 @@ enum class TemplateIndex : std::uint8_t {
   LoopKeys,
   LoopItems,
   LoopItemsUnevaluated,
+  LoopItemsType,
+  LoopItemsTypeStrict,
+  LoopItemsTypeStrictAny,
   LoopContains,
   ControlGroup,
   ControlGroupWhenDefines,
@@ -504,6 +511,21 @@ DEFINE_STEP_APPLICATOR(Loop, Items, ValueUnsignedInteger)
 /// @ingroup evaluator_instructions
 /// @brief Represents a compiler step that loops over unevaluated array items
 DEFINE_STEP_APPLICATOR(Loop, ItemsUnevaluated, ValueNone)
+
+/// @ingroup evaluator_instructions
+/// @brief Represents a compiler step that loops over array items checking their
+/// type
+DEFINE_STEP_WITH_VALUE(Loop, ItemsType, ValueType)
+
+/// @ingroup evaluator_instructions
+/// @brief Represents a compiler step that loops over array items checking their
+/// type (strict mode)
+DEFINE_STEP_WITH_VALUE(Loop, ItemsTypeStrict, ValueType)
+
+/// @ingroup evaluator_instructions
+/// @brief Represents a compiler step that loops over array items checking their
+/// type (strict mode)
+DEFINE_STEP_WITH_VALUE(Loop, ItemsTypeStrictAny, ValueTypes)
 
 /// @ingroup evaluator_instructions
 /// @brief Represents a compiler step that checks array items match a given

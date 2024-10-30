@@ -2441,33 +2441,12 @@ TEST(Evaluator_draft4, items_2) {
 
   const sourcemeta::jsontoolkit::JSON instance{
       sourcemeta::jsontoolkit::parse("[ \"foo\", \"bar\", \"baz\" ]")};
-  EVALUATE_WITH_TRACE_FAST_SUCCESS(schema, instance, 4);
+  EVALUATE_WITH_TRACE_FAST_SUCCESS(schema, instance, 1);
 
-  EVALUATE_TRACE_PRE(0, LoopItems, "/items", "#/items", "");
-  EVALUATE_TRACE_PRE(1, AssertionTypeStrict, "/items/type", "#/items/type",
-                     "/0");
-  EVALUATE_TRACE_PRE(2, AssertionTypeStrict, "/items/type", "#/items/type",
-                     "/1");
-  EVALUATE_TRACE_PRE(3, AssertionTypeStrict, "/items/type", "#/items/type",
-                     "/2");
-
-  EVALUATE_TRACE_POST_SUCCESS(0, AssertionTypeStrict, "/items/type",
-                              "#/items/type", "/0");
-  EVALUATE_TRACE_POST_SUCCESS(1, AssertionTypeStrict, "/items/type",
-                              "#/items/type", "/1");
-  EVALUATE_TRACE_POST_SUCCESS(2, AssertionTypeStrict, "/items/type",
-                              "#/items/type", "/2");
-  EVALUATE_TRACE_POST_SUCCESS(3, LoopItems, "/items", "#/items", "");
-
-  EVALUATE_TRACE_POST_DESCRIBE(instance, 0,
-                               "The value was expected to be of type string");
-  EVALUATE_TRACE_POST_DESCRIBE(instance, 1,
-                               "The value was expected to be of type string");
-  EVALUATE_TRACE_POST_DESCRIBE(instance, 2,
-                               "The value was expected to be of type string");
-  EVALUATE_TRACE_POST_DESCRIBE(instance, 3,
-                               "Every item in the array value was expected to "
-                               "validate against the given subschema");
+  EVALUATE_TRACE_PRE(0, LoopItemsTypeStrict, "/items", "#/items", "");
+  EVALUATE_TRACE_POST_SUCCESS(0, LoopItemsTypeStrict, "/items", "#/items", "");
+  EVALUATE_TRACE_POST_DESCRIBE(
+      instance, 0, "The array items were expected to be of type string");
 }
 
 TEST(Evaluator_draft4, items_2_exhaustive) {
@@ -2521,28 +2500,12 @@ TEST(Evaluator_draft4, items_3) {
 
   const sourcemeta::jsontoolkit::JSON instance{
       sourcemeta::jsontoolkit::parse("[ \"foo\", 5, \"baz\" ]")};
-  EVALUATE_WITH_TRACE_FAST_FAILURE(schema, instance, 3);
+  EVALUATE_WITH_TRACE_FAST_FAILURE(schema, instance, 1);
 
-  EVALUATE_TRACE_PRE(0, LoopItems, "/items", "#/items", "");
-  EVALUATE_TRACE_PRE(1, AssertionTypeStrict, "/items/type", "#/items/type",
-                     "/0");
-  EVALUATE_TRACE_PRE(2, AssertionTypeStrict, "/items/type", "#/items/type",
-                     "/1");
-
-  EVALUATE_TRACE_POST_SUCCESS(0, AssertionTypeStrict, "/items/type",
-                              "#/items/type", "/0");
-  EVALUATE_TRACE_POST_FAILURE(1, AssertionTypeStrict, "/items/type",
-                              "#/items/type", "/1");
-  EVALUATE_TRACE_POST_FAILURE(2, LoopItems, "/items", "#/items", "");
-
-  EVALUATE_TRACE_POST_DESCRIBE(instance, 0,
-                               "The value was expected to be of type string");
+  EVALUATE_TRACE_PRE(0, LoopItemsTypeStrict, "/items", "#/items", "");
+  EVALUATE_TRACE_POST_FAILURE(0, LoopItemsTypeStrict, "/items", "#/items", "");
   EVALUATE_TRACE_POST_DESCRIBE(
-      instance, 1,
-      "The value was expected to be of type string but it was of type integer");
-  EVALUATE_TRACE_POST_DESCRIBE(instance, 2,
-                               "Every item in the array value was expected to "
-                               "validate against the given subschema");
+      instance, 0, "The array items were expected to be of type string");
 }
 
 TEST(Evaluator_draft4, items_4) {
@@ -2694,33 +2657,12 @@ TEST(Evaluator_draft4, additionalItems_2) {
 
   const sourcemeta::jsontoolkit::JSON instance{
       sourcemeta::jsontoolkit::parse("[ \"foo\", \"bar\", \"baz\" ]")};
-  EVALUATE_WITH_TRACE_FAST_SUCCESS(schema, instance, 4);
+  EVALUATE_WITH_TRACE_FAST_SUCCESS(schema, instance, 1);
 
-  EVALUATE_TRACE_PRE(0, LoopItems, "/items", "#/items", "");
-  EVALUATE_TRACE_PRE(1, AssertionTypeStrict, "/items/type", "#/items/type",
-                     "/0");
-  EVALUATE_TRACE_PRE(2, AssertionTypeStrict, "/items/type", "#/items/type",
-                     "/1");
-  EVALUATE_TRACE_PRE(3, AssertionTypeStrict, "/items/type", "#/items/type",
-                     "/2");
-
-  EVALUATE_TRACE_POST_SUCCESS(0, AssertionTypeStrict, "/items/type",
-                              "#/items/type", "/0");
-  EVALUATE_TRACE_POST_SUCCESS(1, AssertionTypeStrict, "/items/type",
-                              "#/items/type", "/1");
-  EVALUATE_TRACE_POST_SUCCESS(2, AssertionTypeStrict, "/items/type",
-                              "#/items/type", "/2");
-  EVALUATE_TRACE_POST_SUCCESS(3, LoopItems, "/items", "#/items", "");
-
-  EVALUATE_TRACE_POST_DESCRIBE(instance, 0,
-                               "The value was expected to be of type string");
-  EVALUATE_TRACE_POST_DESCRIBE(instance, 1,
-                               "The value was expected to be of type string");
-  EVALUATE_TRACE_POST_DESCRIBE(instance, 2,
-                               "The value was expected to be of type string");
-  EVALUATE_TRACE_POST_DESCRIBE(instance, 3,
-                               "Every item in the array value was expected to "
-                               "validate against the given subschema");
+  EVALUATE_TRACE_PRE(0, LoopItemsTypeStrict, "/items", "#/items", "");
+  EVALUATE_TRACE_POST_SUCCESS(0, LoopItemsTypeStrict, "/items", "#/items", "");
+  EVALUATE_TRACE_POST_DESCRIBE(
+      instance, 0, "The array items were expected to be of type string");
 }
 
 TEST(Evaluator_draft4, additionalItems_3) {
