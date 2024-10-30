@@ -86,7 +86,7 @@ using CompilerCache =
     std::map<std::tuple<std::string, sourcemeta::jsontoolkit::Pointer,
                         sourcemeta::jsontoolkit::Pointer,
                         sourcemeta::jsontoolkit::Pointer>,
-             std::vector<std::pair<Template, std::set<std::size_t>>>>;
+             std::pair<Template, std::set<std::size_t>>>;
 
 /// @ingroup compiler
 /// The static compiler context is the information you have at your

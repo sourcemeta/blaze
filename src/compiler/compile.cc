@@ -298,16 +298,17 @@ auto compile(Context &context, const SchemaContext &schema_context,
   const CompilerCache::key_type cache_key{
       destination, dynamic_context.base_schema_location,
       dynamic_context.base_instance_location, instance_suffix};
-  const auto cache_entry{context.cache.find(cache_key)};
-  if (cache_entry != context.cache.cend()) {
-    for (const auto &pair : cache_entry->second) {
+  if (uri.has_value()) {
+    const auto cache_entry{context.cache.find(cache_key)};
+    if (cache_entry != context.cache.cend()) {
       // Only proceed with short-circuiting this if the labels we have
       // are a subset of the labels recorded by the cache entry,
       // otherwise we risk referring to labels that the evaluator
       // didn't store yet.
       if (std::includes(current_labels.cbegin(), current_labels.cend(),
-                        pair.second.cbegin(), pair.second.cend())) {
-        return pair.first;
+                        cache_entry->second.second.cbegin(),
+                        cache_entry->second.second.cend())) {
+        return cache_entry->second.first;
       }
     }
   }
@@ -350,11 +351,10 @@ auto compile(Context &context, const SchemaContext &schema_context,
        dynamic_context.base_instance_location.concat(instance_suffix)},
       entry.dialect)};
 
-  if (!context.cache.contains(cache_key)) {
-    context.cache.emplace(cache_key, typename CompilerCache::mapped_type{});
+  if (uri.has_value()) {
+    context.cache[cache_key] = {result, current_labels};
   }
 
-  context.cache[cache_key].emplace_back(result, schema_context.labels);
   return result;
 }
 
