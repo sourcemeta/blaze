@@ -27,6 +27,22 @@ static auto parse_regex(const std::string &pattern,
   }
 }
 
+static auto collect_jump_labels(const sourcemeta::blaze::Template &steps,
+                                std::set<std::size_t> &output) -> void {
+  for (const auto &variant : steps) {
+    std::visit(
+        [&output](const auto &step) {
+          using T = std::decay_t<decltype(step)>;
+          if constexpr (std::is_same_v<T, sourcemeta::blaze::ControlJump>) {
+            output.emplace(step.value);
+          } else if constexpr (requires { step.children; }) {
+            collect_jump_labels(step.children, output);
+          }
+        },
+        variant);
+  }
+}
+
 namespace internal {
 using namespace sourcemeta::blaze;
 
@@ -100,18 +116,31 @@ auto compiler_draft4_core_ref(const Context &context,
     }
   }
 
+  new_schema_context.labels.insert(label);
+  Template children{
+      compile(context, new_schema_context, relative_dynamic_context,
+              sourcemeta::jsontoolkit::empty_pointer,
+              sourcemeta::jsontoolkit::empty_pointer, reference.destination)};
+
+  // If we ended up not using the label after all, then we can ignore the
+  // wrapper, at the expense of compiling the reference instructions once more
+  std::set<std::size_t> used_labels;
+  collect_jump_labels(children, used_labels);
+  if (!used_labels.contains(label)) {
+    return compile(context, schema_context, dynamic_context,
+                   sourcemeta::jsontoolkit::empty_pointer,
+                   sourcemeta::jsontoolkit::empty_pointer,
+                   reference.destination);
+  }
+
   // The idea to handle recursion is to expand the reference once, and when
   // doing so, create a "checkpoint" that we can jump back to in a subsequent
   // recursive reference. While unrolling the reference once may initially
   // feel weird, we do it so we can handle references purely in this keyword
   // handler, without having to add logic to every single keyword to check
   // whether something points to them and add the "checkpoint" themselves.
-  new_schema_context.labels.insert(label);
-  return {make<ControlLabel>(
-      context, schema_context, dynamic_context, ValueUnsignedInteger{label},
-      compile(context, new_schema_context, relative_dynamic_context,
-              sourcemeta::jsontoolkit::empty_pointer,
-              sourcemeta::jsontoolkit::empty_pointer, reference.destination))};
+  return {make<ControlLabel>(context, schema_context, dynamic_context,
+                             ValueUnsignedInteger{label}, std::move(children))};
 }
 
 auto compiler_draft4_validation_type(const Context &context,
