@@ -15,7 +15,7 @@ TEST(Evaluator_draft4, metaschema_1) {
 
   const sourcemeta::jsontoolkit::JSON instance{
       sourcemeta::jsontoolkit::parse("{}")};
-  EVALUATE_WITH_TRACE_FAST_SUCCESS(metaschema.value(), instance, 3);
+  EVALUATE_WITH_TRACE_FAST_SUCCESS(metaschema.value(), instance, 4);
 }
 
 TEST(Evaluator_draft4, metaschema_2) {
@@ -32,7 +32,7 @@ TEST(Evaluator_draft4, metaschema_2) {
     }
   })JSON")};
 
-  EVALUATE_WITH_TRACE_FAST_SUCCESS(metaschema.value(), instance, 16);
+  EVALUATE_WITH_TRACE_FAST_SUCCESS(metaschema.value(), instance, 17);
 }
 
 TEST(Evaluator_draft4, unknown_keyword) {

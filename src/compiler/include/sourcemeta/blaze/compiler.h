@@ -108,6 +108,9 @@ struct Context {
       unevaluated_properties_schemas;
   /// The list of subschemas that require keeping track of unevaluated items
   const std::set<sourcemeta::jsontoolkit::Pointer> unevaluated_items_schemas;
+  /// The list of subschemas that are precompiled at the beginning of the
+  /// instruction set
+  const std::set<std::string> precompiled_static_schemas;
 };
 
 /// @ingroup compiler

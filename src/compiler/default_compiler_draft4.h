@@ -50,7 +50,8 @@ auto compiler_draft4_core_ref(const Context &context,
       reference.fragment.value_or(""))};
 
   // The label is already registered, so just jump to it
-  if (schema_context.labels.contains(label)) {
+  if (schema_context.labels.contains(label) ||
+      context.precompiled_static_schemas.contains(reference.destination)) {
     return {make<ControlJump>(context, schema_context, dynamic_context,
                               ValueUnsignedInteger{label})};
   }
