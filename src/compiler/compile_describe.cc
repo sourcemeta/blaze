@@ -679,6 +679,38 @@ struct DescribeVisitor {
     return message.str();
   }
 
+  auto operator()(const LoopPropertiesTypeStrictAny &step) const
+      -> std::string {
+    std::ostringstream message;
+    message << "The object properties were expected to be of type ";
+    const auto &types{step_value(step)};
+    for (auto iterator = types.cbegin(); iterator != types.cend(); ++iterator) {
+      if (std::next(iterator) == types.cend()) {
+        message << "or " << to_string(*iterator);
+      } else {
+        message << to_string(*iterator) << ", ";
+      }
+    }
+
+    return message.str();
+  }
+
+  auto operator()(const LoopPropertiesTypeStrictAnyEvaluate &step) const
+      -> std::string {
+    std::ostringstream message;
+    message << "The object properties were expected to be of type ";
+    const auto &types{step_value(step)};
+    for (auto iterator = types.cbegin(); iterator != types.cend(); ++iterator) {
+      if (std::next(iterator) == types.cend()) {
+        message << "or " << to_string(*iterator);
+      } else {
+        message << to_string(*iterator) << ", ";
+      }
+    }
+
+    return message.str();
+  }
+
   auto operator()(const LoopKeys &) const -> std::string {
     assert(this->keyword == "propertyNames");
     assert(this->target.is_object());

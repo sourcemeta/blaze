@@ -1198,6 +1198,39 @@ auto evaluate_step(const sourcemeta::blaze::Template::value_type &step,
       EVALUATE_END(loop, LoopPropertiesTypeStrictEvaluate);
     }
 
+    case IS_STEP(LoopPropertiesTypeStrictAny): {
+      EVALUATE_BEGIN(loop, LoopPropertiesTypeStrictAny, target.is_object());
+      result = true;
+      for (const auto &entry : target.as_object()) {
+        if (std::find(loop.value.cbegin(), loop.value.cend(),
+                      entry.second.type()) == loop.value.cend()) {
+          result = false;
+          break;
+        }
+      }
+
+      EVALUATE_END(loop, LoopPropertiesTypeStrictAny);
+    }
+
+    case IS_STEP(LoopPropertiesTypeStrictAnyEvaluate): {
+      EVALUATE_BEGIN(loop, LoopPropertiesTypeStrictAnyEvaluate,
+                     target.is_object());
+      result = true;
+      for (const auto &entry : target.as_object()) {
+        if (std::find(loop.value.cbegin(), loop.value.cend(),
+                      entry.second.type()) == loop.value.cend()) {
+          result = false;
+          goto evaluate_loop_properties_type_strict_any_evaluate_end;
+        }
+      }
+
+      assert(track);
+      context.evaluate();
+
+    evaluate_loop_properties_type_strict_any_evaluate_end:
+      EVALUATE_END(loop, LoopPropertiesTypeStrictAnyEvaluate);
+    }
+
     case IS_STEP(LoopKeys): {
       EVALUATE_BEGIN(loop, LoopKeys, target.is_object());
       assert(!loop.children.empty());

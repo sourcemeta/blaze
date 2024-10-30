@@ -275,6 +275,9 @@ struct StepVisitor {
   HANDLE_STEP("loop", "properties-type-strict", LoopPropertiesTypeStrict)
   HANDLE_STEP("loop", "properties-type-strict-evaluate",
               LoopPropertiesTypeStrictEvaluate)
+  HANDLE_STEP("loop", "properties-type-strict-any", LoopPropertiesTypeStrictAny)
+  HANDLE_STEP("loop", "properties-type-strict-evaluate-any",
+              LoopPropertiesTypeStrictAnyEvaluate)
   HANDLE_STEP("loop", "keys", LoopKeys)
   HANDLE_STEP("loop", "items", LoopItems)
   HANDLE_STEP("loop", "items-unevaluated", LoopItemsUnevaluated)

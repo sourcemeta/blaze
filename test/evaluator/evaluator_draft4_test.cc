@@ -2257,6 +2257,30 @@ TEST(Evaluator_draft4, additionalProperties_9) {
   EVALUATE_WITH_TRACE_FAST_SUCCESS(schema, instance, 0);
 }
 
+TEST(Evaluator_draft4, additionalProperties_10) {
+  const sourcemeta::jsontoolkit::JSON schema{
+      sourcemeta::jsontoolkit::parse(R"JSON({
+    "$schema": "http://json-schema.org/draft-04/schema#",
+    "additionalProperties": {
+      "type": "number"
+    }
+  })JSON")};
+
+  const sourcemeta::jsontoolkit::JSON instance{
+      sourcemeta::jsontoolkit::parse("{ \"bar\": 2, \"foo\": 1 }")};
+
+  EVALUATE_WITH_TRACE_FAST_SUCCESS(schema, instance, 1);
+
+  EVALUATE_TRACE_PRE(0, LoopPropertiesTypeStrictAny, "/additionalProperties",
+                     "#/additionalProperties", "");
+  EVALUATE_TRACE_POST_SUCCESS(0, LoopPropertiesTypeStrictAny,
+                              "/additionalProperties", "#/additionalProperties",
+                              "");
+  EVALUATE_TRACE_POST_DESCRIBE(
+      instance, 0,
+      "The object properties were expected to be of type number, or integer");
+}
+
 TEST(Evaluator_draft4, not_1) {
   const sourcemeta::jsontoolkit::JSON schema{
       sourcemeta::jsontoolkit::parse(R"JSON({
