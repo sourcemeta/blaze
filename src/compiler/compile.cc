@@ -244,6 +244,43 @@ auto compile(const sourcemeta::jsontoolkit::JSON &schema,
   assert(resources.size() ==
          std::set<std::string>(resources.cbegin(), resources.cend()).size());
 
+  // Calculate the top static reference destinations for precompilation purposes
+  std::map<std::string, std::size_t> static_references_count;
+  for (const auto &reference : references) {
+    if (reference.first.first !=
+            sourcemeta::jsontoolkit::ReferenceType::Static ||
+        !frame.contains({sourcemeta::jsontoolkit::ReferenceType::Static,
+                         reference.second.destination})) {
+      continue;
+    }
+
+    const auto &entry{frame.at({sourcemeta::jsontoolkit::ReferenceType::Static,
+                                reference.second.destination})};
+    for (const auto &subreference : references) {
+      if (subreference.first.second.starts_with(entry.pointer)) {
+        static_references_count[reference.second.destination] += 1;
+      }
+    }
+  }
+  std::vector<std::pair<std::string, std::size_t>> top_static_destinations(
+      static_references_count.cbegin(), static_references_count.cend());
+  std::sort(top_static_destinations.begin(), top_static_destinations.end(),
+            [](const auto &left, const auto &right) {
+              return left.second > right.second;
+            });
+  constexpr auto MAXIMUM_NUMBER_OF_SCHEMAS_TO_PRECOMPILE{5};
+  std::set<std::string> precompiled_static_schemas;
+  for (auto iterator = top_static_destinations.cbegin();
+       iterator != top_static_destinations.cend() &&
+       iterator != top_static_destinations.cbegin() +
+                       MAXIMUM_NUMBER_OF_SCHEMAS_TO_PRECOMPILE;
+       ++iterator) {
+    // Only consider highly referenced schemas
+    if (iterator->second > 100) {
+      precompiled_static_schemas.insert(iterator->first);
+    }
+  }
+
   const Context context{result,
                         frame,
                         references,
@@ -254,9 +291,21 @@ auto compile(const sourcemeta::jsontoolkit::JSON &schema,
                         mode,
                         uses_dynamic_scopes,
                         unevaluated_properties_schemas,
-                        unevaluated_items_schemas};
+                        unevaluated_items_schemas,
+                        std::move(precompiled_static_schemas)};
   const DynamicContext dynamic_context{relative_dynamic_context};
   Template compiler_template;
+
+  for (const auto &destination : context.precompiled_static_schemas) {
+    assert(frame.contains(
+        {sourcemeta::jsontoolkit::ReferenceType::Static, destination}));
+    const auto match{frame.find(
+        {sourcemeta::jsontoolkit::ReferenceType::Static, destination})};
+    for (auto &&substep :
+         precompile(context, schema_context, dynamic_context, *match)) {
+      compiler_template.push_back(std::move(substep));
+    }
+  }
 
   if (uses_dynamic_scopes &&
       (schema_context.vocabularies.contains(

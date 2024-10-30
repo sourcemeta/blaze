@@ -22,7 +22,7 @@ TEST(Evaluator_2019_09, metaschema_1) {
     }
   })JSON")};
 
-  EVALUATE_WITH_TRACE_FAST_SUCCESS(metaschema.value(), instance, 59);
+  EVALUATE_WITH_TRACE_FAST_SUCCESS(metaschema.value(), instance, 60);
 }
 
 TEST(Evaluator_2019_09, properties_1) {
