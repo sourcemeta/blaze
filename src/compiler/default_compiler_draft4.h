@@ -840,6 +840,16 @@ auto compiler_draft4_applicator_additionalproperties_with_options(
       return {make<LoopPropertiesType>(context, schema_context, dynamic_context,
                                        type_step.value)};
     }
+  } else if (context.mode == Mode::FastValidation && children.size() == 1 &&
+             std::holds_alternative<AssertionTypeStrictAny>(children.front())) {
+    const auto &type_step{std::get<AssertionTypeStrictAny>(children.front())};
+    if (track_evaluation) {
+      return {make<LoopPropertiesTypeStrictAnyEvaluate>(
+          context, schema_context, dynamic_context, type_step.value)};
+    } else {
+      return {make<LoopPropertiesTypeStrictAny>(
+          context, schema_context, dynamic_context, type_step.value)};
+    }
 
   } else if (track_evaluation) {
     if (children.empty()) {

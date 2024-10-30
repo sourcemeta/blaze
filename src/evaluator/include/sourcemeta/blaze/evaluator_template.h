@@ -71,6 +71,8 @@ struct LoopPropertiesType;
 struct LoopPropertiesTypeEvaluate;
 struct LoopPropertiesTypeStrict;
 struct LoopPropertiesTypeStrictEvaluate;
+struct LoopPropertiesTypeStrictAny;
+struct LoopPropertiesTypeStrictAnyEvaluate;
 struct LoopKeys;
 struct LoopItems;
 struct LoopItemsUnevaluated;
@@ -109,10 +111,12 @@ using Template = std::vector<std::variant<
     LoopPropertiesMatch, LoopProperties, LoopPropertiesEvaluate,
     LoopPropertiesRegex, LoopPropertiesStartsWith, LoopPropertiesExcept,
     LoopPropertiesType, LoopPropertiesTypeEvaluate, LoopPropertiesTypeStrict,
-    LoopPropertiesTypeStrictEvaluate, LoopKeys, LoopItems, LoopItemsUnevaluated,
-    LoopItemsType, LoopItemsTypeStrict, LoopItemsTypeStrictAny, LoopContains,
-    ControlGroup, ControlGroupWhenDefines, ControlLabel, ControlMark,
-    ControlEvaluate, ControlJump, ControlDynamicAnchorJump>>;
+    LoopPropertiesTypeStrictEvaluate, LoopPropertiesTypeStrictAny,
+    LoopPropertiesTypeStrictAnyEvaluate, LoopKeys, LoopItems,
+    LoopItemsUnevaluated, LoopItemsType, LoopItemsTypeStrict,
+    LoopItemsTypeStrictAny, LoopContains, ControlGroup, ControlGroupWhenDefines,
+    ControlLabel, ControlMark, ControlEvaluate, ControlJump,
+    ControlDynamicAnchorJump>>;
 
 #if !defined(DOXYGEN)
 // For fast internal instruction dispatching. It must stay
@@ -175,6 +179,8 @@ enum class TemplateIndex : std::uint8_t {
   LoopPropertiesTypeEvaluate,
   LoopPropertiesTypeStrict,
   LoopPropertiesTypeStrictEvaluate,
+  LoopPropertiesTypeStrictAny,
+  LoopPropertiesTypeStrictAnyEvaluate,
   LoopKeys,
   LoopItems,
   LoopItemsUnevaluated,
@@ -498,6 +504,16 @@ DEFINE_STEP_WITH_VALUE(Loop, PropertiesTypeStrict, ValueType)
 /// @brief Represents a compiler step that checks every object property is of a
 /// given type (strict mode) and marks evaluation
 DEFINE_STEP_WITH_VALUE(Loop, PropertiesTypeStrictEvaluate, ValueType)
+
+/// @ingroup evaluator_instructions
+/// @brief Represents a compiler step that checks every object property is of a
+/// set of given types (strict mode)
+DEFINE_STEP_WITH_VALUE(Loop, PropertiesTypeStrictAny, ValueTypes)
+
+/// @ingroup evaluator_instructions
+/// @brief Represents a compiler step that checks every object property is of a
+/// set of given types (strict mode) and marks evaluation
+DEFINE_STEP_WITH_VALUE(Loop, PropertiesTypeStrictAnyEvaluate, ValueTypes)
 
 /// @ingroup evaluator_instructions
 /// @brief Represents a compiler step that loops over object property keys
