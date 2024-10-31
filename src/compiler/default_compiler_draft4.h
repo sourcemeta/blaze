@@ -735,10 +735,9 @@ auto compiler_draft4_applicator_properties_with_options(
                                                            children.front())};
   }
 
-  // TODO: Should this be LogicalWhenType? If so, we can avoid evaluating
-  // every unrolled property against non-object instances
-  return {make<LogicalAnd>(context, schema_context, dynamic_context,
-                           ValueNone{}, std::move(children))};
+  return {make<LogicalWhenType>(context, schema_context, dynamic_context,
+                                sourcemeta::jsontoolkit::JSON::Type::Object,
+                                std::move(children))};
 }
 
 auto compiler_draft4_applicator_properties(

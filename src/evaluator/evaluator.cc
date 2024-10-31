@@ -759,8 +759,9 @@ auto evaluate_step(const sourcemeta::blaze::Template::value_type &step,
     case IS_STEP(ControlGroupWhenDefines): {
       EVALUATE_BEGIN_PASS_THROUGH(control, ControlGroupWhenDefines);
       const auto &target{context.resolve_target()};
+      assert(target.is_object());
 
-      if (target.is_object() && target.defines(control.value)) {
+      if (target.defines(control.value)) {
         for (const auto &child : control.children) {
           if (!evaluate_step(child, callback, context)) {
             result = false;

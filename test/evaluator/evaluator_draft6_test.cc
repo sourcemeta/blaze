@@ -672,8 +672,9 @@ TEST(Evaluator_draft6, propertyNames_4) {
 
   EVALUATE_WITH_TRACE_FAST_SUCCESS(schema, instance, 1);
 
-  EVALUATE_TRACE_PRE(0, LogicalAnd, "/properties", "#/properties", "");
-  EVALUATE_TRACE_POST_SUCCESS(0, LogicalAnd, "/properties", "#/properties", "");
+  EVALUATE_TRACE_PRE(0, LogicalWhenType, "/properties", "#/properties", "");
+  EVALUATE_TRACE_POST_SUCCESS(0, LogicalWhenType, "/properties", "#/properties",
+                              "");
   EVALUATE_TRACE_POST_DESCRIBE(instance, 0,
                                "The object value was expected to validate "
                                "against the single defined property subschema");

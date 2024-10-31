@@ -40,7 +40,7 @@ TEST(Evaluator_2019_09, properties_1) {
 
   EVALUATE_WITH_TRACE_FAST_SUCCESS(schema, instance, 3);
 
-  EVALUATE_TRACE_PRE(0, LogicalAnd, "/properties", "#/properties", "");
+  EVALUATE_TRACE_PRE(0, LogicalWhenType, "/properties", "#/properties", "");
   EVALUATE_TRACE_PRE(1, AssertionPropertyType, "/properties/bar/type",
                      "#/properties/bar/type", "/bar");
   EVALUATE_TRACE_PRE(2, AssertionPropertyTypeStrict, "/properties/foo/type",
@@ -51,7 +51,8 @@ TEST(Evaluator_2019_09, properties_1) {
   EVALUATE_TRACE_POST_SUCCESS(1, AssertionPropertyTypeStrict,
                               "/properties/foo/type", "#/properties/foo/type",
                               "/foo");
-  EVALUATE_TRACE_POST_SUCCESS(2, LogicalAnd, "/properties", "#/properties", "");
+  EVALUATE_TRACE_POST_SUCCESS(2, LogicalWhenType, "/properties", "#/properties",
+                              "");
 
   EVALUATE_TRACE_POST_DESCRIBE(instance, 0,
                                "The value was expected to be of type integer");
@@ -77,7 +78,7 @@ TEST(Evaluator_2019_09, properties_1_exhaustive) {
 
   EVALUATE_WITH_TRACE_EXHAUSTIVE_SUCCESS(schema, instance, 5);
 
-  EVALUATE_TRACE_PRE(0, LogicalAnd, "/properties", "#/properties", "");
+  EVALUATE_TRACE_PRE(0, LogicalWhenType, "/properties", "#/properties", "");
   EVALUATE_TRACE_PRE(1, AssertionType, "/properties/bar/type",
                      "#/properties/bar/type", "/bar");
   EVALUATE_TRACE_PRE_ANNOTATION(2, "/properties", "#/properties", "");
@@ -91,7 +92,8 @@ TEST(Evaluator_2019_09, properties_1_exhaustive) {
   EVALUATE_TRACE_POST_SUCCESS(2, AssertionTypeStrict, "/properties/foo/type",
                               "#/properties/foo/type", "/foo");
   EVALUATE_TRACE_POST_ANNOTATION(3, "/properties", "#/properties", "", "foo");
-  EVALUATE_TRACE_POST_SUCCESS(4, LogicalAnd, "/properties", "#/properties", "");
+  EVALUATE_TRACE_POST_SUCCESS(4, LogicalWhenType, "/properties", "#/properties",
+                              "");
 
   EVALUATE_TRACE_POST_DESCRIBE(instance, 0,
                                "The value was expected to be of type integer");
@@ -123,7 +125,7 @@ TEST(Evaluator_2019_09, properties_2) {
 
   EVALUATE_WITH_TRACE_FAST_FAILURE(schema, instance, 3);
 
-  EVALUATE_TRACE_PRE(0, LogicalAnd, "/properties", "#/properties", "");
+  EVALUATE_TRACE_PRE(0, LogicalWhenType, "/properties", "#/properties", "");
   EVALUATE_TRACE_PRE(1, AssertionPropertyType, "/properties/bar/type",
                      "#/properties/bar/type", "/bar");
   EVALUATE_TRACE_PRE(2, AssertionPropertyTypeStrict, "/properties/foo/type",
@@ -134,7 +136,8 @@ TEST(Evaluator_2019_09, properties_2) {
   EVALUATE_TRACE_POST_FAILURE(1, AssertionPropertyTypeStrict,
                               "/properties/foo/type", "#/properties/foo/type",
                               "/foo");
-  EVALUATE_TRACE_POST_FAILURE(2, LogicalAnd, "/properties", "#/properties", "");
+  EVALUATE_TRACE_POST_FAILURE(2, LogicalWhenType, "/properties", "#/properties",
+                              "");
 
   EVALUATE_TRACE_POST_DESCRIBE(instance, 0,
                                "The value was expected to be of type integer");
@@ -161,7 +164,7 @@ TEST(Evaluator_2019_09, properties_2_exhaustive) {
 
   EVALUATE_WITH_TRACE_EXHAUSTIVE_FAILURE(schema, instance, 4);
 
-  EVALUATE_TRACE_PRE(0, LogicalAnd, "/properties", "#/properties", "");
+  EVALUATE_TRACE_PRE(0, LogicalWhenType, "/properties", "#/properties", "");
   EVALUATE_TRACE_PRE(1, AssertionType, "/properties/bar/type",
                      "#/properties/bar/type", "/bar");
   EVALUATE_TRACE_PRE_ANNOTATION(2, "/properties", "#/properties", "");
@@ -173,7 +176,8 @@ TEST(Evaluator_2019_09, properties_2_exhaustive) {
   EVALUATE_TRACE_POST_ANNOTATION(1, "/properties", "#/properties", "", "bar");
   EVALUATE_TRACE_POST_FAILURE(2, AssertionTypeStrict, "/properties/foo/type",
                               "#/properties/foo/type", "/foo");
-  EVALUATE_TRACE_POST_FAILURE(3, LogicalAnd, "/properties", "#/properties", "");
+  EVALUATE_TRACE_POST_FAILURE(3, LogicalWhenType, "/properties", "#/properties",
+                              "");
 
   EVALUATE_TRACE_POST_DESCRIBE(instance, 0,
                                "The value was expected to be of type integer");
@@ -610,7 +614,7 @@ TEST(Evaluator_2019_09, additionalProperties_2_exhaustive) {
 
   EVALUATE_WITH_TRACE_EXHAUSTIVE_SUCCESS(schema, instance, 6);
 
-  EVALUATE_TRACE_PRE(0, LogicalAnd, "/properties", "#/properties", "");
+  EVALUATE_TRACE_PRE(0, LogicalWhenType, "/properties", "#/properties", "");
   EVALUATE_TRACE_PRE(1, AssertionTypeStrict, "/properties/foo/type",
                      "#/properties/foo/type", "/foo");
   EVALUATE_TRACE_PRE_ANNOTATION(2, "/properties", "#/properties", "");
@@ -624,7 +628,8 @@ TEST(Evaluator_2019_09, additionalProperties_2_exhaustive) {
   EVALUATE_TRACE_POST_SUCCESS(0, AssertionTypeStrict, "/properties/foo/type",
                               "#/properties/foo/type", "/foo");
   EVALUATE_TRACE_POST_ANNOTATION(1, "/properties", "#/properties", "", "foo");
-  EVALUATE_TRACE_POST_SUCCESS(2, LogicalAnd, "/properties", "#/properties", "");
+  EVALUATE_TRACE_POST_SUCCESS(2, LogicalWhenType, "/properties", "#/properties",
+                              "");
   EVALUATE_TRACE_POST_SUCCESS(3, AssertionType, "/additionalProperties/type",
                               "#/additionalProperties/type", "/bar");
   EVALUATE_TRACE_POST_ANNOTATION(4, "/additionalProperties",
@@ -836,7 +841,7 @@ TEST(Evaluator_2019_09, additionalProperties_4_exhaustive) {
   EVALUATE_TRACE_PRE_ANNOTATION(2, "/patternProperties", "#/patternProperties",
                                 "");
 
-  EVALUATE_TRACE_PRE(3, LogicalAnd, "/properties", "#/properties", "");
+  EVALUATE_TRACE_PRE(3, LogicalWhenType, "/properties", "#/properties", "");
   EVALUATE_TRACE_PRE(4, AssertionTypeStrict, "/properties/foo/type",
                      "#/properties/foo/type", "/foo");
   EVALUATE_TRACE_PRE_ANNOTATION(5, "/properties", "#/properties", "");
@@ -861,7 +866,8 @@ TEST(Evaluator_2019_09, additionalProperties_4_exhaustive) {
   EVALUATE_TRACE_POST_SUCCESS(3, AssertionTypeStrict, "/properties/foo/type",
                               "#/properties/foo/type", "/foo");
   EVALUATE_TRACE_POST_ANNOTATION(4, "/properties", "#/properties", "", "foo");
-  EVALUATE_TRACE_POST_SUCCESS(5, LogicalAnd, "/properties", "#/properties", "");
+  EVALUATE_TRACE_POST_SUCCESS(5, LogicalWhenType, "/properties", "#/properties",
+                              "");
 
   // `additionalProperties`
   EVALUATE_TRACE_POST_SUCCESS(6, AssertionTypeStrict,
@@ -2691,7 +2697,7 @@ TEST(Evaluator_2019_09, unevaluatedProperties_1_exhaustive) {
 
   EVALUATE_WITH_TRACE_EXHAUSTIVE_SUCCESS(schema, instance, 6);
 
-  EVALUATE_TRACE_PRE(0, LogicalAnd, "/properties", "#/properties", "");
+  EVALUATE_TRACE_PRE(0, LogicalWhenType, "/properties", "#/properties", "");
   EVALUATE_TRACE_PRE(1, AssertionTypeStrict, "/properties/foo/type",
                      "#/properties/foo/type", "/foo");
   EVALUATE_TRACE_PRE_ANNOTATION(2, "/properties", "#/properties", "");
@@ -2705,7 +2711,8 @@ TEST(Evaluator_2019_09, unevaluatedProperties_1_exhaustive) {
   EVALUATE_TRACE_POST_SUCCESS(0, AssertionTypeStrict, "/properties/foo/type",
                               "#/properties/foo/type", "/foo");
   EVALUATE_TRACE_POST_ANNOTATION(1, "/properties", "#/properties", "", "foo");
-  EVALUATE_TRACE_POST_SUCCESS(2, LogicalAnd, "/properties", "#/properties", "");
+  EVALUATE_TRACE_POST_SUCCESS(2, LogicalWhenType, "/properties", "#/properties",
+                              "");
   EVALUATE_TRACE_POST_SUCCESS(3, AssertionTypeStrict,
                               "/unevaluatedProperties/type",
                               "#/unevaluatedProperties/type", "/bar");
@@ -2807,7 +2814,7 @@ TEST(Evaluator_2019_09, unevaluatedProperties_2_exhaustive) {
   EVALUATE_WITH_TRACE_EXHAUSTIVE_SUCCESS(schema, instance, 8);
 
   EVALUATE_TRACE_PRE(0, LogicalAnd, "/allOf", "#/allOf", "");
-  EVALUATE_TRACE_PRE(1, LogicalAnd, "/allOf/0/properties",
+  EVALUATE_TRACE_PRE(1, LogicalWhenType, "/allOf/0/properties",
                      "#/allOf/0/properties", "");
   EVALUATE_TRACE_PRE(2, AssertionTypeStrict, "/allOf/0/properties/foo/type",
                      "#/allOf/0/properties/foo/type", "/foo");
@@ -2829,7 +2836,7 @@ TEST(Evaluator_2019_09, unevaluatedProperties_2_exhaustive) {
                                  "#/allOf/0/properties", "", "foo");
   EVALUATE_TRACE_POST_SUCCESS(2, ControlEvaluate, "/allOf/0/properties",
                               "#/allOf/0/properties", "/foo");
-  EVALUATE_TRACE_POST_SUCCESS(3, LogicalAnd, "/allOf/0/properties",
+  EVALUATE_TRACE_POST_SUCCESS(3, LogicalWhenType, "/allOf/0/properties",
                               "#/allOf/0/properties", "");
   EVALUATE_TRACE_POST_SUCCESS(4, LogicalAnd, "/allOf", "#/allOf", "");
   EVALUATE_TRACE_POST_SUCCESS(5, AssertionTypeStrict,
@@ -2939,7 +2946,7 @@ TEST(Evaluator_2019_09, unevaluatedProperties_3_exhaustive) {
   EVALUATE_WITH_TRACE_EXHAUSTIVE_FAILURE(schema, instance, 7);
 
   EVALUATE_TRACE_PRE(0, LogicalAnd, "/allOf", "#/allOf", "");
-  EVALUATE_TRACE_PRE(1, LogicalAnd, "/allOf/0/properties",
+  EVALUATE_TRACE_PRE(1, LogicalWhenType, "/allOf/0/properties",
                      "#/allOf/0/properties", "");
   EVALUATE_TRACE_PRE(2, AssertionTypeStrict, "/allOf/0/properties/foo/type",
                      "#/allOf/0/properties/foo/type", "/foo");
@@ -2959,7 +2966,7 @@ TEST(Evaluator_2019_09, unevaluatedProperties_3_exhaustive) {
                                  "#/allOf/0/properties", "", "foo");
   EVALUATE_TRACE_POST_SUCCESS(2, ControlEvaluate, "/allOf/0/properties",
                               "#/allOf/0/properties", "/foo");
-  EVALUATE_TRACE_POST_SUCCESS(3, LogicalAnd, "/allOf/0/properties",
+  EVALUATE_TRACE_POST_SUCCESS(3, LogicalWhenType, "/allOf/0/properties",
                               "#/allOf/0/properties", "");
   EVALUATE_TRACE_POST_SUCCESS(4, LogicalAnd, "/allOf", "#/allOf", "");
   EVALUATE_TRACE_POST_FAILURE(5, AssertionTypeStrict,
@@ -3047,7 +3054,7 @@ TEST(Evaluator_2019_09, unevaluatedProperties_4_exhaustive) {
 
   EVALUATE_WITH_TRACE_EXHAUSTIVE_FAILURE(schema, instance, 5);
 
-  EVALUATE_TRACE_PRE(0, LogicalAnd, "/properties", "#/properties", "");
+  EVALUATE_TRACE_PRE(0, LogicalWhenType, "/properties", "#/properties", "");
   EVALUATE_TRACE_PRE(1, AssertionTypeStrict, "/properties/foo/type",
                      "#/properties/foo/type", "/foo");
   EVALUATE_TRACE_PRE_ANNOTATION(2, "/properties", "#/properties", "");
@@ -3059,7 +3066,8 @@ TEST(Evaluator_2019_09, unevaluatedProperties_4_exhaustive) {
   EVALUATE_TRACE_POST_SUCCESS(0, AssertionTypeStrict, "/properties/foo/type",
                               "#/properties/foo/type", "/foo");
   EVALUATE_TRACE_POST_ANNOTATION(1, "/properties", "#/properties", "", "foo");
-  EVALUATE_TRACE_POST_SUCCESS(2, LogicalAnd, "/properties", "#/properties", "");
+  EVALUATE_TRACE_POST_SUCCESS(2, LogicalWhenType, "/properties", "#/properties",
+                              "");
   EVALUATE_TRACE_POST_FAILURE(3, AssertionFail, "/unevaluatedProperties",
                               "#/unevaluatedProperties", "/bar");
   EVALUATE_TRACE_POST_FAILURE(4, LoopPropertiesUnevaluatedExcept,
@@ -3209,7 +3217,7 @@ TEST(Evaluator_2019_09, unevaluatedProperties_7) {
   EVALUATE_WITH_TRACE_FAST_FAILURE(schema, instance, 5);
 
   EVALUATE_TRACE_PRE(0, LogicalAnd, "/allOf", "#/allOf", "");
-  EVALUATE_TRACE_PRE(1, LogicalAnd, "/allOf/0/properties",
+  EVALUATE_TRACE_PRE(1, LogicalWhenType, "/allOf/0/properties",
                      "#/allOf/0/properties", "");
   EVALUATE_TRACE_PRE(2, ControlEvaluate, "/allOf/0/properties",
                      "#/allOf/0/properties", "/foo");
@@ -3221,7 +3229,7 @@ TEST(Evaluator_2019_09, unevaluatedProperties_7) {
 
   EVALUATE_TRACE_POST_SUCCESS(0, ControlEvaluate, "/allOf/0/properties",
                               "#/allOf/0/properties", "/foo");
-  EVALUATE_TRACE_POST_SUCCESS(1, LogicalAnd, "/allOf/0/properties",
+  EVALUATE_TRACE_POST_SUCCESS(1, LogicalWhenType, "/allOf/0/properties",
                               "#/allOf/0/properties", "");
   EVALUATE_TRACE_POST_FAILURE(2, AssertionFail,
                               "/allOf/1/unevaluatedProperties",
@@ -3263,7 +3271,7 @@ TEST(Evaluator_2019_09, unevaluatedProperties_7_exhaustive) {
   EVALUATE_WITH_TRACE_EXHAUSTIVE_FAILURE(schema, instance, 6);
 
   EVALUATE_TRACE_PRE(0, LogicalAnd, "/allOf", "#/allOf", "");
-  EVALUATE_TRACE_PRE(1, LogicalAnd, "/allOf/0/properties",
+  EVALUATE_TRACE_PRE(1, LogicalWhenType, "/allOf/0/properties",
                      "#/allOf/0/properties", "");
   EVALUATE_TRACE_PRE_ANNOTATION(2, "/allOf/0/properties",
                                 "#/allOf/0/properties", "");
@@ -3279,7 +3287,7 @@ TEST(Evaluator_2019_09, unevaluatedProperties_7_exhaustive) {
                                  "#/allOf/0/properties", "", "foo");
   EVALUATE_TRACE_POST_SUCCESS(1, ControlEvaluate, "/allOf/0/properties",
                               "#/allOf/0/properties", "/foo");
-  EVALUATE_TRACE_POST_SUCCESS(2, LogicalAnd, "/allOf/0/properties",
+  EVALUATE_TRACE_POST_SUCCESS(2, LogicalWhenType, "/allOf/0/properties",
                               "#/allOf/0/properties", "");
   EVALUATE_TRACE_POST_FAILURE(3, AssertionFail,
                               "/allOf/1/unevaluatedProperties",
@@ -3325,7 +3333,7 @@ TEST(Evaluator_2019_09, unevaluatedProperties_8) {
 
   EVALUATE_TRACE_PRE(0, LogicalNotEvaluate, "/not", "#/not", "");
   EVALUATE_TRACE_PRE(1, LogicalNotEvaluate, "/not/not", "#/not/not", "");
-  EVALUATE_TRACE_PRE(2, LogicalAnd, "/not/not/properties",
+  EVALUATE_TRACE_PRE(2, LogicalWhenType, "/not/not/properties",
                      "#/not/not/properties", "");
   EVALUATE_TRACE_PRE(3, ControlEvaluate, "/not/not/properties",
                      "#/not/not/properties", "/foo");
@@ -3336,7 +3344,7 @@ TEST(Evaluator_2019_09, unevaluatedProperties_8) {
 
   EVALUATE_TRACE_POST_SUCCESS(0, ControlEvaluate, "/not/not/properties",
                               "#/not/not/properties", "/foo");
-  EVALUATE_TRACE_POST_SUCCESS(1, LogicalAnd, "/not/not/properties",
+  EVALUATE_TRACE_POST_SUCCESS(1, LogicalWhenType, "/not/not/properties",
                               "#/not/not/properties", "");
   EVALUATE_TRACE_POST_FAILURE(2, LogicalNotEvaluate, "/not/not", "#/not/not",
                               "");
@@ -3383,7 +3391,7 @@ TEST(Evaluator_2019_09, unevaluatedProperties_8_exhaustive) {
 
   EVALUATE_TRACE_PRE(0, LogicalNotEvaluate, "/not", "#/not", "");
   EVALUATE_TRACE_PRE(1, LogicalNotEvaluate, "/not/not", "#/not/not", "");
-  EVALUATE_TRACE_PRE(2, LogicalAnd, "/not/not/properties",
+  EVALUATE_TRACE_PRE(2, LogicalWhenType, "/not/not/properties",
                      "#/not/not/properties", "");
   EVALUATE_TRACE_PRE_ANNOTATION(3, "/not/not/properties",
                                 "#/not/not/properties", "");
@@ -3398,7 +3406,7 @@ TEST(Evaluator_2019_09, unevaluatedProperties_8_exhaustive) {
                                  "#/not/not/properties", "", "foo");
   EVALUATE_TRACE_POST_SUCCESS(1, ControlEvaluate, "/not/not/properties",
                               "#/not/not/properties", "/foo");
-  EVALUATE_TRACE_POST_SUCCESS(2, LogicalAnd, "/not/not/properties",
+  EVALUATE_TRACE_POST_SUCCESS(2, LogicalWhenType, "/not/not/properties",
                               "#/not/not/properties", "");
   EVALUATE_TRACE_POST_FAILURE(3, LogicalNotEvaluate, "/not/not", "#/not/not",
                               "");
