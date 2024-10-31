@@ -51,6 +51,14 @@ static auto defines_direct_enumeration(const sourcemeta::blaze::Template &steps)
   });
 }
 
+static auto
+is_inside_disjunctor(const sourcemeta::jsontoolkit::Pointer &pointer) -> bool {
+  return pointer.size() > 2 && pointer.at(pointer.size() - 2).is_index() &&
+         pointer.at(pointer.size() - 3).is_property() &&
+         (pointer.at(pointer.size() - 3).to_property() == "oneOf" ||
+          pointer.at(pointer.size() - 3).to_property() == "anyOf");
+}
+
 namespace internal {
 using namespace sourcemeta::blaze;
 
@@ -555,20 +563,26 @@ auto compiler_draft4_applicator_properties_with_options(
               }
             });
 
-  assert(schema_context.relative_pointer.back().is_property());
-  assert(schema_context.relative_pointer.back().to_property() ==
-         dynamic_context.keyword);
-  const auto relative_pointer_size{schema_context.relative_pointer.size()};
-  const auto is_directly_inside_disjunction{
-      relative_pointer_size > 2 &&
-      schema_context.relative_pointer.at(relative_pointer_size - 2)
-          .is_index() &&
-      schema_context.relative_pointer.at(relative_pointer_size - 3)
-          .is_property() &&
-      (schema_context.relative_pointer.at(relative_pointer_size - 3)
-               .to_property() == "oneOf" ||
-       schema_context.relative_pointer.at(relative_pointer_size - 3)
-               .to_property() == "anyOf")};
+  const auto &current_entry{static_frame_entry(context, schema_context)};
+  const auto inside_disjunctor{
+      is_inside_disjunctor(schema_context.relative_pointer) ||
+      // Check if any reference from `anyOf` or `oneOf` points to us
+      std::any_of(context.references.cbegin(), context.references.cend(),
+                  [&context, &current_entry](const auto &reference) {
+                    if (!context.frame.contains(
+                            {sourcemeta::jsontoolkit::ReferenceType::Static,
+                             reference.second.destination})) {
+                      return false;
+                    }
+
+                    const auto &target{
+                        context.frame
+                            .at({sourcemeta::jsontoolkit::ReferenceType::Static,
+                                 reference.second.destination})
+                            .pointer};
+                    return is_inside_disjunctor(reference.first.second) &&
+                           current_entry.pointer.initial() == target;
+                  })};
 
   // There are two ways to compile `properties` depending on whether
   // most of the properties are marked as required using `required`
@@ -579,10 +593,13 @@ auto compiler_draft4_applicator_properties_with_options(
       is_required <= (size / 4) &&
       // If `properties` only defines a relatively small amount of properties,
       // then its probably still faster to unroll
-      schema_context.schema.at(dynamic_context.keyword).size() > 5 &&
-      // Always unroll inside `oneOf` or `anyOf`, to have a better chance at
+      size > 5 &&
+      // Unless the properties definition has a LOT of optional properties,
+      // we should unroll inside `oneOf` or `anyOf`, to have a better chance at
       // short-circuiting quickly
-      !is_directly_inside_disjunction};
+      // TODO: Maybe the proper middle ground here is to ONLY
+      // unroll properties with `const`/`enum`?
+      (!inside_disjunctor || (is_required == 0 && size > 20))};
 
   if (prefer_loop_over_instance) {
     ValueNamedIndexes indexes;

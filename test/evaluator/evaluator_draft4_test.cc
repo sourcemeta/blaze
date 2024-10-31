@@ -3229,6 +3229,63 @@ TEST(Evaluator_draft4, anyOf_3) {
       "given subschemas");
 }
 
+TEST(Evaluator_draft4, anyOf_4) {
+  const sourcemeta::jsontoolkit::JSON schema{
+      sourcemeta::jsontoolkit::parse(R"JSON({
+    "$schema": "http://json-schema.org/draft-04/schema#",
+    "anyOf": [
+      { "$ref": "#/definitions/test" },
+      true
+    ],
+    "definitions": {
+      "test": {
+        "properties": {
+          "a": { "type": "string" },
+          "b": { "type": "string", "pattern": "^b" },
+          "c": { "type": "string", "pattern": "^c" },
+          "d": { "type": "string", "pattern": "^d" },
+          "e": { "type": "string", "pattern": "^e" },
+          "f": { "type": "string", "pattern": "^f" },
+          "g": { "type": "string", "pattern": "^g" },
+          "h": { "type": "string", "pattern": "^h" },
+          "i": { "type": "string", "pattern": "^i" },
+          "j": { "type": "string", "pattern": "^j" },
+          "k": { "type": "string", "pattern": "^k" }
+        }
+      }
+    }
+  })JSON")};
+
+  const sourcemeta::jsontoolkit::JSON instance{
+      sourcemeta::jsontoolkit::parse("{ \"a\": \"foo\" }")};
+
+  EVALUATE_WITH_TRACE_FAST_SUCCESS(schema, instance, 3);
+
+  EVALUATE_TRACE_PRE(0, LogicalOr, "/anyOf", "#/anyOf", "");
+  EVALUATE_TRACE_PRE(1, LogicalAnd, "/anyOf/0/$ref/properties",
+                     "#/definitions/test/properties", "");
+  EVALUATE_TRACE_PRE(2, AssertionPropertyTypeStrict,
+                     "/anyOf/0/$ref/properties/a/type",
+                     "#/definitions/test/properties/a/type", "/a");
+
+  EVALUATE_TRACE_POST_SUCCESS(0, AssertionPropertyTypeStrict,
+                              "/anyOf/0/$ref/properties/a/type",
+                              "#/definitions/test/properties/a/type", "/a");
+  EVALUATE_TRACE_POST_SUCCESS(1, LogicalAnd, "/anyOf/0/$ref/properties",
+                              "#/definitions/test/properties", "");
+  EVALUATE_TRACE_POST_SUCCESS(2, LogicalOr, "/anyOf", "#/anyOf", "");
+
+  EVALUATE_TRACE_POST_DESCRIBE(instance, 0,
+                               "The value was expected to be of type string");
+  EVALUATE_TRACE_POST_DESCRIBE(instance, 1,
+                               "The object value was expected to validate "
+                               "against the defined properties subschemas");
+  EVALUATE_TRACE_POST_DESCRIBE(
+      instance, 2,
+      "The object value was expected to validate against at least one of the 2 "
+      "given subschemas");
+}
+
 TEST(Evaluator_draft4, oneOf_1) {
   const sourcemeta::jsontoolkit::JSON schema{
       sourcemeta::jsontoolkit::parse(R"JSON({
