@@ -193,7 +193,14 @@ struct DescribeVisitor {
 
     if (this->keyword == "properties") {
       assert(!step.children.empty());
-      assert(this->target.is_object());
+      if (!this->target.is_object()) {
+        std::ostringstream message;
+        describe_type_check(this->valid, this->target.type(),
+                            sourcemeta::jsontoolkit::JSON::Type::Object,
+                            message);
+        return message.str();
+      }
+
       std::ostringstream message;
       message << "The object value was expected to validate against the ";
       if (step.children.size() == 1) {
