@@ -540,14 +540,16 @@ auto compiler_draft4_applicator_properties_with_options(
   assert(schema_context.relative_pointer.back().to_property() ==
          dynamic_context.keyword);
   const auto relative_pointer_size{schema_context.relative_pointer.size()};
-  const auto is_directly_inside_oneof{
+  const auto is_directly_inside_disjunction{
       relative_pointer_size > 2 &&
       schema_context.relative_pointer.at(relative_pointer_size - 2)
           .is_index() &&
       schema_context.relative_pointer.at(relative_pointer_size - 3)
           .is_property() &&
-      schema_context.relative_pointer.at(relative_pointer_size - 3)
-              .to_property() == "oneOf"};
+      (schema_context.relative_pointer.at(relative_pointer_size - 3)
+               .to_property() == "oneOf" ||
+       schema_context.relative_pointer.at(relative_pointer_size - 3)
+               .to_property() == "anyOf")};
 
   // There are two ways to compile `properties` depending on whether
   // most of the properties are marked as required using `required`
@@ -555,13 +557,13 @@ auto compiler_draft4_applicator_properties_with_options(
   // in the corresponding case.
   const auto prefer_loop_over_instance{
       // This strategy only makes sense if most of the properties are "optional"
-      is_required <= (size / 2) &&
+      is_required <= (size / 4) &&
       // If `properties` only defines a relatively small amount of properties,
       // then its probably still faster to unroll
       schema_context.schema.at(dynamic_context.keyword).size() > 5 &&
-      // Always unroll inside `oneOf`, to have a better chance at
+      // Always unroll inside `oneOf` or `anyOf`, to have a better chance at
       // short-circuiting quickly
-      !is_directly_inside_oneof};
+      !is_directly_inside_disjunction};
 
   if (prefer_loop_over_instance) {
     ValueNamedIndexes indexes;
