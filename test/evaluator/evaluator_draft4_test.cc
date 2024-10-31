@@ -3028,6 +3028,96 @@ TEST(Evaluator_draft4, anyOf_2) {
       "3 given subschemas");
 }
 
+TEST(Evaluator_draft4, anyOf_3) {
+  const sourcemeta::jsontoolkit::JSON schema{
+      sourcemeta::jsontoolkit::parse(R"JSON({
+    "$schema": "http://json-schema.org/draft-04/schema#",
+    "anyOf": [
+      {
+        "properties": {
+          "version": { "enum": [ 1 ] },
+          "one": { "items": { "type": "integer" } },
+          "two": { "items": { "type": "boolean" } },
+          "three": { "items": { "type": "object" } },
+          "four": { "items": { "type": "integer" } },
+          "five": { "items": { "type": "boolean" } },
+          "six": { "items": { "type": "object" } },
+          "seven": { "items": { "type": "object" } },
+          "eight": { "items": { "type": "object" } },
+          "nine": { "items": { "type": "object" } },
+          "then": { "items": { "type": "object" } }
+        }
+      },
+      {
+        "properties": {
+          "version": { "enum": [ 2 ] },
+          "one": { "type": "string" }
+        }
+      },
+      {
+        "properties": {
+          "version": { "enum": [ 3 ] },
+          "one": { "items": { "type": "integer" } },
+          "two": { "items": { "type": "boolean" } },
+          "three": { "items": { "type": "object" } }
+        }
+      }
+    ]
+  })JSON")};
+
+  const sourcemeta::jsontoolkit::JSON instance{
+      sourcemeta::jsontoolkit::parse("{ \"version\": 2, \"one\": \"two\" }")};
+
+  EVALUATE_WITH_TRACE_FAST_SUCCESS(schema, instance, 6);
+
+  EVALUATE_TRACE_PRE(0, LogicalOr, "/anyOf", "#/anyOf", "");
+  EVALUATE_TRACE_PRE(1, LogicalAnd, "/anyOf/0/properties",
+                     "#/anyOf/0/properties", "");
+  EVALUATE_TRACE_PRE(2, AssertionEqual, "/anyOf/0/properties/version/enum",
+                     "#/anyOf/0/properties/version/enum", "/version");
+  EVALUATE_TRACE_PRE(3, LogicalAnd, "/anyOf/1/properties",
+                     "#/anyOf/1/properties", "");
+  EVALUATE_TRACE_PRE(4, AssertionPropertyTypeStrict,
+                     "/anyOf/1/properties/one/type",
+                     "#/anyOf/1/properties/one/type", "/one");
+  EVALUATE_TRACE_PRE(5, AssertionEqual, "/anyOf/1/properties/version/enum",
+                     "#/anyOf/1/properties/version/enum", "/version");
+
+  EVALUATE_TRACE_POST_FAILURE(0, AssertionEqual,
+                              "/anyOf/0/properties/version/enum",
+                              "#/anyOf/0/properties/version/enum", "/version");
+  EVALUATE_TRACE_POST_FAILURE(1, LogicalAnd, "/anyOf/0/properties",
+                              "#/anyOf/0/properties", "");
+  EVALUATE_TRACE_POST_SUCCESS(2, AssertionPropertyTypeStrict,
+                              "/anyOf/1/properties/one/type",
+                              "#/anyOf/1/properties/one/type", "/one");
+  EVALUATE_TRACE_POST_SUCCESS(3, AssertionEqual,
+                              "/anyOf/1/properties/version/enum",
+                              "#/anyOf/1/properties/version/enum", "/version");
+  EVALUATE_TRACE_POST_SUCCESS(4, LogicalAnd, "/anyOf/1/properties",
+                              "#/anyOf/1/properties", "");
+  EVALUATE_TRACE_POST_SUCCESS(5, LogicalOr, "/anyOf", "#/anyOf", "");
+
+  EVALUATE_TRACE_POST_DESCRIBE(
+      instance, 0,
+      "The integer value 2 was expected to equal the integer constant 1");
+  EVALUATE_TRACE_POST_DESCRIBE(instance, 1,
+                               "The object value was expected to validate "
+                               "against the defined properties subschemas");
+  EVALUATE_TRACE_POST_DESCRIBE(instance, 2,
+                               "The value was expected to be of type string");
+  EVALUATE_TRACE_POST_DESCRIBE(
+      instance, 3,
+      "The integer value 2 was expected to equal the integer constant 2");
+  EVALUATE_TRACE_POST_DESCRIBE(instance, 4,
+                               "The object value was expected to validate "
+                               "against the defined properties subschemas");
+  EVALUATE_TRACE_POST_DESCRIBE(
+      instance, 5,
+      "The object value was expected to validate against at least one of the 3 "
+      "given subschemas");
+}
+
 TEST(Evaluator_draft4, oneOf_1) {
   const sourcemeta::jsontoolkit::JSON schema{
       sourcemeta::jsontoolkit::parse(R"JSON({
