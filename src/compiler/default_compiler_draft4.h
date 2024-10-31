@@ -531,9 +531,10 @@ auto compiler_draft4_applicator_properties_with_options(
   // earlier without spending a lot of time on other subschemas
   std::sort(properties.begin(), properties.end(),
             [](const auto &left, const auto &right) {
-              return (left.second.size() == right.second.size())
-                         ? (left.first < right.first)
-                         : (left.second.size() < right.second.size());
+              const auto left_size{recursive_template_size(left.second)};
+              const auto right_size{recursive_template_size(right.second)};
+              return (left_size == right_size) ? (left.first < right.first)
+                                               : (left_size < right_size);
             });
 
   assert(schema_context.relative_pointer.back().is_property());

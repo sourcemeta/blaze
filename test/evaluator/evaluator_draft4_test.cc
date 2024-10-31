@@ -1334,6 +1334,83 @@ TEST(Evaluator_draft4, properties_10) {
                                "The value was expected to be of type number");
 }
 
+TEST(Evaluator_draft4, properties_11) {
+  const sourcemeta::jsontoolkit::JSON schema{
+      sourcemeta::jsontoolkit::parse(R"JSON({
+    "$schema": "http://json-schema.org/draft-04/schema#",
+    "properties": {
+      "foo": {
+        "items": {
+          "type": "number",
+          "multipleOf": 3,
+          "maximum": 100
+        }
+      },
+      "bar": { "type": "string", "pattern": "^a" }
+    }
+  })JSON")};
+
+  const sourcemeta::jsontoolkit::JSON instance{
+      sourcemeta::jsontoolkit::parse("{ \"foo\": [3], \"bar\": \"abc\" }")};
+
+  EVALUATE_WITH_TRACE_FAST_SUCCESS(schema, instance, 7);
+
+  EVALUATE_TRACE_PRE(0, LogicalAnd, "/properties", "#/properties", "");
+
+  // We evaluate "bar" first because it has less number of steps, even though
+  // if we don't count steps recursively, its the other way around
+  EVALUATE_TRACE_PRE(1, AssertionRegex, "/properties/bar/pattern",
+                     "#/properties/bar/pattern", "/bar");
+  EVALUATE_TRACE_PRE(2, AssertionTypeStrict, "/properties/bar/type",
+                     "#/properties/bar/type", "/bar");
+
+  EVALUATE_TRACE_PRE(3, LoopItems, "/properties/foo/items",
+                     "#/properties/foo/items", "/foo");
+  EVALUATE_TRACE_PRE(4, AssertionLessEqual, "/properties/foo/items/maximum",
+                     "#/properties/foo/items/maximum", "/foo/0");
+  EVALUATE_TRACE_PRE(5, AssertionDivisible, "/properties/foo/items/multipleOf",
+                     "#/properties/foo/items/multipleOf", "/foo/0");
+  EVALUATE_TRACE_PRE(6, AssertionTypeStrictAny, "/properties/foo/items/type",
+                     "#/properties/foo/items/type", "/foo/0");
+
+  EVALUATE_TRACE_POST_SUCCESS(0, AssertionRegex, "/properties/bar/pattern",
+                              "#/properties/bar/pattern", "/bar");
+  EVALUATE_TRACE_POST_SUCCESS(1, AssertionTypeStrict, "/properties/bar/type",
+                              "#/properties/bar/type", "/bar");
+  EVALUATE_TRACE_POST_SUCCESS(2, AssertionLessEqual,
+                              "/properties/foo/items/maximum",
+                              "#/properties/foo/items/maximum", "/foo/0");
+  EVALUATE_TRACE_POST_SUCCESS(3, AssertionDivisible,
+                              "/properties/foo/items/multipleOf",
+                              "#/properties/foo/items/multipleOf", "/foo/0");
+  EVALUATE_TRACE_POST_SUCCESS(4, AssertionTypeStrictAny,
+                              "/properties/foo/items/type",
+                              "#/properties/foo/items/type", "/foo/0");
+  EVALUATE_TRACE_POST_SUCCESS(5, LoopItems, "/properties/foo/items",
+                              "#/properties/foo/items", "/foo");
+  EVALUATE_TRACE_POST_SUCCESS(6, LogicalAnd, "/properties", "#/properties", "");
+
+  EVALUATE_TRACE_POST_DESCRIBE(instance, 0,
+                               "The string value \"abc\" was expected to match "
+                               "the regular expression \"^a\"");
+  EVALUATE_TRACE_POST_DESCRIBE(instance, 1,
+                               "The value was expected to be of type string");
+  EVALUATE_TRACE_POST_DESCRIBE(instance, 2,
+                               "The integer value 3 was expected to be less "
+                               "than or equal to the integer 100");
+  EVALUATE_TRACE_POST_DESCRIBE(
+      instance, 3,
+      "The integer value 3 was expected to be divisible by the integer 3");
+  EVALUATE_TRACE_POST_DESCRIBE(instance, 4,
+                               "The value was expected to be of type number");
+  EVALUATE_TRACE_POST_DESCRIBE(instance, 5,
+                               "Every item in the array value was expected to "
+                               "validate against the given subschema");
+  EVALUATE_TRACE_POST_DESCRIBE(instance, 6,
+                               "The object value was expected to validate "
+                               "against the defined properties subschemas");
+}
+
 TEST(Evaluator_draft4, pattern_1) {
   const sourcemeta::jsontoolkit::JSON schema{
       sourcemeta::jsontoolkit::parse(R"JSON({
