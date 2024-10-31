@@ -87,16 +87,6 @@ auto value_to_json(const T &value) -> sourcemeta::jsontoolkit::JSON {
     values.push_back(sourcemeta::jsontoolkit::JSON{std::get<2>(range)});
     result.assign("value", std::move(values));
     return result;
-  } else if constexpr (std::is_same_v<ValueNamedIndexes, T>) {
-    result.assign("type", sourcemeta::jsontoolkit::JSON{"named-indexes"});
-    sourcemeta::jsontoolkit::JSON values{
-        sourcemeta::jsontoolkit::JSON::make_object()};
-    for (const auto &[name, index] : value) {
-      values.assign(name, sourcemeta::jsontoolkit::JSON{index});
-    }
-
-    result.assign("value", std::move(values));
-    return result;
   } else if constexpr (std::is_same_v<ValueStringMap, T>) {
     result.assign("type", sourcemeta::jsontoolkit::JSON{"string-map"});
     sourcemeta::jsontoolkit::JSON map{
@@ -268,7 +258,6 @@ struct StepVisitor {
   HANDLE_STEP("loop", "properties-unevaluated", LoopPropertiesUnevaluated)
   HANDLE_STEP("loop", "properties-unevaluated-except",
               LoopPropertiesUnevaluatedExcept)
-  HANDLE_STEP("loop", "properties-match", LoopPropertiesMatch)
   HANDLE_STEP("loop", "properties", LoopProperties)
   HANDLE_STEP("loop", "properties-evaluate", LoopPropertiesEvaluate)
   HANDLE_STEP("loop", "properties-regex", LoopPropertiesRegex)

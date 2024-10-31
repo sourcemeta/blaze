@@ -63,7 +63,6 @@ struct LogicalWhenDefines;
 struct LogicalWhenArraySizeGreater;
 struct LoopPropertiesUnevaluated;
 struct LoopPropertiesUnevaluatedExcept;
-struct LoopPropertiesMatch;
 struct LoopProperties;
 struct LoopPropertiesEvaluate;
 struct LoopPropertiesRegex;
@@ -110,13 +109,12 @@ using Template = std::vector<std::variant<
     AnnotationToParent, AnnotationBasenameToParent, LogicalNot,
     LogicalNotEvaluate, LogicalOr, LogicalAnd, LogicalXor, LogicalCondition,
     LogicalWhenType, LogicalWhenDefines, LogicalWhenArraySizeGreater,
-    LoopPropertiesUnevaluated, LoopPropertiesUnevaluatedExcept,
-    LoopPropertiesMatch, LoopProperties, LoopPropertiesEvaluate,
-    LoopPropertiesRegex, LoopPropertiesStartsWith, LoopPropertiesExcept,
-    LoopPropertiesType, LoopPropertiesTypeEvaluate, LoopPropertiesTypeStrict,
-    LoopPropertiesTypeStrictEvaluate, LoopPropertiesTypeStrictAny,
-    LoopPropertiesTypeStrictAnyEvaluate, LoopKeys, LoopItems,
-    LoopItemsUnevaluated, LoopItemsType, LoopItemsTypeStrict,
+    LoopPropertiesUnevaluated, LoopPropertiesUnevaluatedExcept, LoopProperties,
+    LoopPropertiesEvaluate, LoopPropertiesRegex, LoopPropertiesStartsWith,
+    LoopPropertiesExcept, LoopPropertiesType, LoopPropertiesTypeEvaluate,
+    LoopPropertiesTypeStrict, LoopPropertiesTypeStrictEvaluate,
+    LoopPropertiesTypeStrictAny, LoopPropertiesTypeStrictAnyEvaluate, LoopKeys,
+    LoopItems, LoopItemsUnevaluated, LoopItemsType, LoopItemsTypeStrict,
     LoopItemsTypeStrictAny, LoopContains, ControlGroup, ControlGroupWhenDefines,
     ControlLabel, ControlMark, ControlEvaluate, ControlJump,
     ControlDynamicAnchorJump>>;
@@ -174,7 +172,6 @@ enum class TemplateIndex : std::uint8_t {
   LogicalWhenArraySizeGreater,
   LoopPropertiesUnevaluated,
   LoopPropertiesUnevaluatedExcept,
-  LoopPropertiesMatch,
   LoopProperties,
   LoopPropertiesEvaluate,
   LoopPropertiesRegex,
@@ -472,10 +469,6 @@ DEFINE_STEP_APPLICATOR(Loop, PropertiesUnevaluated, ValueNone)
 /// @brief Represents a compiler step that loops over object properties are not
 /// in the given blacklist and were not previously evaluated
 DEFINE_STEP_APPLICATOR(Loop, PropertiesUnevaluatedExcept, ValuePropertyFilter)
-
-/// @ingroup evaluator_instructions
-/// @brief Represents a compiler step that matches steps to object properties
-DEFINE_STEP_APPLICATOR(Loop, PropertiesMatch, ValueNamedIndexes)
 
 /// @ingroup evaluator_instructions
 /// @brief Represents a compiler step that loops over object properties

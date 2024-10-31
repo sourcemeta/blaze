@@ -70,10 +70,6 @@ using ValueRange = std::tuple<std::size_t, std::optional<std::size_t>, bool>;
 using ValueBoolean = bool;
 
 /// @ingroup evaluator
-/// Represents a compiler step string to index map
-using ValueNamedIndexes = std::unordered_map<ValueString, ValueUnsignedInteger>;
-
-/// @ingroup evaluator
 /// Represents a compiler step string logical type
 enum class ValueStringType : std::uint8_t { URI };
 

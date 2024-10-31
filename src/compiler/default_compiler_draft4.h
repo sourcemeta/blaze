@@ -486,7 +486,6 @@ auto compiler_draft4_applicator_properties_with_options(
     return {};
   }
 
-  const auto size{schema_context.schema.at(dynamic_context.keyword).size()};
   const auto imports_validation_vocabulary =
       schema_context.vocabularies.contains(
           "http://json-schema.org/draft-04/schema#") ||
@@ -513,16 +512,12 @@ auto compiler_draft4_applicator_properties_with_options(
     }
   }
 
-  std::size_t is_required = 0;
   std::vector<std::pair<std::string, Template>> properties;
   for (const auto &entry :
        schema_context.schema.at(dynamic_context.keyword).as_object()) {
     properties.push_back(
         {entry.first, compile(context, schema_context, relative_dynamic_context,
                               {entry.first}, {entry.first})});
-    if (required.contains(entry.first)) {
-      is_required += 1;
-    }
   }
 
   // In many cases, `properties` have some subschemas that are small
@@ -536,66 +531,6 @@ auto compiler_draft4_applicator_properties_with_options(
               return (left_size == right_size) ? (left.first < right.first)
                                                : (left_size < right_size);
             });
-
-  assert(schema_context.relative_pointer.back().is_property());
-  assert(schema_context.relative_pointer.back().to_property() ==
-         dynamic_context.keyword);
-  const auto relative_pointer_size{schema_context.relative_pointer.size()};
-  const auto is_directly_inside_disjunction{
-      relative_pointer_size > 2 &&
-      schema_context.relative_pointer.at(relative_pointer_size - 2)
-          .is_index() &&
-      schema_context.relative_pointer.at(relative_pointer_size - 3)
-          .is_property() &&
-      (schema_context.relative_pointer.at(relative_pointer_size - 3)
-               .to_property() == "oneOf" ||
-       schema_context.relative_pointer.at(relative_pointer_size - 3)
-               .to_property() == "anyOf")};
-
-  // There are two ways to compile `properties` depending on whether
-  // most of the properties are marked as required using `required`
-  // or whether most of the properties are optional. Each shines
-  // in the corresponding case.
-  const auto prefer_loop_over_instance{
-      // This strategy only makes sense if most of the properties are "optional"
-      is_required <= (size / 4) &&
-      // If `properties` only defines a relatively small amount of properties,
-      // then its probably still faster to unroll
-      schema_context.schema.at(dynamic_context.keyword).size() > 5 &&
-      // Always unroll inside `oneOf` or `anyOf`, to have a better chance at
-      // short-circuiting quickly
-      !is_directly_inside_disjunction};
-
-  if (prefer_loop_over_instance) {
-    ValueNamedIndexes indexes;
-    Template children;
-    std::size_t cursor = 0;
-
-    for (auto &&[name, substeps] : properties) {
-      indexes.emplace(name, cursor);
-
-      if (track_evaluation) {
-        substeps.push_back(make<ControlEvaluate>(context, schema_context,
-                                                 relative_dynamic_context,
-                                                 ValuePointer{name}));
-      }
-
-      if (annotate) {
-        substeps.push_back(make<AnnotationEmit>(
-            context, schema_context, relative_dynamic_context,
-            sourcemeta::jsontoolkit::JSON{name}));
-      }
-
-      // Note that the evaluator completely ignores this wrapper anyway
-      children.push_back(make<ControlGroup>(context, schema_context,
-                                            relative_dynamic_context,
-                                            ValueNone{}, std::move(substeps)));
-      cursor += 1;
-    }
-
-    return {make<LoopPropertiesMatch>(context, schema_context, dynamic_context,
-                                      std::move(indexes), std::move(children))};
-  }
 
   Template children;
 

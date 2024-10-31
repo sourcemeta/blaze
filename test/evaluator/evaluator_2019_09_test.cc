@@ -3471,16 +3471,16 @@ TEST(Evaluator_2019_09, unevaluatedProperties_9) {
 
   EVALUATE_WITH_TRACE_FAST_SUCCESS(schema, instance, 3);
 
-  EVALUATE_TRACE_PRE(0, LoopPropertiesMatch, "/properties", "#/properties", "");
-  EVALUATE_TRACE_PRE(1, AssertionTypeStrict, "/properties/a/type",
+  EVALUATE_TRACE_PRE(0, LogicalAnd, "/properties", "#/properties", "");
+  EVALUATE_TRACE_PRE(1, AssertionPropertyTypeStrict, "/properties/a/type",
                      "#/properties/a/type", "/a");
   EVALUATE_TRACE_PRE(2, LoopPropertiesUnevaluatedExcept,
                      "/unevaluatedProperties", "#/unevaluatedProperties", "");
 
-  EVALUATE_TRACE_POST_SUCCESS(0, AssertionTypeStrict, "/properties/a/type",
-                              "#/properties/a/type", "/a");
-  EVALUATE_TRACE_POST_SUCCESS(1, LoopPropertiesMatch, "/properties",
-                              "#/properties", "");
+  EVALUATE_TRACE_POST_SUCCESS(0, AssertionPropertyTypeStrict,
+                              "/properties/a/type", "#/properties/a/type",
+                              "/a");
+  EVALUATE_TRACE_POST_SUCCESS(1, LogicalAnd, "/properties", "#/properties", "");
   EVALUATE_TRACE_POST_SUCCESS(2, LoopPropertiesUnevaluatedExcept,
                               "/unevaluatedProperties",
                               "#/unevaluatedProperties", "");
@@ -3489,7 +3489,7 @@ TEST(Evaluator_2019_09, unevaluatedProperties_9) {
                                "The value was expected to be of type boolean");
   EVALUATE_TRACE_POST_DESCRIBE(instance, 1,
                                "The object value was expected to validate "
-                               "against the 26 defined properties subschemas");
+                               "against the defined properties subschemas");
   EVALUATE_TRACE_POST_DESCRIBE(
       instance, 2,
       "The object value was not expected to define unevaluated properties");
@@ -3535,7 +3535,7 @@ TEST(Evaluator_2019_09, unevaluatedProperties_9_exhaustive) {
 
   EVALUATE_WITH_TRACE_EXHAUSTIVE_SUCCESS(schema, instance, 4);
 
-  EVALUATE_TRACE_PRE(0, LoopPropertiesMatch, "/properties", "#/properties", "");
+  EVALUATE_TRACE_PRE(0, LogicalAnd, "/properties", "#/properties", "");
   EVALUATE_TRACE_PRE(1, AssertionTypeStrict, "/properties/a/type",
                      "#/properties/a/type", "/a");
   EVALUATE_TRACE_PRE_ANNOTATION(2, "/properties", "#/properties", "");
@@ -3545,8 +3545,7 @@ TEST(Evaluator_2019_09, unevaluatedProperties_9_exhaustive) {
   EVALUATE_TRACE_POST_SUCCESS(0, AssertionTypeStrict, "/properties/a/type",
                               "#/properties/a/type", "/a");
   EVALUATE_TRACE_POST_ANNOTATION(1, "/properties", "#/properties", "", "a");
-  EVALUATE_TRACE_POST_SUCCESS(2, LoopPropertiesMatch, "/properties",
-                              "#/properties", "");
+  EVALUATE_TRACE_POST_SUCCESS(2, LogicalAnd, "/properties", "#/properties", "");
   EVALUATE_TRACE_POST_SUCCESS(3, LoopPropertiesUnevaluatedExcept,
                               "/unevaluatedProperties",
                               "#/unevaluatedProperties", "");
@@ -3558,7 +3557,7 @@ TEST(Evaluator_2019_09, unevaluatedProperties_9_exhaustive) {
                                "validated against its property subschema");
   EVALUATE_TRACE_POST_DESCRIBE(instance, 2,
                                "The object value was expected to validate "
-                               "against the 26 defined properties subschemas");
+                               "against the defined properties subschemas");
   EVALUATE_TRACE_POST_DESCRIBE(
       instance, 3,
       "The object value was not expected to define unevaluated properties");
