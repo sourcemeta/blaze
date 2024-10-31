@@ -43,6 +43,14 @@ static auto collect_jump_labels(const sourcemeta::blaze::Template &steps,
   }
 }
 
+static auto defines_direct_enumeration(const sourcemeta::blaze::Template &steps)
+    -> bool {
+  return std::any_of(steps.cbegin(), steps.cend(), [](const auto &step) {
+    return std::holds_alternative<sourcemeta::blaze::AssertionEqual>(step) ||
+           std::holds_alternative<sourcemeta::blaze::AssertionEqualsAny>(step);
+  });
+}
+
 namespace internal {
 using namespace sourcemeta::blaze;
 
@@ -531,10 +539,20 @@ auto compiler_draft4_applicator_properties_with_options(
   // earlier without spending a lot of time on other subschemas
   std::sort(properties.begin(), properties.end(),
             [](const auto &left, const auto &right) {
+              // Enumerations always take precedence
+              if (defines_direct_enumeration(left.second)) {
+                return true;
+              } else if (defines_direct_enumeration(right.second)) {
+                return false;
+              }
+
               const auto left_size{recursive_template_size(left.second)};
               const auto right_size{recursive_template_size(right.second)};
-              return (left_size == right_size) ? (left.first < right.first)
-                                               : (left_size < right_size);
+              if (left_size == right_size) {
+                return left.first < right.first;
+              } else {
+                return left_size < right_size;
+              }
             });
 
   assert(schema_context.relative_pointer.back().is_property());
