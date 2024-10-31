@@ -558,10 +558,13 @@ auto evaluate_step(const sourcemeta::blaze::Template::value_type &step,
                                ? prefixes
                                : std::min(array_size, prefixes) - 1};
         const auto &entry{assertion.children[pointer]};
-        // TODO: Directly evaluate the control group entries
+        result = true;
         assert(std::holds_alternative<ControlGroup>(entry));
-        if (evaluate_step(entry, callback, context)) {
-          result = true;
+        for (const auto &child : std::get<ControlGroup>(entry).children) {
+          if (!evaluate_step(child, callback, context)) {
+            result = false;
+            break;
+          }
         }
       }
 
@@ -582,18 +585,24 @@ auto evaluate_step(const sourcemeta::blaze::Template::value_type &step,
                                ? prefixes
                                : std::min(array_size, prefixes) - 1};
         const auto &entry{assertion.children[pointer]};
-        // TODO: Directly evaluate the control group entries
+        result = true;
         assert(std::holds_alternative<ControlGroup>(entry));
-        if (evaluate_step(entry, callback, context)) {
-          result = true;
-          if (array_size == prefixes) {
-            context.evaluate();
-          } else {
-            context.evaluate(0, pointer);
+        for (const auto &child : std::get<ControlGroup>(entry).children) {
+          if (!evaluate_step(child, callback, context)) {
+            result = false;
+            goto evaluate_assertion_array_prefix_evaluate_end;
           }
+        }
+
+        assert(result);
+        if (array_size == prefixes) {
+          context.evaluate();
+        } else {
+          context.evaluate(0, pointer);
         }
       }
 
+    evaluate_assertion_array_prefix_evaluate_end:
       EVALUATE_END(assertion, AssertionArrayPrefixEvaluate);
     }
 
@@ -759,6 +768,7 @@ auto evaluate_step(const sourcemeta::blaze::Template::value_type &step,
     case IS_STEP(ControlGroupWhenDefines): {
       EVALUATE_BEGIN_PASS_THROUGH(control, ControlGroupWhenDefines);
       const auto &target{context.resolve_target()};
+      assert(!control.children.empty());
 
       if (target.is_object() && target.defines(control.value)) {
         for (const auto &child : control.children) {
@@ -774,6 +784,7 @@ auto evaluate_step(const sourcemeta::blaze::Template::value_type &step,
 
     case IS_STEP(ControlLabel): {
       EVALUATE_BEGIN_NO_PRECONDITION(control, ControlLabel);
+      assert(!control.children.empty());
       context.labels.try_emplace(control.value, control.children);
       result = true;
       for (const auto &child : control.children) {
