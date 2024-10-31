@@ -706,7 +706,7 @@ auto compiler_draft4_applicator_properties_with_options(
         for (auto &&substep : substeps) {
           children.push_back(std::move(substep));
         }
-      } else {
+      } else if (!substeps.empty()) {
         children.push_back(make<ControlGroupWhenDefines>(
             context, schema_context, relative_dynamic_context,
             ValueString{name}, std::move(substeps)));
@@ -734,6 +734,10 @@ auto compiler_draft4_applicator_properties_with_options(
                  children.front())) {
     return {unroll<AssertionPropertyTypeStrictAnyEvaluate>(dynamic_context,
                                                            children.front())};
+  }
+
+  if (children.empty()) {
+    return {};
   }
 
   // TODO: Should this be LogicalWhenType? If so, we can avoid evaluating
