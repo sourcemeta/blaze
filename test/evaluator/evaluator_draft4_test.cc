@@ -1282,6 +1282,63 @@ TEST(Evaluator_draft4, properties_8) {
                                "against the defined properties subschemas");
 }
 
+TEST(Evaluator_draft4, properties_9) {
+  const sourcemeta::jsontoolkit::JSON schema{
+      sourcemeta::jsontoolkit::parse(R"JSON({
+    "$schema": "http://json-schema.org/draft-04/schema#",
+    "properties": {
+      "foo": {
+        "properties": {
+          "bar": {
+            "type": "number"
+          }
+        }
+      }
+    }
+  })JSON")};
+
+  const sourcemeta::jsontoolkit::JSON instance{
+      sourcemeta::jsontoolkit::parse("{ \"foo\": { \"bar\": 1 } }")};
+
+  EVALUATE_WITH_TRACE_FAST_SUCCESS(schema, instance, 1);
+
+  EVALUATE_TRACE_PRE(0, AssertionPropertyTypeStrictAny,
+                     "/properties/foo/properties/bar/type",
+                     "#/properties/foo/properties/bar/type", "/foo/bar");
+
+  EVALUATE_TRACE_POST_SUCCESS(
+      0, AssertionPropertyTypeStrictAny, "/properties/foo/properties/bar/type",
+      "#/properties/foo/properties/bar/type", "/foo/bar");
+
+  EVALUATE_TRACE_POST_DESCRIBE(instance, 0,
+                               "The value was expected to be of type number");
+}
+
+TEST(Evaluator_draft4, properties_10) {
+  const sourcemeta::jsontoolkit::JSON schema{
+      sourcemeta::jsontoolkit::parse(R"JSON({
+    "$schema": "http://json-schema.org/draft-04/schema#",
+    "properties": {
+      "foo": {
+        "type": "number"
+      }
+    }
+  })JSON")};
+
+  const sourcemeta::jsontoolkit::JSON instance{
+      sourcemeta::jsontoolkit::parse("{ \"foo\": 1 }")};
+
+  EVALUATE_WITH_TRACE_FAST_SUCCESS(schema, instance, 1);
+
+  EVALUATE_TRACE_PRE(0, AssertionPropertyTypeStrictAny, "/properties/foo/type",
+                     "#/properties/foo/type", "/foo");
+  EVALUATE_TRACE_POST_SUCCESS(0, AssertionPropertyTypeStrictAny,
+                              "/properties/foo/type", "#/properties/foo/type",
+                              "/foo");
+  EVALUATE_TRACE_POST_DESCRIBE(instance, 0,
+                               "The value was expected to be of type number");
+}
+
 TEST(Evaluator_draft4, pattern_1) {
   const sourcemeta::jsontoolkit::JSON schema{
       sourcemeta::jsontoolkit::parse(R"JSON({

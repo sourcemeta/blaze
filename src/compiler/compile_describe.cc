@@ -1485,6 +1485,22 @@ struct DescribeVisitor {
     return message.str();
   }
 
+  auto operator()(const AssertionPropertyTypeStrictAny &step) const
+      -> std::string {
+    std::ostringstream message;
+    describe_types_check(this->valid, this->target.type(), step_value(step),
+                         message);
+    return message.str();
+  }
+
+  auto operator()(const AssertionPropertyTypeStrictAnyEvaluate &step) const
+      -> std::string {
+    std::ostringstream message;
+    describe_types_check(this->valid, this->target.type(), step_value(step),
+                         message);
+    return message.str();
+  }
+
   auto operator()(const AssertionArrayPrefix &step) const -> std::string {
     assert(this->keyword == "items" || this->keyword == "prefixItems");
     assert(!step.children.empty());
