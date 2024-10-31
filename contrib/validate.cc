@@ -33,12 +33,6 @@ auto main(int argc, char **argv) noexcept -> int {
       std::chrono::duration_cast<std::chrono::milliseconds>(compile_end -
                                                             compile_start)};
 
-  const sourcemeta::jsontoolkit::JSON template_json{
-      sourcemeta::blaze::to_json(schema_template)};
-  sourcemeta::jsontoolkit::prettify(template_json, std::cout,
-                                    sourcemeta::blaze::template_format_compare);
-  std::cout << std::endl;
-
   std::cout << compile_duration.count() << "ms\n";
 
   // Get the instance/s
