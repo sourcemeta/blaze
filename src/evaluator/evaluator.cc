@@ -512,6 +512,40 @@ auto evaluate_step(const sourcemeta::blaze::Template::value_type &step,
       EVALUATE_END(assertion, AssertionPropertyTypeStrictEvaluate);
     }
 
+    case IS_STEP(AssertionPropertyTypeStrictAny): {
+      EVALUATE_BEGIN_TRY_TARGET(
+          assertion, AssertionPropertyTypeStrictAny,
+          // Note that here are are referring to the parent
+          // object that might hold the given property,
+          // before traversing into the actual property
+          target.is_object());
+      // Now here we refer to the actual property
+      result = (std::find(assertion.value.cbegin(), assertion.value.cend(),
+                          context.resolve_target().type()) !=
+                assertion.value.cend());
+      EVALUATE_END(assertion, AssertionPropertyTypeStrictAny);
+    }
+
+    case IS_STEP(AssertionPropertyTypeStrictAnyEvaluate): {
+      EVALUATE_BEGIN_TRY_TARGET(
+          assertion, AssertionPropertyTypeStrictAnyEvaluate,
+          // Note that here are are referring to the parent
+          // object that might hold the given property,
+          // before traversing into the actual property
+          target.is_object());
+      // Now here we refer to the actual property
+      result = (std::find(assertion.value.cbegin(), assertion.value.cend(),
+                          context.resolve_target().type()) !=
+                assertion.value.cend());
+
+      if (result) {
+        assert(track);
+        context.evaluate();
+      }
+
+      EVALUATE_END(assertion, AssertionPropertyTypeStrictAnyEvaluate);
+    }
+
     case IS_STEP(AssertionArrayPrefix): {
       EVALUATE_BEGIN(assertion, AssertionArrayPrefix, target.is_array());
       // Otherwise there is no point in emitting this step

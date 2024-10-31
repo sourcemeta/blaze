@@ -648,6 +648,25 @@ auto compiler_draft4_applicator_properties_with_options(
             type_step.keyword_location, type_step.schema_resource,
             type_step.dynamic, type_step.track, type_step.value});
       }
+    } else if (context.mode == Mode::FastValidation && substeps.size() == 1 &&
+               std::holds_alternative<AssertionTypeStrictAny>(
+                   substeps.front())) {
+      const auto &type_step{std::get<AssertionTypeStrictAny>(substeps.front())};
+      if (track_evaluation) {
+        children.push_back(AssertionPropertyTypeStrictAnyEvaluate{
+            type_step.relative_schema_location,
+            dynamic_context.base_instance_location.concat(
+                type_step.relative_instance_location),
+            type_step.keyword_location, type_step.schema_resource,
+            type_step.dynamic, type_step.track, type_step.value});
+      } else {
+        children.push_back(AssertionPropertyTypeStrictAny{
+            type_step.relative_schema_location,
+            dynamic_context.base_instance_location.concat(
+                type_step.relative_instance_location),
+            type_step.keyword_location, type_step.schema_resource,
+            type_step.dynamic, type_step.track, type_step.value});
+      }
 
     } else if (context.mode == Mode::FastValidation && substeps.size() == 1 &&
                std::holds_alternative<AssertionPropertyTypeStrict>(
@@ -659,6 +678,12 @@ auto compiler_draft4_applicator_properties_with_options(
                std::holds_alternative<AssertionPropertyType>(
                    substeps.front())) {
       children.push_back(unroll<AssertionPropertyType>(
+          relative_dynamic_context, substeps.front(),
+          dynamic_context.base_instance_location));
+    } else if (context.mode == Mode::FastValidation && substeps.size() == 1 &&
+               std::holds_alternative<AssertionPropertyTypeStrictAny>(
+                   substeps.front())) {
+      children.push_back(unroll<AssertionPropertyTypeStrictAny>(
           relative_dynamic_context, substeps.front(),
           dynamic_context.base_instance_location));
 
@@ -696,6 +721,16 @@ auto compiler_draft4_applicator_properties_with_options(
                  children.front())) {
     return {unroll<AssertionPropertyTypeStrictEvaluate>(dynamic_context,
                                                         children.front())};
+  } else if (context.mode == Mode::FastValidation && children.size() == 1 &&
+             std::holds_alternative<AssertionPropertyTypeStrictAny>(
+                 children.front())) {
+    return {unroll<AssertionPropertyTypeStrictAny>(dynamic_context,
+                                                   children.front())};
+  } else if (context.mode == Mode::FastValidation && children.size() == 1 &&
+             std::holds_alternative<AssertionPropertyTypeStrictAnyEvaluate>(
+                 children.front())) {
+    return {unroll<AssertionPropertyTypeStrictAnyEvaluate>(dynamic_context,
+                                                           children.front())};
   }
 
   return {make<LogicalAnd>(context, schema_context, dynamic_context,

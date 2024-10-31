@@ -45,6 +45,8 @@ struct AssertionPropertyType;
 struct AssertionPropertyTypeEvaluate;
 struct AssertionPropertyTypeStrict;
 struct AssertionPropertyTypeStrictEvaluate;
+struct AssertionPropertyTypeStrictAny;
+struct AssertionPropertyTypeStrictAnyEvaluate;
 struct AssertionArrayPrefix;
 struct AssertionArrayPrefixEvaluate;
 struct AnnotationEmit;
@@ -103,6 +105,7 @@ using Template = std::vector<std::variant<
     AssertionUnique, AssertionDivisible, AssertionStringType,
     AssertionPropertyType, AssertionPropertyTypeEvaluate,
     AssertionPropertyTypeStrict, AssertionPropertyTypeStrictEvaluate,
+    AssertionPropertyTypeStrictAny, AssertionPropertyTypeStrictAnyEvaluate,
     AssertionArrayPrefix, AssertionArrayPrefixEvaluate, AnnotationEmit,
     AnnotationToParent, AnnotationBasenameToParent, LogicalNot,
     LogicalNotEvaluate, LogicalOr, LogicalAnd, LogicalXor, LogicalCondition,
@@ -153,6 +156,8 @@ enum class TemplateIndex : std::uint8_t {
   AssertionPropertyTypeEvaluate,
   AssertionPropertyTypeStrict,
   AssertionPropertyTypeStrictEvaluate,
+  AssertionPropertyTypeStrictAny,
+  AssertionPropertyTypeStrictAnyEvaluate,
   AssertionArrayPrefix,
   AssertionArrayPrefixEvaluate,
   AnnotationEmit,
@@ -382,6 +387,17 @@ DEFINE_STEP_WITH_VALUE(Assertion, PropertyTypeStrict, ValueType)
 /// @brief Represents a compiler assertion step that checks that an instance
 /// property is of a given type if present (strict mode) and marks evaluation
 DEFINE_STEP_WITH_VALUE(Assertion, PropertyTypeStrictEvaluate, ValueType)
+
+/// @ingroup evaluator_instructions
+/// @brief Represents a compiler assertion step that checks that an instance
+/// property is of a given set of types if present (strict mode)
+DEFINE_STEP_WITH_VALUE(Assertion, PropertyTypeStrictAny, ValueTypes)
+
+/// @ingroup evaluator_instructions
+/// @brief Represents a compiler assertion step that checks that an instance
+/// property is of a given set of types if present (strict mode) and marks
+/// evaluation
+DEFINE_STEP_WITH_VALUE(Assertion, PropertyTypeStrictAnyEvaluate, ValueTypes)
 
 /// @ingroup evaluator_instructions
 /// @brief Represents a compiler assertion step that applies substeps to the

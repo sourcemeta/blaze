@@ -245,6 +245,10 @@ struct StepVisitor {
   HANDLE_STEP("assertion", "property-type-strict", AssertionPropertyTypeStrict)
   HANDLE_STEP("assertion", "property-type-strict-evaluate",
               AssertionPropertyTypeStrictEvaluate)
+  HANDLE_STEP("assertion", "property-type-strict-any",
+              AssertionPropertyTypeStrictAny)
+  HANDLE_STEP("assertion", "property-type-strict-any-evaluate",
+              AssertionPropertyTypeStrictAnyEvaluate)
   HANDLE_STEP("assertion", "array-prefix", AssertionArrayPrefix)
   HANDLE_STEP("assertion", "array-prefix-evaluate",
               AssertionArrayPrefixEvaluate)
