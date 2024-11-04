@@ -1133,10 +1133,12 @@ auto evaluate_step(const sourcemeta::blaze::Template::value_type &step,
              !std::get<1>(loop.value).empty() ||
              !std::get<2>(loop.value).empty());
 
+      auto names = std::get<0>(loop.value);
+
       for (const auto &entry : target.as_object()) {
-        if (std::find(std::get<0>(loop.value).cbegin(),
-                      std::get<0>(loop.value).cend(),
-                      entry.first) != std::get<0>(loop.value).cend()) {
+        auto name_match{std::find(names.cbegin(), names.cend(), entry.first)};
+        if (name_match != names.cend()) {
+          names.erase(name_match);
           continue;
         }
 
