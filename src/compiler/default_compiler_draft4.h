@@ -4,7 +4,7 @@
 #include <sourcemeta/blaze/compiler.h>
 #include <sourcemeta/blaze/evaluator_context.h>
 
-#include <algorithm> // std::sort, std::any_of, std::all_of
+#include <algorithm> // std::sort, std::any_of, std::all_of, std::find_if
 #include <cassert>   // assert
 #include <regex>     // std::regex, std::regex_error
 #include <set>       // std::set
@@ -43,12 +43,28 @@ static auto collect_jump_labels(const sourcemeta::blaze::Template &steps,
   }
 }
 
+static auto relative_schema_location_size(
+    const sourcemeta::blaze::Template::value_type &variant) -> std::size_t {
+  return std::visit(
+      [](const auto &step) { return step.relative_schema_location.size(); },
+      variant);
+}
+
 static auto defines_direct_enumeration(const sourcemeta::blaze::Template &steps)
-    -> bool {
-  return std::any_of(steps.cbegin(), steps.cend(), [](const auto &step) {
-    return std::holds_alternative<sourcemeta::blaze::AssertionEqual>(step) ||
-           std::holds_alternative<sourcemeta::blaze::AssertionEqualsAny>(step);
-  });
+    -> std::optional<std::size_t> {
+  const auto iterator{
+      std::find_if(steps.cbegin(), steps.cend(), [](const auto &step) {
+        return std::holds_alternative<sourcemeta::blaze::AssertionEqual>(
+                   step) ||
+               std::holds_alternative<sourcemeta::blaze::AssertionEqualsAny>(
+                   step);
+      })};
+
+  if (iterator == steps.cend()) {
+    return std::nullopt;
+  }
+
+  return std::distance(steps.cbegin(), iterator);
 }
 
 static auto
@@ -547,16 +563,29 @@ auto compiler_draft4_applicator_properties_with_options(
   // earlier without spending a lot of time on other subschemas
   std::sort(properties.begin(), properties.end(),
             [](const auto &left, const auto &right) {
-              // Enumerations always take precedence
-              if (defines_direct_enumeration(left.second)) {
-                return true;
-              } else if (defines_direct_enumeration(right.second)) {
-                return false;
-              }
-
               const auto left_size{recursive_template_size(left.second)};
               const auto right_size{recursive_template_size(right.second)};
               if (left_size == right_size) {
+                const auto left_direct_enumeration{
+                    defines_direct_enumeration(left.second)};
+                const auto right_direct_enumeration{
+                    defines_direct_enumeration(right.second)};
+
+                // Enumerations always take precedence
+                if (left_direct_enumeration.has_value() &&
+                    right_direct_enumeration.has_value()) {
+                  // If both options have a direct enumeration, we choose
+                  // the one with the shorter relative schema location
+                  return relative_schema_location_size(
+                             left.second.at(left_direct_enumeration.value())) <
+                         relative_schema_location_size(
+                             right.second.at(right_direct_enumeration.value()));
+                } else if (left_direct_enumeration.has_value()) {
+                  return true;
+                } else if (right_direct_enumeration.has_value()) {
+                  return false;
+                }
+
                 return left.first < right.first;
               } else {
                 return left_size < right_size;

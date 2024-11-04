@@ -1450,6 +1450,50 @@ TEST(Evaluator_draft4, properties_12) {
                                "against the defined properties subschemas");
 }
 
+TEST(Evaluator_draft4, properties_13) {
+  const sourcemeta::jsontoolkit::JSON schema{
+      sourcemeta::jsontoolkit::parse(R"JSON({
+    "$schema": "http://json-schema.org/draft-04/schema#",
+    "properties": {
+      "bar": { "$ref": "#/definitions/helper" },
+      "foo": { "enum": [ "foo" ] }
+    },
+    "definitions": {
+      "helper": {
+        "enum": [ "test" ]
+      }
+    }
+  })JSON")};
+
+  const sourcemeta::jsontoolkit::JSON instance{sourcemeta::jsontoolkit::parse(
+      "{ \"bar\": \"test\", \"foo\": \"foo\" }")};
+
+  EVALUATE_WITH_TRACE_FAST_SUCCESS(schema, instance, 3);
+
+  EVALUATE_TRACE_PRE(0, LogicalAnd, "/properties", "#/properties", "");
+  // We evaluate "foo" first because it has a direct "enum"/"const"
+  EVALUATE_TRACE_PRE(1, AssertionEqual, "/properties/foo/enum",
+                     "#/properties/foo/enum", "/foo");
+  EVALUATE_TRACE_PRE(2, AssertionEqual, "/properties/bar/$ref/enum",
+                     "#/definitions/helper/enum", "/bar");
+
+  EVALUATE_TRACE_POST_SUCCESS(0, AssertionEqual, "/properties/foo/enum",
+                              "#/properties/foo/enum", "/foo");
+  EVALUATE_TRACE_POST_SUCCESS(1, AssertionEqual, "/properties/bar/$ref/enum",
+                              "#/definitions/helper/enum", "/bar");
+  EVALUATE_TRACE_POST_SUCCESS(2, LogicalAnd, "/properties", "#/properties", "");
+
+  EVALUATE_TRACE_POST_DESCRIBE(instance, 0,
+                               "The string value \"foo\" was expected to equal "
+                               "the string constant \"foo\"");
+  EVALUATE_TRACE_POST_DESCRIBE(instance, 1,
+                               "The string value \"test\" was expected to "
+                               "equal the string constant \"test\"");
+  EVALUATE_TRACE_POST_DESCRIBE(instance, 2,
+                               "The object value was expected to validate "
+                               "against the defined properties subschemas");
+}
+
 TEST(Evaluator_draft4, pattern_1) {
   const sourcemeta::jsontoolkit::JSON schema{
       sourcemeta::jsontoolkit::parse(R"JSON({
