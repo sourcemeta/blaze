@@ -60,6 +60,16 @@ auto value_to_json(const T &value) -> sourcemeta::jsontoolkit::JSON {
 
     result.assign("value", std::move(items));
     return result;
+  } else if constexpr (std::is_same_v<ValueStringSet, T>) {
+    result.assign("type", sourcemeta::jsontoolkit::JSON{"string-set"});
+    sourcemeta::jsontoolkit::JSON items{
+        sourcemeta::jsontoolkit::JSON::make_array()};
+    for (const auto &item : value) {
+      items.push_back(sourcemeta::jsontoolkit::JSON{item});
+    }
+
+    result.assign("value", std::move(items));
+    return result;
   } else if constexpr (std::is_same_v<ValueArray, T>) {
     result.assign("type", sourcemeta::jsontoolkit::JSON{"array"});
     sourcemeta::jsontoolkit::JSON items{
@@ -274,6 +284,7 @@ struct StepVisitor {
   HANDLE_STEP("loop", "properties-regex", LoopPropertiesRegex)
   HANDLE_STEP("loop", "properties-starts-with", LoopPropertiesStartsWith)
   HANDLE_STEP("loop", "properties-except", LoopPropertiesExcept)
+  HANDLE_STEP("loop", "properties-whitelist", LoopPropertiesWhitelist)
   HANDLE_STEP("loop", "properties-type", LoopPropertiesType)
   HANDLE_STEP("loop", "properties-type-evaluate", LoopPropertiesTypeEvaluate)
   HANDLE_STEP("loop", "properties-type-strict", LoopPropertiesTypeStrict)

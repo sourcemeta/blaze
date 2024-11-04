@@ -8,6 +8,7 @@
 #include <cstdint>       // std::uint8_t
 #include <optional>      // std::optional, std::nullopt
 #include <regex>         // std::regex
+#include <set>           // std::set
 #include <string>        // std::string
 #include <tuple>         // std::tuple
 #include <unordered_map> // std::unordered_map
@@ -35,6 +36,10 @@ using ValueArray = std::vector<sourcemeta::jsontoolkit::JSON>;
 /// @ingroup evaluator
 /// Represents a compiler step string values
 using ValueStrings = std::vector<sourcemeta::jsontoolkit::JSON::String>;
+
+/// @ingroup evaluator
+/// Represents a compiler step string values as a set
+using ValueStringSet = std::set<sourcemeta::jsontoolkit::JSON::String>;
 
 /// @ingroup evaluator
 /// Represents a compiler step JSON types value

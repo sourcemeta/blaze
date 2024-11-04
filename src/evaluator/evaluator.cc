@@ -3,7 +3,7 @@
 
 #include "trace.h"
 
-#include <algorithm> // std::min, std::any_of, std::find
+#include <algorithm> // std::min, std::any_of, std::find, std::binary_search
 #include <cassert>   // assert
 #include <iterator>  // std::distance, std::advance
 #include <limits>    // std::numeric_limits
@@ -1134,9 +1134,8 @@ auto evaluate_step(const sourcemeta::blaze::Template::value_type &step,
              !std::get<2>(loop.value).empty());
 
       for (const auto &entry : target.as_object()) {
-        if (std::find(std::get<0>(loop.value).cbegin(),
-                      std::get<0>(loop.value).cend(),
-                      entry.first) != std::get<0>(loop.value).cend()) {
+        if (std::binary_search(std::get<0>(loop.value).cbegin(),
+                               std::get<0>(loop.value).cend(), entry.first)) {
           continue;
         }
 
@@ -1172,6 +1171,29 @@ auto evaluate_step(const sourcemeta::blaze::Template::value_type &step,
 
     evaluate_loop_properties_except_end:
       EVALUATE_END(loop, LoopPropertiesExcept);
+    }
+
+    case IS_STEP(LoopPropertiesWhitelist): {
+      EVALUATE_BEGIN(loop, LoopPropertiesWhitelist, target.is_object());
+      // Otherwise why emit this instruction?
+      assert(!loop.value.empty());
+
+      // Otherwise if the number of properties in the instance
+      // is larger than the whitelist, then it already violated
+      // the whitelist?
+      if (target.size() <= loop.value.size()) {
+        result = true;
+        for (const auto &entry : target.as_object()) {
+          if (loop.value.contains(entry.first)) {
+            continue;
+          }
+
+          result = false;
+          break;
+        }
+      }
+
+      EVALUATE_END(loop, LoopPropertiesWhitelist);
     }
 
     case IS_STEP(LoopPropertiesType): {

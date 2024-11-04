@@ -918,6 +918,9 @@ auto compiler_draft4_applicator_additionalproperties_with_options(
     }
   }
 
+  // For binary search purposes
+  std::sort(filter_strings.begin(), filter_strings.end());
+
   if (schema_context.schema.defines("patternProperties") &&
       schema_context.schema.at("patternProperties").is_object()) {
     for (const auto &entry :
@@ -939,6 +942,15 @@ auto compiler_draft4_applicator_additionalproperties_with_options(
   // variants), we don't need to do anything
   if (!track_evaluation && children.empty()) {
     return {};
+  }
+
+  if (context.mode == Mode::FastValidation && children.size() == 1 &&
+      std::holds_alternative<AssertionFail>(children.front()) &&
+      !filter_strings.empty() && filter_prefixes.empty() &&
+      filter_regexes.empty()) {
+    ValueStringSet properties_set{filter_strings.begin(), filter_strings.end()};
+    return {make<LoopPropertiesWhitelist>(
+        context, schema_context, dynamic_context, std::move(properties_set))};
   }
 
   if (!filter_strings.empty() || !filter_prefixes.empty() ||
