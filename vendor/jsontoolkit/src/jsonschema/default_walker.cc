@@ -21,6 +21,7 @@ auto sourcemeta::jsontoolkit::default_schema_walker(
   WALK(HTTPS_BASE "2020-12/vocab/core", "$defs", Members)
   WALK(HTTPS_BASE "2020-12/vocab/applicator", "prefixItems", Elements)
   WALK(HTTPS_BASE "2020-12/vocab/applicator", "dependentSchemas", Members)
+  WALK(HTTPS_BASE "2020-12/vocab/applicator", "properties", Members)
   WALK(HTTPS_BASE "2020-12/vocab/applicator", "patternProperties", Members)
   WALK(HTTPS_BASE "2020-12/vocab/applicator", "allOf", Elements)
   WALK(HTTPS_BASE "2020-12/vocab/applicator", "anyOf", Elements)
@@ -51,9 +52,6 @@ auto sourcemeta::jsontoolkit::default_schema_walker(
       HTTPS_BASE "2020-12/vocab/applicator", "prefixItems", "items", "contains")
 
   // For the purpose of compiler optimizations
-  WALK_MAYBE_DEPENDENT(HTTPS_BASE "2020-12/vocab/applicator", "properties",
-                       Members, HTTPS_BASE "2020-12/vocab/validation",
-                       "required")
   WALK_MAYBE_DEPENDENT(HTTPS_BASE "2020-12/vocab/validation", "type", None,
                        HTTPS_BASE "2020-12/vocab/applicator", "properties")
 
@@ -65,6 +63,7 @@ auto sourcemeta::jsontoolkit::default_schema_walker(
   WALK(HTTPS_BASE "2019-09/vocab/core", "$defs", Members)
   WALK(HTTPS_BASE "2019-09/vocab/applicator", "items", ValueOrElements)
   WALK(HTTPS_BASE "2019-09/vocab/applicator", "dependentSchemas", Members)
+  WALK(HTTPS_BASE "2019-09/vocab/applicator", "properties", Members)
   WALK(HTTPS_BASE "2019-09/vocab/applicator", "patternProperties", Members)
   WALK(HTTPS_BASE "2019-09/vocab/applicator", "allOf", Elements)
   WALK(HTTPS_BASE "2019-09/vocab/applicator", "anyOf", Elements)
@@ -96,9 +95,6 @@ auto sourcemeta::jsontoolkit::default_schema_walker(
        "items", "additionalItems")
 
   // For the purpose of compiler optimizations
-  WALK_MAYBE_DEPENDENT(HTTPS_BASE "2019-09/vocab/applicator", "properties",
-                       Members, HTTPS_BASE "2019-09/vocab/validation",
-                       "required")
   WALK_MAYBE_DEPENDENT(HTTPS_BASE "2019-09/vocab/validation", "type", None,
                        HTTPS_BASE "2019-09/vocab/applicator", "properties")
 
@@ -113,6 +109,7 @@ auto sourcemeta::jsontoolkit::default_schema_walker(
   WALK(HTTP_BASE "draft-07/schema#", "definitions", Members, "$ref")
   WALK(HTTP_BASE "draft-07/schema#", "dependencies", Members, "$ref")
   WALK(HTTP_BASE "draft-07/schema#", "items", ValueOrElements, "$ref")
+  WALK(HTTP_BASE "draft-07/schema#", "properties", Members, "$ref")
   WALK(HTTP_BASE "draft-07/schema#", "patternProperties", Members, "$ref")
   WALK(HTTP_BASE "draft-07/schema#", "allOf", Elements, "$ref")
   WALK(HTTP_BASE "draft-07/schema#", "anyOf", Elements, "$ref")
@@ -142,7 +139,6 @@ auto sourcemeta::jsontoolkit::default_schema_walker(
   WALK(HTTP_BASE "draft-07/schema#", "else", Value, "if")
 
   // For the purpose of compiler optimizations
-  WALK(HTTP_BASE "draft-07/schema#", "properties", Members, "$ref", "required")
   WALK(HTTP_BASE "draft-07/schema#", "type", None, "properties")
 
   // $ref also takes precedence over any unknown keyword
@@ -155,6 +151,7 @@ auto sourcemeta::jsontoolkit::default_schema_walker(
   WALK(HTTP_BASE "draft-06/schema#", "definitions", Members, "$ref")
   WALK(HTTP_BASE "draft-06/schema#", "dependencies", Members, "$ref")
   WALK(HTTP_BASE "draft-06/schema#", "items", ValueOrElements, "$ref")
+  WALK(HTTP_BASE "draft-06/schema#", "properties", Members, "$ref")
   WALK(HTTP_BASE "draft-06/schema#", "patternProperties", Members, "$ref")
   WALK(HTTP_BASE "draft-06/schema#", "allOf", Elements, "$ref")
   WALK(HTTP_BASE "draft-06/schema#", "anyOf", Elements, "$ref")
@@ -178,7 +175,6 @@ auto sourcemeta::jsontoolkit::default_schema_walker(
        "properties", "patternProperties")
 
   // For the purpose of compiler optimizations
-  WALK(HTTP_BASE "draft-06/schema#", "properties", Members, "$ref", "required")
   WALK(HTTP_BASE "draft-06/schema#", "type", None, "properties")
 
   // $ref also takes precedence over any unknown keyword
@@ -190,6 +186,7 @@ auto sourcemeta::jsontoolkit::default_schema_walker(
   // Draft4
   WALK(HTTP_BASE "draft-04/schema#", "definitions", Members, "$ref")
   WALK(HTTP_BASE "draft-04/schema#", "items", ValueOrElements, "$ref")
+  WALK(HTTP_BASE "draft-04/schema#", "properties", Members, "$ref")
   WALK(HTTP_BASE "draft-04/schema#", "patternProperties", Members, "$ref")
   WALK(HTTP_BASE "draft-04/schema#", "allOf", Elements, "$ref")
   WALK(HTTP_BASE "draft-04/schema#", "anyOf", Elements, "$ref")
@@ -210,7 +207,6 @@ auto sourcemeta::jsontoolkit::default_schema_walker(
   WALK(HTTP_BASE "draft-04/schema#", "minProperties", None, "$ref")
 
   // These dependencies are only for the purpose of compiler optimizations
-  WALK(HTTP_BASE "draft-04/schema#", "properties", Members, "$ref", "required")
   WALK(HTTP_BASE "draft-04/schema#", "type", None, "properties")
 
   WALK_MAYBE_DEPENDENT(HTTP_BASE "draft-04/hyper-schema#", "targetSchema",

@@ -670,12 +670,6 @@ auto compiler_draft4_applicator_properties_with_options(
           sourcemeta::jsontoolkit::JSON{name}));
     }
 
-    const auto assume_object{imports_validation_vocabulary &&
-                             schema_context.schema.defines("type") &&
-                             schema_context.schema.at("type").is_string() &&
-                             schema_context.schema.at("type").to_string() ==
-                                 "object"};
-
     // Optimize `properties` where its subschemas just include a type check,
     // as that's a very common pattern
 
@@ -761,20 +755,13 @@ auto compiler_draft4_applicator_properties_with_options(
                                                  ValuePointer{name}));
       }
 
-      if (imports_validation_vocabulary && assume_object &&
-          schema_context.schema.defines("required") &&
-          schema_context.schema.at("required").is_array() &&
-          schema_context.schema.at("required")
-              .contains(sourcemeta::jsontoolkit::JSON{name})) {
-        // We can avoid the container too and just inline these steps
-        for (auto &&substep : substeps) {
-          children.push_back(std::move(substep));
-        }
-      } else if (!substeps.empty()) {
-        children.push_back(make<ControlGroupWhenDefines>(
-            context, schema_context, relative_dynamic_context,
-            ValueString{name}, std::move(substeps)));
+      if (substeps.empty()) {
+        continue;
       }
+
+      children.push_back(make<ControlGroupWhenDefines>(
+          context, schema_context, relative_dynamic_context, ValueString{name},
+          std::move(substeps)));
     }
   }
 
