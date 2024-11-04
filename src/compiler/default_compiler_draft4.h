@@ -620,15 +620,15 @@ auto compiler_draft4_applicator_properties_with_options(
   const auto prefer_loop_over_instance{
       // This strategy only makes sense if most of the properties are "optional"
       is_required <= (size / 4) &&
-      // If `properties` only defines a relatively small amount of properties,
+      // If `properties` only defines a relatively small amount of
+      // properties,
       // then its probably still faster to unroll
       size > 5 &&
-      // Unless the properties definition has a LOT of optional properties,
-      // we should unroll inside `oneOf` or `anyOf`, to have a better chance at
-      // short-circuiting quickly
-      // TODO: Maybe the proper middle ground here is to ONLY
-      // unroll properties with `const`/`enum`?
-      (!inside_disjunctor || (is_required == 0 && size > 20))};
+      // Always unroll inside `oneOf` or `anyOf`, to have a
+      // better chance at quickly short-circuiting
+      (!inside_disjunctor ||
+       (!defines_direct_enumeration(properties.front().second).has_value() &&
+        properties.front().second.size() > 1))};
 
   if (prefer_loop_over_instance) {
     ValueNamedIndexes indexes;
