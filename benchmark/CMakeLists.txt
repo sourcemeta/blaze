@@ -1,7 +1,9 @@
 set(BENCHMARK_SOURCES)
 
 if(BLAZE_COMPILER)
-  list(APPEND BENCHMARK_SOURCES compiler_draft6.cc)
+  list(APPEND BENCHMARK_SOURCES
+    compiler_draft6.cc
+    compiler_2019_09.cc)
 endif()
 if(BLAZE_EVALUATOR)
   list(APPEND BENCHMARK_SOURCES
