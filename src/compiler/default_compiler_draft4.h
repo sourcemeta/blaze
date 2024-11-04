@@ -897,6 +897,21 @@ auto compiler_draft4_applicator_additionalproperties_with_options(
     return {};
   }
 
+  // If the object defines `additionalProperties: false` alongside `properties`,
+  // but without `patternProperties`, we can rely on the fact that `properties`
+  // executes BEFORE `additionalProperties` to then do a simple size check
+  if (context.mode == Mode::FastValidation &&
+      schema_context.schema.at(dynamic_context.keyword).is_boolean() &&
+      !schema_context.schema.at(dynamic_context.keyword).to_boolean() &&
+      schema_context.schema.defines("properties") &&
+      schema_context.schema.at("properties").is_object() &&
+      !schema_context.schema.defines("patternProperties")) {
+    return {make<AssertionObjectSizeLess>(
+        context, schema_context, dynamic_context,
+        ValueUnsignedInteger{static_cast<unsigned long>(
+            schema_context.schema.at("properties").size() + 1)})};
+  }
+
   Template children{compile(context, schema_context, relative_dynamic_context,
                             sourcemeta::jsontoolkit::empty_pointer,
                             sourcemeta::jsontoolkit::empty_pointer)};

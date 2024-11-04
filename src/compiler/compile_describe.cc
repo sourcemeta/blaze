@@ -1194,6 +1194,11 @@ struct DescribeVisitor {
       return message.str();
     }
 
+    if (this->keyword == "additionalProperties") {
+      return "The object value was not expected to define additional "
+             "properties";
+    }
+
     return unknown();
   }
 

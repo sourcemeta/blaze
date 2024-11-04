@@ -2320,31 +2320,71 @@ TEST(Evaluator_draft4, additionalProperties_5) {
   const sourcemeta::jsontoolkit::JSON instance{
       sourcemeta::jsontoolkit::parse("{ \"foo\": true, \"bar\": 2 }")};
 
-  EVALUATE_WITH_TRACE_FAST_FAILURE(schema, instance, 3);
+  EVALUATE_WITH_TRACE_FAST_FAILURE(schema, instance, 2);
 
   EVALUATE_TRACE_PRE(0, AssertionPropertyTypeStrict, "/properties/foo/type",
                      "#/properties/foo/type", "/foo");
-  EVALUATE_TRACE_PRE(1, LoopPropertiesExcept, "/additionalProperties",
+  EVALUATE_TRACE_PRE(1, AssertionObjectSizeLess, "/additionalProperties",
                      "#/additionalProperties", "");
-  EVALUATE_TRACE_PRE(2, AssertionFail, "/additionalProperties",
-                     "#/additionalProperties", "/bar");
 
   EVALUATE_TRACE_POST_SUCCESS(0, AssertionPropertyTypeStrict,
                               "/properties/foo/type", "#/properties/foo/type",
                               "/foo");
-  EVALUATE_TRACE_POST_FAILURE(1, AssertionFail, "/additionalProperties",
-                              "#/additionalProperties", "/bar");
-  EVALUATE_TRACE_POST_FAILURE(2, LoopPropertiesExcept, "/additionalProperties",
-                              "#/additionalProperties", "");
+  EVALUATE_TRACE_POST_FAILURE(1, AssertionObjectSizeLess,
+                              "/additionalProperties", "#/additionalProperties",
+                              "");
 
   EVALUATE_TRACE_POST_DESCRIBE(instance, 0,
                                "The value was expected to be of type boolean");
   EVALUATE_TRACE_POST_DESCRIBE(
       instance, 1,
-      "The object value was not expected to define the property \"bar\"");
+      "The object value was not expected to define additional properties")
+}
+
+TEST(Evaluator_draft4, additionalProperties_6_exhaustive) {
+  const sourcemeta::jsontoolkit::JSON schema{
+      sourcemeta::jsontoolkit::parse(R"JSON({
+    "$schema": "http://json-schema.org/draft-04/schema#",
+    "properties": {
+      "foo": {
+        "type": "boolean"
+      }
+    },
+    "additionalProperties": false
+  })JSON")};
+
+  const sourcemeta::jsontoolkit::JSON instance{
+      sourcemeta::jsontoolkit::parse("{ \"foo\": true, \"bar\": 2 }")};
+
+  EVALUATE_WITH_TRACE_EXHAUSTIVE_FAILURE(schema, instance, 4);
+
+  EVALUATE_TRACE_PRE(0, LogicalAnd, "/properties", "#/properties", "");
+  EVALUATE_TRACE_PRE(1, AssertionTypeStrict, "/properties/foo/type",
+                     "#/properties/foo/type", "/foo");
+  EVALUATE_TRACE_PRE(2, LoopPropertiesExcept, "/additionalProperties",
+                     "#/additionalProperties", "");
+  EVALUATE_TRACE_PRE(3, AssertionFail, "/additionalProperties",
+                     "#/additionalProperties", "/bar");
+
+  EVALUATE_TRACE_POST_SUCCESS(0, AssertionTypeStrict, "/properties/foo/type",
+                              "#/properties/foo/type", "/foo");
+  EVALUATE_TRACE_POST_SUCCESS(1, LogicalAnd, "/properties", "#/properties", "");
+  EVALUATE_TRACE_POST_FAILURE(2, AssertionFail, "/additionalProperties",
+                              "#/additionalProperties", "/bar");
+  EVALUATE_TRACE_POST_FAILURE(3, LoopPropertiesExcept, "/additionalProperties",
+                              "#/additionalProperties", "");
+
+  EVALUATE_TRACE_POST_DESCRIBE(instance, 0,
+                               "The value was expected to be of type boolean");
+  EVALUATE_TRACE_POST_DESCRIBE(instance, 1,
+                               "The object value was expected to validate "
+                               "against the single defined property subschema");
   EVALUATE_TRACE_POST_DESCRIBE(
       instance, 2,
-      "The object value was not expected to define additional properties")
+      "The object value was not expected to define the property \"bar\"");
+  EVALUATE_TRACE_POST_DESCRIBE(
+      instance, 3,
+      "The object value was not expected to define additional properties");
 }
 
 TEST(Evaluator_draft4, additionalProperties_6) {
@@ -2352,47 +2392,35 @@ TEST(Evaluator_draft4, additionalProperties_6) {
       sourcemeta::jsontoolkit::parse(R"JSON({
     "$schema": "http://json-schema.org/draft-04/schema#",
     "properties": {
-      "foo": { "type": "boolean" }
+      "foo": {
+        "type": "boolean"
+      }
     },
-    "patternProperties": {
-      "^bar$": { "type": "integer" }
-    },
-    "additionalProperties": {}
+    "additionalProperties": false
   })JSON")};
 
-  const sourcemeta::jsontoolkit::JSON instance{sourcemeta::jsontoolkit::parse(
-      "{ \"foo\": true, \"bar\": 2, \"baz\": \"qux\" }")};
+  const sourcemeta::jsontoolkit::JSON instance{
+      sourcemeta::jsontoolkit::parse("{ \"foo\": true }")};
 
-  EVALUATE_WITH_TRACE_FAST_SUCCESS(schema, instance, 3);
+  EVALUATE_WITH_TRACE_FAST_SUCCESS(schema, instance, 2);
 
-  EVALUATE_TRACE_PRE(0, LoopPropertiesRegex, "/patternProperties",
-                     "#/patternProperties", "");
-  EVALUATE_TRACE_PRE(1, AssertionTypeStrict, "/patternProperties/^bar$/type",
-                     // Note that the caret needs to be URI escaped
-                     "#/patternProperties/%5Ebar$/type", "/bar");
-  EVALUATE_TRACE_PRE(2, AssertionPropertyTypeStrict, "/properties/foo/type",
+  EVALUATE_TRACE_PRE(0, AssertionPropertyTypeStrict, "/properties/foo/type",
                      "#/properties/foo/type", "/foo");
+  EVALUATE_TRACE_PRE(1, AssertionObjectSizeLess, "/additionalProperties",
+                     "#/additionalProperties", "");
 
-  // Note we don't emit `additionalProperties` as it will do nothing anyway
-
-  EVALUATE_TRACE_POST_SUCCESS(0, AssertionTypeStrict,
-                              "/patternProperties/^bar$/type",
-                              // Note that the caret needs to be URI escaped
-                              "#/patternProperties/%5Ebar$/type", "/bar");
-  EVALUATE_TRACE_POST_SUCCESS(1, LoopPropertiesRegex, "/patternProperties",
-                              "#/patternProperties", "");
-  EVALUATE_TRACE_POST_SUCCESS(2, AssertionPropertyTypeStrict,
+  EVALUATE_TRACE_POST_SUCCESS(0, AssertionPropertyTypeStrict,
                               "/properties/foo/type", "#/properties/foo/type",
                               "/foo");
+  EVALUATE_TRACE_POST_SUCCESS(1, AssertionObjectSizeLess,
+                              "/additionalProperties", "#/additionalProperties",
+                              "");
 
   EVALUATE_TRACE_POST_DESCRIBE(instance, 0,
-                               "The value was expected to be of type integer");
+                               "The value was expected to be of type boolean");
   EVALUATE_TRACE_POST_DESCRIBE(
       instance, 1,
-      "The object properties that match the regular expression \"^bar$\" were "
-      "expected to validate against the defined pattern property subschema");
-  EVALUATE_TRACE_POST_DESCRIBE(instance, 2,
-                               "The value was expected to be of type boolean");
+      "The object value was not expected to define additional properties")
 }
 
 TEST(Evaluator_draft4, additionalProperties_7) {
@@ -2405,7 +2433,7 @@ TEST(Evaluator_draft4, additionalProperties_7) {
     "patternProperties": {
       "^bar$": { "type": "integer" }
     },
-    "additionalProperties": true
+    "additionalProperties": {}
   })JSON")};
 
   const sourcemeta::jsontoolkit::JSON instance{sourcemeta::jsontoolkit::parse(
@@ -2447,6 +2475,54 @@ TEST(Evaluator_draft4, additionalProperties_8) {
   const sourcemeta::jsontoolkit::JSON schema{
       sourcemeta::jsontoolkit::parse(R"JSON({
     "$schema": "http://json-schema.org/draft-04/schema#",
+    "properties": {
+      "foo": { "type": "boolean" }
+    },
+    "patternProperties": {
+      "^bar$": { "type": "integer" }
+    },
+    "additionalProperties": true
+  })JSON")};
+
+  const sourcemeta::jsontoolkit::JSON instance{sourcemeta::jsontoolkit::parse(
+      "{ \"foo\": true, \"bar\": 2, \"baz\": \"qux\" }")};
+
+  EVALUATE_WITH_TRACE_FAST_SUCCESS(schema, instance, 3);
+
+  EVALUATE_TRACE_PRE(0, LoopPropertiesRegex, "/patternProperties",
+                     "#/patternProperties", "");
+  EVALUATE_TRACE_PRE(1, AssertionTypeStrict, "/patternProperties/^bar$/type",
+                     // Note that the caret needs to be URI escaped
+                     "#/patternProperties/%5Ebar$/type", "/bar");
+  EVALUATE_TRACE_PRE(2, AssertionPropertyTypeStrict, "/properties/foo/type",
+                     "#/properties/foo/type", "/foo");
+
+  // Note we don't emit `additionalProperties` as it will do nothing anyway
+
+  EVALUATE_TRACE_POST_SUCCESS(0, AssertionTypeStrict,
+                              "/patternProperties/^bar$/type",
+                              // Note that the caret needs to be URI escaped
+                              "#/patternProperties/%5Ebar$/type", "/bar");
+  EVALUATE_TRACE_POST_SUCCESS(1, LoopPropertiesRegex, "/patternProperties",
+                              "#/patternProperties", "");
+  EVALUATE_TRACE_POST_SUCCESS(2, AssertionPropertyTypeStrict,
+                              "/properties/foo/type", "#/properties/foo/type",
+                              "/foo");
+
+  EVALUATE_TRACE_POST_DESCRIBE(instance, 0,
+                               "The value was expected to be of type integer");
+  EVALUATE_TRACE_POST_DESCRIBE(
+      instance, 1,
+      "The object properties that match the regular expression \"^bar$\" were "
+      "expected to validate against the defined pattern property subschema");
+  EVALUATE_TRACE_POST_DESCRIBE(instance, 2,
+                               "The value was expected to be of type boolean");
+}
+
+TEST(Evaluator_draft4, additionalProperties_9) {
+  const sourcemeta::jsontoolkit::JSON schema{
+      sourcemeta::jsontoolkit::parse(R"JSON({
+    "$schema": "http://json-schema.org/draft-04/schema#",
     "additionalProperties": {}
   })JSON")};
 
@@ -2456,7 +2532,7 @@ TEST(Evaluator_draft4, additionalProperties_8) {
   EVALUATE_WITH_TRACE_FAST_SUCCESS(schema, instance, 0);
 }
 
-TEST(Evaluator_draft4, additionalProperties_9) {
+TEST(Evaluator_draft4, additionalProperties_10) {
   const sourcemeta::jsontoolkit::JSON schema{
       sourcemeta::jsontoolkit::parse(R"JSON({
     "$schema": "http://json-schema.org/draft-04/schema#",
@@ -2469,7 +2545,7 @@ TEST(Evaluator_draft4, additionalProperties_9) {
   EVALUATE_WITH_TRACE_FAST_SUCCESS(schema, instance, 0);
 }
 
-TEST(Evaluator_draft4, additionalProperties_10) {
+TEST(Evaluator_draft4, additionalProperties_11) {
   const sourcemeta::jsontoolkit::JSON schema{
       sourcemeta::jsontoolkit::parse(R"JSON({
     "$schema": "http://json-schema.org/draft-04/schema#",
