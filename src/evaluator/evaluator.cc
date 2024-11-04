@@ -1185,16 +1185,11 @@ auto evaluate_step(const sourcemeta::blaze::Template::value_type &step,
       if (target.size() <= loop.value.size()) {
         result = true;
         for (const auto &entry : target.as_object()) {
-          // TODO: Here we might end up comparing against the same
-          // strings over and over again even when we know they
-          // will not match anymore. Maybe try a set?
-          if (std::find(loop.value.cbegin(), loop.value.cend(), entry.first) !=
+          if (std::find(loop.value.cbegin(), loop.value.cend(), entry.first) ==
               loop.value.cend()) {
-            continue;
+            result = false;
+            break;
           }
-
-          result = false;
-          break;
         }
       }
 
