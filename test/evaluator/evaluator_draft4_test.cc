@@ -5658,3 +5658,35 @@ TEST(Evaluator_draft4, ref_to_non_schema) {
     FAIL();
   }
 }
+
+TEST(Evaluator_draft4, relative_base_uri_with_ref) {
+  const sourcemeta::jsontoolkit::JSON schema{
+      sourcemeta::jsontoolkit::parse(R"JSON({
+    "$schema": "http://json-schema.org/draft-04/schema",
+    "id": "common",
+    "allOf": [ { "$ref": "#reference" } ],
+    "definitions": {
+      "reference": {
+        "id": "#reference",
+        "type": "string"
+      }
+    }
+  })JSON")};
+
+  const sourcemeta::jsontoolkit::JSON instance{"test"};
+  EVALUATE_WITH_TRACE_FAST_SUCCESS(schema, instance, 2);
+
+  EVALUATE_TRACE_PRE(0, LogicalAnd, "/allOf", "common#/allOf", "");
+  EVALUATE_TRACE_PRE(1, AssertionTypeStrict, "/allOf/0/$ref/type",
+                     "common#/definitions/reference/type", "");
+
+  EVALUATE_TRACE_POST_SUCCESS(0, AssertionTypeStrict, "/allOf/0/$ref/type",
+                              "common#/definitions/reference/type", "");
+  EVALUATE_TRACE_POST_SUCCESS(1, LogicalAnd, "/allOf", "common#/allOf", "");
+
+  EVALUATE_TRACE_POST_DESCRIBE(instance, 0,
+                               "The value was expected to be of type string");
+  EVALUATE_TRACE_POST_DESCRIBE(
+      instance, 1,
+      "The string value was expected to validate against the given subschema");
+}
