@@ -941,6 +941,14 @@ auto compiler_draft4_applicator_additionalproperties_with_options(
     return {};
   }
 
+  if (context.mode == Mode::FastValidation && children.size() == 1 &&
+      std::holds_alternative<AssertionFail>(children.front()) &&
+      !filter_strings.empty() && filter_prefixes.empty() &&
+      filter_regexes.empty()) {
+    return {make<LoopPropertiesWhitelist>(
+        context, schema_context, dynamic_context, std::move(filter_strings))};
+  }
+
   if (!filter_strings.empty() || !filter_prefixes.empty() ||
       !filter_regexes.empty()) {
     if (track_evaluation) {
