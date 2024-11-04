@@ -3,7 +3,7 @@
 
 #include "trace.h"
 
-#include <algorithm> // std::min, std::any_of, std::find
+#include <algorithm> // std::min, std::any_of, std::find, std::binary_search
 #include <cassert>   // assert
 #include <iterator>  // std::distance, std::advance
 #include <limits>    // std::numeric_limits
@@ -1134,9 +1134,8 @@ auto evaluate_step(const sourcemeta::blaze::Template::value_type &step,
              !std::get<2>(loop.value).empty());
 
       for (const auto &entry : target.as_object()) {
-        if (std::find(std::get<0>(loop.value).cbegin(),
-                      std::get<0>(loop.value).cend(),
-                      entry.first) != std::get<0>(loop.value).cend()) {
+        if (std::binary_search(std::get<0>(loop.value).cbegin(),
+                               std::get<0>(loop.value).cend(), entry.first)) {
           continue;
         }
 
@@ -1185,11 +1184,8 @@ auto evaluate_step(const sourcemeta::blaze::Template::value_type &step,
       if (target.size() <= loop.value.size()) {
         result = true;
         for (const auto &entry : target.as_object()) {
-          // TODO: Here we might end up comparing against the same
-          // strings over and over again even when we know they
-          // will not match anymore. Maybe try a set?
-          if (std::find(loop.value.cbegin(), loop.value.cend(), entry.first) !=
-              loop.value.cend()) {
+          if (std::binary_search(loop.value.cbegin(), loop.value.cend(),
+                                 entry.first)) {
             continue;
           }
 

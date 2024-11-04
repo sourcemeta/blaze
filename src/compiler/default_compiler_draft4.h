@@ -918,6 +918,9 @@ auto compiler_draft4_applicator_additionalproperties_with_options(
     }
   }
 
+  // For binary search purposes
+  std::sort(filter_strings.begin(), filter_strings.end());
+
   if (schema_context.schema.defines("patternProperties") &&
       schema_context.schema.at("patternProperties").is_object()) {
     for (const auto &entry :
