@@ -49,6 +49,46 @@ Features
   annotation extraction during evaluation to augment instances with semantic
   information, making it a great fit for data science scenarios
 
+Example
+-------
+
+Blaze is designed to be easy to use, while at the same time providing extensive
+hooks for supporting custom vocabularies, resolving external schemas, and more.
+
+```cpp
+// (1) Get a JSON Schema
+const auto schema{sourcemeta::jsontoolkit::parse(R"JSON({
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "type": "string"
+})JSON")};
+
+// (2) Compile the JSON Schema into an optimised representation
+const auto compiled_schema{sourcemeta::blaze::compile(
+    schema, 
+
+    // These options allow you tweak how Blaze works,
+    // the JSON Schema vocabularies it understands,
+    // and how to resolve references to external schemas
+    sourcemeta::jsontoolkit::default_schema_walker,
+    sourcemeta::jsontoolkit::official_resolver,
+    sourcemeta::blaze::default_schema_compiler, 
+
+    // Fast validation means getting to a boolean result
+    // as fast as possible. Check out the documentation
+    // for how to get detailed error information and/or
+    // collect JSON Schema annotations
+    sourcemeta::blaze::Mode::FastValidation)};
+
+// (3) Get a JSON instance
+const sourcemeta::jsontoolkit::JSON instance{"Hello Blaze!"};
+
+// (4) Validate the instance against the schema
+const auto result{sourcemeta::blaze::evaluate(compiled_schema, instance)};
+if (result) {
+  std::cout << "Success!\n";
+}
+```
+
 Documentation
 -------------
 
