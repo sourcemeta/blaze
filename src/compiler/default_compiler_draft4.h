@@ -683,11 +683,15 @@ auto compiler_draft4_applicator_properties_with_options(
 
   Template children;
 
+  const auto effective_dynamic_context{context.mode == Mode::FastValidation
+                                           ? dynamic_context
+                                           : relative_dynamic_context};
+
   for (auto &&[name, substeps] :
-       compile_properties(context, schema_context, relative_dynamic_context)) {
+       compile_properties(context, schema_context, effective_dynamic_context)) {
     if (annotate) {
       substeps.push_back(make<AnnotationEmit>(
-          context, schema_context, relative_dynamic_context,
+          context, schema_context, effective_dynamic_context,
           sourcemeta::jsontoolkit::JSON{name}));
     }
 
@@ -698,58 +702,60 @@ auto compiler_draft4_applicator_properties_with_options(
         std::holds_alternative<AssertionTypeStrict>(substeps.front())) {
       const auto &type_step{std::get<AssertionTypeStrict>(substeps.front())};
       if (track_evaluation) {
-        children.push_back(rephrase<AssertionPropertyTypeStrictEvaluate>(
-            dynamic_context, type_step));
-      } else {
         children.push_back(
-            rephrase<AssertionPropertyTypeStrict>(dynamic_context, type_step));
+            rephrase<AssertionPropertyTypeStrictEvaluate>(type_step));
+      } else {
+        children.push_back(rephrase<AssertionPropertyTypeStrict>(type_step));
       }
     } else if (context.mode == Mode::FastValidation && substeps.size() == 1 &&
                std::holds_alternative<AssertionType>(substeps.front())) {
       const auto &type_step{std::get<AssertionType>(substeps.front())};
       if (track_evaluation) {
-        children.push_back(rephrase<AssertionPropertyTypeEvaluate>(
-            dynamic_context, type_step));
+        children.push_back(rephrase<AssertionPropertyTypeEvaluate>(type_step));
       } else {
-        children.push_back(
-            rephrase<AssertionPropertyType>(dynamic_context, type_step));
+        children.push_back(rephrase<AssertionPropertyType>(type_step));
       }
     } else if (context.mode == Mode::FastValidation && substeps.size() == 1 &&
                std::holds_alternative<AssertionTypeStrictAny>(
                    substeps.front())) {
       const auto &type_step{std::get<AssertionTypeStrictAny>(substeps.front())};
       if (track_evaluation) {
-        children.push_back(rephrase<AssertionPropertyTypeStrictAnyEvaluate>(
-            dynamic_context, type_step));
+        children.push_back(
+            rephrase<AssertionPropertyTypeStrictAnyEvaluate>(type_step));
       } else {
-        children.push_back(rephrase<AssertionPropertyTypeStrictAny>(
-            dynamic_context, type_step));
+        children.push_back(rephrase<AssertionPropertyTypeStrictAny>(type_step));
       }
 
     } else if (context.mode == Mode::FastValidation && substeps.size() == 1 &&
                std::holds_alternative<AssertionPropertyTypeStrict>(
                    substeps.front())) {
       children.push_back(unroll<AssertionPropertyTypeStrict>(
-          relative_dynamic_context, substeps.front(),
-          dynamic_context.base_instance_location));
+          substeps.front(), effective_dynamic_context.base_instance_location));
     } else if (context.mode == Mode::FastValidation && substeps.size() == 1 &&
                std::holds_alternative<AssertionPropertyType>(
                    substeps.front())) {
       children.push_back(unroll<AssertionPropertyType>(
-          relative_dynamic_context, substeps.front(),
-          dynamic_context.base_instance_location));
+          substeps.front(), effective_dynamic_context.base_instance_location));
     } else if (context.mode == Mode::FastValidation && substeps.size() == 1 &&
                std::holds_alternative<AssertionPropertyTypeStrictAny>(
                    substeps.front())) {
       children.push_back(unroll<AssertionPropertyTypeStrictAny>(
-          relative_dynamic_context, substeps.front(),
-          dynamic_context.base_instance_location));
+          substeps.front(), effective_dynamic_context.base_instance_location));
 
     } else {
       if (track_evaluation) {
-        substeps.push_back(make<ControlEvaluate>(context, schema_context,
-                                                 relative_dynamic_context,
-                                                 ValuePointer{name}));
+        if (context.mode == Mode::FastValidation) {
+          // We need this wrapper as `ControlEvaluate` doesn't push to the stack
+          substeps.push_back(make<LogicalAnd>(
+              context, schema_context, effective_dynamic_context, ValueNone{},
+              {make<ControlEvaluate>(context, schema_context,
+                                     effective_dynamic_context,
+                                     ValuePointer{name})}));
+        } else {
+          substeps.push_back(make<ControlEvaluate>(context, schema_context,
+                                                   effective_dynamic_context,
+                                                   ValuePointer{name}));
+        }
       }
 
       if (imports_validation_vocabulary &&
@@ -763,42 +769,20 @@ auto compiler_draft4_applicator_properties_with_options(
         }
       } else if (!substeps.empty()) {
         children.push_back(make<ControlGroupWhenDefines>(
-            context, schema_context, relative_dynamic_context,
+            context, schema_context, effective_dynamic_context,
             ValueString{name}, std::move(substeps)));
       }
     }
   }
 
-  // Optimize away the wrapper when emitting a single instruction
-  if (context.mode == Mode::FastValidation && children.size() == 1 &&
-      std::holds_alternative<AssertionPropertyTypeStrict>(children.front())) {
-    return {
-        unroll<AssertionPropertyTypeStrict>(dynamic_context, children.front())};
-  } else if (context.mode == Mode::FastValidation && children.size() == 1 &&
-             std::holds_alternative<AssertionPropertyTypeStrictEvaluate>(
-                 children.front())) {
-    return {unroll<AssertionPropertyTypeStrictEvaluate>(dynamic_context,
-                                                        children.front())};
-  } else if (context.mode == Mode::FastValidation && children.size() == 1 &&
-             std::holds_alternative<AssertionPropertyTypeStrictAny>(
-                 children.front())) {
-    return {unroll<AssertionPropertyTypeStrictAny>(dynamic_context,
-                                                   children.front())};
-  } else if (context.mode == Mode::FastValidation && children.size() == 1 &&
-             std::holds_alternative<AssertionPropertyTypeStrictAnyEvaluate>(
-                 children.front())) {
-    return {unroll<AssertionPropertyTypeStrictAnyEvaluate>(dynamic_context,
-                                                           children.front())};
-  }
-
-  if (children.empty()) {
+  if (context.mode == Mode::FastValidation) {
+    return children;
+  } else if (children.empty()) {
     return {};
+  } else {
+    return {make<LogicalAnd>(context, schema_context, dynamic_context,
+                             ValueNone{}, std::move(children))};
   }
-
-  // TODO: Should this be LogicalWhenType? If so, we can avoid evaluating
-  // every unrolled property against non-object instances
-  return {make<LogicalAnd>(context, schema_context, dynamic_context,
-                           ValueNone{}, std::move(children))};
 }
 
 auto compiler_draft4_applicator_properties(
