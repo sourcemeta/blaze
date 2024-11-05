@@ -77,7 +77,7 @@ TEST(Compiler_output_error_trace, fail_meaningless_if_1) {
   std::vector<sourcemeta::blaze::ErrorTraceOutput::Entry> traces{
       output.cbegin(), output.cend()};
 
-  EXPECT_EQ(traces.size(), 3);
+  EXPECT_EQ(traces.size(), 2);
 
   EXPECT_OUTPUT(
       traces, 0, "/foo/~1baz", "/properties/foo/unevaluatedProperties",
@@ -85,9 +85,6 @@ TEST(Compiler_output_error_trace, fail_meaningless_if_1) {
   EXPECT_OUTPUT(
       traces, 1, "/foo", "/properties/foo/unevaluatedProperties",
       "The object value was not expected to define unevaluated properties");
-  EXPECT_OUTPUT(traces, 2, "", "/properties",
-                "The object value was expected to validate against the defined "
-                "properties subschemas");
 }
 
 TEST(Compiler_output_error_trace, success_dynamic_anchor_1) {
