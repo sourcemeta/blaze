@@ -94,6 +94,18 @@ auto unroll(const DynamicContext &dynamic_context, const Step &step,
           std::get<Type>(step).value};
 }
 
+template <typename Type, typename Step>
+auto rephrase(const DynamicContext &dynamic_context, const Step &step) -> Type {
+  return {step.relative_schema_location,
+          dynamic_context.base_instance_location.concat(
+              step.relative_instance_location),
+          step.keyword_location,
+          step.schema_resource,
+          step.dynamic,
+          step.track,
+          step.value};
+}
+
 inline auto
 unsigned_integer_property(const sourcemeta::jsontoolkit::JSON &document,
                           const sourcemeta::jsontoolkit::JSON::String &property)
