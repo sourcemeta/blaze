@@ -503,6 +503,55 @@ auto compiler_draft4_applicator_oneof(const Context &context,
                            std::move(disjunctors))};
 }
 
+static auto compile_properties(const Context &context,
+                               const SchemaContext &schema_context,
+                               const DynamicContext &dynamic_context)
+    -> std::vector<std::pair<std::string, Template>> {
+  std::vector<std::pair<std::string, Template>> properties;
+  for (const auto &entry : schema_context.schema.at("properties").as_object()) {
+    properties.push_back(
+        {entry.first, compile(context, schema_context, dynamic_context,
+                              {entry.first}, {entry.first})});
+  }
+
+  // In many cases, `properties` have some subschemas that are small
+  // and some subschemas that are large. To attempt to improve performance,
+  // we prefer to evaluate smaller subschemas first, in the hope of failing
+  // earlier without spending a lot of time on other subschemas
+  std::sort(properties.begin(), properties.end(),
+            [](const auto &left, const auto &right) {
+              const auto left_size{recursive_template_size(left.second)};
+              const auto right_size{recursive_template_size(right.second)};
+              if (left_size == right_size) {
+                const auto left_direct_enumeration{
+                    defines_direct_enumeration(left.second)};
+                const auto right_direct_enumeration{
+                    defines_direct_enumeration(right.second)};
+
+                // Enumerations always take precedence
+                if (left_direct_enumeration.has_value() &&
+                    right_direct_enumeration.has_value()) {
+                  // If both options have a direct enumeration, we choose
+                  // the one with the shorter relative schema location
+                  return relative_schema_location_size(
+                             left.second.at(left_direct_enumeration.value())) <
+                         relative_schema_location_size(
+                             right.second.at(right_direct_enumeration.value()));
+                } else if (left_direct_enumeration.has_value()) {
+                  return true;
+                } else if (right_direct_enumeration.has_value()) {
+                  return false;
+                }
+
+                return left.first < right.first;
+              } else {
+                return left_size < right_size;
+              }
+            });
+
+  return properties;
+}
+
 auto compiler_draft4_applicator_properties_with_options(
     const Context &context, const SchemaContext &schema_context,
     const DynamicContext &dynamic_context, const bool annotate,
@@ -545,53 +594,6 @@ auto compiler_draft4_applicator_properties_with_options(
     }
   }
 
-  std::size_t is_required = 0;
-  std::vector<std::pair<std::string, Template>> properties;
-  for (const auto &entry :
-       schema_context.schema.at(dynamic_context.keyword).as_object()) {
-    properties.push_back(
-        {entry.first, compile(context, schema_context, relative_dynamic_context,
-                              {entry.first}, {entry.first})});
-    if (required.contains(entry.first)) {
-      is_required += 1;
-    }
-  }
-
-  // In many cases, `properties` have some subschemas that are small
-  // and some subschemas that are large. To attempt to improve performance,
-  // we prefer to evaluate smaller subschemas first, in the hope of failing
-  // earlier without spending a lot of time on other subschemas
-  std::sort(properties.begin(), properties.end(),
-            [](const auto &left, const auto &right) {
-              const auto left_size{recursive_template_size(left.second)};
-              const auto right_size{recursive_template_size(right.second)};
-              if (left_size == right_size) {
-                const auto left_direct_enumeration{
-                    defines_direct_enumeration(left.second)};
-                const auto right_direct_enumeration{
-                    defines_direct_enumeration(right.second)};
-
-                // Enumerations always take precedence
-                if (left_direct_enumeration.has_value() &&
-                    right_direct_enumeration.has_value()) {
-                  // If both options have a direct enumeration, we choose
-                  // the one with the shorter relative schema location
-                  return relative_schema_location_size(
-                             left.second.at(left_direct_enumeration.value())) <
-                         relative_schema_location_size(
-                             right.second.at(right_direct_enumeration.value()));
-                } else if (left_direct_enumeration.has_value()) {
-                  return true;
-                } else if (right_direct_enumeration.has_value()) {
-                  return false;
-                }
-
-                return left.first < right.first;
-              } else {
-                return left_size < right_size;
-              }
-            });
-
   const auto &current_entry{static_frame_entry(context, schema_context)};
   const auto inside_disjunctor{
       is_inside_disjunctor(schema_context.relative_pointer) ||
@@ -613,28 +615,32 @@ auto compiler_draft4_applicator_properties_with_options(
                            current_entry.pointer.initial() == target;
                   })};
 
+  auto properties_with_relative_dynamic_context{
+      compile_properties(context, schema_context, relative_dynamic_context)};
+
   // There are two ways to compile `properties` depending on whether
   // most of the properties are marked as required using `required`
   // or whether most of the properties are optional. Each shines
   // in the corresponding case.
   const auto prefer_loop_over_instance{
       // This strategy only makes sense if most of the properties are "optional"
-      is_required <= (size / 4) &&
-      // If `properties` only defines a relatively small amount of
-      // properties,
+      required.size() <= (size / 4) &&
+      // If `properties` only defines a relatively small amount of properties,
       // then its probably still faster to unroll
       size > 5 &&
       // Always unroll inside `oneOf` or `anyOf`, to have a
       // better chance at quickly short-circuiting
       (!inside_disjunctor ||
-       (!defines_direct_enumeration(properties.front().second).has_value()))};
+       (!defines_direct_enumeration(
+             properties_with_relative_dynamic_context.front().second)
+             .has_value()))};
 
   if (prefer_loop_over_instance) {
     ValueNamedIndexes indexes;
     Template children;
     std::size_t cursor = 0;
 
-    for (auto &&[name, substeps] : properties) {
+    for (auto &&[name, substeps] : properties_with_relative_dynamic_context) {
       indexes.emplace(name, cursor);
 
       if (track_evaluation) {
@@ -662,18 +668,12 @@ auto compiler_draft4_applicator_properties_with_options(
 
   Template children;
 
-  for (auto &&[name, substeps] : properties) {
+  for (auto &&[name, substeps] : properties_with_relative_dynamic_context) {
     if (annotate) {
       substeps.push_back(make<AnnotationEmit>(
           context, schema_context, relative_dynamic_context,
           sourcemeta::jsontoolkit::JSON{name}));
     }
-
-    const auto assume_object{imports_validation_vocabulary &&
-                             schema_context.schema.defines("type") &&
-                             schema_context.schema.at("type").is_string() &&
-                             schema_context.schema.at("type").to_string() ==
-                                 "object"};
 
     // Optimize `properties` where its subschemas just include a type check,
     // as that's a very common pattern
@@ -682,56 +682,32 @@ auto compiler_draft4_applicator_properties_with_options(
         std::holds_alternative<AssertionTypeStrict>(substeps.front())) {
       const auto &type_step{std::get<AssertionTypeStrict>(substeps.front())};
       if (track_evaluation) {
-        children.push_back(AssertionPropertyTypeStrictEvaluate{
-            type_step.relative_schema_location,
-            dynamic_context.base_instance_location.concat(
-                type_step.relative_instance_location),
-            type_step.keyword_location, type_step.schema_resource,
-            type_step.dynamic, type_step.track, type_step.value});
+        children.push_back(rephrase<AssertionPropertyTypeStrictEvaluate>(
+            dynamic_context, type_step));
       } else {
-        children.push_back(AssertionPropertyTypeStrict{
-            type_step.relative_schema_location,
-            dynamic_context.base_instance_location.concat(
-                type_step.relative_instance_location),
-            type_step.keyword_location, type_step.schema_resource,
-            type_step.dynamic, type_step.track, type_step.value});
+        children.push_back(
+            rephrase<AssertionPropertyTypeStrict>(dynamic_context, type_step));
       }
     } else if (context.mode == Mode::FastValidation && substeps.size() == 1 &&
                std::holds_alternative<AssertionType>(substeps.front())) {
       const auto &type_step{std::get<AssertionType>(substeps.front())};
       if (track_evaluation) {
-        children.push_back(AssertionPropertyTypeEvaluate{
-            type_step.relative_schema_location,
-            dynamic_context.base_instance_location.concat(
-                type_step.relative_instance_location),
-            type_step.keyword_location, type_step.schema_resource,
-            type_step.dynamic, type_step.track, type_step.value});
+        children.push_back(rephrase<AssertionPropertyTypeEvaluate>(
+            dynamic_context, type_step));
       } else {
-        children.push_back(AssertionPropertyType{
-            type_step.relative_schema_location,
-            dynamic_context.base_instance_location.concat(
-                type_step.relative_instance_location),
-            type_step.keyword_location, type_step.schema_resource,
-            type_step.dynamic, type_step.track, type_step.value});
+        children.push_back(
+            rephrase<AssertionPropertyType>(dynamic_context, type_step));
       }
     } else if (context.mode == Mode::FastValidation && substeps.size() == 1 &&
                std::holds_alternative<AssertionTypeStrictAny>(
                    substeps.front())) {
       const auto &type_step{std::get<AssertionTypeStrictAny>(substeps.front())};
       if (track_evaluation) {
-        children.push_back(AssertionPropertyTypeStrictAnyEvaluate{
-            type_step.relative_schema_location,
-            dynamic_context.base_instance_location.concat(
-                type_step.relative_instance_location),
-            type_step.keyword_location, type_step.schema_resource,
-            type_step.dynamic, type_step.track, type_step.value});
+        children.push_back(rephrase<AssertionPropertyTypeStrictAnyEvaluate>(
+            dynamic_context, type_step));
       } else {
-        children.push_back(AssertionPropertyTypeStrictAny{
-            type_step.relative_schema_location,
-            dynamic_context.base_instance_location.concat(
-                type_step.relative_instance_location),
-            type_step.keyword_location, type_step.schema_resource,
-            type_step.dynamic, type_step.track, type_step.value});
+        children.push_back(rephrase<AssertionPropertyTypeStrictAny>(
+            dynamic_context, type_step));
       }
 
     } else if (context.mode == Mode::FastValidation && substeps.size() == 1 &&
@@ -760,11 +736,11 @@ auto compiler_draft4_applicator_properties_with_options(
                                                  ValuePointer{name}));
       }
 
-      if (imports_validation_vocabulary && assume_object &&
-          schema_context.schema.defines("required") &&
-          schema_context.schema.at("required").is_array() &&
-          schema_context.schema.at("required")
-              .contains(sourcemeta::jsontoolkit::JSON{name})) {
+      if (imports_validation_vocabulary && imports_validation_vocabulary &&
+          schema_context.schema.defines("type") &&
+          schema_context.schema.at("type").is_string() &&
+          schema_context.schema.at("type").to_string() == "object" &&
+          required.contains(name)) {
         // We can avoid the container too and just inline these steps
         for (auto &&substep : substeps) {
           children.push_back(std::move(substep));
