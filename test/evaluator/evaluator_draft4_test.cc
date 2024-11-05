@@ -3300,16 +3300,16 @@ TEST(Evaluator_draft4, anyOf_4) {
   EVALUATE_WITH_TRACE_FAST_SUCCESS(schema, instance, 3);
 
   EVALUATE_TRACE_PRE(0, LogicalOr, "/anyOf", "#/anyOf", "");
-  EVALUATE_TRACE_PRE(1, LogicalAnd, "/anyOf/0/$ref/properties",
+  EVALUATE_TRACE_PRE(1, LoopPropertiesMatch, "/anyOf/0/$ref/properties",
                      "#/definitions/test/properties", "");
-  EVALUATE_TRACE_PRE(2, AssertionPropertyTypeStrict,
-                     "/anyOf/0/$ref/properties/a/type",
+  EVALUATE_TRACE_PRE(2, AssertionTypeStrict, "/anyOf/0/$ref/properties/a/type",
                      "#/definitions/test/properties/a/type", "/a");
 
-  EVALUATE_TRACE_POST_SUCCESS(0, AssertionPropertyTypeStrict,
+  EVALUATE_TRACE_POST_SUCCESS(0, AssertionTypeStrict,
                               "/anyOf/0/$ref/properties/a/type",
                               "#/definitions/test/properties/a/type", "/a");
-  EVALUATE_TRACE_POST_SUCCESS(1, LogicalAnd, "/anyOf/0/$ref/properties",
+  EVALUATE_TRACE_POST_SUCCESS(1, LoopPropertiesMatch,
+                              "/anyOf/0/$ref/properties",
                               "#/definitions/test/properties", "");
   EVALUATE_TRACE_POST_SUCCESS(2, LogicalOr, "/anyOf", "#/anyOf", "");
 
@@ -3317,7 +3317,7 @@ TEST(Evaluator_draft4, anyOf_4) {
                                "The value was expected to be of type string");
   EVALUATE_TRACE_POST_DESCRIBE(instance, 1,
                                "The object value was expected to validate "
-                               "against the defined properties subschemas");
+                               "against the 11 defined properties subschemas");
   EVALUATE_TRACE_POST_DESCRIBE(
       instance, 2,
       "The object value was expected to validate against at least one of the 2 "

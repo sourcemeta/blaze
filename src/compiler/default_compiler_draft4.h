@@ -627,8 +627,7 @@ auto compiler_draft4_applicator_properties_with_options(
       // Always unroll inside `oneOf` or `anyOf`, to have a
       // better chance at quickly short-circuiting
       (!inside_disjunctor ||
-       (!defines_direct_enumeration(properties.front().second).has_value() &&
-        properties.front().second.size() > 1))};
+       (!defines_direct_enumeration(properties.front().second).has_value()))};
 
   if (prefer_loop_over_instance) {
     ValueNamedIndexes indexes;
