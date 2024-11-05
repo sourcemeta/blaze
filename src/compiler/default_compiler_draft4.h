@@ -4,12 +4,12 @@
 #include <sourcemeta/blaze/compiler.h>
 #include <sourcemeta/blaze/evaluator_context.h>
 
-#include <algorithm> // std::sort, std::any_of, std::all_of, std::find_if
-#include <cassert>   // assert
-#include <regex>     // std::regex, std::regex_error
-#include <set>       // std::set
-#include <sstream>   // std::ostringstream
-#include <utility>   // std::move
+#include <algorithm> // std::sort, std::any_of, std::all_of, std::find_if, std::none_of
+#include <cassert> // assert
+#include <regex>   // std::regex, std::regex_error
+#include <set>     // std::set
+#include <sstream> // std::ostringstream
+#include <utility> // std::move
 
 #include "compile_helpers.h"
 
@@ -579,6 +579,15 @@ auto compiler_draft4_applicator_properties_with_options(
           "https://json-schema.org/draft/2019-09/vocab/validation") ||
       schema_context.vocabularies.contains(
           "https://json-schema.org/draft/2020-12/vocab/validation");
+  const auto imports_const =
+      schema_context.vocabularies.contains(
+          "http://json-schema.org/draft-06/schema#") ||
+      schema_context.vocabularies.contains(
+          "http://json-schema.org/draft-07/schema#") ||
+      schema_context.vocabularies.contains(
+          "https://json-schema.org/draft/2019-09/vocab/validation") ||
+      schema_context.vocabularies.contains(
+          "https://json-schema.org/draft/2020-12/vocab/validation");
   std::set<std::string> required;
   if (imports_validation_vocabulary &&
       schema_context.schema.defines("required") &&
@@ -615,9 +624,6 @@ auto compiler_draft4_applicator_properties_with_options(
                            current_entry.pointer.initial() == target;
                   })};
 
-  auto properties_with_relative_dynamic_context{
-      compile_properties(context, schema_context, relative_dynamic_context)};
-
   // There are two ways to compile `properties` depending on whether
   // most of the properties are marked as required using `required`
   // or whether most of the properties are optional. Each shines
@@ -631,16 +637,25 @@ auto compiler_draft4_applicator_properties_with_options(
       // Always unroll inside `oneOf` or `anyOf`, to have a
       // better chance at quickly short-circuiting
       (!inside_disjunctor ||
-       (!defines_direct_enumeration(
-             properties_with_relative_dynamic_context.front().second)
-             .has_value()))};
+       std::none_of(
+           schema_context.schema.at(dynamic_context.keyword)
+               .as_object()
+               .cbegin(),
+           schema_context.schema.at(dynamic_context.keyword).as_object().cend(),
+           [&](const auto &pair) {
+             return pair.second.is_object() &&
+                    ((imports_validation_vocabulary &&
+                      pair.second.defines("enum")) ||
+                     (imports_const && pair.second.defines("const")));
+           }))};
 
   if (prefer_loop_over_instance) {
     ValueNamedIndexes indexes;
     Template children;
     std::size_t cursor = 0;
 
-    for (auto &&[name, substeps] : properties_with_relative_dynamic_context) {
+    for (auto &&[name, substeps] : compile_properties(
+             context, schema_context, relative_dynamic_context)) {
       indexes.emplace(name, cursor);
 
       if (track_evaluation) {
@@ -668,7 +683,8 @@ auto compiler_draft4_applicator_properties_with_options(
 
   Template children;
 
-  for (auto &&[name, substeps] : properties_with_relative_dynamic_context) {
+  for (auto &&[name, substeps] :
+       compile_properties(context, schema_context, relative_dynamic_context)) {
     if (annotate) {
       substeps.push_back(make<AnnotationEmit>(
           context, schema_context, relative_dynamic_context,
@@ -736,7 +752,7 @@ auto compiler_draft4_applicator_properties_with_options(
                                                  ValuePointer{name}));
       }
 
-      if (imports_validation_vocabulary && imports_validation_vocabulary &&
+      if (imports_validation_vocabulary &&
           schema_context.schema.defines("type") &&
           schema_context.schema.at("type").is_string() &&
           schema_context.schema.at("type").to_string() == "object" &&
