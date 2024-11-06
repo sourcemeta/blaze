@@ -64,20 +64,20 @@ const auto schema{sourcemeta::jsontoolkit::parse(R"JSON({
 
 // (2) Compile the JSON Schema into an optimised representation
 const auto compiled_schema{sourcemeta::blaze::compile(
-    schema, 
+  schema,
 
-    // These options allow you tweak how Blaze works,
-    // the JSON Schema vocabularies it understands,
-    // and how to resolve references to external schemas
-    sourcemeta::jsontoolkit::default_schema_walker,
-    sourcemeta::jsontoolkit::official_resolver,
-    sourcemeta::blaze::default_schema_compiler, 
+  // These options allow you tweak how Blaze works,
+  // the JSON Schema vocabularies it understands,
+  // and how to resolve references to external schemas
+  sourcemeta::jsontoolkit::default_schema_walker,
+  sourcemeta::jsontoolkit::official_resolver,
+  sourcemeta::blaze::default_schema_compiler,
 
-    // Fast validation means getting to a boolean result
-    // as fast as possible. Check out the documentation
-    // for how to get detailed error information and/or
-    // collect JSON Schema annotations
-    sourcemeta::blaze::Mode::FastValidation)};
+  // Fast validation means getting to a boolean result
+  // as fast as possible. Check out the documentation
+  // for how to get detailed error information and/or
+  // collect JSON Schema annotations
+  sourcemeta::blaze::Mode::FastValidation)};
 
 // (3) Get a JSON instance
 const sourcemeta::jsontoolkit::JSON instance{"Hello Blaze!"};
