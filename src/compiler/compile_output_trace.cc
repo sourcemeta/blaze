@@ -77,15 +77,21 @@ auto TraceOutput::operator()(
 
   auto effective_evaluate_path{evaluate_path.resolve_from(this->base_)};
 
+  auto keyword_location{std::visit(
+      [](const auto &value) { return value.keyword_location; }, step)};
+
   if (type == EvaluationType::Pre) {
     this->output.push_back({EntryType::Push, short_step_name, instance_location,
-                            std::move(effective_evaluate_path)});
+                            std::move(effective_evaluate_path),
+                            std::move(keyword_location)});
   } else if (result) {
     this->output.push_back({EntryType::Pass, short_step_name, instance_location,
-                            std::move(effective_evaluate_path)});
+                            std::move(effective_evaluate_path),
+                            std::move(keyword_location)});
   } else {
     this->output.push_back({EntryType::Fail, short_step_name, instance_location,
-                            std::move(effective_evaluate_path)});
+                            std::move(effective_evaluate_path),
+                            std::move(keyword_location)});
   }
 }
 
