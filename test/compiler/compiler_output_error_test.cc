@@ -31,13 +31,13 @@ TEST(Compiler_output_error_trace, success_string_1) {
 
   const sourcemeta::jsontoolkit::JSON instance{"foo"};
 
-  sourcemeta::blaze::ErrorTraceOutput output{instance};
+  sourcemeta::blaze::ErrorOutput output{instance};
   const auto result{
       sourcemeta::blaze::evaluate(schema_template, instance, std::ref(output))};
 
   EXPECT_TRUE(result);
-  std::vector<sourcemeta::blaze::ErrorTraceOutput::Entry> traces{
-      output.cbegin(), output.cend()};
+  std::vector<sourcemeta::blaze::ErrorOutput::Entry> traces{output.cbegin(),
+                                                            output.cend()};
   EXPECT_TRUE(traces.empty());
 }
 
@@ -69,13 +69,13 @@ TEST(Compiler_output_error_trace, fail_meaningless_if_1) {
     "bar": { "qux": {} }
   })JSON")};
 
-  sourcemeta::blaze::ErrorTraceOutput output{instance};
+  sourcemeta::blaze::ErrorOutput output{instance};
   const auto result{
       sourcemeta::blaze::evaluate(schema_template, instance, std::ref(output))};
 
   EXPECT_FALSE(result);
-  std::vector<sourcemeta::blaze::ErrorTraceOutput::Entry> traces{
-      output.cbegin(), output.cend()};
+  std::vector<sourcemeta::blaze::ErrorOutput::Entry> traces{output.cbegin(),
+                                                            output.cend()};
 
   EXPECT_EQ(traces.size(), 2);
 
@@ -107,13 +107,13 @@ TEST(Compiler_output_error_trace, success_dynamic_anchor_1) {
 
   const sourcemeta::jsontoolkit::JSON instance{"foo"};
 
-  sourcemeta::blaze::ErrorTraceOutput output{instance};
+  sourcemeta::blaze::ErrorOutput output{instance};
   const auto result{
       sourcemeta::blaze::evaluate(schema_template, instance, std::ref(output))};
 
   EXPECT_TRUE(result);
-  std::vector<sourcemeta::blaze::ErrorTraceOutput::Entry> traces{
-      output.cbegin(), output.cend()};
+  std::vector<sourcemeta::blaze::ErrorOutput::Entry> traces{output.cbegin(),
+                                                            output.cend()};
   EXPECT_TRUE(traces.empty());
 }
 
@@ -134,13 +134,13 @@ TEST(Compiler_output_error_trace, success_oneof_1) {
 
   const sourcemeta::jsontoolkit::JSON instance{"fo"};
 
-  sourcemeta::blaze::ErrorTraceOutput output{instance};
+  sourcemeta::blaze::ErrorOutput output{instance};
   const auto result{
       sourcemeta::blaze::evaluate(schema_template, instance, std::ref(output))};
 
   EXPECT_TRUE(result);
-  std::vector<sourcemeta::blaze::ErrorTraceOutput::Entry> traces{
-      output.cbegin(), output.cend()};
+  std::vector<sourcemeta::blaze::ErrorOutput::Entry> traces{output.cbegin(),
+                                                            output.cend()};
   EXPECT_TRUE(traces.empty());
 }
 
@@ -158,13 +158,13 @@ TEST(Compiler_output_error_trace, fail_string) {
 
   const sourcemeta::jsontoolkit::JSON instance{5};
 
-  sourcemeta::blaze::ErrorTraceOutput output{instance};
+  sourcemeta::blaze::ErrorOutput output{instance};
   const auto result{
       sourcemeta::blaze::evaluate(schema_template, instance, std::ref(output))};
 
   EXPECT_FALSE(result);
-  std::vector<sourcemeta::blaze::ErrorTraceOutput::Entry> traces{
-      output.cbegin(), output.cend()};
+  std::vector<sourcemeta::blaze::ErrorOutput::Entry> traces{output.cbegin(),
+                                                            output.cend()};
 
   EXPECT_EQ(traces.size(), 1);
   EXPECT_OUTPUT(
@@ -191,13 +191,13 @@ TEST(Compiler_output_error_trace, fail_string_over_ref) {
 
   const sourcemeta::jsontoolkit::JSON instance{5};
 
-  sourcemeta::blaze::ErrorTraceOutput output{instance};
+  sourcemeta::blaze::ErrorOutput output{instance};
   const auto result{
       sourcemeta::blaze::evaluate(schema_template, instance, std::ref(output))};
 
   EXPECT_FALSE(result);
-  std::vector<sourcemeta::blaze::ErrorTraceOutput::Entry> traces{
-      output.cbegin(), output.cend()};
+  std::vector<sourcemeta::blaze::ErrorOutput::Entry> traces{output.cbegin(),
+                                                            output.cend()};
 
   EXPECT_EQ(traces.size(), 1);
   EXPECT_OUTPUT(
@@ -226,13 +226,13 @@ TEST(Compiler_output_error_trace, fail_string_with_matching_base) {
 
   const std::string ref = "$ref";
   const sourcemeta::jsontoolkit::WeakPointer pointer{std::cref(ref)};
-  sourcemeta::blaze::ErrorTraceOutput output{instance, pointer};
+  sourcemeta::blaze::ErrorOutput output{instance, pointer};
   const auto result{
       sourcemeta::blaze::evaluate(schema_template, instance, std::ref(output))};
 
   EXPECT_FALSE(result);
-  std::vector<sourcemeta::blaze::ErrorTraceOutput::Entry> traces{
-      output.cbegin(), output.cend()};
+  std::vector<sourcemeta::blaze::ErrorOutput::Entry> traces{output.cbegin(),
+                                                            output.cend()};
 
   EXPECT_EQ(traces.size(), 1);
   EXPECT_OUTPUT(
@@ -260,13 +260,13 @@ TEST(Compiler_output_error_trace, fail_string_with_non_matching_base) {
   const sourcemeta::jsontoolkit::JSON instance{5};
   const std::string foo = "foo";
   const sourcemeta::jsontoolkit::WeakPointer pointer{std::cref(foo)};
-  sourcemeta::blaze::ErrorTraceOutput output{instance, pointer};
+  sourcemeta::blaze::ErrorOutput output{instance, pointer};
   const auto result{
       sourcemeta::blaze::evaluate(schema_template, instance, std::ref(output))};
 
   EXPECT_FALSE(result);
-  std::vector<sourcemeta::blaze::ErrorTraceOutput::Entry> traces{
-      output.cbegin(), output.cend()};
+  std::vector<sourcemeta::blaze::ErrorOutput::Entry> traces{output.cbegin(),
+                                                            output.cend()};
 
   EXPECT_EQ(traces.size(), 1);
   EXPECT_OUTPUT(
@@ -291,13 +291,13 @@ TEST(Compiler_output_error_trace, fail_oneof_1) {
 
   const sourcemeta::jsontoolkit::JSON instance{"foo"};
 
-  sourcemeta::blaze::ErrorTraceOutput output{instance};
+  sourcemeta::blaze::ErrorOutput output{instance};
   const auto result{
       sourcemeta::blaze::evaluate(schema_template, instance, std::ref(output))};
 
   EXPECT_FALSE(result);
-  std::vector<sourcemeta::blaze::ErrorTraceOutput::Entry> traces{
-      output.cbegin(), output.cend()};
+  std::vector<sourcemeta::blaze::ErrorOutput::Entry> traces{output.cbegin(),
+                                                            output.cend()};
 
   EXPECT_EQ(traces.size(), 1);
   EXPECT_OUTPUT(traces, 0, "", "/oneOf",
@@ -321,13 +321,13 @@ TEST(Compiler_output_error_trace, fail_not_1) {
 
   const sourcemeta::jsontoolkit::JSON instance{"foo"};
 
-  sourcemeta::blaze::ErrorTraceOutput output{instance};
+  sourcemeta::blaze::ErrorOutput output{instance};
   const auto result{
       sourcemeta::blaze::evaluate(schema_template, instance, std::ref(output))};
 
   EXPECT_FALSE(result);
-  std::vector<sourcemeta::blaze::ErrorTraceOutput::Entry> traces{
-      output.cbegin(), output.cend()};
+  std::vector<sourcemeta::blaze::ErrorOutput::Entry> traces{output.cbegin(),
+                                                            output.cend()};
 
   EXPECT_EQ(traces.size(), 1);
   EXPECT_OUTPUT(traces, 0, "", "/not",
@@ -353,13 +353,13 @@ TEST(Compiler_output_error_trace, fail_not_not_1) {
 
   const sourcemeta::jsontoolkit::JSON instance{1};
 
-  sourcemeta::blaze::ErrorTraceOutput output{instance};
+  sourcemeta::blaze::ErrorOutput output{instance};
   const auto result{
       sourcemeta::blaze::evaluate(schema_template, instance, std::ref(output))};
 
   EXPECT_FALSE(result);
-  std::vector<sourcemeta::blaze::ErrorTraceOutput::Entry> traces{
-      output.cbegin(), output.cend()};
+  std::vector<sourcemeta::blaze::ErrorOutput::Entry> traces{output.cbegin(),
+                                                            output.cend()};
 
   EXPECT_EQ(traces.size(), 1);
   EXPECT_OUTPUT(traces, 0, "", "/not",
