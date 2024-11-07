@@ -25,10 +25,17 @@ static auto step_name(const sourcemeta::blaze::Template::value_type &step)
       },
       step);
 }
+#elif defined(_MSC_VER)
+static auto step_name(const sourcemeta::blaze::Template::value_type &step)
+    -> std::string {
+  return std::visit(
+      [](const auto &value) { return std::string{typeid(value).name()}; },
+      step);
+}
 #else
 static auto step_name(const sourcemeta::blaze::Template::value_type &)
     -> std::string {
-  // TODO: Properly implement for GCC and MSVC
+  // TODO: Properly implement for GCC
   return "????";
 }
 #endif
@@ -56,7 +63,13 @@ auto TraceOutput::operator()(
     const sourcemeta::jsontoolkit::WeakPointer &evaluate_path,
     const sourcemeta::jsontoolkit::WeakPointer &instance_location,
     const sourcemeta::jsontoolkit::JSON &) -> void {
+
+#if defined(_MSC_VER)
+  const std::string step_prefix{"struct sourcemeta::blaze::"};
+#else
   const std::string step_prefix{"sourcemeta::blaze::"};
+#endif
+
   const auto full_step_name{step_name(step)};
   const auto short_step_name{full_step_name.starts_with(step_prefix)
                                  ? full_step_name.substr(step_prefix.size())

@@ -6,7 +6,7 @@
 #include <sourcemeta/jsontoolkit/jsonpointer.h>
 #include <sourcemeta/jsontoolkit/jsonschema.h>
 
-#ifdef __clang__
+#if defined(__clang__) || defined(_MSC_VER)
 #define EXPECT_OUTPUT(traces, index, expected_type, expected_name,             \
                       expected_instance_location, expected_evaluate_path)      \
   EXPECT_TRUE(traces.size() > index);                                          \
