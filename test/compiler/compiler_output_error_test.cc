@@ -17,7 +17,7 @@
       sourcemeta::jsontoolkit::to_string(traces.at((index)).evaluate_path),    \
       expected_evaluate_path);
 
-TEST(Compiler_output_error_trace, success_string_1) {
+TEST(Compiler_output_error, success_string_1) {
   const sourcemeta::jsontoolkit::JSON schema{
       sourcemeta::jsontoolkit::parse(R"JSON({
     "$schema": "https://json-schema.org/draft/2020-12/schema",
@@ -41,7 +41,7 @@ TEST(Compiler_output_error_trace, success_string_1) {
   EXPECT_TRUE(traces.empty());
 }
 
-TEST(Compiler_output_error_trace, fail_meaningless_if_1) {
+TEST(Compiler_output_error, fail_meaningless_if_1) {
   const sourcemeta::jsontoolkit::JSON schema{
       sourcemeta::jsontoolkit::parse(R"JSON({
     "$schema": "https://json-schema.org/draft/2019-09/schema",
@@ -87,7 +87,7 @@ TEST(Compiler_output_error_trace, fail_meaningless_if_1) {
       "The object value was not expected to define unevaluated properties");
 }
 
-TEST(Compiler_output_error_trace, success_dynamic_anchor_1) {
+TEST(Compiler_output_error, success_dynamic_anchor_1) {
   const sourcemeta::jsontoolkit::JSON schema{
       sourcemeta::jsontoolkit::parse(R"JSON({
     "$schema": "https://json-schema.org/draft/2020-12/schema",
@@ -117,7 +117,7 @@ TEST(Compiler_output_error_trace, success_dynamic_anchor_1) {
   EXPECT_TRUE(traces.empty());
 }
 
-TEST(Compiler_output_error_trace, success_oneof_1) {
+TEST(Compiler_output_error, success_oneof_1) {
   const sourcemeta::jsontoolkit::JSON schema{
       sourcemeta::jsontoolkit::parse(R"JSON({
     "$schema": "https://json-schema.org/draft/2020-12/schema",
@@ -144,7 +144,7 @@ TEST(Compiler_output_error_trace, success_oneof_1) {
   EXPECT_TRUE(traces.empty());
 }
 
-TEST(Compiler_output_error_trace, fail_string) {
+TEST(Compiler_output_error, fail_string) {
   const sourcemeta::jsontoolkit::JSON schema{
       sourcemeta::jsontoolkit::parse(R"JSON({
     "$schema": "https://json-schema.org/draft/2020-12/schema",
@@ -172,7 +172,7 @@ TEST(Compiler_output_error_trace, fail_string) {
       "The value was expected to be of type string but it was of type integer");
 }
 
-TEST(Compiler_output_error_trace, fail_string_over_ref) {
+TEST(Compiler_output_error, fail_string_over_ref) {
   const sourcemeta::jsontoolkit::JSON schema{
       sourcemeta::jsontoolkit::parse(R"JSON({
     "$schema": "https://json-schema.org/draft/2020-12/schema",
@@ -205,7 +205,7 @@ TEST(Compiler_output_error_trace, fail_string_over_ref) {
       "The value was expected to be of type string but it was of type integer");
 }
 
-TEST(Compiler_output_error_trace, fail_string_with_matching_base) {
+TEST(Compiler_output_error, fail_string_with_matching_base) {
   const sourcemeta::jsontoolkit::JSON schema{
       sourcemeta::jsontoolkit::parse(R"JSON({
     "$schema": "https://json-schema.org/draft/2020-12/schema",
@@ -240,7 +240,7 @@ TEST(Compiler_output_error_trace, fail_string_with_matching_base) {
       "The value was expected to be of type string but it was of type integer");
 }
 
-TEST(Compiler_output_error_trace, fail_string_with_non_matching_base) {
+TEST(Compiler_output_error, fail_string_with_non_matching_base) {
   const sourcemeta::jsontoolkit::JSON schema{
       sourcemeta::jsontoolkit::parse(R"JSON({
     "$schema": "https://json-schema.org/draft/2020-12/schema",
@@ -274,7 +274,7 @@ TEST(Compiler_output_error_trace, fail_string_with_non_matching_base) {
       "The value was expected to be of type string but it was of type integer");
 }
 
-TEST(Compiler_output_error_trace, fail_oneof_1) {
+TEST(Compiler_output_error, fail_oneof_1) {
   const sourcemeta::jsontoolkit::JSON schema{
       sourcemeta::jsontoolkit::parse(R"JSON({
     "$schema": "https://json-schema.org/draft/2020-12/schema",
@@ -305,7 +305,7 @@ TEST(Compiler_output_error_trace, fail_oneof_1) {
                 "only one of the 2 given subschemas");
 }
 
-TEST(Compiler_output_error_trace, fail_not_1) {
+TEST(Compiler_output_error, fail_not_1) {
   const sourcemeta::jsontoolkit::JSON schema{
       sourcemeta::jsontoolkit::parse(R"JSON({
     "$schema": "https://json-schema.org/draft/2020-12/schema",
@@ -335,7 +335,7 @@ TEST(Compiler_output_error_trace, fail_not_1) {
                 "given subschema, but it did");
 }
 
-TEST(Compiler_output_error_trace, fail_not_not_1) {
+TEST(Compiler_output_error, fail_not_not_1) {
   const sourcemeta::jsontoolkit::JSON schema{
       sourcemeta::jsontoolkit::parse(R"JSON({
     "$schema": "https://json-schema.org/draft/2020-12/schema",
