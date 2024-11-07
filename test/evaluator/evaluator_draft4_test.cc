@@ -2738,6 +2738,86 @@ TEST(Evaluator_draft4, items_8) {
       "the corresponding subschemas");
 }
 
+TEST(Evaluator_draft4, items_9) {
+  const sourcemeta::jsontoolkit::JSON schema{
+      sourcemeta::jsontoolkit::parse(R"JSON({
+    "$schema": "http://json-schema.org/draft-04/schema#",
+    "properties": {
+      "foo": {
+        "properties": {
+          "bar": {
+            "items": {
+              "type": "string"
+            }
+          }
+        }
+      }
+    }
+  })JSON")};
+
+  const sourcemeta::jsontoolkit::JSON instance{
+      sourcemeta::jsontoolkit::parse("{ \"foo\": {}, \"bar\": [] }")};
+  EVALUATE_WITH_TRACE_FAST_SUCCESS(schema, instance, 0);
+}
+
+TEST(Evaluator_draft4, items_10) {
+  // Adapted from GeoJSON
+  const sourcemeta::jsontoolkit::JSON schema{
+      sourcemeta::jsontoolkit::parse(R"JSON({
+    "$schema": "http://json-schema.org/draft-04/schema#",
+    "properties": {
+      "features": {
+        "items": {
+          "properties": {
+            "geometry": {
+              "type": "object",
+              "required": [ "geometries" ],
+              "properties": {
+                "geometries": {
+                  "items": {
+                    "type": "string"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  })JSON")};
+
+  const sourcemeta::jsontoolkit::JSON instance{
+      sourcemeta::jsontoolkit::parse(R"JSON({
+    "features": [
+      { "geometry": null }
+    ]
+  })JSON")};
+
+  EVALUATE_WITH_TRACE_FAST_FAILURE(schema, instance, 2);
+
+  EVALUATE_TRACE_PRE(0, LoopItems, "/properties/features/items",
+                     "#/properties/features/items", "/features");
+  EVALUATE_TRACE_PRE(1, AssertionTypeStrict,
+                     "/properties/features/items/properties/geometry/type",
+                     "#/properties/features/items/properties/geometry/type",
+                     "/features/0/geometry");
+
+  EVALUATE_TRACE_POST_FAILURE(
+      0, AssertionTypeStrict,
+      "/properties/features/items/properties/geometry/type",
+      "#/properties/features/items/properties/geometry/type",
+      "/features/0/geometry");
+  EVALUATE_TRACE_POST_FAILURE(1, LoopItems, "/properties/features/items",
+                              "#/properties/features/items", "/features");
+
+  EVALUATE_TRACE_POST_DESCRIBE(
+      instance, 0,
+      "The value was expected to be of type object but it was of type null");
+  EVALUATE_TRACE_POST_DESCRIBE(instance, 1,
+                               "Every item in the array value was expected to "
+                               "validate against the given subschema");
+}
+
 TEST(Evaluator_draft4, additionalItems_1) {
   const sourcemeta::jsontoolkit::JSON schema{
       sourcemeta::jsontoolkit::parse(R"JSON({
