@@ -8,7 +8,8 @@
 
 #if defined(__clang__) || defined(_MSC_VER)
 #define EXPECT_OUTPUT(traces, index, expected_type, expected_name,             \
-                      expected_instance_location, expected_evaluate_path)      \
+                      expected_instance_location, expected_evaluate_path,      \
+                      expected_keyword_location)                               \
   EXPECT_TRUE(traces.size() > index);                                          \
   EXPECT_EQ(traces.at((index)).type,                                           \
             sourcemeta::blaze::TraceOutput::EntryType::expected_type);         \
@@ -18,10 +19,12 @@
             expected_instance_location);                                       \
   EXPECT_EQ(                                                                   \
       sourcemeta::jsontoolkit::to_string(traces.at((index)).evaluate_path),    \
-      expected_evaluate_path);
+      expected_evaluate_path);                                                 \
+  EXPECT_EQ(traces.at((index)).keyword_location, (expected_keyword_location));
 #else
 #define EXPECT_OUTPUT(traces, index, expected_type, expected_name,             \
-                      expected_instance_location, expected_evaluate_path)      \
+                      expected_instance_location, expected_evaluate_path,      \
+                      expected_keyword_location)                               \
   EXPECT_TRUE(traces.size() > index);                                          \
   EXPECT_EQ(traces.at((index)).type,                                           \
             sourcemeta::blaze::TraceOutput::EntryType::expected_type);         \
@@ -31,7 +34,8 @@
             expected_instance_location);                                       \
   EXPECT_EQ(                                                                   \
       sourcemeta::jsontoolkit::to_string(traces.at((index)).evaluate_path),    \
-      expected_evaluate_path);
+      expected_evaluate_path);                                                 \
+  EXPECT_EQ(traces.at((index)).keyword_location, (expected_keyword_location));
 #endif
 
 TEST(Compiler_output_trace, pass_1) {
@@ -67,13 +71,13 @@ TEST(Compiler_output_trace, pass_1) {
   EXPECT_EQ(traces.size(), 4);
 
   EXPECT_OUTPUT(traces, 0, Push, "AssertionPropertyTypeStrict", "/foo",
-                "/properties/foo/type");
+                "/properties/foo/type", "#/properties/foo/type");
   EXPECT_OUTPUT(traces, 1, Pass, "AssertionPropertyTypeStrict", "/foo",
-                "/properties/foo/type");
+                "/properties/foo/type", "#/properties/foo/type");
   EXPECT_OUTPUT(traces, 2, Push, "LoopPropertiesWhitelist", "",
-                "/additionalProperties");
+                "/additionalProperties", "#/additionalProperties");
   EXPECT_OUTPUT(traces, 3, Pass, "LoopPropertiesWhitelist", "",
-                "/additionalProperties");
+                "/additionalProperties", "#/additionalProperties");
 }
 
 TEST(Compiler_output_trace, pass_with_matching_prefix_1) {
@@ -115,11 +119,11 @@ TEST(Compiler_output_trace, pass_with_matching_prefix_1) {
   EXPECT_EQ(traces.size(), 4);
 
   EXPECT_OUTPUT(traces, 0, Push, "AssertionPropertyTypeStrict", "/foo",
-                "/properties/foo/type");
+                "/properties/foo/type", "#/$defs/helper/properties/foo/type");
   EXPECT_OUTPUT(traces, 1, Pass, "AssertionPropertyTypeStrict", "/foo",
-                "/properties/foo/type");
+                "/properties/foo/type", "#/$defs/helper/properties/foo/type");
   EXPECT_OUTPUT(traces, 2, Push, "LoopPropertiesWhitelist", "",
-                "/additionalProperties");
+                "/additionalProperties", "#/$defs/helper/additionalProperties");
   EXPECT_OUTPUT(traces, 3, Pass, "LoopPropertiesWhitelist", "",
-                "/additionalProperties");
+                "/additionalProperties", "#/$defs/helper/additionalProperties");
 }
