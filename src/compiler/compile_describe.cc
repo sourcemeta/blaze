@@ -1004,10 +1004,11 @@ struct DescribeVisitor {
   }
 
   auto operator()(const AssertionRegex &step) const -> std::string {
-    if (this->evaluate_path.size() > 1 &&
-        this->evaluate_path.at(this->evaluate_path.size() - 2).is_property() &&
-        this->evaluate_path.at(this->evaluate_path.size() - 2).to_property() ==
-            "propertyNames" &&
+    if (std::any_of(this->evaluate_path.cbegin(), this->evaluate_path.cend(),
+                    [](const auto &token) {
+                      return token.is_property() &&
+                             token.to_property() == "propertyNames";
+                    }) &&
         !this->instance_location.empty() &&
         this->instance_location.back().is_property()) {
       std::ostringstream message;
