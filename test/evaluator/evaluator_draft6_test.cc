@@ -756,6 +756,34 @@ TEST(Evaluator_draft6, propertyNames_5) {
   }
 }
 
+TEST(Evaluator_draft6, propertyNames_6) {
+  const sourcemeta::jsontoolkit::JSON schema{
+      sourcemeta::jsontoolkit::parse(R"JSON({
+    "$schema": "http://json-schema.org/draft-06/schema#",
+    "propertyNames": { "pattern": "^f" }
+  })JSON")};
+
+  const sourcemeta::jsontoolkit::JSON instance{
+      sourcemeta::jsontoolkit::parse("{ \"bar\": 2 }")};
+  EVALUATE_WITH_TRACE_FAST_FAILURE(schema, instance, 2);
+
+  EVALUATE_TRACE_PRE(0, LoopKeys, "/propertyNames", "#/propertyNames", "");
+  EVALUATE_TRACE_PRE(1, AssertionRegex, "/propertyNames/pattern",
+                     "#/propertyNames/pattern", "/bar");
+
+  EVALUATE_TRACE_POST_FAILURE(0, AssertionRegex, "/propertyNames/pattern",
+                              "#/propertyNames/pattern", "/bar");
+  EVALUATE_TRACE_POST_FAILURE(1, LoopKeys, "/propertyNames", "#/propertyNames",
+                              "");
+
+  EVALUATE_TRACE_POST_DESCRIBE(instance, 0,
+                               "The property name \"bar\" was expected to "
+                               "match the regular expression \"^f\"");
+  EVALUATE_TRACE_POST_DESCRIBE(instance, 1,
+                               "The object property \"bar\" was expected to "
+                               "validate against the given subschema");
+}
+
 TEST(Evaluator_draft6, invalid_ref_top_level) {
   const sourcemeta::jsontoolkit::JSON schema{
       sourcemeta::jsontoolkit::parse(R"JSON({

@@ -1004,6 +1004,20 @@ struct DescribeVisitor {
   }
 
   auto operator()(const AssertionRegex &step) const -> std::string {
+    if (this->evaluate_path.size() > 1 &&
+        this->evaluate_path.at(this->evaluate_path.size() - 2).is_property() &&
+        this->evaluate_path.at(this->evaluate_path.size() - 2).to_property() ==
+            "propertyNames" &&
+        !this->instance_location.empty() &&
+        this->instance_location.back().is_property()) {
+      std::ostringstream message;
+      message << "The property name "
+              << escape_string(this->instance_location.back().to_property())
+              << " was expected to match the regular expression "
+              << escape_string(step_value(step).second);
+      return message.str();
+    }
+
     assert(this->target.is_string());
     std::ostringstream message;
     message << "The string value " << escape_string(this->target.to_string())
