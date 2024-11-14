@@ -673,6 +673,89 @@ TEST(Evaluator_draft6, propertyNames_4) {
   EVALUATE_WITH_TRACE_FAST_SUCCESS(schema, instance, 0);
 }
 
+TEST(Evaluator_draft6, propertyNames_5) {
+  const sourcemeta::jsontoolkit::JSON schema{
+      sourcemeta::jsontoolkit::parse(R"JSON({
+    "$schema": "http://json-schema.org/draft-06/schema#",
+    "type": "object",
+    "propertyNames": { "minLength": 3 }
+  })JSON")};
+
+  const sourcemeta::jsontoolkit::JSON instance{
+      sourcemeta::jsontoolkit::parse("{ \"foo\": 1, \"bar\": 2 }")};
+  EVALUATE_WITH_TRACE_FAST_SUCCESS(schema, instance, 4);
+
+  if (FIRST_PROPERTY_IS(instance, "foo")) {
+    EVALUATE_TRACE_PRE(0, LoopKeys, "/propertyNames", "#/propertyNames", "");
+    EVALUATE_TRACE_PRE(1, AssertionStringSizeGreater,
+                       "/propertyNames/minLength", "#/propertyNames/minLength",
+                       "/foo");
+    EVALUATE_TRACE_PRE(2, AssertionStringSizeGreater,
+                       "/propertyNames/minLength", "#/propertyNames/minLength",
+                       "/bar");
+    EVALUATE_TRACE_PRE(3, AssertionTypeStrict, "/type", "#/type", "");
+
+    EVALUATE_TRACE_POST_SUCCESS(0, AssertionStringSizeGreater,
+                                "/propertyNames/minLength",
+                                "#/propertyNames/minLength", "/foo");
+    EVALUATE_TRACE_POST_SUCCESS(1, AssertionStringSizeGreater,
+                                "/propertyNames/minLength",
+                                "#/propertyNames/minLength", "/bar");
+    EVALUATE_TRACE_POST_SUCCESS(2, LoopKeys, "/propertyNames",
+                                "#/propertyNames", "");
+    EVALUATE_TRACE_POST_SUCCESS(3, AssertionTypeStrict, "/type", "#/type", "");
+
+    EVALUATE_TRACE_POST_DESCRIBE(instance, 0,
+                                 "The object property name \"foo\" was "
+                                 "expected to consist of at least 3 "
+                                 "characters and it consisted of 3 characters");
+    EVALUATE_TRACE_POST_DESCRIBE(instance, 1,
+                                 "The object property name \"bar\" was "
+                                 "expected to consist of at least 3 "
+                                 "characters and it consisted of 3 characters");
+    EVALUATE_TRACE_POST_DESCRIBE(
+        instance, 2,
+        "The object properties \"foo\", and \"bar\" were expected to "
+        "validate against the given subschema");
+    EVALUATE_TRACE_POST_DESCRIBE(instance, 3,
+                                 "The value was expected to be of type object");
+  } else {
+    EVALUATE_TRACE_PRE(0, LoopKeys, "/propertyNames", "#/propertyNames", "");
+    EVALUATE_TRACE_PRE(1, AssertionStringSizeGreater,
+                       "/propertyNames/minLength", "#/propertyNames/minLength",
+                       "/bar");
+    EVALUATE_TRACE_PRE(2, AssertionStringSizeGreater,
+                       "/propertyNames/minLength", "#/propertyNames/minLength",
+                       "/foo");
+    EVALUATE_TRACE_PRE(3, AssertionTypeStrict, "/type", "#/type", "");
+
+    EVALUATE_TRACE_POST_SUCCESS(0, AssertionStringSizeGreater,
+                                "/propertyNames/minLength",
+                                "#/propertyNames/minLength", "/bar");
+    EVALUATE_TRACE_POST_SUCCESS(1, AssertionStringSizeGreater,
+                                "/propertyNames/minLength",
+                                "#/propertyNames/minLength", "/foo");
+    EVALUATE_TRACE_POST_SUCCESS(2, LoopKeys, "/propertyNames",
+                                "#/propertyNames", "");
+    EVALUATE_TRACE_POST_SUCCESS(3, AssertionTypeStrict, "/type", "#/type", "");
+
+    EVALUATE_TRACE_POST_DESCRIBE(instance, 0,
+                                 "The object property name \"bar\" was "
+                                 "expected to consist of at least 3 "
+                                 "characters and it consisted of 3 characters");
+    EVALUATE_TRACE_POST_DESCRIBE(instance, 1,
+                                 "The object property name \"foo\" was "
+                                 "expected to consist of at least 3 "
+                                 "characters and it consisted of 3 characters");
+    EVALUATE_TRACE_POST_DESCRIBE(
+        instance, 2,
+        "The object properties \"bar\", and \"foo\" were expected to "
+        "validate against the given subschema");
+    EVALUATE_TRACE_POST_DESCRIBE(instance, 3,
+                                 "The value was expected to be of type object");
+  }
+}
+
 TEST(Evaluator_draft6, invalid_ref_top_level) {
   const sourcemeta::jsontoolkit::JSON schema{
       sourcemeta::jsontoolkit::parse(R"JSON({
