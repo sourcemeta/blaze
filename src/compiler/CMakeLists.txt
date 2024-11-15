@@ -15,6 +15,8 @@ if(BLAZE_INSTALL)
   noa_library_install(NAMESPACE sourcemeta PROJECT blaze NAME compiler)
 endif()
 
+target_link_libraries(sourcemeta_blaze_compiler PRIVATE
+  Boost::regex)
 target_link_libraries(sourcemeta_blaze_compiler PUBLIC
   sourcemeta::jsontoolkit::json)
 target_link_libraries(sourcemeta_blaze_compiler PUBLIC

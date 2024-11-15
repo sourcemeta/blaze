@@ -35,6 +35,7 @@ endif()
 
 if(BLAZE_COMPILER OR BLAZE_EVALUATOR)
   find_package(JSONToolkit REQUIRED)
+  find_package(BoostRegex REQUIRED)
 endif()
 
 if(BLAZE_COMPILER)

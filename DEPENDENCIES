@@ -4,3 +4,4 @@ jsontoolkit https://github.com/sourcemeta/jsontoolkit 7a398224cc2e76ea9ae8541a87
 googletest https://github.com/google/googletest a7f443b80b105f940225332ed3c31f2790092f47
 googlebenchmark https://github.com/google/benchmark 378fe693a1ef51500db21b11ff05a8018c5f0e55
 jsonschema-test-suite https://github.com/json-schema-org/JSON-Schema-Test-Suite c2badb1298a8698f86dadf1aea7b44b3a894e5ac
+boost-regex https://github.com/boostorg/regex boost-1.86.0

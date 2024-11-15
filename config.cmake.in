@@ -10,6 +10,7 @@ endif()
 
 include(CMakeFindDependencyMacro)
 find_dependency(JSONToolkit COMPONENTS uri json jsonpointer jsonschema)
+find_dependency(BoostRegex)
 
 foreach(component ${BLAZE_COMPONENTS})
   if(component STREQUAL "compiler")

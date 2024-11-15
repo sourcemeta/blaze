@@ -4,6 +4,17 @@
 #include <sourcemeta/blaze/compiler.h>
 #include <sourcemeta/jsontoolkit/uri.h>
 
+#if defined(__clang__)
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wdocumentation"
+#pragma clang diagnostic ignored "-Wsign-conversion"
+#pragma clang diagnostic ignored "-Wshorten-64-to-32"
+#endif
+#include <boost/regex.hpp>
+#if defined(__clang__)
+#pragma clang diagnostic pop
+#endif
+
 #include <algorithm> // std::find
 #include <cassert>   // assert
 #include <iterator>  // std::distance
