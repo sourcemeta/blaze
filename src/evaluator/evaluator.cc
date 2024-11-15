@@ -1102,6 +1102,37 @@ auto evaluate_step(const sourcemeta::blaze::Template::value_type &step,
       EVALUATE_END(loop, LoopPropertiesRegex);
     }
 
+    case IS_STEP(LoopPropertiesRegexClosed): {
+      EVALUATE_BEGIN(loop, LoopPropertiesRegexClosed, target.is_object());
+      result = true;
+      for (const auto &entry : target.as_object()) {
+        if (!std::regex_search(entry.first, loop.value.first)) {
+          result = false;
+          break;
+        }
+
+        if (loop.children.empty()) {
+          continue;
+        }
+
+        context.enter(entry.first, track);
+        for (const auto &child : loop.children) {
+          if (!evaluate_step(child, callback, context)) {
+            result = false;
+            context.leave(track);
+
+            // For efficiently breaking from the outer loop too
+            goto evaluate_loop_properties_regex_closed_end;
+          }
+        }
+
+        context.leave(track);
+      }
+
+    evaluate_loop_properties_regex_closed_end:
+      EVALUATE_END(loop, LoopPropertiesRegexClosed);
+    }
+
     case IS_STEP(LoopPropertiesStartsWith): {
       EVALUATE_BEGIN(loop, LoopPropertiesStartsWith, target.is_object());
       assert(!loop.children.empty());

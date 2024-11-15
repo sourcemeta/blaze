@@ -1842,6 +1842,183 @@ TEST(Evaluator_draft4, patternProperties_10) {
       "validate against the defined pattern property subschema");
 }
 
+TEST(Evaluator_draft4, patternProperties_11) {
+  const sourcemeta::jsontoolkit::JSON schema{
+      sourcemeta::jsontoolkit::parse(R"JSON({
+    "$schema": "http://json-schema.org/draft-04/schema#",
+    "patternProperties": { "^[a-z]+$": { "type": "string" } },
+    "additionalProperties": false
+  })JSON")};
+
+  const sourcemeta::jsontoolkit::JSON instance{
+      sourcemeta::jsontoolkit::parse("{ \"foo\": \"bar\" }")};
+
+  EVALUATE_WITH_TRACE_FAST_SUCCESS(schema, instance, 2);
+
+  EVALUATE_TRACE_PRE(0, LoopPropertiesRegexClosed, "/patternProperties",
+                     "#/patternProperties", "");
+  EVALUATE_TRACE_PRE(1, AssertionTypeStrict, "/patternProperties/^[a-z]+$/type",
+                     // Note that the caret needs to be URI escaped
+                     "#/patternProperties/%5E%5Ba-z%5D%2B$/type", "/foo");
+
+  EVALUATE_TRACE_POST_SUCCESS(
+      0, AssertionTypeStrict, "/patternProperties/^[a-z]+$/type",
+      // Note that the caret needs to be URI escaped
+      "#/patternProperties/%5E%5Ba-z%5D%2B$/type", "/foo");
+  EVALUATE_TRACE_POST_SUCCESS(1, LoopPropertiesRegexClosed,
+                              "/patternProperties", "#/patternProperties", "");
+
+  EVALUATE_TRACE_POST_DESCRIBE(instance, 0,
+                               "The value was expected to be of type string");
+  EVALUATE_TRACE_POST_DESCRIBE(
+      instance, 1,
+      "The object properties were expected to match the regular expression "
+      "\"^[a-z]+$\" and validate against the defined pattern property "
+      "subschema");
+}
+
+TEST(Evaluator_draft4, patternProperties_11_exhaustive) {
+  const sourcemeta::jsontoolkit::JSON schema{
+      sourcemeta::jsontoolkit::parse(R"JSON({
+    "$schema": "http://json-schema.org/draft-04/schema#",
+    "patternProperties": { "^[a-z]+$": { "type": "string" } },
+    "additionalProperties": false
+  })JSON")};
+
+  const sourcemeta::jsontoolkit::JSON instance{
+      sourcemeta::jsontoolkit::parse("{ \"foo\": \"bar\" }")};
+
+  EVALUATE_WITH_TRACE_EXHAUSTIVE_SUCCESS(schema, instance, 3);
+
+  EVALUATE_TRACE_PRE(0, LoopPropertiesRegex, "/patternProperties",
+                     "#/patternProperties", "");
+  EVALUATE_TRACE_PRE(1, AssertionTypeStrict, "/patternProperties/^[a-z]+$/type",
+                     // Note that the caret needs to be URI escaped
+                     "#/patternProperties/%5E%5Ba-z%5D%2B$/type", "/foo");
+  EVALUATE_TRACE_PRE(2, LoopPropertiesExcept, "/additionalProperties",
+                     "#/additionalProperties", "");
+
+  EVALUATE_TRACE_POST_SUCCESS(
+      0, AssertionTypeStrict, "/patternProperties/^[a-z]+$/type",
+      // Note that the caret needs to be URI escaped
+      "#/patternProperties/%5E%5Ba-z%5D%2B$/type", "/foo");
+  EVALUATE_TRACE_POST_SUCCESS(1, LoopPropertiesRegex, "/patternProperties",
+                              "#/patternProperties", "");
+  EVALUATE_TRACE_POST_SUCCESS(2, LoopPropertiesExcept, "/additionalProperties",
+                              "#/additionalProperties", "");
+
+  EVALUATE_TRACE_POST_DESCRIBE(instance, 0,
+                               "The value was expected to be of type string");
+  EVALUATE_TRACE_POST_DESCRIBE(
+      instance, 1,
+      "The object properties that match the regular expression \"^[a-z]+$\" "
+      "were expected to validate against the defined pattern property "
+      "subschema");
+  EVALUATE_TRACE_POST_DESCRIBE(
+      instance, 2,
+      "The object value was not expected to define additional properties");
+}
+
+TEST(Evaluator_draft4, patternProperties_12) {
+  const sourcemeta::jsontoolkit::JSON schema{
+      sourcemeta::jsontoolkit::parse(R"JSON({
+    "$schema": "http://json-schema.org/draft-04/schema#",
+    "patternProperties": { "^[a-z]+$": { "type": "string" } },
+    "additionalProperties": false
+  })JSON")};
+
+  const sourcemeta::jsontoolkit::JSON instance{sourcemeta::jsontoolkit::parse(
+      "{ \"foo\": \"bar\", \"@bar\": \"baz\" }")};
+
+  if (FIRST_PROPERTY_IS(instance, "foo")) {
+    EVALUATE_WITH_TRACE_FAST_FAILURE(schema, instance, 2);
+
+    EVALUATE_TRACE_PRE(0, LoopPropertiesRegexClosed, "/patternProperties",
+                       "#/patternProperties", "");
+    EVALUATE_TRACE_PRE(1, AssertionTypeStrict,
+                       "/patternProperties/^[a-z]+$/type",
+                       // Note that the caret needs to be URI escaped
+                       "#/patternProperties/%5E%5Ba-z%5D%2B$/type", "/foo");
+
+    EVALUATE_TRACE_POST_SUCCESS(
+        0, AssertionTypeStrict, "/patternProperties/^[a-z]+$/type",
+        // Note that the caret needs to be URI escaped
+        "#/patternProperties/%5E%5Ba-z%5D%2B$/type", "/foo");
+    EVALUATE_TRACE_POST_FAILURE(1, LoopPropertiesRegexClosed,
+                                "/patternProperties", "#/patternProperties",
+                                "");
+
+    EVALUATE_TRACE_POST_DESCRIBE(instance, 0,
+                                 "The value was expected to be of type string");
+    EVALUATE_TRACE_POST_DESCRIBE(
+        instance, 1,
+        "The object properties were expected to match the regular expression "
+        "\"^[a-z]+$\" and validate against the defined pattern property "
+        "subschema");
+  } else {
+    EVALUATE_WITH_TRACE_FAST_FAILURE(schema, instance, 1);
+
+    EVALUATE_TRACE_PRE(0, LoopPropertiesRegexClosed, "/patternProperties",
+                       "#/patternProperties", "");
+    EVALUATE_TRACE_POST_FAILURE(0, LoopPropertiesRegexClosed,
+                                "/patternProperties", "#/patternProperties",
+                                "");
+    EVALUATE_TRACE_POST_DESCRIBE(
+        instance, 0,
+        "The object properties were expected to match the regular expression "
+        "\"^[a-z]+$\" and validate against the defined pattern property "
+        "subschema");
+  }
+}
+
+TEST(Evaluator_draft4, patternProperties_13) {
+  const sourcemeta::jsontoolkit::JSON schema{
+      sourcemeta::jsontoolkit::parse(R"JSON({
+    "$schema": "http://json-schema.org/draft-04/schema#",
+    "patternProperties": { "^[a-z]+$": true },
+    "additionalProperties": false
+  })JSON")};
+
+  const sourcemeta::jsontoolkit::JSON instance{
+      sourcemeta::jsontoolkit::parse("{ \"foo\": \"bar\" }")};
+
+  EVALUATE_WITH_TRACE_FAST_SUCCESS(schema, instance, 1);
+
+  EVALUATE_TRACE_PRE(0, LoopPropertiesRegexClosed, "/patternProperties",
+                     "#/patternProperties", "");
+  EVALUATE_TRACE_POST_SUCCESS(0, LoopPropertiesRegexClosed,
+                              "/patternProperties", "#/patternProperties", "");
+  EVALUATE_TRACE_POST_DESCRIBE(
+      instance, 0,
+      "The object properties were expected to match the regular expression "
+      "\"^[a-z]+$\" and validate against the defined pattern property "
+      "subschema");
+}
+
+TEST(Evaluator_draft4, patternProperties_14) {
+  const sourcemeta::jsontoolkit::JSON schema{
+      sourcemeta::jsontoolkit::parse(R"JSON({
+    "$schema": "http://json-schema.org/draft-04/schema#",
+    "patternProperties": { "^[a-z]+$": true },
+    "additionalProperties": false
+  })JSON")};
+
+  const sourcemeta::jsontoolkit::JSON instance{
+      sourcemeta::jsontoolkit::parse("{ \"foo\": \"bar\", \"@bar\": 1 }")};
+
+  EVALUATE_WITH_TRACE_FAST_FAILURE(schema, instance, 1);
+
+  EVALUATE_TRACE_PRE(0, LoopPropertiesRegexClosed, "/patternProperties",
+                     "#/patternProperties", "");
+  EVALUATE_TRACE_POST_FAILURE(0, LoopPropertiesRegexClosed,
+                              "/patternProperties", "#/patternProperties", "");
+  EVALUATE_TRACE_POST_DESCRIBE(
+      instance, 0,
+      "The object properties were expected to match the regular expression "
+      "\"^[a-z]+$\" and validate against the defined pattern property "
+      "subschema");
+}
+
 TEST(Evaluator_draft4, additionalProperties_1) {
   const sourcemeta::jsontoolkit::JSON schema{
       sourcemeta::jsontoolkit::parse(R"JSON({

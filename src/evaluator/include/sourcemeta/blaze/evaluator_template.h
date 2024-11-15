@@ -67,6 +67,7 @@ struct LoopPropertiesMatch;
 struct LoopProperties;
 struct LoopPropertiesEvaluate;
 struct LoopPropertiesRegex;
+struct LoopPropertiesRegexClosed;
 struct LoopPropertiesStartsWith;
 struct LoopPropertiesExcept;
 struct LoopPropertiesWhitelist;
@@ -113,11 +114,12 @@ using Template = std::vector<std::variant<
     LogicalWhenType, LogicalWhenDefines, LogicalWhenArraySizeGreater,
     LoopPropertiesUnevaluated, LoopPropertiesUnevaluatedExcept,
     LoopPropertiesMatch, LoopProperties, LoopPropertiesEvaluate,
-    LoopPropertiesRegex, LoopPropertiesStartsWith, LoopPropertiesExcept,
-    LoopPropertiesWhitelist, LoopPropertiesType, LoopPropertiesTypeEvaluate,
-    LoopPropertiesTypeStrict, LoopPropertiesTypeStrictEvaluate,
-    LoopPropertiesTypeStrictAny, LoopPropertiesTypeStrictAnyEvaluate, LoopKeys,
-    LoopItems, LoopItemsUnevaluated, LoopItemsType, LoopItemsTypeStrict,
+    LoopPropertiesRegex, LoopPropertiesRegexClosed, LoopPropertiesStartsWith,
+    LoopPropertiesExcept, LoopPropertiesWhitelist, LoopPropertiesType,
+    LoopPropertiesTypeEvaluate, LoopPropertiesTypeStrict,
+    LoopPropertiesTypeStrictEvaluate, LoopPropertiesTypeStrictAny,
+    LoopPropertiesTypeStrictAnyEvaluate, LoopKeys, LoopItems,
+    LoopItemsUnevaluated, LoopItemsType, LoopItemsTypeStrict,
     LoopItemsTypeStrictAny, LoopContains, ControlGroup, ControlGroupWhenDefines,
     ControlLabel, ControlMark, ControlEvaluate, ControlJump,
     ControlDynamicAnchorJump>>;
@@ -179,6 +181,7 @@ enum class TemplateIndex : std::uint8_t {
   LoopProperties,
   LoopPropertiesEvaluate,
   LoopPropertiesRegex,
+  LoopPropertiesRegexClosed,
   LoopPropertiesStartsWith,
   LoopPropertiesExcept,
   LoopPropertiesWhitelist,
@@ -492,6 +495,12 @@ DEFINE_STEP_APPLICATOR(Loop, PropertiesEvaluate, ValueNone)
 /// @brief Represents a compiler step that loops over object properties that
 /// match a given ECMA regular expression
 DEFINE_STEP_APPLICATOR(Loop, PropertiesRegex, ValueRegex)
+
+/// @ingroup evaluator_instructions
+/// @brief Represents a compiler step that loops over object properties that
+/// match a given ECMA regular expression and does not allow any additional
+/// property
+DEFINE_STEP_APPLICATOR(Loop, PropertiesRegexClosed, ValueRegex)
 
 /// @ingroup evaluator_instructions
 /// @brief Represents a compiler step that loops over object properties that
