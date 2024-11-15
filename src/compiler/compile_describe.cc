@@ -1170,6 +1170,11 @@ struct DescribeVisitor {
   }
 
   auto operator()(const AssertionObjectSizeLess &step) const -> std::string {
+    if (this->keyword == "additionalProperties") {
+      return "The object value was not expected to define additional "
+             "properties";
+    }
+
     if (this->keyword == "maxProperties") {
       assert(this->target.is_object());
       std::ostringstream message;

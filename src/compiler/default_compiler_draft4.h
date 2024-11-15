@@ -1004,6 +1004,10 @@ auto compiler_draft4_applicator_additionalproperties_with_options(
     return {make<LoopPropertiesEvaluate>(context, schema_context,
                                          dynamic_context, ValueNone{},
                                          std::move(children))};
+  } else if (children.size() == 1 &&
+             std::holds_alternative<AssertionFail>(children.front())) {
+    return {make<AssertionObjectSizeLess>(
+        context, schema_context, dynamic_context, ValueUnsignedInteger{1})};
   } else {
     return {make<LoopProperties>(context, schema_context, dynamic_context,
                                  ValueNone{}, std::move(children))};
