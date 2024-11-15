@@ -560,7 +560,6 @@ auto properties_as_loop(const Context &context,
                         const SchemaContext &schema_context,
                         const sourcemeta::jsontoolkit::JSON &properties)
     -> bool {
-  const auto size{properties.size()};
   const auto imports_validation_vocabulary =
       schema_context.vocabularies.contains(
           "http://json-schema.org/draft-04/schema#") ||
@@ -616,22 +615,26 @@ auto properties_as_loop(const Context &context,
                            current_entry.pointer.initial() == target;
                   })};
 
-  return
-      // This strategy only makes sense if most of the properties are "optional"
-      required.size() <= (size / 4) &&
-      // If `properties` only defines a relatively small amount of properties,
-      // then its probably still faster to unroll
-      size > 5 &&
-      // Always unroll inside `oneOf` or `anyOf`, to have a
-      // better chance at quickly short-circuiting
-      (!inside_disjunctor ||
-       std::none_of(properties.as_object().cbegin(),
-                    properties.as_object().cend(), [&](const auto &pair) {
-                      return pair.second.is_object() &&
-                             ((imports_validation_vocabulary &&
-                               pair.second.defines("enum")) ||
-                              (imports_const && pair.second.defines("const")));
-                    }));
+  if (inside_disjunctor &&
+      std::any_of(properties.as_object().cbegin(),
+                  properties.as_object().cend(), [&](const auto &pair) {
+                    return pair.second.is_object() &&
+                           ((imports_validation_vocabulary &&
+                             pair.second.defines("enum")) ||
+                            (imports_const && pair.second.defines("const")));
+                  })) {
+    return false;
+  }
+
+  // For closed schemas (additionalProperties: false), we can optimize with
+  // `LoopPropertiesMatchClosed`
+  if (schema_context.schema.defines("additionalProperties") &&
+      schema_context.schema.at("additionalProperties").is_boolean() &&
+      !schema_context.schema.at("additionalProperties").to_boolean()) {
+    return true;
+  }
+
+  return required.size() < (properties.size() / 2);
 }
 
 auto compiler_draft4_applicator_properties_with_options(

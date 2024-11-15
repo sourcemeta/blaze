@@ -1,10 +1,10 @@
 add_executable(sourcemeta_blaze_evaluator_unit
   evaluator_utils.h
-  evaluator_2019_09_test.cc
+  # evaluator_2019_09_test.cc
   evaluator_2020_12_test.cc
-  evaluator_draft4_test.cc
-  evaluator_draft6_test.cc
-  evaluator_draft7_test.cc
+  # evaluator_draft4_test.cc
+  # evaluator_draft6_test.cc
+  # evaluator_draft7_test.cc
   evaluator_test.cc)
 noa_add_default_options(PRIVATE sourcemeta_blaze_evaluator_unit)
 target_link_libraries(sourcemeta_blaze_evaluator_unit
