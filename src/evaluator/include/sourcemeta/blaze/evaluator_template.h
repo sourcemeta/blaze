@@ -64,6 +64,7 @@ struct LogicalWhenArraySizeGreater;
 struct LoopPropertiesUnevaluated;
 struct LoopPropertiesUnevaluatedExcept;
 struct LoopPropertiesMatch;
+struct LoopPropertiesMatchClosed;
 struct LoopProperties;
 struct LoopPropertiesEvaluate;
 struct LoopPropertiesRegex;
@@ -113,10 +114,10 @@ using Template = std::vector<std::variant<
     LogicalNotEvaluate, LogicalOr, LogicalAnd, LogicalXor, LogicalCondition,
     LogicalWhenType, LogicalWhenDefines, LogicalWhenArraySizeGreater,
     LoopPropertiesUnevaluated, LoopPropertiesUnevaluatedExcept,
-    LoopPropertiesMatch, LoopProperties, LoopPropertiesEvaluate,
-    LoopPropertiesRegex, LoopPropertiesRegexClosed, LoopPropertiesStartsWith,
-    LoopPropertiesExcept, LoopPropertiesWhitelist, LoopPropertiesType,
-    LoopPropertiesTypeEvaluate, LoopPropertiesTypeStrict,
+    LoopPropertiesMatch, LoopPropertiesMatchClosed, LoopProperties,
+    LoopPropertiesEvaluate, LoopPropertiesRegex, LoopPropertiesRegexClosed,
+    LoopPropertiesStartsWith, LoopPropertiesExcept, LoopPropertiesWhitelist,
+    LoopPropertiesType, LoopPropertiesTypeEvaluate, LoopPropertiesTypeStrict,
     LoopPropertiesTypeStrictEvaluate, LoopPropertiesTypeStrictAny,
     LoopPropertiesTypeStrictAnyEvaluate, LoopKeys, LoopItems,
     LoopItemsUnevaluated, LoopItemsType, LoopItemsTypeStrict,
@@ -178,6 +179,7 @@ enum class TemplateIndex : std::uint8_t {
   LoopPropertiesUnevaluated,
   LoopPropertiesUnevaluatedExcept,
   LoopPropertiesMatch,
+  LoopPropertiesMatchClosed,
   LoopProperties,
   LoopPropertiesEvaluate,
   LoopPropertiesRegex,
@@ -481,6 +483,11 @@ DEFINE_STEP_APPLICATOR(Loop, PropertiesUnevaluatedExcept, ValuePropertyFilter)
 /// @ingroup evaluator_instructions
 /// @brief Represents a compiler step that matches steps to object properties
 DEFINE_STEP_APPLICATOR(Loop, PropertiesMatch, ValueNamedIndexes)
+
+/// @ingroup evaluator_instructions
+/// @brief Represents a compiler step that matches steps to object properties
+/// and does not allow additional properties
+DEFINE_STEP_APPLICATOR(Loop, PropertiesMatchClosed, ValueNamedIndexes)
 
 /// @ingroup evaluator_instructions
 /// @brief Represents a compiler step that loops over object properties

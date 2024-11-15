@@ -269,6 +269,7 @@ struct StepVisitor {
   HANDLE_STEP("loop", "properties-unevaluated-except",
               LoopPropertiesUnevaluatedExcept)
   HANDLE_STEP("loop", "properties-match", LoopPropertiesMatch)
+  HANDLE_STEP("loop", "properties-match-closed", LoopPropertiesMatchClosed)
   HANDLE_STEP("loop", "properties", LoopProperties)
   HANDLE_STEP("loop", "properties-evaluate", LoopPropertiesEvaluate)
   HANDLE_STEP("loop", "properties-regex", LoopPropertiesRegex)
