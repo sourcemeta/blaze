@@ -227,13 +227,11 @@ auto evaluate_step(const sourcemeta::blaze::Template::value_type &step,
         for (const auto &dependency : dependencies) {
           if (!target.defines(dependency)) {
             result = false;
-            // For efficiently breaking from the outer loop too
-            goto evaluate_assertion_property_dependencies_end;
+            EVALUATE_END(assertion, AssertionPropertyDependencies);
           }
         }
       }
 
-    evaluate_assertion_property_dependencies_end:
       EVALUATE_END(assertion, AssertionPropertyDependencies);
     }
 
@@ -590,7 +588,7 @@ auto evaluate_step(const sourcemeta::blaze::Template::value_type &step,
         for (const auto &child : std::get<ControlGroup>(entry).children) {
           if (!evaluate_step(child, callback, context)) {
             result = false;
-            goto evaluate_assertion_array_prefix_evaluate_end;
+            EVALUATE_END(assertion, AssertionArrayPrefixEvaluate);
           }
         }
 
@@ -602,7 +600,6 @@ auto evaluate_step(const sourcemeta::blaze::Template::value_type &step,
         }
       }
 
-    evaluate_assertion_array_prefix_evaluate_end:
       EVALUATE_END(assertion, AssertionArrayPrefixEvaluate);
     }
 
@@ -852,7 +849,7 @@ auto evaluate_step(const sourcemeta::blaze::Template::value_type &step,
           for (const auto &child : match->second.get()) {
             if (!evaluate_step(child, callback, context)) {
               result = false;
-              goto evaluate_control_dynamic_anchor_jump_end;
+              EVALUATE_END(control, ControlDynamicAnchorJump);
             }
           }
 
@@ -860,7 +857,6 @@ auto evaluate_step(const sourcemeta::blaze::Template::value_type &step,
         }
       }
 
-    evaluate_control_dynamic_anchor_jump_end:
       EVALUATE_END(control, ControlDynamicAnchorJump);
     }
 
@@ -929,8 +925,7 @@ auto evaluate_step(const sourcemeta::blaze::Template::value_type &step,
           if (!evaluate_step(child, callback, context)) {
             result = false;
             context.leave(true);
-            // For efficiently breaking from the outer loop too
-            goto evaluate_annotation_loop_properties_unevaluated_end;
+            EVALUATE_END(loop, LoopPropertiesUnevaluated);
           }
         }
 
@@ -940,7 +935,6 @@ auto evaluate_step(const sourcemeta::blaze::Template::value_type &step,
       // Mark the entire object as evaluated
       context.evaluate();
 
-    evaluate_annotation_loop_properties_unevaluated_end:
       EVALUATE_END(loop, LoopPropertiesUnevaluated);
     }
 
@@ -986,8 +980,7 @@ auto evaluate_step(const sourcemeta::blaze::Template::value_type &step,
           if (!evaluate_step(child, callback, context)) {
             result = false;
             context.leave(true);
-            // For efficiently breaking from the outer loop too
-            goto evaluate_annotation_loop_properties_unevaluated_except_end;
+            EVALUATE_END(loop, LoopPropertiesUnevaluatedExcept);
           }
         }
 
@@ -997,7 +990,6 @@ auto evaluate_step(const sourcemeta::blaze::Template::value_type &step,
       // Mark the entire object as evaluated
       context.evaluate();
 
-    evaluate_annotation_loop_properties_unevaluated_except_end:
       EVALUATE_END(loop, LoopPropertiesUnevaluatedExcept);
     }
 
@@ -1016,13 +1008,11 @@ auto evaluate_step(const sourcemeta::blaze::Template::value_type &step,
         for (const auto &child : std::get<ControlGroup>(substep).children) {
           if (!evaluate_step(child, callback, context)) {
             result = false;
-            // For efficiently breaking from the outer loop too
-            goto evaluate_loop_properties_match_end;
+            EVALUATE_END(loop, LoopPropertiesMatch);
           }
         }
       }
 
-    evaluate_loop_properties_match_end:
       EVALUATE_END(loop, LoopPropertiesMatch);
     }
 
@@ -1042,13 +1032,11 @@ auto evaluate_step(const sourcemeta::blaze::Template::value_type &step,
         for (const auto &child : std::get<ControlGroup>(substep).children) {
           if (!evaluate_step(child, callback, context)) {
             result = false;
-            // For efficiently breaking from the outer loop too
-            goto evaluate_loop_properties_match_closed_end;
+            EVALUATE_END(loop, LoopPropertiesMatchClosed);
           }
         }
       }
 
-    evaluate_loop_properties_match_closed_end:
       EVALUATE_END(loop, LoopPropertiesMatchClosed);
     }
 
@@ -1062,16 +1050,13 @@ auto evaluate_step(const sourcemeta::blaze::Template::value_type &step,
           if (!evaluate_step(child, callback, context)) {
             result = false;
             context.leave(track);
-
-            // For efficiently breaking from the outer loop too
-            goto evaluate_loop_properties_end;
+            EVALUATE_END(loop, LoopProperties);
           }
         }
 
         context.leave(track);
       }
 
-    evaluate_loop_properties_end:
       EVALUATE_END(loop, LoopProperties);
     }
 
@@ -1085,9 +1070,7 @@ auto evaluate_step(const sourcemeta::blaze::Template::value_type &step,
           if (!evaluate_step(child, callback, context)) {
             result = false;
             context.leave(track);
-
-            // For efficiently breaking from the outer loop too
-            goto evaluate_loop_properties_evaluate_end;
+            EVALUATE_END(loop, LoopPropertiesEvaluate);
           }
         }
 
@@ -1097,7 +1080,6 @@ auto evaluate_step(const sourcemeta::blaze::Template::value_type &step,
       assert(track);
       context.evaluate();
 
-    evaluate_loop_properties_evaluate_end:
       EVALUATE_END(loop, LoopPropertiesEvaluate);
     }
 
@@ -1115,16 +1097,13 @@ auto evaluate_step(const sourcemeta::blaze::Template::value_type &step,
           if (!evaluate_step(child, callback, context)) {
             result = false;
             context.leave(track);
-
-            // For efficiently breaking from the outer loop too
-            goto evaluate_loop_properties_regex_end;
+            EVALUATE_END(loop, LoopPropertiesRegex);
           }
         }
 
         context.leave(track);
       }
 
-    evaluate_loop_properties_regex_end:
       EVALUATE_END(loop, LoopPropertiesRegex);
     }
 
@@ -1146,16 +1125,13 @@ auto evaluate_step(const sourcemeta::blaze::Template::value_type &step,
           if (!evaluate_step(child, callback, context)) {
             result = false;
             context.leave(track);
-
-            // For efficiently breaking from the outer loop too
-            goto evaluate_loop_properties_regex_closed_end;
+            EVALUATE_END(loop, LoopPropertiesRegexClosed);
           }
         }
 
         context.leave(track);
       }
 
-    evaluate_loop_properties_regex_closed_end:
       EVALUATE_END(loop, LoopPropertiesRegexClosed);
     }
 
@@ -1173,16 +1149,13 @@ auto evaluate_step(const sourcemeta::blaze::Template::value_type &step,
           if (!evaluate_step(child, callback, context)) {
             result = false;
             context.leave(track);
-
-            // For efficiently breaking from the outer loop too
-            goto evaluate_loop_properties_starts_with_end;
+            EVALUATE_END(loop, LoopPropertiesStartsWith);
           }
         }
 
         context.leave(track);
       }
 
-    evaluate_loop_properties_starts_with_end:
       EVALUATE_END(loop, LoopPropertiesStartsWith);
     }
 
@@ -1223,16 +1196,13 @@ auto evaluate_step(const sourcemeta::blaze::Template::value_type &step,
           if (!evaluate_step(child, callback, context)) {
             result = false;
             context.leave(track);
-
-            // For efficiently breaking from the outer loop too
-            goto evaluate_loop_properties_except_end;
+            EVALUATE_END(loop, LoopPropertiesExcept);
           }
         }
 
         context.leave(track);
       }
 
-    evaluate_loop_properties_except_end:
       EVALUATE_END(loop, LoopPropertiesExcept);
     }
 
@@ -1285,14 +1255,13 @@ auto evaluate_step(const sourcemeta::blaze::Template::value_type &step,
             (loop.value != sourcemeta::jsontoolkit::JSON::Type::Integer ||
              !entry.second.is_integer_real())) {
           result = false;
-          goto evaluate_loop_properties_type_evaluate_end;
+          EVALUATE_END(loop, LoopPropertiesTypeEvaluate);
         }
       }
 
       assert(track);
       context.evaluate();
 
-    evaluate_loop_properties_type_evaluate_end:
       EVALUATE_END(loop, LoopPropertiesTypeEvaluate);
     }
 
@@ -1316,14 +1285,13 @@ auto evaluate_step(const sourcemeta::blaze::Template::value_type &step,
       for (const auto &entry : target.as_object()) {
         if (entry.second.type() != loop.value) {
           result = false;
-          goto evaluate_loop_properties_type_strict_evaluate_end;
+          EVALUATE_END(loop, LoopPropertiesTypeStrictEvaluate);
         }
       }
 
       assert(track);
       context.evaluate();
 
-    evaluate_loop_properties_type_strict_evaluate_end:
       EVALUATE_END(loop, LoopPropertiesTypeStrictEvaluate);
     }
 
@@ -1349,14 +1317,13 @@ auto evaluate_step(const sourcemeta::blaze::Template::value_type &step,
         if (std::find(loop.value.cbegin(), loop.value.cend(),
                       entry.second.type()) == loop.value.cend()) {
           result = false;
-          goto evaluate_loop_properties_type_strict_any_evaluate_end;
+          EVALUATE_END(loop, LoopPropertiesTypeStrictAnyEvaluate);
         }
       }
 
       assert(track);
       context.evaluate();
 
-    evaluate_loop_properties_type_strict_any_evaluate_end:
       EVALUATE_END(loop, LoopPropertiesTypeStrictAnyEvaluate);
     }
 
@@ -1375,7 +1342,7 @@ auto evaluate_step(const sourcemeta::blaze::Template::value_type &step,
             assert(context.property_target.has_value());
             context.property_target = std::nullopt;
             context.leave(track);
-            goto evaluate_loop_keys_end;
+            EVALUATE_END(loop, LoopKeys);
           }
         }
 
@@ -1384,7 +1351,6 @@ auto evaluate_step(const sourcemeta::blaze::Template::value_type &step,
         context.leave(track);
       }
 
-    evaluate_loop_keys_end:
       EVALUATE_END(loop, LoopKeys);
     }
 
@@ -1404,15 +1370,13 @@ auto evaluate_step(const sourcemeta::blaze::Template::value_type &step,
           if (!evaluate_step(child, callback, context)) {
             result = false;
             context.leave(track);
-
-            goto evaluate_compiler_loop_items_end;
+            EVALUATE_END(loop, LoopItems);
           }
         }
 
         context.leave(track);
       }
 
-    evaluate_compiler_loop_items_end:
       EVALUATE_END(loop, LoopItems);
     }
 
@@ -1435,7 +1399,7 @@ auto evaluate_step(const sourcemeta::blaze::Template::value_type &step,
           if (!evaluate_step(child, callback, context)) {
             result = false;
             context.leave(true);
-            goto evaluate_compiler_annotation_loop_items_unevaluated_end;
+            EVALUATE_END(loop, LoopItemsUnevaluated);
           }
         }
 
@@ -1445,7 +1409,6 @@ auto evaluate_step(const sourcemeta::blaze::Template::value_type &step,
       // Mark the entire array as evaluated
       context.evaluate();
 
-    evaluate_compiler_annotation_loop_items_unevaluated_end:
       EVALUATE_END(loop, LoopItemsUnevaluated);
     }
 
