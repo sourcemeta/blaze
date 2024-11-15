@@ -5,7 +5,6 @@
 
 #include <algorithm> // std::min, std::any_of, std::find
 #include <cassert>   // assert
-#include <iterator>  // std::distance, std::advance
 #include <limits>    // std::numeric_limits
 #include <optional>  // std::optional
 
@@ -1358,14 +1357,9 @@ auto evaluate_step(const sourcemeta::blaze::Template::value_type &step,
       EVALUATE_BEGIN(loop, LoopItems,
                      target.is_array() && loop.value < target.size());
       assert(!loop.children.empty());
-      const auto &array{target.as_array()};
       result = true;
-      auto iterator{array.cbegin()};
-      std::advance(iterator, static_cast<std::ptrdiff_t>(loop.value));
-
-      for (; iterator != array.cend(); ++iterator) {
-        const auto index{std::distance(array.cbegin(), iterator)};
-        context.enter(static_cast<Pointer::Token::Index>(index), track);
+      for (std::size_t index = loop.value; index < target.size(); index++) {
+        context.enter(index, track);
         for (const auto &child : loop.children) {
           if (!evaluate_step(child, callback, context)) {
             result = false;
@@ -1384,17 +1378,14 @@ auto evaluate_step(const sourcemeta::blaze::Template::value_type &step,
       EVALUATE_BEGIN(loop, LoopItemsUnevaluated, target.is_array());
       assert(!loop.children.empty());
       assert(track);
-      const auto &array{target.as_array()};
       result = true;
-      for (auto iterator = array.cbegin(); iterator != array.cend();
-           ++iterator) {
-        const auto index{std::distance(array.cbegin(), iterator)};
-        if (context.is_evaluated(
-                static_cast<WeakPointer::Token::Index>(index))) {
+
+      for (std::size_t index = 0; index < target.size(); index++) {
+        if (context.is_evaluated(index)) {
           continue;
         }
 
-        context.enter(static_cast<Pointer::Token::Index>(index), true);
+        context.enter(index, true);
         for (const auto &child : loop.children) {
           if (!evaluate_step(child, callback, context)) {
             result = false;
@@ -1466,12 +1457,10 @@ auto evaluate_step(const sourcemeta::blaze::Template::value_type &step,
       assert(!maximum.has_value() || maximum.value() >= minimum);
       const auto is_exhaustive{std::get<2>(loop.value)};
       result = minimum == 0 && target.empty();
-      const auto &array{target.as_array()};
       auto match_count{std::numeric_limits<decltype(minimum)>::min()};
-      for (auto iterator = array.cbegin(); iterator != array.cend();
-           ++iterator) {
-        const auto index{std::distance(array.cbegin(), iterator)};
-        context.enter(static_cast<Pointer::Token::Index>(index), track);
+
+      for (std::size_t index = 0; index < target.size(); index++) {
+        context.enter(index, track);
         bool subresult{true};
         for (const auto &child : loop.children) {
           if (!evaluate_step(child, callback, context)) {
