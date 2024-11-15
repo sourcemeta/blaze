@@ -552,22 +552,15 @@ static auto compile_properties(const Context &context,
   return properties;
 }
 
-auto compiler_draft4_applicator_properties_with_options(
-    const Context &context, const SchemaContext &schema_context,
-    const DynamicContext &dynamic_context, const bool annotate,
-    const bool track_evaluation) -> Template {
-  assert(schema_context.schema.at(dynamic_context.keyword).is_object());
-  if (schema_context.schema.at(dynamic_context.keyword).empty()) {
-    return {};
-  }
-
-  if (schema_context.schema.defines("type") &&
-      schema_context.schema.at("type").is_string() &&
-      schema_context.schema.at("type").to_string() != "object") {
-    return {};
-  }
-
-  const auto size{schema_context.schema.at(dynamic_context.keyword).size()};
+// There are two ways to compile `properties` depending on whether
+// most of the properties are marked as required using `required`
+// or whether most of the properties are optional. Each shines
+// in the corresponding case.
+auto properties_as_loop(const Context &context,
+                        const SchemaContext &schema_context,
+                        const sourcemeta::jsontoolkit::JSON &properties)
+    -> bool {
+  const auto size{properties.size()};
   const auto imports_validation_vocabulary =
       schema_context.vocabularies.contains(
           "http://json-schema.org/draft-04/schema#") ||
@@ -596,8 +589,7 @@ auto compiler_draft4_applicator_properties_with_options(
          schema_context.schema.at("required").as_array()) {
       if (property.is_string() &&
           // Only count the required property if its indeed in "properties"
-          schema_context.schema.at(dynamic_context.keyword)
-              .defines(property.to_string())) {
+          properties.defines(property.to_string())) {
         required.insert(property.to_string());
       }
     }
@@ -624,11 +616,7 @@ auto compiler_draft4_applicator_properties_with_options(
                            current_entry.pointer.initial() == target;
                   })};
 
-  // There are two ways to compile `properties` depending on whether
-  // most of the properties are marked as required using `required`
-  // or whether most of the properties are optional. Each shines
-  // in the corresponding case.
-  const auto prefer_loop_over_instance{
+  return
       // This strategy only makes sense if most of the properties are "optional"
       required.size() <= (size / 4) &&
       // If `properties` only defines a relatively small amount of properties,
@@ -637,19 +625,32 @@ auto compiler_draft4_applicator_properties_with_options(
       // Always unroll inside `oneOf` or `anyOf`, to have a
       // better chance at quickly short-circuiting
       (!inside_disjunctor ||
-       std::none_of(
-           schema_context.schema.at(dynamic_context.keyword)
-               .as_object()
-               .cbegin(),
-           schema_context.schema.at(dynamic_context.keyword).as_object().cend(),
-           [&](const auto &pair) {
-             return pair.second.is_object() &&
-                    ((imports_validation_vocabulary &&
-                      pair.second.defines("enum")) ||
-                     (imports_const && pair.second.defines("const")));
-           }))};
+       std::none_of(properties.as_object().cbegin(),
+                    properties.as_object().cend(), [&](const auto &pair) {
+                      return pair.second.is_object() &&
+                             ((imports_validation_vocabulary &&
+                               pair.second.defines("enum")) ||
+                              (imports_const && pair.second.defines("const")));
+                    }));
+}
 
-  if (prefer_loop_over_instance) {
+auto compiler_draft4_applicator_properties_with_options(
+    const Context &context, const SchemaContext &schema_context,
+    const DynamicContext &dynamic_context, const bool annotate,
+    const bool track_evaluation) -> Template {
+  assert(schema_context.schema.at(dynamic_context.keyword).is_object());
+  if (schema_context.schema.at(dynamic_context.keyword).empty()) {
+    return {};
+  }
+
+  if (schema_context.schema.defines("type") &&
+      schema_context.schema.at("type").is_string() &&
+      schema_context.schema.at("type").to_string() != "object") {
+    return {};
+  }
+
+  if (properties_as_loop(context, schema_context,
+                         schema_context.schema.at(dynamic_context.keyword))) {
     ValueNamedIndexes indexes;
     Template children;
     std::size_t cursor = 0;
