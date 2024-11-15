@@ -827,6 +827,23 @@ public:
   /// ```
   [[nodiscard]] auto estimated_byte_size() const -> std::uint64_t;
 
+  /// Produce a simple hash for the JSON value. Note the hash is fast to produce
+  /// but might have a higher chance of collisions. For example:
+  ///
+  /// ```cpp
+  /// #include <sourcemeta/jsontoolkit/json.h>
+  /// #include <cassert>
+  ///
+  /// const sourcemeta::jsontoolkit::JSON value_1 =
+  ///   sourcemeta::jsontoolkit::parse("{ \"foo\": 1 }");
+  ///
+  /// const sourcemeta::jsontoolkit::JSON value_2 =
+  ///   sourcemeta::jsontoolkit::parse("{ \"foo\": 1 }");
+  ///
+  /// assert(value_1.fast_hash() == value_2.fast_hash());
+  /// ```
+  [[nodiscard]] auto fast_hash() const -> std::uint64_t;
+
   /// Check whether a numeric instance is divisible by another numeric instance.
   /// For example:
   ///
