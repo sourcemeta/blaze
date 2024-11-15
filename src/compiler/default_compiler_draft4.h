@@ -678,6 +678,16 @@ auto compiler_draft4_applicator_properties_with_options(
       cursor += 1;
     }
 
+    if (context.mode == Mode::FastValidation && !track_evaluation &&
+        !schema_context.schema.defines("patternProperties") &&
+        schema_context.schema.defines("additionalProperties") &&
+        schema_context.schema.at("additionalProperties").is_boolean() &&
+        !schema_context.schema.at("additionalProperties").to_boolean()) {
+      return {make<LoopPropertiesMatchClosed>(
+          context, schema_context, dynamic_context, std::move(indexes),
+          std::move(children))};
+    }
+
     return {make<LoopPropertiesMatch>(context, schema_context, dynamic_context,
                                       std::move(indexes), std::move(children))};
   }
@@ -924,8 +934,13 @@ auto compiler_draft4_applicator_additionalproperties_with_options(
       std::holds_alternative<AssertionFail>(children.front()) &&
       !filter_strings.empty() && filter_prefixes.empty() &&
       filter_regexes.empty()) {
-    return {make<LoopPropertiesWhitelist>(
-        context, schema_context, dynamic_context, std::move(filter_strings))};
+    if (properties_as_loop(context, schema_context,
+                           schema_context.schema.at("properties"))) {
+      return {};
+    } else {
+      return {make<LoopPropertiesWhitelist>(
+          context, schema_context, dynamic_context, std::move(filter_strings))};
+    }
   } else if (context.mode == Mode::FastValidation && filter_strings.empty() &&
              filter_prefixes.empty() && filter_regexes.size() == 1 &&
              !track_evaluation && !children.empty() &&

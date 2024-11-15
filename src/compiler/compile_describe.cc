@@ -1577,6 +1577,22 @@ struct DescribeVisitor {
     return message.str();
   }
 
+  auto operator()(const LoopPropertiesMatchClosed &step) const -> std::string {
+    assert(!step.children.empty());
+    assert(this->target.is_object());
+    std::ostringstream message;
+    if (step.children.size() == 1) {
+      message << "The object value was expected to validate against the ";
+      message << "single defined property subschema";
+    } else {
+      message
+          << "Every object value was expected to validate against one of the ";
+      message << step.children.size() << " defined properties subschemas";
+    }
+
+    return message.str();
+  }
+
   auto operator()(const LogicalWhenDefines &step) const -> std::string {
     std::ostringstream message;
     message << "The object value defined the property \"" << step_value(step)

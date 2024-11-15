@@ -1369,6 +1369,198 @@ TEST(Evaluator_draft4, properties_13) {
                                "equal the string constant \"test\"");
 }
 
+TEST(Evaluator_draft4, properties_14) {
+  const sourcemeta::jsontoolkit::JSON schema{
+      sourcemeta::jsontoolkit::parse(R"JSON({
+    "$schema": "http://json-schema.org/draft-04/schema#",
+    "additionalProperties": false,
+    "properties": {
+      "a": { "type": "string" },
+      "b": { "type": "string" },
+      "c": { "type": "string" },
+      "d": { "type": "string" },
+      "e": { "type": "string" },
+      "f": { "type": "string" },
+      "g": { "type": "string" },
+      "h": { "type": "string" },
+      "i": { "type": "string" },
+      "j": { "type": "string" },
+      "k": { "type": "string" },
+      "l": { "type": "string" },
+      "m": { "type": "string" },
+      "n": { "type": "string" },
+      "o": { "type": "string" },
+      "p": { "type": "string" },
+      "q": { "type": "string" },
+      "r": { "type": "string" },
+      "s": { "type": "string" },
+      "t": { "type": "string" },
+      "u": { "type": "string" },
+      "v": { "type": "string" },
+      "w": { "type": "string" },
+      "x": { "type": "string" },
+      "y": { "type": "string" },
+      "z": { "type": "string" }
+    }
+  })JSON")};
+
+  const sourcemeta::jsontoolkit::JSON instance{
+      sourcemeta::jsontoolkit::parse("{ \"f\": \"foo\" }")};
+
+  EVALUATE_WITH_TRACE_FAST_SUCCESS(schema, instance, 2);
+
+  EVALUATE_TRACE_PRE(0, LoopPropertiesMatchClosed, "/properties",
+                     "#/properties", "");
+  EVALUATE_TRACE_PRE(1, AssertionTypeStrict, "/properties/f/type",
+                     "#/properties/f/type", "/f");
+
+  EVALUATE_TRACE_POST_SUCCESS(0, AssertionTypeStrict, "/properties/f/type",
+                              "#/properties/f/type", "/f");
+  EVALUATE_TRACE_POST_SUCCESS(1, LoopPropertiesMatchClosed, "/properties",
+                              "#/properties", "");
+
+  EVALUATE_TRACE_POST_DESCRIBE(instance, 0,
+                               "The value was expected to be of type string");
+  EVALUATE_TRACE_POST_DESCRIBE(
+      instance, 1,
+      "Every object value was expected to validate "
+      "against one of the 26 defined properties subschemas");
+}
+
+TEST(Evaluator_draft4, properties_14_exhaustive) {
+  const sourcemeta::jsontoolkit::JSON schema{
+      sourcemeta::jsontoolkit::parse(R"JSON({
+    "$schema": "http://json-schema.org/draft-04/schema#",
+    "additionalProperties": false,
+    "properties": {
+      "a": { "type": "string" },
+      "b": { "type": "string" },
+      "c": { "type": "string" },
+      "d": { "type": "string" },
+      "e": { "type": "string" },
+      "f": { "type": "string" },
+      "g": { "type": "string" },
+      "h": { "type": "string" },
+      "i": { "type": "string" },
+      "j": { "type": "string" },
+      "k": { "type": "string" },
+      "l": { "type": "string" },
+      "m": { "type": "string" },
+      "n": { "type": "string" },
+      "o": { "type": "string" },
+      "p": { "type": "string" },
+      "q": { "type": "string" },
+      "r": { "type": "string" },
+      "s": { "type": "string" },
+      "t": { "type": "string" },
+      "u": { "type": "string" },
+      "v": { "type": "string" },
+      "w": { "type": "string" },
+      "x": { "type": "string" },
+      "y": { "type": "string" },
+      "z": { "type": "string" }
+    }
+  })JSON")};
+
+  const sourcemeta::jsontoolkit::JSON instance{
+      sourcemeta::jsontoolkit::parse("{ \"f\": \"foo\" }")};
+
+  EVALUATE_WITH_TRACE_EXHAUSTIVE_SUCCESS(schema, instance, 3);
+
+  EVALUATE_TRACE_PRE(0, LoopPropertiesMatch, "/properties", "#/properties", "");
+  EVALUATE_TRACE_PRE(1, AssertionTypeStrict, "/properties/f/type",
+                     "#/properties/f/type", "/f");
+  EVALUATE_TRACE_PRE(2, LoopPropertiesExcept, "/additionalProperties",
+                     "#/additionalProperties", "");
+
+  EVALUATE_TRACE_POST_SUCCESS(0, AssertionTypeStrict, "/properties/f/type",
+                              "#/properties/f/type", "/f");
+  EVALUATE_TRACE_POST_SUCCESS(1, LoopPropertiesMatch, "/properties",
+                              "#/properties", "");
+  EVALUATE_TRACE_POST_SUCCESS(2, LoopPropertiesExcept, "/additionalProperties",
+                              "#/additionalProperties", "");
+
+  EVALUATE_TRACE_POST_DESCRIBE(instance, 0,
+                               "The value was expected to be of type string");
+  EVALUATE_TRACE_POST_DESCRIBE(instance, 1,
+                               "The object value was expected to validate "
+                               "against the 26 defined properties subschemas");
+  EVALUATE_TRACE_POST_DESCRIBE(
+      instance, 2,
+      "The object value was not expected to define additional properties");
+}
+
+TEST(Evaluator_draft4, properties_15) {
+  const sourcemeta::jsontoolkit::JSON schema{
+      sourcemeta::jsontoolkit::parse(R"JSON({
+    "$schema": "http://json-schema.org/draft-04/schema#",
+    "additionalProperties": false,
+    "properties": {
+      "a": { "type": "string" },
+      "b": { "type": "string" },
+      "c": { "type": "string" },
+      "d": { "type": "string" },
+      "e": { "type": "string" },
+      "f": { "type": "string" },
+      "g": { "type": "string" },
+      "h": { "type": "string" },
+      "i": { "type": "string" },
+      "j": { "type": "string" },
+      "k": { "type": "string" },
+      "l": { "type": "string" },
+      "m": { "type": "string" },
+      "n": { "type": "string" },
+      "o": { "type": "string" },
+      "p": { "type": "string" },
+      "q": { "type": "string" },
+      "r": { "type": "string" },
+      "s": { "type": "string" },
+      "t": { "type": "string" },
+      "u": { "type": "string" },
+      "v": { "type": "string" },
+      "w": { "type": "string" },
+      "x": { "type": "string" },
+      "y": { "type": "string" },
+      "z": { "type": "string" }
+    }
+  })JSON")};
+
+  const sourcemeta::jsontoolkit::JSON instance{
+      sourcemeta::jsontoolkit::parse("{ \"f\": \"foo\", \"extra\": 2 }")};
+
+  if (FIRST_PROPERTY_IS(instance, "f")) {
+    EVALUATE_WITH_TRACE_FAST_FAILURE(schema, instance, 2);
+
+    EVALUATE_TRACE_PRE(0, LoopPropertiesMatchClosed, "/properties",
+                       "#/properties", "");
+    EVALUATE_TRACE_PRE(1, AssertionTypeStrict, "/properties/f/type",
+                       "#/properties/f/type", "/f");
+
+    EVALUATE_TRACE_POST_SUCCESS(0, AssertionTypeStrict, "/properties/f/type",
+                                "#/properties/f/type", "/f");
+    EVALUATE_TRACE_POST_FAILURE(1, LoopPropertiesMatchClosed, "/properties",
+                                "#/properties", "");
+
+    EVALUATE_TRACE_POST_DESCRIBE(instance, 0,
+                                 "The value was expected to be of type string");
+    EVALUATE_TRACE_POST_DESCRIBE(
+        instance, 1,
+        "Every object value was expected to validate "
+        "against one of the 26 defined properties subschemas");
+  } else {
+    EVALUATE_WITH_TRACE_FAST_FAILURE(schema, instance, 1);
+
+    EVALUATE_TRACE_PRE(0, LoopPropertiesMatchClosed, "/properties",
+                       "#/properties", "");
+    EVALUATE_TRACE_POST_FAILURE(0, LoopPropertiesMatchClosed, "/properties",
+                                "#/properties", "");
+    EVALUATE_TRACE_POST_DESCRIBE(
+        instance, 0,
+        "Every object value was expected to validate "
+        "against one of the 26 defined properties subschemas");
+  }
+}
+
 TEST(Evaluator_draft4, pattern_1) {
   const sourcemeta::jsontoolkit::JSON schema{
       sourcemeta::jsontoolkit::parse(R"JSON({

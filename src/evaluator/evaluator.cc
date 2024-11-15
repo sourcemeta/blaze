@@ -1026,6 +1026,32 @@ auto evaluate_step(const sourcemeta::blaze::Template::value_type &step,
       EVALUATE_END(loop, LoopPropertiesMatch);
     }
 
+    case IS_STEP(LoopPropertiesMatchClosed): {
+      EVALUATE_BEGIN(loop, LoopPropertiesMatchClosed, target.is_object());
+      assert(!loop.value.empty());
+      result = true;
+      for (const auto &entry : target.as_object()) {
+        const auto index{loop.value.find(entry.first)};
+        if (index == loop.value.cend()) {
+          result = false;
+          break;
+        }
+
+        const auto &substep{loop.children[index->second]};
+        assert(std::holds_alternative<ControlGroup>(substep));
+        for (const auto &child : std::get<ControlGroup>(substep).children) {
+          if (!evaluate_step(child, callback, context)) {
+            result = false;
+            // For efficiently breaking from the outer loop too
+            goto evaluate_loop_properties_match_closed_end;
+          }
+        }
+      }
+
+    evaluate_loop_properties_match_closed_end:
+      EVALUATE_END(loop, LoopPropertiesMatchClosed);
+    }
+
     case IS_STEP(LoopProperties): {
       EVALUATE_BEGIN(loop, LoopProperties, target.is_object());
       assert(!loop.children.empty());
