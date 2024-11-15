@@ -1093,7 +1093,7 @@ TEST(Evaluator_draft4, properties_7) {
       sourcemeta::jsontoolkit::parse(R"JSON({
     "$schema": "http://json-schema.org/draft-04/schema#",
     "properties": {
-      "foo": { "type": "string", "pattern": "^a" },
+      "foo": { "type": "string", "contains": "^a" },
       "bar": { "type": "integer" }
     }
   })JSON")};
@@ -1107,7 +1107,7 @@ TEST(Evaluator_draft4, properties_7) {
   // in "bar" is less
   EVALUATE_TRACE_PRE(0, AssertionPropertyTypeStrict, "/properties/bar/type",
                      "#/properties/bar/type", "/bar");
-  EVALUATE_TRACE_PRE(1, AssertionRegex, "/properties/foo/pattern",
+  EVALUATE_TRACE_PRE(1, AssertionRegexString, "/properties/foo/pattern",
                      "#/properties/foo/pattern", "/foo");
   EVALUATE_TRACE_PRE(2, AssertionTypeStrict, "/properties/foo/type",
                      "#/properties/foo/type", "/foo");
@@ -1689,6 +1689,54 @@ TEST(Evaluator_draft4, pattern_6) {
   } catch (const std::exception &) {
     FAIL() << "The compile function was expected to throw a schema error";
   }
+}
+
+TEST(Evaluator_draft4, pattern_7) {
+  const sourcemeta::jsontoolkit::JSON schema{
+      sourcemeta::jsontoolkit::parse(R"JSON({
+    "$schema": "http://json-schema.org/draft-04/schema#",
+    "type": "string",
+    "pattern": "^[a-z]{1,2}$"
+  })JSON")};
+
+  const sourcemeta::jsontoolkit::JSON instance{"aa"};
+  EVALUATE_WITH_TRACE_FAST_SUCCESS(schema, instance, 1);
+
+  EVALUATE_TRACE_PRE(0, AssertionRegexString, "/pattern", "#/pattern", "");
+
+  EVALUATE_TRACE_POST_SUCCESS(0, AssertionRegexString, "/pattern", "#/pattern",
+                              "");
+
+  EVALUATE_TRACE_POST_DESCRIBE(
+      instance, 0,
+      "The value was expected to be a string that matches "
+      "the regular expression \"^[a-z]{1,2}$\"");
+}
+
+TEST(Evaluator_draft4, pattern_7_exhaustive) {
+  const sourcemeta::jsontoolkit::JSON schema{
+      sourcemeta::jsontoolkit::parse(R"JSON({
+    "$schema": "http://json-schema.org/draft-04/schema#",
+    "type": "string",
+    "pattern": "^[a-z]{1,2}$"
+  })JSON")};
+
+  const sourcemeta::jsontoolkit::JSON instance{"aa"};
+  EVALUATE_WITH_TRACE_EXHAUSTIVE_SUCCESS(schema, instance, 2);
+
+  EVALUATE_TRACE_PRE(0, AssertionRegexString, "/pattern", "#/pattern", "");
+  EVALUATE_TRACE_PRE(1, AssertionTypeStrict, "/type", "#/type", "");
+
+  EVALUATE_TRACE_POST_SUCCESS(0, AssertionRegexString, "/pattern", "#/pattern",
+                              "");
+  EVALUATE_TRACE_POST_SUCCESS(1, AssertionTypeStrict, "/type", "#/type", "");
+
+  EVALUATE_TRACE_POST_DESCRIBE(
+      instance, 0,
+      "The value was expected to be a string that matches "
+      "the regular expression \"^[a-z]{1,2}$\"");
+  EVALUATE_TRACE_POST_DESCRIBE(instance, 1,
+                               "The value was expected to be of type string");
 }
 
 TEST(Evaluator_draft4, patternProperties_1) {

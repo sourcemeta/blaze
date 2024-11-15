@@ -26,6 +26,7 @@ struct AssertionTypeStringBounded;
 struct AssertionTypeArrayBounded;
 struct AssertionTypeObjectBounded;
 struct AssertionRegex;
+struct AssertionRegexString;
 struct AssertionStringSizeLess;
 struct AssertionStringSizeGreater;
 struct AssertionArraySizeLess;
@@ -101,8 +102,8 @@ using Template = std::vector<std::variant<
     AssertionPropertyDependencies, AssertionType, AssertionTypeAny,
     AssertionTypeStrict, AssertionTypeStrictAny, AssertionTypeStringBounded,
     AssertionTypeArrayBounded, AssertionTypeObjectBounded, AssertionRegex,
-    AssertionStringSizeLess, AssertionStringSizeGreater, AssertionArraySizeLess,
-    AssertionArraySizeGreater, AssertionObjectSizeLess,
+    AssertionRegexString, AssertionStringSizeLess, AssertionStringSizeGreater,
+    AssertionArraySizeLess, AssertionArraySizeGreater, AssertionObjectSizeLess,
     AssertionObjectSizeGreater, AssertionEqual, AssertionEqualsAny,
     AssertionGreaterEqual, AssertionLessEqual, AssertionGreater, AssertionLess,
     AssertionUnique, AssertionDivisible, AssertionStringType,
@@ -141,6 +142,7 @@ enum class TemplateIndex : std::uint8_t {
   AssertionTypeArrayBounded,
   AssertionTypeObjectBounded,
   AssertionRegex,
+  AssertionRegexString,
   AssertionStringSizeLess,
   AssertionStringSizeGreater,
   AssertionArraySizeLess,
@@ -299,6 +301,11 @@ DEFINE_STEP_WITH_VALUE(Assertion, TypeObjectBounded, ValueRange)
 /// @brief Represents a compiler assertion step that checks a string against an
 /// ECMA regular expression
 DEFINE_STEP_WITH_VALUE(Assertion, Regex, ValueRegex)
+
+/// @ingroup evaluator_instructions
+/// @brief Represents a compiler assertion step that checks the instance is a
+/// string and that is matches the given ECMA regular expression
+DEFINE_STEP_WITH_VALUE(Assertion, RegexString, ValueRegex)
 
 /// @ingroup evaluator_instructions
 /// @brief Represents a compiler assertion step that checks a given string has

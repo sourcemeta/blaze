@@ -331,6 +331,17 @@ auto evaluate_step(const sourcemeta::blaze::Template::value_type &step,
       EVALUATE_END(assertion, AssertionRegex);
     }
 
+    case IS_STEP(AssertionRegexString): {
+      EVALUATE_BEGIN_NO_PRECONDITION(assertion, AssertionRegexString);
+      const auto &maybe_target{context.resolve_string_target()};
+      if (maybe_target.has_value()) {
+        result = std::regex_search(maybe_target.value().get(),
+                                   assertion.value.first);
+      }
+
+      EVALUATE_END(assertion, AssertionRegexString);
+    }
+
     case IS_STEP(AssertionStringSizeLess): {
       EVALUATE_BEGIN_IF_STRING(assertion, AssertionStringSizeLess);
       result = (sourcemeta::jsontoolkit::JSON::size(target) < assertion.value);

@@ -305,6 +305,11 @@ auto compiler_draft4_validation_type(const Context &context,
         return {};
       }
 
+      if (context.mode == Mode::FastValidation &&
+          schema_context.schema.defines("pattern")) {
+        return {};
+      }
+
       return {make<AssertionTypeStrict>(
           context, schema_context, dynamic_context,
           sourcemeta::jsontoolkit::JSON::Type::String)};
@@ -345,6 +350,11 @@ auto compiler_draft4_validation_type(const Context &context,
           context, schema_context, dynamic_context,
           sourcemeta::jsontoolkit::JSON::Type::Integer)};
     } else if (type == "string") {
+      if (context.mode == Mode::FastValidation &&
+          schema_context.schema.defines("pattern")) {
+        return {};
+      }
+
       return {make<AssertionTypeStrict>(
           context, schema_context, dynamic_context,
           sourcemeta::jsontoolkit::JSON::Type::String)};
@@ -1035,11 +1045,22 @@ auto compiler_draft4_validation_pattern(const Context &context,
 
   const auto &regex_string{
       schema_context.schema.at(dynamic_context.keyword).to_string()};
-  return {make<AssertionRegex>(
-      context, schema_context, dynamic_context,
-      ValueRegex{parse_regex(regex_string, schema_context.base,
-                             schema_context.relative_pointer),
-                 regex_string})};
+
+  if (schema_context.schema.defines("type") &&
+      schema_context.schema.at("type").is_string() &&
+      schema_context.schema.at("type").to_string() == "string") {
+    return {make<AssertionRegexString>(
+        context, schema_context, dynamic_context,
+        ValueRegex{parse_regex(regex_string, schema_context.base,
+                               schema_context.relative_pointer),
+                   regex_string})};
+  } else {
+    return {make<AssertionRegex>(
+        context, schema_context, dynamic_context,
+        ValueRegex{parse_regex(regex_string, schema_context.base,
+                               schema_context.relative_pointer),
+                   regex_string})};
+  }
 }
 
 auto compiler_draft4_validation_format(const Context &context,

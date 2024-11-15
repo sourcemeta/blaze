@@ -225,6 +225,7 @@ struct StepVisitor {
   HANDLE_STEP("assertion", "type-array-bounded", AssertionTypeArrayBounded)
   HANDLE_STEP("assertion", "type-object-bounded", AssertionTypeObjectBounded)
   HANDLE_STEP("assertion", "regex", AssertionRegex)
+  HANDLE_STEP("assertion", "regex-string", AssertionRegexString)
   HANDLE_STEP("assertion", "string-size-less", AssertionStringSizeLess)
   HANDLE_STEP("assertion", "string-size-greater", AssertionStringSizeGreater)
   HANDLE_STEP("assertion", "array-size-less", AssertionArraySizeLess)

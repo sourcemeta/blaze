@@ -1027,6 +1027,29 @@ struct DescribeVisitor {
     return message.str();
   }
 
+  auto operator()(const AssertionRegexString &step) const -> std::string {
+    if (std::any_of(this->evaluate_path.cbegin(), this->evaluate_path.cend(),
+                    [](const auto &token) {
+                      return token.is_property() &&
+                             token.to_property() == "propertyNames";
+                    }) &&
+        !this->instance_location.empty() &&
+        this->instance_location.back().is_property()) {
+      std::ostringstream message;
+      message << "The property name "
+              << escape_string(this->instance_location.back().to_property())
+              << " was expected to match the regular expression "
+              << escape_string(step_value(step).second);
+      return message.str();
+    }
+
+    std::ostringstream message;
+    message << "The value was expected to be a string that matches the regular "
+               "expression "
+            << escape_string(step_value(step).second);
+    return message.str();
+  }
+
   auto operator()(const AssertionStringSizeLess &step) const -> std::string {
     if (this->keyword == "maxLength") {
       std::ostringstream message;
