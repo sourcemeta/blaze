@@ -824,9 +824,21 @@ auto compiler_draft4_applicator_patternproperties_with_options(
           context, schema_context, relative_dynamic_context, ValuePointer{}));
     }
 
-    // If the `patternProperties` subschema for the given pattern does
-    // nothing, then we can avoid generating an entire loop for it
-    if (!substeps.empty()) {
+    if (context.mode == Mode::FastValidation && !track_evaluation &&
+        patterns.size() == 1 && !schema_context.schema.defines("properties") &&
+        schema_context.schema.defines("additionalProperties") &&
+        schema_context.schema.at("additionalProperties").is_boolean() &&
+        !schema_context.schema.at("additionalProperties").to_boolean()) {
+      children.push_back(make<LoopPropertiesRegexClosed>(
+          context, schema_context, dynamic_context,
+          ValueRegex{parse_regex(pattern, schema_context.base,
+                                 schema_context.relative_pointer),
+                     pattern},
+          std::move(substeps)));
+
+      // If the `patternProperties` subschema for the given pattern does
+      // nothing, then we can avoid generating an entire loop for it
+    } else if (!substeps.empty()) {
       const auto maybe_prefix{pattern_as_prefix(pattern)};
       if (maybe_prefix.has_value()) {
         children.push_back(make<LoopPropertiesStartsWith>(
@@ -913,6 +925,11 @@ auto compiler_draft4_applicator_additionalproperties_with_options(
       filter_regexes.empty()) {
     return {make<LoopPropertiesWhitelist>(
         context, schema_context, dynamic_context, std::move(filter_strings))};
+  } else if (context.mode == Mode::FastValidation && filter_strings.empty() &&
+             filter_prefixes.empty() && filter_regexes.size() == 1 &&
+             !track_evaluation && !children.empty() &&
+             std::holds_alternative<AssertionFail>(children.front())) {
+    return {};
   }
 
   if (!filter_strings.empty() || !filter_prefixes.empty() ||

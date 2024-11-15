@@ -1594,6 +1594,17 @@ struct DescribeVisitor {
     return message.str();
   }
 
+  auto operator()(const LoopPropertiesRegexClosed &step) const -> std::string {
+    assert(this->target.is_object());
+    std::ostringstream message;
+    message << "The object properties were expected to match the regular "
+               "expression \""
+            << step_value(step).second
+            << "\" and validate against the defined pattern "
+               "property subschema";
+    return message.str();
+  }
+
   auto operator()(const LoopPropertiesStartsWith &step) const -> std::string {
     assert(this->target.is_object());
     std::ostringstream message;
