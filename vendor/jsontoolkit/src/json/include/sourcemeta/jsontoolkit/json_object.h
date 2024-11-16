@@ -8,6 +8,22 @@
 #include <map> // std::map
 #else
 #include <unordered_map> // std::unordered_map
+
+// This hash function is specifically designed to be constant
+// with regards to string length, and to exploit the fact that
+// most JSON objects don't have a lot of entries, so hash collision
+// is not as common
+namespace sourcemeta::jsontoolkit {
+template <typename T> struct ObjectKeyHash {
+  inline auto operator()(const T &value) const noexcept -> std::size_t {
+    return value.empty()
+               ? 0
+               : value.size() + static_cast<std::size_t>(value.front()) +
+                     static_cast<std::size_t>(value.back());
+  }
+};
+} // namespace sourcemeta::jsontoolkit
+
 #endif
 
 namespace sourcemeta::jsontoolkit {
@@ -23,7 +39,7 @@ public:
 #if defined(__GNUC__) && !defined(__clang__) && (__GNUC__ < 12)
       std::map<Key, Value, std::less<Key>,
 #else
-      std::unordered_map<Key, Value, std::hash<Key>, std::equal_to<Key>,
+      std::unordered_map<Key, Value, ObjectKeyHash<Key>, std::equal_to<Key>,
 #endif
                typename Value::template Allocator<
                    std::pair<const typename Value::String, Value>>>;
