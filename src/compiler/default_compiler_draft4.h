@@ -634,7 +634,13 @@ auto properties_as_loop(const Context &context,
     return true;
   }
 
-  return required.size() < (properties.size() / 2);
+  assert(properties.size() >= required.size());
+  const auto effective_size{properties.size() - required.size()};
+  if (effective_size > 5) {
+    return true;
+  }
+
+  return false;
 }
 
 auto compiler_draft4_applicator_properties_with_options(
