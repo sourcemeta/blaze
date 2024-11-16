@@ -70,14 +70,14 @@ TEST(Compiler_output_trace, pass_1) {
 
   EXPECT_EQ(traces.size(), 4);
 
-  EXPECT_OUTPUT(traces, 0, Push, "AssertionPropertyTypeStrict", "/foo",
+  EXPECT_OUTPUT(traces, 0, Push, "LoopPropertiesMatchClosed", "", "/properties",
+                "#/properties");
+  EXPECT_OUTPUT(traces, 1, Push, "AssertionTypeStrict", "/foo",
                 "/properties/foo/type", "#/properties/foo/type");
-  EXPECT_OUTPUT(traces, 1, Pass, "AssertionPropertyTypeStrict", "/foo",
+  EXPECT_OUTPUT(traces, 2, Pass, "AssertionTypeStrict", "/foo",
                 "/properties/foo/type", "#/properties/foo/type");
-  EXPECT_OUTPUT(traces, 2, Push, "LoopPropertiesWhitelist", "",
-                "/additionalProperties", "#/additionalProperties");
-  EXPECT_OUTPUT(traces, 3, Pass, "LoopPropertiesWhitelist", "",
-                "/additionalProperties", "#/additionalProperties");
+  EXPECT_OUTPUT(traces, 3, Pass, "LoopPropertiesMatchClosed", "", "/properties",
+                "#/properties");
 }
 
 TEST(Compiler_output_trace, pass_with_matching_prefix_1) {
@@ -118,12 +118,12 @@ TEST(Compiler_output_trace, pass_with_matching_prefix_1) {
 
   EXPECT_EQ(traces.size(), 4);
 
-  EXPECT_OUTPUT(traces, 0, Push, "AssertionPropertyTypeStrict", "/foo",
+  EXPECT_OUTPUT(traces, 0, Push, "LoopPropertiesMatchClosed", "", "/properties",
+                "#/$defs/helper/properties");
+  EXPECT_OUTPUT(traces, 1, Push, "AssertionTypeStrict", "/foo",
                 "/properties/foo/type", "#/$defs/helper/properties/foo/type");
-  EXPECT_OUTPUT(traces, 1, Pass, "AssertionPropertyTypeStrict", "/foo",
+  EXPECT_OUTPUT(traces, 2, Pass, "AssertionTypeStrict", "/foo",
                 "/properties/foo/type", "#/$defs/helper/properties/foo/type");
-  EXPECT_OUTPUT(traces, 2, Push, "LoopPropertiesWhitelist", "",
-                "/additionalProperties", "#/$defs/helper/additionalProperties");
-  EXPECT_OUTPUT(traces, 3, Pass, "LoopPropertiesWhitelist", "",
-                "/additionalProperties", "#/$defs/helper/additionalProperties");
+  EXPECT_OUTPUT(traces, 3, Pass, "LoopPropertiesMatchClosed", "", "/properties",
+                "#/$defs/helper/properties");
 }

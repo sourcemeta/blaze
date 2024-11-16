@@ -2564,25 +2564,37 @@ TEST(Evaluator_draft4, additionalProperties_5) {
   const sourcemeta::jsontoolkit::JSON instance{
       sourcemeta::jsontoolkit::parse("{ \"foo\": true, \"bar\": 2 }")};
 
-  EVALUATE_WITH_TRACE_FAST_FAILURE(schema, instance, 2);
+  if (FIRST_PROPERTY_IS(instance, "foo")) {
+    EVALUATE_WITH_TRACE_FAST_FAILURE(schema, instance, 2);
 
-  EVALUATE_TRACE_PRE(0, AssertionPropertyTypeStrict, "/properties/foo/type",
-                     "#/properties/foo/type", "/foo");
-  EVALUATE_TRACE_PRE(1, LoopPropertiesWhitelist, "/additionalProperties",
-                     "#/additionalProperties", "");
+    EVALUATE_TRACE_PRE(0, LoopPropertiesMatchClosed, "/properties",
+                       "#/properties", "");
+    EVALUATE_TRACE_PRE(1, AssertionTypeStrict, "/properties/foo/type",
+                       "#/properties/foo/type", "/foo");
 
-  EVALUATE_TRACE_POST_SUCCESS(0, AssertionPropertyTypeStrict,
-                              "/properties/foo/type", "#/properties/foo/type",
-                              "/foo");
-  EVALUATE_TRACE_POST_FAILURE(1, LoopPropertiesWhitelist,
-                              "/additionalProperties", "#/additionalProperties",
-                              "");
+    EVALUATE_TRACE_POST_SUCCESS(0, AssertionTypeStrict, "/properties/foo/type",
+                                "#/properties/foo/type", "/foo");
+    EVALUATE_TRACE_POST_FAILURE(1, LoopPropertiesMatchClosed, "/properties",
+                                "#/properties", "");
 
-  EVALUATE_TRACE_POST_DESCRIBE(instance, 0,
-                               "The value was expected to be of type boolean");
-  EVALUATE_TRACE_POST_DESCRIBE(
-      instance, 1,
-      "The object value was not expected to define additional properties")
+    EVALUATE_TRACE_POST_DESCRIBE(
+        instance, 0, "The value was expected to be of type boolean");
+    EVALUATE_TRACE_POST_DESCRIBE(
+        instance, 1,
+        "The object value was expected to validate "
+        "against the single defined property subschema")
+  } else {
+    EVALUATE_WITH_TRACE_FAST_FAILURE(schema, instance, 1);
+
+    EVALUATE_TRACE_PRE(0, LoopPropertiesMatchClosed, "/properties",
+                       "#/properties", "");
+    EVALUATE_TRACE_POST_FAILURE(0, LoopPropertiesMatchClosed, "/properties",
+                                "#/properties", "");
+    EVALUATE_TRACE_POST_DESCRIBE(
+        instance, 0,
+        "The object value was expected to validate "
+        "against the single defined property subschema")
+  }
 }
 
 TEST(Evaluator_draft4, additionalProperties_6) {
