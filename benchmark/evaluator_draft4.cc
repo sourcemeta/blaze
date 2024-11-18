@@ -562,6 +562,53 @@ static void Evaluator_Draft4_Properties_Triad_Closed(benchmark::State &state) {
   }
 }
 
+static void Evaluator_Draft4_Properties_Closed(benchmark::State &state) {
+  const sourcemeta::jsontoolkit::JSON schema{
+      sourcemeta::jsontoolkit::parse(R"JSON({
+    "$schema": "http://json-schema.org/draft-04/schema#",
+    "properties": {
+      "a": { "type": "boolean" },
+      "b": { "type": "boolean" },
+      "c": { "type": "boolean" },
+      "d": { "type": "boolean" },
+      "e": { "type": "boolean" },
+      "f": { "type": "boolean" },
+      "g": { "type": "boolean" },
+      "h": { "type": "boolean" },
+      "i": { "type": "boolean" },
+      "j": { "type": "boolean" },
+      "k": { "type": "boolean" },
+      "l": { "type": "boolean" },
+      "m": { "type": "boolean" },
+      "m": { "type": "boolean" },
+      "o": { "type": "boolean" },
+      "p": { "type": "boolean" },
+      "q": { "type": "boolean" }
+    },
+    "additionalProperties": false
+  })JSON")};
+
+  const sourcemeta::jsontoolkit::JSON instance{
+      sourcemeta::jsontoolkit::parse(R"JSON({
+    "a": true,
+    "b": true,
+    "c": true,
+    "d": true,
+    "e": true
+  })JSON")};
+
+  const auto schema_template{sourcemeta::blaze::compile(
+      schema, sourcemeta::jsontoolkit::default_schema_walker,
+      sourcemeta::jsontoolkit::official_resolver,
+      sourcemeta::blaze::default_schema_compiler)};
+
+  for (auto _ : state) {
+    auto result{sourcemeta::blaze::evaluate(schema_template, instance)};
+    assert(result);
+    benchmark::DoNotOptimize(result);
+  }
+}
+
 static void Evaluator_Draft4_Non_Recursive_Ref(benchmark::State &state) {
   const sourcemeta::jsontoolkit::JSON schema{
       sourcemeta::jsontoolkit::parse(R"JSON({
@@ -809,6 +856,7 @@ BENCHMARK(Evaluator_Draft4_Nested_Object);
 BENCHMARK(Evaluator_Draft4_Properties_Triad_Optional);
 BENCHMARK(Evaluator_Draft4_Properties_Triad_Closed);
 BENCHMARK(Evaluator_Draft4_Properties_Triad_Required);
+BENCHMARK(Evaluator_Draft4_Properties_Closed);
 BENCHMARK(Evaluator_Draft4_Non_Recursive_Ref);
 BENCHMARK(Evaluator_Draft4_Pattern_Properties_True);
 BENCHMARK(Evaluator_Draft4_Ref_To_Single_Property);
