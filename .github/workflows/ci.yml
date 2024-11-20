@@ -147,7 +147,7 @@ jobs:
         if: matrix.platform.benchmark
 
       - uses: benchmark-action/github-action-benchmark@v1
-        if: matrix.platform.benchmark
+        if: matrix.platform.benchmark && github.event.pull_request.head.repo.fork != true
         with:
           name: Benchmark (${{ matrix.platform.benchmark }})
           tool: googlecpp
