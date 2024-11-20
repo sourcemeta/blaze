@@ -951,9 +951,7 @@ auto evaluate_step(const sourcemeta::blaze::Template::value_type &step,
              !std::get<2>(loop.value).empty());
 
       for (const auto &entry : target.as_object()) {
-        if (std::find(std::get<0>(loop.value).cbegin(),
-                      std::get<0>(loop.value).cend(),
-                      entry.first) != std::get<0>(loop.value).cend()) {
+        if (std::get<0>(loop.value).contains(entry.first)) {
           continue;
         }
 
@@ -1171,9 +1169,7 @@ auto evaluate_step(const sourcemeta::blaze::Template::value_type &step,
              !std::get<2>(loop.value).empty());
 
       for (const auto &entry : target.as_object()) {
-        if (std::find(std::get<0>(loop.value).cbegin(),
-                      std::get<0>(loop.value).cend(),
-                      entry.first) != std::get<0>(loop.value).cend()) {
+        if (std::get<0>(loop.value).contains(entry.first)) {
           continue;
         }
 

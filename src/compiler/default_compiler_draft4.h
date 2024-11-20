@@ -895,7 +895,7 @@ auto compiler_draft4_applicator_additionalproperties_with_options(
         context, schema_context, relative_dynamic_context, ValueNone{}));
   }
 
-  ValueStrings filter_strings;
+  ValueStringSet filter_strings;
   ValueStrings filter_prefixes;
   std::vector<ValueRegex> filter_regexes;
 
@@ -903,7 +903,7 @@ auto compiler_draft4_applicator_additionalproperties_with_options(
       schema_context.schema.at("properties").is_object()) {
     for (const auto &entry :
          schema_context.schema.at("properties").as_object()) {
-      filter_strings.push_back(entry.first);
+      filter_strings.insert(entry.first);
     }
   }
 
@@ -938,11 +938,8 @@ auto compiler_draft4_applicator_additionalproperties_with_options(
                            schema_context.schema.at("properties"))) {
       return {};
     } else {
-      ValueStringSet filter_string_set{filter_strings.cbegin(),
-                                       filter_strings.cend()};
-      return {make<LoopPropertiesWhitelist>(context, schema_context,
-                                            dynamic_context,
-                                            std::move(filter_string_set))};
+      return {make<LoopPropertiesWhitelist>(
+          context, schema_context, dynamic_context, std::move(filter_strings))};
     }
   } else if (context.mode == Mode::FastValidation && filter_strings.empty() &&
              filter_prefixes.empty() && filter_regexes.size() == 1 &&
