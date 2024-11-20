@@ -762,8 +762,7 @@
     },
     {
       "source": "/product-features/plugins",
-      "destination": "/apps",
-      "statusCode": 301
+      "destination": "/apps"
     },
     {
       "source": "/product/user-paths",
@@ -783,8 +782,7 @@
     },
     {
       "source": "/product",
-      "destination": "/product-analytics",
-      "statusCode": 301
+      "destination": "/product-analytics"
     },
     {
       "source": "/product/funnels",
@@ -816,8 +814,7 @@
     },
     {
       "source": "/product/heatmaps",
-      "destination": "/tutorials/toolbar",
-      "statusCode": 301
+      "destination": "/tutorials/toolbar"
     },
     {
       "source": "/heatmaps",
@@ -2077,8 +2074,7 @@
     },
     {
       "source": "/community",
-      "destination": "/questions",
-      "statusCode": 302
+      "destination": "/questions"
     },
     {
       "source": "/roadmap/changelog",
@@ -2705,17 +2701,6 @@
       "destination": "/handbook/strategy/ideal-customer-persona"
     },
     {
-      "source": "/pricing",
-      "destination": "/pricing?product=ab-testing",
-      "has": [
-        {
-          "type": "query",
-          "key": "product",
-          "value": "experiments"
-        }
-      ]
-    },
-    {
       "source": "/tutorials/cohorts",
       "destination": "/docs/data/cohorts"
     },
@@ -2770,72 +2755,6 @@
     {
       "source": "/docs/surveys/manual",
       "destination": "/docs/surveys"
-    }
-  ],
-  "rewrites": [
-    {
-      "source": "/community/profiles/:path*",
-      "destination": "/community/profiles/[id]/index.html"
-    },
-    {
-      "source": "/next-steps/(.*)",
-      "destination": "/next-steps/index.html"
-    },
-    {
-      "source": "/questions/:path((?!topic).*)",
-      "destination": "/questions/[permalink]/index.html"
-    },
-    {
-      "source": "/careers/(.*)",
-      "destination": "/careers"
-    },
-    {
-      "source": "/api",
-      "destination": "/docs/api"
-    },
-    {
-      "source": "/tutorials/experiments",
-      "destination": "/docs/experiments/running-experiments-without-feature-flags"
-    },
-    {
-      "source": "/docs/data/subscriptions",
-      "destination": "/docs/product-analytics/subscriptions"
-    },
-    {
-      "source": "/docs/apps/feedback-widget",
-      "destination": "/docs/surveys/manual"
-    },
-    {
-      "source": "/apps/user-interviewer",
-      "destination": "/docs/surveys/manual"
-    },
-    {
-      "source": "/jobs",
-      "destination": "/careers"
-    },
-    {
-      "source": "/login",
-      "destination": "https://app.posthog.com/login"
-    },
-    {
-      "source": "/docs/getting-started/estimating-usage-costs",
-      "destination": "/docs/billing/estimating-usage-costs"
-    },
-    {
-      "source": "/docs/data/data-management",
-      "destination": "/docs/data"
-    },
-    {
-      "source": "/docs/batch-exports",
-      "destination": "/docs/cdp/batch-exports"
-    },
-    {
-      "source": "/docs/batch-exports/s3",
-      "destination": "/docs/cdp/batch-exports/s3"
-    },
-    {
-      "source": "/docs/batch-exports/snowflake",
-      "destination": "/docs/cdp/batch-exports/snowflake"
     }
   ]
 }
