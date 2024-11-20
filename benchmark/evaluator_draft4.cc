@@ -847,6 +847,68 @@ static void Evaluator_Draft4_Nested_Oneof(benchmark::State &state) {
   }
 }
 
+static void Evaluator_Draft4_Long_Enum(benchmark::State &state) {
+  const sourcemeta::jsontoolkit::JSON schema{
+      sourcemeta::jsontoolkit::parse(R"JSON({
+        "$schema": "http://json-schema.org/draft-04/schema#",
+        "enum": [
+          "apple_orchard_sunset_view",
+          "bright_yellow_daffodils_blooming",
+          "serene_lakeside_retreat",
+          "whispering_pine_forest",
+          "vivid_rainbow_arching_over_mountains",
+          "peaceful_zen_garden_path",
+          "midnight_cityscape_with_stars",
+          "crisp_autumn_leaves_falling",
+          "gentle_waves_on_sandy_beach",
+          "sparkling_winter_snowflake",
+          "glimmering_golden_sunrise",
+          "tranquil_hills_with_mist",
+          "lush_meadow_with_wildflowers",
+          "sunlit_tree_canopy",
+          "calm_ocean_surf_at_twilight",
+          "ancient_castle_ruins",
+          "rolling_green_valleys",
+          "colorful_parrot_in_rainforest",
+          "majestic_eagle_in_flight",
+          "hidden_cove_with_turquoise_water",
+          "mystical_cave_with_crystals",
+          "silent_desert_dunes",
+          "starlit_skies_over_open_plains",
+          "rustic_farmhouse_in_countryside",
+          "cheerful_market_square",
+          "picturesque_cliffside_village",
+          "bustling_metropolis_skyline",
+          "golden_grain_field",
+          "charming_floral_garden",
+          "wild_horses_running",
+          "serene_mountain_lake",
+          "gentle_stream_through_forest",
+          "historic_bridge_in_morning_fog",
+          "vintage_lighthouse_by_sea",
+          "cozy_fireplace_in_cabin",
+          "mystic_willow_tree",
+          "glistening_dew_on_grass",
+          "exotic_butterfly_collection",
+          "crystal_clear_pond",
+          "hidden_waterfall_in_jungle",
+          "verdant_bamboo_grove"
+        ]
+      })JSON")};
+
+  const sourcemeta::jsontoolkit::JSON instance{"verdant_bamboo_grove"};
+
+  const auto schema_template{sourcemeta::blaze::compile(
+      schema, sourcemeta::jsontoolkit::default_schema_walker,
+      sourcemeta::jsontoolkit::official_resolver,
+      sourcemeta::blaze::default_schema_compiler)};
+  for (auto _ : state) {
+    auto result{sourcemeta::blaze::evaluate(schema_template, instance)};
+    assert(result);
+    benchmark::DoNotOptimize(result);
+  }
+}
+
 BENCHMARK(Evaluator_Draft4_Meta_1_No_Callback);
 BENCHMARK(Evaluator_Draft4_Required_Properties);
 BENCHMARK(Evaluator_Draft4_Many_Optional_Properties_Minimal_Match);
@@ -862,3 +924,4 @@ BENCHMARK(Evaluator_Draft4_Pattern_Properties_True);
 BENCHMARK(Evaluator_Draft4_Ref_To_Single_Property);
 BENCHMARK(Evaluator_Draft4_Additional_Properties_Type);
 BENCHMARK(Evaluator_Draft4_Nested_Oneof);
+BENCHMARK(Evaluator_Draft4_Long_Enum);
