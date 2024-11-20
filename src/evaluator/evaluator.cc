@@ -204,11 +204,15 @@ auto evaluate_step(const sourcemeta::blaze::Template::value_type &step,
 
       // Otherwise we are we even emitting this instruction?
       assert(assertion.value.size() > 1);
-      result = true;
-      for (const auto &property : assertion.value) {
-        if (!target.defines(property)) {
-          result = false;
-          break;
+
+      // Otherwise there is no way the instance can satisfy it anyway
+      if (assertion.value.size() <= target.size()) {
+        result = true;
+        for (const auto &property : assertion.value) {
+          if (!target.defines(property)) {
+            result = false;
+            break;
+          }
         }
       }
 
