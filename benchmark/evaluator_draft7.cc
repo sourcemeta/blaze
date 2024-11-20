@@ -40,4 +40,25 @@ static void Evaluator_Draft7_If_Then_Else(benchmark::State &state) {
   }
 }
 
+static void Evaluator_Draft7_Vercel_1(benchmark::State &state) {
+  const auto schema{sourcemeta::jsontoolkit::from_file(
+      std::filesystem::path{CURRENT_DIRECTORY} / "schemas" /
+      "draft7_vercel.json")};
+
+  const auto instance{sourcemeta::jsontoolkit::from_file(
+      std::filesystem::path{CURRENT_DIRECTORY} / "instances" /
+      "draft7_vercel_1.json")};
+
+  const auto schema_template{sourcemeta::blaze::compile(
+      schema, sourcemeta::jsontoolkit::default_schema_walker,
+      sourcemeta::jsontoolkit::official_resolver,
+      sourcemeta::blaze::default_schema_compiler)};
+  for (auto _ : state) {
+    auto result{sourcemeta::blaze::evaluate(schema_template, instance)};
+    assert(result);
+    benchmark::DoNotOptimize(result);
+  }
+}
+
 BENCHMARK(Evaluator_Draft7_If_Then_Else);
+BENCHMARK(Evaluator_Draft7_Vercel_1);
