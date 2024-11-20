@@ -11,6 +11,8 @@ target_link_libraries(sourcemeta_blaze_compiler_unit
 target_link_libraries(sourcemeta_blaze_compiler_unit
   PRIVATE sourcemeta::jsontoolkit::json)
 target_link_libraries(sourcemeta_blaze_compiler_unit
+  PRIVATE sourcemeta::jsontoolkit::regex)
+target_link_libraries(sourcemeta_blaze_compiler_unit
   PRIVATE sourcemeta::jsontoolkit::jsonschema)
 target_link_libraries(sourcemeta_blaze_compiler_unit
   PRIVATE sourcemeta::blaze::compiler)

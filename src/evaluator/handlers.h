@@ -148,7 +148,7 @@ HANDLER_START {
 
   case IS_STEP(AssertionRegex): {
     EVALUATE_BEGIN_IF_STRING(assertion, AssertionRegex);
-    result = std::regex_search(target, assertion.value.first);
+    result = sourcemeta::jsontoolkit::validate(assertion.value.first, target);
     EVALUATE_END(assertion, AssertionRegex);
   }
 
@@ -773,7 +773,8 @@ HANDLER_START {
       if (std::any_of(std::get<2>(loop.value).cbegin(),
                       std::get<2>(loop.value).cend(),
                       [&entry](const auto &pattern) {
-                        return std::regex_search(entry.first, pattern.first);
+                        return sourcemeta::jsontoolkit::validate(pattern.first,
+                                                                 entry.first);
                       })) {
         continue;
       }
@@ -895,7 +896,7 @@ HANDLER_START {
     assert(!loop.children.empty());
     result = true;
     for (const auto &entry : target.as_object()) {
-      if (!std::regex_search(entry.first, loop.value.first)) {
+      if (!sourcemeta::jsontoolkit::validate(loop.value.first, entry.first)) {
         continue;
       }
 
@@ -918,7 +919,7 @@ HANDLER_START {
     EVALUATE_BEGIN(loop, LoopPropertiesRegexClosed, target.is_object());
     result = true;
     for (const auto &entry : target.as_object()) {
-      if (!std::regex_search(entry.first, loop.value.first)) {
+      if (!sourcemeta::jsontoolkit::validate(loop.value.first, entry.first)) {
         result = false;
         break;
       }
@@ -991,7 +992,8 @@ HANDLER_START {
       if (std::any_of(std::get<2>(loop.value).cbegin(),
                       std::get<2>(loop.value).cend(),
                       [&entry](const auto &pattern) {
-                        return std::regex_search(entry.first, pattern.first);
+                        return sourcemeta::jsontoolkit::validate(pattern.first,
+                                                                 entry.first);
                       })) {
         continue;
       }
