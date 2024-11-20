@@ -1,0 +1,16 @@
+cmake
+data
+doc
+example
+scripts
+subprojects
+test
+.clang-format
+.clang-tidy
+.fuzz-corpus-base-dir
+CMakeLists.txt
+CODE_OF_CONDUCT.md
+CONTRIBUTING.md
+meson.build
+README.md
+src

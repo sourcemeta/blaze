@@ -1,33 +1,30 @@
 #ifndef SOURCEMETA_JSONTOOLKIT_JSON_OBJECT_H_
 #define SOURCEMETA_JSONTOOLKIT_JSON_OBJECT_H_
 
-#include <functional>       // std::equal_to, std::less
-#include <initializer_list> // std::initializer_list
-
-#if defined(__GNUC__) && !defined(__clang__) && (__GNUC__ < 12)
-#include <map> // std::map
-#else
-#include <unordered_map> // std::unordered_map
+#if defined(__GNUC__)
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wmissing-braces"
 #endif
+#include <ankerl/unordered_dense.h>
+#if defined(__GNUC__)
+#pragma GCC diagnostic pop
+#endif
+
+#include <functional>       // std::equal_to
+#include <initializer_list> // std::initializer_list
+#include <memory>           // std::allocator
 
 namespace sourcemeta::jsontoolkit {
 
 /// @ingroup json
 template <typename Key, typename Value, typename Hash> class JSONObject {
 public:
+  using Container = ankerl::unordered_dense::map<
+      Key, Value, Hash, std::equal_to<Key>,
+      std::allocator<std::pair<Key, Value>>,
+      ankerl::unordered_dense::bucket_type::standard>;
+
   // Constructors
-
-  // Older versions of GCC don't allow `std::unordered_map` to incomplete
-  // types, and in this case, `Value` is an incomplete type.
-  using Container =
-#if defined(__GNUC__) && !defined(__clang__) && (__GNUC__ < 12)
-      std::map<Key, Value, std::less<Key>,
-#else
-      std::unordered_map<Key, Value, Hash, std::equal_to<Key>,
-#endif
-               typename Value::template Allocator<
-                   std::pair<const typename Value::String, Value>>>;
-
   JSONObject() : data{} {}
   JSONObject(std::initializer_list<typename Container::value_type> values)
       : data{values} {}

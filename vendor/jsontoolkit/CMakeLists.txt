@@ -41,6 +41,7 @@ if(JSONTOOLKIT_URI)
 endif()
 
 if(JSONTOOLKIT_JSON)
+  find_package(UnorderedDense REQUIRED)
   add_subdirectory(src/json)
 endif()
 
