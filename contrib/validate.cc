@@ -60,7 +60,7 @@ auto main(int argc, char **argv) noexcept -> int {
     const auto timestamp_end{std::chrono::high_resolution_clock::now()};
     const auto duration{std::chrono::duration_cast<std::chrono::nanoseconds>(
         timestamp_end - timestamp_start)};
-    std::cout << duration.count() << "ns\n";
+    std::cout << "#" << cursor << " " << duration.count() << "ns\n";
     if (!result) {
       std::cerr << "Fail to validate instance #" << cursor << "\n";
       return EXIT_FAILURE;
