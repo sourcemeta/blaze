@@ -6,6 +6,7 @@
 #endif
 
 #include <sourcemeta/jsontoolkit/json_array.h>
+#include <sourcemeta/jsontoolkit/json_hash.h>
 #include <sourcemeta/jsontoolkit/json_object.h>
 
 #include <algorithm>        // std::any_of
@@ -43,7 +44,7 @@ public:
   /// The array type used by the JSON document.
   using Array = JSONArray<JSON>;
   /// The object type used by the JSON document.
-  using Object = JSONObject<String, JSON>;
+  using Object = JSONObject<String, JSON, FastHash<JSON>>;
 
   /*
    * Constructors

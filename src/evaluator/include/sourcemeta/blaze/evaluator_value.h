@@ -17,16 +17,6 @@
 
 namespace sourcemeta::blaze {
 
-// TODO: Elevate this to JSON Toolkit
-/// @ingroup evaluator
-struct HashJSON {
-  inline auto
-  operator()(const sourcemeta::jsontoolkit::JSON &value) const noexcept
-      -> std::size_t {
-    return value.fast_hash();
-  }
-};
-
 /// @ingroup evaluator
 /// @brief Represents a compiler step empty value
 struct ValueNone {};
@@ -37,7 +27,8 @@ using ValueJSON = sourcemeta::jsontoolkit::JSON;
 
 /// @ingroup evaluator
 /// Represents a set of JSON values
-using ValueSet = std::unordered_set<sourcemeta::jsontoolkit::JSON, HashJSON>;
+using ValueSet = std::unordered_set<sourcemeta::jsontoolkit::JSON,
+                                    sourcemeta::jsontoolkit::Hash>;
 
 /// @ingroup evaluator
 /// Represents a compiler step string value
@@ -50,8 +41,7 @@ using ValueStrings = std::vector<ValueString>;
 /// @ingroup evaluator
 /// Represents a compiler step string set of values
 using ValueStringSet =
-    std::unordered_set<ValueString,
-                       sourcemeta::jsontoolkit::ObjectKeyHash<ValueString>>;
+    std::unordered_set<ValueString, sourcemeta::jsontoolkit::Hash>;
 
 /// @ingroup evaluator
 /// Represents a compiler step JSON types value
@@ -84,9 +74,8 @@ using ValueBoolean = bool;
 
 /// @ingroup evaluator
 /// Represents a compiler step string to index map
-using ValueNamedIndexes =
-    std::unordered_map<ValueString, ValueUnsignedInteger,
-                       sourcemeta::jsontoolkit::ObjectKeyHash<ValueString>>;
+using ValueNamedIndexes = std::unordered_map<ValueString, ValueUnsignedInteger,
+                                             sourcemeta::jsontoolkit::Hash>;
 
 /// @ingroup evaluator
 /// Represents a compiler step string logical type
@@ -94,9 +83,8 @@ enum class ValueStringType : std::uint8_t { URI };
 
 /// @ingroup evaluator
 /// Represents an compiler step that maps strings to strings
-using ValueStringMap =
-    std::unordered_map<ValueString, ValueStrings,
-                       sourcemeta::jsontoolkit::ObjectKeyHash<ValueString>>;
+using ValueStringMap = std::unordered_map<ValueString, ValueStrings,
+                                          sourcemeta::jsontoolkit::Hash>;
 
 /// @ingroup evaluator
 /// Represents a compiler step value that consist of object property filters

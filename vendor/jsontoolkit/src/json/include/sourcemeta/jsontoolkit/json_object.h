@@ -10,25 +10,10 @@
 #include <unordered_map> // std::unordered_map
 #endif
 
-// This hash function is specifically designed to be constant
-// with regards to string length, and to exploit the fact that
-// most JSON objects don't have a lot of entries, so hash collision
-// is not as common
-namespace sourcemeta::jsontoolkit {
-template <typename T> struct ObjectKeyHash {
-  inline auto operator()(const T &value) const noexcept -> std::size_t {
-    return value.empty()
-               ? 0
-               : value.size() + static_cast<std::size_t>(value.front()) +
-                     static_cast<std::size_t>(value.back());
-  }
-};
-} // namespace sourcemeta::jsontoolkit
-
 namespace sourcemeta::jsontoolkit {
 
 /// @ingroup json
-template <typename Key, typename Value> class JSONObject {
+template <typename Key, typename Value, typename Hash> class JSONObject {
 public:
   // Constructors
 
@@ -38,7 +23,7 @@ public:
 #if defined(__GNUC__) && !defined(__clang__) && (__GNUC__ < 12)
       std::map<Key, Value, std::less<Key>,
 #else
-      std::unordered_map<Key, Value, ObjectKeyHash<Key>, std::equal_to<Key>,
+      std::unordered_map<Key, Value, Hash, std::equal_to<Key>,
 #endif
                typename Value::template Allocator<
                    std::pair<const typename Value::String, Value>>>;
@@ -51,7 +36,8 @@ public:
   // We cannot default given that this class references
   // a JSON "value" as an incomplete type
 
-  auto operator<(const JSONObject<Key, Value> &other) const noexcept -> bool {
+  auto operator<(const JSONObject<Key, Value, Hash> &other) const noexcept
+      -> bool {
     // The `std::unordered_map` container, by definition, does not provide
     // ordering. However, we still want some level of ordering to allow
     // arrays of objects to be sorted.
@@ -71,19 +57,24 @@ public:
     return false;
   }
 
-  auto operator<=(const JSONObject<Key, Value> &other) const noexcept -> bool {
+  auto operator<=(const JSONObject<Key, Value, Hash> &other) const noexcept
+      -> bool {
     return this->data <= other.data;
   }
-  auto operator>(const JSONObject<Key, Value> &other) const noexcept -> bool {
+  auto operator>(const JSONObject<Key, Value, Hash> &other) const noexcept
+      -> bool {
     return this->data > other.data;
   }
-  auto operator>=(const JSONObject<Key, Value> &other) const noexcept -> bool {
+  auto operator>=(const JSONObject<Key, Value, Hash> &other) const noexcept
+      -> bool {
     return this->data >= other.data;
   }
-  auto operator==(const JSONObject<Key, Value> &other) const noexcept -> bool {
+  auto operator==(const JSONObject<Key, Value, Hash> &other) const noexcept
+      -> bool {
     return this->data == other.data;
   }
-  auto operator!=(const JSONObject<Key, Value> &other) const noexcept -> bool {
+  auto operator!=(const JSONObject<Key, Value, Hash> &other) const noexcept
+      -> bool {
     return this->data != other.data;
   }
 
