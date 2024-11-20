@@ -1431,10 +1431,10 @@ auto compiler_draft4_validation_enum(const Context &context,
             schema_context.schema.at(dynamic_context.keyword).front()})};
   }
 
-  std::vector<sourcemeta::jsontoolkit::JSON> options;
+  ValueSet options;
   for (const auto &option :
        schema_context.schema.at(dynamic_context.keyword).as_array()) {
-    options.push_back(option);
+    options.insert(option);
   }
 
   return {make<AssertionEqualsAny>(context, schema_context, dynamic_context,

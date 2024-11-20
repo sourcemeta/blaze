@@ -60,8 +60,8 @@ auto value_to_json(const T &value) -> sourcemeta::jsontoolkit::JSON {
 
     result.assign("value", std::move(items));
     return result;
-  } else if constexpr (std::is_same_v<ValueArray, T>) {
-    result.assign("type", sourcemeta::jsontoolkit::JSON{"array"});
+  } else if constexpr (std::is_same_v<ValueSet, T>) {
+    result.assign("type", sourcemeta::jsontoolkit::JSON{"set"});
     sourcemeta::jsontoolkit::JSON items{
         sourcemeta::jsontoolkit::JSON::make_array()};
     for (const auto &item : value) {

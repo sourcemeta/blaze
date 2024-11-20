@@ -338,7 +338,7 @@ DEFINE_STEP_WITH_VALUE(Assertion, Equal, ValueJSON)
 /// @ingroup evaluator_instructions
 /// @brief Represents a compiler assertion step that checks that a JSON document
 /// is equal to at least one of the given elements
-DEFINE_STEP_WITH_VALUE(Assertion, EqualsAny, ValueArray)
+DEFINE_STEP_WITH_VALUE(Assertion, EqualsAny, ValueSet)
 
 /// @ingroup evaluator_instructions
 /// @brief Represents a compiler assertion step that checks a JSON document is

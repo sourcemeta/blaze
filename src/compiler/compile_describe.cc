@@ -1402,9 +1402,12 @@ struct DescribeVisitor {
                 << " declared values";
       } else {
         message << " was expected to equal one of the following values: ";
-        for (auto iterator = value.cbegin(); iterator != value.cend();
+        std::vector<sourcemeta::jsontoolkit::JSON> copy{value.cbegin(),
+                                                        value.cend()};
+        std::sort(copy.begin(), copy.end());
+        for (auto iterator = copy.cbegin(); iterator != copy.cend();
              ++iterator) {
-          if (std::next(iterator) == value.cend()) {
+          if (std::next(iterator) == copy.cend()) {
             message << "and ";
             stringify(*iterator, message);
           } else {

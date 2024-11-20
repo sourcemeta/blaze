@@ -379,8 +379,7 @@ auto evaluate_step(const sourcemeta::blaze::Template::value_type &step,
 
     case IS_STEP(AssertionEqualsAny): {
       EVALUATE_BEGIN_NO_PRECONDITION(assertion, AssertionEqualsAny);
-      result = (std::find(assertion.value.cbegin(), assertion.value.cend(),
-                          context.resolve_target()) != assertion.value.cend());
+      result = assertion.value.contains(context.resolve_target());
       EVALUATE_END(assertion, AssertionEqualsAny);
     }
 
