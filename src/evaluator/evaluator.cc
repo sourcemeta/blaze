@@ -35,7 +35,7 @@ auto evaluate_step(const sourcemeta::blaze::Template::value_type &step,
     SOURCEMETA_TRACE_END(trace_begin_id, "Begin");                             \
     return true;                                                               \
   }                                                                            \
-  if (callback.has_value()) {                                                  \
+  if (callback.has_value()) [[unlikely]] {                                     \
     callback.value()(EvaluationType::Pre, true, step, context.evaluate_path,   \
                      context.instance_location, context.null);                 \
   }                                                                            \
@@ -50,12 +50,12 @@ auto evaluate_step(const sourcemeta::blaze::Template::value_type &step,
                step_category.relative_instance_location,                       \
                step_category.schema_resource, step_category.dynamic, track);   \
   const auto &maybe_target{context.resolve_string_target()};                   \
-  if (!maybe_target.has_value()) {                                             \
+  if (!maybe_target.has_value()) [[unlikely]] {                                \
     context.pop(step_category.dynamic, track);                                 \
     SOURCEMETA_TRACE_END(trace_begin_id, "Begin");                             \
     return true;                                                               \
   }                                                                            \
-  if (callback.has_value()) {                                                  \
+  if (callback.has_value()) [[unlikely]] {                                     \
     callback.value()(EvaluationType::Pre, true, step, context.evaluate_path,   \
                      context.instance_location, context.null);                 \
   }                                                                            \
@@ -74,7 +74,7 @@ auto evaluate_step(const sourcemeta::blaze::Template::value_type &step,
   context.push(step_category.relative_schema_location,                         \
                step_category.relative_instance_location,                       \
                step_category.schema_resource, step_category.dynamic, track);   \
-  if (callback.has_value()) {                                                  \
+  if (callback.has_value()) [[unlikely]] {                                     \
     callback.value()(EvaluationType::Pre, true, step, context.evaluate_path,   \
                      context.instance_location, context.null);                 \
   }                                                                            \
@@ -103,7 +103,7 @@ auto evaluate_step(const sourcemeta::blaze::Template::value_type &step,
                step_category.relative_instance_location,                       \
                step_category.schema_resource, step_category.dynamic, track,    \
                std::move(target_check.value()));                               \
-  if (callback.has_value()) {                                                  \
+  if (callback.has_value()) [[unlikely]] {                                     \
     callback.value()(EvaluationType::Pre, true, step, context.evaluate_path,   \
                      context.instance_location, context.null);                 \
   }                                                                            \
@@ -127,7 +127,7 @@ auto evaluate_step(const sourcemeta::blaze::Template::value_type &step,
 
 #define EVALUATE_BEGIN_NO_PRECONDITION_AND_NO_PUSH(step_category, step_type)   \
   const auto &step_category{std::get<step_type>(step)};                        \
-  if (callback.has_value()) {                                                  \
+  if (callback.has_value()) [[unlikely]] {                                     \
     callback.value()(EvaluationType::Pre, true, step, context.evaluate_path,   \
                      context.instance_location, context.null);                 \
   }                                                                            \
@@ -144,7 +144,7 @@ auto evaluate_step(const sourcemeta::blaze::Template::value_type &step,
 #define EVALUATE_END(step_category, step_type)                                 \
   SOURCEMETA_TRACE_END(trace_id, STRINGIFY(step_type));                        \
   SOURCEMETA_TRACE_START(trace_end_id, "End");                                 \
-  if (callback.has_value()) {                                                  \
+  if (callback.has_value()) [[unlikely]] {                                     \
     callback.value()(EvaluationType::Post, result, step,                       \
                      context.evaluate_path, context.instance_location,         \
                      context.null);                                            \
@@ -156,7 +156,7 @@ auto evaluate_step(const sourcemeta::blaze::Template::value_type &step,
 #define EVALUATE_END_NO_POP(step_category, step_type)                          \
   SOURCEMETA_TRACE_END(trace_id, STRINGIFY(step_type));                        \
   SOURCEMETA_TRACE_START(trace_end_id, "End");                                 \
-  if (callback.has_value()) {                                                  \
+  if (callback.has_value()) [[unlikely]] {                                     \
     callback.value()(EvaluationType::Post, result, step,                       \
                      context.evaluate_path, context.instance_location,         \
                      context.null);                                            \
@@ -177,7 +177,7 @@ auto evaluate_step(const sourcemeta::blaze::Template::value_type &step,
   context.push(step_category.relative_schema_location,                         \
                step_category.relative_instance_location,                       \
                step_category.schema_resource, step_category.dynamic, track);   \
-  if (callback.has_value()) {                                                  \
+  if (callback.has_value()) [[unlikely]] {                                     \
     callback.value()(EvaluationType::Pre, true, step, context.evaluate_path,   \
                      destination, context.null);                               \
     callback.value()(EvaluationType::Post, true, step, context.evaluate_path,  \
@@ -220,7 +220,7 @@ evaluate_internal(sourcemeta::blaze::EvaluationContext &context,
     -> bool {
   bool overall{true};
   for (const auto &step : steps) {
-    if (!evaluate_step(step, callback, context)) {
+    if (!evaluate_step(step, callback, context)) [[unlikely]] {
       overall = false;
       break;
     }
