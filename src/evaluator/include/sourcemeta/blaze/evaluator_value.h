@@ -11,10 +11,21 @@
 #include <string>        // std::string
 #include <tuple>         // std::tuple
 #include <unordered_map> // std::unordered_map
+#include <unordered_set> // std::unordered_set
 #include <utility>       // std::pair
 #include <vector>        // std::vector
 
 namespace sourcemeta::blaze {
+
+// TODO: Elevate this to JSON Toolkit
+/// @ingroup evaluator
+struct HashJSON {
+  inline auto
+  operator()(const sourcemeta::jsontoolkit::JSON &value) const noexcept
+      -> std::size_t {
+    return value.fast_hash();
+  }
+};
 
 /// @ingroup evaluator
 /// @brief Represents a compiler step empty value
@@ -24,13 +35,9 @@ struct ValueNone {};
 /// Represents a compiler step JSON value
 using ValueJSON = sourcemeta::jsontoolkit::JSON;
 
-// Note that for these steps, we prefer vectors over sets as the former performs
-// better for small collections, where we can even guarantee uniqueness when
-// generating the instructions
-
 /// @ingroup evaluator
 /// Represents a set of JSON values
-using ValueArray = std::vector<sourcemeta::jsontoolkit::JSON>;
+using ValueSet = std::unordered_set<sourcemeta::jsontoolkit::JSON, HashJSON>;
 
 /// @ingroup evaluator
 /// Represents a compiler step string values

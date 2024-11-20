@@ -4154,7 +4154,7 @@ TEST(Evaluator_draft4, enum_2) {
   EVALUATE_TRACE_POST_DESCRIBE(
       instance, 0,
       "The object value {\"foo\":1} was expected to equal one of the following "
-      "values: 1, {}, and \"foo\"");
+      "values: 1, \"foo\", and {}");
 }
 
 TEST(Evaluator_draft4, enum_3) {
