@@ -6,6 +6,7 @@
 #endif
 
 #include <sourcemeta/jsontoolkit/json_error.h>
+#include <sourcemeta/jsontoolkit/json_hash.h>
 #include <sourcemeta/jsontoolkit/json_value.h>
 
 #include <cstdint>    // std::uint64_t
@@ -26,6 +27,9 @@
 /// ```
 
 namespace sourcemeta::jsontoolkit {
+
+/// @ingroup json
+using Hash = FastHash<JSON>;
 
 /// @ingroup json
 /// Create a JSON document from a C++ standard input stream. For example, a JSON
