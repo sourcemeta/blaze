@@ -40,16 +40,22 @@ using ValueJSON = sourcemeta::jsontoolkit::JSON;
 using ValueSet = std::unordered_set<sourcemeta::jsontoolkit::JSON, HashJSON>;
 
 /// @ingroup evaluator
+/// Represents a compiler step string value
+using ValueString = sourcemeta::jsontoolkit::JSON::String;
+
+/// @ingroup evaluator
 /// Represents a compiler step string values
-using ValueStrings = std::vector<sourcemeta::jsontoolkit::JSON::String>;
+using ValueStrings = std::vector<ValueString>;
+
+/// @ingroup evaluator
+/// Represents a compiler step string set of values
+using ValueStringSet =
+    std::unordered_set<ValueString,
+                       sourcemeta::jsontoolkit::ObjectKeyHash<ValueString>>;
 
 /// @ingroup evaluator
 /// Represents a compiler step JSON types value
 using ValueTypes = std::vector<sourcemeta::jsontoolkit::JSON::Type>;
-
-/// @ingroup evaluator
-/// Represents a compiler step string value
-using ValueString = sourcemeta::jsontoolkit::JSON::String;
 
 /// @ingroup evaluator
 /// Represents a compiler step JSON type value

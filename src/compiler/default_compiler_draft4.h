@@ -938,8 +938,11 @@ auto compiler_draft4_applicator_additionalproperties_with_options(
                            schema_context.schema.at("properties"))) {
       return {};
     } else {
-      return {make<LoopPropertiesWhitelist>(
-          context, schema_context, dynamic_context, std::move(filter_strings))};
+      ValueStringSet filter_string_set{filter_strings.cbegin(),
+                                       filter_strings.cend()};
+      return {make<LoopPropertiesWhitelist>(context, schema_context,
+                                            dynamic_context,
+                                            std::move(filter_string_set))};
     }
   } else if (context.mode == Mode::FastValidation && filter_strings.empty() &&
              filter_prefixes.empty() && filter_regexes.size() == 1 &&

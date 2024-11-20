@@ -522,7 +522,7 @@ DEFINE_STEP_APPLICATOR(Loop, PropertiesExcept, ValuePropertyFilter)
 /// @ingroup evaluator_instructions
 /// @brief Represents a compiler step that fails on properties that are not part
 /// of the given whitelist
-DEFINE_STEP_WITH_VALUE(Loop, PropertiesWhitelist, ValueStrings)
+DEFINE_STEP_WITH_VALUE(Loop, PropertiesWhitelist, ValueStringSet)
 
 /// @ingroup evaluator_instructions
 /// @brief Represents a compiler step that checks every object property is of a

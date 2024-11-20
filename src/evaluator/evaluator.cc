@@ -1219,8 +1219,7 @@ auto evaluate_step(const sourcemeta::blaze::Template::value_type &step,
       if (target.size() <= loop.value.size()) {
         result = true;
         for (const auto &entry : target.as_object()) {
-          if (std::find(loop.value.cbegin(), loop.value.cend(), entry.first) ==
-              loop.value.cend()) {
+          if (!loop.value.contains(entry.first)) {
             result = false;
             break;
           }
