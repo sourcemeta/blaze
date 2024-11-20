@@ -33,7 +33,7 @@ auto main(int argc, char **argv) noexcept -> int {
       std::chrono::duration_cast<std::chrono::milliseconds>(compile_end -
                                                             compile_start)};
 
-  std::cout << compile_duration.count() << "ms\n";
+  std::cerr << compile_duration.count() << "ms\n";
 
   // Get the instance/s
   const std::filesystem::path instance_path{argv[2]};
