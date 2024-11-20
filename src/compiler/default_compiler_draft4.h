@@ -617,6 +617,13 @@ auto properties_as_loop(const Context &context,
                            current_entry.pointer.initial() == target;
                   })};
 
+  if (!inside_disjunctor &&
+      schema_context.schema.defines("additionalProperties") &&
+      schema_context.schema.at("additionalProperties").is_boolean() &&
+      !schema_context.schema.at("additionalProperties").to_boolean()) {
+    return true;
+  }
+
   return
       // This strategy only makes sense if most of the properties are "optional"
       required.size() <= (size / 4) &&
