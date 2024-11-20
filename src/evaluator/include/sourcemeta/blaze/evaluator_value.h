@@ -71,7 +71,9 @@ using ValueBoolean = bool;
 
 /// @ingroup evaluator
 /// Represents a compiler step string to index map
-using ValueNamedIndexes = std::unordered_map<ValueString, ValueUnsignedInteger>;
+using ValueNamedIndexes =
+    std::unordered_map<ValueString, ValueUnsignedInteger,
+                       sourcemeta::jsontoolkit::ObjectKeyHash<ValueString>>;
 
 /// @ingroup evaluator
 /// Represents a compiler step string logical type
@@ -79,7 +81,9 @@ enum class ValueStringType : std::uint8_t { URI };
 
 /// @ingroup evaluator
 /// Represents an compiler step that maps strings to strings
-using ValueStringMap = std::unordered_map<ValueString, ValueStrings>;
+using ValueStringMap =
+    std::unordered_map<ValueString, ValueStrings,
+                       sourcemeta::jsontoolkit::ObjectKeyHash<ValueString>>;
 
 /// @ingroup evaluator
 /// Represents a compiler step value that consist of object property filters
