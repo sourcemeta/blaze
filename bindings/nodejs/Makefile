@@ -18,12 +18,14 @@ CXXFLAGS ?= -O3 -std=c++20 -flto \
 	-I$(ROOT)/vendor/jsontoolkit/vendor/uriparser/include \
 	-I$(ROOT)/vendor/jsontoolkit/src/uri/include \
 	-I$(ROOT)/vendor/jsontoolkit/src/json/include \
+	-I$(ROOT)/vendor/jsontoolkit/src/regex/include \
 	-I$(ROOT)/vendor/jsontoolkit/src/jsonpointer/include \
 	-I$(ROOT)/vendor/jsontoolkit/src/jsonschema/include \
 	-I$(ROOT)/src/evaluator/include \
 	-I$(ROOT)/src/compiler/include \
 	-DSOURCEMETA_JSONTOOLKIT_URI_EXPORT= \
 	-DSOURCEMETA_JSONTOOLKIT_JSON_EXPORT= \
+	-DSOURCEMETA_JSONTOOLKIT_REGEX_EXPORT= \
 	-DSOURCEMETA_JSONTOOLKIT_JSONPOINTER_EXPORT= \
 	-DSOURCEMETA_JSONTOOLKIT_JSONSCHEMA_EXPORT= \
 	-DSOURCEMETA_BLAZE_EVALUATOR_EXPORT= \
@@ -45,6 +47,7 @@ test: test.js
 build: ; $(MKDIR) $@
 build/uri: | build; $(MKDIR) $@
 build/json: | build; $(MKDIR) $@
+build/regex: | build; $(MKDIR) $@
 build/jsonpointer: | build; $(MKDIR) $@
 build/jsonschema: | build; $(MKDIR) $@
 build/evaluator: | build; $(MKDIR) $@
@@ -67,10 +70,10 @@ build/jsonschema/official_resolver.in.cc: \
 		-DOFFICIAL_RESOLVER_OUTPUT=$@ -P $<
 
 build/%.o: build/%.cc \
-	| build/uri build/json build/jsonpointer build/jsonschema build/evaluator build/compiler
+	| build/uri build/json build/regex build/jsonpointer build/jsonschema build/evaluator build/compiler
 	$(EMCC) $(CXXFLAGS) -o $@ -c $<
 build/%.o: $(ROOT)/vendor/jsontoolkit/src/%.cc \
-	| build/uri build/json build/jsonpointer build/jsonschema
+	| build/uri build/json build/regex build/jsonpointer build/jsonschema
 	$(EMCC) $(CXXFLAGS) -o $@ -c $<
 build/%.o: $(ROOT)/src/%.cc \
 	| build/evaluator build/compiler
@@ -80,6 +83,7 @@ build/%.js: %.cc \
 	$(patsubst ../../vendor/jsontoolkit/vendor/uriparser/src/%.c,build/uriparser/%.o,$(wildcard $(ROOT)/vendor/jsontoolkit/vendor/uriparser/src/*.c)) \
 	$(patsubst ../../vendor/jsontoolkit/src/%.cc,build/%.o,$(wildcard $(ROOT)/vendor/jsontoolkit/src/uri/*.cc)) \
 	$(patsubst ../../vendor/jsontoolkit/src/%.cc,build/%.o,$(wildcard $(ROOT)/vendor/jsontoolkit/src/json/*.cc)) \
+	$(patsubst ../../vendor/jsontoolkit/src/%.cc,build/%.o,$(wildcard $(ROOT)/vendor/jsontoolkit/src/regex/*.cc)) \
 	$(patsubst ../../vendor/jsontoolkit/src/%.cc,build/%.o,$(wildcard $(ROOT)/vendor/jsontoolkit/src/jsonpointer/*.cc)) \
 	$(patsubst ../../vendor/jsontoolkit/src/%.cc,build/%.o,$(wildcard $(ROOT)/vendor/jsontoolkit/src/jsonschema/*.cc)) \
 	$(patsubst ../../vendor/jsontoolkit/src/%.cc,build/%.o,$(wildcard $(ROOT)/src/evaluator/*.cc)) \

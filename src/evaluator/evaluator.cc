@@ -1,4 +1,5 @@
 #include <sourcemeta/blaze/evaluator.h>
+#include <sourcemeta/jsontoolkit/regex.h>
 #include <sourcemeta/jsontoolkit/uri.h>
 
 #include "trace.h"

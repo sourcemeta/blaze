@@ -2,6 +2,7 @@
 
 #include <sourcemeta/blaze/compiler.h>
 #include <sourcemeta/jsontoolkit/json.h>
+#include <sourcemeta/jsontoolkit/regex.h>
 
 TEST(Compiler_json, defines_basic_root) {
   using namespace sourcemeta::jsontoolkit;
@@ -402,7 +403,7 @@ TEST(Compiler_json, regex_basic) {
 
   const Template steps{AssertionRegex{
       Pointer{}, Pointer{}, "#", 0, true, true,
-      ValueRegex{std::regex{"^a", std::regex::ECMAScript}, "^a"}}};
+      ValueRegex{sourcemeta::jsontoolkit::compile("^a").value(), "^a"}}};
 
   const JSON result{to_json(steps)};
   const JSON expected{parse(R"EOF([

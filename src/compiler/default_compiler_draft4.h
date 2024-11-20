@@ -3,10 +3,10 @@
 
 #include <sourcemeta/blaze/compiler.h>
 #include <sourcemeta/blaze/evaluator_context.h>
+#include <sourcemeta/jsontoolkit/regex.h>
 
 #include <algorithm> // std::sort, std::any_of, std::all_of, std::find_if, std::none_of
 #include <cassert> // assert
-#include <regex>   // std::regex, std::regex_error
 #include <set>     // std::set
 #include <sstream> // std::ostringstream
 #include <utility> // std::move
@@ -16,15 +16,16 @@
 static auto parse_regex(const std::string &pattern,
                         const sourcemeta::jsontoolkit::URI &base,
                         const sourcemeta::jsontoolkit::Pointer &schema_location)
-    -> std::regex {
-  try {
-    return std::regex{pattern, std::regex::ECMAScript | std::regex::nosubs};
-  } catch (const std::regex_error &) {
+    -> sourcemeta::jsontoolkit::Regex {
+  const auto result{sourcemeta::jsontoolkit::compile(pattern)};
+  if (!result.has_value()) {
     std::ostringstream message;
     message << "Invalid regular expression: " << pattern;
     throw sourcemeta::blaze::CompilerError(base, schema_location,
                                            message.str());
   }
+
+  return result.value();
 }
 
 static auto collect_jump_labels(const sourcemeta::blaze::Template &steps,

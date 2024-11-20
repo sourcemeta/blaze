@@ -3,11 +3,11 @@
 
 #include <sourcemeta/jsontoolkit/json.h>
 #include <sourcemeta/jsontoolkit/jsonpointer.h>
+#include <sourcemeta/jsontoolkit/regex.h>
 #include <sourcemeta/jsontoolkit/uri.h>
 
 #include <cstdint>       // std::uint8_t
 #include <optional>      // std::optional, std::nullopt
-#include <regex>         // std::regex
 #include <string>        // std::string
 #include <tuple>         // std::tuple
 #include <unordered_map> // std::unordered_map
@@ -56,7 +56,7 @@ using ValueType = sourcemeta::jsontoolkit::JSON::Type;
 /// original string and the regular expression as standard regular expressions
 /// do not keep a copy of their original value (which we need for serialization
 /// purposes)
-using ValueRegex = std::pair<std::regex, std::string>;
+using ValueRegex = std::pair<sourcemeta::jsontoolkit::Regex, std::string>;
 
 /// @ingroup evaluator
 /// Represents a compiler step JSON unsigned integer value
