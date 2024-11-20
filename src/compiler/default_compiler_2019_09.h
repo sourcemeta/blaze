@@ -270,7 +270,7 @@ auto compiler_2019_09_applicator_unevaluatedproperties(
         context, schema_context, relative_dynamic_context, ValueNone{}));
   }
 
-  ValueStrings filter_strings;
+  ValueStringSet filter_strings;
   ValueStrings filter_prefixes;
   std::vector<ValueRegex> filter_regexes;
 
@@ -280,7 +280,7 @@ auto compiler_2019_09_applicator_unevaluatedproperties(
             "https://json-schema.org/draft/2020-12/vocab/applicator"},
            "properties", sourcemeta::jsontoolkit::JSON::Type::Object)) {
     for (const auto &property : entry.get().as_object()) {
-      filter_strings.push_back(property.first);
+      filter_strings.insert(property.first);
     }
   }
 

@@ -90,7 +90,7 @@ using ValueStringMap = std::unordered_map<ValueString, ValueStrings,
 /// Represents a compiler step value that consist of object property filters
 /// (strings, prefixes, regexes)
 using ValuePropertyFilter =
-    std::tuple<ValueStrings, ValueStrings, std::vector<ValueRegex>>;
+    std::tuple<ValueStringSet, ValueStrings, std::vector<ValueRegex>>;
 
 /// @ingroup evaluator
 /// Represents a compiler step value that consists of two indexes
