@@ -8,6 +8,7 @@
 #include <map> // std::map
 #else
 #include <unordered_map> // std::unordered_map
+#endif
 
 // This hash function is specifically designed to be constant
 // with regards to string length, and to exploit the fact that
@@ -23,8 +24,6 @@ template <typename T> struct ObjectKeyHash {
   }
 };
 } // namespace sourcemeta::jsontoolkit
-
-#endif
 
 namespace sourcemeta::jsontoolkit {
 
