@@ -138,10 +138,12 @@ auto EvaluationContext::leave(const bool track) -> void {
   this->instances.pop_back();
 }
 
-auto EvaluationContext::hash(const std::size_t &resource,
-                             const std::string &fragment) const noexcept
+auto EvaluationContext::hash(
+    const std::size_t &resource,
+    const sourcemeta::jsontoolkit::JSON::String &fragment) const noexcept
     -> std::size_t {
-  return resource + this->hasher_(fragment);
+  constexpr sourcemeta::jsontoolkit::Hash hasher_;
+  return resource + hasher_(fragment);
 }
 
 auto EvaluationContext::resolve_target()

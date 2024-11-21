@@ -75,8 +75,10 @@ public:
   // References and anchors
   ///////////////////////////////////////////////
 
-  auto hash(const std::size_t &resource,
-            const std::string &fragment) const noexcept -> std::size_t;
+  auto
+  hash(const std::size_t &resource,
+       const sourcemeta::jsontoolkit::JSON::String &fragment) const noexcept
+      -> std::size_t;
 
   ///////////////////////////////////////////////
   // Evaluation
@@ -109,7 +111,6 @@ public:
   std::uint64_t evaluate_path_size{0};
   sourcemeta::jsontoolkit::WeakPointer instance_location;
   std::vector<std::pair<std::size_t, std::size_t>> frame_sizes;
-  const std::hash<std::string> hasher_{};
   std::vector<std::size_t> resources;
   std::map<std::size_t, const std::reference_wrapper<const Template>> labels;
   std::optional<
