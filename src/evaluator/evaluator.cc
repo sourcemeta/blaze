@@ -1,4 +1,5 @@
 #include <sourcemeta/blaze/evaluator.h>
+
 #include <sourcemeta/jsontoolkit/regex.h>
 #include <sourcemeta/jsontoolkit/uri.h>
 
@@ -58,10 +59,21 @@ auto evaluate_step(
     const std::optional<
         std::reference_wrapper<const sourcemeta::jsontoolkit::JSON::String>>
         &property_target,
-    sourcemeta::blaze::EvaluationContext &context) -> bool {
+    const std::uint64_t depth, sourcemeta::blaze::EvaluationContext &context)
+    -> bool {
   SOURCEMETA_TRACE_REGISTER_ID(trace_id);
   using namespace sourcemeta::jsontoolkit;
   using namespace sourcemeta::blaze;
+
+  // Guard against infinite recursion in a cheap manner, as
+  // infinite recursion will manifest itself through huge
+  // ever-growing evaluate paths
+  constexpr auto DEPTH_LIMIT{300};
+  if (depth > DEPTH_LIMIT) [[unlikely]] {
+    throw sourcemeta::blaze::EvaluationError(
+        "The evaluation path depth limit was reached "
+        "likely due to infinite recursion");
+  }
 
 #define STRINGIFY(x) #x
 
@@ -259,7 +271,7 @@ evaluate_internal(const sourcemeta::jsontoolkit::JSON &instance,
     -> bool {
   bool overall{true};
   for (const auto &step : steps) {
-    if (!evaluate_step(step, callback, instance, std::nullopt, context)) {
+    if (!evaluate_step(step, callback, instance, std::nullopt, 0, context)) {
       overall = false;
       break;
     }
@@ -268,7 +280,6 @@ evaluate_internal(const sourcemeta::jsontoolkit::JSON &instance,
   // The evaluation path and instance location must be empty by the time
   // we are done, otherwise there was a frame push/pop mismatch
   assert(context.evaluate_path.empty());
-  assert(context.evaluate_path_size == 0);
   assert(context.instance_location.empty());
   assert(context.resources.empty());
   return overall;
@@ -296,7 +307,6 @@ auto evaluate(const Instructions &steps,
               EvaluationContext &context) -> bool {
   // Do a full reset for the next run
   assert(context.evaluate_path.empty());
-  assert(context.evaluate_path_size == 0);
   assert(context.instance_location.empty());
   assert(context.resources.empty());
   context.labels.clear();
