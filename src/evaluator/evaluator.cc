@@ -80,8 +80,11 @@ auto evaluate_step(
   SOURCEMETA_TRACE_START(trace_id, STRINGIFY(step_type));                      \
   const auto &step_category{std::get<step_type>(step)};                        \
   const auto track{step_category.track || callback.has_value()};               \
-  context.push(step_category.relative_schema_location,                         \
-               step_category.relative_instance_location, track);               \
+  if (track) {                                                                 \
+    context.evaluate_path.push_back(step_category.relative_schema_location);   \
+    context.instance_location.push_back(                                       \
+        step_category.relative_instance_location);                             \
+  }                                                                            \
   if (step_category.dynamic) {                                                 \
     context.resources.push_back(step_category.schema_resource);                \
   }                                                                            \
@@ -90,8 +93,12 @@ auto evaluate_step(
       sourcemeta::jsontoolkit::get(                                            \
           instance, step_category.relative_instance_location))};               \
   if (!(precondition)) {                                                       \
-    context.pop(step_category.relative_schema_location.size(),                 \
-                step_category.relative_instance_location.size(), track);       \
+    if (track) {                                                               \
+      context.evaluate_path.pop_back(                                          \
+          step_category.relative_schema_location.size());                      \
+      context.instance_location.pop_back(                                      \
+          step_category.relative_instance_location.size());                    \
+    }                                                                          \
     if (step_category.dynamic) {                                               \
       context.resources.pop_back();                                            \
     }                                                                          \
@@ -108,16 +115,23 @@ auto evaluate_step(
   SOURCEMETA_TRACE_START(trace_id, STRINGIFY(step_type));                      \
   const auto &step_category{std::get<step_type>(step)};                        \
   const auto track{step_category.track || callback.has_value()};               \
-  context.push(step_category.relative_schema_location,                         \
-               step_category.relative_instance_location, track);               \
+  if (track) {                                                                 \
+    context.evaluate_path.push_back(step_category.relative_schema_location);   \
+    context.instance_location.push_back(                                       \
+        step_category.relative_instance_location);                             \
+  }                                                                            \
   if (step_category.dynamic) {                                                 \
     context.resources.push_back(step_category.schema_resource);                \
   }                                                                            \
   const auto &maybe_target{resolve_string_target(                              \
       property_target, instance, step_category.relative_instance_location)};   \
   if (!maybe_target.has_value()) {                                             \
-    context.pop(step_category.relative_schema_location.size(),                 \
-                step_category.relative_instance_location.size(), track);       \
+    if (track) {                                                               \
+      context.evaluate_path.pop_back(                                          \
+          step_category.relative_schema_location.size());                      \
+      context.instance_location.pop_back(                                      \
+          step_category.relative_instance_location.size());                    \
+    }                                                                          \
     if (step_category.dynamic) {                                               \
       context.resources.pop_back();                                            \
     }                                                                          \
@@ -132,9 +146,7 @@ auto evaluate_step(
   bool result{false};
 
   // This is a slightly complicated dance to avoid traversing the relative
-  // instance location twice. We first need to traverse it to check if its
-  // valid in the document as part of the condition, but if it is, we can
-  // pass it to `.push()` so that it doesn't need to traverse it again.
+  // instance location twice.
 #define EVALUATE_BEGIN_TRY_TARGET(step_category, step_type, precondition)      \
   SOURCEMETA_TRACE_START(trace_id, STRINGIFY(step_type));                      \
   const auto &target{instance};                                                \
@@ -150,8 +162,11 @@ auto evaluate_step(
     return true;                                                               \
   }                                                                            \
   const auto track{step_category.track || callback.has_value()};               \
-  context.push(step_category.relative_schema_location,                         \
-               step_category.relative_instance_location, track);               \
+  if (track) {                                                                 \
+    context.evaluate_path.push_back(step_category.relative_schema_location);   \
+    context.instance_location.push_back(                                       \
+        step_category.relative_instance_location);                             \
+  }                                                                            \
   if (step_category.dynamic) {                                                 \
     context.resources.push_back(step_category.schema_resource);                \
   }                                                                            \
@@ -166,8 +181,11 @@ auto evaluate_step(
   SOURCEMETA_TRACE_START(trace_id, STRINGIFY(step_type));                      \
   const auto &step_category{std::get<step_type>(step)};                        \
   const auto track{step_category.track || callback.has_value()};               \
-  context.push(step_category.relative_schema_location,                         \
-               step_category.relative_instance_location, track);               \
+  if (track) {                                                                 \
+    context.evaluate_path.push_back(step_category.relative_schema_location);   \
+    context.instance_location.push_back(                                       \
+        step_category.relative_instance_location);                             \
+  }                                                                            \
   if (step_category.dynamic) {                                                 \
     context.resources.push_back(step_category.schema_resource);                \
   }                                                                            \
@@ -197,8 +215,12 @@ auto evaluate_step(
                      context.evaluate_path, context.instance_location,         \
                      EvaluationContext::null);                                 \
   }                                                                            \
-  context.pop(step_category.relative_schema_location.size(),                   \
-              step_category.relative_instance_location.size(), track);         \
+  if (track) {                                                                 \
+    context.evaluate_path.pop_back(                                            \
+        step_category.relative_schema_location.size());                        \
+    context.instance_location.pop_back(                                        \
+        step_category.relative_instance_location.size());                      \
+  }                                                                            \
   if (step_category.dynamic) {                                                 \
     context.resources.pop_back();                                              \
   }                                                                            \
@@ -221,19 +243,20 @@ auto evaluate_step(
 #define EVALUATE_ANNOTATION(step_category, step_type, destination,             \
                             annotation_value)                                  \
   SOURCEMETA_TRACE_START(trace_id, STRINGIFY(step_type));                      \
-  const auto &step_category{std::get<step_type>(step)};                        \
-  const auto track{step_category.track || callback.has_value()};               \
-  assert(track);                                                               \
-  context.push(step_category.relative_schema_location,                         \
-               step_category.relative_instance_location, track);               \
   if (callback.has_value()) {                                                  \
+    const auto &step_category{std::get<step_type>(step)};                      \
+    context.evaluate_path.push_back(step_category.relative_schema_location);   \
+    context.instance_location.push_back(                                       \
+        step_category.relative_instance_location);                             \
     callback.value()(EvaluationType::Pre, true, step, context.evaluate_path,   \
                      destination, EvaluationContext::null);                    \
     callback.value()(EvaluationType::Post, true, step, context.evaluate_path,  \
                      destination, annotation_value);                           \
+    context.evaluate_path.pop_back(                                            \
+        step_category.relative_schema_location.size());                        \
+    context.instance_location.pop_back(                                        \
+        step_category.relative_instance_location.size());                      \
   }                                                                            \
-  context.pop(step_category.relative_schema_location.size(),                   \
-              step_category.relative_instance_location.size(), track);         \
   SOURCEMETA_TRACE_END(trace_id, STRINGIFY(step_type));                        \
   return true;
 

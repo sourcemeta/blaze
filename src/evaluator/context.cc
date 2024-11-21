@@ -7,27 +7,6 @@ namespace sourcemeta::blaze {
 const sourcemeta::jsontoolkit::JSON EvaluationContext::null{nullptr};
 const sourcemeta::jsontoolkit::JSON EvaluationContext::empty_string{""};
 
-// TODO: Completely inline push/pop
-
-auto EvaluationContext::push(
-    const sourcemeta::jsontoolkit::Pointer &relative_schema_location,
-    const sourcemeta::jsontoolkit::Pointer &relative_instance_location,
-    const bool track) -> void {
-  if (track) {
-    this->evaluate_path.push_back(relative_schema_location);
-    this->instance_location.push_back(relative_instance_location);
-  }
-}
-
-auto EvaluationContext::pop(const std::size_t relative_schema_location_size,
-                            const std::size_t relative_instance_location_size,
-                            const bool track) -> void {
-  if (track) {
-    this->evaluate_path.pop_back(relative_schema_location_size);
-    this->instance_location.pop_back(relative_instance_location_size);
-  }
-}
-
 auto EvaluationContext::hash(
     const std::size_t &resource,
     const sourcemeta::jsontoolkit::JSON::String &fragment) const noexcept
