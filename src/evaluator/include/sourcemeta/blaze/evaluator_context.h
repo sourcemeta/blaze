@@ -10,13 +10,8 @@
 #include <sourcemeta/jsontoolkit/json.h>
 #include <sourcemeta/jsontoolkit/jsonpointer.h>
 
-#include <cassert>    // assert
-#include <cstdint>    // std::uint8_t
 #include <functional> // std::reference_wrapper
 #include <map>        // std::map
-#include <optional>   // std::optional
-#include <set>        // std::set
-#include <string>     // std::string
 #include <vector>     // std::vector
 
 namespace sourcemeta::blaze {
@@ -40,25 +35,6 @@ public:
   auto pop(const std::size_t relative_schema_location_size,
            const std::size_t relative_instance_location_size,
            const bool dynamic, const bool track) -> void;
-
-  ///////////////////////////////////////////////
-  // Target resolution
-  ///////////////////////////////////////////////
-
-  // TODO: Make these methods plain functions on evaluator.cc
-  auto resolve_target(
-      const std::optional<
-          std::reference_wrapper<const sourcemeta::jsontoolkit::JSON::String>>
-          &property_target,
-      const sourcemeta::jsontoolkit::JSON &instance)
-      -> const sourcemeta::jsontoolkit::JSON &;
-  auto resolve_string_target(
-      const std::optional<
-          std::reference_wrapper<const sourcemeta::jsontoolkit::JSON::String>>
-          &property_target,
-      const sourcemeta::jsontoolkit::JSON &instance) const
-      -> std::optional<
-          std::reference_wrapper<const sourcemeta::jsontoolkit::JSON::String>>;
 
   ///////////////////////////////////////////////
   // References and anchors
