@@ -12,7 +12,7 @@ using namespace sourcemeta::blaze;
 
 auto compiler_2020_12_applicator_prefixitems(
     const Context &context, const SchemaContext &schema_context,
-    const DynamicContext &dynamic_context) -> Template {
+    const DynamicContext &dynamic_context) -> Instructions {
   return compiler_draft4_applicator_items_array(
       context, schema_context, dynamic_context,
       context.mode == Mode::Exhaustive,
@@ -22,7 +22,7 @@ auto compiler_2020_12_applicator_prefixitems(
 auto compiler_2020_12_applicator_items(const Context &context,
                                        const SchemaContext &schema_context,
                                        const DynamicContext &dynamic_context)
-    -> Template {
+    -> Instructions {
   const auto cursor{(schema_context.schema.defines("prefixItems") &&
                      schema_context.schema.at("prefixItems").is_array())
                         ? schema_context.schema.at("prefixItems").size()
@@ -37,7 +37,7 @@ auto compiler_2020_12_applicator_items(const Context &context,
 auto compiler_2020_12_applicator_contains(const Context &context,
                                           const SchemaContext &schema_context,
                                           const DynamicContext &dynamic_context)
-    -> Template {
+    -> Instructions {
   return compiler_2019_09_applicator_contains_with_options(
       context, schema_context, dynamic_context,
       context.mode == Mode::Exhaustive,
@@ -47,7 +47,7 @@ auto compiler_2020_12_applicator_contains(const Context &context,
 auto compiler_2020_12_core_dynamicref(const Context &context,
                                       const SchemaContext &schema_context,
                                       const DynamicContext &dynamic_context)
-    -> Template {
+    -> Instructions {
   const auto &entry{static_frame_entry(context, schema_context)};
   // In this case, just behave as a normal static reference
   if (!context.references.contains(

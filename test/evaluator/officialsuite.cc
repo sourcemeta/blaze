@@ -185,7 +185,7 @@ static auto slugify(const std::string &input, std::ostream &output) -> void {
 class OfficialTest : public testing::Test {
 public:
   explicit OfficialTest(bool test_valid,
-                        sourcemeta::blaze::Template test_schema,
+                        sourcemeta::blaze::Instructions test_schema,
                         sourcemeta::jsontoolkit::JSON test_instance)
       : valid{test_valid}, schema{std::move(test_schema)},
         instance{std::move(test_instance)} {}
@@ -202,7 +202,7 @@ public:
 
 private:
   const bool valid;
-  const sourcemeta::blaze::Template schema;
+  const sourcemeta::blaze::Instructions schema;
   const sourcemeta::jsontoolkit::JSON instance;
 };
 

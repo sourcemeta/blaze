@@ -16,7 +16,7 @@ auto compile_subschema(const sourcemeta::blaze::Context &context,
                        const sourcemeta::blaze::SchemaContext &schema_context,
                        const sourcemeta::blaze::DynamicContext &dynamic_context,
                        const std::optional<std::string> &default_dialect)
-    -> sourcemeta::blaze::Template {
+    -> sourcemeta::blaze::Instructions {
   using namespace sourcemeta::blaze;
   assert(is_schema(schema_context.schema));
 
@@ -31,7 +31,7 @@ auto compile_subschema(const sourcemeta::blaze::Context &context,
     }
   }
 
-  Template steps;
+  Instructions steps;
   for (const auto &entry : sourcemeta::jsontoolkit::SchemaKeywordIterator{
            schema_context.schema, context.walker, context.resolver,
            default_dialect}) {
@@ -64,7 +64,7 @@ auto precompile(
     sourcemeta::blaze::SchemaContext &schema_context,
     const sourcemeta::blaze::DynamicContext &dynamic_context,
     const sourcemeta::jsontoolkit::ReferenceFrame::value_type &entry)
-    -> sourcemeta::blaze::Template {
+    -> sourcemeta::blaze::Instructions {
   const sourcemeta::jsontoolkit::URI anchor_uri{entry.first.second};
   const auto label{sourcemeta::blaze::EvaluationContext{}.hash(
       schema_resource_id(context,
@@ -104,7 +104,8 @@ auto compile(const sourcemeta::jsontoolkit::JSON &schema,
              const sourcemeta::jsontoolkit::SchemaWalker &walker,
              const sourcemeta::jsontoolkit::SchemaResolver &resolver,
              const Compiler &compiler, const Mode mode,
-             const std::optional<std::string> &default_dialect) -> Template {
+             const std::optional<std::string> &default_dialect)
+    -> Instructions {
   assert(is_schema(schema));
 
   // Make sure the input schema is bundled, otherwise we won't be able to
@@ -294,7 +295,7 @@ auto compile(const sourcemeta::jsontoolkit::JSON &schema,
                         unevaluated_items_schemas,
                         std::move(precompiled_static_schemas)};
   const DynamicContext dynamic_context{relative_dynamic_context};
-  Template compiler_template;
+  Instructions compiler_template;
 
   for (const auto &destination : context.precompiled_static_schemas) {
     assert(frame.contains(
@@ -344,7 +345,7 @@ auto compile(const Context &context, const SchemaContext &schema_context,
              const DynamicContext &dynamic_context,
              const sourcemeta::jsontoolkit::Pointer &schema_suffix,
              const sourcemeta::jsontoolkit::Pointer &instance_suffix,
-             const std::optional<std::string> &uri) -> Template {
+             const std::optional<std::string> &uri) -> Instructions {
   // Determine URI of the destination after recursion
   const std::string destination{
       uri.has_value()

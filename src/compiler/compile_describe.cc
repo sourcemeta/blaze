@@ -1953,7 +1953,7 @@ namespace sourcemeta::blaze {
 
 // TODO: What will unlock even better error messages is being able to
 // get the subschema being evaluated along with the keyword
-auto describe(const bool valid, const Template::value_type &step,
+auto describe(const bool valid, const Instruction &step,
               const sourcemeta::jsontoolkit::WeakPointer &evaluate_path,
               const sourcemeta::jsontoolkit::WeakPointer &instance_location,
               const sourcemeta::jsontoolkit::JSON &instance,

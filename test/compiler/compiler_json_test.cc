@@ -8,8 +8,8 @@ TEST(Compiler_json, defines_basic_root) {
   using namespace sourcemeta::jsontoolkit;
   using namespace sourcemeta::blaze;
 
-  const Template steps{AssertionDefines{Pointer{}, Pointer{}, "#", 0, true,
-                                        true, ValueString{"foo"}}};
+  const Instructions steps{AssertionDefines{Pointer{}, Pointer{}, "#", 0, true,
+                                            true, ValueString{"foo"}}};
 
   const JSON result{to_json(steps)};
   const JSON expected{parse(R"EOF([
@@ -37,9 +37,9 @@ TEST(Compiler_json, defines_basic_nested) {
   using namespace sourcemeta::jsontoolkit;
   using namespace sourcemeta::blaze;
 
-  const Template steps{AssertionDefines{Pointer{"foo", "bar"}, Pointer{},
-                                        "#/foo/bar", 0, true, true,
-                                        ValueString{"foo"}}};
+  const Instructions steps{AssertionDefines{Pointer{"foo", "bar"}, Pointer{},
+                                            "#/foo/bar", 0, true, true,
+                                            ValueString{"foo"}}};
 
   const JSON result{to_json(steps)};
   const JSON expected{parse(R"EOF([
@@ -67,7 +67,7 @@ TEST(Compiler_json, fail_basic_root) {
   using namespace sourcemeta::jsontoolkit;
   using namespace sourcemeta::blaze;
 
-  const Template steps{
+  const Instructions steps{
       AssertionFail{Pointer{}, Pointer{}, "#", 0, true, true, ValueNone{}}};
 
   const JSON result{to_json(steps)};
@@ -92,7 +92,7 @@ TEST(Compiler_json, type_basic_root) {
   using namespace sourcemeta::jsontoolkit;
   using namespace sourcemeta::blaze;
 
-  const Template steps{AssertionTypeStrict{
+  const Instructions steps{AssertionTypeStrict{
       Pointer{}, Pointer{}, "#", 0, true, true, ValueType{JSON::Type::String}}};
 
   const JSON result{to_json(steps)};
@@ -121,7 +121,7 @@ TEST(Compiler_json, or_empty) {
   using namespace sourcemeta::jsontoolkit;
   using namespace sourcemeta::blaze;
 
-  const Template steps{
+  const Instructions steps{
       LogicalOr{Pointer{}, Pointer{}, "#", 0, true, true, false, {}}};
 
   const JSON result{to_json(steps)};
@@ -151,10 +151,10 @@ TEST(Compiler_json, or_single_child) {
   using namespace sourcemeta::jsontoolkit;
   using namespace sourcemeta::blaze;
 
-  const Template children{AssertionTypeStrict{
+  const Instructions children{AssertionTypeStrict{
       Pointer{}, Pointer{}, "#", 0, true, true, ValueType{JSON::Type::String}}};
 
-  const Template steps{
+  const Instructions steps{
       LogicalOr{Pointer{}, Pointer{}, "#", 0, true, true, false, children}};
 
   const JSON result{to_json(steps)};
@@ -200,13 +200,13 @@ TEST(Compiler_json, or_multiple_children) {
   using namespace sourcemeta::jsontoolkit;
   using namespace sourcemeta::blaze;
 
-  const Template children{
+  const Instructions children{
       AssertionTypeStrict{Pointer{}, Pointer{}, "#", 0, true, true,
                           ValueType{JSON::Type::String}},
       AssertionTypeStrict{Pointer{}, Pointer{}, "#", 0, true, true,
                           ValueType{JSON::Type::Array}}};
 
-  const Template steps{
+  const Instructions steps{
       LogicalOr{Pointer{}, Pointer{}, "#", 0, true, true, false, children}};
 
   const JSON result{to_json(steps)};
@@ -267,7 +267,7 @@ TEST(Compiler_json, and_empty) {
   using namespace sourcemeta::jsontoolkit;
   using namespace sourcemeta::blaze;
 
-  const Template steps{
+  const Instructions steps{
       LogicalAnd{Pointer{}, Pointer{}, "#", 0, true, true, ValueNone{}, {}}};
 
   const JSON result{to_json(steps)};
@@ -293,11 +293,11 @@ TEST(Compiler_json, and_single_child) {
   using namespace sourcemeta::jsontoolkit;
   using namespace sourcemeta::blaze;
 
-  const Template children{AssertionTypeStrict{
+  const Instructions children{AssertionTypeStrict{
       Pointer{}, Pointer{}, "#", 0, true, true, ValueType{JSON::Type::String}}};
 
-  const Template steps{LogicalAnd{Pointer{}, Pointer{}, "#", 0, true, true,
-                                  ValueNone{}, children}};
+  const Instructions steps{LogicalAnd{Pointer{}, Pointer{}, "#", 0, true, true,
+                                      ValueNone{}, children}};
 
   const JSON result{to_json(steps)};
   const JSON expected{parse(R"EOF([
@@ -338,14 +338,14 @@ TEST(Compiler_json, and_multiple_children) {
   using namespace sourcemeta::jsontoolkit;
   using namespace sourcemeta::blaze;
 
-  const Template children{
+  const Instructions children{
       AssertionTypeStrict{Pointer{}, Pointer{}, "#", 0, true, true,
                           ValueType{JSON::Type::String}},
       AssertionTypeStrict{Pointer{}, Pointer{}, "#", 0, true, true,
                           ValueType{JSON::Type::Array}}};
 
-  const Template steps{LogicalAnd{Pointer{}, Pointer{}, "#", 0, true, true,
-                                  ValueNone{}, children}};
+  const Instructions steps{LogicalAnd{Pointer{}, Pointer{}, "#", 0, true, true,
+                                      ValueNone{}, children}};
 
   const JSON result{to_json(steps)};
   const JSON expected{parse(R"EOF([
@@ -401,7 +401,7 @@ TEST(Compiler_json, regex_basic) {
   using namespace sourcemeta::jsontoolkit;
   using namespace sourcemeta::blaze;
 
-  const Template steps{AssertionRegex{
+  const Instructions steps{AssertionRegex{
       Pointer{}, Pointer{}, "#", 0, true, true,
       ValueRegex{sourcemeta::jsontoolkit::compile("^a").value(), "^a"}}};
 

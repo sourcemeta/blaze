@@ -8,7 +8,7 @@
 #ifdef __clang__
 #include <cxxabi.h> // abi::__cxa_demangle
 #include <memory>   // std::free
-static auto step_name(const sourcemeta::blaze::Template::value_type &step)
+static auto step_name(const sourcemeta::blaze::Instruction &step)
     -> std::string {
   return std::visit(
       [](const auto &value) {
@@ -26,15 +26,14 @@ static auto step_name(const sourcemeta::blaze::Template::value_type &step)
       step);
 }
 #elif defined(_MSC_VER)
-static auto step_name(const sourcemeta::blaze::Template::value_type &step)
+static auto step_name(const sourcemeta::blaze::Instruction &step)
     -> std::string {
   return std::visit(
       [](const auto &value) { return std::string{typeid(value).name()}; },
       step);
 }
 #else
-static auto step_name(const sourcemeta::blaze::Template::value_type &)
-    -> std::string {
+static auto step_name(const sourcemeta::blaze::Instruction &) -> std::string {
   // TODO: Properly implement for GCC
   return "????";
 }
@@ -58,8 +57,7 @@ auto TraceOutput::cbegin() const -> const_iterator {
 auto TraceOutput::cend() const -> const_iterator { return this->output.cend(); }
 
 auto TraceOutput::operator()(
-    const EvaluationType type, const bool result,
-    const Template::value_type &step,
+    const EvaluationType type, const bool result, const Instruction &step,
     const sourcemeta::jsontoolkit::WeakPointer &evaluate_path,
     const sourcemeta::jsontoolkit::WeakPointer &instance_location,
     const sourcemeta::jsontoolkit::JSON &) -> void {

@@ -11,7 +11,7 @@
 
 namespace {
 
-auto evaluate_step(const sourcemeta::blaze::Template::value_type &step,
+auto evaluate_step(const sourcemeta::blaze::Instruction &step,
                    const std::optional<sourcemeta::blaze::Callback> &callback,
                    sourcemeta::blaze::EvaluationContext &context) -> bool {
   SOURCEMETA_TRACE_REGISTER_ID(trace_begin_id);
@@ -199,8 +199,8 @@ auto evaluate_step(const sourcemeta::blaze::Template::value_type &step,
   assert(false);                                                               \
   return false;
 
-#define IS_STEP(step_type) TemplateIndex::step_type
-#define HANDLER_START switch (static_cast<TemplateIndex>(step.index()))
+#define IS_STEP(step_type) InstructionIndex::step_type
+#define HANDLER_START switch (static_cast<InstructionIndex>(step.index()))
 
 #include "dispatch.h"
 
@@ -223,7 +223,7 @@ auto evaluate_step(const sourcemeta::blaze::Template::value_type &step,
 
 inline auto
 evaluate_internal(sourcemeta::blaze::EvaluationContext &context,
-                  const sourcemeta::blaze::Template &steps,
+                  const sourcemeta::blaze::Instructions &steps,
                   const std::optional<sourcemeta::blaze::Callback> &callback)
     -> bool {
   bool overall{true};
@@ -249,7 +249,7 @@ evaluate_internal(sourcemeta::blaze::EvaluationContext &context,
 
 namespace sourcemeta::blaze {
 
-auto evaluate(const Template &steps,
+auto evaluate(const Instructions &steps,
               const sourcemeta::jsontoolkit::JSON &instance,
               const Callback &callback) -> bool {
   EvaluationContext context;
@@ -257,14 +257,14 @@ auto evaluate(const Template &steps,
   return evaluate_internal(context, steps, callback);
 }
 
-auto evaluate(const Template &steps,
+auto evaluate(const Instructions &steps,
               const sourcemeta::jsontoolkit::JSON &instance) -> bool {
   EvaluationContext context;
   context.prepare(instance);
   return evaluate_internal(context, steps, std::nullopt);
 }
 
-auto evaluate(const Template &steps, EvaluationContext &context) -> bool {
+auto evaluate(const Instructions &steps, EvaluationContext &context) -> bool {
   return evaluate_internal(context, steps, std::nullopt);
 }
 

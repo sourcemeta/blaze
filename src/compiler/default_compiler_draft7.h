@@ -12,11 +12,12 @@ using namespace sourcemeta::blaze;
 auto compiler_draft7_applicator_if(const Context &context,
                                    const SchemaContext &schema_context,
                                    const DynamicContext &dynamic_context)
-    -> Template {
+    -> Instructions {
   // `if`
-  Template children{compile(context, schema_context, relative_dynamic_context,
-                            sourcemeta::jsontoolkit::empty_pointer,
-                            sourcemeta::jsontoolkit::empty_pointer)};
+  Instructions children{compile(context, schema_context,
+                                relative_dynamic_context,
+                                sourcemeta::jsontoolkit::empty_pointer,
+                                sourcemeta::jsontoolkit::empty_pointer)};
 
   // `then`
   std::size_t then_cursor{0};
@@ -66,7 +67,7 @@ auto compiler_draft7_applicator_if(const Context &context,
 // TODO: Stop collapsing this keyword on exhaustive mode for debuggability
 // purposes
 auto compiler_draft7_applicator_then(const Context &, const SchemaContext &,
-                                     const DynamicContext &) -> Template {
+                                     const DynamicContext &) -> Instructions {
   return {};
 }
 
@@ -74,7 +75,7 @@ auto compiler_draft7_applicator_then(const Context &, const SchemaContext &,
 // TODO: Stop collapsing this keyword on exhaustive mode for debuggability
 // purposes
 auto compiler_draft7_applicator_else(const Context &, const SchemaContext &,
-                                     const DynamicContext &) -> Template {
+                                     const DynamicContext &) -> Instructions {
   return {};
 }
 

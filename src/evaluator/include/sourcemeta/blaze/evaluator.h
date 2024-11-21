@@ -7,7 +7,7 @@
 
 #include <sourcemeta/blaze/evaluator_context.h>
 #include <sourcemeta/blaze/evaluator_error.h>
-#include <sourcemeta/blaze/evaluator_template.h>
+#include <sourcemeta/blaze/evaluator_instruction.h>
 
 #include <sourcemeta/jsontoolkit/json.h>
 #include <sourcemeta/jsontoolkit/jsonpointer.h>
@@ -44,7 +44,7 @@ enum class EvaluationType : std::uint8_t { Pre, Post };
 ///
 /// You can use this callback mechanism to implement arbitrary output formats.
 using Callback =
-    std::function<void(const EvaluationType, bool, const Template::value_type &,
+    std::function<void(const EvaluationType, bool, const Instruction &,
                        const sourcemeta::jsontoolkit::WeakPointer &,
                        const sourcemeta::jsontoolkit::WeakPointer &,
                        const sourcemeta::jsontoolkit::JSON &)>;
@@ -79,8 +79,8 @@ using Callback =
 ///   schema_template, instance)};
 /// assert(result);
 /// ```
-auto SOURCEMETA_BLAZE_EVALUATOR_EXPORT
-evaluate(const Template &steps, const sourcemeta::jsontoolkit::JSON &instance)
+auto SOURCEMETA_BLAZE_EVALUATOR_EXPORT evaluate(
+    const Instructions &steps, const sourcemeta::jsontoolkit::JSON &instance)
     -> bool;
 
 /// @ingroup evaluator
@@ -111,7 +111,7 @@ evaluate(const Template &steps, const sourcemeta::jsontoolkit::JSON &instance)
 ///
 /// static auto callback(
 ///     bool result,
-///     const sourcemeta::blaze::Template::value_type &step,
+///     const sourcemeta::blaze::Instruction &step,
 ///     const sourcemeta::jsontoolkit::Pointer &evaluate_path,
 ///     const sourcemeta::jsontoolkit::Pointer &instance_location,
 ///     const sourcemeta::jsontoolkit::JSON &document,
@@ -135,9 +135,9 @@ evaluate(const Template &steps, const sourcemeta::jsontoolkit::JSON &instance)
 ///
 /// assert(result);
 /// ```
-auto SOURCEMETA_BLAZE_EVALUATOR_EXPORT
-evaluate(const Template &steps, const sourcemeta::jsontoolkit::JSON &instance,
-         const Callback &callback) -> bool;
+auto SOURCEMETA_BLAZE_EVALUATOR_EXPORT evaluate(
+    const Instructions &steps, const sourcemeta::jsontoolkit::JSON &instance,
+    const Callback &callback) -> bool;
 
 /// @ingroup evaluator
 ///
@@ -173,7 +173,7 @@ evaluate(const Template &steps, const sourcemeta::jsontoolkit::JSON &instance,
 ///   schema_template, context)};
 /// assert(result);
 /// ```
-auto SOURCEMETA_BLAZE_EVALUATOR_EXPORT evaluate(const Template &steps,
+auto SOURCEMETA_BLAZE_EVALUATOR_EXPORT evaluate(const Instructions &steps,
                                                 EvaluationContext &context)
     -> bool;
 
