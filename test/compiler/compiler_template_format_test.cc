@@ -11,8 +11,6 @@ TEST(Compiler_template_format, example_1) {
     "category": "annotation",
     "evaluatePath": true,
     "unknown": 1,
-    "track": true,
-    "dynamic": true,
     "type": "public",
     "relativeSchemaLocation": "",
     "relativeInstanceLocation": "",
@@ -38,8 +36,6 @@ TEST(Compiler_template_format, example_1) {
   "relativeSchemaLocation": "",
   "relativeInstanceLocation": "",
   "evaluatePath": true,
-  "dynamic": true,
-  "track": true,
   "unknown": 1
 })JSON");
 }

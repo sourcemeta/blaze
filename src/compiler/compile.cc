@@ -330,13 +330,16 @@ auto compile(const sourcemeta::jsontoolkit::JSON &schema,
 
   auto children{compile_subschema(context, schema_context, dynamic_context,
                                   root_frame_entry.dialect)};
+  const bool track{context.mode != Mode::FastValidation ||
+                   !context.unevaluated_properties_schemas.empty() ||
+                   !context.unevaluated_items_schemas.empty()};
   if (compiler_template.empty()) {
-    return {children, {}};
+    return {children, {context.uses_dynamic_scopes, track}};
   } else {
     compiler_template.reserve(compiler_template.size() + children.size());
     std::move(children.begin(), children.end(),
               std::back_inserter(compiler_template));
-    return {compiler_template, {}};
+    return {compiler_template, {context.uses_dynamic_scopes, track}};
   }
 }
 

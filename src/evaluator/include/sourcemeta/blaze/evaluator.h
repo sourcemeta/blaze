@@ -32,8 +32,11 @@ namespace sourcemeta::blaze {
 enum class EvaluationType : std::uint8_t { Pre, Post };
 
 /// @ingroup evaluator
-/// Flags that affect how evaluation is carried
-struct Modifiers {};
+/// Flags that affect how evaluation takes place
+struct Modifiers {
+  const bool dynamic;
+  const bool track;
+};
 
 /// @ingroup evaluator
 /// Represents a compiled schema ready for execution
