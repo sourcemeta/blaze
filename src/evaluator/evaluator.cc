@@ -4,17 +4,22 @@
 
 #include "trace.h"
 
-#include <algorithm> // std::min, std::any_of, std::find
-#include <cassert>   // assert
-#include <limits>    // std::numeric_limits
-#include <optional>  // std::optional
+#include <algorithm>  // std::min, std::any_of, std::find
+#include <cassert>    // assert
+#include <functional> // std::reference_wrapper
+#include <limits>     // std::numeric_limits
+#include <optional>   // std::optional
 
 namespace {
 
-auto evaluate_step(const sourcemeta::blaze::Instruction &step,
-                   const std::optional<sourcemeta::blaze::Callback> &callback,
-                   const sourcemeta::jsontoolkit::JSON &instance,
-                   sourcemeta::blaze::EvaluationContext &context) -> bool {
+auto evaluate_step(
+    const sourcemeta::blaze::Instruction &step,
+    const std::optional<sourcemeta::blaze::Callback> &callback,
+    const sourcemeta::jsontoolkit::JSON &instance,
+    const std::optional<
+        std::reference_wrapper<const sourcemeta::jsontoolkit::JSON::String>>
+        &property_target,
+    sourcemeta::blaze::EvaluationContext &context) -> bool {
   SOURCEMETA_TRACE_REGISTER_ID(trace_id);
   using namespace sourcemeta::jsontoolkit;
   using namespace sourcemeta::blaze;
@@ -28,8 +33,10 @@ auto evaluate_step(const sourcemeta::blaze::Instruction &step,
   context.push(step_category.relative_schema_location,                         \
                step_category.relative_instance_location,                       \
                step_category.schema_resource, step_category.dynamic, track);   \
-  const auto &target{context.resolve_target(sourcemeta::jsontoolkit::get(      \
-      instance, step_category.relative_instance_location))};                   \
+  const auto &target{context.resolve_target(                                   \
+      property_target,                                                         \
+      sourcemeta::jsontoolkit::get(                                            \
+          instance, step_category.relative_instance_location))};               \
   if (!(precondition)) {                                                       \
     context.pop(step_category.relative_schema_location.size(),                 \
                 step_category.relative_instance_location.size(),               \
@@ -50,8 +57,9 @@ auto evaluate_step(const sourcemeta::blaze::Instruction &step,
   context.push(step_category.relative_schema_location,                         \
                step_category.relative_instance_location,                       \
                step_category.schema_resource, step_category.dynamic, track);   \
-  const auto &maybe_target{                                                    \
-      context.resolve_string_target(sourcemeta::jsontoolkit::get(              \
+  const auto &maybe_target{context.resolve_string_target(                      \
+      property_target,                                                         \
+      sourcemeta::jsontoolkit::get(                                            \
           instance, step_category.relative_instance_location))};               \
   if (!maybe_target.has_value()) {                                             \
     context.pop(step_category.relative_schema_location.size(),                 \
@@ -73,7 +81,7 @@ auto evaluate_step(const sourcemeta::blaze::Instruction &step,
   // pass it to `.push()` so that it doesn't need to traverse it again.
 #define EVALUATE_BEGIN_TRY_TARGET(step_category, step_type, precondition)      \
   SOURCEMETA_TRACE_START(trace_id, STRINGIFY(step_type));                      \
-  const auto &target{context.resolve_target(instance)};                        \
+  const auto &target{context.resolve_target(property_target, instance)};       \
   const auto &step_category{std::get<step_type>(step)};                        \
   if (!(precondition)) {                                                       \
     SOURCEMETA_TRACE_END(trace_id, STRINGIFY(step_type));                      \
@@ -202,7 +210,7 @@ evaluate_internal(const sourcemeta::jsontoolkit::JSON &instance,
     -> bool {
   bool overall{true};
   for (const auto &step : steps) {
-    if (!evaluate_step(step, callback, instance, context)) {
+    if (!evaluate_step(step, callback, instance, std::nullopt, context)) {
       overall = false;
       break;
     }
@@ -241,7 +249,6 @@ auto evaluate(const Instructions &steps,
   assert(context.evaluate_path.empty());
   assert(context.evaluate_path_size == 0);
   assert(context.instance_location.empty());
-  assert(!context.property_target.has_value());
   assert(context.resources.empty());
   context.labels.clear();
   context.evaluated_.clear();
