@@ -20,10 +20,10 @@ HANDLER_START {
     assert(assertion.value.size() > 1);
 
     // Otherwise there is no way the instance can satisfy it anyway
-    if (assertion.value.size() <= target.size()) [[likely]] {
+    if (assertion.value.size() <= target.size()) {
       result = true;
       for (const auto &property : assertion.value) {
-        if (!target.defines(property)) [[unlikely]] {
+        if (!target.defines(property)) {
           result = false;
           break;
         }
@@ -46,7 +46,7 @@ HANDLER_START {
 
       assert(!dependencies.empty());
       for (const auto &dependency : dependencies) {
-        if (!target.defines(dependency)) [[unlikely]] {
+        if (!target.defines(dependency)) {
           result = false;
           EVALUATE_END(assertion, AssertionPropertyDependencies);
         }
@@ -287,7 +287,7 @@ HANDLER_START {
              (assertion.value == sourcemeta::jsontoolkit::JSON::Type::Integer &&
               effective_target.is_integer_real());
 
-    if (result) [[likely]] {
+    if (result) {
       assert(track);
       context.evaluate();
     }
@@ -315,7 +315,7 @@ HANDLER_START {
     // Now here we refer to the actual property
     result = context.resolve_target().type() == assertion.value;
 
-    if (result) [[likely]] {
+    if (result) {
       assert(track);
       context.evaluate();
     }
@@ -347,7 +347,7 @@ HANDLER_START {
         (std::find(assertion.value.cbegin(), assertion.value.cend(),
                    context.resolve_target().type()) != assertion.value.cend());
 
-    if (result) [[likely]] {
+    if (result) {
       assert(track);
       context.evaluate();
     }
@@ -370,7 +370,7 @@ HANDLER_START {
       result = true;
       assert(std::holds_alternative<ControlGroup>(entry));
       for (const auto &child : std::get<ControlGroup>(entry).children) {
-        if (!evaluate_step(child, callback, context)) [[unlikely]] {
+        if (!evaluate_step(child, callback, context)) {
           result = false;
           break;
         }
@@ -396,7 +396,7 @@ HANDLER_START {
       result = true;
       assert(std::holds_alternative<ControlGroup>(entry));
       for (const auto &child : std::get<ControlGroup>(entry).children) {
-        if (!evaluate_step(child, callback, context)) [[unlikely]] {
+        if (!evaluate_step(child, callback, context)) {
           result = false;
           EVALUATE_END(assertion, AssertionArrayPrefixEvaluate);
         }
@@ -420,7 +420,7 @@ HANDLER_START {
       if (evaluate_step(child, callback, context)) {
         result = true;
         // This boolean value controls whether we should be exhaustive
-        if (!logical.value) [[likely]] {
+        if (!logical.value) {
           break;
         }
       }
@@ -433,7 +433,7 @@ HANDLER_START {
     EVALUATE_BEGIN_NO_PRECONDITION(logical, LogicalAnd);
     result = true;
     for (const auto &child : logical.children) {
-      if (!evaluate_step(child, callback, context)) [[unlikely]] {
+      if (!evaluate_step(child, callback, context)) {
         result = false;
         break;
       }
@@ -446,7 +446,7 @@ HANDLER_START {
     EVALUATE_BEGIN(logical, LogicalWhenType, target.type() == logical.value);
     result = true;
     for (const auto &child : logical.children) {
-      if (!evaluate_step(child, callback, context)) [[unlikely]] {
+      if (!evaluate_step(child, callback, context)) {
         result = false;
         break;
       }
@@ -460,7 +460,7 @@ HANDLER_START {
                    target.is_object() && target.defines(logical.value));
     result = true;
     for (const auto &child : logical.children) {
-      if (!evaluate_step(child, callback, context)) [[unlikely]] {
+      if (!evaluate_step(child, callback, context)) {
         result = false;
         break;
       }
@@ -474,7 +474,7 @@ HANDLER_START {
                    target.is_array() && target.size() > logical.value);
     result = true;
     for (const auto &child : logical.children) {
-      if (!evaluate_step(child, callback, context)) [[unlikely]] {
+      if (!evaluate_step(child, callback, context)) {
         result = false;
         break;
       }
@@ -492,7 +492,7 @@ HANDLER_START {
         if (has_matched) {
           result = false;
           // This boolean value controls whether we should be exhaustive
-          if (!logical.value) [[likely]] {
+          if (!logical.value) {
             break;
           }
         } else {
@@ -520,8 +520,7 @@ HANDLER_START {
     }
 
     for (std::size_t cursor = 0; cursor < condition_end; cursor++) {
-      if (!evaluate_step(logical.children[cursor], callback, context))
-          [[unlikely]] {
+      if (!evaluate_step(logical.children[cursor], callback, context)) {
         result = false;
         break;
       }
@@ -563,7 +562,7 @@ HANDLER_START {
   case IS_STEP(ControlGroup): {
     EVALUATE_BEGIN_PASS_THROUGH(control, ControlGroup);
     for (const auto &child : control.children) {
-      if (!evaluate_step(child, callback, context)) [[unlikely]] {
+      if (!evaluate_step(child, callback, context)) {
         result = false;
         break;
       }
@@ -584,7 +583,7 @@ HANDLER_START {
 
     if (target.is_object() && target.defines(control.value)) {
       for (const auto &child : control.children) {
-        if (!evaluate_step(child, callback, context)) [[unlikely]] {
+        if (!evaluate_step(child, callback, context)) {
           result = false;
           break;
         }
@@ -600,7 +599,7 @@ HANDLER_START {
     context.labels.try_emplace(control.value, control.children);
     result = true;
     for (const auto &child : control.children) {
-      if (!evaluate_step(child, callback, context)) [[unlikely]] {
+      if (!evaluate_step(child, callback, context)) {
         result = false;
         break;
       }
@@ -618,7 +617,7 @@ HANDLER_START {
   case IS_STEP(ControlEvaluate): {
     EVALUATE_BEGIN_PASS_THROUGH(control, ControlEvaluate);
 
-    if (callback.has_value()) [[unlikely]] {
+    if (callback.has_value()) {
       // TODO: Optimize this case to avoid an extra pointer copy
       auto destination = context.instance_location;
       destination.push_back(control.value);
@@ -627,7 +626,7 @@ HANDLER_START {
       context.evaluate(control.value);
       callback.value()(EvaluationType::Post, true, step, context.evaluate_path,
                        destination, context.null);
-    } else [[likely]] {
+    } else {
       context.evaluate(control.value);
     }
 
@@ -639,7 +638,7 @@ HANDLER_START {
     result = true;
     assert(context.labels.contains(control.value));
     for (const auto &child : context.labels.at(control.value).get()) {
-      if (!evaluate_step(child, callback, context)) [[unlikely]] {
+      if (!evaluate_step(child, callback, context)) {
         result = false;
         break;
       }
@@ -654,10 +653,10 @@ HANDLER_START {
     for (const auto &resource : context.resources) {
       const auto label{context.hash(resource, control.value)};
       const auto match{context.labels.find(label)};
-      if (match != context.labels.cend()) [[likely]] {
+      if (match != context.labels.cend()) {
         result = true;
         for (const auto &child : match->second.get()) {
-          if (!evaluate_step(child, callback, context)) [[unlikely]] {
+          if (!evaluate_step(child, callback, context)) {
             result = false;
             EVALUATE_END(control, ControlDynamicAnchorJump);
           }
@@ -694,7 +693,7 @@ HANDLER_START {
     EVALUATE_BEGIN_NO_PRECONDITION(logical, LogicalNot);
 
     for (const auto &child : logical.children) {
-      if (!evaluate_step(child, callback, context)) [[likely]] {
+      if (!evaluate_step(child, callback, context)) {
         result = true;
         break;
       }
@@ -707,7 +706,7 @@ HANDLER_START {
     EVALUATE_BEGIN_NO_PRECONDITION(logical, LogicalNotEvaluate);
 
     for (const auto &child : logical.children) {
-      if (!evaluate_step(child, callback, context)) [[likely]] {
+      if (!evaluate_step(child, callback, context)) {
         result = true;
         break;
       }
@@ -732,7 +731,7 @@ HANDLER_START {
 
       context.enter(entry.first, true);
       for (const auto &child : loop.children) {
-        if (!evaluate_step(child, callback, context)) [[unlikely]] {
+        if (!evaluate_step(child, callback, context)) {
           result = false;
           context.leave(true);
           EVALUATE_END(loop, LoopPropertiesUnevaluated);
@@ -786,7 +785,7 @@ HANDLER_START {
 
       context.enter(entry.first, true);
       for (const auto &child : loop.children) {
-        if (!evaluate_step(child, callback, context)) [[unlikely]] {
+        if (!evaluate_step(child, callback, context)) {
           result = false;
           context.leave(true);
           EVALUATE_END(loop, LoopPropertiesUnevaluatedExcept);
@@ -815,7 +814,7 @@ HANDLER_START {
       const auto &substep{loop.children[index->second]};
       assert(std::holds_alternative<ControlGroup>(substep));
       for (const auto &child : std::get<ControlGroup>(substep).children) {
-        if (!evaluate_step(child, callback, context)) [[unlikely]] {
+        if (!evaluate_step(child, callback, context)) {
           result = false;
           EVALUATE_END(loop, LoopPropertiesMatch);
         }
@@ -831,7 +830,7 @@ HANDLER_START {
     result = true;
     for (const auto &entry : target.as_object()) {
       const auto index{loop.value.find(entry.first)};
-      if (index == loop.value.cend()) [[unlikely]] {
+      if (index == loop.value.cend()) {
         result = false;
         break;
       }
@@ -839,7 +838,7 @@ HANDLER_START {
       const auto &substep{loop.children[index->second]};
       assert(std::holds_alternative<ControlGroup>(substep));
       for (const auto &child : std::get<ControlGroup>(substep).children) {
-        if (!evaluate_step(child, callback, context)) [[unlikely]] {
+        if (!evaluate_step(child, callback, context)) {
           result = false;
           EVALUATE_END(loop, LoopPropertiesMatchClosed);
         }
@@ -856,7 +855,7 @@ HANDLER_START {
     for (const auto &entry : target.as_object()) {
       context.enter(entry.first, track);
       for (const auto &child : loop.children) {
-        if (!evaluate_step(child, callback, context)) [[unlikely]] {
+        if (!evaluate_step(child, callback, context)) {
           result = false;
           context.leave(track);
           EVALUATE_END(loop, LoopProperties);
@@ -876,7 +875,7 @@ HANDLER_START {
     for (const auto &entry : target.as_object()) {
       context.enter(entry.first, track);
       for (const auto &child : loop.children) {
-        if (!evaluate_step(child, callback, context)) [[unlikely]] {
+        if (!evaluate_step(child, callback, context)) {
           result = false;
           context.leave(track);
           EVALUATE_END(loop, LoopPropertiesEvaluate);
@@ -903,7 +902,7 @@ HANDLER_START {
 
       context.enter(entry.first, track);
       for (const auto &child : loop.children) {
-        if (!evaluate_step(child, callback, context)) [[unlikely]] {
+        if (!evaluate_step(child, callback, context)) {
           result = false;
           context.leave(track);
           EVALUATE_END(loop, LoopPropertiesRegex);
@@ -920,8 +919,7 @@ HANDLER_START {
     EVALUATE_BEGIN(loop, LoopPropertiesRegexClosed, target.is_object());
     result = true;
     for (const auto &entry : target.as_object()) {
-      if (!sourcemeta::jsontoolkit::validate(loop.value.first, entry.first))
-          [[unlikely]] {
+      if (!sourcemeta::jsontoolkit::validate(loop.value.first, entry.first)) {
         result = false;
         break;
       }
@@ -932,7 +930,7 @@ HANDLER_START {
 
       context.enter(entry.first, track);
       for (const auto &child : loop.children) {
-        if (!evaluate_step(child, callback, context)) [[unlikely]] {
+        if (!evaluate_step(child, callback, context)) {
           result = false;
           context.leave(track);
           EVALUATE_END(loop, LoopPropertiesRegexClosed);
@@ -956,7 +954,7 @@ HANDLER_START {
 
       context.enter(entry.first, track);
       for (const auto &child : loop.children) {
-        if (!evaluate_step(child, callback, context)) [[unlikely]] {
+        if (!evaluate_step(child, callback, context)) {
           result = false;
           context.leave(track);
           EVALUATE_END(loop, LoopPropertiesStartsWith);
@@ -1002,7 +1000,7 @@ HANDLER_START {
 
       context.enter(entry.first, track);
       for (const auto &child : loop.children) {
-        if (!evaluate_step(child, callback, context)) [[unlikely]] {
+        if (!evaluate_step(child, callback, context)) {
           result = false;
           context.leave(track);
           EVALUATE_END(loop, LoopPropertiesExcept);
@@ -1023,10 +1021,10 @@ HANDLER_START {
     // Otherwise if the number of properties in the instance
     // is larger than the whitelist, then it already violated
     // the whitelist?
-    if (target.size() <= loop.value.size()) [[likely]] {
+    if (target.size() <= loop.value.size()) {
       result = true;
       for (const auto &entry : target.as_object()) {
-        if (!loop.value.contains(entry.first)) [[unlikely]] {
+        if (!loop.value.contains(entry.first)) {
           result = false;
           break;
         }
@@ -1044,7 +1042,7 @@ HANDLER_START {
           // In non-strict mode, we consider a real number that represents an
           // integer to be an integer
           (loop.value != sourcemeta::jsontoolkit::JSON::Type::Integer ||
-           !entry.second.is_integer_real())) [[unlikely]] {
+           !entry.second.is_integer_real())) {
         result = false;
         break;
       }
@@ -1061,7 +1059,7 @@ HANDLER_START {
           // In non-strict mode, we consider a real number that represents an
           // integer to be an integer
           (loop.value != sourcemeta::jsontoolkit::JSON::Type::Integer ||
-           !entry.second.is_integer_real())) [[unlikely]] {
+           !entry.second.is_integer_real())) {
         result = false;
         EVALUATE_END(loop, LoopPropertiesTypeEvaluate);
       }
@@ -1077,7 +1075,7 @@ HANDLER_START {
     EVALUATE_BEGIN(loop, LoopPropertiesTypeStrict, target.is_object());
     result = true;
     for (const auto &entry : target.as_object()) {
-      if (entry.second.type() != loop.value) [[unlikely]] {
+      if (entry.second.type() != loop.value) {
         result = false;
         break;
       }
@@ -1090,7 +1088,7 @@ HANDLER_START {
     EVALUATE_BEGIN(loop, LoopPropertiesTypeStrictEvaluate, target.is_object());
     result = true;
     for (const auto &entry : target.as_object()) {
-      if (entry.second.type() != loop.value) [[unlikely]] {
+      if (entry.second.type() != loop.value) {
         result = false;
         EVALUATE_END(loop, LoopPropertiesTypeStrictEvaluate);
       }
@@ -1107,7 +1105,7 @@ HANDLER_START {
     result = true;
     for (const auto &entry : target.as_object()) {
       if (std::find(loop.value.cbegin(), loop.value.cend(),
-                    entry.second.type()) == loop.value.cend()) [[unlikely]] {
+                    entry.second.type()) == loop.value.cend()) {
         result = false;
         break;
       }
@@ -1122,7 +1120,7 @@ HANDLER_START {
     result = true;
     for (const auto &entry : target.as_object()) {
       if (std::find(loop.value.cbegin(), loop.value.cend(),
-                    entry.second.type()) == loop.value.cend()) [[unlikely]] {
+                    entry.second.type()) == loop.value.cend()) {
         result = false;
         EVALUATE_END(loop, LoopPropertiesTypeStrictAnyEvaluate);
       }
@@ -1144,7 +1142,7 @@ HANDLER_START {
       context.property_target = std::cref(entry.first);
 
       for (const auto &child : loop.children) {
-        if (!evaluate_step(child, callback, context)) [[unlikely]] {
+        if (!evaluate_step(child, callback, context)) {
           result = false;
           assert(context.property_target.has_value());
           context.property_target = std::nullopt;
@@ -1169,7 +1167,7 @@ HANDLER_START {
     for (std::size_t index = loop.value; index < target.size(); index++) {
       context.enter(index, track);
       for (const auto &child : loop.children) {
-        if (!evaluate_step(child, callback, context)) [[unlikely]] {
+        if (!evaluate_step(child, callback, context)) {
           result = false;
           context.leave(track);
           EVALUATE_END(loop, LoopItems);
@@ -1195,7 +1193,7 @@ HANDLER_START {
 
       context.enter(index, true);
       for (const auto &child : loop.children) {
-        if (!evaluate_step(child, callback, context)) [[unlikely]] {
+        if (!evaluate_step(child, callback, context)) {
           result = false;
           context.leave(true);
           EVALUATE_END(loop, LoopItemsUnevaluated);
@@ -1219,7 +1217,7 @@ HANDLER_START {
           // In non-strict mode, we consider a real number that represents an
           // integer to be an integer
           (loop.value != sourcemeta::jsontoolkit::JSON::Type::Integer ||
-           !entry.is_integer_real())) [[unlikely]] {
+           !entry.is_integer_real())) {
         result = false;
         break;
       }
@@ -1232,7 +1230,7 @@ HANDLER_START {
     EVALUATE_BEGIN(loop, LoopItemsTypeStrict, target.is_array());
     result = true;
     for (const auto &entry : target.as_array()) {
-      if (entry.type() != loop.value) [[unlikely]] {
+      if (entry.type() != loop.value) {
         result = false;
         break;
       }
@@ -1248,7 +1246,7 @@ HANDLER_START {
     result = true;
     for (const auto &entry : target.as_array()) {
       if (std::find(loop.value.cbegin(), loop.value.cend(), entry.type()) ==
-          loop.value.cend()) [[unlikely]] {
+          loop.value.cend()) {
         result = false;
         break;
       }
@@ -1308,7 +1306,7 @@ HANDLER_START {
   }
 
     // We should never get here
-  [[unlikely]] default:
+  default:
     EVALUATE_FAIL;
 }
 
