@@ -38,8 +38,10 @@ static void Evaluator_2019_09_Unevaluated_Properties(benchmark::State &state) {
       schema, sourcemeta::jsontoolkit::default_schema_walker,
       sourcemeta::jsontoolkit::official_resolver,
       sourcemeta::blaze::default_schema_compiler)};
+  sourcemeta::blaze::EvaluationContext context;
   for (auto _ : state) {
-    auto result{sourcemeta::blaze::evaluate(schema_template, instance)};
+    auto result{
+        sourcemeta::blaze::evaluate(schema_template, instance, context)};
     assert(result);
     benchmark::DoNotOptimize(result);
   }
@@ -58,8 +60,10 @@ static void Evaluator_2019_09_OMC_JSON_V2_1(benchmark::State &state) {
       schema, sourcemeta::jsontoolkit::default_schema_walker,
       sourcemeta::jsontoolkit::official_resolver,
       sourcemeta::blaze::default_schema_compiler)};
+  sourcemeta::blaze::EvaluationContext context;
   for (auto _ : state) {
-    auto result{sourcemeta::blaze::evaluate(schema_template, instance)};
+    auto result{
+        sourcemeta::blaze::evaluate(schema_template, instance, context)};
     assert(result);
     benchmark::DoNotOptimize(result);
   }
