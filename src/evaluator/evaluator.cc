@@ -137,7 +137,7 @@ auto evaluate_step(
   // pass it to `.push()` so that it doesn't need to traverse it again.
 #define EVALUATE_BEGIN_TRY_TARGET(step_category, step_type, precondition)      \
   SOURCEMETA_TRACE_START(trace_id, STRINGIFY(step_type));                      \
-  const auto &target{resolve_target(property_target, instance)};               \
+  const auto &target{instance};                                                \
   const auto &step_category{std::get<step_type>(step)};                        \
   if (!(precondition)) {                                                       \
     SOURCEMETA_TRACE_END(trace_id, STRINGIFY(step_type));                      \
