@@ -90,17 +90,14 @@ auto EvaluationContext::push(
 auto EvaluationContext::pop(const std::size_t relative_schema_location_size,
                             const std::size_t relative_instance_location_size,
                             const bool dynamic, const bool track) -> void {
+  if (relative_instance_location_size > 0) {
+    this->instances.pop_back();
+  }
+
   if (track) {
     this->evaluate_path.pop_back(relative_schema_location_size);
-    if (relative_instance_location_size > 0) {
-      this->instances.pop_back();
-      this->instance_location.pop_back(relative_instance_location_size);
-    }
+    this->instance_location.pop_back(relative_instance_location_size);
   } else {
-    if (relative_instance_location_size > 0) {
-      this->instances.pop_back();
-    }
-
     this->evaluate_path_size -= relative_schema_location_size;
   }
 
@@ -142,8 +139,7 @@ auto EvaluationContext::hash(
     const std::size_t &resource,
     const sourcemeta::jsontoolkit::JSON::String &fragment) const noexcept
     -> std::size_t {
-  constexpr sourcemeta::jsontoolkit::Hash hasher_;
-  return resource + hasher_(fragment);
+  return resource + this->hasher_(fragment);
 }
 
 auto EvaluationContext::resolve_target()
