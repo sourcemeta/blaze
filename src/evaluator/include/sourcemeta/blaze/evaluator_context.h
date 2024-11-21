@@ -50,7 +50,9 @@ public:
             const bool track,
             std::reference_wrapper<const sourcemeta::jsontoolkit::JSON>
                 &&new_instance) -> void;
-  auto pop(const bool dynamic, const bool track) -> void;
+  auto pop(const std::size_t relative_schema_location_size,
+           const std::size_t relative_instance_location_size,
+           const bool dynamic, const bool track) -> void;
   auto
   enter(const sourcemeta::jsontoolkit::WeakPointer::Token::Property &property,
         const bool track) -> void;
@@ -110,7 +112,6 @@ public:
   sourcemeta::jsontoolkit::WeakPointer evaluate_path;
   std::uint64_t evaluate_path_size{0};
   sourcemeta::jsontoolkit::WeakPointer instance_location;
-  std::vector<std::pair<std::size_t, std::size_t>> frame_sizes;
   std::vector<std::size_t> resources;
   std::map<std::size_t, const std::reference_wrapper<const Template>> labels;
   std::optional<

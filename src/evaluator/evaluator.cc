@@ -31,7 +31,9 @@ auto evaluate_step(const sourcemeta::blaze::Template::value_type &step,
                step_category.schema_resource, step_category.dynamic, track);   \
   const auto &target{context.resolve_target()};                                \
   if (!(precondition)) {                                                       \
-    context.pop(step_category.dynamic, track);                                 \
+    context.pop(step_category.relative_schema_location.size(),                 \
+                step_category.relative_instance_location.size(),               \
+                step_category.dynamic, track);                                 \
     SOURCEMETA_TRACE_END(trace_begin_id, "Begin");                             \
     return true;                                                               \
   }                                                                            \
@@ -51,7 +53,9 @@ auto evaluate_step(const sourcemeta::blaze::Template::value_type &step,
                step_category.schema_resource, step_category.dynamic, track);   \
   const auto &maybe_target{context.resolve_string_target()};                   \
   if (!maybe_target.has_value()) {                                             \
-    context.pop(step_category.dynamic, track);                                 \
+    context.pop(step_category.relative_schema_location.size(),                 \
+                step_category.relative_instance_location.size(),               \
+                step_category.dynamic, track);                                 \
     SOURCEMETA_TRACE_END(trace_begin_id, "Begin");                             \
     return true;                                                               \
   }                                                                            \
@@ -149,7 +153,9 @@ auto evaluate_step(const sourcemeta::blaze::Template::value_type &step,
                      context.evaluate_path, context.instance_location,         \
                      context.null);                                            \
   }                                                                            \
-  context.pop(step_category.dynamic, track);                                   \
+  context.pop(step_category.relative_schema_location.size(),                   \
+              step_category.relative_instance_location.size(),                 \
+              step_category.dynamic, track);                                   \
   SOURCEMETA_TRACE_END(trace_end_id, "End");                                   \
   return result;
 
@@ -183,7 +189,9 @@ auto evaluate_step(const sourcemeta::blaze::Template::value_type &step,
     callback.value()(EvaluationType::Post, true, step, context.evaluate_path,  \
                      destination, annotation_value);                           \
   }                                                                            \
-  context.pop(step_category.dynamic, track);                                   \
+  context.pop(step_category.relative_schema_location.size(),                   \
+              step_category.relative_instance_location.size(),                 \
+              step_category.dynamic, track);                                   \
   SOURCEMETA_TRACE_END(trace_id, STRINGIFY(step_type));                        \
   return true;
 
