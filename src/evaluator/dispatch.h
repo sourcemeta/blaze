@@ -1,19 +1,35 @@
 #ifndef SOURCEMETA_BLAZE_EVALUATOR_DISPATCH_H_
 #define SOURCEMETA_BLAZE_EVALUATOR_DISPATCH_H_
 
-HANDLER_START {
-  case IS_STEP(AssertionFail): {
+SOURCEMETA_TRACE_REGISTER_ID(trace_id);
+
+using namespace sourcemeta::jsontoolkit;
+using namespace sourcemeta::blaze;
+
+// Guard against infinite recursion in a cheap manner, as
+// infinite recursion will manifest itself through huge
+// ever-growing evaluate paths
+constexpr auto DEPTH_LIMIT{300};
+if (depth > DEPTH_LIMIT) [[unlikely]] {
+  throw EvaluationError("The evaluation path depth limit was reached "
+                        "likely due to infinite recursion");
+}
+
+#define IS_INSTRUCTION(instruction_type) InstructionIndex::instruction_type
+
+switch (static_cast<InstructionIndex>(instruction.index())) {
+  case IS_INSTRUCTION(AssertionFail): {
     EVALUATE_BEGIN_NO_PRECONDITION(assertion, AssertionFail);
     EVALUATE_END(assertion, AssertionFail);
   }
 
-  case IS_STEP(AssertionDefines): {
+  case IS_INSTRUCTION(AssertionDefines): {
     EVALUATE_BEGIN(assertion, AssertionDefines, target.is_object());
     result = target.defines(assertion.value);
     EVALUATE_END(assertion, AssertionDefines);
   }
 
-  case IS_STEP(AssertionDefinesAll): {
+  case IS_INSTRUCTION(AssertionDefinesAll): {
     EVALUATE_BEGIN(assertion, AssertionDefinesAll, target.is_object());
 
     // Otherwise we are we even emitting this instruction?
@@ -33,7 +49,7 @@ HANDLER_START {
     EVALUATE_END(assertion, AssertionDefinesAll);
   }
 
-  case IS_STEP(AssertionPropertyDependencies): {
+  case IS_INSTRUCTION(AssertionPropertyDependencies): {
     EVALUATE_BEGIN(assertion, AssertionPropertyDependencies,
                    target.is_object());
     // Otherwise we are we even emitting this instruction?
@@ -56,29 +72,26 @@ HANDLER_START {
     EVALUATE_END(assertion, AssertionPropertyDependencies);
   }
 
-  case IS_STEP(AssertionType): {
+  case IS_INSTRUCTION(AssertionType): {
     EVALUATE_BEGIN_NO_PRECONDITION(assertion, AssertionType);
-    const auto &target{sourcemeta::jsontoolkit::get(
-        instance, assertion.relative_instance_location)};
+    const auto &target{get(instance, assertion.relative_instance_location)};
     // In non-strict mode, we consider a real number that represents an
     // integer to be an integer
-    result = target.type() == assertion.value ||
-             (assertion.value == sourcemeta::jsontoolkit::JSON::Type::Integer &&
-              target.is_integer_real());
+    result =
+        target.type() == assertion.value ||
+        (assertion.value == JSON::Type::Integer && target.is_integer_real());
     EVALUATE_END(assertion, AssertionType);
   }
 
-  case IS_STEP(AssertionTypeAny): {
+  case IS_INSTRUCTION(AssertionTypeAny): {
     EVALUATE_BEGIN_NO_PRECONDITION(assertion, AssertionTypeAny);
     // Otherwise we are we even emitting this instruction?
     assert(assertion.value.size() > 1);
-    const auto &target{sourcemeta::jsontoolkit::get(
-        instance, assertion.relative_instance_location)};
+    const auto &target{get(instance, assertion.relative_instance_location)};
     // In non-strict mode, we consider a real number that represents an
     // integer to be an integer
     for (const auto type : assertion.value) {
-      if (type == sourcemeta::jsontoolkit::JSON::Type::Integer &&
-          target.is_integer_real()) {
+      if (type == JSON::Type::Integer && target.is_integer_real()) {
         result = true;
         break;
       } else if (type == target.type()) {
@@ -90,166 +103,156 @@ HANDLER_START {
     EVALUATE_END(assertion, AssertionTypeAny);
   }
 
-  case IS_STEP(AssertionTypeStrict): {
+  case IS_INSTRUCTION(AssertionTypeStrict): {
     EVALUATE_BEGIN_NO_PRECONDITION(assertion, AssertionTypeStrict);
-    const auto &target{sourcemeta::jsontoolkit::get(
-        instance, assertion.relative_instance_location)};
+    const auto &target{get(instance, assertion.relative_instance_location)};
     result = target.type() == assertion.value;
     EVALUATE_END(assertion, AssertionTypeStrict);
   }
 
-  case IS_STEP(AssertionTypeStrictAny): {
+  case IS_INSTRUCTION(AssertionTypeStrictAny): {
     EVALUATE_BEGIN_NO_PRECONDITION(assertion, AssertionTypeStrictAny);
     // Otherwise we are we even emitting this instruction?
     assert(assertion.value.size() > 1);
-    const auto &target{sourcemeta::jsontoolkit::get(
-        instance, assertion.relative_instance_location)};
+    const auto &target{get(instance, assertion.relative_instance_location)};
     result = (std::find(assertion.value.cbegin(), assertion.value.cend(),
                         target.type()) != assertion.value.cend());
     EVALUATE_END(assertion, AssertionTypeStrictAny);
   }
 
-  case IS_STEP(AssertionTypeStringBounded): {
+  case IS_INSTRUCTION(AssertionTypeStringBounded): {
     EVALUATE_BEGIN_NO_PRECONDITION(assertion, AssertionTypeStringBounded);
-    const auto &target{sourcemeta::jsontoolkit::get(
-        instance, assertion.relative_instance_location)};
+    const auto &target{get(instance, assertion.relative_instance_location)};
     const auto minimum{std::get<0>(assertion.value)};
     const auto maximum{std::get<1>(assertion.value)};
     assert(!maximum.has_value() || maximum.value() >= minimum);
     // Require early breaking
     assert(!std::get<2>(assertion.value));
-    result = target.type() == sourcemeta::jsontoolkit::JSON::Type::String &&
-             target.size() >= minimum &&
+    result = target.type() == JSON::Type::String && target.size() >= minimum &&
              (!maximum.has_value() || target.size() <= maximum.value());
     EVALUATE_END(assertion, AssertionTypeStringBounded);
   }
 
-  case IS_STEP(AssertionTypeArrayBounded): {
+  case IS_INSTRUCTION(AssertionTypeArrayBounded): {
     EVALUATE_BEGIN_NO_PRECONDITION(assertion, AssertionTypeArrayBounded);
-    const auto &target{sourcemeta::jsontoolkit::get(
-        instance, assertion.relative_instance_location)};
+    const auto &target{get(instance, assertion.relative_instance_location)};
     const auto minimum{std::get<0>(assertion.value)};
     const auto maximum{std::get<1>(assertion.value)};
     assert(!maximum.has_value() || maximum.value() >= minimum);
     // Require early breaking
     assert(!std::get<2>(assertion.value));
-    result = target.type() == sourcemeta::jsontoolkit::JSON::Type::Array &&
-             target.size() >= minimum &&
+    result = target.type() == JSON::Type::Array && target.size() >= minimum &&
              (!maximum.has_value() || target.size() <= maximum.value());
     EVALUATE_END(assertion, AssertionTypeArrayBounded);
   }
 
-  case IS_STEP(AssertionTypeObjectBounded): {
+  case IS_INSTRUCTION(AssertionTypeObjectBounded): {
     EVALUATE_BEGIN_NO_PRECONDITION(assertion, AssertionTypeObjectBounded);
-    const auto &target{sourcemeta::jsontoolkit::get(
-        instance, assertion.relative_instance_location)};
+    const auto &target{get(instance, assertion.relative_instance_location)};
     const auto minimum{std::get<0>(assertion.value)};
     const auto maximum{std::get<1>(assertion.value)};
     assert(!maximum.has_value() || maximum.value() >= minimum);
     // Require early breaking
     assert(!std::get<2>(assertion.value));
-    result = target.type() == sourcemeta::jsontoolkit::JSON::Type::Object &&
-             target.size() >= minimum &&
+    result = target.type() == JSON::Type::Object && target.size() >= minimum &&
              (!maximum.has_value() || target.size() <= maximum.value());
     EVALUATE_END(assertion, AssertionTypeObjectBounded);
   }
 
-  case IS_STEP(AssertionRegex): {
+  case IS_INSTRUCTION(AssertionRegex): {
     EVALUATE_BEGIN_IF_STRING(assertion, AssertionRegex);
-    result = sourcemeta::jsontoolkit::validate(assertion.value.first, target);
+    result = validate(assertion.value.first, target);
     EVALUATE_END(assertion, AssertionRegex);
   }
 
-  case IS_STEP(AssertionStringSizeLess): {
+  case IS_INSTRUCTION(AssertionStringSizeLess): {
     EVALUATE_BEGIN_IF_STRING(assertion, AssertionStringSizeLess);
-    result = (sourcemeta::jsontoolkit::JSON::size(target) < assertion.value);
+    result = (JSON::size(target) < assertion.value);
     EVALUATE_END(assertion, AssertionStringSizeLess);
   }
 
-  case IS_STEP(AssertionStringSizeGreater): {
+  case IS_INSTRUCTION(AssertionStringSizeGreater): {
     EVALUATE_BEGIN_IF_STRING(assertion, AssertionStringSizeGreater);
-    result = (sourcemeta::jsontoolkit::JSON::size(target) > assertion.value);
+    result = (JSON::size(target) > assertion.value);
     EVALUATE_END(assertion, AssertionStringSizeGreater);
   }
 
-  case IS_STEP(AssertionArraySizeLess): {
+  case IS_INSTRUCTION(AssertionArraySizeLess): {
     EVALUATE_BEGIN(assertion, AssertionArraySizeLess, target.is_array());
     result = (target.size() < assertion.value);
     EVALUATE_END(assertion, AssertionArraySizeLess);
   }
 
-  case IS_STEP(AssertionArraySizeGreater): {
+  case IS_INSTRUCTION(AssertionArraySizeGreater): {
     EVALUATE_BEGIN(assertion, AssertionArraySizeGreater, target.is_array());
     result = (target.size() > assertion.value);
     EVALUATE_END(assertion, AssertionArraySizeGreater);
   }
 
-  case IS_STEP(AssertionObjectSizeLess): {
+  case IS_INSTRUCTION(AssertionObjectSizeLess): {
     EVALUATE_BEGIN(assertion, AssertionObjectSizeLess, target.is_object());
     result = (target.size() < assertion.value);
     EVALUATE_END(assertion, AssertionObjectSizeLess);
   }
 
-  case IS_STEP(AssertionObjectSizeGreater): {
+  case IS_INSTRUCTION(AssertionObjectSizeGreater): {
     EVALUATE_BEGIN(assertion, AssertionObjectSizeGreater, target.is_object());
     result = (target.size() > assertion.value);
     EVALUATE_END(assertion, AssertionObjectSizeGreater);
   }
 
-  case IS_STEP(AssertionEqual): {
+  case IS_INSTRUCTION(AssertionEqual): {
     EVALUATE_BEGIN_NO_PRECONDITION(assertion, AssertionEqual);
-    const auto &target{sourcemeta::jsontoolkit::get(
-        instance, assertion.relative_instance_location)};
+    const auto &target{get(instance, assertion.relative_instance_location)};
     result = (target == assertion.value);
     EVALUATE_END(assertion, AssertionEqual);
   }
 
-  case IS_STEP(AssertionEqualsAny): {
+  case IS_INSTRUCTION(AssertionEqualsAny): {
     EVALUATE_BEGIN_NO_PRECONDITION(assertion, AssertionEqualsAny);
-    const auto &target{sourcemeta::jsontoolkit::get(
-        instance, assertion.relative_instance_location)};
+    const auto &target{get(instance, assertion.relative_instance_location)};
     result = assertion.value.contains(target);
     EVALUATE_END(assertion, AssertionEqualsAny);
   }
 
-  case IS_STEP(AssertionGreaterEqual): {
+  case IS_INSTRUCTION(AssertionGreaterEqual): {
     EVALUATE_BEGIN(assertion, AssertionGreaterEqual, target.is_number());
     result = target >= assertion.value;
     EVALUATE_END(assertion, AssertionGreaterEqual);
   }
 
-  case IS_STEP(AssertionLessEqual): {
+  case IS_INSTRUCTION(AssertionLessEqual): {
     EVALUATE_BEGIN(assertion, AssertionLessEqual, target.is_number());
     result = target <= assertion.value;
     EVALUATE_END(assertion, AssertionLessEqual);
   }
 
-  case IS_STEP(AssertionGreater): {
+  case IS_INSTRUCTION(AssertionGreater): {
     EVALUATE_BEGIN(assertion, AssertionGreater, target.is_number());
     result = target > assertion.value;
     EVALUATE_END(assertion, AssertionGreater);
   }
 
-  case IS_STEP(AssertionLess): {
+  case IS_INSTRUCTION(AssertionLess): {
     EVALUATE_BEGIN(assertion, AssertionLess, target.is_number());
     result = target < assertion.value;
     EVALUATE_END(assertion, AssertionLess);
   }
 
-  case IS_STEP(AssertionUnique): {
+  case IS_INSTRUCTION(AssertionUnique): {
     EVALUATE_BEGIN(assertion, AssertionUnique, target.is_array());
     result = target.unique();
     EVALUATE_END(assertion, AssertionUnique);
   }
 
-  case IS_STEP(AssertionDivisible): {
+  case IS_INSTRUCTION(AssertionDivisible): {
     EVALUATE_BEGIN(assertion, AssertionDivisible, target.is_number());
     assert(assertion.value.is_number());
     result = target.divisible_by(assertion.value);
     EVALUATE_END(assertion, AssertionDivisible);
   }
 
-  case IS_STEP(AssertionStringType): {
+  case IS_INSTRUCTION(AssertionStringType): {
     EVALUATE_BEGIN_IF_STRING(assertion, AssertionStringType);
     switch (assertion.value) {
       case ValueStringType::URI:
@@ -269,7 +272,7 @@ HANDLER_START {
     EVALUATE_END(assertion, AssertionStringType);
   }
 
-  case IS_STEP(AssertionPropertyType): {
+  case IS_INSTRUCTION(AssertionPropertyType): {
     EVALUATE_BEGIN_TRY_TARGET(assertion, AssertionPropertyType,
                               // Note that here are are referring to the parent
                               // object that might hold the given property,
@@ -280,12 +283,12 @@ HANDLER_START {
     // In non-strict mode, we consider a real number that represents an
     // integer to be an integer
     result = effective_target.type() == assertion.value ||
-             (assertion.value == sourcemeta::jsontoolkit::JSON::Type::Integer &&
+             (assertion.value == JSON::Type::Integer &&
               effective_target.is_integer_real());
     EVALUATE_END(assertion, AssertionPropertyType);
   }
 
-  case IS_STEP(AssertionPropertyTypeEvaluate): {
+  case IS_INSTRUCTION(AssertionPropertyTypeEvaluate): {
     EVALUATE_BEGIN_TRY_TARGET(assertion, AssertionPropertyTypeEvaluate,
                               // Note that here are are referring to the parent
                               // object that might hold the given property,
@@ -296,7 +299,7 @@ HANDLER_START {
     // In non-strict mode, we consider a real number that represents an
     // integer to be an integer
     result = effective_target.type() == assertion.value ||
-             (assertion.value == sourcemeta::jsontoolkit::JSON::Type::Integer &&
+             (assertion.value == JSON::Type::Integer &&
               effective_target.is_integer_real());
 
     if (result) {
@@ -307,7 +310,7 @@ HANDLER_START {
     EVALUATE_END(assertion, AssertionPropertyTypeEvaluate);
   }
 
-  case IS_STEP(AssertionPropertyTypeStrict): {
+  case IS_INSTRUCTION(AssertionPropertyTypeStrict): {
     EVALUATE_BEGIN_TRY_TARGET(assertion, AssertionPropertyTypeStrict,
                               // Note that here are are referring to the parent
                               // object that might hold the given property,
@@ -318,7 +321,7 @@ HANDLER_START {
     EVALUATE_END(assertion, AssertionPropertyTypeStrict);
   }
 
-  case IS_STEP(AssertionPropertyTypeStrictEvaluate): {
+  case IS_INSTRUCTION(AssertionPropertyTypeStrictEvaluate): {
     EVALUATE_BEGIN_TRY_TARGET(assertion, AssertionPropertyTypeStrictEvaluate,
                               // Note that here are are referring to the parent
                               // object that might hold the given property,
@@ -335,7 +338,7 @@ HANDLER_START {
     EVALUATE_END(assertion, AssertionPropertyTypeStrictEvaluate);
   }
 
-  case IS_STEP(AssertionPropertyTypeStrictAny): {
+  case IS_INSTRUCTION(AssertionPropertyTypeStrictAny): {
     EVALUATE_BEGIN_TRY_TARGET(assertion, AssertionPropertyTypeStrictAny,
                               // Note that here are are referring to the parent
                               // object that might hold the given property,
@@ -348,7 +351,7 @@ HANDLER_START {
     EVALUATE_END(assertion, AssertionPropertyTypeStrictAny);
   }
 
-  case IS_STEP(AssertionPropertyTypeStrictAnyEvaluate): {
+  case IS_INSTRUCTION(AssertionPropertyTypeStrictAnyEvaluate): {
     EVALUATE_BEGIN_TRY_TARGET(assertion, AssertionPropertyTypeStrictAnyEvaluate,
                               // Note that here are are referring to the parent
                               // object that might hold the given property,
@@ -367,9 +370,9 @@ HANDLER_START {
     EVALUATE_END(assertion, AssertionPropertyTypeStrictAnyEvaluate);
   }
 
-  case IS_STEP(AssertionArrayPrefix): {
+  case IS_INSTRUCTION(AssertionArrayPrefix): {
     EVALUATE_BEGIN(assertion, AssertionArrayPrefix, target.is_array());
-    // Otherwise there is no point in emitting this step
+    // Otherwise there is no point in emitting this instruction
     assert(!assertion.children.empty());
     result = target.empty();
     const auto prefixes{assertion.children.size() - 1};
@@ -382,8 +385,7 @@ HANDLER_START {
       result = true;
       assert(std::holds_alternative<ControlGroup>(entry));
       for (const auto &child : std::get<ControlGroup>(entry).children) {
-        if (!evaluate_step(child, callback, target, property_target, depth + 1,
-                           context)) {
+        if (!EVALUATE_RECURSE(child, target)) {
           result = false;
           break;
         }
@@ -393,9 +395,9 @@ HANDLER_START {
     EVALUATE_END(assertion, AssertionArrayPrefix);
   }
 
-  case IS_STEP(AssertionArrayPrefixEvaluate): {
+  case IS_INSTRUCTION(AssertionArrayPrefixEvaluate): {
     EVALUATE_BEGIN(assertion, AssertionArrayPrefixEvaluate, target.is_array());
-    // Otherwise there is no point in emitting this step
+    // Otherwise there is no point in emitting this instruction
     assert(!assertion.children.empty());
     result = target.empty();
     assert(track);
@@ -409,8 +411,7 @@ HANDLER_START {
       result = true;
       assert(std::holds_alternative<ControlGroup>(entry));
       for (const auto &child : std::get<ControlGroup>(entry).children) {
-        if (!evaluate_step(child, callback, target, property_target, depth + 1,
-                           context)) {
+        if (!EVALUATE_RECURSE(child, target)) {
           result = false;
           EVALUATE_END(assertion, AssertionArrayPrefixEvaluate);
         }
@@ -427,14 +428,12 @@ HANDLER_START {
     EVALUATE_END(assertion, AssertionArrayPrefixEvaluate);
   }
 
-  case IS_STEP(LogicalOr): {
+  case IS_INSTRUCTION(LogicalOr): {
     EVALUATE_BEGIN_NO_PRECONDITION(logical, LogicalOr);
     result = logical.children.empty();
-    const auto &target{sourcemeta::jsontoolkit::get(
-        instance, logical.relative_instance_location)};
+    const auto &target{get(instance, logical.relative_instance_location)};
     for (const auto &child : logical.children) {
-      if (evaluate_step(child, callback, target, property_target, depth + 1,
-                        context)) {
+      if (EVALUATE_RECURSE(child, target)) {
         result = true;
         // This boolean value controls whether we should be exhaustive
         if (!logical.value) {
@@ -446,14 +445,12 @@ HANDLER_START {
     EVALUATE_END(logical, LogicalOr);
   }
 
-  case IS_STEP(LogicalAnd): {
+  case IS_INSTRUCTION(LogicalAnd): {
     EVALUATE_BEGIN_NO_PRECONDITION(logical, LogicalAnd);
     result = true;
-    const auto &target{sourcemeta::jsontoolkit::get(
-        instance, logical.relative_instance_location)};
+    const auto &target{get(instance, logical.relative_instance_location)};
     for (const auto &child : logical.children) {
-      if (!evaluate_step(child, callback, target, property_target, depth + 1,
-                         context)) {
+      if (!EVALUATE_RECURSE(child, target)) {
         result = false;
         break;
       }
@@ -462,12 +459,11 @@ HANDLER_START {
     EVALUATE_END(logical, LogicalAnd);
   }
 
-  case IS_STEP(LogicalWhenType): {
+  case IS_INSTRUCTION(LogicalWhenType): {
     EVALUATE_BEGIN(logical, LogicalWhenType, target.type() == logical.value);
     result = true;
     for (const auto &child : logical.children) {
-      if (!evaluate_step(child, callback, target, property_target, depth + 1,
-                         context)) {
+      if (!EVALUATE_RECURSE(child, target)) {
         result = false;
         break;
       }
@@ -476,13 +472,12 @@ HANDLER_START {
     EVALUATE_END(logical, LogicalWhenType);
   }
 
-  case IS_STEP(LogicalWhenDefines): {
+  case IS_INSTRUCTION(LogicalWhenDefines): {
     EVALUATE_BEGIN(logical, LogicalWhenDefines,
                    target.is_object() && target.defines(logical.value));
     result = true;
     for (const auto &child : logical.children) {
-      if (!evaluate_step(child, callback, target, property_target, depth + 1,
-                         context)) {
+      if (!EVALUATE_RECURSE(child, target)) {
         result = false;
         break;
       }
@@ -491,13 +486,12 @@ HANDLER_START {
     EVALUATE_END(logical, LogicalWhenDefines);
   }
 
-  case IS_STEP(LogicalWhenArraySizeGreater): {
+  case IS_INSTRUCTION(LogicalWhenArraySizeGreater): {
     EVALUATE_BEGIN(logical, LogicalWhenArraySizeGreater,
                    target.is_array() && target.size() > logical.value);
     result = true;
     for (const auto &child : logical.children) {
-      if (!evaluate_step(child, callback, target, property_target, depth + 1,
-                         context)) {
+      if (!EVALUATE_RECURSE(child, target)) {
         result = false;
         break;
       }
@@ -506,15 +500,13 @@ HANDLER_START {
     EVALUATE_END(logical, LogicalWhenArraySizeGreater);
   }
 
-  case IS_STEP(LogicalXor): {
+  case IS_INSTRUCTION(LogicalXor): {
     EVALUATE_BEGIN_NO_PRECONDITION(logical, LogicalXor);
     result = true;
     bool has_matched{false};
-    const auto &target{sourcemeta::jsontoolkit::get(
-        instance, logical.relative_instance_location)};
+    const auto &target{get(instance, logical.relative_instance_location)};
     for (const auto &child : logical.children) {
-      if (evaluate_step(child, callback, target, property_target, depth + 1,
-                        context)) {
+      if (EVALUATE_RECURSE(child, target)) {
         if (has_matched) {
           result = false;
           // This boolean value controls whether we should be exhaustive
@@ -531,7 +523,7 @@ HANDLER_START {
     EVALUATE_END(logical, LogicalXor);
   }
 
-  case IS_STEP(LogicalCondition): {
+  case IS_INSTRUCTION(LogicalCondition): {
     EVALUATE_BEGIN_NO_PRECONDITION(logical, LogicalCondition);
     result = true;
     const auto children_size{logical.children.size()};
@@ -545,11 +537,9 @@ HANDLER_START {
       condition_end = logical.value.second;
     }
 
-    const auto &target{sourcemeta::jsontoolkit::get(
-        instance, logical.relative_instance_location)};
+    const auto &target{get(instance, logical.relative_instance_location)};
     for (std::size_t cursor = 0; cursor < condition_end; cursor++) {
-      if (!evaluate_step(logical.children[cursor], callback, target,
-                         property_target, depth + 1, context)) {
+      if (!EVALUATE_RECURSE(logical.children[cursor], target)) {
         result = false;
         break;
       }
@@ -567,8 +557,7 @@ HANDLER_START {
 
         for (auto cursor = consequence_start; cursor < consequence_end;
              cursor++) {
-          if (!evaluate_step(logical.children[cursor], callback, instance,
-                             property_target, depth + 1, context)) {
+          if (!EVALUATE_RECURSE(logical.children[cursor], instance)) {
             result = false;
             break;
           }
@@ -578,8 +567,7 @@ HANDLER_START {
       } else {
         for (auto cursor = consequence_start; cursor < consequence_end;
              cursor++) {
-          if (!evaluate_step(logical.children[cursor], callback, instance,
-                             property_target, depth + 1, context)) {
+          if (!EVALUATE_RECURSE(logical.children[cursor], instance)) {
             result = false;
             break;
           }
@@ -590,11 +578,10 @@ HANDLER_START {
     EVALUATE_END(logical, LogicalCondition);
   }
 
-  case IS_STEP(ControlGroup): {
+  case IS_INSTRUCTION(ControlGroup): {
     EVALUATE_BEGIN_PASS_THROUGH(control, ControlGroup);
     for (const auto &child : control.children) {
-      if (!evaluate_step(child, callback, instance, property_target, depth + 1,
-                         context)) {
+      if (!EVALUATE_RECURSE(child, instance)) {
         result = false;
         break;
       }
@@ -603,22 +590,20 @@ HANDLER_START {
     EVALUATE_END_PASS_THROUGH(ControlGroup);
   }
 
-  case IS_STEP(ControlGroupWhenDefines): {
+  case IS_INSTRUCTION(ControlGroupWhenDefines): {
     EVALUATE_BEGIN_PASS_THROUGH(control, ControlGroupWhenDefines);
     assert(!control.children.empty());
 
     // TODO: This is needed for nested `properties`, but can have a
     // performance impact. Maybe we can be smarter about when we
     // do this traversal?
-    const auto &target{sourcemeta::jsontoolkit::get(
-        instance, control.relative_instance_location)};
+    const auto &target{get(instance, control.relative_instance_location)};
 
     if (target.is_object() && target.defines(control.value)) {
       for (const auto &child : control.children) {
         // Note that in this control instruction, we purposely
         // don't navigate into the target
-        if (!evaluate_step(child, callback, instance, property_target,
-                           depth + 1, context)) {
+        if (!EVALUATE_RECURSE(child, instance)) {
           result = false;
           break;
         }
@@ -628,16 +613,14 @@ HANDLER_START {
     EVALUATE_END_PASS_THROUGH(ControlGroupWhenDefines);
   }
 
-  case IS_STEP(ControlLabel): {
+  case IS_INSTRUCTION(ControlLabel): {
     EVALUATE_BEGIN_NO_PRECONDITION(control, ControlLabel);
     assert(!control.children.empty());
     context.labels.try_emplace(control.value, control.children);
-    const auto &target{sourcemeta::jsontoolkit::get(
-        instance, control.relative_instance_location)};
+    const auto &target{get(instance, control.relative_instance_location)};
     result = true;
     for (const auto &child : control.children) {
-      if (!evaluate_step(child, callback, target, property_target, depth + 1,
-                         context)) {
+      if (!EVALUATE_RECURSE(child, target)) {
         result = false;
         break;
       }
@@ -646,24 +629,26 @@ HANDLER_START {
     EVALUATE_END(control, ControlLabel);
   }
 
-  case IS_STEP(ControlMark): {
+  case IS_INSTRUCTION(ControlMark): {
     EVALUATE_BEGIN_NO_PRECONDITION_AND_NO_PUSH(control, ControlMark);
     context.labels.try_emplace(control.value, control.children);
     EVALUATE_END_NO_POP(control, ControlMark);
   }
 
-  case IS_STEP(ControlEvaluate): {
+  case IS_INSTRUCTION(ControlEvaluate): {
     EVALUATE_BEGIN_PASS_THROUGH(control, ControlEvaluate);
 
     if (callback.has_value()) {
       // TODO: Optimize this case to avoid an extra pointer copy
       auto destination = context.instance_location;
       destination.push_back(control.value);
-      callback.value()(EvaluationType::Pre, true, step, context.evaluate_path,
-                       destination, EvaluationContext::null);
+      callback.value()(EvaluationType::Pre, true, instruction,
+                       context.evaluate_path, destination,
+                       EvaluationContext::null);
       context.evaluate(control.value);
-      callback.value()(EvaluationType::Post, true, step, context.evaluate_path,
-                       destination, EvaluationContext::null);
+      callback.value()(EvaluationType::Post, true, instruction,
+                       context.evaluate_path, destination,
+                       EvaluationContext::null);
     } else {
       context.evaluate(control.value);
     }
@@ -671,15 +656,13 @@ HANDLER_START {
     EVALUATE_END_PASS_THROUGH(ControlEvaluate);
   }
 
-  case IS_STEP(ControlJump): {
+  case IS_INSTRUCTION(ControlJump): {
     EVALUATE_BEGIN_NO_PRECONDITION(control, ControlJump);
     result = true;
     assert(context.labels.contains(control.value));
-    const auto &target{sourcemeta::jsontoolkit::get(
-        instance, control.relative_instance_location)};
+    const auto &target{get(instance, control.relative_instance_location)};
     for (const auto &child : context.labels.at(control.value).get()) {
-      if (!evaluate_step(child, callback, target, property_target, depth + 1,
-                         context)) {
+      if (!EVALUATE_RECURSE(child, target)) {
         result = false;
         break;
       }
@@ -688,19 +671,17 @@ HANDLER_START {
     EVALUATE_END(control, ControlJump);
   }
 
-  case IS_STEP(ControlDynamicAnchorJump): {
+  case IS_INSTRUCTION(ControlDynamicAnchorJump): {
     EVALUATE_BEGIN_NO_PRECONDITION(control, ControlDynamicAnchorJump);
     result = false;
-    const auto &target{sourcemeta::jsontoolkit::get(
-        instance, control.relative_instance_location)};
+    const auto &target{get(instance, control.relative_instance_location)};
     for (const auto &resource : context.resources) {
       const auto label{context.hash(resource, control.value)};
       const auto match{context.labels.find(label)};
       if (match != context.labels.cend()) {
         result = true;
         for (const auto &child : match->second.get()) {
-          if (!evaluate_step(child, callback, target, property_target,
-                             depth + 1, context)) {
+          if (!EVALUATE_RECURSE(child, target)) {
             result = false;
             EVALUATE_END(control, ControlDynamicAnchorJump);
           }
@@ -713,19 +694,19 @@ HANDLER_START {
     EVALUATE_END(control, ControlDynamicAnchorJump);
   }
 
-  case IS_STEP(AnnotationEmit): {
+  case IS_INSTRUCTION(AnnotationEmit): {
     EVALUATE_ANNOTATION(annotation, AnnotationEmit, context.instance_location,
                         annotation.value);
   }
 
-  case IS_STEP(AnnotationToParent): {
+  case IS_INSTRUCTION(AnnotationToParent): {
     EVALUATE_ANNOTATION(
         annotation, AnnotationToParent,
         // TODO: Can we avoid a copy of the instance location here?
         context.instance_location.initial(), annotation.value);
   }
 
-  case IS_STEP(AnnotationBasenameToParent): {
+  case IS_INSTRUCTION(AnnotationBasenameToParent): {
     EVALUATE_ANNOTATION(
         annotation, AnnotationBasenameToParent,
         // TODO: Can we avoid a copy of the instance location here?
@@ -733,14 +714,12 @@ HANDLER_START {
         context.instance_location.back().to_json());
   }
 
-  case IS_STEP(LogicalNot): {
+  case IS_INSTRUCTION(LogicalNot): {
     EVALUATE_BEGIN_NO_PRECONDITION(logical, LogicalNot);
 
-    const auto &target{sourcemeta::jsontoolkit::get(
-        instance, logical.relative_instance_location)};
+    const auto &target{get(instance, logical.relative_instance_location)};
     for (const auto &child : logical.children) {
-      if (!evaluate_step(child, callback, target, property_target, depth + 1,
-                         context)) {
+      if (!EVALUATE_RECURSE(child, target)) {
         result = true;
         break;
       }
@@ -749,14 +728,12 @@ HANDLER_START {
     EVALUATE_END(logical, LogicalNot);
   }
 
-  case IS_STEP(LogicalNotEvaluate): {
+  case IS_INSTRUCTION(LogicalNotEvaluate): {
     EVALUATE_BEGIN_NO_PRECONDITION(logical, LogicalNotEvaluate);
 
-    const auto &target{sourcemeta::jsontoolkit::get(
-        instance, logical.relative_instance_location)};
+    const auto &target{get(instance, logical.relative_instance_location)};
     for (const auto &child : logical.children) {
-      if (!evaluate_step(child, callback, target, property_target, depth + 1,
-                         context)) {
+      if (!EVALUATE_RECURSE(child, target)) {
         result = true;
         break;
       }
@@ -768,7 +745,7 @@ HANDLER_START {
     EVALUATE_END(logical, LogicalNotEvaluate);
   }
 
-  case IS_STEP(LoopPropertiesUnevaluated): {
+  case IS_INSTRUCTION(LoopPropertiesUnevaluated): {
     EVALUATE_BEGIN(loop, LoopPropertiesUnevaluated, target.is_object());
     assert(!loop.children.empty());
     assert(track);
@@ -782,8 +759,7 @@ HANDLER_START {
       context.instance_location.push_back(entry.first);
       const auto &new_instance{target.at(entry.first)};
       for (const auto &child : loop.children) {
-        if (!evaluate_step(child, callback, new_instance, property_target,
-                           depth + 1, context)) {
+        if (!EVALUATE_RECURSE(child, new_instance)) {
           result = false;
           context.instance_location.pop_back();
           EVALUATE_END(loop, LoopPropertiesUnevaluated);
@@ -799,7 +775,7 @@ HANDLER_START {
     EVALUATE_END(loop, LoopPropertiesUnevaluated);
   }
 
-  case IS_STEP(LoopPropertiesUnevaluatedExcept): {
+  case IS_INSTRUCTION(LoopPropertiesUnevaluatedExcept): {
     EVALUATE_BEGIN(loop, LoopPropertiesUnevaluatedExcept, target.is_object());
     assert(!loop.children.empty());
     assert(track);
@@ -825,8 +801,7 @@ HANDLER_START {
       if (std::any_of(std::get<2>(loop.value).cbegin(),
                       std::get<2>(loop.value).cend(),
                       [&entry](const auto &pattern) {
-                        return sourcemeta::jsontoolkit::validate(pattern.first,
-                                                                 entry.first);
+                        return validate(pattern.first, entry.first);
                       })) {
         continue;
       }
@@ -838,8 +813,7 @@ HANDLER_START {
       context.instance_location.push_back(entry.first);
       const auto &new_instance{target.at(entry.first)};
       for (const auto &child : loop.children) {
-        if (!evaluate_step(child, callback, new_instance, property_target,
-                           depth + 1, context)) {
+        if (!EVALUATE_RECURSE(child, new_instance)) {
           result = false;
           context.instance_location.pop_back();
           EVALUATE_END(loop, LoopPropertiesUnevaluatedExcept);
@@ -855,7 +829,7 @@ HANDLER_START {
     EVALUATE_END(loop, LoopPropertiesUnevaluatedExcept);
   }
 
-  case IS_STEP(LoopPropertiesMatch): {
+  case IS_INSTRUCTION(LoopPropertiesMatch): {
     EVALUATE_BEGIN(loop, LoopPropertiesMatch, target.is_object());
     assert(!loop.value.empty());
     result = true;
@@ -865,11 +839,11 @@ HANDLER_START {
         continue;
       }
 
-      const auto &substep{loop.children[index->second]};
-      assert(std::holds_alternative<ControlGroup>(substep));
-      for (const auto &child : std::get<ControlGroup>(substep).children) {
-        if (!evaluate_step(child, callback, target, property_target, depth + 1,
-                           context)) {
+      const auto &subinstruction{loop.children[index->second]};
+      assert(std::holds_alternative<ControlGroup>(subinstruction));
+      for (const auto &child :
+           std::get<ControlGroup>(subinstruction).children) {
+        if (!EVALUATE_RECURSE(child, target)) {
           result = false;
           EVALUATE_END(loop, LoopPropertiesMatch);
         }
@@ -879,7 +853,7 @@ HANDLER_START {
     EVALUATE_END(loop, LoopPropertiesMatch);
   }
 
-  case IS_STEP(LoopPropertiesMatchClosed): {
+  case IS_INSTRUCTION(LoopPropertiesMatchClosed): {
     EVALUATE_BEGIN(loop, LoopPropertiesMatchClosed, target.is_object());
     assert(!loop.value.empty());
     result = true;
@@ -890,11 +864,11 @@ HANDLER_START {
         break;
       }
 
-      const auto &substep{loop.children[index->second]};
-      assert(std::holds_alternative<ControlGroup>(substep));
-      for (const auto &child : std::get<ControlGroup>(substep).children) {
-        if (!evaluate_step(child, callback, target, property_target, depth + 1,
-                           context)) {
+      const auto &subinstruction{loop.children[index->second]};
+      assert(std::holds_alternative<ControlGroup>(subinstruction));
+      for (const auto &child :
+           std::get<ControlGroup>(subinstruction).children) {
+        if (!EVALUATE_RECURSE(child, target)) {
           result = false;
           EVALUATE_END(loop, LoopPropertiesMatchClosed);
         }
@@ -904,7 +878,7 @@ HANDLER_START {
     EVALUATE_END(loop, LoopPropertiesMatchClosed);
   }
 
-  case IS_STEP(LoopProperties): {
+  case IS_INSTRUCTION(LoopProperties): {
     EVALUATE_BEGIN(loop, LoopProperties, target.is_object());
     assert(!loop.children.empty());
     result = true;
@@ -914,8 +888,7 @@ HANDLER_START {
       }
       const auto &new_instance{target.at(entry.first)};
       for (const auto &child : loop.children) {
-        if (!evaluate_step(child, callback, new_instance, property_target,
-                           depth + 1, context)) {
+        if (!EVALUATE_RECURSE(child, new_instance)) {
           result = false;
           if (track) {
             context.instance_location.pop_back();
@@ -932,7 +905,7 @@ HANDLER_START {
     EVALUATE_END(loop, LoopProperties);
   }
 
-  case IS_STEP(LoopPropertiesEvaluate): {
+  case IS_INSTRUCTION(LoopPropertiesEvaluate): {
     EVALUATE_BEGIN(loop, LoopPropertiesEvaluate, target.is_object());
     assert(!loop.children.empty());
     result = true;
@@ -942,8 +915,7 @@ HANDLER_START {
       }
       const auto &new_instance{target.at(entry.first)};
       for (const auto &child : loop.children) {
-        if (!evaluate_step(child, callback, new_instance, property_target,
-                           depth + 1, context)) {
+        if (!EVALUATE_RECURSE(child, new_instance)) {
           result = false;
           if (track) {
             context.instance_location.pop_back();
@@ -963,12 +935,12 @@ HANDLER_START {
     EVALUATE_END(loop, LoopPropertiesEvaluate);
   }
 
-  case IS_STEP(LoopPropertiesRegex): {
+  case IS_INSTRUCTION(LoopPropertiesRegex): {
     EVALUATE_BEGIN(loop, LoopPropertiesRegex, target.is_object());
     assert(!loop.children.empty());
     result = true;
     for (const auto &entry : target.as_object()) {
-      if (!sourcemeta::jsontoolkit::validate(loop.value.first, entry.first)) {
+      if (!validate(loop.value.first, entry.first)) {
         continue;
       }
 
@@ -977,8 +949,7 @@ HANDLER_START {
       }
       const auto &new_instance{target.at(entry.first)};
       for (const auto &child : loop.children) {
-        if (!evaluate_step(child, callback, new_instance, property_target,
-                           depth + 1, context)) {
+        if (!EVALUATE_RECURSE(child, new_instance)) {
           result = false;
           if (track) {
             context.instance_location.pop_back();
@@ -995,11 +966,11 @@ HANDLER_START {
     EVALUATE_END(loop, LoopPropertiesRegex);
   }
 
-  case IS_STEP(LoopPropertiesRegexClosed): {
+  case IS_INSTRUCTION(LoopPropertiesRegexClosed): {
     EVALUATE_BEGIN(loop, LoopPropertiesRegexClosed, target.is_object());
     result = true;
     for (const auto &entry : target.as_object()) {
-      if (!sourcemeta::jsontoolkit::validate(loop.value.first, entry.first)) {
+      if (!validate(loop.value.first, entry.first)) {
         result = false;
         break;
       }
@@ -1013,8 +984,7 @@ HANDLER_START {
       }
       const auto &new_instance{target.at(entry.first)};
       for (const auto &child : loop.children) {
-        if (!evaluate_step(child, callback, new_instance, property_target,
-                           depth + 1, context)) {
+        if (!EVALUATE_RECURSE(child, new_instance)) {
           result = false;
           if (track) {
             context.instance_location.pop_back();
@@ -1031,7 +1001,7 @@ HANDLER_START {
     EVALUATE_END(loop, LoopPropertiesRegexClosed);
   }
 
-  case IS_STEP(LoopPropertiesStartsWith): {
+  case IS_INSTRUCTION(LoopPropertiesStartsWith): {
     EVALUATE_BEGIN(loop, LoopPropertiesStartsWith, target.is_object());
     assert(!loop.children.empty());
     result = true;
@@ -1045,8 +1015,7 @@ HANDLER_START {
       }
       const auto &new_instance{target.at(entry.first)};
       for (const auto &child : loop.children) {
-        if (!evaluate_step(child, callback, new_instance, property_target,
-                           depth + 1, context)) {
+        if (!EVALUATE_RECURSE(child, new_instance)) {
           result = false;
           if (track) {
             context.instance_location.pop_back();
@@ -1063,7 +1032,7 @@ HANDLER_START {
     EVALUATE_END(loop, LoopPropertiesStartsWith);
   }
 
-  case IS_STEP(LoopPropertiesExcept): {
+  case IS_INSTRUCTION(LoopPropertiesExcept): {
     EVALUATE_BEGIN(loop, LoopPropertiesExcept, target.is_object());
     assert(!loop.children.empty());
     result = true;
@@ -1088,8 +1057,7 @@ HANDLER_START {
       if (std::any_of(std::get<2>(loop.value).cbegin(),
                       std::get<2>(loop.value).cend(),
                       [&entry](const auto &pattern) {
-                        return sourcemeta::jsontoolkit::validate(pattern.first,
-                                                                 entry.first);
+                        return validate(pattern.first, entry.first);
                       })) {
         continue;
       }
@@ -1099,8 +1067,7 @@ HANDLER_START {
       }
       const auto &new_instance{target.at(entry.first)};
       for (const auto &child : loop.children) {
-        if (!evaluate_step(child, callback, new_instance, property_target,
-                           depth + 1, context)) {
+        if (!EVALUATE_RECURSE(child, new_instance)) {
           result = false;
           if (track) {
             context.instance_location.pop_back();
@@ -1117,7 +1084,7 @@ HANDLER_START {
     EVALUATE_END(loop, LoopPropertiesExcept);
   }
 
-  case IS_STEP(LoopPropertiesWhitelist): {
+  case IS_INSTRUCTION(LoopPropertiesWhitelist): {
     EVALUATE_BEGIN(loop, LoopPropertiesWhitelist, target.is_object());
     // Otherwise why emit this instruction?
     assert(!loop.value.empty());
@@ -1138,14 +1105,14 @@ HANDLER_START {
     EVALUATE_END(loop, LoopPropertiesWhitelist);
   }
 
-  case IS_STEP(LoopPropertiesType): {
+  case IS_INSTRUCTION(LoopPropertiesType): {
     EVALUATE_BEGIN(loop, LoopPropertiesType, target.is_object());
     result = true;
     for (const auto &entry : target.as_object()) {
       if (entry.second.type() != loop.value &&
           // In non-strict mode, we consider a real number that represents an
           // integer to be an integer
-          (loop.value != sourcemeta::jsontoolkit::JSON::Type::Integer ||
+          (loop.value != JSON::Type::Integer ||
            !entry.second.is_integer_real())) {
         result = false;
         break;
@@ -1155,14 +1122,14 @@ HANDLER_START {
     EVALUATE_END(loop, LoopPropertiesType);
   }
 
-  case IS_STEP(LoopPropertiesTypeEvaluate): {
+  case IS_INSTRUCTION(LoopPropertiesTypeEvaluate): {
     EVALUATE_BEGIN(loop, LoopPropertiesTypeEvaluate, target.is_object());
     result = true;
     for (const auto &entry : target.as_object()) {
       if (entry.second.type() != loop.value &&
           // In non-strict mode, we consider a real number that represents an
           // integer to be an integer
-          (loop.value != sourcemeta::jsontoolkit::JSON::Type::Integer ||
+          (loop.value != JSON::Type::Integer ||
            !entry.second.is_integer_real())) {
         result = false;
         EVALUATE_END(loop, LoopPropertiesTypeEvaluate);
@@ -1175,7 +1142,7 @@ HANDLER_START {
     EVALUATE_END(loop, LoopPropertiesTypeEvaluate);
   }
 
-  case IS_STEP(LoopPropertiesTypeStrict): {
+  case IS_INSTRUCTION(LoopPropertiesTypeStrict): {
     EVALUATE_BEGIN(loop, LoopPropertiesTypeStrict, target.is_object());
     result = true;
     for (const auto &entry : target.as_object()) {
@@ -1188,7 +1155,7 @@ HANDLER_START {
     EVALUATE_END(loop, LoopPropertiesTypeStrict);
   }
 
-  case IS_STEP(LoopPropertiesTypeStrictEvaluate): {
+  case IS_INSTRUCTION(LoopPropertiesTypeStrictEvaluate): {
     EVALUATE_BEGIN(loop, LoopPropertiesTypeStrictEvaluate, target.is_object());
     result = true;
     for (const auto &entry : target.as_object()) {
@@ -1204,7 +1171,7 @@ HANDLER_START {
     EVALUATE_END(loop, LoopPropertiesTypeStrictEvaluate);
   }
 
-  case IS_STEP(LoopPropertiesTypeStrictAny): {
+  case IS_INSTRUCTION(LoopPropertiesTypeStrictAny): {
     EVALUATE_BEGIN(loop, LoopPropertiesTypeStrictAny, target.is_object());
     result = true;
     for (const auto &entry : target.as_object()) {
@@ -1218,7 +1185,7 @@ HANDLER_START {
     EVALUATE_END(loop, LoopPropertiesTypeStrictAny);
   }
 
-  case IS_STEP(LoopPropertiesTypeStrictAnyEvaluate): {
+  case IS_INSTRUCTION(LoopPropertiesTypeStrictAnyEvaluate): {
     EVALUATE_BEGIN(loop, LoopPropertiesTypeStrictAnyEvaluate,
                    target.is_object());
     result = true;
@@ -1236,7 +1203,7 @@ HANDLER_START {
     EVALUATE_END(loop, LoopPropertiesTypeStrictAnyEvaluate);
   }
 
-  case IS_STEP(LoopKeys): {
+  case IS_INSTRUCTION(LoopKeys): {
     EVALUATE_BEGIN(loop, LoopKeys, target.is_object());
     assert(!loop.children.empty());
     result = true;
@@ -1246,8 +1213,8 @@ HANDLER_START {
       }
       const auto &new_instance{target.at(entry.first)};
       for (const auto &child : loop.children) {
-        if (!evaluate_step(child, callback, new_instance,
-                           std::cref(entry.first), depth + 1, context)) {
+        if (!EVALUATE_RECURSE_ON_PROPERTY_NAME(child, new_instance,
+                                               entry.first)) {
           result = false;
           if (track) {
             context.instance_location.pop_back();
@@ -1264,7 +1231,7 @@ HANDLER_START {
     EVALUATE_END(loop, LoopKeys);
   }
 
-  case IS_STEP(LoopItems): {
+  case IS_INSTRUCTION(LoopItems): {
     EVALUATE_BEGIN(loop, LoopItems,
                    target.is_array() && loop.value < target.size());
     assert(!loop.children.empty());
@@ -1275,8 +1242,7 @@ HANDLER_START {
       }
       const auto &new_instance{target.at(index)};
       for (const auto &child : loop.children) {
-        if (!evaluate_step(child, callback, new_instance, property_target,
-                           depth + 1, context)) {
+        if (!EVALUATE_RECURSE(child, new_instance)) {
           result = false;
           if (track) {
             context.instance_location.pop_back();
@@ -1293,7 +1259,7 @@ HANDLER_START {
     EVALUATE_END(loop, LoopItems);
   }
 
-  case IS_STEP(LoopItemsUnevaluated): {
+  case IS_INSTRUCTION(LoopItemsUnevaluated): {
     EVALUATE_BEGIN(loop, LoopItemsUnevaluated, target.is_array());
     assert(!loop.children.empty());
     assert(track);
@@ -1307,8 +1273,7 @@ HANDLER_START {
       context.instance_location.push_back(index);
       const auto &new_instance{target.at(index)};
       for (const auto &child : loop.children) {
-        if (!evaluate_step(child, callback, new_instance, property_target,
-                           depth + 1, context)) {
+        if (!EVALUATE_RECURSE(child, new_instance)) {
           result = false;
           context.instance_location.pop_back();
           EVALUATE_END(loop, LoopItemsUnevaluated);
@@ -1324,15 +1289,14 @@ HANDLER_START {
     EVALUATE_END(loop, LoopItemsUnevaluated);
   }
 
-  case IS_STEP(LoopItemsType): {
+  case IS_INSTRUCTION(LoopItemsType): {
     EVALUATE_BEGIN(loop, LoopItemsType, target.is_array());
     result = true;
     for (const auto &entry : target.as_array()) {
       if (entry.type() != loop.value &&
           // In non-strict mode, we consider a real number that represents an
           // integer to be an integer
-          (loop.value != sourcemeta::jsontoolkit::JSON::Type::Integer ||
-           !entry.is_integer_real())) {
+          (loop.value != JSON::Type::Integer || !entry.is_integer_real())) {
         result = false;
         break;
       }
@@ -1341,7 +1305,7 @@ HANDLER_START {
     EVALUATE_END(loop, LoopItemsType);
   }
 
-  case IS_STEP(LoopItemsTypeStrict): {
+  case IS_INSTRUCTION(LoopItemsTypeStrict): {
     EVALUATE_BEGIN(loop, LoopItemsTypeStrict, target.is_array());
     result = true;
     for (const auto &entry : target.as_array()) {
@@ -1354,7 +1318,7 @@ HANDLER_START {
     EVALUATE_END(loop, LoopItemsTypeStrict);
   }
 
-  case IS_STEP(LoopItemsTypeStrictAny): {
+  case IS_INSTRUCTION(LoopItemsTypeStrictAny): {
     EVALUATE_BEGIN(loop, LoopItemsTypeStrictAny, target.is_array());
     // Otherwise we are we even emitting this instruction?
     assert(loop.value.size() > 1);
@@ -1370,7 +1334,7 @@ HANDLER_START {
     EVALUATE_END(loop, LoopItemsTypeStrictAny);
   }
 
-  case IS_STEP(LoopContains): {
+  case IS_INSTRUCTION(LoopContains): {
     EVALUATE_BEGIN(loop, LoopContains, target.is_array());
     assert(!loop.children.empty());
     const auto minimum{std::get<0>(loop.value)};
@@ -1387,8 +1351,7 @@ HANDLER_START {
       const auto &new_instance{target.at(index)};
       bool subresult{true};
       for (const auto &child : loop.children) {
-        if (!evaluate_step(child, callback, new_instance, property_target,
-                           depth + 1, context)) {
+        if (!EVALUATE_RECURSE(child, new_instance)) {
           subresult = false;
           break;
         }
@@ -1426,9 +1389,15 @@ HANDLER_START {
     EVALUATE_END(loop, LoopContains);
   }
 
-    // We should never get here
   default:
-    EVALUATE_FAIL;
+    // See https://en.cppreference.com/w/cpp/utility/unreachable
+#if defined(_MSC_VER) && !defined(__clang__)
+    __assume(false);
+#else
+    __builtin_unreachable();
+#endif
 }
+
+#undef IS_INSTRUCTION
 
 #endif
