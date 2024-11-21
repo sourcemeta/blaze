@@ -219,7 +219,9 @@ auto evaluate_complete_instruction(
   evaluate_complete_instruction(child, modifiers, callback, target,            \
                                 std::cref(name), depth + 1, context)
 
-#include "dispatch.h"
+#define SOURCEMETA_EVALUATOR_COMPLETE
+#include "dispatch.inc.h"
+#undef SOURCEMETA_EVALUATOR_COMPLETE
 
 #undef EVALUATE_BEGIN
 #undef EVALUATE_BEGIN_IF_STRING

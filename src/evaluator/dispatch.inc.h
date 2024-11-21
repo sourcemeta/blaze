@@ -1,6 +1,3 @@
-#ifndef SOURCEMETA_BLAZE_EVALUATOR_DISPATCH_H_
-#define SOURCEMETA_BLAZE_EVALUATOR_DISPATCH_H_
-
 SOURCEMETA_TRACE_REGISTER_ID(trace_id);
 
 using namespace sourcemeta::jsontoolkit;
@@ -303,7 +300,6 @@ switch (static_cast<InstructionIndex>(instruction.index())) {
               effective_target.is_integer_real());
 
     if (result) {
-      assert(track);
       context.evaluate();
     }
 
@@ -331,7 +327,6 @@ switch (static_cast<InstructionIndex>(instruction.index())) {
     result = target_check.value().get().type() == assertion.value;
 
     if (result) {
-      assert(track);
       context.evaluate();
     }
 
@@ -363,7 +358,6 @@ switch (static_cast<InstructionIndex>(instruction.index())) {
               assertion.value.cend());
 
     if (result) {
-      assert(track);
       context.evaluate();
     }
 
@@ -400,7 +394,6 @@ switch (static_cast<InstructionIndex>(instruction.index())) {
     // Otherwise there is no point in emitting this instruction
     assert(!assertion.children.empty());
     result = target.empty();
-    assert(track);
     const auto prefixes{assertion.children.size() - 1};
     const auto array_size{target.size()};
     if (!result) [[likely]] {
@@ -638,6 +631,7 @@ switch (static_cast<InstructionIndex>(instruction.index())) {
   case IS_INSTRUCTION(ControlEvaluate): {
     EVALUATE_BEGIN_PASS_THROUGH(control, ControlEvaluate);
 
+#ifdef SOURCEMETA_EVALUATOR_COMPLETE
     if (callback.has_value()) {
       // TODO: Optimize this case to avoid an extra pointer copy
       auto destination = context.instance_location;
@@ -652,6 +646,9 @@ switch (static_cast<InstructionIndex>(instruction.index())) {
     } else {
       context.evaluate(control.value);
     }
+#else
+    SOURCEMETA_MAYBE_UNUSED(control);
+#endif
 
     EVALUATE_END_PASS_THROUGH(ControlEvaluate);
   }
@@ -739,7 +736,6 @@ switch (static_cast<InstructionIndex>(instruction.index())) {
       }
     }
 
-    assert(track);
     context.unevaluate();
 
     EVALUATE_END(logical, LogicalNotEvaluate);
@@ -748,7 +744,6 @@ switch (static_cast<InstructionIndex>(instruction.index())) {
   case IS_INSTRUCTION(LoopPropertiesUnevaluated): {
     EVALUATE_BEGIN(loop, LoopPropertiesUnevaluated, target.is_object());
     assert(!loop.children.empty());
-    assert(track);
     result = true;
 
     for (const auto &entry : target.as_object()) {
@@ -778,7 +773,6 @@ switch (static_cast<InstructionIndex>(instruction.index())) {
   case IS_INSTRUCTION(LoopPropertiesUnevaluatedExcept): {
     EVALUATE_BEGIN(loop, LoopPropertiesUnevaluatedExcept, target.is_object());
     assert(!loop.children.empty());
-    assert(track);
     result = true;
     // Otherwise why emit this instruction?
     assert(!std::get<0>(loop.value).empty() ||
@@ -929,7 +923,6 @@ switch (static_cast<InstructionIndex>(instruction.index())) {
       }
     }
 
-    assert(track);
     context.evaluate();
 
     EVALUATE_END(loop, LoopPropertiesEvaluate);
@@ -1136,7 +1129,6 @@ switch (static_cast<InstructionIndex>(instruction.index())) {
       }
     }
 
-    assert(track);
     context.evaluate();
 
     EVALUATE_END(loop, LoopPropertiesTypeEvaluate);
@@ -1165,7 +1157,6 @@ switch (static_cast<InstructionIndex>(instruction.index())) {
       }
     }
 
-    assert(track);
     context.evaluate();
 
     EVALUATE_END(loop, LoopPropertiesTypeStrictEvaluate);
@@ -1197,7 +1188,6 @@ switch (static_cast<InstructionIndex>(instruction.index())) {
       }
     }
 
-    assert(track);
     context.evaluate();
 
     EVALUATE_END(loop, LoopPropertiesTypeStrictAnyEvaluate);
@@ -1262,7 +1252,6 @@ switch (static_cast<InstructionIndex>(instruction.index())) {
   case IS_INSTRUCTION(LoopItemsUnevaluated): {
     EVALUATE_BEGIN(loop, LoopItemsUnevaluated, target.is_array());
     assert(!loop.children.empty());
-    assert(track);
     result = true;
 
     for (std::size_t index = 0; index < target.size(); index++) {
@@ -1399,5 +1388,3 @@ switch (static_cast<InstructionIndex>(instruction.index())) {
 }
 
 #undef IS_INSTRUCTION
-
-#endif
