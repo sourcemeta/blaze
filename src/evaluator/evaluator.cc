@@ -14,16 +14,14 @@ namespace {
 auto evaluate_step(const sourcemeta::blaze::Instruction &step,
                    const std::optional<sourcemeta::blaze::Callback> &callback,
                    sourcemeta::blaze::EvaluationContext &context) -> bool {
-  SOURCEMETA_TRACE_REGISTER_ID(trace_begin_id);
-  SOURCEMETA_TRACE_REGISTER_ID(trace_end_id);
   SOURCEMETA_TRACE_REGISTER_ID(trace_id);
-  SOURCEMETA_TRACE_START(trace_begin_id, "Begin");
   using namespace sourcemeta::jsontoolkit;
   using namespace sourcemeta::blaze;
 
 #define STRINGIFY(x) #x
 
 #define EVALUATE_BEGIN(step_category, step_type, precondition)                 \
+  SOURCEMETA_TRACE_START(trace_id, STRINGIFY(step_type));                      \
   const auto &step_category{std::get<step_type>(step)};                        \
   const auto track{step_category.track || callback.has_value()};               \
   context.push(step_category.relative_schema_location,                         \
@@ -34,18 +32,17 @@ auto evaluate_step(const sourcemeta::blaze::Instruction &step,
     context.pop(step_category.relative_schema_location.size(),                 \
                 step_category.relative_instance_location.size(),               \
                 step_category.dynamic, track);                                 \
-    SOURCEMETA_TRACE_END(trace_begin_id, "Begin");                             \
+    SOURCEMETA_TRACE_END(trace_id, STRINGIFY(step_type));                      \
     return true;                                                               \
   }                                                                            \
   if (callback.has_value()) {                                                  \
     callback.value()(EvaluationType::Pre, true, step, context.evaluate_path,   \
                      context.instance_location, context.null);                 \
   }                                                                            \
-  bool result{false};                                                          \
-  SOURCEMETA_TRACE_END(trace_begin_id, "Begin");                               \
-  SOURCEMETA_TRACE_START(trace_id, STRINGIFY(step_type));
+  bool result{false};
 
 #define EVALUATE_BEGIN_IF_STRING(step_category, step_type)                     \
+  SOURCEMETA_TRACE_START(trace_id, STRINGIFY(step_type));                      \
   const auto &step_category{std::get<step_type>(step)};                        \
   const auto track{step_category.track || callback.has_value()};               \
   context.push(step_category.relative_schema_location,                         \
@@ -56,7 +53,7 @@ auto evaluate_step(const sourcemeta::blaze::Instruction &step,
     context.pop(step_category.relative_schema_location.size(),                 \
                 step_category.relative_instance_location.size(),               \
                 step_category.dynamic, track);                                 \
-    SOURCEMETA_TRACE_END(trace_begin_id, "Begin");                             \
+    SOURCEMETA_TRACE_END(trace_id, STRINGIFY(step_type));                      \
     return true;                                                               \
   }                                                                            \
   if (callback.has_value()) {                                                  \
@@ -64,14 +61,13 @@ auto evaluate_step(const sourcemeta::blaze::Instruction &step,
                      context.instance_location, context.null);                 \
   }                                                                            \
   const auto &target{maybe_target.value().get()};                              \
-  bool result{false};                                                          \
-  SOURCEMETA_TRACE_END(trace_begin_id, "Begin");                               \
-  SOURCEMETA_TRACE_START(trace_id, STRINGIFY(step_type));
+  bool result{false};
 
 #define EVALUATE_BEGIN_NO_TARGET(step_category, step_type, precondition)       \
+  SOURCEMETA_TRACE_START(trace_id, STRINGIFY(step_type));                      \
   const auto &step_category{std::get<step_type>(step)};                        \
   if (!(precondition)) {                                                       \
-    SOURCEMETA_TRACE_END(trace_begin_id, "Begin");                             \
+    SOURCEMETA_TRACE_END(trace_id, STRINGIFY(step_type));                      \
     return true;                                                               \
   }                                                                            \
   const auto track{step_category.track || callback.has_value()};               \
@@ -82,24 +78,24 @@ auto evaluate_step(const sourcemeta::blaze::Instruction &step,
     callback.value()(EvaluationType::Pre, true, step, context.evaluate_path,   \
                      context.instance_location, context.null);                 \
   }                                                                            \
-  bool result{false} SOURCEMETA_TRACE_END(trace_begin_id, "Begin");            \
-  SOURCEMETA_TRACE_START(trace_id, STRINGIFY(step_type));
+  bool result{false};
 
   // This is a slightly complicated dance to avoid traversing the relative
   // instance location twice. We first need to traverse it to check if its
   // valid in the document as part of the condition, but if it is, we can
   // pass it to `.push()` so that it doesn't need to traverse it again.
 #define EVALUATE_BEGIN_TRY_TARGET(step_category, step_type, precondition)      \
+  SOURCEMETA_TRACE_START(trace_id, STRINGIFY(step_type));                      \
   const auto &target{context.resolve_target()};                                \
   const auto &step_category{std::get<step_type>(step)};                        \
   if (!(precondition)) {                                                       \
-    SOURCEMETA_TRACE_END(trace_begin_id, "Begin");                             \
+    SOURCEMETA_TRACE_END(trace_id, STRINGIFY(step_type));                      \
     return true;                                                               \
   }                                                                            \
   auto target_check{                                                           \
       try_get(target, step_category.relative_instance_location)};              \
   if (!target_check.has_value()) {                                             \
-    SOURCEMETA_TRACE_END(trace_begin_id, "Begin");                             \
+    SOURCEMETA_TRACE_END(trace_id, STRINGIFY(step_type));                      \
     return true;                                                               \
   }                                                                            \
   const auto track{step_category.track || callback.has_value()};               \
@@ -111,11 +107,10 @@ auto evaluate_step(const sourcemeta::blaze::Instruction &step,
     callback.value()(EvaluationType::Pre, true, step, context.evaluate_path,   \
                      context.instance_location, context.null);                 \
   }                                                                            \
-  bool result{false};                                                          \
-  SOURCEMETA_TRACE_END(trace_begin_id, "Begin");                               \
-  SOURCEMETA_TRACE_START(trace_id, STRINGIFY(step_type));
+  bool result{false};
 
 #define EVALUATE_BEGIN_NO_PRECONDITION(step_category, step_type)               \
+  SOURCEMETA_TRACE_START(trace_id, STRINGIFY(step_type));                      \
   const auto &step_category{std::get<step_type>(step)};                        \
   const auto track{step_category.track || callback.has_value()};               \
   context.push(step_category.relative_schema_location,                         \
@@ -125,29 +120,23 @@ auto evaluate_step(const sourcemeta::blaze::Instruction &step,
     callback.value()(EvaluationType::Pre, true, step, context.evaluate_path,   \
                      context.instance_location, context.null);                 \
   }                                                                            \
-  bool result{false};                                                          \
-  SOURCEMETA_TRACE_END(trace_begin_id, "Begin");                               \
-  SOURCEMETA_TRACE_START(trace_id, STRINGIFY(step_type));
+  bool result{false};
 
 #define EVALUATE_BEGIN_NO_PRECONDITION_AND_NO_PUSH(step_category, step_type)   \
+  SOURCEMETA_TRACE_START(trace_id, STRINGIFY(step_type));                      \
   const auto &step_category{std::get<step_type>(step)};                        \
   if (callback.has_value()) {                                                  \
     callback.value()(EvaluationType::Pre, true, step, context.evaluate_path,   \
                      context.instance_location, context.null);                 \
   }                                                                            \
-  bool result{true};                                                           \
-  SOURCEMETA_TRACE_END(trace_begin_id, "Begin");                               \
-  SOURCEMETA_TRACE_START(trace_id, STRINGIFY(step_type));
+  bool result{true};
 
 #define EVALUATE_BEGIN_PASS_THROUGH(step_category, step_type)                  \
+  SOURCEMETA_TRACE_START(trace_id, STRINGIFY(step_type));                      \
   const auto &step_category{std::get<step_type>(step)};                        \
-  bool result{true};                                                           \
-  SOURCEMETA_TRACE_END(trace_begin_id, "Begin");                               \
-  SOURCEMETA_TRACE_START(trace_id, STRINGIFY(step_type));
+  bool result{true};
 
 #define EVALUATE_END(step_category, step_type)                                 \
-  SOURCEMETA_TRACE_END(trace_id, STRINGIFY(step_type));                        \
-  SOURCEMETA_TRACE_START(trace_end_id, "End");                                 \
   if (callback.has_value()) {                                                  \
     callback.value()(EvaluationType::Post, result, step,                       \
                      context.evaluate_path, context.instance_location,         \
@@ -156,18 +145,16 @@ auto evaluate_step(const sourcemeta::blaze::Instruction &step,
   context.pop(step_category.relative_schema_location.size(),                   \
               step_category.relative_instance_location.size(),                 \
               step_category.dynamic, track);                                   \
-  SOURCEMETA_TRACE_END(trace_end_id, "End");                                   \
+  SOURCEMETA_TRACE_END(trace_id, STRINGIFY(step_type));                        \
   return result;
 
 #define EVALUATE_END_NO_POP(step_category, step_type)                          \
-  SOURCEMETA_TRACE_END(trace_id, STRINGIFY(step_type));                        \
-  SOURCEMETA_TRACE_START(trace_end_id, "End");                                 \
   if (callback.has_value()) {                                                  \
     callback.value()(EvaluationType::Post, result, step,                       \
                      context.evaluate_path, context.instance_location,         \
                      context.null);                                            \
   }                                                                            \
-  SOURCEMETA_TRACE_END(trace_end_id, "End");                                   \
+  SOURCEMETA_TRACE_END(trace_id, STRINGIFY(step_type));                        \
   return result;
 
 #define EVALUATE_END_PASS_THROUGH(step_type)                                   \
