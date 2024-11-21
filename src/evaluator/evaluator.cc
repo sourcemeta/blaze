@@ -202,7 +202,7 @@ auto evaluate_step(const sourcemeta::blaze::Template::value_type &step,
 #define IS_STEP(step_type) TemplateIndex::step_type
 #define HANDLER_START switch (static_cast<TemplateIndex>(step.index()))
 
-#include "handlers.h"
+#include "dispatch.h"
 
 #undef IS_STEP
 #undef HANDLER_START
