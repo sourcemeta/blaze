@@ -25,10 +25,8 @@ namespace sourcemeta::blaze {
 /// Represents a stateful schema evaluation context
 class SOURCEMETA_BLAZE_EVALUATOR_EXPORT EvaluationContext {
 public:
-  /// Prepare the schema evaluation context with a given instance.
-  /// Performing evaluation on a context without preparing it with
-  /// an instance is undefined behavior.
-  auto prepare(const sourcemeta::jsontoolkit::JSON &instance) -> void;
+  /// Prepare the schema evaluation context for the next run
+  auto reset() -> void;
 
   // All of these methods are considered internal and no
   // client must depend on them
@@ -42,36 +40,21 @@ public:
             const sourcemeta::jsontoolkit::Pointer &relative_instance_location,
             const std::size_t &schema_resource, const bool dynamic,
             const bool track) -> void;
-  // A performance shortcut for pushing without re-traversing the target
-  // if we already know that the destination target will be
-  auto push(const sourcemeta::jsontoolkit::Pointer &relative_schema_location,
-            const sourcemeta::jsontoolkit::Pointer &relative_instance_location,
-            const std::size_t &schema_resource, const bool dynamic,
-            const bool track,
-            std::reference_wrapper<const sourcemeta::jsontoolkit::JSON>
-                &&new_instance) -> void;
   auto pop(const std::size_t relative_schema_location_size,
            const std::size_t relative_instance_location_size,
            const bool dynamic, const bool track) -> void;
-  auto
-  enter(const sourcemeta::jsontoolkit::WeakPointer::Token::Property &property,
-        const bool track) -> void;
-  auto enter(const sourcemeta::jsontoolkit::WeakPointer::Token::Index &index,
-             const bool track) -> void;
-  auto leave(const bool track) -> void;
-  auto push_without_traverse(
-      const sourcemeta::jsontoolkit::Pointer &relative_schema_location,
-      const sourcemeta::jsontoolkit::Pointer &relative_instance_location,
-      const std::size_t &schema_resource, const bool dynamic, const bool track)
-      -> void;
 
   ///////////////////////////////////////////////
   // Target resolution
   ///////////////////////////////////////////////
 
-  auto resolve_target() -> const sourcemeta::jsontoolkit::JSON &;
-  auto resolve_string_target() -> std::optional<
-      std::reference_wrapper<const sourcemeta::jsontoolkit::JSON::String>>;
+  // TODO: Make these methods plain functions on evaluator.cc
+  auto resolve_target(const sourcemeta::jsontoolkit::JSON &instance)
+      -> const sourcemeta::jsontoolkit::JSON &;
+  auto
+  resolve_string_target(const sourcemeta::jsontoolkit::JSON &instance) const
+      -> std::optional<
+          std::reference_wrapper<const sourcemeta::jsontoolkit::JSON::String>>;
 
   ///////////////////////////////////////////////
   // References and anchors
@@ -107,8 +90,6 @@ public:
 #if defined(_MSC_VER)
 #pragma warning(disable : 4251 4275)
 #endif
-  std::vector<std::reference_wrapper<const sourcemeta::jsontoolkit::JSON>>
-      instances;
   sourcemeta::jsontoolkit::WeakPointer evaluate_path;
   std::uint64_t evaluate_path_size{0};
   sourcemeta::jsontoolkit::WeakPointer instance_location;

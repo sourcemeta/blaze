@@ -5,21 +5,18 @@
 
 namespace sourcemeta::blaze {
 
-auto EvaluationContext::prepare(const sourcemeta::jsontoolkit::JSON &instance)
-    -> void {
-  // Do a full reset for the next run
+// Do a full reset for the next run
+auto EvaluationContext::reset() -> void {
   assert(this->evaluate_path.empty());
   assert(this->evaluate_path_size == 0);
   assert(this->instance_location.empty());
   assert(!this->property_target.has_value());
   assert(this->resources.empty());
-  this->instances.clear();
-  this->instances.emplace_back(instance);
   this->labels.clear();
   this->evaluated_.clear();
 }
 
-auto EvaluationContext::push_without_traverse(
+auto EvaluationContext::push(
     const sourcemeta::jsontoolkit::Pointer &relative_schema_location,
     const sourcemeta::jsontoolkit::Pointer &relative_instance_location,
     const std::size_t &schema_resource, const bool dynamic, const bool track)
@@ -59,41 +56,9 @@ auto EvaluationContext::push_without_traverse(
   }
 }
 
-auto EvaluationContext::push(
-    const sourcemeta::jsontoolkit::Pointer &relative_schema_location,
-    const sourcemeta::jsontoolkit::Pointer &relative_instance_location,
-    const std::size_t &schema_resource, const bool dynamic, const bool track)
-    -> void {
-  this->push_without_traverse(relative_schema_location,
-                              relative_instance_location, schema_resource,
-                              dynamic, track);
-  if (!relative_instance_location.empty()) {
-    assert(!this->instances.empty());
-    this->instances.emplace_back(
-        get(this->instances.back().get(), relative_instance_location));
-  }
-}
-
-auto EvaluationContext::push(
-    const sourcemeta::jsontoolkit::Pointer &relative_schema_location,
-    const sourcemeta::jsontoolkit::Pointer &relative_instance_location,
-    const std::size_t &schema_resource, const bool dynamic, const bool track,
-    std::reference_wrapper<const sourcemeta::jsontoolkit::JSON> &&new_instance)
-    -> void {
-  this->push_without_traverse(relative_schema_location,
-                              relative_instance_location, schema_resource,
-                              dynamic, track);
-  assert(!relative_instance_location.empty());
-  this->instances.emplace_back(new_instance);
-}
-
 auto EvaluationContext::pop(const std::size_t relative_schema_location_size,
                             const std::size_t relative_instance_location_size,
                             const bool dynamic, const bool track) -> void {
-  if (relative_instance_location_size > 0) {
-    this->instances.pop_back();
-  }
-
   if (track) {
     this->evaluate_path.pop_back(relative_schema_location_size);
     this->instance_location.pop_back(relative_instance_location_size);
@@ -107,34 +72,6 @@ auto EvaluationContext::pop(const std::size_t relative_schema_location_size,
   }
 }
 
-auto EvaluationContext::enter(
-    const sourcemeta::jsontoolkit::WeakPointer::Token::Property &property,
-    const bool track) -> void {
-  if (track) {
-    this->instance_location.push_back(property);
-  }
-
-  this->instances.emplace_back(this->instances.back().get().at(property));
-}
-
-auto EvaluationContext::enter(
-    const sourcemeta::jsontoolkit::WeakPointer::Token::Index &index,
-    const bool track) -> void {
-  if (track) {
-    this->instance_location.push_back(index);
-  }
-
-  this->instances.emplace_back(this->instances.back().get().at(index));
-}
-
-auto EvaluationContext::leave(const bool track) -> void {
-  if (track) {
-    this->instance_location.pop_back();
-  }
-
-  this->instances.pop_back();
-}
-
 auto EvaluationContext::hash(
     const std::size_t &resource,
     const sourcemeta::jsontoolkit::JSON::String &fragment) const noexcept
@@ -142,7 +79,8 @@ auto EvaluationContext::hash(
   return resource + this->hasher_(fragment);
 }
 
-auto EvaluationContext::resolve_target()
+auto EvaluationContext::resolve_target(
+    const sourcemeta::jsontoolkit::JSON &instance)
     -> const sourcemeta::jsontoolkit::JSON & {
   if (this->property_target.has_value()) [[unlikely]] {
     // In this case, we still need to return a string in order
@@ -153,20 +91,19 @@ auto EvaluationContext::resolve_target()
     return empty_string;
   }
 
-  return this->instances.back().get();
+  return instance;
 }
 
-auto EvaluationContext::resolve_string_target() -> std::optional<
-    std::reference_wrapper<const sourcemeta::jsontoolkit::JSON::String>> {
+auto EvaluationContext::resolve_string_target(
+    const sourcemeta::jsontoolkit::JSON &instance) const
+    -> std::optional<
+        std::reference_wrapper<const sourcemeta::jsontoolkit::JSON::String>> {
   if (this->property_target.has_value()) [[unlikely]] {
     return this->property_target.value();
+  } else if (!instance.is_string()) {
+    return std::nullopt;
   } else {
-    const auto &result{this->instances.back().get()};
-    if (!result.is_string()) {
-      return std::nullopt;
-    }
-
-    return result.to_string();
+    return instance.to_string();
   }
 }
 

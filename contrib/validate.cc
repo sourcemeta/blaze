@@ -53,10 +53,11 @@ auto main(int argc, char **argv) noexcept -> int {
   sourcemeta::blaze::EvaluationContext context;
   std::size_t cursor{0};
   for (const auto &instance : instances) {
-    context.prepare(instance);
+    context.reset();
     cursor += 1;
     const auto timestamp_start{std::chrono::high_resolution_clock::now()};
-    const auto result{sourcemeta::blaze::evaluate(schema_template, context)};
+    const auto result{
+        sourcemeta::blaze::evaluate(schema_template, instance, context)};
     const auto timestamp_end{std::chrono::high_resolution_clock::now()};
     const auto duration{std::chrono::duration_cast<std::chrono::nanoseconds>(
         timestamp_end - timestamp_start)};

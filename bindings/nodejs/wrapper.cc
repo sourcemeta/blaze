@@ -44,9 +44,9 @@ public:
     assert(schema < this->schemas.size());
     assert(this->schemas[schema].has_value());
     const auto instance{sourcemeta::jsontoolkit::parse(instance_string)};
-    this->context.prepare(instance);
-    const auto result{
-        sourcemeta::blaze::evaluate(this->schemas[schema].value(), context)};
+    this->context.reset();
+    const auto result{sourcemeta::blaze::evaluate(this->schemas[schema].value(),
+                                                  instance, context)};
     return emscripten::val(result);
   }
 

@@ -13,6 +13,7 @@ namespace {
 
 auto evaluate_step(const sourcemeta::blaze::Instruction &step,
                    const std::optional<sourcemeta::blaze::Callback> &callback,
+                   const sourcemeta::jsontoolkit::JSON &instance,
                    sourcemeta::blaze::EvaluationContext &context) -> bool {
   SOURCEMETA_TRACE_REGISTER_ID(trace_id);
   using namespace sourcemeta::jsontoolkit;
@@ -27,7 +28,8 @@ auto evaluate_step(const sourcemeta::blaze::Instruction &step,
   context.push(step_category.relative_schema_location,                         \
                step_category.relative_instance_location,                       \
                step_category.schema_resource, step_category.dynamic, track);   \
-  const auto &target{context.resolve_target()};                                \
+  const auto &target{context.resolve_target(sourcemeta::jsontoolkit::get(      \
+      instance, step_category.relative_instance_location))};                   \
   if (!(precondition)) {                                                       \
     context.pop(step_category.relative_schema_location.size(),                 \
                 step_category.relative_instance_location.size(),               \
@@ -48,7 +50,9 @@ auto evaluate_step(const sourcemeta::blaze::Instruction &step,
   context.push(step_category.relative_schema_location,                         \
                step_category.relative_instance_location,                       \
                step_category.schema_resource, step_category.dynamic, track);   \
-  const auto &maybe_target{context.resolve_string_target()};                   \
+  const auto &maybe_target{                                                    \
+      context.resolve_string_target(sourcemeta::jsontoolkit::get(              \
+          instance, step_category.relative_instance_location))};               \
   if (!maybe_target.has_value()) {                                             \
     context.pop(step_category.relative_schema_location.size(),                 \
                 step_category.relative_instance_location.size(),               \
@@ -63,30 +67,13 @@ auto evaluate_step(const sourcemeta::blaze::Instruction &step,
   const auto &target{maybe_target.value().get()};                              \
   bool result{false};
 
-#define EVALUATE_BEGIN_NO_TARGET(step_category, step_type, precondition)       \
-  SOURCEMETA_TRACE_START(trace_id, STRINGIFY(step_type));                      \
-  const auto &step_category{std::get<step_type>(step)};                        \
-  if (!(precondition)) {                                                       \
-    SOURCEMETA_TRACE_END(trace_id, STRINGIFY(step_type));                      \
-    return true;                                                               \
-  }                                                                            \
-  const auto track{step_category.track || callback.has_value()};               \
-  context.push(step_category.relative_schema_location,                         \
-               step_category.relative_instance_location,                       \
-               step_category.schema_resource, step_category.dynamic, track);   \
-  if (callback.has_value()) {                                                  \
-    callback.value()(EvaluationType::Pre, true, step, context.evaluate_path,   \
-                     context.instance_location, context.null);                 \
-  }                                                                            \
-  bool result{false};
-
   // This is a slightly complicated dance to avoid traversing the relative
   // instance location twice. We first need to traverse it to check if its
   // valid in the document as part of the condition, but if it is, we can
   // pass it to `.push()` so that it doesn't need to traverse it again.
 #define EVALUATE_BEGIN_TRY_TARGET(step_category, step_type, precondition)      \
   SOURCEMETA_TRACE_START(trace_id, STRINGIFY(step_type));                      \
-  const auto &target{context.resolve_target()};                                \
+  const auto &target{context.resolve_target(instance)};                        \
   const auto &step_category{std::get<step_type>(step)};                        \
   if (!(precondition)) {                                                       \
     SOURCEMETA_TRACE_END(trace_id, STRINGIFY(step_type));                      \
@@ -101,8 +88,8 @@ auto evaluate_step(const sourcemeta::blaze::Instruction &step,
   const auto track{step_category.track || callback.has_value()};               \
   context.push(step_category.relative_schema_location,                         \
                step_category.relative_instance_location,                       \
-               step_category.schema_resource, step_category.dynamic, track,    \
-               std::move(target_check.value()));                               \
+               step_category.schema_resource, step_category.dynamic, track);   \
+  assert(!step_category.relative_instance_location.empty());                   \
   if (callback.has_value()) {                                                  \
     callback.value()(EvaluationType::Pre, true, step, context.evaluate_path,   \
                      context.instance_location, context.null);                 \
@@ -196,7 +183,6 @@ auto evaluate_step(const sourcemeta::blaze::Instruction &step,
 #undef STRINGIFY
 #undef EVALUATE_BEGIN
 #undef EVALUATE_BEGIN_IF_STRING
-#undef EVALUATE_BEGIN_NO_TARGET
 #undef EVALUATE_BEGIN_TRY_TARGET
 #undef EVALUATE_BEGIN_NO_PRECONDITION
 #undef EVALUATE_BEGIN_NO_PRECONDITION_AND_NO_PUSH
@@ -209,13 +195,14 @@ auto evaluate_step(const sourcemeta::blaze::Instruction &step,
 }
 
 inline auto
-evaluate_internal(sourcemeta::blaze::EvaluationContext &context,
+evaluate_internal(const sourcemeta::jsontoolkit::JSON &instance,
+                  sourcemeta::blaze::EvaluationContext &context,
                   const sourcemeta::blaze::Instructions &steps,
                   const std::optional<sourcemeta::blaze::Callback> &callback)
     -> bool {
   bool overall{true};
   for (const auto &step : steps) {
-    if (!evaluate_step(step, callback, context)) {
+    if (!evaluate_step(step, callback, instance, context)) {
       overall = false;
       break;
     }
@@ -227,8 +214,6 @@ evaluate_internal(sourcemeta::blaze::EvaluationContext &context,
   assert(context.evaluate_path_size == 0);
   assert(context.instance_location.empty());
   assert(context.resources.empty());
-  // We should end up at the root of the instance
-  assert(context.instances.size() == 1);
   return overall;
 }
 
@@ -240,19 +225,19 @@ auto evaluate(const Instructions &steps,
               const sourcemeta::jsontoolkit::JSON &instance,
               const Callback &callback) -> bool {
   EvaluationContext context;
-  context.prepare(instance);
-  return evaluate_internal(context, steps, callback);
+  return evaluate_internal(instance, context, steps, callback);
 }
 
 auto evaluate(const Instructions &steps,
               const sourcemeta::jsontoolkit::JSON &instance) -> bool {
   EvaluationContext context;
-  context.prepare(instance);
-  return evaluate_internal(context, steps, std::nullopt);
+  return evaluate_internal(instance, context, steps, std::nullopt);
 }
 
-auto evaluate(const Instructions &steps, EvaluationContext &context) -> bool {
-  return evaluate_internal(context, steps, std::nullopt);
+auto evaluate(const Instructions &steps,
+              const sourcemeta::jsontoolkit::JSON &instance,
+              EvaluationContext &context) -> bool {
+  return evaluate_internal(instance, context, steps, std::nullopt);
 }
 
 } // namespace sourcemeta::blaze

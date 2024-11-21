@@ -58,7 +58,8 @@ HANDLER_START {
 
   case IS_STEP(AssertionType): {
     EVALUATE_BEGIN_NO_PRECONDITION(assertion, AssertionType);
-    const auto &target{context.resolve_target()};
+    const auto &target{sourcemeta::jsontoolkit::get(
+        instance, assertion.relative_instance_location)};
     // In non-strict mode, we consider a real number that represents an
     // integer to be an integer
     result = target.type() == assertion.value ||
@@ -71,7 +72,8 @@ HANDLER_START {
     EVALUATE_BEGIN_NO_PRECONDITION(assertion, AssertionTypeAny);
     // Otherwise we are we even emitting this instruction?
     assert(assertion.value.size() > 1);
-    const auto &target{context.resolve_target()};
+    const auto &target{sourcemeta::jsontoolkit::get(
+        instance, assertion.relative_instance_location)};
     // In non-strict mode, we consider a real number that represents an
     // integer to be an integer
     for (const auto type : assertion.value) {
@@ -90,7 +92,9 @@ HANDLER_START {
 
   case IS_STEP(AssertionTypeStrict): {
     EVALUATE_BEGIN_NO_PRECONDITION(assertion, AssertionTypeStrict);
-    result = context.resolve_target().type() == assertion.value;
+    const auto &target{sourcemeta::jsontoolkit::get(
+        instance, assertion.relative_instance_location)};
+    result = target.type() == assertion.value;
     EVALUATE_END(assertion, AssertionTypeStrict);
   }
 
@@ -98,15 +102,17 @@ HANDLER_START {
     EVALUATE_BEGIN_NO_PRECONDITION(assertion, AssertionTypeStrictAny);
     // Otherwise we are we even emitting this instruction?
     assert(assertion.value.size() > 1);
-    result =
-        (std::find(assertion.value.cbegin(), assertion.value.cend(),
-                   context.resolve_target().type()) != assertion.value.cend());
+    const auto &target{sourcemeta::jsontoolkit::get(
+        instance, assertion.relative_instance_location)};
+    result = (std::find(assertion.value.cbegin(), assertion.value.cend(),
+                        target.type()) != assertion.value.cend());
     EVALUATE_END(assertion, AssertionTypeStrictAny);
   }
 
   case IS_STEP(AssertionTypeStringBounded): {
     EVALUATE_BEGIN_NO_PRECONDITION(assertion, AssertionTypeStringBounded);
-    const auto &target{context.resolve_target()};
+    const auto &target{sourcemeta::jsontoolkit::get(
+        instance, assertion.relative_instance_location)};
     const auto minimum{std::get<0>(assertion.value)};
     const auto maximum{std::get<1>(assertion.value)};
     assert(!maximum.has_value() || maximum.value() >= minimum);
@@ -120,7 +126,8 @@ HANDLER_START {
 
   case IS_STEP(AssertionTypeArrayBounded): {
     EVALUATE_BEGIN_NO_PRECONDITION(assertion, AssertionTypeArrayBounded);
-    const auto &target{context.resolve_target()};
+    const auto &target{sourcemeta::jsontoolkit::get(
+        instance, assertion.relative_instance_location)};
     const auto minimum{std::get<0>(assertion.value)};
     const auto maximum{std::get<1>(assertion.value)};
     assert(!maximum.has_value() || maximum.value() >= minimum);
@@ -134,7 +141,8 @@ HANDLER_START {
 
   case IS_STEP(AssertionTypeObjectBounded): {
     EVALUATE_BEGIN_NO_PRECONDITION(assertion, AssertionTypeObjectBounded);
-    const auto &target{context.resolve_target()};
+    const auto &target{sourcemeta::jsontoolkit::get(
+        instance, assertion.relative_instance_location)};
     const auto minimum{std::get<0>(assertion.value)};
     const auto maximum{std::get<1>(assertion.value)};
     assert(!maximum.has_value() || maximum.value() >= minimum);
@@ -190,13 +198,17 @@ HANDLER_START {
 
   case IS_STEP(AssertionEqual): {
     EVALUATE_BEGIN_NO_PRECONDITION(assertion, AssertionEqual);
-    result = (context.resolve_target() == assertion.value);
+    const auto &target{sourcemeta::jsontoolkit::get(
+        instance, assertion.relative_instance_location)};
+    result = (target == assertion.value);
     EVALUATE_END(assertion, AssertionEqual);
   }
 
   case IS_STEP(AssertionEqualsAny): {
     EVALUATE_BEGIN_NO_PRECONDITION(assertion, AssertionEqualsAny);
-    result = assertion.value.contains(context.resolve_target());
+    const auto &target{sourcemeta::jsontoolkit::get(
+        instance, assertion.relative_instance_location)};
+    result = assertion.value.contains(target);
     EVALUATE_END(assertion, AssertionEqualsAny);
   }
 
@@ -264,7 +276,7 @@ HANDLER_START {
                               // before traversing into the actual property
                               target.is_object());
     // Now here we refer to the actual property
-    const auto &effective_target{context.resolve_target()};
+    const auto &effective_target{context.resolve_target(target_check.value())};
     // In non-strict mode, we consider a real number that represents an
     // integer to be an integer
     result = effective_target.type() == assertion.value ||
@@ -280,7 +292,7 @@ HANDLER_START {
                               // before traversing into the actual property
                               target.is_object());
     // Now here we refer to the actual property
-    const auto &effective_target{context.resolve_target()};
+    const auto &effective_target{context.resolve_target(target_check.value())};
     // In non-strict mode, we consider a real number that represents an
     // integer to be an integer
     result = effective_target.type() == assertion.value ||
@@ -302,7 +314,8 @@ HANDLER_START {
                               // before traversing into the actual property
                               target.is_object());
     // Now here we refer to the actual property
-    result = context.resolve_target().type() == assertion.value;
+    result =
+        context.resolve_target(target_check.value()).type() == assertion.value;
     EVALUATE_END(assertion, AssertionPropertyTypeStrict);
   }
 
@@ -313,7 +326,8 @@ HANDLER_START {
                               // before traversing into the actual property
                               target.is_object());
     // Now here we refer to the actual property
-    result = context.resolve_target().type() == assertion.value;
+    result =
+        context.resolve_target(target_check.value()).type() == assertion.value;
 
     if (result) {
       assert(track);
@@ -330,9 +344,9 @@ HANDLER_START {
                               // before traversing into the actual property
                               target.is_object());
     // Now here we refer to the actual property
-    result =
-        (std::find(assertion.value.cbegin(), assertion.value.cend(),
-                   context.resolve_target().type()) != assertion.value.cend());
+    result = (std::find(assertion.value.cbegin(), assertion.value.cend(),
+                        context.resolve_target(target_check.value()).type()) !=
+              assertion.value.cend());
     EVALUATE_END(assertion, AssertionPropertyTypeStrictAny);
   }
 
@@ -343,9 +357,9 @@ HANDLER_START {
                               // before traversing into the actual property
                               target.is_object());
     // Now here we refer to the actual property
-    result =
-        (std::find(assertion.value.cbegin(), assertion.value.cend(),
-                   context.resolve_target().type()) != assertion.value.cend());
+    result = (std::find(assertion.value.cbegin(), assertion.value.cend(),
+                        context.resolve_target(target_check.value()).type()) !=
+              assertion.value.cend());
 
     if (result) {
       assert(track);
@@ -370,7 +384,7 @@ HANDLER_START {
       result = true;
       assert(std::holds_alternative<ControlGroup>(entry));
       for (const auto &child : std::get<ControlGroup>(entry).children) {
-        if (!evaluate_step(child, callback, context)) {
+        if (!evaluate_step(child, callback, target, context)) {
           result = false;
           break;
         }
@@ -396,7 +410,7 @@ HANDLER_START {
       result = true;
       assert(std::holds_alternative<ControlGroup>(entry));
       for (const auto &child : std::get<ControlGroup>(entry).children) {
-        if (!evaluate_step(child, callback, context)) {
+        if (!evaluate_step(child, callback, target, context)) {
           result = false;
           EVALUATE_END(assertion, AssertionArrayPrefixEvaluate);
         }
@@ -416,8 +430,10 @@ HANDLER_START {
   case IS_STEP(LogicalOr): {
     EVALUATE_BEGIN_NO_PRECONDITION(logical, LogicalOr);
     result = logical.children.empty();
+    const auto &target{sourcemeta::jsontoolkit::get(
+        instance, logical.relative_instance_location)};
     for (const auto &child : logical.children) {
-      if (evaluate_step(child, callback, context)) {
+      if (evaluate_step(child, callback, target, context)) {
         result = true;
         // This boolean value controls whether we should be exhaustive
         if (!logical.value) {
@@ -432,8 +448,10 @@ HANDLER_START {
   case IS_STEP(LogicalAnd): {
     EVALUATE_BEGIN_NO_PRECONDITION(logical, LogicalAnd);
     result = true;
+    const auto &target{sourcemeta::jsontoolkit::get(
+        instance, logical.relative_instance_location)};
     for (const auto &child : logical.children) {
-      if (!evaluate_step(child, callback, context)) {
+      if (!evaluate_step(child, callback, target, context)) {
         result = false;
         break;
       }
@@ -446,7 +464,7 @@ HANDLER_START {
     EVALUATE_BEGIN(logical, LogicalWhenType, target.type() == logical.value);
     result = true;
     for (const auto &child : logical.children) {
-      if (!evaluate_step(child, callback, context)) {
+      if (!evaluate_step(child, callback, target, context)) {
         result = false;
         break;
       }
@@ -460,7 +478,7 @@ HANDLER_START {
                    target.is_object() && target.defines(logical.value));
     result = true;
     for (const auto &child : logical.children) {
-      if (!evaluate_step(child, callback, context)) {
+      if (!evaluate_step(child, callback, target, context)) {
         result = false;
         break;
       }
@@ -474,7 +492,7 @@ HANDLER_START {
                    target.is_array() && target.size() > logical.value);
     result = true;
     for (const auto &child : logical.children) {
-      if (!evaluate_step(child, callback, context)) {
+      if (!evaluate_step(child, callback, target, context)) {
         result = false;
         break;
       }
@@ -487,8 +505,10 @@ HANDLER_START {
     EVALUATE_BEGIN_NO_PRECONDITION(logical, LogicalXor);
     result = true;
     bool has_matched{false};
+    const auto &target{sourcemeta::jsontoolkit::get(
+        instance, logical.relative_instance_location)};
     for (const auto &child : logical.children) {
-      if (evaluate_step(child, callback, context)) {
+      if (evaluate_step(child, callback, target, context)) {
         if (has_matched) {
           result = false;
           // This boolean value controls whether we should be exhaustive
@@ -519,8 +539,10 @@ HANDLER_START {
       condition_end = logical.value.second;
     }
 
+    const auto &target{sourcemeta::jsontoolkit::get(
+        instance, logical.relative_instance_location)};
     for (std::size_t cursor = 0; cursor < condition_end; cursor++) {
-      if (!evaluate_step(logical.children[cursor], callback, context)) {
+      if (!evaluate_step(logical.children[cursor], callback, target, context)) {
         result = false;
         break;
       }
@@ -538,7 +560,8 @@ HANDLER_START {
 
         for (auto cursor = consequence_start; cursor < consequence_end;
              cursor++) {
-          if (!evaluate_step(logical.children[cursor], callback, context)) {
+          if (!evaluate_step(logical.children[cursor], callback, instance,
+                             context)) {
             result = false;
             break;
           }
@@ -548,7 +571,8 @@ HANDLER_START {
       } else {
         for (auto cursor = consequence_start; cursor < consequence_end;
              cursor++) {
-          if (!evaluate_step(logical.children[cursor], callback, context)) {
+          if (!evaluate_step(logical.children[cursor], callback, instance,
+                             context)) {
             result = false;
             break;
           }
@@ -562,7 +586,7 @@ HANDLER_START {
   case IS_STEP(ControlGroup): {
     EVALUATE_BEGIN_PASS_THROUGH(control, ControlGroup);
     for (const auto &child : control.children) {
-      if (!evaluate_step(child, callback, context)) {
+      if (!evaluate_step(child, callback, instance, context)) {
         result = false;
         break;
       }
@@ -578,12 +602,14 @@ HANDLER_START {
     // TODO: This is needed for nested `properties`, but can have a
     // performance impact. Maybe we can be smarter about when we
     // do this traversal?
-    const auto &target{
-        get(context.resolve_target(), control.relative_instance_location)};
+    const auto &target{sourcemeta::jsontoolkit::get(
+        instance, control.relative_instance_location)};
 
     if (target.is_object() && target.defines(control.value)) {
       for (const auto &child : control.children) {
-        if (!evaluate_step(child, callback, context)) {
+        // Note that in this control instruction, we purposely
+        // don't navigate into the target
+        if (!evaluate_step(child, callback, instance, context)) {
           result = false;
           break;
         }
@@ -597,9 +623,11 @@ HANDLER_START {
     EVALUATE_BEGIN_NO_PRECONDITION(control, ControlLabel);
     assert(!control.children.empty());
     context.labels.try_emplace(control.value, control.children);
+    const auto &target{sourcemeta::jsontoolkit::get(
+        instance, control.relative_instance_location)};
     result = true;
     for (const auto &child : control.children) {
-      if (!evaluate_step(child, callback, context)) {
+      if (!evaluate_step(child, callback, target, context)) {
         result = false;
         break;
       }
@@ -637,8 +665,10 @@ HANDLER_START {
     EVALUATE_BEGIN_NO_PRECONDITION(control, ControlJump);
     result = true;
     assert(context.labels.contains(control.value));
+    const auto &target{sourcemeta::jsontoolkit::get(
+        instance, control.relative_instance_location)};
     for (const auto &child : context.labels.at(control.value).get()) {
-      if (!evaluate_step(child, callback, context)) {
+      if (!evaluate_step(child, callback, target, context)) {
         result = false;
         break;
       }
@@ -650,13 +680,15 @@ HANDLER_START {
   case IS_STEP(ControlDynamicAnchorJump): {
     EVALUATE_BEGIN_NO_PRECONDITION(control, ControlDynamicAnchorJump);
     result = false;
+    const auto &target{sourcemeta::jsontoolkit::get(
+        instance, control.relative_instance_location)};
     for (const auto &resource : context.resources) {
       const auto label{context.hash(resource, control.value)};
       const auto match{context.labels.find(label)};
       if (match != context.labels.cend()) {
         result = true;
         for (const auto &child : match->second.get()) {
-          if (!evaluate_step(child, callback, context)) {
+          if (!evaluate_step(child, callback, target, context)) {
             result = false;
             EVALUATE_END(control, ControlDynamicAnchorJump);
           }
@@ -692,8 +724,10 @@ HANDLER_START {
   case IS_STEP(LogicalNot): {
     EVALUATE_BEGIN_NO_PRECONDITION(logical, LogicalNot);
 
+    const auto &target{sourcemeta::jsontoolkit::get(
+        instance, logical.relative_instance_location)};
     for (const auto &child : logical.children) {
-      if (!evaluate_step(child, callback, context)) {
+      if (!evaluate_step(child, callback, target, context)) {
         result = true;
         break;
       }
@@ -705,8 +739,10 @@ HANDLER_START {
   case IS_STEP(LogicalNotEvaluate): {
     EVALUATE_BEGIN_NO_PRECONDITION(logical, LogicalNotEvaluate);
 
+    const auto &target{sourcemeta::jsontoolkit::get(
+        instance, logical.relative_instance_location)};
     for (const auto &child : logical.children) {
-      if (!evaluate_step(child, callback, context)) {
+      if (!evaluate_step(child, callback, target, context)) {
         result = true;
         break;
       }
@@ -729,16 +765,17 @@ HANDLER_START {
         continue;
       }
 
-      context.enter(entry.first, true);
+      context.instance_location.push_back(entry.first);
+      const auto &new_instance{target.at(entry.first)};
       for (const auto &child : loop.children) {
-        if (!evaluate_step(child, callback, context)) {
+        if (!evaluate_step(child, callback, new_instance, context)) {
           result = false;
-          context.leave(true);
+          context.instance_location.pop_back();
           EVALUATE_END(loop, LoopPropertiesUnevaluated);
         }
       }
 
-      context.leave(true);
+      context.instance_location.pop_back();
     }
 
     // Mark the entire object as evaluated
@@ -783,16 +820,17 @@ HANDLER_START {
         continue;
       }
 
-      context.enter(entry.first, true);
+      context.instance_location.push_back(entry.first);
+      const auto &new_instance{target.at(entry.first)};
       for (const auto &child : loop.children) {
-        if (!evaluate_step(child, callback, context)) {
+        if (!evaluate_step(child, callback, new_instance, context)) {
           result = false;
-          context.leave(true);
+          context.instance_location.pop_back();
           EVALUATE_END(loop, LoopPropertiesUnevaluatedExcept);
         }
       }
 
-      context.leave(true);
+      context.instance_location.pop_back();
     }
 
     // Mark the entire object as evaluated
@@ -814,7 +852,7 @@ HANDLER_START {
       const auto &substep{loop.children[index->second]};
       assert(std::holds_alternative<ControlGroup>(substep));
       for (const auto &child : std::get<ControlGroup>(substep).children) {
-        if (!evaluate_step(child, callback, context)) {
+        if (!evaluate_step(child, callback, target, context)) {
           result = false;
           EVALUATE_END(loop, LoopPropertiesMatch);
         }
@@ -838,7 +876,7 @@ HANDLER_START {
       const auto &substep{loop.children[index->second]};
       assert(std::holds_alternative<ControlGroup>(substep));
       for (const auto &child : std::get<ControlGroup>(substep).children) {
-        if (!evaluate_step(child, callback, context)) {
+        if (!evaluate_step(child, callback, target, context)) {
           result = false;
           EVALUATE_END(loop, LoopPropertiesMatchClosed);
         }
@@ -853,16 +891,23 @@ HANDLER_START {
     assert(!loop.children.empty());
     result = true;
     for (const auto &entry : target.as_object()) {
-      context.enter(entry.first, track);
+      if (track) {
+        context.instance_location.push_back(entry.first);
+      }
+      const auto &new_instance{target.at(entry.first)};
       for (const auto &child : loop.children) {
-        if (!evaluate_step(child, callback, context)) {
+        if (!evaluate_step(child, callback, new_instance, context)) {
           result = false;
-          context.leave(track);
+          if (track) {
+            context.instance_location.pop_back();
+          }
           EVALUATE_END(loop, LoopProperties);
         }
       }
 
-      context.leave(track);
+      if (track) {
+        context.instance_location.pop_back();
+      }
     }
 
     EVALUATE_END(loop, LoopProperties);
@@ -873,16 +918,23 @@ HANDLER_START {
     assert(!loop.children.empty());
     result = true;
     for (const auto &entry : target.as_object()) {
-      context.enter(entry.first, track);
+      if (track) {
+        context.instance_location.push_back(entry.first);
+      }
+      const auto &new_instance{target.at(entry.first)};
       for (const auto &child : loop.children) {
-        if (!evaluate_step(child, callback, context)) {
+        if (!evaluate_step(child, callback, new_instance, context)) {
           result = false;
-          context.leave(track);
+          if (track) {
+            context.instance_location.pop_back();
+          }
           EVALUATE_END(loop, LoopPropertiesEvaluate);
         }
       }
 
-      context.leave(track);
+      if (track) {
+        context.instance_location.pop_back();
+      }
     }
 
     assert(track);
@@ -900,16 +952,23 @@ HANDLER_START {
         continue;
       }
 
-      context.enter(entry.first, track);
+      if (track) {
+        context.instance_location.push_back(entry.first);
+      }
+      const auto &new_instance{target.at(entry.first)};
       for (const auto &child : loop.children) {
-        if (!evaluate_step(child, callback, context)) {
+        if (!evaluate_step(child, callback, new_instance, context)) {
           result = false;
-          context.leave(track);
+          if (track) {
+            context.instance_location.pop_back();
+          }
           EVALUATE_END(loop, LoopPropertiesRegex);
         }
       }
 
-      context.leave(track);
+      if (track) {
+        context.instance_location.pop_back();
+      }
     }
 
     EVALUATE_END(loop, LoopPropertiesRegex);
@@ -928,16 +987,23 @@ HANDLER_START {
         continue;
       }
 
-      context.enter(entry.first, track);
+      if (track) {
+        context.instance_location.push_back(entry.first);
+      }
+      const auto &new_instance{target.at(entry.first)};
       for (const auto &child : loop.children) {
-        if (!evaluate_step(child, callback, context)) {
+        if (!evaluate_step(child, callback, new_instance, context)) {
           result = false;
-          context.leave(track);
+          if (track) {
+            context.instance_location.pop_back();
+          }
           EVALUATE_END(loop, LoopPropertiesRegexClosed);
         }
       }
 
-      context.leave(track);
+      if (track) {
+        context.instance_location.pop_back();
+      }
     }
 
     EVALUATE_END(loop, LoopPropertiesRegexClosed);
@@ -952,16 +1018,23 @@ HANDLER_START {
         continue;
       }
 
-      context.enter(entry.first, track);
+      if (track) {
+        context.instance_location.push_back(entry.first);
+      }
+      const auto &new_instance{target.at(entry.first)};
       for (const auto &child : loop.children) {
-        if (!evaluate_step(child, callback, context)) {
+        if (!evaluate_step(child, callback, new_instance, context)) {
           result = false;
-          context.leave(track);
+          if (track) {
+            context.instance_location.pop_back();
+          }
           EVALUATE_END(loop, LoopPropertiesStartsWith);
         }
       }
 
-      context.leave(track);
+      if (track) {
+        context.instance_location.pop_back();
+      }
     }
 
     EVALUATE_END(loop, LoopPropertiesStartsWith);
@@ -998,16 +1071,23 @@ HANDLER_START {
         continue;
       }
 
-      context.enter(entry.first, track);
+      if (track) {
+        context.instance_location.push_back(entry.first);
+      }
+      const auto &new_instance{target.at(entry.first)};
       for (const auto &child : loop.children) {
-        if (!evaluate_step(child, callback, context)) {
+        if (!evaluate_step(child, callback, new_instance, context)) {
           result = false;
-          context.leave(track);
+          if (track) {
+            context.instance_location.pop_back();
+          }
           EVALUATE_END(loop, LoopPropertiesExcept);
         }
       }
 
-      context.leave(track);
+      if (track) {
+        context.instance_location.pop_back();
+      }
     }
 
     EVALUATE_END(loop, LoopPropertiesExcept);
@@ -1137,23 +1217,30 @@ HANDLER_START {
     assert(!loop.children.empty());
     result = true;
     for (const auto &entry : target.as_object()) {
-      context.enter(entry.first, track);
+      if (track) {
+        context.instance_location.push_back(entry.first);
+      }
+      const auto &new_instance{target.at(entry.first)};
       assert(!context.property_target.has_value());
       context.property_target = std::cref(entry.first);
 
       for (const auto &child : loop.children) {
-        if (!evaluate_step(child, callback, context)) {
+        if (!evaluate_step(child, callback, new_instance, context)) {
           result = false;
           assert(context.property_target.has_value());
           context.property_target = std::nullopt;
-          context.leave(track);
+          if (track) {
+            context.instance_location.pop_back();
+          }
           EVALUATE_END(loop, LoopKeys);
         }
       }
 
       assert(context.property_target.has_value());
       context.property_target = std::nullopt;
-      context.leave(track);
+      if (track) {
+        context.instance_location.pop_back();
+      }
     }
 
     EVALUATE_END(loop, LoopKeys);
@@ -1165,16 +1252,23 @@ HANDLER_START {
     assert(!loop.children.empty());
     result = true;
     for (std::size_t index = loop.value; index < target.size(); index++) {
-      context.enter(index, track);
+      if (track) {
+        context.instance_location.push_back(index);
+      }
+      const auto &new_instance{target.at(index)};
       for (const auto &child : loop.children) {
-        if (!evaluate_step(child, callback, context)) {
+        if (!evaluate_step(child, callback, new_instance, context)) {
           result = false;
-          context.leave(track);
+          if (track) {
+            context.instance_location.pop_back();
+          }
           EVALUATE_END(loop, LoopItems);
         }
       }
 
-      context.leave(track);
+      if (track) {
+        context.instance_location.pop_back();
+      }
     }
 
     EVALUATE_END(loop, LoopItems);
@@ -1191,16 +1285,17 @@ HANDLER_START {
         continue;
       }
 
-      context.enter(index, true);
+      context.instance_location.push_back(index);
+      const auto &new_instance{target.at(index)};
       for (const auto &child : loop.children) {
-        if (!evaluate_step(child, callback, context)) {
+        if (!evaluate_step(child, callback, new_instance, context)) {
           result = false;
-          context.leave(true);
+          context.instance_location.pop_back();
           EVALUATE_END(loop, LoopItemsUnevaluated);
         }
       }
 
-      context.leave(true);
+      context.instance_location.pop_back();
     }
 
     // Mark the entire array as evaluated
@@ -1266,16 +1361,21 @@ HANDLER_START {
     auto match_count{std::numeric_limits<decltype(minimum)>::min()};
 
     for (std::size_t index = 0; index < target.size(); index++) {
-      context.enter(index, track);
+      if (track) {
+        context.instance_location.push_back(index);
+      }
+      const auto &new_instance{target.at(index)};
       bool subresult{true};
       for (const auto &child : loop.children) {
-        if (!evaluate_step(child, callback, context)) {
+        if (!evaluate_step(child, callback, new_instance, context)) {
           subresult = false;
           break;
         }
       }
 
-      context.leave(track);
+      if (track) {
+        context.instance_location.pop_back();
+      }
 
       if (subresult) {
         match_count += 1;

@@ -167,15 +167,13 @@ auto SOURCEMETA_BLAZE_EVALUATOR_EXPORT evaluate(
 ///
 /// const sourcemeta::jsontoolkit::JSON instance{"foo bar"};
 /// sourcemeta::blaze::EvaluationContext context;
-/// context.prepare(instance);
-///
 /// const auto result{sourcemeta::blaze::evaluate(
-///   schema_template, context)};
+///   schema_template, instance, context)};
 /// assert(result);
 /// ```
-auto SOURCEMETA_BLAZE_EVALUATOR_EXPORT evaluate(const Instructions &steps,
-                                                EvaluationContext &context)
-    -> bool;
+auto SOURCEMETA_BLAZE_EVALUATOR_EXPORT evaluate(
+    const Instructions &steps, const sourcemeta::jsontoolkit::JSON &instance,
+    EvaluationContext &context) -> bool;
 
 } // namespace sourcemeta::blaze
 
