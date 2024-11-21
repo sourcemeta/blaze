@@ -25,9 +25,6 @@ namespace sourcemeta::blaze {
 /// Represents a stateful schema evaluation context
 class SOURCEMETA_BLAZE_EVALUATOR_EXPORT EvaluationContext {
 public:
-  /// Prepare the schema evaluation context for the next run
-  auto reset() -> void;
-
   // All of these methods are considered internal and no
   // client must depend on them
 #ifndef DOXYGEN

@@ -53,7 +53,6 @@ auto main(int argc, char **argv) noexcept -> int {
   sourcemeta::blaze::EvaluationContext context;
   std::size_t cursor{0};
   for (const auto &instance : instances) {
-    context.reset();
     cursor += 1;
     const auto timestamp_start{std::chrono::high_resolution_clock::now()};
     const auto result{
