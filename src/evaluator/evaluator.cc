@@ -70,16 +70,20 @@ auto evaluate_step(
   const auto &step_category{std::get<step_type>(step)};                        \
   const auto track{step_category.track || callback.has_value()};               \
   context.push(step_category.relative_schema_location,                         \
-               step_category.relative_instance_location,                       \
-               step_category.schema_resource, step_category.dynamic, track);   \
+               step_category.relative_instance_location, track);               \
+  if (step_category.dynamic) {                                                 \
+    context.resources.push_back(step_category.schema_resource);                \
+  }                                                                            \
   const auto &target{resolve_target(                                           \
       property_target,                                                         \
       sourcemeta::jsontoolkit::get(                                            \
           instance, step_category.relative_instance_location))};               \
   if (!(precondition)) {                                                       \
     context.pop(step_category.relative_schema_location.size(),                 \
-                step_category.relative_instance_location.size(),               \
-                step_category.dynamic, track);                                 \
+                step_category.relative_instance_location.size(), track);       \
+    if (step_category.dynamic) {                                               \
+      context.resources.pop_back();                                            \
+    }                                                                          \
     SOURCEMETA_TRACE_END(trace_id, STRINGIFY(step_type));                      \
     return true;                                                               \
   }                                                                            \
@@ -94,14 +98,18 @@ auto evaluate_step(
   const auto &step_category{std::get<step_type>(step)};                        \
   const auto track{step_category.track || callback.has_value()};               \
   context.push(step_category.relative_schema_location,                         \
-               step_category.relative_instance_location,                       \
-               step_category.schema_resource, step_category.dynamic, track);   \
+               step_category.relative_instance_location, track);               \
+  if (step_category.dynamic) {                                                 \
+    context.resources.push_back(step_category.schema_resource);                \
+  }                                                                            \
   const auto &maybe_target{resolve_string_target(                              \
       property_target, instance, step_category.relative_instance_location)};   \
   if (!maybe_target.has_value()) {                                             \
     context.pop(step_category.relative_schema_location.size(),                 \
-                step_category.relative_instance_location.size(),               \
-                step_category.dynamic, track);                                 \
+                step_category.relative_instance_location.size(), track);       \
+    if (step_category.dynamic) {                                               \
+      context.resources.pop_back();                                            \
+    }                                                                          \
     SOURCEMETA_TRACE_END(trace_id, STRINGIFY(step_type));                      \
     return true;                                                               \
   }                                                                            \
@@ -132,8 +140,10 @@ auto evaluate_step(
   }                                                                            \
   const auto track{step_category.track || callback.has_value()};               \
   context.push(step_category.relative_schema_location,                         \
-               step_category.relative_instance_location,                       \
-               step_category.schema_resource, step_category.dynamic, track);   \
+               step_category.relative_instance_location, track);               \
+  if (step_category.dynamic) {                                                 \
+    context.resources.push_back(step_category.schema_resource);                \
+  }                                                                            \
   assert(!step_category.relative_instance_location.empty());                   \
   if (callback.has_value()) {                                                  \
     callback.value()(EvaluationType::Pre, true, step, context.evaluate_path,   \
@@ -146,8 +156,10 @@ auto evaluate_step(
   const auto &step_category{std::get<step_type>(step)};                        \
   const auto track{step_category.track || callback.has_value()};               \
   context.push(step_category.relative_schema_location,                         \
-               step_category.relative_instance_location,                       \
-               step_category.schema_resource, step_category.dynamic, track);   \
+               step_category.relative_instance_location, track);               \
+  if (step_category.dynamic) {                                                 \
+    context.resources.push_back(step_category.schema_resource);                \
+  }                                                                            \
   if (callback.has_value()) {                                                  \
     callback.value()(EvaluationType::Pre, true, step, context.evaluate_path,   \
                      context.instance_location, context.null);                 \
@@ -175,8 +187,10 @@ auto evaluate_step(
                      context.null);                                            \
   }                                                                            \
   context.pop(step_category.relative_schema_location.size(),                   \
-              step_category.relative_instance_location.size(),                 \
-              step_category.dynamic, track);                                   \
+              step_category.relative_instance_location.size(), track);         \
+  if (step_category.dynamic) {                                                 \
+    context.resources.pop_back();                                              \
+  }                                                                            \
   SOURCEMETA_TRACE_END(trace_id, STRINGIFY(step_type));                        \
   return result;
 
@@ -200,8 +214,7 @@ auto evaluate_step(
   const auto track{step_category.track || callback.has_value()};               \
   assert(track);                                                               \
   context.push(step_category.relative_schema_location,                         \
-               step_category.relative_instance_location,                       \
-               step_category.schema_resource, step_category.dynamic, track);   \
+               step_category.relative_instance_location, track);               \
   if (callback.has_value()) {                                                  \
     callback.value()(EvaluationType::Pre, true, step, context.evaluate_path,   \
                      destination, context.null);                               \
@@ -209,8 +222,7 @@ auto evaluate_step(
                      destination, annotation_value);                           \
   }                                                                            \
   context.pop(step_category.relative_schema_location.size(),                   \
-              step_category.relative_instance_location.size(),                 \
-              step_category.dynamic, track);                                   \
+              step_category.relative_instance_location.size(), track);         \
   SOURCEMETA_TRACE_END(trace_id, STRINGIFY(step_type));                        \
   return true;
 

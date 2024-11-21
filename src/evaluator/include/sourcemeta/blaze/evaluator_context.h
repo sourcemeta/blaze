@@ -30,11 +30,10 @@ public:
 
   auto push(const sourcemeta::jsontoolkit::Pointer &relative_schema_location,
             const sourcemeta::jsontoolkit::Pointer &relative_instance_location,
-            const std::size_t &schema_resource, const bool dynamic,
             const bool track) -> void;
   auto pop(const std::size_t relative_schema_location_size,
-           const std::size_t relative_instance_location_size,
-           const bool dynamic, const bool track) -> void;
+           const std::size_t relative_instance_location_size, const bool track)
+      -> void;
 
   ///////////////////////////////////////////////
   // References and anchors

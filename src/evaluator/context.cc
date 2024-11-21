@@ -8,8 +8,7 @@ namespace sourcemeta::blaze {
 auto EvaluationContext::push(
     const sourcemeta::jsontoolkit::Pointer &relative_schema_location,
     const sourcemeta::jsontoolkit::Pointer &relative_instance_location,
-    const std::size_t &schema_resource, const bool dynamic, const bool track)
-    -> void {
+    const bool track) -> void {
   // Guard against infinite recursion in a cheap manner, as
   // infinite recursion will manifest itself through huge
   // ever-growing evaluate paths
@@ -35,29 +34,16 @@ auto EvaluationContext::push(
     // recursion
     this->evaluate_path_size += relative_schema_location.size();
   }
-
-  if (dynamic) {
-    // Note that we are potentially repeatedly pushing back the
-    // same schema resource over and over again. However, the
-    // logic for making sure this list is "pure" takes a lot of
-    // computation power. Being silly seems faster.
-    this->resources.push_back(schema_resource);
-  }
 }
 
 auto EvaluationContext::pop(const std::size_t relative_schema_location_size,
                             const std::size_t relative_instance_location_size,
-                            const bool dynamic, const bool track) -> void {
+                            const bool track) -> void {
   if (track) {
     this->evaluate_path.pop_back(relative_schema_location_size);
     this->instance_location.pop_back(relative_instance_location_size);
   } else {
     this->evaluate_path_size -= relative_schema_location_size;
-  }
-
-  if (dynamic) {
-    assert(!this->resources.empty());
-    this->resources.pop_back();
   }
 }
 
