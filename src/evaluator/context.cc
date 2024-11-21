@@ -40,16 +40,16 @@ auto EvaluationContext::push_without_traverse(
   this->frame_sizes.emplace_back(relative_schema_location.size(),
                                  relative_instance_location.size());
 
-  if (track) [[unlikely]] {
+  if (track) {
     this->evaluate_path.push_back(relative_schema_location);
     this->instance_location.push_back(relative_instance_location);
-  } else [[likely]] {
+  } else {
     // We still need to somewhat keep track of this to prevent infinite
     // recursion
     this->evaluate_path_size += relative_schema_location.size();
   }
 
-  if (dynamic) [[unlikely]] {
+  if (dynamic) {
     // Note that we are potentially repeatedly pushing back the
     // same schema resource over and over again. However, the
     // logic for making sure this list is "pure" takes a lot of
@@ -66,7 +66,7 @@ auto EvaluationContext::push(
   this->push_without_traverse(relative_schema_location,
                               relative_instance_location, schema_resource,
                               dynamic, track);
-  if (!relative_instance_location.empty()) [[unlikely]] {
+  if (!relative_instance_location.empty()) {
     assert(!this->instances.empty());
     this->instances.emplace_back(
         get(this->instances.back().get(), relative_instance_location));
@@ -89,22 +89,22 @@ auto EvaluationContext::push(
 auto EvaluationContext::pop(const bool dynamic, const bool track) -> void {
   assert(!this->frame_sizes.empty());
   const auto &sizes{this->frame_sizes.back()};
-  if (sizes.second > 0) [[unlikely]] {
+  if (sizes.second > 0) {
     this->instances.pop_back();
   }
 
-  if (track) [[unlikely]] {
+  if (track) {
     this->evaluate_path.pop_back(sizes.first);
     if (sizes.second > 0) {
       this->instance_location.pop_back(sizes.second);
     }
-  } else [[likely]] {
+  } else {
     this->evaluate_path_size -= sizes.first;
   }
 
   this->frame_sizes.pop_back();
 
-  if (dynamic) [[unlikely]] {
+  if (dynamic) {
     assert(!this->resources.empty());
     this->resources.pop_back();
   }
@@ -113,7 +113,7 @@ auto EvaluationContext::pop(const bool dynamic, const bool track) -> void {
 auto EvaluationContext::enter(
     const sourcemeta::jsontoolkit::WeakPointer::Token::Property &property,
     const bool track) -> void {
-  if (track) [[unlikely]] {
+  if (track) {
     this->instance_location.push_back(property);
   }
 
@@ -123,7 +123,7 @@ auto EvaluationContext::enter(
 auto EvaluationContext::enter(
     const sourcemeta::jsontoolkit::WeakPointer::Token::Index &index,
     const bool track) -> void {
-  if (track) [[unlikely]] {
+  if (track) {
     this->instance_location.push_back(index);
   }
 
@@ -131,7 +131,7 @@ auto EvaluationContext::enter(
 }
 
 auto EvaluationContext::leave(const bool track) -> void {
-  if (track) [[unlikely]] {
+  if (track) {
     this->instance_location.pop_back();
   }
 
@@ -164,7 +164,7 @@ auto EvaluationContext::resolve_string_target() -> std::optional<
     return this->property_target.value();
   } else {
     const auto &result{this->instances.back().get()};
-    if (!result.is_string()) [[unlikely]] {
+    if (!result.is_string()) {
       return std::nullopt;
     }
 
