@@ -106,28 +106,48 @@ auto try_traverse(const sourcemeta::jsontoolkit::JSON &document,
 namespace sourcemeta::jsontoolkit {
 
 auto get(const JSON &document, const Pointer &pointer) -> const JSON & {
+  if (pointer.empty()) {
+    return document;
+  }
+
   return traverse<std::allocator, const JSON>(document, std::cbegin(pointer),
                                               std::cend(pointer));
 }
 
 auto get(const JSON &document, const WeakPointer &pointer) -> const JSON & {
+  if (pointer.empty()) {
+    return document;
+  }
+
   return traverse<std::allocator, const JSON, WeakPointer>(
       document, std::cbegin(pointer), std::cend(pointer));
 }
 
 auto get(JSON &document, const Pointer &pointer) -> JSON & {
+  if (pointer.empty()) {
+    return document;
+  }
+
   return traverse<std::allocator, JSON>(document, std::cbegin(pointer),
                                         std::cend(pointer));
 }
 
 auto try_get(const JSON &document, const Pointer &pointer)
     -> std::optional<std::reference_wrapper<const JSON>> {
+  if (pointer.empty()) {
+    return document;
+  }
+
   return try_traverse<Pointer>(document, std::cbegin(pointer),
                                std::cend(pointer));
 }
 
 auto try_get(const JSON &document, const WeakPointer &pointer)
     -> std::optional<std::reference_wrapper<const JSON>> {
+  if (pointer.empty()) {
+    return document;
+  }
+
   return try_traverse<WeakPointer>(document, std::cbegin(pointer),
                                    std::cend(pointer));
 }
