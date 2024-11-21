@@ -62,13 +62,15 @@ auto evaluate(const Template &schema,
               const sourcemeta::jsontoolkit::JSON &instance,
               const Callback &callback) -> bool {
   EvaluationContext context;
-  return evaluate_complete(instance, context, schema.first, callback);
+  return evaluate_complete(instance, context, schema.first, schema.second,
+                           callback);
 }
 
 auto evaluate(const Template &schema,
               const sourcemeta::jsontoolkit::JSON &instance) -> bool {
   EvaluationContext context;
-  return evaluate_complete(instance, context, schema.first, std::nullopt);
+  return evaluate_complete(instance, context, schema.first, schema.second,
+                           std::nullopt);
 }
 
 auto evaluate(const Template &schema,
@@ -79,9 +81,11 @@ auto evaluate(const Template &schema,
   assert(context.instance_location.empty());
   assert(context.resources.empty());
   context.labels.clear();
+  // TODO: Only do this one for evaluations that are "complete"
   context.evaluated_.clear();
 
-  return evaluate_complete(instance, context, schema.first, std::nullopt);
+  return evaluate_complete(instance, context, schema.first, schema.second,
+                           std::nullopt);
 }
 
 } // namespace sourcemeta::blaze

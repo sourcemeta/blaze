@@ -44,12 +44,7 @@ auto make(const Context &context, const SchemaContext &schema_context,
                 {dynamic_context.keyword}),
       dynamic_context.base_instance_location,
       to_uri(schema_context.relative_pointer, schema_context.base).recompose(),
-      schema_resource_id(context, schema_context.base.recompose()),
-      context.uses_dynamic_scopes,
-      context.mode != Mode::FastValidation ||
-          !context.unevaluated_properties_schemas.empty() ||
-          !context.unevaluated_items_schemas.empty(),
-      value};
+      schema_resource_id(context, schema_context.base.recompose()), value};
 }
 
 // Instantiate an applicator step
@@ -67,10 +62,6 @@ auto make(const Context &context, const SchemaContext &schema_context,
       dynamic_context.base_instance_location,
       to_uri(schema_context.relative_pointer, schema_context.base).recompose(),
       schema_resource_id(context, schema_context.base.recompose()),
-      context.uses_dynamic_scopes,
-      context.mode != Mode::FastValidation ||
-          !context.unevaluated_properties_schemas.empty() ||
-          !context.unevaluated_items_schemas.empty(),
       std::move(value),
       std::move(children)};
 }
@@ -84,21 +75,13 @@ auto unroll(const Step &step,
           base_instance_location.concat(
               std::get<Type>(step).relative_instance_location),
           std::get<Type>(step).keyword_location,
-          std::get<Type>(step).schema_resource,
-          std::get<Type>(step).dynamic,
-          std::get<Type>(step).track,
-          std::get<Type>(step).value};
+          std::get<Type>(step).schema_resource, std::get<Type>(step).value};
 }
 
 template <typename Type, typename Step>
 auto rephrase(const Step &step) -> Type {
-  return {step.relative_schema_location,
-          step.relative_instance_location,
-          step.keyword_location,
-          step.schema_resource,
-          step.dynamic,
-          step.track,
-          step.value};
+  return {step.relative_schema_location, step.relative_instance_location,
+          step.keyword_location, step.schema_resource, step.value};
 }
 
 inline auto

@@ -5,6 +5,7 @@ namespace sourcemeta::blaze {
 
 auto evaluate_complete_instruction(
     const sourcemeta::blaze::Instruction &instruction,
+    const sourcemeta::blaze::Modifiers &modifiers,
     const std::optional<sourcemeta::blaze::Callback> &callback,
     const sourcemeta::jsontoolkit::JSON &instance,
     const std::optional<
@@ -16,14 +17,14 @@ auto evaluate_complete_instruction(
 #define EVALUATE_BEGIN(instruction_category, instruction_type, precondition)   \
   SOURCEMETA_TRACE_START(trace_id, SOURCEMETA_STRINGIFY(instruction_type));    \
   const auto &instruction_category{std::get<instruction_type>(instruction)};   \
-  const auto track{instruction_category.track || callback.has_value()};        \
+  const auto track{modifiers.track || callback.has_value()};                   \
   if (track) {                                                                 \
     context.evaluate_path.push_back(                                           \
         instruction_category.relative_schema_location);                        \
     context.instance_location.push_back(                                       \
         instruction_category.relative_instance_location);                      \
   }                                                                            \
-  if (instruction_category.dynamic) {                                          \
+  if (modifiers.dynamic) {                                                     \
     context.resources.push_back(instruction_category.schema_resource);         \
   }                                                                            \
   const auto &target{resolve_target(                                           \
@@ -37,7 +38,7 @@ auto evaluate_complete_instruction(
       context.instance_location.pop_back(                                      \
           instruction_category.relative_instance_location.size());             \
     }                                                                          \
-    if (instruction_category.dynamic) {                                        \
+    if (modifiers.dynamic) {                                                   \
       context.resources.pop_back();                                            \
     }                                                                          \
     SOURCEMETA_TRACE_END(trace_id, SOURCEMETA_STRINGIFY(instruction_type));    \
@@ -53,14 +54,14 @@ auto evaluate_complete_instruction(
 #define EVALUATE_BEGIN_IF_STRING(instruction_category, instruction_type)       \
   SOURCEMETA_TRACE_START(trace_id, SOURCEMETA_STRINGIFY(instruction_type));    \
   const auto &instruction_category{std::get<instruction_type>(instruction)};   \
-  const auto track{instruction_category.track || callback.has_value()};        \
+  const auto track{modifiers.track || callback.has_value()};                   \
   if (track) {                                                                 \
     context.evaluate_path.push_back(                                           \
         instruction_category.relative_schema_location);                        \
     context.instance_location.push_back(                                       \
         instruction_category.relative_instance_location);                      \
   }                                                                            \
-  if (instruction_category.dynamic) {                                          \
+  if (modifiers.dynamic) {                                                     \
     context.resources.push_back(instruction_category.schema_resource);         \
   }                                                                            \
   const auto &maybe_target{                                                    \
@@ -73,7 +74,7 @@ auto evaluate_complete_instruction(
       context.instance_location.pop_back(                                      \
           instruction_category.relative_instance_location.size());             \
     }                                                                          \
-    if (instruction_category.dynamic) {                                        \
+    if (modifiers.dynamic) {                                                   \
       context.resources.pop_back();                                            \
     }                                                                          \
     SOURCEMETA_TRACE_END(trace_id, SOURCEMETA_STRINGIFY(instruction_type));    \
@@ -104,14 +105,14 @@ auto evaluate_complete_instruction(
     SOURCEMETA_TRACE_END(trace_id, SOURCEMETA_STRINGIFY(instruction_type));    \
     return true;                                                               \
   }                                                                            \
-  const auto track{instruction_category.track || callback.has_value()};        \
+  const auto track{modifiers.track || callback.has_value()};                   \
   if (track) {                                                                 \
     context.evaluate_path.push_back(                                           \
         instruction_category.relative_schema_location);                        \
     context.instance_location.push_back(                                       \
         instruction_category.relative_instance_location);                      \
   }                                                                            \
-  if (instruction_category.dynamic) {                                          \
+  if (modifiers.dynamic) {                                                     \
     context.resources.push_back(instruction_category.schema_resource);         \
   }                                                                            \
   assert(!instruction_category.relative_instance_location.empty());            \
@@ -125,14 +126,14 @@ auto evaluate_complete_instruction(
 #define EVALUATE_BEGIN_NO_PRECONDITION(instruction_category, instruction_type) \
   SOURCEMETA_TRACE_START(trace_id, SOURCEMETA_STRINGIFY(instruction_type));    \
   const auto &instruction_category{std::get<instruction_type>(instruction)};   \
-  const auto track{instruction_category.track || callback.has_value()};        \
+  const auto track{modifiers.track || callback.has_value()};                   \
   if (track) {                                                                 \
     context.evaluate_path.push_back(                                           \
         instruction_category.relative_schema_location);                        \
     context.instance_location.push_back(                                       \
         instruction_category.relative_instance_location);                      \
   }                                                                            \
-  if (instruction_category.dynamic) {                                          \
+  if (modifiers.dynamic) {                                                     \
     context.resources.push_back(instruction_category.schema_resource);         \
   }                                                                            \
   if (callback.has_value()) {                                                  \
@@ -170,7 +171,7 @@ auto evaluate_complete_instruction(
     context.instance_location.pop_back(                                        \
         instruction_category.relative_instance_location.size());               \
   }                                                                            \
-  if (instruction_category.dynamic) {                                          \
+  if (modifiers.dynamic) {                                                     \
     context.resources.pop_back();                                              \
   }                                                                            \
   SOURCEMETA_TRACE_END(trace_id, SOURCEMETA_STRINGIFY(instruction_type));      \
@@ -212,11 +213,11 @@ auto evaluate_complete_instruction(
   return true;
 
 #define EVALUATE_RECURSE(child, target)                                        \
-  evaluate_complete_instruction(child, callback, target, property_target,      \
-                                depth + 1, context)
+  evaluate_complete_instruction(child, modifiers, callback, target,            \
+                                property_target, depth + 1, context)
 #define EVALUATE_RECURSE_ON_PROPERTY_NAME(child, target, name)                 \
-  evaluate_complete_instruction(child, callback, target, std::cref(name),      \
-                                depth + 1, context)
+  evaluate_complete_instruction(child, modifiers, callback, target,            \
+                                std::cref(name), depth + 1, context)
 
 #include "dispatch.h"
 
@@ -238,12 +239,13 @@ inline auto
 evaluate_complete(const sourcemeta::jsontoolkit::JSON &instance,
                   sourcemeta::blaze::EvaluationContext &context,
                   const sourcemeta::blaze::Instructions &instructions,
+                  const sourcemeta::blaze::Modifiers &modifiers,
                   const std::optional<sourcemeta::blaze::Callback> &callback)
     -> bool {
   bool overall{true};
   for (const auto &instruction : instructions) {
-    if (!evaluate_complete_instruction(instruction, callback, instance,
-                                       std::nullopt, 0, context)) {
+    if (!evaluate_complete_instruction(instruction, modifiers, callback,
+                                       instance, std::nullopt, 0, context)) {
       overall = false;
       break;
     }

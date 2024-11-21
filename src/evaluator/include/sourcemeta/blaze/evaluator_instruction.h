@@ -220,8 +220,6 @@ using Instructions = std::vector<Instruction>;
     const sourcemeta::jsontoolkit::Pointer relative_instance_location;         \
     const std::string keyword_location;                                        \
     const std::size_t schema_resource;                                         \
-    const bool dynamic;                                                        \
-    const bool track;                                                          \
     const type value;                                                          \
   };
 
@@ -231,8 +229,6 @@ using Instructions = std::vector<Instruction>;
     const sourcemeta::jsontoolkit::Pointer relative_instance_location;         \
     const std::string keyword_location;                                        \
     const std::size_t schema_resource;                                         \
-    const bool dynamic;                                                        \
-    const bool track;                                                          \
     const type value;                                                          \
     const Instructions children;                                               \
   };
