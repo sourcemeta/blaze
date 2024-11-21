@@ -112,6 +112,7 @@ public:
   sourcemeta::jsontoolkit::WeakPointer evaluate_path;
   std::uint64_t evaluate_path_size{0};
   sourcemeta::jsontoolkit::WeakPointer instance_location;
+  const std::hash<sourcemeta::jsontoolkit::JSON::String> hasher_{};
   std::vector<std::size_t> resources;
   std::map<std::size_t, const std::reference_wrapper<const Template>> labels;
   std::optional<
