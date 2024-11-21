@@ -14,19 +14,19 @@ inline auto FIRST_PROPERTY_IS(const sourcemeta::jsontoolkit::JSON &document,
 #define EVALUATE_WITH_TRACE(schema_template, instance, count)                  \
   std::vector<std::tuple<bool, sourcemeta::jsontoolkit::WeakPointer,           \
                          sourcemeta::jsontoolkit::WeakPointer,                 \
-                         sourcemeta::blaze::Template::value_type,              \
+                         sourcemeta::blaze::Instruction,                       \
                          sourcemeta::jsontoolkit::JSON>>                       \
       trace_pre;                                                               \
   std::vector<std::tuple<bool, sourcemeta::jsontoolkit::WeakPointer,           \
                          sourcemeta::jsontoolkit::WeakPointer,                 \
-                         sourcemeta::blaze::Template::value_type,              \
+                         sourcemeta::blaze::Instruction,                       \
                          sourcemeta::jsontoolkit::JSON>>                       \
       trace_post;                                                              \
   const auto result{sourcemeta::blaze::evaluate(                               \
       schema_template, instance,                                               \
       [&trace_pre, &trace_post](                                               \
           const sourcemeta::blaze::EvaluationType type, const bool valid,      \
-          const sourcemeta::blaze::Template::value_type &step,                 \
+          const sourcemeta::blaze::Instruction &step,                          \
           const sourcemeta::jsontoolkit::WeakPointer &evaluate_path,           \
           const sourcemeta::jsontoolkit::WeakPointer &instance_location,       \
           const sourcemeta::jsontoolkit::JSON &annotation) {                   \

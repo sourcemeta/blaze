@@ -5,7 +5,7 @@
 #include <sourcemeta/blaze/evaluator_export.h>
 #endif
 
-#include <sourcemeta/blaze/evaluator_template.h>
+#include <sourcemeta/blaze/evaluator_instruction.h>
 
 #include <sourcemeta/jsontoolkit/json.h>
 #include <sourcemeta/jsontoolkit/jsonpointer.h>
@@ -114,7 +114,8 @@ public:
   sourcemeta::jsontoolkit::WeakPointer instance_location;
   const std::hash<sourcemeta::jsontoolkit::JSON::String> hasher_{};
   std::vector<std::size_t> resources;
-  std::map<std::size_t, const std::reference_wrapper<const Template>> labels;
+  std::map<std::size_t, const std::reference_wrapper<const Instructions>>
+      labels;
   std::optional<
       std::reference_wrapper<const sourcemeta::jsontoolkit::JSON::String>>
       property_target;

@@ -67,8 +67,8 @@ struct Context;
 /// A compiler is represented as a function that maps a keyword compiler
 /// contexts into a compiler template. You can provide your own to implement
 /// your own keywords
-using Compiler = std::function<Template(const Context &, const SchemaContext &,
-                                        const DynamicContext &)>;
+using Compiler = std::function<Instructions(
+    const Context &, const SchemaContext &, const DynamicContext &)>;
 
 /// @ingroup evaluator
 /// Represents the mode of compilation
@@ -117,7 +117,8 @@ struct Context {
 /// A default compiler that aims to implement every keyword for official JSON
 /// Schema dialects.
 auto SOURCEMETA_BLAZE_COMPILER_EXPORT default_schema_compiler(
-    const Context &, const SchemaContext &, const DynamicContext &) -> Template;
+    const Context &, const SchemaContext &, const DynamicContext &)
+    -> Instructions;
 
 /// @ingroup compiler
 ///
@@ -149,7 +150,7 @@ compile(const sourcemeta::jsontoolkit::JSON &schema,
         const sourcemeta::jsontoolkit::SchemaResolver &resolver,
         const Compiler &compiler, const Mode mode = Mode::FastValidation,
         const std::optional<std::string> &default_dialect = std::nullopt)
-    -> Template;
+    -> Instructions;
 
 /// @ingroup compiler
 ///
@@ -165,7 +166,7 @@ compile(const Context &context, const SchemaContext &schema_context,
         const sourcemeta::jsontoolkit::Pointer &schema_suffix,
         const sourcemeta::jsontoolkit::Pointer &instance_suffix =
             sourcemeta::jsontoolkit::empty_pointer,
-        const std::optional<std::string> &uri = std::nullopt) -> Template;
+        const std::optional<std::string> &uri = std::nullopt) -> Instructions;
 
 /// @ingroup compiler
 ///
@@ -196,7 +197,7 @@ compile(const Context &context, const SchemaContext &schema_context,
 /// sourcemeta::jsontoolkit::prettify(result, std::cout);
 /// std::cout << "\n";
 /// ```
-auto SOURCEMETA_BLAZE_COMPILER_EXPORT to_json(const Template &steps)
+auto SOURCEMETA_BLAZE_COMPILER_EXPORT to_json(const Instructions &steps)
     -> sourcemeta::jsontoolkit::JSON;
 
 /// @ingroup compiler

@@ -14,7 +14,7 @@ auto sourcemeta::blaze::default_schema_compiler(
     const sourcemeta::blaze::Context &context,
     const sourcemeta::blaze::SchemaContext &schema_context,
     const sourcemeta::blaze::DynamicContext &dynamic_context)
-    -> sourcemeta::blaze::Template {
+    -> sourcemeta::blaze::Instructions {
   assert(!dynamic_context.keyword.empty());
 
   static std::set<std::string> SUPPORTED_VOCABULARIES{

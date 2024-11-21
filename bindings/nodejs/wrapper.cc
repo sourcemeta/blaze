@@ -61,7 +61,7 @@ public:
 
 private:
   sourcemeta::blaze::EvaluationContext context;
-  std::vector<std::optional<sourcemeta::blaze::Template>> schemas;
+  std::vector<std::optional<sourcemeta::blaze::Instructions>> schemas;
 };
 
 EMSCRIPTEN_BINDINGS(blaze) {

@@ -96,7 +96,7 @@ struct ControlDynamicAnchorJump;
 
 /// @ingroup evaluator
 /// Represents a schema compilation step that can be evaluated
-using Template = std::vector<std::variant<
+using Instruction = std::variant<
     AssertionFail, AssertionDefines, AssertionDefinesAll,
     AssertionPropertyDependencies, AssertionType, AssertionTypeAny,
     AssertionTypeStrict, AssertionTypeStrictAny, AssertionTypeStringBounded,
@@ -123,12 +123,12 @@ using Template = std::vector<std::variant<
     LoopItemsUnevaluated, LoopItemsType, LoopItemsTypeStrict,
     LoopItemsTypeStrictAny, LoopContains, ControlGroup, ControlGroupWhenDefines,
     ControlLabel, ControlMark, ControlEvaluate, ControlJump,
-    ControlDynamicAnchorJump>>;
+    ControlDynamicAnchorJump>;
 
 #if !defined(DOXYGEN)
 // For fast internal instruction dispatching. It must stay
 // in sync with the variant ordering above
-enum class TemplateIndex : std::uint8_t {
+enum class InstructionIndex : std::uint8_t {
   AssertionFail = 0,
   AssertionDefines,
   AssertionDefinesAll,
@@ -210,6 +210,10 @@ enum class TemplateIndex : std::uint8_t {
 };
 #endif
 
+/// @ingroup evaluator
+/// Represents a set of schema compilation steps that can be evaluated
+using Instructions = std::vector<Instruction>;
+
 #define DEFINE_STEP_WITH_VALUE(category, name, type)                           \
   struct category##name {                                                      \
     const sourcemeta::jsontoolkit::Pointer relative_schema_location;           \
@@ -230,7 +234,7 @@ enum class TemplateIndex : std::uint8_t {
     const bool dynamic;                                                        \
     const bool track;                                                          \
     const type value;                                                          \
-    const Template children;                                                   \
+    const Instructions children;                                               \
   };
 
 /// @defgroup evaluator_instructions Instruction Set

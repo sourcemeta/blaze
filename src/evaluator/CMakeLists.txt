@@ -1,6 +1,6 @@
 noa_library(NAMESPACE sourcemeta PROJECT blaze NAME evaluator
   FOLDER "Blaze/Evaluator"
-  PRIVATE_HEADERS error.h value.h template.h context.h
+  PRIVATE_HEADERS error.h value.h instruction.h context.h
   SOURCES evaluator.cc context.cc trace.h dispatch.h)
 
 if(BLAZE_INSTALL)

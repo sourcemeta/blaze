@@ -13,7 +13,7 @@ using namespace sourcemeta::blaze;
 auto compiler_draft6_validation_type(const Context &context,
                                      const SchemaContext &schema_context,
                                      const DynamicContext &dynamic_context)
-    -> Template {
+    -> Instructions {
   if (schema_context.schema.at(dynamic_context.keyword).is_string()) {
     const auto &type{
         schema_context.schema.at(dynamic_context.keyword).to_string()};
@@ -267,7 +267,7 @@ auto compiler_draft6_validation_type(const Context &context,
 auto compiler_draft6_validation_const(const Context &context,
                                       const SchemaContext &schema_context,
                                       const DynamicContext &dynamic_context)
-    -> Template {
+    -> Instructions {
   return {make<AssertionEqual>(
       context, schema_context, dynamic_context,
       sourcemeta::jsontoolkit::JSON{
@@ -276,7 +276,7 @@ auto compiler_draft6_validation_const(const Context &context,
 
 auto compiler_draft6_validation_exclusivemaximum(
     const Context &context, const SchemaContext &schema_context,
-    const DynamicContext &dynamic_context) -> Template {
+    const DynamicContext &dynamic_context) -> Instructions {
   assert(schema_context.schema.at(dynamic_context.keyword).is_number());
 
   if (schema_context.schema.defines("type") &&
@@ -294,7 +294,7 @@ auto compiler_draft6_validation_exclusivemaximum(
 
 auto compiler_draft6_validation_exclusiveminimum(
     const Context &context, const SchemaContext &schema_context,
-    const DynamicContext &dynamic_context) -> Template {
+    const DynamicContext &dynamic_context) -> Instructions {
   assert(schema_context.schema.at(dynamic_context.keyword).is_number());
 
   if (schema_context.schema.defines("type") &&
@@ -313,16 +313,17 @@ auto compiler_draft6_validation_exclusiveminimum(
 auto compiler_draft6_applicator_contains(const Context &context,
                                          const SchemaContext &schema_context,
                                          const DynamicContext &dynamic_context)
-    -> Template {
+    -> Instructions {
   if (schema_context.schema.defines("type") &&
       schema_context.schema.at("type").is_string() &&
       schema_context.schema.at("type").to_string() != "array") {
     return {};
   }
 
-  Template children{compile(context, schema_context, relative_dynamic_context,
-                            sourcemeta::jsontoolkit::empty_pointer,
-                            sourcemeta::jsontoolkit::empty_pointer)};
+  Instructions children{compile(context, schema_context,
+                                relative_dynamic_context,
+                                sourcemeta::jsontoolkit::empty_pointer,
+                                sourcemeta::jsontoolkit::empty_pointer)};
 
   if (children.empty()) {
     // We still need to check the instance is not empty
@@ -337,16 +338,17 @@ auto compiler_draft6_applicator_contains(const Context &context,
 
 auto compiler_draft6_validation_propertynames(
     const Context &context, const SchemaContext &schema_context,
-    const DynamicContext &dynamic_context) -> Template {
+    const DynamicContext &dynamic_context) -> Instructions {
   if (schema_context.schema.defines("type") &&
       schema_context.schema.at("type").is_string() &&
       schema_context.schema.at("type").to_string() != "object") {
     return {};
   }
 
-  Template children{compile(context, schema_context, relative_dynamic_context,
-                            sourcemeta::jsontoolkit::empty_pointer,
-                            sourcemeta::jsontoolkit::empty_pointer)};
+  Instructions children{compile(context, schema_context,
+                                relative_dynamic_context,
+                                sourcemeta::jsontoolkit::empty_pointer,
+                                sourcemeta::jsontoolkit::empty_pointer)};
 
   if (children.empty()) {
     return {};

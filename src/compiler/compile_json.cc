@@ -178,7 +178,7 @@ auto value_to_json(const T &value) -> sourcemeta::jsontoolkit::JSON {
 }
 
 template <typename V>
-auto step_to_json(const sourcemeta::blaze::Template::value_type &step)
+auto step_to_json(const sourcemeta::blaze::Instruction &step)
     -> sourcemeta::jsontoolkit::JSON {
   static V visitor;
   return std::visit(visitor, step);
@@ -317,7 +317,7 @@ struct StepVisitor {
 
 namespace sourcemeta::blaze {
 
-auto to_json(const Template &steps) -> sourcemeta::jsontoolkit::JSON {
+auto to_json(const Instructions &steps) -> sourcemeta::jsontoolkit::JSON {
   sourcemeta::jsontoolkit::JSON result{
       sourcemeta::jsontoolkit::JSON::make_array()};
   for (const auto &step : steps) {

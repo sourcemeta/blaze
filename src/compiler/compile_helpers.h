@@ -57,7 +57,7 @@ template <typename Step>
 auto make(const Context &context, const SchemaContext &schema_context,
           const DynamicContext &dynamic_context,
           // Take the value type from the "value" property of the step struct
-          decltype(std::declval<Step>().value) &&value, Template &&children)
+          decltype(std::declval<Step>().value) &&value, Instructions &&children)
     -> Step {
   return {
       dynamic_context.keyword.empty()
@@ -220,7 +220,7 @@ inline auto find_adjacent(const Context &context,
   return result;
 }
 
-inline auto recursive_template_size(const Template &steps) -> std::size_t {
+inline auto recursive_template_size(const Instructions &steps) -> std::size_t {
   std::size_t result{steps.size()};
   for (const auto &variant : steps) {
     std::visit(
