@@ -96,3 +96,7 @@ if(BLAZE_TESTS)
     add_subdirectory(benchmark)
   endif()
 endif()
+
+# Export compile commands by default.
+# It is very useful for IDE integration, linting, etc
+set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
