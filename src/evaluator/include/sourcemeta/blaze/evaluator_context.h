@@ -20,6 +20,8 @@ namespace sourcemeta::blaze {
 /// Represents a stateful schema evaluation context
 class SOURCEMETA_BLAZE_EVALUATOR_EXPORT EvaluationContext {
 public:
+  EvaluationContext();
+
   // All of these methods are considered internal and no
   // client must depend on them
 #ifndef DOXYGEN
@@ -74,7 +76,7 @@ public:
     bool skip;
   };
 
-  std::vector<Evaluation> evaluated_;
+  std::vector<Evaluation> evaluated;
 #if defined(_MSC_VER)
 #pragma warning(default : 4251 4275)
 #endif

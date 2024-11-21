@@ -332,7 +332,7 @@ auto evaluate(const Instructions &steps,
   assert(context.instance_location.empty());
   assert(context.resources.empty());
   context.labels.clear();
-  context.evaluated_.clear();
+  context.evaluated.clear();
 
   return evaluate_internal(instance, context, steps, std::nullopt);
 }

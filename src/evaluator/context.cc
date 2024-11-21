@@ -7,6 +7,14 @@ namespace sourcemeta::blaze {
 const sourcemeta::jsontoolkit::JSON EvaluationContext::null{nullptr};
 const sourcemeta::jsontoolkit::JSON EvaluationContext::empty_string{""};
 
+EvaluationContext::EvaluationContext() {
+  // Generously allocate plenty of space for demanding runs
+  this->evaluate_path.reserve(1024);
+  this->instance_location.reserve(1024);
+  this->resources.reserve(1024);
+  this->evaluated.reserve(1024);
+}
+
 auto EvaluationContext::hash(
     const std::size_t &resource,
     const sourcemeta::jsontoolkit::JSON::String &fragment) const noexcept
@@ -33,13 +41,13 @@ auto EvaluationContext::evaluate(
   new_instance_location.push_back(relative_instance_location);
   Evaluation entry{std::move(new_instance_location), this->evaluate_path,
                    false};
-  this->evaluated_.emplace_back(std::move(entry));
+  this->evaluated.emplace_back(std::move(entry));
 }
 
 auto EvaluationContext::is_evaluated(
     const sourcemeta::jsontoolkit::WeakPointer::Token &tail) const -> bool {
-  for (auto iterator = this->evaluated_.crbegin();
-       iterator != this->evaluated_.crend(); ++iterator) {
+  for (auto iterator = this->evaluated.crbegin();
+       iterator != this->evaluated.crend(); ++iterator) {
     if (!iterator->skip &&
         this->instance_location.starts_with(iterator->instance_location,
                                             tail) &&
@@ -53,7 +61,7 @@ auto EvaluationContext::is_evaluated(
 }
 
 auto EvaluationContext::unevaluate() -> void {
-  for (auto &entry : this->evaluated_) {
+  for (auto &entry : this->evaluated) {
     if (!entry.skip && entry.evaluate_path.starts_with(this->evaluate_path)) {
       entry.skip = true;
     }
