@@ -174,6 +174,18 @@ public:
     return this->data.emplace_back(args...);
   }
 
+  /// Reserve capacity for a JSON Pointer. For example:
+  ///
+  /// ```cpp
+  /// #include <sourcemeta/jsontoolkit/jsonpointer.h>
+  ///
+  /// sourcemeta::jsontoolkit::Pointer pointer;
+  /// pointer.reserve(1024);
+  /// ```
+  auto reserve(const typename Container::size_type capacity) -> void {
+    this->data.reserve(capacity);
+  }
+
   /// Push a copy of a JSON Pointer into the back of a JSON Pointer.
   /// For example:
   ///
@@ -202,7 +214,7 @@ public:
       return;
     }
 
-    this->data.reserve(this->data.size() + other.size());
+    this->reserve(this->data.size() + other.size());
     std::copy(other.data.cbegin(), other.data.cend(),
               std::back_inserter(this->data));
   }
@@ -235,7 +247,7 @@ public:
       return;
     }
 
-    this->data.reserve(this->data.size() + other.size());
+    this->reserve(this->data.size() + other.size());
     std::move(other.data.begin(), other.data.end(),
               std::back_inserter(this->data));
   }
@@ -276,7 +288,7 @@ public:
         this->data.emplace_back(token.to_index());
       }
     } else {
-      this->data.reserve(this->data.size() + other.size());
+      this->reserve(this->data.size() + other.size());
       for (const auto &token : other) {
         if (token.is_property()) {
           this->data.emplace_back(token.to_property());
