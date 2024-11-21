@@ -95,22 +95,18 @@ TEST(Evaluator, reusable_context) {
   sourcemeta::blaze::EvaluationContext context;
 
   const sourcemeta::jsontoolkit::JSON instance_1{"foo bar"};
-  context.reset();
   EXPECT_TRUE(
       sourcemeta::blaze::evaluate(compiled_schema, instance_1, context));
 
   const sourcemeta::jsontoolkit::JSON instance_2{"baz"};
-  context.reset();
   EXPECT_TRUE(
       sourcemeta::blaze::evaluate(compiled_schema, instance_2, context));
 
   const sourcemeta::jsontoolkit::JSON instance_3{4};
-  context.reset();
   EXPECT_FALSE(
       sourcemeta::blaze::evaluate(compiled_schema, instance_3, context));
 
   const sourcemeta::jsontoolkit::JSON instance_4{"qux"};
-  context.reset();
   EXPECT_TRUE(
       sourcemeta::blaze::evaluate(compiled_schema, instance_4, context));
 }

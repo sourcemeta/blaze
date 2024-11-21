@@ -5,17 +5,6 @@
 
 namespace sourcemeta::blaze {
 
-// Do a full reset for the next run
-auto EvaluationContext::reset() -> void {
-  assert(this->evaluate_path.empty());
-  assert(this->evaluate_path_size == 0);
-  assert(this->instance_location.empty());
-  assert(!this->property_target.has_value());
-  assert(this->resources.empty());
-  this->labels.clear();
-  this->evaluated_.clear();
-}
-
 auto EvaluationContext::push(
     const sourcemeta::jsontoolkit::Pointer &relative_schema_location,
     const sourcemeta::jsontoolkit::Pointer &relative_instance_location,

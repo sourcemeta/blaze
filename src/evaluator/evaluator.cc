@@ -237,6 +237,15 @@ auto evaluate(const Instructions &steps,
 auto evaluate(const Instructions &steps,
               const sourcemeta::jsontoolkit::JSON &instance,
               EvaluationContext &context) -> bool {
+  // Do a full reset for the next run
+  assert(context.evaluate_path.empty());
+  assert(context.evaluate_path_size == 0);
+  assert(context.instance_location.empty());
+  assert(!context.property_target.has_value());
+  assert(context.resources.empty());
+  context.labels.clear();
+  context.evaluated_.clear();
+
   return evaluate_internal(instance, context, steps, std::nullopt);
 }
 
