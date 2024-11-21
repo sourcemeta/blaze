@@ -14,6 +14,7 @@
 
 #include <cstdint>    // std::uint8_t
 #include <functional> // std::function
+#include <utility>    // std::pair
 
 /// @defgroup evaluator Evaluator
 /// @brief A high-performance JSON Schema evaluator
@@ -29,6 +30,14 @@ namespace sourcemeta::blaze {
 /// @ingroup evaluator
 /// Represents the state of an instruction evaluation
 enum class EvaluationType : std::uint8_t { Pre, Post };
+
+/// @ingroup evaluator
+/// Flags that affect how evaluation is carried
+struct Modifiers {};
+
+/// @ingroup evaluator
+/// Represents a compiled schema ready for execution
+using Template = std::pair<Instructions, Modifiers>;
 
 /// @ingroup evaluator
 /// A callback of this type is invoked after evaluating any keyword. The
@@ -80,8 +89,8 @@ using Callback =
 /// assert(result);
 /// ```
 auto SOURCEMETA_BLAZE_EVALUATOR_EXPORT
-evaluate(const Instructions &instructions,
-         const sourcemeta::jsontoolkit::JSON &instance) -> bool;
+evaluate(const Template &schema, const sourcemeta::jsontoolkit::JSON &instance)
+    -> bool;
 
 /// @ingroup evaluator
 ///
@@ -136,8 +145,7 @@ evaluate(const Instructions &instructions,
 /// assert(result);
 /// ```
 auto SOURCEMETA_BLAZE_EVALUATOR_EXPORT
-evaluate(const Instructions &instructions,
-         const sourcemeta::jsontoolkit::JSON &instance,
+evaluate(const Template &schema, const sourcemeta::jsontoolkit::JSON &instance,
          const Callback &callback) -> bool;
 
 /// @ingroup evaluator
@@ -173,8 +181,7 @@ evaluate(const Instructions &instructions,
 /// assert(result);
 /// ```
 auto SOURCEMETA_BLAZE_EVALUATOR_EXPORT
-evaluate(const Instructions &instructions,
-         const sourcemeta::jsontoolkit::JSON &instance,
+evaluate(const Template &schema, const sourcemeta::jsontoolkit::JSON &instance,
          EvaluationContext &context) -> bool;
 
 } // namespace sourcemeta::blaze

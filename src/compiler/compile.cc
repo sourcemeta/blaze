@@ -104,8 +104,7 @@ auto compile(const sourcemeta::jsontoolkit::JSON &schema,
              const sourcemeta::jsontoolkit::SchemaWalker &walker,
              const sourcemeta::jsontoolkit::SchemaResolver &resolver,
              const Compiler &compiler, const Mode mode,
-             const std::optional<std::string> &default_dialect)
-    -> Instructions {
+             const std::optional<std::string> &default_dialect) -> Template {
   assert(is_schema(schema));
 
   // Make sure the input schema is bundled, otherwise we won't be able to
@@ -332,12 +331,12 @@ auto compile(const sourcemeta::jsontoolkit::JSON &schema,
   auto children{compile_subschema(context, schema_context, dynamic_context,
                                   root_frame_entry.dialect)};
   if (compiler_template.empty()) {
-    return children;
+    return {children, {}};
   } else {
     compiler_template.reserve(compiler_template.size() + children.size());
     std::move(children.begin(), children.end(),
               std::back_inserter(compiler_template));
-    return compiler_template;
+    return {compiler_template, {}};
   }
 }
 

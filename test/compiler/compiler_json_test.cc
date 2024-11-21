@@ -11,7 +11,7 @@ TEST(Compiler_json, defines_basic_root) {
   const Instructions steps{AssertionDefines{Pointer{}, Pointer{}, "#", 0, true,
                                             true, ValueString{"foo"}}};
 
-  const JSON result{to_json(steps)};
+  const JSON result{to_json({steps, {}})};
   const JSON expected{parse(R"EOF([
     {
       "category": "assertion",
@@ -41,7 +41,7 @@ TEST(Compiler_json, defines_basic_nested) {
                                             "#/foo/bar", 0, true, true,
                                             ValueString{"foo"}}};
 
-  const JSON result{to_json(steps)};
+  const JSON result{to_json({steps, {}})};
   const JSON expected{parse(R"EOF([
     {
       "category": "assertion",
@@ -70,7 +70,7 @@ TEST(Compiler_json, fail_basic_root) {
   const Instructions steps{
       AssertionFail{Pointer{}, Pointer{}, "#", 0, true, true, ValueNone{}}};
 
-  const JSON result{to_json(steps)};
+  const JSON result{to_json({steps, {}})};
   const JSON expected{parse(R"EOF([
     {
       "category": "assertion",
@@ -95,7 +95,7 @@ TEST(Compiler_json, type_basic_root) {
   const Instructions steps{AssertionTypeStrict{
       Pointer{}, Pointer{}, "#", 0, true, true, ValueType{JSON::Type::String}}};
 
-  const JSON result{to_json(steps)};
+  const JSON result{to_json({steps, {}})};
   const JSON expected{parse(R"EOF([
     {
       "category": "assertion",
@@ -124,7 +124,7 @@ TEST(Compiler_json, or_empty) {
   const Instructions steps{
       LogicalOr{Pointer{}, Pointer{}, "#", 0, true, true, false, {}}};
 
-  const JSON result{to_json(steps)};
+  const JSON result{to_json({steps, {}})};
   const JSON expected{parse(R"EOF([
     {
       "category": "logical",
@@ -157,7 +157,7 @@ TEST(Compiler_json, or_single_child) {
   const Instructions steps{
       LogicalOr{Pointer{}, Pointer{}, "#", 0, true, true, false, children}};
 
-  const JSON result{to_json(steps)};
+  const JSON result{to_json({steps, {}})};
   const JSON expected{parse(R"EOF([
     {
       "category": "logical",
@@ -209,7 +209,7 @@ TEST(Compiler_json, or_multiple_children) {
   const Instructions steps{
       LogicalOr{Pointer{}, Pointer{}, "#", 0, true, true, false, children}};
 
-  const JSON result{to_json(steps)};
+  const JSON result{to_json({steps, {}})};
   const JSON expected{parse(R"EOF([
     {
       "category": "logical",
@@ -270,7 +270,7 @@ TEST(Compiler_json, and_empty) {
   const Instructions steps{
       LogicalAnd{Pointer{}, Pointer{}, "#", 0, true, true, ValueNone{}, {}}};
 
-  const JSON result{to_json(steps)};
+  const JSON result{to_json({steps, {}})};
   const JSON expected{parse(R"EOF([
     {
       "category": "logical",
@@ -299,7 +299,7 @@ TEST(Compiler_json, and_single_child) {
   const Instructions steps{LogicalAnd{Pointer{}, Pointer{}, "#", 0, true, true,
                                       ValueNone{}, children}};
 
-  const JSON result{to_json(steps)};
+  const JSON result{to_json({steps, {}})};
   const JSON expected{parse(R"EOF([
     {
       "category": "logical",
@@ -347,7 +347,7 @@ TEST(Compiler_json, and_multiple_children) {
   const Instructions steps{LogicalAnd{Pointer{}, Pointer{}, "#", 0, true, true,
                                       ValueNone{}, children}};
 
-  const JSON result{to_json(steps)};
+  const JSON result{to_json({steps, {}})};
   const JSON expected{parse(R"EOF([
     {
       "category": "logical",
@@ -405,7 +405,7 @@ TEST(Compiler_json, regex_basic) {
       Pointer{}, Pointer{}, "#", 0, true, true,
       ValueRegex{sourcemeta::jsontoolkit::compile("^a").value(), "^a"}}};
 
-  const JSON result{to_json(steps)};
+  const JSON result{to_json({steps, {}})};
   const JSON expected{parse(R"EOF([
     {
       "category": "assertion",

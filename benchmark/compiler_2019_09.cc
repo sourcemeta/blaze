@@ -17,8 +17,8 @@ static void Compiler_2019_09_OMC_JSON_V2(benchmark::State &state) {
         schema, sourcemeta::jsontoolkit::default_schema_walker,
         sourcemeta::jsontoolkit::official_resolver,
         sourcemeta::blaze::default_schema_compiler)};
-    assert(!result.empty());
-    benchmark::DoNotOptimize(result);
+    assert(!result.first.empty());
+    benchmark::DoNotOptimize(result.first);
   }
 }
 
