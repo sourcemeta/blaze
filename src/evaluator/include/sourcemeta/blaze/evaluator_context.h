@@ -60,7 +60,8 @@ public:
       -> bool;
   auto unevaluate() -> void;
 
-  const sourcemeta::jsontoolkit::JSON null{nullptr};
+  static const sourcemeta::jsontoolkit::JSON null;
+  static const sourcemeta::jsontoolkit::JSON empty_string;
 
 // Exporting symbols that depends on the standard C++ library is considered
 // safe.

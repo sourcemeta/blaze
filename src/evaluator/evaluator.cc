@@ -24,8 +24,7 @@ inline auto resolve_target(
     // to cope with non-string keywords inside `propertyNames`
     // that need to fail validation. But then, the actual string
     // we return doesn't matter, so we can always return a dummy one.
-    static const sourcemeta::jsontoolkit::JSON empty_string{""};
-    return empty_string;
+    return sourcemeta::blaze::EvaluationContext::empty_string;
   }
 
   return instance;
@@ -101,7 +100,7 @@ auto evaluate_step(
   }                                                                            \
   if (callback.has_value()) {                                                  \
     callback.value()(EvaluationType::Pre, true, step, context.evaluate_path,   \
-                     context.instance_location, context.null);                 \
+                     context.instance_location, EvaluationContext::null);      \
   }                                                                            \
   bool result{false};
 
@@ -127,7 +126,7 @@ auto evaluate_step(
   }                                                                            \
   if (callback.has_value()) {                                                  \
     callback.value()(EvaluationType::Pre, true, step, context.evaluate_path,   \
-                     context.instance_location, context.null);                 \
+                     context.instance_location, EvaluationContext::null);      \
   }                                                                            \
   const auto &target{maybe_target.value().get()};                              \
   bool result{false};
@@ -159,7 +158,7 @@ auto evaluate_step(
   assert(!step_category.relative_instance_location.empty());                   \
   if (callback.has_value()) {                                                  \
     callback.value()(EvaluationType::Pre, true, step, context.evaluate_path,   \
-                     context.instance_location, context.null);                 \
+                     context.instance_location, EvaluationContext::null);      \
   }                                                                            \
   bool result{false};
 
@@ -174,7 +173,7 @@ auto evaluate_step(
   }                                                                            \
   if (callback.has_value()) {                                                  \
     callback.value()(EvaluationType::Pre, true, step, context.evaluate_path,   \
-                     context.instance_location, context.null);                 \
+                     context.instance_location, EvaluationContext::null);      \
   }                                                                            \
   bool result{false};
 
@@ -183,7 +182,7 @@ auto evaluate_step(
   const auto &step_category{std::get<step_type>(step)};                        \
   if (callback.has_value()) {                                                  \
     callback.value()(EvaluationType::Pre, true, step, context.evaluate_path,   \
-                     context.instance_location, context.null);                 \
+                     context.instance_location, EvaluationContext::null);      \
   }                                                                            \
   bool result{true};
 
@@ -196,7 +195,7 @@ auto evaluate_step(
   if (callback.has_value()) {                                                  \
     callback.value()(EvaluationType::Post, result, step,                       \
                      context.evaluate_path, context.instance_location,         \
-                     context.null);                                            \
+                     EvaluationContext::null);                                 \
   }                                                                            \
   context.pop(step_category.relative_schema_location.size(),                   \
               step_category.relative_instance_location.size(), track);         \
@@ -210,7 +209,7 @@ auto evaluate_step(
   if (callback.has_value()) {                                                  \
     callback.value()(EvaluationType::Post, result, step,                       \
                      context.evaluate_path, context.instance_location,         \
-                     context.null);                                            \
+                     EvaluationContext::null);                                 \
   }                                                                            \
   SOURCEMETA_TRACE_END(trace_id, STRINGIFY(step_type));                        \
   return result;
@@ -229,7 +228,7 @@ auto evaluate_step(
                step_category.relative_instance_location, track);               \
   if (callback.has_value()) {                                                  \
     callback.value()(EvaluationType::Pre, true, step, context.evaluate_path,   \
-                     destination, context.null);                               \
+                     destination, EvaluationContext::null);                    \
     callback.value()(EvaluationType::Post, true, step, context.evaluate_path,  \
                      destination, annotation_value);                           \
   }                                                                            \

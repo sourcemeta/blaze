@@ -4,6 +4,9 @@
 
 namespace sourcemeta::blaze {
 
+const sourcemeta::jsontoolkit::JSON EvaluationContext::null{nullptr};
+const sourcemeta::jsontoolkit::JSON EvaluationContext::empty_string{""};
+
 // TODO: Completely inline push/pop
 
 auto EvaluationContext::push(
