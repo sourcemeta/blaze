@@ -12,7 +12,6 @@ auto EvaluationContext::prepare(const sourcemeta::jsontoolkit::JSON &instance)
   assert(this->evaluate_path_size == 0);
   assert(this->instance_location.empty());
   assert(!this->property_target.has_value());
-  assert(this->frame_sizes.empty());
   assert(this->resources.empty());
   this->instances.clear();
   this->instances.emplace_back(instance);
@@ -29,21 +28,23 @@ auto EvaluationContext::push_without_traverse(
   // infinite recursion will manifest itself through huge
   // ever-growing evaluate paths
   constexpr auto EVALUATE_PATH_LIMIT{300};
-  const auto stack_size{track ? this->evaluate_path.size()
-                              : this->evaluate_path_size};
-  if (stack_size > EVALUATE_PATH_LIMIT) [[unlikely]] {
-    throw sourcemeta::blaze::EvaluationError(
-        "The evaluation path depth limit was reached "
-        "likely due to infinite recursion");
-  }
-
-  this->frame_sizes.emplace_back(relative_schema_location.size(),
-                                 relative_instance_location.size());
 
   if (track) {
+    if (this->evaluate_path.size() > EVALUATE_PATH_LIMIT) [[unlikely]] {
+      throw sourcemeta::blaze::EvaluationError(
+          "The evaluation path depth limit was reached "
+          "likely due to infinite recursion");
+    }
+
     this->evaluate_path.push_back(relative_schema_location);
     this->instance_location.push_back(relative_instance_location);
   } else {
+    if (this->evaluate_path_size > EVALUATE_PATH_LIMIT) [[unlikely]] {
+      throw sourcemeta::blaze::EvaluationError(
+          "The evaluation path depth limit was reached "
+          "likely due to infinite recursion");
+    }
+
     // We still need to somewhat keep track of this to prevent infinite
     // recursion
     this->evaluate_path_size += relative_schema_location.size();
@@ -86,23 +87,22 @@ auto EvaluationContext::push(
   this->instances.emplace_back(new_instance);
 }
 
-auto EvaluationContext::pop(const bool dynamic, const bool track) -> void {
-  assert(!this->frame_sizes.empty());
-  const auto &sizes{this->frame_sizes.back()};
-  if (sizes.second > 0) {
-    this->instances.pop_back();
-  }
-
+auto EvaluationContext::pop(const std::size_t relative_schema_location_size,
+                            const std::size_t relative_instance_location_size,
+                            const bool dynamic, const bool track) -> void {
   if (track) {
-    this->evaluate_path.pop_back(sizes.first);
-    if (sizes.second > 0) {
-      this->instance_location.pop_back(sizes.second);
+    this->evaluate_path.pop_back(relative_schema_location_size);
+    if (relative_instance_location_size > 0) {
+      this->instances.pop_back();
+      this->instance_location.pop_back(relative_instance_location_size);
     }
   } else {
-    this->evaluate_path_size -= sizes.first;
-  }
+    if (relative_instance_location_size > 0) {
+      this->instances.pop_back();
+    }
 
-  this->frame_sizes.pop_back();
+    this->evaluate_path_size -= relative_schema_location_size;
+  }
 
   if (dynamic) {
     assert(!this->resources.empty());
