@@ -46,10 +46,17 @@ public:
   ///////////////////////////////////////////////
 
   // TODO: Make these methods plain functions on evaluator.cc
-  auto resolve_target(const sourcemeta::jsontoolkit::JSON &instance)
+  auto resolve_target(
+      const std::optional<
+          std::reference_wrapper<const sourcemeta::jsontoolkit::JSON::String>>
+          &property_target,
+      const sourcemeta::jsontoolkit::JSON &instance)
       -> const sourcemeta::jsontoolkit::JSON &;
-  auto
-  resolve_string_target(const sourcemeta::jsontoolkit::JSON &instance) const
+  auto resolve_string_target(
+      const std::optional<
+          std::reference_wrapper<const sourcemeta::jsontoolkit::JSON::String>>
+          &property_target,
+      const sourcemeta::jsontoolkit::JSON &instance) const
       -> std::optional<
           std::reference_wrapper<const sourcemeta::jsontoolkit::JSON::String>>;
 
@@ -94,9 +101,6 @@ public:
   std::vector<std::size_t> resources;
   std::map<std::size_t, const std::reference_wrapper<const Instructions>>
       labels;
-  std::optional<
-      std::reference_wrapper<const sourcemeta::jsontoolkit::JSON::String>>
-      property_target;
 
   // TODO: Revamp the data structure we use to track evaluation
   // to provide more performant lookups that don't involve so many

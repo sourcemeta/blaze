@@ -69,9 +69,12 @@ auto EvaluationContext::hash(
 }
 
 auto EvaluationContext::resolve_target(
+    const std::optional<
+        std::reference_wrapper<const sourcemeta::jsontoolkit::JSON::String>>
+        &property_target,
     const sourcemeta::jsontoolkit::JSON &instance)
     -> const sourcemeta::jsontoolkit::JSON & {
-  if (this->property_target.has_value()) [[unlikely]] {
+  if (property_target.has_value()) [[unlikely]] {
     // In this case, we still need to return a string in order
     // to cope with non-string keywords inside `propertyNames`
     // that need to fail validation. But then, the actual string
@@ -84,11 +87,14 @@ auto EvaluationContext::resolve_target(
 }
 
 auto EvaluationContext::resolve_string_target(
+    const std::optional<
+        std::reference_wrapper<const sourcemeta::jsontoolkit::JSON::String>>
+        &property_target,
     const sourcemeta::jsontoolkit::JSON &instance) const
     -> std::optional<
         std::reference_wrapper<const sourcemeta::jsontoolkit::JSON::String>> {
-  if (this->property_target.has_value()) [[unlikely]] {
-    return this->property_target.value();
+  if (property_target.has_value()) [[unlikely]] {
+    return property_target.value();
   } else if (!instance.is_string()) {
     return std::nullopt;
   } else {

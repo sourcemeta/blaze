@@ -276,7 +276,8 @@ HANDLER_START {
                               // before traversing into the actual property
                               target.is_object());
     // Now here we refer to the actual property
-    const auto &effective_target{context.resolve_target(target_check.value())};
+    const auto &effective_target{
+        context.resolve_target(property_target, target_check.value())};
     // In non-strict mode, we consider a real number that represents an
     // integer to be an integer
     result = effective_target.type() == assertion.value ||
@@ -292,7 +293,8 @@ HANDLER_START {
                               // before traversing into the actual property
                               target.is_object());
     // Now here we refer to the actual property
-    const auto &effective_target{context.resolve_target(target_check.value())};
+    const auto &effective_target{
+        context.resolve_target(property_target, target_check.value())};
     // In non-strict mode, we consider a real number that represents an
     // integer to be an integer
     result = effective_target.type() == assertion.value ||
@@ -315,7 +317,8 @@ HANDLER_START {
                               target.is_object());
     // Now here we refer to the actual property
     result =
-        context.resolve_target(target_check.value()).type() == assertion.value;
+        context.resolve_target(property_target, target_check.value()).type() ==
+        assertion.value;
     EVALUATE_END(assertion, AssertionPropertyTypeStrict);
   }
 
@@ -327,7 +330,8 @@ HANDLER_START {
                               target.is_object());
     // Now here we refer to the actual property
     result =
-        context.resolve_target(target_check.value()).type() == assertion.value;
+        context.resolve_target(property_target, target_check.value()).type() ==
+        assertion.value;
 
     if (result) {
       assert(track);
@@ -344,9 +348,10 @@ HANDLER_START {
                               // before traversing into the actual property
                               target.is_object());
     // Now here we refer to the actual property
-    result = (std::find(assertion.value.cbegin(), assertion.value.cend(),
-                        context.resolve_target(target_check.value()).type()) !=
-              assertion.value.cend());
+    result =
+        (std::find(assertion.value.cbegin(), assertion.value.cend(),
+                   context.resolve_target(property_target, target_check.value())
+                       .type()) != assertion.value.cend());
     EVALUATE_END(assertion, AssertionPropertyTypeStrictAny);
   }
 
@@ -357,9 +362,10 @@ HANDLER_START {
                               // before traversing into the actual property
                               target.is_object());
     // Now here we refer to the actual property
-    result = (std::find(assertion.value.cbegin(), assertion.value.cend(),
-                        context.resolve_target(target_check.value()).type()) !=
-              assertion.value.cend());
+    result =
+        (std::find(assertion.value.cbegin(), assertion.value.cend(),
+                   context.resolve_target(property_target, target_check.value())
+                       .type()) != assertion.value.cend());
 
     if (result) {
       assert(track);
@@ -384,7 +390,7 @@ HANDLER_START {
       result = true;
       assert(std::holds_alternative<ControlGroup>(entry));
       for (const auto &child : std::get<ControlGroup>(entry).children) {
-        if (!evaluate_step(child, callback, target, context)) {
+        if (!evaluate_step(child, callback, target, property_target, context)) {
           result = false;
           break;
         }
@@ -410,7 +416,7 @@ HANDLER_START {
       result = true;
       assert(std::holds_alternative<ControlGroup>(entry));
       for (const auto &child : std::get<ControlGroup>(entry).children) {
-        if (!evaluate_step(child, callback, target, context)) {
+        if (!evaluate_step(child, callback, target, property_target, context)) {
           result = false;
           EVALUATE_END(assertion, AssertionArrayPrefixEvaluate);
         }
@@ -433,7 +439,7 @@ HANDLER_START {
     const auto &target{sourcemeta::jsontoolkit::get(
         instance, logical.relative_instance_location)};
     for (const auto &child : logical.children) {
-      if (evaluate_step(child, callback, target, context)) {
+      if (evaluate_step(child, callback, target, property_target, context)) {
         result = true;
         // This boolean value controls whether we should be exhaustive
         if (!logical.value) {
@@ -451,7 +457,7 @@ HANDLER_START {
     const auto &target{sourcemeta::jsontoolkit::get(
         instance, logical.relative_instance_location)};
     for (const auto &child : logical.children) {
-      if (!evaluate_step(child, callback, target, context)) {
+      if (!evaluate_step(child, callback, target, property_target, context)) {
         result = false;
         break;
       }
@@ -464,7 +470,7 @@ HANDLER_START {
     EVALUATE_BEGIN(logical, LogicalWhenType, target.type() == logical.value);
     result = true;
     for (const auto &child : logical.children) {
-      if (!evaluate_step(child, callback, target, context)) {
+      if (!evaluate_step(child, callback, target, property_target, context)) {
         result = false;
         break;
       }
@@ -478,7 +484,7 @@ HANDLER_START {
                    target.is_object() && target.defines(logical.value));
     result = true;
     for (const auto &child : logical.children) {
-      if (!evaluate_step(child, callback, target, context)) {
+      if (!evaluate_step(child, callback, target, property_target, context)) {
         result = false;
         break;
       }
@@ -492,7 +498,7 @@ HANDLER_START {
                    target.is_array() && target.size() > logical.value);
     result = true;
     for (const auto &child : logical.children) {
-      if (!evaluate_step(child, callback, target, context)) {
+      if (!evaluate_step(child, callback, target, property_target, context)) {
         result = false;
         break;
       }
@@ -508,7 +514,7 @@ HANDLER_START {
     const auto &target{sourcemeta::jsontoolkit::get(
         instance, logical.relative_instance_location)};
     for (const auto &child : logical.children) {
-      if (evaluate_step(child, callback, target, context)) {
+      if (evaluate_step(child, callback, target, property_target, context)) {
         if (has_matched) {
           result = false;
           // This boolean value controls whether we should be exhaustive
@@ -542,7 +548,8 @@ HANDLER_START {
     const auto &target{sourcemeta::jsontoolkit::get(
         instance, logical.relative_instance_location)};
     for (std::size_t cursor = 0; cursor < condition_end; cursor++) {
-      if (!evaluate_step(logical.children[cursor], callback, target, context)) {
+      if (!evaluate_step(logical.children[cursor], callback, target,
+                         property_target, context)) {
         result = false;
         break;
       }
@@ -561,7 +568,7 @@ HANDLER_START {
         for (auto cursor = consequence_start; cursor < consequence_end;
              cursor++) {
           if (!evaluate_step(logical.children[cursor], callback, instance,
-                             context)) {
+                             property_target, context)) {
             result = false;
             break;
           }
@@ -572,7 +579,7 @@ HANDLER_START {
         for (auto cursor = consequence_start; cursor < consequence_end;
              cursor++) {
           if (!evaluate_step(logical.children[cursor], callback, instance,
-                             context)) {
+                             property_target, context)) {
             result = false;
             break;
           }
@@ -586,7 +593,7 @@ HANDLER_START {
   case IS_STEP(ControlGroup): {
     EVALUATE_BEGIN_PASS_THROUGH(control, ControlGroup);
     for (const auto &child : control.children) {
-      if (!evaluate_step(child, callback, instance, context)) {
+      if (!evaluate_step(child, callback, instance, property_target, context)) {
         result = false;
         break;
       }
@@ -609,7 +616,8 @@ HANDLER_START {
       for (const auto &child : control.children) {
         // Note that in this control instruction, we purposely
         // don't navigate into the target
-        if (!evaluate_step(child, callback, instance, context)) {
+        if (!evaluate_step(child, callback, instance, property_target,
+                           context)) {
           result = false;
           break;
         }
@@ -627,7 +635,7 @@ HANDLER_START {
         instance, control.relative_instance_location)};
     result = true;
     for (const auto &child : control.children) {
-      if (!evaluate_step(child, callback, target, context)) {
+      if (!evaluate_step(child, callback, target, property_target, context)) {
         result = false;
         break;
       }
@@ -668,7 +676,7 @@ HANDLER_START {
     const auto &target{sourcemeta::jsontoolkit::get(
         instance, control.relative_instance_location)};
     for (const auto &child : context.labels.at(control.value).get()) {
-      if (!evaluate_step(child, callback, target, context)) {
+      if (!evaluate_step(child, callback, target, property_target, context)) {
         result = false;
         break;
       }
@@ -688,7 +696,8 @@ HANDLER_START {
       if (match != context.labels.cend()) {
         result = true;
         for (const auto &child : match->second.get()) {
-          if (!evaluate_step(child, callback, target, context)) {
+          if (!evaluate_step(child, callback, target, property_target,
+                             context)) {
             result = false;
             EVALUATE_END(control, ControlDynamicAnchorJump);
           }
@@ -727,7 +736,7 @@ HANDLER_START {
     const auto &target{sourcemeta::jsontoolkit::get(
         instance, logical.relative_instance_location)};
     for (const auto &child : logical.children) {
-      if (!evaluate_step(child, callback, target, context)) {
+      if (!evaluate_step(child, callback, target, property_target, context)) {
         result = true;
         break;
       }
@@ -742,7 +751,7 @@ HANDLER_START {
     const auto &target{sourcemeta::jsontoolkit::get(
         instance, logical.relative_instance_location)};
     for (const auto &child : logical.children) {
-      if (!evaluate_step(child, callback, target, context)) {
+      if (!evaluate_step(child, callback, target, property_target, context)) {
         result = true;
         break;
       }
@@ -768,7 +777,8 @@ HANDLER_START {
       context.instance_location.push_back(entry.first);
       const auto &new_instance{target.at(entry.first)};
       for (const auto &child : loop.children) {
-        if (!evaluate_step(child, callback, new_instance, context)) {
+        if (!evaluate_step(child, callback, new_instance, property_target,
+                           context)) {
           result = false;
           context.instance_location.pop_back();
           EVALUATE_END(loop, LoopPropertiesUnevaluated);
@@ -823,7 +833,8 @@ HANDLER_START {
       context.instance_location.push_back(entry.first);
       const auto &new_instance{target.at(entry.first)};
       for (const auto &child : loop.children) {
-        if (!evaluate_step(child, callback, new_instance, context)) {
+        if (!evaluate_step(child, callback, new_instance, property_target,
+                           context)) {
           result = false;
           context.instance_location.pop_back();
           EVALUATE_END(loop, LoopPropertiesUnevaluatedExcept);
@@ -852,7 +863,7 @@ HANDLER_START {
       const auto &substep{loop.children[index->second]};
       assert(std::holds_alternative<ControlGroup>(substep));
       for (const auto &child : std::get<ControlGroup>(substep).children) {
-        if (!evaluate_step(child, callback, target, context)) {
+        if (!evaluate_step(child, callback, target, property_target, context)) {
           result = false;
           EVALUATE_END(loop, LoopPropertiesMatch);
         }
@@ -876,7 +887,7 @@ HANDLER_START {
       const auto &substep{loop.children[index->second]};
       assert(std::holds_alternative<ControlGroup>(substep));
       for (const auto &child : std::get<ControlGroup>(substep).children) {
-        if (!evaluate_step(child, callback, target, context)) {
+        if (!evaluate_step(child, callback, target, property_target, context)) {
           result = false;
           EVALUATE_END(loop, LoopPropertiesMatchClosed);
         }
@@ -896,7 +907,8 @@ HANDLER_START {
       }
       const auto &new_instance{target.at(entry.first)};
       for (const auto &child : loop.children) {
-        if (!evaluate_step(child, callback, new_instance, context)) {
+        if (!evaluate_step(child, callback, new_instance, property_target,
+                           context)) {
           result = false;
           if (track) {
             context.instance_location.pop_back();
@@ -923,7 +935,8 @@ HANDLER_START {
       }
       const auto &new_instance{target.at(entry.first)};
       for (const auto &child : loop.children) {
-        if (!evaluate_step(child, callback, new_instance, context)) {
+        if (!evaluate_step(child, callback, new_instance, property_target,
+                           context)) {
           result = false;
           if (track) {
             context.instance_location.pop_back();
@@ -957,7 +970,8 @@ HANDLER_START {
       }
       const auto &new_instance{target.at(entry.first)};
       for (const auto &child : loop.children) {
-        if (!evaluate_step(child, callback, new_instance, context)) {
+        if (!evaluate_step(child, callback, new_instance, property_target,
+                           context)) {
           result = false;
           if (track) {
             context.instance_location.pop_back();
@@ -992,7 +1006,8 @@ HANDLER_START {
       }
       const auto &new_instance{target.at(entry.first)};
       for (const auto &child : loop.children) {
-        if (!evaluate_step(child, callback, new_instance, context)) {
+        if (!evaluate_step(child, callback, new_instance, property_target,
+                           context)) {
           result = false;
           if (track) {
             context.instance_location.pop_back();
@@ -1023,7 +1038,8 @@ HANDLER_START {
       }
       const auto &new_instance{target.at(entry.first)};
       for (const auto &child : loop.children) {
-        if (!evaluate_step(child, callback, new_instance, context)) {
+        if (!evaluate_step(child, callback, new_instance, property_target,
+                           context)) {
           result = false;
           if (track) {
             context.instance_location.pop_back();
@@ -1076,7 +1092,8 @@ HANDLER_START {
       }
       const auto &new_instance{target.at(entry.first)};
       for (const auto &child : loop.children) {
-        if (!evaluate_step(child, callback, new_instance, context)) {
+        if (!evaluate_step(child, callback, new_instance, property_target,
+                           context)) {
           result = false;
           if (track) {
             context.instance_location.pop_back();
@@ -1221,14 +1238,10 @@ HANDLER_START {
         context.instance_location.push_back(entry.first);
       }
       const auto &new_instance{target.at(entry.first)};
-      assert(!context.property_target.has_value());
-      context.property_target = std::cref(entry.first);
-
       for (const auto &child : loop.children) {
-        if (!evaluate_step(child, callback, new_instance, context)) {
+        if (!evaluate_step(child, callback, new_instance,
+                           std::cref(entry.first), context)) {
           result = false;
-          assert(context.property_target.has_value());
-          context.property_target = std::nullopt;
           if (track) {
             context.instance_location.pop_back();
           }
@@ -1236,8 +1249,6 @@ HANDLER_START {
         }
       }
 
-      assert(context.property_target.has_value());
-      context.property_target = std::nullopt;
       if (track) {
         context.instance_location.pop_back();
       }
@@ -1257,7 +1268,8 @@ HANDLER_START {
       }
       const auto &new_instance{target.at(index)};
       for (const auto &child : loop.children) {
-        if (!evaluate_step(child, callback, new_instance, context)) {
+        if (!evaluate_step(child, callback, new_instance, property_target,
+                           context)) {
           result = false;
           if (track) {
             context.instance_location.pop_back();
@@ -1288,7 +1300,8 @@ HANDLER_START {
       context.instance_location.push_back(index);
       const auto &new_instance{target.at(index)};
       for (const auto &child : loop.children) {
-        if (!evaluate_step(child, callback, new_instance, context)) {
+        if (!evaluate_step(child, callback, new_instance, property_target,
+                           context)) {
           result = false;
           context.instance_location.pop_back();
           EVALUATE_END(loop, LoopItemsUnevaluated);
@@ -1367,7 +1380,8 @@ HANDLER_START {
       const auto &new_instance{target.at(index)};
       bool subresult{true};
       for (const auto &child : loop.children) {
-        if (!evaluate_step(child, callback, new_instance, context)) {
+        if (!evaluate_step(child, callback, new_instance, property_target,
+                           context)) {
           subresult = false;
           break;
         }
