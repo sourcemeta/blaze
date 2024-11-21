@@ -668,10 +668,10 @@ HANDLER_START {
       auto destination = context.instance_location;
       destination.push_back(control.value);
       callback.value()(EvaluationType::Pre, true, step, context.evaluate_path,
-                       destination, context.null);
+                       destination, EvaluationContext::null);
       context.evaluate(control.value);
       callback.value()(EvaluationType::Post, true, step, context.evaluate_path,
-                       destination, context.null);
+                       destination, EvaluationContext::null);
     } else {
       context.evaluate(control.value);
     }
