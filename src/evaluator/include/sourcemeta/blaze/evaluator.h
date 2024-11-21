@@ -27,17 +27,17 @@
 namespace sourcemeta::blaze {
 
 /// @ingroup evaluator
-/// Represents the state of a step evaluation
+/// Represents the state of an instruction evaluation
 enum class EvaluationType : std::uint8_t { Pre, Post };
 
 /// @ingroup evaluator
 /// A callback of this type is invoked after evaluating any keyword. The
 /// arguments go as follows:
 ///
-/// - The stage at which the step in question is
+/// - The stage at which the instruction in question is
 /// - Whether the evaluation was successful or not (always true before
 /// evaluation)
-/// - The step that was just evaluated
+/// - The instruction that was just evaluated
 /// - The evaluation path
 /// - The instance location
 /// - The annotation result, if any (otherwise null)
@@ -79,9 +79,9 @@ using Callback =
 ///   schema_template, instance)};
 /// assert(result);
 /// ```
-auto SOURCEMETA_BLAZE_EVALUATOR_EXPORT evaluate(
-    const Instructions &steps, const sourcemeta::jsontoolkit::JSON &instance)
-    -> bool;
+auto SOURCEMETA_BLAZE_EVALUATOR_EXPORT
+evaluate(const Instructions &instructions,
+         const sourcemeta::jsontoolkit::JSON &instance) -> bool;
 
 /// @ingroup evaluator
 ///
@@ -111,14 +111,14 @@ auto SOURCEMETA_BLAZE_EVALUATOR_EXPORT evaluate(
 ///
 /// static auto callback(
 ///     bool result,
-///     const sourcemeta::blaze::Instruction &step,
+///     const sourcemeta::blaze::Instruction &instruction,
 ///     const sourcemeta::jsontoolkit::Pointer &evaluate_path,
 ///     const sourcemeta::jsontoolkit::Pointer &instance_location,
 ///     const sourcemeta::jsontoolkit::JSON &document,
 ///     const sourcemeta::jsontoolkit::JSON &annotation) -> void {
 ///   std::cout << "TYPE: " << (result ? "Success" : "Failure") << "\n";
-///   std::cout << "STEP:\n";
-///   sourcemeta::jsontoolkit::prettify(sourcemeta::blaze::to_json({step}),
+///   std::cout << "INSTRUCTION:\n";
+///   sourcemeta::jsontoolkit::prettify(sourcemeta::blaze::to_json({instruction}),
 ///                                     std::cout);
 ///   std::cout << "\nEVALUATE PATH:";
 ///   sourcemeta::jsontoolkit::stringify(evaluate_path, std::cout);
@@ -135,9 +135,10 @@ auto SOURCEMETA_BLAZE_EVALUATOR_EXPORT evaluate(
 ///
 /// assert(result);
 /// ```
-auto SOURCEMETA_BLAZE_EVALUATOR_EXPORT evaluate(
-    const Instructions &steps, const sourcemeta::jsontoolkit::JSON &instance,
-    const Callback &callback) -> bool;
+auto SOURCEMETA_BLAZE_EVALUATOR_EXPORT
+evaluate(const Instructions &instructions,
+         const sourcemeta::jsontoolkit::JSON &instance,
+         const Callback &callback) -> bool;
 
 /// @ingroup evaluator
 ///
@@ -171,9 +172,10 @@ auto SOURCEMETA_BLAZE_EVALUATOR_EXPORT evaluate(
 ///   schema_template, instance, context)};
 /// assert(result);
 /// ```
-auto SOURCEMETA_BLAZE_EVALUATOR_EXPORT evaluate(
-    const Instructions &steps, const sourcemeta::jsontoolkit::JSON &instance,
-    EvaluationContext &context) -> bool;
+auto SOURCEMETA_BLAZE_EVALUATOR_EXPORT
+evaluate(const Instructions &instructions,
+         const sourcemeta::jsontoolkit::JSON &instance,
+         EvaluationContext &context) -> bool;
 
 } // namespace sourcemeta::blaze
 
