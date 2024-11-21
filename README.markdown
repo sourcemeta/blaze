@@ -94,3 +94,13 @@ Documentation
 
 Refer to the project website for documentation and tutorials:
 [https://blaze.sourcemeta.com](https://blaze.sourcemeta.com).
+
+Contributors
+------------
+
+Blaze was designed and developed by a team of passionate JSON Schema developers
+and researchers.
+
+<a href="https://github.com/sourcemeta/blaze/graphs/contributors">
+  <img src="https://contrib.rocks/image?repo=sourcemeta/blaze" />
+</a>
