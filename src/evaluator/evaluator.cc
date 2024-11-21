@@ -58,20 +58,20 @@ inline auto resolve_string_target(
 
 namespace sourcemeta::blaze {
 
-auto evaluate(const Instructions &instructions,
+auto evaluate(const Template &schema,
               const sourcemeta::jsontoolkit::JSON &instance,
               const Callback &callback) -> bool {
   EvaluationContext context;
-  return evaluate_complete(instance, context, instructions, callback);
+  return evaluate_complete(instance, context, schema.first, callback);
 }
 
-auto evaluate(const Instructions &instructions,
+auto evaluate(const Template &schema,
               const sourcemeta::jsontoolkit::JSON &instance) -> bool {
   EvaluationContext context;
-  return evaluate_complete(instance, context, instructions, std::nullopt);
+  return evaluate_complete(instance, context, schema.first, std::nullopt);
 }
 
-auto evaluate(const Instructions &instructions,
+auto evaluate(const Template &schema,
               const sourcemeta::jsontoolkit::JSON &instance,
               EvaluationContext &context) -> bool {
   // Do a full reset for the next run
@@ -81,7 +81,7 @@ auto evaluate(const Instructions &instructions,
   context.labels.clear();
   context.evaluated_.clear();
 
-  return evaluate_complete(instance, context, instructions, std::nullopt);
+  return evaluate_complete(instance, context, schema.first, std::nullopt);
 }
 
 } // namespace sourcemeta::blaze

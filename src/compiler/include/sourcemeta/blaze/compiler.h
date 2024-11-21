@@ -150,7 +150,7 @@ compile(const sourcemeta::jsontoolkit::JSON &schema,
         const sourcemeta::jsontoolkit::SchemaResolver &resolver,
         const Compiler &compiler, const Mode mode = Mode::FastValidation,
         const std::optional<std::string> &default_dialect = std::nullopt)
-    -> Instructions;
+    -> Template;
 
 /// @ingroup compiler
 ///
@@ -197,7 +197,7 @@ compile(const Context &context, const SchemaContext &schema_context,
 /// sourcemeta::jsontoolkit::prettify(result, std::cout);
 /// std::cout << "\n";
 /// ```
-auto SOURCEMETA_BLAZE_COMPILER_EXPORT to_json(const Instructions &steps)
+auto SOURCEMETA_BLAZE_COMPILER_EXPORT to_json(const Template &schema)
     -> sourcemeta::jsontoolkit::JSON;
 
 /// @ingroup compiler

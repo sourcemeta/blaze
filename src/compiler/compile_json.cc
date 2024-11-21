@@ -317,10 +317,12 @@ struct StepVisitor {
 
 namespace sourcemeta::blaze {
 
-auto to_json(const Instructions &steps) -> sourcemeta::jsontoolkit::JSON {
+auto to_json(const Template &schema) -> sourcemeta::jsontoolkit::JSON {
   sourcemeta::jsontoolkit::JSON result{
       sourcemeta::jsontoolkit::JSON::make_array()};
-  for (const auto &step : steps) {
+
+  // TODO: Encode modifiers too
+  for (const auto &step : schema.first) {
     result.push_back(step_to_json<StepVisitor>(step));
   }
 
