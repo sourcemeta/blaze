@@ -60,7 +60,6 @@ public:
       -> bool;
   auto unevaluate() -> void;
 
-  // TODO: Remove this
   const sourcemeta::jsontoolkit::JSON null{nullptr};
 
 // Exporting symbols that depends on the standard C++ library is considered
@@ -70,7 +69,6 @@ public:
 #pragma warning(disable : 4251 4275)
 #endif
   sourcemeta::jsontoolkit::WeakPointer evaluate_path;
-  std::uint64_t evaluate_path_size{0};
   sourcemeta::jsontoolkit::WeakPointer instance_location;
   const std::hash<sourcemeta::jsontoolkit::JSON::String> hasher_{};
   std::vector<std::size_t> resources;
