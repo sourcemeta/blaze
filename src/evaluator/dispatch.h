@@ -277,7 +277,7 @@ HANDLER_START {
                               target.is_object());
     // Now here we refer to the actual property
     const auto &effective_target{
-        context.resolve_target(property_target, target_check.value())};
+        resolve_target(property_target, target_check.value())};
     // In non-strict mode, we consider a real number that represents an
     // integer to be an integer
     result = effective_target.type() == assertion.value ||
@@ -294,7 +294,7 @@ HANDLER_START {
                               target.is_object());
     // Now here we refer to the actual property
     const auto &effective_target{
-        context.resolve_target(property_target, target_check.value())};
+        resolve_target(property_target, target_check.value())};
     // In non-strict mode, we consider a real number that represents an
     // integer to be an integer
     result = effective_target.type() == assertion.value ||
@@ -316,9 +316,8 @@ HANDLER_START {
                               // before traversing into the actual property
                               target.is_object());
     // Now here we refer to the actual property
-    result =
-        context.resolve_target(property_target, target_check.value()).type() ==
-        assertion.value;
+    result = resolve_target(property_target, target_check.value()).type() ==
+             assertion.value;
     EVALUATE_END(assertion, AssertionPropertyTypeStrict);
   }
 
@@ -329,9 +328,8 @@ HANDLER_START {
                               // before traversing into the actual property
                               target.is_object());
     // Now here we refer to the actual property
-    result =
-        context.resolve_target(property_target, target_check.value()).type() ==
-        assertion.value;
+    result = resolve_target(property_target, target_check.value()).type() ==
+             assertion.value;
 
     if (result) {
       assert(track);
@@ -349,9 +347,10 @@ HANDLER_START {
                               target.is_object());
     // Now here we refer to the actual property
     result =
-        (std::find(assertion.value.cbegin(), assertion.value.cend(),
-                   context.resolve_target(property_target, target_check.value())
-                       .type()) != assertion.value.cend());
+        (std::find(
+             assertion.value.cbegin(), assertion.value.cend(),
+             resolve_target(property_target, target_check.value()).type()) !=
+         assertion.value.cend());
     EVALUATE_END(assertion, AssertionPropertyTypeStrictAny);
   }
 
@@ -363,9 +362,10 @@ HANDLER_START {
                               target.is_object());
     // Now here we refer to the actual property
     result =
-        (std::find(assertion.value.cbegin(), assertion.value.cend(),
-                   context.resolve_target(property_target, target_check.value())
-                       .type()) != assertion.value.cend());
+        (std::find(
+             assertion.value.cbegin(), assertion.value.cend(),
+             resolve_target(property_target, target_check.value()).type()) !=
+         assertion.value.cend());
 
     if (result) {
       assert(track);

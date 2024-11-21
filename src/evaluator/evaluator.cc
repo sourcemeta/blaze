@@ -12,6 +12,45 @@
 
 namespace {
 
+inline auto resolve_target(
+    const std::optional<
+        std::reference_wrapper<const sourcemeta::jsontoolkit::JSON::String>>
+        &property_target,
+    const sourcemeta::jsontoolkit::JSON &instance)
+    -> const sourcemeta::jsontoolkit::JSON & {
+  if (property_target.has_value()) [[unlikely]] {
+    // In this case, we still need to return a string in order
+    // to cope with non-string keywords inside `propertyNames`
+    // that need to fail validation. But then, the actual string
+    // we return doesn't matter, so we can always return a dummy one.
+    static const sourcemeta::jsontoolkit::JSON empty_string{""};
+    return empty_string;
+  }
+
+  return instance;
+}
+
+inline auto resolve_string_target(
+    const std::optional<
+        std::reference_wrapper<const sourcemeta::jsontoolkit::JSON::String>>
+        &property_target,
+    const sourcemeta::jsontoolkit::JSON &instance,
+    const sourcemeta::jsontoolkit::Pointer &relative_instance_location) noexcept
+    -> std::optional<
+        std::reference_wrapper<const sourcemeta::jsontoolkit::JSON::String>> {
+  if (property_target.has_value()) [[unlikely]] {
+    return property_target.value();
+  }
+
+  const auto &target{
+      sourcemeta::jsontoolkit::get(instance, relative_instance_location)};
+  if (!target.is_string()) {
+    return std::nullopt;
+  } else {
+    return target.to_string();
+  }
+}
+
 auto evaluate_step(
     const sourcemeta::blaze::Instruction &step,
     const std::optional<sourcemeta::blaze::Callback> &callback,
@@ -33,7 +72,7 @@ auto evaluate_step(
   context.push(step_category.relative_schema_location,                         \
                step_category.relative_instance_location,                       \
                step_category.schema_resource, step_category.dynamic, track);   \
-  const auto &target{context.resolve_target(                                   \
+  const auto &target{resolve_target(                                           \
       property_target,                                                         \
       sourcemeta::jsontoolkit::get(                                            \
           instance, step_category.relative_instance_location))};               \
@@ -57,10 +96,8 @@ auto evaluate_step(
   context.push(step_category.relative_schema_location,                         \
                step_category.relative_instance_location,                       \
                step_category.schema_resource, step_category.dynamic, track);   \
-  const auto &maybe_target{context.resolve_string_target(                      \
-      property_target,                                                         \
-      sourcemeta::jsontoolkit::get(                                            \
-          instance, step_category.relative_instance_location))};               \
+  const auto &maybe_target{resolve_string_target(                              \
+      property_target, instance, step_category.relative_instance_location)};   \
   if (!maybe_target.has_value()) {                                             \
     context.pop(step_category.relative_schema_location.size(),                 \
                 step_category.relative_instance_location.size(),               \
@@ -81,7 +118,7 @@ auto evaluate_step(
   // pass it to `.push()` so that it doesn't need to traverse it again.
 #define EVALUATE_BEGIN_TRY_TARGET(step_category, step_type, precondition)      \
   SOURCEMETA_TRACE_START(trace_id, STRINGIFY(step_type));                      \
-  const auto &target{context.resolve_target(property_target, instance)};       \
+  const auto &target{resolve_target(property_target, instance)};               \
   const auto &step_category{std::get<step_type>(step)};                        \
   if (!(precondition)) {                                                       \
     SOURCEMETA_TRACE_END(trace_id, STRINGIFY(step_type));                      \

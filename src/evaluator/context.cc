@@ -68,40 +68,6 @@ auto EvaluationContext::hash(
   return resource + this->hasher_(fragment);
 }
 
-auto EvaluationContext::resolve_target(
-    const std::optional<
-        std::reference_wrapper<const sourcemeta::jsontoolkit::JSON::String>>
-        &property_target,
-    const sourcemeta::jsontoolkit::JSON &instance)
-    -> const sourcemeta::jsontoolkit::JSON & {
-  if (property_target.has_value()) [[unlikely]] {
-    // In this case, we still need to return a string in order
-    // to cope with non-string keywords inside `propertyNames`
-    // that need to fail validation. But then, the actual string
-    // we return doesn't matter, so we can always return a dummy one.
-    static const sourcemeta::jsontoolkit::JSON empty_string{""};
-    return empty_string;
-  }
-
-  return instance;
-}
-
-auto EvaluationContext::resolve_string_target(
-    const std::optional<
-        std::reference_wrapper<const sourcemeta::jsontoolkit::JSON::String>>
-        &property_target,
-    const sourcemeta::jsontoolkit::JSON &instance) const
-    -> std::optional<
-        std::reference_wrapper<const sourcemeta::jsontoolkit::JSON::String>> {
-  if (property_target.has_value()) [[unlikely]] {
-    return property_target.value();
-  } else if (!instance.is_string()) {
-    return std::nullopt;
-  } else {
-    return instance.to_string();
-  }
-}
-
 auto EvaluationContext::evaluate() -> void {
   this->evaluate(sourcemeta::jsontoolkit::empty_pointer);
 }
