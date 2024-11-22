@@ -88,6 +88,7 @@ struct LoopItemsTypeStrictAny;
 struct LoopContains;
 struct ControlGroup;
 struct ControlGroupWhenDefines;
+struct ControlGroupWhenDefinesDirect;
 struct ControlLabel;
 struct ControlMark;
 struct ControlEvaluate;
@@ -123,8 +124,8 @@ using Instruction = std::variant<
     LoopPropertiesTypeStrictAnyEvaluate, LoopKeys, LoopItems, LoopItemsFrom,
     LoopItemsUnevaluated, LoopItemsType, LoopItemsTypeStrict,
     LoopItemsTypeStrictAny, LoopContains, ControlGroup, ControlGroupWhenDefines,
-    ControlLabel, ControlMark, ControlEvaluate, ControlJump,
-    ControlDynamicAnchorJump>;
+    ControlGroupWhenDefinesDirect, ControlLabel, ControlMark, ControlEvaluate,
+    ControlJump, ControlDynamicAnchorJump>;
 
 #if !defined(DOXYGEN)
 // For fast internal instruction dispatching. It must stay
@@ -204,6 +205,7 @@ enum class InstructionIndex : std::uint8_t {
   LoopContains,
   ControlGroup,
   ControlGroupWhenDefines,
+  ControlGroupWhenDefinesDirect,
   ControlLabel,
   ControlMark,
   ControlEvaluate,
@@ -602,6 +604,11 @@ DEFINE_STEP_APPLICATOR(Control, Group, ValueNone)
 /// @brief Represents a compiler step that groups a set of steps if a given
 /// object property exists, but is not evaluated on its own
 DEFINE_STEP_APPLICATOR(Control, GroupWhenDefines, ValueString)
+
+/// @ingroup evaluator_instructions
+/// @brief Represents a compiler step that groups a set of steps if a direct
+/// given object property exists, but is not evaluated on its own
+DEFINE_STEP_APPLICATOR(Control, GroupWhenDefinesDirect, ValueString)
 
 /// @ingroup evaluator_instructions
 /// @brief Represents a compiler step that consists of a mark to jump to while

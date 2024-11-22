@@ -780,9 +780,16 @@ auto compiler_draft4_applicator_properties_with_options(
       }
 
       if (!substeps.empty()) {
-        children.push_back(make<ControlGroupWhenDefines>(
-            context, schema_context, effective_dynamic_context,
-            ValueString{name}, std::move(substeps)));
+        // As a performance shortcut
+        if (effective_dynamic_context.base_instance_location.empty()) {
+          children.push_back(make<ControlGroupWhenDefinesDirect>(
+              context, schema_context, effective_dynamic_context,
+              ValueString{name}, std::move(substeps)));
+        } else {
+          children.push_back(make<ControlGroupWhenDefines>(
+              context, schema_context, effective_dynamic_context,
+              ValueString{name}, std::move(substeps)));
+        }
       }
     }
   }

@@ -1951,6 +1951,10 @@ struct DescribeVisitor {
   auto operator()(const ControlGroupWhenDefines &) const -> std::string {
     return unknown();
   }
+
+  auto operator()(const ControlGroupWhenDefinesDirect &) const -> std::string {
+    return unknown();
+  }
 };
 
 } // namespace

@@ -303,6 +303,8 @@ struct StepVisitor {
   HANDLE_STEP("loop", "contains", LoopContains)
   HANDLE_STEP("control", "group", ControlGroup)
   HANDLE_STEP("control", "group-when-defines", ControlGroupWhenDefines)
+  HANDLE_STEP("control", "group-when-defines-direct",
+              ControlGroupWhenDefinesDirect)
   HANDLE_STEP("control", "label", ControlLabel)
   HANDLE_STEP("control", "mark", ControlMark)
   HANDLE_STEP("control", "evaluate", ControlEvaluate)
