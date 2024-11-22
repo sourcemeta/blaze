@@ -16,6 +16,20 @@
   SOURCEMETA_MAYBE_UNUSED(track);                                              \
   bool result{false};
 
+#define EVALUATE_BEGIN_NON_STRING(instruction_category, instruction_type,      \
+                                  precondition)                                \
+  SOURCEMETA_TRACE_START(trace_id, SOURCEMETA_STRINGIFY(instruction_type));    \
+  const auto &instruction_category{std::get<instruction_type>(instruction)};   \
+  const auto &target{sourcemeta::jsontoolkit::get(                             \
+      instance, instruction_category.relative_instance_location)};             \
+  if (!(precondition)) {                                                       \
+    SOURCEMETA_TRACE_END(trace_id, SOURCEMETA_STRINGIFY(instruction_type));    \
+    return true;                                                               \
+  }                                                                            \
+  constexpr bool track{false};                                                 \
+  SOURCEMETA_MAYBE_UNUSED(track);                                              \
+  bool result{false};
+
 #define EVALUATE_BEGIN_IF_STRING(instruction_category, instruction_type)       \
   SOURCEMETA_TRACE_START(trace_id, SOURCEMETA_STRINGIFY(instruction_type));    \
   const auto &instruction_category{std::get<instruction_type>(instruction)};   \
@@ -122,6 +136,7 @@ inline auto evaluate_fast(const sourcemeta::jsontoolkit::JSON &instance,
 #undef SOURCEMETA_EVALUATOR_FAST
 
 #undef EVALUATE_BEGIN
+#undef EVALUATE_BEGIN_NON_STRING
 #undef EVALUATE_BEGIN_IF_STRING
 #undef EVALUATE_BEGIN_TRY_TARGET
 #undef EVALUATE_BEGIN_NO_PRECONDITION

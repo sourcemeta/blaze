@@ -38,6 +38,42 @@
   }                                                                            \
   bool result{false};
 
+#define EVALUATE_BEGIN_NON_STRING(instruction_category, instruction_type,      \
+                                  precondition)                                \
+  SOURCEMETA_TRACE_START(trace_id, SOURCEMETA_STRINGIFY(instruction_type));    \
+  const auto &instruction_category{std::get<instruction_type>(instruction)};   \
+  const auto track{modifiers.track || callback.has_value()};                   \
+  if (track) {                                                                 \
+    context.evaluate_path.push_back(                                           \
+        instruction_category.relative_schema_location);                        \
+    context.instance_location.push_back(                                       \
+        instruction_category.relative_instance_location);                      \
+  }                                                                            \
+  if (modifiers.dynamic) {                                                     \
+    context.resources.push_back(instruction_category.schema_resource);         \
+  }                                                                            \
+  const auto &target{sourcemeta::jsontoolkit::get(                             \
+      instance, instruction_category.relative_instance_location)};             \
+  if (!(precondition)) {                                                       \
+    if (track) {                                                               \
+      context.evaluate_path.pop_back(                                          \
+          instruction_category.relative_schema_location.size());               \
+      context.instance_location.pop_back(                                      \
+          instruction_category.relative_instance_location.size());             \
+    }                                                                          \
+    if (modifiers.dynamic) {                                                   \
+      context.resources.pop_back();                                            \
+    }                                                                          \
+    SOURCEMETA_TRACE_END(trace_id, SOURCEMETA_STRINGIFY(instruction_type));    \
+    return true;                                                               \
+  }                                                                            \
+  if (callback.has_value()) {                                                  \
+    callback.value()(EvaluationType::Pre, true, instruction,                   \
+                     context.evaluate_path, context.instance_location,         \
+                     EvaluationContext::null);                                 \
+  }                                                                            \
+  bool result{false};
+
 #define EVALUATE_BEGIN_IF_STRING(instruction_category, instruction_type)       \
   SOURCEMETA_TRACE_START(trace_id, SOURCEMETA_STRINGIFY(instruction_type));    \
   const auto &instruction_category{std::get<instruction_type>(instruction)};   \
@@ -252,6 +288,7 @@ evaluate_complete(const sourcemeta::jsontoolkit::JSON &instance,
 #undef SOURCEMETA_EVALUATOR_COMPLETE
 
 #undef EVALUATE_BEGIN
+#undef EVALUATE_BEGIN_NON_STRING
 #undef EVALUATE_BEGIN_IF_STRING
 #undef EVALUATE_BEGIN_TRY_TARGET
 #undef EVALUATE_BEGIN_NO_PRECONDITION
