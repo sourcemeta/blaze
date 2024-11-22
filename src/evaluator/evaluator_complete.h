@@ -1,19 +1,6 @@
 #ifndef SOURCEMETA_BLAZE_EVALUATOR_COMPLETE_H_
 #define SOURCEMETA_BLAZE_EVALUATOR_COMPLETE_H_
 
-namespace sourcemeta::blaze {
-
-auto evaluate_complete_instruction(
-    const sourcemeta::blaze::Instruction &instruction,
-    const sourcemeta::blaze::Modifiers &modifiers,
-    const std::optional<sourcemeta::blaze::Callback> &callback,
-    const sourcemeta::jsontoolkit::JSON &instance,
-    const std::optional<
-        std::reference_wrapper<const sourcemeta::jsontoolkit::JSON::String>>
-        &property_target,
-    const std::uint64_t depth, sourcemeta::blaze::EvaluationContext &context)
-    -> bool {
-
 #define EVALUATE_BEGIN(instruction_category, instruction_type, precondition)   \
   SOURCEMETA_TRACE_START(trace_id, SOURCEMETA_STRINGIFY(instruction_type));    \
   const auto &instruction_category{std::get<instruction_type>(instruction)};   \
@@ -88,8 +75,8 @@ auto evaluate_complete_instruction(
   const auto &target{maybe_target.value().get()};                              \
   bool result{false};
 
-  // This is a slightly complicated dance to avoid traversing the relative
-  // instance location twice.
+// This is a slightly complicated dance to avoid traversing the relative
+// instance location twice.
 #define EVALUATE_BEGIN_TRY_TARGET(instruction_category, instruction_type,      \
                                   precondition)                                \
   SOURCEMETA_TRACE_START(trace_id, SOURCEMETA_STRINGIFY(instruction_type));    \
@@ -99,7 +86,7 @@ auto evaluate_complete_instruction(
     SOURCEMETA_TRACE_END(trace_id, SOURCEMETA_STRINGIFY(instruction_type));    \
     return true;                                                               \
   }                                                                            \
-  auto target_check{                                                           \
+  const auto target_check{                                                     \
       try_get(target, instruction_category.relative_instance_location)};       \
   if (!target_check.has_value()) {                                             \
     SOURCEMETA_TRACE_END(trace_id, SOURCEMETA_STRINGIFY(instruction_type));    \
@@ -220,21 +207,20 @@ auto evaluate_complete_instruction(
                                 std::cref(name), depth + 1, context)
 
 #define SOURCEMETA_EVALUATOR_COMPLETE
-#include "dispatch.inc.h"
-#undef SOURCEMETA_EVALUATOR_COMPLETE
 
-#undef EVALUATE_BEGIN
-#undef EVALUATE_BEGIN_IF_STRING
-#undef EVALUATE_BEGIN_TRY_TARGET
-#undef EVALUATE_BEGIN_NO_PRECONDITION
-#undef EVALUATE_BEGIN_NO_PRECONDITION_AND_NO_PUSH
-#undef EVALUATE_BEGIN_PASS_THROUGH
-#undef EVALUATE_END
-#undef EVALUATE_END_NO_POP
-#undef EVALUATE_END_PASS_THROUGH
-#undef EVALUATE_ANNOTATION
-#undef EVALUATE_RECURSE
-#undef EVALUATE_RECURSE_ON_PROPERTY_NAME
+namespace sourcemeta::blaze {
+
+auto evaluate_complete_instruction(
+    const sourcemeta::blaze::Instruction &instruction,
+    const sourcemeta::blaze::Modifiers &modifiers,
+    const std::optional<sourcemeta::blaze::Callback> &callback,
+    const sourcemeta::jsontoolkit::JSON &instance,
+    const std::optional<
+        std::reference_wrapper<const sourcemeta::jsontoolkit::JSON::String>>
+        &property_target,
+    const std::uint64_t depth, sourcemeta::blaze::EvaluationContext &context)
+    -> bool {
+#include "dispatch.inc.h"
 }
 
 inline auto
@@ -262,5 +248,20 @@ evaluate_complete(const sourcemeta::jsontoolkit::JSON &instance,
 }
 
 } // namespace sourcemeta::blaze
+
+#undef SOURCEMETA_EVALUATOR_COMPLETE
+
+#undef EVALUATE_BEGIN
+#undef EVALUATE_BEGIN_IF_STRING
+#undef EVALUATE_BEGIN_TRY_TARGET
+#undef EVALUATE_BEGIN_NO_PRECONDITION
+#undef EVALUATE_BEGIN_NO_PRECONDITION_AND_NO_PUSH
+#undef EVALUATE_BEGIN_PASS_THROUGH
+#undef EVALUATE_END
+#undef EVALUATE_END_NO_POP
+#undef EVALUATE_END_PASS_THROUGH
+#undef EVALUATE_ANNOTATION
+#undef EVALUATE_RECURSE
+#undef EVALUATE_RECURSE_ON_PROPERTY_NAME
 
 #endif
