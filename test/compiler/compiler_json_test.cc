@@ -369,7 +369,7 @@ TEST(Compiler_json, regex_basic) {
 
   const Instructions steps{AssertionRegex{
       Pointer{}, Pointer{}, "#", 0,
-      ValueRegex{sourcemeta::jsontoolkit::compile("^a").value(), "^a"}}};
+      ValueRegex{sourcemeta::jsontoolkit::to_regex("^a").value(), "^a"}}};
 
   const JSON result{to_json({steps, {}})};
   const JSON expected{parse(R"EOF([

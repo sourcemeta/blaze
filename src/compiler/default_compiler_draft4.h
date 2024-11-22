@@ -17,7 +17,7 @@ static auto parse_regex(const std::string &pattern,
                         const sourcemeta::jsontoolkit::URI &base,
                         const sourcemeta::jsontoolkit::Pointer &schema_location)
     -> sourcemeta::jsontoolkit::Regex {
-  const auto result{sourcemeta::jsontoolkit::compile(pattern)};
+  const auto result{sourcemeta::jsontoolkit::to_regex(pattern)};
   if (!result.has_value()) {
     std::ostringstream message;
     message << "Invalid regular expression: " << pattern;

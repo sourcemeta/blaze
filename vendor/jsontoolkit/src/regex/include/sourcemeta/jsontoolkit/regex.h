@@ -7,8 +7,11 @@
 
 #include <sourcemeta/jsontoolkit/json.h>
 
+#include <cstdint>  // std::uint8_t, std::uint64_t
 #include <optional> // std::optional
 #include <regex>    // std::regex
+#include <utility>  // std::pair
+#include <variant>  // std::variant
 
 /// @defgroup regex Regex
 /// @brief An ECMA-262 regex library for use with other JSON libraries
@@ -22,7 +25,33 @@
 namespace sourcemeta::jsontoolkit {
 
 /// @ingroup regex
-using Regex = std::regex;
+using RegexTypeEngine = std::regex;
+
+/// @ingroup regex
+using RegexTypePrefix = JSON::String;
+
+/// @ingroup regex
+struct RegexTypeNonEmpty {};
+
+/// @ingroup regex
+using RegexTypeRange = std::pair<std::uint64_t, std::uint64_t>;
+
+/// @ingroup regex
+struct RegexTypeNoop {};
+
+/// @ingroup regex
+using Regex = std::variant<RegexTypeEngine, RegexTypePrefix, RegexTypeNonEmpty,
+                           RegexTypeRange, RegexTypeNoop>;
+#if !defined(DOXYGEN)
+// For fast internal dispatching. It must stay in sync with the variant above
+enum class RegexIndex : std::uint8_t {
+  Engine = 0,
+  Prefix,
+  NonEmpty,
+  Range,
+  Noop
+};
+#endif
 
 /// @ingroup regex
 ///
@@ -34,11 +63,11 @@ using Regex = std::regex;
 /// #include <cassert>
 ///
 /// const sourcemeta::jsontoolkit::Regex regex{
-///   sourcemeta::jsontoolkit::compile("^foo")};
+///   sourcemeta::jsontoolkit::to_regex("^foo")};
 /// assert(regex.has_value());
 /// ```
 SOURCEMETA_JSONTOOLKIT_REGEX_EXPORT
-auto compile(const JSON::String &pattern) -> std::optional<Regex>;
+auto to_regex(const JSON::String &pattern) noexcept -> std::optional<Regex>;
 
 /// @ingroup regex
 ///
@@ -49,12 +78,12 @@ auto compile(const JSON::String &pattern) -> std::optional<Regex>;
 /// #include <cassert>
 ///
 /// const sourcemeta::jsontoolkit::Regex regex{
-///   sourcemeta::jsontoolkit::compile("^foo")};
+///   sourcemeta::jsontoolkit::to_regex("^foo")};
 /// assert(regex.has_value());
-/// assert(sourcemeta::jsontoolkit::validate(regex.value(), "foo bar"));
+/// assert(sourcemeta::jsontoolkit::matches(regex.value(), "foo bar"));
 /// ```
 SOURCEMETA_JSONTOOLKIT_REGEX_EXPORT
-auto validate(const Regex &regex, const JSON::String &value) -> bool;
+auto matches(const Regex &regex, const JSON::String &value) -> bool;
 
 } // namespace sourcemeta::jsontoolkit
 
