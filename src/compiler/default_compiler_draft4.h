@@ -622,7 +622,9 @@ auto properties_as_loop(const Context &context,
   if (!inside_disjunctor &&
       schema_context.schema.defines("additionalProperties") &&
       schema_context.schema.at("additionalProperties").is_boolean() &&
-      !schema_context.schema.at("additionalProperties").to_boolean()) {
+      !schema_context.schema.at("additionalProperties").to_boolean() &&
+      // If all properties are required, we should still unroll
+      required.size() < size) {
     return true;
   }
 
@@ -954,6 +956,9 @@ auto compiler_draft4_applicator_additionalproperties_with_options(
       filter_regexes.empty()) {
     if (properties_as_loop(context, schema_context,
                            schema_context.schema.at("properties"))) {
+      return {};
+    } else if (!children.empty() &&
+               std::holds_alternative<AssertionFail>(children.front())) {
       return {};
     } else {
       return {make<LoopPropertiesWhitelist>(
