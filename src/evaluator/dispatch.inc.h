@@ -33,7 +33,7 @@ switch (static_cast<InstructionIndex>(instruction.index())) {
     assert(assertion.value.size() > 1);
 
     // Otherwise there is no way the instance can satisfy it anyway
-    if (assertion.value.size() <= target.size()) {
+    if (assertion.value.size() <= target.object_size()) {
       result = true;
       for (const auto &property : assertion.value) {
         if (!target.defines(property)) {
@@ -125,8 +125,9 @@ switch (static_cast<InstructionIndex>(instruction.index())) {
     assert(!maximum.has_value() || maximum.value() >= minimum);
     // Require early breaking
     assert(!std::get<2>(assertion.value));
-    result = target.type() == JSON::Type::String && target.size() >= minimum &&
-             (!maximum.has_value() || target.size() <= maximum.value());
+    result = target.type() == JSON::Type::String &&
+             target.string_size() >= minimum &&
+             (!maximum.has_value() || target.string_size() <= maximum.value());
     EVALUATE_END(assertion, AssertionTypeStringBounded);
   }
 
@@ -138,8 +139,9 @@ switch (static_cast<InstructionIndex>(instruction.index())) {
     assert(!maximum.has_value() || maximum.value() >= minimum);
     // Require early breaking
     assert(!std::get<2>(assertion.value));
-    result = target.type() == JSON::Type::Array && target.size() >= minimum &&
-             (!maximum.has_value() || target.size() <= maximum.value());
+    result = target.type() == JSON::Type::Array &&
+             target.array_size() >= minimum &&
+             (!maximum.has_value() || target.array_size() <= maximum.value());
     EVALUATE_END(assertion, AssertionTypeArrayBounded);
   }
 
@@ -151,8 +153,9 @@ switch (static_cast<InstructionIndex>(instruction.index())) {
     assert(!maximum.has_value() || maximum.value() >= minimum);
     // Require early breaking
     assert(!std::get<2>(assertion.value));
-    result = target.type() == JSON::Type::Object && target.size() >= minimum &&
-             (!maximum.has_value() || target.size() <= maximum.value());
+    result = target.type() == JSON::Type::Object &&
+             target.object_size() >= minimum &&
+             (!maximum.has_value() || target.object_size() <= maximum.value());
     EVALUATE_END(assertion, AssertionTypeObjectBounded);
   }
 
@@ -176,25 +179,25 @@ switch (static_cast<InstructionIndex>(instruction.index())) {
 
   case IS_INSTRUCTION(AssertionArraySizeLess): {
     EVALUATE_BEGIN(assertion, AssertionArraySizeLess, target.is_array());
-    result = (target.size() < assertion.value);
+    result = (target.array_size() < assertion.value);
     EVALUATE_END(assertion, AssertionArraySizeLess);
   }
 
   case IS_INSTRUCTION(AssertionArraySizeGreater): {
     EVALUATE_BEGIN(assertion, AssertionArraySizeGreater, target.is_array());
-    result = (target.size() > assertion.value);
+    result = (target.array_size() > assertion.value);
     EVALUATE_END(assertion, AssertionArraySizeGreater);
   }
 
   case IS_INSTRUCTION(AssertionObjectSizeLess): {
     EVALUATE_BEGIN(assertion, AssertionObjectSizeLess, target.is_object());
-    result = (target.size() < assertion.value);
+    result = (target.object_size() < assertion.value);
     EVALUATE_END(assertion, AssertionObjectSizeLess);
   }
 
   case IS_INSTRUCTION(AssertionObjectSizeGreater): {
     EVALUATE_BEGIN(assertion, AssertionObjectSizeGreater, target.is_object());
-    result = (target.size() > assertion.value);
+    result = (target.object_size() > assertion.value);
     EVALUATE_END(assertion, AssertionObjectSizeGreater);
   }
 
@@ -370,7 +373,7 @@ switch (static_cast<InstructionIndex>(instruction.index())) {
     assert(!assertion.children.empty());
     result = target.empty();
     const auto prefixes{assertion.children.size() - 1};
-    const auto array_size{target.size()};
+    const auto array_size{target.array_size()};
     if (!result) [[likely]] {
       const auto pointer{array_size == prefixes
                              ? prefixes
@@ -395,7 +398,7 @@ switch (static_cast<InstructionIndex>(instruction.index())) {
     assert(!assertion.children.empty());
     result = target.empty();
     const auto prefixes{assertion.children.size() - 1};
-    const auto array_size{target.size()};
+    const auto array_size{target.array_size()};
     if (!result) [[likely]] {
       const auto pointer{array_size == prefixes
                              ? prefixes
@@ -481,7 +484,7 @@ switch (static_cast<InstructionIndex>(instruction.index())) {
 
   case IS_INSTRUCTION(LogicalWhenArraySizeGreater): {
     EVALUATE_BEGIN(logical, LogicalWhenArraySizeGreater,
-                   target.is_array() && target.size() > logical.value);
+                   target.is_array() && target.array_size() > logical.value);
     result = true;
     for (const auto &child : logical.children) {
       if (!EVALUATE_RECURSE(child, target)) {
@@ -1096,7 +1099,7 @@ switch (static_cast<InstructionIndex>(instruction.index())) {
     // Otherwise if the number of properties in the instance
     // is larger than the whitelist, then it already violated
     // the whitelist?
-    if (target.size() <= loop.value.size()) {
+    if (target.object_size() <= loop.value.size()) {
       result = true;
       for (const auto &entry : target.as_object()) {
         if (!loop.value.contains(entry.first)) {
@@ -1247,7 +1250,7 @@ switch (static_cast<InstructionIndex>(instruction.index())) {
       }
     }
 #else
-    for (std::size_t index = 0; index < target.size(); index++) {
+    for (std::size_t index = 0; index < target.array_size(); index++) {
       if (track) {
         context.instance_location.push_back(index);
       }
@@ -1273,10 +1276,10 @@ switch (static_cast<InstructionIndex>(instruction.index())) {
 
   case IS_INSTRUCTION(LoopItemsFrom): {
     EVALUATE_BEGIN(loop, LoopItemsFrom,
-                   target.is_array() && loop.value < target.size());
+                   target.is_array() && loop.value < target.array_size());
     assert(!loop.children.empty());
     result = true;
-    for (std::size_t index = loop.value; index < target.size(); index++) {
+    for (std::size_t index = loop.value; index < target.array_size(); index++) {
       if (track) {
         context.instance_location.push_back(index);
       }
@@ -1304,7 +1307,7 @@ switch (static_cast<InstructionIndex>(instruction.index())) {
     assert(!loop.children.empty());
     result = true;
 
-    for (std::size_t index = 0; index < target.size(); index++) {
+    for (std::size_t index = 0; index < target.array_size(); index++) {
       if (context.is_evaluated(index)) {
         continue;
       }
@@ -1383,7 +1386,7 @@ switch (static_cast<InstructionIndex>(instruction.index())) {
     result = minimum == 0 && target.empty();
     auto match_count{std::numeric_limits<decltype(minimum)>::min()};
 
-    for (std::size_t index = 0; index < target.size(); index++) {
+    for (std::size_t index = 0; index < target.array_size(); index++) {
       if (track) {
         context.instance_location.push_back(index);
       }
