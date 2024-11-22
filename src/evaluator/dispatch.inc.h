@@ -21,13 +21,14 @@ switch (static_cast<InstructionIndex>(instruction.index())) {
   }
 
   case IS_INSTRUCTION(AssertionDefines): {
-    EVALUATE_BEGIN(assertion, AssertionDefines, target.is_object());
+    EVALUATE_BEGIN_NON_STRING(assertion, AssertionDefines, target.is_object());
     result = target.defines(assertion.value);
     EVALUATE_END(assertion, AssertionDefines);
   }
 
   case IS_INSTRUCTION(AssertionDefinesAll): {
-    EVALUATE_BEGIN(assertion, AssertionDefinesAll, target.is_object());
+    EVALUATE_BEGIN_NON_STRING(assertion, AssertionDefinesAll,
+                              target.is_object());
 
     // Otherwise we are we even emitting this instruction?
     assert(assertion.value.size() > 1);
@@ -47,8 +48,8 @@ switch (static_cast<InstructionIndex>(instruction.index())) {
   }
 
   case IS_INSTRUCTION(AssertionPropertyDependencies): {
-    EVALUATE_BEGIN(assertion, AssertionPropertyDependencies,
-                   target.is_object());
+    EVALUATE_BEGIN_NON_STRING(assertion, AssertionPropertyDependencies,
+                              target.is_object());
     // Otherwise we are we even emitting this instruction?
     assert(!assertion.value.empty());
     result = true;
@@ -178,25 +179,29 @@ switch (static_cast<InstructionIndex>(instruction.index())) {
   }
 
   case IS_INSTRUCTION(AssertionArraySizeLess): {
-    EVALUATE_BEGIN(assertion, AssertionArraySizeLess, target.is_array());
+    EVALUATE_BEGIN_NON_STRING(assertion, AssertionArraySizeLess,
+                              target.is_array());
     result = (target.array_size() < assertion.value);
     EVALUATE_END(assertion, AssertionArraySizeLess);
   }
 
   case IS_INSTRUCTION(AssertionArraySizeGreater): {
-    EVALUATE_BEGIN(assertion, AssertionArraySizeGreater, target.is_array());
+    EVALUATE_BEGIN_NON_STRING(assertion, AssertionArraySizeGreater,
+                              target.is_array());
     result = (target.array_size() > assertion.value);
     EVALUATE_END(assertion, AssertionArraySizeGreater);
   }
 
   case IS_INSTRUCTION(AssertionObjectSizeLess): {
-    EVALUATE_BEGIN(assertion, AssertionObjectSizeLess, target.is_object());
+    EVALUATE_BEGIN_NON_STRING(assertion, AssertionObjectSizeLess,
+                              target.is_object());
     result = (target.object_size() < assertion.value);
     EVALUATE_END(assertion, AssertionObjectSizeLess);
   }
 
   case IS_INSTRUCTION(AssertionObjectSizeGreater): {
-    EVALUATE_BEGIN(assertion, AssertionObjectSizeGreater, target.is_object());
+    EVALUATE_BEGIN_NON_STRING(assertion, AssertionObjectSizeGreater,
+                              target.is_object());
     result = (target.object_size() > assertion.value);
     EVALUATE_END(assertion, AssertionObjectSizeGreater);
   }
@@ -216,37 +221,40 @@ switch (static_cast<InstructionIndex>(instruction.index())) {
   }
 
   case IS_INSTRUCTION(AssertionGreaterEqual): {
-    EVALUATE_BEGIN(assertion, AssertionGreaterEqual, target.is_number());
+    EVALUATE_BEGIN_NON_STRING(assertion, AssertionGreaterEqual,
+                              target.is_number());
     result = target >= assertion.value;
     EVALUATE_END(assertion, AssertionGreaterEqual);
   }
 
   case IS_INSTRUCTION(AssertionLessEqual): {
-    EVALUATE_BEGIN(assertion, AssertionLessEqual, target.is_number());
+    EVALUATE_BEGIN_NON_STRING(assertion, AssertionLessEqual,
+                              target.is_number());
     result = target <= assertion.value;
     EVALUATE_END(assertion, AssertionLessEqual);
   }
 
   case IS_INSTRUCTION(AssertionGreater): {
-    EVALUATE_BEGIN(assertion, AssertionGreater, target.is_number());
+    EVALUATE_BEGIN_NON_STRING(assertion, AssertionGreater, target.is_number());
     result = target > assertion.value;
     EVALUATE_END(assertion, AssertionGreater);
   }
 
   case IS_INSTRUCTION(AssertionLess): {
-    EVALUATE_BEGIN(assertion, AssertionLess, target.is_number());
+    EVALUATE_BEGIN_NON_STRING(assertion, AssertionLess, target.is_number());
     result = target < assertion.value;
     EVALUATE_END(assertion, AssertionLess);
   }
 
   case IS_INSTRUCTION(AssertionUnique): {
-    EVALUATE_BEGIN(assertion, AssertionUnique, target.is_array());
+    EVALUATE_BEGIN_NON_STRING(assertion, AssertionUnique, target.is_array());
     result = target.unique();
     EVALUATE_END(assertion, AssertionUnique);
   }
 
   case IS_INSTRUCTION(AssertionDivisible): {
-    EVALUATE_BEGIN(assertion, AssertionDivisible, target.is_number());
+    EVALUATE_BEGIN_NON_STRING(assertion, AssertionDivisible,
+                              target.is_number());
     assert(assertion.value.is_number());
     result = target.divisible_by(assertion.value);
     EVALUATE_END(assertion, AssertionDivisible);
@@ -368,7 +376,8 @@ switch (static_cast<InstructionIndex>(instruction.index())) {
   }
 
   case IS_INSTRUCTION(AssertionArrayPrefix): {
-    EVALUATE_BEGIN(assertion, AssertionArrayPrefix, target.is_array());
+    EVALUATE_BEGIN_NON_STRING(assertion, AssertionArrayPrefix,
+                              target.is_array());
     // Otherwise there is no point in emitting this instruction
     assert(!assertion.children.empty());
     result = target.empty();
@@ -393,7 +402,8 @@ switch (static_cast<InstructionIndex>(instruction.index())) {
   }
 
   case IS_INSTRUCTION(AssertionArrayPrefixEvaluate): {
-    EVALUATE_BEGIN(assertion, AssertionArrayPrefixEvaluate, target.is_array());
+    EVALUATE_BEGIN_NON_STRING(assertion, AssertionArrayPrefixEvaluate,
+                              target.is_array());
     // Otherwise there is no point in emitting this instruction
     assert(!assertion.children.empty());
     result = target.empty();
@@ -469,8 +479,9 @@ switch (static_cast<InstructionIndex>(instruction.index())) {
   }
 
   case IS_INSTRUCTION(LogicalWhenDefines): {
-    EVALUATE_BEGIN(logical, LogicalWhenDefines,
-                   target.is_object() && target.defines(logical.value));
+    EVALUATE_BEGIN_NON_STRING(logical, LogicalWhenDefines,
+                              target.is_object() &&
+                                  target.defines(logical.value));
     result = true;
     for (const auto &child : logical.children) {
       if (!EVALUATE_RECURSE(child, target)) {
@@ -483,8 +494,9 @@ switch (static_cast<InstructionIndex>(instruction.index())) {
   }
 
   case IS_INSTRUCTION(LogicalWhenArraySizeGreater): {
-    EVALUATE_BEGIN(logical, LogicalWhenArraySizeGreater,
-                   target.is_array() && target.array_size() > logical.value);
+    EVALUATE_BEGIN_NON_STRING(logical, LogicalWhenArraySizeGreater,
+                              target.is_array() &&
+                                  target.array_size() > logical.value);
     result = true;
     for (const auto &child : logical.children) {
       if (!EVALUATE_RECURSE(child, target)) {
@@ -758,7 +770,8 @@ switch (static_cast<InstructionIndex>(instruction.index())) {
   }
 
   case IS_INSTRUCTION(LoopPropertiesUnevaluated): {
-    EVALUATE_BEGIN(loop, LoopPropertiesUnevaluated, target.is_object());
+    EVALUATE_BEGIN_NON_STRING(loop, LoopPropertiesUnevaluated,
+                              target.is_object());
     assert(!loop.children.empty());
     result = true;
 
@@ -787,7 +800,8 @@ switch (static_cast<InstructionIndex>(instruction.index())) {
   }
 
   case IS_INSTRUCTION(LoopPropertiesUnevaluatedExcept): {
-    EVALUATE_BEGIN(loop, LoopPropertiesUnevaluatedExcept, target.is_object());
+    EVALUATE_BEGIN_NON_STRING(loop, LoopPropertiesUnevaluatedExcept,
+                              target.is_object());
     assert(!loop.children.empty());
     result = true;
     // Otherwise why emit this instruction?
@@ -840,7 +854,7 @@ switch (static_cast<InstructionIndex>(instruction.index())) {
   }
 
   case IS_INSTRUCTION(LoopPropertiesMatch): {
-    EVALUATE_BEGIN(loop, LoopPropertiesMatch, target.is_object());
+    EVALUATE_BEGIN_NON_STRING(loop, LoopPropertiesMatch, target.is_object());
     assert(!loop.value.empty());
     result = true;
     for (const auto &entry : target.as_object()) {
@@ -864,7 +878,8 @@ switch (static_cast<InstructionIndex>(instruction.index())) {
   }
 
   case IS_INSTRUCTION(LoopPropertiesMatchClosed): {
-    EVALUATE_BEGIN(loop, LoopPropertiesMatchClosed, target.is_object());
+    EVALUATE_BEGIN_NON_STRING(loop, LoopPropertiesMatchClosed,
+                              target.is_object());
     assert(!loop.value.empty());
     result = true;
     for (const auto &entry : target.as_object()) {
@@ -889,7 +904,7 @@ switch (static_cast<InstructionIndex>(instruction.index())) {
   }
 
   case IS_INSTRUCTION(LoopProperties): {
-    EVALUATE_BEGIN(loop, LoopProperties, target.is_object());
+    EVALUATE_BEGIN_NON_STRING(loop, LoopProperties, target.is_object());
     assert(!loop.children.empty());
     result = true;
     for (const auto &entry : target.as_object()) {
@@ -916,7 +931,7 @@ switch (static_cast<InstructionIndex>(instruction.index())) {
   }
 
   case IS_INSTRUCTION(LoopPropertiesEvaluate): {
-    EVALUATE_BEGIN(loop, LoopPropertiesEvaluate, target.is_object());
+    EVALUATE_BEGIN_NON_STRING(loop, LoopPropertiesEvaluate, target.is_object());
     assert(!loop.children.empty());
     result = true;
     for (const auto &entry : target.as_object()) {
@@ -945,7 +960,7 @@ switch (static_cast<InstructionIndex>(instruction.index())) {
   }
 
   case IS_INSTRUCTION(LoopPropertiesRegex): {
-    EVALUATE_BEGIN(loop, LoopPropertiesRegex, target.is_object());
+    EVALUATE_BEGIN_NON_STRING(loop, LoopPropertiesRegex, target.is_object());
     assert(!loop.children.empty());
     result = true;
     for (const auto &entry : target.as_object()) {
@@ -976,7 +991,8 @@ switch (static_cast<InstructionIndex>(instruction.index())) {
   }
 
   case IS_INSTRUCTION(LoopPropertiesRegexClosed): {
-    EVALUATE_BEGIN(loop, LoopPropertiesRegexClosed, target.is_object());
+    EVALUATE_BEGIN_NON_STRING(loop, LoopPropertiesRegexClosed,
+                              target.is_object());
     result = true;
     for (const auto &entry : target.as_object()) {
       if (!validate(loop.value.first, entry.first)) {
@@ -1011,7 +1027,8 @@ switch (static_cast<InstructionIndex>(instruction.index())) {
   }
 
   case IS_INSTRUCTION(LoopPropertiesStartsWith): {
-    EVALUATE_BEGIN(loop, LoopPropertiesStartsWith, target.is_object());
+    EVALUATE_BEGIN_NON_STRING(loop, LoopPropertiesStartsWith,
+                              target.is_object());
     assert(!loop.children.empty());
     result = true;
     for (const auto &entry : target.as_object()) {
@@ -1041,7 +1058,7 @@ switch (static_cast<InstructionIndex>(instruction.index())) {
   }
 
   case IS_INSTRUCTION(LoopPropertiesExcept): {
-    EVALUATE_BEGIN(loop, LoopPropertiesExcept, target.is_object());
+    EVALUATE_BEGIN_NON_STRING(loop, LoopPropertiesExcept, target.is_object());
     assert(!loop.children.empty());
     result = true;
     // Otherwise why emit this instruction?
@@ -1092,7 +1109,8 @@ switch (static_cast<InstructionIndex>(instruction.index())) {
   }
 
   case IS_INSTRUCTION(LoopPropertiesWhitelist): {
-    EVALUATE_BEGIN(loop, LoopPropertiesWhitelist, target.is_object());
+    EVALUATE_BEGIN_NON_STRING(loop, LoopPropertiesWhitelist,
+                              target.is_object());
     // Otherwise why emit this instruction?
     assert(!loop.value.empty());
 
@@ -1113,7 +1131,7 @@ switch (static_cast<InstructionIndex>(instruction.index())) {
   }
 
   case IS_INSTRUCTION(LoopPropertiesType): {
-    EVALUATE_BEGIN(loop, LoopPropertiesType, target.is_object());
+    EVALUATE_BEGIN_NON_STRING(loop, LoopPropertiesType, target.is_object());
     result = true;
     for (const auto &entry : target.as_object()) {
       if (entry.second.type() != loop.value &&
@@ -1130,7 +1148,8 @@ switch (static_cast<InstructionIndex>(instruction.index())) {
   }
 
   case IS_INSTRUCTION(LoopPropertiesTypeEvaluate): {
-    EVALUATE_BEGIN(loop, LoopPropertiesTypeEvaluate, target.is_object());
+    EVALUATE_BEGIN_NON_STRING(loop, LoopPropertiesTypeEvaluate,
+                              target.is_object());
     result = true;
     for (const auto &entry : target.as_object()) {
       if (entry.second.type() != loop.value &&
@@ -1149,7 +1168,8 @@ switch (static_cast<InstructionIndex>(instruction.index())) {
   }
 
   case IS_INSTRUCTION(LoopPropertiesTypeStrict): {
-    EVALUATE_BEGIN(loop, LoopPropertiesTypeStrict, target.is_object());
+    EVALUATE_BEGIN_NON_STRING(loop, LoopPropertiesTypeStrict,
+                              target.is_object());
     result = true;
     for (const auto &entry : target.as_object()) {
       if (entry.second.type() != loop.value) {
@@ -1162,7 +1182,8 @@ switch (static_cast<InstructionIndex>(instruction.index())) {
   }
 
   case IS_INSTRUCTION(LoopPropertiesTypeStrictEvaluate): {
-    EVALUATE_BEGIN(loop, LoopPropertiesTypeStrictEvaluate, target.is_object());
+    EVALUATE_BEGIN_NON_STRING(loop, LoopPropertiesTypeStrictEvaluate,
+                              target.is_object());
     result = true;
     for (const auto &entry : target.as_object()) {
       if (entry.second.type() != loop.value) {
@@ -1177,7 +1198,8 @@ switch (static_cast<InstructionIndex>(instruction.index())) {
   }
 
   case IS_INSTRUCTION(LoopPropertiesTypeStrictAny): {
-    EVALUATE_BEGIN(loop, LoopPropertiesTypeStrictAny, target.is_object());
+    EVALUATE_BEGIN_NON_STRING(loop, LoopPropertiesTypeStrictAny,
+                              target.is_object());
     result = true;
     for (const auto &entry : target.as_object()) {
       if (std::find(loop.value.cbegin(), loop.value.cend(),
@@ -1191,8 +1213,8 @@ switch (static_cast<InstructionIndex>(instruction.index())) {
   }
 
   case IS_INSTRUCTION(LoopPropertiesTypeStrictAnyEvaluate): {
-    EVALUATE_BEGIN(loop, LoopPropertiesTypeStrictAnyEvaluate,
-                   target.is_object());
+    EVALUATE_BEGIN_NON_STRING(loop, LoopPropertiesTypeStrictAnyEvaluate,
+                              target.is_object());
     result = true;
     for (const auto &entry : target.as_object()) {
       if (std::find(loop.value.cbegin(), loop.value.cend(),
@@ -1208,7 +1230,7 @@ switch (static_cast<InstructionIndex>(instruction.index())) {
   }
 
   case IS_INSTRUCTION(LoopKeys): {
-    EVALUATE_BEGIN(loop, LoopKeys, target.is_object());
+    EVALUATE_BEGIN_NON_STRING(loop, LoopKeys, target.is_object());
     assert(!loop.children.empty());
     result = true;
     for (const auto &entry : target.as_object()) {
@@ -1235,7 +1257,7 @@ switch (static_cast<InstructionIndex>(instruction.index())) {
   }
 
   case IS_INSTRUCTION(LoopItems): {
-    EVALUATE_BEGIN(loop, LoopItems, target.is_array());
+    EVALUATE_BEGIN_NON_STRING(loop, LoopItems, target.is_array());
     assert(!loop.children.empty());
     result = true;
 
@@ -1275,8 +1297,9 @@ switch (static_cast<InstructionIndex>(instruction.index())) {
   }
 
   case IS_INSTRUCTION(LoopItemsFrom): {
-    EVALUATE_BEGIN(loop, LoopItemsFrom,
-                   target.is_array() && loop.value < target.array_size());
+    EVALUATE_BEGIN_NON_STRING(loop, LoopItemsFrom,
+                              target.is_array() &&
+                                  loop.value < target.array_size());
     assert(!loop.children.empty());
     result = true;
     for (std::size_t index = loop.value; index < target.array_size(); index++) {
@@ -1303,7 +1326,7 @@ switch (static_cast<InstructionIndex>(instruction.index())) {
   }
 
   case IS_INSTRUCTION(LoopItemsUnevaluated): {
-    EVALUATE_BEGIN(loop, LoopItemsUnevaluated, target.is_array());
+    EVALUATE_BEGIN_NON_STRING(loop, LoopItemsUnevaluated, target.is_array());
     assert(!loop.children.empty());
     result = true;
 
@@ -1332,7 +1355,7 @@ switch (static_cast<InstructionIndex>(instruction.index())) {
   }
 
   case IS_INSTRUCTION(LoopItemsType): {
-    EVALUATE_BEGIN(loop, LoopItemsType, target.is_array());
+    EVALUATE_BEGIN_NON_STRING(loop, LoopItemsType, target.is_array());
     result = true;
     for (const auto &entry : target.as_array()) {
       if (entry.type() != loop.value &&
@@ -1348,7 +1371,7 @@ switch (static_cast<InstructionIndex>(instruction.index())) {
   }
 
   case IS_INSTRUCTION(LoopItemsTypeStrict): {
-    EVALUATE_BEGIN(loop, LoopItemsTypeStrict, target.is_array());
+    EVALUATE_BEGIN_NON_STRING(loop, LoopItemsTypeStrict, target.is_array());
     result = true;
     for (const auto &entry : target.as_array()) {
       if (entry.type() != loop.value) {
@@ -1361,7 +1384,7 @@ switch (static_cast<InstructionIndex>(instruction.index())) {
   }
 
   case IS_INSTRUCTION(LoopItemsTypeStrictAny): {
-    EVALUATE_BEGIN(loop, LoopItemsTypeStrictAny, target.is_array());
+    EVALUATE_BEGIN_NON_STRING(loop, LoopItemsTypeStrictAny, target.is_array());
     // Otherwise we are we even emitting this instruction?
     assert(loop.value.size() > 1);
     result = true;
@@ -1377,7 +1400,7 @@ switch (static_cast<InstructionIndex>(instruction.index())) {
   }
 
   case IS_INSTRUCTION(LoopContains): {
-    EVALUATE_BEGIN(loop, LoopContains, target.is_array());
+    EVALUATE_BEGIN_NON_STRING(loop, LoopContains, target.is_array());
     assert(!loop.children.empty());
     const auto minimum{std::get<0>(loop.value)};
     const auto &maximum{std::get<1>(loop.value)};
