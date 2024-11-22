@@ -968,6 +968,13 @@ struct DescribeVisitor {
     return message.str();
   }
 
+  auto operator()(const AssertionTypeStringUpper &step) const -> std::string {
+    std::ostringstream message;
+    message << "The value was expected to consist of a string of at most "
+            << step.value << (step.value == 1 ? " character" : " characters");
+    return message.str();
+  }
+
   auto operator()(const AssertionTypeArrayBounded &step) const -> std::string {
     std::ostringstream message;
 
@@ -985,6 +992,13 @@ struct DescribeVisitor {
               << minimum << (minimum == 1 ? " item" : " items");
     }
 
+    return message.str();
+  }
+
+  auto operator()(const AssertionTypeArrayUpper &step) const -> std::string {
+    std::ostringstream message;
+    message << "The value was expected to consist of an array of at most "
+            << step.value << (step.value == 1 ? " item" : " items");
     return message.str();
   }
 
@@ -1006,6 +1020,13 @@ struct DescribeVisitor {
               << minimum << (minimum == 1 ? " property" : " properties");
     }
 
+    return message.str();
+  }
+
+  auto operator()(const AssertionTypeObjectUpper &step) const -> std::string {
+    std::ostringstream message;
+    message << "The value was expected to consist of an object of at most "
+            << step.value << (step.value == 1 ? " property" : " properties");
     return message.str();
   }
 

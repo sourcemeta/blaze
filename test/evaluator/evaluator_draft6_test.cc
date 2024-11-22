@@ -987,8 +987,8 @@ TEST(Evaluator_draft6, maxLength_1) {
   const sourcemeta::jsontoolkit::JSON instance{"xx"};
   EVALUATE_WITH_TRACE_FAST_SUCCESS(schema, instance, 1);
 
-  EVALUATE_TRACE_PRE(0, AssertionTypeStringBounded, "/type", "#/type", "");
-  EVALUATE_TRACE_POST_SUCCESS(0, AssertionTypeStringBounded, "/type", "#/type",
+  EVALUATE_TRACE_PRE(0, AssertionTypeStringUpper, "/type", "#/type", "");
+  EVALUATE_TRACE_POST_SUCCESS(0, AssertionTypeStringUpper, "/type", "#/type",
                               "");
   EVALUATE_TRACE_POST_DESCRIBE(
       instance, 0,
@@ -1006,8 +1006,8 @@ TEST(Evaluator_draft6, maxLength_2) {
   const sourcemeta::jsontoolkit::JSON instance{"xxx"};
   EVALUATE_WITH_TRACE_FAST_FAILURE(schema, instance, 1);
 
-  EVALUATE_TRACE_PRE(0, AssertionTypeStringBounded, "/type", "#/type", "");
-  EVALUATE_TRACE_POST_FAILURE(0, AssertionTypeStringBounded, "/type", "#/type",
+  EVALUATE_TRACE_PRE(0, AssertionTypeStringUpper, "/type", "#/type", "");
+  EVALUATE_TRACE_POST_FAILURE(0, AssertionTypeStringUpper, "/type", "#/type",
                               "");
   EVALUATE_TRACE_POST_DESCRIBE(
       instance, 0,
@@ -1067,8 +1067,8 @@ TEST(Evaluator_draft6, maxItems_1) {
       sourcemeta::jsontoolkit::parse("[ 1, 2 ]")};
   EVALUATE_WITH_TRACE_FAST_SUCCESS(schema, instance, 1);
 
-  EVALUATE_TRACE_PRE(0, AssertionTypeArrayBounded, "/type", "#/type", "");
-  EVALUATE_TRACE_POST_SUCCESS(0, AssertionTypeArrayBounded, "/type", "#/type",
+  EVALUATE_TRACE_PRE(0, AssertionTypeArrayUpper, "/type", "#/type", "");
+  EVALUATE_TRACE_POST_SUCCESS(0, AssertionTypeArrayUpper, "/type", "#/type",
                               "");
 
   EVALUATE_TRACE_POST_DESCRIBE(
@@ -1088,8 +1088,8 @@ TEST(Evaluator_draft6, maxItems_2) {
       sourcemeta::jsontoolkit::parse("[ 1, 2, 3 ]")};
   EVALUATE_WITH_TRACE_FAST_FAILURE(schema, instance, 1);
 
-  EVALUATE_TRACE_PRE(0, AssertionTypeArrayBounded, "/type", "#/type", "");
-  EVALUATE_TRACE_POST_FAILURE(0, AssertionTypeArrayBounded, "/type", "#/type",
+  EVALUATE_TRACE_PRE(0, AssertionTypeArrayUpper, "/type", "#/type", "");
+  EVALUATE_TRACE_POST_FAILURE(0, AssertionTypeArrayUpper, "/type", "#/type",
                               "");
 
   EVALUATE_TRACE_POST_DESCRIBE(
@@ -1151,8 +1151,8 @@ TEST(Evaluator_draft6, maxProperties_1) {
       sourcemeta::jsontoolkit::parse("{ \"bar\": 2, \"foo\": 1 }")};
   EVALUATE_WITH_TRACE_FAST_SUCCESS(schema, instance, 1);
 
-  EVALUATE_TRACE_PRE(0, AssertionTypeObjectBounded, "/type", "#/type", "");
-  EVALUATE_TRACE_POST_SUCCESS(0, AssertionTypeObjectBounded, "/type", "#/type",
+  EVALUATE_TRACE_PRE(0, AssertionTypeObjectUpper, "/type", "#/type", "");
+  EVALUATE_TRACE_POST_SUCCESS(0, AssertionTypeObjectUpper, "/type", "#/type",
                               "");
 
   EVALUATE_TRACE_POST_DESCRIBE(
@@ -1172,8 +1172,8 @@ TEST(Evaluator_draft6, maxProperties_2) {
       sourcemeta::jsontoolkit::parse("{ \"bar\": 2, \"foo\": 1, \"baz\": 3 }")};
   EVALUATE_WITH_TRACE_FAST_FAILURE(schema, instance, 1);
 
-  EVALUATE_TRACE_PRE(0, AssertionTypeObjectBounded, "/type", "#/type", "");
-  EVALUATE_TRACE_POST_FAILURE(0, AssertionTypeObjectBounded, "/type", "#/type",
+  EVALUATE_TRACE_PRE(0, AssertionTypeObjectUpper, "/type", "#/type", "");
+  EVALUATE_TRACE_POST_FAILURE(0, AssertionTypeObjectUpper, "/type", "#/type",
                               "");
 
   EVALUATE_TRACE_POST_DESCRIBE(

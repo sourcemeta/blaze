@@ -216,11 +216,17 @@ auto compiler_draft4_validation_type(const Context &context,
           unsigned_integer_property(schema_context.schema, "minProperties", 0)};
       const auto maximum{
           unsigned_integer_property(schema_context.schema, "maxProperties")};
-      if (context.mode == Mode::FastValidation &&
-          (minimum > 0 || maximum.has_value())) {
-        return {make<AssertionTypeObjectBounded>(context, schema_context,
-                                                 dynamic_context,
-                                                 {minimum, maximum, false})};
+
+      if (context.mode == Mode::FastValidation) {
+        if (maximum.has_value() && minimum == 0) {
+          return {make<AssertionTypeObjectUpper>(
+              context, schema_context, dynamic_context,
+              ValueUnsignedInteger{maximum.value()})};
+        } else if (minimum > 0 || maximum.has_value()) {
+          return {make<AssertionTypeObjectBounded>(context, schema_context,
+                                                   dynamic_context,
+                                                   {minimum, maximum, false})};
+        }
       }
 
       if (context.mode == Mode::FastValidation &&
@@ -240,11 +246,17 @@ auto compiler_draft4_validation_type(const Context &context,
           unsigned_integer_property(schema_context.schema, "minItems", 0)};
       const auto maximum{
           unsigned_integer_property(schema_context.schema, "maxItems")};
-      if (context.mode == Mode::FastValidation &&
-          (minimum > 0 || maximum.has_value())) {
-        return {make<AssertionTypeArrayBounded>(context, schema_context,
-                                                dynamic_context,
-                                                {minimum, maximum, false})};
+
+      if (context.mode == Mode::FastValidation) {
+        if (maximum.has_value() && minimum == 0) {
+          return {make<AssertionTypeArrayUpper>(
+              context, schema_context, dynamic_context,
+              ValueUnsignedInteger{maximum.value()})};
+        } else if (minimum > 0 || maximum.has_value()) {
+          return {make<AssertionTypeArrayBounded>(context, schema_context,
+                                                  dynamic_context,
+                                                  {minimum, maximum, false})};
+        }
       }
 
       if (context.mode == Mode::FastValidation &&
@@ -292,11 +304,17 @@ auto compiler_draft4_validation_type(const Context &context,
           unsigned_integer_property(schema_context.schema, "minLength", 0)};
       const auto maximum{
           unsigned_integer_property(schema_context.schema, "maxLength")};
-      if (context.mode == Mode::FastValidation &&
-          (minimum > 0 || maximum.has_value())) {
-        return {make<AssertionTypeStringBounded>(context, schema_context,
-                                                 dynamic_context,
-                                                 {minimum, maximum, false})};
+
+      if (context.mode == Mode::FastValidation) {
+        if (maximum.has_value() && minimum == 0) {
+          return {make<AssertionTypeStringUpper>(
+              context, schema_context, dynamic_context,
+              ValueUnsignedInteger{maximum.value()})};
+        } else if (minimum > 0 || maximum.has_value()) {
+          return {make<AssertionTypeStringBounded>(context, schema_context,
+                                                   dynamic_context,
+                                                   {minimum, maximum, false})};
+        }
       }
 
       if (context.mode == Mode::FastValidation &&

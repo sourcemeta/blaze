@@ -23,8 +23,11 @@ struct AssertionTypeAny;
 struct AssertionTypeStrict;
 struct AssertionTypeStrictAny;
 struct AssertionTypeStringBounded;
+struct AssertionTypeStringUpper;
 struct AssertionTypeArrayBounded;
+struct AssertionTypeArrayUpper;
 struct AssertionTypeObjectBounded;
+struct AssertionTypeObjectUpper;
 struct AssertionRegex;
 struct AssertionStringSizeLess;
 struct AssertionStringSizeGreater;
@@ -102,8 +105,10 @@ using Instruction = std::variant<
     AssertionFail, AssertionDefines, AssertionDefinesAll,
     AssertionPropertyDependencies, AssertionType, AssertionTypeAny,
     AssertionTypeStrict, AssertionTypeStrictAny, AssertionTypeStringBounded,
-    AssertionTypeArrayBounded, AssertionTypeObjectBounded, AssertionRegex,
-    AssertionStringSizeLess, AssertionStringSizeGreater, AssertionArraySizeLess,
+    AssertionTypeStringUpper, AssertionTypeArrayBounded,
+    AssertionTypeArrayUpper, AssertionTypeObjectBounded,
+    AssertionTypeObjectUpper, AssertionRegex, AssertionStringSizeLess,
+    AssertionStringSizeGreater, AssertionArraySizeLess,
     AssertionArraySizeGreater, AssertionObjectSizeLess,
     AssertionObjectSizeGreater, AssertionEqual, AssertionEqualsAny,
     AssertionGreaterEqual, AssertionLessEqual, AssertionGreater, AssertionLess,
@@ -140,8 +145,11 @@ enum class InstructionIndex : std::uint8_t {
   AssertionTypeStrict,
   AssertionTypeStrictAny,
   AssertionTypeStringBounded,
+  AssertionTypeStringUpper,
   AssertionTypeArrayBounded,
+  AssertionTypeArrayUpper,
   AssertionTypeObjectBounded,
+  AssertionTypeObjectUpper,
   AssertionRegex,
   AssertionStringSizeLess,
   AssertionStringSizeGreater,
@@ -291,13 +299,28 @@ DEFINE_STEP_WITH_VALUE(Assertion, TypeStringBounded, ValueRange)
 
 /// @ingroup evaluator_instructions
 /// @brief Represents a compiler assertion step that checks if a document is of
+/// type string and has at most a given size
+DEFINE_STEP_WITH_VALUE(Assertion, TypeStringUpper, ValueUnsignedInteger)
+
+/// @ingroup evaluator_instructions
+/// @brief Represents a compiler assertion step that checks if a document is of
 /// type array and adheres to the given bounds
 DEFINE_STEP_WITH_VALUE(Assertion, TypeArrayBounded, ValueRange)
 
 /// @ingroup evaluator_instructions
 /// @brief Represents a compiler assertion step that checks if a document is of
+/// type array and has at most a given size
+DEFINE_STEP_WITH_VALUE(Assertion, TypeArrayUpper, ValueUnsignedInteger)
+
+/// @ingroup evaluator_instructions
+/// @brief Represents a compiler assertion step that checks if a document is of
 /// type object and adheres to the given bounds
 DEFINE_STEP_WITH_VALUE(Assertion, TypeObjectBounded, ValueRange)
+
+/// @ingroup evaluator_instructions
+/// @brief Represents a compiler assertion step that checks if a document is of
+/// type object and has at most a given size
+DEFINE_STEP_WITH_VALUE(Assertion, TypeObjectUpper, ValueUnsignedInteger)
 
 /// @ingroup evaluator_instructions
 /// @brief Represents a compiler assertion step that checks a string against an
