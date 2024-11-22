@@ -132,6 +132,13 @@ switch (static_cast<InstructionIndex>(instruction.index())) {
     EVALUATE_END(assertion, AssertionTypeStringBounded);
   }
 
+  case IS_INSTRUCTION(AssertionTypeStringUpper): {
+    EVALUATE_BEGIN_NO_PRECONDITION(assertion, AssertionTypeStringUpper);
+    const auto &target{get(instance, assertion.relative_instance_location)};
+    result = target.is_string() && target.string_size() <= assertion.value;
+    EVALUATE_END(assertion, AssertionTypeStringUpper);
+  }
+
   case IS_INSTRUCTION(AssertionTypeArrayBounded): {
     EVALUATE_BEGIN_NO_PRECONDITION(assertion, AssertionTypeArrayBounded);
     const auto &target{get(instance, assertion.relative_instance_location)};
@@ -146,6 +153,13 @@ switch (static_cast<InstructionIndex>(instruction.index())) {
     EVALUATE_END(assertion, AssertionTypeArrayBounded);
   }
 
+  case IS_INSTRUCTION(AssertionTypeArrayUpper): {
+    EVALUATE_BEGIN_NO_PRECONDITION(assertion, AssertionTypeArrayUpper);
+    const auto &target{get(instance, assertion.relative_instance_location)};
+    result = target.is_array() && target.array_size() <= assertion.value;
+    EVALUATE_END(assertion, AssertionTypeArrayUpper);
+  }
+
   case IS_INSTRUCTION(AssertionTypeObjectBounded): {
     EVALUATE_BEGIN_NO_PRECONDITION(assertion, AssertionTypeObjectBounded);
     const auto &target{get(instance, assertion.relative_instance_location)};
@@ -158,6 +172,13 @@ switch (static_cast<InstructionIndex>(instruction.index())) {
              target.object_size() >= minimum &&
              (!maximum.has_value() || target.object_size() <= maximum.value());
     EVALUATE_END(assertion, AssertionTypeObjectBounded);
+  }
+
+  case IS_INSTRUCTION(AssertionTypeObjectUpper): {
+    EVALUATE_BEGIN_NO_PRECONDITION(assertion, AssertionTypeObjectUpper);
+    const auto &target{get(instance, assertion.relative_instance_location)};
+    result = target.is_object() && target.object_size() <= assertion.value;
+    EVALUATE_END(assertion, AssertionTypeObjectUpper);
   }
 
   case IS_INSTRUCTION(AssertionRegex): {
