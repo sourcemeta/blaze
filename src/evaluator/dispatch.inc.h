@@ -183,7 +183,7 @@ switch (static_cast<InstructionIndex>(instruction.index())) {
 
   case IS_INSTRUCTION(AssertionRegex): {
     EVALUATE_BEGIN_IF_STRING(assertion, AssertionRegex);
-    result = validate(assertion.value.first, target);
+    result = matches(assertion.value.first, target);
     EVALUATE_END(assertion, AssertionRegex);
   }
 
@@ -846,7 +846,7 @@ switch (static_cast<InstructionIndex>(instruction.index())) {
       if (std::any_of(std::get<2>(loop.value).cbegin(),
                       std::get<2>(loop.value).cend(),
                       [&entry](const auto &pattern) {
-                        return validate(pattern.first, entry.first);
+                        return matches(pattern.first, entry.first);
                       })) {
         continue;
       }
@@ -985,7 +985,7 @@ switch (static_cast<InstructionIndex>(instruction.index())) {
     assert(!loop.children.empty());
     result = true;
     for (const auto &entry : target.as_object()) {
-      if (!validate(loop.value.first, entry.first)) {
+      if (!matches(loop.value.first, entry.first)) {
         continue;
       }
 
@@ -1016,7 +1016,7 @@ switch (static_cast<InstructionIndex>(instruction.index())) {
                               target.is_object());
     result = true;
     for (const auto &entry : target.as_object()) {
-      if (!validate(loop.value.first, entry.first)) {
+      if (!matches(loop.value.first, entry.first)) {
         result = false;
         break;
       }
@@ -1103,7 +1103,7 @@ switch (static_cast<InstructionIndex>(instruction.index())) {
       if (std::any_of(std::get<2>(loop.value).cbegin(),
                       std::get<2>(loop.value).cend(),
                       [&entry](const auto &pattern) {
-                        return validate(pattern.first, entry.first);
+                        return matches(pattern.first, entry.first);
                       })) {
         continue;
       }

@@ -123,6 +123,7 @@ inline auto walk_subschemas(const Context &context,
       context.resolver, entry.dialect};
 }
 
+// TODO: Get rid of this given the new JSON Toolkit regex optimisations
 inline auto pattern_as_prefix(const std::string &pattern)
     -> std::optional<std::string> {
   static const std::regex starts_with_regex{R"(^\^([a-zA-Z0-9-_/]+)$)"};
