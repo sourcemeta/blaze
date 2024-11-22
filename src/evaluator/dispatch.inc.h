@@ -1474,14 +1474,13 @@ switch (static_cast<InstructionIndex>(instruction.index())) {
 
     EVALUATE_END(loop, LoopContains);
   }
-
-  default:
-    // See https://en.cppreference.com/w/cpp/utility/unreachable
-#if defined(_MSC_VER) && !defined(__clang__)
-    __assume(false);
-#else
-    __builtin_unreachable();
-#endif
 }
+
+  // See https://en.cppreference.com/w/cpp/utility/unreachable
+#if defined(_MSC_VER) && !defined(__clang__)
+__assume(false);
+#elif defined(__GNUC__) && !defined(__clang__)
+__builtin_unreachable();
+#endif
 
 #undef IS_INSTRUCTION
