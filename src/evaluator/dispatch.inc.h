@@ -1221,6 +1221,46 @@ switch (static_cast<InstructionIndex>(instruction.index())) {
     EVALUATE_END(loop, LoopKeys);
   }
 
+  case IS_INSTRUCTION(LoopItems): {
+    EVALUATE_BEGIN(loop, LoopItems, target.is_array());
+    assert(!loop.children.empty());
+    result = true;
+
+    // To avoid index lookups and unnecessary conditionals
+#ifdef SOURCEMETA_EVALUATOR_FAST
+    for (const auto &new_instance : target.as_array()) {
+      for (const auto &child : loop.children) {
+        if (!EVALUATE_RECURSE(child, new_instance)) {
+          result = false;
+          EVALUATE_END(loop, LoopItemsFrom);
+        }
+      }
+    }
+#else
+    for (std::size_t index = 0; index < target.size(); index++) {
+      if (track) {
+        context.instance_location.push_back(index);
+      }
+      const auto &new_instance{target.at(index)};
+      for (const auto &child : loop.children) {
+        if (!EVALUATE_RECURSE(child, new_instance)) {
+          result = false;
+          if (track) {
+            context.instance_location.pop_back();
+          }
+          EVALUATE_END(loop, LoopItemsFrom);
+        }
+      }
+
+      if (track) {
+        context.instance_location.pop_back();
+      }
+    }
+#endif
+
+    EVALUATE_END(loop, LoopItems);
+  }
+
   case IS_INSTRUCTION(LoopItemsFrom): {
     EVALUATE_BEGIN(loop, LoopItemsFrom,
                    target.is_array() && loop.value < target.size());

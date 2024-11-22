@@ -1253,7 +1253,7 @@ TEST(Evaluator_draft4, properties_11) {
   EVALUATE_TRACE_PRE(1, AssertionTypeStrict, "/properties/bar/type",
                      "#/properties/bar/type", "/bar");
 
-  EVALUATE_TRACE_PRE(2, LoopItemsFrom, "/properties/foo/items",
+  EVALUATE_TRACE_PRE(2, LoopItems, "/properties/foo/items",
                      "#/properties/foo/items", "/foo");
   EVALUATE_TRACE_PRE(3, AssertionLessEqual, "/properties/foo/items/maximum",
                      "#/properties/foo/items/maximum", "/foo/0");
@@ -1275,7 +1275,7 @@ TEST(Evaluator_draft4, properties_11) {
   EVALUATE_TRACE_POST_SUCCESS(4, AssertionTypeStrictAny,
                               "/properties/foo/items/type",
                               "#/properties/foo/items/type", "/foo/0");
-  EVALUATE_TRACE_POST_SUCCESS(5, LoopItemsFrom, "/properties/foo/items",
+  EVALUATE_TRACE_POST_SUCCESS(5, LoopItems, "/properties/foo/items",
                               "#/properties/foo/items", "/foo");
 
   EVALUATE_TRACE_POST_DESCRIBE(instance, 0,
@@ -2971,7 +2971,7 @@ TEST(Evaluator_draft4, items_2_exhaustive) {
       sourcemeta::jsontoolkit::parse("[ \"foo\", \"bar\", \"baz\" ]")};
   EVALUATE_WITH_TRACE_EXHAUSTIVE_SUCCESS(schema, instance, 4);
 
-  EVALUATE_TRACE_PRE(0, LoopItemsFrom, "/items", "#/items", "");
+  EVALUATE_TRACE_PRE(0, LoopItems, "/items", "#/items", "");
   EVALUATE_TRACE_PRE(1, AssertionTypeStrict, "/items/type", "#/items/type",
                      "/0");
   EVALUATE_TRACE_PRE(2, AssertionTypeStrict, "/items/type", "#/items/type",
@@ -2985,7 +2985,7 @@ TEST(Evaluator_draft4, items_2_exhaustive) {
                               "#/items/type", "/1");
   EVALUATE_TRACE_POST_SUCCESS(2, AssertionTypeStrict, "/items/type",
                               "#/items/type", "/2");
-  EVALUATE_TRACE_POST_SUCCESS(3, LoopItemsFrom, "/items", "#/items", "");
+  EVALUATE_TRACE_POST_SUCCESS(3, LoopItems, "/items", "#/items", "");
 
   EVALUATE_TRACE_POST_DESCRIBE(instance, 0,
                                "The value was expected to be of type string");
@@ -3199,7 +3199,7 @@ TEST(Evaluator_draft4, items_10) {
 
   EVALUATE_WITH_TRACE_FAST_FAILURE(schema, instance, 2);
 
-  EVALUATE_TRACE_PRE(0, LoopItemsFrom, "/properties/features/items",
+  EVALUATE_TRACE_PRE(0, LoopItems, "/properties/features/items",
                      "#/properties/features/items", "/features");
   EVALUATE_TRACE_PRE(1, AssertionTypeStrict,
                      "/properties/features/items/properties/geometry/type",
@@ -3211,7 +3211,7 @@ TEST(Evaluator_draft4, items_10) {
       "/properties/features/items/properties/geometry/type",
       "#/properties/features/items/properties/geometry/type",
       "/features/0/geometry");
-  EVALUATE_TRACE_POST_FAILURE(1, LoopItemsFrom, "/properties/features/items",
+  EVALUATE_TRACE_POST_FAILURE(1, LoopItems, "/properties/features/items",
                               "#/properties/features/items", "/features");
 
   EVALUATE_TRACE_POST_DESCRIBE(

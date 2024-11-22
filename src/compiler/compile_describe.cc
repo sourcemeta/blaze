@@ -753,6 +753,12 @@ struct DescribeVisitor {
     return message.str();
   }
 
+  auto operator()(const LoopItems &) const -> std::string {
+    assert(this->target.is_array());
+    return "Every item in the array value was expected to validate against the "
+           "given subschema";
+  }
+
   auto operator()(const LoopItemsFrom &step) const -> std::string {
     assert(this->target.is_array());
     const auto &value{step_value(step)};

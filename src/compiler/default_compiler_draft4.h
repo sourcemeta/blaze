@@ -1229,9 +1229,9 @@ auto compiler_draft4_applicator_items_with_options(
       Instructions children;
 
       if (!subchildren.empty()) {
-        children.push_back(make<LoopItemsFrom>(
-            context, schema_context, dynamic_context, ValueUnsignedInteger{0},
-            std::move(subchildren)));
+        children.push_back(make<LoopItems>(context, schema_context,
+                                           dynamic_context, ValueNone{},
+                                           std::move(subchildren)));
       }
 
       if (!annotate && !track_evaluation) {
@@ -1288,8 +1288,8 @@ auto compiler_draft4_applicator_items_with_options(
       }
     }
 
-    return {make<LoopItemsFrom>(context, schema_context, dynamic_context,
-                                ValueUnsignedInteger{0}, std::move(children))};
+    return {make<LoopItems>(context, schema_context, dynamic_context,
+                            ValueNone{}, std::move(children))};
   }
 
   return compiler_draft4_applicator_items_array(
