@@ -244,18 +244,24 @@
 
 #define SOURCEMETA_EVALUATOR_COMPLETE
 
-namespace sourcemeta::blaze {
+#define HANDLER(name)                                                          \
+  bool name(                                                                   \
+      const sourcemeta::blaze::Instruction &instruction,                       \
+      const sourcemeta::blaze::Modifiers &modifiers,                           \
+      const std::optional<sourcemeta::blaze::Callback> &callback,              \
+      const sourcemeta::jsontoolkit::JSON &instance,                           \
+      const std::optional<                                                     \
+          std::reference_wrapper<const sourcemeta::jsontoolkit::JSON::String>> \
+          &property_target,                                                    \
+      const std::uint64_t depth,                                               \
+      sourcemeta::blaze::EvaluationContext &context)
 
-auto evaluate_complete_instruction(
-    const sourcemeta::blaze::Instruction &instruction,
-    const sourcemeta::blaze::Modifiers &modifiers,
-    const std::optional<sourcemeta::blaze::Callback> &callback,
-    const sourcemeta::jsontoolkit::JSON &instance,
-    const std::optional<
-        std::reference_wrapper<const sourcemeta::jsontoolkit::JSON::String>>
-        &property_target,
-    const std::uint64_t depth, sourcemeta::blaze::EvaluationContext &context)
-    -> bool {
+namespace sourcemeta::blaze::complete {
+#include "handlers.inc.h"
+}
+
+namespace sourcemeta::blaze {
+HANDLER(evaluate_complete_instruction) {
 #include "dispatch.inc.h"
 }
 
@@ -286,7 +292,7 @@ evaluate_complete(const sourcemeta::jsontoolkit::JSON &instance,
 } // namespace sourcemeta::blaze
 
 #undef SOURCEMETA_EVALUATOR_COMPLETE
-
+#undef HANDLER
 #undef EVALUATE_BEGIN
 #undef EVALUATE_BEGIN_NON_STRING
 #undef EVALUATE_BEGIN_IF_STRING
