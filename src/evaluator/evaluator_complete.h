@@ -99,7 +99,7 @@ auto evaluate_complete_instruction(
     SOURCEMETA_TRACE_END(trace_id, SOURCEMETA_STRINGIFY(instruction_type));    \
     return true;                                                               \
   }                                                                            \
-  auto target_check{                                                           \
+  const auto target_check{                                                           \
       try_get(target, instruction_category.relative_instance_location)};       \
   if (!target_check.has_value()) {                                             \
     SOURCEMETA_TRACE_END(trace_id, SOURCEMETA_STRINGIFY(instruction_type));    \
