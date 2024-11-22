@@ -1006,9 +1006,8 @@ switch (static_cast<InstructionIndex>(instruction.index())) {
       if (track) {
         context.instance_location.push_back(entry.first);
       }
-      const auto &new_instance{target.at(entry.first)};
       for (const auto &child : loop.children) {
-        if (!EVALUATE_RECURSE(child, new_instance)) {
+        if (!EVALUATE_RECURSE(child, entry.second)) {
           result = false;
           if (track) {
             context.instance_location.pop_back();
@@ -1058,9 +1057,8 @@ switch (static_cast<InstructionIndex>(instruction.index())) {
       if (track) {
         context.instance_location.push_back(entry.first);
       }
-      const auto &new_instance{target.at(entry.first)};
       for (const auto &child : loop.children) {
-        if (!EVALUATE_RECURSE(child, new_instance)) {
+        if (!EVALUATE_RECURSE(child, entry.second)) {
           result = false;
           if (track) {
             context.instance_location.pop_back();
@@ -1201,9 +1199,8 @@ switch (static_cast<InstructionIndex>(instruction.index())) {
       if (track) {
         context.instance_location.push_back(entry.first);
       }
-      const auto &new_instance{target.at(entry.first)};
       for (const auto &child : loop.children) {
-        if (!EVALUATE_RECURSE_ON_PROPERTY_NAME(child, new_instance,
+        if (!EVALUATE_RECURSE_ON_PROPERTY_NAME(child, EvaluationContext::null,
                                                entry.first)) {
           result = false;
           if (track) {
