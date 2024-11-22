@@ -92,7 +92,7 @@ TEST(Evaluator_2020_12, items_2) {
       sourcemeta::jsontoolkit::parse("[ \"foo\", \"bar\", \"baz\" ]")};
   EVALUATE_WITH_TRACE_FAST_SUCCESS(schema, instance, 4);
 
-  EVALUATE_TRACE_PRE(0, LoopItems, "/items", "#/items", "");
+  EVALUATE_TRACE_PRE(0, LoopItemsFrom, "/items", "#/items", "");
   EVALUATE_TRACE_PRE(1, AssertionTypeStrict, "/items/type", "#/items/type",
                      "/0");
   EVALUATE_TRACE_PRE(2, AssertionTypeStrict, "/items/type", "#/items/type",
@@ -106,7 +106,7 @@ TEST(Evaluator_2020_12, items_2) {
                               "#/items/type", "/1");
   EVALUATE_TRACE_POST_SUCCESS(2, AssertionTypeStrict, "/items/type",
                               "#/items/type", "/2");
-  EVALUATE_TRACE_POST_SUCCESS(3, LoopItems, "/items", "#/items", "");
+  EVALUATE_TRACE_POST_SUCCESS(3, LoopItemsFrom, "/items", "#/items", "");
 
   EVALUATE_TRACE_POST_DESCRIBE(instance, 0,
                                "The value was expected to be of type string");
@@ -132,7 +132,7 @@ TEST(Evaluator_2020_12, items_2_exhaustive) {
       sourcemeta::jsontoolkit::parse("[ \"foo\", \"bar\", \"baz\" ]")};
   EVALUATE_WITH_TRACE_EXHAUSTIVE_SUCCESS(schema, instance, 6);
 
-  EVALUATE_TRACE_PRE(0, LoopItems, "/items", "#/items", "");
+  EVALUATE_TRACE_PRE(0, LoopItemsFrom, "/items", "#/items", "");
   EVALUATE_TRACE_PRE(1, AssertionTypeStrict, "/items/type", "#/items/type",
                      "/0");
   EVALUATE_TRACE_PRE(2, AssertionTypeStrict, "/items/type", "#/items/type",
@@ -148,7 +148,7 @@ TEST(Evaluator_2020_12, items_2_exhaustive) {
                               "#/items/type", "/1");
   EVALUATE_TRACE_POST_SUCCESS(2, AssertionTypeStrict, "/items/type",
                               "#/items/type", "/2");
-  EVALUATE_TRACE_POST_SUCCESS(3, LoopItems, "/items", "#/items", "");
+  EVALUATE_TRACE_POST_SUCCESS(3, LoopItemsFrom, "/items", "#/items", "");
   EVALUATE_TRACE_POST_ANNOTATION(4, "/items", "#/items", "", true);
   EVALUATE_TRACE_POST_SUCCESS(5, LogicalWhenArraySizeGreater, "/items",
                               "#/items", "");
@@ -182,7 +182,7 @@ TEST(Evaluator_2020_12, items_3) {
       sourcemeta::jsontoolkit::parse("[ \"foo\", 5, \"baz\" ]")};
   EVALUATE_WITH_TRACE_FAST_FAILURE(schema, instance, 3);
 
-  EVALUATE_TRACE_PRE(0, LoopItems, "/items", "#/items", "");
+  EVALUATE_TRACE_PRE(0, LoopItemsFrom, "/items", "#/items", "");
   EVALUATE_TRACE_PRE(1, AssertionTypeStrict, "/items/type", "#/items/type",
                      "/0");
   EVALUATE_TRACE_PRE(2, AssertionTypeStrict, "/items/type", "#/items/type",
@@ -192,7 +192,7 @@ TEST(Evaluator_2020_12, items_3) {
                               "#/items/type", "/0");
   EVALUATE_TRACE_POST_FAILURE(1, AssertionTypeStrict, "/items/type",
                               "#/items/type", "/1");
-  EVALUATE_TRACE_POST_FAILURE(2, LoopItems, "/items", "#/items", "");
+  EVALUATE_TRACE_POST_FAILURE(2, LoopItemsFrom, "/items", "#/items", "");
 
   EVALUATE_TRACE_POST_DESCRIBE(instance, 0,
                                "The value was expected to be of type string");
@@ -314,7 +314,7 @@ TEST(Evaluator_2020_12, items_5) {
                      "#/prefixItems/0/type", "/0");
   EVALUATE_TRACE_PRE(2, AssertionType, "/prefixItems/1/type",
                      "#/prefixItems/1/type", "/1");
-  EVALUATE_TRACE_PRE(3, LoopItems, "/items", "#/items", "");
+  EVALUATE_TRACE_PRE(3, LoopItemsFrom, "/items", "#/items", "");
   EVALUATE_TRACE_PRE(4, AssertionTypeStrict, "/items/type", "#/items/type",
                      "/2");
   EVALUATE_TRACE_PRE(5, AssertionTypeStrict, "/items/type", "#/items/type",
@@ -330,7 +330,7 @@ TEST(Evaluator_2020_12, items_5) {
                               "#/items/type", "/2");
   EVALUATE_TRACE_POST_SUCCESS(4, AssertionTypeStrict, "/items/type",
                               "#/items/type", "/3");
-  EVALUATE_TRACE_POST_SUCCESS(5, LoopItems, "/items", "#/items", "");
+  EVALUATE_TRACE_POST_SUCCESS(5, LoopItemsFrom, "/items", "#/items", "");
 
   EVALUATE_TRACE_POST_DESCRIBE(instance, 0,
                                "The value was expected to be of type boolean");
@@ -372,7 +372,7 @@ TEST(Evaluator_2020_12, items_5_exhaustive) {
   EVALUATE_TRACE_PRE(2, AssertionType, "/prefixItems/1/type",
                      "#/prefixItems/1/type", "/1");
   EVALUATE_TRACE_PRE_ANNOTATION(3, "/prefixItems", "#/prefixItems", "");
-  EVALUATE_TRACE_PRE(4, LoopItems, "/items", "#/items", "");
+  EVALUATE_TRACE_PRE(4, LoopItemsFrom, "/items", "#/items", "");
   EVALUATE_TRACE_PRE(5, AssertionTypeStrict, "/items/type", "#/items/type",
                      "/2");
   EVALUATE_TRACE_PRE(6, AssertionTypeStrict, "/items/type", "#/items/type",
@@ -391,7 +391,7 @@ TEST(Evaluator_2020_12, items_5_exhaustive) {
                               "#/items/type", "/2");
   EVALUATE_TRACE_POST_SUCCESS(5, AssertionTypeStrict, "/items/type",
                               "#/items/type", "/3");
-  EVALUATE_TRACE_POST_SUCCESS(6, LoopItems, "/items", "#/items", "");
+  EVALUATE_TRACE_POST_SUCCESS(6, LoopItemsFrom, "/items", "#/items", "");
   EVALUATE_TRACE_POST_ANNOTATION(7, "/items", "#/items", "", true);
   EVALUATE_TRACE_POST_SUCCESS(8, LogicalWhenArraySizeGreater, "/items",
                               "#/items", "");
@@ -444,7 +444,7 @@ TEST(Evaluator_2020_12, items_6) {
                      "#/prefixItems/0/type", "/0");
   EVALUATE_TRACE_PRE(2, AssertionType, "/prefixItems/1/type",
                      "#/prefixItems/1/type", "/1");
-  EVALUATE_TRACE_PRE(3, LoopItems, "/items", "#/items", "");
+  EVALUATE_TRACE_PRE(3, LoopItemsFrom, "/items", "#/items", "");
   EVALUATE_TRACE_PRE(4, AssertionTypeStrict, "/items/type", "#/items/type",
                      "/2");
 
@@ -456,7 +456,7 @@ TEST(Evaluator_2020_12, items_6) {
                               "#/prefixItems", "");
   EVALUATE_TRACE_POST_FAILURE(3, AssertionTypeStrict, "/items/type",
                               "#/items/type", "/2");
-  EVALUATE_TRACE_POST_FAILURE(4, LoopItems, "/items", "#/items", "");
+  EVALUATE_TRACE_POST_FAILURE(4, LoopItemsFrom, "/items", "#/items", "");
 
   EVALUATE_TRACE_POST_DESCRIBE(instance, 0,
                                "The value was expected to be of type boolean");
@@ -497,7 +497,7 @@ TEST(Evaluator_2020_12, items_6_exhaustive) {
   EVALUATE_TRACE_PRE(2, AssertionType, "/prefixItems/1/type",
                      "#/prefixItems/1/type", "/1");
   EVALUATE_TRACE_PRE_ANNOTATION(3, "/prefixItems", "#/prefixItems", "");
-  EVALUATE_TRACE_PRE(4, LoopItems, "/items", "#/items", "");
+  EVALUATE_TRACE_PRE(4, LoopItemsFrom, "/items", "#/items", "");
   EVALUATE_TRACE_PRE(5, AssertionTypeStrict, "/items/type", "#/items/type",
                      "/2");
 
@@ -510,7 +510,7 @@ TEST(Evaluator_2020_12, items_6_exhaustive) {
                               "#/prefixItems", "");
   EVALUATE_TRACE_POST_FAILURE(4, AssertionTypeStrict, "/items/type",
                               "#/items/type", "/2");
-  EVALUATE_TRACE_POST_FAILURE(5, LoopItems, "/items", "#/items", "");
+  EVALUATE_TRACE_POST_FAILURE(5, LoopItemsFrom, "/items", "#/items", "");
 
   EVALUATE_TRACE_POST_DESCRIBE(instance, 0,
                                "The value was expected to be of type boolean");
@@ -1434,7 +1434,7 @@ TEST(Evaluator_2020_12, unevaluatedItems_2) {
   EVALUATE_WITH_TRACE_FAST_FAILURE(schema, instance, 6);
 
   EVALUATE_TRACE_PRE(0, LogicalOr, "/anyOf", "#/anyOf", "");
-  EVALUATE_TRACE_PRE(1, LoopItems, "/anyOf/0/items", "#/anyOf/0/items", "");
+  EVALUATE_TRACE_PRE(1, LoopItemsFrom, "/anyOf/0/items", "#/anyOf/0/items", "");
   EVALUATE_TRACE_PRE(2, AssertionTypeStrict, "/anyOf/0/items/type",
                      "#/anyOf/0/items/type", "/0");
   EVALUATE_TRACE_PRE(3, AssertionTypeStrict, "/anyOf/0/items/type",
@@ -1448,8 +1448,8 @@ TEST(Evaluator_2020_12, unevaluatedItems_2) {
                               "#/anyOf/0/items/type", "/0");
   EVALUATE_TRACE_POST_FAILURE(1, AssertionTypeStrict, "/anyOf/0/items/type",
                               "#/anyOf/0/items/type", "/1");
-  EVALUATE_TRACE_POST_FAILURE(2, LoopItems, "/anyOf/0/items", "#/anyOf/0/items",
-                              "");
+  EVALUATE_TRACE_POST_FAILURE(2, LoopItemsFrom, "/anyOf/0/items",
+                              "#/anyOf/0/items", "");
   EVALUATE_TRACE_POST_SUCCESS(3, LogicalOr, "/anyOf", "#/anyOf", "");
   EVALUATE_TRACE_POST_FAILURE(4, AssertionFail, "/unevaluatedItems",
                               "#/unevaluatedItems", "/0");
@@ -1494,7 +1494,7 @@ TEST(Evaluator_2020_12, unevaluatedItems_2_exhaustive) {
   EVALUATE_WITH_TRACE_EXHAUSTIVE_FAILURE(schema, instance, 6);
 
   EVALUATE_TRACE_PRE(0, LogicalOr, "/anyOf", "#/anyOf", "");
-  EVALUATE_TRACE_PRE(1, LoopItems, "/anyOf/0/items", "#/anyOf/0/items", "");
+  EVALUATE_TRACE_PRE(1, LoopItemsFrom, "/anyOf/0/items", "#/anyOf/0/items", "");
   EVALUATE_TRACE_PRE(2, AssertionTypeStrict, "/anyOf/0/items/type",
                      "#/anyOf/0/items/type", "/0");
   EVALUATE_TRACE_PRE(3, AssertionTypeStrict, "/anyOf/0/items/type",
@@ -1508,8 +1508,8 @@ TEST(Evaluator_2020_12, unevaluatedItems_2_exhaustive) {
                               "#/anyOf/0/items/type", "/0");
   EVALUATE_TRACE_POST_FAILURE(1, AssertionTypeStrict, "/anyOf/0/items/type",
                               "#/anyOf/0/items/type", "/1");
-  EVALUATE_TRACE_POST_FAILURE(2, LoopItems, "/anyOf/0/items", "#/anyOf/0/items",
-                              "");
+  EVALUATE_TRACE_POST_FAILURE(2, LoopItemsFrom, "/anyOf/0/items",
+                              "#/anyOf/0/items", "");
   EVALUATE_TRACE_POST_SUCCESS(3, LogicalOr, "/anyOf", "#/anyOf", "");
   EVALUATE_TRACE_POST_FAILURE(4, AssertionFail, "/unevaluatedItems",
                               "#/unevaluatedItems", "/0");
@@ -1666,13 +1666,13 @@ TEST(Evaluator_2020_12, unevaluatedItems_4) {
 
   EVALUATE_WITH_TRACE_FAST_SUCCESS(schema, instance, 2);
 
-  EVALUATE_TRACE_PRE(0, LoopItems, "/items", "#/items", "");
+  EVALUATE_TRACE_PRE(0, LoopItemsFrom, "/items", "#/items", "");
   EVALUATE_TRACE_PRE(1, AssertionTypeStrict, "/items/type", "#/items/type",
                      "/0");
 
   EVALUATE_TRACE_POST_SUCCESS(0, AssertionTypeStrict, "/items/type",
                               "#/items/type", "/0");
-  EVALUATE_TRACE_POST_SUCCESS(1, LoopItems, "/items", "#/items", "");
+  EVALUATE_TRACE_POST_SUCCESS(1, LoopItemsFrom, "/items", "#/items", "");
 
   EVALUATE_TRACE_POST_DESCRIBE(instance, 0,
                                "The value was expected to be of type string");
@@ -1694,7 +1694,7 @@ TEST(Evaluator_2020_12, unevaluatedItems_4_exhaustive) {
 
   EVALUATE_WITH_TRACE_EXHAUSTIVE_SUCCESS(schema, instance, 4);
 
-  EVALUATE_TRACE_PRE(0, LoopItems, "/items", "#/items", "");
+  EVALUATE_TRACE_PRE(0, LoopItemsFrom, "/items", "#/items", "");
   EVALUATE_TRACE_PRE(1, AssertionTypeStrict, "/items/type", "#/items/type",
                      "/0");
   EVALUATE_TRACE_PRE(2, LogicalWhenArraySizeGreater, "/items", "#/items", "");
@@ -1702,7 +1702,7 @@ TEST(Evaluator_2020_12, unevaluatedItems_4_exhaustive) {
 
   EVALUATE_TRACE_POST_SUCCESS(0, AssertionTypeStrict, "/items/type",
                               "#/items/type", "/0");
-  EVALUATE_TRACE_POST_SUCCESS(1, LoopItems, "/items", "#/items", "");
+  EVALUATE_TRACE_POST_SUCCESS(1, LoopItemsFrom, "/items", "#/items", "");
   EVALUATE_TRACE_POST_ANNOTATION(2, "/items", "#/items", "", true);
   EVALUATE_TRACE_POST_SUCCESS(3, LogicalWhenArraySizeGreater, "/items",
                               "#/items", "");

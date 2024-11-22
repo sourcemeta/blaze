@@ -1221,8 +1221,8 @@ switch (static_cast<InstructionIndex>(instruction.index())) {
     EVALUATE_END(loop, LoopKeys);
   }
 
-  case IS_INSTRUCTION(LoopItems): {
-    EVALUATE_BEGIN(loop, LoopItems,
+  case IS_INSTRUCTION(LoopItemsFrom): {
+    EVALUATE_BEGIN(loop, LoopItemsFrom,
                    target.is_array() && loop.value < target.size());
     assert(!loop.children.empty());
     result = true;
@@ -1237,7 +1237,7 @@ switch (static_cast<InstructionIndex>(instruction.index())) {
           if (track) {
             context.instance_location.pop_back();
           }
-          EVALUATE_END(loop, LoopItems);
+          EVALUATE_END(loop, LoopItemsFrom);
         }
       }
 
@@ -1246,7 +1246,7 @@ switch (static_cast<InstructionIndex>(instruction.index())) {
       }
     }
 
-    EVALUATE_END(loop, LoopItems);
+    EVALUATE_END(loop, LoopItemsFrom);
   }
 
   case IS_INSTRUCTION(LoopItemsUnevaluated): {

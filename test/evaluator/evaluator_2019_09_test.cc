@@ -1854,7 +1854,7 @@ TEST(Evaluator_2019_09, items_2_exhaustive) {
       sourcemeta::jsontoolkit::parse("[ \"foo\", \"bar\", \"baz\" ]")};
   EVALUATE_WITH_TRACE_EXHAUSTIVE_SUCCESS(schema, instance, 6);
 
-  EVALUATE_TRACE_PRE(0, LoopItems, "/items", "#/items", "");
+  EVALUATE_TRACE_PRE(0, LoopItemsFrom, "/items", "#/items", "");
   EVALUATE_TRACE_PRE(1, AssertionTypeStrict, "/items/type", "#/items/type",
                      "/0");
   EVALUATE_TRACE_PRE(2, AssertionTypeStrict, "/items/type", "#/items/type",
@@ -1870,7 +1870,7 @@ TEST(Evaluator_2019_09, items_2_exhaustive) {
                               "#/items/type", "/1");
   EVALUATE_TRACE_POST_SUCCESS(2, AssertionTypeStrict, "/items/type",
                               "#/items/type", "/2");
-  EVALUATE_TRACE_POST_SUCCESS(3, LoopItems, "/items", "#/items", "");
+  EVALUATE_TRACE_POST_SUCCESS(3, LoopItemsFrom, "/items", "#/items", "");
   EVALUATE_TRACE_POST_ANNOTATION(4, "/items", "#/items", "", true);
   EVALUATE_TRACE_POST_SUCCESS(5, LogicalWhenType, "/items", "#/items", "");
 
@@ -1921,7 +1921,7 @@ TEST(Evaluator_2019_09, items_3_exhaustive) {
       sourcemeta::jsontoolkit::parse("[ \"foo\", 5, \"baz\" ]")};
   EVALUATE_WITH_TRACE_EXHAUSTIVE_FAILURE(schema, instance, 3);
 
-  EVALUATE_TRACE_PRE(0, LoopItems, "/items", "#/items", "");
+  EVALUATE_TRACE_PRE(0, LoopItemsFrom, "/items", "#/items", "");
   EVALUATE_TRACE_PRE(1, AssertionTypeStrict, "/items/type", "#/items/type",
                      "/0");
   EVALUATE_TRACE_PRE(2, AssertionTypeStrict, "/items/type", "#/items/type",
@@ -1931,7 +1931,7 @@ TEST(Evaluator_2019_09, items_3_exhaustive) {
                               "#/items/type", "/0");
   EVALUATE_TRACE_POST_FAILURE(1, AssertionTypeStrict, "/items/type",
                               "#/items/type", "/1");
-  EVALUATE_TRACE_POST_FAILURE(2, LoopItems, "/items", "#/items", "");
+  EVALUATE_TRACE_POST_FAILURE(2, LoopItemsFrom, "/items", "#/items", "");
 
   EVALUATE_TRACE_POST_DESCRIBE(instance, 0,
                                "The value was expected to be of type string");
@@ -2273,7 +2273,7 @@ TEST(Evaluator_2019_09, additionalItems_2_exhaustive) {
       sourcemeta::jsontoolkit::parse("[ \"foo\", \"bar\", \"baz\" ]")};
   EVALUATE_WITH_TRACE_EXHAUSTIVE_SUCCESS(schema, instance, 6);
 
-  EVALUATE_TRACE_PRE(0, LoopItems, "/items", "#/items", "");
+  EVALUATE_TRACE_PRE(0, LoopItemsFrom, "/items", "#/items", "");
   EVALUATE_TRACE_PRE(1, AssertionTypeStrict, "/items/type", "#/items/type",
                      "/0");
   EVALUATE_TRACE_PRE(2, AssertionTypeStrict, "/items/type", "#/items/type",
@@ -2289,7 +2289,7 @@ TEST(Evaluator_2019_09, additionalItems_2_exhaustive) {
                               "#/items/type", "/1");
   EVALUATE_TRACE_POST_SUCCESS(2, AssertionTypeStrict, "/items/type",
                               "#/items/type", "/2");
-  EVALUATE_TRACE_POST_SUCCESS(3, LoopItems, "/items", "#/items", "");
+  EVALUATE_TRACE_POST_SUCCESS(3, LoopItemsFrom, "/items", "#/items", "");
   EVALUATE_TRACE_POST_ANNOTATION(4, "/items", "#/items", "", true);
   EVALUATE_TRACE_POST_SUCCESS(5, LogicalWhenType, "/items", "#/items", "");
 
@@ -2409,7 +2409,8 @@ TEST(Evaluator_2019_09, additionalItems_4) {
   EVALUATE_TRACE_PRE(1, AssertionTypeStrict, "/items/0/type", "#/items/0/type",
                      "/0");
   EVALUATE_TRACE_PRE(2, AssertionType, "/items/1/type", "#/items/1/type", "/1");
-  EVALUATE_TRACE_PRE(3, LoopItems, "/additionalItems", "#/additionalItems", "");
+  EVALUATE_TRACE_PRE(3, LoopItemsFrom, "/additionalItems", "#/additionalItems",
+                     "");
   EVALUATE_TRACE_PRE(4, AssertionTypeStrict, "/additionalItems/type",
                      "#/additionalItems/type", "/2");
   EVALUATE_TRACE_PRE(5, AssertionTypeStrict, "/additionalItems/type",
@@ -2424,7 +2425,7 @@ TEST(Evaluator_2019_09, additionalItems_4) {
                               "#/additionalItems/type", "/2");
   EVALUATE_TRACE_POST_SUCCESS(4, AssertionTypeStrict, "/additionalItems/type",
                               "#/additionalItems/type", "/3");
-  EVALUATE_TRACE_POST_SUCCESS(5, LoopItems, "/additionalItems",
+  EVALUATE_TRACE_POST_SUCCESS(5, LoopItemsFrom, "/additionalItems",
                               "#/additionalItems", "");
 
   EVALUATE_TRACE_POST_DESCRIBE(instance, 0,
@@ -2465,7 +2466,8 @@ TEST(Evaluator_2019_09, additionalItems_4_exhaustive) {
                      "/0");
   EVALUATE_TRACE_PRE(2, AssertionType, "/items/1/type", "#/items/1/type", "/1");
   EVALUATE_TRACE_PRE_ANNOTATION(3, "/items", "#/items", "");
-  EVALUATE_TRACE_PRE(4, LoopItems, "/additionalItems", "#/additionalItems", "");
+  EVALUATE_TRACE_PRE(4, LoopItemsFrom, "/additionalItems", "#/additionalItems",
+                     "");
   EVALUATE_TRACE_PRE(5, AssertionTypeStrict, "/additionalItems/type",
                      "#/additionalItems/type", "/2");
   EVALUATE_TRACE_PRE(6, AssertionTypeStrict, "/additionalItems/type",
@@ -2484,7 +2486,7 @@ TEST(Evaluator_2019_09, additionalItems_4_exhaustive) {
                               "#/additionalItems/type", "/2");
   EVALUATE_TRACE_POST_SUCCESS(5, AssertionTypeStrict, "/additionalItems/type",
                               "#/additionalItems/type", "/3");
-  EVALUATE_TRACE_POST_SUCCESS(6, LoopItems, "/additionalItems",
+  EVALUATE_TRACE_POST_SUCCESS(6, LoopItemsFrom, "/additionalItems",
                               "#/additionalItems", "");
   EVALUATE_TRACE_POST_ANNOTATION(7, "/additionalItems", "#/additionalItems", "",
                                  true);
@@ -2537,7 +2539,8 @@ TEST(Evaluator_2019_09, additionalItems_5) {
   EVALUATE_TRACE_PRE(1, AssertionTypeStrict, "/items/0/type", "#/items/0/type",
                      "/0");
   EVALUATE_TRACE_PRE(2, AssertionType, "/items/1/type", "#/items/1/type", "/1");
-  EVALUATE_TRACE_PRE(3, LoopItems, "/additionalItems", "#/additionalItems", "");
+  EVALUATE_TRACE_PRE(3, LoopItemsFrom, "/additionalItems", "#/additionalItems",
+                     "");
   EVALUATE_TRACE_PRE(4, AssertionTypeStrict, "/additionalItems/type",
                      "#/additionalItems/type", "/2");
 
@@ -2548,7 +2551,7 @@ TEST(Evaluator_2019_09, additionalItems_5) {
   EVALUATE_TRACE_POST_SUCCESS(2, AssertionArrayPrefix, "/items", "#/items", "");
   EVALUATE_TRACE_POST_FAILURE(3, AssertionTypeStrict, "/additionalItems/type",
                               "#/additionalItems/type", "/2");
-  EVALUATE_TRACE_POST_FAILURE(4, LoopItems, "/additionalItems",
+  EVALUATE_TRACE_POST_FAILURE(4, LoopItemsFrom, "/additionalItems",
                               "#/additionalItems", "");
 
   EVALUATE_TRACE_POST_DESCRIBE(instance, 0,
@@ -2588,7 +2591,8 @@ TEST(Evaluator_2019_09, additionalItems_5_exhaustive) {
                      "/0");
   EVALUATE_TRACE_PRE(2, AssertionType, "/items/1/type", "#/items/1/type", "/1");
   EVALUATE_TRACE_PRE_ANNOTATION(3, "/items", "#/items", "");
-  EVALUATE_TRACE_PRE(4, LoopItems, "/additionalItems", "#/additionalItems", "");
+  EVALUATE_TRACE_PRE(4, LoopItemsFrom, "/additionalItems", "#/additionalItems",
+                     "");
   EVALUATE_TRACE_PRE(5, AssertionTypeStrict, "/additionalItems/type",
                      "#/additionalItems/type", "/2");
 
@@ -2600,7 +2604,7 @@ TEST(Evaluator_2019_09, additionalItems_5_exhaustive) {
   EVALUATE_TRACE_POST_SUCCESS(3, AssertionArrayPrefix, "/items", "#/items", "");
   EVALUATE_TRACE_POST_FAILURE(4, AssertionTypeStrict, "/additionalItems/type",
                               "#/additionalItems/type", "/2");
-  EVALUATE_TRACE_POST_FAILURE(5, LoopItems, "/additionalItems",
+  EVALUATE_TRACE_POST_FAILURE(5, LoopItemsFrom, "/additionalItems",
                               "#/additionalItems", "");
 
   EVALUATE_TRACE_POST_DESCRIBE(instance, 0,
@@ -3857,7 +3861,7 @@ TEST(Evaluator_2019_09, unevaluatedItems_3_exhaustive) {
 
   EVALUATE_WITH_TRACE_EXHAUSTIVE_SUCCESS(schema, instance, 4);
 
-  EVALUATE_TRACE_PRE(0, LoopItems, "/items", "#/items", "");
+  EVALUATE_TRACE_PRE(0, LoopItemsFrom, "/items", "#/items", "");
   EVALUATE_TRACE_PRE(1, AssertionTypeStrict, "/items/type", "#/items/type",
                      "/0");
   EVALUATE_TRACE_PRE(2, LogicalWhenType, "/items", "#/items", "");
@@ -3865,7 +3869,7 @@ TEST(Evaluator_2019_09, unevaluatedItems_3_exhaustive) {
 
   EVALUATE_TRACE_POST_SUCCESS(0, AssertionTypeStrict, "/items/type",
                               "#/items/type", "/0");
-  EVALUATE_TRACE_POST_SUCCESS(1, LoopItems, "/items", "#/items", "");
+  EVALUATE_TRACE_POST_SUCCESS(1, LoopItemsFrom, "/items", "#/items", "");
   EVALUATE_TRACE_POST_ANNOTATION(2, "/items", "#/items", "", true);
   EVALUATE_TRACE_POST_SUCCESS(3, LogicalWhenType, "/items", "#/items", "");
 
@@ -4397,7 +4401,8 @@ TEST(Evaluator_2019_09, unevaluatedItems_9) {
   EVALUATE_TRACE_PRE(0, AssertionArrayPrefix, "/items", "#/items", "");
   EVALUATE_TRACE_PRE(1, AssertionTypeStrict, "/items/0/type", "#/items/0/type",
                      "/0");
-  EVALUATE_TRACE_PRE(2, LoopItems, "/additionalItems", "#/additionalItems", "");
+  EVALUATE_TRACE_PRE(2, LoopItemsFrom, "/additionalItems", "#/additionalItems",
+                     "");
   EVALUATE_TRACE_PRE(3, AssertionTypeStrict, "/additionalItems/type",
                      "#/additionalItems/type", "/1");
 
@@ -4406,7 +4411,7 @@ TEST(Evaluator_2019_09, unevaluatedItems_9) {
   EVALUATE_TRACE_POST_SUCCESS(1, AssertionArrayPrefix, "/items", "#/items", "");
   EVALUATE_TRACE_POST_SUCCESS(2, AssertionTypeStrict, "/additionalItems/type",
                               "#/additionalItems/type", "/1");
-  EVALUATE_TRACE_POST_SUCCESS(3, LoopItems, "/additionalItems",
+  EVALUATE_TRACE_POST_SUCCESS(3, LoopItemsFrom, "/additionalItems",
                               "#/additionalItems", "");
 
   EVALUATE_TRACE_POST_DESCRIBE(instance, 0,
@@ -4441,7 +4446,8 @@ TEST(Evaluator_2019_09, unevaluatedItems_9_exhaustive) {
   EVALUATE_TRACE_PRE(1, AssertionTypeStrict, "/items/0/type", "#/items/0/type",
                      "/0");
   EVALUATE_TRACE_PRE_ANNOTATION(2, "/items", "#/items", "");
-  EVALUATE_TRACE_PRE(3, LoopItems, "/additionalItems", "#/additionalItems", "");
+  EVALUATE_TRACE_PRE(3, LoopItemsFrom, "/additionalItems", "#/additionalItems",
+                     "");
   EVALUATE_TRACE_PRE(4, AssertionTypeStrict, "/additionalItems/type",
                      "#/additionalItems/type", "/1");
   EVALUATE_TRACE_PRE(5, LogicalWhenArraySizeGreater, "/additionalItems",
@@ -4454,7 +4460,7 @@ TEST(Evaluator_2019_09, unevaluatedItems_9_exhaustive) {
   EVALUATE_TRACE_POST_SUCCESS(2, AssertionArrayPrefix, "/items", "#/items", "");
   EVALUATE_TRACE_POST_SUCCESS(3, AssertionTypeStrict, "/additionalItems/type",
                               "#/additionalItems/type", "/1");
-  EVALUATE_TRACE_POST_SUCCESS(4, LoopItems, "/additionalItems",
+  EVALUATE_TRACE_POST_SUCCESS(4, LoopItemsFrom, "/additionalItems",
                               "#/additionalItems", "");
   EVALUATE_TRACE_POST_ANNOTATION(5, "/additionalItems", "#/additionalItems", "",
                                  true);
@@ -4589,7 +4595,7 @@ TEST(Evaluator_2019_09, unevaluatedItems_11) {
   EVALUATE_WITH_TRACE_FAST_FAILURE(schema, instance, 6);
 
   EVALUATE_TRACE_PRE(0, LogicalOr, "/anyOf", "#/anyOf", "");
-  EVALUATE_TRACE_PRE(1, LoopItems, "/anyOf/0/items", "#/anyOf/0/items", "");
+  EVALUATE_TRACE_PRE(1, LoopItemsFrom, "/anyOf/0/items", "#/anyOf/0/items", "");
   EVALUATE_TRACE_PRE(2, AssertionTypeStrict, "/anyOf/0/items/type",
                      "#/anyOf/0/items/type", "/0");
   EVALUATE_TRACE_PRE(3, AssertionTypeStrict, "/anyOf/0/items/type",
@@ -4603,8 +4609,8 @@ TEST(Evaluator_2019_09, unevaluatedItems_11) {
                               "#/anyOf/0/items/type", "/0");
   EVALUATE_TRACE_POST_FAILURE(1, AssertionTypeStrict, "/anyOf/0/items/type",
                               "#/anyOf/0/items/type", "/1");
-  EVALUATE_TRACE_POST_FAILURE(2, LoopItems, "/anyOf/0/items", "#/anyOf/0/items",
-                              "");
+  EVALUATE_TRACE_POST_FAILURE(2, LoopItemsFrom, "/anyOf/0/items",
+                              "#/anyOf/0/items", "");
   EVALUATE_TRACE_POST_SUCCESS(3, LogicalOr, "/anyOf", "#/anyOf", "");
   EVALUATE_TRACE_POST_FAILURE(4, AssertionFail, "/unevaluatedItems",
                               "#/unevaluatedItems", "/0");
@@ -4649,7 +4655,7 @@ TEST(Evaluator_2019_09, unevaluatedItems_11_exhaustive) {
   EVALUATE_WITH_TRACE_EXHAUSTIVE_FAILURE(schema, instance, 6);
 
   EVALUATE_TRACE_PRE(0, LogicalOr, "/anyOf", "#/anyOf", "");
-  EVALUATE_TRACE_PRE(1, LoopItems, "/anyOf/0/items", "#/anyOf/0/items", "");
+  EVALUATE_TRACE_PRE(1, LoopItemsFrom, "/anyOf/0/items", "#/anyOf/0/items", "");
   EVALUATE_TRACE_PRE(2, AssertionTypeStrict, "/anyOf/0/items/type",
                      "#/anyOf/0/items/type", "/0");
   EVALUATE_TRACE_PRE(3, AssertionTypeStrict, "/anyOf/0/items/type",
@@ -4663,8 +4669,8 @@ TEST(Evaluator_2019_09, unevaluatedItems_11_exhaustive) {
                               "#/anyOf/0/items/type", "/0");
   EVALUATE_TRACE_POST_FAILURE(1, AssertionTypeStrict, "/anyOf/0/items/type",
                               "#/anyOf/0/items/type", "/1");
-  EVALUATE_TRACE_POST_FAILURE(2, LoopItems, "/anyOf/0/items", "#/anyOf/0/items",
-                              "");
+  EVALUATE_TRACE_POST_FAILURE(2, LoopItemsFrom, "/anyOf/0/items",
+                              "#/anyOf/0/items", "");
   EVALUATE_TRACE_POST_SUCCESS(3, LogicalOr, "/anyOf", "#/anyOf", "");
   EVALUATE_TRACE_POST_FAILURE(4, AssertionFail, "/unevaluatedItems",
                               "#/unevaluatedItems", "/0");
@@ -5199,7 +5205,7 @@ TEST(Evaluator_2019_09, recursiveRef_5) {
   EVALUATE_WITH_TRACE_FAST_SUCCESS(schema, instance, 4);
 
   EVALUATE_TRACE_PRE(0, ControlMark, "", "https://example.com/nested", "");
-  EVALUATE_TRACE_PRE(1, LoopItems, "/items",
+  EVALUATE_TRACE_PRE(1, LoopItemsFrom, "/items",
                      "https://example.com/schema#/items", "");
   EVALUATE_TRACE_PRE(2, AssertionArrayPrefix, "/items/items",
                      "https://example.com/nested#/items", "/0");
@@ -5214,7 +5220,7 @@ TEST(Evaluator_2019_09, recursiveRef_5) {
       "https://example.com/nested#/items/0/$recursiveRef", "/0/0");
   EVALUATE_TRACE_POST_SUCCESS(2, AssertionArrayPrefix, "/items/items",
                               "https://example.com/nested#/items", "/0");
-  EVALUATE_TRACE_POST_SUCCESS(3, LoopItems, "/items",
+  EVALUATE_TRACE_POST_SUCCESS(3, LoopItemsFrom, "/items",
                               "https://example.com/schema#/items", "");
 
   EVALUATE_TRACE_POST_DESCRIBE(instance, 0,
@@ -5253,7 +5259,7 @@ TEST(Evaluator_2019_09, recursiveRef_5_exhaustive) {
   EVALUATE_WITH_TRACE_EXHAUSTIVE_SUCCESS(schema, instance, 8);
 
   EVALUATE_TRACE_PRE(0, ControlMark, "", "https://example.com/nested", "");
-  EVALUATE_TRACE_PRE(1, LoopItems, "/items",
+  EVALUATE_TRACE_PRE(1, LoopItemsFrom, "/items",
                      "https://example.com/schema#/items", "");
   EVALUATE_TRACE_PRE(2, AssertionArrayPrefix, "/items/items",
                      "https://example.com/nested#/items", "/0");
@@ -5280,7 +5286,7 @@ TEST(Evaluator_2019_09, recursiveRef_5_exhaustive) {
       3, "/items/items", "https://example.com/nested#/items", "/0", true);
   EVALUATE_TRACE_POST_SUCCESS(4, AssertionArrayPrefix, "/items/items",
                               "https://example.com/nested#/items", "/0");
-  EVALUATE_TRACE_POST_SUCCESS(5, LoopItems, "/items",
+  EVALUATE_TRACE_POST_SUCCESS(5, LoopItemsFrom, "/items",
                               "https://example.com/schema#/items", "");
   EVALUATE_TRACE_POST_ANNOTATION(6, "/items",
                                  "https://example.com/schema#/items", "", true);
