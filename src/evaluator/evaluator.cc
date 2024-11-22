@@ -19,7 +19,7 @@ using namespace sourcemeta::jsontoolkit;
 inline auto
 resolve_target(const std::optional<std::reference_wrapper<const JSON::String>>
                    &property_target,
-               const JSON &instance) -> const JSON & {
+               const JSON &instance) noexcept -> const JSON & {
   if (property_target.has_value()) [[unlikely]] {
     // In this case, we still need to return a string in order
     // to cope with non-string keywords inside `propertyNames`
@@ -37,7 +37,7 @@ inline auto resolve_string_target(
     const JSON &instance, const Pointer &relative_instance_location) noexcept
     -> std::optional<std::reference_wrapper<const JSON::String>> {
   if (property_target.has_value()) [[unlikely]] {
-    return property_target.value();
+    return property_target;
   }
 
   const auto &target{get(instance, relative_instance_location)};
@@ -72,7 +72,6 @@ auto evaluate(const Template &schema,
 auto evaluate(const Template &schema,
               const sourcemeta::jsontoolkit::JSON &instance) -> bool {
   EvaluationContext context;
-
   if (schema.second.dynamic || schema.second.track) {
     return evaluate_complete(instance, context, schema.first, schema.second,
                              std::nullopt);

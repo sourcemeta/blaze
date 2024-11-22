@@ -1,17 +1,6 @@
 #ifndef SOURCEMETA_BLAZE_EVALUATOR_FAST_H_
 #define SOURCEMETA_BLAZE_EVALUATOR_FAST_H_
 
-namespace sourcemeta::blaze {
-
-auto evaluate_fast_instruction(
-    const sourcemeta::blaze::Instruction &instruction,
-    const sourcemeta::jsontoolkit::JSON &instance,
-    const std::optional<
-        std::reference_wrapper<const sourcemeta::jsontoolkit::JSON::String>>
-        &property_target,
-    const std::uint64_t depth, sourcemeta::blaze::EvaluationContext &context)
-    -> bool {
-
 #define EVALUATE_BEGIN(instruction_category, instruction_type, precondition)   \
   SOURCEMETA_TRACE_START(trace_id, SOURCEMETA_STRINGIFY(instruction_type));    \
   const auto &instruction_category{std::get<instruction_type>(instruction)};   \
@@ -99,21 +88,18 @@ auto evaluate_fast_instruction(
   evaluate_fast_instruction(child, target, std::cref(name), depth + 1, context)
 
 #define SOURCEMETA_EVALUATOR_FAST
-#include "dispatch.inc.h"
-#undef SOURCEMETA_EVALUATOR_FAST
 
-#undef EVALUATE_BEGIN
-#undef EVALUATE_BEGIN_IF_STRING
-#undef EVALUATE_BEGIN_TRY_TARGET
-#undef EVALUATE_BEGIN_NO_PRECONDITION
-#undef EVALUATE_BEGIN_NO_PRECONDITION_AND_NO_PUSH
-#undef EVALUATE_BEGIN_PASS_THROUGH
-#undef EVALUATE_END
-#undef EVALUATE_END_NO_POP
-#undef EVALUATE_END_PASS_THROUGH
-#undef EVALUATE_ANNOTATION
-#undef EVALUATE_RECURSE
-#undef EVALUATE_RECURSE_ON_PROPERTY_NAME
+namespace sourcemeta::blaze {
+
+auto evaluate_fast_instruction(
+    const sourcemeta::blaze::Instruction &instruction,
+    const sourcemeta::jsontoolkit::JSON &instance,
+    const std::optional<
+        std::reference_wrapper<const sourcemeta::jsontoolkit::JSON::String>>
+        &property_target,
+    const std::uint64_t depth, sourcemeta::blaze::EvaluationContext &context)
+    -> bool {
+#include "dispatch.inc.h"
 }
 
 inline auto evaluate_fast(const sourcemeta::jsontoolkit::JSON &instance,
@@ -132,5 +118,20 @@ inline auto evaluate_fast(const sourcemeta::jsontoolkit::JSON &instance,
 }
 
 } // namespace sourcemeta::blaze
+
+#undef SOURCEMETA_EVALUATOR_FAST
+
+#undef EVALUATE_BEGIN
+#undef EVALUATE_BEGIN_IF_STRING
+#undef EVALUATE_BEGIN_TRY_TARGET
+#undef EVALUATE_BEGIN_NO_PRECONDITION
+#undef EVALUATE_BEGIN_NO_PRECONDITION_AND_NO_PUSH
+#undef EVALUATE_BEGIN_PASS_THROUGH
+#undef EVALUATE_END
+#undef EVALUATE_END_NO_POP
+#undef EVALUATE_END_PASS_THROUGH
+#undef EVALUATE_ANNOTATION
+#undef EVALUATE_RECURSE
+#undef EVALUATE_RECURSE_ON_PROPERTY_NAME
 
 #endif
