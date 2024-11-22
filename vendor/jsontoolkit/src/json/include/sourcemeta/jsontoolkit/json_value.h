@@ -799,6 +799,47 @@ public:
   /// ```
   [[nodiscard]] auto size() const -> std::size_t;
 
+  /// If the input JSON instance is a string, return its logical length.
+  ///
+  /// For example:
+  ///
+  /// ```cpp
+  /// #include <sourcemeta/jsontoolkit/json.h>
+  /// #include <cassert>
+  ///
+  /// const sourcemeta::jsontoolkit::JSON my_string{"foo"};
+  /// assert(my_string.string_size() == 3);
+  /// ```
+  [[nodiscard]] auto string_size() const -> std::size_t;
+
+  /// If the input JSON instance is an array, return its number of elements.
+  ///
+  /// For example:
+  ///
+  /// ```cpp
+  /// #include <sourcemeta/jsontoolkit/json.h>
+  /// #include <cassert>
+  ///
+  /// const sourcemeta::jsontoolkit::JSON my_array =
+  ///   sourcemeta::jsontoolkit::parse("[ 1, 2 ]");
+  /// assert(my_array.array_size() == 2);
+  /// ```
+  [[nodiscard]] auto array_size() const -> std::size_t;
+
+  /// If the input JSON instance is an object, return its number of pairs.
+  ///
+  /// For example:
+  ///
+  /// ```cpp
+  /// #include <sourcemeta/jsontoolkit/json.h>
+  /// #include <cassert>
+  ///
+  /// const sourcemeta::jsontoolkit::JSON my_object =
+  ///   sourcemeta::jsontoolkit::parse("{ \"foo\": 1 }");
+  /// assert(my_object.object_size() == 1);
+  /// ```
+  [[nodiscard]] auto object_size() const -> std::size_t;
+
   /// If the input JSON instance is string, input JSON instance is a string,
   /// return its number of bytes. For example:
   ///

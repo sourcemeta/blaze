@@ -355,13 +355,27 @@ auto JSON::operator-=(const JSON &substractive) -> JSON & {
 
 [[nodiscard]] auto JSON::size() const -> std::size_t {
   if (this->is_object()) {
-    return std::get<Object>(this->data).data.size();
+    return this->object_size();
   } else if (this->is_array()) {
-    return std::get<JSON::Array>(this->data).data.size();
+    return this->array_size();
   } else {
-    assert(this->is_string());
-    return JSON::size(std::get<JSON::String>(this->data));
+    return this->string_size();
   }
+}
+
+[[nodiscard]] auto JSON::string_size() const -> std::size_t {
+  assert(this->is_string());
+  return JSON::size(std::get<JSON::String>(this->data));
+}
+
+[[nodiscard]] auto JSON::array_size() const -> std::size_t {
+  assert(this->is_array());
+  return std::get<JSON::Array>(this->data).data.size();
+}
+
+[[nodiscard]] auto JSON::object_size() const -> std::size_t {
+  assert(this->is_object());
+  return std::get<Object>(this->data).data.size();
 }
 
 [[nodiscard]] auto JSON::byte_size() const -> std::size_t {
