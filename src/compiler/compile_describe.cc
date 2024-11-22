@@ -753,7 +753,7 @@ struct DescribeVisitor {
     return message.str();
   }
 
-  auto operator()(const LoopItems &step) const -> std::string {
+  auto operator()(const LoopItemsFrom &step) const -> std::string {
     assert(this->target.is_array());
     const auto &value{step_value(step)};
     std::ostringstream message;

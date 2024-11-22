@@ -79,7 +79,7 @@ struct LoopPropertiesTypeStrictEvaluate;
 struct LoopPropertiesTypeStrictAny;
 struct LoopPropertiesTypeStrictAnyEvaluate;
 struct LoopKeys;
-struct LoopItems;
+struct LoopItemsFrom;
 struct LoopItemsUnevaluated;
 struct LoopItemsType;
 struct LoopItemsTypeStrict;
@@ -119,7 +119,7 @@ using Instruction = std::variant<
     LoopPropertiesStartsWith, LoopPropertiesExcept, LoopPropertiesWhitelist,
     LoopPropertiesType, LoopPropertiesTypeEvaluate, LoopPropertiesTypeStrict,
     LoopPropertiesTypeStrictEvaluate, LoopPropertiesTypeStrictAny,
-    LoopPropertiesTypeStrictAnyEvaluate, LoopKeys, LoopItems,
+    LoopPropertiesTypeStrictAnyEvaluate, LoopKeys, LoopItemsFrom,
     LoopItemsUnevaluated, LoopItemsType, LoopItemsTypeStrict,
     LoopItemsTypeStrictAny, LoopContains, ControlGroup, ControlGroupWhenDefines,
     ControlLabel, ControlMark, ControlEvaluate, ControlJump,
@@ -194,7 +194,7 @@ enum class InstructionIndex : std::uint8_t {
   LoopPropertiesTypeStrictAny,
   LoopPropertiesTypeStrictAnyEvaluate,
   LoopKeys,
-  LoopItems,
+  LoopItemsFrom,
   LoopItemsUnevaluated,
   LoopItemsType,
   LoopItemsTypeStrict,
@@ -561,7 +561,7 @@ DEFINE_STEP_APPLICATOR(Loop, Keys, ValueNone)
 /// @ingroup evaluator_instructions
 /// @brief Represents a compiler step that loops over array items starting from
 /// a given index
-DEFINE_STEP_APPLICATOR(Loop, Items, ValueUnsignedInteger)
+DEFINE_STEP_APPLICATOR(Loop, ItemsFrom, ValueUnsignedInteger)
 
 /// @ingroup evaluator_instructions
 /// @brief Represents a compiler step that loops over unevaluated array items
