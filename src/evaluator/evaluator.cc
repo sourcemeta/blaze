@@ -51,10 +51,13 @@ inline auto resolve_string_target(
 } // namespace sourcemeta::blaze
 
 #define SOURCEMETA_STRINGIFY(x) #x
+#define SOURCEMETA_MAYBE_UNUSED(variable) (void)variable;
 
 #include "evaluator_complete.h"
+#include "evaluator_fast.h"
 
 #undef SOURCEMETA_STRINGIFY
+#undef SOURCEMETA_MAYBE_UNUSED
 
 namespace sourcemeta::blaze {
 
@@ -69,8 +72,13 @@ auto evaluate(const Template &schema,
 auto evaluate(const Template &schema,
               const sourcemeta::jsontoolkit::JSON &instance) -> bool {
   EvaluationContext context;
-  return evaluate_complete(instance, context, schema.first, schema.second,
-                           std::nullopt);
+
+  if (schema.second.dynamic || schema.second.track) {
+    return evaluate_complete(instance, context, schema.first, schema.second,
+                             std::nullopt);
+  } else {
+    return evaluate_fast(instance, context, schema.first);
+  }
 }
 
 auto evaluate(const Template &schema,
@@ -81,11 +89,14 @@ auto evaluate(const Template &schema,
   assert(context.instance_location.empty());
   assert(context.resources.empty());
   context.labels.clear();
-  // TODO: Only do this one for evaluations that are "complete"
-  context.evaluated_.clear();
 
-  return evaluate_complete(instance, context, schema.first, schema.second,
-                           std::nullopt);
+  if (schema.second.dynamic || schema.second.track) {
+    context.evaluated_.clear();
+    return evaluate_complete(instance, context, schema.first, schema.second,
+                             std::nullopt);
+  } else {
+    return evaluate_fast(instance, context, schema.first);
+  }
 }
 
 } // namespace sourcemeta::blaze
