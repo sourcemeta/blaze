@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1732303070435,
+  "lastUpdate": 1732308598019,
   "repoUrl": "https://github.com/sourcemeta/blaze",
   "entries": {
     "Benchmark (linux/gcc)": [
@@ -33644,6 +33644,180 @@ window.BENCHMARK_DATA = {
             "value": 65456100031.99999,
             "unit": "ns/iter",
             "extra": "iterations: 1\ncpu: 65452414920.00001 ns\nthreads: 1"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "email": "jv@jviotti.com",
+            "name": "Juan Cruz Viotti",
+            "username": "jviotti"
+          },
+          "committer": {
+            "email": "noreply@github.com",
+            "name": "GitHub",
+            "username": "web-flow"
+          },
+          "distinct": true,
+          "id": "d2738f4140e69505205d88e3d3bcdf87320fd417",
+          "message": "Make use of new JSON Toolkit regex optimisations (#225)\n\nSigned-off-by: Juan Cruz Viotti <jv@jviotti.com>",
+          "timestamp": "2024-11-22T16:40:02-04:00",
+          "tree_id": "3aedd377e53a54a212f1aa3c13af7a515b799856",
+          "url": "https://github.com/sourcemeta/blaze/commit/d2738f4140e69505205d88e3d3bcdf87320fd417"
+        },
+        "date": 1732308595084,
+        "tool": "googlecpp",
+        "benches": [
+          {
+            "name": "Evaluator_2020_12_Dynamic_Ref",
+            "value": 868.6660816951841,
+            "unit": "ns/iter",
+            "extra": "iterations: 796620\ncpu: 868.654510306043 ns\nthreads: 1"
+          },
+          {
+            "name": "Evaluator_2019_09_Unevaluated_Properties",
+            "value": 260.88088229715186,
+            "unit": "ns/iter",
+            "extra": "iterations: 2662459\ncpu: 260.87743435673565 ns\nthreads: 1"
+          },
+          {
+            "name": "Evaluator_2019_09_OMC_JSON_V2_1",
+            "value": 4894.71261489925,
+            "unit": "ns/iter",
+            "extra": "iterations: 144583\ncpu: 4894.387113284407 ns\nthreads: 1"
+          },
+          {
+            "name": "Evaluator_Draft7_If_Then_Else",
+            "value": 52.253626862980425,
+            "unit": "ns/iter",
+            "extra": "iterations: 13693790\ncpu: 52.25305368345792 ns\nthreads: 1"
+          },
+          {
+            "name": "Evaluator_Draft7_Vercel_1",
+            "value": 111819.85517129404,
+            "unit": "ns/iter",
+            "extra": "iterations: 6159\ncpu: 111816.7100178611 ns\nthreads: 1"
+          },
+          {
+            "name": "Evaluator_Draft6_Property_Names",
+            "value": 495.2725195427019,
+            "unit": "ns/iter",
+            "extra": "iterations: 1417924\ncpu: 495.25635294979975 ns\nthreads: 1"
+          },
+          {
+            "name": "Evaluator_Draft4_Meta_1_No_Callback",
+            "value": 428.9855359689289,
+            "unit": "ns/iter",
+            "extra": "iterations: 1514239\ncpu: 428.98040401813216 ns\nthreads: 1"
+          },
+          {
+            "name": "Evaluator_Draft4_Required_Properties",
+            "value": 1617.202595104663,
+            "unit": "ns/iter",
+            "extra": "iterations: 434048\ncpu: 1617.1532457239914 ns\nthreads: 1"
+          },
+          {
+            "name": "Evaluator_Draft4_Many_Optional_Properties_Minimal_Match",
+            "value": 39.368065880860506,
+            "unit": "ns/iter",
+            "extra": "iterations: 17897641\ncpu: 39.36739014935016 ns\nthreads: 1"
+          },
+          {
+            "name": "Evaluator_Draft4_Few_Optional_Properties_Minimal_Match",
+            "value": 32.07917969210791,
+            "unit": "ns/iter",
+            "extra": "iterations: 21901045\ncpu: 32.077362198926956 ns\nthreads: 1"
+          },
+          {
+            "name": "Evaluator_Draft4_Items_Schema",
+            "value": 571.3025491117764,
+            "unit": "ns/iter",
+            "extra": "iterations: 1225368\ncpu: 571.2817088417521 ns\nthreads: 1"
+          },
+          {
+            "name": "Evaluator_Draft4_Nested_Object",
+            "value": 3.5221915830119483,
+            "unit": "ns/iter",
+            "extra": "iterations: 198970168\ncpu: 3.5219865371978867 ns\nthreads: 1"
+          },
+          {
+            "name": "Evaluator_Draft4_Properties_Triad_Optional",
+            "value": 1270.654076622335,
+            "unit": "ns/iter",
+            "extra": "iterations: 541539\ncpu: 1270.5572433379605 ns\nthreads: 1"
+          },
+          {
+            "name": "Evaluator_Draft4_Properties_Triad_Closed",
+            "value": 1012.0971305829383,
+            "unit": "ns/iter",
+            "extra": "iterations: 681567\ncpu: 1012.0773364907677 ns\nthreads: 1"
+          },
+          {
+            "name": "Evaluator_Draft4_Properties_Triad_Required",
+            "value": 1313.7879525385138,
+            "unit": "ns/iter",
+            "extra": "iterations: 527165\ncpu: 1313.7730558743363 ns\nthreads: 1"
+          },
+          {
+            "name": "Evaluator_Draft4_Properties_Closed",
+            "value": 183.97633374201038,
+            "unit": "ns/iter",
+            "extra": "iterations: 3819573\ncpu: 183.97325329297286 ns\nthreads: 1"
+          },
+          {
+            "name": "Evaluator_Draft4_Non_Recursive_Ref",
+            "value": 51.03824700018451,
+            "unit": "ns/iter",
+            "extra": "iterations: 13750281\ncpu: 51.03553643740113 ns\nthreads: 1"
+          },
+          {
+            "name": "Evaluator_Draft4_Pattern_Properties_True",
+            "value": 1738.7256589660428,
+            "unit": "ns/iter",
+            "extra": "iterations: 402335\ncpu: 1738.6628680080175 ns\nthreads: 1"
+          },
+          {
+            "name": "Evaluator_Draft4_Ref_To_Single_Property",
+            "value": 35.79552584370891,
+            "unit": "ns/iter",
+            "extra": "iterations: 19736235\ncpu: 35.793733049894634 ns\nthreads: 1"
+          },
+          {
+            "name": "Evaluator_Draft4_Additional_Properties_Type",
+            "value": 105.43652862173496,
+            "unit": "ns/iter",
+            "extra": "iterations: 6658001\ncpu: 105.43081609630251 ns\nthreads: 1"
+          },
+          {
+            "name": "Evaluator_Draft4_Nested_Oneof",
+            "value": 112.46497070800692,
+            "unit": "ns/iter",
+            "extra": "iterations: 6222007\ncpu: 112.45983410176147 ns\nthreads: 1"
+          },
+          {
+            "name": "Evaluator_Draft4_Long_Enum",
+            "value": 19.611846464234556,
+            "unit": "ns/iter",
+            "extra": "iterations: 35460741\ncpu: 19.610819948742723 ns\nthreads: 1"
+          },
+          {
+            "name": "Evaluator_Draft4_Type_Object",
+            "value": 10.282879686652556,
+            "unit": "ns/iter",
+            "extra": "iterations: 68066114\ncpu: 10.282779019821922 ns\nthreads: 1"
+          },
+          {
+            "name": "Compiler_2019_09_OMC_JSON_V2",
+            "value": 11189064893.000023,
+            "unit": "ns/iter",
+            "extra": "iterations: 1\ncpu: 11188702949.999992 ns\nthreads: 1"
+          },
+          {
+            "name": "Compiler_Draft6_AdaptiveCard",
+            "value": 66932444561.00001,
+            "unit": "ns/iter",
+            "extra": "iterations: 1\ncpu: 66929289205.000015 ns\nthreads: 1"
           }
         ]
       }
