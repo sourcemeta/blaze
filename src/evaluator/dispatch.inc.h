@@ -586,12 +586,9 @@ switch (static_cast<InstructionIndex>(instruction.index())) {
   case IS_INSTRUCTION(ControlGroupWhenDefines): {
     EVALUATE_BEGIN_PASS_THROUGH(control, ControlGroupWhenDefines);
     assert(!control.children.empty());
-
-    // TODO: This is needed for nested `properties`, but can have a
-    // performance impact. Maybe we can be smarter about when we
-    // do this traversal?
+    // Otherwise why are we emitting this property?
+    assert(!control.relative_instance_location.empty());
     const auto &target{get(instance, control.relative_instance_location)};
-
     if (target.is_object() && target.defines(control.value)) {
       for (const auto &child : control.children) {
         // Note that in this control instruction, we purposely
@@ -604,6 +601,22 @@ switch (static_cast<InstructionIndex>(instruction.index())) {
     }
 
     EVALUATE_END_PASS_THROUGH(ControlGroupWhenDefines);
+  }
+
+  case IS_INSTRUCTION(ControlGroupWhenDefinesDirect): {
+    EVALUATE_BEGIN_PASS_THROUGH(control, ControlGroupWhenDefinesDirect);
+    assert(!control.children.empty());
+    assert(control.relative_instance_location.empty());
+    if (instance.is_object() && instance.defines(control.value)) {
+      for (const auto &child : control.children) {
+        if (!EVALUATE_RECURSE(child, instance)) {
+          result = false;
+          break;
+        }
+      }
+    }
+
+    EVALUATE_END_PASS_THROUGH(ControlGroupWhenDefinesDirect);
   }
 
   case IS_INSTRUCTION(ControlLabel): {
