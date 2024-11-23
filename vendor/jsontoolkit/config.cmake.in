@@ -12,6 +12,8 @@ if(NOT JSONTOOLKIT_COMPONENTS)
   list(APPEND JSONTOOLKIT_COMPONENTS jsonschema)
 endif()
 
+include(CMakeFindDependencyMacro)
+
 foreach(component ${JSONTOOLKIT_COMPONENTS})
   # TODO: Get rid of this branch once we get rid of uriparser
   if(component STREQUAL "uri" OR component STREQUAL "jsonpointer" OR component STREQUAL "jsonschema")
@@ -26,6 +28,7 @@ foreach(component ${JSONTOOLKIT_COMPONENTS})
   elseif(component STREQUAL "json")
     include("${CMAKE_CURRENT_LIST_DIR}/sourcemeta_jsontoolkit_json.cmake")
   elseif(component STREQUAL "regex")
+    find_dependency(BoostRegex)
     include("${CMAKE_CURRENT_LIST_DIR}/sourcemeta_jsontoolkit_json.cmake")
     include("${CMAKE_CURRENT_LIST_DIR}/sourcemeta_jsontoolkit_regex.cmake")
   elseif(component STREQUAL "jsonl")
