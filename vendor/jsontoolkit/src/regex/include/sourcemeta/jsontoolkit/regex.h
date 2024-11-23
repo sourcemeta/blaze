@@ -7,6 +7,23 @@
 
 #include <sourcemeta/jsontoolkit/json.h>
 
+#if defined(__clang__)
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wdocumentation"
+#pragma clang diagnostic ignored "-Wsign-conversion"
+#pragma clang diagnostic ignored "-Wshorten-64-to-32"
+#elif defined(__GNUC__)
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wsign-conversion"
+#pragma GCC diagnostic ignored "-Wconversion"
+#endif
+#include <boost/regex.hpp>
+#if defined(__clang__)
+#pragma clang diagnostic pop
+#elif defined(__GNUC__)
+#pragma GCC diagnostic pop
+#endif
+
 #include <cstdint>  // std::uint8_t, std::uint64_t
 #include <optional> // std::optional
 #include <regex>    // std::regex
@@ -25,7 +42,7 @@
 namespace sourcemeta::jsontoolkit {
 
 /// @ingroup regex
-using RegexTypeEngine = std::regex;
+using RegexTypeBoost = boost::regex;
 
 /// @ingroup regex
 using RegexTypePrefix = JSON::String;
@@ -37,18 +54,22 @@ struct RegexTypeNonEmpty {};
 using RegexTypeRange = std::pair<std::uint64_t, std::uint64_t>;
 
 /// @ingroup regex
+using RegexTypeStd = std::regex;
+
+/// @ingroup regex
 struct RegexTypeNoop {};
 
 /// @ingroup regex
-using Regex = std::variant<RegexTypeEngine, RegexTypePrefix, RegexTypeNonEmpty,
-                           RegexTypeRange, RegexTypeNoop>;
+using Regex = std::variant<RegexTypeBoost, RegexTypePrefix, RegexTypeNonEmpty,
+                           RegexTypeRange, RegexTypeStd, RegexTypeNoop>;
 #if !defined(DOXYGEN)
 // For fast internal dispatching. It must stay in sync with the variant above
 enum class RegexIndex : std::uint8_t {
-  Engine = 0,
+  Boost = 0,
   Prefix,
   NonEmpty,
   Range,
+  Std,
   Noop
 };
 #endif
@@ -67,7 +88,7 @@ enum class RegexIndex : std::uint8_t {
 /// assert(regex.has_value());
 /// ```
 SOURCEMETA_JSONTOOLKIT_REGEX_EXPORT
-auto to_regex(const JSON::String &pattern) noexcept -> std::optional<Regex>;
+auto to_regex(const JSON::String &pattern) -> std::optional<Regex>;
 
 /// @ingroup regex
 ///

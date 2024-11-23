@@ -46,6 +46,7 @@ if(JSONTOOLKIT_JSON)
 endif()
 
 if(JSONTOOLKIT_JSON AND JSONTOOLKIT_REGEX)
+  find_package(BoostRegex REQUIRED)
   add_subdirectory(src/regex)
 endif()
 

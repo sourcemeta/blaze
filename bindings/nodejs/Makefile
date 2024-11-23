@@ -16,6 +16,7 @@ ROOT := ../..
 CFLAGS ?= -O3 -std=c11 -flto
 CXXFLAGS ?= -O3 -std=c++20 -flto \
 	-I$(ROOT)/vendor/jsontoolkit/vendor/uriparser/include \
+	-I$(ROOT)/vendor/jsontoolkit/vendor/boost-regex/include \
 	-I$(ROOT)/vendor/jsontoolkit/src/uri/include \
 	-I$(ROOT)/vendor/jsontoolkit/src/json/include \
 	-I$(ROOT)/vendor/jsontoolkit/src/regex/include \
