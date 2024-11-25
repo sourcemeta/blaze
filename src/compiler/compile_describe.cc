@@ -906,6 +906,22 @@ struct DescribeVisitor {
     return message.str();
   }
 
+  auto operator()(const AssertionDefinesExactly &step) const -> std::string {
+    const auto &value{step_value(step)};
+    assert(value.size() > 1);
+    std::ostringstream message;
+    message << "The object value was expected to only define properties ";
+    for (auto iterator = value.cbegin(); iterator != value.cend(); ++iterator) {
+      if (std::next(iterator) == value.cend()) {
+        message << "and " << escape_string(*iterator);
+      } else {
+        message << escape_string(*iterator) << ", ";
+      }
+    }
+
+    return message.str();
+  }
+
   auto operator()(const AssertionType &step) const -> std::string {
     std::ostringstream message;
     describe_type_check(this->valid, this->target.type(), step_value(step),
