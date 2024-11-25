@@ -1288,7 +1288,7 @@ switch (static_cast<InstructionIndex>(instruction.index())) {
       for (const auto &child : loop.children) {
         if (!EVALUATE_RECURSE(child, new_instance)) {
           result = false;
-          EVALUATE_END(loop, LoopItemsFrom);
+          EVALUATE_END(loop, LoopItems);
         }
       }
     }
@@ -1304,7 +1304,7 @@ switch (static_cast<InstructionIndex>(instruction.index())) {
           if (track) {
             context.instance_location.pop_back();
           }
-          EVALUATE_END(loop, LoopItemsFrom);
+          EVALUATE_END(loop, LoopItems);
         }
       }
 
