@@ -2799,30 +2799,22 @@ TEST(Evaluator_draft4, additionalProperties_12) {
   const sourcemeta::jsontoolkit::JSON instance{
       sourcemeta::jsontoolkit::parse("{ \"foo\": true, \"bar\": false }")};
 
-  EVALUATE_WITH_TRACE_FAST_SUCCESS(schema, instance, 3);
+  EVALUATE_WITH_TRACE_FAST_SUCCESS(schema, instance, 2);
 
   EVALUATE_TRACE_PRE(0, AssertionDefinesExactly, "/required", "#/required", "");
-  EVALUATE_TRACE_PRE(1, AssertionPropertyTypeStrict, "/properties/bar/type",
-                     "#/properties/bar/type", "/bar");
-  EVALUATE_TRACE_PRE(2, AssertionPropertyTypeStrict, "/properties/foo/type",
-                     "#/properties/foo/type", "/foo");
+  EVALUATE_TRACE_PRE(1, LoopPropertiesTypeStrict, "/properties", "#/properties",
+                     "");
 
   EVALUATE_TRACE_POST_SUCCESS(0, AssertionDefinesExactly, "/required",
                               "#/required", "");
-  EVALUATE_TRACE_POST_SUCCESS(1, AssertionPropertyTypeStrict,
-                              "/properties/bar/type", "#/properties/bar/type",
-                              "/bar");
-  EVALUATE_TRACE_POST_SUCCESS(2, AssertionPropertyTypeStrict,
-                              "/properties/foo/type", "#/properties/foo/type",
-                              "/foo");
+  EVALUATE_TRACE_POST_SUCCESS(1, LoopPropertiesTypeStrict, "/properties",
+                              "#/properties", "");
 
   EVALUATE_TRACE_POST_DESCRIBE(instance, 0,
                                "The object value was expected to only define "
                                "properties \"foo\", and \"bar\"");
-  EVALUATE_TRACE_POST_DESCRIBE(instance, 1,
-                               "The value was expected to be of type boolean");
-  EVALUATE_TRACE_POST_DESCRIBE(instance, 2,
-                               "The value was expected to be of type boolean");
+  EVALUATE_TRACE_POST_DESCRIBE(
+      instance, 1, "The object properties were expected to be of type boolean");
 }
 
 TEST(Evaluator_draft4, additionalProperties_13) {
@@ -2866,31 +2858,23 @@ TEST(Evaluator_draft4, additionalProperties_14) {
   const sourcemeta::jsontoolkit::JSON instance{
       sourcemeta::jsontoolkit::parse("{ \"foo\": true, \"bar\": false }")};
 
-  EVALUATE_WITH_TRACE_FAST_SUCCESS(schema, instance, 3);
+  EVALUATE_WITH_TRACE_FAST_SUCCESS(schema, instance, 2);
 
   EVALUATE_TRACE_PRE(0, AssertionDefinesExactlyStrict, "/required",
                      "#/required", "");
-  EVALUATE_TRACE_PRE(1, AssertionPropertyTypeStrict, "/properties/bar/type",
-                     "#/properties/bar/type", "/bar");
-  EVALUATE_TRACE_PRE(2, AssertionPropertyTypeStrict, "/properties/foo/type",
-                     "#/properties/foo/type", "/foo");
+  EVALUATE_TRACE_PRE(1, LoopPropertiesTypeStrict, "/properties", "#/properties",
+                     "");
 
   EVALUATE_TRACE_POST_SUCCESS(0, AssertionDefinesExactlyStrict, "/required",
                               "#/required", "");
-  EVALUATE_TRACE_POST_SUCCESS(1, AssertionPropertyTypeStrict,
-                              "/properties/bar/type", "#/properties/bar/type",
-                              "/bar");
-  EVALUATE_TRACE_POST_SUCCESS(2, AssertionPropertyTypeStrict,
-                              "/properties/foo/type", "#/properties/foo/type",
-                              "/foo");
+  EVALUATE_TRACE_POST_SUCCESS(1, LoopPropertiesTypeStrict, "/properties",
+                              "#/properties", "");
 
   EVALUATE_TRACE_POST_DESCRIBE(instance, 0,
                                "The value was expected to be an object that "
                                "only defines properties \"foo\", and \"bar\"");
-  EVALUATE_TRACE_POST_DESCRIBE(instance, 1,
-                               "The value was expected to be of type boolean");
-  EVALUATE_TRACE_POST_DESCRIBE(instance, 2,
-                               "The value was expected to be of type boolean");
+  EVALUATE_TRACE_POST_DESCRIBE(
+      instance, 1, "The object properties were expected to be of type boolean");
 }
 
 TEST(Evaluator_draft4, not_1) {

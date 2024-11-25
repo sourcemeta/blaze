@@ -774,8 +774,61 @@ auto compiler_draft4_applicator_properties_with_options(
                                            ? dynamic_context
                                            : relative_dynamic_context};
 
-  for (auto &&[name, substeps] :
-       compile_properties(context, schema_context, effective_dynamic_context)) {
+  auto properties{
+      compile_properties(context, schema_context, effective_dynamic_context)};
+
+  if (context.mode == Mode::FastValidation &&
+      schema_context.schema.defines("additionalProperties") &&
+      schema_context.schema.at("additionalProperties").is_boolean() &&
+      !schema_context.schema.at("additionalProperties").to_boolean() &&
+      // TODO: Check that the validation vocabulary is present
+      schema_context.schema.defines("required") &&
+      schema_context.schema.at("required").is_array() &&
+      schema_context.schema.at("required").size() ==
+          schema_context.schema.at(dynamic_context.keyword).size() &&
+      std::all_of(properties.cbegin(), properties.cend(),
+                  [&schema_context](const auto &property) {
+                    return schema_context.schema.at("required")
+                        .contains(
+                            sourcemeta::jsontoolkit::JSON{property.first});
+                  })) {
+    if (std::all_of(properties.cbegin(), properties.cend(),
+                    [](const auto &property) {
+                      return property.second.size() == 1 &&
+                             std::holds_alternative<AssertionTypeStrict>(
+                                 property.second.front());
+                    })) {
+      std::set<ValueType> types;
+      for (const auto &property : properties) {
+        types.insert(
+            std::get<AssertionTypeStrict>(property.second.front()).value);
+      }
+
+      if (types.size() == 1) {
+        return {make<LoopPropertiesTypeStrict>(
+            context, schema_context, dynamic_context, *types.cbegin())};
+      }
+    }
+
+    if (std::all_of(properties.cbegin(), properties.cend(),
+                    [](const auto &property) {
+                      return property.second.size() == 1 &&
+                             std::holds_alternative<AssertionType>(
+                                 property.second.front());
+                    })) {
+      std::set<ValueType> types;
+      for (const auto &property : properties) {
+        types.insert(std::get<AssertionType>(property.second.front()).value);
+      }
+
+      if (types.size() == 1) {
+        return {make<LoopPropertiesType>(context, schema_context,
+                                         dynamic_context, *types.cbegin())};
+      }
+    }
+  }
+
+  for (auto &&[name, substeps] : properties) {
     if (annotate) {
       substeps.push_back(make<AnnotationEmit>(
           context, schema_context, effective_dynamic_context,
