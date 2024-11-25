@@ -1574,3 +1574,46 @@ TEST(Evaluator_draft6, enum_14) {
       instance, 0,
       "The number value 3.0 was expected to equal the number constant 3.0");
 }
+
+TEST(Evaluator_draft6, additionalProperties_1) {
+  const sourcemeta::jsontoolkit::JSON schema{
+      sourcemeta::jsontoolkit::parse(R"JSON({
+    "$schema": "http://json-schema.org/draft-06/schema#",
+    "type": "object",
+    "required": [ "foo", "bar" ],
+    "additionalProperties": false,
+    "properties": {
+      "foo": { "type": "boolean" },
+      "bar": { "type": "boolean" }
+    }
+  })JSON")};
+
+  const sourcemeta::jsontoolkit::JSON instance{
+      sourcemeta::jsontoolkit::parse("{ \"foo\": true, \"bar\": false }")};
+
+  EVALUATE_WITH_TRACE_FAST_SUCCESS(schema, instance, 3);
+
+  EVALUATE_TRACE_PRE(0, AssertionDefinesExactlyStrict, "/required",
+                     "#/required", "");
+  EVALUATE_TRACE_PRE(1, AssertionPropertyTypeStrict, "/properties/bar/type",
+                     "#/properties/bar/type", "/bar");
+  EVALUATE_TRACE_PRE(2, AssertionPropertyTypeStrict, "/properties/foo/type",
+                     "#/properties/foo/type", "/foo");
+
+  EVALUATE_TRACE_POST_SUCCESS(0, AssertionDefinesExactlyStrict, "/required",
+                              "#/required", "");
+  EVALUATE_TRACE_POST_SUCCESS(1, AssertionPropertyTypeStrict,
+                              "/properties/bar/type", "#/properties/bar/type",
+                              "/bar");
+  EVALUATE_TRACE_POST_SUCCESS(2, AssertionPropertyTypeStrict,
+                              "/properties/foo/type", "#/properties/foo/type",
+                              "/foo");
+
+  EVALUATE_TRACE_POST_DESCRIBE(instance, 0,
+                               "The value was expected to be an object that "
+                               "only defines properties \"foo\", and \"bar\"");
+  EVALUATE_TRACE_POST_DESCRIBE(instance, 1,
+                               "The value was expected to be of type boolean");
+  EVALUATE_TRACE_POST_DESCRIBE(instance, 2,
+                               "The value was expected to be of type boolean");
+}

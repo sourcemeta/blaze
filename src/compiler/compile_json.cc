@@ -222,8 +222,12 @@ struct StepVisitor {
 
   HANDLE_STEP("assertion", "fail", AssertionFail)
   HANDLE_STEP("assertion", "defines", AssertionDefines)
+  HANDLE_STEP("assertion", "defines-strict", AssertionDefinesStrict)
   HANDLE_STEP("assertion", "defines-all", AssertionDefinesAll)
+  HANDLE_STEP("assertion", "defines-all-strict", AssertionDefinesAllStrict)
   HANDLE_STEP("assertion", "defines-exactly", AssertionDefinesExactly)
+  HANDLE_STEP("assertion", "defines-exactly-strict",
+              AssertionDefinesExactlyStrict)
   HANDLE_STEP("assertion", "property-dependencies",
               AssertionPropertyDependencies)
   HANDLE_STEP("assertion", "type", AssertionType)

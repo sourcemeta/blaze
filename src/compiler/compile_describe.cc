@@ -862,6 +862,14 @@ struct DescribeVisitor {
     return message.str();
   }
 
+  auto operator()(const AssertionDefinesStrict &step) const -> std::string {
+    std::ostringstream message;
+    message
+        << "The value was expected to be an object that defines the property "
+        << escape_string(step_value(step));
+    return message.str();
+  }
+
   auto operator()(const AssertionDefinesAll &step) const -> std::string {
     const auto &value{step_value(step)};
     assert(value.size() > 1);
@@ -906,11 +914,46 @@ struct DescribeVisitor {
     return message.str();
   }
 
+  auto operator()(const AssertionDefinesAllStrict &step) const -> std::string {
+    const auto &value{step_value(step)};
+    assert(value.size() > 1);
+    std::ostringstream message;
+    message
+        << "The value was expected to be an object that defines properties ";
+    for (auto iterator = value.cbegin(); iterator != value.cend(); ++iterator) {
+      if (std::next(iterator) == value.cend()) {
+        message << "and " << escape_string(*iterator);
+      } else {
+        message << escape_string(*iterator) << ", ";
+      }
+    }
+
+    return message.str();
+  }
+
   auto operator()(const AssertionDefinesExactly &step) const -> std::string {
     const auto &value{step_value(step)};
     assert(value.size() > 1);
     std::ostringstream message;
     message << "The object value was expected to only define properties ";
+    for (auto iterator = value.cbegin(); iterator != value.cend(); ++iterator) {
+      if (std::next(iterator) == value.cend()) {
+        message << "and " << escape_string(*iterator);
+      } else {
+        message << escape_string(*iterator) << ", ";
+      }
+    }
+
+    return message.str();
+  }
+
+  auto operator()(const AssertionDefinesExactlyStrict &step) const
+      -> std::string {
+    const auto &value{step_value(step)};
+    assert(value.size() > 1);
+    std::ostringstream message;
+    message << "The value was expected to be an object that only defines "
+               "properties ";
     for (auto iterator = value.cbegin(); iterator != value.cend(); ++iterator) {
       if (std::next(iterator) == value.cend()) {
         message << "and " << escape_string(*iterator);

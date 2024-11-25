@@ -26,6 +26,13 @@ switch (static_cast<InstructionIndex>(instruction.index())) {
     EVALUATE_END(assertion, AssertionDefines);
   }
 
+  case IS_INSTRUCTION(AssertionDefinesStrict): {
+    EVALUATE_BEGIN_NO_PRECONDITION(assertion, AssertionDefinesStrict);
+    const auto &target{get(instance, assertion.relative_instance_location)};
+    result = target.is_object() && target.defines(assertion.value);
+    EVALUATE_END(assertion, AssertionDefinesStrict);
+  }
+
   case IS_INSTRUCTION(AssertionDefinesAll): {
     EVALUATE_BEGIN_NON_STRING(assertion, AssertionDefinesAll,
                               target.is_object());
@@ -47,6 +54,27 @@ switch (static_cast<InstructionIndex>(instruction.index())) {
     EVALUATE_END(assertion, AssertionDefinesAll);
   }
 
+  case IS_INSTRUCTION(AssertionDefinesAllStrict): {
+    EVALUATE_BEGIN_NO_PRECONDITION(assertion, AssertionDefinesAllStrict);
+    const auto &target{get(instance, assertion.relative_instance_location)};
+
+    // Otherwise we are we even emitting this instruction?
+    assert(assertion.value.size() > 1);
+
+    // Otherwise there is no way the instance can satisfy it anyway
+    if (target.is_object() && assertion.value.size() <= target.object_size()) {
+      result = true;
+      for (const auto &property : assertion.value) {
+        if (!target.defines(property)) {
+          result = false;
+          break;
+        }
+      }
+    }
+
+    EVALUATE_END(assertion, AssertionDefinesAllStrict);
+  }
+
   case IS_INSTRUCTION(AssertionDefinesExactly): {
     EVALUATE_BEGIN_NON_STRING(assertion, AssertionDefinesExactly,
                               target.is_object());
@@ -65,6 +93,26 @@ switch (static_cast<InstructionIndex>(instruction.index())) {
     }
 
     EVALUATE_END(assertion, AssertionDefinesExactly);
+  }
+
+  case IS_INSTRUCTION(AssertionDefinesExactlyStrict): {
+    EVALUATE_BEGIN_NO_PRECONDITION(assertion, AssertionDefinesExactlyStrict);
+    const auto &target{get(instance, assertion.relative_instance_location)};
+
+    // Otherwise we are we even emitting this instruction?
+    assert(assertion.value.size() > 1);
+
+    if (target.is_object() && assertion.value.size() == target.object_size()) {
+      result = true;
+      for (const auto &property : assertion.value) {
+        if (!target.defines(property)) {
+          result = false;
+          break;
+        }
+      }
+    }
+
+    EVALUATE_END(assertion, AssertionDefinesExactlyStrict);
   }
 
   case IS_INSTRUCTION(AssertionPropertyDependencies): {

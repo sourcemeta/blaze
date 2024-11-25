@@ -273,7 +273,28 @@ TEST(Evaluator_draft4, required_4) {
 
   const sourcemeta::jsontoolkit::JSON instance{
       sourcemeta::jsontoolkit::parse("{ \"foo\": 1, \"bar\": 2 }")};
-  EVALUATE_WITH_TRACE_FAST_SUCCESS(schema, instance, 2);
+  EVALUATE_WITH_TRACE_FAST_SUCCESS(schema, instance, 1);
+
+  EVALUATE_TRACE_PRE(0, AssertionDefinesAllStrict, "/required", "#/required",
+                     "");
+  EVALUATE_TRACE_POST_SUCCESS(0, AssertionDefinesAllStrict, "/required",
+                              "#/required", "");
+  EVALUATE_TRACE_POST_DESCRIBE(instance, 0,
+                               "The value was expected to be an object that "
+                               "defines properties \"foo\", and \"bar\"");
+}
+
+TEST(Evaluator_draft4, required_4_exhaustive) {
+  const sourcemeta::jsontoolkit::JSON schema{
+      sourcemeta::jsontoolkit::parse(R"JSON({
+    "$schema": "http://json-schema.org/draft-04/schema#",
+    "type": "object",
+    "required": [ "foo", "bar" ]
+  })JSON")};
+
+  const sourcemeta::jsontoolkit::JSON instance{
+      sourcemeta::jsontoolkit::parse("{ \"foo\": 1, \"bar\": 2 }")};
+  EVALUATE_WITH_TRACE_EXHAUSTIVE_SUCCESS(schema, instance, 2);
   EVALUATE_TRACE_PRE(0, AssertionDefinesAll, "/required", "#/required", "");
   EVALUATE_TRACE_PRE(1, AssertionTypeStrict, "/type", "#/type", "");
   EVALUATE_TRACE_POST_SUCCESS(0, AssertionDefinesAll, "/required", "#/required",
@@ -1038,34 +1059,31 @@ TEST(Evaluator_draft4, properties_5) {
   const sourcemeta::jsontoolkit::JSON instance{
       sourcemeta::jsontoolkit::parse("{ \"foo\": \"xxx\", \"bar\": 2 }")};
 
-  EVALUATE_WITH_TRACE_FAST_SUCCESS(schema, instance, 4);
+  EVALUATE_WITH_TRACE_FAST_SUCCESS(schema, instance, 3);
 
-  EVALUATE_TRACE_PRE(0, AssertionDefinesAll, "/required", "#/required", "");
+  EVALUATE_TRACE_PRE(0, AssertionDefinesAllStrict, "/required", "#/required",
+                     "");
   EVALUATE_TRACE_PRE(1, AssertionPropertyTypeStrict, "/properties/bar/type",
                      "#/properties/bar/type", "/bar");
   EVALUATE_TRACE_PRE(2, AssertionPropertyTypeStrict, "/properties/foo/type",
                      "#/properties/foo/type", "/foo");
-  EVALUATE_TRACE_PRE(3, AssertionTypeStrict, "/type", "#/type", "");
 
-  EVALUATE_TRACE_POST_SUCCESS(0, AssertionDefinesAll, "/required", "#/required",
-                              "");
+  EVALUATE_TRACE_POST_SUCCESS(0, AssertionDefinesAllStrict, "/required",
+                              "#/required", "");
   EVALUATE_TRACE_POST_SUCCESS(1, AssertionPropertyTypeStrict,
                               "/properties/bar/type", "#/properties/bar/type",
                               "/bar");
   EVALUATE_TRACE_POST_SUCCESS(2, AssertionPropertyTypeStrict,
                               "/properties/foo/type", "#/properties/foo/type",
                               "/foo");
-  EVALUATE_TRACE_POST_SUCCESS(3, AssertionTypeStrict, "/type", "#/type", "");
 
   EVALUATE_TRACE_POST_DESCRIBE(instance, 0,
-                               "The object value was expected to define "
-                               "properties \"foo\", and \"bar\"");
+                               "The value was expected to be an object that "
+                               "defines properties \"foo\", and \"bar\"");
   EVALUATE_TRACE_POST_DESCRIBE(instance, 1,
                                "The value was expected to be of type integer");
   EVALUATE_TRACE_POST_DESCRIBE(instance, 2,
                                "The value was expected to be of type string");
-  EVALUATE_TRACE_POST_DESCRIBE(instance, 3,
-                               "The value was expected to be of type object");
 }
 
 TEST(Evaluator_draft4, properties_6) {
@@ -2832,6 +2850,49 @@ TEST(Evaluator_draft4, additionalProperties_13) {
                                "properties \"foo\", and \"bar\"");
 }
 
+TEST(Evaluator_draft4, additionalProperties_14) {
+  const sourcemeta::jsontoolkit::JSON schema{
+      sourcemeta::jsontoolkit::parse(R"JSON({
+    "$schema": "http://json-schema.org/draft-04/schema#",
+    "type": "object",
+    "required": [ "foo", "bar" ],
+    "additionalProperties": false,
+    "properties": {
+      "foo": { "type": "boolean" },
+      "bar": { "type": "boolean" }
+    }
+  })JSON")};
+
+  const sourcemeta::jsontoolkit::JSON instance{
+      sourcemeta::jsontoolkit::parse("{ \"foo\": true, \"bar\": false }")};
+
+  EVALUATE_WITH_TRACE_FAST_SUCCESS(schema, instance, 3);
+
+  EVALUATE_TRACE_PRE(0, AssertionDefinesExactlyStrict, "/required",
+                     "#/required", "");
+  EVALUATE_TRACE_PRE(1, AssertionPropertyTypeStrict, "/properties/bar/type",
+                     "#/properties/bar/type", "/bar");
+  EVALUATE_TRACE_PRE(2, AssertionPropertyTypeStrict, "/properties/foo/type",
+                     "#/properties/foo/type", "/foo");
+
+  EVALUATE_TRACE_POST_SUCCESS(0, AssertionDefinesExactlyStrict, "/required",
+                              "#/required", "");
+  EVALUATE_TRACE_POST_SUCCESS(1, AssertionPropertyTypeStrict,
+                              "/properties/bar/type", "#/properties/bar/type",
+                              "/bar");
+  EVALUATE_TRACE_POST_SUCCESS(2, AssertionPropertyTypeStrict,
+                              "/properties/foo/type", "#/properties/foo/type",
+                              "/foo");
+
+  EVALUATE_TRACE_POST_DESCRIBE(instance, 0,
+                               "The value was expected to be an object that "
+                               "only defines properties \"foo\", and \"bar\"");
+  EVALUATE_TRACE_POST_DESCRIBE(instance, 1,
+                               "The value was expected to be of type boolean");
+  EVALUATE_TRACE_POST_DESCRIBE(instance, 2,
+                               "The value was expected to be of type boolean");
+}
+
 TEST(Evaluator_draft4, not_1) {
   const sourcemeta::jsontoolkit::JSON schema{
       sourcemeta::jsontoolkit::parse(R"JSON({
@@ -3267,22 +3328,22 @@ TEST(Evaluator_draft4, items_10) {
 
   EVALUATE_TRACE_PRE(0, LoopItems, "/properties/features/items",
                      "#/properties/features/items", "/features");
-  EVALUATE_TRACE_PRE(1, AssertionTypeStrict,
-                     "/properties/features/items/properties/geometry/type",
-                     "#/properties/features/items/properties/geometry/type",
+  EVALUATE_TRACE_PRE(1, AssertionDefinesStrict,
+                     "/properties/features/items/properties/geometry/required",
+                     "#/properties/features/items/properties/geometry/required",
                      "/features/0/geometry");
 
   EVALUATE_TRACE_POST_FAILURE(
-      0, AssertionTypeStrict,
-      "/properties/features/items/properties/geometry/type",
-      "#/properties/features/items/properties/geometry/type",
+      0, AssertionDefinesStrict,
+      "/properties/features/items/properties/geometry/required",
+      "#/properties/features/items/properties/geometry/required",
       "/features/0/geometry");
   EVALUATE_TRACE_POST_FAILURE(1, LoopItems, "/properties/features/items",
                               "#/properties/features/items", "/features");
 
-  EVALUATE_TRACE_POST_DESCRIBE(
-      instance, 0,
-      "The value was expected to be of type object but it was of type null");
+  EVALUATE_TRACE_POST_DESCRIBE(instance, 0,
+                               "The value was expected to be an object that "
+                               "defines the property \"geometries\"");
   EVALUATE_TRACE_POST_DESCRIBE(instance, 1,
                                "Every item in the array value was expected to "
                                "validate against the given subschema");
