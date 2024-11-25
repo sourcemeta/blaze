@@ -17,6 +17,7 @@ namespace sourcemeta::blaze {
 struct AssertionFail;
 struct AssertionDefines;
 struct AssertionDefinesAll;
+struct AssertionDefinesExactly;
 struct AssertionPropertyDependencies;
 struct AssertionType;
 struct AssertionTypeAny;
@@ -103,12 +104,12 @@ struct ControlDynamicAnchorJump;
 /// Represents a schema compilation step that can be evaluated
 using Instruction = std::variant<
     AssertionFail, AssertionDefines, AssertionDefinesAll,
-    AssertionPropertyDependencies, AssertionType, AssertionTypeAny,
-    AssertionTypeStrict, AssertionTypeStrictAny, AssertionTypeStringBounded,
-    AssertionTypeStringUpper, AssertionTypeArrayBounded,
-    AssertionTypeArrayUpper, AssertionTypeObjectBounded,
-    AssertionTypeObjectUpper, AssertionRegex, AssertionStringSizeLess,
-    AssertionStringSizeGreater, AssertionArraySizeLess,
+    AssertionDefinesExactly, AssertionPropertyDependencies, AssertionType,
+    AssertionTypeAny, AssertionTypeStrict, AssertionTypeStrictAny,
+    AssertionTypeStringBounded, AssertionTypeStringUpper,
+    AssertionTypeArrayBounded, AssertionTypeArrayUpper,
+    AssertionTypeObjectBounded, AssertionTypeObjectUpper, AssertionRegex,
+    AssertionStringSizeLess, AssertionStringSizeGreater, AssertionArraySizeLess,
     AssertionArraySizeGreater, AssertionObjectSizeLess,
     AssertionObjectSizeGreater, AssertionEqual, AssertionEqualsAny,
     AssertionGreaterEqual, AssertionLessEqual, AssertionGreater, AssertionLess,
@@ -139,6 +140,7 @@ enum class InstructionIndex : std::uint8_t {
   AssertionFail = 0,
   AssertionDefines,
   AssertionDefinesAll,
+  AssertionDefinesExactly,
   AssertionPropertyDependencies,
   AssertionType,
   AssertionTypeAny,
@@ -266,6 +268,11 @@ DEFINE_STEP_WITH_VALUE(Assertion, Defines, ValueString)
 /// @brief Represents a compiler assertion step that checks if an object defines
 /// a set of properties
 DEFINE_STEP_WITH_VALUE(Assertion, DefinesAll, ValueStrings)
+
+/// @ingroup evaluator_instructions
+/// @brief Represents a compiler assertion step that checks if an object defines
+/// a set of properties and no other ones
+DEFINE_STEP_WITH_VALUE(Assertion, DefinesExactly, ValueStrings)
 
 /// @ingroup evaluator_instructions
 /// @brief Represents a compiler assertion step that checks if an object defines

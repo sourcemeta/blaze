@@ -430,6 +430,20 @@ auto compiler_draft4_validation_required(const Context &context,
     if (properties.size() == 1) {
       return {make<AssertionDefines>(context, schema_context, dynamic_context,
                                      ValueString{*(properties.cbegin())})};
+    } else if (schema_context.schema.defines("additionalProperties") &&
+               schema_context.schema.at("additionalProperties").is_boolean() &&
+               !schema_context.schema.at("additionalProperties").to_boolean() &&
+               schema_context.schema.defines("properties") &&
+               schema_context.schema.at("properties").is_object() &&
+               schema_context.schema.at("properties").size() ==
+                   properties.size() &&
+               std::all_of(properties.cbegin(), properties.cend(),
+                           [&schema_context](const auto &property) {
+                             return schema_context.schema.at("properties")
+                                 .defines(property);
+                           })) {
+      return {make<AssertionDefinesExactly>(
+          context, schema_context, dynamic_context, std::move(properties))};
     } else {
       return {make<AssertionDefinesAll>(
           context, schema_context, dynamic_context, std::move(properties))};
