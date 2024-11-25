@@ -88,6 +88,11 @@ auto compiler_draft6_validation_type(const Context &context,
         return {};
       }
 
+      if (context.mode == Mode::FastValidation &&
+          schema_context.schema.defines("required")) {
+        return {};
+      }
+
       return {make<AssertionTypeStrict>(
           context, schema_context, dynamic_context,
           sourcemeta::jsontoolkit::JSON::Type::Object)};

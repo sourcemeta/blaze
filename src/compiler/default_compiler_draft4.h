@@ -238,6 +238,11 @@ auto compiler_draft4_validation_type(const Context &context,
         return {};
       }
 
+      if (context.mode == Mode::FastValidation &&
+          schema_context.schema.defines("required")) {
+        return {};
+      }
+
       return {make<AssertionTypeStrict>(
           context, schema_context, dynamic_context,
           sourcemeta::jsontoolkit::JSON::Type::Object)};
@@ -417,6 +422,11 @@ auto compiler_draft4_validation_required(const Context &context,
     return {};
   }
 
+  const auto assume_object{schema_context.schema.defines("type") &&
+                           schema_context.schema.at("type").is_string() &&
+                           schema_context.schema.at("type").to_string() ==
+                               "object"};
+
   if (schema_context.schema.at(dynamic_context.keyword).empty()) {
     return {};
   } else if (schema_context.schema.at(dynamic_context.keyword).size() > 1) {
@@ -428,8 +438,14 @@ auto compiler_draft4_validation_required(const Context &context,
     }
 
     if (properties.size() == 1) {
-      return {make<AssertionDefines>(context, schema_context, dynamic_context,
-                                     ValueString{*(properties.cbegin())})};
+      if (context.mode == Mode::FastValidation && assume_object) {
+        return {make<AssertionDefinesStrict>(
+            context, schema_context, dynamic_context,
+            ValueString{*(properties.cbegin())})};
+      } else {
+        return {make<AssertionDefines>(context, schema_context, dynamic_context,
+                                       ValueString{*(properties.cbegin())})};
+      }
     } else if (schema_context.schema.defines("additionalProperties") &&
                schema_context.schema.at("additionalProperties").is_boolean() &&
                !schema_context.schema.at("additionalProperties").to_boolean() &&
@@ -442,12 +458,28 @@ auto compiler_draft4_validation_required(const Context &context,
                              return schema_context.schema.at("properties")
                                  .defines(property);
                            })) {
-      return {make<AssertionDefinesExactly>(
+      if (context.mode == Mode::FastValidation && assume_object) {
+        return {make<AssertionDefinesExactlyStrict>(
+            context, schema_context, dynamic_context, std::move(properties))};
+      } else {
+        return {make<AssertionDefinesExactly>(
+            context, schema_context, dynamic_context, std::move(properties))};
+      }
+    } else if (context.mode == Mode::FastValidation && assume_object) {
+      return {make<AssertionDefinesAllStrict>(
           context, schema_context, dynamic_context, std::move(properties))};
     } else {
       return {make<AssertionDefinesAll>(
           context, schema_context, dynamic_context, std::move(properties))};
     }
+  } else if (context.mode == Mode::FastValidation && assume_object) {
+    assert(
+        schema_context.schema.at(dynamic_context.keyword).front().is_string());
+    return {make<AssertionDefinesStrict>(
+        context, schema_context, dynamic_context,
+        ValueString{schema_context.schema.at(dynamic_context.keyword)
+                        .front()
+                        .to_string()})};
   } else {
     assert(
         schema_context.schema.at(dynamic_context.keyword).front().is_string());

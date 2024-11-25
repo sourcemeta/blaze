@@ -16,8 +16,11 @@ namespace sourcemeta::blaze {
 #ifndef DOXYGEN
 struct AssertionFail;
 struct AssertionDefines;
+struct AssertionDefinesStrict;
 struct AssertionDefinesAll;
+struct AssertionDefinesAllStrict;
 struct AssertionDefinesExactly;
+struct AssertionDefinesExactlyStrict;
 struct AssertionPropertyDependencies;
 struct AssertionType;
 struct AssertionTypeAny;
@@ -103,8 +106,9 @@ struct ControlDynamicAnchorJump;
 /// @ingroup evaluator
 /// Represents a schema compilation step that can be evaluated
 using Instruction = std::variant<
-    AssertionFail, AssertionDefines, AssertionDefinesAll,
-    AssertionDefinesExactly, AssertionPropertyDependencies, AssertionType,
+    AssertionFail, AssertionDefines, AssertionDefinesStrict,
+    AssertionDefinesAll, AssertionDefinesAllStrict, AssertionDefinesExactly,
+    AssertionDefinesExactlyStrict, AssertionPropertyDependencies, AssertionType,
     AssertionTypeAny, AssertionTypeStrict, AssertionTypeStrictAny,
     AssertionTypeStringBounded, AssertionTypeStringUpper,
     AssertionTypeArrayBounded, AssertionTypeArrayUpper,
@@ -139,8 +143,11 @@ using Instruction = std::variant<
 enum class InstructionIndex : std::uint8_t {
   AssertionFail = 0,
   AssertionDefines,
+  AssertionDefinesStrict,
   AssertionDefinesAll,
+  AssertionDefinesAllStrict,
   AssertionDefinesExactly,
+  AssertionDefinesExactlyStrict,
   AssertionPropertyDependencies,
   AssertionType,
   AssertionTypeAny,
@@ -265,14 +272,29 @@ DEFINE_STEP_WITH_VALUE(Assertion, Fail, ValueNone)
 DEFINE_STEP_WITH_VALUE(Assertion, Defines, ValueString)
 
 /// @ingroup evaluator_instructions
+/// @brief Represents a compiler assertion step that checks that the instance is
+/// an object and that it defines a given property
+DEFINE_STEP_WITH_VALUE(Assertion, DefinesStrict, ValueString)
+
+/// @ingroup evaluator_instructions
 /// @brief Represents a compiler assertion step that checks if an object defines
 /// a set of properties
 DEFINE_STEP_WITH_VALUE(Assertion, DefinesAll, ValueStrings)
 
 /// @ingroup evaluator_instructions
+/// @brief Represents a compiler assertion step that checks that the instance is
+/// an object and that it defines a set of properties
+DEFINE_STEP_WITH_VALUE(Assertion, DefinesAllStrict, ValueStrings)
+
+/// @ingroup evaluator_instructions
 /// @brief Represents a compiler assertion step that checks if an object defines
 /// a set of properties and no other ones
 DEFINE_STEP_WITH_VALUE(Assertion, DefinesExactly, ValueStrings)
+
+/// @ingroup evaluator_instructions
+/// @brief Represents a compiler assertion step that checks if the instance is
+/// an object and defines a set of properties and no other ones
+DEFINE_STEP_WITH_VALUE(Assertion, DefinesExactlyStrict, ValueStrings)
 
 /// @ingroup evaluator_instructions
 /// @brief Represents a compiler assertion step that checks if an object defines
