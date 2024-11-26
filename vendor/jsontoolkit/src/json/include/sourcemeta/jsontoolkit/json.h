@@ -12,6 +12,7 @@
 #include <cstdint>    // std::uint64_t
 #include <filesystem> // std::filesystem
 #include <fstream>    // std::basic_ifstream
+#include <functional> // std::function
 #include <istream>    // std::basic_istream
 #include <ostream>    // std::basic_ostream
 #include <string>     // std::basic_string
@@ -32,6 +33,18 @@ namespace sourcemeta::jsontoolkit {
 using Hash = FastHash<JSON>;
 
 /// @ingroup json
+enum class CallbackPhase { Pre, Post };
+
+/// @ingroup json
+/// An optional callback that can be passed to parsing functions to obtain
+/// metadata during the parsing process. Each subdocument will emit 2 events: a
+/// "pre" and a "post". When parsing object and arrays, during the "pre" event,
+/// the value corresponds to the property name or index, respectively.
+using Callback = std::function<void(
+    const CallbackPhase phase, const JSON::Type type, const std::uint64_t line,
+    const std::uint64_t column, const JSON &value)>;
+
+/// @ingroup json
 /// Create a JSON document from a C++ standard input stream. For example, a JSON
 /// document that represents an array can be parsed as follows:
 ///
@@ -48,7 +61,8 @@ using Hash = FastHash<JSON>;
 ///
 /// If parsing fails, sourcemeta::jsontoolkit::ParseError will be thrown.
 SOURCEMETA_JSONTOOLKIT_JSON_EXPORT
-auto parse(std::basic_istream<JSON::Char, JSON::CharTraits> &stream) -> JSON;
+auto parse(std::basic_istream<JSON::Char, JSON::CharTraits> &stream,
+           const Callback &callback = nullptr) -> JSON;
 
 /// @ingroup json
 ///
@@ -66,8 +80,8 @@ auto parse(std::basic_istream<JSON::Char, JSON::CharTraits> &stream) -> JSON;
 ///
 /// If parsing fails, sourcemeta::jsontoolkit::ParseError will be thrown.
 SOURCEMETA_JSONTOOLKIT_JSON_EXPORT
-auto parse(const std::basic_string<JSON::Char, JSON::CharTraits> &input)
-    -> JSON;
+auto parse(const std::basic_string<JSON::Char, JSON::CharTraits> &input,
+           const Callback &callback = nullptr) -> JSON;
 
 /// @ingroup json
 /// Create a JSON document from a C++ standard input stream, passing your own
@@ -87,7 +101,8 @@ auto parse(const std::basic_string<JSON::Char, JSON::CharTraits> &input)
 /// ```
 SOURCEMETA_JSONTOOLKIT_JSON_EXPORT
 auto parse(std::basic_istream<JSON::Char, JSON::CharTraits> &stream,
-           std::uint64_t &line, std::uint64_t &column) -> JSON;
+           std::uint64_t &line, std::uint64_t &column,
+           const Callback &callback = nullptr) -> JSON;
 
 /// @ingroup json
 /// Create a JSON document from a JSON string, passing your own
@@ -105,7 +120,8 @@ auto parse(std::basic_istream<JSON::Char, JSON::CharTraits> &stream,
 /// ```
 SOURCEMETA_JSONTOOLKIT_JSON_EXPORT
 auto parse(const std::basic_string<JSON::Char, JSON::CharTraits> &input,
-           std::uint64_t &line, std::uint64_t &column) -> JSON;
+           std::uint64_t &line, std::uint64_t &column,
+           const Callback &callback = nullptr) -> JSON;
 
 /// @ingroup json
 ///
