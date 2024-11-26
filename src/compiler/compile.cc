@@ -104,7 +104,8 @@ auto compile(const sourcemeta::jsontoolkit::JSON &schema,
              const sourcemeta::jsontoolkit::SchemaWalker &walker,
              const sourcemeta::jsontoolkit::SchemaResolver &resolver,
              const Compiler &compiler, const Mode mode,
-             const std::optional<std::string> &default_dialect) -> Template {
+             const std::optional<std::string> &default_dialect)
+    -> const Template {
   assert(is_schema(schema));
 
   // Make sure the input schema is bundled, otherwise we won't be able to
