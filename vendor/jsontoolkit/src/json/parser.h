@@ -646,19 +646,23 @@ auto parse_number(
 // We use "goto" to avoid recursion
 // NOLINTBEGIN(cppcoreguidelines-avoid-goto)
 
-#define CALLBACK_PRE(type, value)                                              \
+#define CALLBACK_PRE(value_type, value)                                        \
   if (callback) {                                                              \
-    callback(CallbackPhase::Pre, JSON::Type::type, line, column, value);       \
+    assert(value.is_null() || value.is_string() || value.is_integer());        \
+    callback(CallbackPhase::Pre, JSON::Type::value_type, line, column, value); \
   }
 
-#define CALLBACK_PRE_WITH_POSITION(type, line, column, value)                  \
+#define CALLBACK_PRE_WITH_POSITION(value_type, line, column, value)            \
   if (callback) {                                                              \
-    callback(CallbackPhase::Pre, JSON::Type::type, line, column, value);       \
+    assert(value.is_null() || value.is_string() || value.is_integer());        \
+    callback(CallbackPhase::Pre, JSON::Type::value_type, line, column, value); \
   }
 
-#define CALLBACK_POST(type, value)                                             \
+#define CALLBACK_POST(value_type, value)                                       \
   if (callback) {                                                              \
-    callback(CallbackPhase::Post, JSON::Type::type, line, column, value);      \
+    assert(value.type() == JSON::Type::value_type);                            \
+    callback(CallbackPhase::Post, JSON::Type::value_type, line, column,        \
+             value);                                                           \
   }
 
 namespace sourcemeta::jsontoolkit {
