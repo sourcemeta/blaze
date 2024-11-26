@@ -1,29 +1,26 @@
 #ifndef SOURCEMETA_BLAZE_EVALUATOR_COMPLETE_H_
 #define SOURCEMETA_BLAZE_EVALUATOR_COMPLETE_H_
 
-#define EVALUATE_BEGIN(instruction_category, instruction_type, precondition)   \
-  const auto &instruction_category{                                            \
-      std::get<sourcemeta::blaze::instruction_type>(instruction)};             \
+#define EVALUATE_BEGIN(instruction_type, precondition)                         \
   const auto track{schema.track || callback.has_value()};                      \
   if (track) {                                                                 \
-    evaluator.evaluate_path.push_back(                                         \
-        instruction_category.relative_schema_location);                        \
+    evaluator.evaluate_path.push_back(instruction.relative_schema_location);   \
     evaluator.instance_location.push_back(                                     \
-        instruction_category.relative_instance_location);                      \
+        instruction.relative_instance_location);                               \
   }                                                                            \
   if (schema.dynamic) {                                                        \
-    evaluator.resources.push_back(instruction_category.schema_resource);       \
+    evaluator.resources.push_back(instruction.schema_resource);                \
   }                                                                            \
-  const auto &target{resolve_target(                                           \
-      property_target,                                                         \
-      sourcemeta::jsontoolkit::get(                                            \
-          instance, instruction_category.relative_instance_location))};        \
+  const auto &target{                                                          \
+      resolve_target(property_target,                                          \
+                     sourcemeta::jsontoolkit::get(                             \
+                         instance, instruction.relative_instance_location))};  \
   if (!(precondition)) {                                                       \
     if (track) {                                                               \
       evaluator.evaluate_path.pop_back(                                        \
-          instruction_category.relative_schema_location.size());               \
+          instruction.relative_schema_location.size());                        \
       evaluator.instance_location.pop_back(                                    \
-          instruction_category.relative_instance_location.size());             \
+          instruction.relative_instance_location.size());                      \
     }                                                                          \
     if (schema.dynamic) {                                                      \
       evaluator.resources.pop_back();                                          \
@@ -37,28 +34,24 @@
   }                                                                            \
   bool result{false};
 
-#define EVALUATE_BEGIN_NON_STRING(instruction_category, instruction_type,      \
-                                  precondition)                                \
-  const auto &instruction_category{                                            \
-      std::get<sourcemeta::blaze::instruction_type>(instruction)};             \
+#define EVALUATE_BEGIN_NON_STRING(instruction_type, precondition)              \
   const auto track{schema.track || callback.has_value()};                      \
   if (track) {                                                                 \
-    evaluator.evaluate_path.push_back(                                         \
-        instruction_category.relative_schema_location);                        \
+    evaluator.evaluate_path.push_back(instruction.relative_schema_location);   \
     evaluator.instance_location.push_back(                                     \
-        instruction_category.relative_instance_location);                      \
+        instruction.relative_instance_location);                               \
   }                                                                            \
   if (schema.dynamic) {                                                        \
-    evaluator.resources.push_back(instruction_category.schema_resource);       \
+    evaluator.resources.push_back(instruction.schema_resource);                \
   }                                                                            \
   const auto &target{sourcemeta::jsontoolkit::get(                             \
-      instance, instruction_category.relative_instance_location)};             \
+      instance, instruction.relative_instance_location)};                      \
   if (!(precondition)) {                                                       \
     if (track) {                                                               \
       evaluator.evaluate_path.pop_back(                                        \
-          instruction_category.relative_schema_location.size());               \
+          instruction.relative_schema_location.size());                        \
       evaluator.instance_location.pop_back(                                    \
-          instruction_category.relative_instance_location.size());             \
+          instruction.relative_instance_location.size());                      \
     }                                                                          \
     if (schema.dynamic) {                                                      \
       evaluator.resources.pop_back();                                          \
@@ -72,28 +65,24 @@
   }                                                                            \
   bool result{false};
 
-#define EVALUATE_BEGIN_IF_STRING(instruction_category, instruction_type)       \
-  const auto &instruction_category{                                            \
-      std::get<sourcemeta::blaze::instruction_type>(instruction)};             \
+#define EVALUATE_BEGIN_IF_STRING(instruction_type)                             \
   const auto track{schema.track || callback.has_value()};                      \
   if (track) {                                                                 \
-    evaluator.evaluate_path.push_back(                                         \
-        instruction_category.relative_schema_location);                        \
+    evaluator.evaluate_path.push_back(instruction.relative_schema_location);   \
     evaluator.instance_location.push_back(                                     \
-        instruction_category.relative_instance_location);                      \
+        instruction.relative_instance_location);                               \
   }                                                                            \
   if (schema.dynamic) {                                                        \
-    evaluator.resources.push_back(instruction_category.schema_resource);       \
+    evaluator.resources.push_back(instruction.schema_resource);                \
   }                                                                            \
-  const auto &maybe_target{                                                    \
-      resolve_string_target(property_target, instance,                         \
-                            instruction_category.relative_instance_location)}; \
+  const auto &maybe_target{resolve_string_target(                              \
+      property_target, instance, instruction.relative_instance_location)};     \
   if (!maybe_target.has_value()) {                                             \
     if (track) {                                                               \
       evaluator.evaluate_path.pop_back(                                        \
-          instruction_category.relative_schema_location.size());               \
+          instruction.relative_schema_location.size());                        \
       evaluator.instance_location.pop_back(                                    \
-          instruction_category.relative_instance_location.size());             \
+          instruction.relative_instance_location.size());                      \
     }                                                                          \
     if (schema.dynamic) {                                                      \
       evaluator.resources.pop_back();                                          \
@@ -110,30 +99,26 @@
 
 // This is a slightly complicated dance to avoid traversing the relative
 // instance location twice.
-#define EVALUATE_BEGIN_TRY_TARGET(instruction_category, instruction_type,      \
-                                  precondition)                                \
+#define EVALUATE_BEGIN_TRY_TARGET(instruction_type, precondition)              \
   const auto &target{instance};                                                \
-  const auto &instruction_category{                                            \
-      std::get<sourcemeta::blaze::instruction_type>(instruction)};             \
   if (!(precondition)) {                                                       \
     return true;                                                               \
   }                                                                            \
   const auto target_check{                                                     \
-      try_get(target, instruction_category.relative_instance_location)};       \
+      try_get(target, instruction.relative_instance_location)};                \
   if (!target_check.has_value()) {                                             \
     return true;                                                               \
   }                                                                            \
   const auto track{schema.track || callback.has_value()};                      \
   if (track) {                                                                 \
-    evaluator.evaluate_path.push_back(                                         \
-        instruction_category.relative_schema_location);                        \
+    evaluator.evaluate_path.push_back(instruction.relative_schema_location);   \
     evaluator.instance_location.push_back(                                     \
-        instruction_category.relative_instance_location);                      \
+        instruction.relative_instance_location);                               \
   }                                                                            \
   if (schema.dynamic) {                                                        \
-    evaluator.resources.push_back(instruction_category.schema_resource);       \
+    evaluator.resources.push_back(instruction.schema_resource);                \
   }                                                                            \
-  assert(!instruction_category.relative_instance_location.empty());            \
+  assert(!instruction.relative_instance_location.empty());                     \
   if (callback.has_value()) {                                                  \
     callback.value()(EvaluationType::Pre, true, instruction,                   \
                      evaluator.evaluate_path, evaluator.instance_location,     \
@@ -141,18 +126,15 @@
   }                                                                            \
   bool result{false};
 
-#define EVALUATE_BEGIN_NO_PRECONDITION(instruction_category, instruction_type) \
-  const auto &instruction_category{                                            \
-      std::get<sourcemeta::blaze::instruction_type>(instruction)};             \
+#define EVALUATE_BEGIN_NO_PRECONDITION(instruction_type)                       \
   const auto track{schema.track || callback.has_value()};                      \
   if (track) {                                                                 \
-    evaluator.evaluate_path.push_back(                                         \
-        instruction_category.relative_schema_location);                        \
+    evaluator.evaluate_path.push_back(instruction.relative_schema_location);   \
     evaluator.instance_location.push_back(                                     \
-        instruction_category.relative_instance_location);                      \
+        instruction.relative_instance_location);                               \
   }                                                                            \
   if (schema.dynamic) {                                                        \
-    evaluator.resources.push_back(instruction_category.schema_resource);       \
+    evaluator.resources.push_back(instruction.schema_resource);                \
   }                                                                            \
   if (callback.has_value()) {                                                  \
     callback.value()(EvaluationType::Pre, true, instruction,                   \
@@ -161,10 +143,7 @@
   }                                                                            \
   bool result{false};
 
-#define EVALUATE_BEGIN_NO_PRECONDITION_AND_NO_PUSH(instruction_category,       \
-                                                   instruction_type)           \
-  const auto &instruction_category{                                            \
-      std::get<sourcemeta::blaze::instruction_type>(instruction)};             \
+#define EVALUATE_BEGIN_NO_PRECONDITION_AND_NO_PUSH(instruction_type)           \
   if (callback.has_value()) {                                                  \
     callback.value()(EvaluationType::Pre, true, instruction,                   \
                      evaluator.evaluate_path, evaluator.instance_location,     \
@@ -172,12 +151,9 @@
   }                                                                            \
   bool result{true};
 
-#define EVALUATE_BEGIN_PASS_THROUGH(instruction_category, instruction_type)    \
-  const auto &instruction_category{                                            \
-      std::get<sourcemeta::blaze::instruction_type>(instruction)};             \
-  bool result{true};
+#define EVALUATE_BEGIN_PASS_THROUGH(instruction_type) bool result{true};
 
-#define EVALUATE_END(instruction_category, instruction_type)                   \
+#define EVALUATE_END(instruction_type)                                         \
   if (callback.has_value()) {                                                  \
     callback.value()(EvaluationType::Post, result, instruction,                \
                      evaluator.evaluate_path, evaluator.instance_location,     \
@@ -185,16 +161,16 @@
   }                                                                            \
   if (track) {                                                                 \
     evaluator.evaluate_path.pop_back(                                          \
-        instruction_category.relative_schema_location.size());                 \
+        instruction.relative_schema_location.size());                          \
     evaluator.instance_location.pop_back(                                      \
-        instruction_category.relative_instance_location.size());               \
+        instruction.relative_instance_location.size());                        \
   }                                                                            \
   if (schema.dynamic) {                                                        \
     evaluator.resources.pop_back();                                            \
   }                                                                            \
   return result;
 
-#define EVALUATE_END_NO_POP(instruction_category, instruction_type)            \
+#define EVALUATE_END_NO_POP(instruction_type)                                  \
   if (callback.has_value()) {                                                  \
     callback.value()(EvaluationType::Post, result, instruction,                \
                      evaluator.evaluate_path, evaluator.instance_location,     \
@@ -204,23 +180,19 @@
 
 #define EVALUATE_END_PASS_THROUGH(instruction_type) return result;
 
-#define EVALUATE_ANNOTATION(instruction_category, instruction_type,            \
-                            destination, annotation_value)                     \
+#define EVALUATE_ANNOTATION(instruction_type, destination, annotation_value)   \
   if (callback.has_value()) {                                                  \
-    const auto &instruction_category{                                          \
-        std::get<sourcemeta::blaze::instruction_type>(instruction)};           \
-    evaluator.evaluate_path.push_back(                                         \
-        instruction_category.relative_schema_location);                        \
+    evaluator.evaluate_path.push_back(instruction.relative_schema_location);   \
     evaluator.instance_location.push_back(                                     \
-        instruction_category.relative_instance_location);                      \
+        instruction.relative_instance_location);                               \
     callback.value()(EvaluationType::Pre, true, instruction,                   \
                      evaluator.evaluate_path, destination, Evaluator::null);   \
     callback.value()(EvaluationType::Post, true, instruction,                  \
                      evaluator.evaluate_path, destination, annotation_value);  \
     evaluator.evaluate_path.pop_back(                                          \
-        instruction_category.relative_schema_location.size());                 \
+        instruction.relative_schema_location.size());                          \
     evaluator.instance_location.pop_back(                                      \
-        instruction_category.relative_instance_location.size());               \
+        instruction.relative_instance_location.size());                        \
   }                                                                            \
   return true;
 

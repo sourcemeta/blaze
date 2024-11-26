@@ -1,13 +1,11 @@
 #ifndef SOURCEMETA_BLAZE_EVALUATOR_FAST_H_
 #define SOURCEMETA_BLAZE_EVALUATOR_FAST_H_
 
-#define EVALUATE_BEGIN(instruction_category, instruction_type, precondition)   \
-  const auto &instruction_category{                                            \
-      std::get<sourcemeta::blaze::instruction_type>(instruction)};             \
-  const auto &target{resolve_target(                                           \
-      property_target,                                                         \
-      sourcemeta::jsontoolkit::get(                                            \
-          instance, instruction_category.relative_instance_location))};        \
+#define EVALUATE_BEGIN(instruction_type, precondition)                         \
+  const auto &target{                                                          \
+      resolve_target(property_target,                                          \
+                     sourcemeta::jsontoolkit::get(                             \
+                         instance, instruction.relative_instance_location))};  \
   if (!(precondition)) {                                                       \
     return true;                                                               \
   }                                                                            \
@@ -15,12 +13,9 @@
   SOURCEMETA_MAYBE_UNUSED(track);                                              \
   bool result{false};
 
-#define EVALUATE_BEGIN_NON_STRING(instruction_category, instruction_type,      \
-                                  precondition)                                \
-  const auto &instruction_category{                                            \
-      std::get<sourcemeta::blaze::instruction_type>(instruction)};             \
+#define EVALUATE_BEGIN_NON_STRING(instruction_type, precondition)              \
   const auto &target{sourcemeta::jsontoolkit::get(                             \
-      instance, instruction_category.relative_instance_location)};             \
+      instance, instruction.relative_instance_location)};                      \
   if (!(precondition)) {                                                       \
     return true;                                                               \
   }                                                                            \
@@ -28,63 +23,46 @@
   SOURCEMETA_MAYBE_UNUSED(track);                                              \
   bool result{false};
 
-#define EVALUATE_BEGIN_IF_STRING(instruction_category, instruction_type)       \
-  const auto &instruction_category{                                            \
-      std::get<sourcemeta::blaze::instruction_type>(instruction)};             \
-  const auto &maybe_target{                                                    \
-      resolve_string_target(property_target, instance,                         \
-                            instruction_category.relative_instance_location)}; \
+#define EVALUATE_BEGIN_IF_STRING(instruction_type)                             \
+  const auto &maybe_target{resolve_string_target(                              \
+      property_target, instance, instruction.relative_instance_location)};     \
   if (!maybe_target.has_value()) {                                             \
     return true;                                                               \
   }                                                                            \
   const auto &target{maybe_target.value().get()};                              \
   bool result{false};
 
-#define EVALUATE_BEGIN_TRY_TARGET(instruction_category, instruction_type,      \
-                                  precondition)                                \
+#define EVALUATE_BEGIN_TRY_TARGET(instruction_type, precondition)              \
   const auto &target{instance};                                                \
-  const auto &instruction_category{                                            \
-      std::get<sourcemeta::blaze::instruction_type>(instruction)};             \
   if (!(precondition)) {                                                       \
     return true;                                                               \
   }                                                                            \
-  auto target_check{                                                           \
-      try_get(target, instruction_category.relative_instance_location)};       \
+  auto target_check{try_get(target, instruction.relative_instance_location)};  \
   if (!target_check.has_value()) {                                             \
     return true;                                                               \
   }                                                                            \
-  assert(!instruction_category.relative_instance_location.empty());            \
+  assert(!instruction.relative_instance_location.empty());                     \
   bool result{false};
 
-#define EVALUATE_BEGIN_NO_PRECONDITION(instruction_category, instruction_type) \
-  const auto &instruction_category{                                            \
-      std::get<sourcemeta::blaze::instruction_type>(instruction)};             \
-  SOURCEMETA_MAYBE_UNUSED(instruction_category);                               \
+#define EVALUATE_BEGIN_NO_PRECONDITION(instruction_type)                       \
+  SOURCEMETA_MAYBE_UNUSED(instruction);                                        \
   constexpr bool track{false};                                                 \
   SOURCEMETA_MAYBE_UNUSED(track);                                              \
   bool result{false};
 
-#define EVALUATE_BEGIN_NO_PRECONDITION_AND_NO_PUSH(instruction_category,       \
-                                                   instruction_type)           \
-  const auto &instruction_category{                                            \
-      std::get<sourcemeta::blaze::instruction_type>(instruction)};             \
+#define EVALUATE_BEGIN_NO_PRECONDITION_AND_NO_PUSH(instruction_type)           \
   bool result{true};
 
-#define EVALUATE_BEGIN_PASS_THROUGH(instruction_category, instruction_type)    \
-  const auto &instruction_category{                                            \
-      std::get<sourcemeta::blaze::instruction_type>(instruction)};             \
-  bool result{true};
+#define EVALUATE_BEGIN_PASS_THROUGH(instruction_type) bool result{true};
 
-#define EVALUATE_END(instruction_category, instruction_type) return result;
+#define EVALUATE_END(instruction_type) return result;
 
-#define EVALUATE_END_NO_POP(instruction_category, instruction_type)            \
-  EVALUATE_END(instruction_category, instruction_type)
+#define EVALUATE_END_NO_POP(instruction_type) EVALUATE_END(instruction_type)
 
 #define EVALUATE_END_PASS_THROUGH(instruction_type)                            \
-  EVALUATE_END(instruction_category, instruction_type)
+  EVALUATE_END(instruction_type)
 
-#define EVALUATE_ANNOTATION(instruction_category, instruction_type,            \
-                            destination, annotation_value)                     \
+#define EVALUATE_ANNOTATION(instruction_type, destination, annotation_value)   \
   return true;
 
 #define EVALUATE_RECURSE(child, target)                                        \
