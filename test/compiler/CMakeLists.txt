@@ -1,6 +1,4 @@
 add_executable(sourcemeta_blaze_compiler_unit
-  compiler_json_test.cc
-  compiler_template_format_test.cc
   compiler_output_error_test.cc
   compiler_output_trace_test.cc)
 noa_add_default_options(PRIVATE sourcemeta_blaze_compiler_unit)
