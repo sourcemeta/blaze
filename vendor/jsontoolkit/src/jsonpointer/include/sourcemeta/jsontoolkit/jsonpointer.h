@@ -9,6 +9,7 @@
 #include <sourcemeta/jsontoolkit/jsonpointer.h>
 #include <sourcemeta/jsontoolkit/jsonpointer_error.h>
 #include <sourcemeta/jsontoolkit/jsonpointer_pointer.h>
+#include <sourcemeta/jsontoolkit/jsonpointer_position.h>
 #include <sourcemeta/jsontoolkit/jsonpointer_subpointer_walker.h>
 #include <sourcemeta/jsontoolkit/jsonpointer_walker.h>
 #include <sourcemeta/jsontoolkit/uri.h>
