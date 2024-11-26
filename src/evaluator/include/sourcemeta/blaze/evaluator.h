@@ -28,19 +28,16 @@
 namespace sourcemeta::blaze {
 
 /// @ingroup evaluator
-/// Represents the state of an instruction evaluation
-enum class EvaluationType : std::uint8_t { Pre, Post };
-
-/// @ingroup evaluator
-/// Flags that affect how evaluation takes place
-struct Modifiers {
-  const bool dynamic;
-  const bool track;
+/// Represents a compiled schema ready for execution
+struct Template {
+  Instructions instructions;
+  bool dynamic;
+  bool track;
 };
 
 /// @ingroup evaluator
-/// Represents a compiled schema ready for execution
-using Template = std::pair<Instructions, Modifiers>;
+/// Represents the state of an instruction evaluation
+enum class EvaluationType : std::uint8_t { Pre, Post };
 
 /// @ingroup evaluator
 /// A callback of this type is invoked after evaluating any keyword. The

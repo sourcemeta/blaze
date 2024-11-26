@@ -65,18 +65,16 @@ auto evaluate(const Template &schema,
               const sourcemeta::jsontoolkit::JSON &instance,
               const Callback &callback) -> bool {
   EvaluationContext context;
-  return evaluate_complete(instance, context, schema.first, schema.second,
-                           callback);
+  return evaluate_complete(instance, context, schema, callback);
 }
 
 auto evaluate(const Template &schema,
               const sourcemeta::jsontoolkit::JSON &instance) -> bool {
   EvaluationContext context;
-  if (schema.second.dynamic || schema.second.track) {
-    return evaluate_complete(instance, context, schema.first, schema.second,
-                             std::nullopt);
+  if (schema.dynamic || schema.track) {
+    return evaluate_complete(instance, context, schema, std::nullopt);
   } else {
-    return evaluate_fast(instance, context, schema.first);
+    return evaluate_fast(instance, context, schema.instructions);
   }
 }
 
@@ -89,12 +87,11 @@ auto evaluate(const Template &schema,
   assert(context.resources.empty());
   context.labels.clear();
 
-  if (schema.second.dynamic || schema.second.track) {
+  if (schema.dynamic || schema.track) {
     context.evaluated_.clear();
-    return evaluate_complete(instance, context, schema.first, schema.second,
-                             std::nullopt);
+    return evaluate_complete(instance, context, schema, std::nullopt);
   } else {
-    return evaluate_fast(instance, context, schema.first);
+    return evaluate_fast(instance, context, schema.instructions);
   }
 }
 
