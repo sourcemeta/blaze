@@ -151,11 +151,10 @@ public:
   }
 };
 
-bool validate_all(auto &context, const auto &instances,
+bool validate_all(auto &evaluator, const auto &instances,
                   const auto &schema_template) {
   for (std::size_t num = 0; num < instances.size(); num++) {
-    const auto result{
-        sourcemeta::blaze::evaluate(schema_template, instances[num], context)};
+    const auto result{evaluator.validate(schema_template, instances[num])};
     if (!result) {
       std::cerr << "Error validating instance " << num << "\n";
       return false;
@@ -185,11 +184,11 @@ auto main(int argc, char **argv) noexcept -> int {
       sourcemeta::blaze::default_schema_compiler,
       sourcemeta::blaze::Mode::FastValidation)};
 
-  sourcemeta::blaze::EvaluationContext context;
+  sourcemeta::blaze::Evaluator evaluator;
   PerfEvents pe;
 
   pe.start();
-  if (!validate_all(context, instances, schema_template)) {
+  if (!validate_all(evaluator, instances, schema_template)) {
     return EXIT_FAILURE;
   }
   pe.stop();
@@ -199,11 +198,11 @@ auto main(int argc, char **argv) noexcept -> int {
   std::cerr << "\n";
 
   for (int i = 0; i < 100; i++) {
-    validate_all(context, instances, schema_template);
+    validate_all(evaluator, instances, schema_template);
   }
 
   pe.start();
-  validate_all(context, instances, schema_template);
+  validate_all(evaluator, instances, schema_template);
   pe.stop();
 
   std::cerr << "Warm\n==============================\n";

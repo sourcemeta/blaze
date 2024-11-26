@@ -400,7 +400,7 @@ switch (static_cast<InstructionIndex>(instruction.index())) {
               effective_target.is_integer_real());
 
     if (result) {
-      context.evaluate();
+      evaluator.evaluate();
     }
 
     EVALUATE_END(assertion, AssertionPropertyTypeEvaluate);
@@ -427,7 +427,7 @@ switch (static_cast<InstructionIndex>(instruction.index())) {
     result = target_check.value().get().type() == assertion.value;
 
     if (result) {
-      context.evaluate();
+      evaluator.evaluate();
     }
 
     EVALUATE_END(assertion, AssertionPropertyTypeStrictEvaluate);
@@ -458,7 +458,7 @@ switch (static_cast<InstructionIndex>(instruction.index())) {
               assertion.value.cend());
 
     if (result) {
-      context.evaluate();
+      evaluator.evaluate();
     }
 
     EVALUATE_END(assertion, AssertionPropertyTypeStrictAnyEvaluate);
@@ -514,9 +514,9 @@ switch (static_cast<InstructionIndex>(instruction.index())) {
 
       assert(result);
       if (array_size == prefixes) {
-        context.evaluate();
+        evaluator.evaluate();
       } else {
-        context.evaluate(0, pointer);
+        evaluator.evaluate(0, pointer);
       }
     }
 
@@ -650,7 +650,8 @@ switch (static_cast<InstructionIndex>(instruction.index())) {
     result = true;
     if (consequence_start > 0) {
       if (track) {
-        context.evaluate_path.pop_back(logical.relative_schema_location.size());
+        evaluator.evaluate_path.pop_back(
+            logical.relative_schema_location.size());
 
         for (auto cursor = consequence_start; cursor < consequence_end;
              cursor++) {
@@ -660,7 +661,7 @@ switch (static_cast<InstructionIndex>(instruction.index())) {
           }
         }
 
-        context.evaluate_path.push_back(logical.relative_schema_location);
+        evaluator.evaluate_path.push_back(logical.relative_schema_location);
       } else {
         for (auto cursor = consequence_start; cursor < consequence_end;
              cursor++) {
@@ -726,7 +727,7 @@ switch (static_cast<InstructionIndex>(instruction.index())) {
   case IS_INSTRUCTION(ControlLabel): {
     EVALUATE_BEGIN_NO_PRECONDITION(control, ControlLabel);
     assert(!control.children.empty());
-    context.labels.try_emplace(control.value, control.children);
+    evaluator.labels.try_emplace(control.value, control.children);
     const auto &target{get(instance, control.relative_instance_location)};
     result = true;
     for (const auto &child : control.children) {
@@ -741,7 +742,7 @@ switch (static_cast<InstructionIndex>(instruction.index())) {
 
   case IS_INSTRUCTION(ControlMark): {
     EVALUATE_BEGIN_NO_PRECONDITION_AND_NO_PUSH(control, ControlMark);
-    context.labels.try_emplace(control.value, control.children);
+    evaluator.labels.try_emplace(control.value, control.children);
     EVALUATE_END_NO_POP(control, ControlMark);
   }
 
@@ -751,17 +752,15 @@ switch (static_cast<InstructionIndex>(instruction.index())) {
 #ifdef SOURCEMETA_EVALUATOR_COMPLETE
     if (callback.has_value()) {
       // TODO: Optimize this case to avoid an extra pointer copy
-      auto destination = context.instance_location;
+      auto destination = evaluator.instance_location;
       destination.push_back(control.value);
       callback.value()(EvaluationType::Pre, true, instruction,
-                       context.evaluate_path, destination,
-                       EvaluationContext::null);
-      context.evaluate(control.value);
+                       evaluator.evaluate_path, destination, Evaluator::null);
+      evaluator.evaluate(control.value);
       callback.value()(EvaluationType::Post, true, instruction,
-                       context.evaluate_path, destination,
-                       EvaluationContext::null);
+                       evaluator.evaluate_path, destination, Evaluator::null);
     } else {
-      context.evaluate(control.value);
+      evaluator.evaluate(control.value);
     }
 #else
     SOURCEMETA_MAYBE_UNUSED(control);
@@ -773,9 +772,9 @@ switch (static_cast<InstructionIndex>(instruction.index())) {
   case IS_INSTRUCTION(ControlJump): {
     EVALUATE_BEGIN_NO_PRECONDITION(control, ControlJump);
     result = true;
-    assert(context.labels.contains(control.value));
+    assert(evaluator.labels.contains(control.value));
     const auto &target{get(instance, control.relative_instance_location)};
-    for (const auto &child : context.labels.at(control.value).get()) {
+    for (const auto &child : evaluator.labels.at(control.value).get()) {
       if (!EVALUATE_RECURSE(child, target)) {
         result = false;
         break;
@@ -789,10 +788,10 @@ switch (static_cast<InstructionIndex>(instruction.index())) {
     EVALUATE_BEGIN_NO_PRECONDITION(control, ControlDynamicAnchorJump);
     result = false;
     const auto &target{get(instance, control.relative_instance_location)};
-    for (const auto &resource : context.resources) {
-      const auto label{context.hash(resource, control.value)};
-      const auto match{context.labels.find(label)};
-      if (match != context.labels.cend()) {
+    for (const auto &resource : evaluator.resources) {
+      const auto label{evaluator.hash(resource, control.value)};
+      const auto match{evaluator.labels.find(label)};
+      if (match != evaluator.labels.cend()) {
         result = true;
         for (const auto &child : match->second.get()) {
           if (!EVALUATE_RECURSE(child, target)) {
@@ -809,7 +808,7 @@ switch (static_cast<InstructionIndex>(instruction.index())) {
   }
 
   case IS_INSTRUCTION(AnnotationEmit): {
-    EVALUATE_ANNOTATION(annotation, AnnotationEmit, context.instance_location,
+    EVALUATE_ANNOTATION(annotation, AnnotationEmit, evaluator.instance_location,
                         annotation.value);
   }
 
@@ -817,15 +816,15 @@ switch (static_cast<InstructionIndex>(instruction.index())) {
     EVALUATE_ANNOTATION(
         annotation, AnnotationToParent,
         // TODO: Can we avoid a copy of the instance location here?
-        context.instance_location.initial(), annotation.value);
+        evaluator.instance_location.initial(), annotation.value);
   }
 
   case IS_INSTRUCTION(AnnotationBasenameToParent): {
     EVALUATE_ANNOTATION(
         annotation, AnnotationBasenameToParent,
         // TODO: Can we avoid a copy of the instance location here?
-        context.instance_location.initial(),
-        context.instance_location.back().to_json());
+        evaluator.instance_location.initial(),
+        evaluator.instance_location.back().to_json());
   }
 
   case IS_INSTRUCTION(LogicalNot): {
@@ -853,7 +852,7 @@ switch (static_cast<InstructionIndex>(instruction.index())) {
       }
     }
 
-    context.unevaluate();
+    evaluator.unevaluate();
 
     EVALUATE_END(logical, LogicalNotEvaluate);
   }
@@ -865,25 +864,25 @@ switch (static_cast<InstructionIndex>(instruction.index())) {
     result = true;
 
     for (const auto &entry : target.as_object()) {
-      if (context.is_evaluated({entry.first})) {
+      if (evaluator.is_evaluated({entry.first})) {
         continue;
       }
 
-      context.instance_location.push_back(entry.first);
+      evaluator.instance_location.push_back(entry.first);
       const auto &new_instance{target.at(entry.first)};
       for (const auto &child : loop.children) {
         if (!EVALUATE_RECURSE(child, new_instance)) {
           result = false;
-          context.instance_location.pop_back();
+          evaluator.instance_location.pop_back();
           EVALUATE_END(loop, LoopPropertiesUnevaluated);
         }
       }
 
-      context.instance_location.pop_back();
+      evaluator.instance_location.pop_back();
     }
 
     // Mark the entire object as evaluated
-    context.evaluate();
+    evaluator.evaluate();
 
     EVALUATE_END(loop, LoopPropertiesUnevaluated);
   }
@@ -919,25 +918,25 @@ switch (static_cast<InstructionIndex>(instruction.index())) {
         continue;
       }
 
-      if (context.is_evaluated({entry.first})) {
+      if (evaluator.is_evaluated({entry.first})) {
         continue;
       }
 
-      context.instance_location.push_back(entry.first);
+      evaluator.instance_location.push_back(entry.first);
       const auto &new_instance{target.at(entry.first)};
       for (const auto &child : loop.children) {
         if (!EVALUATE_RECURSE(child, new_instance)) {
           result = false;
-          context.instance_location.pop_back();
+          evaluator.instance_location.pop_back();
           EVALUATE_END(loop, LoopPropertiesUnevaluatedExcept);
         }
       }
 
-      context.instance_location.pop_back();
+      evaluator.instance_location.pop_back();
     }
 
     // Mark the entire object as evaluated
-    context.evaluate();
+    evaluator.evaluate();
 
     EVALUATE_END(loop, LoopPropertiesUnevaluatedExcept);
   }
@@ -998,21 +997,21 @@ switch (static_cast<InstructionIndex>(instruction.index())) {
     result = true;
     for (const auto &entry : target.as_object()) {
       if (track) {
-        context.instance_location.push_back(entry.first);
+        evaluator.instance_location.push_back(entry.first);
       }
       const auto &new_instance{target.at(entry.first)};
       for (const auto &child : loop.children) {
         if (!EVALUATE_RECURSE(child, new_instance)) {
           result = false;
           if (track) {
-            context.instance_location.pop_back();
+            evaluator.instance_location.pop_back();
           }
           EVALUATE_END(loop, LoopProperties);
         }
       }
 
       if (track) {
-        context.instance_location.pop_back();
+        evaluator.instance_location.pop_back();
       }
     }
 
@@ -1025,25 +1024,25 @@ switch (static_cast<InstructionIndex>(instruction.index())) {
     result = true;
     for (const auto &entry : target.as_object()) {
       if (track) {
-        context.instance_location.push_back(entry.first);
+        evaluator.instance_location.push_back(entry.first);
       }
       const auto &new_instance{target.at(entry.first)};
       for (const auto &child : loop.children) {
         if (!EVALUATE_RECURSE(child, new_instance)) {
           result = false;
           if (track) {
-            context.instance_location.pop_back();
+            evaluator.instance_location.pop_back();
           }
           EVALUATE_END(loop, LoopPropertiesEvaluate);
         }
       }
 
       if (track) {
-        context.instance_location.pop_back();
+        evaluator.instance_location.pop_back();
       }
     }
 
-    context.evaluate();
+    evaluator.evaluate();
 
     EVALUATE_END(loop, LoopPropertiesEvaluate);
   }
@@ -1058,21 +1057,21 @@ switch (static_cast<InstructionIndex>(instruction.index())) {
       }
 
       if (track) {
-        context.instance_location.push_back(entry.first);
+        evaluator.instance_location.push_back(entry.first);
       }
       const auto &new_instance{target.at(entry.first)};
       for (const auto &child : loop.children) {
         if (!EVALUATE_RECURSE(child, new_instance)) {
           result = false;
           if (track) {
-            context.instance_location.pop_back();
+            evaluator.instance_location.pop_back();
           }
           EVALUATE_END(loop, LoopPropertiesRegex);
         }
       }
 
       if (track) {
-        context.instance_location.pop_back();
+        evaluator.instance_location.pop_back();
       }
     }
 
@@ -1094,21 +1093,21 @@ switch (static_cast<InstructionIndex>(instruction.index())) {
       }
 
       if (track) {
-        context.instance_location.push_back(entry.first);
+        evaluator.instance_location.push_back(entry.first);
       }
       const auto &new_instance{target.at(entry.first)};
       for (const auto &child : loop.children) {
         if (!EVALUATE_RECURSE(child, new_instance)) {
           result = false;
           if (track) {
-            context.instance_location.pop_back();
+            evaluator.instance_location.pop_back();
           }
           EVALUATE_END(loop, LoopPropertiesRegexClosed);
         }
       }
 
       if (track) {
-        context.instance_location.pop_back();
+        evaluator.instance_location.pop_back();
       }
     }
 
@@ -1126,20 +1125,20 @@ switch (static_cast<InstructionIndex>(instruction.index())) {
       }
 
       if (track) {
-        context.instance_location.push_back(entry.first);
+        evaluator.instance_location.push_back(entry.first);
       }
       for (const auto &child : loop.children) {
         if (!EVALUATE_RECURSE(child, entry.second)) {
           result = false;
           if (track) {
-            context.instance_location.pop_back();
+            evaluator.instance_location.pop_back();
           }
           EVALUATE_END(loop, LoopPropertiesStartsWith);
         }
       }
 
       if (track) {
-        context.instance_location.pop_back();
+        evaluator.instance_location.pop_back();
       }
     }
 
@@ -1177,20 +1176,20 @@ switch (static_cast<InstructionIndex>(instruction.index())) {
       }
 
       if (track) {
-        context.instance_location.push_back(entry.first);
+        evaluator.instance_location.push_back(entry.first);
       }
       for (const auto &child : loop.children) {
         if (!EVALUATE_RECURSE(child, entry.second)) {
           result = false;
           if (track) {
-            context.instance_location.pop_back();
+            evaluator.instance_location.pop_back();
           }
           EVALUATE_END(loop, LoopPropertiesExcept);
         }
       }
 
       if (track) {
-        context.instance_location.pop_back();
+        evaluator.instance_location.pop_back();
       }
     }
 
@@ -1251,7 +1250,7 @@ switch (static_cast<InstructionIndex>(instruction.index())) {
       }
     }
 
-    context.evaluate();
+    evaluator.evaluate();
 
     EVALUATE_END(loop, LoopPropertiesTypeEvaluate);
   }
@@ -1281,7 +1280,7 @@ switch (static_cast<InstructionIndex>(instruction.index())) {
       }
     }
 
-    context.evaluate();
+    evaluator.evaluate();
 
     EVALUATE_END(loop, LoopPropertiesTypeStrictEvaluate);
   }
@@ -1313,7 +1312,7 @@ switch (static_cast<InstructionIndex>(instruction.index())) {
       }
     }
 
-    context.evaluate();
+    evaluator.evaluate();
 
     EVALUATE_END(loop, LoopPropertiesTypeStrictAnyEvaluate);
   }
@@ -1324,21 +1323,21 @@ switch (static_cast<InstructionIndex>(instruction.index())) {
     result = true;
     for (const auto &entry : target.as_object()) {
       if (track) {
-        context.instance_location.push_back(entry.first);
+        evaluator.instance_location.push_back(entry.first);
       }
       for (const auto &child : loop.children) {
-        if (!EVALUATE_RECURSE_ON_PROPERTY_NAME(child, EvaluationContext::null,
+        if (!EVALUATE_RECURSE_ON_PROPERTY_NAME(child, Evaluator::null,
                                                entry.first)) {
           result = false;
           if (track) {
-            context.instance_location.pop_back();
+            evaluator.instance_location.pop_back();
           }
           EVALUATE_END(loop, LoopKeys);
         }
       }
 
       if (track) {
-        context.instance_location.pop_back();
+        evaluator.instance_location.pop_back();
       }
     }
 
@@ -1363,21 +1362,21 @@ switch (static_cast<InstructionIndex>(instruction.index())) {
 #else
     for (std::size_t index = 0; index < target.array_size(); index++) {
       if (track) {
-        context.instance_location.push_back(index);
+        evaluator.instance_location.push_back(index);
       }
       const auto &new_instance{target.at(index)};
       for (const auto &child : loop.children) {
         if (!EVALUATE_RECURSE(child, new_instance)) {
           result = false;
           if (track) {
-            context.instance_location.pop_back();
+            evaluator.instance_location.pop_back();
           }
           EVALUATE_END(loop, LoopItems);
         }
       }
 
       if (track) {
-        context.instance_location.pop_back();
+        evaluator.instance_location.pop_back();
       }
     }
 #endif
@@ -1393,21 +1392,21 @@ switch (static_cast<InstructionIndex>(instruction.index())) {
     result = true;
     for (std::size_t index = loop.value; index < target.array_size(); index++) {
       if (track) {
-        context.instance_location.push_back(index);
+        evaluator.instance_location.push_back(index);
       }
       const auto &new_instance{target.at(index)};
       for (const auto &child : loop.children) {
         if (!EVALUATE_RECURSE(child, new_instance)) {
           result = false;
           if (track) {
-            context.instance_location.pop_back();
+            evaluator.instance_location.pop_back();
           }
           EVALUATE_END(loop, LoopItemsFrom);
         }
       }
 
       if (track) {
-        context.instance_location.pop_back();
+        evaluator.instance_location.pop_back();
       }
     }
 
@@ -1420,25 +1419,25 @@ switch (static_cast<InstructionIndex>(instruction.index())) {
     result = true;
 
     for (std::size_t index = 0; index < target.array_size(); index++) {
-      if (context.is_evaluated(index)) {
+      if (evaluator.is_evaluated(index)) {
         continue;
       }
 
-      context.instance_location.push_back(index);
+      evaluator.instance_location.push_back(index);
       const auto &new_instance{target.at(index)};
       for (const auto &child : loop.children) {
         if (!EVALUATE_RECURSE(child, new_instance)) {
           result = false;
-          context.instance_location.pop_back();
+          evaluator.instance_location.pop_back();
           EVALUATE_END(loop, LoopItemsUnevaluated);
         }
       }
 
-      context.instance_location.pop_back();
+      evaluator.instance_location.pop_back();
     }
 
     // Mark the entire array as evaluated
-    context.evaluate();
+    evaluator.evaluate();
 
     EVALUATE_END(loop, LoopItemsUnevaluated);
   }
@@ -1500,7 +1499,7 @@ switch (static_cast<InstructionIndex>(instruction.index())) {
 
     for (std::size_t index = 0; index < target.array_size(); index++) {
       if (track) {
-        context.instance_location.push_back(index);
+        evaluator.instance_location.push_back(index);
       }
       const auto &new_instance{target.at(index)};
       bool subresult{true};
@@ -1512,7 +1511,7 @@ switch (static_cast<InstructionIndex>(instruction.index())) {
       }
 
       if (track) {
-        context.instance_location.pop_back();
+        evaluator.instance_location.pop_back();
       }
 
       if (subresult) {

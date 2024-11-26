@@ -97,33 +97,35 @@
   return true;
 
 #define EVALUATE_RECURSE(child, target)                                        \
-  evaluate_fast_instruction(child, target, property_target, depth + 1, context)
+  evaluate_instruction(child, schema, std::nullopt, target, property_target,   \
+                       depth + 1, evaluator)
 #define EVALUATE_RECURSE_ON_PROPERTY_NAME(child, target, name)                 \
-  evaluate_fast_instruction(child, target, std::cref(name), depth + 1, context)
+  evaluate_instruction(child, schema, std::nullopt, target, std::cref(name),   \
+                       depth + 1, evaluator)
 
 #define SOURCEMETA_EVALUATOR_FAST
 
-namespace sourcemeta::blaze {
+namespace sourcemeta::blaze::fast {
 
-auto evaluate_fast_instruction(
+auto evaluate_instruction(
     const sourcemeta::blaze::Instruction &instruction,
+    const sourcemeta::blaze::Template &schema,
+    const std::optional<sourcemeta::blaze::Callback> &,
     const sourcemeta::jsontoolkit::JSON &instance,
     const std::optional<
         std::reference_wrapper<const sourcemeta::jsontoolkit::JSON::String>>
         &property_target,
-    const std::uint64_t depth, sourcemeta::blaze::EvaluationContext &context)
+    const std::uint64_t depth, sourcemeta::blaze::Evaluator &evaluator)
     -> bool {
 #include "dispatch.inc.h"
 }
 
-inline auto evaluate_fast(const sourcemeta::jsontoolkit::JSON &instance,
-                          sourcemeta::blaze::EvaluationContext &context,
-                          const sourcemeta::blaze::Instructions &instructions)
-    -> bool {
-  for (const auto &instruction : instructions) {
-    // TODO: Can we avoid taking the context on the first place?
-    if (!evaluate_fast_instruction(instruction, instance, std::nullopt, 0,
-                                   context)) {
+inline auto evaluate(const sourcemeta::jsontoolkit::JSON &instance,
+                     sourcemeta::blaze::Evaluator &evaluator,
+                     const sourcemeta::blaze::Template &schema) -> bool {
+  for (const auto &instruction : schema.instructions) {
+    if (!evaluate_instruction(instruction, schema, std::nullopt, instance,
+                              std::nullopt, 0, evaluator)) {
       return false;
     }
   }
@@ -131,7 +133,7 @@ inline auto evaluate_fast(const sourcemeta::jsontoolkit::JSON &instance,
   return true;
 }
 
-} // namespace sourcemeta::blaze
+} // namespace sourcemeta::blaze::fast
 
 #undef SOURCEMETA_EVALUATOR_FAST
 

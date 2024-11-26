@@ -62,10 +62,9 @@ static void Evaluator_2020_12_Dynamic_Ref(benchmark::State &state) {
       schema, sourcemeta::jsontoolkit::default_schema_walker,
       sourcemeta::jsontoolkit::official_resolver,
       sourcemeta::blaze::default_schema_compiler)};
-  sourcemeta::blaze::EvaluationContext context;
+  sourcemeta::blaze::Evaluator evaluator;
   for (auto _ : state) {
-    auto result{
-        sourcemeta::blaze::evaluate(schema_template, instance, context)};
+    auto result{evaluator.validate(schema_template, instance)};
     assert(result);
     benchmark::DoNotOptimize(result);
   }

@@ -191,8 +191,7 @@ public:
         instance{std::move(test_instance)} {}
 
   auto TestBody() -> void override {
-    const auto result{
-        sourcemeta::blaze::evaluate(this->schema, this->instance)};
+    const auto result{this->evaluator.validate(this->schema, this->instance)};
     if (this->valid) {
       EXPECT_TRUE(result);
     } else {
@@ -204,6 +203,7 @@ private:
   const bool valid;
   const sourcemeta::blaze::Template schema;
   const sourcemeta::jsontoolkit::JSON instance;
+  sourcemeta::blaze::Evaluator evaluator;
 };
 
 static auto register_tests(const std::filesystem::path &subdirectory,

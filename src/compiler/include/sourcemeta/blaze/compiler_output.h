@@ -45,7 +45,8 @@ namespace sourcemeta::blaze {
 /// const sourcemeta::jsontoolkit::JSON instance{5};
 ///
 /// sourcemeta::blaze::ErrorOutput output{instance};
-/// const auto result{sourcemeta::blaze::evaluate(
+/// sourcemeta::blaze::Evaluator evaluator;
+/// const auto result{evaluator.validate(
 ///   schema_template, instance, std::ref(output))};
 ///
 /// if (!result) {
@@ -131,7 +132,8 @@ private:
 /// const sourcemeta::jsontoolkit::JSON instance{5};
 ///
 /// sourcemeta::blaze::TraceOutput output;
-/// const auto result{sourcemeta::blaze::evaluate(
+/// sourcemeta::blaze::Evaluator evaluator;
+/// const auto result{evaluator.validate(
 ///   schema_template, instance, std::ref(output))};
 ///
 /// if (!result) {

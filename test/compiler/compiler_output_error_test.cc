@@ -32,8 +32,9 @@ TEST(Compiler_output_error, success_string_1) {
   const sourcemeta::jsontoolkit::JSON instance{"foo"};
 
   sourcemeta::blaze::ErrorOutput output{instance};
+  sourcemeta::blaze::Evaluator evaluator;
   const auto result{
-      sourcemeta::blaze::evaluate(schema_template, instance, std::ref(output))};
+      evaluator.validate(schema_template, instance, std::ref(output))};
 
   EXPECT_TRUE(result);
   std::vector<sourcemeta::blaze::ErrorOutput::Entry> traces{output.cbegin(),
@@ -70,8 +71,9 @@ TEST(Compiler_output_error, fail_meaningless_if_1) {
   })JSON")};
 
   sourcemeta::blaze::ErrorOutput output{instance};
+  sourcemeta::blaze::Evaluator evaluator;
   const auto result{
-      sourcemeta::blaze::evaluate(schema_template, instance, std::ref(output))};
+      evaluator.validate(schema_template, instance, std::ref(output))};
 
   EXPECT_FALSE(result);
   std::vector<sourcemeta::blaze::ErrorOutput::Entry> traces{output.cbegin(),
@@ -108,8 +110,9 @@ TEST(Compiler_output_error, success_dynamic_anchor_1) {
   const sourcemeta::jsontoolkit::JSON instance{"foo"};
 
   sourcemeta::blaze::ErrorOutput output{instance};
+  sourcemeta::blaze::Evaluator evaluator;
   const auto result{
-      sourcemeta::blaze::evaluate(schema_template, instance, std::ref(output))};
+      evaluator.validate(schema_template, instance, std::ref(output))};
 
   EXPECT_TRUE(result);
   std::vector<sourcemeta::blaze::ErrorOutput::Entry> traces{output.cbegin(),
@@ -135,8 +138,9 @@ TEST(Compiler_output_error, success_oneof_1) {
   const sourcemeta::jsontoolkit::JSON instance{"fo"};
 
   sourcemeta::blaze::ErrorOutput output{instance};
+  sourcemeta::blaze::Evaluator evaluator;
   const auto result{
-      sourcemeta::blaze::evaluate(schema_template, instance, std::ref(output))};
+      evaluator.validate(schema_template, instance, std::ref(output))};
 
   EXPECT_TRUE(result);
   std::vector<sourcemeta::blaze::ErrorOutput::Entry> traces{output.cbegin(),
@@ -159,8 +163,9 @@ TEST(Compiler_output_error, fail_string) {
   const sourcemeta::jsontoolkit::JSON instance{5};
 
   sourcemeta::blaze::ErrorOutput output{instance};
+  sourcemeta::blaze::Evaluator evaluator;
   const auto result{
-      sourcemeta::blaze::evaluate(schema_template, instance, std::ref(output))};
+      evaluator.validate(schema_template, instance, std::ref(output))};
 
   EXPECT_FALSE(result);
   std::vector<sourcemeta::blaze::ErrorOutput::Entry> traces{output.cbegin(),
@@ -192,8 +197,9 @@ TEST(Compiler_output_error, fail_string_over_ref) {
   const sourcemeta::jsontoolkit::JSON instance{5};
 
   sourcemeta::blaze::ErrorOutput output{instance};
+  sourcemeta::blaze::Evaluator evaluator;
   const auto result{
-      sourcemeta::blaze::evaluate(schema_template, instance, std::ref(output))};
+      evaluator.validate(schema_template, instance, std::ref(output))};
 
   EXPECT_FALSE(result);
   std::vector<sourcemeta::blaze::ErrorOutput::Entry> traces{output.cbegin(),
@@ -227,8 +233,9 @@ TEST(Compiler_output_error, fail_string_with_matching_base) {
   const std::string ref = "$ref";
   const sourcemeta::jsontoolkit::WeakPointer pointer{std::cref(ref)};
   sourcemeta::blaze::ErrorOutput output{instance, pointer};
+  sourcemeta::blaze::Evaluator evaluator;
   const auto result{
-      sourcemeta::blaze::evaluate(schema_template, instance, std::ref(output))};
+      evaluator.validate(schema_template, instance, std::ref(output))};
 
   EXPECT_FALSE(result);
   std::vector<sourcemeta::blaze::ErrorOutput::Entry> traces{output.cbegin(),
@@ -261,8 +268,9 @@ TEST(Compiler_output_error, fail_string_with_non_matching_base) {
   const std::string foo = "foo";
   const sourcemeta::jsontoolkit::WeakPointer pointer{std::cref(foo)};
   sourcemeta::blaze::ErrorOutput output{instance, pointer};
+  sourcemeta::blaze::Evaluator evaluator;
   const auto result{
-      sourcemeta::blaze::evaluate(schema_template, instance, std::ref(output))};
+      evaluator.validate(schema_template, instance, std::ref(output))};
 
   EXPECT_FALSE(result);
   std::vector<sourcemeta::blaze::ErrorOutput::Entry> traces{output.cbegin(),
@@ -292,8 +300,9 @@ TEST(Compiler_output_error, fail_oneof_1) {
   const sourcemeta::jsontoolkit::JSON instance{"foo"};
 
   sourcemeta::blaze::ErrorOutput output{instance};
+  sourcemeta::blaze::Evaluator evaluator;
   const auto result{
-      sourcemeta::blaze::evaluate(schema_template, instance, std::ref(output))};
+      evaluator.validate(schema_template, instance, std::ref(output))};
 
   EXPECT_FALSE(result);
   std::vector<sourcemeta::blaze::ErrorOutput::Entry> traces{output.cbegin(),
@@ -322,8 +331,9 @@ TEST(Compiler_output_error, fail_not_1) {
   const sourcemeta::jsontoolkit::JSON instance{"foo"};
 
   sourcemeta::blaze::ErrorOutput output{instance};
+  sourcemeta::blaze::Evaluator evaluator;
   const auto result{
-      sourcemeta::blaze::evaluate(schema_template, instance, std::ref(output))};
+      evaluator.validate(schema_template, instance, std::ref(output))};
 
   EXPECT_FALSE(result);
   std::vector<sourcemeta::blaze::ErrorOutput::Entry> traces{output.cbegin(),
@@ -354,8 +364,9 @@ TEST(Compiler_output_error, fail_not_not_1) {
   const sourcemeta::jsontoolkit::JSON instance{1};
 
   sourcemeta::blaze::ErrorOutput output{instance};
+  sourcemeta::blaze::Evaluator evaluator;
   const auto result{
-      sourcemeta::blaze::evaluate(schema_template, instance, std::ref(output))};
+      evaluator.validate(schema_template, instance, std::ref(output))};
 
   EXPECT_FALSE(result);
   std::vector<sourcemeta::blaze::ErrorOutput::Entry> traces{output.cbegin(),

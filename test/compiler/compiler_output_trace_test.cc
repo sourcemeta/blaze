@@ -61,8 +61,9 @@ TEST(Compiler_output_trace, pass_1) {
   })JSON")};
 
   sourcemeta::blaze::TraceOutput output;
+  sourcemeta::blaze::Evaluator evaluator;
   const auto result{
-      sourcemeta::blaze::evaluate(schema_template, instance, std::ref(output))};
+      evaluator.validate(schema_template, instance, std::ref(output))};
 
   EXPECT_TRUE(result);
   std::vector<sourcemeta::blaze::TraceOutput::Entry> traces{output.cbegin(),
@@ -109,8 +110,9 @@ TEST(Compiler_output_trace, pass_with_matching_prefix_1) {
 
   const std::string ref{"$ref"};
   sourcemeta::blaze::TraceOutput output{{std::cref(ref)}};
+  sourcemeta::blaze::Evaluator evaluator;
   const auto result{
-      sourcemeta::blaze::evaluate(schema_template, instance, std::ref(output))};
+      evaluator.validate(schema_template, instance, std::ref(output))};
 
   EXPECT_TRUE(result);
   std::vector<sourcemeta::blaze::TraceOutput::Entry> traces{output.cbegin(),

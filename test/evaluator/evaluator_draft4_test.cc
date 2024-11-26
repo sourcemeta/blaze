@@ -845,7 +845,8 @@ TEST(Evaluator_draft4, ref_14) {
       sourcemeta::blaze::default_schema_compiler)};
 
   const sourcemeta::jsontoolkit::JSON instance{true};
-  EXPECT_THROW(sourcemeta::blaze::evaluate(compiled_schema, instance),
+  sourcemeta::blaze::Evaluator evaluator;
+  EXPECT_THROW(evaluator.validate(compiled_schema, instance),
                sourcemeta::blaze::EvaluationError);
 }
 

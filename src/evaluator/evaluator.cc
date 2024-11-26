@@ -25,7 +25,7 @@ resolve_target(const std::optional<std::reference_wrapper<const JSON::String>>
     // to cope with non-string keywords inside `propertyNames`
     // that need to fail validation. But then, the actual string
     // we return doesn't matter, so we can always return a dummy one.
-    return EvaluationContext::empty_string;
+    return Evaluator::empty_string;
   }
 
   return instance;
@@ -61,37 +61,88 @@ inline auto resolve_string_target(
 
 namespace sourcemeta::blaze {
 
-auto evaluate(const Template &schema,
-              const sourcemeta::jsontoolkit::JSON &instance,
-              const Callback &callback) -> bool {
-  EvaluationContext context;
-  return evaluate_complete(instance, context, schema, callback);
-}
+auto Evaluator::validate(const Template &schema,
+                         const sourcemeta::jsontoolkit::JSON &instance)
+    -> bool {
+  // Do a full reset for the next run
+  assert(this->evaluate_path.empty());
+  assert(this->instance_location.empty());
+  assert(this->resources.empty());
+  this->labels.clear();
 
-auto evaluate(const Template &schema,
-              const sourcemeta::jsontoolkit::JSON &instance) -> bool {
-  EvaluationContext context;
   if (schema.dynamic || schema.track) {
-    return evaluate_complete(instance, context, schema, std::nullopt);
+    this->evaluated_.clear();
+    return complete::evaluate(instance, *this, schema, std::nullopt);
   } else {
-    return evaluate_fast(instance, context, schema.instructions);
+    return fast::evaluate(instance, *this, schema);
   }
 }
 
-auto evaluate(const Template &schema,
-              const sourcemeta::jsontoolkit::JSON &instance,
-              EvaluationContext &context) -> bool {
+auto Evaluator::validate(const Template &schema,
+                         const sourcemeta::jsontoolkit::JSON &instance,
+                         const Callback &callback) -> bool {
   // Do a full reset for the next run
-  assert(context.evaluate_path.empty());
-  assert(context.instance_location.empty());
-  assert(context.resources.empty());
-  context.labels.clear();
+  assert(this->evaluate_path.empty());
+  assert(this->instance_location.empty());
+  assert(this->resources.empty());
+  this->labels.clear();
+  this->evaluated_.clear();
 
-  if (schema.dynamic || schema.track) {
-    context.evaluated_.clear();
-    return evaluate_complete(instance, context, schema, std::nullopt);
-  } else {
-    return evaluate_fast(instance, context, schema.instructions);
+  return complete::evaluate(instance, *this, schema, callback);
+}
+
+const sourcemeta::jsontoolkit::JSON Evaluator::null{nullptr};
+const sourcemeta::jsontoolkit::JSON Evaluator::empty_string{""};
+
+auto Evaluator::hash(const std::size_t &resource,
+                     const sourcemeta::jsontoolkit::JSON::String &fragment)
+    const noexcept -> std::size_t {
+  return resource + this->hasher_(fragment);
+}
+
+auto Evaluator::evaluate() -> void {
+  this->evaluate(sourcemeta::jsontoolkit::empty_pointer);
+}
+
+auto Evaluator::evaluate(
+    const sourcemeta::jsontoolkit::WeakPointer::Token::Index from,
+    const sourcemeta::jsontoolkit::WeakPointer::Token::Index to) -> void {
+  for (auto cursor = from; cursor <= to; cursor++) {
+    this->evaluate({cursor});
+  }
+}
+
+auto Evaluator::evaluate(
+    const sourcemeta::jsontoolkit::Pointer &relative_instance_location)
+    -> void {
+  auto new_instance_location = this->instance_location;
+  new_instance_location.push_back(relative_instance_location);
+  Evaluation entry{std::move(new_instance_location), this->evaluate_path,
+                   false};
+  this->evaluated_.emplace_back(std::move(entry));
+}
+
+auto Evaluator::is_evaluated(
+    const sourcemeta::jsontoolkit::WeakPointer::Token &tail) const -> bool {
+  for (auto iterator = this->evaluated_.crbegin();
+       iterator != this->evaluated_.crend(); ++iterator) {
+    if (!iterator->skip &&
+        this->instance_location.starts_with(iterator->instance_location,
+                                            tail) &&
+        // Its not possible to affect cousins
+        iterator->evaluate_path.starts_with_initial(this->evaluate_path)) {
+      return true;
+    }
+  }
+
+  return false;
+}
+
+auto Evaluator::unevaluate() -> void {
+  for (auto &entry : this->evaluated_) {
+    if (!entry.skip && entry.evaluate_path.starts_with(this->evaluate_path)) {
+      entry.skip = true;
+    }
   }
 }
 
