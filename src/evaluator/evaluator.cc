@@ -5,8 +5,6 @@
 #include <sourcemeta/jsontoolkit/regex.h>
 #include <sourcemeta/jsontoolkit/uri.h>
 
-#include "trace.h"
-
 #include <algorithm>  // std::min, std::any_of, std::find
 #include <cassert>    // assert
 #include <functional> // std::reference_wrapper
