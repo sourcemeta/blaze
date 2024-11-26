@@ -8,6 +8,8 @@ if(JSONTOOLKIT_INSTALL)
 endif()
 
 target_link_libraries(sourcemeta_jsontoolkit_jsonpointer PUBLIC
+  smallvector)
+target_link_libraries(sourcemeta_jsontoolkit_jsonpointer PUBLIC
   sourcemeta::jsontoolkit::uri)
 target_link_libraries(sourcemeta_jsontoolkit_jsonpointer PUBLIC
   sourcemeta::jsontoolkit::json)

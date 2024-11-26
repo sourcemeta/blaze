@@ -14,6 +14,8 @@
 #include <utility>          // std::move
 #include <vector>           // std::vector
 
+#include <gch/small_vector.hpp>
+
 namespace sourcemeta::jsontoolkit {
 
 /// @ingroup jsonpointer
@@ -21,7 +23,7 @@ template <typename PropertyT> class GenericPointer {
 public:
   using Token = GenericToken<PropertyT>;
   using Value = typename Token::Value;
-  using Container = std::vector<Token>;
+  using Container = gch::small_vector<Token, 5>;
 
   /// This constructor creates an empty JSON Pointer. For example:
   ///

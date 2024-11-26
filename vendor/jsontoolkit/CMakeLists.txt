@@ -51,6 +51,7 @@ if(JSONTOOLKIT_JSON AND JSONTOOLKIT_REGEX)
 endif()
 
 if(JSONTOOLKIT_JSON AND JSONTOOLKIT_JSONPOINTER)
+  find_package(SmallVector REQUIRED)
   add_subdirectory(src/jsonpointer)
 endif()
 
