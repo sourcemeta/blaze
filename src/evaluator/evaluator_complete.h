@@ -2,7 +2,8 @@
 #define SOURCEMETA_BLAZE_EVALUATOR_COMPLETE_H_
 
 #define EVALUATE_BEGIN(instruction_category, instruction_type, precondition)   \
-  const auto &instruction_category{std::get<instruction_type>(instruction)};   \
+  const auto &instruction_category{                                            \
+      std::get<sourcemeta::blaze::instruction_type>(instruction)};             \
   const auto track{schema.track || callback.has_value()};                      \
   if (track) {                                                                 \
     evaluator.evaluate_path.push_back(                                         \
@@ -38,7 +39,8 @@
 
 #define EVALUATE_BEGIN_NON_STRING(instruction_category, instruction_type,      \
                                   precondition)                                \
-  const auto &instruction_category{std::get<instruction_type>(instruction)};   \
+  const auto &instruction_category{                                            \
+      std::get<sourcemeta::blaze::instruction_type>(instruction)};             \
   const auto track{schema.track || callback.has_value()};                      \
   if (track) {                                                                 \
     evaluator.evaluate_path.push_back(                                         \
@@ -71,7 +73,8 @@
   bool result{false};
 
 #define EVALUATE_BEGIN_IF_STRING(instruction_category, instruction_type)       \
-  const auto &instruction_category{std::get<instruction_type>(instruction)};   \
+  const auto &instruction_category{                                            \
+      std::get<sourcemeta::blaze::instruction_type>(instruction)};             \
   const auto track{schema.track || callback.has_value()};                      \
   if (track) {                                                                 \
     evaluator.evaluate_path.push_back(                                         \
@@ -110,7 +113,8 @@
 #define EVALUATE_BEGIN_TRY_TARGET(instruction_category, instruction_type,      \
                                   precondition)                                \
   const auto &target{instance};                                                \
-  const auto &instruction_category{std::get<instruction_type>(instruction)};   \
+  const auto &instruction_category{                                            \
+      std::get<sourcemeta::blaze::instruction_type>(instruction)};             \
   if (!(precondition)) {                                                       \
     return true;                                                               \
   }                                                                            \
@@ -138,7 +142,8 @@
   bool result{false};
 
 #define EVALUATE_BEGIN_NO_PRECONDITION(instruction_category, instruction_type) \
-  const auto &instruction_category{std::get<instruction_type>(instruction)};   \
+  const auto &instruction_category{                                            \
+      std::get<sourcemeta::blaze::instruction_type>(instruction)};             \
   const auto track{schema.track || callback.has_value()};                      \
   if (track) {                                                                 \
     evaluator.evaluate_path.push_back(                                         \
@@ -158,7 +163,8 @@
 
 #define EVALUATE_BEGIN_NO_PRECONDITION_AND_NO_PUSH(instruction_category,       \
                                                    instruction_type)           \
-  const auto &instruction_category{std::get<instruction_type>(instruction)};   \
+  const auto &instruction_category{                                            \
+      std::get<sourcemeta::blaze::instruction_type>(instruction)};             \
   if (callback.has_value()) {                                                  \
     callback.value()(EvaluationType::Pre, true, instruction,                   \
                      evaluator.evaluate_path, evaluator.instance_location,     \
@@ -167,7 +173,8 @@
   bool result{true};
 
 #define EVALUATE_BEGIN_PASS_THROUGH(instruction_category, instruction_type)    \
-  const auto &instruction_category{std::get<instruction_type>(instruction)};   \
+  const auto &instruction_category{                                            \
+      std::get<sourcemeta::blaze::instruction_type>(instruction)};             \
   bool result{true};
 
 #define EVALUATE_END(instruction_category, instruction_type)                   \
@@ -200,7 +207,8 @@
 #define EVALUATE_ANNOTATION(instruction_category, instruction_type,            \
                             destination, annotation_value)                     \
   if (callback.has_value()) {                                                  \
-    const auto &instruction_category{std::get<instruction_type>(instruction)}; \
+    const auto &instruction_category{                                          \
+        std::get<sourcemeta::blaze::instruction_type>(instruction)};           \
     evaluator.evaluate_path.push_back(                                         \
         instruction_category.relative_schema_location);                        \
     evaluator.instance_location.push_back(                                     \
@@ -227,18 +235,7 @@
 
 namespace sourcemeta::blaze::complete {
 
-auto evaluate_instruction(
-    const sourcemeta::blaze::Instruction &instruction,
-    const sourcemeta::blaze::Template &schema,
-    const std::optional<sourcemeta::blaze::Callback> &callback,
-    const sourcemeta::jsontoolkit::JSON &instance,
-    const std::optional<
-        std::reference_wrapper<const sourcemeta::jsontoolkit::JSON::String>>
-        &property_target,
-    const std::uint64_t depth, sourcemeta::blaze::Evaluator &evaluator)
-    -> bool {
 #include "dispatch.inc.h"
-}
 
 inline auto evaluate(const sourcemeta::jsontoolkit::JSON &instance,
                      sourcemeta::blaze::Evaluator &evaluator,
