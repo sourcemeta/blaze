@@ -2,7 +2,8 @@
 #define SOURCEMETA_BLAZE_EVALUATOR_FAST_H_
 
 #define EVALUATE_BEGIN(instruction_category, instruction_type, precondition)   \
-  const auto &instruction_category{std::get<instruction_type>(instruction)};   \
+  const auto &instruction_category{                                            \
+      std::get<sourcemeta::blaze::instruction_type>(instruction)};             \
   const auto &target{resolve_target(                                           \
       property_target,                                                         \
       sourcemeta::jsontoolkit::get(                                            \
@@ -16,7 +17,8 @@
 
 #define EVALUATE_BEGIN_NON_STRING(instruction_category, instruction_type,      \
                                   precondition)                                \
-  const auto &instruction_category{std::get<instruction_type>(instruction)};   \
+  const auto &instruction_category{                                            \
+      std::get<sourcemeta::blaze::instruction_type>(instruction)};             \
   const auto &target{sourcemeta::jsontoolkit::get(                             \
       instance, instruction_category.relative_instance_location)};             \
   if (!(precondition)) {                                                       \
@@ -27,7 +29,8 @@
   bool result{false};
 
 #define EVALUATE_BEGIN_IF_STRING(instruction_category, instruction_type)       \
-  const auto &instruction_category{std::get<instruction_type>(instruction)};   \
+  const auto &instruction_category{                                            \
+      std::get<sourcemeta::blaze::instruction_type>(instruction)};             \
   const auto &maybe_target{                                                    \
       resolve_string_target(property_target, instance,                         \
                             instruction_category.relative_instance_location)}; \
@@ -40,7 +43,8 @@
 #define EVALUATE_BEGIN_TRY_TARGET(instruction_category, instruction_type,      \
                                   precondition)                                \
   const auto &target{instance};                                                \
-  const auto &instruction_category{std::get<instruction_type>(instruction)};   \
+  const auto &instruction_category{                                            \
+      std::get<sourcemeta::blaze::instruction_type>(instruction)};             \
   if (!(precondition)) {                                                       \
     return true;                                                               \
   }                                                                            \
@@ -53,7 +57,8 @@
   bool result{false};
 
 #define EVALUATE_BEGIN_NO_PRECONDITION(instruction_category, instruction_type) \
-  const auto &instruction_category{std::get<instruction_type>(instruction)};   \
+  const auto &instruction_category{                                            \
+      std::get<sourcemeta::blaze::instruction_type>(instruction)};             \
   SOURCEMETA_MAYBE_UNUSED(instruction_category);                               \
   constexpr bool track{false};                                                 \
   SOURCEMETA_MAYBE_UNUSED(track);                                              \
@@ -61,11 +66,13 @@
 
 #define EVALUATE_BEGIN_NO_PRECONDITION_AND_NO_PUSH(instruction_category,       \
                                                    instruction_type)           \
-  const auto &instruction_category{std::get<instruction_type>(instruction)};   \
+  const auto &instruction_category{                                            \
+      std::get<sourcemeta::blaze::instruction_type>(instruction)};             \
   bool result{true};
 
 #define EVALUATE_BEGIN_PASS_THROUGH(instruction_category, instruction_type)    \
-  const auto &instruction_category{std::get<instruction_type>(instruction)};   \
+  const auto &instruction_category{                                            \
+      std::get<sourcemeta::blaze::instruction_type>(instruction)};             \
   bool result{true};
 
 #define EVALUATE_END(instruction_category, instruction_type) return result;
@@ -91,18 +98,7 @@
 
 namespace sourcemeta::blaze::fast {
 
-auto evaluate_instruction(
-    const sourcemeta::blaze::Instruction &instruction,
-    const sourcemeta::blaze::Template &schema,
-    const std::optional<sourcemeta::blaze::Callback> &,
-    const sourcemeta::jsontoolkit::JSON &instance,
-    const std::optional<
-        std::reference_wrapper<const sourcemeta::jsontoolkit::JSON::String>>
-        &property_target,
-    const std::uint64_t depth, sourcemeta::blaze::Evaluator &evaluator)
-    -> bool {
 #include "dispatch.inc.h"
-}
 
 inline auto evaluate(const sourcemeta::jsontoolkit::JSON &instance,
                      sourcemeta::blaze::Evaluator &evaluator,
