@@ -80,7 +80,7 @@ TEST(Evaluator, boolean_false) {
       "No instance is expected to succeed against the false schema");
 }
 
-TEST(Evaluator, reusable_context) {
+TEST(Evaluator, reusable_evaluator) {
   const sourcemeta::jsontoolkit::JSON schema{
       sourcemeta::jsontoolkit::parse(R"JSON({
     "$schema": "http://json-schema.org/draft-04/schema#",
@@ -92,21 +92,17 @@ TEST(Evaluator, reusable_context) {
       sourcemeta::jsontoolkit::official_resolver,
       sourcemeta::blaze::default_schema_compiler)};
 
-  sourcemeta::blaze::EvaluationContext context;
+  sourcemeta::blaze::Evaluator evaluator;
 
   const sourcemeta::jsontoolkit::JSON instance_1{"foo bar"};
-  EXPECT_TRUE(
-      sourcemeta::blaze::evaluate(compiled_schema, instance_1, context));
+  EXPECT_TRUE(evaluator.validate(compiled_schema, instance_1));
 
   const sourcemeta::jsontoolkit::JSON instance_2{"baz"};
-  EXPECT_TRUE(
-      sourcemeta::blaze::evaluate(compiled_schema, instance_2, context));
+  EXPECT_TRUE(evaluator.validate(compiled_schema, instance_2));
 
   const sourcemeta::jsontoolkit::JSON instance_3{4};
-  EXPECT_FALSE(
-      sourcemeta::blaze::evaluate(compiled_schema, instance_3, context));
+  EXPECT_FALSE(evaluator.validate(compiled_schema, instance_3));
 
   const sourcemeta::jsontoolkit::JSON instance_4{"qux"};
-  EXPECT_TRUE(
-      sourcemeta::blaze::evaluate(compiled_schema, instance_4, context));
+  EXPECT_TRUE(evaluator.validate(compiled_schema, instance_4));
 }

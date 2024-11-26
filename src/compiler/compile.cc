@@ -1,5 +1,5 @@
 #include <sourcemeta/blaze/compiler.h>
-#include <sourcemeta/blaze/evaluator_context.h>
+#include <sourcemeta/blaze/evaluator.h>
 
 #include <sourcemeta/jsontoolkit/jsonschema.h>
 
@@ -66,7 +66,7 @@ auto precompile(
     const sourcemeta::jsontoolkit::ReferenceFrame::value_type &entry)
     -> sourcemeta::blaze::Instructions {
   const sourcemeta::jsontoolkit::URI anchor_uri{entry.first.second};
-  const auto label{sourcemeta::blaze::EvaluationContext{}.hash(
+  const auto label{sourcemeta::blaze::Evaluator{}.hash(
       schema_resource_id(context,
                          anchor_uri.recompose_without_fragment().value_or("")),
       std::string{anchor_uri.fragment().value_or("")})};

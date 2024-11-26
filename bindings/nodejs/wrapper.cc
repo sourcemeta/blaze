@@ -44,8 +44,8 @@ public:
     assert(schema < this->schemas.size());
     assert(this->schemas[schema].has_value());
     const auto instance{sourcemeta::jsontoolkit::parse(instance_string)};
-    const auto result{sourcemeta::blaze::evaluate(this->schemas[schema].value(),
-                                                  instance, context)};
+    const auto result{
+        this->evaluator.validate(this->schemas[schema].value(), instance)};
     return emscripten::val(result);
   }
 
@@ -59,7 +59,7 @@ public:
   }
 
 private:
-  sourcemeta::blaze::EvaluationContext context;
+  sourcemeta::blaze::Evaluator evaluator;
   std::vector<std::optional<sourcemeta::blaze::Template>> schemas;
 };
 

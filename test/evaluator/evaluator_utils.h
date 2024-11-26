@@ -22,7 +22,8 @@ inline auto FIRST_PROPERTY_IS(const sourcemeta::jsontoolkit::JSON &document,
                          sourcemeta::blaze::Instruction,                       \
                          sourcemeta::jsontoolkit::JSON>>                       \
       trace_post;                                                              \
-  const auto result{sourcemeta::blaze::evaluate(                               \
+  sourcemeta::blaze::Evaluator evaluator;                                      \
+  const auto result{evaluator.validate(                                        \
       schema_template, instance,                                               \
       [&trace_pre, &trace_post](                                               \
           const sourcemeta::blaze::EvaluationType type, const bool valid,      \

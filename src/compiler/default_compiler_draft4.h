@@ -2,7 +2,7 @@
 #define SOURCEMETA_BLAZE_COMPILER_DEFAULT_COMPILER_DRAFT4_H_
 
 #include <sourcemeta/blaze/compiler.h>
-#include <sourcemeta/blaze/evaluator_context.h>
+#include <sourcemeta/blaze/evaluator.h>
 #include <sourcemeta/jsontoolkit/regex.h>
 
 #include <algorithm> // std::sort, std::any_of, std::all_of, std::find_if, std::none_of
@@ -96,9 +96,9 @@ auto compiler_draft4_core_ref(const Context &context,
   }
 
   const auto &reference{context.references.at({type, entry.pointer})};
-  const auto label{EvaluationContext{}.hash(
-      schema_resource_id(context, reference.base.value_or("")),
-      reference.fragment.value_or(""))};
+  const auto label{
+      Evaluator{}.hash(schema_resource_id(context, reference.base.value_or("")),
+                       reference.fragment.value_or(""))};
 
   // The label is already registered, so just jump to it
   if (schema_context.labels.contains(label) ||

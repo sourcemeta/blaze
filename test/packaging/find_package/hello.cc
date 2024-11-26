@@ -19,7 +19,8 @@ auto main() -> int {
       sourcemeta::blaze::default_schema_compiler)};
 
   const sourcemeta::jsontoolkit::JSON instance{"foo"};
-  if (!sourcemeta::blaze::evaluate(compiled_schema, instance)) {
+  sourcemeta::blaze::Evaluator evaluator;
+  if (!evaluator.validate(compiled_schema, instance)) {
     std::cerr << "JSON Schema validation failed\n";
     return EXIT_FAILURE;
   }

@@ -33,10 +33,9 @@ static void Evaluator_Draft7_If_Then_Else(benchmark::State &state) {
       schema, sourcemeta::jsontoolkit::default_schema_walker,
       sourcemeta::jsontoolkit::official_resolver,
       sourcemeta::blaze::default_schema_compiler)};
-  sourcemeta::blaze::EvaluationContext context;
+  sourcemeta::blaze::Evaluator evaluator;
   for (auto _ : state) {
-    auto result{
-        sourcemeta::blaze::evaluate(schema_template, instance, context)};
+    auto result{evaluator.validate(schema_template, instance)};
     assert(result);
     benchmark::DoNotOptimize(result);
   }
@@ -55,10 +54,9 @@ static void Evaluator_Draft7_Vercel_1(benchmark::State &state) {
       schema, sourcemeta::jsontoolkit::default_schema_walker,
       sourcemeta::jsontoolkit::official_resolver,
       sourcemeta::blaze::default_schema_compiler)};
-  sourcemeta::blaze::EvaluationContext context;
+  sourcemeta::blaze::Evaluator evaluator;
   for (auto _ : state) {
-    auto result{
-        sourcemeta::blaze::evaluate(schema_template, instance, context)};
+    auto result{evaluator.validate(schema_template, instance)};
     assert(result);
     benchmark::DoNotOptimize(result);
   }
@@ -77,10 +75,9 @@ static void Evaluator_Draft7_Helm_Chart_Lock_1(benchmark::State &state) {
       schema, sourcemeta::jsontoolkit::default_schema_walker,
       sourcemeta::jsontoolkit::official_resolver,
       sourcemeta::blaze::default_schema_compiler)};
-  sourcemeta::blaze::EvaluationContext context;
+  sourcemeta::blaze::Evaluator evaluator;
   for (auto _ : state) {
-    auto result{
-        sourcemeta::blaze::evaluate(schema_template, instance, context)};
+    auto result{evaluator.validate(schema_template, instance)};
     assert(result);
     benchmark::DoNotOptimize(result);
   }

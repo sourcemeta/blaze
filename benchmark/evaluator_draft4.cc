@@ -25,10 +25,9 @@ static void Evaluator_Draft4_Meta_1_No_Callback(benchmark::State &state) {
       sourcemeta::jsontoolkit::official_resolver,
       sourcemeta::blaze::default_schema_compiler)};
 
-  sourcemeta::blaze::EvaluationContext context;
+  sourcemeta::blaze::Evaluator evaluator;
   for (auto _ : state) {
-    auto result{
-        sourcemeta::blaze::evaluate(metaschema_template, schema, context)};
+    auto result{evaluator.validate(metaschema_template, schema)};
     assert(result);
     benchmark::DoNotOptimize(result);
   }
@@ -108,10 +107,9 @@ static void Evaluator_Draft4_Required_Properties(benchmark::State &state) {
       sourcemeta::jsontoolkit::official_resolver,
       sourcemeta::blaze::default_schema_compiler)};
 
-  sourcemeta::blaze::EvaluationContext context;
+  sourcemeta::blaze::Evaluator evaluator;
   for (auto _ : state) {
-    auto result{
-        sourcemeta::blaze::evaluate(schema_template, instance, context)};
+    auto result{evaluator.validate(schema_template, instance)};
     assert(result);
     benchmark::DoNotOptimize(result);
   }
@@ -162,10 +160,9 @@ static void Evaluator_Draft4_Many_Optional_Properties_Minimal_Match(
       sourcemeta::jsontoolkit::official_resolver,
       sourcemeta::blaze::default_schema_compiler)};
 
-  sourcemeta::blaze::EvaluationContext context;
+  sourcemeta::blaze::Evaluator evaluator;
   for (auto _ : state) {
-    auto result{
-        sourcemeta::blaze::evaluate(schema_template, instance, context)};
+    auto result{evaluator.validate(schema_template, instance)};
     assert(result);
     benchmark::DoNotOptimize(result);
   }
@@ -216,10 +213,9 @@ static void Evaluator_Draft4_Few_Optional_Properties_Minimal_Match(
       sourcemeta::jsontoolkit::official_resolver,
       sourcemeta::blaze::default_schema_compiler)};
 
-  sourcemeta::blaze::EvaluationContext context;
+  sourcemeta::blaze::Evaluator evaluator;
   for (auto _ : state) {
-    auto result{
-        sourcemeta::blaze::evaluate(schema_template, instance, context)};
+    auto result{evaluator.validate(schema_template, instance)};
     assert(result);
     benchmark::DoNotOptimize(result);
   }
@@ -297,10 +293,9 @@ static void Evaluator_Draft4_Items_Schema(benchmark::State &state) {
       sourcemeta::jsontoolkit::official_resolver,
       sourcemeta::blaze::default_schema_compiler)};
 
-  sourcemeta::blaze::EvaluationContext context;
+  sourcemeta::blaze::Evaluator evaluator;
   for (auto _ : state) {
-    auto result{
-        sourcemeta::blaze::evaluate(schema_template, instance, context)};
+    auto result{evaluator.validate(schema_template, instance)};
     assert(result);
     benchmark::DoNotOptimize(result);
   }
@@ -436,10 +431,9 @@ static void Evaluator_Draft4_Nested_Object(benchmark::State &state) {
       sourcemeta::jsontoolkit::official_resolver,
       sourcemeta::blaze::default_schema_compiler)};
 
-  sourcemeta::blaze::EvaluationContext context;
+  sourcemeta::blaze::Evaluator evaluator;
   for (auto _ : state) {
-    auto result{
-        sourcemeta::blaze::evaluate(schema_template, instance, context)};
+    auto result{evaluator.validate(schema_template, instance)};
     assert(result);
     benchmark::DoNotOptimize(result);
   }
@@ -482,10 +476,9 @@ Evaluator_Draft4_Properties_Triad_Optional(benchmark::State &state) {
       sourcemeta::jsontoolkit::official_resolver,
       sourcemeta::blaze::default_schema_compiler)};
 
-  sourcemeta::blaze::EvaluationContext context;
+  sourcemeta::blaze::Evaluator evaluator;
   for (auto _ : state) {
-    auto result{
-        sourcemeta::blaze::evaluate(schema_template, instance, context)};
+    auto result{evaluator.validate(schema_template, instance)};
     assert(result);
     benchmark::DoNotOptimize(result);
   }
@@ -529,10 +522,9 @@ Evaluator_Draft4_Properties_Triad_Required(benchmark::State &state) {
       sourcemeta::jsontoolkit::official_resolver,
       sourcemeta::blaze::default_schema_compiler)};
 
-  sourcemeta::blaze::EvaluationContext context;
+  sourcemeta::blaze::Evaluator evaluator;
   for (auto _ : state) {
-    auto result{
-        sourcemeta::blaze::evaluate(schema_template, instance, context)};
+    auto result{evaluator.validate(schema_template, instance)};
     assert(result);
     benchmark::DoNotOptimize(result);
   }
@@ -571,10 +563,9 @@ static void Evaluator_Draft4_Properties_Triad_Closed(benchmark::State &state) {
       sourcemeta::jsontoolkit::official_resolver,
       sourcemeta::blaze::default_schema_compiler)};
 
-  sourcemeta::blaze::EvaluationContext context;
+  sourcemeta::blaze::Evaluator evaluator;
   for (auto _ : state) {
-    auto result{
-        sourcemeta::blaze::evaluate(schema_template, instance, context)};
+    auto result{evaluator.validate(schema_template, instance)};
     assert(result);
     benchmark::DoNotOptimize(result);
   }
@@ -620,10 +611,9 @@ static void Evaluator_Draft4_Properties_Closed(benchmark::State &state) {
       sourcemeta::jsontoolkit::official_resolver,
       sourcemeta::blaze::default_schema_compiler)};
 
-  sourcemeta::blaze::EvaluationContext context;
+  sourcemeta::blaze::Evaluator evaluator;
   for (auto _ : state) {
-    auto result{
-        sourcemeta::blaze::evaluate(schema_template, instance, context)};
+    auto result{evaluator.validate(schema_template, instance)};
     assert(result);
     benchmark::DoNotOptimize(result);
   }
@@ -668,10 +658,9 @@ static void Evaluator_Draft4_Non_Recursive_Ref(benchmark::State &state) {
       sourcemeta::jsontoolkit::official_resolver,
       sourcemeta::blaze::default_schema_compiler)};
 
-  sourcemeta::blaze::EvaluationContext context;
+  sourcemeta::blaze::Evaluator evaluator;
   for (auto _ : state) {
-    auto result{
-        sourcemeta::blaze::evaluate(schema_template, instance, context)};
+    auto result{evaluator.validate(schema_template, instance)};
     assert(result);
     benchmark::DoNotOptimize(result);
   }
@@ -711,10 +700,9 @@ static void Evaluator_Draft4_Pattern_Properties_True(benchmark::State &state) {
       sourcemeta::jsontoolkit::official_resolver,
       sourcemeta::blaze::default_schema_compiler)};
 
-  sourcemeta::blaze::EvaluationContext context;
+  sourcemeta::blaze::Evaluator evaluator;
   for (auto _ : state) {
-    auto result{
-        sourcemeta::blaze::evaluate(schema_template, instance, context)};
+    auto result{evaluator.validate(schema_template, instance)};
     assert(result);
     benchmark::DoNotOptimize(result);
   }
@@ -772,10 +760,9 @@ static void Evaluator_Draft4_Ref_To_Single_Property(benchmark::State &state) {
       sourcemeta::jsontoolkit::official_resolver,
       sourcemeta::blaze::default_schema_compiler)};
 
-  sourcemeta::blaze::EvaluationContext context;
+  sourcemeta::blaze::Evaluator evaluator;
   for (auto _ : state) {
-    auto result{
-        sourcemeta::blaze::evaluate(schema_template, instance, context)};
+    auto result{evaluator.validate(schema_template, instance)};
     assert(result);
     benchmark::DoNotOptimize(result);
   }
@@ -824,10 +811,9 @@ Evaluator_Draft4_Additional_Properties_Type(benchmark::State &state) {
       sourcemeta::jsontoolkit::official_resolver,
       sourcemeta::blaze::default_schema_compiler)};
 
-  sourcemeta::blaze::EvaluationContext context;
+  sourcemeta::blaze::Evaluator evaluator;
   for (auto _ : state) {
-    auto result{
-        sourcemeta::blaze::evaluate(schema_template, instance, context)};
+    auto result{evaluator.validate(schema_template, instance)};
     assert(result);
     benchmark::DoNotOptimize(result);
   }
@@ -868,10 +854,9 @@ static void Evaluator_Draft4_Nested_Oneof(benchmark::State &state) {
       schema, sourcemeta::jsontoolkit::default_schema_walker,
       sourcemeta::jsontoolkit::official_resolver,
       sourcemeta::blaze::default_schema_compiler)};
-  sourcemeta::blaze::EvaluationContext context;
+  sourcemeta::blaze::Evaluator evaluator;
   for (auto _ : state) {
-    auto result{
-        sourcemeta::blaze::evaluate(schema_template, instance, context)};
+    auto result{evaluator.validate(schema_template, instance)};
     assert(result);
     benchmark::DoNotOptimize(result);
   }
@@ -932,10 +917,9 @@ static void Evaluator_Draft4_Long_Enum(benchmark::State &state) {
       schema, sourcemeta::jsontoolkit::default_schema_walker,
       sourcemeta::jsontoolkit::official_resolver,
       sourcemeta::blaze::default_schema_compiler)};
-  sourcemeta::blaze::EvaluationContext context;
+  sourcemeta::blaze::Evaluator evaluator;
   for (auto _ : state) {
-    auto result{
-        sourcemeta::blaze::evaluate(schema_template, instance, context)};
+    auto result{evaluator.validate(schema_template, instance)};
     assert(result);
     benchmark::DoNotOptimize(result);
   }
@@ -955,10 +939,9 @@ static void Evaluator_Draft4_Type_Object(benchmark::State &state) {
       schema, sourcemeta::jsontoolkit::default_schema_walker,
       sourcemeta::jsontoolkit::official_resolver,
       sourcemeta::blaze::default_schema_compiler)};
-  sourcemeta::blaze::EvaluationContext context;
+  sourcemeta::blaze::Evaluator evaluator;
   for (auto _ : state) {
-    auto result{
-        sourcemeta::blaze::evaluate(schema_template, instance, context)};
+    auto result{evaluator.validate(schema_template, instance)};
     assert(result);
     benchmark::DoNotOptimize(result);
   }

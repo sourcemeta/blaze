@@ -48,8 +48,9 @@ auto main(int argc, char **argv) noexcept -> int {
   const auto instance{sourcemeta::jsontoolkit::from_file(instance_path)};
 
   sourcemeta::blaze::TraceOutput output;
+  sourcemeta::blaze::Evaluator evaluator;
   const auto result{
-      sourcemeta::blaze::evaluate(schema_template, instance, std::ref(output))};
+      evaluator.validate(schema_template, instance, std::ref(output))};
 
   for (const auto &entry : output) {
     switch (entry.type) {

@@ -50,13 +50,12 @@ auto main(int argc, char **argv) noexcept -> int {
   std::cerr << "Number of instances: " << instances.size() << "\n";
 
   // Validate and measure
-  sourcemeta::blaze::EvaluationContext context;
+  sourcemeta::blaze::Evaluator evaluator;
   std::size_t cursor{0};
   for (const auto &instance : instances) {
     cursor += 1;
     const auto timestamp_start{std::chrono::high_resolution_clock::now()};
-    const auto result{
-        sourcemeta::blaze::evaluate(schema_template, instance, context)};
+    const auto result{evaluator.validate(schema_template, instance)};
     const auto timestamp_end{std::chrono::high_resolution_clock::now()};
     const auto duration{std::chrono::duration_cast<std::chrono::nanoseconds>(
         timestamp_end - timestamp_start)};

@@ -83,7 +83,8 @@ const auto compiled_schema{sourcemeta::blaze::compile(
 const sourcemeta::jsontoolkit::JSON instance{"Hello Blaze!"};
 
 // (4) Validate the instance against the schema
-const auto result{sourcemeta::blaze::evaluate(compiled_schema, instance)};
+sourcemeta::blaze::Evaluator evaluator;
+const auto result{evaluator.validate(compiled_schema, instance)};
 if (result) {
   std::cout << "Success!\n";
 }
