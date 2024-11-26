@@ -33,28 +33,34 @@ inline auto schema_resource_id(const Context &context,
 
 // Instantiate a value-oriented step
 template <typename Step>
-auto make(const Context &context, const SchemaContext &schema_context,
+auto make(const InstructionIndex type, const Context &context,
+          const SchemaContext &schema_context,
           const DynamicContext &dynamic_context,
           // Take the value type from the "type" property of the step struct
           const decltype(std::declval<Step>().value) &value) -> Step {
   return {
+      type,
       dynamic_context.keyword.empty()
           ? dynamic_context.base_schema_location
           : dynamic_context.base_schema_location.concat(
                 {dynamic_context.keyword}),
       dynamic_context.base_instance_location,
       to_uri(schema_context.relative_pointer, schema_context.base).recompose(),
-      schema_resource_id(context, schema_context.base.recompose()), value};
+      schema_resource_id(context, schema_context.base.recompose()),
+      value,
+      {}};
 }
 
 // Instantiate an applicator step
 template <typename Step>
-auto make(const Context &context, const SchemaContext &schema_context,
+auto make(const InstructionIndex type, const Context &context,
+          const SchemaContext &schema_context,
           const DynamicContext &dynamic_context,
           // Take the value type from the "value" property of the step struct
           decltype(std::declval<Step>().value) &&value, Instructions &&children)
     -> Step {
   return {
+      type,
       dynamic_context.keyword.empty()
           ? dynamic_context.base_schema_location
           : dynamic_context.base_schema_location.concat(
@@ -71,17 +77,25 @@ auto unroll(const Step &step,
             const sourcemeta::jsontoolkit::Pointer &base_instance_location =
                 sourcemeta::jsontoolkit::empty_pointer) -> Type {
   assert(std::holds_alternative<Type>(step));
-  return {std::get<Type>(step).relative_schema_location,
+  return {std::get<Type>(step).type,
+          std::get<Type>(step).relative_schema_location,
           base_instance_location.concat(
               std::get<Type>(step).relative_instance_location),
           std::get<Type>(step).keyword_location,
-          std::get<Type>(step).schema_resource, std::get<Type>(step).value};
+          std::get<Type>(step).schema_resource,
+          std::get<Type>(step).value,
+          {}};
 }
 
 template <typename Type, typename Step>
-auto rephrase(const Step &step) -> Type {
-  return {step.relative_schema_location, step.relative_instance_location,
-          step.keyword_location, step.schema_resource, step.value};
+auto rephrase(const InstructionIndex type, const Step &step) -> Type {
+  return {type,
+          step.relative_schema_location,
+          step.relative_instance_location,
+          step.keyword_location,
+          step.schema_resource,
+          step.value,
+          {}};
 }
 
 inline auto

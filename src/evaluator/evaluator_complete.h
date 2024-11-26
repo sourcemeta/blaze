@@ -2,6 +2,7 @@
 #define SOURCEMETA_BLAZE_EVALUATOR_COMPLETE_H_
 
 #define EVALUATE_BEGIN(instruction_type, precondition)                         \
+  assert(instruction.type == InstructionIndex::instruction_type);              \
   const auto track{schema.track || callback.has_value()};                      \
   if (track) {                                                                 \
     evaluator.evaluate_path.push_back(instruction.relative_schema_location);   \
@@ -35,6 +36,7 @@
   bool result{false};
 
 #define EVALUATE_BEGIN_NON_STRING(instruction_type, precondition)              \
+  assert(instruction.type == InstructionIndex::instruction_type);              \
   const auto track{schema.track || callback.has_value()};                      \
   if (track) {                                                                 \
     evaluator.evaluate_path.push_back(instruction.relative_schema_location);   \
@@ -66,6 +68,7 @@
   bool result{false};
 
 #define EVALUATE_BEGIN_IF_STRING(instruction_type)                             \
+  assert(instruction.type == InstructionIndex::instruction_type);              \
   const auto track{schema.track || callback.has_value()};                      \
   if (track) {                                                                 \
     evaluator.evaluate_path.push_back(instruction.relative_schema_location);   \
@@ -100,6 +103,7 @@
 // This is a slightly complicated dance to avoid traversing the relative
 // instance location twice.
 #define EVALUATE_BEGIN_TRY_TARGET(instruction_type, precondition)              \
+  assert(instruction.type == InstructionIndex::instruction_type);              \
   const auto &target{instance};                                                \
   if (!(precondition)) {                                                       \
     return true;                                                               \
@@ -127,6 +131,7 @@
   bool result{false};
 
 #define EVALUATE_BEGIN_NO_PRECONDITION(instruction_type)                       \
+  assert(instruction.type == InstructionIndex::instruction_type);              \
   const auto track{schema.track || callback.has_value()};                      \
   if (track) {                                                                 \
     evaluator.evaluate_path.push_back(instruction.relative_schema_location);   \
@@ -144,6 +149,7 @@
   bool result{false};
 
 #define EVALUATE_BEGIN_NO_PRECONDITION_AND_NO_PUSH(instruction_type)           \
+  assert(instruction.type == InstructionIndex::instruction_type);              \
   if (callback.has_value()) {                                                  \
     callback.value()(EvaluationType::Pre, true, instruction,                   \
                      evaluator.evaluate_path, evaluator.instance_location,     \
@@ -151,7 +157,9 @@
   }                                                                            \
   bool result{true};
 
-#define EVALUATE_BEGIN_PASS_THROUGH(instruction_type) bool result{true};
+#define EVALUATE_BEGIN_PASS_THROUGH(instruction_type)                          \
+  assert(instruction.type == InstructionIndex::instruction_type);              \
+  bool result{true};
 
 #define EVALUATE_END(instruction_type)                                         \
   if (callback.has_value()) {                                                  \

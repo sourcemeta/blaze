@@ -8,9 +8,10 @@
 namespace {
 using namespace sourcemeta::blaze;
 
-template <typename T> auto step_value(const T &step) -> decltype(auto) {
+template <typename X, typename T>
+auto instruction_value(const T &step) -> decltype(auto) {
   if constexpr (requires { step.value; }) {
-    return step.value;
+    return std::get<X>(step.value);
   } else {
     return step.id;
   }
@@ -286,7 +287,7 @@ struct DescribeVisitor {
 
   auto operator()(const ControlDynamicAnchorJump &step) const -> std::string {
     if (this->keyword == "$dynamicRef") {
-      const auto &value{step_value(step)};
+      const auto &value{instruction_value<ValueString>(step)};
       std::ostringstream message;
       message << "The " << to_string(target.type())
               << " value was expected to validate against the first subschema "
@@ -665,21 +666,21 @@ struct DescribeVisitor {
   auto operator()(const LoopPropertiesType &step) const -> std::string {
     std::ostringstream message;
     message << "The object properties were expected to be of type "
-            << to_string(step.value);
+            << to_string(instruction_value<ValueType>(step));
     return message.str();
   }
 
   auto operator()(const LoopPropertiesTypeEvaluate &step) const -> std::string {
     std::ostringstream message;
     message << "The object properties were expected to be of type "
-            << to_string(step.value);
+            << to_string(instruction_value<ValueType>(step));
     return message.str();
   }
 
   auto operator()(const LoopPropertiesTypeStrict &step) const -> std::string {
     std::ostringstream message;
     message << "The object properties were expected to be of type "
-            << to_string(step.value);
+            << to_string(instruction_value<ValueType>(step));
     return message.str();
   }
 
@@ -687,7 +688,7 @@ struct DescribeVisitor {
       -> std::string {
     std::ostringstream message;
     message << "The object properties were expected to be of type "
-            << to_string(step.value);
+            << to_string(instruction_value<ValueType>(step));
     return message.str();
   }
 
@@ -695,7 +696,7 @@ struct DescribeVisitor {
       -> std::string {
     std::ostringstream message;
     message << "The object properties were expected to be of type ";
-    const auto &types{step_value(step)};
+    const auto &types{instruction_value<ValueTypes>(step)};
     for (auto iterator = types.cbegin(); iterator != types.cend(); ++iterator) {
       if (std::next(iterator) == types.cend()) {
         message << "or " << to_string(*iterator);
@@ -711,7 +712,7 @@ struct DescribeVisitor {
       -> std::string {
     std::ostringstream message;
     message << "The object properties were expected to be of type ";
-    const auto &types{step_value(step)};
+    const auto &types{instruction_value<ValueTypes>(step)};
     for (auto iterator = types.cbegin(); iterator != types.cend(); ++iterator) {
       if (std::next(iterator) == types.cend()) {
         message << "or " << to_string(*iterator);
@@ -761,7 +762,7 @@ struct DescribeVisitor {
 
   auto operator()(const LoopItemsFrom &step) const -> std::string {
     assert(this->target.is_array());
-    const auto &value{step_value(step)};
+    const auto &value{instruction_value<ValueUnsignedInteger>(step)};
     std::ostringstream message;
     message << "Every item in the array value";
     if (value == 1) {
@@ -785,21 +786,21 @@ struct DescribeVisitor {
   auto operator()(const LoopItemsType &step) const -> std::string {
     std::ostringstream message;
     message << "The array items were expected to be of type "
-            << to_string(step.value);
+            << to_string(instruction_value<ValueType>(step));
     return message.str();
   }
 
   auto operator()(const LoopItemsTypeStrict &step) const -> std::string {
     std::ostringstream message;
     message << "The array items were expected to be of type "
-            << to_string(step.value);
+            << to_string(instruction_value<ValueType>(step));
     return message.str();
   }
 
   auto operator()(const LoopItemsTypeStrictAny &step) const -> std::string {
     std::ostringstream message;
     message << "The array items were expected to be of type ";
-    const auto &types{step_value(step)};
+    const auto &types{instruction_value<ValueTypes>(step)};
     for (auto iterator = types.cbegin(); iterator != types.cend(); ++iterator) {
       if (std::next(iterator) == types.cend()) {
         message << "or " << to_string(*iterator);
@@ -814,7 +815,7 @@ struct DescribeVisitor {
   auto operator()(const LoopContains &step) const -> std::string {
     assert(this->target.is_array());
     std::ostringstream message;
-    const auto &value{step_value(step)};
+    const auto &value{instruction_value<ValueRange>(step)};
     const auto minimum{std::get<0>(value)};
     const auto maximum{std::get<1>(value)};
     bool plural{true};
@@ -858,7 +859,7 @@ struct DescribeVisitor {
   auto operator()(const AssertionDefines &step) const -> std::string {
     std::ostringstream message;
     message << "The object value was expected to define the property "
-            << escape_string(step_value(step));
+            << escape_string(instruction_value<ValueString>(step));
     return message.str();
   }
 
@@ -866,12 +867,12 @@ struct DescribeVisitor {
     std::ostringstream message;
     message
         << "The value was expected to be an object that defines the property "
-        << escape_string(step_value(step));
+        << escape_string(instruction_value<ValueString>(step));
     return message.str();
   }
 
   auto operator()(const AssertionDefinesAll &step) const -> std::string {
-    const auto &value{step_value(step)};
+    const auto &value{instruction_value<ValueStrings>(step)};
     assert(value.size() > 1);
     std::ostringstream message;
     message << "The object value was expected to define properties ";
@@ -915,7 +916,7 @@ struct DescribeVisitor {
   }
 
   auto operator()(const AssertionDefinesAllStrict &step) const -> std::string {
-    const auto &value{step_value(step)};
+    const auto &value{instruction_value<ValueStrings>(step)};
     assert(value.size() > 1);
     std::ostringstream message;
     message
@@ -932,7 +933,7 @@ struct DescribeVisitor {
   }
 
   auto operator()(const AssertionDefinesExactly &step) const -> std::string {
-    const auto &value{step_value(step)};
+    const auto &value{instruction_value<ValueStrings>(step)};
     assert(value.size() > 1);
     std::ostringstream message;
     message << "The object value was expected to only define properties ";
@@ -949,7 +950,7 @@ struct DescribeVisitor {
 
   auto operator()(const AssertionDefinesExactlyStrict &step) const
       -> std::string {
-    const auto &value{step_value(step)};
+    const auto &value{instruction_value<ValueStrings>(step)};
     assert(value.size() > 1);
     std::ostringstream message;
     message << "The value was expected to be an object that only defines "
@@ -967,14 +968,14 @@ struct DescribeVisitor {
 
   auto operator()(const AssertionType &step) const -> std::string {
     std::ostringstream message;
-    describe_type_check(this->valid, this->target.type(), step_value(step),
-                        message);
+    describe_type_check(this->valid, this->target.type(),
+                        instruction_value<ValueType>(step), message);
     return message.str();
   }
 
   auto operator()(const AssertionTypeStrict &step) const -> std::string {
     std::ostringstream message;
-    const auto &value{step_value(step)};
+    const auto &value{instruction_value<ValueType>(step)};
     if (!this->valid && value == sourcemeta::jsontoolkit::JSON::Type::Real &&
         this->target.type() == sourcemeta::jsontoolkit::JSON::Type::Integer) {
       message
@@ -994,23 +995,23 @@ struct DescribeVisitor {
 
   auto operator()(const AssertionTypeAny &step) const -> std::string {
     std::ostringstream message;
-    describe_types_check(this->valid, this->target.type(), step_value(step),
-                         message);
+    describe_types_check(this->valid, this->target.type(),
+                         instruction_value<ValueTypes>(step), message);
     return message.str();
   }
 
   auto operator()(const AssertionTypeStrictAny &step) const -> std::string {
     std::ostringstream message;
-    describe_types_check(this->valid, this->target.type(), step_value(step),
-                         message);
+    describe_types_check(this->valid, this->target.type(),
+                         instruction_value<ValueTypes>(step), message);
     return message.str();
   }
 
   auto operator()(const AssertionTypeStringBounded &step) const -> std::string {
     std::ostringstream message;
 
-    const auto minimum{std::get<0>(step.value)};
-    const auto maximum{std::get<1>(step.value)};
+    const auto minimum{std::get<0>(instruction_value<ValueRange>(step))};
+    const auto maximum{std::get<1>(instruction_value<ValueRange>(step))};
     if (minimum == 0 && maximum.has_value()) {
       message << "The value was expected to consist of a string of at most "
               << maximum.value()
@@ -1030,15 +1031,18 @@ struct DescribeVisitor {
   auto operator()(const AssertionTypeStringUpper &step) const -> std::string {
     std::ostringstream message;
     message << "The value was expected to consist of a string of at most "
-            << step.value << (step.value == 1 ? " character" : " characters");
+            << instruction_value<ValueUnsignedInteger>(step)
+            << (instruction_value<ValueUnsignedInteger>(step) == 1
+                    ? " character"
+                    : " characters");
     return message.str();
   }
 
   auto operator()(const AssertionTypeArrayBounded &step) const -> std::string {
     std::ostringstream message;
 
-    const auto minimum{std::get<0>(step.value)};
-    const auto maximum{std::get<1>(step.value)};
+    const auto minimum{std::get<0>(instruction_value<ValueRange>(step))};
+    const auto maximum{std::get<1>(instruction_value<ValueRange>(step))};
     if (minimum == 0 && maximum.has_value()) {
       message << "The value was expected to consist of an array of at most "
               << maximum.value() << (maximum.value() == 1 ? " item" : " items");
@@ -1057,15 +1061,17 @@ struct DescribeVisitor {
   auto operator()(const AssertionTypeArrayUpper &step) const -> std::string {
     std::ostringstream message;
     message << "The value was expected to consist of an array of at most "
-            << step.value << (step.value == 1 ? " item" : " items");
+            << instruction_value<ValueUnsignedInteger>(step)
+            << (instruction_value<ValueUnsignedInteger>(step) == 1 ? " item"
+                                                                   : " items");
     return message.str();
   }
 
   auto operator()(const AssertionTypeObjectBounded &step) const -> std::string {
     std::ostringstream message;
 
-    const auto minimum{std::get<0>(step.value)};
-    const auto maximum{std::get<1>(step.value)};
+    const auto minimum{std::get<0>(instruction_value<ValueRange>(step))};
+    const auto maximum{std::get<1>(instruction_value<ValueRange>(step))};
     if (minimum == 0 && maximum.has_value()) {
       message << "The value was expected to consist of an object of at most "
               << maximum.value()
@@ -1085,7 +1091,10 @@ struct DescribeVisitor {
   auto operator()(const AssertionTypeObjectUpper &step) const -> std::string {
     std::ostringstream message;
     message << "The value was expected to consist of an object of at most "
-            << step.value << (step.value == 1 ? " property" : " properties");
+            << instruction_value<ValueUnsignedInteger>(step)
+            << (instruction_value<ValueUnsignedInteger>(step) == 1
+                    ? " property"
+                    : " properties");
     return message.str();
   }
 
@@ -1101,7 +1110,7 @@ struct DescribeVisitor {
       message << "The property name "
               << escape_string(this->instance_location.back().to_property())
               << " was expected to match the regular expression "
-              << escape_string(step_value(step).second);
+              << escape_string(instruction_value<ValueRegex>(step).second);
       return message.str();
     }
 
@@ -1109,14 +1118,14 @@ struct DescribeVisitor {
     std::ostringstream message;
     message << "The string value " << escape_string(this->target.to_string())
             << " was expected to match the regular expression "
-            << escape_string(step_value(step).second);
+            << escape_string(instruction_value<ValueRegex>(step).second);
     return message.str();
   }
 
   auto operator()(const AssertionStringSizeLess &step) const -> std::string {
     if (this->keyword == "maxLength") {
       std::ostringstream message;
-      const auto maximum{step_value(step) - 1};
+      const auto maximum{instruction_value<ValueUnsignedInteger>(step) - 1};
 
       if (is_within_keyword(this->evaluate_path, "propertyNames")) {
         assert(this->instance_location.back().is_property());
@@ -1157,7 +1166,7 @@ struct DescribeVisitor {
   auto operator()(const AssertionStringSizeGreater &step) const -> std::string {
     if (this->keyword == "minLength") {
       std::ostringstream message;
-      const auto minimum{step_value(step) + 1};
+      const auto minimum{instruction_value<ValueUnsignedInteger>(step) + 1};
 
       if (is_within_keyword(this->evaluate_path, "propertyNames")) {
         assert(this->instance_location.back().is_property());
@@ -1199,7 +1208,7 @@ struct DescribeVisitor {
     if (this->keyword == "maxItems") {
       assert(this->target.is_array());
       std::ostringstream message;
-      const auto maximum{step_value(step) - 1};
+      const auto maximum{instruction_value<ValueUnsignedInteger>(step) - 1};
       message << "The array value was expected to contain at most " << maximum;
       assert(maximum > 0);
       if (maximum == 1) {
@@ -1230,7 +1239,7 @@ struct DescribeVisitor {
   auto operator()(const AssertionArraySizeGreater &step) const -> std::string {
     assert(this->target.is_array());
     std::ostringstream message;
-    const auto minimum{step_value(step) + 1};
+    const auto minimum{instruction_value<ValueUnsignedInteger>(step) + 1};
     message << "The array value was expected to contain at least " << minimum;
     assert(minimum > 0);
     if (minimum == 1) {
@@ -1264,7 +1273,7 @@ struct DescribeVisitor {
     if (this->keyword == "maxProperties") {
       assert(this->target.is_object());
       std::ostringstream message;
-      const auto maximum{step_value(step) - 1};
+      const auto maximum{instruction_value<ValueUnsignedInteger>(step) - 1};
       message << "The object value was expected to contain at most " << maximum;
       assert(maximum > 0);
       if (maximum == 1) {
@@ -1312,7 +1321,7 @@ struct DescribeVisitor {
     if (this->keyword == "minProperties") {
       assert(this->target.is_object());
       std::ostringstream message;
-      const auto minimum{step_value(step) + 1};
+      const auto minimum{instruction_value<ValueUnsignedInteger>(step) + 1};
       message << "The object value was expected to contain at least "
               << minimum;
       assert(minimum > 0);
@@ -1358,7 +1367,7 @@ struct DescribeVisitor {
 
   auto operator()(const AssertionEqual &step) const -> std::string {
     std::ostringstream message;
-    const auto &value{step_value(step)};
+    const auto &value{instruction_value<ValueJSON>(step)};
     message << "The " << to_string(this->target.type()) << " value ";
     stringify(this->target, message);
     message << " was expected to equal the " << to_string(value.type())
@@ -1369,7 +1378,7 @@ struct DescribeVisitor {
 
   auto operator()(const AssertionGreaterEqual &step) const {
     std::ostringstream message;
-    const auto &value{step_value(step)};
+    const auto &value{instruction_value<ValueJSON>(step)};
     message << "The " << to_string(this->target.type()) << " value ";
     stringify(this->target, message);
     message << " was expected to be greater than or equal to the "
@@ -1380,7 +1389,7 @@ struct DescribeVisitor {
 
   auto operator()(const AssertionLessEqual &step) const -> std::string {
     std::ostringstream message;
-    const auto &value{step_value(step)};
+    const auto &value{instruction_value<ValueJSON>(step)};
     message << "The " << to_string(this->target.type()) << " value ";
     stringify(this->target, message);
     message << " was expected to be less than or equal to the "
@@ -1391,7 +1400,7 @@ struct DescribeVisitor {
 
   auto operator()(const AssertionGreater &step) const -> std::string {
     std::ostringstream message;
-    const auto &value{step_value(step)};
+    const auto &value{instruction_value<ValueJSON>(step)};
     message << "The " << to_string(this->target.type()) << " value ";
     stringify(this->target, message);
     message << " was expected to be greater than the "
@@ -1406,7 +1415,7 @@ struct DescribeVisitor {
 
   auto operator()(const AssertionLess &step) const -> std::string {
     std::ostringstream message;
-    const auto &value{step_value(step)};
+    const auto &value{instruction_value<ValueJSON>(step)};
     message << "The " << to_string(this->target.type()) << " value ";
     stringify(this->target, message);
     message << " was expected to be less than the " << to_string(value.type())
@@ -1462,7 +1471,7 @@ struct DescribeVisitor {
 
   auto operator()(const AssertionDivisible &step) const -> std::string {
     std::ostringstream message;
-    const auto &value{step_value(step)};
+    const auto &value{instruction_value<ValueJSON>(step)};
     message << "The " << to_string(this->target.type()) << " value ";
     stringify(this->target, message);
     message << " was expected to be divisible by the "
@@ -1473,7 +1482,7 @@ struct DescribeVisitor {
 
   auto operator()(const AssertionEqualsAny &step) const -> std::string {
     std::ostringstream message;
-    const auto &value{step_value(step)};
+    const auto &value{instruction_value<ValueSet>(step)};
     message << "The " << to_string(this->target.type()) << " value ";
     stringify(this->target, message);
     assert(!value.empty());
@@ -1512,7 +1521,7 @@ struct DescribeVisitor {
     std::ostringstream message;
     message << "The string value " << escape_string(this->target.to_string())
             << " was expected to represent a valid";
-    switch (step_value(step)) {
+    switch (instruction_value<ValueStringType>(step)) {
       case ValueStringType::URI:
         message << " URI";
         break;
@@ -1525,7 +1534,7 @@ struct DescribeVisitor {
 
   auto operator()(const AssertionPropertyType &step) const -> std::string {
     std::ostringstream message;
-    const auto &value{step_value(step)};
+    const auto &value{instruction_value<ValueType>(step)};
     if (!this->valid && value == sourcemeta::jsontoolkit::JSON::Type::Real &&
         this->target.type() == sourcemeta::jsontoolkit::JSON::Type::Integer) {
       message
@@ -1546,7 +1555,7 @@ struct DescribeVisitor {
   auto operator()(const AssertionPropertyTypeEvaluate &step) const
       -> std::string {
     std::ostringstream message;
-    const auto &value{step_value(step)};
+    const auto &value{instruction_value<ValueType>(step)};
     if (!this->valid && value == sourcemeta::jsontoolkit::JSON::Type::Real &&
         this->target.type() == sourcemeta::jsontoolkit::JSON::Type::Integer) {
       message
@@ -1567,7 +1576,7 @@ struct DescribeVisitor {
   auto operator()(const AssertionPropertyTypeStrict &step) const
       -> std::string {
     std::ostringstream message;
-    const auto &value{step_value(step)};
+    const auto &value{instruction_value<ValueType>(step)};
     if (!this->valid && value == sourcemeta::jsontoolkit::JSON::Type::Real &&
         this->target.type() == sourcemeta::jsontoolkit::JSON::Type::Integer) {
       message
@@ -1588,7 +1597,7 @@ struct DescribeVisitor {
   auto operator()(const AssertionPropertyTypeStrictEvaluate &step) const
       -> std::string {
     std::ostringstream message;
-    const auto &value{step_value(step)};
+    const auto &value{instruction_value<ValueType>(step)};
     if (!this->valid && value == sourcemeta::jsontoolkit::JSON::Type::Real &&
         this->target.type() == sourcemeta::jsontoolkit::JSON::Type::Integer) {
       message
@@ -1609,16 +1618,16 @@ struct DescribeVisitor {
   auto operator()(const AssertionPropertyTypeStrictAny &step) const
       -> std::string {
     std::ostringstream message;
-    describe_types_check(this->valid, this->target.type(), step_value(step),
-                         message);
+    describe_types_check(this->valid, this->target.type(),
+                         instruction_value<ValueTypes>(step), message);
     return message.str();
   }
 
   auto operator()(const AssertionPropertyTypeStrictAnyEvaluate &step) const
       -> std::string {
     std::ostringstream message;
-    describe_types_check(this->valid, this->target.type(), step_value(step),
-                         message);
+    describe_types_check(this->valid, this->target.type(),
+                         instruction_value<ValueTypes>(step), message);
     return message.str();
   }
 
@@ -1689,8 +1698,8 @@ struct DescribeVisitor {
 
   auto operator()(const LogicalWhenDefines &step) const -> std::string {
     std::ostringstream message;
-    message << "The object value defined the property \"" << step_value(step)
-            << "\"";
+    message << "The object value defined the property \""
+            << instruction_value<ValueString>(step) << "\"";
     return message.str();
   }
 
@@ -1698,7 +1707,7 @@ struct DescribeVisitor {
     assert(this->target.is_object());
     std::ostringstream message;
     message << "The object properties that match the regular expression \""
-            << step_value(step).second
+            << instruction_value<ValueRegex>(step).second
             << "\" were expected to validate against the defined pattern "
                "property subschema";
     return message.str();
@@ -1709,7 +1718,7 @@ struct DescribeVisitor {
     std::ostringstream message;
     message << "The object properties were expected to match the regular "
                "expression \""
-            << step_value(step).second
+            << instruction_value<ValueRegex>(step).second
             << "\" and validate against the defined pattern "
                "property subschema";
     return message.str();
@@ -1719,7 +1728,7 @@ struct DescribeVisitor {
     assert(this->target.is_object());
     std::ostringstream message;
     message << "The object properties that start with the string \""
-            << step_value(step)
+            << instruction_value<ValueString>(step)
             << "\" were expected to validate against the defined pattern "
                "property subschema";
     return message.str();
@@ -1728,8 +1737,8 @@ struct DescribeVisitor {
   auto operator()(const LogicalWhenType &step) const -> std::string {
     if (this->keyword == "items") {
       std::ostringstream message;
-      describe_type_check(this->valid, this->target.type(), step_value(step),
-                          message);
+      describe_type_check(this->valid, this->target.type(),
+                          instruction_value<ValueType>(step), message);
       return message.str();
     }
 
@@ -1747,7 +1756,7 @@ struct DescribeVisitor {
         // Schema
         if (std::holds_alternative<LogicalWhenDefines>(child)) {
           const auto &substep{std::get<LogicalWhenDefines>(child)};
-          const auto &property{step_value(substep)};
+          const auto &property{instruction_value<ValueString>(substep)};
           all_dependencies.insert(property);
           if (!this->target.defines(property)) {
             continue;
@@ -1761,7 +1770,8 @@ struct DescribeVisitor {
           assert(std::holds_alternative<AssertionPropertyDependencies>(child));
           const auto &substep{std::get<AssertionPropertyDependencies>(child)};
 
-          for (const auto &[property, dependencies] : substep.value) {
+          for (const auto &[property, dependencies] :
+               std::get<ValueStringMap>(substep.value)) {
             all_dependencies.insert(property);
             if (this->target.defines(property)) {
               present.insert(property);
@@ -1869,7 +1879,7 @@ struct DescribeVisitor {
       for (const auto &child : step.children) {
         assert(std::holds_alternative<LogicalWhenDefines>(child));
         const auto &substep{std::get<LogicalWhenDefines>(child)};
-        const auto &property{step_value(substep)};
+        const auto &property{instruction_value<ValueString>(substep)};
         all_dependencies.insert(property);
         if (!this->target.defines(property)) {
           continue;
@@ -1933,7 +1943,8 @@ struct DescribeVisitor {
     std::set<std::string> all_dependencies;
     std::set<std::string> required;
 
-    for (const auto &[property, dependencies] : step.value) {
+    for (const auto &[property, dependencies] :
+         instruction_value<ValueStringMap>(step)) {
       all_dependencies.insert(property);
       if (this->target.defines(property)) {
         present.insert(property);
@@ -2006,8 +2017,9 @@ struct DescribeVisitor {
       assert(this->target.is_array());
       std::ostringstream message;
 
-      if (this->target.size() > step_value(step)) {
-        const auto rest{this->target.size() - step_value(step)};
+      if (this->target.size() > instruction_value<ValueUnsignedInteger>(step)) {
+        const auto rest{this->target.size() -
+                        instruction_value<ValueUnsignedInteger>(step)};
         message << "The array value contains " << rest << " additional"
                 << (rest == 1 ? " item" : " items")
                 << " not described by related keywords";

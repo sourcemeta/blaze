@@ -26,8 +26,9 @@ auto compile_subschema(const sourcemeta::blaze::Context &context,
     if (schema_context.schema.to_boolean()) {
       return {};
     } else {
-      return {make<AssertionFail>(context, schema_context, dynamic_context,
-                                  ValueNone{})};
+      return {make<AssertionFail>(
+          sourcemeta::blaze::InstructionIndex::AssertionFail, context,
+          schema_context, dynamic_context, ValueNone{})};
     }
   }
 
@@ -87,7 +88,8 @@ auto precompile(
       {}};
 
   return {make<sourcemeta::blaze::ControlMark>(
-      context, nested_schema_context, dynamic_context,
+      sourcemeta::blaze::InstructionIndex::ControlMark, context,
+      nested_schema_context, dynamic_context,
       sourcemeta::blaze::ValueUnsignedInteger{label},
       sourcemeta::blaze::compile(context, nested_schema_context,
                                  sourcemeta::blaze::relative_dynamic_context,
