@@ -10,7 +10,7 @@ auto evaluate_instruction(
 
 #define INSTRUCTION_HANDLER(name)                                              \
   static inline auto name(                                                     \
-      const sourcemeta::blaze::Instruction &instruction,                       \
+      const sourcemeta::blaze::name &instruction,                              \
       const sourcemeta::blaze::Template &schema,                               \
       const std::optional<sourcemeta::blaze::Callback> &callback,              \
       const sourcemeta::jsontoolkit::JSON &instance,                           \
@@ -29,8 +29,8 @@ INSTRUCTION_HANDLER(AssertionFail) {
   SOURCEMETA_MAYBE_UNUSED(instance);
   SOURCEMETA_MAYBE_UNUSED(property_target);
   SOURCEMETA_MAYBE_UNUSED(evaluator);
-  EVALUATE_BEGIN_NO_PRECONDITION(assertion, AssertionFail);
-  EVALUATE_END(assertion, AssertionFail);
+  EVALUATE_BEGIN_NO_PRECONDITION(AssertionFail);
+  EVALUATE_END(AssertionFail);
 }
 
 INSTRUCTION_HANDLER(AssertionDefines) {
@@ -40,9 +40,9 @@ INSTRUCTION_HANDLER(AssertionDefines) {
   SOURCEMETA_MAYBE_UNUSED(instance);
   SOURCEMETA_MAYBE_UNUSED(property_target);
   SOURCEMETA_MAYBE_UNUSED(evaluator);
-  EVALUATE_BEGIN_NON_STRING(assertion, AssertionDefines, target.is_object());
-  result = target.defines(assertion.value);
-  EVALUATE_END(assertion, AssertionDefines);
+  EVALUATE_BEGIN_NON_STRING(AssertionDefines, target.is_object());
+  result = target.defines(instruction.value);
+  EVALUATE_END(AssertionDefines);
 }
 
 INSTRUCTION_HANDLER(AssertionDefinesStrict) {
@@ -52,10 +52,10 @@ INSTRUCTION_HANDLER(AssertionDefinesStrict) {
   SOURCEMETA_MAYBE_UNUSED(instance);
   SOURCEMETA_MAYBE_UNUSED(property_target);
   SOURCEMETA_MAYBE_UNUSED(evaluator);
-  EVALUATE_BEGIN_NO_PRECONDITION(assertion, AssertionDefinesStrict);
-  const auto &target{get(instance, assertion.relative_instance_location)};
-  result = target.is_object() && target.defines(assertion.value);
-  EVALUATE_END(assertion, AssertionDefinesStrict);
+  EVALUATE_BEGIN_NO_PRECONDITION(AssertionDefinesStrict);
+  const auto &target{get(instance, instruction.relative_instance_location)};
+  result = target.is_object() && target.defines(instruction.value);
+  EVALUATE_END(AssertionDefinesStrict);
 }
 
 INSTRUCTION_HANDLER(AssertionDefinesAll) {
@@ -65,15 +65,15 @@ INSTRUCTION_HANDLER(AssertionDefinesAll) {
   SOURCEMETA_MAYBE_UNUSED(instance);
   SOURCEMETA_MAYBE_UNUSED(property_target);
   SOURCEMETA_MAYBE_UNUSED(evaluator);
-  EVALUATE_BEGIN_NON_STRING(assertion, AssertionDefinesAll, target.is_object());
+  EVALUATE_BEGIN_NON_STRING(AssertionDefinesAll, target.is_object());
 
   // Otherwise we are we even emitting this instruction?
-  assert(assertion.value.size() > 1);
+  assert(instruction.value.size() > 1);
 
   // Otherwise there is no way the instance can satisfy it anyway
-  if (assertion.value.size() <= target.object_size()) {
+  if (instruction.value.size() <= target.object_size()) {
     result = true;
-    for (const auto &property : assertion.value) {
+    for (const auto &property : instruction.value) {
       if (!target.defines(property)) {
         result = false;
         break;
@@ -81,7 +81,7 @@ INSTRUCTION_HANDLER(AssertionDefinesAll) {
     }
   }
 
-  EVALUATE_END(assertion, AssertionDefinesAll);
+  EVALUATE_END(AssertionDefinesAll);
 }
 
 INSTRUCTION_HANDLER(AssertionDefinesAllStrict) {
@@ -91,16 +91,16 @@ INSTRUCTION_HANDLER(AssertionDefinesAllStrict) {
   SOURCEMETA_MAYBE_UNUSED(instance);
   SOURCEMETA_MAYBE_UNUSED(property_target);
   SOURCEMETA_MAYBE_UNUSED(evaluator);
-  EVALUATE_BEGIN_NO_PRECONDITION(assertion, AssertionDefinesAllStrict);
-  const auto &target{get(instance, assertion.relative_instance_location)};
+  EVALUATE_BEGIN_NO_PRECONDITION(AssertionDefinesAllStrict);
+  const auto &target{get(instance, instruction.relative_instance_location)};
 
   // Otherwise we are we even emitting this instruction?
-  assert(assertion.value.size() > 1);
+  assert(instruction.value.size() > 1);
 
   // Otherwise there is no way the instance can satisfy it anyway
-  if (target.is_object() && assertion.value.size() <= target.object_size()) {
+  if (target.is_object() && instruction.value.size() <= target.object_size()) {
     result = true;
-    for (const auto &property : assertion.value) {
+    for (const auto &property : instruction.value) {
       if (!target.defines(property)) {
         result = false;
         break;
@@ -108,7 +108,7 @@ INSTRUCTION_HANDLER(AssertionDefinesAllStrict) {
     }
   }
 
-  EVALUATE_END(assertion, AssertionDefinesAllStrict);
+  EVALUATE_END(AssertionDefinesAllStrict);
 }
 
 INSTRUCTION_HANDLER(AssertionDefinesExactly) {
@@ -118,15 +118,14 @@ INSTRUCTION_HANDLER(AssertionDefinesExactly) {
   SOURCEMETA_MAYBE_UNUSED(instance);
   SOURCEMETA_MAYBE_UNUSED(property_target);
   SOURCEMETA_MAYBE_UNUSED(evaluator);
-  EVALUATE_BEGIN_NON_STRING(assertion, AssertionDefinesExactly,
-                            target.is_object());
+  EVALUATE_BEGIN_NON_STRING(AssertionDefinesExactly, target.is_object());
 
   // Otherwise we are we even emitting this instruction?
-  assert(assertion.value.size() > 1);
+  assert(instruction.value.size() > 1);
 
-  if (assertion.value.size() == target.object_size()) {
+  if (instruction.value.size() == target.object_size()) {
     result = true;
-    for (const auto &property : assertion.value) {
+    for (const auto &property : instruction.value) {
       if (!target.defines(property)) {
         result = false;
         break;
@@ -134,7 +133,7 @@ INSTRUCTION_HANDLER(AssertionDefinesExactly) {
     }
   }
 
-  EVALUATE_END(assertion, AssertionDefinesExactly);
+  EVALUATE_END(AssertionDefinesExactly);
 }
 
 INSTRUCTION_HANDLER(AssertionDefinesExactlyStrict) {
@@ -144,15 +143,15 @@ INSTRUCTION_HANDLER(AssertionDefinesExactlyStrict) {
   SOURCEMETA_MAYBE_UNUSED(instance);
   SOURCEMETA_MAYBE_UNUSED(property_target);
   SOURCEMETA_MAYBE_UNUSED(evaluator);
-  EVALUATE_BEGIN_NO_PRECONDITION(assertion, AssertionDefinesExactlyStrict);
-  const auto &target{get(instance, assertion.relative_instance_location)};
+  EVALUATE_BEGIN_NO_PRECONDITION(AssertionDefinesExactlyStrict);
+  const auto &target{get(instance, instruction.relative_instance_location)};
 
   // Otherwise we are we even emitting this instruction?
-  assert(assertion.value.size() > 1);
+  assert(instruction.value.size() > 1);
 
-  if (target.is_object() && assertion.value.size() == target.object_size()) {
+  if (target.is_object() && instruction.value.size() == target.object_size()) {
     result = true;
-    for (const auto &property : assertion.value) {
+    for (const auto &property : instruction.value) {
       if (!target.defines(property)) {
         result = false;
         break;
@@ -160,7 +159,7 @@ INSTRUCTION_HANDLER(AssertionDefinesExactlyStrict) {
     }
   }
 
-  EVALUATE_END(assertion, AssertionDefinesExactlyStrict);
+  EVALUATE_END(AssertionDefinesExactlyStrict);
 }
 
 INSTRUCTION_HANDLER(AssertionPropertyDependencies) {
@@ -170,12 +169,11 @@ INSTRUCTION_HANDLER(AssertionPropertyDependencies) {
   SOURCEMETA_MAYBE_UNUSED(instance);
   SOURCEMETA_MAYBE_UNUSED(property_target);
   SOURCEMETA_MAYBE_UNUSED(evaluator);
-  EVALUATE_BEGIN_NON_STRING(assertion, AssertionPropertyDependencies,
-                            target.is_object());
+  EVALUATE_BEGIN_NON_STRING(AssertionPropertyDependencies, target.is_object());
   // Otherwise we are we even emitting this instruction?
-  assert(!assertion.value.empty());
+  assert(!instruction.value.empty());
   result = true;
-  for (const auto &[property, dependencies] : assertion.value) {
+  for (const auto &[property, dependencies] : instruction.value) {
     if (!target.defines(property)) {
       continue;
     }
@@ -184,12 +182,12 @@ INSTRUCTION_HANDLER(AssertionPropertyDependencies) {
     for (const auto &dependency : dependencies) {
       if (!target.defines(dependency)) {
         result = false;
-        EVALUATE_END(assertion, AssertionPropertyDependencies);
+        EVALUATE_END(AssertionPropertyDependencies);
       }
     }
   }
 
-  EVALUATE_END(assertion, AssertionPropertyDependencies);
+  EVALUATE_END(AssertionPropertyDependencies);
 }
 
 INSTRUCTION_HANDLER(AssertionType) {
@@ -199,13 +197,14 @@ INSTRUCTION_HANDLER(AssertionType) {
   SOURCEMETA_MAYBE_UNUSED(instance);
   SOURCEMETA_MAYBE_UNUSED(property_target);
   SOURCEMETA_MAYBE_UNUSED(evaluator);
-  EVALUATE_BEGIN_NO_PRECONDITION(assertion, AssertionType);
-  const auto &target{get(instance, assertion.relative_instance_location)};
+  EVALUATE_BEGIN_NO_PRECONDITION(AssertionType);
+  const auto &target{get(instance, instruction.relative_instance_location)};
   // In non-strict mode, we consider a real number that represents an
   // integer to be an integer
-  result = target.type() == assertion.value ||
-           (assertion.value == JSON::Type::Integer && target.is_integer_real());
-  EVALUATE_END(assertion, AssertionType);
+  result =
+      target.type() == instruction.value ||
+      (instruction.value == JSON::Type::Integer && target.is_integer_real());
+  EVALUATE_END(AssertionType);
 }
 
 INSTRUCTION_HANDLER(AssertionTypeAny) {
@@ -215,13 +214,13 @@ INSTRUCTION_HANDLER(AssertionTypeAny) {
   SOURCEMETA_MAYBE_UNUSED(instance);
   SOURCEMETA_MAYBE_UNUSED(property_target);
   SOURCEMETA_MAYBE_UNUSED(evaluator);
-  EVALUATE_BEGIN_NO_PRECONDITION(assertion, AssertionTypeAny);
+  EVALUATE_BEGIN_NO_PRECONDITION(AssertionTypeAny);
   // Otherwise we are we even emitting this instruction?
-  assert(assertion.value.size() > 1);
-  const auto &target{get(instance, assertion.relative_instance_location)};
+  assert(instruction.value.size() > 1);
+  const auto &target{get(instance, instruction.relative_instance_location)};
   // In non-strict mode, we consider a real number that represents an
   // integer to be an integer
-  for (const auto type : assertion.value) {
+  for (const auto type : instruction.value) {
     if (type == JSON::Type::Integer && target.is_integer_real()) {
       result = true;
       break;
@@ -231,7 +230,7 @@ INSTRUCTION_HANDLER(AssertionTypeAny) {
     }
   }
 
-  EVALUATE_END(assertion, AssertionTypeAny);
+  EVALUATE_END(AssertionTypeAny);
 }
 
 INSTRUCTION_HANDLER(AssertionTypeStrict) {
@@ -241,10 +240,10 @@ INSTRUCTION_HANDLER(AssertionTypeStrict) {
   SOURCEMETA_MAYBE_UNUSED(instance);
   SOURCEMETA_MAYBE_UNUSED(property_target);
   SOURCEMETA_MAYBE_UNUSED(evaluator);
-  EVALUATE_BEGIN_NO_PRECONDITION(assertion, AssertionTypeStrict);
-  const auto &target{get(instance, assertion.relative_instance_location)};
-  result = target.type() == assertion.value;
-  EVALUATE_END(assertion, AssertionTypeStrict);
+  EVALUATE_BEGIN_NO_PRECONDITION(AssertionTypeStrict);
+  const auto &target{get(instance, instruction.relative_instance_location)};
+  result = target.type() == instruction.value;
+  EVALUATE_END(AssertionTypeStrict);
 }
 
 INSTRUCTION_HANDLER(AssertionTypeStrictAny) {
@@ -254,13 +253,13 @@ INSTRUCTION_HANDLER(AssertionTypeStrictAny) {
   SOURCEMETA_MAYBE_UNUSED(instance);
   SOURCEMETA_MAYBE_UNUSED(property_target);
   SOURCEMETA_MAYBE_UNUSED(evaluator);
-  EVALUATE_BEGIN_NO_PRECONDITION(assertion, AssertionTypeStrictAny);
+  EVALUATE_BEGIN_NO_PRECONDITION(AssertionTypeStrictAny);
   // Otherwise we are we even emitting this instruction?
-  assert(assertion.value.size() > 1);
-  const auto &target{get(instance, assertion.relative_instance_location)};
-  result = (std::find(assertion.value.cbegin(), assertion.value.cend(),
-                      target.type()) != assertion.value.cend());
-  EVALUATE_END(assertion, AssertionTypeStrictAny);
+  assert(instruction.value.size() > 1);
+  const auto &target{get(instance, instruction.relative_instance_location)};
+  result = (std::find(instruction.value.cbegin(), instruction.value.cend(),
+                      target.type()) != instruction.value.cend());
+  EVALUATE_END(AssertionTypeStrictAny);
 }
 
 INSTRUCTION_HANDLER(AssertionTypeStringBounded) {
@@ -270,17 +269,17 @@ INSTRUCTION_HANDLER(AssertionTypeStringBounded) {
   SOURCEMETA_MAYBE_UNUSED(instance);
   SOURCEMETA_MAYBE_UNUSED(property_target);
   SOURCEMETA_MAYBE_UNUSED(evaluator);
-  EVALUATE_BEGIN_NO_PRECONDITION(assertion, AssertionTypeStringBounded);
-  const auto &target{get(instance, assertion.relative_instance_location)};
-  const auto minimum{std::get<0>(assertion.value)};
-  const auto maximum{std::get<1>(assertion.value)};
+  EVALUATE_BEGIN_NO_PRECONDITION(AssertionTypeStringBounded);
+  const auto &target{get(instance, instruction.relative_instance_location)};
+  const auto minimum{std::get<0>(instruction.value)};
+  const auto maximum{std::get<1>(instruction.value)};
   assert(!maximum.has_value() || maximum.value() >= minimum);
   // Require early breaking
-  assert(!std::get<2>(assertion.value));
+  assert(!std::get<2>(instruction.value));
   result = target.type() == JSON::Type::String &&
            target.string_size() >= minimum &&
            (!maximum.has_value() || target.string_size() <= maximum.value());
-  EVALUATE_END(assertion, AssertionTypeStringBounded);
+  EVALUATE_END(AssertionTypeStringBounded);
 }
 
 INSTRUCTION_HANDLER(AssertionTypeStringUpper) {
@@ -290,10 +289,10 @@ INSTRUCTION_HANDLER(AssertionTypeStringUpper) {
   SOURCEMETA_MAYBE_UNUSED(instance);
   SOURCEMETA_MAYBE_UNUSED(property_target);
   SOURCEMETA_MAYBE_UNUSED(evaluator);
-  EVALUATE_BEGIN_NO_PRECONDITION(assertion, AssertionTypeStringUpper);
-  const auto &target{get(instance, assertion.relative_instance_location)};
-  result = target.is_string() && target.string_size() <= assertion.value;
-  EVALUATE_END(assertion, AssertionTypeStringUpper);
+  EVALUATE_BEGIN_NO_PRECONDITION(AssertionTypeStringUpper);
+  const auto &target{get(instance, instruction.relative_instance_location)};
+  result = target.is_string() && target.string_size() <= instruction.value;
+  EVALUATE_END(AssertionTypeStringUpper);
 }
 
 INSTRUCTION_HANDLER(AssertionTypeArrayBounded) {
@@ -303,17 +302,17 @@ INSTRUCTION_HANDLER(AssertionTypeArrayBounded) {
   SOURCEMETA_MAYBE_UNUSED(instance);
   SOURCEMETA_MAYBE_UNUSED(property_target);
   SOURCEMETA_MAYBE_UNUSED(evaluator);
-  EVALUATE_BEGIN_NO_PRECONDITION(assertion, AssertionTypeArrayBounded);
-  const auto &target{get(instance, assertion.relative_instance_location)};
-  const auto minimum{std::get<0>(assertion.value)};
-  const auto maximum{std::get<1>(assertion.value)};
+  EVALUATE_BEGIN_NO_PRECONDITION(AssertionTypeArrayBounded);
+  const auto &target{get(instance, instruction.relative_instance_location)};
+  const auto minimum{std::get<0>(instruction.value)};
+  const auto maximum{std::get<1>(instruction.value)};
   assert(!maximum.has_value() || maximum.value() >= minimum);
   // Require early breaking
-  assert(!std::get<2>(assertion.value));
+  assert(!std::get<2>(instruction.value));
   result = target.type() == JSON::Type::Array &&
            target.array_size() >= minimum &&
            (!maximum.has_value() || target.array_size() <= maximum.value());
-  EVALUATE_END(assertion, AssertionTypeArrayBounded);
+  EVALUATE_END(AssertionTypeArrayBounded);
 }
 
 INSTRUCTION_HANDLER(AssertionTypeArrayUpper) {
@@ -323,10 +322,10 @@ INSTRUCTION_HANDLER(AssertionTypeArrayUpper) {
   SOURCEMETA_MAYBE_UNUSED(instance);
   SOURCEMETA_MAYBE_UNUSED(property_target);
   SOURCEMETA_MAYBE_UNUSED(evaluator);
-  EVALUATE_BEGIN_NO_PRECONDITION(assertion, AssertionTypeArrayUpper);
-  const auto &target{get(instance, assertion.relative_instance_location)};
-  result = target.is_array() && target.array_size() <= assertion.value;
-  EVALUATE_END(assertion, AssertionTypeArrayUpper);
+  EVALUATE_BEGIN_NO_PRECONDITION(AssertionTypeArrayUpper);
+  const auto &target{get(instance, instruction.relative_instance_location)};
+  result = target.is_array() && target.array_size() <= instruction.value;
+  EVALUATE_END(AssertionTypeArrayUpper);
 }
 
 INSTRUCTION_HANDLER(AssertionTypeObjectBounded) {
@@ -336,17 +335,17 @@ INSTRUCTION_HANDLER(AssertionTypeObjectBounded) {
   SOURCEMETA_MAYBE_UNUSED(instance);
   SOURCEMETA_MAYBE_UNUSED(property_target);
   SOURCEMETA_MAYBE_UNUSED(evaluator);
-  EVALUATE_BEGIN_NO_PRECONDITION(assertion, AssertionTypeObjectBounded);
-  const auto &target{get(instance, assertion.relative_instance_location)};
-  const auto minimum{std::get<0>(assertion.value)};
-  const auto maximum{std::get<1>(assertion.value)};
+  EVALUATE_BEGIN_NO_PRECONDITION(AssertionTypeObjectBounded);
+  const auto &target{get(instance, instruction.relative_instance_location)};
+  const auto minimum{std::get<0>(instruction.value)};
+  const auto maximum{std::get<1>(instruction.value)};
   assert(!maximum.has_value() || maximum.value() >= minimum);
   // Require early breaking
-  assert(!std::get<2>(assertion.value));
+  assert(!std::get<2>(instruction.value));
   result = target.type() == JSON::Type::Object &&
            target.object_size() >= minimum &&
            (!maximum.has_value() || target.object_size() <= maximum.value());
-  EVALUATE_END(assertion, AssertionTypeObjectBounded);
+  EVALUATE_END(AssertionTypeObjectBounded);
 }
 
 INSTRUCTION_HANDLER(AssertionTypeObjectUpper) {
@@ -356,10 +355,10 @@ INSTRUCTION_HANDLER(AssertionTypeObjectUpper) {
   SOURCEMETA_MAYBE_UNUSED(instance);
   SOURCEMETA_MAYBE_UNUSED(property_target);
   SOURCEMETA_MAYBE_UNUSED(evaluator);
-  EVALUATE_BEGIN_NO_PRECONDITION(assertion, AssertionTypeObjectUpper);
-  const auto &target{get(instance, assertion.relative_instance_location)};
-  result = target.is_object() && target.object_size() <= assertion.value;
-  EVALUATE_END(assertion, AssertionTypeObjectUpper);
+  EVALUATE_BEGIN_NO_PRECONDITION(AssertionTypeObjectUpper);
+  const auto &target{get(instance, instruction.relative_instance_location)};
+  result = target.is_object() && target.object_size() <= instruction.value;
+  EVALUATE_END(AssertionTypeObjectUpper);
 }
 
 INSTRUCTION_HANDLER(AssertionRegex) {
@@ -369,9 +368,9 @@ INSTRUCTION_HANDLER(AssertionRegex) {
   SOURCEMETA_MAYBE_UNUSED(instance);
   SOURCEMETA_MAYBE_UNUSED(property_target);
   SOURCEMETA_MAYBE_UNUSED(evaluator);
-  EVALUATE_BEGIN_IF_STRING(assertion, AssertionRegex);
-  result = matches(assertion.value.first, target);
-  EVALUATE_END(assertion, AssertionRegex);
+  EVALUATE_BEGIN_IF_STRING(AssertionRegex);
+  result = matches(instruction.value.first, target);
+  EVALUATE_END(AssertionRegex);
 }
 
 INSTRUCTION_HANDLER(AssertionStringSizeLess) {
@@ -381,9 +380,9 @@ INSTRUCTION_HANDLER(AssertionStringSizeLess) {
   SOURCEMETA_MAYBE_UNUSED(instance);
   SOURCEMETA_MAYBE_UNUSED(property_target);
   SOURCEMETA_MAYBE_UNUSED(evaluator);
-  EVALUATE_BEGIN_IF_STRING(assertion, AssertionStringSizeLess);
-  result = (JSON::size(target) < assertion.value);
-  EVALUATE_END(assertion, AssertionStringSizeLess);
+  EVALUATE_BEGIN_IF_STRING(AssertionStringSizeLess);
+  result = (JSON::size(target) < instruction.value);
+  EVALUATE_END(AssertionStringSizeLess);
 }
 
 INSTRUCTION_HANDLER(AssertionStringSizeGreater) {
@@ -393,9 +392,9 @@ INSTRUCTION_HANDLER(AssertionStringSizeGreater) {
   SOURCEMETA_MAYBE_UNUSED(instance);
   SOURCEMETA_MAYBE_UNUSED(property_target);
   SOURCEMETA_MAYBE_UNUSED(evaluator);
-  EVALUATE_BEGIN_IF_STRING(assertion, AssertionStringSizeGreater);
-  result = (JSON::size(target) > assertion.value);
-  EVALUATE_END(assertion, AssertionStringSizeGreater);
+  EVALUATE_BEGIN_IF_STRING(AssertionStringSizeGreater);
+  result = (JSON::size(target) > instruction.value);
+  EVALUATE_END(AssertionStringSizeGreater);
 }
 
 INSTRUCTION_HANDLER(AssertionArraySizeLess) {
@@ -405,10 +404,9 @@ INSTRUCTION_HANDLER(AssertionArraySizeLess) {
   SOURCEMETA_MAYBE_UNUSED(instance);
   SOURCEMETA_MAYBE_UNUSED(property_target);
   SOURCEMETA_MAYBE_UNUSED(evaluator);
-  EVALUATE_BEGIN_NON_STRING(assertion, AssertionArraySizeLess,
-                            target.is_array());
-  result = (target.array_size() < assertion.value);
-  EVALUATE_END(assertion, AssertionArraySizeLess);
+  EVALUATE_BEGIN_NON_STRING(AssertionArraySizeLess, target.is_array());
+  result = (target.array_size() < instruction.value);
+  EVALUATE_END(AssertionArraySizeLess);
 }
 
 INSTRUCTION_HANDLER(AssertionArraySizeGreater) {
@@ -418,10 +416,9 @@ INSTRUCTION_HANDLER(AssertionArraySizeGreater) {
   SOURCEMETA_MAYBE_UNUSED(instance);
   SOURCEMETA_MAYBE_UNUSED(property_target);
   SOURCEMETA_MAYBE_UNUSED(evaluator);
-  EVALUATE_BEGIN_NON_STRING(assertion, AssertionArraySizeGreater,
-                            target.is_array());
-  result = (target.array_size() > assertion.value);
-  EVALUATE_END(assertion, AssertionArraySizeGreater);
+  EVALUATE_BEGIN_NON_STRING(AssertionArraySizeGreater, target.is_array());
+  result = (target.array_size() > instruction.value);
+  EVALUATE_END(AssertionArraySizeGreater);
 }
 
 INSTRUCTION_HANDLER(AssertionObjectSizeLess) {
@@ -431,10 +428,9 @@ INSTRUCTION_HANDLER(AssertionObjectSizeLess) {
   SOURCEMETA_MAYBE_UNUSED(instance);
   SOURCEMETA_MAYBE_UNUSED(property_target);
   SOURCEMETA_MAYBE_UNUSED(evaluator);
-  EVALUATE_BEGIN_NON_STRING(assertion, AssertionObjectSizeLess,
-                            target.is_object());
-  result = (target.object_size() < assertion.value);
-  EVALUATE_END(assertion, AssertionObjectSizeLess);
+  EVALUATE_BEGIN_NON_STRING(AssertionObjectSizeLess, target.is_object());
+  result = (target.object_size() < instruction.value);
+  EVALUATE_END(AssertionObjectSizeLess);
 }
 
 INSTRUCTION_HANDLER(AssertionObjectSizeGreater) {
@@ -444,10 +440,9 @@ INSTRUCTION_HANDLER(AssertionObjectSizeGreater) {
   SOURCEMETA_MAYBE_UNUSED(instance);
   SOURCEMETA_MAYBE_UNUSED(property_target);
   SOURCEMETA_MAYBE_UNUSED(evaluator);
-  EVALUATE_BEGIN_NON_STRING(assertion, AssertionObjectSizeGreater,
-                            target.is_object());
-  result = (target.object_size() > assertion.value);
-  EVALUATE_END(assertion, AssertionObjectSizeGreater);
+  EVALUATE_BEGIN_NON_STRING(AssertionObjectSizeGreater, target.is_object());
+  result = (target.object_size() > instruction.value);
+  EVALUATE_END(AssertionObjectSizeGreater);
 }
 
 INSTRUCTION_HANDLER(AssertionEqual) {
@@ -457,10 +452,10 @@ INSTRUCTION_HANDLER(AssertionEqual) {
   SOURCEMETA_MAYBE_UNUSED(instance);
   SOURCEMETA_MAYBE_UNUSED(property_target);
   SOURCEMETA_MAYBE_UNUSED(evaluator);
-  EVALUATE_BEGIN_NO_PRECONDITION(assertion, AssertionEqual);
-  const auto &target{get(instance, assertion.relative_instance_location)};
-  result = (target == assertion.value);
-  EVALUATE_END(assertion, AssertionEqual);
+  EVALUATE_BEGIN_NO_PRECONDITION(AssertionEqual);
+  const auto &target{get(instance, instruction.relative_instance_location)};
+  result = (target == instruction.value);
+  EVALUATE_END(AssertionEqual);
 }
 
 INSTRUCTION_HANDLER(AssertionEqualsAny) {
@@ -470,10 +465,10 @@ INSTRUCTION_HANDLER(AssertionEqualsAny) {
   SOURCEMETA_MAYBE_UNUSED(instance);
   SOURCEMETA_MAYBE_UNUSED(property_target);
   SOURCEMETA_MAYBE_UNUSED(evaluator);
-  EVALUATE_BEGIN_NO_PRECONDITION(assertion, AssertionEqualsAny);
-  const auto &target{get(instance, assertion.relative_instance_location)};
-  result = assertion.value.contains(target);
-  EVALUATE_END(assertion, AssertionEqualsAny);
+  EVALUATE_BEGIN_NO_PRECONDITION(AssertionEqualsAny);
+  const auto &target{get(instance, instruction.relative_instance_location)};
+  result = instruction.value.contains(target);
+  EVALUATE_END(AssertionEqualsAny);
 }
 
 INSTRUCTION_HANDLER(AssertionGreaterEqual) {
@@ -483,10 +478,9 @@ INSTRUCTION_HANDLER(AssertionGreaterEqual) {
   SOURCEMETA_MAYBE_UNUSED(instance);
   SOURCEMETA_MAYBE_UNUSED(property_target);
   SOURCEMETA_MAYBE_UNUSED(evaluator);
-  EVALUATE_BEGIN_NON_STRING(assertion, AssertionGreaterEqual,
-                            target.is_number());
-  result = target >= assertion.value;
-  EVALUATE_END(assertion, AssertionGreaterEqual);
+  EVALUATE_BEGIN_NON_STRING(AssertionGreaterEqual, target.is_number());
+  result = target >= instruction.value;
+  EVALUATE_END(AssertionGreaterEqual);
 }
 
 INSTRUCTION_HANDLER(AssertionLessEqual) {
@@ -496,9 +490,9 @@ INSTRUCTION_HANDLER(AssertionLessEqual) {
   SOURCEMETA_MAYBE_UNUSED(instance);
   SOURCEMETA_MAYBE_UNUSED(property_target);
   SOURCEMETA_MAYBE_UNUSED(evaluator);
-  EVALUATE_BEGIN_NON_STRING(assertion, AssertionLessEqual, target.is_number());
-  result = target <= assertion.value;
-  EVALUATE_END(assertion, AssertionLessEqual);
+  EVALUATE_BEGIN_NON_STRING(AssertionLessEqual, target.is_number());
+  result = target <= instruction.value;
+  EVALUATE_END(AssertionLessEqual);
 }
 
 INSTRUCTION_HANDLER(AssertionGreater) {
@@ -508,9 +502,9 @@ INSTRUCTION_HANDLER(AssertionGreater) {
   SOURCEMETA_MAYBE_UNUSED(instance);
   SOURCEMETA_MAYBE_UNUSED(property_target);
   SOURCEMETA_MAYBE_UNUSED(evaluator);
-  EVALUATE_BEGIN_NON_STRING(assertion, AssertionGreater, target.is_number());
-  result = target > assertion.value;
-  EVALUATE_END(assertion, AssertionGreater);
+  EVALUATE_BEGIN_NON_STRING(AssertionGreater, target.is_number());
+  result = target > instruction.value;
+  EVALUATE_END(AssertionGreater);
 }
 
 INSTRUCTION_HANDLER(AssertionLess) {
@@ -520,9 +514,9 @@ INSTRUCTION_HANDLER(AssertionLess) {
   SOURCEMETA_MAYBE_UNUSED(instance);
   SOURCEMETA_MAYBE_UNUSED(property_target);
   SOURCEMETA_MAYBE_UNUSED(evaluator);
-  EVALUATE_BEGIN_NON_STRING(assertion, AssertionLess, target.is_number());
-  result = target < assertion.value;
-  EVALUATE_END(assertion, AssertionLess);
+  EVALUATE_BEGIN_NON_STRING(AssertionLess, target.is_number());
+  result = target < instruction.value;
+  EVALUATE_END(AssertionLess);
 }
 
 INSTRUCTION_HANDLER(AssertionUnique) {
@@ -532,9 +526,9 @@ INSTRUCTION_HANDLER(AssertionUnique) {
   SOURCEMETA_MAYBE_UNUSED(instance);
   SOURCEMETA_MAYBE_UNUSED(property_target);
   SOURCEMETA_MAYBE_UNUSED(evaluator);
-  EVALUATE_BEGIN_NON_STRING(assertion, AssertionUnique, target.is_array());
+  EVALUATE_BEGIN_NON_STRING(AssertionUnique, target.is_array());
   result = target.unique();
-  EVALUATE_END(assertion, AssertionUnique);
+  EVALUATE_END(AssertionUnique);
 }
 
 INSTRUCTION_HANDLER(AssertionDivisible) {
@@ -544,10 +538,10 @@ INSTRUCTION_HANDLER(AssertionDivisible) {
   SOURCEMETA_MAYBE_UNUSED(instance);
   SOURCEMETA_MAYBE_UNUSED(property_target);
   SOURCEMETA_MAYBE_UNUSED(evaluator);
-  EVALUATE_BEGIN_NON_STRING(assertion, AssertionDivisible, target.is_number());
-  assert(assertion.value.is_number());
-  result = target.divisible_by(assertion.value);
-  EVALUATE_END(assertion, AssertionDivisible);
+  EVALUATE_BEGIN_NON_STRING(AssertionDivisible, target.is_number());
+  assert(instruction.value.is_number());
+  result = target.divisible_by(instruction.value);
+  EVALUATE_END(AssertionDivisible);
 }
 
 INSTRUCTION_HANDLER(AssertionStringType) {
@@ -557,8 +551,8 @@ INSTRUCTION_HANDLER(AssertionStringType) {
   SOURCEMETA_MAYBE_UNUSED(instance);
   SOURCEMETA_MAYBE_UNUSED(property_target);
   SOURCEMETA_MAYBE_UNUSED(evaluator);
-  EVALUATE_BEGIN_IF_STRING(assertion, AssertionStringType);
-  switch (assertion.value) {
+  EVALUATE_BEGIN_IF_STRING(AssertionStringType);
+  switch (instruction.value) {
     case ValueStringType::URI:
       try {
         // TODO: This implies a string copy
@@ -573,7 +567,7 @@ INSTRUCTION_HANDLER(AssertionStringType) {
       assert(false);
   }
 
-  EVALUATE_END(assertion, AssertionStringType);
+  EVALUATE_END(AssertionStringType);
 }
 
 INSTRUCTION_HANDLER(AssertionPropertyType) {
@@ -583,7 +577,7 @@ INSTRUCTION_HANDLER(AssertionPropertyType) {
   SOURCEMETA_MAYBE_UNUSED(instance);
   SOURCEMETA_MAYBE_UNUSED(property_target);
   SOURCEMETA_MAYBE_UNUSED(evaluator);
-  EVALUATE_BEGIN_TRY_TARGET(assertion, AssertionPropertyType,
+  EVALUATE_BEGIN_TRY_TARGET(AssertionPropertyType,
                             // Note that here are are referring to the parent
                             // object that might hold the given property,
                             // before traversing into the actual property
@@ -592,10 +586,10 @@ INSTRUCTION_HANDLER(AssertionPropertyType) {
   const auto &effective_target{target_check.value().get()};
   // In non-strict mode, we consider a real number that represents an
   // integer to be an integer
-  result = effective_target.type() == assertion.value ||
-           (assertion.value == JSON::Type::Integer &&
+  result = effective_target.type() == instruction.value ||
+           (instruction.value == JSON::Type::Integer &&
             effective_target.is_integer_real());
-  EVALUATE_END(assertion, AssertionPropertyType);
+  EVALUATE_END(AssertionPropertyType);
 }
 
 INSTRUCTION_HANDLER(AssertionPropertyTypeEvaluate) {
@@ -605,7 +599,7 @@ INSTRUCTION_HANDLER(AssertionPropertyTypeEvaluate) {
   SOURCEMETA_MAYBE_UNUSED(instance);
   SOURCEMETA_MAYBE_UNUSED(property_target);
   SOURCEMETA_MAYBE_UNUSED(evaluator);
-  EVALUATE_BEGIN_TRY_TARGET(assertion, AssertionPropertyTypeEvaluate,
+  EVALUATE_BEGIN_TRY_TARGET(AssertionPropertyTypeEvaluate,
                             // Note that here are are referring to the parent
                             // object that might hold the given property,
                             // before traversing into the actual property
@@ -614,15 +608,15 @@ INSTRUCTION_HANDLER(AssertionPropertyTypeEvaluate) {
   const auto &effective_target{target_check.value().get()};
   // In non-strict mode, we consider a real number that represents an
   // integer to be an integer
-  result = effective_target.type() == assertion.value ||
-           (assertion.value == JSON::Type::Integer &&
+  result = effective_target.type() == instruction.value ||
+           (instruction.value == JSON::Type::Integer &&
             effective_target.is_integer_real());
 
   if (result) {
     evaluator.evaluate();
   }
 
-  EVALUATE_END(assertion, AssertionPropertyTypeEvaluate);
+  EVALUATE_END(AssertionPropertyTypeEvaluate);
 }
 
 INSTRUCTION_HANDLER(AssertionPropertyTypeStrict) {
@@ -632,14 +626,14 @@ INSTRUCTION_HANDLER(AssertionPropertyTypeStrict) {
   SOURCEMETA_MAYBE_UNUSED(instance);
   SOURCEMETA_MAYBE_UNUSED(property_target);
   SOURCEMETA_MAYBE_UNUSED(evaluator);
-  EVALUATE_BEGIN_TRY_TARGET(assertion, AssertionPropertyTypeStrict,
+  EVALUATE_BEGIN_TRY_TARGET(AssertionPropertyTypeStrict,
                             // Note that here are are referring to the parent
                             // object that might hold the given property,
                             // before traversing into the actual property
                             target.is_object());
   // Now here we refer to the actual property
-  result = target_check.value().get().type() == assertion.value;
-  EVALUATE_END(assertion, AssertionPropertyTypeStrict);
+  result = target_check.value().get().type() == instruction.value;
+  EVALUATE_END(AssertionPropertyTypeStrict);
 }
 
 INSTRUCTION_HANDLER(AssertionPropertyTypeStrictEvaluate) {
@@ -649,19 +643,19 @@ INSTRUCTION_HANDLER(AssertionPropertyTypeStrictEvaluate) {
   SOURCEMETA_MAYBE_UNUSED(instance);
   SOURCEMETA_MAYBE_UNUSED(property_target);
   SOURCEMETA_MAYBE_UNUSED(evaluator);
-  EVALUATE_BEGIN_TRY_TARGET(assertion, AssertionPropertyTypeStrictEvaluate,
+  EVALUATE_BEGIN_TRY_TARGET(AssertionPropertyTypeStrictEvaluate,
                             // Note that here are are referring to the parent
                             // object that might hold the given property,
                             // before traversing into the actual property
                             target.is_object());
   // Now here we refer to the actual property
-  result = target_check.value().get().type() == assertion.value;
+  result = target_check.value().get().type() == instruction.value;
 
   if (result) {
     evaluator.evaluate();
   }
 
-  EVALUATE_END(assertion, AssertionPropertyTypeStrictEvaluate);
+  EVALUATE_END(AssertionPropertyTypeStrictEvaluate);
 }
 
 INSTRUCTION_HANDLER(AssertionPropertyTypeStrictAny) {
@@ -671,16 +665,16 @@ INSTRUCTION_HANDLER(AssertionPropertyTypeStrictAny) {
   SOURCEMETA_MAYBE_UNUSED(instance);
   SOURCEMETA_MAYBE_UNUSED(property_target);
   SOURCEMETA_MAYBE_UNUSED(evaluator);
-  EVALUATE_BEGIN_TRY_TARGET(assertion, AssertionPropertyTypeStrictAny,
+  EVALUATE_BEGIN_TRY_TARGET(AssertionPropertyTypeStrictAny,
                             // Note that here are are referring to the parent
                             // object that might hold the given property,
                             // before traversing into the actual property
                             target.is_object());
   // Now here we refer to the actual property
-  result =
-      (std::find(assertion.value.cbegin(), assertion.value.cend(),
-                 target_check.value().get().type()) != assertion.value.cend());
-  EVALUATE_END(assertion, AssertionPropertyTypeStrictAny);
+  result = (std::find(instruction.value.cbegin(), instruction.value.cend(),
+                      target_check.value().get().type()) !=
+            instruction.value.cend());
+  EVALUATE_END(AssertionPropertyTypeStrictAny);
 }
 
 INSTRUCTION_HANDLER(AssertionPropertyTypeStrictAnyEvaluate) {
@@ -690,21 +684,21 @@ INSTRUCTION_HANDLER(AssertionPropertyTypeStrictAnyEvaluate) {
   SOURCEMETA_MAYBE_UNUSED(instance);
   SOURCEMETA_MAYBE_UNUSED(property_target);
   SOURCEMETA_MAYBE_UNUSED(evaluator);
-  EVALUATE_BEGIN_TRY_TARGET(assertion, AssertionPropertyTypeStrictAnyEvaluate,
+  EVALUATE_BEGIN_TRY_TARGET(AssertionPropertyTypeStrictAnyEvaluate,
                             // Note that here are are referring to the parent
                             // object that might hold the given property,
                             // before traversing into the actual property
                             target.is_object());
   // Now here we refer to the actual property
-  result =
-      (std::find(assertion.value.cbegin(), assertion.value.cend(),
-                 target_check.value().get().type()) != assertion.value.cend());
+  result = (std::find(instruction.value.cbegin(), instruction.value.cend(),
+                      target_check.value().get().type()) !=
+            instruction.value.cend());
 
   if (result) {
     evaluator.evaluate();
   }
 
-  EVALUATE_END(assertion, AssertionPropertyTypeStrictAnyEvaluate);
+  EVALUATE_END(AssertionPropertyTypeStrictAnyEvaluate);
 }
 
 INSTRUCTION_HANDLER(AssertionArrayPrefix) {
@@ -714,16 +708,16 @@ INSTRUCTION_HANDLER(AssertionArrayPrefix) {
   SOURCEMETA_MAYBE_UNUSED(instance);
   SOURCEMETA_MAYBE_UNUSED(property_target);
   SOURCEMETA_MAYBE_UNUSED(evaluator);
-  EVALUATE_BEGIN_NON_STRING(assertion, AssertionArrayPrefix, target.is_array());
+  EVALUATE_BEGIN_NON_STRING(AssertionArrayPrefix, target.is_array());
   // Otherwise there is no point in emitting this instruction
-  assert(!assertion.children.empty());
+  assert(!instruction.children.empty());
   result = target.empty();
-  const auto prefixes{assertion.children.size() - 1};
+  const auto prefixes{instruction.children.size() - 1};
   const auto array_size{target.array_size()};
   if (!result) [[likely]] {
     const auto pointer{
         array_size == prefixes ? prefixes : std::min(array_size, prefixes) - 1};
-    const auto &entry{assertion.children[pointer]};
+    const auto &entry{instruction.children[pointer]};
     result = true;
     assert(std::holds_alternative<sourcemeta::blaze::ControlGroup>(entry));
     for (const auto &child :
@@ -735,7 +729,7 @@ INSTRUCTION_HANDLER(AssertionArrayPrefix) {
     }
   }
 
-  EVALUATE_END(assertion, AssertionArrayPrefix);
+  EVALUATE_END(AssertionArrayPrefix);
 }
 
 INSTRUCTION_HANDLER(AssertionArrayPrefixEvaluate) {
@@ -745,24 +739,23 @@ INSTRUCTION_HANDLER(AssertionArrayPrefixEvaluate) {
   SOURCEMETA_MAYBE_UNUSED(instance);
   SOURCEMETA_MAYBE_UNUSED(property_target);
   SOURCEMETA_MAYBE_UNUSED(evaluator);
-  EVALUATE_BEGIN_NON_STRING(assertion, AssertionArrayPrefixEvaluate,
-                            target.is_array());
+  EVALUATE_BEGIN_NON_STRING(AssertionArrayPrefixEvaluate, target.is_array());
   // Otherwise there is no point in emitting this instruction
-  assert(!assertion.children.empty());
+  assert(!instruction.children.empty());
   result = target.empty();
-  const auto prefixes{assertion.children.size() - 1};
+  const auto prefixes{instruction.children.size() - 1};
   const auto array_size{target.array_size()};
   if (!result) [[likely]] {
     const auto pointer{
         array_size == prefixes ? prefixes : std::min(array_size, prefixes) - 1};
-    const auto &entry{assertion.children[pointer]};
+    const auto &entry{instruction.children[pointer]};
     result = true;
     assert(std::holds_alternative<sourcemeta::blaze::ControlGroup>(entry));
     for (const auto &child :
          std::get<sourcemeta::blaze::ControlGroup>(entry).children) {
       if (!EVALUATE_RECURSE(child, target)) {
         result = false;
-        EVALUATE_END(assertion, AssertionArrayPrefixEvaluate);
+        EVALUATE_END(AssertionArrayPrefixEvaluate);
       }
     }
 
@@ -774,7 +767,7 @@ INSTRUCTION_HANDLER(AssertionArrayPrefixEvaluate) {
     }
   }
 
-  EVALUATE_END(assertion, AssertionArrayPrefixEvaluate);
+  EVALUATE_END(AssertionArrayPrefixEvaluate);
 }
 
 INSTRUCTION_HANDLER(LogicalOr) {
@@ -784,20 +777,20 @@ INSTRUCTION_HANDLER(LogicalOr) {
   SOURCEMETA_MAYBE_UNUSED(instance);
   SOURCEMETA_MAYBE_UNUSED(property_target);
   SOURCEMETA_MAYBE_UNUSED(evaluator);
-  EVALUATE_BEGIN_NO_PRECONDITION(logical, LogicalOr);
-  result = logical.children.empty();
-  const auto &target{get(instance, logical.relative_instance_location)};
-  for (const auto &child : logical.children) {
+  EVALUATE_BEGIN_NO_PRECONDITION(LogicalOr);
+  result = instruction.children.empty();
+  const auto &target{get(instance, instruction.relative_instance_location)};
+  for (const auto &child : instruction.children) {
     if (EVALUATE_RECURSE(child, target)) {
       result = true;
       // This boolean value controls whether we should be exhaustive
-      if (!logical.value) {
+      if (!instruction.value) {
         break;
       }
     }
   }
 
-  EVALUATE_END(logical, LogicalOr);
+  EVALUATE_END(LogicalOr);
 }
 
 INSTRUCTION_HANDLER(LogicalAnd) {
@@ -807,17 +800,17 @@ INSTRUCTION_HANDLER(LogicalAnd) {
   SOURCEMETA_MAYBE_UNUSED(instance);
   SOURCEMETA_MAYBE_UNUSED(property_target);
   SOURCEMETA_MAYBE_UNUSED(evaluator);
-  EVALUATE_BEGIN_NO_PRECONDITION(logical, LogicalAnd);
+  EVALUATE_BEGIN_NO_PRECONDITION(LogicalAnd);
   result = true;
-  const auto &target{get(instance, logical.relative_instance_location)};
-  for (const auto &child : logical.children) {
+  const auto &target{get(instance, instruction.relative_instance_location)};
+  for (const auto &child : instruction.children) {
     if (!EVALUATE_RECURSE(child, target)) {
       result = false;
       break;
     }
   }
 
-  EVALUATE_END(logical, LogicalAnd);
+  EVALUATE_END(LogicalAnd);
 }
 
 INSTRUCTION_HANDLER(LogicalWhenType) {
@@ -827,16 +820,16 @@ INSTRUCTION_HANDLER(LogicalWhenType) {
   SOURCEMETA_MAYBE_UNUSED(instance);
   SOURCEMETA_MAYBE_UNUSED(property_target);
   SOURCEMETA_MAYBE_UNUSED(evaluator);
-  EVALUATE_BEGIN(logical, LogicalWhenType, target.type() == logical.value);
+  EVALUATE_BEGIN(LogicalWhenType, target.type() == instruction.value);
   result = true;
-  for (const auto &child : logical.children) {
+  for (const auto &child : instruction.children) {
     if (!EVALUATE_RECURSE(child, target)) {
       result = false;
       break;
     }
   }
 
-  EVALUATE_END(logical, LogicalWhenType);
+  EVALUATE_END(LogicalWhenType);
 }
 
 INSTRUCTION_HANDLER(LogicalWhenDefines) {
@@ -846,18 +839,18 @@ INSTRUCTION_HANDLER(LogicalWhenDefines) {
   SOURCEMETA_MAYBE_UNUSED(instance);
   SOURCEMETA_MAYBE_UNUSED(property_target);
   SOURCEMETA_MAYBE_UNUSED(evaluator);
-  EVALUATE_BEGIN_NON_STRING(logical, LogicalWhenDefines,
+  EVALUATE_BEGIN_NON_STRING(LogicalWhenDefines,
                             target.is_object() &&
-                                target.defines(logical.value));
+                                target.defines(instruction.value));
   result = true;
-  for (const auto &child : logical.children) {
+  for (const auto &child : instruction.children) {
     if (!EVALUATE_RECURSE(child, target)) {
       result = false;
       break;
     }
   }
 
-  EVALUATE_END(logical, LogicalWhenDefines);
+  EVALUATE_END(LogicalWhenDefines);
 }
 
 INSTRUCTION_HANDLER(LogicalWhenArraySizeGreater) {
@@ -867,18 +860,18 @@ INSTRUCTION_HANDLER(LogicalWhenArraySizeGreater) {
   SOURCEMETA_MAYBE_UNUSED(instance);
   SOURCEMETA_MAYBE_UNUSED(property_target);
   SOURCEMETA_MAYBE_UNUSED(evaluator);
-  EVALUATE_BEGIN_NON_STRING(logical, LogicalWhenArraySizeGreater,
+  EVALUATE_BEGIN_NON_STRING(LogicalWhenArraySizeGreater,
                             target.is_array() &&
-                                target.array_size() > logical.value);
+                                target.array_size() > instruction.value);
   result = true;
-  for (const auto &child : logical.children) {
+  for (const auto &child : instruction.children) {
     if (!EVALUATE_RECURSE(child, target)) {
       result = false;
       break;
     }
   }
 
-  EVALUATE_END(logical, LogicalWhenArraySizeGreater);
+  EVALUATE_END(LogicalWhenArraySizeGreater);
 }
 
 INSTRUCTION_HANDLER(LogicalXor) {
@@ -888,16 +881,16 @@ INSTRUCTION_HANDLER(LogicalXor) {
   SOURCEMETA_MAYBE_UNUSED(instance);
   SOURCEMETA_MAYBE_UNUSED(property_target);
   SOURCEMETA_MAYBE_UNUSED(evaluator);
-  EVALUATE_BEGIN_NO_PRECONDITION(logical, LogicalXor);
+  EVALUATE_BEGIN_NO_PRECONDITION(LogicalXor);
   result = true;
   bool has_matched{false};
-  const auto &target{get(instance, logical.relative_instance_location)};
-  for (const auto &child : logical.children) {
+  const auto &target{get(instance, instruction.relative_instance_location)};
+  for (const auto &child : instruction.children) {
     if (EVALUATE_RECURSE(child, target)) {
       if (has_matched) {
         result = false;
         // This boolean value controls whether we should be exhaustive
-        if (!logical.value) {
+        if (!instruction.value) {
           break;
         }
       } else {
@@ -907,7 +900,7 @@ INSTRUCTION_HANDLER(LogicalXor) {
   }
 
   result = result && has_matched;
-  EVALUATE_END(logical, LogicalXor);
+  EVALUATE_END(LogicalXor);
 }
 
 INSTRUCTION_HANDLER(LogicalCondition) {
@@ -917,50 +910,51 @@ INSTRUCTION_HANDLER(LogicalCondition) {
   SOURCEMETA_MAYBE_UNUSED(instance);
   SOURCEMETA_MAYBE_UNUSED(property_target);
   SOURCEMETA_MAYBE_UNUSED(evaluator);
-  EVALUATE_BEGIN_NO_PRECONDITION(logical, LogicalCondition);
+  EVALUATE_BEGIN_NO_PRECONDITION(LogicalCondition);
   result = true;
-  const auto children_size{logical.children.size()};
-  assert(children_size >= logical.value.first);
-  assert(children_size >= logical.value.second);
+  const auto children_size{instruction.children.size()};
+  assert(children_size >= instruction.value.first);
+  assert(children_size >= instruction.value.second);
 
   auto condition_end{children_size};
-  if (logical.value.first > 0) {
-    condition_end = logical.value.first;
-  } else if (logical.value.second > 0) {
-    condition_end = logical.value.second;
+  if (instruction.value.first > 0) {
+    condition_end = instruction.value.first;
+  } else if (instruction.value.second > 0) {
+    condition_end = instruction.value.second;
   }
 
-  const auto &target{get(instance, logical.relative_instance_location)};
+  const auto &target{get(instance, instruction.relative_instance_location)};
   for (std::size_t cursor = 0; cursor < condition_end; cursor++) {
-    if (!EVALUATE_RECURSE(logical.children[cursor], target)) {
+    if (!EVALUATE_RECURSE(instruction.children[cursor], target)) {
       result = false;
       break;
     }
   }
 
-  const auto consequence_start{result ? logical.value.first
-                                      : logical.value.second};
-  const auto consequence_end{(result && logical.value.second > 0)
-                                 ? logical.value.second
+  const auto consequence_start{result ? instruction.value.first
+                                      : instruction.value.second};
+  const auto consequence_end{(result && instruction.value.second > 0)
+                                 ? instruction.value.second
                                  : children_size};
   result = true;
   if (consequence_start > 0) {
     if (track) {
-      evaluator.evaluate_path.pop_back(logical.relative_schema_location.size());
+      evaluator.evaluate_path.pop_back(
+          instruction.relative_schema_location.size());
 
       for (auto cursor = consequence_start; cursor < consequence_end;
            cursor++) {
-        if (!EVALUATE_RECURSE(logical.children[cursor], instance)) {
+        if (!EVALUATE_RECURSE(instruction.children[cursor], instance)) {
           result = false;
           break;
         }
       }
 
-      evaluator.evaluate_path.push_back(logical.relative_schema_location);
+      evaluator.evaluate_path.push_back(instruction.relative_schema_location);
     } else {
       for (auto cursor = consequence_start; cursor < consequence_end;
            cursor++) {
-        if (!EVALUATE_RECURSE(logical.children[cursor], instance)) {
+        if (!EVALUATE_RECURSE(instruction.children[cursor], instance)) {
           result = false;
           break;
         }
@@ -968,7 +962,7 @@ INSTRUCTION_HANDLER(LogicalCondition) {
     }
   }
 
-  EVALUATE_END(logical, LogicalCondition);
+  EVALUATE_END(LogicalCondition);
 }
 
 INSTRUCTION_HANDLER(ControlGroup) {
@@ -978,8 +972,8 @@ INSTRUCTION_HANDLER(ControlGroup) {
   SOURCEMETA_MAYBE_UNUSED(instance);
   SOURCEMETA_MAYBE_UNUSED(property_target);
   SOURCEMETA_MAYBE_UNUSED(evaluator);
-  EVALUATE_BEGIN_PASS_THROUGH(control, ControlGroup);
-  for (const auto &child : control.children) {
+  EVALUATE_BEGIN_PASS_THROUGH(ControlGroup);
+  for (const auto &child : instruction.children) {
     if (!EVALUATE_RECURSE(child, instance)) {
       result = false;
       break;
@@ -996,13 +990,13 @@ INSTRUCTION_HANDLER(ControlGroupWhenDefines) {
   SOURCEMETA_MAYBE_UNUSED(instance);
   SOURCEMETA_MAYBE_UNUSED(property_target);
   SOURCEMETA_MAYBE_UNUSED(evaluator);
-  EVALUATE_BEGIN_PASS_THROUGH(control, ControlGroupWhenDefines);
-  assert(!control.children.empty());
+  EVALUATE_BEGIN_PASS_THROUGH(ControlGroupWhenDefines);
+  assert(!instruction.children.empty());
   // Otherwise why are we emitting this property?
-  assert(!control.relative_instance_location.empty());
-  const auto &target{get(instance, control.relative_instance_location)};
-  if (target.is_object() && target.defines(control.value)) {
-    for (const auto &child : control.children) {
+  assert(!instruction.relative_instance_location.empty());
+  const auto &target{get(instance, instruction.relative_instance_location)};
+  if (target.is_object() && target.defines(instruction.value)) {
+    for (const auto &child : instruction.children) {
       // Note that in this control instruction, we purposely
       // don't navigate into the target
       if (!EVALUATE_RECURSE(child, instance)) {
@@ -1022,11 +1016,11 @@ INSTRUCTION_HANDLER(ControlGroupWhenDefinesDirect) {
   SOURCEMETA_MAYBE_UNUSED(instance);
   SOURCEMETA_MAYBE_UNUSED(property_target);
   SOURCEMETA_MAYBE_UNUSED(evaluator);
-  EVALUATE_BEGIN_PASS_THROUGH(control, ControlGroupWhenDefinesDirect);
-  assert(!control.children.empty());
-  assert(control.relative_instance_location.empty());
-  if (instance.is_object() && instance.defines(control.value)) {
-    for (const auto &child : control.children) {
+  EVALUATE_BEGIN_PASS_THROUGH(ControlGroupWhenDefinesDirect);
+  assert(!instruction.children.empty());
+  assert(instruction.relative_instance_location.empty());
+  if (instance.is_object() && instance.defines(instruction.value)) {
+    for (const auto &child : instruction.children) {
       if (!EVALUATE_RECURSE(child, instance)) {
         result = false;
         break;
@@ -1044,19 +1038,19 @@ INSTRUCTION_HANDLER(ControlLabel) {
   SOURCEMETA_MAYBE_UNUSED(instance);
   SOURCEMETA_MAYBE_UNUSED(property_target);
   SOURCEMETA_MAYBE_UNUSED(evaluator);
-  EVALUATE_BEGIN_NO_PRECONDITION(control, ControlLabel);
-  assert(!control.children.empty());
-  evaluator.labels.try_emplace(control.value, control.children);
-  const auto &target{get(instance, control.relative_instance_location)};
+  EVALUATE_BEGIN_NO_PRECONDITION(ControlLabel);
+  assert(!instruction.children.empty());
+  evaluator.labels.try_emplace(instruction.value, instruction.children);
+  const auto &target{get(instance, instruction.relative_instance_location)};
   result = true;
-  for (const auto &child : control.children) {
+  for (const auto &child : instruction.children) {
     if (!EVALUATE_RECURSE(child, target)) {
       result = false;
       break;
     }
   }
 
-  EVALUATE_END(control, ControlLabel);
+  EVALUATE_END(ControlLabel);
 }
 
 INSTRUCTION_HANDLER(ControlMark) {
@@ -1066,33 +1060,33 @@ INSTRUCTION_HANDLER(ControlMark) {
   SOURCEMETA_MAYBE_UNUSED(instance);
   SOURCEMETA_MAYBE_UNUSED(property_target);
   SOURCEMETA_MAYBE_UNUSED(evaluator);
-  EVALUATE_BEGIN_NO_PRECONDITION_AND_NO_PUSH(control, ControlMark);
-  evaluator.labels.try_emplace(control.value, control.children);
-  EVALUATE_END_NO_POP(control, ControlMark);
+  EVALUATE_BEGIN_NO_PRECONDITION_AND_NO_PUSH(ControlMark);
+  evaluator.labels.try_emplace(instruction.value, instruction.children);
+  EVALUATE_END_NO_POP(ControlMark);
 }
 
 INSTRUCTION_HANDLER(ControlEvaluate) {
+  SOURCEMETA_MAYBE_UNUSED(instruction);
   SOURCEMETA_MAYBE_UNUSED(depth);
   SOURCEMETA_MAYBE_UNUSED(schema);
   SOURCEMETA_MAYBE_UNUSED(callback);
   SOURCEMETA_MAYBE_UNUSED(instance);
   SOURCEMETA_MAYBE_UNUSED(property_target);
   SOURCEMETA_MAYBE_UNUSED(evaluator);
-  EVALUATE_BEGIN_PASS_THROUGH(control, ControlEvaluate);
-  SOURCEMETA_MAYBE_UNUSED(control);
+  EVALUATE_BEGIN_PASS_THROUGH(ControlEvaluate);
 
 #ifdef SOURCEMETA_EVALUATOR_COMPLETE
   if (callback.has_value()) {
     // TODO: Optimize this case to avoid an extra pointer copy
     auto destination = evaluator.instance_location;
-    destination.push_back(control.value);
+    destination.push_back(instruction.value);
     callback.value()(EvaluationType::Pre, true, instruction,
                      evaluator.evaluate_path, destination, Evaluator::null);
-    evaluator.evaluate(control.value);
+    evaluator.evaluate(instruction.value);
     callback.value()(EvaluationType::Post, true, instruction,
                      evaluator.evaluate_path, destination, Evaluator::null);
   } else {
-    evaluator.evaluate(control.value);
+    evaluator.evaluate(instruction.value);
   }
 #else
 #endif
@@ -1107,18 +1101,18 @@ INSTRUCTION_HANDLER(ControlJump) {
   SOURCEMETA_MAYBE_UNUSED(instance);
   SOURCEMETA_MAYBE_UNUSED(property_target);
   SOURCEMETA_MAYBE_UNUSED(evaluator);
-  EVALUATE_BEGIN_NO_PRECONDITION(control, ControlJump);
+  EVALUATE_BEGIN_NO_PRECONDITION(ControlJump);
   result = true;
-  assert(evaluator.labels.contains(control.value));
-  const auto &target{get(instance, control.relative_instance_location)};
-  for (const auto &child : evaluator.labels.at(control.value).get()) {
+  assert(evaluator.labels.contains(instruction.value));
+  const auto &target{get(instance, instruction.relative_instance_location)};
+  for (const auto &child : evaluator.labels.at(instruction.value).get()) {
     if (!EVALUATE_RECURSE(child, target)) {
       result = false;
       break;
     }
   }
 
-  EVALUATE_END(control, ControlJump);
+  EVALUATE_END(ControlJump);
 }
 
 INSTRUCTION_HANDLER(ControlDynamicAnchorJump) {
@@ -1128,18 +1122,18 @@ INSTRUCTION_HANDLER(ControlDynamicAnchorJump) {
   SOURCEMETA_MAYBE_UNUSED(instance);
   SOURCEMETA_MAYBE_UNUSED(property_target);
   SOURCEMETA_MAYBE_UNUSED(evaluator);
-  EVALUATE_BEGIN_NO_PRECONDITION(control, ControlDynamicAnchorJump);
+  EVALUATE_BEGIN_NO_PRECONDITION(ControlDynamicAnchorJump);
   result = false;
-  const auto &target{get(instance, control.relative_instance_location)};
+  const auto &target{get(instance, instruction.relative_instance_location)};
   for (const auto &resource : evaluator.resources) {
-    const auto label{evaluator.hash(resource, control.value)};
+    const auto label{evaluator.hash(resource, instruction.value)};
     const auto match{evaluator.labels.find(label)};
     if (match != evaluator.labels.cend()) {
       result = true;
       for (const auto &child : match->second.get()) {
         if (!EVALUATE_RECURSE(child, target)) {
           result = false;
-          EVALUATE_END(control, ControlDynamicAnchorJump);
+          EVALUATE_END(ControlDynamicAnchorJump);
         }
       }
 
@@ -1147,7 +1141,7 @@ INSTRUCTION_HANDLER(ControlDynamicAnchorJump) {
     }
   }
 
-  EVALUATE_END(control, ControlDynamicAnchorJump);
+  EVALUATE_END(ControlDynamicAnchorJump);
 }
 
 INSTRUCTION_HANDLER(AnnotationEmit) {
@@ -1158,8 +1152,8 @@ INSTRUCTION_HANDLER(AnnotationEmit) {
   SOURCEMETA_MAYBE_UNUSED(instance);
   SOURCEMETA_MAYBE_UNUSED(property_target);
   SOURCEMETA_MAYBE_UNUSED(evaluator);
-  EVALUATE_ANNOTATION(annotation, AnnotationEmit, evaluator.instance_location,
-                      annotation.value);
+  EVALUATE_ANNOTATION(AnnotationEmit, evaluator.instance_location,
+                      instruction.value);
 }
 
 INSTRUCTION_HANDLER(AnnotationToParent) {
@@ -1171,9 +1165,9 @@ INSTRUCTION_HANDLER(AnnotationToParent) {
   SOURCEMETA_MAYBE_UNUSED(property_target);
   SOURCEMETA_MAYBE_UNUSED(evaluator);
   EVALUATE_ANNOTATION(
-      annotation, AnnotationToParent,
+      AnnotationToParent,
       // TODO: Can we avoid a copy of the instance location here?
-      evaluator.instance_location.initial(), annotation.value);
+      evaluator.instance_location.initial(), instruction.value);
 }
 
 INSTRUCTION_HANDLER(AnnotationBasenameToParent) {
@@ -1185,7 +1179,7 @@ INSTRUCTION_HANDLER(AnnotationBasenameToParent) {
   SOURCEMETA_MAYBE_UNUSED(property_target);
   SOURCEMETA_MAYBE_UNUSED(evaluator);
   EVALUATE_ANNOTATION(
-      annotation, AnnotationBasenameToParent,
+      AnnotationBasenameToParent,
       // TODO: Can we avoid a copy of the instance location here?
       evaluator.instance_location.initial(),
       evaluator.instance_location.back().to_json());
@@ -1198,17 +1192,17 @@ INSTRUCTION_HANDLER(LogicalNot) {
   SOURCEMETA_MAYBE_UNUSED(instance);
   SOURCEMETA_MAYBE_UNUSED(property_target);
   SOURCEMETA_MAYBE_UNUSED(evaluator);
-  EVALUATE_BEGIN_NO_PRECONDITION(logical, LogicalNot);
+  EVALUATE_BEGIN_NO_PRECONDITION(LogicalNot);
 
-  const auto &target{get(instance, logical.relative_instance_location)};
-  for (const auto &child : logical.children) {
+  const auto &target{get(instance, instruction.relative_instance_location)};
+  for (const auto &child : instruction.children) {
     if (!EVALUATE_RECURSE(child, target)) {
       result = true;
       break;
     }
   }
 
-  EVALUATE_END(logical, LogicalNot);
+  EVALUATE_END(LogicalNot);
 }
 
 INSTRUCTION_HANDLER(LogicalNotEvaluate) {
@@ -1218,10 +1212,10 @@ INSTRUCTION_HANDLER(LogicalNotEvaluate) {
   SOURCEMETA_MAYBE_UNUSED(instance);
   SOURCEMETA_MAYBE_UNUSED(property_target);
   SOURCEMETA_MAYBE_UNUSED(evaluator);
-  EVALUATE_BEGIN_NO_PRECONDITION(logical, LogicalNotEvaluate);
+  EVALUATE_BEGIN_NO_PRECONDITION(LogicalNotEvaluate);
 
-  const auto &target{get(instance, logical.relative_instance_location)};
-  for (const auto &child : logical.children) {
+  const auto &target{get(instance, instruction.relative_instance_location)};
+  for (const auto &child : instruction.children) {
     if (!EVALUATE_RECURSE(child, target)) {
       result = true;
       break;
@@ -1230,7 +1224,7 @@ INSTRUCTION_HANDLER(LogicalNotEvaluate) {
 
   evaluator.unevaluate();
 
-  EVALUATE_END(logical, LogicalNotEvaluate);
+  EVALUATE_END(LogicalNotEvaluate);
 }
 
 INSTRUCTION_HANDLER(LoopPropertiesUnevaluated) {
@@ -1240,9 +1234,8 @@ INSTRUCTION_HANDLER(LoopPropertiesUnevaluated) {
   SOURCEMETA_MAYBE_UNUSED(instance);
   SOURCEMETA_MAYBE_UNUSED(property_target);
   SOURCEMETA_MAYBE_UNUSED(evaluator);
-  EVALUATE_BEGIN_NON_STRING(loop, LoopPropertiesUnevaluated,
-                            target.is_object());
-  assert(!loop.children.empty());
+  EVALUATE_BEGIN_NON_STRING(LoopPropertiesUnevaluated, target.is_object());
+  assert(!instruction.children.empty());
   result = true;
 
   for (const auto &entry : target.as_object()) {
@@ -1252,11 +1245,11 @@ INSTRUCTION_HANDLER(LoopPropertiesUnevaluated) {
 
     evaluator.instance_location.push_back(entry.first);
     const auto &new_instance{target.at(entry.first)};
-    for (const auto &child : loop.children) {
+    for (const auto &child : instruction.children) {
       if (!EVALUATE_RECURSE(child, new_instance)) {
         result = false;
         evaluator.instance_location.pop_back();
-        EVALUATE_END(loop, LoopPropertiesUnevaluated);
+        EVALUATE_END(LoopPropertiesUnevaluated);
       }
     }
 
@@ -1266,7 +1259,7 @@ INSTRUCTION_HANDLER(LoopPropertiesUnevaluated) {
   // Mark the entire object as evaluated
   evaluator.evaluate();
 
-  EVALUATE_END(loop, LoopPropertiesUnevaluated);
+  EVALUATE_END(LoopPropertiesUnevaluated);
 }
 
 INSTRUCTION_HANDLER(LoopPropertiesUnevaluatedExcept) {
@@ -1276,29 +1269,30 @@ INSTRUCTION_HANDLER(LoopPropertiesUnevaluatedExcept) {
   SOURCEMETA_MAYBE_UNUSED(instance);
   SOURCEMETA_MAYBE_UNUSED(property_target);
   SOURCEMETA_MAYBE_UNUSED(evaluator);
-  EVALUATE_BEGIN_NON_STRING(loop, LoopPropertiesUnevaluatedExcept,
+  EVALUATE_BEGIN_NON_STRING(LoopPropertiesUnevaluatedExcept,
                             target.is_object());
-  assert(!loop.children.empty());
+  assert(!instruction.children.empty());
   result = true;
   // Otherwise why emit this instruction?
-  assert(!std::get<0>(loop.value).empty() || !std::get<1>(loop.value).empty() ||
-         !std::get<2>(loop.value).empty());
+  assert(!std::get<0>(instruction.value).empty() ||
+         !std::get<1>(instruction.value).empty() ||
+         !std::get<2>(instruction.value).empty());
 
   for (const auto &entry : target.as_object()) {
-    if (std::get<0>(loop.value).contains(entry.first)) {
+    if (std::get<0>(instruction.value).contains(entry.first)) {
       continue;
     }
 
-    if (std::any_of(std::get<1>(loop.value).cbegin(),
-                    std::get<1>(loop.value).cend(),
+    if (std::any_of(std::get<1>(instruction.value).cbegin(),
+                    std::get<1>(instruction.value).cend(),
                     [&entry](const auto &prefix) {
                       return entry.first.starts_with(prefix);
                     })) {
       continue;
     }
 
-    if (std::any_of(std::get<2>(loop.value).cbegin(),
-                    std::get<2>(loop.value).cend(),
+    if (std::any_of(std::get<2>(instruction.value).cbegin(),
+                    std::get<2>(instruction.value).cend(),
                     [&entry](const auto &pattern) {
                       return matches(pattern.first, entry.first);
                     })) {
@@ -1311,11 +1305,11 @@ INSTRUCTION_HANDLER(LoopPropertiesUnevaluatedExcept) {
 
     evaluator.instance_location.push_back(entry.first);
     const auto &new_instance{target.at(entry.first)};
-    for (const auto &child : loop.children) {
+    for (const auto &child : instruction.children) {
       if (!EVALUATE_RECURSE(child, new_instance)) {
         result = false;
         evaluator.instance_location.pop_back();
-        EVALUATE_END(loop, LoopPropertiesUnevaluatedExcept);
+        EVALUATE_END(LoopPropertiesUnevaluatedExcept);
       }
     }
 
@@ -1325,7 +1319,7 @@ INSTRUCTION_HANDLER(LoopPropertiesUnevaluatedExcept) {
   // Mark the entire object as evaluated
   evaluator.evaluate();
 
-  EVALUATE_END(loop, LoopPropertiesUnevaluatedExcept);
+  EVALUATE_END(LoopPropertiesUnevaluatedExcept);
 }
 
 INSTRUCTION_HANDLER(LoopPropertiesMatch) {
@@ -1335,28 +1329,28 @@ INSTRUCTION_HANDLER(LoopPropertiesMatch) {
   SOURCEMETA_MAYBE_UNUSED(instance);
   SOURCEMETA_MAYBE_UNUSED(property_target);
   SOURCEMETA_MAYBE_UNUSED(evaluator);
-  EVALUATE_BEGIN_NON_STRING(loop, LoopPropertiesMatch, target.is_object());
-  assert(!loop.value.empty());
+  EVALUATE_BEGIN_NON_STRING(LoopPropertiesMatch, target.is_object());
+  assert(!instruction.value.empty());
   result = true;
   for (const auto &entry : target.as_object()) {
-    const auto index{loop.value.find(entry.first)};
-    if (index == loop.value.cend()) {
+    const auto index{instruction.value.find(entry.first)};
+    if (index == instruction.value.cend()) {
       continue;
     }
 
-    const auto &subinstruction{loop.children[index->second]};
+    const auto &subinstruction{instruction.children[index->second]};
     assert(std::holds_alternative<sourcemeta::blaze::ControlGroup>(
         subinstruction));
     for (const auto &child :
          std::get<sourcemeta::blaze::ControlGroup>(subinstruction).children) {
       if (!EVALUATE_RECURSE(child, target)) {
         result = false;
-        EVALUATE_END(loop, LoopPropertiesMatch);
+        EVALUATE_END(LoopPropertiesMatch);
       }
     }
   }
 
-  EVALUATE_END(loop, LoopPropertiesMatch);
+  EVALUATE_END(LoopPropertiesMatch);
 }
 
 INSTRUCTION_HANDLER(LoopPropertiesMatchClosed) {
@@ -1366,30 +1360,29 @@ INSTRUCTION_HANDLER(LoopPropertiesMatchClosed) {
   SOURCEMETA_MAYBE_UNUSED(instance);
   SOURCEMETA_MAYBE_UNUSED(property_target);
   SOURCEMETA_MAYBE_UNUSED(evaluator);
-  EVALUATE_BEGIN_NON_STRING(loop, LoopPropertiesMatchClosed,
-                            target.is_object());
-  assert(!loop.value.empty());
+  EVALUATE_BEGIN_NON_STRING(LoopPropertiesMatchClosed, target.is_object());
+  assert(!instruction.value.empty());
   result = true;
   for (const auto &entry : target.as_object()) {
-    const auto index{loop.value.find(entry.first)};
-    if (index == loop.value.cend()) {
+    const auto index{instruction.value.find(entry.first)};
+    if (index == instruction.value.cend()) {
       result = false;
       break;
     }
 
-    const auto &subinstruction{loop.children[index->second]};
+    const auto &subinstruction{instruction.children[index->second]};
     assert(std::holds_alternative<sourcemeta::blaze::ControlGroup>(
         subinstruction));
     for (const auto &child :
          std::get<sourcemeta::blaze::ControlGroup>(subinstruction).children) {
       if (!EVALUATE_RECURSE(child, target)) {
         result = false;
-        EVALUATE_END(loop, LoopPropertiesMatchClosed);
+        EVALUATE_END(LoopPropertiesMatchClosed);
       }
     }
   }
 
-  EVALUATE_END(loop, LoopPropertiesMatchClosed);
+  EVALUATE_END(LoopPropertiesMatchClosed);
 }
 
 INSTRUCTION_HANDLER(LoopProperties) {
@@ -1399,21 +1392,21 @@ INSTRUCTION_HANDLER(LoopProperties) {
   SOURCEMETA_MAYBE_UNUSED(instance);
   SOURCEMETA_MAYBE_UNUSED(property_target);
   SOURCEMETA_MAYBE_UNUSED(evaluator);
-  EVALUATE_BEGIN_NON_STRING(loop, LoopProperties, target.is_object());
-  assert(!loop.children.empty());
+  EVALUATE_BEGIN_NON_STRING(LoopProperties, target.is_object());
+  assert(!instruction.children.empty());
   result = true;
   for (const auto &entry : target.as_object()) {
     if (track) {
       evaluator.instance_location.push_back(entry.first);
     }
     const auto &new_instance{target.at(entry.first)};
-    for (const auto &child : loop.children) {
+    for (const auto &child : instruction.children) {
       if (!EVALUATE_RECURSE(child, new_instance)) {
         result = false;
         if (track) {
           evaluator.instance_location.pop_back();
         }
-        EVALUATE_END(loop, LoopProperties);
+        EVALUATE_END(LoopProperties);
       }
     }
 
@@ -1422,7 +1415,7 @@ INSTRUCTION_HANDLER(LoopProperties) {
     }
   }
 
-  EVALUATE_END(loop, LoopProperties);
+  EVALUATE_END(LoopProperties);
 }
 
 INSTRUCTION_HANDLER(LoopPropertiesEvaluate) {
@@ -1432,21 +1425,21 @@ INSTRUCTION_HANDLER(LoopPropertiesEvaluate) {
   SOURCEMETA_MAYBE_UNUSED(instance);
   SOURCEMETA_MAYBE_UNUSED(property_target);
   SOURCEMETA_MAYBE_UNUSED(evaluator);
-  EVALUATE_BEGIN_NON_STRING(loop, LoopPropertiesEvaluate, target.is_object());
-  assert(!loop.children.empty());
+  EVALUATE_BEGIN_NON_STRING(LoopPropertiesEvaluate, target.is_object());
+  assert(!instruction.children.empty());
   result = true;
   for (const auto &entry : target.as_object()) {
     if (track) {
       evaluator.instance_location.push_back(entry.first);
     }
     const auto &new_instance{target.at(entry.first)};
-    for (const auto &child : loop.children) {
+    for (const auto &child : instruction.children) {
       if (!EVALUATE_RECURSE(child, new_instance)) {
         result = false;
         if (track) {
           evaluator.instance_location.pop_back();
         }
-        EVALUATE_END(loop, LoopPropertiesEvaluate);
+        EVALUATE_END(LoopPropertiesEvaluate);
       }
     }
 
@@ -1457,7 +1450,7 @@ INSTRUCTION_HANDLER(LoopPropertiesEvaluate) {
 
   evaluator.evaluate();
 
-  EVALUATE_END(loop, LoopPropertiesEvaluate);
+  EVALUATE_END(LoopPropertiesEvaluate);
 }
 
 INSTRUCTION_HANDLER(LoopPropertiesRegex) {
@@ -1467,11 +1460,11 @@ INSTRUCTION_HANDLER(LoopPropertiesRegex) {
   SOURCEMETA_MAYBE_UNUSED(instance);
   SOURCEMETA_MAYBE_UNUSED(property_target);
   SOURCEMETA_MAYBE_UNUSED(evaluator);
-  EVALUATE_BEGIN_NON_STRING(loop, LoopPropertiesRegex, target.is_object());
-  assert(!loop.children.empty());
+  EVALUATE_BEGIN_NON_STRING(LoopPropertiesRegex, target.is_object());
+  assert(!instruction.children.empty());
   result = true;
   for (const auto &entry : target.as_object()) {
-    if (!matches(loop.value.first, entry.first)) {
+    if (!matches(instruction.value.first, entry.first)) {
       continue;
     }
 
@@ -1479,13 +1472,13 @@ INSTRUCTION_HANDLER(LoopPropertiesRegex) {
       evaluator.instance_location.push_back(entry.first);
     }
     const auto &new_instance{target.at(entry.first)};
-    for (const auto &child : loop.children) {
+    for (const auto &child : instruction.children) {
       if (!EVALUATE_RECURSE(child, new_instance)) {
         result = false;
         if (track) {
           evaluator.instance_location.pop_back();
         }
-        EVALUATE_END(loop, LoopPropertiesRegex);
+        EVALUATE_END(LoopPropertiesRegex);
       }
     }
 
@@ -1494,7 +1487,7 @@ INSTRUCTION_HANDLER(LoopPropertiesRegex) {
     }
   }
 
-  EVALUATE_END(loop, LoopPropertiesRegex);
+  EVALUATE_END(LoopPropertiesRegex);
 }
 
 INSTRUCTION_HANDLER(LoopPropertiesRegexClosed) {
@@ -1504,16 +1497,15 @@ INSTRUCTION_HANDLER(LoopPropertiesRegexClosed) {
   SOURCEMETA_MAYBE_UNUSED(instance);
   SOURCEMETA_MAYBE_UNUSED(property_target);
   SOURCEMETA_MAYBE_UNUSED(evaluator);
-  EVALUATE_BEGIN_NON_STRING(loop, LoopPropertiesRegexClosed,
-                            target.is_object());
+  EVALUATE_BEGIN_NON_STRING(LoopPropertiesRegexClosed, target.is_object());
   result = true;
   for (const auto &entry : target.as_object()) {
-    if (!matches(loop.value.first, entry.first)) {
+    if (!matches(instruction.value.first, entry.first)) {
       result = false;
       break;
     }
 
-    if (loop.children.empty()) {
+    if (instruction.children.empty()) {
       continue;
     }
 
@@ -1521,13 +1513,13 @@ INSTRUCTION_HANDLER(LoopPropertiesRegexClosed) {
       evaluator.instance_location.push_back(entry.first);
     }
     const auto &new_instance{target.at(entry.first)};
-    for (const auto &child : loop.children) {
+    for (const auto &child : instruction.children) {
       if (!EVALUATE_RECURSE(child, new_instance)) {
         result = false;
         if (track) {
           evaluator.instance_location.pop_back();
         }
-        EVALUATE_END(loop, LoopPropertiesRegexClosed);
+        EVALUATE_END(LoopPropertiesRegexClosed);
       }
     }
 
@@ -1536,7 +1528,7 @@ INSTRUCTION_HANDLER(LoopPropertiesRegexClosed) {
     }
   }
 
-  EVALUATE_END(loop, LoopPropertiesRegexClosed);
+  EVALUATE_END(LoopPropertiesRegexClosed);
 }
 
 INSTRUCTION_HANDLER(LoopPropertiesStartsWith) {
@@ -1546,24 +1538,24 @@ INSTRUCTION_HANDLER(LoopPropertiesStartsWith) {
   SOURCEMETA_MAYBE_UNUSED(instance);
   SOURCEMETA_MAYBE_UNUSED(property_target);
   SOURCEMETA_MAYBE_UNUSED(evaluator);
-  EVALUATE_BEGIN_NON_STRING(loop, LoopPropertiesStartsWith, target.is_object());
-  assert(!loop.children.empty());
+  EVALUATE_BEGIN_NON_STRING(LoopPropertiesStartsWith, target.is_object());
+  assert(!instruction.children.empty());
   result = true;
   for (const auto &entry : target.as_object()) {
-    if (!entry.first.starts_with(loop.value)) {
+    if (!entry.first.starts_with(instruction.value)) {
       continue;
     }
 
     if (track) {
       evaluator.instance_location.push_back(entry.first);
     }
-    for (const auto &child : loop.children) {
+    for (const auto &child : instruction.children) {
       if (!EVALUATE_RECURSE(child, entry.second)) {
         result = false;
         if (track) {
           evaluator.instance_location.pop_back();
         }
-        EVALUATE_END(loop, LoopPropertiesStartsWith);
+        EVALUATE_END(LoopPropertiesStartsWith);
       }
     }
 
@@ -1572,7 +1564,7 @@ INSTRUCTION_HANDLER(LoopPropertiesStartsWith) {
     }
   }
 
-  EVALUATE_END(loop, LoopPropertiesStartsWith);
+  EVALUATE_END(LoopPropertiesStartsWith);
 }
 
 INSTRUCTION_HANDLER(LoopPropertiesExcept) {
@@ -1582,28 +1574,29 @@ INSTRUCTION_HANDLER(LoopPropertiesExcept) {
   SOURCEMETA_MAYBE_UNUSED(instance);
   SOURCEMETA_MAYBE_UNUSED(property_target);
   SOURCEMETA_MAYBE_UNUSED(evaluator);
-  EVALUATE_BEGIN_NON_STRING(loop, LoopPropertiesExcept, target.is_object());
-  assert(!loop.children.empty());
+  EVALUATE_BEGIN_NON_STRING(LoopPropertiesExcept, target.is_object());
+  assert(!instruction.children.empty());
   result = true;
   // Otherwise why emit this instruction?
-  assert(!std::get<0>(loop.value).empty() || !std::get<1>(loop.value).empty() ||
-         !std::get<2>(loop.value).empty());
+  assert(!std::get<0>(instruction.value).empty() ||
+         !std::get<1>(instruction.value).empty() ||
+         !std::get<2>(instruction.value).empty());
 
   for (const auto &entry : target.as_object()) {
-    if (std::get<0>(loop.value).contains(entry.first)) {
+    if (std::get<0>(instruction.value).contains(entry.first)) {
       continue;
     }
 
-    if (std::any_of(std::get<1>(loop.value).cbegin(),
-                    std::get<1>(loop.value).cend(),
+    if (std::any_of(std::get<1>(instruction.value).cbegin(),
+                    std::get<1>(instruction.value).cend(),
                     [&entry](const auto &prefix) {
                       return entry.first.starts_with(prefix);
                     })) {
       continue;
     }
 
-    if (std::any_of(std::get<2>(loop.value).cbegin(),
-                    std::get<2>(loop.value).cend(),
+    if (std::any_of(std::get<2>(instruction.value).cbegin(),
+                    std::get<2>(instruction.value).cend(),
                     [&entry](const auto &pattern) {
                       return matches(pattern.first, entry.first);
                     })) {
@@ -1613,13 +1606,13 @@ INSTRUCTION_HANDLER(LoopPropertiesExcept) {
     if (track) {
       evaluator.instance_location.push_back(entry.first);
     }
-    for (const auto &child : loop.children) {
+    for (const auto &child : instruction.children) {
       if (!EVALUATE_RECURSE(child, entry.second)) {
         result = false;
         if (track) {
           evaluator.instance_location.pop_back();
         }
-        EVALUATE_END(loop, LoopPropertiesExcept);
+        EVALUATE_END(LoopPropertiesExcept);
       }
     }
 
@@ -1628,7 +1621,7 @@ INSTRUCTION_HANDLER(LoopPropertiesExcept) {
     }
   }
 
-  EVALUATE_END(loop, LoopPropertiesExcept);
+  EVALUATE_END(LoopPropertiesExcept);
 }
 
 INSTRUCTION_HANDLER(LoopPropertiesWhitelist) {
@@ -1638,24 +1631,24 @@ INSTRUCTION_HANDLER(LoopPropertiesWhitelist) {
   SOURCEMETA_MAYBE_UNUSED(instance);
   SOURCEMETA_MAYBE_UNUSED(property_target);
   SOURCEMETA_MAYBE_UNUSED(evaluator);
-  EVALUATE_BEGIN_NON_STRING(loop, LoopPropertiesWhitelist, target.is_object());
+  EVALUATE_BEGIN_NON_STRING(LoopPropertiesWhitelist, target.is_object());
   // Otherwise why emit this instruction?
-  assert(!loop.value.empty());
+  assert(!instruction.value.empty());
 
   // Otherwise if the number of properties in the instance
   // is larger than the whitelist, then it already violated
   // the whitelist?
-  if (target.object_size() <= loop.value.size()) {
+  if (target.object_size() <= instruction.value.size()) {
     result = true;
     for (const auto &entry : target.as_object()) {
-      if (!loop.value.contains(entry.first)) {
+      if (!instruction.value.contains(entry.first)) {
         result = false;
         break;
       }
     }
   }
 
-  EVALUATE_END(loop, LoopPropertiesWhitelist);
+  EVALUATE_END(LoopPropertiesWhitelist);
 }
 
 INSTRUCTION_HANDLER(LoopPropertiesType) {
@@ -1665,20 +1658,20 @@ INSTRUCTION_HANDLER(LoopPropertiesType) {
   SOURCEMETA_MAYBE_UNUSED(instance);
   SOURCEMETA_MAYBE_UNUSED(property_target);
   SOURCEMETA_MAYBE_UNUSED(evaluator);
-  EVALUATE_BEGIN_NON_STRING(loop, LoopPropertiesType, target.is_object());
+  EVALUATE_BEGIN_NON_STRING(LoopPropertiesType, target.is_object());
   result = true;
   for (const auto &entry : target.as_object()) {
-    if (entry.second.type() != loop.value &&
+    if (entry.second.type() != instruction.value &&
         // In non-strict mode, we consider a real number that represents an
         // integer to be an integer
-        (loop.value != JSON::Type::Integer ||
+        (instruction.value != JSON::Type::Integer ||
          !entry.second.is_integer_real())) {
       result = false;
       break;
     }
   }
 
-  EVALUATE_END(loop, LoopPropertiesType);
+  EVALUATE_END(LoopPropertiesType);
 }
 
 INSTRUCTION_HANDLER(LoopPropertiesTypeEvaluate) {
@@ -1688,23 +1681,22 @@ INSTRUCTION_HANDLER(LoopPropertiesTypeEvaluate) {
   SOURCEMETA_MAYBE_UNUSED(instance);
   SOURCEMETA_MAYBE_UNUSED(property_target);
   SOURCEMETA_MAYBE_UNUSED(evaluator);
-  EVALUATE_BEGIN_NON_STRING(loop, LoopPropertiesTypeEvaluate,
-                            target.is_object());
+  EVALUATE_BEGIN_NON_STRING(LoopPropertiesTypeEvaluate, target.is_object());
   result = true;
   for (const auto &entry : target.as_object()) {
-    if (entry.second.type() != loop.value &&
+    if (entry.second.type() != instruction.value &&
         // In non-strict mode, we consider a real number that represents an
         // integer to be an integer
-        (loop.value != JSON::Type::Integer ||
+        (instruction.value != JSON::Type::Integer ||
          !entry.second.is_integer_real())) {
       result = false;
-      EVALUATE_END(loop, LoopPropertiesTypeEvaluate);
+      EVALUATE_END(LoopPropertiesTypeEvaluate);
     }
   }
 
   evaluator.evaluate();
 
-  EVALUATE_END(loop, LoopPropertiesTypeEvaluate);
+  EVALUATE_END(LoopPropertiesTypeEvaluate);
 }
 
 INSTRUCTION_HANDLER(LoopPropertiesTypeStrict) {
@@ -1714,16 +1706,16 @@ INSTRUCTION_HANDLER(LoopPropertiesTypeStrict) {
   SOURCEMETA_MAYBE_UNUSED(instance);
   SOURCEMETA_MAYBE_UNUSED(property_target);
   SOURCEMETA_MAYBE_UNUSED(evaluator);
-  EVALUATE_BEGIN_NON_STRING(loop, LoopPropertiesTypeStrict, target.is_object());
+  EVALUATE_BEGIN_NON_STRING(LoopPropertiesTypeStrict, target.is_object());
   result = true;
   for (const auto &entry : target.as_object()) {
-    if (entry.second.type() != loop.value) {
+    if (entry.second.type() != instruction.value) {
       result = false;
       break;
     }
   }
 
-  EVALUATE_END(loop, LoopPropertiesTypeStrict);
+  EVALUATE_END(LoopPropertiesTypeStrict);
 }
 
 INSTRUCTION_HANDLER(LoopPropertiesTypeStrictEvaluate) {
@@ -1733,19 +1725,19 @@ INSTRUCTION_HANDLER(LoopPropertiesTypeStrictEvaluate) {
   SOURCEMETA_MAYBE_UNUSED(instance);
   SOURCEMETA_MAYBE_UNUSED(property_target);
   SOURCEMETA_MAYBE_UNUSED(evaluator);
-  EVALUATE_BEGIN_NON_STRING(loop, LoopPropertiesTypeStrictEvaluate,
+  EVALUATE_BEGIN_NON_STRING(LoopPropertiesTypeStrictEvaluate,
                             target.is_object());
   result = true;
   for (const auto &entry : target.as_object()) {
-    if (entry.second.type() != loop.value) {
+    if (entry.second.type() != instruction.value) {
       result = false;
-      EVALUATE_END(loop, LoopPropertiesTypeStrictEvaluate);
+      EVALUATE_END(LoopPropertiesTypeStrictEvaluate);
     }
   }
 
   evaluator.evaluate();
 
-  EVALUATE_END(loop, LoopPropertiesTypeStrictEvaluate);
+  EVALUATE_END(LoopPropertiesTypeStrictEvaluate);
 }
 
 INSTRUCTION_HANDLER(LoopPropertiesTypeStrictAny) {
@@ -1755,18 +1747,17 @@ INSTRUCTION_HANDLER(LoopPropertiesTypeStrictAny) {
   SOURCEMETA_MAYBE_UNUSED(instance);
   SOURCEMETA_MAYBE_UNUSED(property_target);
   SOURCEMETA_MAYBE_UNUSED(evaluator);
-  EVALUATE_BEGIN_NON_STRING(loop, LoopPropertiesTypeStrictAny,
-                            target.is_object());
+  EVALUATE_BEGIN_NON_STRING(LoopPropertiesTypeStrictAny, target.is_object());
   result = true;
   for (const auto &entry : target.as_object()) {
-    if (std::find(loop.value.cbegin(), loop.value.cend(),
-                  entry.second.type()) == loop.value.cend()) {
+    if (std::find(instruction.value.cbegin(), instruction.value.cend(),
+                  entry.second.type()) == instruction.value.cend()) {
       result = false;
       break;
     }
   }
 
-  EVALUATE_END(loop, LoopPropertiesTypeStrictAny);
+  EVALUATE_END(LoopPropertiesTypeStrictAny);
 }
 
 INSTRUCTION_HANDLER(LoopPropertiesTypeStrictAnyEvaluate) {
@@ -1776,20 +1767,20 @@ INSTRUCTION_HANDLER(LoopPropertiesTypeStrictAnyEvaluate) {
   SOURCEMETA_MAYBE_UNUSED(instance);
   SOURCEMETA_MAYBE_UNUSED(property_target);
   SOURCEMETA_MAYBE_UNUSED(evaluator);
-  EVALUATE_BEGIN_NON_STRING(loop, LoopPropertiesTypeStrictAnyEvaluate,
+  EVALUATE_BEGIN_NON_STRING(LoopPropertiesTypeStrictAnyEvaluate,
                             target.is_object());
   result = true;
   for (const auto &entry : target.as_object()) {
-    if (std::find(loop.value.cbegin(), loop.value.cend(),
-                  entry.second.type()) == loop.value.cend()) {
+    if (std::find(instruction.value.cbegin(), instruction.value.cend(),
+                  entry.second.type()) == instruction.value.cend()) {
       result = false;
-      EVALUATE_END(loop, LoopPropertiesTypeStrictAnyEvaluate);
+      EVALUATE_END(LoopPropertiesTypeStrictAnyEvaluate);
     }
   }
 
   evaluator.evaluate();
 
-  EVALUATE_END(loop, LoopPropertiesTypeStrictAnyEvaluate);
+  EVALUATE_END(LoopPropertiesTypeStrictAnyEvaluate);
 }
 
 INSTRUCTION_HANDLER(LoopKeys) {
@@ -1799,21 +1790,21 @@ INSTRUCTION_HANDLER(LoopKeys) {
   SOURCEMETA_MAYBE_UNUSED(instance);
   SOURCEMETA_MAYBE_UNUSED(property_target);
   SOURCEMETA_MAYBE_UNUSED(evaluator);
-  EVALUATE_BEGIN_NON_STRING(loop, LoopKeys, target.is_object());
-  assert(!loop.children.empty());
+  EVALUATE_BEGIN_NON_STRING(LoopKeys, target.is_object());
+  assert(!instruction.children.empty());
   result = true;
   for (const auto &entry : target.as_object()) {
     if (track) {
       evaluator.instance_location.push_back(entry.first);
     }
-    for (const auto &child : loop.children) {
+    for (const auto &child : instruction.children) {
       if (!EVALUATE_RECURSE_ON_PROPERTY_NAME(child, Evaluator::null,
                                              entry.first)) {
         result = false;
         if (track) {
           evaluator.instance_location.pop_back();
         }
-        EVALUATE_END(loop, LoopKeys);
+        EVALUATE_END(LoopKeys);
       }
     }
 
@@ -1822,7 +1813,7 @@ INSTRUCTION_HANDLER(LoopKeys) {
     }
   }
 
-  EVALUATE_END(loop, LoopKeys);
+  EVALUATE_END(LoopKeys);
 }
 
 INSTRUCTION_HANDLER(LoopItems) {
@@ -1832,17 +1823,17 @@ INSTRUCTION_HANDLER(LoopItems) {
   SOURCEMETA_MAYBE_UNUSED(instance);
   SOURCEMETA_MAYBE_UNUSED(property_target);
   SOURCEMETA_MAYBE_UNUSED(evaluator);
-  EVALUATE_BEGIN_NON_STRING(loop, LoopItems, target.is_array());
-  assert(!loop.children.empty());
+  EVALUATE_BEGIN_NON_STRING(LoopItems, target.is_array());
+  assert(!instruction.children.empty());
   result = true;
 
   // To avoid index lookups and unnecessary conditionals
 #ifdef SOURCEMETA_EVALUATOR_FAST
   for (const auto &new_instance : target.as_array()) {
-    for (const auto &child : loop.children) {
+    for (const auto &child : instruction.children) {
       if (!EVALUATE_RECURSE(child, new_instance)) {
         result = false;
-        EVALUATE_END(loop, LoopItems);
+        EVALUATE_END(LoopItems);
       }
     }
   }
@@ -1852,13 +1843,13 @@ INSTRUCTION_HANDLER(LoopItems) {
       evaluator.instance_location.push_back(index);
     }
     const auto &new_instance{target.at(index)};
-    for (const auto &child : loop.children) {
+    for (const auto &child : instruction.children) {
       if (!EVALUATE_RECURSE(child, new_instance)) {
         result = false;
         if (track) {
           evaluator.instance_location.pop_back();
         }
-        EVALUATE_END(loop, LoopItems);
+        EVALUATE_END(LoopItems);
       }
     }
 
@@ -1868,7 +1859,7 @@ INSTRUCTION_HANDLER(LoopItems) {
   }
 #endif
 
-  EVALUATE_END(loop, LoopItems);
+  EVALUATE_END(LoopItems);
 }
 
 INSTRUCTION_HANDLER(LoopItemsFrom) {
@@ -1878,23 +1869,24 @@ INSTRUCTION_HANDLER(LoopItemsFrom) {
   SOURCEMETA_MAYBE_UNUSED(instance);
   SOURCEMETA_MAYBE_UNUSED(property_target);
   SOURCEMETA_MAYBE_UNUSED(evaluator);
-  EVALUATE_BEGIN_NON_STRING(loop, LoopItemsFrom,
+  EVALUATE_BEGIN_NON_STRING(LoopItemsFrom,
                             target.is_array() &&
-                                loop.value < target.array_size());
-  assert(!loop.children.empty());
+                                instruction.value < target.array_size());
+  assert(!instruction.children.empty());
   result = true;
-  for (std::size_t index = loop.value; index < target.array_size(); index++) {
+  for (std::size_t index = instruction.value; index < target.array_size();
+       index++) {
     if (track) {
       evaluator.instance_location.push_back(index);
     }
     const auto &new_instance{target.at(index)};
-    for (const auto &child : loop.children) {
+    for (const auto &child : instruction.children) {
       if (!EVALUATE_RECURSE(child, new_instance)) {
         result = false;
         if (track) {
           evaluator.instance_location.pop_back();
         }
-        EVALUATE_END(loop, LoopItemsFrom);
+        EVALUATE_END(LoopItemsFrom);
       }
     }
 
@@ -1903,7 +1895,7 @@ INSTRUCTION_HANDLER(LoopItemsFrom) {
     }
   }
 
-  EVALUATE_END(loop, LoopItemsFrom);
+  EVALUATE_END(LoopItemsFrom);
 }
 
 INSTRUCTION_HANDLER(LoopItemsUnevaluated) {
@@ -1913,8 +1905,8 @@ INSTRUCTION_HANDLER(LoopItemsUnevaluated) {
   SOURCEMETA_MAYBE_UNUSED(instance);
   SOURCEMETA_MAYBE_UNUSED(property_target);
   SOURCEMETA_MAYBE_UNUSED(evaluator);
-  EVALUATE_BEGIN_NON_STRING(loop, LoopItemsUnevaluated, target.is_array());
-  assert(!loop.children.empty());
+  EVALUATE_BEGIN_NON_STRING(LoopItemsUnevaluated, target.is_array());
+  assert(!instruction.children.empty());
   result = true;
 
   for (std::size_t index = 0; index < target.array_size(); index++) {
@@ -1924,11 +1916,11 @@ INSTRUCTION_HANDLER(LoopItemsUnevaluated) {
 
     evaluator.instance_location.push_back(index);
     const auto &new_instance{target.at(index)};
-    for (const auto &child : loop.children) {
+    for (const auto &child : instruction.children) {
       if (!EVALUATE_RECURSE(child, new_instance)) {
         result = false;
         evaluator.instance_location.pop_back();
-        EVALUATE_END(loop, LoopItemsUnevaluated);
+        EVALUATE_END(LoopItemsUnevaluated);
       }
     }
 
@@ -1938,7 +1930,7 @@ INSTRUCTION_HANDLER(LoopItemsUnevaluated) {
   // Mark the entire array as evaluated
   evaluator.evaluate();
 
-  EVALUATE_END(loop, LoopItemsUnevaluated);
+  EVALUATE_END(LoopItemsUnevaluated);
 }
 
 INSTRUCTION_HANDLER(LoopItemsType) {
@@ -1948,19 +1940,20 @@ INSTRUCTION_HANDLER(LoopItemsType) {
   SOURCEMETA_MAYBE_UNUSED(instance);
   SOURCEMETA_MAYBE_UNUSED(property_target);
   SOURCEMETA_MAYBE_UNUSED(evaluator);
-  EVALUATE_BEGIN_NON_STRING(loop, LoopItemsType, target.is_array());
+  EVALUATE_BEGIN_NON_STRING(LoopItemsType, target.is_array());
   result = true;
   for (const auto &entry : target.as_array()) {
-    if (entry.type() != loop.value &&
+    if (entry.type() != instruction.value &&
         // In non-strict mode, we consider a real number that represents an
         // integer to be an integer
-        (loop.value != JSON::Type::Integer || !entry.is_integer_real())) {
+        (instruction.value != JSON::Type::Integer ||
+         !entry.is_integer_real())) {
       result = false;
       break;
     }
   }
 
-  EVALUATE_END(loop, LoopItemsType);
+  EVALUATE_END(LoopItemsType);
 }
 
 INSTRUCTION_HANDLER(LoopItemsTypeStrict) {
@@ -1970,16 +1963,16 @@ INSTRUCTION_HANDLER(LoopItemsTypeStrict) {
   SOURCEMETA_MAYBE_UNUSED(instance);
   SOURCEMETA_MAYBE_UNUSED(property_target);
   SOURCEMETA_MAYBE_UNUSED(evaluator);
-  EVALUATE_BEGIN_NON_STRING(loop, LoopItemsTypeStrict, target.is_array());
+  EVALUATE_BEGIN_NON_STRING(LoopItemsTypeStrict, target.is_array());
   result = true;
   for (const auto &entry : target.as_array()) {
-    if (entry.type() != loop.value) {
+    if (entry.type() != instruction.value) {
       result = false;
       break;
     }
   }
 
-  EVALUATE_END(loop, LoopItemsTypeStrict);
+  EVALUATE_END(LoopItemsTypeStrict);
 }
 
 INSTRUCTION_HANDLER(LoopItemsTypeStrictAny) {
@@ -1989,19 +1982,19 @@ INSTRUCTION_HANDLER(LoopItemsTypeStrictAny) {
   SOURCEMETA_MAYBE_UNUSED(instance);
   SOURCEMETA_MAYBE_UNUSED(property_target);
   SOURCEMETA_MAYBE_UNUSED(evaluator);
-  EVALUATE_BEGIN_NON_STRING(loop, LoopItemsTypeStrictAny, target.is_array());
+  EVALUATE_BEGIN_NON_STRING(LoopItemsTypeStrictAny, target.is_array());
   // Otherwise we are we even emitting this instruction?
-  assert(loop.value.size() > 1);
+  assert(instruction.value.size() > 1);
   result = true;
   for (const auto &entry : target.as_array()) {
-    if (std::find(loop.value.cbegin(), loop.value.cend(), entry.type()) ==
-        loop.value.cend()) {
+    if (std::find(instruction.value.cbegin(), instruction.value.cend(),
+                  entry.type()) == instruction.value.cend()) {
       result = false;
       break;
     }
   }
 
-  EVALUATE_END(loop, LoopItemsTypeStrictAny);
+  EVALUATE_END(LoopItemsTypeStrictAny);
 }
 
 INSTRUCTION_HANDLER(LoopContains) {
@@ -2011,12 +2004,12 @@ INSTRUCTION_HANDLER(LoopContains) {
   SOURCEMETA_MAYBE_UNUSED(instance);
   SOURCEMETA_MAYBE_UNUSED(property_target);
   SOURCEMETA_MAYBE_UNUSED(evaluator);
-  EVALUATE_BEGIN_NON_STRING(loop, LoopContains, target.is_array());
-  assert(!loop.children.empty());
-  const auto minimum{std::get<0>(loop.value)};
-  const auto &maximum{std::get<1>(loop.value)};
+  EVALUATE_BEGIN_NON_STRING(LoopContains, target.is_array());
+  assert(!instruction.children.empty());
+  const auto minimum{std::get<0>(instruction.value)};
+  const auto &maximum{std::get<1>(instruction.value)};
   assert(!maximum.has_value() || maximum.value() >= minimum);
-  const auto is_exhaustive{std::get<2>(loop.value)};
+  const auto is_exhaustive{std::get<2>(instruction.value)};
   result = minimum == 0 && target.empty();
   auto match_count{std::numeric_limits<decltype(minimum)>::min()};
 
@@ -2026,7 +2019,7 @@ INSTRUCTION_HANDLER(LoopContains) {
     }
     const auto &new_instance{target.at(index)};
     bool subresult{true};
-    for (const auto &child : loop.children) {
+    for (const auto &child : instruction.children) {
       if (!EVALUATE_RECURSE(child, new_instance)) {
         subresult = false;
         break;
@@ -2062,7 +2055,7 @@ INSTRUCTION_HANDLER(LoopContains) {
     }
   }
 
-  EVALUATE_END(loop, LoopContains);
+  EVALUATE_END(LoopContains);
 }
 
 #undef INSTRUCTION_HANDLER
@@ -2091,365 +2084,449 @@ auto evaluate_instruction(
 
   switch (static_cast<InstructionIndex>(instruction.index())) {
     case InstructionIndex::AssertionFail:
-      return AssertionFail(instruction, schema, callback, instance,
-                           property_target, depth, evaluator);
+      return AssertionFail(
+          std::get<sourcemeta::blaze::AssertionFail>(instruction), schema,
+          callback, instance, property_target, depth, evaluator);
     case InstructionIndex::AssertionDefines:
-      return AssertionDefines(instruction, schema, callback, instance,
-                              property_target, depth, evaluator);
+      return AssertionDefines(
+          std::get<sourcemeta::blaze::AssertionDefines>(instruction), schema,
+          callback, instance, property_target, depth, evaluator);
 
     case InstructionIndex::AssertionDefinesStrict:
-      return AssertionDefinesStrict(instruction, schema, callback, instance,
-                                    property_target, depth, evaluator);
+      return AssertionDefinesStrict(
+          std::get<sourcemeta::blaze::AssertionDefinesStrict>(instruction),
+          schema, callback, instance, property_target, depth, evaluator);
 
     case InstructionIndex::AssertionDefinesAll:
-      return AssertionDefinesAll(instruction, schema, callback, instance,
-                                 property_target, depth, evaluator);
+      return AssertionDefinesAll(
+          std::get<sourcemeta::blaze::AssertionDefinesAll>(instruction), schema,
+          callback, instance, property_target, depth, evaluator);
 
     case InstructionIndex::AssertionDefinesAllStrict:
-      return AssertionDefinesAllStrict(instruction, schema, callback, instance,
-                                       property_target, depth, evaluator);
+      return AssertionDefinesAllStrict(
+          std::get<sourcemeta::blaze::AssertionDefinesAllStrict>(instruction),
+          schema, callback, instance, property_target, depth, evaluator);
 
     case InstructionIndex::AssertionDefinesExactly:
-      return AssertionDefinesExactly(instruction, schema, callback, instance,
-                                     property_target, depth, evaluator);
+      return AssertionDefinesExactly(
+          std::get<sourcemeta::blaze::AssertionDefinesExactly>(instruction),
+          schema, callback, instance, property_target, depth, evaluator);
 
     case InstructionIndex::AssertionDefinesExactlyStrict:
-      return AssertionDefinesExactlyStrict(instruction, schema, callback,
-                                           instance, property_target, depth,
-                                           evaluator);
+      return AssertionDefinesExactlyStrict(
+          std::get<sourcemeta::blaze::AssertionDefinesExactlyStrict>(
+              instruction),
+          schema, callback, instance, property_target, depth, evaluator);
 
     case InstructionIndex::AssertionPropertyDependencies:
-      return AssertionPropertyDependencies(instruction, schema, callback,
-                                           instance, property_target, depth,
-                                           evaluator);
+      return AssertionPropertyDependencies(
+          std::get<sourcemeta::blaze::AssertionPropertyDependencies>(
+              instruction),
+          schema, callback, instance, property_target, depth, evaluator);
 
     case InstructionIndex::AssertionType:
-      return AssertionType(instruction, schema, callback, instance,
-                           property_target, depth, evaluator);
+      return AssertionType(
+          std::get<sourcemeta::blaze::AssertionType>(instruction), schema,
+          callback, instance, property_target, depth, evaluator);
 
     case InstructionIndex::AssertionTypeAny:
-      return AssertionTypeAny(instruction, schema, callback, instance,
-                              property_target, depth, evaluator);
+      return AssertionTypeAny(
+          std::get<sourcemeta::blaze::AssertionTypeAny>(instruction), schema,
+          callback, instance, property_target, depth, evaluator);
 
     case InstructionIndex::AssertionTypeStrict:
-      return AssertionTypeStrict(instruction, schema, callback, instance,
-                                 property_target, depth, evaluator);
+      return AssertionTypeStrict(
+          std::get<sourcemeta::blaze::AssertionTypeStrict>(instruction), schema,
+          callback, instance, property_target, depth, evaluator);
 
     case InstructionIndex::AssertionTypeStrictAny:
-      return AssertionTypeStrictAny(instruction, schema, callback, instance,
-                                    property_target, depth, evaluator);
+      return AssertionTypeStrictAny(
+          std::get<sourcemeta::blaze::AssertionTypeStrictAny>(instruction),
+          schema, callback, instance, property_target, depth, evaluator);
 
     case InstructionIndex::AssertionTypeStringBounded:
-      return AssertionTypeStringBounded(instruction, schema, callback, instance,
-                                        property_target, depth, evaluator);
+      return AssertionTypeStringBounded(
+          std::get<sourcemeta::blaze::AssertionTypeStringBounded>(instruction),
+          schema, callback, instance, property_target, depth, evaluator);
 
     case InstructionIndex::AssertionTypeStringUpper:
-      return AssertionTypeStringUpper(instruction, schema, callback, instance,
-                                      property_target, depth, evaluator);
+      return AssertionTypeStringUpper(
+          std::get<sourcemeta::blaze::AssertionTypeStringUpper>(instruction),
+          schema, callback, instance, property_target, depth, evaluator);
 
     case InstructionIndex::AssertionTypeArrayBounded:
-      return AssertionTypeArrayBounded(instruction, schema, callback, instance,
-                                       property_target, depth, evaluator);
+      return AssertionTypeArrayBounded(
+          std::get<sourcemeta::blaze::AssertionTypeArrayBounded>(instruction),
+          schema, callback, instance, property_target, depth, evaluator);
 
     case InstructionIndex::AssertionTypeArrayUpper:
-      return AssertionTypeArrayUpper(instruction, schema, callback, instance,
-                                     property_target, depth, evaluator);
+      return AssertionTypeArrayUpper(
+          std::get<sourcemeta::blaze::AssertionTypeArrayUpper>(instruction),
+          schema, callback, instance, property_target, depth, evaluator);
 
     case InstructionIndex::AssertionTypeObjectBounded:
-      return AssertionTypeObjectBounded(instruction, schema, callback, instance,
-                                        property_target, depth, evaluator);
+      return AssertionTypeObjectBounded(
+          std::get<sourcemeta::blaze::AssertionTypeObjectBounded>(instruction),
+          schema, callback, instance, property_target, depth, evaluator);
 
     case InstructionIndex::AssertionTypeObjectUpper:
-      return AssertionTypeObjectUpper(instruction, schema, callback, instance,
-                                      property_target, depth, evaluator);
+      return AssertionTypeObjectUpper(
+          std::get<sourcemeta::blaze::AssertionTypeObjectUpper>(instruction),
+          schema, callback, instance, property_target, depth, evaluator);
 
     case InstructionIndex::AssertionRegex:
-      return AssertionRegex(instruction, schema, callback, instance,
-                            property_target, depth, evaluator);
+      return AssertionRegex(
+          std::get<sourcemeta::blaze::AssertionRegex>(instruction), schema,
+          callback, instance, property_target, depth, evaluator);
 
     case InstructionIndex::AssertionStringSizeLess:
-      return AssertionStringSizeLess(instruction, schema, callback, instance,
-                                     property_target, depth, evaluator);
+      return AssertionStringSizeLess(
+          std::get<sourcemeta::blaze::AssertionStringSizeLess>(instruction),
+          schema, callback, instance, property_target, depth, evaluator);
 
     case InstructionIndex::AssertionStringSizeGreater:
-      return AssertionStringSizeGreater(instruction, schema, callback, instance,
-                                        property_target, depth, evaluator);
+      return AssertionStringSizeGreater(
+          std::get<sourcemeta::blaze::AssertionStringSizeGreater>(instruction),
+          schema, callback, instance, property_target, depth, evaluator);
 
     case InstructionIndex::AssertionArraySizeLess:
-      return AssertionArraySizeLess(instruction, schema, callback, instance,
-                                    property_target, depth, evaluator);
+      return AssertionArraySizeLess(
+          std::get<sourcemeta::blaze::AssertionArraySizeLess>(instruction),
+          schema, callback, instance, property_target, depth, evaluator);
 
     case InstructionIndex::AssertionArraySizeGreater:
-      return AssertionArraySizeGreater(instruction, schema, callback, instance,
-                                       property_target, depth, evaluator);
+      return AssertionArraySizeGreater(
+          std::get<sourcemeta::blaze::AssertionArraySizeGreater>(instruction),
+          schema, callback, instance, property_target, depth, evaluator);
 
     case InstructionIndex::AssertionObjectSizeLess:
-      return AssertionObjectSizeLess(instruction, schema, callback, instance,
-                                     property_target, depth, evaluator);
+      return AssertionObjectSizeLess(
+          std::get<sourcemeta::blaze::AssertionObjectSizeLess>(instruction),
+          schema, callback, instance, property_target, depth, evaluator);
 
     case InstructionIndex::AssertionObjectSizeGreater:
-      return AssertionObjectSizeGreater(instruction, schema, callback, instance,
-                                        property_target, depth, evaluator);
+      return AssertionObjectSizeGreater(
+          std::get<sourcemeta::blaze::AssertionObjectSizeGreater>(instruction),
+          schema, callback, instance, property_target, depth, evaluator);
 
     case InstructionIndex::AssertionEqual:
-      return AssertionEqual(instruction, schema, callback, instance,
-                            property_target, depth, evaluator);
+      return AssertionEqual(
+          std::get<sourcemeta::blaze::AssertionEqual>(instruction), schema,
+          callback, instance, property_target, depth, evaluator);
 
     case InstructionIndex::AssertionEqualsAny:
-      return AssertionEqualsAny(instruction, schema, callback, instance,
-                                property_target, depth, evaluator);
+      return AssertionEqualsAny(
+          std::get<sourcemeta::blaze::AssertionEqualsAny>(instruction), schema,
+          callback, instance, property_target, depth, evaluator);
 
     case InstructionIndex::AssertionGreaterEqual:
-      return AssertionGreaterEqual(instruction, schema, callback, instance,
-                                   property_target, depth, evaluator);
+      return AssertionGreaterEqual(
+          std::get<sourcemeta::blaze::AssertionGreaterEqual>(instruction),
+          schema, callback, instance, property_target, depth, evaluator);
 
     case InstructionIndex::AssertionLessEqual:
-      return AssertionLessEqual(instruction, schema, callback, instance,
-                                property_target, depth, evaluator);
+      return AssertionLessEqual(
+          std::get<sourcemeta::blaze::AssertionLessEqual>(instruction), schema,
+          callback, instance, property_target, depth, evaluator);
 
     case InstructionIndex::AssertionGreater:
-      return AssertionGreater(instruction, schema, callback, instance,
-                              property_target, depth, evaluator);
+      return AssertionGreater(
+          std::get<sourcemeta::blaze::AssertionGreater>(instruction), schema,
+          callback, instance, property_target, depth, evaluator);
 
     case InstructionIndex::AssertionLess:
-      return AssertionLess(instruction, schema, callback, instance,
-                           property_target, depth, evaluator);
+      return AssertionLess(
+          std::get<sourcemeta::blaze::AssertionLess>(instruction), schema,
+          callback, instance, property_target, depth, evaluator);
 
     case InstructionIndex::AssertionUnique:
-      return AssertionUnique(instruction, schema, callback, instance,
-                             property_target, depth, evaluator);
+      return AssertionUnique(
+          std::get<sourcemeta::blaze::AssertionUnique>(instruction), schema,
+          callback, instance, property_target, depth, evaluator);
 
     case InstructionIndex::AssertionDivisible:
-      return AssertionDivisible(instruction, schema, callback, instance,
-                                property_target, depth, evaluator);
+      return AssertionDivisible(
+          std::get<sourcemeta::blaze::AssertionDivisible>(instruction), schema,
+          callback, instance, property_target, depth, evaluator);
 
     case InstructionIndex::AssertionStringType:
-      return AssertionStringType(instruction, schema, callback, instance,
-                                 property_target, depth, evaluator);
+      return AssertionStringType(
+          std::get<sourcemeta::blaze::AssertionStringType>(instruction), schema,
+          callback, instance, property_target, depth, evaluator);
 
     case InstructionIndex::AssertionPropertyType:
-      return AssertionPropertyType(instruction, schema, callback, instance,
-                                   property_target, depth, evaluator);
+      return AssertionPropertyType(
+          std::get<sourcemeta::blaze::AssertionPropertyType>(instruction),
+          schema, callback, instance, property_target, depth, evaluator);
 
     case InstructionIndex::AssertionPropertyTypeEvaluate:
-      return AssertionPropertyTypeEvaluate(instruction, schema, callback,
-                                           instance, property_target, depth,
-                                           evaluator);
+      return AssertionPropertyTypeEvaluate(
+          std::get<sourcemeta::blaze::AssertionPropertyTypeEvaluate>(
+              instruction),
+          schema, callback, instance, property_target, depth, evaluator);
 
     case InstructionIndex::AssertionPropertyTypeStrict:
-      return AssertionPropertyTypeStrict(instruction, schema, callback,
-                                         instance, property_target, depth,
-                                         evaluator);
+      return AssertionPropertyTypeStrict(
+          std::get<sourcemeta::blaze::AssertionPropertyTypeStrict>(instruction),
+          schema, callback, instance, property_target, depth, evaluator);
 
     case InstructionIndex::AssertionPropertyTypeStrictEvaluate:
-      return AssertionPropertyTypeStrictEvaluate(instruction, schema, callback,
-                                                 instance, property_target,
-                                                 depth, evaluator);
+      return AssertionPropertyTypeStrictEvaluate(
+          std::get<sourcemeta::blaze::AssertionPropertyTypeStrictEvaluate>(
+              instruction),
+          schema, callback, instance, property_target, depth, evaluator);
 
     case InstructionIndex::AssertionPropertyTypeStrictAny:
-      return AssertionPropertyTypeStrictAny(instruction, schema, callback,
-                                            instance, property_target, depth,
-                                            evaluator);
+      return AssertionPropertyTypeStrictAny(
+          std::get<sourcemeta::blaze::AssertionPropertyTypeStrictAny>(
+              instruction),
+          schema, callback, instance, property_target, depth, evaluator);
 
     case InstructionIndex::AssertionPropertyTypeStrictAnyEvaluate:
       return AssertionPropertyTypeStrictAnyEvaluate(
-          instruction, schema, callback, instance, property_target, depth,
-          evaluator);
+          std::get<sourcemeta::blaze::AssertionPropertyTypeStrictAnyEvaluate>(
+              instruction),
+          schema, callback, instance, property_target, depth, evaluator);
 
     case InstructionIndex::AssertionArrayPrefix:
-      return AssertionArrayPrefix(instruction, schema, callback, instance,
-                                  property_target, depth, evaluator);
+      return AssertionArrayPrefix(
+          std::get<sourcemeta::blaze::AssertionArrayPrefix>(instruction),
+          schema, callback, instance, property_target, depth, evaluator);
 
     case InstructionIndex::AssertionArrayPrefixEvaluate:
-      return AssertionArrayPrefixEvaluate(instruction, schema, callback,
-                                          instance, property_target, depth,
-                                          evaluator);
+      return AssertionArrayPrefixEvaluate(
+          std::get<sourcemeta::blaze::AssertionArrayPrefixEvaluate>(
+              instruction),
+          schema, callback, instance, property_target, depth, evaluator);
 
     case InstructionIndex::LogicalOr:
-      return LogicalOr(instruction, schema, callback, instance, property_target,
-                       depth, evaluator);
+      return LogicalOr(std::get<sourcemeta::blaze::LogicalOr>(instruction),
+                       schema, callback, instance, property_target, depth,
+                       evaluator);
 
     case InstructionIndex::LogicalAnd:
-      return LogicalAnd(instruction, schema, callback, instance,
-                        property_target, depth, evaluator);
+      return LogicalAnd(std::get<sourcemeta::blaze::LogicalAnd>(instruction),
+                        schema, callback, instance, property_target, depth,
+                        evaluator);
 
     case InstructionIndex::LogicalWhenType:
-      return LogicalWhenType(instruction, schema, callback, instance,
-                             property_target, depth, evaluator);
+      return LogicalWhenType(
+          std::get<sourcemeta::blaze::LogicalWhenType>(instruction), schema,
+          callback, instance, property_target, depth, evaluator);
 
     case InstructionIndex::LogicalWhenDefines:
-      return LogicalWhenDefines(instruction, schema, callback, instance,
-                                property_target, depth, evaluator);
+      return LogicalWhenDefines(
+          std::get<sourcemeta::blaze::LogicalWhenDefines>(instruction), schema,
+          callback, instance, property_target, depth, evaluator);
 
     case InstructionIndex::LogicalWhenArraySizeGreater:
-      return LogicalWhenArraySizeGreater(instruction, schema, callback,
-                                         instance, property_target, depth,
-                                         evaluator);
+      return LogicalWhenArraySizeGreater(
+          std::get<sourcemeta::blaze::LogicalWhenArraySizeGreater>(instruction),
+          schema, callback, instance, property_target, depth, evaluator);
 
     case InstructionIndex::LogicalXor:
-      return LogicalXor(instruction, schema, callback, instance,
-                        property_target, depth, evaluator);
+      return LogicalXor(std::get<sourcemeta::blaze::LogicalXor>(instruction),
+                        schema, callback, instance, property_target, depth,
+                        evaluator);
 
     case InstructionIndex::LogicalCondition:
-      return LogicalCondition(instruction, schema, callback, instance,
-                              property_target, depth, evaluator);
+      return LogicalCondition(
+          std::get<sourcemeta::blaze::LogicalCondition>(instruction), schema,
+          callback, instance, property_target, depth, evaluator);
 
     case InstructionIndex::ControlGroup:
-      return ControlGroup(instruction, schema, callback, instance,
-                          property_target, depth, evaluator);
+      return ControlGroup(
+          std::get<sourcemeta::blaze::ControlGroup>(instruction), schema,
+          callback, instance, property_target, depth, evaluator);
 
     case InstructionIndex::ControlGroupWhenDefines:
-      return ControlGroupWhenDefines(instruction, schema, callback, instance,
-                                     property_target, depth, evaluator);
+      return ControlGroupWhenDefines(
+          std::get<sourcemeta::blaze::ControlGroupWhenDefines>(instruction),
+          schema, callback, instance, property_target, depth, evaluator);
 
     case InstructionIndex::ControlGroupWhenDefinesDirect:
-      return ControlGroupWhenDefinesDirect(instruction, schema, callback,
-                                           instance, property_target, depth,
-                                           evaluator);
+      return ControlGroupWhenDefinesDirect(
+          std::get<sourcemeta::blaze::ControlGroupWhenDefinesDirect>(
+              instruction),
+          schema, callback, instance, property_target, depth, evaluator);
 
     case InstructionIndex::ControlLabel:
-      return ControlLabel(instruction, schema, callback, instance,
-                          property_target, depth, evaluator);
+      return ControlLabel(
+          std::get<sourcemeta::blaze::ControlLabel>(instruction), schema,
+          callback, instance, property_target, depth, evaluator);
 
     case InstructionIndex::ControlMark:
-      return ControlMark(instruction, schema, callback, instance,
-                         property_target, depth, evaluator);
+      return ControlMark(std::get<sourcemeta::blaze::ControlMark>(instruction),
+                         schema, callback, instance, property_target, depth,
+                         evaluator);
 
     case InstructionIndex::ControlEvaluate:
-      return ControlEvaluate(instruction, schema, callback, instance,
-                             property_target, depth, evaluator);
+      return ControlEvaluate(
+          std::get<sourcemeta::blaze::ControlEvaluate>(instruction), schema,
+          callback, instance, property_target, depth, evaluator);
 
     case InstructionIndex::ControlJump:
-      return ControlJump(instruction, schema, callback, instance,
-                         property_target, depth, evaluator);
+      return ControlJump(std::get<sourcemeta::blaze::ControlJump>(instruction),
+                         schema, callback, instance, property_target, depth,
+                         evaluator);
 
     case InstructionIndex::ControlDynamicAnchorJump:
-      return ControlDynamicAnchorJump(instruction, schema, callback, instance,
-                                      property_target, depth, evaluator);
+      return ControlDynamicAnchorJump(
+          std::get<sourcemeta::blaze::ControlDynamicAnchorJump>(instruction),
+          schema, callback, instance, property_target, depth, evaluator);
 
     case InstructionIndex::AnnotationEmit:
-      return AnnotationEmit(instruction, schema, callback, instance,
-                            property_target, depth, evaluator);
+      return AnnotationEmit(
+          std::get<sourcemeta::blaze::AnnotationEmit>(instruction), schema,
+          callback, instance, property_target, depth, evaluator);
 
     case InstructionIndex::AnnotationToParent:
-      return AnnotationToParent(instruction, schema, callback, instance,
-                                property_target, depth, evaluator);
+      return AnnotationToParent(
+          std::get<sourcemeta::blaze::AnnotationToParent>(instruction), schema,
+          callback, instance, property_target, depth, evaluator);
 
     case InstructionIndex::AnnotationBasenameToParent:
-      return AnnotationBasenameToParent(instruction, schema, callback, instance,
-                                        property_target, depth, evaluator);
+      return AnnotationBasenameToParent(
+          std::get<sourcemeta::blaze::AnnotationBasenameToParent>(instruction),
+          schema, callback, instance, property_target, depth, evaluator);
 
     case InstructionIndex::LogicalNot:
-      return LogicalNot(instruction, schema, callback, instance,
-                        property_target, depth, evaluator);
+      return LogicalNot(std::get<sourcemeta::blaze::LogicalNot>(instruction),
+                        schema, callback, instance, property_target, depth,
+                        evaluator);
 
     case InstructionIndex::LogicalNotEvaluate:
-      return LogicalNotEvaluate(instruction, schema, callback, instance,
-                                property_target, depth, evaluator);
+      return LogicalNotEvaluate(
+          std::get<sourcemeta::blaze::LogicalNotEvaluate>(instruction), schema,
+          callback, instance, property_target, depth, evaluator);
 
     case InstructionIndex::LoopPropertiesUnevaluated:
-      return LoopPropertiesUnevaluated(instruction, schema, callback, instance,
-                                       property_target, depth, evaluator);
+      return LoopPropertiesUnevaluated(
+          std::get<sourcemeta::blaze::LoopPropertiesUnevaluated>(instruction),
+          schema, callback, instance, property_target, depth, evaluator);
 
     case InstructionIndex::LoopPropertiesUnevaluatedExcept:
-      return LoopPropertiesUnevaluatedExcept(instruction, schema, callback,
-                                             instance, property_target, depth,
-                                             evaluator);
+      return LoopPropertiesUnevaluatedExcept(
+          std::get<sourcemeta::blaze::LoopPropertiesUnevaluatedExcept>(
+              instruction),
+          schema, callback, instance, property_target, depth, evaluator);
 
     case InstructionIndex::LoopPropertiesMatch:
-      return LoopPropertiesMatch(instruction, schema, callback, instance,
-                                 property_target, depth, evaluator);
+      return LoopPropertiesMatch(
+          std::get<sourcemeta::blaze::LoopPropertiesMatch>(instruction), schema,
+          callback, instance, property_target, depth, evaluator);
 
     case InstructionIndex::LoopPropertiesMatchClosed:
-      return LoopPropertiesMatchClosed(instruction, schema, callback, instance,
-                                       property_target, depth, evaluator);
+      return LoopPropertiesMatchClosed(
+          std::get<sourcemeta::blaze::LoopPropertiesMatchClosed>(instruction),
+          schema, callback, instance, property_target, depth, evaluator);
 
     case InstructionIndex::LoopProperties:
-      return LoopProperties(instruction, schema, callback, instance,
-                            property_target, depth, evaluator);
+      return LoopProperties(
+          std::get<sourcemeta::blaze::LoopProperties>(instruction), schema,
+          callback, instance, property_target, depth, evaluator);
 
     case InstructionIndex::LoopPropertiesEvaluate:
-      return LoopPropertiesEvaluate(instruction, schema, callback, instance,
-                                    property_target, depth, evaluator);
+      return LoopPropertiesEvaluate(
+          std::get<sourcemeta::blaze::LoopPropertiesEvaluate>(instruction),
+          schema, callback, instance, property_target, depth, evaluator);
 
     case InstructionIndex::LoopPropertiesRegex:
-      return LoopPropertiesRegex(instruction, schema, callback, instance,
-                                 property_target, depth, evaluator);
+      return LoopPropertiesRegex(
+          std::get<sourcemeta::blaze::LoopPropertiesRegex>(instruction), schema,
+          callback, instance, property_target, depth, evaluator);
 
     case InstructionIndex::LoopPropertiesRegexClosed:
-      return LoopPropertiesRegexClosed(instruction, schema, callback, instance,
-                                       property_target, depth, evaluator);
+      return LoopPropertiesRegexClosed(
+          std::get<sourcemeta::blaze::LoopPropertiesRegexClosed>(instruction),
+          schema, callback, instance, property_target, depth, evaluator);
 
     case InstructionIndex::LoopPropertiesStartsWith:
-      return LoopPropertiesStartsWith(instruction, schema, callback, instance,
-                                      property_target, depth, evaluator);
+      return LoopPropertiesStartsWith(
+          std::get<sourcemeta::blaze::LoopPropertiesStartsWith>(instruction),
+          schema, callback, instance, property_target, depth, evaluator);
 
     case InstructionIndex::LoopPropertiesExcept:
-      return LoopPropertiesExcept(instruction, schema, callback, instance,
-                                  property_target, depth, evaluator);
+      return LoopPropertiesExcept(
+          std::get<sourcemeta::blaze::LoopPropertiesExcept>(instruction),
+          schema, callback, instance, property_target, depth, evaluator);
 
     case InstructionIndex::LoopPropertiesWhitelist:
-      return LoopPropertiesWhitelist(instruction, schema, callback, instance,
-                                     property_target, depth, evaluator);
+      return LoopPropertiesWhitelist(
+          std::get<sourcemeta::blaze::LoopPropertiesWhitelist>(instruction),
+          schema, callback, instance, property_target, depth, evaluator);
 
     case InstructionIndex::LoopPropertiesType:
-      return LoopPropertiesType(instruction, schema, callback, instance,
-                                property_target, depth, evaluator);
+      return LoopPropertiesType(
+          std::get<sourcemeta::blaze::LoopPropertiesType>(instruction), schema,
+          callback, instance, property_target, depth, evaluator);
 
     case InstructionIndex::LoopPropertiesTypeEvaluate:
-      return LoopPropertiesTypeEvaluate(instruction, schema, callback, instance,
-                                        property_target, depth, evaluator);
+      return LoopPropertiesTypeEvaluate(
+          std::get<sourcemeta::blaze::LoopPropertiesTypeEvaluate>(instruction),
+          schema, callback, instance, property_target, depth, evaluator);
 
     case InstructionIndex::LoopPropertiesTypeStrict:
-      return LoopPropertiesTypeStrict(instruction, schema, callback, instance,
-                                      property_target, depth, evaluator);
+      return LoopPropertiesTypeStrict(
+          std::get<sourcemeta::blaze::LoopPropertiesTypeStrict>(instruction),
+          schema, callback, instance, property_target, depth, evaluator);
 
     case InstructionIndex::LoopPropertiesTypeStrictEvaluate:
-      return LoopPropertiesTypeStrictEvaluate(instruction, schema, callback,
-                                              instance, property_target, depth,
-                                              evaluator);
+      return LoopPropertiesTypeStrictEvaluate(
+          std::get<sourcemeta::blaze::LoopPropertiesTypeStrictEvaluate>(
+              instruction),
+          schema, callback, instance, property_target, depth, evaluator);
 
     case InstructionIndex::LoopPropertiesTypeStrictAny:
-      return LoopPropertiesTypeStrictAny(instruction, schema, callback,
-                                         instance, property_target, depth,
-                                         evaluator);
+      return LoopPropertiesTypeStrictAny(
+          std::get<sourcemeta::blaze::LoopPropertiesTypeStrictAny>(instruction),
+          schema, callback, instance, property_target, depth, evaluator);
 
     case InstructionIndex::LoopPropertiesTypeStrictAnyEvaluate:
-      return LoopPropertiesTypeStrictAnyEvaluate(instruction, schema, callback,
-                                                 instance, property_target,
-                                                 depth, evaluator);
+      return LoopPropertiesTypeStrictAnyEvaluate(
+          std::get<sourcemeta::blaze::LoopPropertiesTypeStrictAnyEvaluate>(
+              instruction),
+          schema, callback, instance, property_target, depth, evaluator);
 
     case InstructionIndex::LoopKeys:
-      return LoopKeys(instruction, schema, callback, instance, property_target,
-                      depth, evaluator);
+      return LoopKeys(std::get<sourcemeta::blaze::LoopKeys>(instruction),
+                      schema, callback, instance, property_target, depth,
+                      evaluator);
 
     case InstructionIndex::LoopItems:
-      return LoopItems(instruction, schema, callback, instance, property_target,
-                       depth, evaluator);
+      return LoopItems(std::get<sourcemeta::blaze::LoopItems>(instruction),
+                       schema, callback, instance, property_target, depth,
+                       evaluator);
 
     case InstructionIndex::LoopItemsFrom:
-      return LoopItemsFrom(instruction, schema, callback, instance,
-                           property_target, depth, evaluator);
+      return LoopItemsFrom(
+          std::get<sourcemeta::blaze::LoopItemsFrom>(instruction), schema,
+          callback, instance, property_target, depth, evaluator);
 
     case InstructionIndex::LoopItemsUnevaluated:
-      return LoopItemsUnevaluated(instruction, schema, callback, instance,
-                                  property_target, depth, evaluator);
+      return LoopItemsUnevaluated(
+          std::get<sourcemeta::blaze::LoopItemsUnevaluated>(instruction),
+          schema, callback, instance, property_target, depth, evaluator);
 
     case InstructionIndex::LoopItemsType:
-      return LoopItemsType(instruction, schema, callback, instance,
-                           property_target, depth, evaluator);
+      return LoopItemsType(
+          std::get<sourcemeta::blaze::LoopItemsType>(instruction), schema,
+          callback, instance, property_target, depth, evaluator);
 
     case InstructionIndex::LoopItemsTypeStrict:
-      return LoopItemsTypeStrict(instruction, schema, callback, instance,
-                                 property_target, depth, evaluator);
+      return LoopItemsTypeStrict(
+          std::get<sourcemeta::blaze::LoopItemsTypeStrict>(instruction), schema,
+          callback, instance, property_target, depth, evaluator);
 
     case InstructionIndex::LoopItemsTypeStrictAny:
-      return LoopItemsTypeStrictAny(instruction, schema, callback, instance,
-                                    property_target, depth, evaluator);
+      return LoopItemsTypeStrictAny(
+          std::get<sourcemeta::blaze::LoopItemsTypeStrictAny>(instruction),
+          schema, callback, instance, property_target, depth, evaluator);
 
     case InstructionIndex::LoopContains:
-      return LoopContains(instruction, schema, callback, instance,
-                          property_target, depth, evaluator);
+      return LoopContains(
+          std::get<sourcemeta::blaze::LoopContains>(instruction), schema,
+          callback, instance, property_target, depth, evaluator);
   }
 
     // See https://en.cppreference.com/w/cpp/utility/unreachable
