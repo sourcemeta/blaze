@@ -150,7 +150,7 @@ compile(const sourcemeta::jsontoolkit::JSON &schema,
         const sourcemeta::jsontoolkit::SchemaResolver &resolver,
         const Compiler &compiler, const Mode mode = Mode::FastValidation,
         const std::optional<std::string> &default_dialect = std::nullopt)
-    -> const Template;
+    -> Template;
 
 /// @ingroup compiler
 ///
