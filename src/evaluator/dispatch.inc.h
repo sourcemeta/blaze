@@ -1,5 +1,3 @@
-SOURCEMETA_TRACE_REGISTER_ID(trace_id);
-
 using namespace sourcemeta::jsontoolkit;
 using namespace sourcemeta::blaze;
 

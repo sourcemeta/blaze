@@ -2,7 +2,6 @@
 #define SOURCEMETA_BLAZE_EVALUATOR_COMPLETE_H_
 
 #define EVALUATE_BEGIN(instruction_category, instruction_type, precondition)   \
-  SOURCEMETA_TRACE_START(trace_id, SOURCEMETA_STRINGIFY(instruction_type));    \
   const auto &instruction_category{std::get<instruction_type>(instruction)};   \
   const auto track{schema.track || callback.has_value()};                      \
   if (track) {                                                                 \
@@ -28,7 +27,6 @@
     if (schema.dynamic) {                                                      \
       evaluator.resources.pop_back();                                          \
     }                                                                          \
-    SOURCEMETA_TRACE_END(trace_id, SOURCEMETA_STRINGIFY(instruction_type));    \
     return true;                                                               \
   }                                                                            \
   if (callback.has_value()) {                                                  \
@@ -40,7 +38,6 @@
 
 #define EVALUATE_BEGIN_NON_STRING(instruction_category, instruction_type,      \
                                   precondition)                                \
-  SOURCEMETA_TRACE_START(trace_id, SOURCEMETA_STRINGIFY(instruction_type));    \
   const auto &instruction_category{std::get<instruction_type>(instruction)};   \
   const auto track{schema.track || callback.has_value()};                      \
   if (track) {                                                                 \
@@ -64,7 +61,6 @@
     if (schema.dynamic) {                                                      \
       evaluator.resources.pop_back();                                          \
     }                                                                          \
-    SOURCEMETA_TRACE_END(trace_id, SOURCEMETA_STRINGIFY(instruction_type));    \
     return true;                                                               \
   }                                                                            \
   if (callback.has_value()) {                                                  \
@@ -75,7 +71,6 @@
   bool result{false};
 
 #define EVALUATE_BEGIN_IF_STRING(instruction_category, instruction_type)       \
-  SOURCEMETA_TRACE_START(trace_id, SOURCEMETA_STRINGIFY(instruction_type));    \
   const auto &instruction_category{std::get<instruction_type>(instruction)};   \
   const auto track{schema.track || callback.has_value()};                      \
   if (track) {                                                                 \
@@ -100,7 +95,6 @@
     if (schema.dynamic) {                                                      \
       evaluator.resources.pop_back();                                          \
     }                                                                          \
-    SOURCEMETA_TRACE_END(trace_id, SOURCEMETA_STRINGIFY(instruction_type));    \
     return true;                                                               \
   }                                                                            \
   if (callback.has_value()) {                                                  \
@@ -115,17 +109,14 @@
 // instance location twice.
 #define EVALUATE_BEGIN_TRY_TARGET(instruction_category, instruction_type,      \
                                   precondition)                                \
-  SOURCEMETA_TRACE_START(trace_id, SOURCEMETA_STRINGIFY(instruction_type));    \
   const auto &target{instance};                                                \
   const auto &instruction_category{std::get<instruction_type>(instruction)};   \
   if (!(precondition)) {                                                       \
-    SOURCEMETA_TRACE_END(trace_id, SOURCEMETA_STRINGIFY(instruction_type));    \
     return true;                                                               \
   }                                                                            \
   const auto target_check{                                                     \
       try_get(target, instruction_category.relative_instance_location)};       \
   if (!target_check.has_value()) {                                             \
-    SOURCEMETA_TRACE_END(trace_id, SOURCEMETA_STRINGIFY(instruction_type));    \
     return true;                                                               \
   }                                                                            \
   const auto track{schema.track || callback.has_value()};                      \
@@ -147,7 +138,6 @@
   bool result{false};
 
 #define EVALUATE_BEGIN_NO_PRECONDITION(instruction_category, instruction_type) \
-  SOURCEMETA_TRACE_START(trace_id, SOURCEMETA_STRINGIFY(instruction_type));    \
   const auto &instruction_category{std::get<instruction_type>(instruction)};   \
   const auto track{schema.track || callback.has_value()};                      \
   if (track) {                                                                 \
@@ -168,7 +158,6 @@
 
 #define EVALUATE_BEGIN_NO_PRECONDITION_AND_NO_PUSH(instruction_category,       \
                                                    instruction_type)           \
-  SOURCEMETA_TRACE_START(trace_id, SOURCEMETA_STRINGIFY(instruction_type));    \
   const auto &instruction_category{std::get<instruction_type>(instruction)};   \
   if (callback.has_value()) {                                                  \
     callback.value()(EvaluationType::Pre, true, instruction,                   \
@@ -178,7 +167,6 @@
   bool result{true};
 
 #define EVALUATE_BEGIN_PASS_THROUGH(instruction_category, instruction_type)    \
-  SOURCEMETA_TRACE_START(trace_id, SOURCEMETA_STRINGIFY(instruction_type));    \
   const auto &instruction_category{std::get<instruction_type>(instruction)};   \
   bool result{true};
 
@@ -197,7 +185,6 @@
   if (schema.dynamic) {                                                        \
     evaluator.resources.pop_back();                                            \
   }                                                                            \
-  SOURCEMETA_TRACE_END(trace_id, SOURCEMETA_STRINGIFY(instruction_type));      \
   return result;
 
 #define EVALUATE_END_NO_POP(instruction_category, instruction_type)            \
@@ -206,16 +193,12 @@
                      evaluator.evaluate_path, evaluator.instance_location,     \
                      Evaluator::null);                                         \
   }                                                                            \
-  SOURCEMETA_TRACE_END(trace_id, SOURCEMETA_STRINGIFY(instruction_type));      \
   return result;
 
-#define EVALUATE_END_PASS_THROUGH(instruction_type)                            \
-  SOURCEMETA_TRACE_END(trace_id, SOURCEMETA_STRINGIFY(instruction_type));      \
-  return result;
+#define EVALUATE_END_PASS_THROUGH(instruction_type) return result;
 
 #define EVALUATE_ANNOTATION(instruction_category, instruction_type,            \
                             destination, annotation_value)                     \
-  SOURCEMETA_TRACE_START(trace_id, SOURCEMETA_STRINGIFY(instruction_type));    \
   if (callback.has_value()) {                                                  \
     const auto &instruction_category{std::get<instruction_type>(instruction)}; \
     evaluator.evaluate_path.push_back(                                         \
@@ -231,7 +214,6 @@
     evaluator.instance_location.pop_back(                                      \
         instruction_category.relative_instance_location.size());               \
   }                                                                            \
-  SOURCEMETA_TRACE_END(trace_id, SOURCEMETA_STRINGIFY(instruction_type));      \
   return true;
 
 #define EVALUATE_RECURSE(child, target)                                        \
