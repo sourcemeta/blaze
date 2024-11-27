@@ -1,4 +1,4 @@
-auto evaluate_instruction(
+inline auto evaluate_instruction(
     const sourcemeta::blaze::Instruction &instruction,
     const sourcemeta::blaze::Template &schema,
     const std::optional<sourcemeta::blaze::Callback> &callback,
@@ -2121,7 +2121,105 @@ INSTRUCTION_HANDLER(LoopContains) {
 
 #undef INSTRUCTION_HANDLER
 
-auto evaluate_instruction(
+using DispatchHandler = bool (*)(
+    const sourcemeta::blaze::Instruction &, const sourcemeta::blaze::Template &,
+    const std::optional<sourcemeta::blaze::Callback> &,
+    const sourcemeta::jsontoolkit::JSON &,
+    const std::optional<
+        std::reference_wrapper<const sourcemeta::jsontoolkit::JSON::String>> &,
+    const std::uint64_t depth, sourcemeta::blaze::Evaluator &);
+
+// Must have same order as InstructionIndex
+static constexpr DispatchHandler handlers[87] = {
+    AssertionFail,
+    AssertionDefines,
+    AssertionDefinesStrict,
+    AssertionDefinesAll,
+    AssertionDefinesAllStrict,
+    AssertionDefinesExactly,
+    AssertionDefinesExactlyStrict,
+    AssertionPropertyDependencies,
+    AssertionType,
+    AssertionTypeAny,
+    AssertionTypeStrict,
+    AssertionTypeStrictAny,
+    AssertionTypeStringBounded,
+    AssertionTypeStringUpper,
+    AssertionTypeArrayBounded,
+    AssertionTypeArrayUpper,
+    AssertionTypeObjectBounded,
+    AssertionTypeObjectUpper,
+    AssertionRegex,
+    AssertionStringSizeLess,
+    AssertionStringSizeGreater,
+    AssertionArraySizeLess,
+    AssertionArraySizeGreater,
+    AssertionObjectSizeLess,
+    AssertionObjectSizeGreater,
+    AssertionEqual,
+    AssertionEqualsAny,
+    AssertionGreaterEqual,
+    AssertionLessEqual,
+    AssertionGreater,
+    AssertionLess,
+    AssertionUnique,
+    AssertionDivisible,
+    AssertionStringType,
+    AssertionPropertyType,
+    AssertionPropertyTypeEvaluate,
+    AssertionPropertyTypeStrict,
+    AssertionPropertyTypeStrictEvaluate,
+    AssertionPropertyTypeStrictAny,
+    AssertionPropertyTypeStrictAnyEvaluate,
+    AssertionArrayPrefix,
+    AssertionArrayPrefixEvaluate,
+    AnnotationEmit,
+    AnnotationToParent,
+    AnnotationBasenameToParent,
+    LogicalNot,
+    LogicalNotEvaluate,
+    LogicalOr,
+    LogicalAnd,
+    LogicalXor,
+    LogicalCondition,
+    LogicalWhenType,
+    LogicalWhenDefines,
+    LogicalWhenArraySizeGreater,
+    LoopPropertiesUnevaluated,
+    LoopPropertiesUnevaluatedExcept,
+    LoopPropertiesMatch,
+    LoopPropertiesMatchClosed,
+    LoopProperties,
+    LoopPropertiesEvaluate,
+    LoopPropertiesRegex,
+    LoopPropertiesRegexClosed,
+    LoopPropertiesStartsWith,
+    LoopPropertiesExcept,
+    LoopPropertiesWhitelist,
+    LoopPropertiesType,
+    LoopPropertiesTypeEvaluate,
+    LoopPropertiesTypeStrict,
+    LoopPropertiesTypeStrictEvaluate,
+    LoopPropertiesTypeStrictAny,
+    LoopPropertiesTypeStrictAnyEvaluate,
+    LoopKeys,
+    LoopItems,
+    LoopItemsFrom,
+    LoopItemsUnevaluated,
+    LoopItemsType,
+    LoopItemsTypeStrict,
+    LoopItemsTypeStrictAny,
+    LoopContains,
+    ControlGroup,
+    ControlGroupWhenDefines,
+    ControlGroupWhenDefinesDirect,
+    ControlLabel,
+    ControlMark,
+    ControlEvaluate,
+    ControlJump,
+    ControlDynamicAnchorJump};
+
+inline auto evaluate_instruction(
     const sourcemeta::blaze::Instruction &instruction,
     const sourcemeta::blaze::Template &schema,
     const std::optional<sourcemeta::blaze::Callback> &callback,
@@ -2131,9 +2229,6 @@ auto evaluate_instruction(
         &property_target,
     const std::uint64_t depth, sourcemeta::blaze::Evaluator &evaluator)
     -> bool {
-  using namespace sourcemeta::jsontoolkit;
-  using namespace sourcemeta::blaze;
-
   // Guard against infinite recursion in a cheap manner, as
   // infinite recursion will manifest itself through huge
   // ever-growing evaluate paths
@@ -2143,373 +2238,7 @@ auto evaluate_instruction(
                           "likely due to infinite recursion");
   }
 
-  switch (instruction.type) {
-    case InstructionIndex::AssertionFail:
-      return AssertionFail(instruction, schema, callback, instance,
-                           property_target, depth, evaluator);
-    case InstructionIndex::AssertionDefines:
-      return AssertionDefines(instruction, schema, callback, instance,
-                              property_target, depth, evaluator);
-
-    case InstructionIndex::AssertionDefinesStrict:
-      return AssertionDefinesStrict(instruction, schema, callback, instance,
-                                    property_target, depth, evaluator);
-
-    case InstructionIndex::AssertionDefinesAll:
-      return AssertionDefinesAll(instruction, schema, callback, instance,
-                                 property_target, depth, evaluator);
-
-    case InstructionIndex::AssertionDefinesAllStrict:
-      return AssertionDefinesAllStrict(instruction, schema, callback, instance,
-                                       property_target, depth, evaluator);
-
-    case InstructionIndex::AssertionDefinesExactly:
-      return AssertionDefinesExactly(instruction, schema, callback, instance,
-                                     property_target, depth, evaluator);
-
-    case InstructionIndex::AssertionDefinesExactlyStrict:
-      return AssertionDefinesExactlyStrict(instruction, schema, callback,
-                                           instance, property_target, depth,
-                                           evaluator);
-
-    case InstructionIndex::AssertionPropertyDependencies:
-      return AssertionPropertyDependencies(instruction, schema, callback,
-                                           instance, property_target, depth,
-                                           evaluator);
-
-    case InstructionIndex::AssertionType:
-      return AssertionType(instruction, schema, callback, instance,
-                           property_target, depth, evaluator);
-
-    case InstructionIndex::AssertionTypeAny:
-      return AssertionTypeAny(instruction, schema, callback, instance,
-                              property_target, depth, evaluator);
-
-    case InstructionIndex::AssertionTypeStrict:
-      return AssertionTypeStrict(instruction, schema, callback, instance,
-                                 property_target, depth, evaluator);
-
-    case InstructionIndex::AssertionTypeStrictAny:
-      return AssertionTypeStrictAny(instruction, schema, callback, instance,
-                                    property_target, depth, evaluator);
-
-    case InstructionIndex::AssertionTypeStringBounded:
-      return AssertionTypeStringBounded(instruction, schema, callback, instance,
-                                        property_target, depth, evaluator);
-
-    case InstructionIndex::AssertionTypeStringUpper:
-      return AssertionTypeStringUpper(instruction, schema, callback, instance,
-                                      property_target, depth, evaluator);
-
-    case InstructionIndex::AssertionTypeArrayBounded:
-      return AssertionTypeArrayBounded(instruction, schema, callback, instance,
-                                       property_target, depth, evaluator);
-
-    case InstructionIndex::AssertionTypeArrayUpper:
-      return AssertionTypeArrayUpper(instruction, schema, callback, instance,
-                                     property_target, depth, evaluator);
-
-    case InstructionIndex::AssertionTypeObjectBounded:
-      return AssertionTypeObjectBounded(instruction, schema, callback, instance,
-                                        property_target, depth, evaluator);
-
-    case InstructionIndex::AssertionTypeObjectUpper:
-      return AssertionTypeObjectUpper(instruction, schema, callback, instance,
-                                      property_target, depth, evaluator);
-
-    case InstructionIndex::AssertionRegex:
-      return AssertionRegex(instruction, schema, callback, instance,
-                            property_target, depth, evaluator);
-
-    case InstructionIndex::AssertionStringSizeLess:
-      return AssertionStringSizeLess(instruction, schema, callback, instance,
-                                     property_target, depth, evaluator);
-
-    case InstructionIndex::AssertionStringSizeGreater:
-      return AssertionStringSizeGreater(instruction, schema, callback, instance,
-                                        property_target, depth, evaluator);
-
-    case InstructionIndex::AssertionArraySizeLess:
-      return AssertionArraySizeLess(instruction, schema, callback, instance,
-                                    property_target, depth, evaluator);
-
-    case InstructionIndex::AssertionArraySizeGreater:
-      return AssertionArraySizeGreater(instruction, schema, callback, instance,
-                                       property_target, depth, evaluator);
-
-    case InstructionIndex::AssertionObjectSizeLess:
-      return AssertionObjectSizeLess(instruction, schema, callback, instance,
-                                     property_target, depth, evaluator);
-
-    case InstructionIndex::AssertionObjectSizeGreater:
-      return AssertionObjectSizeGreater(instruction, schema, callback, instance,
-                                        property_target, depth, evaluator);
-
-    case InstructionIndex::AssertionEqual:
-      return AssertionEqual(instruction, schema, callback, instance,
-                            property_target, depth, evaluator);
-
-    case InstructionIndex::AssertionEqualsAny:
-      return AssertionEqualsAny(instruction, schema, callback, instance,
-                                property_target, depth, evaluator);
-
-    case InstructionIndex::AssertionGreaterEqual:
-      return AssertionGreaterEqual(instruction, schema, callback, instance,
-                                   property_target, depth, evaluator);
-
-    case InstructionIndex::AssertionLessEqual:
-      return AssertionLessEqual(instruction, schema, callback, instance,
-                                property_target, depth, evaluator);
-
-    case InstructionIndex::AssertionGreater:
-      return AssertionGreater(instruction, schema, callback, instance,
-                              property_target, depth, evaluator);
-
-    case InstructionIndex::AssertionLess:
-      return AssertionLess(instruction, schema, callback, instance,
-                           property_target, depth, evaluator);
-
-    case InstructionIndex::AssertionUnique:
-      return AssertionUnique(instruction, schema, callback, instance,
-                             property_target, depth, evaluator);
-
-    case InstructionIndex::AssertionDivisible:
-      return AssertionDivisible(instruction, schema, callback, instance,
-                                property_target, depth, evaluator);
-
-    case InstructionIndex::AssertionStringType:
-      return AssertionStringType(instruction, schema, callback, instance,
-                                 property_target, depth, evaluator);
-
-    case InstructionIndex::AssertionPropertyType:
-      return AssertionPropertyType(instruction, schema, callback, instance,
-                                   property_target, depth, evaluator);
-
-    case InstructionIndex::AssertionPropertyTypeEvaluate:
-      return AssertionPropertyTypeEvaluate(instruction, schema, callback,
-                                           instance, property_target, depth,
-                                           evaluator);
-
-    case InstructionIndex::AssertionPropertyTypeStrict:
-      return AssertionPropertyTypeStrict(instruction, schema, callback,
-                                         instance, property_target, depth,
-                                         evaluator);
-
-    case InstructionIndex::AssertionPropertyTypeStrictEvaluate:
-      return AssertionPropertyTypeStrictEvaluate(instruction, schema, callback,
-                                                 instance, property_target,
-                                                 depth, evaluator);
-
-    case InstructionIndex::AssertionPropertyTypeStrictAny:
-      return AssertionPropertyTypeStrictAny(instruction, schema, callback,
-                                            instance, property_target, depth,
-                                            evaluator);
-
-    case InstructionIndex::AssertionPropertyTypeStrictAnyEvaluate:
-      return AssertionPropertyTypeStrictAnyEvaluate(
-          instruction, schema, callback, instance, property_target, depth,
-          evaluator);
-
-    case InstructionIndex::AssertionArrayPrefix:
-      return AssertionArrayPrefix(instruction, schema, callback, instance,
-                                  property_target, depth, evaluator);
-
-    case InstructionIndex::AssertionArrayPrefixEvaluate:
-      return AssertionArrayPrefixEvaluate(instruction, schema, callback,
-                                          instance, property_target, depth,
-                                          evaluator);
-
-    case InstructionIndex::LogicalOr:
-      return LogicalOr(instruction, schema, callback, instance, property_target,
-                       depth, evaluator);
-
-    case InstructionIndex::LogicalAnd:
-      return LogicalAnd(instruction, schema, callback, instance,
-                        property_target, depth, evaluator);
-
-    case InstructionIndex::LogicalWhenType:
-      return LogicalWhenType(instruction, schema, callback, instance,
-                             property_target, depth, evaluator);
-
-    case InstructionIndex::LogicalWhenDefines:
-      return LogicalWhenDefines(instruction, schema, callback, instance,
-                                property_target, depth, evaluator);
-
-    case InstructionIndex::LogicalWhenArraySizeGreater:
-      return LogicalWhenArraySizeGreater(instruction, schema, callback,
-                                         instance, property_target, depth,
-                                         evaluator);
-
-    case InstructionIndex::LogicalXor:
-      return LogicalXor(instruction, schema, callback, instance,
-                        property_target, depth, evaluator);
-
-    case InstructionIndex::LogicalCondition:
-      return LogicalCondition(instruction, schema, callback, instance,
-                              property_target, depth, evaluator);
-
-    case InstructionIndex::ControlGroup:
-      return ControlGroup(instruction, schema, callback, instance,
-                          property_target, depth, evaluator);
-
-    case InstructionIndex::ControlGroupWhenDefines:
-      return ControlGroupWhenDefines(instruction, schema, callback, instance,
-                                     property_target, depth, evaluator);
-
-    case InstructionIndex::ControlGroupWhenDefinesDirect:
-      return ControlGroupWhenDefinesDirect(instruction, schema, callback,
-                                           instance, property_target, depth,
-                                           evaluator);
-
-    case InstructionIndex::ControlLabel:
-      return ControlLabel(instruction, schema, callback, instance,
-                          property_target, depth, evaluator);
-
-    case InstructionIndex::ControlMark:
-      return ControlMark(instruction, schema, callback, instance,
+  return handlers[static_cast<std::underlying_type_t<InstructionIndex>>(
+      instruction.type)](instruction, schema, callback, instance,
                          property_target, depth, evaluator);
-
-    case InstructionIndex::ControlEvaluate:
-      return ControlEvaluate(instruction, schema, callback, instance,
-                             property_target, depth, evaluator);
-
-    case InstructionIndex::ControlJump:
-      return ControlJump(instruction, schema, callback, instance,
-                         property_target, depth, evaluator);
-
-    case InstructionIndex::ControlDynamicAnchorJump:
-      return ControlDynamicAnchorJump(instruction, schema, callback, instance,
-                                      property_target, depth, evaluator);
-
-    case InstructionIndex::AnnotationEmit:
-      return AnnotationEmit(instruction, schema, callback, instance,
-                            property_target, depth, evaluator);
-
-    case InstructionIndex::AnnotationToParent:
-      return AnnotationToParent(instruction, schema, callback, instance,
-                                property_target, depth, evaluator);
-
-    case InstructionIndex::AnnotationBasenameToParent:
-      return AnnotationBasenameToParent(instruction, schema, callback, instance,
-                                        property_target, depth, evaluator);
-
-    case InstructionIndex::LogicalNot:
-      return LogicalNot(instruction, schema, callback, instance,
-                        property_target, depth, evaluator);
-
-    case InstructionIndex::LogicalNotEvaluate:
-      return LogicalNotEvaluate(instruction, schema, callback, instance,
-                                property_target, depth, evaluator);
-
-    case InstructionIndex::LoopPropertiesUnevaluated:
-      return LoopPropertiesUnevaluated(instruction, schema, callback, instance,
-                                       property_target, depth, evaluator);
-
-    case InstructionIndex::LoopPropertiesUnevaluatedExcept:
-      return LoopPropertiesUnevaluatedExcept(instruction, schema, callback,
-                                             instance, property_target, depth,
-                                             evaluator);
-
-    case InstructionIndex::LoopPropertiesMatch:
-      return LoopPropertiesMatch(instruction, schema, callback, instance,
-                                 property_target, depth, evaluator);
-
-    case InstructionIndex::LoopPropertiesMatchClosed:
-      return LoopPropertiesMatchClosed(instruction, schema, callback, instance,
-                                       property_target, depth, evaluator);
-
-    case InstructionIndex::LoopProperties:
-      return LoopProperties(instruction, schema, callback, instance,
-                            property_target, depth, evaluator);
-
-    case InstructionIndex::LoopPropertiesEvaluate:
-      return LoopPropertiesEvaluate(instruction, schema, callback, instance,
-                                    property_target, depth, evaluator);
-
-    case InstructionIndex::LoopPropertiesRegex:
-      return LoopPropertiesRegex(instruction, schema, callback, instance,
-                                 property_target, depth, evaluator);
-
-    case InstructionIndex::LoopPropertiesRegexClosed:
-      return LoopPropertiesRegexClosed(instruction, schema, callback, instance,
-                                       property_target, depth, evaluator);
-
-    case InstructionIndex::LoopPropertiesStartsWith:
-      return LoopPropertiesStartsWith(instruction, schema, callback, instance,
-                                      property_target, depth, evaluator);
-
-    case InstructionIndex::LoopPropertiesExcept:
-      return LoopPropertiesExcept(instruction, schema, callback, instance,
-                                  property_target, depth, evaluator);
-
-    case InstructionIndex::LoopPropertiesWhitelist:
-      return LoopPropertiesWhitelist(instruction, schema, callback, instance,
-                                     property_target, depth, evaluator);
-
-    case InstructionIndex::LoopPropertiesType:
-      return LoopPropertiesType(instruction, schema, callback, instance,
-                                property_target, depth, evaluator);
-
-    case InstructionIndex::LoopPropertiesTypeEvaluate:
-      return LoopPropertiesTypeEvaluate(instruction, schema, callback, instance,
-                                        property_target, depth, evaluator);
-
-    case InstructionIndex::LoopPropertiesTypeStrict:
-      return LoopPropertiesTypeStrict(instruction, schema, callback, instance,
-                                      property_target, depth, evaluator);
-
-    case InstructionIndex::LoopPropertiesTypeStrictEvaluate:
-      return LoopPropertiesTypeStrictEvaluate(instruction, schema, callback,
-                                              instance, property_target, depth,
-                                              evaluator);
-
-    case InstructionIndex::LoopPropertiesTypeStrictAny:
-      return LoopPropertiesTypeStrictAny(instruction, schema, callback,
-                                         instance, property_target, depth,
-                                         evaluator);
-
-    case InstructionIndex::LoopPropertiesTypeStrictAnyEvaluate:
-      return LoopPropertiesTypeStrictAnyEvaluate(instruction, schema, callback,
-                                                 instance, property_target,
-                                                 depth, evaluator);
-
-    case InstructionIndex::LoopKeys:
-      return LoopKeys(instruction, schema, callback, instance, property_target,
-                      depth, evaluator);
-
-    case InstructionIndex::LoopItems:
-      return LoopItems(instruction, schema, callback, instance, property_target,
-                       depth, evaluator);
-
-    case InstructionIndex::LoopItemsFrom:
-      return LoopItemsFrom(instruction, schema, callback, instance,
-                           property_target, depth, evaluator);
-
-    case InstructionIndex::LoopItemsUnevaluated:
-      return LoopItemsUnevaluated(instruction, schema, callback, instance,
-                                  property_target, depth, evaluator);
-
-    case InstructionIndex::LoopItemsType:
-      return LoopItemsType(instruction, schema, callback, instance,
-                           property_target, depth, evaluator);
-
-    case InstructionIndex::LoopItemsTypeStrict:
-      return LoopItemsTypeStrict(instruction, schema, callback, instance,
-                                 property_target, depth, evaluator);
-
-    case InstructionIndex::LoopItemsTypeStrictAny:
-      return LoopItemsTypeStrictAny(instruction, schema, callback, instance,
-                                    property_target, depth, evaluator);
-
-    case InstructionIndex::LoopContains:
-      return LoopContains(instruction, schema, callback, instance,
-                          property_target, depth, evaluator);
-  }
-
-    // See https://en.cppreference.com/w/cpp/utility/unreachable
-#if defined(_MSC_VER) && !defined(__clang__)
-  __assume(false);
-#elif defined(__GNUC__) && !defined(__clang__)
-  __builtin_unreachable();
-#endif
 }
