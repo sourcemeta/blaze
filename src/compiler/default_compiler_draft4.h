@@ -463,13 +463,17 @@ auto compiler_draft4_validation_required(const Context &context,
                                  .defines(property);
                            })) {
       if (context.mode == Mode::FastValidation && assume_object) {
+        ValueStringSet properties_set{properties.cbegin(), properties.cend()};
         return {make(
             sourcemeta::blaze::InstructionIndex::AssertionDefinesExactlyStrict,
-            context, schema_context, dynamic_context, std::move(properties))};
+            context, schema_context, dynamic_context,
+            std::move(properties_set))};
       } else {
-        return {make(
-            sourcemeta::blaze::InstructionIndex::AssertionDefinesExactly,
-            context, schema_context, dynamic_context, std::move(properties))};
+        ValueStringSet properties_set{properties.cbegin(), properties.cend()};
+        return {
+            make(sourcemeta::blaze::InstructionIndex::AssertionDefinesExactly,
+                 context, schema_context, dynamic_context,
+                 std::move(properties_set))};
       }
     } else if (context.mode == Mode::FastValidation && assume_object) {
       return {make(

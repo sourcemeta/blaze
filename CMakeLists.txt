@@ -16,6 +16,8 @@ option(BLAZE_INSTALL "Install the Blaze library" ON)
 option(BLAZE_ADDRESS_SANITIZER "Build Blaze with an address sanitizer" OFF)
 option(BLAZE_UNDEFINED_SANITIZER "Build Blaze with an undefined behavior sanitizer" OFF)
 
+add_compile_definitions(NDEBUG)
+
 if(BLAZE_INSTALL)
   include(GNUInstallDirs)
   include(CMakePackageConfigHelpers)
