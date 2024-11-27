@@ -26,9 +26,8 @@ auto compile_subschema(const sourcemeta::blaze::Context &context,
     if (schema_context.schema.to_boolean()) {
       return {};
     } else {
-      return {make<AssertionFail>(
-          sourcemeta::blaze::InstructionIndex::AssertionFail, context,
-          schema_context, dynamic_context, ValueNone{})};
+      return {make(sourcemeta::blaze::InstructionIndex::AssertionFail, context,
+                   schema_context, dynamic_context, ValueNone{})};
     }
   }
 
@@ -51,8 +50,7 @@ auto compile_subschema(const sourcemeta::blaze::Context &context,
       // Just a sanity check to ensure every keyword location is indeed valid
       assert(context.frame.contains(
           {sourcemeta::jsontoolkit::ReferenceType::Static,
-           std::visit([](const auto &value) { return value.keyword_location; },
-                      step)}));
+           step.keyword_location}));
       steps.push_back(std::move(step));
     }
   }
@@ -87,7 +85,7 @@ auto precompile(
       {},
       {}};
 
-  return {make<sourcemeta::blaze::ControlMark>(
+  return {make(
       sourcemeta::blaze::InstructionIndex::ControlMark, context,
       nested_schema_context, dynamic_context,
       sourcemeta::blaze::ValueUnsignedInteger{label},

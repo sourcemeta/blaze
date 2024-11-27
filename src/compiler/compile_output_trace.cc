@@ -5,39 +5,10 @@
 #include <utility> // std::move
 #include <variant> // std::visit
 
-#ifdef __clang__
-#include <cxxabi.h> // abi::__cxa_demangle
-#include <memory>   // std::free
-static auto step_name(const sourcemeta::blaze::Instruction &step)
-    -> std::string {
-  return std::visit(
-      [](const auto &value) {
-        int status;
-        std::string name{typeid(value).name()};
-        char *demangled =
-            abi::__cxa_demangle(name.c_str(), nullptr, nullptr, &status);
-        if (demangled) {
-          name = demangled;
-          std::free(demangled);
-        }
-
-        return name;
-      },
-      step);
-}
-#elif defined(_MSC_VER)
-static auto step_name(const sourcemeta::blaze::Instruction &step)
-    -> std::string {
-  return std::visit(
-      [](const auto &value) { return std::string{typeid(value).name()}; },
-      step);
-}
-#else
+// TODO: Properly implement for at least LLVM
 static auto step_name(const sourcemeta::blaze::Instruction &) -> std::string {
-  // TODO: Properly implement for GCC
   return "????";
 }
-#endif
 
 namespace sourcemeta::blaze {
 
@@ -62,34 +33,21 @@ auto TraceOutput::operator()(
     const sourcemeta::jsontoolkit::WeakPointer &instance_location,
     const sourcemeta::jsontoolkit::JSON &) -> void {
 
-#if defined(_MSC_VER)
-  const std::string step_prefix{"struct sourcemeta::blaze::"};
-#else
-  const std::string step_prefix{"sourcemeta::blaze::"};
-#endif
-
-  const auto full_step_name{step_name(step)};
-  const auto short_step_name{full_step_name.starts_with(step_prefix)
-                                 ? full_step_name.substr(step_prefix.size())
-                                 : full_step_name};
-
+  const auto short_step_name{step_name(step)};
   auto effective_evaluate_path{evaluate_path.resolve_from(this->base_)};
-
-  auto keyword_location{std::visit(
-      [](const auto &value) { return value.keyword_location; }, step)};
 
   if (type == EvaluationType::Pre) {
     this->output.push_back({EntryType::Push, short_step_name, instance_location,
                             std::move(effective_evaluate_path),
-                            std::move(keyword_location)});
+                            step.keyword_location});
   } else if (result) {
     this->output.push_back({EntryType::Pass, short_step_name, instance_location,
                             std::move(effective_evaluate_path),
-                            std::move(keyword_location)});
+                            step.keyword_location});
   } else {
     this->output.push_back({EntryType::Fail, short_step_name, instance_location,
                             std::move(effective_evaluate_path),
-                            std::move(keyword_location)});
+                            step.keyword_location});
   }
 }
 

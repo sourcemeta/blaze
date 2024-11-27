@@ -58,10 +58,9 @@ auto compiler_draft7_applicator_if(const Context &context,
     }
   }
 
-  return {make<LogicalCondition>(
-      sourcemeta::blaze::InstructionIndex::LogicalCondition, context,
-      schema_context, dynamic_context, ValueIndexPair{then_cursor, else_cursor},
-      std::move(children))};
+  return {make(sourcemeta::blaze::InstructionIndex::LogicalCondition, context,
+               schema_context, dynamic_context,
+               ValueIndexPair{then_cursor, else_cursor}, std::move(children))};
 }
 
 // We handle `then` as part of `if`

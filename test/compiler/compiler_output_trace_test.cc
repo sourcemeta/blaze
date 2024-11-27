@@ -6,22 +6,6 @@
 #include <sourcemeta/jsontoolkit/jsonpointer.h>
 #include <sourcemeta/jsontoolkit/jsonschema.h>
 
-#if defined(__clang__) || defined(_MSC_VER)
-#define EXPECT_OUTPUT(traces, index, expected_type, expected_name,             \
-                      expected_instance_location, expected_evaluate_path,      \
-                      expected_keyword_location)                               \
-  EXPECT_TRUE(traces.size() > index);                                          \
-  EXPECT_EQ(traces.at((index)).type,                                           \
-            sourcemeta::blaze::TraceOutput::EntryType::expected_type);         \
-  EXPECT_EQ(traces.at((index)).name, (expected_name));                         \
-  EXPECT_EQ(sourcemeta::jsontoolkit::to_string(                                \
-                traces.at((index)).instance_location),                         \
-            expected_instance_location);                                       \
-  EXPECT_EQ(                                                                   \
-      sourcemeta::jsontoolkit::to_string(traces.at((index)).evaluate_path),    \
-      expected_evaluate_path);                                                 \
-  EXPECT_EQ(traces.at((index)).keyword_location, (expected_keyword_location));
-#else
 #define EXPECT_OUTPUT(traces, index, expected_type, expected_name,             \
                       expected_instance_location, expected_evaluate_path,      \
                       expected_keyword_location)                               \
@@ -36,7 +20,6 @@
       sourcemeta::jsontoolkit::to_string(traces.at((index)).evaluate_path),    \
       expected_evaluate_path);                                                 \
   EXPECT_EQ(traces.at((index)).keyword_location, (expected_keyword_location));
-#endif
 
 TEST(Compiler_output_trace, pass_1) {
   const sourcemeta::jsontoolkit::JSON schema{

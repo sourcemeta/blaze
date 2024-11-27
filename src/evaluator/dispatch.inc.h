@@ -10,7 +10,7 @@ auto evaluate_instruction(
 
 #define INSTRUCTION_HANDLER(name)                                              \
   static inline auto name(                                                     \
-      const sourcemeta::blaze::name &instruction,                              \
+      const sourcemeta::blaze::Instruction &instruction,                       \
       const sourcemeta::blaze::Template &schema,                               \
       const std::optional<sourcemeta::blaze::Callback> &callback,              \
       const sourcemeta::jsontoolkit::JSON &instance,                           \
@@ -743,9 +743,8 @@ INSTRUCTION_HANDLER(AssertionArrayPrefix) {
         array_size == prefixes ? prefixes : std::min(array_size, prefixes) - 1};
     const auto &entry{instruction.children[pointer]};
     result = true;
-    assert(std::holds_alternative<sourcemeta::blaze::ControlGroup>(entry));
-    for (const auto &child :
-         std::get<sourcemeta::blaze::ControlGroup>(entry).children) {
+    assert(entry.type == sourcemeta::blaze::InstructionIndex::ControlGroup);
+    for (const auto &child : entry.children) {
       if (!EVALUATE_RECURSE(child, target)) {
         result = false;
         break;
@@ -774,9 +773,8 @@ INSTRUCTION_HANDLER(AssertionArrayPrefixEvaluate) {
         array_size == prefixes ? prefixes : std::min(array_size, prefixes) - 1};
     const auto &entry{instruction.children[pointer]};
     result = true;
-    assert(std::holds_alternative<sourcemeta::blaze::ControlGroup>(entry));
-    for (const auto &child :
-         std::get<sourcemeta::blaze::ControlGroup>(entry).children) {
+    assert(entry.type == sourcemeta::blaze::InstructionIndex::ControlGroup);
+    for (const auto &child : entry.children) {
       if (!EVALUATE_RECURSE(child, target)) {
         result = false;
         EVALUATE_END(AssertionArrayPrefixEvaluate);
@@ -1386,10 +1384,9 @@ INSTRUCTION_HANDLER(LoopPropertiesMatch) {
     }
 
     const auto &subinstruction{instruction.children[index->second]};
-    assert(std::holds_alternative<sourcemeta::blaze::ControlGroup>(
-        subinstruction));
-    for (const auto &child :
-         std::get<sourcemeta::blaze::ControlGroup>(subinstruction).children) {
+    assert(subinstruction.type ==
+           sourcemeta::blaze::InstructionIndex::ControlGroup);
+    for (const auto &child : subinstruction.children) {
       if (!EVALUATE_RECURSE(child, target)) {
         result = false;
         EVALUATE_END(LoopPropertiesMatch);
@@ -1419,10 +1416,9 @@ INSTRUCTION_HANDLER(LoopPropertiesMatchClosed) {
     }
 
     const auto &subinstruction{instruction.children[index->second]};
-    assert(std::holds_alternative<sourcemeta::blaze::ControlGroup>(
-        subinstruction));
-    for (const auto &child :
-         std::get<sourcemeta::blaze::ControlGroup>(subinstruction).children) {
+    assert(subinstruction.type ==
+           sourcemeta::blaze::InstructionIndex::ControlGroup);
+    for (const auto &child : subinstruction.children) {
       if (!EVALUATE_RECURSE(child, target)) {
         result = false;
         EVALUATE_END(LoopPropertiesMatchClosed);
@@ -2147,451 +2143,367 @@ auto evaluate_instruction(
                           "likely due to infinite recursion");
   }
 
-  switch (static_cast<InstructionIndex>(instruction.index())) {
+  switch (instruction.type) {
     case InstructionIndex::AssertionFail:
-      return AssertionFail(
-          std::get<sourcemeta::blaze::AssertionFail>(instruction), schema,
-          callback, instance, property_target, depth, evaluator);
+      return AssertionFail(instruction, schema, callback, instance,
+                           property_target, depth, evaluator);
     case InstructionIndex::AssertionDefines:
-      return AssertionDefines(
-          std::get<sourcemeta::blaze::AssertionDefines>(instruction), schema,
-          callback, instance, property_target, depth, evaluator);
+      return AssertionDefines(instruction, schema, callback, instance,
+                              property_target, depth, evaluator);
 
     case InstructionIndex::AssertionDefinesStrict:
-      return AssertionDefinesStrict(
-          std::get<sourcemeta::blaze::AssertionDefinesStrict>(instruction),
-          schema, callback, instance, property_target, depth, evaluator);
+      return AssertionDefinesStrict(instruction, schema, callback, instance,
+                                    property_target, depth, evaluator);
 
     case InstructionIndex::AssertionDefinesAll:
-      return AssertionDefinesAll(
-          std::get<sourcemeta::blaze::AssertionDefinesAll>(instruction), schema,
-          callback, instance, property_target, depth, evaluator);
+      return AssertionDefinesAll(instruction, schema, callback, instance,
+                                 property_target, depth, evaluator);
 
     case InstructionIndex::AssertionDefinesAllStrict:
-      return AssertionDefinesAllStrict(
-          std::get<sourcemeta::blaze::AssertionDefinesAllStrict>(instruction),
-          schema, callback, instance, property_target, depth, evaluator);
+      return AssertionDefinesAllStrict(instruction, schema, callback, instance,
+                                       property_target, depth, evaluator);
 
     case InstructionIndex::AssertionDefinesExactly:
-      return AssertionDefinesExactly(
-          std::get<sourcemeta::blaze::AssertionDefinesExactly>(instruction),
-          schema, callback, instance, property_target, depth, evaluator);
+      return AssertionDefinesExactly(instruction, schema, callback, instance,
+                                     property_target, depth, evaluator);
 
     case InstructionIndex::AssertionDefinesExactlyStrict:
-      return AssertionDefinesExactlyStrict(
-          std::get<sourcemeta::blaze::AssertionDefinesExactlyStrict>(
-              instruction),
-          schema, callback, instance, property_target, depth, evaluator);
+      return AssertionDefinesExactlyStrict(instruction, schema, callback,
+                                           instance, property_target, depth,
+                                           evaluator);
 
     case InstructionIndex::AssertionPropertyDependencies:
-      return AssertionPropertyDependencies(
-          std::get<sourcemeta::blaze::AssertionPropertyDependencies>(
-              instruction),
-          schema, callback, instance, property_target, depth, evaluator);
+      return AssertionPropertyDependencies(instruction, schema, callback,
+                                           instance, property_target, depth,
+                                           evaluator);
 
     case InstructionIndex::AssertionType:
-      return AssertionType(
-          std::get<sourcemeta::blaze::AssertionType>(instruction), schema,
-          callback, instance, property_target, depth, evaluator);
+      return AssertionType(instruction, schema, callback, instance,
+                           property_target, depth, evaluator);
 
     case InstructionIndex::AssertionTypeAny:
-      return AssertionTypeAny(
-          std::get<sourcemeta::blaze::AssertionTypeAny>(instruction), schema,
-          callback, instance, property_target, depth, evaluator);
+      return AssertionTypeAny(instruction, schema, callback, instance,
+                              property_target, depth, evaluator);
 
     case InstructionIndex::AssertionTypeStrict:
-      return AssertionTypeStrict(
-          std::get<sourcemeta::blaze::AssertionTypeStrict>(instruction), schema,
-          callback, instance, property_target, depth, evaluator);
+      return AssertionTypeStrict(instruction, schema, callback, instance,
+                                 property_target, depth, evaluator);
 
     case InstructionIndex::AssertionTypeStrictAny:
-      return AssertionTypeStrictAny(
-          std::get<sourcemeta::blaze::AssertionTypeStrictAny>(instruction),
-          schema, callback, instance, property_target, depth, evaluator);
+      return AssertionTypeStrictAny(instruction, schema, callback, instance,
+                                    property_target, depth, evaluator);
 
     case InstructionIndex::AssertionTypeStringBounded:
-      return AssertionTypeStringBounded(
-          std::get<sourcemeta::blaze::AssertionTypeStringBounded>(instruction),
-          schema, callback, instance, property_target, depth, evaluator);
+      return AssertionTypeStringBounded(instruction, schema, callback, instance,
+                                        property_target, depth, evaluator);
 
     case InstructionIndex::AssertionTypeStringUpper:
-      return AssertionTypeStringUpper(
-          std::get<sourcemeta::blaze::AssertionTypeStringUpper>(instruction),
-          schema, callback, instance, property_target, depth, evaluator);
+      return AssertionTypeStringUpper(instruction, schema, callback, instance,
+                                      property_target, depth, evaluator);
 
     case InstructionIndex::AssertionTypeArrayBounded:
-      return AssertionTypeArrayBounded(
-          std::get<sourcemeta::blaze::AssertionTypeArrayBounded>(instruction),
-          schema, callback, instance, property_target, depth, evaluator);
+      return AssertionTypeArrayBounded(instruction, schema, callback, instance,
+                                       property_target, depth, evaluator);
 
     case InstructionIndex::AssertionTypeArrayUpper:
-      return AssertionTypeArrayUpper(
-          std::get<sourcemeta::blaze::AssertionTypeArrayUpper>(instruction),
-          schema, callback, instance, property_target, depth, evaluator);
+      return AssertionTypeArrayUpper(instruction, schema, callback, instance,
+                                     property_target, depth, evaluator);
 
     case InstructionIndex::AssertionTypeObjectBounded:
-      return AssertionTypeObjectBounded(
-          std::get<sourcemeta::blaze::AssertionTypeObjectBounded>(instruction),
-          schema, callback, instance, property_target, depth, evaluator);
+      return AssertionTypeObjectBounded(instruction, schema, callback, instance,
+                                        property_target, depth, evaluator);
 
     case InstructionIndex::AssertionTypeObjectUpper:
-      return AssertionTypeObjectUpper(
-          std::get<sourcemeta::blaze::AssertionTypeObjectUpper>(instruction),
-          schema, callback, instance, property_target, depth, evaluator);
+      return AssertionTypeObjectUpper(instruction, schema, callback, instance,
+                                      property_target, depth, evaluator);
 
     case InstructionIndex::AssertionRegex:
-      return AssertionRegex(
-          std::get<sourcemeta::blaze::AssertionRegex>(instruction), schema,
-          callback, instance, property_target, depth, evaluator);
+      return AssertionRegex(instruction, schema, callback, instance,
+                            property_target, depth, evaluator);
 
     case InstructionIndex::AssertionStringSizeLess:
-      return AssertionStringSizeLess(
-          std::get<sourcemeta::blaze::AssertionStringSizeLess>(instruction),
-          schema, callback, instance, property_target, depth, evaluator);
+      return AssertionStringSizeLess(instruction, schema, callback, instance,
+                                     property_target, depth, evaluator);
 
     case InstructionIndex::AssertionStringSizeGreater:
-      return AssertionStringSizeGreater(
-          std::get<sourcemeta::blaze::AssertionStringSizeGreater>(instruction),
-          schema, callback, instance, property_target, depth, evaluator);
+      return AssertionStringSizeGreater(instruction, schema, callback, instance,
+                                        property_target, depth, evaluator);
 
     case InstructionIndex::AssertionArraySizeLess:
-      return AssertionArraySizeLess(
-          std::get<sourcemeta::blaze::AssertionArraySizeLess>(instruction),
-          schema, callback, instance, property_target, depth, evaluator);
+      return AssertionArraySizeLess(instruction, schema, callback, instance,
+                                    property_target, depth, evaluator);
 
     case InstructionIndex::AssertionArraySizeGreater:
-      return AssertionArraySizeGreater(
-          std::get<sourcemeta::blaze::AssertionArraySizeGreater>(instruction),
-          schema, callback, instance, property_target, depth, evaluator);
+      return AssertionArraySizeGreater(instruction, schema, callback, instance,
+                                       property_target, depth, evaluator);
 
     case InstructionIndex::AssertionObjectSizeLess:
-      return AssertionObjectSizeLess(
-          std::get<sourcemeta::blaze::AssertionObjectSizeLess>(instruction),
-          schema, callback, instance, property_target, depth, evaluator);
+      return AssertionObjectSizeLess(instruction, schema, callback, instance,
+                                     property_target, depth, evaluator);
 
     case InstructionIndex::AssertionObjectSizeGreater:
-      return AssertionObjectSizeGreater(
-          std::get<sourcemeta::blaze::AssertionObjectSizeGreater>(instruction),
-          schema, callback, instance, property_target, depth, evaluator);
+      return AssertionObjectSizeGreater(instruction, schema, callback, instance,
+                                        property_target, depth, evaluator);
 
     case InstructionIndex::AssertionEqual:
-      return AssertionEqual(
-          std::get<sourcemeta::blaze::AssertionEqual>(instruction), schema,
-          callback, instance, property_target, depth, evaluator);
+      return AssertionEqual(instruction, schema, callback, instance,
+                            property_target, depth, evaluator);
 
     case InstructionIndex::AssertionEqualsAny:
-      return AssertionEqualsAny(
-          std::get<sourcemeta::blaze::AssertionEqualsAny>(instruction), schema,
-          callback, instance, property_target, depth, evaluator);
+      return AssertionEqualsAny(instruction, schema, callback, instance,
+                                property_target, depth, evaluator);
 
     case InstructionIndex::AssertionGreaterEqual:
-      return AssertionGreaterEqual(
-          std::get<sourcemeta::blaze::AssertionGreaterEqual>(instruction),
-          schema, callback, instance, property_target, depth, evaluator);
+      return AssertionGreaterEqual(instruction, schema, callback, instance,
+                                   property_target, depth, evaluator);
 
     case InstructionIndex::AssertionLessEqual:
-      return AssertionLessEqual(
-          std::get<sourcemeta::blaze::AssertionLessEqual>(instruction), schema,
-          callback, instance, property_target, depth, evaluator);
+      return AssertionLessEqual(instruction, schema, callback, instance,
+                                property_target, depth, evaluator);
 
     case InstructionIndex::AssertionGreater:
-      return AssertionGreater(
-          std::get<sourcemeta::blaze::AssertionGreater>(instruction), schema,
-          callback, instance, property_target, depth, evaluator);
+      return AssertionGreater(instruction, schema, callback, instance,
+                              property_target, depth, evaluator);
 
     case InstructionIndex::AssertionLess:
-      return AssertionLess(
-          std::get<sourcemeta::blaze::AssertionLess>(instruction), schema,
-          callback, instance, property_target, depth, evaluator);
+      return AssertionLess(instruction, schema, callback, instance,
+                           property_target, depth, evaluator);
 
     case InstructionIndex::AssertionUnique:
-      return AssertionUnique(
-          std::get<sourcemeta::blaze::AssertionUnique>(instruction), schema,
-          callback, instance, property_target, depth, evaluator);
+      return AssertionUnique(instruction, schema, callback, instance,
+                             property_target, depth, evaluator);
 
     case InstructionIndex::AssertionDivisible:
-      return AssertionDivisible(
-          std::get<sourcemeta::blaze::AssertionDivisible>(instruction), schema,
-          callback, instance, property_target, depth, evaluator);
+      return AssertionDivisible(instruction, schema, callback, instance,
+                                property_target, depth, evaluator);
 
     case InstructionIndex::AssertionStringType:
-      return AssertionStringType(
-          std::get<sourcemeta::blaze::AssertionStringType>(instruction), schema,
-          callback, instance, property_target, depth, evaluator);
+      return AssertionStringType(instruction, schema, callback, instance,
+                                 property_target, depth, evaluator);
 
     case InstructionIndex::AssertionPropertyType:
-      return AssertionPropertyType(
-          std::get<sourcemeta::blaze::AssertionPropertyType>(instruction),
-          schema, callback, instance, property_target, depth, evaluator);
+      return AssertionPropertyType(instruction, schema, callback, instance,
+                                   property_target, depth, evaluator);
 
     case InstructionIndex::AssertionPropertyTypeEvaluate:
-      return AssertionPropertyTypeEvaluate(
-          std::get<sourcemeta::blaze::AssertionPropertyTypeEvaluate>(
-              instruction),
-          schema, callback, instance, property_target, depth, evaluator);
+      return AssertionPropertyTypeEvaluate(instruction, schema, callback,
+                                           instance, property_target, depth,
+                                           evaluator);
 
     case InstructionIndex::AssertionPropertyTypeStrict:
-      return AssertionPropertyTypeStrict(
-          std::get<sourcemeta::blaze::AssertionPropertyTypeStrict>(instruction),
-          schema, callback, instance, property_target, depth, evaluator);
+      return AssertionPropertyTypeStrict(instruction, schema, callback,
+                                         instance, property_target, depth,
+                                         evaluator);
 
     case InstructionIndex::AssertionPropertyTypeStrictEvaluate:
-      return AssertionPropertyTypeStrictEvaluate(
-          std::get<sourcemeta::blaze::AssertionPropertyTypeStrictEvaluate>(
-              instruction),
-          schema, callback, instance, property_target, depth, evaluator);
+      return AssertionPropertyTypeStrictEvaluate(instruction, schema, callback,
+                                                 instance, property_target,
+                                                 depth, evaluator);
 
     case InstructionIndex::AssertionPropertyTypeStrictAny:
-      return AssertionPropertyTypeStrictAny(
-          std::get<sourcemeta::blaze::AssertionPropertyTypeStrictAny>(
-              instruction),
-          schema, callback, instance, property_target, depth, evaluator);
+      return AssertionPropertyTypeStrictAny(instruction, schema, callback,
+                                            instance, property_target, depth,
+                                            evaluator);
 
     case InstructionIndex::AssertionPropertyTypeStrictAnyEvaluate:
       return AssertionPropertyTypeStrictAnyEvaluate(
-          std::get<sourcemeta::blaze::AssertionPropertyTypeStrictAnyEvaluate>(
-              instruction),
-          schema, callback, instance, property_target, depth, evaluator);
+          instruction, schema, callback, instance, property_target, depth,
+          evaluator);
 
     case InstructionIndex::AssertionArrayPrefix:
-      return AssertionArrayPrefix(
-          std::get<sourcemeta::blaze::AssertionArrayPrefix>(instruction),
-          schema, callback, instance, property_target, depth, evaluator);
+      return AssertionArrayPrefix(instruction, schema, callback, instance,
+                                  property_target, depth, evaluator);
 
     case InstructionIndex::AssertionArrayPrefixEvaluate:
-      return AssertionArrayPrefixEvaluate(
-          std::get<sourcemeta::blaze::AssertionArrayPrefixEvaluate>(
-              instruction),
-          schema, callback, instance, property_target, depth, evaluator);
+      return AssertionArrayPrefixEvaluate(instruction, schema, callback,
+                                          instance, property_target, depth,
+                                          evaluator);
 
     case InstructionIndex::LogicalOr:
-      return LogicalOr(std::get<sourcemeta::blaze::LogicalOr>(instruction),
-                       schema, callback, instance, property_target, depth,
-                       evaluator);
+      return LogicalOr(instruction, schema, callback, instance, property_target,
+                       depth, evaluator);
 
     case InstructionIndex::LogicalAnd:
-      return LogicalAnd(std::get<sourcemeta::blaze::LogicalAnd>(instruction),
-                        schema, callback, instance, property_target, depth,
-                        evaluator);
+      return LogicalAnd(instruction, schema, callback, instance,
+                        property_target, depth, evaluator);
 
     case InstructionIndex::LogicalWhenType:
-      return LogicalWhenType(
-          std::get<sourcemeta::blaze::LogicalWhenType>(instruction), schema,
-          callback, instance, property_target, depth, evaluator);
+      return LogicalWhenType(instruction, schema, callback, instance,
+                             property_target, depth, evaluator);
 
     case InstructionIndex::LogicalWhenDefines:
-      return LogicalWhenDefines(
-          std::get<sourcemeta::blaze::LogicalWhenDefines>(instruction), schema,
-          callback, instance, property_target, depth, evaluator);
+      return LogicalWhenDefines(instruction, schema, callback, instance,
+                                property_target, depth, evaluator);
 
     case InstructionIndex::LogicalWhenArraySizeGreater:
-      return LogicalWhenArraySizeGreater(
-          std::get<sourcemeta::blaze::LogicalWhenArraySizeGreater>(instruction),
-          schema, callback, instance, property_target, depth, evaluator);
+      return LogicalWhenArraySizeGreater(instruction, schema, callback,
+                                         instance, property_target, depth,
+                                         evaluator);
 
     case InstructionIndex::LogicalXor:
-      return LogicalXor(std::get<sourcemeta::blaze::LogicalXor>(instruction),
-                        schema, callback, instance, property_target, depth,
-                        evaluator);
+      return LogicalXor(instruction, schema, callback, instance,
+                        property_target, depth, evaluator);
 
     case InstructionIndex::LogicalCondition:
-      return LogicalCondition(
-          std::get<sourcemeta::blaze::LogicalCondition>(instruction), schema,
-          callback, instance, property_target, depth, evaluator);
+      return LogicalCondition(instruction, schema, callback, instance,
+                              property_target, depth, evaluator);
 
     case InstructionIndex::ControlGroup:
-      return ControlGroup(
-          std::get<sourcemeta::blaze::ControlGroup>(instruction), schema,
-          callback, instance, property_target, depth, evaluator);
+      return ControlGroup(instruction, schema, callback, instance,
+                          property_target, depth, evaluator);
 
     case InstructionIndex::ControlGroupWhenDefines:
-      return ControlGroupWhenDefines(
-          std::get<sourcemeta::blaze::ControlGroupWhenDefines>(instruction),
-          schema, callback, instance, property_target, depth, evaluator);
+      return ControlGroupWhenDefines(instruction, schema, callback, instance,
+                                     property_target, depth, evaluator);
 
     case InstructionIndex::ControlGroupWhenDefinesDirect:
-      return ControlGroupWhenDefinesDirect(
-          std::get<sourcemeta::blaze::ControlGroupWhenDefinesDirect>(
-              instruction),
-          schema, callback, instance, property_target, depth, evaluator);
+      return ControlGroupWhenDefinesDirect(instruction, schema, callback,
+                                           instance, property_target, depth,
+                                           evaluator);
 
     case InstructionIndex::ControlLabel:
-      return ControlLabel(
-          std::get<sourcemeta::blaze::ControlLabel>(instruction), schema,
-          callback, instance, property_target, depth, evaluator);
+      return ControlLabel(instruction, schema, callback, instance,
+                          property_target, depth, evaluator);
 
     case InstructionIndex::ControlMark:
-      return ControlMark(std::get<sourcemeta::blaze::ControlMark>(instruction),
-                         schema, callback, instance, property_target, depth,
-                         evaluator);
+      return ControlMark(instruction, schema, callback, instance,
+                         property_target, depth, evaluator);
 
     case InstructionIndex::ControlEvaluate:
-      return ControlEvaluate(
-          std::get<sourcemeta::blaze::ControlEvaluate>(instruction), schema,
-          callback, instance, property_target, depth, evaluator);
+      return ControlEvaluate(instruction, schema, callback, instance,
+                             property_target, depth, evaluator);
 
     case InstructionIndex::ControlJump:
-      return ControlJump(std::get<sourcemeta::blaze::ControlJump>(instruction),
-                         schema, callback, instance, property_target, depth,
-                         evaluator);
+      return ControlJump(instruction, schema, callback, instance,
+                         property_target, depth, evaluator);
 
     case InstructionIndex::ControlDynamicAnchorJump:
-      return ControlDynamicAnchorJump(
-          std::get<sourcemeta::blaze::ControlDynamicAnchorJump>(instruction),
-          schema, callback, instance, property_target, depth, evaluator);
+      return ControlDynamicAnchorJump(instruction, schema, callback, instance,
+                                      property_target, depth, evaluator);
 
     case InstructionIndex::AnnotationEmit:
-      return AnnotationEmit(
-          std::get<sourcemeta::blaze::AnnotationEmit>(instruction), schema,
-          callback, instance, property_target, depth, evaluator);
+      return AnnotationEmit(instruction, schema, callback, instance,
+                            property_target, depth, evaluator);
 
     case InstructionIndex::AnnotationToParent:
-      return AnnotationToParent(
-          std::get<sourcemeta::blaze::AnnotationToParent>(instruction), schema,
-          callback, instance, property_target, depth, evaluator);
+      return AnnotationToParent(instruction, schema, callback, instance,
+                                property_target, depth, evaluator);
 
     case InstructionIndex::AnnotationBasenameToParent:
-      return AnnotationBasenameToParent(
-          std::get<sourcemeta::blaze::AnnotationBasenameToParent>(instruction),
-          schema, callback, instance, property_target, depth, evaluator);
+      return AnnotationBasenameToParent(instruction, schema, callback, instance,
+                                        property_target, depth, evaluator);
 
     case InstructionIndex::LogicalNot:
-      return LogicalNot(std::get<sourcemeta::blaze::LogicalNot>(instruction),
-                        schema, callback, instance, property_target, depth,
-                        evaluator);
+      return LogicalNot(instruction, schema, callback, instance,
+                        property_target, depth, evaluator);
 
     case InstructionIndex::LogicalNotEvaluate:
-      return LogicalNotEvaluate(
-          std::get<sourcemeta::blaze::LogicalNotEvaluate>(instruction), schema,
-          callback, instance, property_target, depth, evaluator);
+      return LogicalNotEvaluate(instruction, schema, callback, instance,
+                                property_target, depth, evaluator);
 
     case InstructionIndex::LoopPropertiesUnevaluated:
-      return LoopPropertiesUnevaluated(
-          std::get<sourcemeta::blaze::LoopPropertiesUnevaluated>(instruction),
-          schema, callback, instance, property_target, depth, evaluator);
+      return LoopPropertiesUnevaluated(instruction, schema, callback, instance,
+                                       property_target, depth, evaluator);
 
     case InstructionIndex::LoopPropertiesUnevaluatedExcept:
-      return LoopPropertiesUnevaluatedExcept(
-          std::get<sourcemeta::blaze::LoopPropertiesUnevaluatedExcept>(
-              instruction),
-          schema, callback, instance, property_target, depth, evaluator);
+      return LoopPropertiesUnevaluatedExcept(instruction, schema, callback,
+                                             instance, property_target, depth,
+                                             evaluator);
 
     case InstructionIndex::LoopPropertiesMatch:
-      return LoopPropertiesMatch(
-          std::get<sourcemeta::blaze::LoopPropertiesMatch>(instruction), schema,
-          callback, instance, property_target, depth, evaluator);
+      return LoopPropertiesMatch(instruction, schema, callback, instance,
+                                 property_target, depth, evaluator);
 
     case InstructionIndex::LoopPropertiesMatchClosed:
-      return LoopPropertiesMatchClosed(
-          std::get<sourcemeta::blaze::LoopPropertiesMatchClosed>(instruction),
-          schema, callback, instance, property_target, depth, evaluator);
+      return LoopPropertiesMatchClosed(instruction, schema, callback, instance,
+                                       property_target, depth, evaluator);
 
     case InstructionIndex::LoopProperties:
-      return LoopProperties(
-          std::get<sourcemeta::blaze::LoopProperties>(instruction), schema,
-          callback, instance, property_target, depth, evaluator);
+      return LoopProperties(instruction, schema, callback, instance,
+                            property_target, depth, evaluator);
 
     case InstructionIndex::LoopPropertiesEvaluate:
-      return LoopPropertiesEvaluate(
-          std::get<sourcemeta::blaze::LoopPropertiesEvaluate>(instruction),
-          schema, callback, instance, property_target, depth, evaluator);
+      return LoopPropertiesEvaluate(instruction, schema, callback, instance,
+                                    property_target, depth, evaluator);
 
     case InstructionIndex::LoopPropertiesRegex:
-      return LoopPropertiesRegex(
-          std::get<sourcemeta::blaze::LoopPropertiesRegex>(instruction), schema,
-          callback, instance, property_target, depth, evaluator);
+      return LoopPropertiesRegex(instruction, schema, callback, instance,
+                                 property_target, depth, evaluator);
 
     case InstructionIndex::LoopPropertiesRegexClosed:
-      return LoopPropertiesRegexClosed(
-          std::get<sourcemeta::blaze::LoopPropertiesRegexClosed>(instruction),
-          schema, callback, instance, property_target, depth, evaluator);
+      return LoopPropertiesRegexClosed(instruction, schema, callback, instance,
+                                       property_target, depth, evaluator);
 
     case InstructionIndex::LoopPropertiesStartsWith:
-      return LoopPropertiesStartsWith(
-          std::get<sourcemeta::blaze::LoopPropertiesStartsWith>(instruction),
-          schema, callback, instance, property_target, depth, evaluator);
+      return LoopPropertiesStartsWith(instruction, schema, callback, instance,
+                                      property_target, depth, evaluator);
 
     case InstructionIndex::LoopPropertiesExcept:
-      return LoopPropertiesExcept(
-          std::get<sourcemeta::blaze::LoopPropertiesExcept>(instruction),
-          schema, callback, instance, property_target, depth, evaluator);
+      return LoopPropertiesExcept(instruction, schema, callback, instance,
+                                  property_target, depth, evaluator);
 
     case InstructionIndex::LoopPropertiesWhitelist:
-      return LoopPropertiesWhitelist(
-          std::get<sourcemeta::blaze::LoopPropertiesWhitelist>(instruction),
-          schema, callback, instance, property_target, depth, evaluator);
+      return LoopPropertiesWhitelist(instruction, schema, callback, instance,
+                                     property_target, depth, evaluator);
 
     case InstructionIndex::LoopPropertiesType:
-      return LoopPropertiesType(
-          std::get<sourcemeta::blaze::LoopPropertiesType>(instruction), schema,
-          callback, instance, property_target, depth, evaluator);
+      return LoopPropertiesType(instruction, schema, callback, instance,
+                                property_target, depth, evaluator);
 
     case InstructionIndex::LoopPropertiesTypeEvaluate:
-      return LoopPropertiesTypeEvaluate(
-          std::get<sourcemeta::blaze::LoopPropertiesTypeEvaluate>(instruction),
-          schema, callback, instance, property_target, depth, evaluator);
+      return LoopPropertiesTypeEvaluate(instruction, schema, callback, instance,
+                                        property_target, depth, evaluator);
 
     case InstructionIndex::LoopPropertiesTypeStrict:
-      return LoopPropertiesTypeStrict(
-          std::get<sourcemeta::blaze::LoopPropertiesTypeStrict>(instruction),
-          schema, callback, instance, property_target, depth, evaluator);
+      return LoopPropertiesTypeStrict(instruction, schema, callback, instance,
+                                      property_target, depth, evaluator);
 
     case InstructionIndex::LoopPropertiesTypeStrictEvaluate:
-      return LoopPropertiesTypeStrictEvaluate(
-          std::get<sourcemeta::blaze::LoopPropertiesTypeStrictEvaluate>(
-              instruction),
-          schema, callback, instance, property_target, depth, evaluator);
+      return LoopPropertiesTypeStrictEvaluate(instruction, schema, callback,
+                                              instance, property_target, depth,
+                                              evaluator);
 
     case InstructionIndex::LoopPropertiesTypeStrictAny:
-      return LoopPropertiesTypeStrictAny(
-          std::get<sourcemeta::blaze::LoopPropertiesTypeStrictAny>(instruction),
-          schema, callback, instance, property_target, depth, evaluator);
+      return LoopPropertiesTypeStrictAny(instruction, schema, callback,
+                                         instance, property_target, depth,
+                                         evaluator);
 
     case InstructionIndex::LoopPropertiesTypeStrictAnyEvaluate:
-      return LoopPropertiesTypeStrictAnyEvaluate(
-          std::get<sourcemeta::blaze::LoopPropertiesTypeStrictAnyEvaluate>(
-              instruction),
-          schema, callback, instance, property_target, depth, evaluator);
+      return LoopPropertiesTypeStrictAnyEvaluate(instruction, schema, callback,
+                                                 instance, property_target,
+                                                 depth, evaluator);
 
     case InstructionIndex::LoopKeys:
-      return LoopKeys(std::get<sourcemeta::blaze::LoopKeys>(instruction),
-                      schema, callback, instance, property_target, depth,
-                      evaluator);
+      return LoopKeys(instruction, schema, callback, instance, property_target,
+                      depth, evaluator);
 
     case InstructionIndex::LoopItems:
-      return LoopItems(std::get<sourcemeta::blaze::LoopItems>(instruction),
-                       schema, callback, instance, property_target, depth,
-                       evaluator);
+      return LoopItems(instruction, schema, callback, instance, property_target,
+                       depth, evaluator);
 
     case InstructionIndex::LoopItemsFrom:
-      return LoopItemsFrom(
-          std::get<sourcemeta::blaze::LoopItemsFrom>(instruction), schema,
-          callback, instance, property_target, depth, evaluator);
+      return LoopItemsFrom(instruction, schema, callback, instance,
+                           property_target, depth, evaluator);
 
     case InstructionIndex::LoopItemsUnevaluated:
-      return LoopItemsUnevaluated(
-          std::get<sourcemeta::blaze::LoopItemsUnevaluated>(instruction),
-          schema, callback, instance, property_target, depth, evaluator);
+      return LoopItemsUnevaluated(instruction, schema, callback, instance,
+                                  property_target, depth, evaluator);
 
     case InstructionIndex::LoopItemsType:
-      return LoopItemsType(
-          std::get<sourcemeta::blaze::LoopItemsType>(instruction), schema,
-          callback, instance, property_target, depth, evaluator);
+      return LoopItemsType(instruction, schema, callback, instance,
+                           property_target, depth, evaluator);
 
     case InstructionIndex::LoopItemsTypeStrict:
-      return LoopItemsTypeStrict(
-          std::get<sourcemeta::blaze::LoopItemsTypeStrict>(instruction), schema,
-          callback, instance, property_target, depth, evaluator);
+      return LoopItemsTypeStrict(instruction, schema, callback, instance,
+                                 property_target, depth, evaluator);
 
     case InstructionIndex::LoopItemsTypeStrictAny:
-      return LoopItemsTypeStrictAny(
-          std::get<sourcemeta::blaze::LoopItemsTypeStrictAny>(instruction),
-          schema, callback, instance, property_target, depth, evaluator);
+      return LoopItemsTypeStrictAny(instruction, schema, callback, instance,
+                                    property_target, depth, evaluator);
 
     case InstructionIndex::LoopContains:
-      return LoopContains(
-          std::get<sourcemeta::blaze::LoopContains>(instruction), schema,
-          callback, instance, property_target, depth, evaluator);
+      return LoopContains(instruction, schema, callback, instance,
+                          property_target, depth, evaluator);
   }
 
     // See https://en.cppreference.com/w/cpp/utility/unreachable

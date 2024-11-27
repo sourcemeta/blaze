@@ -127,45 +127,53 @@ auto unknown() -> std::string {
   return "<unknown>";
 }
 
-struct DescribeVisitor {
-  const bool valid;
-  const sourcemeta::jsontoolkit::WeakPointer &evaluate_path;
-  const std::string &keyword;
-  const sourcemeta::jsontoolkit::WeakPointer &instance_location;
-  const sourcemeta::jsontoolkit::JSON &target;
-  const sourcemeta::jsontoolkit::JSON &annotation;
+} // namespace
 
-  auto operator()(const AssertionFail &) const -> std::string {
-    if (this->keyword == "contains") {
+namespace sourcemeta::blaze {
+
+// TODO: What will unlock even better error messages is being able to
+// get the subschema being evaluated along with the keyword
+auto describe(const bool valid, const Instruction &step,
+              const sourcemeta::jsontoolkit::WeakPointer &evaluate_path,
+              const sourcemeta::jsontoolkit::WeakPointer &instance_location,
+              const sourcemeta::jsontoolkit::JSON &instance,
+              const sourcemeta::jsontoolkit::JSON &annotation) -> std::string {
+  assert(evaluate_path.empty() || evaluate_path.back().is_property());
+  const std::string keyword{
+      evaluate_path.empty() ? "" : evaluate_path.back().to_property()};
+  const sourcemeta::jsontoolkit::JSON &target{get(instance, instance_location)};
+
+  if (step.type == sourcemeta::blaze::InstructionIndex::AssertionFail) {
+    if (keyword == "contains") {
       return "The constraints declared for this keyword were not satisfiable";
     }
 
-    if (this->keyword == "additionalProperties" ||
-        this->keyword == "unevaluatedProperties") {
+    if (keyword == "additionalProperties" ||
+        keyword == "unevaluatedProperties") {
       std::ostringstream message;
-      assert(!this->instance_location.empty());
-      assert(this->instance_location.back().is_property());
+      assert(!instance_location.empty());
+      assert(instance_location.back().is_property());
       message << "The object value was not expected to define the property "
-              << escape_string(this->instance_location.back().to_property());
+              << escape_string(instance_location.back().to_property());
       return message.str();
     }
 
-    if (this->keyword == "unevaluatedItems") {
+    if (keyword == "unevaluatedItems") {
       std::ostringstream message;
-      assert(!this->instance_location.empty());
-      assert(this->instance_location.back().is_index());
+      assert(!instance_location.empty());
+      assert(instance_location.back().is_index());
       message << "The array value was not expected to define the item at index "
-              << this->instance_location.back().to_index();
+              << instance_location.back().to_index();
       return message.str();
     }
 
     return "No instance is expected to succeed against the false schema";
   }
 
-  auto operator()(const LogicalOr &step) const -> std::string {
+  if (step.type == sourcemeta::blaze::InstructionIndex::LogicalOr) {
     assert(!step.children.empty());
     std::ostringstream message;
-    message << "The " << to_string(this->target.type())
+    message << "The " << to_string(target.type())
             << " value was expected to validate against ";
     if (step.children.size() > 1) {
       message << "at least one of the " << step.children.size()
@@ -177,11 +185,11 @@ struct DescribeVisitor {
     return message.str();
   }
 
-  auto operator()(const LogicalAnd &step) const -> std::string {
-    if (this->keyword == "allOf") {
+  if (step.type == sourcemeta::blaze::InstructionIndex::LogicalAnd) {
+    if (keyword == "allOf") {
       assert(!step.children.empty());
       std::ostringstream message;
-      message << "The " << to_string(this->target.type())
+      message << "The " << to_string(target.type())
               << " value was expected to validate against the ";
       if (step.children.size() > 1) {
         message << step.children.size() << " given subschemas";
@@ -192,11 +200,11 @@ struct DescribeVisitor {
       return message.str();
     }
 
-    if (this->keyword == "properties") {
+    if (keyword == "properties") {
       assert(!step.children.empty());
-      if (!this->target.is_object()) {
+      if (!target.is_object()) {
         std::ostringstream message;
-        describe_type_check(this->valid, this->target.type(),
+        describe_type_check(valid, target.type(),
                             sourcemeta::jsontoolkit::JSON::Type::Object,
                             message);
         return message.str();
@@ -216,17 +224,17 @@ struct DescribeVisitor {
       return message.str();
     }
 
-    if (this->keyword == "$ref") {
-      return describe_reference(this->target);
+    if (keyword == "$ref") {
+      return describe_reference(target);
     }
 
     return unknown();
   }
 
-  auto operator()(const LogicalXor &step) const -> std::string {
+  if (step.type == sourcemeta::blaze::InstructionIndex::LogicalXor) {
     assert(!step.children.empty());
     std::ostringstream message;
-    message << "The " << to_string(this->target.type())
+    message << "The " << to_string(target.type())
             << " value was expected to validate against ";
     if (step.children.size() > 1) {
       message << "one and only one of the " << step.children.size()
@@ -238,55 +246,56 @@ struct DescribeVisitor {
     return message.str();
   }
 
-  auto operator()(const LogicalCondition &) const -> std::string {
+  if (step.type == sourcemeta::blaze::InstructionIndex::LogicalCondition) {
     std::ostringstream message;
-    message << "The " << to_string(this->target.type())
+    message << "The " << to_string(target.type())
             << " value was expected to validate against the given conditional";
     return message.str();
   }
 
-  auto operator()(const LogicalNot &) const -> std::string {
+  if (step.type == sourcemeta::blaze::InstructionIndex::LogicalNot) {
     std::ostringstream message;
     message
-        << "The " << to_string(this->target.type())
+        << "The " << to_string(target.type())
         << " value was expected to not validate against the given subschema";
-    if (!this->valid) {
+    if (!valid) {
       message << ", but it did";
     }
 
     return message.str();
   }
 
-  auto operator()(const LogicalNotEvaluate &) const -> std::string {
+  if (step.type == sourcemeta::blaze::InstructionIndex::LogicalNotEvaluate) {
     std::ostringstream message;
     message
-        << "The " << to_string(this->target.type())
+        << "The " << to_string(target.type())
         << " value was expected to not validate against the given subschema";
-    if (!this->valid) {
+    if (!valid) {
       message << ", but it did";
     }
 
     return message.str();
   }
 
-  auto operator()(const ControlLabel &) const -> std::string {
-    return describe_reference(this->target);
+  if (step.type == sourcemeta::blaze::InstructionIndex::ControlLabel) {
+    return describe_reference(target);
   }
 
-  auto operator()(const ControlMark &) const -> std::string {
+  if (step.type == sourcemeta::blaze::InstructionIndex::ControlMark) {
     return "The schema location was marked for future use";
   }
 
-  auto operator()(const ControlEvaluate &) const -> std::string {
+  if (step.type == sourcemeta::blaze::InstructionIndex::ControlEvaluate) {
     return "The instance location was marked as evaluated";
   }
 
-  auto operator()(const ControlJump &) const -> std::string {
-    return describe_reference(this->target);
+  if (step.type == sourcemeta::blaze::InstructionIndex::ControlJump) {
+    return describe_reference(target);
   }
 
-  auto operator()(const ControlDynamicAnchorJump &step) const -> std::string {
-    if (this->keyword == "$dynamicRef") {
+  if (step.type ==
+      sourcemeta::blaze::InstructionIndex::ControlDynamicAnchorJump) {
+    if (keyword == "$dynamicRef") {
       const auto &value{instruction_value<ValueString>(step)};
       std::ostringstream message;
       message << "The " << to_string(target.type())
@@ -296,7 +305,7 @@ struct DescribeVisitor {
       return message.str();
     }
 
-    assert(this->keyword == "$recursiveRef");
+    assert(keyword == "$recursiveRef");
     std::ostringstream message;
     message << "The " << to_string(target.type())
             << " value was expected to validate against the first subschema "
@@ -304,34 +313,33 @@ struct DescribeVisitor {
     return message.str();
   }
 
-  auto operator()(const AnnotationEmit &) const -> std::string {
-    if (this->keyword == "properties") {
-      assert(this->annotation.is_string());
+  if (step.type == sourcemeta::blaze::InstructionIndex::AnnotationEmit) {
+    if (keyword == "properties") {
+      assert(annotation.is_string());
       std::ostringstream message;
-      message << "The object property "
-              << escape_string(this->annotation.to_string())
+      message << "The object property " << escape_string(annotation.to_string())
               << " successfully validated against its property "
                  "subschema";
       return message.str();
     }
 
-    if ((this->keyword == "items" || this->keyword == "additionalItems") &&
-        this->annotation.is_boolean() && this->annotation.to_boolean()) {
-      assert(this->target.is_array());
+    if ((keyword == "items" || keyword == "additionalItems") &&
+        annotation.is_boolean() && annotation.to_boolean()) {
+      assert(target.is_array());
       return "Every item in the array value was successfully validated";
     }
 
-    if ((this->keyword == "prefixItems" || this->keyword == "items") &&
-        this->annotation.is_integer()) {
-      assert(this->target.is_array());
-      assert(this->annotation.is_positive());
+    if ((keyword == "prefixItems" || keyword == "items") &&
+        annotation.is_integer()) {
+      assert(target.is_array());
+      assert(annotation.is_positive());
       std::ostringstream message;
-      if (this->annotation.to_integer() == 0) {
+      if (annotation.to_integer() == 0) {
         message << "The first item of the array value successfully validated "
                    "against the first "
                    "positional subschema";
       } else {
-        message << "The first " << this->annotation.to_integer() + 1
+        message << "The first " << annotation.to_integer() + 1
                 << " items of the array value successfully validated against "
                    "the given "
                    "positional subschemas";
@@ -340,58 +348,58 @@ struct DescribeVisitor {
       return message.str();
     }
 
-    if (this->keyword == "prefixItems" && this->annotation.is_boolean() &&
-        this->annotation.to_boolean()) {
-      assert(this->target.is_array());
+    if (keyword == "prefixItems" && annotation.is_boolean() &&
+        annotation.to_boolean()) {
+      assert(target.is_array());
       std::ostringstream message;
       message << "Every item of the array value validated against the given "
                  "positional subschemas";
       return message.str();
     }
 
-    if (this->keyword == "title" || this->keyword == "description") {
-      assert(this->annotation.is_string());
+    if (keyword == "title" || keyword == "description") {
+      assert(annotation.is_string());
       std::ostringstream message;
-      message << "The " << this->keyword << " of the";
-      if (this->instance_location.empty()) {
+      message << "The " << keyword << " of the";
+      if (instance_location.empty()) {
         message << " instance";
       } else {
         message << " instance location \"";
-        stringify(this->instance_location, message);
+        stringify(instance_location, message);
         message << "\"";
       }
 
-      message << " was " << escape_string(this->annotation.to_string());
+      message << " was " << escape_string(annotation.to_string());
       return message.str();
     }
 
-    if (this->keyword == "default") {
+    if (keyword == "default") {
       std::ostringstream message;
       message << "The default value of the";
-      if (this->instance_location.empty()) {
+      if (instance_location.empty()) {
         message << " instance";
       } else {
         message << " instance location \"";
-        stringify(this->instance_location, message);
+        stringify(instance_location, message);
         message << "\"";
       }
 
       message << " was ";
-      stringify(this->annotation, message);
+      stringify(annotation, message);
       return message.str();
     }
 
-    if (this->keyword == "deprecated" && this->annotation.is_boolean()) {
+    if (keyword == "deprecated" && annotation.is_boolean()) {
       std::ostringstream message;
-      if (this->instance_location.empty()) {
+      if (instance_location.empty()) {
         message << "The instance";
       } else {
         message << "The instance location \"";
-        stringify(this->instance_location, message);
+        stringify(instance_location, message);
         message << "\"";
       }
 
-      if (this->annotation.to_boolean()) {
+      if (annotation.to_boolean()) {
         message << " was considered deprecated";
       } else {
         message << " was not considered deprecated";
@@ -400,17 +408,17 @@ struct DescribeVisitor {
       return message.str();
     }
 
-    if (this->keyword == "readOnly" && this->annotation.is_boolean()) {
+    if (keyword == "readOnly" && annotation.is_boolean()) {
       std::ostringstream message;
-      if (this->instance_location.empty()) {
+      if (instance_location.empty()) {
         message << "The instance";
       } else {
         message << "The instance location \"";
-        stringify(this->instance_location, message);
+        stringify(instance_location, message);
         message << "\"";
       }
 
-      if (this->annotation.to_boolean()) {
+      if (annotation.to_boolean()) {
         message << " was considered read-only";
       } else {
         message << " was not considered read-only";
@@ -419,17 +427,17 @@ struct DescribeVisitor {
       return message.str();
     }
 
-    if (this->keyword == "writeOnly" && this->annotation.is_boolean()) {
+    if (keyword == "writeOnly" && annotation.is_boolean()) {
       std::ostringstream message;
-      if (this->instance_location.empty()) {
+      if (instance_location.empty()) {
         message << "The instance";
       } else {
         message << "The instance location \"";
-        stringify(this->instance_location, message);
+        stringify(instance_location, message);
         message << "\"";
       }
 
-      if (this->annotation.to_boolean()) {
+      if (annotation.to_boolean()) {
         message << " was considered write-only";
       } else {
         message << " was not considered write-only";
@@ -438,21 +446,21 @@ struct DescribeVisitor {
       return message.str();
     }
 
-    if (this->keyword == "examples") {
-      assert(this->annotation.is_array());
+    if (keyword == "examples") {
+      assert(annotation.is_array());
       std::ostringstream message;
-      if (this->instance_location.empty()) {
+      if (instance_location.empty()) {
         message << "Examples of the instance";
       } else {
         message << "Examples of the instance location \"";
-        stringify(this->instance_location, message);
+        stringify(instance_location, message);
         message << "\"";
       }
 
       message << " were ";
-      for (auto iterator = this->annotation.as_array().cbegin();
-           iterator != this->annotation.as_array().cend(); ++iterator) {
-        if (std::next(iterator) == this->annotation.as_array().cend()) {
+      for (auto iterator = annotation.as_array().cbegin();
+           iterator != annotation.as_array().cend(); ++iterator) {
+        if (std::next(iterator) == annotation.as_array().cend()) {
           message << "and ";
           stringify(*iterator, message);
         } else {
@@ -464,65 +472,65 @@ struct DescribeVisitor {
       return message.str();
     }
 
-    if (this->keyword == "contentEncoding") {
-      assert(this->annotation.is_string());
+    if (keyword == "contentEncoding") {
+      assert(annotation.is_string());
       std::ostringstream message;
       message << "The content encoding of the";
-      if (this->instance_location.empty()) {
+      if (instance_location.empty()) {
         message << " instance";
       } else {
         message << " instance location \"";
-        stringify(this->instance_location, message);
+        stringify(instance_location, message);
         message << "\"";
       }
 
-      message << " was " << escape_string(this->annotation.to_string());
+      message << " was " << escape_string(annotation.to_string());
       return message.str();
     }
 
-    if (this->keyword == "contentMediaType") {
-      assert(this->annotation.is_string());
+    if (keyword == "contentMediaType") {
+      assert(annotation.is_string());
       std::ostringstream message;
       message << "The content media type of the";
-      if (this->instance_location.empty()) {
+      if (instance_location.empty()) {
         message << " instance";
       } else {
         message << " instance location \"";
-        stringify(this->instance_location, message);
+        stringify(instance_location, message);
         message << "\"";
       }
 
-      message << " was " << escape_string(this->annotation.to_string());
+      message << " was " << escape_string(annotation.to_string());
       return message.str();
     }
 
-    if (this->keyword == "contentSchema") {
+    if (keyword == "contentSchema") {
       std::ostringstream message;
       message << "When decoded, the";
-      if (this->instance_location.empty()) {
+      if (instance_location.empty()) {
         message << " instance";
       } else {
         message << " instance location \"";
-        stringify(this->instance_location, message);
+        stringify(instance_location, message);
         message << "\"";
       }
 
       message << " was expected to validate against the schema ";
-      stringify(this->annotation, message);
+      stringify(annotation, message);
       return message.str();
     }
 
     std::ostringstream message;
-    message << "The unrecognized keyword " << escape_string(this->keyword)
+    message << "The unrecognized keyword " << escape_string(keyword)
             << " was collected as the annotation ";
-    stringify(this->annotation, message);
+    stringify(annotation, message);
     return message.str();
   }
 
-  auto operator()(const AnnotationToParent &) const -> std::string {
-    if (this->keyword == "unevaluatedItems" && this->annotation.is_boolean() &&
-        this->annotation.to_boolean()) {
-      assert(this->target.is_array());
+  if (step.type == sourcemeta::blaze::InstructionIndex::AnnotationToParent) {
+    if (keyword == "unevaluatedItems" && annotation.is_boolean() &&
+        annotation.to_boolean()) {
+      assert(target.is_array());
       std::ostringstream message;
       message << "At least one item of the array value successfully validated "
                  "against the subschema for unevaluated items";
@@ -532,42 +540,40 @@ struct DescribeVisitor {
     return unknown();
   }
 
-  auto operator()(const AnnotationBasenameToParent &) const -> std::string {
-    if (this->keyword == "patternProperties") {
-      assert(this->annotation.is_string());
+  if (step.type ==
+      sourcemeta::blaze::InstructionIndex::AnnotationBasenameToParent) {
+    if (keyword == "patternProperties") {
+      assert(annotation.is_string());
       std::ostringstream message;
-      message << "The object property "
-              << escape_string(this->annotation.to_string())
+      message << "The object property " << escape_string(annotation.to_string())
               << " successfully validated against its pattern property "
                  "subschema";
       return message.str();
     }
 
-    if (this->keyword == "additionalProperties") {
-      assert(this->annotation.is_string());
+    if (keyword == "additionalProperties") {
+      assert(annotation.is_string());
       std::ostringstream message;
-      message << "The object property "
-              << escape_string(this->annotation.to_string())
+      message << "The object property " << escape_string(annotation.to_string())
               << " successfully validated against the additional properties "
                  "subschema";
       return message.str();
     }
 
-    if (this->keyword == "unevaluatedProperties") {
-      assert(this->annotation.is_string());
+    if (keyword == "unevaluatedProperties") {
+      assert(annotation.is_string());
       std::ostringstream message;
-      message << "The object property "
-              << escape_string(this->annotation.to_string())
+      message << "The object property " << escape_string(annotation.to_string())
               << " successfully validated against the subschema for "
                  "unevaluated properties";
       return message.str();
     }
 
-    if (this->keyword == "contains" && this->annotation.is_integer()) {
-      assert(this->target.is_array());
-      assert(this->annotation.is_positive());
+    if (keyword == "contains" && annotation.is_integer()) {
+      assert(target.is_array());
+      assert(annotation.is_positive());
       std::ostringstream message;
-      message << "The item at index " << this->annotation.to_integer()
+      message << "The item at index " << annotation.to_integer()
               << " of the array value successfully validated against the "
                  "containment check subschema";
       return message.str();
@@ -576,11 +582,11 @@ struct DescribeVisitor {
     return unknown();
   }
 
-  auto operator()(const LoopProperties &step) const -> std::string {
-    assert(this->keyword == "additionalProperties");
+  if (step.type == sourcemeta::blaze::InstructionIndex::LoopProperties) {
+    assert(keyword == "additionalProperties");
     std::ostringstream message;
     if (step.children.size() == 1 &&
-        std::holds_alternative<AssertionFail>(step.children.front())) {
+        step.children.front().type == InstructionIndex::AssertionFail) {
       message << "The object value was not expected to define additional "
                  "properties";
     } else {
@@ -591,11 +597,12 @@ struct DescribeVisitor {
     return message.str();
   }
 
-  auto operator()(const LoopPropertiesEvaluate &step) const -> std::string {
-    assert(this->keyword == "additionalProperties");
+  if (step.type ==
+      sourcemeta::blaze::InstructionIndex::LoopPropertiesEvaluate) {
+    assert(keyword == "additionalProperties");
     std::ostringstream message;
     if (step.children.size() == 1 &&
-        std::holds_alternative<AssertionFail>(step.children.front())) {
+        step.children.front().type == InstructionIndex::AssertionFail) {
       message << "The object value was not expected to define additional "
                  "properties";
     } else {
@@ -606,11 +613,12 @@ struct DescribeVisitor {
     return message.str();
   }
 
-  auto operator()(const LoopPropertiesUnevaluated &step) const -> std::string {
-    if (this->keyword == "unevaluatedProperties") {
+  if (step.type ==
+      sourcemeta::blaze::InstructionIndex::LoopPropertiesUnevaluated) {
+    if (keyword == "unevaluatedProperties") {
       std::ostringstream message;
       if (!step.children.empty() &&
-          std::holds_alternative<AssertionFail>(step.children.front())) {
+          step.children.front().type == InstructionIndex::AssertionFail) {
         message << "The object value was not expected to define unevaluated "
                    "properties";
       } else {
@@ -624,12 +632,12 @@ struct DescribeVisitor {
     return unknown();
   }
 
-  auto operator()(const LoopPropertiesUnevaluatedExcept &step) const
-      -> std::string {
-    if (this->keyword == "unevaluatedProperties") {
+  if (step.type ==
+      sourcemeta::blaze::InstructionIndex::LoopPropertiesUnevaluatedExcept) {
+    if (keyword == "unevaluatedProperties") {
       std::ostringstream message;
       if (!step.children.empty() &&
-          std::holds_alternative<AssertionFail>(step.children.front())) {
+          step.children.front().type == InstructionIndex::AssertionFail) {
         message << "The object value was not expected to define unevaluated "
                    "properties";
       } else {
@@ -643,11 +651,11 @@ struct DescribeVisitor {
     return unknown();
   }
 
-  auto operator()(const LoopPropertiesExcept &step) const -> std::string {
-    assert(this->keyword == "additionalProperties");
+  if (step.type == sourcemeta::blaze::InstructionIndex::LoopPropertiesExcept) {
+    assert(keyword == "additionalProperties");
     std::ostringstream message;
     if (step.children.size() == 1 &&
-        std::holds_alternative<AssertionFail>(step.children.front())) {
+        step.children.front().type == InstructionIndex::AssertionFail) {
       message << "The object value was not expected to define additional "
                  "properties";
     } else {
@@ -658,42 +666,45 @@ struct DescribeVisitor {
     return message.str();
   }
 
-  auto operator()(const LoopPropertiesWhitelist &) const -> std::string {
-    assert(this->keyword == "additionalProperties");
+  if (step.type ==
+      sourcemeta::blaze::InstructionIndex::LoopPropertiesWhitelist) {
+    assert(keyword == "additionalProperties");
     return "The object value was not expected to define additional properties";
   }
 
-  auto operator()(const LoopPropertiesType &step) const -> std::string {
+  if (step.type == sourcemeta::blaze::InstructionIndex::LoopPropertiesType) {
     std::ostringstream message;
     message << "The object properties were expected to be of type "
             << to_string(instruction_value<ValueType>(step));
     return message.str();
   }
 
-  auto operator()(const LoopPropertiesTypeEvaluate &step) const -> std::string {
+  if (step.type ==
+      sourcemeta::blaze::InstructionIndex::LoopPropertiesTypeEvaluate) {
     std::ostringstream message;
     message << "The object properties were expected to be of type "
             << to_string(instruction_value<ValueType>(step));
     return message.str();
   }
 
-  auto operator()(const LoopPropertiesTypeStrict &step) const -> std::string {
+  if (step.type ==
+      sourcemeta::blaze::InstructionIndex::LoopPropertiesTypeStrict) {
     std::ostringstream message;
     message << "The object properties were expected to be of type "
             << to_string(instruction_value<ValueType>(step));
     return message.str();
   }
 
-  auto operator()(const LoopPropertiesTypeStrictEvaluate &step) const
-      -> std::string {
+  if (step.type ==
+      sourcemeta::blaze::InstructionIndex::LoopPropertiesTypeStrictEvaluate) {
     std::ostringstream message;
     message << "The object properties were expected to be of type "
             << to_string(instruction_value<ValueType>(step));
     return message.str();
   }
 
-  auto operator()(const LoopPropertiesTypeStrictAny &step) const
-      -> std::string {
+  if (step.type ==
+      sourcemeta::blaze::InstructionIndex::LoopPropertiesTypeStrictAny) {
     std::ostringstream message;
     message << "The object properties were expected to be of type ";
     const auto &types{instruction_value<ValueTypes>(step)};
@@ -708,8 +719,8 @@ struct DescribeVisitor {
     return message.str();
   }
 
-  auto operator()(const LoopPropertiesTypeStrictAnyEvaluate &step) const
-      -> std::string {
+  if (step.type == sourcemeta::blaze::InstructionIndex::
+                       LoopPropertiesTypeStrictAnyEvaluate) {
     std::ostringstream message;
     message << "The object properties were expected to be of type ";
     const auto &types{instruction_value<ValueTypes>(step)};
@@ -724,24 +735,24 @@ struct DescribeVisitor {
     return message.str();
   }
 
-  auto operator()(const LoopKeys &) const -> std::string {
-    assert(this->keyword == "propertyNames");
-    assert(this->target.is_object());
+  if (step.type == sourcemeta::blaze::InstructionIndex::LoopKeys) {
+    assert(keyword == "propertyNames");
+    assert(target.is_object());
     std::ostringstream message;
 
-    if (this->target.size() == 0) {
-      assert(this->valid);
+    if (target.size() == 0) {
+      assert(valid);
       message << "The object is empty and no properties were expected to "
                  "validate against the given subschema";
-    } else if (this->target.size() == 1) {
+    } else if (target.size() == 1) {
       message << "The object property ";
-      message << escape_string(this->target.as_object().cbegin()->first);
+      message << escape_string(target.as_object().cbegin()->first);
       message << " was expected to validate against the given subschema";
     } else {
       message << "The object properties ";
-      for (auto iterator = this->target.as_object().cbegin();
-           iterator != this->target.as_object().cend(); ++iterator) {
-        if (std::next(iterator) == this->target.as_object().cend()) {
+      for (auto iterator = target.as_object().cbegin();
+           iterator != target.as_object().cend(); ++iterator) {
+        if (std::next(iterator) == target.as_object().cend()) {
           message << "and " << escape_string(iterator->first);
         } else {
           message << escape_string(iterator->first) << ", ";
@@ -754,14 +765,14 @@ struct DescribeVisitor {
     return message.str();
   }
 
-  auto operator()(const LoopItems &) const -> std::string {
-    assert(this->target.is_array());
+  if (step.type == sourcemeta::blaze::InstructionIndex::LoopItems) {
+    assert(target.is_array());
     return "Every item in the array value was expected to validate against the "
            "given subschema";
   }
 
-  auto operator()(const LoopItemsFrom &step) const -> std::string {
-    assert(this->target.is_array());
+  if (step.type == sourcemeta::blaze::InstructionIndex::LoopItemsFrom) {
+    assert(target.is_array());
     const auto &value{instruction_value<ValueUnsignedInteger>(step)};
     std::ostringstream message;
     message << "Every item in the array value";
@@ -775,29 +786,30 @@ struct DescribeVisitor {
     return message.str();
   }
 
-  auto operator()(const LoopItemsUnevaluated &) const -> std::string {
-    assert(this->keyword == "unevaluatedItems");
+  if (step.type == sourcemeta::blaze::InstructionIndex::LoopItemsUnevaluated) {
+    assert(keyword == "unevaluatedItems");
     std::ostringstream message;
     message << "The array items not covered by other array keywords, if any, "
                "were expected to validate against this subschema";
     return message.str();
   }
 
-  auto operator()(const LoopItemsType &step) const -> std::string {
+  if (step.type == sourcemeta::blaze::InstructionIndex::LoopItemsType) {
     std::ostringstream message;
     message << "The array items were expected to be of type "
             << to_string(instruction_value<ValueType>(step));
     return message.str();
   }
 
-  auto operator()(const LoopItemsTypeStrict &step) const -> std::string {
+  if (step.type == sourcemeta::blaze::InstructionIndex::LoopItemsTypeStrict) {
     std::ostringstream message;
     message << "The array items were expected to be of type "
             << to_string(instruction_value<ValueType>(step));
     return message.str();
   }
 
-  auto operator()(const LoopItemsTypeStrictAny &step) const -> std::string {
+  if (step.type ==
+      sourcemeta::blaze::InstructionIndex::LoopItemsTypeStrictAny) {
     std::ostringstream message;
     message << "The array items were expected to be of type ";
     const auto &types{instruction_value<ValueTypes>(step)};
@@ -812,8 +824,8 @@ struct DescribeVisitor {
     return message.str();
   }
 
-  auto operator()(const LoopContains &step) const -> std::string {
-    assert(this->target.is_array());
+  if (step.type == sourcemeta::blaze::InstructionIndex::LoopContains) {
+    assert(target.is_array());
     std::ostringstream message;
     const auto &value{instruction_value<ValueRange>(step)};
     const auto minimum{std::get<0>(value)};
@@ -856,14 +868,15 @@ struct DescribeVisitor {
     return message.str();
   }
 
-  auto operator()(const AssertionDefines &step) const -> std::string {
+  if (step.type == sourcemeta::blaze::InstructionIndex::AssertionDefines) {
     std::ostringstream message;
     message << "The object value was expected to define the property "
             << escape_string(instruction_value<ValueString>(step));
     return message.str();
   }
 
-  auto operator()(const AssertionDefinesStrict &step) const -> std::string {
+  if (step.type ==
+      sourcemeta::blaze::InstructionIndex::AssertionDefinesStrict) {
     std::ostringstream message;
     message
         << "The value was expected to be an object that defines the property "
@@ -871,7 +884,7 @@ struct DescribeVisitor {
     return message.str();
   }
 
-  auto operator()(const AssertionDefinesAll &step) const -> std::string {
+  if (step.type == sourcemeta::blaze::InstructionIndex::AssertionDefinesAll) {
     const auto &value{instruction_value<ValueStrings>(step)};
     assert(value.size() > 1);
     std::ostringstream message;
@@ -884,14 +897,14 @@ struct DescribeVisitor {
       }
     }
 
-    if (this->valid) {
+    if (valid) {
       return message.str();
     }
 
-    assert(this->target.is_object());
+    assert(target.is_object());
     std::set<std::string> missing;
     for (const auto &property : value) {
-      if (!this->target.defines(property)) {
+      if (!target.defines(property)) {
         missing.insert(property);
       }
     }
@@ -915,7 +928,8 @@ struct DescribeVisitor {
     return message.str();
   }
 
-  auto operator()(const AssertionDefinesAllStrict &step) const -> std::string {
+  if (step.type ==
+      sourcemeta::blaze::InstructionIndex::AssertionDefinesAllStrict) {
     const auto &value{instruction_value<ValueStrings>(step)};
     assert(value.size() > 1);
     std::ostringstream message;
@@ -932,7 +946,8 @@ struct DescribeVisitor {
     return message.str();
   }
 
-  auto operator()(const AssertionDefinesExactly &step) const -> std::string {
+  if (step.type ==
+      sourcemeta::blaze::InstructionIndex::AssertionDefinesExactly) {
     const auto &value{instruction_value<ValueStrings>(step)};
     assert(value.size() > 1);
     std::ostringstream message;
@@ -948,8 +963,8 @@ struct DescribeVisitor {
     return message.str();
   }
 
-  auto operator()(const AssertionDefinesExactlyStrict &step) const
-      -> std::string {
+  if (step.type ==
+      sourcemeta::blaze::InstructionIndex::AssertionDefinesExactlyStrict) {
     const auto &value{instruction_value<ValueStrings>(step)};
     assert(value.size() > 1);
     std::ostringstream message;
@@ -966,48 +981,49 @@ struct DescribeVisitor {
     return message.str();
   }
 
-  auto operator()(const AssertionType &step) const -> std::string {
+  if (step.type == sourcemeta::blaze::InstructionIndex::AssertionType) {
     std::ostringstream message;
-    describe_type_check(this->valid, this->target.type(),
+    describe_type_check(valid, target.type(),
                         instruction_value<ValueType>(step), message);
     return message.str();
   }
 
-  auto operator()(const AssertionTypeStrict &step) const -> std::string {
+  if (step.type == sourcemeta::blaze::InstructionIndex::AssertionTypeStrict) {
     std::ostringstream message;
     const auto &value{instruction_value<ValueType>(step)};
-    if (!this->valid && value == sourcemeta::jsontoolkit::JSON::Type::Real &&
-        this->target.type() == sourcemeta::jsontoolkit::JSON::Type::Integer) {
+    if (!valid && value == sourcemeta::jsontoolkit::JSON::Type::Real &&
+        target.type() == sourcemeta::jsontoolkit::JSON::Type::Integer) {
       message
           << "The value was expected to be a real number but it was an integer";
-    } else if (!this->valid &&
+    } else if (!valid &&
                value == sourcemeta::jsontoolkit::JSON::Type::Integer &&
-               this->target.type() ==
-                   sourcemeta::jsontoolkit::JSON::Type::Real) {
+               target.type() == sourcemeta::jsontoolkit::JSON::Type::Real) {
       message
           << "The value was expected to be an integer but it was a real number";
     } else {
-      describe_type_check(this->valid, this->target.type(), value, message);
+      describe_type_check(valid, target.type(), value, message);
     }
 
     return message.str();
   }
 
-  auto operator()(const AssertionTypeAny &step) const -> std::string {
+  if (step.type == sourcemeta::blaze::InstructionIndex::AssertionTypeAny) {
     std::ostringstream message;
-    describe_types_check(this->valid, this->target.type(),
+    describe_types_check(valid, target.type(),
                          instruction_value<ValueTypes>(step), message);
     return message.str();
   }
 
-  auto operator()(const AssertionTypeStrictAny &step) const -> std::string {
+  if (step.type ==
+      sourcemeta::blaze::InstructionIndex::AssertionTypeStrictAny) {
     std::ostringstream message;
-    describe_types_check(this->valid, this->target.type(),
+    describe_types_check(valid, target.type(),
                          instruction_value<ValueTypes>(step), message);
     return message.str();
   }
 
-  auto operator()(const AssertionTypeStringBounded &step) const -> std::string {
+  if (step.type ==
+      sourcemeta::blaze::InstructionIndex::AssertionTypeStringBounded) {
     std::ostringstream message;
 
     const auto minimum{std::get<0>(instruction_value<ValueRange>(step))};
@@ -1028,7 +1044,8 @@ struct DescribeVisitor {
     return message.str();
   }
 
-  auto operator()(const AssertionTypeStringUpper &step) const -> std::string {
+  if (step.type ==
+      sourcemeta::blaze::InstructionIndex::AssertionTypeStringUpper) {
     std::ostringstream message;
     message << "The value was expected to consist of a string of at most "
             << instruction_value<ValueUnsignedInteger>(step)
@@ -1038,7 +1055,8 @@ struct DescribeVisitor {
     return message.str();
   }
 
-  auto operator()(const AssertionTypeArrayBounded &step) const -> std::string {
+  if (step.type ==
+      sourcemeta::blaze::InstructionIndex::AssertionTypeArrayBounded) {
     std::ostringstream message;
 
     const auto minimum{std::get<0>(instruction_value<ValueRange>(step))};
@@ -1058,7 +1076,8 @@ struct DescribeVisitor {
     return message.str();
   }
 
-  auto operator()(const AssertionTypeArrayUpper &step) const -> std::string {
+  if (step.type ==
+      sourcemeta::blaze::InstructionIndex::AssertionTypeArrayUpper) {
     std::ostringstream message;
     message << "The value was expected to consist of an array of at most "
             << instruction_value<ValueUnsignedInteger>(step)
@@ -1067,7 +1086,8 @@ struct DescribeVisitor {
     return message.str();
   }
 
-  auto operator()(const AssertionTypeObjectBounded &step) const -> std::string {
+  if (step.type ==
+      sourcemeta::blaze::InstructionIndex::AssertionTypeObjectBounded) {
     std::ostringstream message;
 
     const auto minimum{std::get<0>(instruction_value<ValueRange>(step))};
@@ -1088,7 +1108,8 @@ struct DescribeVisitor {
     return message.str();
   }
 
-  auto operator()(const AssertionTypeObjectUpper &step) const -> std::string {
+  if (step.type ==
+      sourcemeta::blaze::InstructionIndex::AssertionTypeObjectUpper) {
     std::ostringstream message;
     message << "The value was expected to consist of an object of at most "
             << instruction_value<ValueUnsignedInteger>(step)
@@ -1098,48 +1119,48 @@ struct DescribeVisitor {
     return message.str();
   }
 
-  auto operator()(const AssertionRegex &step) const -> std::string {
-    if (std::any_of(this->evaluate_path.cbegin(), this->evaluate_path.cend(),
+  if (step.type == sourcemeta::blaze::InstructionIndex::AssertionRegex) {
+    if (std::any_of(evaluate_path.cbegin(), evaluate_path.cend(),
                     [](const auto &token) {
                       return token.is_property() &&
                              token.to_property() == "propertyNames";
                     }) &&
-        !this->instance_location.empty() &&
-        this->instance_location.back().is_property()) {
+        !instance_location.empty() && instance_location.back().is_property()) {
       std::ostringstream message;
       message << "The property name "
-              << escape_string(this->instance_location.back().to_property())
+              << escape_string(instance_location.back().to_property())
               << " was expected to match the regular expression "
               << escape_string(instruction_value<ValueRegex>(step).second);
       return message.str();
     }
 
-    assert(this->target.is_string());
+    assert(target.is_string());
     std::ostringstream message;
-    message << "The string value " << escape_string(this->target.to_string())
+    message << "The string value " << escape_string(target.to_string())
             << " was expected to match the regular expression "
             << escape_string(instruction_value<ValueRegex>(step).second);
     return message.str();
   }
 
-  auto operator()(const AssertionStringSizeLess &step) const -> std::string {
-    if (this->keyword == "maxLength") {
+  if (step.type ==
+      sourcemeta::blaze::InstructionIndex::AssertionStringSizeLess) {
+    if (keyword == "maxLength") {
       std::ostringstream message;
       const auto maximum{instruction_value<ValueUnsignedInteger>(step) - 1};
 
-      if (is_within_keyword(this->evaluate_path, "propertyNames")) {
-        assert(this->instance_location.back().is_property());
+      if (is_within_keyword(evaluate_path, "propertyNames")) {
+        assert(instance_location.back().is_property());
         message << "The object property name "
-                << escape_string(this->instance_location.back().to_property());
+                << escape_string(instance_location.back().to_property());
       } else {
         message << "The string value ";
-        stringify(this->target, message);
+        stringify(target, message);
       }
 
       message << " was expected to consist of at most " << maximum
               << (maximum == 1 ? " character" : " characters");
 
-      if (this->valid) {
+      if (valid) {
         message << " and";
       } else {
         message << " but";
@@ -1147,14 +1168,14 @@ struct DescribeVisitor {
 
       message << " it consisted of ";
 
-      if (is_within_keyword(this->evaluate_path, "propertyNames")) {
-        message << this->instance_location.back().to_property().size();
-        message << (this->instance_location.back().to_property().size() == 1
+      if (is_within_keyword(evaluate_path, "propertyNames")) {
+        message << instance_location.back().to_property().size();
+        message << (instance_location.back().to_property().size() == 1
                         ? " character"
                         : " characters");
       } else {
-        message << this->target.size();
-        message << (this->target.size() == 1 ? " character" : " characters");
+        message << target.size();
+        message << (target.size() == 1 ? " character" : " characters");
       }
 
       return message.str();
@@ -1163,24 +1184,25 @@ struct DescribeVisitor {
     return unknown();
   }
 
-  auto operator()(const AssertionStringSizeGreater &step) const -> std::string {
-    if (this->keyword == "minLength") {
+  if (step.type ==
+      sourcemeta::blaze::InstructionIndex::AssertionStringSizeGreater) {
+    if (keyword == "minLength") {
       std::ostringstream message;
       const auto minimum{instruction_value<ValueUnsignedInteger>(step) + 1};
 
-      if (is_within_keyword(this->evaluate_path, "propertyNames")) {
-        assert(this->instance_location.back().is_property());
+      if (is_within_keyword(evaluate_path, "propertyNames")) {
+        assert(instance_location.back().is_property());
         message << "The object property name "
-                << escape_string(this->instance_location.back().to_property());
+                << escape_string(instance_location.back().to_property());
       } else {
         message << "The string value ";
-        stringify(this->target, message);
+        stringify(target, message);
       }
 
       message << " was expected to consist of at least " << minimum
               << (minimum == 1 ? " character" : " characters");
 
-      if (this->valid) {
+      if (valid) {
         message << " and";
       } else {
         message << " but";
@@ -1188,14 +1210,14 @@ struct DescribeVisitor {
 
       message << " it consisted of ";
 
-      if (is_within_keyword(this->evaluate_path, "propertyNames")) {
-        message << this->instance_location.back().to_property().size();
-        message << (this->instance_location.back().to_property().size() == 1
+      if (is_within_keyword(evaluate_path, "propertyNames")) {
+        message << instance_location.back().to_property().size();
+        message << (instance_location.back().to_property().size() == 1
                         ? " character"
                         : " characters");
       } else {
-        message << this->target.size();
-        message << (this->target.size() == 1 ? " character" : " characters");
+        message << target.size();
+        message << (target.size() == 1 ? " character" : " characters");
       }
 
       return message.str();
@@ -1204,9 +1226,10 @@ struct DescribeVisitor {
     return unknown();
   }
 
-  auto operator()(const AssertionArraySizeLess &step) const -> std::string {
-    if (this->keyword == "maxItems") {
-      assert(this->target.is_array());
+  if (step.type ==
+      sourcemeta::blaze::InstructionIndex::AssertionArraySizeLess) {
+    if (keyword == "maxItems") {
+      assert(target.is_array());
       std::ostringstream message;
       const auto maximum{instruction_value<ValueUnsignedInteger>(step) - 1};
       message << "The array value was expected to contain at most " << maximum;
@@ -1217,14 +1240,14 @@ struct DescribeVisitor {
         message << " items";
       }
 
-      if (this->valid) {
+      if (valid) {
         message << " and";
       } else {
         message << " but";
       }
 
-      message << " it contained " << this->target.size();
-      if (this->target.size() == 1) {
+      message << " it contained " << target.size();
+      if (target.size() == 1) {
         message << " item";
       } else {
         message << " items";
@@ -1236,8 +1259,9 @@ struct DescribeVisitor {
     return unknown();
   }
 
-  auto operator()(const AssertionArraySizeGreater &step) const -> std::string {
-    assert(this->target.is_array());
+  if (step.type ==
+      sourcemeta::blaze::InstructionIndex::AssertionArraySizeGreater) {
+    assert(target.is_array());
     std::ostringstream message;
     const auto minimum{instruction_value<ValueUnsignedInteger>(step) + 1};
     message << "The array value was expected to contain at least " << minimum;
@@ -1248,14 +1272,14 @@ struct DescribeVisitor {
       message << " items";
     }
 
-    if (this->valid) {
+    if (valid) {
       message << " and";
     } else {
       message << " but";
     }
 
-    message << " it contained " << this->target.size();
-    if (this->target.size() == 1) {
+    message << " it contained " << target.size();
+    if (target.size() == 1) {
       message << " item";
     } else {
       message << " items";
@@ -1264,14 +1288,15 @@ struct DescribeVisitor {
     return message.str();
   }
 
-  auto operator()(const AssertionObjectSizeLess &step) const -> std::string {
-    if (this->keyword == "additionalProperties") {
+  if (step.type ==
+      sourcemeta::blaze::InstructionIndex::AssertionObjectSizeLess) {
+    if (keyword == "additionalProperties") {
       return "The object value was not expected to define additional "
              "properties";
     }
 
-    if (this->keyword == "maxProperties") {
-      assert(this->target.is_object());
+    if (keyword == "maxProperties") {
+      assert(target.is_object());
       std::ostringstream message;
       const auto maximum{instruction_value<ValueUnsignedInteger>(step) - 1};
       message << "The object value was expected to contain at most " << maximum;
@@ -1282,21 +1307,21 @@ struct DescribeVisitor {
         message << " properties";
       }
 
-      if (this->valid) {
+      if (valid) {
         message << " and";
       } else {
         message << " but";
       }
 
-      message << " it contained " << this->target.size();
-      if (this->target.size() == 1) {
+      message << " it contained " << target.size();
+      if (target.size() == 1) {
         message << " property: ";
-        message << escape_string(this->target.as_object().cbegin()->first);
+        message << escape_string(target.as_object().cbegin()->first);
       } else {
         message << " properties: ";
 
         std::vector<std::string> properties;
-        for (const auto &entry : this->target.as_object()) {
+        for (const auto &entry : target.as_object()) {
           properties.push_back(entry.first);
         }
         std::sort(properties.begin(), properties.end());
@@ -1317,9 +1342,10 @@ struct DescribeVisitor {
     return unknown();
   }
 
-  auto operator()(const AssertionObjectSizeGreater &step) const -> std::string {
-    if (this->keyword == "minProperties") {
-      assert(this->target.is_object());
+  if (step.type ==
+      sourcemeta::blaze::InstructionIndex::AssertionObjectSizeGreater) {
+    if (keyword == "minProperties") {
+      assert(target.is_object());
       std::ostringstream message;
       const auto minimum{instruction_value<ValueUnsignedInteger>(step) + 1};
       message << "The object value was expected to contain at least "
@@ -1331,20 +1357,20 @@ struct DescribeVisitor {
         message << " properties";
       }
 
-      if (this->valid) {
+      if (valid) {
         message << " and";
       } else {
         message << " but";
       }
 
-      message << " it contained " << this->target.size();
-      if (this->target.size() == 1) {
+      message << " it contained " << target.size();
+      if (target.size() == 1) {
         message << " property: ";
-        message << escape_string(this->target.as_object().cbegin()->first);
+        message << escape_string(target.as_object().cbegin()->first);
       } else {
         message << " properties: ";
         std::vector<std::string> properties;
-        for (const auto &entry : this->target.as_object()) {
+        for (const auto &entry : target.as_object()) {
           properties.push_back(entry.first);
         }
         std::sort(properties.begin(), properties.end());
@@ -1365,74 +1391,74 @@ struct DescribeVisitor {
     return unknown();
   }
 
-  auto operator()(const AssertionEqual &step) const -> std::string {
+  if (step.type == sourcemeta::blaze::InstructionIndex::AssertionEqual) {
     std::ostringstream message;
     const auto &value{instruction_value<ValueJSON>(step)};
-    message << "The " << to_string(this->target.type()) << " value ";
-    stringify(this->target, message);
+    message << "The " << to_string(target.type()) << " value ";
+    stringify(target, message);
     message << " was expected to equal the " << to_string(value.type())
             << " constant ";
     stringify(value, message);
     return message.str();
   }
 
-  auto operator()(const AssertionGreaterEqual &step) const {
+  if (step.type == sourcemeta::blaze::InstructionIndex::AssertionGreaterEqual) {
     std::ostringstream message;
     const auto &value{instruction_value<ValueJSON>(step)};
-    message << "The " << to_string(this->target.type()) << " value ";
-    stringify(this->target, message);
+    message << "The " << to_string(target.type()) << " value ";
+    stringify(target, message);
     message << " was expected to be greater than or equal to the "
             << to_string(value.type()) << " ";
     stringify(value, message);
     return message.str();
   }
 
-  auto operator()(const AssertionLessEqual &step) const -> std::string {
+  if (step.type == sourcemeta::blaze::InstructionIndex::AssertionLessEqual) {
     std::ostringstream message;
     const auto &value{instruction_value<ValueJSON>(step)};
-    message << "The " << to_string(this->target.type()) << " value ";
-    stringify(this->target, message);
+    message << "The " << to_string(target.type()) << " value ";
+    stringify(target, message);
     message << " was expected to be less than or equal to the "
             << to_string(value.type()) << " ";
     stringify(value, message);
     return message.str();
   }
 
-  auto operator()(const AssertionGreater &step) const -> std::string {
+  if (step.type == sourcemeta::blaze::InstructionIndex::AssertionGreater) {
     std::ostringstream message;
     const auto &value{instruction_value<ValueJSON>(step)};
-    message << "The " << to_string(this->target.type()) << " value ";
-    stringify(this->target, message);
+    message << "The " << to_string(target.type()) << " value ";
+    stringify(target, message);
     message << " was expected to be greater than the "
             << to_string(value.type()) << " ";
     stringify(value, message);
-    if (!this->valid && value == this->target) {
+    if (!valid && value == target) {
       message << ", but they were equal";
     }
 
     return message.str();
   }
 
-  auto operator()(const AssertionLess &step) const -> std::string {
+  if (step.type == sourcemeta::blaze::InstructionIndex::AssertionLess) {
     std::ostringstream message;
     const auto &value{instruction_value<ValueJSON>(step)};
-    message << "The " << to_string(this->target.type()) << " value ";
-    stringify(this->target, message);
+    message << "The " << to_string(target.type()) << " value ";
+    stringify(target, message);
     message << " was expected to be less than the " << to_string(value.type())
             << " ";
     stringify(value, message);
-    if (!this->valid && value == this->target) {
+    if (!valid && value == target) {
       message << ", but they were equal";
     }
 
     return message.str();
   }
 
-  auto operator()(const AssertionUnique &) const -> std::string {
-    assert(this->target.is_array());
-    auto array{this->target.as_array()};
+  if (step.type == sourcemeta::blaze::InstructionIndex::AssertionUnique) {
+    assert(target.is_array());
+    auto array{target.as_array()};
     std::ostringstream message;
-    if (this->valid) {
+    if (valid) {
       message << "The array value was expected to not contain duplicate items";
     } else {
       std::set<sourcemeta::jsontoolkit::JSON> duplicates;
@@ -1469,22 +1495,22 @@ struct DescribeVisitor {
     return message.str();
   }
 
-  auto operator()(const AssertionDivisible &step) const -> std::string {
+  if (step.type == sourcemeta::blaze::InstructionIndex::AssertionDivisible) {
     std::ostringstream message;
     const auto &value{instruction_value<ValueJSON>(step)};
-    message << "The " << to_string(this->target.type()) << " value ";
-    stringify(this->target, message);
+    message << "The " << to_string(target.type()) << " value ";
+    stringify(target, message);
     message << " was expected to be divisible by the "
             << to_string(value.type()) << " ";
     stringify(value, message);
     return message.str();
   }
 
-  auto operator()(const AssertionEqualsAny &step) const -> std::string {
+  if (step.type == sourcemeta::blaze::InstructionIndex::AssertionEqualsAny) {
     std::ostringstream message;
     const auto &value{instruction_value<ValueSet>(step)};
-    message << "The " << to_string(this->target.type()) << " value ";
-    stringify(this->target, message);
+    message << "The " << to_string(target.type()) << " value ";
+    stringify(target, message);
     assert(!value.empty());
 
     if (value.size() == 1) {
@@ -1492,7 +1518,7 @@ struct DescribeVisitor {
               << to_string(value.cbegin()->type()) << " constant ";
       stringify(*(value.cbegin()), message);
     } else {
-      if (this->valid) {
+      if (valid) {
         message << " was expected to equal one of the " << value.size()
                 << " declared values";
       } else {
@@ -1516,10 +1542,10 @@ struct DescribeVisitor {
     return message.str();
   }
 
-  auto operator()(const AssertionStringType &step) const -> std::string {
-    assert(this->target.is_string());
+  if (step.type == sourcemeta::blaze::InstructionIndex::AssertionStringType) {
+    assert(target.is_string());
     std::ostringstream message;
-    message << "The string value " << escape_string(this->target.to_string())
+    message << "The string value " << escape_string(target.to_string())
             << " was expected to represent a valid";
     switch (instruction_value<ValueStringType>(step)) {
       case ValueStringType::URI:
@@ -1532,109 +1558,105 @@ struct DescribeVisitor {
     return message.str();
   }
 
-  auto operator()(const AssertionPropertyType &step) const -> std::string {
+  if (step.type == sourcemeta::blaze::InstructionIndex::AssertionPropertyType) {
     std::ostringstream message;
     const auto &value{instruction_value<ValueType>(step)};
-    if (!this->valid && value == sourcemeta::jsontoolkit::JSON::Type::Real &&
-        this->target.type() == sourcemeta::jsontoolkit::JSON::Type::Integer) {
+    if (!valid && value == sourcemeta::jsontoolkit::JSON::Type::Real &&
+        target.type() == sourcemeta::jsontoolkit::JSON::Type::Integer) {
       message
           << "The value was expected to be a real number but it was an integer";
-    } else if (!this->valid &&
+    } else if (!valid &&
                value == sourcemeta::jsontoolkit::JSON::Type::Integer &&
-               this->target.type() ==
-                   sourcemeta::jsontoolkit::JSON::Type::Real) {
+               target.type() == sourcemeta::jsontoolkit::JSON::Type::Real) {
       message
           << "The value was expected to be an integer but it was a real number";
     } else {
-      describe_type_check(this->valid, this->target.type(), value, message);
+      describe_type_check(valid, target.type(), value, message);
     }
 
     return message.str();
   }
 
-  auto operator()(const AssertionPropertyTypeEvaluate &step) const
-      -> std::string {
+  if (step.type ==
+      sourcemeta::blaze::InstructionIndex::AssertionPropertyTypeEvaluate) {
     std::ostringstream message;
     const auto &value{instruction_value<ValueType>(step)};
-    if (!this->valid && value == sourcemeta::jsontoolkit::JSON::Type::Real &&
-        this->target.type() == sourcemeta::jsontoolkit::JSON::Type::Integer) {
+    if (!valid && value == sourcemeta::jsontoolkit::JSON::Type::Real &&
+        target.type() == sourcemeta::jsontoolkit::JSON::Type::Integer) {
       message
           << "The value was expected to be a real number but it was an integer";
-    } else if (!this->valid &&
+    } else if (!valid &&
                value == sourcemeta::jsontoolkit::JSON::Type::Integer &&
-               this->target.type() ==
-                   sourcemeta::jsontoolkit::JSON::Type::Real) {
+               target.type() == sourcemeta::jsontoolkit::JSON::Type::Real) {
       message
           << "The value was expected to be an integer but it was a real number";
     } else {
-      describe_type_check(this->valid, this->target.type(), value, message);
+      describe_type_check(valid, target.type(), value, message);
     }
 
     return message.str();
   }
 
-  auto operator()(const AssertionPropertyTypeStrict &step) const
-      -> std::string {
+  if (step.type ==
+      sourcemeta::blaze::InstructionIndex::AssertionPropertyTypeStrict) {
     std::ostringstream message;
     const auto &value{instruction_value<ValueType>(step)};
-    if (!this->valid && value == sourcemeta::jsontoolkit::JSON::Type::Real &&
-        this->target.type() == sourcemeta::jsontoolkit::JSON::Type::Integer) {
+    if (!valid && value == sourcemeta::jsontoolkit::JSON::Type::Real &&
+        target.type() == sourcemeta::jsontoolkit::JSON::Type::Integer) {
       message
           << "The value was expected to be a real number but it was an integer";
-    } else if (!this->valid &&
+    } else if (!valid &&
                value == sourcemeta::jsontoolkit::JSON::Type::Integer &&
-               this->target.type() ==
-                   sourcemeta::jsontoolkit::JSON::Type::Real) {
+               target.type() == sourcemeta::jsontoolkit::JSON::Type::Real) {
       message
           << "The value was expected to be an integer but it was a real number";
     } else {
-      describe_type_check(this->valid, this->target.type(), value, message);
+      describe_type_check(valid, target.type(), value, message);
     }
 
     return message.str();
   }
 
-  auto operator()(const AssertionPropertyTypeStrictEvaluate &step) const
-      -> std::string {
+  if (step.type == sourcemeta::blaze::InstructionIndex::
+                       AssertionPropertyTypeStrictEvaluate) {
     std::ostringstream message;
     const auto &value{instruction_value<ValueType>(step)};
-    if (!this->valid && value == sourcemeta::jsontoolkit::JSON::Type::Real &&
-        this->target.type() == sourcemeta::jsontoolkit::JSON::Type::Integer) {
+    if (!valid && value == sourcemeta::jsontoolkit::JSON::Type::Real &&
+        target.type() == sourcemeta::jsontoolkit::JSON::Type::Integer) {
       message
           << "The value was expected to be a real number but it was an integer";
-    } else if (!this->valid &&
+    } else if (!valid &&
                value == sourcemeta::jsontoolkit::JSON::Type::Integer &&
-               this->target.type() ==
-                   sourcemeta::jsontoolkit::JSON::Type::Real) {
+               target.type() == sourcemeta::jsontoolkit::JSON::Type::Real) {
       message
           << "The value was expected to be an integer but it was a real number";
     } else {
-      describe_type_check(this->valid, this->target.type(), value, message);
+      describe_type_check(valid, target.type(), value, message);
     }
 
     return message.str();
   }
 
-  auto operator()(const AssertionPropertyTypeStrictAny &step) const
-      -> std::string {
+  if (step.type ==
+      sourcemeta::blaze::InstructionIndex::AssertionPropertyTypeStrictAny) {
     std::ostringstream message;
-    describe_types_check(this->valid, this->target.type(),
+    describe_types_check(valid, target.type(),
                          instruction_value<ValueTypes>(step), message);
     return message.str();
   }
 
-  auto operator()(const AssertionPropertyTypeStrictAnyEvaluate &step) const
-      -> std::string {
+  if (step.type == sourcemeta::blaze::InstructionIndex::
+                       AssertionPropertyTypeStrictAnyEvaluate) {
     std::ostringstream message;
-    describe_types_check(this->valid, this->target.type(),
+    describe_types_check(valid, target.type(),
                          instruction_value<ValueTypes>(step), message);
     return message.str();
   }
 
-  auto operator()(const AssertionArrayPrefix &step) const -> std::string {
-    assert(this->keyword == "items" || this->keyword == "prefixItems");
+  if (step.type == sourcemeta::blaze::InstructionIndex::AssertionArrayPrefix) {
+    assert(keyword == "items" || keyword == "prefixItems");
     assert(!step.children.empty());
-    assert(this->target.is_array());
+    assert(target.is_array());
 
     std::ostringstream message;
     message << "The first ";
@@ -1648,11 +1670,11 @@ struct DescribeVisitor {
     return message.str();
   }
 
-  auto operator()(const AssertionArrayPrefixEvaluate &step) const
-      -> std::string {
-    assert(this->keyword == "items" || this->keyword == "prefixItems");
+  if (step.type ==
+      sourcemeta::blaze::InstructionIndex::AssertionArrayPrefixEvaluate) {
+    assert(keyword == "items" || keyword == "prefixItems");
     assert(!step.children.empty());
-    assert(this->target.is_array());
+    assert(target.is_array());
 
     std::ostringstream message;
     message << "The first ";
@@ -1666,9 +1688,9 @@ struct DescribeVisitor {
     return message.str();
   }
 
-  auto operator()(const LoopPropertiesMatch &step) const -> std::string {
+  if (step.type == sourcemeta::blaze::InstructionIndex::LoopPropertiesMatch) {
     assert(!step.children.empty());
-    assert(this->target.is_object());
+    assert(target.is_object());
     std::ostringstream message;
     message << "The object value was expected to validate against the ";
     if (step.children.size() == 1) {
@@ -1680,9 +1702,10 @@ struct DescribeVisitor {
     return message.str();
   }
 
-  auto operator()(const LoopPropertiesMatchClosed &step) const -> std::string {
+  if (step.type ==
+      sourcemeta::blaze::InstructionIndex::LoopPropertiesMatchClosed) {
     assert(!step.children.empty());
-    assert(this->target.is_object());
+    assert(target.is_object());
     std::ostringstream message;
     if (step.children.size() == 1) {
       message << "The object value was expected to validate against the ";
@@ -1696,15 +1719,15 @@ struct DescribeVisitor {
     return message.str();
   }
 
-  auto operator()(const LogicalWhenDefines &step) const -> std::string {
+  if (step.type == sourcemeta::blaze::InstructionIndex::LogicalWhenDefines) {
     std::ostringstream message;
     message << "The object value defined the property \""
             << instruction_value<ValueString>(step) << "\"";
     return message.str();
   }
 
-  auto operator()(const LoopPropertiesRegex &step) const -> std::string {
-    assert(this->target.is_object());
+  if (step.type == sourcemeta::blaze::InstructionIndex::LoopPropertiesRegex) {
+    assert(target.is_object());
     std::ostringstream message;
     message << "The object properties that match the regular expression \""
             << instruction_value<ValueRegex>(step).second
@@ -1713,8 +1736,9 @@ struct DescribeVisitor {
     return message.str();
   }
 
-  auto operator()(const LoopPropertiesRegexClosed &step) const -> std::string {
-    assert(this->target.is_object());
+  if (step.type ==
+      sourcemeta::blaze::InstructionIndex::LoopPropertiesRegexClosed) {
+    assert(target.is_object());
     std::ostringstream message;
     message << "The object properties were expected to match the regular "
                "expression \""
@@ -1724,8 +1748,9 @@ struct DescribeVisitor {
     return message.str();
   }
 
-  auto operator()(const LoopPropertiesStartsWith &step) const -> std::string {
-    assert(this->target.is_object());
+  if (step.type ==
+      sourcemeta::blaze::InstructionIndex::LoopPropertiesStartsWith) {
+    assert(target.is_object());
     std::ostringstream message;
     message << "The object properties that start with the string \""
             << instruction_value<ValueString>(step)
@@ -1734,16 +1759,16 @@ struct DescribeVisitor {
     return message.str();
   }
 
-  auto operator()(const LogicalWhenType &step) const -> std::string {
-    if (this->keyword == "items") {
+  if (step.type == sourcemeta::blaze::InstructionIndex::LogicalWhenType) {
+    if (keyword == "items") {
       std::ostringstream message;
-      describe_type_check(this->valid, this->target.type(),
+      describe_type_check(valid, target.type(),
                           instruction_value<ValueType>(step), message);
       return message.str();
     }
 
-    if (this->keyword == "dependencies") {
-      assert(this->target.is_object());
+    if (keyword == "dependencies") {
+      assert(target.is_object());
       assert(!step.children.empty());
 
       std::set<std::string> present;
@@ -1754,11 +1779,11 @@ struct DescribeVisitor {
 
       for (const auto &child : step.children) {
         // Schema
-        if (std::holds_alternative<LogicalWhenDefines>(child)) {
-          const auto &substep{std::get<LogicalWhenDefines>(child)};
+        if (child.type == InstructionIndex::LogicalWhenDefines) {
+          const auto &substep{child};
           const auto &property{instruction_value<ValueString>(substep)};
           all_dependencies.insert(property);
-          if (!this->target.defines(property)) {
+          if (!target.defines(property)) {
             continue;
           }
 
@@ -1767,17 +1792,17 @@ struct DescribeVisitor {
 
           // Properties
         } else {
-          assert(std::holds_alternative<AssertionPropertyDependencies>(child));
-          const auto &substep{std::get<AssertionPropertyDependencies>(child)};
+          assert(child.type == InstructionIndex::AssertionPropertyDependencies);
+          const auto &substep{child};
 
           for (const auto &[property, dependencies] :
                std::get<ValueStringMap>(substep.value)) {
             all_dependencies.insert(property);
-            if (this->target.defines(property)) {
+            if (target.defines(property)) {
               present.insert(property);
               present_with_properties.insert(property);
               for (const auto &dependency : dependencies) {
-                if (this->valid || !this->target.defines(dependency)) {
+                if (valid || !target.defines(dependency)) {
                   required_properties.insert(dependency);
                 }
               }
@@ -1871,17 +1896,17 @@ struct DescribeVisitor {
       return message.str();
     }
 
-    if (this->keyword == "dependentSchemas") {
-      assert(this->target.is_object());
+    if (keyword == "dependentSchemas") {
+      assert(target.is_object());
       assert(!step.children.empty());
       std::set<std::string> present;
       std::set<std::string> all_dependencies;
       for (const auto &child : step.children) {
-        assert(std::holds_alternative<LogicalWhenDefines>(child));
-        const auto &substep{std::get<LogicalWhenDefines>(child)};
+        assert(child.type == InstructionIndex::LogicalWhenDefines);
+        const auto &substep{child};
         const auto &property{instruction_value<ValueString>(substep)};
         all_dependencies.insert(property);
-        if (!this->target.defines(property)) {
+        if (!target.defines(property)) {
           continue;
         }
 
@@ -1936,9 +1961,9 @@ struct DescribeVisitor {
     return unknown();
   }
 
-  auto operator()(const AssertionPropertyDependencies &step) const
-      -> std::string {
-    assert(this->target.is_object());
+  if (step.type ==
+      sourcemeta::blaze::InstructionIndex::AssertionPropertyDependencies) {
+    assert(target.is_object());
     std::set<std::string> present;
     std::set<std::string> all_dependencies;
     std::set<std::string> required;
@@ -1946,10 +1971,10 @@ struct DescribeVisitor {
     for (const auto &[property, dependencies] :
          instruction_value<ValueStringMap>(step)) {
       all_dependencies.insert(property);
-      if (this->target.defines(property)) {
+      if (target.defines(property)) {
         present.insert(property);
         for (const auto &dependency : dependencies) {
-          if (this->valid || !this->target.defines(dependency)) {
+          if (valid || !target.defines(dependency)) {
             required.insert(dependency);
           }
         }
@@ -2011,14 +2036,14 @@ struct DescribeVisitor {
     return message.str();
   }
 
-  auto operator()(const LogicalWhenArraySizeGreater &step) const
-      -> std::string {
-    if (this->keyword == "additionalItems" || this->keyword == "items") {
-      assert(this->target.is_array());
+  if (step.type ==
+      sourcemeta::blaze::InstructionIndex::LogicalWhenArraySizeGreater) {
+    if (keyword == "additionalItems" || keyword == "items") {
+      assert(target.is_array());
       std::ostringstream message;
 
-      if (this->target.size() > instruction_value<ValueUnsignedInteger>(step)) {
-        const auto rest{this->target.size() -
+      if (target.size() > instruction_value<ValueUnsignedInteger>(step)) {
+        const auto rest{target.size() -
                         instruction_value<ValueUnsignedInteger>(step)};
         message << "The array value contains " << rest << " additional"
                 << (rest == 1 ? " item" : " items")
@@ -2034,39 +2059,7 @@ struct DescribeVisitor {
     return unknown();
   }
 
-  // These steps are never described, at least not right now
-
-  auto operator()(const ControlGroup &) const -> std::string {
-    return unknown();
-  }
-
-  auto operator()(const ControlGroupWhenDefines &) const -> std::string {
-    return unknown();
-  }
-
-  auto operator()(const ControlGroupWhenDefinesDirect &) const -> std::string {
-    return unknown();
-  }
-};
-
-} // namespace
-
-namespace sourcemeta::blaze {
-
-// TODO: What will unlock even better error messages is being able to
-// get the subschema being evaluated along with the keyword
-auto describe(const bool valid, const Instruction &step,
-              const sourcemeta::jsontoolkit::WeakPointer &evaluate_path,
-              const sourcemeta::jsontoolkit::WeakPointer &instance_location,
-              const sourcemeta::jsontoolkit::JSON &instance,
-              const sourcemeta::jsontoolkit::JSON &annotation) -> std::string {
-  assert(evaluate_path.empty() || evaluate_path.back().is_property());
-  return std::visit<std::string>(
-      DescribeVisitor{
-          valid, evaluate_path,
-          evaluate_path.empty() ? "" : evaluate_path.back().to_property(),
-          instance_location, get(instance, instance_location), annotation},
-      step);
+  return unknown();
 }
 
 } // namespace sourcemeta::blaze

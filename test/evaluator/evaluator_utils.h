@@ -89,12 +89,10 @@ inline auto FIRST_PROPERTY_IS(const sourcemeta::jsontoolkit::JSON &document,
   EXPECT_EQ(                                                                   \
       sourcemeta::jsontoolkit::to_string(std::get<2>(trace_pre.at(index))),    \
       expected_instance_location);                                             \
-  EXPECT_TRUE(std::holds_alternative<sourcemeta::blaze::step_type>(            \
-      std::get<3>(trace_pre.at(index))));                                      \
-  EXPECT_EQ(                                                                   \
-      std::get<sourcemeta::blaze::step_type>(std::get<3>(trace_pre.at(index))) \
-          .keyword_location,                                                   \
-      expected_keyword_location);                                              \
+  EXPECT_TRUE(std::get<3>(trace_pre.at(index)).type ==                         \
+              sourcemeta::blaze::InstructionIndex::step_type);                 \
+  EXPECT_EQ(std::get<3>(trace_pre.at(index)).keyword_location,                 \
+            expected_keyword_location);                                        \
   EXPECT_TRUE(std::get<4>(trace_pre.at(index)).is_null());
 
 #define EVALUATE_TRACE_POST(index, step_type, evaluate_path,                   \
@@ -106,11 +104,9 @@ inline auto FIRST_PROPERTY_IS(const sourcemeta::jsontoolkit::JSON &document,
   EXPECT_EQ(                                                                   \
       sourcemeta::jsontoolkit::to_string(std::get<2>(trace_post.at(index))),   \
       expected_instance_location);                                             \
-  EXPECT_TRUE(std::holds_alternative<sourcemeta::blaze::step_type>(            \
-      std::get<3>(trace_post.at(index))));                                     \
-  EXPECT_EQ(std::get<sourcemeta::blaze::step_type>(                            \
-                std::get<3>(trace_post.at(index)))                             \
-                .keyword_location,                                             \
+  EXPECT_TRUE(std::get<3>(trace_post.at(index)).type ==                        \
+              sourcemeta::blaze::InstructionIndex::step_type);                 \
+  EXPECT_EQ(std::get<3>(trace_post.at(index)).keyword_location,                \
             expected_keyword_location);
 
 #define EVALUATE_TRACE_POST_SUCCESS(index, step_type, evaluate_path,           \
@@ -123,12 +119,12 @@ inline auto FIRST_PROPERTY_IS(const sourcemeta::jsontoolkit::JSON &document,
 
 #define EVALUATE_TRACE_PRE_ANNOTATION(index, evaluate_path, keyword_location,  \
                                       instance_location)                       \
-  if (std::holds_alternative<sourcemeta::blaze::AnnotationBasenameToParent>(   \
-          std::get<3>(trace_pre.at(index)))) {                                 \
+  if (std::get<3>(trace_pre.at(index)).type ==                                 \
+      sourcemeta::blaze::InstructionIndex::AnnotationBasenameToParent) {       \
     EVALUATE_TRACE_PRE(index, AnnotationBasenameToParent, evaluate_path,       \
                        keyword_location, instance_location);                   \
-  } else if (std::holds_alternative<sourcemeta::blaze::AnnotationToParent>(    \
-                 std::get<3>(trace_pre.at(index)))) {                          \
+  } else if (std::get<3>(trace_pre.at(index)).type ==                          \
+             sourcemeta::blaze::InstructionIndex::AnnotationToParent) {        \
     EVALUATE_TRACE_PRE(index, AnnotationToParent, evaluate_path,               \
                        keyword_location, instance_location);                   \
   } else {                                                                     \
@@ -141,12 +137,12 @@ inline auto FIRST_PROPERTY_IS(const sourcemeta::jsontoolkit::JSON &document,
                                        instance_location, expected_annotation) \
   EXPECT_TRUE(index < trace_post.size());                                      \
   EXPECT_TRUE(std::get<0>(trace_post.at(index)));                              \
-  if (std::holds_alternative<sourcemeta::blaze::AnnotationBasenameToParent>(   \
-          std::get<3>(trace_post.at(index)))) {                                \
+  if (std::get<3>(trace_post.at(index)).type ==                                \
+      sourcemeta::blaze::InstructionIndex::AnnotationBasenameToParent) {       \
     EVALUATE_TRACE_POST(index, AnnotationBasenameToParent, evaluate_path,      \
                         keyword_location, instance_location);                  \
-  } else if (std::holds_alternative<sourcemeta::blaze::AnnotationToParent>(    \
-                 std::get<3>(trace_post.at(index)))) {                         \
+  } else if (std::get<3>(trace_post.at(index)).type ==                         \
+             sourcemeta::blaze::InstructionIndex::AnnotationToParent) {        \
     EVALUATE_TRACE_POST(index, AnnotationToParent, evaluate_path,              \
                         keyword_location, instance_location);                  \
   } else {                                                                     \
