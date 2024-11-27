@@ -10,7 +10,7 @@ auto evaluate_instruction(
 
 #define INSTRUCTION_HANDLER(name)                                              \
   static inline auto name(                                                     \
-      const sourcemeta::blaze::name &instruction,                              \
+      const sourcemeta::blaze::Instruction &instruction,                       \
       const sourcemeta::blaze::Template &schema,                               \
       const std::optional<sourcemeta::blaze::Callback> &callback,              \
       const sourcemeta::jsontoolkit::JSON &instance,                           \
@@ -41,7 +41,7 @@ INSTRUCTION_HANDLER(AssertionDefines) {
   SOURCEMETA_MAYBE_UNUSED(property_target);
   SOURCEMETA_MAYBE_UNUSED(evaluator);
   EVALUATE_BEGIN_NON_STRING(AssertionDefines, target.is_object());
-  result = target.defines(instruction.value);
+  result = target.defines(std::get<ValueString>(instruction.value));
   EVALUATE_END(AssertionDefines);
 }
 
@@ -54,7 +54,8 @@ INSTRUCTION_HANDLER(AssertionDefinesStrict) {
   SOURCEMETA_MAYBE_UNUSED(evaluator);
   EVALUATE_BEGIN_NO_PRECONDITION(AssertionDefinesStrict);
   const auto &target{get(instance, instruction.relative_instance_location)};
-  result = target.is_object() && target.defines(instruction.value);
+  result = target.is_object() &&
+           target.defines(std::get<ValueString>(instruction.value));
   EVALUATE_END(AssertionDefinesStrict);
 }
 
@@ -68,12 +69,13 @@ INSTRUCTION_HANDLER(AssertionDefinesAll) {
   EVALUATE_BEGIN_NON_STRING(AssertionDefinesAll, target.is_object());
 
   // Otherwise we are we even emitting this instruction?
-  assert(instruction.value.size() > 1);
+  assert(std::get<ValueStrings>(instruction.value).size() > 1);
 
   // Otherwise there is no way the instance can satisfy it anyway
-  if (instruction.value.size() <= target.object_size()) {
+  if (std::get<ValueStrings>(instruction.value).size() <=
+      target.object_size()) {
     result = true;
-    for (const auto &property : instruction.value) {
+    for (const auto &property : std::get<ValueStrings>(instruction.value)) {
       if (!target.defines(property)) {
         result = false;
         break;
@@ -95,12 +97,13 @@ INSTRUCTION_HANDLER(AssertionDefinesAllStrict) {
   const auto &target{get(instance, instruction.relative_instance_location)};
 
   // Otherwise we are we even emitting this instruction?
-  assert(instruction.value.size() > 1);
+  assert(std::get<ValueStrings>(instruction.value).size() > 1);
 
   // Otherwise there is no way the instance can satisfy it anyway
-  if (target.is_object() && instruction.value.size() <= target.object_size()) {
+  if (target.is_object() && std::get<ValueStrings>(instruction.value).size() <=
+                                target.object_size()) {
     result = true;
-    for (const auto &property : instruction.value) {
+    for (const auto &property : std::get<ValueStrings>(instruction.value)) {
       if (!target.defines(property)) {
         result = false;
         break;
@@ -121,11 +124,12 @@ INSTRUCTION_HANDLER(AssertionDefinesExactly) {
   EVALUATE_BEGIN_NON_STRING(AssertionDefinesExactly, target.is_object());
 
   // Otherwise we are we even emitting this instruction?
-  assert(instruction.value.size() > 1);
+  assert(std::get<ValueStrings>(instruction.value).size() > 1);
 
-  if (instruction.value.size() == target.object_size()) {
+  if (std::get<ValueStrings>(instruction.value).size() ==
+      target.object_size()) {
     result = true;
-    for (const auto &property : instruction.value) {
+    for (const auto &property : std::get<ValueStrings>(instruction.value)) {
       if (!target.defines(property)) {
         result = false;
         break;
@@ -147,11 +151,12 @@ INSTRUCTION_HANDLER(AssertionDefinesExactlyStrict) {
   const auto &target{get(instance, instruction.relative_instance_location)};
 
   // Otherwise we are we even emitting this instruction?
-  assert(instruction.value.size() > 1);
+  assert(std::get<ValueStrings>(instruction.value).size() > 1);
 
-  if (target.is_object() && instruction.value.size() == target.object_size()) {
+  if (target.is_object() && std::get<ValueStrings>(instruction.value).size() ==
+                                target.object_size()) {
     result = true;
-    for (const auto &property : instruction.value) {
+    for (const auto &property : std::get<ValueStrings>(instruction.value)) {
       if (!target.defines(property)) {
         result = false;
         break;
@@ -171,9 +176,10 @@ INSTRUCTION_HANDLER(AssertionPropertyDependencies) {
   SOURCEMETA_MAYBE_UNUSED(evaluator);
   EVALUATE_BEGIN_NON_STRING(AssertionPropertyDependencies, target.is_object());
   // Otherwise we are we even emitting this instruction?
-  assert(!instruction.value.empty());
+  assert(!std::get<ValueStringMap>(instruction.value).empty());
   result = true;
-  for (const auto &[property, dependencies] : instruction.value) {
+  for (const auto &[property, dependencies] :
+       std::get<ValueStringMap>(instruction.value)) {
     if (!target.defines(property)) {
       continue;
     }
@@ -201,9 +207,9 @@ INSTRUCTION_HANDLER(AssertionType) {
   const auto &target{get(instance, instruction.relative_instance_location)};
   // In non-strict mode, we consider a real number that represents an
   // integer to be an integer
-  result =
-      target.type() == instruction.value ||
-      (instruction.value == JSON::Type::Integer && target.is_integer_real());
+  result = target.type() == std::get<ValueType>(instruction.value) ||
+           (std::get<ValueType>(instruction.value) == JSON::Type::Integer &&
+            target.is_integer_real());
   EVALUATE_END(AssertionType);
 }
 
@@ -216,11 +222,11 @@ INSTRUCTION_HANDLER(AssertionTypeAny) {
   SOURCEMETA_MAYBE_UNUSED(evaluator);
   EVALUATE_BEGIN_NO_PRECONDITION(AssertionTypeAny);
   // Otherwise we are we even emitting this instruction?
-  assert(instruction.value.size() > 1);
+  assert(std::get<ValueTypes>(instruction.value).size() > 1);
   const auto &target{get(instance, instruction.relative_instance_location)};
   // In non-strict mode, we consider a real number that represents an
   // integer to be an integer
-  for (const auto type : instruction.value) {
+  for (const auto type : std::get<ValueTypes>(instruction.value)) {
     if (type == JSON::Type::Integer && target.is_integer_real()) {
       result = true;
       break;
@@ -242,7 +248,7 @@ INSTRUCTION_HANDLER(AssertionTypeStrict) {
   SOURCEMETA_MAYBE_UNUSED(evaluator);
   EVALUATE_BEGIN_NO_PRECONDITION(AssertionTypeStrict);
   const auto &target{get(instance, instruction.relative_instance_location)};
-  result = target.type() == instruction.value;
+  result = target.type() == std::get<ValueType>(instruction.value);
   EVALUATE_END(AssertionTypeStrict);
 }
 
@@ -255,10 +261,12 @@ INSTRUCTION_HANDLER(AssertionTypeStrictAny) {
   SOURCEMETA_MAYBE_UNUSED(evaluator);
   EVALUATE_BEGIN_NO_PRECONDITION(AssertionTypeStrictAny);
   // Otherwise we are we even emitting this instruction?
-  assert(instruction.value.size() > 1);
+  assert(std::get<ValueTypes>(instruction.value).size() > 1);
   const auto &target{get(instance, instruction.relative_instance_location)};
-  result = (std::find(instruction.value.cbegin(), instruction.value.cend(),
-                      target.type()) != instruction.value.cend());
+  result = (std::find(std::get<ValueTypes>(instruction.value).cbegin(),
+                      std::get<ValueTypes>(instruction.value).cend(),
+                      target.type()) !=
+            std::get<ValueTypes>(instruction.value).cend());
   EVALUATE_END(AssertionTypeStrictAny);
 }
 
@@ -271,11 +279,11 @@ INSTRUCTION_HANDLER(AssertionTypeStringBounded) {
   SOURCEMETA_MAYBE_UNUSED(evaluator);
   EVALUATE_BEGIN_NO_PRECONDITION(AssertionTypeStringBounded);
   const auto &target{get(instance, instruction.relative_instance_location)};
-  const auto minimum{std::get<0>(instruction.value)};
-  const auto maximum{std::get<1>(instruction.value)};
+  const auto minimum{std::get<0>(std::get<ValueRange>(instruction.value))};
+  const auto maximum{std::get<1>(std::get<ValueRange>(instruction.value))};
   assert(!maximum.has_value() || maximum.value() >= minimum);
   // Require early breaking
-  assert(!std::get<2>(instruction.value));
+  assert(!std::get<2>(std::get<ValueRange>(instruction.value)));
   result = target.type() == JSON::Type::String &&
            target.string_size() >= minimum &&
            (!maximum.has_value() || target.string_size() <= maximum.value());
@@ -291,7 +299,9 @@ INSTRUCTION_HANDLER(AssertionTypeStringUpper) {
   SOURCEMETA_MAYBE_UNUSED(evaluator);
   EVALUATE_BEGIN_NO_PRECONDITION(AssertionTypeStringUpper);
   const auto &target{get(instance, instruction.relative_instance_location)};
-  result = target.is_string() && target.string_size() <= instruction.value;
+  result =
+      target.is_string() &&
+      target.string_size() <= std::get<ValueUnsignedInteger>(instruction.value);
   EVALUATE_END(AssertionTypeStringUpper);
 }
 
@@ -304,11 +314,11 @@ INSTRUCTION_HANDLER(AssertionTypeArrayBounded) {
   SOURCEMETA_MAYBE_UNUSED(evaluator);
   EVALUATE_BEGIN_NO_PRECONDITION(AssertionTypeArrayBounded);
   const auto &target{get(instance, instruction.relative_instance_location)};
-  const auto minimum{std::get<0>(instruction.value)};
-  const auto maximum{std::get<1>(instruction.value)};
+  const auto minimum{std::get<0>(std::get<ValueRange>(instruction.value))};
+  const auto maximum{std::get<1>(std::get<ValueRange>(instruction.value))};
   assert(!maximum.has_value() || maximum.value() >= minimum);
   // Require early breaking
-  assert(!std::get<2>(instruction.value));
+  assert(!std::get<2>(std::get<ValueRange>(instruction.value)));
   result = target.type() == JSON::Type::Array &&
            target.array_size() >= minimum &&
            (!maximum.has_value() || target.array_size() <= maximum.value());
@@ -324,7 +334,9 @@ INSTRUCTION_HANDLER(AssertionTypeArrayUpper) {
   SOURCEMETA_MAYBE_UNUSED(evaluator);
   EVALUATE_BEGIN_NO_PRECONDITION(AssertionTypeArrayUpper);
   const auto &target{get(instance, instruction.relative_instance_location)};
-  result = target.is_array() && target.array_size() <= instruction.value;
+  result =
+      target.is_array() &&
+      target.array_size() <= std::get<ValueUnsignedInteger>(instruction.value);
   EVALUATE_END(AssertionTypeArrayUpper);
 }
 
@@ -337,11 +349,11 @@ INSTRUCTION_HANDLER(AssertionTypeObjectBounded) {
   SOURCEMETA_MAYBE_UNUSED(evaluator);
   EVALUATE_BEGIN_NO_PRECONDITION(AssertionTypeObjectBounded);
   const auto &target{get(instance, instruction.relative_instance_location)};
-  const auto minimum{std::get<0>(instruction.value)};
-  const auto maximum{std::get<1>(instruction.value)};
+  const auto minimum{std::get<0>(std::get<ValueRange>(instruction.value))};
+  const auto maximum{std::get<1>(std::get<ValueRange>(instruction.value))};
   assert(!maximum.has_value() || maximum.value() >= minimum);
   // Require early breaking
-  assert(!std::get<2>(instruction.value));
+  assert(!std::get<2>(std::get<ValueRange>(instruction.value)));
   result = target.type() == JSON::Type::Object &&
            target.object_size() >= minimum &&
            (!maximum.has_value() || target.object_size() <= maximum.value());
@@ -357,7 +369,9 @@ INSTRUCTION_HANDLER(AssertionTypeObjectUpper) {
   SOURCEMETA_MAYBE_UNUSED(evaluator);
   EVALUATE_BEGIN_NO_PRECONDITION(AssertionTypeObjectUpper);
   const auto &target{get(instance, instruction.relative_instance_location)};
-  result = target.is_object() && target.object_size() <= instruction.value;
+  result =
+      target.is_object() &&
+      target.object_size() <= std::get<ValueUnsignedInteger>(instruction.value);
   EVALUATE_END(AssertionTypeObjectUpper);
 }
 
@@ -369,7 +383,7 @@ INSTRUCTION_HANDLER(AssertionRegex) {
   SOURCEMETA_MAYBE_UNUSED(property_target);
   SOURCEMETA_MAYBE_UNUSED(evaluator);
   EVALUATE_BEGIN_IF_STRING(AssertionRegex);
-  result = matches(instruction.value.first, target);
+  result = matches(std::get<ValueRegex>(instruction.value).first, target);
   EVALUATE_END(AssertionRegex);
 }
 
@@ -381,7 +395,8 @@ INSTRUCTION_HANDLER(AssertionStringSizeLess) {
   SOURCEMETA_MAYBE_UNUSED(property_target);
   SOURCEMETA_MAYBE_UNUSED(evaluator);
   EVALUATE_BEGIN_IF_STRING(AssertionStringSizeLess);
-  result = (JSON::size(target) < instruction.value);
+  result =
+      (JSON::size(target) < std::get<ValueUnsignedInteger>(instruction.value));
   EVALUATE_END(AssertionStringSizeLess);
 }
 
@@ -393,7 +408,8 @@ INSTRUCTION_HANDLER(AssertionStringSizeGreater) {
   SOURCEMETA_MAYBE_UNUSED(property_target);
   SOURCEMETA_MAYBE_UNUSED(evaluator);
   EVALUATE_BEGIN_IF_STRING(AssertionStringSizeGreater);
-  result = (JSON::size(target) > instruction.value);
+  result =
+      (JSON::size(target) > std::get<ValueUnsignedInteger>(instruction.value));
   EVALUATE_END(AssertionStringSizeGreater);
 }
 
@@ -405,7 +421,8 @@ INSTRUCTION_HANDLER(AssertionArraySizeLess) {
   SOURCEMETA_MAYBE_UNUSED(property_target);
   SOURCEMETA_MAYBE_UNUSED(evaluator);
   EVALUATE_BEGIN_NON_STRING(AssertionArraySizeLess, target.is_array());
-  result = (target.array_size() < instruction.value);
+  result =
+      (target.array_size() < std::get<ValueUnsignedInteger>(instruction.value));
   EVALUATE_END(AssertionArraySizeLess);
 }
 
@@ -417,7 +434,8 @@ INSTRUCTION_HANDLER(AssertionArraySizeGreater) {
   SOURCEMETA_MAYBE_UNUSED(property_target);
   SOURCEMETA_MAYBE_UNUSED(evaluator);
   EVALUATE_BEGIN_NON_STRING(AssertionArraySizeGreater, target.is_array());
-  result = (target.array_size() > instruction.value);
+  result =
+      (target.array_size() > std::get<ValueUnsignedInteger>(instruction.value));
   EVALUATE_END(AssertionArraySizeGreater);
 }
 
@@ -429,7 +447,8 @@ INSTRUCTION_HANDLER(AssertionObjectSizeLess) {
   SOURCEMETA_MAYBE_UNUSED(property_target);
   SOURCEMETA_MAYBE_UNUSED(evaluator);
   EVALUATE_BEGIN_NON_STRING(AssertionObjectSizeLess, target.is_object());
-  result = (target.object_size() < instruction.value);
+  result = (target.object_size() <
+            std::get<ValueUnsignedInteger>(instruction.value));
   EVALUATE_END(AssertionObjectSizeLess);
 }
 
@@ -441,7 +460,8 @@ INSTRUCTION_HANDLER(AssertionObjectSizeGreater) {
   SOURCEMETA_MAYBE_UNUSED(property_target);
   SOURCEMETA_MAYBE_UNUSED(evaluator);
   EVALUATE_BEGIN_NON_STRING(AssertionObjectSizeGreater, target.is_object());
-  result = (target.object_size() > instruction.value);
+  result = (target.object_size() >
+            std::get<ValueUnsignedInteger>(instruction.value));
   EVALUATE_END(AssertionObjectSizeGreater);
 }
 
@@ -454,7 +474,7 @@ INSTRUCTION_HANDLER(AssertionEqual) {
   SOURCEMETA_MAYBE_UNUSED(evaluator);
   EVALUATE_BEGIN_NO_PRECONDITION(AssertionEqual);
   const auto &target{get(instance, instruction.relative_instance_location)};
-  result = (target == instruction.value);
+  result = (target == std::get<ValueJSON>(instruction.value));
   EVALUATE_END(AssertionEqual);
 }
 
@@ -467,7 +487,7 @@ INSTRUCTION_HANDLER(AssertionEqualsAny) {
   SOURCEMETA_MAYBE_UNUSED(evaluator);
   EVALUATE_BEGIN_NO_PRECONDITION(AssertionEqualsAny);
   const auto &target{get(instance, instruction.relative_instance_location)};
-  result = instruction.value.contains(target);
+  result = std::get<ValueSet>(instruction.value).contains(target);
   EVALUATE_END(AssertionEqualsAny);
 }
 
@@ -479,7 +499,7 @@ INSTRUCTION_HANDLER(AssertionGreaterEqual) {
   SOURCEMETA_MAYBE_UNUSED(property_target);
   SOURCEMETA_MAYBE_UNUSED(evaluator);
   EVALUATE_BEGIN_NON_STRING(AssertionGreaterEqual, target.is_number());
-  result = target >= instruction.value;
+  result = target >= std::get<ValueJSON>(instruction.value);
   EVALUATE_END(AssertionGreaterEqual);
 }
 
@@ -491,7 +511,7 @@ INSTRUCTION_HANDLER(AssertionLessEqual) {
   SOURCEMETA_MAYBE_UNUSED(property_target);
   SOURCEMETA_MAYBE_UNUSED(evaluator);
   EVALUATE_BEGIN_NON_STRING(AssertionLessEqual, target.is_number());
-  result = target <= instruction.value;
+  result = target <= std::get<ValueJSON>(instruction.value);
   EVALUATE_END(AssertionLessEqual);
 }
 
@@ -503,7 +523,7 @@ INSTRUCTION_HANDLER(AssertionGreater) {
   SOURCEMETA_MAYBE_UNUSED(property_target);
   SOURCEMETA_MAYBE_UNUSED(evaluator);
   EVALUATE_BEGIN_NON_STRING(AssertionGreater, target.is_number());
-  result = target > instruction.value;
+  result = target > std::get<ValueJSON>(instruction.value);
   EVALUATE_END(AssertionGreater);
 }
 
@@ -515,7 +535,7 @@ INSTRUCTION_HANDLER(AssertionLess) {
   SOURCEMETA_MAYBE_UNUSED(property_target);
   SOURCEMETA_MAYBE_UNUSED(evaluator);
   EVALUATE_BEGIN_NON_STRING(AssertionLess, target.is_number());
-  result = target < instruction.value;
+  result = target < std::get<ValueJSON>(instruction.value);
   EVALUATE_END(AssertionLess);
 }
 
@@ -539,8 +559,8 @@ INSTRUCTION_HANDLER(AssertionDivisible) {
   SOURCEMETA_MAYBE_UNUSED(property_target);
   SOURCEMETA_MAYBE_UNUSED(evaluator);
   EVALUATE_BEGIN_NON_STRING(AssertionDivisible, target.is_number());
-  assert(instruction.value.is_number());
-  result = target.divisible_by(instruction.value);
+  assert(std::get<ValueJSON>(instruction.value).is_number());
+  result = target.divisible_by(std::get<ValueJSON>(instruction.value));
   EVALUATE_END(AssertionDivisible);
 }
 
@@ -552,7 +572,7 @@ INSTRUCTION_HANDLER(AssertionStringType) {
   SOURCEMETA_MAYBE_UNUSED(property_target);
   SOURCEMETA_MAYBE_UNUSED(evaluator);
   EVALUATE_BEGIN_IF_STRING(AssertionStringType);
-  switch (instruction.value) {
+  switch (std::get<ValueStringType>(instruction.value)) {
     case ValueStringType::URI:
       try {
         // TODO: This implies a string copy
@@ -586,8 +606,8 @@ INSTRUCTION_HANDLER(AssertionPropertyType) {
   const auto &effective_target{target_check.value().get()};
   // In non-strict mode, we consider a real number that represents an
   // integer to be an integer
-  result = effective_target.type() == instruction.value ||
-           (instruction.value == JSON::Type::Integer &&
+  result = effective_target.type() == std::get<ValueType>(instruction.value) ||
+           (std::get<ValueType>(instruction.value) == JSON::Type::Integer &&
             effective_target.is_integer_real());
   EVALUATE_END(AssertionPropertyType);
 }
@@ -608,8 +628,8 @@ INSTRUCTION_HANDLER(AssertionPropertyTypeEvaluate) {
   const auto &effective_target{target_check.value().get()};
   // In non-strict mode, we consider a real number that represents an
   // integer to be an integer
-  result = effective_target.type() == instruction.value ||
-           (instruction.value == JSON::Type::Integer &&
+  result = effective_target.type() == std::get<ValueType>(instruction.value) ||
+           (std::get<ValueType>(instruction.value) == JSON::Type::Integer &&
             effective_target.is_integer_real());
 
   if (result) {
@@ -632,7 +652,8 @@ INSTRUCTION_HANDLER(AssertionPropertyTypeStrict) {
                             // before traversing into the actual property
                             target.is_object());
   // Now here we refer to the actual property
-  result = target_check.value().get().type() == instruction.value;
+  result = target_check.value().get().type() ==
+           std::get<ValueType>(instruction.value);
   EVALUATE_END(AssertionPropertyTypeStrict);
 }
 
@@ -649,7 +670,8 @@ INSTRUCTION_HANDLER(AssertionPropertyTypeStrictEvaluate) {
                             // before traversing into the actual property
                             target.is_object());
   // Now here we refer to the actual property
-  result = target_check.value().get().type() == instruction.value;
+  result = target_check.value().get().type() ==
+           std::get<ValueType>(instruction.value);
 
   if (result) {
     evaluator.evaluate();
@@ -671,9 +693,10 @@ INSTRUCTION_HANDLER(AssertionPropertyTypeStrictAny) {
                             // before traversing into the actual property
                             target.is_object());
   // Now here we refer to the actual property
-  result = (std::find(instruction.value.cbegin(), instruction.value.cend(),
+  result = (std::find(std::get<ValueTypes>(instruction.value).cbegin(),
+                      std::get<ValueTypes>(instruction.value).cend(),
                       target_check.value().get().type()) !=
-            instruction.value.cend());
+            std::get<ValueTypes>(instruction.value).cend());
   EVALUATE_END(AssertionPropertyTypeStrictAny);
 }
 
@@ -690,9 +713,10 @@ INSTRUCTION_HANDLER(AssertionPropertyTypeStrictAnyEvaluate) {
                             // before traversing into the actual property
                             target.is_object());
   // Now here we refer to the actual property
-  result = (std::find(instruction.value.cbegin(), instruction.value.cend(),
+  result = (std::find(std::get<ValueTypes>(instruction.value).cbegin(),
+                      std::get<ValueTypes>(instruction.value).cend(),
                       target_check.value().get().type()) !=
-            instruction.value.cend());
+            std::get<ValueTypes>(instruction.value).cend());
 
   if (result) {
     evaluator.evaluate();
@@ -719,9 +743,8 @@ INSTRUCTION_HANDLER(AssertionArrayPrefix) {
         array_size == prefixes ? prefixes : std::min(array_size, prefixes) - 1};
     const auto &entry{instruction.children[pointer]};
     result = true;
-    assert(std::holds_alternative<sourcemeta::blaze::ControlGroup>(entry));
-    for (const auto &child :
-         std::get<sourcemeta::blaze::ControlGroup>(entry).children) {
+    assert(entry.type == sourcemeta::blaze::InstructionIndex::ControlGroup);
+    for (const auto &child : entry.children) {
       if (!EVALUATE_RECURSE(child, target)) {
         result = false;
         break;
@@ -750,9 +773,8 @@ INSTRUCTION_HANDLER(AssertionArrayPrefixEvaluate) {
         array_size == prefixes ? prefixes : std::min(array_size, prefixes) - 1};
     const auto &entry{instruction.children[pointer]};
     result = true;
-    assert(std::holds_alternative<sourcemeta::blaze::ControlGroup>(entry));
-    for (const auto &child :
-         std::get<sourcemeta::blaze::ControlGroup>(entry).children) {
+    assert(entry.type == sourcemeta::blaze::InstructionIndex::ControlGroup);
+    for (const auto &child : entry.children) {
       if (!EVALUATE_RECURSE(child, target)) {
         result = false;
         EVALUATE_END(AssertionArrayPrefixEvaluate);
@@ -784,7 +806,7 @@ INSTRUCTION_HANDLER(LogicalOr) {
     if (EVALUATE_RECURSE(child, target)) {
       result = true;
       // This boolean value controls whether we should be exhaustive
-      if (!instruction.value) {
+      if (!std::get<ValueBoolean>(instruction.value)) {
         break;
       }
     }
@@ -820,7 +842,8 @@ INSTRUCTION_HANDLER(LogicalWhenType) {
   SOURCEMETA_MAYBE_UNUSED(instance);
   SOURCEMETA_MAYBE_UNUSED(property_target);
   SOURCEMETA_MAYBE_UNUSED(evaluator);
-  EVALUATE_BEGIN(LogicalWhenType, target.type() == instruction.value);
+  EVALUATE_BEGIN(LogicalWhenType,
+                 target.type() == std::get<ValueType>(instruction.value));
   result = true;
   for (const auto &child : instruction.children) {
     if (!EVALUATE_RECURSE(child, target)) {
@@ -839,9 +862,10 @@ INSTRUCTION_HANDLER(LogicalWhenDefines) {
   SOURCEMETA_MAYBE_UNUSED(instance);
   SOURCEMETA_MAYBE_UNUSED(property_target);
   SOURCEMETA_MAYBE_UNUSED(evaluator);
-  EVALUATE_BEGIN_NON_STRING(LogicalWhenDefines,
-                            target.is_object() &&
-                                target.defines(instruction.value));
+  EVALUATE_BEGIN_NON_STRING(
+      LogicalWhenDefines,
+      target.is_object() &&
+          target.defines(std::get<ValueString>(instruction.value)));
   result = true;
   for (const auto &child : instruction.children) {
     if (!EVALUATE_RECURSE(child, target)) {
@@ -860,9 +884,10 @@ INSTRUCTION_HANDLER(LogicalWhenArraySizeGreater) {
   SOURCEMETA_MAYBE_UNUSED(instance);
   SOURCEMETA_MAYBE_UNUSED(property_target);
   SOURCEMETA_MAYBE_UNUSED(evaluator);
-  EVALUATE_BEGIN_NON_STRING(LogicalWhenArraySizeGreater,
-                            target.is_array() &&
-                                target.array_size() > instruction.value);
+  EVALUATE_BEGIN_NON_STRING(
+      LogicalWhenArraySizeGreater,
+      target.is_array() && target.array_size() > std::get<ValueUnsignedInteger>(
+                                                     instruction.value));
   result = true;
   for (const auto &child : instruction.children) {
     if (!EVALUATE_RECURSE(child, target)) {
@@ -890,7 +915,7 @@ INSTRUCTION_HANDLER(LogicalXor) {
       if (has_matched) {
         result = false;
         // This boolean value controls whether we should be exhaustive
-        if (!instruction.value) {
+        if (!std::get<ValueBoolean>(instruction.value)) {
           break;
         }
       } else {
@@ -913,14 +938,14 @@ INSTRUCTION_HANDLER(LogicalCondition) {
   EVALUATE_BEGIN_NO_PRECONDITION(LogicalCondition);
   result = true;
   const auto children_size{instruction.children.size()};
-  assert(children_size >= instruction.value.first);
-  assert(children_size >= instruction.value.second);
+  assert(children_size >= std::get<ValueIndexPair>(instruction.value).first);
+  assert(children_size >= std::get<ValueIndexPair>(instruction.value).second);
 
   auto condition_end{children_size};
-  if (instruction.value.first > 0) {
-    condition_end = instruction.value.first;
-  } else if (instruction.value.second > 0) {
-    condition_end = instruction.value.second;
+  if (std::get<ValueIndexPair>(instruction.value).first > 0) {
+    condition_end = std::get<ValueIndexPair>(instruction.value).first;
+  } else if (std::get<ValueIndexPair>(instruction.value).second > 0) {
+    condition_end = std::get<ValueIndexPair>(instruction.value).second;
   }
 
   const auto &target{get(instance, instruction.relative_instance_location)};
@@ -931,11 +956,13 @@ INSTRUCTION_HANDLER(LogicalCondition) {
     }
   }
 
-  const auto consequence_start{result ? instruction.value.first
-                                      : instruction.value.second};
-  const auto consequence_end{(result && instruction.value.second > 0)
-                                 ? instruction.value.second
-                                 : children_size};
+  const auto consequence_start{
+      result ? std::get<ValueIndexPair>(instruction.value).first
+             : std::get<ValueIndexPair>(instruction.value).second};
+  const auto consequence_end{
+      (result && std::get<ValueIndexPair>(instruction.value).second > 0)
+          ? std::get<ValueIndexPair>(instruction.value).second
+          : children_size};
   result = true;
   if (consequence_start > 0) {
     if (track) {
@@ -995,7 +1022,8 @@ INSTRUCTION_HANDLER(ControlGroupWhenDefines) {
   // Otherwise why are we emitting this property?
   assert(!instruction.relative_instance_location.empty());
   const auto &target{get(instance, instruction.relative_instance_location)};
-  if (target.is_object() && target.defines(instruction.value)) {
+  if (target.is_object() &&
+      target.defines(std::get<ValueString>(instruction.value))) {
     for (const auto &child : instruction.children) {
       // Note that in this control instruction, we purposely
       // don't navigate into the target
@@ -1019,7 +1047,8 @@ INSTRUCTION_HANDLER(ControlGroupWhenDefinesDirect) {
   EVALUATE_BEGIN_PASS_THROUGH(ControlGroupWhenDefinesDirect);
   assert(!instruction.children.empty());
   assert(instruction.relative_instance_location.empty());
-  if (instance.is_object() && instance.defines(instruction.value)) {
+  if (instance.is_object() &&
+      instance.defines(std::get<ValueString>(instruction.value))) {
     for (const auto &child : instruction.children) {
       if (!EVALUATE_RECURSE(child, instance)) {
         result = false;
@@ -1040,7 +1069,8 @@ INSTRUCTION_HANDLER(ControlLabel) {
   SOURCEMETA_MAYBE_UNUSED(evaluator);
   EVALUATE_BEGIN_NO_PRECONDITION(ControlLabel);
   assert(!instruction.children.empty());
-  evaluator.labels.try_emplace(instruction.value, instruction.children);
+  evaluator.labels.try_emplace(
+      std::get<ValueUnsignedInteger>(instruction.value), instruction.children);
   const auto &target{get(instance, instruction.relative_instance_location)};
   result = true;
   for (const auto &child : instruction.children) {
@@ -1061,7 +1091,8 @@ INSTRUCTION_HANDLER(ControlMark) {
   SOURCEMETA_MAYBE_UNUSED(property_target);
   SOURCEMETA_MAYBE_UNUSED(evaluator);
   EVALUATE_BEGIN_NO_PRECONDITION_AND_NO_PUSH(ControlMark);
-  evaluator.labels.try_emplace(instruction.value, instruction.children);
+  evaluator.labels.try_emplace(
+      std::get<ValueUnsignedInteger>(instruction.value), instruction.children);
   EVALUATE_END_NO_POP(ControlMark);
 }
 
@@ -1079,14 +1110,14 @@ INSTRUCTION_HANDLER(ControlEvaluate) {
   if (callback.has_value()) {
     // TODO: Optimize this case to avoid an extra pointer copy
     auto destination = evaluator.instance_location;
-    destination.push_back(instruction.value);
+    destination.push_back(std::get<ValuePointer>(instruction.value));
     callback.value()(EvaluationType::Pre, true, instruction,
                      evaluator.evaluate_path, destination, Evaluator::null);
-    evaluator.evaluate(instruction.value);
+    evaluator.evaluate(std::get<ValuePointer>(instruction.value));
     callback.value()(EvaluationType::Post, true, instruction,
                      evaluator.evaluate_path, destination, Evaluator::null);
   } else {
-    evaluator.evaluate(instruction.value);
+    evaluator.evaluate(std::get<ValuePointer>(instruction.value));
   }
 #else
 #endif
@@ -1103,9 +1134,12 @@ INSTRUCTION_HANDLER(ControlJump) {
   SOURCEMETA_MAYBE_UNUSED(evaluator);
   EVALUATE_BEGIN_NO_PRECONDITION(ControlJump);
   result = true;
-  assert(evaluator.labels.contains(instruction.value));
+  assert(evaluator.labels.contains(
+      std::get<ValueUnsignedInteger>(instruction.value)));
   const auto &target{get(instance, instruction.relative_instance_location)};
-  for (const auto &child : evaluator.labels.at(instruction.value).get()) {
+  for (const auto &child :
+       evaluator.labels.at(std::get<ValueUnsignedInteger>(instruction.value))
+           .get()) {
     if (!EVALUATE_RECURSE(child, target)) {
       result = false;
       break;
@@ -1126,7 +1160,8 @@ INSTRUCTION_HANDLER(ControlDynamicAnchorJump) {
   result = false;
   const auto &target{get(instance, instruction.relative_instance_location)};
   for (const auto &resource : evaluator.resources) {
-    const auto label{evaluator.hash(resource, instruction.value)};
+    const auto label{
+        evaluator.hash(resource, std::get<ValueString>(instruction.value))};
     const auto match{evaluator.labels.find(label)};
     if (match != evaluator.labels.cend()) {
       result = true;
@@ -1153,7 +1188,7 @@ INSTRUCTION_HANDLER(AnnotationEmit) {
   SOURCEMETA_MAYBE_UNUSED(property_target);
   SOURCEMETA_MAYBE_UNUSED(evaluator);
   EVALUATE_ANNOTATION(AnnotationEmit, evaluator.instance_location,
-                      instruction.value);
+                      std::get<ValueJSON>(instruction.value));
 }
 
 INSTRUCTION_HANDLER(AnnotationToParent) {
@@ -1167,7 +1202,8 @@ INSTRUCTION_HANDLER(AnnotationToParent) {
   EVALUATE_ANNOTATION(
       AnnotationToParent,
       // TODO: Can we avoid a copy of the instance location here?
-      evaluator.instance_location.initial(), instruction.value);
+      evaluator.instance_location.initial(),
+      std::get<ValueJSON>(instruction.value));
 }
 
 INSTRUCTION_HANDLER(AnnotationBasenameToParent) {
@@ -1274,28 +1310,36 @@ INSTRUCTION_HANDLER(LoopPropertiesUnevaluatedExcept) {
   assert(!instruction.children.empty());
   result = true;
   // Otherwise why emit this instruction?
-  assert(!std::get<0>(instruction.value).empty() ||
-         !std::get<1>(instruction.value).empty() ||
-         !std::get<2>(instruction.value).empty());
+  assert(
+      !std::get<0>(std::get<ValuePropertyFilter>(instruction.value)).empty() ||
+      !std::get<1>(std::get<ValuePropertyFilter>(instruction.value)).empty() ||
+      !std::get<2>(std::get<ValuePropertyFilter>(instruction.value)).empty());
 
   for (const auto &entry : target.as_object()) {
-    if (std::get<0>(instruction.value).contains(entry.first)) {
+    if (std::get<0>(std::get<ValuePropertyFilter>(instruction.value))
+            .contains(entry.first)) {
       continue;
     }
 
-    if (std::any_of(std::get<1>(instruction.value).cbegin(),
-                    std::get<1>(instruction.value).cend(),
-                    [&entry](const auto &prefix) {
-                      return entry.first.starts_with(prefix);
-                    })) {
+    if (std::any_of(
+            std::get<1>(std::get<ValuePropertyFilter>(instruction.value))
+                .cbegin(),
+            std::get<1>(std::get<ValuePropertyFilter>(instruction.value))
+                .cend(),
+            [&entry](const auto &prefix) {
+              return entry.first.starts_with(prefix);
+            })) {
       continue;
     }
 
-    if (std::any_of(std::get<2>(instruction.value).cbegin(),
-                    std::get<2>(instruction.value).cend(),
-                    [&entry](const auto &pattern) {
-                      return matches(pattern.first, entry.first);
-                    })) {
+    if (std::any_of(
+            std::get<2>(std::get<ValuePropertyFilter>(instruction.value))
+                .cbegin(),
+            std::get<2>(std::get<ValuePropertyFilter>(instruction.value))
+                .cend(),
+            [&entry](const auto &pattern) {
+              return matches(pattern.first, entry.first);
+            })) {
       continue;
     }
 
@@ -1330,19 +1374,19 @@ INSTRUCTION_HANDLER(LoopPropertiesMatch) {
   SOURCEMETA_MAYBE_UNUSED(property_target);
   SOURCEMETA_MAYBE_UNUSED(evaluator);
   EVALUATE_BEGIN_NON_STRING(LoopPropertiesMatch, target.is_object());
-  assert(!instruction.value.empty());
+  assert(!std::get<ValueNamedIndexes>(instruction.value).empty());
   result = true;
   for (const auto &entry : target.as_object()) {
-    const auto index{instruction.value.find(entry.first)};
-    if (index == instruction.value.cend()) {
+    const auto index{
+        std::get<ValueNamedIndexes>(instruction.value).find(entry.first)};
+    if (index == std::get<ValueNamedIndexes>(instruction.value).cend()) {
       continue;
     }
 
     const auto &subinstruction{instruction.children[index->second]};
-    assert(std::holds_alternative<sourcemeta::blaze::ControlGroup>(
-        subinstruction));
-    for (const auto &child :
-         std::get<sourcemeta::blaze::ControlGroup>(subinstruction).children) {
+    assert(subinstruction.type ==
+           sourcemeta::blaze::InstructionIndex::ControlGroup);
+    for (const auto &child : subinstruction.children) {
       if (!EVALUATE_RECURSE(child, target)) {
         result = false;
         EVALUATE_END(LoopPropertiesMatch);
@@ -1361,20 +1405,20 @@ INSTRUCTION_HANDLER(LoopPropertiesMatchClosed) {
   SOURCEMETA_MAYBE_UNUSED(property_target);
   SOURCEMETA_MAYBE_UNUSED(evaluator);
   EVALUATE_BEGIN_NON_STRING(LoopPropertiesMatchClosed, target.is_object());
-  assert(!instruction.value.empty());
+  assert(!std::get<ValueNamedIndexes>(instruction.value).empty());
   result = true;
   for (const auto &entry : target.as_object()) {
-    const auto index{instruction.value.find(entry.first)};
-    if (index == instruction.value.cend()) {
+    const auto index{
+        std::get<ValueNamedIndexes>(instruction.value).find(entry.first)};
+    if (index == std::get<ValueNamedIndexes>(instruction.value).cend()) {
       result = false;
       break;
     }
 
     const auto &subinstruction{instruction.children[index->second]};
-    assert(std::holds_alternative<sourcemeta::blaze::ControlGroup>(
-        subinstruction));
-    for (const auto &child :
-         std::get<sourcemeta::blaze::ControlGroup>(subinstruction).children) {
+    assert(subinstruction.type ==
+           sourcemeta::blaze::InstructionIndex::ControlGroup);
+    for (const auto &child : subinstruction.children) {
       if (!EVALUATE_RECURSE(child, target)) {
         result = false;
         EVALUATE_END(LoopPropertiesMatchClosed);
@@ -1464,7 +1508,7 @@ INSTRUCTION_HANDLER(LoopPropertiesRegex) {
   assert(!instruction.children.empty());
   result = true;
   for (const auto &entry : target.as_object()) {
-    if (!matches(instruction.value.first, entry.first)) {
+    if (!matches(std::get<ValueRegex>(instruction.value).first, entry.first)) {
       continue;
     }
 
@@ -1500,7 +1544,7 @@ INSTRUCTION_HANDLER(LoopPropertiesRegexClosed) {
   EVALUATE_BEGIN_NON_STRING(LoopPropertiesRegexClosed, target.is_object());
   result = true;
   for (const auto &entry : target.as_object()) {
-    if (!matches(instruction.value.first, entry.first)) {
+    if (!matches(std::get<ValueRegex>(instruction.value).first, entry.first)) {
       result = false;
       break;
     }
@@ -1542,7 +1586,7 @@ INSTRUCTION_HANDLER(LoopPropertiesStartsWith) {
   assert(!instruction.children.empty());
   result = true;
   for (const auto &entry : target.as_object()) {
-    if (!entry.first.starts_with(instruction.value)) {
+    if (!entry.first.starts_with(std::get<ValueString>(instruction.value))) {
       continue;
     }
 
@@ -1578,28 +1622,36 @@ INSTRUCTION_HANDLER(LoopPropertiesExcept) {
   assert(!instruction.children.empty());
   result = true;
   // Otherwise why emit this instruction?
-  assert(!std::get<0>(instruction.value).empty() ||
-         !std::get<1>(instruction.value).empty() ||
-         !std::get<2>(instruction.value).empty());
+  assert(
+      !std::get<0>(std::get<ValuePropertyFilter>(instruction.value)).empty() ||
+      !std::get<1>(std::get<ValuePropertyFilter>(instruction.value)).empty() ||
+      !std::get<2>(std::get<ValuePropertyFilter>(instruction.value)).empty());
 
   for (const auto &entry : target.as_object()) {
-    if (std::get<0>(instruction.value).contains(entry.first)) {
+    if (std::get<0>(std::get<ValuePropertyFilter>(instruction.value))
+            .contains(entry.first)) {
       continue;
     }
 
-    if (std::any_of(std::get<1>(instruction.value).cbegin(),
-                    std::get<1>(instruction.value).cend(),
-                    [&entry](const auto &prefix) {
-                      return entry.first.starts_with(prefix);
-                    })) {
+    if (std::any_of(
+            std::get<1>(std::get<ValuePropertyFilter>(instruction.value))
+                .cbegin(),
+            std::get<1>(std::get<ValuePropertyFilter>(instruction.value))
+                .cend(),
+            [&entry](const auto &prefix) {
+              return entry.first.starts_with(prefix);
+            })) {
       continue;
     }
 
-    if (std::any_of(std::get<2>(instruction.value).cbegin(),
-                    std::get<2>(instruction.value).cend(),
-                    [&entry](const auto &pattern) {
-                      return matches(pattern.first, entry.first);
-                    })) {
+    if (std::any_of(
+            std::get<2>(std::get<ValuePropertyFilter>(instruction.value))
+                .cbegin(),
+            std::get<2>(std::get<ValuePropertyFilter>(instruction.value))
+                .cend(),
+            [&entry](const auto &pattern) {
+              return matches(pattern.first, entry.first);
+            })) {
       continue;
     }
 
@@ -1633,15 +1685,16 @@ INSTRUCTION_HANDLER(LoopPropertiesWhitelist) {
   SOURCEMETA_MAYBE_UNUSED(evaluator);
   EVALUATE_BEGIN_NON_STRING(LoopPropertiesWhitelist, target.is_object());
   // Otherwise why emit this instruction?
-  assert(!instruction.value.empty());
+  assert(!std::get<ValueStringSet>(instruction.value).empty());
 
   // Otherwise if the number of properties in the instance
   // is larger than the whitelist, then it already violated
   // the whitelist?
-  if (target.object_size() <= instruction.value.size()) {
+  if (target.object_size() <=
+      std::get<ValueStringSet>(instruction.value).size()) {
     result = true;
     for (const auto &entry : target.as_object()) {
-      if (!instruction.value.contains(entry.first)) {
+      if (!std::get<ValueStringSet>(instruction.value).contains(entry.first)) {
         result = false;
         break;
       }
@@ -1661,10 +1714,10 @@ INSTRUCTION_HANDLER(LoopPropertiesType) {
   EVALUATE_BEGIN_NON_STRING(LoopPropertiesType, target.is_object());
   result = true;
   for (const auto &entry : target.as_object()) {
-    if (entry.second.type() != instruction.value &&
+    if (entry.second.type() != std::get<ValueType>(instruction.value) &&
         // In non-strict mode, we consider a real number that represents an
         // integer to be an integer
-        (instruction.value != JSON::Type::Integer ||
+        (std::get<ValueType>(instruction.value) != JSON::Type::Integer ||
          !entry.second.is_integer_real())) {
       result = false;
       break;
@@ -1684,10 +1737,10 @@ INSTRUCTION_HANDLER(LoopPropertiesTypeEvaluate) {
   EVALUATE_BEGIN_NON_STRING(LoopPropertiesTypeEvaluate, target.is_object());
   result = true;
   for (const auto &entry : target.as_object()) {
-    if (entry.second.type() != instruction.value &&
+    if (entry.second.type() != std::get<ValueType>(instruction.value) &&
         // In non-strict mode, we consider a real number that represents an
         // integer to be an integer
-        (instruction.value != JSON::Type::Integer ||
+        (std::get<ValueType>(instruction.value) != JSON::Type::Integer ||
          !entry.second.is_integer_real())) {
       result = false;
       EVALUATE_END(LoopPropertiesTypeEvaluate);
@@ -1709,7 +1762,7 @@ INSTRUCTION_HANDLER(LoopPropertiesTypeStrict) {
   EVALUATE_BEGIN_NON_STRING(LoopPropertiesTypeStrict, target.is_object());
   result = true;
   for (const auto &entry : target.as_object()) {
-    if (entry.second.type() != instruction.value) {
+    if (entry.second.type() != std::get<ValueType>(instruction.value)) {
       result = false;
       break;
     }
@@ -1729,7 +1782,7 @@ INSTRUCTION_HANDLER(LoopPropertiesTypeStrictEvaluate) {
                             target.is_object());
   result = true;
   for (const auto &entry : target.as_object()) {
-    if (entry.second.type() != instruction.value) {
+    if (entry.second.type() != std::get<ValueType>(instruction.value)) {
       result = false;
       EVALUATE_END(LoopPropertiesTypeStrictEvaluate);
     }
@@ -1750,8 +1803,10 @@ INSTRUCTION_HANDLER(LoopPropertiesTypeStrictAny) {
   EVALUATE_BEGIN_NON_STRING(LoopPropertiesTypeStrictAny, target.is_object());
   result = true;
   for (const auto &entry : target.as_object()) {
-    if (std::find(instruction.value.cbegin(), instruction.value.cend(),
-                  entry.second.type()) == instruction.value.cend()) {
+    if (std::find(std::get<ValueTypes>(instruction.value).cbegin(),
+                  std::get<ValueTypes>(instruction.value).cend(),
+                  entry.second.type()) ==
+        std::get<ValueTypes>(instruction.value).cend()) {
       result = false;
       break;
     }
@@ -1771,8 +1826,10 @@ INSTRUCTION_HANDLER(LoopPropertiesTypeStrictAnyEvaluate) {
                             target.is_object());
   result = true;
   for (const auto &entry : target.as_object()) {
-    if (std::find(instruction.value.cbegin(), instruction.value.cend(),
-                  entry.second.type()) == instruction.value.cend()) {
+    if (std::find(std::get<ValueTypes>(instruction.value).cbegin(),
+                  std::get<ValueTypes>(instruction.value).cend(),
+                  entry.second.type()) ==
+        std::get<ValueTypes>(instruction.value).cend()) {
       result = false;
       EVALUATE_END(LoopPropertiesTypeStrictAnyEvaluate);
     }
@@ -1869,13 +1926,14 @@ INSTRUCTION_HANDLER(LoopItemsFrom) {
   SOURCEMETA_MAYBE_UNUSED(instance);
   SOURCEMETA_MAYBE_UNUSED(property_target);
   SOURCEMETA_MAYBE_UNUSED(evaluator);
-  EVALUATE_BEGIN_NON_STRING(LoopItemsFrom,
-                            target.is_array() &&
-                                instruction.value < target.array_size());
+  EVALUATE_BEGIN_NON_STRING(
+      LoopItemsFrom,
+      target.is_array() && std::get<ValueUnsignedInteger>(instruction.value) <
+                               target.array_size());
   assert(!instruction.children.empty());
   result = true;
-  for (std::size_t index = instruction.value; index < target.array_size();
-       index++) {
+  for (std::size_t index = std::get<ValueUnsignedInteger>(instruction.value);
+       index < target.array_size(); index++) {
     if (track) {
       evaluator.instance_location.push_back(index);
     }
@@ -1943,10 +2001,10 @@ INSTRUCTION_HANDLER(LoopItemsType) {
   EVALUATE_BEGIN_NON_STRING(LoopItemsType, target.is_array());
   result = true;
   for (const auto &entry : target.as_array()) {
-    if (entry.type() != instruction.value &&
+    if (entry.type() != std::get<ValueType>(instruction.value) &&
         // In non-strict mode, we consider a real number that represents an
         // integer to be an integer
-        (instruction.value != JSON::Type::Integer ||
+        (std::get<ValueType>(instruction.value) != JSON::Type::Integer ||
          !entry.is_integer_real())) {
       result = false;
       break;
@@ -1966,7 +2024,7 @@ INSTRUCTION_HANDLER(LoopItemsTypeStrict) {
   EVALUATE_BEGIN_NON_STRING(LoopItemsTypeStrict, target.is_array());
   result = true;
   for (const auto &entry : target.as_array()) {
-    if (entry.type() != instruction.value) {
+    if (entry.type() != std::get<ValueType>(instruction.value)) {
       result = false;
       break;
     }
@@ -1984,11 +2042,13 @@ INSTRUCTION_HANDLER(LoopItemsTypeStrictAny) {
   SOURCEMETA_MAYBE_UNUSED(evaluator);
   EVALUATE_BEGIN_NON_STRING(LoopItemsTypeStrictAny, target.is_array());
   // Otherwise we are we even emitting this instruction?
-  assert(instruction.value.size() > 1);
+  assert(std::get<ValueTypes>(instruction.value).size() > 1);
   result = true;
   for (const auto &entry : target.as_array()) {
-    if (std::find(instruction.value.cbegin(), instruction.value.cend(),
-                  entry.type()) == instruction.value.cend()) {
+    if (std::find(std::get<ValueTypes>(instruction.value).cbegin(),
+                  std::get<ValueTypes>(instruction.value).cend(),
+                  entry.type()) ==
+        std::get<ValueTypes>(instruction.value).cend()) {
       result = false;
       break;
     }
@@ -2006,10 +2066,11 @@ INSTRUCTION_HANDLER(LoopContains) {
   SOURCEMETA_MAYBE_UNUSED(evaluator);
   EVALUATE_BEGIN_NON_STRING(LoopContains, target.is_array());
   assert(!instruction.children.empty());
-  const auto minimum{std::get<0>(instruction.value)};
-  const auto &maximum{std::get<1>(instruction.value)};
+  const auto minimum{std::get<0>(std::get<ValueRange>(instruction.value))};
+  const auto &maximum{std::get<1>(std::get<ValueRange>(instruction.value))};
   assert(!maximum.has_value() || maximum.value() >= minimum);
-  const auto is_exhaustive{std::get<2>(instruction.value)};
+  const auto is_exhaustive{
+      std::get<2>(std::get<ValueRange>(instruction.value))};
   result = minimum == 0 && target.empty();
   auto match_count{std::numeric_limits<decltype(minimum)>::min()};
 
@@ -2082,451 +2143,367 @@ auto evaluate_instruction(
                           "likely due to infinite recursion");
   }
 
-  switch (static_cast<InstructionIndex>(instruction.index())) {
+  switch (instruction.type) {
     case InstructionIndex::AssertionFail:
-      return AssertionFail(
-          std::get<sourcemeta::blaze::AssertionFail>(instruction), schema,
-          callback, instance, property_target, depth, evaluator);
+      return AssertionFail(instruction, schema, callback, instance,
+                           property_target, depth, evaluator);
     case InstructionIndex::AssertionDefines:
-      return AssertionDefines(
-          std::get<sourcemeta::blaze::AssertionDefines>(instruction), schema,
-          callback, instance, property_target, depth, evaluator);
+      return AssertionDefines(instruction, schema, callback, instance,
+                              property_target, depth, evaluator);
 
     case InstructionIndex::AssertionDefinesStrict:
-      return AssertionDefinesStrict(
-          std::get<sourcemeta::blaze::AssertionDefinesStrict>(instruction),
-          schema, callback, instance, property_target, depth, evaluator);
+      return AssertionDefinesStrict(instruction, schema, callback, instance,
+                                    property_target, depth, evaluator);
 
     case InstructionIndex::AssertionDefinesAll:
-      return AssertionDefinesAll(
-          std::get<sourcemeta::blaze::AssertionDefinesAll>(instruction), schema,
-          callback, instance, property_target, depth, evaluator);
+      return AssertionDefinesAll(instruction, schema, callback, instance,
+                                 property_target, depth, evaluator);
 
     case InstructionIndex::AssertionDefinesAllStrict:
-      return AssertionDefinesAllStrict(
-          std::get<sourcemeta::blaze::AssertionDefinesAllStrict>(instruction),
-          schema, callback, instance, property_target, depth, evaluator);
+      return AssertionDefinesAllStrict(instruction, schema, callback, instance,
+                                       property_target, depth, evaluator);
 
     case InstructionIndex::AssertionDefinesExactly:
-      return AssertionDefinesExactly(
-          std::get<sourcemeta::blaze::AssertionDefinesExactly>(instruction),
-          schema, callback, instance, property_target, depth, evaluator);
+      return AssertionDefinesExactly(instruction, schema, callback, instance,
+                                     property_target, depth, evaluator);
 
     case InstructionIndex::AssertionDefinesExactlyStrict:
-      return AssertionDefinesExactlyStrict(
-          std::get<sourcemeta::blaze::AssertionDefinesExactlyStrict>(
-              instruction),
-          schema, callback, instance, property_target, depth, evaluator);
+      return AssertionDefinesExactlyStrict(instruction, schema, callback,
+                                           instance, property_target, depth,
+                                           evaluator);
 
     case InstructionIndex::AssertionPropertyDependencies:
-      return AssertionPropertyDependencies(
-          std::get<sourcemeta::blaze::AssertionPropertyDependencies>(
-              instruction),
-          schema, callback, instance, property_target, depth, evaluator);
+      return AssertionPropertyDependencies(instruction, schema, callback,
+                                           instance, property_target, depth,
+                                           evaluator);
 
     case InstructionIndex::AssertionType:
-      return AssertionType(
-          std::get<sourcemeta::blaze::AssertionType>(instruction), schema,
-          callback, instance, property_target, depth, evaluator);
+      return AssertionType(instruction, schema, callback, instance,
+                           property_target, depth, evaluator);
 
     case InstructionIndex::AssertionTypeAny:
-      return AssertionTypeAny(
-          std::get<sourcemeta::blaze::AssertionTypeAny>(instruction), schema,
-          callback, instance, property_target, depth, evaluator);
+      return AssertionTypeAny(instruction, schema, callback, instance,
+                              property_target, depth, evaluator);
 
     case InstructionIndex::AssertionTypeStrict:
-      return AssertionTypeStrict(
-          std::get<sourcemeta::blaze::AssertionTypeStrict>(instruction), schema,
-          callback, instance, property_target, depth, evaluator);
+      return AssertionTypeStrict(instruction, schema, callback, instance,
+                                 property_target, depth, evaluator);
 
     case InstructionIndex::AssertionTypeStrictAny:
-      return AssertionTypeStrictAny(
-          std::get<sourcemeta::blaze::AssertionTypeStrictAny>(instruction),
-          schema, callback, instance, property_target, depth, evaluator);
+      return AssertionTypeStrictAny(instruction, schema, callback, instance,
+                                    property_target, depth, evaluator);
 
     case InstructionIndex::AssertionTypeStringBounded:
-      return AssertionTypeStringBounded(
-          std::get<sourcemeta::blaze::AssertionTypeStringBounded>(instruction),
-          schema, callback, instance, property_target, depth, evaluator);
+      return AssertionTypeStringBounded(instruction, schema, callback, instance,
+                                        property_target, depth, evaluator);
 
     case InstructionIndex::AssertionTypeStringUpper:
-      return AssertionTypeStringUpper(
-          std::get<sourcemeta::blaze::AssertionTypeStringUpper>(instruction),
-          schema, callback, instance, property_target, depth, evaluator);
+      return AssertionTypeStringUpper(instruction, schema, callback, instance,
+                                      property_target, depth, evaluator);
 
     case InstructionIndex::AssertionTypeArrayBounded:
-      return AssertionTypeArrayBounded(
-          std::get<sourcemeta::blaze::AssertionTypeArrayBounded>(instruction),
-          schema, callback, instance, property_target, depth, evaluator);
+      return AssertionTypeArrayBounded(instruction, schema, callback, instance,
+                                       property_target, depth, evaluator);
 
     case InstructionIndex::AssertionTypeArrayUpper:
-      return AssertionTypeArrayUpper(
-          std::get<sourcemeta::blaze::AssertionTypeArrayUpper>(instruction),
-          schema, callback, instance, property_target, depth, evaluator);
+      return AssertionTypeArrayUpper(instruction, schema, callback, instance,
+                                     property_target, depth, evaluator);
 
     case InstructionIndex::AssertionTypeObjectBounded:
-      return AssertionTypeObjectBounded(
-          std::get<sourcemeta::blaze::AssertionTypeObjectBounded>(instruction),
-          schema, callback, instance, property_target, depth, evaluator);
+      return AssertionTypeObjectBounded(instruction, schema, callback, instance,
+                                        property_target, depth, evaluator);
 
     case InstructionIndex::AssertionTypeObjectUpper:
-      return AssertionTypeObjectUpper(
-          std::get<sourcemeta::blaze::AssertionTypeObjectUpper>(instruction),
-          schema, callback, instance, property_target, depth, evaluator);
+      return AssertionTypeObjectUpper(instruction, schema, callback, instance,
+                                      property_target, depth, evaluator);
 
     case InstructionIndex::AssertionRegex:
-      return AssertionRegex(
-          std::get<sourcemeta::blaze::AssertionRegex>(instruction), schema,
-          callback, instance, property_target, depth, evaluator);
+      return AssertionRegex(instruction, schema, callback, instance,
+                            property_target, depth, evaluator);
 
     case InstructionIndex::AssertionStringSizeLess:
-      return AssertionStringSizeLess(
-          std::get<sourcemeta::blaze::AssertionStringSizeLess>(instruction),
-          schema, callback, instance, property_target, depth, evaluator);
+      return AssertionStringSizeLess(instruction, schema, callback, instance,
+                                     property_target, depth, evaluator);
 
     case InstructionIndex::AssertionStringSizeGreater:
-      return AssertionStringSizeGreater(
-          std::get<sourcemeta::blaze::AssertionStringSizeGreater>(instruction),
-          schema, callback, instance, property_target, depth, evaluator);
+      return AssertionStringSizeGreater(instruction, schema, callback, instance,
+                                        property_target, depth, evaluator);
 
     case InstructionIndex::AssertionArraySizeLess:
-      return AssertionArraySizeLess(
-          std::get<sourcemeta::blaze::AssertionArraySizeLess>(instruction),
-          schema, callback, instance, property_target, depth, evaluator);
+      return AssertionArraySizeLess(instruction, schema, callback, instance,
+                                    property_target, depth, evaluator);
 
     case InstructionIndex::AssertionArraySizeGreater:
-      return AssertionArraySizeGreater(
-          std::get<sourcemeta::blaze::AssertionArraySizeGreater>(instruction),
-          schema, callback, instance, property_target, depth, evaluator);
+      return AssertionArraySizeGreater(instruction, schema, callback, instance,
+                                       property_target, depth, evaluator);
 
     case InstructionIndex::AssertionObjectSizeLess:
-      return AssertionObjectSizeLess(
-          std::get<sourcemeta::blaze::AssertionObjectSizeLess>(instruction),
-          schema, callback, instance, property_target, depth, evaluator);
+      return AssertionObjectSizeLess(instruction, schema, callback, instance,
+                                     property_target, depth, evaluator);
 
     case InstructionIndex::AssertionObjectSizeGreater:
-      return AssertionObjectSizeGreater(
-          std::get<sourcemeta::blaze::AssertionObjectSizeGreater>(instruction),
-          schema, callback, instance, property_target, depth, evaluator);
+      return AssertionObjectSizeGreater(instruction, schema, callback, instance,
+                                        property_target, depth, evaluator);
 
     case InstructionIndex::AssertionEqual:
-      return AssertionEqual(
-          std::get<sourcemeta::blaze::AssertionEqual>(instruction), schema,
-          callback, instance, property_target, depth, evaluator);
+      return AssertionEqual(instruction, schema, callback, instance,
+                            property_target, depth, evaluator);
 
     case InstructionIndex::AssertionEqualsAny:
-      return AssertionEqualsAny(
-          std::get<sourcemeta::blaze::AssertionEqualsAny>(instruction), schema,
-          callback, instance, property_target, depth, evaluator);
+      return AssertionEqualsAny(instruction, schema, callback, instance,
+                                property_target, depth, evaluator);
 
     case InstructionIndex::AssertionGreaterEqual:
-      return AssertionGreaterEqual(
-          std::get<sourcemeta::blaze::AssertionGreaterEqual>(instruction),
-          schema, callback, instance, property_target, depth, evaluator);
+      return AssertionGreaterEqual(instruction, schema, callback, instance,
+                                   property_target, depth, evaluator);
 
     case InstructionIndex::AssertionLessEqual:
-      return AssertionLessEqual(
-          std::get<sourcemeta::blaze::AssertionLessEqual>(instruction), schema,
-          callback, instance, property_target, depth, evaluator);
+      return AssertionLessEqual(instruction, schema, callback, instance,
+                                property_target, depth, evaluator);
 
     case InstructionIndex::AssertionGreater:
-      return AssertionGreater(
-          std::get<sourcemeta::blaze::AssertionGreater>(instruction), schema,
-          callback, instance, property_target, depth, evaluator);
+      return AssertionGreater(instruction, schema, callback, instance,
+                              property_target, depth, evaluator);
 
     case InstructionIndex::AssertionLess:
-      return AssertionLess(
-          std::get<sourcemeta::blaze::AssertionLess>(instruction), schema,
-          callback, instance, property_target, depth, evaluator);
+      return AssertionLess(instruction, schema, callback, instance,
+                           property_target, depth, evaluator);
 
     case InstructionIndex::AssertionUnique:
-      return AssertionUnique(
-          std::get<sourcemeta::blaze::AssertionUnique>(instruction), schema,
-          callback, instance, property_target, depth, evaluator);
+      return AssertionUnique(instruction, schema, callback, instance,
+                             property_target, depth, evaluator);
 
     case InstructionIndex::AssertionDivisible:
-      return AssertionDivisible(
-          std::get<sourcemeta::blaze::AssertionDivisible>(instruction), schema,
-          callback, instance, property_target, depth, evaluator);
+      return AssertionDivisible(instruction, schema, callback, instance,
+                                property_target, depth, evaluator);
 
     case InstructionIndex::AssertionStringType:
-      return AssertionStringType(
-          std::get<sourcemeta::blaze::AssertionStringType>(instruction), schema,
-          callback, instance, property_target, depth, evaluator);
+      return AssertionStringType(instruction, schema, callback, instance,
+                                 property_target, depth, evaluator);
 
     case InstructionIndex::AssertionPropertyType:
-      return AssertionPropertyType(
-          std::get<sourcemeta::blaze::AssertionPropertyType>(instruction),
-          schema, callback, instance, property_target, depth, evaluator);
+      return AssertionPropertyType(instruction, schema, callback, instance,
+                                   property_target, depth, evaluator);
 
     case InstructionIndex::AssertionPropertyTypeEvaluate:
-      return AssertionPropertyTypeEvaluate(
-          std::get<sourcemeta::blaze::AssertionPropertyTypeEvaluate>(
-              instruction),
-          schema, callback, instance, property_target, depth, evaluator);
+      return AssertionPropertyTypeEvaluate(instruction, schema, callback,
+                                           instance, property_target, depth,
+                                           evaluator);
 
     case InstructionIndex::AssertionPropertyTypeStrict:
-      return AssertionPropertyTypeStrict(
-          std::get<sourcemeta::blaze::AssertionPropertyTypeStrict>(instruction),
-          schema, callback, instance, property_target, depth, evaluator);
+      return AssertionPropertyTypeStrict(instruction, schema, callback,
+                                         instance, property_target, depth,
+                                         evaluator);
 
     case InstructionIndex::AssertionPropertyTypeStrictEvaluate:
-      return AssertionPropertyTypeStrictEvaluate(
-          std::get<sourcemeta::blaze::AssertionPropertyTypeStrictEvaluate>(
-              instruction),
-          schema, callback, instance, property_target, depth, evaluator);
+      return AssertionPropertyTypeStrictEvaluate(instruction, schema, callback,
+                                                 instance, property_target,
+                                                 depth, evaluator);
 
     case InstructionIndex::AssertionPropertyTypeStrictAny:
-      return AssertionPropertyTypeStrictAny(
-          std::get<sourcemeta::blaze::AssertionPropertyTypeStrictAny>(
-              instruction),
-          schema, callback, instance, property_target, depth, evaluator);
+      return AssertionPropertyTypeStrictAny(instruction, schema, callback,
+                                            instance, property_target, depth,
+                                            evaluator);
 
     case InstructionIndex::AssertionPropertyTypeStrictAnyEvaluate:
       return AssertionPropertyTypeStrictAnyEvaluate(
-          std::get<sourcemeta::blaze::AssertionPropertyTypeStrictAnyEvaluate>(
-              instruction),
-          schema, callback, instance, property_target, depth, evaluator);
+          instruction, schema, callback, instance, property_target, depth,
+          evaluator);
 
     case InstructionIndex::AssertionArrayPrefix:
-      return AssertionArrayPrefix(
-          std::get<sourcemeta::blaze::AssertionArrayPrefix>(instruction),
-          schema, callback, instance, property_target, depth, evaluator);
+      return AssertionArrayPrefix(instruction, schema, callback, instance,
+                                  property_target, depth, evaluator);
 
     case InstructionIndex::AssertionArrayPrefixEvaluate:
-      return AssertionArrayPrefixEvaluate(
-          std::get<sourcemeta::blaze::AssertionArrayPrefixEvaluate>(
-              instruction),
-          schema, callback, instance, property_target, depth, evaluator);
+      return AssertionArrayPrefixEvaluate(instruction, schema, callback,
+                                          instance, property_target, depth,
+                                          evaluator);
 
     case InstructionIndex::LogicalOr:
-      return LogicalOr(std::get<sourcemeta::blaze::LogicalOr>(instruction),
-                       schema, callback, instance, property_target, depth,
-                       evaluator);
+      return LogicalOr(instruction, schema, callback, instance, property_target,
+                       depth, evaluator);
 
     case InstructionIndex::LogicalAnd:
-      return LogicalAnd(std::get<sourcemeta::blaze::LogicalAnd>(instruction),
-                        schema, callback, instance, property_target, depth,
-                        evaluator);
+      return LogicalAnd(instruction, schema, callback, instance,
+                        property_target, depth, evaluator);
 
     case InstructionIndex::LogicalWhenType:
-      return LogicalWhenType(
-          std::get<sourcemeta::blaze::LogicalWhenType>(instruction), schema,
-          callback, instance, property_target, depth, evaluator);
+      return LogicalWhenType(instruction, schema, callback, instance,
+                             property_target, depth, evaluator);
 
     case InstructionIndex::LogicalWhenDefines:
-      return LogicalWhenDefines(
-          std::get<sourcemeta::blaze::LogicalWhenDefines>(instruction), schema,
-          callback, instance, property_target, depth, evaluator);
+      return LogicalWhenDefines(instruction, schema, callback, instance,
+                                property_target, depth, evaluator);
 
     case InstructionIndex::LogicalWhenArraySizeGreater:
-      return LogicalWhenArraySizeGreater(
-          std::get<sourcemeta::blaze::LogicalWhenArraySizeGreater>(instruction),
-          schema, callback, instance, property_target, depth, evaluator);
+      return LogicalWhenArraySizeGreater(instruction, schema, callback,
+                                         instance, property_target, depth,
+                                         evaluator);
 
     case InstructionIndex::LogicalXor:
-      return LogicalXor(std::get<sourcemeta::blaze::LogicalXor>(instruction),
-                        schema, callback, instance, property_target, depth,
-                        evaluator);
+      return LogicalXor(instruction, schema, callback, instance,
+                        property_target, depth, evaluator);
 
     case InstructionIndex::LogicalCondition:
-      return LogicalCondition(
-          std::get<sourcemeta::blaze::LogicalCondition>(instruction), schema,
-          callback, instance, property_target, depth, evaluator);
+      return LogicalCondition(instruction, schema, callback, instance,
+                              property_target, depth, evaluator);
 
     case InstructionIndex::ControlGroup:
-      return ControlGroup(
-          std::get<sourcemeta::blaze::ControlGroup>(instruction), schema,
-          callback, instance, property_target, depth, evaluator);
+      return ControlGroup(instruction, schema, callback, instance,
+                          property_target, depth, evaluator);
 
     case InstructionIndex::ControlGroupWhenDefines:
-      return ControlGroupWhenDefines(
-          std::get<sourcemeta::blaze::ControlGroupWhenDefines>(instruction),
-          schema, callback, instance, property_target, depth, evaluator);
+      return ControlGroupWhenDefines(instruction, schema, callback, instance,
+                                     property_target, depth, evaluator);
 
     case InstructionIndex::ControlGroupWhenDefinesDirect:
-      return ControlGroupWhenDefinesDirect(
-          std::get<sourcemeta::blaze::ControlGroupWhenDefinesDirect>(
-              instruction),
-          schema, callback, instance, property_target, depth, evaluator);
+      return ControlGroupWhenDefinesDirect(instruction, schema, callback,
+                                           instance, property_target, depth,
+                                           evaluator);
 
     case InstructionIndex::ControlLabel:
-      return ControlLabel(
-          std::get<sourcemeta::blaze::ControlLabel>(instruction), schema,
-          callback, instance, property_target, depth, evaluator);
+      return ControlLabel(instruction, schema, callback, instance,
+                          property_target, depth, evaluator);
 
     case InstructionIndex::ControlMark:
-      return ControlMark(std::get<sourcemeta::blaze::ControlMark>(instruction),
-                         schema, callback, instance, property_target, depth,
-                         evaluator);
+      return ControlMark(instruction, schema, callback, instance,
+                         property_target, depth, evaluator);
 
     case InstructionIndex::ControlEvaluate:
-      return ControlEvaluate(
-          std::get<sourcemeta::blaze::ControlEvaluate>(instruction), schema,
-          callback, instance, property_target, depth, evaluator);
+      return ControlEvaluate(instruction, schema, callback, instance,
+                             property_target, depth, evaluator);
 
     case InstructionIndex::ControlJump:
-      return ControlJump(std::get<sourcemeta::blaze::ControlJump>(instruction),
-                         schema, callback, instance, property_target, depth,
-                         evaluator);
+      return ControlJump(instruction, schema, callback, instance,
+                         property_target, depth, evaluator);
 
     case InstructionIndex::ControlDynamicAnchorJump:
-      return ControlDynamicAnchorJump(
-          std::get<sourcemeta::blaze::ControlDynamicAnchorJump>(instruction),
-          schema, callback, instance, property_target, depth, evaluator);
+      return ControlDynamicAnchorJump(instruction, schema, callback, instance,
+                                      property_target, depth, evaluator);
 
     case InstructionIndex::AnnotationEmit:
-      return AnnotationEmit(
-          std::get<sourcemeta::blaze::AnnotationEmit>(instruction), schema,
-          callback, instance, property_target, depth, evaluator);
+      return AnnotationEmit(instruction, schema, callback, instance,
+                            property_target, depth, evaluator);
 
     case InstructionIndex::AnnotationToParent:
-      return AnnotationToParent(
-          std::get<sourcemeta::blaze::AnnotationToParent>(instruction), schema,
-          callback, instance, property_target, depth, evaluator);
+      return AnnotationToParent(instruction, schema, callback, instance,
+                                property_target, depth, evaluator);
 
     case InstructionIndex::AnnotationBasenameToParent:
-      return AnnotationBasenameToParent(
-          std::get<sourcemeta::blaze::AnnotationBasenameToParent>(instruction),
-          schema, callback, instance, property_target, depth, evaluator);
+      return AnnotationBasenameToParent(instruction, schema, callback, instance,
+                                        property_target, depth, evaluator);
 
     case InstructionIndex::LogicalNot:
-      return LogicalNot(std::get<sourcemeta::blaze::LogicalNot>(instruction),
-                        schema, callback, instance, property_target, depth,
-                        evaluator);
+      return LogicalNot(instruction, schema, callback, instance,
+                        property_target, depth, evaluator);
 
     case InstructionIndex::LogicalNotEvaluate:
-      return LogicalNotEvaluate(
-          std::get<sourcemeta::blaze::LogicalNotEvaluate>(instruction), schema,
-          callback, instance, property_target, depth, evaluator);
+      return LogicalNotEvaluate(instruction, schema, callback, instance,
+                                property_target, depth, evaluator);
 
     case InstructionIndex::LoopPropertiesUnevaluated:
-      return LoopPropertiesUnevaluated(
-          std::get<sourcemeta::blaze::LoopPropertiesUnevaluated>(instruction),
-          schema, callback, instance, property_target, depth, evaluator);
+      return LoopPropertiesUnevaluated(instruction, schema, callback, instance,
+                                       property_target, depth, evaluator);
 
     case InstructionIndex::LoopPropertiesUnevaluatedExcept:
-      return LoopPropertiesUnevaluatedExcept(
-          std::get<sourcemeta::blaze::LoopPropertiesUnevaluatedExcept>(
-              instruction),
-          schema, callback, instance, property_target, depth, evaluator);
+      return LoopPropertiesUnevaluatedExcept(instruction, schema, callback,
+                                             instance, property_target, depth,
+                                             evaluator);
 
     case InstructionIndex::LoopPropertiesMatch:
-      return LoopPropertiesMatch(
-          std::get<sourcemeta::blaze::LoopPropertiesMatch>(instruction), schema,
-          callback, instance, property_target, depth, evaluator);
+      return LoopPropertiesMatch(instruction, schema, callback, instance,
+                                 property_target, depth, evaluator);
 
     case InstructionIndex::LoopPropertiesMatchClosed:
-      return LoopPropertiesMatchClosed(
-          std::get<sourcemeta::blaze::LoopPropertiesMatchClosed>(instruction),
-          schema, callback, instance, property_target, depth, evaluator);
+      return LoopPropertiesMatchClosed(instruction, schema, callback, instance,
+                                       property_target, depth, evaluator);
 
     case InstructionIndex::LoopProperties:
-      return LoopProperties(
-          std::get<sourcemeta::blaze::LoopProperties>(instruction), schema,
-          callback, instance, property_target, depth, evaluator);
+      return LoopProperties(instruction, schema, callback, instance,
+                            property_target, depth, evaluator);
 
     case InstructionIndex::LoopPropertiesEvaluate:
-      return LoopPropertiesEvaluate(
-          std::get<sourcemeta::blaze::LoopPropertiesEvaluate>(instruction),
-          schema, callback, instance, property_target, depth, evaluator);
+      return LoopPropertiesEvaluate(instruction, schema, callback, instance,
+                                    property_target, depth, evaluator);
 
     case InstructionIndex::LoopPropertiesRegex:
-      return LoopPropertiesRegex(
-          std::get<sourcemeta::blaze::LoopPropertiesRegex>(instruction), schema,
-          callback, instance, property_target, depth, evaluator);
+      return LoopPropertiesRegex(instruction, schema, callback, instance,
+                                 property_target, depth, evaluator);
 
     case InstructionIndex::LoopPropertiesRegexClosed:
-      return LoopPropertiesRegexClosed(
-          std::get<sourcemeta::blaze::LoopPropertiesRegexClosed>(instruction),
-          schema, callback, instance, property_target, depth, evaluator);
+      return LoopPropertiesRegexClosed(instruction, schema, callback, instance,
+                                       property_target, depth, evaluator);
 
     case InstructionIndex::LoopPropertiesStartsWith:
-      return LoopPropertiesStartsWith(
-          std::get<sourcemeta::blaze::LoopPropertiesStartsWith>(instruction),
-          schema, callback, instance, property_target, depth, evaluator);
+      return LoopPropertiesStartsWith(instruction, schema, callback, instance,
+                                      property_target, depth, evaluator);
 
     case InstructionIndex::LoopPropertiesExcept:
-      return LoopPropertiesExcept(
-          std::get<sourcemeta::blaze::LoopPropertiesExcept>(instruction),
-          schema, callback, instance, property_target, depth, evaluator);
+      return LoopPropertiesExcept(instruction, schema, callback, instance,
+                                  property_target, depth, evaluator);
 
     case InstructionIndex::LoopPropertiesWhitelist:
-      return LoopPropertiesWhitelist(
-          std::get<sourcemeta::blaze::LoopPropertiesWhitelist>(instruction),
-          schema, callback, instance, property_target, depth, evaluator);
+      return LoopPropertiesWhitelist(instruction, schema, callback, instance,
+                                     property_target, depth, evaluator);
 
     case InstructionIndex::LoopPropertiesType:
-      return LoopPropertiesType(
-          std::get<sourcemeta::blaze::LoopPropertiesType>(instruction), schema,
-          callback, instance, property_target, depth, evaluator);
+      return LoopPropertiesType(instruction, schema, callback, instance,
+                                property_target, depth, evaluator);
 
     case InstructionIndex::LoopPropertiesTypeEvaluate:
-      return LoopPropertiesTypeEvaluate(
-          std::get<sourcemeta::blaze::LoopPropertiesTypeEvaluate>(instruction),
-          schema, callback, instance, property_target, depth, evaluator);
+      return LoopPropertiesTypeEvaluate(instruction, schema, callback, instance,
+                                        property_target, depth, evaluator);
 
     case InstructionIndex::LoopPropertiesTypeStrict:
-      return LoopPropertiesTypeStrict(
-          std::get<sourcemeta::blaze::LoopPropertiesTypeStrict>(instruction),
-          schema, callback, instance, property_target, depth, evaluator);
+      return LoopPropertiesTypeStrict(instruction, schema, callback, instance,
+                                      property_target, depth, evaluator);
 
     case InstructionIndex::LoopPropertiesTypeStrictEvaluate:
-      return LoopPropertiesTypeStrictEvaluate(
-          std::get<sourcemeta::blaze::LoopPropertiesTypeStrictEvaluate>(
-              instruction),
-          schema, callback, instance, property_target, depth, evaluator);
+      return LoopPropertiesTypeStrictEvaluate(instruction, schema, callback,
+                                              instance, property_target, depth,
+                                              evaluator);
 
     case InstructionIndex::LoopPropertiesTypeStrictAny:
-      return LoopPropertiesTypeStrictAny(
-          std::get<sourcemeta::blaze::LoopPropertiesTypeStrictAny>(instruction),
-          schema, callback, instance, property_target, depth, evaluator);
+      return LoopPropertiesTypeStrictAny(instruction, schema, callback,
+                                         instance, property_target, depth,
+                                         evaluator);
 
     case InstructionIndex::LoopPropertiesTypeStrictAnyEvaluate:
-      return LoopPropertiesTypeStrictAnyEvaluate(
-          std::get<sourcemeta::blaze::LoopPropertiesTypeStrictAnyEvaluate>(
-              instruction),
-          schema, callback, instance, property_target, depth, evaluator);
+      return LoopPropertiesTypeStrictAnyEvaluate(instruction, schema, callback,
+                                                 instance, property_target,
+                                                 depth, evaluator);
 
     case InstructionIndex::LoopKeys:
-      return LoopKeys(std::get<sourcemeta::blaze::LoopKeys>(instruction),
-                      schema, callback, instance, property_target, depth,
-                      evaluator);
+      return LoopKeys(instruction, schema, callback, instance, property_target,
+                      depth, evaluator);
 
     case InstructionIndex::LoopItems:
-      return LoopItems(std::get<sourcemeta::blaze::LoopItems>(instruction),
-                       schema, callback, instance, property_target, depth,
-                       evaluator);
+      return LoopItems(instruction, schema, callback, instance, property_target,
+                       depth, evaluator);
 
     case InstructionIndex::LoopItemsFrom:
-      return LoopItemsFrom(
-          std::get<sourcemeta::blaze::LoopItemsFrom>(instruction), schema,
-          callback, instance, property_target, depth, evaluator);
+      return LoopItemsFrom(instruction, schema, callback, instance,
+                           property_target, depth, evaluator);
 
     case InstructionIndex::LoopItemsUnevaluated:
-      return LoopItemsUnevaluated(
-          std::get<sourcemeta::blaze::LoopItemsUnevaluated>(instruction),
-          schema, callback, instance, property_target, depth, evaluator);
+      return LoopItemsUnevaluated(instruction, schema, callback, instance,
+                                  property_target, depth, evaluator);
 
     case InstructionIndex::LoopItemsType:
-      return LoopItemsType(
-          std::get<sourcemeta::blaze::LoopItemsType>(instruction), schema,
-          callback, instance, property_target, depth, evaluator);
+      return LoopItemsType(instruction, schema, callback, instance,
+                           property_target, depth, evaluator);
 
     case InstructionIndex::LoopItemsTypeStrict:
-      return LoopItemsTypeStrict(
-          std::get<sourcemeta::blaze::LoopItemsTypeStrict>(instruction), schema,
-          callback, instance, property_target, depth, evaluator);
+      return LoopItemsTypeStrict(instruction, schema, callback, instance,
+                                 property_target, depth, evaluator);
 
     case InstructionIndex::LoopItemsTypeStrictAny:
-      return LoopItemsTypeStrictAny(
-          std::get<sourcemeta::blaze::LoopItemsTypeStrictAny>(instruction),
-          schema, callback, instance, property_target, depth, evaluator);
+      return LoopItemsTypeStrictAny(instruction, schema, callback, instance,
+                                    property_target, depth, evaluator);
 
     case InstructionIndex::LoopContains:
-      return LoopContains(
-          std::get<sourcemeta::blaze::LoopContains>(instruction), schema,
-          callback, instance, property_target, depth, evaluator);
+      return LoopContains(instruction, schema, callback, instance,
+                          property_target, depth, evaluator);
   }
 
     // See https://en.cppreference.com/w/cpp/utility/unreachable

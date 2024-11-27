@@ -8,8 +8,6 @@
 
 #include "evaluator_utils.h"
 
-#include <iostream>
-
 TEST(Evaluator_draft4, metaschema_1) {
   const auto metaschema{sourcemeta::jsontoolkit::official_resolver(
       "http://json-schema.org/draft-04/schema#")};

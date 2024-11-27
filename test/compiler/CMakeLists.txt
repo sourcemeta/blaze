@@ -16,6 +16,6 @@ target_link_libraries(sourcemeta_blaze_compiler_unit
   PRIVATE sourcemeta::blaze::compiler)
 target_link_libraries(sourcemeta_blaze_compiler_unit
   PRIVATE sourcemeta::blaze::evaluator)
-add_test(NAME JSONSchema COMMAND sourcemeta_blaze_compiler_unit --gtest_brief=1)
+add_test(NAME Compiler COMMAND sourcemeta_blaze_compiler_unit --gtest_brief=1)
 set_target_properties(sourcemeta_blaze_compiler_unit
   PROPERTIES FOLDER "Blaze/Compiler")

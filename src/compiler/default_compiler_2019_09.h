@@ -38,18 +38,19 @@ auto compiler_2019_09_applicator_dependentschemas(
     }
 
     if (!dependency.is_boolean() || !dependency.to_boolean()) {
-      children.push_back(make<LogicalWhenDefines>(
-          context, schema_context, relative_dynamic_context,
-          ValueString{dependent},
-          compile(context, schema_context, relative_dynamic_context,
-                  {dependent}, sourcemeta::jsontoolkit::empty_pointer)));
+      children.push_back(
+          make(sourcemeta::blaze::InstructionIndex::LogicalWhenDefines, context,
+               schema_context, relative_dynamic_context, ValueString{dependent},
+               compile(context, schema_context, relative_dynamic_context,
+                       {dependent}, sourcemeta::jsontoolkit::empty_pointer)));
     }
   }
 
   // TODO: Is this wrapper really necessary?
-  return {make<LogicalWhenType>(context, schema_context, dynamic_context,
-                                sourcemeta::jsontoolkit::JSON::Type::Object,
-                                std::move(children))};
+  return {make(sourcemeta::blaze::InstructionIndex::LogicalWhenType, context,
+               schema_context, dynamic_context,
+               sourcemeta::jsontoolkit::JSON::Type::Object,
+               std::move(children))};
 }
 
 auto compiler_2019_09_validation_dependentrequired(
@@ -87,18 +88,19 @@ auto compiler_2019_09_validation_dependentrequired(
     return {};
   }
 
-  return {make<AssertionPropertyDependencies>(
-      context, schema_context, dynamic_context, std::move(dependencies))};
+  return {
+      make(sourcemeta::blaze::InstructionIndex::AssertionPropertyDependencies,
+           context, schema_context, dynamic_context, std::move(dependencies))};
 }
 
 auto compiler_2019_09_core_annotation(const Context &context,
                                       const SchemaContext &schema_context,
                                       const DynamicContext &dynamic_context)
     -> Instructions {
-  return {make<AnnotationEmit>(
-      context, schema_context, dynamic_context,
-      sourcemeta::jsontoolkit::JSON{
-          schema_context.schema.at(dynamic_context.keyword)})};
+  return {make(sourcemeta::blaze::InstructionIndex::AnnotationEmit, context,
+               schema_context, dynamic_context,
+               sourcemeta::jsontoolkit::JSON{
+                   schema_context.schema.at(dynamic_context.keyword)})};
 }
 
 auto compiler_2019_09_applicator_contains_with_options(
@@ -136,8 +138,8 @@ auto compiler_2019_09_applicator_contains_with_options(
   }
 
   if (maximum.has_value() && minimum > maximum.value()) {
-    return {make<AssertionFail>(context, schema_context, dynamic_context,
-                                ValueNone{})};
+    return {make(sourcemeta::blaze::InstructionIndex::AssertionFail, context,
+                 schema_context, dynamic_context, ValueNone{})};
   }
 
   if (minimum == 0 && !maximum.has_value()) {
@@ -150,8 +152,9 @@ auto compiler_2019_09_applicator_contains_with_options(
                                 sourcemeta::jsontoolkit::empty_pointer)};
 
   if (annotate) {
-    children.push_back(make<AnnotationBasenameToParent>(
-        context, schema_context, relative_dynamic_context, ValueNone{}));
+    children.push_back(
+        make(sourcemeta::blaze::InstructionIndex::AnnotationBasenameToParent,
+             context, schema_context, relative_dynamic_context, ValueNone{}));
 
     // TODO: If after emitting the above annotation, the number of annotations
     // for the current schema location + instance location is equal to the
@@ -160,20 +163,22 @@ auto compiler_2019_09_applicator_contains_with_options(
   }
 
   if (track_evaluation) {
-    children.push_back(make<ControlEvaluate>(
-        context, schema_context, relative_dynamic_context, ValuePointer{}));
+    children.push_back(
+        make(sourcemeta::blaze::InstructionIndex::ControlEvaluate, context,
+             schema_context, relative_dynamic_context, ValuePointer{}));
   }
 
   if (children.empty()) {
     // We still need to check the instance is not empty
-    return {make<AssertionArraySizeGreater>(
-        context, schema_context, dynamic_context, ValueUnsignedInteger{0})};
+    return {make(sourcemeta::blaze::InstructionIndex::AssertionArraySizeGreater,
+                 context, schema_context, dynamic_context,
+                 ValueUnsignedInteger{0})};
   }
 
-  return {make<LoopContains>(
-      context, schema_context, dynamic_context,
-      ValueRange{minimum, maximum, annotate || track_evaluation},
-      std::move(children))};
+  return {make(sourcemeta::blaze::InstructionIndex::LoopContains, context,
+               schema_context, dynamic_context,
+               ValueRange{minimum, maximum, annotate || track_evaluation},
+               std::move(children))};
 }
 
 auto compiler_2019_09_applicator_contains(const Context &context,
@@ -232,21 +237,23 @@ auto compiler_2019_09_applicator_unevaluateditems(
                                 sourcemeta::jsontoolkit::empty_pointer)};
 
   if (context.mode == Mode::Exhaustive) {
-    children.push_back(make<AnnotationToParent>(
-        context, schema_context, relative_dynamic_context,
-        sourcemeta::jsontoolkit::JSON{true}));
+    children.push_back(
+        make(sourcemeta::blaze::InstructionIndex::AnnotationToParent, context,
+             schema_context, relative_dynamic_context,
+             sourcemeta::jsontoolkit::JSON{true}));
   }
 
   if (children.empty()) {
-    return {make<ControlEvaluate>(context, schema_context, dynamic_context,
-                                  ValuePointer{})};
+    return {make(sourcemeta::blaze::InstructionIndex::ControlEvaluate, context,
+                 schema_context, dynamic_context, ValuePointer{})};
   }
 
   // TODO: Attempt to short-circuit evaluation tracking by looking at sibling
   // and adjacent keywords like we do for `unevaluatedProperties`
 
-  return {make<LoopItemsUnevaluated>(context, schema_context, dynamic_context,
-                                     ValueNone{}, std::move(children))};
+  return {make(sourcemeta::blaze::InstructionIndex::LoopItemsUnevaluated,
+               context, schema_context, dynamic_context, ValueNone{},
+               std::move(children))};
 }
 
 auto compiler_2019_09_applicator_unevaluatedproperties(
@@ -269,8 +276,9 @@ auto compiler_2019_09_applicator_unevaluatedproperties(
                                 sourcemeta::jsontoolkit::empty_pointer)};
 
   if (context.mode == Mode::Exhaustive) {
-    children.push_back(make<AnnotationBasenameToParent>(
-        context, schema_context, relative_dynamic_context, ValueNone{}));
+    children.push_back(
+        make(sourcemeta::blaze::InstructionIndex::AnnotationBasenameToParent,
+             context, schema_context, relative_dynamic_context, ValueNone{}));
   }
 
   ValueStringSet filter_strings;
@@ -307,20 +315,21 @@ auto compiler_2019_09_applicator_unevaluatedproperties(
   }
 
   if (children.empty()) {
-    return {make<ControlEvaluate>(context, schema_context, dynamic_context,
-                                  ValuePointer{})};
+    return {make(sourcemeta::blaze::InstructionIndex::ControlEvaluate, context,
+                 schema_context, dynamic_context, ValuePointer{})};
   } else if (!filter_strings.empty() || !filter_prefixes.empty() ||
              !filter_regexes.empty()) {
-    return {make<LoopPropertiesUnevaluatedExcept>(
+    return {make(
+        sourcemeta::blaze::InstructionIndex::LoopPropertiesUnevaluatedExcept,
         context, schema_context, dynamic_context,
         ValuePropertyFilter{std::move(filter_strings),
                             std::move(filter_prefixes),
                             std::move(filter_regexes)},
         std::move(children))};
   } else {
-    return {make<LoopPropertiesUnevaluated>(context, schema_context,
-                                            dynamic_context, ValueNone{},
-                                            std::move(children))};
+    return {make(sourcemeta::blaze::InstructionIndex::LoopPropertiesUnevaluated,
+                 context, schema_context, dynamic_context, ValueNone{},
+                 std::move(children))};
   }
 }
 
@@ -335,8 +344,8 @@ auto compiler_2019_09_core_recursiveref(const Context &context,
     return compiler_draft4_core_ref(context, schema_context, dynamic_context);
   }
 
-  return {make<ControlDynamicAnchorJump>(context, schema_context,
-                                         dynamic_context, "")};
+  return {make(sourcemeta::blaze::InstructionIndex::ControlDynamicAnchorJump,
+               context, schema_context, dynamic_context, "")};
 }
 
 auto compiler_2019_09_applicator_properties(

@@ -71,9 +71,9 @@ auto compiler_2020_12_core_dynamicref(const Context &context,
   // Note we don't need to even care about the static part of the dynamic
   // reference (if any), as even if we jump first there, we will still
   // look for the oldest dynamic anchor in the schema resource chain.
-  return {make<ControlDynamicAnchorJump>(
-      context, schema_context, dynamic_context,
-      std::string{reference.fragment().value()})};
+  return {make(sourcemeta::blaze::InstructionIndex::ControlDynamicAnchorJump,
+               context, schema_context, dynamic_context,
+               std::string{reference.fragment().value()})};
 }
 
 } // namespace internal

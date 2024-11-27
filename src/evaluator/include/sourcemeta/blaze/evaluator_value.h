@@ -100,6 +100,14 @@ using ValueIndexPair = std::pair<std::size_t, std::size_t>;
 /// Represents a compiler step value that consists of a pointer
 using ValuePointer = sourcemeta::jsontoolkit::Pointer;
 
+/// @ingroup evaluator
+using Value =
+    std::variant<ValueNone, ValueJSON, ValueSet, ValueString, ValueStrings,
+                 ValueStringSet, ValueTypes, ValueType, ValueRegex,
+                 ValueUnsignedInteger, ValueRange, ValueBoolean,
+                 ValueNamedIndexes, ValueStringType, ValueStringMap,
+                 ValuePropertyFilter, ValueIndexPair, ValuePointer>;
+
 } // namespace sourcemeta::blaze
 
 #endif

@@ -32,29 +32,30 @@ inline auto schema_resource_id(const Context &context,
 }
 
 // Instantiate a value-oriented step
-template <typename Step>
-auto make(const Context &context, const SchemaContext &schema_context,
-          const DynamicContext &dynamic_context,
-          // Take the value type from the "type" property of the step struct
-          const decltype(std::declval<Step>().value) &value) -> Step {
+inline auto make(const InstructionIndex type, const Context &context,
+                 const SchemaContext &schema_context,
+                 const DynamicContext &dynamic_context, const Value &value)
+    -> Instruction {
   return {
+      type,
       dynamic_context.keyword.empty()
           ? dynamic_context.base_schema_location
           : dynamic_context.base_schema_location.concat(
                 {dynamic_context.keyword}),
       dynamic_context.base_instance_location,
       to_uri(schema_context.relative_pointer, schema_context.base).recompose(),
-      schema_resource_id(context, schema_context.base.recompose()), value};
+      schema_resource_id(context, schema_context.base.recompose()),
+      value,
+      {}};
 }
 
 // Instantiate an applicator step
-template <typename Step>
-auto make(const Context &context, const SchemaContext &schema_context,
-          const DynamicContext &dynamic_context,
-          // Take the value type from the "value" property of the step struct
-          decltype(std::declval<Step>().value) &&value, Instructions &&children)
-    -> Step {
+inline auto make(const InstructionIndex type, const Context &context,
+                 const SchemaContext &schema_context,
+                 const DynamicContext &dynamic_context, Value &&value,
+                 Instructions &&children) -> Instruction {
   return {
+      type,
       dynamic_context.keyword.empty()
           ? dynamic_context.base_schema_location
           : dynamic_context.base_schema_location.concat(
@@ -66,22 +67,28 @@ auto make(const Context &context, const SchemaContext &schema_context,
       std::move(children)};
 }
 
-template <typename Type, typename Step>
-auto unroll(const Step &step,
-            const sourcemeta::jsontoolkit::Pointer &base_instance_location =
-                sourcemeta::jsontoolkit::empty_pointer) -> Type {
-  assert(std::holds_alternative<Type>(step));
-  return {std::get<Type>(step).relative_schema_location,
-          base_instance_location.concat(
-              std::get<Type>(step).relative_instance_location),
-          std::get<Type>(step).keyword_location,
-          std::get<Type>(step).schema_resource, std::get<Type>(step).value};
+inline auto
+unroll(const Instruction &step,
+       const sourcemeta::jsontoolkit::Pointer &base_instance_location =
+           sourcemeta::jsontoolkit::empty_pointer) -> Instruction {
+  return {step.type,
+          step.relative_schema_location,
+          base_instance_location.concat(step.relative_instance_location),
+          step.keyword_location,
+          step.schema_resource,
+          step.value,
+          {}};
 }
 
-template <typename Type, typename Step>
-auto rephrase(const Step &step) -> Type {
-  return {step.relative_schema_location, step.relative_instance_location,
-          step.keyword_location, step.schema_resource, step.value};
+inline auto rephrase(const InstructionIndex type, const Instruction &step)
+    -> Instruction {
+  return {type,
+          step.relative_schema_location,
+          step.relative_instance_location,
+          step.keyword_location,
+          step.schema_resource,
+          step.value,
+          {}};
 }
 
 inline auto
@@ -207,13 +214,7 @@ inline auto find_adjacent(const Context &context,
 inline auto recursive_template_size(const Instructions &steps) -> std::size_t {
   std::size_t result{steps.size()};
   for (const auto &variant : steps) {
-    std::visit(
-        [&result](const auto &step) {
-          if constexpr (requires { step.children; }) {
-            result += recursive_template_size(step.children);
-          }
-        },
-        variant);
+    result += recursive_template_size(variant.children);
   }
 
   return result;
