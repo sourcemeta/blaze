@@ -2811,7 +2811,7 @@ TEST(Evaluator_draft4, additionalProperties_12) {
 
   EVALUATE_TRACE_POST_DESCRIBE(instance, 0,
                                "The object value was expected to only define "
-                               "properties \"foo\", and \"bar\"");
+                               "properties \"bar\", and \"foo\"");
   EVALUATE_TRACE_POST_DESCRIBE(
       instance, 1, "The object properties were expected to be of type boolean");
 }
@@ -2838,7 +2838,7 @@ TEST(Evaluator_draft4, additionalProperties_13) {
                               "#/required", "");
   EVALUATE_TRACE_POST_DESCRIBE(instance, 0,
                                "The object value was expected to only define "
-                               "properties \"foo\", and \"bar\"");
+                               "properties \"bar\", and \"foo\"");
 }
 
 TEST(Evaluator_draft4, additionalProperties_14) {
@@ -2871,7 +2871,7 @@ TEST(Evaluator_draft4, additionalProperties_14) {
 
   EVALUATE_TRACE_POST_DESCRIBE(instance, 0,
                                "The value was expected to be an object that "
-                               "only defines properties \"foo\", and \"bar\"");
+                               "only defines properties \"bar\", and \"foo\"");
   EVALUATE_TRACE_POST_DESCRIBE(
       instance, 1, "The object properties were expected to be of type boolean");
 }

@@ -124,13 +124,13 @@ INSTRUCTION_HANDLER(AssertionDefinesExactly) {
   EVALUATE_BEGIN_NON_STRING(AssertionDefinesExactly, target.is_object());
 
   // Otherwise we are we even emitting this instruction?
-  assert(std::get<ValueStrings>(instruction.value).size() > 1);
+  assert(std::get<ValueStringSet>(instruction.value).size() > 1);
 
-  if (std::get<ValueStrings>(instruction.value).size() ==
-      target.object_size()) {
+  const auto &value{std::get<ValueStringSet>(instruction.value)};
+  if (value.size() == target.object_size()) {
     result = true;
-    for (const auto &property : std::get<ValueStrings>(instruction.value)) {
-      if (!target.defines(property)) {
+    for (const auto &property : target.as_object()) {
+      if (!value.contains(property.first)) {
         result = false;
         break;
       }
@@ -151,13 +151,13 @@ INSTRUCTION_HANDLER(AssertionDefinesExactlyStrict) {
   const auto &target{get(instance, instruction.relative_instance_location)};
 
   // Otherwise we are we even emitting this instruction?
-  assert(std::get<ValueStrings>(instruction.value).size() > 1);
+  assert(std::get<ValueStringSet>(instruction.value).size() > 1);
 
-  if (target.is_object() && std::get<ValueStrings>(instruction.value).size() ==
-                                target.object_size()) {
+  const auto &value{std::get<ValueStringSet>(instruction.value)};
+  if (target.is_object() && value.size() == target.object_size()) {
     result = true;
-    for (const auto &property : std::get<ValueStrings>(instruction.value)) {
-      if (!target.defines(property)) {
+    for (const auto &property : target.as_object()) {
+      if (!value.contains(property.first)) {
         result = false;
         break;
       }
