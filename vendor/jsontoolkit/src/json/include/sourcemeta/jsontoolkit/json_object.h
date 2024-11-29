@@ -4,11 +4,7 @@
 #include <functional>       // std::equal_to, std::less
 #include <initializer_list> // std::initializer_list
 
-#if defined(__GNUC__) && !defined(__clang__) && (__GNUC__ < 12)
-#include <map> // std::map
-#else
-#include <unordered_map> // std::unordered_map
-#endif
+#include <sourcemeta/jsontoolkit/json_flat_map.h>
 
 namespace sourcemeta::jsontoolkit {
 
@@ -16,17 +12,7 @@ namespace sourcemeta::jsontoolkit {
 template <typename Key, typename Value, typename Hash> class JSONObject {
 public:
   // Constructors
-
-  // Older versions of GCC don't allow `std::unordered_map` to incomplete
-  // types, and in this case, `Value` is an incomplete type.
-  using Container =
-#if defined(__GNUC__) && !defined(__clang__) && (__GNUC__ < 12)
-      std::map<Key, Value, std::less<Key>,
-#else
-      std::unordered_map<Key, Value, Hash, std::equal_to<Key>,
-#endif
-               typename Value::template Allocator<
-                   std::pair<const typename Value::String, Value>>>;
+  using Container = FlatMap<Key, Value, Hash>;
 
   JSONObject() : data{} {}
   JSONObject(std::initializer_list<typename Container::value_type> values)
@@ -49,7 +35,8 @@ public:
 
     // Otherwise do value comparison for common properties
     for (const auto &[key, value] : this->data) {
-      if (other.data.contains(key) && value < other.data.at(key)) {
+      const auto other_entry{other.find(key)};
+      if (other_entry != other.cend() && value < other_entry->second) {
         return true;
       }
     }
@@ -89,14 +76,8 @@ public:
   using const_reference = typename Container::const_reference;
   using pointer = typename Container::pointer;
   using const_pointer = typename Container::const_pointer;
-  using iterator = typename Container::iterator;
   using const_iterator = typename Container::const_iterator;
 
-  /// Get a mutable begin iterator on the object
-  auto begin() noexcept -> iterator { return this->data.begin(); }
-  /// Get a mutable end iterator on the object
-  auto end() noexcept -> iterator { return this->data.end(); }
-  /// Get a constant begin iterator on the object
   auto begin() const noexcept -> const_iterator { return this->data.begin(); }
   /// Get a constant end iterator on the object
   auto end() const noexcept -> const_iterator { return this->data.end(); }
@@ -104,6 +85,11 @@ public:
   auto cbegin() const noexcept -> const_iterator { return this->data.cbegin(); }
   /// Get a constant end iterator on the object
   auto cend() const noexcept -> const_iterator { return this->data.cend(); }
+
+  /// Attempt to find an entry by key
+  auto find(const Key &key) const -> const_iterator {
+    return this->data.find(key);
+  }
 
 private:
   friend Value;

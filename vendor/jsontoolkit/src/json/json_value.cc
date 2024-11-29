@@ -320,13 +320,13 @@ auto JSON::operator-=(const JSON &substractive) -> JSON & {
 [[nodiscard]] auto JSON::at(const JSON::String &key) const -> const JSON & {
   assert(this->is_object());
   assert(this->defines(key));
-  return std::get<Object>(this->data).data.find(key)->second;
+  return std::get<Object>(this->data).data.at(key);
 }
 
 [[nodiscard]] auto JSON::at(const JSON::String &key) -> JSON & {
   assert(this->is_object());
   assert(this->defines(key));
-  return std::get<Object>(this->data).data.find(key)->second;
+  return std::get<Object>(this->data).data.at(key);
 }
 
 [[nodiscard]] auto JSON::front() -> JSON & {
@@ -506,7 +506,8 @@ auto JSON::operator-=(const JSON &substractive) -> JSON & {
 
 [[nodiscard]] auto JSON::defines(const JSON::String &key) const -> bool {
   assert(this->is_object());
-  return std::get<Object>(this->data).data.contains(key);
+  return std::get<Object>(this->data).find(key) !=
+         std::get<Object>(this->data).cend();
 }
 
 [[nodiscard]] auto
@@ -591,12 +592,12 @@ auto JSON::push_back_if_unique(JSON &&value)
 
 auto JSON::assign(const JSON::String &key, const JSON &value) -> void {
   assert(this->is_object());
-  std::get<Object>(this->data).data.insert_or_assign(key, value);
+  std::get<Object>(this->data).data.assign(key, value);
 }
 
 auto JSON::assign(const JSON::String &key, JSON &&value) -> void {
   assert(this->is_object());
-  std::get<Object>(this->data).data.insert_or_assign(key, std::move(value));
+  std::get<Object>(this->data).data.assign(key, std::move(value));
 }
 
 auto JSON::assign_if_missing(const JSON::String &key, const JSON &value)
