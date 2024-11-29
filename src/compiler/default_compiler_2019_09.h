@@ -80,7 +80,7 @@ auto compiler_2019_09_validation_dependentrequired(
     }
 
     if (!properties.empty()) {
-      dependencies.emplace(entry.first, std::move(properties));
+      dependencies.assign(entry.first, std::move(properties));
     }
   }
 

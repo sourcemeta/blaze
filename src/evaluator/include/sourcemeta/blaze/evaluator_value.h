@@ -10,7 +10,6 @@
 #include <optional>      // std::optional, std::nullopt
 #include <string>        // std::string
 #include <tuple>         // std::tuple
-#include <unordered_map> // std::unordered_map
 #include <unordered_set> // std::unordered_set
 #include <utility>       // std::pair
 #include <vector>        // std::vector
@@ -74,8 +73,9 @@ using ValueBoolean = bool;
 
 /// @ingroup evaluator
 /// Represents a compiler step string to index map
-using ValueNamedIndexes = std::unordered_map<ValueString, ValueUnsignedInteger,
-                                             sourcemeta::jsontoolkit::Hash>;
+using ValueNamedIndexes =
+    sourcemeta::jsontoolkit::FlatMap<ValueString, ValueUnsignedInteger,
+                                     sourcemeta::jsontoolkit::Hash>;
 
 /// @ingroup evaluator
 /// Represents a compiler step string logical type
@@ -83,8 +83,9 @@ enum class ValueStringType : std::uint8_t { URI };
 
 /// @ingroup evaluator
 /// Represents an compiler step that maps strings to strings
-using ValueStringMap = std::unordered_map<ValueString, ValueStrings,
-                                          sourcemeta::jsontoolkit::Hash>;
+using ValueStringMap =
+    sourcemeta::jsontoolkit::FlatMap<ValueString, ValueStrings,
+                                     sourcemeta::jsontoolkit::Hash>;
 
 /// @ingroup evaluator
 /// Represents a compiler step value that consist of object property filters
