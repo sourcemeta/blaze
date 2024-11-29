@@ -1605,7 +1605,7 @@ TEST(Evaluator_draft6, additionalProperties_1) {
 
   EVALUATE_TRACE_POST_DESCRIBE(instance, 0,
                                "The value was expected to be an object that "
-                               "only defines properties \"bar\", and \"foo\"");
+                               "only defines properties \"foo\", and \"bar\"");
   EVALUATE_TRACE_POST_DESCRIBE(
       instance, 1, "The object properties were expected to be of type boolean");
 }
@@ -1639,7 +1639,7 @@ TEST(Evaluator_draft6, additionalProperties_2) {
 
   EVALUATE_TRACE_POST_DESCRIBE(instance, 0,
                                "The value was expected to be an object that "
-                               "only defines properties \"bar\", and \"foo\"");
+                               "only defines properties \"foo\", and \"bar\"");
   EVALUATE_TRACE_POST_DESCRIBE(
       instance, 1, "The object properties were expected to be of type integer");
 }
