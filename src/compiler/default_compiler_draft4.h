@@ -748,7 +748,7 @@ auto compiler_draft4_applicator_properties_with_options(
 
     for (auto &&[name, substeps] : compile_properties(
              context, schema_context, relative_dynamic_context)) {
-      indexes.emplace(name, cursor);
+      indexes.assign(name, cursor);
 
       if (track_evaluation) {
         substeps.push_back(
@@ -1613,7 +1613,7 @@ auto compiler_draft4_applicator_dependencies(
       }
 
       if (!properties.empty()) {
-        dependencies.emplace(entry.first, std::move(properties));
+        dependencies.assign(entry.first, std::move(properties));
       }
     }
   }
