@@ -70,12 +70,11 @@ INSTRUCTION_HANDLER(AssertionDefinesAll) {
 
   // Otherwise we are we even emitting this instruction?
   assert(std::get<ValueStrings>(instruction.value).size() > 1);
-
+  const auto &value{std::get<ValueStrings>(instruction.value)};
   // Otherwise there is no way the instance can satisfy it anyway
-  if (std::get<ValueStrings>(instruction.value).size() <=
-      target.object_size()) {
+  if (value.size() <= target.object_size()) {
     result = true;
-    for (const auto &property : std::get<ValueStrings>(instruction.value)) {
+    for (const auto &property : value) {
       if (!target.defines(property)) {
         result = false;
         break;
@@ -98,12 +97,11 @@ INSTRUCTION_HANDLER(AssertionDefinesAllStrict) {
 
   // Otherwise we are we even emitting this instruction?
   assert(std::get<ValueStrings>(instruction.value).size() > 1);
-
+  const auto &value{std::get<ValueStrings>(instruction.value)};
   // Otherwise there is no way the instance can satisfy it anyway
-  if (target.is_object() && std::get<ValueStrings>(instruction.value).size() <=
-                                target.object_size()) {
+  if (target.is_object() && value.size() <= target.object_size()) {
     result = true;
-    for (const auto &property : std::get<ValueStrings>(instruction.value)) {
+    for (const auto &property : value) {
       if (!target.defines(property)) {
         result = false;
         break;
@@ -125,7 +123,6 @@ INSTRUCTION_HANDLER(AssertionDefinesExactly) {
 
   // Otherwise we are we even emitting this instruction?
   assert(std::get<ValueStringSet>(instruction.value).size() > 1);
-
   const auto &value{std::get<ValueStringSet>(instruction.value)};
   if (value.size() == target.object_size()) {
     result = true;
@@ -152,7 +149,6 @@ INSTRUCTION_HANDLER(AssertionDefinesExactlyStrict) {
 
   // Otherwise we are we even emitting this instruction?
   assert(std::get<ValueStringSet>(instruction.value).size() > 1);
-
   const auto &value{std::get<ValueStringSet>(instruction.value)};
   if (target.is_object() && value.size() == target.object_size()) {
     result = true;
@@ -205,11 +201,11 @@ INSTRUCTION_HANDLER(AssertionType) {
   SOURCEMETA_MAYBE_UNUSED(evaluator);
   EVALUATE_BEGIN_NO_PRECONDITION(AssertionType);
   const auto &target{get(instance, instruction.relative_instance_location)};
+  const auto value{std::get<ValueType>(instruction.value)};
   // In non-strict mode, we consider a real number that represents an
   // integer to be an integer
-  result = target.type() == std::get<ValueType>(instruction.value) ||
-           (std::get<ValueType>(instruction.value) == JSON::Type::Integer &&
-            target.is_integer_real());
+  result = target.type() == value ||
+           (value == JSON::Type::Integer && target.is_integer_real());
   EVALUATE_END(AssertionType);
 }
 
@@ -260,13 +256,12 @@ INSTRUCTION_HANDLER(AssertionTypeStrictAny) {
   SOURCEMETA_MAYBE_UNUSED(property_target);
   SOURCEMETA_MAYBE_UNUSED(evaluator);
   EVALUATE_BEGIN_NO_PRECONDITION(AssertionTypeStrictAny);
+  const auto &value{std::get<ValueTypes>(instruction.value)};
   // Otherwise we are we even emitting this instruction?
-  assert(std::get<ValueTypes>(instruction.value).size() > 1);
+  assert(value.size() > 1);
   const auto &target{get(instance, instruction.relative_instance_location)};
-  result = (std::find(std::get<ValueTypes>(instruction.value).cbegin(),
-                      std::get<ValueTypes>(instruction.value).cend(),
-                      target.type()) !=
-            std::get<ValueTypes>(instruction.value).cend());
+  result =
+      (std::find(value.cbegin(), value.cend(), target.type()) != value.cend());
   EVALUATE_END(AssertionTypeStrictAny);
 }
 
@@ -604,11 +599,11 @@ INSTRUCTION_HANDLER(AssertionPropertyType) {
                             target.is_object());
   // Now here we refer to the actual property
   const auto &effective_target{target_check.value().get()};
+  const auto value{std::get<ValueType>(instruction.value)};
   // In non-strict mode, we consider a real number that represents an
   // integer to be an integer
-  result = effective_target.type() == std::get<ValueType>(instruction.value) ||
-           (std::get<ValueType>(instruction.value) == JSON::Type::Integer &&
-            effective_target.is_integer_real());
+  result = effective_target.type() == value ||
+           (value == JSON::Type::Integer && effective_target.is_integer_real());
   EVALUATE_END(AssertionPropertyType);
 }
 
@@ -626,11 +621,11 @@ INSTRUCTION_HANDLER(AssertionPropertyTypeEvaluate) {
                             target.is_object());
   // Now here we refer to the actual property
   const auto &effective_target{target_check.value().get()};
+  const auto value{std::get<ValueType>(instruction.value)};
   // In non-strict mode, we consider a real number that represents an
   // integer to be an integer
-  result = effective_target.type() == std::get<ValueType>(instruction.value) ||
-           (std::get<ValueType>(instruction.value) == JSON::Type::Integer &&
-            effective_target.is_integer_real());
+  result = effective_target.type() == value ||
+           (value == JSON::Type::Integer && effective_target.is_integer_real());
 
   if (result) {
     evaluator.evaluate();
@@ -692,11 +687,10 @@ INSTRUCTION_HANDLER(AssertionPropertyTypeStrictAny) {
                             // object that might hold the given property,
                             // before traversing into the actual property
                             target.is_object());
+  const auto &value{std::get<ValueTypes>(instruction.value)};
   // Now here we refer to the actual property
-  result = (std::find(std::get<ValueTypes>(instruction.value).cbegin(),
-                      std::get<ValueTypes>(instruction.value).cend(),
-                      target_check.value().get().type()) !=
-            std::get<ValueTypes>(instruction.value).cend());
+  result = (std::find(value.cbegin(), value.cend(),
+                      target_check.value().get().type()) != value.cend());
   EVALUATE_END(AssertionPropertyTypeStrictAny);
 }
 
@@ -712,11 +706,10 @@ INSTRUCTION_HANDLER(AssertionPropertyTypeStrictAnyEvaluate) {
                             // object that might hold the given property,
                             // before traversing into the actual property
                             target.is_object());
+  const auto &value{std::get<ValueTypes>(instruction.value)};
   // Now here we refer to the actual property
-  result = (std::find(std::get<ValueTypes>(instruction.value).cbegin(),
-                      std::get<ValueTypes>(instruction.value).cend(),
-                      target_check.value().get().type()) !=
-            std::get<ValueTypes>(instruction.value).cend());
+  result = (std::find(value.cbegin(), value.cend(),
+                      target_check.value().get().type()) != value.cend());
 
   if (result) {
     evaluator.evaluate();
@@ -802,11 +795,12 @@ INSTRUCTION_HANDLER(LogicalOr) {
   EVALUATE_BEGIN_NO_PRECONDITION(LogicalOr);
   result = instruction.children.empty();
   const auto &target{get(instance, instruction.relative_instance_location)};
+  const auto value{std::get<ValueBoolean>(instruction.value)};
   for (const auto &child : instruction.children) {
     if (EVALUATE_RECURSE(child, target)) {
       result = true;
       // This boolean value controls whether we should be exhaustive
-      if (!std::get<ValueBoolean>(instruction.value)) {
+      if (!value) {
         break;
       }
     }
@@ -910,12 +904,13 @@ INSTRUCTION_HANDLER(LogicalXor) {
   result = true;
   bool has_matched{false};
   const auto &target{get(instance, instruction.relative_instance_location)};
+  const auto value{std::get<ValueBoolean>(instruction.value)};
   for (const auto &child : instruction.children) {
     if (EVALUATE_RECURSE(child, target)) {
       if (has_matched) {
         result = false;
         // This boolean value controls whether we should be exhaustive
-        if (!std::get<ValueBoolean>(instruction.value)) {
+        if (!value) {
           break;
         }
       } else {
@@ -1375,11 +1370,11 @@ INSTRUCTION_HANDLER(LoopPropertiesMatch) {
   SOURCEMETA_MAYBE_UNUSED(evaluator);
   EVALUATE_BEGIN_NON_STRING(LoopPropertiesMatch, target.is_object());
   assert(!std::get<ValueNamedIndexes>(instruction.value).empty());
+  const auto &value{std::get<ValueNamedIndexes>(instruction.value)};
   result = true;
   for (const auto &entry : target.as_object()) {
-    const auto index{
-        std::get<ValueNamedIndexes>(instruction.value).find(entry.first)};
-    if (index == std::get<ValueNamedIndexes>(instruction.value).cend()) {
+    const auto index{value.find(entry.first)};
+    if (index == value.cend()) {
       continue;
     }
 
@@ -1405,12 +1400,12 @@ INSTRUCTION_HANDLER(LoopPropertiesMatchClosed) {
   SOURCEMETA_MAYBE_UNUSED(property_target);
   SOURCEMETA_MAYBE_UNUSED(evaluator);
   EVALUATE_BEGIN_NON_STRING(LoopPropertiesMatchClosed, target.is_object());
-  assert(!std::get<ValueNamedIndexes>(instruction.value).empty());
+  const auto &value{std::get<ValueNamedIndexes>(instruction.value)};
+  assert(!value.empty());
   result = true;
   for (const auto &entry : target.as_object()) {
-    const auto index{
-        std::get<ValueNamedIndexes>(instruction.value).find(entry.first)};
-    if (index == std::get<ValueNamedIndexes>(instruction.value).cend()) {
+    const auto index{value.find(entry.first)};
+    if (index == value.cend()) {
       result = false;
       break;
     }
@@ -1507,8 +1502,9 @@ INSTRUCTION_HANDLER(LoopPropertiesRegex) {
   EVALUATE_BEGIN_NON_STRING(LoopPropertiesRegex, target.is_object());
   assert(!instruction.children.empty());
   result = true;
+  const auto &value{std::get<ValueRegex>(instruction.value)};
   for (const auto &entry : target.as_object()) {
-    if (!matches(std::get<ValueRegex>(instruction.value).first, entry.first)) {
+    if (!matches(value.first, entry.first)) {
       continue;
     }
 
@@ -1543,8 +1539,9 @@ INSTRUCTION_HANDLER(LoopPropertiesRegexClosed) {
   SOURCEMETA_MAYBE_UNUSED(evaluator);
   EVALUATE_BEGIN_NON_STRING(LoopPropertiesRegexClosed, target.is_object());
   result = true;
+  const auto &value{std::get<ValueRegex>(instruction.value)};
   for (const auto &entry : target.as_object()) {
-    if (!matches(std::get<ValueRegex>(instruction.value).first, entry.first)) {
+    if (!matches(value.first, entry.first)) {
       result = false;
       break;
     }
@@ -1585,8 +1582,9 @@ INSTRUCTION_HANDLER(LoopPropertiesStartsWith) {
   EVALUATE_BEGIN_NON_STRING(LoopPropertiesStartsWith, target.is_object());
   assert(!instruction.children.empty());
   result = true;
+  const auto &value{std::get<ValueString>(instruction.value)};
   for (const auto &entry : target.as_object()) {
-    if (!entry.first.starts_with(std::get<ValueString>(instruction.value))) {
+    if (!entry.first.starts_with(value)) {
       continue;
     }
 
@@ -1736,12 +1734,12 @@ INSTRUCTION_HANDLER(LoopPropertiesTypeEvaluate) {
   SOURCEMETA_MAYBE_UNUSED(evaluator);
   EVALUATE_BEGIN_NON_STRING(LoopPropertiesTypeEvaluate, target.is_object());
   result = true;
+  const auto value{std::get<ValueType>(instruction.value)};
   for (const auto &entry : target.as_object()) {
-    if (entry.second.type() != std::get<ValueType>(instruction.value) &&
+    if (entry.second.type() != value &&
         // In non-strict mode, we consider a real number that represents an
         // integer to be an integer
-        (std::get<ValueType>(instruction.value) != JSON::Type::Integer ||
-         !entry.second.is_integer_real())) {
+        (value != JSON::Type::Integer || !entry.second.is_integer_real())) {
       result = false;
       EVALUATE_END(LoopPropertiesTypeEvaluate);
     }
@@ -1761,8 +1759,9 @@ INSTRUCTION_HANDLER(LoopPropertiesTypeStrict) {
   SOURCEMETA_MAYBE_UNUSED(evaluator);
   EVALUATE_BEGIN_NON_STRING(LoopPropertiesTypeStrict, target.is_object());
   result = true;
+  const auto value{std::get<ValueType>(instruction.value)};
   for (const auto &entry : target.as_object()) {
-    if (entry.second.type() != std::get<ValueType>(instruction.value)) {
+    if (entry.second.type() != value) {
       result = false;
       break;
     }
@@ -1781,8 +1780,9 @@ INSTRUCTION_HANDLER(LoopPropertiesTypeStrictEvaluate) {
   EVALUATE_BEGIN_NON_STRING(LoopPropertiesTypeStrictEvaluate,
                             target.is_object());
   result = true;
+  const auto value{std::get<ValueType>(instruction.value)};
   for (const auto &entry : target.as_object()) {
-    if (entry.second.type() != std::get<ValueType>(instruction.value)) {
+    if (entry.second.type() != value) {
       result = false;
       EVALUATE_END(LoopPropertiesTypeStrictEvaluate);
     }
