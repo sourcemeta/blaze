@@ -78,16 +78,24 @@ public:
   using const_pointer = typename Container::const_pointer;
   using const_iterator = typename Container::const_iterator;
 
-  auto begin() const noexcept -> const_iterator { return this->data.begin(); }
+  inline auto begin() const noexcept -> const_iterator {
+    return this->data.begin();
+  }
   /// Get a constant end iterator on the object
-  auto end() const noexcept -> const_iterator { return this->data.end(); }
+  inline auto end() const noexcept -> const_iterator {
+    return this->data.end();
+  }
   /// Get a constant begin iterator on the object
-  auto cbegin() const noexcept -> const_iterator { return this->data.cbegin(); }
+  inline auto cbegin() const noexcept -> const_iterator {
+    return this->data.cbegin();
+  }
   /// Get a constant end iterator on the object
-  auto cend() const noexcept -> const_iterator { return this->data.cend(); }
+  inline auto cend() const noexcept -> const_iterator {
+    return this->data.cend();
+  }
 
   /// Attempt to find an entry by key
-  auto find(const Key &key) const -> const_iterator {
+  inline auto find(const Key &key) const -> const_iterator {
     return this->data.find(key);
   }
 

@@ -12,6 +12,7 @@
 
 namespace sourcemeta::jsontoolkit {
 
+/// @ingroup json
 template <typename Key, typename Value, typename Hash = std::hash<Key>>
 class FlatMap {
 public:
@@ -83,7 +84,7 @@ public:
   }
 
   // As a performance optimisation if the hash is known
-  auto find(const key_type &key, const hash_type key_hash) const
+  inline auto find(const key_type &key, const hash_type key_hash) const
       -> const_iterator {
     assert(this->data.size() == this->hashes.size());
     assert(this->hash(key) == key_hash);
@@ -103,8 +104,26 @@ public:
   }
 
   // As a performance optimisation if the hash is known
+  inline auto contains(const key_type &key, const hash_type key_hash) const
+      -> bool {
+    assert(this->data.size() == this->hashes.size());
+    assert(this->hash(key) == key_hash);
+    for (size_type index = 0; index < this->hashes.size(); index++) {
+      if (this->hashes[index] == key_hash && this->data[index].first == key) {
+        return true;
+      }
+    }
 
-  auto at(const key_type &key, const hash_type key_hash) const
+    return false;
+  }
+
+  inline auto contains(const key_type &key) const -> bool {
+    return this->contains(key, this->hash(key));
+  }
+
+  // As a performance optimisation if the hash is known
+
+  inline auto at(const key_type &key, const hash_type key_hash) const
       -> const mapped_type & {
     assert(this->data.size() == this->hashes.size());
     assert(this->hash(key) == key_hash);
@@ -123,7 +142,8 @@ public:
 #endif
   }
 
-  auto at(const key_type &key, const hash_type key_hash) -> mapped_type & {
+  inline auto at(const key_type &key, const hash_type key_hash)
+      -> mapped_type & {
     assert(this->data.size() == this->hashes.size());
     assert(this->hash(key) == key_hash);
 
