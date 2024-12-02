@@ -19,7 +19,7 @@ namespace sourcemeta::jsontoolkit {
 /// @ingroup jsonpointer
 template <typename PropertyT> class GenericPointer {
 public:
-  using Token = GenericToken<PropertyT>;
+  using Token = GenericToken<PropertyT, Hash>;
   using Value = typename Token::Value;
   using Container = std::vector<Token>;
 

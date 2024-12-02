@@ -323,10 +323,27 @@ auto JSON::operator-=(const JSON &substractive) -> JSON & {
   return std::get<Object>(this->data).data.at(key);
 }
 
+[[nodiscard]] auto
+JSON::at(const String &key,
+         const typename Object::Container::hash_type hash) const
+    -> const JSON & {
+  assert(this->is_object());
+  assert(this->defines(key));
+  return std::get<Object>(this->data).data.at(key, hash);
+}
+
 [[nodiscard]] auto JSON::at(const JSON::String &key) -> JSON & {
   assert(this->is_object());
   assert(this->defines(key));
   return std::get<Object>(this->data).data.at(key);
+}
+
+[[nodiscard]] auto JSON::at(const String &key,
+                            const typename Object::Container::hash_type hash)
+    -> JSON & {
+  assert(this->is_object());
+  assert(this->defines(key));
+  return std::get<Object>(this->data).data.at(key, hash);
 }
 
 [[nodiscard]] auto JSON::front() -> JSON & {
@@ -497,6 +514,21 @@ auto JSON::operator-=(const JSON &substractive) -> JSON & {
 
   const auto &object{std::get<Object>(this->data)};
   const auto value{object.data.find(key)};
+
+  if (value == object.data.cend()) {
+    return std::nullopt;
+  }
+  return value->second;
+}
+
+[[nodiscard]] auto
+JSON::try_at(const String &key,
+             const typename Object::Container::hash_type hash) const
+    -> std::optional<std::reference_wrapper<const JSON>> {
+  assert(this->is_object());
+
+  const auto &object{std::get<Object>(this->data)};
+  const auto value{object.data.find(key, hash)};
 
   if (value == object.data.cend()) {
     return std::nullopt;

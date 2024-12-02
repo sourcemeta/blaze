@@ -76,8 +76,7 @@ static auto canonicalize_path(const std::string &path, const bool is_relative)
 
   bool has_leading_with_word = path.front() != '/' && path.front() != '.';
   for (unsigned int i = has_leading_with_word ? 0 : 1; i <= path.size(); i++) {
-    char c = path[i];
-    if (c == '/' || i == path.size()) {
+    if (i == path.size() || path[i] == '/') {
       if (segment == "..") {
         if (!segments.empty()) {
           segments.pop_back();
@@ -87,7 +86,7 @@ static auto canonicalize_path(const std::string &path, const bool is_relative)
       }
       segment.clear();
     } else {
-      segment += c;
+      segment += path[i];
     }
   }
 
