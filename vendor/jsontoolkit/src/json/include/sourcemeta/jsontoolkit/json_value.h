@@ -703,6 +703,24 @@ public:
   /// ```
   [[nodiscard]] auto at(const String &key) const -> const JSON &;
 
+  /// This method retrieves an object element given a pre-calculated property
+  /// hash.
+  ///
+  /// For example:
+  ///
+  /// ```cpp
+  /// #include <sourcemeta/jsontoolkit/json.h>
+  /// #include <cassert>
+  ///
+  /// const sourcemeta::jsontoolkit::JSON my_object =
+  ///   sourcemeta::jsontoolkit::parse("{ \"foo\": 1, \"bar\": 2 }");
+  /// const sourcemeta::jsontoolkit::Hash hasher;
+  /// assert(my_object.at("bar", hasher("bar")).to_integer() == 2);
+  /// ```
+  [[nodiscard]] auto at(const String &key,
+                        const typename Object::Container::hash_type hash) const
+      -> const JSON &;
+
   /// This method retrieves an object element.
   ///
   /// For example:
@@ -716,6 +734,24 @@ public:
   /// assert(my_object.at("bar").to_integer() == 2);
   /// ```
   [[nodiscard]] auto at(const String &key) -> JSON &;
+
+  /// This method retrieves an object element given a pre-calculated property
+  /// hash.
+  ///
+  /// For example:
+  ///
+  /// ```cpp
+  /// #include <sourcemeta/jsontoolkit/json.h>
+  /// #include <cassert>
+  ///
+  /// sourcemeta::jsontoolkit::JSON my_object =
+  ///   sourcemeta::jsontoolkit::parse("{ \"foo\": 1, \"bar\": 2 }");
+  /// const sourcemeta::jsontoolkit::Hash hasher;
+  /// assert(my_object.at("bar", hasher("bar")).to_integer() == 2);
+  /// ```
+  [[nodiscard]] auto at(const String &key,
+                        const typename Object::Container::hash_type hash)
+      -> JSON &;
 
   /// This method retrieves a reference to the first element of a JSON array.
   /// This method is undefined if the input JSON instance is an empty array. For
@@ -935,6 +971,26 @@ public:
   /// EXPECT_TRUE(result.has_value());
   /// EXPECT_EQ(result.value().get().to_integer(), 1);
   [[nodiscard]] auto try_at(const String &key) const
+      -> std::optional<std::reference_wrapper<const JSON>>;
+
+  /// This method checks, given a pre-calculated hash, whether an input JSON
+  /// object defines a specific key and returns the value if it does. For
+  /// example:
+  ///
+  /// ```cpp
+  /// #include <sourcemeta/jsontoolkit/json.h>
+  /// #include <cassert>
+  ///
+  /// const sourcemeta::jsontoolkit::JSON document =
+  ///   sourcemeta::jsontoolkit::parse("{ \"foo\": 1 }");
+  /// EXPECT_TRUE(document.is_object());
+  /// const sourcemeta::jsontoolkit::Hash hasher;
+  /// const auto result = document.try_at("foo", hasher("foo"));
+  /// EXPECT_TRUE(result.has_value());
+  /// EXPECT_EQ(result.value().get().to_integer(), 1);
+  [[nodiscard]] auto
+  try_at(const String &key,
+         const typename Object::Container::hash_type hash) const
       -> std::optional<std::reference_wrapper<const JSON>>;
 
   /// This method checks whether an input JSON object defines a specific key.

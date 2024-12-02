@@ -4,16 +4,17 @@
 #include <sourcemeta/jsontoolkit/json.h>
 
 #include <cassert> // assert
-#include <utility> // std::in_place_type
+#include <utility> // std::in_place_type, std::pair
 #include <variant> // std::variant, std::holds_alternative, std::get
 
 namespace sourcemeta::jsontoolkit {
 
 /// @ingroup jsonpointer
-template <typename PropertyT> class GenericToken {
+template <typename PropertyT, typename Hash> class GenericToken {
 public:
   using Value = JSON;
   using Property = PropertyT;
+  using PropertyWrapper = std::pair<Property, std::size_t>;
   using Index = typename Value::Array::size_type;
 
   /// This constructor creates an JSON Pointer token from a string. For
@@ -26,7 +27,8 @@ public:
   /// const sourcemeta::jsontoolkit::Pointer::Token token{"foo"};
   /// ```
   GenericToken(const Property &property)
-      : data{std::in_place_type<Property>, property} {}
+      : data{std::in_place_type<PropertyWrapper>, property,
+             this->hasher(property)} {}
 
   /// This constructor creates an JSON Pointer token from a string. For
   /// example:
@@ -38,7 +40,8 @@ public:
   /// const sourcemeta::jsontoolkit::Pointer::Token token{"foo"};
   /// ```
   GenericToken(const JSON::Char *const property)
-      : data{std::in_place_type<Property>, property} {}
+      : data{std::in_place_type<PropertyWrapper>, property,
+             this->hasher(property)} {}
 
   /// This constructor creates an JSON Pointer token from a character. For
   /// example:
@@ -50,7 +53,8 @@ public:
   /// const sourcemeta::jsontoolkit::Pointer::Token token{'a'};
   /// ```
   GenericToken(const JSON::Char character)
-      : data{std::in_place_type<Property>, Property{character}} {}
+      : data{std::in_place_type<PropertyWrapper>, Property{character},
+             this->hasher(Property{character})} {}
 
   /// This constructor creates an JSON Pointer token from an item index. For
   /// example:
@@ -99,7 +103,7 @@ public:
   /// assert(token.is_property());
   /// ```
   [[nodiscard]] auto is_property() const noexcept -> bool {
-    return std::holds_alternative<Property>(this->data);
+    return std::holds_alternative<PropertyWrapper>(this->data);
   }
 
   /// Check if a JSON Pointer token represents the hyphen constant
@@ -146,11 +150,29 @@ public:
   /// ```
   [[nodiscard]] auto to_property() const noexcept -> const auto & {
     assert(this->is_property());
-    if constexpr (requires { std::get<Property>(this->data).get(); }) {
-      return std::get<Property>(this->data).get();
+    if constexpr (requires {
+                    std::get<PropertyWrapper>(this->data).first.get();
+                  }) {
+      return std::get<PropertyWrapper>(this->data).first.get();
     } else {
-      return std::get<Property>(this->data);
+      return std::get<PropertyWrapper>(this->data).first;
     }
+  }
+
+  /// If the JSON Pointer token is a property, get its pre-computed string hash.
+  /// For example:
+  ///
+  /// ```cpp
+  /// #include <sourcemeta/jsontoolkit/jsonpointer.h>
+  /// #include <cassert>
+  ///
+  /// const sourcemeta::jsontoolkit::Pointer::Token token{"foo"};
+  /// assert(token.is_property());
+  /// assert(token.property_hash() >= 0);
+  /// ```
+  [[nodiscard]] auto property_hash() const noexcept -> std::size_t {
+    assert(this->is_property());
+    return std::get<PropertyWrapper>(this->data).second;
   }
 
   /// Get the underlying value of a JSON Pointer object property token
@@ -166,10 +188,12 @@ public:
   /// ```
   auto to_property() noexcept -> auto & {
     assert(this->is_property());
-    if constexpr (requires { std::get<Property>(this->data).get(); }) {
-      return std::get<Property>(this->data).get();
+    if constexpr (requires {
+                    std::get<PropertyWrapper>(this->data).first.get();
+                  }) {
+      return std::get<PropertyWrapper>(this->data).first.get();
     } else {
-      return std::get<Property>(this->data);
+      return std::get<PropertyWrapper>(this->data).first;
     }
   }
 
@@ -214,7 +238,8 @@ public:
   }
 
   /// Compare JSON Pointer tokens
-  auto operator==(const GenericToken<PropertyT> &other) const noexcept -> bool {
+  auto operator==(const GenericToken<PropertyT, Hash> &other) const noexcept
+      -> bool {
     if (this->data.index() != other.data.index()) {
       return false;
     }
@@ -226,7 +251,8 @@ public:
 
   /// Overload to support ordering of JSON Pointer token. Typically for sorting
   /// reasons.
-  auto operator<(const GenericToken<PropertyT> &other) const noexcept -> bool {
+  auto operator<(const GenericToken<PropertyT, Hash> &other) const noexcept
+      -> bool {
     if (this->data.index() != other.data.index()) {
       return this->data.index() < other.data.index();
     }
@@ -237,7 +263,8 @@ public:
   }
 
 private:
-  std::variant<Property, Index> data;
+  Hash hasher;
+  std::variant<PropertyWrapper, Index> data;
 };
 
 } // namespace sourcemeta::jsontoolkit

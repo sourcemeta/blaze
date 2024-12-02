@@ -38,7 +38,8 @@ auto traverse(V &document, typename PointerT::const_iterator begin,
       // code points are byte-by-byte equal.  No Unicode character
       // normalization is performed.
       // See https://www.rfc-editor.org/rfc/rfc6901#section-4
-      current = current.get().at(iterator->to_property());
+      current =
+          current.get().at(iterator->to_property(), iterator->property_hash());
     } else {
       // If the currently referenced value is a JSON array, the reference
       // token MUST contain [...] characters comprised of digits (see ABNF
@@ -69,12 +70,12 @@ auto try_traverse(const sourcemeta::jsontoolkit::JSON &document,
     const auto &token{*iterator};
     const auto &instance{current.get()};
     if (token.is_property()) {
-      const auto &property{token.to_property()};
       if (!instance.is_object()) {
         return std::nullopt;
       }
 
-      auto json_value{instance.try_at(property)};
+      const auto &property{token.to_property()};
+      auto json_value{instance.try_at(property, token.property_hash())};
       if (json_value.has_value()) {
         current = std::move(json_value.value());
       } else {
