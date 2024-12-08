@@ -35,7 +35,9 @@ using ValueString = sourcemeta::jsontoolkit::JSON::String;
 
 /// @ingroup evaluator
 /// Represents a compiler step object property value
-using ValueProperty = std::pair<ValueString, std::size_t>;
+using ValueProperty =
+    std::pair<ValueString,
+              sourcemeta::jsontoolkit::JSON::Object::Container::hash_type>;
 
 /// @ingroup evaluator
 /// Represents a compiler step string values
