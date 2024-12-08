@@ -871,7 +871,7 @@ auto describe(const bool valid, const Instruction &step,
   if (step.type == sourcemeta::blaze::InstructionIndex::AssertionDefines) {
     std::ostringstream message;
     message << "The object value was expected to define the property "
-            << escape_string(instruction_value<ValueString>(step));
+            << escape_string(instruction_value<ValueProperty>(step).first);
     return message.str();
   }
 
@@ -880,7 +880,7 @@ auto describe(const bool valid, const Instruction &step,
     std::ostringstream message;
     message
         << "The value was expected to be an object that defines the property "
-        << escape_string(instruction_value<ValueString>(step));
+        << escape_string(instruction_value<ValueProperty>(step).first);
     return message.str();
   }
 
@@ -1728,7 +1728,7 @@ auto describe(const bool valid, const Instruction &step,
   if (step.type == sourcemeta::blaze::InstructionIndex::LogicalWhenDefines) {
     std::ostringstream message;
     message << "The object value defined the property \""
-            << instruction_value<ValueString>(step) << "\"";
+            << instruction_value<ValueProperty>(step).first << "\"";
     return message.str();
   }
 
@@ -1787,7 +1787,7 @@ auto describe(const bool valid, const Instruction &step,
         // Schema
         if (child.type == InstructionIndex::LogicalWhenDefines) {
           const auto &substep{child};
-          const auto &property{instruction_value<ValueString>(substep)};
+          const auto &property{instruction_value<ValueProperty>(substep).first};
           all_dependencies.insert(property);
           if (!target.defines(property)) {
             continue;
@@ -1910,7 +1910,7 @@ auto describe(const bool valid, const Instruction &step,
       for (const auto &child : step.children) {
         assert(child.type == InstructionIndex::LogicalWhenDefines);
         const auto &substep{child};
-        const auto &property{instruction_value<ValueString>(substep)};
+        const auto &property{instruction_value<ValueProperty>(substep).first};
         all_dependencies.insert(property);
         if (!target.defines(property)) {
           continue;

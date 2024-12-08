@@ -542,6 +542,14 @@ JSON::try_at(const String &key,
 }
 
 [[nodiscard]] auto
+JSON::defines(const JSON::String &key,
+              const typename JSON::Object::Container::hash_type hash) const
+    -> bool {
+  assert(this->is_object());
+  return std::get<Object>(this->data).data.contains(key, hash);
+}
+
+[[nodiscard]] auto
 JSON::defines(const typename JSON::Array::size_type index) const -> bool {
   return this->defines(std::to_string(index));
 }

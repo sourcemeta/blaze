@@ -444,11 +444,11 @@ auto compiler_draft4_validation_required(const Context &context,
         return {
             make(sourcemeta::blaze::InstructionIndex::AssertionDefinesStrict,
                  context, schema_context, dynamic_context,
-                 ValueString{*(properties.cbegin())})};
+                 make_property(*(properties.cbegin())))};
       } else {
         return {make(sourcemeta::blaze::InstructionIndex::AssertionDefines,
                      context, schema_context, dynamic_context,
-                     ValueString{*(properties.cbegin())})};
+                     make_property(*(properties.cbegin())))};
       }
     } else if (schema_context.schema.defines("additionalProperties") &&
                schema_context.schema.at("additionalProperties").is_boolean() &&
@@ -489,17 +489,17 @@ auto compiler_draft4_validation_required(const Context &context,
         schema_context.schema.at(dynamic_context.keyword).front().is_string());
     return {make(sourcemeta::blaze::InstructionIndex::AssertionDefinesStrict,
                  context, schema_context, dynamic_context,
-                 ValueString{schema_context.schema.at(dynamic_context.keyword)
-                                 .front()
-                                 .to_string()})};
+                 make_property(schema_context.schema.at(dynamic_context.keyword)
+                                   .front()
+                                   .to_string()))};
   } else {
     assert(
         schema_context.schema.at(dynamic_context.keyword).front().is_string());
     return {make(sourcemeta::blaze::InstructionIndex::AssertionDefines, context,
                  schema_context, dynamic_context,
-                 ValueString{schema_context.schema.at(dynamic_context.keyword)
-                                 .front()
-                                 .to_string()})};
+                 make_property(schema_context.schema.at(dynamic_context.keyword)
+                                   .front()
+                                   .to_string()))};
   }
 }
 
@@ -935,13 +935,13 @@ auto compiler_draft4_applicator_properties_with_options(
           children.push_back(make(sourcemeta::blaze::InstructionIndex::
                                       ControlGroupWhenDefinesDirect,
                                   context, schema_context,
-                                  effective_dynamic_context, ValueString{name},
-                                  std::move(substeps)));
+                                  effective_dynamic_context,
+                                  make_property(name), std::move(substeps)));
         } else {
           children.push_back(
               make(sourcemeta::blaze::InstructionIndex::ControlGroupWhenDefines,
                    context, schema_context, effective_dynamic_context,
-                   ValueString{name}, std::move(substeps)));
+                   make_property(name), std::move(substeps)));
         }
       }
     }
@@ -1601,7 +1601,7 @@ auto compiler_draft4_applicator_dependencies(
       if (!entry.second.is_boolean() || !entry.second.to_boolean()) {
         children.push_back(make(
             sourcemeta::blaze::InstructionIndex::LogicalWhenDefines, context,
-            schema_context, dynamic_context, ValueString{entry.first},
+            schema_context, dynamic_context, make_property(entry.first),
             compile(context, schema_context, relative_dynamic_context,
                     {entry.first}, sourcemeta::jsontoolkit::empty_pointer)));
       }

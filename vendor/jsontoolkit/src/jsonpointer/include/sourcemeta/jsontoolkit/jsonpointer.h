@@ -311,6 +311,24 @@ auto to_pointer(const std::basic_string<JSON::Char, JSON::CharTraits,
                                         std::allocator<JSON::Char>> &input)
     -> Pointer;
 
+/// @ingroup jsonpointer
+/// Convert a JSON WeakPointer into a JSON Pointer. For example:
+///
+/// ```cpp
+/// #include <sourcemeta/jsontoolkit/jsonpointer.h>
+/// #include <cassert>
+///
+/// const std::string foo = "foo";
+/// const sourcemeta::jsontoolkit::WeakPointer pointer{std::cref(foo)};
+/// const sourcemeta::jsontoolkit::Pointer result{
+///   sourcemeta::jsontoolkit::to_pointer(pointer)}:
+/// assert(pointer.size() == 1);
+/// assert(pointer.at(0).is_property());
+/// assert(pointer.at(0).to_property() == "foo");
+/// ```
+SOURCEMETA_JSONTOOLKIT_JSONPOINTER_EXPORT
+auto to_pointer(const WeakPointer &pointer) -> Pointer;
+
 // TODO: Add an operator<< overload
 
 /// @ingroup jsonpointer
