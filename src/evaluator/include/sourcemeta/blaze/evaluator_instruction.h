@@ -13,6 +13,7 @@ namespace sourcemeta::blaze {
 
 // For fast internal instruction dispatching. It must stay
 // in sync with the variant ordering above
+/// @ingroup evaluator
 enum class InstructionIndex : std::uint8_t {
   AssertionFail = 0,
   AssertionDefines,

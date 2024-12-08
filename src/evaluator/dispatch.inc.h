@@ -68,16 +68,15 @@ INSTRUCTION_HANDLER(AssertionDefinesAll) {
   SOURCEMETA_MAYBE_UNUSED(property_target);
   SOURCEMETA_MAYBE_UNUSED(evaluator);
   EVALUATE_BEGIN_NON_STRING(AssertionDefinesAll, target.is_object());
-
+  const auto &value{std::get<ValueStringSet>(instruction.value)};
   // Otherwise we are we even emitting this instruction?
-  assert(std::get<ValueStrings>(instruction.value).size() > 1);
+  assert(value.size() > 1);
 
   // Otherwise there is no way the instance can satisfy it anyway
-  if (std::get<ValueStrings>(instruction.value).size() <=
-      target.object_size()) {
+  if (value.size() <= target.object_size()) {
     result = true;
-    for (const auto &property : std::get<ValueStrings>(instruction.value)) {
-      if (!target.defines(property)) {
+    for (const auto &property : value) {
+      if (!target.defines(property.first, property.second)) {
         result = false;
         break;
       }
@@ -96,16 +95,15 @@ INSTRUCTION_HANDLER(AssertionDefinesAllStrict) {
   SOURCEMETA_MAYBE_UNUSED(evaluator);
   EVALUATE_BEGIN_NO_PRECONDITION(AssertionDefinesAllStrict);
   const auto &target{get(instance, instruction.relative_instance_location)};
-
+  const auto &value{std::get<ValueStringSet>(instruction.value)};
   // Otherwise we are we even emitting this instruction?
-  assert(std::get<ValueStrings>(instruction.value).size() > 1);
+  assert(value.size() > 1);
 
   // Otherwise there is no way the instance can satisfy it anyway
-  if (target.is_object() && std::get<ValueStrings>(instruction.value).size() <=
-                                target.object_size()) {
+  if (target.is_object() && value.size() <= target.object_size()) {
     result = true;
-    for (const auto &property : std::get<ValueStrings>(instruction.value)) {
-      if (!target.defines(property)) {
+    for (const auto &property : value) {
+      if (!target.defines(property.first, property.second)) {
         result = false;
         break;
       }
@@ -123,15 +121,14 @@ INSTRUCTION_HANDLER(AssertionDefinesExactly) {
   SOURCEMETA_MAYBE_UNUSED(property_target);
   SOURCEMETA_MAYBE_UNUSED(evaluator);
   EVALUATE_BEGIN_NON_STRING(AssertionDefinesExactly, target.is_object());
-
-  // Otherwise we are we even emitting this instruction?
-  assert(std::get<ValueStringSet>(instruction.value).size() > 1);
-
   const auto &value{std::get<ValueStringSet>(instruction.value)};
+  // Otherwise we are we even emitting this instruction?
+  assert(value.size() > 1);
+
   if (value.size() == target.object_size()) {
     result = true;
-    for (const auto &property : target.as_object()) {
-      if (!value.contains(property.first)) {
+    for (const auto &property : value) {
+      if (!target.defines(property.first, property.second)) {
         result = false;
         break;
       }
@@ -150,15 +147,14 @@ INSTRUCTION_HANDLER(AssertionDefinesExactlyStrict) {
   SOURCEMETA_MAYBE_UNUSED(evaluator);
   EVALUATE_BEGIN_NO_PRECONDITION(AssertionDefinesExactlyStrict);
   const auto &target{get(instance, instruction.relative_instance_location)};
-
-  // Otherwise we are we even emitting this instruction?
-  assert(std::get<ValueStringSet>(instruction.value).size() > 1);
-
   const auto &value{std::get<ValueStringSet>(instruction.value)};
+  // Otherwise we are we even emitting this instruction?
+  assert(value.size() > 1);
+
   if (target.is_object() && value.size() == target.object_size()) {
     result = true;
-    for (const auto &property : target.as_object()) {
-      if (!value.contains(property.first)) {
+    for (const auto &property : value) {
+      if (!target.defines(property.first, property.second)) {
         result = false;
         break;
       }
@@ -1695,6 +1691,7 @@ INSTRUCTION_HANDLER(LoopPropertiesWhitelist) {
       std::get<ValueStringSet>(instruction.value).size()) {
     result = true;
     for (const auto &entry : target.as_object()) {
+      // TODO: Re-use hashes here
       if (!std::get<ValueStringSet>(instruction.value).contains(entry.first)) {
         result = false;
         break;

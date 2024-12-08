@@ -432,23 +432,24 @@ auto compiler_draft4_validation_required(const Context &context,
   if (schema_context.schema.at(dynamic_context.keyword).empty()) {
     return {};
   } else if (schema_context.schema.at(dynamic_context.keyword).size() > 1) {
-    std::vector<sourcemeta::jsontoolkit::JSON::String> properties;
+    ValueStringSet properties_set;
+
     for (const auto &property :
          schema_context.schema.at(dynamic_context.keyword).as_array()) {
       assert(property.is_string());
-      properties.push_back(property.to_string());
+      properties_set.insert(property.to_string());
     }
 
-    if (properties.size() == 1) {
+    if (properties_set.size() == 1) {
       if (context.mode == Mode::FastValidation && assume_object) {
         return {
             make(sourcemeta::blaze::InstructionIndex::AssertionDefinesStrict,
                  context, schema_context, dynamic_context,
-                 make_property(*(properties.cbegin())))};
+                 make_property(properties_set.begin()->first))};
       } else {
         return {make(sourcemeta::blaze::InstructionIndex::AssertionDefines,
                      context, schema_context, dynamic_context,
-                     make_property(*(properties.cbegin())))};
+                     make_property(properties_set.begin()->first))};
       }
     } else if (schema_context.schema.defines("additionalProperties") &&
                schema_context.schema.at("additionalProperties").is_boolean() &&
@@ -456,20 +457,18 @@ auto compiler_draft4_validation_required(const Context &context,
                schema_context.schema.defines("properties") &&
                schema_context.schema.at("properties").is_object() &&
                schema_context.schema.at("properties").size() ==
-                   properties.size() &&
-               std::all_of(properties.cbegin(), properties.cend(),
+                   properties_set.size() &&
+               std::all_of(properties_set.begin(), properties_set.end(),
                            [&schema_context](const auto &property) {
                              return schema_context.schema.at("properties")
-                                 .defines(property);
+                                 .defines(property.first, property.second);
                            })) {
       if (context.mode == Mode::FastValidation && assume_object) {
-        ValueStringSet properties_set{properties.cbegin(), properties.cend()};
         return {make(
             sourcemeta::blaze::InstructionIndex::AssertionDefinesExactlyStrict,
             context, schema_context, dynamic_context,
             std::move(properties_set))};
       } else {
-        ValueStringSet properties_set{properties.cbegin(), properties.cend()};
         return {
             make(sourcemeta::blaze::InstructionIndex::AssertionDefinesExactly,
                  context, schema_context, dynamic_context,
@@ -478,11 +477,11 @@ auto compiler_draft4_validation_required(const Context &context,
     } else if (context.mode == Mode::FastValidation && assume_object) {
       return {make(
           sourcemeta::blaze::InstructionIndex::AssertionDefinesAllStrict,
-          context, schema_context, dynamic_context, std::move(properties))};
+          context, schema_context, dynamic_context, std::move(properties_set))};
     } else {
       return {make(sourcemeta::blaze::InstructionIndex::AssertionDefinesAll,
                    context, schema_context, dynamic_context,
-                   std::move(properties))};
+                   std::move(properties_set))};
     }
   } else if (context.mode == Mode::FastValidation && assume_object) {
     assert(
