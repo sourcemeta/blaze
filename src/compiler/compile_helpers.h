@@ -220,6 +220,11 @@ inline auto recursive_template_size(const Instructions &steps) -> std::size_t {
   return result;
 }
 
+inline auto make_property(const ValueString &property) -> ValueProperty {
+  static const sourcemeta::jsontoolkit::Hash hasher;
+  return {property, hasher(property)};
+}
+
 } // namespace sourcemeta::blaze
 
 #endif

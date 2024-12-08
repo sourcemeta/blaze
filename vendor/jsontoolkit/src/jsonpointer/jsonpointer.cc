@@ -246,6 +246,19 @@ auto to_pointer(const std::basic_string<JSON::Char, JSON::CharTraits,
   return to_pointer(parse(stream));
 }
 
+auto to_pointer(const WeakPointer &pointer) -> Pointer {
+  Pointer result;
+  for (const auto &token : pointer) {
+    if (token.is_property()) {
+      result.push_back(token.to_property());
+    } else {
+      result.push_back(token.to_index());
+    }
+  }
+
+  return result;
+}
+
 auto stringify(const Pointer &pointer,
                std::basic_ostream<JSON::Char, JSON::CharTraits> &stream)
     -> void {

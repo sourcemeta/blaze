@@ -1007,6 +1007,23 @@ public:
   /// ```
   [[nodiscard]] auto defines(const String &key) const -> bool;
 
+  /// This method checks whether an input JSON object defines a specific key
+  /// given a pre-calculated property hash. For example:
+  ///
+  /// ```cpp
+  /// #include <sourcemeta/jsontoolkit/json.h>
+  /// #include <cassert>
+  ///
+  /// const sourcemeta::jsontoolkit::JSON document =
+  ///   sourcemeta::jsontoolkit::parse("{ \"foo\": 1 }");
+  /// const sourcemeta::jsontoolkit::Hash hasher;
+  /// assert(document.defines("foo", hasher("foo")));
+  /// assert(!document.defines("bar", hasher("bar")));
+  /// ```
+  [[nodiscard]] auto
+  defines(const String &key,
+          const typename Object::Container::hash_type hash) const -> bool;
+
   /// This method checks whether an input JSON object defines a specific integer
   /// key. For example:
   ///

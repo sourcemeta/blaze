@@ -34,6 +34,10 @@ using ValueSet = std::unordered_set<sourcemeta::jsontoolkit::JSON,
 using ValueString = sourcemeta::jsontoolkit::JSON::String;
 
 /// @ingroup evaluator
+/// Represents a compiler step object property value
+using ValueProperty = std::pair<ValueString, std::size_t>;
+
+/// @ingroup evaluator
 /// Represents a compiler step string values
 using ValueStrings = std::vector<ValueString>;
 
@@ -103,9 +107,9 @@ using ValuePointer = sourcemeta::jsontoolkit::Pointer;
 
 /// @ingroup evaluator
 using Value =
-    std::variant<ValueNone, ValueJSON, ValueSet, ValueString, ValueStrings,
-                 ValueStringSet, ValueTypes, ValueType, ValueRegex,
-                 ValueUnsignedInteger, ValueRange, ValueBoolean,
+    std::variant<ValueNone, ValueJSON, ValueSet, ValueString, ValueProperty,
+                 ValueStrings, ValueStringSet, ValueTypes, ValueType,
+                 ValueRegex, ValueUnsignedInteger, ValueRange, ValueBoolean,
                  ValueNamedIndexes, ValueStringType, ValueStringMap,
                  ValuePropertyFilter, ValueIndexPair, ValuePointer>;
 

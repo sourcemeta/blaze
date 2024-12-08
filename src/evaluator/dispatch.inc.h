@@ -41,7 +41,8 @@ INSTRUCTION_HANDLER(AssertionDefines) {
   SOURCEMETA_MAYBE_UNUSED(property_target);
   SOURCEMETA_MAYBE_UNUSED(evaluator);
   EVALUATE_BEGIN_NON_STRING(AssertionDefines, target.is_object());
-  result = target.defines(std::get<ValueString>(instruction.value));
+  const auto &value{std::get<ValueProperty>(instruction.value)};
+  result = target.defines(value.first, value.second);
   EVALUATE_END(AssertionDefines);
 }
 
@@ -54,8 +55,8 @@ INSTRUCTION_HANDLER(AssertionDefinesStrict) {
   SOURCEMETA_MAYBE_UNUSED(evaluator);
   EVALUATE_BEGIN_NO_PRECONDITION(AssertionDefinesStrict);
   const auto &target{get(instance, instruction.relative_instance_location)};
-  result = target.is_object() &&
-           target.defines(std::get<ValueString>(instruction.value));
+  const auto &value{std::get<ValueProperty>(instruction.value)};
+  result = target.is_object() && target.defines(value.first, value.second);
   EVALUATE_END(AssertionDefinesStrict);
 }
 
@@ -862,10 +863,10 @@ INSTRUCTION_HANDLER(LogicalWhenDefines) {
   SOURCEMETA_MAYBE_UNUSED(instance);
   SOURCEMETA_MAYBE_UNUSED(property_target);
   SOURCEMETA_MAYBE_UNUSED(evaluator);
-  EVALUATE_BEGIN_NON_STRING(
-      LogicalWhenDefines,
-      target.is_object() &&
-          target.defines(std::get<ValueString>(instruction.value)));
+  const auto &value{std::get<ValueProperty>(instruction.value)};
+  EVALUATE_BEGIN_NON_STRING(LogicalWhenDefines,
+                            target.is_object() &&
+                                target.defines(value.first, value.second));
   result = true;
   for (const auto &child : instruction.children) {
     if (!EVALUATE_RECURSE(child, target)) {
@@ -1022,8 +1023,8 @@ INSTRUCTION_HANDLER(ControlGroupWhenDefines) {
   // Otherwise why are we emitting this property?
   assert(!instruction.relative_instance_location.empty());
   const auto &target{get(instance, instruction.relative_instance_location)};
-  if (target.is_object() &&
-      target.defines(std::get<ValueString>(instruction.value))) {
+  const auto &value{std::get<ValueProperty>(instruction.value)};
+  if (target.is_object() && target.defines(value.first, value.second)) {
     for (const auto &child : instruction.children) {
       // Note that in this control instruction, we purposely
       // don't navigate into the target
@@ -1047,8 +1048,8 @@ INSTRUCTION_HANDLER(ControlGroupWhenDefinesDirect) {
   EVALUATE_BEGIN_PASS_THROUGH(ControlGroupWhenDefinesDirect);
   assert(!instruction.children.empty());
   assert(instruction.relative_instance_location.empty());
-  if (instance.is_object() &&
-      instance.defines(std::get<ValueString>(instruction.value))) {
+  const auto &value{std::get<ValueProperty>(instruction.value)};
+  if (instance.is_object() && instance.defines(value.first, value.second)) {
     for (const auto &child : instruction.children) {
       if (!EVALUATE_RECURSE(child, instance)) {
         result = false;
