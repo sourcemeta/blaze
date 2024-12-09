@@ -799,11 +799,18 @@ INSTRUCTION_HANDLER(LogicalOr) {
   EVALUATE_BEGIN_NO_PRECONDITION(LogicalOr);
   result = instruction.children.empty();
   const auto &target{get(instance, instruction.relative_instance_location)};
-  for (const auto &child : instruction.children) {
-    if (EVALUATE_RECURSE(child, target)) {
-      result = true;
-      // This boolean value controls whether we should be exhaustive
-      if (!std::get<ValueBoolean>(instruction.value)) {
+
+  // This boolean value controls whether we should be exhaustive
+  if (std::get<ValueBoolean>(instruction.value)) {
+    for (const auto &child : instruction.children) {
+      if (EVALUATE_RECURSE(child, target)) {
+        result = true;
+      }
+    }
+  } else {
+    for (const auto &child : instruction.children) {
+      if (EVALUATE_RECURSE(child, target)) {
+        result = true;
         break;
       }
     }
