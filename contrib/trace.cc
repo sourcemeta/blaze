@@ -12,9 +12,9 @@
 #include <utility>    // std::pair
 #include <vector>     // std::vector
 
-auto print_map(const std::map<std::string, std::size_t> &input) -> void {
-  std::vector<std::pair<std::string, std::size_t>> list{input.cbegin(),
-                                                        input.cend()};
+auto print_map(const std::map<std::string_view, std::size_t> &input) -> void {
+  std::vector<std::pair<std::string_view, std::size_t>> list{input.cbegin(),
+                                                             input.cend()};
   std::sort(list.begin(), list.end(), [](const auto &left, const auto &right) {
     return left.second > right.second;
   });
@@ -30,8 +30,8 @@ auto print_map(const std::map<std::string, std::size_t> &input) -> void {
   }
 }
 
-static std::map<std::string, std::size_t> global_keywords_count;
-static std::map<std::string, std::size_t> global_steps_count;
+static std::map<std::string_view, std::size_t> global_keywords_count;
+static std::map<std::string_view, std::size_t> global_steps_count;
 
 auto main(int argc, char **argv) noexcept -> int {
   if (argc < 3) {
