@@ -3,8 +3,6 @@
 
 #include <algorithm>        // std::swap
 #include <cassert>          // assert
-#include <cstddef>          // std::size_t
-#include <functional>       // std::hash
 #include <initializer_list> // std::initializer_list
 #include <iterator>         // std::advance
 #include <utility>          // std::pair, std::move
@@ -12,9 +10,9 @@
 
 namespace sourcemeta::jsontoolkit {
 
+// TODO: Merge as part of JSONObject
 /// @ingroup json
-template <typename Key, typename Value, typename Hash = std::hash<Key>>
-class FlatMap {
+template <typename Key, typename Value, typename Hash> class FlatMap {
 public:
   FlatMap() = default;
 
@@ -30,7 +28,7 @@ public:
   using pointer = typename underlying_type::pointer;
   using const_pointer = typename underlying_type::const_pointer;
   using const_iterator = typename underlying_type::const_iterator;
-  using hash_type = std::size_t;
+  using hash_type = typename Hash::hash_type;
 
   FlatMap(std::initializer_list<value_type> entries) {
     this->hashes.reserve(entries.size());
@@ -55,7 +53,8 @@ public:
     assert(this->data.size() == this->hashes.size());
     const auto key_hash{this->hash(key)};
     for (size_type index = 0; index < this->hashes.size(); index++) {
-      if (this->hashes[index] == key_hash && this->data[index].first == key) {
+      if (this->hashes[index] == key_hash &&
+          this->hasher.equal(this->data[index].first, key, key_hash)) {
         this->data[index].second = std::move(value);
         return key_hash;
       }
@@ -71,7 +70,8 @@ public:
     assert(this->data.size() == this->hashes.size());
     const auto key_hash{this->hash(key)};
     for (size_type index = 0; index < this->hashes.size(); index++) {
-      if (this->hashes[index] == key_hash && this->data[index].first == key) {
+      if (this->hashes[index] == key_hash &&
+          this->hasher.equal(this->data[index].first, key, key_hash)) {
         this->data[index].second = value;
         return key_hash;
       }
@@ -88,11 +88,23 @@ public:
       -> const_iterator {
     assert(this->data.size() == this->hashes.size());
     assert(this->hash(key) == key_hash);
-    for (size_type index = 0; index < this->hashes.size(); index++) {
-      if (this->hashes[index] == key_hash && this->data[index].first == key) {
-        auto iterator{this->cbegin()};
-        std::advance(iterator, index);
-        return iterator;
+
+    // Move the perfect hash condition out of the loop for extra performance
+    if (this->hasher.is_perfect_string_hash(key_hash)) {
+      for (size_type index = 0; index < this->hashes.size(); index++) {
+        if (this->hashes[index] == key_hash) {
+          auto iterator{this->cbegin()};
+          std::advance(iterator, index);
+          return iterator;
+        }
+      }
+    } else {
+      for (size_type index = 0; index < this->hashes.size(); index++) {
+        if (this->hashes[index] == key_hash && this->data[index].first == key) {
+          auto iterator{this->cbegin()};
+          std::advance(iterator, index);
+          return iterator;
+        }
       }
     }
 
@@ -108,9 +120,19 @@ public:
       -> bool {
     assert(this->data.size() == this->hashes.size());
     assert(this->hash(key) == key_hash);
-    for (size_type index = 0; index < this->hashes.size(); index++) {
-      if (this->hashes[index] == key_hash && this->data[index].first == key) {
-        return true;
+
+    // Move the perfect hash condition out of the loop for extra performance
+    if (this->hasher.is_perfect_string_hash(key_hash)) {
+      for (size_type index = 0; index < this->hashes.size(); index++) {
+        if (this->hashes[index] == key_hash) {
+          return true;
+        }
+      }
+    } else {
+      for (size_type index = 0; index < this->hashes.size(); index++) {
+        if (this->hashes[index] == key_hash && this->data[index].first == key) {
+          return true;
+        }
       }
     }
 
@@ -128,9 +150,18 @@ public:
     assert(this->data.size() == this->hashes.size());
     assert(this->hash(key) == key_hash);
 
-    for (size_type index = 0; index < this->hashes.size(); index++) {
-      if (this->hashes[index] == key_hash && this->data[index].first == key) {
-        return this->data[index].second;
+    // Move the perfect hash condition out of the loop for extra performance
+    if (this->hasher.is_perfect_string_hash(key_hash)) {
+      for (size_type index = 0; index < this->hashes.size(); index++) {
+        if (this->hashes[index] == key_hash) {
+          return this->data[index].second;
+        }
+      }
+    } else {
+      for (size_type index = 0; index < this->hashes.size(); index++) {
+        if (this->hashes[index] == key_hash && this->data[index].first == key) {
+          return this->data[index].second;
+        }
       }
     }
 
@@ -147,9 +178,18 @@ public:
     assert(this->data.size() == this->hashes.size());
     assert(this->hash(key) == key_hash);
 
-    for (size_type index = 0; index < this->hashes.size(); index++) {
-      if (this->hashes[index] == key_hash && this->data[index].first == key) {
-        return this->data[index].second;
+    // Move the perfect hash condition out of the loop for extra performance
+    if (this->hasher.is_perfect_string_hash(key_hash)) {
+      for (size_type index = 0; index < this->hashes.size(); index++) {
+        if (this->hashes[index] == key_hash) {
+          return this->data[index].second;
+        }
+      }
+    } else {
+      for (size_type index = 0; index < this->hashes.size(); index++) {
+        if (this->hashes[index] == key_hash && this->data[index].first == key) {
+          return this->data[index].second;
+        }
       }
     }
 
@@ -172,7 +212,8 @@ public:
   auto erase(const key_type &key, const hash_type key_hash) -> size_type {
     const auto current_size{this->size()};
     for (size_type index = 0; index < current_size; index++) {
-      if (this->hashes[index] == key_hash && this->data[index].first == key) {
+      if (this->hashes[index] == key_hash &&
+          this->hasher.equal(this->data[index].first, key, key_hash)) {
         std::swap(this->hashes[index], this->hashes.back());
         std::swap(this->data[index], this->data.back());
         this->hashes.pop_back();
