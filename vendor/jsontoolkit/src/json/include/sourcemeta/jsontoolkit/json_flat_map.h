@@ -111,10 +111,6 @@ public:
     return this->cend();
   }
 
-  inline auto find(const key_type &key) const -> const_iterator {
-    return this->find(key, this->hash(key));
-  }
-
   // As a performance optimisation if the hash is known
   inline auto contains(const key_type &key, const hash_type key_hash) const
       -> bool {
@@ -137,10 +133,6 @@ public:
     }
 
     return false;
-  }
-
-  inline auto contains(const key_type &key) const -> bool {
-    return this->contains(key, this->hash(key));
   }
 
   // As a performance optimisation if the hash is known
@@ -199,14 +191,6 @@ public:
 #else
     __builtin_unreachable();
 #endif
-  }
-
-  inline auto at(const key_type &key) const -> const mapped_type & {
-    return this->at(key, this->hash(key));
-  }
-
-  inline auto at(const key_type &key) -> mapped_type & {
-    return this->at(key, this->hash(key));
   }
 
   auto erase(const key_type &key, const hash_type key_hash) -> size_type {

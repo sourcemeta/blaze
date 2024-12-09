@@ -1284,9 +1284,8 @@ INSTRUCTION_HANDLER(LoopPropertiesUnevaluated) {
     }
 
     evaluator.instance_location.push_back(entry.first);
-    const auto &new_instance{target.at(entry.first)};
     for (const auto &child : instruction.children) {
-      if (!EVALUATE_RECURSE(child, new_instance)) {
+      if (!EVALUATE_RECURSE(child, entry.second)) {
         result = false;
         evaluator.instance_location.pop_back();
         EVALUATE_END(LoopPropertiesUnevaluated);
@@ -1320,6 +1319,7 @@ INSTRUCTION_HANDLER(LoopPropertiesUnevaluatedExcept) {
       !std::get<2>(std::get<ValuePropertyFilter>(instruction.value)).empty());
 
   for (const auto &entry : target.as_object()) {
+    // TODO: Make use of pre-computed hashes
     if (std::get<0>(std::get<ValuePropertyFilter>(instruction.value))
             .contains(entry.first)) {
       continue;
@@ -1352,9 +1352,8 @@ INSTRUCTION_HANDLER(LoopPropertiesUnevaluatedExcept) {
     }
 
     evaluator.instance_location.push_back(entry.first);
-    const auto &new_instance{target.at(entry.first)};
     for (const auto &child : instruction.children) {
-      if (!EVALUATE_RECURSE(child, new_instance)) {
+      if (!EVALUATE_RECURSE(child, entry.second)) {
         result = false;
         evaluator.instance_location.pop_back();
         EVALUATE_END(LoopPropertiesUnevaluatedExcept);
@@ -1382,8 +1381,8 @@ INSTRUCTION_HANDLER(LoopPropertiesMatch) {
   result = true;
   const auto &value{std::get<ValueNamedIndexes>(instruction.value)};
   for (const auto &entry : target.as_object()) {
-    // TODO: Pass hash here
-    const auto index{value.find(entry.first)};
+    // TODO: Pass pre-computed hash here
+    const auto index{value.find(entry.first, value.hash(entry.first))};
     if (index == value.cend()) {
       continue;
     }
@@ -1412,10 +1411,11 @@ INSTRUCTION_HANDLER(LoopPropertiesMatchClosed) {
   EVALUATE_BEGIN_NON_STRING(LoopPropertiesMatchClosed, target.is_object());
   assert(!std::get<ValueNamedIndexes>(instruction.value).empty());
   result = true;
+  const auto &value{std::get<ValueNamedIndexes>(instruction.value)};
   for (const auto &entry : target.as_object()) {
-    const auto index{
-        std::get<ValueNamedIndexes>(instruction.value).find(entry.first)};
-    if (index == std::get<ValueNamedIndexes>(instruction.value).cend()) {
+    // TODO: Pass pre-computed hash here
+    const auto index{value.find(entry.first, value.hash(entry.first))};
+    if (index == value.cend()) {
       result = false;
       break;
     }
@@ -1448,9 +1448,8 @@ INSTRUCTION_HANDLER(LoopProperties) {
     if (track) {
       evaluator.instance_location.push_back(entry.first);
     }
-    const auto &new_instance{target.at(entry.first)};
     for (const auto &child : instruction.children) {
-      if (!EVALUATE_RECURSE(child, new_instance)) {
+      if (!EVALUATE_RECURSE(child, entry.second)) {
         result = false;
         if (track) {
           evaluator.instance_location.pop_back();
@@ -1481,9 +1480,8 @@ INSTRUCTION_HANDLER(LoopPropertiesEvaluate) {
     if (track) {
       evaluator.instance_location.push_back(entry.first);
     }
-    const auto &new_instance{target.at(entry.first)};
     for (const auto &child : instruction.children) {
-      if (!EVALUATE_RECURSE(child, new_instance)) {
+      if (!EVALUATE_RECURSE(child, entry.second)) {
         result = false;
         if (track) {
           evaluator.instance_location.pop_back();
@@ -1520,9 +1518,8 @@ INSTRUCTION_HANDLER(LoopPropertiesRegex) {
     if (track) {
       evaluator.instance_location.push_back(entry.first);
     }
-    const auto &new_instance{target.at(entry.first)};
     for (const auto &child : instruction.children) {
-      if (!EVALUATE_RECURSE(child, new_instance)) {
+      if (!EVALUATE_RECURSE(child, entry.second)) {
         result = false;
         if (track) {
           evaluator.instance_location.pop_back();
@@ -1561,9 +1558,8 @@ INSTRUCTION_HANDLER(LoopPropertiesRegexClosed) {
     if (track) {
       evaluator.instance_location.push_back(entry.first);
     }
-    const auto &new_instance{target.at(entry.first)};
     for (const auto &child : instruction.children) {
-      if (!EVALUATE_RECURSE(child, new_instance)) {
+      if (!EVALUATE_RECURSE(child, entry.second)) {
         result = false;
         if (track) {
           evaluator.instance_location.pop_back();
@@ -1590,8 +1586,9 @@ INSTRUCTION_HANDLER(LoopPropertiesStartsWith) {
   EVALUATE_BEGIN_NON_STRING(LoopPropertiesStartsWith, target.is_object());
   assert(!instruction.children.empty());
   result = true;
+  const auto &value{std::get<ValueString>(instruction.value)};
   for (const auto &entry : target.as_object()) {
-    if (!entry.first.starts_with(std::get<ValueString>(instruction.value))) {
+    if (!entry.first.starts_with(value)) {
       continue;
     }
 
@@ -1633,6 +1630,7 @@ INSTRUCTION_HANDLER(LoopPropertiesExcept) {
       !std::get<2>(std::get<ValuePropertyFilter>(instruction.value)).empty());
 
   for (const auto &entry : target.as_object()) {
+    // TODO: Make use of pre-computed hashes here
     if (std::get<0>(std::get<ValuePropertyFilter>(instruction.value))
             .contains(entry.first)) {
       continue;
@@ -1689,18 +1687,18 @@ INSTRUCTION_HANDLER(LoopPropertiesWhitelist) {
   SOURCEMETA_MAYBE_UNUSED(property_target);
   SOURCEMETA_MAYBE_UNUSED(evaluator);
   EVALUATE_BEGIN_NON_STRING(LoopPropertiesWhitelist, target.is_object());
+  const auto &value{std::get<ValueStringSet>(instruction.value)};
   // Otherwise why emit this instruction?
-  assert(!std::get<ValueStringSet>(instruction.value).empty());
+  assert(!value.empty());
 
   // Otherwise if the number of properties in the instance
   // is larger than the whitelist, then it already violated
   // the whitelist?
-  if (target.object_size() <=
-      std::get<ValueStringSet>(instruction.value).size()) {
+  if (target.object_size() <= value.size()) {
     result = true;
     for (const auto &entry : target.as_object()) {
       // TODO: Re-use hashes here
-      if (!std::get<ValueStringSet>(instruction.value).contains(entry.first)) {
+      if (!value.contains(entry.first)) {
         result = false;
         break;
       }
