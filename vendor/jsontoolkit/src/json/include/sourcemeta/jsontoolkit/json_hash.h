@@ -1,14 +1,18 @@
 #ifndef SOURCEMETA_JSONTOOLKIT_JSON_HASH_H_
 #define SOURCEMETA_JSONTOOLKIT_JSON_HASH_H_
 
-#include <cstddef> // std::size_t
+#include <cstdint> // std::uint64_t
 #include <cstring> // std::memcpy
 
 namespace sourcemeta::jsontoolkit {
 
 /// @ingroup json
 template <typename T> struct FastHash {
-  using hash_type = std::size_t;
+#ifdef __SIZEOF_INT128__
+  using hash_type = __uint128_t;
+#else
+  using hash_type = std::uint64_t;
+#endif
 
   inline auto operator()(const typename T::String &value) const noexcept
       -> hash_type {
@@ -24,6 +28,16 @@ template <typename T> struct FastHash {
       case 5:
       case 6:
       case 7:
+#ifdef __SIZEOF_INT128__
+      case 8:
+      case 9:
+      case 10:
+      case 11:
+      case 12:
+      case 13:
+      case 14:
+      case 15:
+#endif
         std::memcpy(&result, value.data(), size);
         result = result << 8;
         return result;

@@ -14,7 +14,7 @@ template <typename PropertyT, typename Hash> class GenericToken {
 public:
   using Value = JSON;
   using Property = PropertyT;
-  using PropertyWrapper = std::pair<Property, std::size_t>;
+  using PropertyWrapper = std::pair<Property, typename Hash::hash_type>;
   using Index = typename Value::Array::size_type;
 
   /// This constructor creates an JSON Pointer token from a string. For
@@ -170,7 +170,8 @@ public:
   /// assert(token.is_property());
   /// assert(token.property_hash() >= 0);
   /// ```
-  [[nodiscard]] auto property_hash() const noexcept -> std::size_t {
+  [[nodiscard]] auto property_hash() const noexcept ->
+      typename Hash::hash_type {
     assert(this->is_property());
     return std::get<PropertyWrapper>(this->data).second;
   }
