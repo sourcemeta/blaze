@@ -1759,8 +1759,9 @@ INSTRUCTION_HANDLER(LoopPropertiesTypeStrict) {
   SOURCEMETA_MAYBE_UNUSED(evaluator);
   EVALUATE_BEGIN_NON_STRING(LoopPropertiesTypeStrict, target.is_object());
   result = true;
+  const auto value{std::get<ValueType>(instruction.value)};
   for (const auto &entry : target.as_object()) {
-    if (entry.second.type() != std::get<ValueType>(instruction.value)) {
+    if (entry.second.type() != value) {
       result = false;
       break;
     }
@@ -1779,8 +1780,9 @@ INSTRUCTION_HANDLER(LoopPropertiesTypeStrictEvaluate) {
   EVALUATE_BEGIN_NON_STRING(LoopPropertiesTypeStrictEvaluate,
                             target.is_object());
   result = true;
+  const auto value{std::get<ValueType>(instruction.value)};
   for (const auto &entry : target.as_object()) {
-    if (entry.second.type() != std::get<ValueType>(instruction.value)) {
+    if (entry.second.type() != value) {
       result = false;
       EVALUATE_END(LoopPropertiesTypeStrictEvaluate);
     }
