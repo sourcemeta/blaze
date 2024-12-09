@@ -4,9 +4,17 @@ namespace sourcemeta::blaze {
 
 auto StringSet::contains(const value_type &value, const hash_type hash) const
     -> bool {
-  for (const auto &entry : this->data) {
-    if (entry.second == hash && entry.first == value) {
-      return true;
+  if (this->hasher.is_perfect_string_hash(hash)) {
+    for (const auto &entry : this->data) {
+      if (entry.second == hash) {
+        return true;
+      }
+    }
+  } else {
+    for (const auto &entry : this->data) {
+      if (entry.second == hash && entry.first == value) {
+        return true;
+      }
     }
   }
 
