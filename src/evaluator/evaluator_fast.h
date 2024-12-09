@@ -74,10 +74,10 @@
   return true;
 
 #define EVALUATE_RECURSE(child, target)                                        \
-  evaluate_instruction(child, schema, std::nullopt, target, property_target,   \
+  evaluate_instruction(child, schema, callback, target, property_target,       \
                        depth + 1, evaluator)
 #define EVALUATE_RECURSE_ON_PROPERTY_NAME(child, target, name)                 \
-  evaluate_instruction(child, schema, std::nullopt, target, std::cref(name),   \
+  evaluate_instruction(child, schema, callback, target, std::cref(name),       \
                        depth + 1, evaluator)
 
 #define SOURCEMETA_EVALUATOR_FAST
