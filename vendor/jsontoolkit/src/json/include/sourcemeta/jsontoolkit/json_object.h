@@ -96,7 +96,7 @@ public:
 
   /// Attempt to find an entry by key
   inline auto find(const Key &key) const -> const_iterator {
-    return this->data.find(key);
+    return this->data.find(key, this->data.hash(key));
   }
 
 private:

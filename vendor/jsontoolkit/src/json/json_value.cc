@@ -320,7 +320,8 @@ auto JSON::operator-=(const JSON &substractive) -> JSON & {
 [[nodiscard]] auto JSON::at(const JSON::String &key) const -> const JSON & {
   assert(this->is_object());
   assert(this->defines(key));
-  return std::get<Object>(this->data).data.at(key);
+  const auto &object{std::get<Object>(this->data)};
+  return object.data.at(key, object.data.hash(key));
 }
 
 [[nodiscard]] auto
@@ -335,7 +336,8 @@ JSON::at(const String &key,
 [[nodiscard]] auto JSON::at(const JSON::String &key) -> JSON & {
   assert(this->is_object());
   assert(this->defines(key));
-  return std::get<Object>(this->data).data.at(key);
+  auto &object{std::get<Object>(this->data)};
+  return object.data.at(key, object.data.hash(key));
 }
 
 [[nodiscard]] auto JSON::at(const String &key,
@@ -513,7 +515,7 @@ JSON::at(const String &key,
   assert(this->is_object());
 
   const auto &object{std::get<Object>(this->data)};
-  const auto value{object.data.find(key)};
+  const auto value{object.data.find(key, object.data.hash(key))};
 
   if (value == object.data.cend()) {
     return std::nullopt;
@@ -538,7 +540,8 @@ JSON::try_at(const String &key,
 
 [[nodiscard]] auto JSON::defines(const JSON::String &key) const -> bool {
   assert(this->is_object());
-  return std::get<Object>(this->data).data.contains(key);
+  const auto &object{std::get<Object>(this->data)};
+  return object.data.contains(key, object.data.hash(key));
 }
 
 [[nodiscard]] auto
