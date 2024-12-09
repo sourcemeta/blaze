@@ -6,6 +6,8 @@
 #include <sourcemeta/jsontoolkit/regex.h>
 #include <sourcemeta/jsontoolkit/uri.h>
 
+#include <sourcemeta/blaze/evaluator_string_set.h>
+
 #include <cstdint>       // std::uint8_t
 #include <optional>      // std::optional, std::nullopt
 #include <string>        // std::string
@@ -45,8 +47,7 @@ using ValueStrings = std::vector<ValueString>;
 
 /// @ingroup evaluator
 /// Represents a compiler step string set of values
-using ValueStringSet =
-    std::unordered_set<ValueString, sourcemeta::jsontoolkit::Hash>;
+using ValueStringSet = StringSet;
 
 /// @ingroup evaluator
 /// Represents a compiler step JSON types value

@@ -885,12 +885,19 @@ auto describe(const bool valid, const Instruction &step,
   }
 
   if (step.type == sourcemeta::blaze::InstructionIndex::AssertionDefinesAll) {
-    const auto &value{instruction_value<ValueStrings>(step)};
+    const auto &value{instruction_value<ValueStringSet>(step)};
     assert(value.size() > 1);
+
+    std::vector<ValueString> value_vector;
+    for (const auto &entry : value) {
+      value_vector.push_back(entry.first);
+    }
+
     std::ostringstream message;
     message << "The object value was expected to define properties ";
-    for (auto iterator = value.cbegin(); iterator != value.cend(); ++iterator) {
-      if (std::next(iterator) == value.cend()) {
+    for (auto iterator = value_vector.cbegin(); iterator != value_vector.cend();
+         ++iterator) {
+      if (std::next(iterator) == value_vector.cend()) {
         message << "and " << escape_string(*iterator);
       } else {
         message << escape_string(*iterator) << ", ";
@@ -904,8 +911,8 @@ auto describe(const bool valid, const Instruction &step,
     assert(target.is_object());
     std::set<std::string> missing;
     for (const auto &property : value) {
-      if (!target.defines(property)) {
-        missing.insert(property);
+      if (!target.defines(property.first, property.second)) {
+        missing.insert(property.first);
       }
     }
 
@@ -930,13 +937,20 @@ auto describe(const bool valid, const Instruction &step,
 
   if (step.type ==
       sourcemeta::blaze::InstructionIndex::AssertionDefinesAllStrict) {
-    const auto &value{instruction_value<ValueStrings>(step)};
+    const auto &value{instruction_value<ValueStringSet>(step)};
     assert(value.size() > 1);
+
+    std::vector<ValueString> value_vector;
+    for (const auto &entry : value) {
+      value_vector.push_back(entry.first);
+    }
+
     std::ostringstream message;
     message
         << "The value was expected to be an object that defines properties ";
-    for (auto iterator = value.cbegin(); iterator != value.cend(); ++iterator) {
-      if (std::next(iterator) == value.cend()) {
+    for (auto iterator = value_vector.cbegin(); iterator != value_vector.cend();
+         ++iterator) {
+      if (std::next(iterator) == value_vector.cend()) {
         message << "and " << escape_string(*iterator);
       } else {
         message << escape_string(*iterator) << ", ";
@@ -950,7 +964,11 @@ auto describe(const bool valid, const Instruction &step,
       sourcemeta::blaze::InstructionIndex::AssertionDefinesExactly) {
     const auto &value{instruction_value<ValueStringSet>(step)};
     assert(value.size() > 1);
-    ValueStrings value_vector{value.cbegin(), value.cend()};
+    std::vector<ValueString> value_vector;
+    for (const auto &entry : value) {
+      value_vector.push_back(entry.first);
+    }
+
     std::sort(value_vector.begin(), value_vector.end());
     std::ostringstream message;
     message << "The object value was expected to only define properties ";
@@ -970,7 +988,11 @@ auto describe(const bool valid, const Instruction &step,
       sourcemeta::blaze::InstructionIndex::AssertionDefinesExactlyStrict) {
     const auto &value{instruction_value<ValueStringSet>(step)};
     assert(value.size() > 1);
-    ValueStrings value_vector{value.cbegin(), value.cend()};
+    std::vector<ValueString> value_vector;
+    for (const auto &entry : value) {
+      value_vector.push_back(entry.first);
+    }
+
     std::sort(value_vector.begin(), value_vector.end());
     std::ostringstream message;
     message << "The value was expected to be an object that only defines "
