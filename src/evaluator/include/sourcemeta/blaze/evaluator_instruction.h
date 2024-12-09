@@ -5,9 +5,10 @@
 
 #include <sourcemeta/jsontoolkit/jsonpointer.h>
 
-#include <cstdint> // std::uint8_t
-#include <string>  // std::string
-#include <vector>  // std::vector
+#include <cstdint>     // std::uint8_t
+#include <string>      // std::string
+#include <string_view> // std::string_view
+#include <vector>      // std::vector
 
 namespace sourcemeta::blaze {
 
@@ -103,6 +104,96 @@ enum class InstructionIndex : std::uint8_t {
   ControlJump,
   ControlDynamicAnchorJump
 };
+
+/// @ingroup evaluator
+constexpr std::string_view InstructionNames[] = {
+    "AssertionFail",
+    "AssertionDefines",
+    "AssertionDefinesStrict",
+    "AssertionDefinesAll",
+    "AssertionDefinesAllStrict",
+    "AssertionDefinesExactly",
+    "AssertionDefinesExactlyStrict",
+    "AssertionPropertyDependencies",
+    "AssertionType",
+    "AssertionTypeAny",
+    "AssertionTypeStrict",
+    "AssertionTypeStrictAny",
+    "AssertionTypeStringBounded",
+    "AssertionTypeStringUpper",
+    "AssertionTypeArrayBounded",
+    "AssertionTypeArrayUpper",
+    "AssertionTypeObjectBounded",
+    "AssertionTypeObjectUpper",
+    "AssertionRegex",
+    "AssertionStringSizeLess",
+    "AssertionStringSizeGreater",
+    "AssertionArraySizeLess",
+    "AssertionArraySizeGreater",
+    "AssertionObjectSizeLess",
+    "AssertionObjectSizeGreater",
+    "AssertionEqual",
+    "AssertionEqualsAny",
+    "AssertionGreaterEqual",
+    "AssertionLessEqual",
+    "AssertionGreater",
+    "AssertionLess",
+    "AssertionUnique",
+    "AssertionDivisible",
+    "AssertionStringType",
+    "AssertionPropertyType",
+    "AssertionPropertyTypeEvaluate",
+    "AssertionPropertyTypeStrict",
+    "AssertionPropertyTypeStrictEvaluate",
+    "AssertionPropertyTypeStrictAny",
+    "AssertionPropertyTypeStrictAnyEvaluate",
+    "AssertionArrayPrefix",
+    "AssertionArrayPrefixEvaluate",
+    "AnnotationEmit",
+    "AnnotationToParent",
+    "AnnotationBasenameToParent",
+    "LogicalNot",
+    "LogicalNotEvaluate",
+    "LogicalOr",
+    "LogicalAnd",
+    "LogicalXor",
+    "LogicalCondition",
+    "LogicalWhenType",
+    "LogicalWhenDefines",
+    "LogicalWhenArraySizeGreater",
+    "LoopPropertiesUnevaluated",
+    "LoopPropertiesUnevaluatedExcept",
+    "LoopPropertiesMatch",
+    "LoopPropertiesMatchClosed",
+    "LoopProperties",
+    "LoopPropertiesEvaluate",
+    "LoopPropertiesRegex",
+    "LoopPropertiesRegexClosed",
+    "LoopPropertiesStartsWith",
+    "LoopPropertiesExcept",
+    "LoopPropertiesWhitelist",
+    "LoopPropertiesType",
+    "LoopPropertiesTypeEvaluate",
+    "LoopPropertiesTypeStrict",
+    "LoopPropertiesTypeStrictEvaluate",
+    "LoopPropertiesTypeStrictAny",
+    "LoopPropertiesTypeStrictAnyEvaluate",
+    "LoopKeys",
+    "LoopItems",
+    "LoopItemsFrom",
+    "LoopItemsUnevaluated",
+    "LoopItemsType",
+    "LoopItemsTypeStrict",
+    "LoopItemsTypeStrictAny",
+    "LoopContains",
+    "ControlGroup",
+    "ControlGroupWhenDefines",
+    "ControlGroupWhenDefinesDirect",
+    "ControlLabel",
+    "ControlMark",
+    "ControlEvaluate",
+    "ControlJump",
+    "ControlDynamicAnchorJump"};
 
 // Forward declaration for defining a circular structure
 #ifndef DOXYGEN

@@ -12,7 +12,7 @@
   EXPECT_TRUE(traces.size() > index);                                          \
   EXPECT_EQ(traces.at((index)).type,                                           \
             sourcemeta::blaze::TraceOutput::EntryType::expected_type);         \
-  EXPECT_EQ(traces.at((index)).name, "????");                                  \
+  EXPECT_EQ(traces.at((index)).name, expected_name);                           \
   EXPECT_EQ(sourcemeta::jsontoolkit::to_string(                                \
                 traces.at((index)).instance_location),                         \
             expected_instance_location);                                       \

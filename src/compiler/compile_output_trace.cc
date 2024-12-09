@@ -5,9 +5,11 @@
 #include <utility> // std::move
 #include <variant> // std::visit
 
-// TODO: Properly implement for at least LLVM
-static auto step_name(const sourcemeta::blaze::Instruction &) -> std::string {
-  return "????";
+static auto step_name(const sourcemeta::blaze::Instruction &instruction)
+    -> std::string_view {
+  return sourcemeta::blaze::InstructionNames
+      [static_cast<std::underlying_type_t<sourcemeta::blaze::InstructionIndex>>(
+          instruction.type)];
 }
 
 namespace sourcemeta::blaze {

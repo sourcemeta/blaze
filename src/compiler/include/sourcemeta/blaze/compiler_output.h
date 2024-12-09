@@ -10,9 +10,10 @@
 
 #include <sourcemeta/blaze/evaluator.h>
 
-#include <set>    // std::set
-#include <string> // std::string
-#include <vector> // std::vector
+#include <set>         // std::set
+#include <string>      // std::string
+#include <string_view> // std::string_view
+#include <vector>      // std::vector
 
 namespace sourcemeta::blaze {
 
@@ -172,7 +173,7 @@ public:
 
   struct Entry {
     const EntryType type;
-    const std::string name;
+    const std::string_view name;
     const sourcemeta::jsontoolkit::WeakPointer instance_location;
     const sourcemeta::jsontoolkit::WeakPointer evaluate_path;
     const std::string keyword_location;
