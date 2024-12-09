@@ -1380,10 +1380,11 @@ INSTRUCTION_HANDLER(LoopPropertiesMatch) {
   EVALUATE_BEGIN_NON_STRING(LoopPropertiesMatch, target.is_object());
   assert(!std::get<ValueNamedIndexes>(instruction.value).empty());
   result = true;
+  const auto &value{std::get<ValueNamedIndexes>(instruction.value)};
   for (const auto &entry : target.as_object()) {
-    const auto index{
-        std::get<ValueNamedIndexes>(instruction.value).find(entry.first)};
-    if (index == std::get<ValueNamedIndexes>(instruction.value).cend()) {
+    // TODO: Pass hash here
+    const auto index{value.find(entry.first)};
+    if (index == value.cend()) {
       continue;
     }
 
