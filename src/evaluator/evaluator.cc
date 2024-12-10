@@ -71,7 +71,7 @@ auto Evaluator::validate(const Template &schema,
 
   if (schema.dynamic || schema.track) {
     this->evaluated_.clear();
-    return complete::evaluate(instance, *this, schema, std::nullopt);
+    return complete::evaluate(instance, *this, schema, DEFAULT_CALLBACK);
   } else {
     return fast::evaluate(instance, *this, schema);
   }
@@ -92,6 +92,10 @@ auto Evaluator::validate(const Template &schema,
 
 const sourcemeta::jsontoolkit::JSON Evaluator::null{nullptr};
 const sourcemeta::jsontoolkit::JSON Evaluator::empty_string{""};
+const std::optional<Callback> Evaluator::DEFAULT_CALLBACK;
+const std::optional<
+    std::reference_wrapper<const sourcemeta::jsontoolkit::JSON::String>>
+    Evaluator::DEFAULT_PROPERTY_TARGET;
 
 auto Evaluator::hash(const std::size_t &resource,
                      const sourcemeta::jsontoolkit::JSON::String &fragment)
