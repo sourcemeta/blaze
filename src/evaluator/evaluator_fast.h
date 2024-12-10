@@ -27,12 +27,12 @@
 
 #define EVALUATE_BEGIN_IF_STRING(instruction_type)                             \
   assert(instruction.type == InstructionIndex::instruction_type);              \
-  const auto &maybe_target{resolve_string_target(                              \
+  const auto *maybe_target{resolve_string_target(                              \
       property_target, instance, instruction.relative_instance_location)};     \
-  if (!maybe_target.has_value()) {                                             \
+  if (!maybe_target) {                                                         \
     return true;                                                               \
   }                                                                            \
-  const auto &target{maybe_target.value().get()};                              \
+  const auto &target{*maybe_target};                                           \
   bool result{false};
 
 #define EVALUATE_BEGIN_TRY_TARGET(instruction_type, precondition)              \
