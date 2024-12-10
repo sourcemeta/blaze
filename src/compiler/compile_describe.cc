@@ -11,7 +11,7 @@ using namespace sourcemeta::blaze;
 template <typename X, typename T>
 auto instruction_value(const T &step) -> decltype(auto) {
   if constexpr (requires { step.value; }) {
-    return std::get<X>(step.value);
+    return swl::unsafe_get<X>(step.value);
   } else {
     return step.id;
   }
@@ -1823,7 +1823,7 @@ auto describe(const bool valid, const Instruction &step,
           assert(child.type == InstructionIndex::AssertionPropertyDependencies);
           const auto &substep{child};
 
-          for (const auto &entry : std::get<ValueStringMap>(substep.value)) {
+          for (const auto &entry : swl::get<ValueStringMap>(substep.value)) {
             all_dependencies.insert(entry.first);
             if (target.defines(entry.first)) {
               present.insert(entry.first);

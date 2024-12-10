@@ -9,6 +9,27 @@
 #include <sourcemeta/jsontoolkit/json_hash.h>
 #include <sourcemeta/jsontoolkit/json_object.h>
 
+#if defined(_MSC_VER)
+#pragma warning(disable : 4244 4245)
+#elif defined(__clang__)
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wnewline-eof"
+#pragma clang diagnostic ignored "-Wsign-conversion"
+#pragma clang diagnostic ignored "-Wimplicit-int-conversion"
+#elif defined(__GNUC__)
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wsign-conversion"
+#pragma GCC diagnostic ignored "-Wconversion"
+#endif
+#include <swl/variant.hpp>
+#if defined(_MSC_VER)
+#pragma warning(default : 4244 4245)
+#elif defined(__clang__)
+#pragma clang diagnostic pop
+#elif defined(__GNUC__)
+#pragma GCC diagnostic pop
+#endif
+
 #include <algorithm>        // std::any_of
 #include <cassert>          // assert
 #include <cstdint>          // std::int64_t, std::uint8_t
@@ -21,8 +42,7 @@
 #include <string>           // std::basic_string, std::char_traits
 #include <string_view>      // std::basic_string_view
 #include <type_traits>      // std::enable_if_t, std::is_same_v
-#include <utility>          // std::in_place_type, std::pair
-#include <variant>          // std::variant
+#include <utility>          // std::pair
 
 namespace sourcemeta::jsontoolkit {
 
@@ -83,7 +103,7 @@ public:
   // On some systems, `std::int64_t` might be equal to `long`
   template <typename T = std::int64_t,
             typename = std::enable_if_t<!std::is_same_v<T, std::int64_t>>>
-  explicit JSON(const long value) : data{std::in_place_type<Integer>, value} {}
+  explicit JSON(const long value) : data{static_cast<Integer>(value)} {}
 
   /// This constructor creates a JSON document from an real number type. For
   /// example:
@@ -1286,7 +1306,7 @@ public:
   auto erase_keys(Iterator first, Iterator last) -> void {
     assert(this->is_object());
     for (auto iterator = first; iterator != last; ++iterator) {
-      std::get_if<Object>(&this->data)->data.erase(*iterator);
+      swl::unsafe_get<Object>(this->data).data.erase(*iterator);
     }
   }
 
@@ -1494,7 +1514,7 @@ private:
 #if defined(_MSC_VER)
 #pragma warning(disable : 4251)
 #endif
-  std::variant<std::nullptr_t, bool, Integer, Real, String, Array, Object> data;
+  swl::variant<std::nullptr_t, bool, Integer, Real, String, Array, Object> data;
 #if defined(_MSC_VER)
 #pragma warning(default : 4251)
 #endif

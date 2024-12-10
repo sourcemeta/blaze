@@ -110,7 +110,7 @@ using ValuePointer = sourcemeta::jsontoolkit::Pointer;
 
 /// @ingroup evaluator
 using Value =
-    std::variant<ValueNone, ValueJSON, ValueSet, ValueString, ValueProperty,
+    swl::variant<ValueNone, ValueJSON, ValueSet, ValueString, ValueProperty,
                  ValueStrings, ValueStringSet, ValueTypes, ValueType,
                  ValueRegex, ValueUnsignedInteger, ValueRange, ValueBoolean,
                  ValueNamedIndexes, ValueStringType, ValueStringMap,

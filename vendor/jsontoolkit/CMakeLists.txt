@@ -42,6 +42,7 @@ if(JSONTOOLKIT_URI)
 endif()
 
 if(JSONTOOLKIT_JSON)
+  find_package(SwlVariant REQUIRED)
   add_subdirectory(src/json)
 endif()
 

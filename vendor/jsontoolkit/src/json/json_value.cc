@@ -7,20 +7,17 @@
 #include <stdexcept> // std::invalid_argument
 #include <string>    // std::to_string
 #include <utility>   // std::move
-#include <variant>   // std::holds_alternative, std::get_if
 #include <vector>    // std::vector
 
 namespace sourcemeta::jsontoolkit {
 
-JSON::JSON(const std::int64_t value)
-    : data{std::in_place_type<Integer>, value} {}
+JSON::JSON(const std::int64_t value) : data{static_cast<Integer>(value)} {}
 
-JSON::JSON(const std::size_t value)
-    : data{std::in_place_type<Integer>, value} {}
+JSON::JSON(const std::size_t value) : data{static_cast<Integer>(value)} {}
 
-JSON::JSON(const int value) : data{std::in_place_type<Integer>, value} {}
+JSON::JSON(const int value) : data{static_cast<Integer>(value)} {}
 
-JSON::JSON(const double value) : data{std::in_place_type<Real>, value} {
+JSON::JSON(const double value) : data{static_cast<Real>(value)} {
   // Numeric values that cannot be represented as sequences of digits (such as
   // Infinity and NaN) are not permitted. See
   // https://www.ecma-international.org/wp-content/uploads/ECMA-404_2nd_edition_december_2017.pdf
@@ -31,20 +28,19 @@ JSON::JSON(const double value) : data{std::in_place_type<Real>, value} {
 
 JSON::JSON(const float value) : JSON(static_cast<Real>(value)) {}
 
-JSON::JSON(const bool value) : data{std::in_place_type<bool>, value} {}
+JSON::JSON(const bool value) : data{static_cast<bool>(value)} {}
 
-JSON::JSON(const std::nullptr_t)
-    : data{std::in_place_type<std::nullptr_t>, nullptr} {}
+JSON::JSON(const std::nullptr_t) : data{static_cast<std::nullptr_t>(nullptr)} {}
 
-JSON::JSON(const String &value) : data{std::in_place_type<String>, value} {}
+JSON::JSON(const String &value) : data{static_cast<String>(value)} {}
 
 JSON::JSON(const std::basic_string_view<Char, CharTraits> &value)
-    : data{std::in_place_type<String>, value} {}
+    : data{static_cast<String>(value)} {}
 
-JSON::JSON(const Char *const value) : data{std::in_place_type<String>, value} {}
+JSON::JSON(const Char *const value) : data{static_cast<String>(value)} {}
 
 JSON::JSON(std::initializer_list<JSON> values)
-    : data{std::in_place_type<Array>, values} {
+    : data{static_cast<Array>(values)} {
 // For some reason, if we construct a JSON by passing a single
 // JSON as argument, GCC and MSVC, in some circumstances will
 // prefer this initializer list constructor over the default copy constructor,
@@ -59,12 +55,12 @@ JSON::JSON(std::initializer_list<JSON> values)
 #endif
 }
 
-JSON::JSON(const Array &value) : data{std::in_place_type<Array>, value} {}
+JSON::JSON(const Array &value) : data{static_cast<Array>(value)} {}
 
 JSON::JSON(std::initializer_list<typename Object::Container::value_type> values)
-    : data{std::in_place_type<Object>, values} {}
+    : data{static_cast<Object>(values)} {}
 
-JSON::JSON(const Object &value) : data{std::in_place_type<Object>, value} {}
+JSON::JSON(const Object &value) : data{static_cast<Object>(value)} {}
 
 auto JSON::make_array() -> JSON { return JSON{Array{}}; }
 
@@ -178,19 +174,19 @@ auto JSON::operator-=(const JSON &substractive) -> JSON & {
 }
 
 [[nodiscard]] auto JSON::is_boolean() const noexcept -> bool {
-  return std::holds_alternative<bool>(this->data);
+  return swl::holds_alternative<bool>(this->data);
 }
 
 [[nodiscard]] auto JSON::is_null() const noexcept -> bool {
-  return std::holds_alternative<std::nullptr_t>(this->data);
+  return swl::holds_alternative<std::nullptr_t>(this->data);
 }
 
 [[nodiscard]] auto JSON::is_integer() const noexcept -> bool {
-  return std::holds_alternative<Integer>(this->data);
+  return swl::holds_alternative<Integer>(this->data);
 }
 
 [[nodiscard]] auto JSON::is_real() const noexcept -> bool {
-  return std::holds_alternative<Real>(this->data);
+  return swl::holds_alternative<Real>(this->data);
 }
 
 [[nodiscard]] auto JSON::is_integer_real() const noexcept -> bool {
@@ -222,15 +218,15 @@ auto JSON::operator-=(const JSON &substractive) -> JSON & {
 }
 
 [[nodiscard]] auto JSON::is_string() const noexcept -> bool {
-  return std::holds_alternative<JSON::String>(this->data);
+  return swl::holds_alternative<JSON::String>(this->data);
 }
 
 [[nodiscard]] auto JSON::is_array() const noexcept -> bool {
-  return std::holds_alternative<JSON::Array>(this->data);
+  return swl::holds_alternative<JSON::Array>(this->data);
 }
 
 [[nodiscard]] auto JSON::is_object() const noexcept -> bool {
-  return std::holds_alternative<Object>(this->data);
+  return swl::holds_alternative<Object>(this->data);
 }
 
 [[nodiscard]] auto JSON::type() const noexcept -> Type {
@@ -239,53 +235,53 @@ auto JSON::operator-=(const JSON &substractive) -> JSON & {
 
 [[nodiscard]] auto JSON::to_boolean() const noexcept -> bool {
   assert(this->is_boolean());
-  return *std::get_if<bool>(&this->data);
+  return swl::unsafe_get<bool>(this->data);
 }
 
 [[nodiscard]] auto JSON::to_integer() const noexcept -> Integer {
   assert(this->is_integer());
-  return *std::get_if<Integer>(&this->data);
+  return swl::unsafe_get<Integer>(this->data);
 }
 
 [[nodiscard]] auto JSON::to_real() const noexcept -> Real {
   assert(this->is_real());
-  return *std::get_if<Real>(&this->data);
+  return swl::unsafe_get<Real>(this->data);
 }
 
 [[nodiscard]] auto JSON::to_string() const noexcept -> const JSON::String & {
   assert(this->is_string());
-  return *std::get_if<JSON::String>(&this->data);
+  return swl::unsafe_get<JSON::String>(this->data);
 }
 
 [[nodiscard]] auto JSON::to_string() noexcept -> JSON::String & {
   assert(this->is_string());
-  return *std::get_if<JSON::String>(&this->data);
+  return swl::unsafe_get<JSON::String>(this->data);
 }
 
 [[nodiscard]] auto JSON::to_stringstream() const
     -> std::basic_istringstream<Char, CharTraits, Allocator<Char>> {
   return std::basic_istringstream<Char, CharTraits, Allocator<Char>>{
-      *std::get_if<JSON::String>(&this->data)};
+      swl::unsafe_get<JSON::String>(this->data)};
 }
 
 [[nodiscard]] auto JSON::as_array() const noexcept -> const JSON::Array & {
   assert(this->is_array());
-  return *std::get_if<JSON::Array>(&this->data);
+  return swl::unsafe_get<JSON::Array>(this->data);
 }
 
 [[nodiscard]] auto JSON::as_array() noexcept -> JSON::Array & {
   assert(this->is_array());
-  return *std::get_if<JSON::Array>(&this->data);
+  return swl::unsafe_get<JSON::Array>(this->data);
 }
 
 [[nodiscard]] auto JSON::as_object() noexcept -> Object & {
   assert(this->is_object());
-  return *std::get_if<Object>(&this->data);
+  return swl::unsafe_get<Object>(this->data);
 }
 
 [[nodiscard]] auto JSON::as_object() const noexcept -> const Object & {
   assert(this->is_object());
-  return *std::get_if<Object>(&this->data);
+  return swl::unsafe_get<Object>(this->data);
 }
 
 [[nodiscard]] auto JSON::as_real() const noexcept -> Real {
@@ -307,20 +303,20 @@ auto JSON::operator-=(const JSON &substractive) -> JSON & {
     -> const JSON & {
   assert(this->is_array());
   assert(index < this->size());
-  return std::get_if<JSON::Array>(&this->data)->data.at(index);
+  return swl::unsafe_get<JSON::Array>(this->data).data.at(index);
 }
 
 [[nodiscard]] auto JSON::at(const typename JSON::Array::size_type index)
     -> JSON & {
   assert(this->is_array());
   assert(index < this->size());
-  return std::get_if<JSON::Array>(&this->data)->data.at(index);
+  return swl::unsafe_get<JSON::Array>(this->data).data.at(index);
 }
 
 [[nodiscard]] auto JSON::at(const JSON::String &key) const -> const JSON & {
   assert(this->is_object());
   assert(this->defines(key));
-  const auto &object{*std::get_if<Object>(&this->data)};
+  const auto &object{swl::unsafe_get<Object>(this->data)};
   return object.data.at(key, object.data.hash(key));
 }
 
@@ -330,13 +326,13 @@ JSON::at(const String &key,
     -> const JSON & {
   assert(this->is_object());
   assert(this->defines(key));
-  return std::get_if<Object>(&this->data)->data.at(key, hash);
+  return swl::unsafe_get<Object>(this->data).data.at(key, hash);
 }
 
 [[nodiscard]] auto JSON::at(const JSON::String &key) -> JSON & {
   assert(this->is_object());
   assert(this->defines(key));
-  auto &object{*std::get_if<Object>(&this->data)};
+  auto &object{swl::unsafe_get<Object>(this->data)};
   return object.data.at(key, object.data.hash(key));
 }
 
@@ -345,31 +341,31 @@ JSON::at(const String &key,
     -> JSON & {
   assert(this->is_object());
   assert(this->defines(key));
-  return std::get_if<Object>(&this->data)->data.at(key, hash);
+  return swl::unsafe_get<Object>(this->data).data.at(key, hash);
 }
 
 [[nodiscard]] auto JSON::front() -> JSON & {
   assert(this->is_array());
   assert(!this->empty());
-  return std::get_if<JSON::Array>(&this->data)->data.front();
+  return swl::unsafe_get<JSON::Array>(this->data).data.front();
 }
 
 [[nodiscard]] auto JSON::front() const -> const JSON & {
   assert(this->is_array());
   assert(!this->empty());
-  return std::get_if<JSON::Array>(&this->data)->data.front();
+  return swl::unsafe_get<JSON::Array>(this->data).data.front();
 }
 
 [[nodiscard]] auto JSON::back() -> JSON & {
   assert(this->is_array());
   assert(!this->empty());
-  return std::get_if<JSON::Array>(&this->data)->data.back();
+  return swl::unsafe_get<JSON::Array>(this->data).data.back();
 }
 
 [[nodiscard]] auto JSON::back() const -> const JSON & {
   assert(this->is_array());
   assert(!this->empty());
-  return std::get_if<JSON::Array>(&this->data)->data.back();
+  return swl::unsafe_get<JSON::Array>(this->data).data.back();
 }
 
 [[nodiscard]] auto JSON::size() const -> std::size_t {
@@ -384,22 +380,22 @@ JSON::at(const String &key,
 
 [[nodiscard]] auto JSON::string_size() const -> std::size_t {
   assert(this->is_string());
-  return JSON::size(*std::get_if<JSON::String>(&this->data));
+  return JSON::size(swl::unsafe_get<JSON::String>(this->data));
 }
 
 [[nodiscard]] auto JSON::array_size() const -> std::size_t {
   assert(this->is_array());
-  return std::get_if<JSON::Array>(&this->data)->data.size();
+  return swl::unsafe_get<JSON::Array>(this->data).data.size();
 }
 
 [[nodiscard]] auto JSON::object_size() const -> std::size_t {
   assert(this->is_object());
-  return std::get_if<Object>(&this->data)->data.size();
+  return swl::unsafe_get<Object>(this->data).data.size();
 }
 
 [[nodiscard]] auto JSON::byte_size() const -> std::size_t {
   assert(this->is_string());
-  return std::get_if<JSON::String>(&this->data)->size();
+  return swl::unsafe_get<JSON::String>(this->data).size();
 }
 
 [[nodiscard]] auto JSON::estimated_byte_size() const -> std::uint64_t {
@@ -502,17 +498,17 @@ JSON::at(const String &key,
 
 [[nodiscard]] auto JSON::empty() const -> bool {
   if (this->is_object()) {
-    return std::get_if<Object>(&this->data)->data.empty();
+    return swl::unsafe_get<Object>(this->data).data.empty();
   } else if (this->is_array()) {
-    return std::get_if<Array>(&this->data)->data.empty();
+    return swl::unsafe_get<Array>(this->data).data.empty();
   } else {
-    return std::get_if<String>(&this->data)->empty();
+    return swl::unsafe_get<String>(this->data).empty();
   }
 }
 
 [[nodiscard]] auto JSON::try_at(const JSON::String &key) const -> const JSON * {
   assert(this->is_object());
-  const auto &object{*std::get_if<Object>(&this->data)};
+  const auto &object{swl::unsafe_get<Object>(this->data)};
   const auto value{object.data.find(key, object.data.hash(key))};
   return value == object.data.cend() ? nullptr : &value->second;
 }
@@ -522,14 +518,14 @@ JSON::try_at(const String &key,
              const typename Object::Container::hash_type hash) const
     -> const JSON * {
   assert(this->is_object());
-  const auto &object{*std::get_if<Object>(&this->data)};
+  const auto &object{swl::unsafe_get<Object>(this->data)};
   const auto value{object.data.find(key, hash)};
   return value == object.data.cend() ? nullptr : &value->second;
 }
 
 [[nodiscard]] auto JSON::defines(const JSON::String &key) const -> bool {
   assert(this->is_object());
-  const auto &object{*std::get_if<Object>(&this->data)};
+  const auto &object{swl::unsafe_get<Object>(this->data)};
   return object.data.contains(key, object.data.hash(key));
 }
 
@@ -538,7 +534,7 @@ JSON::defines(const JSON::String &key,
               const typename JSON::Object::Container::hash_type hash) const
     -> bool {
   assert(this->is_object());
-  return std::get_if<Object>(&this->data)->defines(key, hash);
+  return swl::unsafe_get<Object>(this->data).defines(key, hash);
 }
 
 [[nodiscard]] auto
@@ -559,7 +555,7 @@ JSON::defines_any(std::initializer_list<JSON::String> keys) const -> bool {
 
 [[nodiscard]] auto JSON::unique() const -> bool {
   assert(this->is_array());
-  const auto &items{std::get_if<JSON::Array>(&this->data)->data};
+  const auto &items{swl::unsafe_get<JSON::Array>(this->data).data};
   const auto size{items.size()};
 
   // Arrays of 0 or 1 item are unique by definition
@@ -587,13 +583,13 @@ JSON::defines_any(std::initializer_list<JSON::String> keys) const -> bool {
 
 auto JSON::push_back(const JSON &value) -> void {
   assert(this->is_array());
-  return std::get_if<JSON::Array>(&this->data)->data.push_back(value);
+  return swl::unsafe_get<JSON::Array>(this->data).data.push_back(value);
 }
 
 auto JSON::push_back(JSON &&value) -> void {
   assert(this->is_array());
-  return std::get_if<JSON::Array>(&this->data)
-      ->data.push_back(std::move(value));
+  return swl::unsafe_get<JSON::Array>(this->data)
+      .data.push_back(std::move(value));
 }
 
 auto JSON::push_back_if_unique(const JSON &value)
@@ -624,12 +620,12 @@ auto JSON::push_back_if_unique(JSON &&value)
 
 auto JSON::assign(const JSON::String &key, const JSON &value) -> void {
   assert(this->is_object());
-  std::get_if<Object>(&this->data)->data.assign(key, value);
+  swl::unsafe_get<Object>(this->data).data.assign(key, value);
 }
 
 auto JSON::assign(const JSON::String &key, JSON &&value) -> void {
   assert(this->is_object());
-  std::get_if<Object>(&this->data)->data.assign(key, std::move(value));
+  swl::unsafe_get<Object>(this->data).data.assign(key, std::move(value));
 }
 
 auto JSON::assign_if_missing(const JSON::String &key, const JSON &value)
@@ -649,7 +645,7 @@ auto JSON::assign_if_missing(const JSON::String &key, JSON &&value) -> void {
 
 auto JSON::erase(const JSON::String &key) -> typename Object::size_type {
   assert(this->is_object());
-  return std::get_if<Object>(&this->data)->data.erase(key);
+  return swl::unsafe_get<Object>(this->data).data.erase(key);
 }
 
 auto JSON::erase_keys(std::initializer_list<JSON::String> keys) -> void {
@@ -659,21 +655,21 @@ auto JSON::erase_keys(std::initializer_list<JSON::String> keys) -> void {
 auto JSON::erase(typename JSON::Array::const_iterator position) ->
     typename JSON::Array::iterator {
   assert(this->is_array());
-  return std::get_if<JSON::Array>(&this->data)->data.erase(position);
+  return swl::unsafe_get<JSON::Array>(this->data).data.erase(position);
 }
 
 auto JSON::erase(typename JSON::Array::const_iterator first,
                  typename JSON::Array::const_iterator last) ->
     typename JSON::Array::iterator {
   assert(this->is_array());
-  return std::get_if<JSON::Array>(&this->data)->data.erase(first, last);
+  return swl::unsafe_get<JSON::Array>(this->data).data.erase(first, last);
 }
 
 auto JSON::clear() -> void {
   if (this->is_object()) {
-    std::get_if<Object>(&this->data)->data.clear();
+    swl::unsafe_get<Object>(this->data).data.clear();
   } else {
-    std::get_if<Array>(&this->data)->data.clear();
+    swl::unsafe_get<Array>(this->data).data.clear();
   }
 }
 

@@ -33,7 +33,7 @@ static auto collect_jump_labels(const sourcemeta::blaze::Instructions &steps,
   for (const auto &variant : steps) {
     if (variant.type == sourcemeta::blaze::InstructionIndex::ControlJump) {
       output.emplace(
-          std::get<sourcemeta::blaze::ValueUnsignedInteger>(variant.value));
+          swl::get<sourcemeta::blaze::ValueUnsignedInteger>(variant.value));
     } else {
       collect_jump_labels(variant.children, output);
     }
@@ -817,7 +817,7 @@ auto compiler_draft4_applicator_properties_with_options(
                     })) {
       std::set<ValueType> types;
       for (const auto &property : properties) {
-        types.insert(std::get<ValueType>(property.second.front().value));
+        types.insert(swl::get<ValueType>(property.second.front().value));
       }
 
       if (types.size() == 1) {
@@ -835,7 +835,7 @@ auto compiler_draft4_applicator_properties_with_options(
                     })) {
       std::set<ValueType> types;
       for (const auto &property : properties) {
-        types.insert(std::get<ValueType>(property.second.front().value));
+        types.insert(swl::get<ValueType>(property.second.front().value));
       }
 
       if (types.size() == 1) {

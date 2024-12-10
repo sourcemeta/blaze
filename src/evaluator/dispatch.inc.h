@@ -37,7 +37,7 @@ INSTRUCTION_HANDLER(AssertionDefines) {
   SOURCEMETA_MAYBE_UNUSED(property_target);
   SOURCEMETA_MAYBE_UNUSED(evaluator);
   EVALUATE_BEGIN_NON_STRING(AssertionDefines, target.is_object());
-  const auto &value{*std::get_if<ValueProperty>(&instruction.value)};
+  const auto &value{swl::unsafe_get<ValueProperty>(instruction.value)};
   result = target.defines(value.first, value.second);
   EVALUATE_END(AssertionDefines);
 }
@@ -51,7 +51,7 @@ INSTRUCTION_HANDLER(AssertionDefinesStrict) {
   SOURCEMETA_MAYBE_UNUSED(evaluator);
   EVALUATE_BEGIN_NO_PRECONDITION(AssertionDefinesStrict);
   const auto &target{get(instance, instruction.relative_instance_location)};
-  const auto &value{*std::get_if<ValueProperty>(&instruction.value)};
+  const auto &value{swl::unsafe_get<ValueProperty>(instruction.value)};
   result = target.is_object() && target.defines(value.first, value.second);
   EVALUATE_END(AssertionDefinesStrict);
 }
@@ -64,7 +64,7 @@ INSTRUCTION_HANDLER(AssertionDefinesAll) {
   SOURCEMETA_MAYBE_UNUSED(property_target);
   SOURCEMETA_MAYBE_UNUSED(evaluator);
   EVALUATE_BEGIN_NON_STRING(AssertionDefinesAll, target.is_object());
-  const auto &value{*std::get_if<ValueStringSet>(&instruction.value)};
+  const auto &value{swl::unsafe_get<ValueStringSet>(instruction.value)};
   // Otherwise we are we even emitting this instruction?
   assert(value.size() > 1);
 
@@ -92,7 +92,7 @@ INSTRUCTION_HANDLER(AssertionDefinesAllStrict) {
   SOURCEMETA_MAYBE_UNUSED(evaluator);
   EVALUATE_BEGIN_NO_PRECONDITION(AssertionDefinesAllStrict);
   const auto &target{get(instance, instruction.relative_instance_location)};
-  const auto &value{*std::get_if<ValueStringSet>(&instruction.value)};
+  const auto &value{swl::unsafe_get<ValueStringSet>(instruction.value)};
   // Otherwise we are we even emitting this instruction?
   assert(value.size() > 1);
 
@@ -119,7 +119,7 @@ INSTRUCTION_HANDLER(AssertionDefinesExactly) {
   SOURCEMETA_MAYBE_UNUSED(property_target);
   SOURCEMETA_MAYBE_UNUSED(evaluator);
   EVALUATE_BEGIN_NON_STRING(AssertionDefinesExactly, target.is_object());
-  const auto &value{*std::get_if<ValueStringSet>(&instruction.value)};
+  const auto &value{swl::unsafe_get<ValueStringSet>(instruction.value)};
   // Otherwise we are we even emitting this instruction?
   assert(value.size() > 1);
 
@@ -146,7 +146,7 @@ INSTRUCTION_HANDLER(AssertionDefinesExactlyStrict) {
   SOURCEMETA_MAYBE_UNUSED(evaluator);
   EVALUATE_BEGIN_NO_PRECONDITION(AssertionDefinesExactlyStrict);
   const auto &target{get(instance, instruction.relative_instance_location)};
-  const auto &value{*std::get_if<ValueStringSet>(&instruction.value)};
+  const auto &value{swl::unsafe_get<ValueStringSet>(instruction.value)};
   // Otherwise we are we even emitting this instruction?
   assert(value.size() > 1);
 
@@ -172,7 +172,7 @@ INSTRUCTION_HANDLER(AssertionPropertyDependencies) {
   SOURCEMETA_MAYBE_UNUSED(property_target);
   SOURCEMETA_MAYBE_UNUSED(evaluator);
   EVALUATE_BEGIN_NON_STRING(AssertionPropertyDependencies, target.is_object());
-  const auto &value{*std::get_if<ValueStringMap>(&instruction.value)};
+  const auto &value{swl::unsafe_get<ValueStringMap>(instruction.value)};
   // Otherwise we are we even emitting this instruction?
   assert(!value.empty());
   result = true;
@@ -204,7 +204,7 @@ INSTRUCTION_HANDLER(AssertionType) {
   SOURCEMETA_MAYBE_UNUSED(evaluator);
   EVALUATE_BEGIN_NO_PRECONDITION(AssertionType);
   const auto &target{get(instance, instruction.relative_instance_location)};
-  const auto value{*std::get_if<ValueType>(&instruction.value)};
+  const auto value{swl::unsafe_get<ValueType>(instruction.value)};
 
   // In non-strict mode, we consider a real number that represents an
   // integer to be an integer
@@ -221,7 +221,7 @@ INSTRUCTION_HANDLER(AssertionTypeAny) {
   SOURCEMETA_MAYBE_UNUSED(property_target);
   SOURCEMETA_MAYBE_UNUSED(evaluator);
   EVALUATE_BEGIN_NO_PRECONDITION(AssertionTypeAny);
-  const auto &value{*std::get_if<ValueTypes>(&instruction.value)};
+  const auto &value{swl::unsafe_get<ValueTypes>(instruction.value)};
   // Otherwise we are we even emitting this instruction?
   assert(value.size() > 1);
   const auto &target{get(instance, instruction.relative_instance_location)};
@@ -249,7 +249,7 @@ INSTRUCTION_HANDLER(AssertionTypeStrict) {
   SOURCEMETA_MAYBE_UNUSED(evaluator);
   EVALUATE_BEGIN_NO_PRECONDITION(AssertionTypeStrict);
   const auto &target{get(instance, instruction.relative_instance_location)};
-  const auto value{*std::get_if<ValueType>(&instruction.value)};
+  const auto value{swl::unsafe_get<ValueType>(instruction.value)};
   result = target.type() == value;
   EVALUATE_END(AssertionTypeStrict);
 }
@@ -262,7 +262,7 @@ INSTRUCTION_HANDLER(AssertionTypeStrictAny) {
   SOURCEMETA_MAYBE_UNUSED(property_target);
   SOURCEMETA_MAYBE_UNUSED(evaluator);
   EVALUATE_BEGIN_NO_PRECONDITION(AssertionTypeStrictAny);
-  const auto &value{*std::get_if<ValueTypes>(&instruction.value)};
+  const auto &value{swl::unsafe_get<ValueTypes>(instruction.value)};
   // Otherwise we are we even emitting this instruction?
   assert(value.size() > 1);
   const auto &target{get(instance, instruction.relative_instance_location)};
@@ -280,7 +280,7 @@ INSTRUCTION_HANDLER(AssertionTypeStringBounded) {
   SOURCEMETA_MAYBE_UNUSED(evaluator);
   EVALUATE_BEGIN_NO_PRECONDITION(AssertionTypeStringBounded);
   const auto &target{get(instance, instruction.relative_instance_location)};
-  const auto &value{*std::get_if<ValueRange>(&instruction.value)};
+  const auto &value{swl::unsafe_get<ValueRange>(instruction.value)};
   const auto minimum{std::get<0>(value)};
   const auto maximum{std::get<1>(value)};
   assert(!maximum.has_value() || maximum.value() >= minimum);
@@ -301,7 +301,7 @@ INSTRUCTION_HANDLER(AssertionTypeStringUpper) {
   SOURCEMETA_MAYBE_UNUSED(evaluator);
   EVALUATE_BEGIN_NO_PRECONDITION(AssertionTypeStringUpper);
   const auto &target{get(instance, instruction.relative_instance_location)};
-  const auto value{*std::get_if<ValueUnsignedInteger>(&instruction.value)};
+  const auto value{swl::unsafe_get<ValueUnsignedInteger>(instruction.value)};
   result = target.is_string() && target.string_size() <= value;
   EVALUATE_END(AssertionTypeStringUpper);
 }
@@ -315,7 +315,7 @@ INSTRUCTION_HANDLER(AssertionTypeArrayBounded) {
   SOURCEMETA_MAYBE_UNUSED(evaluator);
   EVALUATE_BEGIN_NO_PRECONDITION(AssertionTypeArrayBounded);
   const auto &target{get(instance, instruction.relative_instance_location)};
-  const auto &value{*std::get_if<ValueRange>(&instruction.value)};
+  const auto &value{swl::unsafe_get<ValueRange>(instruction.value)};
   const auto minimum{std::get<0>(value)};
   const auto maximum{std::get<1>(value)};
   assert(!maximum.has_value() || maximum.value() >= minimum);
@@ -336,7 +336,7 @@ INSTRUCTION_HANDLER(AssertionTypeArrayUpper) {
   SOURCEMETA_MAYBE_UNUSED(evaluator);
   EVALUATE_BEGIN_NO_PRECONDITION(AssertionTypeArrayUpper);
   const auto &target{get(instance, instruction.relative_instance_location)};
-  const auto value{*std::get_if<ValueUnsignedInteger>(&instruction.value)};
+  const auto value{swl::unsafe_get<ValueUnsignedInteger>(instruction.value)};
   result = target.is_array() && target.array_size() <= value;
   EVALUATE_END(AssertionTypeArrayUpper);
 }
@@ -350,7 +350,7 @@ INSTRUCTION_HANDLER(AssertionTypeObjectBounded) {
   SOURCEMETA_MAYBE_UNUSED(evaluator);
   EVALUATE_BEGIN_NO_PRECONDITION(AssertionTypeObjectBounded);
   const auto &target{get(instance, instruction.relative_instance_location)};
-  const auto &value{*std::get_if<ValueRange>(&instruction.value)};
+  const auto &value{swl::unsafe_get<ValueRange>(instruction.value)};
   const auto minimum{std::get<0>(value)};
   const auto maximum{std::get<1>(value)};
   assert(!maximum.has_value() || maximum.value() >= minimum);
@@ -371,7 +371,7 @@ INSTRUCTION_HANDLER(AssertionTypeObjectUpper) {
   SOURCEMETA_MAYBE_UNUSED(evaluator);
   EVALUATE_BEGIN_NO_PRECONDITION(AssertionTypeObjectUpper);
   const auto &target{get(instance, instruction.relative_instance_location)};
-  const auto value{*std::get_if<ValueUnsignedInteger>(&instruction.value)};
+  const auto value{swl::unsafe_get<ValueUnsignedInteger>(instruction.value)};
   result = target.is_object() && target.object_size() <= value;
   EVALUATE_END(AssertionTypeObjectUpper);
 }
@@ -384,7 +384,7 @@ INSTRUCTION_HANDLER(AssertionRegex) {
   SOURCEMETA_MAYBE_UNUSED(property_target);
   SOURCEMETA_MAYBE_UNUSED(evaluator);
   EVALUATE_BEGIN_IF_STRING(AssertionRegex);
-  const auto &value{*std::get_if<ValueRegex>(&instruction.value)};
+  const auto &value{swl::unsafe_get<ValueRegex>(instruction.value)};
   result = matches(value.first, target);
   EVALUATE_END(AssertionRegex);
 }
@@ -397,7 +397,7 @@ INSTRUCTION_HANDLER(AssertionStringSizeLess) {
   SOURCEMETA_MAYBE_UNUSED(property_target);
   SOURCEMETA_MAYBE_UNUSED(evaluator);
   EVALUATE_BEGIN_IF_STRING(AssertionStringSizeLess);
-  const auto value{*std::get_if<ValueUnsignedInteger>(&instruction.value)};
+  const auto value{swl::unsafe_get<ValueUnsignedInteger>(instruction.value)};
   result = (JSON::size(target) < value);
   EVALUATE_END(AssertionStringSizeLess);
 }
@@ -410,7 +410,7 @@ INSTRUCTION_HANDLER(AssertionStringSizeGreater) {
   SOURCEMETA_MAYBE_UNUSED(property_target);
   SOURCEMETA_MAYBE_UNUSED(evaluator);
   EVALUATE_BEGIN_IF_STRING(AssertionStringSizeGreater);
-  const auto value{*std::get_if<ValueUnsignedInteger>(&instruction.value)};
+  const auto value{swl::unsafe_get<ValueUnsignedInteger>(instruction.value)};
   result = (JSON::size(target) > value);
   EVALUATE_END(AssertionStringSizeGreater);
 }
@@ -423,7 +423,7 @@ INSTRUCTION_HANDLER(AssertionArraySizeLess) {
   SOURCEMETA_MAYBE_UNUSED(property_target);
   SOURCEMETA_MAYBE_UNUSED(evaluator);
   EVALUATE_BEGIN_NON_STRING(AssertionArraySizeLess, target.is_array());
-  const auto value{*std::get_if<ValueUnsignedInteger>(&instruction.value)};
+  const auto value{swl::unsafe_get<ValueUnsignedInteger>(instruction.value)};
   result = (target.array_size() < value);
   EVALUATE_END(AssertionArraySizeLess);
 }
@@ -436,7 +436,7 @@ INSTRUCTION_HANDLER(AssertionArraySizeGreater) {
   SOURCEMETA_MAYBE_UNUSED(property_target);
   SOURCEMETA_MAYBE_UNUSED(evaluator);
   EVALUATE_BEGIN_NON_STRING(AssertionArraySizeGreater, target.is_array());
-  const auto value{*std::get_if<ValueUnsignedInteger>(&instruction.value)};
+  const auto value{swl::unsafe_get<ValueUnsignedInteger>(instruction.value)};
   result = (target.array_size() > value);
   EVALUATE_END(AssertionArraySizeGreater);
 }
@@ -449,7 +449,7 @@ INSTRUCTION_HANDLER(AssertionObjectSizeLess) {
   SOURCEMETA_MAYBE_UNUSED(property_target);
   SOURCEMETA_MAYBE_UNUSED(evaluator);
   EVALUATE_BEGIN_NON_STRING(AssertionObjectSizeLess, target.is_object());
-  const auto value{*std::get_if<ValueUnsignedInteger>(&instruction.value)};
+  const auto value{swl::unsafe_get<ValueUnsignedInteger>(instruction.value)};
   result = (target.object_size() < value);
   EVALUATE_END(AssertionObjectSizeLess);
 }
@@ -462,7 +462,7 @@ INSTRUCTION_HANDLER(AssertionObjectSizeGreater) {
   SOURCEMETA_MAYBE_UNUSED(property_target);
   SOURCEMETA_MAYBE_UNUSED(evaluator);
   EVALUATE_BEGIN_NON_STRING(AssertionObjectSizeGreater, target.is_object());
-  const auto value{*std::get_if<ValueUnsignedInteger>(&instruction.value)};
+  const auto value{swl::unsafe_get<ValueUnsignedInteger>(instruction.value)};
   result = (target.object_size() > value);
   EVALUATE_END(AssertionObjectSizeGreater);
 }
@@ -476,7 +476,7 @@ INSTRUCTION_HANDLER(AssertionEqual) {
   SOURCEMETA_MAYBE_UNUSED(evaluator);
   EVALUATE_BEGIN_NO_PRECONDITION(AssertionEqual);
   const auto &target{get(instance, instruction.relative_instance_location)};
-  const auto &value{*std::get_if<ValueJSON>(&instruction.value)};
+  const auto &value{swl::unsafe_get<ValueJSON>(instruction.value)};
   result = (target == value);
   EVALUATE_END(AssertionEqual);
 }
@@ -490,7 +490,7 @@ INSTRUCTION_HANDLER(AssertionEqualsAny) {
   SOURCEMETA_MAYBE_UNUSED(evaluator);
   EVALUATE_BEGIN_NO_PRECONDITION(AssertionEqualsAny);
   const auto &target{get(instance, instruction.relative_instance_location)};
-  const auto &value{*std::get_if<ValueSet>(&instruction.value)};
+  const auto &value{swl::unsafe_get<ValueSet>(instruction.value)};
   result = value.contains(target);
   EVALUATE_END(AssertionEqualsAny);
 }
@@ -503,7 +503,7 @@ INSTRUCTION_HANDLER(AssertionGreaterEqual) {
   SOURCEMETA_MAYBE_UNUSED(property_target);
   SOURCEMETA_MAYBE_UNUSED(evaluator);
   EVALUATE_BEGIN_NON_STRING(AssertionGreaterEqual, target.is_number());
-  const auto &value{*std::get_if<ValueJSON>(&instruction.value)};
+  const auto &value{swl::unsafe_get<ValueJSON>(instruction.value)};
   result = target >= value;
   EVALUATE_END(AssertionGreaterEqual);
 }
@@ -516,7 +516,7 @@ INSTRUCTION_HANDLER(AssertionLessEqual) {
   SOURCEMETA_MAYBE_UNUSED(property_target);
   SOURCEMETA_MAYBE_UNUSED(evaluator);
   EVALUATE_BEGIN_NON_STRING(AssertionLessEqual, target.is_number());
-  const auto &value{*std::get_if<ValueJSON>(&instruction.value)};
+  const auto &value{swl::unsafe_get<ValueJSON>(instruction.value)};
   result = target <= value;
   EVALUATE_END(AssertionLessEqual);
 }
@@ -529,7 +529,7 @@ INSTRUCTION_HANDLER(AssertionGreater) {
   SOURCEMETA_MAYBE_UNUSED(property_target);
   SOURCEMETA_MAYBE_UNUSED(evaluator);
   EVALUATE_BEGIN_NON_STRING(AssertionGreater, target.is_number());
-  const auto &value{*std::get_if<ValueJSON>(&instruction.value)};
+  const auto &value{swl::unsafe_get<ValueJSON>(instruction.value)};
   result = target > value;
   EVALUATE_END(AssertionGreater);
 }
@@ -542,7 +542,7 @@ INSTRUCTION_HANDLER(AssertionLess) {
   SOURCEMETA_MAYBE_UNUSED(property_target);
   SOURCEMETA_MAYBE_UNUSED(evaluator);
   EVALUATE_BEGIN_NON_STRING(AssertionLess, target.is_number());
-  const auto &value{*std::get_if<ValueJSON>(&instruction.value)};
+  const auto &value{swl::unsafe_get<ValueJSON>(instruction.value)};
   result = target < value;
   EVALUATE_END(AssertionLess);
 }
@@ -567,7 +567,7 @@ INSTRUCTION_HANDLER(AssertionDivisible) {
   SOURCEMETA_MAYBE_UNUSED(property_target);
   SOURCEMETA_MAYBE_UNUSED(evaluator);
   EVALUATE_BEGIN_NON_STRING(AssertionDivisible, target.is_number());
-  const auto &value{*std::get_if<ValueJSON>(&instruction.value)};
+  const auto &value{swl::unsafe_get<ValueJSON>(instruction.value)};
   assert(value.is_number());
   result = target.divisible_by(value);
   EVALUATE_END(AssertionDivisible);
@@ -581,7 +581,7 @@ INSTRUCTION_HANDLER(AssertionStringType) {
   SOURCEMETA_MAYBE_UNUSED(property_target);
   SOURCEMETA_MAYBE_UNUSED(evaluator);
   EVALUATE_BEGIN_IF_STRING(AssertionStringType);
-  const auto value{*std::get_if<ValueStringType>(&instruction.value)};
+  const auto value{swl::unsafe_get<ValueStringType>(instruction.value)};
   switch (value) {
     case ValueStringType::URI:
       try {
@@ -613,7 +613,7 @@ INSTRUCTION_HANDLER(AssertionPropertyType) {
                             // before traversing into the actual property
                             target.is_object());
   // Now here we refer to the actual property
-  const auto value{*std::get_if<ValueType>(&instruction.value)};
+  const auto value{swl::unsafe_get<ValueType>(instruction.value)};
   // In non-strict mode, we consider a real number that represents an
   // integer to be an integer
   result = target_check->type() == value ||
@@ -634,7 +634,7 @@ INSTRUCTION_HANDLER(AssertionPropertyTypeEvaluate) {
                             // before traversing into the actual property
                             target.is_object());
   // Now here we refer to the actual property
-  const auto value{*std::get_if<ValueType>(&instruction.value)};
+  const auto value{swl::unsafe_get<ValueType>(instruction.value)};
   // In non-strict mode, we consider a real number that represents an
   // integer to be an integer
   result = target_check->type() == value ||
@@ -660,7 +660,7 @@ INSTRUCTION_HANDLER(AssertionPropertyTypeStrict) {
                             // before traversing into the actual property
                             target.is_object());
   // Now here we refer to the actual property
-  const auto value{*std::get_if<ValueType>(&instruction.value)};
+  const auto value{swl::unsafe_get<ValueType>(instruction.value)};
   result = target_check->type() == value;
   EVALUATE_END(AssertionPropertyTypeStrict);
 }
@@ -678,7 +678,7 @@ INSTRUCTION_HANDLER(AssertionPropertyTypeStrictEvaluate) {
                             // before traversing into the actual property
                             target.is_object());
   // Now here we refer to the actual property
-  const auto value{*std::get_if<ValueType>(&instruction.value)};
+  const auto value{swl::unsafe_get<ValueType>(instruction.value)};
   result = target_check->type() == value;
 
   if (result) {
@@ -700,7 +700,7 @@ INSTRUCTION_HANDLER(AssertionPropertyTypeStrictAny) {
                             // object that might hold the given property,
                             // before traversing into the actual property
                             target.is_object());
-  const auto &value{*std::get_if<ValueTypes>(&instruction.value)};
+  const auto &value{swl::unsafe_get<ValueTypes>(instruction.value)};
   // Now here we refer to the actual property
   result = (std::find(value.cbegin(), value.cend(), target_check->type()) !=
             value.cend());
@@ -719,7 +719,7 @@ INSTRUCTION_HANDLER(AssertionPropertyTypeStrictAnyEvaluate) {
                             // object that might hold the given property,
                             // before traversing into the actual property
                             target.is_object());
-  const auto &value{*std::get_if<ValueTypes>(&instruction.value)};
+  const auto &value{swl::unsafe_get<ValueTypes>(instruction.value)};
   // Now here we refer to the actual property
   result = (std::find(value.cbegin(), value.cend(), target_check->type()) !=
             value.cend());
@@ -808,7 +808,7 @@ INSTRUCTION_HANDLER(LogicalOr) {
   EVALUATE_BEGIN_NO_PRECONDITION(LogicalOr);
   result = instruction.children.empty();
   const auto &target{get(instance, instruction.relative_instance_location)};
-  const auto value{*std::get_if<ValueBoolean>(&instruction.value)};
+  const auto value{swl::unsafe_get<ValueBoolean>(instruction.value)};
 
   // This boolean value controls whether we should be exhaustive
   if (value) {
@@ -856,7 +856,7 @@ INSTRUCTION_HANDLER(LogicalWhenType) {
   SOURCEMETA_MAYBE_UNUSED(instance);
   SOURCEMETA_MAYBE_UNUSED(property_target);
   SOURCEMETA_MAYBE_UNUSED(evaluator);
-  const auto value{*std::get_if<ValueType>(&instruction.value)};
+  const auto value{swl::unsafe_get<ValueType>(instruction.value)};
   EVALUATE_BEGIN(LogicalWhenType, target.type() == value);
   result = true;
   for (const auto &child : instruction.children) {
@@ -876,7 +876,7 @@ INSTRUCTION_HANDLER(LogicalWhenDefines) {
   SOURCEMETA_MAYBE_UNUSED(instance);
   SOURCEMETA_MAYBE_UNUSED(property_target);
   SOURCEMETA_MAYBE_UNUSED(evaluator);
-  const auto &value{*std::get_if<ValueProperty>(&instruction.value)};
+  const auto &value{swl::unsafe_get<ValueProperty>(instruction.value)};
   EVALUATE_BEGIN_NON_STRING(LogicalWhenDefines,
                             target.is_object() &&
                                 target.defines(value.first, value.second));
@@ -898,7 +898,7 @@ INSTRUCTION_HANDLER(LogicalWhenArraySizeGreater) {
   SOURCEMETA_MAYBE_UNUSED(instance);
   SOURCEMETA_MAYBE_UNUSED(property_target);
   SOURCEMETA_MAYBE_UNUSED(evaluator);
-  const auto value{*std::get_if<ValueUnsignedInteger>(&instruction.value)};
+  const auto value{swl::unsafe_get<ValueUnsignedInteger>(instruction.value)};
   EVALUATE_BEGIN_NON_STRING(LogicalWhenArraySizeGreater,
                             target.is_array() && target.array_size() > value);
   result = true;
@@ -923,7 +923,7 @@ INSTRUCTION_HANDLER(LogicalXor) {
   result = true;
   bool has_matched{false};
   const auto &target{get(instance, instruction.relative_instance_location)};
-  const auto value{*std::get_if<ValueBoolean>(&instruction.value)};
+  const auto value{swl::unsafe_get<ValueBoolean>(instruction.value)};
   for (const auto &child : instruction.children) {
     if (EVALUATE_RECURSE(child, target)) {
       if (has_matched) {
@@ -951,7 +951,7 @@ INSTRUCTION_HANDLER(LogicalCondition) {
   SOURCEMETA_MAYBE_UNUSED(evaluator);
   EVALUATE_BEGIN_NO_PRECONDITION(LogicalCondition);
   result = true;
-  const auto value{*std::get_if<ValueIndexPair>(&instruction.value)};
+  const auto value{swl::unsafe_get<ValueIndexPair>(instruction.value)};
   const auto children_size{instruction.children.size()};
   assert(children_size >= value.first);
   assert(children_size >= value.second);
@@ -1033,7 +1033,7 @@ INSTRUCTION_HANDLER(ControlGroupWhenDefines) {
   // Otherwise why are we emitting this property?
   assert(!instruction.relative_instance_location.empty());
   const auto &target{get(instance, instruction.relative_instance_location)};
-  const auto &value{*std::get_if<ValueProperty>(&instruction.value)};
+  const auto &value{swl::unsafe_get<ValueProperty>(instruction.value)};
   if (target.is_object() && target.defines(value.first, value.second)) {
     for (const auto &child : instruction.children) {
       // Note that in this control instruction, we purposely
@@ -1058,7 +1058,7 @@ INSTRUCTION_HANDLER(ControlGroupWhenDefinesDirect) {
   EVALUATE_BEGIN_PASS_THROUGH(ControlGroupWhenDefinesDirect);
   assert(!instruction.children.empty());
   assert(instruction.relative_instance_location.empty());
-  const auto &value{*std::get_if<ValueProperty>(&instruction.value)};
+  const auto &value{swl::unsafe_get<ValueProperty>(instruction.value)};
   if (instance.is_object() && instance.defines(value.first, value.second)) {
     for (const auto &child : instruction.children) {
       if (!EVALUATE_RECURSE(child, instance)) {
@@ -1080,7 +1080,7 @@ INSTRUCTION_HANDLER(ControlLabel) {
   SOURCEMETA_MAYBE_UNUSED(evaluator);
   EVALUATE_BEGIN_NO_PRECONDITION(ControlLabel);
   assert(!instruction.children.empty());
-  const auto value{*std::get_if<ValueUnsignedInteger>(&instruction.value)};
+  const auto value{swl::unsafe_get<ValueUnsignedInteger>(instruction.value)};
   evaluator.labels.try_emplace(value, instruction.children);
   const auto &target{get(instance, instruction.relative_instance_location)};
   result = true;
@@ -1102,7 +1102,7 @@ INSTRUCTION_HANDLER(ControlMark) {
   SOURCEMETA_MAYBE_UNUSED(property_target);
   SOURCEMETA_MAYBE_UNUSED(evaluator);
   EVALUATE_BEGIN_NO_PRECONDITION_AND_NO_PUSH(ControlMark);
-  const auto value{*std::get_if<ValueUnsignedInteger>(&instruction.value)};
+  const auto value{swl::unsafe_get<ValueUnsignedInteger>(instruction.value)};
   evaluator.labels.try_emplace(value, instruction.children);
   EVALUATE_END_NO_POP(ControlMark);
 }
@@ -1119,7 +1119,7 @@ INSTRUCTION_HANDLER(ControlEvaluate) {
 
 #ifdef SOURCEMETA_EVALUATOR_COMPLETE
   if (callback.has_value()) {
-    const auto &value{*std::get_if<ValuePointer>(&instruction.value)};
+    const auto &value{swl::unsafe_get<ValuePointer>(instruction.value)};
     // TODO: Optimize this case to avoid an extra pointer copy
     auto destination = evaluator.instance_location;
     destination.push_back(value);
@@ -1129,7 +1129,7 @@ INSTRUCTION_HANDLER(ControlEvaluate) {
     callback.value()(EvaluationType::Post, true, instruction,
                      evaluator.evaluate_path, destination, Evaluator::null);
   } else {
-    const auto &value{*std::get_if<ValuePointer>(&instruction.value)};
+    const auto &value{swl::unsafe_get<ValuePointer>(instruction.value)};
     evaluator.evaluate(value);
   }
 #else
@@ -1147,7 +1147,7 @@ INSTRUCTION_HANDLER(ControlJump) {
   SOURCEMETA_MAYBE_UNUSED(evaluator);
   EVALUATE_BEGIN_NO_PRECONDITION(ControlJump);
   result = true;
-  const auto value{*std::get_if<ValueUnsignedInteger>(&instruction.value)};
+  const auto value{swl::unsafe_get<ValueUnsignedInteger>(instruction.value)};
   assert(evaluator.labels.contains(value));
   const auto &target{get(instance, instruction.relative_instance_location)};
   for (const auto &child : evaluator.labels.at(value).get()) {
@@ -1170,7 +1170,7 @@ INSTRUCTION_HANDLER(ControlDynamicAnchorJump) {
   EVALUATE_BEGIN_NO_PRECONDITION(ControlDynamicAnchorJump);
   result = false;
   const auto &target{get(instance, instruction.relative_instance_location)};
-  const auto &value{*std::get_if<ValueString>(&instruction.value)};
+  const auto &value{swl::unsafe_get<ValueString>(instruction.value)};
   for (const auto &resource : evaluator.resources) {
     const auto label{evaluator.hash(resource, value)};
     const auto match{evaluator.labels.find(label)};
@@ -1199,7 +1199,7 @@ INSTRUCTION_HANDLER(AnnotationEmit) {
   SOURCEMETA_MAYBE_UNUSED(property_target);
   SOURCEMETA_MAYBE_UNUSED(evaluator);
 #ifdef SOURCEMETA_EVALUATOR_COMPLETE
-  const auto &value{*std::get_if<ValueJSON>(&instruction.value)};
+  const auto &value{swl::unsafe_get<ValueJSON>(instruction.value)};
 #endif
   EVALUATE_ANNOTATION(AnnotationEmit, evaluator.instance_location, value);
 }
@@ -1213,7 +1213,7 @@ INSTRUCTION_HANDLER(AnnotationToParent) {
   SOURCEMETA_MAYBE_UNUSED(property_target);
   SOURCEMETA_MAYBE_UNUSED(evaluator);
 #ifdef SOURCEMETA_EVALUATOR_COMPLETE
-  const auto &value{*std::get_if<ValueJSON>(&instruction.value)};
+  const auto &value{swl::unsafe_get<ValueJSON>(instruction.value)};
 #endif
   EVALUATE_ANNOTATION(
       AnnotationToParent,
@@ -1322,7 +1322,7 @@ INSTRUCTION_HANDLER(LoopPropertiesUnevaluatedExcept) {
   EVALUATE_BEGIN_NON_STRING(LoopPropertiesUnevaluatedExcept,
                             target.is_object());
   assert(!instruction.children.empty());
-  const auto &value{*std::get_if<ValuePropertyFilter>(&instruction.value)};
+  const auto &value{swl::unsafe_get<ValuePropertyFilter>(instruction.value)};
   result = true;
   // Otherwise why emit this instruction?
   assert(!std::get<0>(value).empty() || !std::get<1>(value).empty() ||
@@ -1377,7 +1377,7 @@ INSTRUCTION_HANDLER(LoopPropertiesMatch) {
   SOURCEMETA_MAYBE_UNUSED(property_target);
   SOURCEMETA_MAYBE_UNUSED(evaluator);
   EVALUATE_BEGIN_NON_STRING(LoopPropertiesMatch, target.is_object());
-  const auto &value{*std::get_if<ValueNamedIndexes>(&instruction.value)};
+  const auto &value{swl::unsafe_get<ValueNamedIndexes>(instruction.value)};
   assert(!value.empty());
   result = true;
   for (const auto &entry : target.as_object()) {
@@ -1408,7 +1408,7 @@ INSTRUCTION_HANDLER(LoopPropertiesMatchClosed) {
   SOURCEMETA_MAYBE_UNUSED(property_target);
   SOURCEMETA_MAYBE_UNUSED(evaluator);
   EVALUATE_BEGIN_NON_STRING(LoopPropertiesMatchClosed, target.is_object());
-  const auto &value{*std::get_if<ValueNamedIndexes>(&instruction.value)};
+  const auto &value{swl::unsafe_get<ValueNamedIndexes>(instruction.value)};
   assert(!value.empty());
   result = true;
   for (const auto &entry : target.as_object()) {
@@ -1507,7 +1507,7 @@ INSTRUCTION_HANDLER(LoopPropertiesRegex) {
   SOURCEMETA_MAYBE_UNUSED(evaluator);
   EVALUATE_BEGIN_NON_STRING(LoopPropertiesRegex, target.is_object());
   assert(!instruction.children.empty());
-  const auto &value{*std::get_if<ValueRegex>(&instruction.value)};
+  const auto &value{swl::unsafe_get<ValueRegex>(instruction.value)};
   result = true;
   for (const auto &entry : target.as_object()) {
     if (!matches(value.first, entry.first)) {
@@ -1544,7 +1544,7 @@ INSTRUCTION_HANDLER(LoopPropertiesRegexClosed) {
   SOURCEMETA_MAYBE_UNUSED(evaluator);
   EVALUATE_BEGIN_NON_STRING(LoopPropertiesRegexClosed, target.is_object());
   result = true;
-  const auto &value{*std::get_if<ValueRegex>(&instruction.value)};
+  const auto &value{swl::unsafe_get<ValueRegex>(instruction.value)};
   for (const auto &entry : target.as_object()) {
     if (!matches(value.first, entry.first)) {
       result = false;
@@ -1586,7 +1586,7 @@ INSTRUCTION_HANDLER(LoopPropertiesStartsWith) {
   EVALUATE_BEGIN_NON_STRING(LoopPropertiesStartsWith, target.is_object());
   assert(!instruction.children.empty());
   result = true;
-  const auto &value{*std::get_if<ValueString>(&instruction.value)};
+  const auto &value{swl::unsafe_get<ValueString>(instruction.value)};
   for (const auto &entry : target.as_object()) {
     if (!entry.first.starts_with(value)) {
       continue;
@@ -1623,7 +1623,7 @@ INSTRUCTION_HANDLER(LoopPropertiesExcept) {
   EVALUATE_BEGIN_NON_STRING(LoopPropertiesExcept, target.is_object());
   assert(!instruction.children.empty());
   result = true;
-  const auto &value{*std::get_if<ValuePropertyFilter>(&instruction.value)};
+  const auto &value{swl::unsafe_get<ValuePropertyFilter>(instruction.value)};
   // Otherwise why emit this instruction?
   assert(!std::get<0>(value).empty() || !std::get<1>(value).empty() ||
          !std::get<2>(value).empty());
@@ -1676,7 +1676,7 @@ INSTRUCTION_HANDLER(LoopPropertiesWhitelist) {
   SOURCEMETA_MAYBE_UNUSED(property_target);
   SOURCEMETA_MAYBE_UNUSED(evaluator);
   EVALUATE_BEGIN_NON_STRING(LoopPropertiesWhitelist, target.is_object());
-  const auto &value{*std::get_if<ValueStringSet>(&instruction.value)};
+  const auto &value{swl::unsafe_get<ValueStringSet>(instruction.value)};
   // Otherwise why emit this instruction?
   assert(!value.empty());
 
@@ -1705,7 +1705,7 @@ INSTRUCTION_HANDLER(LoopPropertiesType) {
   SOURCEMETA_MAYBE_UNUSED(evaluator);
   EVALUATE_BEGIN_NON_STRING(LoopPropertiesType, target.is_object());
   result = true;
-  const auto value{*std::get_if<ValueType>(&instruction.value)};
+  const auto value{swl::unsafe_get<ValueType>(instruction.value)};
   for (const auto &entry : target.as_object()) {
     if (entry.second.type() != value &&
         // In non-strict mode, we consider a real number that represents an
@@ -1728,7 +1728,7 @@ INSTRUCTION_HANDLER(LoopPropertiesTypeEvaluate) {
   SOURCEMETA_MAYBE_UNUSED(evaluator);
   EVALUATE_BEGIN_NON_STRING(LoopPropertiesTypeEvaluate, target.is_object());
   result = true;
-  const auto value{*std::get_if<ValueType>(&instruction.value)};
+  const auto value{swl::unsafe_get<ValueType>(instruction.value)};
   for (const auto &entry : target.as_object()) {
     if (entry.second.type() != value &&
         // In non-strict mode, we consider a real number that represents an
@@ -1753,7 +1753,7 @@ INSTRUCTION_HANDLER(LoopPropertiesTypeStrict) {
   SOURCEMETA_MAYBE_UNUSED(evaluator);
   EVALUATE_BEGIN_NON_STRING(LoopPropertiesTypeStrict, target.is_object());
   result = true;
-  const auto value{*std::get_if<ValueType>(&instruction.value)};
+  const auto value{swl::unsafe_get<ValueType>(instruction.value)};
   for (const auto &entry : target.as_object()) {
     if (entry.second.type() != value) {
       result = false;
@@ -1774,7 +1774,7 @@ INSTRUCTION_HANDLER(LoopPropertiesTypeStrictEvaluate) {
   EVALUATE_BEGIN_NON_STRING(LoopPropertiesTypeStrictEvaluate,
                             target.is_object());
   result = true;
-  const auto value{*std::get_if<ValueType>(&instruction.value)};
+  const auto value{swl::unsafe_get<ValueType>(instruction.value)};
   for (const auto &entry : target.as_object()) {
     if (entry.second.type() != value) {
       result = false;
@@ -1796,7 +1796,7 @@ INSTRUCTION_HANDLER(LoopPropertiesTypeStrictAny) {
   SOURCEMETA_MAYBE_UNUSED(evaluator);
   EVALUATE_BEGIN_NON_STRING(LoopPropertiesTypeStrictAny, target.is_object());
   result = true;
-  const auto &value{*std::get_if<ValueTypes>(&instruction.value)};
+  const auto &value{swl::unsafe_get<ValueTypes>(instruction.value)};
   for (const auto &entry : target.as_object()) {
     if (std::find(value.cbegin(), value.cend(), entry.second.type()) ==
         value.cend()) {
@@ -1818,7 +1818,7 @@ INSTRUCTION_HANDLER(LoopPropertiesTypeStrictAnyEvaluate) {
   EVALUATE_BEGIN_NON_STRING(LoopPropertiesTypeStrictAnyEvaluate,
                             target.is_object());
   result = true;
-  const auto &value{*std::get_if<ValueTypes>(&instruction.value)};
+  const auto &value{swl::unsafe_get<ValueTypes>(instruction.value)};
   for (const auto &entry : target.as_object()) {
     if (std::find(value.cbegin(), value.cend(), entry.second.type()) ==
         value.cend()) {
@@ -1918,7 +1918,7 @@ INSTRUCTION_HANDLER(LoopItemsFrom) {
   SOURCEMETA_MAYBE_UNUSED(instance);
   SOURCEMETA_MAYBE_UNUSED(property_target);
   SOURCEMETA_MAYBE_UNUSED(evaluator);
-  const auto value{*std::get_if<ValueUnsignedInteger>(&instruction.value)};
+  const auto value{swl::unsafe_get<ValueUnsignedInteger>(instruction.value)};
   EVALUATE_BEGIN_NON_STRING(LoopItemsFrom,
                             target.is_array() && value < target.array_size());
   assert(!instruction.children.empty());
@@ -1990,7 +1990,7 @@ INSTRUCTION_HANDLER(LoopItemsType) {
   SOURCEMETA_MAYBE_UNUSED(evaluator);
   EVALUATE_BEGIN_NON_STRING(LoopItemsType, target.is_array());
   result = true;
-  const auto value{*std::get_if<ValueType>(&instruction.value)};
+  const auto value{swl::unsafe_get<ValueType>(instruction.value)};
   for (const auto &entry : target.as_array()) {
     if (entry.type() != value &&
         // In non-strict mode, we consider a real number that represents an
@@ -2013,7 +2013,7 @@ INSTRUCTION_HANDLER(LoopItemsTypeStrict) {
   SOURCEMETA_MAYBE_UNUSED(evaluator);
   EVALUATE_BEGIN_NON_STRING(LoopItemsTypeStrict, target.is_array());
   result = true;
-  const auto value{*std::get_if<ValueType>(&instruction.value)};
+  const auto value{swl::unsafe_get<ValueType>(instruction.value)};
   for (const auto &entry : target.as_array()) {
     if (entry.type() != value) {
       result = false;
@@ -2032,7 +2032,7 @@ INSTRUCTION_HANDLER(LoopItemsTypeStrictAny) {
   SOURCEMETA_MAYBE_UNUSED(property_target);
   SOURCEMETA_MAYBE_UNUSED(evaluator);
   EVALUATE_BEGIN_NON_STRING(LoopItemsTypeStrictAny, target.is_array());
-  const auto &value{*std::get_if<ValueTypes>(&instruction.value)};
+  const auto &value{swl::unsafe_get<ValueTypes>(instruction.value)};
   // Otherwise we are we even emitting this instruction?
   assert(value.size() > 1);
   result = true;
@@ -2055,7 +2055,7 @@ INSTRUCTION_HANDLER(LoopContains) {
   SOURCEMETA_MAYBE_UNUSED(evaluator);
   EVALUATE_BEGIN_NON_STRING(LoopContains, target.is_array());
   assert(!instruction.children.empty());
-  const auto &value{*std::get_if<ValueRange>(&instruction.value)};
+  const auto &value{swl::unsafe_get<ValueRange>(instruction.value)};
   const auto minimum{std::get<0>(value)};
   const auto &maximum{std::get<1>(value)};
   assert(!maximum.has_value() || maximum.value() >= minimum);
