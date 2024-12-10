@@ -611,12 +611,11 @@ INSTRUCTION_HANDLER(AssertionPropertyType) {
                             // before traversing into the actual property
                             target.is_object());
   // Now here we refer to the actual property
-  const auto &effective_target{target_check.value().get()};
   const auto value{*std::get_if<ValueType>(&instruction.value)};
   // In non-strict mode, we consider a real number that represents an
   // integer to be an integer
-  result = effective_target.type() == value ||
-           (value == JSON::Type::Integer && effective_target.is_integer_real());
+  result = target_check->type() == value ||
+           (value == JSON::Type::Integer && target_check->is_integer_real());
   EVALUATE_END(AssertionPropertyType);
 }
 
@@ -633,12 +632,11 @@ INSTRUCTION_HANDLER(AssertionPropertyTypeEvaluate) {
                             // before traversing into the actual property
                             target.is_object());
   // Now here we refer to the actual property
-  const auto &effective_target{target_check.value().get()};
   const auto value{*std::get_if<ValueType>(&instruction.value)};
   // In non-strict mode, we consider a real number that represents an
   // integer to be an integer
-  result = effective_target.type() == value ||
-           (value == JSON::Type::Integer && effective_target.is_integer_real());
+  result = target_check->type() == value ||
+           (value == JSON::Type::Integer && target_check->is_integer_real());
 
   if (result) {
     evaluator.evaluate();
@@ -661,7 +659,7 @@ INSTRUCTION_HANDLER(AssertionPropertyTypeStrict) {
                             target.is_object());
   // Now here we refer to the actual property
   const auto value{*std::get_if<ValueType>(&instruction.value)};
-  result = target_check.value().get().type() == value;
+  result = target_check->type() == value;
   EVALUATE_END(AssertionPropertyTypeStrict);
 }
 
@@ -679,7 +677,7 @@ INSTRUCTION_HANDLER(AssertionPropertyTypeStrictEvaluate) {
                             target.is_object());
   // Now here we refer to the actual property
   const auto value{*std::get_if<ValueType>(&instruction.value)};
-  result = target_check.value().get().type() == value;
+  result = target_check->type() == value;
 
   if (result) {
     evaluator.evaluate();
@@ -702,8 +700,8 @@ INSTRUCTION_HANDLER(AssertionPropertyTypeStrictAny) {
                             target.is_object());
   const auto &value{*std::get_if<ValueTypes>(&instruction.value)};
   // Now here we refer to the actual property
-  result = (std::find(value.cbegin(), value.cend(),
-                      target_check.value().get().type()) != value.cend());
+  result = (std::find(value.cbegin(), value.cend(), target_check->type()) !=
+            value.cend());
   EVALUATE_END(AssertionPropertyTypeStrictAny);
 }
 
@@ -721,8 +719,8 @@ INSTRUCTION_HANDLER(AssertionPropertyTypeStrictAnyEvaluate) {
                             target.is_object());
   const auto &value{*std::get_if<ValueTypes>(&instruction.value)};
   // Now here we refer to the actual property
-  result = (std::find(value.cbegin(), value.cend(),
-                      target_check.value().get().type()) != value.cend());
+  result = (std::find(value.cbegin(), value.cend(), target_check->type()) !=
+            value.cend());
 
   if (result) {
     evaluator.evaluate();

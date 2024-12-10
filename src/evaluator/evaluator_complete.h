@@ -110,7 +110,7 @@
   }                                                                            \
   const auto target_check{                                                     \
       try_get(target, instruction.relative_instance_location)};                \
-  if (!target_check.has_value()) {                                             \
+  if (!target_check) {                                                         \
     return true;                                                               \
   }                                                                            \
   const auto track{schema.track || callback.has_value()};                      \
