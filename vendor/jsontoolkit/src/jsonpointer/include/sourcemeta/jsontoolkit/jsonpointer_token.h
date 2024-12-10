@@ -5,7 +5,7 @@
 
 #include <cassert> // assert
 #include <utility> // std::in_place_type, std::pair
-#include <variant> // std::variant, std::holds_alternative, std::get
+#include <variant> // std::variant, std::holds_alternative, std::get_if
 
 namespace sourcemeta::jsontoolkit {
 
@@ -151,11 +151,11 @@ public:
   [[nodiscard]] auto to_property() const noexcept -> const auto & {
     assert(this->is_property());
     if constexpr (requires {
-                    std::get<PropertyWrapper>(this->data).first.get();
+                    std::get_if<PropertyWrapper>(&this->data)->first.get();
                   }) {
-      return std::get<PropertyWrapper>(this->data).first.get();
+      return std::get_if<PropertyWrapper>(&this->data)->first.get();
     } else {
-      return std::get<PropertyWrapper>(this->data).first;
+      return std::get_if<PropertyWrapper>(&this->data)->first;
     }
   }
 
@@ -173,7 +173,7 @@ public:
   [[nodiscard]] auto property_hash() const noexcept ->
       typename Hash::hash_type {
     assert(this->is_property());
-    return std::get<PropertyWrapper>(this->data).second;
+    return std::get_if<PropertyWrapper>(&this->data)->second;
   }
 
   /// Get the underlying value of a JSON Pointer object property token
@@ -190,11 +190,11 @@ public:
   auto to_property() noexcept -> auto & {
     assert(this->is_property());
     if constexpr (requires {
-                    std::get<PropertyWrapper>(this->data).first.get();
+                    std::get_if<PropertyWrapper>(&this->data)->first.get();
                   }) {
-      return std::get<PropertyWrapper>(this->data).first.get();
+      return std::get_if<PropertyWrapper>(&this->data)->first.get();
     } else {
-      return std::get<PropertyWrapper>(this->data).first;
+      return std::get_if<PropertyWrapper>(&this->data)->first;
     }
   }
 
@@ -211,7 +211,7 @@ public:
   /// ```
   [[nodiscard]] auto to_index() const noexcept -> Index {
     assert(this->is_index());
-    return std::get<Index>(this->data);
+    return *(std::get_if<Index>(&this->data));
   }
 
   /// Convert a JSON Pointer token into a JSON document, whether it represents a

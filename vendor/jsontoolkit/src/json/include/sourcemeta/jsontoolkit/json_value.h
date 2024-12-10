@@ -1287,7 +1287,7 @@ public:
   auto erase_keys(Iterator first, Iterator last) -> void {
     assert(this->is_object());
     for (auto iterator = first; iterator != last; ++iterator) {
-      std::get<Object>(this->data).data.erase(*iterator);
+      std::get_if<Object>(&this->data)->data.erase(*iterator);
     }
   }
 
