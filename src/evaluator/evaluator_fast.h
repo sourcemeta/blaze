@@ -41,8 +41,9 @@
   if (!(precondition)) {                                                       \
     return true;                                                               \
   }                                                                            \
-  auto target_check{try_get(target, instruction.relative_instance_location)};  \
-  if (!target_check.has_value()) {                                             \
+  const auto target_check{                                                     \
+      try_get(target, instruction.relative_instance_location)};                \
+  if (!target_check) {                                                         \
     return true;                                                               \
   }                                                                            \
   assert(!instruction.relative_instance_location.empty());                     \

@@ -968,10 +968,9 @@ public:
   ///   sourcemeta::jsontoolkit::parse("{ \"foo\": 1 }");
   /// EXPECT_TRUE(document.is_object());
   /// const auto result = document.try_at("foo");
-  /// EXPECT_TRUE(result.has_value());
-  /// EXPECT_EQ(result.value().get().to_integer(), 1);
-  [[nodiscard]] auto try_at(const String &key) const
-      -> std::optional<std::reference_wrapper<const JSON>>;
+  /// EXPECT_TRUE(result);
+  /// EXPECT_EQ(result->to_integer(), 1);
+  [[nodiscard]] auto try_at(const String &key) const -> const JSON *;
 
   /// This method checks, given a pre-calculated hash, whether an input JSON
   /// object defines a specific key and returns the value if it does. For
@@ -986,12 +985,12 @@ public:
   /// EXPECT_TRUE(document.is_object());
   /// const sourcemeta::jsontoolkit::Hash hasher;
   /// const auto result = document.try_at("foo", hasher("foo"));
-  /// EXPECT_TRUE(result.has_value());
-  /// EXPECT_EQ(result.value().get().to_integer(), 1);
+  /// EXPECT_TRUE(result);
+  /// EXPECT_EQ(result->to_integer(), 1);
   [[nodiscard]] auto
   try_at(const String &key,
          const typename Object::Container::hash_type hash) const
-      -> std::optional<std::reference_wrapper<const JSON>>;
+      -> const JSON *;
 
   /// This method checks whether an input JSON object defines a specific key.
   /// For example:

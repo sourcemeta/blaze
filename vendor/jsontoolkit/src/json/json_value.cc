@@ -510,32 +510,21 @@ JSON::at(const String &key,
   }
 }
 
-[[nodiscard]] auto JSON::try_at(const JSON::String &key) const
-    -> std::optional<std::reference_wrapper<const JSON>> {
+[[nodiscard]] auto JSON::try_at(const JSON::String &key) const -> const JSON * {
   assert(this->is_object());
-
   const auto &object{*std::get_if<Object>(&this->data)};
   const auto value{object.data.find(key, object.data.hash(key))};
-
-  if (value == object.data.cend()) {
-    return std::nullopt;
-  }
-  return value->second;
+  return value == object.data.cend() ? nullptr : &value->second;
 }
 
 [[nodiscard]] auto
 JSON::try_at(const String &key,
              const typename Object::Container::hash_type hash) const
-    -> std::optional<std::reference_wrapper<const JSON>> {
+    -> const JSON * {
   assert(this->is_object());
-
   const auto &object{*std::get_if<Object>(&this->data)};
   const auto value{object.data.find(key, hash)};
-
-  if (value == object.data.cend()) {
-    return std::nullopt;
-  }
-  return value->second;
+  return value == object.data.cend() ? nullptr : &value->second;
 }
 
 [[nodiscard]] auto JSON::defines(const JSON::String &key) const -> bool {
