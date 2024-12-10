@@ -73,16 +73,16 @@ auto to_regex(const JSON::String &pattern) -> std::optional<Regex> {
 auto matches(const Regex &regex, const JSON::String &value) -> bool {
   switch (static_cast<RegexIndex>(regex.index())) {
     case RegexIndex::Boost:
-      return boost::regex_search(value, std::get<RegexTypeBoost>(regex));
+      return boost::regex_search(value, *std::get_if<RegexTypeBoost>(&regex));
     case RegexIndex::Prefix:
-      return value.starts_with(std::get<RegexTypePrefix>(regex));
+      return value.starts_with(*std::get_if<RegexTypePrefix>(&regex));
     case RegexIndex::NonEmpty:
       return !value.empty();
     case RegexIndex::Range:
-      return value.size() >= std::get<RegexTypeRange>(regex).first &&
-             value.size() <= std::get<RegexTypeRange>(regex).second;
+      return value.size() >= std::get_if<RegexTypeRange>(&regex)->first &&
+             value.size() <= std::get_if<RegexTypeRange>(&regex)->second;
     case RegexIndex::Std:
-      return std::regex_search(value, std::get<RegexTypeStd>(regex));
+      return std::regex_search(value, *std::get_if<RegexTypeStd>(&regex));
     case RegexIndex::Noop:
       return true;
   }
