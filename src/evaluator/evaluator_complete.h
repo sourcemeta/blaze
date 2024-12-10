@@ -78,9 +78,9 @@
   if (schema.dynamic) {                                                        \
     evaluator.resources.push_back(instruction.schema_resource);                \
   }                                                                            \
-  const auto &maybe_target{resolve_string_target(                              \
+  const auto *maybe_target{resolve_string_target(                              \
       property_target, instance, instruction.relative_instance_location)};     \
-  if (!maybe_target.has_value()) {                                             \
+  if (!maybe_target) {                                                         \
     if (track) {                                                               \
       evaluator.evaluate_path.pop_back(                                        \
           instruction.relative_schema_location.size());                        \
@@ -97,7 +97,7 @@
                      evaluator.evaluate_path, evaluator.instance_location,     \
                      Evaluator::null);                                         \
   }                                                                            \
-  const auto &target{maybe_target.value().get()};                              \
+  const auto &target{*maybe_target};                                           \
   bool result{false};
 
 // This is a slightly complicated dance to avoid traversing the relative
