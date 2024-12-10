@@ -34,9 +34,9 @@ public:
     }
 
     // Otherwise do value comparison for common properties
-    for (const auto &[key, value] : this->data) {
-      const auto other_entry{other.find(key)};
-      if (other_entry != other.cend() && value < other_entry->second) {
+    for (const auto &entry : this->data) {
+      const auto other_entry{other.find(entry.first)};
+      if (other_entry != other.cend() && entry.second < other_entry->second) {
         return true;
       }
     }
@@ -68,7 +68,7 @@ public:
   // Member types
   using key_type = typename Container::key_type;
   using mapped_type = typename Container::mapped_type;
-  using value_type = typename Container::value_type;
+  using value_type = typename Container::Entry;
   using size_type = typename Container::size_type;
   using difference_type = typename Container::difference_type;
   using allocator_type = typename Container::allocator_type;
