@@ -387,8 +387,8 @@ auto sourcemeta::jsontoolkit::vocabularies(const SchemaResolver &resolver,
     const sourcemeta::jsontoolkit::JSON &vocabularies{
         schema_dialect.at("$vocabulary")};
     assert(vocabularies.is_object());
-    for (const auto &[key, value] : vocabularies.as_object()) {
-      result.insert({key, value.to_boolean()});
+    for (const auto &entry : vocabularies.as_object()) {
+      result.insert({entry.first, entry.second.to_boolean()});
     }
   } else {
     result.insert({core, true});

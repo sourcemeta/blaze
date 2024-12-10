@@ -198,9 +198,9 @@ sourcemeta::jsontoolkit::SchemaKeywordIterator::SchemaKeywordIterator(
         resolver, base_dialect.value(), dialect.value()));
   }
 
-  for (const auto &[key, value] : schema.as_object()) {
+  for (const auto &entry : schema.as_object()) {
     this->entries.push_back(
-        {{key}, dialect, vocabularies, base_dialect, value});
+        {{entry.first}, dialect, vocabularies, base_dialect, entry.second});
   }
 
   // Sort keywords based on priority for correct evaluation

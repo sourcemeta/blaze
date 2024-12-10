@@ -1823,13 +1823,12 @@ auto describe(const bool valid, const Instruction &step,
           assert(child.type == InstructionIndex::AssertionPropertyDependencies);
           const auto &substep{child};
 
-          for (const auto &[property, dependencies] :
-               std::get<ValueStringMap>(substep.value)) {
-            all_dependencies.insert(property);
-            if (target.defines(property)) {
-              present.insert(property);
-              present_with_properties.insert(property);
-              for (const auto &dependency : dependencies) {
+          for (const auto &entry : std::get<ValueStringMap>(substep.value)) {
+            all_dependencies.insert(entry.first);
+            if (target.defines(entry.first)) {
+              present.insert(entry.first);
+              present_with_properties.insert(entry.first);
+              for (const auto &dependency : entry.second) {
                 if (valid || !target.defines(dependency)) {
                   required_properties.insert(dependency);
                 }
@@ -1996,12 +1995,11 @@ auto describe(const bool valid, const Instruction &step,
     std::set<std::string> all_dependencies;
     std::set<std::string> required;
 
-    for (const auto &[property, dependencies] :
-         instruction_value<ValueStringMap>(step)) {
-      all_dependencies.insert(property);
-      if (target.defines(property)) {
-        present.insert(property);
-        for (const auto &dependency : dependencies) {
+    for (const auto &entry : instruction_value<ValueStringMap>(step)) {
+      all_dependencies.insert(entry.first);
+      if (target.defines(entry.first)) {
+        present.insert(entry.first);
+        for (const auto &dependency : entry.second) {
           if (valid || !target.defines(dependency)) {
             required.insert(dependency);
           }

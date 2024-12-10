@@ -175,14 +175,13 @@ INSTRUCTION_HANDLER(AssertionPropertyDependencies) {
   // Otherwise we are we even emitting this instruction?
   assert(!std::get<ValueStringMap>(instruction.value).empty());
   result = true;
-  for (const auto &[property, dependencies] :
-       std::get<ValueStringMap>(instruction.value)) {
-    if (!target.defines(property)) {
+  for (const auto &entry : std::get<ValueStringMap>(instruction.value)) {
+    if (!target.defines(entry.first)) {
       continue;
     }
 
-    assert(!dependencies.empty());
-    for (const auto &dependency : dependencies) {
+    assert(!entry.second.empty());
+    for (const auto &dependency : entry.second) {
       if (!target.defines(dependency)) {
         result = false;
         EVALUATE_END(AssertionPropertyDependencies);
@@ -1319,9 +1318,8 @@ INSTRUCTION_HANDLER(LoopPropertiesUnevaluatedExcept) {
       !std::get<2>(std::get<ValuePropertyFilter>(instruction.value)).empty());
 
   for (const auto &entry : target.as_object()) {
-    // TODO: Make use of pre-computed hashes
     if (std::get<0>(std::get<ValuePropertyFilter>(instruction.value))
-            .contains(entry.first)) {
+            .contains(entry.first, entry.hash)) {
       continue;
     }
 
@@ -1381,8 +1379,7 @@ INSTRUCTION_HANDLER(LoopPropertiesMatch) {
   result = true;
   const auto &value{std::get<ValueNamedIndexes>(instruction.value)};
   for (const auto &entry : target.as_object()) {
-    // TODO: Pass pre-computed hash here
-    const auto index{value.find(entry.first, value.hash(entry.first))};
+    const auto index{value.find(entry.first, entry.hash)};
     if (index == value.cend()) {
       continue;
     }
@@ -1413,8 +1410,7 @@ INSTRUCTION_HANDLER(LoopPropertiesMatchClosed) {
   result = true;
   const auto &value{std::get<ValueNamedIndexes>(instruction.value)};
   for (const auto &entry : target.as_object()) {
-    // TODO: Pass pre-computed hash here
-    const auto index{value.find(entry.first, value.hash(entry.first))};
+    const auto index{value.find(entry.first, entry.hash)};
     if (index == value.cend()) {
       result = false;
       break;
@@ -1630,9 +1626,8 @@ INSTRUCTION_HANDLER(LoopPropertiesExcept) {
       !std::get<2>(std::get<ValuePropertyFilter>(instruction.value)).empty());
 
   for (const auto &entry : target.as_object()) {
-    // TODO: Make use of pre-computed hashes here
     if (std::get<0>(std::get<ValuePropertyFilter>(instruction.value))
-            .contains(entry.first)) {
+            .contains(entry.first, entry.hash)) {
       continue;
     }
 
@@ -1697,8 +1692,7 @@ INSTRUCTION_HANDLER(LoopPropertiesWhitelist) {
   if (target.object_size() <= value.size()) {
     result = true;
     for (const auto &entry : target.as_object()) {
-      // TODO: Re-use hashes here
-      if (!value.contains(entry.first)) {
+      if (!value.contains(entry.first, entry.hash)) {
         result = false;
         break;
       }
