@@ -78,8 +78,8 @@
   evaluate_instruction(child, schema, callback, target, property_target,       \
                        depth + 1, evaluator)
 #define EVALUATE_RECURSE_ON_PROPERTY_NAME(child, target, name)                 \
-  evaluate_instruction(child, schema, callback, target, std::cref(name),       \
-                       depth + 1, evaluator)
+  evaluate_instruction(child, schema, callback, target, &name, depth + 1,      \
+                       evaluator)
 
 #define SOURCEMETA_EVALUATOR_FAST
 
@@ -91,10 +91,9 @@ inline auto evaluate(const sourcemeta::jsontoolkit::JSON &instance,
                      sourcemeta::blaze::Evaluator &evaluator,
                      const sourcemeta::blaze::Template &schema) -> bool {
   for (const auto &instruction : schema.instructions) {
-    if (!evaluate_instruction(
-            instruction, schema, sourcemeta::blaze::Evaluator::DEFAULT_CALLBACK,
-            instance, sourcemeta::blaze::Evaluator::DEFAULT_PROPERTY_TARGET, 0,
-            evaluator)) {
+    if (!evaluate_instruction(instruction, schema,
+                              sourcemeta::blaze::Evaluator::DEFAULT_CALLBACK,
+                              instance, nullptr, 0, evaluator)) {
       return false;
     }
   }

@@ -176,9 +176,6 @@ public:
 #pragma warning(disable : 4251 4275)
 #endif
   static const std::optional<Callback> DEFAULT_CALLBACK;
-  static const std::optional<
-      std::reference_wrapper<const sourcemeta::jsontoolkit::JSON::String>>
-      DEFAULT_PROPERTY_TARGET;
 
   sourcemeta::jsontoolkit::WeakPointer evaluate_path;
   sourcemeta::jsontoolkit::WeakPointer instance_location;

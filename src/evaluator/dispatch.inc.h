@@ -3,9 +3,7 @@ inline auto evaluate_instruction(
     const sourcemeta::blaze::Template &schema,
     const std::optional<sourcemeta::blaze::Callback> &callback,
     const sourcemeta::jsontoolkit::JSON &instance,
-    const std::optional<
-        std::reference_wrapper<const sourcemeta::jsontoolkit::JSON::String>>
-        &property_target,
+    const sourcemeta::jsontoolkit::JSON::String *property_target,
     const std::uint64_t depth, sourcemeta::blaze::Evaluator &evaluator) -> bool;
 
 #define INSTRUCTION_HANDLER(name)                                              \
@@ -14,9 +12,7 @@ inline auto evaluate_instruction(
       const sourcemeta::blaze::Template &schema,                               \
       const std::optional<sourcemeta::blaze::Callback> &callback,              \
       const sourcemeta::jsontoolkit::JSON &instance,                           \
-      const std::optional<                                                     \
-          std::reference_wrapper<const sourcemeta::jsontoolkit::JSON::String>> \
-          &property_target,                                                    \
+      const sourcemeta::jsontoolkit::JSON::String *property_target,            \
       const std::uint64_t depth, sourcemeta::blaze::Evaluator &evaluator)      \
       -> bool
 
@@ -2112,9 +2108,8 @@ using DispatchHandler = bool (*)(
     const sourcemeta::blaze::Instruction &, const sourcemeta::blaze::Template &,
     const std::optional<sourcemeta::blaze::Callback> &,
     const sourcemeta::jsontoolkit::JSON &,
-    const std::optional<
-        std::reference_wrapper<const sourcemeta::jsontoolkit::JSON::String>> &,
-    const std::uint64_t depth, sourcemeta::blaze::Evaluator &);
+    const sourcemeta::jsontoolkit::JSON::String *, const std::uint64_t depth,
+    sourcemeta::blaze::Evaluator &);
 
 // Must have same order as InstructionIndex
 static constexpr DispatchHandler handlers[87] = {
@@ -2211,9 +2206,7 @@ inline auto evaluate_instruction(
     const sourcemeta::blaze::Template &schema,
     const std::optional<sourcemeta::blaze::Callback> &callback,
     const sourcemeta::jsontoolkit::JSON &instance,
-    const std::optional<
-        std::reference_wrapper<const sourcemeta::jsontoolkit::JSON::String>>
-        &property_target,
+    const sourcemeta::jsontoolkit::JSON::String *property_target,
     const std::uint64_t depth, sourcemeta::blaze::Evaluator &evaluator)
     -> bool {
   // Guard against infinite recursion in a cheap manner, as
