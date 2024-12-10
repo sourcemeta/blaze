@@ -40,6 +40,8 @@ inline auto resolve_string_target(
 
   const auto &target{get(instance, relative_instance_location)};
   if (!target.is_string()) {
+    // TODO: Get rid of this nullopt instance that is created on the fly
+    // Make this function return a pointer
     return std::nullopt;
   } else {
     return target.to_string();
@@ -70,7 +72,7 @@ auto Evaluator::validate(const Template &schema,
 
   if (schema.dynamic || schema.track) {
     this->evaluated_.clear();
-    return complete::evaluate(instance, *this, schema, std::nullopt);
+    return complete::evaluate(instance, *this, schema, DEFAULT_CALLBACK);
   } else {
     return fast::evaluate(instance, *this, schema);
   }
