@@ -224,8 +224,10 @@ inline auto evaluate(const sourcemeta::jsontoolkit::JSON &instance,
     -> bool {
   bool overall{true};
   for (const auto &instruction : schema.instructions) {
-    if (!evaluate_instruction(instruction, schema, callback, instance,
-                              std::nullopt, 0, evaluator)) {
+    if (!evaluate_instruction(
+            instruction, schema, callback, instance,
+            sourcemeta::blaze::Evaluator::DEFAULT_PROPERTY_TARGET, 0,
+            evaluator)) {
       overall = false;
       break;
     }

@@ -152,6 +152,10 @@ public:
 #ifndef DOXYGEN
   static const sourcemeta::jsontoolkit::JSON null;
   static const sourcemeta::jsontoolkit::JSON empty_string;
+  inline static const std::optional<Callback> DEFAULT_CALLBACK;
+  inline static const std::optional<
+      std::reference_wrapper<const sourcemeta::jsontoolkit::JSON::String>>
+      DEFAULT_PROPERTY_TARGET;
 
   auto
   hash(const std::size_t &resource,
