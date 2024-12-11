@@ -13,6 +13,7 @@
 #include <utility>     // std::move
 
 namespace {
+
 template <template <typename T> typename Allocator, typename V,
           typename PointerT =
               sourcemeta::jsontoolkit::GenericPointer<typename V::String>>
@@ -51,6 +52,32 @@ auto traverse(V &document, typename PointerT::const_iterator begin,
         current = &current->at(std::to_string(iterator->to_index()));
       } else {
         current = &current->at(iterator->to_index());
+      }
+    }
+  }
+
+  return *current;
+}
+
+// A variant of the above function that assumes traversing of
+// the entire pointer and does not rely on iterators for performance reasons
+template <template <typename T> typename Allocator, typename V,
+          typename PointerT =
+              sourcemeta::jsontoolkit::GenericPointer<typename V::String>>
+auto traverse_all(V &document, const PointerT &pointer) -> V & {
+  // Make sure types match
+  static_assert(
+      std::is_same_v<typename PointerT::Value, std::remove_const_t<V>>);
+  V *current = &document;
+
+  for (const auto &token : pointer) {
+    if (token.is_property()) {
+      current = &current->at(token.to_property(), token.property_hash());
+    } else {
+      if (current->is_object()) {
+        current = &current->at(std::to_string(token.to_index()));
+      } else {
+        current = &current->at(token.to_index());
       }
     }
   }
@@ -109,8 +136,7 @@ auto get(const JSON &document, const Pointer &pointer) -> const JSON & {
     return document;
   }
 
-  return traverse<std::allocator, const JSON>(document, std::cbegin(pointer),
-                                              std::cend(pointer));
+  return traverse_all<std::allocator, const JSON>(document, pointer);
 }
 
 auto get(const JSON &document, const WeakPointer &pointer) -> const JSON & {
@@ -118,8 +144,8 @@ auto get(const JSON &document, const WeakPointer &pointer) -> const JSON & {
     return document;
   }
 
-  return traverse<std::allocator, const JSON, WeakPointer>(
-      document, std::cbegin(pointer), std::cend(pointer));
+  return traverse_all<std::allocator, const JSON, WeakPointer>(document,
+                                                               pointer);
 }
 
 auto get(JSON &document, const Pointer &pointer) -> JSON & {
@@ -127,8 +153,7 @@ auto get(JSON &document, const Pointer &pointer) -> JSON & {
     return document;
   }
 
-  return traverse<std::allocator, JSON>(document, std::cbegin(pointer),
-                                        std::cend(pointer));
+  return traverse_all<std::allocator, JSON>(document, pointer);
 }
 
 auto try_get(const JSON &document, const Pointer &pointer) -> const JSON * {
