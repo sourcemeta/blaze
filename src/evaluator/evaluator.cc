@@ -30,19 +30,20 @@ resolve_target(const std::optional<std::reference_wrapper<const JSON::String>>
 }
 
 inline auto resolve_string_target(
+    // TODO: Make this a raw pointer
     const std::optional<std::reference_wrapper<const JSON::String>>
         &property_target,
     const JSON &instance, const Pointer &relative_instance_location) noexcept
-    -> std::optional<std::reference_wrapper<const JSON::String>> {
+    -> const JSON::String * {
   if (property_target.has_value()) [[unlikely]] {
-    return property_target;
+    return &property_target.value().get();
   }
 
   const auto &target{get(instance, relative_instance_location)};
   if (!target.is_string()) {
-    return std::nullopt;
+    return nullptr;
   } else {
-    return target.to_string();
+    return &target.to_string();
   }
 }
 
