@@ -74,7 +74,7 @@ auto try_traverse(const sourcemeta::jsontoolkit::JSON &document,
       }
 
       const auto &property{token.to_property()};
-      const auto json_value{current->try_at(property, token.property_hash())};
+      const auto *json_value{current->try_at(property, token.property_hash())};
       if (json_value) {
         current = json_value;
       } else {

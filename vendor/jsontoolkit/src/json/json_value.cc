@@ -538,7 +538,7 @@ JSON::defines(const JSON::String &key,
               const typename JSON::Object::Container::hash_type hash) const
     -> bool {
   assert(this->is_object());
-  return std::get_if<Object>(&this->data)->data.contains(key, hash);
+  return std::get_if<Object>(&this->data)->defines(key, hash);
 }
 
 [[nodiscard]] auto
