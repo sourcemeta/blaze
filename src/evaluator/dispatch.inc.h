@@ -71,8 +71,9 @@ INSTRUCTION_HANDLER(AssertionDefinesAll) {
   // Otherwise there is no way the instance can satisfy it anyway
   if (value.size() <= target.object_size()) {
     result = true;
+    const auto &object{target.as_object()};
     for (const auto &property : value) {
-      if (!target.defines(property.first, property.second)) {
+      if (!object.defines(property.first, property.second)) {
         result = false;
         break;
       }
@@ -98,8 +99,9 @@ INSTRUCTION_HANDLER(AssertionDefinesAllStrict) {
   // Otherwise there is no way the instance can satisfy it anyway
   if (target.is_object() && value.size() <= target.object_size()) {
     result = true;
+    const auto &object{target.as_object()};
     for (const auto &property : value) {
-      if (!target.defines(property.first, property.second)) {
+      if (!object.defines(property.first, property.second)) {
         result = false;
         break;
       }
@@ -123,8 +125,9 @@ INSTRUCTION_HANDLER(AssertionDefinesExactly) {
 
   if (value.size() == target.object_size()) {
     result = true;
+    const auto &object{target.as_object()};
     for (const auto &property : value) {
-      if (!target.defines(property.first, property.second)) {
+      if (!object.defines(property.first, property.second)) {
         result = false;
         break;
       }
@@ -149,8 +152,9 @@ INSTRUCTION_HANDLER(AssertionDefinesExactlyStrict) {
 
   if (target.is_object() && value.size() == target.object_size()) {
     result = true;
+    const auto &object{target.as_object()};
     for (const auto &property : value) {
-      if (!target.defines(property.first, property.second)) {
+      if (!object.defines(property.first, property.second)) {
         result = false;
         break;
       }
@@ -172,14 +176,16 @@ INSTRUCTION_HANDLER(AssertionPropertyDependencies) {
   // Otherwise we are we even emitting this instruction?
   assert(!value.empty());
   result = true;
+  const auto &object{target.as_object()};
+  const sourcemeta::jsontoolkit::Hash hasher;
   for (const auto &entry : value) {
-    if (!target.defines(entry.first)) {
+    if (!object.defines(entry.first, entry.hash)) {
       continue;
     }
 
     assert(!entry.second.empty());
     for (const auto &dependency : entry.second) {
-      if (!target.defines(dependency)) {
+      if (!object.defines(dependency, hasher(dependency))) {
         result = false;
         EVALUATE_END(AssertionPropertyDependencies);
       }

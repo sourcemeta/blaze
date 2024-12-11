@@ -99,6 +99,12 @@ public:
     return this->data.find(key, this->data.hash(key));
   }
 
+  /// Check if an entry with the given key exists
+  inline auto defines(const Key &key,
+                      const typename Container::hash_type hash) const -> bool {
+    return this->data.contains(key, hash);
+  }
+
 private:
   friend Value;
 // Exporting symbols that depends on the standard C++ library is considered
