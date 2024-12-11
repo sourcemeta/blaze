@@ -21,8 +21,7 @@
 #include <string>           // std::basic_string, std::char_traits
 #include <string_view>      // std::basic_string_view
 #include <type_traits>      // std::enable_if_t, std::is_same_v
-#include <utility>          // std::in_place_type, std::pair
-#include <variant>          // std::variant
+#include <utility>          // std::pair
 
 namespace sourcemeta::jsontoolkit {
 
@@ -83,7 +82,9 @@ public:
   // On some systems, `std::int64_t` might be equal to `long`
   template <typename T = std::int64_t,
             typename = std::enable_if_t<!std::is_same_v<T, std::int64_t>>>
-  explicit JSON(const long value) : data{std::in_place_type<Integer>, value} {}
+  explicit JSON(const long value) : current_type{Type::Integer} {
+    this->data_integer = value;
+  }
 
   /// This constructor creates a JSON document from an real number type. For
   /// example:
@@ -188,6 +189,15 @@ public:
 
   /// A copy constructor for the object type.
   explicit JSON(const Object &value);
+
+  /// Misc constructors
+  JSON(const JSON &);
+  JSON(JSON &&);
+  auto operator=(const JSON &) -> JSON &;
+  auto operator=(JSON &&) -> JSON &;
+
+  /// Destructor
+  ~JSON();
 
   /// This function creates an empty JSON array. For example:
   ///
@@ -1286,7 +1296,7 @@ public:
   auto erase_keys(Iterator first, Iterator last) -> void {
     assert(this->is_object());
     for (auto iterator = first; iterator != last; ++iterator) {
-      std::get_if<Object>(&this->data)->data.erase(*iterator);
+      this->data_object.data.erase(*iterator);
     }
   }
 
@@ -1488,16 +1498,26 @@ public:
   auto into_object() -> void;
 
 private:
+  Type current_type = Type::Null;
+
 // Exporting symbols that depends on the standard C++ library is considered
 // safe.
 // https://learn.microsoft.com/en-us/cpp/error-messages/compiler-warnings/compiler-warning-level-2-c4275?view=msvc-170&redirectedfrom=MSDN
 #if defined(_MSC_VER)
 #pragma warning(disable : 4251)
 #endif
-  std::variant<std::nullptr_t, bool, Integer, Real, String, Array, Object> data;
+  union {
+    bool data_boolean;
+    Integer data_integer;
+    Real data_real;
+    String data_string;
+    Array data_array;
+    Object data_object;
+  };
 #if defined(_MSC_VER)
 #pragma warning(default : 4251)
 #endif
+  auto maybe_destruct_union() -> void;
 };
 
 } // namespace sourcemeta::jsontoolkit
