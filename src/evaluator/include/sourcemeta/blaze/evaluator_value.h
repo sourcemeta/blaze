@@ -9,7 +9,7 @@
 #include <sourcemeta/blaze/evaluator_string_set.h>
 
 #include <cstdint>       // std::uint8_t
-#include <optional>      // std::optional, std::nullopt
+#include <optional>      // std::optional
 #include <string>        // std::string
 #include <tuple>         // std::tuple
 #include <unordered_set> // std::unordered_set
