@@ -5,20 +5,17 @@
 #include <sourcemeta/jsontoolkit/regex.h>
 #include <sourcemeta/jsontoolkit/uri.h>
 
-#include <algorithm>  // std::min, std::any_of, std::find
-#include <cassert>    // assert
-#include <functional> // std::reference_wrapper
-#include <limits>     // std::numeric_limits
-#include <optional>   // std::optional
+#include <algorithm> // std::min, std::any_of, std::find
+#include <cassert>   // assert
+#include <limits>    // std::numeric_limits
+#include <optional>  // std::optional
 
 namespace sourcemeta::blaze {
 using namespace sourcemeta::jsontoolkit;
 
-inline auto
-resolve_target(const std::optional<std::reference_wrapper<const JSON::String>>
-                   &property_target,
-               const JSON &instance) noexcept -> const JSON & {
-  if (property_target.has_value()) [[unlikely]] {
+inline auto resolve_target(const JSON::String *property_target,
+                           const JSON &instance) noexcept -> const JSON & {
+  if (property_target) [[unlikely]] {
     // In this case, we still need to return a string in order
     // to cope with non-string keywords inside `propertyNames`
     // that need to fail validation. But then, the actual string
@@ -29,14 +26,12 @@ resolve_target(const std::optional<std::reference_wrapper<const JSON::String>>
   return instance;
 }
 
-inline auto resolve_string_target(
-    // TODO: Make this a raw pointer
-    const std::optional<std::reference_wrapper<const JSON::String>>
-        &property_target,
-    const JSON &instance, const Pointer &relative_instance_location) noexcept
+inline auto
+resolve_string_target(const JSON::String *property_target, const JSON &instance,
+                      const Pointer &relative_instance_location) noexcept
     -> const JSON::String * {
-  if (property_target.has_value()) [[unlikely]] {
-    return &property_target.value().get();
+  if (property_target) [[unlikely]] {
+    return property_target;
   }
 
   const auto &target{get(instance, relative_instance_location)};
@@ -93,9 +88,6 @@ auto Evaluator::validate(const Template &schema,
 const sourcemeta::jsontoolkit::JSON Evaluator::null{nullptr};
 const sourcemeta::jsontoolkit::JSON Evaluator::empty_string{""};
 const std::optional<Callback> Evaluator::DEFAULT_CALLBACK;
-const std::optional<
-    std::reference_wrapper<const sourcemeta::jsontoolkit::JSON::String>>
-    Evaluator::DEFAULT_PROPERTY_TARGET;
 
 auto Evaluator::hash(const std::size_t &resource,
                      const sourcemeta::jsontoolkit::JSON::String &fragment)
