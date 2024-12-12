@@ -907,6 +907,11 @@ auto compiler_draft4_applicator_properties_with_options(
     }
   }
 
+  const ValueStringSet required{json_array_to_string_set(
+      schema_context.schema.defines("required")
+          ? schema_context.schema.at("required")
+          : sourcemeta::jsontoolkit::JSON::make_array())};
+
   for (auto &&[name, substeps] : properties) {
     if (annotate) {
       substeps.push_back(
@@ -919,7 +924,8 @@ auto compiler_draft4_applicator_properties_with_options(
     // as that's a very common pattern
 
     if (context.mode == Mode::FastValidation && substeps.size() == 1 &&
-        substeps.front().type == InstructionIndex::AssertionTypeStrict) {
+        substeps.front().type == InstructionIndex::AssertionTypeStrict &&
+        !required.contains(name, sourcemeta::jsontoolkit::Hash{}(name))) {
       const auto &type_step{substeps.front()};
       if (track_evaluation) {
         children.push_back(rephrase(sourcemeta::blaze::InstructionIndex::

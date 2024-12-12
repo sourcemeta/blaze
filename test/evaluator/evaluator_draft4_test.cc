@@ -1062,19 +1062,17 @@ TEST(Evaluator_draft4, properties_5) {
 
   EVALUATE_TRACE_PRE(0, AssertionDefinesAllStrict, "/required", "#/required",
                      "");
-  EVALUATE_TRACE_PRE(1, AssertionPropertyTypeStrict, "/properties/bar/type",
+  EVALUATE_TRACE_PRE(1, AssertionTypeStrict, "/properties/bar/type",
                      "#/properties/bar/type", "/bar");
-  EVALUATE_TRACE_PRE(2, AssertionPropertyTypeStrict, "/properties/foo/type",
+  EVALUATE_TRACE_PRE(2, AssertionTypeStrict, "/properties/foo/type",
                      "#/properties/foo/type", "/foo");
 
   EVALUATE_TRACE_POST_SUCCESS(0, AssertionDefinesAllStrict, "/required",
                               "#/required", "");
-  EVALUATE_TRACE_POST_SUCCESS(1, AssertionPropertyTypeStrict,
-                              "/properties/bar/type", "#/properties/bar/type",
-                              "/bar");
-  EVALUATE_TRACE_POST_SUCCESS(2, AssertionPropertyTypeStrict,
-                              "/properties/foo/type", "#/properties/foo/type",
-                              "/foo");
+  EVALUATE_TRACE_POST_SUCCESS(1, AssertionTypeStrict, "/properties/bar/type",
+                              "#/properties/bar/type", "/bar");
+  EVALUATE_TRACE_POST_SUCCESS(2, AssertionTypeStrict, "/properties/foo/type",
+                              "#/properties/foo/type", "/foo");
 
   EVALUATE_TRACE_POST_DESCRIBE(instance, 0,
                                "The value was expected to be an object that "
