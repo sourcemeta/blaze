@@ -112,8 +112,7 @@ public:
   }
 
   // As a performance optimisation if the hash is known
-  inline auto contains(const key_type &key, const hash_type key_hash) const
-      -> bool {
+  auto contains(const key_type &key, const hash_type key_hash) const -> bool {
     assert(this->hash(key) == key_hash);
 
     // Move the perfect hash condition out of the loop for extra performance

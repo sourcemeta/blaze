@@ -105,6 +105,9 @@ public:
     return this->data.contains(key, hash);
   }
 
+  /// Check the size of the object
+  inline auto size() const -> std::size_t { return this->data.size(); }
+
 private:
   friend Value;
 // Exporting symbols that depends on the standard C++ library is considered

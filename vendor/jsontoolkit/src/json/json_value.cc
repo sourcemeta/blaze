@@ -548,7 +548,7 @@ JSON::at(const String &key,
 
 [[nodiscard]] auto JSON::object_size() const -> std::size_t {
   assert(this->is_object());
-  return this->data_object.data.size();
+  return this->data_object.size();
 }
 
 [[nodiscard]] auto JSON::byte_size() const -> std::size_t {
