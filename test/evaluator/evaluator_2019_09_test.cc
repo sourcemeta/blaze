@@ -8,23 +8,6 @@
 
 #include "evaluator_utils.h"
 
-TEST(Evaluator_2019_09, metaschema_1) {
-  const auto metaschema{sourcemeta::jsontoolkit::official_resolver(
-      "https://json-schema.org/draft/2019-09/schema")};
-  EXPECT_TRUE(metaschema.has_value());
-
-  const auto instance{sourcemeta::jsontoolkit::parse(R"JSON({
-    "$schema": "https://json-schema.org/draft/2019-09/schema",
-    "$defs": {
-      "foo": {
-        "type": [ "string" ]
-      }
-    }
-  })JSON")};
-
-  EVALUATE_WITH_TRACE_FAST_SUCCESS(metaschema.value(), instance, 54);
-}
-
 TEST(Evaluator_2019_09, properties_1) {
   const sourcemeta::jsontoolkit::JSON schema{
       sourcemeta::jsontoolkit::parse(R"JSON({

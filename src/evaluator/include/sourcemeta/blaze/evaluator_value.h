@@ -113,13 +113,203 @@ using ValuePointer = sourcemeta::jsontoolkit::Pointer;
 using ValueTypedProperties = std::pair<ValueType, ValueStringSet>;
 
 /// @ingroup evaluator
-using Value =
-    std::variant<ValueNone, ValueJSON, ValueSet, ValueString, ValueProperty,
-                 ValueStrings, ValueStringSet, ValueTypes, ValueType,
-                 ValueRegex, ValueUnsignedInteger, ValueRange, ValueBoolean,
-                 ValueNamedIndexes, ValueStringType, ValueStringMap,
-                 ValuePropertyFilter, ValueIndexPair, ValuePointer,
-                 ValueTypedProperties>;
+enum class ValueIndex : std::uint8_t {
+  None = 0,
+  JSON,
+  Set,
+  String,
+  Property,
+  Strings,
+  StringSet,
+  Types,
+  Type,
+  Regex,
+  UnsignedInteger,
+  Range,
+  Boolean,
+  NamedIndexes,
+  StringType,
+  StringMap,
+  PropertyFilter,
+  IndexPair,
+  Pointer,
+  TypedProperties
+};
+
+/// @ingroup evaluator
+struct Value {
+  ValueIndex kind;
+  union {
+    ValueJSON json;
+    ValueSet set;
+    ValueString string;
+    ValueProperty property;
+    ValueStrings strings;
+    ValueStringSet string_set;
+    ValueTypes types;
+    ValueType type;
+    ValueRegex regex;
+    ValueUnsignedInteger unsigned_integer;
+    ValueRange range;
+    ValueBoolean boolean;
+    ValueNamedIndexes named_indexes;
+    ValueStringType string_type;
+    ValueStringMap string_map;
+    ValuePropertyFilter property_filter;
+    ValueIndexPair index_pair;
+    ValuePointer pointer;
+    ValueTypedProperties typed_properties;
+  };
+
+  Value(const ValueNone &) : kind{ValueIndex::None} {}
+
+#define VALUE_CONSTRUCTOR(type, enum_name, name)                               \
+  Value(type &&value) : kind{ValueIndex::enum_name} {                          \
+    new (&this->name) type{std::move(value)};                                  \
+  }
+
+#define VALUE_CONSTRUCTOR_PLAIN(type, enum_name, name)                         \
+  Value(type &&value) : kind{ValueIndex::enum_name} {                          \
+    this->name = std::move(value);                                             \
+  }
+
+  VALUE_CONSTRUCTOR(ValueJSON, JSON, json)
+  VALUE_CONSTRUCTOR(ValueSet, Set, set)
+  VALUE_CONSTRUCTOR(ValueString, String, string)
+  VALUE_CONSTRUCTOR(ValueProperty, Property, property)
+  VALUE_CONSTRUCTOR(ValueStrings, Strings, strings)
+  VALUE_CONSTRUCTOR(ValueStringSet, StringSet, string_set)
+  VALUE_CONSTRUCTOR(ValueTypes, Types, types)
+  VALUE_CONSTRUCTOR_PLAIN(ValueType, Type, type)
+  VALUE_CONSTRUCTOR(ValueRegex, Regex, regex)
+  VALUE_CONSTRUCTOR_PLAIN(ValueUnsignedInteger, UnsignedInteger,
+                          unsigned_integer)
+  VALUE_CONSTRUCTOR_PLAIN(ValueRange, Range, range)
+  VALUE_CONSTRUCTOR_PLAIN(ValueBoolean, Boolean, boolean)
+  VALUE_CONSTRUCTOR(ValueNamedIndexes, NamedIndexes, named_indexes)
+  VALUE_CONSTRUCTOR_PLAIN(ValueStringType, StringType, string_type)
+  VALUE_CONSTRUCTOR(ValueStringMap, StringMap, string_map)
+  VALUE_CONSTRUCTOR(ValuePropertyFilter, PropertyFilter, property_filter)
+  VALUE_CONSTRUCTOR(ValueIndexPair, IndexPair, index_pair)
+  VALUE_CONSTRUCTOR(ValuePointer, Pointer, pointer)
+  VALUE_CONSTRUCTOR(ValueTypedProperties, TypedProperties, typed_properties)
+
+#undef VALUE_CONSTRUCTOR
+#undef VALUE_CONSTRUCTOR_PLAIN
+
+  // TODO: Move almost all of this to a .cc file?
+
+  Value(const Value &other) : kind{other.kind} {
+    switch (this->kind) {
+      case ValueIndex::JSON:
+        new (&this->json) ValueJSON{other.json};
+        break;
+      case ValueIndex::Set:
+        new (&this->set) ValueSet{other.set};
+        break;
+      case ValueIndex::String:
+        new (&this->string) ValueString{other.string};
+        break;
+      case ValueIndex::Property:
+        new (&this->property) ValueProperty{other.property};
+        break;
+      case ValueIndex::Strings:
+        new (&this->strings) ValueStrings{other.strings};
+        break;
+      case ValueIndex::StringSet:
+        new (&this->string_set) ValueStringSet{other.string_set};
+        break;
+      case ValueIndex::Types:
+        new (&this->types) ValueTypes{other.types};
+        break;
+      case ValueIndex::Type:
+        this->type = other.type;
+        break;
+      case ValueIndex::Regex:
+        new (&this->regex) ValueRegex{other.regex};
+        break;
+      case ValueIndex::UnsignedInteger:
+        this->unsigned_integer = other.unsigned_integer;
+        break;
+      case ValueIndex::Range:
+        this->range = other.range;
+        break;
+      case ValueIndex::Boolean:
+        this->boolean = other.boolean;
+        break;
+      case ValueIndex::NamedIndexes:
+        new (&this->named_indexes) ValueNamedIndexes{other.named_indexes};
+        break;
+      case ValueIndex::StringType:
+        this->string_type = other.string_type;
+        break;
+      case ValueIndex::StringMap:
+        new (&this->string_map) ValueStringMap{other.string_map};
+        break;
+      case ValueIndex::PropertyFilter:
+        new (&this->property_filter) ValuePropertyFilter{other.property_filter};
+        break;
+      case ValueIndex::IndexPair:
+        new (&this->index_pair) ValueIndexPair{other.index_pair};
+        break;
+      case ValueIndex::Pointer:
+        new (&this->pointer) ValuePointer{other.pointer};
+        break;
+      case ValueIndex::TypedProperties:
+        new (&this->typed_properties)
+            ValueTypedProperties{other.typed_properties};
+        break;
+      default:
+        break;
+    }
+  }
+
+  ~Value() {
+    switch (this->kind) {
+      case ValueIndex::JSON:
+        this->json.~JSON();
+        break;
+      case ValueIndex::Set:
+        this->set.~unordered_set();
+        break;
+      case ValueIndex::String:
+        this->string.~basic_string();
+        break;
+      case ValueIndex::Property:
+        this->property.~pair();
+        break;
+      case ValueIndex::Strings:
+        this->strings.~vector();
+        break;
+      case ValueIndex::StringSet:
+        this->string_set.~StringSet();
+        break;
+      case ValueIndex::Types:
+        this->types.~vector();
+        break;
+      case ValueIndex::Regex:
+        this->regex.~pair();
+        break;
+      case ValueIndex::NamedIndexes:
+        this->named_indexes.~FlatMap();
+        break;
+      case ValueIndex::StringMap:
+        this->string_map.~FlatMap();
+        break;
+      case ValueIndex::PropertyFilter:
+        this->property_filter.~tuple();
+        break;
+      case ValueIndex::Pointer:
+        this->pointer.~GenericPointer();
+        break;
+      case ValueIndex::TypedProperties:
+        this->typed_properties.~pair();
+        break;
+      default:
+        break;
+    }
+  }
+};
 
 } // namespace sourcemeta::blaze
 

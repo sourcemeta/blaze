@@ -32,8 +32,7 @@ static auto collect_jump_labels(const sourcemeta::blaze::Instructions &steps,
                                 std::set<std::size_t> &output) -> void {
   for (const auto &variant : steps) {
     if (variant.type == sourcemeta::blaze::InstructionIndex::ControlJump) {
-      output.emplace(
-          std::get<sourcemeta::blaze::ValueUnsignedInteger>(variant.value));
+      output.emplace(variant.value.unsigned_integer);
     } else {
       collect_jump_labels(variant.children, output);
     }
@@ -547,7 +546,7 @@ auto compiler_draft4_validation_required(const Context &context,
                         })) {
           std::set<ValueType> types;
           for (const auto &property : properties) {
-            types.insert(std::get<ValueType>(property.second.front().value));
+            types.insert(property.second.front().value.type);
           }
 
           if (types.size() == 1) {
@@ -860,7 +859,7 @@ auto compiler_draft4_applicator_properties_with_options(
                     })) {
       std::set<ValueType> types;
       for (const auto &property : properties) {
-        types.insert(std::get<ValueType>(property.second.front().value));
+        types.insert(property.second.front().value.type);
       }
 
       if (types.size() == 1) {
@@ -884,7 +883,8 @@ auto compiler_draft4_applicator_properties_with_options(
 
         return {
             make(sourcemeta::blaze::InstructionIndex::LoopPropertiesTypeStrict,
-                 context, schema_context, dynamic_context, *types.cbegin())};
+                 context, schema_context, dynamic_context,
+                 ValueType{*types.cbegin()})};
       }
     }
 
@@ -896,13 +896,13 @@ auto compiler_draft4_applicator_properties_with_options(
                     })) {
       std::set<ValueType> types;
       for (const auto &property : properties) {
-        types.insert(std::get<ValueType>(property.second.front().value));
+        types.insert(property.second.front().value.type);
       }
 
       if (types.size() == 1) {
         return {make(sourcemeta::blaze::InstructionIndex::LoopPropertiesType,
                      context, schema_context, dynamic_context,
-                     *types.cbegin())};
+                     ValueType{*types.cbegin()})};
       }
     }
   }

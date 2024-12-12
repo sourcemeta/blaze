@@ -8,15 +8,6 @@
 namespace {
 using namespace sourcemeta::blaze;
 
-template <typename X, typename T>
-auto instruction_value(const T &step) -> decltype(auto) {
-  if constexpr (requires { step.value; }) {
-    return std::get<X>(step.value);
-  } else {
-    return step.id;
-  }
-}
-
 auto to_string(const sourcemeta::jsontoolkit::JSON::Type type) -> std::string {
   // Otherwise the type "real" might not make a lot
   // of sense to JSON Schema users
@@ -296,7 +287,7 @@ auto describe(const bool valid, const Instruction &step,
   if (step.type ==
       sourcemeta::blaze::InstructionIndex::ControlDynamicAnchorJump) {
     if (keyword == "$dynamicRef") {
-      const auto &value{instruction_value<ValueString>(step)};
+      const auto &value{step.value.string};
       std::ostringstream message;
       message << "The " << to_string(target.type())
               << " value was expected to validate against the first subschema "
@@ -676,14 +667,14 @@ auto describe(const bool valid, const Instruction &step,
       sourcemeta::blaze::InstructionIndex::LoopPropertiesExactlyTypeStrict) {
     std::ostringstream message;
     message << "The required object properties were expected to be of type "
-            << to_string(instruction_value<ValueTypedProperties>(step).first);
+            << to_string(step.value.typed_properties.first);
     return message.str();
   }
 
   if (step.type == sourcemeta::blaze::InstructionIndex::LoopPropertiesType) {
     std::ostringstream message;
     message << "The object properties were expected to be of type "
-            << to_string(instruction_value<ValueType>(step));
+            << to_string(step.value.type);
     return message.str();
   }
 
@@ -691,7 +682,7 @@ auto describe(const bool valid, const Instruction &step,
       sourcemeta::blaze::InstructionIndex::LoopPropertiesTypeEvaluate) {
     std::ostringstream message;
     message << "The object properties were expected to be of type "
-            << to_string(instruction_value<ValueType>(step));
+            << to_string(step.value.type);
     return message.str();
   }
 
@@ -699,7 +690,7 @@ auto describe(const bool valid, const Instruction &step,
       sourcemeta::blaze::InstructionIndex::LoopPropertiesTypeStrict) {
     std::ostringstream message;
     message << "The object properties were expected to be of type "
-            << to_string(instruction_value<ValueType>(step));
+            << to_string(step.value.type);
     return message.str();
   }
 
@@ -707,7 +698,7 @@ auto describe(const bool valid, const Instruction &step,
       sourcemeta::blaze::InstructionIndex::LoopPropertiesTypeStrictEvaluate) {
     std::ostringstream message;
     message << "The object properties were expected to be of type "
-            << to_string(instruction_value<ValueType>(step));
+            << to_string(step.value.type);
     return message.str();
   }
 
@@ -715,7 +706,7 @@ auto describe(const bool valid, const Instruction &step,
       sourcemeta::blaze::InstructionIndex::LoopPropertiesTypeStrictAny) {
     std::ostringstream message;
     message << "The object properties were expected to be of type ";
-    const auto &types{instruction_value<ValueTypes>(step)};
+    const auto &types{step.value.types};
     for (auto iterator = types.cbegin(); iterator != types.cend(); ++iterator) {
       if (std::next(iterator) == types.cend()) {
         message << "or " << to_string(*iterator);
@@ -731,7 +722,7 @@ auto describe(const bool valid, const Instruction &step,
                        LoopPropertiesTypeStrictAnyEvaluate) {
     std::ostringstream message;
     message << "The object properties were expected to be of type ";
-    const auto &types{instruction_value<ValueTypes>(step)};
+    const auto &types{step.value.types};
     for (auto iterator = types.cbegin(); iterator != types.cend(); ++iterator) {
       if (std::next(iterator) == types.cend()) {
         message << "or " << to_string(*iterator);
@@ -781,7 +772,7 @@ auto describe(const bool valid, const Instruction &step,
 
   if (step.type == sourcemeta::blaze::InstructionIndex::LoopItemsFrom) {
     assert(target.is_array());
-    const auto &value{instruction_value<ValueUnsignedInteger>(step)};
+    const auto &value{step.value.unsigned_integer};
     std::ostringstream message;
     message << "Every item in the array value";
     if (value == 1) {
@@ -805,14 +796,14 @@ auto describe(const bool valid, const Instruction &step,
   if (step.type == sourcemeta::blaze::InstructionIndex::LoopItemsType) {
     std::ostringstream message;
     message << "The array items were expected to be of type "
-            << to_string(instruction_value<ValueType>(step));
+            << to_string(step.value.type);
     return message.str();
   }
 
   if (step.type == sourcemeta::blaze::InstructionIndex::LoopItemsTypeStrict) {
     std::ostringstream message;
     message << "The array items were expected to be of type "
-            << to_string(instruction_value<ValueType>(step));
+            << to_string(step.value.type);
     return message.str();
   }
 
@@ -820,7 +811,7 @@ auto describe(const bool valid, const Instruction &step,
       sourcemeta::blaze::InstructionIndex::LoopItemsTypeStrictAny) {
     std::ostringstream message;
     message << "The array items were expected to be of type ";
-    const auto &types{instruction_value<ValueTypes>(step)};
+    const auto &types{step.value.types};
     for (auto iterator = types.cbegin(); iterator != types.cend(); ++iterator) {
       if (std::next(iterator) == types.cend()) {
         message << "or " << to_string(*iterator);
@@ -835,7 +826,7 @@ auto describe(const bool valid, const Instruction &step,
   if (step.type == sourcemeta::blaze::InstructionIndex::LoopContains) {
     assert(target.is_array());
     std::ostringstream message;
-    const auto &value{instruction_value<ValueRange>(step)};
+    const auto &value{step.value.range};
     const auto minimum{std::get<0>(value)};
     const auto maximum{std::get<1>(value)};
     bool plural{true};
@@ -879,7 +870,7 @@ auto describe(const bool valid, const Instruction &step,
   if (step.type == sourcemeta::blaze::InstructionIndex::AssertionDefines) {
     std::ostringstream message;
     message << "The object value was expected to define the property "
-            << escape_string(instruction_value<ValueProperty>(step).first);
+            << escape_string(step.value.property.first);
     return message.str();
   }
 
@@ -888,12 +879,12 @@ auto describe(const bool valid, const Instruction &step,
     std::ostringstream message;
     message
         << "The value was expected to be an object that defines the property "
-        << escape_string(instruction_value<ValueProperty>(step).first);
+        << escape_string(step.value.property.first);
     return message.str();
   }
 
   if (step.type == sourcemeta::blaze::InstructionIndex::AssertionDefinesAll) {
-    const auto &value{instruction_value<ValueStringSet>(step)};
+    const auto &value{step.value.string_set};
     assert(value.size() > 1);
 
     std::vector<ValueString> value_vector;
@@ -945,7 +936,7 @@ auto describe(const bool valid, const Instruction &step,
 
   if (step.type ==
       sourcemeta::blaze::InstructionIndex::AssertionDefinesAllStrict) {
-    const auto &value{instruction_value<ValueStringSet>(step)};
+    const auto &value{step.value.string_set};
     assert(value.size() > 1);
 
     std::vector<ValueString> value_vector;
@@ -970,7 +961,7 @@ auto describe(const bool valid, const Instruction &step,
 
   if (step.type ==
       sourcemeta::blaze::InstructionIndex::AssertionDefinesExactly) {
-    const auto &value{instruction_value<ValueStringSet>(step)};
+    const auto &value{step.value.string_set};
     assert(value.size() > 1);
     std::vector<ValueString> value_vector;
     for (const auto &entry : value) {
@@ -994,7 +985,7 @@ auto describe(const bool valid, const Instruction &step,
 
   if (step.type ==
       sourcemeta::blaze::InstructionIndex::AssertionDefinesExactlyStrict) {
-    const auto &value{instruction_value<ValueStringSet>(step)};
+    const auto &value{step.value.string_set};
     assert(value.size() > 1);
     std::vector<ValueString> value_vector;
     for (const auto &entry : value) {
@@ -1019,14 +1010,13 @@ auto describe(const bool valid, const Instruction &step,
 
   if (step.type == sourcemeta::blaze::InstructionIndex::AssertionType) {
     std::ostringstream message;
-    describe_type_check(valid, target.type(),
-                        instruction_value<ValueType>(step), message);
+    describe_type_check(valid, target.type(), step.value.type, message);
     return message.str();
   }
 
   if (step.type == sourcemeta::blaze::InstructionIndex::AssertionTypeStrict) {
     std::ostringstream message;
-    const auto &value{instruction_value<ValueType>(step)};
+    const auto &value{step.value.type};
     if (!valid && value == sourcemeta::jsontoolkit::JSON::Type::Real &&
         target.type() == sourcemeta::jsontoolkit::JSON::Type::Integer) {
       message
@@ -1045,16 +1035,14 @@ auto describe(const bool valid, const Instruction &step,
 
   if (step.type == sourcemeta::blaze::InstructionIndex::AssertionTypeAny) {
     std::ostringstream message;
-    describe_types_check(valid, target.type(),
-                         instruction_value<ValueTypes>(step), message);
+    describe_types_check(valid, target.type(), step.value.types, message);
     return message.str();
   }
 
   if (step.type ==
       sourcemeta::blaze::InstructionIndex::AssertionTypeStrictAny) {
     std::ostringstream message;
-    describe_types_check(valid, target.type(),
-                         instruction_value<ValueTypes>(step), message);
+    describe_types_check(valid, target.type(), step.value.types, message);
     return message.str();
   }
 
@@ -1062,8 +1050,8 @@ auto describe(const bool valid, const Instruction &step,
       sourcemeta::blaze::InstructionIndex::AssertionTypeStringBounded) {
     std::ostringstream message;
 
-    const auto minimum{std::get<0>(instruction_value<ValueRange>(step))};
-    const auto maximum{std::get<1>(instruction_value<ValueRange>(step))};
+    const auto minimum{std::get<0>(step.value.range)};
+    const auto maximum{std::get<1>(step.value.range)};
     if (minimum == 0 && maximum.has_value()) {
       message << "The value was expected to consist of a string of at most "
               << maximum.value()
@@ -1084,10 +1072,9 @@ auto describe(const bool valid, const Instruction &step,
       sourcemeta::blaze::InstructionIndex::AssertionTypeStringUpper) {
     std::ostringstream message;
     message << "The value was expected to consist of a string of at most "
-            << instruction_value<ValueUnsignedInteger>(step)
-            << (instruction_value<ValueUnsignedInteger>(step) == 1
-                    ? " character"
-                    : " characters");
+            << step.value.unsigned_integer
+            << (step.value.unsigned_integer == 1 ? " character"
+                                                 : " characters");
     return message.str();
   }
 
@@ -1095,8 +1082,8 @@ auto describe(const bool valid, const Instruction &step,
       sourcemeta::blaze::InstructionIndex::AssertionTypeArrayBounded) {
     std::ostringstream message;
 
-    const auto minimum{std::get<0>(instruction_value<ValueRange>(step))};
-    const auto maximum{std::get<1>(instruction_value<ValueRange>(step))};
+    const auto minimum{std::get<0>(step.value.range)};
+    const auto maximum{std::get<1>(step.value.range)};
     if (minimum == 0 && maximum.has_value()) {
       message << "The value was expected to consist of an array of at most "
               << maximum.value() << (maximum.value() == 1 ? " item" : " items");
@@ -1116,9 +1103,8 @@ auto describe(const bool valid, const Instruction &step,
       sourcemeta::blaze::InstructionIndex::AssertionTypeArrayUpper) {
     std::ostringstream message;
     message << "The value was expected to consist of an array of at most "
-            << instruction_value<ValueUnsignedInteger>(step)
-            << (instruction_value<ValueUnsignedInteger>(step) == 1 ? " item"
-                                                                   : " items");
+            << step.value.unsigned_integer
+            << (step.value.unsigned_integer == 1 ? " item" : " items");
     return message.str();
   }
 
@@ -1126,8 +1112,8 @@ auto describe(const bool valid, const Instruction &step,
       sourcemeta::blaze::InstructionIndex::AssertionTypeObjectBounded) {
     std::ostringstream message;
 
-    const auto minimum{std::get<0>(instruction_value<ValueRange>(step))};
-    const auto maximum{std::get<1>(instruction_value<ValueRange>(step))};
+    const auto minimum{std::get<0>(step.value.range)};
+    const auto maximum{std::get<1>(step.value.range)};
     if (minimum == 0 && maximum.has_value()) {
       message << "The value was expected to consist of an object of at most "
               << maximum.value()
@@ -1148,10 +1134,8 @@ auto describe(const bool valid, const Instruction &step,
       sourcemeta::blaze::InstructionIndex::AssertionTypeObjectUpper) {
     std::ostringstream message;
     message << "The value was expected to consist of an object of at most "
-            << instruction_value<ValueUnsignedInteger>(step)
-            << (instruction_value<ValueUnsignedInteger>(step) == 1
-                    ? " property"
-                    : " properties");
+            << step.value.unsigned_integer
+            << (step.value.unsigned_integer == 1 ? " property" : " properties");
     return message.str();
   }
 
@@ -1166,7 +1150,7 @@ auto describe(const bool valid, const Instruction &step,
       message << "The property name "
               << escape_string(instance_location.back().to_property())
               << " was expected to match the regular expression "
-              << escape_string(instruction_value<ValueRegex>(step).second);
+              << escape_string(step.value.regex.second);
       return message.str();
     }
 
@@ -1174,7 +1158,7 @@ auto describe(const bool valid, const Instruction &step,
     std::ostringstream message;
     message << "The string value " << escape_string(target.to_string())
             << " was expected to match the regular expression "
-            << escape_string(instruction_value<ValueRegex>(step).second);
+            << escape_string(step.value.regex.second);
     return message.str();
   }
 
@@ -1182,7 +1166,7 @@ auto describe(const bool valid, const Instruction &step,
       sourcemeta::blaze::InstructionIndex::AssertionStringSizeLess) {
     if (keyword == "maxLength") {
       std::ostringstream message;
-      const auto maximum{instruction_value<ValueUnsignedInteger>(step) - 1};
+      const auto maximum{step.value.unsigned_integer - 1};
 
       if (is_within_keyword(evaluate_path, "propertyNames")) {
         assert(instance_location.back().is_property());
@@ -1224,7 +1208,7 @@ auto describe(const bool valid, const Instruction &step,
       sourcemeta::blaze::InstructionIndex::AssertionStringSizeGreater) {
     if (keyword == "minLength") {
       std::ostringstream message;
-      const auto minimum{instruction_value<ValueUnsignedInteger>(step) + 1};
+      const auto minimum{step.value.unsigned_integer + 1};
 
       if (is_within_keyword(evaluate_path, "propertyNames")) {
         assert(instance_location.back().is_property());
@@ -1267,7 +1251,7 @@ auto describe(const bool valid, const Instruction &step,
     if (keyword == "maxItems") {
       assert(target.is_array());
       std::ostringstream message;
-      const auto maximum{instruction_value<ValueUnsignedInteger>(step) - 1};
+      const auto maximum{step.value.unsigned_integer - 1};
       message << "The array value was expected to contain at most " << maximum;
       assert(maximum > 0);
       if (maximum == 1) {
@@ -1299,7 +1283,7 @@ auto describe(const bool valid, const Instruction &step,
       sourcemeta::blaze::InstructionIndex::AssertionArraySizeGreater) {
     assert(target.is_array());
     std::ostringstream message;
-    const auto minimum{instruction_value<ValueUnsignedInteger>(step) + 1};
+    const auto minimum{step.value.unsigned_integer + 1};
     message << "The array value was expected to contain at least " << minimum;
     assert(minimum > 0);
     if (minimum == 1) {
@@ -1334,7 +1318,7 @@ auto describe(const bool valid, const Instruction &step,
     if (keyword == "maxProperties") {
       assert(target.is_object());
       std::ostringstream message;
-      const auto maximum{instruction_value<ValueUnsignedInteger>(step) - 1};
+      const auto maximum{step.value.unsigned_integer - 1};
       message << "The object value was expected to contain at most " << maximum;
       assert(maximum > 0);
       if (maximum == 1) {
@@ -1383,7 +1367,7 @@ auto describe(const bool valid, const Instruction &step,
     if (keyword == "minProperties") {
       assert(target.is_object());
       std::ostringstream message;
-      const auto minimum{instruction_value<ValueUnsignedInteger>(step) + 1};
+      const auto minimum{step.value.unsigned_integer + 1};
       message << "The object value was expected to contain at least "
               << minimum;
       assert(minimum > 0);
@@ -1429,7 +1413,7 @@ auto describe(const bool valid, const Instruction &step,
 
   if (step.type == sourcemeta::blaze::InstructionIndex::AssertionEqual) {
     std::ostringstream message;
-    const auto &value{instruction_value<ValueJSON>(step)};
+    const auto &value{step.value.json};
     message << "The " << to_string(target.type()) << " value ";
     stringify(target, message);
     message << " was expected to equal the " << to_string(value.type())
@@ -1440,7 +1424,7 @@ auto describe(const bool valid, const Instruction &step,
 
   if (step.type == sourcemeta::blaze::InstructionIndex::AssertionGreaterEqual) {
     std::ostringstream message;
-    const auto &value{instruction_value<ValueJSON>(step)};
+    const auto &value{step.value.json};
     message << "The " << to_string(target.type()) << " value ";
     stringify(target, message);
     message << " was expected to be greater than or equal to the "
@@ -1451,7 +1435,7 @@ auto describe(const bool valid, const Instruction &step,
 
   if (step.type == sourcemeta::blaze::InstructionIndex::AssertionLessEqual) {
     std::ostringstream message;
-    const auto &value{instruction_value<ValueJSON>(step)};
+    const auto &value{step.value.json};
     message << "The " << to_string(target.type()) << " value ";
     stringify(target, message);
     message << " was expected to be less than or equal to the "
@@ -1462,7 +1446,7 @@ auto describe(const bool valid, const Instruction &step,
 
   if (step.type == sourcemeta::blaze::InstructionIndex::AssertionGreater) {
     std::ostringstream message;
-    const auto &value{instruction_value<ValueJSON>(step)};
+    const auto &value{step.value.json};
     message << "The " << to_string(target.type()) << " value ";
     stringify(target, message);
     message << " was expected to be greater than the "
@@ -1477,7 +1461,7 @@ auto describe(const bool valid, const Instruction &step,
 
   if (step.type == sourcemeta::blaze::InstructionIndex::AssertionLess) {
     std::ostringstream message;
-    const auto &value{instruction_value<ValueJSON>(step)};
+    const auto &value{step.value.json};
     message << "The " << to_string(target.type()) << " value ";
     stringify(target, message);
     message << " was expected to be less than the " << to_string(value.type())
@@ -1533,7 +1517,7 @@ auto describe(const bool valid, const Instruction &step,
 
   if (step.type == sourcemeta::blaze::InstructionIndex::AssertionDivisible) {
     std::ostringstream message;
-    const auto &value{instruction_value<ValueJSON>(step)};
+    const auto &value{step.value.json};
     message << "The " << to_string(target.type()) << " value ";
     stringify(target, message);
     message << " was expected to be divisible by the "
@@ -1544,7 +1528,7 @@ auto describe(const bool valid, const Instruction &step,
 
   if (step.type == sourcemeta::blaze::InstructionIndex::AssertionEqualsAny) {
     std::ostringstream message;
-    const auto &value{instruction_value<ValueSet>(step)};
+    const auto &value{step.value.set};
     message << "The " << to_string(target.type()) << " value ";
     stringify(target, message);
     assert(!value.empty());
@@ -1583,7 +1567,7 @@ auto describe(const bool valid, const Instruction &step,
     std::ostringstream message;
     message << "The string value " << escape_string(target.to_string())
             << " was expected to represent a valid";
-    switch (instruction_value<ValueStringType>(step)) {
+    switch (step.value.string_type) {
       case ValueStringType::URI:
         message << " URI";
         break;
@@ -1596,7 +1580,7 @@ auto describe(const bool valid, const Instruction &step,
 
   if (step.type == sourcemeta::blaze::InstructionIndex::AssertionPropertyType) {
     std::ostringstream message;
-    const auto &value{instruction_value<ValueType>(step)};
+    const auto &value{step.value.type};
     if (!valid && value == sourcemeta::jsontoolkit::JSON::Type::Real &&
         target.type() == sourcemeta::jsontoolkit::JSON::Type::Integer) {
       message
@@ -1616,7 +1600,7 @@ auto describe(const bool valid, const Instruction &step,
   if (step.type ==
       sourcemeta::blaze::InstructionIndex::AssertionPropertyTypeEvaluate) {
     std::ostringstream message;
-    const auto &value{instruction_value<ValueType>(step)};
+    const auto &value{step.value.type};
     if (!valid && value == sourcemeta::jsontoolkit::JSON::Type::Real &&
         target.type() == sourcemeta::jsontoolkit::JSON::Type::Integer) {
       message
@@ -1636,7 +1620,7 @@ auto describe(const bool valid, const Instruction &step,
   if (step.type ==
       sourcemeta::blaze::InstructionIndex::AssertionPropertyTypeStrict) {
     std::ostringstream message;
-    const auto &value{instruction_value<ValueType>(step)};
+    const auto &value{step.value.type};
     if (!valid && value == sourcemeta::jsontoolkit::JSON::Type::Real &&
         target.type() == sourcemeta::jsontoolkit::JSON::Type::Integer) {
       message
@@ -1656,7 +1640,7 @@ auto describe(const bool valid, const Instruction &step,
   if (step.type == sourcemeta::blaze::InstructionIndex::
                        AssertionPropertyTypeStrictEvaluate) {
     std::ostringstream message;
-    const auto &value{instruction_value<ValueType>(step)};
+    const auto &value{step.value.type};
     if (!valid && value == sourcemeta::jsontoolkit::JSON::Type::Real &&
         target.type() == sourcemeta::jsontoolkit::JSON::Type::Integer) {
       message
@@ -1676,16 +1660,14 @@ auto describe(const bool valid, const Instruction &step,
   if (step.type ==
       sourcemeta::blaze::InstructionIndex::AssertionPropertyTypeStrictAny) {
     std::ostringstream message;
-    describe_types_check(valid, target.type(),
-                         instruction_value<ValueTypes>(step), message);
+    describe_types_check(valid, target.type(), step.value.types, message);
     return message.str();
   }
 
   if (step.type == sourcemeta::blaze::InstructionIndex::
                        AssertionPropertyTypeStrictAnyEvaluate) {
     std::ostringstream message;
-    describe_types_check(valid, target.type(),
-                         instruction_value<ValueTypes>(step), message);
+    describe_types_check(valid, target.type(), step.value.types, message);
     return message.str();
   }
 
@@ -1758,7 +1740,7 @@ auto describe(const bool valid, const Instruction &step,
   if (step.type == sourcemeta::blaze::InstructionIndex::LogicalWhenDefines) {
     std::ostringstream message;
     message << "The object value defined the property \""
-            << instruction_value<ValueProperty>(step).first << "\"";
+            << step.value.property.first << "\"";
     return message.str();
   }
 
@@ -1766,7 +1748,7 @@ auto describe(const bool valid, const Instruction &step,
     assert(target.is_object());
     std::ostringstream message;
     message << "The object properties that match the regular expression \""
-            << instruction_value<ValueRegex>(step).second
+            << step.value.regex.second
             << "\" were expected to validate against the defined pattern "
                "property subschema";
     return message.str();
@@ -1778,7 +1760,7 @@ auto describe(const bool valid, const Instruction &step,
     std::ostringstream message;
     message << "The object properties were expected to match the regular "
                "expression \""
-            << instruction_value<ValueRegex>(step).second
+            << step.value.regex.second
             << "\" and validate against the defined pattern "
                "property subschema";
     return message.str();
@@ -1789,7 +1771,7 @@ auto describe(const bool valid, const Instruction &step,
     assert(target.is_object());
     std::ostringstream message;
     message << "The object properties that start with the string \""
-            << instruction_value<ValueString>(step)
+            << step.value.string
             << "\" were expected to validate against the defined pattern "
                "property subschema";
     return message.str();
@@ -1798,8 +1780,7 @@ auto describe(const bool valid, const Instruction &step,
   if (step.type == sourcemeta::blaze::InstructionIndex::LogicalWhenType) {
     if (keyword == "items") {
       std::ostringstream message;
-      describe_type_check(valid, target.type(),
-                          instruction_value<ValueType>(step), message);
+      describe_type_check(valid, target.type(), step.value.type, message);
       return message.str();
     }
 
@@ -1817,7 +1798,7 @@ auto describe(const bool valid, const Instruction &step,
         // Schema
         if (child.type == InstructionIndex::LogicalWhenDefines) {
           const auto &substep{child};
-          const auto &property{instruction_value<ValueProperty>(substep).first};
+          const auto &property{substep.value.property.first};
           all_dependencies.insert(property);
           if (!target.defines(property)) {
             continue;
@@ -1831,7 +1812,7 @@ auto describe(const bool valid, const Instruction &step,
           assert(child.type == InstructionIndex::AssertionPropertyDependencies);
           const auto &substep{child};
 
-          for (const auto &entry : std::get<ValueStringMap>(substep.value)) {
+          for (const auto &entry : substep.value.string_map) {
             all_dependencies.insert(entry.first);
             if (target.defines(entry.first)) {
               present.insert(entry.first);
@@ -1939,7 +1920,7 @@ auto describe(const bool valid, const Instruction &step,
       for (const auto &child : step.children) {
         assert(child.type == InstructionIndex::LogicalWhenDefines);
         const auto &substep{child};
-        const auto &property{instruction_value<ValueProperty>(substep).first};
+        const auto &property{substep.value.property.first};
         all_dependencies.insert(property);
         if (!target.defines(property)) {
           continue;
@@ -2003,7 +1984,7 @@ auto describe(const bool valid, const Instruction &step,
     std::set<std::string> all_dependencies;
     std::set<std::string> required;
 
-    for (const auto &entry : instruction_value<ValueStringMap>(step)) {
+    for (const auto &entry : step.value.string_map) {
       all_dependencies.insert(entry.first);
       if (target.defines(entry.first)) {
         present.insert(entry.first);
@@ -2076,9 +2057,8 @@ auto describe(const bool valid, const Instruction &step,
       assert(target.is_array());
       std::ostringstream message;
 
-      if (target.size() > instruction_value<ValueUnsignedInteger>(step)) {
-        const auto rest{target.size() -
-                        instruction_value<ValueUnsignedInteger>(step)};
+      if (target.size() > step.value.unsigned_integer) {
+        const auto rest{target.size() - step.value.unsigned_integer};
         message << "The array value contains " << rest << " additional"
                 << (rest == 1 ? " item" : " items")
                 << " not described by related keywords";

@@ -345,7 +345,7 @@ auto compiler_2019_09_core_recursiveref(const Context &context,
   }
 
   return {make(sourcemeta::blaze::InstructionIndex::ControlDynamicAnchorJump,
-               context, schema_context, dynamic_context, "")};
+               context, schema_context, dynamic_context, ValueString{""})};
 }
 
 auto compiler_2019_09_applicator_properties(
