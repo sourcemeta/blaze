@@ -877,6 +877,7 @@ auto compiler_draft4_applicator_properties_with_options(
             std::vector<sourcemeta::jsontoolkit::Hash::hash_type>
                 perfect_hashes;
             for (const auto &entry : required) {
+              assert(required.contains(entry.first, entry.second));
               if (sourcemeta::jsontoolkit::Hash{}.is_perfect_string_hash(
                       entry.second)) {
                 perfect_hashes.push_back(entry.second);

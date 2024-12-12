@@ -257,7 +257,7 @@ TEST(Evaluator_draft4, required_3) {
 
   EVALUATE_TRACE_POST_DESCRIBE(
       instance, 0,
-      "The object value was expected to define properties \"foo\", and \"baz\" "
+      "The object value was expected to define properties \"baz\", and \"foo\" "
       "but did not define the property \"baz\"");
 }
 
@@ -279,7 +279,7 @@ TEST(Evaluator_draft4, required_4) {
                               "#/required", "");
   EVALUATE_TRACE_POST_DESCRIBE(instance, 0,
                                "The value was expected to be an object that "
-                               "defines properties \"foo\", and \"bar\"");
+                               "defines properties \"bar\", and \"foo\"");
 }
 
 TEST(Evaluator_draft4, required_4_exhaustive) {
@@ -301,7 +301,7 @@ TEST(Evaluator_draft4, required_4_exhaustive) {
 
   EVALUATE_TRACE_POST_DESCRIBE(instance, 0,
                                "The object value was expected to define "
-                               "properties \"foo\", and \"bar\"");
+                               "properties \"bar\", and \"foo\"");
   EVALUATE_TRACE_POST_DESCRIBE(instance, 1,
                                "The value was expected to be of type object");
 }
@@ -337,7 +337,7 @@ TEST(Evaluator_draft4, allOf_1) {
                                "The value was expected to be of type object");
   EVALUATE_TRACE_POST_DESCRIBE(instance, 1,
                                "The object value was expected to define "
-                               "properties \"foo\", and \"bar\"");
+                               "properties \"bar\", and \"foo\"");
   EVALUATE_TRACE_POST_DESCRIBE(instance, 2,
                                "The object value was expected to validate "
                                "against the 2 given subschemas");
@@ -374,7 +374,7 @@ TEST(Evaluator_draft4, allOf_2) {
                                "The value was expected to be of type object");
   EVALUATE_TRACE_POST_DESCRIBE(
       instance, 1,
-      "The object value was expected to define properties \"foo\", and \"bar\" "
+      "The object value was expected to define properties \"bar\", and \"foo\" "
       "but did not define the property \"bar\"");
   EVALUATE_TRACE_POST_DESCRIBE(instance, 2,
                                "The object value was expected to validate "
@@ -1078,7 +1078,7 @@ TEST(Evaluator_draft4, properties_5) {
 
   EVALUATE_TRACE_POST_DESCRIBE(instance, 0,
                                "The value was expected to be an object that "
-                               "defines properties \"foo\", and \"bar\"");
+                               "defines properties \"bar\", and \"foo\"");
   EVALUATE_TRACE_POST_DESCRIBE(instance, 1,
                                "The value was expected to be of type integer");
   EVALUATE_TRACE_POST_DESCRIBE(instance, 2,

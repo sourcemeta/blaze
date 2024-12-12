@@ -1791,21 +1791,41 @@ INSTRUCTION_HANDLER(LoopPropertiesExactlyTypeStrictHash) {
   }
 
   const auto &object{target.as_object()};
-  if (object.size() == value.second.size()) {
+  const auto size{object.size()};
+  if (size == value.second.size()) {
     // Otherwise why emit this instruction?
     assert(!value.second.empty());
-    result = true;
+
+    // The idea is to first assume the object property ordering and the
+    // hashes collection aligns. If they don't we do a full comparison
+    // from where we left of.
+
+    std::size_t index{0};
     for (const auto &entry : object) {
       if (entry.second.type() != value.first) {
-        result = false;
+        EVALUATE_END(LoopPropertiesExactlyTypeStrictHash);
+      }
+
+      if (entry.hash != value.second[index]) {
         break;
       }
 
-      if (std::none_of(
-              value.second.cbegin(), value.second.cend(),
-              [&entry](const auto hash) { return hash == entry.hash; })) {
-        result = false;
-        break;
+      index += 1;
+    }
+
+    result = true;
+    if (index < size) {
+      auto iterator = object.cbegin();
+      // Continue where we left
+      std::advance(iterator, index);
+      for (; iterator != object.cend(); ++iterator) {
+        if (std::none_of(value.second.cbegin(), value.second.cend(),
+                         [&iterator](const auto hash) {
+                           return hash == iterator->hash;
+                         })) {
+          result = false;
+          break;
+        }
       }
     }
   }
