@@ -1796,21 +1796,21 @@ INSTRUCTION_HANDLER(LoopPropertiesExactlyTypeStrictHash) {
     // Otherwise why emit this instruction?
     assert(!value.second.empty());
 
-    bool check_exhaustively{false};
-    for (std::size_t index = 0; index < size; index++) {
-      const auto &entry{object.at(index)};
+    std::size_t index{0};
+    for (const auto &entry : object) {
       if (entry.second.type() != value.first) {
         EVALUATE_END(LoopPropertiesExactlyTypeStrictHash);
       }
 
       if (entry.hash != value.second[index]) {
-        check_exhaustively = true;
         break;
       }
+
+      index += 1;
     }
 
     result = true;
-    if (check_exhaustively) {
+    if (index < size) {
       for (const auto &entry : object) {
         if (std::none_of(
                 value.second.cbegin(), value.second.cend(),
