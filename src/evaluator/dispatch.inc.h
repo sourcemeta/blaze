@@ -1776,6 +1776,43 @@ INSTRUCTION_HANDLER(LoopPropertiesExactlyTypeStrict) {
   EVALUATE_END(LoopPropertiesExactlyTypeStrict);
 }
 
+INSTRUCTION_HANDLER(LoopPropertiesExactlyTypeStrictHash) {
+  SOURCEMETA_MAYBE_UNUSED(depth);
+  SOURCEMETA_MAYBE_UNUSED(schema);
+  SOURCEMETA_MAYBE_UNUSED(callback);
+  SOURCEMETA_MAYBE_UNUSED(instance);
+  SOURCEMETA_MAYBE_UNUSED(property_target);
+  SOURCEMETA_MAYBE_UNUSED(evaluator);
+  EVALUATE_BEGIN_NO_PRECONDITION(LoopPropertiesExactlyTypeStrictHash);
+  const auto &target{get(instance, instruction.relative_instance_location)};
+  const auto &value{*std::get_if<ValueTypedHashes>(&instruction.value)};
+  if (!target.is_object()) {
+    EVALUATE_END(LoopPropertiesExactlyTypeStrictHash);
+  }
+
+  const auto &object{target.as_object()};
+  if (object.size() == value.second.size()) {
+    // Otherwise why emit this instruction?
+    assert(!value.second.empty());
+    result = true;
+    for (const auto &entry : object) {
+      if (entry.second.type() != value.first) {
+        result = false;
+        break;
+      }
+
+      if (std::none_of(
+              value.second.cbegin(), value.second.cend(),
+              [&entry](const auto hash) { return hash == entry.hash; })) {
+        result = false;
+        break;
+      }
+    }
+  }
+
+  EVALUATE_END(LoopPropertiesExactlyTypeStrictHash);
+}
+
 INSTRUCTION_HANDLER(LoopPropertiesTypeStrict) {
   SOURCEMETA_MAYBE_UNUSED(depth);
   SOURCEMETA_MAYBE_UNUSED(schema);
@@ -2150,7 +2187,7 @@ using DispatchHandler = bool (*)(
     sourcemeta::blaze::Evaluator &);
 
 // Must have same order as InstructionIndex
-static constexpr DispatchHandler handlers[88] = {
+static constexpr DispatchHandler handlers[89] = {
     AssertionFail,
     AssertionDefines,
     AssertionDefinesStrict,
@@ -2219,6 +2256,7 @@ static constexpr DispatchHandler handlers[88] = {
     LoopPropertiesType,
     LoopPropertiesTypeEvaluate,
     LoopPropertiesExactlyTypeStrict,
+    LoopPropertiesExactlyTypeStrictHash,
     LoopPropertiesTypeStrict,
     LoopPropertiesTypeStrictEvaluate,
     LoopPropertiesTypeStrictAny,

@@ -680,6 +680,14 @@ auto describe(const bool valid, const Instruction &step,
     return message.str();
   }
 
+  if (step.type == sourcemeta::blaze::InstructionIndex::
+                       LoopPropertiesExactlyTypeStrictHash) {
+    std::ostringstream message;
+    message << "The required object properties were expected to be of type "
+            << to_string(instruction_value<ValueTypedHashes>(step).first);
+    return message.str();
+  }
+
   if (step.type == sourcemeta::blaze::InstructionIndex::LoopPropertiesType) {
     std::ostringstream message;
     message << "The object properties were expected to be of type "
