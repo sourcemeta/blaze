@@ -1791,21 +1791,33 @@ INSTRUCTION_HANDLER(LoopPropertiesExactlyTypeStrictHash) {
   }
 
   const auto &object{target.as_object()};
-  if (object.size() == value.second.size()) {
+  const auto size{object.size()};
+  if (size == value.second.size()) {
     // Otherwise why emit this instruction?
     assert(!value.second.empty());
-    result = true;
-    for (const auto &entry : object) {
+
+    bool check_exhaustively{false};
+    for (std::size_t index = 0; index < size; index++) {
+      const auto &entry{object.at(index)};
       if (entry.second.type() != value.first) {
-        result = false;
-        break;
+        EVALUATE_END(LoopPropertiesExactlyTypeStrictHash);
       }
 
-      if (std::none_of(
-              value.second.cbegin(), value.second.cend(),
-              [&entry](const auto hash) { return hash == entry.hash; })) {
-        result = false;
+      if (entry.hash != value.second[index]) {
+        check_exhaustively = true;
         break;
+      }
+    }
+
+    result = true;
+    if (check_exhaustively) {
+      for (const auto &entry : object) {
+        if (std::none_of(
+                value.second.cbegin(), value.second.cend(),
+                [&entry](const auto hash) { return hash == entry.hash; })) {
+          result = false;
+          break;
+        }
       }
     }
   }

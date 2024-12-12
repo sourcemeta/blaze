@@ -203,6 +203,10 @@ public:
     return current_size;
   }
 
+  inline auto at(const size_type index) const noexcept -> const auto & {
+    return this->data[index];
+  }
+
   inline auto erase(const key_type &key) -> size_type {
     return this->erase(key, this->hash(key));
   }
