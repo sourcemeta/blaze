@@ -52,35 +52,35 @@ public:
   using const_reverse_iterator = typename Container::const_reverse_iterator;
 
   /// Get a mutable begin iterator on the array
-  auto begin() noexcept -> iterator { return this->data.begin(); }
+  inline auto begin() noexcept -> iterator { return this->data.begin(); }
   /// Get a mutable end iterator on the array
-  auto end() noexcept -> iterator { return this->data.end(); }
+  inline auto end() noexcept -> iterator { return this->data.end(); }
   /// Get a constant begin iterator on the array
-  auto begin() const noexcept -> const_iterator { return this->data.begin(); }
+  inline auto begin() const noexcept -> const_iterator { return this->data.begin(); }
   /// Get a constant end iterator on the array
-  auto end() const noexcept -> const_iterator { return this->data.end(); }
+  inline auto end() const noexcept -> const_iterator { return this->data.end(); }
   /// Get a constant begin iterator on the array
-  auto cbegin() const noexcept -> const_iterator { return this->data.cbegin(); }
+  inline auto cbegin() const noexcept -> const_iterator { return this->data.cbegin(); }
   /// Get a constant end iterator on the array
-  auto cend() const noexcept -> const_iterator { return this->data.cend(); }
+  inline auto cend() const noexcept -> const_iterator { return this->data.cend(); }
   /// Get a mutable reverse begin iterator on the array
-  auto rbegin() noexcept -> reverse_iterator { return this->data.rbegin(); }
+  inline auto rbegin() noexcept -> reverse_iterator { return this->data.rbegin(); }
   /// Get a mutable reverse end iterator on the array
-  auto rend() noexcept -> reverse_iterator { return this->data.rend(); }
+  inline auto rend() noexcept -> reverse_iterator { return this->data.rend(); }
   /// Get a constant reverse begin iterator on the array
-  auto rbegin() const noexcept -> const_reverse_iterator {
+  inline auto rbegin() const noexcept -> const_reverse_iterator {
     return this->data.rbegin();
   }
   /// Get a constant reverse end iterator on the array
-  auto rend() const noexcept -> const_reverse_iterator {
+  inline auto rend() const noexcept -> const_reverse_iterator {
     return this->data.rend();
   }
   /// Get a constant reverse begin iterator on the array
-  auto crbegin() const noexcept -> const_reverse_iterator {
+  inline auto crbegin() const noexcept -> const_reverse_iterator {
     return this->data.crbegin();
   }
   /// Get a constant reverse end iterator on the array
-  auto crend() const noexcept -> const_reverse_iterator {
+  inline auto crend() const noexcept -> const_reverse_iterator {
     return this->data.crend();
   }
 
