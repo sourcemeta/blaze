@@ -149,8 +149,9 @@ INSTRUCTION_HANDLER(AssertionDefinesExactlyStrict) {
   const auto &value{*std::get_if<ValueStringSet>(&instruction.value)};
   // Otherwise we are we even emitting this instruction?
   assert(value.size() > 1);
+  assert(target.is_object());
 
-  if (target.is_object() && value.size() == target.object_size()) {
+  if (value.size() == target.object_size()) {
     result = true;
     const auto &object{target.as_object()};
     for (const auto &property : value) {
