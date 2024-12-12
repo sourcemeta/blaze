@@ -122,18 +122,19 @@ INSTRUCTION_HANDLER(AssertionDefinesExactly) {
   const auto &value{*std::get_if<ValueStringSet>(&instruction.value)};
   // Otherwise we are we even emitting this instruction?
   assert(value.size() > 1);
+  const auto &object{target.as_object()};
 
-  if (value.size() == target.object_size()) {
-    result = true;
-    const auto &object{target.as_object()};
-    for (const auto &property : value) {
-      if (!object.defines(property.first, property.second)) {
-        result = false;
-        break;
-      }
+  if (value.size() != target.object_size()) {
+    EVALUATE_END(AssertionDefinesStrict);
+  }
+
+  for (const auto &property : object) {
+    if (!value.contains(property.first, property.hash)) {
+      EVALUATE_END(AssertionDefinesExactly);
     }
   }
 
+  result = true;
   EVALUATE_END(AssertionDefinesExactly);
 }
 
@@ -149,18 +150,20 @@ INSTRUCTION_HANDLER(AssertionDefinesExactlyStrict) {
   const auto &value{*std::get_if<ValueStringSet>(&instruction.value)};
   // Otherwise we are we even emitting this instruction?
   assert(value.size() > 1);
+  assert(target.is_object());
+  const auto &object{target.as_object()};
 
-  if (target.is_object() && value.size() == target.object_size()) {
-    result = true;
-    const auto &object{target.as_object()};
-    for (const auto &property : value) {
-      if (!object.defines(property.first, property.second)) {
-        result = false;
-        break;
-      }
+  if (value.size() != target.object_size()) {
+    EVALUATE_END(AssertionDefinesExactlyStrict);
+  }
+
+  for (const auto &property : object) {
+    if (!value.contains(property.first, property.hash)) {
+      EVALUATE_END(AssertionDefinesExactlyStrict);
     }
   }
 
+  result = true;
   EVALUATE_END(AssertionDefinesExactlyStrict);
 }
 
