@@ -1754,12 +1754,17 @@ INSTRUCTION_HANDLER(LoopPropertiesExactlyTypeStrict) {
   SOURCEMETA_MAYBE_UNUSED(evaluator);
   EVALUATE_BEGIN_NO_PRECONDITION(LoopPropertiesExactlyTypeStrict);
   const auto &target{get(instance, instruction.relative_instance_location)};
-  if (target.is_object()) {
-    const auto &value{*std::get_if<ValueTypedProperties>(&instruction.value)};
+  const auto &value{*std::get_if<ValueTypedProperties>(&instruction.value)};
+  if (!target.is_object()) {
+    EVALUATE_END(LoopPropertiesExactlyTypeStrict);
+  }
+
+  const auto &object{target.as_object()};
+  if (object.size() == value.second.size()) {
     // Otherwise why emit this instruction?
     assert(!value.second.empty());
     result = true;
-    for (const auto &entry : target.as_object()) {
+    for (const auto &entry : object) {
       if (entry.second.type() != value.first ||
           !value.second.contains(entry.first, entry.hash)) {
         result = false;
