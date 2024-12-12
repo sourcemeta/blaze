@@ -122,10 +122,10 @@ INSTRUCTION_HANDLER(AssertionDefinesExactly) {
   const auto &value{*std::get_if<ValueStringSet>(&instruction.value)};
   // Otherwise we are we even emitting this instruction?
   assert(value.size() > 1);
+  const auto &object{target.as_object()};
 
-  if (value.size() == target.object_size()) {
+  if (value.size() == object.size()) {
     result = true;
-    const auto &object{target.as_object()};
     for (const auto &property : value) {
       if (!object.defines(property.first, property.second)) {
         result = false;
@@ -150,10 +150,10 @@ INSTRUCTION_HANDLER(AssertionDefinesExactlyStrict) {
   // Otherwise we are we even emitting this instruction?
   assert(value.size() > 1);
   assert(target.is_object());
+  const auto &object{target.as_object()};
 
-  if (value.size() == target.object_size()) {
+  if (value.size() == object.size()) {
     result = true;
-    const auto &object{target.as_object()};
     for (const auto &property : value) {
       if (!object.defines(property.first, property.second)) {
         result = false;
