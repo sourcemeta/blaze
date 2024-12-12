@@ -868,7 +868,9 @@ auto compiler_draft4_applicator_properties_with_options(
                                  schema_context.schema.at("type").is_string() &&
                                  schema_context.schema.at("type").to_string() ==
                                      "object"};
-        if (schema_context.schema.defines("required") && assume_object) {
+        if (schema_context.schema.defines("required") &&
+            !schema_context.schema.defines("patternProperties") &&
+            assume_object) {
           ValueStringSet required{
               json_array_to_string_set(schema_context.schema.at("required"))};
           if (is_closed_properties_required(schema_context.schema, required)) {
