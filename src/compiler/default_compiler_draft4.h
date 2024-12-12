@@ -72,6 +72,34 @@ is_inside_disjunctor(const sourcemeta::jsontoolkit::Pointer &pointer) -> bool {
           pointer.at(pointer.size() - 3).to_property() == "anyOf");
 }
 
+static auto
+json_array_to_string_set(const sourcemeta::jsontoolkit::JSON &document)
+    -> sourcemeta::blaze::ValueStringSet {
+  sourcemeta::blaze::ValueStringSet result;
+  for (const auto &value : document.as_array()) {
+    assert(value.is_string());
+    result.insert(value.to_string());
+  }
+
+  return result;
+}
+
+static auto
+is_closed_properties_required(const sourcemeta::jsontoolkit::JSON &schema,
+                              const sourcemeta::blaze::ValueStringSet &required)
+    -> bool {
+  return schema.defines("additionalProperties") &&
+         schema.at("additionalProperties").is_boolean() &&
+         !schema.at("additionalProperties").to_boolean() &&
+         schema.defines("properties") && schema.at("properties").is_object() &&
+         schema.at("properties").size() == required.size() &&
+         std::all_of(required.begin(), required.end(),
+                     [&schema](const auto &property) {
+                       return schema.at("properties")
+                           .defines(property.first, property.second);
+                     });
+}
+
 namespace internal {
 using namespace sourcemeta::blaze;
 
@@ -432,14 +460,8 @@ auto compiler_draft4_validation_required(const Context &context,
   if (schema_context.schema.at(dynamic_context.keyword).empty()) {
     return {};
   } else if (schema_context.schema.at(dynamic_context.keyword).size() > 1) {
-    ValueStringSet properties_set;
-
-    for (const auto &property :
-         schema_context.schema.at(dynamic_context.keyword).as_array()) {
-      assert(property.is_string());
-      properties_set.insert(property.to_string());
-    }
-
+    ValueStringSet properties_set{json_array_to_string_set(
+        schema_context.schema.at(dynamic_context.keyword))};
     if (properties_set.size() == 1) {
       if (context.mode == Mode::FastValidation && assume_object) {
         return {
@@ -451,18 +473,8 @@ auto compiler_draft4_validation_required(const Context &context,
                      context, schema_context, dynamic_context,
                      make_property(properties_set.begin()->first))};
       }
-    } else if (schema_context.schema.defines("additionalProperties") &&
-               schema_context.schema.at("additionalProperties").is_boolean() &&
-               !schema_context.schema.at("additionalProperties").to_boolean() &&
-               schema_context.schema.defines("properties") &&
-               schema_context.schema.at("properties").is_object() &&
-               schema_context.schema.at("properties").size() ==
-                   properties_set.size() &&
-               std::all_of(properties_set.begin(), properties_set.end(),
-                           [&schema_context](const auto &property) {
-                             return schema_context.schema.at("properties")
-                                 .defines(property.first, property.second);
-                           })) {
+    } else if (is_closed_properties_required(schema_context.schema,
+                                             properties_set)) {
       if (context.mode == Mode::FastValidation && assume_object) {
         return {make(
             sourcemeta::blaze::InstructionIndex::AssertionDefinesExactlyStrict,
