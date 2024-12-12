@@ -1796,6 +1796,10 @@ INSTRUCTION_HANDLER(LoopPropertiesExactlyTypeStrictHash) {
     // Otherwise why emit this instruction?
     assert(!value.second.empty());
 
+    // The idea is to first assume the object property ordering and the
+    // hashes collection aligns. If they don't we do a full comparison
+    // from where we left of.
+
     std::size_t index{0};
     for (const auto &entry : object) {
       if (entry.second.type() != value.first) {
@@ -1811,10 +1815,14 @@ INSTRUCTION_HANDLER(LoopPropertiesExactlyTypeStrictHash) {
 
     result = true;
     if (index < size) {
-      for (const auto &entry : object) {
-        if (std::none_of(
-                value.second.cbegin(), value.second.cend(),
-                [&entry](const auto hash) { return hash == entry.hash; })) {
+      auto iterator = object.cbegin();
+      // Continue where we left
+      std::advance(iterator, index);
+      for (; iterator != object.cend(); ++iterator) {
+        if (std::none_of(value.second.cbegin(), value.second.cend(),
+                         [&iterator](const auto hash) {
+                           return hash == iterator->hash;
+                         })) {
           result = false;
           break;
         }
