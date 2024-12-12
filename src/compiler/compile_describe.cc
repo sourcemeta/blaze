@@ -672,6 +672,14 @@ auto describe(const bool valid, const Instruction &step,
     return "The object value was not expected to define additional properties";
   }
 
+  if (step.type ==
+      sourcemeta::blaze::InstructionIndex::LoopPropertiesExactlyTypeStrict) {
+    std::ostringstream message;
+    message << "The required object properties were expected to be of type "
+            << to_string(instruction_value<ValueTypedProperties>(step).first);
+    return message.str();
+  }
+
   if (step.type == sourcemeta::blaze::InstructionIndex::LoopPropertiesType) {
     std::ostringstream message;
     message << "The object properties were expected to be of type "

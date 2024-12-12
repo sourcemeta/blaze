@@ -100,6 +100,57 @@ is_closed_properties_required(const sourcemeta::jsontoolkit::JSON &schema,
                      });
 }
 
+static auto
+compile_properties(const sourcemeta::blaze::Context &context,
+                   const sourcemeta::blaze::SchemaContext &schema_context,
+                   const sourcemeta::blaze::DynamicContext &dynamic_context)
+    -> std::vector<std::pair<std::string, sourcemeta::blaze::Instructions>> {
+  std::vector<std::pair<std::string, sourcemeta::blaze::Instructions>>
+      properties;
+  for (const auto &entry : schema_context.schema.at("properties").as_object()) {
+    properties.push_back(
+        {entry.first, compile(context, schema_context, dynamic_context,
+                              {entry.first}, {entry.first})});
+  }
+
+  // In many cases, `properties` have some subschemas that are small
+  // and some subschemas that are large. To attempt to improve performance,
+  // we prefer to evaluate smaller subschemas first, in the hope of failing
+  // earlier without spending a lot of time on other subschemas
+  std::sort(properties.begin(), properties.end(),
+            [](const auto &left, const auto &right) {
+              const auto left_size{recursive_template_size(left.second)};
+              const auto right_size{recursive_template_size(right.second)};
+              if (left_size == right_size) {
+                const auto left_direct_enumeration{
+                    defines_direct_enumeration(left.second)};
+                const auto right_direct_enumeration{
+                    defines_direct_enumeration(right.second)};
+
+                // Enumerations always take precedence
+                if (left_direct_enumeration.has_value() &&
+                    right_direct_enumeration.has_value()) {
+                  // If both options have a direct enumeration, we choose
+                  // the one with the shorter relative schema location
+                  return relative_schema_location_size(
+                             left.second.at(left_direct_enumeration.value())) <
+                         relative_schema_location_size(
+                             right.second.at(right_direct_enumeration.value()));
+                } else if (left_direct_enumeration.has_value()) {
+                  return true;
+                } else if (right_direct_enumeration.has_value()) {
+                  return false;
+                }
+
+                return left.first < right.first;
+              } else {
+                return left_size < right_size;
+              }
+            });
+
+  return properties;
+}
+
 namespace internal {
 using namespace sourcemeta::blaze;
 
@@ -476,6 +527,35 @@ auto compiler_draft4_validation_required(const Context &context,
     } else if (is_closed_properties_required(schema_context.schema,
                                              properties_set)) {
       if (context.mode == Mode::FastValidation && assume_object) {
+        const SchemaContext new_schema_context{
+            schema_context.relative_pointer.initial().concat({"properties"}),
+            schema_context.schema,
+            schema_context.vocabularies,
+            schema_context.base,
+            schema_context.labels,
+            schema_context.references};
+        const DynamicContext new_dynamic_context{
+            "properties", sourcemeta::jsontoolkit::empty_pointer,
+            sourcemeta::jsontoolkit::empty_pointer};
+        auto properties{compile_properties(context, new_schema_context,
+                                           new_dynamic_context)};
+        if (std::all_of(properties.cbegin(), properties.cend(),
+                        [](const auto &property) {
+                          return property.second.size() == 1 &&
+                                 property.second.front().type ==
+                                     InstructionIndex::AssertionTypeStrict;
+                        })) {
+          std::set<ValueType> types;
+          for (const auto &property : properties) {
+            types.insert(std::get<ValueType>(property.second.front().value));
+          }
+
+          if (types.size() == 1) {
+            // Handled in `properties`
+            return {};
+          }
+        }
+
         return {make(
             sourcemeta::blaze::InstructionIndex::AssertionDefinesExactlyStrict,
             context, schema_context, dynamic_context,
@@ -594,55 +674,6 @@ auto compiler_draft4_applicator_oneof(const Context &context,
   return {make(sourcemeta::blaze::InstructionIndex::LogicalXor, context,
                schema_context, dynamic_context,
                ValueBoolean{requires_exhaustive}, std::move(disjunctors))};
-}
-
-static auto compile_properties(const Context &context,
-                               const SchemaContext &schema_context,
-                               const DynamicContext &dynamic_context)
-    -> std::vector<std::pair<std::string, Instructions>> {
-  std::vector<std::pair<std::string, Instructions>> properties;
-  for (const auto &entry : schema_context.schema.at("properties").as_object()) {
-    properties.push_back(
-        {entry.first, compile(context, schema_context, dynamic_context,
-                              {entry.first}, {entry.first})});
-  }
-
-  // In many cases, `properties` have some subschemas that are small
-  // and some subschemas that are large. To attempt to improve performance,
-  // we prefer to evaluate smaller subschemas first, in the hope of failing
-  // earlier without spending a lot of time on other subschemas
-  std::sort(properties.begin(), properties.end(),
-            [](const auto &left, const auto &right) {
-              const auto left_size{recursive_template_size(left.second)};
-              const auto right_size{recursive_template_size(right.second)};
-              if (left_size == right_size) {
-                const auto left_direct_enumeration{
-                    defines_direct_enumeration(left.second)};
-                const auto right_direct_enumeration{
-                    defines_direct_enumeration(right.second)};
-
-                // Enumerations always take precedence
-                if (left_direct_enumeration.has_value() &&
-                    right_direct_enumeration.has_value()) {
-                  // If both options have a direct enumeration, we choose
-                  // the one with the shorter relative schema location
-                  return relative_schema_location_size(
-                             left.second.at(left_direct_enumeration.value())) <
-                         relative_schema_location_size(
-                             right.second.at(right_direct_enumeration.value()));
-                } else if (left_direct_enumeration.has_value()) {
-                  return true;
-                } else if (right_direct_enumeration.has_value()) {
-                  return false;
-                }
-
-                return left.first < right.first;
-              } else {
-                return left_size < right_size;
-              }
-            });
-
-  return properties;
 }
 
 // There are two ways to compile `properties` depending on whether
@@ -833,6 +864,22 @@ auto compiler_draft4_applicator_properties_with_options(
       }
 
       if (types.size() == 1) {
+        const auto assume_object{schema_context.schema.defines("type") &&
+                                 schema_context.schema.at("type").is_string() &&
+                                 schema_context.schema.at("type").to_string() ==
+                                     "object"};
+        if (schema_context.schema.defines("required") && assume_object) {
+          ValueStringSet required{
+              json_array_to_string_set(schema_context.schema.at("required"))};
+          if (is_closed_properties_required(schema_context.schema, required)) {
+            return {make(
+                sourcemeta::blaze::InstructionIndex::
+                    LoopPropertiesExactlyTypeStrict,
+                context, schema_context, dynamic_context,
+                ValueTypedProperties{*types.cbegin(), std::move(required)})};
+          }
+        }
+
         return {
             make(sourcemeta::blaze::InstructionIndex::LoopPropertiesTypeStrict,
                  context, schema_context, dynamic_context, *types.cbegin())};

@@ -1745,6 +1745,32 @@ INSTRUCTION_HANDLER(LoopPropertiesTypeEvaluate) {
   EVALUATE_END(LoopPropertiesTypeEvaluate);
 }
 
+INSTRUCTION_HANDLER(LoopPropertiesExactlyTypeStrict) {
+  SOURCEMETA_MAYBE_UNUSED(depth);
+  SOURCEMETA_MAYBE_UNUSED(schema);
+  SOURCEMETA_MAYBE_UNUSED(callback);
+  SOURCEMETA_MAYBE_UNUSED(instance);
+  SOURCEMETA_MAYBE_UNUSED(property_target);
+  SOURCEMETA_MAYBE_UNUSED(evaluator);
+  EVALUATE_BEGIN_NO_PRECONDITION(LoopPropertiesExactlyTypeStrict);
+  const auto &target{get(instance, instruction.relative_instance_location)};
+  if (target.is_object()) {
+    const auto &value{*std::get_if<ValueTypedProperties>(&instruction.value)};
+    // Otherwise why emit this instruction?
+    assert(!value.second.empty());
+    result = true;
+    for (const auto &entry : target.as_object()) {
+      if (entry.second.type() != value.first ||
+          !value.second.contains(entry.first, entry.hash)) {
+        result = false;
+        break;
+      }
+    }
+  }
+
+  EVALUATE_END(LoopPropertiesExactlyTypeStrict);
+}
+
 INSTRUCTION_HANDLER(LoopPropertiesTypeStrict) {
   SOURCEMETA_MAYBE_UNUSED(depth);
   SOURCEMETA_MAYBE_UNUSED(schema);
@@ -2119,7 +2145,7 @@ using DispatchHandler = bool (*)(
     sourcemeta::blaze::Evaluator &);
 
 // Must have same order as InstructionIndex
-static constexpr DispatchHandler handlers[87] = {
+static constexpr DispatchHandler handlers[88] = {
     AssertionFail,
     AssertionDefines,
     AssertionDefinesStrict,
@@ -2187,6 +2213,7 @@ static constexpr DispatchHandler handlers[87] = {
     LoopPropertiesWhitelist,
     LoopPropertiesType,
     LoopPropertiesTypeEvaluate,
+    LoopPropertiesExactlyTypeStrict,
     LoopPropertiesTypeStrict,
     LoopPropertiesTypeStrictEvaluate,
     LoopPropertiesTypeStrictAny,

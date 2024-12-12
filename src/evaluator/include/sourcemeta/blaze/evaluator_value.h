@@ -109,12 +109,17 @@ using ValueIndexPair = std::pair<std::size_t, std::size_t>;
 using ValuePointer = sourcemeta::jsontoolkit::Pointer;
 
 /// @ingroup evaluator
+/// Represents a compiler step types properties value
+using ValueTypedProperties = std::pair<ValueType, ValueStringSet>;
+
+/// @ingroup evaluator
 using Value =
     std::variant<ValueNone, ValueJSON, ValueSet, ValueString, ValueProperty,
                  ValueStrings, ValueStringSet, ValueTypes, ValueType,
                  ValueRegex, ValueUnsignedInteger, ValueRange, ValueBoolean,
                  ValueNamedIndexes, ValueStringType, ValueStringMap,
-                 ValuePropertyFilter, ValueIndexPair, ValuePointer>;
+                 ValuePropertyFilter, ValueIndexPair, ValuePointer,
+                 ValueTypedProperties>;
 
 } // namespace sourcemeta::blaze
 
