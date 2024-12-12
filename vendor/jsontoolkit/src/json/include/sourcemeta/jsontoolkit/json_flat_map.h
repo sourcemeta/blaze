@@ -1,7 +1,7 @@
 #ifndef SOURCEMETA_JSONTOOLKIT_JSON_FLAT_MAP_H_
 #define SOURCEMETA_JSONTOOLKIT_JSON_FLAT_MAP_H_
 
-#include <algorithm>        // std::swap
+#include <algorithm>        // std::swap, std::sort
 #include <cassert>          // assert
 #include <initializer_list> // std::initializer_list
 #include <iterator>         // std::advance
@@ -66,6 +66,7 @@ public:
     }
 
     this->data.push_back({std::move(key), std::move(value), key_hash});
+        this->resort();
     return key_hash;
   }
 
@@ -80,6 +81,7 @@ public:
     }
 
     this->data.push_back({key, value, key_hash});
+        this->resort();
     return key_hash;
   }
 
@@ -189,6 +191,10 @@ public:
 #endif
   }
 
+  inline auto at(const size_type index) const noexcept -> const auto & {
+    return this->data[index];
+  }
+
   auto erase(const key_type &key, const hash_type key_hash) -> size_type {
     const auto current_size{this->size()};
     for (auto &entry : this->data) {
@@ -196,6 +202,7 @@ public:
           this->hasher.equal(entry.first, key, key_hash)) {
         std::swap(entry, this->data.back());
         this->data.pop_back();
+        this->resort();
         return current_size - 1;
       }
     }
@@ -235,6 +242,12 @@ public:
 private:
   underlying_type data;
   Hash hasher;
+  auto resort() -> void {
+    std::sort(this->data.begin(), this->data.end(),
+              [](const auto &left, const auto &right) {
+                return left.hash < right.hash;
+              });
+  }
 };
 
 } // namespace sourcemeta::jsontoolkit

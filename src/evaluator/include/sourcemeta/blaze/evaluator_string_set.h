@@ -38,6 +38,10 @@ public:
   inline auto begin() const -> const_iterator { return this->data.begin(); }
   inline auto end() const -> const_iterator { return this->data.end(); }
 
+  inline auto at(const size_type index) const noexcept -> const auto & {
+    return this->data[index];
+  }
+
 private:
 // Exporting symbols that depends on the standard C++ library is considered
 // safe.
@@ -49,6 +53,7 @@ private:
 #if defined(_MSC_VER)
 #pragma warning(default : 4251 4275)
 #endif
+public:
   sourcemeta::jsontoolkit::Hash hasher;
 };
 

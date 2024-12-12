@@ -1760,15 +1760,29 @@ INSTRUCTION_HANDLER(LoopPropertiesExactlyTypeStrict) {
   }
 
   const auto &object{target.as_object()};
-  if (object.size() == value.second.size()) {
+  const auto size{object.size()};
+  if (size == value.second.size()) {
     // Otherwise why emit this instruction?
     assert(!value.second.empty());
     result = true;
-    for (const auto &entry : object) {
-      if (entry.second.type() != value.first ||
-          !value.second.contains(entry.first, entry.hash)) {
+    for (std::size_t index = 0; index < size; index++) {
+      const auto &entry{object.at(index)};
+      const auto &property{value.second.at(index)};
+      if (entry.second.type() != value.first) {
         result = false;
         break;
+      }
+
+      if (value.second.hasher.is_perfect_string_hash(property.second)) {
+        if (property.second != entry.hash) {
+          result = false;
+          break;
+        }
+      } else {
+        if (property.second != entry.hash || property.first != entry.first) {
+          result = false;
+          break;
+        }
       }
     }
   }
