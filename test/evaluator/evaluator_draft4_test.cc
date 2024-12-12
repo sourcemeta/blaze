@@ -2859,10 +2859,10 @@ TEST(Evaluator_draft4, additionalProperties_14) {
 
   EVALUATE_WITH_TRACE_FAST_SUCCESS(schema, instance, 1);
 
-  EVALUATE_TRACE_PRE(0, LoopPropertiesExactlyTypeStrict, "/properties",
+  EVALUATE_TRACE_PRE(0, LoopPropertiesExactlyTypeStrictHash, "/properties",
                      "#/properties", "");
-  EVALUATE_TRACE_POST_SUCCESS(0, LoopPropertiesExactlyTypeStrict, "/properties",
-                              "#/properties", "");
+  EVALUATE_TRACE_POST_SUCCESS(0, LoopPropertiesExactlyTypeStrictHash,
+                              "/properties", "#/properties", "");
   EVALUATE_TRACE_POST_DESCRIBE(
       instance, 0,
       "The required object properties were expected to be of type boolean");

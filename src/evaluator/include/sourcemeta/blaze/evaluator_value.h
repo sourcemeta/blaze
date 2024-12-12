@@ -113,13 +113,18 @@ using ValuePointer = sourcemeta::jsontoolkit::Pointer;
 using ValueTypedProperties = std::pair<ValueType, ValueStringSet>;
 
 /// @ingroup evaluator
+/// Represents a compiler step types property hashes value
+using ValueTypedHashes =
+    std::pair<ValueType, std::vector<ValueStringSet::hash_type>>;
+
+/// @ingroup evaluator
 using Value =
     std::variant<ValueNone, ValueJSON, ValueSet, ValueString, ValueProperty,
                  ValueStrings, ValueStringSet, ValueTypes, ValueType,
                  ValueRegex, ValueUnsignedInteger, ValueRange, ValueBoolean,
                  ValueNamedIndexes, ValueStringType, ValueStringMap,
                  ValuePropertyFilter, ValueIndexPair, ValuePointer,
-                 ValueTypedProperties>;
+                 ValueTypedProperties, ValueTypedHashes>;
 
 } // namespace sourcemeta::blaze
 

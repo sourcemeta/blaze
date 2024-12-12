@@ -874,6 +874,23 @@ auto compiler_draft4_applicator_properties_with_options(
           ValueStringSet required{
               json_array_to_string_set(schema_context.schema.at("required"))};
           if (is_closed_properties_required(schema_context.schema, required)) {
+            std::vector<sourcemeta::jsontoolkit::Hash::hash_type>
+                perfect_hashes;
+            for (const auto &entry : required) {
+              if (sourcemeta::jsontoolkit::Hash{}.is_perfect_string_hash(
+                      entry.second)) {
+                perfect_hashes.push_back(entry.second);
+              }
+            }
+
+            if (perfect_hashes.size() == required.size()) {
+              return {make(sourcemeta::blaze::InstructionIndex::
+                               LoopPropertiesExactlyTypeStrictHash,
+                           context, schema_context, dynamic_context,
+                           ValueTypedHashes{*types.cbegin(),
+                                            std::move(perfect_hashes)})};
+            }
+
             return {make(
                 sourcemeta::blaze::InstructionIndex::
                     LoopPropertiesExactlyTypeStrict,
