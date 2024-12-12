@@ -1591,23 +1591,16 @@ TEST(Evaluator_draft6, additionalProperties_1) {
   const sourcemeta::jsontoolkit::JSON instance{
       sourcemeta::jsontoolkit::parse("{ \"foo\": true, \"bar\": false }")};
 
-  EVALUATE_WITH_TRACE_FAST_SUCCESS(schema, instance, 2);
+  EVALUATE_WITH_TRACE_FAST_SUCCESS(schema, instance, 1);
 
-  EVALUATE_TRACE_PRE(0, AssertionDefinesExactlyStrict, "/required",
-                     "#/required", "");
-  EVALUATE_TRACE_PRE(1, LoopPropertiesTypeStrict, "/properties", "#/properties",
-                     "");
-
-  EVALUATE_TRACE_POST_SUCCESS(0, AssertionDefinesExactlyStrict, "/required",
-                              "#/required", "");
-  EVALUATE_TRACE_POST_SUCCESS(1, LoopPropertiesTypeStrict, "/properties",
+  EVALUATE_TRACE_PRE(0, LoopPropertiesExactlyTypeStrict, "/properties",
+                     "#/properties", "");
+  EVALUATE_TRACE_POST_SUCCESS(0, LoopPropertiesExactlyTypeStrict, "/properties",
                               "#/properties", "");
 
-  EVALUATE_TRACE_POST_DESCRIBE(instance, 0,
-                               "The value was expected to be an object that "
-                               "only defines properties \"bar\", and \"foo\"");
   EVALUATE_TRACE_POST_DESCRIBE(
-      instance, 1, "The object properties were expected to be of type boolean");
+      instance, 0,
+      "The required object properties were expected to be of type boolean");
 }
 
 TEST(Evaluator_draft6, additionalProperties_2) {
