@@ -42,7 +42,10 @@
     return true;                                                               \
   }                                                                            \
   const auto target_check{                                                     \
-      try_get(target, instruction.relative_instance_location)};                \
+      instruction.relative_instance_location.size() == 1                       \
+          ? target.try_at(                                                     \
+                instruction.relative_instance_location.at(0).to_property())    \
+          : try_get(target, instruction.relative_instance_location)};          \
   if (!target_check) {                                                         \
     return true;                                                               \
   }                                                                            \
