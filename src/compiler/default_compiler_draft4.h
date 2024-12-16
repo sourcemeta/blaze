@@ -1553,6 +1553,20 @@ auto compiler_draft4_applicator_items_with_options(
         return {make(
             sourcemeta::blaze::InstructionIndex::LoopItemsTypeStrictAny,
             context, schema_context, dynamic_context, children.front().value)};
+      } else if (children.front().type ==
+                 InstructionIndex::LoopPropertiesExactlyTypeStrictHash) {
+        auto value_copy = children.front().value;
+        auto current{make(sourcemeta::blaze::InstructionIndex::LoopItems,
+                          context, schema_context, dynamic_context, ValueNone{},
+                          std::move(children))};
+        return {{sourcemeta::blaze::InstructionIndex::
+                     LoopItemsPropertiesExactlyTypeStrictHash,
+                 current.relative_schema_location,
+                 current.relative_instance_location,
+                 current.keyword_location,
+                 current.schema_resource,
+                 std::move(value_copy),
+                 {}}};
       }
     }
 

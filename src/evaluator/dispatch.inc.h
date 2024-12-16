@@ -2135,6 +2135,75 @@ INSTRUCTION_HANDLER(LoopItemsTypeStrictAny) {
   EVALUATE_END(LoopItemsTypeStrictAny);
 }
 
+INSTRUCTION_HANDLER(LoopItemsPropertiesExactlyTypeStrictHash) {
+  SOURCEMETA_MAYBE_UNUSED(depth);
+  SOURCEMETA_MAYBE_UNUSED(schema);
+  SOURCEMETA_MAYBE_UNUSED(callback);
+  SOURCEMETA_MAYBE_UNUSED(instance);
+  SOURCEMETA_MAYBE_UNUSED(property_target);
+  SOURCEMETA_MAYBE_UNUSED(evaluator);
+  EVALUATE_BEGIN_NO_PRECONDITION(LoopItemsPropertiesExactlyTypeStrictHash);
+  const auto &target{get(instance, instruction.relative_instance_location)};
+  const auto &value{*std::get_if<ValueTypedHashes>(&instruction.value)};
+
+  if (!target.is_array()) {
+    EVALUATE_END(LoopItemsPropertiesExactlyTypeStrictHash);
+  }
+
+  if (target.array_size() == 0) {
+    result = true;
+    EVALUATE_END(LoopItemsPropertiesExactlyTypeStrictHash);
+  }
+
+  for (const auto &item : target.as_array()) {
+    if (!item.is_object()) {
+      EVALUATE_END(LoopItemsPropertiesExactlyTypeStrictHash);
+    }
+
+    const auto &object{item.as_object()};
+    const auto size{object.size()};
+    if (size == value.second.size()) {
+      // Otherwise why emit this instruction?
+      assert(!value.second.empty());
+
+      // The idea is to first assume the object property ordering and the
+      // hashes collection aligns. If they don't we do a full comparison
+      // from where we left of.
+
+      std::size_t index{0};
+      for (const auto &entry : object) {
+        if (entry.second.type() != value.first) {
+          EVALUATE_END(LoopItemsPropertiesExactlyTypeStrictHash);
+        }
+
+        if (entry.hash != value.second[index]) {
+          break;
+        }
+
+        index += 1;
+      }
+
+      result = true;
+      if (index < size) {
+        auto iterator = object.cbegin();
+        // Continue where we left
+        std::advance(iterator, index);
+        for (; iterator != object.cend(); ++iterator) {
+          if (std::none_of(value.second.cbegin(), value.second.cend(),
+                           [&iterator](const auto hash) {
+                             return hash == iterator->hash;
+                           })) {
+            result = false;
+            break;
+          }
+        }
+      }
+    }
+  }
+
+  EVALUATE_END(LoopItemsPropertiesExactlyTypeStrictHash);
+}
+
 INSTRUCTION_HANDLER(LoopContains) {
   SOURCEMETA_MAYBE_UNUSED(depth);
   SOURCEMETA_MAYBE_UNUSED(schema);
@@ -2207,7 +2276,7 @@ using DispatchHandler = bool (*)(
     sourcemeta::blaze::Evaluator &);
 
 // Must have same order as InstructionIndex
-static constexpr DispatchHandler handlers[89] = {
+static constexpr DispatchHandler handlers[90] = {
     AssertionFail,
     AssertionDefines,
     AssertionDefinesStrict,
@@ -2288,6 +2357,7 @@ static constexpr DispatchHandler handlers[89] = {
     LoopItemsType,
     LoopItemsTypeStrict,
     LoopItemsTypeStrictAny,
+    LoopItemsPropertiesExactlyTypeStrictHash,
     LoopContains,
     ControlGroup,
     ControlGroupWhenDefines,
