@@ -2909,6 +2909,66 @@ TEST(Evaluator_draft4, additionalProperties_15) {
       "The object value was not expected to define additional properties");
 }
 
+TEST(Evaluator_draft4, additionalProperties_16) {
+  const sourcemeta::jsontoolkit::JSON schema{
+      sourcemeta::jsontoolkit::parse(R"JSON({
+    "$schema": "http://json-schema.org/draft-04/schema#",
+    "items": {
+      "type": "object",
+      "required": [ "foo", "bar" ],
+      "additionalProperties": false,
+      "properties": {
+        "foo": { "type": "boolean" },
+        "bar": { "type": "boolean" }
+      }
+    }
+  })JSON")};
+
+  const sourcemeta::jsontoolkit::JSON instance{
+      sourcemeta::jsontoolkit::parse("[ { \"foo\": true, \"bar\": false } ]")};
+
+  EVALUATE_WITH_TRACE_FAST_SUCCESS(schema, instance, 1);
+
+  EVALUATE_TRACE_PRE(0, LoopItemsPropertiesExactlyTypeStrictHash, "/items",
+                     "#/items", "");
+  EVALUATE_TRACE_POST_SUCCESS(0, LoopItemsPropertiesExactlyTypeStrictHash,
+                              "/items", "#/items", "");
+  EVALUATE_TRACE_POST_DESCRIBE(
+      instance, 0,
+      "Every item in the array was expected to be an object whose required "
+      "properties were of type boolean");
+}
+
+TEST(Evaluator_draft4, additionalProperties_17) {
+  const sourcemeta::jsontoolkit::JSON schema{
+      sourcemeta::jsontoolkit::parse(R"JSON({
+    "$schema": "http://json-schema.org/draft-04/schema#",
+    "items": {
+      "type": "object",
+      "required": [ "foo", "bar" ],
+      "additionalProperties": false,
+      "properties": {
+        "foo": { "type": "boolean" },
+        "bar": { "type": "boolean" }
+      }
+    }
+  })JSON")};
+
+  const sourcemeta::jsontoolkit::JSON instance{
+      sourcemeta::jsontoolkit::parse("[]")};
+
+  EVALUATE_WITH_TRACE_FAST_SUCCESS(schema, instance, 1);
+
+  EVALUATE_TRACE_PRE(0, LoopItemsPropertiesExactlyTypeStrictHash, "/items",
+                     "#/items", "");
+  EVALUATE_TRACE_POST_SUCCESS(0, LoopItemsPropertiesExactlyTypeStrictHash,
+                              "/items", "#/items", "");
+  EVALUATE_TRACE_POST_DESCRIBE(
+      instance, 0,
+      "Every item in the array was expected to be an object whose required "
+      "properties were of type boolean");
+}
+
 TEST(Evaluator_draft4, not_1) {
   const sourcemeta::jsontoolkit::JSON schema{
       sourcemeta::jsontoolkit::parse(R"JSON({
