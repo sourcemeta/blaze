@@ -80,4 +80,67 @@ auto MapSchemaResolver::operator()(std::string_view identifier) const
   return std::nullopt;
 }
 
+FlatFileSchemaResolver::FlatFileSchemaResolver() {}
+
+FlatFileSchemaResolver::FlatFileSchemaResolver(const SchemaResolver &resolver)
+    : default_resolver{resolver} {}
+
+auto FlatFileSchemaResolver::add(
+    const std::filesystem::path &path,
+    const std::optional<std::string> &default_dialect,
+    const std::optional<std::string> &default_id) -> void {
+  const auto canonical{std::filesystem::canonical(path)};
+  const auto schema{sourcemeta::jsontoolkit::from_file(canonical)};
+  assert(sourcemeta::jsontoolkit::is_schema(schema));
+  const auto identifier{sourcemeta::jsontoolkit::identify(
+      schema, *this, IdentificationStrategy::Loose, default_dialect,
+      default_id)};
+  if (!identifier.has_value()) {
+    std::ostringstream error;
+    error << "Cannot identify schema: " << canonical.string();
+    throw SchemaError(error.str());
+  }
+
+  const auto result{this->schemas.emplace(
+      identifier.value(), Entry{canonical, default_dialect, default_id})};
+  if (!result.second && result.first->second.path != canonical) {
+    std::ostringstream error;
+    error << "Cannot register the same identifier twice: "
+          << identifier.value();
+    throw SchemaError(error.str());
+  }
+}
+
+auto FlatFileSchemaResolver::operator()(std::string_view identifier) const
+    -> std::optional<JSON> {
+  const std::string string_identifier{identifier};
+  const auto result{this->schemas.find(string_identifier)};
+  if (result != this->schemas.cend()) {
+    auto schema{sourcemeta::jsontoolkit::from_file(result->second.path)};
+    assert(sourcemeta::jsontoolkit::is_schema(schema));
+    if (schema.is_object() && !schema.defines("$schema") &&
+        result->second.default_dialect.has_value()) {
+      schema.assign("$schema", JSON{result->second.default_dialect.value()});
+    }
+
+    const auto schema_identifier{sourcemeta::jsontoolkit::identify(
+        schema, *this, IdentificationStrategy::Strict,
+        result->second.default_dialect)};
+    if (!schema_identifier.has_value() &&
+        result->second.default_id.has_value()) {
+      sourcemeta::jsontoolkit::reidentify(
+          schema, result->second.default_id.value(), *this,
+          result->second.default_dialect);
+    }
+
+    return schema;
+  }
+
+  if (this->default_resolver) {
+    return this->default_resolver(identifier);
+  }
+
+  return std::nullopt;
+}
+
 } // namespace sourcemeta::jsontoolkit

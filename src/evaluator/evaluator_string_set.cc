@@ -6,7 +6,7 @@ namespace sourcemeta::blaze {
 
 auto StringSet::contains(const value_type &value, const hash_type hash) const
     -> bool {
-  if (this->hasher.is_perfect_string_hash(hash)) {
+  if (hash.is_perfect()) {
     for (const auto &entry : this->data) {
       if (entry.second == hash) {
         return true;
