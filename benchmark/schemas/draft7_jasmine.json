@@ -1,0 +1,49 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "allOf": [
+    { "$ref": "#/definitions/root-items" },
+    {
+      "type": "object",
+      "properties": {
+        "env": { "$ref": "#/definitions/env-items" }
+      }
+    },
+    { "$ref": "#/definitions/env-items" }
+  ],
+  "definitions": {
+    "env-items": {
+      "type": "object",
+      "properties": {
+        "autoCleanClosure": { "type": "boolean" },
+        "failSpecWithNoExpectations": { "type": "boolean" },
+        "hideDisbaled": { "type": "boolean" },
+        "random": { "type": "boolean" },
+        "seed": {
+          "anyOf": [
+            { "type": "string" },
+            { "type": "number" },
+            { "type": "null" }
+          ]
+        },
+        "stopOnSpecFailure": { "type": "boolean" },
+        "stopSpecOnExpectationFailure": { "type": "boolean" },
+        "verboseDeprication": { "type": "boolean" }
+      }
+    },
+    "root-items": {
+      "type": "object",
+      "required": [ "spec_dir", "spec_files" ],
+      "properties": {
+        "helpers": {
+          "type": "array",
+          "items": { "type": "string" }
+        },
+        "spec_dir": { "type": "string" },
+        "spec_files": {
+          "type": "array",
+          "items": { "type": "string" }
+        }
+      }
+    }
+  }
+}
