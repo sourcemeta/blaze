@@ -16,7 +16,8 @@
 
 auto main(int argc, char **argv) noexcept -> int {
   if (argc < 3) {
-    std::cerr << "Usage: " << argv[0] << " <schema.json> <instance.json>\n";
+    std::cerr << "Usage: " << argv[0]
+              << " <schema.json> <instance.json> [--warmup]\n";
     return EXIT_FAILURE;
   }
 
@@ -51,6 +52,19 @@ auto main(int argc, char **argv) noexcept -> int {
 
   // Validate and measure
   sourcemeta::blaze::Evaluator evaluator;
+
+  if (argc > 3 && std::string{argv[3]} == "--warmup") {
+    std::cerr << "Warming up...\n";
+    for (std::size_t count = 0; count < 1000000; count++) {
+      for (const auto &instance : instances) {
+        const auto result{evaluator.validate(schema_template, instance)};
+        if (!result) {
+          return EXIT_FAILURE;
+        }
+      }
+    }
+  }
+
   std::size_t cursor{0};
   for (const auto &instance : instances) {
     cursor += 1;
