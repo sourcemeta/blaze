@@ -167,7 +167,7 @@ public:
   /// assert(token.property_hash() >= 0);
   /// ```
   [[nodiscard]] auto property_hash() const noexcept ->
-      typename Hash::hash_type {
+      typename Hash::property_hash_type {
     assert(this->is_property());
     return this->hash;
   }
@@ -266,7 +266,7 @@ private:
 
   bool as_property;
   Property property;
-  typename Hash::hash_type hash;
+  typename Hash::property_hash_type hash;
   Index index;
 };
 

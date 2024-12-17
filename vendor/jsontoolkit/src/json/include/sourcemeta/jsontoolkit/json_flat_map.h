@@ -18,7 +18,7 @@ public:
 
   using key_type = Key;
   using mapped_type = Value;
-  using hash_type = typename Hash::hash_type;
+  using hash_type = typename Hash::property_hash_type;
   using value_type = std::pair<key_type, mapped_type>;
 
   struct Entry {
@@ -57,11 +57,20 @@ public:
 
   auto assign(key_type &&key, mapped_type &&value) -> hash_type {
     const auto key_hash{this->hash(key)};
-    for (auto &entry : this->data) {
-      if (entry.hash == key_hash &&
-          this->hasher.equal(entry.first, key, key_hash)) {
-        entry.second = std::move(value);
-        return key_hash;
+
+    if (key_hash.is_perfect()) {
+      for (auto &entry : this->data) {
+        if (entry.hash == key_hash) {
+          entry.second = std::move(value);
+          return key_hash;
+        }
+      }
+    } else {
+      for (auto &entry : this->data) {
+        if (entry.hash == key_hash && entry.first == key) {
+          entry.second = std::move(value);
+          return key_hash;
+        }
       }
     }
 
@@ -71,11 +80,20 @@ public:
 
   auto assign(const key_type &key, const mapped_type &value) -> hash_type {
     const auto key_hash{this->hash(key)};
-    for (auto &entry : this->data) {
-      if (entry.hash == key_hash &&
-          this->hasher.equal(entry.first, key, key_hash)) {
-        entry.second = value;
-        return key_hash;
+
+    if (key_hash.is_perfect()) {
+      for (auto &entry : this->data) {
+        if (entry.hash == key_hash) {
+          entry.second = value;
+          return key_hash;
+        }
+      }
+    } else {
+      for (auto &entry : this->data) {
+        if (entry.hash == key_hash && entry.first == key) {
+          entry.second = value;
+          return key_hash;
+        }
       }
     }
 
@@ -89,7 +107,7 @@ public:
     assert(this->hash(key) == key_hash);
 
     // Move the perfect hash condition out of the loop for extra performance
-    if (this->hasher.is_perfect_string_hash(key_hash)) {
+    if (key_hash.is_perfect()) {
       for (size_type index = 0; index < this->data.size(); index++) {
         if (this->data[index].hash == key_hash) {
           auto iterator{this->cbegin()};
@@ -116,7 +134,7 @@ public:
     assert(this->hash(key) == key_hash);
 
     // Move the perfect hash condition out of the loop for extra performance
-    if (this->hasher.is_perfect_string_hash(key_hash)) {
+    if (key_hash.is_perfect()) {
       for (const auto &entry : this->data) {
         if (entry.hash == key_hash) {
           return true;
@@ -140,7 +158,7 @@ public:
     assert(this->hash(key) == key_hash);
 
     // Move the perfect hash condition out of the loop for extra performance
-    if (this->hasher.is_perfect_string_hash(key_hash)) {
+    if (key_hash.is_perfect()) {
       for (const auto &entry : this->data) {
         if (entry.hash == key_hash) {
           return entry.second;
@@ -167,7 +185,7 @@ public:
     assert(this->hash(key) == key_hash);
 
     // Move the perfect hash condition out of the loop for extra performance
-    if (this->hasher.is_perfect_string_hash(key_hash)) {
+    if (key_hash.is_perfect()) {
       for (auto &entry : this->data) {
         if (entry.hash == key_hash) {
           return entry.second;
@@ -191,12 +209,22 @@ public:
 
   auto erase(const key_type &key, const hash_type key_hash) -> size_type {
     const auto current_size{this->size()};
-    for (auto &entry : this->data) {
-      if (entry.hash == key_hash &&
-          this->hasher.equal(entry.first, key, key_hash)) {
-        std::swap(entry, this->data.back());
-        this->data.pop_back();
-        return current_size - 1;
+
+    if (key_hash.is_perfect()) {
+      for (auto &entry : this->data) {
+        if (entry.hash == key_hash) {
+          std::swap(entry, this->data.back());
+          this->data.pop_back();
+          return current_size - 1;
+        }
+      }
+    } else {
+      for (auto &entry : this->data) {
+        if (entry.hash == key_hash && entry.first == key) {
+          std::swap(entry, this->data.back());
+          this->data.pop_back();
+          return current_size - 1;
+        }
       }
     }
 

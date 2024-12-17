@@ -874,12 +874,11 @@ auto compiler_draft4_applicator_properties_with_options(
           ValueStringSet required{
               json_array_to_string_set(schema_context.schema.at("required"))};
           if (is_closed_properties_required(schema_context.schema, required)) {
-            std::vector<sourcemeta::jsontoolkit::Hash::hash_type>
+            std::vector<sourcemeta::jsontoolkit::Hash::property_hash_type>
                 perfect_hashes;
             for (const auto &entry : required) {
               assert(required.contains(entry.first, entry.second));
-              if (sourcemeta::jsontoolkit::Hash{}.is_perfect_string_hash(
-                      entry.second)) {
+              if (entry.second.is_perfect()) {
                 perfect_hashes.push_back(entry.second);
               }
             }
