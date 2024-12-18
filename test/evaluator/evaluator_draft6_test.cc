@@ -1636,3 +1636,69 @@ TEST(Evaluator_draft6, additionalProperties_2) {
   EVALUATE_TRACE_POST_DESCRIBE(
       instance, 1, "The object properties were expected to be of type integer");
 }
+
+TEST(Evaluator_draft6, anyOf_1) {
+  const sourcemeta::jsontoolkit::JSON schema{
+      sourcemeta::jsontoolkit::parse(R"JSON({
+    "$schema": "http://json-schema.org/draft-06/schema#",
+    "anyOf": [
+      { "type": "string" },
+      { "type": "number" },
+      { "type": "null" }
+    ]
+  })JSON")};
+
+  const sourcemeta::jsontoolkit::JSON instance{1};
+  EVALUATE_WITH_TRACE_FAST_SUCCESS(schema, instance, 1);
+
+  EVALUATE_TRACE_PRE(0, AssertionTypeStrictAny, "/anyOf", "#/anyOf", "");
+  EVALUATE_TRACE_POST_SUCCESS(0, AssertionTypeStrictAny, "/anyOf", "#/anyOf",
+                              "");
+  EVALUATE_TRACE_POST_DESCRIBE(instance, 0,
+                               "The value was expected to be of type string, "
+                               "number, or null and it was of type number");
+}
+
+TEST(Evaluator_draft6, anyOf_1_exhaustive) {
+  const sourcemeta::jsontoolkit::JSON schema{
+      sourcemeta::jsontoolkit::parse(R"JSON({
+    "$schema": "http://json-schema.org/draft-06/schema#",
+    "anyOf": [
+      { "type": "string" },
+      { "type": "number" },
+      { "type": "null" }
+    ]
+  })JSON")};
+
+  const sourcemeta::jsontoolkit::JSON instance{1};
+  EVALUATE_WITH_TRACE_EXHAUSTIVE_SUCCESS(schema, instance, 4);
+
+  EVALUATE_TRACE_PRE(0, LogicalOr, "/anyOf", "#/anyOf", "");
+  EVALUATE_TRACE_PRE(1, AssertionTypeStrict, "/anyOf/0/type", "#/anyOf/0/type",
+                     "");
+  EVALUATE_TRACE_PRE(2, AssertionTypeStrictAny, "/anyOf/1/type",
+                     "#/anyOf/1/type", "");
+  EVALUATE_TRACE_PRE(3, AssertionTypeStrict, "/anyOf/2/type", "#/anyOf/2/type",
+                     "");
+
+  EVALUATE_TRACE_POST_FAILURE(0, AssertionTypeStrict, "/anyOf/0/type",
+                              "#/anyOf/0/type", "");
+  EVALUATE_TRACE_POST_SUCCESS(1, AssertionTypeStrictAny, "/anyOf/1/type",
+                              "#/anyOf/1/type", "");
+  EVALUATE_TRACE_POST_FAILURE(2, AssertionTypeStrict, "/anyOf/2/type",
+                              "#/anyOf/2/type", "");
+  EVALUATE_TRACE_POST_SUCCESS(3, LogicalOr, "/anyOf", "#/anyOf", "");
+
+  EVALUATE_TRACE_POST_DESCRIBE(
+      instance, 0,
+      "The value was expected to be of type string but it was of type integer");
+  EVALUATE_TRACE_POST_DESCRIBE(instance, 1,
+                               "The value was expected to be of type number");
+  EVALUATE_TRACE_POST_DESCRIBE(
+      instance, 2,
+      "The value was expected to be of type null but it was of type integer");
+  EVALUATE_TRACE_POST_DESCRIBE(
+      instance, 3,
+      "The integer value was expected to validate against at least one of the "
+      "3 given subschemas");
+}
