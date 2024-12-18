@@ -29,8 +29,12 @@ auto compiler_draft7_applicator_if(const Context &context,
             .recompose()};
     assert(context.frame.contains(
         {sourcemeta::jsontoolkit::ReferenceType::Static, destination}));
+    DynamicContext new_dynamic_context{"then",
+                                       dynamic_context.base_schema_location,
+                                       sourcemeta::jsontoolkit::empty_pointer};
     for (auto &&step :
-         compile(context, schema_context, relative_dynamic_context, {"then"},
+         compile(context, schema_context, new_dynamic_context,
+                 sourcemeta::jsontoolkit::empty_pointer,
                  sourcemeta::jsontoolkit::empty_pointer, destination)) {
       children.push_back(std::move(step));
     }
@@ -51,8 +55,12 @@ auto compiler_draft7_applicator_if(const Context &context,
             .recompose()};
     assert(context.frame.contains(
         {sourcemeta::jsontoolkit::ReferenceType::Static, destination}));
+    DynamicContext new_dynamic_context{"else",
+                                       dynamic_context.base_schema_location,
+                                       sourcemeta::jsontoolkit::empty_pointer};
     for (auto &&step :
-         compile(context, schema_context, relative_dynamic_context, {"else"},
+         compile(context, schema_context, new_dynamic_context,
+                 sourcemeta::jsontoolkit::empty_pointer,
                  sourcemeta::jsontoolkit::empty_pointer, destination)) {
       children.push_back(std::move(step));
     }

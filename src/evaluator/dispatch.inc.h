@@ -983,7 +983,7 @@ INSTRUCTION_HANDLER(LogicalCondition) {
 
       for (auto cursor = consequence_start; cursor < consequence_end;
            cursor++) {
-        if (!EVALUATE_RECURSE(instruction.children[cursor], instance)) {
+        if (!EVALUATE_RECURSE(instruction.children[cursor], target)) {
           result = false;
           break;
         }
@@ -993,7 +993,7 @@ INSTRUCTION_HANDLER(LogicalCondition) {
     } else {
       for (auto cursor = consequence_start; cursor < consequence_end;
            cursor++) {
-        if (!EVALUATE_RECURSE(instruction.children[cursor], instance)) {
+        if (!EVALUATE_RECURSE(instruction.children[cursor], target)) {
           result = false;
           break;
         }
