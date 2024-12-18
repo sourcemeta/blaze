@@ -177,6 +177,56 @@ TEST(Evaluator_draft7, then_5) {
       "The integer value 2 was expected to be divisible by the integer 5");
 }
 
+TEST(Evaluator_draft7, then_6) {
+  const sourcemeta::jsontoolkit::JSON schema{
+      sourcemeta::jsontoolkit::parse(R"JSON({
+    "$schema": "http://json-schema.org/draft-07/schema#",
+    "properties": {
+      "foo": {
+        "allOf": [
+          {
+            "if": { "type": "object" },
+            "then": {
+              "required": [ "bar" ]
+            }
+          }
+        ]
+      }
+    }
+  })JSON")};
+
+  const sourcemeta::jsontoolkit::JSON instance{
+      sourcemeta::jsontoolkit::parse("{ \"foo\": { \"bar\": 1 } }")};
+
+  EVALUATE_WITH_TRACE_FAST_SUCCESS(schema, instance, 3);
+
+  EVALUATE_TRACE_PRE(0, LogicalCondition, "/properties/foo/allOf/0/if",
+                     "#/properties/foo/allOf/0/if", "/foo");
+  EVALUATE_TRACE_PRE(1, AssertionTypeStrict, "/properties/foo/allOf/0/if/type",
+                     "#/properties/foo/allOf/0/if/type", "/foo");
+  EVALUATE_TRACE_PRE(2, AssertionDefines,
+                     "/properties/foo/allOf/0/then/required",
+                     "#/properties/foo/allOf/0/then/required", "/foo");
+
+  EVALUATE_TRACE_POST_SUCCESS(0, AssertionTypeStrict,
+                              "/properties/foo/allOf/0/if/type",
+                              "#/properties/foo/allOf/0/if/type", "/foo");
+  EVALUATE_TRACE_POST_SUCCESS(1, AssertionDefines,
+                              "/properties/foo/allOf/0/then/required",
+                              "#/properties/foo/allOf/0/then/required", "/foo");
+  EVALUATE_TRACE_POST_SUCCESS(2, LogicalCondition, "/properties/foo/allOf/0/if",
+                              "#/properties/foo/allOf/0/if", "/foo");
+
+  EVALUATE_TRACE_POST_DESCRIBE(instance, 0,
+                               "The value was expected to be of type object");
+  EVALUATE_TRACE_POST_DESCRIBE(
+      instance, 1,
+      "The object value was expected to define the property \"bar\"");
+  EVALUATE_TRACE_POST_DESCRIBE(instance, 2,
+                               "The object value was expected to validate "
+                               "against the given conditional");
+}
+
 TEST(Evaluator_draft7, else_1) {
   const sourcemeta::jsontoolkit::JSON schema{
       sourcemeta::jsontoolkit::parse(R"JSON({
