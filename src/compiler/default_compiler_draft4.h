@@ -893,6 +893,11 @@ auto compiler_draft4_applicator_properties_with_options(
                                            ? dynamic_context
                                            : relative_dynamic_context};
 
+  const auto assume_object{schema_context.schema.defines("type") &&
+                           schema_context.schema.at("type").is_string() &&
+                           schema_context.schema.at("type").to_string() ==
+                               "object"};
+
   auto properties{
       compile_properties(context, schema_context, effective_dynamic_context)};
 
@@ -923,10 +928,6 @@ auto compiler_draft4_applicator_properties_with_options(
       }
 
       if (types.size() == 1) {
-        const auto assume_object{schema_context.schema.defines("type") &&
-                                 schema_context.schema.at("type").is_string() &&
-                                 schema_context.schema.at("type").to_string() ==
-                                     "object"};
         if (schema_context.schema.defines("required") &&
             !schema_context.schema.defines("patternProperties") &&
             assume_object) {
@@ -1068,11 +1069,22 @@ auto compiler_draft4_applicator_properties_with_options(
       if (!substeps.empty()) {
         // As a performance shortcut
         if (effective_dynamic_context.base_instance_location.empty()) {
-          children.push_back(make(sourcemeta::blaze::InstructionIndex::
-                                      ControlGroupWhenDefinesDirect,
-                                  context, schema_context,
-                                  effective_dynamic_context,
-                                  make_property(name), std::move(substeps)));
+          if (assume_object &&
+              // TODO: Check that the validation vocabulary is present
+              schema_context.schema.defines("required") &&
+              schema_context.schema.at("required").is_array() &&
+              schema_context.schema.at("required")
+                  .contains(sourcemeta::jsontoolkit::JSON{name})) {
+            for (auto &&step : substeps) {
+              children.push_back(std::move(step));
+            }
+          } else {
+            children.push_back(make(sourcemeta::blaze::InstructionIndex::
+                                        ControlGroupWhenDefinesDirect,
+                                    context, schema_context,
+                                    effective_dynamic_context,
+                                    make_property(name), std::move(substeps)));
+          }
         } else {
           children.push_back(
               make(sourcemeta::blaze::InstructionIndex::ControlGroupWhenDefines,
