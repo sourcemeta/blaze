@@ -9,9 +9,6 @@
     evaluator.instance_location.push_back(                                     \
         instruction.relative_instance_location);                               \
   }                                                                            \
-  if (schema.dynamic) {                                                        \
-    evaluator.resources.push_back(instruction.schema_resource);                \
-  }                                                                            \
   const auto &target{                                                          \
       resolve_target(property_target,                                          \
                      sourcemeta::jsontoolkit::get(                             \
@@ -23,10 +20,10 @@
       evaluator.instance_location.pop_back(                                    \
           instruction.relative_instance_location.size());                      \
     }                                                                          \
-    if (schema.dynamic) {                                                      \
-      evaluator.resources.pop_back();                                          \
-    }                                                                          \
     return true;                                                               \
+  }                                                                            \
+  if (schema.dynamic) {                                                        \
+    evaluator.resources.push_back(instruction.schema_resource);                \
   }                                                                            \
   if (callback.has_value()) {                                                  \
     callback.value()(EvaluationType::Pre, true, instruction,                   \
@@ -43,9 +40,6 @@
     evaluator.instance_location.push_back(                                     \
         instruction.relative_instance_location);                               \
   }                                                                            \
-  if (schema.dynamic) {                                                        \
-    evaluator.resources.push_back(instruction.schema_resource);                \
-  }                                                                            \
   const auto &target{sourcemeta::jsontoolkit::get(                             \
       instance, instruction.relative_instance_location)};                      \
   if (!(precondition)) {                                                       \
@@ -55,10 +49,10 @@
       evaluator.instance_location.pop_back(                                    \
           instruction.relative_instance_location.size());                      \
     }                                                                          \
-    if (schema.dynamic) {                                                      \
-      evaluator.resources.pop_back();                                          \
-    }                                                                          \
     return true;                                                               \
+  }                                                                            \
+  if (schema.dynamic) {                                                        \
+    evaluator.resources.push_back(instruction.schema_resource);                \
   }                                                                            \
   if (callback.has_value()) {                                                  \
     callback.value()(EvaluationType::Pre, true, instruction,                   \
@@ -75,9 +69,6 @@
     evaluator.instance_location.push_back(                                     \
         instruction.relative_instance_location);                               \
   }                                                                            \
-  if (schema.dynamic) {                                                        \
-    evaluator.resources.push_back(instruction.schema_resource);                \
-  }                                                                            \
   const auto *maybe_target{resolve_string_target(                              \
       property_target, instance, instruction.relative_instance_location)};     \
   if (!maybe_target) {                                                         \
@@ -87,10 +78,10 @@
       evaluator.instance_location.pop_back(                                    \
           instruction.relative_instance_location.size());                      \
     }                                                                          \
-    if (schema.dynamic) {                                                      \
-      evaluator.resources.pop_back();                                          \
-    }                                                                          \
     return true;                                                               \
+  }                                                                            \
+  if (schema.dynamic) {                                                        \
+    evaluator.resources.push_back(instruction.schema_resource);                \
   }                                                                            \
   if (callback.has_value()) {                                                  \
     callback.value()(EvaluationType::Pre, true, instruction,                   \
