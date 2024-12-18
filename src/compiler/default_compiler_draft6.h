@@ -13,7 +13,8 @@ using namespace sourcemeta::blaze;
 auto compiler_draft6_validation_type(const Context &context,
                                      const SchemaContext &schema_context,
                                      const DynamicContext &dynamic_context,
-                                     const Instructions &) -> Instructions {
+                                     const Instructions &current)
+    -> Instructions {
   if (schema_context.schema.at(dynamic_context.keyword).is_string()) {
     const auto &type{
         schema_context.schema.at(dynamic_context.keyword).to_string()};
@@ -99,6 +100,14 @@ auto compiler_draft6_validation_type(const Context &context,
                    context, schema_context, dynamic_context,
                    sourcemeta::jsontoolkit::JSON::Type::Object)};
     } else if (type == "array") {
+      if (context.mode == Mode::FastValidation && !current.empty() &&
+          current.back().type == sourcemeta::blaze::InstructionIndex::
+                                     LoopItemsPropertiesExactlyTypeStrictHash &&
+          current.back().relative_instance_location ==
+              dynamic_context.base_instance_location) {
+        return {};
+      }
+
       const auto minimum{
           unsigned_integer_property(schema_context.schema, "minItems", 0)};
       const auto maximum{
