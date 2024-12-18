@@ -5,6 +5,13 @@ project(blaze VERSION 0.0.1 LANGUAGES CXX
 list(APPEND CMAKE_MODULE_PATH "${PROJECT_SOURCE_DIR}/cmake")
 include(vendor/noa/cmake/noa.cmake)
 
+if(NOA_COMPILER_GCC AND NOT BUILD_SHARED_LIBS)
+  set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} -flto")
+  set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} -ffat-lto-objects")
+  set(CMAKE_EXE_LINKER_FLAGS_RELEASE "${CMAKE_EXE_LINKER_FLAGS_RELEASE} -flto")
+  set(CMAKE_SHARED_LINKER_FLAGS_RELEASE "${CMAKE_SHARED_LINKER_FLAGS_RELEASE} -flto")
+endif()
+
 # Options
 option(BLAZE_COMPILER "Build the Blaze compiler library" ON)
 option(BLAZE_EVALUATOR "Build the Blaze evaluator library" ON)
@@ -15,8 +22,6 @@ option(BLAZE_DOCS "Build the Blaze docs" OFF)
 option(BLAZE_INSTALL "Install the Blaze library" ON)
 option(BLAZE_ADDRESS_SANITIZER "Build Blaze with an address sanitizer" OFF)
 option(BLAZE_UNDEFINED_SANITIZER "Build Blaze with an undefined behavior sanitizer" OFF)
-
-add_compile_definitions(NDEBUG)
 
 if(BLAZE_INSTALL)
   include(GNUInstallDirs)
