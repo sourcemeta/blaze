@@ -67,8 +67,9 @@ struct Context;
 /// A compiler is represented as a function that maps a keyword compiler
 /// contexts into a compiler template. You can provide your own to implement
 /// your own keywords
-using Compiler = std::function<Instructions(
-    const Context &, const SchemaContext &, const DynamicContext &)>;
+using Compiler =
+    std::function<Instructions(const Context &, const SchemaContext &,
+                               const DynamicContext &, const Instructions &)>;
 
 /// @ingroup evaluator
 /// Represents the mode of compilation
@@ -117,8 +118,8 @@ struct Context {
 /// A default compiler that aims to implement every keyword for official JSON
 /// Schema dialects.
 auto SOURCEMETA_BLAZE_COMPILER_EXPORT default_schema_compiler(
-    const Context &, const SchemaContext &, const DynamicContext &)
-    -> Instructions;
+    const Context &, const SchemaContext &, const DynamicContext &,
+    const Instructions &) -> Instructions;
 
 /// @ingroup compiler
 ///
