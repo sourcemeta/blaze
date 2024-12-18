@@ -3685,29 +3685,14 @@ TEST(Evaluator_draft4, anyOf_1) {
   })JSON")};
 
   const sourcemeta::jsontoolkit::JSON instance{1};
-  EVALUATE_WITH_TRACE_FAST_SUCCESS(schema, instance, 3);
+  EVALUATE_WITH_TRACE_FAST_SUCCESS(schema, instance, 1);
 
-  EVALUATE_TRACE_PRE(0, LogicalOr, "/anyOf", "#/anyOf", "");
-  EVALUATE_TRACE_PRE(1, AssertionTypeStrict, "/anyOf/0/type", "#/anyOf/0/type",
-                     "");
-  EVALUATE_TRACE_PRE(2, AssertionTypeStrict, "/anyOf/1/type", "#/anyOf/1/type",
-                     "");
-
-  EVALUATE_TRACE_POST_FAILURE(0, AssertionTypeStrict, "/anyOf/0/type",
-                              "#/anyOf/0/type", "");
-  EVALUATE_TRACE_POST_SUCCESS(1, AssertionTypeStrict, "/anyOf/1/type",
-                              "#/anyOf/1/type", "");
-  EVALUATE_TRACE_POST_SUCCESS(2, LogicalOr, "/anyOf", "#/anyOf", "");
-
-  EVALUATE_TRACE_POST_DESCRIBE(
-      instance, 0,
-      "The value was expected to be of type string but it was of type integer");
-  EVALUATE_TRACE_POST_DESCRIBE(instance, 1,
-                               "The value was expected to be of type integer");
-  EVALUATE_TRACE_POST_DESCRIBE(
-      instance, 2,
-      "The integer value was expected to validate against at least one of the "
-      "3 given subschemas");
+  EVALUATE_TRACE_PRE(0, AssertionTypeStrictAny, "/anyOf", "#/anyOf", "");
+  EVALUATE_TRACE_POST_SUCCESS(0, AssertionTypeStrictAny, "/anyOf", "#/anyOf",
+                              "");
+  EVALUATE_TRACE_POST_DESCRIBE(instance, 0,
+                               "The value was expected to be of type string, "
+                               "number, or integer and it was of type number");
 }
 
 TEST(Evaluator_draft4, anyOf_2) {
@@ -3722,37 +3707,14 @@ TEST(Evaluator_draft4, anyOf_2) {
   })JSON")};
 
   const sourcemeta::jsontoolkit::JSON instance{true};
-  EVALUATE_WITH_TRACE_FAST_FAILURE(schema, instance, 4);
+  EVALUATE_WITH_TRACE_FAST_FAILURE(schema, instance, 1);
 
-  EVALUATE_TRACE_PRE(0, LogicalOr, "/anyOf", "#/anyOf", "");
-  EVALUATE_TRACE_PRE(1, AssertionTypeStrict, "/anyOf/0/type", "#/anyOf/0/type",
-                     "");
-  EVALUATE_TRACE_PRE(2, AssertionTypeStrict, "/anyOf/1/type", "#/anyOf/1/type",
-                     "");
-  EVALUATE_TRACE_PRE(3, AssertionTypeStrictAny, "/anyOf/2/type",
-                     "#/anyOf/2/type", "");
-
-  EVALUATE_TRACE_POST_FAILURE(0, AssertionTypeStrict, "/anyOf/0/type",
-                              "#/anyOf/0/type", "");
-  EVALUATE_TRACE_POST_FAILURE(1, AssertionTypeStrict, "/anyOf/1/type",
-                              "#/anyOf/1/type", "");
-  EVALUATE_TRACE_POST_FAILURE(2, AssertionTypeStrictAny, "/anyOf/2/type",
-                              "#/anyOf/2/type", "");
-  EVALUATE_TRACE_POST_FAILURE(3, LogicalOr, "/anyOf", "#/anyOf", "");
-
-  EVALUATE_TRACE_POST_DESCRIBE(
-      instance, 0,
-      "The value was expected to be of type string but it was of type boolean");
-  EVALUATE_TRACE_POST_DESCRIBE(instance, 1,
-                               "The value was expected to be of type integer "
-                               "but it was of type boolean");
-  EVALUATE_TRACE_POST_DESCRIBE(
-      instance, 2,
-      "The value was expected to be of type number but it was of type boolean");
-  EVALUATE_TRACE_POST_DESCRIBE(
-      instance, 3,
-      "The boolean value was expected to validate against at least one of the "
-      "3 given subschemas");
+  EVALUATE_TRACE_PRE(0, AssertionTypeStrictAny, "/anyOf", "#/anyOf", "");
+  EVALUATE_TRACE_POST_FAILURE(0, AssertionTypeStrictAny, "/anyOf", "#/anyOf",
+                              "");
+  EVALUATE_TRACE_POST_DESCRIBE(instance, 0,
+                               "The value was expected to be of type string, "
+                               "number, or integer but it was of type boolean");
 }
 
 TEST(Evaluator_draft4, anyOf_3) {

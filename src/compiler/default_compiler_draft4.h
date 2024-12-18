@@ -655,6 +655,47 @@ auto compiler_draft4_applicator_anyof(const Context &context,
                     index)})));
   }
 
+  if (context.mode == Mode::FastValidation &&
+      std::all_of(disjunctors.cbegin(), disjunctors.cend(),
+                  [](const auto &instruction) {
+                    return instruction.children.size() == 1 &&
+                           (instruction.children.front().type ==
+                                sourcemeta::blaze::InstructionIndex::
+                                    AssertionTypeStrict ||
+                            instruction.children.front().type ==
+                                sourcemeta::blaze::InstructionIndex::
+                                    AssertionTypeStrictAny);
+                  })) {
+    ValueTypes types;
+    for (const auto &instruction : disjunctors) {
+      if (instruction.children.front().type ==
+          sourcemeta::blaze::InstructionIndex::AssertionTypeStrict) {
+        const auto &value{
+            *std::get_if<ValueType>(&instruction.children.front().value)};
+        types.push_back(value);
+      }
+
+      if (instruction.children.front().type ==
+          sourcemeta::blaze::InstructionIndex::AssertionTypeStrictAny) {
+        const auto &value{
+            *std::get_if<ValueTypes>(&instruction.children.front().value)};
+        for (const auto type : value) {
+          types.push_back(type);
+        }
+      }
+    }
+
+    assert(!types.empty());
+    if (types.size() > 1) {
+      return {make(sourcemeta::blaze::InstructionIndex::AssertionTypeStrictAny,
+                   context, schema_context, dynamic_context, std::move(types))};
+    } else {
+      return {make(sourcemeta::blaze::InstructionIndex::AssertionTypeStrict,
+                   context, schema_context, dynamic_context,
+                   ValueType{*types.cbegin()})};
+    }
+  }
+
   const auto requires_exhaustive{
       context.mode == Mode::Exhaustive ||
       !context.unevaluated_properties_schemas.empty() ||
