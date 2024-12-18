@@ -103,7 +103,8 @@ is_closed_properties_required(const sourcemeta::jsontoolkit::JSON &schema,
 static auto
 compile_properties(const sourcemeta::blaze::Context &context,
                    const sourcemeta::blaze::SchemaContext &schema_context,
-                   const sourcemeta::blaze::DynamicContext &dynamic_context)
+                   const sourcemeta::blaze::DynamicContext &dynamic_context,
+                   const sourcemeta::blaze::Instructions &)
     -> std::vector<std::pair<std::string, sourcemeta::blaze::Instructions>> {
   std::vector<std::pair<std::string, sourcemeta::blaze::Instructions>>
       properties;
@@ -156,8 +157,8 @@ using namespace sourcemeta::blaze;
 
 auto compiler_draft4_core_ref(const Context &context,
                               const SchemaContext &schema_context,
-                              const DynamicContext &dynamic_context)
-    -> Instructions {
+                              const DynamicContext &dynamic_context,
+                              const Instructions &) -> Instructions {
   // Determine the label
   const auto &entry{static_frame_entry(context, schema_context)};
   const auto type{sourcemeta::jsontoolkit::ReferenceType::Static};
@@ -255,8 +256,8 @@ auto compiler_draft4_core_ref(const Context &context,
 
 auto compiler_draft4_validation_type(const Context &context,
                                      const SchemaContext &schema_context,
-                                     const DynamicContext &dynamic_context)
-    -> Instructions {
+                                     const DynamicContext &dynamic_context,
+                                     const Instructions &) -> Instructions {
   if (schema_context.schema.at(dynamic_context.keyword).is_string()) {
     const auto &type{
         schema_context.schema.at(dynamic_context.keyword).to_string()};
@@ -493,7 +494,8 @@ auto compiler_draft4_validation_type(const Context &context,
 
 auto compiler_draft4_validation_required(const Context &context,
                                          const SchemaContext &schema_context,
-                                         const DynamicContext &dynamic_context)
+                                         const DynamicContext &dynamic_context,
+                                         const Instructions &current)
     -> Instructions {
   assert(schema_context.schema.at(dynamic_context.keyword).is_array());
 
@@ -538,7 +540,7 @@ auto compiler_draft4_validation_required(const Context &context,
             "properties", sourcemeta::jsontoolkit::empty_pointer,
             sourcemeta::jsontoolkit::empty_pointer};
         auto properties{compile_properties(context, new_schema_context,
-                                           new_dynamic_context)};
+                                           new_dynamic_context, current)};
         if (std::all_of(properties.cbegin(), properties.cend(),
                         [](const auto &property) {
                           return property.second.size() == 1 &&
@@ -596,8 +598,8 @@ auto compiler_draft4_validation_required(const Context &context,
 
 auto compiler_draft4_applicator_allof(const Context &context,
                                       const SchemaContext &schema_context,
-                                      const DynamicContext &dynamic_context)
-    -> Instructions {
+                                      const DynamicContext &dynamic_context,
+                                      const Instructions &) -> Instructions {
   assert(schema_context.schema.at(dynamic_context.keyword).is_array());
   assert(!schema_context.schema.at(dynamic_context.keyword).empty());
 
@@ -638,8 +640,8 @@ auto compiler_draft4_applicator_allof(const Context &context,
 
 auto compiler_draft4_applicator_anyof(const Context &context,
                                       const SchemaContext &schema_context,
-                                      const DynamicContext &dynamic_context)
-    -> Instructions {
+                                      const DynamicContext &dynamic_context,
+                                      const Instructions &) -> Instructions {
   assert(schema_context.schema.at(dynamic_context.keyword).is_array());
   assert(!schema_context.schema.at(dynamic_context.keyword).empty());
 
@@ -708,8 +710,8 @@ auto compiler_draft4_applicator_anyof(const Context &context,
 
 auto compiler_draft4_applicator_oneof(const Context &context,
                                       const SchemaContext &schema_context,
-                                      const DynamicContext &dynamic_context)
-    -> Instructions {
+                                      const DynamicContext &dynamic_context,
+                                      const Instructions &) -> Instructions {
   assert(schema_context.schema.at(dynamic_context.keyword).is_array());
   assert(!schema_context.schema.at(dynamic_context.keyword).empty());
 
@@ -828,8 +830,8 @@ auto properties_as_loop(const Context &context,
 
 auto compiler_draft4_applicator_properties_with_options(
     const Context &context, const SchemaContext &schema_context,
-    const DynamicContext &dynamic_context, const bool annotate,
-    const bool track_evaluation) -> Instructions {
+    const DynamicContext &dynamic_context, const Instructions &current,
+    const bool annotate, const bool track_evaluation) -> Instructions {
   assert(schema_context.schema.at(dynamic_context.keyword).is_object());
   if (schema_context.schema.at(dynamic_context.keyword).empty()) {
     return {};
@@ -848,7 +850,7 @@ auto compiler_draft4_applicator_properties_with_options(
     std::size_t cursor = 0;
 
     for (auto &&[name, substeps] : compile_properties(
-             context, schema_context, relative_dynamic_context)) {
+             context, schema_context, relative_dynamic_context, current)) {
       indexes.assign(name, cursor);
 
       if (track_evaluation) {
@@ -898,8 +900,8 @@ auto compiler_draft4_applicator_properties_with_options(
                            schema_context.schema.at("type").to_string() ==
                                "object"};
 
-  auto properties{
-      compile_properties(context, schema_context, effective_dynamic_context)};
+  auto properties{compile_properties(context, schema_context,
+                                     effective_dynamic_context, current)};
 
   if (context.mode == Mode::FastValidation &&
       schema_context.schema.defines("additionalProperties") &&
@@ -1108,9 +1110,10 @@ auto compiler_draft4_applicator_properties_with_options(
 
 auto compiler_draft4_applicator_properties(
     const Context &context, const SchemaContext &schema_context,
-    const DynamicContext &dynamic_context) -> Instructions {
+    const DynamicContext &dynamic_context, const Instructions &current)
+    -> Instructions {
   return compiler_draft4_applicator_properties_with_options(
-      context, schema_context, dynamic_context, false, false);
+      context, schema_context, dynamic_context, current, false, false);
 }
 
 auto compiler_draft4_applicator_patternproperties_with_options(
@@ -1195,7 +1198,8 @@ auto compiler_draft4_applicator_patternproperties_with_options(
 
 auto compiler_draft4_applicator_patternproperties(
     const Context &context, const SchemaContext &schema_context,
-    const DynamicContext &dynamic_context) -> Instructions {
+    const DynamicContext &dynamic_context, const Instructions &)
+    -> Instructions {
   return compiler_draft4_applicator_patternproperties_with_options(
       context, schema_context, dynamic_context, false, false);
 }
@@ -1355,15 +1359,16 @@ auto compiler_draft4_applicator_additionalproperties_with_options(
 
 auto compiler_draft4_applicator_additionalproperties(
     const Context &context, const SchemaContext &schema_context,
-    const DynamicContext &dynamic_context) -> Instructions {
+    const DynamicContext &dynamic_context, const Instructions &)
+    -> Instructions {
   return compiler_draft4_applicator_additionalproperties_with_options(
       context, schema_context, dynamic_context, false, false);
 }
 
 auto compiler_draft4_validation_pattern(const Context &context,
                                         const SchemaContext &schema_context,
-                                        const DynamicContext &dynamic_context)
-    -> Instructions {
+                                        const DynamicContext &dynamic_context,
+                                        const Instructions &) -> Instructions {
   assert(schema_context.schema.at(dynamic_context.keyword).is_string());
 
   if (schema_context.schema.defines("type") &&
@@ -1383,8 +1388,8 @@ auto compiler_draft4_validation_pattern(const Context &context,
 
 auto compiler_draft4_validation_format(const Context &context,
                                        const SchemaContext &schema_context,
-                                       const DynamicContext &dynamic_context)
-    -> Instructions {
+                                       const DynamicContext &dynamic_context,
+                                       const Instructions &) -> Instructions {
   if (!schema_context.schema.at(dynamic_context.keyword).is_string()) {
     return {};
   }
@@ -1430,8 +1435,8 @@ auto compiler_draft4_validation_format(const Context &context,
 
 auto compiler_draft4_applicator_not(const Context &context,
                                     const SchemaContext &schema_context,
-                                    const DynamicContext &dynamic_context)
-    -> Instructions {
+                                    const DynamicContext &dynamic_context,
+                                    const Instructions &) -> Instructions {
   std::size_t subschemas{0};
   for (const auto &subschema :
        walk_subschemas(context, schema_context, dynamic_context)) {
@@ -1651,8 +1656,8 @@ auto compiler_draft4_applicator_items_with_options(
 
 auto compiler_draft4_applicator_items(const Context &context,
                                       const SchemaContext &schema_context,
-                                      const DynamicContext &dynamic_context)
-    -> Instructions {
+                                      const DynamicContext &dynamic_context,
+                                      const Instructions &) -> Instructions {
   return compiler_draft4_applicator_items_with_options(
       context, schema_context, dynamic_context, false, false);
 }
@@ -1739,14 +1744,16 @@ auto compiler_draft4_applicator_additionalitems_with_options(
 
 auto compiler_draft4_applicator_additionalitems(
     const Context &context, const SchemaContext &schema_context,
-    const DynamicContext &dynamic_context) -> Instructions {
+    const DynamicContext &dynamic_context, const Instructions &)
+    -> Instructions {
   return compiler_draft4_applicator_additionalitems_with_options(
       context, schema_context, dynamic_context, false, false);
 }
 
 auto compiler_draft4_applicator_dependencies(
     const Context &context, const SchemaContext &schema_context,
-    const DynamicContext &dynamic_context) -> Instructions {
+    const DynamicContext &dynamic_context, const Instructions &)
+    -> Instructions {
   if (schema_context.schema.defines("type") &&
       schema_context.schema.at("type").is_string() &&
       schema_context.schema.at("type").to_string() != "object") {
@@ -1791,8 +1798,8 @@ auto compiler_draft4_applicator_dependencies(
 
 auto compiler_draft4_validation_enum(const Context &context,
                                      const SchemaContext &schema_context,
-                                     const DynamicContext &dynamic_context)
-    -> Instructions {
+                                     const DynamicContext &dynamic_context,
+                                     const Instructions &) -> Instructions {
   assert(schema_context.schema.at(dynamic_context.keyword).is_array());
 
   if (schema_context.schema.at(dynamic_context.keyword).size() == 1) {
@@ -1815,7 +1822,8 @@ auto compiler_draft4_validation_enum(const Context &context,
 
 auto compiler_draft4_validation_uniqueitems(
     const Context &context, const SchemaContext &schema_context,
-    const DynamicContext &dynamic_context) -> Instructions {
+    const DynamicContext &dynamic_context, const Instructions &)
+    -> Instructions {
   if (!schema_context.schema.at(dynamic_context.keyword).is_boolean() ||
       !schema_context.schema.at(dynamic_context.keyword).to_boolean()) {
     return {};
@@ -1833,7 +1841,8 @@ auto compiler_draft4_validation_uniqueitems(
 
 auto compiler_draft4_validation_maxlength(const Context &context,
                                           const SchemaContext &schema_context,
-                                          const DynamicContext &dynamic_context)
+                                          const DynamicContext &dynamic_context,
+                                          const Instructions &)
     -> Instructions {
   assert(schema_context.schema.at(dynamic_context.keyword).is_integer() ||
          schema_context.schema.at(dynamic_context.keyword).is_integer_real());
@@ -1864,7 +1873,8 @@ auto compiler_draft4_validation_maxlength(const Context &context,
 
 auto compiler_draft4_validation_minlength(const Context &context,
                                           const SchemaContext &schema_context,
-                                          const DynamicContext &dynamic_context)
+                                          const DynamicContext &dynamic_context,
+                                          const Instructions &)
     -> Instructions {
   assert(schema_context.schema.at(dynamic_context.keyword).is_integer() ||
          schema_context.schema.at(dynamic_context.keyword).is_integer_real());
@@ -1895,8 +1905,8 @@ auto compiler_draft4_validation_minlength(const Context &context,
 
 auto compiler_draft4_validation_maxitems(const Context &context,
                                          const SchemaContext &schema_context,
-                                         const DynamicContext &dynamic_context)
-    -> Instructions {
+                                         const DynamicContext &dynamic_context,
+                                         const Instructions &) -> Instructions {
   assert(schema_context.schema.at(dynamic_context.keyword).is_integer() ||
          schema_context.schema.at(dynamic_context.keyword).is_integer_real());
   assert(schema_context.schema.at(dynamic_context.keyword).is_positive());
@@ -1926,8 +1936,8 @@ auto compiler_draft4_validation_maxitems(const Context &context,
 
 auto compiler_draft4_validation_minitems(const Context &context,
                                          const SchemaContext &schema_context,
-                                         const DynamicContext &dynamic_context)
-    -> Instructions {
+                                         const DynamicContext &dynamic_context,
+                                         const Instructions &) -> Instructions {
   assert(schema_context.schema.at(dynamic_context.keyword).is_integer() ||
          schema_context.schema.at(dynamic_context.keyword).is_integer_real());
   assert(schema_context.schema.at(dynamic_context.keyword).is_positive());
@@ -1957,7 +1967,8 @@ auto compiler_draft4_validation_minitems(const Context &context,
 
 auto compiler_draft4_validation_maxproperties(
     const Context &context, const SchemaContext &schema_context,
-    const DynamicContext &dynamic_context) -> Instructions {
+    const DynamicContext &dynamic_context, const Instructions &)
+    -> Instructions {
   assert(schema_context.schema.at(dynamic_context.keyword).is_integer() ||
          schema_context.schema.at(dynamic_context.keyword).is_integer_real());
   assert(schema_context.schema.at(dynamic_context.keyword).is_positive());
@@ -1987,7 +1998,8 @@ auto compiler_draft4_validation_maxproperties(
 
 auto compiler_draft4_validation_minproperties(
     const Context &context, const SchemaContext &schema_context,
-    const DynamicContext &dynamic_context) -> Instructions {
+    const DynamicContext &dynamic_context, const Instructions &)
+    -> Instructions {
   assert(schema_context.schema.at(dynamic_context.keyword).is_integer() ||
          schema_context.schema.at(dynamic_context.keyword).is_integer_real());
   assert(schema_context.schema.at(dynamic_context.keyword).is_positive());
@@ -2017,8 +2029,8 @@ auto compiler_draft4_validation_minproperties(
 
 auto compiler_draft4_validation_maximum(const Context &context,
                                         const SchemaContext &schema_context,
-                                        const DynamicContext &dynamic_context)
-    -> Instructions {
+                                        const DynamicContext &dynamic_context,
+                                        const Instructions &) -> Instructions {
   assert(schema_context.schema.at(dynamic_context.keyword).is_number());
 
   if (schema_context.schema.defines("type") &&
@@ -2049,8 +2061,8 @@ auto compiler_draft4_validation_maximum(const Context &context,
 
 auto compiler_draft4_validation_minimum(const Context &context,
                                         const SchemaContext &schema_context,
-                                        const DynamicContext &dynamic_context)
-    -> Instructions {
+                                        const DynamicContext &dynamic_context,
+                                        const Instructions &) -> Instructions {
   assert(schema_context.schema.at(dynamic_context.keyword).is_number());
 
   if (schema_context.schema.defines("type") &&
@@ -2081,7 +2093,8 @@ auto compiler_draft4_validation_minimum(const Context &context,
 
 auto compiler_draft4_validation_multipleof(
     const Context &context, const SchemaContext &schema_context,
-    const DynamicContext &dynamic_context) -> Instructions {
+    const DynamicContext &dynamic_context, const Instructions &)
+    -> Instructions {
   assert(schema_context.schema.at(dynamic_context.keyword).is_number());
   assert(schema_context.schema.at(dynamic_context.keyword).is_positive());
 

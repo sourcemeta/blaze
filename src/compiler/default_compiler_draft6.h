@@ -12,8 +12,8 @@ using namespace sourcemeta::blaze;
 
 auto compiler_draft6_validation_type(const Context &context,
                                      const SchemaContext &schema_context,
-                                     const DynamicContext &dynamic_context)
-    -> Instructions {
+                                     const DynamicContext &dynamic_context,
+                                     const Instructions &) -> Instructions {
   if (schema_context.schema.at(dynamic_context.keyword).is_string()) {
     const auto &type{
         schema_context.schema.at(dynamic_context.keyword).to_string()};
@@ -295,8 +295,8 @@ auto compiler_draft6_validation_type(const Context &context,
 
 auto compiler_draft6_validation_const(const Context &context,
                                       const SchemaContext &schema_context,
-                                      const DynamicContext &dynamic_context)
-    -> Instructions {
+                                      const DynamicContext &dynamic_context,
+                                      const Instructions &) -> Instructions {
   return {make(sourcemeta::blaze::InstructionIndex::AssertionEqual, context,
                schema_context, dynamic_context,
                sourcemeta::jsontoolkit::JSON{
@@ -305,7 +305,8 @@ auto compiler_draft6_validation_const(const Context &context,
 
 auto compiler_draft6_validation_exclusivemaximum(
     const Context &context, const SchemaContext &schema_context,
-    const DynamicContext &dynamic_context) -> Instructions {
+    const DynamicContext &dynamic_context, const Instructions &)
+    -> Instructions {
   assert(schema_context.schema.at(dynamic_context.keyword).is_number());
 
   if (schema_context.schema.defines("type") &&
@@ -323,7 +324,8 @@ auto compiler_draft6_validation_exclusivemaximum(
 
 auto compiler_draft6_validation_exclusiveminimum(
     const Context &context, const SchemaContext &schema_context,
-    const DynamicContext &dynamic_context) -> Instructions {
+    const DynamicContext &dynamic_context, const Instructions &)
+    -> Instructions {
   assert(schema_context.schema.at(dynamic_context.keyword).is_number());
 
   if (schema_context.schema.defines("type") &&
@@ -341,8 +343,8 @@ auto compiler_draft6_validation_exclusiveminimum(
 
 auto compiler_draft6_applicator_contains(const Context &context,
                                          const SchemaContext &schema_context,
-                                         const DynamicContext &dynamic_context)
-    -> Instructions {
+                                         const DynamicContext &dynamic_context,
+                                         const Instructions &) -> Instructions {
   if (schema_context.schema.defines("type") &&
       schema_context.schema.at("type").is_string() &&
       schema_context.schema.at("type").to_string() != "array") {
@@ -368,7 +370,8 @@ auto compiler_draft6_applicator_contains(const Context &context,
 
 auto compiler_draft6_validation_propertynames(
     const Context &context, const SchemaContext &schema_context,
-    const DynamicContext &dynamic_context) -> Instructions {
+    const DynamicContext &dynamic_context, const Instructions &)
+    -> Instructions {
   if (schema_context.schema.defines("type") &&
       schema_context.schema.at("type").is_string() &&
       schema_context.schema.at("type").to_string() != "object") {

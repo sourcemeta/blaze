@@ -11,8 +11,8 @@ using namespace sourcemeta::blaze;
 // TODO: Don't generate `if` if neither `then` nor `else` is defined
 auto compiler_draft7_applicator_if(const Context &context,
                                    const SchemaContext &schema_context,
-                                   const DynamicContext &dynamic_context)
-    -> Instructions {
+                                   const DynamicContext &dynamic_context,
+                                   const Instructions &) -> Instructions {
   // `if`
   Instructions children{compile(context, schema_context,
                                 relative_dynamic_context,
@@ -67,7 +67,8 @@ auto compiler_draft7_applicator_if(const Context &context,
 // TODO: Stop collapsing this keyword on exhaustive mode for debuggability
 // purposes
 auto compiler_draft7_applicator_then(const Context &, const SchemaContext &,
-                                     const DynamicContext &) -> Instructions {
+                                     const DynamicContext &,
+                                     const Instructions &) -> Instructions {
   return {};
 }
 
@@ -75,7 +76,8 @@ auto compiler_draft7_applicator_then(const Context &, const SchemaContext &,
 // TODO: Stop collapsing this keyword on exhaustive mode for debuggability
 // purposes
 auto compiler_draft7_applicator_else(const Context &, const SchemaContext &,
-                                     const DynamicContext &) -> Instructions {
+                                     const DynamicContext &,
+                                     const Instructions &) -> Instructions {
   return {};
 }
 

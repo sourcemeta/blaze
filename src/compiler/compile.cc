@@ -46,7 +46,8 @@ auto compile_subschema(const sourcemeta::blaze::Context &context,
               // TODO: This represents a copy
               schema_context.labels, schema_context.references},
              {keyword, dynamic_context.base_schema_location,
-              dynamic_context.base_instance_location})) {
+              dynamic_context.base_instance_location},
+             steps)) {
       // Just a sanity check to ensure every keyword location is indeed valid
       assert(context.frame.contains(
           {sourcemeta::jsontoolkit::ReferenceType::Static,

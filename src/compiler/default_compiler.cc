@@ -13,7 +13,8 @@
 auto sourcemeta::blaze::default_schema_compiler(
     const sourcemeta::blaze::Context &context,
     const sourcemeta::blaze::SchemaContext &schema_context,
-    const sourcemeta::blaze::DynamicContext &dynamic_context)
+    const sourcemeta::blaze::DynamicContext &dynamic_context,
+    const sourcemeta::blaze::Instructions &current)
     -> sourcemeta::blaze::Instructions {
   assert(!dynamic_context.keyword.empty());
 
@@ -47,7 +48,8 @@ auto sourcemeta::blaze::default_schema_compiler(
 #define COMPILE(vocabulary, _keyword, handler)                                 \
   if (schema_context.vocabularies.contains(vocabulary) &&                      \
       dynamic_context.keyword == (_keyword)) {                                 \
-    return internal::handler(context, schema_context, dynamic_context);        \
+    return internal::handler(context, schema_context, dynamic_context,         \
+                             current);                                         \
   }
 
 #define STOP_IF_SIBLING_KEYWORD(vocabulary, _keyword)                          \
@@ -515,7 +517,7 @@ auto sourcemeta::blaze::default_schema_compiler(
     }
 
     return internal::compiler_2019_09_core_annotation(context, schema_context,
-                                                      dynamic_context);
+                                                      dynamic_context, current);
   }
 
   return {};
