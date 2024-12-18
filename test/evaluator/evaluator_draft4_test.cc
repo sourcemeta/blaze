@@ -319,7 +319,39 @@ TEST(Evaluator_draft4, allOf_1) {
   const sourcemeta::jsontoolkit::JSON instance{
       sourcemeta::jsontoolkit::parse("{ \"foo\": 1, \"bar\": 2 }")};
 
-  EVALUATE_WITH_TRACE_FAST_SUCCESS(schema, instance, 3);
+  EVALUATE_WITH_TRACE_FAST_SUCCESS(schema, instance, 2);
+
+  EVALUATE_TRACE_PRE(0, AssertionTypeStrict, "/allOf/0/type", "#/allOf/0/type",
+                     "");
+  EVALUATE_TRACE_PRE(1, AssertionDefinesAll, "/allOf/1/required",
+                     "#/allOf/1/required", "");
+
+  EVALUATE_TRACE_POST_SUCCESS(0, AssertionTypeStrict, "/allOf/0/type",
+                              "#/allOf/0/type", "");
+  EVALUATE_TRACE_POST_SUCCESS(1, AssertionDefinesAll, "/allOf/1/required",
+                              "#/allOf/1/required", "");
+
+  EVALUATE_TRACE_POST_DESCRIBE(instance, 0,
+                               "The value was expected to be of type object");
+  EVALUATE_TRACE_POST_DESCRIBE(instance, 1,
+                               "The object value was expected to define "
+                               "properties \"bar\", and \"foo\"");
+}
+
+TEST(Evaluator_draft4, allOf_1_exhaustive) {
+  const sourcemeta::jsontoolkit::JSON schema{
+      sourcemeta::jsontoolkit::parse(R"JSON({
+    "$schema": "http://json-schema.org/draft-04/schema#",
+    "allOf": [
+      { "type": "object" },
+      { "required": [ "foo", "bar" ] }
+    ]
+  })JSON")};
+
+  const sourcemeta::jsontoolkit::JSON instance{
+      sourcemeta::jsontoolkit::parse("{ \"foo\": 1, \"bar\": 2 }")};
+
+  EVALUATE_WITH_TRACE_EXHAUSTIVE_SUCCESS(schema, instance, 3);
 
   EVALUATE_TRACE_PRE(0, LogicalAnd, "/allOf", "#/allOf", "");
   EVALUATE_TRACE_PRE(1, AssertionTypeStrict, "/allOf/0/type", "#/allOf/0/type",
@@ -356,19 +388,17 @@ TEST(Evaluator_draft4, allOf_2) {
   const sourcemeta::jsontoolkit::JSON instance{
       sourcemeta::jsontoolkit::parse("{ \"foo\": 1, \"baz\": 2 }")};
 
-  EVALUATE_WITH_TRACE_FAST_FAILURE(schema, instance, 3);
+  EVALUATE_WITH_TRACE_FAST_FAILURE(schema, instance, 2);
 
-  EVALUATE_TRACE_PRE(0, LogicalAnd, "/allOf", "#/allOf", "");
-  EVALUATE_TRACE_PRE(1, AssertionTypeStrict, "/allOf/0/type", "#/allOf/0/type",
+  EVALUATE_TRACE_PRE(0, AssertionTypeStrict, "/allOf/0/type", "#/allOf/0/type",
                      "");
-  EVALUATE_TRACE_PRE(2, AssertionDefinesAll, "/allOf/1/required",
+  EVALUATE_TRACE_PRE(1, AssertionDefinesAll, "/allOf/1/required",
                      "#/allOf/1/required", "");
 
   EVALUATE_TRACE_POST_SUCCESS(0, AssertionTypeStrict, "/allOf/0/type",
                               "#/allOf/0/type", "");
   EVALUATE_TRACE_POST_FAILURE(1, AssertionDefinesAll, "/allOf/1/required",
                               "#/allOf/1/required", "");
-  EVALUATE_TRACE_POST_FAILURE(2, LogicalAnd, "/allOf", "#/allOf", "");
 
   EVALUATE_TRACE_POST_DESCRIBE(instance, 0,
                                "The value was expected to be of type object");
@@ -376,9 +406,6 @@ TEST(Evaluator_draft4, allOf_2) {
       instance, 1,
       "The object value was expected to define properties \"bar\", and \"foo\" "
       "but did not define the property \"bar\"");
-  EVALUATE_TRACE_POST_DESCRIBE(instance, 2,
-                               "The object value was expected to validate "
-                               "against the 2 given subschemas");
 }
 
 TEST(Evaluator_draft4, ref_1) {
@@ -392,22 +419,15 @@ TEST(Evaluator_draft4, ref_1) {
   })JSON")};
 
   const sourcemeta::jsontoolkit::JSON instance{5};
-  EVALUATE_WITH_TRACE_FAST_FAILURE(schema, instance, 2);
+  EVALUATE_WITH_TRACE_FAST_FAILURE(schema, instance, 1);
 
-  EVALUATE_TRACE_PRE(0, LogicalAnd, "/allOf", "#/allOf", "");
-  EVALUATE_TRACE_PRE(1, AssertionTypeStrict, "/allOf/0/$ref/type",
+  EVALUATE_TRACE_PRE(0, AssertionTypeStrict, "/allOf/0/$ref/type",
                      "#/definitions/string/type", "");
-
   EVALUATE_TRACE_POST_FAILURE(0, AssertionTypeStrict, "/allOf/0/$ref/type",
                               "#/definitions/string/type", "");
-  EVALUATE_TRACE_POST_FAILURE(1, LogicalAnd, "/allOf", "#/allOf", "");
-
   EVALUATE_TRACE_POST_DESCRIBE(
       instance, 0,
       "The value was expected to be of type string but it was of type integer");
-  EVALUATE_TRACE_POST_DESCRIBE(instance, 1,
-                               "The integer value was expected to validate "
-                               "against the given subschema");
 }
 
 TEST(Evaluator_draft4, ref_2) {
@@ -422,21 +442,14 @@ TEST(Evaluator_draft4, ref_2) {
 
   const sourcemeta::jsontoolkit::JSON instance{"foo"};
 
-  EVALUATE_WITH_TRACE_FAST_SUCCESS(schema, instance, 2);
+  EVALUATE_WITH_TRACE_FAST_SUCCESS(schema, instance, 1);
 
-  EVALUATE_TRACE_PRE(0, LogicalAnd, "/allOf", "#/allOf", "");
-  EVALUATE_TRACE_PRE(1, AssertionTypeStrict, "/allOf/0/$ref/type",
+  EVALUATE_TRACE_PRE(0, AssertionTypeStrict, "/allOf/0/$ref/type",
                      "#/definitions/string/type", "");
-
   EVALUATE_TRACE_POST_SUCCESS(0, AssertionTypeStrict, "/allOf/0/$ref/type",
                               "#/definitions/string/type", "");
-  EVALUATE_TRACE_POST_SUCCESS(1, LogicalAnd, "/allOf", "#/allOf", "");
-
   EVALUATE_TRACE_POST_DESCRIBE(instance, 0,
                                "The value was expected to be of type string");
-  EVALUATE_TRACE_POST_DESCRIBE(
-      instance, 1,
-      "The string value was expected to validate against the given subschema");
 }
 
 TEST(Evaluator_draft4, ref_2_exhaustive) {
@@ -6242,19 +6255,12 @@ TEST(Evaluator_draft4, relative_base_uri_with_ref) {
   })JSON")};
 
   const sourcemeta::jsontoolkit::JSON instance{"test"};
-  EVALUATE_WITH_TRACE_FAST_SUCCESS(schema, instance, 2);
+  EVALUATE_WITH_TRACE_FAST_SUCCESS(schema, instance, 1);
 
-  EVALUATE_TRACE_PRE(0, LogicalAnd, "/allOf", "common#/allOf", "");
-  EVALUATE_TRACE_PRE(1, AssertionTypeStrict, "/allOf/0/$ref/type",
+  EVALUATE_TRACE_PRE(0, AssertionTypeStrict, "/allOf/0/$ref/type",
                      "common#/definitions/reference/type", "");
-
   EVALUATE_TRACE_POST_SUCCESS(0, AssertionTypeStrict, "/allOf/0/$ref/type",
                               "common#/definitions/reference/type", "");
-  EVALUATE_TRACE_POST_SUCCESS(1, LogicalAnd, "/allOf", "common#/allOf", "");
-
   EVALUATE_TRACE_POST_DESCRIBE(instance, 0,
                                "The value was expected to be of type string");
-  EVALUATE_TRACE_POST_DESCRIBE(
-      instance, 1,
-      "The string value was expected to validate against the given subschema");
 }

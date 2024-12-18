@@ -498,11 +498,16 @@ public:
   /// ```
   auto starts_with_initial(const GenericPointer<PropertyT> &other) const
       -> bool {
-    if (!other.empty()) {
-      for (std::size_t index = 0; index < other.size() - 1; index++) {
-        if (this->data[index] != other.data[index]) {
-          return false;
-        }
+    const auto prefix_size{other.size()};
+    if (prefix_size == 0) {
+      return true;
+    } else if (this->size() < prefix_size - 1) {
+      return false;
+    }
+
+    for (std::size_t index = 0; index < prefix_size - 1; index++) {
+      if (this->data[index] != other.data[index]) {
+        return false;
       }
     }
 

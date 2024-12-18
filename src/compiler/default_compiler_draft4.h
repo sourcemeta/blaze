@@ -602,20 +602,38 @@ auto compiler_draft4_applicator_allof(const Context &context,
   assert(!schema_context.schema.at(dynamic_context.keyword).empty());
 
   Instructions children;
-  for (std::uint64_t index = 0;
-       index < schema_context.schema.at(dynamic_context.keyword).size();
-       index++) {
-    for (auto &&step :
-         compile(context, schema_context, relative_dynamic_context,
-                 {static_cast<sourcemeta::jsontoolkit::Pointer::Token::Index>(
-                     index)})) {
-      children.push_back(std::move(step));
-    }
-  }
 
-  return {make(sourcemeta::blaze::InstructionIndex::LogicalAnd, context,
-               schema_context, dynamic_context, ValueNone{},
-               std::move(children))};
+  if (context.mode == Mode::FastValidation &&
+      // TODO: Make this work with `$dynamicRef`
+      !context.uses_dynamic_scopes) {
+    for (std::uint64_t index = 0;
+         index < schema_context.schema.at(dynamic_context.keyword).size();
+         index++) {
+      for (auto &&step :
+           compile(context, schema_context, dynamic_context,
+                   {static_cast<sourcemeta::jsontoolkit::Pointer::Token::Index>(
+                       index)})) {
+        children.push_back(std::move(step));
+      }
+    }
+
+    return children;
+  } else {
+    for (std::uint64_t index = 0;
+         index < schema_context.schema.at(dynamic_context.keyword).size();
+         index++) {
+      for (auto &&step :
+           compile(context, schema_context, relative_dynamic_context,
+                   {static_cast<sourcemeta::jsontoolkit::Pointer::Token::Index>(
+                       index)})) {
+        children.push_back(std::move(step));
+      }
+    }
+
+    return {make(sourcemeta::blaze::InstructionIndex::LogicalAnd, context,
+                 schema_context, dynamic_context, ValueNone{},
+                 std::move(children))};
+  }
 }
 
 auto compiler_draft4_applicator_anyof(const Context &context,
