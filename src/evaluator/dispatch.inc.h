@@ -642,7 +642,7 @@ INSTRUCTION_HANDLER(AssertionPropertyTypeEvaluate) {
            (value == JSON::Type::Integer && target_check->is_integer_real());
 
   if (result) {
-    evaluator.evaluate(sourcemeta::jsontoolkit::empty_pointer);
+    evaluator.evaluate(target_check);
   }
 
   EVALUATE_END(AssertionPropertyTypeEvaluate);
@@ -683,7 +683,7 @@ INSTRUCTION_HANDLER(AssertionPropertyTypeStrictEvaluate) {
   result = target_check->type() == value;
 
   if (result) {
-    evaluator.evaluate(sourcemeta::jsontoolkit::empty_pointer);
+    evaluator.evaluate(target_check);
   }
 
   EVALUATE_END(AssertionPropertyTypeStrictEvaluate);
@@ -726,7 +726,7 @@ INSTRUCTION_HANDLER(AssertionPropertyTypeStrictAnyEvaluate) {
             value.cend());
 
   if (result) {
-    evaluator.evaluate(sourcemeta::jsontoolkit::empty_pointer);
+    evaluator.evaluate(target_check);
   }
 
   EVALUATE_END(AssertionPropertyTypeStrictAnyEvaluate);
@@ -790,10 +790,12 @@ INSTRUCTION_HANDLER(AssertionArrayPrefixEvaluate) {
 
     assert(result);
     if (array_size == prefixes) {
-      evaluator.evaluate(sourcemeta::jsontoolkit::empty_pointer);
+      for (const auto &item : target.as_array()) {
+        evaluator.evaluate(&item);
+      }
     } else {
       for (std::size_t cursor = 0; cursor <= pointer; cursor++) {
-        evaluator.evaluate({cursor});
+        evaluator.evaluate(&target.at(cursor));
       }
     }
   }
@@ -1120,26 +1122,39 @@ INSTRUCTION_HANDLER(ControlEvaluate) {
   SOURCEMETA_MAYBE_UNUSED(evaluator);
   EVALUATE_BEGIN_PASS_THROUGH(ControlEvaluate);
 
+#if defined(SOURCEMETA_EVALUATOR_COMPLETE) ||                                  \
+    defined(SOURCEMETA_EVALUATOR_TRACK)
+  const auto &value{*std::get_if<ValuePointer>(&instruction.value)};
+  const auto &target{get(instance, value)};
+  switch (target.type()) {
+    case sourcemeta::jsontoolkit::JSON::Type::Object:
+      for (const auto &property : target.as_object()) {
+        evaluator.evaluate(&property.second);
+      }
+
+      break;
+    case sourcemeta::jsontoolkit::JSON::Type::Array:
+      for (const auto &item : target.as_array()) {
+        evaluator.evaluate(&item);
+      }
+
+      break;
+    default:
+      evaluator.evaluate(&target);
+      break;
+  }
+#endif
+
 #ifdef SOURCEMETA_EVALUATOR_COMPLETE
   if (callback) {
-    const auto &value{*std::get_if<ValuePointer>(&instruction.value)};
     // TODO: Optimize this case to avoid an extra pointer copy
     auto destination = evaluator.instance_location;
     destination.push_back(value);
     callback(EvaluationType::Pre, true, instruction, evaluator.evaluate_path,
              destination, Evaluator::null);
-    evaluator.evaluate(value);
     callback(EvaluationType::Post, true, instruction, evaluator.evaluate_path,
              destination, Evaluator::null);
-  } else {
-    const auto &value{*std::get_if<ValuePointer>(&instruction.value)};
-    evaluator.evaluate(value);
   }
-#endif
-
-#ifdef SOURCEMETA_EVALUATOR_TRACK
-  const auto &value{*std::get_if<ValuePointer>(&instruction.value)};
-  evaluator.evaluate(value);
 #endif
 
   EVALUATE_END_PASS_THROUGH(ControlEvaluate);
@@ -1297,24 +1312,28 @@ INSTRUCTION_HANDLER(LoopPropertiesUnevaluated) {
   result = true;
 
   for (const auto &entry : target.as_object()) {
-    if (evaluator.is_evaluated({entry.first})) {
+    if (evaluator.is_evaluated(&entry.second)) {
       continue;
     }
 
+#ifdef SOURCEMETA_EVALUATOR_COMPLETE
     evaluator.instance_location.push_back(entry.first);
+#endif
     for (const auto &child : instruction.children) {
       if (!EVALUATE_RECURSE(child, entry.second)) {
         result = false;
+#ifdef SOURCEMETA_EVALUATOR_COMPLETE
         evaluator.instance_location.pop_back();
+#endif
         EVALUATE_END(LoopPropertiesUnevaluated);
       }
     }
 
+#ifdef SOURCEMETA_EVALUATOR_COMPLETE
     evaluator.instance_location.pop_back();
+#endif
+    evaluator.evaluate(&entry.second);
   }
-
-  // Mark the entire object as evaluated
-  evaluator.evaluate(sourcemeta::jsontoolkit::empty_pointer);
 
   EVALUATE_END(LoopPropertiesUnevaluated);
 }
@@ -1337,6 +1356,7 @@ INSTRUCTION_HANDLER(LoopPropertiesUnevaluatedExcept) {
 
   for (const auto &entry : target.as_object()) {
     if (std::get<0>(value).contains(entry.first, entry.hash)) {
+      evaluator.evaluate(&entry.second);
       continue;
     }
 
@@ -1344,6 +1364,7 @@ INSTRUCTION_HANDLER(LoopPropertiesUnevaluatedExcept) {
                     [&entry](const auto &prefix) {
                       return entry.first.starts_with(prefix);
                     })) {
+      evaluator.evaluate(&entry.second);
       continue;
     }
 
@@ -1351,27 +1372,32 @@ INSTRUCTION_HANDLER(LoopPropertiesUnevaluatedExcept) {
                     [&entry](const auto &pattern) {
                       return matches(pattern.first, entry.first);
                     })) {
+      evaluator.evaluate(&entry.second);
       continue;
     }
 
-    if (evaluator.is_evaluated({entry.first})) {
+    if (evaluator.is_evaluated(&entry.second)) {
       continue;
     }
 
+#ifdef SOURCEMETA_EVALUATOR_COMPLETE
     evaluator.instance_location.push_back(entry.first);
+#endif
     for (const auto &child : instruction.children) {
       if (!EVALUATE_RECURSE(child, entry.second)) {
         result = false;
+#ifdef SOURCEMETA_EVALUATOR_COMPLETE
         evaluator.instance_location.pop_back();
+#endif
         EVALUATE_END(LoopPropertiesUnevaluatedExcept);
       }
     }
 
+#ifdef SOURCEMETA_EVALUATOR_COMPLETE
     evaluator.instance_location.pop_back();
+#endif
+    evaluator.evaluate(&entry.second);
   }
-
-  // Mark the entire object as evaluated
-  evaluator.evaluate(sourcemeta::jsontoolkit::empty_pointer);
 
   EVALUATE_END(LoopPropertiesUnevaluatedExcept);
 }
@@ -1450,22 +1476,31 @@ INSTRUCTION_HANDLER(LoopProperties) {
   assert(!instruction.children.empty());
   result = true;
   for (const auto &entry : target.as_object()) {
+#ifdef SOURCEMETA_EVALUATOR_COMPLETE
     if (track) {
       evaluator.instance_location.push_back(entry.first);
     }
+#endif
+
     for (const auto &child : instruction.children) {
       if (!EVALUATE_RECURSE(child, entry.second)) {
         result = false;
+
+#ifdef SOURCEMETA_EVALUATOR_COMPLETE
         if (track) {
           evaluator.instance_location.pop_back();
         }
+#endif
+
         EVALUATE_END(LoopProperties);
       }
     }
 
+#ifdef SOURCEMETA_EVALUATOR_COMPLETE
     if (track) {
       evaluator.instance_location.pop_back();
     }
+#endif
   }
 
   EVALUATE_END(LoopProperties);
@@ -1482,25 +1517,34 @@ INSTRUCTION_HANDLER(LoopPropertiesEvaluate) {
   assert(!instruction.children.empty());
   result = true;
   for (const auto &entry : target.as_object()) {
+#ifdef SOURCEMETA_EVALUATOR_COMPLETE
     if (track) {
       evaluator.instance_location.push_back(entry.first);
     }
+#endif
+
     for (const auto &child : instruction.children) {
       if (!EVALUATE_RECURSE(child, entry.second)) {
         result = false;
+
+#ifdef SOURCEMETA_EVALUATOR_COMPLETE
         if (track) {
           evaluator.instance_location.pop_back();
         }
+#endif
+
         EVALUATE_END(LoopPropertiesEvaluate);
       }
     }
 
+#ifdef SOURCEMETA_EVALUATOR_COMPLETE
     if (track) {
       evaluator.instance_location.pop_back();
     }
-  }
+#endif
 
-  evaluator.evaluate(sourcemeta::jsontoolkit::empty_pointer);
+    evaluator.evaluate(&entry.second);
+  }
 
   EVALUATE_END(LoopPropertiesEvaluate);
 }
@@ -1521,22 +1565,31 @@ INSTRUCTION_HANDLER(LoopPropertiesRegex) {
       continue;
     }
 
+#ifdef SOURCEMETA_EVALUATOR_COMPLETE
     if (track) {
       evaluator.instance_location.push_back(entry.first);
     }
+#endif
+
     for (const auto &child : instruction.children) {
       if (!EVALUATE_RECURSE(child, entry.second)) {
         result = false;
+
+#ifdef SOURCEMETA_EVALUATOR_COMPLETE
         if (track) {
           evaluator.instance_location.pop_back();
         }
+#endif
+
         EVALUATE_END(LoopPropertiesRegex);
       }
     }
 
+#ifdef SOURCEMETA_EVALUATOR_COMPLETE
     if (track) {
       evaluator.instance_location.pop_back();
     }
+#endif
   }
 
   EVALUATE_END(LoopPropertiesRegex);
@@ -1562,22 +1615,31 @@ INSTRUCTION_HANDLER(LoopPropertiesRegexClosed) {
       continue;
     }
 
+#ifdef SOURCEMETA_EVALUATOR_COMPLETE
     if (track) {
       evaluator.instance_location.push_back(entry.first);
     }
+#endif
+
     for (const auto &child : instruction.children) {
       if (!EVALUATE_RECURSE(child, entry.second)) {
         result = false;
+
+#ifdef SOURCEMETA_EVALUATOR_COMPLETE
         if (track) {
           evaluator.instance_location.pop_back();
         }
+#endif
+
         EVALUATE_END(LoopPropertiesRegexClosed);
       }
     }
 
+#ifdef SOURCEMETA_EVALUATOR_COMPLETE
     if (track) {
       evaluator.instance_location.pop_back();
     }
+#endif
   }
 
   EVALUATE_END(LoopPropertiesRegexClosed);
@@ -1599,22 +1661,31 @@ INSTRUCTION_HANDLER(LoopPropertiesStartsWith) {
       continue;
     }
 
+#ifdef SOURCEMETA_EVALUATOR_COMPLETE
     if (track) {
       evaluator.instance_location.push_back(entry.first);
     }
+#endif
+
     for (const auto &child : instruction.children) {
       if (!EVALUATE_RECURSE(child, entry.second)) {
         result = false;
+
+#ifdef SOURCEMETA_EVALUATOR_COMPLETE
         if (track) {
           evaluator.instance_location.pop_back();
         }
+#endif
+
         EVALUATE_END(LoopPropertiesStartsWith);
       }
     }
 
+#ifdef SOURCEMETA_EVALUATOR_COMPLETE
     if (track) {
       evaluator.instance_location.pop_back();
     }
+#endif
   }
 
   EVALUATE_END(LoopPropertiesStartsWith);
@@ -1654,22 +1725,31 @@ INSTRUCTION_HANDLER(LoopPropertiesExcept) {
       continue;
     }
 
+#ifdef SOURCEMETA_EVALUATOR_COMPLETE
     if (track) {
       evaluator.instance_location.push_back(entry.first);
     }
+#endif
+
     for (const auto &child : instruction.children) {
       if (!EVALUATE_RECURSE(child, entry.second)) {
         result = false;
+
+#ifdef SOURCEMETA_EVALUATOR_COMPLETE
         if (track) {
           evaluator.instance_location.pop_back();
         }
+#endif
+
         EVALUATE_END(LoopPropertiesExcept);
       }
     }
 
+#ifdef SOURCEMETA_EVALUATOR_COMPLETE
     if (track) {
       evaluator.instance_location.pop_back();
     }
+#endif
   }
 
   EVALUATE_END(LoopPropertiesExcept);
@@ -1744,9 +1824,9 @@ INSTRUCTION_HANDLER(LoopPropertiesTypeEvaluate) {
       result = false;
       EVALUATE_END(LoopPropertiesTypeEvaluate);
     }
-  }
 
-  evaluator.evaluate(sourcemeta::jsontoolkit::empty_pointer);
+    evaluator.evaluate(&entry.second);
+  }
 
   EVALUATE_END(LoopPropertiesTypeEvaluate);
 }
@@ -1875,9 +1955,9 @@ INSTRUCTION_HANDLER(LoopPropertiesTypeStrictEvaluate) {
       result = false;
       EVALUATE_END(LoopPropertiesTypeStrictEvaluate);
     }
-  }
 
-  evaluator.evaluate(sourcemeta::jsontoolkit::empty_pointer);
+    evaluator.evaluate(&entry.second);
+  }
 
   EVALUATE_END(LoopPropertiesTypeStrictEvaluate);
 }
@@ -1920,9 +2000,9 @@ INSTRUCTION_HANDLER(LoopPropertiesTypeStrictAnyEvaluate) {
       result = false;
       EVALUATE_END(LoopPropertiesTypeStrictAnyEvaluate);
     }
-  }
 
-  evaluator.evaluate(sourcemeta::jsontoolkit::empty_pointer);
+    evaluator.evaluate(&entry.second);
+  }
 
   EVALUATE_END(LoopPropertiesTypeStrictAnyEvaluate);
 }
@@ -1938,23 +2018,32 @@ INSTRUCTION_HANDLER(LoopKeys) {
   assert(!instruction.children.empty());
   result = true;
   for (const auto &entry : target.as_object()) {
+#ifdef SOURCEMETA_EVALUATOR_COMPLETE
     if (track) {
       evaluator.instance_location.push_back(entry.first);
     }
+#endif
+
     for (const auto &child : instruction.children) {
       if (!EVALUATE_RECURSE_ON_PROPERTY_NAME(child, Evaluator::null,
                                              entry.first)) {
         result = false;
+
+#ifdef SOURCEMETA_EVALUATOR_COMPLETE
         if (track) {
           evaluator.instance_location.pop_back();
         }
+#endif
+
         EVALUATE_END(LoopKeys);
       }
     }
 
+#ifdef SOURCEMETA_EVALUATOR_COMPLETE
     if (track) {
       evaluator.instance_location.pop_back();
     }
+#endif
   }
 
   EVALUATE_END(LoopKeys);
@@ -1983,23 +2072,32 @@ INSTRUCTION_HANDLER(LoopItems) {
   }
 #else
   for (std::size_t index = 0; index < target.array_size(); index++) {
+#ifdef SOURCEMETA_EVALUATOR_COMPLETE
     if (track) {
       evaluator.instance_location.push_back(index);
     }
+#endif
+
     const auto &new_instance{target.at(index)};
     for (const auto &child : instruction.children) {
       if (!EVALUATE_RECURSE(child, new_instance)) {
         result = false;
+
+#ifdef SOURCEMETA_EVALUATOR_COMPLETE
         if (track) {
           evaluator.instance_location.pop_back();
         }
+#endif
+
         EVALUATE_END(LoopItems);
       }
     }
 
+#ifdef SOURCEMETA_EVALUATOR_COMPLETE
     if (track) {
       evaluator.instance_location.pop_back();
     }
+#endif
   }
 #endif
 
@@ -2019,23 +2117,32 @@ INSTRUCTION_HANDLER(LoopItemsFrom) {
   assert(!instruction.children.empty());
   result = true;
   for (std::size_t index = value; index < target.array_size(); index++) {
+#ifdef SOURCEMETA_EVALUATOR_COMPLETE
     if (track) {
       evaluator.instance_location.push_back(index);
     }
+#endif
+
     const auto &new_instance{target.at(index)};
     for (const auto &child : instruction.children) {
       if (!EVALUATE_RECURSE(child, new_instance)) {
         result = false;
+
+#ifdef SOURCEMETA_EVALUATOR_COMPLETE
         if (track) {
           evaluator.instance_location.pop_back();
         }
+#endif
+
         EVALUATE_END(LoopItemsFrom);
       }
     }
 
+#ifdef SOURCEMETA_EVALUATOR_COMPLETE
     if (track) {
       evaluator.instance_location.pop_back();
     }
+#endif
   }
 
   EVALUATE_END(LoopItemsFrom);
@@ -2053,25 +2160,29 @@ INSTRUCTION_HANDLER(LoopItemsUnevaluated) {
   result = true;
 
   for (std::size_t index = 0; index < target.array_size(); index++) {
-    if (evaluator.is_evaluated(index)) {
+    const auto &new_instance{target.at(index)};
+    if (evaluator.is_evaluated(&new_instance)) {
       continue;
     }
 
+#ifdef SOURCEMETA_EVALUATOR_COMPLETE
     evaluator.instance_location.push_back(index);
-    const auto &new_instance{target.at(index)};
+#endif
     for (const auto &child : instruction.children) {
       if (!EVALUATE_RECURSE(child, new_instance)) {
         result = false;
+#ifdef SOURCEMETA_EVALUATOR_COMPLETE
         evaluator.instance_location.pop_back();
+#endif
         EVALUATE_END(LoopItemsUnevaluated);
       }
     }
 
+#ifdef SOURCEMETA_EVALUATOR_COMPLETE
     evaluator.instance_location.pop_back();
+#endif
+    evaluator.evaluate(&new_instance);
   }
-
-  // Mark the entire array as evaluated
-  evaluator.evaluate(sourcemeta::jsontoolkit::empty_pointer);
 
   EVALUATE_END(LoopItemsUnevaluated);
 }
@@ -2228,9 +2339,12 @@ INSTRUCTION_HANDLER(LoopContains) {
   auto match_count{std::numeric_limits<decltype(minimum)>::min()};
 
   for (std::size_t index = 0; index < target.array_size(); index++) {
+#ifdef SOURCEMETA_EVALUATOR_COMPLETE
     if (track) {
       evaluator.instance_location.push_back(index);
     }
+#endif
+
     const auto &new_instance{target.at(index)};
     bool subresult{true};
     for (const auto &child : instruction.children) {
@@ -2240,9 +2354,11 @@ INSTRUCTION_HANDLER(LoopContains) {
       }
     }
 
+#ifdef SOURCEMETA_EVALUATOR_COMPLETE
     if (track) {
       evaluator.instance_location.pop_back();
     }
+#endif
 
     if (subresult) {
       match_count += 1;
