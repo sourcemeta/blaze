@@ -100,23 +100,15 @@ auto Evaluator::hash(const std::size_t &resource,
   return resource + this->hasher_(fragment);
 }
 
-auto Evaluator::evaluate(
-    const sourcemeta::jsontoolkit::Pointer &relative_instance_location)
-    -> void {
-  auto new_instance_location = this->instance_location;
-  new_instance_location.push_back(relative_instance_location);
-  Evaluation entry{std::move(new_instance_location), this->evaluate_path,
-                   false};
-  this->evaluated_.emplace_back(std::move(entry));
+auto Evaluator::evaluate(const sourcemeta::jsontoolkit::JSON *target) -> void {
+  this->evaluated_.emplace_back(target, this->evaluate_path, false);
 }
 
-auto Evaluator::is_evaluated(
-    const sourcemeta::jsontoolkit::WeakPointer::Token &tail) const -> bool {
+auto Evaluator::is_evaluated(const sourcemeta::jsontoolkit::JSON *target) const
+    -> bool {
   for (auto iterator = this->evaluated_.crbegin();
        iterator != this->evaluated_.crend(); ++iterator) {
-    if (!iterator->skip &&
-        this->instance_location.starts_with(iterator->instance_location,
-                                            tail) &&
+    if (!iterator->skip && target == iterator->instance &&
         // Its not possible to affect cousins
         iterator->evaluate_path.starts_with_initial(this->evaluate_path)) {
       return true;

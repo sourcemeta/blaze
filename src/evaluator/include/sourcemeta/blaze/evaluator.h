@@ -158,12 +158,8 @@ public:
        const sourcemeta::jsontoolkit::JSON::String &fragment) const noexcept
       -> std::size_t;
 
-  auto
-  evaluate(const sourcemeta::jsontoolkit::Pointer &relative_instance_location)
-      -> void;
-  auto
-  is_evaluated(const sourcemeta::jsontoolkit::WeakPointer::Token &tail) const
-      -> bool;
+  auto evaluate(const sourcemeta::jsontoolkit::JSON *target) -> void;
+  auto is_evaluated(const sourcemeta::jsontoolkit::JSON *target) const -> bool;
   auto unevaluate() -> void;
 
 // Exporting symbols that depends on the standard C++ library is considered
@@ -179,11 +175,8 @@ public:
   std::map<std::size_t, const std::reference_wrapper<const Instructions>>
       labels;
 
-  // TODO: Revamp the data structure we use to track evaluation
-  // to provide more performant lookups that don't involve so many
-  // pointer token string comparisons
   struct Evaluation {
-    sourcemeta::jsontoolkit::WeakPointer instance_location;
+    const sourcemeta::jsontoolkit::JSON *instance;
     sourcemeta::jsontoolkit::WeakPointer evaluate_path;
     bool skip;
   };

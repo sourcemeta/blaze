@@ -11,8 +11,6 @@
     return true;                                                               \
   }                                                                            \
   evaluator.evaluate_path.push_back(instruction.relative_schema_location);     \
-  evaluator.instance_location.push_back(                                       \
-      instruction.relative_instance_location);                                 \
   constexpr bool track{true};                                                  \
   SOURCEMETA_MAYBE_UNUSED(track);                                              \
   bool result{false};
@@ -25,8 +23,6 @@
     return true;                                                               \
   }                                                                            \
   evaluator.evaluate_path.push_back(instruction.relative_schema_location);     \
-  evaluator.instance_location.push_back(                                       \
-      instruction.relative_instance_location);                                 \
   constexpr bool track{true};                                                  \
   SOURCEMETA_MAYBE_UNUSED(track);                                              \
   bool result{false};
@@ -39,8 +35,6 @@
     return true;                                                               \
   }                                                                            \
   evaluator.evaluate_path.push_back(instruction.relative_schema_location);     \
-  evaluator.instance_location.push_back(                                       \
-      instruction.relative_instance_location);                                 \
   const auto &target{*maybe_target};                                           \
   bool result{false};
 
@@ -58,16 +52,12 @@
     return true;                                                               \
   }                                                                            \
   evaluator.evaluate_path.push_back(instruction.relative_schema_location);     \
-  evaluator.instance_location.push_back(                                       \
-      instruction.relative_instance_location);                                 \
   assert(!instruction.relative_instance_location.empty());                     \
   bool result{false};
 
 #define EVALUATE_BEGIN_NO_PRECONDITION(instruction_type)                       \
   assert(instruction.type == InstructionIndex::instruction_type);              \
   evaluator.evaluate_path.push_back(instruction.relative_schema_location);     \
-  evaluator.instance_location.push_back(                                       \
-      instruction.relative_instance_location);                                 \
   constexpr bool track{true};                                                  \
   SOURCEMETA_MAYBE_UNUSED(track);                                              \
   bool result{false};
@@ -83,8 +73,6 @@
 #define EVALUATE_END(instruction_type)                                         \
   evaluator.evaluate_path.pop_back(                                            \
       instruction.relative_schema_location.size());                            \
-  evaluator.instance_location.pop_back(                                        \
-      instruction.relative_instance_location.size());                          \
   return result;
 
 #define EVALUATE_END_NO_POP(instruction_type) return result;
@@ -114,13 +102,11 @@ inline auto evaluate(const sourcemeta::jsontoolkit::JSON &instance,
     if (!evaluate_instruction(instruction, schema, nullptr, instance, nullptr,
                               0, evaluator)) {
       assert(evaluator.evaluate_path.empty());
-      assert(evaluator.instance_location.empty());
       return false;
     }
   }
 
   assert(evaluator.evaluate_path.empty());
-  assert(evaluator.instance_location.empty());
   return true;
 }
 
