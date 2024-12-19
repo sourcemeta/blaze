@@ -1125,6 +1125,7 @@ INSTRUCTION_HANDLER(ControlEvaluate) {
     defined(SOURCEMETA_EVALUATOR_TRACK)
   const auto &value{*std::get_if<ValuePointer>(&instruction.value)};
   const auto &target{get(instance, value)};
+  evaluator.evaluate(&target);
   switch (target.type()) {
     case sourcemeta::jsontoolkit::JSON::Type::Object:
       for (const auto &property : target.as_object()) {
@@ -1139,7 +1140,6 @@ INSTRUCTION_HANDLER(ControlEvaluate) {
 
       break;
     default:
-      evaluator.evaluate(&target);
       break;
   }
 #endif
