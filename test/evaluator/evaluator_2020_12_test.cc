@@ -1244,29 +1244,14 @@ TEST(Evaluator_2020_12, dynamicRef_1) {
   })JSON")};
 
   const sourcemeta::jsontoolkit::JSON instance{"foo"};
-  EVALUATE_WITH_TRACE_FAST_SUCCESS(schema, instance, 3);
+  EVALUATE_WITH_TRACE_FAST_SUCCESS(schema, instance, 1);
 
-  EVALUATE_TRACE_PRE(0, ControlMark, "", "#/$defs/string", "");
-  EVALUATE_TRACE_PRE(1, ControlDynamicAnchorJump, "/$dynamicRef",
-                     "#/$dynamicRef", "");
-  EVALUATE_TRACE_PRE(2, AssertionTypeStrict, "/$dynamicRef/type",
+  EVALUATE_TRACE_PRE(0, AssertionTypeStrict, "/$dynamicRef/type",
                      "#/$defs/string/type", "");
-
-  EVALUATE_TRACE_POST_SUCCESS(0, ControlMark, "", "#/$defs/string", "");
-  EVALUATE_TRACE_POST_SUCCESS(1, AssertionTypeStrict, "/$dynamicRef/type",
+  EVALUATE_TRACE_POST_SUCCESS(0, AssertionTypeStrict, "/$dynamicRef/type",
                               "#/$defs/string/type", "");
-  EVALUATE_TRACE_POST_SUCCESS(2, ControlDynamicAnchorJump, "/$dynamicRef",
-                              "#/$dynamicRef", "");
-
   EVALUATE_TRACE_POST_DESCRIBE(instance, 0,
-                               "The schema location was marked for "
-                               "future use");
-  EVALUATE_TRACE_POST_DESCRIBE(instance, 1,
                                "The value was expected to be of type string");
-  EVALUATE_TRACE_POST_DESCRIBE(
-      instance, 2,
-      "The string value was expected to validate against the first subschema "
-      "in scope that declared the dynamic anchor \"foo\"");
 }
 
 TEST(Evaluator_2020_12, definitions_1) {
