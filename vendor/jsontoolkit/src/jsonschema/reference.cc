@@ -3,7 +3,7 @@
 #include <sourcemeta/jsontoolkit/jsonschema.h>
 #include <sourcemeta/jsontoolkit/uri.h>
 
-#include <algorithm>  // std::sort
+#include <algorithm>  // std::sort, std::all_of
 #include <cassert>    // assert
 #include <functional> // std::less
 #include <map>        // std::map
@@ -462,6 +462,76 @@ auto sourcemeta::jsontoolkit::frame(
              {std::move(ref_string), ref.recompose_without_fragment(),
               fragment_string(ref)}});
       }
+    }
+  }
+
+  // A schema is standalone if all references can be resolved within itself
+  const bool standalone{std::all_of(
+      references.cbegin(), references.cend(), [&frame](const auto &reference) {
+        assert(!reference.first.second.empty());
+        assert(reference.first.second.back().is_property());
+        return reference.first.second.back().to_property() == "$schema" ||
+               frame.contains(
+                   {ReferenceType::Static, reference.second.destination}) ||
+               frame.contains(
+                   {ReferenceType::Dynamic, reference.second.destination});
+      })};
+
+  if (standalone) {
+    // Find all dynamic anchors
+    std::map<std::string, std::vector<std::string>> dynamic_anchors;
+    for (const auto &entry : frame) {
+      if (entry.first.first != ReferenceType::Dynamic ||
+          entry.second.type != ReferenceEntryType::Anchor) {
+        continue;
+      }
+
+      const URI anchor_uri{entry.first.second};
+      const std::string fragment{anchor_uri.fragment().value_or("")};
+      if (!dynamic_anchors.contains(fragment)) {
+        dynamic_anchors.emplace(fragment, std::vector<std::string>{});
+      }
+
+      dynamic_anchors[fragment].push_back(entry.first.second);
+    }
+
+    // If there is a dynamic reference that only has one possible
+    // dynamic anchor destination, then that dynamic reference
+    // is a static reference in disguise
+    std::vector<ReferenceMap::key_type> to_delete;
+    std::vector<ReferenceMap::value_type> to_insert;
+    for (const auto &reference : references) {
+      if (reference.first.first != ReferenceType::Dynamic ||
+          !reference.second.fragment.has_value()) {
+        continue;
+      }
+
+      const auto match{dynamic_anchors.find(reference.second.fragment.value())};
+      assert(match != dynamic_anchors.cend());
+      // Otherwise we can assume there is only one possible target for the
+      // dynamic reference
+      if (match->second.size() != 1) {
+        continue;
+      }
+
+      to_delete.push_back(reference.first);
+      const URI new_destination{match->second.front()};
+      to_insert.emplace_back(
+          ReferenceMap::key_type{ReferenceType::Static, reference.first.second},
+          ReferenceMap::mapped_type{
+              match->second.front(),
+              new_destination.recompose_without_fragment(),
+              fragment_string(new_destination)});
+    }
+
+    // Because we can't mutate a map as we are traversing it
+
+    for (const auto &key : to_delete) {
+      references.erase(key);
+    }
+
+    for (auto &&entry : to_insert) {
+      references.emplace(std::move(entry));
     }
   }
 }
