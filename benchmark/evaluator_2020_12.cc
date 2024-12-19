@@ -119,6 +119,28 @@ static void Evaluator_2020_12_CQL_1(benchmark::State &state) {
   }
 }
 
+static void Evaluator_2020_12_OpenAPI(benchmark::State &state) {
+  const auto schema{sourcemeta::jsontoolkit::from_file(
+      std::filesystem::path{CURRENT_DIRECTORY} / "schemas" /
+      "2020_12_openapi.json")};
+
+  const auto instance{sourcemeta::jsontoolkit::from_file(
+      std::filesystem::path{CURRENT_DIRECTORY} / "instances" /
+      "2020_12_openapi_1.json")};
+
+  const auto schema_template{sourcemeta::blaze::compile(
+      schema, sourcemeta::jsontoolkit::default_schema_walker,
+      sourcemeta::jsontoolkit::official_resolver,
+      sourcemeta::blaze::default_schema_compiler)};
+  sourcemeta::blaze::Evaluator evaluator;
+  for (auto _ : state) {
+    auto result{evaluator.validate(schema_template, instance)};
+    assert(result);
+    benchmark::DoNotOptimize(result);
+  }
+}
+
 BENCHMARK(Evaluator_2020_12_Dynamic_Ref);
 BENCHMARK(Evaluator_2020_12_Dynamic_Ref_Single);
 BENCHMARK(Evaluator_2020_12_CQL_1);
+BENCHMARK(Evaluator_2020_12_OpenAPI);
