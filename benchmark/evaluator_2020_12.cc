@@ -70,6 +70,34 @@ static void Evaluator_2020_12_Dynamic_Ref(benchmark::State &state) {
   }
 }
 
+static void Evaluator_2020_12_Dynamic_Ref_Single(benchmark::State &state) {
+  const sourcemeta::jsontoolkit::JSON schema{
+      sourcemeta::jsontoolkit::parse(R"JSON({
+    "$id": "https://example.com",
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "$dynamicRef": "#test",
+    "$defs": {
+      "test": {
+        "$dynamicAnchor": "test",
+        "type": "boolean"
+      }
+    }
+  })JSON")};
+
+  const auto instance{sourcemeta::jsontoolkit::JSON{true}};
+
+  const auto schema_template{sourcemeta::blaze::compile(
+      schema, sourcemeta::jsontoolkit::default_schema_walker,
+      sourcemeta::jsontoolkit::official_resolver,
+      sourcemeta::blaze::default_schema_compiler)};
+  sourcemeta::blaze::Evaluator evaluator;
+  for (auto _ : state) {
+    auto result{evaluator.validate(schema_template, instance)};
+    assert(result);
+    benchmark::DoNotOptimize(result);
+  }
+}
+
 static void Evaluator_2020_12_CQL_1(benchmark::State &state) {
   const auto schema{sourcemeta::jsontoolkit::from_file(
       std::filesystem::path{CURRENT_DIRECTORY} / "schemas" /
@@ -92,4 +120,5 @@ static void Evaluator_2020_12_CQL_1(benchmark::State &state) {
 }
 
 BENCHMARK(Evaluator_2020_12_Dynamic_Ref);
+BENCHMARK(Evaluator_2020_12_Dynamic_Ref_Single);
 BENCHMARK(Evaluator_2020_12_CQL_1);
