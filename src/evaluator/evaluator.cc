@@ -101,14 +101,15 @@ auto Evaluator::hash(const std::size_t &resource,
 }
 
 auto Evaluator::evaluate(const sourcemeta::jsontoolkit::JSON *target) -> void {
-  this->evaluated_.emplace_back(target, this->evaluate_path, false);
+  Evaluation mark{target, this->evaluate_path, false};
+  this->evaluated_.push_back(std::move(mark));
 }
 
 auto Evaluator::is_evaluated(const sourcemeta::jsontoolkit::JSON *target) const
     -> bool {
   for (auto iterator = this->evaluated_.crbegin();
        iterator != this->evaluated_.crend(); ++iterator) {
-    if (!iterator->skip && target == iterator->instance &&
+    if (target == iterator->instance && !iterator->skip &&
         // Its not possible to affect cousins
         iterator->evaluate_path.starts_with_initial(this->evaluate_path)) {
       return true;

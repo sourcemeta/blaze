@@ -1122,20 +1122,30 @@ INSTRUCTION_HANDLER(ControlEvaluate) {
   SOURCEMETA_MAYBE_UNUSED(evaluator);
   EVALUATE_BEGIN_PASS_THROUGH(ControlEvaluate);
 
-#ifdef SOURCEMETA_EVALUATOR_COMPLETE
+#if defined(SOURCEMETA_EVALUATOR_COMPLETE) ||                                  \
+    defined(SOURCEMETA_EVALUATOR_TRACK)
   const auto &value{*std::get_if<ValuePointer>(&instruction.value)};
   const auto &target{get(instance, value)};
-  evaluator.evaluate(&target);
-  if (target.is_object()) {
-    for (const auto &property : target.as_object()) {
-      evaluator.evaluate(&property.second);
-    }
-  } else if (target.is_array()) {
-    for (const auto &item : target.as_array()) {
-      evaluator.evaluate(&item);
-    }
-  }
+  switch (target.type()) {
+    case sourcemeta::jsontoolkit::JSON::Type::Object:
+      for (const auto &property : target.as_object()) {
+        evaluator.evaluate(&property.second);
+      }
 
+      break;
+    case sourcemeta::jsontoolkit::JSON::Type::Array:
+      for (const auto &item : target.as_array()) {
+        evaluator.evaluate(&item);
+      }
+
+      break;
+    default:
+      evaluator.evaluate(&target);
+      break;
+  }
+#endif
+
+#ifdef SOURCEMETA_EVALUATOR_COMPLETE
   if (callback) {
     // TODO: Optimize this case to avoid an extra pointer copy
     auto destination = evaluator.instance_location;
@@ -1144,21 +1154,6 @@ INSTRUCTION_HANDLER(ControlEvaluate) {
              destination, Evaluator::null);
     callback(EvaluationType::Post, true, instruction, evaluator.evaluate_path,
              destination, Evaluator::null);
-  }
-#endif
-
-#ifdef SOURCEMETA_EVALUATOR_TRACK
-  const auto &value{*std::get_if<ValuePointer>(&instruction.value)};
-  const auto &target{get(instance, value)};
-  evaluator.evaluate(&target);
-  if (target.is_object()) {
-    for (const auto &property : target.as_object()) {
-      evaluator.evaluate(&property.second);
-    }
-  } else if (target.is_array()) {
-    for (const auto &item : target.as_array()) {
-      evaluator.evaluate(&item);
-    }
   }
 #endif
 
