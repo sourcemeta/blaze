@@ -642,7 +642,7 @@ INSTRUCTION_HANDLER(AssertionPropertyTypeEvaluate) {
            (value == JSON::Type::Integer && target_check->is_integer_real());
 
   if (result) {
-    evaluator.evaluate();
+    evaluator.evaluate(sourcemeta::jsontoolkit::empty_pointer);
   }
 
   EVALUATE_END(AssertionPropertyTypeEvaluate);
@@ -683,7 +683,7 @@ INSTRUCTION_HANDLER(AssertionPropertyTypeStrictEvaluate) {
   result = target_check->type() == value;
 
   if (result) {
-    evaluator.evaluate();
+    evaluator.evaluate(sourcemeta::jsontoolkit::empty_pointer);
   }
 
   EVALUATE_END(AssertionPropertyTypeStrictEvaluate);
@@ -726,7 +726,7 @@ INSTRUCTION_HANDLER(AssertionPropertyTypeStrictAnyEvaluate) {
             value.cend());
 
   if (result) {
-    evaluator.evaluate();
+    evaluator.evaluate(sourcemeta::jsontoolkit::empty_pointer);
   }
 
   EVALUATE_END(AssertionPropertyTypeStrictAnyEvaluate);
@@ -790,9 +790,11 @@ INSTRUCTION_HANDLER(AssertionArrayPrefixEvaluate) {
 
     assert(result);
     if (array_size == prefixes) {
-      evaluator.evaluate();
+      evaluator.evaluate(sourcemeta::jsontoolkit::empty_pointer);
     } else {
-      evaluator.evaluate(0, pointer);
+      for (std::size_t cursor = 0; cursor <= pointer; cursor++) {
+        evaluator.evaluate({cursor});
+      }
     }
   }
 
@@ -1312,7 +1314,7 @@ INSTRUCTION_HANDLER(LoopPropertiesUnevaluated) {
   }
 
   // Mark the entire object as evaluated
-  evaluator.evaluate();
+  evaluator.evaluate(sourcemeta::jsontoolkit::empty_pointer);
 
   EVALUATE_END(LoopPropertiesUnevaluated);
 }
@@ -1369,7 +1371,7 @@ INSTRUCTION_HANDLER(LoopPropertiesUnevaluatedExcept) {
   }
 
   // Mark the entire object as evaluated
-  evaluator.evaluate();
+  evaluator.evaluate(sourcemeta::jsontoolkit::empty_pointer);
 
   EVALUATE_END(LoopPropertiesUnevaluatedExcept);
 }
@@ -1498,7 +1500,7 @@ INSTRUCTION_HANDLER(LoopPropertiesEvaluate) {
     }
   }
 
-  evaluator.evaluate();
+  evaluator.evaluate(sourcemeta::jsontoolkit::empty_pointer);
 
   EVALUATE_END(LoopPropertiesEvaluate);
 }
@@ -1744,7 +1746,7 @@ INSTRUCTION_HANDLER(LoopPropertiesTypeEvaluate) {
     }
   }
 
-  evaluator.evaluate();
+  evaluator.evaluate(sourcemeta::jsontoolkit::empty_pointer);
 
   EVALUATE_END(LoopPropertiesTypeEvaluate);
 }
@@ -1875,7 +1877,7 @@ INSTRUCTION_HANDLER(LoopPropertiesTypeStrictEvaluate) {
     }
   }
 
-  evaluator.evaluate();
+  evaluator.evaluate(sourcemeta::jsontoolkit::empty_pointer);
 
   EVALUATE_END(LoopPropertiesTypeStrictEvaluate);
 }
@@ -1920,7 +1922,7 @@ INSTRUCTION_HANDLER(LoopPropertiesTypeStrictAnyEvaluate) {
     }
   }
 
-  evaluator.evaluate();
+  evaluator.evaluate(sourcemeta::jsontoolkit::empty_pointer);
 
   EVALUATE_END(LoopPropertiesTypeStrictAnyEvaluate);
 }
@@ -2069,7 +2071,7 @@ INSTRUCTION_HANDLER(LoopItemsUnevaluated) {
   }
 
   // Mark the entire array as evaluated
-  evaluator.evaluate();
+  evaluator.evaluate(sourcemeta::jsontoolkit::empty_pointer);
 
   EVALUATE_END(LoopItemsUnevaluated);
 }
