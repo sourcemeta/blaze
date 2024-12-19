@@ -3,7 +3,8 @@ noa_library(NAMESPACE sourcemeta PROJECT blaze NAME evaluator
   PRIVATE_HEADERS error.h value.h instruction.h string_set.h
   SOURCES evaluator.cc dispatch.inc.h
           evaluator_string_set.cc
-          evaluator_complete.h evaluator_dynamic.h evaluator_fast.h)
+          evaluator_complete.h evaluator_dynamic.h
+          evaluator_track.h evaluator_fast.h)
 
 if(BLAZE_INSTALL)
   noa_library_install(NAMESPACE sourcemeta PROJECT blaze NAME evaluator)
