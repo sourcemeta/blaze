@@ -49,6 +49,7 @@ resolve_string_target(const JSON::String *property_target, const JSON &instance,
 #include "evaluator_complete.h"
 #include "evaluator_dynamic.h"
 #include "evaluator_fast.h"
+#include "evaluator_track.h"
 
 #undef SOURCEMETA_STRINGIFY
 #undef SOURCEMETA_MAYBE_UNUSED
@@ -64,9 +65,12 @@ auto Evaluator::validate(const Template &schema,
   assert(this->resources.empty());
   this->labels.clear();
 
-  if (schema.track) {
+  if (schema.track && schema.dynamic) {
     this->evaluated_.clear();
     return complete::evaluate(instance, *this, schema, nullptr);
+  } else if (schema.track) {
+    this->evaluated_.clear();
+    return track::evaluate(instance, *this, schema);
   } else if (schema.dynamic) {
     return dynamic::evaluate(instance, *this, schema);
   } else {

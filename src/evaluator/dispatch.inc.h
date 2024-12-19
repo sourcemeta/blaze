@@ -1133,7 +1133,11 @@ INSTRUCTION_HANDLER(ControlEvaluate) {
     const auto &value{*std::get_if<ValuePointer>(&instruction.value)};
     evaluator.evaluate(value);
   }
-#else
+#endif
+
+#ifdef SOURCEMETA_EVALUATOR_TRACK
+  const auto &value{*std::get_if<ValuePointer>(&instruction.value)};
+  evaluator.evaluate(value);
 #endif
 
   EVALUATE_END_PASS_THROUGH(ControlEvaluate);
