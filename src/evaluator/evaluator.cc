@@ -8,7 +8,6 @@
 #include <algorithm> // std::min, std::any_of, std::find
 #include <cassert>   // assert
 #include <limits>    // std::numeric_limits
-#include <optional>  // std::optional
 
 namespace sourcemeta::blaze {
 using namespace sourcemeta::jsontoolkit;
@@ -67,7 +66,7 @@ auto Evaluator::validate(const Template &schema,
 
   if (schema.track) {
     this->evaluated_.clear();
-    return complete::evaluate(instance, *this, schema, DEFAULT_CALLBACK);
+    return complete::evaluate(instance, *this, schema, nullptr);
   } else if (schema.dynamic) {
     return dynamic::evaluate(instance, *this, schema);
   } else {
@@ -90,7 +89,6 @@ auto Evaluator::validate(const Template &schema,
 
 const sourcemeta::jsontoolkit::JSON Evaluator::null{nullptr};
 const sourcemeta::jsontoolkit::JSON Evaluator::empty_string{""};
-const std::optional<Callback> Evaluator::DEFAULT_CALLBACK;
 
 auto Evaluator::hash(const std::size_t &resource,
                      const sourcemeta::jsontoolkit::JSON::String &fragment)
