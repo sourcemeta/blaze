@@ -175,8 +175,6 @@ public:
 #if defined(_MSC_VER)
 #pragma warning(disable : 4251 4275)
 #endif
-  static const std::optional<Callback> DEFAULT_CALLBACK;
-
   sourcemeta::jsontoolkit::WeakPointer evaluate_path;
   sourcemeta::jsontoolkit::WeakPointer instance_location;
   const std::hash<sourcemeta::jsontoolkit::JSON::String> hasher_{};

@@ -1,7 +1,7 @@
 inline auto evaluate_instruction(
     const sourcemeta::blaze::Instruction &instruction,
     const sourcemeta::blaze::Template &schema,
-    const std::optional<sourcemeta::blaze::Callback> &callback,
+    const sourcemeta::blaze::Callback &callback,
     const sourcemeta::jsontoolkit::JSON &instance,
     const sourcemeta::jsontoolkit::JSON::String *property_target,
     const std::uint64_t depth, sourcemeta::blaze::Evaluator &evaluator) -> bool;
@@ -10,7 +10,7 @@ inline auto evaluate_instruction(
   static inline auto name(                                                     \
       const sourcemeta::blaze::Instruction &instruction,                       \
       const sourcemeta::blaze::Template &schema,                               \
-      const std::optional<sourcemeta::blaze::Callback> &callback,              \
+      const sourcemeta::blaze::Callback &callback,                             \
       const sourcemeta::jsontoolkit::JSON &instance,                           \
       const sourcemeta::jsontoolkit::JSON::String *property_target,            \
       const std::uint64_t depth, sourcemeta::blaze::Evaluator &evaluator)      \
@@ -1119,16 +1119,16 @@ INSTRUCTION_HANDLER(ControlEvaluate) {
   EVALUATE_BEGIN_PASS_THROUGH(ControlEvaluate);
 
 #ifdef SOURCEMETA_EVALUATOR_COMPLETE
-  if (callback.has_value()) {
+  if (callback) {
     const auto &value{*std::get_if<ValuePointer>(&instruction.value)};
     // TODO: Optimize this case to avoid an extra pointer copy
     auto destination = evaluator.instance_location;
     destination.push_back(value);
-    callback.value()(EvaluationType::Pre, true, instruction,
-                     evaluator.evaluate_path, destination, Evaluator::null);
+    callback(EvaluationType::Pre, true, instruction, evaluator.evaluate_path,
+             destination, Evaluator::null);
     evaluator.evaluate(value);
-    callback.value()(EvaluationType::Post, true, instruction,
-                     evaluator.evaluate_path, destination, Evaluator::null);
+    callback(EvaluationType::Post, true, instruction, evaluator.evaluate_path,
+             destination, Evaluator::null);
   } else {
     const auto &value{*std::get_if<ValuePointer>(&instruction.value)};
     evaluator.evaluate(value);
@@ -2268,12 +2268,13 @@ INSTRUCTION_HANDLER(LoopContains) {
 
 #undef INSTRUCTION_HANDLER
 
-using DispatchHandler = bool (*)(
-    const sourcemeta::blaze::Instruction &, const sourcemeta::blaze::Template &,
-    const std::optional<sourcemeta::blaze::Callback> &,
-    const sourcemeta::jsontoolkit::JSON &,
-    const sourcemeta::jsontoolkit::JSON::String *, const std::uint64_t depth,
-    sourcemeta::blaze::Evaluator &);
+using DispatchHandler = bool (*)(const sourcemeta::blaze::Instruction &,
+                                 const sourcemeta::blaze::Template &,
+                                 const sourcemeta::blaze::Callback &,
+                                 const sourcemeta::jsontoolkit::JSON &,
+                                 const sourcemeta::jsontoolkit::JSON::String *,
+                                 const std::uint64_t depth,
+                                 sourcemeta::blaze::Evaluator &);
 
 // Must have same order as InstructionIndex
 static constexpr DispatchHandler handlers[90] = {
@@ -2371,7 +2372,7 @@ static constexpr DispatchHandler handlers[90] = {
 inline auto evaluate_instruction(
     const sourcemeta::blaze::Instruction &instruction,
     const sourcemeta::blaze::Template &schema,
-    const std::optional<sourcemeta::blaze::Callback> &callback,
+    const sourcemeta::blaze::Callback &callback,
     const sourcemeta::jsontoolkit::JSON &instance,
     const sourcemeta::jsontoolkit::JSON::String *property_target,
     const std::uint64_t depth, sourcemeta::blaze::Evaluator &evaluator)

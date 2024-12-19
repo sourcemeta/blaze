@@ -10,7 +10,7 @@
   if (!(precondition)) {                                                       \
     return true;                                                               \
   }                                                                            \
-  const auto track{schema.track || callback.has_value()};                      \
+  const auto track{schema.track || callback};                                  \
   if (track) {                                                                 \
     evaluator.evaluate_path.push_back(instruction.relative_schema_location);   \
     evaluator.instance_location.push_back(                                     \
@@ -19,10 +19,9 @@
   if (schema.dynamic) {                                                        \
     evaluator.resources.push_back(instruction.schema_resource);                \
   }                                                                            \
-  if (callback.has_value()) {                                                  \
-    callback.value()(EvaluationType::Pre, true, instruction,                   \
-                     evaluator.evaluate_path, evaluator.instance_location,     \
-                     Evaluator::null);                                         \
+  if (callback) {                                                              \
+    callback(EvaluationType::Pre, true, instruction, evaluator.evaluate_path,  \
+             evaluator.instance_location, Evaluator::null);                    \
   }                                                                            \
   bool result{false};
 
@@ -33,7 +32,7 @@
   if (!(precondition)) {                                                       \
     return true;                                                               \
   }                                                                            \
-  const auto track{schema.track || callback.has_value()};                      \
+  const auto track{schema.track || callback};                                  \
   if (track) {                                                                 \
     evaluator.evaluate_path.push_back(instruction.relative_schema_location);   \
     evaluator.instance_location.push_back(                                     \
@@ -42,10 +41,9 @@
   if (schema.dynamic) {                                                        \
     evaluator.resources.push_back(instruction.schema_resource);                \
   }                                                                            \
-  if (callback.has_value()) {                                                  \
-    callback.value()(EvaluationType::Pre, true, instruction,                   \
-                     evaluator.evaluate_path, evaluator.instance_location,     \
-                     Evaluator::null);                                         \
+  if (callback) {                                                              \
+    callback(EvaluationType::Pre, true, instruction, evaluator.evaluate_path,  \
+             evaluator.instance_location, Evaluator::null);                    \
   }                                                                            \
   bool result{false};
 
@@ -56,7 +54,7 @@
   if (!maybe_target) {                                                         \
     return true;                                                               \
   }                                                                            \
-  const auto track{schema.track || callback.has_value()};                      \
+  const auto track{schema.track || callback};                                  \
   if (track) {                                                                 \
     evaluator.evaluate_path.push_back(instruction.relative_schema_location);   \
     evaluator.instance_location.push_back(                                     \
@@ -65,10 +63,9 @@
   if (schema.dynamic) {                                                        \
     evaluator.resources.push_back(instruction.schema_resource);                \
   }                                                                            \
-  if (callback.has_value()) {                                                  \
-    callback.value()(EvaluationType::Pre, true, instruction,                   \
-                     evaluator.evaluate_path, evaluator.instance_location,     \
-                     Evaluator::null);                                         \
+  if (callback) {                                                              \
+    callback(EvaluationType::Pre, true, instruction, evaluator.evaluate_path,  \
+             evaluator.instance_location, Evaluator::null);                    \
   }                                                                            \
   const auto &target{*maybe_target};                                           \
   bool result{false};
@@ -86,7 +83,7 @@
   if (!target_check) {                                                         \
     return true;                                                               \
   }                                                                            \
-  const auto track{schema.track || callback.has_value()};                      \
+  const auto track{schema.track || callback};                                  \
   if (track) {                                                                 \
     evaluator.evaluate_path.push_back(instruction.relative_schema_location);   \
     evaluator.instance_location.push_back(                                     \
@@ -96,16 +93,15 @@
     evaluator.resources.push_back(instruction.schema_resource);                \
   }                                                                            \
   assert(!instruction.relative_instance_location.empty());                     \
-  if (callback.has_value()) {                                                  \
-    callback.value()(EvaluationType::Pre, true, instruction,                   \
-                     evaluator.evaluate_path, evaluator.instance_location,     \
-                     Evaluator::null);                                         \
+  if (callback) {                                                              \
+    callback(EvaluationType::Pre, true, instruction, evaluator.evaluate_path,  \
+             evaluator.instance_location, Evaluator::null);                    \
   }                                                                            \
   bool result{false};
 
 #define EVALUATE_BEGIN_NO_PRECONDITION(instruction_type)                       \
   assert(instruction.type == InstructionIndex::instruction_type);              \
-  const auto track{schema.track || callback.has_value()};                      \
+  const auto track{schema.track || callback};                                  \
   if (track) {                                                                 \
     evaluator.evaluate_path.push_back(instruction.relative_schema_location);   \
     evaluator.instance_location.push_back(                                     \
@@ -114,19 +110,17 @@
   if (schema.dynamic) {                                                        \
     evaluator.resources.push_back(instruction.schema_resource);                \
   }                                                                            \
-  if (callback.has_value()) {                                                  \
-    callback.value()(EvaluationType::Pre, true, instruction,                   \
-                     evaluator.evaluate_path, evaluator.instance_location,     \
-                     Evaluator::null);                                         \
+  if (callback) {                                                              \
+    callback(EvaluationType::Pre, true, instruction, evaluator.evaluate_path,  \
+             evaluator.instance_location, Evaluator::null);                    \
   }                                                                            \
   bool result{false};
 
 #define EVALUATE_BEGIN_NO_PRECONDITION_AND_NO_PUSH(instruction_type)           \
   assert(instruction.type == InstructionIndex::instruction_type);              \
-  if (callback.has_value()) {                                                  \
-    callback.value()(EvaluationType::Pre, true, instruction,                   \
-                     evaluator.evaluate_path, evaluator.instance_location,     \
-                     Evaluator::null);                                         \
+  if (callback) {                                                              \
+    callback(EvaluationType::Pre, true, instruction, evaluator.evaluate_path,  \
+             evaluator.instance_location, Evaluator::null);                    \
   }                                                                            \
   bool result{true};
 
@@ -135,10 +129,10 @@
   bool result{true};
 
 #define EVALUATE_END(instruction_type)                                         \
-  if (callback.has_value()) {                                                  \
-    callback.value()(EvaluationType::Post, result, instruction,                \
-                     evaluator.evaluate_path, evaluator.instance_location,     \
-                     Evaluator::null);                                         \
+  if (callback) {                                                              \
+    callback(EvaluationType::Post, result, instruction,                        \
+             evaluator.evaluate_path, evaluator.instance_location,             \
+             Evaluator::null);                                                 \
   }                                                                            \
   if (track) {                                                                 \
     evaluator.evaluate_path.pop_back(                                          \
@@ -152,24 +146,24 @@
   return result;
 
 #define EVALUATE_END_NO_POP(instruction_type)                                  \
-  if (callback.has_value()) {                                                  \
-    callback.value()(EvaluationType::Post, result, instruction,                \
-                     evaluator.evaluate_path, evaluator.instance_location,     \
-                     Evaluator::null);                                         \
+  if (callback) {                                                              \
+    callback(EvaluationType::Post, result, instruction,                        \
+             evaluator.evaluate_path, evaluator.instance_location,             \
+             Evaluator::null);                                                 \
   }                                                                            \
   return result;
 
 #define EVALUATE_END_PASS_THROUGH(instruction_type) return result;
 
 #define EVALUATE_ANNOTATION(instruction_type, destination, annotation_value)   \
-  if (callback.has_value()) {                                                  \
+  if (callback) {                                                              \
     evaluator.evaluate_path.push_back(instruction.relative_schema_location);   \
     evaluator.instance_location.push_back(                                     \
         instruction.relative_instance_location);                               \
-    callback.value()(EvaluationType::Pre, true, instruction,                   \
-                     evaluator.evaluate_path, destination, Evaluator::null);   \
-    callback.value()(EvaluationType::Post, true, instruction,                  \
-                     evaluator.evaluate_path, destination, annotation_value);  \
+    callback(EvaluationType::Pre, true, instruction, evaluator.evaluate_path,  \
+             destination, Evaluator::null);                                    \
+    callback(EvaluationType::Post, true, instruction, evaluator.evaluate_path, \
+             destination, annotation_value);                                   \
     evaluator.evaluate_path.pop_back(                                          \
         instruction.relative_schema_location.size());                          \
     evaluator.instance_location.pop_back(                                      \
@@ -193,8 +187,7 @@ namespace sourcemeta::blaze::complete {
 inline auto evaluate(const sourcemeta::jsontoolkit::JSON &instance,
                      sourcemeta::blaze::Evaluator &evaluator,
                      const sourcemeta::blaze::Template &schema,
-                     const std::optional<sourcemeta::blaze::Callback> &callback)
-    -> bool {
+                     const sourcemeta::blaze::Callback &callback) -> bool {
   bool overall{true};
   for (const auto &instruction : schema.instructions) {
     if (!evaluate_instruction(instruction, schema, callback, instance, nullptr,

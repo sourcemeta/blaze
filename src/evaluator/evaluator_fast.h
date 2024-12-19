@@ -91,9 +91,8 @@ inline auto evaluate(const sourcemeta::jsontoolkit::JSON &instance,
                      sourcemeta::blaze::Evaluator &evaluator,
                      const sourcemeta::blaze::Template &schema) -> bool {
   for (const auto &instruction : schema.instructions) {
-    if (!evaluate_instruction(instruction, schema,
-                              sourcemeta::blaze::Evaluator::DEFAULT_CALLBACK,
-                              instance, nullptr, 0, evaluator)) {
+    if (!evaluate_instruction(instruction, schema, nullptr, instance, nullptr,
+                              0, evaluator)) {
       return false;
     }
   }
