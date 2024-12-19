@@ -157,10 +157,7 @@ public:
   hash(const std::size_t &resource,
        const sourcemeta::jsontoolkit::JSON::String &fragment) const noexcept
       -> std::size_t;
-  auto evaluate() -> void;
-  auto evaluate(const sourcemeta::jsontoolkit::WeakPointer::Token::Index from,
-                const sourcemeta::jsontoolkit::WeakPointer::Token::Index to)
-      -> void;
+
   auto
   evaluate(const sourcemeta::jsontoolkit::Pointer &relative_instance_location)
       -> void;

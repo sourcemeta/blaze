@@ -96,18 +96,6 @@ auto Evaluator::hash(const std::size_t &resource,
   return resource + this->hasher_(fragment);
 }
 
-auto Evaluator::evaluate() -> void {
-  this->evaluate(sourcemeta::jsontoolkit::empty_pointer);
-}
-
-auto Evaluator::evaluate(
-    const sourcemeta::jsontoolkit::WeakPointer::Token::Index from,
-    const sourcemeta::jsontoolkit::WeakPointer::Token::Index to) -> void {
-  for (auto cursor = from; cursor <= to; cursor++) {
-    this->evaluate({cursor});
-  }
-}
-
 auto Evaluator::evaluate(
     const sourcemeta::jsontoolkit::Pointer &relative_instance_location)
     -> void {
