@@ -981,28 +981,27 @@ INSTRUCTION_HANDLER(LogicalCondition) {
                                                           : children_size};
   result = true;
   if (consequence_start > 0) {
+#if defined(SOURCEMETA_EVALUATOR_COMPLETE) ||                                  \
+    defined(SOURCEMETA_EVALUATOR_TRACK)
     if (track) {
       evaluator.evaluate_path.pop_back(
           instruction.relative_schema_location.size());
+    }
+#endif
 
-      for (auto cursor = consequence_start; cursor < consequence_end;
-           cursor++) {
-        if (!EVALUATE_RECURSE(instruction.children[cursor], target)) {
-          result = false;
-          break;
-        }
-      }
-
-      evaluator.evaluate_path.push_back(instruction.relative_schema_location);
-    } else {
-      for (auto cursor = consequence_start; cursor < consequence_end;
-           cursor++) {
-        if (!EVALUATE_RECURSE(instruction.children[cursor], target)) {
-          result = false;
-          break;
-        }
+    for (auto cursor = consequence_start; cursor < consequence_end; cursor++) {
+      if (!EVALUATE_RECURSE(instruction.children[cursor], target)) {
+        result = false;
+        break;
       }
     }
+
+#if defined(SOURCEMETA_EVALUATOR_COMPLETE) ||                                  \
+    defined(SOURCEMETA_EVALUATOR_TRACK)
+    if (track) {
+      evaluator.evaluate_path.push_back(instruction.relative_schema_location);
+    }
+#endif
   }
 
   EVALUATE_END(LogicalCondition);
