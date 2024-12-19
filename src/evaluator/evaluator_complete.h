@@ -3,24 +3,18 @@
 
 #define EVALUATE_BEGIN(instruction_type, precondition)                         \
   assert(instruction.type == InstructionIndex::instruction_type);              \
-  const auto track{schema.track || callback.has_value()};                      \
-  if (track) {                                                                 \
-    evaluator.evaluate_path.push_back(instruction.relative_schema_location);   \
-    evaluator.instance_location.push_back(                                     \
-        instruction.relative_instance_location);                               \
-  }                                                                            \
   const auto &target{                                                          \
       resolve_target(property_target,                                          \
                      sourcemeta::jsontoolkit::get(                             \
                          instance, instruction.relative_instance_location))};  \
   if (!(precondition)) {                                                       \
-    if (track) {                                                               \
-      evaluator.evaluate_path.pop_back(                                        \
-          instruction.relative_schema_location.size());                        \
-      evaluator.instance_location.pop_back(                                    \
-          instruction.relative_instance_location.size());                      \
-    }                                                                          \
     return true;                                                               \
+  }                                                                            \
+  const auto track{schema.track || callback.has_value()};                      \
+  if (track) {                                                                 \
+    evaluator.evaluate_path.push_back(instruction.relative_schema_location);   \
+    evaluator.instance_location.push_back(                                     \
+        instruction.relative_instance_location);                               \
   }                                                                            \
   if (schema.dynamic) {                                                        \
     evaluator.resources.push_back(instruction.schema_resource);                \
@@ -34,22 +28,16 @@
 
 #define EVALUATE_BEGIN_NON_STRING(instruction_type, precondition)              \
   assert(instruction.type == InstructionIndex::instruction_type);              \
+  const auto &target{sourcemeta::jsontoolkit::get(                             \
+      instance, instruction.relative_instance_location)};                      \
+  if (!(precondition)) {                                                       \
+    return true;                                                               \
+  }                                                                            \
   const auto track{schema.track || callback.has_value()};                      \
   if (track) {                                                                 \
     evaluator.evaluate_path.push_back(instruction.relative_schema_location);   \
     evaluator.instance_location.push_back(                                     \
         instruction.relative_instance_location);                               \
-  }                                                                            \
-  const auto &target{sourcemeta::jsontoolkit::get(                             \
-      instance, instruction.relative_instance_location)};                      \
-  if (!(precondition)) {                                                       \
-    if (track) {                                                               \
-      evaluator.evaluate_path.pop_back(                                        \
-          instruction.relative_schema_location.size());                        \
-      evaluator.instance_location.pop_back(                                    \
-          instruction.relative_instance_location.size());                      \
-    }                                                                          \
-    return true;                                                               \
   }                                                                            \
   if (schema.dynamic) {                                                        \
     evaluator.resources.push_back(instruction.schema_resource);                \
@@ -63,22 +51,16 @@
 
 #define EVALUATE_BEGIN_IF_STRING(instruction_type)                             \
   assert(instruction.type == InstructionIndex::instruction_type);              \
+  const auto *maybe_target{resolve_string_target(                              \
+      property_target, instance, instruction.relative_instance_location)};     \
+  if (!maybe_target) {                                                         \
+    return true;                                                               \
+  }                                                                            \
   const auto track{schema.track || callback.has_value()};                      \
   if (track) {                                                                 \
     evaluator.evaluate_path.push_back(instruction.relative_schema_location);   \
     evaluator.instance_location.push_back(                                     \
         instruction.relative_instance_location);                               \
-  }                                                                            \
-  const auto *maybe_target{resolve_string_target(                              \
-      property_target, instance, instruction.relative_instance_location)};     \
-  if (!maybe_target) {                                                         \
-    if (track) {                                                               \
-      evaluator.evaluate_path.pop_back(                                        \
-          instruction.relative_schema_location.size());                        \
-      evaluator.instance_location.pop_back(                                    \
-          instruction.relative_instance_location.size());                      \
-    }                                                                          \
-    return true;                                                               \
   }                                                                            \
   if (schema.dynamic) {                                                        \
     evaluator.resources.push_back(instruction.schema_resource);                \
