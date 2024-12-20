@@ -14,6 +14,9 @@
   SOURCEMETA_MAYBE_UNUSED(track);                                              \
   bool result{false};
 
+#define EVALUATE_BEGIN_APPLICATOR(instruction_type, precondition)              \
+  EVALUATE_BEGIN(instruction_type, precondition)
+
 #define EVALUATE_BEGIN_NON_STRING(instruction_type, precondition)              \
   assert(instruction.type == InstructionIndex::instruction_type);              \
   const auto &target{sourcemeta::jsontoolkit::get(                             \
@@ -24,6 +27,9 @@
   constexpr bool track{false};                                                 \
   SOURCEMETA_MAYBE_UNUSED(track);                                              \
   bool result{false};
+
+#define EVALUATE_BEGIN_NON_STRING_APPLICATOR(instruction_type, precondition)   \
+  EVALUATE_BEGIN_NON_STRING(instruction_type, precondition)
 
 #define EVALUATE_BEGIN_IF_STRING(instruction_type)                             \
   assert(instruction.type == InstructionIndex::instruction_type);              \
@@ -56,6 +62,9 @@
   SOURCEMETA_MAYBE_UNUSED(track);                                              \
   bool result{false};
 
+#define EVALUATE_BEGIN_NO_PRECONDITION_APPLICATOR(instruction_type)            \
+  EVALUATE_BEGIN_NO_PRECONDITION(instruction_type)
+
 #define EVALUATE_BEGIN_NO_PRECONDITION_AND_NO_PUSH(instruction_type)           \
   assert(instruction.type == InstructionIndex::instruction_type);              \
   bool result{true};
@@ -65,6 +74,8 @@
   bool result{true};
 
 #define EVALUATE_END(instruction_type) return result;
+
+#define EVALUATE_END_APPLICATOR(instruction_type) EVALUATE_END(instruction_type)
 
 #define EVALUATE_END_NO_POP(instruction_type) EVALUATE_END(instruction_type)
 
@@ -105,13 +116,17 @@ inline auto evaluate(const sourcemeta::jsontoolkit::JSON &instance,
 #undef SOURCEMETA_EVALUATOR_FAST
 
 #undef EVALUATE_BEGIN
+#undef EVALUATE_BEGIN_APPLICATOR
 #undef EVALUATE_BEGIN_NON_STRING
+#undef EVALUATE_BEGIN_NON_STRING_APPLICATOR
 #undef EVALUATE_BEGIN_IF_STRING
 #undef EVALUATE_BEGIN_TRY_TARGET
 #undef EVALUATE_BEGIN_NO_PRECONDITION
+#undef EVALUATE_BEGIN_NO_PRECONDITION_APPLICATOR
 #undef EVALUATE_BEGIN_NO_PRECONDITION_AND_NO_PUSH
 #undef EVALUATE_BEGIN_PASS_THROUGH
 #undef EVALUATE_END
+#undef EVALUATE_END_APPLICATOR
 #undef EVALUATE_END_NO_POP
 #undef EVALUATE_END_PASS_THROUGH
 #undef EVALUATE_ANNOTATION

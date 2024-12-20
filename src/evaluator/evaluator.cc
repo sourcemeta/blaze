@@ -56,6 +56,8 @@ resolve_string_target(const JSON::String *property_target, const JSON &instance,
 
 namespace sourcemeta::blaze {
 
+Evaluator::Evaluator() { this->evaluated_.reserve(1024); }
+
 auto Evaluator::validate(const Template &schema,
                          const sourcemeta::jsontoolkit::JSON &instance)
     -> bool {

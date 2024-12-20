@@ -19,6 +19,7 @@ inline auto evaluate_instruction(
 // TODO: Cleanup this file, mainly its MAYBE_UNUSED macros
 
 INSTRUCTION_HANDLER(AssertionFail) {
+  SOURCEMETA_MAYBE_UNUSED(instruction);
   SOURCEMETA_MAYBE_UNUSED(depth);
   SOURCEMETA_MAYBE_UNUSED(schema);
   SOURCEMETA_MAYBE_UNUSED(callback);
@@ -739,7 +740,7 @@ INSTRUCTION_HANDLER(AssertionArrayPrefix) {
   SOURCEMETA_MAYBE_UNUSED(instance);
   SOURCEMETA_MAYBE_UNUSED(property_target);
   SOURCEMETA_MAYBE_UNUSED(evaluator);
-  EVALUATE_BEGIN_NON_STRING(AssertionArrayPrefix, target.is_array());
+  EVALUATE_BEGIN_NON_STRING_APPLICATOR(AssertionArrayPrefix, target.is_array());
   // Otherwise there is no point in emitting this instruction
   assert(!instruction.children.empty());
   result = target.empty();
@@ -759,7 +760,7 @@ INSTRUCTION_HANDLER(AssertionArrayPrefix) {
     }
   }
 
-  EVALUATE_END(AssertionArrayPrefix);
+  EVALUATE_END_APPLICATOR(AssertionArrayPrefix);
 }
 
 INSTRUCTION_HANDLER(AssertionArrayPrefixEvaluate) {
@@ -769,7 +770,8 @@ INSTRUCTION_HANDLER(AssertionArrayPrefixEvaluate) {
   SOURCEMETA_MAYBE_UNUSED(instance);
   SOURCEMETA_MAYBE_UNUSED(property_target);
   SOURCEMETA_MAYBE_UNUSED(evaluator);
-  EVALUATE_BEGIN_NON_STRING(AssertionArrayPrefixEvaluate, target.is_array());
+  EVALUATE_BEGIN_NON_STRING_APPLICATOR(AssertionArrayPrefixEvaluate,
+                                       target.is_array());
   // Otherwise there is no point in emitting this instruction
   assert(!instruction.children.empty());
   result = target.empty();
@@ -784,7 +786,7 @@ INSTRUCTION_HANDLER(AssertionArrayPrefixEvaluate) {
     for (const auto &child : entry.children) {
       if (!EVALUATE_RECURSE(child, target)) {
         result = false;
-        EVALUATE_END(AssertionArrayPrefixEvaluate);
+        EVALUATE_END_APPLICATOR(AssertionArrayPrefixEvaluate);
       }
     }
 
@@ -798,7 +800,7 @@ INSTRUCTION_HANDLER(AssertionArrayPrefixEvaluate) {
     }
   }
 
-  EVALUATE_END(AssertionArrayPrefixEvaluate);
+  EVALUATE_END_APPLICATOR(AssertionArrayPrefixEvaluate);
 }
 
 INSTRUCTION_HANDLER(LogicalOr) {
@@ -808,7 +810,7 @@ INSTRUCTION_HANDLER(LogicalOr) {
   SOURCEMETA_MAYBE_UNUSED(instance);
   SOURCEMETA_MAYBE_UNUSED(property_target);
   SOURCEMETA_MAYBE_UNUSED(evaluator);
-  EVALUATE_BEGIN_NO_PRECONDITION(LogicalOr);
+  EVALUATE_BEGIN_NO_PRECONDITION_APPLICATOR(LogicalOr);
   result = instruction.children.empty();
   const auto &target{get(instance, instruction.relative_instance_location)};
   const auto value{*std::get_if<ValueBoolean>(&instruction.value)};
@@ -829,7 +831,7 @@ INSTRUCTION_HANDLER(LogicalOr) {
     }
   }
 
-  EVALUATE_END(LogicalOr);
+  EVALUATE_END_APPLICATOR(LogicalOr);
 }
 
 INSTRUCTION_HANDLER(LogicalAnd) {
@@ -839,7 +841,7 @@ INSTRUCTION_HANDLER(LogicalAnd) {
   SOURCEMETA_MAYBE_UNUSED(instance);
   SOURCEMETA_MAYBE_UNUSED(property_target);
   SOURCEMETA_MAYBE_UNUSED(evaluator);
-  EVALUATE_BEGIN_NO_PRECONDITION(LogicalAnd);
+  EVALUATE_BEGIN_NO_PRECONDITION_APPLICATOR(LogicalAnd);
   result = true;
   const auto &target{get(instance, instruction.relative_instance_location)};
   for (const auto &child : instruction.children) {
@@ -849,7 +851,7 @@ INSTRUCTION_HANDLER(LogicalAnd) {
     }
   }
 
-  EVALUATE_END(LogicalAnd);
+  EVALUATE_END_APPLICATOR(LogicalAnd);
 }
 
 INSTRUCTION_HANDLER(LogicalWhenType) {
@@ -860,7 +862,7 @@ INSTRUCTION_HANDLER(LogicalWhenType) {
   SOURCEMETA_MAYBE_UNUSED(property_target);
   SOURCEMETA_MAYBE_UNUSED(evaluator);
   const auto value{*std::get_if<ValueType>(&instruction.value)};
-  EVALUATE_BEGIN(LogicalWhenType, target.type() == value);
+  EVALUATE_BEGIN_APPLICATOR(LogicalWhenType, target.type() == value);
   result = true;
   for (const auto &child : instruction.children) {
     if (!EVALUATE_RECURSE(child, target)) {
@@ -869,7 +871,7 @@ INSTRUCTION_HANDLER(LogicalWhenType) {
     }
   }
 
-  EVALUATE_END(LogicalWhenType);
+  EVALUATE_END_APPLICATOR(LogicalWhenType);
 }
 
 INSTRUCTION_HANDLER(LogicalWhenDefines) {
@@ -880,9 +882,9 @@ INSTRUCTION_HANDLER(LogicalWhenDefines) {
   SOURCEMETA_MAYBE_UNUSED(property_target);
   SOURCEMETA_MAYBE_UNUSED(evaluator);
   const auto &value{*std::get_if<ValueProperty>(&instruction.value)};
-  EVALUATE_BEGIN_NON_STRING(LogicalWhenDefines,
-                            target.is_object() &&
-                                target.defines(value.first, value.second));
+  EVALUATE_BEGIN_NON_STRING_APPLICATOR(
+      LogicalWhenDefines,
+      target.is_object() && target.defines(value.first, value.second));
   result = true;
   for (const auto &child : instruction.children) {
     if (!EVALUATE_RECURSE(child, target)) {
@@ -891,7 +893,7 @@ INSTRUCTION_HANDLER(LogicalWhenDefines) {
     }
   }
 
-  EVALUATE_END(LogicalWhenDefines);
+  EVALUATE_END_APPLICATOR(LogicalWhenDefines);
 }
 
 INSTRUCTION_HANDLER(LogicalWhenArraySizeGreater) {
@@ -902,8 +904,9 @@ INSTRUCTION_HANDLER(LogicalWhenArraySizeGreater) {
   SOURCEMETA_MAYBE_UNUSED(property_target);
   SOURCEMETA_MAYBE_UNUSED(evaluator);
   const auto value{*std::get_if<ValueUnsignedInteger>(&instruction.value)};
-  EVALUATE_BEGIN_NON_STRING(LogicalWhenArraySizeGreater,
-                            target.is_array() && target.array_size() > value);
+  EVALUATE_BEGIN_NON_STRING_APPLICATOR(LogicalWhenArraySizeGreater,
+                                       target.is_array() &&
+                                           target.array_size() > value);
   result = true;
   for (const auto &child : instruction.children) {
     if (!EVALUATE_RECURSE(child, target)) {
@@ -912,7 +915,7 @@ INSTRUCTION_HANDLER(LogicalWhenArraySizeGreater) {
     }
   }
 
-  EVALUATE_END(LogicalWhenArraySizeGreater);
+  EVALUATE_END_APPLICATOR(LogicalWhenArraySizeGreater);
 }
 
 INSTRUCTION_HANDLER(LogicalXor) {
@@ -922,7 +925,7 @@ INSTRUCTION_HANDLER(LogicalXor) {
   SOURCEMETA_MAYBE_UNUSED(instance);
   SOURCEMETA_MAYBE_UNUSED(property_target);
   SOURCEMETA_MAYBE_UNUSED(evaluator);
-  EVALUATE_BEGIN_NO_PRECONDITION(LogicalXor);
+  EVALUATE_BEGIN_NO_PRECONDITION_APPLICATOR(LogicalXor);
   result = true;
   bool has_matched{false};
   const auto &target{get(instance, instruction.relative_instance_location)};
@@ -942,7 +945,7 @@ INSTRUCTION_HANDLER(LogicalXor) {
   }
 
   result = result && has_matched;
-  EVALUATE_END(LogicalXor);
+  EVALUATE_END_APPLICATOR(LogicalXor);
 }
 
 INSTRUCTION_HANDLER(LogicalCondition) {
@@ -952,7 +955,7 @@ INSTRUCTION_HANDLER(LogicalCondition) {
   SOURCEMETA_MAYBE_UNUSED(instance);
   SOURCEMETA_MAYBE_UNUSED(property_target);
   SOURCEMETA_MAYBE_UNUSED(evaluator);
-  EVALUATE_BEGIN_NO_PRECONDITION(LogicalCondition);
+  EVALUATE_BEGIN_NO_PRECONDITION_APPLICATOR(LogicalCondition);
   result = true;
   const auto value{*std::get_if<ValueIndexPair>(&instruction.value)};
   const auto children_size{instruction.children.size()};
@@ -1002,7 +1005,7 @@ INSTRUCTION_HANDLER(LogicalCondition) {
 #endif
   }
 
-  EVALUATE_END(LogicalCondition);
+  EVALUATE_END_APPLICATOR(LogicalCondition);
 }
 
 INSTRUCTION_HANDLER(ControlGroup) {
@@ -1080,7 +1083,7 @@ INSTRUCTION_HANDLER(ControlLabel) {
   SOURCEMETA_MAYBE_UNUSED(instance);
   SOURCEMETA_MAYBE_UNUSED(property_target);
   SOURCEMETA_MAYBE_UNUSED(evaluator);
-  EVALUATE_BEGIN_NO_PRECONDITION(ControlLabel);
+  EVALUATE_BEGIN_NO_PRECONDITION_APPLICATOR(ControlLabel);
   assert(!instruction.children.empty());
   const auto value{*std::get_if<ValueUnsignedInteger>(&instruction.value)};
   evaluator.labels.try_emplace(value, instruction.children);
@@ -1093,7 +1096,7 @@ INSTRUCTION_HANDLER(ControlLabel) {
     }
   }
 
-  EVALUATE_END(ControlLabel);
+  EVALUATE_END_APPLICATOR(ControlLabel);
 }
 
 INSTRUCTION_HANDLER(ControlMark) {
@@ -1147,7 +1150,7 @@ INSTRUCTION_HANDLER(ControlJump) {
   SOURCEMETA_MAYBE_UNUSED(instance);
   SOURCEMETA_MAYBE_UNUSED(property_target);
   SOURCEMETA_MAYBE_UNUSED(evaluator);
-  EVALUATE_BEGIN_NO_PRECONDITION(ControlJump);
+  EVALUATE_BEGIN_NO_PRECONDITION_APPLICATOR(ControlJump);
   result = true;
   const auto value{*std::get_if<ValueUnsignedInteger>(&instruction.value)};
   assert(evaluator.labels.contains(value));
@@ -1159,7 +1162,7 @@ INSTRUCTION_HANDLER(ControlJump) {
     }
   }
 
-  EVALUATE_END(ControlJump);
+  EVALUATE_END_APPLICATOR(ControlJump);
 }
 
 INSTRUCTION_HANDLER(ControlDynamicAnchorJump) {
@@ -1169,7 +1172,7 @@ INSTRUCTION_HANDLER(ControlDynamicAnchorJump) {
   SOURCEMETA_MAYBE_UNUSED(instance);
   SOURCEMETA_MAYBE_UNUSED(property_target);
   SOURCEMETA_MAYBE_UNUSED(evaluator);
-  EVALUATE_BEGIN_NO_PRECONDITION(ControlDynamicAnchorJump);
+  EVALUATE_BEGIN_NO_PRECONDITION_APPLICATOR(ControlDynamicAnchorJump);
   result = false;
   const auto &target{get(instance, instruction.relative_instance_location)};
   const auto &value{*std::get_if<ValueString>(&instruction.value)};
@@ -1181,7 +1184,7 @@ INSTRUCTION_HANDLER(ControlDynamicAnchorJump) {
       for (const auto &child : match->second.get()) {
         if (!EVALUATE_RECURSE(child, target)) {
           result = false;
-          EVALUATE_END(ControlDynamicAnchorJump);
+          EVALUATE_END_APPLICATOR(ControlDynamicAnchorJump);
         }
       }
 
@@ -1189,7 +1192,7 @@ INSTRUCTION_HANDLER(ControlDynamicAnchorJump) {
     }
   }
 
-  EVALUATE_END(ControlDynamicAnchorJump);
+  EVALUATE_END_APPLICATOR(ControlDynamicAnchorJump);
 }
 
 INSTRUCTION_HANDLER(AnnotationEmit) {
@@ -1245,7 +1248,7 @@ INSTRUCTION_HANDLER(LogicalNot) {
   SOURCEMETA_MAYBE_UNUSED(instance);
   SOURCEMETA_MAYBE_UNUSED(property_target);
   SOURCEMETA_MAYBE_UNUSED(evaluator);
-  EVALUATE_BEGIN_NO_PRECONDITION(LogicalNot);
+  EVALUATE_BEGIN_NO_PRECONDITION_APPLICATOR(LogicalNot);
 
   const auto &target{get(instance, instruction.relative_instance_location)};
   for (const auto &child : instruction.children) {
@@ -1255,7 +1258,7 @@ INSTRUCTION_HANDLER(LogicalNot) {
     }
   }
 
-  EVALUATE_END(LogicalNot);
+  EVALUATE_END_APPLICATOR(LogicalNot);
 }
 
 INSTRUCTION_HANDLER(LogicalNotEvaluate) {
@@ -1265,7 +1268,7 @@ INSTRUCTION_HANDLER(LogicalNotEvaluate) {
   SOURCEMETA_MAYBE_UNUSED(instance);
   SOURCEMETA_MAYBE_UNUSED(property_target);
   SOURCEMETA_MAYBE_UNUSED(evaluator);
-  EVALUATE_BEGIN_NO_PRECONDITION(LogicalNotEvaluate);
+  EVALUATE_BEGIN_NO_PRECONDITION_APPLICATOR(LogicalNotEvaluate);
 
   const auto &target{get(instance, instruction.relative_instance_location)};
   for (const auto &child : instruction.children) {
@@ -1277,7 +1280,7 @@ INSTRUCTION_HANDLER(LogicalNotEvaluate) {
 
   evaluator.unevaluate();
 
-  EVALUATE_END(LogicalNotEvaluate);
+  EVALUATE_END_APPLICATOR(LogicalNotEvaluate);
 }
 
 INSTRUCTION_HANDLER(LoopPropertiesUnevaluated) {
@@ -1287,7 +1290,8 @@ INSTRUCTION_HANDLER(LoopPropertiesUnevaluated) {
   SOURCEMETA_MAYBE_UNUSED(instance);
   SOURCEMETA_MAYBE_UNUSED(property_target);
   SOURCEMETA_MAYBE_UNUSED(evaluator);
-  EVALUATE_BEGIN_NON_STRING(LoopPropertiesUnevaluated, target.is_object());
+  EVALUATE_BEGIN_NON_STRING_APPLICATOR(LoopPropertiesUnevaluated,
+                                       target.is_object());
   assert(!instruction.children.empty());
   result = true;
 
@@ -1306,7 +1310,7 @@ INSTRUCTION_HANDLER(LoopPropertiesUnevaluated) {
 #ifdef SOURCEMETA_EVALUATOR_COMPLETE
           evaluator.instance_location.pop_back();
 #endif
-          EVALUATE_END(LoopPropertiesUnevaluated);
+          EVALUATE_END_APPLICATOR(LoopPropertiesUnevaluated);
         }
       }
 
@@ -1318,7 +1322,7 @@ INSTRUCTION_HANDLER(LoopPropertiesUnevaluated) {
     evaluator.evaluate(&target);
   }
 
-  EVALUATE_END(LoopPropertiesUnevaluated);
+  EVALUATE_END_APPLICATOR(LoopPropertiesUnevaluated);
 }
 
 INSTRUCTION_HANDLER(LoopPropertiesUnevaluatedExcept) {
@@ -1328,8 +1332,8 @@ INSTRUCTION_HANDLER(LoopPropertiesUnevaluatedExcept) {
   SOURCEMETA_MAYBE_UNUSED(instance);
   SOURCEMETA_MAYBE_UNUSED(property_target);
   SOURCEMETA_MAYBE_UNUSED(evaluator);
-  EVALUATE_BEGIN_NON_STRING(LoopPropertiesUnevaluatedExcept,
-                            target.is_object());
+  EVALUATE_BEGIN_NON_STRING_APPLICATOR(LoopPropertiesUnevaluatedExcept,
+                                       target.is_object());
   assert(!instruction.children.empty());
   const auto &value{*std::get_if<ValuePropertyFilter>(&instruction.value)};
   result = true;
@@ -1370,7 +1374,7 @@ INSTRUCTION_HANDLER(LoopPropertiesUnevaluatedExcept) {
 #ifdef SOURCEMETA_EVALUATOR_COMPLETE
           evaluator.instance_location.pop_back();
 #endif
-          EVALUATE_END(LoopPropertiesUnevaluatedExcept);
+          EVALUATE_END_APPLICATOR(LoopPropertiesUnevaluatedExcept);
         }
       }
 
@@ -1382,7 +1386,7 @@ INSTRUCTION_HANDLER(LoopPropertiesUnevaluatedExcept) {
     evaluator.evaluate(&target);
   }
 
-  EVALUATE_END(LoopPropertiesUnevaluatedExcept);
+  EVALUATE_END_APPLICATOR(LoopPropertiesUnevaluatedExcept);
 }
 
 INSTRUCTION_HANDLER(LoopPropertiesMatch) {
@@ -1392,7 +1396,7 @@ INSTRUCTION_HANDLER(LoopPropertiesMatch) {
   SOURCEMETA_MAYBE_UNUSED(instance);
   SOURCEMETA_MAYBE_UNUSED(property_target);
   SOURCEMETA_MAYBE_UNUSED(evaluator);
-  EVALUATE_BEGIN_NON_STRING(LoopPropertiesMatch, target.is_object());
+  EVALUATE_BEGIN_NON_STRING_APPLICATOR(LoopPropertiesMatch, target.is_object());
   const auto &value{*std::get_if<ValueNamedIndexes>(&instruction.value)};
   assert(!value.empty());
   result = true;
@@ -1408,12 +1412,12 @@ INSTRUCTION_HANDLER(LoopPropertiesMatch) {
     for (const auto &child : subinstruction.children) {
       if (!EVALUATE_RECURSE(child, target)) {
         result = false;
-        EVALUATE_END(LoopPropertiesMatch);
+        EVALUATE_END_APPLICATOR(LoopPropertiesMatch);
       }
     }
   }
 
-  EVALUATE_END(LoopPropertiesMatch);
+  EVALUATE_END_APPLICATOR(LoopPropertiesMatch);
 }
 
 INSTRUCTION_HANDLER(LoopPropertiesMatchClosed) {
@@ -1423,7 +1427,8 @@ INSTRUCTION_HANDLER(LoopPropertiesMatchClosed) {
   SOURCEMETA_MAYBE_UNUSED(instance);
   SOURCEMETA_MAYBE_UNUSED(property_target);
   SOURCEMETA_MAYBE_UNUSED(evaluator);
-  EVALUATE_BEGIN_NON_STRING(LoopPropertiesMatchClosed, target.is_object());
+  EVALUATE_BEGIN_NON_STRING_APPLICATOR(LoopPropertiesMatchClosed,
+                                       target.is_object());
   const auto &value{*std::get_if<ValueNamedIndexes>(&instruction.value)};
   assert(!value.empty());
   result = true;
@@ -1440,12 +1445,12 @@ INSTRUCTION_HANDLER(LoopPropertiesMatchClosed) {
     for (const auto &child : subinstruction.children) {
       if (!EVALUATE_RECURSE(child, target)) {
         result = false;
-        EVALUATE_END(LoopPropertiesMatchClosed);
+        EVALUATE_END_APPLICATOR(LoopPropertiesMatchClosed);
       }
     }
   }
 
-  EVALUATE_END(LoopPropertiesMatchClosed);
+  EVALUATE_END_APPLICATOR(LoopPropertiesMatchClosed);
 }
 
 INSTRUCTION_HANDLER(LoopProperties) {
@@ -1455,7 +1460,7 @@ INSTRUCTION_HANDLER(LoopProperties) {
   SOURCEMETA_MAYBE_UNUSED(instance);
   SOURCEMETA_MAYBE_UNUSED(property_target);
   SOURCEMETA_MAYBE_UNUSED(evaluator);
-  EVALUATE_BEGIN_NON_STRING(LoopProperties, target.is_object());
+  EVALUATE_BEGIN_NON_STRING_APPLICATOR(LoopProperties, target.is_object());
   assert(!instruction.children.empty());
   result = true;
   for (const auto &entry : target.as_object()) {
@@ -1475,7 +1480,7 @@ INSTRUCTION_HANDLER(LoopProperties) {
         }
 #endif
 
-        EVALUATE_END(LoopProperties);
+        EVALUATE_END_APPLICATOR(LoopProperties);
       }
     }
 
@@ -1486,7 +1491,7 @@ INSTRUCTION_HANDLER(LoopProperties) {
 #endif
   }
 
-  EVALUATE_END(LoopProperties);
+  EVALUATE_END_APPLICATOR(LoopProperties);
 }
 
 INSTRUCTION_HANDLER(LoopPropertiesEvaluate) {
@@ -1496,7 +1501,8 @@ INSTRUCTION_HANDLER(LoopPropertiesEvaluate) {
   SOURCEMETA_MAYBE_UNUSED(instance);
   SOURCEMETA_MAYBE_UNUSED(property_target);
   SOURCEMETA_MAYBE_UNUSED(evaluator);
-  EVALUATE_BEGIN_NON_STRING(LoopPropertiesEvaluate, target.is_object());
+  EVALUATE_BEGIN_NON_STRING_APPLICATOR(LoopPropertiesEvaluate,
+                                       target.is_object());
   assert(!instruction.children.empty());
   result = true;
   for (const auto &entry : target.as_object()) {
@@ -1516,7 +1522,7 @@ INSTRUCTION_HANDLER(LoopPropertiesEvaluate) {
         }
 #endif
 
-        EVALUATE_END(LoopPropertiesEvaluate);
+        EVALUATE_END_APPLICATOR(LoopPropertiesEvaluate);
       }
     }
 
@@ -1528,7 +1534,7 @@ INSTRUCTION_HANDLER(LoopPropertiesEvaluate) {
   }
 
   evaluator.evaluate(&target);
-  EVALUATE_END(LoopPropertiesEvaluate);
+  EVALUATE_END_APPLICATOR(LoopPropertiesEvaluate);
 }
 
 INSTRUCTION_HANDLER(LoopPropertiesRegex) {
@@ -1538,7 +1544,7 @@ INSTRUCTION_HANDLER(LoopPropertiesRegex) {
   SOURCEMETA_MAYBE_UNUSED(instance);
   SOURCEMETA_MAYBE_UNUSED(property_target);
   SOURCEMETA_MAYBE_UNUSED(evaluator);
-  EVALUATE_BEGIN_NON_STRING(LoopPropertiesRegex, target.is_object());
+  EVALUATE_BEGIN_NON_STRING_APPLICATOR(LoopPropertiesRegex, target.is_object());
   assert(!instruction.children.empty());
   const auto &value{*std::get_if<ValueRegex>(&instruction.value)};
   result = true;
@@ -1563,7 +1569,7 @@ INSTRUCTION_HANDLER(LoopPropertiesRegex) {
         }
 #endif
 
-        EVALUATE_END(LoopPropertiesRegex);
+        EVALUATE_END_APPLICATOR(LoopPropertiesRegex);
       }
     }
 
@@ -1574,7 +1580,7 @@ INSTRUCTION_HANDLER(LoopPropertiesRegex) {
 #endif
   }
 
-  EVALUATE_END(LoopPropertiesRegex);
+  EVALUATE_END_APPLICATOR(LoopPropertiesRegex);
 }
 
 INSTRUCTION_HANDLER(LoopPropertiesRegexClosed) {
@@ -1584,7 +1590,8 @@ INSTRUCTION_HANDLER(LoopPropertiesRegexClosed) {
   SOURCEMETA_MAYBE_UNUSED(instance);
   SOURCEMETA_MAYBE_UNUSED(property_target);
   SOURCEMETA_MAYBE_UNUSED(evaluator);
-  EVALUATE_BEGIN_NON_STRING(LoopPropertiesRegexClosed, target.is_object());
+  EVALUATE_BEGIN_NON_STRING_APPLICATOR(LoopPropertiesRegexClosed,
+                                       target.is_object());
   result = true;
   const auto &value{*std::get_if<ValueRegex>(&instruction.value)};
   for (const auto &entry : target.as_object()) {
@@ -1613,7 +1620,7 @@ INSTRUCTION_HANDLER(LoopPropertiesRegexClosed) {
         }
 #endif
 
-        EVALUATE_END(LoopPropertiesRegexClosed);
+        EVALUATE_END_APPLICATOR(LoopPropertiesRegexClosed);
       }
     }
 
@@ -1624,7 +1631,7 @@ INSTRUCTION_HANDLER(LoopPropertiesRegexClosed) {
 #endif
   }
 
-  EVALUATE_END(LoopPropertiesRegexClosed);
+  EVALUATE_END_APPLICATOR(LoopPropertiesRegexClosed);
 }
 
 INSTRUCTION_HANDLER(LoopPropertiesStartsWith) {
@@ -1634,7 +1641,8 @@ INSTRUCTION_HANDLER(LoopPropertiesStartsWith) {
   SOURCEMETA_MAYBE_UNUSED(instance);
   SOURCEMETA_MAYBE_UNUSED(property_target);
   SOURCEMETA_MAYBE_UNUSED(evaluator);
-  EVALUATE_BEGIN_NON_STRING(LoopPropertiesStartsWith, target.is_object());
+  EVALUATE_BEGIN_NON_STRING_APPLICATOR(LoopPropertiesStartsWith,
+                                       target.is_object());
   assert(!instruction.children.empty());
   result = true;
   const auto &value{*std::get_if<ValueString>(&instruction.value)};
@@ -1659,7 +1667,7 @@ INSTRUCTION_HANDLER(LoopPropertiesStartsWith) {
         }
 #endif
 
-        EVALUATE_END(LoopPropertiesStartsWith);
+        EVALUATE_END_APPLICATOR(LoopPropertiesStartsWith);
       }
     }
 
@@ -1670,7 +1678,7 @@ INSTRUCTION_HANDLER(LoopPropertiesStartsWith) {
 #endif
   }
 
-  EVALUATE_END(LoopPropertiesStartsWith);
+  EVALUATE_END_APPLICATOR(LoopPropertiesStartsWith);
 }
 
 INSTRUCTION_HANDLER(LoopPropertiesExcept) {
@@ -1680,7 +1688,8 @@ INSTRUCTION_HANDLER(LoopPropertiesExcept) {
   SOURCEMETA_MAYBE_UNUSED(instance);
   SOURCEMETA_MAYBE_UNUSED(property_target);
   SOURCEMETA_MAYBE_UNUSED(evaluator);
-  EVALUATE_BEGIN_NON_STRING(LoopPropertiesExcept, target.is_object());
+  EVALUATE_BEGIN_NON_STRING_APPLICATOR(LoopPropertiesExcept,
+                                       target.is_object());
   assert(!instruction.children.empty());
   result = true;
   const auto &value{*std::get_if<ValuePropertyFilter>(&instruction.value)};
@@ -1723,7 +1732,7 @@ INSTRUCTION_HANDLER(LoopPropertiesExcept) {
         }
 #endif
 
-        EVALUATE_END(LoopPropertiesExcept);
+        EVALUATE_END_APPLICATOR(LoopPropertiesExcept);
       }
     }
 
@@ -1734,7 +1743,7 @@ INSTRUCTION_HANDLER(LoopPropertiesExcept) {
 #endif
   }
 
-  EVALUATE_END(LoopPropertiesExcept);
+  EVALUATE_END_APPLICATOR(LoopPropertiesExcept);
 }
 
 INSTRUCTION_HANDLER(LoopPropertiesWhitelist) {
@@ -1795,7 +1804,8 @@ INSTRUCTION_HANDLER(LoopPropertiesTypeEvaluate) {
   SOURCEMETA_MAYBE_UNUSED(instance);
   SOURCEMETA_MAYBE_UNUSED(property_target);
   SOURCEMETA_MAYBE_UNUSED(evaluator);
-  EVALUATE_BEGIN_NON_STRING(LoopPropertiesTypeEvaluate, target.is_object());
+  EVALUATE_BEGIN_NON_STRING_APPLICATOR(LoopPropertiesTypeEvaluate,
+                                       target.is_object());
   result = true;
   const auto value{*std::get_if<ValueType>(&instruction.value)};
   for (const auto &entry : target.as_object()) {
@@ -1804,12 +1814,12 @@ INSTRUCTION_HANDLER(LoopPropertiesTypeEvaluate) {
         // integer to be an integer
         (value != JSON::Type::Integer || !entry.second.is_integer_real())) {
       result = false;
-      EVALUATE_END(LoopPropertiesTypeEvaluate);
+      EVALUATE_END_APPLICATOR(LoopPropertiesTypeEvaluate);
     }
   }
 
   evaluator.evaluate(&target);
-  EVALUATE_END(LoopPropertiesTypeEvaluate);
+  EVALUATE_END_APPLICATOR(LoopPropertiesTypeEvaluate);
 }
 
 INSTRUCTION_HANDLER(LoopPropertiesExactlyTypeStrict) {
@@ -1927,19 +1937,19 @@ INSTRUCTION_HANDLER(LoopPropertiesTypeStrictEvaluate) {
   SOURCEMETA_MAYBE_UNUSED(instance);
   SOURCEMETA_MAYBE_UNUSED(property_target);
   SOURCEMETA_MAYBE_UNUSED(evaluator);
-  EVALUATE_BEGIN_NON_STRING(LoopPropertiesTypeStrictEvaluate,
-                            target.is_object());
+  EVALUATE_BEGIN_NON_STRING_APPLICATOR(LoopPropertiesTypeStrictEvaluate,
+                                       target.is_object());
   result = true;
   const auto value{*std::get_if<ValueType>(&instruction.value)};
   for (const auto &entry : target.as_object()) {
     if (entry.second.type() != value) {
       result = false;
-      EVALUATE_END(LoopPropertiesTypeStrictEvaluate);
+      EVALUATE_END_APPLICATOR(LoopPropertiesTypeStrictEvaluate);
     }
   }
 
   evaluator.evaluate(&target);
-  EVALUATE_END(LoopPropertiesTypeStrictEvaluate);
+  EVALUATE_END_APPLICATOR(LoopPropertiesTypeStrictEvaluate);
 }
 
 INSTRUCTION_HANDLER(LoopPropertiesTypeStrictAny) {
@@ -1970,20 +1980,20 @@ INSTRUCTION_HANDLER(LoopPropertiesTypeStrictAnyEvaluate) {
   SOURCEMETA_MAYBE_UNUSED(instance);
   SOURCEMETA_MAYBE_UNUSED(property_target);
   SOURCEMETA_MAYBE_UNUSED(evaluator);
-  EVALUATE_BEGIN_NON_STRING(LoopPropertiesTypeStrictAnyEvaluate,
-                            target.is_object());
+  EVALUATE_BEGIN_NON_STRING_APPLICATOR(LoopPropertiesTypeStrictAnyEvaluate,
+                                       target.is_object());
   result = true;
   const auto &value{*std::get_if<ValueTypes>(&instruction.value)};
   for (const auto &entry : target.as_object()) {
     if (std::find(value.cbegin(), value.cend(), entry.second.type()) ==
         value.cend()) {
       result = false;
-      EVALUATE_END(LoopPropertiesTypeStrictAnyEvaluate);
+      EVALUATE_END_APPLICATOR(LoopPropertiesTypeStrictAnyEvaluate);
     }
   }
 
   evaluator.evaluate(&target);
-  EVALUATE_END(LoopPropertiesTypeStrictAnyEvaluate);
+  EVALUATE_END_APPLICATOR(LoopPropertiesTypeStrictAnyEvaluate);
 }
 
 INSTRUCTION_HANDLER(LoopKeys) {
@@ -1993,7 +2003,7 @@ INSTRUCTION_HANDLER(LoopKeys) {
   SOURCEMETA_MAYBE_UNUSED(instance);
   SOURCEMETA_MAYBE_UNUSED(property_target);
   SOURCEMETA_MAYBE_UNUSED(evaluator);
-  EVALUATE_BEGIN_NON_STRING(LoopKeys, target.is_object());
+  EVALUATE_BEGIN_NON_STRING_APPLICATOR(LoopKeys, target.is_object());
   assert(!instruction.children.empty());
   result = true;
   for (const auto &entry : target.as_object()) {
@@ -2014,7 +2024,7 @@ INSTRUCTION_HANDLER(LoopKeys) {
         }
 #endif
 
-        EVALUATE_END(LoopKeys);
+        EVALUATE_END_APPLICATOR(LoopKeys);
       }
     }
 
@@ -2025,7 +2035,7 @@ INSTRUCTION_HANDLER(LoopKeys) {
 #endif
   }
 
-  EVALUATE_END(LoopKeys);
+  EVALUATE_END_APPLICATOR(LoopKeys);
 }
 
 INSTRUCTION_HANDLER(LoopItems) {
@@ -2035,7 +2045,7 @@ INSTRUCTION_HANDLER(LoopItems) {
   SOURCEMETA_MAYBE_UNUSED(instance);
   SOURCEMETA_MAYBE_UNUSED(property_target);
   SOURCEMETA_MAYBE_UNUSED(evaluator);
-  EVALUATE_BEGIN_NON_STRING(LoopItems, target.is_array());
+  EVALUATE_BEGIN_NON_STRING_APPLICATOR(LoopItems, target.is_array());
   assert(!instruction.children.empty());
   result = true;
 
@@ -2045,7 +2055,7 @@ INSTRUCTION_HANDLER(LoopItems) {
     for (const auto &child : instruction.children) {
       if (!EVALUATE_RECURSE(child, new_instance)) {
         result = false;
-        EVALUATE_END(LoopItems);
+        EVALUATE_END_APPLICATOR(LoopItems);
       }
     }
   }
@@ -2068,7 +2078,7 @@ INSTRUCTION_HANDLER(LoopItems) {
         }
 #endif
 
-        EVALUATE_END(LoopItems);
+        EVALUATE_END_APPLICATOR(LoopItems);
       }
     }
 
@@ -2080,7 +2090,7 @@ INSTRUCTION_HANDLER(LoopItems) {
   }
 #endif
 
-  EVALUATE_END(LoopItems);
+  EVALUATE_END_APPLICATOR(LoopItems);
 }
 
 INSTRUCTION_HANDLER(LoopItemsFrom) {
@@ -2091,8 +2101,8 @@ INSTRUCTION_HANDLER(LoopItemsFrom) {
   SOURCEMETA_MAYBE_UNUSED(property_target);
   SOURCEMETA_MAYBE_UNUSED(evaluator);
   const auto value{*std::get_if<ValueUnsignedInteger>(&instruction.value)};
-  EVALUATE_BEGIN_NON_STRING(LoopItemsFrom,
-                            target.is_array() && value < target.array_size());
+  EVALUATE_BEGIN_NON_STRING_APPLICATOR(
+      LoopItemsFrom, target.is_array() && value < target.array_size());
   assert(!instruction.children.empty());
   result = true;
   for (std::size_t index = value; index < target.array_size(); index++) {
@@ -2113,7 +2123,7 @@ INSTRUCTION_HANDLER(LoopItemsFrom) {
         }
 #endif
 
-        EVALUATE_END(LoopItemsFrom);
+        EVALUATE_END_APPLICATOR(LoopItemsFrom);
       }
     }
 
@@ -2124,7 +2134,7 @@ INSTRUCTION_HANDLER(LoopItemsFrom) {
 #endif
   }
 
-  EVALUATE_END(LoopItemsFrom);
+  EVALUATE_END_APPLICATOR(LoopItemsFrom);
 }
 
 INSTRUCTION_HANDLER(LoopItemsUnevaluated) {
@@ -2134,7 +2144,7 @@ INSTRUCTION_HANDLER(LoopItemsUnevaluated) {
   SOURCEMETA_MAYBE_UNUSED(instance);
   SOURCEMETA_MAYBE_UNUSED(property_target);
   SOURCEMETA_MAYBE_UNUSED(evaluator);
-  EVALUATE_BEGIN_NON_STRING(LoopItemsUnevaluated, target.is_array());
+  EVALUATE_BEGIN_NON_STRING_APPLICATOR(LoopItemsUnevaluated, target.is_array());
   assert(!instruction.children.empty());
   result = true;
 
@@ -2154,7 +2164,7 @@ INSTRUCTION_HANDLER(LoopItemsUnevaluated) {
 #ifdef SOURCEMETA_EVALUATOR_COMPLETE
           evaluator.instance_location.pop_back();
 #endif
-          EVALUATE_END(LoopItemsUnevaluated);
+          EVALUATE_END_APPLICATOR(LoopItemsUnevaluated);
         }
       }
 
@@ -2166,7 +2176,7 @@ INSTRUCTION_HANDLER(LoopItemsUnevaluated) {
     evaluator.evaluate(&target);
   }
 
-  EVALUATE_END(LoopItemsUnevaluated);
+  EVALUATE_END_APPLICATOR(LoopItemsUnevaluated);
 }
 
 INSTRUCTION_HANDLER(LoopItemsType) {
@@ -2310,7 +2320,7 @@ INSTRUCTION_HANDLER(LoopContains) {
   SOURCEMETA_MAYBE_UNUSED(instance);
   SOURCEMETA_MAYBE_UNUSED(property_target);
   SOURCEMETA_MAYBE_UNUSED(evaluator);
-  EVALUATE_BEGIN_NON_STRING(LoopContains, target.is_array());
+  EVALUATE_BEGIN_NON_STRING_APPLICATOR(LoopContains, target.is_array());
   assert(!instruction.children.empty());
   const auto &value{*std::get_if<ValueRange>(&instruction.value)};
   const auto minimum{std::get<0>(value)};
@@ -2367,7 +2377,7 @@ INSTRUCTION_HANDLER(LoopContains) {
     }
   }
 
-  EVALUATE_END(LoopContains);
+  EVALUATE_END_APPLICATOR(LoopContains);
 }
 
 #undef INSTRUCTION_HANDLER
