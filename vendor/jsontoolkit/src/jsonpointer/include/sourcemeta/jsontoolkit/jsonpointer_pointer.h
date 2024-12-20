@@ -283,7 +283,8 @@ public:
     } else if (other.size() == 1) {
       const auto &token{other.back()};
       if (token.is_property()) {
-        this->data.emplace_back(token.to_property());
+        // We should make sure to re-use the existing hash
+        this->data.emplace_back(token.to_property(), token.property_hash());
       } else {
         this->data.emplace_back(token.to_index());
       }
@@ -291,7 +292,8 @@ public:
       this->reserve(this->data.size() + other.size());
       for (const auto &token : other) {
         if (token.is_property()) {
-          this->data.emplace_back(token.to_property());
+          // We should make sure to re-use the existing hash
+          this->data.emplace_back(token.to_property(), token.property_hash());
         } else {
           this->data.emplace_back(token.to_index());
         }

@@ -14,6 +14,13 @@ public:
   using Property = PropertyT;
   using Index = typename Value::Array::size_type;
 
+  /// This constructor creates an JSON Pointer token from a string given its
+  /// precomputed hash. This is advanced functionality that should be used with
+  /// care.
+  GenericToken(const Property &value,
+               const typename Hash::property_hash_type property_hash)
+      : as_property{true}, property{value}, hash{property_hash}, index{0} {}
+
   /// This constructor creates an JSON Pointer token from a string. For
   /// example:
   ///
@@ -23,8 +30,7 @@ public:
   ///
   /// const sourcemeta::jsontoolkit::Pointer::Token token{"foo"};
   /// ```
-  GenericToken(const Property &value)
-      : as_property{true}, property{value}, hash{hasher(value)}, index{0} {}
+  GenericToken(const Property &value) : GenericToken{value, hasher(value)} {}
 
   /// This constructor creates an JSON Pointer token from a string. For
   /// example:
@@ -36,7 +42,7 @@ public:
   /// const sourcemeta::jsontoolkit::Pointer::Token token{"foo"};
   /// ```
   GenericToken(const JSON::Char *const value)
-      : as_property{true}, property{value}, hash{hasher(value)}, index{0} {}
+      : GenericToken{value, hasher(value)} {}
 
   /// This constructor creates an JSON Pointer token from a character. For
   /// example:
@@ -48,8 +54,7 @@ public:
   /// const sourcemeta::jsontoolkit::Pointer::Token token{'a'};
   /// ```
   GenericToken(const JSON::Char value)
-      : as_property{true}, property{Property{value}},
-        hash{hasher(Property{value})}, index{0} {}
+      : GenericToken{Property{value}, hasher(Property{value})} {}
 
   /// This constructor creates an JSON Pointer token from an item index. For
   /// example:
