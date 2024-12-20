@@ -154,7 +154,7 @@ public:
   static const sourcemeta::jsontoolkit::JSON empty_string;
 
   auto
-  hash(const std::size_t &resource,
+  hash(const std::size_t resource,
        const sourcemeta::jsontoolkit::JSON::String &fragment) const noexcept
       -> std::size_t;
 

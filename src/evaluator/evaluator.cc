@@ -94,7 +94,7 @@ auto Evaluator::validate(const Template &schema,
 const sourcemeta::jsontoolkit::JSON Evaluator::null{nullptr};
 const sourcemeta::jsontoolkit::JSON Evaluator::empty_string{""};
 
-auto Evaluator::hash(const std::size_t &resource,
+auto Evaluator::hash(const std::size_t resource,
                      const sourcemeta::jsontoolkit::JSON::String &fragment)
     const noexcept -> std::size_t {
   return resource + this->hasher_(fragment);
