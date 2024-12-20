@@ -790,9 +790,7 @@ INSTRUCTION_HANDLER(AssertionArrayPrefixEvaluate) {
 
     assert(result);
     if (array_size == prefixes) {
-      for (const auto &item : target.as_array()) {
-        evaluator.evaluate(&item);
-      }
+      evaluator.evaluate(&target);
     } else {
       for (std::size_t cursor = 0; cursor <= pointer; cursor++) {
         evaluator.evaluate(&target.at(cursor));
@@ -1124,24 +1122,7 @@ INSTRUCTION_HANDLER(ControlEvaluate) {
 #if defined(SOURCEMETA_EVALUATOR_COMPLETE) ||                                  \
     defined(SOURCEMETA_EVALUATOR_TRACK)
   const auto &value{*std::get_if<ValuePointer>(&instruction.value)};
-  const auto &target{get(instance, value)};
-  evaluator.evaluate(&target);
-  switch (target.type()) {
-    case sourcemeta::jsontoolkit::JSON::Type::Object:
-      for (const auto &property : target.as_object()) {
-        evaluator.evaluate(&property.second);
-      }
-
-      break;
-    case sourcemeta::jsontoolkit::JSON::Type::Array:
-      for (const auto &item : target.as_array()) {
-        evaluator.evaluate(&item);
-      }
-
-      break;
-    default:
-      break;
-  }
+  evaluator.evaluate(&get(instance, value));
 #endif
 
 #ifdef SOURCEMETA_EVALUATOR_COMPLETE
@@ -1310,28 +1291,31 @@ INSTRUCTION_HANDLER(LoopPropertiesUnevaluated) {
   assert(!instruction.children.empty());
   result = true;
 
-  for (const auto &entry : target.as_object()) {
-    if (evaluator.is_evaluated(&entry.second)) {
-      continue;
-    }
-
-#ifdef SOURCEMETA_EVALUATOR_COMPLETE
-    evaluator.instance_location.push_back(entry.first);
-#endif
-    for (const auto &child : instruction.children) {
-      if (!EVALUATE_RECURSE(child, entry.second)) {
-        result = false;
-#ifdef SOURCEMETA_EVALUATOR_COMPLETE
-        evaluator.instance_location.pop_back();
-#endif
-        EVALUATE_END(LoopPropertiesUnevaluated);
+  if (!evaluator.is_evaluated(&target)) {
+    for (const auto &entry : target.as_object()) {
+      if (evaluator.is_evaluated(&entry.second)) {
+        continue;
       }
-    }
 
 #ifdef SOURCEMETA_EVALUATOR_COMPLETE
-    evaluator.instance_location.pop_back();
+      evaluator.instance_location.push_back(entry.first);
 #endif
-    evaluator.evaluate(&entry.second);
+      for (const auto &child : instruction.children) {
+        if (!EVALUATE_RECURSE(child, entry.second)) {
+          result = false;
+#ifdef SOURCEMETA_EVALUATOR_COMPLETE
+          evaluator.instance_location.pop_back();
+#endif
+          EVALUATE_END(LoopPropertiesUnevaluated);
+        }
+      }
+
+#ifdef SOURCEMETA_EVALUATOR_COMPLETE
+      evaluator.instance_location.pop_back();
+#endif
+    }
+
+    evaluator.evaluate(&target);
   }
 
   EVALUATE_END(LoopPropertiesUnevaluated);
@@ -1353,49 +1337,49 @@ INSTRUCTION_HANDLER(LoopPropertiesUnevaluatedExcept) {
   assert(!std::get<0>(value).empty() || !std::get<1>(value).empty() ||
          !std::get<2>(value).empty());
 
-  for (const auto &entry : target.as_object()) {
-    if (std::get<0>(value).contains(entry.first, entry.hash)) {
-      evaluator.evaluate(&entry.second);
-      continue;
-    }
-
-    if (std::any_of(std::get<1>(value).cbegin(), std::get<1>(value).cend(),
-                    [&entry](const auto &prefix) {
-                      return entry.first.starts_with(prefix);
-                    })) {
-      evaluator.evaluate(&entry.second);
-      continue;
-    }
-
-    if (std::any_of(std::get<2>(value).cbegin(), std::get<2>(value).cend(),
-                    [&entry](const auto &pattern) {
-                      return matches(pattern.first, entry.first);
-                    })) {
-      evaluator.evaluate(&entry.second);
-      continue;
-    }
-
-    if (evaluator.is_evaluated(&entry.second)) {
-      continue;
-    }
-
-#ifdef SOURCEMETA_EVALUATOR_COMPLETE
-    evaluator.instance_location.push_back(entry.first);
-#endif
-    for (const auto &child : instruction.children) {
-      if (!EVALUATE_RECURSE(child, entry.second)) {
-        result = false;
-#ifdef SOURCEMETA_EVALUATOR_COMPLETE
-        evaluator.instance_location.pop_back();
-#endif
-        EVALUATE_END(LoopPropertiesUnevaluatedExcept);
+  if (!evaluator.is_evaluated(&target)) {
+    for (const auto &entry : target.as_object()) {
+      if (std::get<0>(value).contains(entry.first, entry.hash)) {
+        continue;
       }
-    }
+
+      if (std::any_of(std::get<1>(value).cbegin(), std::get<1>(value).cend(),
+                      [&entry](const auto &prefix) {
+                        return entry.first.starts_with(prefix);
+                      })) {
+        continue;
+      }
+
+      if (std::any_of(std::get<2>(value).cbegin(), std::get<2>(value).cend(),
+                      [&entry](const auto &pattern) {
+                        return matches(pattern.first, entry.first);
+                      })) {
+        continue;
+      }
+
+      if (evaluator.is_evaluated(&entry.second)) {
+        continue;
+      }
 
 #ifdef SOURCEMETA_EVALUATOR_COMPLETE
-    evaluator.instance_location.pop_back();
+      evaluator.instance_location.push_back(entry.first);
 #endif
-    evaluator.evaluate(&entry.second);
+      for (const auto &child : instruction.children) {
+        if (!EVALUATE_RECURSE(child, entry.second)) {
+          result = false;
+#ifdef SOURCEMETA_EVALUATOR_COMPLETE
+          evaluator.instance_location.pop_back();
+#endif
+          EVALUATE_END(LoopPropertiesUnevaluatedExcept);
+        }
+      }
+
+#ifdef SOURCEMETA_EVALUATOR_COMPLETE
+      evaluator.instance_location.pop_back();
+#endif
+    }
+
+    evaluator.evaluate(&target);
   }
 
   EVALUATE_END(LoopPropertiesUnevaluatedExcept);
@@ -1541,10 +1525,9 @@ INSTRUCTION_HANDLER(LoopPropertiesEvaluate) {
       evaluator.instance_location.pop_back();
     }
 #endif
-
-    evaluator.evaluate(&entry.second);
   }
 
+  evaluator.evaluate(&target);
   EVALUATE_END(LoopPropertiesEvaluate);
 }
 
@@ -1823,10 +1806,9 @@ INSTRUCTION_HANDLER(LoopPropertiesTypeEvaluate) {
       result = false;
       EVALUATE_END(LoopPropertiesTypeEvaluate);
     }
-
-    evaluator.evaluate(&entry.second);
   }
 
+  evaluator.evaluate(&target);
   EVALUATE_END(LoopPropertiesTypeEvaluate);
 }
 
@@ -1954,10 +1936,9 @@ INSTRUCTION_HANDLER(LoopPropertiesTypeStrictEvaluate) {
       result = false;
       EVALUATE_END(LoopPropertiesTypeStrictEvaluate);
     }
-
-    evaluator.evaluate(&entry.second);
   }
 
+  evaluator.evaluate(&target);
   EVALUATE_END(LoopPropertiesTypeStrictEvaluate);
 }
 
@@ -1999,10 +1980,9 @@ INSTRUCTION_HANDLER(LoopPropertiesTypeStrictAnyEvaluate) {
       result = false;
       EVALUATE_END(LoopPropertiesTypeStrictAnyEvaluate);
     }
-
-    evaluator.evaluate(&entry.second);
   }
 
+  evaluator.evaluate(&target);
   EVALUATE_END(LoopPropertiesTypeStrictAnyEvaluate);
 }
 
@@ -2158,29 +2138,32 @@ INSTRUCTION_HANDLER(LoopItemsUnevaluated) {
   assert(!instruction.children.empty());
   result = true;
 
-  for (std::size_t index = 0; index < target.array_size(); index++) {
-    const auto &new_instance{target.at(index)};
-    if (evaluator.is_evaluated(&new_instance)) {
-      continue;
-    }
-
-#ifdef SOURCEMETA_EVALUATOR_COMPLETE
-    evaluator.instance_location.push_back(index);
-#endif
-    for (const auto &child : instruction.children) {
-      if (!EVALUATE_RECURSE(child, new_instance)) {
-        result = false;
-#ifdef SOURCEMETA_EVALUATOR_COMPLETE
-        evaluator.instance_location.pop_back();
-#endif
-        EVALUATE_END(LoopItemsUnevaluated);
+  if (!evaluator.is_evaluated(&target)) {
+    for (std::size_t index = 0; index < target.array_size(); index++) {
+      const auto &new_instance{target.at(index)};
+      if (evaluator.is_evaluated(&new_instance)) {
+        continue;
       }
-    }
 
 #ifdef SOURCEMETA_EVALUATOR_COMPLETE
-    evaluator.instance_location.pop_back();
+      evaluator.instance_location.push_back(index);
 #endif
-    evaluator.evaluate(&new_instance);
+      for (const auto &child : instruction.children) {
+        if (!EVALUATE_RECURSE(child, new_instance)) {
+          result = false;
+#ifdef SOURCEMETA_EVALUATOR_COMPLETE
+          evaluator.instance_location.pop_back();
+#endif
+          EVALUATE_END(LoopItemsUnevaluated);
+        }
+      }
+
+#ifdef SOURCEMETA_EVALUATOR_COMPLETE
+      evaluator.instance_location.pop_back();
+#endif
+    }
+
+    evaluator.evaluate(&target);
   }
 
   EVALUATE_END(LoopItemsUnevaluated);
