@@ -61,6 +61,9 @@ using Callback =
 /// @ingroup evaluator
 class SOURCEMETA_BLAZE_EVALUATOR_EXPORT Evaluator {
 public:
+  /// Construct an evaluator instance
+  Evaluator();
+
   /// This function evaluates a schema compiler template, returning a boolean
   /// without error information. For example:
   ///
