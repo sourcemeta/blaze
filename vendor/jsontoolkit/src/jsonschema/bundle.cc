@@ -52,11 +52,11 @@ auto is_official_metaschema_reference(
 auto bundle_schema(sourcemeta::jsontoolkit::JSON &root,
                    const std::string &container,
                    const sourcemeta::jsontoolkit::JSON &subschema,
-                   sourcemeta::jsontoolkit::ReferenceFrame &frame,
+                   sourcemeta::jsontoolkit::FrameLocations &frame,
                    const sourcemeta::jsontoolkit::SchemaWalker &walker,
                    const sourcemeta::jsontoolkit::SchemaResolver &resolver,
                    const std::optional<std::string> &default_dialect) -> void {
-  sourcemeta::jsontoolkit::ReferenceMap references;
+  sourcemeta::jsontoolkit::FrameReferences references;
   sourcemeta::jsontoolkit::frame(subschema, frame, references, walker, resolver,
                                  default_dialect);
 
@@ -132,8 +132,8 @@ auto remove_identifiers(sourcemeta::jsontoolkit::JSON &schema,
                         const std::optional<std::string> &default_dialect)
     -> void {
   // (1) Re-frame before changing anything
-  sourcemeta::jsontoolkit::ReferenceFrame frame;
-  sourcemeta::jsontoolkit::ReferenceMap references;
+  sourcemeta::jsontoolkit::FrameLocations frame;
+  sourcemeta::jsontoolkit::FrameReferences references;
   sourcemeta::jsontoolkit::frame(schema, frame, references, walker, resolver,
                                  default_dialect);
 
@@ -196,7 +196,7 @@ auto bundle(sourcemeta::jsontoolkit::JSON &schema, const SchemaWalker &walker,
             const std::optional<std::string> &default_dialect) -> void {
   const auto vocabularies{
       sourcemeta::jsontoolkit::vocabularies(schema, resolver, default_dialect)};
-  sourcemeta::jsontoolkit::ReferenceFrame frame;
+  sourcemeta::jsontoolkit::FrameLocations frame;
   bundle_schema(schema, definitions_keyword(vocabularies), schema, frame,
                 walker, resolver, default_dialect);
 

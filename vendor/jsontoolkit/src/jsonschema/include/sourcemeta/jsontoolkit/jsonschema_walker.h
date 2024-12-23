@@ -36,9 +36,17 @@ enum class SchemaWalkerStrategy : std::uint8_t {
   /// takes a JSON Schema definition as an argument
   Value,
   /// The JSON Schema keyword is an applicator that potentially
+  /// takes a JSON Schema definition as an argument without affecting the
+  /// instance location
+  ValueInPlace,
+  /// The JSON Schema keyword is an applicator that potentially
   /// takes an array of potentially JSON Schema definitions
   /// as an argument
   Elements,
+  /// The JSON Schema keyword is an applicator that potentially
+  /// takes an array of potentially JSON Schema definitions
+  /// as an argument without affecting the instance location
+  ElementsInPlace,
   /// The JSON Schema keyword is an applicator that potentially
   /// takes an object as argument, whose values are potentially
   /// JSON Schema definitions
@@ -47,6 +55,10 @@ enum class SchemaWalkerStrategy : std::uint8_t {
   /// definition or an array of potentially JSON Schema definitions
   /// as an argument
   ValueOrElements,
+  /// The JSON Schema keyword is an applicator that may take a JSON Schema
+  /// definition or an array of potentially JSON Schema definitions
+  /// as an argument without affecting the instance location
+  ValueOrElementsInPlace,
   /// The JSON Schema keyword is an applicator that may take an array of
   /// potentially JSON Schema definitions or an object whose values are
   /// potentially JSON Schema definitions as an argument

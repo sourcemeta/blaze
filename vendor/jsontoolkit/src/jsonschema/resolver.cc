@@ -19,13 +19,13 @@ auto MapSchemaResolver::add(const JSON &schema,
 
   // Registering the top-level schema is not enough. We need to check
   // and register every embedded schema resource too
-  ReferenceFrame entries;
-  ReferenceMap references;
+  FrameLocations entries;
+  FrameReferences references;
   frame(schema, entries, references, default_schema_walker, *this,
         default_dialect, default_id);
 
   for (const auto &[key, entry] : entries) {
-    if (entry.type != ReferenceEntryType::Resource) {
+    if (entry.type != FrameLocationType::Resource) {
       continue;
     }
 

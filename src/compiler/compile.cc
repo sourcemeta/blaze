@@ -63,7 +63,7 @@ auto precompile(
     const sourcemeta::blaze::Context &context,
     sourcemeta::blaze::SchemaContext &schema_context,
     const sourcemeta::blaze::DynamicContext &dynamic_context,
-    const sourcemeta::jsontoolkit::ReferenceFrame::value_type &entry)
+    const sourcemeta::jsontoolkit::FrameLocations::value_type &entry)
     -> sourcemeta::blaze::Instructions {
   const sourcemeta::jsontoolkit::URI anchor_uri{entry.first.second};
   const auto label{sourcemeta::blaze::Evaluator{}.hash(
@@ -115,8 +115,8 @@ auto compile(const sourcemeta::jsontoolkit::JSON &schema,
       default_dialect)};
 
   // Perform framing to resolve references later on
-  sourcemeta::jsontoolkit::ReferenceFrame frame;
-  sourcemeta::jsontoolkit::ReferenceMap references;
+  sourcemeta::jsontoolkit::FrameLocations frame;
+  sourcemeta::jsontoolkit::FrameReferences references;
   sourcemeta::jsontoolkit::frame(result, frame, references, walker, resolver,
                                  default_dialect);
 
@@ -232,7 +232,7 @@ auto compile(const sourcemeta::jsontoolkit::JSON &schema,
   std::vector<std::string> resources;
   for (const auto &entry : frame) {
     if (entry.second.type ==
-        sourcemeta::jsontoolkit::ReferenceEntryType::Resource) {
+        sourcemeta::jsontoolkit::FrameLocationType::Resource) {
       resources.push_back(entry.first.second);
     }
   }
@@ -246,6 +246,7 @@ auto compile(const sourcemeta::jsontoolkit::JSON &schema,
          std::set<std::string>(resources.cbegin(), resources.cend()).size());
 
   // Calculate the top static reference destinations for precompilation purposes
+  // TODO: Replace this logic with `.frame()` `destination_of` information
   std::map<std::string, std::size_t> static_references_count;
   for (const auto &reference : references) {
     if (reference.first.first !=
@@ -316,7 +317,7 @@ auto compile(const sourcemeta::jsontoolkit::JSON &schema,
     for (const auto &entry : frame) {
       // We are only trying to find dynamic anchors
       if (entry.second.type !=
-              sourcemeta::jsontoolkit::ReferenceEntryType::Anchor ||
+              sourcemeta::jsontoolkit::FrameLocationType::Anchor ||
           entry.first.first !=
               sourcemeta::jsontoolkit::ReferenceType::Dynamic) {
         continue;
