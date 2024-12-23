@@ -113,7 +113,7 @@ unsigned_integer_property(const sourcemeta::jsontoolkit::JSON &document,
 
 inline auto static_frame_entry(const Context &context,
                                const SchemaContext &schema_context)
-    -> const sourcemeta::jsontoolkit::ReferenceFrameEntry & {
+    -> const sourcemeta::jsontoolkit::FrameLocationsEntry & {
   const auto type{sourcemeta::jsontoolkit::ReferenceType::Static};
   const auto current{
       to_uri(schema_context.relative_pointer, schema_context.base).recompose()};

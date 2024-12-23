@@ -184,6 +184,7 @@ auto compiler_draft4_core_ref(const Context &context,
   auto new_schema_context{schema_context};
   new_schema_context.references.insert(reference.destination);
 
+  // TODO: Replace this logic with `.frame()` `destination_of` information
   std::size_t direct_children_references{0};
   if (context.frame.contains({type, reference.destination})) {
     for (const auto &reference_entry : context.references) {
@@ -197,6 +198,9 @@ auto compiler_draft4_core_ref(const Context &context,
   // If the reference is not a recursive one, we can avoid the extra
   // overhead of marking the location for future jumps, and pretty much
   // just expand the reference destination in place.
+  // TODO: Elevate the calculation required to detect recursive references
+  // to JSON Toolkit's `.frame()`
+  // See: https://github.com/sourcemeta/jsontoolkit/issues/1394
   const bool is_recursive{
       // This means the reference is directly recursive, by jumping to
       // a parent of the reference itself.

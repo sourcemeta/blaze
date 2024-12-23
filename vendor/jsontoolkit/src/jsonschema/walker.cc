@@ -62,13 +62,17 @@ auto walk(sourcemeta::jsontoolkit::Pointer &pointer,
 
   for (auto &pair : subschema.as_object()) {
     switch (walker(pair.first, vocabularies).strategy) {
-      case sourcemeta::jsontoolkit::SchemaWalkerStrategy::Value: {
+      case sourcemeta::jsontoolkit::SchemaWalkerStrategy::Value:
+        [[fallthrough]];
+      case sourcemeta::jsontoolkit::SchemaWalkerStrategy::ValueInPlace: {
         sourcemeta::jsontoolkit::Pointer new_pointer{pointer};
         new_pointer.emplace_back(pair.first);
         walk(new_pointer, subschemas, pair.second, walker, resolver,
              new_dialect, type, level + 1);
       } break;
       case sourcemeta::jsontoolkit::SchemaWalkerStrategy::Elements:
+        [[fallthrough]];
+      case sourcemeta::jsontoolkit::SchemaWalkerStrategy::ElementsInPlace:
         if (pair.second.is_array()) {
           for (std::size_t index = 0; index < pair.second.size(); index++) {
             sourcemeta::jsontoolkit::Pointer new_pointer{pointer};
@@ -93,6 +97,9 @@ auto walk(sourcemeta::jsontoolkit::Pointer &pointer,
 
         break;
       case sourcemeta::jsontoolkit::SchemaWalkerStrategy::ValueOrElements:
+        [[fallthrough]];
+      case sourcemeta::jsontoolkit::SchemaWalkerStrategy::
+          ValueOrElementsInPlace:
         if (pair.second.is_array()) {
           for (std::size_t index = 0; index < pair.second.size(); index++) {
             sourcemeta::jsontoolkit::Pointer new_pointer{pointer};

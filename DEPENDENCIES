@@ -1,6 +1,6 @@
 vendorpull https://github.com/sourcemeta/vendorpull dea311b5bfb53b6926a4140267959ae334d3ecf4
 noa https://github.com/sourcemeta/noa 99f8b42d5f1a8b0f9b3c024f5957dc399bc0262f
-jsontoolkit https://github.com/sourcemeta/jsontoolkit 2fc390f4a4e568691aea62cd85bae94c5d81494d
+jsontoolkit https://github.com/sourcemeta/jsontoolkit 2e2d2042fe3cb7e7066d29847859d889b2ccab6a
 googletest https://github.com/google/googletest a7f443b80b105f940225332ed3c31f2790092f47
 googlebenchmark https://github.com/google/benchmark 378fe693a1ef51500db21b11ff05a8018c5f0e55
 jsonschema-test-suite https://github.com/json-schema-org/JSON-Schema-Test-Suite c2badb1298a8698f86dadf1aea7b44b3a894e5ac
