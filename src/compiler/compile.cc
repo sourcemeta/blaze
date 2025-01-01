@@ -155,80 +155,6 @@ auto compile(const sourcemeta::jsontoolkit::JSON &schema,
       {},
       {}};
 
-  std::set<sourcemeta::jsontoolkit::Pointer> unevaluated_properties_schemas;
-  std::set<sourcemeta::jsontoolkit::Pointer> unevaluated_items_schemas;
-
-  if (schema_context.vocabularies.contains(
-          "https://json-schema.org/draft/2019-09/vocab/core") ||
-      schema_context.vocabularies.contains(
-          "https://json-schema.org/draft/2020-12/vocab/core")) {
-    for (const auto &entry : sourcemeta::jsontoolkit::SchemaIterator{
-             result, walker, resolver, default_dialect}) {
-      if (!entry.vocabularies.contains(
-              "https://json-schema.org/draft/2019-09/vocab/applicator") &&
-          !entry.vocabularies.contains(
-              "https://json-schema.org/draft/2020-12/vocab/unevaluated")) {
-        continue;
-      }
-
-      const auto &subschema{
-          sourcemeta::jsontoolkit::get(result, entry.pointer)};
-      if (!subschema.is_object()) {
-        continue;
-      }
-
-      if (subschema.defines("unevaluatedProperties") &&
-          sourcemeta::jsontoolkit::is_schema(
-              subschema.at("unevaluatedProperties"))) {
-
-        // No need to consider `unevaluatedProperties` if it has a sibling
-        // `additionalProperties`. By definition, nothing could remain
-        // unevaluated.
-
-        if (entry.vocabularies.contains(
-                "https://json-schema.org/draft/2019-09/vocab/applicator") &&
-            subschema.defines("additionalProperties")) {
-          continue;
-        }
-
-        if (entry.vocabularies.contains(
-                "https://json-schema.org/draft/2020-12/vocab/applicator") &&
-            subschema.defines("additionalProperties")) {
-          continue;
-        }
-
-        unevaluated_properties_schemas.insert(entry.pointer);
-      }
-
-      if (subschema.defines("unevaluatedItems") &&
-          sourcemeta::jsontoolkit::is_schema(
-              subschema.at("unevaluatedItems"))) {
-
-        // No need to consider `unevaluatedItems` if it has a
-        // sibling `items` schema (or its older equivalents).
-        // By definition, nothing could remain unevaluated.
-
-        if (entry.vocabularies.contains(
-                "https://json-schema.org/draft/2020-12/vocab/applicator") &&
-            subschema.defines("items")) {
-          continue;
-        } else if (entry.vocabularies.contains("https://json-schema.org/draft/"
-                                               "2019-09/vocab/applicator")) {
-          if (subschema.defines("items") &&
-              sourcemeta::jsontoolkit::is_schema(subschema.at("items"))) {
-            continue;
-          } else if (subschema.defines("items") &&
-                     subschema.at("items").is_array() &&
-                     subschema.defines("additionalItems")) {
-            continue;
-          }
-        }
-
-        unevaluated_items_schemas.insert(entry.pointer);
-      }
-    }
-  }
-
   std::vector<std::string> resources;
   for (const auto &entry : frame) {
     if (entry.second.type ==
@@ -283,6 +209,9 @@ auto compile(const sourcemeta::jsontoolkit::JSON &schema,
     }
   }
 
+  auto unevaluated{sourcemeta::jsontoolkit::unevaluated(
+      result, frame, references, walker, resolver)};
+
   const Context context{result,
                         frame,
                         references,
@@ -292,8 +221,7 @@ auto compile(const sourcemeta::jsontoolkit::JSON &schema,
                         compiler,
                         mode,
                         uses_dynamic_scopes,
-                        unevaluated_properties_schemas,
-                        unevaluated_items_schemas,
+                        std::move(unevaluated),
                         std::move(precompiled_static_schemas)};
   const DynamicContext dynamic_context{relative_dynamic_context};
   Instructions compiler_template;
@@ -332,9 +260,16 @@ auto compile(const sourcemeta::jsontoolkit::JSON &schema,
 
   auto children{compile_subschema(context, schema_context, dynamic_context,
                                   root_frame_entry.dialect)};
-  const bool track{context.mode != Mode::FastValidation ||
-                   !context.unevaluated_properties_schemas.empty() ||
-                   !context.unevaluated_items_schemas.empty()};
+
+  const bool track{
+      context.mode != Mode::FastValidation ||
+      requires_evaluation(context, schema_context) ||
+      // TODO: This expression should go away if we start properly compiling
+      // `unevaluatedItems` like we compile `unevaluatedProperties`
+      std::any_of(context.unevaluated.cbegin(), context.unevaluated.cend(),
+                  [](const auto &dependency) {
+                    return dependency.first.ends_with("unevaluatedItems");
+                  })};
   if (compiler_template.empty()) {
     return {std::move(children), uses_dynamic_scopes, track};
   } else {

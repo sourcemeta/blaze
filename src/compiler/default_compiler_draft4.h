@@ -702,10 +702,8 @@ auto compiler_draft4_applicator_anyof(const Context &context,
     }
   }
 
-  const auto requires_exhaustive{
-      context.mode == Mode::Exhaustive ||
-      !context.unevaluated_properties_schemas.empty() ||
-      !context.unevaluated_items_schemas.empty()};
+  const auto requires_exhaustive{context.mode == Mode::Exhaustive ||
+                                 requires_evaluation(context, schema_context)};
 
   return {make(sourcemeta::blaze::InstructionIndex::LogicalOr, context,
                schema_context, dynamic_context,
@@ -731,10 +729,8 @@ auto compiler_draft4_applicator_oneof(const Context &context,
                     index)})));
   }
 
-  const auto requires_exhaustive{
-      context.mode == Mode::Exhaustive ||
-      !context.unevaluated_properties_schemas.empty() ||
-      !context.unevaluated_items_schemas.empty()};
+  const auto requires_exhaustive{context.mode == Mode::Exhaustive ||
+                                 requires_evaluation(context, schema_context)};
 
   return {make(sourcemeta::blaze::InstructionIndex::LogicalXor, context,
                schema_context, dynamic_context,
@@ -1456,12 +1452,20 @@ auto compiler_draft4_applicator_not(const Context &context,
                                 sourcemeta::jsontoolkit::empty_pointer,
                                 sourcemeta::jsontoolkit::empty_pointer)};
 
+  // TODO: Be smarter about how we treat `unevaluatedItems` like how we do for
+  // `unevaluatedProperties`
+  const bool track_items{
+      std::any_of(context.unevaluated.cbegin(), context.unevaluated.cend(),
+                  [](const auto &dependency) {
+                    return dependency.first.ends_with("unevaluatedItems");
+                  })};
+
   // Only emit a `not` instruction that keeps track of
   // evaluation if we really need it. If the "not" subschema
   // does not define applicators, then that's an easy case
   // we can skip
-  if (subschemas > 0 && (!context.unevaluated_properties_schemas.empty() ||
-                         !context.unevaluated_items_schemas.empty())) {
+  if (subschemas > 0 &&
+      (requires_evaluation(context, schema_context) || track_items)) {
     return {make(sourcemeta::blaze::InstructionIndex::LogicalNotEvaluate,
                  context, schema_context, dynamic_context, ValueNone{},
                  std::move(children))};

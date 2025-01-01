@@ -195,31 +195,54 @@ auto compiler_2019_09_applicator_contains(const Context &context,
 auto compiler_2019_09_applicator_additionalproperties(
     const Context &context, const SchemaContext &schema_context,
     const DynamicContext &dynamic_context, const Instructions &)
+
     -> Instructions {
   return compiler_draft4_applicator_additionalproperties_with_options(
       context, schema_context, dynamic_context,
       context.mode == Mode::Exhaustive,
-      !context.unevaluated_properties_schemas.empty());
+      requires_evaluation(context, schema_context));
 }
 
 auto compiler_2019_09_applicator_items(const Context &context,
                                        const SchemaContext &schema_context,
                                        const DynamicContext &dynamic_context,
                                        const Instructions &) -> Instructions {
+  // TODO: Be smarter about how we treat `unevaluatedItems` like how we do for
+  // `unevaluatedProperties`
+  const bool track{
+      std::any_of(context.unevaluated.cbegin(), context.unevaluated.cend(),
+                  [](const auto &dependency) {
+                    return dependency.first.ends_with("unevaluatedItems");
+                  })};
+
+  if (schema_context.schema.at(dynamic_context.keyword).is_array()) {
+    return compiler_draft4_applicator_items_with_options(
+        context, schema_context, dynamic_context,
+        context.mode == Mode::Exhaustive, track);
+  }
+
   return compiler_draft4_applicator_items_with_options(
       context, schema_context, dynamic_context,
       context.mode == Mode::Exhaustive,
-      !context.unevaluated_items_schemas.empty());
+      track && !schema_context.schema.defines("unevaluatedItems"));
 }
 
 auto compiler_2019_09_applicator_additionalitems(
     const Context &context, const SchemaContext &schema_context,
     const DynamicContext &dynamic_context, const Instructions &)
     -> Instructions {
+  // TODO: Be smarter about how we treat `unevaluatedItems` like how we do for
+  // `unevaluatedProperties`
+  const bool track{
+      std::any_of(context.unevaluated.cbegin(), context.unevaluated.cend(),
+                  [](const auto &dependency) {
+                    return dependency.first.ends_with("unevaluatedItems");
+                  })};
+
   return compiler_draft4_applicator_additionalitems_with_options(
       context, schema_context, dynamic_context,
       context.mode == Mode::Exhaustive,
-      !context.unevaluated_items_schemas.empty());
+      track && !schema_context.schema.defines("unevaluatedItems"));
 }
 
 auto compiler_2019_09_applicator_unevaluateditems(
@@ -232,9 +255,22 @@ auto compiler_2019_09_applicator_unevaluateditems(
     return {};
   }
 
-  if (!context.unevaluated_items_schemas.contains(
-          static_frame_entry(context, schema_context).pointer.initial())) {
-    return {};
+  const auto current_uri{
+      to_uri(schema_context.relative_pointer, schema_context.base).recompose()};
+  assert(context.unevaluated.contains(current_uri));
+  const auto &dependencies{context.unevaluated.at(current_uri)};
+
+  for (const auto &dependency : dependencies.static_dependencies) {
+    assert(!dependency.empty());
+    assert(dependency.back().is_property());
+    const auto &keyword{dependency.back().to_property()};
+    const auto &subschema{
+        sourcemeta::jsontoolkit::get(context.root, dependency)};
+    if (keyword == "items" && sourcemeta::jsontoolkit::is_schema(subschema)) {
+      return {};
+    } else if (keyword == "additionalItems" || keyword == "unevaluatedItems") {
+      return {};
+    }
   }
 
   Instructions children{compile(context, schema_context,
@@ -250,6 +286,11 @@ auto compiler_2019_09_applicator_unevaluateditems(
   }
 
   if (children.empty()) {
+    if (dependencies.dynamic_dependencies.empty() && !dependencies.unresolved &&
+        !requires_evaluation(context, schema_context)) {
+      return {};
+    }
+
     return {make(sourcemeta::blaze::InstructionIndex::ControlEvaluate, context,
                  schema_context, dynamic_context, ValuePointer{})};
   }
@@ -272,11 +313,6 @@ auto compiler_2019_09_applicator_unevaluatedproperties(
     return {};
   }
 
-  if (!context.unevaluated_properties_schemas.contains(
-          static_frame_entry(context, schema_context).pointer.initial())) {
-    return {};
-  }
-
   Instructions children{compile(context, schema_context,
                                 relative_dynamic_context,
                                 sourcemeta::jsontoolkit::empty_pointer,
@@ -292,32 +328,60 @@ auto compiler_2019_09_applicator_unevaluatedproperties(
   ValueStrings filter_prefixes;
   std::vector<ValueRegex> filter_regexes;
 
-  for (const auto &entry : find_adjacent(
-           context, schema_context,
-           {"https://json-schema.org/draft/2019-09/vocab/applicator",
-            "https://json-schema.org/draft/2020-12/vocab/applicator"},
-           "properties", sourcemeta::jsontoolkit::JSON::Type::Object)) {
-    for (const auto &property : entry.get().as_object()) {
-      filter_strings.insert(property.first);
+  const auto current_uri{
+      to_uri(schema_context.relative_pointer, schema_context.base).recompose()};
+  assert(context.unevaluated.contains(current_uri));
+  const auto &dependencies{context.unevaluated.at(current_uri)};
+
+  for (const auto &dependency : dependencies.static_dependencies) {
+    assert(!dependency.empty());
+    assert(dependency.back().is_property());
+    const auto &keyword{dependency.back().to_property()};
+    const auto &subschema{
+        sourcemeta::jsontoolkit::get(context.root, dependency)};
+    if (keyword == "properties") {
+      if (subschema.is_object()) {
+        for (const auto &property : subschema.as_object()) {
+          filter_strings.insert(property.first);
+        }
+      }
+    } else if (keyword == "patternProperties") {
+      if (subschema.is_object()) {
+        for (const auto &property : subschema.as_object()) {
+          const auto maybe_prefix{pattern_as_prefix(property.first)};
+          if (maybe_prefix.has_value()) {
+            filter_prefixes.push_back(maybe_prefix.value());
+          } else {
+            filter_regexes.push_back(
+                {parse_regex(property.first, schema_context.base,
+                             schema_context.relative_pointer.initial().concat(
+                                 {"patternProperties"})),
+                 property.first});
+          }
+        }
+      }
+    } else if (keyword == "additionalProperties" ||
+               keyword == "unevaluatedProperties") {
+      return {};
     }
   }
 
-  for (const auto &entry : find_adjacent(
-           context, schema_context,
-           {"https://json-schema.org/draft/2019-09/vocab/applicator",
-            "https://json-schema.org/draft/2020-12/vocab/applicator"},
-           "patternProperties", sourcemeta::jsontoolkit::JSON::Type::Object)) {
-    for (const auto &property : entry.get().as_object()) {
-      const auto maybe_prefix{pattern_as_prefix(property.first)};
-      if (maybe_prefix.has_value()) {
-        filter_prefixes.push_back(maybe_prefix.value());
-      } else {
-        filter_regexes.push_back(
-            {parse_regex(property.first, schema_context.base,
-                         schema_context.relative_pointer.initial().concat(
-                             {"patternProperties"})),
-             property.first});
-      }
+  if (dependencies.dynamic_dependencies.empty() && !dependencies.unresolved &&
+      !requires_evaluation(context, schema_context)) {
+    if (children.empty()) {
+      return {};
+    } else if (!filter_strings.empty() || !filter_prefixes.empty() ||
+               !filter_regexes.empty()) {
+      return {make(sourcemeta::blaze::InstructionIndex::LoopPropertiesExcept,
+                   context, schema_context, dynamic_context,
+                   ValuePropertyFilter{std::move(filter_strings),
+                                       std::move(filter_prefixes),
+                                       std::move(filter_regexes)},
+                   std::move(children))};
+    } else {
+      return {make(sourcemeta::blaze::InstructionIndex::LoopProperties, context,
+                   schema_context, dynamic_context, ValueNone{},
+                   std::move(children))};
     }
   }
 
@@ -361,40 +425,20 @@ auto compiler_2019_09_applicator_properties(
     const Context &context, const SchemaContext &schema_context,
     const DynamicContext &dynamic_context, const Instructions &current)
     -> Instructions {
-  // If there is a sibling `unevaluatedProperties`, then no need
-  // to track evaluation, as that keyword will statically consider
-  // these properties through `ValuePropertyFilter`
-  if (context.unevaluated_properties_schemas.contains(
-          static_frame_entry(context, schema_context).pointer.initial())) {
-    return compiler_draft4_applicator_properties_with_options(
-        context, schema_context, dynamic_context, current,
-        context.mode == Mode::Exhaustive, false);
-  }
-
   return compiler_draft4_applicator_properties_with_options(
       context, schema_context, dynamic_context, current,
       context.mode == Mode::Exhaustive,
-      !context.unevaluated_properties_schemas.empty());
+      requires_evaluation(context, schema_context));
 }
 
 auto compiler_2019_09_applicator_patternproperties(
     const Context &context, const SchemaContext &schema_context,
     const DynamicContext &dynamic_context, const Instructions &)
     -> Instructions {
-  // If there is a sibling `unevaluatedProperties`, then no need
-  // to track evaluation, as that keyword will statically consider
-  // these properties through `ValuePropertyFilter`
-  if (context.unevaluated_properties_schemas.contains(
-          static_frame_entry(context, schema_context).pointer.initial())) {
-    return compiler_draft4_applicator_patternproperties_with_options(
-        context, schema_context, dynamic_context,
-        context.mode == Mode::Exhaustive, false);
-  }
-
   return compiler_draft4_applicator_patternproperties_with_options(
       context, schema_context, dynamic_context,
       context.mode == Mode::Exhaustive,
-      !context.unevaluated_properties_schemas.empty());
+      requires_evaluation(context, schema_context));
 }
 
 } // namespace internal

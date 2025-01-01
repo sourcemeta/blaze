@@ -103,12 +103,8 @@ struct Context {
   const Mode mode;
   /// Whether the schema makes use of dynamic scoping
   const bool uses_dynamic_scopes;
-  /// The list of subschemas that require keeping track of unevaluated
-  /// properties
-  const std::set<sourcemeta::jsontoolkit::Pointer>
-      unevaluated_properties_schemas;
-  /// The list of subschemas that require keeping track of unevaluated items
-  const std::set<sourcemeta::jsontoolkit::Pointer> unevaluated_items_schemas;
+  /// The list of unevaluated entries and their dependencies
+  const sourcemeta::jsontoolkit::UnevaluatedEntries unevaluated;
   /// The list of subschemas that are precompiled at the beginning of the
   /// instruction set
   const std::set<std::string> precompiled_static_schemas;

@@ -48,7 +48,12 @@ using FrameReferences =
 #endif
 /// @ingroup jsonschema
 /// The type of a location frame
-enum class FrameLocationType : std::uint8_t { Resource, Anchor, Pointer };
+enum class FrameLocationType : std::uint8_t {
+  Resource,
+  Anchor,
+  Pointer,
+  Subschema
+};
 #if defined(__GNUC__)
 #pragma GCC diagnostic pop
 #endif

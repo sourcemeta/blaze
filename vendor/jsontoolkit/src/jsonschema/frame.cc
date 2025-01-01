@@ -8,11 +8,10 @@
 #include <functional> // std::less
 #include <map>        // std::map
 #include <optional>   // std::optional
+#include <set>        // std::set
 #include <sstream>    // std::ostringstream
 #include <utility>    // std::pair, std::move
 #include <vector>     // std::vector
-
-#include <iostream>
 
 static auto find_nearest_bases(const std::map<sourcemeta::jsontoolkit::Pointer,
                                               std::vector<std::string>> &bases,
@@ -138,6 +137,7 @@ auto sourcemeta::jsontoolkit::frame(
     const std::optional<std::string> &default_dialect,
     const std::optional<std::string> &default_id) -> void {
   std::vector<InternalEntry> subschema_entries;
+  std::set<Pointer> subschemas;
   std::map<sourcemeta::jsontoolkit::Pointer, std::vector<std::string>>
       base_uris;
   std::map<sourcemeta::jsontoolkit::Pointer, std::vector<std::string>>
@@ -186,6 +186,7 @@ auto sourcemeta::jsontoolkit::frame(
 
     // Store information
     subschema_entries.emplace_back(InternalEntry{entry, std::move(id)});
+    subschemas.insert(entry.pointer);
   }
 
   for (const auto &entry : subschema_entries) {
@@ -376,10 +377,17 @@ auto sourcemeta::jsontoolkit::frame(
         const auto nearest_bases{
             find_nearest_bases(base_uris, pointer, base.first)};
         assert(!nearest_bases.first.empty());
-        store(frame, ReferenceType::Static, FrameLocationType::Pointer, result,
-              root_id, nearest_bases.first.front(), pointer,
-              pointer.resolve_from(nearest_bases.second),
-              dialects.first.front());
+        if (subschemas.contains(pointer)) {
+          store(frame, ReferenceType::Static, FrameLocationType::Subschema,
+                result, root_id, nearest_bases.first.front(), pointer,
+                pointer.resolve_from(nearest_bases.second),
+                dialects.first.front());
+        } else {
+          store(frame, ReferenceType::Static, FrameLocationType::Pointer,
+                result, root_id, nearest_bases.first.front(), pointer,
+                pointer.resolve_from(nearest_bases.second),
+                dialects.first.front());
+        }
       }
     }
   }
