@@ -27,42 +27,68 @@ namespace sourcemeta::jsontoolkit {
 // alias defined even on a different namespace.
 #pragma GCC diagnostic ignored "-Wshadow"
 #endif
+// TODO: Extract this into a more generic keyword identification enumeration
 /// @ingroup jsonschema
 /// Determines the possible states of a schema walk strategy
 enum class SchemaWalkerStrategy : std::uint8_t {
-  /// The JSON Schema keyword is not an applicator
-  None,
+  /// The JSON Schema keyword is unknown
+  Unknown,
+  /// The JSON Schema keyword is a non-applicator assertion
+  Assertion,
+  /// The JSON Schema keyword is a non-applicator annotation
+  Annotation,
+  /// The JSON Schema keyword is a reference
+  Reference,
+  /// The JSON Schema keyword is known but doesn't match any other type
+  Other,
   /// The JSON Schema keyword is an applicator that potentially
   /// takes a JSON Schema definition as an argument
-  Value,
+  ApplicatorValue,
+  /// The JSON Schema keyword is an applicator that potentially
+  /// takes a JSON Schema definition as an argument but its evaluation follows
+  /// special rules
+  ApplicatorValueOther,
   /// The JSON Schema keyword is an applicator that potentially
   /// takes a JSON Schema definition as an argument without affecting the
   /// instance location
-  ValueInPlace,
+  ApplicatorValueInPlace,
   /// The JSON Schema keyword is an applicator that potentially
   /// takes an array of potentially JSON Schema definitions
   /// as an argument
-  Elements,
+  ApplicatorElements,
   /// The JSON Schema keyword is an applicator that potentially
   /// takes an array of potentially JSON Schema definitions
   /// as an argument without affecting the instance location
-  ElementsInPlace,
+  ApplicatorElementsInPlace,
+  /// The JSON Schema keyword is an applicator that potentially
+  /// takes an array of potentially JSON Schema definitions
+  /// as an argument without affecting the instance location and that can be
+  /// statically inlined
+  ApplicatorElementsInline,
   /// The JSON Schema keyword is an applicator that potentially
   /// takes an object as argument, whose values are potentially
   /// JSON Schema definitions
-  Members,
+  ApplicatorMembers,
+  /// The JSON Schema keyword is an applicator that potentially
+  /// takes an object as argument, whose values are potentially
+  /// JSON Schema definitions without affecting the instance location
+  ApplicatorMembersInPlace,
   /// The JSON Schema keyword is an applicator that may take a JSON Schema
   /// definition or an array of potentially JSON Schema definitions
   /// as an argument
-  ValueOrElements,
+  ApplicatorValueOrElements,
   /// The JSON Schema keyword is an applicator that may take a JSON Schema
   /// definition or an array of potentially JSON Schema definitions
   /// as an argument without affecting the instance location
-  ValueOrElementsInPlace,
+  ApplicatorValueOrElementsInPlace,
   /// The JSON Schema keyword is an applicator that may take an array of
   /// potentially JSON Schema definitions or an object whose values are
   /// potentially JSON Schema definitions as an argument
-  ElementsOrMembers
+  ApplicatorElementsOrMembers,
+  /// The JSON Schema keyword is a reserved location that potentially
+  /// takes an object as argument, whose values are potentially
+  /// JSON Schema definitions
+  LocationMembers,
 };
 #if defined(__GNUC__)
 #pragma GCC diagnostic pop
@@ -73,6 +99,8 @@ enum class SchemaWalkerStrategy : std::uint8_t {
 struct SchemaWalkerResult {
   /// The walker strategy to continue traversing across the schema
   const SchemaWalkerStrategy strategy;
+  /// The vocabulary associated with the keyword, if any
+  const std::optional<std::string> vocabulary;
   /// The keywords a given keyword depends on (if any) during the evaluation
   /// process
   const std::set<std::string> dependencies;
@@ -99,7 +127,7 @@ SOURCEMETA_JSONTOOLKIT_JSONSCHEMA_EXPORT
 inline auto schema_walker_none(std::string_view,
                                const std::map<std::string, bool> &)
     -> sourcemeta::jsontoolkit::SchemaWalkerResult {
-  return {SchemaWalkerStrategy::None, {}};
+  return {SchemaWalkerStrategy::Unknown, std::nullopt, {}};
 }
 
 /// @ingroup jsonschema

@@ -114,9 +114,9 @@ unsigned_integer_property(const sourcemeta::jsontoolkit::JSON &document,
 inline auto static_frame_entry(const Context &context,
                                const SchemaContext &schema_context)
     -> const sourcemeta::jsontoolkit::FrameLocationsEntry & {
-  const auto type{sourcemeta::jsontoolkit::ReferenceType::Static};
   const auto current{
       to_uri(schema_context.relative_pointer, schema_context.base).recompose()};
+  const auto type{sourcemeta::jsontoolkit::ReferenceType::Static};
   assert(context.frame.contains({type, current}));
   return context.frame.at({type, current});
 }
@@ -223,6 +223,25 @@ inline auto recursive_template_size(const Instructions &steps) -> std::size_t {
 inline auto make_property(const ValueString &property) -> ValueProperty {
   static const sourcemeta::jsontoolkit::Hash hasher;
   return {property, hasher(property)};
+}
+
+inline auto requires_evaluation(const Context &context,
+                                const SchemaContext &schema_context) -> bool {
+  const auto &entry{static_frame_entry(context, schema_context)};
+  for (const auto &unevaluated : context.unevaluated) {
+    if (unevaluated.second.unresolved ||
+        unevaluated.second.dynamic_dependencies.contains(entry.pointer)) {
+      return true;
+    }
+
+    for (const auto &dependency : unevaluated.second.dynamic_dependencies) {
+      if (dependency.starts_with(entry.pointer)) {
+        return true;
+      }
+    }
+  }
+
+  return false;
 }
 
 } // namespace sourcemeta::blaze

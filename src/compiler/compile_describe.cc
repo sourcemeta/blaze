@@ -583,12 +583,21 @@ auto describe(const bool valid, const Instruction &step,
   }
 
   if (step.type == sourcemeta::blaze::InstructionIndex::LoopProperties) {
-    assert(keyword == "additionalProperties");
+    assert(keyword == "additionalProperties" ||
+           keyword == "unevaluatedProperties");
     std::ostringstream message;
-    if (step.children.size() == 1 &&
+    if (!step.children.empty() &&
         step.children.front().type == InstructionIndex::AssertionFail) {
-      message << "The object value was not expected to define additional "
-                 "properties";
+      if (keyword == "unevaluatedProperties") {
+        message << "The object value was not expected to define unevaluated "
+                   "properties";
+      } else {
+        message << "The object value was not expected to define additional "
+                   "properties";
+      }
+    } else if (keyword == "unevaluatedProperties") {
+      message << "The object properties not covered by other object "
+                 "keywords were expected to validate against this subschema";
     } else {
       message << "The object properties not covered by other adjacent object "
                  "keywords were expected to validate against this subschema";
@@ -652,12 +661,21 @@ auto describe(const bool valid, const Instruction &step,
   }
 
   if (step.type == sourcemeta::blaze::InstructionIndex::LoopPropertiesExcept) {
-    assert(keyword == "additionalProperties");
+    assert(keyword == "additionalProperties" ||
+           keyword == "unevaluatedProperties");
     std::ostringstream message;
-    if (step.children.size() == 1 &&
+    if (!step.children.empty() &&
         step.children.front().type == InstructionIndex::AssertionFail) {
-      message << "The object value was not expected to define additional "
-                 "properties";
+      if (keyword == "unevaluatedProperties") {
+        message << "The object value was not expected to define unevaluated "
+                   "properties";
+      } else {
+        message << "The object value was not expected to define additional "
+                   "properties";
+      }
+    } else if (keyword == "unevaluatedProperties") {
+      message << "The object properties not covered by other object "
+                 "keywords were expected to validate against this subschema";
     } else {
       message << "The object properties not covered by other adjacent object "
                  "keywords were expected to validate against this subschema";
