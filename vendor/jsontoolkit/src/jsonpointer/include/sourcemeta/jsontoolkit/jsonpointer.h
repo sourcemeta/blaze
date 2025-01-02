@@ -326,8 +326,6 @@ auto to_pointer(const std::basic_string<JSON::Char, JSON::CharTraits,
 SOURCEMETA_JSONTOOLKIT_JSONPOINTER_EXPORT
 auto to_pointer(const WeakPointer &pointer) -> Pointer;
 
-// TODO: Add an operator<< overload
-
 /// @ingroup jsonpointer
 ///
 /// Stringify the input JSON Pointer into a given C++ standard output stream.

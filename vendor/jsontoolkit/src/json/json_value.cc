@@ -587,7 +587,8 @@ JSON::at(const String &key,
   } else if (this->is_boolean()) {
     return sizeof(bool);
   } else {
-    return sizeof(std::nullptr_t);
+    // The size of the union
+    return 8;
   }
 }
 

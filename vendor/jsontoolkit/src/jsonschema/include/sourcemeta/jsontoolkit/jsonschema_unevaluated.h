@@ -54,13 +54,12 @@ using UnevaluatedEntries = std::map<std::string, UnevaluatedEntry>;
 ///   "unevaluatedProperties": false
 /// })JSON");
 ///
-/// sourcemeta::jsontoolkit::FrameLocations frame;
-/// sourcemeta::jsontoolkit::FrameReferences references;
-/// sourcemeta::jsontoolkit::frame(document, frame, references,
-///                                sourcemeta::jsontoolkit::default_schema_walker,
-///                                sourcemeta::jsontoolkit::official_resolver);
+/// sourcemeta::jsontoolkit::Frame frame;
+/// frame.analyse(document,
+///   sourcemeta::jsontoolkit::default_schema_walker,
+///   sourcemeta::jsontoolkit::official_resolver);
 /// const auto result{sourcemeta::jsontoolkit::unevaluated(
-///     schema, frame, references,
+///     schema, frame,
 ///     sourcemeta::jsontoolkit::default_schema_walker,
 ///     sourcemeta::jsontoolkit::official_resolver)};
 ///
@@ -69,8 +68,7 @@ using UnevaluatedEntries = std::map<std::string, UnevaluatedEntry>;
 /// assert(result.at("#/unevaluatedProperties").dependencies.empty());
 /// ```
 auto SOURCEMETA_JSONTOOLKIT_JSONSCHEMA_EXPORT
-unevaluated(const JSON &schema, const FrameLocations &frame,
-            const FrameReferences &references, const SchemaWalker &walker,
+unevaluated(const JSON &schema, const Frame &frame, const SchemaWalker &walker,
             const SchemaResolver &resolver) -> UnevaluatedEntries;
 
 } // namespace sourcemeta::jsontoolkit

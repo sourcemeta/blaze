@@ -88,9 +88,7 @@ struct Context {
   /// The root schema resource
   const sourcemeta::jsontoolkit::JSON &root;
   /// The reference frame of the entire schema
-  const sourcemeta::jsontoolkit::FrameLocations &frame;
-  /// The references of the entire schema
-  const sourcemeta::jsontoolkit::FrameReferences &references;
+  const sourcemeta::jsontoolkit::Frame &frame;
   /// The set of all schema resources in the schema without duplicates
   const std::vector<std::string> resources;
   /// The schema walker in use

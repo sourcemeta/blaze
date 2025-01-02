@@ -52,24 +52,28 @@ auto is_official_metaschema_reference(
 auto bundle_schema(sourcemeta::jsontoolkit::JSON &root,
                    const std::string &container,
                    const sourcemeta::jsontoolkit::JSON &subschema,
-                   sourcemeta::jsontoolkit::FrameLocations &frame,
+                   sourcemeta::jsontoolkit::Frame &frame,
                    const sourcemeta::jsontoolkit::SchemaWalker &walker,
                    const sourcemeta::jsontoolkit::SchemaResolver &resolver,
                    const std::optional<std::string> &default_dialect) -> void {
-  sourcemeta::jsontoolkit::FrameReferences references;
-  sourcemeta::jsontoolkit::frame(subschema, frame, references, walker, resolver,
-                                 default_dialect);
+  frame.analyse(subschema, walker, resolver, default_dialect);
 
-  for (const auto &[key, reference] : references) {
-    if (frame.contains({sourcemeta::jsontoolkit::ReferenceType::Static,
-                        reference.destination}) ||
-        frame.contains({sourcemeta::jsontoolkit::ReferenceType::Dynamic,
-                        reference.destination}) ||
+  for (const auto &[key, reference] : frame.references()) {
+    if (frame.traverse(reference.destination).has_value() ||
 
         // We don't want to bundle official schemas, as we can expect
         // virtually all implementations to understand them out of the box
         is_official_metaschema_reference(key.second, reference.destination)) {
       continue;
+    }
+
+    // If we can't find the destination but there is a base and we can
+    // find base, then we are facing an unresolved fragment
+    if (reference.base.has_value() &&
+        frame.traverse(reference.base.value()).has_value()) {
+      throw sourcemeta::jsontoolkit::SchemaReferenceError(
+          reference.destination, key.second,
+          "Could not resolve schema reference");
     }
 
     root.assign_if_missing(container,
@@ -85,10 +89,7 @@ auto bundle_schema(sourcemeta::jsontoolkit::JSON &root,
     const auto identifier{reference.base.value()};
     const auto remote{resolver(identifier)};
     if (!remote.has_value()) {
-      if (frame.contains(
-              {sourcemeta::jsontoolkit::ReferenceType::Static, identifier}) ||
-          frame.contains(
-              {sourcemeta::jsontoolkit::ReferenceType::Dynamic, identifier})) {
+      if (frame.traverse(identifier).has_value()) {
         throw sourcemeta::jsontoolkit::SchemaReferenceError(
             reference.destination, key.second,
             "Could not resolve schema reference");
@@ -132,10 +133,8 @@ auto remove_identifiers(sourcemeta::jsontoolkit::JSON &schema,
                         const std::optional<std::string> &default_dialect)
     -> void {
   // (1) Re-frame before changing anything
-  sourcemeta::jsontoolkit::FrameLocations frame;
-  sourcemeta::jsontoolkit::FrameReferences references;
-  sourcemeta::jsontoolkit::frame(schema, frame, references, walker, resolver,
-                                 default_dialect);
+  sourcemeta::jsontoolkit::Frame frame;
+  frame.analyse(schema, walker, resolver, default_dialect);
 
   // (2) Remove all identifiers and anchors
   for (const auto &entry : sourcemeta::jsontoolkit::SchemaIterator{
@@ -162,28 +161,20 @@ auto remove_identifiers(sourcemeta::jsontoolkit::JSON &schema,
   }
 
   // (3) Fix-up reference based on pointers from the root
-  for (const auto &[key, reference] : references) {
+  for (const auto &[key, reference] : frame.references()) {
     // We don't want to bundle official schemas, as we can expect
     // virtually all implementations to understand them out of the box
     if (is_official_metaschema_reference(key.second, reference.destination)) {
       continue;
     }
 
-    assert(frame.contains({sourcemeta::jsontoolkit::ReferenceType::Static,
-                           reference.destination}) ||
-           frame.contains({sourcemeta::jsontoolkit::ReferenceType::Dynamic,
-                           reference.destination}));
-    const auto &entry{
-        frame.contains({sourcemeta::jsontoolkit::ReferenceType::Static,
-                        reference.destination})
-            ? frame.at({sourcemeta::jsontoolkit::ReferenceType::Static,
-                        reference.destination})
-            : frame.at({sourcemeta::jsontoolkit::ReferenceType::Dynamic,
-                        reference.destination})};
+    const auto result{frame.traverse(reference.destination)};
+    assert(result.has_value());
     sourcemeta::jsontoolkit::set(
         schema, key.second,
         sourcemeta::jsontoolkit::JSON{
-            sourcemeta::jsontoolkit::to_uri(entry.pointer).recompose()});
+            sourcemeta::jsontoolkit::to_uri(result.value().get().pointer)
+                .recompose()});
   }
 }
 
@@ -196,7 +187,7 @@ auto bundle(sourcemeta::jsontoolkit::JSON &schema, const SchemaWalker &walker,
             const std::optional<std::string> &default_dialect) -> void {
   const auto vocabularies{
       sourcemeta::jsontoolkit::vocabularies(schema, resolver, default_dialect)};
-  sourcemeta::jsontoolkit::FrameLocations frame;
+  sourcemeta::jsontoolkit::Frame frame;
   bundle_schema(schema, definitions_keyword(vocabularies), schema, frame,
                 walker, resolver, default_dialect);
 

@@ -5,7 +5,7 @@ auto sourcemeta::jsontoolkit::default_schema_walker(
     -> sourcemeta::jsontoolkit::SchemaWalkerResult {
 #define WALK(vocabulary, _keyword, strategy, ...)                              \
   if (vocabularies.contains(vocabulary) && keyword == _keyword)                \
-    return {sourcemeta::jsontoolkit::SchemaWalkerStrategy::strategy,           \
+    return {sourcemeta::jsontoolkit::KeywordType::strategy,                    \
             vocabulary,                                                        \
             {__VA_ARGS__}};
 
@@ -261,9 +261,8 @@ auto sourcemeta::jsontoolkit::default_schema_walker(
   // $ref also takes precedence over any unknown keyword
   if (vocabularies.contains(HTTP_BASE "draft-07/schema#") &&
       keyword != "$ref") {
-    return {sourcemeta::jsontoolkit::SchemaWalkerStrategy::Unknown,
-            std::nullopt,
-            {"$ref"}};
+    return {
+        sourcemeta::jsontoolkit::KeywordType::Unknown, std::nullopt, {"$ref"}};
   }
 
   // Draft6
@@ -327,9 +326,8 @@ auto sourcemeta::jsontoolkit::default_schema_walker(
   // $ref also takes precedence over any unknown keyword
   if (vocabularies.contains(HTTP_BASE "draft-06/schema#") &&
       keyword != "$ref") {
-    return {sourcemeta::jsontoolkit::SchemaWalkerStrategy::Unknown,
-            std::nullopt,
-            {"$ref"}};
+    return {
+        sourcemeta::jsontoolkit::KeywordType::Unknown, std::nullopt, {"$ref"}};
   }
 
   // Draft4
@@ -381,9 +379,8 @@ auto sourcemeta::jsontoolkit::default_schema_walker(
   // $ref also takes precedence over any unknown keyword
   if (vocabularies.contains(HTTP_BASE "draft-04/schema#") &&
       keyword != "$ref") {
-    return {sourcemeta::jsontoolkit::SchemaWalkerStrategy::Unknown,
-            std::nullopt,
-            {"$ref"}};
+    return {
+        sourcemeta::jsontoolkit::KeywordType::Unknown, std::nullopt, {"$ref"}};
   }
 
   // Draft3
@@ -427,9 +424,8 @@ auto sourcemeta::jsontoolkit::default_schema_walker(
   // $ref also takes precedence over any unknown keyword
   if (vocabularies.contains(HTTP_BASE "draft-03/schema#") &&
       keyword != "$ref") {
-    return {sourcemeta::jsontoolkit::SchemaWalkerStrategy::Unknown,
-            std::nullopt,
-            {"$ref"}};
+    return {
+        sourcemeta::jsontoolkit::KeywordType::Unknown, std::nullopt, {"$ref"}};
   }
 
   // Draft2
@@ -552,6 +548,5 @@ auto sourcemeta::jsontoolkit::default_schema_walker(
 #undef HTTP_BASE
 #undef WALK
 #undef WALK_MAYBE_DEPENDENT
-  return {
-      sourcemeta::jsontoolkit::SchemaWalkerStrategy::Unknown, std::nullopt, {}};
+  return {sourcemeta::jsontoolkit::KeywordType::Unknown, std::nullopt, {}};
 }

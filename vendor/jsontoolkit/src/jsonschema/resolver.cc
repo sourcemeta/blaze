@@ -19,23 +19,17 @@ auto MapSchemaResolver::add(const JSON &schema,
 
   // Registering the top-level schema is not enough. We need to check
   // and register every embedded schema resource too
-  FrameLocations entries;
-  FrameReferences references;
-  frame(schema, entries, references, default_schema_walker, *this,
-        default_dialect, default_id);
+  Frame frame;
+  frame.analyse(schema, default_schema_walker, *this, default_dialect,
+                default_id);
 
-  for (const auto &[key, entry] : entries) {
-    if (entry.type != FrameLocationType::Resource) {
+  for (const auto &[key, entry] : frame.locations()) {
+    if (entry.type != Frame::LocationType::Resource) {
       continue;
     }
 
     auto subschema{get(schema, entry.pointer)};
-    // TODO: Set the base dialect in the frame entries
-    const auto subschema_base_dialect{
-        base_dialect(subschema, *this, entry.dialect)};
-    assert(subschema_base_dialect.has_value());
-    const auto subschema_vocabularies{
-        vocabularies(*this, subschema_base_dialect.value(), entry.dialect)};
+    const auto subschema_vocabularies{frame.vocabularies(entry, *this)};
 
     // Given we might be resolving embedded resources, we fully
     // resolve their dialect and identifiers, otherwise the

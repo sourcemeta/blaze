@@ -7,28 +7,16 @@
 namespace {
 using namespace sourcemeta::jsontoolkit;
 
-// TODO: We need to do this dance in various places. If we turn
-// `Frame` into a proper class, then this can be a utility method
-auto navigate_frame(const FrameLocations &frame,
-                    const FrameLocationsEntry &entry,
-                    const Pointer &relative_pointer)
-    -> const FrameLocationsEntry & {
-  const auto new_uri{
-      to_uri(entry.relative_pointer.concat(relative_pointer), entry.base)
-          .recompose()};
-  assert(frame.contains({ReferenceType::Static, new_uri}));
-  return frame.at({ReferenceType::Static, new_uri});
-}
-
 // TODO: Extract all of this into a public utility to traverse
 // adjacent subschemas
-auto find_adjacent_dependencies(
-    const JSON::String &current, const JSON &schema,
-    const FrameLocations &frame, const FrameReferences &references,
-    const SchemaWalker &walker, const SchemaResolver &resolver,
-    const std::set<JSON::String> &keywords, const FrameLocationsEntry &root,
-    const FrameLocationsEntry &entry, const bool is_static,
-    UnevaluatedEntry &result) -> void {
+auto find_adjacent_dependencies(const JSON::String &current, const JSON &schema,
+                                const Frame &frame, const SchemaWalker &walker,
+                                const SchemaResolver &resolver,
+                                const std::set<JSON::String> &keywords,
+                                const Frame::LocationsEntry &root,
+                                const Frame::LocationsEntry &entry,
+                                const bool is_static, UnevaluatedEntry &result)
+    -> void {
   const auto &subschema{get(schema, entry.pointer)};
   if (!subschema.is_object()) {
     return;
@@ -58,85 +46,73 @@ auto find_adjacent_dependencies(
       continue;
     }
 
-    const auto strategy{
-        walker(property.first, subschema_vocabularies).strategy};
-    switch (strategy) {
+    switch (walker(property.first, subschema_vocabularies).type) {
       // References
-      case SchemaWalkerStrategy::Reference:
-        if (references.contains({ReferenceType::Static,
-                                 entry.pointer.concat({property.first})})) {
-          const auto &reference{references.at(
-              {ReferenceType::Static, entry.pointer.concat({property.first})})};
-          assert(
-              frame.contains({ReferenceType::Static, reference.destination}));
+      case KeywordType::Reference: {
+        const auto reference{frame.dereference(entry, {property.first})};
+        if (reference.first == ReferenceType::Static &&
+            reference.second.has_value()) {
           find_adjacent_dependencies(
-              current, schema, frame, references, walker, resolver, keywords,
-              root, frame.at({ReferenceType::Static, reference.destination}),
-              is_static, result);
-        } else if (references.contains(
-                       {ReferenceType::Dynamic,
-                        entry.pointer.concat({property.first})})) {
+              current, schema, frame, walker, resolver, keywords, root,
+              reference.second.value().get(), is_static, result);
+        } else if (reference.first == ReferenceType::Dynamic) {
           result.unresolved = true;
         }
 
         break;
+      }
 
       // Static
-      case SchemaWalkerStrategy::ApplicatorElementsInline:
+      case KeywordType::ApplicatorElementsInline:
         for (std::size_t index = 0; index < property.second.size(); index++) {
           find_adjacent_dependencies(
-              current, schema, frame, references, walker, resolver, keywords,
-              root, navigate_frame(frame, entry, {property.first, index}),
-              is_static, result);
+              current, schema, frame, walker, resolver, keywords, root,
+              frame.traverse(entry, {property.first, index}), is_static,
+              result);
         }
 
         break;
 
       // Dynamic
-      case SchemaWalkerStrategy::ApplicatorElementsInPlace:
+      case KeywordType::ApplicatorElementsInPlace:
         if (property.second.is_array()) {
           for (std::size_t index = 0; index < property.second.size(); index++) {
             find_adjacent_dependencies(
-                current, schema, frame, references, walker, resolver, keywords,
-                root, navigate_frame(frame, entry, {property.first, index}),
-                false, result);
+                current, schema, frame, walker, resolver, keywords, root,
+                frame.traverse(entry, {property.first, index}), false, result);
           }
         }
 
         break;
-      case SchemaWalkerStrategy::ApplicatorValueInPlace:
+      case KeywordType::ApplicatorValueInPlace:
         if (is_schema(property.second)) {
           find_adjacent_dependencies(
-              current, schema, frame, references, walker, resolver, keywords,
-              root, navigate_frame(frame, entry, {property.first}), false,
-              result);
+              current, schema, frame, walker, resolver, keywords, root,
+              frame.traverse(entry, {property.first}), false, result);
         }
 
         break;
-      case SchemaWalkerStrategy::ApplicatorValueOrElementsInPlace:
+      case KeywordType::ApplicatorValueOrElementsInPlace:
         if (property.second.is_array()) {
           for (std::size_t index = 0; index < property.second.size(); index++) {
             find_adjacent_dependencies(
-                current, schema, frame, references, walker, resolver, keywords,
-                root, navigate_frame(frame, entry, {property.first, index}),
-                false, result);
+                current, schema, frame, walker, resolver, keywords, root,
+                frame.traverse(entry, {property.first, index}), false, result);
           }
         } else if (is_schema(property.second)) {
           find_adjacent_dependencies(
-              current, schema, frame, references, walker, resolver, keywords,
-              root, navigate_frame(frame, entry, {property.first}), false,
-              result);
+              current, schema, frame, walker, resolver, keywords, root,
+              frame.traverse(entry, {property.first}), false, result);
         }
 
         break;
-      case SchemaWalkerStrategy::ApplicatorMembersInPlace:
+      case KeywordType::ApplicatorMembersInPlace:
         if (property.second.is_object()) {
           for (const auto &pair : property.second.as_object()) {
             find_adjacent_dependencies(
-                current, schema, frame, references, walker, resolver, keywords,
-                root,
-                navigate_frame(frame, entry, {property.first, pair.first}),
-                false, result);
+                current, schema, frame, walker, resolver, keywords, root,
+                frame.traverse(entry, {property.first, pair.first}), false,
+                result);
           }
         }
 
@@ -153,14 +129,14 @@ auto find_adjacent_dependencies(
 
 namespace sourcemeta::jsontoolkit {
 
-auto unevaluated(const JSON &schema, const FrameLocations &frame,
-                 const FrameReferences &references, const SchemaWalker &walker,
-                 const SchemaResolver &resolver) -> UnevaluatedEntries {
+auto unevaluated(const JSON &schema, const Frame &frame,
+                 const SchemaWalker &walker, const SchemaResolver &resolver)
+    -> UnevaluatedEntries {
   UnevaluatedEntries result;
 
-  for (const auto &entry : frame) {
-    if (entry.second.type != FrameLocationType::Subschema &&
-        entry.second.type != FrameLocationType::Resource) {
+  for (const auto &entry : frame.locations()) {
+    if (entry.second.type != Frame::LocationType::Subschema &&
+        entry.second.type != Frame::LocationType::Resource) {
       continue;
     }
 
@@ -171,12 +147,9 @@ auto unevaluated(const JSON &schema, const FrameLocations &frame,
     }
 
     const auto subschema_vocabularies{
-        vocabularies(schema, resolver, entry.second.dialect)};
+        frame.vocabularies(entry.second, resolver)};
     for (const auto &pair : subschema.as_object()) {
-      const auto keyword_uri{
-          to_uri(entry.second.relative_pointer.concat({pair.first}),
-                 entry.second.base)
-              .recompose()};
+      const auto keyword_uri{frame.uri(entry.second, {pair.first})};
       UnevaluatedEntry unevaluated;
       if ((subschema_vocabularies.contains(
                "https://json-schema.org/draft/2020-12/vocab/unevaluated") &&
@@ -184,7 +157,7 @@ auto unevaluated(const JSON &schema, const FrameLocations &frame,
                "https://json-schema.org/draft/2020-12/vocab/applicator")) &&
           pair.first == "unevaluatedProperties") {
         find_adjacent_dependencies(
-            pair.first, schema, frame, references, walker, resolver,
+            pair.first, schema, frame, walker, resolver,
             {"properties", "patternProperties", "additionalProperties",
              "unevaluatedProperties"},
             entry.second, entry.second, true, unevaluated);
@@ -196,7 +169,7 @@ auto unevaluated(const JSON &schema, const FrameLocations &frame,
                "https://json-schema.org/draft/2020-12/vocab/applicator")) &&
           pair.first == "unevaluatedItems") {
         find_adjacent_dependencies(
-            pair.first, schema, frame, references, walker, resolver,
+            pair.first, schema, frame, walker, resolver,
             {"prefixItems", "items", "contains", "unevaluatedItems"},
             entry.second, entry.second, true, unevaluated);
         result.emplace(keyword_uri, std::move(unevaluated));
@@ -205,7 +178,7 @@ auto unevaluated(const JSON &schema, const FrameLocations &frame,
                      "applicator") &&
                  pair.first == "unevaluatedProperties") {
         find_adjacent_dependencies(
-            pair.first, schema, frame, references, walker, resolver,
+            pair.first, schema, frame, walker, resolver,
             {"properties", "patternProperties", "additionalProperties",
              "unevaluatedProperties"},
             entry.second, entry.second, true, unevaluated);
@@ -215,7 +188,7 @@ auto unevaluated(const JSON &schema, const FrameLocations &frame,
                      "applicator") &&
                  pair.first == "unevaluatedItems") {
         find_adjacent_dependencies(
-            pair.first, schema, frame, references, walker, resolver,
+            pair.first, schema, frame, walker, resolver,
             {"items", "additionalItems", "unevaluatedItems"}, entry.second,
             entry.second, true, unevaluated);
         result.emplace(keyword_uri, std::move(unevaluated));

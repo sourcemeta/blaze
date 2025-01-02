@@ -10,7 +10,6 @@
 
 namespace sourcemeta::jsontoolkit {
 
-// TODO: Merge as part of JSONObject
 /// @ingroup json
 template <typename Key, typename Value, typename Hash> class FlatMap {
 public:
@@ -52,8 +51,6 @@ public:
   inline auto hash(const key_type &key) const noexcept -> hash_type {
     return this->hasher(key);
   }
-
-  // TODO: Add an assign overload for const key, rvalue
 
   auto assign(key_type &&key, mapped_type &&value) -> hash_type {
     const auto key_hash{this->hash(key)};
