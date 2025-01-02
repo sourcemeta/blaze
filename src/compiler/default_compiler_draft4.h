@@ -162,14 +162,14 @@ auto compiler_draft4_core_ref(const Context &context,
   // Determine the label
   const auto &entry{static_frame_entry(context, schema_context)};
   const auto type{sourcemeta::jsontoolkit::ReferenceType::Static};
-  if (!context.references.contains({type, entry.pointer})) {
+  if (!context.frame.references().contains({type, entry.pointer})) {
     assert(schema_context.schema.at(dynamic_context.keyword).is_string());
     throw sourcemeta::jsontoolkit::SchemaReferenceError(
         schema_context.schema.at(dynamic_context.keyword).to_string(),
         entry.pointer, "The schema location is inside of an unknown keyword");
   }
 
-  const auto &reference{context.references.at({type, entry.pointer})};
+  const auto &reference{context.frame.references().at({type, entry.pointer})};
   const auto label{
       Evaluator{}.hash(schema_resource_id(context, reference.base.value_or("")),
                        reference.fragment.value_or(""))};
@@ -186,10 +186,12 @@ auto compiler_draft4_core_ref(const Context &context,
 
   // TODO: Replace this logic with `.frame()` `destination_of` information
   std::size_t direct_children_references{0};
-  if (context.frame.contains({type, reference.destination})) {
-    for (const auto &reference_entry : context.references) {
+  if (context.frame.locations().contains({type, reference.destination})) {
+    for (const auto &reference_entry : context.frame.references()) {
       if (reference_entry.first.second.starts_with(
-              context.frame.at({type, reference.destination}).pointer)) {
+              context.frame.locations()
+                  .at({type, reference.destination})
+                  .pointer)) {
         direct_children_references += 1;
       }
     }
@@ -204,9 +206,10 @@ auto compiler_draft4_core_ref(const Context &context,
   const bool is_recursive{
       // This means the reference is directly recursive, by jumping to
       // a parent of the reference itself.
-      (context.frame.contains({type, reference.destination}) &&
-       entry.pointer.starts_with(
-           context.frame.at({type, reference.destination}).pointer)) ||
+      (context.frame.locations().contains({type, reference.destination}) &&
+       entry.pointer.starts_with(context.frame.locations()
+                                     .at({type, reference.destination})
+                                     .pointer)) ||
       schema_context.references.contains(reference.destination)};
 
   if (!is_recursive && direct_children_references <= 5) {
@@ -784,16 +787,17 @@ auto properties_as_loop(const Context &context,
   const auto inside_disjunctor{
       is_inside_disjunctor(schema_context.relative_pointer) ||
       // Check if any reference from `anyOf` or `oneOf` points to us
-      std::any_of(context.references.cbegin(), context.references.cend(),
+      std::any_of(context.frame.references().cbegin(),
+                  context.frame.references().cend(),
                   [&context, &current_entry](const auto &reference) {
-                    if (!context.frame.contains(
+                    if (!context.frame.locations().contains(
                             {sourcemeta::jsontoolkit::ReferenceType::Static,
                              reference.second.destination})) {
                       return false;
                     }
 
                     const auto &target{
-                        context.frame
+                        context.frame.locations()
                             .at({sourcemeta::jsontoolkit::ReferenceType::Static,
                                  reference.second.destination})
                             .pointer};

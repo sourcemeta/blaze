@@ -27,7 +27,7 @@ auto compiler_draft7_applicator_if(const Context &context,
         to_uri(schema_context.relative_pointer.initial().concat({"then"}),
                schema_context.base)
             .recompose()};
-    assert(context.frame.contains(
+    assert(context.frame.locations().contains(
         {sourcemeta::jsontoolkit::ReferenceType::Static, destination}));
     DynamicContext new_dynamic_context{"then",
                                        dynamic_context.base_schema_location,
@@ -53,7 +53,7 @@ auto compiler_draft7_applicator_if(const Context &context,
         to_uri(schema_context.relative_pointer.initial().concat({"else"}),
                schema_context.base)
             .recompose()};
-    assert(context.frame.contains(
+    assert(context.frame.locations().contains(
         {sourcemeta::jsontoolkit::ReferenceType::Static, destination}));
     DynamicContext new_dynamic_context{"else",
                                        dynamic_context.base_schema_location,

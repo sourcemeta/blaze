@@ -113,12 +113,12 @@ unsigned_integer_property(const sourcemeta::jsontoolkit::JSON &document,
 
 inline auto static_frame_entry(const Context &context,
                                const SchemaContext &schema_context)
-    -> const sourcemeta::jsontoolkit::FrameLocationsEntry & {
+    -> const sourcemeta::jsontoolkit::Frame::LocationsEntry & {
   const auto current{
       to_uri(schema_context.relative_pointer, schema_context.base).recompose()};
   const auto type{sourcemeta::jsontoolkit::ReferenceType::Static};
-  assert(context.frame.contains({type, current}));
-  return context.frame.at({type, current});
+  assert(context.frame.locations().contains({type, current}));
+  return context.frame.locations().at({type, current});
 }
 
 inline auto walk_subschemas(const Context &context,
@@ -163,12 +163,14 @@ inline auto find_adjacent(const Context &context,
         to_uri(schema_context.relative_pointer.initial().concat({"$ref"}),
                schema_context.base)
             .recompose()};
-    assert(context.frame.contains({reference_type, destination_uri}));
+    assert(
+        context.frame.locations().contains({reference_type, destination_uri}));
     const auto &destination{
-        context.frame.at({reference_type, destination_uri})};
-    assert(context.references.contains({reference_type, destination.pointer}));
+        context.frame.locations().at({reference_type, destination_uri})};
+    assert(context.frame.references().contains(
+        {reference_type, destination.pointer}));
     const auto &reference{
-        context.references.at({reference_type, destination.pointer})};
+        context.frame.references().at({reference_type, destination.pointer})};
     const auto keyword_uri{
         sourcemeta::jsontoolkit::to_uri(
             sourcemeta::jsontoolkit::to_pointer(reference.fragment.value_or(""))
@@ -186,14 +188,15 @@ inline auto find_adjacent(const Context &context,
       result;
 
   for (const auto &possible_keyword_uri : possible_keyword_uris) {
-    if (!context.frame.contains({sourcemeta::jsontoolkit::ReferenceType::Static,
-                                 possible_keyword_uri})) {
+    if (!context.frame.locations().contains(
+            {sourcemeta::jsontoolkit::ReferenceType::Static,
+             possible_keyword_uri})) {
       continue;
     }
 
-    const auto &frame_entry{
-        context.frame.at({sourcemeta::jsontoolkit::ReferenceType::Static,
-                          possible_keyword_uri})};
+    const auto &frame_entry{context.frame.locations().at(
+        {sourcemeta::jsontoolkit::ReferenceType::Static,
+         possible_keyword_uri})};
     const auto &subschema{
         sourcemeta::jsontoolkit::get(context.root, frame_entry.pointer)};
     const auto &subschema_vocabularies{sourcemeta::jsontoolkit::vocabularies(

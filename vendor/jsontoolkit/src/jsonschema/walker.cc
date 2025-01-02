@@ -61,25 +61,22 @@ auto walk(sourcemeta::jsontoolkit::Pointer &pointer,
   }
 
   for (auto &pair : subschema.as_object()) {
-    switch (walker(pair.first, vocabularies).strategy) {
-      case sourcemeta::jsontoolkit::SchemaWalkerStrategy::ApplicatorValue:
+    switch (walker(pair.first, vocabularies).type) {
+      case sourcemeta::jsontoolkit::KeywordType::ApplicatorValue:
         [[fallthrough]];
-      case sourcemeta::jsontoolkit::SchemaWalkerStrategy::ApplicatorValueOther:
+      case sourcemeta::jsontoolkit::KeywordType::ApplicatorValueOther:
         [[fallthrough]];
-      case sourcemeta::jsontoolkit::SchemaWalkerStrategy::
-          ApplicatorValueInPlace: {
+      case sourcemeta::jsontoolkit::KeywordType::ApplicatorValueInPlace: {
         sourcemeta::jsontoolkit::Pointer new_pointer{pointer};
         new_pointer.emplace_back(pair.first);
         walk(new_pointer, subschemas, pair.second, walker, resolver,
              new_dialect, type, level + 1);
       } break;
-      case sourcemeta::jsontoolkit::SchemaWalkerStrategy::ApplicatorElements:
+      case sourcemeta::jsontoolkit::KeywordType::ApplicatorElements:
         [[fallthrough]];
-      case sourcemeta::jsontoolkit::SchemaWalkerStrategy::
-          ApplicatorElementsInline:
+      case sourcemeta::jsontoolkit::KeywordType::ApplicatorElementsInline:
         [[fallthrough]];
-      case sourcemeta::jsontoolkit::SchemaWalkerStrategy::
-          ApplicatorElementsInPlace:
+      case sourcemeta::jsontoolkit::KeywordType::ApplicatorElementsInPlace:
         if (pair.second.is_array()) {
           for (std::size_t index = 0; index < pair.second.size(); index++) {
             sourcemeta::jsontoolkit::Pointer new_pointer{pointer};
@@ -91,12 +88,11 @@ auto walk(sourcemeta::jsontoolkit::Pointer &pointer,
         }
 
         break;
-      case sourcemeta::jsontoolkit::SchemaWalkerStrategy::ApplicatorMembers:
+      case sourcemeta::jsontoolkit::KeywordType::ApplicatorMembers:
         [[fallthrough]];
-      case sourcemeta::jsontoolkit::SchemaWalkerStrategy::
-          ApplicatorMembersInPlace:
+      case sourcemeta::jsontoolkit::KeywordType::ApplicatorMembersInPlace:
         [[fallthrough]];
-      case sourcemeta::jsontoolkit::SchemaWalkerStrategy::LocationMembers:
+      case sourcemeta::jsontoolkit::KeywordType::LocationMembers:
         if (pair.second.is_object()) {
           for (auto &subpair : pair.second.as_object()) {
             sourcemeta::jsontoolkit::Pointer new_pointer{pointer};
@@ -108,10 +104,9 @@ auto walk(sourcemeta::jsontoolkit::Pointer &pointer,
         }
 
         break;
-      case sourcemeta::jsontoolkit::SchemaWalkerStrategy::
-          ApplicatorValueOrElements:
+      case sourcemeta::jsontoolkit::KeywordType::ApplicatorValueOrElements:
         [[fallthrough]];
-      case sourcemeta::jsontoolkit::SchemaWalkerStrategy::
+      case sourcemeta::jsontoolkit::KeywordType::
           ApplicatorValueOrElementsInPlace:
         if (pair.second.is_array()) {
           for (std::size_t index = 0; index < pair.second.size(); index++) {
@@ -129,8 +124,7 @@ auto walk(sourcemeta::jsontoolkit::Pointer &pointer,
         }
 
         break;
-      case sourcemeta::jsontoolkit::SchemaWalkerStrategy::
-          ApplicatorElementsOrMembers:
+      case sourcemeta::jsontoolkit::KeywordType::ApplicatorElementsOrMembers:
         if (pair.second.is_array()) {
           for (std::size_t index = 0; index < pair.second.size(); index++) {
             sourcemeta::jsontoolkit::Pointer new_pointer{pointer};
@@ -150,15 +144,15 @@ auto walk(sourcemeta::jsontoolkit::Pointer &pointer,
         }
 
         break;
-      case sourcemeta::jsontoolkit::SchemaWalkerStrategy::Assertion:
+      case sourcemeta::jsontoolkit::KeywordType::Assertion:
         break;
-      case sourcemeta::jsontoolkit::SchemaWalkerStrategy::Annotation:
+      case sourcemeta::jsontoolkit::KeywordType::Annotation:
         break;
-      case sourcemeta::jsontoolkit::SchemaWalkerStrategy::Reference:
+      case sourcemeta::jsontoolkit::KeywordType::Reference:
         break;
-      case sourcemeta::jsontoolkit::SchemaWalkerStrategy::Other:
+      case sourcemeta::jsontoolkit::KeywordType::Other:
         break;
-      case sourcemeta::jsontoolkit::SchemaWalkerStrategy::Unknown:
+      case sourcemeta::jsontoolkit::KeywordType::Unknown:
         break;
     }
   }
