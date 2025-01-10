@@ -121,10 +121,16 @@ public:
   /// Construct an empty resolver that has another schema resolver as a fallback
   FlatFileSchemaResolver(const SchemaResolver &resolver);
 
-  /// Register a schema to the flat file resolver
+  /// Register a schema to the flat file resolver, returning the detected
+  /// identifier for the schema
   auto add(const std::filesystem::path &path,
            const std::optional<std::string> &default_dialect = std::nullopt,
-           const std::optional<std::string> &default_id = std::nullopt) -> void;
+           const std::optional<std::string> &default_id = std::nullopt)
+      -> const std::string &;
+
+  // Change the identifier of a registered schema
+  auto reidentify(const std::string &schema, const std::string &new_identifier)
+      -> void;
 
   /// Attempt to resolve a schema
   auto operator()(std::string_view identifier) const -> std::optional<JSON>;
@@ -137,9 +143,9 @@ public:
 
   /// Represent an entry in the resolver
   struct Entry {
-    const std::filesystem::path path;
-    const std::optional<std::string> default_dialect;
-    const std::optional<std::string> default_id;
+    std::filesystem::path path;
+    std::optional<std::string> default_dialect;
+    std::string original_identifier;
   };
 
 private:

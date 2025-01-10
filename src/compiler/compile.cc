@@ -111,8 +111,7 @@ auto compile(const sourcemeta::jsontoolkit::JSON &schema,
   // Make sure the input schema is bundled, otherwise we won't be able to
   // resolve remote references here
   const sourcemeta::jsontoolkit::JSON result{sourcemeta::jsontoolkit::bundle(
-      schema, walker, resolver, sourcemeta::jsontoolkit::BundleOptions::Default,
-      default_dialect)};
+      schema, walker, resolver, default_dialect)};
 
   // Perform framing to resolve references later on
   sourcemeta::jsontoolkit::Frame frame;

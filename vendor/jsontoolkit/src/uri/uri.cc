@@ -65,8 +65,14 @@ static auto uri_parse(const std::string &data, UriUriA *uri) -> void {
   uri_normalize(uri);
 }
 
-static auto canonicalize_path(const std::string &path, const bool is_relative)
+static auto canonicalize_path(const std::string &path)
     -> std::optional<std::string> {
+  // TODO: This is a hack, as this whole function works badly for
+  // relative paths with ".."
+  if (path.starts_with("..")) {
+    return path;
+  }
+
   std::vector<std::string> segments;
   std::string segment;
 
@@ -92,7 +98,7 @@ static auto canonicalize_path(const std::string &path, const bool is_relative)
 
   // Reconstruct the canonical path
   std::string canonical_path;
-  std::string separator = (is_relative && !has_leading_with_word) ? "/" : "";
+  std::string separator = "";
 
   for (const auto &seg : segments) {
     canonical_path += separator + seg;
@@ -278,7 +284,12 @@ auto URI::path() const -> std::optional<std::string> {
     return "/" + this->path_.value();
   }
 
-  return path_;
+  if (this->data.starts_with('/') && this->data.size() > 1 &&
+      this->path_.has_value()) {
+    return "/" + this->path_.value();
+  }
+
+  return this->path_;
 }
 
 auto URI::path(const std::string &path) -> URI & {
@@ -419,8 +430,7 @@ auto URI::canonicalize() -> URI & {
   // Clean Path form ".." and "."
   const auto result_path{this->path()};
   if (result_path.has_value()) {
-    const auto canonical_path{
-        canonicalize_path(result_path.value(), this->is_relative())};
+    const auto canonical_path{canonicalize_path(result_path.value())};
     if (canonical_path.has_value()) {
       this->path_ = canonical_path.value();
     }
@@ -514,6 +524,12 @@ auto URI::relative_to(const URI &base) -> URI & {
   }
 
   uriFreeUriMembersMmA(&result, nullptr);
+
+  // TODO: Why do we even need to do this?
+  if (copy.data.starts_with('/')) {
+    copy.data.erase(0, 1);
+  }
+
   copy.parse();
 
   // `uriparser` has this weird thing where it will only look at scheme and
@@ -542,6 +558,7 @@ auto URI::try_resolve_from(const URI &base) -> URI & {
     // TODO: This only handles a very specific case. We should generalize this
     // function to perform proper base resolution on relative bases
   } else if (this->is_fragment_only() && !base.fragment().has_value()) {
+    this->data = base.data;
     this->path_ = base.path_;
     this->userinfo_ = base.userinfo_;
     this->host_ = base.host_;
