@@ -17,8 +17,11 @@ auto definitions_keyword(const std::map<std::string, bool> &vocabularies)
   }
 
   if (vocabularies.contains("http://json-schema.org/draft-07/schema#") ||
+      vocabularies.contains("http://json-schema.org/draft-07/hyper-schema#") ||
       vocabularies.contains("http://json-schema.org/draft-06/schema#") ||
-      vocabularies.contains("http://json-schema.org/draft-04/schema#")) {
+      vocabularies.contains("http://json-schema.org/draft-06/hyper-schema#") ||
+      vocabularies.contains("http://json-schema.org/draft-04/schema#") ||
+      vocabularies.contains("http://json-schema.org/draft-04/hyper-schema#")) {
     return "definitions";
   }
 
@@ -57,8 +60,10 @@ auto bundle_schema(sourcemeta::jsontoolkit::JSON &root,
                    const sourcemeta::jsontoolkit::SchemaResolver &resolver,
                    const std::optional<std::string> &default_dialect) -> void {
   frame.analyse(subschema, walker, resolver, default_dialect);
-
-  for (const auto &[key, reference] : frame.references()) {
+  // Otherwise, given recursion, we would be modifying the
+  // references list *while* looping on it
+  const auto references_copy = frame.references();
+  for (const auto &[key, reference] : references_copy) {
     if (frame.traverse(reference.destination).has_value() ||
 
         // We don't want to bundle official schemas, as we can expect

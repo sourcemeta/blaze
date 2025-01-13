@@ -18,6 +18,7 @@ auto sourcemeta::blaze::default_schema_compiler(
     -> sourcemeta::blaze::Instructions {
   assert(!dynamic_context.keyword.empty());
 
+  // TODO: Support HyperSchema in Draft 7 and earlier
   static std::set<std::string> SUPPORTED_VOCABULARIES{
       "https://json-schema.org/draft/2020-12/vocab/core",
       "https://json-schema.org/draft/2020-12/vocab/applicator",
@@ -32,6 +33,7 @@ auto sourcemeta::blaze::default_schema_compiler(
       "https://json-schema.org/draft/2019-09/vocab/meta-data",
       "https://json-schema.org/draft/2019-09/vocab/format",
       "https://json-schema.org/draft/2019-09/vocab/content",
+      "https://json-schema.org/draft/2019-09/vocab/hyper-schema",
       "http://json-schema.org/draft-07/schema#",
       "http://json-schema.org/draft-06/schema#",
       "http://json-schema.org/draft-04/schema#"};
