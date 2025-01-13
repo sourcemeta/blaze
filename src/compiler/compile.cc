@@ -46,7 +46,8 @@ auto compile_subschema(const sourcemeta::blaze::Context &context,
               // TODO: This represents a copy
               schema_context.labels, schema_context.references},
              {keyword, dynamic_context.base_schema_location,
-              dynamic_context.base_instance_location},
+              dynamic_context.base_instance_location,
+              dynamic_context.property_as_target},
              steps)) {
       // Just a sanity check to ensure every keyword location is indeed valid
       assert(context.frame.locations().contains(
@@ -91,7 +92,7 @@ auto precompile(
       nested_schema_context, dynamic_context,
       sourcemeta::blaze::ValueUnsignedInteger{label},
       sourcemeta::blaze::compile(context, nested_schema_context,
-                                 sourcemeta::blaze::relative_dynamic_context,
+                                 sourcemeta::blaze::relative_dynamic_context(),
                                  sourcemeta::jsontoolkit::empty_pointer,
                                  sourcemeta::jsontoolkit::empty_pointer,
                                  entry.first.second))};
@@ -221,7 +222,7 @@ auto compile(const sourcemeta::jsontoolkit::JSON &schema,
                         uses_dynamic_scopes,
                         std::move(unevaluated),
                         std::move(precompiled_static_schemas)};
-  const DynamicContext dynamic_context{relative_dynamic_context};
+  const DynamicContext dynamic_context{relative_dynamic_context()};
   Instructions compiler_template;
 
   for (const auto &destination : context.precompiled_static_schemas) {
@@ -327,7 +328,8 @@ auto compile(const Context &context, const SchemaContext &schema_context,
        // TODO: This represents a copy
        schema_context.labels, schema_context.references},
       {dynamic_context.keyword, destination_pointer,
-       dynamic_context.base_instance_location.concat(instance_suffix)},
+       dynamic_context.base_instance_location.concat(instance_suffix),
+       dynamic_context.property_as_target},
       entry.dialect);
 }
 

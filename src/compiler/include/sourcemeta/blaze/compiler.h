@@ -52,11 +52,13 @@ struct SchemaContext {
 /// disposal to implement a keyword
 struct DynamicContext {
   /// The schema keyword
-  const std::string &keyword;
+  const std::string keyword;
   /// The schema base keyword path
   const sourcemeta::jsontoolkit::Pointer &base_schema_location;
   /// The base instance location that the keyword must be evaluated to
   const sourcemeta::jsontoolkit::Pointer &base_instance_location;
+  /// Whether the instance location property acts as the target
+  const bool property_as_target;
 };
 
 #if !defined(DOXYGEN)

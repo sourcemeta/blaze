@@ -189,6 +189,10 @@ auto compiler_draft6_validation_type(const Context &context,
                    schema_context, dynamic_context,
                    sourcemeta::jsontoolkit::JSON::Type::Integer)};
     } else if (type == "string") {
+      if (dynamic_context.property_as_target) {
+        return {};
+      }
+
       const auto minimum{
           unsigned_integer_property(schema_context.schema, "minLength", 0)};
       const auto maximum{
@@ -263,6 +267,10 @@ auto compiler_draft6_validation_type(const Context &context,
                    schema_context, dynamic_context,
                    sourcemeta::jsontoolkit::JSON::Type::Integer)};
     } else if (type == "string") {
+      if (dynamic_context.property_as_target) {
+        return {};
+      }
+
       return {make(sourcemeta::blaze::InstructionIndex::AssertionTypeStrict,
                    context, schema_context, dynamic_context,
                    sourcemeta::jsontoolkit::JSON::Type::String)};
@@ -289,6 +297,10 @@ auto compiler_draft6_validation_type(const Context &context,
       } else if (type_string == "integer") {
         types.push_back(sourcemeta::jsontoolkit::JSON::Type::Integer);
       } else if (type_string == "string") {
+        if (dynamic_context.property_as_target) {
+          continue;
+        }
+
         types.push_back(sourcemeta::jsontoolkit::JSON::Type::String);
       }
     }
@@ -361,7 +373,7 @@ auto compiler_draft6_applicator_contains(const Context &context,
   }
 
   Instructions children{compile(context, schema_context,
-                                relative_dynamic_context,
+                                relative_dynamic_context(dynamic_context),
                                 sourcemeta::jsontoolkit::empty_pointer,
                                 sourcemeta::jsontoolkit::empty_pointer)};
 
@@ -388,7 +400,7 @@ auto compiler_draft6_validation_propertynames(
   }
 
   Instructions children{compile(context, schema_context,
-                                relative_dynamic_context,
+                                property_relative_dynamic_context(),
                                 sourcemeta::jsontoolkit::empty_pointer,
                                 sourcemeta::jsontoolkit::empty_pointer)};
 

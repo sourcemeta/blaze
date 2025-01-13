@@ -223,21 +223,21 @@ auto compiler_draft4_core_ref(const Context &context,
                      sourcemeta::jsontoolkit::empty_pointer,
                      reference.destination);
     } else {
-      return {
-          make(sourcemeta::blaze::InstructionIndex::LogicalAnd, context,
-               schema_context, dynamic_context, ValueNone{},
-               compile(context, new_schema_context, relative_dynamic_context,
-                       sourcemeta::jsontoolkit::empty_pointer,
-                       sourcemeta::jsontoolkit::empty_pointer,
-                       reference.destination))};
+      return {make(sourcemeta::blaze::InstructionIndex::LogicalAnd, context,
+                   schema_context, dynamic_context, ValueNone{},
+                   compile(context, new_schema_context,
+                           relative_dynamic_context(dynamic_context),
+                           sourcemeta::jsontoolkit::empty_pointer,
+                           sourcemeta::jsontoolkit::empty_pointer,
+                           reference.destination))};
     }
   }
 
   new_schema_context.labels.insert(label);
-  Instructions children{
-      compile(context, new_schema_context, relative_dynamic_context,
-              sourcemeta::jsontoolkit::empty_pointer,
-              sourcemeta::jsontoolkit::empty_pointer, reference.destination)};
+  Instructions children{compile(
+      context, new_schema_context, relative_dynamic_context(dynamic_context),
+      sourcemeta::jsontoolkit::empty_pointer,
+      sourcemeta::jsontoolkit::empty_pointer, reference.destination)};
 
   // If we ended up not using the label after all, then we can ignore the
   // wrapper, at the expense of compiling the reference instructions once more
@@ -545,7 +545,7 @@ auto compiler_draft4_validation_required(const Context &context,
             schema_context.references};
         const DynamicContext new_dynamic_context{
             "properties", sourcemeta::jsontoolkit::empty_pointer,
-            sourcemeta::jsontoolkit::empty_pointer};
+            sourcemeta::jsontoolkit::empty_pointer, false};
         auto properties{compile_properties(context, new_schema_context,
                                            new_dynamic_context, current)};
         if (std::all_of(properties.cbegin(), properties.cend(),
@@ -632,7 +632,8 @@ auto compiler_draft4_applicator_allof(const Context &context,
          index < schema_context.schema.at(dynamic_context.keyword).size();
          index++) {
       for (auto &&step :
-           compile(context, schema_context, relative_dynamic_context,
+           compile(context, schema_context,
+                   relative_dynamic_context(dynamic_context),
                    {static_cast<sourcemeta::jsontoolkit::Pointer::Token::Index>(
                        index)})) {
         children.push_back(std::move(step));
@@ -658,8 +659,9 @@ auto compiler_draft4_applicator_anyof(const Context &context,
        index++) {
     disjunctors.push_back(make(
         sourcemeta::blaze::InstructionIndex::ControlGroup, context,
-        schema_context, relative_dynamic_context, ValueNone{},
-        compile(context, schema_context, relative_dynamic_context,
+        schema_context, relative_dynamic_context(dynamic_context), ValueNone{},
+        compile(context, schema_context,
+                relative_dynamic_context(dynamic_context),
                 {static_cast<sourcemeta::jsontoolkit::Pointer::Token::Index>(
                     index)})));
   }
@@ -726,8 +728,9 @@ auto compiler_draft4_applicator_oneof(const Context &context,
        index++) {
     disjunctors.push_back(make(
         sourcemeta::blaze::InstructionIndex::ControlGroup, context,
-        schema_context, relative_dynamic_context, ValueNone{},
-        compile(context, schema_context, relative_dynamic_context,
+        schema_context, relative_dynamic_context(dynamic_context), ValueNone{},
+        compile(context, schema_context,
+                relative_dynamic_context(dynamic_context),
                 {static_cast<sourcemeta::jsontoolkit::Pointer::Token::Index>(
                     index)})));
   }
@@ -854,25 +857,28 @@ auto compiler_draft4_applicator_properties_with_options(
     std::size_t cursor = 0;
 
     for (auto &&[name, substeps] : compile_properties(
-             context, schema_context, relative_dynamic_context, current)) {
+             context, schema_context, relative_dynamic_context(dynamic_context),
+             current)) {
       indexes.assign(name, cursor);
 
       if (track_evaluation) {
         substeps.push_back(
             make(sourcemeta::blaze::InstructionIndex::ControlEvaluate, context,
-                 schema_context, relative_dynamic_context, ValuePointer{name}));
+                 schema_context, relative_dynamic_context(dynamic_context),
+                 ValuePointer{name}));
       }
 
       if (annotate) {
         substeps.push_back(
             make(sourcemeta::blaze::InstructionIndex::AnnotationEmit, context,
-                 schema_context, relative_dynamic_context,
+                 schema_context, relative_dynamic_context(dynamic_context),
                  sourcemeta::jsontoolkit::JSON{name}));
       }
 
       // Note that the evaluator completely ignores this wrapper anyway
       children.push_back(make(sourcemeta::blaze::InstructionIndex::ControlGroup,
-                              context, schema_context, relative_dynamic_context,
+                              context, schema_context,
+                              relative_dynamic_context(dynamic_context),
                               ValueNone{}, std::move(substeps)));
       cursor += 1;
     }
@@ -895,9 +901,10 @@ auto compiler_draft4_applicator_properties_with_options(
 
   Instructions children;
 
-  const auto effective_dynamic_context{context.mode == Mode::FastValidation
-                                           ? dynamic_context
-                                           : relative_dynamic_context};
+  const auto effective_dynamic_context{
+      context.mode == Mode::FastValidation
+          ? dynamic_context
+          : relative_dynamic_context(dynamic_context)};
 
   const auto assume_object{schema_context.schema.defines("type") &&
                            schema_context.schema.at("type").is_string() &&
@@ -1148,19 +1155,22 @@ auto compiler_draft4_applicator_patternproperties_with_options(
 
   // For each regular expression and corresponding subschema in the object
   for (const auto &pattern : patterns) {
-    auto substeps{compile(context, schema_context, relative_dynamic_context,
-                          {pattern}, {})};
+    auto substeps{compile(context, schema_context,
+                          relative_dynamic_context(dynamic_context), {pattern},
+                          {})};
 
     if (annotate) {
       substeps.push_back(
           make(sourcemeta::blaze::InstructionIndex::AnnotationBasenameToParent,
-               context, schema_context, relative_dynamic_context, ValueNone{}));
+               context, schema_context,
+               relative_dynamic_context(dynamic_context), ValueNone{}));
     }
 
     if (track_evaluation) {
       substeps.push_back(
           make(sourcemeta::blaze::InstructionIndex::ControlEvaluate, context,
-               schema_context, relative_dynamic_context, ValuePointer{}));
+               schema_context, relative_dynamic_context(dynamic_context),
+               ValuePointer{}));
     }
 
     if (context.mode == Mode::FastValidation && !track_evaluation &&
@@ -1219,14 +1229,15 @@ auto compiler_draft4_applicator_additionalproperties_with_options(
   }
 
   Instructions children{compile(context, schema_context,
-                                relative_dynamic_context,
+                                relative_dynamic_context(dynamic_context),
                                 sourcemeta::jsontoolkit::empty_pointer,
                                 sourcemeta::jsontoolkit::empty_pointer)};
 
   if (annotate) {
     children.push_back(
         make(sourcemeta::blaze::InstructionIndex::AnnotationBasenameToParent,
-             context, schema_context, relative_dynamic_context, ValueNone{}));
+             context, schema_context, relative_dynamic_context(dynamic_context),
+             ValueNone{}));
   }
 
   ValueStringSet filter_strings;
@@ -1291,7 +1302,8 @@ auto compiler_draft4_applicator_additionalproperties_with_options(
     if (track_evaluation) {
       children.push_back(
           make(sourcemeta::blaze::InstructionIndex::ControlEvaluate, context,
-               schema_context, relative_dynamic_context, ValuePointer{}));
+               schema_context, relative_dynamic_context(dynamic_context),
+               ValuePointer{}));
     }
 
     return {make(sourcemeta::blaze::InstructionIndex::LoopPropertiesExcept,
@@ -1452,7 +1464,7 @@ auto compiler_draft4_applicator_not(const Context &context,
   }
 
   Instructions children{compile(context, schema_context,
-                                relative_dynamic_context,
+                                relative_dynamic_context(dynamic_context),
                                 sourcemeta::jsontoolkit::empty_pointer,
                                 sourcemeta::jsontoolkit::empty_pointer)};
 
@@ -1504,8 +1516,8 @@ auto compiler_draft4_applicator_items_array(
       schema_context.schema.at(dynamic_context.keyword).as_array()};
   for (auto iterator{array.cbegin()}; iterator != array.cend(); ++iterator) {
     subschemas.push_back(compile(context, schema_context,
-                                 relative_dynamic_context, {subschemas.size()},
-                                 {subschemas.size()}));
+                                 relative_dynamic_context(dynamic_context),
+                                 {subschemas.size()}, {subschemas.size()}));
   }
 
   Instructions children;
@@ -1520,12 +1532,13 @@ auto compiler_draft4_applicator_items_array(
     if (annotate) {
       subchildren.push_back(
           make(sourcemeta::blaze::InstructionIndex::AnnotationEmit, context,
-               schema_context, relative_dynamic_context,
+               schema_context, relative_dynamic_context(dynamic_context),
                sourcemeta::jsontoolkit::JSON{cursor}));
     }
 
     children.push_back(make(sourcemeta::blaze::InstructionIndex::ControlGroup,
-                            context, schema_context, relative_dynamic_context,
+                            context, schema_context,
+                            relative_dynamic_context(dynamic_context),
                             ValueNone{}, std::move(subchildren)));
   }
 
@@ -1538,15 +1551,18 @@ auto compiler_draft4_applicator_items_array(
 
   if (annotate) {
     tail.push_back(make(sourcemeta::blaze::InstructionIndex::AnnotationEmit,
-                        context, schema_context, relative_dynamic_context,
+                        context, schema_context,
+                        relative_dynamic_context(dynamic_context),
                         sourcemeta::jsontoolkit::JSON{children.size() - 1}));
     tail.push_back(make(sourcemeta::blaze::InstructionIndex::AnnotationEmit,
-                        context, schema_context, relative_dynamic_context,
+                        context, schema_context,
+                        relative_dynamic_context(dynamic_context),
                         sourcemeta::jsontoolkit::JSON{true}));
   }
 
   children.push_back(make(sourcemeta::blaze::InstructionIndex::ControlGroup,
-                          context, schema_context, relative_dynamic_context,
+                          context, schema_context,
+                          relative_dynamic_context(dynamic_context),
                           ValueNone{}, std::move(tail)));
 
   if (track_evaluation) {
@@ -1573,10 +1589,10 @@ auto compiler_draft4_applicator_items_with_options(
 
   if (is_schema(schema_context.schema.at(dynamic_context.keyword))) {
     if (annotate || track_evaluation) {
-      Instructions subchildren{compile(context, schema_context,
-                                       relative_dynamic_context,
-                                       sourcemeta::jsontoolkit::empty_pointer,
-                                       sourcemeta::jsontoolkit::empty_pointer)};
+      Instructions subchildren{compile(
+          context, schema_context, relative_dynamic_context(dynamic_context),
+          sourcemeta::jsontoolkit::empty_pointer,
+          sourcemeta::jsontoolkit::empty_pointer)};
 
       Instructions children;
 
@@ -1594,14 +1610,16 @@ auto compiler_draft4_applicator_items_with_options(
 
       if (annotate) {
         tail.push_back(make(sourcemeta::blaze::InstructionIndex::AnnotationEmit,
-                            context, schema_context, relative_dynamic_context,
+                            context, schema_context,
+                            relative_dynamic_context(dynamic_context),
                             sourcemeta::jsontoolkit::JSON{true}));
       }
 
       if (track_evaluation) {
         tail.push_back(
             make(sourcemeta::blaze::InstructionIndex::ControlEvaluate, context,
-                 schema_context, relative_dynamic_context, ValuePointer{}));
+                 schema_context, relative_dynamic_context(dynamic_context),
+                 ValuePointer{}));
       }
 
       children.push_back(
@@ -1613,13 +1631,14 @@ auto compiler_draft4_applicator_items_with_options(
     }
 
     Instructions children{compile(context, schema_context,
-                                  relative_dynamic_context,
+                                  relative_dynamic_context(dynamic_context),
                                   sourcemeta::jsontoolkit::empty_pointer,
                                   sourcemeta::jsontoolkit::empty_pointer)};
     if (track_evaluation) {
       children.push_back(
           make(sourcemeta::blaze::InstructionIndex::ControlEvaluate, context,
-               schema_context, relative_dynamic_context, ValuePointer{}));
+               schema_context, relative_dynamic_context(dynamic_context),
+               ValuePointer{}));
     }
 
     if (children.empty()) {
@@ -1685,7 +1704,7 @@ auto compiler_draft4_applicator_additionalitems_from_cursor(
   }
 
   Instructions subchildren{compile(context, schema_context,
-                                   relative_dynamic_context,
+                                   relative_dynamic_context(dynamic_context),
                                    sourcemeta::jsontoolkit::empty_pointer,
                                    sourcemeta::jsontoolkit::empty_pointer)};
 
@@ -1707,13 +1726,15 @@ auto compiler_draft4_applicator_additionalitems_from_cursor(
 
   if (annotate) {
     tail.push_back(make(sourcemeta::blaze::InstructionIndex::AnnotationEmit,
-                        context, schema_context, relative_dynamic_context,
+                        context, schema_context,
+                        relative_dynamic_context(dynamic_context),
                         sourcemeta::jsontoolkit::JSON{true}));
   }
 
   if (track_evaluation) {
     tail.push_back(make(sourcemeta::blaze::InstructionIndex::ControlEvaluate,
-                        context, schema_context, relative_dynamic_context,
+                        context, schema_context,
+                        relative_dynamic_context(dynamic_context),
                         ValuePointer{}));
   }
 
@@ -1783,8 +1804,9 @@ auto compiler_draft4_applicator_dependencies(
         children.push_back(make(
             sourcemeta::blaze::InstructionIndex::LogicalWhenDefines, context,
             schema_context, dynamic_context, make_property(entry.first),
-            compile(context, schema_context, relative_dynamic_context,
-                    {entry.first}, sourcemeta::jsontoolkit::empty_pointer)));
+            compile(context, schema_context,
+                    relative_dynamic_context(dynamic_context), {entry.first},
+                    sourcemeta::jsontoolkit::empty_pointer)));
       }
     } else if (entry.second.is_array()) {
       std::vector<sourcemeta::jsontoolkit::JSON::String> properties;
