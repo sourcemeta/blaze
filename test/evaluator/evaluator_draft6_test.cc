@@ -815,6 +815,18 @@ TEST(Evaluator_draft6, propertyNames_7) {
                                "validate against the given subschema");
 }
 
+TEST(Evaluator_draft6, propertyNames_8) {
+  const sourcemeta::jsontoolkit::JSON schema{
+      sourcemeta::jsontoolkit::parse(R"JSON({
+    "$schema": "http://json-schema.org/draft-06/schema#",
+    "propertyNames": { "type": "string" }
+  })JSON")};
+
+  const sourcemeta::jsontoolkit::JSON instance{
+      sourcemeta::jsontoolkit::parse("{ \"bar\": 2 }")};
+  EVALUATE_WITH_TRACE_FAST_SUCCESS(schema, instance, 0);
+}
+
 TEST(Evaluator_draft6, invalid_ref_top_level) {
   const sourcemeta::jsontoolkit::JSON schema{
       sourcemeta::jsontoolkit::parse(R"JSON({

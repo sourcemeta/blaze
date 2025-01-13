@@ -13,9 +13,22 @@
 
 namespace sourcemeta::blaze {
 
-static const DynamicContext relative_dynamic_context{
-    "", sourcemeta::jsontoolkit::empty_pointer,
-    sourcemeta::jsontoolkit::empty_pointer};
+inline auto relative_dynamic_context() -> DynamicContext {
+  return {"", sourcemeta::jsontoolkit::empty_pointer,
+          sourcemeta::jsontoolkit::empty_pointer, false};
+}
+
+inline auto relative_dynamic_context(const DynamicContext &dynamic_context)
+    -> DynamicContext {
+  return {"", sourcemeta::jsontoolkit::empty_pointer,
+          sourcemeta::jsontoolkit::empty_pointer,
+          dynamic_context.property_as_target};
+}
+
+inline auto property_relative_dynamic_context() -> DynamicContext {
+  return {"", sourcemeta::jsontoolkit::empty_pointer,
+          sourcemeta::jsontoolkit::empty_pointer, true};
+}
 
 inline auto schema_resource_id(const Context &context,
                                const std::string &resource) -> std::size_t {

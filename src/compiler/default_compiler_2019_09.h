@@ -39,11 +39,13 @@ auto compiler_2019_09_applicator_dependentschemas(
     }
 
     if (!dependency.is_boolean() || !dependency.to_boolean()) {
-      children.push_back(make(
-          sourcemeta::blaze::InstructionIndex::LogicalWhenDefines, context,
-          schema_context, relative_dynamic_context, make_property(dependent),
-          compile(context, schema_context, relative_dynamic_context,
-                  {dependent}, sourcemeta::jsontoolkit::empty_pointer)));
+      children.push_back(
+          make(sourcemeta::blaze::InstructionIndex::LogicalWhenDefines, context,
+               schema_context, relative_dynamic_context(dynamic_context),
+               make_property(dependent),
+               compile(context, schema_context,
+                       relative_dynamic_context(dynamic_context), {dependent},
+                       sourcemeta::jsontoolkit::empty_pointer)));
     }
   }
 
@@ -149,14 +151,15 @@ auto compiler_2019_09_applicator_contains_with_options(
   }
 
   Instructions children{compile(context, schema_context,
-                                relative_dynamic_context,
+                                relative_dynamic_context(dynamic_context),
                                 sourcemeta::jsontoolkit::empty_pointer,
                                 sourcemeta::jsontoolkit::empty_pointer)};
 
   if (annotate) {
     children.push_back(
         make(sourcemeta::blaze::InstructionIndex::AnnotationBasenameToParent,
-             context, schema_context, relative_dynamic_context, ValueNone{}));
+             context, schema_context, relative_dynamic_context(dynamic_context),
+             ValueNone{}));
 
     // TODO: If after emitting the above annotation, the number of annotations
     // for the current schema location + instance location is equal to the
@@ -167,7 +170,8 @@ auto compiler_2019_09_applicator_contains_with_options(
   if (track_evaluation) {
     children.push_back(
         make(sourcemeta::blaze::InstructionIndex::ControlEvaluate, context,
-             schema_context, relative_dynamic_context, ValuePointer{}));
+             schema_context, relative_dynamic_context(dynamic_context),
+             ValuePointer{}));
   }
 
   if (children.empty()) {
@@ -274,14 +278,14 @@ auto compiler_2019_09_applicator_unevaluateditems(
   }
 
   Instructions children{compile(context, schema_context,
-                                relative_dynamic_context,
+                                relative_dynamic_context(dynamic_context),
                                 sourcemeta::jsontoolkit::empty_pointer,
                                 sourcemeta::jsontoolkit::empty_pointer)};
 
   if (context.mode == Mode::Exhaustive) {
     children.push_back(
         make(sourcemeta::blaze::InstructionIndex::AnnotationToParent, context,
-             schema_context, relative_dynamic_context,
+             schema_context, relative_dynamic_context(dynamic_context),
              sourcemeta::jsontoolkit::JSON{true}));
   }
 
@@ -314,14 +318,15 @@ auto compiler_2019_09_applicator_unevaluatedproperties(
   }
 
   Instructions children{compile(context, schema_context,
-                                relative_dynamic_context,
+                                relative_dynamic_context(dynamic_context),
                                 sourcemeta::jsontoolkit::empty_pointer,
                                 sourcemeta::jsontoolkit::empty_pointer)};
 
   if (context.mode == Mode::Exhaustive) {
     children.push_back(
         make(sourcemeta::blaze::InstructionIndex::AnnotationBasenameToParent,
-             context, schema_context, relative_dynamic_context, ValueNone{}));
+             context, schema_context, relative_dynamic_context(dynamic_context),
+             ValueNone{}));
   }
 
   ValueStringSet filter_strings;
