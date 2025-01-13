@@ -19,6 +19,14 @@ TEST(Evaluator_2020_12, unknown_1) {
   EVALUATE_WITH_TRACE_FAST_SUCCESS(schema, instance, 0);
 }
 
+TEST(Evaluator_2020_12, metaschema_hyper_1) {
+  const auto metaschema{sourcemeta::jsontoolkit::official_resolver(
+      "https://json-schema.org/draft/2020-12/hyper-schema")};
+  EXPECT_TRUE(metaschema.has_value());
+  const auto instance{sourcemeta::jsontoolkit::parse(R"JSON({})JSON")};
+  EVALUATE_WITH_TRACE_FAST_SUCCESS(metaschema.value(), instance, 33);
+}
+
 TEST(Evaluator_2020_12, unknown_1_exhaustive) {
   const sourcemeta::jsontoolkit::JSON schema{
       sourcemeta::jsontoolkit::parse(R"JSON({

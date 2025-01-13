@@ -1099,6 +1099,32 @@ public:
   /// ```
   [[nodiscard]] auto contains(const JSON &element) const -> bool;
 
+  /// This method checks if an JSON string contains a given string. For
+  /// example:
+  ///
+  /// ```cpp
+  /// #include <sourcemeta/jsontoolkit/json.h>
+  /// #include <cassert>
+  ///
+  /// const sourcemeta::jsontoolkit::JSON document{"foo bar baz"};
+  /// assert(document.contains("bar"));
+  /// assert(!document.contains("baz"));
+  /// ```
+  [[nodiscard]] auto contains(const String &input) const -> bool;
+
+  /// This method checks if an JSON string contains a given character. For
+  /// example:
+  ///
+  /// ```cpp
+  /// #include <sourcemeta/jsontoolkit/json.h>
+  /// #include <cassert>
+  ///
+  /// const sourcemeta::jsontoolkit::JSON document{"foo"};
+  /// assert(document.contains('f'));
+  /// assert(!document.contains('b'));
+  /// ```
+  [[nodiscard]] auto contains(const String::value_type input) const -> bool;
+
   /// This method checks if an JSON array does not contain duplicated items. For
   /// example:
   ///
