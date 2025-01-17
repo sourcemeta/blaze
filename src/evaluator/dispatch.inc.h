@@ -2265,37 +2265,23 @@ INSTRUCTION_HANDLER(LoopItemsPropertiesExactlyTypeStrictHash) {
       EVALUATE_END(LoopItemsPropertiesExactlyTypeStrictHash);
     }
 
+    std::size_t index{0};
     for (const auto &entry : object) {
       if (entry.second.type() != value.first) {
         result = false;
         EVALUATE_END(LoopItemsPropertiesExactlyTypeStrictHash);
-      }
-    }
-
-    // The idea is to first assume the object property ordering and the
-    // hashes collection aligns. If they don't we do a full comparison
-    // from where we left of.
-
-    std::size_t index{0};
-    for (const auto &entry : object) {
-      if (entry.hash != value.second[index]) {
-        break;
-      }
-
-      index += 1;
-    }
-
-    if (index != size) {
-      for (const auto &entry : object) {
-        // TODO: Sort value.second by hashes to do a binary search?
-        // Search in reverse, as we have better changes of finding
-        // a match given that if we are here, sequential search
-        // from start to finish failed
-        if (std::find(value.second.crbegin(), value.second.crend(),
-                      entry.hash) == value.second.crend()) {
-          result = false;
-          EVALUATE_END(LoopItemsPropertiesExactlyTypeStrictHash);
-        }
+        // Try to increase cache hit chances
+      } else if (entry.hash == value.second[index] ||
+                 entry.hash == value.second.back() ||
+                 entry.hash == value.second.front()) {
+        index += 1;
+        continue;
+      } else if (std::find(value.second.cbegin(), value.second.cend(),
+                           entry.hash) == value.second.cend()) {
+        result = false;
+        EVALUATE_END(LoopItemsPropertiesExactlyTypeStrictHash);
+      } else {
+        index += 1;
       }
     }
   }
