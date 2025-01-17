@@ -2244,57 +2244,56 @@ INSTRUCTION_HANDLER(LoopItemsPropertiesExactlyTypeStrictHash) {
   EVALUATE_BEGIN_NO_PRECONDITION(LoopItemsPropertiesExactlyTypeStrictHash);
   const auto &target{get(instance, instruction.relative_instance_location)};
   const auto &value{*std::get_if<ValueTypedHashes>(&instruction.value)};
+  // Otherwise why emit this instruction?
+  assert(!value.second.empty());
 
   if (!target.is_array()) {
     EVALUATE_END(LoopItemsPropertiesExactlyTypeStrictHash);
   }
 
-  if (target.array_size() == 0) {
-    result = true;
-    EVALUATE_END(LoopItemsPropertiesExactlyTypeStrictHash);
-  }
-
+  result = true;
   for (const auto &item : target.as_array()) {
     if (!item.is_object()) {
+      result = false;
       EVALUATE_END(LoopItemsPropertiesExactlyTypeStrictHash);
     }
 
     const auto &object{item.as_object()};
     const auto size{object.size()};
-    if (size == value.second.size()) {
-      // Otherwise why emit this instruction?
-      assert(!value.second.empty());
+    if (size != value.second.size()) {
+      result = false;
+      EVALUATE_END(LoopItemsPropertiesExactlyTypeStrictHash);
+    }
 
-      // The idea is to first assume the object property ordering and the
-      // hashes collection aligns. If they don't we do a full comparison
-      // from where we left of.
+    // The idea is to first assume the object property ordering and the
+    // hashes collection aligns. If they don't we do a full comparison
+    // from where we left of.
 
-      std::size_t index{0};
-      for (const auto &entry : object) {
-        if (entry.second.type() != value.first) {
-          EVALUATE_END(LoopItemsPropertiesExactlyTypeStrictHash);
-        }
-
-        if (entry.hash != value.second[index]) {
-          break;
-        }
-
-        index += 1;
+    std::size_t index{0};
+    for (const auto &entry : object) {
+      if (entry.second.type() != value.first) {
+        result = false;
+        EVALUATE_END(LoopItemsPropertiesExactlyTypeStrictHash);
       }
 
-      result = true;
-      if (index < size) {
-        auto iterator = object.cbegin();
-        // Continue where we left
-        std::advance(iterator, index);
-        for (; iterator != object.cend(); ++iterator) {
-          if (std::none_of(value.second.cbegin(), value.second.cend(),
-                           [&iterator](const auto hash) {
-                             return hash == iterator->hash;
-                           })) {
-            result = false;
-            break;
-          }
+      if (entry.hash != value.second[index]) {
+        break;
+      }
+
+      index += 1;
+    }
+
+    if (index < size) {
+      auto iterator = object.cbegin();
+      // Continue where we left
+      std::advance(iterator, index);
+      for (; iterator != object.cend(); ++iterator) {
+        if (std::none_of(value.second.cbegin(), value.second.cend(),
+                         [&iterator](const auto hash) {
+                           return hash == iterator->hash;
+                         })) {
+          result = false;
+          EVALUATE_END(LoopItemsPropertiesExactlyTypeStrictHash);
         }
       }
     }
