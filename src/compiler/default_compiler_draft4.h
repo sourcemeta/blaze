@@ -944,8 +944,10 @@ auto compiler_draft4_applicator_properties_with_options(
         if (schema_context.schema.defines("required") &&
             !schema_context.schema.defines("patternProperties") &&
             assume_object) {
-          ValueStringSet required{
-              json_array_to_string_set(schema_context.schema.at("required"))};
+          auto required_copy = schema_context.schema.at("required");
+          std::sort(required_copy.as_array().begin(),
+                    required_copy.as_array().end());
+          ValueStringSet required{json_array_to_string_set(required_copy)};
           if (is_closed_properties_required(schema_context.schema, required)) {
             std::vector<sourcemeta::jsontoolkit::Hash::property_hash_type>
                 perfect_hashes;
