@@ -18,6 +18,21 @@ TEST(Evaluator_draft6, metaschema) {
   EVALUATE_WITH_TRACE_FAST_SUCCESS(metaschema.value(), instance, 3);
 }
 
+TEST(Evaluator_draft6, metaschema_hyper_self) {
+  const auto metaschema{sourcemeta::jsontoolkit::official_resolver(
+      "http://json-schema.org/draft-06/hyper-schema#")};
+  EXPECT_TRUE(metaschema.has_value());
+  EVALUATE_WITH_TRACE_FAST_SUCCESS(metaschema.value(), metaschema.value(), 863);
+}
+
+TEST(Evaluator_draft6, metaschema_hyper_self_exhaustive) {
+  const auto metaschema{sourcemeta::jsontoolkit::official_resolver(
+      "http://json-schema.org/draft-06/hyper-schema#")};
+  EXPECT_TRUE(metaschema.has_value());
+  EVALUATE_WITH_TRACE_EXHAUSTIVE_SUCCESS(metaschema.value(), metaschema.value(),
+                                         1105);
+}
+
 TEST(Evaluator_draft6, unknown_keyword) {
   const sourcemeta::jsontoolkit::JSON schema{
       sourcemeta::jsontoolkit::parse(R"JSON({
@@ -33,6 +48,23 @@ TEST(Evaluator_draft6, const_1) {
   const sourcemeta::jsontoolkit::JSON schema{
       sourcemeta::jsontoolkit::parse(R"JSON({
     "$schema": "http://json-schema.org/draft-06/schema#",
+    "const": 1
+  })JSON")};
+
+  const sourcemeta::jsontoolkit::JSON instance{1};
+  EVALUATE_WITH_TRACE_FAST_SUCCESS(schema, instance, 1);
+  EVALUATE_TRACE_PRE(0, AssertionEqual, "/const", "#/const", "");
+  EVALUATE_TRACE_POST_SUCCESS(0, AssertionEqual, "/const", "#/const", "");
+
+  EVALUATE_TRACE_POST_DESCRIBE(
+      instance, 0,
+      "The integer value 1 was expected to equal the integer constant 1");
+}
+
+TEST(Evaluator_draft6, const_1_hyperschema) {
+  const sourcemeta::jsontoolkit::JSON schema{
+      sourcemeta::jsontoolkit::parse(R"JSON({
+    "$schema": "http://json-schema.org/draft-06/hyper-schema#",
     "const": 1
   })JSON")};
 
