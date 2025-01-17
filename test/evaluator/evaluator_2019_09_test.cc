@@ -25,12 +25,19 @@ TEST(Evaluator_2019_09, metaschema_1) {
   EVALUATE_WITH_TRACE_FAST_SUCCESS(metaschema.value(), instance, 54);
 }
 
-TEST(Evaluator_2019_09, metaschema_hyper_1) {
+TEST(Evaluator_2019_09, metaschema_hyper_self) {
   const auto metaschema{sourcemeta::jsontoolkit::official_resolver(
       "https://json-schema.org/draft/2019-09/hyper-schema")};
   EXPECT_TRUE(metaschema.has_value());
-  const auto instance{sourcemeta::jsontoolkit::parse(R"JSON({})JSON")};
-  EVALUATE_WITH_TRACE_FAST_SUCCESS(metaschema.value(), instance, 30);
+  EVALUATE_WITH_TRACE_FAST_SUCCESS(metaschema.value(), metaschema.value(), 92);
+}
+
+TEST(Evaluator_2019_09, metaschema_hyper_self_exhaustive) {
+  const auto metaschema{sourcemeta::jsontoolkit::official_resolver(
+      "https://json-schema.org/draft/2019-09/hyper-schema")};
+  EXPECT_TRUE(metaschema.has_value());
+  EVALUATE_WITH_TRACE_EXHAUSTIVE_SUCCESS(metaschema.value(), metaschema.value(),
+                                         183);
 }
 
 TEST(Evaluator_2019_09, properties_1) {
