@@ -2252,6 +2252,8 @@ INSTRUCTION_HANDLER(LoopItemsPropertiesExactlyTypeStrictHash) {
   }
 
   result = true;
+
+  const auto hashes_size{value.second.size()};
   for (const auto &item : target.as_array()) {
     if (!item.is_object()) {
       result = false;
@@ -2260,40 +2262,56 @@ INSTRUCTION_HANDLER(LoopItemsPropertiesExactlyTypeStrictHash) {
 
     const auto &object{item.as_object()};
     const auto size{object.size()};
-    if (size != value.second.size()) {
+    if (size != hashes_size) {
       result = false;
       EVALUATE_END(LoopItemsPropertiesExactlyTypeStrictHash);
     }
 
-    // The idea is to first assume the object property ordering and the
-    // hashes collection aligns. If they don't we do a full comparison
-    // from where we left of.
-
-    std::size_t index{0};
-    for (const auto &entry : object) {
-      if (entry.second.type() != value.first) {
+    // Unroll, for performance reasons, for small collections
+    if (hashes_size == 3) {
+      for (const auto &entry : object) {
+        if (entry.second.type() != value.first) {
+          result = false;
+          EVALUATE_END(LoopItemsPropertiesExactlyTypeStrictHash);
+        } else if (entry.hash != value.second[0] &&
+                   entry.hash != value.second[1] &&
+                   entry.hash != value.second[2]) {
+          result = false;
+          EVALUATE_END(LoopItemsPropertiesExactlyTypeStrictHash);
+        }
+      }
+    } else if (hashes_size == 2) {
+      for (const auto &entry : object) {
+        if (entry.second.type() != value.first) {
+          result = false;
+          EVALUATE_END(LoopItemsPropertiesExactlyTypeStrictHash);
+        } else if (entry.hash != value.second[0] &&
+                   entry.hash != value.second[1]) {
+          result = false;
+          EVALUATE_END(LoopItemsPropertiesExactlyTypeStrictHash);
+        }
+      }
+    } else if (hashes_size == 1) {
+      const auto &entry{*object.cbegin()};
+      if (entry.second.type() != value.first || entry.hash != value.second[0]) {
         result = false;
         EVALUATE_END(LoopItemsPropertiesExactlyTypeStrictHash);
       }
-
-      if (entry.hash != value.second[index]) {
-        break;
-      }
-
-      index += 1;
-    }
-
-    if (index < size) {
-      auto iterator = object.cbegin();
-      // Continue where we left
-      std::advance(iterator, index);
-      for (; iterator != object.cend(); ++iterator) {
-        if (std::none_of(value.second.cbegin(), value.second.cend(),
-                         [&iterator](const auto hash) {
-                           return hash == iterator->hash;
-                         })) {
+    } else {
+      std::size_t index{0};
+      for (const auto &entry : object) {
+        if (entry.second.type() != value.first) {
           result = false;
           EVALUATE_END(LoopItemsPropertiesExactlyTypeStrictHash);
+        } else if (entry.hash == value.second[index]) {
+          index += 1;
+          continue;
+        } else if (std::find(value.second.cbegin(), value.second.cend(),
+                             entry.hash) == value.second.cend()) {
+          result = false;
+          EVALUATE_END(LoopItemsPropertiesExactlyTypeStrictHash);
+        } else {
+          index += 1;
         }
       }
     }
