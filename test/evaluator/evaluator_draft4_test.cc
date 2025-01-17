@@ -35,6 +35,21 @@ TEST(Evaluator_draft4, metaschema_2) {
   EVALUATE_WITH_TRACE_FAST_SUCCESS(metaschema.value(), instance, 17);
 }
 
+TEST(Evaluator_draft4, metaschema_hyper_self) {
+  const auto metaschema{sourcemeta::jsontoolkit::official_resolver(
+      "http://json-schema.org/draft-04/hyper-schema#")};
+  EXPECT_TRUE(metaschema.has_value());
+  EVALUATE_WITH_TRACE_FAST_SUCCESS(metaschema.value(), metaschema.value(), 770);
+}
+
+TEST(Evaluator_draft4, metaschema_hyper_self_exhaustive) {
+  const auto metaschema{sourcemeta::jsontoolkit::official_resolver(
+      "http://json-schema.org/draft-04/hyper-schema#")};
+  EXPECT_TRUE(metaschema.has_value());
+  EVALUATE_WITH_TRACE_EXHAUSTIVE_SUCCESS(metaschema.value(), metaschema.value(),
+                                         959);
+}
+
 TEST(Evaluator_draft4, unknown_keyword) {
   const sourcemeta::jsontoolkit::JSON schema{
       sourcemeta::jsontoolkit::parse(R"JSON({
@@ -72,6 +87,23 @@ TEST(Evaluator_draft4, type_1) {
   const sourcemeta::jsontoolkit::JSON schema{
       sourcemeta::jsontoolkit::parse(R"JSON({
     "$schema": "http://json-schema.org/draft-04/schema#",
+    "type": "string"
+  })JSON")};
+
+  const sourcemeta::jsontoolkit::JSON instance{"foo bar"};
+  EVALUATE_WITH_TRACE_FAST_SUCCESS(schema, instance, 1);
+
+  EVALUATE_TRACE_PRE(0, AssertionTypeStrict, "/type", "#/type", "");
+  EVALUATE_TRACE_POST_SUCCESS(0, AssertionTypeStrict, "/type", "#/type", "");
+
+  EVALUATE_TRACE_POST_DESCRIBE(instance, 0,
+                               "The value was expected to be of type string");
+}
+
+TEST(Evaluator_draft4, type_1_hyperschema) {
+  const sourcemeta::jsontoolkit::JSON schema{
+      sourcemeta::jsontoolkit::parse(R"JSON({
+    "$schema": "http://json-schema.org/draft-04/hyper-schema#",
     "type": "string"
   })JSON")};
 
