@@ -668,8 +668,7 @@ JSON::at(const String &key,
 [[nodiscard]] auto JSON::try_at(const JSON::String &key) const -> const JSON * {
   assert(this->is_object());
   const auto &object{this->data_object};
-  const auto value{object.data.find(key, object.data.hash(key))};
-  return value == object.data.cend() ? nullptr : &value->second;
+  return object.data.try_at(key, object.data.hash(key));
 }
 
 [[nodiscard]] auto
@@ -678,8 +677,7 @@ JSON::try_at(const String &key,
     -> const JSON * {
   assert(this->is_object());
   const auto &object{this->data_object};
-  const auto value{object.data.find(key, hash)};
-  return value == object.data.cend() ? nullptr : &value->second;
+  return object.data.try_at(key, hash);
 }
 
 [[nodiscard]] auto JSON::defines(const JSON::String &key) const -> bool {

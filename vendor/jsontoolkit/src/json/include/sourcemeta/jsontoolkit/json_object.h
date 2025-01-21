@@ -109,7 +109,8 @@ public:
   inline auto size() const -> std::size_t { return this->data.size(); }
 
   /// Access an object entry by its underlying positional index
-  inline auto at(const size_type index) const noexcept -> const Container::Entry & {
+  inline auto at(const size_type index) const noexcept
+      -> const Container::Entry & {
     return this->data.at(index);
   }
 

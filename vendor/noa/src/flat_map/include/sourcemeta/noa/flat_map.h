@@ -129,6 +129,29 @@ public:
     return this->cend();
   }
 
+  inline auto try_at(const key_type &key, const hash_type key_hash) const
+      -> const mapped_type * {
+    assert(this->hash(key) == key_hash);
+
+    // Move the perfect hash condition out of the loop for extra performance
+    if (this->hasher.is_perfect(key_hash)) {
+      for (size_type index = 0; index < this->data.size(); index++) {
+        if (this->data[index].hash == key_hash) {
+          return &this->data[index].second;
+        }
+      }
+    } else {
+      for (size_type index = 0; index < this->data.size(); index++) {
+        if (this->data[index].hash == key_hash &&
+            this->data[index].first == key) {
+          return &this->data[index].second;
+        }
+      }
+    }
+
+    return nullptr;
+  }
+
   // As a performance optimisation if the hash is known
   auto contains(const key_type &key, const hash_type key_hash) const -> bool {
     assert(this->hash(key) == key_hash);

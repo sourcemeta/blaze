@@ -2358,18 +2358,47 @@ INSTRUCTION_HANDLER(LoopItemsPropertiesExactlyTypeStrictHash3) {
       EVALUATE_END(LoopItemsPropertiesExactlyTypeStrictHash3);
     }
 
-    if (value_1.hash != value.second[0] && value_1.hash != value.second[1] &&
-        value_1.hash != value.second[2]) {
-      EVALUATE_END(LoopItemsPropertiesExactlyTypeStrictHash3);
-    }
+    if (value_1.hash == value.second[0]) {
+      if (value_2.hash == value.second[1]) {
+        if (value_3.hash == value.second[2]) {
+          continue;
+        } else {
+          EVALUATE_END(LoopItemsPropertiesExactlyTypeStrictHash3);
+        }
+      } else if (value_2.hash == value.second[2]) {
+        if (value_3.hash == value.second[1]) {
+          continue;
+        } else {
+          EVALUATE_END(LoopItemsPropertiesExactlyTypeStrictHash3);
+        }
+      } else {
+        EVALUATE_END(LoopItemsPropertiesExactlyTypeStrictHash3);
+      }
+    } else if (value_1.hash == value.second[1]) {
+      if (value_2.hash == value.second[0]) {
 
-    if (value_2.hash != value.second[0] && value_2.hash != value.second[1] &&
-        value_2.hash != value.second[2]) {
-      EVALUATE_END(LoopItemsPropertiesExactlyTypeStrictHash3);
-    }
+      } else if (value_2.hash == value.second[2]) {
 
-    if (value_3.hash != value.second[0] && value_3.hash != value.second[1] &&
-        value_3.hash != value.second[2]) {
+      } else {
+        EVALUATE_END(LoopItemsPropertiesExactlyTypeStrictHash3);
+      }
+    } else if (value_1.hash == value.second[2]) {
+      if (value_2.hash == value.second[0]) {
+        if (value_3.hash == value.second[1]) {
+          continue;
+        } else {
+          EVALUATE_END(LoopItemsPropertiesExactlyTypeStrictHash3);
+        }
+      } else if (value_2.hash == value.second[1]) {
+        if (value_3.hash == value.second[0]) {
+          continue;
+        } else {
+          EVALUATE_END(LoopItemsPropertiesExactlyTypeStrictHash3);
+        }
+      } else {
+        EVALUATE_END(LoopItemsPropertiesExactlyTypeStrictHash3);
+      }
+    } else {
       EVALUATE_END(LoopItemsPropertiesExactlyTypeStrictHash3);
     }
   }
