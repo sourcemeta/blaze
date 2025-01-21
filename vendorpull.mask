@@ -11,11 +11,10 @@ vendor/vendorpull
 vendor/googlebenchmark.mask
 vendor/googletest.mask
 vendor/jsonschema-test-suite.mask
+vendor/noa
 .ackrc
 .editorconfig
 Brewfile
 DEPENDENCIES
 Makefile
 README.markdown
-vendor/noa/vendor/googlebenchmark
-vendor/noa/vendor/googletest
