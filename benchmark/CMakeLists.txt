@@ -15,12 +15,8 @@ if(BLAZE_EVALUATOR)
 endif()
 
 if(BENCHMARK_SOURCES)
-  add_executable(sourcemeta_blaze_benchmark ${BENCHMARK_SOURCES})
-  noa_add_default_options(PRIVATE sourcemeta_blaze_benchmark)
-  target_link_libraries(sourcemeta_blaze_benchmark
-    PRIVATE benchmark::benchmark)
-  target_link_libraries(sourcemeta_blaze_benchmark
-    PRIVATE benchmark::benchmark_main)
+  noa_googlebenchmark(NAMESPACE sourcemeta PROJECT blaze
+    FOLDER "Blaze" SOURCES ${BENCHMARK_SOURCES})
   target_compile_definitions(sourcemeta_blaze_benchmark
     PRIVATE CURRENT_DIRECTORY="${CMAKE_CURRENT_SOURCE_DIR}")
 
