@@ -207,6 +207,10 @@ public:
 #endif
   }
 
+  inline auto at(const size_type index) const noexcept -> const Entry & {
+    return this->data[index];
+  }
+
   auto erase(const key_type &key, const hash_type key_hash) -> size_type {
     const auto current_size{this->size()};
 

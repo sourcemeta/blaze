@@ -2320,6 +2320,64 @@ INSTRUCTION_HANDLER(LoopItemsPropertiesExactlyTypeStrictHash) {
   EVALUATE_END(LoopItemsPropertiesExactlyTypeStrictHash);
 }
 
+INSTRUCTION_HANDLER(LoopItemsPropertiesExactlyTypeStrictHash3) {
+  SOURCEMETA_MAYBE_UNUSED(depth);
+  SOURCEMETA_MAYBE_UNUSED(schema);
+  SOURCEMETA_MAYBE_UNUSED(callback);
+  SOURCEMETA_MAYBE_UNUSED(instance);
+  SOURCEMETA_MAYBE_UNUSED(property_target);
+  SOURCEMETA_MAYBE_UNUSED(evaluator);
+  EVALUATE_BEGIN_NO_PRECONDITION(LoopItemsPropertiesExactlyTypeStrictHash3);
+  const auto &target{get(instance, instruction.relative_instance_location)};
+  const auto &value{*std::get_if<ValueTypedHashes>(&instruction.value)};
+  assert(value.second.size() == 3);
+  // Otherwise why emit this instruction?
+  assert(!value.second.empty());
+
+  if (!target.is_array()) {
+    EVALUATE_END(LoopItemsPropertiesExactlyTypeStrictHash3);
+  }
+
+  for (const auto &item : target.as_array()) {
+    if (!item.is_object()) {
+      EVALUATE_END(LoopItemsPropertiesExactlyTypeStrictHash3);
+    }
+
+    const auto &object{item.as_object()};
+    if (object.size() != 3) {
+      EVALUATE_END(LoopItemsPropertiesExactlyTypeStrictHash3);
+    }
+
+    const auto &value_1{object.at(0)};
+    const auto &value_2{object.at(1)};
+    const auto &value_3{object.at(2)};
+
+    if (value_1.second.type() != value.first ||
+        value_2.second.type() != value.first ||
+        value_3.second.type() != value.first) {
+      EVALUATE_END(LoopItemsPropertiesExactlyTypeStrictHash3);
+    }
+
+    if (value_1.hash != value.second[0] && value_1.hash != value.second[1] &&
+        value_1.hash != value.second[2]) {
+      EVALUATE_END(LoopItemsPropertiesExactlyTypeStrictHash3);
+    }
+
+    if (value_2.hash != value.second[0] && value_2.hash != value.second[1] &&
+        value_2.hash != value.second[2]) {
+      EVALUATE_END(LoopItemsPropertiesExactlyTypeStrictHash3);
+    }
+
+    if (value_3.hash != value.second[0] && value_3.hash != value.second[1] &&
+        value_3.hash != value.second[2]) {
+      EVALUATE_END(LoopItemsPropertiesExactlyTypeStrictHash3);
+    }
+  }
+
+  result = true;
+  EVALUATE_END(LoopItemsPropertiesExactlyTypeStrictHash3);
+}
+
 INSTRUCTION_HANDLER(LoopContains) {
   SOURCEMETA_MAYBE_UNUSED(depth);
   SOURCEMETA_MAYBE_UNUSED(schema);
@@ -2398,7 +2456,7 @@ using DispatchHandler = bool (*)(const sourcemeta::blaze::Instruction &,
                                  sourcemeta::blaze::Evaluator &);
 
 // Must have same order as InstructionIndex
-static constexpr DispatchHandler handlers[90] = {
+static constexpr DispatchHandler handlers[91] = {
     AssertionFail,
     AssertionDefines,
     AssertionDefinesStrict,
@@ -2480,6 +2538,7 @@ static constexpr DispatchHandler handlers[90] = {
     LoopItemsTypeStrict,
     LoopItemsTypeStrictAny,
     LoopItemsPropertiesExactlyTypeStrictHash,
+    LoopItemsPropertiesExactlyTypeStrictHash3,
     LoopContains,
     ControlGroup,
     ControlGroupWhenDefines,
