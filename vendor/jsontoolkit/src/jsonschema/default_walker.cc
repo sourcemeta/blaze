@@ -30,7 +30,7 @@ auto sourcemeta::jsontoolkit::default_schema_walker(
   // JSON Schema still defines this for backwards-compatibility
   // See https://json-schema.org/draft/2020-12/schema
   WALK(HTTPS_BASE "2020-12/vocab/core", "definitions", LocationMembers)
-  WALK(HTTPS_BASE "2020-12/vocab/core", "$comment", Other)
+  WALK(HTTPS_BASE "2020-12/vocab/core", "$comment", Comment)
   WALK(HTTPS_BASE "2020-12/vocab/core", "$anchor", Other)
   WALK(HTTPS_BASE "2020-12/vocab/core", "$vocabulary", Other)
   WALK(HTTPS_BASE "2020-12/vocab/core", "$dynamicRef", Reference)
@@ -116,7 +116,7 @@ auto sourcemeta::jsontoolkit::default_schema_walker(
   // JSON Schema still defines this for backwards-compatibility
   // See https://json-schema.org/draft/2019-09/schema
   WALK(HTTPS_BASE "2019-09/vocab/core", "definitions", LocationMembers)
-  WALK(HTTPS_BASE "2019-09/vocab/core", "$comment", Other)
+  WALK(HTTPS_BASE "2019-09/vocab/core", "$comment", Comment)
   WALK(HTTPS_BASE "2019-09/vocab/core", "$anchor", Other)
   WALK(HTTPS_BASE "2019-09/vocab/core", "$vocabulary", Other)
   WALK(HTTPS_BASE "2019-09/vocab/core", "$recursiveRef", Reference)
@@ -207,7 +207,7 @@ auto sourcemeta::jsontoolkit::default_schema_walker(
   WALK_ANY(HTTP_BASE "draft-07/schema#", HTTP_BASE "draft-07/hyper-schema#",
            "$ref", Reference)
   WALK_ANY(HTTP_BASE "draft-07/schema#", HTTP_BASE "draft-07/hyper-schema#",
-           "$comment", Other, "$ref")
+           "$comment", Comment, "$ref")
   // For the purpose of compiler optimizations
   WALK_ANY(HTTP_BASE "draft-07/schema#", HTTP_BASE "draft-07/hyper-schema#",
            "type", Assertion, "properties")
@@ -278,23 +278,23 @@ auto sourcemeta::jsontoolkit::default_schema_walker(
   WALK_ANY(HTTP_BASE "draft-07/schema#", HTTP_BASE "draft-07/hyper-schema#",
            "format", Other, "$ref")
   WALK_ANY(HTTP_BASE "draft-07/schema#", HTTP_BASE "draft-07/hyper-schema#",
-           "contentEncoding", Other, "$ref")
+           "contentEncoding", Comment, "$ref")
   WALK_ANY(HTTP_BASE "draft-07/schema#", HTTP_BASE "draft-07/hyper-schema#",
-           "contentMediaType", Other, "$ref")
+           "contentMediaType", Comment, "$ref")
   WALK_ANY(HTTP_BASE "draft-07/schema#", HTTP_BASE "draft-07/hyper-schema#",
            "definitions", LocationMembers, "$ref")
   WALK_ANY(HTTP_BASE "draft-07/schema#", HTTP_BASE "draft-07/hyper-schema#",
-           "title", Other, "$ref")
+           "title", Comment, "$ref")
   WALK_ANY(HTTP_BASE "draft-07/schema#", HTTP_BASE "draft-07/hyper-schema#",
-           "description", Other, "$ref")
+           "description", Comment, "$ref")
   WALK_ANY(HTTP_BASE "draft-07/schema#", HTTP_BASE "draft-07/hyper-schema#",
-           "default", Other, "$ref")
+           "default", Comment, "$ref")
   WALK_ANY(HTTP_BASE "draft-07/schema#", HTTP_BASE "draft-07/hyper-schema#",
-           "readOnly", Other, "$ref")
+           "readOnly", Comment, "$ref")
   WALK_ANY(HTTP_BASE "draft-07/schema#", HTTP_BASE "draft-07/hyper-schema#",
-           "writeOnly", Other, "$ref")
+           "writeOnly", Comment, "$ref")
   WALK_ANY(HTTP_BASE "draft-07/schema#", HTTP_BASE "draft-07/hyper-schema#",
-           "examples", Other, "$ref")
+           "examples", Comment, "$ref")
   WALK_MAYBE_DEPENDENT(HTTP_BASE "draft-07/hyper-schema#", "hrefSchema",
                        ApplicatorValue, HTTP_BASE "draft-07/schema#", "$ref")
   WALK_MAYBE_DEPENDENT(HTTP_BASE "draft-07/hyper-schema#", "targetSchema",
@@ -320,7 +320,7 @@ auto sourcemeta::jsontoolkit::default_schema_walker(
   WALK_ANY(HTTP_BASE "draft-06/schema#", HTTP_BASE "draft-06/hyper-schema#",
            "$ref", Reference)
   WALK_ANY(HTTP_BASE "draft-06/schema#", HTTP_BASE "draft-06/hyper-schema#",
-           "$comment", Other, "$ref")
+           "$comment", Comment, "$ref")
   // For the purpose of compiler optimizations
   WALK_ANY(HTTP_BASE "draft-06/schema#", HTTP_BASE "draft-06/hyper-schema#",
            "type", Assertion, "properties")
@@ -385,23 +385,23 @@ auto sourcemeta::jsontoolkit::default_schema_walker(
   WALK_ANY(HTTP_BASE "draft-06/schema#", HTTP_BASE "draft-06/hyper-schema#",
            "format", Other, "$ref")
   WALK_ANY(HTTP_BASE "draft-06/schema#", HTTP_BASE "draft-06/hyper-schema#",
-           "contentEncoding", Other, "$ref")
+           "contentEncoding", Comment, "$ref")
   WALK_ANY(HTTP_BASE "draft-06/schema#", HTTP_BASE "draft-06/hyper-schema#",
-           "contentMediaType", Other, "$ref")
+           "contentMediaType", Comment, "$ref")
   WALK_ANY(HTTP_BASE "draft-06/schema#", HTTP_BASE "draft-06/hyper-schema#",
            "definitions", LocationMembers, "$ref")
   WALK_ANY(HTTP_BASE "draft-06/schema#", HTTP_BASE "draft-06/hyper-schema#",
-           "title", Other, "$ref")
+           "title", Comment, "$ref")
   WALK_ANY(HTTP_BASE "draft-06/schema#", HTTP_BASE "draft-06/hyper-schema#",
-           "description", Other, "$ref")
+           "description", Comment, "$ref")
   WALK_ANY(HTTP_BASE "draft-06/schema#", HTTP_BASE "draft-06/hyper-schema#",
-           "default", Other, "$ref")
+           "default", Comment, "$ref")
   WALK_ANY(HTTP_BASE "draft-06/schema#", HTTP_BASE "draft-06/hyper-schema#",
-           "readOnly", Other, "$ref")
+           "readOnly", Comment, "$ref")
   WALK_ANY(HTTP_BASE "draft-06/schema#", HTTP_BASE "draft-06/hyper-schema#",
-           "writeOnly", Other, "$ref")
+           "writeOnly", Comment, "$ref")
   WALK_ANY(HTTP_BASE "draft-06/schema#", HTTP_BASE "draft-06/hyper-schema#",
-           "examples", Other, "$ref")
+           "examples", Comment, "$ref")
   WALK_MAYBE_DEPENDENT(HTTP_BASE "draft-06/hyper-schema#", "hrefSchema",
                        ApplicatorValue, HTTP_BASE "draft-06/schema#", "$ref")
   WALK_MAYBE_DEPENDENT(HTTP_BASE "draft-06/hyper-schema#", "targetSchema",
@@ -484,11 +484,11 @@ auto sourcemeta::jsontoolkit::default_schema_walker(
   WALK_ANY(HTTP_BASE "draft-04/schema#", HTTP_BASE "draft-04/hyper-schema#",
            "definitions", LocationMembers, "$ref")
   WALK_ANY(HTTP_BASE "draft-04/schema#", HTTP_BASE "draft-04/hyper-schema#",
-           "title", Other, "$ref")
+           "title", Comment, "$ref")
   WALK_ANY(HTTP_BASE "draft-04/schema#", HTTP_BASE "draft-04/hyper-schema#",
-           "description", Other, "$ref")
+           "description", Comment, "$ref")
   WALK_ANY(HTTP_BASE "draft-04/schema#", HTTP_BASE "draft-04/hyper-schema#",
-           "default", Other, "$ref")
+           "default", Comment, "$ref")
   WALK_MAYBE_DEPENDENT(HTTP_BASE "draft-04/hyper-schema#", "targetSchema",
                        ApplicatorValue, HTTP_BASE "draft-04/schema#", "$ref")
   WALK_MAYBE_DEPENDENT(HTTP_BASE "draft-04/hyper-schema#", "schema",
@@ -534,9 +534,9 @@ auto sourcemeta::jsontoolkit::default_schema_walker(
   WALK(HTTP_BASE "draft-03/schema#", "maximum", Assertion, "$ref")
   WALK(HTTP_BASE "draft-03/schema#", "exclusiveMaximum", Assertion, "$ref")
   WALK(HTTP_BASE "draft-03/schema#", "format", Other, "$ref")
-  WALK(HTTP_BASE "draft-03/schema#", "description", Other, "$ref")
-  WALK(HTTP_BASE "draft-03/schema#", "title", Other, "$ref")
-  WALK(HTTP_BASE "draft-03/schema#", "default", Other, "$ref")
+  WALK(HTTP_BASE "draft-03/schema#", "description", Comment, "$ref")
+  WALK(HTTP_BASE "draft-03/schema#", "title", Comment, "$ref")
+  WALK(HTTP_BASE "draft-03/schema#", "default", Comment, "$ref")
   WALK_MAYBE_DEPENDENT(HTTP_BASE "draft-03/hyper-schema#", "targetSchema",
                        ApplicatorValue, HTTP_BASE "draft-03/schema#", "$ref")
 
@@ -569,14 +569,14 @@ auto sourcemeta::jsontoolkit::default_schema_walker(
   WALK(HTTP_BASE "draft-02/schema#", "uniqueItems", Assertion)
   WALK(HTTP_BASE "draft-02/schema#", "requires", ApplicatorValueInPlace)
   WALK(HTTP_BASE "draft-02/schema#", "format", Other)
-  WALK(HTTP_BASE "draft-02/schema#", "title", Other)
-  WALK(HTTP_BASE "draft-02/schema#", "description", Other)
-  WALK(HTTP_BASE "draft-02/schema#", "default", Other)
+  WALK(HTTP_BASE "draft-02/schema#", "title", Comment)
+  WALK(HTTP_BASE "draft-02/schema#", "description", Comment)
+  WALK(HTTP_BASE "draft-02/schema#", "default", Comment)
   WALK(HTTP_BASE "draft-02/schema#", "divisibleBy", Assertion)
   WALK(HTTP_BASE "draft-02/schema#", "disallow", Assertion)
   WALK(HTTP_BASE "draft-02/schema#", "extends",
        ApplicatorValueOrElementsInPlace)
-  WALK(HTTP_BASE "draft-02/schema#", "contentEncoding", Other)
+  WALK(HTTP_BASE "draft-02/schema#", "contentEncoding", Comment)
   WALK(HTTP_BASE "draft-02/hyper-schema#", "requires", ApplicatorValueInPlace)
   WALK(HTTP_BASE "draft-02/hyper-schema#", "targetSchema", ApplicatorValue)
   WALK(HTTP_BASE "draft-02/hyper-schema#", "type", ApplicatorElements)
@@ -608,13 +608,13 @@ auto sourcemeta::jsontoolkit::default_schema_walker(
   WALK(HTTP_BASE "draft-01/schema#", "minItems", Assertion)
   WALK(HTTP_BASE "draft-01/schema#", "requires", ApplicatorValueInPlace)
   WALK(HTTP_BASE "draft-01/schema#", "format", Other)
-  WALK(HTTP_BASE "draft-01/schema#", "title", Other)
-  WALK(HTTP_BASE "draft-01/schema#", "description", Other)
-  WALK(HTTP_BASE "draft-01/schema#", "default", Other)
+  WALK(HTTP_BASE "draft-01/schema#", "title", Comment)
+  WALK(HTTP_BASE "draft-01/schema#", "description", Comment)
+  WALK(HTTP_BASE "draft-01/schema#", "default", Comment)
   WALK(HTTP_BASE "draft-01/schema#", "disallow", Assertion)
   WALK(HTTP_BASE "draft-01/schema#", "extends",
        ApplicatorValueOrElementsInPlace)
-  WALK(HTTP_BASE "draft-01/schema#", "contentEncoding", Other)
+  WALK(HTTP_BASE "draft-01/schema#", "contentEncoding", Comment)
   WALK(HTTP_BASE "draft-01/schema#", "optional", Assertion)
   WALK(HTTP_BASE "draft-01/schema#", "maxDecimal", Assertion)
   WALK(HTTP_BASE "draft-01/hyper-schema#", "type", ApplicatorElements)
@@ -647,13 +647,13 @@ auto sourcemeta::jsontoolkit::default_schema_walker(
   WALK(HTTP_BASE "draft-00/schema#", "minItems", Assertion)
   WALK(HTTP_BASE "draft-00/schema#", "requires", ApplicatorValueInPlace)
   WALK(HTTP_BASE "draft-00/schema#", "format", Other)
-  WALK(HTTP_BASE "draft-00/schema#", "title", Other)
-  WALK(HTTP_BASE "draft-00/schema#", "description", Other)
-  WALK(HTTP_BASE "draft-00/schema#", "default", Other)
+  WALK(HTTP_BASE "draft-00/schema#", "title", Comment)
+  WALK(HTTP_BASE "draft-00/schema#", "description", Comment)
+  WALK(HTTP_BASE "draft-00/schema#", "default", Comment)
   WALK(HTTP_BASE "draft-00/schema#", "disallow", Assertion)
   WALK(HTTP_BASE "draft-00/schema#", "extends",
        ApplicatorValueOrElementsInPlace)
-  WALK(HTTP_BASE "draft-00/schema#", "contentEncoding", Other)
+  WALK(HTTP_BASE "draft-00/schema#", "contentEncoding", Comment)
   WALK(HTTP_BASE "draft-00/schema#", "optional", Assertion)
   WALK(HTTP_BASE "draft-00/schema#", "maxDecimal", Assertion)
   WALK(HTTP_BASE "draft-00/hyper-schema#", "type", ApplicatorElements)
