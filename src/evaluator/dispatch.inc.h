@@ -537,14 +537,16 @@ INSTRUCTION_HANDLER(AssertionEqualsAnyStringHash) {
   SOURCEMETA_MAYBE_UNUSED(evaluator);
   EVALUATE_BEGIN_NO_PRECONDITION(AssertionEqualsAnyStringHash);
   const auto &target{get(instance, instruction.relative_instance_location)};
-  const auto &value{*std::get_if<ValueHashes>(&instruction.value)};
+  const auto &value{*std::get_if<ValueIndexedHashes>(&instruction.value)};
   if (!target.is_string()) {
     EVALUATE_END(AssertionEqualsAnyStringHash);
   }
 
   const auto &current{target.string_hash()};
+  const auto fast_hash{target.fast_hash()};
+  // TODO: We can pre-sort "value" to use a binary search?
   for (const auto &hash : value) {
-    if (hash == current) {
+    if (hash.first == fast_hash && hash.second == current) {
       result = true;
       EVALUATE_END(AssertionEqualsAnyStringHash);
     }

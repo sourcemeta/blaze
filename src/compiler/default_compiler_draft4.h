@@ -1878,7 +1878,7 @@ auto compiler_draft4_validation_enum(const Context &context,
                  schema_context.schema.at(dynamic_context.keyword).front()})};
   }
 
-  ValueHashes perfect_string_hashes;
+  ValueIndexedHashes perfect_string_hashes;
   ValueSet options;
   sourcemeta::jsontoolkit::KeyHash<ValueString> hasher;
   for (const auto &option :
@@ -1886,7 +1886,7 @@ auto compiler_draft4_validation_enum(const Context &context,
     if (option.is_string()) {
       const auto hash{hasher(option.to_string())};
       if (hasher.is_perfect(hash)) {
-        perfect_string_hashes.push_back(hash);
+        perfect_string_hashes.emplace_back(option.fast_hash(), hash);
       }
     }
 
