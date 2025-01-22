@@ -1897,6 +1897,8 @@ auto compiler_draft4_validation_enum(const Context &context,
   // can affect error messages
   if (context.mode == Mode::FastValidation &&
       perfect_string_hashes.size() == options.size()) {
+    // For binary search purposes
+    std::sort(perfect_string_hashes.begin(), perfect_string_hashes.end());
     return {
         make(sourcemeta::blaze::InstructionIndex::AssertionEqualsAnyStringHash,
              context, schema_context, dynamic_context,

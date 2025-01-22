@@ -538,12 +538,11 @@ INSTRUCTION_HANDLER(AssertionEqualsAnyStringHash) {
   EVALUATE_BEGIN_NO_PRECONDITION(AssertionEqualsAnyStringHash);
   const auto &target{get(instance, instruction.relative_instance_location)};
   const auto &value{*std::get_if<ValueHashes>(&instruction.value)};
-  // TODO: Expose a string_hash method in JSON to avoid creating a hasher here?
-  const sourcemeta::jsontoolkit::KeyHash<ValueString> hasher;
   result = target.is_string() &&
-           std::find(value.cbegin(), value.cend(),
-                     // TODO: Can we avoid hashing here?
-                     hasher(target.to_string())) != value.cend();
+           std::binary_search(value.cbegin(), value.cend(),
+                              // TODO: Can we avoid hashing here?
+                              sourcemeta::jsontoolkit::KeyHash<ValueString>{}(
+                                  target.to_string()));
   EVALUATE_END(AssertionEqualsAnyStringHash);
 }
 
