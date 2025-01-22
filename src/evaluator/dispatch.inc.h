@@ -165,6 +165,38 @@ INSTRUCTION_HANDLER(AssertionDefinesExactlyStrict) {
   EVALUATE_END(AssertionDefinesExactlyStrict);
 }
 
+INSTRUCTION_HANDLER(AssertionDefinesExactlyStrictHash3) {
+  SOURCEMETA_MAYBE_UNUSED(depth);
+  SOURCEMETA_MAYBE_UNUSED(schema);
+  SOURCEMETA_MAYBE_UNUSED(callback);
+  SOURCEMETA_MAYBE_UNUSED(instance);
+  SOURCEMETA_MAYBE_UNUSED(property_target);
+  SOURCEMETA_MAYBE_UNUSED(evaluator);
+  EVALUATE_BEGIN_NO_PRECONDITION(AssertionDefinesExactlyStrictHash3);
+  const auto &target{get(instance, instruction.relative_instance_location)};
+  const auto &value{*std::get_if<ValueHashes>(&instruction.value)};
+  assert(value.size() == 3);
+  assert(target.is_object());
+  const auto &object{target.as_object()};
+
+  result =
+      object.size() == 3 &&
+      ((value.at(0) == object.at(0).hash && value.at(1) == object.at(1).hash &&
+        value.at(2) == object.at(2).hash) ||
+       (value.at(0) == object.at(0).hash && value.at(1) == object.at(2).hash &&
+        value.at(2) == object.at(1).hash) ||
+       (value.at(0) == object.at(1).hash && value.at(1) == object.at(0).hash &&
+        value.at(2) == object.at(2).hash) ||
+       (value.at(0) == object.at(1).hash && value.at(1) == object.at(2).hash &&
+        value.at(2) == object.at(0).hash) ||
+       (value.at(0) == object.at(2).hash && value.at(1) == object.at(0).hash &&
+        value.at(2) == object.at(1).hash) ||
+       (value.at(0) == object.at(2).hash && value.at(1) == object.at(1).hash &&
+        value.at(2) == object.at(0).hash));
+
+  EVALUATE_END(AssertionDefinesExactlyStrictHash3);
+}
+
 INSTRUCTION_HANDLER(AssertionPropertyDependencies) {
   SOURCEMETA_MAYBE_UNUSED(depth);
   SOURCEMETA_MAYBE_UNUSED(schema);
@@ -2458,7 +2490,7 @@ using DispatchHandler = bool (*)(const sourcemeta::blaze::Instruction &,
                                  sourcemeta::blaze::Evaluator &);
 
 // Must have same order as InstructionIndex
-static constexpr DispatchHandler handlers[91] = {
+static constexpr DispatchHandler handlers[92] = {
     AssertionFail,
     AssertionDefines,
     AssertionDefinesStrict,
@@ -2466,6 +2498,7 @@ static constexpr DispatchHandler handlers[91] = {
     AssertionDefinesAllStrict,
     AssertionDefinesExactly,
     AssertionDefinesExactlyStrict,
+    AssertionDefinesExactlyStrictHash3,
     AssertionPropertyDependencies,
     AssertionType,
     AssertionTypeAny,

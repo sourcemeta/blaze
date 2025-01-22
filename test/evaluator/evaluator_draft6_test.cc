@@ -1681,6 +1681,41 @@ TEST(Evaluator_draft6, additionalProperties_2) {
       instance, 1, "The object properties were expected to be of type integer");
 }
 
+TEST(Evaluator_draft6, additionalProperties_3) {
+  const sourcemeta::jsontoolkit::JSON schema{
+      sourcemeta::jsontoolkit::parse(R"JSON({
+    "$schema": "http://json-schema.org/draft-06/schema#",
+    "type": "object",
+    "required": [ "foo", "bar", "baz" ],
+    "additionalProperties": false,
+    "properties": {
+      "foo": { "type": "integer" },
+      "bar": { "type": "integer" },
+      "baz": { "type": "integer" }
+    }
+  })JSON")};
+
+  const sourcemeta::jsontoolkit::JSON instance{
+      sourcemeta::jsontoolkit::parse("{ \"foo\": 1, \"bar\": 2, \"baz\": 3 }")};
+
+  EVALUATE_WITH_TRACE_FAST_SUCCESS(schema, instance, 2);
+
+  EVALUATE_TRACE_PRE(0, AssertionDefinesExactlyStrictHash3, "/required",
+                     "#/required", "");
+  EVALUATE_TRACE_PRE(1, LoopPropertiesType, "/properties", "#/properties", "");
+
+  EVALUATE_TRACE_POST_SUCCESS(0, AssertionDefinesExactlyStrictHash3,
+                              "/required", "#/required", "");
+  EVALUATE_TRACE_POST_SUCCESS(1, LoopPropertiesType, "/properties",
+                              "#/properties", "");
+
+  EVALUATE_TRACE_POST_DESCRIBE(instance, 0,
+                               "The value was expected to be an object that "
+                               "only defines the 3 given properties");
+  EVALUATE_TRACE_POST_DESCRIBE(
+      instance, 1, "The object properties were expected to be of type integer");
+}
+
 TEST(Evaluator_draft6, anyOf_1) {
   const sourcemeta::jsontoolkit::JSON schema{
       sourcemeta::jsontoolkit::parse(R"JSON({
