@@ -1670,6 +1670,17 @@ auto compiler_draft4_applicator_items_with_options(
         auto current{make(sourcemeta::blaze::InstructionIndex::LoopItems,
                           context, schema_context, dynamic_context, ValueNone{},
                           std::move(children))};
+        if (std::get<ValueTypedHashes>(value_copy).second.size() == 3) {
+          return {{sourcemeta::blaze::InstructionIndex::
+                       LoopItemsPropertiesExactlyTypeStrictHash3,
+                   current.relative_schema_location,
+                   current.relative_instance_location,
+                   current.keyword_location,
+                   current.schema_resource,
+                   std::move(value_copy),
+                   {}}};
+        }
+
         return {{sourcemeta::blaze::InstructionIndex::
                      LoopItemsPropertiesExactlyTypeStrictHash,
                  current.relative_schema_location,

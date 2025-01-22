@@ -101,8 +101,12 @@ auto compiler_draft6_validation_type(const Context &context,
                    sourcemeta::jsontoolkit::JSON::Type::Object)};
     } else if (type == "array") {
       if (context.mode == Mode::FastValidation && !current.empty() &&
-          current.back().type == sourcemeta::blaze::InstructionIndex::
-                                     LoopItemsPropertiesExactlyTypeStrictHash &&
+          (current.back().type ==
+               sourcemeta::blaze::InstructionIndex::
+                   LoopItemsPropertiesExactlyTypeStrictHash ||
+           current.back().type ==
+               sourcemeta::blaze::InstructionIndex::
+                   LoopItemsPropertiesExactlyTypeStrictHash3) &&
           current.back().relative_instance_location ==
               dynamic_context.base_instance_location) {
         return {};

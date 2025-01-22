@@ -707,7 +707,9 @@ auto describe(const bool valid, const Instruction &step,
   }
 
   if (step.type == sourcemeta::blaze::InstructionIndex::
-                       LoopItemsPropertiesExactlyTypeStrictHash) {
+                       LoopItemsPropertiesExactlyTypeStrictHash ||
+      step.type == sourcemeta::blaze::InstructionIndex::
+                       LoopItemsPropertiesExactlyTypeStrictHash3) {
     std::ostringstream message;
     message << "Every item in the array was expected to be an object whose "
                "required properties were of type "
