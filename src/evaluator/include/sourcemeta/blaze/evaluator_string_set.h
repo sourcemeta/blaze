@@ -29,6 +29,11 @@ public:
     return this->contains(value, this->hasher(value));
   }
 
+  inline auto at(const size_type index) const noexcept
+      -> const std::pair<value_type, hash_type> & {
+    return this->data[index];
+  }
+
   auto insert(const value_type &value) -> void;
   auto insert(value_type &&value) -> void;
 

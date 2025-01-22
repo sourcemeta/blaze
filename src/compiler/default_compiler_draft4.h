@@ -566,6 +566,24 @@ auto compiler_draft4_validation_required(const Context &context,
           }
         }
 
+        sourcemeta::jsontoolkit::KeyHash<ValueString> hasher;
+        if (context.mode == Mode::FastValidation &&
+            properties_set.size() == 3 &&
+            std::all_of(properties_set.begin(), properties_set.end(),
+                        [&hasher](const auto &property) {
+                          return hasher.is_perfect(property.second);
+                        })) {
+          ValueHashes hashes;
+          for (const auto &property : properties_set) {
+            hashes.push_back(property.second);
+          }
+
+          return {make(sourcemeta::blaze::InstructionIndex::
+                           AssertionDefinesExactlyStrictHash3,
+                       context, schema_context, dynamic_context,
+                       std::move(hashes))};
+        }
+
         return {make(
             sourcemeta::blaze::InstructionIndex::AssertionDefinesExactlyStrict,
             context, schema_context, dynamic_context,

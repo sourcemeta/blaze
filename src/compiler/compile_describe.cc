@@ -1054,6 +1054,16 @@ auto describe(const bool valid, const Instruction &step,
     return message.str();
   }
 
+  if (step.type ==
+      sourcemeta::blaze::InstructionIndex::AssertionDefinesExactlyStrictHash3) {
+    const auto &value{instruction_value<ValueHashes>(step)};
+    std::ostringstream message;
+    message << "The value was expected to be an object that only defines "
+               "the "
+            << value.size() << " given properties";
+    return message.str();
+  }
+
   if (step.type == sourcemeta::blaze::InstructionIndex::AssertionType) {
     std::ostringstream message;
     describe_type_check(valid, target.type(),
