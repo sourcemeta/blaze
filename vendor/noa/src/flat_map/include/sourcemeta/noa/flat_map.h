@@ -276,10 +276,10 @@ public:
     }
 
     for (const auto &entry : this->data) {
-      const auto iterator{other.find(entry.first, entry.hash)};
-      if (iterator == other.cend()) {
+      const auto *result{other.try_at(entry.first, entry.hash)};
+      if (!result) {
         return false;
-      } else if (iterator->second != entry.second) {
+      } else if (*result != entry.second) {
         return false;
       }
     }
