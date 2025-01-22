@@ -1625,6 +1625,23 @@ auto describe(const bool valid, const Instruction &step,
     return message.str();
   }
 
+  if (step.type ==
+      sourcemeta::blaze::InstructionIndex::AssertionEqualsAnyStringHash) {
+    std::ostringstream message;
+    const auto &value{instruction_value<ValueHashes>(step)};
+    message << "The " << to_string(target.type()) << " value ";
+    stringify(target, message);
+    assert(!value.empty());
+
+    if (value.size() == 1) {
+      message << " was expected to equal the given constant";
+    } else {
+      message << " was expected to equal one of the given declared values";
+    }
+
+    return message.str();
+  }
+
   if (step.type == sourcemeta::blaze::InstructionIndex::AssertionStringType) {
     assert(target.is_string());
     std::ostringstream message;

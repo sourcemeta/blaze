@@ -1377,12 +1377,13 @@ TEST(Evaluator_draft6, enum_6) {
   const sourcemeta::jsontoolkit::JSON instance{"foo"};
   EVALUATE_WITH_TRACE_FAST_SUCCESS(schema, instance, 1);
 
-  EVALUATE_TRACE_PRE(0, AssertionEqualsAny, "/enum", "#/enum", "");
-  EVALUATE_TRACE_POST_SUCCESS(0, AssertionEqualsAny, "/enum", "#/enum", "");
+  EVALUATE_TRACE_PRE(0, AssertionEqualsAnyStringHash, "/enum", "#/enum", "");
+  EVALUATE_TRACE_POST_SUCCESS(0, AssertionEqualsAnyStringHash, "/enum",
+                              "#/enum", "");
 
   EVALUATE_TRACE_POST_DESCRIBE(instance, 0,
                                "The string value \"foo\" was expected to equal "
-                               "one of the 3 declared values");
+                               "one of the given declared values");
 }
 
 TEST(Evaluator_draft6, enum_7) {

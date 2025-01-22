@@ -43,16 +43,22 @@ JSON::JSON(const bool value) : current_type{Type::Boolean} {
 JSON::JSON(const std::nullptr_t) : current_type{Type::Null} {}
 
 JSON::JSON(const String &value) : current_type{Type::String} {
-  new (&this->data_string) String{value};
+  new (&this->data_string)
+      std::pair<String, typename Object::Container::hash_type>{
+          value, KeyHash<JSON::String>{}(value)};
 }
 
 JSON::JSON(const std::basic_string_view<Char, CharTraits> &value)
     : current_type{Type::String} {
-  new (&this->data_string) String{value};
+  new (&this->data_string)
+      std::pair<String, typename Object::Container::hash_type>{
+          value, KeyHash<JSON::String>{}(String{value})};
 }
 
 JSON::JSON(const Char *const value) : current_type{Type::String} {
-  new (&this->data_string) String{value};
+  new (&this->data_string)
+      std::pair<String, typename Object::Container::hash_type>{
+          value, KeyHash<JSON::String>{}(String{value})};
 }
 
 JSON::JSON(std::initializer_list<JSON> values) : current_type{Type::Array} {
@@ -97,7 +103,9 @@ JSON::JSON(const JSON &other) : current_type{other.current_type} {
       this->data_real = other.data_real;
       break;
     case Type::String:
-      new (&this->data_string) String{other.data_string};
+      new (&this->data_string)
+          std::pair<String, typename Object::Container::hash_type>{
+              other.data_string};
       break;
     case Type::Array:
       new (&this->data_array) Array{other.data_array};
@@ -122,7 +130,9 @@ JSON::JSON(JSON &&other) : current_type{other.current_type} {
       this->data_real = other.data_real;
       break;
     case Type::String:
-      new (&this->data_string) String{std::move(other.data_string)};
+      new (&this->data_string)
+          std::pair<String, typename Object::Container::hash_type>{
+              std::move(other.data_string)};
       other.current_type = Type::Null;
       break;
     case Type::Array:
@@ -152,7 +162,9 @@ auto JSON::operator=(const JSON &other) -> JSON & {
       this->data_real = other.data_real;
       break;
     case Type::String:
-      new (&this->data_string) String{other.data_string};
+      new (&this->data_string)
+          std::pair<String, typename Object::Container::hash_type>{
+              other.data_string};
       break;
     case Type::Array:
       new (&this->data_array) Array{other.data_array};
@@ -181,7 +193,9 @@ auto JSON::operator=(JSON &&other) -> JSON & {
       this->data_real = other.data_real;
       break;
     case Type::String:
-      new (&this->data_string) String{std::move(other.data_string)};
+      new (&this->data_string)
+          std::pair<String, typename Object::Container::hash_type>{
+              std::move(other.data_string)};
       other.current_type = Type::Null;
       break;
     case Type::Array:
@@ -283,6 +297,7 @@ auto JSON::operator==(const JSON &other) const noexcept -> bool {
     case Type::Real:
       return this->data_real == other.data_real;
     case Type::String:
+      // TODO: Improve this by using perfect hashes if possible
       return this->data_string == other.data_string;
     case Type::Array:
       return this->data_array == other.data_array;
@@ -408,18 +423,13 @@ auto JSON::operator-=(const JSON &substractive) -> JSON & {
 
 [[nodiscard]] auto JSON::to_string() const noexcept -> const JSON::String & {
   assert(this->is_string());
-  return this->data_string;
-}
-
-[[nodiscard]] auto JSON::to_string() noexcept -> JSON::String & {
-  assert(this->is_string());
-  return this->data_string;
+  return this->data_string.first;
 }
 
 [[nodiscard]] auto JSON::to_stringstream() const
     -> std::basic_istringstream<Char, CharTraits, Allocator<Char>> {
   return std::basic_istringstream<Char, CharTraits, Allocator<Char>>{
-      this->data_string};
+      this->data_string.first};
 }
 
 [[nodiscard]] auto JSON::as_array() const noexcept -> const JSON::Array & {
@@ -538,7 +548,12 @@ JSON::at(const String &key,
 
 [[nodiscard]] auto JSON::string_size() const -> std::size_t {
   assert(this->is_string());
-  return JSON::size(this->data_string);
+  return JSON::size(this->data_string.first);
+}
+
+[[nodiscard]] auto JSON::string_hash() const -> Object::Container::hash_type {
+  assert(this->is_string());
+  return this->data_string.second;
 }
 
 [[nodiscard]] auto JSON::array_size() const -> std::size_t {
@@ -553,7 +568,7 @@ JSON::at(const String &key,
 
 [[nodiscard]] auto JSON::byte_size() const -> std::size_t {
   assert(this->is_string());
-  return this->data_string.size();
+  return this->data_string.first.size();
 }
 
 [[nodiscard]] auto JSON::estimated_byte_size() const -> std::uint64_t {
@@ -661,7 +676,7 @@ JSON::at(const String &key,
   } else if (this->is_array()) {
     return this->data_array.data.empty();
   } else {
-    return this->data_string.empty();
+    return this->data_string.first.empty();
   }
 }
 
@@ -857,7 +872,7 @@ auto JSON::into_object() -> void { this->into(JSON::make_object()); }
 auto JSON::maybe_destruct_union() -> void {
   switch (this->current_type) {
     case Type::String:
-      this->data_string.~basic_string();
+      this->data_string.~pair();
       break;
     case Type::Array:
       this->data_array.~JSONArray();
