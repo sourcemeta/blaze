@@ -411,11 +411,6 @@ auto JSON::operator-=(const JSON &substractive) -> JSON & {
   return this->data_string;
 }
 
-[[nodiscard]] auto JSON::to_string() noexcept -> JSON::String & {
-  assert(this->is_string());
-  return this->data_string;
-}
-
 [[nodiscard]] auto JSON::to_stringstream() const
     -> std::basic_istringstream<Char, CharTraits, Allocator<Char>> {
   return std::basic_istringstream<Char, CharTraits, Allocator<Char>>{
