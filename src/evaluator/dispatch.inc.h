@@ -640,11 +640,7 @@ INSTRUCTION_HANDLER(AssertionPropertyType) {
   SOURCEMETA_MAYBE_UNUSED(instance);
   SOURCEMETA_MAYBE_UNUSED(property_target);
   SOURCEMETA_MAYBE_UNUSED(evaluator);
-  EVALUATE_BEGIN_TRY_TARGET(AssertionPropertyType,
-                            // Note that here are are referring to the parent
-                            // object that might hold the given property,
-                            // before traversing into the actual property
-                            target.is_object());
+  EVALUATE_BEGIN_TRY_TARGET(AssertionPropertyType);
   // Now here we refer to the actual property
   const auto value{*std::get_if<ValueType>(&instruction.value)};
   // In non-strict mode, we consider a real number that represents an
@@ -661,11 +657,7 @@ INSTRUCTION_HANDLER(AssertionPropertyTypeEvaluate) {
   SOURCEMETA_MAYBE_UNUSED(instance);
   SOURCEMETA_MAYBE_UNUSED(property_target);
   SOURCEMETA_MAYBE_UNUSED(evaluator);
-  EVALUATE_BEGIN_TRY_TARGET(AssertionPropertyTypeEvaluate,
-                            // Note that here are are referring to the parent
-                            // object that might hold the given property,
-                            // before traversing into the actual property
-                            target.is_object());
+  EVALUATE_BEGIN_TRY_TARGET(AssertionPropertyTypeEvaluate);
   // Now here we refer to the actual property
   const auto value{*std::get_if<ValueType>(&instruction.value)};
   // In non-strict mode, we consider a real number that represents an
@@ -687,11 +679,7 @@ INSTRUCTION_HANDLER(AssertionPropertyTypeStrict) {
   SOURCEMETA_MAYBE_UNUSED(instance);
   SOURCEMETA_MAYBE_UNUSED(property_target);
   SOURCEMETA_MAYBE_UNUSED(evaluator);
-  EVALUATE_BEGIN_TRY_TARGET(AssertionPropertyTypeStrict,
-                            // Note that here are are referring to the parent
-                            // object that might hold the given property,
-                            // before traversing into the actual property
-                            target.is_object());
+  EVALUATE_BEGIN_TRY_TARGET(AssertionPropertyTypeStrict);
   // Now here we refer to the actual property
   const auto value{*std::get_if<ValueType>(&instruction.value)};
   result = target_check->type() == value;
@@ -705,11 +693,7 @@ INSTRUCTION_HANDLER(AssertionPropertyTypeStrictEvaluate) {
   SOURCEMETA_MAYBE_UNUSED(instance);
   SOURCEMETA_MAYBE_UNUSED(property_target);
   SOURCEMETA_MAYBE_UNUSED(evaluator);
-  EVALUATE_BEGIN_TRY_TARGET(AssertionPropertyTypeStrictEvaluate,
-                            // Note that here are are referring to the parent
-                            // object that might hold the given property,
-                            // before traversing into the actual property
-                            target.is_object());
+  EVALUATE_BEGIN_TRY_TARGET(AssertionPropertyTypeStrictEvaluate);
   // Now here we refer to the actual property
   const auto value{*std::get_if<ValueType>(&instruction.value)};
   result = target_check->type() == value;
@@ -728,11 +712,7 @@ INSTRUCTION_HANDLER(AssertionPropertyTypeStrictAny) {
   SOURCEMETA_MAYBE_UNUSED(instance);
   SOURCEMETA_MAYBE_UNUSED(property_target);
   SOURCEMETA_MAYBE_UNUSED(evaluator);
-  EVALUATE_BEGIN_TRY_TARGET(AssertionPropertyTypeStrictAny,
-                            // Note that here are are referring to the parent
-                            // object that might hold the given property,
-                            // before traversing into the actual property
-                            target.is_object());
+  EVALUATE_BEGIN_TRY_TARGET(AssertionPropertyTypeStrictAny);
   const auto &value{*std::get_if<ValueTypes>(&instruction.value)};
   // Now here we refer to the actual property
   result = (std::find(value.cbegin(), value.cend(), target_check->type()) !=
@@ -747,11 +727,7 @@ INSTRUCTION_HANDLER(AssertionPropertyTypeStrictAnyEvaluate) {
   SOURCEMETA_MAYBE_UNUSED(instance);
   SOURCEMETA_MAYBE_UNUSED(property_target);
   SOURCEMETA_MAYBE_UNUSED(evaluator);
-  EVALUATE_BEGIN_TRY_TARGET(AssertionPropertyTypeStrictAnyEvaluate,
-                            // Note that here are are referring to the parent
-                            // object that might hold the given property,
-                            // before traversing into the actual property
-                            target.is_object());
+  EVALUATE_BEGIN_TRY_TARGET(AssertionPropertyTypeStrictAnyEvaluate);
   const auto &value{*std::get_if<ValueTypes>(&instruction.value)};
   // Now here we refer to the actual property
   result = (std::find(value.cbegin(), value.cend(), target_check->type()) !=

@@ -35,18 +35,22 @@
   const auto &target{*maybe_target};                                           \
   bool result{false};
 
-#define EVALUATE_BEGIN_TRY_TARGET(instruction_type, precondition)              \
+#define EVALUATE_BEGIN_TRY_TARGET(instruction_type)                            \
   assert(instruction.type == InstructionIndex::instruction_type);              \
   const auto &target{instance};                                                \
-  if (!(precondition)) {                                                       \
-    return true;                                                               \
-  }                                                                            \
-  const auto target_check{                                                     \
-      try_get(target, instruction.relative_instance_location)};                \
-  if (!target_check) {                                                         \
+  if (!target.is_object()) {                                                   \
     return true;                                                               \
   }                                                                            \
   assert(!instruction.relative_instance_location.empty());                     \
+  const auto *target_check{                                                    \
+      instruction.relative_instance_location.size() == 1                       \
+          ? target.try_at(                                                     \
+                instruction.relative_instance_location.at(0).to_property(),    \
+                instruction.relative_instance_location.at(0).property_hash())  \
+          : try_get(target, instruction.relative_instance_location)};          \
+  if (!target_check) {                                                         \
+    return true;                                                               \
+  }                                                                            \
   bool result{false};
 
 #define EVALUATE_BEGIN_NO_PRECONDITION(instruction_type)                       \
