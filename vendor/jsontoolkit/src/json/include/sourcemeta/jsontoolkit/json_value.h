@@ -521,20 +521,6 @@ public:
   /// ```
   [[nodiscard]] auto to_string() const noexcept -> const String &;
 
-  /// Convert a JSON instance into a standard string value. The result of this
-  /// method is undefined unless the JSON instance holds a string value. For
-  /// example:
-  ///
-  /// ```cpp
-  /// #include <sourcemeta/jsontoolkit/json.h>
-  /// #include <cassert>
-  ///
-  /// const sourcemeta::jsontoolkit::JSON document{"foo"};
-  /// assert(document.is_string());
-  /// assert(document.to_string() == "foo");
-  /// ```
-  [[nodiscard]] auto to_string() noexcept -> String &;
-
   /// Get a standard input string stream from a JSON string. The result of this
   /// method is undefined unless the JSON instance holds a string value. For
   /// example:

@@ -1,6 +1,7 @@
 #ifndef SOURCEMETA_JSONTOOLKIT_JSON_HASH_H_
 #define SOURCEMETA_JSONTOOLKIT_JSON_HASH_H_
 
+#include <cassert> // assert
 #include <cstdint> // std::uint64_t
 #include <cstring> // std::memcpy
 
@@ -21,27 +22,45 @@ template <typename T> struct FastHash {
 /// @ingroup json
 template <typename T> struct KeyHash {
   struct hash_type {
+    // For performance when the platform allows it
+#if defined(__SIZEOF_INT128__)
+    using type = __uint128_t;
+    type a{0};
+    type b{0};
+#else
     using type = std::uint64_t;
     type a{0};
     type b{0};
     type c{0};
     type d{0};
+#endif
 
     inline auto operator==(const hash_type &other) const noexcept -> bool {
+#if defined(__SIZEOF_INT128__)
+      return this->a == other.a && this->b == other.b;
+#else
       return this->a == other.a && this->b == other.b && this->c == other.c &&
              this->d == other.d;
+#endif
     }
   };
 
+  inline auto perfect(const T &value) const noexcept -> hash_type {
+    hash_type result;
+    assert(!value.empty());
+    assert(value.size() <= 31);
+    // Copy starting a byte 2
+    std::memcpy(reinterpret_cast<char *>(&result) + 1, value.data(),
+                value.size());
+    return result;
+  }
+
   inline auto operator()(const T &value) const noexcept -> hash_type {
     const auto size{value.size()};
-    hash_type result;
     if (size == 0) {
-      return result;
+      return {};
     } else if (size <= 31) {
-      // Copy starting a byte 2
-      std::memcpy(reinterpret_cast<char *>(&result) + 1, value.data(), size);
-      return result;
+      return this->perfect(value);
     } else {
       // This case is specifically designed to be constant with regards to
       // string length, and to exploit the fact that most JSON objects don't
