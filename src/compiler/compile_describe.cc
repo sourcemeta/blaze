@@ -1628,7 +1628,7 @@ auto describe(const bool valid, const Instruction &step,
   if (step.type ==
       sourcemeta::blaze::InstructionIndex::AssertionEqualsAnyStringHash) {
     std::ostringstream message;
-    const auto &value{instruction_value<ValueIndexedHashes>(step)};
+    const auto &value{instruction_value<ValueHashes>(step)};
     message << "The " << to_string(target.type()) << " value ";
     stringify(target, message);
     assert(!value.empty());

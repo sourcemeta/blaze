@@ -1878,7 +1878,7 @@ auto compiler_draft4_validation_enum(const Context &context,
                  schema_context.schema.at(dynamic_context.keyword).front()})};
   }
 
-  ValueIndexedHashes perfect_string_hashes;
+  ValueHashes perfect_string_hashes;
   ValueSet options;
   sourcemeta::jsontoolkit::KeyHash<ValueString> hasher;
   for (const auto &option :
@@ -1886,7 +1886,7 @@ auto compiler_draft4_validation_enum(const Context &context,
     if (option.is_string()) {
       const auto hash{hasher(option.to_string())};
       if (hasher.is_perfect(hash)) {
-        perfect_string_hashes.emplace_back(option.fast_hash(), hash);
+        perfect_string_hashes.emplace_back(hash);
       }
     }
 
@@ -1898,10 +1898,7 @@ auto compiler_draft4_validation_enum(const Context &context,
   if (context.mode == Mode::FastValidation &&
       perfect_string_hashes.size() == options.size()) {
     // For binary search purposes
-    std::sort(perfect_string_hashes.begin(), perfect_string_hashes.end(),
-              [](const auto &left, const auto &right) {
-                return left.first < right.first;
-              });
+    std::sort(perfect_string_hashes.begin(), perfect_string_hashes.end());
     return {
         make(sourcemeta::blaze::InstructionIndex::AssertionEqualsAnyStringHash,
              context, schema_context, dynamic_context,

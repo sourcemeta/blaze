@@ -31,6 +31,13 @@ template <typename T> struct KeyHash {
       return this->a == other.a && this->b == other.b && this->c == other.c &&
              this->d == other.d;
     }
+
+    inline auto operator<(const hash_type &other) const noexcept -> bool {
+      if (this->a != other.a) return this->a < other.a;
+      if (this->b != other.b) return this->b < other.b;
+      if (this->c != other.c) return this->c < other.c;
+      return d < other.d;
+    }
   };
 
   inline auto operator()(const T &value) const noexcept -> hash_type {

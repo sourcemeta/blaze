@@ -537,17 +537,10 @@ INSTRUCTION_HANDLER(AssertionEqualsAnyStringHash) {
   SOURCEMETA_MAYBE_UNUSED(evaluator);
   EVALUATE_BEGIN_NO_PRECONDITION(AssertionEqualsAnyStringHash);
   const auto &target{get(instance, instruction.relative_instance_location)};
-  const auto &value{*std::get_if<ValueIndexedHashes>(&instruction.value)};
-  result = target.is_string() &&
-           std::binary_search(value.cbegin(), value.cend(),
-                              std::make_pair(target.fast_hash(),
-                                             // TODO: This represents a copy.
-                                             // Maybe have two vectors instead?
-                                             target.string_hash()),
-                              [](const auto &left, const auto &right) {
-                                return left.first < right.first;
-                              });
-
+  const auto &value{*std::get_if<ValueHashes>(&instruction.value)};
+  result =
+      target.is_string() &&
+      std::binary_search(value.cbegin(), value.cend(), target.string_hash());
   EVALUATE_END(AssertionEqualsAnyStringHash);
 }
 
