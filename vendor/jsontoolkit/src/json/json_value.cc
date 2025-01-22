@@ -551,7 +551,7 @@ JSON::at(const String &key,
   return JSON::size(this->data_string.first);
 }
 
-[[nodiscard]] auto JSON::string_hash() const -> Object::Container::hash_type {
+[[nodiscard]] auto JSON::string_hash() const -> const Object::Container::hash_type & {
   assert(this->is_string());
   return this->data_string.second;
 }

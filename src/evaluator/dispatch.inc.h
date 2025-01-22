@@ -538,9 +538,18 @@ INSTRUCTION_HANDLER(AssertionEqualsAnyStringHash) {
   EVALUATE_BEGIN_NO_PRECONDITION(AssertionEqualsAnyStringHash);
   const auto &target{get(instance, instruction.relative_instance_location)};
   const auto &value{*std::get_if<ValueHashes>(&instruction.value)};
-  result = target.is_string() &&
-           std::find(value.cbegin(), value.cend(), target.string_hash()) !=
-               value.cend();
+  if (!target.is_string()) {
+    EVALUATE_END(AssertionEqualsAnyStringHash);
+  }
+
+  const auto &current{target.string_hash()};
+  for (const auto &hash : value) {
+    if (hash == current) {
+      result = true;
+      EVALUATE_END(AssertionEqualsAnyStringHash);
+    }
+  }
+
   EVALUATE_END(AssertionEqualsAnyStringHash);
 }
 

@@ -857,7 +857,7 @@ public:
   ///   sourcemeta::jsontoolkit::parse("{ \"foo\": 1 }");
   /// assert(my_object.defines("foo", my_string.string_hash()));
   /// ```
-  [[nodiscard]] auto string_hash() const -> Object::Container::hash_type;
+  [[nodiscard]] auto string_hash() const -> const Object::Container::hash_type &;
 
   /// If the input JSON instance is an array, return its number of elements.
   ///
