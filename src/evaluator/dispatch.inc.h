@@ -1405,12 +1405,12 @@ INSTRUCTION_HANDLER(LoopPropertiesMatch) {
   assert(!value.empty());
   result = true;
   for (const auto &entry : target.as_object()) {
-    const auto index{value.find(entry.first, entry.hash)};
-    if (index == value.cend()) {
+    const auto *index{value.try_at(entry.first, entry.hash)};
+    if (!index) {
       continue;
     }
 
-    const auto &subinstruction{instruction.children[index->second]};
+    const auto &subinstruction{instruction.children[*index]};
     assert(subinstruction.type ==
            sourcemeta::blaze::InstructionIndex::ControlGroup);
     for (const auto &child : subinstruction.children) {
@@ -1436,13 +1436,13 @@ INSTRUCTION_HANDLER(LoopPropertiesMatchClosed) {
   assert(!value.empty());
   result = true;
   for (const auto &entry : target.as_object()) {
-    const auto index{value.find(entry.first, entry.hash)};
-    if (index == value.cend()) {
+    const auto *index{value.try_at(entry.first, entry.hash)};
+    if (!index) {
       result = false;
       break;
     }
 
-    const auto &subinstruction{instruction.children[index->second]};
+    const auto &subinstruction{instruction.children[*index]};
     assert(subinstruction.type ==
            sourcemeta::blaze::InstructionIndex::ControlGroup);
     for (const auto &child : subinstruction.children) {
