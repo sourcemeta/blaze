@@ -862,6 +862,27 @@ static void Evaluator_Draft4_Nested_Oneof(benchmark::State &state) {
   }
 }
 
+static void Evaluator_Draft4_Short_Enum(benchmark::State &state) {
+  const sourcemeta::jsontoolkit::JSON schema{
+      sourcemeta::jsontoolkit::parse(R"JSON({
+        "$schema": "http://json-schema.org/draft-04/schema#",
+        "enum": [ "development", "production", "all" ]
+      })JSON")};
+
+  const sourcemeta::jsontoolkit::JSON instance{"production"};
+
+  const auto schema_template{sourcemeta::blaze::compile(
+      schema, sourcemeta::jsontoolkit::default_schema_walker,
+      sourcemeta::jsontoolkit::official_resolver,
+      sourcemeta::blaze::default_schema_compiler)};
+  sourcemeta::blaze::Evaluator evaluator;
+  for (auto _ : state) {
+    auto result{evaluator.validate(schema_template, instance)};
+    assert(result);
+    benchmark::DoNotOptimize(result);
+  }
+}
+
 static void Evaluator_Draft4_Long_Enum(benchmark::State &state) {
   const sourcemeta::jsontoolkit::JSON schema{
       sourcemeta::jsontoolkit::parse(R"JSON({
@@ -962,5 +983,6 @@ BENCHMARK(Evaluator_Draft4_Pattern_Properties_True);
 BENCHMARK(Evaluator_Draft4_Ref_To_Single_Property);
 BENCHMARK(Evaluator_Draft4_Additional_Properties_Type);
 BENCHMARK(Evaluator_Draft4_Nested_Oneof);
+BENCHMARK(Evaluator_Draft4_Short_Enum);
 BENCHMARK(Evaluator_Draft4_Long_Enum);
 BENCHMARK(Evaluator_Draft4_Type_Object);
