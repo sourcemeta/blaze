@@ -1878,10 +1878,29 @@ auto compiler_draft4_validation_enum(const Context &context,
                  schema_context.schema.at(dynamic_context.keyword).front()})};
   }
 
+  ValueHashes perfect_string_hashes;
   ValueSet options;
+  sourcemeta::jsontoolkit::KeyHash<ValueString> hasher;
   for (const auto &option :
        schema_context.schema.at(dynamic_context.keyword).as_array()) {
+    if (option.is_string()) {
+      const auto hash{hasher(option.to_string())};
+      if (hasher.is_perfect(hash)) {
+        perfect_string_hashes.push_back(hash);
+      }
+    }
+
     options.insert(option);
+  }
+
+  // Only apply this optimisation on fast validation, as it
+  // can affect error messages
+  if (context.mode == Mode::FastValidation &&
+      perfect_string_hashes.size() == options.size()) {
+    return {
+        make(sourcemeta::blaze::InstructionIndex::AssertionEqualsAnyStringHash,
+             context, schema_context, dynamic_context,
+             std::move(perfect_string_hashes))};
   }
 
   return {make(sourcemeta::blaze::InstructionIndex::AssertionEqualsAny, context,

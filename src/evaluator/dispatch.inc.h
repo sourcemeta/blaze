@@ -528,6 +528,24 @@ INSTRUCTION_HANDLER(AssertionEqualsAny) {
   EVALUATE_END(AssertionEqualsAny);
 }
 
+INSTRUCTION_HANDLER(AssertionEqualsAnyStringHash) {
+  SOURCEMETA_MAYBE_UNUSED(depth);
+  SOURCEMETA_MAYBE_UNUSED(schema);
+  SOURCEMETA_MAYBE_UNUSED(callback);
+  SOURCEMETA_MAYBE_UNUSED(instance);
+  SOURCEMETA_MAYBE_UNUSED(property_target);
+  SOURCEMETA_MAYBE_UNUSED(evaluator);
+  EVALUATE_BEGIN_NO_PRECONDITION(AssertionEqualsAnyStringHash);
+  const auto &target{get(instance, instruction.relative_instance_location)};
+  const auto &value{*std::get_if<ValueHashes>(&instruction.value)};
+  result =
+      target.is_string() &&
+      std::find(value.cbegin(), value.cend(),
+                sourcemeta::jsontoolkit::KeyHash<ValueString>{}.perfect(
+                    target.to_string(), target.byte_size())) != value.cend();
+  EVALUATE_END(AssertionEqualsAnyStringHash);
+}
+
 INSTRUCTION_HANDLER(AssertionGreaterEqual) {
   SOURCEMETA_MAYBE_UNUSED(depth);
   SOURCEMETA_MAYBE_UNUSED(schema);
@@ -2466,7 +2484,7 @@ using DispatchHandler = bool (*)(const sourcemeta::blaze::Instruction &,
                                  sourcemeta::blaze::Evaluator &);
 
 // Must have same order as InstructionIndex
-static constexpr DispatchHandler handlers[92] = {
+static constexpr DispatchHandler handlers[93] = {
     AssertionFail,
     AssertionDefines,
     AssertionDefinesStrict,
@@ -2495,6 +2513,7 @@ static constexpr DispatchHandler handlers[92] = {
     AssertionObjectSizeGreater,
     AssertionEqual,
     AssertionEqualsAny,
+    AssertionEqualsAnyStringHash,
     AssertionGreaterEqual,
     AssertionLessEqual,
     AssertionGreater,
