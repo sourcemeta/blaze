@@ -10,13 +10,12 @@
 
 #include <sourcemeta/blaze/evaluator_string_set.h>
 
-#include <cstdint>       // std::uint8_t
-#include <optional>      // std::optional
-#include <string>        // std::string
-#include <tuple>         // std::tuple
-#include <unordered_set> // std::unordered_set
-#include <utility>       // std::pair
-#include <vector>        // std::vector
+#include <cstdint>  // std::uint8_t, std::uint64_t
+#include <optional> // std::optional
+#include <string>   // std::string
+#include <tuple>    // std::tuple
+#include <utility>  // std::pair
+#include <vector>   // std::vector
 
 namespace sourcemeta::blaze {
 
@@ -30,8 +29,8 @@ using ValueJSON = sourcemeta::jsontoolkit::JSON;
 
 /// @ingroup evaluator
 /// Represents a set of JSON values
-using ValueSet = std::unordered_set<sourcemeta::jsontoolkit::JSON,
-                                    sourcemeta::jsontoolkit::Hash>;
+using ValueSet =
+    std::vector<std::pair<sourcemeta::jsontoolkit::JSON, std::uint64_t>>;
 
 /// @ingroup evaluator
 /// Represents a compiler step string value

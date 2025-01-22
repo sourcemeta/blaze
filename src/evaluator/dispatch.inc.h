@@ -524,7 +524,15 @@ INSTRUCTION_HANDLER(AssertionEqualsAny) {
   EVALUATE_BEGIN_NO_PRECONDITION(AssertionEqualsAny);
   const auto &target{get(instance, instruction.relative_instance_location)};
   const auto &value{*std::get_if<ValueSet>(&instruction.value)};
-  result = value.contains(target);
+  // TODO: Can we avoid re-hashing or at least make this even cheaper?
+  const auto current{target.fast_hash()};
+  for (const auto &entry : value) {
+    if (entry.second == current && entry.first == target) {
+      result = true;
+      EVALUATE_END(AssertionEqualsAny);
+    }
+  }
+
   EVALUATE_END(AssertionEqualsAny);
 }
 

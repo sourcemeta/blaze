@@ -1881,7 +1881,7 @@ auto compiler_draft4_validation_enum(const Context &context,
   ValueSet options;
   for (const auto &option :
        schema_context.schema.at(dynamic_context.keyword).as_array()) {
-    options.insert(option);
+    options.emplace_back(option, option.fast_hash());
   }
 
   return {make(sourcemeta::blaze::InstructionIndex::AssertionEqualsAny, context,

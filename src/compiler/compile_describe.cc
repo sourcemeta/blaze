@@ -1598,16 +1598,18 @@ auto describe(const bool valid, const Instruction &step,
 
     if (value.size() == 1) {
       message << " was expected to equal the "
-              << to_string(value.cbegin()->type()) << " constant ";
-      stringify(*(value.cbegin()), message);
+              << to_string(value.cbegin()->first.type()) << " constant ";
+      stringify(value.cbegin()->first, message);
     } else {
       if (valid) {
         message << " was expected to equal one of the " << value.size()
                 << " declared values";
       } else {
         message << " was expected to equal one of the following values: ";
-        std::vector<sourcemeta::jsontoolkit::JSON> copy{value.cbegin(),
-                                                        value.cend()};
+        std::vector<sourcemeta::jsontoolkit::JSON> copy;
+        for (const auto &entry : value) {
+          copy.emplace_back(entry.first);
+        }
         std::sort(copy.begin(), copy.end());
         for (auto iterator = copy.cbegin(); iterator != copy.cend();
              ++iterator) {
