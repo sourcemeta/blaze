@@ -925,6 +925,69 @@ static void Evaluator_Draft4_Long_Enum(benchmark::State &state) {
   }
 }
 
+static void Evaluator_Draft4_Long_Enum_Short_Strings(benchmark::State &state) {
+  const sourcemeta::jsontoolkit::JSON schema{
+      sourcemeta::jsontoolkit::parse(R"JSON({
+        "$schema": "http://json-schema.org/draft-04/schema#",
+        "enum": [
+          "apple_orchard",
+          "bright_yellow",
+          "serene_lakeside",
+          "whispering_pine",
+          "vivid_rainbow",
+          "peaceful_zen",
+          "midnight_cityscape",
+          "crisp_autumn",
+          "gentle_waves",
+          "sparkling_winter",
+          "glimmering_golden",
+          "tranquil_hills",
+          "lush_meadow",
+          "sunlit_tree",
+          "calm_ocean",
+          "ancient_castle",
+          "rolling_green",
+          "colorful_parrot",
+          "majestic_eagle",
+          "hidden_cove",
+          "mystical_cave",
+          "silent_desert",
+          "starlit_skies",
+          "rustic_farmhouse",
+          "cheerful_market",
+          "picturesque_cliffside",
+          "bustling_metropolis",
+          "golden_grain",
+          "charming_floral",
+          "wild_horses",
+          "serene_mountain",
+          "gentle_stream",
+          "historic_bridge",
+          "vintage_lighthouse",
+          "cozy_fireplace",
+          "mystic_willow",
+          "glistening_dew",
+          "exotic_butterfly",
+          "crystal_clear",
+          "hidden_waterfall",
+          "verdant_bamboo"
+        ]
+      })JSON")};
+
+  const sourcemeta::jsontoolkit::JSON instance{"verdant_bamboo"};
+
+  const auto schema_template{sourcemeta::blaze::compile(
+      schema, sourcemeta::jsontoolkit::default_schema_walker,
+      sourcemeta::jsontoolkit::official_resolver,
+      sourcemeta::blaze::default_schema_compiler)};
+  sourcemeta::blaze::Evaluator evaluator;
+  for (auto _ : state) {
+    auto result{evaluator.validate(schema_template, instance)};
+    assert(result);
+    benchmark::DoNotOptimize(result);
+  }
+}
+
 static void Evaluator_Draft4_Type_Object(benchmark::State &state) {
   const sourcemeta::jsontoolkit::JSON schema{
       sourcemeta::jsontoolkit::parse(R"JSON({
@@ -963,4 +1026,5 @@ BENCHMARK(Evaluator_Draft4_Ref_To_Single_Property);
 BENCHMARK(Evaluator_Draft4_Additional_Properties_Type);
 BENCHMARK(Evaluator_Draft4_Nested_Oneof);
 BENCHMARK(Evaluator_Draft4_Long_Enum);
+BENCHMARK(Evaluator_Draft4_Long_Enum_Short_Strings);
 BENCHMARK(Evaluator_Draft4_Type_Object);
