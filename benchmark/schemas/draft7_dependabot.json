@@ -1,0 +1,189 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://json.schemastore.org/dependabot.json",
+  "type": "object",
+  "required": [ "version", "update_configs" ],
+  "properties": {
+    "update_configs": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": [ "package_manager", "directory", "update_schedule" ],
+        "properties": {
+          "allowed_updates": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "minItems": 1,
+              "properties": {
+                "match": {
+                  "type": "object",
+                  "properties": {
+                    "dependency_name": {
+                      "type": "string"
+                    },
+                    "dependency_type": {
+                      "type": "string"
+                    },
+                    "update_type": {
+                      "type": "string",
+                      "enum": [
+                        "security",
+                        "all"
+                      ]
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "automerged_updates": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "minItems": 1,
+              "properties": {
+                "match": {
+                  "type": "object",
+                  "properties": {
+                    "dependency_name": {
+                      "type": "string"
+                    },
+                    "dependency_type": {
+                      "type": "string",
+                      "enum": [
+                        "development",
+                        "production",
+                        "all"
+                      ]
+                    },
+                    "update_type": {
+                      "type": "string",
+                      "enum": [
+                        "security:patch",
+                        "semver:patch",
+                        "semver:minor",
+                        "in_range",
+                        "all"
+                      ]
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "commit_message": {
+            "type": "object",
+            "properties": {
+              "include_scope": {
+                "type": "boolean"
+              },
+              "prefix": {
+                "type": "string"
+              },
+              "prefix_development": {
+                "type": "string"
+              }
+            }
+          },
+          "default_assignees": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "default_labels": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "default_milestone": {
+            "type": "integer"
+          },
+          "default_reviewers": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "directory": {
+            "type": "string"
+          },
+          "ignored_updates": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "minItems": 1,
+              "properties": {
+                "match": {
+                  "type": "object",
+                  "properties": {
+                    "dependency_name": {
+                      "type": "string"
+                    },
+                    "version_requirement": {
+                      "type": "string"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "package_manager": {
+            "type": "string",
+            "enum": [
+              "javascript",
+              "ruby:bundler",
+              "php:composer",
+              "python",
+              "go:modules",
+              "go:dep",
+              "java:maven",
+              "java:gradle",
+              "dotnet:nuget",
+              "rust:cargo",
+              "elixir:hex",
+              "docker",
+              "terraform",
+              "submodules",
+              "elm",
+              "github_actions"
+            ]
+          },
+          "target_branch": {
+            "type": "string",
+            "items": {
+              "type": "string"
+            }
+          },
+          "update_schedule": {
+            "type": "string",
+            "enum": [
+              "live",
+              "daily",
+              "weekly",
+              "monthly"
+            ]
+          },
+          "version_requirement_updates": {
+            "type": "string",
+            "enum": [
+              "off",
+              "auto",
+              "widen_ranges",
+              "increase_versions",
+              "increase_versions_if_necessary"
+            ]
+          }
+        }
+      }
+    },
+    "version": {
+      "type": "integer",
+      "maximum": 1,
+      "minimum": 1
+    }
+  },
+  "definitions": {}
+}
