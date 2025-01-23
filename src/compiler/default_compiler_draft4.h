@@ -183,9 +183,11 @@ static auto to_string_hashes(
             : std::max(result.second[string_size].second, position)};
     assert(lower_bound <= upper_bound);
     assert(lower_bound > 0 && upper_bound > 0);
+    assert(string_size < result.second.size());
     result.second[string_size] = std::make_pair(lower_bound, upper_bound);
   }
 
+  assert(result.second.size() == hashes.back().first.size() + 1);
   return result;
 }
 
@@ -1913,10 +1915,31 @@ auto compiler_draft4_validation_enum(const Context &context,
                  schema_context.schema.at(dynamic_context.keyword).front()})};
   }
 
+  std::vector<std::pair<sourcemeta::blaze::ValueString,
+                        sourcemeta::blaze::ValueStringSet::hash_type>>
+      perfect_string_hashes;
   ValueSet options;
+  sourcemeta::jsontoolkit::KeyHash<ValueString> hasher;
   for (const auto &option :
        schema_context.schema.at(dynamic_context.keyword).as_array()) {
+    if (option.is_string()) {
+      const auto hash{hasher(option.to_string())};
+      if (hasher.is_perfect(hash)) {
+        perfect_string_hashes.emplace_back(option.to_string(), hash);
+      }
+    }
+
     options.insert(option);
+  }
+
+  // Only apply this optimisation on fast validation, as it
+  // can affect error messages
+  if (context.mode == Mode::FastValidation &&
+      perfect_string_hashes.size() == options.size()) {
+    return {
+        make(sourcemeta::blaze::InstructionIndex::AssertionEqualsAnyStringHash,
+             context, schema_context, dynamic_context,
+             to_string_hashes(perfect_string_hashes))};
   }
 
   return {make(sourcemeta::blaze::InstructionIndex::AssertionEqualsAny, context,
