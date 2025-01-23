@@ -153,6 +153,42 @@ compile_properties(const sourcemeta::blaze::Context &context,
   return properties;
 }
 
+static auto to_string_hashes(
+    std::vector<std::pair<sourcemeta::blaze::ValueString,
+                          sourcemeta::blaze::ValueStringSet::hash_type>>
+        &hashes) -> sourcemeta::blaze::ValueStringHashes {
+  assert(!hashes.empty());
+  std::sort(hashes.begin(), hashes.end(),
+            [](const auto &left, const auto &right) {
+              return left.first.size() < right.first.size();
+            });
+
+  sourcemeta::blaze::ValueStringHashes result;
+  // The idea with the table of contents is as follows: each index
+  // marks the starting and end positions for a string where the size
+  // is equal to the index.
+  result.second.resize(hashes.back().first.size() + 1, std::make_pair(0, 0));
+  for (std::size_t index = 0; index < hashes.size(); index++) {
+    result.first.push_back(hashes[index].second);
+    const auto string_size{hashes[index].first.size()};
+    // We leave index 0 to represent the empty string
+    const auto position{index + 1};
+    const auto lower_bound{
+        result.second[string_size].first == 0
+            ? position
+            : std::min(result.second[string_size].first, position)};
+    const auto upper_bound{
+        result.second[string_size].second == 0
+            ? position
+            : std::max(result.second[string_size].second, position)};
+    assert(lower_bound <= upper_bound);
+    assert(lower_bound > 0 && upper_bound > 0);
+    result.second[string_size] = std::make_pair(lower_bound, upper_bound);
+  }
+
+  return result;
+}
+
 namespace internal {
 using namespace sourcemeta::blaze;
 
@@ -573,15 +609,15 @@ auto compiler_draft4_validation_required(const Context &context,
                         [&hasher](const auto &property) {
                           return hasher.is_perfect(property.second);
                         })) {
-          ValueHashes hashes;
+          std::vector<std::pair<ValueString, ValueStringSet::hash_type>> hashes;
           for (const auto &property : properties_set) {
-            hashes.push_back(property.second);
+            hashes.emplace_back(property.first, property.second);
           }
 
           return {make(sourcemeta::blaze::InstructionIndex::
                            AssertionDefinesExactlyStrictHash3,
                        context, schema_context, dynamic_context,
-                       std::move(hashes))};
+                       to_string_hashes(hashes))};
         }
 
         return {make(
@@ -969,13 +1005,12 @@ auto compiler_draft4_applicator_properties_with_options(
           ValueStringSet required{json_array_to_string_set(required_copy)};
           if (is_closed_properties_required(schema_context.schema, required)) {
             sourcemeta::jsontoolkit::KeyHash<ValueString> hasher;
-            std::vector<
-                sourcemeta::jsontoolkit::KeyHash<ValueString>::hash_type>
+            std::vector<std::pair<ValueString, ValueStringSet::hash_type>>
                 perfect_hashes;
             for (const auto &entry : required) {
               assert(required.contains(entry.first, entry.second));
               if (hasher.is_perfect(entry.second)) {
-                perfect_hashes.push_back(entry.second);
+                perfect_hashes.emplace_back(entry.first, entry.second);
               }
             }
 
@@ -984,7 +1019,7 @@ auto compiler_draft4_applicator_properties_with_options(
                                LoopPropertiesExactlyTypeStrictHash,
                            context, schema_context, dynamic_context,
                            ValueTypedHashes{*types.cbegin(),
-                                            std::move(perfect_hashes)})};
+                                            to_string_hashes(perfect_hashes)})};
             }
 
             return {make(
@@ -1688,7 +1723,7 @@ auto compiler_draft4_applicator_items_with_options(
         auto current{make(sourcemeta::blaze::InstructionIndex::LoopItems,
                           context, schema_context, dynamic_context, ValueNone{},
                           std::move(children))};
-        if (std::get<ValueTypedHashes>(value_copy).second.size() == 3) {
+        if (std::get<ValueTypedHashes>(value_copy).second.first.size() == 3) {
           return {{sourcemeta::blaze::InstructionIndex::
                        LoopItemsPropertiesExactlyTypeStrictHash3,
                    current.relative_schema_location,

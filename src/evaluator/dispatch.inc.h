@@ -174,25 +174,30 @@ INSTRUCTION_HANDLER(AssertionDefinesExactlyStrictHash3) {
   SOURCEMETA_MAYBE_UNUSED(evaluator);
   EVALUATE_BEGIN_NO_PRECONDITION(AssertionDefinesExactlyStrictHash3);
   const auto &target{get(instance, instruction.relative_instance_location)};
-  const auto &value{*std::get_if<ValueHashes>(&instruction.value)};
-  assert(value.size() == 3);
+  // TODO: Take advantage of the table of contents structure to speed up checks
+  const auto &value{*std::get_if<ValueStringHashes>(&instruction.value)};
+  assert(value.first.size() == 3);
   assert(target.is_object());
   const auto &object{target.as_object()};
 
-  result =
-      object.size() == 3 &&
-      ((value.at(0) == object.at(0).hash && value.at(1) == object.at(1).hash &&
-        value.at(2) == object.at(2).hash) ||
-       (value.at(0) == object.at(0).hash && value.at(1) == object.at(2).hash &&
-        value.at(2) == object.at(1).hash) ||
-       (value.at(0) == object.at(1).hash && value.at(1) == object.at(0).hash &&
-        value.at(2) == object.at(2).hash) ||
-       (value.at(0) == object.at(1).hash && value.at(1) == object.at(2).hash &&
-        value.at(2) == object.at(0).hash) ||
-       (value.at(0) == object.at(2).hash && value.at(1) == object.at(0).hash &&
-        value.at(2) == object.at(1).hash) ||
-       (value.at(0) == object.at(2).hash && value.at(1) == object.at(1).hash &&
-        value.at(2) == object.at(0).hash));
+  result = object.size() == 3 && ((value.first.at(0) == object.at(0).hash &&
+                                   value.first.at(1) == object.at(1).hash &&
+                                   value.first.at(2) == object.at(2).hash) ||
+                                  (value.first.at(0) == object.at(0).hash &&
+                                   value.first.at(1) == object.at(2).hash &&
+                                   value.first.at(2) == object.at(1).hash) ||
+                                  (value.first.at(0) == object.at(1).hash &&
+                                   value.first.at(1) == object.at(0).hash &&
+                                   value.first.at(2) == object.at(2).hash) ||
+                                  (value.first.at(0) == object.at(1).hash &&
+                                   value.first.at(1) == object.at(2).hash &&
+                                   value.first.at(2) == object.at(0).hash) ||
+                                  (value.first.at(0) == object.at(2).hash &&
+                                   value.first.at(1) == object.at(0).hash &&
+                                   value.first.at(2) == object.at(1).hash) ||
+                                  (value.first.at(0) == object.at(2).hash &&
+                                   value.first.at(1) == object.at(1).hash &&
+                                   value.first.at(2) == object.at(0).hash));
 
   EVALUATE_END(AssertionDefinesExactlyStrictHash3);
 }
@@ -1860,16 +1865,18 @@ INSTRUCTION_HANDLER(LoopPropertiesExactlyTypeStrictHash) {
   SOURCEMETA_MAYBE_UNUSED(evaluator);
   EVALUATE_BEGIN_NO_PRECONDITION(LoopPropertiesExactlyTypeStrictHash);
   const auto &target{get(instance, instruction.relative_instance_location)};
+  // TODO: Take advantage of the table of contents structure to speed up checks
   const auto &value{*std::get_if<ValueTypedHashes>(&instruction.value)};
+
   if (!target.is_object()) {
     EVALUATE_END(LoopPropertiesExactlyTypeStrictHash);
   }
 
   const auto &object{target.as_object()};
   const auto size{object.size()};
-  if (size == value.second.size()) {
+  if (size == value.second.first.size()) {
     // Otherwise why emit this instruction?
-    assert(!value.second.empty());
+    assert(!value.second.first.empty());
 
     // The idea is to first assume the object property ordering and the
     // hashes collection aligns. If they don't we do a full comparison
@@ -1881,7 +1888,7 @@ INSTRUCTION_HANDLER(LoopPropertiesExactlyTypeStrictHash) {
         EVALUATE_END(LoopPropertiesExactlyTypeStrictHash);
       }
 
-      if (entry.hash != value.second[index]) {
+      if (entry.hash != value.second.first[index]) {
         break;
       }
 
@@ -1894,7 +1901,7 @@ INSTRUCTION_HANDLER(LoopPropertiesExactlyTypeStrictHash) {
       // Continue where we left
       std::advance(iterator, index);
       for (; iterator != object.cend(); ++iterator) {
-        if (std::none_of(value.second.cbegin(), value.second.cend(),
+        if (std::none_of(value.second.first.cbegin(), value.second.first.cend(),
                          [&iterator](const auto hash) {
                            return hash == iterator->hash;
                          })) {
@@ -2251,9 +2258,10 @@ INSTRUCTION_HANDLER(LoopItemsPropertiesExactlyTypeStrictHash) {
   SOURCEMETA_MAYBE_UNUSED(evaluator);
   EVALUATE_BEGIN_NO_PRECONDITION(LoopItemsPropertiesExactlyTypeStrictHash);
   const auto &target{get(instance, instruction.relative_instance_location)};
+  // TODO: Take advantage of the table of contents structure to speed up checks
   const auto &value{*std::get_if<ValueTypedHashes>(&instruction.value)};
   // Otherwise why emit this instruction?
-  assert(!value.second.empty());
+  assert(!value.second.first.empty());
 
   if (!target.is_array()) {
     EVALUATE_END(LoopItemsPropertiesExactlyTypeStrictHash);
@@ -2261,7 +2269,7 @@ INSTRUCTION_HANDLER(LoopItemsPropertiesExactlyTypeStrictHash) {
 
   result = true;
 
-  const auto hashes_size{value.second.size()};
+  const auto hashes_size{value.second.first.size()};
   for (const auto &item : target.as_array()) {
     if (!item.is_object()) {
       result = false;
@@ -2281,9 +2289,9 @@ INSTRUCTION_HANDLER(LoopItemsPropertiesExactlyTypeStrictHash) {
         if (entry.second.type() != value.first) {
           result = false;
           EVALUATE_END(LoopItemsPropertiesExactlyTypeStrictHash);
-        } else if (entry.hash != value.second[0] &&
-                   entry.hash != value.second[1] &&
-                   entry.hash != value.second[2]) {
+        } else if (entry.hash != value.second.first[0] &&
+                   entry.hash != value.second.first[1] &&
+                   entry.hash != value.second.first[2]) {
           result = false;
           EVALUATE_END(LoopItemsPropertiesExactlyTypeStrictHash);
         }
@@ -2293,15 +2301,16 @@ INSTRUCTION_HANDLER(LoopItemsPropertiesExactlyTypeStrictHash) {
         if (entry.second.type() != value.first) {
           result = false;
           EVALUATE_END(LoopItemsPropertiesExactlyTypeStrictHash);
-        } else if (entry.hash != value.second[0] &&
-                   entry.hash != value.second[1]) {
+        } else if (entry.hash != value.second.first[0] &&
+                   entry.hash != value.second.first[1]) {
           result = false;
           EVALUATE_END(LoopItemsPropertiesExactlyTypeStrictHash);
         }
       }
     } else if (hashes_size == 1) {
       const auto &entry{*object.cbegin()};
-      if (entry.second.type() != value.first || entry.hash != value.second[0]) {
+      if (entry.second.type() != value.first ||
+          entry.hash != value.second.first[0]) {
         result = false;
         EVALUATE_END(LoopItemsPropertiesExactlyTypeStrictHash);
       }
@@ -2311,11 +2320,12 @@ INSTRUCTION_HANDLER(LoopItemsPropertiesExactlyTypeStrictHash) {
         if (entry.second.type() != value.first) {
           result = false;
           EVALUATE_END(LoopItemsPropertiesExactlyTypeStrictHash);
-        } else if (entry.hash == value.second[index]) {
+        } else if (entry.hash == value.second.first[index]) {
           index += 1;
           continue;
-        } else if (std::find(value.second.cbegin(), value.second.cend(),
-                             entry.hash) == value.second.cend()) {
+        } else if (std::find(value.second.first.cbegin(),
+                             value.second.first.cend(),
+                             entry.hash) == value.second.first.cend()) {
           result = false;
           EVALUATE_END(LoopItemsPropertiesExactlyTypeStrictHash);
         } else {
@@ -2337,10 +2347,11 @@ INSTRUCTION_HANDLER(LoopItemsPropertiesExactlyTypeStrictHash3) {
   SOURCEMETA_MAYBE_UNUSED(evaluator);
   EVALUATE_BEGIN_NO_PRECONDITION(LoopItemsPropertiesExactlyTypeStrictHash3);
   const auto &target{get(instance, instruction.relative_instance_location)};
+  // TODO: Take advantage of the table of contents structure to speed up checks
   const auto &value{*std::get_if<ValueTypedHashes>(&instruction.value)};
-  assert(value.second.size() == 3);
+  assert(value.second.first.size() == 3);
   // Otherwise why emit this instruction?
-  assert(!value.second.empty());
+  assert(!value.second.first.empty());
 
   if (!target.is_array()) {
     EVALUATE_END(LoopItemsPropertiesExactlyTypeStrictHash3);
@@ -2366,18 +2377,24 @@ INSTRUCTION_HANDLER(LoopItemsPropertiesExactlyTypeStrictHash3) {
       EVALUATE_END(LoopItemsPropertiesExactlyTypeStrictHash3);
     }
 
-    if ((value_1.hash == value.second[0] && value_2.hash == value.second[1] &&
-         value_3.hash == value.second[2]) ||
-        (value_1.hash == value.second[0] && value_2.hash == value.second[2] &&
-         value_3.hash == value.second[1]) ||
-        (value_1.hash == value.second[1] && value_2.hash == value.second[0] &&
-         value_3.hash == value.second[2]) ||
-        (value_1.hash == value.second[1] && value_2.hash == value.second[2] &&
-         value_3.hash == value.second[0]) ||
-        (value_1.hash == value.second[2] && value_2.hash == value.second[0] &&
-         value_3.hash == value.second[1]) ||
-        (value_1.hash == value.second[2] && value_2.hash == value.second[1] &&
-         value_3.hash == value.second[0])) {
+    if ((value_1.hash == value.second.first[0] &&
+         value_2.hash == value.second.first[1] &&
+         value_3.hash == value.second.first[2]) ||
+        (value_1.hash == value.second.first[0] &&
+         value_2.hash == value.second.first[2] &&
+         value_3.hash == value.second.first[1]) ||
+        (value_1.hash == value.second.first[1] &&
+         value_2.hash == value.second.first[0] &&
+         value_3.hash == value.second.first[2]) ||
+        (value_1.hash == value.second.first[1] &&
+         value_2.hash == value.second.first[2] &&
+         value_3.hash == value.second.first[0]) ||
+        (value_1.hash == value.second.first[2] &&
+         value_2.hash == value.second.first[0] &&
+         value_3.hash == value.second.first[1]) ||
+        (value_1.hash == value.second.first[2] &&
+         value_2.hash == value.second.first[1] &&
+         value_3.hash == value.second.first[0])) {
       continue;
     } else {
       EVALUATE_END(LoopItemsPropertiesExactlyTypeStrictHash3);

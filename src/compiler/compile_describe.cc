@@ -1056,7 +1056,7 @@ auto describe(const bool valid, const Instruction &step,
 
   if (step.type ==
       sourcemeta::blaze::InstructionIndex::AssertionDefinesExactlyStrictHash3) {
-    const auto &value{instruction_value<ValueHashes>(step)};
+    const auto &value{instruction_value<ValueStringHashes>(step).first};
     std::ostringstream message;
     message << "The value was expected to be an object that only defines "
                "the "
