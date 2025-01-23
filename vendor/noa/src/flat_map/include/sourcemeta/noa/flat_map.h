@@ -135,6 +135,10 @@ public:
 
     // Move the perfect hash condition out of the loop for extra performance
     if (this->hasher.is_perfect(key_hash)) {
+      if (this->data.size() == 1 && this->data[0].hash == key_hash) {
+        return this->data[0].hash == key_hash ? &this->data[0].second : nullptr;
+      }
+
       for (size_type index = 0; index < this->data.size(); index++) {
         if (this->data[index].hash == key_hash) {
           return &this->data[index].second;
@@ -182,6 +186,10 @@ public:
 
     // Move the perfect hash condition out of the loop for extra performance
     if (this->hasher.is_perfect(key_hash)) {
+      if (this->data.size() == 1 && this->data[0].hash == key_hash) {
+        return this->data[0].second;
+      }
+
       for (const auto &entry : this->data) {
         if (entry.hash == key_hash) {
           return entry.second;
