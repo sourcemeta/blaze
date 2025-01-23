@@ -1,10 +1,12 @@
 #ifndef SOURCEMETA_NOA_FLAT_MAP_H_
 #define SOURCEMETA_NOA_FLAT_MAP_H_
 
-#include <algorithm>        // std::swap
-#include <cassert>          // assert
+#include <algorithm> // std::swap
+#include <algorithm> // std::min, std::max, std::min_element, std::max_element
+#include <cassert>   // assert
 #include <initializer_list> // std::initializer_list
 #include <iterator>         // std::advance
+#include <limits>           // std::numeric_limits
 #include <utility>          // std::pair, std::move
 #include <vector>           // std::vector
 
@@ -56,6 +58,9 @@ public:
   }
 
   auto assign(key_type &&key, mapped_type &&value) -> hash_type {
+    const auto key_size{key.size()};
+    this->key_lower_size = std::min(this->key_lower_size, key_size);
+    this->key_upper_size = std::max(this->key_upper_size, key_size);
     const auto key_hash{this->hash(key)};
 
     if (this->hasher.is_perfect(key_hash)) {
@@ -79,6 +84,9 @@ public:
   }
 
   auto assign(const key_type &key, const mapped_type &value) -> hash_type {
+    const auto key_size{key.size()};
+    this->key_lower_size = std::min(this->key_lower_size, key_size);
+    this->key_upper_size = std::max(this->key_upper_size, key_size);
     const auto key_hash{this->hash(key)};
 
     if (this->hasher.is_perfect(key_hash)) {
@@ -105,6 +113,10 @@ public:
   inline auto find(const key_type &key, const hash_type key_hash) const
       -> const_iterator {
     assert(this->hash(key) == key_hash);
+    const auto key_size{key.size()};
+    if (key_size < this->key_lower_size || key_size > this->key_upper_size) {
+      return this->cend();
+    }
 
     // Move the perfect hash condition out of the loop for extra performance
     if (this->hasher.is_perfect(key_hash)) {
@@ -129,9 +141,14 @@ public:
     return this->cend();
   }
 
-  inline auto try_at(const key_type &key, const hash_type key_hash) const
+  inline auto try_at(const key_type &key,
+                     const hash_type key_hash) const noexcept
       -> const mapped_type * {
     assert(this->hash(key) == key_hash);
+    const auto key_size{key.size()};
+    if (key_size < this->key_lower_size || key_size > this->key_upper_size) {
+      return nullptr;
+    }
 
     // Move the perfect hash condition out of the loop for extra performance
     if (this->hasher.is_perfect(key_hash)) {
@@ -155,6 +172,10 @@ public:
   // As a performance optimisation if the hash is known
   auto contains(const key_type &key, const hash_type key_hash) const -> bool {
     assert(this->hash(key) == key_hash);
+    const auto key_size{key.size()};
+    if (key_size < this->key_lower_size || key_size > this->key_upper_size) {
+      return false;
+    }
 
     // Move the perfect hash condition out of the loop for extra performance
     if (this->hasher.is_perfect(key_hash)) {
@@ -176,7 +197,7 @@ public:
 
   // As a performance optimisation if the hash is known
 
-  inline auto at(const key_type &key, const hash_type key_hash) const
+  inline auto at(const key_type &key, const hash_type key_hash) const noexcept
       -> const mapped_type & {
     assert(this->hash(key) == key_hash);
 
@@ -203,7 +224,7 @@ public:
 #endif
   }
 
-  inline auto at(const key_type &key, const hash_type key_hash)
+  inline auto at(const key_type &key, const hash_type key_hash) noexcept
       -> mapped_type & {
     assert(this->hash(key) == key_hash);
 
@@ -235,14 +256,15 @@ public:
   }
 
   auto erase(const key_type &key, const hash_type key_hash) -> size_type {
-    const auto current_size{this->size()};
+    auto current_size{this->size()};
 
     if (this->hasher.is_perfect(key_hash)) {
       for (auto &entry : this->data) {
         if (entry.hash == key_hash) {
           std::swap(entry, this->data.back());
           this->data.pop_back();
-          return current_size - 1;
+          current_size -= 1;
+          break;
         }
       }
     } else {
@@ -250,9 +272,25 @@ public:
         if (entry.hash == key_hash && entry.first == key) {
           std::swap(entry, this->data.back());
           this->data.pop_back();
-          return current_size - 1;
+          current_size -= 1;
+          break;
         }
       }
+    }
+
+    if (!this->data.empty()) {
+      this->key_lower_size =
+          std::min_element(this->data.cbegin(), this->data.cend(),
+                           [](const auto &left, const auto &right) {
+                             return left.first.size() < right.first.size();
+                           })
+              ->first.size();
+      this->key_upper_size =
+          std::max_element(this->data.cbegin(), this->data.cend(),
+                           [](const auto &left, const auto &right) {
+                             return left.first.size() < right.first.size();
+                           })
+              ->first.size();
     }
 
     return current_size;
@@ -264,14 +302,25 @@ public:
 
   inline auto size() const noexcept -> size_type { return this->data.size(); }
 
-  inline auto empty() const noexcept -> bool { return this->data.empty(); }
+  inline auto empty() const noexcept -> bool {
+    assert(!this->data.empty() ||
+           this->key_lower_size == std::numeric_limits<std::size_t>::max());
+    assert(!this->data.empty() || this->key_upper_size == 0);
+    return this->data.empty();
+  }
 
-  inline auto clear() noexcept -> void { this->data.clear(); }
+  inline auto clear() noexcept -> void {
+    this->key_lower_size = std::numeric_limits<std::size_t>::max();
+    this->key_upper_size = 0;
+    this->data.clear();
+  }
 
   auto operator!=(const FlatMap &other) const -> bool = default;
 
   auto operator==(const FlatMap &other) const -> bool {
-    if (this->size() != other.size()) {
+    if (this->size() != other.size() ||
+        this->key_lower_size != other.key_lower_size ||
+        this->key_upper_size != other.key_upper_size) {
       return false;
     }
 
@@ -290,6 +339,8 @@ public:
 private:
   underlying_type data;
   Hash hasher;
+  std::size_t key_lower_size{std::numeric_limits<std::size_t>::max()};
+  std::size_t key_upper_size{0};
 };
 
 } // namespace sourcemeta::noa
