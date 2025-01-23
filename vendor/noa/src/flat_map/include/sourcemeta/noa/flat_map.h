@@ -136,7 +136,7 @@ public:
     // Move the perfect hash condition out of the loop for extra performance
     if (this->hasher.is_perfect(key_hash)) {
       for (size_type index = 0; index < this->data.size(); index++) {
-        if (this->data[index].hash == key_hash) {
+        if (key.size() == this->data[index].first.size() && this->data[index].hash == key_hash) {
           return &this->data[index].second;
         }
       }
