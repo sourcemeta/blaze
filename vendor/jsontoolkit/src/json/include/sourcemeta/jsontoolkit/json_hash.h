@@ -45,30 +45,91 @@ template <typename T> struct KeyHash {
     }
   };
 
-  inline auto perfect(const T &value) const noexcept -> hash_type {
+  inline auto perfect(const T &value, const std::size_t size) const noexcept
+      -> hash_type {
     hash_type result;
     assert(!value.empty());
     assert(value.size() <= 31);
     // Copy starting a byte 2
-    std::memcpy(reinterpret_cast<char *>(&result) + 1, value.data(),
-                value.size());
+    std::memcpy(reinterpret_cast<char *>(&result) + 1, value.data(), size);
     return result;
   }
 
   inline auto operator()(const T &value) const noexcept -> hash_type {
     const auto size{value.size()};
-    if (size == 0) {
-      return {};
-    } else if (size <= 31) {
-      return this->perfect(value);
-    } else {
-      // This case is specifically designed to be constant with regards to
-      // string length, and to exploit the fact that most JSON objects don't
-      // have a lot of entries, so hash collision is not as common
-      return {(size + static_cast<typename hash_type::type>(value.front()) +
-               static_cast<typename hash_type::type>(value.back())) %
-              // Make sure the property hash can never exceed 8 bits
-              256};
+    switch (size) {
+      case 0:
+        return {};
+      case 1:
+        return this->perfect(value, 1);
+      case 2:
+        return this->perfect(value, 2);
+      case 3:
+        return this->perfect(value, 3);
+      case 4:
+        return this->perfect(value, 4);
+      case 5:
+        return this->perfect(value, 5);
+      case 6:
+        return this->perfect(value, 6);
+      case 7:
+        return this->perfect(value, 7);
+      case 8:
+        return this->perfect(value, 8);
+      case 9:
+        return this->perfect(value, 9);
+      case 10:
+        return this->perfect(value, 10);
+      case 11:
+        return this->perfect(value, 11);
+      case 12:
+        return this->perfect(value, 12);
+      case 13:
+        return this->perfect(value, 13);
+      case 14:
+        return this->perfect(value, 14);
+      case 15:
+        return this->perfect(value, 15);
+      case 16:
+        return this->perfect(value, 16);
+      case 17:
+        return this->perfect(value, 17);
+      case 18:
+        return this->perfect(value, 18);
+      case 19:
+        return this->perfect(value, 19);
+      case 20:
+        return this->perfect(value, 20);
+      case 21:
+        return this->perfect(value, 21);
+      case 22:
+        return this->perfect(value, 22);
+      case 23:
+        return this->perfect(value, 23);
+      case 24:
+        return this->perfect(value, 24);
+      case 25:
+        return this->perfect(value, 25);
+      case 26:
+        return this->perfect(value, 26);
+      case 27:
+        return this->perfect(value, 27);
+      case 28:
+        return this->perfect(value, 28);
+      case 29:
+        return this->perfect(value, 29);
+      case 30:
+        return this->perfect(value, 30);
+      case 31:
+        return this->perfect(value, 31);
+      default:
+        // This case is specifically designed to be constant with regards to
+        // string length, and to exploit the fact that most JSON objects don't
+        // have a lot of entries, so hash collision is not as common
+        return {(size + static_cast<typename hash_type::type>(value.front()) +
+                 static_cast<typename hash_type::type>(value.back())) %
+                // Make sure the property hash can never exceed 8 bits
+                256};
     }
   }
 
