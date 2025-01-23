@@ -116,11 +116,13 @@ using ValueTypedProperties = std::pair<ValueType, ValueStringSet>;
 
 /// @ingroup evaluator
 /// Represents a compiler step types property hashes value
-using ValueHashes = std::vector<ValueStringSet::hash_type>;
+using ValueStringHashes =
+    std::pair<std::vector<ValueStringSet::hash_type>,
+              std::vector<std::pair<std::size_t, std::size_t>>>;
 
 /// @ingroup evaluator
 /// Represents a compiler step types property hashes value
-using ValueTypedHashes = std::pair<ValueType, ValueHashes>;
+using ValueTypedHashes = std::pair<ValueType, ValueStringHashes>;
 
 /// @ingroup evaluator
 using Value =
@@ -129,7 +131,7 @@ using Value =
                  ValueRegex, ValueUnsignedInteger, ValueRange, ValueBoolean,
                  ValueNamedIndexes, ValueStringType, ValueStringMap,
                  ValuePropertyFilter, ValueIndexPair, ValuePointer,
-                 ValueTypedProperties, ValueHashes, ValueTypedHashes>;
+                 ValueTypedProperties, ValueStringHashes, ValueTypedHashes>;
 
 } // namespace sourcemeta::blaze
 
