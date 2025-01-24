@@ -4530,12 +4530,13 @@ TEST(Evaluator_draft4, enum_9) {
   const sourcemeta::jsontoolkit::JSON instance{"foo"};
   EVALUATE_WITH_TRACE_FAST_SUCCESS(schema, instance, 1);
 
-  EVALUATE_TRACE_PRE(0, AssertionEqualsAny, "/enum", "#/enum", "");
-  EVALUATE_TRACE_POST_SUCCESS(0, AssertionEqualsAny, "/enum", "#/enum", "");
+  EVALUATE_TRACE_PRE(0, AssertionEqualsAnyStringHash, "/enum", "#/enum", "");
+  EVALUATE_TRACE_POST_SUCCESS(0, AssertionEqualsAnyStringHash, "/enum",
+                              "#/enum", "");
 
   EVALUATE_TRACE_POST_DESCRIBE(instance, 0,
                                "The string value \"foo\" was expected to equal "
-                               "one of the 3 declared values");
+                               "one of the given declared values");
 }
 
 TEST(Evaluator_draft4, enum_10) {
@@ -4727,6 +4728,27 @@ TEST(Evaluator_draft4, enum_17) {
   EVALUATE_TRACE_POST_DESCRIBE(
       instance, 1,
       "The value was expected to be an integer but it was a real number");
+}
+
+TEST(Evaluator_draft4, enum_18) {
+  const sourcemeta::jsontoolkit::JSON schema{
+      sourcemeta::jsontoolkit::parse(R"JSON({
+    "$schema": "http://json-schema.org/draft-04/schema#",
+    "type": "string",
+    "enum": [ "foo", "bar", "baz" ]
+  })JSON")};
+
+  const sourcemeta::jsontoolkit::JSON instance{"xxxx"};
+  EVALUATE_WITH_TRACE_FAST_FAILURE(schema, instance, 1);
+
+  EVALUATE_TRACE_PRE(0, AssertionEqualsAnyStringHash, "/enum", "#/enum", "");
+  EVALUATE_TRACE_POST_FAILURE(0, AssertionEqualsAnyStringHash, "/enum",
+                              "#/enum", "");
+
+  EVALUATE_TRACE_POST_DESCRIBE(
+      instance, 0,
+      "The string value \"xxxx\" was expected to equal "
+      "one of the given declared values");
 }
 
 TEST(Evaluator_draft4, uniqueItems_1) {

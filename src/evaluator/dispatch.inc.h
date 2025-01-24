@@ -533,6 +533,41 @@ INSTRUCTION_HANDLER(AssertionEqualsAny) {
   EVALUATE_END(AssertionEqualsAny);
 }
 
+INSTRUCTION_HANDLER(AssertionEqualsAnyStringHash) {
+  SOURCEMETA_MAYBE_UNUSED(depth);
+  SOURCEMETA_MAYBE_UNUSED(schema);
+  SOURCEMETA_MAYBE_UNUSED(callback);
+  SOURCEMETA_MAYBE_UNUSED(instance);
+  SOURCEMETA_MAYBE_UNUSED(property_target);
+  SOURCEMETA_MAYBE_UNUSED(evaluator);
+  EVALUATE_BEGIN_NO_PRECONDITION(AssertionEqualsAnyStringHash);
+  const auto &target{get(instance, instruction.relative_instance_location)};
+  const auto &value{*std::get_if<ValueStringHashes>(&instruction.value)};
+
+  if (target.is_string()) {
+    const auto &target_string{target.to_string()};
+    const auto string_size{target_string.size()};
+    // TODO: Put this on the evaluator to re-use it everywhere
+    const sourcemeta::jsontoolkit::KeyHash<ValueString> hasher;
+    const auto value_hash{hasher(target_string)};
+    if (string_size < value.second.size()) {
+      const auto &hint{value.second[string_size]};
+      assert(hint.first <= hint.second);
+      if (hint.second != 0) {
+        for (std::size_t index = hint.first - 1; index < hint.second; index++) {
+          assert(hasher.is_perfect(value.first[index]));
+          if (value.first[index] == value_hash) {
+            result = true;
+            break;
+          }
+        }
+      }
+    }
+  }
+
+  EVALUATE_END(AssertionEqualsAnyStringHash);
+}
+
 INSTRUCTION_HANDLER(AssertionGreaterEqual) {
   SOURCEMETA_MAYBE_UNUSED(depth);
   SOURCEMETA_MAYBE_UNUSED(schema);
@@ -2483,7 +2518,7 @@ using DispatchHandler = bool (*)(const sourcemeta::blaze::Instruction &,
                                  sourcemeta::blaze::Evaluator &);
 
 // Must have same order as InstructionIndex
-static constexpr DispatchHandler handlers[92] = {
+static constexpr DispatchHandler handlers[93] = {
     AssertionFail,
     AssertionDefines,
     AssertionDefinesStrict,
@@ -2512,6 +2547,7 @@ static constexpr DispatchHandler handlers[92] = {
     AssertionObjectSizeGreater,
     AssertionEqual,
     AssertionEqualsAny,
+    AssertionEqualsAnyStringHash,
     AssertionGreaterEqual,
     AssertionLessEqual,
     AssertionGreater,
