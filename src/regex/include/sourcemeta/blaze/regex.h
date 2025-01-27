@@ -1,5 +1,5 @@
-#ifndef SOURCEMETA_NOA_REGEX_H_
-#define SOURCEMETA_NOA_REGEX_H_
+#ifndef SOURCEMETA_BLAZE_REGEX_H_
+#define SOURCEMETA_BLAZE_REGEX_H_
 
 #if defined(__clang__)
 #pragma clang diagnostic push
@@ -27,8 +27,15 @@
 #include <variant>  // std::variant
 
 /// @defgroup regex Regex
+/// @brief A high-performance regex implementation for JSON Schema
+///
+/// This functionality is included as follows:
+///
+/// ```cpp
+/// #include <sourcemeta/blaze/regex.h>
+/// ```
 
-namespace sourcemeta::noa {
+namespace sourcemeta::blaze {
 
 /// @ingroup regex
 template <typename T> using RegexTypeBoost = boost::basic_regex<T>;
@@ -72,11 +79,11 @@ enum class RegexIndex : std::uint8_t {
 /// invalid, no value is returned. For example:
 ///
 /// ```cpp
-/// #include <sourcemeta/noa/regex.h>
+/// #include <sourcemeta/blaze/regex.h>
 /// #include <cassert>
 ///
-/// const sourcemeta::noa::Regex regex{
-///   sourcemeta::noa::to_regex("^foo")};
+/// const sourcemeta::blaze::Regex regex{
+///   sourcemeta::blaze::to_regex("^foo")};
 /// assert(regex.has_value());
 /// ```
 template <typename T>
@@ -150,13 +157,13 @@ auto to_regex(const T &pattern) -> std::optional<Regex<T>> {
 /// Validate a string against a regular expression. For example:
 ///
 /// ```cpp
-/// #include <sourcemeta/noa/regex.h>
+/// #include <sourcemeta/blaze/regex.h>
 /// #include <cassert>
 ///
-/// const sourcemeta::noa::Regex regex{
-///   sourcemeta::noa::to_regex("^foo")};
+/// const sourcemeta::blaze::Regex regex{
+///   sourcemeta::blaze::to_regex("^foo")};
 /// assert(regex.has_value());
-/// assert(sourcemeta::noa::matches(regex.value(), "foo bar"));
+/// assert(sourcemeta::blaze::matches(regex.value(), "foo bar"));
 /// ```
 template <typename T>
 auto matches(const Regex<T> &regex, const T &value) -> bool {
@@ -186,6 +193,6 @@ auto matches(const Regex<T> &regex, const T &value) -> bool {
 #endif
 }
 
-} // namespace sourcemeta::noa
+} // namespace sourcemeta::blaze
 
 #endif

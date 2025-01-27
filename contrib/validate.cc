@@ -53,6 +53,18 @@ auto main(int argc, char **argv) noexcept -> int {
   // Validate and measure
   sourcemeta::blaze::Evaluator evaluator;
 
+  if (argc > 3 && std::string{argv[3]} == "--infinite") {
+    std::cerr << "Running indefinitely...\n";
+    while (true) {
+      for (const auto &instance : instances) {
+        const auto result{evaluator.validate(schema_template, instance)};
+        if (!result) {
+          return EXIT_FAILURE;
+        }
+      }
+    }
+  }
+
   if (argc > 3 && std::string{argv[3]} == "--warmup") {
     std::cerr << "Warming up...\n";
     for (std::size_t count = 0; count < 1000000; count++) {
