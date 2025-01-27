@@ -3,8 +3,7 @@
 
 #include <sourcemeta/blaze/compiler.h>
 #include <sourcemeta/blaze/evaluator.h>
-
-#include <sourcemeta/noa/regex.h>
+#include <sourcemeta/blaze/regex.h>
 
 #include <algorithm> // std::sort, std::any_of, std::all_of, std::find_if, std::none_of
 #include <cassert> // assert
@@ -17,8 +16,8 @@
 static auto parse_regex(const std::string &pattern,
                         const sourcemeta::jsontoolkit::URI &base,
                         const sourcemeta::jsontoolkit::Pointer &schema_location)
-    -> sourcemeta::noa::Regex<sourcemeta::jsontoolkit::JSON::String> {
-  const auto result{sourcemeta::noa::to_regex(pattern)};
+    -> sourcemeta::blaze::Regex<sourcemeta::jsontoolkit::JSON::String> {
+  const auto result{sourcemeta::blaze::to_regex(pattern)};
   if (!result.has_value()) {
     std::ostringstream message;
     message << "Invalid regular expression: " << pattern;

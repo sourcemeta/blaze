@@ -1,5 +1,8 @@
 set(BENCHMARK_SOURCES)
 
+if(BLAZE_REGEX)
+  list(APPEND BENCHMARK_SOURCES regex.cc)
+endif()
 if(BLAZE_COMPILER)
   list(APPEND BENCHMARK_SOURCES
     compiler_draft6.cc
@@ -25,6 +28,10 @@ if(BENCHMARK_SOURCES)
   target_link_libraries(sourcemeta_blaze_benchmark
     PRIVATE sourcemeta::jsontoolkit::jsonschema)
 
+  if(BLAZE_REGEX)
+    target_link_libraries(sourcemeta_blaze_benchmark
+      PRIVATE sourcemeta::blaze::regex)
+  endif()
   if(BLAZE_COMPILER)
     target_link_libraries(sourcemeta_blaze_benchmark
       PRIVATE sourcemeta::blaze::compiler)

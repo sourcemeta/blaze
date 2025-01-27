@@ -2,13 +2,13 @@
 #define SOURCEMETA_BLAZE_EVALUATOR_VALUE_H
 
 #include <sourcemeta/noa/flat_map.h>
-#include <sourcemeta/noa/regex.h>
 
 #include <sourcemeta/jsontoolkit/json.h>
 #include <sourcemeta/jsontoolkit/jsonpointer.h>
 #include <sourcemeta/jsontoolkit/uri.h>
 
 #include <sourcemeta/blaze/evaluator_string_set.h>
+#include <sourcemeta/blaze/regex.h>
 
 #include <cstdint>       // std::uint8_t
 #include <optional>      // std::optional
@@ -64,7 +64,7 @@ using ValueType = sourcemeta::jsontoolkit::JSON::Type;
 /// original string and the regular expression as standard regular expressions
 /// do not keep a copy of their original value (which we need for serialization
 /// purposes)
-using ValueRegex = std::pair<sourcemeta::noa::Regex<ValueString>, std::string>;
+using ValueRegex = std::pair<Regex<ValueString>, std::string>;
 
 /// @ingroup evaluator
 /// Represents a compiler step JSON unsigned integer value

@@ -17,8 +17,6 @@ endif()
 
 target_link_libraries(sourcemeta_blaze_compiler PUBLIC
   sourcemeta::jsontoolkit::json)
-target_link_libraries(sourcemeta_blaze_compiler PRIVATE
-  sourcemeta::noa::regex)
 target_link_libraries(sourcemeta_blaze_compiler PUBLIC
   sourcemeta::jsontoolkit::jsonpointer)
 target_link_libraries(sourcemeta_blaze_compiler PRIVATE
@@ -27,3 +25,5 @@ target_link_libraries(sourcemeta_blaze_compiler PUBLIC
   sourcemeta::jsontoolkit::jsonschema)
 target_link_libraries(sourcemeta_blaze_compiler PUBLIC
   sourcemeta::blaze::evaluator)
+target_link_libraries(sourcemeta_blaze_compiler PRIVATE
+  sourcemeta::blaze::regex)

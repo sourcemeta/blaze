@@ -16,6 +16,7 @@ jobs:
       - run: >
           cmake -S . -B ./build
           -DCMAKE_BUILD_TYPE:STRING=Release
+          -DBLAZE_REGEX:BOOL=OFF
           -DBLAZE_COMPILER:BOOL=OFF
           -DBLAZE_EVALUATOR:BOOL=OFF
           -DBLAZE_TESTS:BOOL=OFF

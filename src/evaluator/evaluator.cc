@@ -1,6 +1,5 @@
 #include <sourcemeta/blaze/evaluator.h>
-
-#include <sourcemeta/noa/regex.h>
+#include <sourcemeta/blaze/regex.h>
 
 #include <sourcemeta/jsontoolkit/json.h>
 #include <sourcemeta/jsontoolkit/jsonpointer.h>

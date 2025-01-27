@@ -5,6 +5,7 @@ project(blaze VERSION 0.0.1 LANGUAGES CXX
 list(APPEND CMAKE_MODULE_PATH "${PROJECT_SOURCE_DIR}/cmake")
 
 # Options
+option(BLAZE_REGEX "Build the Blaze regex library" ON)
 option(BLAZE_COMPILER "Build the Blaze compiler library" ON)
 option(BLAZE_EVALUATOR "Build the Blaze evaluator library" ON)
 option(BLAZE_TESTS "Build the Blaze tests" OFF)
@@ -32,6 +33,11 @@ if(BLAZE_INSTALL)
     "${CMAKE_CURRENT_BINARY_DIR}/${PROJECT_NAME}-config.cmake"
     DESTINATION "${CMAKE_INSTALL_LIBDIR}/cmake/${PROJECT_NAME}"
     COMPONENT sourcemeta_blaze_dev)
+endif()
+
+if(BLAZE_REGEX OR BLAZE_COMPILER OR BLAZE_EVALUATOR)
+  find_package(BoostRegex REQUIRED)
+  add_subdirectory(src/regex)
 endif()
 
 if(BLAZE_COMPILER OR BLAZE_EVALUATOR)
@@ -74,6 +80,10 @@ endif()
 # Testing
 if(BLAZE_TESTS)
   enable_testing()
+
+  if(BLAZE_REGEX)
+    add_subdirectory(test/regex)
+  endif()
 
   if(BLAZE_COMPILER)
     add_subdirectory(test/compiler)
