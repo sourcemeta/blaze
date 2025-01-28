@@ -3,10 +3,8 @@ bindings
 contrib
 doxygen
 test
-vendor/jsonschema-test-suite
-vendor/core
-vendor/vendorpull
-vendor/jsonschema-test-suite.mask
+vendor
+cmake
 .ackrc
 .editorconfig
 Brewfile
