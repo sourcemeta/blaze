@@ -2,8 +2,7 @@ Blaze
 =====
 
 The ultra high-performance JSON Schema validator for C++ with support for JSON
-Schema Draft 4, Draft 6, Draft 7, 2019-09, and 2020-12. Built on top of the
-powerful [JSON Toolkit](https://github.com/sourcemeta/jsontoolkit) library.
+Schema Draft 4, Draft 6, Draft 7, 2019-09, and 2020-12.
 
 ![Supported Dialects](https://img.shields.io/endpoint?url=https%3A%2F%2Fbowtie.report%2Fbadges%2Fc%2B%2B-blaze%2Fsupported_versions.json)
 
@@ -57,7 +56,7 @@ hooks for supporting custom vocabularies, resolving external schemas, and more.
 
 ```cpp
 // (1) Get a JSON Schema
-const auto schema{sourcemeta::jsontoolkit::parse(R"JSON({
+const auto schema{sourcemeta::core::parse(R"JSON({
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "type": "string"
 })JSON")};
@@ -69,8 +68,8 @@ const auto compiled_schema{sourcemeta::blaze::compile(
   // These options allow you tweak how Blaze works,
   // the JSON Schema vocabularies it understands,
   // and how to resolve references to external schemas
-  sourcemeta::jsontoolkit::default_schema_walker,
-  sourcemeta::jsontoolkit::official_resolver,
+  sourcemeta::core::default_schema_walker,
+  sourcemeta::core::official_resolver,
   sourcemeta::blaze::default_schema_compiler,
 
   // Fast validation means getting to a boolean result
@@ -80,7 +79,7 @@ const auto compiled_schema{sourcemeta::blaze::compile(
   sourcemeta::blaze::Mode::FastValidation)};
 
 // (3) Get a JSON instance
-const sourcemeta::jsontoolkit::JSON instance{"Hello Blaze!"};
+const sourcemeta::core::JSON instance{"Hello Blaze!"};
 
 // (4) Validate the instance against the schema
 sourcemeta::blaze::Evaluator evaluator;

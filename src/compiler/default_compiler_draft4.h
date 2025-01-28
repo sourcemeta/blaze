@@ -4,7 +4,7 @@
 #include <sourcemeta/blaze/compiler.h>
 #include <sourcemeta/blaze/evaluator.h>
 
-#include <sourcemeta/noa/regex.h>
+#include <sourcemeta/core/regex.h>
 
 #include <algorithm> // std::sort, std::any_of, std::all_of, std::find_if, std::none_of
 #include <cassert> // assert
@@ -15,10 +15,10 @@
 #include "compile_helpers.h"
 
 static auto parse_regex(const std::string &pattern,
-                        const sourcemeta::jsontoolkit::URI &base,
-                        const sourcemeta::jsontoolkit::Pointer &schema_location)
-    -> sourcemeta::noa::Regex<sourcemeta::jsontoolkit::JSON::String> {
-  const auto result{sourcemeta::noa::to_regex(pattern)};
+                        const sourcemeta::core::URI &base,
+                        const sourcemeta::core::Pointer &schema_location)
+    -> sourcemeta::core::Regex<sourcemeta::core::JSON::String> {
+  const auto result{sourcemeta::core::to_regex(pattern)};
   if (!result.has_value()) {
     std::ostringstream message;
     message << "Invalid regular expression: " << pattern;
@@ -65,16 +65,15 @@ defines_direct_enumeration(const sourcemeta::blaze::Instructions &steps)
   return std::distance(steps.cbegin(), iterator);
 }
 
-static auto
-is_inside_disjunctor(const sourcemeta::jsontoolkit::Pointer &pointer) -> bool {
+static auto is_inside_disjunctor(const sourcemeta::core::Pointer &pointer)
+    -> bool {
   return pointer.size() > 2 && pointer.at(pointer.size() - 2).is_index() &&
          pointer.at(pointer.size() - 3).is_property() &&
          (pointer.at(pointer.size() - 3).to_property() == "oneOf" ||
           pointer.at(pointer.size() - 3).to_property() == "anyOf");
 }
 
-static auto
-json_array_to_string_set(const sourcemeta::jsontoolkit::JSON &document)
+static auto json_array_to_string_set(const sourcemeta::core::JSON &document)
     -> sourcemeta::blaze::ValueStringSet {
   sourcemeta::blaze::ValueStringSet result;
   for (const auto &value : document.as_array()) {
@@ -86,7 +85,7 @@ json_array_to_string_set(const sourcemeta::jsontoolkit::JSON &document)
 }
 
 static auto
-is_closed_properties_required(const sourcemeta::jsontoolkit::JSON &schema,
+is_closed_properties_required(const sourcemeta::core::JSON &schema,
                               const sourcemeta::blaze::ValueStringSet &required)
     -> bool {
   return schema.defines("additionalProperties") &&
@@ -200,10 +199,10 @@ auto compiler_draft4_core_ref(const Context &context,
                               const Instructions &) -> Instructions {
   // Determine the label
   const auto &entry{static_frame_entry(context, schema_context)};
-  const auto type{sourcemeta::jsontoolkit::ReferenceType::Static};
+  const auto type{sourcemeta::core::ReferenceType::Static};
   if (!context.frame.references().contains({type, entry.pointer})) {
     assert(schema_context.schema.at(dynamic_context.keyword).is_string());
-    throw sourcemeta::jsontoolkit::SchemaReferenceError(
+    throw sourcemeta::core::SchemaReferenceError(
         schema_context.schema.at(dynamic_context.keyword).to_string(),
         entry.pointer, "The schema location is inside of an unknown keyword");
   }
@@ -240,8 +239,8 @@ auto compiler_draft4_core_ref(const Context &context,
   // overhead of marking the location for future jumps, and pretty much
   // just expand the reference destination in place.
   // TODO: Elevate the calculation required to detect recursive references
-  // to JSON Toolkit's `.frame()`
-  // See: https://github.com/sourcemeta/jsontoolkit/issues/1394
+  // to Core's `.frame()`
+  // See: https://github.com/sourcemeta/core/issues/1394
   const bool is_recursive{
       // This means the reference is directly recursive, by jumping to
       // a parent of the reference itself.
@@ -258,16 +257,15 @@ auto compiler_draft4_core_ref(const Context &context,
         // one of the necessary schema resources to the evaluator
         !context.uses_dynamic_scopes) {
       return compile(context, new_schema_context, dynamic_context,
-                     sourcemeta::jsontoolkit::empty_pointer,
-                     sourcemeta::jsontoolkit::empty_pointer,
-                     reference.destination);
+                     sourcemeta::core::empty_pointer,
+                     sourcemeta::core::empty_pointer, reference.destination);
     } else {
       return {make(sourcemeta::blaze::InstructionIndex::LogicalAnd, context,
                    schema_context, dynamic_context, ValueNone{},
                    compile(context, new_schema_context,
                            relative_dynamic_context(dynamic_context),
-                           sourcemeta::jsontoolkit::empty_pointer,
-                           sourcemeta::jsontoolkit::empty_pointer,
+                           sourcemeta::core::empty_pointer,
+                           sourcemeta::core::empty_pointer,
                            reference.destination))};
     }
   }
@@ -275,8 +273,8 @@ auto compiler_draft4_core_ref(const Context &context,
   new_schema_context.labels.insert(label);
   Instructions children{compile(
       context, new_schema_context, relative_dynamic_context(dynamic_context),
-      sourcemeta::jsontoolkit::empty_pointer,
-      sourcemeta::jsontoolkit::empty_pointer, reference.destination)};
+      sourcemeta::core::empty_pointer, sourcemeta::core::empty_pointer,
+      reference.destination)};
 
   // If we ended up not using the label after all, then we can ignore the
   // wrapper, at the expense of compiling the reference instructions once more
@@ -284,9 +282,8 @@ auto compiler_draft4_core_ref(const Context &context,
   collect_jump_labels(children, used_labels);
   if (!used_labels.contains(label)) {
     return compile(context, schema_context, dynamic_context,
-                   sourcemeta::jsontoolkit::empty_pointer,
-                   sourcemeta::jsontoolkit::empty_pointer,
-                   reference.destination);
+                   sourcemeta::core::empty_pointer,
+                   sourcemeta::core::empty_pointer, reference.destination);
   }
 
   // The idea to handle recursion is to expand the reference once, and when
@@ -319,7 +316,7 @@ auto compiler_draft4_validation_type(const Context &context,
 
       return {make(sourcemeta::blaze::InstructionIndex::AssertionTypeStrict,
                    context, schema_context, dynamic_context,
-                   sourcemeta::jsontoolkit::JSON::Type::Null)};
+                   sourcemeta::core::JSON::Type::Null)};
     } else if (type == "boolean") {
       if (context.mode == Mode::FastValidation &&
           schema_context.schema.defines("enum") &&
@@ -332,7 +329,7 @@ auto compiler_draft4_validation_type(const Context &context,
 
       return {make(sourcemeta::blaze::InstructionIndex::AssertionTypeStrict,
                    context, schema_context, dynamic_context,
-                   sourcemeta::jsontoolkit::JSON::Type::Boolean)};
+                   sourcemeta::core::JSON::Type::Boolean)};
     } else if (type == "object") {
       const auto minimum{
           unsigned_integer_property(schema_context.schema, "minProperties", 0)};
@@ -369,7 +366,7 @@ auto compiler_draft4_validation_type(const Context &context,
 
       return {make(sourcemeta::blaze::InstructionIndex::AssertionTypeStrict,
                    context, schema_context, dynamic_context,
-                   sourcemeta::jsontoolkit::JSON::Type::Object)};
+                   sourcemeta::core::JSON::Type::Object)};
     } else if (type == "array") {
       const auto minimum{
           unsigned_integer_property(schema_context.schema, "minItems", 0)};
@@ -401,7 +398,7 @@ auto compiler_draft4_validation_type(const Context &context,
 
       return {make(sourcemeta::blaze::InstructionIndex::AssertionTypeStrict,
                    context, schema_context, dynamic_context,
-                   sourcemeta::jsontoolkit::JSON::Type::Array)};
+                   sourcemeta::core::JSON::Type::Array)};
     } else if (type == "number") {
       if (context.mode == Mode::FastValidation &&
           schema_context.schema.defines("enum") &&
@@ -414,9 +411,9 @@ auto compiler_draft4_validation_type(const Context &context,
 
       return {make(sourcemeta::blaze::InstructionIndex::AssertionTypeStrictAny,
                    context, schema_context, dynamic_context,
-                   std::vector<sourcemeta::jsontoolkit::JSON::Type>{
-                       sourcemeta::jsontoolkit::JSON::Type::Real,
-                       sourcemeta::jsontoolkit::JSON::Type::Integer})};
+                   std::vector<sourcemeta::core::JSON::Type>{
+                       sourcemeta::core::JSON::Type::Real,
+                       sourcemeta::core::JSON::Type::Integer})};
     } else if (type == "integer") {
       if (context.mode == Mode::FastValidation &&
           schema_context.schema.defines("enum") &&
@@ -429,7 +426,7 @@ auto compiler_draft4_validation_type(const Context &context,
 
       return {make(sourcemeta::blaze::InstructionIndex::AssertionTypeStrict,
                    context, schema_context, dynamic_context,
-                   sourcemeta::jsontoolkit::JSON::Type::Integer)};
+                   sourcemeta::core::JSON::Type::Integer)};
     } else if (type == "string") {
       const auto minimum{
           unsigned_integer_property(schema_context.schema, "minLength", 0)};
@@ -461,7 +458,7 @@ auto compiler_draft4_validation_type(const Context &context,
 
       return {make(sourcemeta::blaze::InstructionIndex::AssertionTypeStrict,
                    context, schema_context, dynamic_context,
-                   sourcemeta::jsontoolkit::JSON::Type::String)};
+                   sourcemeta::core::JSON::Type::String)};
     } else {
       return {};
     }
@@ -475,57 +472,57 @@ auto compiler_draft4_validation_type(const Context &context,
     if (type == "null") {
       return {make(sourcemeta::blaze::InstructionIndex::AssertionTypeStrict,
                    context, schema_context, dynamic_context,
-                   sourcemeta::jsontoolkit::JSON::Type::Null)};
+                   sourcemeta::core::JSON::Type::Null)};
     } else if (type == "boolean") {
       return {make(sourcemeta::blaze::InstructionIndex::AssertionTypeStrict,
                    context, schema_context, dynamic_context,
-                   sourcemeta::jsontoolkit::JSON::Type::Boolean)};
+                   sourcemeta::core::JSON::Type::Boolean)};
     } else if (type == "object") {
       return {make(sourcemeta::blaze::InstructionIndex::AssertionTypeStrict,
                    context, schema_context, dynamic_context,
-                   sourcemeta::jsontoolkit::JSON::Type::Object)};
+                   sourcemeta::core::JSON::Type::Object)};
     } else if (type == "array") {
       return {make(sourcemeta::blaze::InstructionIndex::AssertionTypeStrict,
                    context, schema_context, dynamic_context,
-                   sourcemeta::jsontoolkit::JSON::Type::Array)};
+                   sourcemeta::core::JSON::Type::Array)};
     } else if (type == "number") {
       return {make(sourcemeta::blaze::InstructionIndex::AssertionTypeStrictAny,
                    context, schema_context, dynamic_context,
-                   std::vector<sourcemeta::jsontoolkit::JSON::Type>{
-                       sourcemeta::jsontoolkit::JSON::Type::Real,
-                       sourcemeta::jsontoolkit::JSON::Type::Integer})};
+                   std::vector<sourcemeta::core::JSON::Type>{
+                       sourcemeta::core::JSON::Type::Real,
+                       sourcemeta::core::JSON::Type::Integer})};
     } else if (type == "integer") {
       return {make(sourcemeta::blaze::InstructionIndex::AssertionTypeStrict,
                    context, schema_context, dynamic_context,
-                   sourcemeta::jsontoolkit::JSON::Type::Integer)};
+                   sourcemeta::core::JSON::Type::Integer)};
     } else if (type == "string") {
       return {make(sourcemeta::blaze::InstructionIndex::AssertionTypeStrict,
                    context, schema_context, dynamic_context,
-                   sourcemeta::jsontoolkit::JSON::Type::String)};
+                   sourcemeta::core::JSON::Type::String)};
     } else {
       return {};
     }
   } else if (schema_context.schema.at(dynamic_context.keyword).is_array()) {
-    std::vector<sourcemeta::jsontoolkit::JSON::Type> types;
+    std::vector<sourcemeta::core::JSON::Type> types;
     for (const auto &type :
          schema_context.schema.at(dynamic_context.keyword).as_array()) {
       assert(type.is_string());
       const auto &type_string{type.to_string()};
       if (type_string == "null") {
-        types.push_back(sourcemeta::jsontoolkit::JSON::Type::Null);
+        types.push_back(sourcemeta::core::JSON::Type::Null);
       } else if (type_string == "boolean") {
-        types.push_back(sourcemeta::jsontoolkit::JSON::Type::Boolean);
+        types.push_back(sourcemeta::core::JSON::Type::Boolean);
       } else if (type_string == "object") {
-        types.push_back(sourcemeta::jsontoolkit::JSON::Type::Object);
+        types.push_back(sourcemeta::core::JSON::Type::Object);
       } else if (type_string == "array") {
-        types.push_back(sourcemeta::jsontoolkit::JSON::Type::Array);
+        types.push_back(sourcemeta::core::JSON::Type::Array);
       } else if (type_string == "number") {
-        types.push_back(sourcemeta::jsontoolkit::JSON::Type::Integer);
-        types.push_back(sourcemeta::jsontoolkit::JSON::Type::Real);
+        types.push_back(sourcemeta::core::JSON::Type::Integer);
+        types.push_back(sourcemeta::core::JSON::Type::Real);
       } else if (type_string == "integer") {
-        types.push_back(sourcemeta::jsontoolkit::JSON::Type::Integer);
+        types.push_back(sourcemeta::core::JSON::Type::Integer);
       } else if (type_string == "string") {
-        types.push_back(sourcemeta::jsontoolkit::JSON::Type::String);
+        types.push_back(sourcemeta::core::JSON::Type::String);
       }
     }
 
@@ -583,8 +580,8 @@ auto compiler_draft4_validation_required(const Context &context,
             schema_context.labels,
             schema_context.references};
         const DynamicContext new_dynamic_context{
-            "properties", sourcemeta::jsontoolkit::empty_pointer,
-            sourcemeta::jsontoolkit::empty_pointer, false};
+            "properties", sourcemeta::core::empty_pointer,
+            sourcemeta::core::empty_pointer, false};
         auto properties{compile_properties(context, new_schema_context,
                                            new_dynamic_context, current)};
         if (std::all_of(properties.cbegin(), properties.cend(),
@@ -604,7 +601,7 @@ auto compiler_draft4_validation_required(const Context &context,
           }
         }
 
-        sourcemeta::jsontoolkit::KeyHash<ValueString> hasher;
+        sourcemeta::core::KeyHash<ValueString> hasher;
         if (context.mode == Mode::FastValidation &&
             properties_set.size() == 3 &&
             std::all_of(properties_set.begin(), properties_set.end(),
@@ -675,10 +672,9 @@ auto compiler_draft4_applicator_allof(const Context &context,
     for (std::uint64_t index = 0;
          index < schema_context.schema.at(dynamic_context.keyword).size();
          index++) {
-      for (auto &&step :
-           compile(context, schema_context, dynamic_context,
-                   {static_cast<sourcemeta::jsontoolkit::Pointer::Token::Index>(
-                       index)})) {
+      for (auto &&step : compile(
+               context, schema_context, dynamic_context,
+               {static_cast<sourcemeta::core::Pointer::Token::Index>(index)})) {
         children.push_back(std::move(step));
       }
     }
@@ -688,11 +684,10 @@ auto compiler_draft4_applicator_allof(const Context &context,
     for (std::uint64_t index = 0;
          index < schema_context.schema.at(dynamic_context.keyword).size();
          index++) {
-      for (auto &&step :
-           compile(context, schema_context,
-                   relative_dynamic_context(dynamic_context),
-                   {static_cast<sourcemeta::jsontoolkit::Pointer::Token::Index>(
-                       index)})) {
+      for (auto &&step : compile(
+               context, schema_context,
+               relative_dynamic_context(dynamic_context),
+               {static_cast<sourcemeta::core::Pointer::Token::Index>(index)})) {
         children.push_back(std::move(step));
       }
     }
@@ -717,10 +712,9 @@ auto compiler_draft4_applicator_anyof(const Context &context,
     disjunctors.push_back(make(
         sourcemeta::blaze::InstructionIndex::ControlGroup, context,
         schema_context, relative_dynamic_context(dynamic_context), ValueNone{},
-        compile(context, schema_context,
-                relative_dynamic_context(dynamic_context),
-                {static_cast<sourcemeta::jsontoolkit::Pointer::Token::Index>(
-                    index)})));
+        compile(
+            context, schema_context, relative_dynamic_context(dynamic_context),
+            {static_cast<sourcemeta::core::Pointer::Token::Index>(index)})));
   }
 
   if (context.mode == Mode::FastValidation &&
@@ -786,10 +780,9 @@ auto compiler_draft4_applicator_oneof(const Context &context,
     disjunctors.push_back(make(
         sourcemeta::blaze::InstructionIndex::ControlGroup, context,
         schema_context, relative_dynamic_context(dynamic_context), ValueNone{},
-        compile(context, schema_context,
-                relative_dynamic_context(dynamic_context),
-                {static_cast<sourcemeta::jsontoolkit::Pointer::Token::Index>(
-                    index)})));
+        compile(
+            context, schema_context, relative_dynamic_context(dynamic_context),
+            {static_cast<sourcemeta::core::Pointer::Token::Index>(index)})));
   }
 
   const auto requires_exhaustive{context.mode == Mode::Exhaustive ||
@@ -806,8 +799,7 @@ auto compiler_draft4_applicator_oneof(const Context &context,
 // in the corresponding case.
 auto properties_as_loop(const Context &context,
                         const SchemaContext &schema_context,
-                        const sourcemeta::jsontoolkit::JSON &properties)
-    -> bool {
+                        const sourcemeta::core::JSON &properties) -> bool {
   const auto size{properties.size()};
   const auto imports_validation_vocabulary =
       schema_context.vocabularies.contains(
@@ -851,14 +843,14 @@ auto properties_as_loop(const Context &context,
                   context.frame.references().cend(),
                   [&context, &current_entry](const auto &reference) {
                     if (!context.frame.locations().contains(
-                            {sourcemeta::jsontoolkit::ReferenceType::Static,
+                            {sourcemeta::core::ReferenceType::Static,
                              reference.second.destination})) {
                       return false;
                     }
 
                     const auto &target{
                         context.frame.locations()
-                            .at({sourcemeta::jsontoolkit::ReferenceType::Static,
+                            .at({sourcemeta::core::ReferenceType::Static,
                                  reference.second.destination})
                             .pointer};
                     return is_inside_disjunctor(reference.first.second) &&
@@ -929,7 +921,7 @@ auto compiler_draft4_applicator_properties_with_options(
         substeps.push_back(
             make(sourcemeta::blaze::InstructionIndex::AnnotationEmit, context,
                  schema_context, relative_dynamic_context(dynamic_context),
-                 sourcemeta::jsontoolkit::JSON{name}));
+                 sourcemeta::core::JSON{name}));
       }
 
       // Note that the evaluator completely ignores this wrapper anyway
@@ -983,8 +975,7 @@ auto compiler_draft4_applicator_properties_with_options(
       std::all_of(properties.cbegin(), properties.cend(),
                   [&schema_context](const auto &property) {
                     return schema_context.schema.at("required")
-                        .contains(
-                            sourcemeta::jsontoolkit::JSON{property.first});
+                        .contains(sourcemeta::core::JSON{property.first});
                   })) {
     if (std::all_of(properties.cbegin(), properties.cend(),
                     [](const auto &property) {
@@ -1006,7 +997,7 @@ auto compiler_draft4_applicator_properties_with_options(
                     required_copy.as_array().end());
           ValueStringSet required{json_array_to_string_set(required_copy)};
           if (is_closed_properties_required(schema_context.schema, required)) {
-            sourcemeta::jsontoolkit::KeyHash<ValueString> hasher;
+            sourcemeta::core::KeyHash<ValueString> hasher;
             std::vector<std::pair<ValueString, ValueStringSet::hash_type>>
                 perfect_hashes;
             for (const auto &entry : required) {
@@ -1062,7 +1053,7 @@ auto compiler_draft4_applicator_properties_with_options(
       substeps.push_back(
           make(sourcemeta::blaze::InstructionIndex::AnnotationEmit, context,
                schema_context, effective_dynamic_context,
-               sourcemeta::jsontoolkit::JSON{name}));
+               sourcemeta::core::JSON{name}));
     }
 
     // Optimize `properties` where its subschemas just include a type check,
@@ -1147,7 +1138,7 @@ auto compiler_draft4_applicator_properties_with_options(
               schema_context.schema.defines("required") &&
               schema_context.schema.at("required").is_array() &&
               schema_context.schema.at("required")
-                  .contains(sourcemeta::jsontoolkit::JSON{name})) {
+                  .contains(sourcemeta::core::JSON{name})) {
             for (auto &&step : substeps) {
               children.push_back(std::move(step));
             }
@@ -1288,10 +1279,9 @@ auto compiler_draft4_applicator_additionalproperties_with_options(
     return {};
   }
 
-  Instructions children{compile(context, schema_context,
-                                relative_dynamic_context(dynamic_context),
-                                sourcemeta::jsontoolkit::empty_pointer,
-                                sourcemeta::jsontoolkit::empty_pointer)};
+  Instructions children{compile(
+      context, schema_context, relative_dynamic_context(dynamic_context),
+      sourcemeta::core::empty_pointer, sourcemeta::core::empty_pointer)};
 
   if (annotate) {
     children.push_back(
@@ -1523,10 +1513,9 @@ auto compiler_draft4_applicator_not(const Context &context,
     subschemas += 1;
   }
 
-  Instructions children{compile(context, schema_context,
-                                relative_dynamic_context(dynamic_context),
-                                sourcemeta::jsontoolkit::empty_pointer,
-                                sourcemeta::jsontoolkit::empty_pointer)};
+  Instructions children{compile(
+      context, schema_context, relative_dynamic_context(dynamic_context),
+      sourcemeta::core::empty_pointer, sourcemeta::core::empty_pointer)};
 
   // TODO: Be smarter about how we treat `unevaluatedItems` like how we do for
   // `unevaluatedProperties`
@@ -1593,7 +1582,7 @@ auto compiler_draft4_applicator_items_array(
       subchildren.push_back(
           make(sourcemeta::blaze::InstructionIndex::AnnotationEmit, context,
                schema_context, relative_dynamic_context(dynamic_context),
-               sourcemeta::jsontoolkit::JSON{cursor}));
+               sourcemeta::core::JSON{cursor}));
     }
 
     children.push_back(make(sourcemeta::blaze::InstructionIndex::ControlGroup,
@@ -1613,11 +1602,11 @@ auto compiler_draft4_applicator_items_array(
     tail.push_back(make(sourcemeta::blaze::InstructionIndex::AnnotationEmit,
                         context, schema_context,
                         relative_dynamic_context(dynamic_context),
-                        sourcemeta::jsontoolkit::JSON{children.size() - 1}));
+                        sourcemeta::core::JSON{children.size() - 1}));
     tail.push_back(make(sourcemeta::blaze::InstructionIndex::AnnotationEmit,
                         context, schema_context,
                         relative_dynamic_context(dynamic_context),
-                        sourcemeta::jsontoolkit::JSON{true}));
+                        sourcemeta::core::JSON{true}));
   }
 
   children.push_back(make(sourcemeta::blaze::InstructionIndex::ControlGroup,
@@ -1651,8 +1640,7 @@ auto compiler_draft4_applicator_items_with_options(
     if (annotate || track_evaluation) {
       Instructions subchildren{compile(
           context, schema_context, relative_dynamic_context(dynamic_context),
-          sourcemeta::jsontoolkit::empty_pointer,
-          sourcemeta::jsontoolkit::empty_pointer)};
+          sourcemeta::core::empty_pointer, sourcemeta::core::empty_pointer)};
 
       Instructions children;
 
@@ -1672,7 +1660,7 @@ auto compiler_draft4_applicator_items_with_options(
         tail.push_back(make(sourcemeta::blaze::InstructionIndex::AnnotationEmit,
                             context, schema_context,
                             relative_dynamic_context(dynamic_context),
-                            sourcemeta::jsontoolkit::JSON{true}));
+                            sourcemeta::core::JSON{true}));
       }
 
       if (track_evaluation) {
@@ -1685,15 +1673,14 @@ auto compiler_draft4_applicator_items_with_options(
       children.push_back(
           make(sourcemeta::blaze::InstructionIndex::LogicalWhenType, context,
                schema_context, dynamic_context,
-               sourcemeta::jsontoolkit::JSON::Type::Array, std::move(tail)));
+               sourcemeta::core::JSON::Type::Array, std::move(tail)));
 
       return children;
     }
 
-    Instructions children{compile(context, schema_context,
-                                  relative_dynamic_context(dynamic_context),
-                                  sourcemeta::jsontoolkit::empty_pointer,
-                                  sourcemeta::jsontoolkit::empty_pointer)};
+    Instructions children{compile(
+        context, schema_context, relative_dynamic_context(dynamic_context),
+        sourcemeta::core::empty_pointer, sourcemeta::core::empty_pointer)};
     if (track_evaluation) {
       children.push_back(
           make(sourcemeta::blaze::InstructionIndex::ControlEvaluate, context,
@@ -1774,10 +1761,9 @@ auto compiler_draft4_applicator_additionalitems_from_cursor(
     return {};
   }
 
-  Instructions subchildren{compile(context, schema_context,
-                                   relative_dynamic_context(dynamic_context),
-                                   sourcemeta::jsontoolkit::empty_pointer,
-                                   sourcemeta::jsontoolkit::empty_pointer)};
+  Instructions subchildren{compile(
+      context, schema_context, relative_dynamic_context(dynamic_context),
+      sourcemeta::core::empty_pointer, sourcemeta::core::empty_pointer)};
 
   Instructions children;
 
@@ -1799,7 +1785,7 @@ auto compiler_draft4_applicator_additionalitems_from_cursor(
     tail.push_back(make(sourcemeta::blaze::InstructionIndex::AnnotationEmit,
                         context, schema_context,
                         relative_dynamic_context(dynamic_context),
-                        sourcemeta::jsontoolkit::JSON{true}));
+                        sourcemeta::core::JSON{true}));
   }
 
   if (track_evaluation) {
@@ -1877,10 +1863,10 @@ auto compiler_draft4_applicator_dependencies(
             schema_context, dynamic_context, make_property(entry.first),
             compile(context, schema_context,
                     relative_dynamic_context(dynamic_context), {entry.first},
-                    sourcemeta::jsontoolkit::empty_pointer)));
+                    sourcemeta::core::empty_pointer)));
       }
     } else if (entry.second.is_array()) {
-      std::vector<sourcemeta::jsontoolkit::JSON::String> properties;
+      std::vector<sourcemeta::core::JSON::String> properties;
       for (const auto &property : entry.second.as_array()) {
         assert(property.is_string());
         properties.push_back(property.to_string());
@@ -1911,7 +1897,7 @@ auto compiler_draft4_validation_enum(const Context &context,
     return {
         make(sourcemeta::blaze::InstructionIndex::AssertionEqual, context,
              schema_context, dynamic_context,
-             sourcemeta::jsontoolkit::JSON{
+             sourcemeta::core::JSON{
                  schema_context.schema.at(dynamic_context.keyword).front()})};
   }
 
@@ -1919,7 +1905,7 @@ auto compiler_draft4_validation_enum(const Context &context,
                         sourcemeta::blaze::ValueStringSet::hash_type>>
       perfect_string_hashes;
   ValueSet options;
-  sourcemeta::jsontoolkit::KeyHash<ValueString> hasher;
+  sourcemeta::core::KeyHash<ValueString> hasher;
   for (const auto &option :
        schema_context.schema.at(dynamic_context.keyword).as_array()) {
     if (option.is_string()) {
@@ -2175,12 +2161,12 @@ auto compiler_draft4_validation_maximum(const Context &context,
       schema_context.schema.at("exclusiveMaximum").to_boolean()) {
     return {make(sourcemeta::blaze::InstructionIndex::AssertionLess, context,
                  schema_context, dynamic_context,
-                 sourcemeta::jsontoolkit::JSON{
+                 sourcemeta::core::JSON{
                      schema_context.schema.at(dynamic_context.keyword)})};
   } else {
     return {make(sourcemeta::blaze::InstructionIndex::AssertionLessEqual,
                  context, schema_context, dynamic_context,
-                 sourcemeta::jsontoolkit::JSON{
+                 sourcemeta::core::JSON{
                      schema_context.schema.at(dynamic_context.keyword)})};
   }
 }
@@ -2207,12 +2193,12 @@ auto compiler_draft4_validation_minimum(const Context &context,
       schema_context.schema.at("exclusiveMinimum").to_boolean()) {
     return {make(sourcemeta::blaze::InstructionIndex::AssertionGreater, context,
                  schema_context, dynamic_context,
-                 sourcemeta::jsontoolkit::JSON{
+                 sourcemeta::core::JSON{
                      schema_context.schema.at(dynamic_context.keyword)})};
   } else {
     return {make(sourcemeta::blaze::InstructionIndex::AssertionGreaterEqual,
                  context, schema_context, dynamic_context,
-                 sourcemeta::jsontoolkit::JSON{
+                 sourcemeta::core::JSON{
                      schema_context.schema.at(dynamic_context.keyword)})};
   }
 }
@@ -2233,7 +2219,7 @@ auto compiler_draft4_validation_multipleof(
 
   return {make(sourcemeta::blaze::InstructionIndex::AssertionDivisible, context,
                schema_context, dynamic_context,
-               sourcemeta::jsontoolkit::JSON{
+               sourcemeta::core::JSON{
                    schema_context.schema.at(dynamic_context.keyword)})};
 }
 

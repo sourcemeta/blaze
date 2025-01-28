@@ -1,4 +1,4 @@
-noa_googletest(NAMESPACE sourcemeta PROJECT blaze NAME evaluator
+sourcemeta_googletest(NAMESPACE sourcemeta PROJECT blaze NAME evaluator
   FOLDER "Blaze/Evaluator"
   SOURCES
     evaluator_utils.h
@@ -10,9 +10,9 @@ noa_googletest(NAMESPACE sourcemeta PROJECT blaze NAME evaluator
     evaluator_test.cc)
 
 target_link_libraries(sourcemeta_blaze_evaluator_unit
-  PRIVATE sourcemeta::jsontoolkit::json)
+  PRIVATE sourcemeta::core::json)
 target_link_libraries(sourcemeta_blaze_evaluator_unit
-  PRIVATE sourcemeta::jsontoolkit::jsonschema)
+  PRIVATE sourcemeta::core::jsonschema)
 target_link_libraries(sourcemeta_blaze_evaluator_unit
   PRIVATE sourcemeta::blaze::compiler)
 target_link_libraries(sourcemeta_blaze_evaluator_unit
@@ -25,11 +25,11 @@ endif()
 
 # JSON Schema Test Suite
 # See https://github.com/json-schema-org/JSON-Schema-Test-Suite
-noa_googletest(NAMESPACE sourcemeta PROJECT blaze NAME evaluator_official_suite
+sourcemeta_googletest(NAMESPACE sourcemeta PROJECT blaze NAME evaluator_official_suite
   FOLDER "Blaze/Evaluator" SOURCES officialsuite.cc)
 target_compile_definitions(sourcemeta_blaze_evaluator_official_suite_unit
   PRIVATE OFFICIAL_SUITE_PATH="${PROJECT_SOURCE_DIR}/vendor/jsonschema-test-suite")
-target_link_libraries(sourcemeta_blaze_evaluator_official_suite_unit PRIVATE sourcemeta::jsontoolkit::json)
-target_link_libraries(sourcemeta_blaze_evaluator_official_suite_unit PRIVATE sourcemeta::jsontoolkit::jsonschema)
+target_link_libraries(sourcemeta_blaze_evaluator_official_suite_unit PRIVATE sourcemeta::core::json)
+target_link_libraries(sourcemeta_blaze_evaluator_official_suite_unit PRIVATE sourcemeta::core::jsonschema)
 target_link_libraries(sourcemeta_blaze_evaluator_official_suite_unit PRIVATE sourcemeta::blaze::compiler)
 target_link_libraries(sourcemeta_blaze_evaluator_official_suite_unit PRIVATE sourcemeta::blaze::evaluator)

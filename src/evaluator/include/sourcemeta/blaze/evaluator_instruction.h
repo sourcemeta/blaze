@@ -3,7 +3,7 @@
 
 #include <sourcemeta/blaze/evaluator_value.h>
 
-#include <sourcemeta/jsontoolkit/jsonpointer.h>
+#include <sourcemeta/core/jsonpointer.h>
 
 #include <cstdint>     // std::uint8_t
 #include <string>      // std::string
@@ -220,8 +220,8 @@ using Instructions = std::vector<Instruction>;
 /// Represents a single instruction to be evaluated
 struct Instruction {
   const InstructionIndex type;
-  const sourcemeta::jsontoolkit::Pointer relative_schema_location;
-  const sourcemeta::jsontoolkit::Pointer relative_instance_location;
+  const sourcemeta::core::Pointer relative_schema_location;
+  const sourcemeta::core::Pointer relative_instance_location;
   const std::string keyword_location;
   const std::size_t schema_resource;
   const Value value;

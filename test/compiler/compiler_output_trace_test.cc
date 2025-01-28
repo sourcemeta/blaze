@@ -3,8 +3,8 @@
 #include <sourcemeta/blaze/compiler.h>
 #include <sourcemeta/blaze/evaluator.h>
 
-#include <sourcemeta/jsontoolkit/jsonpointer.h>
-#include <sourcemeta/jsontoolkit/jsonschema.h>
+#include <sourcemeta/core/jsonpointer.h>
+#include <sourcemeta/core/jsonschema.h>
 
 #define EXPECT_OUTPUT(traces, index, expected_type, expected_name,             \
                       expected_instance_location, expected_evaluate_path,      \
@@ -13,17 +13,14 @@
   EXPECT_EQ(traces.at((index)).type,                                           \
             sourcemeta::blaze::TraceOutput::EntryType::expected_type);         \
   EXPECT_EQ(traces.at((index)).name, expected_name);                           \
-  EXPECT_EQ(sourcemeta::jsontoolkit::to_string(                                \
-                traces.at((index)).instance_location),                         \
+  EXPECT_EQ(sourcemeta::core::to_string(traces.at((index)).instance_location), \
             expected_instance_location);                                       \
-  EXPECT_EQ(                                                                   \
-      sourcemeta::jsontoolkit::to_string(traces.at((index)).evaluate_path),    \
-      expected_evaluate_path);                                                 \
+  EXPECT_EQ(sourcemeta::core::to_string(traces.at((index)).evaluate_path),     \
+            expected_evaluate_path);                                           \
   EXPECT_EQ(traces.at((index)).keyword_location, (expected_keyword_location));
 
 TEST(Compiler_output_trace, pass_1) {
-  const sourcemeta::jsontoolkit::JSON schema{
-      sourcemeta::jsontoolkit::parse(R"JSON({
+  const sourcemeta::core::JSON schema{sourcemeta::core::parse(R"JSON({
     "$schema": "https://json-schema.org/draft/2020-12/schema",
     "additionalProperties": false,
     "properties": {
@@ -34,12 +31,11 @@ TEST(Compiler_output_trace, pass_1) {
   })JSON")};
 
   const auto schema_template{sourcemeta::blaze::compile(
-      schema, sourcemeta::jsontoolkit::default_schema_walker,
-      sourcemeta::jsontoolkit::official_resolver,
+      schema, sourcemeta::core::default_schema_walker,
+      sourcemeta::core::official_resolver,
       sourcemeta::blaze::default_schema_compiler)};
 
-  const sourcemeta::jsontoolkit::JSON instance{
-      sourcemeta::jsontoolkit::parse(R"JSON({
+  const sourcemeta::core::JSON instance{sourcemeta::core::parse(R"JSON({
     "foo": "qux"
   })JSON")};
 
@@ -65,8 +61,7 @@ TEST(Compiler_output_trace, pass_1) {
 }
 
 TEST(Compiler_output_trace, pass_with_matching_prefix_1) {
-  const sourcemeta::jsontoolkit::JSON schema{
-      sourcemeta::jsontoolkit::parse(R"JSON({
+  const sourcemeta::core::JSON schema{sourcemeta::core::parse(R"JSON({
     "$schema": "https://json-schema.org/draft/2020-12/schema",
     "$ref": "#/$defs/helper",
     "$defs": {
@@ -82,12 +77,11 @@ TEST(Compiler_output_trace, pass_with_matching_prefix_1) {
   })JSON")};
 
   const auto schema_template{sourcemeta::blaze::compile(
-      schema, sourcemeta::jsontoolkit::default_schema_walker,
-      sourcemeta::jsontoolkit::official_resolver,
+      schema, sourcemeta::core::default_schema_walker,
+      sourcemeta::core::official_resolver,
       sourcemeta::blaze::default_schema_compiler)};
 
-  const sourcemeta::jsontoolkit::JSON instance{
-      sourcemeta::jsontoolkit::parse(R"JSON({
+  const sourcemeta::core::JSON instance{sourcemeta::core::parse(R"JSON({
     "foo": "qux"
   })JSON")};
 

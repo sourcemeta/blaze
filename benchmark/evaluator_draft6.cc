@@ -2,23 +2,21 @@
 
 #include <cassert> // assert
 
-#include <sourcemeta/jsontoolkit/json.h>
-#include <sourcemeta/jsontoolkit/jsonschema.h>
+#include <sourcemeta/core/json.h>
+#include <sourcemeta/core/jsonschema.h>
 
 #include <sourcemeta/blaze/compiler.h>
 #include <sourcemeta/blaze/evaluator.h>
 
 static void Evaluator_Draft6_Property_Names(benchmark::State &state) {
-  const sourcemeta::jsontoolkit::JSON schema{
-      sourcemeta::jsontoolkit::parse(R"JSON({
+  const sourcemeta::core::JSON schema{sourcemeta::core::parse(R"JSON({
         "$schema": "http://json-schema.org/draft-06/schema#",
         "propertyNames": {
           "minLength": 2
         }
       })JSON")};
 
-  const sourcemeta::jsontoolkit::JSON instance{
-      sourcemeta::jsontoolkit::parse(R"JSON({
+  const sourcemeta::core::JSON instance{sourcemeta::core::parse(R"JSON({
         "aa": true,
         "bb": true,
         "cc": true,
@@ -48,8 +46,8 @@ static void Evaluator_Draft6_Property_Names(benchmark::State &state) {
       })JSON")};
 
   const auto schema_template{sourcemeta::blaze::compile(
-      schema, sourcemeta::jsontoolkit::default_schema_walker,
-      sourcemeta::jsontoolkit::official_resolver,
+      schema, sourcemeta::core::default_schema_walker,
+      sourcemeta::core::official_resolver,
       sourcemeta::blaze::default_schema_compiler)};
   sourcemeta::blaze::Evaluator evaluator;
   for (auto _ : state) {

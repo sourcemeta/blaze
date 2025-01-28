@@ -5,7 +5,7 @@
   assert(instruction.type == InstructionIndex::instruction_type);              \
   const auto &target{                                                          \
       resolve_target(property_target,                                          \
-                     sourcemeta::jsontoolkit::get(                             \
+                     sourcemeta::core::get(                                    \
                          instance, instruction.relative_instance_location))};  \
   if (!(precondition)) {                                                       \
     return true;                                                               \
@@ -16,7 +16,7 @@
 
 #define EVALUATE_BEGIN_NON_STRING(instruction_type, precondition)              \
   assert(instruction.type == InstructionIndex::instruction_type);              \
-  const auto &target{sourcemeta::jsontoolkit::get(                             \
+  const auto &target{sourcemeta::core::get(                                    \
       instance, instruction.relative_instance_location)};                      \
   if (!(precondition)) {                                                       \
     return true;                                                               \
@@ -91,7 +91,7 @@ namespace sourcemeta::blaze::fast {
 
 #include "dispatch.inc.h"
 
-inline auto evaluate(const sourcemeta::jsontoolkit::JSON &instance,
+inline auto evaluate(const sourcemeta::core::JSON &instance,
                      sourcemeta::blaze::Evaluator &evaluator,
                      const sourcemeta::blaze::Template &schema) -> bool {
   for (const auto &instruction : schema.instructions) {

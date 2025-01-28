@@ -3,33 +3,30 @@
 #include <sourcemeta/blaze/compiler.h>
 #include <sourcemeta/blaze/evaluator.h>
 
-#include <sourcemeta/jsontoolkit/jsonpointer.h>
-#include <sourcemeta/jsontoolkit/jsonschema.h>
+#include <sourcemeta/core/jsonpointer.h>
+#include <sourcemeta/core/jsonschema.h>
 
 #define EXPECT_OUTPUT(traces, index, expected_instance_location,               \
                       expected_evaluate_path, expected_message)                \
   EXPECT_TRUE(traces.size() > index);                                          \
   EXPECT_EQ(traces.at((index)).message, (expected_message));                   \
-  EXPECT_EQ(sourcemeta::jsontoolkit::to_string(                                \
-                traces.at((index)).instance_location),                         \
+  EXPECT_EQ(sourcemeta::core::to_string(traces.at((index)).instance_location), \
             expected_instance_location);                                       \
-  EXPECT_EQ(                                                                   \
-      sourcemeta::jsontoolkit::to_string(traces.at((index)).evaluate_path),    \
-      expected_evaluate_path);
+  EXPECT_EQ(sourcemeta::core::to_string(traces.at((index)).evaluate_path),     \
+            expected_evaluate_path);
 
 TEST(Compiler_output_error, success_string_1) {
-  const sourcemeta::jsontoolkit::JSON schema{
-      sourcemeta::jsontoolkit::parse(R"JSON({
+  const sourcemeta::core::JSON schema{sourcemeta::core::parse(R"JSON({
     "$schema": "https://json-schema.org/draft/2020-12/schema",
     "type": "string"
   })JSON")};
 
   const auto schema_template{sourcemeta::blaze::compile(
-      schema, sourcemeta::jsontoolkit::default_schema_walker,
-      sourcemeta::jsontoolkit::official_resolver,
+      schema, sourcemeta::core::default_schema_walker,
+      sourcemeta::core::official_resolver,
       sourcemeta::blaze::default_schema_compiler)};
 
-  const sourcemeta::jsontoolkit::JSON instance{"foo"};
+  const sourcemeta::core::JSON instance{"foo"};
 
   sourcemeta::blaze::ErrorOutput output{instance};
   sourcemeta::blaze::Evaluator evaluator;
@@ -43,8 +40,7 @@ TEST(Compiler_output_error, success_string_1) {
 }
 
 TEST(Compiler_output_error, fail_meaningless_if_1) {
-  const sourcemeta::jsontoolkit::JSON schema{
-      sourcemeta::jsontoolkit::parse(R"JSON({
+  const sourcemeta::core::JSON schema{sourcemeta::core::parse(R"JSON({
     "$schema": "https://json-schema.org/draft/2019-09/schema",
     "properties": {
       "foo": { "type": "object", "unevaluatedProperties": false },
@@ -60,12 +56,11 @@ TEST(Compiler_output_error, fail_meaningless_if_1) {
   })JSON")};
 
   const auto schema_template{sourcemeta::blaze::compile(
-      schema, sourcemeta::jsontoolkit::default_schema_walker,
-      sourcemeta::jsontoolkit::official_resolver,
+      schema, sourcemeta::core::default_schema_walker,
+      sourcemeta::core::official_resolver,
       sourcemeta::blaze::default_schema_compiler)};
 
-  const sourcemeta::jsontoolkit::JSON instance{
-      sourcemeta::jsontoolkit::parse(R"JSON({
+  const sourcemeta::core::JSON instance{sourcemeta::core::parse(R"JSON({
     "foo": { "/baz": 1 },
     "bar": { "qux": {} }
   })JSON")};
@@ -90,8 +85,7 @@ TEST(Compiler_output_error, fail_meaningless_if_1) {
 }
 
 TEST(Compiler_output_error, success_dynamic_anchor_1) {
-  const sourcemeta::jsontoolkit::JSON schema{
-      sourcemeta::jsontoolkit::parse(R"JSON({
+  const sourcemeta::core::JSON schema{sourcemeta::core::parse(R"JSON({
     "$schema": "https://json-schema.org/draft/2020-12/schema",
     "$dynamicRef": "#foo",
     "$defs": {
@@ -103,11 +97,11 @@ TEST(Compiler_output_error, success_dynamic_anchor_1) {
   })JSON")};
 
   const auto schema_template{sourcemeta::blaze::compile(
-      schema, sourcemeta::jsontoolkit::default_schema_walker,
-      sourcemeta::jsontoolkit::official_resolver,
+      schema, sourcemeta::core::default_schema_walker,
+      sourcemeta::core::official_resolver,
       sourcemeta::blaze::default_schema_compiler)};
 
-  const sourcemeta::jsontoolkit::JSON instance{"foo"};
+  const sourcemeta::core::JSON instance{"foo"};
 
   sourcemeta::blaze::ErrorOutput output{instance};
   sourcemeta::blaze::Evaluator evaluator;
@@ -121,8 +115,7 @@ TEST(Compiler_output_error, success_dynamic_anchor_1) {
 }
 
 TEST(Compiler_output_error, success_oneof_1) {
-  const sourcemeta::jsontoolkit::JSON schema{
-      sourcemeta::jsontoolkit::parse(R"JSON({
+  const sourcemeta::core::JSON schema{sourcemeta::core::parse(R"JSON({
     "$schema": "https://json-schema.org/draft/2020-12/schema",
     "oneOf": [
       { "type": "string" },
@@ -131,11 +124,11 @@ TEST(Compiler_output_error, success_oneof_1) {
   })JSON")};
 
   const auto schema_template{sourcemeta::blaze::compile(
-      schema, sourcemeta::jsontoolkit::default_schema_walker,
-      sourcemeta::jsontoolkit::official_resolver,
+      schema, sourcemeta::core::default_schema_walker,
+      sourcemeta::core::official_resolver,
       sourcemeta::blaze::default_schema_compiler)};
 
-  const sourcemeta::jsontoolkit::JSON instance{"fo"};
+  const sourcemeta::core::JSON instance{"fo"};
 
   sourcemeta::blaze::ErrorOutput output{instance};
   sourcemeta::blaze::Evaluator evaluator;
@@ -149,18 +142,17 @@ TEST(Compiler_output_error, success_oneof_1) {
 }
 
 TEST(Compiler_output_error, fail_string) {
-  const sourcemeta::jsontoolkit::JSON schema{
-      sourcemeta::jsontoolkit::parse(R"JSON({
+  const sourcemeta::core::JSON schema{sourcemeta::core::parse(R"JSON({
     "$schema": "https://json-schema.org/draft/2020-12/schema",
     "type": "string"
   })JSON")};
 
   const auto schema_template{sourcemeta::blaze::compile(
-      schema, sourcemeta::jsontoolkit::default_schema_walker,
-      sourcemeta::jsontoolkit::official_resolver,
+      schema, sourcemeta::core::default_schema_walker,
+      sourcemeta::core::official_resolver,
       sourcemeta::blaze::default_schema_compiler)};
 
-  const sourcemeta::jsontoolkit::JSON instance{5};
+  const sourcemeta::core::JSON instance{5};
 
   sourcemeta::blaze::ErrorOutput output{instance};
   sourcemeta::blaze::Evaluator evaluator;
@@ -178,8 +170,7 @@ TEST(Compiler_output_error, fail_string) {
 }
 
 TEST(Compiler_output_error, fail_string_over_ref) {
-  const sourcemeta::jsontoolkit::JSON schema{
-      sourcemeta::jsontoolkit::parse(R"JSON({
+  const sourcemeta::core::JSON schema{sourcemeta::core::parse(R"JSON({
     "$schema": "https://json-schema.org/draft/2020-12/schema",
     "$ref": "#/$defs/string",
     "$defs": {
@@ -190,11 +181,11 @@ TEST(Compiler_output_error, fail_string_over_ref) {
   })JSON")};
 
   const auto schema_template{sourcemeta::blaze::compile(
-      schema, sourcemeta::jsontoolkit::default_schema_walker,
-      sourcemeta::jsontoolkit::official_resolver,
+      schema, sourcemeta::core::default_schema_walker,
+      sourcemeta::core::official_resolver,
       sourcemeta::blaze::default_schema_compiler)};
 
-  const sourcemeta::jsontoolkit::JSON instance{5};
+  const sourcemeta::core::JSON instance{5};
 
   sourcemeta::blaze::ErrorOutput output{instance};
   sourcemeta::blaze::Evaluator evaluator;
@@ -212,8 +203,7 @@ TEST(Compiler_output_error, fail_string_over_ref) {
 }
 
 TEST(Compiler_output_error, fail_string_with_matching_base) {
-  const sourcemeta::jsontoolkit::JSON schema{
-      sourcemeta::jsontoolkit::parse(R"JSON({
+  const sourcemeta::core::JSON schema{sourcemeta::core::parse(R"JSON({
     "$schema": "https://json-schema.org/draft/2020-12/schema",
     "$ref": "#/$defs/string",
     "$defs": {
@@ -224,14 +214,14 @@ TEST(Compiler_output_error, fail_string_with_matching_base) {
   })JSON")};
 
   const auto schema_template{sourcemeta::blaze::compile(
-      schema, sourcemeta::jsontoolkit::default_schema_walker,
-      sourcemeta::jsontoolkit::official_resolver,
+      schema, sourcemeta::core::default_schema_walker,
+      sourcemeta::core::official_resolver,
       sourcemeta::blaze::default_schema_compiler)};
 
-  const sourcemeta::jsontoolkit::JSON instance{5};
+  const sourcemeta::core::JSON instance{5};
 
   const std::string ref = "$ref";
-  const sourcemeta::jsontoolkit::WeakPointer pointer{std::cref(ref)};
+  const sourcemeta::core::WeakPointer pointer{std::cref(ref)};
   sourcemeta::blaze::ErrorOutput output{instance, pointer};
   sourcemeta::blaze::Evaluator evaluator;
   const auto result{
@@ -248,8 +238,7 @@ TEST(Compiler_output_error, fail_string_with_matching_base) {
 }
 
 TEST(Compiler_output_error, fail_string_with_non_matching_base) {
-  const sourcemeta::jsontoolkit::JSON schema{
-      sourcemeta::jsontoolkit::parse(R"JSON({
+  const sourcemeta::core::JSON schema{sourcemeta::core::parse(R"JSON({
     "$schema": "https://json-schema.org/draft/2020-12/schema",
     "$ref": "#/$defs/string",
     "$defs": {
@@ -260,13 +249,13 @@ TEST(Compiler_output_error, fail_string_with_non_matching_base) {
   })JSON")};
 
   const auto schema_template{sourcemeta::blaze::compile(
-      schema, sourcemeta::jsontoolkit::default_schema_walker,
-      sourcemeta::jsontoolkit::official_resolver,
+      schema, sourcemeta::core::default_schema_walker,
+      sourcemeta::core::official_resolver,
       sourcemeta::blaze::default_schema_compiler)};
 
-  const sourcemeta::jsontoolkit::JSON instance{5};
+  const sourcemeta::core::JSON instance{5};
   const std::string foo = "foo";
-  const sourcemeta::jsontoolkit::WeakPointer pointer{std::cref(foo)};
+  const sourcemeta::core::WeakPointer pointer{std::cref(foo)};
   sourcemeta::blaze::ErrorOutput output{instance, pointer};
   sourcemeta::blaze::Evaluator evaluator;
   const auto result{
@@ -283,8 +272,7 @@ TEST(Compiler_output_error, fail_string_with_non_matching_base) {
 }
 
 TEST(Compiler_output_error, fail_oneof_1) {
-  const sourcemeta::jsontoolkit::JSON schema{
-      sourcemeta::jsontoolkit::parse(R"JSON({
+  const sourcemeta::core::JSON schema{sourcemeta::core::parse(R"JSON({
     "$schema": "https://json-schema.org/draft/2020-12/schema",
     "oneOf": [
       { "type": "string" },
@@ -293,11 +281,11 @@ TEST(Compiler_output_error, fail_oneof_1) {
   })JSON")};
 
   const auto schema_template{sourcemeta::blaze::compile(
-      schema, sourcemeta::jsontoolkit::default_schema_walker,
-      sourcemeta::jsontoolkit::official_resolver,
+      schema, sourcemeta::core::default_schema_walker,
+      sourcemeta::core::official_resolver,
       sourcemeta::blaze::default_schema_compiler)};
 
-  const sourcemeta::jsontoolkit::JSON instance{"foo"};
+  const sourcemeta::core::JSON instance{"foo"};
 
   sourcemeta::blaze::ErrorOutput output{instance};
   sourcemeta::blaze::Evaluator evaluator;
@@ -315,8 +303,7 @@ TEST(Compiler_output_error, fail_oneof_1) {
 }
 
 TEST(Compiler_output_error, fail_not_1) {
-  const sourcemeta::jsontoolkit::JSON schema{
-      sourcemeta::jsontoolkit::parse(R"JSON({
+  const sourcemeta::core::JSON schema{sourcemeta::core::parse(R"JSON({
     "$schema": "https://json-schema.org/draft/2020-12/schema",
     "not": {
       "type": "string"
@@ -324,11 +311,11 @@ TEST(Compiler_output_error, fail_not_1) {
   })JSON")};
 
   const auto schema_template{sourcemeta::blaze::compile(
-      schema, sourcemeta::jsontoolkit::default_schema_walker,
-      sourcemeta::jsontoolkit::official_resolver,
+      schema, sourcemeta::core::default_schema_walker,
+      sourcemeta::core::official_resolver,
       sourcemeta::blaze::default_schema_compiler)};
 
-  const sourcemeta::jsontoolkit::JSON instance{"foo"};
+  const sourcemeta::core::JSON instance{"foo"};
 
   sourcemeta::blaze::ErrorOutput output{instance};
   sourcemeta::blaze::Evaluator evaluator;
@@ -346,8 +333,7 @@ TEST(Compiler_output_error, fail_not_1) {
 }
 
 TEST(Compiler_output_error, fail_not_not_1) {
-  const sourcemeta::jsontoolkit::JSON schema{
-      sourcemeta::jsontoolkit::parse(R"JSON({
+  const sourcemeta::core::JSON schema{sourcemeta::core::parse(R"JSON({
     "$schema": "https://json-schema.org/draft/2020-12/schema",
     "not": {
       "not": {
@@ -357,11 +343,11 @@ TEST(Compiler_output_error, fail_not_not_1) {
   })JSON")};
 
   const auto schema_template{sourcemeta::blaze::compile(
-      schema, sourcemeta::jsontoolkit::default_schema_walker,
-      sourcemeta::jsontoolkit::official_resolver,
+      schema, sourcemeta::core::default_schema_walker,
+      sourcemeta::core::official_resolver,
       sourcemeta::blaze::default_schema_compiler)};
 
-  const sourcemeta::jsontoolkit::JSON instance{1};
+  const sourcemeta::core::JSON instance{1};
 
   sourcemeta::blaze::ErrorOutput output{instance};
   sourcemeta::blaze::Evaluator evaluator;

@@ -1,6 +1,6 @@
-#include <sourcemeta/jsontoolkit/json.h>
-#include <sourcemeta/jsontoolkit/jsonl.h>
-#include <sourcemeta/jsontoolkit/jsonschema.h>
+#include <sourcemeta/core/json.h>
+#include <sourcemeta/core/jsonl.h>
+#include <sourcemeta/core/jsonschema.h>
 
 #include <sourcemeta/blaze/compiler.h>
 #include <sourcemeta/blaze/evaluator.h>
@@ -170,17 +170,17 @@ auto main(int argc, char **argv) noexcept -> int {
     return EXIT_FAILURE;
   }
 
-  const auto schema{sourcemeta::jsontoolkit::from_file(argv[1])};
+  const auto schema{sourcemeta::core::from_file(argv[1])};
   const std::filesystem::path instance_path{argv[2]};
-  auto stream{sourcemeta::jsontoolkit::read_file(instance_path)};
-  std::vector<sourcemeta::jsontoolkit::JSON> instances;
-  for (const auto &instance : sourcemeta::jsontoolkit::JSONL{stream}) {
+  auto stream{sourcemeta::core::read_file(instance_path)};
+  std::vector<sourcemeta::core::JSON> instances;
+  for (const auto &instance : sourcemeta::core::JSONL{stream}) {
     instances.push_back(instance);
   }
 
   const auto schema_template{sourcemeta::blaze::compile(
-      schema, sourcemeta::jsontoolkit::default_schema_walker,
-      sourcemeta::jsontoolkit::official_resolver,
+      schema, sourcemeta::core::default_schema_walker,
+      sourcemeta::core::official_resolver,
       sourcemeta::blaze::default_schema_compiler,
       sourcemeta::blaze::Mode::FastValidation)};
 

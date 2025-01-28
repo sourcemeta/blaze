@@ -3,15 +3,10 @@ bindings
 contrib
 doxygen
 test
-vendor/googlebenchmark
-vendor/googletest
 vendor/jsonschema-test-suite
-vendor/jsontoolkit
+vendor/core
 vendor/vendorpull
-vendor/googlebenchmark.mask
-vendor/googletest.mask
 vendor/jsonschema-test-suite.mask
-vendor/noa
 .ackrc
 .editorconfig
 Brewfile
