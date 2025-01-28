@@ -3,15 +3,15 @@
 #include <sourcemeta/blaze/compiler.h>
 #include <sourcemeta/blaze/evaluator.h>
 
-#include <sourcemeta/jsontoolkit/json.h>
-#include <sourcemeta/jsontoolkit/jsonschema.h>
+#include <sourcemeta/core/json.h>
+#include <sourcemeta/core/jsonschema.h>
 
 #include "evaluator_utils.h"
 
 static auto test_resolver(std::string_view identifier)
-    -> std::optional<sourcemeta::jsontoolkit::JSON> {
+    -> std::optional<sourcemeta::core::JSON> {
   if (identifier == "https://example.com/metaschema") {
-    return sourcemeta::jsontoolkit::parse(R"JSON({
+    return sourcemeta::core::parse(R"JSON({
       "$schema": "https://json-schema.org/draft/2020-12/schema",
       "$id": "https://example.com/metaschema",
       "$vocabulary": {
@@ -20,22 +20,21 @@ static auto test_resolver(std::string_view identifier)
       }
     })JSON");
   } else {
-    return sourcemeta::jsontoolkit::official_resolver(identifier);
+    return sourcemeta::core::official_resolver(identifier);
   }
 }
 
 TEST(Evaluator, unknown_vocabulary_required) {
-  const sourcemeta::jsontoolkit::JSON schema{
-      sourcemeta::jsontoolkit::parse(R"JSON({
+  const sourcemeta::core::JSON schema{sourcemeta::core::parse(R"JSON({
     "$schema": "https://example.com/metaschema"
   })JSON")};
 
   try {
-    sourcemeta::blaze::compile(
-        schema, sourcemeta::jsontoolkit::default_schema_walker, test_resolver,
-        sourcemeta::blaze::default_schema_compiler);
+    sourcemeta::blaze::compile(schema, sourcemeta::core::default_schema_walker,
+                               test_resolver,
+                               sourcemeta::blaze::default_schema_compiler);
     FAIL() << "The compile function was expected to throw";
-  } catch (const sourcemeta::jsontoolkit::SchemaVocabularyError &error) {
+  } catch (const sourcemeta::core::SchemaVocabularyError &error) {
     EXPECT_EQ(error.uri(), "https://example.com/vocab/custom");
     SUCCEED();
   } catch (const std::exception &) {
@@ -44,31 +43,31 @@ TEST(Evaluator, unknown_vocabulary_required) {
 }
 
 TEST(Evaluator, boolean_true) {
-  const sourcemeta::jsontoolkit::JSON schema{true};
+  const sourcemeta::core::JSON schema{true};
 
   const auto compiled_schema{sourcemeta::blaze::compile(
-      schema, sourcemeta::jsontoolkit::default_schema_walker,
-      sourcemeta::jsontoolkit::official_resolver,
+      schema, sourcemeta::core::default_schema_walker,
+      sourcemeta::core::official_resolver,
       sourcemeta::blaze::default_schema_compiler,
       sourcemeta::blaze::Mode::FastValidation,
       "https://json-schema.org/draft/2020-12/schema")};
 
-  const sourcemeta::jsontoolkit::JSON instance{"foo bar"};
+  const sourcemeta::core::JSON instance{"foo bar"};
   EVALUATE_WITH_TRACE(compiled_schema, instance, 0)
   EXPECT_TRUE(result);
 }
 
 TEST(Evaluator, boolean_false) {
-  const sourcemeta::jsontoolkit::JSON schema{false};
+  const sourcemeta::core::JSON schema{false};
 
   const auto compiled_schema{sourcemeta::blaze::compile(
-      schema, sourcemeta::jsontoolkit::default_schema_walker,
-      sourcemeta::jsontoolkit::official_resolver,
+      schema, sourcemeta::core::default_schema_walker,
+      sourcemeta::core::official_resolver,
       sourcemeta::blaze::default_schema_compiler,
       sourcemeta::blaze::Mode::FastValidation,
       "https://json-schema.org/draft/2020-12/schema")};
 
-  const sourcemeta::jsontoolkit::JSON instance{"foo bar"};
+  const sourcemeta::core::JSON instance{"foo bar"};
   EVALUATE_WITH_TRACE(compiled_schema, instance, 1)
   EXPECT_FALSE(result);
 
@@ -81,28 +80,27 @@ TEST(Evaluator, boolean_false) {
 }
 
 TEST(Evaluator, reusable_evaluator) {
-  const sourcemeta::jsontoolkit::JSON schema{
-      sourcemeta::jsontoolkit::parse(R"JSON({
+  const sourcemeta::core::JSON schema{sourcemeta::core::parse(R"JSON({
     "$schema": "http://json-schema.org/draft-04/schema#",
     "type": "string"
   })JSON")};
 
   const auto compiled_schema{sourcemeta::blaze::compile(
-      schema, sourcemeta::jsontoolkit::default_schema_walker,
-      sourcemeta::jsontoolkit::official_resolver,
+      schema, sourcemeta::core::default_schema_walker,
+      sourcemeta::core::official_resolver,
       sourcemeta::blaze::default_schema_compiler)};
 
   sourcemeta::blaze::Evaluator evaluator;
 
-  const sourcemeta::jsontoolkit::JSON instance_1{"foo bar"};
+  const sourcemeta::core::JSON instance_1{"foo bar"};
   EXPECT_TRUE(evaluator.validate(compiled_schema, instance_1));
 
-  const sourcemeta::jsontoolkit::JSON instance_2{"baz"};
+  const sourcemeta::core::JSON instance_2{"baz"};
   EXPECT_TRUE(evaluator.validate(compiled_schema, instance_2));
 
-  const sourcemeta::jsontoolkit::JSON instance_3{4};
+  const sourcemeta::core::JSON instance_3{4};
   EXPECT_FALSE(evaluator.validate(compiled_schema, instance_3));
 
-  const sourcemeta::jsontoolkit::JSON instance_4{"qux"};
+  const sourcemeta::core::JSON instance_4{"qux"};
   EXPECT_TRUE(evaluator.validate(compiled_schema, instance_4));
 }

@@ -2,15 +2,14 @@
 
 #include <cassert> // assert
 
-#include <sourcemeta/jsontoolkit/json.h>
-#include <sourcemeta/jsontoolkit/jsonschema.h>
+#include <sourcemeta/core/json.h>
+#include <sourcemeta/core/jsonschema.h>
 
 #include <sourcemeta/blaze/compiler.h>
 #include <sourcemeta/blaze/evaluator.h>
 
 static void Evaluator_2020_12_Dynamic_Ref(benchmark::State &state) {
-  const sourcemeta::jsontoolkit::JSON schema{
-      sourcemeta::jsontoolkit::parse(R"JSON({
+  const sourcemeta::core::JSON schema{sourcemeta::core::parse(R"JSON({
     "$id": "https://example.com",
     "$schema": "https://json-schema.org/draft/2020-12/schema",
     "$dynamicAnchor": "test",
@@ -49,7 +48,7 @@ static void Evaluator_2020_12_Dynamic_Ref(benchmark::State &state) {
     }
   })JSON")};
 
-  const auto instance{sourcemeta::jsontoolkit::parse(R"JSON([
+  const auto instance{sourcemeta::core::parse(R"JSON([
     1,
     [2, [3, [4, [5, [6, [7, [8, [9, 10]]]]]]]], 11],
     [[[[[[[12]]]]]]], 13],
@@ -59,8 +58,8 @@ static void Evaluator_2020_12_Dynamic_Ref(benchmark::State &state) {
   ])JSON")};
 
   const auto schema_template{sourcemeta::blaze::compile(
-      schema, sourcemeta::jsontoolkit::default_schema_walker,
-      sourcemeta::jsontoolkit::official_resolver,
+      schema, sourcemeta::core::default_schema_walker,
+      sourcemeta::core::official_resolver,
       sourcemeta::blaze::default_schema_compiler)};
   sourcemeta::blaze::Evaluator evaluator;
   for (auto _ : state) {
@@ -71,8 +70,7 @@ static void Evaluator_2020_12_Dynamic_Ref(benchmark::State &state) {
 }
 
 static void Evaluator_2020_12_Dynamic_Ref_Single(benchmark::State &state) {
-  const sourcemeta::jsontoolkit::JSON schema{
-      sourcemeta::jsontoolkit::parse(R"JSON({
+  const sourcemeta::core::JSON schema{sourcemeta::core::parse(R"JSON({
     "$id": "https://example.com",
     "$schema": "https://json-schema.org/draft/2020-12/schema",
     "$dynamicRef": "#test",
@@ -84,11 +82,11 @@ static void Evaluator_2020_12_Dynamic_Ref_Single(benchmark::State &state) {
     }
   })JSON")};
 
-  const auto instance{sourcemeta::jsontoolkit::JSON{true}};
+  const auto instance{sourcemeta::core::JSON{true}};
 
   const auto schema_template{sourcemeta::blaze::compile(
-      schema, sourcemeta::jsontoolkit::default_schema_walker,
-      sourcemeta::jsontoolkit::official_resolver,
+      schema, sourcemeta::core::default_schema_walker,
+      sourcemeta::core::official_resolver,
       sourcemeta::blaze::default_schema_compiler)};
   sourcemeta::blaze::Evaluator evaluator;
   for (auto _ : state) {
@@ -99,17 +97,17 @@ static void Evaluator_2020_12_Dynamic_Ref_Single(benchmark::State &state) {
 }
 
 static void Evaluator_2020_12_CQL_1(benchmark::State &state) {
-  const auto schema{sourcemeta::jsontoolkit::from_file(
-      std::filesystem::path{CURRENT_DIRECTORY} / "schemas" /
-      "2020_12_cql.json")};
+  const auto schema{
+      sourcemeta::core::from_file(std::filesystem::path{CURRENT_DIRECTORY} /
+                                  "schemas" / "2020_12_cql.json")};
 
-  const auto instance{sourcemeta::jsontoolkit::from_file(
-      std::filesystem::path{CURRENT_DIRECTORY} / "instances" /
-      "2020_12_cql_1.json")};
+  const auto instance{
+      sourcemeta::core::from_file(std::filesystem::path{CURRENT_DIRECTORY} /
+                                  "instances" / "2020_12_cql_1.json")};
 
   const auto schema_template{sourcemeta::blaze::compile(
-      schema, sourcemeta::jsontoolkit::default_schema_walker,
-      sourcemeta::jsontoolkit::official_resolver,
+      schema, sourcemeta::core::default_schema_walker,
+      sourcemeta::core::official_resolver,
       sourcemeta::blaze::default_schema_compiler)};
   sourcemeta::blaze::Evaluator evaluator;
   for (auto _ : state) {
@@ -120,17 +118,17 @@ static void Evaluator_2020_12_CQL_1(benchmark::State &state) {
 }
 
 static void Evaluator_2020_12_OpenAPI(benchmark::State &state) {
-  const auto schema{sourcemeta::jsontoolkit::from_file(
-      std::filesystem::path{CURRENT_DIRECTORY} / "schemas" /
-      "2020_12_openapi.json")};
+  const auto schema{
+      sourcemeta::core::from_file(std::filesystem::path{CURRENT_DIRECTORY} /
+                                  "schemas" / "2020_12_openapi.json")};
 
-  const auto instance{sourcemeta::jsontoolkit::from_file(
-      std::filesystem::path{CURRENT_DIRECTORY} / "instances" /
-      "2020_12_openapi_1.json")};
+  const auto instance{
+      sourcemeta::core::from_file(std::filesystem::path{CURRENT_DIRECTORY} /
+                                  "instances" / "2020_12_openapi_1.json")};
 
   const auto schema_template{sourcemeta::blaze::compile(
-      schema, sourcemeta::jsontoolkit::default_schema_walker,
-      sourcemeta::jsontoolkit::official_resolver,
+      schema, sourcemeta::core::default_schema_walker,
+      sourcemeta::core::official_resolver,
       sourcemeta::blaze::default_schema_compiler)};
   sourcemeta::blaze::Evaluator evaluator;
   for (auto _ : state) {

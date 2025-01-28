@@ -4,10 +4,9 @@ Getting Started
 @tableofcontents
 
 Blaze is a ultra high-performance [JSON Schema](http://json-schema.org)
-evaluator for modern C++ built on top of the [JSON
-Toolkit](https://github.com/sourcemeta/jsontoolkit) library. It targets C++20
-and supports the Clang, GCC, and MSVC compilers on macOS, GNU/Linux, FreeBSD,
-Windows, and Unikraft (through the ELF loader).
+evaluator for modern C++. It targets C++20 and supports the Clang, GCC, and
+MSVC compilers on macOS, GNU/Linux, FreeBSD, Windows, and Unikraft (through the
+ELF loader).
 
 Installation
 ------------

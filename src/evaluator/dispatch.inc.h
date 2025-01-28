@@ -1,18 +1,19 @@
-inline auto evaluate_instruction(
-    const sourcemeta::blaze::Instruction &instruction,
-    const sourcemeta::blaze::Template &schema,
-    const sourcemeta::blaze::Callback &callback,
-    const sourcemeta::jsontoolkit::JSON &instance,
-    const sourcemeta::jsontoolkit::JSON::String *property_target,
-    const std::uint64_t depth, sourcemeta::blaze::Evaluator &evaluator) -> bool;
+inline auto
+evaluate_instruction(const sourcemeta::blaze::Instruction &instruction,
+                     const sourcemeta::blaze::Template &schema,
+                     const sourcemeta::blaze::Callback &callback,
+                     const sourcemeta::core::JSON &instance,
+                     const sourcemeta::core::JSON::String *property_target,
+                     const std::uint64_t depth,
+                     sourcemeta::blaze::Evaluator &evaluator) -> bool;
 
 #define INSTRUCTION_HANDLER(name)                                              \
   static inline auto name(                                                     \
       const sourcemeta::blaze::Instruction &instruction,                       \
       const sourcemeta::blaze::Template &schema,                               \
       const sourcemeta::blaze::Callback &callback,                             \
-      const sourcemeta::jsontoolkit::JSON &instance,                           \
-      const sourcemeta::jsontoolkit::JSON::String *property_target,            \
+      const sourcemeta::core::JSON &instance,                                  \
+      const sourcemeta::core::JSON::String *property_target,                   \
       const std::uint64_t depth, sourcemeta::blaze::Evaluator &evaluator)      \
       -> bool
 
@@ -215,7 +216,7 @@ INSTRUCTION_HANDLER(AssertionPropertyDependencies) {
   assert(!value.empty());
   result = true;
   const auto &object{target.as_object()};
-  const sourcemeta::jsontoolkit::KeyHash<ValueString> hasher;
+  const sourcemeta::core::KeyHash<ValueString> hasher;
   for (const auto &entry : value) {
     if (!object.defines(entry.first, entry.hash)) {
       continue;
@@ -548,7 +549,7 @@ INSTRUCTION_HANDLER(AssertionEqualsAnyStringHash) {
     const auto &target_string{target.to_string()};
     const auto string_size{target_string.size()};
     // TODO: Put this on the evaluator to re-use it everywhere
-    const sourcemeta::jsontoolkit::KeyHash<ValueString> hasher;
+    const sourcemeta::core::KeyHash<ValueString> hasher;
     const auto value_hash{hasher(target_string)};
     if (string_size < value.second.size()) {
       const auto &hint{value.second[string_size]};
@@ -2512,8 +2513,8 @@ INSTRUCTION_HANDLER(LoopContains) {
 using DispatchHandler = bool (*)(const sourcemeta::blaze::Instruction &,
                                  const sourcemeta::blaze::Template &,
                                  const sourcemeta::blaze::Callback &,
-                                 const sourcemeta::jsontoolkit::JSON &,
-                                 const sourcemeta::jsontoolkit::JSON::String *,
+                                 const sourcemeta::core::JSON &,
+                                 const sourcemeta::core::JSON::String *,
                                  const std::uint64_t depth,
                                  sourcemeta::blaze::Evaluator &);
 
@@ -2613,14 +2614,14 @@ static constexpr DispatchHandler handlers[93] = {
     ControlJump,
     ControlDynamicAnchorJump};
 
-inline auto evaluate_instruction(
-    const sourcemeta::blaze::Instruction &instruction,
-    const sourcemeta::blaze::Template &schema,
-    const sourcemeta::blaze::Callback &callback,
-    const sourcemeta::jsontoolkit::JSON &instance,
-    const sourcemeta::jsontoolkit::JSON::String *property_target,
-    const std::uint64_t depth, sourcemeta::blaze::Evaluator &evaluator)
-    -> bool {
+inline auto
+evaluate_instruction(const sourcemeta::blaze::Instruction &instruction,
+                     const sourcemeta::blaze::Template &schema,
+                     const sourcemeta::blaze::Callback &callback,
+                     const sourcemeta::core::JSON &instance,
+                     const sourcemeta::core::JSON::String *property_target,
+                     const std::uint64_t depth,
+                     sourcemeta::blaze::Evaluator &evaluator) -> bool {
   // Guard against infinite recursion in a cheap manner, as
   // infinite recursion will manifest itself through huge
   // ever-growing evaluate paths

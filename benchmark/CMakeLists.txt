@@ -15,15 +15,15 @@ if(BLAZE_EVALUATOR)
 endif()
 
 if(BENCHMARK_SOURCES)
-  noa_googlebenchmark(NAMESPACE sourcemeta PROJECT blaze
+  sourcemeta_googlebenchmark(NAMESPACE sourcemeta PROJECT blaze
     FOLDER "Blaze" SOURCES ${BENCHMARK_SOURCES})
   target_compile_definitions(sourcemeta_blaze_benchmark
     PRIVATE CURRENT_DIRECTORY="${CMAKE_CURRENT_SOURCE_DIR}")
 
   target_link_libraries(sourcemeta_blaze_benchmark
-    PRIVATE sourcemeta::jsontoolkit::json)
+    PRIVATE sourcemeta::core::json)
   target_link_libraries(sourcemeta_blaze_benchmark
-    PRIVATE sourcemeta::jsontoolkit::jsonschema)
+    PRIVATE sourcemeta::core::jsonschema)
 
   if(BLAZE_COMPILER)
     target_link_libraries(sourcemeta_blaze_benchmark

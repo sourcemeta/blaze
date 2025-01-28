@@ -2,15 +2,14 @@
 
 #include <cassert> // assert
 
-#include <sourcemeta/jsontoolkit/json.h>
-#include <sourcemeta/jsontoolkit/jsonschema.h>
+#include <sourcemeta/core/json.h>
+#include <sourcemeta/core/jsonschema.h>
 
 #include <sourcemeta/blaze/compiler.h>
 #include <sourcemeta/blaze/evaluator.h>
 
 static void Evaluator_Draft7_If_Then_Else(benchmark::State &state) {
-  const sourcemeta::jsontoolkit::JSON schema{
-      sourcemeta::jsontoolkit::parse(R"JSON({
+  const sourcemeta::core::JSON schema{sourcemeta::core::parse(R"JSON({
         "$schema": "http://json-schema.org/draft-07/schema#",
         "if": {
           "type": "string"
@@ -27,11 +26,11 @@ static void Evaluator_Draft7_If_Then_Else(benchmark::State &state) {
         }
       })JSON")};
 
-  const sourcemeta::jsontoolkit::JSON instance{"foo"};
+  const sourcemeta::core::JSON instance{"foo"};
 
   const auto schema_template{sourcemeta::blaze::compile(
-      schema, sourcemeta::jsontoolkit::default_schema_walker,
-      sourcemeta::jsontoolkit::official_resolver,
+      schema, sourcemeta::core::default_schema_walker,
+      sourcemeta::core::official_resolver,
       sourcemeta::blaze::default_schema_compiler)};
   sourcemeta::blaze::Evaluator evaluator;
   for (auto _ : state) {
@@ -42,17 +41,17 @@ static void Evaluator_Draft7_If_Then_Else(benchmark::State &state) {
 }
 
 static void Evaluator_Draft7_Vercel_1(benchmark::State &state) {
-  const auto schema{sourcemeta::jsontoolkit::from_file(
-      std::filesystem::path{CURRENT_DIRECTORY} / "schemas" /
-      "draft7_vercel.json")};
+  const auto schema{
+      sourcemeta::core::from_file(std::filesystem::path{CURRENT_DIRECTORY} /
+                                  "schemas" / "draft7_vercel.json")};
 
-  const auto instance{sourcemeta::jsontoolkit::from_file(
-      std::filesystem::path{CURRENT_DIRECTORY} / "instances" /
-      "draft7_vercel_1.json")};
+  const auto instance{
+      sourcemeta::core::from_file(std::filesystem::path{CURRENT_DIRECTORY} /
+                                  "instances" / "draft7_vercel_1.json")};
 
   const auto schema_template{sourcemeta::blaze::compile(
-      schema, sourcemeta::jsontoolkit::default_schema_walker,
-      sourcemeta::jsontoolkit::official_resolver,
+      schema, sourcemeta::core::default_schema_walker,
+      sourcemeta::core::official_resolver,
       sourcemeta::blaze::default_schema_compiler)};
   sourcemeta::blaze::Evaluator evaluator;
   for (auto _ : state) {
@@ -63,17 +62,17 @@ static void Evaluator_Draft7_Vercel_1(benchmark::State &state) {
 }
 
 static void Evaluator_Draft7_Helm_Chart_Lock_1(benchmark::State &state) {
-  const auto schema{sourcemeta::jsontoolkit::from_file(
-      std::filesystem::path{CURRENT_DIRECTORY} / "schemas" /
-      "draft7_helm_chart_lock.json")};
+  const auto schema{
+      sourcemeta::core::from_file(std::filesystem::path{CURRENT_DIRECTORY} /
+                                  "schemas" / "draft7_helm_chart_lock.json")};
 
-  const auto instance{sourcemeta::jsontoolkit::from_file(
+  const auto instance{sourcemeta::core::from_file(
       std::filesystem::path{CURRENT_DIRECTORY} / "instances" /
       "draft7_helm_chart_lock_1.json")};
 
   const auto schema_template{sourcemeta::blaze::compile(
-      schema, sourcemeta::jsontoolkit::default_schema_walker,
-      sourcemeta::jsontoolkit::official_resolver,
+      schema, sourcemeta::core::default_schema_walker,
+      sourcemeta::core::official_resolver,
       sourcemeta::blaze::default_schema_compiler)};
   sourcemeta::blaze::Evaluator evaluator;
   for (auto _ : state) {
@@ -84,17 +83,17 @@ static void Evaluator_Draft7_Helm_Chart_Lock_1(benchmark::State &state) {
 }
 
 static void Evaluator_Draft7_Helm_Chart_Lock_2(benchmark::State &state) {
-  const auto schema{sourcemeta::jsontoolkit::from_file(
-      std::filesystem::path{CURRENT_DIRECTORY} / "schemas" /
-      "draft7_helm_chart_lock.json")};
+  const auto schema{
+      sourcemeta::core::from_file(std::filesystem::path{CURRENT_DIRECTORY} /
+                                  "schemas" / "draft7_helm_chart_lock.json")};
 
-  const auto instance{sourcemeta::jsontoolkit::from_file(
+  const auto instance{sourcemeta::core::from_file(
       std::filesystem::path{CURRENT_DIRECTORY} / "instances" /
       "draft7_helm_chart_lock_2.json")};
 
   const auto schema_template{sourcemeta::blaze::compile(
-      schema, sourcemeta::jsontoolkit::default_schema_walker,
-      sourcemeta::jsontoolkit::official_resolver,
+      schema, sourcemeta::core::default_schema_walker,
+      sourcemeta::core::official_resolver,
       sourcemeta::blaze::default_schema_compiler)};
   sourcemeta::blaze::Evaluator evaluator;
   for (auto _ : state) {
@@ -105,17 +104,17 @@ static void Evaluator_Draft7_Helm_Chart_Lock_2(benchmark::State &state) {
 }
 
 static void Evaluator_Draft7_Jasmine_1(benchmark::State &state) {
-  const auto schema{sourcemeta::jsontoolkit::from_file(
-      std::filesystem::path{CURRENT_DIRECTORY} / "schemas" /
-      "draft7_jasmine.json")};
+  const auto schema{
+      sourcemeta::core::from_file(std::filesystem::path{CURRENT_DIRECTORY} /
+                                  "schemas" / "draft7_jasmine.json")};
 
-  const auto instance{sourcemeta::jsontoolkit::from_file(
-      std::filesystem::path{CURRENT_DIRECTORY} / "instances" /
-      "draft7_jasmine_1.json")};
+  const auto instance{
+      sourcemeta::core::from_file(std::filesystem::path{CURRENT_DIRECTORY} /
+                                  "instances" / "draft7_jasmine_1.json")};
 
   const auto schema_template{sourcemeta::blaze::compile(
-      schema, sourcemeta::jsontoolkit::default_schema_walker,
-      sourcemeta::jsontoolkit::official_resolver,
+      schema, sourcemeta::core::default_schema_walker,
+      sourcemeta::core::official_resolver,
       sourcemeta::blaze::default_schema_compiler)};
   sourcemeta::blaze::Evaluator evaluator;
   for (auto _ : state) {
@@ -126,17 +125,17 @@ static void Evaluator_Draft7_Jasmine_1(benchmark::State &state) {
 }
 
 static void Evaluator_Draft7_Dependabot_1(benchmark::State &state) {
-  const auto schema{sourcemeta::jsontoolkit::from_file(
-      std::filesystem::path{CURRENT_DIRECTORY} / "schemas" /
-      "draft7_dependabot.json")};
+  const auto schema{
+      sourcemeta::core::from_file(std::filesystem::path{CURRENT_DIRECTORY} /
+                                  "schemas" / "draft7_dependabot.json")};
 
-  const auto instance{sourcemeta::jsontoolkit::from_file(
-      std::filesystem::path{CURRENT_DIRECTORY} / "instances" /
-      "draft7_dependabot_1.json")};
+  const auto instance{
+      sourcemeta::core::from_file(std::filesystem::path{CURRENT_DIRECTORY} /
+                                  "instances" / "draft7_dependabot_1.json")};
 
   const auto schema_template{sourcemeta::blaze::compile(
-      schema, sourcemeta::jsontoolkit::default_schema_walker,
-      sourcemeta::jsontoolkit::official_resolver,
+      schema, sourcemeta::core::default_schema_walker,
+      sourcemeta::core::official_resolver,
       sourcemeta::blaze::default_schema_compiler)};
   sourcemeta::blaze::Evaluator evaluator;
   for (auto _ : state) {

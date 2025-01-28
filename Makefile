@@ -22,13 +22,9 @@ compile: .always
 	$(CMAKE) --build ./build --config $(PRESET) --target clang_format
 	$(CMAKE) --build ./build --config $(PRESET) --parallel 4
 	$(CMAKE) --install ./build --prefix ./build/dist --config $(PRESET) --verbose \
-		--component sourcemeta_noa
+		--component sourcemeta_core
 	$(CMAKE) --install ./build --prefix ./build/dist --config $(PRESET) --verbose \
-		--component sourcemeta_noa_dev
-	$(CMAKE) --install ./build --prefix ./build/dist --config $(PRESET) --verbose \
-		--component sourcemeta_jsontoolkit
-	$(CMAKE) --install ./build --prefix ./build/dist --config $(PRESET) --verbose \
-		--component sourcemeta_jsontoolkit_dev
+		--component sourcemeta_core_dev
 	$(CMAKE) --install ./build --prefix ./build/dist --config $(PRESET) --verbose \
 		--component sourcemeta_blaze
 	$(CMAKE) --install ./build --prefix ./build/dist --config $(PRESET) --verbose \

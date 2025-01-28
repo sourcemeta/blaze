@@ -1,5 +1,5 @@
-#include <sourcemeta/jsontoolkit/json.h>
-#include <sourcemeta/jsontoolkit/jsonschema.h>
+#include <sourcemeta/core/json.h>
+#include <sourcemeta/core/jsonschema.h>
 
 #include <sourcemeta/blaze/compiler.h>
 #include <sourcemeta/blaze/evaluator.h>
@@ -39,13 +39,13 @@ auto main(int argc, char **argv) noexcept -> int {
     return EXIT_FAILURE;
   }
 
-  const auto schema{sourcemeta::jsontoolkit::from_file(argv[1])};
+  const auto schema{sourcemeta::core::from_file(argv[1])};
   const auto schema_template{sourcemeta::blaze::compile(
-      schema, sourcemeta::jsontoolkit::default_schema_walker,
-      sourcemeta::jsontoolkit::official_resolver,
+      schema, sourcemeta::core::default_schema_walker,
+      sourcemeta::core::official_resolver,
       sourcemeta::blaze::default_schema_compiler)};
   const std::filesystem::path instance_path{argv[2]};
-  const auto instance{sourcemeta::jsontoolkit::from_file(instance_path)};
+  const auto instance{sourcemeta::core::from_file(instance_path)};
 
   sourcemeta::blaze::TraceOutput output;
   sourcemeta::blaze::Evaluator evaluator;
@@ -69,12 +69,12 @@ auto main(int argc, char **argv) noexcept -> int {
     }
 
     std::cout << "\"";
-    sourcemeta::jsontoolkit::stringify(entry.evaluate_path, std::cout);
+    sourcemeta::core::stringify(entry.evaluate_path, std::cout);
     std::cout << "\" [";
     std::cout << entry.name;
     std::cout << "]\n";
     std::cout << "   at \"";
-    sourcemeta::jsontoolkit::stringify(entry.instance_location, std::cout);
+    sourcemeta::core::stringify(entry.instance_location, std::cout);
     std::cout << "\"\n";
 
     // Only count on one of the callback types, otherwise we end up

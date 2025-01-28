@@ -1,6 +1,6 @@
-#include <sourcemeta/jsontoolkit/json.h>
-#include <sourcemeta/jsontoolkit/jsonl.h>
-#include <sourcemeta/jsontoolkit/jsonschema.h>
+#include <sourcemeta/core/json.h>
+#include <sourcemeta/core/jsonl.h>
+#include <sourcemeta/core/jsonschema.h>
 
 #include <sourcemeta/blaze/compiler.h>
 #include <sourcemeta/blaze/evaluator.h>
@@ -22,12 +22,12 @@ auto main(int argc, char **argv) noexcept -> int {
   }
 
   // Get the schema
-  const auto schema{sourcemeta::jsontoolkit::from_file(argv[1])};
+  const auto schema{sourcemeta::core::from_file(argv[1])};
   std::cerr << "Compiling schema\n";
   const auto compile_start{std::chrono::high_resolution_clock::now()};
   const auto schema_template{sourcemeta::blaze::compile(
-      schema, sourcemeta::jsontoolkit::default_schema_walker,
-      sourcemeta::jsontoolkit::official_resolver,
+      schema, sourcemeta::core::default_schema_walker,
+      sourcemeta::core::official_resolver,
       sourcemeta::blaze::default_schema_compiler)};
   const auto compile_end{std::chrono::high_resolution_clock::now()};
   const auto compile_duration{
@@ -38,15 +38,15 @@ auto main(int argc, char **argv) noexcept -> int {
 
   // Get the instance/s
   const std::filesystem::path instance_path{argv[2]};
-  std::vector<sourcemeta::jsontoolkit::JSON> instances;
+  std::vector<sourcemeta::core::JSON> instances;
   if (instance_path.extension() == ".jsonl") {
     std::cerr << "Interpreting instance as JSONL\n";
-    auto stream{sourcemeta::jsontoolkit::read_file(instance_path)};
-    for (const auto &instance : sourcemeta::jsontoolkit::JSONL{stream}) {
+    auto stream{sourcemeta::core::read_file(instance_path)};
+    for (const auto &instance : sourcemeta::core::JSONL{stream}) {
       instances.push_back(instance);
     }
   } else {
-    instances.push_back(sourcemeta::jsontoolkit::from_file(instance_path));
+    instances.push_back(sourcemeta::core::from_file(instance_path));
   }
   std::cerr << "Number of instances: " << instances.size() << "\n";
 

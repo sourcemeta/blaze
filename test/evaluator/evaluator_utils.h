@@ -5,22 +5,20 @@
 #include <tuple>
 #include <vector>
 
-inline auto FIRST_PROPERTY_IS(const sourcemeta::jsontoolkit::JSON &document,
+inline auto FIRST_PROPERTY_IS(const sourcemeta::core::JSON &document,
                               const std::string &check) -> bool {
   assert(document.is_object());
   return document.as_object().cbegin()->first == check;
 }
 
 #define EVALUATE_WITH_TRACE(schema_template, instance, count)                  \
-  std::vector<std::tuple<bool, sourcemeta::jsontoolkit::WeakPointer,           \
-                         sourcemeta::jsontoolkit::WeakPointer,                 \
-                         sourcemeta::blaze::Instruction,                       \
-                         sourcemeta::jsontoolkit::JSON>>                       \
+  std::vector<std::tuple<                                                      \
+      bool, sourcemeta::core::WeakPointer, sourcemeta::core::WeakPointer,      \
+      sourcemeta::blaze::Instruction, sourcemeta::core::JSON>>                 \
       trace_pre;                                                               \
-  std::vector<std::tuple<bool, sourcemeta::jsontoolkit::WeakPointer,           \
-                         sourcemeta::jsontoolkit::WeakPointer,                 \
-                         sourcemeta::blaze::Instruction,                       \
-                         sourcemeta::jsontoolkit::JSON>>                       \
+  std::vector<std::tuple<                                                      \
+      bool, sourcemeta::core::WeakPointer, sourcemeta::core::WeakPointer,      \
+      sourcemeta::blaze::Instruction, sourcemeta::core::JSON>>                 \
       trace_post;                                                              \
   sourcemeta::blaze::Evaluator evaluator;                                      \
   const auto result{evaluator.validate(                                        \
@@ -28,9 +26,9 @@ inline auto FIRST_PROPERTY_IS(const sourcemeta::jsontoolkit::JSON &document,
       [&trace_pre, &trace_post](                                               \
           const sourcemeta::blaze::EvaluationType type, const bool valid,      \
           const sourcemeta::blaze::Instruction &step,                          \
-          const sourcemeta::jsontoolkit::WeakPointer &evaluate_path,           \
-          const sourcemeta::jsontoolkit::WeakPointer &instance_location,       \
-          const sourcemeta::jsontoolkit::JSON &annotation) {                   \
+          const sourcemeta::core::WeakPointer &evaluate_path,                  \
+          const sourcemeta::core::WeakPointer &instance_location,              \
+          const sourcemeta::core::JSON &annotation) {                          \
         if (type == sourcemeta::blaze::EvaluationType::Pre) {                  \
           trace_pre.push_back(                                                 \
               {valid, evaluate_path, instance_location, step, annotation});    \
@@ -44,8 +42,8 @@ inline auto FIRST_PROPERTY_IS(const sourcemeta::jsontoolkit::JSON &document,
 
 #define EVALUATE_WITH_TRACE_FAST_SUCCESS(schema, instance, count)              \
   const auto compiled_schema{sourcemeta::blaze::compile(                       \
-      schema, sourcemeta::jsontoolkit::default_schema_walker,                  \
-      sourcemeta::jsontoolkit::official_resolver,                              \
+      schema, sourcemeta::core::default_schema_walker,                         \
+      sourcemeta::core::official_resolver,                                     \
       sourcemeta::blaze::default_schema_compiler,                              \
       sourcemeta::blaze::Mode::FastValidation)};                               \
   EVALUATE_WITH_TRACE(compiled_schema, instance, count)                        \
@@ -53,8 +51,8 @@ inline auto FIRST_PROPERTY_IS(const sourcemeta::jsontoolkit::JSON &document,
 
 #define EVALUATE_WITH_TRACE_FAST_FAILURE(schema, instance, count)              \
   const auto compiled_schema{sourcemeta::blaze::compile(                       \
-      schema, sourcemeta::jsontoolkit::default_schema_walker,                  \
-      sourcemeta::jsontoolkit::official_resolver,                              \
+      schema, sourcemeta::core::default_schema_walker,                         \
+      sourcemeta::core::official_resolver,                                     \
       sourcemeta::blaze::default_schema_compiler,                              \
       sourcemeta::blaze::Mode::FastValidation)};                               \
   EVALUATE_WITH_TRACE(compiled_schema, instance, count)                        \
@@ -62,8 +60,8 @@ inline auto FIRST_PROPERTY_IS(const sourcemeta::jsontoolkit::JSON &document,
 
 #define EVALUATE_WITH_TRACE_EXHAUSTIVE_SUCCESS(schema, instance, count)        \
   const auto compiled_schema{sourcemeta::blaze::compile(                       \
-      schema, sourcemeta::jsontoolkit::default_schema_walker,                  \
-      sourcemeta::jsontoolkit::official_resolver,                              \
+      schema, sourcemeta::core::default_schema_walker,                         \
+      sourcemeta::core::official_resolver,                                     \
       sourcemeta::blaze::default_schema_compiler,                              \
       sourcemeta::blaze::Mode::Exhaustive)};                                   \
   EVALUATE_WITH_TRACE(compiled_schema, instance, count)                        \
@@ -71,8 +69,8 @@ inline auto FIRST_PROPERTY_IS(const sourcemeta::jsontoolkit::JSON &document,
 
 #define EVALUATE_WITH_TRACE_EXHAUSTIVE_FAILURE(schema, instance, count)        \
   const auto compiled_schema{sourcemeta::blaze::compile(                       \
-      schema, sourcemeta::jsontoolkit::default_schema_walker,                  \
-      sourcemeta::jsontoolkit::official_resolver,                              \
+      schema, sourcemeta::core::default_schema_walker,                         \
+      sourcemeta::core::official_resolver,                                     \
       sourcemeta::blaze::default_schema_compiler,                              \
       sourcemeta::blaze::Mode::Exhaustive)};                                   \
   EVALUATE_WITH_TRACE(compiled_schema, instance, count)                        \
@@ -83,12 +81,10 @@ inline auto FIRST_PROPERTY_IS(const sourcemeta::jsontoolkit::JSON &document,
                            expected_instance_location)                         \
   EXPECT_TRUE(index < trace_pre.size());                                       \
   EXPECT_TRUE(std::get<0>(trace_pre.at(index)));                               \
-  EXPECT_EQ(                                                                   \
-      sourcemeta::jsontoolkit::to_string(std::get<1>(trace_pre.at(index))),    \
-      evaluate_path);                                                          \
-  EXPECT_EQ(                                                                   \
-      sourcemeta::jsontoolkit::to_string(std::get<2>(trace_pre.at(index))),    \
-      expected_instance_location);                                             \
+  EXPECT_EQ(sourcemeta::core::to_string(std::get<1>(trace_pre.at(index))),     \
+            evaluate_path);                                                    \
+  EXPECT_EQ(sourcemeta::core::to_string(std::get<2>(trace_pre.at(index))),     \
+            expected_instance_location);                                       \
   EXPECT_TRUE(std::get<3>(trace_pre.at(index)).type ==                         \
               sourcemeta::blaze::InstructionIndex::step_type);                 \
   EXPECT_EQ(std::get<3>(trace_pre.at(index)).keyword_location,                 \
@@ -98,12 +94,10 @@ inline auto FIRST_PROPERTY_IS(const sourcemeta::jsontoolkit::JSON &document,
 #define EVALUATE_TRACE_POST(index, step_type, evaluate_path,                   \
                             expected_keyword_location,                         \
                             expected_instance_location)                        \
-  EXPECT_EQ(                                                                   \
-      sourcemeta::jsontoolkit::to_string(std::get<1>(trace_post.at(index))),   \
-      evaluate_path);                                                          \
-  EXPECT_EQ(                                                                   \
-      sourcemeta::jsontoolkit::to_string(std::get<2>(trace_post.at(index))),   \
-      expected_instance_location);                                             \
+  EXPECT_EQ(sourcemeta::core::to_string(std::get<1>(trace_post.at(index))),    \
+            evaluate_path);                                                    \
+  EXPECT_EQ(sourcemeta::core::to_string(std::get<2>(trace_post.at(index))),    \
+            expected_instance_location);                                       \
   EXPECT_TRUE(std::get<3>(trace_post.at(index)).type ==                        \
               sourcemeta::blaze::InstructionIndex::step_type);                 \
   EXPECT_EQ(std::get<3>(trace_post.at(index)).keyword_location,                \
@@ -150,7 +144,7 @@ inline auto FIRST_PROPERTY_IS(const sourcemeta::jsontoolkit::JSON &document,
                         keyword_location, instance_location);                  \
   }                                                                            \
   EXPECT_EQ(std::get<4>(trace_post.at(index)),                                 \
-            sourcemeta::jsontoolkit::JSON(expected_annotation));
+            sourcemeta::core::JSON(expected_annotation));
 
 #define EVALUATE_TRACE_POST_FAILURE(index, step_type, evaluate_path,           \
                                     keyword_location, instance_location)       \
