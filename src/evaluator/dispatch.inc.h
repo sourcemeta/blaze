@@ -216,7 +216,7 @@ INSTRUCTION_HANDLER(AssertionPropertyDependencies) {
   assert(!value.empty());
   result = true;
   const auto &object{target.as_object()};
-  const sourcemeta::core::KeyHash<ValueString> hasher;
+  const sourcemeta::core::PropertyHashJSON<ValueString> hasher;
   for (const auto &entry : value) {
     if (!object.defines(entry.first, entry.hash)) {
       continue;
@@ -549,7 +549,7 @@ INSTRUCTION_HANDLER(AssertionEqualsAnyStringHash) {
     const auto &target_string{target.to_string()};
     const auto string_size{target_string.size()};
     // TODO: Put this on the evaluator to re-use it everywhere
-    const sourcemeta::core::KeyHash<ValueString> hasher;
+    const sourcemeta::core::PropertyHashJSON<ValueString> hasher;
     const auto value_hash{hasher(target_string)};
     if (string_size < value.second.size()) {
       const auto &hint{value.second[string_size]};

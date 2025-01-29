@@ -9,7 +9,7 @@
 #include <sourcemeta/blaze/evaluator.h>
 
 static void Evaluator_Draft4_Meta_1_No_Callback(benchmark::State &state) {
-  const sourcemeta::core::JSON schema{sourcemeta::core::parse(R"JSON({
+  const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
     "$schema": "http://json-schema.org/draft-04/schema#",
     "properties": {
       "foo": { "type": "string" },
@@ -20,7 +20,7 @@ static void Evaluator_Draft4_Meta_1_No_Callback(benchmark::State &state) {
   const auto metaschema{sourcemeta::core::metaschema(
       schema, sourcemeta::core::official_resolver)};
   const auto metaschema_template{sourcemeta::blaze::compile(
-      metaschema, sourcemeta::core::default_schema_walker,
+      metaschema, sourcemeta::core::schema_official_walker,
       sourcemeta::core::official_resolver,
       sourcemeta::blaze::default_schema_compiler)};
 
@@ -33,7 +33,7 @@ static void Evaluator_Draft4_Meta_1_No_Callback(benchmark::State &state) {
 }
 
 static void Evaluator_Draft4_Required_Properties(benchmark::State &state) {
-  const sourcemeta::core::JSON schema{sourcemeta::core::parse(R"JSON({
+  const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
     "$schema": "http://json-schema.org/draft-04/schema#",
     "required": [
       "a", "b", "c", "d", "e", "f", "g", "h", "i",
@@ -70,7 +70,7 @@ static void Evaluator_Draft4_Required_Properties(benchmark::State &state) {
     }
   })JSON")};
 
-  const sourcemeta::core::JSON instance{sourcemeta::core::parse(R"JSON({
+  const sourcemeta::core::JSON instance{sourcemeta::core::parse_json(R"JSON({
     "a": true,
     "b": true,
     "c": true,
@@ -100,7 +100,7 @@ static void Evaluator_Draft4_Required_Properties(benchmark::State &state) {
   })JSON")};
 
   const auto schema_template{sourcemeta::blaze::compile(
-      schema, sourcemeta::core::default_schema_walker,
+      schema, sourcemeta::core::schema_official_walker,
       sourcemeta::core::official_resolver,
       sourcemeta::blaze::default_schema_compiler)};
 
@@ -114,7 +114,7 @@ static void Evaluator_Draft4_Required_Properties(benchmark::State &state) {
 
 static void Evaluator_Draft4_Many_Optional_Properties_Minimal_Match(
     benchmark::State &state) {
-  const sourcemeta::core::JSON schema{sourcemeta::core::parse(R"JSON({
+  const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
     "$schema": "http://json-schema.org/draft-04/schema#",
     "properties": {
       "a": { "type": "boolean" },
@@ -146,12 +146,12 @@ static void Evaluator_Draft4_Many_Optional_Properties_Minimal_Match(
     }
   })JSON")};
 
-  const sourcemeta::core::JSON instance{sourcemeta::core::parse(R"JSON({
+  const sourcemeta::core::JSON instance{sourcemeta::core::parse_json(R"JSON({
     "p": true
   })JSON")};
 
   const auto schema_template{sourcemeta::blaze::compile(
-      schema, sourcemeta::core::default_schema_walker,
+      schema, sourcemeta::core::schema_official_walker,
       sourcemeta::core::official_resolver,
       sourcemeta::blaze::default_schema_compiler)};
 
@@ -165,14 +165,14 @@ static void Evaluator_Draft4_Many_Optional_Properties_Minimal_Match(
 
 static void Evaluator_Draft4_Few_Optional_Properties_Minimal_Match(
     benchmark::State &state) {
-  const sourcemeta::core::JSON schema{sourcemeta::core::parse(R"JSON({
+  const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
     "$schema": "http://json-schema.org/draft-04/schema#",
     "properties": {
       "a": { "type": "boolean" }
     }
   })JSON")};
 
-  const sourcemeta::core::JSON instance{sourcemeta::core::parse(R"JSON({
+  const sourcemeta::core::JSON instance{sourcemeta::core::parse_json(R"JSON({
     "a": true,
     "b": true,
     "c": true,
@@ -202,7 +202,7 @@ static void Evaluator_Draft4_Few_Optional_Properties_Minimal_Match(
   })JSON")};
 
   const auto schema_template{sourcemeta::blaze::compile(
-      schema, sourcemeta::core::default_schema_walker,
+      schema, sourcemeta::core::schema_official_walker,
       sourcemeta::core::official_resolver,
       sourcemeta::blaze::default_schema_compiler)};
 
@@ -215,7 +215,7 @@ static void Evaluator_Draft4_Few_Optional_Properties_Minimal_Match(
 }
 
 static void Evaluator_Draft4_Items_Schema(benchmark::State &state) {
-  const sourcemeta::core::JSON schema{sourcemeta::core::parse(R"JSON({
+  const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
     "$schema": "http://json-schema.org/draft-04/schema#",
     "items": {
       "items": {
@@ -232,7 +232,7 @@ static void Evaluator_Draft4_Items_Schema(benchmark::State &state) {
     }
   })JSON")};
 
-  const sourcemeta::core::JSON instance{sourcemeta::core::parse(R"JSON([
+  const sourcemeta::core::JSON instance{sourcemeta::core::parse_json(R"JSON([
     [
       [
         [
@@ -280,7 +280,7 @@ static void Evaluator_Draft4_Items_Schema(benchmark::State &state) {
   ])JSON")};
 
   const auto schema_template{sourcemeta::blaze::compile(
-      schema, sourcemeta::core::default_schema_walker,
+      schema, sourcemeta::core::schema_official_walker,
       sourcemeta::core::official_resolver,
       sourcemeta::blaze::default_schema_compiler)};
 
@@ -293,7 +293,7 @@ static void Evaluator_Draft4_Items_Schema(benchmark::State &state) {
 }
 
 static void Evaluator_Draft4_Nested_Object(benchmark::State &state) {
-  const sourcemeta::core::JSON schema{sourcemeta::core::parse(R"JSON(
+  const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON(
 {
   "$schema": "http://json-schema.org/draft-04/schema#",
   "additionalProperties": {
@@ -336,7 +336,7 @@ static void Evaluator_Draft4_Nested_Object(benchmark::State &state) {
 }
   )JSON")};
 
-  const sourcemeta::core::JSON instance{sourcemeta::core::parse(R"JSON(
+  const sourcemeta::core::JSON instance{sourcemeta::core::parse_json(R"JSON(
 {
   "a1": {
     "a2": {
@@ -416,7 +416,7 @@ static void Evaluator_Draft4_Nested_Object(benchmark::State &state) {
   )JSON")};
 
   const auto schema_template{sourcemeta::blaze::compile(
-      schema, sourcemeta::core::default_schema_walker,
+      schema, sourcemeta::core::schema_official_walker,
       sourcemeta::core::official_resolver,
       sourcemeta::blaze::default_schema_compiler)};
 
@@ -430,7 +430,7 @@ static void Evaluator_Draft4_Nested_Object(benchmark::State &state) {
 
 static void
 Evaluator_Draft4_Properties_Triad_Optional(benchmark::State &state) {
-  const sourcemeta::core::JSON schema{sourcemeta::core::parse(R"JSON({
+  const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
     "$schema": "http://json-schema.org/draft-04/schema#",
     "properties": {
       "a": { "type": "boolean" },
@@ -448,7 +448,7 @@ Evaluator_Draft4_Properties_Triad_Optional(benchmark::State &state) {
     }
   })JSON")};
 
-  const sourcemeta::core::JSON instance{sourcemeta::core::parse(R"JSON({
+  const sourcemeta::core::JSON instance{sourcemeta::core::parse_json(R"JSON({
     "A": null,
     "Z": null,
     "foo": "bar",
@@ -459,7 +459,7 @@ Evaluator_Draft4_Properties_Triad_Optional(benchmark::State &state) {
   })JSON")};
 
   const auto schema_template{sourcemeta::blaze::compile(
-      schema, sourcemeta::core::default_schema_walker,
+      schema, sourcemeta::core::schema_official_walker,
       sourcemeta::core::official_resolver,
       sourcemeta::blaze::default_schema_compiler)};
 
@@ -473,7 +473,7 @@ Evaluator_Draft4_Properties_Triad_Optional(benchmark::State &state) {
 
 static void
 Evaluator_Draft4_Properties_Triad_Required(benchmark::State &state) {
-  const sourcemeta::core::JSON schema{sourcemeta::core::parse(R"JSON({
+  const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
     "$schema": "http://json-schema.org/draft-04/schema#",
     "required": [ "a", "A", "d" ],
     "properties": {
@@ -492,7 +492,7 @@ Evaluator_Draft4_Properties_Triad_Required(benchmark::State &state) {
     }
   })JSON")};
 
-  const sourcemeta::core::JSON instance{sourcemeta::core::parse(R"JSON({
+  const sourcemeta::core::JSON instance{sourcemeta::core::parse_json(R"JSON({
     "A": null,
     "Z": null,
     "foo": "bar",
@@ -503,7 +503,7 @@ Evaluator_Draft4_Properties_Triad_Required(benchmark::State &state) {
   })JSON")};
 
   const auto schema_template{sourcemeta::blaze::compile(
-      schema, sourcemeta::core::default_schema_walker,
+      schema, sourcemeta::core::schema_official_walker,
       sourcemeta::core::official_resolver,
       sourcemeta::blaze::default_schema_compiler)};
 
@@ -516,7 +516,7 @@ Evaluator_Draft4_Properties_Triad_Required(benchmark::State &state) {
 }
 
 static void Evaluator_Draft4_Properties_Triad_Closed(benchmark::State &state) {
-  const sourcemeta::core::JSON schema{sourcemeta::core::parse(R"JSON({
+  const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
     "$schema": "http://json-schema.org/draft-04/schema#",
     "properties": {
       "a": { "type": "boolean" },
@@ -532,7 +532,7 @@ static void Evaluator_Draft4_Properties_Triad_Closed(benchmark::State &state) {
     "additionalProperties": false
   })JSON")};
 
-  const sourcemeta::core::JSON instance{sourcemeta::core::parse(R"JSON({
+  const sourcemeta::core::JSON instance{sourcemeta::core::parse_json(R"JSON({
     "A": null,
     "Z": null,
     "a": true,
@@ -542,7 +542,7 @@ static void Evaluator_Draft4_Properties_Triad_Closed(benchmark::State &state) {
   })JSON")};
 
   const auto schema_template{sourcemeta::blaze::compile(
-      schema, sourcemeta::core::default_schema_walker,
+      schema, sourcemeta::core::schema_official_walker,
       sourcemeta::core::official_resolver,
       sourcemeta::blaze::default_schema_compiler)};
 
@@ -555,7 +555,7 @@ static void Evaluator_Draft4_Properties_Triad_Closed(benchmark::State &state) {
 }
 
 static void Evaluator_Draft4_Properties_Closed(benchmark::State &state) {
-  const sourcemeta::core::JSON schema{sourcemeta::core::parse(R"JSON({
+  const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
     "$schema": "http://json-schema.org/draft-04/schema#",
     "properties": {
       "a": { "type": "boolean" },
@@ -579,7 +579,7 @@ static void Evaluator_Draft4_Properties_Closed(benchmark::State &state) {
     "additionalProperties": false
   })JSON")};
 
-  const sourcemeta::core::JSON instance{sourcemeta::core::parse(R"JSON({
+  const sourcemeta::core::JSON instance{sourcemeta::core::parse_json(R"JSON({
     "a": true,
     "b": true,
     "c": true,
@@ -588,7 +588,7 @@ static void Evaluator_Draft4_Properties_Closed(benchmark::State &state) {
   })JSON")};
 
   const auto schema_template{sourcemeta::blaze::compile(
-      schema, sourcemeta::core::default_schema_walker,
+      schema, sourcemeta::core::schema_official_walker,
       sourcemeta::core::official_resolver,
       sourcemeta::blaze::default_schema_compiler)};
 
@@ -601,7 +601,7 @@ static void Evaluator_Draft4_Properties_Closed(benchmark::State &state) {
 }
 
 static void Evaluator_Draft4_Non_Recursive_Ref(benchmark::State &state) {
-  const sourcemeta::core::JSON schema{sourcemeta::core::parse(R"JSON({
+  const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
     "$schema": "http://json-schema.org/draft-04/schema#",
     "additionalProperties": { "$ref": "#/definitions/one" },
     "definitions": {
@@ -618,7 +618,7 @@ static void Evaluator_Draft4_Non_Recursive_Ref(benchmark::State &state) {
     }
   })JSON")};
 
-  const sourcemeta::core::JSON instance{sourcemeta::core::parse(R"JSON({
+  const sourcemeta::core::JSON instance{sourcemeta::core::parse_json(R"JSON({
     "a": true,
     "b": true,
     "c": true,
@@ -633,7 +633,7 @@ static void Evaluator_Draft4_Non_Recursive_Ref(benchmark::State &state) {
   })JSON")};
 
   const auto schema_template{sourcemeta::blaze::compile(
-      schema, sourcemeta::core::default_schema_walker,
+      schema, sourcemeta::core::schema_official_walker,
       sourcemeta::core::official_resolver,
       sourcemeta::blaze::default_schema_compiler)};
 
@@ -646,13 +646,13 @@ static void Evaluator_Draft4_Non_Recursive_Ref(benchmark::State &state) {
 }
 
 static void Evaluator_Draft4_Pattern_Properties_True(benchmark::State &state) {
-  const sourcemeta::core::JSON schema{sourcemeta::core::parse(R"JSON({
+  const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
     "$schema": "http://json-schema.org/draft-04/schema#",
     "patternProperties": { "^@": true },
     "additionalProperties": { "type": "string" }
   })JSON")};
 
-  const sourcemeta::core::JSON instance{sourcemeta::core::parse(R"JSON({
+  const sourcemeta::core::JSON instance{sourcemeta::core::parse_json(R"JSON({
     "@a": true,
     "@b": true,
     "@c": true,
@@ -673,7 +673,7 @@ static void Evaluator_Draft4_Pattern_Properties_True(benchmark::State &state) {
   })JSON")};
 
   const auto schema_template{sourcemeta::blaze::compile(
-      schema, sourcemeta::core::default_schema_walker,
+      schema, sourcemeta::core::schema_official_walker,
       sourcemeta::core::official_resolver,
       sourcemeta::blaze::default_schema_compiler)};
 
@@ -686,7 +686,7 @@ static void Evaluator_Draft4_Pattern_Properties_True(benchmark::State &state) {
 }
 
 static void Evaluator_Draft4_Ref_To_Single_Property(benchmark::State &state) {
-  const sourcemeta::core::JSON schema{sourcemeta::core::parse(R"JSON({
+  const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
     "$schema": "http://json-schema.org/draft-04/schema#",
     "$ref": "#/definitions/test",
     "definitions": {
@@ -700,7 +700,7 @@ static void Evaluator_Draft4_Ref_To_Single_Property(benchmark::State &state) {
     }
   })JSON")};
 
-  const sourcemeta::core::JSON instance{sourcemeta::core::parse(R"JSON({
+  const sourcemeta::core::JSON instance{sourcemeta::core::parse_json(R"JSON({
     "test": "foo",
     "a": true,
     "b": true,
@@ -731,7 +731,7 @@ static void Evaluator_Draft4_Ref_To_Single_Property(benchmark::State &state) {
   })JSON")};
 
   const auto schema_template{sourcemeta::blaze::compile(
-      schema, sourcemeta::core::default_schema_walker,
+      schema, sourcemeta::core::schema_official_walker,
       sourcemeta::core::official_resolver,
       sourcemeta::blaze::default_schema_compiler)};
 
@@ -745,12 +745,12 @@ static void Evaluator_Draft4_Ref_To_Single_Property(benchmark::State &state) {
 
 static void
 Evaluator_Draft4_Additional_Properties_Type(benchmark::State &state) {
-  const sourcemeta::core::JSON schema{sourcemeta::core::parse(R"JSON({
+  const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
     "$schema": "http://json-schema.org/draft-04/schema#",
     "additionalProperties": { "type": "boolean" }
   })JSON")};
 
-  const sourcemeta::core::JSON instance{sourcemeta::core::parse(R"JSON({
+  const sourcemeta::core::JSON instance{sourcemeta::core::parse_json(R"JSON({
     "a": true,
     "b": true,
     "c": true,
@@ -780,7 +780,7 @@ Evaluator_Draft4_Additional_Properties_Type(benchmark::State &state) {
   })JSON")};
 
   const auto schema_template{sourcemeta::blaze::compile(
-      schema, sourcemeta::core::default_schema_walker,
+      schema, sourcemeta::core::schema_official_walker,
       sourcemeta::core::official_resolver,
       sourcemeta::blaze::default_schema_compiler)};
 
@@ -793,7 +793,7 @@ Evaluator_Draft4_Additional_Properties_Type(benchmark::State &state) {
 }
 
 static void Evaluator_Draft4_Nested_Oneof(benchmark::State &state) {
-  const sourcemeta::core::JSON schema{sourcemeta::core::parse(R"JSON({
+  const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
         "$schema": "http://json-schema.org/draft-04/schema#",
         "oneOf": [
           {
@@ -817,12 +817,12 @@ static void Evaluator_Draft4_Nested_Oneof(benchmark::State &state) {
         ]
       })JSON")};
 
-  const sourcemeta::core::JSON instance{sourcemeta::core::parse(R"JSON({
+  const sourcemeta::core::JSON instance{sourcemeta::core::parse_json(R"JSON({
         "key": "value"
       })JSON")};
 
   const auto schema_template{sourcemeta::blaze::compile(
-      schema, sourcemeta::core::default_schema_walker,
+      schema, sourcemeta::core::schema_official_walker,
       sourcemeta::core::official_resolver,
       sourcemeta::blaze::default_schema_compiler)};
   sourcemeta::blaze::Evaluator evaluator;
@@ -834,7 +834,7 @@ static void Evaluator_Draft4_Nested_Oneof(benchmark::State &state) {
 }
 
 static void Evaluator_Draft4_Short_Enum(benchmark::State &state) {
-  const sourcemeta::core::JSON schema{sourcemeta::core::parse(R"JSON({
+  const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
         "$schema": "http://json-schema.org/draft-04/schema#",
         "enum": [ "development", "production", "all" ]
       })JSON")};
@@ -842,7 +842,7 @@ static void Evaluator_Draft4_Short_Enum(benchmark::State &state) {
   const sourcemeta::core::JSON instance{"production"};
 
   const auto schema_template{sourcemeta::blaze::compile(
-      schema, sourcemeta::core::default_schema_walker,
+      schema, sourcemeta::core::schema_official_walker,
       sourcemeta::core::official_resolver,
       sourcemeta::blaze::default_schema_compiler)};
   sourcemeta::blaze::Evaluator evaluator;
@@ -854,7 +854,7 @@ static void Evaluator_Draft4_Short_Enum(benchmark::State &state) {
 }
 
 static void Evaluator_Draft4_Long_Enum(benchmark::State &state) {
-  const sourcemeta::core::JSON schema{sourcemeta::core::parse(R"JSON({
+  const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
         "$schema": "http://json-schema.org/draft-04/schema#",
         "enum": [
           "apple_orchard_sunset_view",
@@ -904,7 +904,7 @@ static void Evaluator_Draft4_Long_Enum(benchmark::State &state) {
   const sourcemeta::core::JSON instance{"verdant_bamboo_grove"};
 
   const auto schema_template{sourcemeta::blaze::compile(
-      schema, sourcemeta::core::default_schema_walker,
+      schema, sourcemeta::core::schema_official_walker,
       sourcemeta::core::official_resolver,
       sourcemeta::blaze::default_schema_compiler)};
   sourcemeta::blaze::Evaluator evaluator;
@@ -916,7 +916,7 @@ static void Evaluator_Draft4_Long_Enum(benchmark::State &state) {
 }
 
 static void Evaluator_Draft4_Long_Enum_Short_Strings(benchmark::State &state) {
-  const sourcemeta::core::JSON schema{sourcemeta::core::parse(R"JSON({
+  const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
         "$schema": "http://json-schema.org/draft-04/schema#",
         "enum": [
           "apple_orchard",
@@ -966,7 +966,7 @@ static void Evaluator_Draft4_Long_Enum_Short_Strings(benchmark::State &state) {
   const sourcemeta::core::JSON instance{"verdant_bamboo"};
 
   const auto schema_template{sourcemeta::blaze::compile(
-      schema, sourcemeta::core::default_schema_walker,
+      schema, sourcemeta::core::schema_official_walker,
       sourcemeta::core::official_resolver,
       sourcemeta::blaze::default_schema_compiler)};
   sourcemeta::blaze::Evaluator evaluator;
@@ -978,15 +978,15 @@ static void Evaluator_Draft4_Long_Enum_Short_Strings(benchmark::State &state) {
 }
 
 static void Evaluator_Draft4_Type_Object(benchmark::State &state) {
-  const sourcemeta::core::JSON schema{sourcemeta::core::parse(R"JSON({
+  const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
         "$schema": "http://json-schema.org/draft-04/schema#",
         "type": "object"
       })JSON")};
 
-  const sourcemeta::core::JSON instance{sourcemeta::core::parse("{}")};
+  const sourcemeta::core::JSON instance{sourcemeta::core::parse_json("{}")};
 
   const auto schema_template{sourcemeta::blaze::compile(
-      schema, sourcemeta::core::default_schema_walker,
+      schema, sourcemeta::core::schema_official_walker,
       sourcemeta::core::official_resolver,
       sourcemeta::blaze::default_schema_compiler)};
   sourcemeta::blaze::Evaluator evaluator;

@@ -170,7 +170,7 @@ auto main(int argc, char **argv) noexcept -> int {
     return EXIT_FAILURE;
   }
 
-  const auto schema{sourcemeta::core::from_file(argv[1])};
+  const auto schema{sourcemeta::core::read_json(argv[1])};
   const std::filesystem::path instance_path{argv[2]};
   auto stream{sourcemeta::core::read_file(instance_path)};
   std::vector<sourcemeta::core::JSON> instances;
@@ -179,7 +179,7 @@ auto main(int argc, char **argv) noexcept -> int {
   }
 
   const auto schema_template{sourcemeta::blaze::compile(
-      schema, sourcemeta::core::default_schema_walker,
+      schema, sourcemeta::core::schema_official_walker,
       sourcemeta::core::official_resolver,
       sourcemeta::blaze::default_schema_compiler,
       sourcemeta::blaze::Mode::FastValidation)};

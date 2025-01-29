@@ -9,7 +9,7 @@
 #include <sourcemeta/blaze/evaluator.h>
 
 static void Evaluator_Draft7_If_Then_Else(benchmark::State &state) {
-  const sourcemeta::core::JSON schema{sourcemeta::core::parse(R"JSON({
+  const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
         "$schema": "http://json-schema.org/draft-07/schema#",
         "if": {
           "type": "string"
@@ -29,7 +29,7 @@ static void Evaluator_Draft7_If_Then_Else(benchmark::State &state) {
   const sourcemeta::core::JSON instance{"foo"};
 
   const auto schema_template{sourcemeta::blaze::compile(
-      schema, sourcemeta::core::default_schema_walker,
+      schema, sourcemeta::core::schema_official_walker,
       sourcemeta::core::official_resolver,
       sourcemeta::blaze::default_schema_compiler)};
   sourcemeta::blaze::Evaluator evaluator;
@@ -42,15 +42,15 @@ static void Evaluator_Draft7_If_Then_Else(benchmark::State &state) {
 
 static void Evaluator_Draft7_Vercel_1(benchmark::State &state) {
   const auto schema{
-      sourcemeta::core::from_file(std::filesystem::path{CURRENT_DIRECTORY} /
+      sourcemeta::core::read_json(std::filesystem::path{CURRENT_DIRECTORY} /
                                   "schemas" / "draft7_vercel.json")};
 
   const auto instance{
-      sourcemeta::core::from_file(std::filesystem::path{CURRENT_DIRECTORY} /
+      sourcemeta::core::read_json(std::filesystem::path{CURRENT_DIRECTORY} /
                                   "instances" / "draft7_vercel_1.json")};
 
   const auto schema_template{sourcemeta::blaze::compile(
-      schema, sourcemeta::core::default_schema_walker,
+      schema, sourcemeta::core::schema_official_walker,
       sourcemeta::core::official_resolver,
       sourcemeta::blaze::default_schema_compiler)};
   sourcemeta::blaze::Evaluator evaluator;
@@ -63,15 +63,15 @@ static void Evaluator_Draft7_Vercel_1(benchmark::State &state) {
 
 static void Evaluator_Draft7_Helm_Chart_Lock_1(benchmark::State &state) {
   const auto schema{
-      sourcemeta::core::from_file(std::filesystem::path{CURRENT_DIRECTORY} /
+      sourcemeta::core::read_json(std::filesystem::path{CURRENT_DIRECTORY} /
                                   "schemas" / "draft7_helm_chart_lock.json")};
 
-  const auto instance{sourcemeta::core::from_file(
+  const auto instance{sourcemeta::core::read_json(
       std::filesystem::path{CURRENT_DIRECTORY} / "instances" /
       "draft7_helm_chart_lock_1.json")};
 
   const auto schema_template{sourcemeta::blaze::compile(
-      schema, sourcemeta::core::default_schema_walker,
+      schema, sourcemeta::core::schema_official_walker,
       sourcemeta::core::official_resolver,
       sourcemeta::blaze::default_schema_compiler)};
   sourcemeta::blaze::Evaluator evaluator;
@@ -84,15 +84,15 @@ static void Evaluator_Draft7_Helm_Chart_Lock_1(benchmark::State &state) {
 
 static void Evaluator_Draft7_Helm_Chart_Lock_2(benchmark::State &state) {
   const auto schema{
-      sourcemeta::core::from_file(std::filesystem::path{CURRENT_DIRECTORY} /
+      sourcemeta::core::read_json(std::filesystem::path{CURRENT_DIRECTORY} /
                                   "schemas" / "draft7_helm_chart_lock.json")};
 
-  const auto instance{sourcemeta::core::from_file(
+  const auto instance{sourcemeta::core::read_json(
       std::filesystem::path{CURRENT_DIRECTORY} / "instances" /
       "draft7_helm_chart_lock_2.json")};
 
   const auto schema_template{sourcemeta::blaze::compile(
-      schema, sourcemeta::core::default_schema_walker,
+      schema, sourcemeta::core::schema_official_walker,
       sourcemeta::core::official_resolver,
       sourcemeta::blaze::default_schema_compiler)};
   sourcemeta::blaze::Evaluator evaluator;
@@ -105,15 +105,15 @@ static void Evaluator_Draft7_Helm_Chart_Lock_2(benchmark::State &state) {
 
 static void Evaluator_Draft7_Jasmine_1(benchmark::State &state) {
   const auto schema{
-      sourcemeta::core::from_file(std::filesystem::path{CURRENT_DIRECTORY} /
+      sourcemeta::core::read_json(std::filesystem::path{CURRENT_DIRECTORY} /
                                   "schemas" / "draft7_jasmine.json")};
 
   const auto instance{
-      sourcemeta::core::from_file(std::filesystem::path{CURRENT_DIRECTORY} /
+      sourcemeta::core::read_json(std::filesystem::path{CURRENT_DIRECTORY} /
                                   "instances" / "draft7_jasmine_1.json")};
 
   const auto schema_template{sourcemeta::blaze::compile(
-      schema, sourcemeta::core::default_schema_walker,
+      schema, sourcemeta::core::schema_official_walker,
       sourcemeta::core::official_resolver,
       sourcemeta::blaze::default_schema_compiler)};
   sourcemeta::blaze::Evaluator evaluator;
@@ -126,15 +126,15 @@ static void Evaluator_Draft7_Jasmine_1(benchmark::State &state) {
 
 static void Evaluator_Draft7_Dependabot_1(benchmark::State &state) {
   const auto schema{
-      sourcemeta::core::from_file(std::filesystem::path{CURRENT_DIRECTORY} /
+      sourcemeta::core::read_json(std::filesystem::path{CURRENT_DIRECTORY} /
                                   "schemas" / "draft7_dependabot.json")};
 
   const auto instance{
-      sourcemeta::core::from_file(std::filesystem::path{CURRENT_DIRECTORY} /
+      sourcemeta::core::read_json(std::filesystem::path{CURRENT_DIRECTORY} /
                                   "instances" / "draft7_dependabot_1.json")};
 
   const auto schema_template{sourcemeta::blaze::compile(
-      schema, sourcemeta::core::default_schema_walker,
+      schema, sourcemeta::core::schema_official_walker,
       sourcemeta::core::official_resolver,
       sourcemeta::blaze::default_schema_compiler)};
   sourcemeta::blaze::Evaluator evaluator;
