@@ -22,11 +22,11 @@ auto main(int argc, char **argv) noexcept -> int {
   }
 
   // Get the schema
-  const auto schema{sourcemeta::core::from_file(argv[1])};
+  const auto schema{sourcemeta::core::read_json(argv[1])};
   std::cerr << "Compiling schema\n";
   const auto compile_start{std::chrono::high_resolution_clock::now()};
   const auto schema_template{sourcemeta::blaze::compile(
-      schema, sourcemeta::core::default_schema_walker,
+      schema, sourcemeta::core::schema_official_walker,
       sourcemeta::core::official_resolver,
       sourcemeta::blaze::default_schema_compiler)};
   const auto compile_end{std::chrono::high_resolution_clock::now()};
@@ -46,7 +46,7 @@ auto main(int argc, char **argv) noexcept -> int {
       instances.push_back(instance);
     }
   } else {
-    instances.push_back(sourcemeta::core::from_file(instance_path));
+    instances.push_back(sourcemeta::core::read_json(instance_path));
   }
   std::cerr << "Number of instances: " << instances.size() << "\n";
 

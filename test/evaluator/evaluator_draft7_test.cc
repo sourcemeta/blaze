@@ -13,7 +13,7 @@ TEST(Evaluator_draft7, metaschema) {
       "http://json-schema.org/draft-07/schema#")};
   EXPECT_TRUE(metaschema.has_value());
 
-  const sourcemeta::core::JSON instance{sourcemeta::core::parse("{}")};
+  const sourcemeta::core::JSON instance{sourcemeta::core::parse_json("{}")};
   EVALUATE_WITH_TRACE_FAST_SUCCESS(metaschema.value(), instance, 3);
 }
 
@@ -33,7 +33,7 @@ TEST(Evaluator_draft7, metaschema_hyper_self_exhaustive) {
 }
 
 TEST(Evaluator_draft7, if_1) {
-  const sourcemeta::core::JSON schema{sourcemeta::core::parse(R"JSON({
+  const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
     "$schema": "http://json-schema.org/draft-07/schema#",
     "if": { "const": 1 }
   })JSON")};
@@ -56,7 +56,7 @@ TEST(Evaluator_draft7, if_1) {
 }
 
 TEST(Evaluator_draft7, if_1_hyperschema) {
-  const sourcemeta::core::JSON schema{sourcemeta::core::parse(R"JSON({
+  const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
     "$schema": "http://json-schema.org/draft-07/hyper-schema#",
     "if": { "const": 1 }
   })JSON")};
@@ -79,7 +79,7 @@ TEST(Evaluator_draft7, if_1_hyperschema) {
 }
 
 TEST(Evaluator_draft7, if_2) {
-  const sourcemeta::core::JSON schema{sourcemeta::core::parse(R"JSON({
+  const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
     "$schema": "http://json-schema.org/draft-07/schema#",
     "if": { "const": 1 }
   })JSON")};
@@ -102,7 +102,7 @@ TEST(Evaluator_draft7, if_2) {
 }
 
 TEST(Evaluator_draft7, then_1) {
-  const sourcemeta::core::JSON schema{sourcemeta::core::parse(R"JSON({
+  const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
     "$schema": "http://json-schema.org/draft-07/schema#",
     "then": { "multipleOf": 5 }
   })JSON")};
@@ -112,7 +112,7 @@ TEST(Evaluator_draft7, then_1) {
 }
 
 TEST(Evaluator_draft7, then_2) {
-  const sourcemeta::core::JSON schema{sourcemeta::core::parse(R"JSON({
+  const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
     "$schema": "http://json-schema.org/draft-07/schema#",
     "if": { "const": 10 },
     "then": { "multipleOf": 5 }
@@ -143,7 +143,7 @@ TEST(Evaluator_draft7, then_2) {
 }
 
 TEST(Evaluator_draft7, then_3) {
-  const sourcemeta::core::JSON schema{sourcemeta::core::parse(R"JSON({
+  const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
     "$schema": "http://json-schema.org/draft-07/schema#",
     "if": { "const": 10 },
     "then": { "multipleOf": 5 }
@@ -167,7 +167,7 @@ TEST(Evaluator_draft7, then_3) {
 }
 
 TEST(Evaluator_draft7, then_4) {
-  const sourcemeta::core::JSON schema{sourcemeta::core::parse(R"JSON({
+  const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
     "$schema": "http://json-schema.org/draft-07/schema#",
     "if": true,
     "then": { "multipleOf": 5 },
@@ -188,7 +188,7 @@ TEST(Evaluator_draft7, then_4) {
 }
 
 TEST(Evaluator_draft7, then_5) {
-  const sourcemeta::core::JSON schema{sourcemeta::core::parse(R"JSON({
+  const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
     "$schema": "http://json-schema.org/draft-07/schema#",
     "if": true,
     "then": { "multipleOf": 5 }
@@ -208,7 +208,7 @@ TEST(Evaluator_draft7, then_5) {
 }
 
 TEST(Evaluator_draft7, then_6) {
-  const sourcemeta::core::JSON schema{sourcemeta::core::parse(R"JSON({
+  const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
     "$schema": "http://json-schema.org/draft-07/schema#",
     "properties": {
       "foo": {
@@ -225,7 +225,7 @@ TEST(Evaluator_draft7, then_6) {
   })JSON")};
 
   const sourcemeta::core::JSON instance{
-      sourcemeta::core::parse("{ \"foo\": { \"bar\": 1 } }")};
+      sourcemeta::core::parse_json("{ \"foo\": { \"bar\": 1 } }")};
 
   EVALUATE_WITH_TRACE_FAST_SUCCESS(schema, instance, 3);
 
@@ -257,7 +257,7 @@ TEST(Evaluator_draft7, then_6) {
 }
 
 TEST(Evaluator_draft7, else_1) {
-  const sourcemeta::core::JSON schema{sourcemeta::core::parse(R"JSON({
+  const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
     "$schema": "http://json-schema.org/draft-07/schema#",
     "else": { "multipleOf": 5 }
   })JSON")};
@@ -267,7 +267,7 @@ TEST(Evaluator_draft7, else_1) {
 }
 
 TEST(Evaluator_draft7, else_2) {
-  const sourcemeta::core::JSON schema{sourcemeta::core::parse(R"JSON({
+  const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
     "$schema": "http://json-schema.org/draft-07/schema#",
     "if": { "const": 1 },
     "else": { "multipleOf": 5 }
@@ -291,7 +291,7 @@ TEST(Evaluator_draft7, else_2) {
 }
 
 TEST(Evaluator_draft7, else_3) {
-  const sourcemeta::core::JSON schema{sourcemeta::core::parse(R"JSON({
+  const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
     "$schema": "http://json-schema.org/draft-07/schema#",
     "if": { "const": 1 },
     "else": { "multipleOf": 5 }
@@ -322,7 +322,7 @@ TEST(Evaluator_draft7, else_3) {
 }
 
 TEST(Evaluator_draft7, else_4) {
-  const sourcemeta::core::JSON schema{sourcemeta::core::parse(R"JSON({
+  const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
     "$schema": "http://json-schema.org/draft-07/schema#",
     "if": { "const": 1 },
     "else": { "multipleOf": 5 }
@@ -353,13 +353,13 @@ TEST(Evaluator_draft7, else_4) {
 }
 
 TEST(Evaluator_draft7, invalid_ref_top_level) {
-  const sourcemeta::core::JSON schema{sourcemeta::core::parse(R"JSON({
+  const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
     "$schema": "http://json-schema.org/draft-07/schema#",
     "$ref": "#/definitions/i-dont-exist"
   })JSON")};
 
   try {
-    sourcemeta::blaze::compile(schema, sourcemeta::core::default_schema_walker,
+    sourcemeta::blaze::compile(schema, sourcemeta::core::schema_official_walker,
                                sourcemeta::core::official_resolver,
                                sourcemeta::blaze::default_schema_compiler);
   } catch (const sourcemeta::core::SchemaReferenceError &error) {
@@ -371,7 +371,7 @@ TEST(Evaluator_draft7, invalid_ref_top_level) {
 }
 
 TEST(Evaluator_draft7, invalid_ref_nested) {
-  const sourcemeta::core::JSON schema{sourcemeta::core::parse(R"JSON({
+  const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
     "$schema": "http://json-schema.org/draft-07/schema#",
     "properties": {
       "foo": {
@@ -381,7 +381,7 @@ TEST(Evaluator_draft7, invalid_ref_nested) {
   })JSON")};
 
   try {
-    sourcemeta::blaze::compile(schema, sourcemeta::core::default_schema_walker,
+    sourcemeta::blaze::compile(schema, sourcemeta::core::schema_official_walker,
                                sourcemeta::core::official_resolver,
                                sourcemeta::blaze::default_schema_compiler);
   } catch (const sourcemeta::core::SchemaReferenceError &error) {
@@ -393,7 +393,7 @@ TEST(Evaluator_draft7, invalid_ref_nested) {
 }
 
 TEST(Evaluator_draft7, invalid_ref_embedded) {
-  const sourcemeta::core::JSON schema{sourcemeta::core::parse(R"JSON({
+  const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
     "$id": "https://example.com",
     "$schema": "http://json-schema.org/draft-07/schema#",
     "additionalProperties": {
@@ -411,7 +411,7 @@ TEST(Evaluator_draft7, invalid_ref_embedded) {
   })JSON")};
 
   try {
-    sourcemeta::blaze::compile(schema, sourcemeta::core::default_schema_walker,
+    sourcemeta::blaze::compile(schema, sourcemeta::core::schema_official_walker,
                                sourcemeta::core::official_resolver,
                                sourcemeta::blaze::default_schema_compiler);
   } catch (const sourcemeta::core::SchemaReferenceError &error) {
@@ -424,7 +424,7 @@ TEST(Evaluator_draft7, invalid_ref_embedded) {
 }
 
 TEST(Evaluator_draft7, metadata) {
-  const sourcemeta::core::JSON schema{sourcemeta::core::parse(R"JSON({
+  const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
     "$schema": "http://json-schema.org/draft-07/schema#",
     "title": "My title",
     "description": "My description",
@@ -439,7 +439,7 @@ TEST(Evaluator_draft7, metadata) {
 }
 
 TEST(Evaluator_draft7, content) {
-  const sourcemeta::core::JSON schema{sourcemeta::core::parse(R"JSON({
+  const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
     "$schema": "http://json-schema.org/draft-07/schema#",
     "contentEncoding": "base64",
     "contentMediaType": "application/json"
@@ -450,7 +450,7 @@ TEST(Evaluator_draft7, content) {
 }
 
 TEST(Evaluator_draft7, unknown_1) {
-  const sourcemeta::core::JSON schema{sourcemeta::core::parse(R"JSON({
+  const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
     "$schema": "http://json-schema.org/draft-07/schema#",
     "fooBar": "baz"
   })JSON")};
@@ -460,7 +460,7 @@ TEST(Evaluator_draft7, unknown_1) {
 }
 
 TEST(Evaluator_draft7, unknown_2) {
-  const sourcemeta::core::JSON schema{sourcemeta::core::parse(R"JSON({
+  const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
     "$schema": "http://json-schema.org/draft-07/schema#",
     "x-test": 1
   })JSON")};
@@ -470,7 +470,7 @@ TEST(Evaluator_draft7, unknown_2) {
 }
 
 TEST(Evaluator_draft7, reference_from_unknown_keyword) {
-  const sourcemeta::core::JSON schema{sourcemeta::core::parse(R"JSON({
+  const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
     "$schema": "http://json-schema.org/draft-07/schema#",
     "properties": {
       "foo": { "$ref": "#/$defs/bar" },
@@ -484,7 +484,7 @@ TEST(Evaluator_draft7, reference_from_unknown_keyword) {
   })JSON")};
 
   try {
-    sourcemeta::blaze::compile(schema, sourcemeta::core::default_schema_walker,
+    sourcemeta::blaze::compile(schema, sourcemeta::core::schema_official_walker,
                                sourcemeta::core::official_resolver,
                                sourcemeta::blaze::default_schema_compiler);
   } catch (const sourcemeta::core::SchemaReferenceError &error) {
@@ -497,14 +497,15 @@ TEST(Evaluator_draft7, reference_from_unknown_keyword) {
 }
 
 TEST(Evaluator_draft7, items_1) {
-  const sourcemeta::core::JSON schema{sourcemeta::core::parse(R"JSON({
+  const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
     "$schema": "http://json-schema.org/draft-07/schema#",
     "items": {
       "type": "number"
     }
   })JSON")};
 
-  const sourcemeta::core::JSON instance{sourcemeta::core::parse("[ 11, 54 ]")};
+  const sourcemeta::core::JSON instance{
+      sourcemeta::core::parse_json("[ 11, 54 ]")};
   EVALUATE_WITH_TRACE_FAST_SUCCESS(schema, instance, 1);
 
   EVALUATE_TRACE_PRE(0, LoopItemsTypeStrictAny, "/items", "#/items", "");

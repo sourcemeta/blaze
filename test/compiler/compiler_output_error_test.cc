@@ -16,13 +16,13 @@
             expected_evaluate_path);
 
 TEST(Compiler_output_error, success_string_1) {
-  const sourcemeta::core::JSON schema{sourcemeta::core::parse(R"JSON({
+  const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2020-12/schema",
     "type": "string"
   })JSON")};
 
   const auto schema_template{sourcemeta::blaze::compile(
-      schema, sourcemeta::core::default_schema_walker,
+      schema, sourcemeta::core::schema_official_walker,
       sourcemeta::core::official_resolver,
       sourcemeta::blaze::default_schema_compiler)};
 
@@ -40,7 +40,7 @@ TEST(Compiler_output_error, success_string_1) {
 }
 
 TEST(Compiler_output_error, fail_meaningless_if_1) {
-  const sourcemeta::core::JSON schema{sourcemeta::core::parse(R"JSON({
+  const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2019-09/schema",
     "properties": {
       "foo": { "type": "object", "unevaluatedProperties": false },
@@ -56,11 +56,11 @@ TEST(Compiler_output_error, fail_meaningless_if_1) {
   })JSON")};
 
   const auto schema_template{sourcemeta::blaze::compile(
-      schema, sourcemeta::core::default_schema_walker,
+      schema, sourcemeta::core::schema_official_walker,
       sourcemeta::core::official_resolver,
       sourcemeta::blaze::default_schema_compiler)};
 
-  const sourcemeta::core::JSON instance{sourcemeta::core::parse(R"JSON({
+  const sourcemeta::core::JSON instance{sourcemeta::core::parse_json(R"JSON({
     "foo": { "/baz": 1 },
     "bar": { "qux": {} }
   })JSON")};
@@ -85,7 +85,7 @@ TEST(Compiler_output_error, fail_meaningless_if_1) {
 }
 
 TEST(Compiler_output_error, success_dynamic_anchor_1) {
-  const sourcemeta::core::JSON schema{sourcemeta::core::parse(R"JSON({
+  const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2020-12/schema",
     "$dynamicRef": "#foo",
     "$defs": {
@@ -97,7 +97,7 @@ TEST(Compiler_output_error, success_dynamic_anchor_1) {
   })JSON")};
 
   const auto schema_template{sourcemeta::blaze::compile(
-      schema, sourcemeta::core::default_schema_walker,
+      schema, sourcemeta::core::schema_official_walker,
       sourcemeta::core::official_resolver,
       sourcemeta::blaze::default_schema_compiler)};
 
@@ -115,7 +115,7 @@ TEST(Compiler_output_error, success_dynamic_anchor_1) {
 }
 
 TEST(Compiler_output_error, success_oneof_1) {
-  const sourcemeta::core::JSON schema{sourcemeta::core::parse(R"JSON({
+  const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2020-12/schema",
     "oneOf": [
       { "type": "string" },
@@ -124,7 +124,7 @@ TEST(Compiler_output_error, success_oneof_1) {
   })JSON")};
 
   const auto schema_template{sourcemeta::blaze::compile(
-      schema, sourcemeta::core::default_schema_walker,
+      schema, sourcemeta::core::schema_official_walker,
       sourcemeta::core::official_resolver,
       sourcemeta::blaze::default_schema_compiler)};
 
@@ -142,13 +142,13 @@ TEST(Compiler_output_error, success_oneof_1) {
 }
 
 TEST(Compiler_output_error, fail_string) {
-  const sourcemeta::core::JSON schema{sourcemeta::core::parse(R"JSON({
+  const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2020-12/schema",
     "type": "string"
   })JSON")};
 
   const auto schema_template{sourcemeta::blaze::compile(
-      schema, sourcemeta::core::default_schema_walker,
+      schema, sourcemeta::core::schema_official_walker,
       sourcemeta::core::official_resolver,
       sourcemeta::blaze::default_schema_compiler)};
 
@@ -170,7 +170,7 @@ TEST(Compiler_output_error, fail_string) {
 }
 
 TEST(Compiler_output_error, fail_string_over_ref) {
-  const sourcemeta::core::JSON schema{sourcemeta::core::parse(R"JSON({
+  const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2020-12/schema",
     "$ref": "#/$defs/string",
     "$defs": {
@@ -181,7 +181,7 @@ TEST(Compiler_output_error, fail_string_over_ref) {
   })JSON")};
 
   const auto schema_template{sourcemeta::blaze::compile(
-      schema, sourcemeta::core::default_schema_walker,
+      schema, sourcemeta::core::schema_official_walker,
       sourcemeta::core::official_resolver,
       sourcemeta::blaze::default_schema_compiler)};
 
@@ -203,7 +203,7 @@ TEST(Compiler_output_error, fail_string_over_ref) {
 }
 
 TEST(Compiler_output_error, fail_string_with_matching_base) {
-  const sourcemeta::core::JSON schema{sourcemeta::core::parse(R"JSON({
+  const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2020-12/schema",
     "$ref": "#/$defs/string",
     "$defs": {
@@ -214,7 +214,7 @@ TEST(Compiler_output_error, fail_string_with_matching_base) {
   })JSON")};
 
   const auto schema_template{sourcemeta::blaze::compile(
-      schema, sourcemeta::core::default_schema_walker,
+      schema, sourcemeta::core::schema_official_walker,
       sourcemeta::core::official_resolver,
       sourcemeta::blaze::default_schema_compiler)};
 
@@ -238,7 +238,7 @@ TEST(Compiler_output_error, fail_string_with_matching_base) {
 }
 
 TEST(Compiler_output_error, fail_string_with_non_matching_base) {
-  const sourcemeta::core::JSON schema{sourcemeta::core::parse(R"JSON({
+  const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2020-12/schema",
     "$ref": "#/$defs/string",
     "$defs": {
@@ -249,7 +249,7 @@ TEST(Compiler_output_error, fail_string_with_non_matching_base) {
   })JSON")};
 
   const auto schema_template{sourcemeta::blaze::compile(
-      schema, sourcemeta::core::default_schema_walker,
+      schema, sourcemeta::core::schema_official_walker,
       sourcemeta::core::official_resolver,
       sourcemeta::blaze::default_schema_compiler)};
 
@@ -272,7 +272,7 @@ TEST(Compiler_output_error, fail_string_with_non_matching_base) {
 }
 
 TEST(Compiler_output_error, fail_oneof_1) {
-  const sourcemeta::core::JSON schema{sourcemeta::core::parse(R"JSON({
+  const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2020-12/schema",
     "oneOf": [
       { "type": "string" },
@@ -281,7 +281,7 @@ TEST(Compiler_output_error, fail_oneof_1) {
   })JSON")};
 
   const auto schema_template{sourcemeta::blaze::compile(
-      schema, sourcemeta::core::default_schema_walker,
+      schema, sourcemeta::core::schema_official_walker,
       sourcemeta::core::official_resolver,
       sourcemeta::blaze::default_schema_compiler)};
 
@@ -303,7 +303,7 @@ TEST(Compiler_output_error, fail_oneof_1) {
 }
 
 TEST(Compiler_output_error, fail_not_1) {
-  const sourcemeta::core::JSON schema{sourcemeta::core::parse(R"JSON({
+  const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2020-12/schema",
     "not": {
       "type": "string"
@@ -311,7 +311,7 @@ TEST(Compiler_output_error, fail_not_1) {
   })JSON")};
 
   const auto schema_template{sourcemeta::blaze::compile(
-      schema, sourcemeta::core::default_schema_walker,
+      schema, sourcemeta::core::schema_official_walker,
       sourcemeta::core::official_resolver,
       sourcemeta::blaze::default_schema_compiler)};
 
@@ -333,7 +333,7 @@ TEST(Compiler_output_error, fail_not_1) {
 }
 
 TEST(Compiler_output_error, fail_not_not_1) {
-  const sourcemeta::core::JSON schema{sourcemeta::core::parse(R"JSON({
+  const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2020-12/schema",
     "not": {
       "not": {
@@ -343,7 +343,7 @@ TEST(Compiler_output_error, fail_not_not_1) {
   })JSON")};
 
   const auto schema_template{sourcemeta::blaze::compile(
-      schema, sourcemeta::core::default_schema_walker,
+      schema, sourcemeta::core::schema_official_walker,
       sourcemeta::core::official_resolver,
       sourcemeta::blaze::default_schema_compiler)};
 

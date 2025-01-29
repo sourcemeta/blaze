@@ -26,7 +26,7 @@ static auto test_resolver(std::string_view identifier)
 
 #define READ_SCHEMA_FILE(uri, relative_path)                                   \
   if (identifier == (uri)) {                                                   \
-    return sourcemeta::core::from_file(remotes_path / (relative_path));        \
+    return sourcemeta::core::read_json(remotes_path / (relative_path));        \
   }
 
   // We keep an explicit list instead of dynamically reading into the directory
@@ -225,7 +225,7 @@ static auto register_tests(const std::filesystem::path &subdirectory,
 
     std::cerr << "-- Parsing: " << entry.path().string() << "\n";
     const sourcemeta::core::JSON suite{
-        sourcemeta::core::from_file(entry.path())};
+        sourcemeta::core::read_json(entry.path())};
     assert(suite.is_array());
     for (const auto &test : suite.as_array()) {
       assert(test.is_object());
@@ -242,7 +242,7 @@ static auto register_tests(const std::filesystem::path &subdirectory,
       for (const auto mode : {sourcemeta::blaze::Mode::FastValidation,
                               sourcemeta::blaze::Mode::Exhaustive}) {
         const auto schema_template{sourcemeta::blaze::compile(
-            test.at("schema"), sourcemeta::core::default_schema_walker,
+            test.at("schema"), sourcemeta::core::schema_official_walker,
             test_resolver, sourcemeta::blaze::default_schema_compiler, mode,
             default_dialect)};
 

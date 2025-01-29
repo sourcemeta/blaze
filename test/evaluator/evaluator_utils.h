@@ -42,7 +42,7 @@ inline auto FIRST_PROPERTY_IS(const sourcemeta::core::JSON &document,
 
 #define EVALUATE_WITH_TRACE_FAST_SUCCESS(schema, instance, count)              \
   const auto compiled_schema{sourcemeta::blaze::compile(                       \
-      schema, sourcemeta::core::default_schema_walker,                         \
+      schema, sourcemeta::core::schema_official_walker,                        \
       sourcemeta::core::official_resolver,                                     \
       sourcemeta::blaze::default_schema_compiler,                              \
       sourcemeta::blaze::Mode::FastValidation)};                               \
@@ -51,7 +51,7 @@ inline auto FIRST_PROPERTY_IS(const sourcemeta::core::JSON &document,
 
 #define EVALUATE_WITH_TRACE_FAST_FAILURE(schema, instance, count)              \
   const auto compiled_schema{sourcemeta::blaze::compile(                       \
-      schema, sourcemeta::core::default_schema_walker,                         \
+      schema, sourcemeta::core::schema_official_walker,                        \
       sourcemeta::core::official_resolver,                                     \
       sourcemeta::blaze::default_schema_compiler,                              \
       sourcemeta::blaze::Mode::FastValidation)};                               \
@@ -60,7 +60,7 @@ inline auto FIRST_PROPERTY_IS(const sourcemeta::core::JSON &document,
 
 #define EVALUATE_WITH_TRACE_EXHAUSTIVE_SUCCESS(schema, instance, count)        \
   const auto compiled_schema{sourcemeta::blaze::compile(                       \
-      schema, sourcemeta::core::default_schema_walker,                         \
+      schema, sourcemeta::core::schema_official_walker,                        \
       sourcemeta::core::official_resolver,                                     \
       sourcemeta::blaze::default_schema_compiler,                              \
       sourcemeta::blaze::Mode::Exhaustive)};                                   \
@@ -69,7 +69,7 @@ inline auto FIRST_PROPERTY_IS(const sourcemeta::core::JSON &document,
 
 #define EVALUATE_WITH_TRACE_EXHAUSTIVE_FAILURE(schema, instance, count)        \
   const auto compiled_schema{sourcemeta::blaze::compile(                       \
-      schema, sourcemeta::core::default_schema_walker,                         \
+      schema, sourcemeta::core::schema_official_walker,                        \
       sourcemeta::core::official_resolver,                                     \
       sourcemeta::blaze::default_schema_compiler,                              \
       sourcemeta::blaze::Mode::Exhaustive)};                                   \

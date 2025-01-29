@@ -20,7 +20,7 @@
   EXPECT_EQ(traces.at((index)).keyword_location, (expected_keyword_location));
 
 TEST(Compiler_output_trace, pass_1) {
-  const sourcemeta::core::JSON schema{sourcemeta::core::parse(R"JSON({
+  const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2020-12/schema",
     "additionalProperties": false,
     "properties": {
@@ -31,11 +31,11 @@ TEST(Compiler_output_trace, pass_1) {
   })JSON")};
 
   const auto schema_template{sourcemeta::blaze::compile(
-      schema, sourcemeta::core::default_schema_walker,
+      schema, sourcemeta::core::schema_official_walker,
       sourcemeta::core::official_resolver,
       sourcemeta::blaze::default_schema_compiler)};
 
-  const sourcemeta::core::JSON instance{sourcemeta::core::parse(R"JSON({
+  const sourcemeta::core::JSON instance{sourcemeta::core::parse_json(R"JSON({
     "foo": "qux"
   })JSON")};
 
@@ -61,7 +61,7 @@ TEST(Compiler_output_trace, pass_1) {
 }
 
 TEST(Compiler_output_trace, pass_with_matching_prefix_1) {
-  const sourcemeta::core::JSON schema{sourcemeta::core::parse(R"JSON({
+  const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2020-12/schema",
     "$ref": "#/$defs/helper",
     "$defs": {
@@ -77,11 +77,11 @@ TEST(Compiler_output_trace, pass_with_matching_prefix_1) {
   })JSON")};
 
   const auto schema_template{sourcemeta::blaze::compile(
-      schema, sourcemeta::core::default_schema_walker,
+      schema, sourcemeta::core::schema_official_walker,
       sourcemeta::core::official_resolver,
       sourcemeta::blaze::default_schema_compiler)};
 
-  const sourcemeta::core::JSON instance{sourcemeta::core::parse(R"JSON({
+  const sourcemeta::core::JSON instance{sourcemeta::core::parse_json(R"JSON({
     "foo": "qux"
   })JSON")};
 

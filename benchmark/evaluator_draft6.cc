@@ -9,14 +9,14 @@
 #include <sourcemeta/blaze/evaluator.h>
 
 static void Evaluator_Draft6_Property_Names(benchmark::State &state) {
-  const sourcemeta::core::JSON schema{sourcemeta::core::parse(R"JSON({
+  const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
         "$schema": "http://json-schema.org/draft-06/schema#",
         "propertyNames": {
           "minLength": 2
         }
       })JSON")};
 
-  const sourcemeta::core::JSON instance{sourcemeta::core::parse(R"JSON({
+  const sourcemeta::core::JSON instance{sourcemeta::core::parse_json(R"JSON({
         "aa": true,
         "bb": true,
         "cc": true,
@@ -46,7 +46,7 @@ static void Evaluator_Draft6_Property_Names(benchmark::State &state) {
       })JSON")};
 
   const auto schema_template{sourcemeta::blaze::compile(
-      schema, sourcemeta::core::default_schema_walker,
+      schema, sourcemeta::core::schema_official_walker,
       sourcemeta::core::official_resolver,
       sourcemeta::blaze::default_schema_compiler)};
   sourcemeta::blaze::Evaluator evaluator;

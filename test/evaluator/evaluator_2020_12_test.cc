@@ -9,7 +9,7 @@
 #include "evaluator_utils.h"
 
 TEST(Evaluator_2020_12, unknown_1) {
-  const sourcemeta::core::JSON schema{sourcemeta::core::parse(R"JSON({
+  const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2020-12/schema",
     "fooBar": "baz"
   })JSON")};
@@ -22,7 +22,7 @@ TEST(Evaluator_2020_12, metaschema_hyper_1) {
   const auto metaschema{sourcemeta::core::official_resolver(
       "https://json-schema.org/draft/2020-12/hyper-schema")};
   EXPECT_TRUE(metaschema.has_value());
-  const auto instance{sourcemeta::core::parse(R"JSON({})JSON")};
+  const auto instance{sourcemeta::core::parse_json(R"JSON({})JSON")};
   EVALUATE_WITH_TRACE_FAST_SUCCESS(metaschema.value(), instance, 33);
 }
 
@@ -42,7 +42,7 @@ TEST(Evaluator_2020_12, metaschema_hyper_self_exhaustive) {
 }
 
 TEST(Evaluator_2020_12, unknown_1_exhaustive) {
-  const sourcemeta::core::JSON schema{sourcemeta::core::parse(R"JSON({
+  const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2020-12/schema",
     "fooBar": "baz"
   })JSON")};
@@ -59,7 +59,7 @@ TEST(Evaluator_2020_12, unknown_1_exhaustive) {
 }
 
 TEST(Evaluator_2020_12, unknown_2) {
-  const sourcemeta::core::JSON schema{sourcemeta::core::parse(R"JSON({
+  const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2020-12/schema",
     "x-test": 1
   })JSON")};
@@ -69,7 +69,7 @@ TEST(Evaluator_2020_12, unknown_2) {
 }
 
 TEST(Evaluator_2020_12, unknown_2_exhaustive) {
-  const sourcemeta::core::JSON schema{sourcemeta::core::parse(R"JSON({
+  const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2020-12/schema",
     "x-test": 1
   })JSON")};
@@ -86,7 +86,7 @@ TEST(Evaluator_2020_12, unknown_2_exhaustive) {
 }
 
 TEST(Evaluator_2020_12, items_1) {
-  const sourcemeta::core::JSON schema{sourcemeta::core::parse(R"JSON({
+  const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2020-12/schema",
     "items": {
       "type": "string"
@@ -98,7 +98,7 @@ TEST(Evaluator_2020_12, items_1) {
 }
 
 TEST(Evaluator_2020_12, items_2) {
-  const sourcemeta::core::JSON schema{sourcemeta::core::parse(R"JSON({
+  const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2020-12/schema",
     "items": {
       "type": "string"
@@ -106,7 +106,7 @@ TEST(Evaluator_2020_12, items_2) {
   })JSON")};
 
   const sourcemeta::core::JSON instance{
-      sourcemeta::core::parse("[ \"foo\", \"bar\", \"baz\" ]")};
+      sourcemeta::core::parse_json("[ \"foo\", \"bar\", \"baz\" ]")};
   EVALUATE_WITH_TRACE_FAST_SUCCESS(schema, instance, 4);
 
   EVALUATE_TRACE_PRE(0, LoopItemsFrom, "/items", "#/items", "");
@@ -137,7 +137,7 @@ TEST(Evaluator_2020_12, items_2) {
 }
 
 TEST(Evaluator_2020_12, items_2_exhaustive) {
-  const sourcemeta::core::JSON schema{sourcemeta::core::parse(R"JSON({
+  const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2020-12/schema",
     "items": {
       "type": "string"
@@ -145,7 +145,7 @@ TEST(Evaluator_2020_12, items_2_exhaustive) {
   })JSON")};
 
   const sourcemeta::core::JSON instance{
-      sourcemeta::core::parse("[ \"foo\", \"bar\", \"baz\" ]")};
+      sourcemeta::core::parse_json("[ \"foo\", \"bar\", \"baz\" ]")};
   EVALUATE_WITH_TRACE_EXHAUSTIVE_SUCCESS(schema, instance, 6);
 
   EVALUATE_TRACE_PRE(0, LoopItemsFrom, "/items", "#/items", "");
@@ -186,7 +186,7 @@ TEST(Evaluator_2020_12, items_2_exhaustive) {
 }
 
 TEST(Evaluator_2020_12, items_3) {
-  const sourcemeta::core::JSON schema{sourcemeta::core::parse(R"JSON({
+  const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2020-12/schema",
     "items": {
       "type": "string"
@@ -194,7 +194,7 @@ TEST(Evaluator_2020_12, items_3) {
   })JSON")};
 
   const sourcemeta::core::JSON instance{
-      sourcemeta::core::parse("[ \"foo\", 5, \"baz\" ]")};
+      sourcemeta::core::parse_json("[ \"foo\", 5, \"baz\" ]")};
   EVALUATE_WITH_TRACE_FAST_FAILURE(schema, instance, 3);
 
   EVALUATE_TRACE_PRE(0, LoopItemsFrom, "/items", "#/items", "");
@@ -220,7 +220,7 @@ TEST(Evaluator_2020_12, items_3) {
 }
 
 TEST(Evaluator_2020_12, items_4) {
-  const sourcemeta::core::JSON schema{sourcemeta::core::parse(R"JSON({
+  const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2020-12/schema",
     "items": { "type": "string" },
     "prefixItems": [
@@ -229,7 +229,8 @@ TEST(Evaluator_2020_12, items_4) {
     ]
   })JSON")};
 
-  const sourcemeta::core::JSON instance{sourcemeta::core::parse("[ true, 5 ]")};
+  const sourcemeta::core::JSON instance{
+      sourcemeta::core::parse_json("[ true, 5 ]")};
   EVALUATE_WITH_TRACE_FAST_SUCCESS(schema, instance, 3);
 
   EVALUATE_TRACE_PRE(0, AssertionArrayPrefix, "/prefixItems", "#/prefixItems",
@@ -257,7 +258,7 @@ TEST(Evaluator_2020_12, items_4) {
 }
 
 TEST(Evaluator_2020_12, items_4_exhaustive) {
-  const sourcemeta::core::JSON schema{sourcemeta::core::parse(R"JSON({
+  const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2020-12/schema",
     "items": { "type": "string" },
     "prefixItems": [
@@ -266,7 +267,8 @@ TEST(Evaluator_2020_12, items_4_exhaustive) {
     ]
   })JSON")};
 
-  const sourcemeta::core::JSON instance{sourcemeta::core::parse("[ true, 5 ]")};
+  const sourcemeta::core::JSON instance{
+      sourcemeta::core::parse_json("[ true, 5 ]")};
   EVALUATE_WITH_TRACE_EXHAUSTIVE_SUCCESS(schema, instance, 5);
 
   EVALUATE_TRACE_PRE(0, AssertionArrayPrefix, "/prefixItems", "#/prefixItems",
@@ -305,7 +307,7 @@ TEST(Evaluator_2020_12, items_4_exhaustive) {
 }
 
 TEST(Evaluator_2020_12, items_5) {
-  const sourcemeta::core::JSON schema{sourcemeta::core::parse(R"JSON({
+  const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2020-12/schema",
     "items": { "type": "string" },
     "prefixItems": [
@@ -315,7 +317,7 @@ TEST(Evaluator_2020_12, items_5) {
   })JSON")};
 
   const sourcemeta::core::JSON instance{
-      sourcemeta::core::parse("[ true, 5, \"foo\", \"bar\" ]")};
+      sourcemeta::core::parse_json("[ true, 5, \"foo\", \"bar\" ]")};
   EVALUATE_WITH_TRACE_FAST_SUCCESS(schema, instance, 6);
 
   EVALUATE_TRACE_PRE(0, AssertionArrayPrefix, "/prefixItems", "#/prefixItems",
@@ -361,7 +363,7 @@ TEST(Evaluator_2020_12, items_5) {
 }
 
 TEST(Evaluator_2020_12, items_5_exhaustive) {
-  const sourcemeta::core::JSON schema{sourcemeta::core::parse(R"JSON({
+  const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2020-12/schema",
     "items": { "type": "string" },
     "prefixItems": [
@@ -371,7 +373,7 @@ TEST(Evaluator_2020_12, items_5_exhaustive) {
   })JSON")};
 
   const sourcemeta::core::JSON instance{
-      sourcemeta::core::parse("[ true, 5, \"foo\", \"bar\" ]")};
+      sourcemeta::core::parse_json("[ true, 5, \"foo\", \"bar\" ]")};
   EVALUATE_WITH_TRACE_EXHAUSTIVE_SUCCESS(schema, instance, 9);
 
   EVALUATE_TRACE_PRE(0, AssertionArrayPrefix, "/prefixItems", "#/prefixItems",
@@ -433,7 +435,7 @@ TEST(Evaluator_2020_12, items_5_exhaustive) {
 }
 
 TEST(Evaluator_2020_12, items_6) {
-  const sourcemeta::core::JSON schema{sourcemeta::core::parse(R"JSON({
+  const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2020-12/schema",
     "items": { "type": "string" },
     "prefixItems": [
@@ -443,7 +445,7 @@ TEST(Evaluator_2020_12, items_6) {
   })JSON")};
 
   const sourcemeta::core::JSON instance{
-      sourcemeta::core::parse("[ true, 5, 6, \"bar\" ]")};
+      sourcemeta::core::parse_json("[ true, 5, 6, \"bar\" ]")};
   EVALUATE_WITH_TRACE_FAST_FAILURE(schema, instance, 5);
 
   EVALUATE_TRACE_PRE(0, AssertionArrayPrefix, "/prefixItems", "#/prefixItems",
@@ -484,7 +486,7 @@ TEST(Evaluator_2020_12, items_6) {
 }
 
 TEST(Evaluator_2020_12, items_6_exhaustive) {
-  const sourcemeta::core::JSON schema{sourcemeta::core::parse(R"JSON({
+  const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2020-12/schema",
     "items": { "type": "string" },
     "prefixItems": [
@@ -494,7 +496,7 @@ TEST(Evaluator_2020_12, items_6_exhaustive) {
   })JSON")};
 
   const sourcemeta::core::JSON instance{
-      sourcemeta::core::parse("[ true, 5, 6, \"bar\" ]")};
+      sourcemeta::core::parse_json("[ true, 5, 6, \"bar\" ]")};
   EVALUATE_WITH_TRACE_EXHAUSTIVE_FAILURE(schema, instance, 6);
 
   EVALUATE_TRACE_PRE(0, AssertionArrayPrefix, "/prefixItems", "#/prefixItems",
@@ -541,7 +543,7 @@ TEST(Evaluator_2020_12, items_6_exhaustive) {
 }
 
 TEST(Evaluator_2020_12, prefixItems_1) {
-  const sourcemeta::core::JSON schema{sourcemeta::core::parse(R"JSON({
+  const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2020-12/schema",
     "prefixItems": [ { "type": "string" } ]
   })JSON")};
@@ -551,12 +553,12 @@ TEST(Evaluator_2020_12, prefixItems_1) {
 }
 
 TEST(Evaluator_2020_12, prefixItems_2) {
-  const sourcemeta::core::JSON schema{sourcemeta::core::parse(R"JSON({
+  const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2020-12/schema",
     "prefixItems": [ { "type": "integer" }, { "type": "boolean" } ]
   })JSON")};
 
-  const sourcemeta::core::JSON instance{sourcemeta::core::parse("[]")};
+  const sourcemeta::core::JSON instance{sourcemeta::core::parse_json("[]")};
   EVALUATE_WITH_TRACE_FAST_SUCCESS(schema, instance, 1);
 
   EVALUATE_TRACE_PRE(0, AssertionArrayPrefix, "/prefixItems", "#/prefixItems",
@@ -571,12 +573,12 @@ TEST(Evaluator_2020_12, prefixItems_2) {
 }
 
 TEST(Evaluator_2020_12, prefixItems_3) {
-  const sourcemeta::core::JSON schema{sourcemeta::core::parse(R"JSON({
+  const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2020-12/schema",
     "prefixItems": [ { "type": "integer" }, { "type": "boolean" } ]
   })JSON")};
 
-  const sourcemeta::core::JSON instance{sourcemeta::core::parse("[ 5 ]")};
+  const sourcemeta::core::JSON instance{sourcemeta::core::parse_json("[ 5 ]")};
   EVALUATE_WITH_TRACE_FAST_SUCCESS(schema, instance, 2);
 
   EVALUATE_TRACE_PRE(0, AssertionArrayPrefix, "/prefixItems", "#/prefixItems",
@@ -598,12 +600,12 @@ TEST(Evaluator_2020_12, prefixItems_3) {
 }
 
 TEST(Evaluator_2020_12, prefixItems_3_exhaustive) {
-  const sourcemeta::core::JSON schema{sourcemeta::core::parse(R"JSON({
+  const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2020-12/schema",
     "prefixItems": [ { "type": "integer" }, { "type": "boolean" } ]
   })JSON")};
 
-  const sourcemeta::core::JSON instance{sourcemeta::core::parse("[ 5 ]")};
+  const sourcemeta::core::JSON instance{sourcemeta::core::parse_json("[ 5 ]")};
   EVALUATE_WITH_TRACE_EXHAUSTIVE_SUCCESS(schema, instance, 3);
 
   EVALUATE_TRACE_PRE(0, AssertionArrayPrefix, "/prefixItems", "#/prefixItems",
@@ -631,13 +633,13 @@ TEST(Evaluator_2020_12, prefixItems_3_exhaustive) {
 }
 
 TEST(Evaluator_2020_12, prefixItems_4) {
-  const sourcemeta::core::JSON schema{sourcemeta::core::parse(R"JSON({
+  const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2020-12/schema",
     "prefixItems": [ { "type": "integer" }, { "type": "boolean" } ]
   })JSON")};
 
   const sourcemeta::core::JSON instance{
-      sourcemeta::core::parse("[ 5, true, \"extra\" ]")};
+      sourcemeta::core::parse_json("[ 5, true, \"extra\" ]")};
   EVALUATE_WITH_TRACE_FAST_SUCCESS(schema, instance, 3);
 
   EVALUATE_TRACE_PRE(0, AssertionArrayPrefix, "/prefixItems", "#/prefixItems",
@@ -665,13 +667,13 @@ TEST(Evaluator_2020_12, prefixItems_4) {
 }
 
 TEST(Evaluator_2020_12, prefixItems_4_exhaustive) {
-  const sourcemeta::core::JSON schema{sourcemeta::core::parse(R"JSON({
+  const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2020-12/schema",
     "prefixItems": [ { "type": "integer" }, { "type": "boolean" } ]
   })JSON")};
 
   const sourcemeta::core::JSON instance{
-      sourcemeta::core::parse("[ 5, true, \"extra\" ]")};
+      sourcemeta::core::parse_json("[ 5, true, \"extra\" ]")};
   EVALUATE_WITH_TRACE_EXHAUSTIVE_SUCCESS(schema, instance, 4);
 
   EVALUATE_TRACE_PRE(0, AssertionArrayPrefix, "/prefixItems", "#/prefixItems",
@@ -705,13 +707,13 @@ TEST(Evaluator_2020_12, prefixItems_4_exhaustive) {
 }
 
 TEST(Evaluator_2020_12, prefixItems_5) {
-  const sourcemeta::core::JSON schema{sourcemeta::core::parse(R"JSON({
+  const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2020-12/schema",
     "prefixItems": [ { "type": "integer" }, { "type": "boolean" } ]
   })JSON")};
 
   const sourcemeta::core::JSON instance{
-      sourcemeta::core::parse("[ 5, 1, \"extra\" ]")};
+      sourcemeta::core::parse_json("[ 5, 1, \"extra\" ]")};
   EVALUATE_WITH_TRACE_FAST_FAILURE(schema, instance, 3);
 
   EVALUATE_TRACE_PRE(0, AssertionArrayPrefix, "/prefixItems", "#/prefixItems",
@@ -740,13 +742,13 @@ TEST(Evaluator_2020_12, prefixItems_5) {
 }
 
 TEST(Evaluator_2020_12, prefixItems_5_exhaustive) {
-  const sourcemeta::core::JSON schema{sourcemeta::core::parse(R"JSON({
+  const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2020-12/schema",
     "prefixItems": [ { "type": "integer" }, { "type": "boolean" } ]
   })JSON")};
 
   const sourcemeta::core::JSON instance{
-      sourcemeta::core::parse("[ 5, 1, \"extra\" ]")};
+      sourcemeta::core::parse_json("[ 5, 1, \"extra\" ]")};
   EVALUATE_WITH_TRACE_EXHAUSTIVE_FAILURE(schema, instance, 3);
 
   EVALUATE_TRACE_PRE(0, AssertionArrayPrefix, "/prefixItems", "#/prefixItems",
@@ -775,12 +777,13 @@ TEST(Evaluator_2020_12, prefixItems_5_exhaustive) {
 }
 
 TEST(Evaluator_2020_12, prefixItems_6) {
-  const sourcemeta::core::JSON schema{sourcemeta::core::parse(R"JSON({
+  const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2020-12/schema",
     "prefixItems": [ { "type": "integer" }, { "type": "boolean" } ]
   })JSON")};
 
-  const sourcemeta::core::JSON instance{sourcemeta::core::parse("[ 5, true ]")};
+  const sourcemeta::core::JSON instance{
+      sourcemeta::core::parse_json("[ 5, true ]")};
   EVALUATE_WITH_TRACE_FAST_SUCCESS(schema, instance, 3);
 
   EVALUATE_TRACE_PRE(0, AssertionArrayPrefix, "/prefixItems", "#/prefixItems",
@@ -808,12 +811,13 @@ TEST(Evaluator_2020_12, prefixItems_6) {
 }
 
 TEST(Evaluator_2020_12, prefixItems_6_exhaustive) {
-  const sourcemeta::core::JSON schema{sourcemeta::core::parse(R"JSON({
+  const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2020-12/schema",
     "prefixItems": [ { "type": "integer" }, { "type": "boolean" } ]
   })JSON")};
 
-  const sourcemeta::core::JSON instance{sourcemeta::core::parse("[ 5, true ]")};
+  const sourcemeta::core::JSON instance{
+      sourcemeta::core::parse_json("[ 5, true ]")};
   EVALUATE_WITH_TRACE_EXHAUSTIVE_SUCCESS(schema, instance, 5);
 
   EVALUATE_TRACE_PRE(0, AssertionArrayPrefix, "/prefixItems", "#/prefixItems",
@@ -852,7 +856,7 @@ TEST(Evaluator_2020_12, prefixItems_6_exhaustive) {
 }
 
 TEST(Evaluator_2020_12, contains_1) {
-  const sourcemeta::core::JSON schema{sourcemeta::core::parse(R"JSON({
+  const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2020-12/schema",
     "contains": { "type": "string" }
   })JSON")};
@@ -862,13 +866,13 @@ TEST(Evaluator_2020_12, contains_1) {
 }
 
 TEST(Evaluator_2020_12, contains_2) {
-  const sourcemeta::core::JSON schema{sourcemeta::core::parse(R"JSON({
+  const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2020-12/schema",
     "contains": { "type": "string" }
   })JSON")};
 
   const sourcemeta::core::JSON instance{
-      sourcemeta::core::parse("[ 1, \"bar\", 3 ]")};
+      sourcemeta::core::parse_json("[ 1, \"bar\", 3 ]")};
   EVALUATE_WITH_TRACE_FAST_SUCCESS(schema, instance, 3);
 
   EVALUATE_TRACE_PRE(0, LoopContains, "/contains", "#/contains", "");
@@ -895,13 +899,13 @@ TEST(Evaluator_2020_12, contains_2) {
 }
 
 TEST(Evaluator_2020_12, contains_2_exhaustive) {
-  const sourcemeta::core::JSON schema{sourcemeta::core::parse(R"JSON({
+  const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2020-12/schema",
     "contains": { "type": "string" }
   })JSON")};
 
   const sourcemeta::core::JSON instance{
-      sourcemeta::core::parse("[ 1, \"bar\", 3 ]")};
+      sourcemeta::core::parse_json("[ 1, \"bar\", 3 ]")};
   EVALUATE_WITH_TRACE_EXHAUSTIVE_SUCCESS(schema, instance, 5);
 
   EVALUATE_TRACE_PRE(0, LoopContains, "/contains", "#/contains", "");
@@ -941,12 +945,13 @@ TEST(Evaluator_2020_12, contains_2_exhaustive) {
 }
 
 TEST(Evaluator_2020_12, contains_3) {
-  const sourcemeta::core::JSON schema{sourcemeta::core::parse(R"JSON({
+  const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2020-12/schema",
     "contains": { "type": "string" }
   })JSON")};
 
-  const sourcemeta::core::JSON instance{sourcemeta::core::parse("[ 1, 2, 3 ]")};
+  const sourcemeta::core::JSON instance{
+      sourcemeta::core::parse_json("[ 1, 2, 3 ]")};
   EVALUATE_WITH_TRACE_FAST_FAILURE(schema, instance, 4);
 
   EVALUATE_TRACE_PRE(0, LoopContains, "/contains", "#/contains", "");
@@ -981,12 +986,13 @@ TEST(Evaluator_2020_12, contains_3) {
 }
 
 TEST(Evaluator_2020_12, contains_3_exhaustive) {
-  const sourcemeta::core::JSON schema{sourcemeta::core::parse(R"JSON({
+  const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2020-12/schema",
     "contains": { "type": "string" }
   })JSON")};
 
-  const sourcemeta::core::JSON instance{sourcemeta::core::parse("[ 1, 2, 3 ]")};
+  const sourcemeta::core::JSON instance{
+      sourcemeta::core::parse_json("[ 1, 2, 3 ]")};
   EVALUATE_WITH_TRACE_EXHAUSTIVE_FAILURE(schema, instance, 4);
 
   EVALUATE_TRACE_PRE(0, LoopContains, "/contains", "#/contains", "");
@@ -1021,13 +1027,13 @@ TEST(Evaluator_2020_12, contains_3_exhaustive) {
 }
 
 TEST(Evaluator_2020_12, contains_4) {
-  const sourcemeta::core::JSON schema{sourcemeta::core::parse(R"JSON({
+  const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2020-12/schema",
     "contains": { "type": "string" }
   })JSON")};
 
   const sourcemeta::core::JSON instance{
-      sourcemeta::core::parse("[ \"foo\", \"bar\", \"baz\" ]")};
+      sourcemeta::core::parse_json("[ \"foo\", \"bar\", \"baz\" ]")};
   EVALUATE_WITH_TRACE_FAST_SUCCESS(schema, instance, 2);
 
   EVALUATE_TRACE_PRE(0, LoopContains, "/contains", "#/contains", "");
@@ -1047,13 +1053,13 @@ TEST(Evaluator_2020_12, contains_4) {
 }
 
 TEST(Evaluator_2020_12, contains_4_exhaustive) {
-  const sourcemeta::core::JSON schema{sourcemeta::core::parse(R"JSON({
+  const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2020-12/schema",
     "contains": { "type": "string" }
   })JSON")};
 
   const sourcemeta::core::JSON instance{
-      sourcemeta::core::parse("[ \"foo\", \"bar\", \"baz\" ]")};
+      sourcemeta::core::parse_json("[ \"foo\", \"bar\", \"baz\" ]")};
   EVALUATE_WITH_TRACE_EXHAUSTIVE_SUCCESS(schema, instance, 7);
 
   EVALUATE_TRACE_PRE(0, LoopContains, "/contains", "#/contains", "");
@@ -1105,14 +1111,14 @@ TEST(Evaluator_2020_12, contains_4_exhaustive) {
 }
 
 TEST(Evaluator_2020_12, contains_5) {
-  const sourcemeta::core::JSON schema{sourcemeta::core::parse(R"JSON({
+  const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2020-12/schema",
     "maxContains": 1,
     "contains": { "type": "string" }
   })JSON")};
 
   const sourcemeta::core::JSON instance{
-      sourcemeta::core::parse("[ \"foo\", \"bar\", \"baz\" ]")};
+      sourcemeta::core::parse_json("[ \"foo\", \"bar\", \"baz\" ]")};
   EVALUATE_WITH_TRACE_FAST_FAILURE(schema, instance, 3);
 
   EVALUATE_TRACE_PRE(0, LoopContains, "/contains", "#/contains", "");
@@ -1138,14 +1144,14 @@ TEST(Evaluator_2020_12, contains_5) {
 }
 
 TEST(Evaluator_2020_12, contains_5_exhaustive) {
-  const sourcemeta::core::JSON schema{sourcemeta::core::parse(R"JSON({
+  const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2020-12/schema",
     "maxContains": 1,
     "contains": { "type": "string" }
   })JSON")};
 
   const sourcemeta::core::JSON instance{
-      sourcemeta::core::parse("[ \"foo\", \"bar\", \"baz\" ]")};
+      sourcemeta::core::parse_json("[ \"foo\", \"bar\", \"baz\" ]")};
   EVALUATE_WITH_TRACE_EXHAUSTIVE_FAILURE(schema, instance, 5);
 
   EVALUATE_TRACE_PRE(0, LoopContains, "/contains", "#/contains", "");
@@ -1183,7 +1189,7 @@ TEST(Evaluator_2020_12, contains_5_exhaustive) {
 }
 
 TEST(Evaluator_2020_12, reference_from_unknown_keyword) {
-  const sourcemeta::core::JSON schema{sourcemeta::core::parse(R"JSON({
+  const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2020-12/schema",
     "properties": {
       "foo": { "$ref": "#/definitions/bar" },
@@ -1197,7 +1203,7 @@ TEST(Evaluator_2020_12, reference_from_unknown_keyword) {
   })JSON")};
 
   try {
-    sourcemeta::blaze::compile(schema, sourcemeta::core::default_schema_walker,
+    sourcemeta::blaze::compile(schema, sourcemeta::core::schema_official_walker,
                                sourcemeta::core::official_resolver,
                                sourcemeta::blaze::default_schema_compiler);
   } catch (const sourcemeta::core::SchemaReferenceError &error) {
@@ -1210,7 +1216,7 @@ TEST(Evaluator_2020_12, reference_from_unknown_keyword) {
 }
 
 TEST(Evaluator_2020_12, dynamicRef_1) {
-  const sourcemeta::core::JSON schema{sourcemeta::core::parse(R"JSON({
+  const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2020-12/schema",
     "$dynamicRef": "#foo",
     "$defs": {
@@ -1233,7 +1239,7 @@ TEST(Evaluator_2020_12, dynamicRef_1) {
 }
 
 TEST(Evaluator_2020_12, definitions_1) {
-  const sourcemeta::core::JSON schema{sourcemeta::core::parse(R"JSON({
+  const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2020-12/schema",
     "$ref": "#/definitions/middle",
     "definitions": {
@@ -1254,7 +1260,7 @@ TEST(Evaluator_2020_12, definitions_1) {
 }
 
 TEST(Evaluator_2020_12, definitions_1_exhaustive) {
-  const sourcemeta::core::JSON schema{sourcemeta::core::parse(R"JSON({
+  const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2020-12/schema",
     "$ref": "#/definitions/middle",
     "definitions": {
@@ -1289,13 +1295,14 @@ TEST(Evaluator_2020_12, definitions_1_exhaustive) {
 }
 
 TEST(Evaluator_2020_12, unevaluatedItems_1) {
-  const sourcemeta::core::JSON schema{sourcemeta::core::parse(R"JSON({
+  const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2020-12/schema",
     "contains": { "type": "boolean" },
     "unevaluatedItems": false
   })JSON")};
 
-  const sourcemeta::core::JSON instance{sourcemeta::core::parse("[ false ]")};
+  const sourcemeta::core::JSON instance{
+      sourcemeta::core::parse_json("[ false ]")};
 
   EVALUATE_WITH_TRACE_FAST_SUCCESS(schema, instance, 4);
 
@@ -1329,13 +1336,14 @@ TEST(Evaluator_2020_12, unevaluatedItems_1) {
 }
 
 TEST(Evaluator_2020_12, unevaluatedItems_1_exhaustive) {
-  const sourcemeta::core::JSON schema{sourcemeta::core::parse(R"JSON({
+  const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2020-12/schema",
     "contains": { "type": "boolean" },
     "unevaluatedItems": false
   })JSON")};
 
-  const sourcemeta::core::JSON instance{sourcemeta::core::parse("[ false ]")};
+  const sourcemeta::core::JSON instance{
+      sourcemeta::core::parse_json("[ false ]")};
 
   EVALUATE_WITH_TRACE_EXHAUSTIVE_SUCCESS(schema, instance, 5);
 
@@ -1375,7 +1383,7 @@ TEST(Evaluator_2020_12, unevaluatedItems_1_exhaustive) {
 }
 
 TEST(Evaluator_2020_12, unevaluatedItems_2) {
-  const sourcemeta::core::JSON schema{sourcemeta::core::parse(R"JSON({
+  const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2020-12/schema",
     "anyOf": [
       { "items": { "type": "boolean" } },
@@ -1385,7 +1393,7 @@ TEST(Evaluator_2020_12, unevaluatedItems_2) {
   })JSON")};
 
   const sourcemeta::core::JSON instance{
-      sourcemeta::core::parse("[ false, 1 ]")};
+      sourcemeta::core::parse_json("[ false, 1 ]")};
 
   EVALUATE_WITH_TRACE_FAST_FAILURE(schema, instance, 6);
 
@@ -1434,7 +1442,7 @@ TEST(Evaluator_2020_12, unevaluatedItems_2) {
 }
 
 TEST(Evaluator_2020_12, unevaluatedItems_2_exhaustive) {
-  const sourcemeta::core::JSON schema{sourcemeta::core::parse(R"JSON({
+  const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2020-12/schema",
     "anyOf": [
       { "items": { "type": "boolean" } },
@@ -1444,7 +1452,7 @@ TEST(Evaluator_2020_12, unevaluatedItems_2_exhaustive) {
   })JSON")};
 
   const sourcemeta::core::JSON instance{
-      sourcemeta::core::parse("[ false, 1 ]")};
+      sourcemeta::core::parse_json("[ false, 1 ]")};
 
   EVALUATE_WITH_TRACE_EXHAUSTIVE_FAILURE(schema, instance, 6);
 
@@ -1493,7 +1501,7 @@ TEST(Evaluator_2020_12, unevaluatedItems_2_exhaustive) {
 }
 
 TEST(Evaluator_2020_12, unevaluatedItems_3) {
-  const sourcemeta::core::JSON schema{sourcemeta::core::parse(R"JSON({
+  const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2020-12/schema",
     "anyOf": [
       { "prefixItems": [ { "type": "boolean" } ] },
@@ -1502,7 +1510,8 @@ TEST(Evaluator_2020_12, unevaluatedItems_3) {
     "unevaluatedItems": false
   })JSON")};
 
-  const sourcemeta::core::JSON instance{sourcemeta::core::parse("[ 1, 2 ]")};
+  const sourcemeta::core::JSON instance{
+      sourcemeta::core::parse_json("[ 1, 2 ]")};
 
   EVALUATE_WITH_TRACE_FAST_FAILURE(schema, instance, 5);
 
@@ -1549,7 +1558,7 @@ TEST(Evaluator_2020_12, unevaluatedItems_3) {
 }
 
 TEST(Evaluator_2020_12, unevaluatedItems_3_exhaustive) {
-  const sourcemeta::core::JSON schema{sourcemeta::core::parse(R"JSON({
+  const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2020-12/schema",
     "anyOf": [
       { "prefixItems": [ { "type": "boolean" } ] },
@@ -1558,7 +1567,8 @@ TEST(Evaluator_2020_12, unevaluatedItems_3_exhaustive) {
     "unevaluatedItems": false
   })JSON")};
 
-  const sourcemeta::core::JSON instance{sourcemeta::core::parse("[ 1, 2 ]")};
+  const sourcemeta::core::JSON instance{
+      sourcemeta::core::parse_json("[ 1, 2 ]")};
 
   EVALUATE_WITH_TRACE_EXHAUSTIVE_FAILURE(schema, instance, 5);
 
@@ -1605,13 +1615,14 @@ TEST(Evaluator_2020_12, unevaluatedItems_3_exhaustive) {
 }
 
 TEST(Evaluator_2020_12, unevaluatedItems_4) {
-  const sourcemeta::core::JSON schema{sourcemeta::core::parse(R"JSON({
+  const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2020-12/schema",
     "items": { "type": "string" },
     "unevaluatedItems": { "type": "boolean" }
   })JSON")};
 
-  const sourcemeta::core::JSON instance{sourcemeta::core::parse("[ \"foo\" ]")};
+  const sourcemeta::core::JSON instance{
+      sourcemeta::core::parse_json("[ \"foo\" ]")};
 
   EVALUATE_WITH_TRACE_FAST_SUCCESS(schema, instance, 2);
 
@@ -1631,13 +1642,14 @@ TEST(Evaluator_2020_12, unevaluatedItems_4) {
 }
 
 TEST(Evaluator_2020_12, unevaluatedItems_4_exhaustive) {
-  const sourcemeta::core::JSON schema{sourcemeta::core::parse(R"JSON({
+  const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2020-12/schema",
     "items": { "type": "string" },
     "unevaluatedItems": { "type": "boolean" }
   })JSON")};
 
-  const sourcemeta::core::JSON instance{sourcemeta::core::parse("[ \"foo\" ]")};
+  const sourcemeta::core::JSON instance{
+      sourcemeta::core::parse_json("[ \"foo\" ]")};
 
   EVALUATE_WITH_TRACE_EXHAUSTIVE_SUCCESS(schema, instance, 4);
 
@@ -1667,14 +1679,14 @@ TEST(Evaluator_2020_12, unevaluatedItems_4_exhaustive) {
 }
 
 TEST(Evaluator_2020_12, unevaluatedProperties_1) {
-  const sourcemeta::core::JSON schema{sourcemeta::core::parse(R"JSON({
+  const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2020-12/schema",
     "additionalProperties": { "type": "string" },
     "unevaluatedProperties": false
   })JSON")};
 
   const sourcemeta::core::JSON instance{
-      sourcemeta::core::parse("{ \"foo\": \"baz\" }")};
+      sourcemeta::core::parse_json("{ \"foo\": \"baz\" }")};
 
   EVALUATE_WITH_TRACE_FAST_SUCCESS(schema, instance, 1);
 
@@ -1688,14 +1700,14 @@ TEST(Evaluator_2020_12, unevaluatedProperties_1) {
 }
 
 TEST(Evaluator_2020_12, unevaluatedProperties_1_exhaustive) {
-  const sourcemeta::core::JSON schema{sourcemeta::core::parse(R"JSON({
+  const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2020-12/schema",
     "additionalProperties": { "type": "string" },
     "unevaluatedProperties": false
   })JSON")};
 
   const sourcemeta::core::JSON instance{
-      sourcemeta::core::parse("{ \"foo\": \"baz\" }")};
+      sourcemeta::core::parse_json("{ \"foo\": \"baz\" }")};
 
   EVALUATE_WITH_TRACE_EXHAUSTIVE_SUCCESS(schema, instance, 3);
 

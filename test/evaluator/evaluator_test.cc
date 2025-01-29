@@ -11,7 +11,7 @@
 static auto test_resolver(std::string_view identifier)
     -> std::optional<sourcemeta::core::JSON> {
   if (identifier == "https://example.com/metaschema") {
-    return sourcemeta::core::parse(R"JSON({
+    return sourcemeta::core::parse_json(R"JSON({
       "$schema": "https://json-schema.org/draft/2020-12/schema",
       "$id": "https://example.com/metaschema",
       "$vocabulary": {
@@ -25,12 +25,12 @@ static auto test_resolver(std::string_view identifier)
 }
 
 TEST(Evaluator, unknown_vocabulary_required) {
-  const sourcemeta::core::JSON schema{sourcemeta::core::parse(R"JSON({
+  const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://example.com/metaschema"
   })JSON")};
 
   try {
-    sourcemeta::blaze::compile(schema, sourcemeta::core::default_schema_walker,
+    sourcemeta::blaze::compile(schema, sourcemeta::core::schema_official_walker,
                                test_resolver,
                                sourcemeta::blaze::default_schema_compiler);
     FAIL() << "The compile function was expected to throw";
@@ -46,7 +46,7 @@ TEST(Evaluator, boolean_true) {
   const sourcemeta::core::JSON schema{true};
 
   const auto compiled_schema{sourcemeta::blaze::compile(
-      schema, sourcemeta::core::default_schema_walker,
+      schema, sourcemeta::core::schema_official_walker,
       sourcemeta::core::official_resolver,
       sourcemeta::blaze::default_schema_compiler,
       sourcemeta::blaze::Mode::FastValidation,
@@ -61,7 +61,7 @@ TEST(Evaluator, boolean_false) {
   const sourcemeta::core::JSON schema{false};
 
   const auto compiled_schema{sourcemeta::blaze::compile(
-      schema, sourcemeta::core::default_schema_walker,
+      schema, sourcemeta::core::schema_official_walker,
       sourcemeta::core::official_resolver,
       sourcemeta::blaze::default_schema_compiler,
       sourcemeta::blaze::Mode::FastValidation,
@@ -80,13 +80,13 @@ TEST(Evaluator, boolean_false) {
 }
 
 TEST(Evaluator, reusable_evaluator) {
-  const sourcemeta::core::JSON schema{sourcemeta::core::parse(R"JSON({
+  const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
     "$schema": "http://json-schema.org/draft-04/schema#",
     "type": "string"
   })JSON")};
 
   const auto compiled_schema{sourcemeta::blaze::compile(
-      schema, sourcemeta::core::default_schema_walker,
+      schema, sourcemeta::core::schema_official_walker,
       sourcemeta::core::official_resolver,
       sourcemeta::blaze::default_schema_compiler)};
 

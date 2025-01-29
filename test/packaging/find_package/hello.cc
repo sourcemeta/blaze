@@ -8,13 +8,13 @@
 #include <iostream> // std::cerr
 
 auto main() -> int {
-  const auto schema{sourcemeta::core::parse(R"JSON({
+  const auto schema{sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2020-12/schema",
     "type": "string"
   })JSON")};
 
   const auto compiled_schema{sourcemeta::blaze::compile(
-      schema, sourcemeta::core::default_schema_walker,
+      schema, sourcemeta::core::schema_official_walker,
       sourcemeta::core::official_resolver,
       sourcemeta::blaze::default_schema_compiler)};
 
