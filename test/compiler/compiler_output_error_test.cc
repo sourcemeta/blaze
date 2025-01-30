@@ -23,7 +23,7 @@ TEST(Compiler_output_error, success_string_1) {
 
   const auto schema_template{sourcemeta::blaze::compile(
       schema, sourcemeta::core::schema_official_walker,
-      sourcemeta::core::official_resolver,
+      sourcemeta::core::schema_official_resolver,
       sourcemeta::blaze::default_schema_compiler)};
 
   const sourcemeta::core::JSON instance{"foo"};
@@ -57,7 +57,7 @@ TEST(Compiler_output_error, fail_meaningless_if_1) {
 
   const auto schema_template{sourcemeta::blaze::compile(
       schema, sourcemeta::core::schema_official_walker,
-      sourcemeta::core::official_resolver,
+      sourcemeta::core::schema_official_resolver,
       sourcemeta::blaze::default_schema_compiler)};
 
   const sourcemeta::core::JSON instance{sourcemeta::core::parse_json(R"JSON({
@@ -98,7 +98,7 @@ TEST(Compiler_output_error, success_dynamic_anchor_1) {
 
   const auto schema_template{sourcemeta::blaze::compile(
       schema, sourcemeta::core::schema_official_walker,
-      sourcemeta::core::official_resolver,
+      sourcemeta::core::schema_official_resolver,
       sourcemeta::blaze::default_schema_compiler)};
 
   const sourcemeta::core::JSON instance{"foo"};
@@ -125,7 +125,7 @@ TEST(Compiler_output_error, success_oneof_1) {
 
   const auto schema_template{sourcemeta::blaze::compile(
       schema, sourcemeta::core::schema_official_walker,
-      sourcemeta::core::official_resolver,
+      sourcemeta::core::schema_official_resolver,
       sourcemeta::blaze::default_schema_compiler)};
 
   const sourcemeta::core::JSON instance{"fo"};
@@ -149,7 +149,7 @@ TEST(Compiler_output_error, fail_string) {
 
   const auto schema_template{sourcemeta::blaze::compile(
       schema, sourcemeta::core::schema_official_walker,
-      sourcemeta::core::official_resolver,
+      sourcemeta::core::schema_official_resolver,
       sourcemeta::blaze::default_schema_compiler)};
 
   const sourcemeta::core::JSON instance{5};
@@ -182,7 +182,7 @@ TEST(Compiler_output_error, fail_string_over_ref) {
 
   const auto schema_template{sourcemeta::blaze::compile(
       schema, sourcemeta::core::schema_official_walker,
-      sourcemeta::core::official_resolver,
+      sourcemeta::core::schema_official_resolver,
       sourcemeta::blaze::default_schema_compiler)};
 
   const sourcemeta::core::JSON instance{5};
@@ -215,7 +215,7 @@ TEST(Compiler_output_error, fail_string_with_matching_base) {
 
   const auto schema_template{sourcemeta::blaze::compile(
       schema, sourcemeta::core::schema_official_walker,
-      sourcemeta::core::official_resolver,
+      sourcemeta::core::schema_official_resolver,
       sourcemeta::blaze::default_schema_compiler)};
 
   const sourcemeta::core::JSON instance{5};
@@ -250,7 +250,7 @@ TEST(Compiler_output_error, fail_string_with_non_matching_base) {
 
   const auto schema_template{sourcemeta::blaze::compile(
       schema, sourcemeta::core::schema_official_walker,
-      sourcemeta::core::official_resolver,
+      sourcemeta::core::schema_official_resolver,
       sourcemeta::blaze::default_schema_compiler)};
 
   const sourcemeta::core::JSON instance{5};
@@ -282,7 +282,7 @@ TEST(Compiler_output_error, fail_oneof_1) {
 
   const auto schema_template{sourcemeta::blaze::compile(
       schema, sourcemeta::core::schema_official_walker,
-      sourcemeta::core::official_resolver,
+      sourcemeta::core::schema_official_resolver,
       sourcemeta::blaze::default_schema_compiler)};
 
   const sourcemeta::core::JSON instance{"foo"};
@@ -312,7 +312,7 @@ TEST(Compiler_output_error, fail_not_1) {
 
   const auto schema_template{sourcemeta::blaze::compile(
       schema, sourcemeta::core::schema_official_walker,
-      sourcemeta::core::official_resolver,
+      sourcemeta::core::schema_official_resolver,
       sourcemeta::blaze::default_schema_compiler)};
 
   const sourcemeta::core::JSON instance{"foo"};
@@ -344,7 +344,7 @@ TEST(Compiler_output_error, fail_not_not_1) {
 
   const auto schema_template{sourcemeta::blaze::compile(
       schema, sourcemeta::core::schema_official_walker,
-      sourcemeta::core::official_resolver,
+      sourcemeta::core::schema_official_resolver,
       sourcemeta::blaze::default_schema_compiler)};
 
   const sourcemeta::core::JSON instance{1};

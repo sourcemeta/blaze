@@ -80,7 +80,7 @@ public:
   ///
   /// const auto schema_template{sourcemeta::blaze::compile(
   ///     schema, sourcemeta::core::schema_official_walker,
-  ///     sourcemeta::core::official_resolver,
+  ///     sourcemeta::core::schema_official_resolver,
   ///     sourcemeta::core::default_schema_compiler)};
   ///
   /// sourcemeta::blaze::Evaluator evaluator;
@@ -112,7 +112,7 @@ public:
   ///
   /// const auto schema_template{sourcemeta::blaze::compile(
   ///     schema, sourcemeta::core::schema_official_walker,
-  ///     sourcemeta::core::official_resolver,
+  ///     sourcemeta::core::schema_official_resolver,
   ///     sourcemeta::core::default_schema_compiler)};
   ///
   /// static auto callback(

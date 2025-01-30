@@ -32,7 +32,7 @@ TEST(Compiler_output_trace, pass_1) {
 
   const auto schema_template{sourcemeta::blaze::compile(
       schema, sourcemeta::core::schema_official_walker,
-      sourcemeta::core::official_resolver,
+      sourcemeta::core::schema_official_resolver,
       sourcemeta::blaze::default_schema_compiler)};
 
   const sourcemeta::core::JSON instance{sourcemeta::core::parse_json(R"JSON({
@@ -78,7 +78,7 @@ TEST(Compiler_output_trace, pass_with_matching_prefix_1) {
 
   const auto schema_template{sourcemeta::blaze::compile(
       schema, sourcemeta::core::schema_official_walker,
-      sourcemeta::core::official_resolver,
+      sourcemeta::core::schema_official_resolver,
       sourcemeta::blaze::default_schema_compiler)};
 
   const sourcemeta::core::JSON instance{sourcemeta::core::parse_json(R"JSON({

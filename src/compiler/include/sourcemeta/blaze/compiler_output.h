@@ -40,7 +40,7 @@ namespace sourcemeta::blaze {
 ///
 /// const auto schema_template{sourcemeta::blaze::compile(
 ///     schema, sourcemeta::core::schema_official_walker,
-///     sourcemeta::core::official_resolver,
+///     sourcemeta::core::schema_official_resolver,
 ///     sourcemeta::core::default_schema_compiler)};
 ///
 /// const sourcemeta::core::JSON instance{5};
@@ -127,7 +127,7 @@ private:
 ///
 /// const auto schema_template{sourcemeta::blaze::compile(
 ///     schema, sourcemeta::core::schema_official_walker,
-///     sourcemeta::core::official_resolver,
+///     sourcemeta::core::schema_official_resolver,
 ///     sourcemeta::core::default_schema_compiler)};
 ///
 /// const sourcemeta::core::JSON instance{5};

@@ -20,7 +20,7 @@ static auto test_resolver(std::string_view identifier)
       }
     })JSON");
   } else {
-    return sourcemeta::core::official_resolver(identifier);
+    return sourcemeta::core::schema_official_resolver(identifier);
   }
 }
 
@@ -47,7 +47,7 @@ TEST(Evaluator, boolean_true) {
 
   const auto compiled_schema{sourcemeta::blaze::compile(
       schema, sourcemeta::core::schema_official_walker,
-      sourcemeta::core::official_resolver,
+      sourcemeta::core::schema_official_resolver,
       sourcemeta::blaze::default_schema_compiler,
       sourcemeta::blaze::Mode::FastValidation,
       "https://json-schema.org/draft/2020-12/schema")};
@@ -62,7 +62,7 @@ TEST(Evaluator, boolean_false) {
 
   const auto compiled_schema{sourcemeta::blaze::compile(
       schema, sourcemeta::core::schema_official_walker,
-      sourcemeta::core::official_resolver,
+      sourcemeta::core::schema_official_resolver,
       sourcemeta::blaze::default_schema_compiler,
       sourcemeta::blaze::Mode::FastValidation,
       "https://json-schema.org/draft/2020-12/schema")};
@@ -87,7 +87,7 @@ TEST(Evaluator, reusable_evaluator) {
 
   const auto compiled_schema{sourcemeta::blaze::compile(
       schema, sourcemeta::core::schema_official_walker,
-      sourcemeta::core::official_resolver,
+      sourcemeta::core::schema_official_resolver,
       sourcemeta::blaze::default_schema_compiler)};
 
   sourcemeta::blaze::Evaluator evaluator;

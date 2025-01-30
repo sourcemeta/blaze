@@ -196,7 +196,7 @@ static auto test_resolver(std::string_view identifier)
 
 #undef READ_SCHEMA_FILE
 
-  return sourcemeta::core::official_resolver(identifier);
+  return sourcemeta::core::schema_official_resolver(identifier);
 }
 
 static auto slugify(const std::string &input, std::ostream &output) -> void {
