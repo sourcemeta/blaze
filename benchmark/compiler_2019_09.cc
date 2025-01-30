@@ -15,7 +15,7 @@ static void Compiler_2019_09_OMC_JSON_V2(benchmark::State &state) {
   for (auto _ : state) {
     auto result{sourcemeta::blaze::compile(
         schema, sourcemeta::core::schema_official_walker,
-        sourcemeta::core::official_resolver,
+        sourcemeta::core::schema_official_resolver,
         sourcemeta::blaze::default_schema_compiler)};
     assert(!result.instructions.empty());
     benchmark::DoNotOptimize(result.instructions);

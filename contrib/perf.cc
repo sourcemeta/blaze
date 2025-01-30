@@ -180,7 +180,7 @@ auto main(int argc, char **argv) noexcept -> int {
 
   const auto schema_template{sourcemeta::blaze::compile(
       schema, sourcemeta::core::schema_official_walker,
-      sourcemeta::core::official_resolver,
+      sourcemeta::core::schema_official_resolver,
       sourcemeta::blaze::default_schema_compiler,
       sourcemeta::blaze::Mode::FastValidation)};
 

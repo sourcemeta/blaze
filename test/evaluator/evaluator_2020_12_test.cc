@@ -19,7 +19,7 @@ TEST(Evaluator_2020_12, unknown_1) {
 }
 
 TEST(Evaluator_2020_12, metaschema_hyper_1) {
-  const auto metaschema{sourcemeta::core::official_resolver(
+  const auto metaschema{sourcemeta::core::schema_official_resolver(
       "https://json-schema.org/draft/2020-12/hyper-schema")};
   EXPECT_TRUE(metaschema.has_value());
   const auto instance{sourcemeta::core::parse_json(R"JSON({})JSON")};
@@ -27,14 +27,14 @@ TEST(Evaluator_2020_12, metaschema_hyper_1) {
 }
 
 TEST(Evaluator_2020_12, metaschema_hyper_self) {
-  const auto metaschema{sourcemeta::core::official_resolver(
+  const auto metaschema{sourcemeta::core::schema_official_resolver(
       "https://json-schema.org/draft/2020-12/hyper-schema")};
   EXPECT_TRUE(metaschema.has_value());
   EVALUATE_WITH_TRACE_FAST_SUCCESS(metaschema.value(), metaschema.value(), 112);
 }
 
 TEST(Evaluator_2020_12, metaschema_hyper_self_exhaustive) {
-  const auto metaschema{sourcemeta::core::official_resolver(
+  const auto metaschema{sourcemeta::core::schema_official_resolver(
       "https://json-schema.org/draft/2020-12/hyper-schema")};
   EXPECT_TRUE(metaschema.has_value());
   EVALUATE_WITH_TRACE_EXHAUSTIVE_SUCCESS(metaschema.value(), metaschema.value(),
@@ -1204,7 +1204,7 @@ TEST(Evaluator_2020_12, reference_from_unknown_keyword) {
 
   try {
     sourcemeta::blaze::compile(schema, sourcemeta::core::schema_official_walker,
-                               sourcemeta::core::official_resolver,
+                               sourcemeta::core::schema_official_resolver,
                                sourcemeta::blaze::default_schema_compiler);
   } catch (const sourcemeta::core::SchemaReferenceError &error) {
     EXPECT_EQ(error.id(), "#/properties/baz");

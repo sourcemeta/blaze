@@ -30,7 +30,7 @@ static void Evaluator_Draft7_If_Then_Else(benchmark::State &state) {
 
   const auto schema_template{sourcemeta::blaze::compile(
       schema, sourcemeta::core::schema_official_walker,
-      sourcemeta::core::official_resolver,
+      sourcemeta::core::schema_official_resolver,
       sourcemeta::blaze::default_schema_compiler)};
   sourcemeta::blaze::Evaluator evaluator;
   for (auto _ : state) {
@@ -51,7 +51,7 @@ static void Evaluator_Draft7_Vercel_1(benchmark::State &state) {
 
   const auto schema_template{sourcemeta::blaze::compile(
       schema, sourcemeta::core::schema_official_walker,
-      sourcemeta::core::official_resolver,
+      sourcemeta::core::schema_official_resolver,
       sourcemeta::blaze::default_schema_compiler)};
   sourcemeta::blaze::Evaluator evaluator;
   for (auto _ : state) {
@@ -72,7 +72,7 @@ static void Evaluator_Draft7_Helm_Chart_Lock_1(benchmark::State &state) {
 
   const auto schema_template{sourcemeta::blaze::compile(
       schema, sourcemeta::core::schema_official_walker,
-      sourcemeta::core::official_resolver,
+      sourcemeta::core::schema_official_resolver,
       sourcemeta::blaze::default_schema_compiler)};
   sourcemeta::blaze::Evaluator evaluator;
   for (auto _ : state) {
@@ -93,7 +93,7 @@ static void Evaluator_Draft7_Helm_Chart_Lock_2(benchmark::State &state) {
 
   const auto schema_template{sourcemeta::blaze::compile(
       schema, sourcemeta::core::schema_official_walker,
-      sourcemeta::core::official_resolver,
+      sourcemeta::core::schema_official_resolver,
       sourcemeta::blaze::default_schema_compiler)};
   sourcemeta::blaze::Evaluator evaluator;
   for (auto _ : state) {
@@ -114,7 +114,7 @@ static void Evaluator_Draft7_Jasmine_1(benchmark::State &state) {
 
   const auto schema_template{sourcemeta::blaze::compile(
       schema, sourcemeta::core::schema_official_walker,
-      sourcemeta::core::official_resolver,
+      sourcemeta::core::schema_official_resolver,
       sourcemeta::blaze::default_schema_compiler)};
   sourcemeta::blaze::Evaluator evaluator;
   for (auto _ : state) {
@@ -135,7 +135,7 @@ static void Evaluator_Draft7_Dependabot_1(benchmark::State &state) {
 
   const auto schema_template{sourcemeta::blaze::compile(
       schema, sourcemeta::core::schema_official_walker,
-      sourcemeta::core::official_resolver,
+      sourcemeta::core::schema_official_resolver,
       sourcemeta::blaze::default_schema_compiler)};
   sourcemeta::blaze::Evaluator evaluator;
   for (auto _ : state) {

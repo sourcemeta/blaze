@@ -18,10 +18,10 @@ static void Evaluator_Draft4_Meta_1_No_Callback(benchmark::State &state) {
   })JSON")};
 
   const auto metaschema{sourcemeta::core::metaschema(
-      schema, sourcemeta::core::official_resolver)};
+      schema, sourcemeta::core::schema_official_resolver)};
   const auto metaschema_template{sourcemeta::blaze::compile(
       metaschema, sourcemeta::core::schema_official_walker,
-      sourcemeta::core::official_resolver,
+      sourcemeta::core::schema_official_resolver,
       sourcemeta::blaze::default_schema_compiler)};
 
   sourcemeta::blaze::Evaluator evaluator;
@@ -101,7 +101,7 @@ static void Evaluator_Draft4_Required_Properties(benchmark::State &state) {
 
   const auto schema_template{sourcemeta::blaze::compile(
       schema, sourcemeta::core::schema_official_walker,
-      sourcemeta::core::official_resolver,
+      sourcemeta::core::schema_official_resolver,
       sourcemeta::blaze::default_schema_compiler)};
 
   sourcemeta::blaze::Evaluator evaluator;
@@ -152,7 +152,7 @@ static void Evaluator_Draft4_Many_Optional_Properties_Minimal_Match(
 
   const auto schema_template{sourcemeta::blaze::compile(
       schema, sourcemeta::core::schema_official_walker,
-      sourcemeta::core::official_resolver,
+      sourcemeta::core::schema_official_resolver,
       sourcemeta::blaze::default_schema_compiler)};
 
   sourcemeta::blaze::Evaluator evaluator;
@@ -203,7 +203,7 @@ static void Evaluator_Draft4_Few_Optional_Properties_Minimal_Match(
 
   const auto schema_template{sourcemeta::blaze::compile(
       schema, sourcemeta::core::schema_official_walker,
-      sourcemeta::core::official_resolver,
+      sourcemeta::core::schema_official_resolver,
       sourcemeta::blaze::default_schema_compiler)};
 
   sourcemeta::blaze::Evaluator evaluator;
@@ -281,7 +281,7 @@ static void Evaluator_Draft4_Items_Schema(benchmark::State &state) {
 
   const auto schema_template{sourcemeta::blaze::compile(
       schema, sourcemeta::core::schema_official_walker,
-      sourcemeta::core::official_resolver,
+      sourcemeta::core::schema_official_resolver,
       sourcemeta::blaze::default_schema_compiler)};
 
   sourcemeta::blaze::Evaluator evaluator;
@@ -417,7 +417,7 @@ static void Evaluator_Draft4_Nested_Object(benchmark::State &state) {
 
   const auto schema_template{sourcemeta::blaze::compile(
       schema, sourcemeta::core::schema_official_walker,
-      sourcemeta::core::official_resolver,
+      sourcemeta::core::schema_official_resolver,
       sourcemeta::blaze::default_schema_compiler)};
 
   sourcemeta::blaze::Evaluator evaluator;
@@ -460,7 +460,7 @@ Evaluator_Draft4_Properties_Triad_Optional(benchmark::State &state) {
 
   const auto schema_template{sourcemeta::blaze::compile(
       schema, sourcemeta::core::schema_official_walker,
-      sourcemeta::core::official_resolver,
+      sourcemeta::core::schema_official_resolver,
       sourcemeta::blaze::default_schema_compiler)};
 
   sourcemeta::blaze::Evaluator evaluator;
@@ -504,7 +504,7 @@ Evaluator_Draft4_Properties_Triad_Required(benchmark::State &state) {
 
   const auto schema_template{sourcemeta::blaze::compile(
       schema, sourcemeta::core::schema_official_walker,
-      sourcemeta::core::official_resolver,
+      sourcemeta::core::schema_official_resolver,
       sourcemeta::blaze::default_schema_compiler)};
 
   sourcemeta::blaze::Evaluator evaluator;
@@ -543,7 +543,7 @@ static void Evaluator_Draft4_Properties_Triad_Closed(benchmark::State &state) {
 
   const auto schema_template{sourcemeta::blaze::compile(
       schema, sourcemeta::core::schema_official_walker,
-      sourcemeta::core::official_resolver,
+      sourcemeta::core::schema_official_resolver,
       sourcemeta::blaze::default_schema_compiler)};
 
   sourcemeta::blaze::Evaluator evaluator;
@@ -589,7 +589,7 @@ static void Evaluator_Draft4_Properties_Closed(benchmark::State &state) {
 
   const auto schema_template{sourcemeta::blaze::compile(
       schema, sourcemeta::core::schema_official_walker,
-      sourcemeta::core::official_resolver,
+      sourcemeta::core::schema_official_resolver,
       sourcemeta::blaze::default_schema_compiler)};
 
   sourcemeta::blaze::Evaluator evaluator;
@@ -634,7 +634,7 @@ static void Evaluator_Draft4_Non_Recursive_Ref(benchmark::State &state) {
 
   const auto schema_template{sourcemeta::blaze::compile(
       schema, sourcemeta::core::schema_official_walker,
-      sourcemeta::core::official_resolver,
+      sourcemeta::core::schema_official_resolver,
       sourcemeta::blaze::default_schema_compiler)};
 
   sourcemeta::blaze::Evaluator evaluator;
@@ -674,7 +674,7 @@ static void Evaluator_Draft4_Pattern_Properties_True(benchmark::State &state) {
 
   const auto schema_template{sourcemeta::blaze::compile(
       schema, sourcemeta::core::schema_official_walker,
-      sourcemeta::core::official_resolver,
+      sourcemeta::core::schema_official_resolver,
       sourcemeta::blaze::default_schema_compiler)};
 
   sourcemeta::blaze::Evaluator evaluator;
@@ -732,7 +732,7 @@ static void Evaluator_Draft4_Ref_To_Single_Property(benchmark::State &state) {
 
   const auto schema_template{sourcemeta::blaze::compile(
       schema, sourcemeta::core::schema_official_walker,
-      sourcemeta::core::official_resolver,
+      sourcemeta::core::schema_official_resolver,
       sourcemeta::blaze::default_schema_compiler)};
 
   sourcemeta::blaze::Evaluator evaluator;
@@ -781,7 +781,7 @@ Evaluator_Draft4_Additional_Properties_Type(benchmark::State &state) {
 
   const auto schema_template{sourcemeta::blaze::compile(
       schema, sourcemeta::core::schema_official_walker,
-      sourcemeta::core::official_resolver,
+      sourcemeta::core::schema_official_resolver,
       sourcemeta::blaze::default_schema_compiler)};
 
   sourcemeta::blaze::Evaluator evaluator;
@@ -823,7 +823,7 @@ static void Evaluator_Draft4_Nested_Oneof(benchmark::State &state) {
 
   const auto schema_template{sourcemeta::blaze::compile(
       schema, sourcemeta::core::schema_official_walker,
-      sourcemeta::core::official_resolver,
+      sourcemeta::core::schema_official_resolver,
       sourcemeta::blaze::default_schema_compiler)};
   sourcemeta::blaze::Evaluator evaluator;
   for (auto _ : state) {
@@ -843,7 +843,7 @@ static void Evaluator_Draft4_Short_Enum(benchmark::State &state) {
 
   const auto schema_template{sourcemeta::blaze::compile(
       schema, sourcemeta::core::schema_official_walker,
-      sourcemeta::core::official_resolver,
+      sourcemeta::core::schema_official_resolver,
       sourcemeta::blaze::default_schema_compiler)};
   sourcemeta::blaze::Evaluator evaluator;
   for (auto _ : state) {
@@ -905,7 +905,7 @@ static void Evaluator_Draft4_Long_Enum(benchmark::State &state) {
 
   const auto schema_template{sourcemeta::blaze::compile(
       schema, sourcemeta::core::schema_official_walker,
-      sourcemeta::core::official_resolver,
+      sourcemeta::core::schema_official_resolver,
       sourcemeta::blaze::default_schema_compiler)};
   sourcemeta::blaze::Evaluator evaluator;
   for (auto _ : state) {
@@ -967,7 +967,7 @@ static void Evaluator_Draft4_Long_Enum_Short_Strings(benchmark::State &state) {
 
   const auto schema_template{sourcemeta::blaze::compile(
       schema, sourcemeta::core::schema_official_walker,
-      sourcemeta::core::official_resolver,
+      sourcemeta::core::schema_official_resolver,
       sourcemeta::blaze::default_schema_compiler)};
   sourcemeta::blaze::Evaluator evaluator;
   for (auto _ : state) {
@@ -987,7 +987,7 @@ static void Evaluator_Draft4_Type_Object(benchmark::State &state) {
 
   const auto schema_template{sourcemeta::blaze::compile(
       schema, sourcemeta::core::schema_official_walker,
-      sourcemeta::core::official_resolver,
+      sourcemeta::core::schema_official_resolver,
       sourcemeta::blaze::default_schema_compiler)};
   sourcemeta::blaze::Evaluator evaluator;
   for (auto _ : state) {

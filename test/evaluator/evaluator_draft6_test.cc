@@ -9,7 +9,7 @@
 #include "evaluator_utils.h"
 
 TEST(Evaluator_draft6, metaschema) {
-  const auto metaschema{sourcemeta::core::official_resolver(
+  const auto metaschema{sourcemeta::core::schema_official_resolver(
       "http://json-schema.org/draft-06/schema#")};
   EXPECT_TRUE(metaschema.has_value());
 
@@ -18,14 +18,14 @@ TEST(Evaluator_draft6, metaschema) {
 }
 
 TEST(Evaluator_draft6, metaschema_hyper_self) {
-  const auto metaschema{sourcemeta::core::official_resolver(
+  const auto metaschema{sourcemeta::core::schema_official_resolver(
       "http://json-schema.org/draft-06/hyper-schema#")};
   EXPECT_TRUE(metaschema.has_value());
   EVALUATE_WITH_TRACE_FAST_SUCCESS(metaschema.value(), metaschema.value(), 863);
 }
 
 TEST(Evaluator_draft6, metaschema_hyper_self_exhaustive) {
-  const auto metaschema{sourcemeta::core::official_resolver(
+  const auto metaschema{sourcemeta::core::schema_official_resolver(
       "http://json-schema.org/draft-06/hyper-schema#")};
   EXPECT_TRUE(metaschema.has_value());
   EVALUATE_WITH_TRACE_EXHAUSTIVE_SUCCESS(metaschema.value(), metaschema.value(),
@@ -830,7 +830,7 @@ TEST(Evaluator_draft6, invalid_ref_top_level) {
 
   try {
     sourcemeta::blaze::compile(schema, sourcemeta::core::schema_official_walker,
-                               sourcemeta::core::official_resolver,
+                               sourcemeta::core::schema_official_resolver,
                                sourcemeta::blaze::default_schema_compiler);
   } catch (const sourcemeta::core::SchemaReferenceError &error) {
     EXPECT_EQ(error.location(), sourcemeta::core::Pointer({"$ref"}));
@@ -852,7 +852,7 @@ TEST(Evaluator_draft6, invalid_ref_nested) {
 
   try {
     sourcemeta::blaze::compile(schema, sourcemeta::core::schema_official_walker,
-                               sourcemeta::core::official_resolver,
+                               sourcemeta::core::schema_official_resolver,
                                sourcemeta::blaze::default_schema_compiler);
   } catch (const sourcemeta::core::SchemaReferenceError &error) {
     EXPECT_EQ(error.location(),
@@ -882,7 +882,7 @@ TEST(Evaluator_draft6, invalid_ref_embedded) {
 
   try {
     sourcemeta::blaze::compile(schema, sourcemeta::core::schema_official_walker,
-                               sourcemeta::core::official_resolver,
+                               sourcemeta::core::schema_official_resolver,
                                sourcemeta::blaze::default_schema_compiler);
   } catch (const sourcemeta::core::SchemaReferenceError &error) {
     EXPECT_EQ(error.location(),
@@ -942,7 +942,7 @@ TEST(Evaluator_draft6, reference_from_unknown_keyword) {
 
   try {
     sourcemeta::blaze::compile(schema, sourcemeta::core::schema_official_walker,
-                               sourcemeta::core::official_resolver,
+                               sourcemeta::core::schema_official_resolver,
                                sourcemeta::blaze::default_schema_compiler);
   } catch (const sourcemeta::core::SchemaReferenceError &error) {
     EXPECT_EQ(error.id(), "#/properties/baz");
