@@ -31,8 +31,20 @@ static auto test_resolver(std::string_view identifier)
 
   // We keep an explicit list instead of dynamically reading into the directory
   // to make sure we are only pulling in the right files
+
+  READ_SCHEMA_FILE("http://localhost:1234/different-id-ref-string.json",
+                   "different-id-ref-string.json")
   READ_SCHEMA_FILE("http://localhost:1234/integer.json", "integer.json")
-  READ_SCHEMA_FILE("http://localhost:1234/subSchemas.json", "subSchemas.json")
+  READ_SCHEMA_FILE("http://localhost:1234/nested-absolute-ref-to-string.json",
+                   "nested-absolute-ref-to-string.json")
+  READ_SCHEMA_FILE("http://localhost:1234/urn-ref-string.json",
+                   "urn-ref-string.json")
+
+  READ_SCHEMA_FILE("http://localhost:1234/nested/foo-ref-string.json",
+                   std::filesystem::path{"nested"} / "foo-ref-string.json")
+  READ_SCHEMA_FILE("http://localhost:1234/nested/string.json",
+                   std::filesystem::path{"nested"} / "string.json")
+
   READ_SCHEMA_FILE("http://localhost:1234/baseUriChange/folderInteger.json",
                    std::filesystem::path{"baseUriChange"} /
                        "folderInteger.json")
@@ -43,26 +55,7 @@ static auto test_resolver(std::string_view identifier)
       "http://localhost:1234/baseUriChangeFolderInSubschema/folderInteger.json",
       std::filesystem::path{"baseUriChangeFolderInSubschema"} /
           "folderInteger.json")
-  READ_SCHEMA_FILE("http://localhost:1234/name.json", "name.json")
-  READ_SCHEMA_FILE(
-      "http://localhost:1234/locationIndependentIdentifierDraft4.json",
-      "locationIndependentIdentifierDraft4.json")
-  READ_SCHEMA_FILE("http://localhost:1234/ref-and-definitions.json",
-                   "ref-and-definitions.json")
-  READ_SCHEMA_FILE(
-      "http://localhost:1234/locationIndependentIdentifierPre2019.json",
-      "locationIndependentIdentifierPre2019.json")
-  READ_SCHEMA_FILE("http://localhost:1234/nested/foo-ref-string.json",
-                   std::filesystem::path{"nested"} / "foo-ref-string.json")
-  READ_SCHEMA_FILE("http://localhost:1234/nested/string.json",
-                   std::filesystem::path{"nested"} / "string.json")
-  READ_SCHEMA_FILE("http://localhost:1234/draft6/detached-ref.json",
-                   std::filesystem::path{"draft6"} / "detached-ref.json")
-  READ_SCHEMA_FILE("http://localhost:1234/draft7/detached-ref.json",
-                   std::filesystem::path{"draft7"} / "detached-ref.json")
-  READ_SCHEMA_FILE("http://localhost:1234/draft7/ignore-dependentRequired.json",
-                   std::filesystem::path{"draft7"} /
-                       "ignore-dependentRequired.json")
+
   READ_SCHEMA_FILE(
       "http://localhost:1234/draft2019-09/metaschema-no-validation.json",
       std::filesystem::path{"draft2019-09"} / "metaschema-no-validation.json")
@@ -101,12 +94,6 @@ static auto test_resolver(std::string_view identifier)
   READ_SCHEMA_FILE("http://localhost:1234/draft2019-09/nested/string.json",
                    std::filesystem::path{"draft2019-09"} / "nested" /
                        "string.json")
-  READ_SCHEMA_FILE("http://localhost:1234/different-id-ref-string.json",
-                   "different-id-ref-string.json")
-  READ_SCHEMA_FILE("http://localhost:1234/urn-ref-string.json",
-                   "urn-ref-string.json")
-  READ_SCHEMA_FILE("http://localhost:1234/nested-absolute-ref-to-string.json",
-                   "nested-absolute-ref-to-string.json")
   READ_SCHEMA_FILE("http://localhost:1234/draft2019-09/detached-ref.json",
                    std::filesystem::path{"draft2019-09"} / "detached-ref.json")
   READ_SCHEMA_FILE("http://localhost:1234/draft2019-09/dependentRequired.json",
@@ -115,6 +102,7 @@ static auto test_resolver(std::string_view identifier)
   READ_SCHEMA_FILE("http://localhost:1234/draft2019-09/ignore-prefixItems.json",
                    std::filesystem::path{"draft2019-09"} /
                        "ignore-prefixItems.json")
+
   READ_SCHEMA_FILE("http://localhost:1234/draft2020-12/prefixItems.json",
                    std::filesystem::path{"draft2020-12"} / "prefixItems.json")
   READ_SCHEMA_FILE(
@@ -170,6 +158,41 @@ static auto test_resolver(std::string_view identifier)
   READ_SCHEMA_FILE("http://localhost:1234/draft2020-12/nested/string.json",
                    std::filesystem::path{"draft2020-12"} / "nested" /
                        "string.json")
+
+  READ_SCHEMA_FILE("http://localhost:1234/draft7/detached-ref.json",
+                   std::filesystem::path{"draft7"} / "detached-ref.json")
+  READ_SCHEMA_FILE("http://localhost:1234/draft7/ignore-dependentRequired.json",
+                   std::filesystem::path{"draft7"} /
+                       "ignore-dependentRequired.json")
+  READ_SCHEMA_FILE(
+      "http://localhost:1234/draft7/locationIndependentIdentifier.json",
+      std::filesystem::path{"draft7"} / "locationIndependentIdentifier.json")
+  READ_SCHEMA_FILE("http://localhost:1234/draft7/name.json",
+                   std::filesystem::path{"draft7"} / "name.json")
+  READ_SCHEMA_FILE("http://localhost:1234/draft7/ref-and-definitions.json",
+                   std::filesystem::path{"draft7"} / "ref-and-definitions.json")
+  READ_SCHEMA_FILE("http://localhost:1234/draft7/subSchemas.json",
+                   std::filesystem::path{"draft7"} / "subSchemas.json")
+
+  READ_SCHEMA_FILE("http://localhost:1234/draft6/detached-ref.json",
+                   std::filesystem::path{"draft6"} / "detached-ref.json")
+  READ_SCHEMA_FILE(
+      "http://localhost:1234/draft6/locationIndependentIdentifier.json",
+      std::filesystem::path{"draft6"} / "locationIndependentIdentifier.json")
+  READ_SCHEMA_FILE("http://localhost:1234/draft6/name.json",
+                   std::filesystem::path{"draft6"} / "name.json")
+  READ_SCHEMA_FILE("http://localhost:1234/draft6/ref-and-definitions.json",
+                   std::filesystem::path{"draft6"} / "ref-and-definitions.json")
+  READ_SCHEMA_FILE("http://localhost:1234/draft6/subSchemas.json",
+                   std::filesystem::path{"draft6"} / "subSchemas.json")
+
+  READ_SCHEMA_FILE(
+      "http://localhost:1234/draft4/locationIndependentIdentifier.json",
+      std::filesystem::path{"draft4"} / "locationIndependentIdentifier.json")
+  READ_SCHEMA_FILE("http://localhost:1234/draft4/name.json",
+                   std::filesystem::path{"draft4"} / "name.json")
+  READ_SCHEMA_FILE("http://localhost:1234/draft4/subSchemas.json",
+                   std::filesystem::path{"draft4"} / "subSchemas.json")
 
 #undef READ_SCHEMA_FILE
 
@@ -299,15 +322,21 @@ int main(int argc, char **argv) {
         "https://json-schema.org/draft/2020-12/schema",
         {// TODO: Enable all tests
          "bignum", "ecmascript-regex", "format-assertion", "non-bmp-regex"});
-    register_tests(
-        std::filesystem::path{"draft2020-12"} / "optional" / "format",
-        "JSONSchemaOfficialSuite_2020_12_Optional_Format",
-        "https://json-schema.org/draft/2020-12/schema",
-        // TODO: Enable all tests
-        {"date-time", "date", "duration", "email", "hostname", "idn-email",
-         "idn-hostname", "ipv4", "ipv6", "iri-reference", "iri", "json-pointer",
-         "regex", "relative-json-pointer", "time", "uri-reference",
-         "uri-template", "uri", "uuid"});
+    register_tests(std::filesystem::path{"draft2020-12"} / "optional" /
+                       "format",
+                   "JSONSchemaOfficialSuite_2020_12_Optional_Format",
+                   "https://json-schema.org/draft/2020-12/schema",
+                   // TODO: Enable all tests
+                   {"date-time",    "date",
+                    "duration",     "email",
+                    "hostname",     "idn-email",
+                    "idn-hostname", "ipv4",
+                    "ipv6",         "iri-reference",
+                    "iri",          "json-pointer",
+                    "regex",        "relative-json-pointer",
+                    "time",         "uri-reference",
+                    "uri-template", "uri",
+                    "uuid",         "ecmascript-regex"});
 
     // 2019-09
     register_tests("draft2019-09", "JSONSchemaOfficialSuite_2019_09",
