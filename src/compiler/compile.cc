@@ -14,6 +14,7 @@ namespace {
 
 auto compile_subschema(const sourcemeta::blaze::Context &context,
                        const sourcemeta::blaze::SchemaContext &schema_context,
+                       const sourcemeta::blaze::CompileOptions &options,
                        const sourcemeta::blaze::DynamicContext &dynamic_context,
                        const std::optional<std::string> &default_dialect)
     -> sourcemeta::blaze::Instructions {
@@ -45,6 +46,7 @@ auto compile_subschema(const sourcemeta::blaze::Context &context,
               schema_context.schema, entry.vocabularies, schema_context.base,
               // TODO: This represents a copy
               schema_context.labels, schema_context.references},
+             options,
              {keyword, dynamic_context.base_schema_location,
               dynamic_context.base_instance_location,
               dynamic_context.property_as_target},
@@ -63,6 +65,7 @@ auto compile_subschema(const sourcemeta::blaze::Context &context,
 auto precompile(
     const sourcemeta::blaze::Context &context,
     sourcemeta::blaze::SchemaContext &schema_context,
+    const sourcemeta::blaze::CompileOptions &options,
     const sourcemeta::blaze::DynamicContext &dynamic_context,
     const sourcemeta::core::SchemaFrame::Locations::value_type &entry)
     -> sourcemeta::blaze::Instructions {
@@ -90,7 +93,7 @@ auto precompile(
                nested_schema_context, dynamic_context,
                sourcemeta::blaze::ValueUnsignedInteger{label},
                sourcemeta::blaze::compile(
-                   context, nested_schema_context,
+                   context, nested_schema_context, options,
                    sourcemeta::blaze::relative_dynamic_context(),
                    sourcemeta::core::empty_pointer,
                    sourcemeta::core::empty_pointer, entry.first.second))};
@@ -103,8 +106,9 @@ namespace sourcemeta::blaze {
 auto compile(const sourcemeta::core::JSON &schema,
              const sourcemeta::core::SchemaWalker &walker,
              const sourcemeta::core::SchemaResolver &resolver,
-             const Compiler &compiler, const Mode mode,
-             const std::optional<std::string> &default_dialect) -> Template {
+             const Compiler &compiler, const CompileOptions &options,
+             const Mode mode, const std::optional<std::string> &default_dialect)
+    -> Template {
   assert(is_schema(schema));
 
   // Make sure the input schema is bundled, otherwise we won't be able to
@@ -226,8 +230,8 @@ auto compile(const sourcemeta::core::JSON &schema,
         {sourcemeta::core::SchemaReferenceType::Static, destination}));
     const auto match{context.frame.locations().find(
         {sourcemeta::core::SchemaReferenceType::Static, destination})};
-    for (auto &&substep :
-         precompile(context, schema_context, dynamic_context, *match)) {
+    for (auto &&substep : precompile(context, schema_context, options,
+                                     dynamic_context, *match)) {
       compiler_template.push_back(std::move(substep));
     }
   }
@@ -245,15 +249,15 @@ auto compile(const sourcemeta::core::JSON &schema,
         continue;
       }
 
-      for (auto &&substep :
-           precompile(context, schema_context, dynamic_context, entry)) {
+      for (auto &&substep : precompile(context, schema_context, options,
+                                       dynamic_context, entry)) {
         compiler_template.push_back(std::move(substep));
       }
     }
   }
 
-  auto children{compile_subschema(context, schema_context, dynamic_context,
-                                  root_frame_entry.dialect)};
+  auto children{compile_subschema(context, schema_context, options,
+                                  dynamic_context, root_frame_entry.dialect)};
 
   const bool track{
       context.mode != Mode::FastValidation ||
@@ -275,6 +279,7 @@ auto compile(const sourcemeta::core::JSON &schema,
 }
 
 auto compile(const Context &context, const SchemaContext &schema_context,
+             const CompileOptions &options,
              const DynamicContext &dynamic_context,
              const sourcemeta::core::Pointer &schema_suffix,
              const sourcemeta::core::Pointer &instance_suffix,
@@ -321,6 +326,7 @@ auto compile(const Context &context, const SchemaContext &schema_context,
            ""),
        // TODO: This represents a copy
        schema_context.labels, schema_context.references},
+      options,
       {dynamic_context.keyword, destination_pointer,
        dynamic_context.base_instance_location.concat(instance_suffix),
        dynamic_context.property_as_target},

@@ -87,28 +87,30 @@ enum class RegexIndex : std::uint8_t {
 /// assert(regex.has_value());
 /// ```
 template <typename T>
-auto to_regex(const T &pattern) -> std::optional<Regex<T>> {
-  if (pattern == ".*" || pattern == "^.*$" || pattern == "^(.*)$" ||
-      pattern == "(.*)" || pattern == "[\\s\\S]*" || pattern == "^[\\s\\S]*$") {
-    return RegexTypeNoop{};
-  } else if (pattern == ".+" || pattern == "^.+$" || pattern == "^(.+)$" ||
-             pattern == ".") {
-    return RegexTypeNonEmpty{};
-  }
+auto to_regex(const T &pattern, const bool simplify) -> std::optional<Regex<T>> {
+  if (simplify) {
+    if (pattern == ".*" || pattern == "^.*$" || pattern == "^(.*)$" ||
+        pattern == "(.*)" || pattern == "[\\s\\S]*" || pattern == "^[\\s\\S]*$") {
+      return RegexTypeNoop{};
+    } else if (pattern == ".+" || pattern == "^.+$" || pattern == "^(.+)$" ||
+               pattern == ".") {
+      return RegexTypeNonEmpty{};
+    }
 
-  const std::regex PREFIX_REGEX{R"(^\^([a-zA-Z0-9-_/@]+)(\.\*)?)"};
-  std::smatch matches_prefix;
-  if (std::regex_match(pattern, matches_prefix, PREFIX_REGEX)) {
-    return RegexTypePrefix<T>{matches_prefix[1].str()};
-  }
+    const std::regex PREFIX_REGEX{R"(^\^([a-zA-Z0-9-_/@]+)(\.\*)?)"};
+    std::smatch matches_prefix;
+    if (std::regex_match(pattern, matches_prefix, PREFIX_REGEX)) {
+      return RegexTypePrefix<T>{matches_prefix[1].str()};
+    }
 
-  const std::regex RANGE_REGEX{R"(^\^\.\{(\d+),(\d+)\}\$$)"};
-  std::smatch matches_range;
-  if (std::regex_match(pattern, matches_range, RANGE_REGEX)) {
-    const std::uint64_t minimum{std::stoull(matches_range[1].str())};
-    const std::uint64_t maximum{std::stoull(matches_range[2].str())};
-    assert(minimum <= maximum);
-    return RegexTypeRange{minimum, maximum};
+    const std::regex RANGE_REGEX{R"(^\^\.\{(\d+),(\d+)\}\$$)"};
+    std::smatch matches_range;
+    if (std::regex_match(pattern, matches_range, RANGE_REGEX)) {
+      const std::uint64_t minimum{std::stoull(matches_range[1].str())};
+      const std::uint64_t maximum{std::stoull(matches_range[2].str())};
+      assert(minimum <= maximum);
+      return RegexTypeRange{minimum, maximum};
+    }
   }
 
   RegexTypeBoost<typename T::value_type> result{

@@ -12,8 +12,8 @@ using namespace sourcemeta::blaze;
 
 auto compiler_2020_12_applicator_prefixitems(
     const Context &context, const SchemaContext &schema_context,
-    const DynamicContext &dynamic_context, const Instructions &)
-    -> Instructions {
+    const CompileOptions &options, const DynamicContext &dynamic_context,
+    const Instructions &) -> Instructions {
   // TODO: Be smarter about how we treat `unevaluatedItems` like how we do for
   // `unevaluatedProperties`
   const bool track{
@@ -23,12 +23,13 @@ auto compiler_2020_12_applicator_prefixitems(
                   })};
 
   return compiler_draft4_applicator_items_array(
-      context, schema_context, dynamic_context,
+      context, schema_context, options, dynamic_context,
       context.mode == Mode::Exhaustive, track);
 }
 
 auto compiler_2020_12_applicator_items(const Context &context,
                                        const SchemaContext &schema_context,
+                                       const CompileOptions &options,
                                        const DynamicContext &dynamic_context,
                                        const Instructions &) -> Instructions {
   const auto cursor{(schema_context.schema.defines("prefixItems") &&
@@ -45,13 +46,14 @@ auto compiler_2020_12_applicator_items(const Context &context,
                   })};
 
   return compiler_draft4_applicator_additionalitems_from_cursor(
-      context, schema_context, dynamic_context, cursor,
+      context, schema_context, options, dynamic_context, cursor,
       context.mode == Mode::Exhaustive,
       track && !schema_context.schema.defines("unevaluatedItems"));
 }
 
 auto compiler_2020_12_applicator_contains(const Context &context,
                                           const SchemaContext &schema_context,
+                                          const CompileOptions &options,
                                           const DynamicContext &dynamic_context,
                                           const Instructions &current)
     -> Instructions {
@@ -64,12 +66,13 @@ auto compiler_2020_12_applicator_contains(const Context &context,
                   })};
 
   return compiler_2019_09_applicator_contains_with_options(
-      context, schema_context, dynamic_context, current,
+      context, schema_context, options, dynamic_context, current,
       context.mode == Mode::Exhaustive, track);
 }
 
 auto compiler_2020_12_core_dynamicref(const Context &context,
                                       const SchemaContext &schema_context,
+                                      const CompileOptions &options,
                                       const DynamicContext &dynamic_context,
                                       const Instructions &current)
     -> Instructions {
@@ -77,8 +80,8 @@ auto compiler_2020_12_core_dynamicref(const Context &context,
   // In this case, just behave as a normal static reference
   if (!context.frame.references().contains(
           {sourcemeta::core::SchemaReferenceType::Dynamic, entry.pointer})) {
-    return compiler_draft4_core_ref(context, schema_context, dynamic_context,
-                                    current);
+    return compiler_draft4_core_ref(context, schema_context, options,
+                                    dynamic_context, current);
   }
 
   assert(schema_context.schema.at(dynamic_context.keyword).is_string());

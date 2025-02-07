@@ -16,9 +16,10 @@
 
 static auto parse_regex(const std::string &pattern,
                         const sourcemeta::core::URI &base,
-                        const sourcemeta::core::Pointer &schema_location)
+                        const sourcemeta::core::Pointer &schema_location,
+                        const bool simplify_regexes)
     -> sourcemeta::core::Regex<sourcemeta::core::JSON::String> {
-  const auto result{sourcemeta::core::to_regex(pattern)};
+  const auto result{sourcemeta::core::to_regex(pattern, simplify_regexes)};
   if (!result.has_value()) {
     std::ostringstream message;
     message << "Invalid regular expression: " << pattern;
@@ -103,6 +104,7 @@ is_closed_properties_required(const sourcemeta::core::JSON &schema,
 static auto
 compile_properties(const sourcemeta::blaze::Context &context,
                    const sourcemeta::blaze::SchemaContext &schema_context,
+                   const sourcemeta::blaze::CompileOptions &options,
                    const sourcemeta::blaze::DynamicContext &dynamic_context,
                    const sourcemeta::blaze::Instructions &)
     -> std::vector<std::pair<std::string, sourcemeta::blaze::Instructions>> {
@@ -110,7 +112,7 @@ compile_properties(const sourcemeta::blaze::Context &context,
       properties;
   for (const auto &entry : schema_context.schema.at("properties").as_object()) {
     properties.push_back(
-        {entry.first, compile(context, schema_context, dynamic_context,
+        {entry.first, compile(context, schema_context, options, dynamic_context,
                               {entry.first}, {entry.first})});
   }
 
@@ -195,6 +197,7 @@ using namespace sourcemeta::blaze;
 
 auto compiler_draft4_core_ref(const Context &context,
                               const SchemaContext &schema_context,
+                              const CompileOptions &options,
                               const DynamicContext &dynamic_context,
                               const Instructions &) -> Instructions {
   // Determine the label
@@ -250,19 +253,20 @@ auto compiler_draft4_core_ref(const Context &context,
                                      .pointer)) ||
       schema_context.references.contains(reference.destination)};
 
-  if (!is_recursive && direct_children_references <= 5) {
+  if (!is_recursive &&
+      direct_children_references <= options.expand_ref_threshold) {
     if (context.mode == Mode::FastValidation &&
         // Expanding references inline when dynamic scoping is required
         // may not work, as we might omit the instruction that introduces
         // one of the necessary schema resources to the evaluator
         !context.uses_dynamic_scopes) {
-      return compile(context, new_schema_context, dynamic_context,
+      return compile(context, new_schema_context, options, dynamic_context,
                      sourcemeta::core::empty_pointer,
                      sourcemeta::core::empty_pointer, reference.destination);
     } else {
       return {make(sourcemeta::blaze::InstructionIndex::LogicalAnd, context,
                    schema_context, dynamic_context, ValueNone{},
-                   compile(context, new_schema_context,
+                   compile(context, new_schema_context, options,
                            relative_dynamic_context(dynamic_context),
                            sourcemeta::core::empty_pointer,
                            sourcemeta::core::empty_pointer,
@@ -271,17 +275,18 @@ auto compiler_draft4_core_ref(const Context &context,
   }
 
   new_schema_context.labels.insert(label);
-  Instructions children{compile(
-      context, new_schema_context, relative_dynamic_context(dynamic_context),
-      sourcemeta::core::empty_pointer, sourcemeta::core::empty_pointer,
-      reference.destination)};
+  Instructions children{compile(context, new_schema_context, options,
+                                relative_dynamic_context(dynamic_context),
+                                sourcemeta::core::empty_pointer,
+                                sourcemeta::core::empty_pointer,
+                                reference.destination)};
 
   // If we ended up not using the label after all, then we can ignore the
   // wrapper, at the expense of compiling the reference instructions once more
   std::set<std::size_t> used_labels;
   collect_jump_labels(children, used_labels);
   if (!used_labels.contains(label)) {
-    return compile(context, schema_context, dynamic_context,
+    return compile(context, schema_context, options, dynamic_context,
                    sourcemeta::core::empty_pointer,
                    sourcemeta::core::empty_pointer, reference.destination);
   }
@@ -299,6 +304,7 @@ auto compiler_draft4_core_ref(const Context &context,
 
 auto compiler_draft4_validation_type(const Context &context,
                                      const SchemaContext &schema_context,
+                                     const CompileOptions &,
                                      const DynamicContext &dynamic_context,
                                      const Instructions &) -> Instructions {
   if (schema_context.schema.at(dynamic_context.keyword).is_string()) {
@@ -537,6 +543,7 @@ auto compiler_draft4_validation_type(const Context &context,
 
 auto compiler_draft4_validation_required(const Context &context,
                                          const SchemaContext &schema_context,
+                                         const CompileOptions &options,
                                          const DynamicContext &dynamic_context,
                                          const Instructions &current)
     -> Instructions {
@@ -582,7 +589,7 @@ auto compiler_draft4_validation_required(const Context &context,
         const DynamicContext new_dynamic_context{
             "properties", sourcemeta::core::empty_pointer,
             sourcemeta::core::empty_pointer, false};
-        auto properties{compile_properties(context, new_schema_context,
+        auto properties{compile_properties(context, new_schema_context, options,
                                            new_dynamic_context, current)};
         if (std::all_of(properties.cbegin(), properties.cend(),
                         [](const auto &property) {
@@ -605,8 +612,9 @@ auto compiler_draft4_validation_required(const Context &context,
         if (context.mode == Mode::FastValidation &&
             properties_set.size() == 3 &&
             std::all_of(properties_set.begin(), properties_set.end(),
-                        [&hasher](const auto &property) {
-                          return hasher.is_perfect(property.second);
+                        [&hasher, &options](const auto &property) {
+                          return options.perfect_hash &&
+                                 hasher.is_perfect(property.second);
                         })) {
           std::vector<std::pair<ValueString, ValueStringSet::hash_type>> hashes;
           for (const auto &property : properties_set) {
@@ -659,6 +667,7 @@ auto compiler_draft4_validation_required(const Context &context,
 
 auto compiler_draft4_applicator_allof(const Context &context,
                                       const SchemaContext &schema_context,
+                                      const CompileOptions &options,
                                       const DynamicContext &dynamic_context,
                                       const Instructions &) -> Instructions {
   assert(schema_context.schema.at(dynamic_context.keyword).is_array());
@@ -673,7 +682,7 @@ auto compiler_draft4_applicator_allof(const Context &context,
          index < schema_context.schema.at(dynamic_context.keyword).size();
          index++) {
       for (auto &&step : compile(
-               context, schema_context, dynamic_context,
+               context, schema_context, options, dynamic_context,
                {static_cast<sourcemeta::core::Pointer::Token::Index>(index)})) {
         children.push_back(std::move(step));
       }
@@ -685,7 +694,7 @@ auto compiler_draft4_applicator_allof(const Context &context,
          index < schema_context.schema.at(dynamic_context.keyword).size();
          index++) {
       for (auto &&step : compile(
-               context, schema_context,
+               context, schema_context, options,
                relative_dynamic_context(dynamic_context),
                {static_cast<sourcemeta::core::Pointer::Token::Index>(index)})) {
         children.push_back(std::move(step));
@@ -700,6 +709,7 @@ auto compiler_draft4_applicator_allof(const Context &context,
 
 auto compiler_draft4_applicator_anyof(const Context &context,
                                       const SchemaContext &schema_context,
+                                      const CompileOptions &options,
                                       const DynamicContext &dynamic_context,
                                       const Instructions &) -> Instructions {
   assert(schema_context.schema.at(dynamic_context.keyword).is_array());
@@ -713,7 +723,8 @@ auto compiler_draft4_applicator_anyof(const Context &context,
         sourcemeta::blaze::InstructionIndex::ControlGroup, context,
         schema_context, relative_dynamic_context(dynamic_context), ValueNone{},
         compile(
-            context, schema_context, relative_dynamic_context(dynamic_context),
+            context, schema_context, options,
+            relative_dynamic_context(dynamic_context),
             {static_cast<sourcemeta::core::Pointer::Token::Index>(index)})));
   }
 
@@ -768,6 +779,7 @@ auto compiler_draft4_applicator_anyof(const Context &context,
 
 auto compiler_draft4_applicator_oneof(const Context &context,
                                       const SchemaContext &schema_context,
+                                      const CompileOptions &options,
                                       const DynamicContext &dynamic_context,
                                       const Instructions &) -> Instructions {
   assert(schema_context.schema.at(dynamic_context.keyword).is_array());
@@ -781,7 +793,8 @@ auto compiler_draft4_applicator_oneof(const Context &context,
         sourcemeta::blaze::InstructionIndex::ControlGroup, context,
         schema_context, relative_dynamic_context(dynamic_context), ValueNone{},
         compile(
-            context, schema_context, relative_dynamic_context(dynamic_context),
+            context, schema_context, options,
+            relative_dynamic_context(dynamic_context),
             {static_cast<sourcemeta::core::Pointer::Token::Index>(index)})));
   }
 
@@ -799,7 +812,12 @@ auto compiler_draft4_applicator_oneof(const Context &context,
 // in the corresponding case.
 auto properties_as_loop(const Context &context,
                         const SchemaContext &schema_context,
+                        const CompileOptions &options,
                         const sourcemeta::core::JSON &properties) -> bool {
+  if (!options.unroll) {
+    return true;
+  }
+
   const auto size{properties.size()};
   const auto imports_validation_vocabulary =
       schema_context.vocabularies.contains(
@@ -886,8 +904,9 @@ auto properties_as_loop(const Context &context,
 
 auto compiler_draft4_applicator_properties_with_options(
     const Context &context, const SchemaContext &schema_context,
-    const DynamicContext &dynamic_context, const Instructions &current,
-    const bool annotate, const bool track_evaluation) -> Instructions {
+    const CompileOptions &options, const DynamicContext &dynamic_context,
+    const Instructions &current, const bool annotate,
+    const bool track_evaluation) -> Instructions {
   assert(schema_context.schema.at(dynamic_context.keyword).is_object());
   if (schema_context.schema.at(dynamic_context.keyword).empty()) {
     return {};
@@ -899,15 +918,15 @@ auto compiler_draft4_applicator_properties_with_options(
     return {};
   }
 
-  if (properties_as_loop(context, schema_context,
+  if (properties_as_loop(context, schema_context, options,
                          schema_context.schema.at(dynamic_context.keyword))) {
     ValueNamedIndexes indexes;
     Instructions children;
     std::size_t cursor = 0;
 
     for (auto &&[name, substeps] : compile_properties(
-             context, schema_context, relative_dynamic_context(dynamic_context),
-             current)) {
+             context, schema_context, options,
+             relative_dynamic_context(dynamic_context), current)) {
       indexes.assign(name, cursor);
 
       if (track_evaluation) {
@@ -960,7 +979,7 @@ auto compiler_draft4_applicator_properties_with_options(
                            schema_context.schema.at("type").to_string() ==
                                "object"};
 
-  auto properties{compile_properties(context, schema_context,
+  auto properties{compile_properties(context, schema_context, options,
                                      effective_dynamic_context, current)};
 
   if (context.mode == Mode::FastValidation &&
@@ -1002,7 +1021,7 @@ auto compiler_draft4_applicator_properties_with_options(
                 perfect_hashes;
             for (const auto &entry : required) {
               assert(required.contains(entry.first, entry.second));
-              if (hasher.is_perfect(entry.second)) {
+              if (options.perfect_hash && hasher.is_perfect(entry.second)) {
                 perfect_hashes.emplace_back(entry.first, entry.second);
               }
             }
@@ -1172,16 +1191,16 @@ auto compiler_draft4_applicator_properties_with_options(
 
 auto compiler_draft4_applicator_properties(
     const Context &context, const SchemaContext &schema_context,
-    const DynamicContext &dynamic_context, const Instructions &current)
-    -> Instructions {
+    const CompileOptions &options, const DynamicContext &dynamic_context,
+    const Instructions &current) -> Instructions {
   return compiler_draft4_applicator_properties_with_options(
-      context, schema_context, dynamic_context, current, false, false);
+      context, schema_context, options, dynamic_context, current, false, false);
 }
 
 auto compiler_draft4_applicator_patternproperties_with_options(
     const Context &context, const SchemaContext &schema_context,
-    const DynamicContext &dynamic_context, const bool annotate,
-    const bool track_evaluation) -> Instructions {
+    const CompileOptions &options, const DynamicContext &dynamic_context,
+    const bool annotate, const bool track_evaluation) -> Instructions {
   assert(schema_context.schema.at(dynamic_context.keyword).is_object());
   if (schema_context.schema.at(dynamic_context.keyword).empty()) {
     return {};
@@ -1206,7 +1225,7 @@ auto compiler_draft4_applicator_patternproperties_with_options(
 
   // For each regular expression and corresponding subschema in the object
   for (const auto &pattern : patterns) {
-    auto substeps{compile(context, schema_context,
+    auto substeps{compile(context, schema_context, options,
                           relative_dynamic_context(dynamic_context), {pattern},
                           {})};
 
@@ -1233,14 +1252,18 @@ auto compiler_draft4_applicator_patternproperties_with_options(
           make(sourcemeta::blaze::InstructionIndex::LoopPropertiesRegexClosed,
                context, schema_context, dynamic_context,
                ValueRegex{parse_regex(pattern, schema_context.base,
-                                      schema_context.relative_pointer),
+                                      schema_context.relative_pointer,
+                                      options.simplify_regexes),
                           pattern},
                std::move(substeps)));
 
       // If the `patternProperties` subschema for the given pattern does
       // nothing, then we can avoid generating an entire loop for it
     } else if (!substeps.empty()) {
-      const auto maybe_prefix{pattern_as_prefix(pattern)};
+      std::optional<std::basic_string<char>> maybe_prefix{std::nullopt};
+      if (options.simplify_regexes) {
+        maybe_prefix = pattern_as_prefix(pattern);
+      }
       if (maybe_prefix.has_value()) {
         children.push_back(
             make(sourcemeta::blaze::InstructionIndex::LoopPropertiesStartsWith,
@@ -1251,7 +1274,8 @@ auto compiler_draft4_applicator_patternproperties_with_options(
             make(sourcemeta::blaze::InstructionIndex::LoopPropertiesRegex,
                  context, schema_context, dynamic_context,
                  ValueRegex{parse_regex(pattern, schema_context.base,
-                                        schema_context.relative_pointer),
+                                        schema_context.relative_pointer,
+                                        options.simplify_regexes),
                             pattern},
                  std::move(substeps)));
       }
@@ -1263,25 +1287,26 @@ auto compiler_draft4_applicator_patternproperties_with_options(
 
 auto compiler_draft4_applicator_patternproperties(
     const Context &context, const SchemaContext &schema_context,
-    const DynamicContext &dynamic_context, const Instructions &)
-    -> Instructions {
+    const CompileOptions &options, const DynamicContext &dynamic_context,
+    const Instructions &) -> Instructions {
   return compiler_draft4_applicator_patternproperties_with_options(
-      context, schema_context, dynamic_context, false, false);
+      context, schema_context, options, dynamic_context, false, false);
 }
 
 auto compiler_draft4_applicator_additionalproperties_with_options(
     const Context &context, const SchemaContext &schema_context,
-    const DynamicContext &dynamic_context, const bool annotate,
-    const bool track_evaluation) -> Instructions {
+    const CompileOptions &options, const DynamicContext &dynamic_context,
+    const bool annotate, const bool track_evaluation) -> Instructions {
   if (schema_context.schema.defines("type") &&
       schema_context.schema.at("type").is_string() &&
       schema_context.schema.at("type").to_string() != "object") {
     return {};
   }
 
-  Instructions children{compile(
-      context, schema_context, relative_dynamic_context(dynamic_context),
-      sourcemeta::core::empty_pointer, sourcemeta::core::empty_pointer)};
+  Instructions children{compile(context, schema_context, options,
+                                relative_dynamic_context(dynamic_context),
+                                sourcemeta::core::empty_pointer,
+                                sourcemeta::core::empty_pointer)};
 
   if (annotate) {
     children.push_back(
@@ -1306,14 +1331,18 @@ auto compiler_draft4_applicator_additionalproperties_with_options(
       schema_context.schema.at("patternProperties").is_object()) {
     for (const auto &entry :
          schema_context.schema.at("patternProperties").as_object()) {
-      const auto maybe_prefix{pattern_as_prefix(entry.first)};
+      std::optional<std::basic_string<char>> maybe_prefix{std::nullopt};
+      if (options.simplify_regexes) {
+        maybe_prefix = pattern_as_prefix(entry.first);
+      }
       if (maybe_prefix.has_value()) {
         filter_prefixes.push_back(maybe_prefix.value());
       } else {
         filter_regexes.push_back(
             {parse_regex(entry.first, schema_context.base,
                          schema_context.relative_pointer.initial().concat(
-                             {"patternProperties"})),
+                             {"patternProperties"}),
+                         options.simplify_regexes),
              entry.first});
       }
     }
@@ -1329,7 +1358,7 @@ auto compiler_draft4_applicator_additionalproperties_with_options(
       children.front().type == InstructionIndex::AssertionFail &&
       !filter_strings.empty() && filter_prefixes.empty() &&
       filter_regexes.empty()) {
-    if (properties_as_loop(context, schema_context,
+    if (properties_as_loop(context, schema_context, options,
                            schema_context.schema.at("properties"))) {
       return {};
     } else if (!children.empty() &&
@@ -1425,14 +1454,15 @@ auto compiler_draft4_applicator_additionalproperties_with_options(
 
 auto compiler_draft4_applicator_additionalproperties(
     const Context &context, const SchemaContext &schema_context,
-    const DynamicContext &dynamic_context, const Instructions &)
-    -> Instructions {
+    const CompileOptions &options, const DynamicContext &dynamic_context,
+    const Instructions &) -> Instructions {
   return compiler_draft4_applicator_additionalproperties_with_options(
-      context, schema_context, dynamic_context, false, false);
+      context, schema_context, options, dynamic_context, false, false);
 }
 
 auto compiler_draft4_validation_pattern(const Context &context,
                                         const SchemaContext &schema_context,
+                                        const CompileOptions &options,
                                         const DynamicContext &dynamic_context,
                                         const Instructions &) -> Instructions {
   assert(schema_context.schema.at(dynamic_context.keyword).is_string());
@@ -1448,12 +1478,14 @@ auto compiler_draft4_validation_pattern(const Context &context,
   return {make(sourcemeta::blaze::InstructionIndex::AssertionRegex, context,
                schema_context, dynamic_context,
                ValueRegex{parse_regex(regex_string, schema_context.base,
-                                      schema_context.relative_pointer),
+                                      schema_context.relative_pointer,
+                                      options.simplify_regexes),
                           regex_string})};
 }
 
 auto compiler_draft4_validation_format(const Context &context,
                                        const SchemaContext &schema_context,
+                                       const CompileOptions &options,
                                        const DynamicContext &dynamic_context,
                                        const Instructions &) -> Instructions {
   if (!schema_context.schema.at(dynamic_context.keyword).is_string()) {
@@ -1488,7 +1520,8 @@ auto compiler_draft4_validation_format(const Context &context,
         make(sourcemeta::blaze::InstructionIndex::AssertionRegex, context,     \
              schema_context, dynamic_context,                                  \
              ValueRegex{parse_regex(regular_expression, schema_context.base,   \
-                                    schema_context.relative_pointer),          \
+                                    schema_context.relative_pointer,           \
+                                    options.simplify_regexes),                 \
                         (regular_expression)})};                               \
   }
 
@@ -1501,6 +1534,7 @@ auto compiler_draft4_validation_format(const Context &context,
 
 auto compiler_draft4_applicator_not(const Context &context,
                                     const SchemaContext &schema_context,
+                                    const CompileOptions &options,
                                     const DynamicContext &dynamic_context,
                                     const Instructions &) -> Instructions {
   std::size_t subschemas{0};
@@ -1513,9 +1547,10 @@ auto compiler_draft4_applicator_not(const Context &context,
     subschemas += 1;
   }
 
-  Instructions children{compile(
-      context, schema_context, relative_dynamic_context(dynamic_context),
-      sourcemeta::core::empty_pointer, sourcemeta::core::empty_pointer)};
+  Instructions children{compile(context, schema_context, options,
+                                relative_dynamic_context(dynamic_context),
+                                sourcemeta::core::empty_pointer,
+                                sourcemeta::core::empty_pointer)};
 
   // TODO: Be smarter about how we treat `unevaluatedItems` like how we do for
   // `unevaluatedProperties`
@@ -1543,8 +1578,8 @@ auto compiler_draft4_applicator_not(const Context &context,
 
 auto compiler_draft4_applicator_items_array(
     const Context &context, const SchemaContext &schema_context,
-    const DynamicContext &dynamic_context, const bool annotate,
-    const bool track_evaluation) -> Instructions {
+    const CompileOptions &options, const DynamicContext &dynamic_context,
+    const bool annotate, const bool track_evaluation) -> Instructions {
   assert(schema_context.schema.at(dynamic_context.keyword).is_array());
   const auto items_size{
       schema_context.schema.at(dynamic_context.keyword).size()};
@@ -1564,7 +1599,7 @@ auto compiler_draft4_applicator_items_array(
   const auto &array{
       schema_context.schema.at(dynamic_context.keyword).as_array()};
   for (auto iterator{array.cbegin()}; iterator != array.cend(); ++iterator) {
-    subschemas.push_back(compile(context, schema_context,
+    subschemas.push_back(compile(context, schema_context, options,
                                  relative_dynamic_context(dynamic_context),
                                  {subschemas.size()}, {subschemas.size()}));
   }
@@ -1628,8 +1663,8 @@ auto compiler_draft4_applicator_items_array(
 
 auto compiler_draft4_applicator_items_with_options(
     const Context &context, const SchemaContext &schema_context,
-    const DynamicContext &dynamic_context, const bool annotate,
-    const bool track_evaluation) -> Instructions {
+    const CompileOptions &options, const DynamicContext &dynamic_context,
+    const bool annotate, const bool track_evaluation) -> Instructions {
   if (schema_context.schema.defines("type") &&
       schema_context.schema.at("type").is_string() &&
       schema_context.schema.at("type").to_string() != "array") {
@@ -1639,7 +1674,8 @@ auto compiler_draft4_applicator_items_with_options(
   if (is_schema(schema_context.schema.at(dynamic_context.keyword))) {
     if (annotate || track_evaluation) {
       Instructions subchildren{compile(
-          context, schema_context, relative_dynamic_context(dynamic_context),
+          context, schema_context, options,
+          relative_dynamic_context(dynamic_context),
           sourcemeta::core::empty_pointer, sourcemeta::core::empty_pointer)};
 
       Instructions children;
@@ -1678,9 +1714,10 @@ auto compiler_draft4_applicator_items_with_options(
       return children;
     }
 
-    Instructions children{compile(
-        context, schema_context, relative_dynamic_context(dynamic_context),
-        sourcemeta::core::empty_pointer, sourcemeta::core::empty_pointer)};
+    Instructions children{compile(context, schema_context, options,
+                                  relative_dynamic_context(dynamic_context),
+                                  sourcemeta::core::empty_pointer,
+                                  sourcemeta::core::empty_pointer)};
     if (track_evaluation) {
       children.push_back(
           make(sourcemeta::blaze::InstructionIndex::ControlEvaluate, context,
@@ -1739,31 +1776,35 @@ auto compiler_draft4_applicator_items_with_options(
                  std::move(children))};
   }
 
-  return compiler_draft4_applicator_items_array(
-      context, schema_context, dynamic_context, annotate, track_evaluation);
+  return compiler_draft4_applicator_items_array(context, schema_context,
+                                                options, dynamic_context,
+                                                annotate, track_evaluation);
 }
 
 auto compiler_draft4_applicator_items(const Context &context,
                                       const SchemaContext &schema_context,
+                                      const CompileOptions &options,
                                       const DynamicContext &dynamic_context,
                                       const Instructions &) -> Instructions {
   return compiler_draft4_applicator_items_with_options(
-      context, schema_context, dynamic_context, false, false);
+      context, schema_context, options, dynamic_context, false, false);
 }
 
 auto compiler_draft4_applicator_additionalitems_from_cursor(
     const Context &context, const SchemaContext &schema_context,
-    const DynamicContext &dynamic_context, const std::size_t cursor,
-    const bool annotate, const bool track_evaluation) -> Instructions {
+    const CompileOptions &options, const DynamicContext &dynamic_context,
+    const std::size_t cursor, const bool annotate, const bool track_evaluation)
+    -> Instructions {
   if (schema_context.schema.defines("type") &&
       schema_context.schema.at("type").is_string() &&
       schema_context.schema.at("type").to_string() != "array") {
     return {};
   }
 
-  Instructions subchildren{compile(
-      context, schema_context, relative_dynamic_context(dynamic_context),
-      sourcemeta::core::empty_pointer, sourcemeta::core::empty_pointer)};
+  Instructions subchildren{compile(context, schema_context, options,
+                                   relative_dynamic_context(dynamic_context),
+                                   sourcemeta::core::empty_pointer,
+                                   sourcemeta::core::empty_pointer)};
 
   Instructions children;
 
@@ -1806,8 +1847,8 @@ auto compiler_draft4_applicator_additionalitems_from_cursor(
 
 auto compiler_draft4_applicator_additionalitems_with_options(
     const Context &context, const SchemaContext &schema_context,
-    const DynamicContext &dynamic_context, const bool annotate,
-    const bool track_evaluation) -> Instructions {
+    const CompileOptions &options, const DynamicContext &dynamic_context,
+    const bool annotate, const bool track_evaluation) -> Instructions {
   if (schema_context.schema.defines("type") &&
       schema_context.schema.at("type").is_string() &&
       schema_context.schema.at("type").to_string() != "array") {
@@ -1828,22 +1869,22 @@ auto compiler_draft4_applicator_additionalitems_with_options(
                         : 0};
 
   return compiler_draft4_applicator_additionalitems_from_cursor(
-      context, schema_context, dynamic_context, cursor, annotate,
+      context, schema_context, options, dynamic_context, cursor, annotate,
       track_evaluation);
 }
 
 auto compiler_draft4_applicator_additionalitems(
     const Context &context, const SchemaContext &schema_context,
-    const DynamicContext &dynamic_context, const Instructions &)
-    -> Instructions {
+    const CompileOptions &options, const DynamicContext &dynamic_context,
+    const Instructions &) -> Instructions {
   return compiler_draft4_applicator_additionalitems_with_options(
-      context, schema_context, dynamic_context, false, false);
+      context, schema_context, options, dynamic_context, false, false);
 }
 
 auto compiler_draft4_applicator_dependencies(
     const Context &context, const SchemaContext &schema_context,
-    const DynamicContext &dynamic_context, const Instructions &)
-    -> Instructions {
+    const CompileOptions &options, const DynamicContext &dynamic_context,
+    const Instructions &) -> Instructions {
   if (schema_context.schema.defines("type") &&
       schema_context.schema.at("type").is_string() &&
       schema_context.schema.at("type").to_string() != "object") {
@@ -1861,7 +1902,7 @@ auto compiler_draft4_applicator_dependencies(
         children.push_back(make(
             sourcemeta::blaze::InstructionIndex::LogicalWhenDefines, context,
             schema_context, dynamic_context, make_property(entry.first),
-            compile(context, schema_context,
+            compile(context, schema_context, options,
                     relative_dynamic_context(dynamic_context), {entry.first},
                     sourcemeta::core::empty_pointer)));
       }
@@ -1889,6 +1930,7 @@ auto compiler_draft4_applicator_dependencies(
 
 auto compiler_draft4_validation_enum(const Context &context,
                                      const SchemaContext &schema_context,
+                                     const CompileOptions &options,
                                      const DynamicContext &dynamic_context,
                                      const Instructions &) -> Instructions {
   assert(schema_context.schema.at(dynamic_context.keyword).is_array());
@@ -1904,24 +1946,24 @@ auto compiler_draft4_validation_enum(const Context &context,
   std::vector<std::pair<sourcemeta::blaze::ValueString,
                         sourcemeta::blaze::ValueStringSet::hash_type>>
       perfect_string_hashes;
-  ValueSet options;
+  ValueSet enums;
   sourcemeta::core::PropertyHashJSON<ValueString> hasher;
   for (const auto &option :
        schema_context.schema.at(dynamic_context.keyword).as_array()) {
     if (option.is_string()) {
       const auto hash{hasher(option.to_string())};
-      if (hasher.is_perfect(hash)) {
+      if (options.perfect_hash && hasher.is_perfect(hash)) {
         perfect_string_hashes.emplace_back(option.to_string(), hash);
       }
     }
 
-    options.insert(option);
+    enums.insert(option);
   }
 
   // Only apply this optimisation on fast validation, as it
   // can affect error messages
   if (context.mode == Mode::FastValidation &&
-      perfect_string_hashes.size() == options.size()) {
+      perfect_string_hashes.size() == enums.size()) {
     return {
         make(sourcemeta::blaze::InstructionIndex::AssertionEqualsAnyStringHash,
              context, schema_context, dynamic_context,
@@ -1929,13 +1971,13 @@ auto compiler_draft4_validation_enum(const Context &context,
   }
 
   return {make(sourcemeta::blaze::InstructionIndex::AssertionEqualsAny, context,
-               schema_context, dynamic_context, std::move(options))};
+               schema_context, dynamic_context, std::move(enums))};
 }
 
 auto compiler_draft4_validation_uniqueitems(
     const Context &context, const SchemaContext &schema_context,
-    const DynamicContext &dynamic_context, const Instructions &)
-    -> Instructions {
+    const CompileOptions &, const DynamicContext &dynamic_context,
+    const Instructions &) -> Instructions {
   if (!schema_context.schema.at(dynamic_context.keyword).is_boolean() ||
       !schema_context.schema.at(dynamic_context.keyword).to_boolean()) {
     return {};
@@ -1953,6 +1995,7 @@ auto compiler_draft4_validation_uniqueitems(
 
 auto compiler_draft4_validation_maxlength(const Context &context,
                                           const SchemaContext &schema_context,
+                                          const CompileOptions &,
                                           const DynamicContext &dynamic_context,
                                           const Instructions &)
     -> Instructions {
@@ -1985,6 +2028,7 @@ auto compiler_draft4_validation_maxlength(const Context &context,
 
 auto compiler_draft4_validation_minlength(const Context &context,
                                           const SchemaContext &schema_context,
+                                          const CompileOptions &,
                                           const DynamicContext &dynamic_context,
                                           const Instructions &)
     -> Instructions {
@@ -2017,6 +2061,7 @@ auto compiler_draft4_validation_minlength(const Context &context,
 
 auto compiler_draft4_validation_maxitems(const Context &context,
                                          const SchemaContext &schema_context,
+                                         const CompileOptions &,
                                          const DynamicContext &dynamic_context,
                                          const Instructions &) -> Instructions {
   assert(schema_context.schema.at(dynamic_context.keyword).is_integer() ||
@@ -2048,6 +2093,7 @@ auto compiler_draft4_validation_maxitems(const Context &context,
 
 auto compiler_draft4_validation_minitems(const Context &context,
                                          const SchemaContext &schema_context,
+                                         const CompileOptions &,
                                          const DynamicContext &dynamic_context,
                                          const Instructions &) -> Instructions {
   assert(schema_context.schema.at(dynamic_context.keyword).is_integer() ||
@@ -2079,8 +2125,8 @@ auto compiler_draft4_validation_minitems(const Context &context,
 
 auto compiler_draft4_validation_maxproperties(
     const Context &context, const SchemaContext &schema_context,
-    const DynamicContext &dynamic_context, const Instructions &)
-    -> Instructions {
+    const CompileOptions &, const DynamicContext &dynamic_context,
+    const Instructions &) -> Instructions {
   assert(schema_context.schema.at(dynamic_context.keyword).is_integer() ||
          schema_context.schema.at(dynamic_context.keyword).is_integer_real());
   assert(schema_context.schema.at(dynamic_context.keyword).is_positive());
@@ -2110,8 +2156,8 @@ auto compiler_draft4_validation_maxproperties(
 
 auto compiler_draft4_validation_minproperties(
     const Context &context, const SchemaContext &schema_context,
-    const DynamicContext &dynamic_context, const Instructions &)
-    -> Instructions {
+    const CompileOptions &, const DynamicContext &dynamic_context,
+    const Instructions &) -> Instructions {
   assert(schema_context.schema.at(dynamic_context.keyword).is_integer() ||
          schema_context.schema.at(dynamic_context.keyword).is_integer_real());
   assert(schema_context.schema.at(dynamic_context.keyword).is_positive());
@@ -2141,6 +2187,7 @@ auto compiler_draft4_validation_minproperties(
 
 auto compiler_draft4_validation_maximum(const Context &context,
                                         const SchemaContext &schema_context,
+                                        const CompileOptions &,
                                         const DynamicContext &dynamic_context,
                                         const Instructions &) -> Instructions {
   assert(schema_context.schema.at(dynamic_context.keyword).is_number());
@@ -2173,6 +2220,7 @@ auto compiler_draft4_validation_maximum(const Context &context,
 
 auto compiler_draft4_validation_minimum(const Context &context,
                                         const SchemaContext &schema_context,
+                                        const CompileOptions &,
                                         const DynamicContext &dynamic_context,
                                         const Instructions &) -> Instructions {
   assert(schema_context.schema.at(dynamic_context.keyword).is_number());
@@ -2205,8 +2253,8 @@ auto compiler_draft4_validation_minimum(const Context &context,
 
 auto compiler_draft4_validation_multipleof(
     const Context &context, const SchemaContext &schema_context,
-    const DynamicContext &dynamic_context, const Instructions &)
-    -> Instructions {
+    const CompileOptions &, const DynamicContext &dynamic_context,
+    const Instructions &) -> Instructions {
   assert(schema_context.schema.at(dynamic_context.keyword).is_number());
   assert(schema_context.schema.at(dynamic_context.keyword).is_positive());
 

@@ -182,6 +182,7 @@ auto main(int argc, char **argv) noexcept -> int {
       schema, sourcemeta::core::schema_official_walker,
       sourcemeta::core::schema_official_resolver,
       sourcemeta::blaze::default_schema_compiler,
+      sourcemeta::blaze::default_compile_options,
       sourcemeta::blaze::Mode::FastValidation)};
 
   sourcemeta::blaze::Evaluator evaluator;

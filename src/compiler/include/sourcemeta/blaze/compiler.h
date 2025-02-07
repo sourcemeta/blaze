@@ -61,6 +61,17 @@ struct DynamicContext {
   const bool property_as_target;
 };
 
+struct CompileOptions {
+  const bool perfect_hash;
+  const size_t expand_ref_threshold;
+  const bool unroll;
+  const bool simplify_regexes;
+};
+
+const CompileOptions default_compile_options{true, 5, true, true};
+
+/* auto default_compile_options = CompileOptions{true}; */
+
 #if !defined(DOXYGEN)
 struct Context;
 #endif
@@ -69,9 +80,9 @@ struct Context;
 /// A compiler is represented as a function that maps a keyword compiler
 /// contexts into a compiler template. You can provide your own to implement
 /// your own keywords
-using Compiler =
-    std::function<Instructions(const Context &, const SchemaContext &,
-                               const DynamicContext &, const Instructions &)>;
+using Compiler = std::function<Instructions(
+    const Context &, const SchemaContext &, const CompileOptions &,
+    const DynamicContext &, const Instructions &)>;
 
 /// @ingroup evaluator
 /// Represents the mode of compilation
@@ -114,8 +125,8 @@ struct Context {
 /// A default compiler that aims to implement every keyword for official JSON
 /// Schema dialects.
 auto SOURCEMETA_BLAZE_COMPILER_EXPORT default_schema_compiler(
-    const Context &, const SchemaContext &, const DynamicContext &,
-    const Instructions &) -> Instructions;
+    const Context &, const SchemaContext &, const CompileOptions &,
+    const DynamicContext &, const Instructions &) -> Instructions;
 
 /// @ingroup compiler
 ///
@@ -141,12 +152,13 @@ auto SOURCEMETA_BLAZE_COMPILER_EXPORT default_schema_compiler(
 ///
 /// // Evaluate or encode
 /// ```
-auto SOURCEMETA_BLAZE_COMPILER_EXPORT
-compile(const sourcemeta::core::JSON &schema,
-        const sourcemeta::core::SchemaWalker &walker,
-        const sourcemeta::core::SchemaResolver &resolver,
-        const Compiler &compiler, const Mode mode = Mode::FastValidation,
-        const std::optional<std::string> &default_dialect = std::nullopt)
+auto SOURCEMETA_BLAZE_COMPILER_EXPORT compile(
+    const sourcemeta::core::JSON &schema,
+    const sourcemeta::core::SchemaWalker &walker,
+    const sourcemeta::core::SchemaResolver &resolver, const Compiler &compiler,
+    const CompileOptions &options = default_compile_options,
+    const Mode mode = Mode::FastValidation,
+    const std::optional<std::string> &default_dialect = std::nullopt)
     -> Template;
 
 /// @ingroup compiler
@@ -159,7 +171,7 @@ compile(const sourcemeta::core::JSON &schema,
 /// compiler functions.
 auto SOURCEMETA_BLAZE_COMPILER_EXPORT
 compile(const Context &context, const SchemaContext &schema_context,
-        const DynamicContext &dynamic_context,
+        const CompileOptions &options, const DynamicContext &dynamic_context,
         const sourcemeta::core::Pointer &schema_suffix,
         const sourcemeta::core::Pointer &instance_suffix =
             sourcemeta::core::empty_pointer,
