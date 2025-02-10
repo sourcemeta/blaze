@@ -822,6 +822,137 @@ TEST(Evaluator_draft6, propertyNames_8) {
   EVALUATE_WITH_TRACE_FAST_SUCCESS(schema, instance, 0);
 }
 
+TEST(Evaluator_draft6, propertyNames_9) {
+  const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
+    "$schema": "http://json-schema.org/draft-06/schema#",
+    "propertyNames": {
+      "enum": [ "foo" ]
+    }
+  })JSON")};
+
+  const sourcemeta::core::JSON instance{
+      sourcemeta::core::parse_json("{ \"foo\": 1 }")};
+  EVALUATE_WITH_TRACE_FAST_SUCCESS(schema, instance, 2);
+
+  EVALUATE_TRACE_PRE(0, LoopKeys, "/propertyNames", "#/propertyNames", "");
+  EVALUATE_TRACE_PRE(1, AssertionEqual, "/propertyNames/enum",
+                     "#/propertyNames/enum", "/foo");
+
+  EVALUATE_TRACE_POST_SUCCESS(0, AssertionEqual, "/propertyNames/enum",
+                              "#/propertyNames/enum", "/foo");
+  EVALUATE_TRACE_POST_SUCCESS(1, LoopKeys, "/propertyNames", "#/propertyNames",
+                              "");
+
+  EVALUATE_TRACE_POST_DESCRIBE(instance, 0,
+                               "The property name \"foo\" was expected to "
+                               "equal the string constant \"foo\"");
+  EVALUATE_TRACE_POST_DESCRIBE(instance, 1,
+                               "The object property \"foo\" was expected to "
+                               "validate against the given subschema");
+}
+
+TEST(Evaluator_draft6, propertyNames_10) {
+  const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
+    "$schema": "http://json-schema.org/draft-06/schema#",
+    "propertyNames": {
+      "enum": [ "foo", "bar", "baz" ]
+    }
+  })JSON")};
+
+  const sourcemeta::core::JSON instance{
+      sourcemeta::core::parse_json("{ \"foo\": 1 }")};
+  EVALUATE_WITH_TRACE_FAST_SUCCESS(schema, instance, 2);
+
+  EVALUATE_TRACE_PRE(0, LoopKeys, "/propertyNames", "#/propertyNames", "");
+  EVALUATE_TRACE_PRE(1, AssertionEqualsAnyStringHash, "/propertyNames/enum",
+                     "#/propertyNames/enum", "/foo");
+
+  EVALUATE_TRACE_POST_SUCCESS(0, AssertionEqualsAnyStringHash,
+                              "/propertyNames/enum", "#/propertyNames/enum",
+                              "/foo");
+  EVALUATE_TRACE_POST_SUCCESS(1, LoopKeys, "/propertyNames", "#/propertyNames",
+                              "");
+
+  EVALUATE_TRACE_POST_DESCRIBE(
+      instance, 0,
+      "The property name \"foo\" was expected to equal one "
+      "of the given declared values");
+  EVALUATE_TRACE_POST_DESCRIBE(instance, 1,
+                               "The object property \"foo\" was expected to "
+                               "validate against the given subschema");
+}
+
+TEST(Evaluator_draft6, propertyNames_11) {
+  const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
+    "$schema": "http://json-schema.org/draft-06/schema#",
+    "propertyNames": {
+      "enum": [ "foo", "bar", true ]
+    }
+  })JSON")};
+
+  const sourcemeta::core::JSON instance{
+      sourcemeta::core::parse_json("{ \"foo\": 1 }")};
+  EVALUATE_WITH_TRACE_FAST_SUCCESS(schema, instance, 2);
+
+  EVALUATE_TRACE_PRE(0, LoopKeys, "/propertyNames", "#/propertyNames", "");
+  EVALUATE_TRACE_PRE(1, AssertionEqualsAny, "/propertyNames/enum",
+                     "#/propertyNames/enum", "/foo");
+
+  EVALUATE_TRACE_POST_SUCCESS(0, AssertionEqualsAny, "/propertyNames/enum",
+                              "#/propertyNames/enum", "/foo");
+  EVALUATE_TRACE_POST_SUCCESS(1, LoopKeys, "/propertyNames", "#/propertyNames",
+                              "");
+
+  EVALUATE_TRACE_POST_DESCRIBE(instance, 0,
+                               "The property name \"foo\" was expected to "
+                               "equal one of the 3 declared values");
+  EVALUATE_TRACE_POST_DESCRIBE(instance, 1,
+                               "The object property \"foo\" was expected to "
+                               "validate against the given subschema");
+}
+
+TEST(Evaluator_draft6, propertyNames_12) {
+  const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
+    "$schema": "http://json-schema.org/draft-06/schema#",
+    "propertyNames": {
+      "oneOf": [
+        { "enum": [ "foo", "bar", "baz" ] },
+        { "type": "string" }
+      ]
+    }
+  })JSON")};
+
+  const sourcemeta::core::JSON instance{
+      sourcemeta::core::parse_json("{ \"foo\": 1 }")};
+  EVALUATE_WITH_TRACE_FAST_FAILURE(schema, instance, 3);
+
+  EVALUATE_TRACE_PRE(0, LoopKeys, "/propertyNames", "#/propertyNames", "");
+  EVALUATE_TRACE_PRE(1, LogicalXor, "/propertyNames/oneOf",
+                     "#/propertyNames/oneOf", "/foo");
+  EVALUATE_TRACE_PRE(2, AssertionEqualsAnyStringHash,
+                     "/propertyNames/oneOf/0/enum",
+                     "#/propertyNames/oneOf/0/enum", "/foo");
+
+  EVALUATE_TRACE_POST_SUCCESS(0, AssertionEqualsAnyStringHash,
+                              "/propertyNames/oneOf/0/enum",
+                              "#/propertyNames/oneOf/0/enum", "/foo");
+  EVALUATE_TRACE_POST_FAILURE(1, LogicalXor, "/propertyNames/oneOf",
+                              "#/propertyNames/oneOf", "/foo");
+  EVALUATE_TRACE_POST_FAILURE(2, LoopKeys, "/propertyNames", "#/propertyNames",
+                              "");
+
+  EVALUATE_TRACE_POST_DESCRIBE(instance, 0,
+                               "The property name \"foo\" was expected to "
+                               "equal one of the given declared values");
+  EVALUATE_TRACE_POST_DESCRIBE(instance, 1,
+                               "The property name \"foo\" was expected to "
+                               "validate against one and only one of "
+                               "the 2 given subschemas");
+  EVALUATE_TRACE_POST_DESCRIBE(instance, 2,
+                               "The object property \"foo\" was expected to "
+                               "validate against the given subschema");
+}
+
 TEST(Evaluator_draft6, invalid_ref_top_level) {
   const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
     "$schema": "http://json-schema.org/draft-06/schema#",
