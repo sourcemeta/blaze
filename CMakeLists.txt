@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.16)
-project(blaze VERSION 0.0.1 LANGUAGES CXX
+project(blaze VERSION 1.0.0 LANGUAGES CXX
   DESCRIPTION "The ultra high-performance JSON Schema evaluator"
   HOMEPAGE_URL "https://github.com/sourcemeta/blaze")
 list(APPEND CMAKE_MODULE_PATH "${PROJECT_SOURCE_DIR}/cmake")
