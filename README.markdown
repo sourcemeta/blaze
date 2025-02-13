@@ -4,6 +4,7 @@ Blaze
 The ultra high-performance JSON Schema validator for C++ with support for JSON
 Schema Draft 4, Draft 6, Draft 7, 2019-09, and 2020-12.
 
+[![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.14867298.svg)](https://doi.org/10.5281/zenodo.14867298)
 ![Supported Dialects](https://img.shields.io/endpoint?url=https%3A%2F%2Fbowtie.report%2Fbadges%2Fc%2B%2B-blaze%2Fsupported_versions.json)
 
 ![Draft 2020-12](https://img.shields.io/endpoint?url=https%3A%2F%2Fbowtie.report%2Fbadges%2Fc%2B%2B-blaze%2Fcompliance%2Fdraft2020-12.json)
