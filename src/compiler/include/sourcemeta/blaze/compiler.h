@@ -66,9 +66,10 @@ struct CompileOptions {
   const size_t expand_ref_threshold;
   const bool unroll;
   const bool simplify_regexes;
+  const bool reorder;
 };
 
-const CompileOptions default_compile_options{true, 5, true, true};
+const CompileOptions default_compile_options{true, 5, true, true, true};
 
 /* auto default_compile_options = CompileOptions{true}; */
 
