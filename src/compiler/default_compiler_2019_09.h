@@ -11,8 +11,8 @@ using namespace sourcemeta::blaze;
 
 auto compiler_2019_09_applicator_dependentschemas(
     const Context &context, const SchemaContext &schema_context,
-    const DynamicContext &dynamic_context, const Instructions &)
-    -> Instructions {
+    const CompileOptions &options, const DynamicContext &dynamic_context,
+    const Instructions &) -> Instructions {
   assert(schema_context.schema.at(dynamic_context.keyword).is_object());
 
   if (schema_context.schema.defines("type") &&
@@ -43,7 +43,7 @@ auto compiler_2019_09_applicator_dependentschemas(
           make(sourcemeta::blaze::InstructionIndex::LogicalWhenDefines, context,
                schema_context, relative_dynamic_context(dynamic_context),
                make_property(dependent),
-               compile(context, schema_context,
+               compile(context, schema_context, options,
                        relative_dynamic_context(dynamic_context), {dependent},
                        sourcemeta::core::empty_pointer)));
     }
@@ -57,8 +57,8 @@ auto compiler_2019_09_applicator_dependentschemas(
 
 auto compiler_2019_09_validation_dependentrequired(
     const Context &context, const SchemaContext &schema_context,
-    const DynamicContext &dynamic_context, const Instructions &)
-    -> Instructions {
+    const CompileOptions &, const DynamicContext &dynamic_context,
+    const Instructions &) -> Instructions {
   if (!schema_context.schema.at(dynamic_context.keyword).is_object()) {
     return {};
   }
@@ -98,6 +98,7 @@ auto compiler_2019_09_validation_dependentrequired(
 
 auto compiler_2019_09_core_annotation(const Context &context,
                                       const SchemaContext &schema_context,
+                                      const CompileOptions &,
                                       const DynamicContext &dynamic_context,
                                       const Instructions &) -> Instructions {
   return {make(sourcemeta::blaze::InstructionIndex::AnnotationEmit, context,
@@ -108,8 +109,9 @@ auto compiler_2019_09_core_annotation(const Context &context,
 
 auto compiler_2019_09_applicator_contains_with_options(
     const Context &context, const SchemaContext &schema_context,
-    const DynamicContext &dynamic_context, const Instructions &,
-    const bool annotate, const bool track_evaluation) -> Instructions {
+    const CompileOptions &options, const DynamicContext &dynamic_context,
+    const Instructions &, const bool annotate, const bool track_evaluation)
+    -> Instructions {
   if (schema_context.schema.defines("type") &&
       schema_context.schema.at("type").is_string() &&
       schema_context.schema.at("type").to_string() != "array") {
@@ -149,9 +151,10 @@ auto compiler_2019_09_applicator_contains_with_options(
     return {};
   }
 
-  Instructions children{compile(
-      context, schema_context, relative_dynamic_context(dynamic_context),
-      sourcemeta::core::empty_pointer, sourcemeta::core::empty_pointer)};
+  Instructions children{compile(context, schema_context, options,
+                                relative_dynamic_context(dynamic_context),
+                                sourcemeta::core::empty_pointer,
+                                sourcemeta::core::empty_pointer)};
 
   if (annotate) {
     children.push_back(
@@ -187,26 +190,29 @@ auto compiler_2019_09_applicator_contains_with_options(
 
 auto compiler_2019_09_applicator_contains(const Context &context,
                                           const SchemaContext &schema_context,
+                                          const CompileOptions &options,
                                           const DynamicContext &dynamic_context,
                                           const Instructions &current)
     -> Instructions {
   return compiler_2019_09_applicator_contains_with_options(
-      context, schema_context, dynamic_context, current, false, false);
+      context, schema_context, options, dynamic_context, current, false, false);
 }
 
 auto compiler_2019_09_applicator_additionalproperties(
     const Context &context, const SchemaContext &schema_context,
-    const DynamicContext &dynamic_context, const Instructions &)
+    const CompileOptions &options, const DynamicContext &dynamic_context,
+    const Instructions &)
 
     -> Instructions {
   return compiler_draft4_applicator_additionalproperties_with_options(
-      context, schema_context, dynamic_context,
+      context, schema_context, options, dynamic_context,
       context.mode == Mode::Exhaustive,
       requires_evaluation(context, schema_context));
 }
 
 auto compiler_2019_09_applicator_items(const Context &context,
                                        const SchemaContext &schema_context,
+                                       const CompileOptions &options,
                                        const DynamicContext &dynamic_context,
                                        const Instructions &) -> Instructions {
   // TODO: Be smarter about how we treat `unevaluatedItems` like how we do for
@@ -219,20 +225,20 @@ auto compiler_2019_09_applicator_items(const Context &context,
 
   if (schema_context.schema.at(dynamic_context.keyword).is_array()) {
     return compiler_draft4_applicator_items_with_options(
-        context, schema_context, dynamic_context,
+        context, schema_context, options, dynamic_context,
         context.mode == Mode::Exhaustive, track);
   }
 
   return compiler_draft4_applicator_items_with_options(
-      context, schema_context, dynamic_context,
+      context, schema_context, options, dynamic_context,
       context.mode == Mode::Exhaustive,
       track && !schema_context.schema.defines("unevaluatedItems"));
 }
 
 auto compiler_2019_09_applicator_additionalitems(
     const Context &context, const SchemaContext &schema_context,
-    const DynamicContext &dynamic_context, const Instructions &)
-    -> Instructions {
+    const CompileOptions &options, const DynamicContext &dynamic_context,
+    const Instructions &) -> Instructions {
   // TODO: Be smarter about how we treat `unevaluatedItems` like how we do for
   // `unevaluatedProperties`
   const bool track{
@@ -242,15 +248,15 @@ auto compiler_2019_09_applicator_additionalitems(
                   })};
 
   return compiler_draft4_applicator_additionalitems_with_options(
-      context, schema_context, dynamic_context,
+      context, schema_context, options, dynamic_context,
       context.mode == Mode::Exhaustive,
       track && !schema_context.schema.defines("unevaluatedItems"));
 }
 
 auto compiler_2019_09_applicator_unevaluateditems(
     const Context &context, const SchemaContext &schema_context,
-    const DynamicContext &dynamic_context, const Instructions &)
-    -> Instructions {
+    const CompileOptions &options, const DynamicContext &dynamic_context,
+    const Instructions &) -> Instructions {
   if (schema_context.schema.defines("type") &&
       schema_context.schema.at("type").is_string() &&
       schema_context.schema.at("type").to_string() != "array") {
@@ -274,9 +280,10 @@ auto compiler_2019_09_applicator_unevaluateditems(
     }
   }
 
-  Instructions children{compile(
-      context, schema_context, relative_dynamic_context(dynamic_context),
-      sourcemeta::core::empty_pointer, sourcemeta::core::empty_pointer)};
+  Instructions children{compile(context, schema_context, options,
+                                relative_dynamic_context(dynamic_context),
+                                sourcemeta::core::empty_pointer,
+                                sourcemeta::core::empty_pointer)};
 
   if (context.mode == Mode::Exhaustive) {
     children.push_back(
@@ -305,17 +312,18 @@ auto compiler_2019_09_applicator_unevaluateditems(
 
 auto compiler_2019_09_applicator_unevaluatedproperties(
     const Context &context, const SchemaContext &schema_context,
-    const DynamicContext &dynamic_context, const Instructions &)
-    -> Instructions {
+    const CompileOptions &options, const DynamicContext &dynamic_context,
+    const Instructions &) -> Instructions {
   if (schema_context.schema.defines("type") &&
       schema_context.schema.at("type").is_string() &&
       schema_context.schema.at("type").to_string() != "object") {
     return {};
   }
 
-  Instructions children{compile(
-      context, schema_context, relative_dynamic_context(dynamic_context),
-      sourcemeta::core::empty_pointer, sourcemeta::core::empty_pointer)};
+  Instructions children{compile(context, schema_context, options,
+                                relative_dynamic_context(dynamic_context),
+                                sourcemeta::core::empty_pointer,
+                                sourcemeta::core::empty_pointer)};
 
   if (context.mode == Mode::Exhaustive) {
     children.push_back(
@@ -347,14 +355,18 @@ auto compiler_2019_09_applicator_unevaluatedproperties(
     } else if (keyword == "patternProperties") {
       if (subschema.is_object()) {
         for (const auto &property : subschema.as_object()) {
-          const auto maybe_prefix{pattern_as_prefix(property.first)};
+          std::optional<std::basic_string<char>> maybe_prefix{std::nullopt};
+          if (options.simplify_regexes) {
+            maybe_prefix = pattern_as_prefix(property.first);
+          }
           if (maybe_prefix.has_value()) {
             filter_prefixes.push_back(maybe_prefix.value());
           } else {
             filter_regexes.push_back(
                 {parse_regex(property.first, schema_context.base,
                              schema_context.relative_pointer.initial().concat(
-                                 {"patternProperties"})),
+                                 {"patternProperties"}),
+                             options.simplify_regexes),
                  property.first});
           }
         }
@@ -405,6 +417,7 @@ auto compiler_2019_09_applicator_unevaluatedproperties(
 
 auto compiler_2019_09_core_recursiveref(const Context &context,
                                         const SchemaContext &schema_context,
+                                        const CompileOptions &options,
                                         const DynamicContext &dynamic_context,
                                         const Instructions &current)
     -> Instructions {
@@ -412,8 +425,8 @@ auto compiler_2019_09_core_recursiveref(const Context &context,
   // In this case, just behave as a normal static reference
   if (!context.frame.references().contains(
           {sourcemeta::core::SchemaReferenceType::Dynamic, entry.pointer})) {
-    return compiler_draft4_core_ref(context, schema_context, dynamic_context,
-                                    current);
+    return compiler_draft4_core_ref(context, schema_context, options,
+                                    dynamic_context, current);
   }
 
   return {make(sourcemeta::blaze::InstructionIndex::ControlDynamicAnchorJump,
@@ -422,20 +435,20 @@ auto compiler_2019_09_core_recursiveref(const Context &context,
 
 auto compiler_2019_09_applicator_properties(
     const Context &context, const SchemaContext &schema_context,
-    const DynamicContext &dynamic_context, const Instructions &current)
-    -> Instructions {
+    const CompileOptions &options, const DynamicContext &dynamic_context,
+    const Instructions &current) -> Instructions {
   return compiler_draft4_applicator_properties_with_options(
-      context, schema_context, dynamic_context, current,
+      context, schema_context, options, dynamic_context, current,
       context.mode == Mode::Exhaustive,
       requires_evaluation(context, schema_context));
 }
 
 auto compiler_2019_09_applicator_patternproperties(
     const Context &context, const SchemaContext &schema_context,
-    const DynamicContext &dynamic_context, const Instructions &)
-    -> Instructions {
+    const CompileOptions &options, const DynamicContext &dynamic_context,
+    const Instructions &) -> Instructions {
   return compiler_draft4_applicator_patternproperties_with_options(
-      context, schema_context, dynamic_context,
+      context, schema_context, options, dynamic_context,
       context.mode == Mode::Exhaustive,
       requires_evaluation(context, schema_context));
 }

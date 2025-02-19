@@ -266,8 +266,8 @@ static auto register_tests(const std::filesystem::path &subdirectory,
                               sourcemeta::blaze::Mode::Exhaustive}) {
         const auto schema_template{sourcemeta::blaze::compile(
             test.at("schema"), sourcemeta::core::schema_official_walker,
-            test_resolver, sourcemeta::blaze::default_schema_compiler, mode,
-            default_dialect)};
+            test_resolver, sourcemeta::blaze::default_schema_compiler,
+            sourcemeta::blaze::default_compile_options, mode, default_dialect)};
 
         for (const auto &test_case : test.at("tests").as_array()) {
           std::ostringstream title;
