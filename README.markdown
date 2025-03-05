@@ -13,18 +13,16 @@ Schema Draft 4, Draft 6, Draft 7, 2019-09, and 2020-12.
 ![Draft 6](https://img.shields.io/endpoint?url=https%3A%2F%2Fbowtie.report%2Fbadges%2Fc%2B%2B-blaze%2Fcompliance%2Fdraft6.json)
 ![Draft 4](https://img.shields.io/endpoint?url=https%3A%2F%2Fbowtie.report%2Fbadges%2Fc%2B%2B-blaze%2Fcompliance%2Fdraft4.json)
 
-***
+Benchmark
+---------
 
-> [!IMPORTANT]
-> We are working hard to get Blaze to its first stable release. This includes:
->
-> - Improving the documentation to include a basic getting started guide
-> - Support running the validator on [simdjson](https://github.com/simdjson/simdjson)
-> - Bindings to higher-level programming languages, starting with Node.js
-> - Publishing an academic paper along with a reproducible benchmark
-> - Landing various other in-progress optimizations
->
-> Please star the project to show us your support!
+The 2025 paper [Blaze: Compiling JSON Schema for 10x Faster
+Validation](https://arxiv.org/abs/2503.02770) presents a reproducible benchmark
+comparing Blaze against a number of popular JSON Schema validators, concluding
+that Blaze is on average _at least_ 10x faster than competitors given a large
+set of representative schemas and instances.
+
+[![](./assets/banner.png)](https://arxiv.org/abs/2503.02770)
 
 Features
 --------
@@ -93,8 +91,14 @@ if (result) {
 Documentation
 -------------
 
-Refer to the project website for documentation and tutorials:
+Refer to the project website for documentation:
 [https://blaze.sourcemeta.com](https://blaze.sourcemeta.com).
+
+Roadmap
+-------
+
+- Support running the validator on [simdjson](https://github.com/simdjson/simdjson)
+- Provide bindings to higher-level programming languages (Node.js, Go, etc)
 
 Contributors
 ------------
