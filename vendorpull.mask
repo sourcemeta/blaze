@@ -11,3 +11,4 @@ Brewfile
 DEPENDENCIES
 Makefile
 README.markdown
+assets
