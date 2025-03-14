@@ -2911,28 +2911,36 @@ TEST(Evaluator_draft4, additionalProperties_15) {
   const sourcemeta::core::JSON instance{
       sourcemeta::core::parse_json("{ \"foo\": true, \"bar\": false }")};
 
-  EVALUATE_WITH_TRACE_FAST_SUCCESS(schema, instance, 3);
+  EVALUATE_WITH_TRACE_FAST_SUCCESS(schema, instance, 4);
 
   EVALUATE_TRACE_PRE(0, AssertionDefinesAll, "/required", "#/required", "");
-  EVALUATE_TRACE_PRE(1, LoopPropertiesTypeStrict, "/properties", "#/properties",
-                     "");
-  EVALUATE_TRACE_PRE(2, LoopPropertiesExcept, "/additionalProperties",
+  EVALUATE_TRACE_PRE(1, AssertionPropertyTypeStrict, "/properties/bar/type",
+                     "#/properties/bar/type", "/bar");
+  EVALUATE_TRACE_PRE(2, AssertionPropertyTypeStrict, "/properties/foo/type",
+                     "#/properties/foo/type", "/foo");
+  EVALUATE_TRACE_PRE(3, LoopPropertiesExcept, "/additionalProperties",
                      "#/additionalProperties", "");
 
   EVALUATE_TRACE_POST_SUCCESS(0, AssertionDefinesAll, "/required", "#/required",
                               "");
-  EVALUATE_TRACE_POST_SUCCESS(1, LoopPropertiesTypeStrict, "/properties",
-                              "#/properties", "");
-  EVALUATE_TRACE_POST_SUCCESS(2, LoopPropertiesExcept, "/additionalProperties",
+  EVALUATE_TRACE_POST_SUCCESS(1, AssertionPropertyTypeStrict,
+                              "/properties/bar/type", "#/properties/bar/type",
+                              "/bar");
+  EVALUATE_TRACE_POST_SUCCESS(2, AssertionPropertyTypeStrict,
+                              "/properties/foo/type", "#/properties/foo/type",
+                              "/foo");
+  EVALUATE_TRACE_POST_SUCCESS(3, LoopPropertiesExcept, "/additionalProperties",
                               "#/additionalProperties", "");
 
   EVALUATE_TRACE_POST_DESCRIBE(instance, 0,
                                "The object value was expected to define "
                                "properties \"bar\", and \"foo\"");
+  EVALUATE_TRACE_POST_DESCRIBE(instance, 1,
+                               "The value was expected to be of type boolean");
+  EVALUATE_TRACE_POST_DESCRIBE(instance, 2,
+                               "The value was expected to be of type boolean");
   EVALUATE_TRACE_POST_DESCRIBE(
-      instance, 1, "The object properties were expected to be of type boolean");
-  EVALUATE_TRACE_POST_DESCRIBE(
-      instance, 2,
+      instance, 3,
       "The object value was not expected to define additional properties");
 }
 
@@ -2991,6 +2999,47 @@ TEST(Evaluator_draft4, additionalProperties_17) {
       instance, 0,
       "Every item in the array was expected to be an object whose required "
       "properties were of type boolean");
+}
+
+TEST(Evaluator_draft4, additionalProperties_18) {
+  const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
+    "$schema": "http://json-schema.org/draft-04/schema#",
+    "type": "object",
+    "required": [ "foo" ],
+    "properties": {
+      "foo": { "type": "boolean" }
+    },
+    "patternProperties": { "^[@$_#]": {} },
+    "additionalProperties": false
+  })JSON")};
+
+  const sourcemeta::core::JSON instance{
+      sourcemeta::core::parse_json("{ \"foo\": false, \"@bar\": \"baz\" }")};
+
+  EVALUATE_WITH_TRACE_FAST_SUCCESS(schema, instance, 3);
+
+  EVALUATE_TRACE_PRE(0, AssertionDefinesStrict, "/required", "#/required", "");
+  EVALUATE_TRACE_PRE(1, AssertionPropertyTypeStrict, "/properties/foo/type",
+                     "#/properties/foo/type", "/foo");
+  EVALUATE_TRACE_PRE(2, LoopPropertiesExcept, "/additionalProperties",
+                     "#/additionalProperties", "");
+
+  EVALUATE_TRACE_POST_SUCCESS(0, AssertionDefinesStrict, "/required",
+                              "#/required", "");
+  EVALUATE_TRACE_POST_SUCCESS(1, AssertionPropertyTypeStrict,
+                              "/properties/foo/type", "#/properties/foo/type",
+                              "/foo");
+  EVALUATE_TRACE_POST_SUCCESS(2, LoopPropertiesExcept, "/additionalProperties",
+                              "#/additionalProperties", "");
+
+  EVALUATE_TRACE_POST_DESCRIBE(instance, 0,
+                               "The value was expected to be an object that "
+                               "defines the property \"foo\"");
+  EVALUATE_TRACE_POST_DESCRIBE(instance, 1,
+                               "The value was expected to be of type boolean");
+  EVALUATE_TRACE_POST_DESCRIBE(
+      instance, 2,
+      "The object value was not expected to define additional properties");
 }
 
 TEST(Evaluator_draft4, not_1) {
