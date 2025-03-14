@@ -88,7 +88,8 @@ static auto
 is_closed_properties_required(const sourcemeta::core::JSON &schema,
                               const sourcemeta::blaze::ValueStringSet &required)
     -> bool {
-  return schema.defines("additionalProperties") &&
+  return !schema.defines("patternProperties") &&
+         schema.defines("additionalProperties") &&
          schema.at("additionalProperties").is_boolean() &&
          !schema.at("additionalProperties").to_boolean() &&
          schema.defines("properties") && schema.at("properties").is_object() &&
