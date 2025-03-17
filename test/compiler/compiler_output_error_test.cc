@@ -363,3 +363,74 @@ TEST(Compiler_output_error, fail_not_not_1) {
                 "The integer value was expected to not validate against the "
                 "given subschema, but it did");
 }
+
+TEST(Compiler_output_error, fail_anyof_1) {
+  const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "allOf": [
+      {
+        "anyOf": [
+          { "required": [ "foo" ] },
+          { "required": [ "bar" ] }
+        ]
+      },
+      { "type": "integer" }
+    ]
+  })JSON")};
+
+  const auto schema_template{sourcemeta::blaze::compile(
+      schema, sourcemeta::core::schema_official_walker,
+      sourcemeta::core::schema_official_resolver,
+      sourcemeta::blaze::default_schema_compiler)};
+
+  const auto instance{sourcemeta::core::parse_json(R"JSON({
+    "bar": 1
+  })JSON")};
+
+  sourcemeta::blaze::ErrorOutput output{instance};
+  sourcemeta::blaze::Evaluator evaluator;
+  const auto result{
+      evaluator.validate(schema_template, instance, std::ref(output))};
+
+  EXPECT_FALSE(result);
+  std::vector<sourcemeta::blaze::ErrorOutput::Entry> traces{output.cbegin(),
+                                                            output.cend()};
+
+  EXPECT_EQ(traces.size(), 1);
+  EXPECT_OUTPUT(
+      traces, 0, "", "/allOf/1/type",
+      "The value was expected to be of type integer but it was of type object");
+}
+
+TEST(Compiler_output_error, fail_anyof_2) {
+  const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "anyOf": [
+      { "required": [ "foo" ] },
+      { "required": [ "bar" ] }
+    ]
+  })JSON")};
+
+  const auto schema_template{sourcemeta::blaze::compile(
+      schema, sourcemeta::core::schema_official_walker,
+      sourcemeta::core::schema_official_resolver,
+      sourcemeta::blaze::default_schema_compiler)};
+
+  const auto instance{sourcemeta::core::parse_json(R"JSON({
+    "baz": 1
+  })JSON")};
+
+  sourcemeta::blaze::ErrorOutput output{instance};
+  sourcemeta::blaze::Evaluator evaluator;
+  const auto result{
+      evaluator.validate(schema_template, instance, std::ref(output))};
+
+  EXPECT_FALSE(result);
+  std::vector<sourcemeta::blaze::ErrorOutput::Entry> traces{output.cbegin(),
+                                                            output.cend()};
+
+  EXPECT_EQ(traces.size(), 1);
+  EXPECT_OUTPUT(traces, 0, "", "/anyOf",
+                "The object value was expected to validate against at least "
+                "one of the 2 given subschemas");
+}
