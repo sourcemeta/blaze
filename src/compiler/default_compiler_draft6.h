@@ -12,6 +12,7 @@ using namespace sourcemeta::blaze;
 
 auto compiler_draft6_validation_type(const Context &context,
                                      const SchemaContext &schema_context,
+                                     const CompileOptions &,
                                      const DynamicContext &dynamic_context,
                                      const Instructions &current)
     -> Instructions {
@@ -320,6 +321,7 @@ auto compiler_draft6_validation_type(const Context &context,
 
 auto compiler_draft6_validation_const(const Context &context,
                                       const SchemaContext &schema_context,
+                                      const CompileOptions &,
                                       const DynamicContext &dynamic_context,
                                       const Instructions &) -> Instructions {
   return {make(sourcemeta::blaze::InstructionIndex::AssertionEqual, context,
@@ -330,8 +332,8 @@ auto compiler_draft6_validation_const(const Context &context,
 
 auto compiler_draft6_validation_exclusivemaximum(
     const Context &context, const SchemaContext &schema_context,
-    const DynamicContext &dynamic_context, const Instructions &)
-    -> Instructions {
+    const CompileOptions &, const DynamicContext &dynamic_context,
+    const Instructions &) -> Instructions {
   assert(schema_context.schema.at(dynamic_context.keyword).is_number());
 
   if (schema_context.schema.defines("type") &&
@@ -349,8 +351,8 @@ auto compiler_draft6_validation_exclusivemaximum(
 
 auto compiler_draft6_validation_exclusiveminimum(
     const Context &context, const SchemaContext &schema_context,
-    const DynamicContext &dynamic_context, const Instructions &)
-    -> Instructions {
+    const CompileOptions &, const DynamicContext &dynamic_context,
+    const Instructions &) -> Instructions {
   assert(schema_context.schema.at(dynamic_context.keyword).is_number());
 
   if (schema_context.schema.defines("type") &&
@@ -368,6 +370,7 @@ auto compiler_draft6_validation_exclusiveminimum(
 
 auto compiler_draft6_applicator_contains(const Context &context,
                                          const SchemaContext &schema_context,
+                                         const CompileOptions &options,
                                          const DynamicContext &dynamic_context,
                                          const Instructions &) -> Instructions {
   if (schema_context.schema.defines("type") &&
@@ -376,9 +379,10 @@ auto compiler_draft6_applicator_contains(const Context &context,
     return {};
   }
 
-  Instructions children{compile(
-      context, schema_context, relative_dynamic_context(dynamic_context),
-      sourcemeta::core::empty_pointer, sourcemeta::core::empty_pointer)};
+  Instructions children{compile(context, schema_context, options,
+                                relative_dynamic_context(dynamic_context),
+                                sourcemeta::core::empty_pointer,
+                                sourcemeta::core::empty_pointer)};
 
   if (children.empty()) {
     // We still need to check the instance is not empty
@@ -394,8 +398,8 @@ auto compiler_draft6_applicator_contains(const Context &context,
 
 auto compiler_draft6_validation_propertynames(
     const Context &context, const SchemaContext &schema_context,
-    const DynamicContext &dynamic_context, const Instructions &)
-    -> Instructions {
+    const CompileOptions &options, const DynamicContext &dynamic_context,
+    const Instructions &) -> Instructions {
   if (schema_context.schema.defines("type") &&
       schema_context.schema.at("type").is_string() &&
       schema_context.schema.at("type").to_string() != "object") {
@@ -403,7 +407,7 @@ auto compiler_draft6_validation_propertynames(
   }
 
   Instructions children{compile(
-      context, schema_context, property_relative_dynamic_context(),
+      context, schema_context, options, property_relative_dynamic_context(),
       sourcemeta::core::empty_pointer, sourcemeta::core::empty_pointer)};
 
   if (children.empty()) {

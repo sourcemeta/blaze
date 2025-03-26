@@ -11,12 +11,14 @@ using namespace sourcemeta::blaze;
 // TODO: Don't generate `if` if neither `then` nor `else` is defined
 auto compiler_draft7_applicator_if(const Context &context,
                                    const SchemaContext &schema_context,
+                                   const CompileOptions &options,
                                    const DynamicContext &dynamic_context,
                                    const Instructions &) -> Instructions {
   // `if`
-  Instructions children{compile(
-      context, schema_context, relative_dynamic_context(dynamic_context),
-      sourcemeta::core::empty_pointer, sourcemeta::core::empty_pointer)};
+  Instructions children{compile(context, schema_context, options,
+                                relative_dynamic_context(dynamic_context),
+                                sourcemeta::core::empty_pointer,
+                                sourcemeta::core::empty_pointer)};
 
   // `then`
   std::size_t then_cursor{0};
@@ -31,9 +33,10 @@ auto compiler_draft7_applicator_if(const Context &context,
     DynamicContext new_dynamic_context{
         "then", dynamic_context.base_schema_location,
         sourcemeta::core::empty_pointer, dynamic_context.property_as_target};
-    for (auto &&step : compile(context, schema_context, new_dynamic_context,
-                               sourcemeta::core::empty_pointer,
-                               sourcemeta::core::empty_pointer, destination)) {
+    for (auto &&step :
+         compile(context, schema_context, options, new_dynamic_context,
+                 sourcemeta::core::empty_pointer,
+                 sourcemeta::core::empty_pointer, destination)) {
       children.push_back(std::move(step));
     }
 
@@ -56,9 +59,10 @@ auto compiler_draft7_applicator_if(const Context &context,
     DynamicContext new_dynamic_context{
         "else", dynamic_context.base_schema_location,
         sourcemeta::core::empty_pointer, dynamic_context.property_as_target};
-    for (auto &&step : compile(context, schema_context, new_dynamic_context,
-                               sourcemeta::core::empty_pointer,
-                               sourcemeta::core::empty_pointer, destination)) {
+    for (auto &&step :
+         compile(context, schema_context, options, new_dynamic_context,
+                 sourcemeta::core::empty_pointer,
+                 sourcemeta::core::empty_pointer, destination)) {
       children.push_back(std::move(step));
     }
   }
@@ -72,6 +76,7 @@ auto compiler_draft7_applicator_if(const Context &context,
 // TODO: Stop collapsing this keyword on exhaustive mode for debuggability
 // purposes
 auto compiler_draft7_applicator_then(const Context &, const SchemaContext &,
+                                     const CompileOptions &,
                                      const DynamicContext &,
                                      const Instructions &) -> Instructions {
   return {};
@@ -81,6 +86,7 @@ auto compiler_draft7_applicator_then(const Context &, const SchemaContext &,
 // TODO: Stop collapsing this keyword on exhaustive mode for debuggability
 // purposes
 auto compiler_draft7_applicator_else(const Context &, const SchemaContext &,
+                                     const CompileOptions &,
                                      const DynamicContext &,
                                      const Instructions &) -> Instructions {
   return {};

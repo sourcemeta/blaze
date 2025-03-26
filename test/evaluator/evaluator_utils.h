@@ -45,6 +45,7 @@ inline auto FIRST_PROPERTY_IS(const sourcemeta::core::JSON &document,
       schema, sourcemeta::core::schema_official_walker,                        \
       sourcemeta::core::schema_official_resolver,                              \
       sourcemeta::blaze::default_schema_compiler,                              \
+      sourcemeta::blaze::default_compile_options,                              \
       sourcemeta::blaze::Mode::FastValidation)};                               \
   EVALUATE_WITH_TRACE(compiled_schema, instance, count)                        \
   EXPECT_TRUE(result);
@@ -54,6 +55,7 @@ inline auto FIRST_PROPERTY_IS(const sourcemeta::core::JSON &document,
       schema, sourcemeta::core::schema_official_walker,                        \
       sourcemeta::core::schema_official_resolver,                              \
       sourcemeta::blaze::default_schema_compiler,                              \
+      sourcemeta::blaze::default_compile_options,                              \
       sourcemeta::blaze::Mode::FastValidation)};                               \
   EVALUATE_WITH_TRACE(compiled_schema, instance, count)                        \
   EXPECT_FALSE(result);
@@ -63,6 +65,7 @@ inline auto FIRST_PROPERTY_IS(const sourcemeta::core::JSON &document,
       schema, sourcemeta::core::schema_official_walker,                        \
       sourcemeta::core::schema_official_resolver,                              \
       sourcemeta::blaze::default_schema_compiler,                              \
+      sourcemeta::blaze::default_compile_options,                              \
       sourcemeta::blaze::Mode::Exhaustive)};                                   \
   EVALUATE_WITH_TRACE(compiled_schema, instance, count)                        \
   EXPECT_TRUE(result);
@@ -72,6 +75,7 @@ inline auto FIRST_PROPERTY_IS(const sourcemeta::core::JSON &document,
       schema, sourcemeta::core::schema_official_walker,                        \
       sourcemeta::core::schema_official_resolver,                              \
       sourcemeta::blaze::default_schema_compiler,                              \
+      sourcemeta::blaze::default_compile_options,                              \
       sourcemeta::blaze::Mode::Exhaustive)};                                   \
   EVALUATE_WITH_TRACE(compiled_schema, instance, count)                        \
   EXPECT_FALSE(result);

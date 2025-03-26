@@ -49,6 +49,7 @@ TEST(Evaluator, boolean_true) {
       schema, sourcemeta::core::schema_official_walker,
       sourcemeta::core::schema_official_resolver,
       sourcemeta::blaze::default_schema_compiler,
+      sourcemeta::blaze::default_compile_options,
       sourcemeta::blaze::Mode::FastValidation,
       "https://json-schema.org/draft/2020-12/schema")};
 
@@ -64,6 +65,7 @@ TEST(Evaluator, boolean_false) {
       schema, sourcemeta::core::schema_official_walker,
       sourcemeta::core::schema_official_resolver,
       sourcemeta::blaze::default_schema_compiler,
+      sourcemeta::blaze::default_compile_options,
       sourcemeta::blaze::Mode::FastValidation,
       "https://json-schema.org/draft/2020-12/schema")};
 
