@@ -341,6 +341,24 @@ TEST(Evaluator_draft6, exclusiveMinimum_2) {
                                "than the integer 2, but they were equal");
 }
 
+TEST(Evaluator_draft6, exclusiveMinimum_3) {
+  const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
+    "$schema": "http://json-schema.org/draft-06/schema#",
+    "exclusiveMinimum": 0
+  })JSON")};
+
+  const sourcemeta::core::JSON instance{1};
+  EVALUATE_WITH_TRACE_FAST_SUCCESS(schema, instance, 1);
+  EVALUATE_TRACE_PRE(0, AssertionGreater, "/exclusiveMinimum",
+                     "#/exclusiveMinimum", "");
+  EVALUATE_TRACE_POST_SUCCESS(0, AssertionGreater, "/exclusiveMinimum",
+                              "#/exclusiveMinimum", "");
+
+  EVALUATE_TRACE_POST_DESCRIBE(instance, 0,
+                               "The integer value 1 was expected to be greater "
+                               "than the integer 0");
+}
+
 TEST(Evaluator_draft6, exclusiveMaximum_1) {
   const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
     "$schema": "http://json-schema.org/draft-06/schema#",
@@ -375,6 +393,24 @@ TEST(Evaluator_draft6, exclusiveMaximum_2) {
   EVALUATE_TRACE_POST_DESCRIBE(instance, 0,
                                "The integer value 2 was expected to be less "
                                "than the integer 2, but they were equal");
+}
+
+TEST(Evaluator_draft6, exclusiveMaximum_3) {
+  const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
+    "$schema": "http://json-schema.org/draft-06/schema#",
+    "exclusiveMaximum": 0
+  })JSON")};
+
+  const sourcemeta::core::JSON instance{0};
+  EVALUATE_WITH_TRACE_FAST_FAILURE(schema, instance, 1);
+  EVALUATE_TRACE_PRE(0, AssertionLess, "/exclusiveMaximum",
+                     "#/exclusiveMaximum", "");
+  EVALUATE_TRACE_POST_FAILURE(0, AssertionLess, "/exclusiveMaximum",
+                              "#/exclusiveMaximum", "");
+
+  EVALUATE_TRACE_POST_DESCRIBE(instance, 0,
+                               "The integer value 0 was expected to be less "
+                               "than the integer 0, but they were equal");
 }
 
 TEST(Evaluator_draft6, contains_1) {
