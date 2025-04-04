@@ -4937,6 +4937,26 @@ TEST(Evaluator_draft4, minLength_5) {
                                "The value was expected to be of type string");
 }
 
+TEST(Evaluator_draft4, minLength_6) {
+  const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
+    "$schema": "http://json-schema.org/draft-04/schema#",
+    "minLength": 0
+  })JSON")};
+
+  const sourcemeta::core::JSON instance{"x"};
+  EVALUATE_WITH_TRACE_FAST_SUCCESS(schema, instance, 0);
+}
+
+TEST(Evaluator_draft4, minLength_7) {
+  const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
+    "$schema": "http://json-schema.org/draft-04/schema#",
+    "minLength": 0
+  })JSON")};
+
+  const sourcemeta::core::JSON instance{""};
+  EVALUATE_WITH_TRACE_FAST_SUCCESS(schema, instance, 0);
+}
+
 TEST(Evaluator_draft4, maxLength_1) {
   const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
     "$schema": "http://json-schema.org/draft-04/schema#",
@@ -5068,6 +5088,44 @@ TEST(Evaluator_draft4, maxLength_6) {
       "The value was expected to consist of a string of 1 to 2 characters");
 }
 
+TEST(Evaluator_draft4, maxLength_7) {
+  const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
+    "$schema": "http://json-schema.org/draft-04/schema#",
+    "maxLength": 0
+  })JSON")};
+
+  const sourcemeta::core::JSON instance{"x"};
+  EVALUATE_WITH_TRACE_FAST_FAILURE(schema, instance, 1);
+
+  EVALUATE_TRACE_PRE(0, AssertionStringSizeLess, "/maxLength", "#/maxLength",
+                     "");
+  EVALUATE_TRACE_POST_FAILURE(0, AssertionStringSizeLess, "/maxLength",
+                              "#/maxLength", "");
+  EVALUATE_TRACE_POST_DESCRIBE(
+      instance, 0,
+      "The string value \"x\" was expected to consist of at most 0 characters "
+      "but it consisted of 1 character");
+}
+
+TEST(Evaluator_draft4, maxLength_8) {
+  const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
+    "$schema": "http://json-schema.org/draft-04/schema#",
+    "maxLength": 0
+  })JSON")};
+
+  const sourcemeta::core::JSON instance{""};
+  EVALUATE_WITH_TRACE_FAST_SUCCESS(schema, instance, 1);
+
+  EVALUATE_TRACE_PRE(0, AssertionStringSizeLess, "/maxLength", "#/maxLength",
+                     "");
+  EVALUATE_TRACE_POST_SUCCESS(0, AssertionStringSizeLess, "/maxLength",
+                              "#/maxLength", "");
+  EVALUATE_TRACE_POST_DESCRIBE(
+      instance, 0,
+      "The string value \"\" was expected to consist of at most 0 characters "
+      "and it consisted of 0 characters");
+}
+
 TEST(Evaluator_draft4, minItems_1) {
   const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
     "$schema": "http://json-schema.org/draft-04/schema#",
@@ -5195,6 +5253,85 @@ TEST(Evaluator_draft4, minItems_6) {
   EVALUATE_TRACE_POST_SUCCESS(0, AssertionTypeStrict, "/type", "#/type", "");
 
   EVALUATE_TRACE_POST_DESCRIBE(instance, 0,
+                               "The value was expected to be of type array");
+}
+
+TEST(Evaluator_draft4, minItems_7) {
+  const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
+    "$schema": "http://json-schema.org/draft-04/schema#",
+    "minItems": 0
+  })JSON")};
+
+  const sourcemeta::core::JSON instance{sourcemeta::core::parse_json("[ 1 ]")};
+  EVALUATE_WITH_TRACE_FAST_SUCCESS(schema, instance, 0);
+}
+
+TEST(Evaluator_draft4, minItems_8) {
+  const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
+    "$schema": "http://json-schema.org/draft-04/schema#",
+    "minItems": 0
+  })JSON")};
+
+  const sourcemeta::core::JSON instance{sourcemeta::core::parse_json("[]")};
+  EVALUATE_WITH_TRACE_FAST_SUCCESS(schema, instance, 0);
+}
+
+TEST(Evaluator_draft4, minItems_9) {
+  const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
+    "$schema": "http://json-schema.org/draft-04/schema#",
+    "type": "array",
+    "minItems": 0,
+    "items": {
+      "type": "number"
+    }
+  })JSON")};
+
+  const sourcemeta::core::JSON instance{sourcemeta::core::parse_json("[1]")};
+  EVALUATE_WITH_TRACE_FAST_SUCCESS(schema, instance, 2);
+
+  EVALUATE_TRACE_PRE(0, LoopItemsTypeStrictAny, "/items", "#/items", "");
+  EVALUATE_TRACE_PRE(1, AssertionTypeStrict, "/type", "#/type", "");
+
+  EVALUATE_TRACE_POST_SUCCESS(0, LoopItemsTypeStrictAny, "/items", "#/items",
+                              "");
+  EVALUATE_TRACE_POST_SUCCESS(1, AssertionTypeStrict, "/type", "#/type", "");
+
+  EVALUATE_TRACE_POST_DESCRIBE(
+      instance, 0,
+      "The array items were expected to be of type number, or integer");
+  EVALUATE_TRACE_POST_DESCRIBE(instance, 1,
+                               "The value was expected to be of type array");
+}
+
+TEST(Evaluator_draft4, minItems_9_exhaustive) {
+  const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
+    "$schema": "http://json-schema.org/draft-04/schema#",
+    "type": "array",
+    "minItems": 0,
+    "items": {
+      "type": "number"
+    }
+  })JSON")};
+
+  const sourcemeta::core::JSON instance{sourcemeta::core::parse_json("[1]")};
+  EVALUATE_WITH_TRACE_EXHAUSTIVE_SUCCESS(schema, instance, 3);
+
+  EVALUATE_TRACE_PRE(0, LoopItems, "/items", "#/items", "");
+  EVALUATE_TRACE_PRE(1, AssertionTypeStrictAny, "/items/type", "#/items/type",
+                     "/0");
+  EVALUATE_TRACE_PRE(2, AssertionTypeStrict, "/type", "#/type", "");
+
+  EVALUATE_TRACE_POST_SUCCESS(0, AssertionTypeStrictAny, "/items/type",
+                              "#/items/type", "/0");
+  EVALUATE_TRACE_POST_SUCCESS(1, LoopItems, "/items", "#/items", "");
+  EVALUATE_TRACE_POST_SUCCESS(2, AssertionTypeStrict, "/type", "#/type", "");
+
+  EVALUATE_TRACE_POST_DESCRIBE(instance, 0,
+                               "The value was expected to be of type number");
+  EVALUATE_TRACE_POST_DESCRIBE(instance, 1,
+                               "Every item in the array value was expected to "
+                               "validate against the given subschema");
+  EVALUATE_TRACE_POST_DESCRIBE(instance, 2,
                                "The value was expected to be of type array");
 }
 
@@ -5349,6 +5486,42 @@ TEST(Evaluator_draft4, maxItems_7) {
       "The value was expected to consist of an array of 1 to 2 items");
 }
 
+TEST(Evaluator_draft4, maxItems_8) {
+  const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
+    "$schema": "http://json-schema.org/draft-04/schema#",
+    "maxItems": 0
+  })JSON")};
+
+  const sourcemeta::core::JSON instance{sourcemeta::core::parse_json("[ 1 ]")};
+  EVALUATE_WITH_TRACE_FAST_FAILURE(schema, instance, 1);
+
+  EVALUATE_TRACE_PRE(0, AssertionArraySizeLess, "/maxItems", "#/maxItems", "");
+  EVALUATE_TRACE_POST_FAILURE(0, AssertionArraySizeLess, "/maxItems",
+                              "#/maxItems", "");
+
+  EVALUATE_TRACE_POST_DESCRIBE(instance, 0,
+                               "The array value was expected to contain at "
+                               "most 0 items but it contained 1 item");
+}
+
+TEST(Evaluator_draft4, maxItems_9) {
+  const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
+    "$schema": "http://json-schema.org/draft-04/schema#",
+    "maxItems": 0
+  })JSON")};
+
+  const sourcemeta::core::JSON instance{sourcemeta::core::parse_json("[]")};
+  EVALUATE_WITH_TRACE_FAST_SUCCESS(schema, instance, 1);
+
+  EVALUATE_TRACE_PRE(0, AssertionArraySizeLess, "/maxItems", "#/maxItems", "");
+  EVALUATE_TRACE_POST_SUCCESS(0, AssertionArraySizeLess, "/maxItems",
+                              "#/maxItems", "");
+
+  EVALUATE_TRACE_POST_DESCRIBE(instance, 0,
+                               "The array value was expected to contain at "
+                               "most 0 items and it contained 0 items");
+}
+
 TEST(Evaluator_draft4, minProperties_1) {
   const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
     "$schema": "http://json-schema.org/draft-04/schema#",
@@ -5462,6 +5635,27 @@ TEST(Evaluator_draft4, minProperties_5) {
   EVALUATE_TRACE_POST_SUCCESS(0, AssertionTypeStrict, "/type", "#/type", "");
   EVALUATE_TRACE_POST_DESCRIBE(instance, 0,
                                "The value was expected to be of type object");
+}
+
+TEST(Evaluator_draft4, minProperties_6) {
+  const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
+    "$schema": "http://json-schema.org/draft-04/schema#",
+    "minProperties": 0
+  })JSON")};
+
+  const sourcemeta::core::JSON instance{
+      sourcemeta::core::parse_json("{ \"foo\": 1 }")};
+  EVALUATE_WITH_TRACE_FAST_SUCCESS(schema, instance, 0);
+}
+
+TEST(Evaluator_draft4, minProperties_7) {
+  const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
+    "$schema": "http://json-schema.org/draft-04/schema#",
+    "minProperties": 0
+  })JSON")};
+
+  const sourcemeta::core::JSON instance{sourcemeta::core::parse_json("{}")};
+  EVALUATE_WITH_TRACE_FAST_SUCCESS(schema, instance, 0);
 }
 
 TEST(Evaluator_draft4, maxProperties_1) {
@@ -5604,6 +5798,47 @@ TEST(Evaluator_draft4, maxProperties_6) {
       "The value was expected to consist of an object of 1 to 2 properties");
 }
 
+TEST(Evaluator_draft4, maxProperties_7) {
+  const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
+    "$schema": "http://json-schema.org/draft-04/schema#",
+    "maxProperties": 0
+  })JSON")};
+
+  const sourcemeta::core::JSON instance{
+      sourcemeta::core::parse_json("{ \"foo\": 1 }")};
+  EVALUATE_WITH_TRACE_FAST_FAILURE(schema, instance, 1);
+
+  EVALUATE_TRACE_PRE(0, AssertionObjectSizeLess, "/maxProperties",
+                     "#/maxProperties", "");
+  EVALUATE_TRACE_POST_FAILURE(0, AssertionObjectSizeLess, "/maxProperties",
+                              "#/maxProperties", "");
+
+  EVALUATE_TRACE_POST_DESCRIBE(
+      instance, 0,
+      "The object value was expected to contain at most 0 properties but it "
+      "contained 1 property: \"foo\"");
+}
+
+TEST(Evaluator_draft4, maxProperties_8) {
+  const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
+    "$schema": "http://json-schema.org/draft-04/schema#",
+    "maxProperties": 0
+  })JSON")};
+
+  const sourcemeta::core::JSON instance{sourcemeta::core::parse_json("{}")};
+  EVALUATE_WITH_TRACE_FAST_SUCCESS(schema, instance, 1);
+
+  EVALUATE_TRACE_PRE(0, AssertionObjectSizeLess, "/maxProperties",
+                     "#/maxProperties", "");
+  EVALUATE_TRACE_POST_SUCCESS(0, AssertionObjectSizeLess, "/maxProperties",
+                              "#/maxProperties", "");
+
+  EVALUATE_TRACE_POST_DESCRIBE(
+      instance, 0,
+      "The object value was expected to contain at most 0 properties and it "
+      "contained 0 properties");
+}
+
 TEST(Evaluator_draft4, minimum_1) {
   const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
     "$schema": "http://json-schema.org/draft-04/schema#",
@@ -5668,6 +5903,42 @@ TEST(Evaluator_draft4, minimum_4) {
                                "greater than or equal to the integer 2");
 }
 
+TEST(Evaluator_draft4, minimum_5) {
+  const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
+    "$schema": "http://json-schema.org/draft-04/schema#",
+    "minimum": 0
+  })JSON")};
+
+  const sourcemeta::core::JSON instance{1};
+  EVALUATE_WITH_TRACE_FAST_SUCCESS(schema, instance, 1);
+
+  EVALUATE_TRACE_PRE(0, AssertionGreaterEqual, "/minimum", "#/minimum", "");
+  EVALUATE_TRACE_POST_SUCCESS(0, AssertionGreaterEqual, "/minimum", "#/minimum",
+                              "");
+
+  EVALUATE_TRACE_POST_DESCRIBE(instance, 0,
+                               "The integer value 1 was expected to be greater "
+                               "than or equal to the integer 0");
+}
+
+TEST(Evaluator_draft4, minimum_6) {
+  const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
+    "$schema": "http://json-schema.org/draft-04/schema#",
+    "minimum": 0
+  })JSON")};
+
+  const sourcemeta::core::JSON instance{0};
+  EVALUATE_WITH_TRACE_FAST_SUCCESS(schema, instance, 1);
+
+  EVALUATE_TRACE_PRE(0, AssertionGreaterEqual, "/minimum", "#/minimum", "");
+  EVALUATE_TRACE_POST_SUCCESS(0, AssertionGreaterEqual, "/minimum", "#/minimum",
+                              "");
+
+  EVALUATE_TRACE_POST_DESCRIBE(instance, 0,
+                               "The integer value 0 was expected to be greater "
+                               "than or equal to the integer 0");
+}
+
 TEST(Evaluator_draft4, maximum_1) {
   const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
     "$schema": "http://json-schema.org/draft-04/schema#",
@@ -5730,6 +6001,24 @@ TEST(Evaluator_draft4, maximum_4) {
   EVALUATE_TRACE_POST_DESCRIBE(instance, 0,
                                "The number value 2.1 was expected to be less "
                                "than or equal to the integer 2");
+}
+
+TEST(Evaluator_draft4, maximum_5) {
+  const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
+    "$schema": "http://json-schema.org/draft-04/schema#",
+    "maximum": 0
+  })JSON")};
+
+  const sourcemeta::core::JSON instance{0};
+  EVALUATE_WITH_TRACE_FAST_SUCCESS(schema, instance, 1);
+
+  EVALUATE_TRACE_PRE(0, AssertionLessEqual, "/maximum", "#/maximum", "");
+  EVALUATE_TRACE_POST_SUCCESS(0, AssertionLessEqual, "/maximum", "#/maximum",
+                              "");
+
+  EVALUATE_TRACE_POST_DESCRIBE(instance, 0,
+                               "The integer value 0 was expected to be less "
+                               "than or equal to the integer 0");
 }
 
 TEST(Evaluator_draft4, exclusiveMinimum_1) {
