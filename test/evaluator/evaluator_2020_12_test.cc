@@ -1737,3 +1737,29 @@ TEST(Evaluator_2020_12, unevaluatedProperties_1_exhaustive) {
       "The object properties not covered by other adjacent object keywords "
       "were expected to validate against this subschema");
 }
+
+TEST(Evaluator_2020_12, cross_id_1) {
+  const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "$ref": "#/$defs/schema/items",
+    "$defs": {
+      "schema": {
+        "$schema": "https://json-schema.org/draft/2020-12/schema",
+        "$id": "https://www.example.com",
+        "items": {
+          "type": "string"
+        }
+      }
+    }
+  })JSON")};
+
+  const sourcemeta::core::JSON instance{"foo bar"};
+  EVALUATE_WITH_TRACE_FAST_SUCCESS(schema, instance, 1);
+
+  EVALUATE_TRACE_PRE(0, AssertionTypeStrict, "/$ref/type",
+                     "https://www.example.com#/items/type", "");
+  EVALUATE_TRACE_POST_SUCCESS(0, AssertionTypeStrict, "/$ref/type",
+                              "https://www.example.com#/items/type", "");
+  EVALUATE_TRACE_POST_DESCRIBE(instance, 0,
+                               "The value was expected to be of type string");
+}
