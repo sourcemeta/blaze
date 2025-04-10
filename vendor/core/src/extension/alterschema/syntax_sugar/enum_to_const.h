@@ -5,11 +5,14 @@ public:
             "enum_to_const",
             "An `enum` of a single value can be expressed as `const`"} {};
 
-  [[nodiscard]] auto condition(const sourcemeta::core::JSON &schema,
-                               const std::string &,
-                               const std::set<std::string> &vocabularies,
-                               const sourcemeta::core::Pointer &) const
-      -> bool override {
+  [[nodiscard]] auto
+  condition(const sourcemeta::core::JSON &schema,
+            const sourcemeta::core::JSON &,
+            const sourcemeta::core::Vocabularies &vocabularies,
+            const sourcemeta::core::SchemaFrame &,
+            const sourcemeta::core::SchemaFrame::Location &,
+            const sourcemeta::core::SchemaWalker &,
+            const sourcemeta::core::SchemaResolver &) const -> bool override {
     return contains_any(
                vocabularies,
                {"https://json-schema.org/draft/2020-12/vocab/validation",
@@ -21,8 +24,9 @@ public:
            schema.at("enum").size() == 1;
   }
 
-  auto transform(PointerProxy &transformer) const -> void override {
-    transformer.assign("const", transformer.value().at("enum").front());
-    transformer.erase("enum");
+  auto transform(JSON &schema) const -> void override {
+    auto front{schema.at("enum").front()};
+    schema.at("enum").into(front);
+    schema.rename("enum", "const");
   }
 };

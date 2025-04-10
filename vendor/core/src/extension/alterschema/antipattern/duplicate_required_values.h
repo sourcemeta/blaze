@@ -6,11 +6,14 @@ public:
             "Setting duplicate values in `required` is considered an "
             "anti-pattern"} {};
 
-  [[nodiscard]] auto condition(const sourcemeta::core::JSON &schema,
-                               const std::string &,
-                               const std::set<std::string> &vocabularies,
-                               const sourcemeta::core::Pointer &) const
-      -> bool override {
+  [[nodiscard]] auto
+  condition(const sourcemeta::core::JSON &schema,
+            const sourcemeta::core::JSON &,
+            const sourcemeta::core::Vocabularies &vocabularies,
+            const sourcemeta::core::SchemaFrame &,
+            const sourcemeta::core::SchemaFrame::Location &,
+            const sourcemeta::core::SchemaWalker &,
+            const sourcemeta::core::SchemaResolver &) const -> bool override {
     return contains_any(
                vocabularies,
                {"https://json-schema.org/draft/2020-12/vocab/validation",
@@ -22,12 +25,12 @@ public:
            schema.at("required").is_array() && !schema.at("required").unique();
   }
 
-  auto transform(PointerProxy &transformer) const -> void override {
-    auto collection = transformer.value().at("required");
+  auto transform(JSON &schema) const -> void override {
+    auto collection = schema.at("required");
     std::sort(collection.as_array().begin(), collection.as_array().end());
     auto last =
         std::unique(collection.as_array().begin(), collection.as_array().end());
     collection.erase(last, collection.as_array().end());
-    transformer.replace({"required"}, std::move(collection));
+    schema.at("required").into(std::move(collection));
   }
 };

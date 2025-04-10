@@ -8,11 +8,14 @@ public:
             "unnecessary additional validation that is guaranteed to not "
             "affect the validation result"} {};
 
-  [[nodiscard]] auto condition(const sourcemeta::core::JSON &schema,
-                               const std::string &,
-                               const std::set<std::string> &vocabularies,
-                               const sourcemeta::core::Pointer &) const
-      -> bool override {
+  [[nodiscard]] auto
+  condition(const sourcemeta::core::JSON &schema,
+            const sourcemeta::core::JSON &,
+            const sourcemeta::core::Vocabularies &vocabularies,
+            const sourcemeta::core::SchemaFrame &,
+            const sourcemeta::core::SchemaFrame::Location &,
+            const sourcemeta::core::SchemaWalker &,
+            const sourcemeta::core::SchemaResolver &) const -> bool override {
     return contains_any(
                vocabularies,
                {"https://json-schema.org/draft/2020-12/vocab/applicator",
@@ -24,12 +27,12 @@ public:
            schema.at("anyOf").is_array() && !schema.at("anyOf").unique();
   }
 
-  auto transform(PointerProxy &transformer) const -> void override {
-    auto collection = transformer.value().at("anyOf");
+  auto transform(JSON &schema) const -> void override {
+    auto collection = schema.at("anyOf");
     std::sort(collection.as_array().begin(), collection.as_array().end());
     auto last =
         std::unique(collection.as_array().begin(), collection.as_array().end());
     collection.erase(last, collection.as_array().end());
-    transformer.replace({"anyOf"}, std::move(collection));
+    schema.at("anyOf").into(std::move(collection));
   }
 };

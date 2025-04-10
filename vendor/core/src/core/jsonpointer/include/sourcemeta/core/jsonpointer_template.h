@@ -4,10 +4,13 @@
 #include <sourcemeta/core/jsonpointer_pointer.h>
 #include <sourcemeta/core/jsonpointer_token.h>
 
-#include <algorithm> // std::copy
+#include <sourcemeta/core/regex.h>
+
+#include <algorithm> // std::copy, std::all_of
 #include <cassert>   // assert
 #include <iterator>  // std::back_inserter
-#include <variant>   // std::variant, std::holds_alternative
+#include <optional>  // std::optional, std::nullopt
+#include <variant>   // std::variant, std::holds_alternative, std::get
 #include <vector>    // std::vector
 
 namespace sourcemeta::core {
@@ -19,6 +22,7 @@ public:
   struct Condition {
     auto operator==(const Condition &) const noexcept -> bool = default;
     auto operator<(const Condition &) const noexcept -> bool { return false; }
+    std::optional<typename PointerT::Value::String> suffix = std::nullopt;
   };
   struct Negation {
     auto operator==(const Negation &) const noexcept -> bool = default;
@@ -195,8 +199,26 @@ public:
     return this->data.empty();
   }
 
-  /// Check if a JSON Pointer template is equal to another JSON Pointer template
-  /// when not taking into account condition tokens. For example:
+  /// Check if a JSON Pointer template only consists in normal non-templated
+  /// tokens. For example:
+  ///
+  /// ```cpp
+  /// #include <sourcemeta/core/jsonpointer.h>
+  /// #include <cassert>
+  ///
+  /// sourcemeta::core::PointerTemplate pointer;
+  /// pointer.emplace_back(sourcemeta::core::PointerTemplate::Wildcard::Property);
+  /// pointer.emplace_back(sourcemeta::core::Pointer::Token{"foo"});
+  /// assert(!pointer.trivial());
+  /// ```
+  [[nodiscard]] auto trivial() const noexcept -> bool {
+    return std::all_of(
+        this->data.cbegin(), this->data.cend(),
+        [](const auto &token) { return std::holds_alternative<Token>(token); });
+  }
+
+  /// Check if a JSON Pointer template matches another JSON Pointer template.
+  /// For example:
   ///
   /// ```cpp
   /// #include <sourcemeta/core/jsonpointer.h>
@@ -208,12 +230,13 @@ public:
   /// const sourcemeta::core::PointerTemplate right{
   ///     sourcemeta::core::Pointer::Token{"foo"}};
   ///
-  /// assert(left.conditional_of(right));
-  /// assert(right.conditional_of(left));
+  /// assert(left.matches(right));
+  /// assert(right.matches(left));
   /// ```
   [[nodiscard]] auto
-  conditional_of(const GenericPointerTemplate<PointerT> &other) const noexcept
+  matches(const GenericPointerTemplate<PointerT> &other) const noexcept
       -> bool {
+    // TODO: Find a way to simplify this long method
     auto iterator_this = this->data.cbegin();
     auto iterator_that = other.data.cbegin();
 
@@ -231,14 +254,62 @@ public:
 
       if (iterator_this == this->data.cend() ||
           iterator_that == other.data.cend()) {
-        return iterator_this == this->data.cend() &&
-               iterator_that == other.data.cend();
+        break;
       } else if (*iterator_this != *iterator_that) {
-        return false;
-      } else {
-        iterator_this += 1;
-        iterator_that += 1;
+        // Handle regular expressions
+        if (std::holds_alternative<Token>(*iterator_this) &&
+            std::holds_alternative<Regex>(*iterator_that)) {
+          const auto &token{std::get<Token>(*iterator_this)};
+          if (!token.is_property() ||
+              !sourcemeta::core::matches_if_valid(
+                  std::get<Regex>(*iterator_that), token.to_property())) {
+            return false;
+          }
+        } else if (std::holds_alternative<Regex>(*iterator_this) &&
+                   std::holds_alternative<Token>(*iterator_that)) {
+          const auto &token{std::get<Token>(*iterator_that)};
+          if (!token.is_property() ||
+              !sourcemeta::core::matches_if_valid(
+                  std::get<Regex>(*iterator_this), token.to_property())) {
+            return false;
+          }
+
+          // Handle wildcards
+        } else if (std::holds_alternative<Wildcard>(*iterator_this) &&
+                   std::holds_alternative<Token>(*iterator_that)) {
+          const auto &token{std::get<Token>(*iterator_that)};
+          const auto wildcard{std::get<Wildcard>(*iterator_this)};
+          if (wildcard == Wildcard::Key ||
+              (wildcard == Wildcard::Property && !token.is_property()) ||
+              (wildcard == Wildcard::Item && !token.is_index())) {
+            return false;
+          }
+        } else if (std::holds_alternative<Token>(*iterator_this) &&
+                   std::holds_alternative<Wildcard>(*iterator_that)) {
+          const auto &token{std::get<Token>(*iterator_this)};
+          const auto wildcard{std::get<Wildcard>(*iterator_that)};
+          if (wildcard == Wildcard::Key ||
+              (wildcard == Wildcard::Property && !token.is_property()) ||
+              (wildcard == Wildcard::Item && !token.is_index())) {
+            return false;
+          }
+        } else if (std::holds_alternative<Regex>(*iterator_this) &&
+                   std::holds_alternative<Wildcard>(*iterator_that)) {
+          if (std::get<Wildcard>(*iterator_that) != Wildcard::Property) {
+            return false;
+          }
+        } else if (std::holds_alternative<Wildcard>(*iterator_this) &&
+                   std::holds_alternative<Regex>(*iterator_that)) {
+          if (std::get<Wildcard>(*iterator_this) != Wildcard::Property) {
+            return false;
+          }
+        } else {
+          return false;
+        }
       }
+
+      iterator_this += 1;
+      iterator_that += 1;
     }
 
     return iterator_this == this->data.cend() &&
