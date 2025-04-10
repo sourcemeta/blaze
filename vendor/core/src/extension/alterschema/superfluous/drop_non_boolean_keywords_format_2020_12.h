@@ -6,11 +6,14 @@ public:
             "Keywords that don't apply to booleans will never match if the "
             "instance is guaranteed to be a boolean"} {};
 
-  [[nodiscard]] auto condition(const sourcemeta::core::JSON &schema,
-                               const std::string &,
-                               const std::set<std::string> &vocabularies,
-                               const sourcemeta::core::Pointer &) const
-      -> bool override {
+  [[nodiscard]] auto
+  condition(const sourcemeta::core::JSON &schema,
+            const sourcemeta::core::JSON &,
+            const sourcemeta::core::Vocabularies &vocabularies,
+            const sourcemeta::core::SchemaFrame &,
+            const sourcemeta::core::SchemaFrame::Location &,
+            const sourcemeta::core::SchemaWalker &,
+            const sourcemeta::core::SchemaResolver &) const -> bool override {
     return vocabularies.contains(
                "https://json-schema.org/draft/2020-12/vocab/validation") &&
            schema.is_object() &&
@@ -25,8 +28,8 @@ public:
            schema.defines_any(this->BLACKLIST.cbegin(), this->BLACKLIST.cend());
   }
 
-  auto transform(PointerProxy &transformer) const -> void override {
-    transformer.erase_keys(this->BLACKLIST.cbegin(), this->BLACKLIST.cend());
+  auto transform(JSON &schema) const -> void override {
+    schema.erase_keys(this->BLACKLIST.cbegin(), this->BLACKLIST.cend());
   }
 
 private:

@@ -7,11 +7,14 @@ public:
             "that is already marked as required is an unnecessarily complex "
             "use of `dependentRequired`"} {};
 
-  [[nodiscard]] auto condition(const sourcemeta::core::JSON &schema,
-                               const std::string &,
-                               const std::set<std::string> &vocabularies,
-                               const sourcemeta::core::Pointer &) const
-      -> bool override {
+  [[nodiscard]] auto
+  condition(const sourcemeta::core::JSON &schema,
+            const sourcemeta::core::JSON &,
+            const sourcemeta::core::Vocabularies &vocabularies,
+            const sourcemeta::core::SchemaFrame &,
+            const sourcemeta::core::SchemaFrame::Location &,
+            const sourcemeta::core::SchemaWalker &,
+            const sourcemeta::core::SchemaResolver &) const -> bool override {
     return contains_any(
                vocabularies,
                {"https://json-schema.org/draft/2020-12/vocab/validation",
@@ -28,21 +31,19 @@ public:
                        });
   }
 
-  auto transform(PointerProxy &transformer) const -> void override {
-    auto requirements{transformer.value().at("required")};
+  auto transform(JSON &schema) const -> void override {
+    auto requirements{schema.at("required")};
     while (true) {
       bool match{false};
       const auto copy{requirements};
       for (const auto &element : copy.as_array()) {
-        if (!element.is_string() || !transformer.value()
-                                         .at("dependentRequired")
-                                         .defines(element.to_string())) {
+        if (!element.is_string() ||
+            !schema.at("dependentRequired").defines(element.to_string())) {
           continue;
         }
 
-        const auto &dependents{transformer.value()
-                                   .at("dependentRequired")
-                                   .at(element.to_string())};
+        const auto &dependents{
+            schema.at("dependentRequired").at(element.to_string())};
         if (dependents.is_array()) {
           for (const auto &dependent : dependents.as_array()) {
             if (dependent.is_string()) {
@@ -51,7 +52,7 @@ public:
             }
           }
 
-          transformer.erase({"dependentRequired"}, element.to_string());
+          schema.at("dependentRequired").erase(element.to_string());
         }
       }
 
@@ -60,6 +61,6 @@ public:
       }
     }
 
-    transformer.assign("required", requirements);
+    schema.assign("required", requirements);
   }
 };

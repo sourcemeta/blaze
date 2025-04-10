@@ -7,14 +7,17 @@ public:
         };
 
   [[nodiscard]] auto condition(const sourcemeta::core::JSON &schema,
-                               const std::string &,
-                               const std::set<std::string> &,
-                               const sourcemeta::core::Pointer &) const
+                               const sourcemeta::core::JSON &,
+                               const sourcemeta::core::Vocabularies &,
+                               const sourcemeta::core::SchemaFrame &,
+                               const sourcemeta::core::SchemaFrame::Location &,
+                               const sourcemeta::core::SchemaWalker &,
+                               const sourcemeta::core::SchemaResolver &) const
       -> bool override {
     return schema.is_boolean() && schema.to_boolean();
   }
 
-  auto transform(PointerProxy &transformer) const -> void override {
-    transformer.replace(sourcemeta::core::JSON::make_object());
+  auto transform(JSON &schema) const -> void override {
+    schema.into(sourcemeta::core::JSON::make_object());
   }
 };

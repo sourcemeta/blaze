@@ -6,11 +6,14 @@ public:
             "Every array has a minimum size of zero items but may be affected "
             "by `minContains`"} {};
 
-  [[nodiscard]] auto condition(const sourcemeta::core::JSON &schema,
-                               const std::string &,
-                               const std::set<std::string> &vocabularies,
-                               const sourcemeta::core::Pointer &) const
-      -> bool override {
+  [[nodiscard]] auto
+  condition(const sourcemeta::core::JSON &schema,
+            const sourcemeta::core::JSON &,
+            const sourcemeta::core::Vocabularies &vocabularies,
+            const sourcemeta::core::SchemaFrame &,
+            const sourcemeta::core::SchemaFrame::Location &,
+            const sourcemeta::core::SchemaWalker &,
+            const sourcemeta::core::SchemaResolver &) const -> bool override {
     return contains_any(
                vocabularies,
                {"https://json-schema.org/draft/2020-12/vocab/validation",
@@ -21,15 +24,13 @@ public:
            !schema.defines("minItems");
   }
 
-  auto transform(PointerProxy &transformer) const -> void override {
-    if (transformer.value().defines("contains") &&
-        transformer.value().defines("minContains") &&
-        transformer.value().at("minContains").is_integer()) {
-      transformer.assign(
-          "minItems", sourcemeta::core::JSON{
-                          transformer.value().at("minContains").to_integer()});
+  auto transform(JSON &schema) const -> void override {
+    if (schema.defines("contains") && schema.defines("minContains") &&
+        schema.at("minContains").is_integer()) {
+      schema.assign("minItems", sourcemeta::core::JSON{
+                                    schema.at("minContains").to_integer()});
     } else {
-      transformer.assign("minItems", sourcemeta::core::JSON{0});
+      schema.assign("minItems", sourcemeta::core::JSON{0});
     }
   }
 };

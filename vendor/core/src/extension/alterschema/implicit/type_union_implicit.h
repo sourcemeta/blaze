@@ -5,11 +5,14 @@ public:
             "type_union_implicit",
             "Not setting `type` is equivalent to accepting any type"} {};
 
-  [[nodiscard]] auto condition(const sourcemeta::core::JSON &schema,
-                               const std::string &,
-                               const std::set<std::string> &vocabularies,
-                               const sourcemeta::core::Pointer &) const
-      -> bool override {
+  [[nodiscard]] auto
+  condition(const sourcemeta::core::JSON &schema,
+            const sourcemeta::core::JSON &,
+            const sourcemeta::core::Vocabularies &vocabularies,
+            const sourcemeta::core::SchemaFrame &,
+            const sourcemeta::core::SchemaFrame::Location &,
+            const sourcemeta::core::SchemaWalker &,
+            const sourcemeta::core::SchemaResolver &) const -> bool override {
     if (!schema.is_object()) {
       return false;
     }
@@ -115,7 +118,7 @@ public:
     return true;
   }
 
-  auto transform(PointerProxy &transformer) const -> void override {
+  auto transform(JSON &schema) const -> void override {
     auto types{sourcemeta::core::JSON::make_array()};
 
     // All possible JSON Schema types
@@ -129,6 +132,6 @@ public:
     types.push_back(sourcemeta::core::JSON{"number"});
     types.push_back(sourcemeta::core::JSON{"integer"});
 
-    transformer.assign("type", std::move(types));
+    schema.assign("type", std::move(types));
   }
 };
