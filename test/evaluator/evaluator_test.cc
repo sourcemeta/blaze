@@ -104,3 +104,24 @@ TEST(Evaluator, reusable_evaluator) {
   const sourcemeta::core::JSON instance_4{"qux"};
   EXPECT_TRUE(evaluator.validate(compiled_schema, instance_4));
 }
+
+TEST(Evaluator, cross_2012_12_ref_2019_09_without_id) {
+  const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "$ref": "#/$defs/schema",
+    "$defs": {
+      "schema": {
+        "$schema": "https://json-schema.org/draft/2019-09/schema"
+      }
+    }
+  })JSON")};
+
+  const auto compiled_schema{sourcemeta::blaze::compile(
+      schema, sourcemeta::core::schema_official_walker,
+      sourcemeta::core::schema_official_resolver,
+      sourcemeta::blaze::default_schema_compiler)};
+
+  sourcemeta::blaze::Evaluator evaluator;
+  const sourcemeta::core::JSON instance{"test"};
+  EXPECT_TRUE(evaluator.validate(compiled_schema, instance));
+}
