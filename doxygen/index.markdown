@@ -69,6 +69,7 @@ CMake
 |-----------------------------|---------|---------|-----------------------------------------|
 | `BLAZE_COMPILER`            | Boolean | `ON`    | Build the Blaze compiler library        |
 | `BLAZE_EVALUATOR`           | Boolean | `ON`    | Build the Blaze evaluator library       |
+| `BLAZE_LINTER`              | Boolean | `ON`    | Build the Blaze linter rule library     |
 | `BLAZE_TESTS`               | Boolean | `OFF`   | Build the Blaze tests                   |
 | `BLAZE_BENCHMARK`           | Boolean | `OFF`   | Build the Blaze benchmarks              |
 | `BLAZE_CONTRIB`             | Boolean | `OFF`   | Build the Blaze contrib programs        |
