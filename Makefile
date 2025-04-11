@@ -36,7 +36,7 @@ lint: .always
 test: .always
 	$(CMAKE) -E env UBSAN_OPTIONS=print_stacktrace=1 \
 		$(CTEST) --test-dir ./build --build-config $(PRESET) \
-			--output-on-failure --progress --parallel
+			--output-on-failure --parallel
 
 benchmark: .always
 	$(CMAKE) --build ./build --config $(PRESET) --target benchmark_all
