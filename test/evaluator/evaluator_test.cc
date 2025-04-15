@@ -125,3 +125,14 @@ TEST(Evaluator, cross_2012_12_ref_2019_09_without_id) {
   const sourcemeta::core::JSON instance{"test"};
   EXPECT_TRUE(evaluator.validate(compiled_schema, instance));
 }
+
+TEST(Evaluator, is_annotation) {
+  EXPECT_TRUE(sourcemeta::blaze::is_annotation(
+      sourcemeta::blaze::InstructionIndex::AnnotationBasenameToParent));
+  EXPECT_TRUE(sourcemeta::blaze::is_annotation(
+      sourcemeta::blaze::InstructionIndex::AnnotationToParent));
+  EXPECT_TRUE(sourcemeta::blaze::is_annotation(
+      sourcemeta::blaze::InstructionIndex::AnnotationEmit));
+  EXPECT_FALSE(sourcemeta::blaze::is_annotation(
+      sourcemeta::blaze::InstructionIndex::AssertionFail));
+}
