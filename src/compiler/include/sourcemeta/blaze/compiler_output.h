@@ -169,7 +169,7 @@ public:
   TraceOutput(const ErrorOutput &) = delete;
   auto operator=(const TraceOutput &) -> TraceOutput & = delete;
 
-  enum class EntryType { Push, Pass, Fail };
+  enum class EntryType { Push, Pass, Fail, Annotation };
 
   struct Entry {
     const EntryType type;
