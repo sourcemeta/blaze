@@ -1,6 +1,8 @@
 sourcemeta_googletest(NAMESPACE sourcemeta PROJECT blaze NAME linter
   FOLDER "Blaze/Linter"
-  SOURCES linter_valid_examples_test.cc)
+  SOURCES
+    linter_valid_default_test.cc
+    linter_valid_examples_test.cc)
 
 target_link_libraries(sourcemeta_blaze_linter_unit
   PRIVATE sourcemeta::core::json)
