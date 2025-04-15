@@ -5,7 +5,7 @@ namespace sourcemeta::blaze {
 
 ValidDefault::ValidDefault(Compiler compiler)
     : sourcemeta::core::SchemaTransformRule{"blaze/valid_default",
-                                            "Only set a `default` valid that "
+                                            "Only set a `default` value that "
                                             "validates against the schema"},
       compiler_{std::move(compiler)} {};
 
