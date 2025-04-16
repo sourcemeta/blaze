@@ -126,6 +126,51 @@ TEST(Evaluator, cross_2012_12_ref_2019_09_without_id) {
   EXPECT_TRUE(evaluator.validate(compiled_schema, instance));
 }
 
+TEST(Evaluator, explicit_frame) {
+  const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "allOf": [ { "$ref": "https://json-schema.org/draft/2020-12/schema" } ]
+  })JSON")};
+
+  const sourcemeta::core::JSON result{
+      sourcemeta::core::bundle(schema, sourcemeta::core::schema_official_walker,
+                               sourcemeta::core::schema_official_resolver)};
+  sourcemeta::core::SchemaFrame frame{
+      sourcemeta::core::SchemaFrame::Mode::References};
+  frame.analyse(result, sourcemeta::core::schema_official_walker,
+                sourcemeta::core::schema_official_resolver);
+
+  const auto compiled_schema{sourcemeta::blaze::compile(
+      result, sourcemeta::core::schema_official_walker,
+      sourcemeta::core::schema_official_resolver,
+      sourcemeta::blaze::default_schema_compiler, frame)};
+
+  sourcemeta::blaze::Evaluator evaluator;
+  const sourcemeta::core::JSON instance{true};
+  EXPECT_TRUE(evaluator.validate(compiled_schema, instance));
+}
+
+TEST(Evaluator, explicit_frame_locations_only) {
+  const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "allOf": [ { "$ref": "https://json-schema.org/draft/2020-12/schema" } ]
+  })JSON")};
+
+  const sourcemeta::core::JSON result{
+      sourcemeta::core::bundle(schema, sourcemeta::core::schema_official_walker,
+                               sourcemeta::core::schema_official_resolver)};
+  sourcemeta::core::SchemaFrame frame{
+      sourcemeta::core::SchemaFrame::Mode::Locations};
+  frame.analyse(result, sourcemeta::core::schema_official_walker,
+                sourcemeta::core::schema_official_resolver);
+
+  EXPECT_THROW(sourcemeta::blaze::compile(
+                   result, sourcemeta::core::schema_official_walker,
+                   sourcemeta::core::schema_official_resolver,
+                   sourcemeta::blaze::default_schema_compiler, frame),
+               sourcemeta::core::SchemaReferenceError);
+}
+
 TEST(Evaluator, is_annotation) {
   EXPECT_TRUE(sourcemeta::blaze::is_annotation(
       sourcemeta::blaze::InstructionIndex::AnnotationBasenameToParent));
