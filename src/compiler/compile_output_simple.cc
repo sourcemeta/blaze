@@ -9,23 +9,25 @@
 
 namespace sourcemeta::blaze {
 
-ErrorOutput::ErrorOutput(const sourcemeta::core::JSON &instance,
-                         const sourcemeta::core::WeakPointer &base)
+SimpleOutput::SimpleOutput(const sourcemeta::core::JSON &instance,
+                           const sourcemeta::core::WeakPointer &base)
     : instance_{instance}, base_{base} {}
 
-auto ErrorOutput::begin() const -> const_iterator {
+auto SimpleOutput::begin() const -> const_iterator {
   return this->output.begin();
 }
 
-auto ErrorOutput::end() const -> const_iterator { return this->output.end(); }
+auto SimpleOutput::end() const -> const_iterator { return this->output.end(); }
 
-auto ErrorOutput::cbegin() const -> const_iterator {
+auto SimpleOutput::cbegin() const -> const_iterator {
   return this->output.cbegin();
 }
 
-auto ErrorOutput::cend() const -> const_iterator { return this->output.cend(); }
+auto SimpleOutput::cend() const -> const_iterator {
+  return this->output.cend();
+}
 
-auto ErrorOutput::operator()(
+auto SimpleOutput::operator()(
     const EvaluationType type, const bool result, const Instruction &step,
     const sourcemeta::core::WeakPointer &evaluate_path,
     const sourcemeta::core::WeakPointer &instance_location,
