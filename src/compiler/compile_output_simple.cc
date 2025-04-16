@@ -37,6 +37,19 @@ auto SimpleOutput::operator()(
   }
 
   assert(evaluate_path.back().is_property());
+  auto effective_evaluate_path{evaluate_path.resolve_from(this->base_)};
+  if (effective_evaluate_path.empty()) {
+    return;
+  }
+
+  if (is_annotation(step.type)) {
+    if (type == EvaluationType::Post) {
+      Location location{instance_location, std::move(effective_evaluate_path)};
+      this->annotations_[std::move(location)].push_back(annotation);
+    }
+
+    return;
+  }
 
   if (type == EvaluationType::Pre) {
     assert(result);
@@ -49,6 +62,16 @@ auto SimpleOutput::operator()(
   } else if (type == EvaluationType::Post &&
              this->mask.contains(evaluate_path)) {
     this->mask.erase(evaluate_path);
+  } else if (type == EvaluationType::Post && !result &&
+             !this->annotations_.empty()) {
+    for (auto iterator = this->annotations_.begin();
+         iterator != this->annotations_.end();) {
+      if (iterator->first.evaluate_path.starts_with_initial(evaluate_path)) {
+        iterator = this->annotations_.erase(iterator);
+      } else {
+        iterator++;
+      }
+    }
   }
 
   // Ignore successful or masked steps
@@ -56,11 +79,6 @@ auto SimpleOutput::operator()(
                             [&evaluate_path](const auto &entry) {
                               return evaluate_path.starts_with(entry);
                             })) {
-    return;
-  }
-
-  auto effective_evaluate_path{evaluate_path.resolve_from(this->base_)};
-  if (effective_evaluate_path.empty()) {
     return;
   }
 

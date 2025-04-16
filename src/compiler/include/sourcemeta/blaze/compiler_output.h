@@ -10,9 +10,11 @@
 
 #include <sourcemeta/blaze/evaluator.h>
 
+#include <map>         // std::map
 #include <set>         // std::set
 #include <string>      // std::string
 #include <string_view> // std::string_view
+#include <tuple>       // std::tie
 #include <vector>      // std::vector
 
 namespace sourcemeta::blaze {
@@ -89,6 +91,21 @@ public:
   auto cbegin() const -> const_iterator;
   auto cend() const -> const_iterator;
 
+  /// Access annotations that were collected during evaluation, indexed by
+  /// instance location and evaluation path
+  auto annotations() const -> const auto & { return this->annotations_; }
+
+  struct Location {
+    auto operator<(const Location &other) const noexcept -> bool {
+      // Perform a lexicographical comparison
+      return std::tie(instance_location, evaluate_path) <
+             std::tie(other.instance_location, other.evaluate_path);
+    }
+
+    const sourcemeta::core::WeakPointer instance_location;
+    const sourcemeta::core::WeakPointer evaluate_path;
+  };
+
 private:
 // Exporting symbols that depends on the standard C++ library is considered
 // safe.
@@ -100,10 +117,11 @@ private:
   const sourcemeta::core::WeakPointer base_;
   container_type output;
   std::set<sourcemeta::core::WeakPointer> mask;
+  std::map<Location, std::vector<sourcemeta::core::JSON>> annotations_;
 #if defined(_MSC_VER)
 #pragma warning(default : 4251)
 #endif
-};
+}; // namespace sourcemeta::blaze
 
 /// @ingroup compiler
 ///
