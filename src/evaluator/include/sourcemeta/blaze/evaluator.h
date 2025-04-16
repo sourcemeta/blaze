@@ -10,6 +10,7 @@
 
 #include <sourcemeta/core/json.h>
 #include <sourcemeta/core/jsonpointer.h>
+#include <sourcemeta/core/jsonschema.h>
 
 #include <cstdint>    // std::uint8_t
 #include <functional> // std::function, std::reference_wrapper
@@ -33,6 +34,7 @@ struct Template {
   Instructions instructions;
   bool dynamic;
   bool track;
+  sourcemeta::core::SchemaFrame frame;
 };
 
 /// @ingroup evaluator

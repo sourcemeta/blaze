@@ -20,5 +20,7 @@ target_link_libraries(sourcemeta_blaze_evaluator PUBLIC
   sourcemeta::core::regex)
 target_link_libraries(sourcemeta_blaze_evaluator PUBLIC
   sourcemeta::core::jsonpointer)
+target_link_libraries(sourcemeta_blaze_evaluator PUBLIC
+  sourcemeta::core::jsonschema)
 target_link_libraries(sourcemeta_blaze_evaluator PRIVATE
   sourcemeta::core::uri)

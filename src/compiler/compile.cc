@@ -209,16 +209,16 @@ auto compile(const sourcemeta::core::JSON &schema,
   auto unevaluated{
       sourcemeta::core::unevaluated(result, frame, walker, resolver)};
 
-  const Context context{result,
-                        std::move(frame),
-                        std::move(resources),
-                        walker,
-                        resolver,
-                        compiler,
-                        mode,
-                        uses_dynamic_scopes,
-                        std::move(unevaluated),
-                        std::move(precompiled_static_schemas)};
+  Context context{result,
+                  std::move(frame),
+                  std::move(resources),
+                  walker,
+                  resolver,
+                  compiler,
+                  mode,
+                  uses_dynamic_scopes,
+                  std::move(unevaluated),
+                  std::move(precompiled_static_schemas)};
   const DynamicContext dynamic_context{relative_dynamic_context()};
   Instructions compiler_template;
 
@@ -266,12 +266,14 @@ auto compile(const sourcemeta::core::JSON &schema,
                     return dependency.first.ends_with("unevaluatedItems");
                   })};
   if (compiler_template.empty()) {
-    return {std::move(children), uses_dynamic_scopes, track};
+    return {std::move(children), uses_dynamic_scopes, track,
+            std::move(context.frame)};
   } else {
     compiler_template.reserve(compiler_template.size() + children.size());
     std::move(children.begin(), children.end(),
               std::back_inserter(compiler_template));
-    return {std::move(compiler_template), uses_dynamic_scopes, track};
+    return {std::move(compiler_template), uses_dynamic_scopes, track,
+            std::move(context.frame)};
   }
 }
 
