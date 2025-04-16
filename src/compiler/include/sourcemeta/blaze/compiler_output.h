@@ -45,7 +45,7 @@ namespace sourcemeta::blaze {
 ///
 /// const sourcemeta::core::JSON instance{5};
 ///
-/// sourcemeta::blaze::ErrorOutput output{instance};
+/// sourcemeta::blaze::SimpleOutput output{instance};
 /// sourcemeta::blaze::Evaluator evaluator;
 /// const auto result{evaluator.validate(
 ///   schema_template, instance, std::ref(output))};
@@ -60,15 +60,15 @@ namespace sourcemeta::blaze {
 ///   }
 /// }
 /// ```
-class SOURCEMETA_BLAZE_COMPILER_EXPORT ErrorOutput {
+class SOURCEMETA_BLAZE_COMPILER_EXPORT SimpleOutput {
 public:
-  ErrorOutput(const sourcemeta::core::JSON &instance,
-              const sourcemeta::core::WeakPointer &base =
-                  sourcemeta::core::empty_weak_pointer);
+  SimpleOutput(const sourcemeta::core::JSON &instance,
+               const sourcemeta::core::WeakPointer &base =
+                   sourcemeta::core::empty_weak_pointer);
 
   // Prevent accidental copies
-  ErrorOutput(const ErrorOutput &) = delete;
-  auto operator=(const ErrorOutput &) -> ErrorOutput & = delete;
+  SimpleOutput(const SimpleOutput &) = delete;
+  auto operator=(const SimpleOutput &) -> SimpleOutput & = delete;
 
   struct Entry {
     const std::string message;
@@ -166,7 +166,7 @@ public:
                   sourcemeta::core::empty_weak_pointer);
 
   // Prevent accidental copies
-  TraceOutput(const ErrorOutput &) = delete;
+  TraceOutput(const TraceOutput &) = delete;
   auto operator=(const TraceOutput &) -> TraceOutput & = delete;
 
   enum class EntryType { Push, Pass, Fail, Annotation };
