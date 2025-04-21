@@ -233,8 +233,8 @@ private:
 #if defined(_MSC_VER)
 #pragma warning(disable : 4251)
 #endif
-  const sourcemeta::core::SchemaWalker &walker_;
-  const sourcemeta::core::SchemaResolver &resolver_;
+  const sourcemeta::core::SchemaWalker walker_;
+  const sourcemeta::core::SchemaResolver resolver_;
   const sourcemeta::core::WeakPointer base_;
   const std::optional<
       std::reference_wrapper<const sourcemeta::core::SchemaFrame>>
