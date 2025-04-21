@@ -28,6 +28,35 @@
     EXPECT_FALSE(traces.at((index)).annotation.has_value());                   \
   }
 
+#define EXPECT_OUTPUT_WITHOUT_VOCABULARY(                                      \
+    traces, index, expected_type, expected_name, expected_instance_location,   \
+    expected_evaluate_path, expected_keyword_location, expected_annotation)    \
+  EXPECT_OUTPUT(traces, index, expected_type, expected_name,                   \
+                expected_instance_location, expected_evaluate_path,            \
+                expected_keyword_location, expected_annotation);               \
+  EXPECT_FALSE(traces.at((index)).vocabulary.first);                           \
+  EXPECT_FALSE(traces.at((index)).vocabulary.second.has_value());
+
+#define EXPECT_OUTPUT_WITH_VOCABULARY(                                         \
+    traces, index, expected_type, expected_name, expected_instance_location,   \
+    expected_evaluate_path, expected_keyword_location, expected_annotation,    \
+    expected_vocabulary)                                                       \
+  EXPECT_OUTPUT(traces, index, expected_type, expected_name,                   \
+                expected_instance_location, expected_evaluate_path,            \
+                expected_keyword_location, expected_annotation);               \
+  EXPECT_TRUE(traces.at((index)).vocabulary.first);                            \
+  EXPECT_EQ(traces.at((index)).vocabulary.second.value(),                      \
+            (expected_vocabulary));
+
+#define EXPECT_OUTPUT_UNKNOWN_VOCABULARY(                                      \
+    traces, index, expected_type, expected_name, expected_instance_location,   \
+    expected_evaluate_path, expected_keyword_location, expected_annotation)    \
+  EXPECT_OUTPUT(traces, index, expected_type, expected_name,                   \
+                expected_instance_location, expected_evaluate_path,            \
+                expected_keyword_location, expected_annotation);               \
+  EXPECT_TRUE(traces.at((index)).vocabulary.first);                            \
+  EXPECT_FALSE(traces.at((index)).vocabulary.second.has_value());
+
 TEST(Compiler_output_trace, pass_1) {
   const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2020-12/schema",
@@ -48,7 +77,9 @@ TEST(Compiler_output_trace, pass_1) {
     "foo": "qux"
   })JSON")};
 
-  sourcemeta::blaze::TraceOutput output;
+  sourcemeta::blaze::TraceOutput output{
+      sourcemeta::core::schema_official_walker,
+      sourcemeta::core::schema_official_resolver};
   sourcemeta::blaze::Evaluator evaluator;
   const auto result{
       evaluator.validate(schema_template, instance, std::ref(output))};
@@ -59,14 +90,18 @@ TEST(Compiler_output_trace, pass_1) {
 
   EXPECT_EQ(traces.size(), 4);
 
-  EXPECT_OUTPUT(traces, 0, Push, "LoopPropertiesMatchClosed", "", "/properties",
-                "#/properties", std::nullopt);
-  EXPECT_OUTPUT(traces, 1, Push, "AssertionTypeStrict", "/foo",
-                "/properties/foo/type", "#/properties/foo/type", std::nullopt);
-  EXPECT_OUTPUT(traces, 2, Pass, "AssertionTypeStrict", "/foo",
-                "/properties/foo/type", "#/properties/foo/type", std::nullopt);
-  EXPECT_OUTPUT(traces, 3, Pass, "LoopPropertiesMatchClosed", "", "/properties",
-                "#/properties", std::nullopt);
+  EXPECT_OUTPUT_WITHOUT_VOCABULARY(traces, 0, Push, "LoopPropertiesMatchClosed",
+                                   "", "/properties", "#/properties",
+                                   std::nullopt);
+  EXPECT_OUTPUT_WITHOUT_VOCABULARY(traces, 1, Push, "AssertionTypeStrict",
+                                   "/foo", "/properties/foo/type",
+                                   "#/properties/foo/type", std::nullopt);
+  EXPECT_OUTPUT_WITHOUT_VOCABULARY(traces, 2, Pass, "AssertionTypeStrict",
+                                   "/foo", "/properties/foo/type",
+                                   "#/properties/foo/type", std::nullopt);
+  EXPECT_OUTPUT_WITHOUT_VOCABULARY(traces, 3, Pass, "LoopPropertiesMatchClosed",
+                                   "", "/properties", "#/properties",
+                                   std::nullopt);
 }
 
 TEST(Compiler_output_trace, pass_annotations) {
@@ -91,7 +126,9 @@ TEST(Compiler_output_trace, pass_annotations) {
     "bar": "baz"
   })JSON")};
 
-  sourcemeta::blaze::TraceOutput output;
+  sourcemeta::blaze::TraceOutput output{
+      sourcemeta::core::schema_official_walker,
+      sourcemeta::core::schema_official_resolver};
   sourcemeta::blaze::Evaluator evaluator;
   const auto result{
       evaluator.validate(schema_template, instance, std::ref(output))};
@@ -102,22 +139,25 @@ TEST(Compiler_output_trace, pass_annotations) {
 
   EXPECT_EQ(traces.size(), 7);
 
-  EXPECT_OUTPUT(traces, 0, Annotation, "AnnotationEmit", "", "/title",
-                "#/title", sourcemeta::core::JSON{"Foo Bar"});
-  EXPECT_OUTPUT(traces, 1, Push, "LoopPropertiesMatch", "", "/properties",
-                "#/properties", std::nullopt);
-  EXPECT_OUTPUT(traces, 2, Annotation, "AnnotationEmit", "", "/properties",
-                "#/properties", sourcemeta::core::JSON{"foo"});
-  EXPECT_OUTPUT(traces, 3, Annotation, "AnnotationEmit", "", "/properties",
-                "#/properties", sourcemeta::core::JSON{"bar"});
-  EXPECT_OUTPUT(traces, 4, Pass, "LoopPropertiesMatch", "", "/properties",
-                "#/properties", std::nullopt);
-  EXPECT_OUTPUT(traces, 5, Push, "LoopPropertiesExcept", "",
-                "/additionalProperties", "#/additionalProperties",
-                std::nullopt);
-  EXPECT_OUTPUT(traces, 6, Pass, "LoopPropertiesExcept", "",
-                "/additionalProperties", "#/additionalProperties",
-                std::nullopt);
+  EXPECT_OUTPUT_WITHOUT_VOCABULARY(traces, 0, Annotation, "AnnotationEmit", "",
+                                   "/title", "#/title",
+                                   sourcemeta::core::JSON{"Foo Bar"});
+  EXPECT_OUTPUT_WITHOUT_VOCABULARY(traces, 1, Push, "LoopPropertiesMatch", "",
+                                   "/properties", "#/properties", std::nullopt);
+  EXPECT_OUTPUT_WITHOUT_VOCABULARY(traces, 2, Annotation, "AnnotationEmit", "",
+                                   "/properties", "#/properties",
+                                   sourcemeta::core::JSON{"foo"});
+  EXPECT_OUTPUT_WITHOUT_VOCABULARY(traces, 3, Annotation, "AnnotationEmit", "",
+                                   "/properties", "#/properties",
+                                   sourcemeta::core::JSON{"bar"});
+  EXPECT_OUTPUT_WITHOUT_VOCABULARY(traces, 4, Pass, "LoopPropertiesMatch", "",
+                                   "/properties", "#/properties", std::nullopt);
+  EXPECT_OUTPUT_WITHOUT_VOCABULARY(traces, 5, Push, "LoopPropertiesExcept", "",
+                                   "/additionalProperties",
+                                   "#/additionalProperties", std::nullopt);
+  EXPECT_OUTPUT_WITHOUT_VOCABULARY(traces, 6, Pass, "LoopPropertiesExcept", "",
+                                   "/additionalProperties",
+                                   "#/additionalProperties", std::nullopt);
 }
 
 TEST(Compiler_output_trace, pass_with_matching_prefix_1) {
@@ -146,7 +186,11 @@ TEST(Compiler_output_trace, pass_with_matching_prefix_1) {
   })JSON")};
 
   const std::string ref{"$ref"};
-  sourcemeta::blaze::TraceOutput output{{std::cref(ref)}};
+
+  sourcemeta::blaze::TraceOutput output{
+      sourcemeta::core::schema_official_walker,
+      sourcemeta::core::schema_official_resolver,
+      {std::cref(ref)}};
   sourcemeta::blaze::Evaluator evaluator;
   const auto result{
       evaluator.validate(schema_template, instance, std::ref(output))};
@@ -157,14 +201,140 @@ TEST(Compiler_output_trace, pass_with_matching_prefix_1) {
 
   EXPECT_EQ(traces.size(), 4);
 
-  EXPECT_OUTPUT(traces, 0, Push, "LoopPropertiesMatchClosed", "", "/properties",
-                "#/$defs/helper/properties", std::nullopt);
-  EXPECT_OUTPUT(traces, 1, Push, "AssertionTypeStrict", "/foo",
-                "/properties/foo/type", "#/$defs/helper/properties/foo/type",
-                std::nullopt);
-  EXPECT_OUTPUT(traces, 2, Pass, "AssertionTypeStrict", "/foo",
-                "/properties/foo/type", "#/$defs/helper/properties/foo/type",
-                std::nullopt);
-  EXPECT_OUTPUT(traces, 3, Pass, "LoopPropertiesMatchClosed", "", "/properties",
-                "#/$defs/helper/properties", std::nullopt);
+  EXPECT_OUTPUT_WITHOUT_VOCABULARY(traces, 0, Push, "LoopPropertiesMatchClosed",
+                                   "", "/properties",
+                                   "#/$defs/helper/properties", std::nullopt);
+  EXPECT_OUTPUT_WITHOUT_VOCABULARY(
+      traces, 1, Push, "AssertionTypeStrict", "/foo", "/properties/foo/type",
+      "#/$defs/helper/properties/foo/type", std::nullopt);
+  EXPECT_OUTPUT_WITHOUT_VOCABULARY(
+      traces, 2, Pass, "AssertionTypeStrict", "/foo", "/properties/foo/type",
+      "#/$defs/helper/properties/foo/type", std::nullopt);
+  EXPECT_OUTPUT_WITHOUT_VOCABULARY(traces, 3, Pass, "LoopPropertiesMatchClosed",
+                                   "", "/properties",
+                                   "#/$defs/helper/properties", std::nullopt);
+}
+
+TEST(Compiler_output_trace, pass_with_frame_exhaustive) {
+  const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "title": "Foo Bar",
+    "additionalProperties": false,
+    "properties": {
+      "foo": { "unknown": true },
+      "bar": true
+    }
+  })JSON")};
+
+  sourcemeta::core::SchemaFrame frame{
+      sourcemeta::core::SchemaFrame::Mode::References};
+  frame.analyse(schema, sourcemeta::core::schema_official_walker,
+                sourcemeta::core::schema_official_resolver);
+
+  const auto schema_template{sourcemeta::blaze::compile(
+      schema, sourcemeta::core::schema_official_walker,
+      sourcemeta::core::schema_official_resolver,
+      sourcemeta::blaze::default_schema_compiler, frame,
+      sourcemeta::blaze::Mode::Exhaustive)};
+
+  const sourcemeta::core::JSON instance{sourcemeta::core::parse_json(R"JSON({
+    "foo": "bar",
+    "bar": "baz"
+  })JSON")};
+
+  sourcemeta::blaze::TraceOutput output{
+      sourcemeta::core::schema_official_walker,
+      sourcemeta::core::schema_official_resolver,
+      sourcemeta::core::empty_weak_pointer, frame};
+  sourcemeta::blaze::Evaluator evaluator;
+  const auto result{
+      evaluator.validate(schema_template, instance, std::ref(output))};
+
+  EXPECT_TRUE(result);
+  std::vector<sourcemeta::blaze::TraceOutput::Entry> traces{output.cbegin(),
+                                                            output.cend()};
+
+  EXPECT_EQ(traces.size(), 8);
+
+  EXPECT_OUTPUT_WITH_VOCABULARY(
+      traces, 0, Annotation, "AnnotationEmit", "", "/title", "#/title",
+      sourcemeta::core::JSON{"Foo Bar"},
+      "https://json-schema.org/draft/2020-12/vocab/meta-data");
+  EXPECT_OUTPUT_WITH_VOCABULARY(
+      traces, 1, Push, "LoopPropertiesMatch", "", "/properties", "#/properties",
+      std::nullopt, "https://json-schema.org/draft/2020-12/vocab/applicator");
+  EXPECT_OUTPUT_UNKNOWN_VOCABULARY(traces, 2, Annotation, "AnnotationEmit",
+                                   "/foo", "/properties/foo/unknown",
+                                   "#/properties/foo/unknown",
+                                   sourcemeta::core::JSON{true});
+  EXPECT_OUTPUT_WITH_VOCABULARY(
+      traces, 3, Annotation, "AnnotationEmit", "", "/properties",
+      "#/properties", sourcemeta::core::JSON{"foo"},
+      "https://json-schema.org/draft/2020-12/vocab/applicator");
+  EXPECT_OUTPUT_WITH_VOCABULARY(
+      traces, 4, Annotation, "AnnotationEmit", "", "/properties",
+      "#/properties", sourcemeta::core::JSON{"bar"},
+      "https://json-schema.org/draft/2020-12/vocab/applicator");
+  EXPECT_OUTPUT_WITH_VOCABULARY(
+      traces, 5, Pass, "LoopPropertiesMatch", "", "/properties", "#/properties",
+      std::nullopt, "https://json-schema.org/draft/2020-12/vocab/applicator");
+  EXPECT_OUTPUT_WITH_VOCABULARY(
+      traces, 6, Push, "LoopPropertiesExcept", "", "/additionalProperties",
+      "#/additionalProperties", std::nullopt,
+      "https://json-schema.org/draft/2020-12/vocab/applicator");
+  EXPECT_OUTPUT_WITH_VOCABULARY(
+      traces, 7, Pass, "LoopPropertiesExcept", "", "/additionalProperties",
+      "#/additionalProperties", std::nullopt,
+      "https://json-schema.org/draft/2020-12/vocab/applicator");
+}
+
+TEST(Compiler_output_trace, pass_with_frame_fast) {
+  const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "title": "Foo Bar",
+    "additionalProperties": false,
+    "properties": {
+      "foo": { "unknown": true },
+      "bar": true
+    }
+  })JSON")};
+
+  sourcemeta::core::SchemaFrame frame{
+      sourcemeta::core::SchemaFrame::Mode::References};
+  frame.analyse(schema, sourcemeta::core::schema_official_walker,
+                sourcemeta::core::schema_official_resolver);
+
+  const auto schema_template{sourcemeta::blaze::compile(
+      schema, sourcemeta::core::schema_official_walker,
+      sourcemeta::core::schema_official_resolver,
+      sourcemeta::blaze::default_schema_compiler, frame,
+      sourcemeta::blaze::Mode::FastValidation)};
+
+  const sourcemeta::core::JSON instance{sourcemeta::core::parse_json(R"JSON({
+    "foo": "bar",
+    "bar": "baz"
+  })JSON")};
+
+  sourcemeta::blaze::TraceOutput output{
+      sourcemeta::core::schema_official_walker,
+      sourcemeta::core::schema_official_resolver,
+      sourcemeta::core::empty_weak_pointer, frame};
+  sourcemeta::blaze::Evaluator evaluator;
+  const auto result{
+      evaluator.validate(schema_template, instance, std::ref(output))};
+
+  EXPECT_TRUE(result);
+  std::vector<sourcemeta::blaze::TraceOutput::Entry> traces{output.cbegin(),
+                                                            output.cend()};
+
+  EXPECT_EQ(traces.size(), 2);
+
+  EXPECT_OUTPUT_WITH_VOCABULARY(
+      traces, 0, Push, "LoopPropertiesMatchClosed", "", "/properties",
+      "#/properties", std::nullopt,
+      "https://json-schema.org/draft/2020-12/vocab/applicator");
+  EXPECT_OUTPUT_WITH_VOCABULARY(
+      traces, 1, Pass, "LoopPropertiesMatchClosed", "", "/properties",
+      "#/properties", std::nullopt,
+      "https://json-schema.org/draft/2020-12/vocab/applicator");
 }
