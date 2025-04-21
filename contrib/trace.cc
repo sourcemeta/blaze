@@ -47,7 +47,9 @@ auto main(int argc, char **argv) noexcept -> int {
   const std::filesystem::path instance_path{argv[2]};
   const auto instance{sourcemeta::core::read_json(instance_path)};
 
-  sourcemeta::blaze::TraceOutput output;
+  sourcemeta::blaze::TraceOutput output{
+      sourcemeta::core::schema_official_walker,
+      sourcemeta::core::schema_official_resolver};
   sourcemeta::blaze::Evaluator evaluator;
   const auto result{
       evaluator.validate(schema_template, instance, std::ref(output))};
