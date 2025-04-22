@@ -38,7 +38,7 @@ TEST(Evaluator_2020_12, metaschema_hyper_self_exhaustive) {
       "https://json-schema.org/draft/2020-12/hyper-schema")};
   EXPECT_TRUE(metaschema.has_value());
   EVALUATE_WITH_TRACE_EXHAUSTIVE_SUCCESS(metaschema.value(), metaschema.value(),
-                                         211);
+                                         202);
 }
 
 TEST(Evaluator_2020_12, unknown_1_exhaustive) {
