@@ -37,7 +37,7 @@ TEST(Evaluator_2019_09, metaschema_hyper_self_exhaustive) {
       "https://json-schema.org/draft/2019-09/hyper-schema")};
   EXPECT_TRUE(metaschema.has_value());
   EVALUATE_WITH_TRACE_EXHAUSTIVE_SUCCESS(metaschema.value(), metaschema.value(),
-                                         183);
+                                         171);
 }
 
 TEST(Evaluator_2019_09, properties_1) {
@@ -1615,6 +1615,43 @@ TEST(Evaluator_2019_09, examples_exhaustive) {
                                "Examples of the instance were 1, 2, and 3");
 }
 
+TEST(Evaluator_2019_09, format) {
+  const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
+    "$schema": "https://json-schema.org/draft/2019-09/schema",
+    "format": "email"
+  })JSON")};
+
+  const sourcemeta::core::JSON instance{"johndoe@example.com"};
+  EVALUATE_WITH_TRACE_FAST_SUCCESS(schema, instance, 0);
+}
+
+TEST(Evaluator_2019_09, format_exhaustive) {
+  const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
+    "$schema": "https://json-schema.org/draft/2019-09/schema",
+    "format": "email"
+  })JSON")};
+
+  const sourcemeta::core::JSON instance{"johndoe@example.com"};
+  EVALUATE_WITH_TRACE_EXHAUSTIVE_SUCCESS(schema, instance, 1);
+
+  EVALUATE_TRACE_PRE_ANNOTATION(0, "/format", "#/format", "");
+  EVALUATE_TRACE_POST_ANNOTATION(0, "/format", "#/format", "", "email");
+
+  EVALUATE_TRACE_POST_DESCRIBE(
+      instance, 0,
+      "The logical type of the instance was expected to be \"email\"");
+}
+
+TEST(Evaluator_2019_09, format_exhaustive_non_string) {
+  const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
+    "$schema": "https://json-schema.org/draft/2019-09/schema",
+    "format": "email"
+  })JSON")};
+
+  const sourcemeta::core::JSON instance{1};
+  EVALUATE_WITH_TRACE_EXHAUSTIVE_SUCCESS(schema, instance, 0);
+}
+
 TEST(Evaluator_2019_09, contentEncoding) {
   const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2019-09/schema",
@@ -1640,6 +1677,16 @@ TEST(Evaluator_2019_09, contentEncoding_exhaustive) {
 
   EVALUATE_TRACE_POST_DESCRIBE(
       instance, 0, "The content encoding of the instance was \"base64\"");
+}
+
+TEST(Evaluator_2019_09, contentEncoding_exhaustive_non_string) {
+  const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
+    "$schema": "https://json-schema.org/draft/2019-09/schema",
+    "contentEncoding": "base64"
+  })JSON")};
+
+  const sourcemeta::core::JSON instance{1};
+  EVALUATE_WITH_TRACE_EXHAUSTIVE_SUCCESS(schema, instance, 0);
 }
 
 TEST(Evaluator_2019_09, contentMediaType) {
@@ -1671,7 +1718,28 @@ TEST(Evaluator_2019_09, contentMediaType_exhaustive) {
       "The content media type of the instance was \"application/json\"");
 }
 
-TEST(Evaluator_2019_09, contentSchema) {
+TEST(Evaluator_2019_09, contentMediaType_exhaustive_non_string) {
+  const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
+    "$schema": "https://json-schema.org/draft/2019-09/schema",
+    "contentMediaType": "application/json"
+  })JSON")};
+
+  const sourcemeta::core::JSON instance{1};
+  EVALUATE_WITH_TRACE_EXHAUSTIVE_SUCCESS(schema, instance, 0);
+}
+
+TEST(Evaluator_2019_09, contentSchema_with_contentMediaType) {
+  const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
+    "$schema": "https://json-schema.org/draft/2019-09/schema",
+    "contentMediaType": "application/json",
+    "contentSchema": { "type": "string" }
+  })JSON")};
+
+  const sourcemeta::core::JSON instance{"foo"};
+  EVALUATE_WITH_TRACE_FAST_SUCCESS(schema, instance, 0);
+}
+
+TEST(Evaluator_2019_09, contentSchema_without_contentMediaType) {
   const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2019-09/schema",
     "contentSchema": { "type": "string" }
@@ -1681,27 +1749,57 @@ TEST(Evaluator_2019_09, contentSchema) {
   EVALUATE_WITH_TRACE_FAST_SUCCESS(schema, instance, 0);
 }
 
-TEST(Evaluator_2019_09, contentSchema_exhaustive) {
+TEST(Evaluator_2019_09, contentSchema_exhaustive_with_contentMediaType) {
+  const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
+    "$schema": "https://json-schema.org/draft/2019-09/schema",
+    "contentMediaType": "application/json",
+    "contentSchema": { "type": "string" }
+  })JSON")};
+
+  const sourcemeta::core::JSON instance{"foo"};
+  EVALUATE_WITH_TRACE_EXHAUSTIVE_SUCCESS(schema, instance, 2);
+
+  EVALUATE_TRACE_PRE_ANNOTATION(0, "/contentMediaType", "#/contentMediaType",
+                                "");
+  EVALUATE_TRACE_PRE_ANNOTATION(1, "/contentSchema", "#/contentSchema", "");
+
+  auto content_schema{sourcemeta::core::JSON::make_object()};
+  content_schema.assign("type", sourcemeta::core::JSON{"string"});
+
+  EVALUATE_TRACE_POST_ANNOTATION(0, "/contentMediaType", "#/contentMediaType",
+                                 "", "application/json");
+  EVALUATE_TRACE_POST_ANNOTATION(1, "/contentSchema", "#/contentSchema", "",
+                                 content_schema);
+
+  EVALUATE_TRACE_POST_DESCRIBE(
+      instance, 0,
+      "The content media type of the instance was \"application/json\"");
+  EVALUATE_TRACE_POST_DESCRIBE(
+      instance, 1,
+      "When decoded, the instance was expected to validate against the schema "
+      "{\"type\":\"string\"}");
+}
+
+TEST(Evaluator_2019_09,
+     contentSchema_exhaustive_with_contentMediaType_non_string) {
+  const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
+    "$schema": "https://json-schema.org/draft/2019-09/schema",
+    "contentMediaType": "application/json",
+    "contentSchema": { "type": "string" }
+  })JSON")};
+
+  const sourcemeta::core::JSON instance{1};
+  EVALUATE_WITH_TRACE_EXHAUSTIVE_SUCCESS(schema, instance, 0);
+}
+
+TEST(Evaluator_2019_09, contentSchema_exhaustive_without_contentMediaType) {
   const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2019-09/schema",
     "contentSchema": { "type": "string" }
   })JSON")};
 
   const sourcemeta::core::JSON instance{"foo"};
-  EVALUATE_WITH_TRACE_EXHAUSTIVE_SUCCESS(schema, instance, 1);
-
-  EVALUATE_TRACE_PRE_ANNOTATION(0, "/contentSchema", "#/contentSchema", "");
-
-  auto content_schema{sourcemeta::core::JSON::make_object()};
-  content_schema.assign("type", sourcemeta::core::JSON{"string"});
-
-  EVALUATE_TRACE_POST_ANNOTATION(0, "/contentSchema", "#/contentSchema", "",
-                                 content_schema);
-
-  EVALUATE_TRACE_POST_DESCRIBE(
-      instance, 0,
-      "When decoded, the instance was expected to validate against the schema "
-      "{\"type\":\"string\"}");
+  EVALUATE_WITH_TRACE_EXHAUSTIVE_SUCCESS(schema, instance, 0);
 }
 
 TEST(Evaluator_2019_09, unknown_1) {

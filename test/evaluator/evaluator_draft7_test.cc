@@ -449,6 +449,17 @@ TEST(Evaluator_draft7, content) {
   EVALUATE_WITH_TRACE_FAST_SUCCESS(schema, instance, 0);
 }
 
+TEST(Evaluator_draft7, content_exhaustive) {
+  const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
+    "$schema": "http://json-schema.org/draft-07/schema#",
+    "contentEncoding": "base64",
+    "contentMediaType": "application/json"
+  })JSON")};
+
+  const sourcemeta::core::JSON instance{"test"};
+  EVALUATE_WITH_TRACE_EXHAUSTIVE_SUCCESS(schema, instance, 0);
+}
+
 TEST(Evaluator_draft7, unknown_1) {
   const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
     "$schema": "http://json-schema.org/draft-07/schema#",
