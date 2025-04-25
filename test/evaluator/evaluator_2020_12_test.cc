@@ -572,6 +572,27 @@ TEST(Evaluator_2020_12, prefixItems_2) {
       "the corresponding subschemas");
 }
 
+TEST(Evaluator_2020_12, prefixItems_2_exhaustive) {
+  const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "prefixItems": [ { "type": "integer" }, { "type": "boolean" } ]
+  })JSON")};
+
+  const sourcemeta::core::JSON instance{sourcemeta::core::parse_json("[]")};
+  EVALUATE_WITH_TRACE_EXHAUSTIVE_SUCCESS(schema, instance, 1);
+
+  // Note: we don't want to emit any annotation for empty arrays
+  EVALUATE_TRACE_PRE(0, AssertionArrayPrefix, "/prefixItems", "#/prefixItems",
+                     "");
+  EVALUATE_TRACE_POST_SUCCESS(0, AssertionArrayPrefix, "/prefixItems",
+                              "#/prefixItems", "");
+
+  EVALUATE_TRACE_POST_DESCRIBE(
+      instance, 0,
+      "The first 2 items of the array value were expected to validate against "
+      "the corresponding subschemas");
+}
+
 TEST(Evaluator_2020_12, prefixItems_3) {
   const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2020-12/schema",
