@@ -2,6 +2,7 @@ sourcemeta_googletest(NAMESPACE sourcemeta PROJECT blaze NAME evaluator
   FOLDER "Blaze/Evaluator"
   SOURCES
     evaluator_utils.h
+    evaluator_openapi_3_1_test.cc
     evaluator_2019_09_test.cc
     evaluator_2020_12_test.cc
     evaluator_draft4_test.cc
