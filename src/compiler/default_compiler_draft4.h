@@ -630,7 +630,7 @@ auto compiler_draft4_validation_required(const Context &context,
                  context, schema_context, dynamic_context,
                  std::move(properties_set))};
       }
-    } else if (context.mode == Mode::FastValidation && assume_object) {
+    } else if (assume_object) {
       return {make(
           sourcemeta::blaze::InstructionIndex::AssertionDefinesAllStrict,
           context, schema_context, dynamic_context, std::move(properties_set))};
