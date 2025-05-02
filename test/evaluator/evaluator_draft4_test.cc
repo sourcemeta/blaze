@@ -4714,6 +4714,78 @@ TEST(Evaluator_draft4, enum_18) {
       "one of the given declared values");
 }
 
+TEST(Evaluator_draft4, enum_19) {
+  const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
+    "$schema": "http://json-schema.org/draft-04/schema#",
+    "properties": {
+      "foo": {
+        "type": "object",
+        "required": [ "bar" ],
+        "properties": {
+          "bar": {
+            "enum": [ "baz" ]
+          }
+        }
+      }
+    }
+  })JSON")};
+
+  const sourcemeta::core::JSON instance{sourcemeta::core::parse_json(R"JSON({
+    "foo": "bar"
+  })JSON")};
+
+  EVALUATE_WITH_TRACE_FAST_FAILURE(schema, instance, 1);
+
+  EVALUATE_TRACE_PRE(0, AssertionDefinesStrict, "/properties/foo/required",
+                     "#/properties/foo/required", "/foo");
+  EVALUATE_TRACE_POST_FAILURE(0, AssertionDefinesStrict,
+                              "/properties/foo/required",
+                              "#/properties/foo/required", "/foo");
+
+  EVALUATE_TRACE_POST_DESCRIBE(instance, 0,
+                               "The value was expected to be an object that "
+                               "defines the property \"bar\"");
+}
+
+TEST(Evaluator_draft4, enum_19_exhaustive) {
+  const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
+    "$schema": "http://json-schema.org/draft-04/schema#",
+    "properties": {
+      "foo": {
+        "type": "object",
+        "required": [ "bar" ],
+        "properties": {
+          "bar": {
+            "enum": [ "baz" ]
+          }
+        }
+      }
+    }
+  })JSON")};
+
+  const sourcemeta::core::JSON instance{sourcemeta::core::parse_json(R"JSON({
+    "foo": "bar"
+  })JSON")};
+
+  EVALUATE_WITH_TRACE_EXHAUSTIVE_FAILURE(schema, instance, 2);
+
+  EVALUATE_TRACE_PRE(0, LogicalAnd, "/properties", "#/properties", "");
+  EVALUATE_TRACE_PRE(1, AssertionDefinesStrict, "/properties/foo/required",
+                     "#/properties/foo/required", "/foo");
+
+  EVALUATE_TRACE_POST_FAILURE(0, AssertionDefinesStrict,
+                              "/properties/foo/required",
+                              "#/properties/foo/required", "/foo");
+  EVALUATE_TRACE_POST_FAILURE(1, LogicalAnd, "/properties", "#/properties", "");
+
+  EVALUATE_TRACE_POST_DESCRIBE(instance, 0,
+                               "The value was expected to be an object that "
+                               "defines the property \"bar\"");
+  EVALUATE_TRACE_POST_DESCRIBE(instance, 1,
+                               "The object value was expected to validate "
+                               "against the single defined property subschema");
+}
+
 TEST(Evaluator_draft4, uniqueItems_1) {
   const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
     "$schema": "http://json-schema.org/draft-04/schema#",
