@@ -306,15 +306,16 @@ TEST(Evaluator_draft4, required_4_exhaustive) {
   const sourcemeta::core::JSON instance{
       sourcemeta::core::parse_json("{ \"foo\": 1, \"bar\": 2 }")};
   EVALUATE_WITH_TRACE_EXHAUSTIVE_SUCCESS(schema, instance, 2);
-  EVALUATE_TRACE_PRE(0, AssertionDefinesAll, "/required", "#/required", "");
+  EVALUATE_TRACE_PRE(0, AssertionDefinesAllStrict, "/required", "#/required",
+                     "");
   EVALUATE_TRACE_PRE(1, AssertionTypeStrict, "/type", "#/type", "");
-  EVALUATE_TRACE_POST_SUCCESS(0, AssertionDefinesAll, "/required", "#/required",
-                              "");
+  EVALUATE_TRACE_POST_SUCCESS(0, AssertionDefinesAllStrict, "/required",
+                              "#/required", "");
   EVALUATE_TRACE_POST_SUCCESS(1, AssertionTypeStrict, "/type", "#/type", "");
 
   EVALUATE_TRACE_POST_DESCRIBE(instance, 0,
-                               "The object value was expected to define "
-                               "properties \"bar\", and \"foo\"");
+                               "The value was expected to be an object that "
+                               "defines properties \"bar\", and \"foo\"");
   EVALUATE_TRACE_POST_DESCRIBE(instance, 1,
                                "The value was expected to be of type object");
 }
@@ -379,20 +380,21 @@ TEST(Evaluator_draft4, required_5_exhaustive) {
 
   EVALUATE_WITH_TRACE_EXHAUSTIVE_SUCCESS(schema, instance, 3);
 
-  EVALUATE_TRACE_PRE(0, AssertionDefinesAll, "/required", "#/required", "");
+  EVALUATE_TRACE_PRE(0, AssertionDefinesAllStrict, "/required", "#/required",
+                     "");
   EVALUATE_TRACE_PRE(1, LoopPropertiesExcept, "/additionalProperties",
                      "#/additionalProperties", "");
   EVALUATE_TRACE_PRE(2, AssertionTypeStrict, "/type", "#/type", "");
 
-  EVALUATE_TRACE_POST_SUCCESS(0, AssertionDefinesAll, "/required", "#/required",
-                              "");
+  EVALUATE_TRACE_POST_SUCCESS(0, AssertionDefinesAllStrict, "/required",
+                              "#/required", "");
   EVALUATE_TRACE_POST_SUCCESS(1, LoopPropertiesExcept, "/additionalProperties",
                               "#/additionalProperties", "");
   EVALUATE_TRACE_POST_SUCCESS(2, AssertionTypeStrict, "/type", "#/type", "");
 
   EVALUATE_TRACE_POST_DESCRIBE(instance, 0,
-                               "The object value was expected to define "
-                               "properties \"bar\", and \"foo\"");
+                               "The value was expected to be an object that "
+                               "defines properties \"bar\", and \"foo\"");
   EVALUATE_TRACE_POST_DESCRIBE(
       instance, 1,
       "The object value was not expected to define additional properties");
@@ -4781,6 +4783,78 @@ TEST(Evaluator_draft4, enum_19_exhaustive) {
   EVALUATE_TRACE_POST_DESCRIBE(instance, 0,
                                "The value was expected to be an object that "
                                "defines the property \"bar\"");
+  EVALUATE_TRACE_POST_DESCRIBE(instance, 1,
+                               "The object value was expected to validate "
+                               "against the single defined property subschema");
+}
+
+TEST(Evaluator_draft4, enum_20) {
+  const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
+    "$schema": "http://json-schema.org/draft-04/schema#",
+    "properties": {
+      "foo": {
+        "type": "object",
+        "required": [ "bar", "baz" ],
+        "properties": {
+          "bar": {
+            "enum": [ "qux" ]
+          }
+        }
+      }
+    }
+  })JSON")};
+
+  const sourcemeta::core::JSON instance{sourcemeta::core::parse_json(R"JSON({
+    "foo": "bar"
+  })JSON")};
+
+  EVALUATE_WITH_TRACE_FAST_FAILURE(schema, instance, 1);
+
+  EVALUATE_TRACE_PRE(0, AssertionDefinesAllStrict, "/properties/foo/required",
+                     "#/properties/foo/required", "/foo");
+  EVALUATE_TRACE_POST_FAILURE(0, AssertionDefinesAllStrict,
+                              "/properties/foo/required",
+                              "#/properties/foo/required", "/foo");
+
+  EVALUATE_TRACE_POST_DESCRIBE(instance, 0,
+                               "The value was expected to be an object that "
+                               "defines properties \"bar\", and \"baz\"");
+}
+
+TEST(Evaluator_draft4, enum_20_exhaustive) {
+  const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
+    "$schema": "http://json-schema.org/draft-04/schema#",
+    "properties": {
+      "foo": {
+        "type": "object",
+        "required": [ "bar", "baz" ],
+        "properties": {
+          "bar": {
+            "enum": [ "qux" ]
+          }
+        }
+      }
+    }
+  })JSON")};
+
+  const sourcemeta::core::JSON instance{sourcemeta::core::parse_json(R"JSON({
+    "foo": "bar"
+  })JSON")};
+
+  EVALUATE_WITH_TRACE_EXHAUSTIVE_FAILURE(schema, instance, 2);
+
+  EVALUATE_TRACE_PRE(0, LogicalAnd, "/properties", "#/properties", "");
+  EVALUATE_TRACE_PRE(1, AssertionDefinesAllStrict, "/properties/foo/required",
+                     "#/properties/foo/required", "/foo");
+
+  EVALUATE_TRACE_POST_FAILURE(0, AssertionDefinesAllStrict,
+                              "/properties/foo/required",
+                              "#/properties/foo/required", "/foo");
+  EVALUATE_TRACE_POST_FAILURE(1, LogicalAnd, "/properties", "#/properties", "");
+
+  EVALUATE_TRACE_POST_DESCRIBE(instance, 0,
+                               "The value was expected to be an object that "
+                               "defines properties \"bar\", and \"baz\"");
   EVALUATE_TRACE_POST_DESCRIBE(instance, 1,
                                "The object value was expected to validate "
                                "against the single defined property subschema");
