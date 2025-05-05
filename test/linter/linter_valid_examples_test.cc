@@ -272,3 +272,29 @@ TEST(Linter, valid_examples_8) {
 
   EXPECT_EQ(schema, expected);
 }
+
+TEST(Linter, valid_examples_9) {
+  sourcemeta::core::SchemaTransformer bundle;
+  bundle.add<sourcemeta::blaze::ValidDefault>(
+      sourcemeta::blaze::default_schema_compiler);
+
+  auto schema{sourcemeta::core::parse_json(R"JSON({
+    "$schema": "http://json-schema.org/draft-07/schema#",
+    "additionalProperties": false,
+    "examples": [ {} ]
+  })JSON")};
+
+  const auto result =
+      bundle.apply(schema, sourcemeta::core::schema_official_walker,
+                   sourcemeta::core::schema_official_resolver);
+
+  EXPECT_TRUE(result);
+
+  const auto expected{sourcemeta::core::parse_json(R"JSON({
+    "$schema": "http://json-schema.org/draft-07/schema#",
+    "additionalProperties": false,
+    "examples": [ {} ]
+  })JSON")};
+
+  EXPECT_EQ(schema, expected);
+}
