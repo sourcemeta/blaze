@@ -58,13 +58,28 @@ auto SimpleOutput::operator()(
     // To ease the output
     if (keyword == "anyOf" || keyword == "oneOf" || keyword == "not" ||
         keyword == "if") {
-      this->mask.insert(evaluate_path);
+      this->mask.emplace(evaluate_path, true);
+    } else if (keyword == "contains") {
+      this->mask.emplace(evaluate_path, false);
     }
   } else if (type == EvaluationType::Post &&
              this->mask.contains(evaluate_path)) {
     this->mask.erase(evaluate_path);
-  } else if (type == EvaluationType::Post && !result &&
-             !this->annotations_.empty()) {
+  }
+
+  if (result) {
+    return;
+  }
+
+  if (std::any_of(this->mask.cbegin(), this->mask.cend(),
+                  [&evaluate_path](const auto &entry) {
+                    return evaluate_path.starts_with(entry.first) &&
+                           !entry.second;
+                  })) {
+    return;
+  }
+
+  if (type == EvaluationType::Post && !this->annotations_.empty()) {
     for (auto iterator = this->annotations_.begin();
          iterator != this->annotations_.end();) {
       if (iterator->first.evaluate_path.starts_with_initial(evaluate_path)) {
@@ -75,11 +90,10 @@ auto SimpleOutput::operator()(
     }
   }
 
-  // Ignore successful or masked steps
-  if (result || std::any_of(this->mask.cbegin(), this->mask.cend(),
-                            [&evaluate_path](const auto &entry) {
-                              return evaluate_path.starts_with(entry);
-                            })) {
+  if (std::any_of(this->mask.cbegin(), this->mask.cend(),
+                  [&evaluate_path](const auto &entry) {
+                    return evaluate_path.starts_with(entry.first);
+                  })) {
     return;
   }
 
