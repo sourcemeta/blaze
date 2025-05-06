@@ -46,7 +46,15 @@ auto SimpleOutput::operator()(
     if (type == EvaluationType::Post) {
       Location location{instance_location, std::move(effective_evaluate_path),
                         step.keyword_location};
-      this->annotations_[std::move(location)].push_back(annotation);
+      const auto match{this->annotations_.find(location)};
+      if (match == this->annotations_.cend()) {
+        this->annotations_[std::move(location)].push_back(annotation);
+
+        // To avoid emitting the exact same annotation more than once
+        // This is right now mostly because of `unevaluatedItems`
+      } else if (match->second.back() != annotation) {
+        match->second.push_back(annotation);
+      }
     }
 
     return;
