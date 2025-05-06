@@ -1209,6 +1209,167 @@ TEST(Evaluator_2020_12, contains_5_exhaustive) {
       "against the given subschema");
 }
 
+TEST(Evaluator_2020_12, contains_6) {
+  const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "contains": { "type": "boolean" }
+  })JSON")};
+
+  const sourcemeta::core::JSON instance{
+      sourcemeta::core::parse_json("[ true, 1, false, 2 ]")};
+  EVALUATE_WITH_TRACE_FAST_SUCCESS(schema, instance, 2);
+
+  EVALUATE_TRACE_PRE(0, LoopContains, "/contains", "#/contains", "");
+  EVALUATE_TRACE_PRE(1, AssertionTypeStrict, "/contains/type",
+                     "#/contains/type", "/0");
+
+  EVALUATE_TRACE_POST_SUCCESS(0, AssertionTypeStrict, "/contains/type",
+                              "#/contains/type", "/0");
+  EVALUATE_TRACE_POST_SUCCESS(1, LoopContains, "/contains", "#/contains", "");
+
+  EVALUATE_TRACE_POST_DESCRIBE(instance, 0,
+                               "The value was expected to be of type boolean");
+  EVALUATE_TRACE_POST_DESCRIBE(
+      instance, 1,
+      "The array value was expected to contain at least 1 item that validates "
+      "against the given subschema");
+}
+
+TEST(Evaluator_2020_12, contains_6_exhaustive) {
+  const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "contains": { "type": "boolean" }
+  })JSON")};
+
+  const sourcemeta::core::JSON instance{
+      sourcemeta::core::parse_json("[ true, 1, false, 2 ]")};
+  EVALUATE_WITH_TRACE_EXHAUSTIVE_SUCCESS(schema, instance, 7);
+
+  EVALUATE_TRACE_PRE(0, LoopContains, "/contains", "#/contains", "");
+  EVALUATE_TRACE_PRE(1, AssertionTypeStrict, "/contains/type",
+                     "#/contains/type", "/0");
+  EVALUATE_TRACE_PRE_ANNOTATION(2, "/contains", "#/contains", "");
+  EVALUATE_TRACE_PRE(3, AssertionTypeStrict, "/contains/type",
+                     "#/contains/type", "/1");
+  EVALUATE_TRACE_PRE(4, AssertionTypeStrict, "/contains/type",
+                     "#/contains/type", "/2");
+  EVALUATE_TRACE_PRE_ANNOTATION(5, "/contains", "#/contains", "");
+  EVALUATE_TRACE_PRE(6, AssertionTypeStrict, "/contains/type",
+                     "#/contains/type", "/3");
+
+  EVALUATE_TRACE_POST_SUCCESS(0, AssertionTypeStrict, "/contains/type",
+                              "#/contains/type", "/0");
+  EVALUATE_TRACE_POST_ANNOTATION(1, "/contains", "#/contains", "", 0);
+  EVALUATE_TRACE_POST_FAILURE(2, AssertionTypeStrict, "/contains/type",
+                              "#/contains/type", "/1");
+  EVALUATE_TRACE_POST_SUCCESS(3, AssertionTypeStrict, "/contains/type",
+                              "#/contains/type", "/2");
+  EVALUATE_TRACE_POST_ANNOTATION(4, "/contains", "#/contains", "", 2);
+  EVALUATE_TRACE_POST_FAILURE(5, AssertionTypeStrict, "/contains/type",
+                              "#/contains/type", "/3");
+  EVALUATE_TRACE_POST_SUCCESS(6, LoopContains, "/contains", "#/contains", "");
+
+  EVALUATE_TRACE_POST_DESCRIBE(instance, 0,
+                               "The value was expected to be of type boolean");
+  EVALUATE_TRACE_POST_DESCRIBE(
+      instance, 1,
+      "The item at index 0 of the array value successfully validated against "
+      "the containment check subschema");
+  EVALUATE_TRACE_POST_DESCRIBE(instance, 2,
+                               "The value was expected to be of type boolean "
+                               "but it was of type integer");
+  EVALUATE_TRACE_POST_DESCRIBE(instance, 3,
+                               "The value was expected to be of type boolean");
+  EVALUATE_TRACE_POST_DESCRIBE(
+      instance, 4,
+      "The item at index 2 of the array value successfully validated against "
+      "the containment check subschema");
+  EVALUATE_TRACE_POST_DESCRIBE(instance, 5,
+                               "The value was expected to be of type boolean "
+                               "but it was of type integer");
+  EVALUATE_TRACE_POST_DESCRIBE(
+      instance, 6,
+      "The array value was expected to contain at least 1 item that validates "
+      "against the given subschema");
+}
+
+TEST(Evaluator_2020_12, contains_7) {
+  const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "contains": { "type": "boolean" }
+  })JSON")};
+
+  const sourcemeta::core::JSON instance{
+      sourcemeta::core::parse_json("[ true, 1, false ]")};
+  EVALUATE_WITH_TRACE_FAST_SUCCESS(schema, instance, 2);
+
+  EVALUATE_TRACE_PRE(0, LoopContains, "/contains", "#/contains", "");
+  EVALUATE_TRACE_PRE(1, AssertionTypeStrict, "/contains/type",
+                     "#/contains/type", "/0");
+
+  EVALUATE_TRACE_POST_SUCCESS(0, AssertionTypeStrict, "/contains/type",
+                              "#/contains/type", "/0");
+  EVALUATE_TRACE_POST_SUCCESS(1, LoopContains, "/contains", "#/contains", "");
+
+  EVALUATE_TRACE_POST_DESCRIBE(instance, 0,
+                               "The value was expected to be of type boolean");
+  EVALUATE_TRACE_POST_DESCRIBE(
+      instance, 1,
+      "The array value was expected to contain at least 1 item that validates "
+      "against the given subschema");
+}
+
+TEST(Evaluator_2020_12, contains_7_exhaustive) {
+  const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "contains": { "type": "boolean" }
+  })JSON")};
+
+  const sourcemeta::core::JSON instance{
+      sourcemeta::core::parse_json("[ true, 1, false ]")};
+  EVALUATE_WITH_TRACE_EXHAUSTIVE_SUCCESS(schema, instance, 6);
+
+  EVALUATE_TRACE_PRE(0, LoopContains, "/contains", "#/contains", "");
+  EVALUATE_TRACE_PRE(1, AssertionTypeStrict, "/contains/type",
+                     "#/contains/type", "/0");
+  EVALUATE_TRACE_PRE_ANNOTATION(2, "/contains", "#/contains", "");
+  EVALUATE_TRACE_PRE(3, AssertionTypeStrict, "/contains/type",
+                     "#/contains/type", "/1");
+  EVALUATE_TRACE_PRE(4, AssertionTypeStrict, "/contains/type",
+                     "#/contains/type", "/2");
+  EVALUATE_TRACE_PRE_ANNOTATION(5, "/contains", "#/contains", "");
+
+  EVALUATE_TRACE_POST_SUCCESS(0, AssertionTypeStrict, "/contains/type",
+                              "#/contains/type", "/0");
+  EVALUATE_TRACE_POST_ANNOTATION(1, "/contains", "#/contains", "", 0);
+  EVALUATE_TRACE_POST_FAILURE(2, AssertionTypeStrict, "/contains/type",
+                              "#/contains/type", "/1");
+  EVALUATE_TRACE_POST_SUCCESS(3, AssertionTypeStrict, "/contains/type",
+                              "#/contains/type", "/2");
+  EVALUATE_TRACE_POST_ANNOTATION(4, "/contains", "#/contains", "", 2);
+  EVALUATE_TRACE_POST_SUCCESS(5, LoopContains, "/contains", "#/contains", "");
+
+  EVALUATE_TRACE_POST_DESCRIBE(instance, 0,
+                               "The value was expected to be of type boolean");
+  EVALUATE_TRACE_POST_DESCRIBE(
+      instance, 1,
+      "The item at index 0 of the array value successfully validated against "
+      "the containment check subschema");
+  EVALUATE_TRACE_POST_DESCRIBE(instance, 2,
+                               "The value was expected to be of type boolean "
+                               "but it was of type integer");
+  EVALUATE_TRACE_POST_DESCRIBE(instance, 3,
+                               "The value was expected to be of type boolean");
+  EVALUATE_TRACE_POST_DESCRIBE(
+      instance, 4,
+      "The item at index 2 of the array value successfully validated against "
+      "the containment check subschema");
+  EVALUATE_TRACE_POST_DESCRIBE(
+      instance, 5,
+      "The array value was expected to contain at least 1 item that validates "
+      "against the given subschema");
+}
+
 TEST(Evaluator_2020_12, reference_from_unknown_keyword) {
   const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2020-12/schema",
