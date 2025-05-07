@@ -1880,6 +1880,200 @@ TEST(Evaluator_2020_12, unevaluatedItems_4_exhaustive) {
                                "described by related keywords");
 }
 
+TEST(Evaluator_2020_12, unevaluatedItems_5) {
+  const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "contains": { "type": "boolean" },
+    "unevaluatedItems": { "type": "number" }
+  })JSON")};
+
+  const sourcemeta::core::JSON instance{
+      sourcemeta::core::parse_json("[ true, 1, false, 2 ]")};
+
+  EVALUATE_WITH_TRACE_FAST_SUCCESS(schema, instance, 10);
+
+  EVALUATE_TRACE_PRE(0, LoopContains, "/contains", "#/contains", "");
+  EVALUATE_TRACE_PRE(1, AssertionTypeStrict, "/contains/type",
+                     "#/contains/type", "/0");
+
+  // TODO: Avoid emitting these additional confusing evaluation traces
+  EVALUATE_TRACE_PRE(2, ControlEvaluate, "/contains", "#/contains", "/0");
+
+  EVALUATE_TRACE_PRE(3, AssertionTypeStrict, "/contains/type",
+                     "#/contains/type", "/1");
+  EVALUATE_TRACE_PRE(4, AssertionTypeStrict, "/contains/type",
+                     "#/contains/type", "/2");
+
+  // TODO: Avoid emitting these additional confusing evaluation traces
+  EVALUATE_TRACE_PRE(5, ControlEvaluate, "/contains", "#/contains", "/2");
+
+  EVALUATE_TRACE_PRE(6, AssertionTypeStrict, "/contains/type",
+                     "#/contains/type", "/3");
+  EVALUATE_TRACE_PRE(7, LoopItemsUnevaluated, "/unevaluatedItems",
+                     "#/unevaluatedItems", "");
+  EVALUATE_TRACE_PRE(8, AssertionTypeStrictAny, "/unevaluatedItems/type",
+                     "#/unevaluatedItems/type", "/1");
+  EVALUATE_TRACE_PRE(9, AssertionTypeStrictAny, "/unevaluatedItems/type",
+                     "#/unevaluatedItems/type", "/3");
+
+  EVALUATE_TRACE_POST_SUCCESS(0, AssertionTypeStrict, "/contains/type",
+                              "#/contains/type", "/0");
+  EVALUATE_TRACE_POST_SUCCESS(1, ControlEvaluate, "/contains", "#/contains",
+                              "/0");
+  EVALUATE_TRACE_POST_FAILURE(2, AssertionTypeStrict, "/contains/type",
+                              "#/contains/type", "/1");
+  EVALUATE_TRACE_POST_SUCCESS(3, AssertionTypeStrict, "/contains/type",
+                              "#/contains/type", "/2");
+  EVALUATE_TRACE_POST_SUCCESS(4, ControlEvaluate, "/contains", "#/contains",
+                              "/2");
+  EVALUATE_TRACE_POST_FAILURE(5, AssertionTypeStrict, "/contains/type",
+                              "#/contains/type", "/3");
+  EVALUATE_TRACE_POST_SUCCESS(6, LoopContains, "/contains", "#/contains", "");
+  EVALUATE_TRACE_POST_SUCCESS(7, AssertionTypeStrictAny,
+                              "/unevaluatedItems/type",
+                              "#/unevaluatedItems/type", "/1");
+  EVALUATE_TRACE_POST_SUCCESS(8, AssertionTypeStrictAny,
+                              "/unevaluatedItems/type",
+                              "#/unevaluatedItems/type", "/3");
+  EVALUATE_TRACE_POST_SUCCESS(9, LoopItemsUnevaluated, "/unevaluatedItems",
+                              "#/unevaluatedItems", "");
+
+  EVALUATE_TRACE_POST_DESCRIBE(instance, 0,
+                               "The value was expected to be of type boolean");
+  EVALUATE_TRACE_POST_DESCRIBE(instance, 1,
+                               "The instance location was marked as evaluated");
+  EVALUATE_TRACE_POST_DESCRIBE(instance, 2,
+                               "The value was expected to be of type boolean "
+                               "but it was of type integer");
+  EVALUATE_TRACE_POST_DESCRIBE(instance, 3,
+                               "The value was expected to be of type boolean");
+  EVALUATE_TRACE_POST_DESCRIBE(instance, 4,
+                               "The instance location was marked as evaluated");
+  EVALUATE_TRACE_POST_DESCRIBE(instance, 5,
+                               "The value was expected to be of type boolean "
+                               "but it was of type integer");
+  EVALUATE_TRACE_POST_DESCRIBE(
+      instance, 6,
+      "The array value was expected to contain at least 1 item that validates "
+      "against the given subschema");
+  EVALUATE_TRACE_POST_DESCRIBE(instance, 7,
+                               "The value was expected to be of type number");
+  EVALUATE_TRACE_POST_DESCRIBE(instance, 8,
+                               "The value was expected to be of type number");
+  EVALUATE_TRACE_POST_DESCRIBE(
+      instance, 9,
+      "The array items not covered by other array keywords, if any, were "
+      "expected to validate against this subschema");
+}
+
+TEST(Evaluator_2020_12, unevaluatedItems_5_exhaustive) {
+  const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "contains": { "type": "boolean" },
+    "unevaluatedItems": { "type": "number" }
+  })JSON")};
+
+  const sourcemeta::core::JSON instance{
+      sourcemeta::core::parse_json("[ true, 1, false, 2 ]")};
+
+  EVALUATE_WITH_TRACE_EXHAUSTIVE_SUCCESS(schema, instance, 14);
+
+  EVALUATE_TRACE_PRE(0, LoopContains, "/contains", "#/contains", "");
+  EVALUATE_TRACE_PRE(1, AssertionTypeStrict, "/contains/type",
+                     "#/contains/type", "/0");
+  EVALUATE_TRACE_PRE_ANNOTATION(2, "/contains", "#/contains", "");
+  EVALUATE_TRACE_PRE(3, ControlEvaluate, "/contains", "#/contains", "/0");
+  EVALUATE_TRACE_PRE(4, AssertionTypeStrict, "/contains/type",
+                     "#/contains/type", "/1");
+  EVALUATE_TRACE_PRE(5, AssertionTypeStrict, "/contains/type",
+                     "#/contains/type", "/2");
+  EVALUATE_TRACE_PRE_ANNOTATION(6, "/contains", "#/contains", "");
+  EVALUATE_TRACE_PRE(7, ControlEvaluate, "/contains", "#/contains", "/2");
+  EVALUATE_TRACE_PRE(8, AssertionTypeStrict, "/contains/type",
+                     "#/contains/type", "/3");
+  EVALUATE_TRACE_PRE(9, LoopItemsUnevaluated, "/unevaluatedItems",
+                     "#/unevaluatedItems", "");
+  EVALUATE_TRACE_PRE(10, AssertionTypeStrictAny, "/unevaluatedItems/type",
+                     "#/unevaluatedItems/type", "/1");
+  EVALUATE_TRACE_PRE(11, AnnotationToParent, "/unevaluatedItems",
+                     "#/unevaluatedItems", "");
+  EVALUATE_TRACE_PRE(12, AssertionTypeStrictAny, "/unevaluatedItems/type",
+                     "#/unevaluatedItems/type", "/3");
+  EVALUATE_TRACE_PRE(13, AnnotationToParent, "/unevaluatedItems",
+                     "#/unevaluatedItems", "");
+
+  EVALUATE_TRACE_POST_SUCCESS(0, AssertionTypeStrict, "/contains/type",
+                              "#/contains/type", "/0");
+  EVALUATE_TRACE_POST_ANNOTATION(1, "/contains", "#/contains", "", 0);
+  EVALUATE_TRACE_POST_SUCCESS(2, ControlEvaluate, "/contains", "#/contains",
+                              "/0");
+  EVALUATE_TRACE_POST_FAILURE(3, AssertionTypeStrict, "/contains/type",
+                              "#/contains/type", "/1");
+  EVALUATE_TRACE_POST_SUCCESS(4, AssertionTypeStrict, "/contains/type",
+                              "#/contains/type", "/2");
+  EVALUATE_TRACE_POST_ANNOTATION(5, "/contains", "#/contains", "", 2);
+  EVALUATE_TRACE_POST_SUCCESS(6, ControlEvaluate, "/contains", "#/contains",
+                              "/2");
+  EVALUATE_TRACE_POST_FAILURE(7, AssertionTypeStrict, "/contains/type",
+                              "#/contains/type", "/3");
+  EVALUATE_TRACE_POST_SUCCESS(8, LoopContains, "/contains", "#/contains", "");
+  EVALUATE_TRACE_POST_SUCCESS(9, AssertionTypeStrictAny,
+                              "/unevaluatedItems/type",
+                              "#/unevaluatedItems/type", "/1");
+  EVALUATE_TRACE_POST_ANNOTATION(10, "/unevaluatedItems", "#/unevaluatedItems",
+                                 "", true);
+  EVALUATE_TRACE_POST_SUCCESS(11, AssertionTypeStrictAny,
+                              "/unevaluatedItems/type",
+                              "#/unevaluatedItems/type", "/3");
+  EVALUATE_TRACE_POST_ANNOTATION(12, "/unevaluatedItems", "#/unevaluatedItems",
+                                 "", true);
+  EVALUATE_TRACE_POST_SUCCESS(13, LoopItemsUnevaluated, "/unevaluatedItems",
+                              "#/unevaluatedItems", "");
+
+  EVALUATE_TRACE_POST_DESCRIBE(instance, 0,
+                               "The value was expected to be of type boolean");
+  EVALUATE_TRACE_POST_DESCRIBE(
+      instance, 1,
+      "The item at index 0 of the array value successfully validated against "
+      "the containment check subschema");
+  EVALUATE_TRACE_POST_DESCRIBE(instance, 2,
+                               "The instance location was marked as evaluated");
+  EVALUATE_TRACE_POST_DESCRIBE(instance, 3,
+                               "The value was expected to be of type boolean "
+                               "but it was of type integer");
+  EVALUATE_TRACE_POST_DESCRIBE(instance, 4,
+                               "The value was expected to be of type boolean");
+  EVALUATE_TRACE_POST_DESCRIBE(
+      instance, 5,
+      "The item at index 2 of the array value successfully validated against "
+      "the containment check subschema");
+  EVALUATE_TRACE_POST_DESCRIBE(instance, 6,
+                               "The instance location was marked as evaluated");
+  EVALUATE_TRACE_POST_DESCRIBE(instance, 7,
+                               "The value was expected to be of type boolean "
+                               "but it was of type integer");
+  EVALUATE_TRACE_POST_DESCRIBE(
+      instance, 8,
+      "The array value was expected to contain at least 1 item that validates "
+      "against the given subschema");
+  EVALUATE_TRACE_POST_DESCRIBE(instance, 9,
+                               "The value was expected to be of type number");
+  EVALUATE_TRACE_POST_DESCRIBE(
+      instance, 10,
+      "At least one item of the array value successfully validated against the "
+      "subschema for unevaluated items");
+  EVALUATE_TRACE_POST_DESCRIBE(instance, 11,
+                               "The value was expected to be of type number");
+  EVALUATE_TRACE_POST_DESCRIBE(
+      instance, 12,
+      "At least one item of the array value successfully validated against the "
+      "subschema for unevaluated items");
+  EVALUATE_TRACE_POST_DESCRIBE(
+      instance, 13,
+      "The array items not covered by other array keywords, if any, were "
+      "expected to validate against this subschema");
+}
+
 TEST(Evaluator_2020_12, unevaluatedProperties_1) {
   const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2020-12/schema",
