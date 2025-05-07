@@ -71,11 +71,7 @@ auto SimpleOutput::operator()(
       this->mask.emplace(evaluate_path, false);
     }
   } else if (type == EvaluationType::Post &&
-             this->mask.contains(evaluate_path) &&
-
-             // TODO: We only have to do this because "contains" emits this
-             // instructions, when it should not
-             step.type != InstructionIndex::ControlEvaluate) {
+             this->mask.contains(evaluate_path)) {
     this->mask.erase(evaluate_path);
   }
 
