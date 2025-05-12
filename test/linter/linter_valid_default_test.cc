@@ -5,6 +5,13 @@
 #include <sourcemeta/core/json.h>
 #include <sourcemeta/core/jsonschema.h>
 
+static auto transformer_callback_error(const sourcemeta::core::Pointer &,
+                                       const std::string_view,
+                                       const std::string_view,
+                                       const std::string_view) -> void {
+  throw std::runtime_error("The transform callback must not be called");
+}
+
 TEST(Linter, valid_default_error_message) {
   sourcemeta::core::SchemaTransformer bundle;
   bundle.add<sourcemeta::blaze::ValidDefault>(
@@ -57,9 +64,9 @@ TEST(Linter, valid_default_1) {
     "type": "string"
   })JSON")};
 
-  const auto result =
-      bundle.apply(schema, sourcemeta::core::schema_official_walker,
-                   sourcemeta::core::schema_official_resolver);
+  const auto result = bundle.apply(
+      schema, sourcemeta::core::schema_official_walker,
+      sourcemeta::core::schema_official_resolver, transformer_callback_error);
 
   EXPECT_TRUE(result);
 
@@ -87,9 +94,9 @@ TEST(Linter, valid_default_2) {
     }
   })JSON")};
 
-  const auto result =
-      bundle.apply(schema, sourcemeta::core::schema_official_walker,
-                   sourcemeta::core::schema_official_resolver);
+  const auto result = bundle.apply(
+      schema, sourcemeta::core::schema_official_walker,
+      sourcemeta::core::schema_official_resolver, transformer_callback_error);
 
   EXPECT_TRUE(result);
 
@@ -123,9 +130,9 @@ TEST(Linter, valid_default_3) {
     }
   })JSON")};
 
-  const auto result =
-      bundle.apply(schema, sourcemeta::core::schema_official_walker,
-                   sourcemeta::core::schema_official_resolver);
+  const auto result = bundle.apply(
+      schema, sourcemeta::core::schema_official_walker,
+      sourcemeta::core::schema_official_resolver, transformer_callback_error);
 
   EXPECT_TRUE(result);
 
@@ -157,9 +164,9 @@ TEST(Linter, valid_default_4) {
     }
   })JSON")};
 
-  const auto result =
-      bundle.apply(schema, sourcemeta::core::schema_official_walker,
-                   sourcemeta::core::schema_official_resolver);
+  const auto result = bundle.apply(
+      schema, sourcemeta::core::schema_official_walker,
+      sourcemeta::core::schema_official_resolver, transformer_callback_error);
 
   EXPECT_TRUE(result);
 
@@ -191,9 +198,9 @@ TEST(Linter, valid_default_5) {
     }
   })JSON")};
 
-  const auto result =
-      bundle.apply(schema, sourcemeta::core::schema_official_walker,
-                   sourcemeta::core::schema_official_resolver);
+  const auto result = bundle.apply(
+      schema, sourcemeta::core::schema_official_walker,
+      sourcemeta::core::schema_official_resolver, transformer_callback_error);
 
   EXPECT_TRUE(result);
 
@@ -225,9 +232,9 @@ TEST(Linter, valid_default_6) {
     }
   })JSON")};
 
-  const auto result =
-      bundle.apply(schema, sourcemeta::core::schema_official_walker,
-                   sourcemeta::core::schema_official_resolver);
+  const auto result = bundle.apply(
+      schema, sourcemeta::core::schema_official_walker,
+      sourcemeta::core::schema_official_resolver, transformer_callback_error);
 
   EXPECT_TRUE(result);
 
@@ -259,9 +266,9 @@ TEST(Linter, valid_default_7) {
     }
   })JSON")};
 
-  const auto result =
-      bundle.apply(schema, sourcemeta::core::schema_official_walker,
-                   sourcemeta::core::schema_official_resolver);
+  const auto result = bundle.apply(
+      schema, sourcemeta::core::schema_official_walker,
+      sourcemeta::core::schema_official_resolver, transformer_callback_error);
 
   EXPECT_TRUE(result);
 
@@ -288,9 +295,9 @@ TEST(Linter, valid_default_8) {
     "default": {}
   })JSON")};
 
-  const auto result =
-      bundle.apply(schema, sourcemeta::core::schema_official_walker,
-                   sourcemeta::core::schema_official_resolver);
+  const auto result = bundle.apply(
+      schema, sourcemeta::core::schema_official_walker,
+      sourcemeta::core::schema_official_resolver, transformer_callback_error);
 
   EXPECT_TRUE(result);
 
