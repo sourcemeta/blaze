@@ -13,6 +13,12 @@ Schema Draft 4, Draft 6, Draft 7, 2019-09, and 2020-12.
 ![Draft 6](https://img.shields.io/endpoint?url=https%3A%2F%2Fbowtie.report%2Fbadges%2Fc%2B%2B-blaze%2Fcompliance%2Fdraft6.json)
 ![Draft 4](https://img.shields.io/endpoint?url=https%3A%2F%2Fbowtie.report%2Fbadges%2Fc%2B%2B-blaze%2Fcompliance%2Fdraft4.json)
 
+Want to use Blaze without writing C++? Check out our [JSON Schema
+CLI](https://github.com/sourcemeta/jsonschema), which is powered by Blaze, and
+offers advanced functionality like [`validate
+--trace`](https://github.com/sourcemeta/jsonschema/blob/main/docs/validate.markdown)
+for debugging schema evaluation.
+
 Benchmark
 ---------
 
