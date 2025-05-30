@@ -1,4 +1,5 @@
 #include <sourcemeta/core/jsonschema.h>
+#include <sourcemeta/core/uri.h>
 
 #include <cassert>   // assert
 #include <set>       // std::set

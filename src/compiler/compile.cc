@@ -108,14 +108,12 @@ auto compile(const sourcemeta::core::JSON &schema,
              const std::optional<std::string> &default_dialect) -> Template {
   assert(is_schema(schema));
 
-  const std::string base{sourcemeta::core::URI{
+  const std::string base{sourcemeta::core::URI::canonicalize(
       sourcemeta::core::identify(
           schema, resolver,
           sourcemeta::core::SchemaIdentificationStrategy::Strict,
           default_dialect)
-          .value_or("")}
-                             .canonicalize()
-                             .recompose()};
+          .value_or(""))};
 
   assert(frame.locations().contains(
       {sourcemeta::core::SchemaReferenceType::Static, base}));
@@ -137,7 +135,7 @@ auto compile(const sourcemeta::core::JSON &schema,
       sourcemeta::core::empty_pointer,
       schema,
       vocabularies(schema, resolver, root_frame_entry.dialect),
-      sourcemeta::core::URI{root_frame_entry.base}.canonicalize().recompose(),
+      sourcemeta::core::URI::canonicalize(root_frame_entry.base),
       {},
       {}};
 
@@ -295,7 +293,7 @@ auto compile(const Context &context, const SchemaContext &schema_context,
   // Determine URI of the destination after recursion
   const std::string destination{
       uri.has_value()
-          ? sourcemeta::core::URI{uri.value()}.canonicalize().recompose()
+          ? sourcemeta::core::URI::canonicalize(uri.value())
           : to_uri(schema_context.relative_pointer.concat(schema_suffix),
                    schema_context.base)
                 .canonicalize()
