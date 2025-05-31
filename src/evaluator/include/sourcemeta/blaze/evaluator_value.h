@@ -4,7 +4,6 @@
 #include <sourcemeta/core/json.h>
 #include <sourcemeta/core/jsonpointer.h>
 #include <sourcemeta/core/regex.h>
-#include <sourcemeta/core/uri.h>
 
 #include <sourcemeta/blaze/evaluator_string_set.h>
 
