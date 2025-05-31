@@ -2119,12 +2119,12 @@ TEST(Evaluator_draft4, patternProperties_11) {
                      "#/patternProperties", "");
   EVALUATE_TRACE_PRE(1, AssertionTypeStrict, "/patternProperties/^[a-z]+$/type",
                      // Note that the caret needs to be URI escaped
-                     "#/patternProperties/%5E%5Ba-z%5D%2B$/type", "/foo");
+                     "#/patternProperties/%5E%5Ba-z%5D+$/type", "/foo");
 
   EVALUATE_TRACE_POST_SUCCESS(
       0, AssertionTypeStrict, "/patternProperties/^[a-z]+$/type",
       // Note that the caret needs to be URI escaped
-      "#/patternProperties/%5E%5Ba-z%5D%2B$/type", "/foo");
+      "#/patternProperties/%5E%5Ba-z%5D+$/type", "/foo");
   EVALUATE_TRACE_POST_SUCCESS(1, LoopPropertiesRegexClosed,
                               "/patternProperties", "#/patternProperties", "");
 
@@ -2153,14 +2153,14 @@ TEST(Evaluator_draft4, patternProperties_11_exhaustive) {
                      "#/patternProperties", "");
   EVALUATE_TRACE_PRE(1, AssertionTypeStrict, "/patternProperties/^[a-z]+$/type",
                      // Note that the caret needs to be URI escaped
-                     "#/patternProperties/%5E%5Ba-z%5D%2B$/type", "/foo");
+                     "#/patternProperties/%5E%5Ba-z%5D+$/type", "/foo");
   EVALUATE_TRACE_PRE(2, LoopPropertiesExcept, "/additionalProperties",
                      "#/additionalProperties", "");
 
   EVALUATE_TRACE_POST_SUCCESS(
       0, AssertionTypeStrict, "/patternProperties/^[a-z]+$/type",
       // Note that the caret needs to be URI escaped
-      "#/patternProperties/%5E%5Ba-z%5D%2B$/type", "/foo");
+      "#/patternProperties/%5E%5Ba-z%5D+$/type", "/foo");
   EVALUATE_TRACE_POST_SUCCESS(1, LoopPropertiesRegex, "/patternProperties",
                               "#/patternProperties", "");
   EVALUATE_TRACE_POST_SUCCESS(2, LoopPropertiesExcept, "/additionalProperties",
@@ -2196,12 +2196,12 @@ TEST(Evaluator_draft4, patternProperties_12) {
     EVALUATE_TRACE_PRE(1, AssertionTypeStrict,
                        "/patternProperties/^[a-z]+$/type",
                        // Note that the caret needs to be URI escaped
-                       "#/patternProperties/%5E%5Ba-z%5D%2B$/type", "/foo");
+                       "#/patternProperties/%5E%5Ba-z%5D+$/type", "/foo");
 
     EVALUATE_TRACE_POST_SUCCESS(
         0, AssertionTypeStrict, "/patternProperties/^[a-z]+$/type",
         // Note that the caret needs to be URI escaped
-        "#/patternProperties/%5E%5Ba-z%5D%2B$/type", "/foo");
+        "#/patternProperties/%5E%5Ba-z%5D+$/type", "/foo");
     EVALUATE_TRACE_POST_FAILURE(1, LoopPropertiesRegexClosed,
                                 "/patternProperties", "#/patternProperties",
                                 "");

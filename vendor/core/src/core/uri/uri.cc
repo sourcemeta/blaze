@@ -634,4 +634,8 @@ auto URI::operator<(const URI &other) const noexcept -> bool {
                   other.path_, other.query_, other.fragment_);
 }
 
+auto URI::canonicalize(const std::string &input) -> std::string {
+  return URI{input}.canonicalize().recompose();
+}
+
 } // namespace sourcemeta::core

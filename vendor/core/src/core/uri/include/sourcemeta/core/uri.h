@@ -7,13 +7,12 @@
 
 // NOLINTBEGIN(misc-include-cleaner)
 #include <sourcemeta/core/uri_error.h>
+#include <sourcemeta/core/uri_escape.h>
 // NOLINTEND(misc-include-cleaner)
 
 #include <cstdint>     // std::uint32_t
-#include <istream>     // std::istream
 #include <memory>      // std::unique_ptr
 #include <optional>    // std::optional
-#include <ostream>     // std::ostream
 #include <span>        // std::span
 #include <string>      // std::string
 #include <string_view> // std::string_view
@@ -271,7 +270,7 @@ public:
   [[nodiscard]] auto recompose_without_fragment() const
       -> std::optional<std::string>;
 
-  /// Recompose and canonicalize a URI. For example:
+  /// Canonicalize a URI. For example:
   ///
   /// ```cpp
   /// #include <sourcemeta/core/uri.h>
@@ -344,48 +343,6 @@ public:
   /// ```
   auto rebase(const URI &base, const URI &new_base) -> URI &;
 
-  /// Escape a string as established by RFC 3986 using C++ standard stream. For
-  /// example:
-  ///
-  /// ```cpp
-  /// #include <sourcemeta/core/uri.h>
-  /// #include <sstream>
-  /// #include <cassert>
-  ///
-  /// std::istringstream input{"foo bar"};
-  /// std::ostringstream output;
-  /// sourcemeta::core::URI::escape(input, output);
-  /// assert(output.str() == "foo%20bar");
-  /// ```
-  static auto escape(std::istream &input, std::ostream &output) -> void;
-
-  /// Unescape a string that has been percentage-escaped as established by
-  /// RFC 3986 using C++ standard streams. For example:
-  ///
-  /// ```cpp
-  /// #include <sourcemeta/core/uri.h>
-  /// #include <sstream>
-  /// #include <cassert>
-  ///
-  /// std::istringstream input{"foo%20bar"};
-  /// std::ostringstream output;
-  /// sourcemeta::core::URI::unescape(input, output);
-  /// assert(output.str() == "foo bar");
-  /// ```
-  static auto unescape(std::istream &input, std::ostream &output) -> void;
-
-  /// Create a URI from a fragment. For example:
-  ///
-  /// ```cpp
-  /// #include <sourcemeta/core/uri.h>
-  /// #include <cassert>
-  ///
-  /// const sourcemeta::core::URI uri{
-  ///   sourcemeta::core::URI::from_fragment("foo")};
-  /// assert(uri.recompose() == "#foo");
-  /// ```
-  static auto from_fragment(std::string_view fragment) -> URI;
-
   /// Get the user information part of the URI, if any. For example:
   ///
   /// ```cpp
@@ -407,6 +364,31 @@ public:
 
   /// To support ordering of URIs
   auto operator<(const URI &other) const noexcept -> bool;
+
+  /// Create a URI from a fragment. For example:
+  ///
+  /// ```cpp
+  /// #include <sourcemeta/core/uri.h>
+  /// #include <cassert>
+  ///
+  /// const sourcemeta::core::URI uri{
+  ///   sourcemeta::core::URI::from_fragment("foo")};
+  /// assert(uri.recompose() == "#foo");
+  /// ```
+  static auto from_fragment(std::string_view fragment) -> URI;
+
+  /// A convenient method to canonicalize and recompose a URI from a string. For
+  /// example:
+  ///
+  /// ```cpp
+  /// #include <sourcemeta/core/uri.h>
+  /// #include <cassert>
+  ///
+  /// const auto result{
+  ///   sourcemeta::core::URI::canonicalize("hTtP://exAmpLe.com:80/TEST")};
+  /// assert(result == "http://example.com/TEST");
+  /// ```
+  static auto canonicalize(const std::string &input) -> std::string;
 
 private:
   bool parsed = false;
