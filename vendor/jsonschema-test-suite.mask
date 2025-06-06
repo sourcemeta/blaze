@@ -16,3 +16,8 @@ remotes/name-defs.json
 remotes/ref-and-defs.json
 remotes/tree.json
 remotes/extendible-dynamic-ref.json
+annotations/assertion.schema.json
+annotations/README.md
+annotations/test-case.schema.json
+annotations/test-suite.schema.json
+annotations/test.schema.json

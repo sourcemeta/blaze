@@ -33,3 +33,15 @@ target_link_libraries(sourcemeta_blaze_evaluator_official_suite_unit PRIVATE sou
 target_link_libraries(sourcemeta_blaze_evaluator_official_suite_unit PRIVATE sourcemeta::core::jsonschema)
 target_link_libraries(sourcemeta_blaze_evaluator_official_suite_unit PRIVATE sourcemeta::blaze::compiler)
 target_link_libraries(sourcemeta_blaze_evaluator_official_suite_unit PRIVATE sourcemeta::blaze::evaluator)
+
+# JSON Schema Test Suite (annotations)
+# See https://github.com/json-schema-org/JSON-Schema-Test-Suite/tree/main/annotations
+sourcemeta_googletest(NAMESPACE sourcemeta PROJECT blaze NAME evaluator_annotation_suite
+  FOLDER "Blaze/Evaluator" SOURCES annotationsuite.cc)
+target_compile_definitions(sourcemeta_blaze_evaluator_annotation_suite_unit
+  PRIVATE ANNOTATION_SUITE_PATH="${PROJECT_SOURCE_DIR}/vendor/jsonschema-test-suite/annotations/tests")
+target_link_libraries(sourcemeta_blaze_evaluator_annotation_suite_unit PRIVATE sourcemeta::core::json)
+target_link_libraries(sourcemeta_blaze_evaluator_annotation_suite_unit PRIVATE sourcemeta::core::jsonschema)
+target_link_libraries(sourcemeta_blaze_evaluator_annotation_suite_unit PRIVATE sourcemeta::core::jsonpointer)
+target_link_libraries(sourcemeta_blaze_evaluator_annotation_suite_unit PRIVATE sourcemeta::blaze::compiler)
+target_link_libraries(sourcemeta_blaze_evaluator_annotation_suite_unit PRIVATE sourcemeta::blaze::evaluator)
