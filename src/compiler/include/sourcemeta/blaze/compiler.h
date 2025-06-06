@@ -45,6 +45,8 @@ struct SchemaContext {
   std::set<std::size_t> labels;
   /// The set of references destinations traversed so far
   std::set<std::string> references;
+  /// Whether the current schema targets a property name
+  bool is_property_name;
 };
 
 /// @ingroup compiler

@@ -5888,3 +5888,82 @@ TEST(Evaluator_2019_09, definitions_1_exhaustive) {
                                "The string value was expected to validate "
                                "against the statically referenced schema");
 }
+
+TEST(Evaluator_2019_09, propertyNames_1) {
+  const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
+    "$schema": "https://json-schema.org/draft/2019-09/schema",
+    "propertyNames": {
+      "title": "Test",
+      "description": "Test",
+      "default": "Test",
+      "deprecated": true,
+      "examples": [ "foo" ],
+      "readOnly": true,
+      "writeOnly": true,
+
+      "x-foo": "bar",
+
+      "format": "email",
+
+      "contentEncoding": "base64",
+      "contentMediaType": "application/json",
+      "contentSchema": true,
+
+      "items": [ { "type": "string" } ],
+      "additionalItems": { "type": "string" },
+      "unevaluatedItems": { "type": "string" },
+
+      "properties": { "foo": { "type": "string" } },
+      "patternProperties": { "^f": { "type": "string" } },
+      "additionalProperties": { "type": "string" },
+      "unevaluatedProperties": { "type": "string" }
+    }
+  })JSON")};
+
+  const sourcemeta::core::JSON instance{
+      sourcemeta::core::parse_json("{ \"foo\": 1 }")};
+  EVALUATE_WITH_TRACE_FAST_SUCCESS(schema, instance, 0);
+}
+
+TEST(Evaluator_2019_09, propertyNames_1_exhaustive) {
+  const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
+    "$schema": "https://json-schema.org/draft/2019-09/schema",
+    "propertyNames": {
+      "title": "Test",
+      "description": "Test",
+      "default": "Test",
+      "deprecated": true,
+      "examples": [ "foo" ],
+      "readOnly": true,
+      "writeOnly": true,
+
+      "x-foo": "bar",
+
+      "format": "email",
+
+      "contentEncoding": "base64",
+      "contentMediaType": "application/json",
+      "contentSchema": true,
+
+      "items": [ { "type": "string" } ],
+      "additionalItems": { "type": "string" },
+      "unevaluatedItems": { "type": "string" },
+
+      "properties": { "foo": { "type": "string" } },
+      "patternProperties": { "^f": { "type": "string" } },
+      "additionalProperties": { "type": "string" },
+      "unevaluatedProperties": { "type": "string" }
+    }
+  })JSON")};
+
+  const sourcemeta::core::JSON instance{
+      sourcemeta::core::parse_json("{ \"foo\": 1 }")};
+  EVALUATE_WITH_TRACE_EXHAUSTIVE_SUCCESS(schema, instance, 1);
+
+  EVALUATE_TRACE_PRE(0, LoopKeys, "/propertyNames", "#/propertyNames", "");
+  EVALUATE_TRACE_POST_SUCCESS(0, LoopKeys, "/propertyNames", "#/propertyNames",
+                              "");
+  EVALUATE_TRACE_POST_DESCRIBE(instance, 0,
+                               "The object property \"foo\" was expected to "
+                               "validate against the given subschema");
+}
