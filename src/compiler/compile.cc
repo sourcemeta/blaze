@@ -44,7 +44,8 @@ auto compile_subschema(const sourcemeta::blaze::Context &context,
              {schema_context.relative_pointer.concat({keyword}),
               schema_context.schema, entry.vocabularies, schema_context.base,
               // TODO: This represents a copy
-              schema_context.labels, schema_context.references},
+              schema_context.labels, schema_context.references,
+              schema_context.is_property_name},
              {keyword, dynamic_context.base_schema_location,
               dynamic_context.base_instance_location,
               dynamic_context.property_as_target},
@@ -84,7 +85,8 @@ auto precompile(
       std::move(nested_vocabularies),
       entry.second.base,
       {},
-      {}};
+      {},
+      schema_context.is_property_name};
 
   return {make(sourcemeta::blaze::InstructionIndex::ControlMark, context,
                nested_schema_context, dynamic_context,
@@ -137,7 +139,8 @@ auto compile(const sourcemeta::core::JSON &schema,
       vocabularies(schema, resolver, root_frame_entry.dialect),
       sourcemeta::core::URI::canonicalize(root_frame_entry.base),
       {},
-      {}};
+      {},
+      false};
 
   std::vector<std::string> resources;
   for (const auto &entry : frame.locations()) {
@@ -331,7 +334,8 @@ auto compile(const Context &context, const SchemaContext &schema_context,
        sourcemeta::core::URI{entry.base}.recompose_without_fragment().value_or(
            ""),
        // TODO: This represents a copy
-       schema_context.labels, schema_context.references},
+       schema_context.labels, schema_context.references,
+       schema_context.is_property_name},
       {dynamic_context.keyword, destination_pointer,
        dynamic_context.base_instance_location.concat(instance_suffix),
        dynamic_context.property_as_target},
