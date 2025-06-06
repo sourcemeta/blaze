@@ -51,7 +51,9 @@ Features
 
 - **Annotations:** Blaze is one of the few implementations that fully supports
   annotation extraction during evaluation to augment instances with semantic
-  information, making it a great fit for data science scenarios
+  information, making it a great fit for data science scenarios Blaze also
+  adheres to the [annotations official test
+  suite](https://github.com/json-schema-org/JSON-Schema-Test-Suite/tree/main/annotations)
 
 Example
 -------
