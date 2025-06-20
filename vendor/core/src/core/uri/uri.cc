@@ -2,24 +2,27 @@
 
 #include <sourcemeta/core/uri.h>
 
-#include <cassert>   // assert
-#include <cstdint>   // std::uint32_t
-#include <istream>   // std::istream
-#include <optional>  // std::optional
-#include <sstream>   // std::ostringstream
-#include <stdexcept> // std::length_error, std::runtime_error
-#include <string>    // std::stoul, std::string, std::tolower
-#include <tuple>     // std::tie
-#include <utility>   // std::move
-#include <vector>    // std::vector
+#include <cassert>    // assert
+#include <cstdint>    // std::uint32_t
+#include <filesystem> // std::filesystem
+#include <istream>    // std::istream
+#include <optional>   // std::optional
+#include <sstream>    // std::ostringstream
+#include <stdexcept>  // std::length_error, std::runtime_error
+#include <string>     // std::stoul, std::string, std::tolower
+#include <tuple>      // std::tie
+#include <utility>    // std::move
+#include <vector>     // std::vector
 
-static auto uri_normalize(UriUriA *uri) -> void {
+namespace {
+
+auto uri_normalize(UriUriA *uri) -> void {
   if (uriNormalizeSyntaxA(uri) != URI_SUCCESS) {
     throw sourcemeta::core::URIError{"Could not normalize URI"};
   }
 }
 
-static auto uri_to_string(const UriUriA *const uri) -> std::string {
+auto uri_to_string(const UriUriA *const uri) -> std::string {
   int size;
   if (uriToStringCharsRequiredA(uri, &size) != URI_SUCCESS) {
     throw sourcemeta::core::URIError{"Could not determine URI size"};
@@ -36,7 +39,7 @@ static auto uri_to_string(const UriUriA *const uri) -> std::string {
   return result;
 }
 
-static auto uri_text_range(const UriTextRangeA *const range)
+auto uri_text_range(const UriTextRangeA *const range)
     -> std::optional<std::string_view> {
   if (range->afterLast == nullptr) {
     return std::nullopt;
@@ -47,7 +50,7 @@ static auto uri_text_range(const UriTextRangeA *const range)
                               range->afterLast - range->first)};
 }
 
-static auto uri_parse(const std::string &data, UriUriA *uri) -> void {
+auto uri_parse(const std::string &data, UriUriA *uri) -> void {
   const char *error_position;
   switch (uriParseSingleUriA(uri, data.c_str(), &error_position)) {
     case URI_ERROR_SYNTAX:
@@ -67,8 +70,7 @@ static auto uri_parse(const std::string &data, UriUriA *uri) -> void {
   uri_normalize(uri);
 }
 
-static auto canonicalize_path(const std::string &path)
-    -> std::optional<std::string> {
+auto canonicalize_path(const std::string &path) -> std::optional<std::string> {
   // TODO: This is a hack, as this whole function works badly for
   // relative paths with ".."
   if (path.starts_with("..")) {
@@ -111,6 +113,8 @@ static auto canonicalize_path(const std::string &path)
     return std::nullopt;
   return canonical_path;
 }
+
+} // namespace
 
 namespace sourcemeta::core {
 
@@ -256,6 +260,13 @@ auto URI::is_fragment_only() const -> bool {
          this->fragment().has_value() && !this->query().has_value();
 }
 
+auto URI::empty() const -> bool {
+  return !this->path_.has_value() && !this->userinfo_.has_value() &&
+         !this->host_.has_value() && !this->port_.has_value() &&
+         !this->scheme_.has_value() && !this->fragment_.has_value() &&
+         !this->query_.has_value();
+}
+
 auto URI::scheme() const -> std::optional<std::string_view> {
   return this->scheme_;
 }
@@ -305,7 +316,12 @@ auto URI::path(const std::string &path) -> URI & {
     throw URIError{"You cannot set a relative path"};
   }
 
-  this->path_ = URI{path}.path_;
+  if (path == "/") {
+    this->path_ = "";
+  } else {
+    this->path_ = URI{path}.path_;
+  }
+
   return *this;
 }
 
@@ -320,12 +336,71 @@ auto URI::path(std::string &&path) -> URI & {
     throw URIError{"You cannot set a relative path"};
   }
 
-  this->path_ = URI{std::move(path)}.path_;
+  if (path == "/") {
+    this->path_ = "";
+  } else {
+    this->path_ = URI{std::move(path)}.path_;
+  }
+
+  return *this;
+}
+
+auto URI::append_path(const std::string &path) -> URI & {
+  if (path.empty()) {
+    return *this;
+  } else if (this->path_.has_value()) {
+    if (!this->path_.value().ends_with('/') && !path.starts_with('/')) {
+      this->path_.value() += '/';
+      this->path_.value() += path;
+    } else if (this->path_.value().ends_with('/') && path.starts_with('/')) {
+      this->path_.value() += path.substr(1);
+    } else {
+      this->path_.value() += path;
+    }
+
+    return *this;
+  } else {
+    return this->path(path);
+  }
+}
+
+auto URI::extension(std::string &&extension) -> URI & {
+  const auto &effective_path{this->path_.value_or("")};
+  if (!effective_path.empty() && !effective_path.ends_with('/')) {
+    std::filesystem::path as_path{effective_path};
+    as_path.replace_extension(std::move(extension));
+    this->path_ = std::move(as_path).string();
+  }
+
   return *this;
 }
 
 auto URI::fragment() const -> std::optional<std::string_view> {
   return this->fragment_;
+}
+
+auto URI::fragment(const std::string &fragment) -> URI & {
+  if (fragment.empty()) {
+    this->fragment_ = "";
+  } else if (fragment.starts_with('#')) {
+    this->fragment_ = URI{fragment}.fragment_;
+  } else {
+    this->fragment_ = URI{"#" + fragment}.fragment_;
+  }
+
+  return *this;
+}
+
+auto URI::fragment(std::string &&fragment) -> URI & {
+  if (fragment.empty()) {
+    this->fragment_ = "";
+  } else if (fragment.starts_with('#')) {
+    this->fragment_ = URI{std::move(fragment)}.fragment_;
+  } else {
+    this->fragment_ = URI{"#" + std::move(fragment)}.fragment_;
+  }
+
+  return *this;
 }
 
 auto URI::query() const -> std::optional<std::string_view> {
