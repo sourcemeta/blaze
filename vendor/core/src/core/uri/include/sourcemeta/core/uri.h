@@ -140,6 +140,17 @@ public:
   /// ```
   auto is_ipv6() const -> bool;
 
+  /// Check if the URI corresponds to the empty URI. For example:
+  ///
+  /// ```cpp
+  /// #include <sourcemeta/core/uri.h>
+  /// #include <cassert>
+  ///
+  /// sourcemeta::core::URI uri{""};
+  /// assert(uri.empty());
+  /// ```
+  auto empty() const -> bool;
+
   /// Get the scheme part of the URI, if any. For example:
   ///
   /// ```cpp
@@ -216,6 +227,30 @@ public:
   /// assert(uri.path().value() == "/foo/bar");
   auto path(std::string &&path) -> URI &;
 
+  /// Append a path to the existing URI path or set a path if such component
+  /// does not exist in the URI. For example:
+  ///
+  /// ```cpp
+  /// #include <sourcemeta/core/uri.h>
+  /// #include <cassert>
+  ///
+  /// sourcemeta::core::URI uri{"https://www.sourcemeta.com/foo"};
+  /// uri.append_path("bar/baz");
+  /// assert(uri.recompose() == "https://www.sourcemeta.com/foo/bar/baz");
+  auto append_path(const std::string &path) -> URI &;
+
+  /// If the URI has a path, this method sets or replace the extension in the
+  /// path. For example:
+  ///
+  /// ```cpp
+  /// #include <sourcemeta/core/uri.h>
+  /// #include <cassert>
+  ///
+  /// sourcemeta::core::URI uri{"https://www.sourcemeta.com/foo"};
+  /// uri.extension("json");
+  /// assert(uri.recompose() == "https://www.sourcemeta.com/foo.json");
+  auto extension(std::string &&extension) -> URI &;
+
   /// Get the fragment part of the URI, if any. For example:
   ///
   /// ```cpp
@@ -227,6 +262,33 @@ public:
   /// assert(uri.fragment().value() == "foo");
   /// ```
   [[nodiscard]] auto fragment() const -> std::optional<std::string_view>;
+
+  /// Set the fragment part of the URI. For example:
+  ///
+  /// ```cpp
+  /// #include <sourcemeta/core/uri.h>
+  /// #include <cassert>
+  ///
+  /// sourcemeta::core::URI uri{"https://www.sourcemeta.com"};
+  /// const std::string fragment{"foo"};
+  /// uri.fragment(fragment);
+  /// assert(uri.fragment().has_value());
+  /// assert(uri.fragment().value() == "foo");
+  /// ```
+  auto fragment(const std::string &fragment) -> URI &;
+
+  /// Set the fragment part of the URI with move semantics. For example:
+  ///
+  /// ```cpp
+  /// #include <sourcemeta/core/uri.h>
+  /// #include <cassert>
+  ///
+  /// sourcemeta::core::URI uri{"https://www.sourcemeta.com"};
+  /// std::string fragment{"foo"};
+  /// uri.fragment(std::move(fragment));
+  /// assert(uri.fragment().has_value());
+  /// assert(uri.fragment().value() == "foo");
+  auto fragment(std::string &&fragment) -> URI &;
 
   /// Get the non-dissected query part of the URI, if any. For example:
   ///
