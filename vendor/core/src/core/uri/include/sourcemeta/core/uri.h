@@ -61,7 +61,7 @@ public:
   URI(const URI &other);
 
   /// Move constructor
-  URI(URI &&other);
+  URI(URI &&other) noexcept;
 
   /// Check if the URI is absolute. For example:
   ///

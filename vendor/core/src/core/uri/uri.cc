@@ -138,7 +138,7 @@ URI::~URI() { uriFreeUriMembersA(&this->internal->uri); }
 // TODO: Test the copy constructor
 URI::URI(const URI &other) : URI{other.recompose()} {}
 
-URI::URI(URI &&other)
+URI::URI(URI &&other) noexcept
     : parsed{other.parsed}, data{std::move(other.data)},
       path_{std::move(other.path_)}, userinfo_{std::move(other.userinfo_)},
       host_{std::move(other.host_)}, port_{other.port_},
