@@ -185,6 +185,16 @@ compile(const Context &context, const SchemaContext &schema_context,
             sourcemeta::core::empty_pointer,
         const std::optional<std::string> &uri = std::nullopt) -> Instructions;
 
+/// @ingroup compiler
+/// Serialise an instruction as JSON
+auto SOURCEMETA_BLAZE_COMPILER_EXPORT to_json(const Instruction &instruction)
+    -> sourcemeta::core::JSON;
+
+/// @ingroup compiler
+/// Serialise a template as JSON
+auto SOURCEMETA_BLAZE_COMPILER_EXPORT to_json(const Template &schema_template)
+    -> sourcemeta::core::JSON;
+
 } // namespace sourcemeta::blaze
 
 #endif
