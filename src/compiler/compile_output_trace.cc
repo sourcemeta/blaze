@@ -57,7 +57,9 @@ auto TraceOutput::operator()(
     const sourcemeta::core::WeakPointer &instance_location,
     const sourcemeta::core::JSON &annotation) -> void {
 
-  const auto short_step_name{step.name()};
+  const auto short_step_name{
+      InstructionNames[static_cast<std::underlying_type_t<InstructionIndex>>(
+          step.type)]};
   auto effective_evaluate_path{evaluate_path.resolve_from(this->base_)};
 
   // Attempt to get vocabulary information if we can get it

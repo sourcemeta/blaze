@@ -249,10 +249,6 @@ struct Instruction {
   const std::size_t schema_resource;
   const Value value;
   const Instructions children;
-
-  /// Get the name of the instruction as a string
-  SOURCEMETA_BLAZE_EVALUATOR_EXPORT
-  auto name() const -> std::string_view;
 };
 
 } // namespace sourcemeta::blaze
