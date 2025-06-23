@@ -258,10 +258,10 @@ auto traverse_origin_instance_locations(
 }
 
 struct CacheSubschema {
-  const sourcemeta::core::PointerTemplate instance_location;
-  const sourcemeta::core::PointerTemplate relative_instance_location;
-  const bool orphan;
-  const std::optional<sourcemeta::core::Pointer> parent;
+  const sourcemeta::core::PointerTemplate instance_location{};
+  const sourcemeta::core::PointerTemplate relative_instance_location{};
+  const bool orphan{};
+  const std::optional<sourcemeta::core::Pointer> parent{};
 };
 
 auto repopulate_instance_locations(

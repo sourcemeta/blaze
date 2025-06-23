@@ -5,7 +5,10 @@
 #include <algorithm> // std::copy
 #include <cassert>   // assert
 #include <cctype>    // std::isalnum
+#include <istream>   // std::istream
+#include <ostream>   // std::ostream
 #include <sstream>   // std::ostringstream
+#include <string>    // std::string
 
 namespace sourcemeta::core {
 
