@@ -42,6 +42,8 @@ public:
 
   inline auto begin() const -> const_iterator { return this->data.begin(); }
   inline auto end() const -> const_iterator { return this->data.end(); }
+  inline auto cbegin() const -> const_iterator { return this->data.cbegin(); }
+  inline auto cend() const -> const_iterator { return this->data.cend(); }
 
 private:
 // Exporting symbols that depends on the standard C++ library is considered
