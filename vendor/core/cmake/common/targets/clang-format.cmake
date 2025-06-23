@@ -54,10 +54,12 @@ function(sourcemeta_target_clang_format_attempt_install)
   set(CLANG_FORMAT_BINARY_WHEEL "${CLANG_FORMAT_BINARY_DOWNLOAD_DIR}/clang-format.whl")
   message(STATUS "Downloading `clang-format` pre-built binary from ${CLANG_FORMAT_BINARY_URL}")
   file(DOWNLOAD "${CLANG_FORMAT_BINARY_URL}" "${CLANG_FORMAT_BINARY_WHEEL}"
-    STATUS CLANG_FORMAT_BINARY_DOWNLOAD_STATUS SHOW_PROGRESS TLS_VERIFY ON)
+    STATUS CLANG_FORMAT_BINARY_DOWNLOAD_STATUS SHOW_PROGRESS TLS_VERIFY ON
+    LOG CLANG_FORMAT_BINARY_DOWNLOAD_LOG)
   list(GET CLANG_FORMAT_BINARY_DOWNLOAD_STATUS 0 _code)
   if(NOT _code EQUAL 0)
     message(WARNING "Failed to download the `clang-format` pre-built binary")
+    message(WARNING "${CLANG_FORMAT_BINARY_DOWNLOAD_LOG}")
     file(REMOVE_RECURSE "${CLANG_FORMAT_BINARY_DOWNLOAD_DIR}")
     return()
   endif()
