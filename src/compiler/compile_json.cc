@@ -9,6 +9,11 @@ auto to_json(const T &) -> JSON {
   return JSON{nullptr};
 }
 template <typename T>
+  requires std::is_same_v<T, typename sourcemeta::blaze::ValueRegex::first_type>
+auto to_json(const T &) -> JSON {
+  return JSON{nullptr};
+}
+template <typename T>
   requires std::is_same_v<T, sourcemeta::blaze::ValueRegex>
 auto to_json(const T &value) -> JSON {
   return JSON{value.second};
