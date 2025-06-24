@@ -10,6 +10,14 @@
 #include <type_traits> // std::false_type, std::true_type, std::void_t, std::is_enum_v, std::underlying_type_t, std::is_same_v, std::is_base_of_v, std::remove_cvref_t
 #include <utility>     // std::pair
 
+// Forward declarations (added as needed)
+#ifndef DOXYGEN
+namespace sourcemeta::core {
+template <typename L, typename R>
+auto to_json(const std::pair<L, R> &value) -> JSON;
+}
+#endif
+
 namespace sourcemeta::core {
 
 /// @ingroup json
@@ -107,13 +115,12 @@ auto to_json(const T &value) -> JSON {
 template <typename T>
   requires std::is_enum_v<T>
 auto to_json(const T value) -> JSON {
-  return to_json<std::underlying_type_t<T>>(
-      static_cast<std::underlying_type_t<T>>(value));
+  return to_json(static_cast<std::underlying_type_t<T>>(value));
 }
 
 /// @ingroup json
 template <typename T> auto to_json(const std::optional<T> &value) -> JSON {
-  return value.has_value() ? to_json<T>(value.value()) : JSON{nullptr};
+  return value.has_value() ? to_json(value.value()) : JSON{nullptr};
 }
 
 /// @ingroup json
@@ -123,7 +130,7 @@ auto to_json(typename T::const_iterator begin, typename T::const_iterator end)
   // TODO: Extend `make_array` to optionally take iterators, etc
   auto result{JSON::make_array()};
   for (auto iterator = begin; iterator != end; ++iterator) {
-    result.push_back(to_json<typename T::value_type>(*iterator));
+    result.push_back(to_json(*iterator));
   }
 
   return result;
@@ -164,8 +171,7 @@ auto to_json(typename T::const_iterator begin, typename T::const_iterator end)
     -> JSON {
   auto result{JSON::make_object()};
   for (auto iterator = begin; iterator != end; ++iterator) {
-    result.assign(iterator->first,
-                  to_json<typename T::mapped_type>(iterator->second));
+    result.assign(iterator->first, to_json(iterator->second));
   }
 
   return result;

@@ -102,3 +102,38 @@ TEST(Compiler_JSON, example_2) {
 
   EXPECT_EQ(result, expected);
 }
+
+TEST(Compiler_JSON, example_3) {
+  const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "pattern": "^f"
+  })JSON")};
+
+  const auto schema_template{sourcemeta::blaze::compile(
+      schema, sourcemeta::core::schema_official_walker,
+      sourcemeta::core::schema_official_resolver,
+      sourcemeta::blaze::default_schema_compiler)};
+
+  const auto result{sourcemeta::blaze::to_json(schema_template)};
+
+  const sourcemeta::core::JSON expected{sourcemeta::core::parse_json(R"JSON({
+    "dynamic": false,
+    "track": false,
+    "instructions": [
+      {
+        "t": 19,
+        "s": "/pattern",
+        "i": "",
+        "k": "#/pattern",
+        "r": 0,
+        "v": {
+          "t": 9,
+          "v": [ null, "^f" ]
+        },
+        "c": []
+      }
+    ]
+  })JSON")};
+
+  EXPECT_EQ(result, expected);
+}
