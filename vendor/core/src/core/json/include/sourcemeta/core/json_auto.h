@@ -199,15 +199,8 @@ auto to_json(
   return to_json<T>(value.cbegin(), value.cend(), callback);
 }
 
-// TODO: Try to elevate to Core?
-template <typename T>
-struct is_pair : std::false_type {};
-template <typename L, typename R>
-struct is_pair<std::pair<L, R>> : std::true_type {};
-
 /// @ingroup json
 template <typename L, typename R>
-requires(is_pair<std::pair<L, R>>::value)
 auto to_json(const std::pair<L, R> &value) -> JSON {
   auto tuple{JSON::make_array()};
   tuple.push_back(to_json<L>(value.first));
@@ -215,13 +208,19 @@ auto to_json(const std::pair<L, R> &value) -> JSON {
   return tuple;
 }
 
-/// @ingroup json
-template <typename... Args>
-requires(!is_pair<std::tuple<Args...>>::value)
-auto to_json(const std::tuple<Args...> &value) -> JSON {
-  auto tuple{JSON::make_array()};
+// Tuple overload, blocked from accepting std::pair
+template <typename TupleT>
+requires (
+    !std::is_base_of_v<std::pair<
+        std::tuple_element_t<0, std::remove_cvref_t<TupleT>>,
+        std::tuple_element_t<1, std::remove_cvref_t<TupleT>>
+    >, std::remove_cvref_t<TupleT>>
+    && requires { typename std::tuple_size<std::remove_cvref_t<TupleT>>::type; }
+)
+auto to_json(const TupleT& value) -> JSON {
+  auto tuple = JSON::make_array();
   std::apply(
-      [&tuple](const Args &...elements) {
+      [&tuple](const auto&... elements) {
         (tuple.push_back(to_json(elements)), ...);
       },
       value);
