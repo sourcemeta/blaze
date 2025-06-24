@@ -222,6 +222,8 @@ auto store(
   instances[pointer_from_root] = instance_locations;
 }
 
+// Check misunderstood struct to be a function
+// NOLINTNEXTLINE(bugprone-exception-escape)
 struct InternalEntry {
   const sourcemeta::core::SchemaIteratorEntry common;
   const std::optional<sourcemeta::core::JSON::String> id;
@@ -257,6 +259,8 @@ auto traverse_origin_instance_locations(
   }
 }
 
+// Check misunderstood struct to be a function
+// NOLINTNEXTLINE(bugprone-exception-escape)
 struct CacheSubschema {
   const sourcemeta::core::PointerTemplate instance_location{};
   const sourcemeta::core::PointerTemplate relative_instance_location{};
@@ -669,16 +673,9 @@ auto SchemaFrame::analyse(const JSON &root, const SchemaWalker &walker,
             if (!maybe_relative_is_absolute ||
                 maybe_match == this->locations_.cend()) {
               assert(entry.common.base_dialect.has_value());
-              if (entry.common.orphan) {
-                store(this->locations_, this->instances_,
-                      SchemaReferenceType::Static,
-                      SchemaFrame::LocationType::Resource, new_id, root_id,
-                      new_id, entry.common.pointer,
-                      sourcemeta::core::empty_pointer,
-                      entry.common.dialect.value(),
-                      entry.common.base_dialect.value(), {},
-                      entry.common.parent);
-              } else if (this->mode_ == SchemaFrame::Mode::Instances) {
+
+              if (!(entry.common.orphan) &&
+                  this->mode_ == SchemaFrame::Mode::Instances) {
                 store(this->locations_, this->instances_,
                       SchemaReferenceType::Static,
                       SchemaFrame::LocationType::Resource, new_id, root_id,
@@ -880,15 +877,8 @@ auto SchemaFrame::analyse(const JSON &root, const SchemaWalker &walker,
           const auto subschema{subschemas.find(pointer)};
           if (subschema != subschemas.cend()) {
             // Handle orphan schemas
-            if (subschema->second.orphan) {
-              store(this->locations_, this->instances_,
-                    SchemaReferenceType::Static,
-                    SchemaFrame::LocationType::Subschema, result, root_id,
-                    current_base, pointer,
-                    pointer.resolve_from(nearest_bases.second),
-                    dialects.first.front(), current_base_dialect, {},
-                    subschema->second.parent);
-            } else if (this->mode_ == SchemaFrame::Mode::Instances) {
+            if (!(subschema->second.orphan) &&
+                this->mode_ == SchemaFrame::Mode::Instances) {
               store(this->locations_, this->instances_,
                     SchemaReferenceType::Static,
                     SchemaFrame::LocationType::Subschema, result, root_id,

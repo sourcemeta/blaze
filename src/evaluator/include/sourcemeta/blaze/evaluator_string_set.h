@@ -45,6 +45,12 @@ public:
   inline auto cbegin() const -> const_iterator { return this->data.cbegin(); }
   inline auto cend() const -> const_iterator { return this->data.cend(); }
 
+  auto to_json() const -> sourcemeta::core::JSON {
+    return sourcemeta::core::to_json(this->data, [](const auto &item) {
+      return sourcemeta::core::to_json(item.first);
+    });
+  }
+
 private:
 // Exporting symbols that depends on the standard C++ library is considered
 // safe.
