@@ -3,17 +3,13 @@
 
 #include <sourcemeta/core/json.h>
 
-#include <vector>
 #include <utility>
 #include <variant>
 
 namespace sourcemeta::blaze {
 
 using ValueType = sourcemeta::core::JSON::Type;
-using ValueIndexPair = std::pair<std::size_t, std::size_t>;
-using ValueStringHashes = std::pair<ValueType, std::vector<ValueIndexPair>>;
-using ValueTypedHashes = std::pair<ValueType, ValueStringHashes>;
-
+using ValueTypedHashes = std::pair<ValueType, std::pair<ValueType, std::size_t>>;
 using Value = std::variant<ValueTypedHashes>;
 
 struct Instruction {
