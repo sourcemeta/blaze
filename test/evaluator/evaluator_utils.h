@@ -46,6 +46,7 @@ inline auto FIRST_PROPERTY_IS(const sourcemeta::core::JSON &document,
       sourcemeta::core::schema_official_resolver,                              \
       sourcemeta::blaze::default_schema_compiler,                              \
       sourcemeta::blaze::Mode::FastValidation)};                               \
+  EXPECT_TRUE(sourcemeta::blaze::to_json(compiled_schema).is_object());        \
   EVALUATE_WITH_TRACE(compiled_schema, instance, count)                        \
   EXPECT_TRUE(result);
 
@@ -55,6 +56,7 @@ inline auto FIRST_PROPERTY_IS(const sourcemeta::core::JSON &document,
       sourcemeta::core::schema_official_resolver,                              \
       sourcemeta::blaze::default_schema_compiler,                              \
       sourcemeta::blaze::Mode::FastValidation)};                               \
+  EXPECT_TRUE(sourcemeta::blaze::to_json(compiled_schema).is_object());        \
   EVALUATE_WITH_TRACE(compiled_schema, instance, count)                        \
   EXPECT_FALSE(result);
 
@@ -64,6 +66,7 @@ inline auto FIRST_PROPERTY_IS(const sourcemeta::core::JSON &document,
       sourcemeta::core::schema_official_resolver,                              \
       sourcemeta::blaze::default_schema_compiler,                              \
       sourcemeta::blaze::Mode::Exhaustive)};                                   \
+  EXPECT_TRUE(sourcemeta::blaze::to_json(compiled_schema).is_object());        \
   EVALUATE_WITH_TRACE(compiled_schema, instance, count)                        \
   EXPECT_TRUE(result);
 
@@ -73,6 +76,7 @@ inline auto FIRST_PROPERTY_IS(const sourcemeta::core::JSON &document,
       sourcemeta::core::schema_official_resolver,                              \
       sourcemeta::blaze::default_schema_compiler,                              \
       sourcemeta::blaze::Mode::Exhaustive)};                                   \
+  EXPECT_TRUE(sourcemeta::blaze::to_json(compiled_schema).is_object());        \
   EVALUATE_WITH_TRACE(compiled_schema, instance, count)                        \
   EXPECT_FALSE(result);
 
