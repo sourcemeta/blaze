@@ -199,8 +199,15 @@ auto to_json(
   return to_json<T>(value.cbegin(), value.cend(), callback);
 }
 
+// TODO: Try to elevate to Core?
+template <typename T>
+struct is_pair : std::false_type {};
+template <typename L, typename R>
+struct is_pair<std::pair<L, R>> : std::true_type {};
+
 /// @ingroup json
 template <typename L, typename R>
+requires(is_pair<std::pair<L, R>>::value)
 auto to_json(const std::pair<L, R> &value) -> JSON {
   auto tuple{JSON::make_array()};
   tuple.push_back(to_json<L>(value.first));
@@ -210,6 +217,7 @@ auto to_json(const std::pair<L, R> &value) -> JSON {
 
 /// @ingroup json
 template <typename... Args>
+requires(!is_pair<std::tuple<Args...>>::value)
 auto to_json(const std::tuple<Args...> &value) -> JSON {
   auto tuple{JSON::make_array()};
   std::apply(
