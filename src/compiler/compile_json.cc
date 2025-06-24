@@ -21,7 +21,6 @@ auto to_json(const Instruction &instruction) -> sourcemeta::core::JSON {
   auto result{sourcemeta::core::JSON::make_object()};
   // We use single characters to save space, as this serialised format
   // is not meant to be human-readable anyway
-  result.assign("t", sourcemeta::core::to_json(instruction.type));
   result.assign(
       "s", sourcemeta::core::to_json(instruction.relative_schema_location));
   result.assign(
@@ -49,18 +48,6 @@ auto to_json(const Instruction &instruction) -> sourcemeta::core::JSON {
                                                [](const auto &subinstruction) {
                                                  return to_json(subinstruction);
                                                }));
-  return result;
-}
-
-auto to_json(const Template &schema_template) -> sourcemeta::core::JSON {
-  auto result{sourcemeta::core::JSON::make_object()};
-  result.assign("dynamic", sourcemeta::core::JSON{schema_template.dynamic});
-  result.assign("track", sourcemeta::core::JSON{schema_template.track});
-  result.assign("instructions",
-                sourcemeta::core::to_json(schema_template.instructions,
-                                          [](const auto &instruction) {
-                                            return to_json(instruction);
-                                          }));
   return result;
 }
 

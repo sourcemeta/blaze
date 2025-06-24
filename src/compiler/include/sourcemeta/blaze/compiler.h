@@ -167,107 +167,6 @@ using Value =
                  ValuePropertyFilter, ValueIndexPair, ValuePointer,
                  ValueTypedProperties, ValueStringHashes, ValueTypedHashes>;
 
-// For fast internal instruction dispatching. It must stay
-// in sync with the variant ordering above
-/// @ingroup evaluator
-enum class InstructionIndex : std::uint8_t {
-  AssertionFail = 0,
-  AssertionDefines,
-  AssertionDefinesStrict,
-  AssertionDefinesAll,
-  AssertionDefinesAllStrict,
-  AssertionDefinesExactly,
-  AssertionDefinesExactlyStrict,
-  AssertionDefinesExactlyStrictHash3,
-  AssertionPropertyDependencies,
-  AssertionType,
-  AssertionTypeAny,
-  AssertionTypeStrict,
-  AssertionTypeStrictAny,
-  AssertionTypeStringBounded,
-  AssertionTypeStringUpper,
-  AssertionTypeArrayBounded,
-  AssertionTypeArrayUpper,
-  AssertionTypeObjectBounded,
-  AssertionTypeObjectUpper,
-  AssertionRegex,
-  AssertionStringSizeLess,
-  AssertionStringSizeGreater,
-  AssertionArraySizeLess,
-  AssertionArraySizeGreater,
-  AssertionObjectSizeLess,
-  AssertionObjectSizeGreater,
-  AssertionEqual,
-  AssertionEqualsAny,
-  AssertionEqualsAnyStringHash,
-  AssertionGreaterEqual,
-  AssertionLessEqual,
-  AssertionGreater,
-  AssertionLess,
-  AssertionUnique,
-  AssertionDivisible,
-  AssertionStringType,
-  AssertionPropertyType,
-  AssertionPropertyTypeEvaluate,
-  AssertionPropertyTypeStrict,
-  AssertionPropertyTypeStrictEvaluate,
-  AssertionPropertyTypeStrictAny,
-  AssertionPropertyTypeStrictAnyEvaluate,
-  AssertionArrayPrefix,
-  AssertionArrayPrefixEvaluate,
-  AnnotationEmit,
-  AnnotationToParent,
-  AnnotationBasenameToParent,
-  Evaluate,
-  LogicalNot,
-  LogicalNotEvaluate,
-  LogicalOr,
-  LogicalAnd,
-  LogicalXor,
-  LogicalCondition,
-  LogicalWhenType,
-  LogicalWhenDefines,
-  LogicalWhenArraySizeGreater,
-  LoopPropertiesUnevaluated,
-  LoopPropertiesUnevaluatedExcept,
-  LoopPropertiesMatch,
-  LoopPropertiesMatchClosed,
-  LoopProperties,
-  LoopPropertiesEvaluate,
-  LoopPropertiesRegex,
-  LoopPropertiesRegexClosed,
-  LoopPropertiesStartsWith,
-  LoopPropertiesExcept,
-  LoopPropertiesWhitelist,
-  LoopPropertiesType,
-  LoopPropertiesTypeEvaluate,
-  LoopPropertiesExactlyTypeStrict,
-  LoopPropertiesExactlyTypeStrictHash,
-  LoopPropertiesTypeStrict,
-  LoopPropertiesTypeStrictEvaluate,
-  LoopPropertiesTypeStrictAny,
-  LoopPropertiesTypeStrictAnyEvaluate,
-  LoopKeys,
-  LoopItems,
-  LoopItemsFrom,
-  LoopItemsUnevaluated,
-  LoopItemsType,
-  LoopItemsTypeStrict,
-  LoopItemsTypeStrictAny,
-  LoopItemsPropertiesExactlyTypeStrictHash,
-  LoopItemsPropertiesExactlyTypeStrictHash3,
-  LoopContains,
-  ControlGroup,
-  ControlGroupWhenDefines,
-  ControlGroupWhenDefinesDirect,
-  ControlGroupWhenType,
-  ControlLabel,
-  ControlMark,
-  ControlEvaluate,
-  ControlJump,
-  ControlDynamicAnchorJump
-};
-
 // Forward declaration for defining a circular structure
 #ifndef DOXYGEN
 struct Instruction;
@@ -280,7 +179,6 @@ using Instructions = std::vector<Instruction>;
 /// @ingroup evaluator
 /// Represents a single instruction to be evaluated
 struct Instruction {
-  const InstructionIndex type;
   const sourcemeta::core::Pointer relative_schema_location;
   const sourcemeta::core::Pointer relative_instance_location;
   const std::string keyword_location;
@@ -289,14 +187,7 @@ struct Instruction {
   const Instructions children;
 };
 
-struct Template {
-  Instructions instructions;
-  bool dynamic;
-  bool track;
-};
-
 auto to_json(const Instruction &instruction) -> sourcemeta::core::JSON;
-auto to_json(const Template &schema_template) -> sourcemeta::core::JSON;
 } // namespace sourcemeta::blaze
 
 #endif
