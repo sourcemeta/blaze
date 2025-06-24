@@ -3,8 +3,9 @@
 
 #include <sourcemeta/core/json.h>
 
-#include <vector>      // std::vector
-#include <utility>       // std::pair
+#include <vector>
+#include <utility>
+#include <variant>
 
 namespace sourcemeta::blaze {
 
