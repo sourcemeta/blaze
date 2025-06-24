@@ -167,24 +167,10 @@ using Value =
                  ValuePropertyFilter, ValueIndexPair, ValuePointer,
                  ValueTypedProperties, ValueStringHashes, ValueTypedHashes>;
 
-// Forward declaration for defining a circular structure
-#ifndef DOXYGEN
-struct Instruction;
-#endif
-
-/// @ingroup evaluator
-/// Represents a set of schema compilation steps that can be evaluated
-using Instructions = std::vector<Instruction>;
-
 /// @ingroup evaluator
 /// Represents a single instruction to be evaluated
 struct Instruction {
-  const sourcemeta::core::Pointer relative_schema_location;
-  const sourcemeta::core::Pointer relative_instance_location;
-  const std::string keyword_location;
-  const std::size_t schema_resource;
   const Value value;
-  const Instructions children;
 };
 
 auto to_json(const Instruction &instruction) -> sourcemeta::core::JSON;
