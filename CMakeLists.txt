@@ -5,4 +5,3 @@ project(blaze VERSION 0.0.1 LANGUAGES CXX
 list(APPEND CMAKE_MODULE_PATH "${PROJECT_SOURCE_DIR}/cmake")
 find_package(Core REQUIRED)
 add_subdirectory(src/compiler)
-add_subdirectory(src/evaluator)
