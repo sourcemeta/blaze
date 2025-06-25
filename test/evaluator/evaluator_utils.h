@@ -40,13 +40,22 @@ inline auto FIRST_PROPERTY_IS(const sourcemeta::core::JSON &document,
   EXPECT_EQ(trace_pre.size(), count);                                          \
   EXPECT_EQ(trace_post.size(), count);
 
+#define __ASSERT_TEMPLATE_JSON_SERIALISATION(compiled_schema)                  \
+  {                                                                            \
+    const auto template_json{sourcemeta::blaze::to_json(compiled_schema)};     \
+    EXPECT_TRUE(template_json.is_object());                                    \
+    const auto template_json_back{sourcemeta::blaze::to_json(                  \
+        sourcemeta::blaze::from_json(template_json))};                         \
+    EXPECT_EQ(template_json, template_json_back);                              \
+  }
+
 #define EVALUATE_WITH_TRACE_FAST_SUCCESS(schema, instance, count)              \
   const auto compiled_schema{sourcemeta::blaze::compile(                       \
       schema, sourcemeta::core::schema_official_walker,                        \
       sourcemeta::core::schema_official_resolver,                              \
       sourcemeta::blaze::default_schema_compiler,                              \
       sourcemeta::blaze::Mode::FastValidation)};                               \
-  EXPECT_TRUE(sourcemeta::blaze::to_json(compiled_schema).is_object());        \
+  __ASSERT_TEMPLATE_JSON_SERIALISATION(compiled_schema);                       \
   EVALUATE_WITH_TRACE(compiled_schema, instance, count)                        \
   EXPECT_TRUE(result);
 
@@ -56,7 +65,7 @@ inline auto FIRST_PROPERTY_IS(const sourcemeta::core::JSON &document,
       sourcemeta::core::schema_official_resolver,                              \
       sourcemeta::blaze::default_schema_compiler,                              \
       sourcemeta::blaze::Mode::FastValidation)};                               \
-  EXPECT_TRUE(sourcemeta::blaze::to_json(compiled_schema).is_object());        \
+  __ASSERT_TEMPLATE_JSON_SERIALISATION(compiled_schema);                       \
   EVALUATE_WITH_TRACE(compiled_schema, instance, count)                        \
   EXPECT_FALSE(result);
 
@@ -66,7 +75,7 @@ inline auto FIRST_PROPERTY_IS(const sourcemeta::core::JSON &document,
       sourcemeta::core::schema_official_resolver,                              \
       sourcemeta::blaze::default_schema_compiler,                              \
       sourcemeta::blaze::Mode::Exhaustive)};                                   \
-  EXPECT_TRUE(sourcemeta::blaze::to_json(compiled_schema).is_object());        \
+  __ASSERT_TEMPLATE_JSON_SERIALISATION(compiled_schema);                       \
   EVALUATE_WITH_TRACE(compiled_schema, instance, count)                        \
   EXPECT_TRUE(result);
 
@@ -76,7 +85,7 @@ inline auto FIRST_PROPERTY_IS(const sourcemeta::core::JSON &document,
       sourcemeta::core::schema_official_resolver,                              \
       sourcemeta::blaze::default_schema_compiler,                              \
       sourcemeta::blaze::Mode::Exhaustive)};                                   \
-  EXPECT_TRUE(sourcemeta::blaze::to_json(compiled_schema).is_object());        \
+  __ASSERT_TEMPLATE_JSON_SERIALISATION(compiled_schema);                       \
   EVALUATE_WITH_TRACE(compiled_schema, instance, count)                        \
   EXPECT_FALSE(result);
 

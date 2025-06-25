@@ -2,8 +2,14 @@
 
 #include <sourcemeta/blaze/compiler.h>
 
-// TODO: Eventually test parsing the JSON back and asserting that it equals the
-// original template, using a helper macro to define each test
+#define EXPECT_BIDIRECTIONAL_JSON(schema_template, expected_json)              \
+  {                                                                            \
+    const auto result{sourcemeta::blaze::to_json(schema_template)};            \
+    EXPECT_EQ(result, (expected));                                             \
+    EXPECT_EQ(                                                                 \
+        sourcemeta::blaze::to_json(sourcemeta::blaze::from_json(result)),      \
+        (expected));                                                           \
+  }
 
 TEST(Compiler_JSON, example_1) {
   const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
@@ -15,8 +21,6 @@ TEST(Compiler_JSON, example_1) {
       schema, sourcemeta::core::schema_official_walker,
       sourcemeta::core::schema_official_resolver,
       sourcemeta::blaze::default_schema_compiler)};
-
-  const auto result{sourcemeta::blaze::to_json(schema_template)};
 
   const sourcemeta::core::JSON expected{sourcemeta::core::parse_json(R"JSON({
     "dynamic": false,
@@ -37,7 +41,7 @@ TEST(Compiler_JSON, example_1) {
     ]
   })JSON")};
 
-  EXPECT_EQ(result, expected);
+  EXPECT_BIDIRECTIONAL_JSON(schema_template, expected);
 }
 
 TEST(Compiler_JSON, example_2) {
@@ -53,8 +57,6 @@ TEST(Compiler_JSON, example_2) {
       schema, sourcemeta::core::schema_official_walker,
       sourcemeta::core::schema_official_resolver,
       sourcemeta::blaze::default_schema_compiler)};
-
-  const auto result{sourcemeta::blaze::to_json(schema_template)};
 
   const sourcemeta::core::JSON expected{sourcemeta::core::parse_json(R"JSON({
     "dynamic": false,
@@ -100,7 +102,7 @@ TEST(Compiler_JSON, example_2) {
     ]
   })JSON")};
 
-  EXPECT_EQ(result, expected);
+  EXPECT_BIDIRECTIONAL_JSON(schema_template, expected);
 }
 
 TEST(Compiler_JSON, example_3) {
@@ -113,8 +115,6 @@ TEST(Compiler_JSON, example_3) {
       schema, sourcemeta::core::schema_official_walker,
       sourcemeta::core::schema_official_resolver,
       sourcemeta::blaze::default_schema_compiler)};
-
-  const auto result{sourcemeta::blaze::to_json(schema_template)};
 
   const sourcemeta::core::JSON expected{sourcemeta::core::parse_json(R"JSON({
     "dynamic": false,
@@ -135,5 +135,5 @@ TEST(Compiler_JSON, example_3) {
     ]
   })JSON")};
 
-  EXPECT_EQ(result, expected);
+  EXPECT_BIDIRECTIONAL_JSON(schema_template, expected);
 }
