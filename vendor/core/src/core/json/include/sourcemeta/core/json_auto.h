@@ -3,12 +3,14 @@
 
 #include <sourcemeta/core/json_value.h>
 
+#include <algorithm>  // std::sort
+#include <cassert>    // assert
 #include <concepts>   // std::same_as, std::constructible_from
 #include <functional> // std::function
 #include <optional>   // std::optional
 #include <tuple> // std::tuple, std::apply, std::tuple_element_t, std::tuple_size, std::tuple_size_v
 #include <type_traits> // std::false_type, std::true_type, std::void_t, std::is_enum_v, std::underlying_type_t, std::is_same_v, std::is_base_of_v, std::remove_cvref_t
-#include <utility>     // std::pair
+#include <utility> // std::pair, std:::make_index_sequence, std::index_sequence
 
 // Forward declarations (added as needed)
 #ifndef DOXYGEN
@@ -35,7 +37,13 @@ struct json_auto_is_basic_string<std::basic_string<CharT, Traits, Alloc>>
 
 /// @ingroup json
 template <typename T>
-concept json_auto_has_method = requires(const T value) {
+concept json_auto_has_method_from = requires(const JSON &value) {
+  { T::from_json(value) } -> std::same_as<T>;
+};
+
+/// @ingroup json
+template <typename T>
+concept json_auto_has_method_to = requires(const T value) {
   { value.to_json() } -> std::same_as<JSON>;
 };
 
@@ -60,7 +68,8 @@ concept json_auto_list_like =
       { type.cbegin() } -> std::same_as<typename T::const_iterator>;
       { type.cend() } -> std::same_as<typename T::const_iterator>;
     } && json_auto_supports_auto<T> && !json_auto_has_mapped_type<T>::value &&
-    !json_auto_has_method<T> && !json_auto_is_basic_string<T>::value;
+    !json_auto_has_method_from<T> && !json_auto_has_method_to<T> &&
+    !json_auto_is_basic_string<T>::value;
 
 /// @ingroup json
 template <typename T>
@@ -72,8 +81,25 @@ concept json_auto_map_like =
       { type.cbegin() } -> std::same_as<typename T::const_iterator>;
       { type.cend() } -> std::same_as<typename T::const_iterator>;
     } && json_auto_supports_auto<T> && json_auto_has_mapped_type<T>::value &&
-    !json_auto_has_method<T> &&
+    !json_auto_has_method_from<T> && !json_auto_has_method_to<T> &&
     std::is_same_v<typename T::key_type, JSON::String>;
+
+/// @ingroup json
+template <typename, typename = void>
+struct json_auto_has_reverse_iterator : std::false_type {};
+
+/// @ingroup json
+template <typename T>
+struct json_auto_has_reverse_iterator<T,
+                                      std::void_t<typename T::reverse_iterator>>
+    : std::true_type {};
+
+/// @ingroup json
+template <typename T> struct json_auto_is_pair : std::false_type {};
+
+/// @ingroup json
+template <typename U, typename V>
+struct json_auto_is_pair<std::pair<U, V>> : std::true_type {};
 
 /// @ingroup json
 template <typename T>
@@ -96,9 +122,33 @@ concept json_auto_tuple_poly =
 /// @ingroup json
 /// If the value has a `.to_json()` method, always prefer that
 template <typename T>
-  requires(json_auto_has_method<T>)
+  requires(json_auto_has_method_to<T>)
 auto to_json(const T &value) -> JSON {
   return value.to_json();
+}
+
+/// @ingroup json
+/// If the value has a `.from_json()` static method, always prefer that
+template <typename T>
+  requires(json_auto_has_method_from<T>)
+auto from_json(const JSON &value) -> T {
+  return T::from_json(value);
+}
+
+/// @ingroup json
+template <typename T>
+  requires std::is_same_v<T, bool>
+auto from_json(const JSON &value) -> T {
+  assert(value.is_boolean());
+  return value.to_boolean();
+}
+
+/// @ingroup json
+template <typename T>
+  requires(std::is_integral_v<T> && !std::is_same_v<T, bool>)
+auto from_json(const JSON &value) -> T {
+  assert(value.is_integer());
+  return static_cast<T>(value.to_integer());
 }
 
 // TODO: How can we keep this in the hash header that does not yet know about
@@ -122,11 +172,48 @@ auto to_json(const T &hash) -> JSON {
   return result;
 }
 
+// TODO: How can we keep this in the hash header that does not yet know about
+// JSON?
+/// @ingroup json
+template <typename T>
+  requires std::is_same_v<T, JSON::Object::Container::hash_type>
+auto from_json(const JSON &value) -> T {
+  assert(value.is_array());
+  assert(value.size() == 4);
+#if defined(__SIZEOF_INT128__)
+  return {
+      (static_cast<__uint128_t>(from_json<std::uint64_t>(value.at(0))) << 64) |
+          from_json<std::uint64_t>(value.at(1)),
+      (static_cast<__uint128_t>(from_json<std::uint64_t>(value.at(2))) << 64) |
+          from_json<std::uint64_t>(value.at(3))};
+#else
+  return {from_json<std::uint64_t>(value.at(0)),
+          from_json<std::uint64_t>(value.at(1)),
+          from_json<std::uint64_t>(value.at(2)),
+          from_json<std::uint64_t>(value.at(3))};
+#endif
+}
+
 /// @ingroup json
 template <typename T>
   requires std::constructible_from<JSON, T>
 auto to_json(const T &value) -> JSON {
   return JSON{value};
+}
+
+/// @ingroup json
+template <typename T>
+  requires std::is_same_v<T, JSON>
+auto from_json(const JSON &value) -> T {
+  return value;
+}
+
+/// @ingroup json
+template <typename T>
+  requires json_auto_is_basic_string<T>::value
+auto from_json(const JSON &value) -> T {
+  assert(value.is_string());
+  return value.to_string();
 }
 
 /// @ingroup json
@@ -137,8 +224,29 @@ auto to_json(const T value) -> JSON {
 }
 
 /// @ingroup json
+template <typename T>
+  requires std::is_enum_v<T>
+auto from_json(const JSON &value) -> T {
+  assert(value.is_integer());
+  assert(value.is_positive());
+  return static_cast<T>(value.to_integer());
+}
+
+/// @ingroup json
 template <typename T> auto to_json(const std::optional<T> &value) -> JSON {
   return value.has_value() ? to_json(value.value()) : JSON{nullptr};
+}
+
+/// @ingroup json
+template <typename T>
+  requires requires { typename T::value_type; } &&
+           std::is_same_v<T, std::optional<typename T::value_type>>
+auto from_json(const JSON &value) -> T {
+  if (value.is_null()) {
+    return {};
+  } else {
+    return from_json<typename T::value_type>(value);
+  }
 }
 
 /// @ingroup json
@@ -149,6 +257,11 @@ auto to_json(typename T::const_iterator begin, typename T::const_iterator end)
   auto result{JSON::make_array()};
   for (auto iterator = begin; iterator != end; ++iterator) {
     result.push_back(to_json(*iterator));
+  }
+
+  // To guarantee ordering across implementations
+  if constexpr (!json_auto_has_reverse_iterator<T>::value) {
+    std::sort(result.as_array().begin(), result.as_array().end());
   }
 
   return result;
@@ -166,6 +279,11 @@ auto to_json(
     result.push_back(callback(*iterator));
   }
 
+  // To guarantee ordering across implementations
+  if constexpr (!json_auto_has_reverse_iterator<T>::value) {
+    std::sort(result.as_array().begin(), result.as_array().end());
+  }
+
   return result;
 }
 
@@ -181,6 +299,52 @@ auto to_json(
     const std::function<JSON(const typename T::value_type &)> &callback)
     -> JSON {
   return to_json<T>(value.cbegin(), value.cend(), callback);
+}
+
+/// @ingroup json
+template <json_auto_list_like T> auto from_json(const JSON &value) -> T {
+  assert(value.is_array());
+  T result;
+
+  if constexpr (requires { result.reserve(value.size()); }) {
+    result.reserve(value.size());
+  }
+
+  for (const auto &item : value.as_array()) {
+    if constexpr (requires {
+                    result.insert(from_json<typename T::value_type>(item));
+                  }) {
+      result.insert(from_json<typename T::value_type>(item));
+    } else {
+      result.push_back(from_json<typename T::value_type>(item));
+    }
+  }
+
+  return result;
+}
+
+template <json_auto_list_like T>
+auto from_json(
+    const JSON &value,
+    const std::function<typename T::value_type(const JSON &)> &callback) -> T {
+  assert(value.is_array());
+  T result;
+
+  if constexpr (requires { result.reserve(value.size()); }) {
+    result.reserve(value.size());
+  }
+
+  for (const auto &item : value.as_array()) {
+    if constexpr (requires {
+                    result.insert(from_json<typename T::value_type>(item));
+                  }) {
+      result.insert(callback(item));
+    } else {
+      result.push_back(callback(item));
+    }
+  }
+
+  return result;
 }
 
 /// @ingroup json
@@ -215,6 +379,31 @@ auto to_json(
 }
 
 /// @ingroup json
+template <json_auto_map_like T> auto from_json(const JSON &value) -> T {
+  assert(value.is_object());
+  T result;
+  for (const auto &item : value.as_object()) {
+    result.emplace(item.first, from_json<typename T::mapped_type>(item.second));
+  }
+
+  return result;
+}
+
+/// @ingroup json
+template <json_auto_map_like T>
+auto from_json(
+    const JSON &value,
+    const std::function<typename T::mapped_type(const JSON &)> &callback) -> T {
+  assert(value.is_object());
+  T result;
+  for (const auto &item : value.as_object()) {
+    result.emplace(item.first, callback(item.second));
+  }
+
+  return result;
+}
+
+/// @ingroup json
 template <json_auto_map_like T>
 auto to_json(
     const T &value,
@@ -232,6 +421,17 @@ auto to_json(const std::pair<L, R> &value) -> JSON {
   return tuple;
 }
 
+/// @ingroup json
+template <typename T>
+  requires json_auto_is_pair<T>::value
+auto from_json(const JSON &value) -> T {
+  assert(value.is_array());
+  assert(value.size() == 2);
+  return std::make_pair<typename T::first_type, typename T::second_type>(
+      from_json<typename T::first_type>(value.at(0)),
+      from_json<typename T::second_type>(value.at(1)));
+}
+
 // Handle 1-element tuples
 /// @ingroup json
 template <json_auto_tuple_mono T> auto to_json(const T &value) -> JSON {
@@ -239,6 +439,13 @@ template <json_auto_tuple_mono T> auto to_json(const T &value) -> JSON {
   std::apply([&](const auto &element) { tuple.push_back(to_json(element)); },
              value);
   return tuple;
+}
+
+/// @ingroup json
+template <json_auto_tuple_mono T> auto from_json(const JSON &value) -> T {
+  assert(value.is_array());
+  assert(value.size() == 1);
+  return {from_json<std::tuple_element_t<0, T>>(value.at(0))};
 }
 
 /// @ingroup json
@@ -250,6 +457,22 @@ template <json_auto_tuple_poly T> auto to_json(const T &value) -> JSON {
       },
       value);
   return tuple;
+}
+
+#ifndef DOXYGEN
+template <typename T, std::size_t... Indices>
+auto from_json_tuple_poly(const JSON &value, std::index_sequence<Indices...>)
+    -> T {
+  return {from_json<std::tuple_element_t<Indices, T>>(value.at(Indices))...};
+}
+#endif
+
+/// @ingroup json
+template <json_auto_tuple_poly T> auto from_json(const JSON &value) -> T {
+  assert(value.is_array());
+  assert(value.size() == std::tuple_size_v<T>);
+  return from_json_tuple_poly<T>(
+      value, std::make_index_sequence<std::tuple_size_v<T>>{});
 }
 
 } // namespace sourcemeta::core

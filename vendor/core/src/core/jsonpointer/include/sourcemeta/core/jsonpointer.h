@@ -17,6 +17,7 @@
 #include <sourcemeta/core/jsonpointer_walker.h>
 // NOLINTEND(misc-include-cleaner)
 
+#include <cassert>     // assert
 #include <functional>  // std::reference_wrapper
 #include <memory>      // std::allocator
 #include <ostream>     // std::basic_ostream
@@ -580,6 +581,15 @@ template <typename T>
   requires std::is_same_v<T, WeakPointer>
 auto to_json(const T &value) -> JSON {
   return JSON{to_string(value)};
+}
+
+/// @ingroup jsonpointer
+/// Deserialise a Pointer from JSON
+template <typename T>
+  requires std::is_same_v<T, Pointer>
+auto from_json(const JSON &value) -> T {
+  assert(value.is_string());
+  return to_pointer(value.to_string());
 }
 
 } // namespace sourcemeta::core
