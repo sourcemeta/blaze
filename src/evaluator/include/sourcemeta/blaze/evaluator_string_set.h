@@ -51,6 +51,18 @@ public:
     });
   }
 
+  static auto from_json(const sourcemeta::core::JSON &value) -> StringSet {
+    assert(value.is_array());
+    StringSet result;
+    for (const auto &item : value.as_array()) {
+      assert(item.is_string());
+      result.insert(
+          sourcemeta::core::from_json<sourcemeta::core::JSON::String>(item));
+    }
+
+    return result;
+  }
+
 private:
 // Exporting symbols that depends on the standard C++ library is considered
 // safe.

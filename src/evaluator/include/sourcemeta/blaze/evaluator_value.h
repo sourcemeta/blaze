@@ -23,6 +23,10 @@ struct ValueNone {
   auto to_json() const -> sourcemeta::core::JSON {
     return sourcemeta::core::JSON{nullptr};
   }
+
+  static auto from_json(const sourcemeta::core::JSON &) -> ValueNone {
+    return {};
+  }
 };
 
 /// @ingroup evaluator
@@ -74,6 +78,14 @@ struct ValueRegex {
 
   auto to_json() const -> sourcemeta::core::JSON {
     return sourcemeta::core::to_json(this->second);
+  }
+
+  static auto from_json(const sourcemeta::core::JSON &value) -> ValueRegex {
+    assert(value.is_string());
+    auto string{value.to_string()};
+    auto regex{sourcemeta::core::to_regex(string)};
+    assert(regex.has_value());
+    return {std::move(regex).value(), std::move(string)};
   }
 };
 

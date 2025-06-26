@@ -186,14 +186,15 @@ compile(const Context &context, const SchemaContext &schema_context,
         const std::optional<std::string> &uri = std::nullopt) -> Instructions;
 
 /// @ingroup compiler
-/// Serialise an instruction as JSON
-auto SOURCEMETA_BLAZE_COMPILER_EXPORT to_json(const Instruction &instruction)
-    -> sourcemeta::core::JSON;
-
-/// @ingroup compiler
 /// Serialise a template as JSON
 auto SOURCEMETA_BLAZE_COMPILER_EXPORT to_json(const Template &schema_template)
     -> sourcemeta::core::JSON;
+
+/// @ingroup compiler
+/// Parse a template from JSON. Note that this function assumes that the JSON
+/// document represents a valid template and minimal error checking is performed
+auto SOURCEMETA_BLAZE_COMPILER_EXPORT
+from_json(const sourcemeta::core::JSON &json) -> Template;
 
 } // namespace sourcemeta::blaze
 
