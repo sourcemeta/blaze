@@ -19,7 +19,11 @@ namespace sourcemeta::blaze {
 
 /// @ingroup evaluator
 /// @brief Represents a compiler step empty value
-struct ValueNone {};
+struct ValueNone {
+  auto to_json() const -> sourcemeta::core::JSON {
+    return sourcemeta::core::JSON{nullptr};
+  }
+};
 
 /// @ingroup evaluator
 /// Represents a compiler step JSON value
@@ -62,7 +66,16 @@ using ValueType = sourcemeta::core::JSON::Type;
 /// original string and the regular expression as standard regular expressions
 /// do not keep a copy of their original value (which we need for serialization
 /// purposes)
-using ValueRegex = std::pair<sourcemeta::core::Regex<ValueString>, std::string>;
+struct ValueRegex {
+  using second_type = ValueString;
+  using first_type = sourcemeta::core::Regex<second_type>;
+  const first_type first;
+  const second_type second;
+
+  auto to_json() const -> sourcemeta::core::JSON {
+    return sourcemeta::core::to_json(this->second);
+  }
+};
 
 /// @ingroup evaluator
 /// Represents a compiler step JSON unsigned integer value
