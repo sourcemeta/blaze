@@ -128,7 +128,7 @@ TEST(Compiler_JSON, example_3) {
         "r": 0,
         "v": {
           "t": 9,
-          "v": [ null, "^f" ]
+          "v": "^f"
         },
         "c": []
       }
