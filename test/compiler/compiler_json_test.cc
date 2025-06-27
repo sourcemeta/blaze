@@ -6,9 +6,9 @@
   {                                                                            \
     const auto result{sourcemeta::blaze::to_json(schema_template)};            \
     EXPECT_EQ(result, (expected));                                             \
-    EXPECT_EQ(                                                                 \
-        sourcemeta::blaze::to_json(sourcemeta::blaze::from_json(result)),      \
-        (expected));                                                           \
+    const auto template_back{sourcemeta::blaze::from_json(result)};            \
+    EXPECT_TRUE(template_back.has_value());                                    \
+    EXPECT_EQ(sourcemeta::blaze::to_json(template_back.value()), (expected));  \
   }
 
 TEST(Compiler_JSON, example_1) {
@@ -136,4 +136,17 @@ TEST(Compiler_JSON, example_3) {
   })JSON")};
 
   EXPECT_BIDIRECTIONAL_JSON(schema_template, expected);
+}
+
+TEST(Compiler_JSON, invalid_1) {
+  const auto input{sourcemeta::core::parse_json(R"JSON({
+    "dynamic": false,
+    "track": false,
+    "instructions": [
+      { "t": 99 }
+    ]
+  })JSON")};
+
+  const auto result{sourcemeta::blaze::from_json(input)};
+  EXPECT_FALSE(result.has_value());
 }

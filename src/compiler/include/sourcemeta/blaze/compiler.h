@@ -191,10 +191,9 @@ auto SOURCEMETA_BLAZE_COMPILER_EXPORT to_json(const Template &schema_template)
     -> sourcemeta::core::JSON;
 
 /// @ingroup compiler
-/// Parse a template from JSON. Note that this function assumes that the JSON
-/// document represents a valid template and minimal error checking is performed
+/// Parse a template from JSON
 auto SOURCEMETA_BLAZE_COMPILER_EXPORT
-from_json(const sourcemeta::core::JSON &json) -> Template;
+from_json(const sourcemeta::core::JSON &json) -> std::optional<Template>;
 
 } // namespace sourcemeta::blaze
 

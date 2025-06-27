@@ -24,8 +24,9 @@ struct ValueNone {
     return sourcemeta::core::JSON{nullptr};
   }
 
-  static auto from_json(const sourcemeta::core::JSON &) -> ValueNone {
-    return {};
+  static auto from_json(const sourcemeta::core::JSON &)
+      -> std::optional<ValueNone> {
+    return ValueNone{};
   }
 };
 
@@ -80,12 +81,19 @@ struct ValueRegex {
     return sourcemeta::core::to_json(this->second);
   }
 
-  static auto from_json(const sourcemeta::core::JSON &value) -> ValueRegex {
-    assert(value.is_string());
+  static auto from_json(const sourcemeta::core::JSON &value)
+      -> std::optional<ValueRegex> {
+    if (!value.is_string()) {
+      return std::nullopt;
+    }
+
     auto string{value.to_string()};
     auto regex{sourcemeta::core::to_regex(string)};
-    assert(regex.has_value());
-    return {std::move(regex).value(), std::move(string)};
+    if (!regex.has_value()) {
+      return std::nullopt;
+    }
+
+    return ValueRegex{std::move(regex).value(), std::move(string)};
   }
 };
 
