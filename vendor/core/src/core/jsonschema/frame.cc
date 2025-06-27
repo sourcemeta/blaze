@@ -76,7 +76,11 @@ auto find_anchors(const sourcemeta::core::JSON &schema,
       const sourcemeta::core::URI identifier(schema.at("$id").to_string());
       if (identifier.is_fragment_only()) {
         result.insert(
-            {sourcemeta::core::JSON::String{identifier.fragment().value()},
+            {sourcemeta::core::JSON::String{
+                 identifier.fragment()
+                     .value()}, // NOLINT(bugprone-unchecked-optional-access):
+                                // Check for optional is happening
+                                // inside is_fragment_only()
              AnchorType::Static});
       }
     }
@@ -91,7 +95,11 @@ auto find_anchors(const sourcemeta::core::JSON &schema,
       const sourcemeta::core::URI identifier(schema.at("id").to_string());
       if (identifier.is_fragment_only()) {
         result.insert(
-            {sourcemeta::core::JSON::String{identifier.fragment().value()},
+            {sourcemeta::core::JSON::String{
+                 identifier.fragment()
+                     .value()}, // NOLINT(bugprone-unchecked-optional-access):
+                                // Check for optional is happening
+                                // inside is_fragment_only()
              AnchorType::Static});
       }
     }
@@ -448,15 +456,15 @@ auto SchemaFrame::analyse(const JSON &root, const SchemaWalker &walker,
       if (this->mode_ == SchemaFrame::Mode::Instances) {
         store(this->locations_, this->instances_, SchemaReferenceType::Static,
               SchemaFrame::LocationType::Resource, default_id_canonical,
-              root_id.value(), root_id.value(), path,
-              sourcemeta::core::empty_pointer, root_dialect.value(),
-              root_base_dialect.value(), {{}}, std::nullopt);
+              root_id, root_id.value(), path, sourcemeta::core::empty_pointer,
+              root_dialect.value(), root_base_dialect.value(), {{}},
+              std::nullopt);
       } else {
         store(this->locations_, this->instances_, SchemaReferenceType::Static,
               SchemaFrame::LocationType::Resource, default_id_canonical,
-              root_id.value(), root_id.value(), path,
-              sourcemeta::core::empty_pointer, root_dialect.value(),
-              root_base_dialect.value(), {}, std::nullopt);
+              root_id, root_id.value(), path, sourcemeta::core::empty_pointer,
+              root_dialect.value(), root_base_dialect.value(), {},
+              std::nullopt);
       }
 
       base_uris.insert({path, {default_id_canonical}});

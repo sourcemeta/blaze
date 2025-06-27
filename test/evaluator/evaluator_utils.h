@@ -44,8 +44,10 @@ inline auto FIRST_PROPERTY_IS(const sourcemeta::core::JSON &document,
   {                                                                            \
     const auto template_json{sourcemeta::blaze::to_json(compiled_schema)};     \
     EXPECT_TRUE(template_json.is_object());                                    \
-    const auto template_json_back{sourcemeta::blaze::to_json(                  \
-        sourcemeta::blaze::from_json(template_json))};                         \
+    const auto template_back{sourcemeta::blaze::from_json(template_json)};     \
+    EXPECT_TRUE(template_back.has_value());                                    \
+    const auto template_json_back{                                             \
+        sourcemeta::blaze::to_json(template_back.value())};                    \
     EXPECT_EQ(template_json, template_json_back);                              \
   }
 

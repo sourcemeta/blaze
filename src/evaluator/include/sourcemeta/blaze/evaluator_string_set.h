@@ -7,8 +7,9 @@
 
 #include <sourcemeta/core/json.h>
 
-#include <utility> // std::pair
-#include <vector>  // std::vector
+#include <optional> // std::optional
+#include <utility>  // std::pair
+#include <vector>   // std::vector
 
 namespace sourcemeta::blaze {
 
@@ -51,13 +52,21 @@ public:
     });
   }
 
-  static auto from_json(const sourcemeta::core::JSON &value) -> StringSet {
-    assert(value.is_array());
+  static auto from_json(const sourcemeta::core::JSON &value)
+      -> std::optional<StringSet> {
+    if (!value.is_array()) {
+      return std::nullopt;
+    }
+
     StringSet result;
     for (const auto &item : value.as_array()) {
-      assert(item.is_string());
-      result.insert(
-          sourcemeta::core::from_json<sourcemeta::core::JSON::String>(item));
+      auto subvalue{
+          sourcemeta::core::from_json<sourcemeta::core::JSON::String>(item)};
+      if (!subvalue.has_value()) {
+        return std::nullopt;
+      }
+
+      result.insert(std::move(subvalue).value());
     }
 
     return result;
