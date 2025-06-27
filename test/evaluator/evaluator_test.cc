@@ -19,6 +19,12 @@ static auto test_resolver(std::string_view identifier)
         "https://example.com/vocab/custom": true
       }
     })JSON");
+  } else if (identifier == "https://example.com/schema") {
+    return sourcemeta::core::parse_json(R"JSON({
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "$id": "https://example.com/schema",
+      "type": "string"
+    })JSON");
   } else {
     return sourcemeta::core::schema_official_resolver(identifier);
   }
@@ -40,6 +46,36 @@ TEST(Evaluator, unknown_vocabulary_required) {
   } catch (const std::exception &) {
     FAIL() << "The compile function was expected to throw a vocabulary error";
   }
+}
+
+TEST(Evaluator, without_default_id) {
+  const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "$ref": "schema"
+  })JSON")};
+
+  EXPECT_THROW(sourcemeta::blaze::compile(
+                   schema, sourcemeta::core::schema_official_walker,
+                   test_resolver, sourcemeta::blaze::default_schema_compiler,
+                   sourcemeta::blaze::Mode::FastValidation),
+               sourcemeta::core::SchemaResolutionError);
+}
+
+TEST(Evaluator, with_default_id) {
+  const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "$ref": "schema"
+  })JSON")};
+
+  const auto compiled_schema{sourcemeta::blaze::compile(
+      schema, sourcemeta::core::schema_official_walker, test_resolver,
+      sourcemeta::blaze::default_schema_compiler,
+      sourcemeta::blaze::Mode::FastValidation, std::nullopt,
+      "https://example.com/default")};
+
+  const sourcemeta::core::JSON instance{"foo"};
+  EVALUATE_WITH_TRACE(compiled_schema, instance, 1)
+  EXPECT_TRUE(result);
 }
 
 TEST(Evaluator, boolean_true) {
