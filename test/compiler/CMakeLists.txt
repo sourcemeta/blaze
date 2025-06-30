@@ -3,6 +3,8 @@ sourcemeta_googletest(NAMESPACE sourcemeta PROJECT blaze NAME compiler
   SOURCES
     compiler_output_simple_test.cc
     compiler_output_trace_test.cc
+    compiler_output_standard_flag_test.cc
+    compiler_output_standard_basic_test.cc
     compiler_unevaluated_2019_09_test.cc
     compiler_unevaluated_2020_12_test.cc
     compiler_json_test.cc

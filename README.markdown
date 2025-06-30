@@ -41,8 +41,10 @@ Features
 - **Compliance:** Blaze achieves a 100% compliance score in the official
   [Bowtie](https://bowtie.report/#/implementations/cpp-blaze) benchmark, while
   popular validators like [AJV](https://bowtie.report/#/implementations/js-ajv)
-  only achieve an average 85% compliance. Furthermore, Blaze is built and
-  maintained by a [JSON Schema TSC member](https://www.jviotti.com)
+  only achieve an average 85% compliance. It also supports the [Standard
+  Output](https://json-schema.org/draft/2020-12/json-schema-core#name-output-formatting)
+  format (Flag, and Basic). Furthermore, Blaze is built and maintained by a
+  [JSON Schema TSC member](https://www.jviotti.com)
 
 - **Extensibility:** Blaze supports the implementation of custom vocabularies
   of arbitrary complexity, and the ability to setup custom resolution of
