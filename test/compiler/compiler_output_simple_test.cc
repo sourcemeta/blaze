@@ -26,15 +26,12 @@
         sourcemeta::core::to_pointer(expected_instance_location)};             \
     const auto evaluate_path{                                                  \
         sourcemeta::core::to_pointer(expected_evaluate_path)};                 \
-    EXPECT_TRUE(output.annotations().contains(                                 \
-        {sourcemeta::core::to_weak_pointer(instance_location),                 \
-         sourcemeta::core::to_weak_pointer(evaluate_path),                     \
-         (expected_schema_location)}));                                        \
-    EXPECT_EQ(output.annotations()                                             \
-                  .at({sourcemeta::core::to_weak_pointer(instance_location),   \
-                       sourcemeta::core::to_weak_pointer(evaluate_path),       \
-                       (expected_schema_location)})                            \
-                  .size(),                                                     \
+    const std::string schema_location{expected_schema_location};               \
+    const sourcemeta::blaze::SimpleOutput::Location location{                  \
+        sourcemeta::core::to_weak_pointer(instance_location),                  \
+        sourcemeta::core::to_weak_pointer(evaluate_path), schema_location};    \
+    EXPECT_TRUE(output.annotations().contains(location));                      \
+    EXPECT_EQ(output.annotations().at(location).size(),                        \
               (expected_entry_count));                                         \
   }
 
@@ -46,11 +43,11 @@
         sourcemeta::core::to_pointer(expected_instance_location)};             \
     const auto evaluate_path{                                                  \
         sourcemeta::core::to_pointer(expected_evaluate_path)};                 \
-    EXPECT_EQ(output.annotations()                                             \
-                  .at({sourcemeta::core::to_weak_pointer(instance_location),   \
-                       sourcemeta::core::to_weak_pointer(evaluate_path),       \
-                       (expected_schema_location)})                            \
-                  .at(expected_entry_index),                                   \
+    const std::string schema_location{expected_schema_location};               \
+    const sourcemeta::blaze::SimpleOutput::Location location{                  \
+        sourcemeta::core::to_weak_pointer(instance_location),                  \
+        sourcemeta::core::to_weak_pointer(evaluate_path), schema_location};    \
+    EXPECT_EQ(output.annotations().at(location).at(expected_entry_index),      \
               (expected_value));                                               \
   }
 

@@ -38,11 +38,11 @@ has_annotation(const sourcemeta::blaze::SimpleOutput &output,
   for (const auto &annotation : output.annotations()) {
     std::cerr << "Checking against annotations for instance location \""
               << sourcemeta::core::to_string(annotation.first.instance_location)
-              << "\" and schema location \"" << annotation.first.schema_location
-              << "\"" << "\n";
+              << "\" and schema location \""
+              << annotation.first.schema_location.get() << "\"" << "\n";
 
     if (annotation.first.instance_location != instance_location ||
-        annotation.first.schema_location != schema_location) {
+        annotation.first.schema_location.get() != schema_location) {
       continue;
     } else if (std::find(annotation.second.cbegin(), annotation.second.cend(),
                          value) != annotation.second.cend()) {
