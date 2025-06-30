@@ -104,14 +104,14 @@ public:
     auto operator<(const Location &other) const noexcept -> bool {
       // Perform a lexicographical comparison
       return std::tie(this->instance_location, this->evaluate_path,
-                      this->schema_location) < std::tie(other.instance_location,
-                                                        other.evaluate_path,
-                                                        other.schema_location);
+                      this->schema_location.get()) <
+             std::tie(other.instance_location, other.evaluate_path,
+                      other.schema_location.get());
     }
 
     const sourcemeta::core::WeakPointer instance_location;
     const sourcemeta::core::WeakPointer evaluate_path;
-    const std::string schema_location;
+    const std::reference_wrapper<const std::string> schema_location;
   };
 
   auto stacktrace(std::ostream &stream,
