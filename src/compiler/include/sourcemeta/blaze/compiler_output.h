@@ -81,6 +81,7 @@ public:
     const std::string message;
     const sourcemeta::core::WeakPointer instance_location;
     const sourcemeta::core::WeakPointer evaluate_path;
+    const std::reference_wrapper<const std::string> schema_location;
   };
 
   auto operator()(const EvaluationType type, const bool result,
