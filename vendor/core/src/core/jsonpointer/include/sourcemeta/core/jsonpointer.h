@@ -25,7 +25,7 @@
 #include <type_traits> // std::is_same_v
 
 /// @defgroup jsonpointer JSON Pointer
-/// @brief An growing implementation of RFC 6901 JSON Pointer.
+/// @brief A growing implementation of RFC 6901 JSON Pointer.
 ///
 /// This functionality is included as follows:
 ///
@@ -579,7 +579,7 @@ auto to_json(const T &value) -> JSON {
 /// Serialise a WeakPointer as JSON
 template <typename T>
   requires std::is_same_v<T, WeakPointer>
-auto to_json(const T &value) -> std::optional<JSON> {
+auto to_json(const T &value) -> JSON {
   return JSON{to_string(value)};
 }
 

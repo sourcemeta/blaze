@@ -23,7 +23,7 @@ auto uri_normalize(UriUriA *uri) -> void {
 }
 
 auto uri_to_string(const UriUriA *const uri) -> std::string {
-  int size;
+  int size = 0;
   if (uriToStringCharsRequiredA(uri, &size) != URI_SUCCESS) {
     throw sourcemeta::core::URIError{"Could not determine URI size"};
   }
@@ -51,7 +51,7 @@ auto uri_text_range(const UriTextRangeA *const range)
 }
 
 auto uri_parse(const std::string &data, UriUriA *uri) -> void {
-  const char *error_position;
+  const char *error_position = nullptr;
   switch (uriParseSingleUriA(uri, data.c_str(), &error_position)) {
     case URI_ERROR_SYNTAX:
       // TODO: Test the positions of this error
@@ -556,17 +556,24 @@ auto URI::canonicalize() -> URI & {
 }
 
 auto URI::resolve_from(const URI &base) -> URI & {
+  const bool is_file{base.scheme_ == "file"};
+  auto copy = base;
+  if (is_file) {
+    // Huge hack, but otherwise `uriparser` will resolve in a weird way
+    copy.host_ = "placeholder";
+  }
+
   UriUriA absoluteDest;
   // Looks like this function allocates to the output variable
   // even on failure.
   // See https://uriparser.github.io/doc/api/latest/
   switch (uriAddBaseUriExA(&absoluteDest, &this->internal->uri,
-                           &base.internal->uri, URI_RESOLVE_STRICTLY)) {
+                           &copy.internal->uri, URI_RESOLVE_STRICTLY)) {
     case URI_SUCCESS:
       break;
     case URI_ERROR_ADDBASE_REL_BASE:
       uriFreeUriMembersA(&absoluteDest);
-      assert(!base.is_absolute());
+      assert(!copy.is_absolute());
       throw URIError{"Base URI is not absolute"};
     default:
       uriFreeUriMembersA(&absoluteDest);
@@ -727,7 +734,7 @@ auto URI::from_path(const std::filesystem::path &path) -> URI {
   const auto is_unc{normalized.starts_with("\\\\")};
   const auto is_windows_absolute{normalized.size() >= 2 &&
                                  normalized[1] == ':'};
-  std::replace(normalized.begin(), normalized.end(), '\\', '/');
+  std::ranges::replace(normalized, '\\', '/');
   const auto is_unix_absolute{normalized.starts_with("/")};
   if (!is_unix_absolute && !is_windows_absolute && !is_unc) {
     throw URIError(
