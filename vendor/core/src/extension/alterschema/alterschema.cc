@@ -16,18 +16,6 @@ contains_any(const Vocabularies &container,
   });
 }
 
-template <typename T>
-static auto every_item_is_null(const T &container) -> bool {
-  return std::all_of(std::cbegin(container), std::cend(container),
-                     [](const auto &element) { return element.is_null(); });
-}
-
-template <typename T>
-static auto every_item_is_boolean(const T &container) -> bool {
-  return std::all_of(std::cbegin(container), std::cend(container),
-                     [](const auto &element) { return element.is_boolean(); });
-}
-
 // Canonicalizer
 #include "canonicalizer/boolean_true.h"
 #include "canonicalizer/const_as_enum.h"
@@ -47,6 +35,7 @@ static auto every_item_is_boolean(const T &container) -> bool {
 #include "canonicalizer/type_union_implicit.h"
 
 // Linter
+#include "linter/additional_items_with_schema_items.h"
 #include "linter/additional_properties_default.h"
 #include "linter/const_with_type.h"
 #include "linter/content_media_type_without_encoding.h"
@@ -56,6 +45,7 @@ static auto every_item_is_boolean(const T &container) -> bool {
 #include "linter/dependencies_property_tautology.h"
 #include "linter/dependent_required_default.h"
 #include "linter/dependent_required_tautology.h"
+#include "linter/draft_official_dialect_without_empty_fragment.h"
 #include "linter/duplicate_allof_branches.h"
 #include "linter/duplicate_anyof_branches.h"
 #include "linter/duplicate_enum_values.h"
@@ -73,6 +63,8 @@ static auto every_item_is_boolean(const T &container) -> bool {
 #include "linter/maximum_real_for_integer.h"
 #include "linter/min_contains_without_contains.h"
 #include "linter/minimum_real_for_integer.h"
+#include "linter/modern_official_dialect_with_empty_fragment.h"
+#include "linter/multiple_of_default.h"
 #include "linter/non_applicable_type_specific_keywords.h"
 #include "linter/pattern_properties_default.h"
 #include "linter/properties_default.h"
@@ -80,7 +72,9 @@ static auto every_item_is_boolean(const T &container) -> bool {
 #include "linter/then_without_if.h"
 #include "linter/unevaluated_items_default.h"
 #include "linter/unevaluated_properties_default.h"
-#include "linter/unnecessary_allof_ref_wrapper.h"
+#include "linter/unnecessary_allof_wrapper_draft.h"
+#include "linter/unnecessary_allof_wrapper_modern.h"
+#include "linter/unnecessary_allof_wrapper_properties.h"
 #include "linter/unsatisfiable_max_contains.h"
 #include "linter/unsatisfiable_min_properties.h"
 } // namespace sourcemeta::core
@@ -93,8 +87,11 @@ auto add(SchemaTransformer &bundle, const AlterSchemaMode mode)
   // Common rules that apply to all modes
   bundle.add<ContentMediaTypeWithoutEncoding>();
   bundle.add<ContentSchemaWithoutMediaType>();
+  bundle.add<DraftOfficialDialectWithoutEmptyFragment>();
   bundle.add<NonApplicableTypeSpecificKeywords>();
-  bundle.add<UnnecessaryAllOfRefWrapper>();
+  bundle.add<UnnecessaryAllOfWrapperModern>();
+  bundle.add<UnnecessaryAllOfWrapperDraft>();
+  bundle.add<UnnecessaryAllOfWrapperProperties>();
   bundle.add<DuplicateAllOfBranches>();
   bundle.add<DuplicateAnyOfBranches>();
   bundle.add<ElseWithoutIf>();
@@ -112,6 +109,8 @@ auto add(SchemaTransformer &bundle, const AlterSchemaMode mode)
   bundle.add<DuplicateEnumValues>();
   bundle.add<DuplicateRequiredValues>();
   bundle.add<ConstWithType>();
+  bundle.add<AdditionalItemsWithSchemaItems>();
+  bundle.add<ModernOfficialDialectWithEmptyFragment>();
   bundle.add<ExclusiveMaximumNumberAndMaximum>();
   bundle.add<ExclusiveMinimumNumberAndMinimum>();
 
@@ -141,6 +140,7 @@ auto add(SchemaTransformer &bundle, const AlterSchemaMode mode)
       bundle.add<DependentRequiredDefault>();
       bundle.add<ItemsArrayDefault>();
       bundle.add<ItemsSchemaDefault>();
+      bundle.add<MultipleOfDefault>();
       bundle.add<PatternPropertiesDefault>();
       bundle.add<PropertiesDefault>();
       bundle.add<UnevaluatedItemsDefault>();

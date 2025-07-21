@@ -111,23 +111,20 @@ using ValueRange = std::tuple<std::size_t, std::optional<std::size_t>, bool>;
 /// Represents a compiler step boolean value
 using ValueBoolean = bool;
 
-// TODO: Don't use FlatMap directly, as it is an internal module of Core
 /// @ingroup evaluator
 /// Represents a compiler step string to index map
-using ValueNamedIndexes =
-    sourcemeta::core::FlatMap<ValueString, ValueUnsignedInteger,
-                              sourcemeta::core::PropertyHashJSON<ValueString>>;
+using ValueNamedIndexes = sourcemeta::core::JSONObject<
+    ValueString, ValueUnsignedInteger,
+    sourcemeta::core::PropertyHashJSON<ValueString>>;
 
 /// @ingroup evaluator
 /// Represents a compiler step string logical type
 enum class ValueStringType : std::uint8_t { URI };
 
-// TODO: Don't use FlatMap directly, as it is an internal module of Core
 /// @ingroup evaluator
 /// Represents an compiler step that maps strings to strings
-using ValueStringMap =
-    sourcemeta::core::FlatMap<ValueString, ValueStrings,
-                              sourcemeta::core::PropertyHashJSON<ValueString>>;
+using ValueStringMap = sourcemeta::core::JSONObject<
+    ValueString, ValueStrings, sourcemeta::core::PropertyHashJSON<ValueString>>;
 
 /// @ingroup evaluator
 /// Represents a compiler step value that consist of object property filters

@@ -13,6 +13,14 @@ auto sourcemeta::core::is_schema(const sourcemeta::core::JSON &schema) -> bool {
   return schema.is_object() || schema.is_boolean();
 }
 
+// TODO: Make this function detect schemas only using identifier/comment
+// keywords, etc
+auto sourcemeta::core::is_empty_schema(const sourcemeta::core::JSON &schema)
+    -> bool {
+  return (schema.is_boolean() && schema.to_boolean()) ||
+         (schema.is_object() && schema.empty());
+}
+
 namespace {
 
 auto id_keyword_guess(const sourcemeta::core::JSON &schema)
@@ -435,7 +443,8 @@ auto sourcemeta::core::vocabularies(const SchemaResolver &resolver,
   // complexity of the generic `id` function.
   assert(schema_dialect.defines("$id") &&
          schema_dialect.at("$id").is_string() &&
-         schema_dialect.at("$id").to_string() == dialect);
+         URI::canonicalize(schema_dialect.at("$id").to_string()) ==
+             URI::canonicalize(dialect));
 
   /*
    * (4) Retrieve the vocabularies explicitly or implicitly declared by the

@@ -1,7 +1,6 @@
 #ifndef SOURCEMETA_CORE_JSON_OBJECT_H_
 #define SOURCEMETA_CORE_JSON_OBJECT_H_
 
-#include <algorithm>        // std::swap
 #include <cassert>          // assert
 #include <cstddef>          // std::size_t
 #include <initializer_list> // std::initializer_list
@@ -46,12 +45,21 @@ public:
     }
   }
 
-  auto begin() const noexcept -> const_iterator { return this->data.begin(); }
-  auto end() const noexcept -> const_iterator { return this->data.end(); }
-  auto cbegin() const noexcept -> const_iterator { return this->data.cbegin(); }
-  auto cend() const noexcept -> const_iterator { return this->data.cend(); }
+  [[nodiscard]] auto begin() const noexcept -> const_iterator {
+    return this->data.begin();
+  }
+  [[nodiscard]] auto end() const noexcept -> const_iterator {
+    return this->data.end();
+  }
+  [[nodiscard]] auto cbegin() const noexcept -> const_iterator {
+    return this->data.cbegin();
+  }
+  [[nodiscard]] auto cend() const noexcept -> const_iterator {
+    return this->data.cend();
+  }
 
-  inline auto hash(const key_type &key) const noexcept -> hash_type {
+  [[nodiscard]] inline auto hash(const key_type &key) const noexcept
+      -> hash_type {
     return this->hasher(key);
   }
 
@@ -75,6 +83,39 @@ public:
     }
 
     this->data.push_back({std::move(key), std::move(value), key_hash});
+    return key_hash;
+  }
+
+  auto try_emplace_before(const key_type &key, const mapped_type &value,
+                          const key_type &suffix) -> hash_type {
+    const auto key_hash{this->hash(key)};
+    const auto suffix_hash{this->hash(suffix)};
+
+    if (this->hasher.is_perfect(key_hash)) {
+      for (auto iterator = this->data.begin(); iterator != this->data.end();
+           ++iterator) {
+        if (iterator->hash == key_hash) {
+          iterator->second = value;
+          return key_hash;
+        } else if (iterator->hash == suffix_hash && iterator->first == suffix) {
+          this->data.insert(iterator, {key, value, key_hash});
+          return key_hash;
+        }
+      }
+    } else {
+      for (auto iterator = this->data.begin(); iterator != this->data.end();
+           ++iterator) {
+        if (iterator->hash == key_hash && iterator->first == key) {
+          iterator->second = value;
+          return key_hash;
+        } else if (iterator->hash == suffix_hash && iterator->first == suffix) {
+          this->data.insert(iterator, {key, value, key_hash});
+          return key_hash;
+        }
+      }
+    }
+
+    this->data.push_back({key, value, key_hash});
     return key_hash;
   }
 
@@ -102,7 +143,8 @@ public:
   }
 
   // As a performance optimisation if the hash is known
-  inline auto find(const key_type &key, const hash_type key_hash) const
+  [[nodiscard]] inline auto find(const key_type &key,
+                                 const hash_type key_hash) const
       -> const_iterator {
     assert(this->hash(key) == key_hash);
 
@@ -129,7 +171,8 @@ public:
     return this->cend();
   }
 
-  inline auto try_at(const key_type &key, const hash_type key_hash) const
+  [[nodiscard]] inline auto try_at(const key_type &key,
+                                   const hash_type key_hash) const
       -> const mapped_type * {
     assert(this->hash(key) == key_hash);
 
@@ -153,7 +196,8 @@ public:
   }
 
   // As a performance optimisation if the hash is known
-  auto contains(const key_type &key, const hash_type key_hash) const -> bool {
+  [[nodiscard]] auto contains(const key_type &key,
+                              const hash_type key_hash) const -> bool {
     assert(this->hash(key) == key_hash);
 
     // Move the perfect hash condition out of the loop for extra performance
@@ -176,7 +220,8 @@ public:
 
   // As a performance optimisation if the hash is known
 
-  inline auto at(const key_type &key, const hash_type key_hash) const
+  [[nodiscard]] inline auto at(const key_type &key,
+                               const hash_type key_hash) const
       -> const mapped_type & {
     assert(this->hash(key) == key_hash);
 
@@ -230,7 +275,8 @@ public:
 #endif
   }
 
-  inline auto at(const size_type index) const noexcept -> const Entry & {
+  [[nodiscard]] inline auto at(const size_type index) const noexcept
+      -> const Entry & {
     return this->data[index];
   }
 
@@ -261,18 +307,18 @@ public:
     const auto current_size{this->size()};
 
     if (this->hasher.is_perfect(key_hash)) {
-      for (auto &entry : this->data) {
-        if (entry.hash == key_hash) {
-          std::swap(entry, this->data.back());
-          this->data.pop_back();
+      for (auto iterator = this->data.begin(); iterator != this->data.end();
+           ++iterator) {
+        if (iterator->hash == key_hash) {
+          this->data.erase(iterator);
           return current_size - 1;
         }
       }
     } else {
-      for (auto &entry : this->data) {
-        if (entry.hash == key_hash && entry.first == key) {
-          std::swap(entry, this->data.back());
-          this->data.pop_back();
+      for (auto iterator = this->data.begin(); iterator != this->data.end();
+           ++iterator) {
+        if (iterator->hash == key_hash && iterator->first == key) {
+          this->data.erase(iterator);
           return current_size - 1;
         }
       }
@@ -285,9 +331,13 @@ public:
     return this->erase(key, this->hash(key));
   }
 
-  inline auto size() const noexcept -> size_type { return this->data.size(); }
+  [[nodiscard]] inline auto size() const noexcept -> size_type {
+    return this->data.size();
+  }
 
-  inline auto empty() const noexcept -> bool { return this->data.empty(); }
+  [[nodiscard]] inline auto empty() const noexcept -> bool {
+    return this->data.empty();
+  }
 
   inline auto clear() noexcept -> void { this->data.clear(); }
 
@@ -386,45 +436,65 @@ public:
   using const_pointer = typename Container::const_pointer;
   using const_iterator = typename Container::const_iterator;
 
-  inline auto begin() const noexcept -> const_iterator {
+  [[nodiscard]] inline auto begin() const noexcept -> const_iterator {
     return this->data.begin();
   }
   /// Get a constant end iterator on the object
-  inline auto end() const noexcept -> const_iterator {
+  [[nodiscard]] inline auto end() const noexcept -> const_iterator {
     return this->data.end();
   }
   /// Get a constant begin iterator on the object
-  inline auto cbegin() const noexcept -> const_iterator {
+  [[nodiscard]] inline auto cbegin() const noexcept -> const_iterator {
     return this->data.cbegin();
   }
   /// Get a constant end iterator on the object
-  inline auto cend() const noexcept -> const_iterator {
+  [[nodiscard]] inline auto cend() const noexcept -> const_iterator {
     return this->data.cend();
   }
 
   /// Attempt to find an entry by key
-  inline auto find(const Key &key) const -> const_iterator {
+  [[nodiscard]] inline auto find(const Key &key) const -> const_iterator {
     return this->data.find(key, this->data.hash(key));
   }
 
   /// Check if an entry with the given key exists
-  inline auto defines(const Key &key,
-                      const typename Container::hash_type hash) const -> bool {
+  [[nodiscard]] inline auto
+  defines(const Key &key, const typename Container::hash_type hash) const
+      -> bool {
     return this->data.contains(key, hash);
   }
 
   /// Check the size of the object
-  inline auto size() const -> std::size_t { return this->data.size(); }
+  [[nodiscard]] inline auto size() const -> std::size_t {
+    return this->data.size();
+  }
+
+  /// Check if the object is empty
+  [[nodiscard]] inline auto empty() const -> bool { return this->data.empty(); }
 
   /// Access an object entry by its underlying positional index
-  inline auto at(const size_type index) const noexcept -> const
+  [[nodiscard]] inline auto at(const size_type index) const noexcept -> const
       typename Container::Entry & {
     return this->data.at(index);
   }
 
+  /// Try to access an object entry by its underlying positional index
+  [[nodiscard]] inline auto
+  try_at(const Key &key, const typename Container::hash_type hash) const
+      -> const mapped_type * {
+    return this->data.try_at(key, hash);
+  }
+
   // Hash an object property
-  inline auto hash(const Key &property) const -> typename Container::hash_type {
+  [[nodiscard]] inline auto hash(const Key &property) const ->
+      typename Container::hash_type {
     return this->data.hasher(property);
+  }
+
+  // Emplace an object property
+  inline auto emplace(const Key &key, const mapped_type &value) ->
+      typename Container::hash_type {
+    return this->data.emplace(key, value);
   }
 
 private:
