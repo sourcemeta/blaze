@@ -11,6 +11,8 @@ if(BLAZE_COMPILER AND BLAZE_EVALUATOR)
   sourcemeta_executable(NAMESPACE sourcemeta PROJECT blaze NAME contrib_validate
     FOLDER "Blaze/Contrib" SOURCES validate.cc)
   target_link_libraries(sourcemeta_blaze_contrib_validate
+    PRIVATE sourcemeta::core::io)
+  target_link_libraries(sourcemeta_blaze_contrib_validate
     PRIVATE sourcemeta::core::json)
   target_link_libraries(sourcemeta_blaze_contrib_validate
     PRIVATE sourcemeta::core::jsonl)
@@ -35,6 +37,8 @@ if(BLAZE_COMPILER AND BLAZE_EVALUATOR)
   if(${CMAKE_SYSTEM_NAME} MATCHES "Linux")
     sourcemeta_executable(NAMESPACE sourcemeta PROJECT blaze NAME contrib_perf
       FOLDER "Blaze/Contrib" SOURCES perf.cc)
+    target_link_libraries(sourcemeta_blaze_contrib_perf
+      PRIVATE sourcemeta::core::io)
     target_link_libraries(sourcemeta_blaze_contrib_perf
       PRIVATE sourcemeta::core::json)
     target_link_libraries(sourcemeta_blaze_contrib_perf

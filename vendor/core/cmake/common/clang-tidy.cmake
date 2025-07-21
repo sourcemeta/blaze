@@ -1,4 +1,4 @@
-function(sourcemeta_target_clang_tidy_attempt_install)
+function(sourcemeta_clang_tidy_attempt_install)
   cmake_parse_arguments(SOURCEMETA_TARGET_CLANG_TIDY_ATTEMPT_INSTALL "" "OUTPUT_DIRECTORY" "" ${ARGN})
   if(NOT SOURCEMETA_TARGET_CLANG_TIDY_ATTEMPT_INSTALL_OUTPUT_DIRECTORY)
     message(FATAL_ERROR "You must pass the output directory in the OUTPUT_DIRECTORY option")
@@ -76,9 +76,17 @@ function(sourcemeta_target_clang_tidy_attempt_install)
   message(STATUS "Installed `clang-tidy` pre-built binary to ${CLANG_TIDY_BINARY_OUTPUT}")
 endfunction()
 
-function(sourcemeta_target_clang_tidy)
-  cmake_parse_arguments(SOURCEMETA_TARGET_CLANG_TIDY "REQUIRED" "" "SOURCES" ${ARGN})
-  sourcemeta_target_clang_tidy_attempt_install(OUTPUT_DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}/bin")
+function(sourcemeta_clang_tidy_attempt_enable)
+  cmake_parse_arguments(SOURCEMETA_TARGET_CLANG_TIDY "REQUIRED" "" "" ${ARGN})
+
+  if(SOURCEMETA_COMPILER_LLVM)
+    message(STATUS "Enabling ClangTidy alongside compilation")
+  else()
+    message(STATUS "Ignoring ClangTidy setup on a compiler other than LLVM")
+    return()
+  endif()
+
+  sourcemeta_clang_tidy_attempt_install(OUTPUT_DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}/bin")
 
   if(SOURCEMETA_TARGET_CLANG_TIDY_REQUIRED)
     find_program(CLANG_TIDY_BIN NAMES clang-tidy NO_DEFAULT_PATH
@@ -94,37 +102,23 @@ function(sourcemeta_target_clang_tidy)
     endif()
   endif()
 
-
-  # This covers the empty list too
-  if(NOT SOURCEMETA_TARGET_CLANG_TIDY_SOURCES)
-    message(FATAL_ERROR "You must pass file globs to analyze in the SOURCES option")
-  endif()
-  file(GLOB_RECURSE SOURCEMETA_TARGET_CLANG_TIDY_FILES
-    ${SOURCEMETA_TARGET_CLANG_TIDY_SOURCES})
-
   set(CLANG_TIDY_CONFIG "${CMAKE_CURRENT_FUNCTION_LIST_DIR}/clang-tidy.config")
 
-  if(CMAKE_SYSTEM_NAME STREQUAL "MSYS")
-    # Because `clang-tidy` is typically a Windows `.exe`, transform the path accordingly
-    execute_process(COMMAND cygpath -w "${CLANG_TIDY_CONFIG}"
-      OUTPUT_VARIABLE CLANG_TIDY_CONFIG OUTPUT_STRIP_TRAILING_WHITESPACE)
+  # TODO: Support other platforms too, like Linux
+  if(APPLE)
+    execute_process(COMMAND xcrun --show-sdk-path
+      OUTPUT_VARIABLE MACOSX_SDK_PATH OUTPUT_STRIP_TRAILING_WHITESPACE)
+    execute_process(COMMAND "${CMAKE_CXX_COMPILER}" -print-resource-dir
+      OUTPUT_VARIABLE MACOSX_RESOURCE_PATH OUTPUT_STRIP_TRAILING_WHITESPACE)
+    set(CMAKE_CXX_CLANG_TIDY
+      "${CLANG_TIDY_BIN};--config-file=${CLANG_TIDY_CONFIG};-header-filter=${PROJECT_SOURCE_DIR}/src/*"
+      "--extra-arg=-isysroot"
+      "--extra-arg=${MACOSX_SDK_PATH}"
+      "--extra-arg=-resource-dir=${MACOSX_RESOURCE_PATH}"
+      PARENT_SCOPE)
   endif()
+endfunction()
 
-  if(CLANG_TIDY_BIN)
-    add_custom_target(clang_tidy
-      WORKING_DIRECTORY "${PROJECT_SOURCE_DIR}"
-      VERBATIM
-      COMMAND "${CLANG_TIDY_BIN}" -p "${PROJECT_BINARY_DIR}"
-        --config-file "${CLANG_TIDY_CONFIG}"
-        ${SOURCEMETA_TARGET_CLANG_TIDY_FILES}
-        COMMENT "Analyzing sources using ClangTidy")
-  else()
-    add_custom_target(clang_tidy
-      WORKING_DIRECTORY "${PROJECT_SOURCE_DIR}"
-      VERBATIM
-      COMMAND "${CMAKE_COMMAND}" -E echo "Could not locate ClangTidy"
-      COMMAND "${CMAKE_COMMAND}" -E false)
-  endif()
-
-  set_target_properties(clang_tidy PROPERTIES FOLDER "Linting")
+function(sourcemeta_clang_tidy_attempt_disable)
+  unset(CMAKE_CXX_CLANG_TIDY PARENT_SCOPE)
 endfunction()
