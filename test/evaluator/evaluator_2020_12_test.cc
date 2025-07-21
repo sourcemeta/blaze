@@ -2038,6 +2038,86 @@ TEST(Evaluator_2020_12, unevaluatedItems_5_exhaustive) {
       "expected to validate against this subschema");
 }
 
+TEST(Evaluator_2020_12, unevaluatedItems_6) {
+  const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "contains": { "type": "string" },
+    "minContains": 0,
+    "unevaluatedItems": false
+  })JSON")};
+
+  const sourcemeta::core::JSON instance{
+      sourcemeta::core::parse_json("[\"foo\"]")};
+
+  EVALUATE_WITH_TRACE_FAST_SUCCESS(schema, instance, 3);
+
+  EVALUATE_TRACE_PRE(0, LoopContains, "/contains", "#/contains", "");
+  EVALUATE_TRACE_PRE(1, AssertionTypeStrict, "/contains/type",
+                     "#/contains/type", "/0");
+  EVALUATE_TRACE_PRE(2, LoopItemsUnevaluated, "/unevaluatedItems",
+                     "#/unevaluatedItems", "");
+
+  EVALUATE_TRACE_POST_SUCCESS(0, AssertionTypeStrict, "/contains/type",
+                              "#/contains/type", "/0");
+  EVALUATE_TRACE_POST_SUCCESS(1, LoopContains, "/contains", "#/contains", "");
+  EVALUATE_TRACE_POST_SUCCESS(2, LoopItemsUnevaluated, "/unevaluatedItems",
+                              "#/unevaluatedItems", "");
+
+  EVALUATE_TRACE_POST_DESCRIBE(instance, 0,
+                               "The value was expected to be of type string");
+  EVALUATE_TRACE_POST_DESCRIBE(
+      instance, 1,
+      "The array value was expected to contain at least 0 items that validate "
+      "against the given subschema");
+  EVALUATE_TRACE_POST_DESCRIBE(
+      instance, 2,
+      "The array items not covered by other array keywords, if any, were "
+      "expected to validate against this subschema");
+}
+
+TEST(Evaluator_2020_12, unevaluatedItems_6_exhaustive) {
+  const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "contains": { "type": "string" },
+    "minContains": 0,
+    "unevaluatedItems": false
+  })JSON")};
+
+  const sourcemeta::core::JSON instance{
+      sourcemeta::core::parse_json("[\"foo\"]")};
+
+  EVALUATE_WITH_TRACE_EXHAUSTIVE_SUCCESS(schema, instance, 4);
+
+  EVALUATE_TRACE_PRE(0, LoopContains, "/contains", "#/contains", "");
+  EVALUATE_TRACE_PRE(1, AssertionTypeStrict, "/contains/type",
+                     "#/contains/type", "/0");
+  EVALUATE_TRACE_PRE_ANNOTATION(2, "/contains", "#/contains", "");
+  EVALUATE_TRACE_PRE(3, LoopItemsUnevaluated, "/unevaluatedItems",
+                     "#/unevaluatedItems", "");
+
+  EVALUATE_TRACE_POST_SUCCESS(0, AssertionTypeStrict, "/contains/type",
+                              "#/contains/type", "/0");
+  EVALUATE_TRACE_POST_ANNOTATION(1, "/contains", "#/contains", "", 0);
+  EVALUATE_TRACE_POST_SUCCESS(2, LoopContains, "/contains", "#/contains", "");
+  EVALUATE_TRACE_POST_SUCCESS(3, LoopItemsUnevaluated, "/unevaluatedItems",
+                              "#/unevaluatedItems", "");
+
+  EVALUATE_TRACE_POST_DESCRIBE(instance, 0,
+                               "The value was expected to be of type string");
+  EVALUATE_TRACE_POST_DESCRIBE(
+      instance, 1,
+      "The item at index 0 of the array value successfully validated against "
+      "the containment check subschema");
+  EVALUATE_TRACE_POST_DESCRIBE(
+      instance, 2,
+      "The array value was expected to contain at least 0 items that validate "
+      "against the given subschema");
+  EVALUATE_TRACE_POST_DESCRIBE(
+      instance, 3,
+      "The array items not covered by other array keywords, if any, were "
+      "expected to validate against this subschema");
+}
+
 TEST(Evaluator_2020_12, unevaluatedProperties_1) {
   const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2020-12/schema",
