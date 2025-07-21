@@ -416,15 +416,26 @@ public:
   /// Check the size of the object
   inline auto size() const -> std::size_t { return this->data.size(); }
 
+  inline auto empty() const -> bool { return this->data.empty(); }
+
   /// Access an object entry by its underlying positional index
   inline auto at(const size_type index) const noexcept -> const
       typename Container::Entry & {
     return this->data.at(index);
   }
 
+  inline auto try_at(const Key &key, const typename Container::hash_type hash) const
+      -> const mapped_type * {
+        return this->data.try_at(key, hash);
+  }
+
   // Hash an object property
   inline auto hash(const Key &property) const -> typename Container::hash_type {
     return this->data.hasher(property);
+  }
+
+  inline auto emplace(const Key &key, const mapped_type &value) -> typename Container::hash_type {
+    return this->data.emplace(key, value);
   }
 
 private:
