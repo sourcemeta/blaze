@@ -50,6 +50,7 @@ contains_any(const Vocabularies &container,
 #include "linter/duplicate_anyof_branches.h"
 #include "linter/duplicate_enum_values.h"
 #include "linter/duplicate_required_values.h"
+#include "linter/else_empty.h"
 #include "linter/else_without_if.h"
 #include "linter/enum_to_const.h"
 #include "linter/enum_with_type.h"
@@ -69,6 +70,7 @@ contains_any(const Vocabularies &container,
 #include "linter/pattern_properties_default.h"
 #include "linter/properties_default.h"
 #include "linter/single_type_array.h"
+#include "linter/then_empty.h"
 #include "linter/then_without_if.h"
 #include "linter/unevaluated_items_default.h"
 #include "linter/unevaluated_properties_default.h"
@@ -98,6 +100,8 @@ auto add(SchemaTransformer &bundle, const AlterSchemaMode mode)
   bundle.add<IfWithoutThenElse>();
   bundle.add<MaxContainsWithoutContains>();
   bundle.add<MinContainsWithoutContains>();
+  bundle.add<ThenEmpty>();
+  bundle.add<ElseEmpty>();
   bundle.add<ThenWithoutIf>();
   bundle.add<DependenciesPropertyTautology>();
   bundle.add<DependentRequiredTautology>();

@@ -60,6 +60,8 @@ sourcemeta_library(NAMESPACE sourcemeta PROJECT core NAME alterschema
     linter/max_contains_without_contains.h
     linter/min_contains_without_contains.h
     linter/modern_official_dialect_with_empty_fragment.h
+    linter/then_empty.h
+    linter/else_empty.h
     linter/then_without_if.h)
 
 if(SOURCEMETA_CORE_INSTALL)

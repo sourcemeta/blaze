@@ -105,7 +105,7 @@ class SOURCEMETA_CORE_JSONSCHEMA_EXPORT SchemaFrame {
 public:
   /// The mode of framing. More extensive analysis can be compute and memory
   /// intensive
-  enum class Mode { Locations, References, Instances };
+  enum class Mode : std::uint8_t { Locations, References, Instances };
 
   SchemaFrame(const Mode mode) : mode_{mode} {}
 
@@ -166,12 +166,15 @@ public:
     JSON::String base_dialect;
   };
 
-  // TODO: Indexing locations by reference type is wrong. We can index by just
-  // URI, and introduce a new `DynamicAnchor` location type
   /// A JSON Schema reference frame is a mapping of URIs to schema identifiers,
   /// JSON Pointers within the schema, and subschemas dialects. We call it
   /// reference frame as this mapping is essential for resolving references.
   using Locations =
+      // While it might seem weird that we namespace the location URIs with a
+      // reference type, it is essential for distinguishing schema resource URIs
+      // from `$recursiveRef: true` on another place of the schema schema
+      // resource, as otherwise they would both have the exact same URI, but
+      // point to different places.
       std::map<std::pair<SchemaReferenceType, JSON::String>, Location>;
 
   // TODO: Turn the mapped value into a proper set
