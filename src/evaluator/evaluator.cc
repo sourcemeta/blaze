@@ -109,11 +109,14 @@ auto Evaluator::evaluate(const sourcemeta::core::JSON *target) -> void {
 
 auto Evaluator::is_evaluated(const sourcemeta::core::JSON *target) const
     -> bool {
-  for (const auto &entry :
-       std::ranges::reverse_view(std::views::all(this->evaluated_))) {
-    if (target == entry.instance && !entry.skip &&
+  // Using `std::ranges::reverse_view` doesn't work on Clang 14.0.0 on
+  // Ubuntu 22.04
+  // NOLINTNEXTLINE(modernize-loop-convert)
+  for (auto iterator = this->evaluated_.rbegin();
+       iterator != this->evaluated_.rend(); ++iterator) {
+    if (target == iterator->instance && !iterator->skip &&
         // Its not possible to affect cousins
-        entry.evaluate_path.starts_with_initial(this->evaluate_path)) {
+        iterator->evaluate_path.starts_with_initial(this->evaluate_path)) {
       return true;
     }
   }
