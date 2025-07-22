@@ -47,8 +47,7 @@ using ValueString = sourcemeta::core::JSON::String;
 /// @ingroup evaluator
 /// Represents a compiler step object property value
 using ValueProperty =
-    std::pair<ValueString,
-              sourcemeta::core::JSON::Object::Container::hash_type>;
+    std::pair<ValueString, sourcemeta::core::JSON::Object::hash_type>;
 
 /// @ingroup evaluator
 /// Represents a compiler step string values

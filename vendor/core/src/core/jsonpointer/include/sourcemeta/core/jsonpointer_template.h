@@ -5,6 +5,7 @@
 
 #include <algorithm>        // std::copy, std::all_of
 #include <cassert>          // assert
+#include <cstdint>          // std::uint8_t
 #include <initializer_list> // std::initializer_list
 #include <iterator>         // std::back_inserter
 #include <optional>         // std::optional, std::nullopt
@@ -16,7 +17,7 @@ namespace sourcemeta::core {
 /// @ingroup jsonpointer
 template <typename PointerT> class GenericPointerTemplate {
 public:
-  enum class Wildcard { Property, Item, Key };
+  enum class Wildcard : std::uint8_t { Property, Item, Key };
   struct Condition {
     auto operator==(const Condition &) const noexcept -> bool = default;
     auto operator<(const Condition &) const noexcept -> bool { return false; }

@@ -39,6 +39,6 @@ public:
   auto transform(sourcemeta::core::JSON &schema) const -> void override {
     auto schema_value = schema.at("$schema").to_string();
     schema_value += "#";
-    schema.at("$schema").into(sourcemeta::core::JSON{std::move(schema_value)});
+    schema.at("$schema").into(sourcemeta::core::JSON{schema_value});
   }
 };
