@@ -109,7 +109,8 @@ auto Evaluator::evaluate(const sourcemeta::core::JSON *target) -> void {
 
 auto Evaluator::is_evaluated(const sourcemeta::core::JSON *target) const
     -> bool {
-  for (const auto &entry : std::ranges::reverse_view(this->evaluated_)) {
+  for (const auto &entry :
+       std::ranges::reverse_view(std::views::all(this->evaluated_))) {
     if (target == entry.instance && !entry.skip &&
         // Its not possible to affect cousins
         entry.evaluate_path.starts_with_initial(this->evaluate_path)) {
