@@ -2284,3 +2284,32 @@ TEST(Evaluator_2020_12, propertyNames_1_exhaustive) {
                                "The object property \"foo\" was expected to "
                                "validate against the given subschema");
 }
+
+TEST(Evaluator_2020_12, description) {
+  const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "description": "Foo Bar"
+  })JSON")};
+
+  const sourcemeta::core::JSON instance{1};
+
+  EVALUATE_WITH_TRACE_FAST_SUCCESS(schema, instance, 0);
+}
+
+TEST(Evaluator_2020_12, description_exhaustive) {
+  const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "description": "Foo Bar"
+  })JSON")};
+
+  const sourcemeta::core::JSON instance{1};
+
+  EVALUATE_WITH_TRACE_EXHAUSTIVE_SUCCESS(schema, instance, 1);
+
+  EVALUATE_TRACE_PRE_ANNOTATION(0, "/description", "#/description", "");
+  EVALUATE_TRACE_POST_ANNOTATION(0, "/description", "#/description", "",
+                                 "Foo Bar");
+
+  EVALUATE_TRACE_POST_DESCRIBE(
+      instance, 0, "The description of the instance was \"Foo Bar\"");
+}
