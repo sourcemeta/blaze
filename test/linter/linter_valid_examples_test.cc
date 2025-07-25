@@ -30,7 +30,7 @@ TEST(Linter, valid_examples_error_message_without_id_nested) {
   std::vector<std::tuple<sourcemeta::core::Pointer, std::string, std::string,
                          std::string>>
       entries;
-  const bool result =
+  const auto result =
       bundle.check(schema, sourcemeta::core::schema_official_walker,
                    sourcemeta::core::schema_official_resolver,
                    [&entries](const auto &pointer, const auto &name,
@@ -38,7 +38,7 @@ TEST(Linter, valid_examples_error_message_without_id_nested) {
                      entries.emplace_back(pointer, name, message, description);
                    });
 
-  EXPECT_FALSE(result);
+  EXPECT_FALSE(result.first);
   EXPECT_EQ(entries.size(), 1);
 
   EXPECT_EQ(std::get<0>(entries.at(0)),
@@ -69,7 +69,7 @@ TEST(Linter, valid_examples_error_message_without_id_flat) {
   std::vector<std::tuple<sourcemeta::core::Pointer, std::string, std::string,
                          std::string>>
       entries;
-  const bool result =
+  const auto result =
       bundle.check(schema, sourcemeta::core::schema_official_walker,
                    sourcemeta::core::schema_official_resolver,
                    [&entries](const auto &pointer, const auto &name,
@@ -77,7 +77,7 @@ TEST(Linter, valid_examples_error_message_without_id_flat) {
                      entries.emplace_back(pointer, name, message, description);
                    });
 
-  EXPECT_FALSE(result);
+  EXPECT_FALSE(result.first);
   EXPECT_EQ(entries.size(), 1);
 
   EXPECT_EQ(std::get<0>(entries.at(0)), sourcemeta::core::Pointer({}));
@@ -112,7 +112,7 @@ TEST(Linter, valid_examples_error_message_with_id_nested) {
   std::vector<std::tuple<sourcemeta::core::Pointer, std::string, std::string,
                          std::string>>
       entries;
-  const bool result =
+  const auto result =
       bundle.check(schema, sourcemeta::core::schema_official_walker,
                    sourcemeta::core::schema_official_resolver,
                    [&entries](const auto &pointer, const auto &name,
@@ -120,7 +120,7 @@ TEST(Linter, valid_examples_error_message_with_id_nested) {
                      entries.emplace_back(pointer, name, message, description);
                    });
 
-  EXPECT_FALSE(result);
+  EXPECT_FALSE(result.first);
   EXPECT_EQ(entries.size(), 1);
 
   EXPECT_EQ(std::get<0>(entries.at(0)),
@@ -152,7 +152,7 @@ TEST(Linter, valid_examples_error_message_with_id_flat) {
   std::vector<std::tuple<sourcemeta::core::Pointer, std::string, std::string,
                          std::string>>
       entries;
-  const bool result =
+  const auto result =
       bundle.check(schema, sourcemeta::core::schema_official_walker,
                    sourcemeta::core::schema_official_resolver,
                    [&entries](const auto &pointer, const auto &name,
@@ -160,7 +160,7 @@ TEST(Linter, valid_examples_error_message_with_id_flat) {
                      entries.emplace_back(pointer, name, message, description);
                    });
 
-  EXPECT_FALSE(result);
+  EXPECT_FALSE(result.first);
   EXPECT_EQ(entries.size(), 1);
 
   EXPECT_EQ(std::get<0>(entries.at(0)), sourcemeta::core::Pointer({}));
