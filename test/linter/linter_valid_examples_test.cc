@@ -514,7 +514,7 @@ TEST(Linter, valid_examples_10) {
 
 TEST(Linter, valid_examples_11) {
   sourcemeta::core::SchemaTransformer bundle;
-  bundle.add<sourcemeta::blaze::ValidDefault>(
+  bundle.add<sourcemeta::blaze::ValidExamples>(
       sourcemeta::blaze::default_schema_compiler);
 
   auto schema{sourcemeta::core::parse_json(R"JSON({
@@ -551,7 +551,7 @@ TEST(Linter, valid_examples_11) {
 
 TEST(Linter, valid_examples_12) {
   sourcemeta::core::SchemaTransformer bundle;
-  bundle.add<sourcemeta::blaze::ValidDefault>(
+  bundle.add<sourcemeta::blaze::ValidExamples>(
       sourcemeta::blaze::default_schema_compiler);
 
   auto schema{sourcemeta::core::parse_json(R"JSON({
