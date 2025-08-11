@@ -1018,7 +1018,7 @@ TEST(Evaluator_draft4, properties_2_exhaustive) {
 
   EVALUATE_WITH_TRACE_EXHAUSTIVE_SUCCESS(schema, instance, 3);
 
-  EVALUATE_TRACE_PRE(0, LogicalAnd, "/properties", "#/properties", "");
+  EVALUATE_TRACE_PRE(0, LogicalWhenType, "/properties", "#/properties", "");
   EVALUATE_TRACE_PRE(1, AssertionTypeStrict, "/properties/bar/type",
                      "#/properties/bar/type", "/bar");
   EVALUATE_TRACE_PRE(2, AssertionTypeStrict, "/properties/foo/type",
@@ -1028,7 +1028,8 @@ TEST(Evaluator_draft4, properties_2_exhaustive) {
                               "#/properties/bar/type", "/bar");
   EVALUATE_TRACE_POST_SUCCESS(1, AssertionTypeStrict, "/properties/foo/type",
                               "#/properties/foo/type", "/foo");
-  EVALUATE_TRACE_POST_SUCCESS(2, LogicalAnd, "/properties", "#/properties", "");
+  EVALUATE_TRACE_POST_SUCCESS(2, LogicalWhenType, "/properties", "#/properties",
+                              "");
 
   EVALUATE_TRACE_POST_DESCRIBE(instance, 0,
                                "The value was expected to be of type integer");
@@ -1104,8 +1105,8 @@ TEST(Evaluator_draft4, properties_4_exhaustive) {
 
   EVALUATE_WITH_TRACE_EXHAUSTIVE_SUCCESS(schema, instance, 3);
 
-  EVALUATE_TRACE_PRE(0, LogicalAnd, "/properties", "#/properties", "");
-  EVALUATE_TRACE_PRE(1, LogicalAnd, "/properties/foo/properties",
+  EVALUATE_TRACE_PRE(0, LogicalWhenType, "/properties", "#/properties", "");
+  EVALUATE_TRACE_PRE(1, LogicalWhenType, "/properties/foo/properties",
                      "#/properties/foo/properties", "/foo");
   EVALUATE_TRACE_PRE(2, AssertionTypeStrict,
                      "/properties/foo/properties/bar/type",
@@ -1114,9 +1115,10 @@ TEST(Evaluator_draft4, properties_4_exhaustive) {
   EVALUATE_TRACE_POST_SUCCESS(
       0, AssertionTypeStrict, "/properties/foo/properties/bar/type",
       "#/properties/foo/properties/bar/type", "/foo/bar");
-  EVALUATE_TRACE_POST_SUCCESS(1, LogicalAnd, "/properties/foo/properties",
+  EVALUATE_TRACE_POST_SUCCESS(1, LogicalWhenType, "/properties/foo/properties",
                               "#/properties/foo/properties", "/foo");
-  EVALUATE_TRACE_POST_SUCCESS(2, LogicalAnd, "/properties", "#/properties", "");
+  EVALUATE_TRACE_POST_SUCCESS(2, LogicalWhenType, "/properties", "#/properties",
+                              "");
 
   EVALUATE_TRACE_POST_DESCRIBE(instance, 0,
                                "The value was expected to be of type string");
@@ -1692,18 +1694,12 @@ TEST(Evaluator_draft4, properties_16_exhaustive) {
 
   const sourcemeta::core::JSON instance{"baz"};
 
-  EVALUATE_WITH_TRACE_EXHAUSTIVE_FAILURE(schema, instance, 2);
+  EVALUATE_WITH_TRACE_EXHAUSTIVE_FAILURE(schema, instance, 1);
 
-  EVALUATE_TRACE_PRE(0, LogicalAnd, "/properties", "#/properties", "");
-  EVALUATE_TRACE_PRE(1, AssertionTypeStrict, "/type", "#/type", "");
-
-  EVALUATE_TRACE_POST_SUCCESS(0, LogicalAnd, "/properties", "#/properties", "");
-  EVALUATE_TRACE_POST_FAILURE(1, AssertionTypeStrict, "/type", "#/type", "");
-
-  EVALUATE_TRACE_POST_DESCRIBE(instance, 0,
-                               "The value was expected to be of type object");
+  EVALUATE_TRACE_PRE(0, AssertionTypeStrict, "/type", "#/type", "");
+  EVALUATE_TRACE_POST_FAILURE(0, AssertionTypeStrict, "/type", "#/type", "");
   EVALUATE_TRACE_POST_DESCRIBE(
-      instance, 1,
+      instance, 0,
       "The value was expected to be of type object but it was of type string");
 }
 
@@ -2641,7 +2637,7 @@ TEST(Evaluator_draft4, additionalProperties_4_exhaustive) {
                      // Note that the caret needs to be URI escaped
                      "#/patternProperties/%5Ebar$/type", "/bar");
 
-  EVALUATE_TRACE_PRE(2, LogicalAnd, "/properties", "#/properties", "");
+  EVALUATE_TRACE_PRE(2, LogicalWhenType, "/properties", "#/properties", "");
   EVALUATE_TRACE_PRE(3, AssertionTypeStrict, "/properties/foo/type",
                      "#/properties/foo/type", "/foo");
 
@@ -2661,7 +2657,8 @@ TEST(Evaluator_draft4, additionalProperties_4_exhaustive) {
   // `properties`
   EVALUATE_TRACE_POST_SUCCESS(2, AssertionTypeStrict, "/properties/foo/type",
                               "#/properties/foo/type", "/foo");
-  EVALUATE_TRACE_POST_SUCCESS(3, LogicalAnd, "/properties", "#/properties", "");
+  EVALUATE_TRACE_POST_SUCCESS(3, LogicalWhenType, "/properties", "#/properties",
+                              "");
 
   // `additionalProperties`
   EVALUATE_TRACE_POST_SUCCESS(4, AssertionTypeStrict,
@@ -4853,14 +4850,15 @@ TEST(Evaluator_draft4, enum_19_exhaustive) {
 
   EVALUATE_WITH_TRACE_EXHAUSTIVE_FAILURE(schema, instance, 2);
 
-  EVALUATE_TRACE_PRE(0, LogicalAnd, "/properties", "#/properties", "");
+  EVALUATE_TRACE_PRE(0, LogicalWhenType, "/properties", "#/properties", "");
   EVALUATE_TRACE_PRE(1, AssertionDefinesStrict, "/properties/foo/required",
                      "#/properties/foo/required", "/foo");
 
   EVALUATE_TRACE_POST_FAILURE(0, AssertionDefinesStrict,
                               "/properties/foo/required",
                               "#/properties/foo/required", "/foo");
-  EVALUATE_TRACE_POST_FAILURE(1, LogicalAnd, "/properties", "#/properties", "");
+  EVALUATE_TRACE_POST_FAILURE(1, LogicalWhenType, "/properties", "#/properties",
+                              "");
 
   EVALUATE_TRACE_POST_DESCRIBE(instance, 0,
                                "The value was expected to be an object that "
@@ -4925,14 +4923,15 @@ TEST(Evaluator_draft4, enum_20_exhaustive) {
 
   EVALUATE_WITH_TRACE_EXHAUSTIVE_FAILURE(schema, instance, 2);
 
-  EVALUATE_TRACE_PRE(0, LogicalAnd, "/properties", "#/properties", "");
+  EVALUATE_TRACE_PRE(0, LogicalWhenType, "/properties", "#/properties", "");
   EVALUATE_TRACE_PRE(1, AssertionDefinesAllStrict, "/properties/foo/required",
                      "#/properties/foo/required", "/foo");
 
   EVALUATE_TRACE_POST_FAILURE(0, AssertionDefinesAllStrict,
                               "/properties/foo/required",
                               "#/properties/foo/required", "/foo");
-  EVALUATE_TRACE_POST_FAILURE(1, LogicalAnd, "/properties", "#/properties", "");
+  EVALUATE_TRACE_POST_FAILURE(1, LogicalWhenType, "/properties", "#/properties",
+                              "");
 
   EVALUATE_TRACE_POST_DESCRIBE(instance, 0,
                                "The value was expected to be an object that "
