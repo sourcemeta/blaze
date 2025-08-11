@@ -1651,6 +1651,88 @@ TEST(Evaluator_draft4, properties_15) {
   }
 }
 
+// From https://github.com/sourcemeta/jsonschema/issues/432
+TEST(Evaluator_draft4, properties_16) {
+  const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
+    "$schema": "http://json-schema.org/draft-04/schema#",
+    "type": "object",
+    "additionalProperties": false,
+    "required": [ "foo", "bar" ],
+    "properties": {
+      "foo": {},
+      "bar": { "type": "object" }
+    }
+  })JSON")};
+
+  const sourcemeta::core::JSON instance{"baz"};
+
+  EVALUATE_WITH_TRACE_FAST_FAILURE(schema, instance, 1);
+
+  EVALUATE_TRACE_PRE(0, AssertionDefinesExactlyStrict, "/required",
+                     "#/required", "");
+  EVALUATE_TRACE_POST_FAILURE(0, AssertionDefinesExactlyStrict, "/required",
+                              "#/required", "");
+  EVALUATE_TRACE_POST_DESCRIBE(instance, 0,
+                               "The value was expected to be an object that "
+                               "only defines properties \"bar\", and \"foo\"");
+}
+
+// From https://github.com/sourcemeta/jsonschema/issues/432
+TEST(Evaluator_draft4, properties_16_exhaustive) {
+  const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
+    "$schema": "http://json-schema.org/draft-04/schema#",
+    "type": "object",
+    "additionalProperties": false,
+    "required": [ "foo", "bar" ],
+    "properties": {
+      "foo": {},
+      "bar": { "type": "object" }
+    }
+  })JSON")};
+
+  const sourcemeta::core::JSON instance{"baz"};
+
+  EVALUATE_WITH_TRACE_EXHAUSTIVE_FAILURE(schema, instance, 2);
+
+  EVALUATE_TRACE_PRE(0, LogicalAnd, "/properties", "#/properties", "");
+  EVALUATE_TRACE_PRE(1, AssertionTypeStrict, "/type", "#/type", "");
+
+  EVALUATE_TRACE_POST_SUCCESS(0, LogicalAnd, "/properties", "#/properties", "");
+  EVALUATE_TRACE_POST_FAILURE(1, AssertionTypeStrict, "/type", "#/type", "");
+
+  EVALUATE_TRACE_POST_DESCRIBE(instance, 0,
+                               "The value was expected to be of type object");
+  EVALUATE_TRACE_POST_DESCRIBE(
+      instance, 1,
+      "The value was expected to be of type object but it was of type string");
+}
+
+TEST(Evaluator_draft4, properties_17) {
+  const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
+    "$schema": "http://json-schema.org/draft-04/schema#",
+    "type": "object",
+    "additionalProperties": false,
+    "required": [ "foo", "bar", "baz" ],
+    "properties": {
+      "foo": { "type": "string" },
+      "bar": { "type": "array" },
+      "baz": { "type": "object" }
+    }
+  })JSON")};
+
+  const sourcemeta::core::JSON instance{"baz"};
+
+  EVALUATE_WITH_TRACE_FAST_FAILURE(schema, instance, 1);
+
+  EVALUATE_TRACE_PRE(0, AssertionDefinesExactlyStrictHash3, "/required",
+                     "#/required", "");
+  EVALUATE_TRACE_POST_FAILURE(0, AssertionDefinesExactlyStrictHash3,
+                              "/required", "#/required", "");
+  EVALUATE_TRACE_POST_DESCRIBE(instance, 0,
+                               "The value was expected to be an object that "
+                               "only defines the 3 given properties");
+}
+
 TEST(Evaluator_draft4, pattern_1) {
   const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
     "$schema": "http://json-schema.org/draft-04/schema#",

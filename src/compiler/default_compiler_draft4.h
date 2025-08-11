@@ -1135,7 +1135,7 @@ auto compiler_draft4_applicator_properties_with_options(
       if (!substeps.empty()) {
         // As a performance shortcut
         if (effective_dynamic_context.base_instance_location.empty()) {
-          if (assume_object &&
+          if (context.mode == Mode::FastValidation && assume_object &&
               // TODO: Check that the validation vocabulary is present
               schema_context.schema.defines("required") &&
               schema_context.schema.at("required").is_array() &&
@@ -1166,6 +1166,7 @@ auto compiler_draft4_applicator_properties_with_options(
   } else if (children.empty()) {
     return {};
   } else {
+    // TODO: Don't even report this instruction if the instance is not an object
     return {make(sourcemeta::blaze::InstructionIndex::LogicalAnd, context,
                  schema_context, dynamic_context, ValueNone{},
                  std::move(children))};
