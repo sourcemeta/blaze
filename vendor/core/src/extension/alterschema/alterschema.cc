@@ -41,6 +41,7 @@ contains_any(const Vocabularies &container,
 #include "linter/content_media_type_without_encoding.h"
 #include "linter/content_schema_default.h"
 #include "linter/content_schema_without_media_type.h"
+#include "linter/definitions_to_defs.h"
 #include "linter/dependencies_default.h"
 #include "linter/dependencies_property_tautology.h"
 #include "linter/dependent_required_default.h"
@@ -69,6 +70,7 @@ contains_any(const Vocabularies &container,
 #include "linter/modern_official_dialect_with_empty_fragment.h"
 #include "linter/multiple_of_default.h"
 #include "linter/non_applicable_type_specific_keywords.h"
+#include "linter/not_false.h"
 #include "linter/pattern_properties_default.h"
 #include "linter/properties_default.h"
 #include "linter/property_names_default.h"
@@ -104,6 +106,7 @@ auto add(SchemaTransformer &bundle, const AlterSchemaMode mode)
   bundle.add<IfWithoutThenElse>();
   bundle.add<MaxContainsWithoutContains>();
   bundle.add<MinContainsWithoutContains>();
+  bundle.add<NotFalse>();
   bundle.add<ThenEmpty>();
   bundle.add<ElseEmpty>();
   bundle.add<ThenWithoutIf>();
@@ -147,6 +150,7 @@ auto add(SchemaTransformer &bundle, const AlterSchemaMode mode)
       bundle.add<EqualNumericBoundsToConst>();
       bundle.add<AdditionalPropertiesDefault>();
       bundle.add<ContentSchemaDefault>();
+      bundle.add<DefinitionsToDefs>();
       bundle.add<DependenciesDefault>();
       bundle.add<DependentRequiredDefault>();
       bundle.add<ItemsArrayDefault>();
