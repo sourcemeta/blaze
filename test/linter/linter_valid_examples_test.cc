@@ -262,7 +262,8 @@ TEST(Linter, valid_examples_3) {
     "$schema": "https://json-schema.org/draft/2020-12/schema",
     "properties": {
       "foo": {
-        "type": "string"
+        "type": "string",
+        "examples": [ "foo", "baz" ]
       }
     }
   })JSON")};
@@ -296,7 +297,8 @@ TEST(Linter, valid_examples_4) {
     "$schema": "https://json-schema.org/draft/2019-09/schema",
     "properties": {
       "foo": {
-        "type": "string"
+        "type": "string",
+        "examples": [ "foo", "baz" ]
       }
     }
   })JSON")};
@@ -330,7 +332,8 @@ TEST(Linter, valid_examples_5) {
     "$schema": "http://json-schema.org/draft-07/schema#",
     "properties": {
       "foo": {
-        "type": "string"
+        "type": "string",
+        "examples": [ "foo", "baz" ]
       }
     }
   })JSON")};
@@ -364,7 +367,8 @@ TEST(Linter, valid_examples_6) {
     "$schema": "http://json-schema.org/draft-06/schema#",
     "properties": {
       "foo": {
-        "type": "string"
+        "type": "string",
+        "examples": [ "foo", "baz" ]
       }
     }
   })JSON")};
@@ -679,6 +683,56 @@ TEST(Linter, valid_examples_15) {
     "definitions": {
       "helper": { "type": "string" }
     }
+  })JSON")};
+
+  EXPECT_EQ(schema, expected);
+}
+TEST(Linter, valid_examples_mixed_valid_invalid) {
+  sourcemeta::core::SchemaTransformer bundle;
+  bundle.add<sourcemeta::blaze::ValidExamples>(
+      sourcemeta::blaze::default_schema_compiler);
+
+  auto schema{sourcemeta::core::parse_json(R"JSON({
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "type": "string",
+    "examples": [ "valid1", 123, "valid2", true, "valid3" ]
+  })JSON")};
+
+  const auto result = bundle.apply(
+      schema, sourcemeta::core::schema_official_walker,
+      sourcemeta::core::schema_official_resolver, transformer_callback_error);
+
+  EXPECT_TRUE(result);
+
+  const auto expected{sourcemeta::core::parse_json(R"JSON({
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "type": "string",
+    "examples": [ "valid1", "valid2", "valid3" ]
+  })JSON")};
+
+  EXPECT_EQ(schema, expected);
+}
+
+TEST(Linter, valid_examples_all_invalid_removes_property) {
+  sourcemeta::core::SchemaTransformer bundle;
+  bundle.add<sourcemeta::blaze::ValidExamples>(
+      sourcemeta::blaze::default_schema_compiler);
+
+  auto schema{sourcemeta::core::parse_json(R"JSON({
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "type": "string",
+    "examples": [ 123, true, 456 ]
+  })JSON")};
+
+  const auto result = bundle.apply(
+      schema, sourcemeta::core::schema_official_walker,
+      sourcemeta::core::schema_official_resolver, transformer_callback_error);
+
+  EXPECT_TRUE(result);
+
+  const auto expected{sourcemeta::core::parse_json(R"JSON({
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "type": "string"
   })JSON")};
 
   EXPECT_EQ(schema, expected);
