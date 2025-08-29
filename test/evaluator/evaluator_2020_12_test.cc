@@ -1440,6 +1440,105 @@ TEST(Evaluator_2020_12, dynamicRef_1) {
                                "The value was expected to be of type string");
 }
 
+TEST(Evaluator_2020_12, dynamicRef_2) {
+  const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "$dynamicRef": "https://example.com/target#meta",
+    "$defs": {
+      "target": {
+        "$id": "https://example.com/target",
+        "$dynamicAnchor": "meta",
+        "type": "boolean"
+      },
+      "other": {
+        "$id": "https://example.com/other",
+        "$dynamicAnchor": "meta",
+        "type": "number"
+      }
+    }
+  })JSON")};
+
+  const sourcemeta::core::JSON instance{true};
+  EVALUATE_WITH_TRACE_FAST_SUCCESS(schema, instance, 4);
+
+  EVALUATE_TRACE_PRE(0, ControlMark, "", "https://example.com/other", "");
+  EVALUATE_TRACE_PRE(1, ControlMark, "", "https://example.com/target", "");
+  EVALUATE_TRACE_PRE(2, ControlDynamicAnchorJump, "/$dynamicRef",
+                     "#/$dynamicRef", "");
+  EVALUATE_TRACE_PRE(3, AssertionTypeStrict, "/$dynamicRef/type",
+                     "https://example.com/target#/type", "");
+
+  EVALUATE_TRACE_POST_SUCCESS(0, ControlMark, "", "https://example.com/other",
+                              "");
+  EVALUATE_TRACE_POST_SUCCESS(1, ControlMark, "", "https://example.com/target",
+                              "");
+  EVALUATE_TRACE_POST_SUCCESS(2, AssertionTypeStrict, "/$dynamicRef/type",
+                              "https://example.com/target#/type", "");
+  EVALUATE_TRACE_POST_SUCCESS(3, ControlDynamicAnchorJump, "/$dynamicRef",
+                              "#/$dynamicRef", "");
+
+  EVALUATE_TRACE_POST_DESCRIBE(instance, 0,
+                               "The schema location was marked for future use");
+  EVALUATE_TRACE_POST_DESCRIBE(instance, 1,
+                               "The schema location was marked for future use");
+  EVALUATE_TRACE_POST_DESCRIBE(instance, 2,
+                               "The value was expected to be of type boolean");
+  EVALUATE_TRACE_POST_DESCRIBE(
+      instance, 3,
+      "The boolean value was expected to validate against the first subschema "
+      "in scope that declared the dynamic anchor \"meta\"");
+}
+
+TEST(Evaluator_2020_12, dynamicRef_3) {
+  const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "$dynamicRef": "https://example.com/target#meta",
+    "$defs": {
+      "target": {
+        "$id": "https://example.com/target",
+        "$dynamicAnchor": "meta",
+        "type": "boolean"
+      },
+      "other": {
+        "$id": "https://example.com/other",
+        "$dynamicAnchor": "meta",
+        "type": "number"
+      }
+    }
+  })JSON")};
+
+  const sourcemeta::core::JSON instance{1};
+  EVALUATE_WITH_TRACE_FAST_FAILURE(schema, instance, 4);
+
+  EVALUATE_TRACE_PRE(0, ControlMark, "", "https://example.com/other", "");
+  EVALUATE_TRACE_PRE(1, ControlMark, "", "https://example.com/target", "");
+  EVALUATE_TRACE_PRE(2, ControlDynamicAnchorJump, "/$dynamicRef",
+                     "#/$dynamicRef", "");
+  EVALUATE_TRACE_PRE(3, AssertionTypeStrict, "/$dynamicRef/type",
+                     "https://example.com/target#/type", "");
+
+  EVALUATE_TRACE_POST_SUCCESS(0, ControlMark, "", "https://example.com/other",
+                              "");
+  EVALUATE_TRACE_POST_SUCCESS(1, ControlMark, "", "https://example.com/target",
+                              "");
+  EVALUATE_TRACE_POST_FAILURE(2, AssertionTypeStrict, "/$dynamicRef/type",
+                              "https://example.com/target#/type", "");
+  EVALUATE_TRACE_POST_FAILURE(3, ControlDynamicAnchorJump, "/$dynamicRef",
+                              "#/$dynamicRef", "");
+
+  EVALUATE_TRACE_POST_DESCRIBE(instance, 0,
+                               "The schema location was marked for future use");
+  EVALUATE_TRACE_POST_DESCRIBE(instance, 1,
+                               "The schema location was marked for future use");
+  EVALUATE_TRACE_POST_DESCRIBE(instance, 2,
+                               "The value was expected to be of type boolean "
+                               "but it was of type integer");
+  EVALUATE_TRACE_POST_DESCRIBE(
+      instance, 3,
+      "The integer value was expected to validate against the first subschema "
+      "in scope that declared the dynamic anchor \"meta\"");
+}
+
 TEST(Evaluator_2020_12, definitions_1) {
   const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2020-12/schema",
