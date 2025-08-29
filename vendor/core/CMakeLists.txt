@@ -17,6 +17,8 @@ option(SOURCEMETA_CORE_JSONPOINTER "Build the Sourcemeta Core JSON Pointer libra
 option(SOURCEMETA_CORE_JSONL "Build the Sourcemeta Core JSONL library" ON)
 option(SOURCEMETA_CORE_YAML "Build the Sourcemeta Core YAML library" ON)
 option(SOURCEMETA_CORE_EXTENSION_ALTERSCHEMA "Build the Sourcemeta Core AlterSchema library" ON)
+option(SOURCEMETA_CORE_EXTENSION_EDITORSCHEMA "Build the Sourcemeta Core EditorSchema library" ON)
+option(SOURCEMETA_CORE_EXTENSION_SCHEMACONFIG "Build the Sourcemeta Core SchemaConfig library" ON)
 option(SOURCEMETA_CORE_EXTENSION_OPTIONS "Build the Sourcemeta Core Options library" ON)
 option(SOURCEMETA_CORE_EXTENSION_BUILD "Build the Sourcemeta Core Build library" ON)
 option(SOURCEMETA_CORE_TESTS "Build the Sourcemeta Core tests" OFF)
@@ -118,6 +120,14 @@ if(SOURCEMETA_CORE_EXTENSION_ALTERSCHEMA)
   add_subdirectory(src/extension/alterschema)
 endif()
 
+if(SOURCEMETA_CORE_EXTENSION_EDITORSCHEMA)
+  add_subdirectory(src/extension/editorschema)
+endif()
+
+if(SOURCEMETA_CORE_EXTENSION_SCHEMACONFIG)
+  add_subdirectory(src/extension/schemaconfig)
+endif()
+
 if(SOURCEMETA_CORE_EXTENSION_OPTIONS)
   add_subdirectory(src/extension/options)
 endif()
@@ -211,6 +221,14 @@ if(SOURCEMETA_CORE_TESTS)
 
   if(SOURCEMETA_CORE_EXTENSION_ALTERSCHEMA)
     add_subdirectory(test/alterschema)
+  endif()
+
+  if(SOURCEMETA_CORE_EXTENSION_EDITORSCHEMA)
+    add_subdirectory(test/editorschema)
+  endif()
+
+  if(SOURCEMETA_CORE_EXTENSION_SCHEMACONFIG)
+    add_subdirectory(test/schemaconfig)
   endif()
 
   if(SOURCEMETA_CORE_EXTENSION_OPTIONS)
