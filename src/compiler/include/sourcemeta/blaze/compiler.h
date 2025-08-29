@@ -190,11 +190,6 @@ compile(const Context &context, const SchemaContext &schema_context,
 auto SOURCEMETA_BLAZE_COMPILER_EXPORT to_json(const Template &schema_template)
     -> sourcemeta::core::JSON;
 
-/// @ingroup compiler
-/// Parse a template from JSON
-auto SOURCEMETA_BLAZE_COMPILER_EXPORT
-from_json(const sourcemeta::core::JSON &json) -> std::optional<Template>;
-
 } // namespace sourcemeta::blaze
 
 #endif

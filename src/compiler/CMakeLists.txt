@@ -2,7 +2,7 @@ sourcemeta_library(NAMESPACE sourcemeta PROJECT blaze NAME compiler
   FOLDER "Blaze/Compiler"
   PRIVATE_HEADERS error.h output.h unevaluated.h
   SOURCES
-    compile.cc compile_describe.cc compile_json.cc
+    compile.cc compile_json.cc
     compile_helpers.h default_compiler.cc unevaluated.cc
     compile_output_simple.cc
     compile_output_trace.cc
