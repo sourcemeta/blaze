@@ -4,8 +4,9 @@
 
 #include <sourcemeta/blaze/compiler.h>
 #include <sourcemeta/blaze/evaluator.h>
+#include <sourcemeta/blaze/output.h>
 
-TEST(Compiler_output_standard_basic, prettify_annotations) {
+TEST(Output_standard_basic, prettify_annotations) {
   const auto schema{sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2020-12/schema",
     "properties": {
@@ -46,7 +47,7 @@ TEST(Compiler_output_standard_basic, prettify_annotations) {
   EXPECT_EQ(prettified.str(), expected);
 }
 
-TEST(Compiler_output_standard_basic, prettify_errors) {
+TEST(Output_standard_basic, prettify_errors) {
   const auto schema{sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2020-12/schema",
     "properties": {
@@ -87,7 +88,7 @@ TEST(Compiler_output_standard_basic, prettify_errors) {
   EXPECT_EQ(prettified.str(), expected);
 }
 
-TEST(Compiler_output_standard_basic, success_1) {
+TEST(Output_standard_basic, success_1) {
   const auto schema{sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2020-12/schema",
     "properties": {
@@ -117,7 +118,7 @@ TEST(Compiler_output_standard_basic, success_1) {
   EXPECT_EQ(result, expected);
 }
 
-TEST(Compiler_output_standard_basic, success_1_exhaustive) {
+TEST(Output_standard_basic, success_1_exhaustive) {
   const auto schema{sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2020-12/schema",
     "properties": {
@@ -155,7 +156,7 @@ TEST(Compiler_output_standard_basic, success_1_exhaustive) {
   EXPECT_EQ(result, expected);
 }
 
-TEST(Compiler_output_standard_basic, success_2) {
+TEST(Output_standard_basic, success_2) {
   const auto schema{sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2020-12/schema",
     "anyOf": [
@@ -184,7 +185,7 @@ TEST(Compiler_output_standard_basic, success_2) {
   EXPECT_EQ(result, expected);
 }
 
-TEST(Compiler_output_standard_basic, success_2_exhaustive) {
+TEST(Output_standard_basic, success_2_exhaustive) {
   const auto schema{sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2020-12/schema",
     "anyOf": [
@@ -221,7 +222,7 @@ TEST(Compiler_output_standard_basic, success_2_exhaustive) {
   EXPECT_EQ(result, expected);
 }
 
-TEST(Compiler_output_standard_basic, success_3) {
+TEST(Output_standard_basic, success_3) {
   const auto schema{sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2020-12/schema",
     "not": {
@@ -250,7 +251,7 @@ TEST(Compiler_output_standard_basic, success_3) {
   EXPECT_EQ(result, expected);
 }
 
-TEST(Compiler_output_standard_basic, success_4) {
+TEST(Output_standard_basic, success_4) {
   const auto schema{sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2020-12/schema",
     "not": {
@@ -279,7 +280,7 @@ TEST(Compiler_output_standard_basic, success_4) {
   EXPECT_EQ(result, expected);
 }
 
-TEST(Compiler_output_standard_basic, failure_1) {
+TEST(Output_standard_basic, failure_1) {
   const auto schema{sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2020-12/schema",
     "properties": {

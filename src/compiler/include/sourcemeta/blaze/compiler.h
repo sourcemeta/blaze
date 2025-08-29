@@ -6,7 +6,6 @@
 #endif
 
 #include <sourcemeta/blaze/compiler_error.h>
-#include <sourcemeta/blaze/compiler_output.h>
 #include <sourcemeta/blaze/compiler_unevaluated.h>
 
 #include <sourcemeta/blaze/evaluator.h>

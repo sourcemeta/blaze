@@ -3,6 +3,7 @@
 
 #include <sourcemeta/blaze/compiler.h>
 #include <sourcemeta/blaze/evaluator.h>
+#include <sourcemeta/blaze/output.h>
 
 #include <algorithm>  // std::sort, std::max
 #include <cstdlib>    // EXIT_SUCCESS, EXIT_FAILURE

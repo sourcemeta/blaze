@@ -2,8 +2,9 @@
 
 #include <sourcemeta/blaze/compiler.h>
 #include <sourcemeta/blaze/evaluator.h>
+#include <sourcemeta/blaze/output.h>
 
-TEST(Compiler_output_standard_flag, success_1) {
+TEST(Output_standard_flag, success_1) {
   const auto schema{sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2020-12/schema",
     "properties": {
@@ -33,7 +34,7 @@ TEST(Compiler_output_standard_flag, success_1) {
   EXPECT_EQ(result, expected);
 }
 
-TEST(Compiler_output_standard_flag, success_1_exhaustive) {
+TEST(Output_standard_flag, success_1_exhaustive) {
   const auto schema{sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2020-12/schema",
     "properties": {
@@ -63,7 +64,7 @@ TEST(Compiler_output_standard_flag, success_1_exhaustive) {
   EXPECT_EQ(result, expected);
 }
 
-TEST(Compiler_output_standard_flag, failure_1) {
+TEST(Output_standard_flag, failure_1) {
   const auto schema{sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2020-12/schema",
     "properties": {
