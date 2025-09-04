@@ -43,7 +43,7 @@ inline auto FIRST_PROPERTY_IS(const sourcemeta::core::JSON &document,
 #define __ASSERT_TEMPLATE_JSON_SERIALISATION(compiled_schema)                  \
   {                                                                            \
     const auto template_json{sourcemeta::blaze::to_json(compiled_schema)};     \
-    EXPECT_TRUE(template_json.is_object());                                    \
+    EXPECT_TRUE(template_json.is_array());                                     \
     const auto template_back{sourcemeta::blaze::from_json(template_json)};     \
     EXPECT_TRUE(template_back.has_value());                                    \
     const auto template_json_back{                                             \
