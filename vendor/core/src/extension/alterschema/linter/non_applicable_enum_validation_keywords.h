@@ -2,7 +2,7 @@ class NonApplicableEnumValidationKeywords final : public SchemaTransformRule {
 public:
   NonApplicableEnumValidationKeywords()
       : SchemaTransformRule{
-            "enum_validation_keywords_default",
+            "non_applicable_enum_validation_keywords",
             "Setting validation keywords that do not apply to any item in "
             "`enum` is considered an anti-pattern"} {};
 
