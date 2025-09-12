@@ -338,6 +338,23 @@ TEST(Compiler_JSON, without_expected_1) {
   EXPECT_BIDIRECTIONAL_JSON_WITHOUT_EXPECTED(schema_template);
 }
 
+TEST(Compiler_JSON, without_expected_2) {
+  const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
+    "$schema": "http://json-schema.org/draft-04/schema#",
+    "patternProperties": {
+      "[\\-]": { "type": "string" }
+    }
+  })JSON")};
+
+  const auto schema_template{sourcemeta::blaze::compile(
+      schema, sourcemeta::core::schema_official_walker,
+      sourcemeta::core::schema_official_resolver,
+      sourcemeta::blaze::default_schema_compiler,
+      sourcemeta::blaze::Mode::Exhaustive)};
+
+  EXPECT_BIDIRECTIONAL_JSON_WITHOUT_EXPECTED(schema_template);
+}
+
 TEST(Compiler_JSON, invalid_1) {
   const auto input{sourcemeta::core::parse_json(R"JSON({
     "d": false,
