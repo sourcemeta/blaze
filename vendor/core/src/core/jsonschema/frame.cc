@@ -536,6 +536,12 @@ auto SchemaFrame::analyse(const JSON &root, const SchemaWalker &walker,
           const auto bases{
               find_nearest_bases(base_uris, entry.common.pointer, entry.id)};
           for (const auto &base_string : bases.first) {
+            // Otherwise we end up pushing the top-level resource twice
+            if (entry_index == 0 && has_explicit_different_id &&
+                default_id.has_value() && default_id.value() == base_string) {
+              continue;
+            }
+
             const sourcemeta::core::URI base{base_string};
             sourcemeta::core::URI maybe_relative{entry.id.value()};
             const auto maybe_fragment{maybe_relative.fragment()};
@@ -1060,6 +1066,19 @@ auto SchemaFrame::traverse(const JSON::String &uri) const
       this->locations_.find({SchemaReferenceType::Dynamic, uri})};
   if (dynamic_result != this->locations_.cend()) {
     return dynamic_result->second;
+  }
+
+  return std::nullopt;
+}
+
+auto SchemaFrame::uri(const Pointer &pointer) const
+    -> std::optional<std::reference_wrapper<const JSON::String>> {
+  // TODO: This is potentially very slow. Traversing by pointer shouldn't
+  // require an O(N) operation
+  for (const auto &entry : this->locations_) {
+    if (entry.second.pointer == pointer) {
+      return entry.first.second;
+    }
   }
 
   return std::nullopt;

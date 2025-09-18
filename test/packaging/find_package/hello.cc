@@ -4,6 +4,7 @@
 #include <sourcemeta/blaze/compiler.h>
 #include <sourcemeta/blaze/evaluator.h>
 #include <sourcemeta/blaze/linter.h>
+#include <sourcemeta/blaze/output.h>
 
 #include <cstdlib>  // EXIT_SUCCESS
 #include <iostream> // std::cerr

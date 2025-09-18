@@ -2,6 +2,7 @@
 
 #include <sourcemeta/blaze/compiler.h>
 #include <sourcemeta/blaze/evaluator.h>
+#include <sourcemeta/blaze/output.h>
 
 #include <sourcemeta/core/jsonpointer.h>
 #include <sourcemeta/core/jsonschema.h>
@@ -57,7 +58,7 @@
   EXPECT_TRUE(traces.at((index)).vocabulary.first);                            \
   EXPECT_FALSE(traces.at((index)).vocabulary.second.has_value());
 
-TEST(Compiler_output_trace, pass_1) {
+TEST(Output_trace, pass_1) {
   const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2020-12/schema",
     "additionalProperties": false,
@@ -104,7 +105,7 @@ TEST(Compiler_output_trace, pass_1) {
                                    std::nullopt);
 }
 
-TEST(Compiler_output_trace, pass_annotations) {
+TEST(Output_trace, pass_annotations) {
   const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2020-12/schema",
     "title": "Foo Bar",
@@ -160,7 +161,7 @@ TEST(Compiler_output_trace, pass_annotations) {
                                    "#/additionalProperties", std::nullopt);
 }
 
-TEST(Compiler_output_trace, pass_with_matching_prefix_1) {
+TEST(Output_trace, pass_with_matching_prefix_1) {
   const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2020-12/schema",
     "$ref": "#/$defs/helper",
@@ -215,7 +216,7 @@ TEST(Compiler_output_trace, pass_with_matching_prefix_1) {
                                    "#/$defs/helper/properties", std::nullopt);
 }
 
-TEST(Compiler_output_trace, pass_with_frame_exhaustive) {
+TEST(Output_trace, pass_with_frame_exhaustive) {
   const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2020-12/schema",
     "title": "Foo Bar",
@@ -288,7 +289,7 @@ TEST(Compiler_output_trace, pass_with_frame_exhaustive) {
       "https://json-schema.org/draft/2020-12/vocab/applicator");
 }
 
-TEST(Compiler_output_trace, pass_with_frame_fast) {
+TEST(Output_trace, pass_with_frame_fast) {
   const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2020-12/schema",
     "title": "Foo Bar",

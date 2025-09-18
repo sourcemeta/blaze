@@ -38,7 +38,9 @@ public:
                                const sourcemeta::core::SchemaWalker &,
                                const sourcemeta::core::SchemaResolver &) const
       -> sourcemeta::core::SchemaTransformRule::Result override;
-  auto transform(sourcemeta::core::JSON &) const -> void override;
+  auto transform(sourcemeta::core::JSON &,
+                 const sourcemeta::core::SchemaTransformRule::Result &) const
+      -> void override;
 
 private:
 // Exporting symbols that depends on the standard C++ library is considered
@@ -70,7 +72,9 @@ public:
                                const sourcemeta::core::SchemaWalker &,
                                const sourcemeta::core::SchemaResolver &) const
       -> sourcemeta::core::SchemaTransformRule::Result override;
-  auto transform(sourcemeta::core::JSON &) const -> void override;
+  auto transform(sourcemeta::core::JSON &,
+                 const sourcemeta::core::SchemaTransformRule::Result &) const
+      -> void override;
 
 private:
 // Exporting symbols that depends on the standard C++ library is considered

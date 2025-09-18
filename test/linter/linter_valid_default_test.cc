@@ -5,10 +5,10 @@
 #include <sourcemeta/core/json.h>
 #include <sourcemeta/core/jsonschema.h>
 
-static auto transformer_callback_error(const sourcemeta::core::Pointer &,
-                                       const std::string_view,
-                                       const std::string_view,
-                                       const std::string_view) -> void {
+static auto transformer_callback_error(
+    const sourcemeta::core::Pointer &, const std::string_view,
+    const std::string_view,
+    const sourcemeta::core::SchemaTransformRule::Result &) -> void {
   throw std::runtime_error("The transform callback must not be called");
 }
 
@@ -28,14 +28,14 @@ TEST(Linter, valid_default_error_message_without_id_nested) {
   })JSON")};
 
   std::vector<std::tuple<sourcemeta::core::Pointer, std::string, std::string,
-                         std::string>>
+                         sourcemeta::core::SchemaTransformRule::Result>>
       entries;
   const auto result =
       bundle.check(schema, sourcemeta::core::schema_official_walker,
                    sourcemeta::core::schema_official_resolver,
                    [&entries](const auto &pointer, const auto &name,
-                              const auto &message, const auto &description) {
-                     entries.emplace_back(pointer, name, message, description);
+                              const auto &message, const auto &outcome) {
+                     entries.emplace_back(pointer, name, message, outcome);
                    });
 
   EXPECT_FALSE(result.first);
@@ -46,12 +46,18 @@ TEST(Linter, valid_default_error_message_without_id_nested) {
   EXPECT_EQ(std::get<1>(entries.at(0)), "blaze/valid_default");
   EXPECT_EQ(std::get<2>(entries.at(0)),
             "Only set a `default` value that validates against the schema");
+  EXPECT_TRUE(std::get<3>(entries.at(0)).description.has_value());
   EXPECT_EQ(
-      std::get<3>(entries.at(0)),
+      std::get<3>(entries.at(0)).description.value(),
       R"TXT(The value was expected to be of type string but it was of type integer
   at instance location ""
   at evaluate path "/type"
 )TXT");
+
+  EXPECT_EQ(std::get<3>(entries.at(0)).locations.size(), 1);
+  EXPECT_EQ(
+      sourcemeta::core::to_string(std::get<3>(entries.at(0)).locations.at(0)),
+      "/default");
 }
 
 TEST(Linter, valid_default_error_message_without_id_flat) {
@@ -66,14 +72,14 @@ TEST(Linter, valid_default_error_message_without_id_flat) {
   })JSON")};
 
   std::vector<std::tuple<sourcemeta::core::Pointer, std::string, std::string,
-                         std::string>>
+                         sourcemeta::core::SchemaTransformRule::Result>>
       entries;
   const auto result =
       bundle.check(schema, sourcemeta::core::schema_official_walker,
                    sourcemeta::core::schema_official_resolver,
                    [&entries](const auto &pointer, const auto &name,
-                              const auto &message, const auto &description) {
-                     entries.emplace_back(pointer, name, message, description);
+                              const auto &message, const auto &outcome) {
+                     entries.emplace_back(pointer, name, message, outcome);
                    });
 
   EXPECT_FALSE(result.first);
@@ -83,12 +89,18 @@ TEST(Linter, valid_default_error_message_without_id_flat) {
   EXPECT_EQ(std::get<1>(entries.at(0)), "blaze/valid_default");
   EXPECT_EQ(std::get<2>(entries.at(0)),
             "Only set a `default` value that validates against the schema");
+  EXPECT_TRUE(std::get<3>(entries.at(0)).description.has_value());
   EXPECT_EQ(
-      std::get<3>(entries.at(0)),
+      std::get<3>(entries.at(0)).description.value(),
       R"TXT(The value was expected to be of type string but it was of type integer
   at instance location ""
   at evaluate path "/type"
 )TXT");
+
+  EXPECT_EQ(std::get<3>(entries.at(0)).locations.size(), 1);
+  EXPECT_EQ(
+      sourcemeta::core::to_string(std::get<3>(entries.at(0)).locations.at(0)),
+      "/default");
 }
 
 TEST(Linter, valid_default_error_message_with_id_nested) {
@@ -108,14 +120,14 @@ TEST(Linter, valid_default_error_message_with_id_nested) {
   })JSON")};
 
   std::vector<std::tuple<sourcemeta::core::Pointer, std::string, std::string,
-                         std::string>>
+                         sourcemeta::core::SchemaTransformRule::Result>>
       entries;
   const auto result =
       bundle.check(schema, sourcemeta::core::schema_official_walker,
                    sourcemeta::core::schema_official_resolver,
                    [&entries](const auto &pointer, const auto &name,
-                              const auto &message, const auto &description) {
-                     entries.emplace_back(pointer, name, message, description);
+                              const auto &message, const auto &outcome) {
+                     entries.emplace_back(pointer, name, message, outcome);
                    });
 
   EXPECT_FALSE(result.first);
@@ -126,12 +138,18 @@ TEST(Linter, valid_default_error_message_with_id_nested) {
   EXPECT_EQ(std::get<1>(entries.at(0)), "blaze/valid_default");
   EXPECT_EQ(std::get<2>(entries.at(0)),
             "Only set a `default` value that validates against the schema");
+  EXPECT_TRUE(std::get<3>(entries.at(0)).description.has_value());
   EXPECT_EQ(
-      std::get<3>(entries.at(0)),
+      std::get<3>(entries.at(0)).description.value(),
       R"TXT(The value was expected to be of type string but it was of type integer
   at instance location ""
   at evaluate path "/type"
 )TXT");
+
+  EXPECT_EQ(std::get<3>(entries.at(0)).locations.size(), 1);
+  EXPECT_EQ(
+      sourcemeta::core::to_string(std::get<3>(entries.at(0)).locations.at(0)),
+      "/default");
 }
 
 TEST(Linter, valid_default_error_message_with_id_flat) {
@@ -147,14 +165,14 @@ TEST(Linter, valid_default_error_message_with_id_flat) {
   })JSON")};
 
   std::vector<std::tuple<sourcemeta::core::Pointer, std::string, std::string,
-                         std::string>>
+                         sourcemeta::core::SchemaTransformRule::Result>>
       entries;
   const auto result =
       bundle.check(schema, sourcemeta::core::schema_official_walker,
                    sourcemeta::core::schema_official_resolver,
                    [&entries](const auto &pointer, const auto &name,
-                              const auto &message, const auto &description) {
-                     entries.emplace_back(pointer, name, message, description);
+                              const auto &message, const auto &outcome) {
+                     entries.emplace_back(pointer, name, message, outcome);
                    });
 
   EXPECT_FALSE(result.first);
@@ -164,12 +182,18 @@ TEST(Linter, valid_default_error_message_with_id_flat) {
   EXPECT_EQ(std::get<1>(entries.at(0)), "blaze/valid_default");
   EXPECT_EQ(std::get<2>(entries.at(0)),
             "Only set a `default` value that validates against the schema");
+  EXPECT_TRUE(std::get<3>(entries.at(0)).description.has_value());
   EXPECT_EQ(
-      std::get<3>(entries.at(0)),
+      std::get<3>(entries.at(0)).description.value(),
       R"TXT(The value was expected to be of type string but it was of type integer
   at instance location ""
   at evaluate path "/type"
 )TXT");
+
+  EXPECT_EQ(std::get<3>(entries.at(0)).locations.size(), 1);
+  EXPECT_EQ(
+      sourcemeta::core::to_string(std::get<3>(entries.at(0)).locations.at(0)),
+      "/default");
 }
 
 TEST(Linter, valid_default_1) {

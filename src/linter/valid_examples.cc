@@ -1,12 +1,9 @@
 #include <sourcemeta/blaze/compiler.h>
-#include <sourcemeta/blaze/compiler_output.h>
 #include <sourcemeta/blaze/evaluator.h>
 #include <sourcemeta/blaze/linter.h>
-#include <sourcemeta/core/json_value.h>
+#include <sourcemeta/blaze/output.h>
+
 #include <sourcemeta/core/jsonschema.h>
-#include <sourcemeta/core/jsonschema_frame.h>
-#include <sourcemeta/core/jsonschema_transform.h>
-#include <sourcemeta/core/jsonschema_types.h>
 
 #include <cstddef>    // std::size_t
 #include <functional> // std::ref, std::cref
@@ -59,7 +56,8 @@ auto ValidExamples::condition(
                                     .get()
                                     .base_dialect};
   std::optional<std::string> default_id{location.base};
-  if (sourcemeta::core::identify(root, root_base_dialect).has_value()) {
+  if (sourcemeta::core::identify(root, root_base_dialect).has_value() ||
+      default_id.value().empty()) {
     // We want to only set a default identifier if the root schema does not
     // have an explicit identifier. Otherwise, we can get into corner case
     // when wrapping the schema
@@ -93,13 +91,16 @@ auto ValidExamples::condition(
   }
 
   if (!this->invalid_indices_.empty()) {
-    return collected_messages.str();
+    std::size_t first_invalid = *this->invalid_indices_.begin();
+    return {{{"examples", first_invalid}}, collected_messages.str()};
   }
 
   return false;
 }
 
-auto ValidExamples::transform(sourcemeta::core::JSON &schema) const -> void {
+auto ValidExamples::transform(
+    sourcemeta::core::JSON &schema,
+    const sourcemeta::core::SchemaTransformRule::Result &) const -> void {
   if (!schema.is_object() || !schema.defines("examples") ||
       !schema.at("examples").is_array() || this->invalid_indices_.empty()) {
     return;
