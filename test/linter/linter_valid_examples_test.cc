@@ -711,6 +711,7 @@ TEST(Linter, valid_examples_15) {
 
   EXPECT_EQ(schema, expected);
 }
+
 TEST(Linter, valid_examples_mixed_valid_invalid) {
   sourcemeta::core::SchemaTransformer bundle;
   bundle.add<sourcemeta::blaze::ValidExamples>(
