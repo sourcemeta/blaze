@@ -5,11 +5,12 @@
 
 #include <sourcemeta/core/jsonschema.h>
 
+#include <algorithm>  // std::find
 #include <cstddef>    // std::size_t
 #include <functional> // std::ref, std::cref
-#include <set>        // std::set
 #include <sstream>    // std::ostringstream
 #include <utility>    // std::move
+#include <vector>     // std::vector
 
 namespace sourcemeta::blaze {
 
@@ -18,7 +19,7 @@ ValidExamples::ValidExamples(Compiler compiler)
           SchemaTransformRule{"blaze/valid_examples",
                               "Only include instances in the `examples` array "
                               "that validate against the schema"},
-      compiler_{std::move(compiler)}, invalid_indices_{} {};
+      compiler_{std::move(compiler)} {};
 
 auto ValidExamples::condition(
     const sourcemeta::core::JSON &schema, const sourcemeta::core::JSON &root,
@@ -81,7 +82,7 @@ auto ValidExamples::condition(
     const auto result{
         evaluator.validate(schema_template, example, std::ref(output))};
     if (!result) {
-      this->invalid_indices_.insert(cursor);
+      this->invalid_indices_.push_back(cursor);
       collected_messages << "Invalid example instance at index " << cursor
                          << "\n";
       output.stacktrace(collected_messages, "  ");
@@ -91,7 +92,7 @@ auto ValidExamples::condition(
   }
 
   if (!this->invalid_indices_.empty()) {
-    std::size_t first_invalid = *this->invalid_indices_.begin();
+    std::size_t first_invalid = this->invalid_indices_.front();
     return {{{"examples", first_invalid}}, collected_messages.str()};
   }
 
@@ -101,27 +102,20 @@ auto ValidExamples::condition(
 auto ValidExamples::transform(
     sourcemeta::core::JSON &schema,
     const sourcemeta::core::SchemaTransformRule::Result &) const -> void {
-  if (!schema.is_object() || !schema.defines("examples") ||
-      !schema.at("examples").is_array() || this->invalid_indices_.empty()) {
-    return;
-  }
+  auto &examples = schema.at("examples");
 
-  auto &examples_array = schema.at("examples");
-  auto new_examples = sourcemeta::core::JSON::make_array();
-
-  std::size_t index = 0;
-  for (const auto &example : examples_array.as_array()) {
-    if (this->invalid_indices_.find(index) == this->invalid_indices_.end()) {
-      new_examples.push_back(example);
+  for (std::vector<std::size_t>::const_reverse_iterator it =
+           this->invalid_indices_.crbegin();
+       it != this->invalid_indices_.crend(); ++it) {
+    const auto index = *it;
+    if (index < examples.size()) {
+      examples.erase(examples.as_array().cbegin() +
+                     static_cast<std::ptrdiff_t>(index));
     }
-    index++;
   }
 
-  if (new_examples.empty()) {
+  if (examples.size() == 0) {
     schema.erase("examples");
-  } else {
-    schema.assign("examples", std::move(new_examples));
   }
 }
-
 } // namespace sourcemeta::blaze

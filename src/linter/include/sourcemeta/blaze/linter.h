@@ -9,7 +9,7 @@
 #include <sourcemeta/core/jsonschema.h>
 
 #include <cstddef> // std::size_t
-#include <set>     // std::set
+#include <vector>  // std::vector
 
 /// @defgroup linter Linter
 /// @brief A set of JSON Schema linter extensions powered by Blaze
@@ -50,7 +50,7 @@ private:
 #pragma warning(disable : 4251)
 #endif
   const Compiler compiler_;
-  mutable std::set<std::size_t> invalid_indices_;
+  mutable std::vector<std::size_t> invalid_indices_;
 #if defined(_MSC_VER)
 #pragma warning(default : 4251)
 #endif
