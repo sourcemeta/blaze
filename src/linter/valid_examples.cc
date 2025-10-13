@@ -8,6 +8,7 @@
 #include <algorithm>  // std::find
 #include <cstddef>    // std::size_t
 #include <functional> // std::ref, std::cref
+#include <ranges>     // std::ranges::reverse_view
 #include <sstream>    // std::ostringstream
 #include <utility>    // std::move
 #include <vector>     // std::vector
@@ -104,10 +105,7 @@ auto ValidExamples::transform(
     const sourcemeta::core::SchemaTransformRule::Result &) const -> void {
   auto &examples = schema.at("examples");
 
-  for (std::vector<std::size_t>::const_reverse_iterator it =
-           this->invalid_indices_.crbegin();
-       it != this->invalid_indices_.crend(); ++it) {
-    const auto index = *it;
+  for (const auto index : std::ranges::reverse_view(this->invalid_indices_)) {
     if (index < examples.size()) {
       examples.erase(examples.as_array().cbegin() +
                      static_cast<std::ptrdiff_t>(index));
