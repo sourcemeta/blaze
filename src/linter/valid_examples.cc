@@ -5,10 +5,13 @@
 
 #include <sourcemeta/core/jsonschema.h>
 
+#include <algorithm>  // std::find
 #include <cstddef>    // std::size_t
 #include <functional> // std::ref, std::cref
+#include <ranges>     // std::ranges::reverse_view
 #include <sstream>    // std::ostringstream
 #include <utility>    // std::move
+#include <vector>     // std::vector
 
 namespace sourcemeta::blaze {
 
@@ -71,19 +74,27 @@ auto ValidExamples::condition(
 
   Evaluator evaluator;
   std::size_t cursor{0};
+  this->invalid_indices_.clear();
+  std::ostringstream collected_messages;
+
   for (const auto &example : schema.at("examples").as_array()) {
     const std::string ref{"$ref"};
     SimpleOutput output{example, {std::cref(ref)}};
     const auto result{
         evaluator.validate(schema_template, example, std::ref(output))};
     if (!result) {
-      std::ostringstream message;
-      message << "Invalid example instance at index " << cursor << "\n";
-      output.stacktrace(message, "  ");
-      return {{{"examples", cursor}}, std::move(message).str()};
+      this->invalid_indices_.push_back(cursor);
+      collected_messages << "Invalid example instance at index " << cursor
+                         << "\n";
+      output.stacktrace(collected_messages, "  ");
     }
 
     cursor += 1;
+  }
+
+  if (!this->invalid_indices_.empty()) {
+    std::size_t first_invalid = this->invalid_indices_.front();
+    return {{{"examples", first_invalid}}, collected_messages.str()};
   }
 
   return false;
@@ -92,7 +103,17 @@ auto ValidExamples::condition(
 auto ValidExamples::transform(
     sourcemeta::core::JSON &schema,
     const sourcemeta::core::SchemaTransformRule::Result &) const -> void {
-  schema.erase("examples");
-}
+  auto &examples = schema.at("examples");
 
+  for (const auto index : std::ranges::reverse_view(this->invalid_indices_)) {
+    if (index < examples.size()) {
+      examples.erase(examples.as_array().cbegin() +
+                     static_cast<std::ptrdiff_t>(index));
+    }
+  }
+
+  if (examples.size() == 0) {
+    schema.erase("examples");
+  }
+}
 } // namespace sourcemeta::blaze
