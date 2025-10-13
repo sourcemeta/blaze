@@ -352,7 +352,8 @@ auto to_json(const SchemaFrame::LocationType value) -> JSON {
   }
 }
 
-auto SchemaFrame::to_json() const -> JSON {
+auto SchemaFrame::to_json(
+    const std::optional<PointerPositionTracker> &tracker) const -> JSON {
   auto root{JSON::make_object()};
 
   root.assign("locations", JSON::make_object());
@@ -365,6 +366,13 @@ auto SchemaFrame::to_json() const -> JSON {
     entry.assign("root", sourcemeta::core::to_json(location.second.root));
     entry.assign("base", sourcemeta::core::to_json(location.second.base));
     entry.assign("pointer", sourcemeta::core::to_json(location.second.pointer));
+    if (tracker.has_value()) {
+      entry.assign("position", sourcemeta::core::to_json(tracker.value().get(
+                                   location.second.pointer)));
+    } else {
+      entry.assign("position", sourcemeta::core::to_json(nullptr));
+    }
+
     entry.assign("relativePointer",
                  sourcemeta::core::to_json(location.second.relative_pointer));
     entry.assign("dialect", sourcemeta::core::to_json(location.second.dialect));
@@ -392,6 +400,14 @@ auto SchemaFrame::to_json() const -> JSON {
     auto entry{JSON::make_object()};
     entry.assign("type", sourcemeta::core::to_json(reference.first.first));
     entry.assign("origin", sourcemeta::core::to_json(reference.first.second));
+
+    if (tracker.has_value()) {
+      entry.assign("position", sourcemeta::core::to_json(tracker.value().get(
+                                   reference.first.second)));
+    } else {
+      entry.assign("position", sourcemeta::core::to_json(nullptr));
+    }
+
     entry.assign("destination",
                  sourcemeta::core::to_json(reference.second.destination));
     entry.assign("base", sourcemeta::core::to_json(reference.second.base));
@@ -556,7 +572,7 @@ auto SchemaFrame::analyse(const JSON &root, const SchemaWalker &walker,
             }
 
             const bool maybe_relative_is_absolute{maybe_relative.is_absolute()};
-            maybe_relative.try_resolve_from(base).canonicalize();
+            maybe_relative.resolve_from(base).canonicalize();
             const JSON::String new_id{maybe_relative.recompose()};
 
             const auto maybe_match{
@@ -615,7 +631,7 @@ auto SchemaFrame::analyse(const JSON &root, const SchemaWalker &walker,
           const auto nearest_bases{
               find_nearest_bases(base_uris, entry.common.pointer, entry.id)};
           if (!nearest_bases.first.empty()) {
-            metaschema.try_resolve_from(nearest_bases.first.front());
+            metaschema.resolve_from(nearest_bases.first.front());
           }
 
           metaschema.canonicalize();
@@ -759,7 +775,7 @@ auto SchemaFrame::analyse(const JSON &root, const SchemaWalker &walker,
             base.first.empty()
                 ? sourcemeta::core::to_uri(pointer.resolve_from(base.second))
                 : sourcemeta::core::to_uri(pointer.resolve_from(base.second))
-                      .try_resolve_from({base.first})};
+                      .resolve_from({base.first})};
 
         relative_pointer_uri.canonicalize();
         const auto result{relative_pointer_uri.recompose()};
@@ -826,7 +842,7 @@ auto SchemaFrame::analyse(const JSON &root, const SchemaWalker &walker,
             entry.common.subschema.get().at("$ref").to_string()};
         sourcemeta::core::URI ref{original};
         if (!nearest_bases.first.empty()) {
-          ref.try_resolve_from(nearest_bases.first.front());
+          ref.resolve_from(nearest_bases.first.front());
         }
 
         ref.canonicalize();
