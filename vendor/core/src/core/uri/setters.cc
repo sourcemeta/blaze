@@ -35,11 +35,8 @@ auto normalize_fragment(std::string_view input) -> std::string {
     return "";
   }
 
-  if (input.starts_with('#')) {
-    return std::string{input.substr(1)};
-  }
-
-  return std::string{input};
+  // Strip leading '#' and store raw value
+  return std::string{input.starts_with('#') ? input.substr(1) : input};
 }
 
 } // namespace

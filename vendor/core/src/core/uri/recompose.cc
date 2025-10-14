@@ -9,12 +9,23 @@
 
 namespace sourcemeta::core {
 
+namespace {
+
+auto escape_component(std::string_view input, URIEscapeMode mode)
+    -> std::string {
+  std::istringstream in{std::string{input}};
+  std::ostringstream out;
+  uri_escape(in, out, mode, false);
+  return out.str();
+}
+
+} // namespace
+
 auto URI::recompose() const -> std::string {
   const auto uri = this->recompose_without_fragment();
 
   // Fragment
-  const auto result_fragment = this->fragment();
-  if (!result_fragment.has_value()) {
+  if (!this->fragment_.has_value()) {
     return uri.value_or("");
   }
 
@@ -25,9 +36,10 @@ auto URI::recompose() const -> std::string {
 
   result << '#';
 
-  // Escape fragment using stream-based escaping with lookahead
-  std::istringstream fragment_input{std::string{result_fragment.value()}};
-  uri_escape(fragment_input, result, URIEscapeMode::Fragment);
+  // Escape fragment using stream-based escaping
+  // Don't preserve percent sequences since internal storage is fully decoded
+  std::istringstream fragment_input{std::string{this->fragment_.value()}};
+  uri_escape(fragment_input, result, URIEscapeMode::Fragment, false);
 
   return result.str();
 }
@@ -54,7 +66,8 @@ auto URI::recompose_without_fragment() const -> std::optional<std::string> {
   }
 
   if (user_info.has_value()) {
-    result << user_info.value() << "@";
+    result << escape_component(user_info.value(), URIEscapeMode::Fragment)
+           << "@";
   }
 
   // Host
@@ -67,7 +80,8 @@ auto URI::recompose_without_fragment() const -> std::optional<std::string> {
       // https://tools.ietf.org/html/rfc2732#section-2
       result << '[' << result_host.value() << ']';
     } else {
-      result << result_host.value();
+      result << escape_component(result_host.value(),
+                                 URIEscapeMode::SkipSubDelims);
     }
   }
 
@@ -87,16 +101,17 @@ auto URI::recompose_without_fragment() const -> std::optional<std::string> {
     // "h" not "/h")
     if (result_scheme.has_value() && !has_authority &&
         path_value.starts_with("/") && !path_value.starts_with("//")) {
-      result << path_value.substr(1);
+      result << escape_component(path_value.substr(1), URIEscapeMode::Fragment);
     } else {
-      result << path_value;
+      result << escape_component(path_value, URIEscapeMode::Fragment);
     }
   }
 
   // Query
   const auto result_query{this->query()};
   if (result_query.has_value()) {
-    result << '?' << result_query.value();
+    result << '?'
+           << escape_component(result_query.value(), URIEscapeMode::Fragment);
   }
 
   if (result.tellp() == 0) {

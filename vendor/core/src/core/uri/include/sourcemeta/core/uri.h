@@ -20,7 +20,7 @@
 #include <vector>      // std::vector
 
 /// @defgroup uri URI
-/// @brief A RFC 3986 URI implementation based on `uriparser`.
+/// @brief A strict RFC 3986 URI implementation.
 ///
 /// This functionality is included as follows:
 ///

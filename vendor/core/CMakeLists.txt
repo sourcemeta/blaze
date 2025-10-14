@@ -81,7 +81,6 @@ if(SOURCEMETA_CORE_REGEX)
 endif()
 
 if(SOURCEMETA_CORE_URI)
-  find_package(UriParser REQUIRED)
   add_subdirectory(src/core/uri)
 endif()
 
