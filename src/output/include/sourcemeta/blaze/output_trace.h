@@ -86,6 +86,9 @@ public:
       sourcemeta::core::WeakPointer base = sourcemeta::core::empty_weak_pointer,
       const std::optional<
           std::reference_wrapper<const sourcemeta::core::SchemaFrame>> &frame =
+          std::nullopt,
+      const std::optional<std::reference_wrapper<
+          const sourcemeta::core::PointerPositionTracker>> &tracker =
           std::nullopt);
 
   // Prevent accidental copies
@@ -104,6 +107,8 @@ public:
     // Whether we were able to collect vocabulary information,
     // and the vocabulary URI, if any
     const std::pair<bool, std::optional<std::string>> vocabulary;
+    const std::optional<sourcemeta::core::PointerPositionTracker::Position>
+        position;
   };
 
   auto operator()(const EvaluationType type, const bool result,
@@ -132,6 +137,9 @@ private:
   const std::optional<
       std::reference_wrapper<const sourcemeta::core::SchemaFrame>>
       frame_;
+  const std::optional<
+      std::reference_wrapper<const sourcemeta::core::PointerPositionTracker>>
+      tracker_;
   container_type output;
 #if defined(_MSC_VER)
 #pragma warning(default : 4251)

@@ -36,9 +36,12 @@ TraceOutput::TraceOutput(
     sourcemeta::core::SchemaResolver resolver,
     sourcemeta::core::WeakPointer base,
     const std::optional<
-        std::reference_wrapper<const sourcemeta::core::SchemaFrame>> &frame)
+        std::reference_wrapper<const sourcemeta::core::SchemaFrame>> &frame,
+    const std::optional<
+        std::reference_wrapper<const sourcemeta::core::PointerPositionTracker>>
+        &tracker)
     : walker_{std::move(walker)}, resolver_{std::move(resolver)},
-      base_{std::move(base)}, frame_{frame} {}
+      base_{std::move(base)}, frame_{frame}, tracker_{tracker} {}
 
 auto TraceOutput::begin() const -> const_iterator {
   return this->output.begin();
@@ -70,27 +73,61 @@ auto TraceOutput::operator()(
   if (is_annotation(step.type)) {
     if (type == EvaluationType::Pre) {
       return;
+    } else if (this->tracker_.has_value()) {
+      this->output.push_back(
+          {EntryType::Annotation, short_step_name, instance_location,
+           std::move(effective_evaluate_path), step.keyword_location,
+           annotation, std::move(vocabulary),
+           this->tracker_.value().get().get(
+               sourcemeta::core::to_pointer(instance_location))});
     } else {
       this->output.push_back(
           {EntryType::Annotation, short_step_name, instance_location,
            std::move(effective_evaluate_path), step.keyword_location,
-           annotation, std::move(vocabulary)});
+           annotation, std::move(vocabulary), std::nullopt});
     }
   } else if (type == EvaluationType::Pre) {
-    this->output.push_back({EntryType::Push, short_step_name, instance_location,
-                            std::move(effective_evaluate_path),
-                            step.keyword_location, std::nullopt,
-                            std::move(vocabulary)});
+    if (this->tracker_.has_value()) {
+      this->output.push_back(
+          {EntryType::Push, short_step_name, instance_location,
+           std::move(effective_evaluate_path), step.keyword_location,
+           std::nullopt, std::move(vocabulary),
+           this->tracker_.value().get().get(
+               sourcemeta::core::to_pointer(instance_location))});
+    } else {
+      this->output.push_back(
+          {EntryType::Push, short_step_name, instance_location,
+           std::move(effective_evaluate_path), step.keyword_location,
+           std::nullopt, std::move(vocabulary), std::nullopt});
+    }
   } else if (result) {
-    this->output.push_back({EntryType::Pass, short_step_name, instance_location,
-                            std::move(effective_evaluate_path),
-                            step.keyword_location, std::nullopt,
-                            std::move(vocabulary)});
+    if (this->tracker_.has_value()) {
+      this->output.push_back(
+          {EntryType::Pass, short_step_name, instance_location,
+           std::move(effective_evaluate_path), step.keyword_location,
+           std::nullopt, std::move(vocabulary),
+           this->tracker_.value().get().get(
+               sourcemeta::core::to_pointer(instance_location))});
+    } else {
+      this->output.push_back(
+          {EntryType::Pass, short_step_name, instance_location,
+           std::move(effective_evaluate_path), step.keyword_location,
+           std::nullopt, std::move(vocabulary), std::nullopt});
+    }
   } else {
-    this->output.push_back({EntryType::Fail, short_step_name, instance_location,
-                            std::move(effective_evaluate_path),
-                            step.keyword_location, std::nullopt,
-                            std::move(vocabulary)});
+    if (this->tracker_.has_value()) {
+      this->output.push_back(
+          {EntryType::Fail, short_step_name, instance_location,
+           std::move(effective_evaluate_path), step.keyword_location,
+           std::nullopt, std::move(vocabulary),
+           this->tracker_.value().get().get(
+               sourcemeta::core::to_pointer(instance_location))});
+    } else {
+      this->output.push_back(
+          {EntryType::Fail, short_step_name, instance_location,
+           std::move(effective_evaluate_path), step.keyword_location,
+           std::nullopt, std::move(vocabulary), std::nullopt});
+    }
   }
 }
 
