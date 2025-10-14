@@ -1,11 +1,8 @@
 #include <sourcemeta/core/uri.h>
 
-#include "escaping.h"
-
 #include <algorithm>  // std::ranges::replace
 #include <filesystem> // std::filesystem
 #include <iterator>   // std::advance, std::next
-#include <sstream>    // std::istringstream, std::ostringstream
 #include <string>     // std::string
 
 namespace sourcemeta::core {
@@ -28,11 +25,8 @@ auto URI::to_path() const -> std::filesystem::path {
     std::ranges::replace(path, '/', '\\');
   }
 
-  // Unescape percent-encoded characters
-  std::istringstream input{path};
-  std::ostringstream output;
-  uri_unescape(input, output);
-  return output.str();
+  // Path is already fully decoded, just return it
+  return path;
 }
 
 auto URI::from_path(const std::filesystem::path &path) -> URI {
@@ -60,10 +54,7 @@ auto URI::from_path(const std::filesystem::path &path) -> URI {
 
   // For UNC paths, the first segment is the hostname
   if (is_unc) {
-    std::istringstream input{iterator->string()};
-    std::ostringstream output;
-    uri_escape(input, output, URIEscapeMode::Filesystem);
-    result.host_ = output.str();
+    result.host_ = iterator->string();
     std::advance(iterator, 1);
   }
 
@@ -76,17 +67,14 @@ auto URI::from_path(const std::filesystem::path &path) -> URI {
         result.append_path("/");
       }
     } else {
-      // Escape the segment
-      std::istringstream input{iterator->string()};
-      std::ostringstream output;
-      uri_escape(input, output, URIEscapeMode::Filesystem);
-      const auto escaped_segment = output.str();
+      // Store raw segment - escaping will happen during recompose()
+      const auto segment = iterator->string();
 
       if (result.path_.has_value()) {
-        result.append_path(escaped_segment);
+        result.append_path(segment);
       } else {
         // First segment: file:// URIs need leading slash
-        result.path_ = "/" + escaped_segment;
+        result.path_ = "/" + segment;
       }
     }
   }
