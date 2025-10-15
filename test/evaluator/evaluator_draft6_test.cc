@@ -359,6 +359,18 @@ TEST(Evaluator_draft6, exclusiveMinimum_3) {
                                "than the integer 0");
 }
 
+TEST(Evaluator_draft6, exclusiveMinimum_4) {
+  // This is purposely invalid
+  const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
+    "$schema": "http://json-schema.org/draft-06/schema#",
+    "exclusiveMinimum": "not-a-number"
+  })JSON")};
+
+  const sourcemeta::core::JSON instance{
+      sourcemeta::core::parse_json("\"foo\"")};
+  EVALUATE_WITH_TRACE_FAST_SUCCESS(schema, instance, 0);
+}
+
 TEST(Evaluator_draft6, exclusiveMaximum_1) {
   const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
     "$schema": "http://json-schema.org/draft-06/schema#",
@@ -411,6 +423,18 @@ TEST(Evaluator_draft6, exclusiveMaximum_3) {
   EVALUATE_TRACE_POST_DESCRIBE(instance, 0,
                                "The integer value 0 was expected to be less "
                                "than the integer 0, but they were equal");
+}
+
+TEST(Evaluator_draft6, exclusiveMaximum_4) {
+  // This is purposely invalid
+  const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
+    "$schema": "http://json-schema.org/draft-06/schema#",
+    "exclusiveMaximum": "not-a-number"
+  })JSON")};
+
+  const sourcemeta::core::JSON instance{
+      sourcemeta::core::parse_json("\"foo\"")};
+  EVALUATE_WITH_TRACE_FAST_SUCCESS(schema, instance, 0);
 }
 
 TEST(Evaluator_draft6, contains_1) {

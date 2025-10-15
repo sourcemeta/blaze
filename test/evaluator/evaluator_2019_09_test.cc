@@ -424,6 +424,18 @@ TEST(Evaluator_2019_09, dependentSchemas_4) {
       "it was also expected to validate against the corresponding subschemas");
 }
 
+TEST(Evaluator_2019_09, dependentSchemas_5) {
+  // This is purposely invalid
+  const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
+    "$schema": "https://json-schema.org/draft/2019-09/schema",
+    "dependentSchemas": "not-an-object"
+  })JSON")};
+
+  const sourcemeta::core::JSON instance{
+      sourcemeta::core::parse_json("\"foo\"")};
+  EVALUATE_WITH_TRACE_FAST_SUCCESS(schema, instance, 0);
+}
+
 TEST(Evaluator_2019_09, additionalProperties_1) {
   const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2019-09/schema",
