@@ -46,7 +46,6 @@ auto compile_subschema(const sourcemeta::blaze::Context &context,
               .schema = schema_context.schema,
               .vocabularies = entry.vocabularies,
               .base = schema_context.base,
-              // TODO: This represents a copy
               .labels = schema_context.labels,
               .references = schema_context.references,
               .is_property_name = schema_context.is_property_name},
@@ -78,19 +77,26 @@ auto precompile(
                          anchor_uri.recompose_without_fragment().value_or("")),
       std::string{anchor_uri.fragment().value_or("")})};
   schema_context.labels.insert(label);
+  context.labels.insert(label);
 
   // Configure a schema context that corresponds to the
   // schema resource that we are precompiling
   auto subschema{sourcemeta::core::get(context.root, entry.second.pointer)};
   auto nested_vocabularies{sourcemeta::core::vocabularies(
       subschema, context.resolver, entry.second.dialect)};
+
+  // Mark this destination as being processed to prevent infinite recursion
+  // if it references itself
+  std::set<std::string> initial_references;
+  initial_references.insert(entry.first.second);
+
   const sourcemeta::blaze::SchemaContext nested_schema_context{
       .relative_pointer = entry.second.relative_pointer,
       .schema = std::move(subschema),
       .vocabularies = std::move(nested_vocabularies),
       .base = entry.second.base,
       .labels = {},
-      .references = {},
+      .references = std::move(initial_references),
       .is_property_name = schema_context.is_property_name};
 
   return {make(sourcemeta::blaze::InstructionIndex::ControlMark, context,
@@ -164,50 +170,6 @@ auto compile(const sourcemeta::core::JSON &schema,
   assert(resources.size() ==
          std::set<std::string>(resources.cbegin(), resources.cend()).size());
 
-  // Calculate the top static reference destinations for precompilation purposes
-  // TODO: Replace this logic with `.frame()` `destination_of` information
-  std::set<std::string> precompiled_static_schemas;
-  // As a workaround, we avoid pre-compiling schemas on schemas
-  // that look like they are just wrapping other schemas
-  if (schema.is_object() && !schema.defines("$ref")) {
-    std::map<std::string, std::size_t> static_references_count;
-    for (const auto &reference : frame.references()) {
-      if (reference.first.first !=
-              sourcemeta::core::SchemaReferenceType::Static ||
-          !frame.locations().contains(
-              {sourcemeta::core::SchemaReferenceType::Static,
-               reference.second.destination})) {
-        continue;
-      }
-
-      const auto &entry{
-          frame.locations().at({sourcemeta::core::SchemaReferenceType::Static,
-                                reference.second.destination})};
-      for (const auto &subreference : frame.references()) {
-        if (subreference.first.second.starts_with(entry.pointer)) {
-          static_references_count[reference.second.destination] += 1;
-        }
-      }
-    }
-    std::vector<std::pair<std::string, std::size_t>> top_static_destinations(
-        static_references_count.cbegin(), static_references_count.cend());
-    std::ranges::sort(top_static_destinations,
-                      [](const auto &left, const auto &right) {
-                        return left.second > right.second;
-                      });
-    constexpr auto MAXIMUM_NUMBER_OF_SCHEMAS_TO_PRECOMPILE{5};
-    for (auto iterator = top_static_destinations.cbegin();
-         iterator != top_static_destinations.cend() &&
-         iterator != top_static_destinations.cbegin() +
-                         MAXIMUM_NUMBER_OF_SCHEMAS_TO_PRECOMPILE;
-         ++iterator) {
-      // Only consider highly referenced schemas
-      if (iterator->second > 100) {
-        precompiled_static_schemas.insert(iterator->first);
-      }
-    }
-  }
-
   auto unevaluated{
       sourcemeta::blaze::unevaluated(schema, frame, walker, resolver)};
 
@@ -220,21 +182,10 @@ auto compile(const sourcemeta::core::JSON &schema,
                         .mode = mode,
                         .uses_dynamic_scopes = uses_dynamic_scopes,
                         .unevaluated = std::move(unevaluated),
-                        .precompiled_static_schemas =
-                            std::move(precompiled_static_schemas)};
+                        .labels = {},
+                        .precompile_destinations = {}};
   const DynamicContext dynamic_context{relative_dynamic_context()};
   Instructions compiler_template;
-
-  for (const auto &destination : context.precompiled_static_schemas) {
-    assert(context.frame.locations().contains(
-        {sourcemeta::core::SchemaReferenceType::Static, destination}));
-    const auto match{context.frame.locations().find(
-        {sourcemeta::core::SchemaReferenceType::Static, destination})};
-    for (auto &&substep :
-         precompile(context, schema_context, dynamic_context, *match)) {
-      compiler_template.push_back(std::move(substep));
-    }
-  }
 
   if (uses_dynamic_scopes &&
       (schema_context.vocabularies.contains(
@@ -258,6 +209,52 @@ auto compile(const sourcemeta::core::JSON &schema,
 
   auto children{compile_subschema(context, schema_context, dynamic_context,
                                   root_frame_entry.dialect)};
+
+  // Precompile any destinations discovered during compilation.
+  // Keep iterating until no new destinations are discovered.
+  std::size_t processed_count{0};
+  Instructions precompiled_instructions;
+  while (processed_count < context.precompile_destinations.size()) {
+    // Take a snapshot of the current size
+    const std::size_t current_size{context.precompile_destinations.size()};
+
+    // First pass: register all labels for newly discovered destinations
+    for (std::size_t index{processed_count}; index < current_size; ++index) {
+      const auto &destination{context.precompile_destinations[index]};
+      assert(context.frame.locations().contains(
+          {sourcemeta::core::SchemaReferenceType::Static, destination}));
+      const auto match{context.frame.locations().find(
+          {sourcemeta::core::SchemaReferenceType::Static, destination})};
+      const sourcemeta::core::URI anchor_uri{match->first.second};
+      const auto label{sourcemeta::blaze::Evaluator{}.hash(
+          schema_resource_id(
+              context, anchor_uri.recompose_without_fragment().value_or("")),
+          std::string{anchor_uri.fragment().value_or("")})};
+      context.labels.insert(label);
+    }
+
+    // Second pass: compile all newly discovered destinations
+    for (std::size_t index{processed_count}; index < current_size; ++index) {
+      const auto &destination{context.precompile_destinations[index]};
+      assert(context.frame.locations().contains(
+          {sourcemeta::core::SchemaReferenceType::Static, destination}));
+      const auto match{context.frame.locations().find(
+          {sourcemeta::core::SchemaReferenceType::Static, destination})};
+      for (auto &&substep :
+           precompile(context, schema_context, dynamic_context, *match)) {
+        precompiled_instructions.push_back(std::move(substep));
+      }
+    }
+
+    processed_count = current_size;
+  }
+
+  // Prepend precompiled instructions in reverse order so dependencies come
+  // first
+  for (auto iterator{precompiled_instructions.rbegin()};
+       iterator != precompiled_instructions.rend(); ++iterator) {
+    compiler_template.push_back(std::move(*iterator));
+  }
 
   const bool track{
       context.mode != Mode::FastValidation ||
@@ -350,7 +347,6 @@ auto compile(const Context &context, const SchemaContext &schema_context,
        .base = sourcemeta::core::URI{entry.base}
                    .recompose_without_fragment()
                    .value_or(""),
-       // TODO: This represents a copy
        .labels = schema_context.labels,
        .references = schema_context.references,
        .is_property_name = schema_context.is_property_name},

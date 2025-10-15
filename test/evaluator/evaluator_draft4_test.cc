@@ -14,7 +14,7 @@ TEST(Evaluator_draft4, metaschema_1) {
   EXPECT_TRUE(metaschema.has_value());
 
   const sourcemeta::core::JSON instance{sourcemeta::core::parse_json("{}")};
-  EVALUATE_WITH_TRACE_FAST_SUCCESS(metaschema.value(), instance, 4);
+  EVALUATE_WITH_TRACE_FAST_SUCCESS(metaschema.value(), instance, 3);
 }
 
 TEST(Evaluator_draft4, metaschema_2) {
@@ -31,7 +31,7 @@ TEST(Evaluator_draft4, metaschema_2) {
     }
   })JSON")};
 
-  EVALUATE_WITH_TRACE_FAST_SUCCESS(metaschema.value(), instance, 17);
+  EVALUATE_WITH_TRACE_FAST_SUCCESS(metaschema.value(), instance, 16);
 }
 
 TEST(Evaluator_draft4, metaschema_hyper_self) {
@@ -46,7 +46,7 @@ TEST(Evaluator_draft4, metaschema_hyper_self_exhaustive) {
       "http://json-schema.org/draft-04/hyper-schema#")};
   EXPECT_TRUE(metaschema.has_value());
   EVALUATE_WITH_TRACE_EXHAUSTIVE_SUCCESS(metaschema.value(), metaschema.value(),
-                                         959);
+                                         958);
 }
 
 TEST(Evaluator_draft4, unknown_keyword) {
