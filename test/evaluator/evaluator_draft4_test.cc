@@ -402,6 +402,29 @@ TEST(Evaluator_draft4, required_5_exhaustive) {
                                "The value was expected to be of type object");
 }
 
+TEST(Evaluator_draft4, required_6) {
+  // This is purposely invalid
+  const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
+    "$schema": "http://json-schema.org/draft-04/schema#",
+    "type": "object",
+    "properties": {
+      "foo": {
+        "required": "bar"
+      }
+    }
+  })JSON")};
+
+  const sourcemeta::core::JSON instance{sourcemeta::core::parse_json(R"JSON({
+    "foo": {}
+  })JSON")};
+
+  EVALUATE_WITH_TRACE_FAST_SUCCESS(schema, instance, 1);
+  EVALUATE_TRACE_PRE(0, AssertionTypeStrict, "/type", "#/type", "");
+  EVALUATE_TRACE_POST_SUCCESS(0, AssertionTypeStrict, "/type", "#/type", "");
+  EVALUATE_TRACE_POST_DESCRIBE(instance, 0,
+                               "The value was expected to be of type object");
+}
+
 TEST(Evaluator_draft4, allOf_1) {
   const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
     "$schema": "http://json-schema.org/draft-04/schema#",

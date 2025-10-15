@@ -541,7 +541,9 @@ auto compiler_draft4_validation_required(const Context &context,
                                          const DynamicContext &dynamic_context,
                                          const Instructions &current)
     -> Instructions {
-  assert(schema_context.schema.at(dynamic_context.keyword).is_array());
+  if (!schema_context.schema.at(dynamic_context.keyword).is_array()) {
+    return {};
+  }
 
   if (schema_context.schema.defines("type") &&
       schema_context.schema.at("type").is_string() &&
