@@ -3,10 +3,11 @@
 
 #include <sourcemeta/core/jsonschema.h>
 
-#include <algorithm> // std::move, std::sort, std::unique
-#include <cassert>   // assert
-#include <iterator>  // std::back_inserter
-#include <utility>   // std::move
+#include <algorithm>     // std::move, std::sort, std::unique
+#include <cassert>       // assert
+#include <iterator>      // std::back_inserter
+#include <unordered_map> // std::unordered_map
+#include <utility>       // std::move
 
 #include "compile_helpers.h"
 
@@ -63,6 +64,60 @@ auto compile_subschema(const sourcemeta::blaze::Context &context,
   }
 
   return steps;
+}
+
+// Recursively count the total number of instructions including children
+auto count_instructions(const sourcemeta::blaze::Instructions &instructions)
+    -> std::size_t {
+  std::size_t count{0};
+  for (const auto &instruction : instructions) {
+    count += 1;
+    if (!instruction.children.empty()) {
+      count += count_instructions(instruction.children);
+    }
+  }
+  return count;
+}
+
+// Recursively replace ControlJump instructions targeting small destinations
+// with the actual inlined instructions
+auto inline_small_destinations(
+    sourcemeta::blaze::Instructions &instructions,
+    const std::unordered_map<std::size_t, sourcemeta::blaze::Instructions>
+        &small_destinations_map) -> void {
+  sourcemeta::blaze::Instructions result;
+
+  for (auto &instruction : instructions) {
+    if (instruction.type == sourcemeta::blaze::InstructionIndex::ControlJump) {
+      const auto &value{
+          std::get<sourcemeta::blaze::ValueUnsignedInteger>(instruction.value)};
+      const auto label{value};
+
+      // If this jump targets a small destination, inline it
+      if (small_destinations_map.contains(label)) {
+        const auto &inlined{small_destinations_map.at(label)};
+        for (const auto &inlined_instruction : inlined) {
+          result.push_back(inlined_instruction);
+        }
+      } else {
+        // Keep the ControlJump (targets large destination)
+        result.push_back(std::move(instruction));
+      }
+    } else {
+      result.push_back(std::move(instruction));
+    }
+  }
+
+  instructions = std::move(result);
+
+  // Recursively process children
+  for (auto &instruction : instructions) {
+    if (!instruction.children.empty()) {
+      inline_small_destinations(
+          const_cast<sourcemeta::blaze::Instructions &>(instruction.children),
+          small_destinations_map);
+    }
+  }
 }
 
 auto precompile(
@@ -212,8 +267,13 @@ auto compile(const sourcemeta::core::JSON &schema,
 
   // Precompile any destinations discovered during compilation.
   // Keep iterating until no new destinations are discovered.
+  // Separate small destinations (for inlining) from large ones (for
+  // ControlMark)
   std::size_t processed_count{0};
-  Instructions precompiled_instructions;
+  Instructions large_precompiled_instructions;
+  std::unordered_map<std::size_t, Instructions> small_destinations_map;
+  constexpr std::size_t INLINE_THRESHOLD{10};
+
   while (processed_count < context.precompile_destinations.size()) {
     // Take a snapshot of the current size
     const std::size_t current_size{context.precompile_destinations.size()};
@@ -233,28 +293,62 @@ auto compile(const sourcemeta::core::JSON &schema,
       context.labels.insert(label);
     }
 
-    // Second pass: compile all newly discovered destinations
+    // Second pass: compile and classify destinations as small or large
     for (std::size_t index{processed_count}; index < current_size; ++index) {
       const auto &destination{context.precompile_destinations[index]};
       assert(context.frame.locations().contains(
           {sourcemeta::core::SchemaReferenceType::Static, destination}));
       const auto match{context.frame.locations().find(
           {sourcemeta::core::SchemaReferenceType::Static, destination})};
+
+      // Compile the destination (returns a ControlMark wrapper)
+      Instructions compiled_with_mark;
       for (auto &&substep :
            precompile(context, schema_context, dynamic_context, *match)) {
-        precompiled_instructions.push_back(std::move(substep));
+        compiled_with_mark.push_back(std::move(substep));
+      }
+
+      // Extract the label from the ControlMark instruction
+      assert(!compiled_with_mark.empty());
+      assert(compiled_with_mark[0].type ==
+             sourcemeta::blaze::InstructionIndex::ControlMark);
+      const auto &mark_value{std::get<sourcemeta::blaze::ValueUnsignedInteger>(
+          compiled_with_mark[0].value)};
+      const auto label{mark_value};
+
+      // Count instructions inside the ControlMark (the actual destination code)
+      const auto &mark_children{compiled_with_mark[0].children};
+      const auto instruction_count{count_instructions(mark_children)};
+
+      if (instruction_count < INLINE_THRESHOLD) {
+        // Small destination: store for inlining (without ControlMark wrapper)
+        Instructions copy;
+        for (const auto &instruction : mark_children) {
+          copy.push_back(instruction);
+        }
+        small_destinations_map[label] = std::move(copy);
+      } else {
+        // Large destination: prepend with ControlMark
+        for (auto &instruction : compiled_with_mark) {
+          large_precompiled_instructions.push_back(std::move(instruction));
+        }
       }
     }
 
     processed_count = current_size;
   }
 
-  // Prepend precompiled instructions in reverse order so dependencies come
-  // first
-  for (auto iterator{precompiled_instructions.rbegin()};
-       iterator != precompiled_instructions.rend(); ++iterator) {
+  // Prepend large precompiled instructions in reverse order so dependencies
+  // come first
+  for (auto iterator{large_precompiled_instructions.rbegin()};
+       iterator != large_precompiled_instructions.rend(); ++iterator) {
     compiler_template.push_back(std::move(*iterator));
   }
+
+  // Inline small destinations by replacing ControlJumps with actual
+  // instructions
+  inline_small_destinations(children, small_destinations_map);
+  inline_small_destinations(compiler_template, small_destinations_map);
 
   const bool track{
       context.mode != Mode::FastValidation ||
