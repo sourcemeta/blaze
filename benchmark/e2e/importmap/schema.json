@@ -1,0 +1,26 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://json.schemastore.org/importmap.json",
+  "title": "JSON schema for Import Maps files",
+  "type": "object",
+  "properties": {
+    "imports": {
+      "description": "The Imports field",
+      "type": "object",
+      "additionalProperties": {
+        "type": "string"
+      }
+    },
+    "scopes": {
+      "description": "The Scopes field",
+      "type": "object",
+      "additionalProperties": {
+        "type": "object",
+        "additionalProperties": {
+          "type": "string"
+        }
+      }
+    }
+  },
+  "additionalProperties": false
+}

@@ -1,0 +1,330 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://json.schemastore.org/fabric.mod.json",
+  "type": "object",
+  "required": [ "id", "version", "schemaVersion" ],
+  "properties": {
+    "id": {
+      "description": "The mod identifier",
+      "type": "string",
+      "pattern": "^[a-z][a-z0-9-_]{1,63}$"
+    },
+    "description": {
+      "description": "Description of the mod",
+      "type": "string"
+    },
+    "accessWidener": {
+      "description": "Path to an access widener definition file",
+      "type": "string"
+    },
+    "authors": {
+      "description": "The direct authorship information",
+      "type": "array",
+      "items": {
+        "$ref": "#/definitions/person"
+      }
+    },
+    "breaks": {
+      "description": "id→versionRange map for dependencies. A successful match causes a hard failure",
+      "type": "object",
+      "additionalProperties": {
+        "$ref": "#/definitions/versionRanges"
+      }
+    },
+    "conflicts": {
+      "description": "id→versionRange map for dependencies. A successful match causes a soft failure (warning)",
+      "type": "object",
+      "additionalProperties": {
+        "$ref": "#/definitions/versionRanges"
+      }
+    },
+    "contact": {
+      "description": "Contact information for the mod",
+      "$ref": "#/definitions/contactInfo"
+    },
+    "contributors": {
+      "description": "Contributors to this mod",
+      "type": "array",
+      "items": {
+        "$ref": "#/definitions/person"
+      }
+    },
+    "custom": {
+      "description": "A map of namespace:id→value for custom data fields.",
+      "type": "object"
+    },
+    "depends": {
+      "description": "id→versionRange map for dependencies. Failure to meet these causes a hard failure",
+      "type": "object",
+      "additionalProperties": {
+        "$ref": "#/definitions/versionRanges"
+      }
+    },
+    "entrypoints": {
+      "description": "The entrypoints used by this mod",
+      "type": "object",
+      "properties": {
+        "client": {
+          "description": "The entrypoint for the client environment (classes must implement ClientModInitializer)",
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/entrypoint"
+          }
+        },
+        "fabric-datagen": {
+          "description": "The entrypoint for the data generator environment (classes must implement DataGeneratorEntrypoint)",
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/entrypoint"
+          }
+        },
+        "fabric-gametest": {
+          "description": "The entrypoint for the Game Test environment (classes must implement FabricGameTest)",
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/entrypoint"
+          }
+        },
+        "main": {
+          "description": "The entrypoint for all environments (classes must implement ModInitializer)",
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/entrypoint"
+          }
+        },
+        "preLaunch": {
+          "description": "The entrypoint called just before the game instance is created (classes must implement PreLaunchEntrypoint)",
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/entrypoint"
+          }
+        },
+        "server": {
+          "description": "The entrypoint for the server environment (classes must implement DedicatedServerModInitializer)",
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/entrypoint"
+          }
+        }
+      },
+      "additionalProperties": {
+        "description": "Custom mod entrypoints",
+        "type": "array",
+        "items": {
+          "$ref": "#/definitions/entrypoint"
+        }
+      }
+    },
+    "environment": {
+      "$ref": "#/definitions/environment"
+    },
+    "icon": {
+      "oneOf": [
+        {
+          "description": "The path to a single .PNG file from the root of the JAR",
+          "type": "string"
+        },
+        {
+          "description": "A string→string dictionary, where the keys conform to widths of each PNG file, and the values are said files' paths",
+          "type": "object",
+          "propertyNames": {
+            "pattern": "^[1-9][0-9]*$"
+          },
+          "additionalProperties": {
+            "description": "The path to a single .PNG file from the root of the JAR",
+            "type": "string"
+          }
+        }
+      ]
+    },
+    "jars": {
+      "description": "Contains an array of nestedJar objects",
+      "type": "array",
+      "items": {
+        "$ref": "#/definitions/nestedJar"
+      }
+    },
+    "languageAdapters": {
+      "description": "A string→string dictionary, connecting namespaces to LanguageAdapter implementations",
+      "type": "object",
+      "additionalProperties": {
+        "type": "string"
+      }
+    },
+    "license": {
+      "description": "The license the mod uses",
+      "oneOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        }
+      ]
+    },
+    "mixins": {
+      "type": "array",
+      "items": {
+        "oneOf": [
+          {
+            "description": "Path to mixin file from the root of the JAR",
+            "type": "string"
+          },
+          {
+            "type": "object",
+            "properties": {
+              "config": {
+                "description": "Path to mixin file from the root of the JAR",
+                "type": "string"
+              },
+              "environment": {
+                "$ref": "#/definitions/environment"
+              }
+            }
+          }
+        ]
+      }
+    },
+    "name": {
+      "description": "Name of the mod",
+      "type": "string"
+    },
+    "recommends": {
+      "description": "id→versionRange map for dependencies. Failure to meet these causes a soft failure (warning)",
+      "type": "object",
+      "additionalProperties": {
+        "$ref": "#/definitions/versionRanges"
+      }
+    },
+    "schemaVersion": {
+      "description": "The version of the fabric.mod.json schema",
+      "type": "integer",
+      "const": 1
+    },
+    "suggests": {
+      "description": "id→versionRange map for dependencies. Are not matched and are mainly used as metadata",
+      "type": "object",
+      "additionalProperties": {
+        "$ref": "#/definitions/versionRanges"
+      }
+    },
+    "version": {
+      "description": "The mod version",
+      "type": "string"
+    }
+  },
+  "definitions": {
+    "contactInfo": {
+      "type": "object",
+      "properties": {
+        "email": {
+          "description": "Contact e-mail pertaining to the mod",
+          "type": "string"
+        },
+        "homepage": {
+          "description": "Project or user homepage. Must be a valid HTTP/HTTPS address",
+          "type": "string"
+        },
+        "irc": {
+          "description": "IRC channel pertaining to the mod. Must be of a valid URL format",
+          "type": "string"
+        },
+        "issues": {
+          "description": "Project issue tracker. Must be a valid HTTP/HTTPS address",
+          "type": "string"
+        },
+        "sources": {
+          "description": "Project source code repository. Must be a valid URL",
+          "type": "string"
+        }
+      },
+      "additionalProperties": {
+        "description": "Custom contact or profile informations",
+        "type": "string"
+      }
+    },
+    "entrypoint": {
+      "oneOf": [
+        {
+          "type": "object",
+          "required": [ "value" ],
+          "properties": {
+            "adapter": {
+              "description": "The language adapter to use",
+              "default": "default",
+              "type": "string"
+            },
+            "value": {
+              "description": "The entrypoint function or class",
+              "type": "string"
+            }
+          }
+        },
+        {
+          "description": "The entrypoint function or class",
+          "type": "string"
+        }
+      ]
+    },
+    "environment": {
+      "description": "The environment where this mod will be loaded",
+      "type": "string",
+      "enum": [ "*", "client", "server" ]
+    },
+    "nestedJar": {
+      "type": "object",
+      "required": [ "file" ],
+      "properties": {
+        "file": {
+          "description": "A string value pointing to a path from the root of the JAR to a nested JAR which should be loaded alongside the outer mod JAR",
+          "type": "string"
+        }
+      }
+    },
+    "person": {
+      "oneOf": [
+        {
+          "description": "The name of the person",
+          "type": "string"
+        },
+        {
+          "type": "object",
+          "required": [ "name" ],
+          "properties": {
+            "contact": {
+              "description": "Contact information for the person",
+              "$ref": "#/definitions/contactInfo"
+            },
+            "name": {
+              "description": "The name of the person",
+              "type": "string"
+            }
+          }
+        }
+      ]
+    },
+    "versionRange": {
+      "description": "A version range that matches versions. The following variants are supported:\n\n- A single asterisk matches any version.\n- Ranges following NPM semver specification including >=, >, =, <, <=, X-ranges (1.x), tilde ranges (fixed minor) and caret ranges (fixed major).\n- Additionally exact string matches will always be performed.",
+      "x-intellij-html-description": "<p>A version range or an array of those that match versions. The following variants are supported:</p><ul><li><code>*</code> matches any version.</li><li>Ranges following <a href=\"https://docs.npmjs.com/about-semantic-versioning\">NPM semver specification</a>:<ul><li><code>&gt;=</code>, <code>&gt;</code>, <code>=</code>, <code>&lt;</code> and <code>&lt;</code></li><li>X-ranges to specify variable components, e.g. <code>1.x</code></li><li>tilde ranges that allow patch version changes, e.g. <code>~1.2.3</code></li><li>caret ranges that allow up to minor version changes, e.g. <code>^1.2.3</code></li></ul></li><li>Exact string matches are always performed as well.</li></ul><p>If an array of ranges is used, they're treated as in an \"OR\" relationship - only one of the ranges needs to match.</p>",
+      "type": "string",
+      "markdownDescription": "A version range or an array of those that match versions. The following variants are supported:\n\n- `*` matches any version.\n- Ranges following [NPM semver specification](https://docs.npmjs.com/about-semantic-versioning):\n  - `>=`, `>`, `=`, `<` and `<=`\n  - X-ranges to specify variable components, e.g. `1.x`\n  - tilde ranges that allow patch version changes, e.g. `~1.2.3`\n  - caret ranges that allow up to minor version changes, e.g. `^1.2.3`\n- Exact string matches are always performed as well.\n\nIf an array of ranges is used, they're treated as in an \"OR\" relationship - only one of the ranges needs to match."
+    },
+    "versionRanges": {
+      "oneOf": [
+        {
+          "$ref": "#/definitions/versionRange"
+        },
+        {
+          "description": "Multiple version ranges that are combined with an \"OR\" relationship - only one of the ranges needs to match",
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/versionRange"
+          }
+        }
+      ]
+    }
+  }
+}

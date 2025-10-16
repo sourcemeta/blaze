@@ -1,0 +1,2547 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "ui5.yaml",
+  "description": "Schema for UI5 Tooling Configuration File (ui5.yaml)",
+  "$comment": "See https://sap.github.io/ui5-tooling/",
+  "type": "object",
+  "if": {
+    "properties": {
+      "specVersion": {
+        "enum": [
+          "3.1",
+          "3.0",
+          "2.6",
+          "2.5",
+          "2.4",
+          "2.3",
+          "2.2",
+          "2.1",
+          "2.0"
+        ]
+      }
+    }
+  },
+  "then": {
+    "type": "object",
+    "if": {
+      "properties": {
+        "kind": {
+          "enum": [ "project", null ]
+        }
+      }
+    },
+    "then": {
+      "type": "object",
+      "if": {
+        "properties": {
+          "type": {
+            "const": null
+          }
+        }
+      },
+      "then": {},
+      "else": {
+        "if": {
+          "properties": {
+            "type": {
+              "const": "application"
+            }
+          }
+        },
+        "then": {
+          "type": "object",
+          "if": {
+            "properties": {
+              "specVersion": {
+                "enum": [ "3.0", "3.1" ]
+              }
+            }
+          },
+          "then": {
+            "properties": {
+              "type": {
+                "enum": [ "application" ]
+              },
+              "builder": {
+                "$ref": "#/then/then/else/then/definitions/builder-specVersion-3.0"
+              },
+              "customConfiguration": {
+                "type": "object",
+                "additionalProperties": true
+              },
+              "framework": {
+                "$ref": "#/then/then/definitions/framework"
+              },
+              "kind": {
+                "enum": [ "project", null ]
+              },
+              "metadata": {
+                "$ref": "#/then/then/definitions/metadata-3.0"
+              },
+              "resources": {
+                "$ref": "#/then/then/else/then/definitions/resources"
+              },
+              "server": {
+                "$ref": "#/then/then/definitions/server"
+              },
+              "specVersion": {
+                "enum": [ "3.0", "3.1" ]
+              }
+            },
+            "additionalProperties": false
+          },
+          "else": {
+            "if": {
+              "properties": {
+                "specVersion": {
+                  "enum": [ "2.6" ]
+                }
+              }
+            },
+            "then": {
+              "properties": {
+                "type": {
+                  "enum": [ "application" ]
+                },
+                "builder": {
+                  "$ref": "#/then/then/else/then/definitions/builder-specVersion-2.6"
+                },
+                "customConfiguration": {
+                  "type": "object",
+                  "additionalProperties": true
+                },
+                "framework": {
+                  "$ref": "#/then/then/definitions/framework"
+                },
+                "kind": {
+                  "enum": [ "project", null ]
+                },
+                "metadata": {
+                  "$ref": "#/then/then/definitions/metadata"
+                },
+                "resources": {
+                  "$ref": "#/then/then/else/then/definitions/resources"
+                },
+                "server": {
+                  "$ref": "#/then/then/definitions/server"
+                },
+                "specVersion": {
+                  "enum": [ "2.6" ]
+                }
+              },
+              "additionalProperties": false
+            },
+            "else": {
+              "if": {
+                "properties": {
+                  "specVersion": {
+                    "enum": [ "2.5" ]
+                  }
+                }
+              },
+              "then": {
+                "properties": {
+                  "type": {
+                    "enum": [ "application" ]
+                  },
+                  "builder": {
+                    "$ref": "#/then/then/else/then/definitions/builder-specVersion-2.5"
+                  },
+                  "customConfiguration": {
+                    "type": "object",
+                    "additionalProperties": true
+                  },
+                  "framework": {
+                    "$ref": "#/then/then/definitions/framework"
+                  },
+                  "kind": {
+                    "enum": [ "project", null ]
+                  },
+                  "metadata": {
+                    "$ref": "#/then/then/definitions/metadata"
+                  },
+                  "resources": {
+                    "$ref": "#/then/then/else/then/definitions/resources"
+                  },
+                  "server": {
+                    "$ref": "#/then/then/definitions/server"
+                  },
+                  "specVersion": {
+                    "enum": [ "2.5" ]
+                  }
+                },
+                "additionalProperties": false
+              },
+              "else": {
+                "if": {
+                  "properties": {
+                    "specVersion": {
+                      "enum": [ "2.4" ]
+                    }
+                  }
+                },
+                "then": {
+                  "properties": {
+                    "type": {
+                      "enum": [ "application" ]
+                    },
+                    "builder": {
+                      "$ref": "#/then/then/else/then/definitions/builder-specVersion-2.4"
+                    },
+                    "customConfiguration": {
+                      "type": "object",
+                      "additionalProperties": true
+                    },
+                    "framework": {
+                      "$ref": "#/then/then/definitions/framework"
+                    },
+                    "kind": {
+                      "enum": [ "project", null ]
+                    },
+                    "metadata": {
+                      "$ref": "#/then/then/definitions/metadata"
+                    },
+                    "resources": {
+                      "$ref": "#/then/then/else/then/definitions/resources"
+                    },
+                    "server": {
+                      "$ref": "#/then/then/definitions/server"
+                    },
+                    "specVersion": {
+                      "enum": [ "2.4" ]
+                    }
+                  },
+                  "additionalProperties": false
+                },
+                "else": {
+                  "if": {
+                    "properties": {
+                      "specVersion": {
+                        "enum": [ "2.3" ]
+                      }
+                    }
+                  },
+                  "then": {
+                    "properties": {
+                      "type": {
+                        "enum": [ "application" ]
+                      },
+                      "builder": {
+                        "$ref": "#/then/then/else/then/definitions/builder-specVersion-2.3"
+                      },
+                      "customConfiguration": {
+                        "type": "object",
+                        "additionalProperties": true
+                      },
+                      "framework": {
+                        "$ref": "#/then/then/definitions/framework"
+                      },
+                      "kind": {
+                        "enum": [ "project", null ]
+                      },
+                      "metadata": {
+                        "$ref": "#/then/then/definitions/metadata"
+                      },
+                      "resources": {
+                        "$ref": "#/then/then/else/then/definitions/resources"
+                      },
+                      "server": {
+                        "$ref": "#/then/then/definitions/server"
+                      },
+                      "specVersion": {
+                        "enum": [ "2.3" ]
+                      }
+                    },
+                    "additionalProperties": false
+                  },
+                  "else": {
+                    "if": {
+                      "properties": {
+                        "specVersion": {
+                          "enum": [ "2.1", "2.2" ]
+                        }
+                      }
+                    },
+                    "then": {
+                      "properties": {
+                        "type": {
+                          "enum": [ "application" ]
+                        },
+                        "builder": {
+                          "$ref": "#/then/then/else/then/definitions/builder"
+                        },
+                        "customConfiguration": {
+                          "type": "object",
+                          "additionalProperties": true
+                        },
+                        "framework": {
+                          "$ref": "#/then/then/definitions/framework"
+                        },
+                        "kind": {
+                          "enum": [ "project", null ]
+                        },
+                        "metadata": {
+                          "$ref": "#/then/then/definitions/metadata"
+                        },
+                        "resources": {
+                          "$ref": "#/then/then/else/then/definitions/resources"
+                        },
+                        "server": {
+                          "$ref": "#/then/then/definitions/server"
+                        },
+                        "specVersion": {
+                          "enum": [ "2.1", "2.2" ]
+                        }
+                      },
+                      "additionalProperties": false
+                    },
+                    "else": {
+                      "properties": {
+                        "type": {
+                          "enum": [ "application" ]
+                        },
+                        "builder": {
+                          "$ref": "#/then/then/else/then/definitions/builder"
+                        },
+                        "framework": {
+                          "$ref": "#/then/then/definitions/framework"
+                        },
+                        "kind": {
+                          "enum": [ "project", null ]
+                        },
+                        "metadata": {
+                          "$ref": "#/then/then/definitions/metadata"
+                        },
+                        "resources": {
+                          "$ref": "#/then/then/else/then/definitions/resources"
+                        },
+                        "server": {
+                          "$ref": "#/then/then/definitions/server"
+                        },
+                        "specVersion": {
+                          "enum": [ "2.0" ]
+                        }
+                      },
+                      "additionalProperties": false
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "required": [ "specVersion", "type", "metadata" ],
+          "definitions": {
+            "builder": {
+              "type": "object",
+              "properties": {
+                "bundles": {
+                  "$ref": "#/then/then/definitions/builder-bundles"
+                },
+                "cachebuster": {
+                  "type": "object",
+                  "properties": {
+                    "signatureType": {
+                      "enum": [ "time", "hash" ]
+                    }
+                  },
+                  "additionalProperties": false
+                },
+                "componentPreload": {
+                  "$ref": "#/then/then/definitions/builder-componentPreload"
+                },
+                "customTasks": {
+                  "$ref": "#/then/then/definitions/customTasks"
+                },
+                "resources": {
+                  "$ref": "#/then/then/definitions/builder-resources"
+                }
+              },
+              "additionalProperties": false
+            },
+            "builder-specVersion-2.3": {
+              "type": "object",
+              "properties": {
+                "bundles": {
+                  "$ref": "#/then/then/definitions/builder-bundles"
+                },
+                "cachebuster": {
+                  "type": "object",
+                  "properties": {
+                    "signatureType": {
+                      "enum": [ "time", "hash" ]
+                    }
+                  },
+                  "additionalProperties": false
+                },
+                "componentPreload": {
+                  "$ref": "#/then/then/definitions/builder-componentPreload-specVersion-2.3"
+                },
+                "customTasks": {
+                  "$ref": "#/then/then/definitions/customTasks"
+                },
+                "resources": {
+                  "$ref": "#/then/then/definitions/builder-resources"
+                }
+              },
+              "additionalProperties": false
+            },
+            "builder-specVersion-2.4": {
+              "type": "object",
+              "properties": {
+                "bundles": {
+                  "$ref": "#/then/then/definitions/builder-bundles-2.4"
+                },
+                "cachebuster": {
+                  "type": "object",
+                  "properties": {
+                    "signatureType": {
+                      "enum": [ "time", "hash" ]
+                    }
+                  },
+                  "additionalProperties": false
+                },
+                "componentPreload": {
+                  "$ref": "#/then/then/definitions/builder-componentPreload-specVersion-2.3"
+                },
+                "customTasks": {
+                  "$ref": "#/then/then/definitions/customTasks"
+                },
+                "resources": {
+                  "$ref": "#/then/then/definitions/builder-resources"
+                }
+              },
+              "additionalProperties": false
+            },
+            "builder-specVersion-2.5": {
+              "type": "object",
+              "properties": {
+                "bundles": {
+                  "$ref": "#/then/then/definitions/builder-bundles-2.4"
+                },
+                "cachebuster": {
+                  "type": "object",
+                  "properties": {
+                    "signatureType": {
+                      "enum": [ "time", "hash" ]
+                    }
+                  },
+                  "additionalProperties": false
+                },
+                "componentPreload": {
+                  "$ref": "#/then/then/definitions/builder-componentPreload-specVersion-2.3"
+                },
+                "customTasks": {
+                  "$ref": "#/then/then/definitions/customTasks"
+                },
+                "resources": {
+                  "$ref": "#/then/then/definitions/builder-resources"
+                },
+                "settings": {
+                  "$ref": "#/then/then/definitions/builder-settings"
+                }
+              },
+              "additionalProperties": false
+            },
+            "builder-specVersion-2.6": {
+              "type": "object",
+              "properties": {
+                "bundles": {
+                  "$ref": "#/then/then/definitions/builder-bundles-2.4"
+                },
+                "cachebuster": {
+                  "type": "object",
+                  "properties": {
+                    "signatureType": {
+                      "enum": [ "time", "hash" ]
+                    }
+                  },
+                  "additionalProperties": false
+                },
+                "componentPreload": {
+                  "$ref": "#/then/then/definitions/builder-componentPreload-specVersion-2.3"
+                },
+                "customTasks": {
+                  "$ref": "#/then/then/definitions/customTasks"
+                },
+                "minification": {
+                  "$ref": "#/then/then/definitions/builder-minification"
+                },
+                "resources": {
+                  "$ref": "#/then/then/definitions/builder-resources"
+                },
+                "settings": {
+                  "$ref": "#/then/then/definitions/builder-settings"
+                }
+              },
+              "additionalProperties": false
+            },
+            "builder-specVersion-3.0": {
+              "type": "object",
+              "properties": {
+                "bundles": {
+                  "$ref": "#/then/then/definitions/builder-bundles-3.0"
+                },
+                "cachebuster": {
+                  "type": "object",
+                  "properties": {
+                    "signatureType": {
+                      "enum": [ "time", "hash" ]
+                    }
+                  },
+                  "additionalProperties": false
+                },
+                "componentPreload": {
+                  "$ref": "#/then/then/definitions/builder-componentPreload-specVersion-2.3"
+                },
+                "customTasks": {
+                  "$ref": "#/then/then/definitions/customTasks"
+                },
+                "minification": {
+                  "$ref": "#/then/then/definitions/builder-minification"
+                },
+                "resources": {
+                  "$ref": "#/then/then/definitions/builder-resources"
+                },
+                "settings": {
+                  "$ref": "#/then/then/definitions/builder-settings"
+                }
+              },
+              "additionalProperties": false
+            },
+            "resources": {
+              "type": "object",
+              "properties": {
+                "configuration": {
+                  "type": "object",
+                  "properties": {
+                    "paths": {
+                      "type": "object",
+                      "properties": {
+                        "webapp": {
+                          "type": "string"
+                        }
+                      },
+                      "additionalProperties": false
+                    },
+                    "propertiesFileSourceEncoding": {
+                      "$ref": "#/then/then/definitions/resources-configuration-propertiesFileSourceEncoding"
+                    }
+                  },
+                  "additionalProperties": false
+                }
+              },
+              "additionalProperties": false
+            }
+          }
+        },
+        "else": {
+          "if": {
+            "properties": {
+              "type": {
+                "const": "library"
+              }
+            }
+          },
+          "then": {
+            "type": "object",
+            "if": {
+              "properties": {
+                "specVersion": {
+                  "enum": [ "3.0", "3.1" ]
+                }
+              }
+            },
+            "then": {
+              "properties": {
+                "type": {
+                  "enum": [ "library" ]
+                },
+                "builder": {
+                  "$ref": "#/then/then/else/else/then/definitions/builder-specVersion-3.0"
+                },
+                "customConfiguration": {
+                  "type": "object",
+                  "additionalProperties": true
+                },
+                "framework": {
+                  "$ref": "#/then/then/definitions/framework"
+                },
+                "kind": {
+                  "enum": [ "project", null ]
+                },
+                "metadata": {
+                  "$ref": "#/then/then/definitions/metadata-3.0"
+                },
+                "resources": {
+                  "$ref": "#/then/then/else/else/then/definitions/resources"
+                },
+                "server": {
+                  "$ref": "#/then/then/definitions/server"
+                },
+                "specVersion": {
+                  "enum": [ "3.0", "3.1" ]
+                }
+              },
+              "additionalProperties": false
+            },
+            "else": {
+              "if": {
+                "properties": {
+                  "specVersion": {
+                    "enum": [ "2.6" ]
+                  }
+                }
+              },
+              "then": {
+                "properties": {
+                  "type": {
+                    "enum": [ "library" ]
+                  },
+                  "builder": {
+                    "$ref": "#/then/then/else/else/then/definitions/builder-specVersion-2.6"
+                  },
+                  "customConfiguration": {
+                    "type": "object",
+                    "additionalProperties": true
+                  },
+                  "framework": {
+                    "$ref": "#/then/then/definitions/framework"
+                  },
+                  "kind": {
+                    "enum": [ "project", null ]
+                  },
+                  "metadata": {
+                    "$ref": "#/then/then/definitions/metadata"
+                  },
+                  "resources": {
+                    "$ref": "#/then/then/else/else/then/definitions/resources"
+                  },
+                  "server": {
+                    "$ref": "#/then/then/definitions/server"
+                  },
+                  "specVersion": {
+                    "enum": [ "2.6" ]
+                  }
+                },
+                "additionalProperties": false
+              },
+              "else": {
+                "if": {
+                  "properties": {
+                    "specVersion": {
+                      "enum": [ "2.5" ]
+                    }
+                  }
+                },
+                "then": {
+                  "properties": {
+                    "type": {
+                      "enum": [ "library" ]
+                    },
+                    "builder": {
+                      "$ref": "#/then/then/else/else/then/definitions/builder-specVersion-2.5"
+                    },
+                    "customConfiguration": {
+                      "type": "object",
+                      "additionalProperties": true
+                    },
+                    "framework": {
+                      "$ref": "#/then/then/definitions/framework"
+                    },
+                    "kind": {
+                      "enum": [ "project", null ]
+                    },
+                    "metadata": {
+                      "$ref": "#/then/then/definitions/metadata"
+                    },
+                    "resources": {
+                      "$ref": "#/then/then/else/else/then/definitions/resources"
+                    },
+                    "server": {
+                      "$ref": "#/then/then/definitions/server"
+                    },
+                    "specVersion": {
+                      "enum": [ "2.5" ]
+                    }
+                  },
+                  "additionalProperties": false
+                },
+                "else": {
+                  "if": {
+                    "properties": {
+                      "specVersion": {
+                        "enum": [ "2.4" ]
+                      }
+                    }
+                  },
+                  "then": {
+                    "properties": {
+                      "type": {
+                        "enum": [ "library" ]
+                      },
+                      "builder": {
+                        "$ref": "#/then/then/else/else/then/definitions/builder-specVersion-2.4"
+                      },
+                      "customConfiguration": {
+                        "type": "object",
+                        "additionalProperties": true
+                      },
+                      "framework": {
+                        "$ref": "#/then/then/definitions/framework"
+                      },
+                      "kind": {
+                        "enum": [ "project", null ]
+                      },
+                      "metadata": {
+                        "$ref": "#/then/then/definitions/metadata"
+                      },
+                      "resources": {
+                        "$ref": "#/then/then/else/else/then/definitions/resources"
+                      },
+                      "server": {
+                        "$ref": "#/then/then/definitions/server"
+                      },
+                      "specVersion": {
+                        "enum": [ "2.4" ]
+                      }
+                    },
+                    "additionalProperties": false
+                  },
+                  "else": {
+                    "if": {
+                      "properties": {
+                        "specVersion": {
+                          "enum": [ "2.3" ]
+                        }
+                      }
+                    },
+                    "then": {
+                      "properties": {
+                        "type": {
+                          "enum": [ "library" ]
+                        },
+                        "builder": {
+                          "$ref": "#/then/then/else/else/then/definitions/builder-specVersion-2.3"
+                        },
+                        "customConfiguration": {
+                          "type": "object",
+                          "additionalProperties": true
+                        },
+                        "framework": {
+                          "$ref": "#/then/then/definitions/framework"
+                        },
+                        "kind": {
+                          "enum": [ "project", null ]
+                        },
+                        "metadata": {
+                          "$ref": "#/then/then/definitions/metadata"
+                        },
+                        "resources": {
+                          "$ref": "#/then/then/else/else/then/definitions/resources"
+                        },
+                        "server": {
+                          "$ref": "#/then/then/definitions/server"
+                        },
+                        "specVersion": {
+                          "enum": [ "2.3" ]
+                        }
+                      },
+                      "additionalProperties": false
+                    },
+                    "else": {
+                      "if": {
+                        "properties": {
+                          "specVersion": {
+                            "enum": [ "2.1", "2.2" ]
+                          }
+                        }
+                      },
+                      "then": {
+                        "properties": {
+                          "type": {
+                            "enum": [ "library" ]
+                          },
+                          "builder": {
+                            "$ref": "#/then/then/else/else/then/definitions/builder"
+                          },
+                          "customConfiguration": {
+                            "type": "object",
+                            "additionalProperties": true
+                          },
+                          "framework": {
+                            "$ref": "#/then/then/definitions/framework"
+                          },
+                          "kind": {
+                            "enum": [ "project", null ]
+                          },
+                          "metadata": {
+                            "$ref": "#/then/then/definitions/metadata"
+                          },
+                          "resources": {
+                            "$ref": "#/then/then/else/else/then/definitions/resources"
+                          },
+                          "server": {
+                            "$ref": "#/then/then/definitions/server"
+                          },
+                          "specVersion": {
+                            "enum": [ "2.1", "2.2" ]
+                          }
+                        },
+                        "additionalProperties": false
+                      },
+                      "else": {
+                        "properties": {
+                          "type": {
+                            "enum": [ "library" ]
+                          },
+                          "builder": {
+                            "$ref": "#/then/then/else/else/then/definitions/builder"
+                          },
+                          "framework": {
+                            "$ref": "#/then/then/definitions/framework"
+                          },
+                          "kind": {
+                            "enum": [ "project", null ]
+                          },
+                          "metadata": {
+                            "$ref": "#/then/then/definitions/metadata"
+                          },
+                          "resources": {
+                            "$ref": "#/then/then/else/else/then/definitions/resources"
+                          },
+                          "server": {
+                            "$ref": "#/then/then/definitions/server"
+                          },
+                          "specVersion": {
+                            "enum": [ "2.0" ]
+                          }
+                        },
+                        "additionalProperties": false
+                      }
+                    }
+                  }
+                }
+              }
+            },
+            "required": [ "specVersion", "type", "metadata" ],
+            "definitions": {
+              "builder": {
+                "type": "object",
+                "properties": {
+                  "bundles": {
+                    "$ref": "#/then/then/definitions/builder-bundles"
+                  },
+                  "componentPreload": {
+                    "$ref": "#/then/then/definitions/builder-componentPreload"
+                  },
+                  "customTasks": {
+                    "$ref": "#/then/then/definitions/customTasks"
+                  },
+                  "jsdoc": {
+                    "$ref": "#/then/then/else/else/then/definitions/builder-jsdoc"
+                  },
+                  "resources": {
+                    "$ref": "#/then/then/definitions/builder-resources"
+                  }
+                },
+                "additionalProperties": false
+              },
+              "builder-jsdoc": {
+                "type": "object",
+                "properties": {
+                  "excludes": {
+                    "type": "array",
+                    "items": {
+                      "type": "string"
+                    }
+                  }
+                },
+                "additionalProperties": false
+              },
+              "builder-specVersion-2.3": {
+                "type": "object",
+                "properties": {
+                  "bundles": {
+                    "$ref": "#/then/then/definitions/builder-bundles"
+                  },
+                  "componentPreload": {
+                    "$ref": "#/then/then/definitions/builder-componentPreload-specVersion-2.3"
+                  },
+                  "customTasks": {
+                    "$ref": "#/then/then/definitions/customTasks"
+                  },
+                  "jsdoc": {
+                    "$ref": "#/then/then/else/else/then/definitions/builder-jsdoc"
+                  },
+                  "libraryPreload": {
+                    "$ref": "#/then/then/definitions/builder-libraryPreload"
+                  },
+                  "resources": {
+                    "$ref": "#/then/then/definitions/builder-resources"
+                  }
+                },
+                "additionalProperties": false
+              },
+              "builder-specVersion-2.4": {
+                "type": "object",
+                "properties": {
+                  "bundles": {
+                    "$ref": "#/then/then/definitions/builder-bundles-2.4"
+                  },
+                  "componentPreload": {
+                    "$ref": "#/then/then/definitions/builder-componentPreload-specVersion-2.3"
+                  },
+                  "customTasks": {
+                    "$ref": "#/then/then/definitions/customTasks"
+                  },
+                  "jsdoc": {
+                    "$ref": "#/then/then/else/else/then/definitions/builder-jsdoc"
+                  },
+                  "libraryPreload": {
+                    "$ref": "#/then/then/definitions/builder-libraryPreload"
+                  },
+                  "resources": {
+                    "$ref": "#/then/then/definitions/builder-resources"
+                  }
+                },
+                "additionalProperties": false
+              },
+              "builder-specVersion-2.5": {
+                "type": "object",
+                "properties": {
+                  "bundles": {
+                    "$ref": "#/then/then/definitions/builder-bundles-2.4"
+                  },
+                  "componentPreload": {
+                    "$ref": "#/then/then/definitions/builder-componentPreload-specVersion-2.3"
+                  },
+                  "customTasks": {
+                    "$ref": "#/then/then/definitions/customTasks"
+                  },
+                  "jsdoc": {
+                    "$ref": "#/then/then/else/else/then/definitions/builder-jsdoc"
+                  },
+                  "libraryPreload": {
+                    "$ref": "#/then/then/definitions/builder-libraryPreload"
+                  },
+                  "resources": {
+                    "$ref": "#/then/then/definitions/builder-resources"
+                  },
+                  "settings": {
+                    "$ref": "#/then/then/definitions/builder-settings"
+                  }
+                },
+                "additionalProperties": false
+              },
+              "builder-specVersion-2.6": {
+                "type": "object",
+                "properties": {
+                  "bundles": {
+                    "$ref": "#/then/then/definitions/builder-bundles-2.4"
+                  },
+                  "componentPreload": {
+                    "$ref": "#/then/then/definitions/builder-componentPreload-specVersion-2.3"
+                  },
+                  "customTasks": {
+                    "$ref": "#/then/then/definitions/customTasks"
+                  },
+                  "jsdoc": {
+                    "$ref": "#/then/then/else/else/then/definitions/builder-jsdoc"
+                  },
+                  "libraryPreload": {
+                    "$ref": "#/then/then/definitions/builder-libraryPreload"
+                  },
+                  "minification": {
+                    "$ref": "#/then/then/definitions/builder-minification"
+                  },
+                  "resources": {
+                    "$ref": "#/then/then/definitions/builder-resources"
+                  },
+                  "settings": {
+                    "$ref": "#/then/then/definitions/builder-settings"
+                  }
+                },
+                "additionalProperties": false
+              },
+              "builder-specVersion-3.0": {
+                "type": "object",
+                "properties": {
+                  "bundles": {
+                    "$ref": "#/then/then/definitions/builder-bundles-3.0"
+                  },
+                  "componentPreload": {
+                    "$ref": "#/then/then/definitions/builder-componentPreload-specVersion-2.3"
+                  },
+                  "customTasks": {
+                    "$ref": "#/then/then/definitions/customTasks"
+                  },
+                  "jsdoc": {
+                    "$ref": "#/then/then/else/else/then/definitions/builder-jsdoc"
+                  },
+                  "libraryPreload": {
+                    "$ref": "#/then/then/definitions/builder-libraryPreload"
+                  },
+                  "minification": {
+                    "$ref": "#/then/then/definitions/builder-minification"
+                  },
+                  "resources": {
+                    "$ref": "#/then/then/definitions/builder-resources"
+                  },
+                  "settings": {
+                    "$ref": "#/then/then/definitions/builder-settings"
+                  }
+                },
+                "additionalProperties": false
+              },
+              "resources": {
+                "type": "object",
+                "properties": {
+                  "configuration": {
+                    "type": "object",
+                    "properties": {
+                      "paths": {
+                        "type": "object",
+                        "properties": {
+                          "src": {
+                            "type": "string"
+                          },
+                          "test": {
+                            "type": "string"
+                          }
+                        },
+                        "additionalProperties": false
+                      },
+                      "propertiesFileSourceEncoding": {
+                        "$ref": "#/then/then/definitions/resources-configuration-propertiesFileSourceEncoding"
+                      }
+                    },
+                    "additionalProperties": false
+                  }
+                },
+                "additionalProperties": false
+              }
+            }
+          },
+          "else": {
+            "if": {
+              "properties": {
+                "type": {
+                  "const": "theme-library"
+                }
+              }
+            },
+            "then": {
+              "type": "object",
+              "if": {
+                "properties": {
+                  "specVersion": {
+                    "enum": [ "3.0", "3.1" ]
+                  }
+                }
+              },
+              "then": {
+                "properties": {
+                  "type": {
+                    "enum": [ "theme-library" ]
+                  },
+                  "builder": {
+                    "$ref": "#/then/then/else/else/else/then/definitions/builder-specVersion-2.5"
+                  },
+                  "customConfiguration": {
+                    "type": "object",
+                    "additionalProperties": true
+                  },
+                  "framework": {
+                    "$ref": "#/then/then/definitions/framework"
+                  },
+                  "kind": {
+                    "enum": [ "project", null ]
+                  },
+                  "metadata": {
+                    "$ref": "#/then/then/definitions/metadata-3.0"
+                  },
+                  "resources": {
+                    "$ref": "#/then/then/else/else/then/definitions/resources"
+                  },
+                  "server": {
+                    "$ref": "#/then/then/definitions/server"
+                  },
+                  "specVersion": {
+                    "enum": [ "3.0", "3.1" ]
+                  }
+                },
+                "additionalProperties": false
+              },
+              "else": {
+                "if": {
+                  "properties": {
+                    "specVersion": {
+                      "enum": [ "2.5", "2.6" ]
+                    }
+                  }
+                },
+                "then": {
+                  "properties": {
+                    "type": {
+                      "enum": [ "theme-library" ]
+                    },
+                    "builder": {
+                      "$ref": "#/then/then/else/else/else/then/definitions/builder-specVersion-2.5"
+                    },
+                    "customConfiguration": {
+                      "type": "object",
+                      "additionalProperties": true
+                    },
+                    "framework": {
+                      "$ref": "#/then/then/definitions/framework"
+                    },
+                    "kind": {
+                      "enum": [ "project", null ]
+                    },
+                    "metadata": {
+                      "$ref": "#/then/then/definitions/metadata"
+                    },
+                    "resources": {
+                      "$ref": "#/then/then/else/else/then/definitions/resources"
+                    },
+                    "server": {
+                      "$ref": "#/then/then/definitions/server"
+                    },
+                    "specVersion": {
+                      "enum": [ "2.5", "2.6" ]
+                    }
+                  },
+                  "additionalProperties": false
+                },
+                "else": {
+                  "if": {
+                    "properties": {
+                      "specVersion": {
+                        "enum": [ "2.1", "2.2", "2.3", "2.4" ]
+                      }
+                    }
+                  },
+                  "then": {
+                    "properties": {
+                      "type": {
+                        "enum": [ "theme-library" ]
+                      },
+                      "builder": {
+                        "$ref": "#/then/then/else/else/else/then/definitions/builder"
+                      },
+                      "customConfiguration": {
+                        "type": "object",
+                        "additionalProperties": true
+                      },
+                      "framework": {
+                        "$ref": "#/then/then/definitions/framework"
+                      },
+                      "kind": {
+                        "enum": [ "project", null ]
+                      },
+                      "metadata": {
+                        "$ref": "#/then/then/definitions/metadata"
+                      },
+                      "resources": {
+                        "$ref": "#/then/then/else/else/then/definitions/resources"
+                      },
+                      "server": {
+                        "$ref": "#/then/then/definitions/server"
+                      },
+                      "specVersion": {
+                        "enum": [ "2.1", "2.2", "2.3", "2.4" ]
+                      }
+                    },
+                    "additionalProperties": false
+                  },
+                  "else": {
+                    "properties": {
+                      "type": {
+                        "enum": [ "theme-library" ]
+                      },
+                      "builder": {
+                        "$ref": "#/then/then/else/else/else/then/definitions/builder"
+                      },
+                      "framework": {
+                        "$ref": "#/then/then/definitions/framework"
+                      },
+                      "kind": {
+                        "enum": [ "project", null ]
+                      },
+                      "metadata": {
+                        "$ref": "#/then/then/definitions/metadata"
+                      },
+                      "resources": {
+                        "$ref": "#/then/then/else/else/then/definitions/resources"
+                      },
+                      "server": {
+                        "$ref": "#/then/then/definitions/server"
+                      },
+                      "specVersion": {
+                        "enum": [ "2.0" ]
+                      }
+                    },
+                    "additionalProperties": false
+                  }
+                }
+              },
+              "required": [ "specVersion", "type", "metadata" ],
+              "definitions": {
+                "builder": {
+                  "type": "object",
+                  "properties": {
+                    "customTasks": {
+                      "$ref": "#/then/then/definitions/customTasks"
+                    },
+                    "resources": {
+                      "$ref": "#/then/then/definitions/builder-resources"
+                    }
+                  },
+                  "additionalProperties": false
+                },
+                "builder-specVersion-2.5": {
+                  "type": "object",
+                  "properties": {
+                    "customTasks": {
+                      "$ref": "#/then/then/definitions/customTasks"
+                    },
+                    "resources": {
+                      "$ref": "#/then/then/definitions/builder-resources"
+                    },
+                    "settings": {
+                      "$ref": "#/then/then/definitions/builder-settings"
+                    }
+                  },
+                  "additionalProperties": false
+                }
+              }
+            },
+            "else": {
+              "if": {
+                "properties": {
+                  "type": {
+                    "const": "module"
+                  }
+                }
+              },
+              "then": {
+                "type": "object",
+                "if": {
+                  "properties": {
+                    "specVersion": {
+                      "enum": [ "3.1" ]
+                    }
+                  }
+                },
+                "then": {
+                  "properties": {
+                    "type": {
+                      "enum": [ "module" ]
+                    },
+                    "builder": {
+                      "$ref": "#/then/then/else/else/else/else/then/definitions/builder-specVersion-3.1"
+                    },
+                    "customConfiguration": {
+                      "type": "object",
+                      "additionalProperties": true
+                    },
+                    "kind": {
+                      "enum": [ "project", null ]
+                    },
+                    "metadata": {
+                      "$ref": "#/then/then/definitions/metadata-3.0"
+                    },
+                    "resources": {
+                      "$ref": "#/then/then/else/else/else/else/then/definitions/resources"
+                    },
+                    "server": {
+                      "$ref": "#/then/then/definitions/server"
+                    },
+                    "specVersion": {
+                      "enum": [ "3.1" ]
+                    }
+                  },
+                  "additionalProperties": false
+                },
+                "else": {
+                  "if": {
+                    "properties": {
+                      "specVersion": {
+                        "enum": [ "3.0" ]
+                      }
+                    }
+                  },
+                  "then": {
+                    "properties": {
+                      "type": {
+                        "enum": [ "module" ]
+                      },
+                      "builder": {
+                        "$ref": "#/then/then/else/else/else/else/then/definitions/builder-specVersion-2.5"
+                      },
+                      "customConfiguration": {
+                        "type": "object",
+                        "additionalProperties": true
+                      },
+                      "kind": {
+                        "enum": [ "project", null ]
+                      },
+                      "metadata": {
+                        "$ref": "#/then/then/definitions/metadata-3.0"
+                      },
+                      "resources": {
+                        "$ref": "#/then/then/else/else/else/else/then/definitions/resources"
+                      },
+                      "server": {
+                        "$ref": "#/then/then/definitions/server"
+                      },
+                      "specVersion": {
+                        "enum": [ "3.0" ]
+                      }
+                    },
+                    "additionalProperties": false
+                  },
+                  "else": {
+                    "if": {
+                      "properties": {
+                        "specVersion": {
+                          "enum": [ "2.5", "2.6" ]
+                        }
+                      }
+                    },
+                    "then": {
+                      "properties": {
+                        "type": {
+                          "enum": [ "module" ]
+                        },
+                        "builder": {
+                          "$ref": "#/then/then/else/else/else/else/then/definitions/builder-specVersion-2.5"
+                        },
+                        "customConfiguration": {
+                          "type": "object",
+                          "additionalProperties": true
+                        },
+                        "kind": {
+                          "enum": [ "project", null ]
+                        },
+                        "metadata": {
+                          "$ref": "#/then/then/definitions/metadata"
+                        },
+                        "resources": {
+                          "$ref": "#/then/then/else/else/else/else/then/definitions/resources"
+                        },
+                        "server": {
+                          "$ref": "#/then/then/definitions/server"
+                        },
+                        "specVersion": {
+                          "enum": [ "2.5", "2.6" ]
+                        }
+                      },
+                      "additionalProperties": false
+                    },
+                    "else": {
+                      "if": {
+                        "properties": {
+                          "specVersion": {
+                            "enum": [ "2.1", "2.2", "2.3", "2.4" ]
+                          }
+                        }
+                      },
+                      "then": {
+                        "properties": {
+                          "type": {
+                            "enum": [ "module" ]
+                          },
+                          "customConfiguration": {
+                            "type": "object",
+                            "additionalProperties": true
+                          },
+                          "kind": {
+                            "enum": [ "project", null ]
+                          },
+                          "metadata": {
+                            "$ref": "#/then/then/definitions/metadata"
+                          },
+                          "resources": {
+                            "$ref": "#/then/then/else/else/else/else/then/definitions/resources"
+                          },
+                          "specVersion": {
+                            "enum": [ "2.1", "2.2", "2.3", "2.4" ]
+                          }
+                        },
+                        "additionalProperties": false
+                      },
+                      "else": {
+                        "properties": {
+                          "type": {
+                            "enum": [ "module" ]
+                          },
+                          "kind": {
+                            "enum": [ "project", null ]
+                          },
+                          "metadata": {
+                            "$ref": "#/then/then/definitions/metadata"
+                          },
+                          "resources": {
+                            "$ref": "#/then/then/else/else/else/else/then/definitions/resources"
+                          },
+                          "specVersion": {
+                            "enum": [ "2.0" ]
+                          }
+                        },
+                        "additionalProperties": false
+                      }
+                    }
+                  }
+                },
+                "required": [ "specVersion", "type", "metadata" ],
+                "definitions": {
+                  "builder-specVersion-2.5": {
+                    "type": "object",
+                    "properties": {
+                      "settings": {
+                        "$ref": "#/then/then/definitions/builder-settings"
+                      }
+                    },
+                    "additionalProperties": false
+                  },
+                  "builder-specVersion-3.1": {
+                    "type": "object",
+                    "properties": {
+                      "resources": {
+                        "$ref": "#/then/then/definitions/builder-resources"
+                      },
+                      "settings": {
+                        "$ref": "#/then/then/definitions/builder-settings"
+                      }
+                    },
+                    "additionalProperties": false
+                  },
+                  "resources": {
+                    "type": "object",
+                    "properties": {
+                      "configuration": {
+                        "type": "object",
+                        "properties": {
+                          "paths": {
+                            "type": "object",
+                            "patternProperties": {
+                              ".+": {
+                                "type": "string"
+                              }
+                            },
+                            "additionalProperties": false
+                          }
+                        },
+                        "additionalProperties": false
+                      }
+                    },
+                    "additionalProperties": false
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "required": [ "specVersion", "type" ],
+      "properties": {
+        "type": {
+          "enum": [ "application", "library", "theme-library", "module" ]
+        },
+        "kind": {
+          "enum": [ "project", null ]
+        },
+        "specVersion": {
+          "enum": [
+            "3.1",
+            "3.0",
+            "2.6",
+            "2.5",
+            "2.4",
+            "2.3",
+            "2.2",
+            "2.1",
+            "2.0"
+          ]
+        }
+      },
+      "definitions": {
+        "builder-bundles": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "bundleDefinition": {
+                "$ref": "#/then/then/definitions/builder-bundles-bundleDefinition"
+              },
+              "bundleOptions": {
+                "$ref": "#/then/then/definitions/builder-bundles-bundleOptions"
+              }
+            },
+            "additionalProperties": false
+          },
+          "additionalProperties": false
+        },
+        "builder-bundles-2.4": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "bundleDefinition": {
+                "$ref": "#/then/then/definitions/builder-bundles-bundleDefinition-2.4"
+              },
+              "bundleOptions": {
+                "$ref": "#/then/then/definitions/builder-bundles-bundleOptions"
+              }
+            },
+            "additionalProperties": false
+          },
+          "additionalProperties": false
+        },
+        "builder-bundles-3.0": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "bundleDefinition": {
+                "$ref": "#/then/then/definitions/builder-bundles-bundleDefinition-2.4"
+              },
+              "bundleOptions": {
+                "$ref": "#/then/then/definitions/builder-bundles-bundleOptions-3.0"
+              }
+            },
+            "additionalProperties": false
+          },
+          "additionalProperties": false
+        },
+        "builder-bundles-bundleDefinition": {
+          "type": "object",
+          "required": [ "name" ],
+          "properties": {
+            "defaultFileTypes": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            "name": {
+              "type": "string"
+            },
+            "sections": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "required": [ "mode", "filters" ],
+                "properties": {
+                  "declareRawModules": {
+                    "default": false,
+                    "type": "boolean"
+                  },
+                  "filters": {
+                    "type": "array",
+                    "items": {
+                      "type": "string"
+                    }
+                  },
+                  "mode": {
+                    "enum": [ "raw", "preload", "require", "provided" ]
+                  },
+                  "name": {
+                    "type": "string"
+                  },
+                  "renderer": {
+                    "default": false,
+                    "type": "boolean"
+                  },
+                  "resolve": {
+                    "default": false,
+                    "type": "boolean"
+                  },
+                  "resolveConditional": {
+                    "default": false,
+                    "type": "boolean"
+                  },
+                  "sort": {
+                    "default": true,
+                    "type": "boolean"
+                  }
+                },
+                "additionalProperties": false
+              }
+            }
+          },
+          "additionalProperties": false
+        },
+        "builder-bundles-bundleDefinition-2.4": {
+          "type": "object",
+          "required": [ "name" ],
+          "properties": {
+            "defaultFileTypes": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            "name": {
+              "type": "string"
+            },
+            "sections": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "required": [ "mode", "filters" ],
+                "properties": {
+                  "declareRawModules": {
+                    "default": false,
+                    "type": "boolean"
+                  },
+                  "filters": {
+                    "type": "array",
+                    "items": {
+                      "type": "string"
+                    }
+                  },
+                  "mode": {
+                    "enum": [
+                      "raw",
+                      "preload",
+                      "require",
+                      "provided",
+                      "bundleInfo"
+                    ]
+                  },
+                  "name": {
+                    "type": "string"
+                  },
+                  "renderer": {
+                    "default": false,
+                    "type": "boolean"
+                  },
+                  "resolve": {
+                    "default": false,
+                    "type": "boolean"
+                  },
+                  "resolveConditional": {
+                    "default": false,
+                    "type": "boolean"
+                  },
+                  "sort": {
+                    "default": true,
+                    "type": "boolean"
+                  }
+                },
+                "additionalProperties": false
+              }
+            }
+          },
+          "additionalProperties": false
+        },
+        "builder-bundles-bundleOptions": {
+          "type": "object",
+          "properties": {
+            "addTryCatchRestartWrapper": {
+              "default": false,
+              "type": "boolean"
+            },
+            "decorateBootstrapModule": {
+              "default": true,
+              "type": "boolean"
+            },
+            "numberOfParts": {
+              "default": 1,
+              "type": "number"
+            },
+            "optimize": {
+              "default": false,
+              "type": "boolean"
+            },
+            "usePredefineCalls": {
+              "default": false,
+              "type": "boolean"
+            }
+          },
+          "additionalProperties": false
+        },
+        "builder-bundles-bundleOptions-3.0": {
+          "type": "object",
+          "properties": {
+            "addTryCatchRestartWrapper": {
+              "default": false,
+              "type": "boolean"
+            },
+            "decorateBootstrapModule": {
+              "default": true,
+              "type": "boolean"
+            },
+            "numberOfParts": {
+              "default": 1,
+              "type": "number"
+            },
+            "optimize": {
+              "default": true,
+              "type": "boolean"
+            },
+            "sourceMap": {
+              "default": true,
+              "type": "boolean"
+            },
+            "usePredefineCalls": {
+              "default": false,
+              "type": "boolean"
+            }
+          },
+          "additionalProperties": false
+        },
+        "builder-componentPreload": {
+          "type": "object",
+          "properties": {
+            "namespaces": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            "paths": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            }
+          },
+          "additionalProperties": false
+        },
+        "builder-componentPreload-specVersion-2.3": {
+          "type": "object",
+          "properties": {
+            "excludes": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            "namespaces": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            "paths": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            }
+          },
+          "additionalProperties": false
+        },
+        "builder-libraryPreload": {
+          "type": "object",
+          "properties": {
+            "excludes": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            }
+          },
+          "additionalProperties": false
+        },
+        "builder-minification": {
+          "type": "object",
+          "properties": {
+            "excludes": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            }
+          },
+          "additionalProperties": false
+        },
+        "builder-resources": {
+          "type": "object",
+          "properties": {
+            "excludes": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            }
+          },
+          "additionalProperties": false
+        },
+        "builder-settings": {
+          "type": "object",
+          "properties": {
+            "includeDependency": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            "includeDependencyRegExp": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            "includeDependencyTree": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            }
+          },
+          "additionalProperties": false
+        },
+        "customTasks": {
+          "type": "array",
+          "items": {
+            "oneOf": [
+              {
+                "type": "object",
+                "required": [ "name", "beforeTask" ],
+                "properties": {
+                  "beforeTask": {
+                    "type": "string"
+                  },
+                  "configuration": {},
+                  "name": {
+                    "type": "string"
+                  }
+                },
+                "additionalProperties": false
+              },
+              {
+                "type": "object",
+                "required": [ "name", "afterTask" ],
+                "properties": {
+                  "afterTask": {
+                    "type": "string"
+                  },
+                  "configuration": {},
+                  "name": {
+                    "type": "string"
+                  }
+                },
+                "additionalProperties": false
+              }
+            ]
+          }
+        },
+        "framework": {
+          "type": "object",
+          "required": [ "name" ],
+          "properties": {
+            "libraries": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "if": {
+                  "not": {
+                    "anyOf": [
+                      {
+                        "properties": {
+                          "optional": {
+                            "enum": [ false, null ]
+                          }
+                        }
+                      },
+                      {
+                        "properties": {
+                          "development": {
+                            "enum": [ false, null ]
+                          }
+                        }
+                      },
+                      {
+                        "not": {
+                          "properties": {
+                            "optional": {
+                              "type": "boolean"
+                            }
+                          }
+                        }
+                      },
+                      {
+                        "not": {
+                          "properties": {
+                            "development": {
+                              "type": "boolean"
+                            }
+                          }
+                        }
+                      }
+                    ]
+                  }
+                },
+                "then": {
+                  "properties": {
+                    "name": {
+                      "type": "string"
+                    }
+                  },
+                  "additionalProperties": false,
+                  "errorMessage": "Either \"development\" or \"optional\" can be true, but not both"
+                },
+                "required": [ "name" ],
+                "properties": {
+                  "optional": {
+                    "default": false,
+                    "type": "boolean"
+                  },
+                  "development": {
+                    "default": false,
+                    "type": "boolean"
+                  },
+                  "name": {
+                    "type": "string"
+                  }
+                },
+                "additionalProperties": false
+              }
+            },
+            "name": {
+              "enum": [ "OpenUI5", "SAPUI5" ]
+            },
+            "version": {
+              "title": "Version",
+              "description": "Framework version to use in this project",
+              "type": "string",
+              "pattern": "^(0|[1-9]\\d*)\\.(0|[1-9]\\d*)\\.(0|[1-9]\\d*)(?:-((?:0|[1-9]\\d*|\\d*[a-zA-Z-][0-9a-zA-Z-]*)(?:\\.(?:0|[1-9]\\d*|\\d*[a-zA-Z-][0-9a-zA-Z-]*))*))?(?:\\+([0-9a-zA-Z-]+(?:\\.[0-9a-zA-Z-]+)*))?$",
+              "errorMessage": "Not a valid version according to the Semantic Versioning specification (https://semver.org/)"
+            }
+          },
+          "additionalProperties": false
+        },
+        "metadata": {
+          "type": "object",
+          "required": [ "name" ],
+          "properties": {
+            "deprecated": {
+              "default": false,
+              "type": "boolean"
+            },
+            "allowSapInternal": {
+              "default": false,
+              "type": "boolean"
+            },
+            "copyright": {
+              "type": "string"
+            },
+            "name": {
+              "type": "string"
+            },
+            "sapInternal": {
+              "default": false,
+              "type": "boolean"
+            }
+          },
+          "additionalProperties": false
+        },
+        "metadata-3.0": {
+          "type": "object",
+          "required": [ "name" ],
+          "properties": {
+            "deprecated": {
+              "default": false,
+              "type": "boolean"
+            },
+            "allowSapInternal": {
+              "default": false,
+              "type": "boolean"
+            },
+            "copyright": {
+              "type": "string"
+            },
+            "name": {
+              "title": "Project Name",
+              "description": "Unique identifier for the project, for example: organization.product.project",
+              "type": "string",
+              "pattern": "^(?:@[0-9a-z-_.]+\\/)?[a-z][0-9a-z-_.]*$",
+              "maxLength": 80,
+              "minLength": 3,
+              "errorMessage": "Not a valid project name. It must consist of lowercase alphanumeric characters, dash, underscore, and period only. Additionally, it may contain an npm-style package scope. For details, see: https://sap.github.io/ui5-tooling/stable/pages/Configuration/#name"
+            },
+            "sapInternal": {
+              "default": false,
+              "type": "boolean"
+            }
+          },
+          "additionalProperties": false
+        },
+        "resources-configuration-propertiesFileSourceEncoding": {
+          "title": "Encoding of *.properties files",
+          "description": "By default, the UI5 Tooling expects *.properties files to be UTF-8 encoded.",
+          "default": "UTF-8",
+          "enum": [ "UTF-8", "ISO-8859-1" ]
+        },
+        "server": {
+          "type": "object",
+          "properties": {
+            "customMiddleware": {
+              "type": "array",
+              "items": {
+                "oneOf": [
+                  {
+                    "type": "object",
+                    "required": [ "name", "beforeMiddleware" ],
+                    "properties": {
+                      "beforeMiddleware": {
+                        "type": "string"
+                      },
+                      "configuration": {},
+                      "mountPath": {
+                        "type": "string"
+                      },
+                      "name": {
+                        "type": "string"
+                      }
+                    },
+                    "additionalProperties": false
+                  },
+                  {
+                    "type": "object",
+                    "required": [ "name", "afterMiddleware" ],
+                    "properties": {
+                      "afterMiddleware": {
+                        "type": "string"
+                      },
+                      "configuration": {},
+                      "mountPath": {
+                        "type": "string"
+                      },
+                      "name": {
+                        "type": "string"
+                      }
+                    },
+                    "additionalProperties": false
+                  }
+                ]
+              }
+            },
+            "settings": {
+              "type": "object",
+              "properties": {
+                "httpPort": {
+                  "type": "number"
+                },
+                "httpsPort": {
+                  "type": "number"
+                }
+              },
+              "additionalProperties": false
+            }
+          },
+          "additionalProperties": false
+        }
+      }
+    },
+    "else": {
+      "if": {
+        "properties": {
+          "kind": {
+            "enum": [ "extension" ]
+          }
+        }
+      },
+      "then": {
+        "type": "object",
+        "if": {
+          "properties": {
+            "type": {
+              "const": null
+            }
+          }
+        },
+        "then": {},
+        "else": {
+          "if": {
+            "properties": {
+              "type": {
+                "const": "task"
+              }
+            }
+          },
+          "then": {
+            "type": "object",
+            "if": {
+              "properties": {
+                "specVersion": {
+                  "enum": [ "3.0", "3.1" ]
+                }
+              }
+            },
+            "then": {
+              "properties": {
+                "type": {
+                  "enum": [ "task" ]
+                },
+                "customConfiguration": {
+                  "type": "object",
+                  "additionalProperties": true
+                },
+                "kind": {
+                  "enum": [ "extension" ]
+                },
+                "metadata": {
+                  "$ref": "#/then/else/then/definitions/metadata-3.0"
+                },
+                "specVersion": {
+                  "enum": [ "3.0", "3.1" ]
+                },
+                "task": {
+                  "$ref": "#/then/else/then/else/then/definitions/task"
+                }
+              },
+              "additionalProperties": false
+            },
+            "else": {
+              "if": {
+                "properties": {
+                  "specVersion": {
+                    "enum": [ "2.1", "2.2", "2.3", "2.4", "2.5", "2.6" ]
+                  }
+                }
+              },
+              "then": {
+                "properties": {
+                  "type": {
+                    "enum": [ "task" ]
+                  },
+                  "customConfiguration": {
+                    "type": "object",
+                    "additionalProperties": true
+                  },
+                  "kind": {
+                    "enum": [ "extension" ]
+                  },
+                  "metadata": {
+                    "$ref": "#/then/else/then/definitions/metadata"
+                  },
+                  "specVersion": {
+                    "enum": [ "2.1", "2.2", "2.3", "2.4", "2.5", "2.6" ]
+                  },
+                  "task": {
+                    "$ref": "#/then/else/then/else/then/definitions/task"
+                  }
+                },
+                "additionalProperties": false
+              },
+              "else": {
+                "properties": {
+                  "type": {
+                    "enum": [ "task" ]
+                  },
+                  "kind": {
+                    "enum": [ "extension" ]
+                  },
+                  "metadata": {
+                    "$ref": "#/then/else/then/definitions/metadata"
+                  },
+                  "specVersion": {
+                    "enum": [ "2.0" ]
+                  },
+                  "task": {
+                    "$ref": "#/then/else/then/else/then/definitions/task"
+                  }
+                },
+                "additionalProperties": false
+              }
+            },
+            "required": [ "specVersion", "kind", "type", "metadata", "task" ],
+            "definitions": {
+              "task": {
+                "type": "object",
+                "properties": {
+                  "path": {
+                    "type": "string"
+                  }
+                },
+                "additionalProperties": false
+              }
+            }
+          },
+          "else": {
+            "if": {
+              "properties": {
+                "type": {
+                  "const": "server-middleware"
+                }
+              }
+            },
+            "then": {
+              "type": "object",
+              "if": {
+                "properties": {
+                  "specVersion": {
+                    "enum": [ "3.0", "3.1" ]
+                  }
+                }
+              },
+              "then": {
+                "properties": {
+                  "type": {
+                    "enum": [ "server-middleware" ]
+                  },
+                  "customConfiguration": {
+                    "type": "object",
+                    "additionalProperties": true
+                  },
+                  "kind": {
+                    "enum": [ "extension" ]
+                  },
+                  "metadata": {
+                    "$ref": "#/then/else/then/definitions/metadata-3.0"
+                  },
+                  "middleware": {
+                    "$ref": "#/then/else/then/else/else/then/definitions/middleware"
+                  },
+                  "specVersion": {
+                    "enum": [ "3.0", "3.1" ]
+                  }
+                },
+                "additionalProperties": false
+              },
+              "else": {
+                "if": {
+                  "properties": {
+                    "specVersion": {
+                      "enum": [ "2.1", "2.2", "2.3", "2.4", "2.5", "2.6" ]
+                    }
+                  }
+                },
+                "then": {
+                  "properties": {
+                    "type": {
+                      "enum": [ "server-middleware" ]
+                    },
+                    "customConfiguration": {
+                      "type": "object",
+                      "additionalProperties": true
+                    },
+                    "kind": {
+                      "enum": [ "extension" ]
+                    },
+                    "metadata": {
+                      "$ref": "#/then/else/then/definitions/metadata"
+                    },
+                    "middleware": {
+                      "$ref": "#/then/else/then/else/else/then/definitions/middleware"
+                    },
+                    "specVersion": {
+                      "enum": [ "2.1", "2.2", "2.3", "2.4", "2.5", "2.6" ]
+                    }
+                  },
+                  "additionalProperties": false
+                },
+                "else": {
+                  "properties": {
+                    "type": {
+                      "enum": [ "server-middleware" ]
+                    },
+                    "kind": {
+                      "enum": [ "extension" ]
+                    },
+                    "metadata": {
+                      "$ref": "#/then/else/then/definitions/metadata"
+                    },
+                    "middleware": {
+                      "$ref": "#/then/else/then/else/else/then/definitions/middleware"
+                    },
+                    "specVersion": {
+                      "enum": [ "2.0" ]
+                    }
+                  },
+                  "additionalProperties": false
+                }
+              },
+              "required": [
+                "specVersion",
+                "kind",
+                "type",
+                "metadata",
+                "middleware"
+              ],
+              "definitions": {
+                "middleware": {
+                  "type": "object",
+                  "properties": {
+                    "path": {
+                      "type": "string"
+                    }
+                  },
+                  "additionalProperties": false
+                }
+              }
+            },
+            "else": {
+              "if": {
+                "properties": {
+                  "type": {
+                    "const": "project-shim"
+                  }
+                }
+              },
+              "then": {
+                "type": "object",
+                "if": {
+                  "properties": {
+                    "specVersion": {
+                      "enum": [ "3.0", "3.1" ]
+                    }
+                  }
+                },
+                "then": {
+                  "properties": {
+                    "type": {
+                      "enum": [ "project-shim" ]
+                    },
+                    "customConfiguration": {
+                      "type": "object",
+                      "additionalProperties": true
+                    },
+                    "kind": {
+                      "enum": [ "extension" ]
+                    },
+                    "metadata": {
+                      "$ref": "#/then/else/then/definitions/metadata-3.0"
+                    },
+                    "shims": {
+                      "$ref": "#/then/else/then/else/else/else/then/definitions/shims"
+                    },
+                    "specVersion": {
+                      "enum": [ "3.0", "3.1" ]
+                    }
+                  },
+                  "additionalProperties": false
+                },
+                "else": {
+                  "if": {
+                    "properties": {
+                      "specVersion": {
+                        "enum": [ "2.1", "2.2", "2.3", "2.4", "2.5", "2.6" ]
+                      }
+                    }
+                  },
+                  "then": {
+                    "properties": {
+                      "type": {
+                        "enum": [ "project-shim" ]
+                      },
+                      "customConfiguration": {
+                        "type": "object",
+                        "additionalProperties": true
+                      },
+                      "kind": {
+                        "enum": [ "extension" ]
+                      },
+                      "metadata": {
+                        "$ref": "#/then/else/then/definitions/metadata"
+                      },
+                      "shims": {
+                        "$ref": "#/then/else/then/else/else/else/then/definitions/shims"
+                      },
+                      "specVersion": {
+                        "enum": [ "2.1", "2.2", "2.3", "2.4", "2.5", "2.6" ]
+                      }
+                    },
+                    "additionalProperties": false
+                  },
+                  "else": {
+                    "properties": {
+                      "type": {
+                        "enum": [ "project-shim" ]
+                      },
+                      "kind": {
+                        "enum": [ "extension" ]
+                      },
+                      "metadata": {
+                        "$ref": "#/then/else/then/definitions/metadata"
+                      },
+                      "shims": {
+                        "$ref": "#/then/else/then/else/else/else/then/definitions/shims"
+                      },
+                      "specVersion": {
+                        "enum": [ "2.0" ]
+                      }
+                    },
+                    "additionalProperties": false
+                  }
+                },
+                "required": [
+                  "specVersion",
+                  "kind",
+                  "type",
+                  "metadata",
+                  "shims"
+                ],
+                "definitions": {
+                  "shims": {
+                    "type": "object",
+                    "properties": {
+                      "dependencies": {
+                        "type": "object",
+                        "patternProperties": {
+                          ".+": {
+                            "type": "array",
+                            "items": {
+                              "type": "string"
+                            }
+                          }
+                        },
+                        "additionalProperties": false
+                      },
+                      "collections": {
+                        "type": "object",
+                        "patternProperties": {
+                          ".+": {
+                            "type": "object",
+                            "properties": {
+                              "modules": {
+                                "type": "object",
+                                "patternProperties": {
+                                  ".+": {
+                                    "type": "string"
+                                  }
+                                },
+                                "additionalProperties": false
+                              }
+                            },
+                            "additionalProperties": false
+                          }
+                        },
+                        "additionalProperties": false
+                      },
+                      "configurations": {
+                        "type": "object",
+                        "patternProperties": {
+                          ".+": {
+                            "type": "object"
+                          }
+                        },
+                        "additionalProperties": false
+                      }
+                    },
+                    "additionalProperties": false
+                  }
+                }
+              }
+            }
+          }
+        },
+        "required": [ "specVersion", "kind", "type", "metadata" ],
+        "properties": {
+          "type": {
+            "enum": [ "task", "server-middleware", "project-shim" ]
+          },
+          "kind": {
+            "enum": [ "extension" ]
+          },
+          "metadata": {
+            "$ref": "#/then/else/then/definitions/metadata"
+          },
+          "specVersion": {
+            "enum": [
+              "3.1",
+              "3.0",
+              "2.6",
+              "2.5",
+              "2.4",
+              "2.3",
+              "2.2",
+              "2.1",
+              "2.0"
+            ]
+          }
+        },
+        "definitions": {
+          "metadata": {
+            "type": "object",
+            "required": [ "name" ],
+            "properties": {
+              "copyright": {
+                "type": "string"
+              },
+              "name": {
+                "type": "string"
+              }
+            },
+            "additionalProperties": false
+          },
+          "metadata-3.0": {
+            "type": "object",
+            "required": [ "name" ],
+            "properties": {
+              "copyright": {
+                "type": "string"
+              },
+              "name": {
+                "title": "Extension Name",
+                "description": "Unique identifier for the extension, for example: ui5-task-fearless-rock",
+                "type": "string",
+                "pattern": "^(?:@[0-9a-z-_.]+\\/)?[a-z][0-9a-z-_.]*$",
+                "maxLength": 80,
+                "minLength": 3,
+                "errorMessage": "Not a valid extension name. It must consist of lowercase alphanumeric characters, dash, underscore, and period only. Additionally, it may contain an npm-style package scope. For details, see: https://sap.github.io/ui5-tooling/stable/pages/Configuration/#name"
+              }
+            },
+            "additionalProperties": false
+          }
+        }
+      }
+    },
+    "required": [ "specVersion" ],
+    "properties": {
+      "kind": {
+        "enum": [ "project", "extension", null ]
+      },
+      "specVersion": {
+        "enum": [
+          "3.1",
+          "3.0",
+          "2.6",
+          "2.5",
+          "2.4",
+          "2.3",
+          "2.2",
+          "2.1",
+          "2.0"
+        ]
+      }
+    }
+  },
+  "else": {
+    "if": {
+      "properties": {
+        "specVersion": {
+          "enum": [ "1.1", "1.0", "0.1" ]
+        }
+      }
+    },
+    "then": {
+      "additionalProperties": true
+    }
+  },
+  "required": [ "specVersion" ],
+  "properties": {
+    "specVersion": {
+      "enum": [
+        "3.1",
+        "3.0",
+        "2.6",
+        "2.5",
+        "2.4",
+        "2.3",
+        "2.2",
+        "2.1",
+        "2.0",
+        "1.1",
+        "1.0",
+        "0.1"
+      ],
+      "errorMessage": "Unsupported \"specVersion\"\nYour UI5 CLI installation might be outdated.\nSupported specification versions: \"3.1\", \"3.0\", \"2.6\", \"2.5\", \"2.4\", \"2.3\", \"2.2\", \"2.1\", \"2.0\", \"1.1\", \"1.0\", \"0.1\"\nFor details, see: https://sap.github.io/ui5-tooling/pages/Configuration/#specification-versions"
+    }
+  }
+}

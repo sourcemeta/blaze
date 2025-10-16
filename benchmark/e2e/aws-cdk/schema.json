@@ -1,0 +1,38 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://json.schemastore.org/cdk.json",
+  "title": "Schema for AWS CDK context files (cdk.json)",
+  "type": "object",
+  "properties": {
+    "app": {
+      "type": "string",
+      "minLength": 1
+    },
+    "build": {
+      "type": "string"
+    },
+    "context": {
+      "type": "object"
+    },
+    "versionReporting": {
+      "type": "boolean"
+    },
+    "watch": {
+      "type": "object",
+      "properties": {
+        "exclude": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "include": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        }
+      }
+    }
+  }
+}

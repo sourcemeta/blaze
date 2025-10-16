@@ -31,7 +31,6 @@ jobs:
             cxx: g++-13
             type: static
             shell: sh
-            benchmark: macos/gcc
           - os: ubuntu-latest
             cc: clang
             cxx: clang++
@@ -57,7 +56,6 @@ jobs:
           - os: windows-latest
             type: static
             shell: pwsh
-            benchmark: windows/msvc
           - os: windows-latest
             type: shared
             shell: pwsh
