@@ -1,0 +1,309 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://json.schemastore.org/uproject.json",
+  "title": "JSON schema for Unreal Engine uproject",
+  "description": "Descriptor for projects. Contains all the information contained within a .uproject file.",
+  "type": "object",
+  "required": [ "EngineAssociation", "FileVersion" ],
+  "properties": {
+    "Category": {
+      "description": "Category to show under the project browser.",
+      "type": "string"
+    },
+    "Description": {
+      "description": "Description to show in the project browser.",
+      "type": "string"
+    },
+    "DisableEnginePluginsByDefault": {
+      "description": "Indicates that enabled by default engine plugins should not be enabled unless explicitly enabled by the project or target files.",
+      "default": false,
+      "type": "boolean"
+    },
+    "EngineAssociation": {
+      "description": "The engine to open this project with. Denotes by <major>.<minor> convention e.g. 4.20, 5.0 or source engine hash.",
+      "type": "string",
+      "pattern": "(^([0-9]+)\\.([0-9]+)$)|(^\\{[A-F0-9]{8}(-[A-F0-9]{4}){3}-[A-F0-9]{12}\\}$)",
+      "markdownDescription": "The engine to open this project with. Denotes by `<major>.<minor>` convention e.g. `4.20`, `5.0` or source engine GUID."
+    },
+    "EpicSampleNameHash": {
+      "description": "A hash that is used to determine if the project was forked from a sample.",
+      "type": "number"
+    },
+    "FileVersion": {
+      "description": "Descriptor version number.",
+      "$comment": "More details can be found in https://docs.unrealengine.com/4.26/en-US/API/Runtime/Projects/EProjectDescriptorVersion__Type/",
+      "default": 3,
+      "type": "number",
+      "markdownDescription": "Descriptor version number. More details can be found in the [EProjectDescriptorVersion](https://docs.unrealengine.com/4.26/en-US/API/Runtime/Projects/EProjectDescriptorVersion__Type/)."
+    },
+    "IsEnterpriseProject": {
+      "description": "Indicates if this project is an Enterprise project.",
+      "default": false,
+      "type": "boolean"
+    },
+    "Modules": {
+      "description": "List of all modules associated with this project.",
+      "type": "array",
+      "uniqueItems": true,
+      "items": {
+        "$ref": "#/definitions/ModuleDescriptor"
+      }
+    },
+    "Plugins": {
+      "description": "List of plugins for this project (may be enabled/disabled).",
+      "type": "array",
+      "uniqueItems": true,
+      "items": {
+        "$ref": "#/definitions/PluginReferenceDescriptor"
+      }
+    },
+    "PostBuildSteps": {
+      "description": "Custom steps to execute after building targets in this project.",
+      "$comment": "Define platform as key, command as value.",
+      "type": "object"
+    },
+    "PreBuildSteps": {
+      "description": "Custom steps to execute before building targets in this project.",
+      "$comment": "Define platform as key, command as value.",
+      "type": "object"
+    },
+    "TargetPlatforms": {
+      "description": "Array of platforms that this project is targeting.",
+      "type": "array",
+      "uniqueItems": true,
+      "items": {
+        "type": "string"
+      }
+    }
+  },
+  "additionalProperties": false,
+  "definitions": {
+    "BuildConfiguration": {
+      "description": "Available build configurations. Mirorred from UnrealTargetConfiguration.",
+      "type": "string",
+      "enum": [
+        "Unknown",
+        "Debug",
+        "DebugGame",
+        "Development",
+        "Shipping",
+        "Test"
+      ],
+      "markdownDescription": "Available build configurations. Mirorred from `UnrealTargetConfiguration`."
+    },
+    "BuildTargetType": {
+      "description": "Enumerates build target types.",
+      "type": "string",
+      "enum": [ "Unknown", "Game", "Server", "Client", "Editor", "Program" ]
+    },
+    "ModuleDescriptor": {
+      "description": "Description of a loadable module.",
+      "type": "object",
+      "properties": {
+        "AdditionalDependencies": {
+          "description": "List of additional dependencies for building this module.",
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "HasExplicitPlatforms": {
+          "description": "When true, an empty PlatformAllowList is interpeted as 'no platforms' with the expectation that explict platforms will be added in plugin extensions.",
+          "default": false,
+          "type": "boolean",
+          "markdownDescription": "When true, an empty `PlatformAllowList` is interpeted as **no platforms** with the expectation that explict platforms will be added in plugin extensions."
+        },
+        "LoadingPhase": {
+          "description": "When should the module be loaded during the startup sequence? This is sort of an advanced setting.",
+          "type": "string",
+          "enum": [
+            "EarliestPossible",
+            "PostConfigInit",
+            "PostSplashScreen",
+            "PreEarlyLoadingScreen",
+            "PreLoadingScreen",
+            "PreDefault",
+            "Default",
+            "PostDefault",
+            "PostEngineInit",
+            "None",
+            "Max"
+          ]
+        },
+        "Name": {
+          "description": "Name of this module.",
+          "type": "string"
+        },
+        "PlatformAllowList": {
+          "description": "List of allowed platforms.",
+          "type": "array",
+          "uniqueItems": true,
+          "items": {
+            "type": "string"
+          }
+        },
+        "PlatformDenyList": {
+          "description": "List of disallowed platforms.",
+          "type": "array",
+          "uniqueItems": true,
+          "items": {
+            "type": "string"
+          }
+        },
+        "ProgramAllowList": {
+          "description": "List of allowed programs.",
+          "type": "array",
+          "uniqueItems": true,
+          "items": {
+            "type": "string"
+          }
+        },
+        "ProgramDenyList": {
+          "description": "List of disallowed programs.",
+          "type": "array",
+          "uniqueItems": true,
+          "items": {
+            "type": "string"
+          }
+        },
+        "TargetAllowList": {
+          "description": "List of allowed targets.",
+          "type": "array",
+          "uniqueItems": true,
+          "items": {
+            "$ref": "#/definitions/BuildTargetType"
+          }
+        },
+        "TargetConfigurationAllowList": {
+          "description": "List of allowed target configurations.",
+          "type": "array",
+          "uniqueItems": true,
+          "items": {
+            "$ref": "#/definitions/BuildConfiguration"
+          }
+        },
+        "TargetConfigurationDenyList": {
+          "description": "List of disallowed target configurations.",
+          "type": "array",
+          "uniqueItems": true,
+          "items": {
+            "$ref": "#/definitions/BuildConfiguration"
+          }
+        },
+        "TargetDenyList": {
+          "description": "List of disallowed targets.",
+          "type": "array",
+          "uniqueItems": true,
+          "items": {
+            "$ref": "#/definitions/BuildTargetType"
+          }
+        },
+        "Type": {
+          "description": "Usage type of module.",
+          "type": "string",
+          "enum": [
+            "Runtime",
+            "RuntimeNoCommandlet",
+            "RuntimeAndProgram",
+            "CookedOnly",
+            "UncookedOnly",
+            "Developer",
+            "DeveloperTool",
+            "Editor",
+            "EditorNoCommandlet",
+            "EditorAndProgram",
+            "Program",
+            "ServerOnly",
+            "ClientOnly",
+            "ClientOnlyNoCommandlet",
+            "Max"
+          ]
+        }
+      }
+    },
+    "PluginReferenceDescriptor": {
+      "description": "Descriptor for a plugin reference.",
+      "type": "object",
+      "required": [ "Enabled", "Name" ],
+      "properties": {
+        "Description": {
+          "description": "Description of the plugin for users that do not have it installed.",
+          "type": "string"
+        },
+        "Enabled": {
+          "description": "Whether it should be enabled by default.",
+          "default": true,
+          "type": "boolean"
+        },
+        "HasExplicitPlatforms": {
+          "description": "When true, empty SupportedTargetPlatforms and PlatformAllowList are interpreted as 'no platforms' with the expectation that explicit platforms will be added in plugin platform extensions.",
+          "default": false,
+          "type": "boolean",
+          "markdownDescription": "When true, empty `SupportedTargetPlatforms` and `PlatformAllowList` are interpreted as **no platforms** with the expectation that explicit platforms will be added in plugin platform extensions."
+        },
+        "MarketplaceURL": {
+          "description": "URL for this plugin on the marketplace, if the user doesn't have it installed.",
+          "type": "string"
+        },
+        "Name": {
+          "description": "Name of the plugin.",
+          "type": "string"
+        },
+        "Optional": {
+          "description": "Whether this plugin is optional, and the game should silently ignore it not being present.",
+          "default": false,
+          "type": "boolean"
+        },
+        "PlatformAllowList": {
+          "description": "List of allowed platforms.",
+          "type": "array",
+          "uniqueItems": true,
+          "items": {
+            "type": "string"
+          }
+        },
+        "PlatformDenyList": {
+          "description": "List of disallowed platforms.",
+          "type": "array",
+          "uniqueItems": true,
+          "items": {
+            "type": "string"
+          }
+        },
+        "TargetAllowList": {
+          "description": "List of allowed targets.",
+          "type": "array",
+          "uniqueItems": true,
+          "items": {
+            "$ref": "#/definitions/BuildTargetType"
+          }
+        },
+        "TargetConfigurationAllowList": {
+          "description": "List of allowed target configurations.",
+          "type": "array",
+          "uniqueItems": true,
+          "items": {
+            "$ref": "#/definitions/BuildConfiguration"
+          }
+        },
+        "TargetConfigurationDenyList": {
+          "description": "List of disallowed target configurations.",
+          "type": "array",
+          "uniqueItems": true,
+          "items": {
+            "$ref": "#/definitions/BuildConfiguration"
+          }
+        },
+        "TargetDenyList": {
+          "description": "List of disallowed targets.",
+          "type": "array",
+          "uniqueItems": true,
+          "items": {
+            "$ref": "#/definitions/BuildTargetType"
+          }
+        }
+      }
+    }
+  },
+  "markdownDescription": "Descriptor for projects. Contains all the information contained within a `.uproject` file."
+}

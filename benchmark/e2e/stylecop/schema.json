@@ -1,0 +1,265 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://raw.githubusercontent.com/DotNetAnalyzers/StyleCopAnalyzers/master/StyleCop.Analyzers/StyleCop.Analyzers/Settings/stylecop.schema.json",
+  "title": "StyleCop Analyzers Configuration",
+  "description": "Configuration file for StyleCop Analyzers",
+  "type": "object",
+  "properties": {
+    "settings": {
+      "description": "The top-level object containing configuration properties for built-in rules.",
+      "type": "object",
+      "properties": {
+        "documentationRules": {
+          "description": "Configuration for documentation rules (SA1600-)",
+          "type": "object",
+          "properties": {
+            "companyName": {
+              "description": "The name of the company which appears in file headers.",
+              "default": "PlaceholderCompany",
+              "type": "string"
+            },
+            "copyrightText": {
+              "description": "The copyright text which should appear in file headers.",
+              "default": "Copyright (c) {companyName}. All rights reserved.",
+              "type": "string"
+            },
+            "documentExposedElements": {
+              "description": "Specifies whether exposed elements need to be documented. When true, all publicly-exposed types and members require documentation.",
+              "default": true,
+              "type": "boolean"
+            },
+            "documentInterfaces": {
+              "description": "Specifies whether interface members need to be documented. When true, all interface members require documentation, regardless of accessibility.",
+              "default": true,
+              "type": "boolean"
+            },
+            "documentInternalElements": {
+              "description": "Specifies whether internal elements need to be documented. When true, all internally-exposed types and members require documentation.",
+              "default": true,
+              "type": "boolean"
+            },
+            "documentPrivateElements": {
+              "description": "Specifies whether private elements need to be documented. When true, all types and members except for declared private fields require documentation.",
+              "default": false,
+              "type": "boolean"
+            },
+            "documentPrivateFields": {
+              "description": "Specifies whether private fields need to be documented. When true, all fields require documentation, regardless of accessibility.",
+              "default": false,
+              "type": "boolean"
+            },
+            "documentationCulture": {
+              "description": "The culture that should be used for documentation comments.",
+              "default": "en-US",
+              "type": "string"
+            },
+            "excludeFromPunctuationCheck": {
+              "description": "Specifies the top-level tags within XML documentation that will be excluded from punctuation analysis.",
+              "default": [ "seealso" ],
+              "type": "array"
+            },
+            "fileNamingConvention": {
+              "description": "Specifies the preferred naming convention for files. The default value \"stylecop\" uses the naming convention defined by StyleCop Classic, while \"metadata\" uses a file naming convention that matches the metadata names of types.",
+              "default": "stylecop",
+              "type": "string",
+              "enum": [ "stylecop", "metadata" ]
+            },
+            "headerDecoration": {
+              "description": "The text used as decoration for the copyright header comment.",
+              "default": null,
+              "type": "string"
+            },
+            "variables": {
+              "description": "Replacement variables which may be used in the 'copyrightText' value.",
+              "type": "object",
+              "patternProperties": {
+                "^[a-zA-Z0-9]+$": {
+                  "type": "string"
+                }
+              },
+              "additionalProperties": false
+            },
+            "xmlHeader": {
+              "description": "Determines whether the file header should be wrapped in the StyleCop-standard XML structure.",
+              "default": true,
+              "type": "boolean"
+            }
+          },
+          "additionalProperties": false
+        },
+        "indentation": {
+          "description": "Indentation configuration",
+          "type": "object",
+          "properties": {
+            "indentationSize": {
+              "description": "Specifies the indentation size.",
+              "default": 4,
+              "type": "integer",
+              "minimum": 0
+            },
+            "tabSize": {
+              "description": "Specifies the tab width.",
+              "default": 4,
+              "type": "integer",
+              "minimum": 0
+            },
+            "useTabs": {
+              "description": "Specifies whether indentation should use hard tabs instead of spaces.",
+              "default": false,
+              "type": "boolean"
+            }
+          },
+          "additionalProperties": false
+        },
+        "layoutRules": {
+          "description": "Configuration for layout rules (SA1500-)",
+          "type": "object",
+          "properties": {
+            "allowConsecutiveUsings": {
+              "description": "Specifies if SA1519 will allow consecutive using statements without braces",
+              "default": true,
+              "type": "boolean"
+            },
+            "allowDoWhileOnClosingBrace": {
+              "description": "Specifies if SA1500 will allow the 'while' expression of a 'do'/'while' loop to be on the same line as the closing brace.",
+              "default": false,
+              "type": "boolean"
+            },
+            "newlineAtEndOfFile": {
+              "description": "Specifies the handling for newline characters which appear at the end of a file\r\nallow: Files are allowed to end with a single newline character, but it is not required\r\nrequire: Files are required to end with a single newline character\r\nomit: Files may not end with a newline character",
+              "default": "allow",
+              "type": "string",
+              "enum": [ "allow", "require", "omit" ]
+            }
+          },
+          "additionalProperties": false
+        },
+        "maintainabilityRules": {
+          "description": "Configuration for ordering rules (SA1400-)",
+          "type": "object",
+          "properties": {
+            "topLevelTypes": {
+              "description": "The set of type kinds which should be placed in separate files according to the type name.",
+              "default": [ "class" ],
+              "type": "array",
+              "uniqueItems": true,
+              "items": {
+                "type": "string",
+                "enum": [ "class", "interface", "struct", "delegate", "enum" ]
+              }
+            }
+          },
+          "additionalProperties": false
+        },
+        "namingRules": {
+          "description": "Configuration for naming rules (SA1300-)",
+          "type": "object",
+          "properties": {
+            "allowCommonHungarianPrefixes": {
+              "description": "Determines whether common Hungarian notation prefixes should be allowed.",
+              "default": true,
+              "type": "boolean"
+            },
+            "allowedHungarianPrefixes": {
+              "description": "Allowed Hungarian notation prefixes.",
+              "default": [],
+              "type": "array",
+              "items": {
+                "type": "string",
+                "pattern": "^[a-z]{1,2}$",
+                "uniqueItems": true
+              }
+            },
+            "allowedNamespaceComponents": {
+              "description": "Allowed namespace components, such as ones beginning with a lowercase letter.",
+              "default": [],
+              "type": "array",
+              "items": {
+                "type": "string",
+                "uniqueItems": true
+              }
+            },
+            "includeInferredTupleElementNames": {
+              "description": "Specifies whether inferred tuple element names will be analyzed as well.",
+              "default": false,
+              "type": "boolean"
+            },
+            "tupleElementNameCasing": {
+              "description": "Specifies the casing convention used for tuple element names.",
+              "default": "PascalCase",
+              "type": "string",
+              "enum": [ "camelCase", "PascalCase" ]
+            }
+          },
+          "additionalProperties": false
+        },
+        "orderingRules": {
+          "description": "Configuration for ordering rules (SA1200-)",
+          "type": "object",
+          "properties": {
+            "blankLinesBetweenUsingGroups": {
+              "description": "Specifies if using groups should be separated by a blank line.\r\nallow: A blank line is allowed, but not required\r\nrequire: A blank line is required\r\nomit: A blank line is not allowed",
+              "default": "allow",
+              "type": "string",
+              "enum": [ "allow", "require", "omit" ]
+            },
+            "elementOrder": {
+              "description": "Specifies the traits used for ordering elements within a document, along with their precedence.",
+              "default": [
+                "kind",
+                "accessibility",
+                "constant",
+                "static",
+                "readonly"
+              ],
+              "type": "array",
+              "uniqueItems": true,
+              "items": {
+                "description": "",
+                "type": "string",
+                "enum": [
+                  "accessibility",
+                  "kind",
+                  "constant",
+                  "static",
+                  "readonly"
+                ]
+              }
+            },
+            "systemUsingDirectivesFirst": {
+              "description": "When true, System using directives should be placed before other using directives.",
+              "default": true,
+              "type": "boolean"
+            },
+            "usingDirectivesPlacement": {
+              "description": "Specifies the desired placement of using directives.\r\ninsideNamespace: Place using directives inside the namespace definition\r\noutsideNamespace: Place using directives outside the namespace definition\r\npreserve: Allow using directives inside or outside the namespace definition",
+              "default": "insideNamespace",
+              "type": "string",
+              "enum": [ "insideNamespace", "outsideNamespace", "preserve" ]
+            }
+          },
+          "additionalProperties": false
+        },
+        "readabilityRules": {
+          "description": "Configuration for readability rules (SA1100-)",
+          "type": "object",
+          "properties": {
+            "allowBuiltInTypeAliases": {
+              "description": "When true, diagnostics will not be reported for using aliases of built-in types.",
+              "default": false,
+              "type": "boolean"
+            }
+          },
+          "additionalProperties": false
+        },
+        "spacingRules": {
+          "description": "Configuration for spacing rules (SA1000-)",
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        }
+      },
+      "additionalProperties": false
+    }
+  }
+}

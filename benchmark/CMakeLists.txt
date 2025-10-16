@@ -1,17 +1,13 @@
 set(BENCHMARK_SOURCES)
 
-if(BLAZE_COMPILER)
+if(BLAZE_COMPILER AND BLAZE_EVALUATOR)
   list(APPEND BENCHMARK_SOURCES
-    compiler_draft6.cc
-    compiler_2019_09.cc)
-endif()
-if(BLAZE_EVALUATOR)
-  list(APPEND BENCHMARK_SOURCES
-    evaluator_draft4.cc
-    evaluator_draft6.cc
-    evaluator_draft7.cc
-    evaluator_2019_09.cc
-    evaluator_2020_12.cc)
+    e2e/runner.cc
+    micro/draft4.cc
+    micro/draft6.cc
+    micro/draft7.cc
+    micro/2019_09.cc
+    micro/2020_12.cc)
 endif()
 
 if(BENCHMARK_SOURCES)
@@ -21,7 +17,11 @@ if(BENCHMARK_SOURCES)
     PRIVATE CURRENT_DIRECTORY="${CMAKE_CURRENT_SOURCE_DIR}")
 
   target_link_libraries(sourcemeta_blaze_benchmark
+    PRIVATE sourcemeta::core::io)
+  target_link_libraries(sourcemeta_blaze_benchmark
     PRIVATE sourcemeta::core::json)
+  target_link_libraries(sourcemeta_blaze_benchmark
+    PRIVATE sourcemeta::core::jsonl)
   target_link_libraries(sourcemeta_blaze_benchmark
     PRIVATE sourcemeta::core::jsonschema)
 

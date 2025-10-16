@@ -1,0 +1,366 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://json.schemastore.org/jshintrc",
+  "title": "JSON schema for JSHint configuration files",
+  "type": "object",
+  "properties": {
+    "extends": {
+      "description": "Specify the path to another configuration file to use as a base, relative to the current file",
+      "type": "string"
+    },
+    "asi": {
+      "description": "Suppresses warnings about missing semicolons",
+      "default": false,
+      "type": "boolean"
+    },
+    "bitwise": {
+      "description": "Prohibit the use of bitwise operators (&, |, ^, etc.)",
+      "default": false,
+      "type": "boolean"
+    },
+    "boss": {
+      "description": "Suppresses warnings about the use of assignments in cases where comparisons are expected",
+      "default": false,
+      "type": "boolean"
+    },
+    "browser": {
+      "description": "[Environment] Web Browser (window, document, etc)",
+      "default": false,
+      "type": "boolean"
+    },
+    "browserify": {
+      "description": "[Environment] Browserify",
+      "default": false,
+      "type": "boolean"
+    },
+    "couch": {
+      "description": "[Environment] CouchDB",
+      "default": false,
+      "type": "boolean"
+    },
+    "curly": {
+      "description": "Requires you to always put curly braces around blocks in loops and conditionals",
+      "default": false,
+      "type": "boolean"
+    },
+    "debug": {
+      "description": "Suppresses warnings about the `debugger` statements in your code",
+      "default": false,
+      "type": "boolean"
+    },
+    "devel": {
+      "description": "[Environment] Development/debugging (alert, confirm, etc)",
+      "default": false,
+      "type": "boolean"
+    },
+    "dojo": {
+      "description": "[Environment] Dojo Toolkit",
+      "default": false,
+      "type": "boolean"
+    },
+    "elision": {
+      "description": "Tells JSHint that your code uses ES3 array elision elements, or empty elements",
+      "default": false,
+      "type": "boolean"
+    },
+    "eqeqeq": {
+      "description": "Prohibits the use of `==` and `!=` in favor of `===` and `!==`",
+      "default": false,
+      "type": "boolean"
+    },
+    "eqnull": {
+      "description": "Suppresses warnings about `== null` comparisons",
+      "default": false,
+      "type": "boolean"
+    },
+    "esversion": {
+      "description": "The ECMAScript version to which the code must adhere",
+      "default": 5,
+      "type": "integer",
+      "enum": [ 3, 5, 6, 7, 8, 9, 10, 11 ]
+    },
+    "evil": {
+      "description": "Suppresses warnings about the use of `eval`",
+      "default": false,
+      "type": "boolean"
+    },
+    "expr": {
+      "description": "Suppresses warnings about the use of expressions where normally you would expect to see assignments or function calls",
+      "default": false,
+      "type": "boolean"
+    },
+    "forin": {
+      "description": "Requires all `for in` loops to filter object's items with obj.hasOwnProperty()",
+      "default": false,
+      "type": "boolean"
+    },
+    "freeze": {
+      "description": "Prohibits overwriting prototypes of native objects such as Array, Date and so on",
+      "default": false,
+      "type": "boolean"
+    },
+    "funcscope": {
+      "description": "Suppresses warnings about declaring variables inside of control structures while accessing them later from the outside",
+      "default": false,
+      "type": "boolean"
+    },
+    "futurehostile": {
+      "description": "Enables warnings about the use of identifiers which are defined in future versions of JavaScript",
+      "default": false,
+      "type": "boolean"
+    },
+    "globals": {
+      "description": "Specify a white list of global variables that are not formally defined in the source code",
+      "type": "object",
+      "additionalProperties": {
+        "description": "Name of the global. Set to `true` for read/write, `false` for read-only.",
+        "type": "boolean"
+      }
+    },
+    "iterator": {
+      "description": "Suppresses warnings about the __iterator__ property.",
+      "default": false,
+      "type": "boolean"
+    },
+    "jasmine": {
+      "description": "[Environment] Jasmine unit testing framework",
+      "default": false,
+      "type": "boolean"
+    },
+    "jquery": {
+      "description": "[Environment] jQuery",
+      "default": false,
+      "type": "boolean"
+    },
+    "lastsemic": {
+      "description": "Suppresses warnings about missing semicolons, but only when the semicolon is omitted for the last statement in a one-line block",
+      "default": false,
+      "type": "boolean"
+    },
+    "latedef": {
+      "description": "Prohibits the use of a variable before it was defined",
+      "default": false,
+      "enum": [ true, false, "nofunc" ]
+    },
+    "leanswitch": {
+      "description": "Prohibits unnecessary clauses within `switch` statements",
+      "default": false,
+      "type": "boolean"
+    },
+    "loopfunc": {
+      "description": "Suppresses warnings about functions inside of loops",
+      "default": false,
+      "type": "boolean"
+    },
+    "maxcomplexity": {
+      "description": "Max cyclomatic complexity per function",
+      "default": false,
+      "type": [ "boolean", "integer" ]
+    },
+    "maxdepth": {
+      "description": "Max depth of nested blocks",
+      "default": false,
+      "type": [ "boolean", "integer" ]
+    },
+    "maxerr": {
+      "description": "Maximum amount of warnings JSHint will produce before giving up",
+      "default": 50,
+      "type": "integer"
+    },
+    "maxparams": {
+      "description": "Max number of formal parameters allowed per function",
+      "type": [ "boolean", "integer" ]
+    },
+    "maxstatements": {
+      "description": "Max number statements per function",
+      "default": false,
+      "type": [ "boolean", "integer" ]
+    },
+    "mocha": {
+      "description": "[Environment] Mocha unit testing framework",
+      "default": false,
+      "type": "boolean"
+    },
+    "module": {
+      "description": "[Environment] ES6 module",
+      "default": false,
+      "type": "boolean"
+    },
+    "mootools": {
+      "description": "[Environment] MooTools",
+      "default": false,
+      "type": "boolean"
+    },
+    "moz": {
+      "description": "Tells JSHint that your code uses Mozilla JavaScript extensions",
+      "default": false,
+      "type": "boolean"
+    },
+    "noarg": {
+      "description": "Prohibits the use of `arguments.caller` and `arguments.callee`",
+      "default": false,
+      "type": "boolean"
+    },
+    "nocomma": {
+      "description": "Prohibits the use of the comma operator",
+      "default": false,
+      "type": "boolean"
+    },
+    "node": {
+      "description": "[Environment] Node.js",
+      "default": false,
+      "type": "boolean"
+    },
+    "nonbsp": {
+      "description": "Warns about `non-breaking whitespace` characters",
+      "default": false,
+      "type": "boolean"
+    },
+    "nonew": {
+      "description": "Prohibits the use of constructors for side-effects (without assignment)",
+      "default": false,
+      "type": "boolean"
+    },
+    "nonstandard": {
+      "description": "[Environment] Widely adopted globals (escape, unescape, etc)",
+      "default": false,
+      "type": "boolean"
+    },
+    "noreturnawait": {
+      "description": "Async functions resolve on their return value. In most cases, this makes returning the result of an AwaitExpression (which is itself a Promise instance) unnecessary",
+      "default": false,
+      "type": "boolean"
+    },
+    "notypeof": {
+      "description": "Suppresses warnings about invalid `typeof`operator values",
+      "default": false,
+      "type": "boolean"
+    },
+    "noyield": {
+      "description": "Suppresses warnings about generator functions with no `yield` statement in them",
+      "default": false,
+      "type": "boolean"
+    },
+    "overrides": {
+      "description": "Specify the options that should only be applied to files matching a given path pattern",
+      "type": "object",
+      "additionalProperties": {
+        "description": "The path pattern to apply the given options to",
+        "type": "object"
+      }
+    },
+    "phantom": {
+      "description": "[Environment] PhantomJS runtime environment",
+      "default": false,
+      "type": "boolean"
+    },
+    "plusplus": {
+      "description": "Prohibits the use of `++` and `--`",
+      "default": false,
+      "type": "boolean"
+    },
+    "proto": {
+      "description": "Suppresses warnings about the `__proto__` property",
+      "default": false,
+      "type": "boolean"
+    },
+    "prototypejs": {
+      "description": "[Environment] Prototype JavaScript framework",
+      "default": false,
+      "type": "boolean"
+    },
+    "regexpu": {
+      "description": "Enables warnings for regular expressions which do not include the 'u' flag",
+      "default": false,
+      "type": "boolean"
+    },
+    "rhino": {
+      "description": "[Environment] Rhino",
+      "default": false,
+      "type": "boolean"
+    },
+    "scripturl": {
+      "description": "Suppresses warnings about the use of script-targeted URLs",
+      "default": false,
+      "type": "boolean"
+    },
+    "shadow": {
+      "description": "Suppresses warnings about variable shadowing. i.e. declaring a variable that had been already declared somewhere in the outer scope",
+      "default": false,
+      "type": [ "boolean", "string" ],
+      "enum": [ true, false, "inner", "outer" ]
+    },
+    "shelljs": {
+      "description": "[Environment] Defines globals exposed by the ShellJS library",
+      "default": false,
+      "type": "boolean"
+    },
+    "singleGroups": {
+      "description": "Prohibits the use of the grouping operator when it is not strictly required.",
+      "default": false,
+      "type": "boolean"
+    },
+    "strict": {
+      "description": "Requires all code to run in ES5 strict mode",
+      "default": false,
+      "type": [ "boolean", "string" ],
+      "enum": [ true, false, "implied", "global", "func" ]
+    },
+    "supernew": {
+      "description": "Suppresses warnings about constructions like `new function () { ... };` and `new Object;`",
+      "default": false,
+      "type": "boolean"
+    },
+    "trailingcomma": {
+      "description": "Warns when a comma is not placed after the last element in an array or object literal",
+      "default": false,
+      "type": "boolean"
+    },
+    "typed": {
+      "description": "[Environment] Defines globals for typed array constructors",
+      "default": false,
+      "type": "boolean"
+    },
+    "undef": {
+      "description": "Prohibits the use of explicitly undeclared variables",
+      "default": false,
+      "type": "boolean"
+    },
+    "unused": {
+      "description": "Warns when you define and never use your variables",
+      "default": false,
+      "type": [ "boolean", "string" ],
+      "enum": [ true, false, "vars", "strict" ]
+    },
+    "validthis": {
+      "description": "Suppresses warnings about possible strict violations when the code is running in strict mode and you use `this` in a non-constructor function",
+      "default": false,
+      "type": "boolean"
+    },
+    "varstmt": {
+      "description": "Forbids the use of VariableStatements (`var`) in favor of `let` and `const`",
+      "default": false,
+      "type": "boolean"
+    },
+    "withstmt": {
+      "description": "Suppresses warnings about the use of the `with` statement",
+      "default": false,
+      "type": "boolean"
+    },
+    "worker": {
+      "description": "[Environment] Web Workers",
+      "default": false,
+      "type": "boolean"
+    },
+    "wsh": {
+      "description": "[Environment] Windows Scripting Host",
+      "default": false,
+      "type": "boolean"
+    },
+    "yui": {
+      "description": "[Environment] Yahoo User Interface",
+      "default": false,
+      "type": "boolean"
+    }
+  }
+}
