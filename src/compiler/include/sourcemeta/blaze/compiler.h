@@ -111,6 +111,8 @@ struct Context {
   mutable std::unordered_set<std::size_t> labels;
   /// Destinations that need precompilation (in discovery order)
   mutable std::vector<std::string> precompile_destinations;
+  /// Track if we're currently inside precompilation to prevent cascading
+  mutable bool inside_precompilation{false};
 };
 
 /// @ingroup compiler

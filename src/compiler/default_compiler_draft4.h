@@ -256,7 +256,27 @@ auto compiler_draft4_core_ref(const Context &context,
                  std::move(children))};
   }
 
-  // Non-recursive ref that's referenced 4+ times: precompile it
+  // Non-recursive ref that's referenced 10+ times
+  // If we're inside precompilation, inline it to prevent cascading explosion
+  // Otherwise, add to precompile list for top-level optimization
+  if (context.inside_precompilation) {
+    // We're inside a precompiled destination, inline this ref
+    if (context.mode == Mode::FastValidation && !context.uses_dynamic_scopes) {
+      return compile(context, new_schema_context, dynamic_context,
+                     sourcemeta::core::empty_pointer,
+                     sourcemeta::core::empty_pointer, reference.destination);
+    } else {
+      return {make(sourcemeta::blaze::InstructionIndex::LogicalAnd, context,
+                   schema_context, dynamic_context, ValueNone{},
+                   compile(context, new_schema_context,
+                           relative_dynamic_context(dynamic_context),
+                           sourcemeta::core::empty_pointer,
+                           sourcemeta::core::empty_pointer,
+                           reference.destination))};
+    }
+  }
+
+  // Top-level ref that's heavily referenced: add to precompile list
   context.labels.insert(label);
   if (std::find(context.precompile_destinations.cbegin(),
                 context.precompile_destinations.cend(),

@@ -302,11 +302,14 @@ auto compile(const sourcemeta::core::JSON &schema,
           {sourcemeta::core::SchemaReferenceType::Static, destination})};
 
       // Compile the destination (returns a ControlMark wrapper)
+      // Set flag to prevent nested refs from being added to precompile list
+      context.inside_precompilation = true;
       Instructions compiled_with_mark;
       for (auto &&substep :
            precompile(context, schema_context, dynamic_context, *match)) {
         compiled_with_mark.push_back(std::move(substep));
       }
+      context.inside_precompilation = false;
 
       // Extract the label from the ControlMark instruction
       assert(!compiled_with_mark.empty());
