@@ -285,6 +285,8 @@ auto compiler_draft4_core_ref(const Context &context,
   std::set<std::size_t> used_labels;
   collect_jump_labels(children, used_labels);
   if (!used_labels.contains(label)) {
+    // Remove the label from the shared set since we're not using it
+    new_schema_context.labels.erase(label);
     return compile(context, schema_context, dynamic_context,
                    sourcemeta::core::empty_pointer,
                    sourcemeta::core::empty_pointer, reference.destination);

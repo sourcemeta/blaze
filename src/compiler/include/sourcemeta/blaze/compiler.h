@@ -40,9 +40,9 @@ struct SchemaContext {
   const sourcemeta::core::Vocabularies &vocabularies;
   /// The schema base URI
   const sourcemeta::core::URI &base;
-  /// The set of labels registered so far
-  std::set<std::size_t> labels;
-  /// The set of references destinations traversed so far
+  /// The set of labels registered so far (shared across compilation tree)
+  std::set<std::size_t> &labels;
+  /// The set of references destinations traversed so far (compilation stack)
   std::set<std::string> references;
   /// Whether the current schema targets a property name
   bool is_property_name;

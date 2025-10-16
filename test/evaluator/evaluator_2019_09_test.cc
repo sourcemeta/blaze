@@ -29,7 +29,7 @@ TEST(Evaluator_2019_09, metaschema_hyper_self) {
   const auto metaschema{sourcemeta::core::schema_official_resolver(
       "https://json-schema.org/draft/2019-09/hyper-schema")};
   EXPECT_TRUE(metaschema.has_value());
-  EVALUATE_WITH_TRACE_FAST_SUCCESS(metaschema.value(), metaschema.value(), 92);
+  EVALUATE_WITH_TRACE_FAST_SUCCESS(metaschema.value(), metaschema.value(), 94);
 }
 
 TEST(Evaluator_2019_09, metaschema_hyper_self_exhaustive) {
@@ -37,7 +37,7 @@ TEST(Evaluator_2019_09, metaschema_hyper_self_exhaustive) {
       "https://json-schema.org/draft/2019-09/hyper-schema")};
   EXPECT_TRUE(metaschema.has_value());
   EVALUATE_WITH_TRACE_EXHAUSTIVE_SUCCESS(metaschema.value(), metaschema.value(),
-                                         171);
+                                         173);
 }
 
 TEST(Evaluator_2019_09, properties_1) {

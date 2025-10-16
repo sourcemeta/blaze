@@ -46,7 +46,6 @@ auto compile_subschema(const sourcemeta::blaze::Context &context,
               .schema = schema_context.schema,
               .vocabularies = entry.vocabularies,
               .base = schema_context.base,
-              // TODO: This represents a copy
               .labels = schema_context.labels,
               .references = schema_context.references,
               .is_property_name = schema_context.is_property_name},
@@ -89,7 +88,7 @@ auto precompile(
       .schema = std::move(subschema),
       .vocabularies = std::move(nested_vocabularies),
       .base = entry.second.base,
-      .labels = {},
+      .labels = schema_context.labels,
       .references = {},
       .is_property_name = schema_context.is_property_name};
 
@@ -139,12 +138,13 @@ auto compile(const sourcemeta::core::JSON &schema,
     }
   }
 
+  std::set<std::size_t> labels;
   SchemaContext schema_context{
       .relative_pointer = sourcemeta::core::empty_pointer,
       .schema = schema,
       .vocabularies = vocabularies(schema, resolver, root_frame_entry.dialect),
       .base = sourcemeta::core::URI::canonicalize(root_frame_entry.base),
-      .labels = {},
+      .labels = labels,
       .references = {},
       .is_property_name = false};
 
@@ -350,7 +350,6 @@ auto compile(const Context &context, const SchemaContext &schema_context,
        .base = sourcemeta::core::URI{entry.base}
                    .recompose_without_fragment()
                    .value_or(""),
-       // TODO: This represents a copy
        .labels = schema_context.labels,
        .references = schema_context.references,
        .is_property_name = schema_context.is_property_name},

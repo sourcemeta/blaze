@@ -6885,3 +6885,52 @@ TEST(Evaluator_draft4, relative_base_uri_with_ref) {
   EVALUATE_TRACE_POST_DESCRIBE(instance, 0,
                                "The value was expected to be of type string");
 }
+
+TEST(Evaluator_draft4, ref_circular_nested_minimal) {
+  const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
+    "$schema": "http://json-schema.org/draft-04/schema#",
+    "definitions": {
+      "def0": {
+        "type": "object",
+        "properties": {
+          "a": { "$ref": "#/definitions/def1" },
+          "b": { "$ref": "#/definitions/def2" }
+        }
+      },
+      "def1": {
+        "type": "object",
+        "properties": {
+          "a": { "$ref": "#/definitions/def2" },
+          "b": { "$ref": "#/definitions/def0" }
+        }
+      },
+      "def2": {
+        "type": "object",
+        "properties": {
+          "a": { "$ref": "#/definitions/def0" },
+          "b": { "$ref": "#/definitions/def1" }
+        }
+      }
+    },
+    "properties": {
+      "p0": { "$ref": "#/definitions/def0" },
+      "p1": { "$ref": "#/definitions/def0" },
+      "p2": { "$ref": "#/definitions/def1" },
+      "p3": { "$ref": "#/definitions/def1" }
+    }
+  })JSON")};
+
+  const sourcemeta::core::JSON instance{sourcemeta::core::parse_json(R"JSON({
+    "p0": {}
+  })JSON")};
+
+  EVALUATE_WITH_TRACE_FAST_SUCCESS(schema, instance, 1);
+
+  EVALUATE_TRACE_PRE(0, AssertionTypeStrict, "/properties/p0/$ref/type",
+                     "#/definitions/def0/type", "/p0");
+
+  EVALUATE_TRACE_POST(0, AssertionTypeStrict, "/properties/p0/$ref/type",
+                      "#/definitions/def0/type", "/p0");
+  EVALUATE_TRACE_POST_DESCRIBE(instance, 0,
+                               "The value was expected to be of type object");
+}
