@@ -17,9 +17,11 @@
 
 #include <cstdint>    // std::uint8_t
 #include <functional> // std::function
+#include <map>        // std::map
 #include <optional>   // std::optional, std::nullopt
 #include <set>        // std::set
 #include <string>     // std::string
+#include <tuple>      // std::tuple
 #include <vector>     // std::vector
 
 /// @defgroup compiler Compiler
@@ -109,6 +111,12 @@ struct Context {
   /// The list of subschemas that are precompiled at the beginning of the
   /// instruction set
   const std::set<std::string> precompiled_static_schemas;
+  /// Cache for destination compilations to avoid redundant work
+  /// Maps destination -> (labels, references, instructions)
+  mutable std::map<std::string,
+                   std::tuple<std::set<std::size_t>, std::set<std::string>,
+                              Instructions>>
+      compilation_cache;
 };
 
 /// @ingroup compiler

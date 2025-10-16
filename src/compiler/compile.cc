@@ -3,7 +3,7 @@
 
 #include <sourcemeta/core/jsonschema.h>
 
-#include <algorithm> // std::move, std::sort, std::unique
+#include <algorithm> // std::includes, std::move, std::sort, std::unique
 #include <cassert>   // assert
 #include <iterator>  // std::back_inserter
 #include <utility>   // std::move
@@ -221,7 +221,8 @@ auto compile(const sourcemeta::core::JSON &schema,
                         .uses_dynamic_scopes = uses_dynamic_scopes,
                         .unevaluated = std::move(unevaluated),
                         .precompiled_static_schemas =
-                            std::move(precompiled_static_schemas)};
+                            std::move(precompiled_static_schemas),
+                        .compilation_cache = {}};
   const DynamicContext dynamic_context{relative_dynamic_context()};
   Instructions compiler_template;
 
@@ -316,6 +317,29 @@ auto compile(const Context &context, const SchemaContext &schema_context,
                 .canonicalize()
                 .recompose()};
 
+  // Only use cache when we have relative/empty locations (typical for refs)
+  // We can reuse cached results if current labels/references are supersets
+  const bool can_cache{dynamic_context.keyword.empty() &&
+                       dynamic_context.base_schema_location.empty() &&
+                       dynamic_context.base_instance_location.empty()};
+
+  if (can_cache) {
+    const auto cache_entry{context.compilation_cache.find(destination)};
+    if (cache_entry != context.compilation_cache.end()) {
+      const auto &[cached_labels, cached_refs, cached_instructions] =
+          cache_entry->second;
+      // Cache hit if cached labels/refs are subsets of current ones
+      // (cached was less constrained, so result is reusable)
+      const bool labels_compatible{
+          std::ranges::includes(schema_context.labels, cached_labels)};
+      const bool refs_compatible{
+          std::ranges::includes(schema_context.references, cached_refs)};
+      if (labels_compatible && refs_compatible) {
+        return cached_instructions;
+      }
+    }
+  }
+
   // Otherwise the recursion attempt is non-sense
   if (!context.frame.locations().contains(
           {sourcemeta::core::SchemaReferenceType::Static, destination})) {
@@ -341,7 +365,7 @@ auto compile(const Context &context, const SchemaContext &schema_context,
                 .concat({dynamic_context.keyword})
                 .concat(schema_suffix)};
 
-  return compile_subschema(
+  Instructions result{compile_subschema(
       context,
       {.relative_pointer = entry.relative_pointer,
        .schema = new_schema,
@@ -359,7 +383,15 @@ auto compile(const Context &context, const SchemaContext &schema_context,
        .base_instance_location =
            dynamic_context.base_instance_location.concat(instance_suffix),
        .property_as_target = dynamic_context.property_as_target},
-      entry.dialect);
+      entry.dialect)};
+
+  // Cache the result for future reuse (only if safe to do so)
+  if (can_cache) {
+    context.compilation_cache.emplace(
+        destination, std::make_tuple(schema_context.labels,
+                                     schema_context.references, result));
+  }
+  return result;
 }
 
 } // namespace sourcemeta::blaze
