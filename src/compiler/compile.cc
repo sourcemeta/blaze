@@ -221,7 +221,8 @@ auto compile(const sourcemeta::core::JSON &schema,
                         .uses_dynamic_scopes = uses_dynamic_scopes,
                         .unevaluated = std::move(unevaluated),
                         .precompiled_static_schemas =
-                            std::move(precompiled_static_schemas)};
+                            std::move(precompiled_static_schemas),
+                        .compilation_cache = {}};
   const DynamicContext dynamic_context{relative_dynamic_context()};
   Instructions compiler_template;
 
@@ -316,6 +317,12 @@ auto compile(const Context &context, const SchemaContext &schema_context,
                 .canonicalize()
                 .recompose()};
 
+  // Check compilation cache for this destination
+  const auto cache_entry{context.compilation_cache.find(destination)};
+  if (cache_entry != context.compilation_cache.end()) {
+    return cache_entry->second;
+  }
+
   // Otherwise the recursion attempt is non-sense
   if (!context.frame.locations().contains(
           {sourcemeta::core::SchemaReferenceType::Static, destination})) {
@@ -341,7 +348,7 @@ auto compile(const Context &context, const SchemaContext &schema_context,
                 .concat({dynamic_context.keyword})
                 .concat(schema_suffix)};
 
-  return compile_subschema(
+  Instructions result{compile_subschema(
       context,
       {.relative_pointer = entry.relative_pointer,
        .schema = new_schema,
@@ -359,7 +366,11 @@ auto compile(const Context &context, const SchemaContext &schema_context,
        .base_instance_location =
            dynamic_context.base_instance_location.concat(instance_suffix),
        .property_as_target = dynamic_context.property_as_target},
-      entry.dialect);
+      entry.dialect)};
+
+  // Cache the result for future reuse
+  context.compilation_cache.emplace(destination, result);
+  return result;
 }
 
 } // namespace sourcemeta::blaze

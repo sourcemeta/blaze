@@ -8,7 +8,7 @@
 #include <sourcemeta/blaze/compiler.h>
 #include <sourcemeta/blaze/evaluator.h>
 
-static void Evaluator_Draft6_Property_Names(benchmark::State &state) {
+static void Micro_Evaluator_Draft6_Property_Names(benchmark::State &state) {
   const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
         "$schema": "http://json-schema.org/draft-06/schema#",
         "propertyNames": {
@@ -57,4 +57,4 @@ static void Evaluator_Draft6_Property_Names(benchmark::State &state) {
   }
 }
 
-BENCHMARK(Evaluator_Draft6_Property_Names);
+BENCHMARK(Micro_Evaluator_Draft6_Property_Names);

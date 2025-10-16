@@ -1,17 +1,12 @@
 set(BENCHMARK_SOURCES)
 
-if(BLAZE_COMPILER)
-  list(APPEND BENCHMARK_SOURCES
-    compiler_draft6.cc
-    compiler_2019_09.cc)
-endif()
 if(BLAZE_EVALUATOR)
   list(APPEND BENCHMARK_SOURCES
-    evaluator_draft4.cc
-    evaluator_draft6.cc
-    evaluator_draft7.cc
-    evaluator_2019_09.cc
-    evaluator_2020_12.cc)
+    micro/evaluator_draft4.cc
+    micro/evaluator_draft6.cc
+    micro/evaluator_draft7.cc
+    micro/evaluator_2019_09.cc
+    micro/evaluator_2020_12.cc)
 endif()
 
 if(BENCHMARK_SOURCES)

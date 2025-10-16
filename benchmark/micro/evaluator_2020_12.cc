@@ -8,7 +8,7 @@
 #include <sourcemeta/blaze/compiler.h>
 #include <sourcemeta/blaze/evaluator.h>
 
-static void Evaluator_2020_12_Dynamic_Ref(benchmark::State &state) {
+static void Micro_Evaluator_2020_12_Dynamic_Ref(benchmark::State &state) {
   const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
     "$id": "https://example.com",
     "$schema": "https://json-schema.org/draft/2020-12/schema",
@@ -69,7 +69,7 @@ static void Evaluator_2020_12_Dynamic_Ref(benchmark::State &state) {
   }
 }
 
-static void Evaluator_2020_12_Dynamic_Ref_Single(benchmark::State &state) {
+static void Micro_Evaluator_2020_12_Dynamic_Ref_Single(benchmark::State &state) {
   const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
     "$id": "https://example.com",
     "$schema": "https://json-schema.org/draft/2020-12/schema",
@@ -96,49 +96,5 @@ static void Evaluator_2020_12_Dynamic_Ref_Single(benchmark::State &state) {
   }
 }
 
-static void Evaluator_2020_12_CQL_1(benchmark::State &state) {
-  const auto schema{
-      sourcemeta::core::read_json(std::filesystem::path{CURRENT_DIRECTORY} /
-                                  "schemas" / "2020_12_cql.json")};
-
-  const auto instance{
-      sourcemeta::core::read_json(std::filesystem::path{CURRENT_DIRECTORY} /
-                                  "instances" / "2020_12_cql_1.json")};
-
-  const auto schema_template{sourcemeta::blaze::compile(
-      schema, sourcemeta::core::schema_official_walker,
-      sourcemeta::core::schema_official_resolver,
-      sourcemeta::blaze::default_schema_compiler)};
-  sourcemeta::blaze::Evaluator evaluator;
-  for (auto _ : state) {
-    auto result{evaluator.validate(schema_template, instance)};
-    assert(result);
-    benchmark::DoNotOptimize(result);
-  }
-}
-
-static void Evaluator_2020_12_OpenAPI(benchmark::State &state) {
-  const auto schema{
-      sourcemeta::core::read_json(std::filesystem::path{CURRENT_DIRECTORY} /
-                                  "schemas" / "2020_12_openapi.json")};
-
-  const auto instance{
-      sourcemeta::core::read_json(std::filesystem::path{CURRENT_DIRECTORY} /
-                                  "instances" / "2020_12_openapi_1.json")};
-
-  const auto schema_template{sourcemeta::blaze::compile(
-      schema, sourcemeta::core::schema_official_walker,
-      sourcemeta::core::schema_official_resolver,
-      sourcemeta::blaze::default_schema_compiler)};
-  sourcemeta::blaze::Evaluator evaluator;
-  for (auto _ : state) {
-    auto result{evaluator.validate(schema_template, instance)};
-    assert(result);
-    benchmark::DoNotOptimize(result);
-  }
-}
-
-BENCHMARK(Evaluator_2020_12_Dynamic_Ref);
-BENCHMARK(Evaluator_2020_12_Dynamic_Ref_Single);
-BENCHMARK(Evaluator_2020_12_CQL_1);
-BENCHMARK(Evaluator_2020_12_OpenAPI);
+BENCHMARK(Micro_Evaluator_2020_12_Dynamic_Ref);
+BENCHMARK(Micro_Evaluator_2020_12_Dynamic_Ref_Single);
