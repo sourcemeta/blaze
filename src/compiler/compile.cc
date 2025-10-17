@@ -5,6 +5,7 @@
 
 #include <algorithm> // std::move, std::sort, std::unique
 #include <cassert>   // assert
+#include <iostream>  // std::cerr
 #include <iterator>  // std::back_inserter
 #include <utility>   // std::move
 
@@ -172,7 +173,8 @@ auto compile(const sourcemeta::core::JSON &schema,
                         .compiler = compiler,
                         .mode = mode,
                         .uses_dynamic_scopes = uses_dynamic_scopes,
-                        .unevaluated = std::move(unevaluated)};
+                        .unevaluated = std::move(unevaluated),
+                        .uri_compile_cache = {}};
   const DynamicContext dynamic_context{relative_dynamic_context()};
   Instructions compiler_template;
 
@@ -281,24 +283,42 @@ auto compile(const Context &context, const SchemaContext &schema_context,
                 .concat({dynamic_context.keyword})
                 .concat(schema_suffix)};
 
-  return compile_subschema(
-      context,
-      {.relative_pointer = entry.relative_pointer,
-       .schema = new_schema,
-       .vocabularies =
-           vocabularies(new_schema, context.resolver, entry.dialect),
-       .base = sourcemeta::core::URI{entry.base}
-                   .recompose_without_fragment()
-                   .value_or(""),
-       // TODO: This represents a copy
-       .labels = schema_context.labels,
-       .is_property_name = schema_context.is_property_name},
-      {.keyword = dynamic_context.keyword,
-       .base_schema_location = destination_pointer,
-       .base_instance_location =
-           dynamic_context.base_instance_location.concat(instance_suffix),
-       .property_as_target = dynamic_context.property_as_target},
-      entry.dialect);
+  DynamicContext new_dynamic_context{
+      .keyword = dynamic_context.keyword,
+      .base_schema_location = destination_pointer,
+      .base_instance_location =
+          dynamic_context.base_instance_location.concat(instance_suffix),
+      .property_as_target = dynamic_context.property_as_target};
+
+  SchemaContext new_schema_context{
+      .relative_pointer = entry.relative_pointer,
+      .schema = new_schema,
+      .vocabularies = vocabularies(new_schema, context.resolver, entry.dialect),
+      .base = sourcemeta::core::URI{entry.base}
+                  .recompose_without_fragment()
+                  .value_or(""),
+      // TODO: This represents a copy
+      .labels = schema_context.labels,
+      .is_property_name = schema_context.is_property_name};
+
+  if (uri.has_value()) {
+    const auto cache_key{std::make_tuple(
+        uri.value(), destination_pointer, new_schema_context.labels,
+        new_schema_context.is_property_name,
+        new_dynamic_context.property_as_target)};
+    const auto cache_iterator{context.uri_compile_cache.find(cache_key)};
+    if (cache_iterator != context.uri_compile_cache.end()) {
+      return cache_iterator->second;
+    } else {
+      auto result{compile_subschema(context, new_schema_context,
+                                    new_dynamic_context, entry.dialect)};
+      context.uri_compile_cache.emplace(cache_key, result);
+      return result;
+    }
+  }
+
+  return compile_subschema(context, new_schema_context, new_dynamic_context,
+                           entry.dialect);
 }
 
 } // namespace sourcemeta::blaze

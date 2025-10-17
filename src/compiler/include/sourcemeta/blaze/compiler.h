@@ -17,9 +17,11 @@
 
 #include <cstdint>       // std::uint8_t
 #include <functional>    // std::function
+#include <map>           // std::map
 #include <optional>      // std::optional, std::nullopt
 #include <string>        // std::string
 #include <unordered_set> // std::unordered_set
+#include <utility>       // std::pair
 #include <vector>        // std::vector
 
 /// @defgroup compiler Compiler
@@ -41,7 +43,7 @@ struct SchemaContext {
   /// The schema base URI
   const sourcemeta::core::URI &base;
   /// The set of labels registered so far
-  std::unordered_set<std::size_t> labels;
+  std::set<std::size_t> labels;
   /// Whether the current schema targets a property name
   bool is_property_name;
 };
@@ -104,6 +106,11 @@ struct Context {
   const bool uses_dynamic_scopes;
   /// The list of unevaluated entries and their dependencies
   const SchemaUnevaluatedEntries unevaluated;
+  /// Cache for URI-based compilations
+  mutable std::map<std::tuple<std::string, sourcemeta::core::Pointer,
+                              std::set<std::size_t>, bool, bool>,
+                   Instructions>
+      uri_compile_cache;
 };
 
 /// @ingroup compiler
