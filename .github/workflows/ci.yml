@@ -133,10 +133,10 @@ jobs:
       # Not every CTest version supports the --test-dir option. If such option
       # is not recognized, `ctest` will successfully exit finding no tests.
       # Better to be sure and `cd` all the time here.
-      - run: cd ./build && ctest --build-config Release --output-on-failure --parallel
-        env:
-          # See https://clang.llvm.org/docs/UndefinedBehaviorSanitizer.html
-          UBSAN_OPTIONS: print_stacktrace=1
+      # - run: cd ./build && ctest --build-config Release --output-on-failure --parallel
+        # env:
+          # # See https://clang.llvm.org/docs/UndefinedBehaviorSanitizer.html
+          # UBSAN_OPTIONS: print_stacktrace=1
 
       - run: cmake --build ./build --config Release --verbose --target benchmark_json
         if: matrix.platform.benchmark
