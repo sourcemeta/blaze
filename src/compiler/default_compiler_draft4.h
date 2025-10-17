@@ -261,9 +261,9 @@ auto compiler_draft4_core_ref(const Context &context,
   // (5) If the resulting instructions were definitely NOT recursive, inline
   ///////////////////////////////////////////////////////////////////
 
-  return compile(context, schema_context, dynamic_context,
-                 sourcemeta::core::empty_pointer,
-                 sourcemeta::core::empty_pointer, reference.destination);
+  return {make(sourcemeta::blaze::InstructionIndex::ControlLabel, context,
+               new_schema_context, dynamic_context, ValueUnsignedInteger{label},
+               std::move(children))};
 }
 
 auto compiler_draft4_validation_type(const Context &context,
@@ -549,7 +549,8 @@ auto compiler_draft4_validation_required(const Context &context,
             schema_context.vocabularies,
             schema_context.base,
             schema_context.labels,
-            schema_context.is_property_name};
+            schema_context.is_property_name,
+            schema_context.caching};
         const DynamicContext new_dynamic_context{
             "properties", sourcemeta::core::empty_pointer,
             sourcemeta::core::empty_pointer, false};

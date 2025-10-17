@@ -46,6 +46,8 @@ struct SchemaContext {
   std::set<std::size_t> labels;
   /// Whether the current schema targets a property name
   bool is_property_name;
+  /// Whether we are in a caching context that allows label clearing
+  bool caching;
 };
 
 /// @ingroup compiler

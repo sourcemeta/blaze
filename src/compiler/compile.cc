@@ -49,7 +49,8 @@ auto compile_subschema(const sourcemeta::blaze::Context &context,
               .base = schema_context.base,
               // TODO: This represents a copy
               .labels = schema_context.labels,
-              .is_property_name = schema_context.is_property_name},
+              .is_property_name = schema_context.is_property_name,
+              .caching = schema_context.caching},
              {.keyword = keyword,
               .base_schema_location = dynamic_context.base_schema_location,
               .base_instance_location = dynamic_context.base_instance_location,
@@ -90,7 +91,8 @@ auto precompile(
       .vocabularies = std::move(nested_vocabularies),
       .base = entry.second.base,
       .labels = {},
-      .is_property_name = schema_context.is_property_name};
+      .is_property_name = schema_context.is_property_name,
+      .caching = true};
 
   return {make(sourcemeta::blaze::InstructionIndex::ControlMark, context,
                nested_schema_context, dynamic_context,
@@ -144,7 +146,8 @@ auto compile(const sourcemeta::core::JSON &schema,
       .vocabularies = vocabularies(schema, resolver, root_frame_entry.dialect),
       .base = sourcemeta::core::URI::canonicalize(root_frame_entry.base),
       .labels = {},
-      .is_property_name = false};
+      .is_property_name = false,
+      .caching = true};
 
   std::vector<std::string> resources;
   for (const auto &entry : frame.locations()) {
@@ -299,21 +302,50 @@ auto compile(const Context &context, const SchemaContext &schema_context,
                   .value_or(""),
       // TODO: This represents a copy
       .labels = schema_context.labels,
-      .is_property_name = schema_context.is_property_name};
+      .is_property_name = schema_context.is_property_name,
+      .caching = schema_context.caching};
 
   if (uri.has_value()) {
+    // std::cerr << "COMPILING: " << uri.value() << " => ";
     const auto cache_key{std::make_tuple(
         uri.value(), destination_pointer, new_schema_context.labels,
         new_schema_context.is_property_name,
         new_dynamic_context.property_as_target)};
     const auto cache_iterator{context.uri_compile_cache.find(cache_key)};
     if (cache_iterator != context.uri_compile_cache.end()) {
+      // std::cerr << "HIT! LABELS = " << new_schema_context.labels.size() <<
+      // "\n";
       return cache_iterator->second;
     } else {
-      auto result{compile_subschema(context, new_schema_context,
-                                    new_dynamic_context, entry.dialect)};
-      context.uri_compile_cache.emplace(cache_key, result);
-      return result;
+      const auto general_cache_key{std::make_tuple(
+          uri.value(), destination_pointer, std::set<std::size_t>{},
+          new_schema_context.is_property_name,
+          new_dynamic_context.property_as_target)};
+      const auto general_cache_iterator{
+          context.uri_compile_cache.find(general_cache_key)};
+      if (general_cache_iterator != context.uri_compile_cache.end()) {
+        // std::cerr << "HIT GENERAL! LABELS = "
+        // << new_schema_context.labels.size() << "\n";
+        return general_cache_iterator->second;
+      }
+
+      // std::cerr << "MISS LABELS = " << new_schema_context.labels.size() <<
+      // "\n";
+      if (new_schema_context.caching && new_schema_context.labels.size() < 5) {
+        // std::cerr << "@@@@ CACHING FULL!\n";
+        new_schema_context.labels.clear();
+        new_schema_context.caching = false;
+        auto result{compile_subschema(context, new_schema_context,
+                                      new_dynamic_context, entry.dialect)};
+        context.uri_compile_cache.emplace(general_cache_key, result);
+        return result;
+      } else {
+        // std::cerr << "@@@@ CACHING!\n";
+        auto result{compile_subschema(context, new_schema_context,
+                                      new_dynamic_context, entry.dialect)};
+        context.uri_compile_cache.emplace(cache_key, result);
+        return result;
+      }
     }
   }
 
