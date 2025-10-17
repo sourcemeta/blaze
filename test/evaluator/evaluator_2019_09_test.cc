@@ -22,14 +22,14 @@ TEST(Evaluator_2019_09, metaschema_1) {
     }
   })JSON")};
 
-  EVALUATE_WITH_TRACE_FAST_SUCCESS(metaschema.value(), instance, 54);
+  EVALUATE_WITH_TRACE_FAST_SUCCESS(metaschema.value(), instance, 55);
 }
 
 TEST(Evaluator_2019_09, metaschema_hyper_self) {
   const auto metaschema{sourcemeta::core::schema_official_resolver(
       "https://json-schema.org/draft/2019-09/hyper-schema")};
   EXPECT_TRUE(metaschema.has_value());
-  EVALUATE_WITH_TRACE_FAST_SUCCESS(metaschema.value(), metaschema.value(), 92);
+  EVALUATE_WITH_TRACE_FAST_SUCCESS(metaschema.value(), metaschema.value(), 100);
 }
 
 TEST(Evaluator_2019_09, metaschema_hyper_self_exhaustive) {
@@ -37,7 +37,7 @@ TEST(Evaluator_2019_09, metaschema_hyper_self_exhaustive) {
       "https://json-schema.org/draft/2019-09/hyper-schema")};
   EXPECT_TRUE(metaschema.has_value());
   EVALUATE_WITH_TRACE_EXHAUSTIVE_SUCCESS(metaschema.value(), metaschema.value(),
-                                         171);
+                                         179);
 }
 
 TEST(Evaluator_2019_09, properties_1) {
@@ -5883,28 +5883,16 @@ TEST(Evaluator_2019_09, definitions_1_exhaustive) {
   })JSON")};
 
   const sourcemeta::core::JSON instance{"foo"};
-  EVALUATE_WITH_TRACE_EXHAUSTIVE_SUCCESS(schema, instance, 3);
+  EVALUATE_WITH_TRACE_EXHAUSTIVE_SUCCESS(schema, instance, 1);
 
-  EVALUATE_TRACE_PRE(0, LogicalAnd, "/$ref", "#/$ref", "");
-  EVALUATE_TRACE_PRE(1, LogicalAnd, "/$ref/$ref", "#/definitions/middle/$ref",
-                     "");
-  EVALUATE_TRACE_PRE(2, AssertionTypeStrict, "/$ref/$ref/type",
+  EVALUATE_TRACE_PRE(0, AssertionTypeStrict, "/$ref/$ref/type",
                      "#/definitions/string/type", "");
 
   EVALUATE_TRACE_POST_SUCCESS(0, AssertionTypeStrict, "/$ref/$ref/type",
                               "#/definitions/string/type", "");
-  EVALUATE_TRACE_POST_SUCCESS(1, LogicalAnd, "/$ref/$ref",
-                              "#/definitions/middle/$ref", "");
-  EVALUATE_TRACE_POST_SUCCESS(2, LogicalAnd, "/$ref", "#/$ref", "");
 
   EVALUATE_TRACE_POST_DESCRIBE(instance, 0,
                                "The value was expected to be of type string");
-  EVALUATE_TRACE_POST_DESCRIBE(instance, 1,
-                               "The string value was expected to validate "
-                               "against the statically referenced schema");
-  EVALUATE_TRACE_POST_DESCRIBE(instance, 2,
-                               "The string value was expected to validate "
-                               "against the statically referenced schema");
 }
 
 TEST(Evaluator_2019_09, propertyNames_1) {
