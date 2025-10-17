@@ -14,14 +14,14 @@ TEST(Evaluator_draft7, metaschema) {
   EXPECT_TRUE(metaschema.has_value());
 
   const sourcemeta::core::JSON instance{sourcemeta::core::parse_json("{}")};
-  EVALUATE_WITH_TRACE_FAST_SUCCESS(metaschema.value(), instance, 3);
+  EVALUATE_WITH_TRACE_FAST_SUCCESS(metaschema.value(), instance, 2);
 }
 
 TEST(Evaluator_draft7, metaschema_hyper_self) {
   const auto metaschema{sourcemeta::core::schema_official_resolver(
       "http://json-schema.org/draft-07/hyper-schema#")};
   EXPECT_TRUE(metaschema.has_value());
-  EVALUATE_WITH_TRACE_FAST_SUCCESS(metaschema.value(), metaschema.value(), 462);
+  EVALUATE_WITH_TRACE_FAST_SUCCESS(metaschema.value(), metaschema.value(), 441);
 }
 
 TEST(Evaluator_draft7, metaschema_hyper_self_exhaustive) {
@@ -29,7 +29,7 @@ TEST(Evaluator_draft7, metaschema_hyper_self_exhaustive) {
       "http://json-schema.org/draft-07/hyper-schema#")};
   EXPECT_TRUE(metaschema.has_value());
   EVALUATE_WITH_TRACE_EXHAUSTIVE_SUCCESS(metaschema.value(), metaschema.value(),
-                                         567);
+                                         566);
 }
 
 TEST(Evaluator_draft7, if_1) {
