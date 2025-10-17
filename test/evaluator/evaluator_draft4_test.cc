@@ -14,7 +14,7 @@ TEST(Evaluator_draft4, metaschema_1) {
   EXPECT_TRUE(metaschema.has_value());
 
   const sourcemeta::core::JSON instance{sourcemeta::core::parse_json("{}")};
-  EVALUATE_WITH_TRACE_FAST_SUCCESS(metaschema.value(), instance, 4);
+  EVALUATE_WITH_TRACE_FAST_SUCCESS(metaschema.value(), instance, 3);
 }
 
 TEST(Evaluator_draft4, metaschema_2) {
@@ -31,14 +31,14 @@ TEST(Evaluator_draft4, metaschema_2) {
     }
   })JSON")};
 
-  EVALUATE_WITH_TRACE_FAST_SUCCESS(metaschema.value(), instance, 17);
+  EVALUATE_WITH_TRACE_FAST_SUCCESS(metaschema.value(), instance, 16);
 }
 
 TEST(Evaluator_draft4, metaschema_hyper_self) {
   const auto metaschema{sourcemeta::core::schema_official_resolver(
       "http://json-schema.org/draft-04/hyper-schema#")};
   EXPECT_TRUE(metaschema.has_value());
-  EVALUATE_WITH_TRACE_FAST_SUCCESS(metaschema.value(), metaschema.value(), 770);
+  EVALUATE_WITH_TRACE_FAST_SUCCESS(metaschema.value(), metaschema.value(), 785);
 }
 
 TEST(Evaluator_draft4, metaschema_hyper_self_exhaustive) {
@@ -46,7 +46,7 @@ TEST(Evaluator_draft4, metaschema_hyper_self_exhaustive) {
       "http://json-schema.org/draft-04/hyper-schema#")};
   EXPECT_TRUE(metaschema.has_value());
   EVALUATE_WITH_TRACE_EXHAUSTIVE_SUCCESS(metaschema.value(), metaschema.value(),
-                                         959);
+                                         957);
 }
 
 TEST(Evaluator_draft4, unknown_keyword) {
@@ -828,7 +828,14 @@ TEST(Evaluator_draft4, ref_8) {
 
   const sourcemeta::core::JSON instance{true};
 
-  EVALUATE_WITH_TRACE_FAST_SUCCESS(schema, instance, 0);
+  EVALUATE_WITH_TRACE_FAST_SUCCESS(schema, instance, 1);
+
+  EVALUATE_TRACE_PRE(0, ControlLabel, "/$ref", "#/$ref", "");
+  EVALUATE_TRACE_POST_SUCCESS(0, ControlLabel, "/$ref", "#/$ref", "");
+  EVALUATE_TRACE_POST_DESCRIBE(
+      instance, 0,
+      "The boolean value was expected to validate against the statically "
+      "referenced schema");
 }
 
 TEST(Evaluator_draft4, ref_9) {
@@ -6884,4 +6891,70 @@ TEST(Evaluator_draft4, relative_base_uri_with_ref) {
                               "common#/definitions/reference/type", "");
   EVALUATE_TRACE_POST_DESCRIBE(instance, 0,
                                "The value was expected to be of type string");
+}
+
+TEST(Evaluator_draft4, ref_circular_nested_long_chain) {
+  const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
+    "$schema": "http://json-schema.org/draft-04/schema#",
+    "definitions": {
+      "def0": { "type": "object", "properties": { "a": { "$ref": "#/definitions/def1" }, "b": { "$ref": "#/definitions/def2" } } },
+      "def1": { "type": "object", "properties": { "a": { "$ref": "#/definitions/def2" }, "b": { "$ref": "#/definitions/def3" } } },
+      "def2": { "type": "object", "properties": { "a": { "$ref": "#/definitions/def3" }, "b": { "$ref": "#/definitions/def4" } } },
+      "def3": { "type": "object", "properties": { "a": { "$ref": "#/definitions/def4" }, "b": { "$ref": "#/definitions/def5" } } },
+      "def4": { "type": "object", "properties": { "a": { "$ref": "#/definitions/def5" }, "b": { "$ref": "#/definitions/def6" } } },
+      "def5": { "type": "object", "properties": { "a": { "$ref": "#/definitions/def6" }, "b": { "$ref": "#/definitions/def7" } } },
+      "def6": { "type": "object", "properties": { "a": { "$ref": "#/definitions/def7" }, "b": { "$ref": "#/definitions/def8" } } },
+      "def7": { "type": "object", "properties": { "a": { "$ref": "#/definitions/def8" }, "b": { "$ref": "#/definitions/def9" } } },
+      "def8": { "type": "object", "properties": { "a": { "$ref": "#/definitions/def9" }, "b": { "$ref": "#/definitions/def10" } } },
+      "def9": { "type": "object", "properties": { "a": { "$ref": "#/definitions/def10" }, "b": { "$ref": "#/definitions/def11" } } },
+      "def10": { "type": "object", "properties": { "a": { "$ref": "#/definitions/def11" }, "b": { "$ref": "#/definitions/def12" } } },
+      "def11": { "type": "object", "properties": { "a": { "$ref": "#/definitions/def12" }, "b": { "$ref": "#/definitions/def13" } } },
+      "def12": { "type": "object", "properties": { "a": { "$ref": "#/definitions/def13" }, "b": { "$ref": "#/definitions/def14" } } },
+      "def13": { "type": "object", "properties": { "a": { "$ref": "#/definitions/def14" }, "b": { "$ref": "#/definitions/def0" } } },
+      "def14": { "type": "object", "properties": { "a": { "$ref": "#/definitions/def0" }, "b": { "$ref": "#/definitions/def1" } } }
+    },
+    "properties": {
+      "p0": { "$ref": "#/definitions/def0" },
+      "p1": { "$ref": "#/definitions/def0" },
+      "p2": { "$ref": "#/definitions/def0" },
+      "p3": { "$ref": "#/definitions/def0" },
+      "p4": { "$ref": "#/definitions/def0" },
+      "p5": { "$ref": "#/definitions/def1" },
+      "p6": { "$ref": "#/definitions/def1" },
+      "p7": { "$ref": "#/definitions/def1" },
+      "p8": { "$ref": "#/definitions/def1" },
+      "p9": { "$ref": "#/definitions/def1" }
+    }
+  })JSON")};
+
+  const sourcemeta::core::JSON instance{sourcemeta::core::parse_json(R"JSON({
+    "p0": {}
+  })JSON")};
+
+  EVALUATE_WITH_TRACE_FAST_SUCCESS(schema, instance, 3);
+
+  EVALUATE_TRACE_PRE(0, LoopPropertiesMatch, "/properties", "#/properties", "");
+  EVALUATE_TRACE_PRE(1, ControlLabel, "/properties/p0/$ref",
+                     "#/properties/p0/$ref", "/p0");
+  EVALUATE_TRACE_PRE(2, AssertionTypeStrict, "/properties/p0/$ref/type",
+                     "#/definitions/def0/type", "/p0");
+
+  EVALUATE_TRACE_POST_SUCCESS(0, AssertionTypeStrict,
+                              "/properties/p0/$ref/type",
+                              "#/definitions/def0/type", "/p0");
+  EVALUATE_TRACE_POST_SUCCESS(1, ControlLabel, "/properties/p0/$ref",
+                              "#/properties/p0/$ref", "/p0");
+  EVALUATE_TRACE_POST_SUCCESS(2, LoopPropertiesMatch, "/properties",
+                              "#/properties", "");
+
+  EVALUATE_TRACE_POST_DESCRIBE(instance, 0,
+                               "The value was expected to be of type object");
+  EVALUATE_TRACE_POST_DESCRIBE(
+      instance, 1,
+      "The object value was expected to validate against the statically "
+      "referenced schema");
+  EVALUATE_TRACE_POST_DESCRIBE(
+      instance, 2,
+      "The object value was expected to validate against the 10 defined "
+      "properties subschemas");
 }

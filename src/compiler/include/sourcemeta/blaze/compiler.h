@@ -15,12 +15,12 @@
 #include <sourcemeta/core/jsonschema.h>
 #include <sourcemeta/core/uri.h>
 
-#include <cstdint>    // std::uint8_t
-#include <functional> // std::function
-#include <optional>   // std::optional, std::nullopt
-#include <set>        // std::set
-#include <string>     // std::string
-#include <vector>     // std::vector
+#include <cstdint>       // std::uint8_t
+#include <functional>    // std::function
+#include <optional>      // std::optional, std::nullopt
+#include <string>        // std::string
+#include <unordered_set> // std::unordered_set
+#include <vector>        // std::vector
 
 /// @defgroup compiler Compiler
 /// @brief Compile a JSON Schema into a set of low-level instructions for fast
@@ -41,9 +41,7 @@ struct SchemaContext {
   /// The schema base URI
   const sourcemeta::core::URI &base;
   /// The set of labels registered so far
-  std::set<std::size_t> labels;
-  /// The set of references destinations traversed so far
-  std::set<std::string> references;
+  std::unordered_set<std::size_t> labels;
   /// Whether the current schema targets a property name
   bool is_property_name;
 };
@@ -106,9 +104,6 @@ struct Context {
   const bool uses_dynamic_scopes;
   /// The list of unevaluated entries and their dependencies
   const SchemaUnevaluatedEntries unevaluated;
-  /// The list of subschemas that are precompiled at the beginning of the
-  /// instruction set
-  const std::set<std::string> precompiled_static_schemas;
 };
 
 /// @ingroup compiler
