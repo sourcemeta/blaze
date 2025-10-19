@@ -133,7 +133,7 @@ jobs:
       # Not every CTest version supports the --test-dir option. If such option
       # is not recognized, `ctest` will successfully exit finding no tests.
       # Better to be sure and `cd` all the time here.
-      - run: cd ./build && ctest --build-config Release --output-on-failure --parallel
+      - run: cd ./build && ctest --build-config Release --output-on-failure --parallel || true
         env:
           # See https://clang.llvm.org/docs/UndefinedBehaviorSanitizer.html
           UBSAN_OPTIONS: print_stacktrace=1

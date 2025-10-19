@@ -6,7 +6,7 @@
 #include <algorithm> // std::move, std::sort, std::unique
 #include <cassert>   // assert
 #include <iterator>  // std::back_inserter
-#include <utility>   // std::move
+#include <utility>   // std::move, std::pair
 
 #include "compile_helpers.h"
 
@@ -73,8 +73,9 @@ auto precompile(
     -> sourcemeta::blaze::Instructions {
   const sourcemeta::core::URI anchor_uri{entry.first.second};
   const auto label{sourcemeta::blaze::Evaluator{}.hash(
-      schema_resource_id(context,
-                         anchor_uri.recompose_without_fragment().value_or("")),
+      sourcemeta::blaze::schema_resource_id(
+          context.resources,
+          anchor_uri.recompose_without_fragment().value_or("")),
       std::string{anchor_uri.fragment().value_or("")})};
   schema_context.labels.insert(label);
 
@@ -114,36 +115,24 @@ auto compile(const sourcemeta::core::JSON &schema,
              const std::optional<std::string> &default_id) -> Template {
   assert(is_schema(schema));
 
+  ///////////////////////////////////////////////////////////////////
+  // (1) Determine the root frame entry
+  ///////////////////////////////////////////////////////////////////
+
   const std::string base{sourcemeta::core::URI::canonicalize(
       sourcemeta::core::identify(
           schema, resolver,
           sourcemeta::core::SchemaIdentificationStrategy::Strict,
           default_dialect, default_id)
           .value_or(""))};
-
   assert(frame.locations().contains(
       {sourcemeta::core::SchemaReferenceType::Static, base}));
   const auto root_frame_entry{frame.locations().at(
       {sourcemeta::core::SchemaReferenceType::Static, base})};
 
-  // Check whether dynamic referencing takes places in this schema. If not,
-  // we can avoid the overhead of keeping track of dynamics scopes, etc
-  bool uses_dynamic_scopes{false};
-  for (const auto &reference : frame.references()) {
-    if (reference.first.first ==
-        sourcemeta::core::SchemaReferenceType::Dynamic) {
-      uses_dynamic_scopes = true;
-      break;
-    }
-  }
-
-  SchemaContext schema_context{
-      .relative_pointer = sourcemeta::core::empty_pointer,
-      .schema = schema,
-      .vocabularies = vocabularies(schema, resolver, root_frame_entry.dialect),
-      .base = sourcemeta::core::URI::canonicalize(root_frame_entry.base),
-      .labels = {},
-      .is_property_name = false};
+  ///////////////////////////////////////////////////////////////////
+  // (2) Determine all the schema resources in the schema
+  ///////////////////////////////////////////////////////////////////
 
   std::vector<std::string> resources;
   for (const auto &entry : frame.locations()) {
@@ -161,8 +150,58 @@ auto compile(const sourcemeta::core::JSON &schema,
   assert(resources.size() ==
          std::set<std::string>(resources.cbegin(), resources.cend()).size());
 
+  ///////////////////////////////////////////////////////////////////
+  // (3) Do a first pass to scan all references
+  ///////////////////////////////////////////////////////////////////
+
+  // Use string views to avoid copying the actual strings, as we know
+  // that the frame survives the entire compilation process
+  std::unordered_map<std::string_view, std::size_t>
+      static_reference_destinations;
+  bool uses_dynamic_scopes{false};
+  for (const auto &reference : frame.references()) {
+    // Check whether dynamic referencing takes places in this schema. If not,
+    // we can avoid the overhead of keeping track of dynamics scopes, etc
+    if (reference.first.first ==
+        sourcemeta::core::SchemaReferenceType::Dynamic) {
+      uses_dynamic_scopes = true;
+      break;
+    } else if (reference.first.first ==
+                   sourcemeta::core::SchemaReferenceType::Static &&
+               frame.locations().contains(
+                   {sourcemeta::core::SchemaReferenceType::Static,
+                    reference.second.destination})) {
+      const auto label{Evaluator{}.hash(
+          schema_resource_id(resources, reference.second.base.value_or("")),
+          reference.second.fragment.value_or(""))};
+      static_reference_destinations.try_emplace(reference.second.destination,
+                                                label);
+    }
+  }
+
+  ///////////////////////////////////////////////////////////////////
+  // (4) Build the starting schema context
+  ///////////////////////////////////////////////////////////////////
+
+  SchemaContext schema_context{
+      .relative_pointer = sourcemeta::core::empty_pointer,
+      .schema = schema,
+      .vocabularies = vocabularies(schema, resolver, root_frame_entry.dialect),
+      .base = sourcemeta::core::URI::canonicalize(root_frame_entry.base),
+      .labels = {},
+      .is_property_name = false};
+
+  ///////////////////////////////////////////////////////////////////
+  // (5) Build the gloal compilation context
+  ///////////////////////////////////////////////////////////////////
+
   auto unevaluated{
       sourcemeta::blaze::unevaluated(schema, frame, walker, resolver)};
+
+  std::unordered_set<std::size_t> precompiled_labels;
+  for (const auto &reference : static_reference_destinations) {
+    precompiled_labels.emplace(reference.second);
+  }
 
   const Context context{.root = schema,
                         .frame = frame,
@@ -172,10 +211,20 @@ auto compile(const sourcemeta::core::JSON &schema,
                         .compiler = compiler,
                         .mode = mode,
                         .uses_dynamic_scopes = uses_dynamic_scopes,
-                        .unevaluated = std::move(unevaluated)};
-  const DynamicContext dynamic_context{relative_dynamic_context()};
-  Instructions compiler_template;
+                        .unevaluated = std::move(unevaluated),
+                        .precompiled_labels = std::move(precompiled_labels)};
 
+  ///////////////////////////////////////////////////////////////////
+  // (6) Build the initial dynamic context
+  ///////////////////////////////////////////////////////////////////
+
+  const DynamicContext dynamic_context{relative_dynamic_context()};
+
+  ///////////////////////////////////////////////////////////////////
+  // (7) Pre compile dynamic reference locations
+  ///////////////////////////////////////////////////////////////////
+
+  Instructions compiler_template;
   if (uses_dynamic_scopes &&
       (schema_context.vocabularies.contains(
            "https://json-schema.org/draft/2019-09/vocab/core") ||
@@ -196,8 +245,80 @@ auto compile(const sourcemeta::core::JSON &schema,
     }
   }
 
+  ///////////////////////////////////////////////////////////////////
+  // (8) Pre compile static reference locations
+  ///////////////////////////////////////////////////////////////////
+
+  // Attempt to precompile static destinations to avoid explosive compilation
+  Instructions static_reference_template;
+  for (const auto &reference : static_reference_destinations) {
+    const auto entry{context.frame.locations().find(
+        {sourcemeta::core::SchemaReferenceType::Static,
+         std::string{reference.first}})};
+    assert(entry != context.frame.locations().cend());
+    auto subschema{sourcemeta::core::get(context.root, entry->second.pointer)};
+    if (!sourcemeta::core::is_schema(subschema)) {
+      continue;
+    }
+
+    auto nested_vocabularies{sourcemeta::core::vocabularies(
+        subschema, context.resolver, entry->second.dialect)};
+    const sourcemeta::blaze::SchemaContext nested_schema_context{
+        .relative_pointer = entry->second.relative_pointer,
+        .schema = std::move(subschema),
+        .vocabularies = std::move(nested_vocabularies),
+        // TODO: I think this is hiding a framing bug that we should later
+        // investigate
+        .base = entry->second.base.starts_with('#') ? "" : entry->second.base,
+        .labels = {},
+        .is_property_name = schema_context.is_property_name};
+    static_reference_template.push_back(
+        make(sourcemeta::blaze::InstructionIndex::ControlMark, context,
+             nested_schema_context, dynamic_context,
+             sourcemeta::blaze::ValueUnsignedInteger{reference.second},
+             sourcemeta::blaze::compile(
+                 context, nested_schema_context,
+                 sourcemeta::blaze::relative_dynamic_context(),
+                 sourcemeta::core::empty_pointer,
+                 sourcemeta::core::empty_pointer, entry->first.second)));
+  }
+
+  ///////////////////////////////////////////////////////////////////
+  // (9) Compile the actual schema
+  ///////////////////////////////////////////////////////////////////
+
   auto children{compile_subschema(context, schema_context, dynamic_context,
                                   root_frame_entry.dialect)};
+
+  ///////////////////////////////////////////////////////////////////
+  // (10) TODO: Figure out what to do with pre-compiled refs
+  ///////////////////////////////////////////////////////////////////
+
+  // TODO: If we just prepend all the marks, then we will introduce a LOT of
+  // jumps, plus the evaluator has to process the marks even for instances that
+  // will never need them. Instead, now that we have all references
+  // pre-compiled, we should try to inline as many of them in the right
+  // `children` `ControlJump` instructions.
+  // To test this:
+  //
+  // ```sh
+  // # Compile
+  // make compile
+  // # Run the official test suite, which won't check traces
+  // ./build/test/evaluator/sourcemeta_blaze_evaluator_official_suite_unit
+  // # Run the micro benchmark to start with (which is faster). The results
+  // # should be ideally the SAME as BEFORE the last commit in this branch.
+  // # Don't check `main` or other branch as tests might fail
+  // ./build/benchmark/sourcemeta_blaze_benchmark --benchmark_filter=Micro
+  // ```
+
+  for (auto &&substep : static_reference_template) {
+    compiler_template.push_back(std::move(substep));
+  }
+
+  ///////////////////////////////////////////////////////////////////
+  // (11) Return final template
+  ///////////////////////////////////////////////////////////////////
 
   const bool track{
       context.mode != Mode::FastValidation ||
