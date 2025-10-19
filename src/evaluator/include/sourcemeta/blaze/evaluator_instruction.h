@@ -242,13 +242,13 @@ using Instructions = std::vector<Instruction>;
 /// @ingroup evaluator
 /// Represents a single instruction to be evaluated
 struct Instruction {
-  const InstructionIndex type;
-  const sourcemeta::core::Pointer relative_schema_location;
-  const sourcemeta::core::Pointer relative_instance_location;
-  const std::string keyword_location;
-  const std::size_t schema_resource;
-  const Value value;
-  const Instructions children;
+  InstructionIndex type;
+  sourcemeta::core::Pointer relative_schema_location;
+  sourcemeta::core::Pointer relative_instance_location;
+  std::string keyword_location;
+  std::size_t schema_resource;
+  Value value;
+  Instructions children;
 };
 
 /// @ingroup evaluator

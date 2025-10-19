@@ -265,6 +265,19 @@ inline auto requires_evaluation(const Context &context,
   return false;
 }
 
+inline auto has_jumps(const Instructions &steps) -> bool {
+  for (const auto &variant : steps) {
+    if (variant.type == InstructionIndex::ControlJump ||
+        variant.type == InstructionIndex::ControlDynamicAnchorJump) {
+      return true;
+    } else if (!variant.children.empty() && has_jumps(variant.children)) {
+      return true;
+    }
+  }
+
+  return false;
+}
+
 } // namespace sourcemeta::blaze
 
 #endif

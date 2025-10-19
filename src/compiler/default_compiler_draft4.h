@@ -12,6 +12,8 @@
 #include <sstream> // std::ostringstream
 #include <utility> // std::move
 
+#include <iostream>
+
 #include "compile_helpers.h"
 
 static auto parse_regex(const std::string &pattern,
@@ -179,20 +181,6 @@ static auto to_string_hashes(
   return result;
 }
 
-static auto has_jumps(const sourcemeta::blaze::Instructions &steps) -> bool {
-  for (const auto &variant : steps) {
-    if (variant.type == sourcemeta::blaze::InstructionIndex::ControlJump ||
-        variant.type ==
-            sourcemeta::blaze::InstructionIndex::ControlDynamicAnchorJump) {
-      return true;
-    } else if (!variant.children.empty() && has_jumps(variant.children)) {
-      return true;
-    }
-  }
-
-  return false;
-}
-
 namespace internal {
 using namespace sourcemeta::blaze;
 
@@ -220,14 +208,50 @@ auto compiler_draft4_core_ref(const Context &context,
       schema_resource_id(context.resources, reference.base.value_or("")),
       reference.fragment.value_or(""))};
 
+  // std::cerr << "[compiler_draft4_core_ref] Looking up label " << label
+  // << std::endl;
+  // std::cerr << "  - In schema_context.labels: "
+  // << schema_context.labels.contains(label) << std::endl;
+  // std::cerr << "  - In precompiled_labels: "
+  // << context.precompiled_labels.contains(label) << std::endl;
+  // std::cerr << "  - In precompiled_instructions: "
+  // << context.precompiled_instructions.contains(label) << std::endl;
+  if (context.precompiled_instructions.contains(label)) {
+    // std::cerr << "    - has_jumps: "
+    // << context.precompiled_instructions.at(label).second << std::endl;
+  }
+
   ///////////////////////////////////////////////////////////////////
   // (2) If we know about such label, then just jump into it
   ///////////////////////////////////////////////////////////////////
 
-  if (schema_context.labels.contains(label) ||
-      context.precompiled_labels.contains(label)) {
+  if (schema_context.labels.contains(label)) {
+    // std::cerr << "  -> Returning ControlJump (in schema_context.labels)"
+    // << std::endl;
     return {make(sourcemeta::blaze::InstructionIndex::ControlJump, context,
                  schema_context, dynamic_context, ValueUnsignedInteger{label})};
+  } else if (context.precompiled_labels.contains(label) &&
+             (!context.precompiled_instructions.contains(label) ||
+              context.precompiled_instructions.at(label).second)) {
+    // std::cerr << "  -> Returning ControlJump (in precompiled_labels)"
+    // << std::endl;
+    return {make(sourcemeta::blaze::InstructionIndex::ControlJump, context,
+                 schema_context, dynamic_context, ValueUnsignedInteger{label})};
+  }
+
+  // Re-use from cache if possible
+  const auto match{context.precompiled_instructions.find(label)};
+  if (match != context.precompiled_instructions.cend() &&
+      !match->second.second) {
+    // std::cerr << "  -> Inlining children (no jumps)" << std::endl;
+    if (match->second.first.children.empty()) {
+      return {};
+    }
+
+    auto copy = match->second.first.children;
+    return {make(sourcemeta::blaze::InstructionIndex::LogicalAnd, context,
+                 schema_context, dynamic_context, ValueNone{},
+                 std::move(copy))};
   }
 
   ///////////////////////////////////////////////////////////////////
@@ -250,6 +274,9 @@ auto compiler_draft4_core_ref(const Context &context,
   // (4) If the resulting instructions may be recursive, label
   ///////////////////////////////////////////////////////////////////
 
+  // TODO: We need to improve on this check. If we can look through jumps,
+  // then we can confirm if the label was absolutely necessary or not,
+  // and avoid lots of cases where we label in vain.
   // If it has at least one jump, then it might also be indirectly
   // recursive, which is much harder to check for
   if (has_jumps(children)) {

@@ -106,6 +106,9 @@ struct Context {
   const SchemaUnevaluatedEntries unevaluated;
   /// The set of global labels identifier during precompilation
   std::unordered_set<std::size_t> precompiled_labels;
+  /// TODO
+  std::unordered_map<std::size_t, std::pair<Instruction, bool>>
+      precompiled_instructions;
 };
 
 /// @ingroup compiler

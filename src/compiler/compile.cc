@@ -8,6 +8,8 @@
 #include <iterator>  // std::back_inserter
 #include <utility>   // std::move, std::pair
 
+#include <iostream>
+
 #include "compile_helpers.h"
 
 namespace {
@@ -170,6 +172,9 @@ auto compile(const sourcemeta::core::JSON &schema,
                    sourcemeta::core::SchemaReferenceType::Static &&
                frame.locations().contains(
                    {sourcemeta::core::SchemaReferenceType::Static,
+                    reference.second.destination}) &&
+               !frame.locations().contains(
+                   {sourcemeta::core::SchemaReferenceType::Dynamic,
                     reference.second.destination})) {
       const auto label{Evaluator{}.hash(
           schema_resource_id(resources, reference.second.base.value_or("")),
@@ -203,16 +208,17 @@ auto compile(const sourcemeta::core::JSON &schema,
     precompiled_labels.emplace(reference.second);
   }
 
-  const Context context{.root = schema,
-                        .frame = frame,
-                        .resources = std::move(resources),
-                        .walker = walker,
-                        .resolver = resolver,
-                        .compiler = compiler,
-                        .mode = mode,
-                        .uses_dynamic_scopes = uses_dynamic_scopes,
-                        .unevaluated = std::move(unevaluated),
-                        .precompiled_labels = std::move(precompiled_labels)};
+  Context context{.root = schema,
+                  .frame = frame,
+                  .resources = std::move(resources),
+                  .walker = walker,
+                  .resolver = resolver,
+                  .compiler = compiler,
+                  .mode = mode,
+                  .uses_dynamic_scopes = uses_dynamic_scopes,
+                  .unevaluated = std::move(unevaluated),
+                  .precompiled_labels = std::move(precompiled_labels),
+                  .precompiled_instructions = {}};
 
   ///////////////////////////////////////////////////////////////////
   // (6) Build the initial dynamic context
@@ -249,8 +255,10 @@ auto compile(const sourcemeta::core::JSON &schema,
   // (8) Pre compile static reference locations
   ///////////////////////////////////////////////////////////////////
 
+  // std::cerr << "PRECOMPILING\n";
   // Attempt to precompile static destinations to avoid explosive compilation
-  Instructions static_reference_template;
+  std::unordered_map<std::size_t, std::pair<Instruction, bool>>
+      precompiled_instructions;
   for (const auto &reference : static_reference_destinations) {
     const auto entry{context.frame.locations().find(
         {sourcemeta::core::SchemaReferenceType::Static,
@@ -270,17 +278,33 @@ auto compile(const sourcemeta::core::JSON &schema,
         // TODO: I think this is hiding a framing bug that we should later
         // investigate
         .base = entry->second.base.starts_with('#') ? "" : entry->second.base,
-        .labels = {},
+        .labels = {reference.second},
         .is_property_name = schema_context.is_property_name};
-    static_reference_template.push_back(
-        make(sourcemeta::blaze::InstructionIndex::ControlMark, context,
-             nested_schema_context, dynamic_context,
-             sourcemeta::blaze::ValueUnsignedInteger{reference.second},
-             sourcemeta::blaze::compile(
-                 context, nested_schema_context,
-                 sourcemeta::blaze::relative_dynamic_context(),
-                 sourcemeta::core::empty_pointer,
-                 sourcemeta::core::empty_pointer, entry->first.second)));
+    auto subchildren{sourcemeta::blaze::compile(
+        context, nested_schema_context,
+        sourcemeta::blaze::relative_dynamic_context(),
+        sourcemeta::core::empty_pointer, sourcemeta::core::empty_pointer,
+        entry->first.second)};
+    const auto jumps{has_jumps(subchildren)};
+    // std::cerr << "[Phase 8] Processing label " << reference.second
+    // << " has_jumps=" << jumps << "\n";
+    precompiled_instructions.emplace(
+        reference.second,
+        std::make_pair(
+            make(sourcemeta::blaze::InstructionIndex::ControlMark, context,
+                 nested_schema_context, dynamic_context,
+                 sourcemeta::blaze::ValueUnsignedInteger{reference.second},
+                 std::move(subchildren)),
+            jumps));
+  }
+
+  context.precompiled_instructions = std::move(precompiled_instructions);
+
+  // std::cerr << "[Phase 8] Adding ControlMarks to prefix:" << "\n";
+  for (const auto &substep : context.precompiled_instructions) {
+    // std::cerr << "  - Label " << substep.first
+    // << " has_jumps=" << substep.second.second << "\n";
+    compiler_template.push_back(substep.second.first);
   }
 
   ///////////////////////////////////////////////////////////////////
@@ -291,33 +315,7 @@ auto compile(const sourcemeta::core::JSON &schema,
                                   root_frame_entry.dialect)};
 
   ///////////////////////////////////////////////////////////////////
-  // (10) TODO: Figure out what to do with pre-compiled refs
-  ///////////////////////////////////////////////////////////////////
-
-  // TODO: If we just prepend all the marks, then we will introduce a LOT of
-  // jumps, plus the evaluator has to process the marks even for instances that
-  // will never need them. Instead, now that we have all references
-  // pre-compiled, we should try to inline as many of them in the right
-  // `children` `ControlJump` instructions.
-  // To test this:
-  //
-  // ```sh
-  // # Compile
-  // make compile
-  // # Run the official test suite, which won't check traces
-  // ./build/test/evaluator/sourcemeta_blaze_evaluator_official_suite_unit
-  // # Run the micro benchmark to start with (which is faster). The results
-  // # should be ideally the SAME as BEFORE the last commit in this branch.
-  // # Don't check `main` or other branch as tests might fail
-  // ./build/benchmark/sourcemeta_blaze_benchmark --benchmark_filter=Micro
-  // ```
-
-  for (auto &&substep : static_reference_template) {
-    compiler_template.push_back(std::move(substep));
-  }
-
-  ///////////////////////////////////////////////////////////////////
-  // (11) Return final template
+  // (10) Return final template
   ///////////////////////////////////////////////////////////////////
 
   const bool track{
