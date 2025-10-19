@@ -104,6 +104,8 @@ struct Context {
   const bool uses_dynamic_scopes;
   /// The list of unevaluated entries and their dependencies
   const SchemaUnevaluatedEntries unevaluated;
+  /// The set of global labels identifier during precompilation
+  std::unordered_set<std::size_t> precompiled_labels;
 };
 
 /// @ingroup compiler

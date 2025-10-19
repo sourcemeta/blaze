@@ -216,15 +216,16 @@ auto compiler_draft4_core_ref(const Context &context,
         entry.pointer, "The schema location is inside of an unknown keyword");
   }
   const auto &reference{context.frame.references().at({type, entry.pointer})};
-  const auto label{
-      Evaluator{}.hash(schema_resource_id(context, reference.base.value_or("")),
-                       reference.fragment.value_or(""))};
+  const auto label{Evaluator{}.hash(
+      schema_resource_id(context.resources, reference.base.value_or("")),
+      reference.fragment.value_or(""))};
 
   ///////////////////////////////////////////////////////////////////
   // (2) If we know about such label, then just jump into it
   ///////////////////////////////////////////////////////////////////
 
-  if (schema_context.labels.contains(label)) {
+  if (schema_context.labels.contains(label) ||
+      context.precompiled_labels.contains(label)) {
     return {make(sourcemeta::blaze::InstructionIndex::ControlJump, context,
                  schema_context, dynamic_context, ValueUnsignedInteger{label})};
   }
@@ -235,6 +236,11 @@ auto compiler_draft4_core_ref(const Context &context,
 
   auto new_schema_context{schema_context};
   new_schema_context.labels.insert(label);
+
+  // Note that we need to try to pre-compile the children first to see if it
+  // produces any jumps and therefore if it'd be safe to inline or not. While
+  // this slows down the compiler, inlining at the expense of compiling twice
+  // yields great runtime evaluation performance results
   auto children{compile(
       context, new_schema_context, relative_dynamic_context(dynamic_context),
       sourcemeta::core::empty_pointer, sourcemeta::core::empty_pointer,
