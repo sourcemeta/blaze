@@ -108,36 +108,38 @@ compile_properties(const sourcemeta::blaze::Context &context,
   // and some subschemas that are large. To attempt to improve performance,
   // we prefer to evaluate smaller subschemas first, in the hope of failing
   // earlier without spending a lot of time on other subschemas
-  std::sort(properties.begin(), properties.end(),
-            [](const auto &left, const auto &right) {
-              const auto left_size{recursive_template_size(left.second)};
-              const auto right_size{recursive_template_size(right.second)};
-              if (left_size == right_size) {
-                const auto left_direct_enumeration{
-                    defines_direct_enumeration(left.second)};
-                const auto right_direct_enumeration{
-                    defines_direct_enumeration(right.second)};
+  if (context.tweaks.properties_reorder) {
+    std::sort(properties.begin(), properties.end(),
+              [](const auto &left, const auto &right) {
+                const auto left_size{recursive_template_size(left.second)};
+                const auto right_size{recursive_template_size(right.second)};
+                if (left_size == right_size) {
+                  const auto left_direct_enumeration{
+                      defines_direct_enumeration(left.second)};
+                  const auto right_direct_enumeration{
+                      defines_direct_enumeration(right.second)};
 
-                // Enumerations always take precedence
-                if (left_direct_enumeration.has_value() &&
-                    right_direct_enumeration.has_value()) {
-                  // If both options have a direct enumeration, we choose
-                  // the one with the shorter relative schema location
-                  return relative_schema_location_size(
-                             left.second.at(left_direct_enumeration.value())) <
-                         relative_schema_location_size(
-                             right.second.at(right_direct_enumeration.value()));
-                } else if (left_direct_enumeration.has_value()) {
-                  return true;
-                } else if (right_direct_enumeration.has_value()) {
-                  return false;
+                  // Enumerations always take precedence
+                  if (left_direct_enumeration.has_value() &&
+                      right_direct_enumeration.has_value()) {
+                    // If both options have a direct enumeration, we choose
+                    // the one with the shorter relative schema location
+                    return relative_schema_location_size(left.second.at(
+                               left_direct_enumeration.value())) <
+                           relative_schema_location_size(right.second.at(
+                               right_direct_enumeration.value()));
+                  } else if (left_direct_enumeration.has_value()) {
+                    return true;
+                  } else if (right_direct_enumeration.has_value()) {
+                    return false;
+                  }
+
+                  return left.first < right.first;
+                } else {
+                  return left_size < right_size;
                 }
-
-                return left.first < right.first;
-              } else {
-                return left_size < right_size;
-              }
-            });
+              });
+  }
 
   return properties;
 }
@@ -776,6 +778,10 @@ auto compiler_draft4_applicator_oneof(const Context &context,
 auto properties_as_loop(const Context &context,
                         const SchemaContext &schema_context,
                         const sourcemeta::core::JSON &properties) -> bool {
+  if (context.tweaks.properties_always_unroll) {
+    return false;
+  }
+
   const auto size{properties.size()};
   const auto imports_validation_vocabulary =
       schema_context.vocabularies.contains(

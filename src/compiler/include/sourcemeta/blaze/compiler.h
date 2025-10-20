@@ -82,6 +82,25 @@ enum class Mode : std::uint8_t {
 };
 
 /// @ingroup compiler
+/// Advanced knobs that you can tweak for higher control and optimisations
+struct Tweaks {
+  /// Attempt to precompile static references to speed up compilation
+  const bool precompile_static_references{true};
+  /// Consider static references that are not circular when precompiling static
+  /// references
+  const bool precompile_static_references_non_circular{false};
+  /// The maximum amount of static references to precompile
+  const std::size_t precompile_static_references_maximum_schemas{10};
+  /// The minimum amount of references to a destination before considering it
+  /// for precompilation
+  const std::size_t precompile_static_references_minimum_reference_count{10};
+  /// Always unroll `properties` in a logical AND operation
+  const bool properties_always_unroll{false};
+  /// Attempt to re-order `properties` subschemas to evaluate cheaper ones first
+  const bool properties_reorder{true};
+};
+
+/// @ingroup compiler
 /// The static compiler context is the information you have at your
 /// disposal to implement a keyword that will never change throughout
 /// the compilation process
@@ -106,6 +125,8 @@ struct Context {
   const SchemaUnevaluatedEntries unevaluated;
   /// The set of global labels identifier during precompilation
   std::unordered_set<std::size_t> precompiled_labels;
+  /// The set of global labels identifier during precompilation
+  const Tweaks tweaks;
 };
 
 /// @ingroup compiler
@@ -139,13 +160,14 @@ auto SOURCEMETA_BLAZE_COMPILER_EXPORT default_schema_compiler(
 ///
 /// // Evaluate or encode
 /// ```
-auto SOURCEMETA_BLAZE_COMPILER_EXPORT compile(
-    const sourcemeta::core::JSON &schema,
-    const sourcemeta::core::SchemaWalker &walker,
-    const sourcemeta::core::SchemaResolver &resolver, const Compiler &compiler,
-    const Mode mode = Mode::FastValidation,
-    const std::optional<std::string> &default_dialect = std::nullopt,
-    const std::optional<std::string> &default_id = std::nullopt) -> Template;
+auto SOURCEMETA_BLAZE_COMPILER_EXPORT
+compile(const sourcemeta::core::JSON &schema,
+        const sourcemeta::core::SchemaWalker &walker,
+        const sourcemeta::core::SchemaResolver &resolver,
+        const Compiler &compiler, const Mode mode = Mode::FastValidation,
+        const std::optional<std::string> &default_dialect = std::nullopt,
+        const std::optional<std::string> &default_id = std::nullopt,
+        const std::optional<Tweaks> &tweaks = std::nullopt) -> Template;
 
 /// @ingroup compiler
 ///
@@ -156,14 +178,15 @@ auto SOURCEMETA_BLAZE_COMPILER_EXPORT compile(
 /// behavior.
 ///
 /// Don't use this function unless you know what you are doing.
-auto SOURCEMETA_BLAZE_COMPILER_EXPORT compile(
-    const sourcemeta::core::JSON &schema,
-    const sourcemeta::core::SchemaWalker &walker,
-    const sourcemeta::core::SchemaResolver &resolver, const Compiler &compiler,
-    const sourcemeta::core::SchemaFrame &frame,
-    const Mode mode = Mode::FastValidation,
-    const std::optional<std::string> &default_dialect = std::nullopt,
-    const std::optional<std::string> &default_id = std::nullopt) -> Template;
+auto SOURCEMETA_BLAZE_COMPILER_EXPORT
+compile(const sourcemeta::core::JSON &schema,
+        const sourcemeta::core::SchemaWalker &walker,
+        const sourcemeta::core::SchemaResolver &resolver,
+        const Compiler &compiler, const sourcemeta::core::SchemaFrame &frame,
+        const Mode mode = Mode::FastValidation,
+        const std::optional<std::string> &default_dialect = std::nullopt,
+        const std::optional<std::string> &default_id = std::nullopt,
+        const std::optional<Tweaks> &tweaks = std::nullopt) -> Template;
 
 /// @ingroup compiler
 ///
