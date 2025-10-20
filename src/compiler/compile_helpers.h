@@ -29,18 +29,17 @@ inline auto property_relative_dynamic_context() -> DynamicContext {
           true};
 }
 
-inline auto schema_resource_id(const Context &context,
+inline auto schema_resource_id(const std::vector<std::string> &resources,
                                const std::string &resource) -> std::size_t {
-  const auto iterator{std::find(context.resources.cbegin(),
-                                context.resources.cend(),
+  const auto iterator{std::find(resources.cbegin(), resources.cend(),
                                 sourcemeta::core::URI::canonicalize(resource))};
-  if (iterator == context.resources.cend()) {
+  if (iterator == resources.cend()) {
     assert(resource.empty());
     return 0;
   }
 
-  return 1 + static_cast<std::size_t>(
-                 std::distance(context.resources.cbegin(), iterator));
+  return 1 +
+         static_cast<std::size_t>(std::distance(resources.cbegin(), iterator));
 }
 
 // Instantiate a value-oriented step with a custom resource
@@ -58,7 +57,7 @@ inline auto make_with_resource(const InstructionIndex type,
                 {dynamic_context.keyword}),
       dynamic_context.base_instance_location,
       to_uri(schema_context.relative_pointer, schema_context.base).recompose(),
-      schema_resource_id(context, resource),
+      schema_resource_id(context.resources, resource),
       value,
       {}};
 }
@@ -85,7 +84,7 @@ inline auto make(const InstructionIndex type, const Context &context,
                 {dynamic_context.keyword}),
       dynamic_context.base_instance_location,
       to_uri(schema_context.relative_pointer, schema_context.base).recompose(),
-      schema_resource_id(context, schema_context.base.recompose()),
+      schema_resource_id(context.resources, schema_context.base.recompose()),
       std::move(value),
       std::move(children)};
 }

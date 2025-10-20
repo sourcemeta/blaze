@@ -212,9 +212,9 @@ auto compiler_draft4_core_ref(const Context &context,
   }
 
   const auto &reference{context.frame.references().at({type, entry.pointer})};
-  const auto label{
-      Evaluator{}.hash(schema_resource_id(context, reference.base.value_or("")),
-                       reference.fragment.value_or(""))};
+  const auto label{Evaluator{}.hash(
+      schema_resource_id(context.resources, reference.base.value_or("")),
+      reference.fragment.value_or(""))};
 
   // The label is already registered, so just jump to it
   if (schema_context.labels.contains(label) ||
