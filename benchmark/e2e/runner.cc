@@ -1,8 +1,10 @@
 #include <benchmark/benchmark.h>
 
-#include <cassert>    // assert
-#include <filesystem> // std::filesystem
-#include <vector>     // std::vector
+#include <cassert>       // assert
+#include <filesystem>    // std::filesystem
+#include <unordered_map> // std::unordered_map
+#include <utility>       // std::move
+#include <vector>        // std::vector
 
 #include <sourcemeta/core/io.h>
 #include <sourcemeta/core/json.h>
@@ -12,19 +14,31 @@
 #include <sourcemeta/blaze/compiler.h>
 #include <sourcemeta/blaze/evaluator.h>
 
+static auto compile_schema(const std::filesystem::path &schema_path,
+                           const sourcemeta::core::JSON &schema)
+    -> const sourcemeta::blaze::Template & {
+  static std::unordered_map<std::filesystem::path, sourcemeta::blaze::Template>
+      compiled_templates;
+  const auto [iterator, inserted]{compiled_templates.try_emplace(
+      schema_path, sourcemeta::blaze::compile(
+                       schema, sourcemeta::core::schema_official_walker,
+                       sourcemeta::core::schema_official_resolver,
+                       sourcemeta::blaze::default_schema_compiler,
+                       sourcemeta::blaze::Mode::FastValidation))};
+  return iterator->second;
+}
+
 #define REGISTER_E2E_COMPILER(name, directory_name)                            \
   static auto E2E_Compiler_##name(benchmark::State &state)->void {             \
     const std::filesystem::path directory{CURRENT_DIRECTORY                    \
                                           "/e2e/" directory_name};             \
-    const auto schema{sourcemeta::core::read_json(directory / "schema.json")}; \
+    const std::filesystem::path schema_path{directory / "schema.json"};        \
+    const auto schema{sourcemeta::core::read_json(schema_path)};               \
                                                                                \
     for (auto _ : state) {                                                     \
-      auto schema_template{sourcemeta::blaze::compile(                         \
-          schema, sourcemeta::core::schema_official_walker,                    \
-          sourcemeta::core::schema_official_resolver,                          \
-          sourcemeta::blaze::default_schema_compiler,                          \
-          sourcemeta::blaze::Mode::FastValidation)};                           \
-      benchmark::DoNotOptimize(schema_template);                               \
+      const auto &schema_template{compile_schema(schema_path, schema)};        \
+      (void)schema_template;                                                   \
+      benchmark::ClobberMemory();                                              \
     }                                                                          \
   }                                                                            \
   BENCHMARK(E2E_Compiler_##name)
@@ -33,12 +47,10 @@
   static auto E2E_Evaluator_##name(benchmark::State &state)->void {            \
     const std::filesystem::path directory{CURRENT_DIRECTORY                    \
                                           "/e2e/" directory_name};             \
-    const auto schema{sourcemeta::core::read_json(directory / "schema.json")}; \
-    const auto schema_template{sourcemeta::blaze::compile(                     \
-        schema, sourcemeta::core::schema_official_walker,                      \
-        sourcemeta::core::schema_official_resolver,                            \
-        sourcemeta::blaze::default_schema_compiler,                            \
-        sourcemeta::blaze::Mode::FastValidation)};                             \
+    const std::filesystem::path schema_path{directory / "schema.json"};        \
+                                                                               \
+    const auto &schema_template{compile_schema(                                \
+        schema_path, sourcemeta::core::read_json(schema_path))};               \
                                                                                \
     auto stream{sourcemeta::core::read_file(directory / "instances.jsonl")};   \
     std::vector<sourcemeta::core::JSON> instances;                             \
