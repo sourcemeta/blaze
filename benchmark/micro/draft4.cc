@@ -994,6 +994,126 @@ static void Micro_Draft4_Type_Object(benchmark::State &state) {
   }
 }
 
+// Pathological Case: OMC-like Pattern
+static void Micro_Draft4_Ref_Single_100(benchmark::State &state) {
+  const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
+    "$schema": "http://json-schema.org/draft-04/schema#",
+    "definitions": {
+      "common": { "type": "string", "minLength": 1 }
+    },
+    "properties": {
+      "prop0": { "$ref": "#/definitions/common" },
+      "prop1": { "$ref": "#/definitions/common" },
+      "prop2": { "$ref": "#/definitions/common" },
+      "prop3": { "$ref": "#/definitions/common" },
+      "prop4": { "$ref": "#/definitions/common" },
+      "prop5": { "$ref": "#/definitions/common" },
+      "prop6": { "$ref": "#/definitions/common" },
+      "prop7": { "$ref": "#/definitions/common" },
+      "prop8": { "$ref": "#/definitions/common" },
+      "prop9": { "$ref": "#/definitions/common" },
+      "prop10": { "$ref": "#/definitions/common" },
+      "prop11": { "$ref": "#/definitions/common" },
+      "prop12": { "$ref": "#/definitions/common" },
+      "prop13": { "$ref": "#/definitions/common" },
+      "prop14": { "$ref": "#/definitions/common" },
+      "prop15": { "$ref": "#/definitions/common" },
+      "prop16": { "$ref": "#/definitions/common" },
+      "prop17": { "$ref": "#/definitions/common" },
+      "prop18": { "$ref": "#/definitions/common" },
+      "prop19": { "$ref": "#/definitions/common" },
+      "prop20": { "$ref": "#/definitions/common" },
+      "prop21": { "$ref": "#/definitions/common" },
+      "prop22": { "$ref": "#/definitions/common" },
+      "prop23": { "$ref": "#/definitions/common" },
+      "prop24": { "$ref": "#/definitions/common" },
+      "prop25": { "$ref": "#/definitions/common" },
+      "prop26": { "$ref": "#/definitions/common" },
+      "prop27": { "$ref": "#/definitions/common" },
+      "prop28": { "$ref": "#/definitions/common" },
+      "prop29": { "$ref": "#/definitions/common" },
+      "prop30": { "$ref": "#/definitions/common" },
+      "prop31": { "$ref": "#/definitions/common" },
+      "prop32": { "$ref": "#/definitions/common" },
+      "prop33": { "$ref": "#/definitions/common" },
+      "prop34": { "$ref": "#/definitions/common" },
+      "prop35": { "$ref": "#/definitions/common" },
+      "prop36": { "$ref": "#/definitions/common" },
+      "prop37": { "$ref": "#/definitions/common" },
+      "prop38": { "$ref": "#/definitions/common" },
+      "prop39": { "$ref": "#/definitions/common" },
+      "prop40": { "$ref": "#/definitions/common" },
+      "prop41": { "$ref": "#/definitions/common" },
+      "prop42": { "$ref": "#/definitions/common" },
+      "prop43": { "$ref": "#/definitions/common" },
+      "prop44": { "$ref": "#/definitions/common" },
+      "prop45": { "$ref": "#/definitions/common" },
+      "prop46": { "$ref": "#/definitions/common" },
+      "prop47": { "$ref": "#/definitions/common" },
+      "prop48": { "$ref": "#/definitions/common" },
+      "prop49": { "$ref": "#/definitions/common" },
+      "prop50": { "$ref": "#/definitions/common" },
+      "prop51": { "$ref": "#/definitions/common" },
+      "prop52": { "$ref": "#/definitions/common" },
+      "prop53": { "$ref": "#/definitions/common" },
+      "prop54": { "$ref": "#/definitions/common" },
+      "prop55": { "$ref": "#/definitions/common" },
+      "prop56": { "$ref": "#/definitions/common" },
+      "prop57": { "$ref": "#/definitions/common" },
+      "prop58": { "$ref": "#/definitions/common" },
+      "prop59": { "$ref": "#/definitions/common" },
+      "prop60": { "$ref": "#/definitions/common" },
+      "prop61": { "$ref": "#/definitions/common" },
+      "prop62": { "$ref": "#/definitions/common" },
+      "prop63": { "$ref": "#/definitions/common" },
+      "prop64": { "$ref": "#/definitions/common" },
+      "prop65": { "$ref": "#/definitions/common" },
+      "prop66": { "$ref": "#/definitions/common" },
+      "prop67": { "$ref": "#/definitions/common" },
+      "prop68": { "$ref": "#/definitions/common" },
+      "prop69": { "$ref": "#/definitions/common" },
+      "prop70": { "$ref": "#/definitions/common" },
+      "prop71": { "$ref": "#/definitions/common" },
+      "prop72": { "$ref": "#/definitions/common" },
+      "prop73": { "$ref": "#/definitions/common" },
+      "prop74": { "$ref": "#/definitions/common" },
+      "prop75": { "$ref": "#/definitions/common" },
+      "prop76": { "$ref": "#/definitions/common" },
+      "prop77": { "$ref": "#/definitions/common" },
+      "prop78": { "$ref": "#/definitions/common" },
+      "prop79": { "$ref": "#/definitions/common" },
+      "prop80": { "$ref": "#/definitions/common" },
+      "prop81": { "$ref": "#/definitions/common" },
+      "prop82": { "$ref": "#/definitions/common" },
+      "prop83": { "$ref": "#/definitions/common" },
+      "prop84": { "$ref": "#/definitions/common" },
+      "prop85": { "$ref": "#/definitions/common" },
+      "prop86": { "$ref": "#/definitions/common" },
+      "prop87": { "$ref": "#/definitions/common" },
+      "prop88": { "$ref": "#/definitions/common" },
+      "prop89": { "$ref": "#/definitions/common" },
+      "prop90": { "$ref": "#/definitions/common" },
+      "prop91": { "$ref": "#/definitions/common" },
+      "prop92": { "$ref": "#/definitions/common" },
+      "prop93": { "$ref": "#/definitions/common" },
+      "prop94": { "$ref": "#/definitions/common" },
+      "prop95": { "$ref": "#/definitions/common" },
+      "prop96": { "$ref": "#/definitions/common" },
+      "prop97": { "$ref": "#/definitions/common" },
+      "prop98": { "$ref": "#/definitions/common" },
+      "prop99": { "$ref": "#/definitions/common" }
+    }
+  })JSON")};
+
+  for (auto _ : state) {
+    auto result{sourcemeta::blaze::compile(
+        schema, sourcemeta::core::schema_official_walker,
+        sourcemeta::core::schema_official_resolver,
+        sourcemeta::blaze::default_schema_compiler)};
+    benchmark::DoNotOptimize(result.instructions);
+  }
+}
+
 BENCHMARK(Micro_Draft4_Meta_1_No_Callback);
 BENCHMARK(Micro_Draft4_Required_Properties);
 BENCHMARK(Micro_Draft4_Many_Optional_Properties_Minimal_Match);
@@ -1013,3 +1133,4 @@ BENCHMARK(Micro_Draft4_Short_Enum);
 BENCHMARK(Micro_Draft4_Long_Enum);
 BENCHMARK(Micro_Draft4_Long_Enum_Short_Strings);
 BENCHMARK(Micro_Draft4_Type_Object);
+BENCHMARK(Micro_Draft4_Ref_Single_100);
