@@ -85,19 +85,19 @@ enum class Mode : std::uint8_t {
 /// Advanced knobs that you can tweak for higher control and optimisations
 struct Tweaks {
   /// Attempt to precompile static references to speed up compilation
-  const bool precompile_static_references{true};
+  bool precompile_static_references{true};
   /// Consider static references that are not circular when precompiling static
   /// references
-  const bool precompile_static_references_non_circular{false};
+  bool precompile_static_references_non_circular{false};
   /// The maximum amount of static references to precompile
-  const std::size_t precompile_static_references_maximum_schemas{10};
+  std::size_t precompile_static_references_maximum_schemas{10};
   /// The minimum amount of references to a destination before considering it
   /// for precompilation
-  const std::size_t precompile_static_references_minimum_reference_count{10};
+  std::size_t precompile_static_references_minimum_reference_count{10};
   /// Always unroll `properties` in a logical AND operation
-  const bool properties_always_unroll{false};
+  bool properties_always_unroll{false};
   /// Attempt to re-order `properties` subschemas to evaluate cheaper ones first
-  const bool properties_reorder{true};
+  bool properties_reorder{true};
 };
 
 /// @ingroup compiler
