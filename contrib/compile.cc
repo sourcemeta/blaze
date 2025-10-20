@@ -38,5 +38,9 @@ auto main(int argc, char **argv) noexcept -> int {
   std::cerr << "Number of generated instructions: "
             << schema_template.instructions.size() << "\n";
 
+  sourcemeta::core::prettify(sourcemeta::blaze::to_json(schema_template),
+                             std::cout);
+  std::cout << "\n";
+
   return EXIT_SUCCESS;
 }
