@@ -187,6 +187,14 @@ auto compile(const sourcemeta::core::JSON &schema,
           frame.locations().contains(
               {sourcemeta::core::SchemaReferenceType::Static,
                reference.second.destination})) {
+        // TODO: Maybe try circular references or non-circular with >100 inbound
+        // locations or something like that?
+        std::unordered_set<std::string> visited;
+        if (!is_circular(frame, reference.first.second, reference.second,
+                         visited)) {
+          continue;
+        }
+
         const auto label{Evaluator{}.hash(
             schema_resource_id(resources, reference.second.base.value_or("")),
             reference.second.fragment.value_or(""))};

@@ -58,8 +58,6 @@ resolve_string_target(const JSON::String *property_target, const JSON &instance,
 
 namespace sourcemeta::blaze {
 
-Evaluator::Evaluator() { this->labels.reserve(32); }
-
 auto Evaluator::validate(const Template &schema,
                          const sourcemeta::core::JSON &instance) -> bool {
   // Do a full reset for the next run

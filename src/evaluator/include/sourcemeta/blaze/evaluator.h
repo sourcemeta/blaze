@@ -66,8 +66,6 @@ using Callback = std::function<void(
 /// @ingroup evaluator
 class SOURCEMETA_BLAZE_EVALUATOR_EXPORT Evaluator {
 public:
-  Evaluator();
-
   /// This function evaluates a schema compiler template, returning a boolean
   /// without error information. For example:
   ///
