@@ -74,8 +74,9 @@ auto precompile(
     -> sourcemeta::blaze::Instructions {
   const sourcemeta::core::URI anchor_uri{entry.first.second};
   const auto label{sourcemeta::blaze::Evaluator{}.hash(
-      schema_resource_id(context,
-                         anchor_uri.recompose_without_fragment().value_or("")),
+      sourcemeta::blaze::schema_resource_id(
+          context.resources,
+          anchor_uri.recompose_without_fragment().value_or("")),
       std::string{anchor_uri.fragment().value_or("")})};
   schema_context.labels.insert(label);
 
