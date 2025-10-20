@@ -177,7 +177,7 @@ auto compile(const sourcemeta::core::JSON &schema,
   std::vector<std::tuple<std::string_view, std::size_t, std::size_t>>
       sorted_precompile_references;
 
-  if (effective_tweaks.precompile_static_references) {
+  if (effective_tweaks.precompile_static_references_maximum_schemas > 0) {
     std::unordered_map<std::string_view, std::pair<std::size_t, std::size_t>>
         static_reference_destinations;
     for (const auto &reference : frame.references()) {

@@ -84,8 +84,6 @@ enum class Mode : std::uint8_t {
 /// @ingroup compiler
 /// Advanced knobs that you can tweak for higher control and optimisations
 struct Tweaks {
-  /// Attempt to precompile static references to speed up compilation
-  bool precompile_static_references{true};
   /// Consider static references that are not circular when precompiling static
   /// references
   bool precompile_static_references_non_circular{false};
