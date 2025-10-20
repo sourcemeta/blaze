@@ -23,14 +23,14 @@ TEST(Evaluator_2020_12, metaschema_hyper_1) {
       "https://json-schema.org/draft/2020-12/hyper-schema")};
   EXPECT_TRUE(metaschema.has_value());
   const auto instance{sourcemeta::core::parse_json(R"JSON({})JSON")};
-  EVALUATE_WITH_TRACE_FAST_SUCCESS(metaschema.value(), instance, 33);
+  EVALUATE_WITH_TRACE_FAST_SUCCESS(metaschema.value(), instance, 34);
 }
 
 TEST(Evaluator_2020_12, metaschema_hyper_self) {
   const auto metaschema{sourcemeta::core::schema_official_resolver(
       "https://json-schema.org/draft/2020-12/hyper-schema")};
   EXPECT_TRUE(metaschema.has_value());
-  EVALUATE_WITH_TRACE_FAST_SUCCESS(metaschema.value(), metaschema.value(), 112);
+  EVALUATE_WITH_TRACE_FAST_SUCCESS(metaschema.value(), metaschema.value(), 119);
 }
 
 TEST(Evaluator_2020_12, metaschema_hyper_self_exhaustive) {
@@ -38,7 +38,7 @@ TEST(Evaluator_2020_12, metaschema_hyper_self_exhaustive) {
       "https://json-schema.org/draft/2020-12/hyper-schema")};
   EXPECT_TRUE(metaschema.has_value());
   EVALUATE_WITH_TRACE_EXHAUSTIVE_SUCCESS(metaschema.value(), metaschema.value(),
-                                         202);
+                                         209);
 }
 
 TEST(Evaluator_2020_12, unknown_1_exhaustive) {

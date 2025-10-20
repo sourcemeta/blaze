@@ -265,6 +265,42 @@ inline auto requires_evaluation(const Context &context,
   return false;
 }
 
+// TODO: Elevate to Core and test
+
+inline auto
+is_circular(const sourcemeta::core::SchemaFrame &frame,
+            const sourcemeta::core::Pointer &reference_origin,
+            const sourcemeta::core::SchemaFrame::ReferencesEntry &reference,
+            std::unordered_set<std::string> &visited) -> bool {
+  if (visited.contains(reference.destination)) {
+    return false;
+  }
+  visited.insert(reference.destination);
+
+  const auto destination_location{frame.traverse(reference.destination)};
+  if (!destination_location.has_value()) {
+    return false;
+  }
+
+  const auto &destination_pointer{destination_location->get().pointer};
+  if (reference_origin.starts_with(destination_pointer) ||
+      destination_pointer.starts_with(reference_origin)) {
+    return true;
+  }
+
+  for (const auto &ref_entry : frame.references()) {
+    if (ref_entry.first.first ==
+            sourcemeta::core::SchemaReferenceType::Static &&
+        ref_entry.first.second.starts_with(destination_pointer)) {
+      if (is_circular(frame, reference_origin, ref_entry.second, visited)) {
+        return true;
+      }
+    }
+  }
+
+  return false;
+}
+
 } // namespace sourcemeta::blaze
 
 #endif
