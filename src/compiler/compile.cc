@@ -225,13 +225,6 @@ auto compile(const sourcemeta::core::JSON &schema,
                       .precompile_static_references_maximum_schemas),
           sorted_precompile_references.end());
     }
-
-    // We do not apply this pre-compilation optimisation on meta-schemas
-    if (sourcemeta::core::schema_official_resolver(base).has_value() ||
-        (uses_dynamic_scopes && schema.is_object() &&
-         schema.defines("$vocabulary"))) {
-      sorted_precompile_references.clear();
-    }
   }
 
   assert(sorted_precompile_references.size() <=
