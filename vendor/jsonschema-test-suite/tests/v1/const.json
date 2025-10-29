@@ -2,7 +2,7 @@
     {
         "description": "const validation",
         "schema": {
-            "$schema": "https://json-schema.org/draft/2019-09/schema",
+            "$schema": "https://json-schema.org/v1",
             "const": 2
         },
         "tests": [
@@ -26,7 +26,7 @@
     {
         "description": "const with object",
         "schema": {
-            "$schema": "https://json-schema.org/draft/2019-09/schema",
+            "$schema": "https://json-schema.org/v1",
             "const": {"foo": "bar", "baz": "bax"}
         },
         "tests": [
@@ -55,7 +55,7 @@
     {
         "description": "const with array",
         "schema": {
-            "$schema": "https://json-schema.org/draft/2019-09/schema",
+            "$schema": "https://json-schema.org/v1",
             "const": [{ "foo": "bar" }]
         },
         "tests": [
@@ -79,7 +79,7 @@
     {
         "description": "const with null",
         "schema": {
-            "$schema": "https://json-schema.org/draft/2019-09/schema",
+            "$schema": "https://json-schema.org/v1",
             "const": null
         },
         "tests": [
@@ -98,7 +98,7 @@
     {
         "description": "const with false does not match 0",
         "schema": {
-            "$schema": "https://json-schema.org/draft/2019-09/schema",
+            "$schema": "https://json-schema.org/v1",
             "const": false
         },
         "tests": [
@@ -122,7 +122,7 @@
     {
         "description": "const with true does not match 1",
         "schema": {
-            "$schema": "https://json-schema.org/draft/2019-09/schema",
+            "$schema": "https://json-schema.org/v1",
             "const": true
         },
         "tests": [
@@ -146,7 +146,7 @@
     {
         "description": "const with [false] does not match [0]",
         "schema": {
-            "$schema": "https://json-schema.org/draft/2019-09/schema",
+            "$schema": "https://json-schema.org/v1",
             "const": [false]
         },
         "tests": [
@@ -170,7 +170,7 @@
     {
         "description": "const with [true] does not match [1]",
         "schema": {
-            "$schema": "https://json-schema.org/draft/2019-09/schema",
+            "$schema": "https://json-schema.org/v1",
             "const": [true]
         },
         "tests": [
@@ -194,7 +194,7 @@
     {
         "description": "const with {\"a\": false} does not match {\"a\": 0}",
         "schema": {
-            "$schema": "https://json-schema.org/draft/2019-09/schema",
+            "$schema": "https://json-schema.org/v1",
             "const": {"a": false}
         },
         "tests": [
@@ -218,7 +218,7 @@
     {
         "description": "const with {\"a\": true} does not match {\"a\": 1}",
         "schema": {
-            "$schema": "https://json-schema.org/draft/2019-09/schema",
+            "$schema": "https://json-schema.org/v1",
             "const": {"a": true}
         },
         "tests": [
@@ -242,7 +242,7 @@
     {
         "description": "const with 0 does not match other zero-like types",
         "schema": {
-            "$schema": "https://json-schema.org/draft/2019-09/schema",
+            "$schema": "https://json-schema.org/v1",
             "const": 0
         },
         "tests": [
@@ -281,7 +281,7 @@
     {
         "description": "const with 1 does not match true",
         "schema": {
-            "$schema": "https://json-schema.org/draft/2019-09/schema",
+            "$schema": "https://json-schema.org/v1",
             "const": 1
         },
         "tests": [
@@ -305,7 +305,7 @@
     {
         "description": "const with -2.0 matches integer and float types",
         "schema": {
-            "$schema": "https://json-schema.org/draft/2019-09/schema",
+            "$schema": "https://json-schema.org/v1",
             "const": -2.0
         },
         "tests": [
@@ -339,7 +339,7 @@
     {
         "description": "float and integers are equal up to 64-bit representation limits",
         "schema": {
-            "$schema": "https://json-schema.org/draft/2019-09/schema",
+            "$schema": "https://json-schema.org/v1",
             "const": 9007199254740992
         },
         "tests": [
@@ -368,7 +368,7 @@
     {
         "description": "nul characters in strings",
         "schema": {
-            "$schema": "https://json-schema.org/draft/2019-09/schema",
+            "$schema": "https://json-schema.org/v1",
             "const": "hello\u0000there"
         },
         "tests": [
@@ -387,7 +387,7 @@
     {
         "description": "characters with the same visual representation but different codepoint",
         "schema": {
-            "$schema": "https://json-schema.org/draft/2019-09/schema",
+            "$schema": "https://json-schema.org/v1",
             "const": "μ",
             "$comment": "U+03BC"
         },
@@ -409,7 +409,7 @@
     {
         "description": "characters with the same visual representation, but different number of codepoints",
         "schema": {
-            "$schema": "https://json-schema.org/draft/2019-09/schema",
+            "$schema": "https://json-schema.org/v1",
             "const": "ä",
             "$comment": "U+00E4"
         },
