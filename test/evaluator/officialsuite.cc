@@ -316,12 +316,11 @@ int main(int argc, char **argv) {
     // 2020-12
     register_tests("draft2020-12", "JSONSchemaOfficialSuite_2020_12",
                    "https://json-schema.org/draft/2020-12/schema", {});
-    register_tests(
-        std::filesystem::path{"draft2020-12"} / "optional",
-        "JSONSchemaOfficialSuite_2020_12_Optional",
-        "https://json-schema.org/draft/2020-12/schema",
-        {// TODO: Enable all tests
-         "bignum", "ecmascript-regex", "format-assertion", "non-bmp-regex"});
+    register_tests(std::filesystem::path{"draft2020-12"} / "optional",
+                   "JSONSchemaOfficialSuite_2020_12_Optional",
+                   "https://json-schema.org/draft/2020-12/schema",
+                   {// TODO: Enable all tests
+                    "bignum", "format-assertion"});
     register_tests(std::filesystem::path{"draft2020-12"} / "optional" /
                        "format",
                    "JSONSchemaOfficialSuite_2020_12_Optional_Format",
@@ -345,7 +344,7 @@ int main(int argc, char **argv) {
                    "JSONSchemaOfficialSuite_2019_09_Optional",
                    "https://json-schema.org/draft/2019-09/schema",
                    {// TODO: Enable all tests
-                    "bignum", "ecmascript-regex", "non-bmp-regex"});
+                    "bignum"});
     register_tests(
         std::filesystem::path{"draft2019-09"} / "optional" / "format",
         "JSONSchemaOfficialSuite_2019_09_Optional_Format",
@@ -363,7 +362,7 @@ int main(int argc, char **argv) {
                    "JSONSchemaOfficialSuite_Draft7_Optional",
                    "http://json-schema.org/draft-07/schema#",
                    // TODO: Enable all tests
-                   {"bignum", "content", "ecmascript-regex", "non-bmp-regex"});
+                   {"bignum", "content"});
     register_tests(std::filesystem::path{"draft7"} / "optional" / "format",
                    "JSONSchemaOfficialSuite_Draft7_Optional_Format",
                    "http://json-schema.org/draft-07/schema#",
@@ -380,7 +379,7 @@ int main(int argc, char **argv) {
                    "JSONSchemaOfficialSuite_Draft6_Optional",
                    "http://json-schema.org/draft-06/schema#",
                    // TODO: Enable all tests
-                   {"bignum", "ecmascript-regex", "non-bmp-regex"});
+                   {"bignum"});
     register_tests(std::filesystem::path{"draft6"} / "optional" / "format",
                    "JSONSchemaOfficialSuite_Draft6_Optional_Format",
                    "http://json-schema.org/draft-06/schema#",
@@ -396,7 +395,7 @@ int main(int argc, char **argv) {
                    "JSONSchemaOfficialSuite_Draft4_Optional",
                    "http://json-schema.org/draft-04/schema#",
                    // TODO: Enable all tests
-                   {"bignum", "ecmascript-regex", "non-bmp-regex"});
+                   {"bignum"});
     register_tests(std::filesystem::path{"draft4"} / "optional" / "format",
                    "JSONSchemaOfficialSuite_Draft4_Optional_Format",
                    "http://json-schema.org/draft-04/schema#",
