@@ -2412,3 +2412,39 @@ TEST(Evaluator_2020_12, description_exhaustive) {
   EVALUATE_TRACE_POST_DESCRIBE(
       instance, 0, "The description of the instance was \"Foo Bar\"");
 }
+
+TEST(Evaluator_2020_12, top_level_ref_with_id) {
+  const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
+    "$id": "https://www.example.com",
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "$ref": "#/$defs/test",
+    "$defs": {
+      "test": {}
+    }
+  })JSON")};
+
+  const sourcemeta::core::JSON instance{5};
+  EVALUATE_WITH_TRACE_FAST_SUCCESS(schema, instance, 0);
+}
+
+TEST(Evaluator_2020_12, top_level_ref_with_id_exhaustive) {
+  const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
+    "$id": "https://www.example.com",
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "$ref": "#/$defs/test",
+    "$defs": {
+      "test": {}
+    }
+  })JSON")};
+
+  const sourcemeta::core::JSON instance{5};
+  EVALUATE_WITH_TRACE_EXHAUSTIVE_SUCCESS(schema, instance, 1);
+
+  EVALUATE_TRACE_PRE(0, LogicalAnd, "/$ref", "https://www.example.com#/$ref",
+                     "");
+  EVALUATE_TRACE_POST_SUCCESS(0, LogicalAnd, "/$ref",
+                              "https://www.example.com#/$ref", "");
+  EVALUATE_TRACE_POST_DESCRIBE(instance, 0,
+                               "The integer value was expected to validate "
+                               "against the statically referenced schema");
+}

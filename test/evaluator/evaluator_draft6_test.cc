@@ -1886,3 +1886,39 @@ TEST(Evaluator_draft6, anyOf_1_exhaustive) {
       "The integer value was expected to validate against at least one of the "
       "3 given subschemas");
 }
+
+TEST(Evaluator_draft6, top_level_ref_with_id) {
+  const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
+    "$id": "https://www.example.com",
+    "$schema": "http://json-schema.org/draft-06/schema#",
+    "$ref": "#/definitions/test",
+    "definitions": {
+      "test": {}
+    }
+  })JSON")};
+
+  const sourcemeta::core::JSON instance{5};
+  EVALUATE_WITH_TRACE_FAST_SUCCESS(schema, instance, 0);
+}
+
+TEST(Evaluator_draft6, top_level_ref_with_id_exhaustive) {
+  const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
+    "$id": "https://www.example.com",
+    "$schema": "http://json-schema.org/draft-06/schema#",
+    "$ref": "#/definitions/test",
+    "definitions": {
+      "test": {}
+    }
+  })JSON")};
+
+  const sourcemeta::core::JSON instance{5};
+  EVALUATE_WITH_TRACE_EXHAUSTIVE_SUCCESS(schema, instance, 1);
+
+  EVALUATE_TRACE_PRE(0, LogicalAnd, "/$ref", "https://www.example.com#/$ref",
+                     "");
+  EVALUATE_TRACE_POST_SUCCESS(0, LogicalAnd, "/$ref",
+                              "https://www.example.com#/$ref", "");
+  EVALUATE_TRACE_POST_DESCRIBE(instance, 0,
+                               "The integer value was expected to validate "
+                               "against the statically referenced schema");
+}

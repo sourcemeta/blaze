@@ -707,3 +707,41 @@ TEST(Linter, valid_examples_15) {
 
   EXPECT_EQ(schema, expected);
 }
+
+TEST(Linter, valid_examples_16) {
+  sourcemeta::core::SchemaTransformer bundle;
+  bundle.add<sourcemeta::blaze::ValidDefault>(
+      sourcemeta::blaze::default_schema_compiler);
+
+  auto schema{sourcemeta::core::parse_json(R"JSON({
+    "$schema": "http://json-schema.org/draft-07/schema#",
+    "$id": "https://www.example.com",
+    "examples": [ 0 ],
+    "$ref": "#/definitions/test",
+    "definitions": {
+      "test": {
+        "examples": [ 0 ]
+      }
+    }
+  })JSON")};
+
+  const auto result = bundle.apply(
+      schema, sourcemeta::core::schema_official_walker,
+      sourcemeta::core::schema_official_resolver, transformer_callback_error);
+
+  EXPECT_TRUE(result);
+
+  const auto expected{sourcemeta::core::parse_json(R"JSON({
+    "$schema": "http://json-schema.org/draft-07/schema#",
+    "$id": "https://www.example.com",
+    "examples": [ 0 ],
+    "$ref": "#/definitions/test",
+    "definitions": {
+      "test": {
+        "examples": [ 0 ]
+      }
+    }
+  })JSON")};
+
+  EXPECT_EQ(schema, expected);
+}
