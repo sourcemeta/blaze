@@ -358,6 +358,44 @@ TEST(Output_simple, fail_oneof_1) {
   EXPECT_ANNOTATION_COUNT(output, 0);
 }
 
+TEST(Output_simple, fail_oneof_2) {
+  const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "oneOf": [
+      { "type": "string" },
+      { "type": "integer" }
+    ]
+  })JSON")};
+
+  const auto schema_template{sourcemeta::blaze::compile(
+      schema, sourcemeta::core::schema_official_walker,
+      sourcemeta::core::schema_official_resolver,
+      sourcemeta::blaze::default_schema_compiler)};
+
+  const sourcemeta::core::JSON instance{true};
+
+  sourcemeta::blaze::SimpleOutput output{instance};
+  sourcemeta::blaze::Evaluator evaluator;
+  const auto result{
+      evaluator.validate(schema_template, instance, std::ref(output))};
+
+  EXPECT_FALSE(result);
+  std::vector<sourcemeta::blaze::SimpleOutput::Entry> traces{output.cbegin(),
+                                                             output.cend()};
+
+  EXPECT_EQ(traces.size(), 3);
+  EXPECT_OUTPUT(
+      traces, 0, "", "/oneOf/0/type", "#/oneOf/0/type",
+      "The value was expected to be of type string but it was of type boolean");
+  EXPECT_OUTPUT(traces, 1, "", "/oneOf/1/type", "#/oneOf/1/type",
+                "The value was expected to be of type integer but it was of "
+                "type boolean");
+  EXPECT_OUTPUT(traces, 2, "", "/oneOf", "#/oneOf",
+                "The boolean value was expected to validate against one and "
+                "only one of the 2 given subschemas");
+  EXPECT_ANNOTATION_COUNT(output, 0);
+}
+
 TEST(Output_simple, fail_not_1) {
   const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2020-12/schema",
@@ -488,11 +526,314 @@ TEST(Output_simple, fail_anyof_2) {
   std::vector<sourcemeta::blaze::SimpleOutput::Entry> traces{output.cbegin(),
                                                              output.cend()};
 
-  EXPECT_EQ(traces.size(), 1);
-  EXPECT_OUTPUT(traces, 0, "", "/anyOf", "#/anyOf",
+  EXPECT_EQ(traces.size(), 3);
+  EXPECT_OUTPUT(traces, 0, "", "/anyOf/0/required", "#/anyOf/0/required",
+                "The object value was expected to define the property \"foo\"");
+  EXPECT_OUTPUT(traces, 1, "", "/anyOf/1/required", "#/anyOf/1/required",
+                "The object value was expected to define the property \"bar\"");
+  EXPECT_OUTPUT(traces, 2, "", "/anyOf", "#/anyOf",
                 "The object value was expected to validate against at least "
                 "one of the 2 given subschemas");
   EXPECT_ANNOTATION_COUNT(output, 0);
+}
+
+TEST(Output_simple, success_if_then_1) {
+  const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "if": { "type": "string" },
+    "then": { "minLength": 3 }
+  })JSON")};
+
+  const auto schema_template{sourcemeta::blaze::compile(
+      schema, sourcemeta::core::schema_official_walker,
+      sourcemeta::core::schema_official_resolver,
+      sourcemeta::blaze::default_schema_compiler)};
+
+  const sourcemeta::core::JSON instance{"foobar"};
+
+  sourcemeta::blaze::SimpleOutput output{instance};
+  sourcemeta::blaze::Evaluator evaluator;
+  const auto result{
+      evaluator.validate(schema_template, instance, std::ref(output))};
+
+  EXPECT_TRUE(result);
+  std::vector<sourcemeta::blaze::SimpleOutput::Entry> traces{output.cbegin(),
+                                                             output.cend()};
+
+  EXPECT_EQ(traces.size(), 0);
+}
+
+TEST(Output_simple, success_if_else_1) {
+  const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "if": { "type": "string" },
+    "else": { "minimum": 0 }
+  })JSON")};
+
+  const auto schema_template{sourcemeta::blaze::compile(
+      schema, sourcemeta::core::schema_official_walker,
+      sourcemeta::core::schema_official_resolver,
+      sourcemeta::blaze::default_schema_compiler)};
+
+  const sourcemeta::core::JSON instance{42};
+
+  sourcemeta::blaze::SimpleOutput output{instance};
+  sourcemeta::blaze::Evaluator evaluator;
+  const auto result{
+      evaluator.validate(schema_template, instance, std::ref(output))};
+
+  EXPECT_TRUE(result);
+  std::vector<sourcemeta::blaze::SimpleOutput::Entry> traces{output.cbegin(),
+                                                             output.cend()};
+
+  EXPECT_EQ(traces.size(), 0);
+}
+
+TEST(Output_simple, fail_if_then_1) {
+  const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "if": { "type": "string" },
+    "then": { "minLength": 10 }
+  })JSON")};
+
+  const auto schema_template{sourcemeta::blaze::compile(
+      schema, sourcemeta::core::schema_official_walker,
+      sourcemeta::core::schema_official_resolver,
+      sourcemeta::blaze::default_schema_compiler)};
+
+  const sourcemeta::core::JSON instance{"foo"};
+
+  sourcemeta::blaze::SimpleOutput output{instance};
+  sourcemeta::blaze::Evaluator evaluator;
+  const auto result{
+      evaluator.validate(schema_template, instance, std::ref(output))};
+
+  EXPECT_FALSE(result);
+  std::vector<sourcemeta::blaze::SimpleOutput::Entry> traces{output.cbegin(),
+                                                             output.cend()};
+
+  EXPECT_EQ(traces.size(), 1);
+  EXPECT_OUTPUT(traces, 0, "", "/then/minLength", "#/then/minLength",
+                "The string value \"foo\" was expected to consist of at least "
+                "10 characters but it consisted of 3 characters");
+}
+
+TEST(Output_simple, fail_if_else_1) {
+  const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "if": { "type": "string" },
+    "else": { "minimum": 100 }
+  })JSON")};
+
+  const auto schema_template{sourcemeta::blaze::compile(
+      schema, sourcemeta::core::schema_official_walker,
+      sourcemeta::core::schema_official_resolver,
+      sourcemeta::blaze::default_schema_compiler)};
+
+  const sourcemeta::core::JSON instance{42};
+
+  sourcemeta::blaze::SimpleOutput output{instance};
+  sourcemeta::blaze::Evaluator evaluator;
+  const auto result{
+      evaluator.validate(schema_template, instance, std::ref(output))};
+
+  EXPECT_FALSE(result);
+  std::vector<sourcemeta::blaze::SimpleOutput::Entry> traces{output.cbegin(),
+                                                             output.cend()};
+
+  EXPECT_EQ(traces.size(), 1);
+  EXPECT_OUTPUT(traces, 0, "", "/else/minimum", "#/else/minimum",
+                "The integer value 42 was expected to be greater than or equal "
+                "to the integer 100");
+}
+
+TEST(Output_simple, success_contains_1) {
+  const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
+    "$schema": "http://json-schema.org/draft-07/schema#",
+    "contains": { "type": "string" }
+  })JSON")};
+
+  const auto schema_template{sourcemeta::blaze::compile(
+      schema, sourcemeta::core::schema_official_walker,
+      sourcemeta::core::schema_official_resolver,
+      sourcemeta::blaze::default_schema_compiler)};
+
+  const sourcemeta::core::JSON instance{
+      sourcemeta::core::parse_json("[ 1, 2, \"foo\", 3 ]")};
+
+  sourcemeta::blaze::SimpleOutput output{instance};
+  sourcemeta::blaze::Evaluator evaluator;
+  const auto result{
+      evaluator.validate(schema_template, instance, std::ref(output))};
+
+  EXPECT_TRUE(result);
+  std::vector<sourcemeta::blaze::SimpleOutput::Entry> traces{output.cbegin(),
+                                                             output.cend()};
+
+  EXPECT_EQ(traces.size(), 0);
+  EXPECT_ANNOTATION_COUNT(output, 0);
+}
+
+TEST(Output_simple, fail_contains_1) {
+  const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
+    "$schema": "http://json-schema.org/draft-07/schema#",
+    "contains": { "type": "string" }
+  })JSON")};
+
+  const auto schema_template{sourcemeta::blaze::compile(
+      schema, sourcemeta::core::schema_official_walker,
+      sourcemeta::core::schema_official_resolver,
+      sourcemeta::blaze::default_schema_compiler)};
+
+  const sourcemeta::core::JSON instance{
+      sourcemeta::core::parse_json("[ 1, 2, 3 ]")};
+
+  sourcemeta::blaze::SimpleOutput output{instance};
+  sourcemeta::blaze::Evaluator evaluator;
+  const auto result{
+      evaluator.validate(schema_template, instance, std::ref(output))};
+
+  EXPECT_FALSE(result);
+  std::vector<sourcemeta::blaze::SimpleOutput::Entry> traces{output.cbegin(),
+                                                             output.cend()};
+
+  EXPECT_EQ(traces.size(), 4);
+  EXPECT_OUTPUT(traces, 0, "/0", "/contains/type", "#/contains/type",
+                "The value was expected to be of type string but it was of "
+                "type integer");
+  EXPECT_OUTPUT(traces, 1, "/1", "/contains/type", "#/contains/type",
+                "The value was expected to be of type string but it was of "
+                "type integer");
+  EXPECT_OUTPUT(traces, 2, "/2", "/contains/type", "#/contains/type",
+                "The value was expected to be of type string but it was of "
+                "type integer");
+  EXPECT_OUTPUT(traces, 3, "", "/contains", "#/contains",
+                "The array value was expected to contain at least 1 item that "
+                "validates against the given subschema");
+  EXPECT_ANNOTATION_COUNT(output, 0);
+}
+
+TEST(Output_simple, success_contains_mincontains_1) {
+  const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "contains": { "type": "string" },
+    "minContains": 2
+  })JSON")};
+
+  const auto schema_template{sourcemeta::blaze::compile(
+      schema, sourcemeta::core::schema_official_walker,
+      sourcemeta::core::schema_official_resolver,
+      sourcemeta::blaze::default_schema_compiler)};
+
+  const sourcemeta::core::JSON instance{
+      sourcemeta::core::parse_json("[ 1, \"foo\", 2, \"bar\" ]")};
+
+  sourcemeta::blaze::SimpleOutput output{instance};
+  sourcemeta::blaze::Evaluator evaluator;
+  const auto result{
+      evaluator.validate(schema_template, instance, std::ref(output))};
+
+  EXPECT_TRUE(result);
+  std::vector<sourcemeta::blaze::SimpleOutput::Entry> traces{output.cbegin(),
+                                                             output.cend()};
+
+  EXPECT_EQ(traces.size(), 0);
+}
+
+TEST(Output_simple, success_contains_maxcontains_1) {
+  const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "contains": { "type": "string" },
+    "maxContains": 2
+  })JSON")};
+
+  const auto schema_template{sourcemeta::blaze::compile(
+      schema, sourcemeta::core::schema_official_walker,
+      sourcemeta::core::schema_official_resolver,
+      sourcemeta::blaze::default_schema_compiler)};
+
+  const sourcemeta::core::JSON instance{
+      sourcemeta::core::parse_json("[ 1, \"foo\", 2 ]")};
+
+  sourcemeta::blaze::SimpleOutput output{instance};
+  sourcemeta::blaze::Evaluator evaluator;
+  const auto result{
+      evaluator.validate(schema_template, instance, std::ref(output))};
+
+  EXPECT_TRUE(result);
+  std::vector<sourcemeta::blaze::SimpleOutput::Entry> traces{output.cbegin(),
+                                                             output.cend()};
+
+  EXPECT_EQ(traces.size(), 0);
+}
+
+TEST(Output_simple, fail_contains_mincontains_1) {
+  const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "contains": { "type": "string" },
+    "minContains": 2
+  })JSON")};
+
+  const auto schema_template{sourcemeta::blaze::compile(
+      schema, sourcemeta::core::schema_official_walker,
+      sourcemeta::core::schema_official_resolver,
+      sourcemeta::blaze::default_schema_compiler)};
+
+  const sourcemeta::core::JSON instance{
+      sourcemeta::core::parse_json("[ 1, 2, 3 ]")};
+
+  sourcemeta::blaze::SimpleOutput output{instance};
+  sourcemeta::blaze::Evaluator evaluator;
+  const auto result{
+      evaluator.validate(schema_template, instance, std::ref(output))};
+
+  EXPECT_FALSE(result);
+  std::vector<sourcemeta::blaze::SimpleOutput::Entry> traces{output.cbegin(),
+                                                             output.cend()};
+
+  EXPECT_EQ(traces.size(), 4);
+  EXPECT_OUTPUT(traces, 0, "/0", "/contains/type", "#/contains/type",
+                "The value was expected to be of type string but it was of "
+                "type integer");
+  EXPECT_OUTPUT(traces, 1, "/1", "/contains/type", "#/contains/type",
+                "The value was expected to be of type string but it was of "
+                "type integer");
+  EXPECT_OUTPUT(traces, 2, "/2", "/contains/type", "#/contains/type",
+                "The value was expected to be of type string but it was of "
+                "type integer");
+  EXPECT_OUTPUT(traces, 3, "", "/contains", "#/contains",
+                "The array value was expected to contain at least 2 items "
+                "that validate against the given subschema");
+}
+
+TEST(Output_simple, fail_contains_maxcontains_1) {
+  const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "contains": { "type": "string" },
+    "maxContains": 1
+  })JSON")};
+
+  const auto schema_template{sourcemeta::blaze::compile(
+      schema, sourcemeta::core::schema_official_walker,
+      sourcemeta::core::schema_official_resolver,
+      sourcemeta::blaze::default_schema_compiler)};
+
+  const sourcemeta::core::JSON instance{
+      sourcemeta::core::parse_json("[ \"foo\", \"bar\" ]")};
+
+  sourcemeta::blaze::SimpleOutput output{instance};
+  sourcemeta::blaze::Evaluator evaluator;
+  const auto result{
+      evaluator.validate(schema_template, instance, std::ref(output))};
+
+  EXPECT_FALSE(result);
+  std::vector<sourcemeta::blaze::SimpleOutput::Entry> traces{output.cbegin(),
+                                                             output.cend()};
+
+  EXPECT_EQ(traces.size(), 1);
+  EXPECT_OUTPUT(traces, 0, "", "/contains", "#/contains",
+                "The array value was expected to contain exactly 1 item that "
+                "validates against the given subschema");
 }
 
 TEST(Output_simple, annotations_success_1) {

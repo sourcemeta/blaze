@@ -4299,6 +4299,44 @@ TEST(Evaluator_draft4, oneOf_6) {
   EVALUATE_WITH_TRACE_FAST_SUCCESS(schema, instance, 0);
 }
 
+TEST(Evaluator_draft4, oneOf_7) {
+  const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
+    "$schema": "http://json-schema.org/draft-04/schema#",
+    "oneOf": [
+      { "type": "string" },
+      { "type": "integer" }
+    ]
+  })JSON")};
+
+  const sourcemeta::core::JSON instance{true};
+  EVALUATE_WITH_TRACE_FAST_FAILURE(schema, instance, 3);
+
+  EVALUATE_TRACE_PRE(0, LogicalXor, "/oneOf", "#/oneOf", "");
+  EVALUATE_TRACE_PRE(1, AssertionTypeStrict, "/oneOf/0/type", "#/oneOf/0/type",
+                     "");
+  EVALUATE_TRACE_PRE(2, AssertionTypeStrict, "/oneOf/1/type", "#/oneOf/1/type",
+                     "");
+
+  EVALUATE_TRACE_POST_FAILURE(0, AssertionTypeStrict, "/oneOf/0/type",
+                              "#/oneOf/0/type", "");
+  EVALUATE_TRACE_POST_FAILURE(1, AssertionTypeStrict, "/oneOf/1/type",
+                              "#/oneOf/1/type", "");
+  EVALUATE_TRACE_POST_FAILURE(2, LogicalXor, "/oneOf", "#/oneOf", "");
+
+  EVALUATE_TRACE_POST_DESCRIBE(
+      instance, 0,
+      "The value was expected to be of type string but it was of type boolean");
+  EVALUATE_TRACE_POST_DESCRIBE(instance, 1,
+                               "The value was expected to be of type integer "
+                               "but it was of type boolean");
+  // TODO: We should be able to say "... but it validated against none", but
+  // the describe callback does not have such context
+  EVALUATE_TRACE_POST_DESCRIBE(
+      instance, 2,
+      "The boolean value was expected to validate against one and only one of "
+      "the 2 given subschemas");
+}
+
 TEST(Evaluator_draft4, dependencies_1) {
   const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
     "$schema": "http://json-schema.org/draft-04/schema#",
