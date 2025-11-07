@@ -1,6 +1,6 @@
 set(BENCHMARK_SOURCES)
 
-if(BLAZE_COMPILER AND BLAZE_EVALUATOR)
+if(BLAZE_COMPILER AND BLAZE_EVALUATOR AND BLAZE_OUTPUT)
   list(APPEND BENCHMARK_SOURCES
     e2e/runner.cc
     micro/draft4.cc
@@ -32,6 +32,10 @@ if(BENCHMARK_SOURCES)
   if(BLAZE_EVALUATOR)
     target_link_libraries(sourcemeta_blaze_benchmark
       PRIVATE sourcemeta::blaze::evaluator)
+  endif()
+  if(BLAZE_OUTPUT)
+    target_link_libraries(sourcemeta_blaze_benchmark
+      PRIVATE sourcemeta::blaze::output)
   endif()
 
   add_custom_target(benchmark_all
