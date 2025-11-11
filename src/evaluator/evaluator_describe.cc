@@ -20,7 +20,8 @@ auto instruction_value(const T &step) -> decltype(auto) {
 auto to_string(const sourcemeta::core::JSON::Type type) -> std::string {
   // Otherwise the type "real" might not make a lot
   // of sense to JSON Schema users
-  if (type == sourcemeta::core::JSON::Type::Real) {
+  if (type == sourcemeta::core::JSON::Type::Real ||
+      type == sourcemeta::core::JSON::Type::Decimal) {
     return "number";
   } else {
     std::ostringstream result;
@@ -66,9 +67,20 @@ auto describe_types_check(
 
   const auto match_real{
       std::ranges::find(copy, sourcemeta::core::JSON::Type::Real)};
+  const auto match_decimal{
+      std::ranges::find(copy, sourcemeta::core::JSON::Type::Decimal)};
   const auto match_integer{
       std::ranges::find(copy, sourcemeta::core::JSON::Type::Integer)};
-  if (match_real != copy.cend() && match_integer != copy.cend()) {
+
+  const auto has_real{match_real != copy.cend()};
+  const auto has_decimal{match_decimal != copy.cend()};
+  const auto has_integer{match_integer != copy.cend()};
+
+  if (has_real && has_decimal) {
+    copy.erase(match_decimal);
+  }
+
+  if ((has_real || has_decimal) && has_integer) {
     copy.erase(match_integer);
   }
 
@@ -93,8 +105,7 @@ auto describe_types_check(
   }
 
   if (valid && current == sourcemeta::core::JSON::Type::Integer &&
-      std::ranges::find(copy, sourcemeta::core::JSON::Type::Real) !=
-          copy.cend()) {
+      (has_real || has_decimal)) {
     message << "number";
   } else {
     message << to_string(current);
@@ -752,8 +763,19 @@ auto describe(const bool valid, const Instruction &step,
     std::ostringstream message;
     message << "The object properties were expected to be of type ";
     const auto &types{instruction_value<ValueTypes>(step)};
-    for (auto iterator = types.cbegin(); iterator != types.cend(); ++iterator) {
-      if (std::next(iterator) == types.cend()) {
+    auto copy = types;
+
+    const auto match_real{
+        std::ranges::find(copy, sourcemeta::core::JSON::Type::Real)};
+    const auto match_decimal{
+        std::ranges::find(copy, sourcemeta::core::JSON::Type::Decimal)};
+
+    if (match_real != copy.cend() && match_decimal != copy.cend()) {
+      copy.erase(match_decimal);
+    }
+
+    for (auto iterator = copy.cbegin(); iterator != copy.cend(); ++iterator) {
+      if (std::next(iterator) == copy.cend()) {
         message << "or " << to_string(*iterator);
       } else {
         message << to_string(*iterator) << ", ";
@@ -768,8 +790,19 @@ auto describe(const bool valid, const Instruction &step,
     std::ostringstream message;
     message << "The object properties were expected to be of type ";
     const auto &types{instruction_value<ValueTypes>(step)};
-    for (auto iterator = types.cbegin(); iterator != types.cend(); ++iterator) {
-      if (std::next(iterator) == types.cend()) {
+    auto copy = types;
+
+    const auto match_real{
+        std::ranges::find(copy, sourcemeta::core::JSON::Type::Real)};
+    const auto match_decimal{
+        std::ranges::find(copy, sourcemeta::core::JSON::Type::Decimal)};
+
+    if (match_real != copy.cend() && match_decimal != copy.cend()) {
+      copy.erase(match_decimal);
+    }
+
+    for (auto iterator = copy.cbegin(); iterator != copy.cend(); ++iterator) {
+      if (std::next(iterator) == copy.cend()) {
         message << "or " << to_string(*iterator);
       } else {
         message << to_string(*iterator) << ", ";
@@ -857,8 +890,19 @@ auto describe(const bool valid, const Instruction &step,
     std::ostringstream message;
     message << "The array items were expected to be of type ";
     const auto &types{instruction_value<ValueTypes>(step)};
-    for (auto iterator = types.cbegin(); iterator != types.cend(); ++iterator) {
-      if (std::next(iterator) == types.cend()) {
+    auto copy = types;
+
+    const auto match_real{
+        std::ranges::find(copy, sourcemeta::core::JSON::Type::Real)};
+    const auto match_decimal{
+        std::ranges::find(copy, sourcemeta::core::JSON::Type::Decimal)};
+
+    if (match_real != copy.cend() && match_decimal != copy.cend()) {
+      copy.erase(match_decimal);
+    }
+
+    for (auto iterator = copy.cbegin(); iterator != copy.cend(); ++iterator) {
+      if (std::next(iterator) == copy.cend()) {
         message << "or " << to_string(*iterator);
       } else {
         message << to_string(*iterator) << ", ";

@@ -92,7 +92,7 @@ TEST(Compiler_JSON, example_2) {
             0,
             [
               7,
-              [ 2, 3, 4 ]
+              [ 2, 3, 7, 4 ]
             ]
           ]
         ]
@@ -178,7 +178,7 @@ TEST(Compiler_JSON, example_4) {
             2,
             [
               7,
-              [ 2, 3, 4 ]
+              [ 2, 3, 7, 4 ]
             ]
           ]
         ]

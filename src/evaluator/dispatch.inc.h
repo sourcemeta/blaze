@@ -251,7 +251,9 @@ INSTRUCTION_HANDLER(AssertionType) {
   // In non-strict mode, we consider a real number that represents an
   // integer to be an integer
   result = target.type() == value ||
-           (value == JSON::Type::Integer && target.is_integer_real());
+           (value == JSON::Type::Integer && target.is_integer_real()) ||
+           (value == JSON::Type::Integer && target.is_decimal() &&
+            target.to_decimal().is_integer());
   EVALUATE_END(AssertionType);
 }
 
@@ -292,7 +294,9 @@ INSTRUCTION_HANDLER(AssertionTypeStrict) {
   EVALUATE_BEGIN_NO_PRECONDITION(AssertionTypeStrict);
   const auto &target{get(instance, instruction.relative_instance_location)};
   const auto value{*std::get_if<ValueType>(&instruction.value)};
-  result = target.type() == value;
+  result = target.type() == value ||
+           (value == JSON::Type::Integer && target.is_decimal() &&
+            target.to_decimal().is_integer());
   EVALUATE_END(AssertionTypeStrict);
 }
 

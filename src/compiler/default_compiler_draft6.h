@@ -169,7 +169,8 @@ auto compiler_draft6_validation_type(const Context &context,
                    context, schema_context, dynamic_context,
                    std::vector<sourcemeta::core::JSON::Type>{
                        sourcemeta::core::JSON::Type::Real,
-                       sourcemeta::core::JSON::Type::Integer})};
+                       sourcemeta::core::JSON::Type::Integer,
+                       sourcemeta::core::JSON::Type::Decimal})};
     } else if (type == "integer") {
       if (context.mode == Mode::FastValidation &&
           schema_context.schema.defines("enum") &&
@@ -265,7 +266,8 @@ auto compiler_draft6_validation_type(const Context &context,
                    context, schema_context, dynamic_context,
                    std::vector<sourcemeta::core::JSON::Type>{
                        sourcemeta::core::JSON::Type::Real,
-                       sourcemeta::core::JSON::Type::Integer})};
+                       sourcemeta::core::JSON::Type::Integer,
+                       sourcemeta::core::JSON::Type::Decimal})};
     } else if (type == "integer") {
       return {make(sourcemeta::blaze::InstructionIndex::AssertionType, context,
                    schema_context, dynamic_context,
@@ -298,6 +300,7 @@ auto compiler_draft6_validation_type(const Context &context,
       } else if (type_string == "number") {
         types.push_back(sourcemeta::core::JSON::Type::Integer);
         types.push_back(sourcemeta::core::JSON::Type::Real);
+        types.push_back(sourcemeta::core::JSON::Type::Decimal);
       } else if (type_string == "integer") {
         types.push_back(sourcemeta::core::JSON::Type::Integer);
       } else if (type_string == "string") {
