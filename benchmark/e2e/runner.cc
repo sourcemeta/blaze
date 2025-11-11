@@ -12,8 +12,9 @@
 #include <sourcemeta/blaze/compiler.h>
 #include <sourcemeta/blaze/evaluator.h>
 
+// clang-format off
 #define REGISTER_E2E_COMPILER(name, directory_name)                            \
-  static auto E2E_Compiler_##name(benchmark::State &state)->void {             \
+  static auto E2E_Compiler_##name(benchmark::State &state) -> void {           \
     const std::filesystem::path directory{CURRENT_DIRECTORY                    \
                                           "/e2e/" directory_name};             \
     const auto schema{sourcemeta::core::read_json(directory / "schema.json")}; \
@@ -30,7 +31,7 @@
   BENCHMARK(E2E_Compiler_##name)
 
 #define REGISTER_E2E_EVALUATOR(name, directory_name)                           \
-  static auto E2E_Evaluator_##name(benchmark::State &state)->void {            \
+  static auto E2E_Evaluator_##name(benchmark::State &state) -> void {          \
     const std::filesystem::path directory{CURRENT_DIRECTORY                    \
                                           "/e2e/" directory_name};             \
     const auto schema{sourcemeta::core::read_json(directory / "schema.json")}; \
@@ -56,6 +57,7 @@
     }                                                                          \
   }                                                                            \
   BENCHMARK(E2E_Evaluator_##name)
+// clang-format on
 
 REGISTER_E2E_COMPILER(adaptivecard, "adaptivecard");
 REGISTER_E2E_COMPILER(ansible_meta, "ansible-meta");

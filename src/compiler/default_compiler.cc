@@ -5,6 +5,7 @@
 #include "default_compiler_draft4.h"
 #include "default_compiler_draft6.h"
 #include "default_compiler_draft7.h"
+#include "vocabulary_lookup.h"
 
 #include <cassert>       // assert
 #include <string>        // std::string
@@ -39,7 +40,8 @@ auto sourcemeta::blaze::default_schema_compiler(
       "http://json-schema.org/draft-06/hyper-schema#",
       "http://json-schema.org/draft-04/schema#",
       "http://json-schema.org/draft-04/hyper-schema#"};
-  for (const auto &vocabulary : schema_context.vocabularies) {
+  for (const auto &vocabulary :
+       schema_context.vocabularies.all_vocabularies()) {
     if (!SUPPORTED_VOCABULARIES.contains(vocabulary.first) &&
         vocabulary.second) {
       throw sourcemeta::core::SchemaVocabularyError(
@@ -50,22 +52,22 @@ auto sourcemeta::blaze::default_schema_compiler(
   using namespace sourcemeta::blaze;
 
 #define COMPILE(vocabulary, _keyword, handler)                                 \
-  if (schema_context.vocabularies.contains(vocabulary) &&                      \
+  if (has_vocabulary(schema_context.vocabularies, vocabulary) &&               \
       dynamic_context.keyword == (_keyword)) {                                 \
     return internal::handler(context, schema_context, dynamic_context,         \
                              current);                                         \
   }
 
 #define COMPILE_ANY(vocabulary_1, vocabulary_2, _keyword, handler)             \
-  if ((schema_context.vocabularies.contains(vocabulary_1) ||                   \
-       schema_context.vocabularies.contains(vocabulary_2)) &&                  \
+  if ((has_vocabulary(schema_context.vocabularies, vocabulary_1) ||            \
+       has_vocabulary(schema_context.vocabularies, vocabulary_2)) &&           \
       dynamic_context.keyword == (_keyword)) {                                 \
     return internal::handler(context, schema_context, dynamic_context,         \
                              current);                                         \
   }
 
 #define STOP_IF_SIBLING_KEYWORD(vocabulary, _keyword)                          \
-  if (schema_context.vocabularies.contains(vocabulary) &&                      \
+  if (has_vocabulary(schema_context.vocabularies, vocabulary) &&               \
       schema_context.schema.is_object() &&                                     \
       schema_context.schema.defines(_keyword)) {                               \
     return {};                                                                 \

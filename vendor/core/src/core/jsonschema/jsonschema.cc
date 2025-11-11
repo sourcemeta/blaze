@@ -4,6 +4,7 @@
 #include <cstdint>       // std::uint64_t
 #include <limits>        // std::numeric_limits
 #include <numeric>       // std::accumulate
+#include <optional>      // std::optional
 #include <sstream>       // std::ostringstream
 #include <type_traits>   // std::remove_reference_t
 #include <unordered_map> // std::unordered_map
@@ -342,21 +343,24 @@ auto sourcemeta::core::vocabularies(const SchemaResolver &resolver,
   // As a performance optimization shortcut
   if (base_dialect == dialect) {
     if (dialect == "https://json-schema.org/draft/2020-12/schema") {
-      return {{"https://json-schema.org/draft/2020-12/vocab/core", true},
-              {"https://json-schema.org/draft/2020-12/vocab/applicator", true},
-              {"https://json-schema.org/draft/2020-12/vocab/unevaluated", true},
-              {"https://json-schema.org/draft/2020-12/vocab/validation", true},
-              {"https://json-schema.org/draft/2020-12/vocab/meta-data", true},
-              {"https://json-schema.org/draft/2020-12/vocab/format-annotation",
-               true},
-              {"https://json-schema.org/draft/2020-12/vocab/content", true}};
+      Vocabularies result;
+      result.insert({"https://json-schema.org/draft/2020-12/vocab/core", true});
+      result.insert({"https://json-schema.org/draft/2020-12/vocab/applicator", true});
+      result.insert({"https://json-schema.org/draft/2020-12/vocab/unevaluated", true});
+      result.insert({"https://json-schema.org/draft/2020-12/vocab/validation", true});
+      result.insert({"https://json-schema.org/draft/2020-12/vocab/meta-data", true});
+      result.insert({"https://json-schema.org/draft/2020-12/vocab/format-annotation", true});
+      result.insert({"https://json-schema.org/draft/2020-12/vocab/content", true});
+      return result;
     } else if (dialect == "https://json-schema.org/draft/2019-09/schema") {
-      return {{"https://json-schema.org/draft/2019-09/vocab/core", true},
-              {"https://json-schema.org/draft/2019-09/vocab/applicator", true},
-              {"https://json-schema.org/draft/2019-09/vocab/validation", true},
-              {"https://json-schema.org/draft/2019-09/vocab/meta-data", true},
-              {"https://json-schema.org/draft/2019-09/vocab/format", false},
-              {"https://json-schema.org/draft/2019-09/vocab/content", true}};
+      Vocabularies result;
+      result.insert({"https://json-schema.org/draft/2019-09/vocab/core", true});
+      result.insert({"https://json-schema.org/draft/2019-09/vocab/applicator", true});
+      result.insert({"https://json-schema.org/draft/2019-09/vocab/validation", true});
+      result.insert({"https://json-schema.org/draft/2019-09/vocab/meta-data", true});
+      result.insert({"https://json-schema.org/draft/2019-09/vocab/format", false});
+      result.insert({"https://json-schema.org/draft/2019-09/vocab/content", true});
+      return result;
     }
   }
 
@@ -374,7 +378,9 @@ auto sourcemeta::core::vocabularies(const SchemaResolver &resolver,
       dialect == "http://json-schema.org/draft-02/schema#" ||
       dialect == "http://json-schema.org/draft-01/schema#" ||
       dialect == "http://json-schema.org/draft-00/schema#") {
-    return {{dialect, true}};
+    Vocabularies result;
+    result.insert({dialect, true});
+    return result;
   }
 
   /*
@@ -394,7 +400,9 @@ auto sourcemeta::core::vocabularies(const SchemaResolver &resolver,
       base_dialect == "http://json-schema.org/draft-02/hyper-schema#" ||
       base_dialect == "http://json-schema.org/draft-01/hyper-schema#" ||
       base_dialect == "http://json-schema.org/draft-00/hyper-schema#") {
-    return {{base_dialect, true}};
+    Vocabularies result;
+    result.insert({base_dialect, true});
+    return result;
   }
 
   /*
@@ -438,9 +446,12 @@ auto sourcemeta::core::vocabularies(const SchemaResolver &resolver,
   if (!result.contains(core)) {
     throw sourcemeta::core::SchemaError(
         "The core vocabulary must always be present");
-  } else if (!result.at(core)) {
-    throw sourcemeta::core::SchemaError(
-        "The core vocabulary must always be required");
+  } else {
+    const auto core_value = result.find(core);
+    if (core_value.has_value() && !core_value.value()) {
+      throw sourcemeta::core::SchemaError(
+          "The core vocabulary must always be required");
+    }
   }
 
   return result;
