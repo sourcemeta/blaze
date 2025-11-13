@@ -1840,8 +1840,8 @@ TEST(Evaluator_draft6, anyOf_1) {
   EVALUATE_TRACE_POST_SUCCESS(0, AssertionTypeStrictAny, "/anyOf", "#/anyOf",
                               "");
   EVALUATE_TRACE_POST_DESCRIBE(instance, 0,
-                               "The value was expected to be of type string, "
-                               "number, or null and it was of type number");
+                               "The value was expected to be of type null, "
+                               "number, or string and it was of type number");
 }
 
 TEST(Evaluator_draft6, anyOf_1_exhaustive) {

@@ -58,8 +58,9 @@ using ValueStrings = std::vector<ValueString>;
 using ValueStringSet = StringSet;
 
 /// @ingroup evaluator
-/// Represents a compiler step JSON types value
-using ValueTypes = std::vector<sourcemeta::core::JSON::Type>;
+/// Represents a compiler step JSON types value as a bitmask
+/// Each bit represents a type: bit 0 = Null, bit 1 = Boolean, etc.
+using ValueTypes = std::uint8_t;
 
 /// @ingroup evaluator
 /// Represents a compiler step JSON type value
