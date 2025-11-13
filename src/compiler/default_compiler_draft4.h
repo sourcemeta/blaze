@@ -732,12 +732,18 @@ auto compiler_draft4_applicator_anyof(const Context &context,
     }
 
     assert(types != 0);
-    const auto popcount{__builtin_popcount(types)};
+    std::uint8_t popcount{0};
+    for (std::uint8_t temp{types}; temp != 0; temp >>= 1) {
+      popcount += (temp & 1);
+    }
     if (popcount > 1) {
       return {make(sourcemeta::blaze::InstructionIndex::AssertionTypeStrictAny,
                    context, schema_context, dynamic_context, types)};
     } else {
-      const auto type_index{__builtin_ctz(types)};
+      std::uint8_t type_index{0};
+      for (std::uint8_t temp{types}; (temp & 1) == 0; temp >>= 1) {
+        type_index++;
+      }
       return {make(sourcemeta::blaze::InstructionIndex::AssertionTypeStrict,
                    context, schema_context, dynamic_context,
                    static_cast<ValueType>(type_index))};
