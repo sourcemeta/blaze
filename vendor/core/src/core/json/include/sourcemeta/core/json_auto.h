@@ -161,6 +161,17 @@ auto from_json(const JSON &value) -> std::optional<T> {
   }
 }
 
+/// @ingroup json
+template <typename T>
+  requires std::is_same_v<T, Decimal>
+auto from_json(const JSON &value) -> std::optional<T> {
+  if (value.is_decimal()) {
+    return value.to_decimal();
+  } else {
+    return std::nullopt;
+  }
+}
+
 // TODO: How can we keep this in the hash header that does not yet know about
 // JSON?
 /// @ingroup json

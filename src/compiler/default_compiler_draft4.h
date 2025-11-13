@@ -382,7 +382,9 @@ auto compiler_draft4_validation_type(const Context &context,
                        (1U << static_cast<std::uint8_t>(
                             sourcemeta::core::JSON::Type::Real)) |
                        (1U << static_cast<std::uint8_t>(
-                            sourcemeta::core::JSON::Type::Integer))))};
+                            sourcemeta::core::JSON::Type::Integer)) |
+                       (1U << static_cast<std::uint8_t>(
+                            sourcemeta::core::JSON::Type::Decimal))))};
     } else if (type == "integer") {
       if (context.mode == Mode::FastValidation &&
           schema_context.schema.defines("enum") &&
@@ -461,7 +463,9 @@ auto compiler_draft4_validation_type(const Context &context,
                        (1U << static_cast<std::uint8_t>(
                             sourcemeta::core::JSON::Type::Real)) |
                        (1U << static_cast<std::uint8_t>(
-                            sourcemeta::core::JSON::Type::Integer))))};
+                            sourcemeta::core::JSON::Type::Integer)) |
+                       (1U << static_cast<std::uint8_t>(
+                            sourcemeta::core::JSON::Type::Decimal))))};
     } else if (type == "integer") {
       return {make(sourcemeta::blaze::InstructionIndex::AssertionTypeStrict,
                    context, schema_context, dynamic_context,
@@ -496,6 +500,8 @@ auto compiler_draft4_validation_type(const Context &context,
                       sourcemeta::core::JSON::Type::Integer));
         types |= (1U << static_cast<std::uint8_t>(
                       sourcemeta::core::JSON::Type::Real));
+        types |= (1U << static_cast<std::uint8_t>(
+                      sourcemeta::core::JSON::Type::Decimal));
       } else if (type_string == "integer") {
         types |= (1U << static_cast<std::uint8_t>(
                       sourcemeta::core::JSON::Type::Integer));

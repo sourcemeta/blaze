@@ -552,6 +552,9 @@ auto stringify(
     case JSON::Type::Object:
       stringify<Allocator>(document.as_object(), stream);
       break;
+    case JSON::Type::Decimal:
+      stream << document.to_decimal().to_string();
+      break;
   }
 }
 
@@ -586,6 +589,9 @@ auto prettify(
       break;
     case JSON::Type::Object:
       prettify<Allocator>(document.as_object(), stream, indentation, indent_by);
+      break;
+    case JSON::Type::Decimal:
+      stream << document.to_decimal().to_string();
       break;
   }
 }
