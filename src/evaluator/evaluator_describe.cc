@@ -57,32 +57,57 @@ auto describe_type_check(const bool valid,
   }
 }
 
-auto describe_types_check(
-    const bool valid, const sourcemeta::core::JSON::Type current,
-    const std::vector<sourcemeta::core::JSON::Type> &expected,
-    std::ostringstream &message) -> void {
-  assert(expected.size() > 1);
-  auto copy = expected;
-
-  const auto match_real{
-      std::ranges::find(copy, sourcemeta::core::JSON::Type::Real)};
-  const auto match_integer{
-      std::ranges::find(copy, sourcemeta::core::JSON::Type::Integer)};
-  if (match_real != copy.cend() && match_integer != copy.cend()) {
-    copy.erase(match_integer);
+auto describe_types_check(const bool valid,
+                          const sourcemeta::core::JSON::Type current,
+                          const ValueTypes expected,
+                          std::ostringstream &message) -> void {
+  ValueTypes types{expected};
+  const auto has_real{(types & (1U << static_cast<std::uint8_t>(
+                                    sourcemeta::core::JSON::Type::Real))) != 0};
+  const auto has_integer{
+      (types & (1U << static_cast<std::uint8_t>(
+                    sourcemeta::core::JSON::Type::Integer))) != 0};
+  if (has_real && has_integer) {
+    types &= static_cast<std::uint8_t>(
+        ~(1U << static_cast<std::uint8_t>(
+              sourcemeta::core::JSON::Type::Integer)));
   }
 
-  if (copy.size() == 1) {
-    describe_type_check(valid, current, *(copy.cbegin()), message);
+  std::uint8_t popcount{0};
+  for (std::uint8_t temp{types}; temp != 0; temp >>= 1) {
+    popcount += (temp & 1);
+  }
+
+  if (popcount == 1) {
+    std::uint8_t type_index{0};
+    for (std::uint8_t temp{types}; (temp & 1) == 0; temp >>= 1) {
+      type_index++;
+    }
+    describe_type_check(valid, current,
+                        static_cast<sourcemeta::core::JSON::Type>(type_index),
+                        message);
     return;
   }
 
   message << "The value was expected to be of type ";
-  for (auto iterator = copy.cbegin(); iterator != copy.cend(); ++iterator) {
-    if (std::next(iterator) == copy.cend()) {
-      message << "or " << to_string(*iterator);
-    } else {
-      message << to_string(*iterator) << ", ";
+  bool first{true};
+  std::uint8_t last_bit{255};
+  for (std::uint8_t bit{0}; bit < 8; bit++) {
+    if ((types & (1U << bit)) != 0) {
+      last_bit = bit;
+    }
+  }
+
+  for (std::uint8_t bit{0}; bit < 8; bit++) {
+    if ((types & (1U << bit)) != 0) {
+      if (!first) {
+        message << ", ";
+      }
+      if (bit == last_bit) {
+        message << "or ";
+      }
+      message << to_string(static_cast<sourcemeta::core::JSON::Type>(bit));
+      first = false;
     }
   }
 
@@ -92,9 +117,7 @@ auto describe_types_check(
     message << " but it was of type ";
   }
 
-  if (valid && current == sourcemeta::core::JSON::Type::Integer &&
-      std::ranges::find(copy, sourcemeta::core::JSON::Type::Real) !=
-          copy.cend()) {
+  if (valid && current == sourcemeta::core::JSON::Type::Integer && has_real) {
     message << "number";
   } else {
     message << to_string(current);
@@ -751,12 +774,52 @@ auto describe(const bool valid, const Instruction &step,
       sourcemeta::blaze::InstructionIndex::LoopPropertiesTypeStrictAny) {
     std::ostringstream message;
     message << "The object properties were expected to be of type ";
-    const auto &types{instruction_value<ValueTypes>(step)};
-    for (auto iterator = types.cbegin(); iterator != types.cend(); ++iterator) {
-      if (std::next(iterator) == types.cend()) {
-        message << "or " << to_string(*iterator);
-      } else {
-        message << to_string(*iterator) << ", ";
+    ValueTypes types{instruction_value<ValueTypes>(step)};
+
+    const auto has_real{(types & (1U << static_cast<std::uint8_t>(
+                                      sourcemeta::core::JSON::Type::Real))) !=
+                        0};
+    const auto has_integer{
+        (types & (1U << static_cast<std::uint8_t>(
+                      sourcemeta::core::JSON::Type::Integer))) != 0};
+    if (has_real && has_integer) {
+      types &= static_cast<std::uint8_t>(
+          ~(1U << static_cast<std::uint8_t>(
+                sourcemeta::core::JSON::Type::Integer)));
+    }
+
+    std::uint8_t popcount{0};
+    for (std::uint8_t temp{types}; temp != 0; temp >>= 1) {
+      popcount += (temp & 1);
+    }
+
+    if (popcount == 1) {
+      std::uint8_t type_index{0};
+      for (std::uint8_t temp{types}; (temp & 1) == 0; temp >>= 1) {
+        type_index++;
+      }
+      message << to_string(
+          static_cast<sourcemeta::core::JSON::Type>(type_index));
+    } else {
+      bool first{true};
+      std::uint8_t last_bit{255};
+      for (std::uint8_t bit{0}; bit < 8; bit++) {
+        if ((types & (1U << bit)) != 0) {
+          last_bit = bit;
+        }
+      }
+
+      for (std::uint8_t bit{0}; bit < 8; bit++) {
+        if ((types & (1U << bit)) != 0) {
+          if (!first) {
+            message << ", ";
+          }
+          if (bit == last_bit) {
+            message << "or ";
+          }
+          message << to_string(static_cast<sourcemeta::core::JSON::Type>(bit));
+          first = false;
+        }
       }
     }
 
@@ -767,12 +830,52 @@ auto describe(const bool valid, const Instruction &step,
                        LoopPropertiesTypeStrictAnyEvaluate) {
     std::ostringstream message;
     message << "The object properties were expected to be of type ";
-    const auto &types{instruction_value<ValueTypes>(step)};
-    for (auto iterator = types.cbegin(); iterator != types.cend(); ++iterator) {
-      if (std::next(iterator) == types.cend()) {
-        message << "or " << to_string(*iterator);
-      } else {
-        message << to_string(*iterator) << ", ";
+    ValueTypes types{instruction_value<ValueTypes>(step)};
+
+    const auto has_real{(types & (1U << static_cast<std::uint8_t>(
+                                      sourcemeta::core::JSON::Type::Real))) !=
+                        0};
+    const auto has_integer{
+        (types & (1U << static_cast<std::uint8_t>(
+                      sourcemeta::core::JSON::Type::Integer))) != 0};
+    if (has_real && has_integer) {
+      types &= static_cast<std::uint8_t>(
+          ~(1U << static_cast<std::uint8_t>(
+                sourcemeta::core::JSON::Type::Integer)));
+    }
+
+    std::uint8_t popcount{0};
+    for (std::uint8_t temp{types}; temp != 0; temp >>= 1) {
+      popcount += (temp & 1);
+    }
+
+    if (popcount == 1) {
+      std::uint8_t type_index{0};
+      for (std::uint8_t temp{types}; (temp & 1) == 0; temp >>= 1) {
+        type_index++;
+      }
+      message << to_string(
+          static_cast<sourcemeta::core::JSON::Type>(type_index));
+    } else {
+      bool first{true};
+      std::uint8_t last_bit{255};
+      for (std::uint8_t bit{0}; bit < 8; bit++) {
+        if ((types & (1U << bit)) != 0) {
+          last_bit = bit;
+        }
+      }
+
+      for (std::uint8_t bit{0}; bit < 8; bit++) {
+        if ((types & (1U << bit)) != 0) {
+          if (!first) {
+            message << ", ";
+          }
+          if (bit == last_bit) {
+            message << "or ";
+          }
+          message << to_string(static_cast<sourcemeta::core::JSON::Type>(bit));
+          first = false;
+        }
       }
     }
 
@@ -856,12 +959,52 @@ auto describe(const bool valid, const Instruction &step,
       sourcemeta::blaze::InstructionIndex::LoopItemsTypeStrictAny) {
     std::ostringstream message;
     message << "The array items were expected to be of type ";
-    const auto &types{instruction_value<ValueTypes>(step)};
-    for (auto iterator = types.cbegin(); iterator != types.cend(); ++iterator) {
-      if (std::next(iterator) == types.cend()) {
-        message << "or " << to_string(*iterator);
-      } else {
-        message << to_string(*iterator) << ", ";
+    ValueTypes types{instruction_value<ValueTypes>(step)};
+
+    const auto has_real{(types & (1U << static_cast<std::uint8_t>(
+                                      sourcemeta::core::JSON::Type::Real))) !=
+                        0};
+    const auto has_integer{
+        (types & (1U << static_cast<std::uint8_t>(
+                      sourcemeta::core::JSON::Type::Integer))) != 0};
+    if (has_real && has_integer) {
+      types &= static_cast<std::uint8_t>(
+          ~(1U << static_cast<std::uint8_t>(
+                sourcemeta::core::JSON::Type::Integer)));
+    }
+
+    std::uint8_t popcount{0};
+    for (std::uint8_t temp{types}; temp != 0; temp >>= 1) {
+      popcount += (temp & 1);
+    }
+
+    if (popcount == 1) {
+      std::uint8_t type_index{0};
+      for (std::uint8_t temp{types}; (temp & 1) == 0; temp >>= 1) {
+        type_index++;
+      }
+      message << to_string(
+          static_cast<sourcemeta::core::JSON::Type>(type_index));
+    } else {
+      bool first{true};
+      std::uint8_t last_bit{255};
+      for (std::uint8_t bit{0}; bit < 8; bit++) {
+        if ((types & (1U << bit)) != 0) {
+          last_bit = bit;
+        }
+      }
+
+      for (std::uint8_t bit{0}; bit < 8; bit++) {
+        if ((types & (1U << bit)) != 0) {
+          if (!first) {
+            message << ", ";
+          }
+          if (bit == last_bit) {
+            message << "or ";
+          }
+          message << to_string(static_cast<sourcemeta::core::JSON::Type>(bit));
+          first = false;
+        }
       }
     }
 
