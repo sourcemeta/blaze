@@ -1981,8 +1981,7 @@ auto compiler_draft4_validation_maxlength(const Context &context,
                                           const DynamicContext &dynamic_context,
                                           const Instructions &)
     -> Instructions {
-  if (!(schema_context.schema.at(dynamic_context.keyword).is_integer() ||
-        schema_context.schema.at(dynamic_context.keyword).is_integer_real())) {
+  if (!schema_context.schema.at(dynamic_context.keyword).is_integral()) {
     return {};
   }
 
@@ -2016,8 +2015,7 @@ auto compiler_draft4_validation_minlength(const Context &context,
                                           const DynamicContext &dynamic_context,
                                           const Instructions &)
     -> Instructions {
-  if (!(schema_context.schema.at(dynamic_context.keyword).is_integer() ||
-        schema_context.schema.at(dynamic_context.keyword).is_integer_real())) {
+  if (!schema_context.schema.at(dynamic_context.keyword).is_integral()) {
     return {};
   }
 
@@ -2052,8 +2050,7 @@ auto compiler_draft4_validation_maxitems(const Context &context,
                                          const SchemaContext &schema_context,
                                          const DynamicContext &dynamic_context,
                                          const Instructions &) -> Instructions {
-  if (!(schema_context.schema.at(dynamic_context.keyword).is_integer() ||
-        schema_context.schema.at(dynamic_context.keyword).is_integer_real())) {
+  if (!schema_context.schema.at(dynamic_context.keyword).is_integral()) {
     return {};
   }
 
@@ -2086,8 +2083,7 @@ auto compiler_draft4_validation_minitems(const Context &context,
                                          const SchemaContext &schema_context,
                                          const DynamicContext &dynamic_context,
                                          const Instructions &) -> Instructions {
-  if (!(schema_context.schema.at(dynamic_context.keyword).is_integer() ||
-        schema_context.schema.at(dynamic_context.keyword).is_integer_real())) {
+  if (!schema_context.schema.at(dynamic_context.keyword).is_integral()) {
     return {};
   }
 
@@ -2122,8 +2118,7 @@ auto compiler_draft4_validation_maxproperties(
     const Context &context, const SchemaContext &schema_context,
     const DynamicContext &dynamic_context, const Instructions &)
     -> Instructions {
-  if (!(schema_context.schema.at(dynamic_context.keyword).is_integer() ||
-        schema_context.schema.at(dynamic_context.keyword).is_integer_real())) {
+  if (!schema_context.schema.at(dynamic_context.keyword).is_integral()) {
     return {};
   }
 
@@ -2156,8 +2151,7 @@ auto compiler_draft4_validation_minproperties(
     const Context &context, const SchemaContext &schema_context,
     const DynamicContext &dynamic_context, const Instructions &)
     -> Instructions {
-  if (!(schema_context.schema.at(dynamic_context.keyword).is_integer() ||
-        schema_context.schema.at(dynamic_context.keyword).is_integer_real())) {
+  if (!schema_context.schema.at(dynamic_context.keyword).is_integral()) {
     return {};
   }
 

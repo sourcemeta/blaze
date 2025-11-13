@@ -397,17 +397,17 @@ public:
   /// ```
   [[nodiscard]] auto is_real() const noexcept -> bool;
 
-  /// Check if the input JSON document is a real number that represents an
-  /// integer. For example:
+  /// Check if the input JSON document is an integer, a real number that
+  /// represents an integer, or an integer decimal. For example:
   ///
   /// ```cpp
   /// #include <sourcemeta/core/json.h>
   /// #include <cassert>
   ///
   /// const sourcemeta::core::JSON document{5.0};
-  /// assert(document.is_integer_real());
+  /// assert(document.is_integral());
   /// ```
-  [[nodiscard]] auto is_integer_real() const noexcept -> bool;
+  [[nodiscard]] auto is_integral() const noexcept -> bool;
 
   /// Check if the input JSON document is either an integer or a real type. For
   /// example:

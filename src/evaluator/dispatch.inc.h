@@ -251,7 +251,7 @@ INSTRUCTION_HANDLER(AssertionType) {
   // In non-strict mode, we consider a real number that represents an
   // integer to be an integer
   result = target.type() == value ||
-           (value == JSON::Type::Integer && target.is_integer_real());
+           (value == JSON::Type::Integer && target.is_integral());
   EVALUATE_END(AssertionType);
 }
 
@@ -274,7 +274,7 @@ INSTRUCTION_HANDLER(AssertionTypeAny) {
     result = true;
   } else if ((value & (1U << static_cast<std::uint8_t>(JSON::Type::Integer))) !=
                  0 &&
-             target.is_integer_real()) {
+             target.is_integral()) {
     result = true;
   }
 
@@ -708,7 +708,7 @@ INSTRUCTION_HANDLER(AssertionPropertyType) {
   // In non-strict mode, we consider a real number that represents an
   // integer to be an integer
   result = target_check->type() == value ||
-           (value == JSON::Type::Integer && target_check->is_integer_real());
+           (value == JSON::Type::Integer && target_check->is_integral());
   EVALUATE_END(AssertionPropertyType);
 }
 
@@ -725,7 +725,7 @@ INSTRUCTION_HANDLER(AssertionPropertyTypeEvaluate) {
   // In non-strict mode, we consider a real number that represents an
   // integer to be an integer
   result = target_check->type() == value ||
-           (value == JSON::Type::Integer && target_check->is_integer_real());
+           (value == JSON::Type::Integer && target_check->is_integral());
 
   if (result) {
     evaluator.evaluate(target_check);
@@ -1871,7 +1871,7 @@ INSTRUCTION_HANDLER(LoopPropertiesType) {
     if (entry.second.type() != value &&
         // In non-strict mode, we consider a real number that represents an
         // integer to be an integer
-        (value != JSON::Type::Integer || !entry.second.is_integer_real())) {
+        (value != JSON::Type::Integer || !entry.second.is_integral())) {
       result = false;
       break;
     }
@@ -1894,7 +1894,7 @@ INSTRUCTION_HANDLER(LoopPropertiesTypeEvaluate) {
     if (entry.second.type() != value &&
         // In non-strict mode, we consider a real number that represents an
         // integer to be an integer
-        (value != JSON::Type::Integer || !entry.second.is_integer_real())) {
+        (value != JSON::Type::Integer || !entry.second.is_integral())) {
       result = false;
       EVALUATE_END(LoopPropertiesTypeEvaluate);
     }
@@ -2281,7 +2281,7 @@ INSTRUCTION_HANDLER(LoopItemsType) {
     if (entry.type() != value &&
         // In non-strict mode, we consider a real number that represents an
         // integer to be an integer
-        (value != JSON::Type::Integer || !entry.is_integer_real())) {
+        (value != JSON::Type::Integer || !entry.is_integral())) {
       result = false;
       break;
     }

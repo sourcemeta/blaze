@@ -432,14 +432,18 @@ auto JSON::operator-=(const JSON &substractive) -> JSON & {
   return this->current_type == Type::Real;
 }
 
-[[nodiscard]] auto JSON::is_integer_real() const noexcept -> bool {
-  if (!this->is_real()) {
-    return false;
-  } else {
-    const auto value{this->to_real()};
-    Real integral = 0.0;
-    return !std::isinf(value) && !std::isnan(value) &&
-           std::modf(value, &integral) == 0.0;
+[[nodiscard]] auto JSON::is_integral() const noexcept -> bool {
+  switch (this->type()) {
+    case Type::Integer:
+      return true;
+    case Type::Real: {
+      Real integral = 0.0;
+      return std::modf(this->to_real(), &integral) == 0.0;
+    }
+    case Type::Decimal:
+      return this->to_decimal().is_integer();
+    default:
+      return false;
   }
 }
 

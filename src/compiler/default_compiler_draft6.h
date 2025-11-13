@@ -180,16 +180,13 @@ auto compiler_draft6_validation_type(const Context &context,
           schema_context.schema.at("enum").is_array() &&
           std::all_of(schema_context.schema.at("enum").as_array().cbegin(),
                       schema_context.schema.at("enum").as_array().cend(),
-                      [](const auto &value) {
-                        return value.is_integer() || value.is_integer_real();
-                      })) {
+                      [](const auto &value) { return value.is_integral(); })) {
         return {};
       }
 
       if (context.mode == Mode::FastValidation &&
           schema_context.schema.defines("const") &&
-          (schema_context.schema.at("const").is_integer() ||
-           schema_context.schema.at("const").is_integer_real())) {
+          (schema_context.schema.at("const").is_integral())) {
         return {};
       }
 
