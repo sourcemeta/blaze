@@ -211,8 +211,8 @@ TEST(Evaluator_draft4, type_8) {
   EVALUATE_TRACE_PRE(0, AssertionTypeStrictAny, "/type", "#/type", "");
   EVALUATE_TRACE_POST_SUCCESS(0, AssertionTypeStrictAny, "/type", "#/type", "");
   EVALUATE_TRACE_POST_DESCRIBE(instance, 0,
-                               "The value was expected to be of type string, "
-                               "number, or object and it was of type number");
+                               "The value was expected to be of type number, "
+                               "string, or object and it was of type number");
 }
 
 TEST(Evaluator_draft4, type_9) {
@@ -226,8 +226,8 @@ TEST(Evaluator_draft4, type_9) {
   EVALUATE_TRACE_PRE(0, AssertionTypeStrictAny, "/type", "#/type", "");
   EVALUATE_TRACE_POST_FAILURE(0, AssertionTypeStrictAny, "/type", "#/type", "");
   EVALUATE_TRACE_POST_DESCRIBE(instance, 0,
-                               "The value was expected to be of type string, "
-                               "number, or object but it was of type boolean");
+                               "The value was expected to be of type number, "
+                               "string, or object but it was of type boolean");
 }
 
 TEST(Evaluator_draft4, required_1) {
@@ -2929,8 +2929,7 @@ TEST(Evaluator_draft4, additionalProperties_10) {
                               "/additionalProperties", "#/additionalProperties",
                               "");
   EVALUATE_TRACE_POST_DESCRIBE(
-      instance, 0,
-      "The object properties were expected to be of type number, or integer");
+      instance, 0, "The object properties were expected to be of type number");
 }
 
 TEST(Evaluator_draft4, additionalProperties_11) {
@@ -3877,8 +3876,8 @@ TEST(Evaluator_draft4, anyOf_1) {
   EVALUATE_TRACE_POST_SUCCESS(0, AssertionTypeStrictAny, "/anyOf", "#/anyOf",
                               "");
   EVALUATE_TRACE_POST_DESCRIBE(instance, 0,
-                               "The value was expected to be of type string, "
-                               "number, or integer and it was of type number");
+                               "The value was expected to be of type number, "
+                               "or string and it was of type number");
 }
 
 TEST(Evaluator_draft4, anyOf_2) {
@@ -3898,8 +3897,8 @@ TEST(Evaluator_draft4, anyOf_2) {
   EVALUATE_TRACE_POST_FAILURE(0, AssertionTypeStrictAny, "/anyOf", "#/anyOf",
                               "");
   EVALUATE_TRACE_POST_DESCRIBE(instance, 0,
-                               "The value was expected to be of type string, "
-                               "number, or integer but it was of type boolean");
+                               "The value was expected to be of type number, "
+                               "or string but it was of type boolean");
 }
 
 TEST(Evaluator_draft4, anyOf_3) {
@@ -5693,8 +5692,7 @@ TEST(Evaluator_draft4, minItems_9) {
   EVALUATE_TRACE_POST_SUCCESS(1, AssertionTypeStrict, "/type", "#/type", "");
 
   EVALUATE_TRACE_POST_DESCRIBE(
-      instance, 0,
-      "The array items were expected to be of type number, or integer");
+      instance, 0, "The array items were expected to be of type number");
   EVALUATE_TRACE_POST_DESCRIBE(instance, 1,
                                "The value was expected to be of type array");
 }

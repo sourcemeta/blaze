@@ -523,8 +523,7 @@ TEST(Evaluator_draft7, items_1) {
   EVALUATE_TRACE_POST_SUCCESS(0, LoopItemsTypeStrictAny, "/items", "#/items",
                               "");
   EVALUATE_TRACE_POST_DESCRIBE(
-      instance, 0,
-      "The array items were expected to be of type number, or integer");
+      instance, 0, "The array items were expected to be of type number");
 }
 
 TEST(Evaluator_draft7, top_level_ref_with_id) {

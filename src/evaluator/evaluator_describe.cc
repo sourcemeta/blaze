@@ -1,6 +1,7 @@
 #include <sourcemeta/blaze/evaluator.h>
 
 #include <algorithm> // std::ranges::any_of
+#include <array>     // std::array
 #include <cassert>   // assert
 #include <sstream>   // std::ostringstream
 #include <variant>   // std::visit
@@ -27,6 +28,19 @@ auto to_string(const sourcemeta::core::JSON::Type type) -> std::string {
     result << type;
     return result.str();
   }
+}
+
+auto bitmask_to_types(const ValueTypes bitmask)
+    -> std::vector<sourcemeta::core::JSON::Type> {
+  std::vector<sourcemeta::core::JSON::Type> types;
+  constexpr std::array<std::uint8_t, 8> preferred_order{0, 1, 3, 2, 4, 5, 6, 7};
+  for (const auto bit : preferred_order) {
+    if ((bitmask & (1U << bit)) != 0) {
+      types.push_back(static_cast<sourcemeta::core::JSON::Type>(bit));
+    }
+  }
+
+  return types;
 }
 
 auto escape_string(const std::string &input) -> std::string {
@@ -57,12 +71,12 @@ auto describe_type_check(const bool valid,
   }
 }
 
-auto describe_types_check(
-    const bool valid, const sourcemeta::core::JSON::Type current,
-    const std::vector<sourcemeta::core::JSON::Type> &expected,
-    std::ostringstream &message) -> void {
-  assert(expected.size() > 1);
-  auto copy = expected;
+auto describe_types_check(const bool valid,
+                          const sourcemeta::core::JSON::Type current,
+                          const ValueTypes expected,
+                          std::ostringstream &message) -> void {
+  auto copy{bitmask_to_types(expected)};
+  assert(copy.size() > 1);
 
   const auto match_real{
       std::ranges::find(copy, sourcemeta::core::JSON::Type::Real)};
@@ -751,12 +765,26 @@ auto describe(const bool valid, const Instruction &step,
       sourcemeta::blaze::InstructionIndex::LoopPropertiesTypeStrictAny) {
     std::ostringstream message;
     message << "The object properties were expected to be of type ";
-    const auto &types{instruction_value<ValueTypes>(step)};
-    for (auto iterator = types.cbegin(); iterator != types.cend(); ++iterator) {
-      if (std::next(iterator) == types.cend()) {
-        message << "or " << to_string(*iterator);
-      } else {
-        message << to_string(*iterator) << ", ";
+    const auto bitmask{instruction_value<ValueTypes>(step)};
+    auto copy{bitmask_to_types(bitmask)};
+
+    const auto match_real{
+        std::ranges::find(copy, sourcemeta::core::JSON::Type::Real)};
+    const auto match_integer{
+        std::ranges::find(copy, sourcemeta::core::JSON::Type::Integer)};
+    if (match_real != copy.cend() && match_integer != copy.cend()) {
+      copy.erase(match_integer);
+    }
+
+    if (copy.size() == 1) {
+      message << to_string(*copy.cbegin());
+    } else {
+      for (auto iterator = copy.cbegin(); iterator != copy.cend(); ++iterator) {
+        if (std::next(iterator) == copy.cend()) {
+          message << "or " << to_string(*iterator);
+        } else {
+          message << to_string(*iterator) << ", ";
+        }
       }
     }
 
@@ -767,12 +795,26 @@ auto describe(const bool valid, const Instruction &step,
                        LoopPropertiesTypeStrictAnyEvaluate) {
     std::ostringstream message;
     message << "The object properties were expected to be of type ";
-    const auto &types{instruction_value<ValueTypes>(step)};
-    for (auto iterator = types.cbegin(); iterator != types.cend(); ++iterator) {
-      if (std::next(iterator) == types.cend()) {
-        message << "or " << to_string(*iterator);
-      } else {
-        message << to_string(*iterator) << ", ";
+    const auto bitmask{instruction_value<ValueTypes>(step)};
+    auto copy{bitmask_to_types(bitmask)};
+
+    const auto match_real{
+        std::ranges::find(copy, sourcemeta::core::JSON::Type::Real)};
+    const auto match_integer{
+        std::ranges::find(copy, sourcemeta::core::JSON::Type::Integer)};
+    if (match_real != copy.cend() && match_integer != copy.cend()) {
+      copy.erase(match_integer);
+    }
+
+    if (copy.size() == 1) {
+      message << to_string(*copy.cbegin());
+    } else {
+      for (auto iterator = copy.cbegin(); iterator != copy.cend(); ++iterator) {
+        if (std::next(iterator) == copy.cend()) {
+          message << "or " << to_string(*iterator);
+        } else {
+          message << to_string(*iterator) << ", ";
+        }
       }
     }
 
@@ -856,12 +898,26 @@ auto describe(const bool valid, const Instruction &step,
       sourcemeta::blaze::InstructionIndex::LoopItemsTypeStrictAny) {
     std::ostringstream message;
     message << "The array items were expected to be of type ";
-    const auto &types{instruction_value<ValueTypes>(step)};
-    for (auto iterator = types.cbegin(); iterator != types.cend(); ++iterator) {
-      if (std::next(iterator) == types.cend()) {
-        message << "or " << to_string(*iterator);
-      } else {
-        message << to_string(*iterator) << ", ";
+    const auto bitmask{instruction_value<ValueTypes>(step)};
+    auto copy{bitmask_to_types(bitmask)};
+
+    const auto match_real{
+        std::ranges::find(copy, sourcemeta::core::JSON::Type::Real)};
+    const auto match_integer{
+        std::ranges::find(copy, sourcemeta::core::JSON::Type::Integer)};
+    if (match_real != copy.cend() && match_integer != copy.cend()) {
+      copy.erase(match_integer);
+    }
+
+    if (copy.size() == 1) {
+      message << to_string(*copy.cbegin());
+    } else {
+      for (auto iterator = copy.cbegin(); iterator != copy.cend(); ++iterator) {
+        if (std::next(iterator) == copy.cend()) {
+          message << "or " << to_string(*iterator);
+        } else {
+          message << to_string(*iterator) << ", ";
+        }
       }
     }
 
