@@ -8,7 +8,6 @@
 #include <cassert>    // assert
 #include <chrono>     // std::chrono
 #include <concepts>   // std::same_as, std::constructible_from
-#include <cstdint>    // std::uint8_t, std::uint16_t, std::uint32_t, std::uint64_t
 #include <filesystem> // std::filesystem
 #include <functional> // std::function
 #include <optional>   // std::optional, std::nullopt, std::bad_optional_access
@@ -39,9 +38,8 @@ struct json_auto_is_bitset<std::bitset<N>> : std::true_type {};
 /// @ingroup json
 template <typename T> struct json_auto_bitset_size;
 template <std::size_t N>
-struct json_auto_bitset_size<std::bitset<N>> {
-  static constexpr std::size_t value = N;
-};
+struct json_auto_bitset_size<std::bitset<N>>
+    : std::integral_constant<std::size_t, N> {};
 
 /// @ingroup json
 template <typename T>
@@ -238,38 +236,6 @@ auto from_json(const JSON &value) -> std::optional<T> {
 
 /// @ingroup json
 template <typename T>
-  requires json_auto_is_bitset<T>::value
-auto to_json(const T &bitset) -> JSON {
-  constexpr std::size_t N = json_auto_bitset_size<T>::value;
-  if constexpr (N <= 64) {
-    return JSON{static_cast<std::size_t>(bitset.to_ullong())};
-  } else {
-    return JSON{bitset.to_string()};
-  }
-}
-
-/// @ingroup json
-template <typename T>
-  requires json_auto_is_bitset<T>::value
-auto from_json(const JSON &value) -> std::optional<T> {
-  constexpr std::size_t N = json_auto_bitset_size<T>::value;
-  if constexpr (N <= 64) {
-    if (value.is_integer()) {
-      return T{static_cast<unsigned long long>(value.to_integer())};
-    } else {
-      return std::nullopt;
-    }
-  } else {
-    if (value.is_string()) {
-      return T{value.to_string()};
-    } else {
-      return std::nullopt;
-    }
-  }
-}
-
-/// @ingroup json
-template <typename T>
   requires(std::constructible_from<JSON, T> &&
            // Otherwise MSVC gets confused
            !std::is_same_v<T, unsigned long long>)
@@ -315,6 +281,38 @@ auto from_json(const JSON &value) -> std::optional<T> {
     return value.to_string();
   } else {
     return std::nullopt;
+  }
+}
+
+/// @ingroup json
+template <typename T>
+  requires json_auto_is_bitset<T>::value
+auto to_json(const T &bitset) -> JSON {
+  constexpr std::size_t N{json_auto_bitset_size<T>::value};
+  if constexpr (N <= 64) {
+    return JSON{static_cast<std::int64_t>(bitset.to_ullong())};
+  } else {
+    return JSON{bitset.to_string()};
+  }
+}
+
+/// @ingroup json
+template <typename T>
+  requires json_auto_is_bitset<T>::value
+auto from_json(const JSON &value) -> std::optional<T> {
+  constexpr std::size_t N{json_auto_bitset_size<T>::value};
+  if constexpr (N <= 64) {
+    if (value.is_integer()) {
+      return T{static_cast<unsigned long long>(value.to_integer())};
+    } else {
+      return std::nullopt;
+    }
+  } else {
+    if (value.is_string()) {
+      return T{value.to_string()};
+    } else {
+      return std::nullopt;
+    }
   }
 }
 
