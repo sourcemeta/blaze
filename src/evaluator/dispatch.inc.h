@@ -295,7 +295,9 @@ INSTRUCTION_HANDLER(AssertionTypeStrict) {
   EVALUATE_BEGIN_NO_PRECONDITION(AssertionTypeStrict);
   const auto &target{get(instance, instruction.relative_instance_location)};
   const auto value{*std::get_if<ValueType>(&instruction.value)};
-  result = target.type() == value;
+  result = target.type() == value ||
+           (value == JSON::Type::Integer && target.is_decimal() &&
+            target.to_decimal().is_integer());
   EVALUATE_END(AssertionTypeStrict);
 }
 
@@ -312,7 +314,9 @@ INSTRUCTION_HANDLER(AssertionTypeStrictAny) {
   const auto &target{get(instance, instruction.relative_instance_location)};
   const auto type_bit{static_cast<std::uint8_t>(
       1U << static_cast<std::uint8_t>(target.type()))};
-  result = ((value & type_bit) != 0);
+  result = ((value & type_bit) != 0) ||
+           ((value & (1U << static_cast<std::uint8_t>(JSON::Type::Integer))) &&
+            target.is_decimal() && target.to_decimal().is_integer());
   EVALUATE_END(AssertionTypeStrictAny);
 }
 
@@ -748,7 +752,9 @@ INSTRUCTION_HANDLER(AssertionPropertyTypeStrict) {
   EVALUATE_BEGIN_TRY_TARGET(AssertionPropertyTypeStrict);
   // Now here we refer to the actual property
   const auto value{*std::get_if<ValueType>(&instruction.value)};
-  result = target_check->type() == value;
+  result = target_check->type() == value ||
+           (value == JSON::Type::Integer && target_check->is_decimal() &&
+            target_check->to_decimal().is_integer());
   EVALUATE_END(AssertionPropertyTypeStrict);
 }
 
@@ -784,7 +790,11 @@ INSTRUCTION_HANDLER(AssertionPropertyTypeStrictAny) {
   // Now here we refer to the actual property
   const auto type_bit{static_cast<std::uint8_t>(
       1U << static_cast<std::uint8_t>(target_check->type()))};
-  result = ((value & type_bit) != 0);
+  result =
+      ((value & type_bit) != 0) ||
+      (((value & (1U << static_cast<std::uint8_t>(JSON::Type::Integer))) !=
+        0) &&
+       target_check->is_decimal() && target_check->to_decimal().is_integer());
   EVALUATE_END(AssertionPropertyTypeStrictAny);
 }
 
