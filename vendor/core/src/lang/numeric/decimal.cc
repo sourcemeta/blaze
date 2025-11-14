@@ -449,7 +449,7 @@ auto Decimal::divisible_by(const Decimal &divisor) const -> bool {
   }
 
   const Decimal quotient{*this / divisor};
-  return quotient.is_finite() && quotient.is_integer();
+  return quotient.is_finite() && quotient.is_integral();
 }
 
 auto Decimal::operator+=(const Decimal &other) -> Decimal & {
