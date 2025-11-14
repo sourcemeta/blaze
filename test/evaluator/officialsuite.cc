@@ -389,9 +389,7 @@ int main(int argc, char **argv) {
                    "http://json-schema.org/draft-04/schema#", {});
     register_tests(std::filesystem::path{"draft4"} / "optional",
                    "JSONSchemaOfficialSuite_Draft4_Optional",
-                   "http://json-schema.org/draft-04/schema#",
-                   // TODO: Support big numbers on Draft 4
-                   {"bignum"});
+                   "http://json-schema.org/draft-04/schema#", {});
     register_tests(std::filesystem::path{"draft4"} / "optional" / "format",
                    "JSONSchemaOfficialSuite_Draft4_Optional_Format",
                    "http://json-schema.org/draft-04/schema#",
