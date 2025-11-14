@@ -73,40 +73,35 @@ auto describe_types_check(const bool valid,
                           const ValueTypes expected,
                           std::ostringstream &message) -> void {
   ValueTypes types{expected};
-  const auto has_real{(types & (1U << static_cast<std::uint8_t>(
-                                    sourcemeta::core::JSON::Type::Real))) != 0};
-  const auto has_integer{
-      (types & (1U << static_cast<std::uint8_t>(
-                    sourcemeta::core::JSON::Type::Integer))) != 0};
-  const auto has_decimal{
-      (types & (1U << static_cast<std::uint8_t>(
-                    sourcemeta::core::JSON::Type::Decimal))) != 0};
+  const auto has_real{types.test(
+      static_cast<std::uint8_t>(sourcemeta::core::JSON::Type::Real))};
+  const auto has_integer{types.test(
+      static_cast<std::uint8_t>(sourcemeta::core::JSON::Type::Integer))};
+  const auto has_decimal{types.test(
+      static_cast<std::uint8_t>(sourcemeta::core::JSON::Type::Decimal))};
 
   if (has_real && has_integer) {
-    types &= static_cast<std::uint8_t>(
-        ~(1U << static_cast<std::uint8_t>(
-              sourcemeta::core::JSON::Type::Integer)));
+    types.reset(
+        static_cast<std::uint8_t>(sourcemeta::core::JSON::Type::Integer));
   }
   if (has_real && has_decimal) {
-    types &= static_cast<std::uint8_t>(
-        ~(1U << static_cast<std::uint8_t>(
-              sourcemeta::core::JSON::Type::Decimal)));
+    types.reset(
+        static_cast<std::uint8_t>(sourcemeta::core::JSON::Type::Decimal));
   }
   if (has_integer && has_decimal) {
-    types &= static_cast<std::uint8_t>(
-        ~(1U << static_cast<std::uint8_t>(
-              sourcemeta::core::JSON::Type::Decimal)));
+    types.reset(
+        static_cast<std::uint8_t>(sourcemeta::core::JSON::Type::Decimal));
   }
 
-  std::uint8_t popcount{0};
-  for (std::uint8_t temp{types}; temp != 0; temp >>= 1) {
-    popcount += (temp & 1);
-  }
+  const auto popcount{types.count()};
 
   if (popcount == 1) {
     std::uint8_t type_index{0};
-    for (std::uint8_t temp{types}; (temp & 1) == 0; temp >>= 1) {
-      type_index++;
+    for (std::uint8_t bit{0}; bit < 8; bit++) {
+      if (types.test(bit)) {
+        type_index = bit;
+        break;
+      }
     }
     describe_type_check(valid, current,
                         static_cast<sourcemeta::core::JSON::Type>(type_index),
@@ -118,13 +113,13 @@ auto describe_types_check(const bool valid,
   bool first{true};
   std::uint8_t last_bit{255};
   for (std::uint8_t bit{0}; bit < 8; bit++) {
-    if ((types & (1U << bit)) != 0) {
+    if (types.test(bit)) {
       last_bit = bit;
     }
   }
 
   for (std::uint8_t bit{0}; bit < 8; bit++) {
-    if ((types & (1U << bit)) != 0) {
+    if (types.test(bit)) {
       if (!first) {
         message << ", ";
       }
@@ -806,41 +801,35 @@ auto describe(const bool valid, const Instruction &step,
     message << "The object properties were expected to be of type ";
     ValueTypes types{instruction_value<ValueTypes>(step)};
 
-    const auto has_real{(types & (1U << static_cast<std::uint8_t>(
-                                      sourcemeta::core::JSON::Type::Real))) !=
-                        0};
-    const auto has_integer{
-        (types & (1U << static_cast<std::uint8_t>(
-                      sourcemeta::core::JSON::Type::Integer))) != 0};
-    const auto has_decimal{
-        (types & (1U << static_cast<std::uint8_t>(
-                      sourcemeta::core::JSON::Type::Decimal))) != 0};
+    const auto has_real{types.test(
+        static_cast<std::uint8_t>(sourcemeta::core::JSON::Type::Real))};
+    const auto has_integer{types.test(
+        static_cast<std::uint8_t>(sourcemeta::core::JSON::Type::Integer))};
+    const auto has_decimal{types.test(
+        static_cast<std::uint8_t>(sourcemeta::core::JSON::Type::Decimal))};
 
     if (has_real && has_integer) {
-      types &= static_cast<std::uint8_t>(
-          ~(1U << static_cast<std::uint8_t>(
-                sourcemeta::core::JSON::Type::Integer)));
+      types.reset(
+          static_cast<std::uint8_t>(sourcemeta::core::JSON::Type::Integer));
     }
     if (has_real && has_decimal) {
-      types &= static_cast<std::uint8_t>(
-          ~(1U << static_cast<std::uint8_t>(
-                sourcemeta::core::JSON::Type::Decimal)));
+      types.reset(
+          static_cast<std::uint8_t>(sourcemeta::core::JSON::Type::Decimal));
     }
     if (has_integer && has_decimal) {
-      types &= static_cast<std::uint8_t>(
-          ~(1U << static_cast<std::uint8_t>(
-                sourcemeta::core::JSON::Type::Decimal)));
+      types.reset(
+          static_cast<std::uint8_t>(sourcemeta::core::JSON::Type::Decimal));
     }
 
-    std::uint8_t popcount{0};
-    for (std::uint8_t temp{types}; temp != 0; temp >>= 1) {
-      popcount += (temp & 1);
-    }
+    const auto popcount{types.count()};
 
     if (popcount == 1) {
       std::uint8_t type_index{0};
-      for (std::uint8_t temp{types}; (temp & 1) == 0; temp >>= 1) {
-        type_index++;
+      for (std::uint8_t bit{0}; bit < 8; bit++) {
+        if (types.test(bit)) {
+          type_index = bit;
+          break;
+        }
       }
       message << to_string(
           static_cast<sourcemeta::core::JSON::Type>(type_index));
@@ -848,13 +837,13 @@ auto describe(const bool valid, const Instruction &step,
       bool first{true};
       std::uint8_t last_bit{255};
       for (std::uint8_t bit{0}; bit < 8; bit++) {
-        if ((types & (1U << bit)) != 0) {
+        if (types.test(bit)) {
           last_bit = bit;
         }
       }
 
       for (std::uint8_t bit{0}; bit < 8; bit++) {
-        if ((types & (1U << bit)) != 0) {
+        if (types.test(bit)) {
           if (!first) {
             message << ", ";
           }
@@ -876,41 +865,35 @@ auto describe(const bool valid, const Instruction &step,
     message << "The object properties were expected to be of type ";
     ValueTypes types{instruction_value<ValueTypes>(step)};
 
-    const auto has_real{(types & (1U << static_cast<std::uint8_t>(
-                                      sourcemeta::core::JSON::Type::Real))) !=
-                        0};
-    const auto has_integer{
-        (types & (1U << static_cast<std::uint8_t>(
-                      sourcemeta::core::JSON::Type::Integer))) != 0};
-    const auto has_decimal{
-        (types & (1U << static_cast<std::uint8_t>(
-                      sourcemeta::core::JSON::Type::Decimal))) != 0};
+    const auto has_real{types.test(
+        static_cast<std::uint8_t>(sourcemeta::core::JSON::Type::Real))};
+    const auto has_integer{types.test(
+        static_cast<std::uint8_t>(sourcemeta::core::JSON::Type::Integer))};
+    const auto has_decimal{types.test(
+        static_cast<std::uint8_t>(sourcemeta::core::JSON::Type::Decimal))};
 
     if (has_real && has_integer) {
-      types &= static_cast<std::uint8_t>(
-          ~(1U << static_cast<std::uint8_t>(
-                sourcemeta::core::JSON::Type::Integer)));
+      types.reset(
+          static_cast<std::uint8_t>(sourcemeta::core::JSON::Type::Integer));
     }
     if (has_real && has_decimal) {
-      types &= static_cast<std::uint8_t>(
-          ~(1U << static_cast<std::uint8_t>(
-                sourcemeta::core::JSON::Type::Decimal)));
+      types.reset(
+          static_cast<std::uint8_t>(sourcemeta::core::JSON::Type::Decimal));
     }
     if (has_integer && has_decimal) {
-      types &= static_cast<std::uint8_t>(
-          ~(1U << static_cast<std::uint8_t>(
-                sourcemeta::core::JSON::Type::Decimal)));
+      types.reset(
+          static_cast<std::uint8_t>(sourcemeta::core::JSON::Type::Decimal));
     }
 
-    std::uint8_t popcount{0};
-    for (std::uint8_t temp{types}; temp != 0; temp >>= 1) {
-      popcount += (temp & 1);
-    }
+    const auto popcount{types.count()};
 
     if (popcount == 1) {
       std::uint8_t type_index{0};
-      for (std::uint8_t temp{types}; (temp & 1) == 0; temp >>= 1) {
-        type_index++;
+      for (std::uint8_t bit{0}; bit < 8; bit++) {
+        if (types.test(bit)) {
+          type_index = bit;
+          break;
+        }
       }
       message << to_string(
           static_cast<sourcemeta::core::JSON::Type>(type_index));
@@ -918,13 +901,13 @@ auto describe(const bool valid, const Instruction &step,
       bool first{true};
       std::uint8_t last_bit{255};
       for (std::uint8_t bit{0}; bit < 8; bit++) {
-        if ((types & (1U << bit)) != 0) {
+        if (types.test(bit)) {
           last_bit = bit;
         }
       }
 
       for (std::uint8_t bit{0}; bit < 8; bit++) {
-        if ((types & (1U << bit)) != 0) {
+        if (types.test(bit)) {
           if (!first) {
             message << ", ";
           }
@@ -1019,41 +1002,35 @@ auto describe(const bool valid, const Instruction &step,
     message << "The array items were expected to be of type ";
     ValueTypes types{instruction_value<ValueTypes>(step)};
 
-    const auto has_real{(types & (1U << static_cast<std::uint8_t>(
-                                      sourcemeta::core::JSON::Type::Real))) !=
-                        0};
-    const auto has_integer{
-        (types & (1U << static_cast<std::uint8_t>(
-                      sourcemeta::core::JSON::Type::Integer))) != 0};
-    const auto has_decimal{
-        (types & (1U << static_cast<std::uint8_t>(
-                      sourcemeta::core::JSON::Type::Decimal))) != 0};
+    const auto has_real{types.test(
+        static_cast<std::uint8_t>(sourcemeta::core::JSON::Type::Real))};
+    const auto has_integer{types.test(
+        static_cast<std::uint8_t>(sourcemeta::core::JSON::Type::Integer))};
+    const auto has_decimal{types.test(
+        static_cast<std::uint8_t>(sourcemeta::core::JSON::Type::Decimal))};
 
     if (has_real && has_integer) {
-      types &= static_cast<std::uint8_t>(
-          ~(1U << static_cast<std::uint8_t>(
-                sourcemeta::core::JSON::Type::Integer)));
+      types.reset(
+          static_cast<std::uint8_t>(sourcemeta::core::JSON::Type::Integer));
     }
     if (has_real && has_decimal) {
-      types &= static_cast<std::uint8_t>(
-          ~(1U << static_cast<std::uint8_t>(
-                sourcemeta::core::JSON::Type::Decimal)));
+      types.reset(
+          static_cast<std::uint8_t>(sourcemeta::core::JSON::Type::Decimal));
     }
     if (has_integer && has_decimal) {
-      types &= static_cast<std::uint8_t>(
-          ~(1U << static_cast<std::uint8_t>(
-                sourcemeta::core::JSON::Type::Decimal)));
+      types.reset(
+          static_cast<std::uint8_t>(sourcemeta::core::JSON::Type::Decimal));
     }
 
-    std::uint8_t popcount{0};
-    for (std::uint8_t temp{types}; temp != 0; temp >>= 1) {
-      popcount += (temp & 1);
-    }
+    const auto popcount{types.count()};
 
     if (popcount == 1) {
       std::uint8_t type_index{0};
-      for (std::uint8_t temp{types}; (temp & 1) == 0; temp >>= 1) {
-        type_index++;
+      for (std::uint8_t bit{0}; bit < 8; bit++) {
+        if (types.test(bit)) {
+          type_index = bit;
+          break;
+        }
       }
       message << to_string(
           static_cast<sourcemeta::core::JSON::Type>(type_index));
@@ -1061,13 +1038,13 @@ auto describe(const bool valid, const Instruction &step,
       bool first{true};
       std::uint8_t last_bit{255};
       for (std::uint8_t bit{0}; bit < 8; bit++) {
-        if ((types & (1U << bit)) != 0) {
+        if (types.test(bit)) {
           last_bit = bit;
         }
       }
 
       for (std::uint8_t bit{0}; bit < 8; bit++) {
-        if ((types & (1U << bit)) != 0) {
+        if (types.test(bit)) {
           if (!first) {
             message << ", ";
           }

@@ -268,16 +268,14 @@ INSTRUCTION_HANDLER(AssertionTypeAny) {
   SOURCEMETA_MAYBE_UNUSED(evaluator);
   EVALUATE_BEGIN_NO_PRECONDITION(AssertionTypeAny);
   const auto value{*std::get_if<ValueTypes>(&instruction.value)};
-  assert(value != 0);
+  assert(value.any());
   const auto &target{get(instance, instruction.relative_instance_location)};
   // In non-strict mode, we consider a real number that represents an
   // integer to be an integer
-  const auto type_bit{static_cast<std::uint8_t>(
-      1U << static_cast<std::uint8_t>(target.type()))};
-  if ((value & type_bit) != 0) {
+  const auto type_index{static_cast<std::uint8_t>(target.type())};
+  if (value.test(type_index)) {
     result = true;
-  } else if ((value & (1U << static_cast<std::uint8_t>(JSON::Type::Integer))) !=
-                 0 &&
+  } else if (value.test(static_cast<std::uint8_t>(JSON::Type::Integer)) &&
              target.is_integral()) {
     result = true;
   }
@@ -308,11 +306,11 @@ INSTRUCTION_HANDLER(AssertionTypeStrictAny) {
   SOURCEMETA_MAYBE_UNUSED(evaluator);
   EVALUATE_BEGIN_NO_PRECONDITION(AssertionTypeStrictAny);
   const auto value{*std::get_if<ValueTypes>(&instruction.value)};
-  assert(value != 0);
+  assert(value.any());
   const auto &target{get(instance, instruction.relative_instance_location)};
-  const auto type_bit{static_cast<std::uint8_t>(
-      1U << static_cast<std::uint8_t>(effective_type_strict_real(target)))};
-  result = ((value & type_bit) != 0);
+  const auto type_index{
+      static_cast<std::uint8_t>(effective_type_strict_real(target))};
+  result = value.test(type_index);
   EVALUATE_END(AssertionTypeStrictAny);
 }
 
@@ -782,14 +780,12 @@ INSTRUCTION_HANDLER(AssertionPropertyTypeStrictAny) {
   SOURCEMETA_MAYBE_UNUSED(evaluator);
   EVALUATE_BEGIN_TRY_TARGET(AssertionPropertyTypeStrictAny);
   const auto value{*std::get_if<ValueTypes>(&instruction.value)};
-  assert(value != 0);
+  assert(value.any());
   // Now here we refer to the actual property
-  const auto type_bit{static_cast<std::uint8_t>(
-      1U << static_cast<std::uint8_t>(target_check->type()))};
+  const auto type_index{static_cast<std::uint8_t>(target_check->type())};
   result =
-      ((value & type_bit) != 0) ||
-      (((value & (1U << static_cast<std::uint8_t>(JSON::Type::Integer))) !=
-        0) &&
+      value.test(type_index) ||
+      (value.test(static_cast<std::uint8_t>(JSON::Type::Integer)) &&
        target_check->is_decimal() && target_check->to_decimal().is_integer());
   EVALUATE_END(AssertionPropertyTypeStrictAny);
 }
@@ -803,11 +799,10 @@ INSTRUCTION_HANDLER(AssertionPropertyTypeStrictAnyEvaluate) {
   SOURCEMETA_MAYBE_UNUSED(evaluator);
   EVALUATE_BEGIN_TRY_TARGET(AssertionPropertyTypeStrictAnyEvaluate);
   const auto value{*std::get_if<ValueTypes>(&instruction.value)};
-  assert(value != 0);
+  assert(value.any());
   // Now here we refer to the actual property
-  const auto type_bit{static_cast<std::uint8_t>(
-      1U << static_cast<std::uint8_t>(target_check->type()))};
-  result = ((value & type_bit) != 0);
+  const auto type_index{static_cast<std::uint8_t>(target_check->type())};
+  result = value.test(type_index);
 
   if (result) {
     evaluator.evaluate(target_check);
@@ -2069,12 +2064,11 @@ INSTRUCTION_HANDLER(LoopPropertiesTypeStrictAny) {
   EVALUATE_BEGIN_NON_STRING(LoopPropertiesTypeStrictAny, target.is_object());
   result = true;
   const auto value{*std::get_if<ValueTypes>(&instruction.value)};
-  assert(value != 0);
+  assert(value.any());
   for (const auto &entry : target.as_object()) {
-    const auto type_bit{static_cast<std::uint8_t>(
-        1U << static_cast<std::uint8_t>(
-            effective_type_strict_real(entry.second)))};
-    if ((value & type_bit) == 0) {
+    const auto type_index{
+        static_cast<std::uint8_t>(effective_type_strict_real(entry.second))};
+    if (!value.test(type_index)) {
       result = false;
       break;
     }
@@ -2094,12 +2088,11 @@ INSTRUCTION_HANDLER(LoopPropertiesTypeStrictAnyEvaluate) {
                             target.is_object());
   result = true;
   const auto value{*std::get_if<ValueTypes>(&instruction.value)};
-  assert(value != 0);
+  assert(value.any());
   for (const auto &entry : target.as_object()) {
-    const auto type_bit{static_cast<std::uint8_t>(
-        1U << static_cast<std::uint8_t>(
-            effective_type_strict_real(entry.second)))};
-    if ((value & type_bit) == 0) {
+    const auto type_index{
+        static_cast<std::uint8_t>(effective_type_strict_real(entry.second))};
+    if (!value.test(type_index)) {
       result = false;
       EVALUATE_END(LoopPropertiesTypeStrictAnyEvaluate);
     }
@@ -2344,13 +2337,13 @@ INSTRUCTION_HANDLER(LoopItemsTypeStrictAny) {
   SOURCEMETA_MAYBE_UNUSED(evaluator);
   EVALUATE_BEGIN_NON_STRING(LoopItemsTypeStrictAny, target.is_array());
   const auto value{*std::get_if<ValueTypes>(&instruction.value)};
-  assert(value != 0);
+  assert(value.any());
 
   result = true;
   for (const auto &entry : target.as_array()) {
-    const auto type_bit{static_cast<std::uint8_t>(
-        1U << static_cast<std::uint8_t>(effective_type_strict_real(entry)))};
-    if ((value & type_bit) == 0) {
+    const auto type_index{
+        static_cast<std::uint8_t>(effective_type_strict_real(entry))};
+    if (!value.test(type_index)) {
       result = false;
       break;
     }
