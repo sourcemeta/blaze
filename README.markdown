@@ -57,6 +57,11 @@ Features
   adheres to the [annotations official test
   suite](https://github.com/json-schema-org/JSON-Schema-Test-Suite/tree/main/annotations)
 
+- **Numerics:** Blaze supports high precision decimals on JSON Schema Draft 6
+  and later. For performance reasons, these representations are only used if
+  the numbers fail to be parsed at the JSON level using the 64-bit signed and
+  IEEE 764 double precision representations
+
 Example
 -------
 
