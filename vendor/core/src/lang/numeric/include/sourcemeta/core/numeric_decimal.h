@@ -105,8 +105,12 @@ public:
   /// Check if the decimal number is zero
   [[nodiscard]] auto is_zero() const -> bool;
 
-  /// Check if the decimal number represents an integer value
-  /// NOTE: This returns `true` for values like `3.0`
+  /// Check if the decimal number represents an integer value, which includes a
+  /// number like `3.0`
+  [[nodiscard]] auto is_integral() const -> bool;
+
+  /// Check if the decimal number represents an integer value _without_ a
+  /// decimal component in its original representation.
   [[nodiscard]] auto is_integer() const -> bool;
 
   /// Check if the decimal number is finite

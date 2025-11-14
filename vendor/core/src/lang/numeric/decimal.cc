@@ -363,8 +363,12 @@ auto Decimal::is_zero() const -> bool {
   return mpd_iszero(&this->data()->value);
 }
 
-auto Decimal::is_integer() const -> bool {
+auto Decimal::is_integral() const -> bool {
   return mpd_isinteger(&this->data()->value);
+}
+
+auto Decimal::is_integer() const -> bool {
+  return this->is_integral() && this->data()->value.exp >= 0;
 }
 
 auto Decimal::is_finite() const -> bool {

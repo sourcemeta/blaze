@@ -441,7 +441,7 @@ auto JSON::operator-=(const JSON &substractive) -> JSON & {
       return std::modf(this->to_real(), &integral) == 0.0;
     }
     case Type::Decimal:
-      return this->to_decimal().is_integer();
+      return this->to_decimal().is_integral();
     default:
       return false;
   }

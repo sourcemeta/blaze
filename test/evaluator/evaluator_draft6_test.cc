@@ -2180,3 +2180,391 @@ TEST(Evaluator_draft6, properties_3) {
       instance, 0,
       "The value was expected to be of type integer but it was of type number");
 }
+
+TEST(Evaluator_draft6, properties_4) {
+  const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
+    "$schema": "http://json-schema.org/draft-06/schema#",
+    "properties": {
+      "foo": { "type": "integer" }
+    }
+  })JSON")};
+
+  auto instance{sourcemeta::core::JSON::make_object()};
+  instance.assign("foo", sourcemeta::core::JSON{sourcemeta::core::Decimal{
+                             "99999999999999999999999999999999999"}});
+
+  EVALUATE_WITH_TRACE_FAST_SUCCESS(schema, instance, 1);
+
+  EVALUATE_TRACE_PRE(0, AssertionPropertyType, "/properties/foo/type",
+                     "#/properties/foo/type", "/foo");
+  EVALUATE_TRACE_POST_SUCCESS(0, AssertionPropertyType, "/properties/foo/type",
+                              "#/properties/foo/type", "/foo");
+  EVALUATE_TRACE_POST_DESCRIBE(instance, 0,
+                               "The value was expected to be of type integer");
+}
+
+TEST(Evaluator_draft6, properties_5) {
+  const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
+    "$schema": "http://json-schema.org/draft-06/schema#",
+    "properties": {
+      "foo": { "type": "integer" }
+    }
+  })JSON")};
+
+  auto instance{sourcemeta::core::JSON::make_object()};
+  instance.assign("foo", sourcemeta::core::JSON{sourcemeta::core::Decimal{
+                             "99999999999999999999999999999999999.0"}});
+
+  EVALUATE_WITH_TRACE_FAST_SUCCESS(schema, instance, 1);
+
+  EVALUATE_TRACE_PRE(0, AssertionPropertyType, "/properties/foo/type",
+                     "#/properties/foo/type", "/foo");
+  EVALUATE_TRACE_POST_SUCCESS(0, AssertionPropertyType, "/properties/foo/type",
+                              "#/properties/foo/type", "/foo");
+  EVALUATE_TRACE_POST_DESCRIBE(instance, 0,
+                               "The value was expected to be of type integer");
+}
+
+TEST(Evaluator_draft6, properties_6) {
+  const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
+    "$schema": "http://json-schema.org/draft-06/schema#",
+    "properties": {
+      "foo": { "type": "integer" }
+    }
+  })JSON")};
+
+  auto instance{sourcemeta::core::JSON::make_object()};
+  instance.assign("foo", sourcemeta::core::JSON{sourcemeta::core::Decimal{
+                             "99999999999999999999999999999999999.1"}});
+
+  EVALUATE_WITH_TRACE_FAST_FAILURE(schema, instance, 1);
+
+  EVALUATE_TRACE_PRE(0, AssertionPropertyType, "/properties/foo/type",
+                     "#/properties/foo/type", "/foo");
+  EVALUATE_TRACE_POST_FAILURE(0, AssertionPropertyType, "/properties/foo/type",
+                              "#/properties/foo/type", "/foo");
+  EVALUATE_TRACE_POST_DESCRIBE(
+      instance, 0,
+      "The value was expected to be of type integer but it was of type number");
+}
+
+TEST(Evaluator_draft6, properties_7) {
+  const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
+    "$schema": "http://json-schema.org/draft-06/schema#",
+    "required": [ "foo", "bar" ],
+    "properties": {
+      "foo": { "type": "integer" },
+      "bar": { "type": "integer" }
+    },
+    "additionalProperties": false
+  })JSON")};
+
+  const sourcemeta::core::JSON instance{
+      sourcemeta::core::parse_json("{ \"foo\": 1, \"bar\": 2 }")};
+
+  EVALUATE_WITH_TRACE_FAST_SUCCESS(schema, instance, 2);
+
+  EVALUATE_TRACE_PRE(0, AssertionDefinesExactly, "/required", "#/required", "");
+  EVALUATE_TRACE_PRE(1, LoopPropertiesType, "/properties", "#/properties", "");
+
+  EVALUATE_TRACE_POST_SUCCESS(0, AssertionDefinesExactly, "/required",
+                              "#/required", "");
+  EVALUATE_TRACE_POST_SUCCESS(1, LoopPropertiesType, "/properties",
+                              "#/properties", "");
+
+  EVALUATE_TRACE_POST_DESCRIBE(instance, 0,
+                               "The object value was expected to only define "
+                               "properties \"bar\", and \"foo\"");
+  EVALUATE_TRACE_POST_DESCRIBE(
+      instance, 1, "The object properties were expected to be of type integer");
+}
+
+TEST(Evaluator_draft6, properties_8) {
+  const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
+    "$schema": "http://json-schema.org/draft-06/schema#",
+    "required": [ "foo", "bar" ],
+    "properties": {
+      "foo": { "type": "integer" },
+      "bar": { "type": "integer" }
+    },
+    "additionalProperties": false
+  })JSON")};
+
+  const sourcemeta::core::JSON instance{
+      sourcemeta::core::parse_json("{ \"foo\": 1.0, \"bar\": 2.0 }")};
+
+  EVALUATE_WITH_TRACE_FAST_SUCCESS(schema, instance, 2);
+
+  EVALUATE_TRACE_PRE(0, AssertionDefinesExactly, "/required", "#/required", "");
+  EVALUATE_TRACE_PRE(1, LoopPropertiesType, "/properties", "#/properties", "");
+
+  EVALUATE_TRACE_POST_SUCCESS(0, AssertionDefinesExactly, "/required",
+                              "#/required", "");
+  EVALUATE_TRACE_POST_SUCCESS(1, LoopPropertiesType, "/properties",
+                              "#/properties", "");
+
+  EVALUATE_TRACE_POST_DESCRIBE(instance, 0,
+                               "The object value was expected to only define "
+                               "properties \"bar\", and \"foo\"");
+  EVALUATE_TRACE_POST_DESCRIBE(
+      instance, 1, "The object properties were expected to be of type integer");
+}
+
+TEST(Evaluator_draft6, properties_9) {
+  const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
+    "$schema": "http://json-schema.org/draft-06/schema#",
+    "required": [ "foo", "bar" ],
+    "properties": {
+      "foo": { "type": "integer" },
+      "bar": { "type": "integer" }
+    },
+    "additionalProperties": false
+  })JSON")};
+
+  const sourcemeta::core::JSON instance{
+      sourcemeta::core::parse_json("{ \"foo\": 1.1, \"bar\": 2.1 }")};
+
+  EVALUATE_WITH_TRACE_FAST_FAILURE(schema, instance, 2);
+
+  EVALUATE_TRACE_PRE(0, AssertionDefinesExactly, "/required", "#/required", "");
+  EVALUATE_TRACE_PRE(1, LoopPropertiesType, "/properties", "#/properties", "");
+
+  EVALUATE_TRACE_POST_SUCCESS(0, AssertionDefinesExactly, "/required",
+                              "#/required", "");
+  EVALUATE_TRACE_POST_FAILURE(1, LoopPropertiesType, "/properties",
+                              "#/properties", "");
+
+  EVALUATE_TRACE_POST_DESCRIBE(instance, 0,
+                               "The object value was expected to only define "
+                               "properties \"bar\", and \"foo\"");
+  EVALUATE_TRACE_POST_DESCRIBE(
+      instance, 1, "The object properties were expected to be of type integer");
+}
+
+TEST(Evaluator_draft6, properties_10) {
+  const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
+    "$schema": "http://json-schema.org/draft-06/schema#",
+    "required": [ "foo", "bar" ],
+    "properties": {
+      "foo": { "type": "integer" },
+      "bar": { "type": "integer" }
+    },
+    "additionalProperties": false
+  })JSON")};
+
+  auto instance{sourcemeta::core::JSON::make_object()};
+  instance.assign("foo", sourcemeta::core::JSON{sourcemeta::core::Decimal{
+                             "99999999999999999999999999999999999"}});
+  instance.assign("bar", sourcemeta::core::JSON{sourcemeta::core::Decimal{
+                             "99999999999999999999999999999999999"}});
+
+  EVALUATE_WITH_TRACE_FAST_SUCCESS(schema, instance, 2);
+
+  EVALUATE_TRACE_PRE(0, AssertionDefinesExactly, "/required", "#/required", "");
+  EVALUATE_TRACE_PRE(1, LoopPropertiesType, "/properties", "#/properties", "");
+
+  EVALUATE_TRACE_POST_SUCCESS(0, AssertionDefinesExactly, "/required",
+                              "#/required", "");
+  EVALUATE_TRACE_POST_SUCCESS(1, LoopPropertiesType, "/properties",
+                              "#/properties", "");
+
+  EVALUATE_TRACE_POST_DESCRIBE(instance, 0,
+                               "The object value was expected to only define "
+                               "properties \"bar\", and \"foo\"");
+  EVALUATE_TRACE_POST_DESCRIBE(
+      instance, 1, "The object properties were expected to be of type integer");
+}
+
+TEST(Evaluator_draft6, properties_11) {
+  const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
+    "$schema": "http://json-schema.org/draft-06/schema#",
+    "required": [ "foo", "bar" ],
+    "properties": {
+      "foo": { "type": "integer" },
+      "bar": { "type": "integer" }
+    },
+    "additionalProperties": false
+  })JSON")};
+
+  auto instance{sourcemeta::core::JSON::make_object()};
+  instance.assign("foo", sourcemeta::core::JSON{sourcemeta::core::Decimal{
+                             "99999999999999999999999999999999999.0"}});
+  instance.assign("bar", sourcemeta::core::JSON{sourcemeta::core::Decimal{
+                             "99999999999999999999999999999999999.0"}});
+
+  EVALUATE_WITH_TRACE_FAST_SUCCESS(schema, instance, 2);
+
+  EVALUATE_TRACE_PRE(0, AssertionDefinesExactly, "/required", "#/required", "");
+  EVALUATE_TRACE_PRE(1, LoopPropertiesType, "/properties", "#/properties", "");
+
+  EVALUATE_TRACE_POST_SUCCESS(0, AssertionDefinesExactly, "/required",
+                              "#/required", "");
+  EVALUATE_TRACE_POST_SUCCESS(1, LoopPropertiesType, "/properties",
+                              "#/properties", "");
+
+  EVALUATE_TRACE_POST_DESCRIBE(instance, 0,
+                               "The object value was expected to only define "
+                               "properties \"bar\", and \"foo\"");
+  EVALUATE_TRACE_POST_DESCRIBE(
+      instance, 1, "The object properties were expected to be of type integer");
+}
+
+TEST(Evaluator_draft6, properties_12) {
+  const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
+    "$schema": "http://json-schema.org/draft-06/schema#",
+    "required": [ "foo", "bar" ],
+    "properties": {
+      "foo": { "type": "integer" },
+      "bar": { "type": "integer" }
+    },
+    "additionalProperties": false
+  })JSON")};
+
+  auto instance{sourcemeta::core::JSON::make_object()};
+  instance.assign("foo", sourcemeta::core::JSON{sourcemeta::core::Decimal{
+                             "99999999999999999999999999999999999.1"}});
+  instance.assign("bar", sourcemeta::core::JSON{sourcemeta::core::Decimal{
+                             "99999999999999999999999999999999999.1"}});
+
+  EVALUATE_WITH_TRACE_FAST_FAILURE(schema, instance, 2);
+
+  EVALUATE_TRACE_PRE(0, AssertionDefinesExactly, "/required", "#/required", "");
+  EVALUATE_TRACE_PRE(1, LoopPropertiesType, "/properties", "#/properties", "");
+
+  EVALUATE_TRACE_POST_SUCCESS(0, AssertionDefinesExactly, "/required",
+                              "#/required", "");
+  EVALUATE_TRACE_POST_FAILURE(1, LoopPropertiesType, "/properties",
+                              "#/properties", "");
+
+  EVALUATE_TRACE_POST_DESCRIBE(instance, 0,
+                               "The object value was expected to only define "
+                               "properties \"bar\", and \"foo\"");
+  EVALUATE_TRACE_POST_DESCRIBE(
+      instance, 1, "The object properties were expected to be of type integer");
+}
+
+TEST(Evaluator_draft6, items_1) {
+  const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
+    "$schema": "http://json-schema.org/draft-06/schema#",
+    "items": {
+      "type": "integer"
+    }
+  })JSON")};
+
+  const sourcemeta::core::JSON instance{
+      sourcemeta::core::parse_json("[ 1, 2, 3 ]")};
+  EVALUATE_WITH_TRACE_FAST_SUCCESS(schema, instance, 1);
+
+  EVALUATE_TRACE_PRE(0, LoopItemsType, "/items", "#/items", "");
+  EVALUATE_TRACE_POST_SUCCESS(0, LoopItemsType, "/items", "#/items", "");
+  EVALUATE_TRACE_POST_DESCRIBE(
+      instance, 0, "The array items were expected to be of type integer");
+}
+
+TEST(Evaluator_draft6, items_2) {
+  const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
+    "$schema": "http://json-schema.org/draft-06/schema#",
+    "items": {
+      "type": "integer"
+    }
+  })JSON")};
+
+  const sourcemeta::core::JSON instance{
+      sourcemeta::core::parse_json("[ 1.0, 2.0, 3.0 ]")};
+  EVALUATE_WITH_TRACE_FAST_SUCCESS(schema, instance, 1);
+
+  EVALUATE_TRACE_PRE(0, LoopItemsType, "/items", "#/items", "");
+  EVALUATE_TRACE_POST_SUCCESS(0, LoopItemsType, "/items", "#/items", "");
+  EVALUATE_TRACE_POST_DESCRIBE(
+      instance, 0, "The array items were expected to be of type integer");
+}
+
+TEST(Evaluator_draft6, items_3) {
+  const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
+    "$schema": "http://json-schema.org/draft-06/schema#",
+    "items": {
+      "type": "integer"
+    }
+  })JSON")};
+
+  const sourcemeta::core::JSON instance{
+      sourcemeta::core::parse_json("[ 1.1, 2.1, 3.1 ]")};
+  EVALUATE_WITH_TRACE_FAST_FAILURE(schema, instance, 1);
+
+  EVALUATE_TRACE_PRE(0, LoopItemsType, "/items", "#/items", "");
+  EVALUATE_TRACE_POST_FAILURE(0, LoopItemsType, "/items", "#/items", "");
+  EVALUATE_TRACE_POST_DESCRIBE(
+      instance, 0, "The array items were expected to be of type integer");
+}
+
+TEST(Evaluator_draft6, items_4) {
+  const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
+    "$schema": "http://json-schema.org/draft-06/schema#",
+    "items": {
+      "type": "integer"
+    }
+  })JSON")};
+
+  auto instance{sourcemeta::core::JSON::make_array()};
+  instance.push_back(sourcemeta::core::JSON{
+      sourcemeta::core::Decimal{"11111111111111111111111111111111111"}});
+  instance.push_back(sourcemeta::core::JSON{
+      sourcemeta::core::Decimal{"22222222222222222222222222222222222"}});
+  instance.push_back(sourcemeta::core::JSON{
+      sourcemeta::core::Decimal{"33333333333333333333333333333333333"}});
+
+  EVALUATE_WITH_TRACE_FAST_SUCCESS(schema, instance, 1);
+
+  EVALUATE_TRACE_PRE(0, LoopItemsType, "/items", "#/items", "");
+  EVALUATE_TRACE_POST_SUCCESS(0, LoopItemsType, "/items", "#/items", "");
+  EVALUATE_TRACE_POST_DESCRIBE(
+      instance, 0, "The array items were expected to be of type integer");
+}
+
+TEST(Evaluator_draft6, items_5) {
+  const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
+    "$schema": "http://json-schema.org/draft-06/schema#",
+    "items": {
+      "type": "integer"
+    }
+  })JSON")};
+
+  auto instance{sourcemeta::core::JSON::make_array()};
+  instance.push_back(sourcemeta::core::JSON{
+      sourcemeta::core::Decimal{"11111111111111111111111111111111111.0"}});
+  instance.push_back(sourcemeta::core::JSON{
+      sourcemeta::core::Decimal{"22222222222222222222222222222222222.0"}});
+  instance.push_back(sourcemeta::core::JSON{
+      sourcemeta::core::Decimal{"33333333333333333333333333333333333.0"}});
+
+  EVALUATE_WITH_TRACE_FAST_SUCCESS(schema, instance, 1);
+
+  EVALUATE_TRACE_PRE(0, LoopItemsType, "/items", "#/items", "");
+  EVALUATE_TRACE_POST_SUCCESS(0, LoopItemsType, "/items", "#/items", "");
+  EVALUATE_TRACE_POST_DESCRIBE(
+      instance, 0, "The array items were expected to be of type integer");
+}
+
+TEST(Evaluator_draft6, items_6) {
+  const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
+    "$schema": "http://json-schema.org/draft-06/schema#",
+    "items": {
+      "type": "integer"
+    }
+  })JSON")};
+
+  auto instance{sourcemeta::core::JSON::make_array()};
+  instance.push_back(sourcemeta::core::JSON{
+      sourcemeta::core::Decimal{"11111111111111111111111111111111111.1"}});
+  instance.push_back(sourcemeta::core::JSON{
+      sourcemeta::core::Decimal{"22222222222222222222222222222222222.2"}});
+  instance.push_back(sourcemeta::core::JSON{
+      sourcemeta::core::Decimal{"33333333333333333333333333333333333.3"}});
+
+  EVALUATE_WITH_TRACE_FAST_FAILURE(schema, instance, 1);
+
+  EVALUATE_TRACE_PRE(0, LoopItemsType, "/items", "#/items", "");
+  EVALUATE_TRACE_POST_FAILURE(0, LoopItemsType, "/items", "#/items", "");
+  EVALUATE_TRACE_POST_DESCRIBE(
+      instance, 0, "The array items were expected to be of type integer");
+}
