@@ -1922,3 +1922,261 @@ TEST(Evaluator_draft6, top_level_ref_with_id_exhaustive) {
                                "The integer value was expected to validate "
                                "against the statically referenced schema");
 }
+
+TEST(Evaluator_draft6, type_1) {
+  const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
+    "$schema": "http://json-schema.org/draft-06/schema#",
+    "type": "integer"
+  })JSON")};
+
+  const sourcemeta::core::JSON instance{3};
+  EVALUATE_WITH_TRACE_FAST_SUCCESS(schema, instance, 1);
+
+  EVALUATE_TRACE_PRE(0, AssertionType, "/type", "#/type", "");
+  EVALUATE_TRACE_POST_SUCCESS(0, AssertionType, "/type", "#/type", "");
+  EVALUATE_TRACE_POST_DESCRIBE(instance, 0,
+                               "The value was expected to be of type integer");
+}
+
+TEST(Evaluator_draft6, type_2) {
+  const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
+    "$schema": "http://json-schema.org/draft-06/schema#",
+    "type": "integer"
+  })JSON")};
+
+  const sourcemeta::core::JSON instance{3.0};
+  EVALUATE_WITH_TRACE_FAST_SUCCESS(schema, instance, 1);
+
+  EVALUATE_TRACE_PRE(0, AssertionType, "/type", "#/type", "");
+  EVALUATE_TRACE_POST_SUCCESS(0, AssertionType, "/type", "#/type", "");
+  EVALUATE_TRACE_POST_DESCRIBE(instance, 0,
+                               "The value was expected to be of type integer");
+}
+
+TEST(Evaluator_draft6, type_3) {
+  const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
+    "$schema": "http://json-schema.org/draft-06/schema#",
+    "type": "integer"
+  })JSON")};
+
+  const sourcemeta::core::JSON instance{3.2};
+  EVALUATE_WITH_TRACE_FAST_FAILURE(schema, instance, 1);
+
+  EVALUATE_TRACE_PRE(0, AssertionType, "/type", "#/type", "");
+  EVALUATE_TRACE_POST_FAILURE(0, AssertionType, "/type", "#/type", "");
+  EVALUATE_TRACE_POST_DESCRIBE(
+      instance, 0,
+      "The value was expected to be of type integer but it was of type number");
+}
+
+TEST(Evaluator_draft6, type_4) {
+  const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
+    "$schema": "http://json-schema.org/draft-06/schema#",
+    "type": "integer"
+  })JSON")};
+
+  const sourcemeta::core::JSON instance{
+      sourcemeta::core::Decimal{"99999999999999999999999999999999999"}};
+  EVALUATE_WITH_TRACE_FAST_SUCCESS(schema, instance, 1);
+
+  EVALUATE_TRACE_PRE(0, AssertionType, "/type", "#/type", "");
+  EVALUATE_TRACE_POST_SUCCESS(0, AssertionType, "/type", "#/type", "");
+  EVALUATE_TRACE_POST_DESCRIBE(instance, 0,
+                               "The value was expected to be of type integer");
+}
+
+TEST(Evaluator_draft6, type_5) {
+  const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
+    "$schema": "http://json-schema.org/draft-06/schema#",
+    "type": "integer"
+  })JSON")};
+
+  const sourcemeta::core::JSON instance{
+      sourcemeta::core::Decimal{"99999999999999999999999999999999999.0"}};
+  EVALUATE_WITH_TRACE_FAST_SUCCESS(schema, instance, 1);
+
+  EVALUATE_TRACE_PRE(0, AssertionType, "/type", "#/type", "");
+  EVALUATE_TRACE_POST_SUCCESS(0, AssertionType, "/type", "#/type", "");
+  EVALUATE_TRACE_POST_DESCRIBE(instance, 0,
+                               "The value was expected to be of type integer");
+}
+
+TEST(Evaluator_draft6, type_6) {
+  const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
+    "$schema": "http://json-schema.org/draft-06/schema#",
+    "type": "integer"
+  })JSON")};
+
+  const sourcemeta::core::JSON instance{
+      sourcemeta::core::Decimal{"99999999999999999999999999999999999.1"}};
+  EVALUATE_WITH_TRACE_FAST_FAILURE(schema, instance, 1);
+
+  EVALUATE_TRACE_PRE(0, AssertionType, "/type", "#/type", "");
+  EVALUATE_TRACE_POST_FAILURE(0, AssertionType, "/type", "#/type", "");
+  EVALUATE_TRACE_POST_DESCRIBE(
+      instance, 0,
+      "The value was expected to be of type integer but it was of type number");
+}
+
+TEST(Evaluator_draft6, type_7) {
+  const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
+    "$schema": "http://json-schema.org/draft-06/schema#",
+    "type": [ "integer", "string" ]
+  })JSON")};
+
+  const sourcemeta::core::JSON instance{3};
+  EVALUATE_WITH_TRACE_FAST_SUCCESS(schema, instance, 1);
+
+  EVALUATE_TRACE_PRE(0, AssertionTypeAny, "/type", "#/type", "");
+  EVALUATE_TRACE_POST_SUCCESS(0, AssertionTypeAny, "/type", "#/type", "");
+  EVALUATE_TRACE_POST_DESCRIBE(instance, 0,
+                               "The value was expected to be of type integer, "
+                               "or string and it was of type integer");
+}
+
+TEST(Evaluator_draft6, type_8) {
+  const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
+    "$schema": "http://json-schema.org/draft-06/schema#",
+    "type": [ "integer", "string" ]
+  })JSON")};
+
+  const sourcemeta::core::JSON instance{3.0};
+  EVALUATE_WITH_TRACE_FAST_SUCCESS(schema, instance, 1);
+
+  EVALUATE_TRACE_PRE(0, AssertionTypeAny, "/type", "#/type", "");
+  EVALUATE_TRACE_POST_SUCCESS(0, AssertionTypeAny, "/type", "#/type", "");
+  EVALUATE_TRACE_POST_DESCRIBE(instance, 0,
+                               "The value was expected to be of type integer, "
+                               "or string and it was of type number");
+}
+
+TEST(Evaluator_draft6, type_9) {
+  const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
+    "$schema": "http://json-schema.org/draft-06/schema#",
+    "type": [ "integer", "string" ]
+  })JSON")};
+
+  const sourcemeta::core::JSON instance{3.1};
+  EVALUATE_WITH_TRACE_FAST_FAILURE(schema, instance, 1);
+
+  EVALUATE_TRACE_PRE(0, AssertionTypeAny, "/type", "#/type", "");
+  EVALUATE_TRACE_POST_FAILURE(0, AssertionTypeAny, "/type", "#/type", "");
+  EVALUATE_TRACE_POST_DESCRIBE(instance, 0,
+                               "The value was expected to be of type integer, "
+                               "or string but it was of type number");
+}
+
+TEST(Evaluator_draft6, type_10) {
+  const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
+    "$schema": "http://json-schema.org/draft-06/schema#",
+    "type": [ "integer", "string" ]
+  })JSON")};
+
+  const sourcemeta::core::JSON instance{
+      sourcemeta::core::Decimal{"99999999999999999999999999999999999"}};
+  EVALUATE_WITH_TRACE_FAST_SUCCESS(schema, instance, 1);
+
+  EVALUATE_TRACE_PRE(0, AssertionTypeAny, "/type", "#/type", "");
+  EVALUATE_TRACE_POST_SUCCESS(0, AssertionTypeAny, "/type", "#/type", "");
+  EVALUATE_TRACE_POST_DESCRIBE(instance, 0,
+                               "The value was expected to be of type integer, "
+                               "or string and it was of type integer");
+}
+
+TEST(Evaluator_draft6, type_11) {
+  const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
+    "$schema": "http://json-schema.org/draft-06/schema#",
+    "type": [ "integer", "string" ]
+  })JSON")};
+
+  const sourcemeta::core::JSON instance{
+      sourcemeta::core::Decimal{"99999999999999999999999999999999999.0"}};
+  EVALUATE_WITH_TRACE_FAST_SUCCESS(schema, instance, 1);
+
+  EVALUATE_TRACE_PRE(0, AssertionTypeAny, "/type", "#/type", "");
+  EVALUATE_TRACE_POST_SUCCESS(0, AssertionTypeAny, "/type", "#/type", "");
+  EVALUATE_TRACE_POST_DESCRIBE(instance, 0,
+                               "The value was expected to be of type integer, "
+                               "or string and it was of type integer");
+}
+
+TEST(Evaluator_draft6, type_12) {
+  const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
+    "$schema": "http://json-schema.org/draft-06/schema#",
+    "type": [ "integer", "string" ]
+  })JSON")};
+
+  const sourcemeta::core::JSON instance{
+      sourcemeta::core::Decimal{"99999999999999999999999999999999999.1"}};
+  EVALUATE_WITH_TRACE_FAST_FAILURE(schema, instance, 1);
+
+  EVALUATE_TRACE_PRE(0, AssertionTypeAny, "/type", "#/type", "");
+  EVALUATE_TRACE_POST_FAILURE(0, AssertionTypeAny, "/type", "#/type", "");
+  EVALUATE_TRACE_POST_DESCRIBE(instance, 0,
+                               "The value was expected to be of type integer, "
+                               "or string but it was of type number");
+}
+
+TEST(Evaluator_draft6, properties_1) {
+  const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
+    "$schema": "http://json-schema.org/draft-06/schema#",
+    "properties": {
+      "foo": { "type": "integer" }
+    }
+  })JSON")};
+
+  const sourcemeta::core::JSON instance{
+      sourcemeta::core::parse_json("{ \"foo\": 1 }")};
+
+  EVALUATE_WITH_TRACE_FAST_SUCCESS(schema, instance, 1);
+
+  EVALUATE_TRACE_PRE(0, AssertionPropertyType, "/properties/foo/type",
+                     "#/properties/foo/type", "/foo");
+  EVALUATE_TRACE_POST_SUCCESS(0, AssertionPropertyType, "/properties/foo/type",
+                              "#/properties/foo/type", "/foo");
+  EVALUATE_TRACE_POST_DESCRIBE(instance, 0,
+                               "The value was expected to be of type integer");
+}
+
+TEST(Evaluator_draft6, properties_2) {
+  const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
+    "$schema": "http://json-schema.org/draft-06/schema#",
+    "properties": {
+      "foo": { "type": "integer" }
+    }
+  })JSON")};
+
+  const sourcemeta::core::JSON instance{
+      sourcemeta::core::parse_json("{ \"foo\": 1.0 }")};
+
+  EVALUATE_WITH_TRACE_FAST_SUCCESS(schema, instance, 1);
+
+  EVALUATE_TRACE_PRE(0, AssertionPropertyType, "/properties/foo/type",
+                     "#/properties/foo/type", "/foo");
+  EVALUATE_TRACE_POST_SUCCESS(0, AssertionPropertyType, "/properties/foo/type",
+                              "#/properties/foo/type", "/foo");
+  EVALUATE_TRACE_POST_DESCRIBE(instance, 0,
+                               "The value was expected to be of type integer");
+}
+
+TEST(Evaluator_draft6, properties_3) {
+  const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
+    "$schema": "http://json-schema.org/draft-06/schema#",
+    "properties": {
+      "foo": { "type": "integer" }
+    }
+  })JSON")};
+
+  const sourcemeta::core::JSON instance{
+      sourcemeta::core::parse_json("{ \"foo\": 1.1 }")};
+
+  EVALUATE_WITH_TRACE_FAST_FAILURE(schema, instance, 1);
+
+  EVALUATE_TRACE_PRE(0, AssertionPropertyType, "/properties/foo/type",
+                     "#/properties/foo/type", "/foo");
+  EVALUATE_TRACE_POST_FAILURE(0, AssertionPropertyType, "/properties/foo/type",
+                              "#/properties/foo/type", "/foo");
+  EVALUATE_TRACE_POST_DESCRIBE(
+      instance, 0,
+      "The value was expected to be of type integer but it was of type number");
+}

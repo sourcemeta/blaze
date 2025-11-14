@@ -248,6 +248,10 @@ INSTRUCTION_HANDLER(AssertionType) {
   const auto &target{get(instance, instruction.relative_instance_location)};
   const auto value{*std::get_if<ValueType>(&instruction.value)};
 
+  // TODO: Maybe make this instruction about integers, as it is the
+  // only where where it is actually useful?
+  assert(value == JSON::Type::Integer);
+
   // In non-strict mode, we consider a real number that represents an
   // integer to be an integer
   result = target.type() == value ||
