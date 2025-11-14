@@ -746,24 +746,48 @@ auto JSON::operator-=(const JSON &substractive) -> JSON & {
     return divisor_value != 0 && this->to_integer() % divisor_value == 0;
   }
 
-  const auto divisor_value(divisor.as_real());
-  if (divisor_value == 0.0) {
-    return false;
+  if (!this->is_decimal() && !divisor.is_decimal()) {
+    const auto divisor_value(divisor.as_real());
+    if (divisor_value == 0.0) {
+      return false;
+    }
+
+    const auto dividend_value{this->as_real()};
+
+    // Every real number that represents an integral is divisible by 0.5.
+    Real dividend_integral = 0;
+    if (std::modf(dividend_value, &dividend_integral) == 0.0 &&
+        divisor_value == 0.5) {
+      return true;
+    }
+
+    const auto division{dividend_value / divisor_value};
+    Real integral = 0;
+    return !std::isinf(division) && !std::isnan(division) &&
+           std::modf(division, &integral) == 0.0;
   }
 
-  const auto dividend_value{this->as_real()};
-
-  // Every real number that represents an integral is divisible by 0.5.
-  Real dividend_integral = 0;
-  if (std::modf(dividend_value, &dividend_integral) == 0.0 &&
-      divisor_value == 0.5) {
-    return true;
+  if (this->is_decimal() && divisor.is_decimal()) {
+    return this->to_decimal().divisible_by(divisor.to_decimal());
   }
 
-  const auto division{dividend_value / divisor_value};
-  Real integral = 0;
-  return !std::isinf(division) && !std::isnan(division) &&
-         std::modf(division, &integral) == 0.0;
+  if (this->is_decimal()) {
+    if (divisor.is_integer()) {
+      const Decimal divisor_decimal{divisor.to_integer()};
+      return this->to_decimal().divisible_by(divisor_decimal);
+    }
+
+    const Decimal divisor_decimal{divisor.to_real()};
+    return this->to_decimal().divisible_by(divisor_decimal);
+  }
+
+  if (this->is_integer()) {
+    const Decimal dividend_decimal{this->to_integer()};
+    return dividend_decimal.divisible_by(divisor.to_decimal());
+  }
+
+  const Decimal dividend_decimal{this->to_real()};
+  return dividend_decimal.divisible_by(divisor.to_decimal());
 }
 
 [[nodiscard]] auto JSON::empty() const -> bool {

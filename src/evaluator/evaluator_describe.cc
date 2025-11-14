@@ -29,6 +29,13 @@ auto to_string(const sourcemeta::core::JSON::Type type) -> std::string {
   }
 }
 
+auto value_type_name(const sourcemeta::core::JSON &value) -> std::string {
+  if (value.type() == sourcemeta::core::JSON::Type::Decimal) {
+    return value.to_decimal().is_integer() ? "integer" : "number";
+  }
+  return to_string(value.type());
+}
+
 auto escape_string(const std::string &input) -> std::string {
   std::ostringstream result;
   result << '"';
@@ -1693,10 +1700,10 @@ auto describe(const bool valid, const Instruction &step,
   if (step.type == sourcemeta::blaze::InstructionIndex::AssertionGreaterEqual) {
     std::ostringstream message;
     const auto &value{instruction_value<ValueJSON>(step)};
-    message << "The " << to_string(target.type()) << " value ";
+    message << "The " << value_type_name(target) << " value ";
     stringify(target, message);
     message << " was expected to be greater than or equal to the "
-            << to_string(value.type()) << " ";
+            << value_type_name(value) << " ";
     stringify(value, message);
     return message.str();
   }
@@ -1704,10 +1711,10 @@ auto describe(const bool valid, const Instruction &step,
   if (step.type == sourcemeta::blaze::InstructionIndex::AssertionLessEqual) {
     std::ostringstream message;
     const auto &value{instruction_value<ValueJSON>(step)};
-    message << "The " << to_string(target.type()) << " value ";
+    message << "The " << value_type_name(target) << " value ";
     stringify(target, message);
     message << " was expected to be less than or equal to the "
-            << to_string(value.type()) << " ";
+            << value_type_name(value) << " ";
     stringify(value, message);
     return message.str();
   }
@@ -1715,10 +1722,10 @@ auto describe(const bool valid, const Instruction &step,
   if (step.type == sourcemeta::blaze::InstructionIndex::AssertionGreater) {
     std::ostringstream message;
     const auto &value{instruction_value<ValueJSON>(step)};
-    message << "The " << to_string(target.type()) << " value ";
+    message << "The " << value_type_name(target) << " value ";
     stringify(target, message);
-    message << " was expected to be greater than the "
-            << to_string(value.type()) << " ";
+    message << " was expected to be greater than the " << value_type_name(value)
+            << " ";
     stringify(value, message);
     if (!valid && value == target) {
       message << ", but they were equal";
@@ -1730,9 +1737,9 @@ auto describe(const bool valid, const Instruction &step,
   if (step.type == sourcemeta::blaze::InstructionIndex::AssertionLess) {
     std::ostringstream message;
     const auto &value{instruction_value<ValueJSON>(step)};
-    message << "The " << to_string(target.type()) << " value ";
+    message << "The " << value_type_name(target) << " value ";
     stringify(target, message);
-    message << " was expected to be less than the " << to_string(value.type())
+    message << " was expected to be less than the " << value_type_name(value)
             << " ";
     stringify(value, message);
     if (!valid && value == target) {
@@ -1786,10 +1793,10 @@ auto describe(const bool valid, const Instruction &step,
   if (step.type == sourcemeta::blaze::InstructionIndex::AssertionDivisible) {
     std::ostringstream message;
     const auto &value{instruction_value<ValueJSON>(step)};
-    message << "The " << to_string(target.type()) << " value ";
+    message << "The " << value_type_name(target) << " value ";
     stringify(target, message);
-    message << " was expected to be divisible by the "
-            << to_string(value.type()) << " ";
+    message << " was expected to be divisible by the " << value_type_name(value)
+            << " ";
     stringify(value, message);
     return message.str();
   }

@@ -437,6 +437,556 @@ TEST(Evaluator_draft6, exclusiveMaximum_4) {
   EVALUATE_WITH_TRACE_FAST_SUCCESS(schema, instance, 0);
 }
 
+TEST(Evaluator_draft6, exclusiveMinimum_5) {
+  auto schema{sourcemeta::core::JSON::make_object()};
+  schema.assign("$schema", sourcemeta::core::JSON{
+                               "http://json-schema.org/draft-06/schema#"});
+  schema.assign("exclusiveMinimum",
+                sourcemeta::core::JSON{sourcemeta::core::Decimal{"5"}});
+
+  const sourcemeta::core::JSON instance{10};
+  EVALUATE_WITH_TRACE_FAST_SUCCESS(schema, instance, 1);
+  EVALUATE_TRACE_PRE(0, AssertionGreater, "/exclusiveMinimum",
+                     "#/exclusiveMinimum", "");
+  EVALUATE_TRACE_POST_SUCCESS(0, AssertionGreater, "/exclusiveMinimum",
+                              "#/exclusiveMinimum", "");
+
+  EVALUATE_TRACE_POST_DESCRIBE(
+      instance, 0,
+      "The integer value 10 was expected to be greater than the integer 5");
+}
+
+TEST(Evaluator_draft6, exclusiveMinimum_6) {
+  auto schema{sourcemeta::core::JSON::make_object()};
+  schema.assign("$schema", sourcemeta::core::JSON{
+                               "http://json-schema.org/draft-06/schema#"});
+  schema.assign("exclusiveMinimum",
+                sourcemeta::core::JSON{sourcemeta::core::Decimal{"5"}});
+
+  const sourcemeta::core::JSON instance{5};
+  EVALUATE_WITH_TRACE_FAST_FAILURE(schema, instance, 1);
+  EVALUATE_TRACE_PRE(0, AssertionGreater, "/exclusiveMinimum",
+                     "#/exclusiveMinimum", "");
+  EVALUATE_TRACE_POST_FAILURE(0, AssertionGreater, "/exclusiveMinimum",
+                              "#/exclusiveMinimum", "");
+
+  EVALUATE_TRACE_POST_DESCRIBE(
+      instance, 0,
+      "The integer value 5 was expected to be greater than the integer 5, but "
+      "they were equal");
+}
+
+TEST(Evaluator_draft6, exclusiveMinimum_7) {
+  auto schema{sourcemeta::core::JSON::make_object()};
+  schema.assign("$schema", sourcemeta::core::JSON{
+                               "http://json-schema.org/draft-06/schema#"});
+  schema.assign("exclusiveMinimum",
+                sourcemeta::core::JSON{sourcemeta::core::Decimal{"5"}});
+
+  const sourcemeta::core::JSON instance{sourcemeta::core::Decimal{"10"}};
+  EVALUATE_WITH_TRACE_FAST_SUCCESS(schema, instance, 1);
+  EVALUATE_TRACE_PRE(0, AssertionGreater, "/exclusiveMinimum",
+                     "#/exclusiveMinimum", "");
+  EVALUATE_TRACE_POST_SUCCESS(0, AssertionGreater, "/exclusiveMinimum",
+                              "#/exclusiveMinimum", "");
+
+  EVALUATE_TRACE_POST_DESCRIBE(
+      instance, 0,
+      "The integer value 10 was expected to be greater than the integer 5");
+}
+
+TEST(Evaluator_draft6, exclusiveMinimum_8) {
+  auto schema{sourcemeta::core::JSON::make_object()};
+  schema.assign("$schema", sourcemeta::core::JSON{
+                               "http://json-schema.org/draft-06/schema#"});
+  schema.assign("exclusiveMinimum",
+                sourcemeta::core::JSON{sourcemeta::core::Decimal{"5"}});
+
+  const sourcemeta::core::JSON instance{sourcemeta::core::Decimal{"5"}};
+  EVALUATE_WITH_TRACE_FAST_FAILURE(schema, instance, 1);
+  EVALUATE_TRACE_PRE(0, AssertionGreater, "/exclusiveMinimum",
+                     "#/exclusiveMinimum", "");
+  EVALUATE_TRACE_POST_FAILURE(0, AssertionGreater, "/exclusiveMinimum",
+                              "#/exclusiveMinimum", "");
+
+  EVALUATE_TRACE_POST_DESCRIBE(
+      instance, 0,
+      "The integer value 5 was expected to be greater than the integer 5, but "
+      "they were equal");
+}
+
+TEST(Evaluator_draft6, exclusiveMinimum_9) {
+  auto schema{sourcemeta::core::JSON::make_object()};
+  schema.assign("$schema", sourcemeta::core::JSON{
+                               "http://json-schema.org/draft-06/schema#"});
+  schema.assign("exclusiveMinimum",
+                sourcemeta::core::JSON{sourcemeta::core::Decimal{"2.5"}});
+
+  const sourcemeta::core::JSON instance{3.0};
+  EVALUATE_WITH_TRACE_FAST_SUCCESS(schema, instance, 1);
+  EVALUATE_TRACE_PRE(0, AssertionGreater, "/exclusiveMinimum",
+                     "#/exclusiveMinimum", "");
+  EVALUATE_TRACE_POST_SUCCESS(0, AssertionGreater, "/exclusiveMinimum",
+                              "#/exclusiveMinimum", "");
+
+  EVALUATE_TRACE_POST_DESCRIBE(
+      instance, 0,
+      "The number value 3.0 was expected to be greater than the number 2.5");
+}
+
+TEST(Evaluator_draft6, exclusiveMinimum_10) {
+  auto schema{sourcemeta::core::JSON::make_object()};
+  schema.assign("$schema", sourcemeta::core::JSON{
+                               "http://json-schema.org/draft-06/schema#"});
+  schema.assign("exclusiveMinimum",
+                sourcemeta::core::JSON{sourcemeta::core::Decimal{"2.5"}});
+
+  const sourcemeta::core::JSON instance{2.5};
+  EVALUATE_WITH_TRACE_FAST_FAILURE(schema, instance, 1);
+  EVALUATE_TRACE_PRE(0, AssertionGreater, "/exclusiveMinimum",
+                     "#/exclusiveMinimum", "");
+  EVALUATE_TRACE_POST_FAILURE(0, AssertionGreater, "/exclusiveMinimum",
+                              "#/exclusiveMinimum", "");
+
+  EVALUATE_TRACE_POST_DESCRIBE(
+      instance, 0,
+      "The number value 2.5 was expected to be greater than the number 2.5, "
+      "but they were equal");
+}
+
+TEST(Evaluator_draft6, exclusiveMinimum_11) {
+  const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
+    "$schema": "http://json-schema.org/draft-06/schema#",
+    "exclusiveMinimum": 5
+  })JSON")};
+
+  const sourcemeta::core::JSON instance{sourcemeta::core::Decimal{"10"}};
+  EVALUATE_WITH_TRACE_FAST_SUCCESS(schema, instance, 1);
+  EVALUATE_TRACE_PRE(0, AssertionGreater, "/exclusiveMinimum",
+                     "#/exclusiveMinimum", "");
+  EVALUATE_TRACE_POST_SUCCESS(0, AssertionGreater, "/exclusiveMinimum",
+                              "#/exclusiveMinimum", "");
+
+  EVALUATE_TRACE_POST_DESCRIBE(
+      instance, 0,
+      "The integer value 10 was expected to be greater than the integer 5");
+}
+
+TEST(Evaluator_draft6, exclusiveMinimum_12) {
+  const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
+    "$schema": "http://json-schema.org/draft-06/schema#",
+    "exclusiveMinimum": 5
+  })JSON")};
+
+  const sourcemeta::core::JSON instance{sourcemeta::core::Decimal{"5"}};
+  EVALUATE_WITH_TRACE_FAST_FAILURE(schema, instance, 1);
+  EVALUATE_TRACE_PRE(0, AssertionGreater, "/exclusiveMinimum",
+                     "#/exclusiveMinimum", "");
+  EVALUATE_TRACE_POST_FAILURE(0, AssertionGreater, "/exclusiveMinimum",
+                              "#/exclusiveMinimum", "");
+
+  EVALUATE_TRACE_POST_DESCRIBE(
+      instance, 0,
+      "The integer value 5 was expected to be greater than the integer 5, but "
+      "they were equal");
+}
+
+TEST(Evaluator_draft6, exclusiveMinimum_13) {
+  const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
+    "$schema": "http://json-schema.org/draft-06/schema#",
+    "exclusiveMinimum": 2.5
+  })JSON")};
+
+  const sourcemeta::core::JSON instance{sourcemeta::core::Decimal{"3.0"}};
+  EVALUATE_WITH_TRACE_FAST_SUCCESS(schema, instance, 1);
+  EVALUATE_TRACE_PRE(0, AssertionGreater, "/exclusiveMinimum",
+                     "#/exclusiveMinimum", "");
+  EVALUATE_TRACE_POST_SUCCESS(0, AssertionGreater, "/exclusiveMinimum",
+                              "#/exclusiveMinimum", "");
+
+  EVALUATE_TRACE_POST_DESCRIBE(
+      instance, 0,
+      "The number value 3.0 was expected to be greater than the number 2.5");
+}
+
+TEST(Evaluator_draft6, exclusiveMinimum_14) {
+  const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
+    "$schema": "http://json-schema.org/draft-06/schema#",
+    "exclusiveMinimum": 2.5
+  })JSON")};
+
+  const sourcemeta::core::JSON instance{sourcemeta::core::Decimal{"2.5"}};
+  EVALUATE_WITH_TRACE_FAST_FAILURE(schema, instance, 1);
+  EVALUATE_TRACE_PRE(0, AssertionGreater, "/exclusiveMinimum",
+                     "#/exclusiveMinimum", "");
+  EVALUATE_TRACE_POST_FAILURE(0, AssertionGreater, "/exclusiveMinimum",
+                              "#/exclusiveMinimum", "");
+
+  EVALUATE_TRACE_POST_DESCRIBE(
+      instance, 0,
+      "The number value 2.5 was expected to be greater than the number 2.5, "
+      "but they were equal");
+}
+
+TEST(Evaluator_draft6, exclusiveMinimum_15) {
+  auto schema{sourcemeta::core::JSON::make_object()};
+  schema.assign("$schema", sourcemeta::core::JSON{
+                               "http://json-schema.org/draft-06/schema#"});
+  schema.assign("exclusiveMinimum",
+                sourcemeta::core::JSON{sourcemeta::core::Decimal{
+                    "99999999999999999999999999999999999"}});
+
+  const sourcemeta::core::JSON instance{
+      sourcemeta::core::Decimal{"199999999999999999999999999999999998"}};
+  EVALUATE_WITH_TRACE_FAST_SUCCESS(schema, instance, 1);
+  EVALUATE_TRACE_PRE(0, AssertionGreater, "/exclusiveMinimum",
+                     "#/exclusiveMinimum", "");
+  EVALUATE_TRACE_POST_SUCCESS(0, AssertionGreater, "/exclusiveMinimum",
+                              "#/exclusiveMinimum", "");
+
+  EVALUATE_TRACE_POST_DESCRIBE(
+      instance, 0,
+      "The integer value 199999999999999999999999999999999998 was expected to "
+      "be greater than the integer 99999999999999999999999999999999999");
+}
+
+TEST(Evaluator_draft6, exclusiveMinimum_16) {
+  auto schema{sourcemeta::core::JSON::make_object()};
+  schema.assign("$schema", sourcemeta::core::JSON{
+                               "http://json-schema.org/draft-06/schema#"});
+  schema.assign("exclusiveMinimum",
+                sourcemeta::core::JSON{sourcemeta::core::Decimal{
+                    "99999999999999999999999999999999999"}});
+
+  const sourcemeta::core::JSON instance{
+      sourcemeta::core::Decimal{"99999999999999999999999999999999999"}};
+  EVALUATE_WITH_TRACE_FAST_FAILURE(schema, instance, 1);
+  EVALUATE_TRACE_PRE(0, AssertionGreater, "/exclusiveMinimum",
+                     "#/exclusiveMinimum", "");
+  EVALUATE_TRACE_POST_FAILURE(0, AssertionGreater, "/exclusiveMinimum",
+                              "#/exclusiveMinimum", "");
+
+  EVALUATE_TRACE_POST_DESCRIBE(
+      instance, 0,
+      "The integer value 99999999999999999999999999999999999 was expected to "
+      "be greater than the integer 99999999999999999999999999999999999, but "
+      "they were equal");
+}
+
+TEST(Evaluator_draft6, exclusiveMinimum_17) {
+  auto schema{sourcemeta::core::JSON::make_object()};
+  schema.assign("$schema", sourcemeta::core::JSON{
+                               "http://json-schema.org/draft-06/schema#"});
+  schema.assign("exclusiveMinimum",
+                sourcemeta::core::JSON{sourcemeta::core::Decimal{"0.5"}});
+
+  const sourcemeta::core::JSON instance{sourcemeta::core::Decimal{"0.7"}};
+  EVALUATE_WITH_TRACE_FAST_SUCCESS(schema, instance, 1);
+  EVALUATE_TRACE_PRE(0, AssertionGreater, "/exclusiveMinimum",
+                     "#/exclusiveMinimum", "");
+  EVALUATE_TRACE_POST_SUCCESS(0, AssertionGreater, "/exclusiveMinimum",
+                              "#/exclusiveMinimum", "");
+
+  EVALUATE_TRACE_POST_DESCRIBE(
+      instance, 0,
+      "The number value 0.7 was expected to be greater than the number 0.5");
+}
+
+TEST(Evaluator_draft6, exclusiveMinimum_18) {
+  auto schema{sourcemeta::core::JSON::make_object()};
+  schema.assign("$schema", sourcemeta::core::JSON{
+                               "http://json-schema.org/draft-06/schema#"});
+  schema.assign("exclusiveMinimum",
+                sourcemeta::core::JSON{sourcemeta::core::Decimal{"0.5"}});
+
+  const sourcemeta::core::JSON instance{sourcemeta::core::Decimal{"0.5"}};
+  EVALUATE_WITH_TRACE_FAST_FAILURE(schema, instance, 1);
+  EVALUATE_TRACE_PRE(0, AssertionGreater, "/exclusiveMinimum",
+                     "#/exclusiveMinimum", "");
+  EVALUATE_TRACE_POST_FAILURE(0, AssertionGreater, "/exclusiveMinimum",
+                              "#/exclusiveMinimum", "");
+
+  EVALUATE_TRACE_POST_DESCRIBE(
+      instance, 0,
+      "The number value 0.5 was expected to be greater than the number 0.5, "
+      "but they were equal");
+}
+
+TEST(Evaluator_draft6, exclusiveMaximum_5) {
+  auto schema{sourcemeta::core::JSON::make_object()};
+  schema.assign("$schema", sourcemeta::core::JSON{
+                               "http://json-schema.org/draft-06/schema#"});
+  schema.assign("exclusiveMaximum",
+                sourcemeta::core::JSON{sourcemeta::core::Decimal{"5"}});
+
+  const sourcemeta::core::JSON instance{3};
+  EVALUATE_WITH_TRACE_FAST_SUCCESS(schema, instance, 1);
+  EVALUATE_TRACE_PRE(0, AssertionLess, "/exclusiveMaximum",
+                     "#/exclusiveMaximum", "");
+  EVALUATE_TRACE_POST_SUCCESS(0, AssertionLess, "/exclusiveMaximum",
+                              "#/exclusiveMaximum", "");
+
+  EVALUATE_TRACE_POST_DESCRIBE(
+      instance, 0,
+      "The integer value 3 was expected to be less than the integer 5");
+}
+
+TEST(Evaluator_draft6, exclusiveMaximum_6) {
+  auto schema{sourcemeta::core::JSON::make_object()};
+  schema.assign("$schema", sourcemeta::core::JSON{
+                               "http://json-schema.org/draft-06/schema#"});
+  schema.assign("exclusiveMaximum",
+                sourcemeta::core::JSON{sourcemeta::core::Decimal{"5"}});
+
+  const sourcemeta::core::JSON instance{5};
+  EVALUATE_WITH_TRACE_FAST_FAILURE(schema, instance, 1);
+  EVALUATE_TRACE_PRE(0, AssertionLess, "/exclusiveMaximum",
+                     "#/exclusiveMaximum", "");
+  EVALUATE_TRACE_POST_FAILURE(0, AssertionLess, "/exclusiveMaximum",
+                              "#/exclusiveMaximum", "");
+
+  EVALUATE_TRACE_POST_DESCRIBE(
+      instance, 0,
+      "The integer value 5 was expected to be less than the integer 5, but "
+      "they were equal");
+}
+
+TEST(Evaluator_draft6, exclusiveMaximum_7) {
+  auto schema{sourcemeta::core::JSON::make_object()};
+  schema.assign("$schema", sourcemeta::core::JSON{
+                               "http://json-schema.org/draft-06/schema#"});
+  schema.assign("exclusiveMaximum",
+                sourcemeta::core::JSON{sourcemeta::core::Decimal{"5"}});
+
+  const sourcemeta::core::JSON instance{sourcemeta::core::Decimal{"3"}};
+  EVALUATE_WITH_TRACE_FAST_SUCCESS(schema, instance, 1);
+  EVALUATE_TRACE_PRE(0, AssertionLess, "/exclusiveMaximum",
+                     "#/exclusiveMaximum", "");
+  EVALUATE_TRACE_POST_SUCCESS(0, AssertionLess, "/exclusiveMaximum",
+                              "#/exclusiveMaximum", "");
+
+  EVALUATE_TRACE_POST_DESCRIBE(
+      instance, 0,
+      "The integer value 3 was expected to be less than the integer 5");
+}
+
+TEST(Evaluator_draft6, exclusiveMaximum_8) {
+  auto schema{sourcemeta::core::JSON::make_object()};
+  schema.assign("$schema", sourcemeta::core::JSON{
+                               "http://json-schema.org/draft-06/schema#"});
+  schema.assign("exclusiveMaximum",
+                sourcemeta::core::JSON{sourcemeta::core::Decimal{"5"}});
+
+  const sourcemeta::core::JSON instance{sourcemeta::core::Decimal{"5"}};
+  EVALUATE_WITH_TRACE_FAST_FAILURE(schema, instance, 1);
+  EVALUATE_TRACE_PRE(0, AssertionLess, "/exclusiveMaximum",
+                     "#/exclusiveMaximum", "");
+  EVALUATE_TRACE_POST_FAILURE(0, AssertionLess, "/exclusiveMaximum",
+                              "#/exclusiveMaximum", "");
+
+  EVALUATE_TRACE_POST_DESCRIBE(
+      instance, 0,
+      "The integer value 5 was expected to be less than the integer 5, but "
+      "they were equal");
+}
+
+TEST(Evaluator_draft6, exclusiveMaximum_9) {
+  auto schema{sourcemeta::core::JSON::make_object()};
+  schema.assign("$schema", sourcemeta::core::JSON{
+                               "http://json-schema.org/draft-06/schema#"});
+  schema.assign("exclusiveMaximum",
+                sourcemeta::core::JSON{sourcemeta::core::Decimal{"2.5"}});
+
+  const sourcemeta::core::JSON instance{2.0};
+  EVALUATE_WITH_TRACE_FAST_SUCCESS(schema, instance, 1);
+  EVALUATE_TRACE_PRE(0, AssertionLess, "/exclusiveMaximum",
+                     "#/exclusiveMaximum", "");
+  EVALUATE_TRACE_POST_SUCCESS(0, AssertionLess, "/exclusiveMaximum",
+                              "#/exclusiveMaximum", "");
+
+  EVALUATE_TRACE_POST_DESCRIBE(
+      instance, 0,
+      "The number value 2.0 was expected to be less than the number 2.5");
+}
+
+TEST(Evaluator_draft6, exclusiveMaximum_10) {
+  auto schema{sourcemeta::core::JSON::make_object()};
+  schema.assign("$schema", sourcemeta::core::JSON{
+                               "http://json-schema.org/draft-06/schema#"});
+  schema.assign("exclusiveMaximum",
+                sourcemeta::core::JSON{sourcemeta::core::Decimal{"2.5"}});
+
+  const sourcemeta::core::JSON instance{2.5};
+  EVALUATE_WITH_TRACE_FAST_FAILURE(schema, instance, 1);
+  EVALUATE_TRACE_PRE(0, AssertionLess, "/exclusiveMaximum",
+                     "#/exclusiveMaximum", "");
+  EVALUATE_TRACE_POST_FAILURE(0, AssertionLess, "/exclusiveMaximum",
+                              "#/exclusiveMaximum", "");
+
+  EVALUATE_TRACE_POST_DESCRIBE(
+      instance, 0,
+      "The number value 2.5 was expected to be less than the number 2.5, but "
+      "they were equal");
+}
+
+TEST(Evaluator_draft6, exclusiveMaximum_11) {
+  const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
+    "$schema": "http://json-schema.org/draft-06/schema#",
+    "exclusiveMaximum": 5
+  })JSON")};
+
+  const sourcemeta::core::JSON instance{sourcemeta::core::Decimal{"3"}};
+  EVALUATE_WITH_TRACE_FAST_SUCCESS(schema, instance, 1);
+  EVALUATE_TRACE_PRE(0, AssertionLess, "/exclusiveMaximum",
+                     "#/exclusiveMaximum", "");
+  EVALUATE_TRACE_POST_SUCCESS(0, AssertionLess, "/exclusiveMaximum",
+                              "#/exclusiveMaximum", "");
+
+  EVALUATE_TRACE_POST_DESCRIBE(
+      instance, 0,
+      "The integer value 3 was expected to be less than the integer 5");
+}
+
+TEST(Evaluator_draft6, exclusiveMaximum_12) {
+  const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
+    "$schema": "http://json-schema.org/draft-06/schema#",
+    "exclusiveMaximum": 5
+  })JSON")};
+
+  const sourcemeta::core::JSON instance{sourcemeta::core::Decimal{"5"}};
+  EVALUATE_WITH_TRACE_FAST_FAILURE(schema, instance, 1);
+  EVALUATE_TRACE_PRE(0, AssertionLess, "/exclusiveMaximum",
+                     "#/exclusiveMaximum", "");
+  EVALUATE_TRACE_POST_FAILURE(0, AssertionLess, "/exclusiveMaximum",
+                              "#/exclusiveMaximum", "");
+
+  EVALUATE_TRACE_POST_DESCRIBE(
+      instance, 0,
+      "The integer value 5 was expected to be less than the integer 5, but "
+      "they were equal");
+}
+
+TEST(Evaluator_draft6, exclusiveMaximum_13) {
+  const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
+    "$schema": "http://json-schema.org/draft-06/schema#",
+    "exclusiveMaximum": 2.5
+  })JSON")};
+
+  const sourcemeta::core::JSON instance{sourcemeta::core::Decimal{"2.0"}};
+  EVALUATE_WITH_TRACE_FAST_SUCCESS(schema, instance, 1);
+  EVALUATE_TRACE_PRE(0, AssertionLess, "/exclusiveMaximum",
+                     "#/exclusiveMaximum", "");
+  EVALUATE_TRACE_POST_SUCCESS(0, AssertionLess, "/exclusiveMaximum",
+                              "#/exclusiveMaximum", "");
+
+  EVALUATE_TRACE_POST_DESCRIBE(
+      instance, 0,
+      "The number value 2.0 was expected to be less than the number 2.5");
+}
+
+TEST(Evaluator_draft6, exclusiveMaximum_14) {
+  const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
+    "$schema": "http://json-schema.org/draft-06/schema#",
+    "exclusiveMaximum": 2.5
+  })JSON")};
+
+  const sourcemeta::core::JSON instance{sourcemeta::core::Decimal{"2.5"}};
+  EVALUATE_WITH_TRACE_FAST_FAILURE(schema, instance, 1);
+  EVALUATE_TRACE_PRE(0, AssertionLess, "/exclusiveMaximum",
+                     "#/exclusiveMaximum", "");
+  EVALUATE_TRACE_POST_FAILURE(0, AssertionLess, "/exclusiveMaximum",
+                              "#/exclusiveMaximum", "");
+
+  EVALUATE_TRACE_POST_DESCRIBE(
+      instance, 0,
+      "The number value 2.5 was expected to be less than the number 2.5, but "
+      "they were equal");
+}
+
+TEST(Evaluator_draft6, exclusiveMaximum_15) {
+  auto schema{sourcemeta::core::JSON::make_object()};
+  schema.assign("$schema", sourcemeta::core::JSON{
+                               "http://json-schema.org/draft-06/schema#"});
+  schema.assign("exclusiveMaximum",
+                sourcemeta::core::JSON{sourcemeta::core::Decimal{
+                    "99999999999999999999999999999999999"}});
+
+  const sourcemeta::core::JSON instance{
+      sourcemeta::core::Decimal{"99999999999999999999999999999999998"}};
+  EVALUATE_WITH_TRACE_FAST_SUCCESS(schema, instance, 1);
+  EVALUATE_TRACE_PRE(0, AssertionLess, "/exclusiveMaximum",
+                     "#/exclusiveMaximum", "");
+  EVALUATE_TRACE_POST_SUCCESS(0, AssertionLess, "/exclusiveMaximum",
+                              "#/exclusiveMaximum", "");
+
+  EVALUATE_TRACE_POST_DESCRIBE(
+      instance, 0,
+      "The integer value 99999999999999999999999999999999998 was expected to "
+      "be less than the integer 99999999999999999999999999999999999");
+}
+
+TEST(Evaluator_draft6, exclusiveMaximum_16) {
+  auto schema{sourcemeta::core::JSON::make_object()};
+  schema.assign("$schema", sourcemeta::core::JSON{
+                               "http://json-schema.org/draft-06/schema#"});
+  schema.assign("exclusiveMaximum",
+                sourcemeta::core::JSON{sourcemeta::core::Decimal{
+                    "99999999999999999999999999999999999"}});
+
+  const sourcemeta::core::JSON instance{
+      sourcemeta::core::Decimal{"99999999999999999999999999999999999"}};
+  EVALUATE_WITH_TRACE_FAST_FAILURE(schema, instance, 1);
+  EVALUATE_TRACE_PRE(0, AssertionLess, "/exclusiveMaximum",
+                     "#/exclusiveMaximum", "");
+  EVALUATE_TRACE_POST_FAILURE(0, AssertionLess, "/exclusiveMaximum",
+                              "#/exclusiveMaximum", "");
+
+  EVALUATE_TRACE_POST_DESCRIBE(
+      instance, 0,
+      "The integer value 99999999999999999999999999999999999 was expected to "
+      "be less than the integer 99999999999999999999999999999999999, but they "
+      "were equal");
+}
+
+TEST(Evaluator_draft6, exclusiveMaximum_17) {
+  auto schema{sourcemeta::core::JSON::make_object()};
+  schema.assign("$schema", sourcemeta::core::JSON{
+                               "http://json-schema.org/draft-06/schema#"});
+  schema.assign("exclusiveMaximum",
+                sourcemeta::core::JSON{sourcemeta::core::Decimal{"0.5"}});
+
+  const sourcemeta::core::JSON instance{sourcemeta::core::Decimal{"0.3"}};
+  EVALUATE_WITH_TRACE_FAST_SUCCESS(schema, instance, 1);
+  EVALUATE_TRACE_PRE(0, AssertionLess, "/exclusiveMaximum",
+                     "#/exclusiveMaximum", "");
+  EVALUATE_TRACE_POST_SUCCESS(0, AssertionLess, "/exclusiveMaximum",
+                              "#/exclusiveMaximum", "");
+
+  EVALUATE_TRACE_POST_DESCRIBE(
+      instance, 0,
+      "The number value 0.3 was expected to be less than the number 0.5");
+}
+
+TEST(Evaluator_draft6, exclusiveMaximum_18) {
+  auto schema{sourcemeta::core::JSON::make_object()};
+  schema.assign("$schema", sourcemeta::core::JSON{
+                               "http://json-schema.org/draft-06/schema#"});
+  schema.assign("exclusiveMaximum",
+                sourcemeta::core::JSON{sourcemeta::core::Decimal{"0.5"}});
+
+  const sourcemeta::core::JSON instance{sourcemeta::core::Decimal{"0.5"}};
+  EVALUATE_WITH_TRACE_FAST_FAILURE(schema, instance, 1);
+  EVALUATE_TRACE_PRE(0, AssertionLess, "/exclusiveMaximum",
+                     "#/exclusiveMaximum", "");
+  EVALUATE_TRACE_POST_FAILURE(0, AssertionLess, "/exclusiveMaximum",
+                              "#/exclusiveMaximum", "");
+
+  EVALUATE_TRACE_POST_DESCRIBE(
+      instance, 0,
+      "The number value 0.5 was expected to be less than the number 0.5, but "
+      "they were equal");
+}
+
 TEST(Evaluator_draft6, contains_1) {
   const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
     "$schema": "http://json-schema.org/draft-06/schema#",
