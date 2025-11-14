@@ -2315,7 +2315,9 @@ INSTRUCTION_HANDLER(LoopItemsTypeStrict) {
   result = true;
   const auto value{*std::get_if<ValueType>(&instruction.value)};
   for (const auto &entry : target.as_array()) {
-    if (entry.type() != value) {
+    if (entry.type() != value &&
+        (value != JSON::Type::Integer || !entry.is_decimal() ||
+         !entry.to_decimal().is_integer())) {
       result = false;
       break;
     }
@@ -2339,7 +2341,9 @@ INSTRUCTION_HANDLER(LoopItemsTypeStrictAny) {
   for (const auto &entry : target.as_array()) {
     const auto type_bit{static_cast<std::uint8_t>(
         1U << static_cast<std::uint8_t>(entry.type()))};
-    if ((value & type_bit) == 0) {
+    if ((value & type_bit) == 0 &&
+        !((value & (1U << static_cast<std::uint8_t>(JSON::Type::Integer))) &&
+          entry.is_decimal() && entry.to_decimal().is_integer())) {
       result = false;
       break;
     }

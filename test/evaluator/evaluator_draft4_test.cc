@@ -3768,6 +3768,90 @@ TEST(Evaluator_draft4, items_11) {
   EVALUATE_WITH_TRACE_FAST_SUCCESS(schema, instance, 0);
 }
 
+TEST(Evaluator_draft4, items_12) {
+  const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
+    "$schema": "http://json-schema.org/draft-04/schema#",
+    "items": {
+      "type": "integer"
+    }
+  })JSON")};
+
+  auto instance{sourcemeta::core::JSON::make_array()};
+  instance.push_back(sourcemeta::core::JSON{
+      sourcemeta::core::Decimal{"99999999999999999999999999999999999"}});
+
+  EVALUATE_WITH_TRACE_FAST_SUCCESS(schema, instance, 1);
+
+  EVALUATE_TRACE_PRE(0, LoopItemsTypeStrict, "/items", "#/items", "");
+  EVALUATE_TRACE_POST_SUCCESS(0, LoopItemsTypeStrict, "/items", "#/items", "");
+  EVALUATE_TRACE_POST_DESCRIBE(
+      instance, 0, "The array items were expected to be of type integer");
+}
+
+TEST(Evaluator_draft4, items_13) {
+  const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
+    "$schema": "http://json-schema.org/draft-04/schema#",
+    "items": {
+      "type": "integer"
+    }
+  })JSON")};
+
+  auto instance{sourcemeta::core::JSON::make_array()};
+  instance.push_back(sourcemeta::core::JSON{
+      sourcemeta::core::Decimal{"99999999999999999999999999999999999.0"}});
+
+  EVALUATE_WITH_TRACE_FAST_FAILURE(schema, instance, 1);
+
+  EVALUATE_TRACE_PRE(0, LoopItemsTypeStrict, "/items", "#/items", "");
+  EVALUATE_TRACE_POST_FAILURE(0, LoopItemsTypeStrict, "/items", "#/items", "");
+  EVALUATE_TRACE_POST_DESCRIBE(
+      instance, 0, "The array items were expected to be of type integer");
+}
+
+TEST(Evaluator_draft4, items_14) {
+  const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
+    "$schema": "http://json-schema.org/draft-04/schema#",
+    "items": {
+      "type": [ "integer", "string" ]
+    }
+  })JSON")};
+
+  auto instance{sourcemeta::core::JSON::make_array()};
+  instance.push_back(sourcemeta::core::JSON{
+      sourcemeta::core::Decimal{"99999999999999999999999999999999999"}});
+
+  EVALUATE_WITH_TRACE_FAST_SUCCESS(schema, instance, 1);
+
+  EVALUATE_TRACE_PRE(0, LoopItemsTypeStrictAny, "/items", "#/items", "");
+  EVALUATE_TRACE_POST_SUCCESS(0, LoopItemsTypeStrictAny, "/items", "#/items",
+                              "");
+  EVALUATE_TRACE_POST_DESCRIBE(
+      instance, 0,
+      "The array items were expected to be of type integer, or string");
+}
+
+TEST(Evaluator_draft4, items_15) {
+  const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
+    "$schema": "http://json-schema.org/draft-04/schema#",
+    "items": {
+      "type": [ "integer", "string" ]
+    }
+  })JSON")};
+
+  auto instance{sourcemeta::core::JSON::make_array()};
+  instance.push_back(sourcemeta::core::JSON{
+      sourcemeta::core::Decimal{"99999999999999999999999999999999999.0"}});
+
+  EVALUATE_WITH_TRACE_FAST_FAILURE(schema, instance, 1);
+
+  EVALUATE_TRACE_PRE(0, LoopItemsTypeStrictAny, "/items", "#/items", "");
+  EVALUATE_TRACE_POST_FAILURE(0, LoopItemsTypeStrictAny, "/items", "#/items",
+                              "");
+  EVALUATE_TRACE_POST_DESCRIBE(
+      instance, 0,
+      "The array items were expected to be of type integer, or string");
+}
+
 TEST(Evaluator_draft4, additionalItems_1) {
   const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
     "$schema": "http://json-schema.org/draft-04/schema#",
