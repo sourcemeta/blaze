@@ -51,7 +51,7 @@ struct SchemaContext {
 /// disposal to implement a keyword
 struct DynamicContext {
   /// The schema keyword
-  const std::string keyword;
+  const std::string &keyword;
   /// The schema base keyword path
   const sourcemeta::core::Pointer &base_schema_location;
   /// The base instance location that the keyword must be evaluated to

@@ -11,22 +11,30 @@
 #include <utility>   // std::declval, std::move
 #include <variant>   // std::visit
 
+#include "vocabulary_lookup.h"
+
 namespace sourcemeta::blaze {
 
+// Static empty string for DynamicContext with no keyword
+inline const std::string &empty_keyword() {
+  static const std::string value{""};
+  return value;
+}
+
 inline auto relative_dynamic_context() -> DynamicContext {
-  return {"", sourcemeta::core::empty_pointer, sourcemeta::core::empty_pointer,
-          false};
+  return {empty_keyword(), sourcemeta::core::empty_pointer,
+          sourcemeta::core::empty_pointer, false};
 }
 
 inline auto relative_dynamic_context(const DynamicContext &dynamic_context)
     -> DynamicContext {
-  return {"", sourcemeta::core::empty_pointer, sourcemeta::core::empty_pointer,
-          dynamic_context.property_as_target};
+  return {empty_keyword(), sourcemeta::core::empty_pointer,
+          sourcemeta::core::empty_pointer, dynamic_context.property_as_target};
 }
 
 inline auto property_relative_dynamic_context() -> DynamicContext {
-  return {"", sourcemeta::core::empty_pointer, sourcemeta::core::empty_pointer,
-          true};
+  return {empty_keyword(), sourcemeta::core::empty_pointer,
+          sourcemeta::core::empty_pointer, true};
 }
 
 inline auto schema_resource_id(const std::vector<std::string> &resources,
@@ -222,7 +230,7 @@ inline auto find_adjacent(const Context &context,
 
     if (std::any_of(vocabularies.cbegin(), vocabularies.cend(),
                     [&subschema_vocabularies](const auto &vocabulary) {
-                      return subschema_vocabularies.contains(vocabulary);
+                      return has_vocabulary(subschema_vocabularies, vocabulary);
                     }) &&
         subschema.type() == type) {
       result.emplace_back(subschema);

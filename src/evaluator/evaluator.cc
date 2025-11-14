@@ -77,16 +77,18 @@ auto Evaluator::validate(const Template &schema,
   assert(this->instance_location.empty());
   assert(this->resources.empty());
   this->labels.clear();
+  // Reserve capacity to avoid rehashing during evaluation
+  this->labels.reserve(16);
 
-  if (schema.track && schema.dynamic) {
+  if (schema.track && schema.dynamic) [[unlikely]] {
     this->evaluated_.clear();
     return complete::evaluate(instance, *this, schema, nullptr);
-  } else if (schema.track) {
+  } else if (schema.track) [[unlikely]] {
     this->evaluated_.clear();
     return track::evaluate(instance, *this, schema);
-  } else if (schema.dynamic) {
+  } else if (schema.dynamic) [[unlikely]] {
     return dynamic::evaluate(instance, *this, schema);
-  } else {
+  } else [[likely]] {
     return fast::evaluate(instance, *this, schema);
   }
 }
@@ -99,6 +101,7 @@ auto Evaluator::validate(const Template &schema,
   assert(this->instance_location.empty());
   assert(this->resources.empty());
   this->labels.clear();
+  this->labels.reserve(16);
   this->evaluated_.clear();
 
   return complete::evaluate(instance, *this, schema, callback);

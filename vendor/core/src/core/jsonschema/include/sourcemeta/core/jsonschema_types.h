@@ -11,12 +11,284 @@
 #include <string>        // std::string
 #include <string_view>   // std::string_view
 #include <unordered_map> // std::unordered_map
+#include <vector>        // std::vector
 
 namespace sourcemeta::core {
 
 /// @ingroup jsonschema
-/// A set of vocabularies
-using Vocabularies = std::unordered_map<JSON::String, bool>;
+/// Vocabulary enumeration for known JSON Schema vocabularies
+enum class KnownVocabulary : uint32_t {
+  // Pre-vocabulary dialects (treated as vocabularies)
+  Draft00 = 1u << 0,
+  Draft00Hyper = 1u << 1,
+  Draft01 = 1u << 2,
+  Draft01Hyper = 1u << 3,
+  Draft02 = 1u << 4,
+  Draft02Hyper = 1u << 5,
+  Draft03 = 1u << 6,
+  Draft03Hyper = 1u << 7,
+  Draft04 = 1u << 8,
+  Draft04Hyper = 1u << 9,
+  Draft06 = 1u << 10,
+  Draft06Hyper = 1u << 11,
+  Draft07 = 1u << 12,
+  Draft07Hyper = 1u << 13,
+  // 2019-09 vocabularies
+  Draft201909Core = 1u << 14,
+  Draft201909Applicator = 1u << 15,
+  Draft201909Validation = 1u << 16,
+  Draft201909MetaData = 1u << 17,
+  Draft201909Format = 1u << 18,
+  Draft201909Content = 1u << 19,
+  Draft201909HyperSchema = 1u << 20,
+  // 2020-12 vocabularies
+  Draft202012Core = 1u << 21,
+  Draft202012Applicator = 1u << 22,
+  Draft202012Unevaluated = 1u << 23,
+  Draft202012Validation = 1u << 24,
+  Draft202012MetaData = 1u << 25,
+  Draft202012FormatAnnotation = 1u << 26,
+  Draft202012FormatAssertion = 1u << 27,
+  Draft202012Content = 1u << 28
+};
+
+namespace detail {
+inline auto uri_to_known_vocabulary(std::string_view uri)
+    -> std::optional<KnownVocabulary> {
+  using sourcemeta::core::KnownVocabulary;
+
+  // Pre-vocabulary dialects
+  if (uri == "http://json-schema.org/draft-00/schema#") {
+    return KnownVocabulary::Draft00;
+  }
+  if (uri == "http://json-schema.org/draft-00/hyper-schema#") {
+    return KnownVocabulary::Draft00Hyper;
+  }
+  if (uri == "http://json-schema.org/draft-01/schema#") {
+    return KnownVocabulary::Draft01;
+  }
+  if (uri == "http://json-schema.org/draft-01/hyper-schema#") {
+    return KnownVocabulary::Draft01Hyper;
+  }
+  if (uri == "http://json-schema.org/draft-02/schema#") {
+    return KnownVocabulary::Draft02;
+  }
+  if (uri == "http://json-schema.org/draft-02/hyper-schema#") {
+    return KnownVocabulary::Draft02Hyper;
+  }
+  if (uri == "http://json-schema.org/draft-03/schema#") {
+    return KnownVocabulary::Draft03;
+  }
+  if (uri == "http://json-schema.org/draft-03/hyper-schema#") {
+    return KnownVocabulary::Draft03Hyper;
+  }
+  if (uri == "http://json-schema.org/draft-04/schema#") {
+    return KnownVocabulary::Draft04;
+  }
+  if (uri == "http://json-schema.org/draft-04/hyper-schema#") {
+    return KnownVocabulary::Draft04Hyper;
+  }
+  if (uri == "http://json-schema.org/draft-06/schema#") {
+    return KnownVocabulary::Draft06;
+  }
+  if (uri == "http://json-schema.org/draft-06/hyper-schema#") {
+    return KnownVocabulary::Draft06Hyper;
+  }
+  if (uri == "http://json-schema.org/draft-07/schema#") {
+    return KnownVocabulary::Draft07;
+  }
+  if (uri == "http://json-schema.org/draft-07/hyper-schema#") {
+    return KnownVocabulary::Draft07Hyper;
+  }
+
+  // 2019-09 vocabularies
+  if (uri == "https://json-schema.org/draft/2019-09/vocab/core") {
+    return KnownVocabulary::Draft201909Core;
+  }
+  if (uri == "https://json-schema.org/draft/2019-09/vocab/applicator") {
+    return KnownVocabulary::Draft201909Applicator;
+  }
+  if (uri == "https://json-schema.org/draft/2019-09/vocab/validation") {
+    return KnownVocabulary::Draft201909Validation;
+  }
+  if (uri == "https://json-schema.org/draft/2019-09/vocab/meta-data") {
+    return KnownVocabulary::Draft201909MetaData;
+  }
+  if (uri == "https://json-schema.org/draft/2019-09/vocab/format") {
+    return KnownVocabulary::Draft201909Format;
+  }
+  if (uri == "https://json-schema.org/draft/2019-09/vocab/content") {
+    return KnownVocabulary::Draft201909Content;
+  }
+  if (uri == "https://json-schema.org/draft/2019-09/vocab/hyper-schema") {
+    return KnownVocabulary::Draft201909HyperSchema;
+  }
+
+  // 2020-12 vocabularies
+  if (uri == "https://json-schema.org/draft/2020-12/vocab/core") {
+    return KnownVocabulary::Draft202012Core;
+  }
+  if (uri == "https://json-schema.org/draft/2020-12/vocab/applicator") {
+    return KnownVocabulary::Draft202012Applicator;
+  }
+  if (uri == "https://json-schema.org/draft/2020-12/vocab/unevaluated") {
+    return KnownVocabulary::Draft202012Unevaluated;
+  }
+  if (uri == "https://json-schema.org/draft/2020-12/vocab/validation") {
+    return KnownVocabulary::Draft202012Validation;
+  }
+  if (uri == "https://json-schema.org/draft/2020-12/vocab/meta-data") {
+    return KnownVocabulary::Draft202012MetaData;
+  }
+  if (uri == "https://json-schema.org/draft/2020-12/vocab/format-annotation") {
+    return KnownVocabulary::Draft202012FormatAnnotation;
+  }
+  if (uri == "https://json-schema.org/draft/2020-12/vocab/format-assertion") {
+    return KnownVocabulary::Draft202012FormatAssertion;
+  }
+  if (uri == "https://json-schema.org/draft/2020-12/vocab/content") {
+    return KnownVocabulary::Draft202012Content;
+  }
+
+  return std::nullopt;
+}
+} // namespace detail
+
+/// @ingroup jsonschema
+/// Optimized vocabulary set using bitflags for known vocabularies
+struct Vocabularies {
+  /// Bitflags for enabled known vocabularies
+  uint32_t enabled_known = 0;
+
+  /// Bitflags for disabled known vocabularies (for explicit false values)
+  uint32_t disabled_known = 0;
+
+  /// Fallback storage for custom/unknown vocabularies
+  std::unordered_map<JSON::String, bool> custom;
+
+  /// Check if a vocabulary is enabled
+  [[nodiscard]] auto contains(std::string_view uri) const -> bool {
+    const auto maybe_known = detail::uri_to_known_vocabulary(uri);
+    if (maybe_known.has_value()) {
+      const auto flag = static_cast<uint32_t>(maybe_known.value());
+      return (enabled_known & flag) != 0 || (disabled_known & flag) != 0;
+    }
+
+    const auto key{std::string{uri}};
+    const auto iterator{custom.find(key)};
+    return iterator != custom.end() && iterator->second;
+  }
+
+  /// Insert a vocabulary
+  auto insert(const std::pair<JSON::String, bool> &entry) -> void {
+    const auto maybe_known = detail::uri_to_known_vocabulary(entry.first);
+    if (maybe_known.has_value()) {
+      const auto flag = static_cast<uint32_t>(maybe_known.value());
+      if (entry.second) {
+        enabled_known |= flag;
+        disabled_known &= ~flag;
+      } else {
+        disabled_known |= flag;
+        enabled_known &= ~flag;
+      }
+    } else {
+      custom.insert(entry);
+    }
+  }
+
+  /// Get vocabulary status by URI
+  [[nodiscard]] auto find(std::string_view uri) const -> std::optional<bool> {
+    const auto maybe_known = detail::uri_to_known_vocabulary(uri);
+    if (maybe_known.has_value()) {
+      const auto flag = static_cast<uint32_t>(maybe_known.value());
+      if ((enabled_known & flag) != 0) {
+        return true;
+      }
+      if ((disabled_known & flag) != 0) {
+        return false;
+      }
+      return std::nullopt;
+    }
+
+    const auto key{std::string{uri}};
+    const auto iterator{custom.find(key)};
+    if (iterator != custom.end()) {
+      return iterator->second;
+    }
+    return std::nullopt;
+  }
+
+  /// Merge another Vocabularies into this one
+  auto merge(const Vocabularies &other) -> void {
+    const uint32_t already_set = enabled_known | disabled_known;
+    const uint32_t to_enable = other.enabled_known & ~already_set;
+    const uint32_t to_disable = other.disabled_known & ~already_set;
+    enabled_known |= to_enable;
+    disabled_known |= to_disable;
+
+    for (const auto &entry : other.custom) {
+      custom.insert(entry);
+    }
+  }
+
+  /// Get all active (enabled or disabled) vocabularies as key-value pairs
+  [[nodiscard]] auto all_vocabularies() const
+      -> std::vector<std::pair<std::string, bool>> {
+    std::vector<std::pair<std::string, bool>> result;
+    result.reserve(32);
+
+    const auto check_and_add = [&](KnownVocabulary vocab,
+                                   std::string_view uri) {
+      const auto flag = static_cast<uint32_t>(vocab);
+      if ((enabled_known & flag) != 0) {
+        result.emplace_back(std::string{uri}, true);
+      } else if ((disabled_known & flag) != 0) {
+        result.emplace_back(std::string{uri}, false);
+      }
+    };
+
+    // Pre-vocabulary dialects
+    check_and_add(KnownVocabulary::Draft00, "http://json-schema.org/draft-00/schema#");
+    check_and_add(KnownVocabulary::Draft00Hyper, "http://json-schema.org/draft-00/hyper-schema#");
+    check_and_add(KnownVocabulary::Draft01, "http://json-schema.org/draft-01/schema#");
+    check_and_add(KnownVocabulary::Draft01Hyper, "http://json-schema.org/draft-01/hyper-schema#");
+    check_and_add(KnownVocabulary::Draft02, "http://json-schema.org/draft-02/schema#");
+    check_and_add(KnownVocabulary::Draft02Hyper, "http://json-schema.org/draft-02/hyper-schema#");
+    check_and_add(KnownVocabulary::Draft03, "http://json-schema.org/draft-03/schema#");
+    check_and_add(KnownVocabulary::Draft03Hyper, "http://json-schema.org/draft-03/hyper-schema#");
+    check_and_add(KnownVocabulary::Draft04, "http://json-schema.org/draft-04/schema#");
+    check_and_add(KnownVocabulary::Draft04Hyper, "http://json-schema.org/draft-04/hyper-schema#");
+    check_and_add(KnownVocabulary::Draft06, "http://json-schema.org/draft-06/schema#");
+    check_and_add(KnownVocabulary::Draft06Hyper, "http://json-schema.org/draft-06/hyper-schema#");
+    check_and_add(KnownVocabulary::Draft07, "http://json-schema.org/draft-07/schema#");
+    check_and_add(KnownVocabulary::Draft07Hyper, "http://json-schema.org/draft-07/hyper-schema#");
+
+    // 2019-09 vocabularies
+    check_and_add(KnownVocabulary::Draft201909Core, "https://json-schema.org/draft/2019-09/vocab/core");
+    check_and_add(KnownVocabulary::Draft201909Applicator, "https://json-schema.org/draft/2019-09/vocab/applicator");
+    check_and_add(KnownVocabulary::Draft201909Validation, "https://json-schema.org/draft/2019-09/vocab/validation");
+    check_and_add(KnownVocabulary::Draft201909MetaData, "https://json-schema.org/draft/2019-09/vocab/meta-data");
+    check_and_add(KnownVocabulary::Draft201909Format, "https://json-schema.org/draft/2019-09/vocab/format");
+    check_and_add(KnownVocabulary::Draft201909Content, "https://json-schema.org/draft/2019-09/vocab/content");
+    check_and_add(KnownVocabulary::Draft201909HyperSchema, "https://json-schema.org/draft/2019-09/vocab/hyper-schema");
+
+    // 2020-12 vocabularies
+    check_and_add(KnownVocabulary::Draft202012Core, "https://json-schema.org/draft/2020-12/vocab/core");
+    check_and_add(KnownVocabulary::Draft202012Applicator, "https://json-schema.org/draft/2020-12/vocab/applicator");
+    check_and_add(KnownVocabulary::Draft202012Unevaluated, "https://json-schema.org/draft/2020-12/vocab/unevaluated");
+    check_and_add(KnownVocabulary::Draft202012Validation, "https://json-schema.org/draft/2020-12/vocab/validation");
+    check_and_add(KnownVocabulary::Draft202012MetaData, "https://json-schema.org/draft/2020-12/vocab/meta-data");
+    check_and_add(KnownVocabulary::Draft202012FormatAnnotation, "https://json-schema.org/draft/2020-12/vocab/format-annotation");
+    check_and_add(KnownVocabulary::Draft202012FormatAssertion, "https://json-schema.org/draft/2020-12/vocab/format-assertion");
+    check_and_add(KnownVocabulary::Draft202012Content, "https://json-schema.org/draft/2020-12/vocab/content");
+
+    for (const auto &entry : custom) {
+      result.emplace_back(entry);
+    }
+
+    return result;
+  }
+};
 
 // Take a URI and get back a schema
 /// @ingroup jsonschema

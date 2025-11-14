@@ -8,8 +8,9 @@
 namespace sourcemeta::core {
 static auto
 contains_any(const Vocabularies &container,
-             const std::set<typename Vocabularies::key_type> &values) -> bool {
-  return std::ranges::any_of(container, [&values](const auto &element) {
+             const std::set<std::string> &values) -> bool {
+  const auto all_vocabs = container.all_vocabularies();
+  return std::ranges::any_of(all_vocabs, [&values](const auto &element) {
     return values.contains(element.first);
   });
 }

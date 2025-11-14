@@ -10,6 +10,7 @@
 #include <utility>   // std::move, std::pair
 
 #include "compile_helpers.h"
+#include "vocabulary_lookup.h"
 
 namespace {
 
@@ -33,6 +34,12 @@ auto compile_subschema(const sourcemeta::blaze::Context &context,
   }
 
   Instructions steps;
+  // Reserve capacity to avoid reallocations - typical schemas have 3-10
+  // keywords
+  if (schema_context.schema.is_object()) {
+    steps.reserve(schema_context.schema.size());
+  }
+
   for (const auto &entry : sourcemeta::core::SchemaKeywordIterator{
            schema_context.schema, context.walker, context.resolver,
            default_dialect}) {
@@ -285,11 +292,14 @@ auto compile(const sourcemeta::core::JSON &schema,
   ///////////////////////////////////////////////////////////////////
 
   Instructions compiler_template;
+  // Reserve initial capacity for the template
+  compiler_template.reserve(32);
+
   if (uses_dynamic_scopes &&
-      (schema_context.vocabularies.contains(
-           "https://json-schema.org/draft/2019-09/vocab/core") ||
-       schema_context.vocabularies.contains(
-           "https://json-schema.org/draft/2020-12/vocab/core"))) {
+      (has_vocabulary(schema_context.vocabularies,
+                      "https://json-schema.org/draft/2019-09/vocab/core") ||
+       has_vocabulary(schema_context.vocabularies,
+                      "https://json-schema.org/draft/2020-12/vocab/core"))) {
     for (const auto &entry : context.frame.locations()) {
       // We are only trying to find dynamic anchors
       if (entry.second.type !=
