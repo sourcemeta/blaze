@@ -90,7 +90,7 @@ TEST(Compiler_JSON, example_2) {
             "",
             "#/additionalProperties/type",
             0,
-            [ 7, 28 ]
+            [ 7, 156 ]
           ]
         ]
       ]
@@ -173,7 +173,7 @@ TEST(Compiler_JSON, example_4) {
             "",
             "#/type",
             2,
-            [ 7, 28 ]
+            [ 7, 156 ]
           ]
         ]
       ]

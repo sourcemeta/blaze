@@ -53,7 +53,11 @@ auto describe_type_check(const bool valid,
   message << to_string(expected);
   if (!valid) {
     message << " but it was of type ";
-    message << to_string(current);
+    if (current == sourcemeta::core::JSON::Type::Decimal) {
+      message << "number";
+    } else {
+      message << to_string(current);
+    }
   }
 }
 
@@ -67,10 +71,24 @@ auto describe_types_check(const bool valid,
   const auto has_integer{
       (types & (1U << static_cast<std::uint8_t>(
                     sourcemeta::core::JSON::Type::Integer))) != 0};
+  const auto has_decimal{
+      (types & (1U << static_cast<std::uint8_t>(
+                    sourcemeta::core::JSON::Type::Decimal))) != 0};
+
   if (has_real && has_integer) {
     types &= static_cast<std::uint8_t>(
         ~(1U << static_cast<std::uint8_t>(
               sourcemeta::core::JSON::Type::Integer)));
+  }
+  if (has_real && has_decimal) {
+    types &= static_cast<std::uint8_t>(
+        ~(1U << static_cast<std::uint8_t>(
+              sourcemeta::core::JSON::Type::Decimal)));
+  }
+  if (has_integer && has_decimal) {
+    types &= static_cast<std::uint8_t>(
+        ~(1U << static_cast<std::uint8_t>(
+              sourcemeta::core::JSON::Type::Decimal)));
   }
 
   std::uint8_t popcount{0};
@@ -117,7 +135,12 @@ auto describe_types_check(const bool valid,
     message << " but it was of type ";
   }
 
-  if (valid && current == sourcemeta::core::JSON::Type::Integer && has_real) {
+  if (valid && current == sourcemeta::core::JSON::Type::Decimal &&
+      has_integer && !has_real) {
+    message << "integer";
+  } else if ((valid && current == sourcemeta::core::JSON::Type::Integer &&
+              has_real) ||
+             current == sourcemeta::core::JSON::Type::Decimal) {
     message << "number";
   } else {
     message << to_string(current);
@@ -782,10 +805,24 @@ auto describe(const bool valid, const Instruction &step,
     const auto has_integer{
         (types & (1U << static_cast<std::uint8_t>(
                       sourcemeta::core::JSON::Type::Integer))) != 0};
+    const auto has_decimal{
+        (types & (1U << static_cast<std::uint8_t>(
+                      sourcemeta::core::JSON::Type::Decimal))) != 0};
+
     if (has_real && has_integer) {
       types &= static_cast<std::uint8_t>(
           ~(1U << static_cast<std::uint8_t>(
                 sourcemeta::core::JSON::Type::Integer)));
+    }
+    if (has_real && has_decimal) {
+      types &= static_cast<std::uint8_t>(
+          ~(1U << static_cast<std::uint8_t>(
+                sourcemeta::core::JSON::Type::Decimal)));
+    }
+    if (has_integer && has_decimal) {
+      types &= static_cast<std::uint8_t>(
+          ~(1U << static_cast<std::uint8_t>(
+                sourcemeta::core::JSON::Type::Decimal)));
     }
 
     std::uint8_t popcount{0};
@@ -838,10 +875,24 @@ auto describe(const bool valid, const Instruction &step,
     const auto has_integer{
         (types & (1U << static_cast<std::uint8_t>(
                       sourcemeta::core::JSON::Type::Integer))) != 0};
+    const auto has_decimal{
+        (types & (1U << static_cast<std::uint8_t>(
+                      sourcemeta::core::JSON::Type::Decimal))) != 0};
+
     if (has_real && has_integer) {
       types &= static_cast<std::uint8_t>(
           ~(1U << static_cast<std::uint8_t>(
                 sourcemeta::core::JSON::Type::Integer)));
+    }
+    if (has_real && has_decimal) {
+      types &= static_cast<std::uint8_t>(
+          ~(1U << static_cast<std::uint8_t>(
+                sourcemeta::core::JSON::Type::Decimal)));
+    }
+    if (has_integer && has_decimal) {
+      types &= static_cast<std::uint8_t>(
+          ~(1U << static_cast<std::uint8_t>(
+                sourcemeta::core::JSON::Type::Decimal)));
     }
 
     std::uint8_t popcount{0};
@@ -967,10 +1018,24 @@ auto describe(const bool valid, const Instruction &step,
     const auto has_integer{
         (types & (1U << static_cast<std::uint8_t>(
                       sourcemeta::core::JSON::Type::Integer))) != 0};
+    const auto has_decimal{
+        (types & (1U << static_cast<std::uint8_t>(
+                      sourcemeta::core::JSON::Type::Decimal))) != 0};
+
     if (has_real && has_integer) {
       types &= static_cast<std::uint8_t>(
           ~(1U << static_cast<std::uint8_t>(
                 sourcemeta::core::JSON::Type::Integer)));
+    }
+    if (has_real && has_decimal) {
+      types &= static_cast<std::uint8_t>(
+          ~(1U << static_cast<std::uint8_t>(
+                sourcemeta::core::JSON::Type::Decimal)));
+    }
+    if (has_integer && has_decimal) {
+      types &= static_cast<std::uint8_t>(
+          ~(1U << static_cast<std::uint8_t>(
+                sourcemeta::core::JSON::Type::Decimal)));
     }
 
     std::uint8_t popcount{0};
@@ -1215,19 +1280,8 @@ auto describe(const bool valid, const Instruction &step,
 
   if (step.type == sourcemeta::blaze::InstructionIndex::AssertionTypeStrict) {
     std::ostringstream message;
-    const auto &value{instruction_value<ValueType>(step)};
-    if (!valid && value == sourcemeta::core::JSON::Type::Real &&
-        target.type() == sourcemeta::core::JSON::Type::Integer) {
-      message
-          << "The value was expected to be a real number but it was an integer";
-    } else if (!valid && value == sourcemeta::core::JSON::Type::Integer &&
-               target.type() == sourcemeta::core::JSON::Type::Real) {
-      message
-          << "The value was expected to be an integer but it was a real number";
-    } else {
-      describe_type_check(valid, target.type(), value, message);
-    }
-
+    describe_type_check(valid, target.type(),
+                        instruction_value<ValueType>(step), message);
     return message.str();
   }
 
@@ -1832,76 +1886,32 @@ auto describe(const bool valid, const Instruction &step,
 
   if (step.type == sourcemeta::blaze::InstructionIndex::AssertionPropertyType) {
     std::ostringstream message;
-    const auto &value{instruction_value<ValueType>(step)};
-    if (!valid && value == sourcemeta::core::JSON::Type::Real &&
-        target.type() == sourcemeta::core::JSON::Type::Integer) {
-      message
-          << "The value was expected to be a real number but it was an integer";
-    } else if (!valid && value == sourcemeta::core::JSON::Type::Integer &&
-               target.type() == sourcemeta::core::JSON::Type::Real) {
-      message
-          << "The value was expected to be an integer but it was a real number";
-    } else {
-      describe_type_check(valid, target.type(), value, message);
-    }
-
+    describe_type_check(valid, target.type(),
+                        instruction_value<ValueType>(step), message);
     return message.str();
   }
 
   if (step.type ==
       sourcemeta::blaze::InstructionIndex::AssertionPropertyTypeEvaluate) {
     std::ostringstream message;
-    const auto &value{instruction_value<ValueType>(step)};
-    if (!valid && value == sourcemeta::core::JSON::Type::Real &&
-        target.type() == sourcemeta::core::JSON::Type::Integer) {
-      message
-          << "The value was expected to be a real number but it was an integer";
-    } else if (!valid && value == sourcemeta::core::JSON::Type::Integer &&
-               target.type() == sourcemeta::core::JSON::Type::Real) {
-      message
-          << "The value was expected to be an integer but it was a real number";
-    } else {
-      describe_type_check(valid, target.type(), value, message);
-    }
-
+    describe_type_check(valid, target.type(),
+                        instruction_value<ValueType>(step), message);
     return message.str();
   }
 
   if (step.type ==
       sourcemeta::blaze::InstructionIndex::AssertionPropertyTypeStrict) {
     std::ostringstream message;
-    const auto &value{instruction_value<ValueType>(step)};
-    if (!valid && value == sourcemeta::core::JSON::Type::Real &&
-        target.type() == sourcemeta::core::JSON::Type::Integer) {
-      message
-          << "The value was expected to be a real number but it was an integer";
-    } else if (!valid && value == sourcemeta::core::JSON::Type::Integer &&
-               target.type() == sourcemeta::core::JSON::Type::Real) {
-      message
-          << "The value was expected to be an integer but it was a real number";
-    } else {
-      describe_type_check(valid, target.type(), value, message);
-    }
-
+    describe_type_check(valid, target.type(),
+                        instruction_value<ValueType>(step), message);
     return message.str();
   }
 
   if (step.type == sourcemeta::blaze::InstructionIndex::
                        AssertionPropertyTypeStrictEvaluate) {
     std::ostringstream message;
-    const auto &value{instruction_value<ValueType>(step)};
-    if (!valid && value == sourcemeta::core::JSON::Type::Real &&
-        target.type() == sourcemeta::core::JSON::Type::Integer) {
-      message
-          << "The value was expected to be a real number but it was an integer";
-    } else if (!valid && value == sourcemeta::core::JSON::Type::Integer &&
-               target.type() == sourcemeta::core::JSON::Type::Real) {
-      message
-          << "The value was expected to be an integer but it was a real number";
-    } else {
-      describe_type_check(valid, target.type(), value, message);
-    }
-
+    describe_type_check(valid, target.type(),
+                        instruction_value<ValueType>(step), message);
     return message.str();
   }
 

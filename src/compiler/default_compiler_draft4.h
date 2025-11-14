@@ -382,7 +382,9 @@ auto compiler_draft4_validation_type(const Context &context,
                        (1U << static_cast<std::uint8_t>(
                             sourcemeta::core::JSON::Type::Real)) |
                        (1U << static_cast<std::uint8_t>(
-                            sourcemeta::core::JSON::Type::Integer))))};
+                            sourcemeta::core::JSON::Type::Integer)) |
+                       (1U << static_cast<std::uint8_t>(
+                            sourcemeta::core::JSON::Type::Decimal))))};
     } else if (type == "integer") {
       if (context.mode == Mode::FastValidation &&
           schema_context.schema.defines("enum") &&
@@ -461,7 +463,9 @@ auto compiler_draft4_validation_type(const Context &context,
                        (1U << static_cast<std::uint8_t>(
                             sourcemeta::core::JSON::Type::Real)) |
                        (1U << static_cast<std::uint8_t>(
-                            sourcemeta::core::JSON::Type::Integer))))};
+                            sourcemeta::core::JSON::Type::Integer)) |
+                       (1U << static_cast<std::uint8_t>(
+                            sourcemeta::core::JSON::Type::Decimal))))};
     } else if (type == "integer") {
       return {make(sourcemeta::blaze::InstructionIndex::AssertionTypeStrict,
                    context, schema_context, dynamic_context,
@@ -496,6 +500,8 @@ auto compiler_draft4_validation_type(const Context &context,
                       sourcemeta::core::JSON::Type::Integer));
         types |= (1U << static_cast<std::uint8_t>(
                       sourcemeta::core::JSON::Type::Real));
+        types |= (1U << static_cast<std::uint8_t>(
+                      sourcemeta::core::JSON::Type::Decimal));
       } else if (type_string == "integer") {
         types |= (1U << static_cast<std::uint8_t>(
                       sourcemeta::core::JSON::Type::Integer));
@@ -1975,8 +1981,7 @@ auto compiler_draft4_validation_maxlength(const Context &context,
                                           const DynamicContext &dynamic_context,
                                           const Instructions &)
     -> Instructions {
-  if (!(schema_context.schema.at(dynamic_context.keyword).is_integer() ||
-        schema_context.schema.at(dynamic_context.keyword).is_integer_real())) {
+  if (!schema_context.schema.at(dynamic_context.keyword).is_integral()) {
     return {};
   }
 
@@ -2010,8 +2015,7 @@ auto compiler_draft4_validation_minlength(const Context &context,
                                           const DynamicContext &dynamic_context,
                                           const Instructions &)
     -> Instructions {
-  if (!(schema_context.schema.at(dynamic_context.keyword).is_integer() ||
-        schema_context.schema.at(dynamic_context.keyword).is_integer_real())) {
+  if (!schema_context.schema.at(dynamic_context.keyword).is_integral()) {
     return {};
   }
 
@@ -2046,8 +2050,7 @@ auto compiler_draft4_validation_maxitems(const Context &context,
                                          const SchemaContext &schema_context,
                                          const DynamicContext &dynamic_context,
                                          const Instructions &) -> Instructions {
-  if (!(schema_context.schema.at(dynamic_context.keyword).is_integer() ||
-        schema_context.schema.at(dynamic_context.keyword).is_integer_real())) {
+  if (!schema_context.schema.at(dynamic_context.keyword).is_integral()) {
     return {};
   }
 
@@ -2080,8 +2083,7 @@ auto compiler_draft4_validation_minitems(const Context &context,
                                          const SchemaContext &schema_context,
                                          const DynamicContext &dynamic_context,
                                          const Instructions &) -> Instructions {
-  if (!(schema_context.schema.at(dynamic_context.keyword).is_integer() ||
-        schema_context.schema.at(dynamic_context.keyword).is_integer_real())) {
+  if (!schema_context.schema.at(dynamic_context.keyword).is_integral()) {
     return {};
   }
 
@@ -2116,8 +2118,7 @@ auto compiler_draft4_validation_maxproperties(
     const Context &context, const SchemaContext &schema_context,
     const DynamicContext &dynamic_context, const Instructions &)
     -> Instructions {
-  if (!(schema_context.schema.at(dynamic_context.keyword).is_integer() ||
-        schema_context.schema.at(dynamic_context.keyword).is_integer_real())) {
+  if (!schema_context.schema.at(dynamic_context.keyword).is_integral()) {
     return {};
   }
 
@@ -2150,8 +2151,7 @@ auto compiler_draft4_validation_minproperties(
     const Context &context, const SchemaContext &schema_context,
     const DynamicContext &dynamic_context, const Instructions &)
     -> Instructions {
-  if (!(schema_context.schema.at(dynamic_context.keyword).is_integer() ||
-        schema_context.schema.at(dynamic_context.keyword).is_integer_real())) {
+  if (!schema_context.schema.at(dynamic_context.keyword).is_integral()) {
     return {};
   }
 

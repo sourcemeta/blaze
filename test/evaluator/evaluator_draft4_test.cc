@@ -4122,7 +4122,7 @@ TEST(Evaluator_draft4, oneOf_2) {
       "The value was expected to be of type string but it was of type number");
   EVALUATE_TRACE_POST_DESCRIBE(
       instance, 1,
-      "The value was expected to be an integer but it was a real number");
+      "The value was expected to be of type integer but it was of type number");
   EVALUATE_TRACE_POST_DESCRIBE(instance, 2,
                                "The value was expected to be of type number");
   EVALUATE_TRACE_POST_DESCRIBE(
@@ -4904,7 +4904,7 @@ TEST(Evaluator_draft4, enum_17) {
       "The number value 3.0 was expected to equal the number constant 3.0");
   EVALUATE_TRACE_POST_DESCRIBE(
       instance, 1,
-      "The value was expected to be an integer but it was a real number");
+      "The value was expected to be of type integer but it was of type number");
 }
 
 TEST(Evaluator_draft4, enum_18) {

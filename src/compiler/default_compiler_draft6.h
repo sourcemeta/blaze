@@ -171,23 +171,22 @@ auto compiler_draft6_validation_type(const Context &context,
                        (1U << static_cast<std::uint8_t>(
                             sourcemeta::core::JSON::Type::Real)) |
                        (1U << static_cast<std::uint8_t>(
-                            sourcemeta::core::JSON::Type::Integer))))};
+                            sourcemeta::core::JSON::Type::Integer)) |
+                       (1U << static_cast<std::uint8_t>(
+                            sourcemeta::core::JSON::Type::Decimal))))};
     } else if (type == "integer") {
       if (context.mode == Mode::FastValidation &&
           schema_context.schema.defines("enum") &&
           schema_context.schema.at("enum").is_array() &&
           std::all_of(schema_context.schema.at("enum").as_array().cbegin(),
                       schema_context.schema.at("enum").as_array().cend(),
-                      [](const auto &value) {
-                        return value.is_integer() || value.is_integer_real();
-                      })) {
+                      [](const auto &value) { return value.is_integral(); })) {
         return {};
       }
 
       if (context.mode == Mode::FastValidation &&
           schema_context.schema.defines("const") &&
-          (schema_context.schema.at("const").is_integer() ||
-           schema_context.schema.at("const").is_integer_real())) {
+          (schema_context.schema.at("const").is_integral())) {
         return {};
       }
 
@@ -269,7 +268,9 @@ auto compiler_draft6_validation_type(const Context &context,
                        (1U << static_cast<std::uint8_t>(
                             sourcemeta::core::JSON::Type::Real)) |
                        (1U << static_cast<std::uint8_t>(
-                            sourcemeta::core::JSON::Type::Integer))))};
+                            sourcemeta::core::JSON::Type::Integer)) |
+                       (1U << static_cast<std::uint8_t>(
+                            sourcemeta::core::JSON::Type::Decimal))))};
     } else if (type == "integer") {
       return {make(sourcemeta::blaze::InstructionIndex::AssertionType, context,
                    schema_context, dynamic_context,
@@ -308,6 +309,8 @@ auto compiler_draft6_validation_type(const Context &context,
                       sourcemeta::core::JSON::Type::Integer));
         types |= (1U << static_cast<std::uint8_t>(
                       sourcemeta::core::JSON::Type::Real));
+        types |= (1U << static_cast<std::uint8_t>(
+                      sourcemeta::core::JSON::Type::Decimal));
       } else if (type_string == "integer") {
         types |= (1U << static_cast<std::uint8_t>(
                       sourcemeta::core::JSON::Type::Integer));
