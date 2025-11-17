@@ -104,9 +104,7 @@ auto SchemaTransformer::check(
 
   // If we use the default id when there is already one, framing will duplicate
   // the locations leading to duplicate check reports
-  if (sourcemeta::core::identify(schema, resolver,
-                                 SchemaIdentificationStrategy::Strict,
-                                 default_dialect)
+  if (sourcemeta::core::identify(schema, resolver, default_dialect)
           .has_value()) {
     frame.analyse(schema, walker, resolver, default_dialect);
   } else {

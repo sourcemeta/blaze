@@ -6021,3 +6021,21 @@ TEST(Evaluator_2019_09, top_level_ref_with_id_exhaustive) {
                                "The integer value was expected to validate "
                                "against the statically referenced schema");
 }
+
+TEST(Evaluator_2019_09, invalid_ref_top_level) {
+  const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
+    "$schema": "https://json-schema.org/draft/2019-09/schema",
+    "$ref": "#/definitions/i-dont-exist"
+  })JSON")};
+
+  try {
+    sourcemeta::blaze::compile(schema, sourcemeta::core::schema_official_walker,
+                               sourcemeta::core::schema_official_resolver,
+                               sourcemeta::blaze::default_schema_compiler);
+  } catch (const sourcemeta::core::SchemaReferenceError &error) {
+    EXPECT_EQ(error.location(), sourcemeta::core::Pointer({"$ref"}));
+    SUCCEED();
+  } catch (...) {
+    throw;
+  }
+}

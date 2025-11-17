@@ -878,7 +878,7 @@ TEST(Evaluator_draft4, ref_7) {
 TEST(Evaluator_draft4, ref_8) {
   const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
     "$schema": "http://json-schema.org/draft-04/schema#",
-    "$ref": "#/definitions/foo",
+    "allOf": [ { "$ref": "#/definitions/foo" } ],
     "definitions": {
       "foo": {
         "additionalProperties": {
@@ -950,7 +950,7 @@ TEST(Evaluator_draft4, ref_10) {
 TEST(Evaluator_draft4, ref_11) {
   const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
     "$schema": "http://json-schema.org/draft-04/schema#",
-    "$ref": "#/definitions/i-dont-exist"
+    "allOf": [ { "$ref": "#/definitions/i-dont-exist" } ]
   })JSON")};
 
   EXPECT_THROW(sourcemeta::blaze::compile(
@@ -963,7 +963,7 @@ TEST(Evaluator_draft4, ref_11) {
 TEST(Evaluator_draft4, ref_12) {
   const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
     "$schema": "http://json-schema.org/draft-04/schema#",
-    "$ref": "https://example.com#/i-dont-exist"
+    "allOf": [ { "$ref": "#/definitions/i-dont-exist" } ]
   })JSON")};
 
   auto test_resolver = [](const std::string_view identifier)
@@ -987,7 +987,7 @@ TEST(Evaluator_draft4, ref_12) {
 TEST(Evaluator_draft4, ref_13) {
   const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
     "$schema": "http://json-schema.org/draft-04/schema#",
-    "$ref": "https://example.com#i-dont-exist"
+    "allOf": [ { "$ref": "#/definitions/i-dont-exist" } ]
   })JSON")};
 
   auto test_resolver = [](const std::string_view identifier)
@@ -1011,7 +1011,7 @@ TEST(Evaluator_draft4, ref_13) {
 TEST(Evaluator_draft4, ref_14) {
   const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
     "$schema": "http://json-schema.org/draft-04/schema#",
-    "$ref": "#/definitions/foo",
+    "allOf": [ { "$ref": "#/definitions/foo" } ],
     "definitions": {
       "foo": { "$ref": "#/definitions/bar" },
       "bar": { "$ref": "#/definitions/foo" }
@@ -8835,16 +8835,11 @@ TEST(Evaluator_draft4, invalid_ref_top_level) {
     "$ref": "#/definitions/i-dont-exist"
   })JSON")};
 
-  try {
-    sourcemeta::blaze::compile(schema, sourcemeta::core::schema_official_walker,
-                               sourcemeta::core::schema_official_resolver,
-                               sourcemeta::blaze::default_schema_compiler);
-  } catch (const sourcemeta::core::SchemaReferenceError &error) {
-    EXPECT_EQ(error.location(), sourcemeta::core::Pointer({"$ref"}));
-    SUCCEED();
-  } catch (...) {
-    throw;
-  }
+  EXPECT_THROW(sourcemeta::blaze::compile(
+                   schema, sourcemeta::core::schema_official_walker,
+                   sourcemeta::core::schema_official_resolver,
+                   sourcemeta::blaze::default_schema_compiler),
+               sourcemeta::core::SchemaError);
 }
 
 TEST(Evaluator_draft4, invalid_ref_nested) {
@@ -9070,8 +9065,12 @@ TEST(Evaluator_draft4, top_level_ref_with_id) {
     }
   })JSON")};
 
-  const sourcemeta::core::JSON instance{5};
-  EVALUATE_WITH_TRACE_FAST_SUCCESS(schema, instance, 0);
+  EXPECT_THROW(sourcemeta::blaze::compile(
+                   schema, sourcemeta::core::schema_official_walker,
+                   sourcemeta::core::schema_official_resolver,
+                   sourcemeta::blaze::default_schema_compiler,
+                   sourcemeta::blaze::Mode::FastValidation),
+               sourcemeta::core::SchemaError);
 }
 
 TEST(Evaluator_draft4, top_level_ref_with_id_exhaustive) {
@@ -9084,14 +9083,10 @@ TEST(Evaluator_draft4, top_level_ref_with_id_exhaustive) {
     }
   })JSON")};
 
-  const sourcemeta::core::JSON instance{5};
-  EVALUATE_WITH_TRACE_EXHAUSTIVE_SUCCESS(schema, instance, 1);
-
-  EVALUATE_TRACE_PRE(0, LogicalAnd, "/$ref", "https://www.example.com#/$ref",
-                     "");
-  EVALUATE_TRACE_POST_SUCCESS(0, LogicalAnd, "/$ref",
-                              "https://www.example.com#/$ref", "");
-  EVALUATE_TRACE_POST_DESCRIBE(instance, 0,
-                               "The integer value was expected to validate "
-                               "against the statically referenced schema");
+  EXPECT_THROW(sourcemeta::blaze::compile(
+                   schema, sourcemeta::core::schema_official_walker,
+                   sourcemeta::core::schema_official_resolver,
+                   sourcemeta::blaze::default_schema_compiler,
+                   sourcemeta::blaze::Mode::Exhaustive),
+               sourcemeta::core::SchemaError);
 }
