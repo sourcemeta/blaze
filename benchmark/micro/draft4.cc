@@ -686,7 +686,7 @@ static void Micro_Draft4_Pattern_Properties_True(benchmark::State &state) {
 static void Micro_Draft4_Ref_To_Single_Property(benchmark::State &state) {
   const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
     "$schema": "http://json-schema.org/draft-04/schema#",
-    "$ref": "#/definitions/test",
+    "allOf": [ { "$ref": "#/definitions/test" } ],
     "definitions": {
       "test": {
         "properties": {
