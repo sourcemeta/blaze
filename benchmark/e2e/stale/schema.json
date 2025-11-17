@@ -3,7 +3,7 @@
   "$id": "https://json.schemastore.org/stale.json",
   "description": "A GitHub app that closes abandoned issues and pull requests",
   "$comment": "https://probot.github.io/apps/stale/",
-  "$ref": "#/definitions/configuration",
+  "allOf": [ { "$ref": "#/definitions/configuration" } ],
   "type": "object",
   "properties": {
     "issues": {

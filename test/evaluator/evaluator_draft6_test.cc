@@ -1569,16 +1569,11 @@ TEST(Evaluator_draft6, invalid_ref_top_level) {
     "$ref": "#/definitions/i-dont-exist"
   })JSON")};
 
-  try {
-    sourcemeta::blaze::compile(schema, sourcemeta::core::schema_official_walker,
-                               sourcemeta::core::schema_official_resolver,
-                               sourcemeta::blaze::default_schema_compiler);
-  } catch (const sourcemeta::core::SchemaReferenceError &error) {
-    EXPECT_EQ(error.location(), sourcemeta::core::Pointer({"$ref"}));
-    SUCCEED();
-  } catch (...) {
-    throw;
-  }
+  EXPECT_THROW(sourcemeta::blaze::compile(
+                   schema, sourcemeta::core::schema_official_walker,
+                   sourcemeta::core::schema_official_resolver,
+                   sourcemeta::blaze::default_schema_compiler),
+               sourcemeta::core::SchemaError);
 }
 
 TEST(Evaluator_draft6, invalid_ref_nested) {
@@ -2447,8 +2442,12 @@ TEST(Evaluator_draft6, top_level_ref_with_id) {
     }
   })JSON")};
 
-  const sourcemeta::core::JSON instance{5};
-  EVALUATE_WITH_TRACE_FAST_SUCCESS(schema, instance, 0);
+  EXPECT_THROW(sourcemeta::blaze::compile(
+                   schema, sourcemeta::core::schema_official_walker,
+                   sourcemeta::core::schema_official_resolver,
+                   sourcemeta::blaze::default_schema_compiler,
+                   sourcemeta::blaze::Mode::FastValidation),
+               sourcemeta::core::SchemaError);
 }
 
 TEST(Evaluator_draft6, top_level_ref_with_id_exhaustive) {
@@ -2461,16 +2460,12 @@ TEST(Evaluator_draft6, top_level_ref_with_id_exhaustive) {
     }
   })JSON")};
 
-  const sourcemeta::core::JSON instance{5};
-  EVALUATE_WITH_TRACE_EXHAUSTIVE_SUCCESS(schema, instance, 1);
-
-  EVALUATE_TRACE_PRE(0, LogicalAnd, "/$ref", "https://www.example.com#/$ref",
-                     "");
-  EVALUATE_TRACE_POST_SUCCESS(0, LogicalAnd, "/$ref",
-                              "https://www.example.com#/$ref", "");
-  EVALUATE_TRACE_POST_DESCRIBE(instance, 0,
-                               "The integer value was expected to validate "
-                               "against the statically referenced schema");
+  EXPECT_THROW(sourcemeta::blaze::compile(
+                   schema, sourcemeta::core::schema_official_walker,
+                   sourcemeta::core::schema_official_resolver,
+                   sourcemeta::blaze::default_schema_compiler,
+                   sourcemeta::blaze::Mode::Exhaustive),
+               sourcemeta::core::SchemaError);
 }
 
 TEST(Evaluator_draft6, type_1) {
