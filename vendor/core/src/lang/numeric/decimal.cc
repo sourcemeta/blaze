@@ -292,11 +292,23 @@ Decimal::Decimal(const std::string &string_value)
 Decimal::Decimal(const std::string_view string_value)
     : Decimal{std::string{string_value}} {}
 
-auto Decimal::nan() -> Decimal { return Decimal{"NaN"}; }
+auto Decimal::nan() -> Decimal {
+  Decimal result;
+  mpd_setspecial(&result.data()->value, MPD_POS, MPD_NAN);
+  return result;
+}
 
-auto Decimal::infinity() -> Decimal { return Decimal{"Infinity"}; }
+auto Decimal::infinity() -> Decimal {
+  Decimal result;
+  mpd_setspecial(&result.data()->value, MPD_POS, MPD_INF);
+  return result;
+}
 
-auto Decimal::negative_infinity() -> Decimal { return Decimal{"-Infinity"}; }
+auto Decimal::negative_infinity() -> Decimal {
+  Decimal result;
+  mpd_setspecial(&result.data()->value, MPD_NEG, MPD_INF);
+  return result;
+}
 
 auto Decimal::to_scientific_string() const -> std::string {
   // Note that `mpd_to_sci`, contrary to its name, does NOT guarantee
