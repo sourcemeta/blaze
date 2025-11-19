@@ -60,7 +60,8 @@ Features
 - **Numerics:** Blaze supports high precision decimals. For performance
   reasons, these representations are only used if the numbers fail to be parsed
   at the JSON level using the 64-bit signed and IEEE 764 double precision
-  representations
+  representations or (as a heuristic) if the numbers explicitly opt-in to
+  exponent scientific notation
 
 Example
 -------
