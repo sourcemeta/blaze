@@ -1,7 +1,10 @@
 #include <sourcemeta/blaze/compiler.h>
 
+#include "vocabulary_lookup.h"
+
 namespace {
 using namespace sourcemeta::core;
+using sourcemeta::blaze::has_vocabulary;
 
 auto find_adjacent_dependencies(
     const JSON::String &current, const JSON &schema, const SchemaFrame &frame,
@@ -22,7 +25,8 @@ auto find_adjacent_dependencies(
       continue;
     } else if (keywords.contains(property.first)) {
       // In 2019-09, `additionalItems` takes no effect without `items`
-      if (subschema_vocabularies.contains(
+      if (has_vocabulary(
+              subschema_vocabularies,
               "https://json-schema.org/draft/2019-09/vocab/applicator") &&
           property.first == "additionalItems" && !subschema.defines("items")) {
         continue;
@@ -154,9 +158,11 @@ auto unevaluated(const JSON &schema, const SchemaFrame &frame,
       const auto keyword_uri{frame.uri(entry.second, {pair.first})};
       SchemaUnevaluatedEntry unevaluated;
 
-      if ((subschema_vocabularies.contains(
+      if ((has_vocabulary(
+               subschema_vocabularies,
                "https://json-schema.org/draft/2020-12/vocab/unevaluated") &&
-           subschema_vocabularies.contains(
+           has_vocabulary(
+               subschema_vocabularies,
                "https://json-schema.org/draft/2020-12/vocab/applicator")) &&
           // NOLINTNEXTLINE(bugprone-branch-clone)
           pair.first == "unevaluatedProperties") {
@@ -167,9 +173,11 @@ auto unevaluated(const JSON &schema, const SchemaFrame &frame,
             entry.second, entry.second, true, unevaluated);
         result.emplace(keyword_uri, std::move(unevaluated));
       } else if (
-          (subschema_vocabularies.contains(
+          (has_vocabulary(
+               subschema_vocabularies,
                "https://json-schema.org/draft/2020-12/vocab/unevaluated") &&
-           subschema_vocabularies.contains(
+           has_vocabulary(
+               subschema_vocabularies,
                "https://json-schema.org/draft/2020-12/vocab/applicator")) &&
           pair.first == "unevaluatedItems") {
         find_adjacent_dependencies(
@@ -177,9 +185,9 @@ auto unevaluated(const JSON &schema, const SchemaFrame &frame,
             {"prefixItems", "items", "contains", "unevaluatedItems"},
             entry.second, entry.second, true, unevaluated);
         result.emplace(keyword_uri, std::move(unevaluated));
-      } else if (subschema_vocabularies.contains(
-                     "https://json-schema.org/draft/2019-09/vocab/"
-                     "applicator") &&
+      } else if (has_vocabulary(subschema_vocabularies,
+                                "https://json-schema.org/draft/2019-09/vocab/"
+                                "applicator") &&
                  pair.first == "unevaluatedProperties") {
         find_adjacent_dependencies(
             pair.first, schema, frame, walker, resolver,
@@ -187,9 +195,9 @@ auto unevaluated(const JSON &schema, const SchemaFrame &frame,
              "unevaluatedProperties"},
             entry.second, entry.second, true, unevaluated);
         result.emplace(keyword_uri, std::move(unevaluated));
-      } else if (subschema_vocabularies.contains(
-                     "https://json-schema.org/draft/2019-09/vocab/"
-                     "applicator") &&
+      } else if (has_vocabulary(subschema_vocabularies,
+                                "https://json-schema.org/draft/2019-09/vocab/"
+                                "applicator") &&
                  pair.first == "unevaluatedItems") {
         find_adjacent_dependencies(
             pair.first, schema, frame, walker, resolver,
