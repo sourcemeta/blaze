@@ -8946,7 +8946,7 @@ TEST(Evaluator_draft4, reference_from_unknown_keyword) {
                                sourcemeta::core::schema_official_resolver,
                                sourcemeta::blaze::default_schema_compiler);
   } catch (const sourcemeta::core::SchemaReferenceError &error) {
-    EXPECT_EQ(error.id(), "#/properties/baz");
+    EXPECT_EQ(error.identifier(), "#/properties/baz");
     EXPECT_EQ(error.location(),
               sourcemeta::core::Pointer({"$defs", "bar", "$ref"}));
   } catch (...) {
@@ -9022,7 +9022,7 @@ TEST(Evaluator_draft4, ref_to_non_schema) {
                                sourcemeta::blaze::default_schema_compiler);
     FAIL() << "The compile function was expected to throw";
   } catch (const sourcemeta::core::SchemaReferenceError &error) {
-    EXPECT_EQ(error.id(), "#/definitions/array/items");
+    EXPECT_EQ(error.identifier(), "#/definitions/array/items");
     EXPECT_EQ(sourcemeta::core::to_string(error.location()),
               "/additionalProperties/$ref");
     SUCCEED();
