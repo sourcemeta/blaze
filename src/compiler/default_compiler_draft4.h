@@ -1334,25 +1334,38 @@ auto compiler_draft4_applicator_additionalproperties_with_options(
     return {};
   }
 
+  // When `additionalProperties: false` with only `properties` (no
+  // patternProperties), and `properties` is compiled as a loop
+  // (LoopPropertiesMatchClosed), that loop already handles rejecting unknown
+  // properties, so we don't need to emit anything for `additionalProperties`
   if (context.mode == Mode::FastValidation && children.size() == 1 &&
       children.front().type == InstructionIndex::AssertionFail &&
       !filter_strings.empty() && filter_prefixes.empty() &&
-      filter_regexes.empty()) {
-    if (properties_as_loop(context, schema_context,
-                           schema_context.schema.at("properties"))) {
-      return {};
-    } else if (!children.empty() &&
-               children.front().type == InstructionIndex::AssertionFail) {
-      return {};
-    } else {
-      return {make(sourcemeta::blaze::InstructionIndex::LoopPropertiesWhitelist,
-                   context, schema_context, dynamic_context,
-                   std::move(filter_strings))};
-    }
-  } else if (context.mode == Mode::FastValidation && filter_strings.empty() &&
-             filter_prefixes.empty() && filter_regexes.size() == 1 &&
-             !track_evaluation && !children.empty() &&
-             children.front().type == InstructionIndex::AssertionFail) {
+      filter_regexes.empty() &&
+      properties_as_loop(context, schema_context,
+                         schema_context.schema.at("properties"))) {
+    return {};
+  }
+
+  // When all properties are required and `additionalProperties: false`,
+  // the `required` keyword compiles to `AssertionDefinesExactly` which already
+  // checks that the object has exactly the required properties, so we don't
+  // need to emit anything for `additionalProperties`
+  if (context.mode == Mode::FastValidation && children.size() == 1 &&
+      children.front().type == InstructionIndex::AssertionFail &&
+      !filter_strings.empty() && filter_prefixes.empty() &&
+      filter_regexes.empty() && schema_context.schema.defines("required") &&
+      schema_context.schema.at("required").is_array() &&
+      is_closed_properties_required(
+          schema_context.schema,
+          json_array_to_string_set(schema_context.schema.at("required")))) {
+    return {};
+  }
+
+  if (context.mode == Mode::FastValidation && filter_strings.empty() &&
+      filter_prefixes.empty() && filter_regexes.size() == 1 &&
+      !track_evaluation && !children.empty() &&
+      children.front().type == InstructionIndex::AssertionFail) {
     return {};
   }
 
