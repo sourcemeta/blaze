@@ -396,7 +396,7 @@ int main(int argc, char **argv) {
                    // TODO: Enable all tests
                    {"date-time", "email", "hostname", "ipv6"});
   } catch (const sourcemeta::core::SchemaResolutionError &error) {
-    std::cerr << error.what() << ": " << error.id() << "\n";
+    std::cerr << error.what() << ": " << error.identifier() << "\n";
     return EXIT_FAILURE;
   } catch (const std::exception &error) {
     std::cerr << "Error: " << error.what() << "\n";

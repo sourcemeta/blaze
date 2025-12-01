@@ -1681,7 +1681,7 @@ TEST(Evaluator_draft6, reference_from_unknown_keyword) {
                                sourcemeta::core::schema_official_resolver,
                                sourcemeta::blaze::default_schema_compiler);
   } catch (const sourcemeta::core::SchemaReferenceError &error) {
-    EXPECT_EQ(error.id(), "#/properties/baz");
+    EXPECT_EQ(error.identifier(), "#/properties/baz");
     EXPECT_EQ(error.location(),
               sourcemeta::core::Pointer({"$defs", "bar", "$ref"}));
   } catch (...) {
