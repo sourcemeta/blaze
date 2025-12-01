@@ -4694,6 +4694,71 @@ TEST(Evaluator_2019_09, unevaluatedItems_11_exhaustive) {
       "expected to validate against this subschema");
 }
 
+TEST(Evaluator_2019_09, unevaluatedItems_12) {
+  const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
+    "$schema": "https://json-schema.org/draft/2019-09/schema",
+    "type": "array",
+    "items": [
+      { "type": "integer" }
+    ],
+    "not": {
+      "contains": { "const": 999 }
+    },
+    "unevaluatedItems": false
+  })JSON")};
+
+  const sourcemeta::core::JSON instance{sourcemeta::core::parse_json("[ 1 ]")};
+
+  EVALUATE_WITH_TRACE_FAST_SUCCESS(schema, instance, 7);
+
+  EVALUATE_TRACE_PRE(0, AssertionArrayPrefixEvaluate, "/items", "#/items", "");
+  EVALUATE_TRACE_PRE(1, AssertionType, "/items/0/type", "#/items/0/type", "/0");
+  EVALUATE_TRACE_PRE(2, LogicalNotEvaluate, "/not", "#/not", "");
+  EVALUATE_TRACE_PRE(3, LoopContains, "/not/contains", "#/not/contains", "");
+  EVALUATE_TRACE_PRE(4, AssertionEqual, "/not/contains/const",
+                     "#/not/contains/const", "/0");
+  EVALUATE_TRACE_PRE(5, AssertionTypeStrict, "/type", "#/type", "");
+  EVALUATE_TRACE_PRE(6, LoopItemsUnevaluated, "/unevaluatedItems",
+                     "#/unevaluatedItems", "");
+
+  EVALUATE_TRACE_POST_SUCCESS(0, AssertionType, "/items/0/type",
+                              "#/items/0/type", "/0");
+  EVALUATE_TRACE_POST_SUCCESS(1, AssertionArrayPrefixEvaluate, "/items",
+                              "#/items", "");
+  EVALUATE_TRACE_POST_FAILURE(2, AssertionEqual, "/not/contains/const",
+                              "#/not/contains/const", "/0");
+  EVALUATE_TRACE_POST_FAILURE(3, LoopContains, "/not/contains",
+                              "#/not/contains", "");
+  EVALUATE_TRACE_POST_SUCCESS(4, LogicalNotEvaluate, "/not", "#/not", "");
+  EVALUATE_TRACE_POST_SUCCESS(5, AssertionTypeStrict, "/type", "#/type", "");
+  EVALUATE_TRACE_POST_SUCCESS(6, LoopItemsUnevaluated, "/unevaluatedItems",
+                              "#/unevaluatedItems", "");
+
+  EVALUATE_TRACE_POST_DESCRIBE(instance, 0,
+                               "The value was expected to be of type integer");
+  EVALUATE_TRACE_POST_DESCRIBE(
+      instance, 1,
+      "The first item of the array value was expected to validate against the "
+      "corresponding subschemas");
+  EVALUATE_TRACE_POST_DESCRIBE(
+      instance, 2,
+      "The integer value 1 was expected to equal the integer constant 999");
+  EVALUATE_TRACE_POST_DESCRIBE(
+      instance, 3,
+      "The array value was expected to contain at least 1 item that validates "
+      "against the given subschema");
+  EVALUATE_TRACE_POST_DESCRIBE(
+      instance, 4,
+      "The array value was expected to not validate against the given "
+      "subschema");
+  EVALUATE_TRACE_POST_DESCRIBE(instance, 5,
+                               "The value was expected to be of type array");
+  EVALUATE_TRACE_POST_DESCRIBE(
+      instance, 6,
+      "The array items not covered by other array keywords, if any, were "
+      "expected to validate against this subschema");
+}
+
 TEST(Evaluator_2019_09, recursiveRef_1) {
   const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
     "$id": "https://example.com/schema",
@@ -6038,4 +6103,508 @@ TEST(Evaluator_2019_09, invalid_ref_top_level) {
   } catch (...) {
     throw;
   }
+}
+
+TEST(Evaluator_2019_09, properties_3) {
+  const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
+    "$schema": "https://json-schema.org/draft/2019-09/schema",
+    "if": {
+      "properties": {
+        "kind": { "const": "A" }
+      }
+    },
+    "then": {
+      "properties": {
+        "count": { "type": "integer" }
+      }
+    },
+    "unevaluatedProperties": false
+  })JSON")};
+
+  const sourcemeta::core::JSON instance{
+      sourcemeta::core::parse_json("{ \"kind\": \"A\", \"count\": 42 }")};
+
+  EVALUATE_WITH_TRACE_FAST_SUCCESS(schema, instance, 5);
+
+  EVALUATE_TRACE_PRE(0, LogicalCondition, "/if", "#/if", "");
+  EVALUATE_TRACE_PRE(1, AssertionEqual, "/if/properties/kind/const",
+                     "#/if/properties/kind/const", "/kind");
+  EVALUATE_TRACE_PRE(2, Evaluate, "/if/properties", "#/if/properties", "/kind");
+  EVALUATE_TRACE_PRE(3, AssertionPropertyTypeEvaluate,
+                     "/then/properties/count/type",
+                     "#/then/properties/count/type", "/count");
+  EVALUATE_TRACE_PRE(4, LoopPropertiesUnevaluated, "/unevaluatedProperties",
+                     "#/unevaluatedProperties", "");
+
+  EVALUATE_TRACE_POST_SUCCESS(0, AssertionEqual, "/if/properties/kind/const",
+                              "#/if/properties/kind/const", "/kind");
+  EVALUATE_TRACE_POST_SUCCESS(1, Evaluate, "/if/properties", "#/if/properties",
+                              "/kind");
+  EVALUATE_TRACE_POST_SUCCESS(2, AssertionPropertyTypeEvaluate,
+                              "/then/properties/count/type",
+                              "#/then/properties/count/type", "/count");
+  EVALUATE_TRACE_POST_SUCCESS(3, LogicalCondition, "/if", "#/if", "");
+  EVALUATE_TRACE_POST_SUCCESS(4, LoopPropertiesUnevaluated,
+                              "/unevaluatedProperties",
+                              "#/unevaluatedProperties", "");
+
+  EVALUATE_TRACE_POST_DESCRIBE(
+      instance, 0,
+      "The string value \"A\" was expected to equal the string constant \"A\"");
+  EVALUATE_TRACE_POST_DESCRIBE(instance, 1,
+                               "The instance location was marked as evaluated");
+  EVALUATE_TRACE_POST_DESCRIBE(instance, 2,
+                               "The value was expected to be of type integer");
+  EVALUATE_TRACE_POST_DESCRIBE(
+      instance, 3,
+      "The object value was expected to validate against the given "
+      "conditional");
+  EVALUATE_TRACE_POST_DESCRIBE(
+      instance, 4,
+      "The object value was not expected to define unevaluated properties");
+}
+
+TEST(Evaluator_2019_09, properties_4) {
+  const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
+    "$schema": "https://json-schema.org/draft/2019-09/schema",
+    "if": {
+      "properties": {
+        "kind": { "const": "A" }
+      }
+    },
+    "then": {
+      "properties": {
+        "name": { "type": "string" }
+      }
+    },
+    "unevaluatedProperties": false
+  })JSON")};
+
+  const sourcemeta::core::JSON instance{
+      sourcemeta::core::parse_json("{ \"kind\": \"A\", \"name\": \"test\" }")};
+
+  EVALUATE_WITH_TRACE_FAST_SUCCESS(schema, instance, 5);
+
+  EVALUATE_TRACE_PRE(0, LogicalCondition, "/if", "#/if", "");
+  EVALUATE_TRACE_PRE(1, AssertionEqual, "/if/properties/kind/const",
+                     "#/if/properties/kind/const", "/kind");
+  EVALUATE_TRACE_PRE(2, Evaluate, "/if/properties", "#/if/properties", "/kind");
+  EVALUATE_TRACE_PRE(3, AssertionPropertyTypeStrictEvaluate,
+                     "/then/properties/name/type",
+                     "#/then/properties/name/type", "/name");
+  EVALUATE_TRACE_PRE(4, LoopPropertiesUnevaluated, "/unevaluatedProperties",
+                     "#/unevaluatedProperties", "");
+
+  EVALUATE_TRACE_POST_SUCCESS(0, AssertionEqual, "/if/properties/kind/const",
+                              "#/if/properties/kind/const", "/kind");
+  EVALUATE_TRACE_POST_SUCCESS(1, Evaluate, "/if/properties", "#/if/properties",
+                              "/kind");
+  EVALUATE_TRACE_POST_SUCCESS(2, AssertionPropertyTypeStrictEvaluate,
+                              "/then/properties/name/type",
+                              "#/then/properties/name/type", "/name");
+  EVALUATE_TRACE_POST_SUCCESS(3, LogicalCondition, "/if", "#/if", "");
+  EVALUATE_TRACE_POST_SUCCESS(4, LoopPropertiesUnevaluated,
+                              "/unevaluatedProperties",
+                              "#/unevaluatedProperties", "");
+
+  EVALUATE_TRACE_POST_DESCRIBE(
+      instance, 0,
+      "The string value \"A\" was expected to equal the string constant \"A\"");
+  EVALUATE_TRACE_POST_DESCRIBE(instance, 1,
+                               "The instance location was marked as evaluated");
+  EVALUATE_TRACE_POST_DESCRIBE(instance, 2,
+                               "The value was expected to be of type string");
+  EVALUATE_TRACE_POST_DESCRIBE(
+      instance, 3,
+      "The object value was expected to validate against the given "
+      "conditional");
+  EVALUATE_TRACE_POST_DESCRIBE(
+      instance, 4,
+      "The object value was not expected to define unevaluated properties");
+}
+
+TEST(Evaluator_2019_09, properties_5) {
+  const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
+    "$schema": "https://json-schema.org/draft/2019-09/schema",
+    "if": {
+      "properties": {
+        "kind": { "const": "A" }
+      }
+    },
+    "then": {
+      "properties": {
+        "value": { "type": "number" }
+      }
+    },
+    "unevaluatedProperties": false
+  })JSON")};
+
+  const sourcemeta::core::JSON instance{
+      sourcemeta::core::parse_json("{ \"kind\": \"A\", \"value\": 3.14 }")};
+
+  EVALUATE_WITH_TRACE_FAST_SUCCESS(schema, instance, 5);
+
+  EVALUATE_TRACE_PRE(0, LogicalCondition, "/if", "#/if", "");
+  EVALUATE_TRACE_PRE(1, AssertionEqual, "/if/properties/kind/const",
+                     "#/if/properties/kind/const", "/kind");
+  EVALUATE_TRACE_PRE(2, Evaluate, "/if/properties", "#/if/properties", "/kind");
+  EVALUATE_TRACE_PRE(3, AssertionPropertyTypeStrictAnyEvaluate,
+                     "/then/properties/value/type",
+                     "#/then/properties/value/type", "/value");
+  EVALUATE_TRACE_PRE(4, LoopPropertiesUnevaluated, "/unevaluatedProperties",
+                     "#/unevaluatedProperties", "");
+
+  EVALUATE_TRACE_POST_SUCCESS(0, AssertionEqual, "/if/properties/kind/const",
+                              "#/if/properties/kind/const", "/kind");
+  EVALUATE_TRACE_POST_SUCCESS(1, Evaluate, "/if/properties", "#/if/properties",
+                              "/kind");
+  EVALUATE_TRACE_POST_SUCCESS(2, AssertionPropertyTypeStrictAnyEvaluate,
+                              "/then/properties/value/type",
+                              "#/then/properties/value/type", "/value");
+  EVALUATE_TRACE_POST_SUCCESS(3, LogicalCondition, "/if", "#/if", "");
+  EVALUATE_TRACE_POST_SUCCESS(4, LoopPropertiesUnevaluated,
+                              "/unevaluatedProperties",
+                              "#/unevaluatedProperties", "");
+
+  EVALUATE_TRACE_POST_DESCRIBE(
+      instance, 0,
+      "The string value \"A\" was expected to equal the string constant \"A\"");
+  EVALUATE_TRACE_POST_DESCRIBE(instance, 1,
+                               "The instance location was marked as evaluated");
+  EVALUATE_TRACE_POST_DESCRIBE(instance, 2,
+                               "The value was expected to be of type number");
+  EVALUATE_TRACE_POST_DESCRIBE(
+      instance, 3,
+      "The object value was expected to validate against the given "
+      "conditional");
+  EVALUATE_TRACE_POST_DESCRIBE(
+      instance, 4,
+      "The object value was not expected to define unevaluated properties");
+}
+
+TEST(Evaluator_2019_09, unevaluatedProperties_15) {
+  const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
+    "$schema": "https://json-schema.org/draft/2019-09/schema",
+    "properties": {
+      "known": { "type": "string" }
+    },
+    "if": {
+      "properties": { "known": { "const": "special" } }
+    },
+    "then": {
+      "properties": {
+        "extra": { "type": "integer" }
+      }
+    },
+    "unevaluatedProperties": { "type": "boolean" }
+  })JSON")};
+
+  const sourcemeta::core::JSON instance{sourcemeta::core::parse_json(
+      "{ \"known\": \"special\", \"extra\": 10, \"other\": true }")};
+
+  EVALUATE_WITH_TRACE_FAST_SUCCESS(schema, instance, 7);
+
+  EVALUATE_TRACE_PRE(0, LogicalCondition, "/if", "#/if", "");
+  EVALUATE_TRACE_PRE(1, AssertionEqual, "/if/properties/known/const",
+                     "#/if/properties/known/const", "/known");
+  EVALUATE_TRACE_PRE(2, Evaluate, "/if/properties", "#/if/properties",
+                     "/known");
+  EVALUATE_TRACE_PRE(3, AssertionPropertyTypeEvaluate,
+                     "/then/properties/extra/type",
+                     "#/then/properties/extra/type", "/extra");
+  EVALUATE_TRACE_PRE(4, AssertionPropertyTypeStrict, "/properties/known/type",
+                     "#/properties/known/type", "/known");
+  EVALUATE_TRACE_PRE(5, LoopPropertiesUnevaluatedExcept,
+                     "/unevaluatedProperties", "#/unevaluatedProperties", "");
+  EVALUATE_TRACE_PRE(6, AssertionTypeStrict, "/unevaluatedProperties/type",
+                     "#/unevaluatedProperties/type", "/other");
+
+  EVALUATE_TRACE_POST_SUCCESS(0, AssertionEqual, "/if/properties/known/const",
+                              "#/if/properties/known/const", "/known");
+  EVALUATE_TRACE_POST_SUCCESS(1, Evaluate, "/if/properties", "#/if/properties",
+                              "/known");
+  EVALUATE_TRACE_POST_SUCCESS(2, AssertionPropertyTypeEvaluate,
+                              "/then/properties/extra/type",
+                              "#/then/properties/extra/type", "/extra");
+  EVALUATE_TRACE_POST_SUCCESS(3, LogicalCondition, "/if", "#/if", "");
+  EVALUATE_TRACE_POST_SUCCESS(4, AssertionPropertyTypeStrict,
+                              "/properties/known/type",
+                              "#/properties/known/type", "/known");
+  EVALUATE_TRACE_POST_SUCCESS(5, AssertionTypeStrict,
+                              "/unevaluatedProperties/type",
+                              "#/unevaluatedProperties/type", "/other");
+  EVALUATE_TRACE_POST_SUCCESS(6, LoopPropertiesUnevaluatedExcept,
+                              "/unevaluatedProperties",
+                              "#/unevaluatedProperties", "");
+
+  EVALUATE_TRACE_POST_DESCRIBE(
+      instance, 0,
+      "The string value \"special\" was expected to equal the string constant "
+      "\"special\"");
+  EVALUATE_TRACE_POST_DESCRIBE(instance, 1,
+                               "The instance location was marked as evaluated");
+  EVALUATE_TRACE_POST_DESCRIBE(instance, 2,
+                               "The value was expected to be of type integer");
+  EVALUATE_TRACE_POST_DESCRIBE(
+      instance, 3,
+      "The object value was expected to validate against the given "
+      "conditional");
+  EVALUATE_TRACE_POST_DESCRIBE(instance, 4,
+                               "The value was expected to be of type string");
+  EVALUATE_TRACE_POST_DESCRIBE(instance, 5,
+                               "The value was expected to be of type boolean");
+  EVALUATE_TRACE_POST_DESCRIBE(
+      instance, 6,
+      "The object properties not covered by other object keywords were "
+      "expected to validate against this subschema");
+}
+
+TEST(Evaluator_2019_09, additionalProperties_5) {
+  const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
+    "$schema": "https://json-schema.org/draft/2019-09/schema",
+    "if": {
+      "properties": {
+        "kind": { "const": "AB" }
+      }
+    },
+    "then": {
+      "additionalProperties": { "minLength": 2 }
+    },
+    "unevaluatedProperties": false
+  })JSON")};
+
+  const sourcemeta::core::JSON instance{
+      sourcemeta::core::parse_json("{ \"kind\": \"AB\", \"other\": \"cd\" }")};
+
+  EVALUATE_WITH_TRACE_FAST_SUCCESS(schema, instance, 7);
+
+  EVALUATE_TRACE_PRE(0, LogicalCondition, "/if", "#/if", "");
+  EVALUATE_TRACE_PRE(1, AssertionEqual, "/if/properties/kind/const",
+                     "#/if/properties/kind/const", "/kind");
+  EVALUATE_TRACE_PRE(2, Evaluate, "/if/properties", "#/if/properties", "/kind");
+  EVALUATE_TRACE_PRE(3, LoopPropertiesEvaluate, "/then/additionalProperties",
+                     "#/then/additionalProperties", "");
+  EVALUATE_TRACE_PRE(4, AssertionStringSizeGreater,
+                     "/then/additionalProperties/minLength",
+                     "#/then/additionalProperties/minLength", "/kind");
+  EVALUATE_TRACE_PRE(5, AssertionStringSizeGreater,
+                     "/then/additionalProperties/minLength",
+                     "#/then/additionalProperties/minLength", "/other");
+  EVALUATE_TRACE_PRE(6, LoopPropertiesUnevaluated, "/unevaluatedProperties",
+                     "#/unevaluatedProperties", "");
+
+  EVALUATE_TRACE_POST_SUCCESS(0, AssertionEqual, "/if/properties/kind/const",
+                              "#/if/properties/kind/const", "/kind");
+  EVALUATE_TRACE_POST_SUCCESS(1, Evaluate, "/if/properties", "#/if/properties",
+                              "/kind");
+  EVALUATE_TRACE_POST_SUCCESS(2, AssertionStringSizeGreater,
+                              "/then/additionalProperties/minLength",
+                              "#/then/additionalProperties/minLength", "/kind");
+  EVALUATE_TRACE_POST_SUCCESS(
+      3, AssertionStringSizeGreater, "/then/additionalProperties/minLength",
+      "#/then/additionalProperties/minLength", "/other");
+  EVALUATE_TRACE_POST_SUCCESS(4, LoopPropertiesEvaluate,
+                              "/then/additionalProperties",
+                              "#/then/additionalProperties", "");
+  EVALUATE_TRACE_POST_SUCCESS(5, LogicalCondition, "/if", "#/if", "");
+  EVALUATE_TRACE_POST_SUCCESS(6, LoopPropertiesUnevaluated,
+                              "/unevaluatedProperties",
+                              "#/unevaluatedProperties", "");
+
+  EVALUATE_TRACE_POST_DESCRIBE(
+      instance, 0,
+      "The string value \"AB\" was expected to equal the string constant "
+      "\"AB\"");
+  EVALUATE_TRACE_POST_DESCRIBE(instance, 1,
+                               "The instance location was marked as evaluated");
+  EVALUATE_TRACE_POST_DESCRIBE(instance, 2,
+                               "The string value \"AB\" was expected to "
+                               "consist of at least 2 characters "
+                               "and it consisted of 2 characters");
+  EVALUATE_TRACE_POST_DESCRIBE(instance, 3,
+                               "The string value \"cd\" was expected to "
+                               "consist of at least 2 characters "
+                               "and it consisted of 2 characters");
+  EVALUATE_TRACE_POST_DESCRIBE(
+      instance, 4,
+      "The object properties not covered by other adjacent object keywords "
+      "were expected to validate against this subschema");
+  EVALUATE_TRACE_POST_DESCRIBE(
+      instance, 5,
+      "The object value was expected to validate against the given "
+      "conditional");
+  EVALUATE_TRACE_POST_DESCRIBE(
+      instance, 6,
+      "The object value was not expected to define unevaluated properties");
+}
+
+TEST(Evaluator_2019_09, additionalProperties_6) {
+  const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
+    "$schema": "https://json-schema.org/draft/2019-09/schema",
+    "if": {
+      "properties": {
+        "flag": { "const": 1 }
+      }
+    },
+    "then": {
+      "additionalProperties": { "type": "integer" }
+    },
+    "unevaluatedProperties": false
+  })JSON")};
+
+  const sourcemeta::core::JSON instance{
+      sourcemeta::core::parse_json("{ \"flag\": 1, \"value\": 42 }")};
+
+  EVALUATE_WITH_TRACE_FAST_SUCCESS(schema, instance, 5);
+
+  EVALUATE_TRACE_PRE(0, LogicalCondition, "/if", "#/if", "");
+  EVALUATE_TRACE_PRE(1, AssertionEqual, "/if/properties/flag/const",
+                     "#/if/properties/flag/const", "/flag");
+  EVALUATE_TRACE_PRE(2, Evaluate, "/if/properties", "#/if/properties", "/flag");
+  EVALUATE_TRACE_PRE(3, LoopPropertiesTypeEvaluate,
+                     "/then/additionalProperties",
+                     "#/then/additionalProperties", "");
+  EVALUATE_TRACE_PRE(4, LoopPropertiesUnevaluated, "/unevaluatedProperties",
+                     "#/unevaluatedProperties", "");
+
+  EVALUATE_TRACE_POST_SUCCESS(0, AssertionEqual, "/if/properties/flag/const",
+                              "#/if/properties/flag/const", "/flag");
+  EVALUATE_TRACE_POST_SUCCESS(1, Evaluate, "/if/properties", "#/if/properties",
+                              "/flag");
+  EVALUATE_TRACE_POST_SUCCESS(2, LoopPropertiesTypeEvaluate,
+                              "/then/additionalProperties",
+                              "#/then/additionalProperties", "");
+  EVALUATE_TRACE_POST_SUCCESS(3, LogicalCondition, "/if", "#/if", "");
+  EVALUATE_TRACE_POST_SUCCESS(4, LoopPropertiesUnevaluated,
+                              "/unevaluatedProperties",
+                              "#/unevaluatedProperties", "");
+
+  EVALUATE_TRACE_POST_DESCRIBE(
+      instance, 0,
+      "The integer value 1 was expected to equal the integer constant 1");
+  EVALUATE_TRACE_POST_DESCRIBE(instance, 1,
+                               "The instance location was marked as evaluated");
+  EVALUATE_TRACE_POST_DESCRIBE(
+      instance, 2, "The object properties were expected to be of type integer");
+  EVALUATE_TRACE_POST_DESCRIBE(
+      instance, 3,
+      "The object value was expected to validate against the given "
+      "conditional");
+  EVALUATE_TRACE_POST_DESCRIBE(
+      instance, 4,
+      "The object value was not expected to define unevaluated properties");
+}
+
+TEST(Evaluator_2019_09, additionalProperties_7) {
+  const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
+    "$schema": "https://json-schema.org/draft/2019-09/schema",
+    "if": {
+      "properties": {
+        "kind": { "const": "A" }
+      }
+    },
+    "then": {
+      "additionalProperties": { "type": "string" }
+    },
+    "unevaluatedProperties": false
+  })JSON")};
+
+  const sourcemeta::core::JSON instance{
+      sourcemeta::core::parse_json("{ \"kind\": \"A\", \"other\": \"test\" }")};
+
+  EVALUATE_WITH_TRACE_FAST_SUCCESS(schema, instance, 5);
+
+  EVALUATE_TRACE_PRE(0, LogicalCondition, "/if", "#/if", "");
+  EVALUATE_TRACE_PRE(1, AssertionEqual, "/if/properties/kind/const",
+                     "#/if/properties/kind/const", "/kind");
+  EVALUATE_TRACE_PRE(2, Evaluate, "/if/properties", "#/if/properties", "/kind");
+  EVALUATE_TRACE_PRE(3, LoopPropertiesTypeStrictEvaluate,
+                     "/then/additionalProperties",
+                     "#/then/additionalProperties", "");
+  EVALUATE_TRACE_PRE(4, LoopPropertiesUnevaluated, "/unevaluatedProperties",
+                     "#/unevaluatedProperties", "");
+
+  EVALUATE_TRACE_POST_SUCCESS(0, AssertionEqual, "/if/properties/kind/const",
+                              "#/if/properties/kind/const", "/kind");
+  EVALUATE_TRACE_POST_SUCCESS(1, Evaluate, "/if/properties", "#/if/properties",
+                              "/kind");
+  EVALUATE_TRACE_POST_SUCCESS(2, LoopPropertiesTypeStrictEvaluate,
+                              "/then/additionalProperties",
+                              "#/then/additionalProperties", "");
+  EVALUATE_TRACE_POST_SUCCESS(3, LogicalCondition, "/if", "#/if", "");
+  EVALUATE_TRACE_POST_SUCCESS(4, LoopPropertiesUnevaluated,
+                              "/unevaluatedProperties",
+                              "#/unevaluatedProperties", "");
+
+  EVALUATE_TRACE_POST_DESCRIBE(
+      instance, 0,
+      "The string value \"A\" was expected to equal the string constant \"A\"");
+  EVALUATE_TRACE_POST_DESCRIBE(instance, 1,
+                               "The instance location was marked as evaluated");
+  EVALUATE_TRACE_POST_DESCRIBE(
+      instance, 2, "The object properties were expected to be of type string");
+  EVALUATE_TRACE_POST_DESCRIBE(
+      instance, 3,
+      "The object value was expected to validate against the given "
+      "conditional");
+  EVALUATE_TRACE_POST_DESCRIBE(
+      instance, 4,
+      "The object value was not expected to define unevaluated properties");
+}
+
+TEST(Evaluator_2019_09, additionalProperties_8) {
+  const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
+    "$schema": "https://json-schema.org/draft/2019-09/schema",
+    "if": {
+      "properties": {
+        "flag": { "const": 1 }
+      }
+    },
+    "then": {
+      "additionalProperties": { "type": "number" }
+    },
+    "unevaluatedProperties": false
+  })JSON")};
+
+  const sourcemeta::core::JSON instance{
+      sourcemeta::core::parse_json("{ \"flag\": 1, \"value\": 3.14 }")};
+
+  EVALUATE_WITH_TRACE_FAST_SUCCESS(schema, instance, 5);
+
+  EVALUATE_TRACE_PRE(0, LogicalCondition, "/if", "#/if", "");
+  EVALUATE_TRACE_PRE(1, AssertionEqual, "/if/properties/flag/const",
+                     "#/if/properties/flag/const", "/flag");
+  EVALUATE_TRACE_PRE(2, Evaluate, "/if/properties", "#/if/properties", "/flag");
+  EVALUATE_TRACE_PRE(3, LoopPropertiesTypeStrictAnyEvaluate,
+                     "/then/additionalProperties",
+                     "#/then/additionalProperties", "");
+  EVALUATE_TRACE_PRE(4, LoopPropertiesUnevaluated, "/unevaluatedProperties",
+                     "#/unevaluatedProperties", "");
+
+  EVALUATE_TRACE_POST_SUCCESS(0, AssertionEqual, "/if/properties/flag/const",
+                              "#/if/properties/flag/const", "/flag");
+  EVALUATE_TRACE_POST_SUCCESS(1, Evaluate, "/if/properties", "#/if/properties",
+                              "/flag");
+  EVALUATE_TRACE_POST_SUCCESS(2, LoopPropertiesTypeStrictAnyEvaluate,
+                              "/then/additionalProperties",
+                              "#/then/additionalProperties", "");
+  EVALUATE_TRACE_POST_SUCCESS(3, LogicalCondition, "/if", "#/if", "");
+  EVALUATE_TRACE_POST_SUCCESS(4, LoopPropertiesUnevaluated,
+                              "/unevaluatedProperties",
+                              "#/unevaluatedProperties", "");
+
+  EVALUATE_TRACE_POST_DESCRIBE(
+      instance, 0,
+      "The integer value 1 was expected to equal the integer constant 1");
+  EVALUATE_TRACE_POST_DESCRIBE(instance, 1,
+                               "The instance location was marked as evaluated");
+  EVALUATE_TRACE_POST_DESCRIBE(
+      instance, 2, "The object properties were expected to be of type number");
+  EVALUATE_TRACE_POST_DESCRIBE(
+      instance, 3,
+      "The object value was expected to validate against the given "
+      "conditional");
+  EVALUATE_TRACE_POST_DESCRIBE(
+      instance, 4,
+      "The object value was not expected to define unevaluated properties");
 }
