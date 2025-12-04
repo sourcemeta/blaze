@@ -132,13 +132,13 @@ inline auto set_shorthand_class(std::bitset<128> &characters,
   characters |= base;
 }
 
-inline auto find_bracket_end(const std::string &content, std::size_t start)
-    -> std::size_t {
+inline auto find_bracket_end(const std::string &content, std::size_t start,
+                             bool track_nested = true) -> std::size_t {
   for (std::size_t depth = 1, position = start; position < content.size();
        ++position) {
     if (content[position] == '\\' && position + 1 < content.size()) {
       ++position;
-    } else if (content[position] == '[') {
+    } else if (track_nested && content[position] == '[') {
       ++depth;
     } else if (content[position] == ']' && --depth == 0) {
       return position + 1;
@@ -246,7 +246,21 @@ inline auto has_nested_brackets(const std::string &content) -> bool {
     if (content[position] == '\\') {
       ++position;
     } else if (content[position] == '[') {
-      return true;
+      // Found a potential nested bracket - check if it has a closing ]
+      // Skip past this [ and look for its matching ]
+      std::size_t inner_pos = position + 1;
+      while (inner_pos < content.size()) {
+        if (content[inner_pos] == '\\' && inner_pos + 1 < content.size()) {
+          inner_pos += 2;
+        } else if (content[inner_pos] == ']') {
+          // Found a matching ] - this is a proper nested bracket
+          return true;
+        } else {
+          ++inner_pos;
+        }
+      }
+      // No matching ] found for this [, so it's just a literal [
+      // Continue searching
     }
   }
 
@@ -587,21 +601,43 @@ inline auto preprocess_regex(const std::string &pattern)
   for (std::size_t position = 0; position < pattern.size(); ++position) {
     const char current = pattern[position];
     if (current == '[' && !is_escaped(pattern, position) && !in_class) {
-      const auto end = find_bracket_end(pattern, position + 1);
-      const auto content = pattern.substr(position + 1, end - position - 2);
-      if (content.find("--") != std::string::npos ||
-          content.find("&&") != std::string::npos ||
-          has_nested_brackets(content)) {
-        const auto expanded = expand_char_class(content);
+      // Find end both ways and check which applies
+      const auto simple_end = find_bracket_end(pattern, position + 1, false);
+      const auto nested_end = find_bracket_end(pattern, position + 1, true);
+
+      const auto nested_content =
+          pattern.substr(position + 1, nested_end - position - 2);
+
+      // Check for v-flag operators in nested content
+      const bool nested_has_ops =
+          nested_content.find("--") != std::string::npos ||
+          nested_content.find("&&") != std::string::npos;
+
+      // Check if nested content starts with a nested bracket
+      // This indicates true v-flag nested class syntax like [[a-z]...]
+      const bool starts_with_nested =
+          !nested_content.empty() && nested_content[0] == '[';
+
+      // Use v-flag mode if:
+      // 1. Nested content has v-flag operators (-- or &&), OR
+      // 2. Content starts with [ (indicating v-flag nested class syntax)
+      //    AND the ends differ (so there's actual nesting being tracked)
+      const bool use_v_flag =
+          nested_has_ops || (starts_with_nested && simple_end != nested_end);
+
+      if (use_v_flag) {
+        const auto expanded = expand_char_class(nested_content);
         if (!expanded) {
           return std::nullopt;
         }
 
         result += *expanded;
-        position = end - 1;
+        position = nested_end - 1;
         continue;
       }
 
+      // No v-flag syntax - use standard mode
+      // This handles standard patterns like [^!*,;{}[\]~\n] where [ is literal
       in_class = true;
     } else if (current == ']' && !is_escaped(pattern, position)) {
       in_class = false;
