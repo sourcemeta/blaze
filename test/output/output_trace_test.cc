@@ -47,7 +47,7 @@
                 expected_keyword_location, expected_annotation);               \
   EXPECT_TRUE(traces.at((index)).vocabulary.first);                            \
   EXPECT_EQ(traces.at((index)).vocabulary.second.value(),                      \
-            (expected_vocabulary));
+            sourcemeta::core::Vocabularies::URI{expected_vocabulary});
 
 #define EXPECT_OUTPUT_UNKNOWN_VOCABULARY(                                      \
     traces, index, expected_type, expected_name, expected_instance_location,   \
@@ -260,10 +260,11 @@ TEST(Output_trace, pass_with_frame_exhaustive) {
   EXPECT_OUTPUT_WITH_VOCABULARY(
       traces, 0, Annotation, "AnnotationEmit", "", "/title", "#/title",
       sourcemeta::core::JSON{"Foo Bar"},
-      "https://json-schema.org/draft/2020-12/vocab/meta-data");
+      sourcemeta::core::Vocabularies::Known::JSON_Schema_2020_12_Meta_Data);
   EXPECT_OUTPUT_WITH_VOCABULARY(
       traces, 1, Push, "LoopPropertiesMatch", "", "/properties", "#/properties",
-      std::nullopt, "https://json-schema.org/draft/2020-12/vocab/applicator");
+      std::nullopt,
+      sourcemeta::core::Vocabularies::Known::JSON_Schema_2020_12_Applicator);
   EXPECT_OUTPUT_UNKNOWN_VOCABULARY(traces, 2, Annotation, "AnnotationEmit",
                                    "/foo", "/properties/foo/unknown",
                                    "#/properties/foo/unknown",
@@ -271,22 +272,23 @@ TEST(Output_trace, pass_with_frame_exhaustive) {
   EXPECT_OUTPUT_WITH_VOCABULARY(
       traces, 3, Annotation, "AnnotationEmit", "", "/properties",
       "#/properties", sourcemeta::core::JSON{"foo"},
-      "https://json-schema.org/draft/2020-12/vocab/applicator");
+      sourcemeta::core::Vocabularies::Known::JSON_Schema_2020_12_Applicator);
   EXPECT_OUTPUT_WITH_VOCABULARY(
       traces, 4, Annotation, "AnnotationEmit", "", "/properties",
       "#/properties", sourcemeta::core::JSON{"bar"},
-      "https://json-schema.org/draft/2020-12/vocab/applicator");
+      sourcemeta::core::Vocabularies::Known::JSON_Schema_2020_12_Applicator);
   EXPECT_OUTPUT_WITH_VOCABULARY(
       traces, 5, Pass, "LoopPropertiesMatch", "", "/properties", "#/properties",
-      std::nullopt, "https://json-schema.org/draft/2020-12/vocab/applicator");
+      std::nullopt,
+      sourcemeta::core::Vocabularies::Known::JSON_Schema_2020_12_Applicator);
   EXPECT_OUTPUT_WITH_VOCABULARY(
       traces, 6, Push, "LoopPropertiesExcept", "", "/additionalProperties",
       "#/additionalProperties", std::nullopt,
-      "https://json-schema.org/draft/2020-12/vocab/applicator");
+      sourcemeta::core::Vocabularies::Known::JSON_Schema_2020_12_Applicator);
   EXPECT_OUTPUT_WITH_VOCABULARY(
       traces, 7, Pass, "LoopPropertiesExcept", "", "/additionalProperties",
       "#/additionalProperties", std::nullopt,
-      "https://json-schema.org/draft/2020-12/vocab/applicator");
+      sourcemeta::core::Vocabularies::Known::JSON_Schema_2020_12_Applicator);
 }
 
 TEST(Output_trace, pass_with_frame_fast) {
@@ -333,9 +335,9 @@ TEST(Output_trace, pass_with_frame_fast) {
   EXPECT_OUTPUT_WITH_VOCABULARY(
       traces, 0, Push, "LoopPropertiesMatchClosed", "", "/properties",
       "#/properties", std::nullopt,
-      "https://json-schema.org/draft/2020-12/vocab/applicator");
+      sourcemeta::core::Vocabularies::Known::JSON_Schema_2020_12_Applicator);
   EXPECT_OUTPUT_WITH_VOCABULARY(
       traces, 1, Pass, "LoopPropertiesMatchClosed", "", "/properties",
       "#/properties", std::nullopt,
-      "https://json-schema.org/draft/2020-12/vocab/applicator");
+      sourcemeta::core::Vocabularies::Known::JSON_Schema_2020_12_Applicator);
 }
