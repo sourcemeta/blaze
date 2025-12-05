@@ -114,7 +114,7 @@ Roadmap
 -------
 
 - Support running the validator on [simdjson](https://github.com/simdjson/simdjson)
-- Provide bindings to higher-level programming languages (Node.js, Go, etc)
+- Provide bindings to more higher-level programming languages
 
 Contributors
 ------------
