@@ -140,6 +140,19 @@ SOURCEMETA_CORE_JSONSCHEMA_EXPORT auto
 operator<<(std::ostream &stream, Vocabularies::Known vocabulary)
     -> std::ostream &;
 
+/// Convert a vocabulary URI to its string representation
+SOURCEMETA_CORE_JSONSCHEMA_EXPORT auto
+operator<<(std::ostream &stream, const Vocabularies::URI &vocabulary)
+    -> std::ostream &;
+
+/// Stringify a known vocabulary to a string
+SOURCEMETA_CORE_JSONSCHEMA_EXPORT auto to_string(Vocabularies::Known vocabulary)
+    -> std::string_view;
+
+/// Stringify a vocabulary URI to a string
+SOURCEMETA_CORE_JSONSCHEMA_EXPORT auto
+to_string(const Vocabularies::URI &vocabulary) -> std::string_view;
+
 } // namespace sourcemeta::core
 
 #endif
