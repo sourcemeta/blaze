@@ -211,6 +211,39 @@ auto sourcemeta::core::operator<<(std::ostream &stream,
   return stream;
 }
 
+auto sourcemeta::core::to_string(Vocabularies::Known vocabulary)
+    -> std::string_view {
+  switch (vocabulary) {
+// NOLINTNEXTLINE(bugprone-macro-parentheses)
+#define X_ENUM_TO_URI(enumerator, uri_string)                                  \
+  case Vocabularies::Known::enumerator:                                        \
+    return (uri_string);
+
+    SOURCEMETA_VOCABULARIES_X(X_ENUM_TO_URI)
+
+#undef X_ENUM_TO_URI
+  }
+
+  assert(false);
+  return {};
+}
+
+auto sourcemeta::core::to_string(const Vocabularies::URI &vocabulary)
+    -> std::string_view {
+  const auto *known{std::get_if<Vocabularies::Known>(&vocabulary)};
+  if (known) {
+    return to_string(*known);
+  } else {
+    return *std::get_if<JSON::String>(&vocabulary);
+  }
+}
+
+auto sourcemeta::core::operator<<(std::ostream &stream,
+                                  const Vocabularies::URI &vocabulary)
+    -> std::ostream & {
+  return stream << to_string(vocabulary);
+}
+
 auto sourcemeta::core::Vocabularies::throw_if_any_unsupported(
     const std::unordered_set<URI> &supported, const char *message) const
     -> void {

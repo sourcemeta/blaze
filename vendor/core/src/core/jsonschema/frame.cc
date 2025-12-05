@@ -722,16 +722,10 @@ auto SchemaFrame::analyse(const JSON &root, const SchemaWalker &walker,
         } else {
           bool is_first = true;
           for (const auto &base_string : bases.first) {
-            // TODO: All this dance is necessary because we don't have a
-            // URI::fragment setter
-            std::ostringstream anchor_uri_string;
-            anchor_uri_string << sourcemeta::core::URI{base_string}
-                                     .recompose_without_fragment()
-                                     .value_or("");
-            anchor_uri_string << '#';
-            anchor_uri_string << name;
-            const auto anchor_uri{
-                sourcemeta::core::URI::canonicalize(anchor_uri_string.str())};
+            sourcemeta::core::URI anchor_uri_builder{base_string};
+            anchor_uri_builder.fragment(name);
+            anchor_uri_builder.canonicalize();
+            const auto anchor_uri{anchor_uri_builder.recompose()};
 
             if (!is_first && this->locations_.contains(
                                  {SchemaReferenceType::Static, anchor_uri})) {

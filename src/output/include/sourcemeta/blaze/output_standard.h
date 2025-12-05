@@ -10,6 +10,8 @@
 
 #include <sourcemeta/blaze/evaluator.h>
 
+#include <cstdint> // std::uint8_t
+
 namespace sourcemeta::blaze {
 
 /// @ingroup output
@@ -18,7 +20,7 @@ namespace sourcemeta::blaze {
 /// https://json-schema.org/draft/2020-12/json-schema-core#name-output-structure
 /// See
 /// https://json-schema.org/draft/2019-09/draft-handrews-json-schema-02#rfc.section.10
-enum class StandardOutput {
+enum class StandardOutput : std::uint8_t {
   Flag,
   Basic
   // TODO: Implement the "detailed" and "verbose" output formats
