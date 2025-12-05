@@ -803,27 +803,23 @@ auto properties_as_loop(const Context &context,
     return false;
   }
 
+  using Known = sourcemeta::core::Vocabularies::Known;
   const auto size{properties.size()};
   const auto imports_validation_vocabulary =
+      schema_context.vocabularies.contains(Known::JSON_Schema_Draft_4) ||
+      schema_context.vocabularies.contains(Known::JSON_Schema_Draft_6) ||
+      schema_context.vocabularies.contains(Known::JSON_Schema_Draft_7) ||
       schema_context.vocabularies.contains(
-          "http://json-schema.org/draft-04/schema#") ||
+          Known::JSON_Schema_2019_09_Validation) ||
       schema_context.vocabularies.contains(
-          "http://json-schema.org/draft-06/schema#") ||
-      schema_context.vocabularies.contains(
-          "http://json-schema.org/draft-07/schema#") ||
-      schema_context.vocabularies.contains(
-          "https://json-schema.org/draft/2019-09/vocab/validation") ||
-      schema_context.vocabularies.contains(
-          "https://json-schema.org/draft/2020-12/vocab/validation");
+          Known::JSON_Schema_2020_12_Validation);
   const auto imports_const =
+      schema_context.vocabularies.contains(Known::JSON_Schema_Draft_6) ||
+      schema_context.vocabularies.contains(Known::JSON_Schema_Draft_7) ||
       schema_context.vocabularies.contains(
-          "http://json-schema.org/draft-06/schema#") ||
+          Known::JSON_Schema_2019_09_Validation) ||
       schema_context.vocabularies.contains(
-          "http://json-schema.org/draft-07/schema#") ||
-      schema_context.vocabularies.contains(
-          "https://json-schema.org/draft/2019-09/vocab/validation") ||
-      schema_context.vocabularies.contains(
-          "https://json-schema.org/draft/2020-12/vocab/validation");
+          Known::JSON_Schema_2020_12_Validation);
   std::set<std::string> required;
   if (imports_validation_vocabulary &&
       schema_context.schema.defines("required") &&
