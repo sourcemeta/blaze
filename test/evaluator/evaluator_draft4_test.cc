@@ -1840,8 +1840,9 @@ TEST(Evaluator_draft4, properties_19) {
   })JSON")};
 
   auto instance{sourcemeta::core::JSON::make_object()};
-  instance.assign("foo", sourcemeta::core::JSON{sourcemeta::core::Decimal{
-                             "99999999999999999999999999999999999"}});
+  instance.assign_assume_new("foo",
+                             sourcemeta::core::JSON{sourcemeta::core::Decimal{
+                                 "99999999999999999999999999999999999"}});
 
   EVALUATE_WITH_TRACE_FAST_SUCCESS(schema, instance, 1);
 
@@ -1863,8 +1864,9 @@ TEST(Evaluator_draft4, properties_20) {
   })JSON")};
 
   auto instance{sourcemeta::core::JSON::make_object()};
-  instance.assign("foo", sourcemeta::core::JSON{sourcemeta::core::Decimal{
-                             "99999999999999999999999999999999999.0"}});
+  instance.assign_assume_new("foo",
+                             sourcemeta::core::JSON{sourcemeta::core::Decimal{
+                                 "99999999999999999999999999999999999.0"}});
 
   EVALUATE_WITH_TRACE_FAST_FAILURE(schema, instance, 1);
 
@@ -1887,8 +1889,9 @@ TEST(Evaluator_draft4, properties_21) {
   })JSON")};
 
   auto instance{sourcemeta::core::JSON::make_object()};
-  instance.assign("foo", sourcemeta::core::JSON{sourcemeta::core::Decimal{
-                             "99999999999999999999999999999999999"}});
+  instance.assign_assume_new("foo",
+                             sourcemeta::core::JSON{sourcemeta::core::Decimal{
+                                 "99999999999999999999999999999999999"}});
 
   EVALUATE_WITH_TRACE_FAST_SUCCESS(schema, instance, 1);
 
@@ -3335,10 +3338,12 @@ TEST(Evaluator_draft4, additionalProperties_19) {
 
   auto instance{sourcemeta::core::JSON::make_array()};
   auto item{sourcemeta::core::JSON::make_object()};
-  item.assign("foo", sourcemeta::core::JSON{sourcemeta::core::Decimal(
-                         "99999999999999999999999999999999999")});
-  item.assign("bar", sourcemeta::core::JSON{sourcemeta::core::Decimal(
-                         "99999999999999999999999999999999999")});
+  item.assign_assume_new("foo",
+                         sourcemeta::core::JSON{sourcemeta::core::Decimal(
+                             "99999999999999999999999999999999999")});
+  item.assign_assume_new("bar",
+                         sourcemeta::core::JSON{sourcemeta::core::Decimal(
+                             "99999999999999999999999999999999999")});
   instance.push_back(std::move(item));
 
   EVALUATE_WITH_TRACE_FAST_SUCCESS(schema, instance, 1);
@@ -3369,10 +3374,12 @@ TEST(Evaluator_draft4, additionalProperties_20) {
 
   auto instance{sourcemeta::core::JSON::make_array()};
   auto item{sourcemeta::core::JSON::make_object()};
-  item.assign("foo", sourcemeta::core::JSON{sourcemeta::core::Decimal(
-                         "99999999999999999999999999999999999.0")});
-  item.assign("bar", sourcemeta::core::JSON{sourcemeta::core::Decimal(
-                         "99999999999999999999999999999999999.0")});
+  item.assign_assume_new("foo",
+                         sourcemeta::core::JSON{sourcemeta::core::Decimal(
+                             "99999999999999999999999999999999999.0")});
+  item.assign_assume_new("bar",
+                         sourcemeta::core::JSON{sourcemeta::core::Decimal(
+                             "99999999999999999999999999999999999.0")});
   instance.push_back(std::move(item));
 
   EVALUATE_WITH_TRACE_FAST_FAILURE(schema, instance, 1);
@@ -3404,12 +3411,15 @@ TEST(Evaluator_draft4, additionalProperties_21) {
 
   auto instance{sourcemeta::core::JSON::make_array()};
   auto item{sourcemeta::core::JSON::make_object()};
-  item.assign("foo", sourcemeta::core::JSON{sourcemeta::core::Decimal(
-                         "99999999999999999999999999999999999")});
-  item.assign("bar", sourcemeta::core::JSON{sourcemeta::core::Decimal(
-                         "99999999999999999999999999999999999")});
-  item.assign("baz", sourcemeta::core::JSON{sourcemeta::core::Decimal(
-                         "99999999999999999999999999999999999")});
+  item.assign_assume_new("foo",
+                         sourcemeta::core::JSON{sourcemeta::core::Decimal(
+                             "99999999999999999999999999999999999")});
+  item.assign_assume_new("bar",
+                         sourcemeta::core::JSON{sourcemeta::core::Decimal(
+                             "99999999999999999999999999999999999")});
+  item.assign_assume_new("baz",
+                         sourcemeta::core::JSON{sourcemeta::core::Decimal(
+                             "99999999999999999999999999999999999")});
   instance.push_back(std::move(item));
 
   EVALUATE_WITH_TRACE_FAST_SUCCESS(schema, instance, 1);
@@ -3441,12 +3451,15 @@ TEST(Evaluator_draft4, additionalProperties_22) {
 
   auto instance{sourcemeta::core::JSON::make_array()};
   auto item{sourcemeta::core::JSON::make_object()};
-  item.assign("foo", sourcemeta::core::JSON{sourcemeta::core::Decimal(
-                         "99999999999999999999999999999999999.0")});
-  item.assign("bar", sourcemeta::core::JSON{sourcemeta::core::Decimal(
-                         "99999999999999999999999999999999999.0")});
-  item.assign("baz", sourcemeta::core::JSON{sourcemeta::core::Decimal(
-                         "99999999999999999999999999999999999.0")});
+  item.assign_assume_new("foo",
+                         sourcemeta::core::JSON{sourcemeta::core::Decimal(
+                             "99999999999999999999999999999999999.0")});
+  item.assign_assume_new("bar",
+                         sourcemeta::core::JSON{sourcemeta::core::Decimal(
+                             "99999999999999999999999999999999999.0")});
+  item.assign_assume_new("baz",
+                         sourcemeta::core::JSON{sourcemeta::core::Decimal(
+                             "99999999999999999999999999999999999.0")});
   instance.push_back(std::move(item));
 
   EVALUATE_WITH_TRACE_FAST_FAILURE(schema, instance, 1);
@@ -3473,10 +3486,12 @@ TEST(Evaluator_draft4, additionalProperties_23) {
   })JSON")};
 
   auto instance{sourcemeta::core::JSON::make_object()};
-  instance.assign("foo", sourcemeta::core::JSON{sourcemeta::core::Decimal(
-                             "99999999999999999999999999999999999")});
-  instance.assign("bar", sourcemeta::core::JSON{sourcemeta::core::Decimal(
-                             "99999999999999999999999999999999999")});
+  instance.assign_assume_new("foo",
+                             sourcemeta::core::JSON{sourcemeta::core::Decimal(
+                                 "99999999999999999999999999999999999")});
+  instance.assign_assume_new("bar",
+                             sourcemeta::core::JSON{sourcemeta::core::Decimal(
+                                 "99999999999999999999999999999999999")});
 
   EVALUATE_WITH_TRACE_FAST_SUCCESS(schema, instance, 2);
 
@@ -3508,10 +3523,12 @@ TEST(Evaluator_draft4, additionalProperties_24) {
   })JSON")};
 
   auto instance{sourcemeta::core::JSON::make_object()};
-  instance.assign("foo", sourcemeta::core::JSON{sourcemeta::core::Decimal(
-                             "99999999999999999999999999999999999.0")});
-  instance.assign("bar", sourcemeta::core::JSON{sourcemeta::core::Decimal(
-                             "99999999999999999999999999999999999.0")});
+  instance.assign_assume_new("foo",
+                             sourcemeta::core::JSON{sourcemeta::core::Decimal(
+                                 "99999999999999999999999999999999999.0")});
+  instance.assign_assume_new("bar",
+                             sourcemeta::core::JSON{sourcemeta::core::Decimal(
+                                 "99999999999999999999999999999999999.0")});
 
   EVALUATE_WITH_TRACE_FAST_FAILURE(schema, instance, 2);
 
@@ -3540,8 +3557,9 @@ TEST(Evaluator_draft4, additionalProperties_25) {
   })JSON")};
 
   auto instance{sourcemeta::core::JSON::make_object()};
-  instance.assign("foo", sourcemeta::core::JSON{sourcemeta::core::Decimal(
-                             "99999999999999999999999999999999999")});
+  instance.assign_assume_new("foo",
+                             sourcemeta::core::JSON{sourcemeta::core::Decimal(
+                                 "99999999999999999999999999999999999")});
 
   EVALUATE_WITH_TRACE_FAST_SUCCESS(schema, instance, 1);
 
@@ -3564,8 +3582,9 @@ TEST(Evaluator_draft4, additionalProperties_26) {
   })JSON")};
 
   auto instance{sourcemeta::core::JSON::make_object()};
-  instance.assign("foo", sourcemeta::core::JSON{sourcemeta::core::Decimal(
-                             "99999999999999999999999999999999999.0")});
+  instance.assign_assume_new("foo",
+                             sourcemeta::core::JSON{sourcemeta::core::Decimal(
+                                 "99999999999999999999999999999999999.0")});
 
   EVALUATE_WITH_TRACE_FAST_FAILURE(schema, instance, 1);
 
@@ -3592,10 +3611,12 @@ TEST(Evaluator_draft4, additionalProperties_27) {
   })JSON")};
 
   auto instance{sourcemeta::core::JSON::make_object()};
-  instance.assign("foo", sourcemeta::core::JSON{sourcemeta::core::Decimal(
-                             "99999999999999999999999999999999999")});
-  instance.assign("bar", sourcemeta::core::JSON{sourcemeta::core::Decimal(
-                             "99999999999999999999999999999999999")});
+  instance.assign_assume_new("foo",
+                             sourcemeta::core::JSON{sourcemeta::core::Decimal(
+                                 "99999999999999999999999999999999999")});
+  instance.assign_assume_new("bar",
+                             sourcemeta::core::JSON{sourcemeta::core::Decimal(
+                                 "99999999999999999999999999999999999")});
 
   EVALUATE_WITH_TRACE_FAST_SUCCESS(schema, instance, 1);
 
@@ -3621,10 +3642,12 @@ TEST(Evaluator_draft4, additionalProperties_28) {
   })JSON")};
 
   auto instance{sourcemeta::core::JSON::make_object()};
-  instance.assign("foo", sourcemeta::core::JSON{sourcemeta::core::Decimal(
-                             "99999999999999999999999999999999999.0")});
-  instance.assign("bar", sourcemeta::core::JSON{sourcemeta::core::Decimal(
-                             "99999999999999999999999999999999999.0")});
+  instance.assign_assume_new("foo",
+                             sourcemeta::core::JSON{sourcemeta::core::Decimal(
+                                 "99999999999999999999999999999999999.0")});
+  instance.assign_assume_new("bar",
+                             sourcemeta::core::JSON{sourcemeta::core::Decimal(
+                                 "99999999999999999999999999999999999.0")});
 
   EVALUATE_WITH_TRACE_FAST_FAILURE(schema, instance, 1);
 
@@ -3653,12 +3676,12 @@ TEST(Evaluator_draft4, additionalProperties_29) {
   })JSON")};
 
   auto instance{sourcemeta::core::JSON::make_object()};
-  instance.assign("xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx",
-                  sourcemeta::core::JSON{sourcemeta::core::Decimal(
-                      "99999999999999999999999999999999999")});
-  instance.assign("yyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyy",
-                  sourcemeta::core::JSON{sourcemeta::core::Decimal(
-                      "99999999999999999999999999999999999")});
+  instance.assign_assume_new("xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx",
+                             sourcemeta::core::JSON{sourcemeta::core::Decimal(
+                                 "99999999999999999999999999999999999")});
+  instance.assign_assume_new("yyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyy",
+                             sourcemeta::core::JSON{sourcemeta::core::Decimal(
+                                 "99999999999999999999999999999999999")});
 
   EVALUATE_WITH_TRACE_FAST_SUCCESS(schema, instance, 1);
 
@@ -3687,12 +3710,12 @@ TEST(Evaluator_draft4, additionalProperties_30) {
   })JSON")};
 
   auto instance{sourcemeta::core::JSON::make_object()};
-  instance.assign("xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx",
-                  sourcemeta::core::JSON{sourcemeta::core::Decimal(
-                      "99999999999999999999999999999999999.0")});
-  instance.assign("yyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyy",
-                  sourcemeta::core::JSON{sourcemeta::core::Decimal(
-                      "99999999999999999999999999999999999.0")});
+  instance.assign_assume_new("xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx",
+                             sourcemeta::core::JSON{sourcemeta::core::Decimal(
+                                 "99999999999999999999999999999999999.0")});
+  instance.assign_assume_new("yyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyy",
+                             sourcemeta::core::JSON{sourcemeta::core::Decimal(
+                                 "99999999999999999999999999999999999.0")});
 
   EVALUATE_WITH_TRACE_FAST_FAILURE(schema, instance, 1);
 
@@ -7097,10 +7120,11 @@ TEST(Evaluator_draft4, maximum_6) {
 
 TEST(Evaluator_draft4, minimum_8) {
   auto schema{sourcemeta::core::JSON::make_object()};
-  schema.assign("$schema", sourcemeta::core::JSON{
-                               "http://json-schema.org/draft-04/schema#"});
-  schema.assign("minimum",
-                sourcemeta::core::JSON{sourcemeta::core::Decimal{"5"}});
+  schema.assign_assume_new(
+      "$schema",
+      sourcemeta::core::JSON{"http://json-schema.org/draft-04/schema#"});
+  schema.assign_assume_new(
+      "minimum", sourcemeta::core::JSON{sourcemeta::core::Decimal{"5"}});
 
   const sourcemeta::core::JSON instance{10};
   EVALUATE_WITH_TRACE_FAST_SUCCESS(schema, instance, 1);
@@ -7117,10 +7141,11 @@ TEST(Evaluator_draft4, minimum_8) {
 
 TEST(Evaluator_draft4, minimum_9) {
   auto schema{sourcemeta::core::JSON::make_object()};
-  schema.assign("$schema", sourcemeta::core::JSON{
-                               "http://json-schema.org/draft-04/schema#"});
-  schema.assign("minimum",
-                sourcemeta::core::JSON{sourcemeta::core::Decimal{"5"}});
+  schema.assign_assume_new(
+      "$schema",
+      sourcemeta::core::JSON{"http://json-schema.org/draft-04/schema#"});
+  schema.assign_assume_new(
+      "minimum", sourcemeta::core::JSON{sourcemeta::core::Decimal{"5"}});
 
   const sourcemeta::core::JSON instance{3};
   EVALUATE_WITH_TRACE_FAST_FAILURE(schema, instance, 1);
@@ -7137,10 +7162,11 @@ TEST(Evaluator_draft4, minimum_9) {
 
 TEST(Evaluator_draft4, minimum_10) {
   auto schema{sourcemeta::core::JSON::make_object()};
-  schema.assign("$schema", sourcemeta::core::JSON{
-                               "http://json-schema.org/draft-04/schema#"});
-  schema.assign("minimum",
-                sourcemeta::core::JSON{sourcemeta::core::Decimal{"5"}});
+  schema.assign_assume_new(
+      "$schema",
+      sourcemeta::core::JSON{"http://json-schema.org/draft-04/schema#"});
+  schema.assign_assume_new(
+      "minimum", sourcemeta::core::JSON{sourcemeta::core::Decimal{"5"}});
 
   const sourcemeta::core::JSON instance{sourcemeta::core::Decimal{"10"}};
   EVALUATE_WITH_TRACE_FAST_SUCCESS(schema, instance, 1);
@@ -7157,10 +7183,11 @@ TEST(Evaluator_draft4, minimum_10) {
 
 TEST(Evaluator_draft4, minimum_11) {
   auto schema{sourcemeta::core::JSON::make_object()};
-  schema.assign("$schema", sourcemeta::core::JSON{
-                               "http://json-schema.org/draft-04/schema#"});
-  schema.assign("minimum",
-                sourcemeta::core::JSON{sourcemeta::core::Decimal{"5"}});
+  schema.assign_assume_new(
+      "$schema",
+      sourcemeta::core::JSON{"http://json-schema.org/draft-04/schema#"});
+  schema.assign_assume_new(
+      "minimum", sourcemeta::core::JSON{sourcemeta::core::Decimal{"5"}});
 
   const sourcemeta::core::JSON instance{sourcemeta::core::Decimal{"3"}};
   EVALUATE_WITH_TRACE_FAST_FAILURE(schema, instance, 1);
@@ -7177,10 +7204,11 @@ TEST(Evaluator_draft4, minimum_11) {
 
 TEST(Evaluator_draft4, minimum_12) {
   auto schema{sourcemeta::core::JSON::make_object()};
-  schema.assign("$schema", sourcemeta::core::JSON{
-                               "http://json-schema.org/draft-04/schema#"});
-  schema.assign("minimum",
-                sourcemeta::core::JSON{sourcemeta::core::Decimal{"2.5"}});
+  schema.assign_assume_new(
+      "$schema",
+      sourcemeta::core::JSON{"http://json-schema.org/draft-04/schema#"});
+  schema.assign_assume_new(
+      "minimum", sourcemeta::core::JSON{sourcemeta::core::Decimal{"2.5"}});
 
   const sourcemeta::core::JSON instance{3.0};
   EVALUATE_WITH_TRACE_FAST_SUCCESS(schema, instance, 1);
@@ -7197,10 +7225,11 @@ TEST(Evaluator_draft4, minimum_12) {
 
 TEST(Evaluator_draft4, minimum_13) {
   auto schema{sourcemeta::core::JSON::make_object()};
-  schema.assign("$schema", sourcemeta::core::JSON{
-                               "http://json-schema.org/draft-04/schema#"});
-  schema.assign("minimum",
-                sourcemeta::core::JSON{sourcemeta::core::Decimal{"2.5"}});
+  schema.assign_assume_new(
+      "$schema",
+      sourcemeta::core::JSON{"http://json-schema.org/draft-04/schema#"});
+  schema.assign_assume_new(
+      "minimum", sourcemeta::core::JSON{sourcemeta::core::Decimal{"2.5"}});
 
   const sourcemeta::core::JSON instance{2.0};
   EVALUATE_WITH_TRACE_FAST_FAILURE(schema, instance, 1);
@@ -7293,9 +7322,11 @@ TEST(Evaluator_draft4, minimum_17) {
 
 TEST(Evaluator_draft4, minimum_18) {
   auto schema{sourcemeta::core::JSON::make_object()};
-  schema.assign("$schema", sourcemeta::core::JSON{
-                               "http://json-schema.org/draft-04/schema#"});
-  schema.assign("minimum", sourcemeta::core::JSON{sourcemeta::core::Decimal{
+  schema.assign_assume_new(
+      "$schema",
+      sourcemeta::core::JSON{"http://json-schema.org/draft-04/schema#"});
+  schema.assign_assume_new("minimum",
+                           sourcemeta::core::JSON{sourcemeta::core::Decimal{
                                "99999999999999999999999999999999999"}});
 
   const sourcemeta::core::JSON instance{
@@ -7315,9 +7346,11 @@ TEST(Evaluator_draft4, minimum_18) {
 
 TEST(Evaluator_draft4, minimum_19) {
   auto schema{sourcemeta::core::JSON::make_object()};
-  schema.assign("$schema", sourcemeta::core::JSON{
-                               "http://json-schema.org/draft-04/schema#"});
-  schema.assign("minimum", sourcemeta::core::JSON{sourcemeta::core::Decimal{
+  schema.assign_assume_new(
+      "$schema",
+      sourcemeta::core::JSON{"http://json-schema.org/draft-04/schema#"});
+  schema.assign_assume_new("minimum",
+                           sourcemeta::core::JSON{sourcemeta::core::Decimal{
                                "99999999999999999999999999999999999"}});
 
   const sourcemeta::core::JSON instance{
@@ -7337,10 +7370,11 @@ TEST(Evaluator_draft4, minimum_19) {
 
 TEST(Evaluator_draft4, minimum_20) {
   auto schema{sourcemeta::core::JSON::make_object()};
-  schema.assign("$schema", sourcemeta::core::JSON{
-                               "http://json-schema.org/draft-04/schema#"});
-  schema.assign("minimum",
-                sourcemeta::core::JSON{sourcemeta::core::Decimal{"0.5"}});
+  schema.assign_assume_new(
+      "$schema",
+      sourcemeta::core::JSON{"http://json-schema.org/draft-04/schema#"});
+  schema.assign_assume_new(
+      "minimum", sourcemeta::core::JSON{sourcemeta::core::Decimal{"0.5"}});
 
   const sourcemeta::core::JSON instance{sourcemeta::core::Decimal{"0.7"}};
   EVALUATE_WITH_TRACE_FAST_SUCCESS(schema, instance, 1);
@@ -7357,10 +7391,11 @@ TEST(Evaluator_draft4, minimum_20) {
 
 TEST(Evaluator_draft4, minimum_21) {
   auto schema{sourcemeta::core::JSON::make_object()};
-  schema.assign("$schema", sourcemeta::core::JSON{
-                               "http://json-schema.org/draft-04/schema#"});
-  schema.assign("minimum",
-                sourcemeta::core::JSON{sourcemeta::core::Decimal{"0.5"}});
+  schema.assign_assume_new(
+      "$schema",
+      sourcemeta::core::JSON{"http://json-schema.org/draft-04/schema#"});
+  schema.assign_assume_new(
+      "minimum", sourcemeta::core::JSON{sourcemeta::core::Decimal{"0.5"}});
 
   const sourcemeta::core::JSON instance{sourcemeta::core::Decimal{"0.3"}};
   EVALUATE_WITH_TRACE_FAST_FAILURE(schema, instance, 1);
@@ -7377,10 +7412,11 @@ TEST(Evaluator_draft4, minimum_21) {
 
 TEST(Evaluator_draft4, minimum_22) {
   auto schema{sourcemeta::core::JSON::make_object()};
-  schema.assign("$schema", sourcemeta::core::JSON{
-                               "http://json-schema.org/draft-04/schema#"});
-  schema.assign("minimum",
-                sourcemeta::core::JSON{sourcemeta::core::Decimal{"5.0"}});
+  schema.assign_assume_new(
+      "$schema",
+      sourcemeta::core::JSON{"http://json-schema.org/draft-04/schema#"});
+  schema.assign_assume_new(
+      "minimum", sourcemeta::core::JSON{sourcemeta::core::Decimal{"5.0"}});
 
   const sourcemeta::core::JSON instance{sourcemeta::core::Decimal{"10.0"}};
   EVALUATE_WITH_TRACE_FAST_SUCCESS(schema, instance, 1);
@@ -7397,10 +7433,11 @@ TEST(Evaluator_draft4, minimum_22) {
 
 TEST(Evaluator_draft4, minimum_23) {
   auto schema{sourcemeta::core::JSON::make_object()};
-  schema.assign("$schema", sourcemeta::core::JSON{
-                               "http://json-schema.org/draft-04/schema#"});
-  schema.assign("minimum",
-                sourcemeta::core::JSON{sourcemeta::core::Decimal{"5"}});
+  schema.assign_assume_new(
+      "$schema",
+      sourcemeta::core::JSON{"http://json-schema.org/draft-04/schema#"});
+  schema.assign_assume_new(
+      "minimum", sourcemeta::core::JSON{sourcemeta::core::Decimal{"5"}});
 
   const sourcemeta::core::JSON instance{5};
   EVALUATE_WITH_TRACE_FAST_SUCCESS(schema, instance, 1);
@@ -7417,10 +7454,11 @@ TEST(Evaluator_draft4, minimum_23) {
 
 TEST(Evaluator_draft4, minimum_24) {
   auto schema{sourcemeta::core::JSON::make_object()};
-  schema.assign("$schema", sourcemeta::core::JSON{
-                               "http://json-schema.org/draft-04/schema#"});
-  schema.assign("minimum",
-                sourcemeta::core::JSON{sourcemeta::core::Decimal{"2.5"}});
+  schema.assign_assume_new(
+      "$schema",
+      sourcemeta::core::JSON{"http://json-schema.org/draft-04/schema#"});
+  schema.assign_assume_new(
+      "minimum", sourcemeta::core::JSON{sourcemeta::core::Decimal{"2.5"}});
 
   const sourcemeta::core::JSON instance{5};
   EVALUATE_WITH_TRACE_FAST_SUCCESS(schema, instance, 1);
@@ -7437,10 +7475,11 @@ TEST(Evaluator_draft4, minimum_24) {
 
 TEST(Evaluator_draft4, maximum_7) {
   auto schema{sourcemeta::core::JSON::make_object()};
-  schema.assign("$schema", sourcemeta::core::JSON{
-                               "http://json-schema.org/draft-04/schema#"});
-  schema.assign("maximum",
-                sourcemeta::core::JSON{sourcemeta::core::Decimal{"5"}});
+  schema.assign_assume_new(
+      "$schema",
+      sourcemeta::core::JSON{"http://json-schema.org/draft-04/schema#"});
+  schema.assign_assume_new(
+      "maximum", sourcemeta::core::JSON{sourcemeta::core::Decimal{"5"}});
 
   const sourcemeta::core::JSON instance{3};
   EVALUATE_WITH_TRACE_FAST_SUCCESS(schema, instance, 1);
@@ -7457,10 +7496,11 @@ TEST(Evaluator_draft4, maximum_7) {
 
 TEST(Evaluator_draft4, maximum_8) {
   auto schema{sourcemeta::core::JSON::make_object()};
-  schema.assign("$schema", sourcemeta::core::JSON{
-                               "http://json-schema.org/draft-04/schema#"});
-  schema.assign("maximum",
-                sourcemeta::core::JSON{sourcemeta::core::Decimal{"5"}});
+  schema.assign_assume_new(
+      "$schema",
+      sourcemeta::core::JSON{"http://json-schema.org/draft-04/schema#"});
+  schema.assign_assume_new(
+      "maximum", sourcemeta::core::JSON{sourcemeta::core::Decimal{"5"}});
 
   const sourcemeta::core::JSON instance{10};
   EVALUATE_WITH_TRACE_FAST_FAILURE(schema, instance, 1);
@@ -7477,10 +7517,11 @@ TEST(Evaluator_draft4, maximum_8) {
 
 TEST(Evaluator_draft4, maximum_9) {
   auto schema{sourcemeta::core::JSON::make_object()};
-  schema.assign("$schema", sourcemeta::core::JSON{
-                               "http://json-schema.org/draft-04/schema#"});
-  schema.assign("maximum",
-                sourcemeta::core::JSON{sourcemeta::core::Decimal{"5"}});
+  schema.assign_assume_new(
+      "$schema",
+      sourcemeta::core::JSON{"http://json-schema.org/draft-04/schema#"});
+  schema.assign_assume_new(
+      "maximum", sourcemeta::core::JSON{sourcemeta::core::Decimal{"5"}});
 
   const sourcemeta::core::JSON instance{sourcemeta::core::Decimal{"3"}};
   EVALUATE_WITH_TRACE_FAST_SUCCESS(schema, instance, 1);
@@ -7497,10 +7538,11 @@ TEST(Evaluator_draft4, maximum_9) {
 
 TEST(Evaluator_draft4, maximum_10) {
   auto schema{sourcemeta::core::JSON::make_object()};
-  schema.assign("$schema", sourcemeta::core::JSON{
-                               "http://json-schema.org/draft-04/schema#"});
-  schema.assign("maximum",
-                sourcemeta::core::JSON{sourcemeta::core::Decimal{"5"}});
+  schema.assign_assume_new(
+      "$schema",
+      sourcemeta::core::JSON{"http://json-schema.org/draft-04/schema#"});
+  schema.assign_assume_new(
+      "maximum", sourcemeta::core::JSON{sourcemeta::core::Decimal{"5"}});
 
   const sourcemeta::core::JSON instance{sourcemeta::core::Decimal{"10"}};
   EVALUATE_WITH_TRACE_FAST_FAILURE(schema, instance, 1);
@@ -7517,10 +7559,11 @@ TEST(Evaluator_draft4, maximum_10) {
 
 TEST(Evaluator_draft4, maximum_11) {
   auto schema{sourcemeta::core::JSON::make_object()};
-  schema.assign("$schema", sourcemeta::core::JSON{
-                               "http://json-schema.org/draft-04/schema#"});
-  schema.assign("maximum",
-                sourcemeta::core::JSON{sourcemeta::core::Decimal{"2.5"}});
+  schema.assign_assume_new(
+      "$schema",
+      sourcemeta::core::JSON{"http://json-schema.org/draft-04/schema#"});
+  schema.assign_assume_new(
+      "maximum", sourcemeta::core::JSON{sourcemeta::core::Decimal{"2.5"}});
 
   const sourcemeta::core::JSON instance{2.0};
   EVALUATE_WITH_TRACE_FAST_SUCCESS(schema, instance, 1);
@@ -7537,10 +7580,11 @@ TEST(Evaluator_draft4, maximum_11) {
 
 TEST(Evaluator_draft4, maximum_12) {
   auto schema{sourcemeta::core::JSON::make_object()};
-  schema.assign("$schema", sourcemeta::core::JSON{
-                               "http://json-schema.org/draft-04/schema#"});
-  schema.assign("maximum",
-                sourcemeta::core::JSON{sourcemeta::core::Decimal{"2.5"}});
+  schema.assign_assume_new(
+      "$schema",
+      sourcemeta::core::JSON{"http://json-schema.org/draft-04/schema#"});
+  schema.assign_assume_new(
+      "maximum", sourcemeta::core::JSON{sourcemeta::core::Decimal{"2.5"}});
 
   const sourcemeta::core::JSON instance{3.0};
   EVALUATE_WITH_TRACE_FAST_FAILURE(schema, instance, 1);
@@ -7633,9 +7677,11 @@ TEST(Evaluator_draft4, maximum_16) {
 
 TEST(Evaluator_draft4, maximum_17) {
   auto schema{sourcemeta::core::JSON::make_object()};
-  schema.assign("$schema", sourcemeta::core::JSON{
-                               "http://json-schema.org/draft-04/schema#"});
-  schema.assign("maximum", sourcemeta::core::JSON{sourcemeta::core::Decimal{
+  schema.assign_assume_new(
+      "$schema",
+      sourcemeta::core::JSON{"http://json-schema.org/draft-04/schema#"});
+  schema.assign_assume_new("maximum",
+                           sourcemeta::core::JSON{sourcemeta::core::Decimal{
                                "99999999999999999999999999999999999"}});
 
   const sourcemeta::core::JSON instance{
@@ -7655,9 +7701,11 @@ TEST(Evaluator_draft4, maximum_17) {
 
 TEST(Evaluator_draft4, maximum_18) {
   auto schema{sourcemeta::core::JSON::make_object()};
-  schema.assign("$schema", sourcemeta::core::JSON{
-                               "http://json-schema.org/draft-04/schema#"});
-  schema.assign("maximum", sourcemeta::core::JSON{sourcemeta::core::Decimal{
+  schema.assign_assume_new(
+      "$schema",
+      sourcemeta::core::JSON{"http://json-schema.org/draft-04/schema#"});
+  schema.assign_assume_new("maximum",
+                           sourcemeta::core::JSON{sourcemeta::core::Decimal{
                                "99999999999999999999999999999999999"}});
 
   const sourcemeta::core::JSON instance{
@@ -7677,10 +7725,11 @@ TEST(Evaluator_draft4, maximum_18) {
 
 TEST(Evaluator_draft4, maximum_19) {
   auto schema{sourcemeta::core::JSON::make_object()};
-  schema.assign("$schema", sourcemeta::core::JSON{
-                               "http://json-schema.org/draft-04/schema#"});
-  schema.assign("maximum",
-                sourcemeta::core::JSON{sourcemeta::core::Decimal{"0.5"}});
+  schema.assign_assume_new(
+      "$schema",
+      sourcemeta::core::JSON{"http://json-schema.org/draft-04/schema#"});
+  schema.assign_assume_new(
+      "maximum", sourcemeta::core::JSON{sourcemeta::core::Decimal{"0.5"}});
 
   const sourcemeta::core::JSON instance{sourcemeta::core::Decimal{"0.3"}};
   EVALUATE_WITH_TRACE_FAST_SUCCESS(schema, instance, 1);
@@ -7697,10 +7746,11 @@ TEST(Evaluator_draft4, maximum_19) {
 
 TEST(Evaluator_draft4, maximum_20) {
   auto schema{sourcemeta::core::JSON::make_object()};
-  schema.assign("$schema", sourcemeta::core::JSON{
-                               "http://json-schema.org/draft-04/schema#"});
-  schema.assign("maximum",
-                sourcemeta::core::JSON{sourcemeta::core::Decimal{"0.5"}});
+  schema.assign_assume_new(
+      "$schema",
+      sourcemeta::core::JSON{"http://json-schema.org/draft-04/schema#"});
+  schema.assign_assume_new(
+      "maximum", sourcemeta::core::JSON{sourcemeta::core::Decimal{"0.5"}});
 
   const sourcemeta::core::JSON instance{sourcemeta::core::Decimal{"0.7"}};
   EVALUATE_WITH_TRACE_FAST_FAILURE(schema, instance, 1);
@@ -7717,10 +7767,11 @@ TEST(Evaluator_draft4, maximum_20) {
 
 TEST(Evaluator_draft4, maximum_21) {
   auto schema{sourcemeta::core::JSON::make_object()};
-  schema.assign("$schema", sourcemeta::core::JSON{
-                               "http://json-schema.org/draft-04/schema#"});
-  schema.assign("maximum",
-                sourcemeta::core::JSON{sourcemeta::core::Decimal{"5.0"}});
+  schema.assign_assume_new(
+      "$schema",
+      sourcemeta::core::JSON{"http://json-schema.org/draft-04/schema#"});
+  schema.assign_assume_new(
+      "maximum", sourcemeta::core::JSON{sourcemeta::core::Decimal{"5.0"}});
 
   const sourcemeta::core::JSON instance{sourcemeta::core::Decimal{"3.0"}};
   EVALUATE_WITH_TRACE_FAST_SUCCESS(schema, instance, 1);
@@ -7737,10 +7788,11 @@ TEST(Evaluator_draft4, maximum_21) {
 
 TEST(Evaluator_draft4, maximum_22) {
   auto schema{sourcemeta::core::JSON::make_object()};
-  schema.assign("$schema", sourcemeta::core::JSON{
-                               "http://json-schema.org/draft-04/schema#"});
-  schema.assign("maximum",
-                sourcemeta::core::JSON{sourcemeta::core::Decimal{"5"}});
+  schema.assign_assume_new(
+      "$schema",
+      sourcemeta::core::JSON{"http://json-schema.org/draft-04/schema#"});
+  schema.assign_assume_new(
+      "maximum", sourcemeta::core::JSON{sourcemeta::core::Decimal{"5"}});
 
   const sourcemeta::core::JSON instance{5};
   EVALUATE_WITH_TRACE_FAST_SUCCESS(schema, instance, 1);
@@ -7757,10 +7809,11 @@ TEST(Evaluator_draft4, maximum_22) {
 
 TEST(Evaluator_draft4, maximum_23) {
   auto schema{sourcemeta::core::JSON::make_object()};
-  schema.assign("$schema", sourcemeta::core::JSON{
-                               "http://json-schema.org/draft-04/schema#"});
-  schema.assign("maximum",
-                sourcemeta::core::JSON{sourcemeta::core::Decimal{"5.5"}});
+  schema.assign_assume_new(
+      "$schema",
+      sourcemeta::core::JSON{"http://json-schema.org/draft-04/schema#"});
+  schema.assign_assume_new(
+      "maximum", sourcemeta::core::JSON{sourcemeta::core::Decimal{"5.5"}});
 
   const sourcemeta::core::JSON instance{3};
   EVALUATE_WITH_TRACE_FAST_SUCCESS(schema, instance, 1);
@@ -7887,11 +7940,12 @@ TEST(Evaluator_draft4, exclusiveMaximum_3) {
 
 TEST(Evaluator_draft4, exclusiveMinimum_4) {
   auto schema{sourcemeta::core::JSON::make_object()};
-  schema.assign("$schema", sourcemeta::core::JSON{
-                               "http://json-schema.org/draft-04/schema#"});
-  schema.assign("minimum",
-                sourcemeta::core::JSON{sourcemeta::core::Decimal{"5"}});
-  schema.assign("exclusiveMinimum", sourcemeta::core::JSON{true});
+  schema.assign_assume_new(
+      "$schema",
+      sourcemeta::core::JSON{"http://json-schema.org/draft-04/schema#"});
+  schema.assign_assume_new(
+      "minimum", sourcemeta::core::JSON{sourcemeta::core::Decimal{"5"}});
+  schema.assign_assume_new("exclusiveMinimum", sourcemeta::core::JSON{true});
 
   const sourcemeta::core::JSON instance{10};
   EVALUATE_WITH_TRACE_FAST_SUCCESS(schema, instance, 1);
@@ -7906,11 +7960,12 @@ TEST(Evaluator_draft4, exclusiveMinimum_4) {
 
 TEST(Evaluator_draft4, exclusiveMinimum_5) {
   auto schema{sourcemeta::core::JSON::make_object()};
-  schema.assign("$schema", sourcemeta::core::JSON{
-                               "http://json-schema.org/draft-04/schema#"});
-  schema.assign("minimum",
-                sourcemeta::core::JSON{sourcemeta::core::Decimal{"5"}});
-  schema.assign("exclusiveMinimum", sourcemeta::core::JSON{true});
+  schema.assign_assume_new(
+      "$schema",
+      sourcemeta::core::JSON{"http://json-schema.org/draft-04/schema#"});
+  schema.assign_assume_new(
+      "minimum", sourcemeta::core::JSON{sourcemeta::core::Decimal{"5"}});
+  schema.assign_assume_new("exclusiveMinimum", sourcemeta::core::JSON{true});
 
   const sourcemeta::core::JSON instance{5};
   EVALUATE_WITH_TRACE_FAST_FAILURE(schema, instance, 1);
@@ -7926,11 +7981,12 @@ TEST(Evaluator_draft4, exclusiveMinimum_5) {
 
 TEST(Evaluator_draft4, exclusiveMinimum_6) {
   auto schema{sourcemeta::core::JSON::make_object()};
-  schema.assign("$schema", sourcemeta::core::JSON{
-                               "http://json-schema.org/draft-04/schema#"});
-  schema.assign("minimum",
-                sourcemeta::core::JSON{sourcemeta::core::Decimal{"5"}});
-  schema.assign("exclusiveMinimum", sourcemeta::core::JSON{true});
+  schema.assign_assume_new(
+      "$schema",
+      sourcemeta::core::JSON{"http://json-schema.org/draft-04/schema#"});
+  schema.assign_assume_new(
+      "minimum", sourcemeta::core::JSON{sourcemeta::core::Decimal{"5"}});
+  schema.assign_assume_new("exclusiveMinimum", sourcemeta::core::JSON{true});
 
   const sourcemeta::core::JSON instance{sourcemeta::core::Decimal{"10"}};
   EVALUATE_WITH_TRACE_FAST_SUCCESS(schema, instance, 1);
@@ -7945,11 +8001,12 @@ TEST(Evaluator_draft4, exclusiveMinimum_6) {
 
 TEST(Evaluator_draft4, exclusiveMinimum_7) {
   auto schema{sourcemeta::core::JSON::make_object()};
-  schema.assign("$schema", sourcemeta::core::JSON{
-                               "http://json-schema.org/draft-04/schema#"});
-  schema.assign("minimum",
-                sourcemeta::core::JSON{sourcemeta::core::Decimal{"5"}});
-  schema.assign("exclusiveMinimum", sourcemeta::core::JSON{true});
+  schema.assign_assume_new(
+      "$schema",
+      sourcemeta::core::JSON{"http://json-schema.org/draft-04/schema#"});
+  schema.assign_assume_new(
+      "minimum", sourcemeta::core::JSON{sourcemeta::core::Decimal{"5"}});
+  schema.assign_assume_new("exclusiveMinimum", sourcemeta::core::JSON{true});
 
   const sourcemeta::core::JSON instance{sourcemeta::core::Decimal{"5"}};
   EVALUATE_WITH_TRACE_FAST_FAILURE(schema, instance, 1);
@@ -7965,11 +8022,12 @@ TEST(Evaluator_draft4, exclusiveMinimum_7) {
 
 TEST(Evaluator_draft4, exclusiveMinimum_8) {
   auto schema{sourcemeta::core::JSON::make_object()};
-  schema.assign("$schema", sourcemeta::core::JSON{
-                               "http://json-schema.org/draft-04/schema#"});
-  schema.assign("minimum",
-                sourcemeta::core::JSON{sourcemeta::core::Decimal{"2.5"}});
-  schema.assign("exclusiveMinimum", sourcemeta::core::JSON{true});
+  schema.assign_assume_new(
+      "$schema",
+      sourcemeta::core::JSON{"http://json-schema.org/draft-04/schema#"});
+  schema.assign_assume_new(
+      "minimum", sourcemeta::core::JSON{sourcemeta::core::Decimal{"2.5"}});
+  schema.assign_assume_new("exclusiveMinimum", sourcemeta::core::JSON{true});
 
   const sourcemeta::core::JSON instance{3.0};
   EVALUATE_WITH_TRACE_FAST_SUCCESS(schema, instance, 1);
@@ -7984,11 +8042,12 @@ TEST(Evaluator_draft4, exclusiveMinimum_8) {
 
 TEST(Evaluator_draft4, exclusiveMinimum_9) {
   auto schema{sourcemeta::core::JSON::make_object()};
-  schema.assign("$schema", sourcemeta::core::JSON{
-                               "http://json-schema.org/draft-04/schema#"});
-  schema.assign("minimum",
-                sourcemeta::core::JSON{sourcemeta::core::Decimal{"2.5"}});
-  schema.assign("exclusiveMinimum", sourcemeta::core::JSON{true});
+  schema.assign_assume_new(
+      "$schema",
+      sourcemeta::core::JSON{"http://json-schema.org/draft-04/schema#"});
+  schema.assign_assume_new(
+      "minimum", sourcemeta::core::JSON{sourcemeta::core::Decimal{"2.5"}});
+  schema.assign_assume_new("exclusiveMinimum", sourcemeta::core::JSON{true});
 
   const sourcemeta::core::JSON instance{2.5};
   EVALUATE_WITH_TRACE_FAST_FAILURE(schema, instance, 1);
@@ -8078,11 +8137,13 @@ TEST(Evaluator_draft4, exclusiveMinimum_13) {
 
 TEST(Evaluator_draft4, exclusiveMinimum_14) {
   auto schema{sourcemeta::core::JSON::make_object()};
-  schema.assign("$schema", sourcemeta::core::JSON{
-                               "http://json-schema.org/draft-04/schema#"});
-  schema.assign("minimum", sourcemeta::core::JSON{sourcemeta::core::Decimal{
+  schema.assign_assume_new(
+      "$schema",
+      sourcemeta::core::JSON{"http://json-schema.org/draft-04/schema#"});
+  schema.assign_assume_new("minimum",
+                           sourcemeta::core::JSON{sourcemeta::core::Decimal{
                                "99999999999999999999999999999999999"}});
-  schema.assign("exclusiveMinimum", sourcemeta::core::JSON{true});
+  schema.assign_assume_new("exclusiveMinimum", sourcemeta::core::JSON{true});
 
   const sourcemeta::core::JSON instance{
       sourcemeta::core::Decimal{"199999999999999999999999999999999998"}};
@@ -8099,11 +8160,13 @@ TEST(Evaluator_draft4, exclusiveMinimum_14) {
 
 TEST(Evaluator_draft4, exclusiveMinimum_15) {
   auto schema{sourcemeta::core::JSON::make_object()};
-  schema.assign("$schema", sourcemeta::core::JSON{
-                               "http://json-schema.org/draft-04/schema#"});
-  schema.assign("minimum", sourcemeta::core::JSON{sourcemeta::core::Decimal{
+  schema.assign_assume_new(
+      "$schema",
+      sourcemeta::core::JSON{"http://json-schema.org/draft-04/schema#"});
+  schema.assign_assume_new("minimum",
+                           sourcemeta::core::JSON{sourcemeta::core::Decimal{
                                "99999999999999999999999999999999999"}});
-  schema.assign("exclusiveMinimum", sourcemeta::core::JSON{true});
+  schema.assign_assume_new("exclusiveMinimum", sourcemeta::core::JSON{true});
 
   const sourcemeta::core::JSON instance{
       sourcemeta::core::Decimal{"99999999999999999999999999999999999"}};
@@ -8121,11 +8184,12 @@ TEST(Evaluator_draft4, exclusiveMinimum_15) {
 
 TEST(Evaluator_draft4, exclusiveMinimum_16) {
   auto schema{sourcemeta::core::JSON::make_object()};
-  schema.assign("$schema", sourcemeta::core::JSON{
-                               "http://json-schema.org/draft-04/schema#"});
-  schema.assign("minimum",
-                sourcemeta::core::JSON{sourcemeta::core::Decimal{"0.5"}});
-  schema.assign("exclusiveMinimum", sourcemeta::core::JSON{true});
+  schema.assign_assume_new(
+      "$schema",
+      sourcemeta::core::JSON{"http://json-schema.org/draft-04/schema#"});
+  schema.assign_assume_new(
+      "minimum", sourcemeta::core::JSON{sourcemeta::core::Decimal{"0.5"}});
+  schema.assign_assume_new("exclusiveMinimum", sourcemeta::core::JSON{true});
 
   const sourcemeta::core::JSON instance{sourcemeta::core::Decimal{"0.7"}};
   EVALUATE_WITH_TRACE_FAST_SUCCESS(schema, instance, 1);
@@ -8140,11 +8204,12 @@ TEST(Evaluator_draft4, exclusiveMinimum_16) {
 
 TEST(Evaluator_draft4, exclusiveMinimum_17) {
   auto schema{sourcemeta::core::JSON::make_object()};
-  schema.assign("$schema", sourcemeta::core::JSON{
-                               "http://json-schema.org/draft-04/schema#"});
-  schema.assign("minimum",
-                sourcemeta::core::JSON{sourcemeta::core::Decimal{"0.5"}});
-  schema.assign("exclusiveMinimum", sourcemeta::core::JSON{true});
+  schema.assign_assume_new(
+      "$schema",
+      sourcemeta::core::JSON{"http://json-schema.org/draft-04/schema#"});
+  schema.assign_assume_new(
+      "minimum", sourcemeta::core::JSON{sourcemeta::core::Decimal{"0.5"}});
+  schema.assign_assume_new("exclusiveMinimum", sourcemeta::core::JSON{true});
 
   const sourcemeta::core::JSON instance{sourcemeta::core::Decimal{"0.5"}};
   EVALUATE_WITH_TRACE_FAST_FAILURE(schema, instance, 1);
@@ -8160,11 +8225,12 @@ TEST(Evaluator_draft4, exclusiveMinimum_17) {
 
 TEST(Evaluator_draft4, exclusiveMaximum_4) {
   auto schema{sourcemeta::core::JSON::make_object()};
-  schema.assign("$schema", sourcemeta::core::JSON{
-                               "http://json-schema.org/draft-04/schema#"});
-  schema.assign("maximum",
-                sourcemeta::core::JSON{sourcemeta::core::Decimal{"5"}});
-  schema.assign("exclusiveMaximum", sourcemeta::core::JSON{true});
+  schema.assign_assume_new(
+      "$schema",
+      sourcemeta::core::JSON{"http://json-schema.org/draft-04/schema#"});
+  schema.assign_assume_new(
+      "maximum", sourcemeta::core::JSON{sourcemeta::core::Decimal{"5"}});
+  schema.assign_assume_new("exclusiveMaximum", sourcemeta::core::JSON{true});
 
   const sourcemeta::core::JSON instance{3};
   EVALUATE_WITH_TRACE_FAST_SUCCESS(schema, instance, 1);
@@ -8179,11 +8245,12 @@ TEST(Evaluator_draft4, exclusiveMaximum_4) {
 
 TEST(Evaluator_draft4, exclusiveMaximum_5) {
   auto schema{sourcemeta::core::JSON::make_object()};
-  schema.assign("$schema", sourcemeta::core::JSON{
-                               "http://json-schema.org/draft-04/schema#"});
-  schema.assign("maximum",
-                sourcemeta::core::JSON{sourcemeta::core::Decimal{"5"}});
-  schema.assign("exclusiveMaximum", sourcemeta::core::JSON{true});
+  schema.assign_assume_new(
+      "$schema",
+      sourcemeta::core::JSON{"http://json-schema.org/draft-04/schema#"});
+  schema.assign_assume_new(
+      "maximum", sourcemeta::core::JSON{sourcemeta::core::Decimal{"5"}});
+  schema.assign_assume_new("exclusiveMaximum", sourcemeta::core::JSON{true});
 
   const sourcemeta::core::JSON instance{5};
   EVALUATE_WITH_TRACE_FAST_FAILURE(schema, instance, 1);
@@ -8199,11 +8266,12 @@ TEST(Evaluator_draft4, exclusiveMaximum_5) {
 
 TEST(Evaluator_draft4, exclusiveMaximum_6) {
   auto schema{sourcemeta::core::JSON::make_object()};
-  schema.assign("$schema", sourcemeta::core::JSON{
-                               "http://json-schema.org/draft-04/schema#"});
-  schema.assign("maximum",
-                sourcemeta::core::JSON{sourcemeta::core::Decimal{"5"}});
-  schema.assign("exclusiveMaximum", sourcemeta::core::JSON{true});
+  schema.assign_assume_new(
+      "$schema",
+      sourcemeta::core::JSON{"http://json-schema.org/draft-04/schema#"});
+  schema.assign_assume_new(
+      "maximum", sourcemeta::core::JSON{sourcemeta::core::Decimal{"5"}});
+  schema.assign_assume_new("exclusiveMaximum", sourcemeta::core::JSON{true});
 
   const sourcemeta::core::JSON instance{sourcemeta::core::Decimal{"3"}};
   EVALUATE_WITH_TRACE_FAST_SUCCESS(schema, instance, 1);
@@ -8218,11 +8286,12 @@ TEST(Evaluator_draft4, exclusiveMaximum_6) {
 
 TEST(Evaluator_draft4, exclusiveMaximum_7) {
   auto schema{sourcemeta::core::JSON::make_object()};
-  schema.assign("$schema", sourcemeta::core::JSON{
-                               "http://json-schema.org/draft-04/schema#"});
-  schema.assign("maximum",
-                sourcemeta::core::JSON{sourcemeta::core::Decimal{"5"}});
-  schema.assign("exclusiveMaximum", sourcemeta::core::JSON{true});
+  schema.assign_assume_new(
+      "$schema",
+      sourcemeta::core::JSON{"http://json-schema.org/draft-04/schema#"});
+  schema.assign_assume_new(
+      "maximum", sourcemeta::core::JSON{sourcemeta::core::Decimal{"5"}});
+  schema.assign_assume_new("exclusiveMaximum", sourcemeta::core::JSON{true});
 
   const sourcemeta::core::JSON instance{sourcemeta::core::Decimal{"5"}};
   EVALUATE_WITH_TRACE_FAST_FAILURE(schema, instance, 1);
@@ -8238,11 +8307,12 @@ TEST(Evaluator_draft4, exclusiveMaximum_7) {
 
 TEST(Evaluator_draft4, exclusiveMaximum_8) {
   auto schema{sourcemeta::core::JSON::make_object()};
-  schema.assign("$schema", sourcemeta::core::JSON{
-                               "http://json-schema.org/draft-04/schema#"});
-  schema.assign("maximum",
-                sourcemeta::core::JSON{sourcemeta::core::Decimal{"2.5"}});
-  schema.assign("exclusiveMaximum", sourcemeta::core::JSON{true});
+  schema.assign_assume_new(
+      "$schema",
+      sourcemeta::core::JSON{"http://json-schema.org/draft-04/schema#"});
+  schema.assign_assume_new(
+      "maximum", sourcemeta::core::JSON{sourcemeta::core::Decimal{"2.5"}});
+  schema.assign_assume_new("exclusiveMaximum", sourcemeta::core::JSON{true});
 
   const sourcemeta::core::JSON instance{2.0};
   EVALUATE_WITH_TRACE_FAST_SUCCESS(schema, instance, 1);
@@ -8257,11 +8327,12 @@ TEST(Evaluator_draft4, exclusiveMaximum_8) {
 
 TEST(Evaluator_draft4, exclusiveMaximum_9) {
   auto schema{sourcemeta::core::JSON::make_object()};
-  schema.assign("$schema", sourcemeta::core::JSON{
-                               "http://json-schema.org/draft-04/schema#"});
-  schema.assign("maximum",
-                sourcemeta::core::JSON{sourcemeta::core::Decimal{"2.5"}});
-  schema.assign("exclusiveMaximum", sourcemeta::core::JSON{true});
+  schema.assign_assume_new(
+      "$schema",
+      sourcemeta::core::JSON{"http://json-schema.org/draft-04/schema#"});
+  schema.assign_assume_new(
+      "maximum", sourcemeta::core::JSON{sourcemeta::core::Decimal{"2.5"}});
+  schema.assign_assume_new("exclusiveMaximum", sourcemeta::core::JSON{true});
 
   const sourcemeta::core::JSON instance{2.5};
   EVALUATE_WITH_TRACE_FAST_FAILURE(schema, instance, 1);
@@ -8351,11 +8422,13 @@ TEST(Evaluator_draft4, exclusiveMaximum_13) {
 
 TEST(Evaluator_draft4, exclusiveMaximum_14) {
   auto schema{sourcemeta::core::JSON::make_object()};
-  schema.assign("$schema", sourcemeta::core::JSON{
-                               "http://json-schema.org/draft-04/schema#"});
-  schema.assign("maximum", sourcemeta::core::JSON{sourcemeta::core::Decimal{
+  schema.assign_assume_new(
+      "$schema",
+      sourcemeta::core::JSON{"http://json-schema.org/draft-04/schema#"});
+  schema.assign_assume_new("maximum",
+                           sourcemeta::core::JSON{sourcemeta::core::Decimal{
                                "99999999999999999999999999999999999"}});
-  schema.assign("exclusiveMaximum", sourcemeta::core::JSON{true});
+  schema.assign_assume_new("exclusiveMaximum", sourcemeta::core::JSON{true});
 
   const sourcemeta::core::JSON instance{
       sourcemeta::core::Decimal{"99999999999999999999999999999999998"}};
@@ -8372,11 +8445,13 @@ TEST(Evaluator_draft4, exclusiveMaximum_14) {
 
 TEST(Evaluator_draft4, exclusiveMaximum_15) {
   auto schema{sourcemeta::core::JSON::make_object()};
-  schema.assign("$schema", sourcemeta::core::JSON{
-                               "http://json-schema.org/draft-04/schema#"});
-  schema.assign("maximum", sourcemeta::core::JSON{sourcemeta::core::Decimal{
+  schema.assign_assume_new(
+      "$schema",
+      sourcemeta::core::JSON{"http://json-schema.org/draft-04/schema#"});
+  schema.assign_assume_new("maximum",
+                           sourcemeta::core::JSON{sourcemeta::core::Decimal{
                                "99999999999999999999999999999999999"}});
-  schema.assign("exclusiveMaximum", sourcemeta::core::JSON{true});
+  schema.assign_assume_new("exclusiveMaximum", sourcemeta::core::JSON{true});
 
   const sourcemeta::core::JSON instance{
       sourcemeta::core::Decimal{"99999999999999999999999999999999999"}};
@@ -8394,11 +8469,12 @@ TEST(Evaluator_draft4, exclusiveMaximum_15) {
 
 TEST(Evaluator_draft4, exclusiveMaximum_16) {
   auto schema{sourcemeta::core::JSON::make_object()};
-  schema.assign("$schema", sourcemeta::core::JSON{
-                               "http://json-schema.org/draft-04/schema#"});
-  schema.assign("maximum",
-                sourcemeta::core::JSON{sourcemeta::core::Decimal{"0.5"}});
-  schema.assign("exclusiveMaximum", sourcemeta::core::JSON{true});
+  schema.assign_assume_new(
+      "$schema",
+      sourcemeta::core::JSON{"http://json-schema.org/draft-04/schema#"});
+  schema.assign_assume_new(
+      "maximum", sourcemeta::core::JSON{sourcemeta::core::Decimal{"0.5"}});
+  schema.assign_assume_new("exclusiveMaximum", sourcemeta::core::JSON{true});
 
   const sourcemeta::core::JSON instance{sourcemeta::core::Decimal{"0.3"}};
   EVALUATE_WITH_TRACE_FAST_SUCCESS(schema, instance, 1);
@@ -8413,11 +8489,12 @@ TEST(Evaluator_draft4, exclusiveMaximum_16) {
 
 TEST(Evaluator_draft4, exclusiveMaximum_17) {
   auto schema{sourcemeta::core::JSON::make_object()};
-  schema.assign("$schema", sourcemeta::core::JSON{
-                               "http://json-schema.org/draft-04/schema#"});
-  schema.assign("maximum",
-                sourcemeta::core::JSON{sourcemeta::core::Decimal{"0.5"}});
-  schema.assign("exclusiveMaximum", sourcemeta::core::JSON{true});
+  schema.assign_assume_new(
+      "$schema",
+      sourcemeta::core::JSON{"http://json-schema.org/draft-04/schema#"});
+  schema.assign_assume_new(
+      "maximum", sourcemeta::core::JSON{sourcemeta::core::Decimal{"0.5"}});
+  schema.assign_assume_new("exclusiveMaximum", sourcemeta::core::JSON{true});
 
   const sourcemeta::core::JSON instance{sourcemeta::core::Decimal{"0.5"}};
   EVALUATE_WITH_TRACE_FAST_FAILURE(schema, instance, 1);
@@ -8527,10 +8604,11 @@ TEST(Evaluator_draft4, multipleOf_6) {
 
 TEST(Evaluator_draft4, multipleOf_7) {
   auto schema{sourcemeta::core::JSON::make_object()};
-  schema.assign("$schema", sourcemeta::core::JSON{
-                               "http://json-schema.org/draft-04/schema#"});
-  schema.assign("multipleOf",
-                sourcemeta::core::JSON{sourcemeta::core::Decimal{"3"}});
+  schema.assign_assume_new(
+      "$schema",
+      sourcemeta::core::JSON{"http://json-schema.org/draft-04/schema#"});
+  schema.assign_assume_new(
+      "multipleOf", sourcemeta::core::JSON{sourcemeta::core::Decimal{"3"}});
 
   const sourcemeta::core::JSON instance{9};
   EVALUATE_WITH_TRACE_FAST_SUCCESS(schema, instance, 1);
@@ -8546,10 +8624,11 @@ TEST(Evaluator_draft4, multipleOf_7) {
 
 TEST(Evaluator_draft4, multipleOf_8) {
   auto schema{sourcemeta::core::JSON::make_object()};
-  schema.assign("$schema", sourcemeta::core::JSON{
-                               "http://json-schema.org/draft-04/schema#"});
-  schema.assign("multipleOf",
-                sourcemeta::core::JSON{sourcemeta::core::Decimal{"3"}});
+  schema.assign_assume_new(
+      "$schema",
+      sourcemeta::core::JSON{"http://json-schema.org/draft-04/schema#"});
+  schema.assign_assume_new(
+      "multipleOf", sourcemeta::core::JSON{sourcemeta::core::Decimal{"3"}});
 
   const sourcemeta::core::JSON instance{10};
   EVALUATE_WITH_TRACE_FAST_FAILURE(schema, instance, 1);
@@ -8565,10 +8644,11 @@ TEST(Evaluator_draft4, multipleOf_8) {
 
 TEST(Evaluator_draft4, multipleOf_9) {
   auto schema{sourcemeta::core::JSON::make_object()};
-  schema.assign("$schema", sourcemeta::core::JSON{
-                               "http://json-schema.org/draft-04/schema#"});
-  schema.assign("multipleOf",
-                sourcemeta::core::JSON{sourcemeta::core::Decimal{"3"}});
+  schema.assign_assume_new(
+      "$schema",
+      sourcemeta::core::JSON{"http://json-schema.org/draft-04/schema#"});
+  schema.assign_assume_new(
+      "multipleOf", sourcemeta::core::JSON{sourcemeta::core::Decimal{"3"}});
 
   const sourcemeta::core::JSON instance{sourcemeta::core::Decimal{"9"}};
   EVALUATE_WITH_TRACE_FAST_SUCCESS(schema, instance, 1);
@@ -8584,10 +8664,11 @@ TEST(Evaluator_draft4, multipleOf_9) {
 
 TEST(Evaluator_draft4, multipleOf_10) {
   auto schema{sourcemeta::core::JSON::make_object()};
-  schema.assign("$schema", sourcemeta::core::JSON{
-                               "http://json-schema.org/draft-04/schema#"});
-  schema.assign("multipleOf",
-                sourcemeta::core::JSON{sourcemeta::core::Decimal{"3"}});
+  schema.assign_assume_new(
+      "$schema",
+      sourcemeta::core::JSON{"http://json-schema.org/draft-04/schema#"});
+  schema.assign_assume_new(
+      "multipleOf", sourcemeta::core::JSON{sourcemeta::core::Decimal{"3"}});
 
   const sourcemeta::core::JSON instance{sourcemeta::core::Decimal{"10"}};
   EVALUATE_WITH_TRACE_FAST_FAILURE(schema, instance, 1);
@@ -8603,10 +8684,11 @@ TEST(Evaluator_draft4, multipleOf_10) {
 
 TEST(Evaluator_draft4, multipleOf_11) {
   auto schema{sourcemeta::core::JSON::make_object()};
-  schema.assign("$schema", sourcemeta::core::JSON{
-                               "http://json-schema.org/draft-04/schema#"});
-  schema.assign("multipleOf",
-                sourcemeta::core::JSON{sourcemeta::core::Decimal{"2.5"}});
+  schema.assign_assume_new(
+      "$schema",
+      sourcemeta::core::JSON{"http://json-schema.org/draft-04/schema#"});
+  schema.assign_assume_new(
+      "multipleOf", sourcemeta::core::JSON{sourcemeta::core::Decimal{"2.5"}});
 
   const sourcemeta::core::JSON instance{5.0};
   EVALUATE_WITH_TRACE_FAST_SUCCESS(schema, instance, 1);
@@ -8622,10 +8704,11 @@ TEST(Evaluator_draft4, multipleOf_11) {
 
 TEST(Evaluator_draft4, multipleOf_12) {
   auto schema{sourcemeta::core::JSON::make_object()};
-  schema.assign("$schema", sourcemeta::core::JSON{
-                               "http://json-schema.org/draft-04/schema#"});
-  schema.assign("multipleOf",
-                sourcemeta::core::JSON{sourcemeta::core::Decimal{"2.5"}});
+  schema.assign_assume_new(
+      "$schema",
+      sourcemeta::core::JSON{"http://json-schema.org/draft-04/schema#"});
+  schema.assign_assume_new(
+      "multipleOf", sourcemeta::core::JSON{sourcemeta::core::Decimal{"2.5"}});
 
   const sourcemeta::core::JSON instance{6.0};
   EVALUATE_WITH_TRACE_FAST_FAILURE(schema, instance, 1);
@@ -8713,10 +8796,12 @@ TEST(Evaluator_draft4, multipleOf_16) {
 
 TEST(Evaluator_draft4, multipleOf_17) {
   auto schema{sourcemeta::core::JSON::make_object()};
-  schema.assign("$schema", sourcemeta::core::JSON{
-                               "http://json-schema.org/draft-04/schema#"});
-  schema.assign("multipleOf", sourcemeta::core::JSON{sourcemeta::core::Decimal{
-                                  "99999999999999999999999999999999999"}});
+  schema.assign_assume_new(
+      "$schema",
+      sourcemeta::core::JSON{"http://json-schema.org/draft-04/schema#"});
+  schema.assign_assume_new("multipleOf",
+                           sourcemeta::core::JSON{sourcemeta::core::Decimal{
+                               "99999999999999999999999999999999999"}});
 
   const sourcemeta::core::JSON instance{
       sourcemeta::core::Decimal{"299999999999999999999999999999999997"}};
@@ -8734,10 +8819,12 @@ TEST(Evaluator_draft4, multipleOf_17) {
 
 TEST(Evaluator_draft4, multipleOf_18) {
   auto schema{sourcemeta::core::JSON::make_object()};
-  schema.assign("$schema", sourcemeta::core::JSON{
-                               "http://json-schema.org/draft-04/schema#"});
-  schema.assign("multipleOf", sourcemeta::core::JSON{sourcemeta::core::Decimal{
-                                  "99999999999999999999999999999999999"}});
+  schema.assign_assume_new(
+      "$schema",
+      sourcemeta::core::JSON{"http://json-schema.org/draft-04/schema#"});
+  schema.assign_assume_new("multipleOf",
+                           sourcemeta::core::JSON{sourcemeta::core::Decimal{
+                               "99999999999999999999999999999999999"}});
 
   const sourcemeta::core::JSON instance{
       sourcemeta::core::Decimal{"299999999999999999999999999999999998"}};
@@ -8755,10 +8842,11 @@ TEST(Evaluator_draft4, multipleOf_18) {
 
 TEST(Evaluator_draft4, multipleOf_19) {
   auto schema{sourcemeta::core::JSON::make_object()};
-  schema.assign("$schema", sourcemeta::core::JSON{
-                               "http://json-schema.org/draft-04/schema#"});
-  schema.assign("multipleOf",
-                sourcemeta::core::JSON{sourcemeta::core::Decimal{"0.1"}});
+  schema.assign_assume_new(
+      "$schema",
+      sourcemeta::core::JSON{"http://json-schema.org/draft-04/schema#"});
+  schema.assign_assume_new(
+      "multipleOf", sourcemeta::core::JSON{sourcemeta::core::Decimal{"0.1"}});
 
   const sourcemeta::core::JSON instance{sourcemeta::core::Decimal{"0.3"}};
   EVALUATE_WITH_TRACE_FAST_SUCCESS(schema, instance, 1);
@@ -8774,10 +8862,11 @@ TEST(Evaluator_draft4, multipleOf_19) {
 
 TEST(Evaluator_draft4, multipleOf_20) {
   auto schema{sourcemeta::core::JSON::make_object()};
-  schema.assign("$schema", sourcemeta::core::JSON{
-                               "http://json-schema.org/draft-04/schema#"});
-  schema.assign("multipleOf",
-                sourcemeta::core::JSON{sourcemeta::core::Decimal{"0.1"}});
+  schema.assign_assume_new(
+      "$schema",
+      sourcemeta::core::JSON{"http://json-schema.org/draft-04/schema#"});
+  schema.assign_assume_new(
+      "multipleOf", sourcemeta::core::JSON{sourcemeta::core::Decimal{"0.1"}});
 
   const sourcemeta::core::JSON instance{sourcemeta::core::Decimal{"0.35"}};
   EVALUATE_WITH_TRACE_FAST_FAILURE(schema, instance, 1);
@@ -8793,10 +8882,11 @@ TEST(Evaluator_draft4, multipleOf_20) {
 
 TEST(Evaluator_draft4, multipleOf_21) {
   auto schema{sourcemeta::core::JSON::make_object()};
-  schema.assign("$schema", sourcemeta::core::JSON{
-                               "http://json-schema.org/draft-04/schema#"});
-  schema.assign("multipleOf",
-                sourcemeta::core::JSON{sourcemeta::core::Decimal{"5.0"}});
+  schema.assign_assume_new(
+      "$schema",
+      sourcemeta::core::JSON{"http://json-schema.org/draft-04/schema#"});
+  schema.assign_assume_new(
+      "multipleOf", sourcemeta::core::JSON{sourcemeta::core::Decimal{"5.0"}});
 
   const sourcemeta::core::JSON instance{sourcemeta::core::Decimal{"15.0"}};
   EVALUATE_WITH_TRACE_FAST_SUCCESS(schema, instance, 1);
@@ -8812,10 +8902,11 @@ TEST(Evaluator_draft4, multipleOf_21) {
 
 TEST(Evaluator_draft4, multipleOf_22) {
   auto schema{sourcemeta::core::JSON::make_object()};
-  schema.assign("$schema", sourcemeta::core::JSON{
-                               "http://json-schema.org/draft-04/schema#"});
-  schema.assign("multipleOf",
-                sourcemeta::core::JSON{sourcemeta::core::Decimal{"1.5"}});
+  schema.assign_assume_new(
+      "$schema",
+      sourcemeta::core::JSON{"http://json-schema.org/draft-04/schema#"});
+  schema.assign_assume_new(
+      "multipleOf", sourcemeta::core::JSON{sourcemeta::core::Decimal{"1.5"}});
 
   const sourcemeta::core::JSON instance{3};
   EVALUATE_WITH_TRACE_FAST_SUCCESS(schema, instance, 1);

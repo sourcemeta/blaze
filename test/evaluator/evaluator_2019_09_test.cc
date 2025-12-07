@@ -1780,7 +1780,7 @@ TEST(Evaluator_2019_09, contentSchema_exhaustive_with_contentMediaType) {
   EVALUATE_TRACE_PRE_ANNOTATION(1, "/contentSchema", "#/contentSchema", "");
 
   auto content_schema{sourcemeta::core::JSON::make_object()};
-  content_schema.assign("type", sourcemeta::core::JSON{"string"});
+  content_schema.assign_assume_new("type", sourcemeta::core::JSON{"string"});
 
   EVALUATE_TRACE_POST_ANNOTATION(0, "/contentMediaType", "#/contentMediaType",
                                  "", "application/json");

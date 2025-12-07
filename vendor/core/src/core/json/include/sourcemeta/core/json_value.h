@@ -1386,6 +1386,39 @@ public:
   /// ```
   auto assign_if_missing(const String &key, JSON &&value) -> void;
 
+  /// This method sets an object key, assuming the key does not already exist.
+  /// If the key already exists, behavior is undefined. This variant is faster
+  /// than `assign` when building objects with keys known to be unique. For
+  /// example:
+  ///
+  /// ```cpp
+  /// #include <sourcemeta/core/json.h>
+  /// #include <cassert>
+  ///
+  /// sourcemeta::core::JSON document = sourcemeta::core::JSON::make_object();
+  /// document.assign_assume_new("foo", sourcemeta::core::JSON{1});
+  /// assert(document.defines("foo"));
+  /// assert(document.at("foo").to_integer() == 1);
+  /// ```
+  auto assign_assume_new(const String &key, JSON &&value) -> void;
+
+  /// This method sets an object key, assuming the key does not already exist.
+  /// If the key already exists, behavior is undefined. This variant is faster
+  /// than `assign` when building objects with keys known to be unique, and
+  /// allows moving the key. For example:
+  ///
+  /// ```cpp
+  /// #include <sourcemeta/core/json.h>
+  /// #include <cassert>
+  ///
+  /// sourcemeta::core::JSON document = sourcemeta::core::JSON::make_object();
+  /// std::string key{"foo"};
+  /// document.assign_assume_new(std::move(key), sourcemeta::core::JSON{1});
+  /// assert(document.defines("foo"));
+  /// assert(document.at("foo").to_integer() == 1);
+  /// ```
+  auto assign_assume_new(String &&key, JSON &&value) -> void;
+
   /// This method deletes an object key. For example:
   ///
   /// ```cpp
