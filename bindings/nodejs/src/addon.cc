@@ -273,14 +273,14 @@ static auto compile_schema(napi_env environment, napi_callback_info info)
         if (result.has_value()) {
           return result;
         }
-        return sourcemeta::core::schema_official_resolver(identifier);
+        return sourcemeta::core::schema_resolver(identifier);
       };
     } else {
-      resolver = sourcemeta::core::schema_official_resolver;
+      resolver = sourcemeta::core::schema_resolver;
     }
 
     auto compiled = sourcemeta::blaze::compile(
-        schema, sourcemeta::core::schema_official_walker, resolver,
+        schema, sourcemeta::core::schema_walker, resolver,
         sourcemeta::blaze::default_schema_compiler, mode, default_dialect);
 
     bool is_fast = (mode == sourcemeta::blaze::Mode::FastValidation);

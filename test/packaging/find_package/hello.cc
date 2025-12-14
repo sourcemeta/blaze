@@ -15,10 +15,10 @@ auto main() -> int {
     "type": "string"
   })JSON")};
 
-  const auto compiled_schema{sourcemeta::blaze::compile(
-      schema, sourcemeta::core::schema_official_walker,
-      sourcemeta::core::schema_official_resolver,
-      sourcemeta::blaze::default_schema_compiler)};
+  const auto compiled_schema{
+      sourcemeta::blaze::compile(schema, sourcemeta::core::schema_walker,
+                                 sourcemeta::core::schema_resolver,
+                                 sourcemeta::blaze::default_schema_compiler)};
 
   const sourcemeta::core::JSON instance{"foo"};
   sourcemeta::blaze::Evaluator evaluator;

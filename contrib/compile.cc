@@ -27,8 +27,8 @@ auto main(int argc, char **argv) noexcept -> int {
   std::cerr << "Compiling schema: " << argv[2] << "\n";
   const auto compile_start{std::chrono::high_resolution_clock::now()};
   const auto schema_template{sourcemeta::blaze::compile(
-      schema, sourcemeta::core::schema_official_walker,
-      sourcemeta::core::schema_official_resolver,
+      schema, sourcemeta::core::schema_walker,
+      sourcemeta::core::schema_resolver,
       sourcemeta::blaze::default_schema_compiler, mode)};
   const auto compile_end{std::chrono::high_resolution_clock::now()};
   const auto compile_duration{

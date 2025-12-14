@@ -25,10 +25,10 @@ TEST(Compiler_JSON, example_1) {
     "type": "string"
   })JSON")};
 
-  const auto schema_template{sourcemeta::blaze::compile(
-      schema, sourcemeta::core::schema_official_walker,
-      sourcemeta::core::schema_official_resolver,
-      sourcemeta::blaze::default_schema_compiler)};
+  const auto schema_template{
+      sourcemeta::blaze::compile(schema, sourcemeta::core::schema_walker,
+                                 sourcemeta::core::schema_resolver,
+                                 sourcemeta::blaze::default_schema_compiler)};
 
   const sourcemeta::core::JSON expected{sourcemeta::core::parse_json(R"JSON([
     false,
@@ -58,10 +58,10 @@ TEST(Compiler_JSON, example_2) {
     }
   })JSON")};
 
-  const auto schema_template{sourcemeta::blaze::compile(
-      schema, sourcemeta::core::schema_official_walker,
-      sourcemeta::core::schema_official_resolver,
-      sourcemeta::blaze::default_schema_compiler)};
+  const auto schema_template{
+      sourcemeta::blaze::compile(schema, sourcemeta::core::schema_walker,
+                                 sourcemeta::core::schema_resolver,
+                                 sourcemeta::blaze::default_schema_compiler)};
 
   const sourcemeta::core::JSON expected{sourcemeta::core::parse_json(R"JSON([
     false,
@@ -106,10 +106,10 @@ TEST(Compiler_JSON, example_3) {
     "pattern": "^f"
   })JSON")};
 
-  const auto schema_template{sourcemeta::blaze::compile(
-      schema, sourcemeta::core::schema_official_walker,
-      sourcemeta::core::schema_official_resolver,
-      sourcemeta::blaze::default_schema_compiler)};
+  const auto schema_template{
+      sourcemeta::blaze::compile(schema, sourcemeta::core::schema_walker,
+                                 sourcemeta::core::schema_resolver,
+                                 sourcemeta::blaze::default_schema_compiler)};
 
   const sourcemeta::core::JSON expected{sourcemeta::core::parse_json(R"JSON([
     false,
@@ -141,10 +141,10 @@ TEST(Compiler_JSON, example_4) {
     }
   })JSON")};
 
-  const auto schema_template{sourcemeta::blaze::compile(
-      schema, sourcemeta::core::schema_official_walker,
-      sourcemeta::core::schema_official_resolver,
-      sourcemeta::blaze::default_schema_compiler)};
+  const auto schema_template{
+      sourcemeta::blaze::compile(schema, sourcemeta::core::schema_walker,
+                                 sourcemeta::core::schema_resolver,
+                                 sourcemeta::blaze::default_schema_compiler)};
 
   const sourcemeta::core::JSON expected{sourcemeta::core::parse_json(R"JSON([
     false,
@@ -202,11 +202,11 @@ TEST(Compiler_JSON, example_5) {
     "foo%": true
   })JSON")};
 
-  const auto schema_template{sourcemeta::blaze::compile(
-      schema, sourcemeta::core::schema_official_walker,
-      sourcemeta::core::schema_official_resolver,
-      sourcemeta::blaze::default_schema_compiler,
-      sourcemeta::blaze::Mode::Exhaustive)};
+  const auto schema_template{
+      sourcemeta::blaze::compile(schema, sourcemeta::core::schema_walker,
+                                 sourcemeta::core::schema_resolver,
+                                 sourcemeta::blaze::default_schema_compiler,
+                                 sourcemeta::blaze::Mode::Exhaustive)};
 
   const sourcemeta::core::JSON expected{sourcemeta::core::parse_json(R"JSON([
     false,
@@ -242,11 +242,11 @@ TEST(Compiler_JSON, example_6) {
     }
   })JSON")};
 
-  const auto schema_template{sourcemeta::blaze::compile(
-      schema, sourcemeta::core::schema_official_walker,
-      sourcemeta::core::schema_official_resolver,
-      sourcemeta::blaze::default_schema_compiler,
-      sourcemeta::blaze::Mode::Exhaustive)};
+  const auto schema_template{
+      sourcemeta::blaze::compile(schema, sourcemeta::core::schema_walker,
+                                 sourcemeta::core::schema_resolver,
+                                 sourcemeta::blaze::default_schema_compiler,
+                                 sourcemeta::blaze::Mode::Exhaustive)};
 
   const sourcemeta::core::JSON expected{sourcemeta::core::parse_json(R"JSON([
     false,
@@ -323,11 +323,11 @@ TEST(Compiler_JSON, without_expected_1) {
     }
   })JSON")};
 
-  const auto schema_template{sourcemeta::blaze::compile(
-      schema, sourcemeta::core::schema_official_walker,
-      sourcemeta::core::schema_official_resolver,
-      sourcemeta::blaze::default_schema_compiler,
-      sourcemeta::blaze::Mode::Exhaustive)};
+  const auto schema_template{
+      sourcemeta::blaze::compile(schema, sourcemeta::core::schema_walker,
+                                 sourcemeta::core::schema_resolver,
+                                 sourcemeta::blaze::default_schema_compiler,
+                                 sourcemeta::blaze::Mode::Exhaustive)};
 
   EXPECT_BIDIRECTIONAL_JSON_WITHOUT_EXPECTED(schema_template);
 }
@@ -340,11 +340,11 @@ TEST(Compiler_JSON, without_expected_2) {
     }
   })JSON")};
 
-  const auto schema_template{sourcemeta::blaze::compile(
-      schema, sourcemeta::core::schema_official_walker,
-      sourcemeta::core::schema_official_resolver,
-      sourcemeta::blaze::default_schema_compiler,
-      sourcemeta::blaze::Mode::Exhaustive)};
+  const auto schema_template{
+      sourcemeta::blaze::compile(schema, sourcemeta::core::schema_walker,
+                                 sourcemeta::core::schema_resolver,
+                                 sourcemeta::blaze::default_schema_compiler,
+                                 sourcemeta::blaze::Mode::Exhaustive)};
 
   EXPECT_BIDIRECTIONAL_JSON_WITHOUT_EXPECTED(schema_template);
 }

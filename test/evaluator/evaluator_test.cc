@@ -26,7 +26,7 @@ static auto test_resolver(std::string_view identifier)
       "type": "string"
     })JSON");
   } else {
-    return sourcemeta::core::schema_official_resolver(identifier);
+    return sourcemeta::core::schema_resolver(identifier);
   }
 }
 
@@ -36,7 +36,7 @@ TEST(Evaluator, unknown_vocabulary_required) {
   })JSON")};
 
   try {
-    sourcemeta::blaze::compile(schema, sourcemeta::core::schema_official_walker,
+    sourcemeta::blaze::compile(schema, sourcemeta::core::schema_walker,
                                test_resolver,
                                sourcemeta::blaze::default_schema_compiler);
     FAIL() << "The compile function was expected to throw";
@@ -55,8 +55,8 @@ TEST(Evaluator, without_default_id) {
   })JSON")};
 
   EXPECT_THROW(sourcemeta::blaze::compile(
-                   schema, sourcemeta::core::schema_official_walker,
-                   test_resolver, sourcemeta::blaze::default_schema_compiler,
+                   schema, sourcemeta::core::schema_walker, test_resolver,
+                   sourcemeta::blaze::default_schema_compiler,
                    sourcemeta::blaze::Mode::FastValidation),
                sourcemeta::core::SchemaResolutionError);
 }
@@ -68,7 +68,7 @@ TEST(Evaluator, with_default_id) {
   })JSON")};
 
   const auto compiled_schema{sourcemeta::blaze::compile(
-      schema, sourcemeta::core::schema_official_walker, test_resolver,
+      schema, sourcemeta::core::schema_walker, test_resolver,
       sourcemeta::blaze::default_schema_compiler,
       sourcemeta::blaze::Mode::FastValidation, std::nullopt,
       "https://example.com/default")};
@@ -82,8 +82,8 @@ TEST(Evaluator, boolean_true) {
   const sourcemeta::core::JSON schema{true};
 
   const auto compiled_schema{sourcemeta::blaze::compile(
-      schema, sourcemeta::core::schema_official_walker,
-      sourcemeta::core::schema_official_resolver,
+      schema, sourcemeta::core::schema_walker,
+      sourcemeta::core::schema_resolver,
       sourcemeta::blaze::default_schema_compiler,
       sourcemeta::blaze::Mode::FastValidation,
       "https://json-schema.org/draft/2020-12/schema")};
@@ -97,8 +97,8 @@ TEST(Evaluator, boolean_false) {
   const sourcemeta::core::JSON schema{false};
 
   const auto compiled_schema{sourcemeta::blaze::compile(
-      schema, sourcemeta::core::schema_official_walker,
-      sourcemeta::core::schema_official_resolver,
+      schema, sourcemeta::core::schema_walker,
+      sourcemeta::core::schema_resolver,
       sourcemeta::blaze::default_schema_compiler,
       sourcemeta::blaze::Mode::FastValidation,
       "https://json-schema.org/draft/2020-12/schema")};
@@ -121,10 +121,10 @@ TEST(Evaluator, reusable_evaluator) {
     "type": "string"
   })JSON")};
 
-  const auto compiled_schema{sourcemeta::blaze::compile(
-      schema, sourcemeta::core::schema_official_walker,
-      sourcemeta::core::schema_official_resolver,
-      sourcemeta::blaze::default_schema_compiler)};
+  const auto compiled_schema{
+      sourcemeta::blaze::compile(schema, sourcemeta::core::schema_walker,
+                                 sourcemeta::core::schema_resolver,
+                                 sourcemeta::blaze::default_schema_compiler)};
 
   sourcemeta::blaze::Evaluator evaluator;
 
@@ -152,10 +152,10 @@ TEST(Evaluator, cross_2012_12_ref_2019_09_without_id) {
     }
   })JSON")};
 
-  const auto compiled_schema{sourcemeta::blaze::compile(
-      schema, sourcemeta::core::schema_official_walker,
-      sourcemeta::core::schema_official_resolver,
-      sourcemeta::blaze::default_schema_compiler)};
+  const auto compiled_schema{
+      sourcemeta::blaze::compile(schema, sourcemeta::core::schema_walker,
+                                 sourcemeta::core::schema_resolver,
+                                 sourcemeta::blaze::default_schema_compiler)};
 
   sourcemeta::blaze::Evaluator evaluator;
   const sourcemeta::core::JSON instance{"test"};
@@ -169,16 +169,16 @@ TEST(Evaluator, explicit_frame) {
   })JSON")};
 
   const sourcemeta::core::JSON result{
-      sourcemeta::core::bundle(schema, sourcemeta::core::schema_official_walker,
-                               sourcemeta::core::schema_official_resolver)};
+      sourcemeta::core::bundle(schema, sourcemeta::core::schema_walker,
+                               sourcemeta::core::schema_resolver)};
   sourcemeta::core::SchemaFrame frame{
       sourcemeta::core::SchemaFrame::Mode::References};
-  frame.analyse(result, sourcemeta::core::schema_official_walker,
-                sourcemeta::core::schema_official_resolver);
+  frame.analyse(result, sourcemeta::core::schema_walker,
+                sourcemeta::core::schema_resolver);
 
   const auto compiled_schema{sourcemeta::blaze::compile(
-      result, sourcemeta::core::schema_official_walker,
-      sourcemeta::core::schema_official_resolver,
+      result, sourcemeta::core::schema_walker,
+      sourcemeta::core::schema_resolver,
       sourcemeta::blaze::default_schema_compiler, frame)};
 
   sourcemeta::blaze::Evaluator evaluator;
@@ -193,16 +193,16 @@ TEST(Evaluator, explicit_frame_locations_only) {
   })JSON")};
 
   const sourcemeta::core::JSON result{
-      sourcemeta::core::bundle(schema, sourcemeta::core::schema_official_walker,
-                               sourcemeta::core::schema_official_resolver)};
+      sourcemeta::core::bundle(schema, sourcemeta::core::schema_walker,
+                               sourcemeta::core::schema_resolver)};
   sourcemeta::core::SchemaFrame frame{
       sourcemeta::core::SchemaFrame::Mode::Locations};
-  frame.analyse(result, sourcemeta::core::schema_official_walker,
-                sourcemeta::core::schema_official_resolver);
+  frame.analyse(result, sourcemeta::core::schema_walker,
+                sourcemeta::core::schema_resolver);
 
   EXPECT_THROW(sourcemeta::blaze::compile(
-                   result, sourcemeta::core::schema_official_walker,
-                   sourcemeta::core::schema_official_resolver,
+                   result, sourcemeta::core::schema_walker,
+                   sourcemeta::core::schema_resolver,
                    sourcemeta::blaze::default_schema_compiler, frame),
                sourcemeta::core::SchemaReferenceError);
 }

@@ -9,7 +9,7 @@
 #include "evaluator_utils.h"
 
 TEST(Evaluator_draft4, metaschema_1) {
-  const auto metaschema{sourcemeta::core::schema_official_resolver(
+  const auto metaschema{sourcemeta::core::schema_resolver(
       "http://json-schema.org/draft-04/schema#")};
   EXPECT_TRUE(metaschema.has_value());
 
@@ -18,7 +18,7 @@ TEST(Evaluator_draft4, metaschema_1) {
 }
 
 TEST(Evaluator_draft4, metaschema_2) {
-  const auto metaschema{sourcemeta::core::schema_official_resolver(
+  const auto metaschema{sourcemeta::core::schema_resolver(
       "http://json-schema.org/draft-04/schema#")};
   EXPECT_TRUE(metaschema.has_value());
 
@@ -35,14 +35,14 @@ TEST(Evaluator_draft4, metaschema_2) {
 }
 
 TEST(Evaluator_draft4, metaschema_hyper_self) {
-  const auto metaschema{sourcemeta::core::schema_official_resolver(
+  const auto metaschema{sourcemeta::core::schema_resolver(
       "http://json-schema.org/draft-04/hyper-schema#")};
   EXPECT_TRUE(metaschema.has_value());
   EVALUATE_WITH_TRACE_FAST_SUCCESS(metaschema.value(), metaschema.value(), 787);
 }
 
 TEST(Evaluator_draft4, metaschema_hyper_self_exhaustive) {
-  const auto metaschema{sourcemeta::core::schema_official_resolver(
+  const auto metaschema{sourcemeta::core::schema_resolver(
       "http://json-schema.org/draft-04/hyper-schema#")};
   EXPECT_TRUE(metaschema.has_value());
   EVALUATE_WITH_TRACE_EXHAUSTIVE_SUCCESS(metaschema.value(), metaschema.value(),
@@ -953,11 +953,11 @@ TEST(Evaluator_draft4, ref_11) {
     "allOf": [ { "$ref": "#/definitions/i-dont-exist" } ]
   })JSON")};
 
-  EXPECT_THROW(sourcemeta::blaze::compile(
-                   schema, sourcemeta::core::schema_official_walker,
-                   sourcemeta::core::schema_official_resolver,
-                   sourcemeta::blaze::default_schema_compiler),
-               sourcemeta::core::SchemaReferenceError);
+  EXPECT_THROW(
+      sourcemeta::blaze::compile(schema, sourcemeta::core::schema_walker,
+                                 sourcemeta::core::schema_resolver,
+                                 sourcemeta::blaze::default_schema_compiler),
+      sourcemeta::core::SchemaReferenceError);
 }
 
 TEST(Evaluator_draft4, ref_12) {
@@ -975,12 +975,12 @@ TEST(Evaluator_draft4, ref_12) {
               })JSON");
     }
 
-    return sourcemeta::core::schema_official_resolver(identifier);
+    return sourcemeta::core::schema_resolver(identifier);
   };
 
   EXPECT_THROW(sourcemeta::blaze::compile(
-                   schema, sourcemeta::core::schema_official_walker,
-                   test_resolver, sourcemeta::blaze::default_schema_compiler),
+                   schema, sourcemeta::core::schema_walker, test_resolver,
+                   sourcemeta::blaze::default_schema_compiler),
                sourcemeta::core::SchemaReferenceError);
 }
 
@@ -999,12 +999,12 @@ TEST(Evaluator_draft4, ref_13) {
               })JSON");
     }
 
-    return sourcemeta::core::schema_official_resolver(identifier);
+    return sourcemeta::core::schema_resolver(identifier);
   };
 
   EXPECT_THROW(sourcemeta::blaze::compile(
-                   schema, sourcemeta::core::schema_official_walker,
-                   test_resolver, sourcemeta::blaze::default_schema_compiler),
+                   schema, sourcemeta::core::schema_walker, test_resolver,
+                   sourcemeta::blaze::default_schema_compiler),
                sourcemeta::core::SchemaReferenceError);
 }
 
@@ -1018,10 +1018,10 @@ TEST(Evaluator_draft4, ref_14) {
     }
   })JSON")};
 
-  const auto compiled_schema{sourcemeta::blaze::compile(
-      schema, sourcemeta::core::schema_official_walker,
-      sourcemeta::core::schema_official_resolver,
-      sourcemeta::blaze::default_schema_compiler)};
+  const auto compiled_schema{
+      sourcemeta::blaze::compile(schema, sourcemeta::core::schema_walker,
+                                 sourcemeta::core::schema_resolver,
+                                 sourcemeta::blaze::default_schema_compiler)};
 
   const sourcemeta::core::JSON instance{true};
   sourcemeta::blaze::Evaluator evaluator;
@@ -1954,8 +1954,8 @@ TEST(Evaluator_draft4, pattern_4) {
   })JSON")};
 
   try {
-    sourcemeta::blaze::compile(schema, sourcemeta::core::schema_official_walker,
-                               sourcemeta::core::schema_official_resolver,
+    sourcemeta::blaze::compile(schema, sourcemeta::core::schema_walker,
+                               sourcemeta::core::schema_resolver,
                                sourcemeta::blaze::default_schema_compiler);
     // The pattern might succeed in some standard library implementations
     SUCCEED();
@@ -1981,8 +1981,8 @@ TEST(Evaluator_draft4, pattern_5) {
   })JSON")};
 
   try {
-    sourcemeta::blaze::compile(schema, sourcemeta::core::schema_official_walker,
-                               sourcemeta::core::schema_official_resolver,
+    sourcemeta::blaze::compile(schema, sourcemeta::core::schema_walker,
+                               sourcemeta::core::schema_resolver,
                                sourcemeta::blaze::default_schema_compiler);
     // The pattern might succeed in some standard library implementations
     SUCCEED();
@@ -2010,8 +2010,8 @@ TEST(Evaluator_draft4, pattern_6) {
   })JSON")};
 
   try {
-    sourcemeta::blaze::compile(schema, sourcemeta::core::schema_official_walker,
-                               sourcemeta::core::schema_official_resolver,
+    sourcemeta::blaze::compile(schema, sourcemeta::core::schema_walker,
+                               sourcemeta::core::schema_resolver,
                                sourcemeta::blaze::default_schema_compiler);
     // The pattern might succeed in some standard library implementations
     SUCCEED();
@@ -2318,8 +2318,8 @@ TEST(Evaluator_draft4, patternProperties_9) {
   })JSON")};
 
   try {
-    sourcemeta::blaze::compile(schema, sourcemeta::core::schema_official_walker,
-                               sourcemeta::core::schema_official_resolver,
+    sourcemeta::blaze::compile(schema, sourcemeta::core::schema_walker,
+                               sourcemeta::core::schema_resolver,
                                sourcemeta::blaze::default_schema_compiler);
     // The pattern might succeed in some standard library implementations
     SUCCEED();
@@ -8926,11 +8926,11 @@ TEST(Evaluator_draft4, invalid_ref_top_level) {
     "$ref": "#/definitions/i-dont-exist"
   })JSON")};
 
-  EXPECT_THROW(sourcemeta::blaze::compile(
-                   schema, sourcemeta::core::schema_official_walker,
-                   sourcemeta::core::schema_official_resolver,
-                   sourcemeta::blaze::default_schema_compiler),
-               sourcemeta::core::SchemaError);
+  EXPECT_THROW(
+      sourcemeta::blaze::compile(schema, sourcemeta::core::schema_walker,
+                                 sourcemeta::core::schema_resolver,
+                                 sourcemeta::blaze::default_schema_compiler),
+      sourcemeta::core::SchemaError);
 }
 
 TEST(Evaluator_draft4, invalid_ref_nested) {
@@ -8944,8 +8944,8 @@ TEST(Evaluator_draft4, invalid_ref_nested) {
   })JSON")};
 
   try {
-    sourcemeta::blaze::compile(schema, sourcemeta::core::schema_official_walker,
-                               sourcemeta::core::schema_official_resolver,
+    sourcemeta::blaze::compile(schema, sourcemeta::core::schema_walker,
+                               sourcemeta::core::schema_resolver,
                                sourcemeta::blaze::default_schema_compiler);
   } catch (const sourcemeta::core::SchemaReferenceError &error) {
     EXPECT_EQ(error.location(),
@@ -8974,8 +8974,8 @@ TEST(Evaluator_draft4, invalid_ref_embedded) {
   })JSON")};
 
   try {
-    sourcemeta::blaze::compile(schema, sourcemeta::core::schema_official_walker,
-                               sourcemeta::core::schema_official_resolver,
+    sourcemeta::blaze::compile(schema, sourcemeta::core::schema_walker,
+                               sourcemeta::core::schema_resolver,
                                sourcemeta::blaze::default_schema_compiler);
   } catch (const sourcemeta::core::SchemaReferenceError &error) {
     EXPECT_EQ(error.location(),
@@ -9033,8 +9033,8 @@ TEST(Evaluator_draft4, reference_from_unknown_keyword) {
   })JSON")};
 
   try {
-    sourcemeta::blaze::compile(schema, sourcemeta::core::schema_official_walker,
-                               sourcemeta::core::schema_official_resolver,
+    sourcemeta::blaze::compile(schema, sourcemeta::core::schema_walker,
+                               sourcemeta::core::schema_resolver,
                                sourcemeta::blaze::default_schema_compiler);
   } catch (const sourcemeta::core::SchemaReferenceError &error) {
     EXPECT_EQ(error.identifier(), "#/properties/baz");
@@ -9108,8 +9108,8 @@ TEST(Evaluator_draft4, ref_to_non_schema) {
   })JSON")};
 
   try {
-    sourcemeta::blaze::compile(schema, sourcemeta::core::schema_official_walker,
-                               sourcemeta::core::schema_official_resolver,
+    sourcemeta::blaze::compile(schema, sourcemeta::core::schema_walker,
+                               sourcemeta::core::schema_resolver,
                                sourcemeta::blaze::default_schema_compiler);
     FAIL() << "The compile function was expected to throw";
   } catch (const sourcemeta::core::SchemaReferenceError &error) {
@@ -9156,12 +9156,12 @@ TEST(Evaluator_draft4, top_level_ref_with_id) {
     }
   })JSON")};
 
-  EXPECT_THROW(sourcemeta::blaze::compile(
-                   schema, sourcemeta::core::schema_official_walker,
-                   sourcemeta::core::schema_official_resolver,
-                   sourcemeta::blaze::default_schema_compiler,
-                   sourcemeta::blaze::Mode::FastValidation),
-               sourcemeta::core::SchemaError);
+  EXPECT_THROW(
+      sourcemeta::blaze::compile(schema, sourcemeta::core::schema_walker,
+                                 sourcemeta::core::schema_resolver,
+                                 sourcemeta::blaze::default_schema_compiler,
+                                 sourcemeta::blaze::Mode::FastValidation),
+      sourcemeta::core::SchemaError);
 }
 
 TEST(Evaluator_draft4, top_level_ref_with_id_exhaustive) {
@@ -9174,10 +9174,10 @@ TEST(Evaluator_draft4, top_level_ref_with_id_exhaustive) {
     }
   })JSON")};
 
-  EXPECT_THROW(sourcemeta::blaze::compile(
-                   schema, sourcemeta::core::schema_official_walker,
-                   sourcemeta::core::schema_official_resolver,
-                   sourcemeta::blaze::default_schema_compiler,
-                   sourcemeta::blaze::Mode::Exhaustive),
-               sourcemeta::core::SchemaError);
+  EXPECT_THROW(
+      sourcemeta::blaze::compile(schema, sourcemeta::core::schema_walker,
+                                 sourcemeta::core::schema_resolver,
+                                 sourcemeta::blaze::default_schema_compiler,
+                                 sourcemeta::blaze::Mode::Exhaustive),
+      sourcemeta::core::SchemaError);
 }

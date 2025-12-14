@@ -180,8 +180,8 @@ static auto register_tests(const std::string &suite_name,
     const auto &schema{entry.at("schema")};
     assert(sourcemeta::core::is_schema(schema));
     const auto schema_template{sourcemeta::blaze::compile(
-        schema, sourcemeta::core::schema_official_walker,
-        sourcemeta::core::schema_official_resolver,
+        schema, sourcemeta::core::schema_walker,
+        sourcemeta::core::schema_resolver,
         sourcemeta::blaze::default_schema_compiler,
         sourcemeta::blaze::Mode::Exhaustive, default_dialect)};
 

@@ -70,9 +70,12 @@ public:
   /// metadata during the parsing process. Each subdocument will emit 2 events:
   /// a "pre" and a "post". When parsing object and arrays, during the "pre"
   /// event, the value corresponds to the property name or index, respectively.
-  using ParseCallback = std::function<void(
-      const ParsePhase phase, const Type type, const std::uint64_t line,
-      const std::uint64_t column, const JSON &value)>;
+  using ParseCallback =
+      std::function<void(const ParsePhase phase, const Type type,
+                         const std::uint64_t line, const std::uint64_t column,
+                         // TODO: Instead of taking a JSON value, we should take
+                         // either an index or a string view to the key
+                         const JSON &value)>;
   /// A comparison function between object property keys.
   /// See https://en.cppreference.com/w/cpp/named_req/Compare
   using KeyComparison = std::function<bool(const String &, const String &)>;

@@ -12,11 +12,11 @@ TEST(Output_standard_flag, success_1) {
     }
   })JSON")};
 
-  const auto schema_template{sourcemeta::blaze::compile(
-      schema, sourcemeta::core::schema_official_walker,
-      sourcemeta::core::schema_official_resolver,
-      sourcemeta::blaze::default_schema_compiler,
-      sourcemeta::blaze::Mode::FastValidation)};
+  const auto schema_template{
+      sourcemeta::blaze::compile(schema, sourcemeta::core::schema_walker,
+                                 sourcemeta::core::schema_resolver,
+                                 sourcemeta::blaze::default_schema_compiler,
+                                 sourcemeta::blaze::Mode::FastValidation)};
 
   const auto instance{sourcemeta::core::parse_json(R"JSON({
     "foo": "bar"
@@ -42,11 +42,11 @@ TEST(Output_standard_flag, success_1_exhaustive) {
     }
   })JSON")};
 
-  const auto schema_template{sourcemeta::blaze::compile(
-      schema, sourcemeta::core::schema_official_walker,
-      sourcemeta::core::schema_official_resolver,
-      sourcemeta::blaze::default_schema_compiler,
-      sourcemeta::blaze::Mode::Exhaustive)};
+  const auto schema_template{
+      sourcemeta::blaze::compile(schema, sourcemeta::core::schema_walker,
+                                 sourcemeta::core::schema_resolver,
+                                 sourcemeta::blaze::default_schema_compiler,
+                                 sourcemeta::blaze::Mode::Exhaustive)};
 
   const auto instance{sourcemeta::core::parse_json(R"JSON({
     "foo": "bar"
@@ -72,11 +72,11 @@ TEST(Output_standard_flag, failure_1) {
     }
   })JSON")};
 
-  const auto schema_template{sourcemeta::blaze::compile(
-      schema, sourcemeta::core::schema_official_walker,
-      sourcemeta::core::schema_official_resolver,
-      sourcemeta::blaze::default_schema_compiler,
-      sourcemeta::blaze::Mode::FastValidation)};
+  const auto schema_template{
+      sourcemeta::blaze::compile(schema, sourcemeta::core::schema_walker,
+                                 sourcemeta::core::schema_resolver,
+                                 sourcemeta::blaze::default_schema_compiler,
+                                 sourcemeta::blaze::Mode::FastValidation)};
 
   const auto instance{sourcemeta::core::parse_json(R"JSON({
     "foo": 1
