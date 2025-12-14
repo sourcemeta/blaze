@@ -20,8 +20,8 @@
                                                                                \
     for (auto _ : state) {                                                     \
       auto schema_template{sourcemeta::blaze::compile(                         \
-          schema, sourcemeta::core::schema_official_walker,                    \
-          sourcemeta::core::schema_official_resolver,                          \
+          schema, sourcemeta::core::schema_walker,                             \
+          sourcemeta::core::schema_resolver,                                   \
           sourcemeta::blaze::default_schema_compiler,                          \
           sourcemeta::blaze::Mode::FastValidation)};                           \
       benchmark::DoNotOptimize(schema_template);                               \
@@ -34,11 +34,11 @@
     const std::filesystem::path directory{CURRENT_DIRECTORY                    \
                                           "/e2e/" directory_name};             \
     const auto schema{sourcemeta::core::read_json(directory / "schema.json")}; \
-    const auto schema_template{sourcemeta::blaze::compile(                     \
-        schema, sourcemeta::core::schema_official_walker,                      \
-        sourcemeta::core::schema_official_resolver,                            \
-        sourcemeta::blaze::default_schema_compiler,                            \
-        sourcemeta::blaze::Mode::FastValidation)};                             \
+    const auto schema_template{                                                \
+        sourcemeta::blaze::compile(schema, sourcemeta::core::schema_walker,    \
+                                   sourcemeta::core::schema_resolver,          \
+                                   sourcemeta::blaze::default_schema_compiler, \
+                                   sourcemeta::blaze::Mode::FastValidation)};  \
                                                                                \
     auto stream{sourcemeta::core::read_file(directory / "instances.jsonl")};   \
     std::vector<sourcemeta::core::JSON> instances;                             \

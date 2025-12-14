@@ -69,18 +69,17 @@ TEST(Output_trace, pass_1) {
     }
   })JSON")};
 
-  const auto schema_template{sourcemeta::blaze::compile(
-      schema, sourcemeta::core::schema_official_walker,
-      sourcemeta::core::schema_official_resolver,
-      sourcemeta::blaze::default_schema_compiler)};
+  const auto schema_template{
+      sourcemeta::blaze::compile(schema, sourcemeta::core::schema_walker,
+                                 sourcemeta::core::schema_resolver,
+                                 sourcemeta::blaze::default_schema_compiler)};
 
   const sourcemeta::core::JSON instance{sourcemeta::core::parse_json(R"JSON({
     "foo": "qux"
   })JSON")};
 
-  sourcemeta::blaze::TraceOutput output{
-      sourcemeta::core::schema_official_walker,
-      sourcemeta::core::schema_official_resolver};
+  sourcemeta::blaze::TraceOutput output{sourcemeta::core::schema_walker,
+                                        sourcemeta::core::schema_resolver};
   sourcemeta::blaze::Evaluator evaluator;
   const auto result{
       evaluator.validate(schema_template, instance, std::ref(output))};
@@ -116,20 +115,19 @@ TEST(Output_trace, pass_annotations) {
     }
   })JSON")};
 
-  const auto schema_template{sourcemeta::blaze::compile(
-      schema, sourcemeta::core::schema_official_walker,
-      sourcemeta::core::schema_official_resolver,
-      sourcemeta::blaze::default_schema_compiler,
-      sourcemeta::blaze::Mode::Exhaustive)};
+  const auto schema_template{
+      sourcemeta::blaze::compile(schema, sourcemeta::core::schema_walker,
+                                 sourcemeta::core::schema_resolver,
+                                 sourcemeta::blaze::default_schema_compiler,
+                                 sourcemeta::blaze::Mode::Exhaustive)};
 
   const sourcemeta::core::JSON instance{sourcemeta::core::parse_json(R"JSON({
     "foo": "bar",
     "bar": "baz"
   })JSON")};
 
-  sourcemeta::blaze::TraceOutput output{
-      sourcemeta::core::schema_official_walker,
-      sourcemeta::core::schema_official_resolver};
+  sourcemeta::blaze::TraceOutput output{sourcemeta::core::schema_walker,
+                                        sourcemeta::core::schema_resolver};
   sourcemeta::blaze::Evaluator evaluator;
   const auto result{
       evaluator.validate(schema_template, instance, std::ref(output))};
@@ -177,10 +175,10 @@ TEST(Output_trace, pass_with_matching_prefix_1) {
     }
   })JSON")};
 
-  const auto schema_template{sourcemeta::blaze::compile(
-      schema, sourcemeta::core::schema_official_walker,
-      sourcemeta::core::schema_official_resolver,
-      sourcemeta::blaze::default_schema_compiler)};
+  const auto schema_template{
+      sourcemeta::blaze::compile(schema, sourcemeta::core::schema_walker,
+                                 sourcemeta::core::schema_resolver,
+                                 sourcemeta::blaze::default_schema_compiler)};
 
   const sourcemeta::core::JSON instance{sourcemeta::core::parse_json(R"JSON({
     "foo": "qux"
@@ -188,10 +186,9 @@ TEST(Output_trace, pass_with_matching_prefix_1) {
 
   const std::string ref{"$ref"};
 
-  sourcemeta::blaze::TraceOutput output{
-      sourcemeta::core::schema_official_walker,
-      sourcemeta::core::schema_official_resolver,
-      {std::cref(ref)}};
+  sourcemeta::blaze::TraceOutput output{sourcemeta::core::schema_walker,
+                                        sourcemeta::core::schema_resolver,
+                                        {std::cref(ref)}};
   sourcemeta::blaze::Evaluator evaluator;
   const auto result{
       evaluator.validate(schema_template, instance, std::ref(output))};
@@ -229,14 +226,14 @@ TEST(Output_trace, pass_with_frame_exhaustive) {
 
   sourcemeta::core::SchemaFrame frame{
       sourcemeta::core::SchemaFrame::Mode::References};
-  frame.analyse(schema, sourcemeta::core::schema_official_walker,
-                sourcemeta::core::schema_official_resolver);
+  frame.analyse(schema, sourcemeta::core::schema_walker,
+                sourcemeta::core::schema_resolver);
 
-  const auto schema_template{sourcemeta::blaze::compile(
-      schema, sourcemeta::core::schema_official_walker,
-      sourcemeta::core::schema_official_resolver,
-      sourcemeta::blaze::default_schema_compiler, frame,
-      sourcemeta::blaze::Mode::Exhaustive)};
+  const auto schema_template{
+      sourcemeta::blaze::compile(schema, sourcemeta::core::schema_walker,
+                                 sourcemeta::core::schema_resolver,
+                                 sourcemeta::blaze::default_schema_compiler,
+                                 frame, sourcemeta::blaze::Mode::Exhaustive)};
 
   const sourcemeta::core::JSON instance{sourcemeta::core::parse_json(R"JSON({
     "foo": "bar",
@@ -244,8 +241,7 @@ TEST(Output_trace, pass_with_frame_exhaustive) {
   })JSON")};
 
   sourcemeta::blaze::TraceOutput output{
-      sourcemeta::core::schema_official_walker,
-      sourcemeta::core::schema_official_resolver,
+      sourcemeta::core::schema_walker, sourcemeta::core::schema_resolver,
       sourcemeta::core::empty_weak_pointer, frame};
   sourcemeta::blaze::Evaluator evaluator;
   const auto result{
@@ -304,12 +300,12 @@ TEST(Output_trace, pass_with_frame_fast) {
 
   sourcemeta::core::SchemaFrame frame{
       sourcemeta::core::SchemaFrame::Mode::References};
-  frame.analyse(schema, sourcemeta::core::schema_official_walker,
-                sourcemeta::core::schema_official_resolver);
+  frame.analyse(schema, sourcemeta::core::schema_walker,
+                sourcemeta::core::schema_resolver);
 
   const auto schema_template{sourcemeta::blaze::compile(
-      schema, sourcemeta::core::schema_official_walker,
-      sourcemeta::core::schema_official_resolver,
+      schema, sourcemeta::core::schema_walker,
+      sourcemeta::core::schema_resolver,
       sourcemeta::blaze::default_schema_compiler, frame,
       sourcemeta::blaze::Mode::FastValidation)};
 
@@ -319,8 +315,7 @@ TEST(Output_trace, pass_with_frame_fast) {
   })JSON")};
 
   sourcemeta::blaze::TraceOutput output{
-      sourcemeta::core::schema_official_walker,
-      sourcemeta::core::schema_official_resolver,
+      sourcemeta::core::schema_walker, sourcemeta::core::schema_resolver,
       sourcemeta::core::empty_weak_pointer, frame};
   sourcemeta::blaze::Evaluator evaluator;
   const auto result{

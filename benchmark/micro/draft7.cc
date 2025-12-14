@@ -28,10 +28,10 @@ static void Micro_Draft7_If_Then_Else(benchmark::State &state) {
 
   const sourcemeta::core::JSON instance{"foo"};
 
-  const auto schema_template{sourcemeta::blaze::compile(
-      schema, sourcemeta::core::schema_official_walker,
-      sourcemeta::core::schema_official_resolver,
-      sourcemeta::blaze::default_schema_compiler)};
+  const auto schema_template{
+      sourcemeta::blaze::compile(schema, sourcemeta::core::schema_walker,
+                                 sourcemeta::core::schema_resolver,
+                                 sourcemeta::blaze::default_schema_compiler)};
   sourcemeta::blaze::Evaluator evaluator;
   for (auto _ : state) {
     auto result{evaluator.validate(schema_template, instance)};

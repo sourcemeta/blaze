@@ -50,8 +50,8 @@ enum class StandardOutput : std::uint8_t {
 /// })JSON");
 ///
 /// const auto schema_template{sourcemeta::blaze::compile(
-///     schema, sourcemeta::core::schema_official_walker,
-///     sourcemeta::core::schema_official_resolver,
+///     schema, sourcemeta::core::schema_walker,
+///     sourcemeta::core::schema_resolver,
 ///     sourcemeta::core::default_schema_compiler)};
 ///
 /// const sourcemeta::core::JSON instance{"foo bar"};

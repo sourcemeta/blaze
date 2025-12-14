@@ -58,10 +58,10 @@ static void Micro_2020_12_Dynamic_Ref(benchmark::State &state) {
     [22, [23, [24, [25, [26, [27, [28]]]]]]]
   ])JSON")};
 
-  const auto schema_template{sourcemeta::blaze::compile(
-      schema, sourcemeta::core::schema_official_walker,
-      sourcemeta::core::schema_official_resolver,
-      sourcemeta::blaze::default_schema_compiler)};
+  const auto schema_template{
+      sourcemeta::blaze::compile(schema, sourcemeta::core::schema_walker,
+                                 sourcemeta::core::schema_resolver,
+                                 sourcemeta::blaze::default_schema_compiler)};
   sourcemeta::blaze::Evaluator evaluator;
   for (auto _ : state) {
     auto result{evaluator.validate(schema_template, instance)};
@@ -85,10 +85,10 @@ static void Micro_2020_12_Dynamic_Ref_Single(benchmark::State &state) {
 
   const auto instance{sourcemeta::core::JSON{true}};
 
-  const auto schema_template{sourcemeta::blaze::compile(
-      schema, sourcemeta::core::schema_official_walker,
-      sourcemeta::core::schema_official_resolver,
-      sourcemeta::blaze::default_schema_compiler)};
+  const auto schema_template{
+      sourcemeta::blaze::compile(schema, sourcemeta::core::schema_walker,
+                                 sourcemeta::core::schema_resolver,
+                                 sourcemeta::blaze::default_schema_compiler)};
   sourcemeta::blaze::Evaluator evaluator;
   for (auto _ : state) {
     auto result{evaluator.validate(schema_template, instance)};
@@ -155,10 +155,10 @@ static void Micro_2020_12_Simple_Output_Mask(benchmark::State &state) {
     "data": [ 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, "a", "b", "c", "d", "e" ]
   })JSON")};
 
-  const auto schema_template{sourcemeta::blaze::compile(
-      schema, sourcemeta::core::schema_official_walker,
-      sourcemeta::core::schema_official_resolver,
-      sourcemeta::blaze::default_schema_compiler)};
+  const auto schema_template{
+      sourcemeta::blaze::compile(schema, sourcemeta::core::schema_walker,
+                                 sourcemeta::core::schema_resolver,
+                                 sourcemeta::blaze::default_schema_compiler)};
   sourcemeta::blaze::Evaluator evaluator;
   for (auto _ : state) {
     sourcemeta::blaze::SimpleOutput output{instance};
@@ -199,10 +199,10 @@ static void Micro_2020_12_Simple_Output_Annotations(benchmark::State &state) {
     42, 48, 54, 60
   ])JSON")};
 
-  const auto schema_template{sourcemeta::blaze::compile(
-      schema, sourcemeta::core::schema_official_walker,
-      sourcemeta::core::schema_official_resolver,
-      sourcemeta::blaze::default_schema_compiler)};
+  const auto schema_template{
+      sourcemeta::blaze::compile(schema, sourcemeta::core::schema_walker,
+                                 sourcemeta::core::schema_resolver,
+                                 sourcemeta::blaze::default_schema_compiler)};
   sourcemeta::blaze::Evaluator evaluator;
   for (auto _ : state) {
     sourcemeta::blaze::SimpleOutput output{instance};

@@ -196,7 +196,7 @@ static auto test_resolver(std::string_view identifier)
 
 #undef READ_SCHEMA_FILE
 
-  return sourcemeta::core::schema_official_resolver(identifier);
+  return sourcemeta::core::schema_resolver(identifier);
 }
 
 static auto slugify(const std::string &input, std::ostream &output) -> void {
@@ -265,9 +265,8 @@ static auto register_tests(const std::filesystem::path &subdirectory,
       for (const auto mode : {sourcemeta::blaze::Mode::FastValidation,
                               sourcemeta::blaze::Mode::Exhaustive}) {
         const auto schema_template{sourcemeta::blaze::compile(
-            test.at("schema"), sourcemeta::core::schema_official_walker,
-            test_resolver, sourcemeta::blaze::default_schema_compiler, mode,
-            default_dialect)};
+            test.at("schema"), sourcemeta::core::schema_walker, test_resolver,
+            sourcemeta::blaze::default_schema_compiler, mode, default_dialect)};
 
         for (const auto &test_case : test.at("tests").as_array()) {
           std::ostringstream title;

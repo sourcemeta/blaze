@@ -83,8 +83,8 @@ const auto compiled_schema{sourcemeta::blaze::compile(
   // These options allow you tweak how Blaze works,
   // the JSON Schema vocabularies it understands,
   // and how to resolve references to external schemas
-  sourcemeta::core::schema_official_walker,
-  sourcemeta::core::schema_official_resolver,
+  sourcemeta::core::schema_walker,
+  sourcemeta::core::schema_resolver,
   sourcemeta::blaze::default_schema_compiler,
 
   // Fast validation means getting to a boolean result

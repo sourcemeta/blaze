@@ -788,6 +788,7 @@ auto SchemaFrame::analyse(const JSON &root, const SchemaWalker &walker,
 
     // It is important for the loop that follows to assume a specific ordering
     // where smaller pointers (by number of tokens) are scanned first.
+    // TODO: Perform the pointer walking using weak pointers only
     const auto pointer_walker{sourcemeta::core::PointerWalker{schema}};
     std::vector<sourcemeta::core::Pointer> pointers{pointer_walker.cbegin(),
                                                     pointer_walker.cend()};

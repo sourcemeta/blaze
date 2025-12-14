@@ -7,6 +7,8 @@ sourcemeta_googletest(NAMESPACE sourcemeta PROJECT blaze NAME evaluator
     evaluator_draft4_test.cc
     evaluator_draft6_test.cc
     evaluator_draft7_test.cc
+    evaluator_openapi_3_1_test.cc
+    evaluator_openapi_3_2_test.cc
     evaluator_test.cc)
 
 target_link_libraries(sourcemeta_blaze_evaluator_unit

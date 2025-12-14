@@ -19,7 +19,7 @@ TEST(Evaluator_2020_12, unknown_1) {
 }
 
 TEST(Evaluator_2020_12, metaschema_hyper_1) {
-  const auto metaschema{sourcemeta::core::schema_official_resolver(
+  const auto metaschema{sourcemeta::core::schema_resolver(
       "https://json-schema.org/draft/2020-12/hyper-schema")};
   EXPECT_TRUE(metaschema.has_value());
   const auto instance{sourcemeta::core::parse_json(R"JSON({})JSON")};
@@ -27,14 +27,14 @@ TEST(Evaluator_2020_12, metaschema_hyper_1) {
 }
 
 TEST(Evaluator_2020_12, metaschema_hyper_self) {
-  const auto metaschema{sourcemeta::core::schema_official_resolver(
+  const auto metaschema{sourcemeta::core::schema_resolver(
       "https://json-schema.org/draft/2020-12/hyper-schema")};
   EXPECT_TRUE(metaschema.has_value());
   EVALUATE_WITH_TRACE_FAST_SUCCESS(metaschema.value(), metaschema.value(), 119);
 }
 
 TEST(Evaluator_2020_12, metaschema_hyper_self_exhaustive) {
-  const auto metaschema{sourcemeta::core::schema_official_resolver(
+  const auto metaschema{sourcemeta::core::schema_resolver(
       "https://json-schema.org/draft/2020-12/hyper-schema")};
   EXPECT_TRUE(metaschema.has_value());
   EVALUATE_WITH_TRACE_EXHAUSTIVE_SUCCESS(metaschema.value(), metaschema.value(),
@@ -1405,8 +1405,8 @@ TEST(Evaluator_2020_12, reference_from_unknown_keyword) {
   })JSON")};
 
   try {
-    sourcemeta::blaze::compile(schema, sourcemeta::core::schema_official_walker,
-                               sourcemeta::core::schema_official_resolver,
+    sourcemeta::blaze::compile(schema, sourcemeta::core::schema_walker,
+                               sourcemeta::core::schema_resolver,
                                sourcemeta::blaze::default_schema_compiler);
   } catch (const sourcemeta::core::SchemaReferenceError &error) {
     EXPECT_EQ(error.identifier(), "#/properties/baz");
@@ -2438,8 +2438,8 @@ TEST(Evaluator_2020_12, top_level_ref_with_id_exhaustive) {
   })JSON")};
 
   const sourcemeta::core::JSON instance{5};
-  EVALUATE_WITH_TRACE_EXHAUSTIVE_SUCCESS(schema, instance, 1);
 
+  EVALUATE_WITH_TRACE_EXHAUSTIVE_SUCCESS(schema, instance, 1);
   EVALUATE_TRACE_PRE(0, LogicalAnd, "/$ref", "https://www.example.com#/$ref",
                      "");
   EVALUATE_TRACE_POST_SUCCESS(0, LogicalAnd, "/$ref",
@@ -2447,4 +2447,174 @@ TEST(Evaluator_2020_12, top_level_ref_with_id_exhaustive) {
   EVALUATE_TRACE_POST_DESCRIBE(instance, 0,
                                "The integer value was expected to validate "
                                "against the statically referenced schema");
+}
+
+TEST(Evaluator_2020_12, openapi_discriminator_1) {
+  const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "discriminator": {
+      "propertyName": "petType"
+    }
+  })JSON")};
+
+  const sourcemeta::core::JSON instance{sourcemeta::core::parse_json(R"JSON({
+    "petType": "dog",
+    "name": "Rex"
+  })JSON")};
+
+  EVALUATE_WITH_TRACE_FAST_SUCCESS(schema, instance, 0);
+}
+
+TEST(Evaluator_2020_12, openapi_discriminator_1_exhaustive) {
+  const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "discriminator": {
+      "propertyName": "petType"
+    }
+  })JSON")};
+
+  const sourcemeta::core::JSON instance{sourcemeta::core::parse_json(R"JSON({
+    "petType": "dog",
+    "name": "Rex"
+  })JSON")};
+
+  EVALUATE_WITH_TRACE_EXHAUSTIVE_SUCCESS(schema, instance, 1);
+
+  EVALUATE_TRACE_PRE_ANNOTATION(0, "/discriminator", "#/discriminator", "");
+  EVALUATE_TRACE_POST_ANNOTATION(0, "/discriminator", "#/discriminator", "",
+                                 sourcemeta::core::parse_json(R"JSON({
+    "propertyName": "petType"
+  })JSON"));
+
+  EVALUATE_TRACE_POST_DESCRIBE(
+      instance, 0,
+      "The unrecognized keyword \"discriminator\" was collected as the "
+      "annotation {\"propertyName\":\"petType\"}");
+}
+
+TEST(Evaluator_2020_12, openapi_xml_1) {
+  const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "xml": {
+      "name": "pet",
+      "wrapped": true
+    }
+  })JSON")};
+
+  const sourcemeta::core::JSON instance{sourcemeta::core::parse_json(R"JSON({
+    "name": "Rex"
+  })JSON")};
+
+  EVALUATE_WITH_TRACE_FAST_SUCCESS(schema, instance, 0);
+}
+
+TEST(Evaluator_2020_12, openapi_xml_1_exhaustive) {
+  const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "xml": {
+      "name": "pet",
+      "wrapped": true
+    }
+  })JSON")};
+
+  const sourcemeta::core::JSON instance{sourcemeta::core::parse_json(R"JSON({
+    "name": "Rex"
+  })JSON")};
+
+  EVALUATE_WITH_TRACE_EXHAUSTIVE_SUCCESS(schema, instance, 1);
+
+  EVALUATE_TRACE_PRE_ANNOTATION(0, "/xml", "#/xml", "");
+  EVALUATE_TRACE_POST_ANNOTATION(0, "/xml", "#/xml", "",
+                                 sourcemeta::core::parse_json(R"JSON({
+    "name": "pet",
+    "wrapped": true
+  })JSON"));
+
+  EVALUATE_TRACE_POST_DESCRIBE(
+      instance, 0,
+      "The unrecognized keyword \"xml\" was collected as the "
+      "annotation {\"name\":\"pet\",\"wrapped\":true}");
+}
+
+TEST(Evaluator_2020_12, openapi_externalDocs_1) {
+  const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "externalDocs": {
+      "url": "https://example.com/docs"
+    }
+  })JSON")};
+
+  const sourcemeta::core::JSON instance{"foo"};
+
+  EVALUATE_WITH_TRACE_FAST_SUCCESS(schema, instance, 0);
+}
+
+TEST(Evaluator_2020_12, openapi_externalDocs_1_exhaustive) {
+  const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "externalDocs": {
+      "url": "https://example.com/docs"
+    }
+  })JSON")};
+
+  const sourcemeta::core::JSON instance{"foo"};
+
+  EVALUATE_WITH_TRACE_EXHAUSTIVE_SUCCESS(schema, instance, 1);
+
+  EVALUATE_TRACE_PRE_ANNOTATION(0, "/externalDocs", "#/externalDocs", "");
+  EVALUATE_TRACE_POST_ANNOTATION(0, "/externalDocs", "#/externalDocs", "",
+                                 sourcemeta::core::parse_json(R"JSON({
+    "url": "https://example.com/docs"
+  })JSON"));
+
+  EVALUATE_TRACE_POST_DESCRIBE(
+      instance, 0,
+      "The unrecognized keyword \"externalDocs\" was collected as the "
+      "annotation {\"url\":\"https://example.com/docs\"}");
+}
+
+TEST(Evaluator_2020_12, openapi_example_1) {
+  const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "example": {
+      "name": "Rex",
+      "petType": "dog"
+    }
+  })JSON")};
+
+  const sourcemeta::core::JSON instance{sourcemeta::core::parse_json(R"JSON({
+    "name": "Fluffy",
+    "petType": "cat"
+  })JSON")};
+
+  EVALUATE_WITH_TRACE_FAST_SUCCESS(schema, instance, 0);
+}
+
+TEST(Evaluator_2020_12, openapi_example_1_exhaustive) {
+  const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "example": {
+      "name": "Rex",
+      "petType": "dog"
+    }
+  })JSON")};
+
+  const sourcemeta::core::JSON instance{sourcemeta::core::parse_json(R"JSON({
+    "name": "Fluffy",
+    "petType": "cat"
+  })JSON")};
+
+  EVALUATE_WITH_TRACE_EXHAUSTIVE_SUCCESS(schema, instance, 1);
+
+  EVALUATE_TRACE_PRE_ANNOTATION(0, "/example", "#/example", "");
+  EVALUATE_TRACE_POST_ANNOTATION(0, "/example", "#/example", "",
+                                 sourcemeta::core::parse_json(R"JSON({
+    "name": "Rex",
+    "petType": "dog"
+  })JSON"));
+
+  EVALUATE_TRACE_POST_DESCRIBE(
+      instance, 0,
+      "The unrecognized keyword \"example\" was collected as the "
+      "annotation {\"name\":\"Rex\",\"petType\":\"dog\"}");
 }

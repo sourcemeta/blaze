@@ -31,8 +31,8 @@ TEST(Linter, valid_examples_error_message_without_id_nested) {
                          sourcemeta::core::SchemaTransformRule::Result>>
       entries;
   const auto result =
-      bundle.check(schema, sourcemeta::core::schema_official_walker,
-                   sourcemeta::core::schema_official_resolver,
+      bundle.check(schema, sourcemeta::core::schema_walker,
+                   sourcemeta::core::schema_resolver,
                    [&entries](const auto &pointer, const auto &name,
                               const auto &message, const auto &outcome) {
                      entries.emplace_back(pointer, name, message, outcome);
@@ -76,8 +76,8 @@ TEST(Linter, valid_examples_error_message_without_id_flat) {
                          sourcemeta::core::SchemaTransformRule::Result>>
       entries;
   const auto result =
-      bundle.check(schema, sourcemeta::core::schema_official_walker,
-                   sourcemeta::core::schema_official_resolver,
+      bundle.check(schema, sourcemeta::core::schema_walker,
+                   sourcemeta::core::schema_resolver,
                    [&entries](const auto &pointer, const auto &name,
                               const auto &message, const auto &outcome) {
                      entries.emplace_back(pointer, name, message, outcome);
@@ -125,8 +125,8 @@ TEST(Linter, valid_examples_error_message_with_id_nested) {
                          sourcemeta::core::SchemaTransformRule::Result>>
       entries;
   const auto result =
-      bundle.check(schema, sourcemeta::core::schema_official_walker,
-                   sourcemeta::core::schema_official_resolver,
+      bundle.check(schema, sourcemeta::core::schema_walker,
+                   sourcemeta::core::schema_resolver,
                    [&entries](const auto &pointer, const auto &name,
                               const auto &message, const auto &outcome) {
                      entries.emplace_back(pointer, name, message, outcome);
@@ -171,8 +171,8 @@ TEST(Linter, valid_examples_error_message_with_id_flat) {
                          sourcemeta::core::SchemaTransformRule::Result>>
       entries;
   const auto result =
-      bundle.check(schema, sourcemeta::core::schema_official_walker,
-                   sourcemeta::core::schema_official_resolver,
+      bundle.check(schema, sourcemeta::core::schema_walker,
+                   sourcemeta::core::schema_resolver,
                    [&entries](const auto &pointer, const auto &name,
                               const auto &message, const auto &outcome) {
                      entries.emplace_back(pointer, name, message, outcome);
@@ -210,9 +210,9 @@ TEST(Linter, valid_examples_1) {
     "type": "string"
   })JSON")};
 
-  const auto result = bundle.apply(
-      schema, sourcemeta::core::schema_official_walker,
-      sourcemeta::core::schema_official_resolver, transformer_callback_error);
+  const auto result = bundle.apply(schema, sourcemeta::core::schema_walker,
+                                   sourcemeta::core::schema_resolver,
+                                   transformer_callback_error);
 
   EXPECT_TRUE(result);
 
@@ -240,9 +240,9 @@ TEST(Linter, valid_examples_2) {
     }
   })JSON")};
 
-  const auto result = bundle.apply(
-      schema, sourcemeta::core::schema_official_walker,
-      sourcemeta::core::schema_official_resolver, transformer_callback_error);
+  const auto result = bundle.apply(schema, sourcemeta::core::schema_walker,
+                                   sourcemeta::core::schema_resolver,
+                                   transformer_callback_error);
 
   EXPECT_TRUE(result);
 
@@ -276,9 +276,9 @@ TEST(Linter, valid_examples_3) {
     }
   })JSON")};
 
-  const auto result = bundle.apply(
-      schema, sourcemeta::core::schema_official_walker,
-      sourcemeta::core::schema_official_resolver, transformer_callback_error);
+  const auto result = bundle.apply(schema, sourcemeta::core::schema_walker,
+                                   sourcemeta::core::schema_resolver,
+                                   transformer_callback_error);
 
   EXPECT_TRUE(result);
 
@@ -310,9 +310,9 @@ TEST(Linter, valid_examples_4) {
     }
   })JSON")};
 
-  const auto result = bundle.apply(
-      schema, sourcemeta::core::schema_official_walker,
-      sourcemeta::core::schema_official_resolver, transformer_callback_error);
+  const auto result = bundle.apply(schema, sourcemeta::core::schema_walker,
+                                   sourcemeta::core::schema_resolver,
+                                   transformer_callback_error);
 
   EXPECT_TRUE(result);
 
@@ -344,9 +344,9 @@ TEST(Linter, valid_examples_5) {
     }
   })JSON")};
 
-  const auto result = bundle.apply(
-      schema, sourcemeta::core::schema_official_walker,
-      sourcemeta::core::schema_official_resolver, transformer_callback_error);
+  const auto result = bundle.apply(schema, sourcemeta::core::schema_walker,
+                                   sourcemeta::core::schema_resolver,
+                                   transformer_callback_error);
 
   EXPECT_TRUE(result);
 
@@ -378,9 +378,9 @@ TEST(Linter, valid_examples_6) {
     }
   })JSON")};
 
-  const auto result = bundle.apply(
-      schema, sourcemeta::core::schema_official_walker,
-      sourcemeta::core::schema_official_resolver, transformer_callback_error);
+  const auto result = bundle.apply(schema, sourcemeta::core::schema_walker,
+                                   sourcemeta::core::schema_resolver,
+                                   transformer_callback_error);
 
   EXPECT_TRUE(result);
 
@@ -412,9 +412,9 @@ TEST(Linter, valid_examples_7) {
     }
   })JSON")};
 
-  const auto result = bundle.apply(
-      schema, sourcemeta::core::schema_official_walker,
-      sourcemeta::core::schema_official_resolver, transformer_callback_error);
+  const auto result = bundle.apply(schema, sourcemeta::core::schema_walker,
+                                   sourcemeta::core::schema_resolver,
+                                   transformer_callback_error);
 
   EXPECT_TRUE(result);
 
@@ -448,9 +448,9 @@ TEST(Linter, valid_examples_8) {
     }
   })JSON")};
 
-  const auto result = bundle.apply(
-      schema, sourcemeta::core::schema_official_walker,
-      sourcemeta::core::schema_official_resolver, transformer_callback_error);
+  const auto result = bundle.apply(schema, sourcemeta::core::schema_walker,
+                                   sourcemeta::core::schema_resolver,
+                                   transformer_callback_error);
 
   EXPECT_TRUE(result);
 
@@ -479,9 +479,9 @@ TEST(Linter, valid_examples_9) {
     "examples": [ {} ]
   })JSON")};
 
-  const auto result = bundle.apply(
-      schema, sourcemeta::core::schema_official_walker,
-      sourcemeta::core::schema_official_resolver, transformer_callback_error);
+  const auto result = bundle.apply(schema, sourcemeta::core::schema_walker,
+                                   sourcemeta::core::schema_resolver,
+                                   transformer_callback_error);
 
   EXPECT_TRUE(result);
 
@@ -516,12 +516,11 @@ TEST(Linter, valid_examples_10) {
       })JSON");
     }
 
-    return sourcemeta::core::schema_official_resolver(identifier);
+    return sourcemeta::core::schema_resolver(identifier);
   };
 
-  const auto result =
-      bundle.apply(schema, sourcemeta::core::schema_official_walker, resolver,
-                   transformer_callback_error);
+  const auto result = bundle.apply(schema, sourcemeta::core::schema_walker,
+                                   resolver, transformer_callback_error);
 
   EXPECT_TRUE(result);
 
@@ -556,12 +555,12 @@ TEST(Linter, valid_examples_11) {
       })JSON");
     }
 
-    return sourcemeta::core::schema_official_resolver(identifier);
+    return sourcemeta::core::schema_resolver(identifier);
   };
 
-  const auto result = bundle.apply(
-      schema, sourcemeta::core::schema_official_walker, resolver,
-      transformer_callback_error, std::nullopt, "https://example.com/root");
+  const auto result = bundle.apply(schema, sourcemeta::core::schema_walker,
+                                   resolver, transformer_callback_error,
+                                   std::nullopt, "https://example.com/root");
 
   EXPECT_TRUE(result);
 
@@ -594,12 +593,12 @@ TEST(Linter, valid_examples_12) {
       })JSON");
     }
 
-    return sourcemeta::core::schema_official_resolver(identifier);
+    return sourcemeta::core::schema_resolver(identifier);
   };
 
-  const auto result = bundle.apply(
-      schema, sourcemeta::core::schema_official_walker, resolver,
-      transformer_callback_error, std::nullopt, "https://example.com/root");
+  const auto result = bundle.apply(schema, sourcemeta::core::schema_walker,
+                                   resolver, transformer_callback_error,
+                                   std::nullopt, "https://example.com/root");
 
   EXPECT_TRUE(result);
 
@@ -624,9 +623,9 @@ TEST(Linter, valid_examples_13) {
     }
   })JSON")};
 
-  const auto result = bundle.apply(
-      schema, sourcemeta::core::schema_official_walker,
-      sourcemeta::core::schema_official_resolver, transformer_callback_error);
+  const auto result = bundle.apply(schema, sourcemeta::core::schema_walker,
+                                   sourcemeta::core::schema_resolver,
+                                   transformer_callback_error);
 
   EXPECT_TRUE(result);
 
@@ -655,9 +654,9 @@ TEST(Linter, valid_examples_14) {
     }
   })JSON")};
 
-  const auto result = bundle.apply(
-      schema, sourcemeta::core::schema_official_walker,
-      sourcemeta::core::schema_official_resolver, transformer_callback_error);
+  const auto result = bundle.apply(schema, sourcemeta::core::schema_walker,
+                                   sourcemeta::core::schema_resolver,
+                                   transformer_callback_error);
 
   EXPECT_TRUE(result);
 
@@ -689,9 +688,9 @@ TEST(Linter, valid_examples_15) {
     }
   })JSON")};
 
-  const auto result = bundle.apply(
-      schema, sourcemeta::core::schema_official_walker,
-      sourcemeta::core::schema_official_resolver, transformer_callback_error);
+  const auto result = bundle.apply(schema, sourcemeta::core::schema_walker,
+                                   sourcemeta::core::schema_resolver,
+                                   transformer_callback_error);
 
   EXPECT_TRUE(result);
 
@@ -725,9 +724,9 @@ TEST(Linter, valid_examples_16) {
     }
   })JSON")};
 
-  const auto result = bundle.apply(
-      schema, sourcemeta::core::schema_official_walker,
-      sourcemeta::core::schema_official_resolver, transformer_callback_error);
+  const auto result = bundle.apply(schema, sourcemeta::core::schema_walker,
+                                   sourcemeta::core::schema_resolver,
+                                   transformer_callback_error);
 
   EXPECT_TRUE(result);
 
