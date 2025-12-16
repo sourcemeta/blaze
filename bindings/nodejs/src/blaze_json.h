@@ -5,6 +5,7 @@
 
 #include <sourcemeta/core/json.h>
 
+#include <atomic>  // std::atomic
 #include <cassert> // assert
 #include <cstdint> // std::int64_t
 #include <sstream> // std::ostringstream
@@ -62,12 +63,15 @@ public:
     assert(status == napi_ok);
 
     auto *wrapper = new JSONWrapper(std::move(value));
+    ++instance_count;
     status =
         napi_wrap(environment, instance, wrapper, destructor, nullptr, nullptr);
     assert(status == napi_ok);
 
     return instance;
   }
+
+  static auto get_instance_count() -> int { return instance_count.load(); }
 
   static auto unwrap(napi_env environment, napi_value object)
       -> sourcemeta::core::JSON * {
@@ -80,15 +84,25 @@ public:
     return &wrapper->data;
   }
 
+  // Convert a JSON value to a plain JavaScript value (not a BlazeJSON wrapper)
+  static auto to_napi_value_static(napi_env environment,
+                                   const sourcemeta::core::JSON &json)
+      -> napi_value {
+    return to_napi_value(environment, json);
+  }
+
 private:
   explicit JSONWrapper(sourcemeta::core::JSON value) : data{std::move(value)} {}
 
   ~JSONWrapper() = default;
 
+  static inline std::atomic<int> instance_count{0};
+
   static auto destructor(napi_env environment, void *native_object, void *hint)
       -> void {
     static_cast<void>(environment);
     static_cast<void>(hint);
+    --instance_count;
     delete static_cast<JSONWrapper *>(native_object);
   }
 

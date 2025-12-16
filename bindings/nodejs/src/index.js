@@ -153,12 +153,30 @@ function createObjectProxy(blazeJson) {
   });
 }
 
+function createPrimitiveWrapper(blazeJson) {
+  return {
+    __blazeJson__: blazeJson,
+    toJSON() {
+      return blazeJson.toJSON();
+    },
+    toString() {
+      return native.stringify(blazeJson);
+    },
+    valueOf() {
+      return blazeJson.toJSON();
+    }
+  };
+}
+
 function createProxy(blazeJson) {
   const type = blazeJson.type();
   if (type === 'array') {
     return createArrayProxy(blazeJson);
   }
-  return createObjectProxy(blazeJson);
+  if (type === 'object') {
+    return createObjectProxy(blazeJson);
+  }
+  return createPrimitiveWrapper(blazeJson);
 }
 
 function wrapValue(value) {
@@ -177,16 +195,6 @@ function unwrapValue(value) {
 
 function parse(text, reviver) {
   const result = native.parse(text);
-
-  const type = result.type();
-  if (type !== 'object' && type !== 'array') {
-    const value = result.toJSON();
-    if (reviver) {
-      return reviver.call({ '': value }, '', value);
-    }
-    return value;
-  }
-
   const proxy = createProxy(result);
 
   if (reviver) {
@@ -201,6 +209,14 @@ function applyReviver(holder, key, reviver, parentIsPlain = false) {
 
   if (value && typeof value === 'object') {
     const isBlazeJson = value.__blazeJson__ !== undefined;
+
+    if (isBlazeJson) {
+      const type = value.__blazeJson__.type();
+      if (type !== 'object' && type !== 'array') {
+        return reviver.call(holder, key, value.toJSON());
+      }
+    }
+
     const keys = isBlazeJson ? value.keys() : Object.keys(value);
     const plainObj = isBlazeJson ? (Array.isArray(value.toJSON()) ? [] : {}) : value;
 
@@ -222,16 +238,22 @@ function applyReviver(holder, key, reviver, parentIsPlain = false) {
 }
 
 function stringify(value, replacer, space) {
+  if (!value || !value.__blazeJson__) {
+    throw new Error('stringify() argument must be a BlazeJSON document');
+  }
   if (replacer) {
-    if (value && value.__blazeJson__) {
-      return JSON.stringify(value.__blazeJson__.toJSON(), replacer, space);
+    return JSON.stringify(value.__blazeJson__.toJSON(), replacer, space);
+  }
+  return native.stringify(value.__blazeJson__, null, space);
+}
+
+function wrapCompiledSchema(nativeCompiled) {
+  return {
+    __nativeCompiled__: nativeCompiled,
+    toJSON() {
+      return createProxy(nativeCompiled.toJSON());
     }
-    return JSON.stringify(value, replacer, space);
-  }
-  if (value && value.__blazeJson__) {
-    return native.stringify(value.__blazeJson__, null, space);
-  }
-  return native.stringify(value, null, space);
+  };
 }
 
 function compileSchema(schema, options = {}) {
@@ -248,17 +270,38 @@ function compileSchema(schema, options = {}) {
     };
   }
 
-  return native.compileSchema(nativeSchema, nativeOptions);
+  const result = native.compileSchema(nativeSchema, nativeOptions);
+  return wrapCompiledSchema(result);
 }
 
 function restoreSchema(json) {
-  if (json && json.__blazeJson__) {
-    return native.restoreSchema(json.__blazeJson__);
-  }
-  return native.restoreSchema(json);
+  const nativeJson = json && json.__blazeJson__ ? json.__blazeJson__ : json;
+  const result = native.restoreSchema(nativeJson);
+  return wrapCompiledSchema(result);
+}
+
+function createResultWrapper(plainResult) {
+  // Wrap a plain JS result object in a BlazeJSON-compatible interface
+  return {
+    ...plainResult,
+    __blazeJson__: null, // Marker that this is a result wrapper, not native
+    toJSON() {
+      return plainResult;
+    },
+    toString() {
+      return JSON.stringify(plainResult);
+    },
+    valueOf() {
+      return plainResult;
+    }
+  };
 }
 
 function evaluateSchema(compiledSchema, instance) {
+  const nativeSchema = compiledSchema && compiledSchema.__nativeCompiled__
+    ? compiledSchema.__nativeCompiled__
+    : compiledSchema;
+
   let nativeInstance;
   if (instance && instance.__blazeJson__) {
     nativeInstance = instance.__blazeJson__;
@@ -270,18 +313,20 @@ function evaluateSchema(compiledSchema, instance) {
     nativeInstance = instance;
   }
 
-  const result = native.evaluateSchema(compiledSchema, nativeInstance);
+  // Both fast and exhaustive modes return plain JS objects for GC efficiency
+  const result = native.evaluateSchema(nativeSchema, nativeInstance);
+  return createResultWrapper(result);
+}
 
-  if (result && result.constructor && result.constructor.name === 'BlazeJSON') {
-    return createProxy(result);
-  }
-
-  return result;
+function from(value) {
+  const result = native.from(value);
+  return createProxy(result);
 }
 
 export const BlazeJSON = {
   parse,
-  stringify
+  stringify,
+  from
 };
 
 export { compileSchema, restoreSchema, evaluateSchema };

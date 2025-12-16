@@ -63,6 +63,23 @@ static auto parse(napi_env environment, napi_callback_info info) -> napi_value {
   }
 }
 
+static auto from_value(napi_env environment, napi_callback_info info)
+    -> napi_value {
+  std::size_t argc = 1;
+  napi_value args[1];
+  [[maybe_unused]] napi_status status =
+      napi_get_cb_info(environment, info, &argc, args, nullptr, nullptr);
+  assert(status == napi_ok);
+
+  if (argc < 1) {
+    napi_throw_type_error(environment, nullptr, "from() requires 1 argument");
+    return nullptr;
+  }
+
+  auto json = JSONWrapper::from_napi_value(environment, args[0]);
+  return JSONWrapper::create(environment, std::move(json));
+}
+
 static auto stringify(napi_env environment, napi_callback_info info)
     -> napi_value {
   std::size_t argc = 3;
@@ -376,6 +393,9 @@ static auto evaluate_schema(napi_env environment, napi_callback_info info)
     if (schema_wrapper->is_fast()) {
       bool valid = evaluator.validate(schema_wrapper->get_template(), instance);
 
+      // Return a simple JS object to avoid native memory pressure.
+      // Plain JS objects are managed entirely by V8 and subject to normal GC,
+      // avoiding the async finalization delay that causes memory buildup.
       napi_value result;
       status = napi_create_object(environment, &result);
       assert(status == napi_ok);
@@ -394,12 +414,23 @@ static auto evaluate_schema(napi_env environment, napi_callback_info info)
           evaluator, schema_wrapper->get_template(), instance,
           sourcemeta::blaze::StandardOutput::Basic);
 
-      return JSONWrapper::create(environment, std::move(output));
+      // Convert to plain JS object for consistency with fast mode
+      return JSONWrapper::to_napi_value_static(environment, output);
     }
   } catch (const std::exception &error) {
     napi_throw_error(environment, nullptr, error.what());
     return nullptr;
   }
+}
+
+static auto get_instance_count(napi_env environment, napi_callback_info info)
+    -> napi_value {
+  static_cast<void>(info);
+  napi_value result;
+  [[maybe_unused]] napi_status status = napi_create_int32(
+      environment, JSONWrapper::get_instance_count(), &result);
+  assert(status == napi_ok);
+  return result;
 }
 
 static auto init(napi_env environment, napi_value exports) -> napi_value {
@@ -411,6 +442,11 @@ static auto init(napi_env environment, napi_value exports) -> napi_value {
   napi_value parse_fn;
   status = napi_create_function(environment, "parse", NAPI_AUTO_LENGTH, parse,
                                 nullptr, &parse_fn);
+  assert(status == napi_ok);
+
+  napi_value from_fn;
+  status = napi_create_function(environment, "from", NAPI_AUTO_LENGTH,
+                                from_value, nullptr, &from_fn);
   assert(status == napi_ok);
 
   napi_value stringify_fn;
@@ -444,6 +480,9 @@ static auto init(napi_env environment, napi_value exports) -> napi_value {
   status = napi_set_named_property(environment, exports, "parse", parse_fn);
   assert(status == napi_ok);
 
+  status = napi_set_named_property(environment, exports, "from", from_fn);
+  assert(status == napi_ok);
+
   status =
       napi_set_named_property(environment, exports, "stringify", stringify_fn);
   assert(status == napi_ok);
@@ -458,6 +497,16 @@ static auto init(napi_env environment, napi_value exports) -> napi_value {
 
   status = napi_set_named_property(environment, exports, "evaluateSchema",
                                    evaluate_fn);
+  assert(status == napi_ok);
+
+  napi_value instance_count_fn;
+  status =
+      napi_create_function(environment, "getInstanceCount", NAPI_AUTO_LENGTH,
+                           get_instance_count, nullptr, &instance_count_fn);
+  assert(status == napi_ok);
+
+  status = napi_set_named_property(environment, exports, "getInstanceCount",
+                                   instance_count_fn);
   assert(status == napi_ok);
 
   return exports;
