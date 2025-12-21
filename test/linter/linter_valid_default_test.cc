@@ -210,7 +210,7 @@ TEST(Linter, valid_default_1) {
                                    sourcemeta::core::schema_resolver,
                                    transformer_callback_error);
 
-  EXPECT_TRUE(result);
+  EXPECT_TRUE(result.first);
 
   const auto expected{sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2020-12/schema",
@@ -240,7 +240,7 @@ TEST(Linter, valid_default_2) {
                                    sourcemeta::core::schema_resolver,
                                    transformer_callback_error);
 
-  EXPECT_TRUE(result);
+  EXPECT_TRUE(result.first);
 
   const auto expected{sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2020-12/schema",
@@ -276,7 +276,7 @@ TEST(Linter, valid_default_3) {
                                    sourcemeta::core::schema_resolver,
                                    transformer_callback_error);
 
-  EXPECT_TRUE(result);
+  EXPECT_TRUE(result.first);
 
   const auto expected{sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2020-12/schema",
@@ -310,7 +310,7 @@ TEST(Linter, valid_default_4) {
                                    sourcemeta::core::schema_resolver,
                                    transformer_callback_error);
 
-  EXPECT_TRUE(result);
+  EXPECT_TRUE(result.first);
 
   const auto expected{sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2019-09/schema",
@@ -344,7 +344,7 @@ TEST(Linter, valid_default_5) {
                                    sourcemeta::core::schema_resolver,
                                    transformer_callback_error);
 
-  EXPECT_TRUE(result);
+  EXPECT_TRUE(result.first);
 
   const auto expected{sourcemeta::core::parse_json(R"JSON({
     "$schema": "http://json-schema.org/draft-07/schema#",
@@ -378,7 +378,7 @@ TEST(Linter, valid_default_6) {
                                    sourcemeta::core::schema_resolver,
                                    transformer_callback_error);
 
-  EXPECT_TRUE(result);
+  EXPECT_TRUE(result.first);
 
   const auto expected{sourcemeta::core::parse_json(R"JSON({
     "$schema": "http://json-schema.org/draft-06/schema#",
@@ -412,7 +412,7 @@ TEST(Linter, valid_default_7) {
                                    sourcemeta::core::schema_resolver,
                                    transformer_callback_error);
 
-  EXPECT_TRUE(result);
+  EXPECT_TRUE(result.first);
 
   const auto expected{sourcemeta::core::parse_json(R"JSON({
     "$schema": "http://json-schema.org/draft-04/schema#",
@@ -441,7 +441,7 @@ TEST(Linter, valid_default_8) {
                                    sourcemeta::core::schema_resolver,
                                    transformer_callback_error);
 
-  EXPECT_TRUE(result);
+  EXPECT_TRUE(result.first);
 
   const auto expected{sourcemeta::core::parse_json(R"JSON({
     "$schema": "http://json-schema.org/draft-07/schema#",
@@ -480,7 +480,7 @@ TEST(Linter, valid_default_9) {
   const auto result = bundle.apply(schema, sourcemeta::core::schema_walker,
                                    resolver, transformer_callback_error);
 
-  EXPECT_TRUE(result);
+  EXPECT_TRUE(result.first);
 
   const auto expected{sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2020-12/schema",
@@ -520,7 +520,7 @@ TEST(Linter, valid_default_10) {
                                    resolver, transformer_callback_error,
                                    std::nullopt, "https://example.com/root");
 
-  EXPECT_TRUE(result);
+  EXPECT_TRUE(result.first);
 
   const auto expected{sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2020-12/schema",
@@ -558,7 +558,7 @@ TEST(Linter, valid_default_11) {
                                    resolver, transformer_callback_error,
                                    std::nullopt, "https://example.com/root");
 
-  EXPECT_TRUE(result);
+  EXPECT_TRUE(result.first);
 
   const auto expected{sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2020-12/schema",
@@ -585,7 +585,7 @@ TEST(Linter, valid_default_12) {
                                    sourcemeta::core::schema_resolver,
                                    transformer_callback_error);
 
-  EXPECT_TRUE(result);
+  EXPECT_TRUE(result.first);
 
   const auto expected{sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2020-12/schema",
@@ -616,7 +616,7 @@ TEST(Linter, valid_default_13) {
                                    sourcemeta::core::schema_resolver,
                                    transformer_callback_error);
 
-  EXPECT_TRUE(result);
+  EXPECT_TRUE(result.first);
 
   const auto expected{sourcemeta::core::parse_json(R"JSON({
     "$schema": "http://json-schema.org/draft-07/schema#",
@@ -650,7 +650,7 @@ TEST(Linter, valid_default_14) {
                                    sourcemeta::core::schema_resolver,
                                    transformer_callback_error);
 
-  EXPECT_TRUE(result);
+  EXPECT_TRUE(result.first);
 
   const auto expected{sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2020-12/schema",
@@ -686,7 +686,7 @@ TEST(Linter, valid_default_15) {
                                    sourcemeta::core::schema_resolver,
                                    transformer_callback_error);
 
-  EXPECT_TRUE(result);
+  EXPECT_TRUE(result.first);
 
   const auto expected{sourcemeta::core::parse_json(R"JSON({
     "$schema": "http://json-schema.org/draft-07/schema#",
