@@ -3158,3 +3158,113 @@ TEST(Evaluator_draft6, items_6) {
   EVALUATE_TRACE_POST_DESCRIBE(
       instance, 0, "The array items were expected to be of type integer");
 }
+
+TEST(Evaluator_draft6, allOf_1) {
+  const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
+    "$schema": "http://json-schema.org/draft-06/schema#",
+    "allOf": [
+      { "type": "string" },
+      false
+    ]
+  })JSON")};
+
+  const sourcemeta::core::JSON instance{"foo"};
+  EVALUATE_WITH_TRACE_FAST_FAILURE(schema, instance, 2);
+
+  EVALUATE_TRACE_PRE(0, AssertionTypeStrict, "/allOf/0/type", "#/allOf/0/type",
+                     "");
+  EVALUATE_TRACE_PRE(1, AssertionFail, "/allOf/1", "#/allOf/1", "");
+
+  EVALUATE_TRACE_POST_SUCCESS(0, AssertionTypeStrict, "/allOf/0/type",
+                              "#/allOf/0/type", "");
+  EVALUATE_TRACE_POST_FAILURE(1, AssertionFail, "/allOf/1", "#/allOf/1", "");
+
+  EVALUATE_TRACE_POST_DESCRIBE(instance, 0,
+                               "The value was expected to be of type string");
+  EVALUATE_TRACE_POST_DESCRIBE(
+      instance, 1,
+      "No instance is expected to succeed against the false schema");
+}
+
+TEST(Evaluator_draft6, allOf_1_exhaustive) {
+  const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
+    "$schema": "http://json-schema.org/draft-06/schema#",
+    "allOf": [
+      { "type": "string" },
+      false
+    ]
+  })JSON")};
+
+  const sourcemeta::core::JSON instance{"foo"};
+  EVALUATE_WITH_TRACE_EXHAUSTIVE_FAILURE(schema, instance, 3);
+
+  EVALUATE_TRACE_PRE(0, LogicalAnd, "/allOf", "#/allOf", "");
+  EVALUATE_TRACE_PRE(1, AssertionTypeStrict, "/allOf/0/type", "#/allOf/0/type",
+                     "");
+  EVALUATE_TRACE_PRE(2, AssertionFail, "/allOf/1", "#/allOf/1", "");
+
+  EVALUATE_TRACE_POST_SUCCESS(0, AssertionTypeStrict, "/allOf/0/type",
+                              "#/allOf/0/type", "");
+  EVALUATE_TRACE_POST_FAILURE(1, AssertionFail, "/allOf/1", "#/allOf/1", "");
+  EVALUATE_TRACE_POST_FAILURE(2, LogicalAnd, "/allOf", "#/allOf", "");
+
+  EVALUATE_TRACE_POST_DESCRIBE(instance, 0,
+                               "The value was expected to be of type string");
+  EVALUATE_TRACE_POST_DESCRIBE(
+      instance, 1,
+      "No instance is expected to succeed against the false schema");
+  EVALUATE_TRACE_POST_DESCRIBE(
+      instance, 2,
+      "The string value was expected to validate against the 2 given "
+      "subschemas");
+}
+
+TEST(Evaluator_draft6, allOf_2) {
+  const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
+    "$schema": "http://json-schema.org/draft-06/schema#",
+    "allOf": [
+      { "type": "string" },
+      false
+    ]
+  })JSON")};
+
+  const sourcemeta::core::JSON instance{5};
+  EVALUATE_WITH_TRACE_FAST_FAILURE(schema, instance, 1);
+
+  EVALUATE_TRACE_PRE(0, AssertionTypeStrict, "/allOf/0/type", "#/allOf/0/type",
+                     "");
+  EVALUATE_TRACE_POST_FAILURE(0, AssertionTypeStrict, "/allOf/0/type",
+                              "#/allOf/0/type", "");
+  EVALUATE_TRACE_POST_DESCRIBE(
+      instance, 0,
+      "The value was expected to be of type string but it was of type integer");
+}
+
+TEST(Evaluator_draft6, allOf_2_exhaustive) {
+  const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
+    "$schema": "http://json-schema.org/draft-06/schema#",
+    "allOf": [
+      { "type": "string" },
+      false
+    ]
+  })JSON")};
+
+  const sourcemeta::core::JSON instance{5};
+  EVALUATE_WITH_TRACE_EXHAUSTIVE_FAILURE(schema, instance, 2);
+
+  EVALUATE_TRACE_PRE(0, LogicalAnd, "/allOf", "#/allOf", "");
+  EVALUATE_TRACE_PRE(1, AssertionTypeStrict, "/allOf/0/type", "#/allOf/0/type",
+                     "");
+
+  EVALUATE_TRACE_POST_FAILURE(0, AssertionTypeStrict, "/allOf/0/type",
+                              "#/allOf/0/type", "");
+  EVALUATE_TRACE_POST_FAILURE(1, LogicalAnd, "/allOf", "#/allOf", "");
+
+  EVALUATE_TRACE_POST_DESCRIBE(
+      instance, 0,
+      "The value was expected to be of type string but it was of type integer");
+  EVALUATE_TRACE_POST_DESCRIBE(
+      instance, 1,
+      "The integer value was expected to validate against the 2 given "
+      "subschemas");
+}
