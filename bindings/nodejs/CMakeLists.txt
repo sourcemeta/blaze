@@ -5,6 +5,7 @@ include("${BLAZE_ROOT}/vendor/core/cmake/Sourcemeta.cmake")
 include_directories(${CMAKE_JS_INC})
 
 set(BLAZE_INSTALL OFF CACHE BOOL "disable installation")
+set(BLAZE_TEST OFF CACHE BOOL "disable test runner")
 set(BLAZE_TESTS OFF CACHE BOOL "disable tests")
 set(BLAZE_BENCHMARK OFF CACHE BOOL "disable benchmarks")
 set(BLAZE_CONTRIB OFF CACHE BOOL "disable contrib")
