@@ -14,6 +14,7 @@
 #include <optional>   // std::optional, std::nullopt
 #include <string>     // std::string
 #include <tuple>      // std::tuple
+#include <utility>    // std::pair
 #include <vector>     // std::vector
 
 TEST(TestSuite_run, empty_tests) {
@@ -31,9 +32,11 @@ TEST(TestSuite_run, empty_tests) {
 
   std::vector<std::tuple<std::size_t, std::size_t, std::string, bool, bool>>
       traces;
-  const auto result{suite.run(
-      [&traces](std::size_t index, std::size_t total,
-                const sourcemeta::blaze::TestCase &test_case, bool actual) {
+  const auto result{
+      suite.run([&traces](std::size_t index, std::size_t total,
+                          const sourcemeta::blaze::TestCase &test_case,
+                          bool actual, sourcemeta::blaze::TestTimestamp,
+                          sourcemeta::blaze::TestTimestamp) {
         traces.emplace_back(index, total, test_case.description,
                             test_case.valid, actual);
       })};
@@ -72,9 +75,11 @@ TEST(TestSuite_run, all_passing) {
 
   std::vector<std::tuple<std::size_t, std::size_t, std::string, bool, bool>>
       traces;
-  const auto result{suite.run(
-      [&traces](std::size_t index, std::size_t total,
-                const sourcemeta::blaze::TestCase &test_case, bool actual) {
+  const auto result{
+      suite.run([&traces](std::size_t index, std::size_t total,
+                          const sourcemeta::blaze::TestCase &test_case,
+                          bool actual, sourcemeta::blaze::TestTimestamp,
+                          sourcemeta::blaze::TestTimestamp) {
         traces.emplace_back(index, total, test_case.description,
                             test_case.valid, actual);
       })};
@@ -122,9 +127,11 @@ TEST(TestSuite_run, all_failing) {
 
   std::vector<std::tuple<std::size_t, std::size_t, std::string, bool, bool>>
       traces;
-  const auto result{suite.run(
-      [&traces](std::size_t index, std::size_t total,
-                const sourcemeta::blaze::TestCase &test_case, bool actual) {
+  const auto result{
+      suite.run([&traces](std::size_t index, std::size_t total,
+                          const sourcemeta::blaze::TestCase &test_case,
+                          bool actual, sourcemeta::blaze::TestTimestamp,
+                          sourcemeta::blaze::TestTimestamp) {
         traces.emplace_back(index, total, test_case.description,
                             test_case.valid, actual);
       })};
@@ -177,9 +184,11 @@ TEST(TestSuite_run, mixed_results) {
 
   std::vector<std::tuple<std::size_t, std::size_t, std::string, bool, bool>>
       traces;
-  const auto result{suite.run(
-      [&traces](std::size_t index, std::size_t total,
-                const sourcemeta::blaze::TestCase &test_case, bool actual) {
+  const auto result{
+      suite.run([&traces](std::size_t index, std::size_t total,
+                          const sourcemeta::blaze::TestCase &test_case,
+                          bool actual, sourcemeta::blaze::TestTimestamp,
+                          sourcemeta::blaze::TestTimestamp) {
         traces.emplace_back(index, total, test_case.description,
                             test_case.valid, actual);
       })};
@@ -248,9 +257,11 @@ TEST(TestSuite_run, file_path_target) {
 
   std::vector<std::tuple<std::size_t, std::size_t, std::string, bool, bool>>
       traces;
-  const auto result{suite.run(
-      [&traces](std::size_t index, std::size_t total,
-                const sourcemeta::blaze::TestCase &test_case, bool actual) {
+  const auto result{
+      suite.run([&traces](std::size_t index, std::size_t total,
+                          const sourcemeta::blaze::TestCase &test_case,
+                          bool actual, sourcemeta::blaze::TestTimestamp,
+                          sourcemeta::blaze::TestTimestamp) {
         traces.emplace_back(index, total, test_case.description,
                             test_case.valid, actual);
       })};
@@ -320,9 +331,11 @@ TEST(TestSuite_run, default_dialect) {
 
   std::vector<std::tuple<std::size_t, std::size_t, std::string, bool, bool>>
       traces;
-  const auto result{suite.run(
-      [&traces](std::size_t index, std::size_t total,
-                const sourcemeta::blaze::TestCase &test_case, bool actual) {
+  const auto result{
+      suite.run([&traces](std::size_t index, std::size_t total,
+                          const sourcemeta::blaze::TestCase &test_case,
+                          bool actual, sourcemeta::blaze::TestTimestamp,
+                          sourcemeta::blaze::TestTimestamp) {
         traces.emplace_back(index, total, test_case.description,
                             test_case.valid, actual);
       })};
@@ -348,4 +361,61 @@ TEST(TestSuite_run, default_dialect) {
   EXPECT_EQ(std::get<2>(traces[2]), "name is not a string");
   EXPECT_FALSE(std::get<3>(traces[2]));
   EXPECT_FALSE(std::get<4>(traces[2]));
+}
+
+TEST(TestSuite_run, timestamps_ordering) {
+  const auto input{R"JSON({
+    "target": "https://json-schema.org/draft/2020-12/schema",
+    "tests": [
+      {
+        "data": { "$schema": "https://json-schema.org/draft/2020-12/schema" },
+        "valid": true,
+        "description": "test 1"
+      },
+      {
+        "data": { "type": "string" },
+        "valid": true,
+        "description": "test 2"
+      },
+      {
+        "data": { "type": "number" },
+        "valid": true,
+        "description": "test 3"
+      }
+    ]
+  })JSON"};
+
+  sourcemeta::core::PointerPositionTracker tracker;
+  const auto document{sourcemeta::core::parse_json(input, std::ref(tracker))};
+  auto suite{sourcemeta::blaze::TestSuite::parse(
+      document, tracker, std::filesystem::path{STUBS_PATH},
+      sourcemeta::core::schema_resolver, sourcemeta::core::schema_walker,
+      sourcemeta::blaze::default_schema_compiler)};
+
+  std::vector<std::pair<sourcemeta::blaze::TestTimestamp,
+                        sourcemeta::blaze::TestTimestamp>>
+      timestamps;
+  const auto result{
+      suite.run([&timestamps](std::size_t, std::size_t,
+                              const sourcemeta::blaze::TestCase &, bool,
+                              sourcemeta::blaze::TestTimestamp start,
+                              sourcemeta::blaze::TestTimestamp end) {
+        timestamps.emplace_back(start, end);
+      })};
+
+  EXPECT_EQ(suite.tests.size(), 3);
+  EXPECT_EQ(timestamps.size(), 3);
+  EXPECT_GE(result.end, result.start);
+
+  EXPECT_GE(timestamps[0].second, timestamps[0].first);
+  EXPECT_GE(timestamps[0].first, result.start);
+  EXPECT_LE(timestamps[0].second, result.end);
+
+  EXPECT_GE(timestamps[1].second, timestamps[1].first);
+  EXPECT_GE(timestamps[1].first, result.start);
+  EXPECT_LE(timestamps[1].second, result.end);
+
+  EXPECT_GE(timestamps[2].second, timestamps[2].first);
+  EXPECT_GE(timestamps[2].first, result.start);
+  EXPECT_LE(timestamps[2].second, result.end);
 }

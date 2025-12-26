@@ -14,6 +14,7 @@
 #include <sourcemeta/core/jsonpointer.h>
 #include <sourcemeta/core/jsonschema.h>
 
+#include <chrono>     // std::chrono::steady_clock
 #include <cstddef>    // std::size_t
 #include <filesystem> // std::filesystem
 #include <functional> // std::function
@@ -31,6 +32,10 @@
 /// ```
 
 namespace sourcemeta::blaze {
+
+/// @ingroup test
+/// The monotonic timestamp type used for timing measurements
+using TestTimestamp = std::chrono::steady_clock::time_point;
 
 /// @ingroup test
 /// Represents a single test case in a test suite
@@ -54,12 +59,17 @@ struct SOURCEMETA_BLAZE_TEST_EXPORT TestCase {
 /// @ingroup test
 /// Represents a test suite containing multiple test cases
 struct SOURCEMETA_BLAZE_TEST_EXPORT TestSuite {
+
   /// The result of running a test suite
   struct Result {
     /// The total number of test cases
     std::size_t total;
     /// The number of test cases that passed
     std::size_t passed;
+    /// The timestamp when the test suite started executing
+    TestTimestamp start;
+    /// The timestamp when the test suite finished executing
+    TestTimestamp end;
   };
 
   /// The target schema URI or file path
@@ -75,7 +85,8 @@ struct SOURCEMETA_BLAZE_TEST_EXPORT TestSuite {
 
   /// A callback invoked for each test case during execution
   using Callback = std::function<void(std::size_t index, std::size_t total,
-                                      const TestCase &test_case, bool actual)>;
+                                      const TestCase &test_case, bool actual,
+                                      TestTimestamp start, TestTimestamp end)>;
 
   /// Run all test cases in the suite, invoking the callback for each.
   /// For example:
@@ -115,7 +126,9 @@ struct SOURCEMETA_BLAZE_TEST_EXPORT TestSuite {
   ///
   /// const auto result{suite.run(
   ///     [](std::size_t index, std::size_t total,
-  ///        const sourcemeta::blaze::TestCase &test_case, bool actual) {
+  ///        const sourcemeta::blaze::TestCase &test_case, bool actual,
+  ///        sourcemeta::blaze::TestTimestamp start,
+  ///        sourcemeta::blaze::TestTimestamp end) {
   ///       std::cout << index << "/" << total << ": "
   ///                 << test_case.description << " - "
   ///                 << (test_case.valid == actual ? "PASS" : "FAIL")
