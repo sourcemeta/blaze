@@ -15,7 +15,8 @@ auto TestSuite::run(const Callback &callback) -> Result {
     const auto actual{
         this->evaluator.validate(this->schema_fast, test_case.data)};
     const auto end{std::chrono::steady_clock::now()};
-    callback(index + 1, this->tests.size(), test_case, actual, start, end);
+    callback(this->target, index + 1, this->tests.size(), test_case, actual,
+             start, end);
     if (test_case.valid == actual) {
       result.passed += 1;
     }
