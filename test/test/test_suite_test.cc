@@ -12,6 +12,7 @@
 #include <filesystem> // std::filesystem::path
 #include <optional>   // std::optional, std::nullopt
 #include <string>     // std::string
+#include <tuple>      // std::get
 
 TEST(TestSuite_parse, error_not_an_object) {
   const auto input{"[]"};
@@ -146,8 +147,16 @@ TEST(TestSuite_parse, valid_with_test_cases) {
   EXPECT_EQ(result.tests.size(), 2);
   EXPECT_TRUE(result.tests[0].description.empty());
   EXPECT_TRUE(result.tests[0].valid);
+  EXPECT_EQ(std::get<0>(result.tests[0].position), 4);
+  EXPECT_EQ(std::get<1>(result.tests[0].position), 7);
+  EXPECT_EQ(std::get<2>(result.tests[0].position), 4);
+  EXPECT_EQ(std::get<3>(result.tests[0].position), 35);
   EXPECT_EQ(result.tests[1].description, "Not an object");
   EXPECT_FALSE(result.tests[1].valid);
+  EXPECT_EQ(std::get<0>(result.tests[1].position), 5);
+  EXPECT_EQ(std::get<1>(result.tests[1].position), 7);
+  EXPECT_EQ(std::get<2>(result.tests[1].position), 5);
+  EXPECT_EQ(std::get<3>(result.tests[1].position), 68);
 }
 
 TEST(TestSuite_parse, error_invalid_test_case) {
@@ -202,8 +211,16 @@ TEST(TestSuite_parse, valid_with_file_path_target) {
   EXPECT_EQ(result.tests.size(), 2);
   EXPECT_TRUE(result.tests[0].description.empty());
   EXPECT_TRUE(result.tests[0].valid);
+  EXPECT_EQ(std::get<0>(result.tests[0].position), 4);
+  EXPECT_EQ(std::get<1>(result.tests[0].position), 7);
+  EXPECT_EQ(std::get<2>(result.tests[0].position), 4);
+  EXPECT_EQ(std::get<3>(result.tests[0].position), 49);
   EXPECT_EQ(result.tests[1].description, "missing foo");
   EXPECT_FALSE(result.tests[1].valid);
+  EXPECT_EQ(std::get<0>(result.tests[1].position), 5);
+  EXPECT_EQ(std::get<1>(result.tests[1].position), 7);
+  EXPECT_EQ(std::get<2>(result.tests[1].position), 5);
+  EXPECT_EQ(std::get<3>(result.tests[1].position), 66);
 }
 
 TEST(TestSuite_parse, error_no_dialect_without_default) {
@@ -263,6 +280,14 @@ TEST(TestSuite_parse, valid_with_default_dialect) {
   EXPECT_EQ(result.target, expected_target.recompose());
   EXPECT_EQ(result.tests.size(), 2);
   EXPECT_TRUE(result.tests[0].valid);
+  EXPECT_EQ(std::get<0>(result.tests[0].position), 4);
+  EXPECT_EQ(std::get<1>(result.tests[0].position), 7);
+  EXPECT_EQ(std::get<2>(result.tests[0].position), 4);
+  EXPECT_EQ(std::get<3>(result.tests[0].position), 51);
   EXPECT_EQ(result.tests[1].description, "missing name");
   EXPECT_FALSE(result.tests[1].valid);
+  EXPECT_EQ(std::get<0>(result.tests[1].position), 5);
+  EXPECT_EQ(std::get<1>(result.tests[1].position), 7);
+  EXPECT_EQ(std::get<2>(result.tests[1].position), 5);
+  EXPECT_EQ(std::get<3>(result.tests[1].position), 67);
 }

@@ -40,20 +40,33 @@ using TestTimestamp = std::chrono::steady_clock::time_point;
 /// @ingroup test
 /// Represents a single test case in a test suite
 struct SOURCEMETA_BLAZE_TEST_EXPORT TestCase {
+// See
+// https://learn.microsoft.com/en-us/cpp/error-messages/compiler-warnings/compiler-warning-level-1-c4251?view=msvc-170
+#if defined(_MSC_VER)
+#pragma warning(disable : 4251)
+#endif
   /// The optional description of the test case
   sourcemeta::core::JSON::String description;
   /// Whether the test data is expected to be valid against the schema
   bool valid;
   /// The test data to validate
   sourcemeta::core::JSON data;
-  /// The position tracker for error reporting
+  /// The position tracker for error reporting on the data
   sourcemeta::core::PointerPositionTracker tracker;
+  /// The position of this test case in the test suite file
+  sourcemeta::core::PointerPositionTracker::Position position;
+#if defined(_MSC_VER)
+#pragma warning(default : 4251)
+#endif
 
   /// Parse a single test case
-  static auto parse(const sourcemeta::core::JSON &test_case_json,
-                    const sourcemeta::core::PointerPositionTracker &tracker,
-                    const std::filesystem::path &base_path,
-                    const sourcemeta::core::Pointer &location) -> TestCase;
+  static auto
+  parse(const sourcemeta::core::JSON &test_case_json,
+        const sourcemeta::core::PointerPositionTracker &tracker,
+        const std::filesystem::path &base_path,
+        const sourcemeta::core::Pointer &location,
+        const sourcemeta::core::PointerPositionTracker::Position &position)
+      -> TestCase;
 };
 
 /// @ingroup test
@@ -72,10 +85,18 @@ struct SOURCEMETA_BLAZE_TEST_EXPORT TestSuite {
     TestTimestamp end;
   };
 
+// See
+// https://learn.microsoft.com/en-us/cpp/error-messages/compiler-warnings/compiler-warning-level-1-c4251?view=msvc-170
+#if defined(_MSC_VER)
+#pragma warning(disable : 4251)
+#endif
   /// The target schema URI or file path
   sourcemeta::core::JSON::String target;
   /// The list of test cases in the suite
   std::vector<TestCase> tests;
+#if defined(_MSC_VER)
+#pragma warning(default : 4251)
+#endif
   /// The compiled schema template for fast validation
   Template schema_fast;
   /// The compiled schema template for exhaustive validation
@@ -84,9 +105,10 @@ struct SOURCEMETA_BLAZE_TEST_EXPORT TestSuite {
   Evaluator evaluator;
 
   /// A callback invoked for each test case during execution
-  using Callback = std::function<void(std::size_t index, std::size_t total,
-                                      const TestCase &test_case, bool actual,
-                                      TestTimestamp start, TestTimestamp end)>;
+  using Callback = std::function<void(
+      const sourcemeta::core::JSON::String &target, std::size_t index,
+      std::size_t total, const TestCase &test_case, bool actual,
+      TestTimestamp start, TestTimestamp end)>;
 
   /// Run all test cases in the suite, invoking the callback for each.
   /// For example:
@@ -125,11 +147,12 @@ struct SOURCEMETA_BLAZE_TEST_EXPORT TestSuite {
   ///     sourcemeta::blaze::default_schema_compiler)};
   ///
   /// const auto result{suite.run(
-  ///     [](std::size_t index, std::size_t total,
+  ///     [](const sourcemeta::core::JSON::String &target,
+  ///        std::size_t index, std::size_t total,
   ///        const sourcemeta::blaze::TestCase &test_case, bool actual,
   ///        sourcemeta::blaze::TestTimestamp start,
   ///        sourcemeta::blaze::TestTimestamp end) {
-  ///       std::cout << index << "/" << total << ": "
+  ///       std::cout << target << " " << index << "/" << total << ": "
   ///                 << test_case.description << " - "
   ///                 << (test_case.valid == actual ? "PASS" : "FAIL")
   ///                 << "\n";
