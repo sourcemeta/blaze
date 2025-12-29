@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1766776178262,
+  "lastUpdate": 1767035286355,
   "repoUrl": "https://github.com/sourcemeta/blaze",
   "entries": {
     "Bindings (linux/nodejs)": [
@@ -7745,6 +7745,315 @@ window.BENCHMARK_DATA = {
             "range": "±0.20%",
             "unit": "ops/sec",
             "extra": "97 samples"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "name": "Juan Cruz Viotti",
+            "username": "jviotti",
+            "email": "jv@jviotti.com"
+          },
+          "committer": {
+            "name": "GitHub",
+            "username": "web-flow",
+            "email": "noreply@github.com"
+          },
+          "id": "8dba65f8aebfe1ac976168b76e01c20dd406c517",
+          "message": "Add position information to `TestCase` (#576)\n\nSigned-off-by: Juan Cruz Viotti <jv@jviotti.com>",
+          "timestamp": "2025-12-26T17:39:11Z",
+          "url": "https://github.com/sourcemeta/blaze/commit/8dba65f8aebfe1ac976168b76e01c20dd406c517"
+        },
+        "date": 1767035237104,
+        "tool": "benchmarkjs",
+        "benches": [
+          {
+            "name": "E2E_Parse_BlazeJSON_ui5_manifest",
+            "value": 111,
+            "range": "±0.27%",
+            "unit": "ops/sec",
+            "extra": "81 samples"
+          },
+          {
+            "name": "E2E_Parse_JSON_ui5_manifest",
+            "value": 791,
+            "range": "±0.41%",
+            "unit": "ops/sec",
+            "extra": "94 samples"
+          },
+          {
+            "name": "E2E_Evaluator_adaptivecard",
+            "value": 14269,
+            "range": "±0.22%",
+            "unit": "ops/sec",
+            "extra": "97 samples"
+          },
+          {
+            "name": "E2E_Evaluator_ansible_meta",
+            "value": 1843,
+            "range": "±0.15%",
+            "unit": "ops/sec",
+            "extra": "97 samples"
+          },
+          {
+            "name": "E2E_Evaluator_aws_cdk",
+            "value": 2675,
+            "range": "±0.08%",
+            "unit": "ops/sec",
+            "extra": "97 samples"
+          },
+          {
+            "name": "E2E_Evaluator_babelrc",
+            "value": 1497,
+            "range": "±0.09%",
+            "unit": "ops/sec",
+            "extra": "98 samples"
+          },
+          {
+            "name": "E2E_Evaluator_clang_format",
+            "value": 4983,
+            "range": "±0.73%",
+            "unit": "ops/sec",
+            "extra": "98 samples"
+          },
+          {
+            "name": "E2E_Evaluator_cmake_presets",
+            "value": 162,
+            "range": "±0.88%",
+            "unit": "ops/sec",
+            "extra": "82 samples"
+          },
+          {
+            "name": "E2E_Evaluator_code_climate",
+            "value": 549,
+            "range": "±0.09%",
+            "unit": "ops/sec",
+            "extra": "95 samples"
+          },
+          {
+            "name": "E2E_Evaluator_cql2",
+            "value": 2777,
+            "range": "±0.37%",
+            "unit": "ops/sec",
+            "extra": "99 samples"
+          },
+          {
+            "name": "E2E_Evaluator_cspell",
+            "value": 774,
+            "range": "±0.12%",
+            "unit": "ops/sec",
+            "extra": "94 samples"
+          },
+          {
+            "name": "E2E_Evaluator_cypress",
+            "value": 1219,
+            "range": "±1.09%",
+            "unit": "ops/sec",
+            "extra": "97 samples"
+          },
+          {
+            "name": "E2E_Evaluator_deno",
+            "value": 938,
+            "range": "±0.15%",
+            "unit": "ops/sec",
+            "extra": "96 samples"
+          },
+          {
+            "name": "E2E_Evaluator_dependabot",
+            "value": 832,
+            "range": "±0.13%",
+            "unit": "ops/sec",
+            "extra": "98 samples"
+          },
+          {
+            "name": "E2E_Evaluator_draft_04",
+            "value": 112,
+            "range": "±0.83%",
+            "unit": "ops/sec",
+            "extra": "82 samples"
+          },
+          {
+            "name": "E2E_Evaluator_fabric_mod",
+            "value": 586,
+            "range": "±0.16%",
+            "unit": "ops/sec",
+            "extra": "95 samples"
+          },
+          {
+            "name": "E2E_Evaluator_geojson",
+            "value": 38,
+            "range": "±0.16%",
+            "unit": "ops/sec",
+            "extra": "66 samples"
+          },
+          {
+            "name": "E2E_Evaluator_gitpod_configuration",
+            "value": 1049,
+            "range": "±0.17%",
+            "unit": "ops/sec",
+            "extra": "97 samples"
+          },
+          {
+            "name": "E2E_Evaluator_helm_chart_lock",
+            "value": 348,
+            "range": "±0.31%",
+            "unit": "ops/sec",
+            "extra": "92 samples"
+          },
+          {
+            "name": "E2E_Evaluator_importmap",
+            "value": 1537,
+            "range": "±0.10%",
+            "unit": "ops/sec",
+            "extra": "98 samples"
+          },
+          {
+            "name": "E2E_Evaluator_jasmine",
+            "value": 1253,
+            "range": "±0.12%",
+            "unit": "ops/sec",
+            "extra": "97 samples"
+          },
+          {
+            "name": "E2E_Evaluator_jsconfig",
+            "value": 857,
+            "range": "±0.82%",
+            "unit": "ops/sec",
+            "extra": "96 samples"
+          },
+          {
+            "name": "E2E_Evaluator_jshintrc",
+            "value": 583,
+            "range": "±0.17%",
+            "unit": "ops/sec",
+            "extra": "95 samples"
+          },
+          {
+            "name": "E2E_Evaluator_krakend",
+            "value": 3433,
+            "range": "±0.12%",
+            "unit": "ops/sec",
+            "extra": "98 samples"
+          },
+          {
+            "name": "E2E_Evaluator_lazygit",
+            "value": 2668,
+            "range": "±0.14%",
+            "unit": "ops/sec",
+            "extra": "97 samples"
+          },
+          {
+            "name": "E2E_Evaluator_lerna",
+            "value": 1218,
+            "range": "±0.12%",
+            "unit": "ops/sec",
+            "extra": "97 samples"
+          },
+          {
+            "name": "E2E_Evaluator_nest_cli",
+            "value": 1101,
+            "range": "±0.11%",
+            "unit": "ops/sec",
+            "extra": "97 samples"
+          },
+          {
+            "name": "E2E_Evaluator_omc",
+            "value": 22277,
+            "range": "±0.10%",
+            "unit": "ops/sec",
+            "extra": "98 samples"
+          },
+          {
+            "name": "E2E_Evaluator_omnisharp",
+            "value": 793,
+            "range": "±0.11%",
+            "unit": "ops/sec",
+            "extra": "97 samples"
+          },
+          {
+            "name": "E2E_Evaluator_openapi",
+            "value": 70.13,
+            "range": "±1.49%",
+            "unit": "ops/sec",
+            "extra": "73 samples"
+          },
+          {
+            "name": "E2E_Evaluator_pre_commit_hooks",
+            "value": 794,
+            "range": "±0.17%",
+            "unit": "ops/sec",
+            "extra": "95 samples"
+          },
+          {
+            "name": "E2E_Evaluator_pulumi",
+            "value": 294,
+            "range": "±0.12%",
+            "unit": "ops/sec",
+            "extra": "93 samples"
+          },
+          {
+            "name": "E2E_Evaluator_semantic_release",
+            "value": 1517,
+            "range": "±0.12%",
+            "unit": "ops/sec",
+            "extra": "98 samples"
+          },
+          {
+            "name": "E2E_Evaluator_stale",
+            "value": 1229,
+            "range": "±0.13%",
+            "unit": "ops/sec",
+            "extra": "97 samples"
+          },
+          {
+            "name": "E2E_Evaluator_stylecop",
+            "value": 975,
+            "range": "±0.17%",
+            "unit": "ops/sec",
+            "extra": "96 samples"
+          },
+          {
+            "name": "E2E_Evaluator_tmuxinator",
+            "value": 2607,
+            "range": "±0.14%",
+            "unit": "ops/sec",
+            "extra": "99 samples"
+          },
+          {
+            "name": "E2E_Evaluator_ui5",
+            "value": 713,
+            "range": "±0.14%",
+            "unit": "ops/sec",
+            "extra": "95 samples"
+          },
+          {
+            "name": "E2E_Evaluator_ui5_manifest",
+            "value": 244,
+            "range": "±0.34%",
+            "unit": "ops/sec",
+            "extra": "88 samples"
+          },
+          {
+            "name": "E2E_Evaluator_unreal_engine_uproject",
+            "value": 804,
+            "range": "±0.13%",
+            "unit": "ops/sec",
+            "extra": "96 samples"
+          },
+          {
+            "name": "E2E_Evaluator_vercel",
+            "value": 1229,
+            "range": "±0.15%",
+            "unit": "ops/sec",
+            "extra": "98 samples"
+          },
+          {
+            "name": "E2E_Evaluator_yamllint",
+            "value": 1663,
+            "range": "±0.14%",
+            "unit": "ops/sec",
+            "extra": "98 samples"
           }
         ]
       }
