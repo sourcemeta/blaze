@@ -7,7 +7,7 @@ public:
 
   [[nodiscard]] auto
   condition(const JSON &schema, const JSON &, const Vocabularies &vocabularies,
-            const SchemaFrame &, const SchemaFrame::Location &,
+            const SchemaFrame &frame, const SchemaFrame::Location &location,
             const SchemaWalker &walker, const SchemaResolver &) const
       -> SchemaTransformRule::Result override {
     ONLY_CONTINUE_IF(vocabularies.contains_any(
@@ -51,6 +51,12 @@ public:
         continue;
       }
 
+      // Skip entries that have direct references pointing to them
+      const auto entry_pointer{location.pointer.concat({"allOf", index - 1})};
+      if (frame.has_references_to(entry_pointer)) {
+        continue;
+      }
+
       // Skip entries that define their own identity, as elevating keywords
       // from them could break references that target those anchors
       if (!this->is_anonymous(entry, vocabularies)) {
@@ -59,24 +65,24 @@ public:
 
       for (const auto &keyword_entry : entry.as_object()) {
         const auto &keyword{keyword_entry.first};
+        const auto &metadata{walker(keyword, vocabularies)};
+
         if (elevated.contains(keyword) ||
-            dependency_blocked.contains(keyword) ||
             (schema.defines(keyword) &&
              schema.at(keyword) != keyword_entry.second)) {
           continue;
         }
 
-        const auto &metadata{walker(keyword, vocabularies)};
+        if (dependency_blocked.contains(keyword)) {
+          continue;
+        }
+
         if (metadata.instances.any() && parent_types.any() &&
             (metadata.instances & parent_types).none()) {
           continue;
         }
 
-        // TODO: Fix the fact that the walker declares dependencies for
-        // evaluation order convenience, not semantic dependencies (i.e. many
-        // assertion keywords depend on `type`)
-        if (metadata.type != SchemaKeywordType::Assertion &&
-            std::ranges::any_of(
+        if (std::ranges::any_of(
                 metadata.dependencies, [&](const auto &dependency) {
                   return !entry.defines(std::string{dependency}) &&
                          (schema.defines(std::string{dependency}) ||
@@ -105,16 +111,23 @@ public:
       assert(location.size() == 3);
       const auto allof_index{location.at(1).to_index()};
       const auto &keyword{location.at(2).to_property()};
-      // TODO: Ideally here we could move instead of copying and then erasing
       schema.try_assign_before(
           keyword, schema.at("allOf").at(allof_index).at(keyword), "allOf");
       schema.at("allOf").at(allof_index).erase(keyword);
     }
+  }
 
-    schema.at("allOf").erase_if(is_empty_schema);
-    if (schema.at("allOf").empty()) {
-      schema.erase("allOf");
-    }
+  [[nodiscard]] auto rereference(const std::string_view, const Pointer &,
+                                 const Pointer &target,
+                                 const Pointer &current) const
+      -> Pointer override {
+    // The rule moves keywords from /allOf/<index>/<keyword> to /<keyword>
+    const auto allof_prefix{current.concat({"allOf"})};
+    const auto relative{target.resolve_from(allof_prefix)};
+    const auto &keyword{relative.at(1).to_property()};
+    const Pointer old_prefix{allof_prefix.concat({relative.at(0), keyword})};
+    const Pointer new_prefix{current.concat({keyword})};
+    return target.rebase(old_prefix, new_prefix);
   }
 
 private:

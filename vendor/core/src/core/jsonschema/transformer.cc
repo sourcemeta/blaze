@@ -28,20 +28,20 @@ auto calculate_health_percentage(const std::size_t subschemas,
 
 namespace sourcemeta::core {
 
-SchemaTransformRule::SchemaTransformRule(std::string &&name,
-                                         std::string &&message)
-    : name_{std::move(name)}, message_{std::move(message)} {}
+SchemaTransformRule::SchemaTransformRule(const std::string_view name,
+                                         const std::string_view message)
+    : name_{name}, message_{message} {}
 
 auto SchemaTransformRule::operator==(const SchemaTransformRule &other) const
     -> bool {
   return this->name() == other.name();
 }
 
-auto SchemaTransformRule::name() const -> const std::string & {
+auto SchemaTransformRule::name() const noexcept -> std::string_view {
   return this->name_;
 }
 
-auto SchemaTransformRule::message() const -> const std::string & {
+auto SchemaTransformRule::message() const noexcept -> std::string_view {
   return this->message_;
 }
 
@@ -49,7 +49,7 @@ auto SchemaTransformRule::transform(JSON &, const Result &) const -> void {
   throw SchemaAbortError("This rule cannot be automatically transformed");
 }
 
-auto SchemaTransformRule::rereference(const std::string &reference,
+auto SchemaTransformRule::rereference(const std::string_view reference,
                                       const Pointer &origin, const Pointer &,
                                       const Pointer &) const -> Pointer {
   throw SchemaBrokenReferenceError(reference, origin,
@@ -101,18 +101,17 @@ auto SchemaTransformRule::check(const JSON &schema, const JSON &root,
                          resolver);
 }
 
-auto SchemaTransformer::check(
-    const JSON &schema, const SchemaWalker &walker,
-    const SchemaResolver &resolver, const SchemaTransformer::Callback &callback,
-    const std::optional<JSON::String> &default_dialect,
-    const std::optional<JSON::String> &default_id) const
+auto SchemaTransformer::check(const JSON &schema, const SchemaWalker &walker,
+                              const SchemaResolver &resolver,
+                              const SchemaTransformer::Callback &callback,
+                              std::string_view default_dialect,
+                              std::string_view default_id) const
     -> std::pair<bool, std::uint8_t> {
-  SchemaFrame frame{SchemaFrame::Mode::Instances};
+  SchemaFrame frame{SchemaFrame::Mode::References};
 
   // If we use the default id when there is already one, framing will duplicate
   // the locations leading to duplicate check reports
-  if (sourcemeta::core::identify(schema, resolver, default_dialect)
-          .has_value()) {
+  if (!sourcemeta::core::identify(schema, resolver, default_dialect).empty()) {
     frame.analyse(schema, walker, resolver, default_dialect);
   } else {
     frame.analyse(schema, walker, resolver, default_dialect, default_id);
@@ -158,22 +157,22 @@ auto SchemaTransformer::check(
           calculate_health_percentage(subschema_count, subschema_failures)};
 }
 
-auto SchemaTransformer::apply(
-    JSON &schema, const SchemaWalker &walker, const SchemaResolver &resolver,
-    const SchemaTransformer::Callback &callback,
-    const std::optional<JSON::String> &default_dialect,
-    const std::optional<JSON::String> &default_id) const
+auto SchemaTransformer::apply(JSON &schema, const SchemaWalker &walker,
+                              const SchemaResolver &resolver,
+                              const SchemaTransformer::Callback &callback,
+                              std::string_view default_dialect,
+                              std::string_view default_id) const
     -> std::pair<bool, std::uint8_t> {
   // There is no point in applying an empty bundle
   assert(!this->rules.empty());
-  std::set<std::tuple<const JSON *, const JSON::String *, std::uint64_t>>
+  std::set<std::tuple<const JSON *, std::string_view, std::uint64_t>>
       processed_rules;
 
   bool result{true};
   std::size_t subschema_count{0};
   std::size_t subschema_failures{0};
   while (true) {
-    SchemaFrame frame{SchemaFrame::Mode::Instances};
+    SchemaFrame frame{SchemaFrame::Mode::References};
     frame.analyse(schema, walker, resolver, default_dialect, default_id);
     std::unordered_set<Pointer> visited;
 
@@ -217,8 +216,8 @@ auto SchemaTransformer::apply(
           continue;
         }
 
-        std::tuple<const JSON *, const JSON::String *, std::uint64_t> mark{
-            &current, &rule->name(),
+        std::tuple<const JSON *, std::string_view, std::uint64_t> mark{
+            &current, rule->name(),
             // Allow applying the same rule to the same location if the schema
             // has changed, which means we are still "making progress". The
             // hashing is not perfect, but its enough
@@ -253,7 +252,8 @@ auto SchemaTransformer::apply(
 
           const auto new_fragment{rule->rereference(
               reference.second.destination, reference.first.second,
-              target.relative_pointer, entry.second.relative_pointer)};
+              frame.relative_instance_location(target),
+              frame.relative_instance_location(entry.second))};
 
           // Note we use the base from the original reference before any
           // canonicalisation takes place so that we don't overly change
@@ -282,7 +282,7 @@ auto SchemaTransformer::apply(
           calculate_health_percentage(subschema_count, subschema_failures)};
 }
 
-auto SchemaTransformer::remove(const std::string &name) -> bool {
+auto SchemaTransformer::remove(const std::string_view name) -> bool {
   return std::erase_if(this->rules, [&name](const auto &rule) {
            return rule->name() == name;
          }) > 0;
