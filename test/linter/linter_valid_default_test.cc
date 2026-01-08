@@ -516,9 +516,9 @@ TEST(Linter, valid_default_10) {
     return sourcemeta::core::schema_resolver(identifier);
   };
 
-  const auto result = bundle.apply(schema, sourcemeta::core::schema_walker,
-                                   resolver, transformer_callback_error,
-                                   std::nullopt, "https://example.com/root");
+  const auto result =
+      bundle.apply(schema, sourcemeta::core::schema_walker, resolver,
+                   transformer_callback_error, "", "https://example.com/root");
 
   EXPECT_TRUE(result.first);
 
@@ -554,9 +554,9 @@ TEST(Linter, valid_default_11) {
     return sourcemeta::core::schema_resolver(identifier);
   };
 
-  const auto result = bundle.apply(schema, sourcemeta::core::schema_walker,
-                                   resolver, transformer_callback_error,
-                                   std::nullopt, "https://example.com/root");
+  const auto result =
+      bundle.apply(schema, sourcemeta::core::schema_walker, resolver,
+                   transformer_callback_error, "", "https://example.com/root");
 
   EXPECT_TRUE(result.first);
 

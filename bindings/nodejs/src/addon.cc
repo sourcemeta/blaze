@@ -298,7 +298,8 @@ static auto compile_schema(napi_env environment, napi_callback_info info)
 
     auto compiled = sourcemeta::blaze::compile(
         schema, sourcemeta::core::schema_walker, resolver,
-        sourcemeta::blaze::default_schema_compiler, mode, default_dialect);
+        sourcemeta::blaze::default_schema_compiler, mode,
+        default_dialect.value_or(""));
 
     bool is_fast = (mode == sourcemeta::blaze::Mode::FastValidation);
     return SchemaWrapper::create(environment, std::move(compiled), is_fast);
