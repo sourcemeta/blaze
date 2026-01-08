@@ -70,7 +70,7 @@ TEST(Evaluator, with_default_id) {
   const auto compiled_schema{sourcemeta::blaze::compile(
       schema, sourcemeta::core::schema_walker, test_resolver,
       sourcemeta::blaze::default_schema_compiler,
-      sourcemeta::blaze::Mode::FastValidation, std::nullopt,
+      sourcemeta::blaze::Mode::FastValidation, "",
       "https://example.com/default")};
 
   const sourcemeta::core::JSON instance{"foo"};

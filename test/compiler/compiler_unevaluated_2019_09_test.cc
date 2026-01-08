@@ -14,7 +14,7 @@ TEST(Compiler_unevaluated_2019_09, unevaluatedProperties_1) {
   })JSON");
 
   sourcemeta::core::SchemaFrame frame{
-      sourcemeta::core::SchemaFrame::Mode::Instances};
+      sourcemeta::core::SchemaFrame::Mode::References};
   frame.analyse(schema, sourcemeta::core::schema_walker,
                 sourcemeta::core::schema_resolver);
   const auto result{sourcemeta::blaze::unevaluated(
@@ -47,7 +47,7 @@ TEST(Compiler_unevaluated_2019_09, unevaluatedProperties_2) {
   })JSON");
 
   sourcemeta::core::SchemaFrame frame{
-      sourcemeta::core::SchemaFrame::Mode::Instances};
+      sourcemeta::core::SchemaFrame::Mode::References};
   frame.analyse(schema, sourcemeta::core::schema_walker,
                 sourcemeta::core::schema_resolver);
   const auto result{sourcemeta::blaze::unevaluated(
@@ -96,7 +96,7 @@ TEST(Compiler_unevaluated_2019_09, unevaluatedProperties_3) {
   })JSON");
 
   sourcemeta::core::SchemaFrame frame{
-      sourcemeta::core::SchemaFrame::Mode::Instances};
+      sourcemeta::core::SchemaFrame::Mode::References};
   frame.analyse(schema, sourcemeta::core::schema_walker,
                 sourcemeta::core::schema_resolver);
   const auto result{sourcemeta::blaze::unevaluated(
@@ -136,7 +136,7 @@ TEST(Compiler_unevaluated_2019_09, unevaluatedProperties_4) {
   })JSON");
 
   sourcemeta::core::SchemaFrame frame{
-      sourcemeta::core::SchemaFrame::Mode::Instances};
+      sourcemeta::core::SchemaFrame::Mode::References};
   frame.analyse(schema, sourcemeta::core::schema_walker,
                 sourcemeta::core::schema_resolver);
   const auto result{sourcemeta::blaze::unevaluated(
@@ -168,7 +168,7 @@ TEST(Compiler_unevaluated_2019_09, unevaluatedItems_1) {
   })JSON");
 
   sourcemeta::core::SchemaFrame frame{
-      sourcemeta::core::SchemaFrame::Mode::Instances};
+      sourcemeta::core::SchemaFrame::Mode::References};
   frame.analyse(schema, sourcemeta::core::schema_walker,
                 sourcemeta::core::schema_resolver);
   const auto result{sourcemeta::blaze::unevaluated(
@@ -204,7 +204,7 @@ TEST(Compiler_unevaluated_2019_09, unevaluatedItems_2) {
   })JSON");
 
   sourcemeta::core::SchemaFrame frame{
-      sourcemeta::core::SchemaFrame::Mode::Instances};
+      sourcemeta::core::SchemaFrame::Mode::References};
   frame.analyse(schema, sourcemeta::core::schema_walker,
                 sourcemeta::core::schema_resolver);
   const auto result{sourcemeta::blaze::unevaluated(
@@ -230,7 +230,7 @@ TEST(Compiler_unevaluated_2019_09, unevaluatedItems_3) {
   })JSON");
 
   sourcemeta::core::SchemaFrame frame{
-      sourcemeta::core::SchemaFrame::Mode::Instances};
+      sourcemeta::core::SchemaFrame::Mode::References};
   frame.analyse(schema, sourcemeta::core::schema_walker,
                 sourcemeta::core::schema_resolver);
   const auto result{sourcemeta::blaze::unevaluated(
