@@ -109,13 +109,6 @@ public:
     std::optional<JSON::String> description;
   };
 
-  /// Apply the rule to a schema
-  auto apply(JSON &schema, const JSON &root, const Vocabularies &vocabularies,
-             const SchemaWalker &walker, const SchemaResolver &resolver,
-             const SchemaFrame &frame,
-             const SchemaFrame::Location &location) const
-      -> std::pair<bool, Result>;
-
   /// Check if the rule applies to a schema
   [[nodiscard]] auto
   check(const JSON &schema, const JSON &root, const Vocabularies &vocabularies,
@@ -129,7 +122,6 @@ public:
   rereference(const std::string_view reference, const Pointer &origin,
               const Pointer &target, const Pointer &current) const -> Pointer;
 
-private:
   /// The rule condition
   [[nodiscard]] virtual auto
   condition(const JSON &schema, const JSON &root,
@@ -141,6 +133,7 @@ private:
   /// then the rule condition is considered to not be fixable.
   virtual auto transform(JSON &schema, const Result &result) const -> void;
 
+private:
 // Exporting symbols that depends on the standard C++ library is considered
 // safe.
 // https://learn.microsoft.com/en-us/cpp/error-messages/compiler-warnings/compiler-warning-level-2-c4275?view=msvc-170&redirectedfrom=MSDN
