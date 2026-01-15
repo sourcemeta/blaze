@@ -213,7 +213,73 @@ static void Micro_2020_12_Simple_Output_Annotations(benchmark::State &state) {
   }
 }
 
+static void
+Micro_2020_12_Compile_NonCircular_Shared_Refs(benchmark::State &state) {
+  const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "$id": "https://example.com/pathological-extreme",
+    "type": "object",
+    "$defs": {
+      "level5": {
+        "type": "string",
+        "minLength": 1
+      },
+      "level4": {
+        "type": "object",
+        "properties": {
+          "a": { "$ref": "#/$defs/level5" },
+          "b": { "$ref": "#/$defs/level5" },
+          "c": { "$ref": "#/$defs/level5" },
+          "d": { "$ref": "#/$defs/level5" }
+        }
+      },
+      "level3": {
+        "type": "object",
+        "properties": {
+          "a": { "$ref": "#/$defs/level4" },
+          "b": { "$ref": "#/$defs/level4" },
+          "c": { "$ref": "#/$defs/level4" },
+          "d": { "$ref": "#/$defs/level4" }
+        }
+      },
+      "level2": {
+        "type": "object",
+        "properties": {
+          "a": { "$ref": "#/$defs/level3" },
+          "b": { "$ref": "#/$defs/level3" },
+          "c": { "$ref": "#/$defs/level3" },
+          "d": { "$ref": "#/$defs/level3" }
+        }
+      },
+      "level1": {
+        "type": "object",
+        "properties": {
+          "a": { "$ref": "#/$defs/level2" },
+          "b": { "$ref": "#/$defs/level2" },
+          "c": { "$ref": "#/$defs/level2" },
+          "d": { "$ref": "#/$defs/level2" }
+        }
+      }
+    },
+    "properties": {
+      "a": { "$ref": "#/$defs/level1" },
+      "b": { "$ref": "#/$defs/level1" },
+      "c": { "$ref": "#/$defs/level1" },
+      "d": { "$ref": "#/$defs/level1" }
+    }
+  })JSON")};
+
+  for (auto _ : state) {
+    auto schema_template{
+        sourcemeta::blaze::compile(schema, sourcemeta::core::schema_walker,
+                                   sourcemeta::core::schema_resolver,
+                                   sourcemeta::blaze::default_schema_compiler)};
+    benchmark::DoNotOptimize(schema_template);
+  }
+}
+
 BENCHMARK(Micro_2020_12_Dynamic_Ref);
 BENCHMARK(Micro_2020_12_Dynamic_Ref_Single);
 BENCHMARK(Micro_2020_12_Simple_Output_Mask);
 BENCHMARK(Micro_2020_12_Simple_Output_Annotations);
+BENCHMARK(Micro_2020_12_Compile_NonCircular_Shared_Refs);
