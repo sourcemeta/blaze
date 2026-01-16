@@ -17,7 +17,6 @@
 
 #include <cstdint>       // std::uint8_t
 #include <functional>    // std::function
-#include <map>           // std::map
 #include <optional>      // std::optional, std::nullopt
 #include <string>        // std::string
 #include <string_view>   // std::string_view
@@ -136,10 +135,9 @@ struct Context {
   // NOLINTNEXTLINE(cppcoreguidelines-avoid-const-or-ref-data-members)
   const Tweaks tweaks;
   /// Cache for compiled $ref targets to avoid exponential recompilation
-  /// Key: destination + labels hash + is_property_name + property_as_target
+  /// Key: mode|destination|labels|is_property_name|property_as_target
+  /// Value: Instructions compiled with relative_dynamic_context (empty base)
   mutable std::unordered_map<std::string, Instructions> ref_cache;
-  /// Flag to skip cache lookups during cache population (prevents double-wrap)
-  mutable bool ref_cache_populating{false};
 };
 
 /// @ingroup compiler
