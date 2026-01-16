@@ -134,9 +134,7 @@ struct Context {
   /// The set of tweaks for the compiler
   // NOLINTNEXTLINE(cppcoreguidelines-avoid-const-or-ref-data-members)
   const Tweaks tweaks;
-  /// Cache for compiled $ref targets to avoid exponential recompilation
-  /// Key: mode|destination|labels|is_property_name|property_as_target
-  /// Value: Instructions compiled with relative_dynamic_context (empty base)
+  /// Cache for $ref targets
   mutable std::unordered_map<std::string, Instructions> ref_cache;
 };
 

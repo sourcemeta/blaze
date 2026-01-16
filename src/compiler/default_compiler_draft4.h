@@ -23,7 +23,7 @@ static auto prepend_base_to_instructions(
     const sourcemeta::core::Pointer &instance_base)
     -> sourcemeta::blaze::Instructions {
   if (schema_base.empty() && instance_base.empty()) {
-    // No change needed - just copy
+    // No change needed, we can just copy
     return instructions;
   }
 
@@ -37,7 +37,7 @@ static auto prepend_base_to_instructions(
     auto new_instance_location =
         instance_base.concat(instruction.relative_instance_location);
 
-    // Children keep their original locations - they're relative to parent
+    // Children keep their original locations as they are relative to parent
     result.push_back(sourcemeta::blaze::Instruction{
         .type = instruction.type,
         .relative_schema_location = std::move(new_schema_location),
@@ -291,14 +291,9 @@ auto compiler_draft4_core_ref(const Context &context,
                  std::move(children))};
   }
 
-  // Build cache key:
-  // mode|destination|labels|is_property_name|property_as_target
-  // Mode IS in the key because FastValidation and non-FastValidation may
-  // compile different instruction types
+  // Build cache key: destination|labels|is_property_name|property_as_target
   std::ostringstream cache_key_stream;
-  cache_key_stream << static_cast<int>(context.mode) << "|"
-                   << reference.destination << "|";
-  // Sort labels for consistent key
+  cache_key_stream << reference.destination << "|";
   std::vector<std::size_t> sorted_labels(schema_context.labels.begin(),
                                          schema_context.labels.end());
   std::ranges::sort(sorted_labels);
@@ -310,22 +305,22 @@ auto compiler_draft4_core_ref(const Context &context,
   const auto cache_key{cache_key_stream.str()};
 
   // Check cache
-  auto cache_it = context.ref_cache.find(cache_key);
+  auto cache_iterator = context.ref_cache.find(cache_key);
 
   if (context.mode == Mode::FastValidation) {
-    // FastValidation: relocate both schema and instance locations
     const auto call_site_schema_base{
         to_pointer(dynamic_context.base_schema_location)
             .concat({dynamic_context.keyword})};
     const auto call_site_instance_base{
         to_pointer(dynamic_context.base_instance_location)};
 
-    if (cache_it != context.ref_cache.end()) {
-      return prepend_base_to_instructions(
-          cache_it->second, call_site_schema_base, call_site_instance_base);
+    if (cache_iterator != context.ref_cache.end()) {
+      return prepend_base_to_instructions(cache_iterator->second,
+                                          call_site_schema_base,
+                                          call_site_instance_base);
     }
 
-    // Cache miss: compile with empty base, cache, then relocate
+    // Cache miss
     auto children = compile(
         context, schema_context, relative_dynamic_context(dynamic_context),
         sourcemeta::core::empty_weak_pointer,
@@ -335,9 +330,8 @@ auto compiler_draft4_core_ref(const Context &context,
                                         call_site_instance_base);
   }
 
-  // Exhaustive mode: wrap cached instructions in LogicalAnd
-  if (cache_it != context.ref_cache.end()) {
-    Instructions children{cache_it->second};
+  if (cache_iterator != context.ref_cache.end()) {
+    Instructions children{cache_iterator->second};
     return {make(sourcemeta::blaze::InstructionIndex::LogicalAnd, context,
                  schema_context, dynamic_context, ValueNone{},
                  std::move(children))};
