@@ -1479,41 +1479,44 @@ auto compiler_draft4_applicator_additionalproperties_with_options(
 
     // Optimize `additionalProperties` set to just `type`, which is a
     // pretty common pattern
-  } else if (context.mode == Mode::FastValidation && children.size() == 1) {
-    const auto &child = children.front();
-    if (child.type == InstructionIndex::AssertionTypeStrict) {
-      if (track_evaluation) {
-        return {make(sourcemeta::blaze::InstructionIndex::
-                         LoopPropertiesTypeStrictEvaluate,
-                     context, schema_context, dynamic_context, child.value)};
-      } else {
-        return {
-            make(sourcemeta::blaze::InstructionIndex::LoopPropertiesTypeStrict,
-                 context, schema_context, dynamic_context, child.value)};
-      }
-    } else if (child.type == InstructionIndex::AssertionType) {
-      if (track_evaluation) {
-        return {make(
-            sourcemeta::blaze::InstructionIndex::LoopPropertiesTypeEvaluate,
-            context, schema_context, dynamic_context, child.value)};
-      } else {
-        return {make(sourcemeta::blaze::InstructionIndex::LoopPropertiesType,
-                     context, schema_context, dynamic_context, child.value)};
-      }
-    } else if (child.type == InstructionIndex::AssertionTypeStrictAny) {
-      if (track_evaluation) {
-        return {make(sourcemeta::blaze::InstructionIndex::
-                         LoopPropertiesTypeStrictAnyEvaluate,
-                     context, schema_context, dynamic_context, child.value)};
-      } else {
-        return {make(
-            sourcemeta::blaze::InstructionIndex::LoopPropertiesTypeStrictAny,
-            context, schema_context, dynamic_context, child.value)};
-      }
+  } else if (context.mode == Mode::FastValidation && children.size() == 1 &&
+             children.front().type == InstructionIndex::AssertionTypeStrict) {
+    const auto &type_step{children.front()};
+    if (track_evaluation) {
+      return {make(
+          sourcemeta::blaze::InstructionIndex::LoopPropertiesTypeStrictEvaluate,
+          context, schema_context, dynamic_context, type_step.value)};
+    } else {
+      return {
+          make(sourcemeta::blaze::InstructionIndex::LoopPropertiesTypeStrict,
+               context, schema_context, dynamic_context, type_step.value)};
     }
-  }
+  } else if (context.mode == Mode::FastValidation && children.size() == 1 &&
+             children.front().type == InstructionIndex::AssertionType) {
+    const auto &type_step{children.front()};
+    if (track_evaluation) {
+      return {
+          make(sourcemeta::blaze::InstructionIndex::LoopPropertiesTypeEvaluate,
+               context, schema_context, dynamic_context, type_step.value)};
+    } else {
+      return {make(sourcemeta::blaze::InstructionIndex::LoopPropertiesType,
+                   context, schema_context, dynamic_context, type_step.value)};
+    }
+  } else if (context.mode == Mode::FastValidation && children.size() == 1 &&
+             children.front().type ==
+                 InstructionIndex::AssertionTypeStrictAny) {
+    const auto &type_step{children.front()};
+    if (track_evaluation) {
+      return {make(sourcemeta::blaze::InstructionIndex::
+                       LoopPropertiesTypeStrictAnyEvaluate,
+                   context, schema_context, dynamic_context, type_step.value)};
+    } else {
+      return {
+          make(sourcemeta::blaze::InstructionIndex::LoopPropertiesTypeStrictAny,
+               context, schema_context, dynamic_context, type_step.value)};
+    }
 
-  if (track_evaluation) {
+  } else if (track_evaluation) {
     if (children.empty()) {
       return {make(sourcemeta::blaze::InstructionIndex::Evaluate, context,
                    schema_context, dynamic_context, ValueNone{})};
