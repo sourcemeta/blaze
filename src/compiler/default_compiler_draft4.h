@@ -15,6 +15,32 @@
 
 #include "compile_helpers.h"
 
+// Helper to unwrap LogicalAnd/LogicalAndTransparent wrappers from ref cache.
+// If children is a single wrapper with a single child of target type,
+// returns a pointer to that inner instruction. Otherwise returns nullptr.
+static auto unwrap_single_type(const sourcemeta::blaze::Instructions &children,
+                               sourcemeta::blaze::InstructionIndex target_type)
+    -> const sourcemeta::blaze::Instruction * {
+  if (children.size() != 1) {
+    return nullptr;
+  }
+  const auto &front = children.front();
+  // Direct match
+  if (front.type == target_type) {
+    return &front;
+  }
+  // LogicalAnd or LogicalAndTransparent wrapper with single child of target
+  // type
+  if ((front.type == sourcemeta::blaze::InstructionIndex::LogicalAnd ||
+       front.type ==
+           sourcemeta::blaze::InstructionIndex::LogicalAndTransparent) &&
+      front.children.size() == 1 &&
+      front.children.front().type == target_type) {
+    return &front.children.front();
+  }
+  return nullptr;
+}
+
 static auto parse_regex(const std::string &pattern,
                         const sourcemeta::core::URI &base,
                         const sourcemeta::core::WeakPointer &schema_location)
@@ -243,23 +269,67 @@ auto compiler_draft4_core_ref(const Context &context,
   // (5) If the resulting instructions were definitely NOT recursive, inline
   ///////////////////////////////////////////////////////////////////
 
-  if (context.mode == Mode::FastValidation &&
-      // Expanding references inline when dynamic scoping is required
-      // may not work, as we might omit the instruction that introduces
-      // one of the necessary schema resources to the evaluator
-      !context.uses_dynamic_scopes) {
-    return compile(context, schema_context, dynamic_context,
-                   sourcemeta::core::empty_weak_pointer,
-                   sourcemeta::core::empty_weak_pointer, reference.destination);
-  } else {
-    return {make(sourcemeta::blaze::InstructionIndex::LogicalAnd, context,
-                 schema_context, dynamic_context, ValueNone{},
-                 compile(context, schema_context,
-                         relative_dynamic_context(dynamic_context),
-                         sourcemeta::core::empty_weak_pointer,
-                         sourcemeta::core::empty_weak_pointer,
-                         reference.destination))};
+  // Build cache key: destination|labels|is_property_name|property_as_target
+  std::ostringstream cache_key_stream;
+  cache_key_stream << reference.destination << "|";
+  // Sort labels for consistent key
+  std::vector<std::size_t> sorted_labels(schema_context.labels.begin(),
+                                         schema_context.labels.end());
+  std::ranges::sort(sorted_labels);
+  for (const auto &lbl : sorted_labels) {
+    cache_key_stream << lbl << ",";
   }
+  cache_key_stream << "|" << schema_context.is_property_name << "|"
+                   << dynamic_context.property_as_target;
+  const auto cache_key{cache_key_stream.str()};
+
+  // Skip cache entirely if:
+  // - Not in FastValidation mode (we only populate in FastValidation)
+  // - Schema uses dynamic scopes ($recursiveRef/$dynamicRef) which resolve
+  //   differently based on dynamic call stack
+  // - We're currently populating the cache (prevents double-wrapping)
+  if (context.mode == Mode::FastValidation && !context.uses_dynamic_scopes &&
+      !context.ref_cache_populating) {
+    auto cache_it = context.ref_cache.find(cache_key);
+    if (cache_it != context.ref_cache.end()) {
+      // Wrap in LogicalAndTransparent for correct location context
+      // without affecting trace output
+      Instructions cached_children{cache_it->second};
+      return {make(sourcemeta::blaze::InstructionIndex::LogicalAndTransparent,
+                   context, schema_context, dynamic_context, ValueNone{},
+                   std::move(cached_children))};
+    }
+  }
+
+  if (context.mode == Mode::FastValidation && !context.uses_dynamic_scopes) {
+    // FastValidation path: compile with full context for optimal eval perf
+    auto result =
+        compile(context, schema_context, dynamic_context,
+                sourcemeta::core::empty_weak_pointer,
+                sourcemeta::core::empty_weak_pointer, reference.destination);
+
+    // Also compile in relocatable mode and cache for future hits
+    // Set populating flag to prevent nested cache hits causing double-wrapping
+    context.ref_cache_populating = true;
+    auto relocatable = compile(
+        context, schema_context, relative_dynamic_context(dynamic_context),
+        sourcemeta::core::empty_weak_pointer,
+        sourcemeta::core::empty_weak_pointer, reference.destination);
+    context.ref_cache_populating = false;
+    context.ref_cache.emplace(cache_key, std::move(relocatable));
+
+    return result;
+  }
+
+  // Non-FastValidation or dynamic scopes: compile relocatable
+  auto children = compile(
+      context, schema_context, relative_dynamic_context(dynamic_context),
+      sourcemeta::core::empty_weak_pointer,
+      sourcemeta::core::empty_weak_pointer, reference.destination);
+
+  return {make(sourcemeta::blaze::InstructionIndex::LogicalAnd, context,
+               schema_context, dynamic_context, ValueNone{},
+               std::move(children))};
 }
 
 auto compiler_draft4_validation_type(const Context &context,
@@ -1387,45 +1457,48 @@ auto compiler_draft4_applicator_additionalproperties_with_options(
                  std::move(children))};
 
     // Optimize `additionalProperties` set to just `type`, which is a
-    // pretty common pattern
-  } else if (context.mode == Mode::FastValidation && children.size() == 1 &&
-             children.front().type == InstructionIndex::AssertionTypeStrict) {
-    const auto &type_step{children.front()};
-    if (track_evaluation) {
-      return {make(
-          sourcemeta::blaze::InstructionIndex::LoopPropertiesTypeStrictEvaluate,
-          context, schema_context, dynamic_context, type_step.value)};
-    } else {
-      return {
-          make(sourcemeta::blaze::InstructionIndex::LoopPropertiesTypeStrict,
-               context, schema_context, dynamic_context, type_step.value)};
+    // pretty common pattern. Use unwrap_single_type to handle both direct
+    // instructions and LogicalAnd wrappers from ref cache hits.
+  } else if (context.mode == Mode::FastValidation) {
+    if (const auto *type_step = unwrap_single_type(
+            children, InstructionIndex::AssertionTypeStrict)) {
+      if (track_evaluation) {
+        return {make(sourcemeta::blaze::InstructionIndex::
+                         LoopPropertiesTypeStrictEvaluate,
+                     context, schema_context, dynamic_context,
+                     type_step->value)};
+      } else {
+        return {
+            make(sourcemeta::blaze::InstructionIndex::LoopPropertiesTypeStrict,
+                 context, schema_context, dynamic_context, type_step->value)};
+      }
+    } else if (const auto *type_step2 = unwrap_single_type(
+                   children, InstructionIndex::AssertionType)) {
+      if (track_evaluation) {
+        return {make(
+            sourcemeta::blaze::InstructionIndex::LoopPropertiesTypeEvaluate,
+            context, schema_context, dynamic_context, type_step2->value)};
+      } else {
+        return {make(sourcemeta::blaze::InstructionIndex::LoopPropertiesType,
+                     context, schema_context, dynamic_context,
+                     type_step2->value)};
+      }
+    } else if (const auto *type_step3 = unwrap_single_type(
+                   children, InstructionIndex::AssertionTypeStrictAny)) {
+      if (track_evaluation) {
+        return {make(sourcemeta::blaze::InstructionIndex::
+                         LoopPropertiesTypeStrictAnyEvaluate,
+                     context, schema_context, dynamic_context,
+                     type_step3->value)};
+      } else {
+        return {make(
+            sourcemeta::blaze::InstructionIndex::LoopPropertiesTypeStrictAny,
+            context, schema_context, dynamic_context, type_step3->value)};
+      }
     }
-  } else if (context.mode == Mode::FastValidation && children.size() == 1 &&
-             children.front().type == InstructionIndex::AssertionType) {
-    const auto &type_step{children.front()};
-    if (track_evaluation) {
-      return {
-          make(sourcemeta::blaze::InstructionIndex::LoopPropertiesTypeEvaluate,
-               context, schema_context, dynamic_context, type_step.value)};
-    } else {
-      return {make(sourcemeta::blaze::InstructionIndex::LoopPropertiesType,
-                   context, schema_context, dynamic_context, type_step.value)};
-    }
-  } else if (context.mode == Mode::FastValidation && children.size() == 1 &&
-             children.front().type ==
-                 InstructionIndex::AssertionTypeStrictAny) {
-    const auto &type_step{children.front()};
-    if (track_evaluation) {
-      return {make(sourcemeta::blaze::InstructionIndex::
-                       LoopPropertiesTypeStrictAnyEvaluate,
-                   context, schema_context, dynamic_context, type_step.value)};
-    } else {
-      return {
-          make(sourcemeta::blaze::InstructionIndex::LoopPropertiesTypeStrictAny,
-               context, schema_context, dynamic_context, type_step.value)};
-    }
+  }
 
-  } else if (track_evaluation) {
+  if (track_evaluation) {
     if (children.empty()) {
       return {make(sourcemeta::blaze::InstructionIndex::Evaluate, context,
                    schema_context, dynamic_context, ValueNone{})};

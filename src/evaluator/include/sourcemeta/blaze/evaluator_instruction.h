@@ -113,7 +113,9 @@ enum class InstructionIndex : std::uint8_t {
   ControlMark,
   ControlEvaluate,
   ControlJump,
-  ControlDynamicAnchorJump
+  ControlDynamicAnchorJump,
+  // Transparent wrapper for ref cache hits - like LogicalAnd but doesn't trace
+  LogicalAndTransparent
 };
 
 /// @ingroup evaluator
@@ -212,7 +214,8 @@ constexpr std::string_view InstructionNames[] = {
     "ControlMark",
     "ControlEvaluate",
     "ControlJump",
-    "ControlDynamicAnchorJump"};
+    "ControlDynamicAnchorJump",
+    "LogicalAndTransparent"};
 
 /// @ingroup evaluator
 /// Check if a given instruction type corresponds to an annotation

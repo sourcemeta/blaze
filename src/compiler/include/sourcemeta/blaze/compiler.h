@@ -17,9 +17,11 @@
 
 #include <cstdint>       // std::uint8_t
 #include <functional>    // std::function
+#include <map>           // std::map
 #include <optional>      // std::optional, std::nullopt
 #include <string>        // std::string
 #include <string_view>   // std::string_view
+#include <unordered_map> // std::unordered_map
 #include <unordered_set> // std::unordered_set
 #include <vector>        // std::vector
 
@@ -133,6 +135,11 @@ struct Context {
   /// The set of tweaks for the compiler
   // NOLINTNEXTLINE(cppcoreguidelines-avoid-const-or-ref-data-members)
   const Tweaks tweaks;
+  /// Cache for compiled $ref targets to avoid exponential recompilation
+  /// Key: destination + labels hash + is_property_name + property_as_target
+  mutable std::unordered_map<std::string, Instructions> ref_cache;
+  /// Flag to skip cache lookups during cache population (prevents double-wrap)
+  mutable bool ref_cache_populating{false};
 };
 
 /// @ingroup compiler

@@ -277,7 +277,9 @@ auto compile(const sourcemeta::core::JSON &schema,
                         .uses_dynamic_scopes = uses_dynamic_scopes,
                         .unevaluated = std::move(unevaluated),
                         .precompiled_labels = std::move(precompiled_labels),
-                        .tweaks = effective_tweaks};
+                        .tweaks = effective_tweaks,
+                        .ref_cache = {},
+                        .ref_cache_populating = false};
 
   ///////////////////////////////////////////////////////////////////
   // (7) Build the initial dynamic context

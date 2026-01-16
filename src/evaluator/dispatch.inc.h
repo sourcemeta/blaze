@@ -932,6 +932,26 @@ INSTRUCTION_HANDLER(LogicalAnd) {
   EVALUATE_END(LogicalAnd);
 }
 
+// Transparent version of LogicalAnd for ref cache hits - same semantics but no
+// tracing
+INSTRUCTION_HANDLER(LogicalAndTransparent) {
+  SOURCEMETA_MAYBE_UNUSED(depth);
+  SOURCEMETA_MAYBE_UNUSED(schema);
+  SOURCEMETA_MAYBE_UNUSED(callback);
+  SOURCEMETA_MAYBE_UNUSED(instance);
+  SOURCEMETA_MAYBE_UNUSED(property_target);
+  SOURCEMETA_MAYBE_UNUSED(evaluator);
+  EVALUATE_BEGIN_PASS_THROUGH(LogicalAndTransparent);
+  const auto &target{get(instance, instruction.relative_instance_location)};
+  for (const auto &child : instruction.children) {
+    if (!EVALUATE_RECURSE(child, target)) {
+      result = false;
+      break;
+    }
+  }
+  EVALUATE_END_PASS_THROUGH(LogicalAndTransparent);
+}
+
 INSTRUCTION_HANDLER(LogicalWhenType) {
   SOURCEMETA_MAYBE_UNUSED(depth);
   SOURCEMETA_MAYBE_UNUSED(schema);
@@ -2659,7 +2679,8 @@ static constexpr DispatchHandler handlers[95] = {
     ControlMark,
     ControlEvaluate,
     ControlJump,
-    ControlDynamicAnchorJump};
+    ControlDynamicAnchorJump,
+    LogicalAndTransparent};
 
 inline auto
 evaluate_instruction(const sourcemeta::blaze::Instruction &instruction,
