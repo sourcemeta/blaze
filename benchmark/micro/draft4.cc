@@ -1110,7 +1110,7 @@ static void Micro_Draft4_Ref_Single_100(benchmark::State &state) {
         sourcemeta::blaze::compile(schema, sourcemeta::core::schema_walker,
                                    sourcemeta::core::schema_resolver,
                                    sourcemeta::blaze::default_schema_compiler)};
-    benchmark::DoNotOptimize(result.instructions);
+    benchmark::DoNotOptimize(result.targets);
   }
 }
 
@@ -1154,7 +1154,7 @@ static void Micro_Draft4_Ref_Many_Nested(benchmark::State &state) {
         sourcemeta::blaze::compile(schema, sourcemeta::core::schema_walker,
                                    sourcemeta::core::schema_resolver,
                                    sourcemeta::blaze::default_schema_compiler)};
-    benchmark::DoNotOptimize(result.instructions);
+    benchmark::DoNotOptimize(result.targets);
   }
 }
 

@@ -14,14 +14,14 @@ TEST(Evaluator_draft7, metaschema) {
   EXPECT_TRUE(metaschema.has_value());
 
   const sourcemeta::core::JSON instance{sourcemeta::core::parse_json("{}")};
-  EVALUATE_WITH_TRACE_FAST_SUCCESS(metaschema.value(), instance, 3);
+  EVALUATE_WITH_TRACE_FAST_SUCCESS(metaschema.value(), instance, 2);
 }
 
 TEST(Evaluator_draft7, metaschema_hyper_self) {
   const auto metaschema{sourcemeta::core::schema_resolver(
       "http://json-schema.org/draft-07/hyper-schema#")};
   EXPECT_TRUE(metaschema.has_value());
-  EVALUATE_WITH_TRACE_FAST_SUCCESS(metaschema.value(), metaschema.value(), 476);
+  EVALUATE_WITH_TRACE_FAST_SUCCESS(metaschema.value(), metaschema.value(), 487);
 }
 
 TEST(Evaluator_draft7, metaschema_hyper_self_exhaustive) {
@@ -29,7 +29,7 @@ TEST(Evaluator_draft7, metaschema_hyper_self_exhaustive) {
       "http://json-schema.org/draft-07/hyper-schema#")};
   EXPECT_TRUE(metaschema.has_value());
   EVALUATE_WITH_TRACE_EXHAUSTIVE_SUCCESS(metaschema.value(), metaschema.value(),
-                                         568);
+                                         566);
 }
 
 TEST(Evaluator_draft7, if_1) {
@@ -494,9 +494,9 @@ TEST(Evaluator_draft7, reference_from_unknown_keyword) {
                                sourcemeta::core::schema_resolver,
                                sourcemeta::blaze::default_schema_compiler);
   } catch (const sourcemeta::core::SchemaReferenceError &error) {
-    EXPECT_EQ(error.identifier(), "#/properties/baz");
+    EXPECT_EQ(error.identifier(), "#/$defs/bar");
     EXPECT_EQ(error.location(),
-              sourcemeta::core::Pointer({"$defs", "bar", "$ref"}));
+              sourcemeta::core::Pointer({"properties", "foo", "$ref"}));
   } catch (...) {
     throw;
   }

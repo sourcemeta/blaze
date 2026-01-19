@@ -22,14 +22,14 @@ TEST(Evaluator_2019_09, metaschema_1) {
     }
   })JSON")};
 
-  EVALUATE_WITH_TRACE_FAST_SUCCESS(metaschema.value(), instance, 55);
+  EVALUATE_WITH_TRACE_FAST_SUCCESS(metaschema.value(), instance, 48);
 }
 
 TEST(Evaluator_2019_09, metaschema_hyper_self) {
   const auto metaschema{sourcemeta::core::schema_resolver(
       "https://json-schema.org/draft/2019-09/hyper-schema")};
   EXPECT_TRUE(metaschema.has_value());
-  EVALUATE_WITH_TRACE_FAST_SUCCESS(metaschema.value(), metaschema.value(), 100);
+  EVALUATE_WITH_TRACE_FAST_SUCCESS(metaschema.value(), metaschema.value(), 91);
 }
 
 TEST(Evaluator_2019_09, metaschema_hyper_self_exhaustive) {
@@ -37,7 +37,7 @@ TEST(Evaluator_2019_09, metaschema_hyper_self_exhaustive) {
       "https://json-schema.org/draft/2019-09/hyper-schema")};
   EXPECT_TRUE(metaschema.has_value());
   EVALUATE_WITH_TRACE_EXHAUSTIVE_SUCCESS(metaschema.value(), metaschema.value(),
-                                         179);
+                                         170);
 }
 
 TEST(Evaluator_2019_09, properties_1) {
@@ -4772,31 +4772,26 @@ TEST(Evaluator_2019_09, recursiveRef_1) {
   const sourcemeta::core::JSON instance{
       sourcemeta::core::parse_json("{ \"foo\": 1 }")};
 
-  EVALUATE_WITH_TRACE_FAST_SUCCESS(schema, instance, 3);
+  EVALUATE_WITH_TRACE_FAST_SUCCESS(schema, instance, 2);
 
-  EVALUATE_TRACE_PRE(0, ControlMark, "", "https://example.com/schema", "");
-  EVALUATE_TRACE_PRE(1, LoopProperties, "/additionalProperties",
+  EVALUATE_TRACE_PRE(0, LoopProperties, "/additionalProperties",
                      "https://example.com/schema#/additionalProperties", "");
   EVALUATE_TRACE_PRE(
-      2, ControlDynamicAnchorJump, "/additionalProperties/$recursiveRef",
-      "https://example.com/schema#/additionalProperties/$recursiveRef", "/foo");
-
-  EVALUATE_TRACE_POST_SUCCESS(0, ControlMark, "", "https://example.com/schema",
-                              "");
-  EVALUATE_TRACE_POST_SUCCESS(
       1, ControlDynamicAnchorJump, "/additionalProperties/$recursiveRef",
       "https://example.com/schema#/additionalProperties/$recursiveRef", "/foo");
+
   EVALUATE_TRACE_POST_SUCCESS(
-      2, LoopProperties, "/additionalProperties",
+      0, ControlDynamicAnchorJump, "/additionalProperties/$recursiveRef",
+      "https://example.com/schema#/additionalProperties/$recursiveRef", "/foo");
+  EVALUATE_TRACE_POST_SUCCESS(
+      1, LoopProperties, "/additionalProperties",
       "https://example.com/schema#/additionalProperties", "");
 
-  EVALUATE_TRACE_POST_DESCRIBE(instance, 0,
-                               "The schema location was marked for future use");
   EVALUATE_TRACE_POST_DESCRIBE(
-      instance, 1,
+      instance, 0,
       "The integer value was expected to validate against the first subschema "
       "in scope that declared a recursive anchor");
-  EVALUATE_TRACE_POST_DESCRIBE(instance, 2,
+  EVALUATE_TRACE_POST_DESCRIBE(instance, 1,
                                "The object properties not covered by other "
                                "adjacent object keywords were "
                                "expected to validate against this subschema");
@@ -4815,41 +4810,36 @@ TEST(Evaluator_2019_09, recursiveRef_1_exhaustive) {
   const sourcemeta::core::JSON instance{
       sourcemeta::core::parse_json("{ \"foo\": 1 }")};
 
-  EVALUATE_WITH_TRACE_EXHAUSTIVE_SUCCESS(schema, instance, 4);
+  EVALUATE_WITH_TRACE_EXHAUSTIVE_SUCCESS(schema, instance, 3);
 
-  EVALUATE_TRACE_PRE(0, ControlMark, "", "https://example.com/schema", "");
-  EVALUATE_TRACE_PRE(1, LoopProperties, "/additionalProperties",
+  EVALUATE_TRACE_PRE(0, LoopProperties, "/additionalProperties",
                      "https://example.com/schema#/additionalProperties", "");
   EVALUATE_TRACE_PRE(
-      2, ControlDynamicAnchorJump, "/additionalProperties/$recursiveRef",
-      "https://example.com/schema#/additionalProperties/$recursiveRef", "/foo");
-  EVALUATE_TRACE_PRE_ANNOTATION(
-      3, "/additionalProperties",
-      "https://example.com/schema#/additionalProperties", "");
-
-  EVALUATE_TRACE_POST_SUCCESS(0, ControlMark, "", "https://example.com/schema",
-                              "");
-  EVALUATE_TRACE_POST_SUCCESS(
       1, ControlDynamicAnchorJump, "/additionalProperties/$recursiveRef",
       "https://example.com/schema#/additionalProperties/$recursiveRef", "/foo");
-  EVALUATE_TRACE_POST_ANNOTATION(
+  EVALUATE_TRACE_PRE_ANNOTATION(
       2, "/additionalProperties",
-      "https://example.com/schema#/additionalProperties", "", "foo");
-  EVALUATE_TRACE_POST_SUCCESS(
-      3, LoopProperties, "/additionalProperties",
       "https://example.com/schema#/additionalProperties", "");
 
-  EVALUATE_TRACE_POST_DESCRIBE(instance, 0,
-                               "The schema location was marked for future use");
+  EVALUATE_TRACE_POST_SUCCESS(
+      0, ControlDynamicAnchorJump, "/additionalProperties/$recursiveRef",
+      "https://example.com/schema#/additionalProperties/$recursiveRef", "/foo");
+  EVALUATE_TRACE_POST_ANNOTATION(
+      1, "/additionalProperties",
+      "https://example.com/schema#/additionalProperties", "", "foo");
+  EVALUATE_TRACE_POST_SUCCESS(
+      2, LoopProperties, "/additionalProperties",
+      "https://example.com/schema#/additionalProperties", "");
+
   EVALUATE_TRACE_POST_DESCRIBE(
-      instance, 1,
+      instance, 0,
       "The integer value was expected to validate against the first subschema "
       "in scope that declared a recursive anchor");
   EVALUATE_TRACE_POST_DESCRIBE(
-      instance, 2,
+      instance, 1,
       "The object property \"foo\" successfully validated against the "
       "additional properties subschema");
-  EVALUATE_TRACE_POST_DESCRIBE(instance, 3,
+  EVALUATE_TRACE_POST_DESCRIBE(instance, 2,
                                "The object properties not covered by other "
                                "adjacent object keywords were "
                                "expected to validate against this subschema");
@@ -4869,40 +4859,35 @@ TEST(Evaluator_2019_09, recursiveRef_2) {
   const sourcemeta::core::JSON instance{
       sourcemeta::core::parse_json("{ \"foo\": 1 }")};
 
-  EVALUATE_WITH_TRACE_FAST_SUCCESS(schema, instance, 4);
+  EVALUATE_WITH_TRACE_FAST_SUCCESS(schema, instance, 3);
 
-  EVALUATE_TRACE_PRE(0, ControlMark, "", "https://example.com/schema", "");
-  EVALUATE_TRACE_PRE(1, LoopProperties, "/additionalProperties",
+  EVALUATE_TRACE_PRE(0, LoopProperties, "/additionalProperties",
                      "https://example.com/schema#/additionalProperties", "");
   EVALUATE_TRACE_PRE(
-      2, ControlDynamicAnchorJump, "/additionalProperties/$recursiveRef",
+      1, ControlDynamicAnchorJump, "/additionalProperties/$recursiveRef",
       "https://example.com/schema#/additionalProperties/$recursiveRef", "/foo");
-  EVALUATE_TRACE_PRE(3, AssertionGreaterEqual,
+  EVALUATE_TRACE_PRE(2, AssertionGreaterEqual,
                      "/additionalProperties/$recursiveRef/minimum",
                      "https://example.com/schema#/minimum", "/foo");
 
-  EVALUATE_TRACE_POST_SUCCESS(0, ControlMark, "", "https://example.com/schema",
-                              "");
-  EVALUATE_TRACE_POST_SUCCESS(1, AssertionGreaterEqual,
+  EVALUATE_TRACE_POST_SUCCESS(0, AssertionGreaterEqual,
                               "/additionalProperties/$recursiveRef/minimum",
                               "https://example.com/schema#/minimum", "/foo");
   EVALUATE_TRACE_POST_SUCCESS(
-      2, ControlDynamicAnchorJump, "/additionalProperties/$recursiveRef",
+      1, ControlDynamicAnchorJump, "/additionalProperties/$recursiveRef",
       "https://example.com/schema#/additionalProperties/$recursiveRef", "/foo");
   EVALUATE_TRACE_POST_SUCCESS(
-      3, LoopProperties, "/additionalProperties",
+      2, LoopProperties, "/additionalProperties",
       "https://example.com/schema#/additionalProperties", "");
 
   EVALUATE_TRACE_POST_DESCRIBE(instance, 0,
-                               "The schema location was marked for future use");
-  EVALUATE_TRACE_POST_DESCRIBE(instance, 1,
                                "The integer value 1 was expected to be greater "
                                "than or equal to the integer 1");
   EVALUATE_TRACE_POST_DESCRIBE(
-      instance, 2,
+      instance, 1,
       "The integer value was expected to validate against the first subschema "
       "in scope that declared a recursive anchor");
-  EVALUATE_TRACE_POST_DESCRIBE(instance, 3,
+  EVALUATE_TRACE_POST_DESCRIBE(instance, 2,
                                "The object properties not covered by other "
                                "adjacent object keywords were "
                                "expected to validate against this subschema");
@@ -4922,50 +4907,45 @@ TEST(Evaluator_2019_09, recursiveRef_2_exhaustive) {
   const sourcemeta::core::JSON instance{
       sourcemeta::core::parse_json("{ \"foo\": 1 }")};
 
-  EVALUATE_WITH_TRACE_EXHAUSTIVE_SUCCESS(schema, instance, 5);
+  EVALUATE_WITH_TRACE_EXHAUSTIVE_SUCCESS(schema, instance, 4);
 
-  EVALUATE_TRACE_PRE(0, ControlMark, "", "https://example.com/schema", "");
-  EVALUATE_TRACE_PRE(1, LoopProperties, "/additionalProperties",
+  EVALUATE_TRACE_PRE(0, LoopProperties, "/additionalProperties",
                      "https://example.com/schema#/additionalProperties", "");
   EVALUATE_TRACE_PRE(
-      2, ControlDynamicAnchorJump, "/additionalProperties/$recursiveRef",
+      1, ControlDynamicAnchorJump, "/additionalProperties/$recursiveRef",
       "https://example.com/schema#/additionalProperties/$recursiveRef", "/foo");
-  EVALUATE_TRACE_PRE(3, AssertionGreaterEqual,
+  EVALUATE_TRACE_PRE(2, AssertionGreaterEqual,
                      "/additionalProperties/$recursiveRef/minimum",
                      "https://example.com/schema#/minimum", "/foo");
   EVALUATE_TRACE_PRE_ANNOTATION(
-      4, "/additionalProperties",
+      3, "/additionalProperties",
       "https://example.com/schema#/additionalProperties", "");
 
-  EVALUATE_TRACE_POST_SUCCESS(0, ControlMark, "", "https://example.com/schema",
-                              "");
-  EVALUATE_TRACE_POST_SUCCESS(1, AssertionGreaterEqual,
+  EVALUATE_TRACE_POST_SUCCESS(0, AssertionGreaterEqual,
                               "/additionalProperties/$recursiveRef/minimum",
                               "https://example.com/schema#/minimum", "/foo");
   EVALUATE_TRACE_POST_SUCCESS(
-      2, ControlDynamicAnchorJump, "/additionalProperties/$recursiveRef",
+      1, ControlDynamicAnchorJump, "/additionalProperties/$recursiveRef",
       "https://example.com/schema#/additionalProperties/$recursiveRef", "/foo");
   EVALUATE_TRACE_POST_ANNOTATION(
-      3, "/additionalProperties",
+      2, "/additionalProperties",
       "https://example.com/schema#/additionalProperties", "", "foo");
   EVALUATE_TRACE_POST_SUCCESS(
-      4, LoopProperties, "/additionalProperties",
+      3, LoopProperties, "/additionalProperties",
       "https://example.com/schema#/additionalProperties", "");
 
   EVALUATE_TRACE_POST_DESCRIBE(instance, 0,
-                               "The schema location was marked for future use");
-  EVALUATE_TRACE_POST_DESCRIBE(instance, 1,
                                "The integer value 1 was expected to be greater "
                                "than or equal to the integer 1");
   EVALUATE_TRACE_POST_DESCRIBE(
-      instance, 2,
+      instance, 1,
       "The integer value was expected to validate against the first subschema "
       "in scope that declared a recursive anchor");
   EVALUATE_TRACE_POST_DESCRIBE(
-      instance, 3,
+      instance, 2,
       "The object property \"foo\" successfully validated against the "
       "additional properties subschema");
-  EVALUATE_TRACE_POST_DESCRIBE(instance, 4,
+  EVALUATE_TRACE_POST_DESCRIBE(instance, 3,
                                "The object properties not covered by other "
                                "adjacent object keywords were "
                                "expected to validate against this subschema");
@@ -4988,29 +4968,24 @@ TEST(Evaluator_2019_09, recursiveRef_3) {
   const sourcemeta::core::JSON instance{
       sourcemeta::core::parse_json("{ \"foo\": 1 }")};
 
-  EVALUATE_WITH_TRACE_FAST_SUCCESS(schema, instance, 3);
+  EVALUATE_WITH_TRACE_FAST_SUCCESS(schema, instance, 2);
 
-  EVALUATE_TRACE_PRE(0, ControlMark, "", "https://example.com/nested", "");
-  EVALUATE_TRACE_PRE(1, LoopProperties, "/additionalProperties",
+  EVALUATE_TRACE_PRE(0, LoopProperties, "/additionalProperties",
                      "https://example.com/schema#/additionalProperties", "");
-  EVALUATE_TRACE_PRE(2, AssertionGreaterEqual, "/additionalProperties/minimum",
+  EVALUATE_TRACE_PRE(1, AssertionGreaterEqual, "/additionalProperties/minimum",
                      "https://example.com/nested#/minimum", "/foo");
 
-  EVALUATE_TRACE_POST_SUCCESS(0, ControlMark, "", "https://example.com/nested",
-                              "");
-  EVALUATE_TRACE_POST_SUCCESS(1, AssertionGreaterEqual,
+  EVALUATE_TRACE_POST_SUCCESS(0, AssertionGreaterEqual,
                               "/additionalProperties/minimum",
                               "https://example.com/nested#/minimum", "/foo");
   EVALUATE_TRACE_POST_SUCCESS(
-      2, LoopProperties, "/additionalProperties",
+      1, LoopProperties, "/additionalProperties",
       "https://example.com/schema#/additionalProperties", "");
 
   EVALUATE_TRACE_POST_DESCRIBE(instance, 0,
-                               "The schema location was marked for future use");
-  EVALUATE_TRACE_POST_DESCRIBE(instance, 1,
                                "The integer value 1 was expected to be greater "
                                "than or equal to the integer 1");
-  EVALUATE_TRACE_POST_DESCRIBE(instance, 2,
+  EVALUATE_TRACE_POST_DESCRIBE(instance, 1,
                                "The object properties not covered by other "
                                "adjacent object keywords were "
                                "expected to validate against this subschema");
@@ -5033,40 +5008,34 @@ TEST(Evaluator_2019_09, recursiveRef_3_exhaustive) {
   const sourcemeta::core::JSON instance{
       sourcemeta::core::parse_json("{ \"foo\": 1 }")};
 
-  EVALUATE_WITH_TRACE_EXHAUSTIVE_SUCCESS(schema, instance, 4);
+  EVALUATE_WITH_TRACE_EXHAUSTIVE_SUCCESS(schema, instance, 3);
 
-  EVALUATE_TRACE_PRE(0, ControlMark, "", "https://example.com/nested", "");
-  EVALUATE_TRACE_PRE(1, LoopProperties, "/additionalProperties",
+  EVALUATE_TRACE_PRE(0, LoopProperties, "/additionalProperties",
                      "https://example.com/schema#/additionalProperties", "");
-  EVALUATE_TRACE_PRE(2, AssertionGreaterEqual, "/additionalProperties/minimum",
+  EVALUATE_TRACE_PRE(1, AssertionGreaterEqual, "/additionalProperties/minimum",
                      "https://example.com/nested#/minimum", "/foo");
   EVALUATE_TRACE_PRE_ANNOTATION(
-      3, "/additionalProperties",
+      2, "/additionalProperties",
       "https://example.com/schema#/additionalProperties", "");
 
-  EVALUATE_TRACE_POST_SUCCESS(0, ControlMark, "", "https://example.com/nested",
-                              "");
-  EVALUATE_TRACE_POST_SUCCESS(1, AssertionGreaterEqual,
+  EVALUATE_TRACE_POST_SUCCESS(0, AssertionGreaterEqual,
                               "/additionalProperties/minimum",
                               "https://example.com/nested#/minimum", "/foo");
   EVALUATE_TRACE_POST_ANNOTATION(
-      2, "/additionalProperties",
+      1, "/additionalProperties",
       "https://example.com/schema#/additionalProperties", "", "foo");
   EVALUATE_TRACE_POST_SUCCESS(
-      3, LoopProperties, "/additionalProperties",
+      2, LoopProperties, "/additionalProperties",
       "https://example.com/schema#/additionalProperties", "");
 
   EVALUATE_TRACE_POST_DESCRIBE(instance, 0,
-                               "The schema location was marked for "
-                               "future use");
-  EVALUATE_TRACE_POST_DESCRIBE(instance, 1,
                                "The integer value 1 was expected to be greater "
                                "than or equal to the integer 1");
   EVALUATE_TRACE_POST_DESCRIBE(
-      instance, 2,
+      instance, 1,
       "The object property \"foo\" successfully validated against the "
       "additional properties subschema");
-  EVALUATE_TRACE_POST_DESCRIBE(instance, 3,
+  EVALUATE_TRACE_POST_DESCRIBE(instance, 2,
                                "The object properties not covered by other "
                                "adjacent object keywords were "
                                "expected to validate against this subschema");
@@ -5089,57 +5058,51 @@ TEST(Evaluator_2019_09, recursiveRef_4) {
   const sourcemeta::core::JSON instance{
       sourcemeta::core::parse_json("{ \"foo\": { \"bar\": 1 } }")};
 
-  EVALUATE_WITH_TRACE_FAST_SUCCESS(schema, instance, 5);
+  EVALUATE_WITH_TRACE_FAST_SUCCESS(schema, instance, 4);
 
-  EVALUATE_TRACE_PRE(0, ControlMark, "", "https://example.com/nested", "");
-  EVALUATE_TRACE_PRE(1, LoopProperties, "/additionalProperties",
+  EVALUATE_TRACE_PRE(0, LoopProperties, "/additionalProperties",
                      "https://example.com/schema#/additionalProperties", "");
   EVALUATE_TRACE_PRE(
-      2, LoopProperties, "/additionalProperties/additionalProperties",
+      1, LoopProperties, "/additionalProperties/additionalProperties",
       "https://example.com/nested#/additionalProperties", "/foo");
   EVALUATE_TRACE_PRE(
-      3, ControlDynamicAnchorJump,
-      "/additionalProperties/additionalProperties/$recursiveRef",
-      "https://example.com/nested#/additionalProperties/$recursiveRef",
-      "/foo/bar");
-  EVALUATE_TRACE_PRE(
-      4, AssertionGreaterEqual,
-      "/additionalProperties/additionalProperties/$recursiveRef/minimum",
-      "https://example.com/nested#/minimum", "/foo/bar");
-
-  EVALUATE_TRACE_POST_SUCCESS(0, ControlMark, "", "https://example.com/nested",
-                              "");
-  EVALUATE_TRACE_POST_SUCCESS(
-      1, AssertionGreaterEqual,
-      "/additionalProperties/additionalProperties/$recursiveRef/minimum",
-      "https://example.com/nested#/minimum", "/foo/bar");
-  EVALUATE_TRACE_POST_SUCCESS(
       2, ControlDynamicAnchorJump,
       "/additionalProperties/additionalProperties/$recursiveRef",
       "https://example.com/nested#/additionalProperties/$recursiveRef",
       "/foo/bar");
+  EVALUATE_TRACE_PRE(
+      3, AssertionGreaterEqual,
+      "/additionalProperties/additionalProperties/$recursiveRef/minimum",
+      "https://example.com/nested#/minimum", "/foo/bar");
+
   EVALUATE_TRACE_POST_SUCCESS(
-      3, LoopProperties, "/additionalProperties/additionalProperties",
+      0, AssertionGreaterEqual,
+      "/additionalProperties/additionalProperties/$recursiveRef/minimum",
+      "https://example.com/nested#/minimum", "/foo/bar");
+  EVALUATE_TRACE_POST_SUCCESS(
+      1, ControlDynamicAnchorJump,
+      "/additionalProperties/additionalProperties/$recursiveRef",
+      "https://example.com/nested#/additionalProperties/$recursiveRef",
+      "/foo/bar");
+  EVALUATE_TRACE_POST_SUCCESS(
+      2, LoopProperties, "/additionalProperties/additionalProperties",
       "https://example.com/nested#/additionalProperties", "/foo");
   EVALUATE_TRACE_POST_SUCCESS(
-      4, LoopProperties, "/additionalProperties",
+      3, LoopProperties, "/additionalProperties",
       "https://example.com/schema#/additionalProperties", "");
 
   EVALUATE_TRACE_POST_DESCRIBE(instance, 0,
-                               "The schema location was marked for "
-                               "future use");
-  EVALUATE_TRACE_POST_DESCRIBE(instance, 1,
                                "The integer value 1 was expected to be greater "
                                "than or equal to the integer 1");
   EVALUATE_TRACE_POST_DESCRIBE(
-      instance, 2,
+      instance, 1,
       "The integer value was expected to validate against the first subschema "
       "in scope that declared a recursive anchor");
-  EVALUATE_TRACE_POST_DESCRIBE(instance, 3,
+  EVALUATE_TRACE_POST_DESCRIBE(instance, 2,
                                "The object properties not covered by other "
                                "adjacent object keywords were "
                                "expected to validate against this subschema");
-  EVALUATE_TRACE_POST_DESCRIBE(instance, 4,
+  EVALUATE_TRACE_POST_DESCRIBE(instance, 3,
                                "The object properties not covered by other "
                                "adjacent object keywords were "
                                "expected to validate against this subschema");
@@ -5162,77 +5125,71 @@ TEST(Evaluator_2019_09, recursiveRef_4_exhaustive) {
   const sourcemeta::core::JSON instance{
       sourcemeta::core::parse_json("{ \"foo\": { \"bar\": 1 } }")};
 
-  EVALUATE_WITH_TRACE_EXHAUSTIVE_SUCCESS(schema, instance, 7);
+  EVALUATE_WITH_TRACE_EXHAUSTIVE_SUCCESS(schema, instance, 6);
 
-  EVALUATE_TRACE_PRE(0, ControlMark, "", "https://example.com/nested", "");
-  EVALUATE_TRACE_PRE(1, LoopProperties, "/additionalProperties",
+  EVALUATE_TRACE_PRE(0, LoopProperties, "/additionalProperties",
                      "https://example.com/schema#/additionalProperties", "");
   EVALUATE_TRACE_PRE(
-      2, LoopProperties, "/additionalProperties/additionalProperties",
+      1, LoopProperties, "/additionalProperties/additionalProperties",
       "https://example.com/nested#/additionalProperties", "/foo");
   EVALUATE_TRACE_PRE(
-      3, ControlDynamicAnchorJump,
-      "/additionalProperties/additionalProperties/$recursiveRef",
-      "https://example.com/nested#/additionalProperties/$recursiveRef",
-      "/foo/bar");
-  EVALUATE_TRACE_PRE(
-      4, AssertionGreaterEqual,
-      "/additionalProperties/additionalProperties/$recursiveRef/minimum",
-      "https://example.com/nested#/minimum", "/foo/bar");
-  EVALUATE_TRACE_PRE_ANNOTATION(
-      5, "/additionalProperties/additionalProperties",
-      "https://example.com/nested#/additionalProperties", "/foo");
-  EVALUATE_TRACE_PRE_ANNOTATION(
-      6, "/additionalProperties",
-      "https://example.com/schema#/additionalProperties", "");
-
-  EVALUATE_TRACE_POST_SUCCESS(0, ControlMark, "", "https://example.com/nested",
-                              "");
-  EVALUATE_TRACE_POST_SUCCESS(
-      1, AssertionGreaterEqual,
-      "/additionalProperties/additionalProperties/$recursiveRef/minimum",
-      "https://example.com/nested#/minimum", "/foo/bar");
-  EVALUATE_TRACE_POST_SUCCESS(
       2, ControlDynamicAnchorJump,
       "/additionalProperties/additionalProperties/$recursiveRef",
       "https://example.com/nested#/additionalProperties/$recursiveRef",
       "/foo/bar");
+  EVALUATE_TRACE_PRE(
+      3, AssertionGreaterEqual,
+      "/additionalProperties/additionalProperties/$recursiveRef/minimum",
+      "https://example.com/nested#/minimum", "/foo/bar");
+  EVALUATE_TRACE_PRE_ANNOTATION(
+      4, "/additionalProperties/additionalProperties",
+      "https://example.com/nested#/additionalProperties", "/foo");
+  EVALUATE_TRACE_PRE_ANNOTATION(
+      5, "/additionalProperties",
+      "https://example.com/schema#/additionalProperties", "");
+
+  EVALUATE_TRACE_POST_SUCCESS(
+      0, AssertionGreaterEqual,
+      "/additionalProperties/additionalProperties/$recursiveRef/minimum",
+      "https://example.com/nested#/minimum", "/foo/bar");
+  EVALUATE_TRACE_POST_SUCCESS(
+      1, ControlDynamicAnchorJump,
+      "/additionalProperties/additionalProperties/$recursiveRef",
+      "https://example.com/nested#/additionalProperties/$recursiveRef",
+      "/foo/bar");
   EVALUATE_TRACE_POST_ANNOTATION(
-      3, "/additionalProperties/additionalProperties",
+      2, "/additionalProperties/additionalProperties",
       "https://example.com/nested#/additionalProperties", "/foo", "bar");
   EVALUATE_TRACE_POST_SUCCESS(
-      4, LoopProperties, "/additionalProperties/additionalProperties",
+      3, LoopProperties, "/additionalProperties/additionalProperties",
       "https://example.com/nested#/additionalProperties", "/foo");
   EVALUATE_TRACE_POST_ANNOTATION(
-      5, "/additionalProperties",
+      4, "/additionalProperties",
       "https://example.com/schema#/additionalProperties", "", "foo");
   EVALUATE_TRACE_POST_SUCCESS(
-      6, LoopProperties, "/additionalProperties",
+      5, LoopProperties, "/additionalProperties",
       "https://example.com/schema#/additionalProperties", "");
 
   EVALUATE_TRACE_POST_DESCRIBE(instance, 0,
-                               "The schema location was marked for "
-                               "future use");
-  EVALUATE_TRACE_POST_DESCRIBE(instance, 1,
                                "The integer value 1 was expected to be greater "
                                "than or equal to the integer 1");
   EVALUATE_TRACE_POST_DESCRIBE(
-      instance, 2,
+      instance, 1,
       "The integer value was expected to validate against the first subschema "
       "in scope that declared a recursive anchor");
   EVALUATE_TRACE_POST_DESCRIBE(
-      instance, 3,
+      instance, 2,
       "The object property \"bar\" successfully validated against the "
       "additional properties subschema");
-  EVALUATE_TRACE_POST_DESCRIBE(instance, 4,
+  EVALUATE_TRACE_POST_DESCRIBE(instance, 3,
                                "The object properties not covered by other "
                                "adjacent object keywords were "
                                "expected to validate against this subschema");
   EVALUATE_TRACE_POST_DESCRIBE(
-      instance, 5,
+      instance, 4,
       "The object property \"foo\" successfully validated against the "
       "additional properties subschema");
-  EVALUATE_TRACE_POST_DESCRIBE(instance, 6,
+  EVALUATE_TRACE_POST_DESCRIBE(instance, 5,
                                "The object properties not covered by other "
                                "adjacent object keywords were "
                                "expected to validate against this subschema");
@@ -5254,39 +5211,33 @@ TEST(Evaluator_2019_09, recursiveRef_5) {
   const sourcemeta::core::JSON instance{
       sourcemeta::core::parse_json("[ [ 1 ] ]")};
 
-  EVALUATE_WITH_TRACE_FAST_SUCCESS(schema, instance, 4);
+  EVALUATE_WITH_TRACE_FAST_SUCCESS(schema, instance, 3);
 
-  EVALUATE_TRACE_PRE(0, ControlMark, "", "https://example.com/nested", "");
-  EVALUATE_TRACE_PRE(1, LoopItems, "/items",
+  EVALUATE_TRACE_PRE(0, LoopItems, "/items",
                      "https://example.com/schema#/items", "");
-  EVALUATE_TRACE_PRE(2, AssertionArrayPrefix, "/items/items",
+  EVALUATE_TRACE_PRE(1, AssertionArrayPrefix, "/items/items",
                      "https://example.com/nested#/items", "/0");
   EVALUATE_TRACE_PRE(
-      3, ControlDynamicAnchorJump, "/items/items/0/$recursiveRef",
+      2, ControlDynamicAnchorJump, "/items/items/0/$recursiveRef",
       "https://example.com/nested#/items/0/$recursiveRef", "/0/0");
 
-  EVALUATE_TRACE_POST_SUCCESS(0, ControlMark, "", "https://example.com/nested",
-                              "");
   EVALUATE_TRACE_POST_SUCCESS(
-      1, ControlDynamicAnchorJump, "/items/items/0/$recursiveRef",
+      0, ControlDynamicAnchorJump, "/items/items/0/$recursiveRef",
       "https://example.com/nested#/items/0/$recursiveRef", "/0/0");
-  EVALUATE_TRACE_POST_SUCCESS(2, AssertionArrayPrefix, "/items/items",
+  EVALUATE_TRACE_POST_SUCCESS(1, AssertionArrayPrefix, "/items/items",
                               "https://example.com/nested#/items", "/0");
-  EVALUATE_TRACE_POST_SUCCESS(3, LoopItems, "/items",
+  EVALUATE_TRACE_POST_SUCCESS(2, LoopItems, "/items",
                               "https://example.com/schema#/items", "");
 
-  EVALUATE_TRACE_POST_DESCRIBE(instance, 0,
-                               "The schema location was marked for "
-                               "future use");
   EVALUATE_TRACE_POST_DESCRIBE(
-      instance, 1,
+      instance, 0,
       "The integer value was expected to validate against the first subschema "
       "in scope that declared a recursive anchor");
   EVALUATE_TRACE_POST_DESCRIBE(
-      instance, 2,
+      instance, 1,
       "The first item of the array value was expected to validate against the "
       "corresponding subschemas");
-  EVALUATE_TRACE_POST_DESCRIBE(instance, 3,
+  EVALUATE_TRACE_POST_DESCRIBE(instance, 2,
                                "Every item in the array value was expected to "
                                "validate against the given subschema");
 }
@@ -5307,66 +5258,60 @@ TEST(Evaluator_2019_09, recursiveRef_5_exhaustive) {
   const sourcemeta::core::JSON instance{
       sourcemeta::core::parse_json("[ [ 1 ] ]")};
 
-  EVALUATE_WITH_TRACE_EXHAUSTIVE_SUCCESS(schema, instance, 8);
+  EVALUATE_WITH_TRACE_EXHAUSTIVE_SUCCESS(schema, instance, 7);
 
-  EVALUATE_TRACE_PRE(0, ControlMark, "", "https://example.com/nested", "");
-  EVALUATE_TRACE_PRE(1, LoopItems, "/items",
+  EVALUATE_TRACE_PRE(0, LoopItems, "/items",
                      "https://example.com/schema#/items", "");
-  EVALUATE_TRACE_PRE(2, AssertionArrayPrefix, "/items/items",
+  EVALUATE_TRACE_PRE(1, AssertionArrayPrefix, "/items/items",
                      "https://example.com/nested#/items", "/0");
   EVALUATE_TRACE_PRE(
-      3, ControlDynamicAnchorJump, "/items/items/0/$recursiveRef",
+      2, ControlDynamicAnchorJump, "/items/items/0/$recursiveRef",
       "https://example.com/nested#/items/0/$recursiveRef", "/0/0");
+  EVALUATE_TRACE_PRE_ANNOTATION(3, "/items/items",
+                                "https://example.com/nested#/items", "/0");
   EVALUATE_TRACE_PRE_ANNOTATION(4, "/items/items",
                                 "https://example.com/nested#/items", "/0");
-  EVALUATE_TRACE_PRE_ANNOTATION(5, "/items/items",
-                                "https://example.com/nested#/items", "/0");
-  EVALUATE_TRACE_PRE(6, LogicalWhenType, "/items",
+  EVALUATE_TRACE_PRE(5, LogicalWhenType, "/items",
                      "https://example.com/schema#/items", "");
-  EVALUATE_TRACE_PRE_ANNOTATION(7, "/items",
+  EVALUATE_TRACE_PRE_ANNOTATION(6, "/items",
                                 "https://example.com/schema#/items", "");
 
-  EVALUATE_TRACE_POST_SUCCESS(0, ControlMark, "", "https://example.com/nested",
-                              "");
   EVALUATE_TRACE_POST_SUCCESS(
-      1, ControlDynamicAnchorJump, "/items/items/0/$recursiveRef",
+      0, ControlDynamicAnchorJump, "/items/items/0/$recursiveRef",
       "https://example.com/nested#/items/0/$recursiveRef", "/0/0");
-  EVALUATE_TRACE_POST_ANNOTATION(2, "/items/items",
+  EVALUATE_TRACE_POST_ANNOTATION(1, "/items/items",
                                  "https://example.com/nested#/items", "/0", 0);
   EVALUATE_TRACE_POST_ANNOTATION(
-      3, "/items/items", "https://example.com/nested#/items", "/0", true);
-  EVALUATE_TRACE_POST_SUCCESS(4, AssertionArrayPrefix, "/items/items",
+      2, "/items/items", "https://example.com/nested#/items", "/0", true);
+  EVALUATE_TRACE_POST_SUCCESS(3, AssertionArrayPrefix, "/items/items",
                               "https://example.com/nested#/items", "/0");
-  EVALUATE_TRACE_POST_SUCCESS(5, LoopItems, "/items",
+  EVALUATE_TRACE_POST_SUCCESS(4, LoopItems, "/items",
                               "https://example.com/schema#/items", "");
-  EVALUATE_TRACE_POST_ANNOTATION(6, "/items",
+  EVALUATE_TRACE_POST_ANNOTATION(5, "/items",
                                  "https://example.com/schema#/items", "", true);
-  EVALUATE_TRACE_POST_SUCCESS(7, LogicalWhenType, "/items",
+  EVALUATE_TRACE_POST_SUCCESS(6, LogicalWhenType, "/items",
                               "https://example.com/schema#/items", "");
 
-  EVALUATE_TRACE_POST_DESCRIBE(instance, 0,
-                               "The schema location was marked for "
-                               "future use");
   EVALUATE_TRACE_POST_DESCRIBE(
-      instance, 1,
+      instance, 0,
       "The integer value was expected to validate against the first subschema "
       "in scope that declared a recursive anchor");
   EVALUATE_TRACE_POST_DESCRIBE(
-      instance, 2,
+      instance, 1,
       "The first item of the array value successfully validated against the "
       "first positional subschema");
   EVALUATE_TRACE_POST_DESCRIBE(
-      instance, 3, "Every item in the array value was successfully validated");
+      instance, 2, "Every item in the array value was successfully validated");
   EVALUATE_TRACE_POST_DESCRIBE(
-      instance, 4,
+      instance, 3,
       "The first item of the array value was expected to validate against the "
       "corresponding subschemas");
-  EVALUATE_TRACE_POST_DESCRIBE(instance, 5,
+  EVALUATE_TRACE_POST_DESCRIBE(instance, 4,
                                "Every item in the array value was expected to "
                                "validate against the given subschema");
   EVALUATE_TRACE_POST_DESCRIBE(
-      instance, 6, "Every item in the array value was successfully validated");
-  EVALUATE_TRACE_POST_DESCRIBE(instance, 7,
+      instance, 5, "Every item in the array value was successfully validated");
+  EVALUATE_TRACE_POST_DESCRIBE(instance, 6,
                                "The value was expected to be of type array");
 }
 
@@ -5382,29 +5327,25 @@ TEST(Evaluator_2019_09, recursiveRef_6) {
   const sourcemeta::core::JSON instance{
       sourcemeta::core::parse_json("{ \"foo\": 1 }")};
 
-  EVALUATE_WITH_TRACE_FAST_SUCCESS(schema, instance, 3);
+  EVALUATE_WITH_TRACE_FAST_SUCCESS(schema, instance, 2);
 
-  EVALUATE_TRACE_PRE(0, ControlMark, "", "", "");
-  EVALUATE_TRACE_PRE(1, LoopProperties, "/additionalProperties",
+  EVALUATE_TRACE_PRE(0, LoopProperties, "/additionalProperties",
                      "#/additionalProperties", "");
-  EVALUATE_TRACE_PRE(2, ControlDynamicAnchorJump,
+  EVALUATE_TRACE_PRE(1, ControlDynamicAnchorJump,
                      "/additionalProperties/$recursiveRef",
                      "#/additionalProperties/$recursiveRef", "/foo");
 
-  EVALUATE_TRACE_POST_SUCCESS(0, ControlMark, "", "", "");
-  EVALUATE_TRACE_POST_SUCCESS(1, ControlDynamicAnchorJump,
+  EVALUATE_TRACE_POST_SUCCESS(0, ControlDynamicAnchorJump,
                               "/additionalProperties/$recursiveRef",
                               "#/additionalProperties/$recursiveRef", "/foo");
-  EVALUATE_TRACE_POST_SUCCESS(2, LoopProperties, "/additionalProperties",
+  EVALUATE_TRACE_POST_SUCCESS(1, LoopProperties, "/additionalProperties",
                               "#/additionalProperties", "");
 
-  EVALUATE_TRACE_POST_DESCRIBE(instance, 0,
-                               "The schema location was marked for future use");
   EVALUATE_TRACE_POST_DESCRIBE(
-      instance, 1,
+      instance, 0,
       "The integer value was expected to validate against the first subschema "
       "in scope that declared a recursive anchor");
-  EVALUATE_TRACE_POST_DESCRIBE(instance, 2,
+  EVALUATE_TRACE_POST_DESCRIBE(instance, 1,
                                "The object properties not covered by other "
                                "adjacent object keywords were "
                                "expected to validate against this subschema");
@@ -5422,37 +5363,33 @@ TEST(Evaluator_2019_09, recursiveRef_6_exhaustive) {
   const sourcemeta::core::JSON instance{
       sourcemeta::core::parse_json("{ \"foo\": 1 }")};
 
-  EVALUATE_WITH_TRACE_EXHAUSTIVE_SUCCESS(schema, instance, 4);
+  EVALUATE_WITH_TRACE_EXHAUSTIVE_SUCCESS(schema, instance, 3);
 
-  EVALUATE_TRACE_PRE(0, ControlMark, "", "", "");
-  EVALUATE_TRACE_PRE(1, LoopProperties, "/additionalProperties",
+  EVALUATE_TRACE_PRE(0, LoopProperties, "/additionalProperties",
                      "#/additionalProperties", "");
-  EVALUATE_TRACE_PRE(2, ControlDynamicAnchorJump,
+  EVALUATE_TRACE_PRE(1, ControlDynamicAnchorJump,
                      "/additionalProperties/$recursiveRef",
                      "#/additionalProperties/$recursiveRef", "/foo");
-  EVALUATE_TRACE_PRE_ANNOTATION(3, "/additionalProperties",
+  EVALUATE_TRACE_PRE_ANNOTATION(2, "/additionalProperties",
                                 "#/additionalProperties", "");
 
-  EVALUATE_TRACE_POST_SUCCESS(0, ControlMark, "", "", "");
-  EVALUATE_TRACE_POST_SUCCESS(1, ControlDynamicAnchorJump,
+  EVALUATE_TRACE_POST_SUCCESS(0, ControlDynamicAnchorJump,
                               "/additionalProperties/$recursiveRef",
                               "#/additionalProperties/$recursiveRef", "/foo");
-  EVALUATE_TRACE_POST_ANNOTATION(2, "/additionalProperties",
+  EVALUATE_TRACE_POST_ANNOTATION(1, "/additionalProperties",
                                  "#/additionalProperties", "", "foo");
-  EVALUATE_TRACE_POST_SUCCESS(3, LoopProperties, "/additionalProperties",
+  EVALUATE_TRACE_POST_SUCCESS(2, LoopProperties, "/additionalProperties",
                               "#/additionalProperties", "");
 
-  EVALUATE_TRACE_POST_DESCRIBE(instance, 0,
-                               "The schema location was marked for future use");
   EVALUATE_TRACE_POST_DESCRIBE(
-      instance, 1,
+      instance, 0,
       "The integer value was expected to validate against the first subschema "
       "in scope that declared a recursive anchor");
   EVALUATE_TRACE_POST_DESCRIBE(
-      instance, 2,
+      instance, 1,
       "The object property \"foo\" successfully validated against the "
       "additional properties subschema");
-  EVALUATE_TRACE_POST_DESCRIBE(instance, 3,
+  EVALUATE_TRACE_POST_DESCRIBE(instance, 2,
                                "The object properties not covered by other "
                                "adjacent object keywords were "
                                "expected to validate against this subschema");
@@ -5927,14 +5864,28 @@ TEST(Evaluator_2019_09, definitions_1) {
   })JSON")};
 
   const sourcemeta::core::JSON instance{"foo"};
-  EVALUATE_WITH_TRACE_FAST_SUCCESS(schema, instance, 1);
+  EVALUATE_WITH_TRACE_FAST_SUCCESS(schema, instance, 3);
 
-  EVALUATE_TRACE_PRE(0, AssertionTypeStrict, "/$ref/$ref/type",
+  EVALUATE_TRACE_PRE(0, ControlJump, "/$ref", "#/$ref", "");
+  EVALUATE_TRACE_PRE(1, ControlJump, "/$ref/$ref", "#/definitions/middle/$ref",
+                     "");
+  EVALUATE_TRACE_PRE(2, AssertionTypeStrict, "/$ref/$ref/type",
                      "#/definitions/string/type", "");
+
   EVALUATE_TRACE_POST_SUCCESS(0, AssertionTypeStrict, "/$ref/$ref/type",
                               "#/definitions/string/type", "");
+  EVALUATE_TRACE_POST_SUCCESS(1, ControlJump, "/$ref/$ref",
+                              "#/definitions/middle/$ref", "");
+  EVALUATE_TRACE_POST_SUCCESS(2, ControlJump, "/$ref", "#/$ref", "");
+
   EVALUATE_TRACE_POST_DESCRIBE(instance, 0,
                                "The value was expected to be of type string");
+  EVALUATE_TRACE_POST_DESCRIBE(instance, 1,
+                               "The string value was expected to validate "
+                               "against the referenced schema");
+  EVALUATE_TRACE_POST_DESCRIBE(instance, 2,
+                               "The string value was expected to validate "
+                               "against the referenced schema");
 }
 
 TEST(Evaluator_2019_09, definitions_1_exhaustive) {
@@ -5950,26 +5901,26 @@ TEST(Evaluator_2019_09, definitions_1_exhaustive) {
   const sourcemeta::core::JSON instance{"foo"};
   EVALUATE_WITH_TRACE_EXHAUSTIVE_SUCCESS(schema, instance, 3);
 
-  EVALUATE_TRACE_PRE(0, LogicalAnd, "/$ref", "#/$ref", "");
-  EVALUATE_TRACE_PRE(1, LogicalAnd, "/$ref/$ref", "#/definitions/middle/$ref",
+  EVALUATE_TRACE_PRE(0, ControlJump, "/$ref", "#/$ref", "");
+  EVALUATE_TRACE_PRE(1, ControlJump, "/$ref/$ref", "#/definitions/middle/$ref",
                      "");
   EVALUATE_TRACE_PRE(2, AssertionTypeStrict, "/$ref/$ref/type",
                      "#/definitions/string/type", "");
 
   EVALUATE_TRACE_POST_SUCCESS(0, AssertionTypeStrict, "/$ref/$ref/type",
                               "#/definitions/string/type", "");
-  EVALUATE_TRACE_POST_SUCCESS(1, LogicalAnd, "/$ref/$ref",
+  EVALUATE_TRACE_POST_SUCCESS(1, ControlJump, "/$ref/$ref",
                               "#/definitions/middle/$ref", "");
-  EVALUATE_TRACE_POST_SUCCESS(2, LogicalAnd, "/$ref", "#/$ref", "");
+  EVALUATE_TRACE_POST_SUCCESS(2, ControlJump, "/$ref", "#/$ref", "");
 
   EVALUATE_TRACE_POST_DESCRIBE(instance, 0,
                                "The value was expected to be of type string");
   EVALUATE_TRACE_POST_DESCRIBE(instance, 1,
                                "The string value was expected to validate "
-                               "against the statically referenced schema");
+                               "against the referenced schema");
   EVALUATE_TRACE_POST_DESCRIBE(instance, 2,
                                "The string value was expected to validate "
-                               "against the statically referenced schema");
+                               "against the referenced schema");
 }
 
 TEST(Evaluator_2019_09, propertyNames_1) {
@@ -6078,13 +6029,15 @@ TEST(Evaluator_2019_09, top_level_ref_with_id_exhaustive) {
   const sourcemeta::core::JSON instance{5};
   EVALUATE_WITH_TRACE_EXHAUSTIVE_SUCCESS(schema, instance, 1);
 
-  EVALUATE_TRACE_PRE(0, LogicalAnd, "/$ref", "https://www.example.com#/$ref",
+  EVALUATE_TRACE_PRE(0, ControlJump, "/$ref", "https://www.example.com#/$ref",
                      "");
-  EVALUATE_TRACE_POST_SUCCESS(0, LogicalAnd, "/$ref",
+
+  EVALUATE_TRACE_POST_SUCCESS(0, ControlJump, "/$ref",
                               "https://www.example.com#/$ref", "");
+
   EVALUATE_TRACE_POST_DESCRIBE(instance, 0,
                                "The integer value was expected to validate "
-                               "against the statically referenced schema");
+                               "against the referenced schema");
 }
 
 TEST(Evaluator_2019_09, invalid_ref_top_level) {

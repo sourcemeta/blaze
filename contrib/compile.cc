@@ -36,7 +36,7 @@ auto main(int argc, char **argv) noexcept -> int {
                                                             compile_start)};
   std::cerr << "Took: " << compile_duration.count() << "ms\n";
   std::cerr << "Number of generated instructions: "
-            << schema_template.instructions.size() << "\n";
+            << schema_template.targets[0].size() << "\n";
 
   sourcemeta::core::prettify(sourcemeta::blaze::to_json(schema_template),
                              std::cout);

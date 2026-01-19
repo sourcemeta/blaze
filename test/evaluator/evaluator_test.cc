@@ -74,7 +74,7 @@ TEST(Evaluator, with_default_id) {
       "https://example.com/default")};
 
   const sourcemeta::core::JSON instance{"foo"};
-  EVALUATE_WITH_TRACE(compiled_schema, instance, 1)
+  EVALUATE_WITH_TRACE(compiled_schema, instance, 2)
   EXPECT_TRUE(result);
 }
 

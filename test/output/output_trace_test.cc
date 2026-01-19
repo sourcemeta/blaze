@@ -197,20 +197,24 @@ TEST(Output_trace, pass_with_matching_prefix_1) {
   std::vector<sourcemeta::blaze::TraceOutput::Entry> traces{output.cbegin(),
                                                             output.cend()};
 
-  EXPECT_EQ(traces.size(), 4);
+  EXPECT_EQ(traces.size(), 6);
 
-  EXPECT_OUTPUT_WITHOUT_VOCABULARY(traces, 0, Push, "LoopPropertiesMatchClosed",
+  EXPECT_OUTPUT_WITHOUT_VOCABULARY(traces, 0, Push, "ControlJump", "", "",
+                                   "#/$ref", std::nullopt);
+  EXPECT_OUTPUT_WITHOUT_VOCABULARY(traces, 1, Push, "LoopPropertiesMatchClosed",
                                    "", "/properties",
                                    "#/$defs/helper/properties", std::nullopt);
   EXPECT_OUTPUT_WITHOUT_VOCABULARY(
-      traces, 1, Push, "AssertionTypeStrict", "/foo", "/properties/foo/type",
+      traces, 2, Push, "AssertionTypeStrict", "/foo", "/properties/foo/type",
       "#/$defs/helper/properties/foo/type", std::nullopt);
   EXPECT_OUTPUT_WITHOUT_VOCABULARY(
-      traces, 2, Pass, "AssertionTypeStrict", "/foo", "/properties/foo/type",
+      traces, 3, Pass, "AssertionTypeStrict", "/foo", "/properties/foo/type",
       "#/$defs/helper/properties/foo/type", std::nullopt);
-  EXPECT_OUTPUT_WITHOUT_VOCABULARY(traces, 3, Pass, "LoopPropertiesMatchClosed",
+  EXPECT_OUTPUT_WITHOUT_VOCABULARY(traces, 4, Pass, "LoopPropertiesMatchClosed",
                                    "", "/properties",
                                    "#/$defs/helper/properties", std::nullopt);
+  EXPECT_OUTPUT_WITHOUT_VOCABULARY(traces, 5, Pass, "ControlJump", "", "",
+                                   "#/$ref", std::nullopt);
 }
 
 TEST(Output_trace, pass_with_frame_exhaustive) {

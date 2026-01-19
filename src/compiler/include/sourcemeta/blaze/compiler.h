@@ -17,6 +17,7 @@
 
 #include <cstdint>       // std::uint8_t
 #include <functional>    // std::function
+#include <map>           // std::map
 #include <optional>      // std::optional, std::nullopt
 #include <string>        // std::string
 #include <string_view>   // std::string_view
@@ -90,14 +91,6 @@ enum class Mode : std::uint8_t {
 /// @ingroup compiler
 /// Advanced knobs that you can tweak for higher control and optimisations
 struct Tweaks {
-  /// Consider static references that are not circular when precompiling static
-  /// references
-  bool precompile_static_references_non_circular{false};
-  /// The maximum amount of static references to precompile
-  std::size_t precompile_static_references_maximum_schemas{10};
-  /// The minimum amount of references to a destination before considering it
-  /// for precompilation
-  std::size_t precompile_static_references_minimum_reference_count{10};
   /// Always unroll `properties` in a logical AND operation
   bool properties_always_unroll{false};
   /// Attempt to re-order `properties` subschemas to evaluate cheaper ones first
@@ -128,14 +121,14 @@ struct Context {
   const bool uses_dynamic_scopes;
   /// The list of unevaluated entries and their dependencies
   const SchemaUnevaluatedEntries unevaluated;
-  // NOLINTEND(cppcoreguidelines-avoid-const-or-ref-data-members)
-  /// The set of global labels identified during precompilation
-  std::unordered_set<std::size_t> precompiled_labels;
   /// The set of tweaks for the compiler
-  // NOLINTNEXTLINE(cppcoreguidelines-avoid-const-or-ref-data-members)
   const Tweaks tweaks;
-  /// Cache for $ref targets
-  mutable std::unordered_map<std::string, Instructions> ref_cache;
+  /// All possible reference targets
+  const std::map<
+      std::pair<sourcemeta::core::SchemaReferenceType, std::string_view>,
+      std::pair<std::size_t, const sourcemeta::core::WeakPointer *>>
+      targets;
+  // NOLINTEND(cppcoreguidelines-avoid-const-or-ref-data-members)
 };
 
 /// @ingroup compiler

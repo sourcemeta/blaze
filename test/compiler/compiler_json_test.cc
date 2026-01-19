@@ -36,14 +36,17 @@ TEST(Compiler_JSON, example_1) {
     [],
     [
       [
-        11,
-        "/type",
-        "",
-        "#/type",
-        0,
-        [ 8, 4 ]
+        [
+          11,
+          "/type",
+          "",
+          "#/type",
+          0,
+          [ 8, 4 ]
+        ]
       ]
-    ]
+    ],
+    []
   ])JSON")};
 
   EXPECT_BIDIRECTIONAL_JSON(schema_template, expected);
@@ -69,32 +72,35 @@ TEST(Compiler_JSON, example_2) {
     [],
     [
       [
-        61,
-        "/additionalProperties",
-        "",
-        "#/additionalProperties",
-        0,
-        [ 0 ],
         [
+          61,
+          "/additionalProperties",
+          "",
+          "#/additionalProperties",
+          0,
+          [ 0 ],
           [
-            34,
-            "/multipleOf",
-            "",
-            "#/additionalProperties/multipleOf",
-            0,
-            [ 1, 2 ]
-          ],
-          [
-            10,
-            "/type",
-            "",
-            "#/additionalProperties/type",
-            0,
-            [ 7, 156 ]
+            [
+              34,
+              "/multipleOf",
+              "",
+              "#/additionalProperties/multipleOf",
+              0,
+              [ 1, 2 ]
+            ],
+            [
+              10,
+              "/type",
+              "",
+              "#/additionalProperties/type",
+              0,
+              [ 7, 156 ]
+            ]
           ]
         ]
       ]
-    ]
+    ],
+    []
   ])JSON")};
 
   EXPECT_BIDIRECTIONAL_JSON(schema_template, expected);
@@ -117,14 +123,17 @@ TEST(Compiler_JSON, example_3) {
     [],
     [
       [
-        19,
-        "/pattern",
-        "",
-        "#/pattern",
-        0,
-        [ 9, "^f" ]
+        [
+          19,
+          "/pattern",
+          "",
+          "#/pattern",
+          0,
+          [ 9, "^f" ]
+        ]
       ]
-    ]
+    ],
+    []
   ])JSON")};
 
   EXPECT_BIDIRECTIONAL_JSON(schema_template, expected);
@@ -152,32 +161,35 @@ TEST(Compiler_JSON, example_4) {
     [ "https://example.com/top", "https://other.com/nested" ],
     [
       [
-        61,
-        "/additionalProperties",
-        "",
-        "#/additionalProperties",
-        1,
-        [ 0 ],
         [
+          61,
+          "/additionalProperties",
+          "",
+          "#/additionalProperties",
+          1,
+          [ 0 ],
           [
-            34,
-            "/multipleOf",
-            "",
-            "#/multipleOf",
-            2,
-            [ 1, 2 ]
-          ],
-          [
-            10,
-            "/type",
-            "",
-            "#/type",
-            2,
-            [ 7, 156 ]
+            [
+              34,
+              "/multipleOf",
+              "",
+              "#/multipleOf",
+              2,
+              [ 1, 2 ]
+            ],
+            [
+              10,
+              "/type",
+              "",
+              "#/type",
+              2,
+              [ 7, 156 ]
+            ]
           ]
         ]
       ]
-    ]
+    ],
+    []
   ])JSON")};
 
   EXPECT_BIDIRECTIONAL_JSON(schema_template, expected);
@@ -185,13 +197,13 @@ TEST(Compiler_JSON, example_4) {
   // Confirm that the keyword locations are fully constructed back
   const auto template_back{sourcemeta::blaze::from_json(expected)};
   EXPECT_TRUE(template_back.has_value());
-  EXPECT_EQ(template_back.value().instructions.at(0).keyword_location,
+  EXPECT_EQ(template_back.value().targets.at(0).at(0).keyword_location,
             "https://example.com/top#/additionalProperties");
   EXPECT_EQ(
-      template_back.value().instructions.at(0).children.at(0).keyword_location,
+      template_back.value().targets.at(0).at(0).children.at(0).keyword_location,
       "https://other.com/nested#/multipleOf");
   EXPECT_EQ(
-      template_back.value().instructions.at(0).children.at(1).keyword_location,
+      template_back.value().targets.at(0).at(0).children.at(1).keyword_location,
       "https://other.com/nested#/type");
 }
 
@@ -214,14 +226,17 @@ TEST(Compiler_JSON, example_5) {
     [ "https://example.com/top" ],
     [
       [
-        44,
-        "/foo%",
-        "",
-        "#/foo%25",
-        1,
-        [ 1, true ]
+        [
+          44,
+          "/foo%",
+          "",
+          "#/foo%25",
+          1,
+          [ 1, true ]
+        ]
       ]
-    ]
+    ],
+    []
   ])JSON")};
 
   EXPECT_BIDIRECTIONAL_JSON(schema_template, expected);
@@ -229,7 +244,7 @@ TEST(Compiler_JSON, example_5) {
   // Confirm that the keyword locations are fully constructed back
   const auto template_back{sourcemeta::blaze::from_json(expected)};
   EXPECT_TRUE(template_back.has_value());
-  EXPECT_EQ(template_back.value().instructions.at(0).keyword_location,
+  EXPECT_EQ(template_back.value().targets.at(0).at(0).keyword_location,
             "https://example.com/top#/foo%25");
 }
 
@@ -254,32 +269,35 @@ TEST(Compiler_JSON, example_6) {
     [ "https://example.com/top" ],
     [
       [
-        61,
-        "/additionalProperties",
-        "",
-        "#/additionalProperties",
-        1,
-        [ 0 ],
         [
+          61,
+          "/additionalProperties",
+          "",
+          "#/additionalProperties",
+          1,
+          [ 0 ],
           [
-            11,
-            "/type",
-            "",
-            "#/additionalProperties/type",
-            1,
-            [ 8, 4 ]
-          ],
-          [
-            46,
-            "",
-            "",
-            "#/additionalProperties",
-            1,
-            [ 0 ]
+            [
+              11,
+              "/type",
+              "",
+              "#/additionalProperties/type",
+              1,
+              [ 8, 4 ]
+            ],
+            [
+              46,
+              "",
+              "",
+              "#/additionalProperties",
+              1,
+              [ 0 ]
+            ]
           ]
         ]
       ]
-    ]
+    ],
+    []
   ])JSON")};
 
   EXPECT_BIDIRECTIONAL_JSON(schema_template, expected);
@@ -287,13 +305,13 @@ TEST(Compiler_JSON, example_6) {
   // Confirm that the keyword locations are fully constructed back
   const auto template_back{sourcemeta::blaze::from_json(expected)};
   EXPECT_TRUE(template_back.has_value());
-  EXPECT_EQ(template_back.value().instructions.at(0).keyword_location,
+  EXPECT_EQ(template_back.value().targets.at(0).at(0).keyword_location,
             "https://example.com/top#/additionalProperties");
   EXPECT_EQ(
-      template_back.value().instructions.at(0).children.at(0).keyword_location,
+      template_back.value().targets.at(0).at(0).children.at(0).keyword_location,
       "https://example.com/top#/additionalProperties/type");
   EXPECT_EQ(
-      template_back.value().instructions.at(0).children.at(1).keyword_location,
+      template_back.value().targets.at(0).at(0).children.at(1).keyword_location,
       "https://example.com/top#/additionalProperties");
 }
 

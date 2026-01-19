@@ -14,14 +14,14 @@ TEST(Evaluator_draft6, metaschema) {
   EXPECT_TRUE(metaschema.has_value());
 
   const sourcemeta::core::JSON instance{sourcemeta::core::parse_json("{}")};
-  EVALUATE_WITH_TRACE_FAST_SUCCESS(metaschema.value(), instance, 3);
+  EVALUATE_WITH_TRACE_FAST_SUCCESS(metaschema.value(), instance, 2);
 }
 
 TEST(Evaluator_draft6, metaschema_hyper_self) {
   const auto metaschema{sourcemeta::core::schema_resolver(
       "http://json-schema.org/draft-06/hyper-schema#")};
   EXPECT_TRUE(metaschema.has_value());
-  EVALUATE_WITH_TRACE_FAST_SUCCESS(metaschema.value(), metaschema.value(), 894);
+  EVALUATE_WITH_TRACE_FAST_SUCCESS(metaschema.value(), metaschema.value(), 947);
 }
 
 TEST(Evaluator_draft6, metaschema_hyper_self_exhaustive) {
@@ -29,7 +29,7 @@ TEST(Evaluator_draft6, metaschema_hyper_self_exhaustive) {
       "http://json-schema.org/draft-06/hyper-schema#")};
   EXPECT_TRUE(metaschema.has_value());
   EVALUATE_WITH_TRACE_EXHAUSTIVE_SUCCESS(metaschema.value(), metaschema.value(),
-                                         1105);
+                                         1103);
 }
 
 TEST(Evaluator_draft6, unknown_keyword) {
@@ -1438,21 +1438,28 @@ TEST(Evaluator_draft6, propertyNames_7) {
 
   const sourcemeta::core::JSON instance{
       sourcemeta::core::parse_json("{ \"bar\": 2 }")};
-  EVALUATE_WITH_TRACE_FAST_FAILURE(schema, instance, 2);
+  EVALUATE_WITH_TRACE_FAST_FAILURE(schema, instance, 3);
 
   EVALUATE_TRACE_PRE(0, LoopKeys, "/propertyNames", "#/propertyNames", "");
-  EVALUATE_TRACE_PRE(1, AssertionRegex, "/propertyNames/$ref/pattern",
+  EVALUATE_TRACE_PRE(1, ControlJump, "/propertyNames/$ref",
+                     "#/propertyNames/$ref", "/bar");
+  EVALUATE_TRACE_PRE(2, AssertionRegex, "/propertyNames/$ref/pattern",
                      "#/definitions/test/pattern", "/bar");
 
   EVALUATE_TRACE_POST_FAILURE(0, AssertionRegex, "/propertyNames/$ref/pattern",
                               "#/definitions/test/pattern", "/bar");
-  EVALUATE_TRACE_POST_FAILURE(1, LoopKeys, "/propertyNames", "#/propertyNames",
+  EVALUATE_TRACE_POST_FAILURE(1, ControlJump, "/propertyNames/$ref",
+                              "#/propertyNames/$ref", "/bar");
+  EVALUATE_TRACE_POST_FAILURE(2, LoopKeys, "/propertyNames", "#/propertyNames",
                               "");
 
   EVALUATE_TRACE_POST_DESCRIBE(instance, 0,
                                "The property name \"bar\" was expected to "
                                "match the regular expression \"^f\"");
   EVALUATE_TRACE_POST_DESCRIBE(instance, 1,
+                               "The string value was expected to validate "
+                               "against the referenced schema");
+  EVALUATE_TRACE_POST_DESCRIBE(instance, 2,
                                "The object property \"bar\" was expected to "
                                "validate against the given subschema");
 }
@@ -1599,6 +1606,21 @@ TEST(Evaluator_draft6, propertyNames_12) {
                                "validate against the given subschema");
 }
 
+TEST(Evaluator_draft6, propertyNames_13) {
+  const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
+    "$schema": "http://json-schema.org/draft-06/schema#",
+    "propertyNames": { "$ref": "#/definitions/test" },
+    "definitions": {
+      "test": { "type": "string" }
+    }
+  })JSON")};
+
+  const sourcemeta::core::JSON instance{
+      sourcemeta::core::parse_json("{ \"foo\": 1 }")};
+
+  EVALUATE_WITH_TRACE_FAST_SUCCESS(schema, instance, 0);
+}
+
 TEST(Evaluator_draft6, invalid_ref_top_level) {
   const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
     "$schema": "http://json-schema.org/draft-06/schema#",
@@ -1717,9 +1739,9 @@ TEST(Evaluator_draft6, reference_from_unknown_keyword) {
                                sourcemeta::core::schema_resolver,
                                sourcemeta::blaze::default_schema_compiler);
   } catch (const sourcemeta::core::SchemaReferenceError &error) {
-    EXPECT_EQ(error.identifier(), "#/properties/baz");
+    EXPECT_EQ(error.identifier(), "#/$defs/bar");
     EXPECT_EQ(error.location(),
-              sourcemeta::core::Pointer({"$defs", "bar", "$ref"}));
+              sourcemeta::core::Pointer({"properties", "foo", "$ref"}));
   } catch (...) {
     throw;
   }

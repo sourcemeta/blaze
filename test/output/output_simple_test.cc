@@ -248,10 +248,14 @@ TEST(Output_simple, fail_string_over_ref) {
   std::vector<sourcemeta::blaze::SimpleOutput::Entry> traces{output.cbegin(),
                                                              output.cend()};
 
-  EXPECT_EQ(traces.size(), 1);
+  EXPECT_EQ(traces.size(), 2);
   EXPECT_OUTPUT(
       traces, 0, "", "/$ref/type", "#/$defs/string/type",
       "The value was expected to be of type string but it was of type integer");
+  EXPECT_OUTPUT(
+      traces, 1, "", "/$ref", "#/$ref",
+      "The integer value was expected to validate against the referenced "
+      "schema");
   EXPECT_ANNOTATION_COUNT(output, 0);
 }
 
@@ -319,10 +323,14 @@ TEST(Output_simple, fail_string_with_non_matching_base) {
   std::vector<sourcemeta::blaze::SimpleOutput::Entry> traces{output.cbegin(),
                                                              output.cend()};
 
-  EXPECT_EQ(traces.size(), 1);
+  EXPECT_EQ(traces.size(), 2);
   EXPECT_OUTPUT(
       traces, 0, "", "/$ref/type", "#/$defs/string/type",
       "The value was expected to be of type string but it was of type integer");
+  EXPECT_OUTPUT(
+      traces, 1, "", "/$ref", "#/$ref",
+      "The integer value was expected to validate against the referenced "
+      "schema");
   EXPECT_ANNOTATION_COUNT(output, 0);
 }
 
