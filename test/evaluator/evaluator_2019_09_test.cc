@@ -6298,6 +6298,71 @@ TEST(Evaluator_2019_09, unevaluatedProperties_15) {
       "expected to validate against this subschema");
 }
 
+TEST(Evaluator_2019_09, unevaluatedProperties_16) {
+  const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
+    "$schema": "https://json-schema.org/draft/2019-09/schema",
+    "additionalProperties": { "$ref": "#/$defs/test" },
+    "$defs": {
+      "test": {
+        "if": { "required": [ "bar" ] },
+        "then": { "properties": { "baz": true } },
+        "properties": { "bar": true },
+        "unevaluatedProperties": false
+      }
+    }
+  })JSON")};
+
+  const sourcemeta::core::JSON instance{sourcemeta::core::parse_json(
+      R"JSON({ "foo": { "bar": 1, "baz": 2 } })JSON")};
+
+  EVALUATE_WITH_TRACE_FAST_SUCCESS(schema, instance, 5);
+
+  EVALUATE_TRACE_PRE(0, LoopProperties, "/additionalProperties",
+                     "#/additionalProperties", "");
+  EVALUATE_TRACE_PRE(1, LogicalCondition, "/additionalProperties/$ref/if",
+                     "#/$defs/test/if", "/foo");
+  EVALUATE_TRACE_PRE(2, AssertionDefines,
+                     "/additionalProperties/$ref/if/required",
+                     "#/$defs/test/if/required", "/foo");
+  EVALUATE_TRACE_PRE(3, Evaluate, "/additionalProperties/$ref/then/properties",
+                     "#/$defs/test/then/properties", "/foo/baz");
+  EVALUATE_TRACE_PRE(4, LoopPropertiesUnevaluatedExcept,
+                     "/additionalProperties/$ref/unevaluatedProperties",
+                     "#/$defs/test/unevaluatedProperties", "/foo");
+
+  EVALUATE_TRACE_POST_SUCCESS(0, AssertionDefines,
+                              "/additionalProperties/$ref/if/required",
+                              "#/$defs/test/if/required", "/foo");
+  EVALUATE_TRACE_POST_SUCCESS(1, Evaluate,
+                              "/additionalProperties/$ref/then/properties",
+                              "#/$defs/test/then/properties", "/foo/baz");
+  EVALUATE_TRACE_POST_SUCCESS(2, LogicalCondition,
+                              "/additionalProperties/$ref/if",
+                              "#/$defs/test/if", "/foo");
+  EVALUATE_TRACE_POST_SUCCESS(
+      3, LoopPropertiesUnevaluatedExcept,
+      "/additionalProperties/$ref/unevaluatedProperties",
+      "#/$defs/test/unevaluatedProperties", "/foo");
+  EVALUATE_TRACE_POST_SUCCESS(4, LoopProperties, "/additionalProperties",
+                              "#/additionalProperties", "");
+
+  EVALUATE_TRACE_POST_DESCRIBE(instance, 0,
+                               "The object value was expected to define the "
+                               "property \"bar\"");
+  EVALUATE_TRACE_POST_DESCRIBE(instance, 1,
+                               "The instance location was marked as evaluated");
+  EVALUATE_TRACE_POST_DESCRIBE(instance, 2,
+                               "The object value was expected to validate "
+                               "against the given conditional");
+  EVALUATE_TRACE_POST_DESCRIBE(
+      instance, 3,
+      "The object value was not expected to define unevaluated properties");
+  EVALUATE_TRACE_POST_DESCRIBE(
+      instance, 4,
+      "The object properties not covered by other adjacent object keywords "
+      "were expected to validate against this subschema");
+}
+
 TEST(Evaluator_2019_09, additionalProperties_5) {
   const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2019-09/schema",

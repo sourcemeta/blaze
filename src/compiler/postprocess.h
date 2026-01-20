@@ -45,6 +45,40 @@ inline auto is_noop_without_children(const InstructionIndex type) noexcept
   }
 }
 
+inline auto rebase(Instruction &instruction,
+                   const sourcemeta::core::Pointer &schema_prefix,
+                   const sourcemeta::core::Pointer &instance_prefix) -> void {
+  instruction.relative_schema_location =
+      schema_prefix.concat(instruction.relative_schema_location);
+  instruction.relative_instance_location =
+      instance_prefix.concat(instruction.relative_instance_location);
+
+  // LogicalCondition pops its own path before evaluating then/else children,
+  // so those children's paths are relative to the parent, not to
+  // LogicalCondition. The ValueIndexPair stores (then_cursor, else_cursor) -
+  // children before then_cursor are the "if" condition and don't need rebasing.
+  // We rebase up to 2 levels: direct children and grandchildren.
+  if (instruction.type == InstructionIndex::LogicalCondition) {
+    const auto &value{std::get<ValueIndexPair>(instruction.value)};
+    const auto then_cursor{value.first};
+    for (std::size_t index = then_cursor; index < instruction.children.size();
+         ++index) {
+      auto &child{instruction.children[index]};
+      child.relative_schema_location =
+          schema_prefix.concat(child.relative_schema_location);
+      child.relative_instance_location =
+          instance_prefix.concat(child.relative_instance_location);
+      // Also rebase grandchildren
+      for (auto &grandchild : child.children) {
+        grandchild.relative_schema_location =
+            schema_prefix.concat(grandchild.relative_schema_location);
+        grandchild.relative_instance_location =
+            instance_prefix.concat(grandchild.relative_instance_location);
+      }
+    }
+  }
+}
+
 inline auto collect_statistics(const Instructions &instructions,
                                TargetStatistics &statistics) -> void {
   for (const auto &instruction : instructions) {
@@ -106,12 +140,8 @@ transform_instruction(Instruction &instruction, Instructions &output,
           jump_target_stats.requires_empty_instance_location;
 
       for (auto target_instruction : targets[jump_target_index]) {
-        target_instruction.relative_schema_location =
-            instruction.relative_schema_location.concat(
-                target_instruction.relative_schema_location);
-        target_instruction.relative_instance_location =
-            instruction.relative_instance_location.concat(
-                target_instruction.relative_instance_location);
+        rebase(target_instruction, instruction.relative_schema_location,
+               instruction.relative_instance_location);
         output.push_back(std::move(target_instruction));
       }
       return true;
