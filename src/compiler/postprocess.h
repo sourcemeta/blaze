@@ -9,7 +9,7 @@
 #include <vector>        // std::vector
 
 // TODO: Move all `FastValidation` conditional optimisations from the default
-// compilers here
+// compilers here. Only the structural ones from Draft 4 seem to be missing
 
 namespace sourcemeta::blaze {
 
@@ -325,7 +325,7 @@ inline auto postprocess(std::vector<Instructions> &targets,
             changed = true;
         }
 
-        *current = std::move(result);
+        current->swap(result);
       }
     }
   }
