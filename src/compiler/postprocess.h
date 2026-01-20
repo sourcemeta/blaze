@@ -152,6 +152,60 @@ transform_instruction(Instruction &instruction, Instructions &output,
     return true;
   }
 
+  // TODO: De-duplicate this logic from default_compiler_draft4.h. Just do it
+  // all here
+
+  // Optimize LoopProperties with single type assertion child
+  // This handles inlined $refs that resolve to just a type check
+  if (instruction.type == InstructionIndex::LoopProperties &&
+      instruction.children.size() == 1) {
+    auto &child{instruction.children.front()};
+    if (child.type == InstructionIndex::AssertionTypeStrict) {
+      output.push_back(
+          Instruction{.type = InstructionIndex::LoopPropertiesTypeStrict,
+                      .relative_schema_location =
+                          instruction.relative_schema_location.concat(
+                              child.relative_schema_location),
+                      .relative_instance_location =
+                          std::move(instruction.relative_instance_location),
+                      .keyword_location = std::move(child.keyword_location),
+                      .schema_resource = child.schema_resource,
+                      .value = std::move(child.value),
+                      .children = {}});
+      return true;
+    }
+
+    if (child.type == InstructionIndex::AssertionType) {
+      output.push_back(
+          Instruction{.type = InstructionIndex::LoopPropertiesType,
+                      .relative_schema_location =
+                          instruction.relative_schema_location.concat(
+                              child.relative_schema_location),
+                      .relative_instance_location =
+                          std::move(instruction.relative_instance_location),
+                      .keyword_location = std::move(child.keyword_location),
+                      .schema_resource = child.schema_resource,
+                      .value = std::move(child.value),
+                      .children = {}});
+      return true;
+    }
+
+    if (child.type == InstructionIndex::AssertionTypeStrictAny) {
+      output.push_back(
+          Instruction{.type = InstructionIndex::LoopPropertiesTypeStrictAny,
+                      .relative_schema_location =
+                          instruction.relative_schema_location.concat(
+                              child.relative_schema_location),
+                      .relative_instance_location =
+                          std::move(instruction.relative_instance_location),
+                      .keyword_location = std::move(child.keyword_location),
+                      .schema_resource = child.schema_resource,
+                      .value = std::move(child.value),
+                      .children = {}});
+      return true;
+    }
+  }
+
   output.push_back(std::move(instruction));
   return false;
 }

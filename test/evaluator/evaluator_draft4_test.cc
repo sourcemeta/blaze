@@ -911,26 +911,16 @@ TEST(Evaluator_draft4, ref_9) {
   const sourcemeta::core::JSON instance{
       sourcemeta::core::parse_json("{ \"foo\": true }")};
 
-  EVALUATE_WITH_TRACE_FAST_SUCCESS(schema, instance, 2);
+  EVALUATE_WITH_TRACE_FAST_SUCCESS(schema, instance, 1);
 
-  EVALUATE_TRACE_PRE(0, LoopProperties, "/additionalProperties",
-                     "#/additionalProperties", "");
-  EVALUATE_TRACE_PRE(1, AssertionTypeStrict,
+  EVALUATE_TRACE_PRE(0, LoopPropertiesTypeStrict,
                      "/additionalProperties/$ref/$ref/type",
-                     "#/definitions/two/type", "/foo");
-
-  EVALUATE_TRACE_POST_SUCCESS(0, AssertionTypeStrict,
+                     "#/definitions/two/type", "");
+  EVALUATE_TRACE_POST_SUCCESS(0, LoopPropertiesTypeStrict,
                               "/additionalProperties/$ref/$ref/type",
-                              "#/definitions/two/type", "/foo");
-  EVALUATE_TRACE_POST_SUCCESS(1, LoopProperties, "/additionalProperties",
-                              "#/additionalProperties", "");
-
-  EVALUATE_TRACE_POST_DESCRIBE(instance, 0,
-                               "The value was expected to be of type boolean");
+                              "#/definitions/two/type", "");
   EVALUATE_TRACE_POST_DESCRIBE(
-      instance, 1,
-      "The object properties not covered by other adjacent object keywords "
-      "were expected to validate against this subschema");
+      instance, 0, "The object properties were expected to be of type boolean");
 }
 
 TEST(Evaluator_draft4, ref_10) {
@@ -947,26 +937,16 @@ TEST(Evaluator_draft4, ref_10) {
   const sourcemeta::core::JSON instance{
       sourcemeta::core::parse_json("{ \"foo\": true }")};
 
-  EVALUATE_WITH_TRACE_FAST_SUCCESS(schema, instance, 2);
+  EVALUATE_WITH_TRACE_FAST_SUCCESS(schema, instance, 1);
 
-  EVALUATE_TRACE_PRE(0, LoopProperties, "/additionalProperties",
-                     "#/additionalProperties", "");
-  EVALUATE_TRACE_PRE(1, AssertionTypeStrict,
+  EVALUATE_TRACE_PRE(0, LoopPropertiesTypeStrict,
                      "/additionalProperties/$ref/$ref/type",
-                     "#/definitions/two/type", "/foo");
-
-  EVALUATE_TRACE_POST_SUCCESS(0, AssertionTypeStrict,
+                     "#/definitions/two/type", "");
+  EVALUATE_TRACE_POST_SUCCESS(0, LoopPropertiesTypeStrict,
                               "/additionalProperties/$ref/$ref/type",
-                              "#/definitions/two/type", "/foo");
-  EVALUATE_TRACE_POST_SUCCESS(1, LoopProperties, "/additionalProperties",
-                              "#/additionalProperties", "");
-
-  EVALUATE_TRACE_POST_DESCRIBE(instance, 0,
-                               "The value was expected to be of type boolean");
+                              "#/definitions/two/type", "");
   EVALUATE_TRACE_POST_DESCRIBE(
-      instance, 1,
-      "The object properties not covered by other adjacent object keywords "
-      "were expected to validate against this subschema");
+      instance, 0, "The object properties were expected to be of type boolean");
 }
 
 TEST(Evaluator_draft4, ref_11) {
