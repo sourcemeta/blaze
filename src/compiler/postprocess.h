@@ -102,6 +102,8 @@ transform_instruction(Instruction &instruction, Instructions &output,
            jump_target_stats.jump_targets) {
         current_stats.jump_targets[inlined_jump] += inlined_count;
       }
+      current_stats.requires_empty_instance_location |=
+          jump_target_stats.requires_empty_instance_location;
 
       for (auto target_instruction : targets[jump_target_index]) {
         target_instruction.relative_schema_location =

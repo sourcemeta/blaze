@@ -1051,6 +1051,45 @@ TEST(Evaluator_draft4, ref_14) {
                sourcemeta::blaze::EvaluationError);
 }
 
+TEST(Evaluator_draft4, ref_15) {
+  const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
+    "$schema": "http://json-schema.org/draft-04/schema#",
+    "properties": {
+      "foo": { "$ref": "#/definitions/three" }
+    },
+    "definitions": {
+      "three": { "$ref": "#/definitions/four" },
+      "four": { "$ref": "#/definitions/five" },
+      "five": {
+        "properties": {
+          "requires": {
+            "additionalProperties": {
+              "type": "string"
+            }
+          }
+        }
+      }
+    }
+  })JSON")};
+
+  const sourcemeta::core::JSON instance{sourcemeta::core::parse_json(R"JSON({
+    "foo": {
+      "bar": {}
+    }
+  })JSON")};
+
+  EVALUATE_WITH_TRACE_FAST_SUCCESS(schema, instance, 1);
+
+  EVALUATE_TRACE_PRE(0, ControlJump, "/properties/foo/$ref/$ref",
+                     "#/definitions/three/$ref", "/foo");
+  EVALUATE_TRACE_POST_SUCCESS(0, ControlJump, "/properties/foo/$ref/$ref",
+                              "#/definitions/three/$ref", "/foo");
+  EVALUATE_TRACE_POST_DESCRIBE(
+      instance, 0,
+      "The object value was expected to validate against the referenced "
+      "schema");
+}
+
 TEST(Evaluator_draft4, properties_1) {
   const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
     "$schema": "http://json-schema.org/draft-04/schema#",
