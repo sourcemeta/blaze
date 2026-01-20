@@ -293,7 +293,9 @@ auto compile(const sourcemeta::core::JSON &schema,
   // (8) Postprocess compiled targets
   ///////////////////////////////////////////////////////////////////
 
-  postprocess(compiled_targets, mode);
+  if (mode == Mode::FastValidation) {
+    postprocess(compiled_targets, effective_tweaks, uses_dynamic_scopes);
+  }
 
   ///////////////////////////////////////////////////////////////////
   // (9) Return final template

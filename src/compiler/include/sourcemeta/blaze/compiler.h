@@ -15,6 +15,7 @@
 #include <sourcemeta/core/jsonschema.h>
 #include <sourcemeta/core/uri.h>
 
+#include <cstddef>       // std::size_t
 #include <cstdint>       // std::uint8_t
 #include <functional>    // std::function
 #include <map>           // std::map
@@ -95,6 +96,8 @@ struct Tweaks {
   bool properties_always_unroll{false};
   /// Attempt to re-order `properties` subschemas to evaluate cheaper ones first
   bool properties_reorder{true};
+  /// Inline jump targets with fewer instructions than this threshold
+  std::size_t target_inline_threshold{50};
 };
 
 /// @ingroup compiler

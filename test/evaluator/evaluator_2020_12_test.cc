@@ -1430,22 +1430,14 @@ TEST(Evaluator_2020_12, dynamicRef_1) {
   })JSON")};
 
   const sourcemeta::core::JSON instance{"foo"};
-  EVALUATE_WITH_TRACE_FAST_SUCCESS(schema, instance, 2);
+  EVALUATE_WITH_TRACE_FAST_SUCCESS(schema, instance, 1);
 
-  EVALUATE_TRACE_PRE(0, ControlJump, "/$dynamicRef", "#/$dynamicRef", "");
-  EVALUATE_TRACE_PRE(1, AssertionTypeStrict, "/$dynamicRef/type",
+  EVALUATE_TRACE_PRE(0, AssertionTypeStrict, "/$dynamicRef/type",
                      "#/$defs/string/type", "");
-
   EVALUATE_TRACE_POST_SUCCESS(0, AssertionTypeStrict, "/$dynamicRef/type",
                               "#/$defs/string/type", "");
-  EVALUATE_TRACE_POST_SUCCESS(1, ControlJump, "/$dynamicRef", "#/$dynamicRef",
-                              "");
-
   EVALUATE_TRACE_POST_DESCRIBE(instance, 0,
                                "The value was expected to be of type string");
-  EVALUATE_TRACE_POST_DESCRIBE(instance, 1,
-                               "The string value was expected to validate "
-                               "against the referenced schema");
 }
 
 TEST(Evaluator_2020_12, dynamicRef_2) {
@@ -1538,28 +1530,14 @@ TEST(Evaluator_2020_12, definitions_1) {
   })JSON")};
 
   const sourcemeta::core::JSON instance{"foo"};
-  EVALUATE_WITH_TRACE_FAST_SUCCESS(schema, instance, 3);
+  EVALUATE_WITH_TRACE_FAST_SUCCESS(schema, instance, 1);
 
-  EVALUATE_TRACE_PRE(0, ControlJump, "/$ref", "#/$ref", "");
-  EVALUATE_TRACE_PRE(1, ControlJump, "/$ref/$ref", "#/definitions/middle/$ref",
-                     "");
-  EVALUATE_TRACE_PRE(2, AssertionTypeStrict, "/$ref/$ref/type",
+  EVALUATE_TRACE_PRE(0, AssertionTypeStrict, "/$ref/$ref/type",
                      "#/definitions/string/type", "");
-
   EVALUATE_TRACE_POST_SUCCESS(0, AssertionTypeStrict, "/$ref/$ref/type",
                               "#/definitions/string/type", "");
-  EVALUATE_TRACE_POST_SUCCESS(1, ControlJump, "/$ref/$ref",
-                              "#/definitions/middle/$ref", "");
-  EVALUATE_TRACE_POST_SUCCESS(2, ControlJump, "/$ref", "#/$ref", "");
-
   EVALUATE_TRACE_POST_DESCRIBE(instance, 0,
                                "The value was expected to be of type string");
-  EVALUATE_TRACE_POST_DESCRIBE(instance, 1,
-                               "The string value was expected to validate "
-                               "against the referenced schema");
-  EVALUATE_TRACE_POST_DESCRIBE(instance, 2,
-                               "The string value was expected to validate "
-                               "against the referenced schema");
 }
 
 TEST(Evaluator_2020_12, definitions_1_exhaustive) {
@@ -2295,21 +2273,14 @@ TEST(Evaluator_2020_12, cross_id_1) {
   })JSON")};
 
   const sourcemeta::core::JSON instance{"foo bar"};
-  EVALUATE_WITH_TRACE_FAST_SUCCESS(schema, instance, 2);
+  EVALUATE_WITH_TRACE_FAST_SUCCESS(schema, instance, 1);
 
-  EVALUATE_TRACE_PRE(0, ControlJump, "/$ref", "#/$ref", "");
-  EVALUATE_TRACE_PRE(1, AssertionTypeStrict, "/$ref/type",
+  EVALUATE_TRACE_PRE(0, AssertionTypeStrict, "/$ref/type",
                      "https://www.example.com#/items/type", "");
-
   EVALUATE_TRACE_POST_SUCCESS(0, AssertionTypeStrict, "/$ref/type",
                               "https://www.example.com#/items/type", "");
-  EVALUATE_TRACE_POST_SUCCESS(1, ControlJump, "/$ref", "#/$ref", "");
-
   EVALUATE_TRACE_POST_DESCRIBE(instance, 0,
                                "The value was expected to be of type string");
-  EVALUATE_TRACE_POST_DESCRIBE(instance, 1,
-                               "The string value was expected to validate "
-                               "against the referenced schema");
 }
 
 TEST(Evaluator_2020_12, propertyNames_1) {

@@ -31,14 +31,14 @@ TEST(Evaluator_draft4, metaschema_2) {
     }
   })JSON")};
 
-  EVALUATE_WITH_TRACE_FAST_SUCCESS(metaschema.value(), instance, 18);
+  EVALUATE_WITH_TRACE_FAST_SUCCESS(metaschema.value(), instance, 16);
 }
 
 TEST(Evaluator_draft4, metaschema_hyper_self) {
   const auto metaschema{sourcemeta::core::schema_resolver(
       "http://json-schema.org/draft-04/hyper-schema#")};
   EXPECT_TRUE(metaschema.has_value());
-  EVALUATE_WITH_TRACE_FAST_SUCCESS(metaschema.value(), metaschema.value(), 835);
+  EVALUATE_WITH_TRACE_FAST_SUCCESS(metaschema.value(), metaschema.value(), 768);
 }
 
 TEST(Evaluator_draft4, metaschema_hyper_self_exhaustive) {
@@ -601,23 +601,15 @@ TEST(Evaluator_draft4, ref_1) {
   })JSON")};
 
   const sourcemeta::core::JSON instance{5};
-  EVALUATE_WITH_TRACE_FAST_FAILURE(schema, instance, 2);
+  EVALUATE_WITH_TRACE_FAST_FAILURE(schema, instance, 1);
 
-  EVALUATE_TRACE_PRE(0, ControlJump, "/allOf/0/$ref", "#/allOf/0/$ref", "");
-  EVALUATE_TRACE_PRE(1, AssertionTypeStrict, "/allOf/0/$ref/type",
+  EVALUATE_TRACE_PRE(0, AssertionTypeStrict, "/allOf/0/$ref/type",
                      "#/definitions/string/type", "");
-
   EVALUATE_TRACE_POST_FAILURE(0, AssertionTypeStrict, "/allOf/0/$ref/type",
                               "#/definitions/string/type", "");
-  EVALUATE_TRACE_POST_FAILURE(1, ControlJump, "/allOf/0/$ref", "#/allOf/0/$ref",
-                              "");
-
   EVALUATE_TRACE_POST_DESCRIBE(
       instance, 0,
       "The value was expected to be of type string but it was of type integer");
-  EVALUATE_TRACE_POST_DESCRIBE(instance, 1,
-                               "The integer value was expected to validate "
-                               "against the referenced schema");
 }
 
 TEST(Evaluator_draft4, ref_2) {
@@ -631,22 +623,14 @@ TEST(Evaluator_draft4, ref_2) {
 
   const sourcemeta::core::JSON instance{"foo"};
 
-  EVALUATE_WITH_TRACE_FAST_SUCCESS(schema, instance, 2);
+  EVALUATE_WITH_TRACE_FAST_SUCCESS(schema, instance, 1);
 
-  EVALUATE_TRACE_PRE(0, ControlJump, "/allOf/0/$ref", "#/allOf/0/$ref", "");
-  EVALUATE_TRACE_PRE(1, AssertionTypeStrict, "/allOf/0/$ref/type",
+  EVALUATE_TRACE_PRE(0, AssertionTypeStrict, "/allOf/0/$ref/type",
                      "#/definitions/string/type", "");
-
   EVALUATE_TRACE_POST_SUCCESS(0, AssertionTypeStrict, "/allOf/0/$ref/type",
                               "#/definitions/string/type", "");
-  EVALUATE_TRACE_POST_SUCCESS(1, ControlJump, "/allOf/0/$ref", "#/allOf/0/$ref",
-                              "");
-
   EVALUATE_TRACE_POST_DESCRIBE(instance, 0,
                                "The value was expected to be of type string");
-  EVALUATE_TRACE_POST_DESCRIBE(instance, 1,
-                               "The string value was expected to validate "
-                               "against the referenced schema");
 }
 
 TEST(Evaluator_draft4, ref_2_exhaustive) {
@@ -911,14 +895,7 @@ TEST(Evaluator_draft4, ref_8) {
 
   const sourcemeta::core::JSON instance{true};
 
-  EVALUATE_WITH_TRACE_FAST_SUCCESS(schema, instance, 1);
-
-  EVALUATE_TRACE_PRE(0, ControlJump, "/allOf/0/$ref", "#/allOf/0/$ref", "");
-  EVALUATE_TRACE_POST_SUCCESS(0, ControlJump, "/allOf/0/$ref", "#/allOf/0/$ref",
-                              "");
-  EVALUATE_TRACE_POST_DESCRIBE(instance, 0,
-                               "The boolean value was expected to validate "
-                               "against the referenced schema");
+  EVALUATE_WITH_TRACE_FAST_SUCCESS(schema, instance, 0);
 }
 
 TEST(Evaluator_draft4, ref_9) {
@@ -934,38 +911,24 @@ TEST(Evaluator_draft4, ref_9) {
   const sourcemeta::core::JSON instance{
       sourcemeta::core::parse_json("{ \"foo\": true }")};
 
-  EVALUATE_WITH_TRACE_FAST_SUCCESS(schema, instance, 4);
+  EVALUATE_WITH_TRACE_FAST_SUCCESS(schema, instance, 2);
 
   EVALUATE_TRACE_PRE(0, LoopProperties, "/additionalProperties",
                      "#/additionalProperties", "");
-  EVALUATE_TRACE_PRE(1, ControlJump, "/additionalProperties/$ref",
-                     "#/additionalProperties/$ref", "/foo");
-  EVALUATE_TRACE_PRE(2, ControlJump, "/additionalProperties/$ref/$ref",
-                     "#/definitions/one/$ref", "/foo");
-  EVALUATE_TRACE_PRE(3, AssertionTypeStrict,
+  EVALUATE_TRACE_PRE(1, AssertionTypeStrict,
                      "/additionalProperties/$ref/$ref/type",
                      "#/definitions/two/type", "/foo");
 
   EVALUATE_TRACE_POST_SUCCESS(0, AssertionTypeStrict,
                               "/additionalProperties/$ref/$ref/type",
                               "#/definitions/two/type", "/foo");
-  EVALUATE_TRACE_POST_SUCCESS(1, ControlJump, "/additionalProperties/$ref/$ref",
-                              "#/definitions/one/$ref", "/foo");
-  EVALUATE_TRACE_POST_SUCCESS(2, ControlJump, "/additionalProperties/$ref",
-                              "#/additionalProperties/$ref", "/foo");
-  EVALUATE_TRACE_POST_SUCCESS(3, LoopProperties, "/additionalProperties",
+  EVALUATE_TRACE_POST_SUCCESS(1, LoopProperties, "/additionalProperties",
                               "#/additionalProperties", "");
 
   EVALUATE_TRACE_POST_DESCRIBE(instance, 0,
                                "The value was expected to be of type boolean");
-  EVALUATE_TRACE_POST_DESCRIBE(instance, 1,
-                               "The boolean value was expected to validate "
-                               "against the referenced schema");
-  EVALUATE_TRACE_POST_DESCRIBE(instance, 2,
-                               "The boolean value was expected to validate "
-                               "against the referenced schema");
   EVALUATE_TRACE_POST_DESCRIBE(
-      instance, 3,
+      instance, 1,
       "The object properties not covered by other adjacent object keywords "
       "were expected to validate against this subschema");
 }
@@ -984,38 +947,24 @@ TEST(Evaluator_draft4, ref_10) {
   const sourcemeta::core::JSON instance{
       sourcemeta::core::parse_json("{ \"foo\": true }")};
 
-  EVALUATE_WITH_TRACE_FAST_SUCCESS(schema, instance, 4);
+  EVALUATE_WITH_TRACE_FAST_SUCCESS(schema, instance, 2);
 
   EVALUATE_TRACE_PRE(0, LoopProperties, "/additionalProperties",
                      "#/additionalProperties", "");
-  EVALUATE_TRACE_PRE(1, ControlJump, "/additionalProperties/$ref",
-                     "#/additionalProperties/$ref", "/foo");
-  EVALUATE_TRACE_PRE(2, ControlJump, "/additionalProperties/$ref/$ref",
-                     "#/definitions/one/$ref", "/foo");
-  EVALUATE_TRACE_PRE(3, AssertionTypeStrict,
+  EVALUATE_TRACE_PRE(1, AssertionTypeStrict,
                      "/additionalProperties/$ref/$ref/type",
                      "#/definitions/two/type", "/foo");
 
   EVALUATE_TRACE_POST_SUCCESS(0, AssertionTypeStrict,
                               "/additionalProperties/$ref/$ref/type",
                               "#/definitions/two/type", "/foo");
-  EVALUATE_TRACE_POST_SUCCESS(1, ControlJump, "/additionalProperties/$ref/$ref",
-                              "#/definitions/one/$ref", "/foo");
-  EVALUATE_TRACE_POST_SUCCESS(2, ControlJump, "/additionalProperties/$ref",
-                              "#/additionalProperties/$ref", "/foo");
-  EVALUATE_TRACE_POST_SUCCESS(3, LoopProperties, "/additionalProperties",
+  EVALUATE_TRACE_POST_SUCCESS(1, LoopProperties, "/additionalProperties",
                               "#/additionalProperties", "");
 
   EVALUATE_TRACE_POST_DESCRIBE(instance, 0,
                                "The value was expected to be of type boolean");
-  EVALUATE_TRACE_POST_DESCRIBE(instance, 1,
-                               "The boolean value was expected to validate "
-                               "against the referenced schema");
-  EVALUATE_TRACE_POST_DESCRIBE(instance, 2,
-                               "The boolean value was expected to validate "
-                               "against the referenced schema");
   EVALUATE_TRACE_POST_DESCRIBE(
-      instance, 3,
+      instance, 1,
       "The object properties not covered by other adjacent object keywords "
       "were expected to validate against this subschema");
 }
@@ -1606,22 +1555,18 @@ TEST(Evaluator_draft4, properties_13) {
   const sourcemeta::core::JSON instance{
       sourcemeta::core::parse_json("{ \"bar\": \"test\", \"foo\": \"foo\" }")};
 
-  EVALUATE_WITH_TRACE_FAST_SUCCESS(schema, instance, 3);
+  EVALUATE_WITH_TRACE_FAST_SUCCESS(schema, instance, 2);
 
   // We evaluate "foo" first because it has a direct "enum"/"const"
   EVALUATE_TRACE_PRE(0, AssertionEqual, "/properties/foo/enum",
                      "#/properties/foo/enum", "/foo");
-  EVALUATE_TRACE_PRE(1, ControlJump, "/properties/bar/$ref",
-                     "#/properties/bar/$ref", "/bar");
-  EVALUATE_TRACE_PRE(2, AssertionEqual, "/properties/bar/$ref/enum",
+  EVALUATE_TRACE_PRE(1, AssertionEqual, "/properties/bar/$ref/enum",
                      "#/definitions/helper/enum", "/bar");
 
   EVALUATE_TRACE_POST_SUCCESS(0, AssertionEqual, "/properties/foo/enum",
                               "#/properties/foo/enum", "/foo");
   EVALUATE_TRACE_POST_SUCCESS(1, AssertionEqual, "/properties/bar/$ref/enum",
                               "#/definitions/helper/enum", "/bar");
-  EVALUATE_TRACE_POST_SUCCESS(2, ControlJump, "/properties/bar/$ref",
-                              "#/properties/bar/$ref", "/bar");
 
   EVALUATE_TRACE_POST_DESCRIBE(instance, 0,
                                "The string value \"foo\" was expected to equal "
@@ -1629,9 +1574,6 @@ TEST(Evaluator_draft4, properties_13) {
   EVALUATE_TRACE_POST_DESCRIBE(instance, 1,
                                "The string value \"test\" was expected to "
                                "equal the string constant \"test\"");
-  EVALUATE_TRACE_POST_DESCRIBE(instance, 2,
-                               "The string value was expected to validate "
-                               "against the referenced schema");
 }
 
 TEST(Evaluator_draft4, properties_14) {
@@ -4716,13 +4658,12 @@ TEST(Evaluator_draft4, anyOf_4) {
   const sourcemeta::core::JSON instance{
       sourcemeta::core::parse_json("{ \"a\": \"foo\" }")};
 
-  EVALUATE_WITH_TRACE_FAST_SUCCESS(schema, instance, 4);
+  EVALUATE_WITH_TRACE_FAST_SUCCESS(schema, instance, 3);
 
   EVALUATE_TRACE_PRE(0, LogicalOr, "/anyOf", "#/anyOf", "");
-  EVALUATE_TRACE_PRE(1, ControlJump, "/anyOf/0/$ref", "#/anyOf/0/$ref", "");
-  EVALUATE_TRACE_PRE(2, LoopPropertiesMatch, "/anyOf/0/$ref/properties",
+  EVALUATE_TRACE_PRE(1, LoopPropertiesMatch, "/anyOf/0/$ref/properties",
                      "#/definitions/test/properties", "");
-  EVALUATE_TRACE_PRE(3, AssertionTypeStrict, "/anyOf/0/$ref/properties/a/type",
+  EVALUATE_TRACE_PRE(2, AssertionTypeStrict, "/anyOf/0/$ref/properties/a/type",
                      "#/definitions/test/properties/a/type", "/a");
 
   EVALUATE_TRACE_POST_SUCCESS(0, AssertionTypeStrict,
@@ -4731,20 +4672,15 @@ TEST(Evaluator_draft4, anyOf_4) {
   EVALUATE_TRACE_POST_SUCCESS(1, LoopPropertiesMatch,
                               "/anyOf/0/$ref/properties",
                               "#/definitions/test/properties", "");
-  EVALUATE_TRACE_POST_SUCCESS(2, ControlJump, "/anyOf/0/$ref", "#/anyOf/0/$ref",
-                              "");
-  EVALUATE_TRACE_POST_SUCCESS(3, LogicalOr, "/anyOf", "#/anyOf", "");
+  EVALUATE_TRACE_POST_SUCCESS(2, LogicalOr, "/anyOf", "#/anyOf", "");
 
   EVALUATE_TRACE_POST_DESCRIBE(instance, 0,
                                "The value was expected to be of type string");
   EVALUATE_TRACE_POST_DESCRIBE(instance, 1,
                                "The object value was expected to validate "
                                "against the 11 defined properties subschemas");
-  EVALUATE_TRACE_POST_DESCRIBE(instance, 2,
-                               "The object value was expected to validate "
-                               "against the referenced schema");
   EVALUATE_TRACE_POST_DESCRIBE(
-      instance, 3,
+      instance, 2,
       "The object value was expected to validate against at least one of the 2 "
       "given subschemas");
 }
@@ -9222,23 +9158,14 @@ TEST(Evaluator_draft4, relative_base_uri_with_ref) {
   })JSON")};
 
   const sourcemeta::core::JSON instance{"test"};
-  EVALUATE_WITH_TRACE_FAST_SUCCESS(schema, instance, 2);
+  EVALUATE_WITH_TRACE_FAST_SUCCESS(schema, instance, 1);
 
-  EVALUATE_TRACE_PRE(0, ControlJump, "/allOf/0/$ref", "common#/allOf/0/$ref",
-                     "");
-  EVALUATE_TRACE_PRE(1, AssertionTypeStrict, "/allOf/0/$ref/type",
+  EVALUATE_TRACE_PRE(0, AssertionTypeStrict, "/allOf/0/$ref/type",
                      "common#/definitions/reference/type", "");
-
   EVALUATE_TRACE_POST_SUCCESS(0, AssertionTypeStrict, "/allOf/0/$ref/type",
                               "common#/definitions/reference/type", "");
-  EVALUATE_TRACE_POST_SUCCESS(1, ControlJump, "/allOf/0/$ref",
-                              "common#/allOf/0/$ref", "");
-
   EVALUATE_TRACE_POST_DESCRIBE(instance, 0,
                                "The value was expected to be of type string");
-  EVALUATE_TRACE_POST_DESCRIBE(instance, 1,
-                               "The string value was expected to validate "
-                               "against the referenced schema");
 }
 
 TEST(Evaluator_draft4, top_level_ref_with_id) {

@@ -1114,8 +1114,7 @@ static void Micro_Draft4_Ref_Single_100(benchmark::State &state) {
   }
 }
 
-// Pathological Case: AdaptiveCard-like Pattern
-static void Micro_Draft4_Ref_Many_Nested(benchmark::State &state) {
+static void Micro_Draft4_Compile_Ref_Many_Nested(benchmark::State &state) {
   const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
     "$schema": "http://json-schema.org/draft-04/schema#",
     "definitions": {
@@ -1178,4 +1177,4 @@ BENCHMARK(Micro_Draft4_Long_Enum);
 BENCHMARK(Micro_Draft4_Long_Enum_Short_Strings);
 BENCHMARK(Micro_Draft4_Type_Object);
 BENCHMARK(Micro_Draft4_Ref_Single_100);
-BENCHMARK(Micro_Draft4_Ref_Many_Nested);
+BENCHMARK(Micro_Draft4_Compile_Ref_Many_Nested);

@@ -21,7 +21,7 @@ TEST(Evaluator_draft6, metaschema_hyper_self) {
   const auto metaschema{sourcemeta::core::schema_resolver(
       "http://json-schema.org/draft-06/hyper-schema#")};
   EXPECT_TRUE(metaschema.has_value());
-  EVALUATE_WITH_TRACE_FAST_SUCCESS(metaschema.value(), metaschema.value(), 947);
+  EVALUATE_WITH_TRACE_FAST_SUCCESS(metaschema.value(), metaschema.value(), 861);
 }
 
 TEST(Evaluator_draft6, metaschema_hyper_self_exhaustive) {
@@ -1438,28 +1438,21 @@ TEST(Evaluator_draft6, propertyNames_7) {
 
   const sourcemeta::core::JSON instance{
       sourcemeta::core::parse_json("{ \"bar\": 2 }")};
-  EVALUATE_WITH_TRACE_FAST_FAILURE(schema, instance, 3);
+  EVALUATE_WITH_TRACE_FAST_FAILURE(schema, instance, 2);
 
   EVALUATE_TRACE_PRE(0, LoopKeys, "/propertyNames", "#/propertyNames", "");
-  EVALUATE_TRACE_PRE(1, ControlJump, "/propertyNames/$ref",
-                     "#/propertyNames/$ref", "/bar");
-  EVALUATE_TRACE_PRE(2, AssertionRegex, "/propertyNames/$ref/pattern",
+  EVALUATE_TRACE_PRE(1, AssertionRegex, "/propertyNames/$ref/pattern",
                      "#/definitions/test/pattern", "/bar");
 
   EVALUATE_TRACE_POST_FAILURE(0, AssertionRegex, "/propertyNames/$ref/pattern",
                               "#/definitions/test/pattern", "/bar");
-  EVALUATE_TRACE_POST_FAILURE(1, ControlJump, "/propertyNames/$ref",
-                              "#/propertyNames/$ref", "/bar");
-  EVALUATE_TRACE_POST_FAILURE(2, LoopKeys, "/propertyNames", "#/propertyNames",
+  EVALUATE_TRACE_POST_FAILURE(1, LoopKeys, "/propertyNames", "#/propertyNames",
                               "");
 
   EVALUATE_TRACE_POST_DESCRIBE(instance, 0,
                                "The property name \"bar\" was expected to "
                                "match the regular expression \"^f\"");
   EVALUATE_TRACE_POST_DESCRIBE(instance, 1,
-                               "The string value was expected to validate "
-                               "against the referenced schema");
-  EVALUATE_TRACE_POST_DESCRIBE(instance, 2,
                                "The object property \"bar\" was expected to "
                                "validate against the given subschema");
 }
