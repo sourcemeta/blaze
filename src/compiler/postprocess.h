@@ -4,10 +4,10 @@
 #include <sourcemeta/blaze/compiler.h>
 #include <sourcemeta/blaze/evaluator.h>
 
-#include <algorithm>     // std::ranges::all_of
-#include <cstddef>       // std::size_t
-#include <unordered_map> // std::unordered_map
-#include <vector>        // std::vector
+#include <algorithm>
+#include <cstddef>
+#include <unordered_map>
+#include <vector>
 
 // TODO: Move all `FastValidation` conditional optimisations from the default
 // compilers here. Only the structural ones from Draft 4 seem to be missing
@@ -16,7 +16,6 @@ namespace sourcemeta::blaze {
 
 struct TargetStatistics {
   std::size_t count;
-  // Maps jump target index -> count of jumps to that target
   std::unordered_map<std::size_t, std::size_t> jump_targets;
   bool requires_empty_instance_location;
 };
@@ -49,10 +48,6 @@ inline auto is_noop_without_children(const InstructionIndex type) noexcept
   }
 }
 
-// Check if instruction passes the parent object to children, making
-// property-aware type assertions beneficial. These instructions check
-// if a property exists and then evaluate children with the parent object,
-// allowing children to use relative_instance_location to access properties.
 inline auto
 is_parent_to_children_instruction(const InstructionIndex type) noexcept
     -> bool {
@@ -67,16 +62,9 @@ is_parent_to_children_instruction(const InstructionIndex type) noexcept
   }
 }
 
-// Recursively converts type assertions to property-aware variants within
-// properties loop children. This is needed because inlined $refs may contain
-// type assertions that were compiled without knowledge of being inside a
-// properties context.
-// Only converts instructions with non-empty relative_instance_location, as
-// property-aware assertions use this to navigate from parent to property.
 inline auto convert_to_property_type_assertions(Instructions &instructions)
     -> void {
   for (auto &instruction : instructions) {
-    // Only convert if there's a property path to navigate
     if (!instruction.relative_instance_location.empty()) {
       switch (instruction.type) {
         case InstructionIndex::AssertionTypeStrict:
@@ -93,8 +81,6 @@ inline auto convert_to_property_type_assertions(Instructions &instructions)
       }
     }
 
-    // Recursively process children, but stop at nested properties loops
-    // (their children would be converted when they are processed)
     if (!is_parent_to_children_instruction(instruction.type)) {
       convert_to_property_type_assertions(instruction.children);
     }
@@ -109,17 +95,9 @@ inline auto rebase(Instruction &instruction,
   instruction.relative_instance_location =
       instance_prefix.concat(instruction.relative_instance_location);
 
-  // LogicalCondition pops its own path before evaluating then/else children,
-  // so those children's paths are relative to the parent, not to
-  // LogicalCondition. The ValueIndexPair stores (then_cursor, else_cursor) -
-  // children before then_cursor are the "if" condition and don't need rebasing.
-  // We rebase up to 2 levels: direct children and grandchildren.
   if (instruction.type == InstructionIndex::LogicalCondition) {
     const auto &value{std::get<ValueIndexPair>(instruction.value)};
     const auto then_cursor{value.first};
-    // Only rebase schema location for then/else children, NOT instance location
-    // LogicalCondition already resolves the instance location before
-    // evaluating then/else children
     for (std::size_t index = then_cursor; index < instruction.children.size();
          ++index) {
       auto &child{instruction.children[index]};
@@ -152,30 +130,22 @@ inline auto collect_statistics(const Instructions &instructions,
   }
 }
 
-// Transforms a single instruction, pushing results to the output vector
-// Returns true if a transformation was applied (instruction removed or inlined)
 inline auto
 transform_instruction(Instruction &instruction, Instructions &output,
                       const std::vector<Instructions> &targets,
                       const std::vector<TargetStatistics> &statistics,
                       TargetStatistics &current_stats, const Tweaks &tweaks,
                       const bool uses_dynamic_scopes) -> bool {
-  // Handle ControlJump: remove if empty, inline if small
   if (instruction.type == InstructionIndex::ControlJump) {
     const auto jump_target_index{
         std::get<ValueUnsignedInteger>(instruction.value)};
     const auto &jump_target_stats{statistics[jump_target_index]};
 
-    // Remove jump to empty target
     if (jump_target_stats.count == 0) {
       current_stats.jump_targets[jump_target_index]--;
       return true;
     }
 
-    // Inline small targets that:
-    // - Don't jump back to themselves (cycles)
-    // - Schema doesn't use dynamic scopes (need runtime resolution)
-    // - Respect instance location constraints
     const auto jump_target_self_loop{
         jump_target_stats.jump_targets.find(jump_target_index)};
     if (jump_target_stats.count < tweaks.target_inline_threshold &&
@@ -184,7 +154,6 @@ transform_instruction(Instruction &instruction, Instructions &output,
         !uses_dynamic_scopes &&
         (!jump_target_stats.requires_empty_instance_location ||
          instruction.relative_instance_location.empty())) {
-      // Update stats: remove this jump and add the inlined target's jumps
       current_stats.jump_targets[jump_target_index]--;
       for (const auto &[inlined_jump, inlined_count] :
            jump_target_stats.jump_targets) {
@@ -202,7 +171,6 @@ transform_instruction(Instruction &instruction, Instructions &output,
     }
   }
 
-  // Remove instructions that are no-ops with empty children
   if (is_noop_without_children(instruction.type) &&
       instruction.children.empty()) {
     return true;
@@ -211,8 +179,6 @@ transform_instruction(Instruction &instruction, Instructions &output,
   // TODO: De-duplicate this logic from default_compiler_draft4.h. Just do it
   // all here
 
-  // Optimize LoopProperties with single type assertion child
-  // This handles inlined $refs that resolve to just a type check
   if (instruction.type == InstructionIndex::LoopProperties &&
       instruction.children.size() == 1) {
     auto &child{instruction.children.front()};
@@ -262,8 +228,6 @@ transform_instruction(Instruction &instruction, Instructions &output,
     }
   }
 
-  // Same optimization for LoopPropertiesEvaluate (when evaluation tracking is
-  // needed)
   if (instruction.type == InstructionIndex::LoopPropertiesEvaluate &&
       instruction.children.size() == 1) {
     auto &child{instruction.children.front()};
@@ -313,17 +277,10 @@ transform_instruction(Instruction &instruction, Instructions &output,
     }
   }
 
-  // For properties loops and control groups that pass parent object to
-  // children, convert children's type assertions to property-aware variants
   if (is_parent_to_children_instruction(instruction.type)) {
     convert_to_property_type_assertions(instruction.children);
   }
 
-  // Convert type assertions with non-empty relative_instance_location to
-  // property-aware variants. This handles cases where properties type checks
-  // are hoisted to top level (e.g., when required + type: object is present).
-  // Only convert if all path tokens are property names (not array indices),
-  // as property-aware assertions assume the target is an object.
   if (!instruction.relative_instance_location.empty() &&
       std::ranges::all_of(
           instruction.relative_instance_location,
@@ -350,7 +307,6 @@ transform_instruction(Instruction &instruction, Instructions &output,
 inline auto postprocess(std::vector<Instructions> &targets,
                         const Tweaks &tweaks, const bool uses_dynamic_scopes)
     -> void {
-  // Compute statistics for each target upfront
   std::vector<TargetStatistics> statistics;
   statistics.reserve(targets.size());
   for (const auto &target : targets) {
@@ -370,34 +326,27 @@ inline auto postprocess(std::vector<Instructions> &targets,
       auto &target{targets[current_target_index]};
       auto &current_stats{statistics[current_target_index]};
 
-      // Collect all Instructions* in post-order (children before parents)
       std::vector<Instructions *> worklist;
       std::vector<std::pair<Instructions *, std::size_t>> stack;
       stack.emplace_back(&target, 0);
 
       while (!stack.empty()) {
-        // Copy values to avoid reference invalidation on emplace_back
         auto current{stack.back().first};
         auto index{stack.back().second};
         stack.pop_back();
 
-        // Find next child with non-empty children
         while (index < current->size() && (*current)[index].children.empty()) {
           ++index;
         }
 
         if (index < current->size()) {
-          // Re-push current with updated index to continue after child
           stack.emplace_back(current, index + 1);
-          // Push child for immediate processing
           stack.emplace_back(&(*current)[index].children, 0);
         } else {
-          // All children visited, add to worklist
           worklist.push_back(current);
         }
       }
 
-      // Process in post-order (children already before parents in worklist)
       for (auto *current : worklist) {
         Instructions result;
         result.reserve(current->size());

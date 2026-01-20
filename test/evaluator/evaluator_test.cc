@@ -6,6 +6,8 @@
 #include <sourcemeta/core/json.h>
 #include <sourcemeta/core/jsonschema.h>
 
+#include <type_traits> // std::is_copy_constructible_v, etc.
+
 #include "evaluator_utils.h"
 
 static auto test_resolver(std::string_view identifier)
@@ -216,4 +218,20 @@ TEST(Evaluator, is_annotation) {
       sourcemeta::blaze::InstructionIndex::AnnotationEmit));
   EXPECT_FALSE(sourcemeta::blaze::is_annotation(
       sourcemeta::blaze::InstructionIndex::AssertionFail));
+}
+
+TEST(Evaluator, instruction_copy_constructible) {
+  EXPECT_TRUE(std::is_copy_constructible_v<sourcemeta::blaze::Instruction>);
+}
+
+TEST(Evaluator, instruction_copy_assignable) {
+  EXPECT_TRUE(std::is_copy_assignable_v<sourcemeta::blaze::Instruction>);
+}
+
+TEST(Evaluator, instruction_move_constructible) {
+  EXPECT_TRUE(std::is_move_constructible_v<sourcemeta::blaze::Instruction>);
+}
+
+TEST(Evaluator, instruction_move_assignable) {
+  EXPECT_TRUE(std::is_move_assignable_v<sourcemeta::blaze::Instruction>);
 }
