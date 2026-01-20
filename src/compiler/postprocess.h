@@ -8,6 +8,9 @@
 #include <unordered_map> // std::unordered_map
 #include <vector>        // std::vector
 
+// TODO: Move all `FastValidation` conditional optimisations from the default
+// compilers here
+
 namespace sourcemeta::blaze {
 
 struct TargetStatistics {
@@ -202,6 +205,57 @@ transform_instruction(Instruction &instruction, Instructions &output,
                       .schema_resource = child.schema_resource,
                       .value = std::move(child.value),
                       .children = {}});
+      return true;
+    }
+  }
+
+  // Same optimization for LoopPropertiesEvaluate (when evaluation tracking is
+  // needed)
+  if (instruction.type == InstructionIndex::LoopPropertiesEvaluate &&
+      instruction.children.size() == 1) {
+    auto &child{instruction.children.front()};
+    if (child.type == InstructionIndex::AssertionTypeStrict) {
+      output.push_back(Instruction{
+          .type = InstructionIndex::LoopPropertiesTypeStrictEvaluate,
+          .relative_schema_location =
+              instruction.relative_schema_location.concat(
+                  child.relative_schema_location),
+          .relative_instance_location =
+              std::move(instruction.relative_instance_location),
+          .keyword_location = std::move(child.keyword_location),
+          .schema_resource = child.schema_resource,
+          .value = std::move(child.value),
+          .children = {}});
+      return true;
+    }
+
+    if (child.type == InstructionIndex::AssertionType) {
+      output.push_back(
+          Instruction{.type = InstructionIndex::LoopPropertiesTypeEvaluate,
+                      .relative_schema_location =
+                          instruction.relative_schema_location.concat(
+                              child.relative_schema_location),
+                      .relative_instance_location =
+                          std::move(instruction.relative_instance_location),
+                      .keyword_location = std::move(child.keyword_location),
+                      .schema_resource = child.schema_resource,
+                      .value = std::move(child.value),
+                      .children = {}});
+      return true;
+    }
+
+    if (child.type == InstructionIndex::AssertionTypeStrictAny) {
+      output.push_back(Instruction{
+          .type = InstructionIndex::LoopPropertiesTypeStrictAnyEvaluate,
+          .relative_schema_location =
+              instruction.relative_schema_location.concat(
+                  child.relative_schema_location),
+          .relative_instance_location =
+              std::move(instruction.relative_instance_location),
+          .keyword_location = std::move(child.keyword_location),
+          .schema_resource = child.schema_resource,
+          .value = std::move(child.value),
+          .children = {}});
       return true;
     }
   }

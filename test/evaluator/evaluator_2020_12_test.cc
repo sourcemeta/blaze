@@ -2209,11 +2209,11 @@ TEST(Evaluator_2020_12, unevaluatedProperties_1) {
 
   EVALUATE_WITH_TRACE_FAST_SUCCESS(schema, instance, 1);
 
-  EVALUATE_TRACE_PRE(0, LoopPropertiesTypeStrict, "/additionalProperties",
-                     "#/additionalProperties", "");
+  EVALUATE_TRACE_PRE(0, LoopPropertiesTypeStrict, "/additionalProperties/type",
+                     "#/additionalProperties/type", "");
   EVALUATE_TRACE_POST_SUCCESS(0, LoopPropertiesTypeStrict,
-                              "/additionalProperties", "#/additionalProperties",
-                              "");
+                              "/additionalProperties/type",
+                              "#/additionalProperties/type", "");
   EVALUATE_TRACE_POST_DESCRIBE(
       instance, 0, "The object properties were expected to be of type string");
 }

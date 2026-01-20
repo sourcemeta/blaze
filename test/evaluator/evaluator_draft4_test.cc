@@ -2607,11 +2607,11 @@ TEST(Evaluator_draft4, additionalProperties_1) {
 
   EVALUATE_WITH_TRACE_FAST_SUCCESS(schema, instance, 1);
 
-  EVALUATE_TRACE_PRE(0, LoopPropertiesTypeStrict, "/additionalProperties",
-                     "#/additionalProperties", "");
+  EVALUATE_TRACE_PRE(0, LoopPropertiesTypeStrict, "/additionalProperties/type",
+                     "#/additionalProperties/type", "");
   EVALUATE_TRACE_POST_SUCCESS(0, LoopPropertiesTypeStrict,
-                              "/additionalProperties", "#/additionalProperties",
-                              "");
+                              "/additionalProperties/type",
+                              "#/additionalProperties/type", "");
   EVALUATE_TRACE_POST_DESCRIBE(
       instance, 0, "The object properties were expected to be of type integer");
 }
@@ -3105,11 +3105,12 @@ TEST(Evaluator_draft4, additionalProperties_10) {
 
   EVALUATE_WITH_TRACE_FAST_SUCCESS(schema, instance, 1);
 
-  EVALUATE_TRACE_PRE(0, LoopPropertiesTypeStrictAny, "/additionalProperties",
-                     "#/additionalProperties", "");
+  EVALUATE_TRACE_PRE(0, LoopPropertiesTypeStrictAny,
+                     "/additionalProperties/type",
+                     "#/additionalProperties/type", "");
   EVALUATE_TRACE_POST_SUCCESS(0, LoopPropertiesTypeStrictAny,
-                              "/additionalProperties", "#/additionalProperties",
-                              "");
+                              "/additionalProperties/type",
+                              "#/additionalProperties/type", "");
   EVALUATE_TRACE_POST_DESCRIBE(
       instance, 0, "The object properties were expected to be of type number");
 }
@@ -3604,11 +3605,12 @@ TEST(Evaluator_draft4, additionalProperties_25) {
 
   EVALUATE_WITH_TRACE_FAST_SUCCESS(schema, instance, 1);
 
-  EVALUATE_TRACE_PRE(0, LoopPropertiesTypeStrictAny, "/additionalProperties",
-                     "#/additionalProperties", "");
+  EVALUATE_TRACE_PRE(0, LoopPropertiesTypeStrictAny,
+                     "/additionalProperties/type",
+                     "#/additionalProperties/type", "");
   EVALUATE_TRACE_POST_SUCCESS(0, LoopPropertiesTypeStrictAny,
-                              "/additionalProperties", "#/additionalProperties",
-                              "");
+                              "/additionalProperties/type",
+                              "#/additionalProperties/type", "");
   EVALUATE_TRACE_POST_DESCRIBE(
       instance, 0,
       "The object properties were expected to be of type integer, or string");
@@ -3629,11 +3631,12 @@ TEST(Evaluator_draft4, additionalProperties_26) {
 
   EVALUATE_WITH_TRACE_FAST_FAILURE(schema, instance, 1);
 
-  EVALUATE_TRACE_PRE(0, LoopPropertiesTypeStrictAny, "/additionalProperties",
-                     "#/additionalProperties", "");
+  EVALUATE_TRACE_PRE(0, LoopPropertiesTypeStrictAny,
+                     "/additionalProperties/type",
+                     "#/additionalProperties/type", "");
   EVALUATE_TRACE_POST_FAILURE(0, LoopPropertiesTypeStrictAny,
-                              "/additionalProperties", "#/additionalProperties",
-                              "");
+                              "/additionalProperties/type",
+                              "#/additionalProperties/type", "");
   EVALUATE_TRACE_POST_DESCRIBE(
       instance, 0,
       "The object properties were expected to be of type integer, or string");

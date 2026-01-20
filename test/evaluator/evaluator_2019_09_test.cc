@@ -449,10 +449,11 @@ TEST(Evaluator_2019_09, additionalProperties_1) {
 
   EVALUATE_WITH_TRACE_FAST_SUCCESS(schema, instance, 1);
 
-  EVALUATE_TRACE_PRE(0, LoopPropertiesType, "/additionalProperties",
-                     "#/additionalProperties", "");
-  EVALUATE_TRACE_POST_SUCCESS(0, LoopPropertiesType, "/additionalProperties",
-                              "#/additionalProperties", "");
+  EVALUATE_TRACE_PRE(0, LoopPropertiesType, "/additionalProperties/type",
+                     "#/additionalProperties/type", "");
+  EVALUATE_TRACE_POST_SUCCESS(0, LoopPropertiesType,
+                              "/additionalProperties/type",
+                              "#/additionalProperties/type", "");
   EVALUATE_TRACE_POST_DESCRIBE(
       instance, 0, "The object properties were expected to be of type integer");
 }
@@ -668,10 +669,11 @@ TEST(Evaluator_2019_09, additionalProperties_3) {
 
   EVALUATE_WITH_TRACE_FAST_FAILURE(schema, instance, 1);
 
-  EVALUATE_TRACE_PRE(0, LoopPropertiesType, "/additionalProperties",
-                     "#/additionalProperties", "");
-  EVALUATE_TRACE_POST_FAILURE(0, LoopPropertiesType, "/additionalProperties",
-                              "#/additionalProperties", "");
+  EVALUATE_TRACE_PRE(0, LoopPropertiesType, "/additionalProperties/type",
+                     "#/additionalProperties/type", "");
+  EVALUATE_TRACE_POST_FAILURE(0, LoopPropertiesType,
+                              "/additionalProperties/type",
+                              "#/additionalProperties/type", "");
   EVALUATE_TRACE_POST_DESCRIBE(
       instance, 0, "The object properties were expected to be of type integer");
 }
@@ -3506,11 +3508,11 @@ TEST(Evaluator_2019_09, unevaluatedProperties_10) {
 
   EVALUATE_WITH_TRACE_FAST_SUCCESS(schema, instance, 1);
 
-  EVALUATE_TRACE_PRE(0, LoopPropertiesTypeStrict, "/additionalProperties",
-                     "#/additionalProperties", "");
+  EVALUATE_TRACE_PRE(0, LoopPropertiesTypeStrict, "/additionalProperties/type",
+                     "#/additionalProperties/type", "");
   EVALUATE_TRACE_POST_SUCCESS(0, LoopPropertiesTypeStrict,
-                              "/additionalProperties", "#/additionalProperties",
-                              "");
+                              "/additionalProperties/type",
+                              "#/additionalProperties/type", "");
   EVALUATE_TRACE_POST_DESCRIBE(
       instance, 0, "The object properties were expected to be of type string");
 }
@@ -6466,8 +6468,8 @@ TEST(Evaluator_2019_09, additionalProperties_6) {
                      "#/if/properties/flag/const", "/flag");
   EVALUATE_TRACE_PRE(2, Evaluate, "/if/properties", "#/if/properties", "/flag");
   EVALUATE_TRACE_PRE(3, LoopPropertiesTypeEvaluate,
-                     "/then/additionalProperties",
-                     "#/then/additionalProperties", "");
+                     "/then/additionalProperties/type",
+                     "#/then/additionalProperties/type", "");
   EVALUATE_TRACE_PRE(4, LoopPropertiesUnevaluated, "/unevaluatedProperties",
                      "#/unevaluatedProperties", "");
 
@@ -6476,8 +6478,8 @@ TEST(Evaluator_2019_09, additionalProperties_6) {
   EVALUATE_TRACE_POST_SUCCESS(1, Evaluate, "/if/properties", "#/if/properties",
                               "/flag");
   EVALUATE_TRACE_POST_SUCCESS(2, LoopPropertiesTypeEvaluate,
-                              "/then/additionalProperties",
-                              "#/then/additionalProperties", "");
+                              "/then/additionalProperties/type",
+                              "#/then/additionalProperties/type", "");
   EVALUATE_TRACE_POST_SUCCESS(3, LogicalCondition, "/if", "#/if", "");
   EVALUATE_TRACE_POST_SUCCESS(4, LoopPropertiesUnevaluated,
                               "/unevaluatedProperties",
@@ -6523,8 +6525,8 @@ TEST(Evaluator_2019_09, additionalProperties_7) {
                      "#/if/properties/kind/const", "/kind");
   EVALUATE_TRACE_PRE(2, Evaluate, "/if/properties", "#/if/properties", "/kind");
   EVALUATE_TRACE_PRE(3, LoopPropertiesTypeStrictEvaluate,
-                     "/then/additionalProperties",
-                     "#/then/additionalProperties", "");
+                     "/then/additionalProperties/type",
+                     "#/then/additionalProperties/type", "");
   EVALUATE_TRACE_PRE(4, LoopPropertiesUnevaluated, "/unevaluatedProperties",
                      "#/unevaluatedProperties", "");
 
@@ -6533,8 +6535,8 @@ TEST(Evaluator_2019_09, additionalProperties_7) {
   EVALUATE_TRACE_POST_SUCCESS(1, Evaluate, "/if/properties", "#/if/properties",
                               "/kind");
   EVALUATE_TRACE_POST_SUCCESS(2, LoopPropertiesTypeStrictEvaluate,
-                              "/then/additionalProperties",
-                              "#/then/additionalProperties", "");
+                              "/then/additionalProperties/type",
+                              "#/then/additionalProperties/type", "");
   EVALUATE_TRACE_POST_SUCCESS(3, LogicalCondition, "/if", "#/if", "");
   EVALUATE_TRACE_POST_SUCCESS(4, LoopPropertiesUnevaluated,
                               "/unevaluatedProperties",
@@ -6580,8 +6582,8 @@ TEST(Evaluator_2019_09, additionalProperties_8) {
                      "#/if/properties/flag/const", "/flag");
   EVALUATE_TRACE_PRE(2, Evaluate, "/if/properties", "#/if/properties", "/flag");
   EVALUATE_TRACE_PRE(3, LoopPropertiesTypeStrictAnyEvaluate,
-                     "/then/additionalProperties",
-                     "#/then/additionalProperties", "");
+                     "/then/additionalProperties/type",
+                     "#/then/additionalProperties/type", "");
   EVALUATE_TRACE_PRE(4, LoopPropertiesUnevaluated, "/unevaluatedProperties",
                      "#/unevaluatedProperties", "");
 
@@ -6590,8 +6592,8 @@ TEST(Evaluator_2019_09, additionalProperties_8) {
   EVALUATE_TRACE_POST_SUCCESS(1, Evaluate, "/if/properties", "#/if/properties",
                               "/flag");
   EVALUATE_TRACE_POST_SUCCESS(2, LoopPropertiesTypeStrictAnyEvaluate,
-                              "/then/additionalProperties",
-                              "#/then/additionalProperties", "");
+                              "/then/additionalProperties/type",
+                              "#/then/additionalProperties/type", "");
   EVALUATE_TRACE_POST_SUCCESS(3, LogicalCondition, "/if", "#/if", "");
   EVALUATE_TRACE_POST_SUCCESS(4, LoopPropertiesUnevaluated,
                               "/unevaluatedProperties",
