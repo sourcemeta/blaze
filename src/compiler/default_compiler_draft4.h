@@ -998,46 +998,29 @@ auto compiler_draft4_applicator_properties_with_options(
                sourcemeta::core::JSON{name}));
     }
 
-    // Optimize `properties` where its subschemas just include a type check,
-    // as that's a very common pattern
+    // Optimize `properties` where its subschemas just include a type check
+    // and evaluation tracking is needed (Evaluate variants).
+    // Non-Evaluate property type conversion is handled in postprocess.h
 
-    if (context.mode == Mode::FastValidation && substeps.size() == 1 &&
+    if (context.mode == Mode::FastValidation && track_evaluation &&
+        substeps.size() == 1 &&
         substeps.front().type == InstructionIndex::AssertionTypeStrict) {
-      const auto &type_step{substeps.front()};
-      if (track_evaluation) {
-        children.push_back(rephrase(sourcemeta::blaze::InstructionIndex::
-                                        AssertionPropertyTypeStrictEvaluate,
-                                    type_step));
-      } else {
-        children.push_back(rephrase(
-            sourcemeta::blaze::InstructionIndex::AssertionPropertyTypeStrict,
-            type_step));
-      }
-    } else if (context.mode == Mode::FastValidation && substeps.size() == 1 &&
+      children.push_back(rephrase(sourcemeta::blaze::InstructionIndex::
+                                      AssertionPropertyTypeStrictEvaluate,
+                                  substeps.front()));
+    } else if (context.mode == Mode::FastValidation && track_evaluation &&
+               substeps.size() == 1 &&
                substeps.front().type == InstructionIndex::AssertionType) {
-      const auto &type_step{substeps.front()};
-      if (track_evaluation) {
-        children.push_back(rephrase(
-            sourcemeta::blaze::InstructionIndex::AssertionPropertyTypeEvaluate,
-            type_step));
-      } else {
-        children.push_back(
-            rephrase(sourcemeta::blaze::InstructionIndex::AssertionPropertyType,
-                     type_step));
-      }
-    } else if (context.mode == Mode::FastValidation && substeps.size() == 1 &&
+      children.push_back(rephrase(
+          sourcemeta::blaze::InstructionIndex::AssertionPropertyTypeEvaluate,
+          substeps.front()));
+    } else if (context.mode == Mode::FastValidation && track_evaluation &&
+               substeps.size() == 1 &&
                substeps.front().type ==
                    InstructionIndex::AssertionTypeStrictAny) {
-      const auto &type_step{substeps.front()};
-      if (track_evaluation) {
-        children.push_back(rephrase(sourcemeta::blaze::InstructionIndex::
-                                        AssertionPropertyTypeStrictAnyEvaluate,
-                                    type_step));
-      } else {
-        children.push_back(rephrase(
-            sourcemeta::blaze::InstructionIndex::AssertionPropertyTypeStrictAny,
-            type_step));
-      }
+      children.push_back(rephrase(sourcemeta::blaze::InstructionIndex::
+                                      AssertionPropertyTypeStrictAnyEvaluate,
+                                  substeps.front()));
 
       // NOLINTBEGIN(bugprone-branch-clone)
     } else if (context.mode == Mode::FastValidation && substeps.size() == 1 &&

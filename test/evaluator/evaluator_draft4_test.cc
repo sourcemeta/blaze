@@ -1341,7 +1341,7 @@ TEST(Evaluator_draft4, properties_7) {
                      "#/properties/bar/type", "/bar");
   EVALUATE_TRACE_PRE(1, AssertionRegex, "/properties/foo/pattern",
                      "#/properties/foo/pattern", "/foo");
-  EVALUATE_TRACE_PRE(2, AssertionTypeStrict, "/properties/foo/type",
+  EVALUATE_TRACE_PRE(2, AssertionPropertyTypeStrict, "/properties/foo/type",
                      "#/properties/foo/type", "/foo");
 
   EVALUATE_TRACE_POST_SUCCESS(0, AssertionPropertyTypeStrict,
@@ -1349,8 +1349,9 @@ TEST(Evaluator_draft4, properties_7) {
                               "/bar");
   EVALUATE_TRACE_POST_SUCCESS(1, AssertionRegex, "/properties/foo/pattern",
                               "#/properties/foo/pattern", "/foo");
-  EVALUATE_TRACE_POST_SUCCESS(2, AssertionTypeStrict, "/properties/foo/type",
-                              "#/properties/foo/type", "/foo");
+  EVALUATE_TRACE_POST_SUCCESS(2, AssertionPropertyTypeStrict,
+                              "/properties/foo/type", "#/properties/foo/type",
+                              "/foo");
 
   EVALUATE_TRACE_POST_DESCRIBE(instance, 0,
                                "The value was expected to be of type integer");
@@ -1381,7 +1382,7 @@ TEST(Evaluator_draft4, properties_8) {
                      "#/properties/foo/type", "/foo");
   EVALUATE_TRACE_PRE(1, AssertionRegex, "/properties/bar/pattern",
                      "#/properties/bar/pattern", "/bar");
-  EVALUATE_TRACE_PRE(2, AssertionTypeStrict, "/properties/bar/type",
+  EVALUATE_TRACE_PRE(2, AssertionPropertyTypeStrict, "/properties/bar/type",
                      "#/properties/bar/type", "/bar");
 
   EVALUATE_TRACE_POST_SUCCESS(0, AssertionPropertyTypeStrict,
@@ -1389,8 +1390,9 @@ TEST(Evaluator_draft4, properties_8) {
                               "/foo");
   EVALUATE_TRACE_POST_SUCCESS(1, AssertionRegex, "/properties/bar/pattern",
                               "#/properties/bar/pattern", "/bar");
-  EVALUATE_TRACE_POST_SUCCESS(2, AssertionTypeStrict, "/properties/bar/type",
-                              "#/properties/bar/type", "/bar");
+  EVALUATE_TRACE_POST_SUCCESS(2, AssertionPropertyTypeStrict,
+                              "/properties/bar/type", "#/properties/bar/type",
+                              "/bar");
 
   EVALUATE_TRACE_POST_DESCRIBE(instance, 0,
                                "The value was expected to be of type integer");
@@ -1478,7 +1480,7 @@ TEST(Evaluator_draft4, properties_11) {
   // if we don't count steps recursively, its the other way around
   EVALUATE_TRACE_PRE(0, AssertionRegex, "/properties/bar/pattern",
                      "#/properties/bar/pattern", "/bar");
-  EVALUATE_TRACE_PRE(1, AssertionTypeStrict, "/properties/bar/type",
+  EVALUATE_TRACE_PRE(1, AssertionPropertyTypeStrict, "/properties/bar/type",
                      "#/properties/bar/type", "/bar");
 
   EVALUATE_TRACE_PRE(2, LoopItems, "/properties/foo/items",
@@ -1492,8 +1494,9 @@ TEST(Evaluator_draft4, properties_11) {
 
   EVALUATE_TRACE_POST_SUCCESS(0, AssertionRegex, "/properties/bar/pattern",
                               "#/properties/bar/pattern", "/bar");
-  EVALUATE_TRACE_POST_SUCCESS(1, AssertionTypeStrict, "/properties/bar/type",
-                              "#/properties/bar/type", "/bar");
+  EVALUATE_TRACE_POST_SUCCESS(1, AssertionPropertyTypeStrict,
+                              "/properties/bar/type", "#/properties/bar/type",
+                              "/bar");
   EVALUATE_TRACE_POST_SUCCESS(2, AssertionLessEqual,
                               "/properties/foo/items/maximum",
                               "#/properties/foo/items/maximum", "/foo/0");

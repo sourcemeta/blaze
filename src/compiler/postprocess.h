@@ -4,6 +4,7 @@
 #include <sourcemeta/blaze/compiler.h>
 #include <sourcemeta/blaze/evaluator.h>
 
+#include <algorithm>     // std::ranges::all_of
 #include <cstddef>       // std::size_t
 #include <unordered_map> // std::unordered_map
 #include <vector>        // std::vector
@@ -48,17 +49,18 @@ inline auto is_noop_without_children(const InstructionIndex type) noexcept
   }
 }
 
-// Check if instruction is a properties loop that passes the parent object
-// to children (where property-aware type assertions are beneficial).
-// Only LoopPropertiesMatch variants qualify because they pass `target` to
-// children. Other loops (Regex, Except, StartsWith) pass `entry.second`
-// (the property value directly), so property-aware assertions won't work.
+// Check if instruction passes the parent object to children, making
+// property-aware type assertions beneficial. These instructions check
+// if a property exists and then evaluate children with the parent object,
+// allowing children to use relative_instance_location to access properties.
 inline auto
-is_properties_loop_with_target_children(const InstructionIndex type) noexcept
+is_parent_to_children_instruction(const InstructionIndex type) noexcept
     -> bool {
   switch (type) {
     case InstructionIndex::LoopPropertiesMatch:
     case InstructionIndex::LoopPropertiesMatchClosed:
+    case InstructionIndex::ControlGroupWhenDefines:
+    case InstructionIndex::ControlGroupWhenDefinesDirect:
       return true;
     default:
       return false;
@@ -93,7 +95,7 @@ inline auto convert_to_property_type_assertions(Instructions &instructions)
 
     // Recursively process children, but stop at nested properties loops
     // (their children would be converted when they are processed)
-    if (!is_properties_loop_with_target_children(instruction.type)) {
+    if (!is_parent_to_children_instruction(instruction.type)) {
       convert_to_property_type_assertions(instruction.children);
     }
   }
@@ -311,10 +313,34 @@ transform_instruction(Instruction &instruction, Instructions &output,
     }
   }
 
-  // For properties loops, convert children's type assertions to property-aware
-  // variants. This handles inlined $refs that resolve to type checks
-  if (is_properties_loop_with_target_children(instruction.type)) {
+  // For properties loops and control groups that pass parent object to
+  // children, convert children's type assertions to property-aware variants
+  if (is_parent_to_children_instruction(instruction.type)) {
     convert_to_property_type_assertions(instruction.children);
+  }
+
+  // Convert type assertions with non-empty relative_instance_location to
+  // property-aware variants. This handles cases where properties type checks
+  // are hoisted to top level (e.g., when required + type: object is present).
+  // Only convert if all path tokens are property names (not array indices),
+  // as property-aware assertions assume the target is an object.
+  if (!instruction.relative_instance_location.empty() &&
+      std::ranges::all_of(
+          instruction.relative_instance_location,
+          [](const auto &token) { return token.is_property(); })) {
+    switch (instruction.type) {
+      case InstructionIndex::AssertionTypeStrict:
+        instruction.type = InstructionIndex::AssertionPropertyTypeStrict;
+        break;
+      case InstructionIndex::AssertionType:
+        instruction.type = InstructionIndex::AssertionPropertyType;
+        break;
+      case InstructionIndex::AssertionTypeStrictAny:
+        instruction.type = InstructionIndex::AssertionPropertyTypeStrictAny;
+        break;
+      default:
+        break;
+    }
   }
 
   output.push_back(std::move(instruction));
