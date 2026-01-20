@@ -101,6 +101,49 @@ TEST(Evaluator_draft7, if_2) {
                                "against the given conditional");
 }
 
+TEST(Evaluator_draft7, if_3) {
+  const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
+    "$schema": "http://json-schema.org/draft-07/schema#",
+    "properties": {
+      "foo": { "$ref": "#/definitions/test" }
+    },
+    "definitions": {
+      "test": {
+        "if": false,
+        "else": { "type": "object" }
+      }
+    }
+  })JSON")};
+
+  const sourcemeta::core::JSON instance{
+      sourcemeta::core::parse_json(R"JSON({ "foo": {} })JSON")};
+  EVALUATE_WITH_TRACE_FAST_SUCCESS(schema, instance, 3);
+
+  EVALUATE_TRACE_PRE(0, LogicalCondition, "/properties/foo/$ref/if",
+                     "#/definitions/test/if", "/foo");
+  EVALUATE_TRACE_PRE(1, AssertionFail, "/properties/foo/$ref/if",
+                     "#/definitions/test/if", "/foo");
+  EVALUATE_TRACE_PRE(2, AssertionTypeStrict, "/properties/foo/$ref/else/type",
+                     "#/definitions/test/else/type", "/foo");
+
+  EVALUATE_TRACE_POST_FAILURE(0, AssertionFail, "/properties/foo/$ref/if",
+                              "#/definitions/test/if", "/foo");
+  EVALUATE_TRACE_POST_SUCCESS(1, AssertionTypeStrict,
+                              "/properties/foo/$ref/else/type",
+                              "#/definitions/test/else/type", "/foo");
+  EVALUATE_TRACE_POST_SUCCESS(2, LogicalCondition, "/properties/foo/$ref/if",
+                              "#/definitions/test/if", "/foo");
+
+  EVALUATE_TRACE_POST_DESCRIBE(
+      instance, 0,
+      "No instance is expected to succeed against the false schema");
+  EVALUATE_TRACE_POST_DESCRIBE(instance, 1,
+                               "The value was expected to be of type object");
+  EVALUATE_TRACE_POST_DESCRIBE(instance, 2,
+                               "The object value was expected to validate "
+                               "against the given conditional");
+}
+
 TEST(Evaluator_draft7, then_1) {
   const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
     "$schema": "http://json-schema.org/draft-07/schema#",

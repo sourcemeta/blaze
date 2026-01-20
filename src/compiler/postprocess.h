@@ -61,19 +61,17 @@ inline auto rebase(Instruction &instruction,
   if (instruction.type == InstructionIndex::LogicalCondition) {
     const auto &value{std::get<ValueIndexPair>(instruction.value)};
     const auto then_cursor{value.first};
+    // Only rebase schema location for then/else children, NOT instance location
+    // LogicalCondition already resolves the instance location before
+    // evaluating then/else children
     for (std::size_t index = then_cursor; index < instruction.children.size();
          ++index) {
       auto &child{instruction.children[index]};
       child.relative_schema_location =
           schema_prefix.concat(child.relative_schema_location);
-      child.relative_instance_location =
-          instance_prefix.concat(child.relative_instance_location);
-      // Also rebase grandchildren
       for (auto &grandchild : child.children) {
         grandchild.relative_schema_location =
             schema_prefix.concat(grandchild.relative_schema_location);
-        grandchild.relative_instance_location =
-            instance_prefix.concat(grandchild.relative_instance_location);
       }
     }
   }
