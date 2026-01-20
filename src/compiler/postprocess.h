@@ -408,7 +408,7 @@ inline auto postprocess(std::vector<Instructions> &targets,
             changed = true;
         }
 
-        current->swap(result);
+        *current = std::move(result);
       }
     }
   }
