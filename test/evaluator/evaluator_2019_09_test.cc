@@ -3407,13 +3407,14 @@ TEST(Evaluator_2019_09, unevaluatedProperties_9) {
   EVALUATE_WITH_TRACE_FAST_SUCCESS(schema, instance, 3);
 
   EVALUATE_TRACE_PRE(0, LoopPropertiesMatch, "/properties", "#/properties", "");
-  EVALUATE_TRACE_PRE(1, AssertionTypeStrict, "/properties/a/type",
+  EVALUATE_TRACE_PRE(1, AssertionPropertyTypeStrict, "/properties/a/type",
                      "#/properties/a/type", "/a");
   EVALUATE_TRACE_PRE(2, LoopPropertiesExcept, "/unevaluatedProperties",
                      "#/unevaluatedProperties", "");
 
-  EVALUATE_TRACE_POST_SUCCESS(0, AssertionTypeStrict, "/properties/a/type",
-                              "#/properties/a/type", "/a");
+  EVALUATE_TRACE_POST_SUCCESS(0, AssertionPropertyTypeStrict,
+                              "/properties/a/type", "#/properties/a/type",
+                              "/a");
   EVALUATE_TRACE_POST_SUCCESS(1, LoopPropertiesMatch, "/properties",
                               "#/properties", "");
   EVALUATE_TRACE_POST_SUCCESS(2, LoopPropertiesExcept, "/unevaluatedProperties",

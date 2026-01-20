@@ -48,6 +48,57 @@ inline auto is_noop_without_children(const InstructionIndex type) noexcept
   }
 }
 
+// Check if instruction is a properties loop that passes the parent object
+// to children (where property-aware type assertions are beneficial).
+// Only LoopPropertiesMatch variants qualify because they pass `target` to
+// children. Other loops (Regex, Except, StartsWith) pass `entry.second`
+// (the property value directly), so property-aware assertions won't work.
+inline auto
+is_properties_loop_with_target_children(const InstructionIndex type) noexcept
+    -> bool {
+  switch (type) {
+    case InstructionIndex::LoopPropertiesMatch:
+    case InstructionIndex::LoopPropertiesMatchClosed:
+      return true;
+    default:
+      return false;
+  }
+}
+
+// Recursively converts type assertions to property-aware variants within
+// properties loop children. This is needed because inlined $refs may contain
+// type assertions that were compiled without knowledge of being inside a
+// properties context.
+// Only converts instructions with non-empty relative_instance_location, as
+// property-aware assertions use this to navigate from parent to property.
+inline auto convert_to_property_type_assertions(Instructions &instructions)
+    -> void {
+  for (auto &instruction : instructions) {
+    // Only convert if there's a property path to navigate
+    if (!instruction.relative_instance_location.empty()) {
+      switch (instruction.type) {
+        case InstructionIndex::AssertionTypeStrict:
+          instruction.type = InstructionIndex::AssertionPropertyTypeStrict;
+          break;
+        case InstructionIndex::AssertionType:
+          instruction.type = InstructionIndex::AssertionPropertyType;
+          break;
+        case InstructionIndex::AssertionTypeStrictAny:
+          instruction.type = InstructionIndex::AssertionPropertyTypeStrictAny;
+          break;
+        default:
+          break;
+      }
+    }
+
+    // Recursively process children, but stop at nested properties loops
+    // (their children would be converted when they are processed)
+    if (!is_properties_loop_with_target_children(instruction.type)) {
+      convert_to_property_type_assertions(instruction.children);
+    }
+  }
+}
+
 inline auto rebase(Instruction &instruction,
                    const sourcemeta::core::Pointer &schema_prefix,
                    const sourcemeta::core::Pointer &instance_prefix) -> void {
@@ -258,6 +309,12 @@ transform_instruction(Instruction &instruction, Instructions &output,
           .children = {}});
       return true;
     }
+  }
+
+  // For properties loops, convert children's type assertions to property-aware
+  // variants. This handles inlined $refs that resolve to type checks
+  if (is_properties_loop_with_target_children(instruction.type)) {
+    convert_to_property_type_assertions(instruction.children);
   }
 
   output.push_back(std::move(instruction));

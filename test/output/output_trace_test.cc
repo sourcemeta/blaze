@@ -93,12 +93,12 @@ TEST(Output_trace, pass_1) {
   EXPECT_OUTPUT_WITHOUT_VOCABULARY(traces, 0, Push, "LoopPropertiesMatchClosed",
                                    "", "/properties", "#/properties",
                                    std::nullopt);
-  EXPECT_OUTPUT_WITHOUT_VOCABULARY(traces, 1, Push, "AssertionTypeStrict",
-                                   "/foo", "/properties/foo/type",
-                                   "#/properties/foo/type", std::nullopt);
-  EXPECT_OUTPUT_WITHOUT_VOCABULARY(traces, 2, Pass, "AssertionTypeStrict",
-                                   "/foo", "/properties/foo/type",
-                                   "#/properties/foo/type", std::nullopt);
+  EXPECT_OUTPUT_WITHOUT_VOCABULARY(
+      traces, 1, Push, "AssertionPropertyTypeStrict", "/foo",
+      "/properties/foo/type", "#/properties/foo/type", std::nullopt);
+  EXPECT_OUTPUT_WITHOUT_VOCABULARY(
+      traces, 2, Pass, "AssertionPropertyTypeStrict", "/foo",
+      "/properties/foo/type", "#/properties/foo/type", std::nullopt);
   EXPECT_OUTPUT_WITHOUT_VOCABULARY(traces, 3, Pass, "LoopPropertiesMatchClosed",
                                    "", "/properties", "#/properties",
                                    std::nullopt);
@@ -203,11 +203,13 @@ TEST(Output_trace, pass_with_matching_prefix_1) {
                                    "", "/properties",
                                    "#/$defs/helper/properties", std::nullopt);
   EXPECT_OUTPUT_WITHOUT_VOCABULARY(
-      traces, 1, Push, "AssertionTypeStrict", "/foo", "/properties/foo/type",
-      "#/$defs/helper/properties/foo/type", std::nullopt);
+      traces, 1, Push, "AssertionPropertyTypeStrict", "/foo",
+      "/properties/foo/type", "#/$defs/helper/properties/foo/type",
+      std::nullopt);
   EXPECT_OUTPUT_WITHOUT_VOCABULARY(
-      traces, 2, Pass, "AssertionTypeStrict", "/foo", "/properties/foo/type",
-      "#/$defs/helper/properties/foo/type", std::nullopt);
+      traces, 2, Pass, "AssertionPropertyTypeStrict", "/foo",
+      "/properties/foo/type", "#/$defs/helper/properties/foo/type",
+      std::nullopt);
   EXPECT_OUTPUT_WITHOUT_VOCABULARY(traces, 3, Pass, "LoopPropertiesMatchClosed",
                                    "", "/properties",
                                    "#/$defs/helper/properties", std::nullopt);

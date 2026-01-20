@@ -1636,11 +1636,12 @@ TEST(Evaluator_draft4, properties_14) {
 
   EVALUATE_TRACE_PRE(0, LoopPropertiesMatchClosed, "/properties",
                      "#/properties", "");
-  EVALUATE_TRACE_PRE(1, AssertionTypeStrict, "/properties/f/type",
+  EVALUATE_TRACE_PRE(1, AssertionPropertyTypeStrict, "/properties/f/type",
                      "#/properties/f/type", "/f");
 
-  EVALUATE_TRACE_POST_SUCCESS(0, AssertionTypeStrict, "/properties/f/type",
-                              "#/properties/f/type", "/f");
+  EVALUATE_TRACE_POST_SUCCESS(0, AssertionPropertyTypeStrict,
+                              "/properties/f/type", "#/properties/f/type",
+                              "/f");
   EVALUATE_TRACE_POST_SUCCESS(1, LoopPropertiesMatchClosed, "/properties",
                               "#/properties", "");
 
@@ -1756,11 +1757,12 @@ TEST(Evaluator_draft4, properties_15) {
 
     EVALUATE_TRACE_PRE(0, LoopPropertiesMatchClosed, "/properties",
                        "#/properties", "");
-    EVALUATE_TRACE_PRE(1, AssertionTypeStrict, "/properties/f/type",
+    EVALUATE_TRACE_PRE(1, AssertionPropertyTypeStrict, "/properties/f/type",
                        "#/properties/f/type", "/f");
 
-    EVALUATE_TRACE_POST_SUCCESS(0, AssertionTypeStrict, "/properties/f/type",
-                                "#/properties/f/type", "/f");
+    EVALUATE_TRACE_POST_SUCCESS(0, AssertionPropertyTypeStrict,
+                                "/properties/f/type", "#/properties/f/type",
+                                "/f");
     EVALUATE_TRACE_POST_FAILURE(1, LoopPropertiesMatchClosed, "/properties",
                                 "#/properties", "");
 
@@ -2946,11 +2948,12 @@ TEST(Evaluator_draft4, additionalProperties_5) {
 
     EVALUATE_TRACE_PRE(0, LoopPropertiesMatchClosed, "/properties",
                        "#/properties", "");
-    EVALUATE_TRACE_PRE(1, AssertionTypeStrict, "/properties/foo/type",
+    EVALUATE_TRACE_PRE(1, AssertionPropertyTypeStrict, "/properties/foo/type",
                        "#/properties/foo/type", "/foo");
 
-    EVALUATE_TRACE_POST_SUCCESS(0, AssertionTypeStrict, "/properties/foo/type",
-                                "#/properties/foo/type", "/foo");
+    EVALUATE_TRACE_POST_SUCCESS(0, AssertionPropertyTypeStrict,
+                                "/properties/foo/type", "#/properties/foo/type",
+                                "/foo");
     EVALUATE_TRACE_POST_FAILURE(1, LoopPropertiesMatchClosed, "/properties",
                                 "#/properties", "");
 
@@ -4685,10 +4688,11 @@ TEST(Evaluator_draft4, anyOf_4) {
   EVALUATE_TRACE_PRE(0, LogicalOr, "/anyOf", "#/anyOf", "");
   EVALUATE_TRACE_PRE(1, LoopPropertiesMatch, "/anyOf/0/$ref/properties",
                      "#/definitions/test/properties", "");
-  EVALUATE_TRACE_PRE(2, AssertionTypeStrict, "/anyOf/0/$ref/properties/a/type",
+  EVALUATE_TRACE_PRE(2, AssertionPropertyTypeStrict,
+                     "/anyOf/0/$ref/properties/a/type",
                      "#/definitions/test/properties/a/type", "/a");
 
-  EVALUATE_TRACE_POST_SUCCESS(0, AssertionTypeStrict,
+  EVALUATE_TRACE_POST_SUCCESS(0, AssertionPropertyTypeStrict,
                               "/anyOf/0/$ref/properties/a/type",
                               "#/definitions/test/properties/a/type", "/a");
   EVALUATE_TRACE_POST_SUCCESS(1, LoopPropertiesMatch,
