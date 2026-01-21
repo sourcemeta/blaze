@@ -54,8 +54,6 @@ auto compile_subschema(const sourcemeta::blaze::Context &context,
               .schema = schema_context.schema,
               .vocabularies = entry.vocabularies,
               .base = schema_context.base,
-              // TODO: This represents a copy
-              .labels = schema_context.labels,
               .is_property_name = schema_context.is_property_name},
              {.keyword = keyword,
               .base_schema_location = dynamic_context.base_schema_location,
@@ -279,7 +277,6 @@ auto compile(const sourcemeta::core::JSON &schema,
         .schema = std::move(subschema),
         .vocabularies = std::move(nested_vocabularies),
         .base = nested_base,
-        .labels = {},
         .is_property_name = is_property_name};
 
     compiled_targets[index] =
@@ -390,8 +387,6 @@ auto compile(const Context &context, const SchemaContext &schema_context,
        .vocabularies =
            vocabularies(new_schema, context.resolver, entry.dialect),
        .base = new_base,
-       // TODO: This represents a copy
-       .labels = schema_context.labels,
        .is_property_name = schema_context.is_property_name},
       {.keyword = dynamic_context.keyword,
        .base_schema_location = destination_pointer,

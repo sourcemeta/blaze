@@ -7,11 +7,10 @@
 #include <sourcemeta/core/regex.h>
 
 #include <algorithm> // std::sort, std::any_of, std::all_of, std::find_if, std::none_of
-#include <cassert>       // assert
-#include <set>           // std::set
-#include <sstream>       // std::ostringstream
-#include <unordered_set> // std::unordered_set
-#include <utility>       // std::move
+#include <cassert> // assert
+#include <set>     // std::set
+#include <sstream> // std::ostringstream
+#include <utility> // std::move
 
 #include "compile_helpers.h"
 
@@ -504,7 +503,6 @@ auto compiler_draft4_validation_required(const Context &context,
             .schema = schema_context.schema,
             .vocabularies = schema_context.vocabularies,
             .base = schema_context.base,
-            .labels = schema_context.labels,
             .is_property_name = schema_context.is_property_name};
         const DynamicContext new_dynamic_context{
             .keyword = "properties",
@@ -1000,8 +998,6 @@ auto compiler_draft4_applicator_properties_with_options(
     }
 
     // Optimize `properties` where its subschemas just include a type check
-    // and evaluation tracking is needed (Evaluate variants).
-    // Non-Evaluate property type conversion is handled in postprocess.h
 
     if (context.mode == Mode::FastValidation && track_evaluation &&
         substeps.size() == 1 &&

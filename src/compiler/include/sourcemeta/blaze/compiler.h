@@ -24,7 +24,6 @@
 #include <string_view>   // std::string_view
 #include <tuple>         // std::tuple
 #include <unordered_map> // std::unordered_map
-#include <unordered_set> // std::unordered_set
 #include <vector>        // std::vector
 
 /// @defgroup compiler Compiler
@@ -47,9 +46,6 @@ struct SchemaContext {
   /// The schema base URI
   const sourcemeta::core::URI &base;
   // NOLINTEND(cppcoreguidelines-avoid-const-or-ref-data-members)
-  // TODO: remove this?
-  /// The set of labels registered so far
-  std::unordered_set<std::size_t> labels;
   /// Whether the current schema targets a property name
   bool is_property_name;
 };
