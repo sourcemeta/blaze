@@ -14,14 +14,14 @@ TEST(Evaluator_draft7, metaschema) {
   EXPECT_TRUE(metaschema.has_value());
 
   const sourcemeta::core::JSON instance{sourcemeta::core::parse_json("{}")};
-  EVALUATE_WITH_TRACE_FAST_SUCCESS(metaschema.value(), instance, 3);
+  EVALUATE_WITH_TRACE_FAST_SUCCESS(metaschema.value(), instance, 2);
 }
 
 TEST(Evaluator_draft7, metaschema_hyper_self) {
   const auto metaschema{sourcemeta::core::schema_resolver(
       "http://json-schema.org/draft-07/hyper-schema#")};
   EXPECT_TRUE(metaschema.has_value());
-  EVALUATE_WITH_TRACE_FAST_SUCCESS(metaschema.value(), metaschema.value(), 476);
+  EVALUATE_WITH_TRACE_FAST_SUCCESS(metaschema.value(), metaschema.value(), 460);
 }
 
 TEST(Evaluator_draft7, metaschema_hyper_self_exhaustive) {
@@ -29,7 +29,7 @@ TEST(Evaluator_draft7, metaschema_hyper_self_exhaustive) {
       "http://json-schema.org/draft-07/hyper-schema#")};
   EXPECT_TRUE(metaschema.has_value());
   EVALUATE_WITH_TRACE_EXHAUSTIVE_SUCCESS(metaschema.value(), metaschema.value(),
-                                         568);
+                                         566);
 }
 
 TEST(Evaluator_draft7, if_1) {
@@ -98,6 +98,49 @@ TEST(Evaluator_draft7, if_2) {
       "The integer value 2 was expected to equal the integer constant 1");
   EVALUATE_TRACE_POST_DESCRIBE(instance, 1,
                                "The integer value was expected to validate "
+                               "against the given conditional");
+}
+
+TEST(Evaluator_draft7, if_3) {
+  const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
+    "$schema": "http://json-schema.org/draft-07/schema#",
+    "properties": {
+      "foo": { "$ref": "#/definitions/test" }
+    },
+    "definitions": {
+      "test": {
+        "if": false,
+        "else": { "type": "object" }
+      }
+    }
+  })JSON")};
+
+  const sourcemeta::core::JSON instance{
+      sourcemeta::core::parse_json(R"JSON({ "foo": {} })JSON")};
+  EVALUATE_WITH_TRACE_FAST_SUCCESS(schema, instance, 3);
+
+  EVALUATE_TRACE_PRE(0, LogicalCondition, "/properties/foo/$ref/if",
+                     "#/definitions/test/if", "/foo");
+  EVALUATE_TRACE_PRE(1, AssertionFail, "/properties/foo/$ref/if",
+                     "#/definitions/test/if", "/foo");
+  EVALUATE_TRACE_PRE(2, AssertionTypeStrict, "/properties/foo/$ref/else/type",
+                     "#/definitions/test/else/type", "/foo");
+
+  EVALUATE_TRACE_POST_FAILURE(0, AssertionFail, "/properties/foo/$ref/if",
+                              "#/definitions/test/if", "/foo");
+  EVALUATE_TRACE_POST_SUCCESS(1, AssertionTypeStrict,
+                              "/properties/foo/$ref/else/type",
+                              "#/definitions/test/else/type", "/foo");
+  EVALUATE_TRACE_POST_SUCCESS(2, LogicalCondition, "/properties/foo/$ref/if",
+                              "#/definitions/test/if", "/foo");
+
+  EVALUATE_TRACE_POST_DESCRIBE(
+      instance, 0,
+      "No instance is expected to succeed against the false schema");
+  EVALUATE_TRACE_POST_DESCRIBE(instance, 1,
+                               "The value was expected to be of type object");
+  EVALUATE_TRACE_POST_DESCRIBE(instance, 2,
+                               "The object value was expected to validate "
                                "against the given conditional");
 }
 
@@ -494,9 +537,9 @@ TEST(Evaluator_draft7, reference_from_unknown_keyword) {
                                sourcemeta::core::schema_resolver,
                                sourcemeta::blaze::default_schema_compiler);
   } catch (const sourcemeta::core::SchemaReferenceError &error) {
-    EXPECT_EQ(error.identifier(), "#/properties/baz");
+    EXPECT_EQ(error.identifier(), "#/$defs/bar");
     EXPECT_EQ(error.location(),
-              sourcemeta::core::Pointer({"$defs", "bar", "$ref"}));
+              sourcemeta::core::Pointer({"properties", "foo", "$ref"}));
   } catch (...) {
     throw;
   }

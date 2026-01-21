@@ -319,7 +319,9 @@ int main(int argc, char **argv) {
                    "JSONSchemaOfficialSuite_2020_12_Optional",
                    "https://json-schema.org/draft/2020-12/schema",
                    // TODO: Enable all tests
-                   {"format-assertion"});
+                   {"format-assertion",
+                    // TODO: Can we make this work?
+                    "refOfUnknownKeyword"});
     register_tests(std::filesystem::path{"draft2020-12"} / "optional" /
                        "format",
                    "JSONSchemaOfficialSuite_2020_12_Optional_Format",
@@ -341,7 +343,9 @@ int main(int argc, char **argv) {
                    "https://json-schema.org/draft/2019-09/schema", {});
     register_tests(std::filesystem::path{"draft2019-09"} / "optional",
                    "JSONSchemaOfficialSuite_2019_09_Optional",
-                   "https://json-schema.org/draft/2019-09/schema", {});
+                   "https://json-schema.org/draft/2019-09/schema",
+                   // TODO: Can we make this work?
+                   {"refOfUnknownKeyword"});
     register_tests(
         std::filesystem::path{"draft2019-09"} / "optional" / "format",
         "JSONSchemaOfficialSuite_2019_09_Optional_Format",

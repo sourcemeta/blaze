@@ -21,9 +21,8 @@ auto compiler_draft7_applicator_if(const Context &context,
 
   // `then`
   static const std::string then_keyword{"then"};
-  std::size_t then_cursor{0};
+  std::size_t then_cursor{children.size()};
   if (schema_context.schema.defines("then")) {
-    then_cursor = children.size();
     const auto destination{
         to_uri(schema_context.relative_pointer.initial().concat(
                    make_weak_pointer(then_keyword)),

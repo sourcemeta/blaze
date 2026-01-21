@@ -23,14 +23,14 @@ TEST(Evaluator_2020_12, metaschema_hyper_1) {
       "https://json-schema.org/draft/2020-12/hyper-schema")};
   EXPECT_TRUE(metaschema.has_value());
   const auto instance{sourcemeta::core::parse_json(R"JSON({})JSON")};
-  EVALUATE_WITH_TRACE_FAST_SUCCESS(metaschema.value(), instance, 34);
+  EVALUATE_WITH_TRACE_FAST_SUCCESS(metaschema.value(), instance, 24);
 }
 
 TEST(Evaluator_2020_12, metaschema_hyper_self) {
   const auto metaschema{sourcemeta::core::schema_resolver(
       "https://json-schema.org/draft/2020-12/hyper-schema")};
   EXPECT_TRUE(metaschema.has_value());
-  EVALUATE_WITH_TRACE_FAST_SUCCESS(metaschema.value(), metaschema.value(), 119);
+  EVALUATE_WITH_TRACE_FAST_SUCCESS(metaschema.value(), metaschema.value(), 100);
 }
 
 TEST(Evaluator_2020_12, metaschema_hyper_self_exhaustive) {
@@ -38,7 +38,7 @@ TEST(Evaluator_2020_12, metaschema_hyper_self_exhaustive) {
       "https://json-schema.org/draft/2020-12/hyper-schema")};
   EXPECT_TRUE(metaschema.has_value());
   EVALUATE_WITH_TRACE_EXHAUSTIVE_SUCCESS(metaschema.value(), metaschema.value(),
-                                         209);
+                                         207);
 }
 
 TEST(Evaluator_2020_12, unknown_1_exhaustive) {
@@ -1459,32 +1459,22 @@ TEST(Evaluator_2020_12, dynamicRef_2) {
   })JSON")};
 
   const sourcemeta::core::JSON instance{true};
-  EVALUATE_WITH_TRACE_FAST_SUCCESS(schema, instance, 4);
+  EVALUATE_WITH_TRACE_FAST_SUCCESS(schema, instance, 2);
 
-  EVALUATE_TRACE_PRE(0, ControlMark, "", "https://example.com/other", "");
-  EVALUATE_TRACE_PRE(1, ControlMark, "", "https://example.com/target", "");
-  EVALUATE_TRACE_PRE(2, ControlDynamicAnchorJump, "/$dynamicRef",
+  EVALUATE_TRACE_PRE(0, ControlDynamicAnchorJump, "/$dynamicRef",
                      "#/$dynamicRef", "");
-  EVALUATE_TRACE_PRE(3, AssertionTypeStrict, "/$dynamicRef/type",
+  EVALUATE_TRACE_PRE(1, AssertionTypeStrict, "/$dynamicRef/type",
                      "https://example.com/target#/type", "");
 
-  EVALUATE_TRACE_POST_SUCCESS(0, ControlMark, "", "https://example.com/other",
-                              "");
-  EVALUATE_TRACE_POST_SUCCESS(1, ControlMark, "", "https://example.com/target",
-                              "");
-  EVALUATE_TRACE_POST_SUCCESS(2, AssertionTypeStrict, "/$dynamicRef/type",
+  EVALUATE_TRACE_POST_SUCCESS(0, AssertionTypeStrict, "/$dynamicRef/type",
                               "https://example.com/target#/type", "");
-  EVALUATE_TRACE_POST_SUCCESS(3, ControlDynamicAnchorJump, "/$dynamicRef",
+  EVALUATE_TRACE_POST_SUCCESS(1, ControlDynamicAnchorJump, "/$dynamicRef",
                               "#/$dynamicRef", "");
 
   EVALUATE_TRACE_POST_DESCRIBE(instance, 0,
-                               "The schema location was marked for future use");
-  EVALUATE_TRACE_POST_DESCRIBE(instance, 1,
-                               "The schema location was marked for future use");
-  EVALUATE_TRACE_POST_DESCRIBE(instance, 2,
                                "The value was expected to be of type boolean");
   EVALUATE_TRACE_POST_DESCRIBE(
-      instance, 3,
+      instance, 1,
       "The boolean value was expected to validate against the first subschema "
       "in scope that declared the dynamic anchor \"meta\"");
 }
@@ -1508,33 +1498,23 @@ TEST(Evaluator_2020_12, dynamicRef_3) {
   })JSON")};
 
   const sourcemeta::core::JSON instance{1};
-  EVALUATE_WITH_TRACE_FAST_FAILURE(schema, instance, 4);
+  EVALUATE_WITH_TRACE_FAST_FAILURE(schema, instance, 2);
 
-  EVALUATE_TRACE_PRE(0, ControlMark, "", "https://example.com/other", "");
-  EVALUATE_TRACE_PRE(1, ControlMark, "", "https://example.com/target", "");
-  EVALUATE_TRACE_PRE(2, ControlDynamicAnchorJump, "/$dynamicRef",
+  EVALUATE_TRACE_PRE(0, ControlDynamicAnchorJump, "/$dynamicRef",
                      "#/$dynamicRef", "");
-  EVALUATE_TRACE_PRE(3, AssertionTypeStrict, "/$dynamicRef/type",
+  EVALUATE_TRACE_PRE(1, AssertionTypeStrict, "/$dynamicRef/type",
                      "https://example.com/target#/type", "");
 
-  EVALUATE_TRACE_POST_SUCCESS(0, ControlMark, "", "https://example.com/other",
-                              "");
-  EVALUATE_TRACE_POST_SUCCESS(1, ControlMark, "", "https://example.com/target",
-                              "");
-  EVALUATE_TRACE_POST_FAILURE(2, AssertionTypeStrict, "/$dynamicRef/type",
+  EVALUATE_TRACE_POST_FAILURE(0, AssertionTypeStrict, "/$dynamicRef/type",
                               "https://example.com/target#/type", "");
-  EVALUATE_TRACE_POST_FAILURE(3, ControlDynamicAnchorJump, "/$dynamicRef",
+  EVALUATE_TRACE_POST_FAILURE(1, ControlDynamicAnchorJump, "/$dynamicRef",
                               "#/$dynamicRef", "");
 
   EVALUATE_TRACE_POST_DESCRIBE(instance, 0,
-                               "The schema location was marked for future use");
-  EVALUATE_TRACE_POST_DESCRIBE(instance, 1,
-                               "The schema location was marked for future use");
-  EVALUATE_TRACE_POST_DESCRIBE(instance, 2,
                                "The value was expected to be of type boolean "
                                "but it was of type integer");
   EVALUATE_TRACE_POST_DESCRIBE(
-      instance, 3,
+      instance, 1,
       "The integer value was expected to validate against the first subschema "
       "in scope that declared the dynamic anchor \"meta\"");
 }
@@ -1573,26 +1553,26 @@ TEST(Evaluator_2020_12, definitions_1_exhaustive) {
   const sourcemeta::core::JSON instance{"foo"};
   EVALUATE_WITH_TRACE_EXHAUSTIVE_SUCCESS(schema, instance, 3);
 
-  EVALUATE_TRACE_PRE(0, LogicalAnd, "/$ref", "#/$ref", "");
-  EVALUATE_TRACE_PRE(1, LogicalAnd, "/$ref/$ref", "#/definitions/middle/$ref",
+  EVALUATE_TRACE_PRE(0, ControlJump, "/$ref", "#/$ref", "");
+  EVALUATE_TRACE_PRE(1, ControlJump, "/$ref/$ref", "#/definitions/middle/$ref",
                      "");
   EVALUATE_TRACE_PRE(2, AssertionTypeStrict, "/$ref/$ref/type",
                      "#/definitions/string/type", "");
 
   EVALUATE_TRACE_POST_SUCCESS(0, AssertionTypeStrict, "/$ref/$ref/type",
                               "#/definitions/string/type", "");
-  EVALUATE_TRACE_POST_SUCCESS(1, LogicalAnd, "/$ref/$ref",
+  EVALUATE_TRACE_POST_SUCCESS(1, ControlJump, "/$ref/$ref",
                               "#/definitions/middle/$ref", "");
-  EVALUATE_TRACE_POST_SUCCESS(2, LogicalAnd, "/$ref", "#/$ref", "");
+  EVALUATE_TRACE_POST_SUCCESS(2, ControlJump, "/$ref", "#/$ref", "");
 
   EVALUATE_TRACE_POST_DESCRIBE(instance, 0,
                                "The value was expected to be of type string");
   EVALUATE_TRACE_POST_DESCRIBE(instance, 1,
                                "The string value was expected to validate "
-                               "against the statically referenced schema");
+                               "against the referenced schema");
   EVALUATE_TRACE_POST_DESCRIBE(instance, 2,
                                "The string value was expected to validate "
-                               "against the statically referenced schema");
+                               "against the referenced schema");
 }
 
 TEST(Evaluator_2020_12, unevaluatedItems_1) {
@@ -2229,11 +2209,11 @@ TEST(Evaluator_2020_12, unevaluatedProperties_1) {
 
   EVALUATE_WITH_TRACE_FAST_SUCCESS(schema, instance, 1);
 
-  EVALUATE_TRACE_PRE(0, LoopPropertiesTypeStrict, "/additionalProperties",
-                     "#/additionalProperties", "");
+  EVALUATE_TRACE_PRE(0, LoopPropertiesTypeStrict, "/additionalProperties/type",
+                     "#/additionalProperties/type", "");
   EVALUATE_TRACE_POST_SUCCESS(0, LoopPropertiesTypeStrict,
-                              "/additionalProperties", "#/additionalProperties",
-                              "");
+                              "/additionalProperties/type",
+                              "#/additionalProperties/type", "");
   EVALUATE_TRACE_POST_DESCRIBE(
       instance, 0, "The object properties were expected to be of type string");
 }
@@ -2440,13 +2420,13 @@ TEST(Evaluator_2020_12, top_level_ref_with_id_exhaustive) {
   const sourcemeta::core::JSON instance{5};
 
   EVALUATE_WITH_TRACE_EXHAUSTIVE_SUCCESS(schema, instance, 1);
-  EVALUATE_TRACE_PRE(0, LogicalAnd, "/$ref", "https://www.example.com#/$ref",
+  EVALUATE_TRACE_PRE(0, ControlJump, "/$ref", "https://www.example.com#/$ref",
                      "");
-  EVALUATE_TRACE_POST_SUCCESS(0, LogicalAnd, "/$ref",
+  EVALUATE_TRACE_POST_SUCCESS(0, ControlJump, "/$ref",
                               "https://www.example.com#/$ref", "");
   EVALUATE_TRACE_POST_DESCRIBE(instance, 0,
                                "The integer value was expected to validate "
-                               "against the statically referenced schema");
+                               "against the referenced schema");
 }
 
 TEST(Evaluator_2020_12, openapi_discriminator_1) {

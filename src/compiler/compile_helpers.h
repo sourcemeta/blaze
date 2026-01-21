@@ -297,22 +297,28 @@ inline auto make_property(const ValueString &property) -> ValueProperty {
 }
 
 inline auto requires_evaluation(const Context &context,
-                                const SchemaContext &schema_context) -> bool {
-  const auto &entry{static_frame_entry(context, schema_context)};
+                                const sourcemeta::core::WeakPointer &pointer)
+    -> bool {
   for (const auto &unevaluated : context.unevaluated) {
     if (unevaluated.second.unresolved ||
-        unevaluated.second.dynamic_dependencies.contains(entry.pointer)) {
+        unevaluated.second.dynamic_dependencies.contains(pointer)) {
       return true;
     }
 
     for (const auto &dependency : unevaluated.second.dynamic_dependencies) {
-      if (dependency.starts_with(entry.pointer)) {
+      if (dependency.starts_with(pointer)) {
         return true;
       }
     }
   }
 
   return false;
+}
+
+inline auto requires_evaluation(const Context &context,
+                                const SchemaContext &schema_context) -> bool {
+  const auto &entry{static_frame_entry(context, schema_context)};
+  return requires_evaluation(context, entry.pointer);
 }
 
 // TODO: Elevate to Core and test

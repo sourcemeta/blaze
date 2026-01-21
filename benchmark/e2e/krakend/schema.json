@@ -11,7 +11,7 @@
       "title": "Cache TTL",
       "description": "Sets a default `Cache-Control: public, max-age=%d` header to all endpoints where `%d` is the conversion to seconds of any duration you write, indicating for how long the client (or CDN) can cache the content of the request. You can override this value per endpoint, but setting an endpoint to 0 will use the default value instead. Notice that KrakenD does not cache the content with this parameter, but tells the client how to do it. Defaults to `0s` (no cache). **For KrakenD cache, see [backend caching](https://www.krakend.io/docs/backends/caching/)**.",
       "default": "0s",
-      "$ref": "#/definitions/https%3A~1~1www.krakend.io~1schema~1v2.7~1timeunits.json/$defs/timeunit",
+      "$ref": "#/definitions/https%3A~1~1www.krakend.io~1schema~1v2.7~1timeunits.json/definitions/timeunit",
       "type": "string"
     },
     "client_tls": {
@@ -29,21 +29,21 @@
       "title": "Dialer fallback delay",
       "description": "Specifies the length of time to wait before spawning a RFC 6555 Fast Fallback connection. If zero, a default delay of 300ms is used.\n\nSee: https://www.krakend.io/docs/service-settings/http-transport-settings/",
       "default": "300ms",
-      "$ref": "#/definitions/https%3A~1~1www.krakend.io~1schema~1v2.7~1timeunits.json/$defs/timeunit",
+      "$ref": "#/definitions/https%3A~1~1www.krakend.io~1schema~1v2.7~1timeunits.json/definitions/timeunit",
       "type": "string"
     },
     "dialer_keep_alive": {
       "title": "Dialer keep alive",
       "description": "The interval between keep-alive probes for an active network connection. If zero, keep-alive probes are sent with a default value (currently 15 seconds), if supported by the protocol and operating system. Network protocols or operating systems that do not support keep-alives ignore this field. If negative, keep-alive probes are disabled.\n\nSee: https://www.krakend.io/docs/service-settings/http-transport-settings/",
       "default": "15s",
-      "$ref": "#/definitions/https%3A~1~1www.krakend.io~1schema~1v2.7~1timeunits.json/$defs/timeunit",
+      "$ref": "#/definitions/https%3A~1~1www.krakend.io~1schema~1v2.7~1timeunits.json/definitions/timeunit",
       "type": "string"
     },
     "dialer_timeout": {
       "title": "Dialer Timeout",
       "description": "The timeout of the dial function for creating connections.The default is no timeout. With or without a timeout, the operating system may impose its own earlier timeout.\n\nSee: https://www.krakend.io/docs/service-settings/http-transport-settings/",
       "default": "0s",
-      "$ref": "#/definitions/https%3A~1~1www.krakend.io~1schema~1v2.7~1timeunits.json/$defs/timeunit",
+      "$ref": "#/definitions/https%3A~1~1www.krakend.io~1schema~1v2.7~1timeunits.json/definitions/timeunit",
       "type": "string"
     },
     "disable_compression": {
@@ -68,7 +68,7 @@
       "title": "DNS Cache TTL",
       "description": "Sets the maximum time KrakenD can store the results of a query to the configured Service Discovery returning the available hosts list. For values under `1s` this setting is ignored.\n\nSee: https://www.krakend.io/docs/backends/service-discovery/",
       "default": "30s",
-      "$ref": "#/definitions/https%3A~1~1www.krakend.io~1schema~1v2.7~1timeunits.json/$defs/timeunit",
+      "$ref": "#/definitions/https%3A~1~1www.krakend.io~1schema~1v2.7~1timeunits.json/definitions/timeunit",
       "type": "string"
     },
     "echo_endpoint": {
@@ -90,7 +90,7 @@
       "title": "Expect_continue_timeout",
       "description": "If non-zero, specifies the amount of time to wait for a server's first response headers after fully writing the request headers if the request has an `Expect: 100-continue` header. Zero means no timeout and causes the body to be sent immediately, without waiting for the server to approve. This time does not include the time to send the request header.\n\nSee: https://www.krakend.io/docs/service-settings/http-transport-settings/",
       "default": "0s",
-      "$ref": "#/definitions/https%3A~1~1www.krakend.io~1schema~1v2.7~1timeunits.json/$defs/timeunit",
+      "$ref": "#/definitions/https%3A~1~1www.krakend.io~1schema~1v2.7~1timeunits.json/definitions/timeunit",
       "type": "string"
     },
     "extra_config": {
@@ -111,14 +111,14 @@
       "title": "HTTP Idle timeout",
       "description": "The maximum number of idle (keep-alive) connections across all hosts. Zero means no limit.\n\nSee: https://www.krakend.io/docs/service-settings/http-transport-settings/",
       "default": "0s",
-      "$ref": "#/definitions/https%3A~1~1www.krakend.io~1schema~1v2.7~1timeunits.json/$defs/timeunit",
+      "$ref": "#/definitions/https%3A~1~1www.krakend.io~1schema~1v2.7~1timeunits.json/definitions/timeunit",
       "type": "string"
     },
     "idle_timeout": {
       "title": "HTTP Idle timeout",
       "description": "The maximum amount of time to wait for the next request when keep-alives are enabled. If `idle_timeout` is zero, the value of `read_timeout` is used. If both are zero, there is no timeout.\n\nSee: https://www.krakend.io/docs/service-settings/http-server-settings/",
       "default": "0s",
-      "$ref": "#/definitions/https%3A~1~1www.krakend.io~1schema~1v2.7~1timeunits.json/$defs/timeunit",
+      "$ref": "#/definitions/https%3A~1~1www.krakend.io~1schema~1v2.7~1timeunits.json/definitions/timeunit",
       "type": "string"
     },
     "listen_ip": {
@@ -200,21 +200,21 @@
       "title": "HTTP Idle timeout",
       "description": "The amount of time allowed to read request headers. The connection's read deadline is reset after reading the headers and the Handler can decide what is considered too slow for the body.\n\nSee: https://www.krakend.io/docs/service-settings/http-server-settings/",
       "default": "0s",
-      "$ref": "#/definitions/https%3A~1~1www.krakend.io~1schema~1v2.7~1timeunits.json/$defs/timeunit",
+      "$ref": "#/definitions/https%3A~1~1www.krakend.io~1schema~1v2.7~1timeunits.json/definitions/timeunit",
       "type": "string"
     },
     "read_timeout": {
       "title": "HTTP read timeout",
       "description": "Is the maximum duration for reading the entire request, including the body. Because `read_timeout` does not let Handlers make per-request decisions on each request body's acceptable deadline or upload rate, most users will prefer to use `read_header_timeout`. It is valid to use them both.\n\nSee: https://www.krakend.io/docs/service-settings/http-server-settings/",
       "default": "0s",
-      "$ref": "#/definitions/https%3A~1~1www.krakend.io~1schema~1v2.7~1timeunits.json/$defs/timeunit",
+      "$ref": "#/definitions/https%3A~1~1www.krakend.io~1schema~1v2.7~1timeunits.json/definitions/timeunit",
       "type": "string"
     },
     "response_header_timeout": {
       "title": "Response header timeout",
       "description": "If non-zero, specifies the amount of time to wait for a server's response headers after fully writing the request (including its body, if any). This time does not include the time to read the response body.\n\nSee: https://www.krakend.io/docs/service-settings/http-transport-settings/",
       "default": "0s",
-      "$ref": "#/definitions/https%3A~1~1www.krakend.io~1schema~1v2.7~1timeunits.json/$defs/timeunit",
+      "$ref": "#/definitions/https%3A~1~1www.krakend.io~1schema~1v2.7~1timeunits.json/definitions/timeunit",
       "type": "string"
     },
     "sequential_start": {
@@ -227,7 +227,7 @@
       "title": "Global timeout",
       "description": "Defines a default timeout for all endpoints. Can be overriden per endpoint.\n\nSee: https://www.krakend.io/docs/service-settings/http-transport-settings/#global-timeout",
       "default": "2s",
-      "$ref": "#/definitions/https%3A~1~1www.krakend.io~1schema~1v2.7~1timeunits.json/$defs/timeunit",
+      "$ref": "#/definitions/https%3A~1~1www.krakend.io~1schema~1v2.7~1timeunits.json/definitions/timeunit",
       "type": "string"
     },
     "tls": {
@@ -248,7 +248,7 @@
       "title": "HTTP write timeout",
       "description": "Maximum duration before timing out writes of the response.\n\nSee: https://www.krakend.io/docs/service-settings/http-server-settings/",
       "default": "0s",
-      "$ref": "#/definitions/https%3A~1~1www.krakend.io~1schema~1v2.7~1timeunits.json/$defs/timeunit",
+      "$ref": "#/definitions/https%3A~1~1www.krakend.io~1schema~1v2.7~1timeunits.json/definitions/timeunit",
       "type": "string"
     }
   },
@@ -369,7 +369,7 @@
                 "title": "Health interval",
                 "description": "The time between pings checking that the agent is connected to the queue and alive. Regardless of the health interval, if an agent fails, KrakenD will restart it again immediately as defined by `max_retries`and `backoff_strategy`.\n\nSee: https://www.krakend.io/docs/async/",
                 "default": "1s",
-                "$ref": "#/definitions/https%3A~1~1www.krakend.io~1schema~1v2.7~1timeunits.json/$defs/timeunit"
+                "$ref": "#/definitions/https%3A~1~1www.krakend.io~1schema~1v2.7~1timeunits.json/definitions/timeunit"
               },
               "max_retries": {
                 "title": "Max retries",
@@ -397,7 +397,7 @@
               "timeout": {
                 "title": "Timeout",
                 "description": "The maximum time the agent will wait to process an event sent to the backend. If the backend fails to process it, the message is reinserted for later consumption. Defaults to the timeout in the root level, or to `2s` if no value is declared.\n\nSee: https://www.krakend.io/docs/async/",
-                "$ref": "#/definitions/https%3A~1~1www.krakend.io~1schema~1v2.7~1timeunits.json/$defs/timeunit"
+                "$ref": "#/definitions/https%3A~1~1www.krakend.io~1schema~1v2.7~1timeunits.json/definitions/timeunit"
               },
               "topic": {
                 "title": "Topic",
@@ -758,7 +758,7 @@
           "title": "Revoke Server ping interval",
           "description": "Time the server and the client wait to verify they are alive with each other (health check). Defaults to `30s`. Do not lower this value a lot; otherwise, you will have a lot of internal traffic.\n\nSee: https://www.krakend.io/docs/enterprise/authentication/revoke-server/",
           "examples": [ "30s" ],
-          "$ref": "#/definitions/https%3A~1~1www.krakend.io~1schema~1v2.7~1timeunits.json/$defs/timeunit",
+          "$ref": "#/definitions/https%3A~1~1www.krakend.io~1schema~1v2.7~1timeunits.json/definitions/timeunit",
           "type": "string"
         },
         "revoke_server_ping_url": {
@@ -903,7 +903,7 @@
           "description": "A margin of extra time where you will still accept the token after its expiration date. You should not accept expired tokens other than enabling two environments that are not perfectly synchronized and have minor clock drifts to accept each other differences. Any value specified here will be rounded to seconds, with a minimum of one second.\n\nSee: https://www.krakend.io/docs/authorization/jwt-signing/",
           "examples": [ "1m", "1s" ],
           "default": "1s",
-          "$ref": "#/definitions/https%3A~1~1www.krakend.io~1schema~1v2.7~1timeunits.json/$defs/timeunit",
+          "$ref": "#/definitions/https%3A~1~1www.krakend.io~1schema~1v2.7~1timeunits.json/definitions/timeunit",
           "type": "string"
         },
         "secret_url": {
@@ -1044,7 +1044,7 @@
           "title": "Failed JWK Key cooldown",
           "description": "When a request comes with a token declaring an unknown `kid` (or the key strategy you choose), and the JWK is in a remote destination, KrakenD downloads the JWK from the Identity Provider for its recognition. Suppose there is a network failure, or the key is not in the list (e.g., you rotated the keys without anticipation). In that case, you can tell the gateway not to contact the Identity Provider again during the time specified here. We recommend setting this value, even with a low time (e.g., `10s`), to prevent misconfigurations from hammering your Identity Providers. Any values under one second are ignored.\n\nSee: https://www.krakend.io/docs/authorization/jwt-validation/",
           "examples": [ "1m", "10s", "1h" ],
-          "$ref": "#/definitions/https%3A~1~1www.krakend.io~1schema~1v2.7~1timeunits.json/$defs/timeunit",
+          "$ref": "#/definitions/https%3A~1~1www.krakend.io~1schema~1v2.7~1timeunits.json/definitions/timeunit",
           "type": "string"
         },
         "issuer": {
@@ -1092,7 +1092,7 @@
           "description": "A margin of time where you will accept an already expired token. You should not accept expired tokens other than enabling two environments that are not perfectly synchronized and have minor clock drifts to accept each other differences. Any value specified here will be rounded to seconds, with a minimum of one second.\n\nSee: https://www.krakend.io/docs/authorization/jwt-validation/",
           "examples": [ "1m", "1s" ],
           "default": "1s",
-          "$ref": "#/definitions/https%3A~1~1www.krakend.io~1schema~1v2.7~1timeunits.json/$defs/timeunit",
+          "$ref": "#/definitions/https%3A~1~1www.krakend.io~1schema~1v2.7~1timeunits.json/definitions/timeunit",
           "type": "string"
         },
         "operation_debug": {
@@ -2479,7 +2479,7 @@
         "cache_ttl": {
           "title": "Cache TTL",
           "description": "Sets or overrides the cache headers to inform for how long the client or CDN can cache the request to this endpoint. Setting this value to a zero-value will use the `cache_ttl` of the service if any. Related: [caching backend responses](https://www.krakend.io/docs/backends/caching/).",
-          "$ref": "#/definitions/https%3A~1~1www.krakend.io~1schema~1v2.7~1timeunits.json/$defs/timeunit"
+          "$ref": "#/definitions/https%3A~1~1www.krakend.io~1schema~1v2.7~1timeunits.json/definitions/timeunit"
         },
         "concurrent_calls": {
           "title": "Concurrent calls",
@@ -2549,7 +2549,7 @@
           "description": "The duration you write in the timeout represents the **whole duration of the pipe**, so it counts the time all your backends take to respond and the processing of all the components involved in the endpoint (the request, fetching data, manipulation, etc.). Usually specified in seconds (`s`) or milliseconds (`ms`. e.g.: `2000ms` or `2s`). If you don't set any timeout, the timeout is taken from the entry in the service level, or to the system's default",
           "examples": [ "2s", "1500ms" ],
           "default": "2s",
-          "$ref": "#/definitions/https%3A~1~1www.krakend.io~1schema~1v2.7~1timeunits.json/$defs/timeunit",
+          "$ref": "#/definitions/https%3A~1~1www.krakend.io~1schema~1v2.7~1timeunits.json/definitions/timeunit",
           "type": "string"
         }
       },
@@ -3869,7 +3869,7 @@
         "period": {
           "title": "Period",
           "description": "For how long the content lives in the cache. Usually in seconds, minutes, or hours. E.g., use `120s` or `2m` for two minutes\n\nSee: https://www.krakend.io/docs/enterprise/endpoints/global-rate-limit/",
-          "$ref": "#/definitions/https%3A~1~1www.krakend.io~1schema~1v2.7~1timeunits.json/$defs/timeunit",
+          "$ref": "#/definitions/https%3A~1~1www.krakend.io~1schema~1v2.7~1timeunits.json/definitions/timeunit",
           "type": "string"
         },
         "rate": {
@@ -4210,7 +4210,7 @@
           "title": "Time window",
           "description": "Time period in which the counter works. For instance, if you set an `every` of `10m` and a `max_rate` of `5`, you are allowing 5 requests every ten minutes.\n\nSee: https://www.krakend.io/docs/endpoints/rate-limit/",
           "default": "1s",
-          "$ref": "#/definitions/https%3A~1~1www.krakend.io~1schema~1v2.7~1timeunits.json/$defs/timeunit",
+          "$ref": "#/definitions/https%3A~1~1www.krakend.io~1schema~1v2.7~1timeunits.json/definitions/timeunit",
           "type": "string"
         },
         "max_rate": {
@@ -4248,7 +4248,7 @@
           "title": "Cleanup Period",
           "description": "The cleanup period is how often the routine(s) in charge of optimizing the memory dedicated will go iterate all counters looking for outdated TTL and remove them. A low value keeps the memory slightly decreasing, but as a trade-off, it will increase the CPU dedicated to achieving this optimization. This is an advanced micro-optimization setting that should be used with caution.\n\nSee: https://www.krakend.io/docs/endpoints/rate-limit/",
           "default": "1m",
-          "$ref": "#/definitions/https%3A~1~1www.krakend.io~1schema~1v2.7~1timeunits.json/$defs/timeunit",
+          "$ref": "#/definitions/https%3A~1~1www.krakend.io~1schema~1v2.7~1timeunits.json/definitions/timeunit",
           "type": "string"
         },
         "cleanup_threads": {
@@ -4272,7 +4272,7 @@
           "title": "Time window",
           "description": "Time period in which the maximum rates operate. For instance, if you set an `every` of `10m` and a rate of `5`, you are allowing 5 requests every ten minutes.\n\nSee: https://www.krakend.io/docs/endpoints/rate-limit/",
           "default": "1s",
-          "$ref": "#/definitions/https%3A~1~1www.krakend.io~1schema~1v2.7~1timeunits.json/$defs/timeunit",
+          "$ref": "#/definitions/https%3A~1~1www.krakend.io~1schema~1v2.7~1timeunits.json/definitions/timeunit",
           "type": "string"
         },
         "key": {
@@ -4607,7 +4607,7 @@
           "title": "Max Age",
           "description": "For how long the response can be cached. For zero values the `Access-Control-Max-Age` header is not set.\n\nSee: https://www.krakend.io/docs/service-settings/cors/",
           "default": "0h",
-          "$ref": "#/definitions/https%3A~1~1www.krakend.io~1schema~1v2.7~1timeunits.json/$defs/timeunit",
+          "$ref": "#/definitions/https%3A~1~1www.krakend.io~1schema~1v2.7~1timeunits.json/definitions/timeunit",
           "type": "string"
         },
         "options_passthrough": {
@@ -5108,7 +5108,7 @@
               "title": "Max age",
               "description": "For how long the response can be cached.\n\nSee: https://www.krakend.io/docs/service-settings/cors/",
               "examples": [ "12h" ],
-              "$ref": "#/definitions/https%3A~1~1www.krakend.io~1schema~1v2.7~1timeunits.json/$defs/timeunit",
+              "$ref": "#/definitions/https%3A~1~1www.krakend.io~1schema~1v2.7~1timeunits.json/definitions/timeunit",
               "type": "string"
             }
           }
@@ -5213,7 +5213,7 @@
         "ttl": {
           "title": "TTL",
           "description": "TTL against Influx.\n\nSee: https://www.krakend.io/docs/telemetry/influxdb-native/",
-          "$ref": "#/definitions/https%3A~1~1www.krakend.io~1schema~1v2.7~1timeunits.json/$defs/timeunit"
+          "$ref": "#/definitions/https%3A~1~1www.krakend.io~1schema~1v2.7~1timeunits.json/definitions/timeunit"
         },
         "username": {
           "title": "Username",
@@ -5322,7 +5322,7 @@
           "title": "Collection time",
           "description": "The time window to consolidate collected metrics. Metrics are updated in their internal counters all the time, but the `/__stats/` endpoint, or the Influx reporter, won't see them updated until this window completes.\n\nSee: https://www.krakend.io/docs/telemetry/extended-metrics/",
           "default": "60s",
-          "$ref": "#/definitions/https%3A~1~1www.krakend.io~1schema~1v2.7~1timeunits.json/$defs/timeunit",
+          "$ref": "#/definitions/https%3A~1~1www.krakend.io~1schema~1v2.7~1timeunits.json/definitions/timeunit",
           "type": "string"
         },
         "endpoint_disabled": {
@@ -5668,7 +5668,7 @@
                   "title": "Timeout",
                   "description": "The maximum time you will wait for InfluxDB to respond.\n\nSee: https://www.krakend.io/docs/telemetry/influxdb/",
                   "examples": [ "2s" ],
-                  "$ref": "#/definitions/https%3A~1~1www.krakend.io~1schema~1v2.7~1timeunits.json/$defs/timeunit",
+                  "$ref": "#/definitions/https%3A~1~1www.krakend.io~1schema~1v2.7~1timeunits.json/definitions/timeunit",
                   "type": "string"
                 },
                 "username": {
@@ -5786,7 +5786,7 @@
                   "title": "Reconnection",
                   "description": "The reconnection time\n\nSee: https://www.krakend.io/docs/telemetry/ocagent/",
                   "default": "2s",
-                  "$ref": "#/definitions/https%3A~1~1www.krakend.io~1schema~1v2.7~1timeunits.json/$defs/timeunit",
+                  "$ref": "#/definitions/https%3A~1~1www.krakend.io~1schema~1v2.7~1timeunits.json/definitions/timeunit",
                   "type": "string"
                 },
                 "service_name": {
@@ -6652,7 +6652,7 @@
     "https://www.krakend.io/schema/v2.7/timeunits.json": {
       "$schema": "http://json-schema.org/draft-07/schema#",
       "title": "Time units / Duration patterns",
-      "$defs": {
+      "definitions": {
         "timeunit": {
           "title": "Duration",
           "description": "The amount of time you want to assign followed by its unit (e.g.: `2s`, `200ms`). Valid time units are: ns, us, (or µs), ms, s, m, h.",
@@ -6863,13 +6863,13 @@
           "title": "Ping frequency",
           "description": "Sets the time between pings checking the health of the system.\n\nSee: https://www.krakend.io/docs/enterprise/websockets/",
           "default": "54s",
-          "$ref": "#/definitions/https%3A~1~1www.krakend.io~1schema~1v2.7~1timeunits.json/$defs/timeunit"
+          "$ref": "#/definitions/https%3A~1~1www.krakend.io~1schema~1v2.7~1timeunits.json/definitions/timeunit"
         },
         "pong_wait": {
           "title": "Pong timeout",
           "description": "Sets the maximum time KrakenD will until the pong times out.\n\nSee: https://www.krakend.io/docs/enterprise/websockets/",
           "default": "60s",
-          "$ref": "#/definitions/https%3A~1~1www.krakend.io~1schema~1v2.7~1timeunits.json/$defs/timeunit"
+          "$ref": "#/definitions/https%3A~1~1www.krakend.io~1schema~1v2.7~1timeunits.json/definitions/timeunit"
         },
         "read_buffer_size": {
           "title": "Read buffer size",
@@ -6887,7 +6887,7 @@
           "title": "Timeout",
           "description": "Sets the read timeout for the backend. After a read has timed out, the websocket connection is terminated and KrakenD will try to reconnect according the `backoff_strategy`. Minimum accepted time is one minute. This flag only applies when you use ' enable_direct_communication`.\n\nSee: https://www.krakend.io/docs/enterprise/websockets/",
           "default": "5m",
-          "$ref": "#/definitions/https%3A~1~1www.krakend.io~1schema~1v2.7~1timeunits.json/$defs/timeunit"
+          "$ref": "#/definitions/https%3A~1~1www.krakend.io~1schema~1v2.7~1timeunits.json/definitions/timeunit"
         },
         "write_buffer_size": {
           "title": "Write buffer size",
@@ -6899,7 +6899,7 @@
           "title": "Write timeout",
           "description": "Sets the maximum time KrakenD will wait until the write times out.\n\nSee: https://www.krakend.io/docs/enterprise/websockets/",
           "default": "10s",
-          "$ref": "#/definitions/https%3A~1~1www.krakend.io~1schema~1v2.7~1timeunits.json/$defs/timeunit"
+          "$ref": "#/definitions/https%3A~1~1www.krakend.io~1schema~1v2.7~1timeunits.json/definitions/timeunit"
         }
       },
       "patternProperties": {
@@ -6966,7 +6966,7 @@
           "title": "Timeout",
           "description": "The duration you write in the timeout represents the **whole duration of the pipe**, so it counts the time all your backends take to respond and the processing of all the components involved in the endpoint (the request, fetching data, manipulation, etc.). By default the timeout is taken from the parent endpoint, if redefined **make sure that is smaller than the endpoint's**",
           "examples": [ "2s", "1500ms" ],
-          "$ref": "#/definitions/https%3A~1~1www.krakend.io~1schema~1v2.7~1timeunits.json/$defs/timeunit",
+          "$ref": "#/definitions/https%3A~1~1www.krakend.io~1schema~1v2.7~1timeunits.json/definitions/timeunit",
           "type": "string"
         }
       },

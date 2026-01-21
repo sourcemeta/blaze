@@ -14,7 +14,7 @@ TEST(Evaluator_draft4, metaschema_1) {
   EXPECT_TRUE(metaschema.has_value());
 
   const sourcemeta::core::JSON instance{sourcemeta::core::parse_json("{}")};
-  EVALUATE_WITH_TRACE_FAST_SUCCESS(metaschema.value(), instance, 4);
+  EVALUATE_WITH_TRACE_FAST_SUCCESS(metaschema.value(), instance, 3);
 }
 
 TEST(Evaluator_draft4, metaschema_2) {
@@ -31,14 +31,14 @@ TEST(Evaluator_draft4, metaschema_2) {
     }
   })JSON")};
 
-  EVALUATE_WITH_TRACE_FAST_SUCCESS(metaschema.value(), instance, 17);
+  EVALUATE_WITH_TRACE_FAST_SUCCESS(metaschema.value(), instance, 16);
 }
 
 TEST(Evaluator_draft4, metaschema_hyper_self) {
   const auto metaschema{sourcemeta::core::schema_resolver(
       "http://json-schema.org/draft-04/hyper-schema#")};
   EXPECT_TRUE(metaschema.has_value());
-  EVALUATE_WITH_TRACE_FAST_SUCCESS(metaschema.value(), metaschema.value(), 787);
+  EVALUATE_WITH_TRACE_FAST_SUCCESS(metaschema.value(), metaschema.value(), 768);
 }
 
 TEST(Evaluator_draft4, metaschema_hyper_self_exhaustive) {
@@ -46,7 +46,7 @@ TEST(Evaluator_draft4, metaschema_hyper_self_exhaustive) {
       "http://json-schema.org/draft-04/hyper-schema#")};
   EXPECT_TRUE(metaschema.has_value());
   EVALUATE_WITH_TRACE_EXHAUSTIVE_SUCCESS(metaschema.value(), metaschema.value(),
-                                         959);
+                                         957);
 }
 
 TEST(Evaluator_draft4, unknown_keyword) {
@@ -647,13 +647,13 @@ TEST(Evaluator_draft4, ref_2_exhaustive) {
   EVALUATE_WITH_TRACE_EXHAUSTIVE_SUCCESS(schema, instance, 3);
 
   EVALUATE_TRACE_PRE(0, LogicalAnd, "/allOf", "#/allOf", "");
-  EVALUATE_TRACE_PRE(1, LogicalAnd, "/allOf/0/$ref", "#/allOf/0/$ref", "");
+  EVALUATE_TRACE_PRE(1, ControlJump, "/allOf/0/$ref", "#/allOf/0/$ref", "");
   EVALUATE_TRACE_PRE(2, AssertionTypeStrict, "/allOf/0/$ref/type",
                      "#/definitions/string/type", "");
 
   EVALUATE_TRACE_POST_SUCCESS(0, AssertionTypeStrict, "/allOf/0/$ref/type",
                               "#/definitions/string/type", "");
-  EVALUATE_TRACE_POST_SUCCESS(1, LogicalAnd, "/allOf/0/$ref", "#/allOf/0/$ref",
+  EVALUATE_TRACE_POST_SUCCESS(1, ControlJump, "/allOf/0/$ref", "#/allOf/0/$ref",
                               "");
   EVALUATE_TRACE_POST_SUCCESS(2, LogicalAnd, "/allOf", "#/allOf", "");
 
@@ -661,7 +661,7 @@ TEST(Evaluator_draft4, ref_2_exhaustive) {
                                "The value was expected to be of type string");
   EVALUATE_TRACE_POST_DESCRIBE(instance, 1,
                                "The string value was expected to validate "
-                               "against the statically referenced schema");
+                               "against the referenced schema");
   EVALUATE_TRACE_POST_DESCRIBE(
       instance, 2,
       "The string value was expected to validate against the given subschema");
@@ -684,7 +684,7 @@ TEST(Evaluator_draft4, ref_3) {
 
   EVALUATE_WITH_TRACE_FAST_SUCCESS(schema, instance, 3);
 
-  EVALUATE_TRACE_PRE(0, ControlLabel, "/properties/foo/$ref",
+  EVALUATE_TRACE_PRE(0, ControlJump, "/properties/foo/$ref",
                      "https://example.com#/properties/foo/$ref", "/foo");
   EVALUATE_TRACE_PRE(1, AssertionTypeStrict, "/properties/foo/$ref/type",
                      "https://example.com#/type", "/foo");
@@ -694,7 +694,7 @@ TEST(Evaluator_draft4, ref_3) {
   EVALUATE_TRACE_POST_SUCCESS(0, AssertionTypeStrict,
                               "/properties/foo/$ref/type",
                               "https://example.com#/type", "/foo");
-  EVALUATE_TRACE_POST_SUCCESS(1, ControlLabel, "/properties/foo/$ref",
+  EVALUATE_TRACE_POST_SUCCESS(1, ControlJump, "/properties/foo/$ref",
                               "https://example.com#/properties/foo/$ref",
                               "/foo");
   EVALUATE_TRACE_POST_SUCCESS(2, AssertionTypeStrict, "/type",
@@ -704,7 +704,7 @@ TEST(Evaluator_draft4, ref_3) {
                                "The value was expected to be of type object");
   EVALUATE_TRACE_POST_DESCRIBE(instance, 1,
                                "The object value was expected to validate "
-                               "against the statically referenced schema");
+                               "against the referenced schema");
   EVALUATE_TRACE_POST_DESCRIBE(instance, 2,
                                "The value was expected to be of type object");
 }
@@ -726,7 +726,7 @@ TEST(Evaluator_draft4, ref_4) {
 
   EVALUATE_WITH_TRACE_FAST_SUCCESS(schema, instance, 5);
 
-  EVALUATE_TRACE_PRE(0, ControlLabel, "/properties/foo/$ref",
+  EVALUATE_TRACE_PRE(0, ControlJump, "/properties/foo/$ref",
                      "https://example.com#/properties/foo/$ref", "/foo");
   EVALUATE_TRACE_PRE(1, ControlJump, "/properties/foo/$ref/properties/foo/$ref",
                      "https://example.com#/properties/foo/$ref", "/foo/foo");
@@ -747,7 +747,7 @@ TEST(Evaluator_draft4, ref_4) {
   EVALUATE_TRACE_POST_SUCCESS(2, AssertionTypeStrict,
                               "/properties/foo/$ref/type",
                               "https://example.com#/type", "/foo");
-  EVALUATE_TRACE_POST_SUCCESS(3, ControlLabel, "/properties/foo/$ref",
+  EVALUATE_TRACE_POST_SUCCESS(3, ControlJump, "/properties/foo/$ref",
                               "https://example.com#/properties/foo/$ref",
                               "/foo");
   EVALUATE_TRACE_POST_SUCCESS(4, AssertionTypeStrict, "/type",
@@ -757,12 +757,12 @@ TEST(Evaluator_draft4, ref_4) {
                                "The value was expected to be of type object");
   EVALUATE_TRACE_POST_DESCRIBE(instance, 1,
                                "The object value was expected to validate "
-                               "against the statically referenced schema");
+                               "against the referenced schema");
   EVALUATE_TRACE_POST_DESCRIBE(instance, 2,
                                "The value was expected to be of type object");
   EVALUATE_TRACE_POST_DESCRIBE(instance, 3,
                                "The object value was expected to validate "
-                               "against the statically referenced schema");
+                               "against the referenced schema");
   EVALUATE_TRACE_POST_DESCRIBE(instance, 4,
                                "The value was expected to be of type object");
 }
@@ -784,7 +784,7 @@ TEST(Evaluator_draft4, ref_5) {
 
   EVALUATE_WITH_TRACE_FAST_FAILURE(schema, instance, 3);
 
-  EVALUATE_TRACE_PRE(0, ControlLabel, "/properties/foo/$ref",
+  EVALUATE_TRACE_PRE(0, ControlJump, "/properties/foo/$ref",
                      "https://example.com#/properties/foo/$ref", "/foo");
   EVALUATE_TRACE_PRE(1, ControlJump, "/properties/foo/$ref/properties/foo/$ref",
                      "https://example.com#/properties/foo/$ref", "/foo/foo");
@@ -798,7 +798,7 @@ TEST(Evaluator_draft4, ref_5) {
   EVALUATE_TRACE_POST_FAILURE(
       1, ControlJump, "/properties/foo/$ref/properties/foo/$ref",
       "https://example.com#/properties/foo/$ref", "/foo/foo");
-  EVALUATE_TRACE_POST_FAILURE(2, ControlLabel, "/properties/foo/$ref",
+  EVALUATE_TRACE_POST_FAILURE(2, ControlJump, "/properties/foo/$ref",
                               "https://example.com#/properties/foo/$ref",
                               "/foo");
 
@@ -807,10 +807,10 @@ TEST(Evaluator_draft4, ref_5) {
       "The value was expected to be of type object but it was of type integer");
   EVALUATE_TRACE_POST_DESCRIBE(instance, 1,
                                "The integer value was expected to validate "
-                               "against the statically referenced schema");
+                               "against the referenced schema");
   EVALUATE_TRACE_POST_DESCRIBE(instance, 2,
                                "The object value was expected to validate "
-                               "against the statically referenced schema");
+                               "against the referenced schema");
 }
 
 TEST(Evaluator_draft4, ref_6) {
@@ -829,7 +829,7 @@ TEST(Evaluator_draft4, ref_6) {
 
   EVALUATE_WITH_TRACE_FAST_SUCCESS(schema, instance, 3);
 
-  EVALUATE_TRACE_PRE(0, ControlLabel, "/properties/foo/$ref",
+  EVALUATE_TRACE_PRE(0, ControlJump, "/properties/foo/$ref",
                      "#/properties/foo/$ref", "/foo");
   EVALUATE_TRACE_PRE(1, AssertionTypeStrict, "/properties/foo/$ref/type",
                      "#/type", "/foo");
@@ -837,7 +837,7 @@ TEST(Evaluator_draft4, ref_6) {
 
   EVALUATE_TRACE_POST_SUCCESS(0, AssertionTypeStrict,
                               "/properties/foo/$ref/type", "#/type", "/foo");
-  EVALUATE_TRACE_POST_SUCCESS(1, ControlLabel, "/properties/foo/$ref",
+  EVALUATE_TRACE_POST_SUCCESS(1, ControlJump, "/properties/foo/$ref",
                               "#/properties/foo/$ref", "/foo");
   EVALUATE_TRACE_POST_SUCCESS(2, AssertionTypeStrict, "/type", "#/type", "");
 
@@ -845,7 +845,7 @@ TEST(Evaluator_draft4, ref_6) {
                                "The value was expected to be of type object");
   EVALUATE_TRACE_POST_DESCRIBE(instance, 1,
                                "The object value was expected to validate "
-                               "against the statically referenced schema");
+                               "against the referenced schema");
   EVALUATE_TRACE_POST_DESCRIBE(instance, 2,
                                "The value was expected to be of type object");
 }
@@ -913,11 +913,12 @@ TEST(Evaluator_draft4, ref_9) {
 
   EVALUATE_WITH_TRACE_FAST_SUCCESS(schema, instance, 1);
 
-  EVALUATE_TRACE_PRE(0, LoopPropertiesTypeStrict, "/additionalProperties",
-                     "#/additionalProperties", "");
+  EVALUATE_TRACE_PRE(0, LoopPropertiesTypeStrict,
+                     "/additionalProperties/$ref/$ref/type",
+                     "#/definitions/two/type", "");
   EVALUATE_TRACE_POST_SUCCESS(0, LoopPropertiesTypeStrict,
-                              "/additionalProperties", "#/additionalProperties",
-                              "");
+                              "/additionalProperties/$ref/$ref/type",
+                              "#/definitions/two/type", "");
   EVALUATE_TRACE_POST_DESCRIBE(
       instance, 0, "The object properties were expected to be of type boolean");
 }
@@ -938,11 +939,12 @@ TEST(Evaluator_draft4, ref_10) {
 
   EVALUATE_WITH_TRACE_FAST_SUCCESS(schema, instance, 1);
 
-  EVALUATE_TRACE_PRE(0, LoopPropertiesTypeStrict, "/additionalProperties",
-                     "#/additionalProperties", "");
+  EVALUATE_TRACE_PRE(0, LoopPropertiesTypeStrict,
+                     "/additionalProperties/$ref/$ref/type",
+                     "#/definitions/two/type", "");
   EVALUATE_TRACE_POST_SUCCESS(0, LoopPropertiesTypeStrict,
-                              "/additionalProperties", "#/additionalProperties",
-                              "");
+                              "/additionalProperties/$ref/$ref/type",
+                              "#/definitions/two/type", "");
   EVALUATE_TRACE_POST_DESCRIBE(
       instance, 0, "The object properties were expected to be of type boolean");
 }
@@ -1027,6 +1029,45 @@ TEST(Evaluator_draft4, ref_14) {
   sourcemeta::blaze::Evaluator evaluator;
   EXPECT_THROW(evaluator.validate(compiled_schema, instance),
                sourcemeta::blaze::EvaluationError);
+}
+
+TEST(Evaluator_draft4, ref_15) {
+  const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
+    "$schema": "http://json-schema.org/draft-04/schema#",
+    "properties": {
+      "foo": { "$ref": "#/definitions/three" }
+    },
+    "definitions": {
+      "three": { "$ref": "#/definitions/four" },
+      "four": { "$ref": "#/definitions/five" },
+      "five": {
+        "properties": {
+          "requires": {
+            "additionalProperties": {
+              "type": "string"
+            }
+          }
+        }
+      }
+    }
+  })JSON")};
+
+  const sourcemeta::core::JSON instance{sourcemeta::core::parse_json(R"JSON({
+    "foo": {
+      "bar": {}
+    }
+  })JSON")};
+
+  EVALUATE_WITH_TRACE_FAST_SUCCESS(schema, instance, 1);
+
+  EVALUATE_TRACE_PRE(0, ControlJump, "/properties/foo/$ref/$ref",
+                     "#/definitions/three/$ref", "/foo");
+  EVALUATE_TRACE_POST_SUCCESS(0, ControlJump, "/properties/foo/$ref/$ref",
+                              "#/definitions/three/$ref", "/foo");
+  EVALUATE_TRACE_POST_DESCRIBE(
+      instance, 0,
+      "The object value was expected to validate against the referenced "
+      "schema");
 }
 
 TEST(Evaluator_draft4, properties_1) {
@@ -1300,7 +1341,7 @@ TEST(Evaluator_draft4, properties_7) {
                      "#/properties/bar/type", "/bar");
   EVALUATE_TRACE_PRE(1, AssertionRegex, "/properties/foo/pattern",
                      "#/properties/foo/pattern", "/foo");
-  EVALUATE_TRACE_PRE(2, AssertionTypeStrict, "/properties/foo/type",
+  EVALUATE_TRACE_PRE(2, AssertionPropertyTypeStrict, "/properties/foo/type",
                      "#/properties/foo/type", "/foo");
 
   EVALUATE_TRACE_POST_SUCCESS(0, AssertionPropertyTypeStrict,
@@ -1308,8 +1349,9 @@ TEST(Evaluator_draft4, properties_7) {
                               "/bar");
   EVALUATE_TRACE_POST_SUCCESS(1, AssertionRegex, "/properties/foo/pattern",
                               "#/properties/foo/pattern", "/foo");
-  EVALUATE_TRACE_POST_SUCCESS(2, AssertionTypeStrict, "/properties/foo/type",
-                              "#/properties/foo/type", "/foo");
+  EVALUATE_TRACE_POST_SUCCESS(2, AssertionPropertyTypeStrict,
+                              "/properties/foo/type", "#/properties/foo/type",
+                              "/foo");
 
   EVALUATE_TRACE_POST_DESCRIBE(instance, 0,
                                "The value was expected to be of type integer");
@@ -1340,7 +1382,7 @@ TEST(Evaluator_draft4, properties_8) {
                      "#/properties/foo/type", "/foo");
   EVALUATE_TRACE_PRE(1, AssertionRegex, "/properties/bar/pattern",
                      "#/properties/bar/pattern", "/bar");
-  EVALUATE_TRACE_PRE(2, AssertionTypeStrict, "/properties/bar/type",
+  EVALUATE_TRACE_PRE(2, AssertionPropertyTypeStrict, "/properties/bar/type",
                      "#/properties/bar/type", "/bar");
 
   EVALUATE_TRACE_POST_SUCCESS(0, AssertionPropertyTypeStrict,
@@ -1348,8 +1390,9 @@ TEST(Evaluator_draft4, properties_8) {
                               "/foo");
   EVALUATE_TRACE_POST_SUCCESS(1, AssertionRegex, "/properties/bar/pattern",
                               "#/properties/bar/pattern", "/bar");
-  EVALUATE_TRACE_POST_SUCCESS(2, AssertionTypeStrict, "/properties/bar/type",
-                              "#/properties/bar/type", "/bar");
+  EVALUATE_TRACE_POST_SUCCESS(2, AssertionPropertyTypeStrict,
+                              "/properties/bar/type", "#/properties/bar/type",
+                              "/bar");
 
   EVALUATE_TRACE_POST_DESCRIBE(instance, 0,
                                "The value was expected to be of type integer");
@@ -1437,7 +1480,7 @@ TEST(Evaluator_draft4, properties_11) {
   // if we don't count steps recursively, its the other way around
   EVALUATE_TRACE_PRE(0, AssertionRegex, "/properties/bar/pattern",
                      "#/properties/bar/pattern", "/bar");
-  EVALUATE_TRACE_PRE(1, AssertionTypeStrict, "/properties/bar/type",
+  EVALUATE_TRACE_PRE(1, AssertionPropertyTypeStrict, "/properties/bar/type",
                      "#/properties/bar/type", "/bar");
 
   EVALUATE_TRACE_PRE(2, LoopItems, "/properties/foo/items",
@@ -1451,8 +1494,9 @@ TEST(Evaluator_draft4, properties_11) {
 
   EVALUATE_TRACE_POST_SUCCESS(0, AssertionRegex, "/properties/bar/pattern",
                               "#/properties/bar/pattern", "/bar");
-  EVALUATE_TRACE_POST_SUCCESS(1, AssertionTypeStrict, "/properties/bar/type",
-                              "#/properties/bar/type", "/bar");
+  EVALUATE_TRACE_POST_SUCCESS(1, AssertionPropertyTypeStrict,
+                              "/properties/bar/type", "#/properties/bar/type",
+                              "/bar");
   EVALUATE_TRACE_POST_SUCCESS(2, AssertionLessEqual,
                               "/properties/foo/items/maximum",
                               "#/properties/foo/items/maximum", "/foo/0");
@@ -1595,11 +1639,12 @@ TEST(Evaluator_draft4, properties_14) {
 
   EVALUATE_TRACE_PRE(0, LoopPropertiesMatchClosed, "/properties",
                      "#/properties", "");
-  EVALUATE_TRACE_PRE(1, AssertionTypeStrict, "/properties/f/type",
+  EVALUATE_TRACE_PRE(1, AssertionPropertyTypeStrict, "/properties/f/type",
                      "#/properties/f/type", "/f");
 
-  EVALUATE_TRACE_POST_SUCCESS(0, AssertionTypeStrict, "/properties/f/type",
-                              "#/properties/f/type", "/f");
+  EVALUATE_TRACE_POST_SUCCESS(0, AssertionPropertyTypeStrict,
+                              "/properties/f/type", "#/properties/f/type",
+                              "/f");
   EVALUATE_TRACE_POST_SUCCESS(1, LoopPropertiesMatchClosed, "/properties",
                               "#/properties", "");
 
@@ -1715,11 +1760,12 @@ TEST(Evaluator_draft4, properties_15) {
 
     EVALUATE_TRACE_PRE(0, LoopPropertiesMatchClosed, "/properties",
                        "#/properties", "");
-    EVALUATE_TRACE_PRE(1, AssertionTypeStrict, "/properties/f/type",
+    EVALUATE_TRACE_PRE(1, AssertionPropertyTypeStrict, "/properties/f/type",
                        "#/properties/f/type", "/f");
 
-    EVALUATE_TRACE_POST_SUCCESS(0, AssertionTypeStrict, "/properties/f/type",
-                                "#/properties/f/type", "/f");
+    EVALUATE_TRACE_POST_SUCCESS(0, AssertionPropertyTypeStrict,
+                                "/properties/f/type", "#/properties/f/type",
+                                "/f");
     EVALUATE_TRACE_POST_FAILURE(1, LoopPropertiesMatchClosed, "/properties",
                                 "#/properties", "");
 
@@ -2566,11 +2612,11 @@ TEST(Evaluator_draft4, additionalProperties_1) {
 
   EVALUATE_WITH_TRACE_FAST_SUCCESS(schema, instance, 1);
 
-  EVALUATE_TRACE_PRE(0, LoopPropertiesTypeStrict, "/additionalProperties",
-                     "#/additionalProperties", "");
+  EVALUATE_TRACE_PRE(0, LoopPropertiesTypeStrict, "/additionalProperties/type",
+                     "#/additionalProperties/type", "");
   EVALUATE_TRACE_POST_SUCCESS(0, LoopPropertiesTypeStrict,
-                              "/additionalProperties", "#/additionalProperties",
-                              "");
+                              "/additionalProperties/type",
+                              "#/additionalProperties/type", "");
   EVALUATE_TRACE_POST_DESCRIBE(
       instance, 0, "The object properties were expected to be of type integer");
 }
@@ -2905,11 +2951,12 @@ TEST(Evaluator_draft4, additionalProperties_5) {
 
     EVALUATE_TRACE_PRE(0, LoopPropertiesMatchClosed, "/properties",
                        "#/properties", "");
-    EVALUATE_TRACE_PRE(1, AssertionTypeStrict, "/properties/foo/type",
+    EVALUATE_TRACE_PRE(1, AssertionPropertyTypeStrict, "/properties/foo/type",
                        "#/properties/foo/type", "/foo");
 
-    EVALUATE_TRACE_POST_SUCCESS(0, AssertionTypeStrict, "/properties/foo/type",
-                                "#/properties/foo/type", "/foo");
+    EVALUATE_TRACE_POST_SUCCESS(0, AssertionPropertyTypeStrict,
+                                "/properties/foo/type", "#/properties/foo/type",
+                                "/foo");
     EVALUATE_TRACE_POST_FAILURE(1, LoopPropertiesMatchClosed, "/properties",
                                 "#/properties", "");
 
@@ -3064,11 +3111,12 @@ TEST(Evaluator_draft4, additionalProperties_10) {
 
   EVALUATE_WITH_TRACE_FAST_SUCCESS(schema, instance, 1);
 
-  EVALUATE_TRACE_PRE(0, LoopPropertiesTypeStrictAny, "/additionalProperties",
-                     "#/additionalProperties", "");
+  EVALUATE_TRACE_PRE(0, LoopPropertiesTypeStrictAny,
+                     "/additionalProperties/type",
+                     "#/additionalProperties/type", "");
   EVALUATE_TRACE_POST_SUCCESS(0, LoopPropertiesTypeStrictAny,
-                              "/additionalProperties", "#/additionalProperties",
-                              "");
+                              "/additionalProperties/type",
+                              "#/additionalProperties/type", "");
   EVALUATE_TRACE_POST_DESCRIBE(
       instance, 0, "The object properties were expected to be of type number");
 }
@@ -3563,11 +3611,12 @@ TEST(Evaluator_draft4, additionalProperties_25) {
 
   EVALUATE_WITH_TRACE_FAST_SUCCESS(schema, instance, 1);
 
-  EVALUATE_TRACE_PRE(0, LoopPropertiesTypeStrictAny, "/additionalProperties",
-                     "#/additionalProperties", "");
+  EVALUATE_TRACE_PRE(0, LoopPropertiesTypeStrictAny,
+                     "/additionalProperties/type",
+                     "#/additionalProperties/type", "");
   EVALUATE_TRACE_POST_SUCCESS(0, LoopPropertiesTypeStrictAny,
-                              "/additionalProperties", "#/additionalProperties",
-                              "");
+                              "/additionalProperties/type",
+                              "#/additionalProperties/type", "");
   EVALUATE_TRACE_POST_DESCRIBE(
       instance, 0,
       "The object properties were expected to be of type integer, or string");
@@ -3588,11 +3637,12 @@ TEST(Evaluator_draft4, additionalProperties_26) {
 
   EVALUATE_WITH_TRACE_FAST_FAILURE(schema, instance, 1);
 
-  EVALUATE_TRACE_PRE(0, LoopPropertiesTypeStrictAny, "/additionalProperties",
-                     "#/additionalProperties", "");
+  EVALUATE_TRACE_PRE(0, LoopPropertiesTypeStrictAny,
+                     "/additionalProperties/type",
+                     "#/additionalProperties/type", "");
   EVALUATE_TRACE_POST_FAILURE(0, LoopPropertiesTypeStrictAny,
-                              "/additionalProperties", "#/additionalProperties",
-                              "");
+                              "/additionalProperties/type",
+                              "#/additionalProperties/type", "");
   EVALUATE_TRACE_POST_DESCRIBE(
       instance, 0,
       "The object properties were expected to be of type integer, or string");
@@ -4641,10 +4691,11 @@ TEST(Evaluator_draft4, anyOf_4) {
   EVALUATE_TRACE_PRE(0, LogicalOr, "/anyOf", "#/anyOf", "");
   EVALUATE_TRACE_PRE(1, LoopPropertiesMatch, "/anyOf/0/$ref/properties",
                      "#/definitions/test/properties", "");
-  EVALUATE_TRACE_PRE(2, AssertionTypeStrict, "/anyOf/0/$ref/properties/a/type",
+  EVALUATE_TRACE_PRE(2, AssertionPropertyTypeStrict,
+                     "/anyOf/0/$ref/properties/a/type",
                      "#/definitions/test/properties/a/type", "/a");
 
-  EVALUATE_TRACE_POST_SUCCESS(0, AssertionTypeStrict,
+  EVALUATE_TRACE_POST_SUCCESS(0, AssertionPropertyTypeStrict,
                               "/anyOf/0/$ref/properties/a/type",
                               "#/definitions/test/properties/a/type", "/a");
   EVALUATE_TRACE_POST_SUCCESS(1, LoopPropertiesMatch,
@@ -9037,9 +9088,9 @@ TEST(Evaluator_draft4, reference_from_unknown_keyword) {
                                sourcemeta::core::schema_resolver,
                                sourcemeta::blaze::default_schema_compiler);
   } catch (const sourcemeta::core::SchemaReferenceError &error) {
-    EXPECT_EQ(error.identifier(), "#/properties/baz");
+    EXPECT_EQ(error.identifier(), "#/$defs/bar");
     EXPECT_EQ(error.location(),
-              sourcemeta::core::Pointer({"$defs", "bar", "$ref"}));
+              sourcemeta::core::Pointer({"properties", "foo", "$ref"}));
   } catch (...) {
     throw;
   }
