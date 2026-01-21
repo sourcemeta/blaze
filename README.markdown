@@ -23,10 +23,11 @@ Benchmark
 ---------
 
 The 2025 paper [Blaze: Compiling JSON Schema for 10x Faster
-Validation](https://arxiv.org/abs/2503.02770) presents a reproducible benchmark
-comparing Blaze against a number of popular JSON Schema validators, concluding
-that Blaze is on average _at least_ 10x faster than competitors given a large
-set of representative schemas and instances.
+Validation](https://arxiv.org/abs/2503.02770) (also published on
+[PVLDB](https://www.vldb.org/pvldb/vol19/p279-viotti.pdf)) presents a
+reproducible benchmark comparing Blaze against a number of popular JSON Schema
+validators, concluding that Blaze is on average _at least_ 10x faster than
+competitors given a large set of representative schemas and instances.
 
 [![](./assets/banner.png)](https://arxiv.org/abs/2503.02770)
 
