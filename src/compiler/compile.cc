@@ -74,9 +74,57 @@ auto compile_subschema(const sourcemeta::blaze::Context &context,
   return steps;
 }
 
-// TODO: Some how move this logic up to `SchemaFrame`
+// TODO: We should be able to more easily figure this out on the walker itself,
+// and from there record the information in the `SchemaFrame::Location` entries?
+auto is_inside_property_names(const sourcemeta::core::SchemaFrame &frame,
+                              const sourcemeta::core::SchemaWalker &walker,
+                              const sourcemeta::core::SchemaResolver &resolver,
+                              const sourcemeta::core::WeakPointer &pointer)
+    -> bool {
+  auto current{frame.traverse(pointer)};
+  assert(current.has_value());
+  assert(current->get().type ==
+         sourcemeta::core::SchemaFrame::LocationType::Pointer);
+
+  while (current->get().parent.has_value()) {
+    const auto &parent_pointer{*(current->get().parent)};
+    current = frame.traverse(parent_pointer);
+    if (!current.has_value()) {
+      break;
+    } else if (parent_pointer.empty() || !parent_pointer.back().is_property()) {
+      continue;
+    }
+
+    const auto &keyword{parent_pointer.back().to_property()};
+    if (keyword == "propertyNames") {
+      return true;
+    }
+
+    // Check if this keyword is an in-place applicator. If not, we broke the
+    // chain
+    const auto vocabularies{frame.vocabularies(current->get(), resolver)};
+    const auto &walker_result{walker(keyword, vocabularies)};
+    using Type = sourcemeta::core::SchemaKeywordType;
+    if (walker_result.type != Type::ApplicatorValueOrElementsInPlace &&
+        walker_result.type != Type::ApplicatorMembersInPlaceSome &&
+        walker_result.type != Type::ApplicatorElementsInPlace &&
+        walker_result.type != Type::ApplicatorElementsInPlaceSome &&
+        walker_result.type != Type::ApplicatorElementsInPlaceSomeNegate &&
+        walker_result.type != Type::ApplicatorValueInPlaceMaybe &&
+        walker_result.type != Type::ApplicatorValueInPlaceOther &&
+        walker_result.type != Type::ApplicatorValueInPlaceNegate) {
+      return false;
+    }
+  }
+
+  return false;
+}
+
+// TODO: Somehow move this logic up to `SchemaFrame`
 auto schema_frame_populate_target_types(
     const sourcemeta::core::SchemaFrame &frame,
+    const sourcemeta::core::SchemaWalker &walker,
+    const sourcemeta::core::SchemaResolver &resolver,
     std::unordered_map<std::string_view, std::pair<bool, bool>> &target_types)
     -> void {
   for (const auto &reference : frame.references()) {
@@ -86,15 +134,9 @@ auto schema_frame_populate_target_types(
       continue;
     }
 
-    const auto &reference_pointer{reference.first.second};
-    const auto is_direct_property_name{
-        reference_pointer.size() >= 2 &&
-        reference_pointer.at(reference_pointer.size() - 2).is_property() &&
-        reference_pointer.at(reference_pointer.size() - 2).to_property() ==
-            "propertyNames"};
-
     auto &context{target_types[reference.second.destination]};
-    if (is_direct_property_name) {
+    if (is_inside_property_names(frame, walker, resolver,
+                                 reference.first.second)) {
       context.first = true;
     } else {
       context.second = true;
@@ -224,7 +266,7 @@ auto compile(const sourcemeta::core::JSON &schema,
   ///////////////////////////////////////////////////////////////////
 
   std::unordered_map<std::string_view, std::pair<bool, bool>> target_types;
-  schema_frame_populate_target_types(frame, target_types);
+  schema_frame_populate_target_types(frame, walker, resolver, target_types);
 
   std::map<
       std::tuple<sourcemeta::core::SchemaReferenceType, std::string_view, bool>,

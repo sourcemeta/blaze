@@ -1711,6 +1711,130 @@ TEST(Evaluator_draft6, propertyNames_17) {
   EVALUATE_WITH_TRACE_FAST_SUCCESS(schema, instance, 0);
 }
 
+TEST(Evaluator_draft6, propertyNames_18) {
+  const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
+    "$schema": "http://json-schema.org/draft-06/schema#",
+    "propertyNames": {
+      "allOf": [
+        {
+          "$ref": "#/definitions/foo"
+        }
+      ]
+    },
+    "definitions": {
+      "foo": { "$ref": "#/definitions/bar" },
+      "bar": {}
+    }
+  })JSON")};
+
+  const sourcemeta::core::JSON instance{sourcemeta::core::parse_json(R"JSON({
+    "foo": "bar"
+  })JSON")};
+
+  EVALUATE_WITH_TRACE_FAST_SUCCESS(schema, instance, 0);
+}
+
+TEST(Evaluator_draft6, propertyNames_19) {
+  const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
+    "$schema": "http://json-schema.org/draft-06/schema#",
+    "propertyNames": {
+      "allOf": [
+        {
+          "anyOf": [
+            {
+              "allOf": [
+                {
+                  "$ref": "#/definitions/foo"
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    "definitions": {
+      "foo": { "$ref": "#/definitions/bar" },
+      "bar": {}
+    }
+  })JSON")};
+
+  const sourcemeta::core::JSON instance{sourcemeta::core::parse_json(R"JSON({
+    "foo": "bar"
+  })JSON")};
+
+  EVALUATE_WITH_TRACE_FAST_SUCCESS(schema, instance, 2);
+
+  EVALUATE_TRACE_PRE(0, LoopKeys, "/propertyNames", "#/propertyNames", "");
+  EVALUATE_TRACE_PRE(1, LogicalOr, "/propertyNames/allOf/0/anyOf",
+                     "#/propertyNames/allOf/0/anyOf", "/foo");
+
+  EVALUATE_TRACE_POST_SUCCESS(0, LogicalOr, "/propertyNames/allOf/0/anyOf",
+                              "#/propertyNames/allOf/0/anyOf", "/foo");
+  EVALUATE_TRACE_POST_SUCCESS(1, LoopKeys, "/propertyNames", "#/propertyNames",
+                              "");
+
+  EVALUATE_TRACE_POST_DESCRIBE(
+      instance, 0,
+      "The string value was expected to validate against the given subschema");
+  EVALUATE_TRACE_POST_DESCRIBE(
+      instance, 1,
+      "The object property \"foo\" was expected to validate against the given "
+      "subschema");
+}
+
+TEST(Evaluator_draft6, propertyNames_20) {
+  const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
+    "$schema": "http://json-schema.org/draft-06/schema#",
+    "propertyNames": {
+      "definitions": {
+        "test": { "type": "string" }
+      }
+    },
+    "allOf": [
+      { "$ref": "#/propertyNames/definitions/test" }
+    ]
+  })JSON")};
+
+  const sourcemeta::core::JSON instance{1};
+
+  EVALUATE_WITH_TRACE_FAST_FAILURE(schema, instance, 1);
+
+  EVALUATE_TRACE_PRE(0, AssertionTypeStrict, "/allOf/0/$ref/type",
+                     "#/propertyNames/definitions/test/type", "");
+  EVALUATE_TRACE_POST_FAILURE(0, AssertionTypeStrict, "/allOf/0/$ref/type",
+                              "#/propertyNames/definitions/test/type", "");
+  EVALUATE_TRACE_POST_DESCRIBE(
+      instance, 0,
+      "The value was expected to be of type string but it was of type integer");
+}
+
+TEST(Evaluator_draft6, propertyNames_21) {
+  const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
+    "$schema": "http://json-schema.org/draft-06/schema#",
+    "propertyNames": {
+      "definitions": { "inner": { "$ref": "#/definitions/outer" } }
+    },
+    "allOf": [
+      { "$ref": "#/propertyNames/definitions/inner" }
+    ],
+    "definitions": {
+      "outer": { "type": "string" }
+    }
+  })JSON")};
+
+  const sourcemeta::core::JSON instance{1};
+
+  EVALUATE_WITH_TRACE_FAST_FAILURE(schema, instance, 1);
+
+  EVALUATE_TRACE_PRE(0, AssertionTypeStrict, "/allOf/0/$ref/$ref/type",
+                     "#/definitions/outer/type", "");
+  EVALUATE_TRACE_POST_FAILURE(0, AssertionTypeStrict, "/allOf/0/$ref/$ref/type",
+                              "#/definitions/outer/type", "");
+  EVALUATE_TRACE_POST_DESCRIBE(
+      instance, 0,
+      "The value was expected to be of type string but it was of type integer");
+}
+
 TEST(Evaluator_draft6, invalid_ref_top_level) {
   const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
     "$schema": "http://json-schema.org/draft-06/schema#",
