@@ -3,11 +3,14 @@
 
 #include <sourcemeta/core/jsonschema.h>
 
-#include <algorithm>   // std::move, std::sort, std::unique
-#include <cassert>     // assert
-#include <map>         // std::map
-#include <string_view> // std::string_view
-#include <utility>     // std::move, std::pair
+#include <algorithm>     // std::move, std::sort, std::unique
+#include <cassert>       // assert
+#include <map>           // std::map
+#include <set>           // std::set
+#include <string_view>   // std::string_view
+#include <unordered_map> // std::unordered_map
+#include <utility>       // std::move, std::pair
+#include <vector>        // std::vector
 
 #include "compile_helpers.h"
 #include "postprocess.h"
@@ -69,6 +72,85 @@ auto compile_subschema(const sourcemeta::blaze::Context &context,
   }
 
   return steps;
+}
+
+// TODO: Some how move this logic up to `SchemaFrame`
+auto schema_frame_populate_target_types(
+    const sourcemeta::core::SchemaFrame &frame,
+    std::unordered_map<std::string_view, std::pair<bool, bool>> &target_types)
+    -> void {
+  for (const auto &reference : frame.references()) {
+    if (!reference.first.second.empty() &&
+        reference.first.second.back().is_property() &&
+        reference.first.second.back().to_property() == "$schema") {
+      continue;
+    }
+
+    const auto &reference_pointer{reference.first.second};
+    const auto is_direct_property_name{
+        reference_pointer.size() >= 2 &&
+        reference_pointer.at(reference_pointer.size() - 2).is_property() &&
+        reference_pointer.at(reference_pointer.size() - 2).to_property() ==
+            "propertyNames"};
+
+    auto &context{target_types[reference.second.destination]};
+    if (is_direct_property_name) {
+      context.first = true;
+    } else {
+      context.second = true;
+    }
+  }
+
+  std::unordered_map<std::string_view, const sourcemeta::core::WeakPointer *>
+      destination_pointers;
+  for (const auto &[destination, _] : target_types) {
+    const auto destination_location{frame.traverse(destination)};
+    if (destination_location.has_value()) {
+      destination_pointers.emplace(destination,
+                                   &destination_location->get().pointer);
+    }
+  }
+
+  std::unordered_map<std::string_view, std::vector<std::string_view>>
+      references_within;
+  for (const auto &reference : frame.references()) {
+    if (!reference.first.second.empty() &&
+        reference.first.second.back().is_property() &&
+        reference.first.second.back().to_property() == "$schema") {
+      continue;
+    }
+
+    for (const auto &[destination, destination_pointer] :
+         destination_pointers) {
+      if (reference.first.second.starts_with(*destination_pointer) &&
+          reference.first.second.size() > destination_pointer->size()) {
+        references_within[destination].push_back(reference.second.destination);
+      }
+    }
+  }
+
+  bool changed{true};
+  while (changed) {
+    changed = false;
+    for (const auto &[current_destination, context] : target_types) {
+      if (!context.first) {
+        continue;
+      }
+
+      const auto iterator{references_within.find(current_destination)};
+      if (iterator == references_within.end()) {
+        continue;
+      }
+
+      for (const auto &referenced_destination : iterator->second) {
+        auto &next_context{target_types[referenced_destination]};
+        if (!next_context.first) {
+          next_context.first = true;
+          changed = true;
+        }
+      }
+    }
+  }
 }
 
 } // namespace
@@ -141,6 +223,9 @@ auto compile(const sourcemeta::core::JSON &schema,
   // (4) Plan which static references we will precompile
   ///////////////////////////////////////////////////////////////////
 
+  std::unordered_map<std::string_view, std::pair<bool, bool>> target_types;
+  schema_frame_populate_target_types(frame, target_types);
+
   std::map<
       std::tuple<sourcemeta::core::SchemaReferenceType, std::string_view, bool>,
       std::pair<std::size_t, const sourcemeta::core::WeakPointer *>>
@@ -149,6 +234,7 @@ auto compile(const sourcemeta::core::JSON &schema,
       std::make_tuple(sourcemeta::core::SchemaReferenceType::Static,
                       std::string_view{frame.root()}, false),
       std::make_pair(0, nullptr));
+
   for (const auto &reference : frame.references()) {
     // Ignore meta-schema references
     if (!reference.first.second.empty() &&
@@ -157,19 +243,23 @@ auto compile(const sourcemeta::core::JSON &schema,
       continue;
     }
 
-    const auto &reference_pointer{reference.first.second};
-    const auto is_property_name{
-        reference_pointer.size() >= 2 &&
-        reference_pointer.at(reference_pointer.size() - 2).is_property() &&
-        reference_pointer.at(reference_pointer.size() - 2).to_property() ==
-            "propertyNames"};
+    assert(target_types.contains(reference.second.destination));
+    const auto &[needs_name,
+                 needs_instance]{target_types.at(reference.second.destination)};
 
-    const auto key{std::make_tuple(
-        reference.first.first, std::string_view{reference.second.destination},
-        is_property_name)};
-    if (!targets_map.contains(key)) {
+    if (needs_name) {
       targets_map.emplace(
-          key, std::make_pair(targets_map.size(), &reference.first.second));
+          std::make_tuple(reference.first.first,
+                          std::string_view{reference.second.destination}, true),
+          std::make_pair(targets_map.size(), &reference.first.second));
+    }
+
+    if (needs_instance) {
+      targets_map.emplace(
+          std::make_tuple(reference.first.first,
+                          std::string_view{reference.second.destination},
+                          false),
+          std::make_pair(targets_map.size(), &reference.first.second));
     }
   }
 
@@ -182,11 +272,10 @@ auto compile(const sourcemeta::core::JSON &schema,
       continue;
     }
 
-    const auto key{std::make_tuple(
-        entry.first.first, std::string_view{entry.first.second}, false)};
-    if (!targets_map.contains(key)) {
-      targets_map.emplace(key, std::make_pair(targets_map.size(), nullptr));
-    }
+    targets_map.emplace(std::make_tuple(entry.first.first,
+                                        std::string_view{entry.first.second},
+                                        false),
+                        std::make_pair(targets_map.size(), nullptr));
   }
 
   ///////////////////////////////////////////////////////////////////
