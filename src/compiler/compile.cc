@@ -31,7 +31,7 @@ auto compile_subschema(const sourcemeta::blaze::Context &context,
       return {make(
           sourcemeta::blaze::InstructionIndex::AssertionFail, context,
           schema_context,
-          {.keyword = "",
+          {.keyword = KEYWORD_EMPTY,
            .base_schema_location = dynamic_context.base_schema_location,
            .base_instance_location = dynamic_context.base_instance_location,
            .property_as_target = dynamic_context.property_as_target},

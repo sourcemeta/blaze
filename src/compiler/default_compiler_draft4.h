@@ -505,7 +505,7 @@ auto compiler_draft4_validation_required(const Context &context,
             .base = schema_context.base,
             .is_property_name = schema_context.is_property_name};
         const DynamicContext new_dynamic_context{
-            .keyword = "properties",
+            .keyword = KEYWORD_PROPERTIES,
             .base_schema_location = sourcemeta::core::empty_weak_pointer,
             .base_instance_location = sourcemeta::core::empty_weak_pointer,
             .property_as_target = false};

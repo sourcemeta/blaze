@@ -13,6 +13,12 @@
 
 namespace sourcemeta::blaze {
 
+// Static keyword strings for use in DynamicContext references
+static const sourcemeta::core::JSON::String KEYWORD_EMPTY{};
+static const sourcemeta::core::JSON::String KEYWORD_PROPERTIES{"properties"};
+static const sourcemeta::core::JSON::String KEYWORD_THEN{"then"};
+static const sourcemeta::core::JSON::String KEYWORD_ELSE{"else"};
+
 // Helper to create a single-element WeakPointer from a property name reference
 inline auto make_weak_pointer(const std::string &property)
     -> sourcemeta::core::WeakPointer {
@@ -42,7 +48,7 @@ inline auto make_weak_pointer(const std::string &property1,
 }
 
 inline auto relative_dynamic_context() -> DynamicContext {
-  return {.keyword = "",
+  return {.keyword = KEYWORD_EMPTY,
           .base_schema_location = sourcemeta::core::empty_weak_pointer,
           .base_instance_location = sourcemeta::core::empty_weak_pointer,
           .property_as_target = false};
@@ -50,14 +56,14 @@ inline auto relative_dynamic_context() -> DynamicContext {
 
 inline auto relative_dynamic_context(const DynamicContext &dynamic_context)
     -> DynamicContext {
-  return {.keyword = "",
+  return {.keyword = KEYWORD_EMPTY,
           .base_schema_location = sourcemeta::core::empty_weak_pointer,
           .base_instance_location = sourcemeta::core::empty_weak_pointer,
           .property_as_target = dynamic_context.property_as_target};
 }
 
 inline auto property_relative_dynamic_context() -> DynamicContext {
-  return {.keyword = "",
+  return {.keyword = KEYWORD_EMPTY,
           .base_schema_location = sourcemeta::core::empty_weak_pointer,
           .base_instance_location = sourcemeta::core::empty_weak_pointer,
           .property_as_target = true};
