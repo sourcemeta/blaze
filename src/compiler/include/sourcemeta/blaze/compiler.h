@@ -56,7 +56,7 @@ struct SchemaContext {
 struct DynamicContext {
   // NOLINTBEGIN(cppcoreguidelines-avoid-const-or-ref-data-members)
   /// The schema keyword
-  const std::string keyword;
+  const sourcemeta::core::JSON::String &keyword;
   /// The schema base keyword path
   const sourcemeta::core::WeakPointer &base_schema_location;
   /// The base instance location that the keyword must be evaluated to
