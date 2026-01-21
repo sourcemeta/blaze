@@ -1692,6 +1692,25 @@ TEST(Evaluator_draft6, propertyNames_16) {
       instance, 0, "The object properties were expected to be of type string");
 }
 
+TEST(Evaluator_draft6, propertyNames_17) {
+  const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
+    "$schema": "http://json-schema.org/draft-06/schema#",
+    "propertyNames": {
+      "$ref": "#/definitions/foo"
+    },
+    "definitions": {
+      "foo": { "$ref": "#/definitions/bar" },
+      "bar": {}
+    }
+  })JSON")};
+
+  const sourcemeta::core::JSON instance{sourcemeta::core::parse_json(R"JSON({
+    "foo": "bar"
+  })JSON")};
+
+  EVALUATE_WITH_TRACE_FAST_SUCCESS(schema, instance, 0);
+}
+
 TEST(Evaluator_draft6, invalid_ref_top_level) {
   const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
     "$schema": "http://json-schema.org/draft-06/schema#",
