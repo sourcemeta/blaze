@@ -22,6 +22,7 @@
 #include <optional>      // std::optional, std::nullopt
 #include <string>        // std::string
 #include <string_view>   // std::string_view
+#include <tuple>         // std::tuple
 #include <unordered_map> // std::unordered_map
 #include <unordered_set> // std::unordered_set
 #include <vector>        // std::vector
@@ -46,6 +47,7 @@ struct SchemaContext {
   /// The schema base URI
   const sourcemeta::core::URI &base;
   // NOLINTEND(cppcoreguidelines-avoid-const-or-ref-data-members)
+  // TODO: remove this?
   /// The set of labels registered so far
   std::unordered_set<std::size_t> labels;
   /// Whether the current schema targets a property name
@@ -126,9 +128,9 @@ struct Context {
   const SchemaUnevaluatedEntries unevaluated;
   /// The set of tweaks for the compiler
   const Tweaks tweaks;
-  /// All possible reference targets
+  /// All possible reference targets (key includes is_property_name context)
   const std::map<
-      std::pair<sourcemeta::core::SchemaReferenceType, std::string_view>,
+      std::tuple<sourcemeta::core::SchemaReferenceType, std::string_view, bool>,
       std::pair<std::size_t, const sourcemeta::core::WeakPointer *>>
       targets;
   // NOLINTEND(cppcoreguidelines-avoid-const-or-ref-data-members)

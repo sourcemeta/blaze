@@ -143,12 +143,13 @@ auto compile(const sourcemeta::core::JSON &schema,
   // (4) Plan which static references we will precompile
   ///////////////////////////////////////////////////////////////////
 
-  std::map<std::pair<sourcemeta::core::SchemaReferenceType, std::string_view>,
-           std::pair<std::size_t, const sourcemeta::core::WeakPointer *>>
+  std::map<
+      std::tuple<sourcemeta::core::SchemaReferenceType, std::string_view, bool>,
+      std::pair<std::size_t, const sourcemeta::core::WeakPointer *>>
       targets_map;
   targets_map.emplace(
-      std::make_pair(sourcemeta::core::SchemaReferenceType::Static,
-                     std::string_view{frame.root()}),
+      std::make_tuple(sourcemeta::core::SchemaReferenceType::Static,
+                      std::string_view{frame.root()}, false),
       std::make_pair(0, nullptr));
   for (const auto &reference : frame.references()) {
     // Ignore meta-schema references
@@ -158,8 +159,16 @@ auto compile(const sourcemeta::core::JSON &schema,
       continue;
     }
 
-    const auto key{std::make_pair(
-        reference.first.first, std::string_view{reference.second.destination})};
+    const auto &reference_pointer{reference.first.second};
+    const auto is_property_name{
+        reference_pointer.size() >= 2 &&
+        reference_pointer.at(reference_pointer.size() - 2).is_property() &&
+        reference_pointer.at(reference_pointer.size() - 2).to_property() ==
+            "propertyNames"};
+
+    const auto key{std::make_tuple(
+        reference.first.first, std::string_view{reference.second.destination},
+        is_property_name)};
     if (!targets_map.contains(key)) {
       targets_map.emplace(
           key, std::make_pair(targets_map.size(), &reference.first.second));
@@ -175,8 +184,8 @@ auto compile(const sourcemeta::core::JSON &schema,
       continue;
     }
 
-    const auto key{std::make_pair(entry.first.first,
-                                  std::string_view{entry.first.second})};
+    const auto key{std::make_tuple(
+        entry.first.first, std::string_view{entry.first.second}, false)};
     if (!targets_map.contains(key)) {
       targets_map.emplace(key, std::make_pair(targets_map.size(), nullptr));
     }
@@ -225,8 +234,8 @@ auto compile(const sourcemeta::core::JSON &schema,
 
       // Find the index in targets for this dynamic anchor
       const auto key{
-          std::make_pair(sourcemeta::core::SchemaReferenceType::Dynamic,
-                         std::string_view{entry.first.second})};
+          std::make_tuple(sourcemeta::core::SchemaReferenceType::Dynamic,
+                          std::string_view{entry.first.second}, false)};
       assert(context.targets.contains(key));
       const auto index{context.targets.at(key).first};
       assert(index < context.targets.size());
@@ -242,13 +251,13 @@ auto compile(const sourcemeta::core::JSON &schema,
   std::vector<Instructions> compiled_targets;
   compiled_targets.resize(context.targets.size());
   for (const auto &[destination, target_info] : context.targets) {
-    const auto &[reference_type, destination_uri] = destination;
+    const auto &[reference_type, destination_uri, is_property_name] =
+        destination;
     const auto &[index, reference_pointer] = target_info;
     const auto location{context.frame.traverse(destination_uri)};
     assert(location.has_value());
     const auto &entry{location->get()};
 
-    // Check if the target is a valid schema (Subschema, Resource, or Anchor)
     if (entry.type != sourcemeta::core::SchemaFrame::LocationType::Subschema &&
         entry.type != sourcemeta::core::SchemaFrame::LocationType::Resource &&
         entry.type != sourcemeta::core::SchemaFrame::LocationType::Anchor) {
@@ -264,14 +273,6 @@ auto compile(const sourcemeta::core::JSON &schema,
     const auto nested_relative_pointer{
         entry.pointer.slice(entry.relative_pointer)};
     const sourcemeta::core::URI nested_base{entry.base};
-
-    // TODO: Handle the case where the same one is used WITH and WITHOUT
-    // property names
-    const auto is_property_name{
-        reference_pointer && reference_pointer->size() >= 2 &&
-        reference_pointer->at(reference_pointer->size() - 2).is_property() &&
-        reference_pointer->at(reference_pointer->size() - 2).to_property() ==
-            "propertyNames"};
 
     const SchemaContext schema_context{
         .relative_pointer = nested_relative_pointer,

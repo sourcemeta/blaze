@@ -1614,6 +1614,84 @@ TEST(Evaluator_draft6, propertyNames_13) {
   EVALUATE_WITH_TRACE_FAST_SUCCESS(schema, instance, 0);
 }
 
+TEST(Evaluator_draft6, propertyNames_14) {
+  const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
+    "$schema": "http://json-schema.org/draft-06/schema#",
+    "definitions": {
+      "stringType": { "type": "string" }
+    },
+    "propertyNames": { "$ref": "#/definitions/stringType" },
+    "additionalProperties": { "$ref": "#/definitions/stringType" }
+  })JSON")};
+
+  const sourcemeta::core::JSON instance{sourcemeta::core::parse_json(R"JSON({
+    "foo": 123
+  })JSON")};
+
+  EVALUATE_WITH_TRACE_FAST_FAILURE(schema, instance, 1);
+
+  EVALUATE_TRACE_PRE(0, LoopPropertiesTypeStrict,
+                     "/additionalProperties/$ref/type",
+                     "#/definitions/stringType/type", "");
+  EVALUATE_TRACE_POST_FAILURE(0, LoopPropertiesTypeStrict,
+                              "/additionalProperties/$ref/type",
+                              "#/definitions/stringType/type", "");
+  EVALUATE_TRACE_POST_DESCRIBE(
+      instance, 0, "The object properties were expected to be of type string");
+}
+
+TEST(Evaluator_draft6, propertyNames_15) {
+  const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
+    "$schema": "http://json-schema.org/draft-06/schema#",
+    "definitions": {
+      "stringType": { "type": "string" }
+    },
+    "additionalProperties": { "$ref": "#/definitions/stringType" },
+    "propertyNames": { "$ref": "#/definitions/stringType" }
+  })JSON")};
+
+  const sourcemeta::core::JSON instance{sourcemeta::core::parse_json(R"JSON({
+    "foo": 123
+  })JSON")};
+
+  EVALUATE_WITH_TRACE_FAST_FAILURE(schema, instance, 1);
+
+  EVALUATE_TRACE_PRE(0, LoopPropertiesTypeStrict,
+                     "/additionalProperties/$ref/type",
+                     "#/definitions/stringType/type", "");
+  EVALUATE_TRACE_POST_FAILURE(0, LoopPropertiesTypeStrict,
+                              "/additionalProperties/$ref/type",
+                              "#/definitions/stringType/type", "");
+  EVALUATE_TRACE_POST_DESCRIBE(
+      instance, 0, "The object properties were expected to be of type string");
+}
+
+TEST(Evaluator_draft6, propertyNames_16) {
+  const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
+    "$schema": "http://json-schema.org/draft-06/schema#",
+    "definitions": {
+      "stringType": { "type": "string" }
+    },
+    "propertyNames": { "$ref": "#/definitions/stringType" },
+    "additionalProperties": { "$ref": "#/definitions/stringType" }
+  })JSON")};
+
+  const sourcemeta::core::JSON instance{sourcemeta::core::parse_json(R"JSON({
+    "foo": "bar"
+  })JSON")};
+
+  EVALUATE_WITH_TRACE_FAST_SUCCESS(schema, instance, 1);
+
+  EVALUATE_TRACE_PRE(0, LoopPropertiesTypeStrict,
+                     "/additionalProperties/$ref/type",
+                     "#/definitions/stringType/type", "");
+  EVALUATE_TRACE_POST_SUCCESS(0, LoopPropertiesTypeStrict,
+                              "/additionalProperties/$ref/type",
+                              "#/definitions/stringType/type", "");
+  EVALUATE_TRACE_POST_DESCRIBE(
+      instance, 0, "The object properties were expected to be of type string");
+}
+
 TEST(Evaluator_draft6, invalid_ref_top_level) {
   const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
     "$schema": "http://json-schema.org/draft-06/schema#",

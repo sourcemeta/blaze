@@ -195,8 +195,9 @@ auto compiler_draft4_core_ref(const Context &context,
         "Could not resolve schema reference");
   }
 
-  const auto key{
-      std::make_pair(type, std::string_view{reference->get().destination})};
+  const auto key{std::make_tuple(type,
+                                 std::string_view{reference->get().destination},
+                                 schema_context.is_property_name)};
   assert(context.targets.contains(key));
   return {make(sourcemeta::blaze::InstructionIndex::ControlJump, context,
                schema_context, dynamic_context,
