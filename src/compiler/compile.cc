@@ -36,8 +36,7 @@ auto compile_subschema(const sourcemeta::blaze::Context &context,
           schema_context,
           {.keyword = KEYWORD_EMPTY,
            .base_schema_location = dynamic_context.base_schema_location,
-           .base_instance_location = dynamic_context.base_instance_location,
-           .property_as_target = dynamic_context.property_as_target},
+           .base_instance_location = dynamic_context.base_instance_location},
           ValueNone{})};
     }
   }
@@ -60,8 +59,7 @@ auto compile_subschema(const sourcemeta::blaze::Context &context,
               .is_property_name = schema_context.is_property_name},
              {.keyword = keyword,
               .base_schema_location = dynamic_context.base_schema_location,
-              .base_instance_location = dynamic_context.base_instance_location,
-              .property_as_target = dynamic_context.property_as_target},
+              .base_instance_location = dynamic_context.base_instance_location},
              steps)) {
       // Just a sanity check to ensure every keyword location is indeed valid
       assert(context.frame.locations().contains(
@@ -364,9 +362,7 @@ auto compile(const sourcemeta::core::JSON &schema,
         .is_property_name = is_property_name};
 
     compiled_targets[index] =
-        compile(context, schema_context,
-                is_property_name ? property_relative_dynamic_context()
-                                 : relative_dynamic_context(),
+        compile(context, schema_context, relative_dynamic_context(),
                 sourcemeta::core::empty_weak_pointer,
                 sourcemeta::core::empty_weak_pointer, destination_uri);
   }
@@ -475,8 +471,7 @@ auto compile(const Context &context, const SchemaContext &schema_context,
       {.keyword = dynamic_context.keyword,
        .base_schema_location = destination_pointer,
        .base_instance_location =
-           dynamic_context.base_instance_location.concat(instance_suffix),
-       .property_as_target = dynamic_context.property_as_target},
+           dynamic_context.base_instance_location.concat(instance_suffix)},
       entry.dialect);
 }
 
