@@ -9087,10 +9087,47 @@ TEST(Evaluator_draft4, reference_from_unknown_keyword) {
     sourcemeta::blaze::compile(schema, sourcemeta::core::schema_walker,
                                sourcemeta::core::schema_resolver,
                                sourcemeta::blaze::default_schema_compiler);
-  } catch (const sourcemeta::core::SchemaReferenceError &error) {
+  } catch (
+      const sourcemeta::blaze::CompilerReferenceTargetNotSchemaError &error) {
     EXPECT_EQ(error.identifier(), "#/$defs/bar");
+    EXPECT_EQ(error.location(), sourcemeta::core::Pointer({"$defs"}));
+  } catch (...) {
+    throw;
+  }
+}
+
+TEST(Evaluator_draft4, reference_to_nested_unknown_keyword) {
+  const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
+    "$schema": "http://json-schema.org/draft-04/schema#",
+    "allOf": [
+      { 
+        "$ref": "#/allOf/1/additionalProperties/x-this-is-invalid/$defs/test" 
+      },
+      {
+        "additionalProperties": {
+          "x-this-is-invalid": {
+            "$defs": {
+              "test": {
+                "type": "string"
+              }
+            }
+          }
+        }
+      }
+    ]
+  })JSON")};
+
+  try {
+    sourcemeta::blaze::compile(schema, sourcemeta::core::schema_walker,
+                               sourcemeta::core::schema_resolver,
+                               sourcemeta::blaze::default_schema_compiler);
+  } catch (
+      const sourcemeta::blaze::CompilerReferenceTargetNotSchemaError &error) {
+    EXPECT_EQ(error.identifier(),
+              "#/allOf/1/additionalProperties/x-this-is-invalid/$defs/test");
     EXPECT_EQ(error.location(),
-              sourcemeta::core::Pointer({"properties", "foo", "$ref"}));
+              sourcemeta::core::Pointer(
+                  {"allOf", 1, "additionalProperties", "x-this-is-invalid"}));
   } catch (...) {
     throw;
   }
@@ -9163,10 +9200,11 @@ TEST(Evaluator_draft4, ref_to_non_schema) {
                                sourcemeta::core::schema_resolver,
                                sourcemeta::blaze::default_schema_compiler);
     FAIL() << "The compile function was expected to throw";
-  } catch (const sourcemeta::core::SchemaReferenceError &error) {
+  } catch (
+      const sourcemeta::blaze::CompilerReferenceTargetNotSchemaError &error) {
     EXPECT_EQ(error.identifier(), "#/definitions/array/items");
-    EXPECT_EQ(sourcemeta::core::to_string(error.location()),
-              "/additionalProperties/$ref");
+    EXPECT_EQ(error.location(),
+              sourcemeta::core::Pointer({"definitions", "array", "items"}));
     SUCCEED();
   } catch (...) {
     FAIL();

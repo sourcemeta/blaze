@@ -1952,10 +1952,10 @@ TEST(Evaluator_draft6, reference_from_unknown_keyword) {
     sourcemeta::blaze::compile(schema, sourcemeta::core::schema_walker,
                                sourcemeta::core::schema_resolver,
                                sourcemeta::blaze::default_schema_compiler);
-  } catch (const sourcemeta::core::SchemaReferenceError &error) {
+  } catch (
+      const sourcemeta::blaze::CompilerReferenceTargetNotSchemaError &error) {
     EXPECT_EQ(error.identifier(), "#/$defs/bar");
-    EXPECT_EQ(error.location(),
-              sourcemeta::core::Pointer({"properties", "foo", "$ref"}));
+    EXPECT_EQ(error.location(), sourcemeta::core::Pointer({"$defs"}));
   } catch (...) {
     throw;
   }
