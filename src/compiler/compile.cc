@@ -342,9 +342,11 @@ auto compile(const sourcemeta::core::JSON &schema,
         entry.type != sourcemeta::core::SchemaFrame::LocationType::Resource &&
         entry.type != sourcemeta::core::SchemaFrame::LocationType::Anchor) {
       assert(reference_pointer != nullptr);
-      throw sourcemeta::core::SchemaReferenceError(
-          destination_uri, to_pointer(*reference_pointer),
-          "The target of the reference is not a valid schema");
+      const auto parent_size{entry.parent ? entry.parent->size() : 0};
+      throw CompilerReferenceTargetNotSchemaError(
+          destination_uri,
+          to_pointer(entry.pointer.slice(
+              0, std::min(parent_size + 1, entry.pointer.size()))));
     }
 
     auto subschema{sourcemeta::core::get(context.root, entry.pointer)};
@@ -441,12 +443,7 @@ auto compile(const Context &context, const SchemaContext &schema_context,
   const auto &entry{context.frame.locations().at(
       {sourcemeta::core::SchemaReferenceType::Static, destination})};
   const auto &new_schema{get(context.root, entry.pointer)};
-
-  if (!is_schema(new_schema)) {
-    throw sourcemeta::core::SchemaReferenceError(
-        destination, to_pointer(schema_context.relative_pointer),
-        "The target of the reference is not a valid schema");
-  }
+  assert(is_schema(new_schema));
 
   const sourcemeta::core::WeakPointer destination_pointer{
       dynamic_context.keyword.empty()
