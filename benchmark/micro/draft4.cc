@@ -1157,6 +1157,56 @@ static void Micro_Draft4_Compile_Ref_Many_Nested(benchmark::State &state) {
   }
 }
 
+static void Micro_Draft4_Compile_Wrap(benchmark::State &state) {
+  const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
+    "$schema": "http://json-schema.org/draft-04/schema#",
+    "allOf": [ { "$ref": "#/definitions/test/definitions/leaf" } ],
+    "definitions": {
+      "test": {
+        "id": "nested",
+        "definitions": {
+          "def0": { "type": "object", "properties": { "a": { "$ref": "#/definitions/def1" }, "b": { "$ref": "#/definitions/def2" } } },
+          "def1": { "type": "object", "properties": { "a": { "$ref": "#/definitions/def2" }, "b": { "$ref": "#/definitions/def3" } } },
+          "def2": { "type": "object", "properties": { "a": { "$ref": "#/definitions/def3" }, "b": { "$ref": "#/definitions/def4" } } },
+          "def3": { "type": "object", "properties": { "a": { "$ref": "#/definitions/def4" }, "b": { "$ref": "#/definitions/def5" } } },
+          "def4": { "type": "object", "properties": { "a": { "$ref": "#/definitions/def5" }, "b": { "$ref": "#/definitions/def6" } } },
+          "def5": { "type": "object", "properties": { "a": { "$ref": "#/definitions/def6" }, "b": { "$ref": "#/definitions/def7" } } },
+          "def6": { "type": "object", "properties": { "a": { "$ref": "#/definitions/def7" }, "b": { "$ref": "#/definitions/def8" } } },
+          "def7": { "type": "object", "properties": { "a": { "$ref": "#/definitions/def8" }, "b": { "$ref": "#/definitions/def9" } } },
+          "def8": { "type": "object", "properties": { "a": { "$ref": "#/definitions/def9" }, "b": { "$ref": "#/definitions/def10" } } },
+          "def9": { "type": "object", "properties": { "a": { "$ref": "#/definitions/def10" }, "b": { "$ref": "#/definitions/def11" } } },
+          "def10": { "type": "object", "properties": { "a": { "$ref": "#/definitions/def11" }, "b": { "$ref": "#/definitions/def12" } } },
+          "def11": { "type": "object", "properties": { "a": { "$ref": "#/definitions/def12" }, "b": { "$ref": "#/definitions/def13" } } },
+          "def12": { "type": "object", "properties": { "a": { "$ref": "#/definitions/def13" }, "b": { "$ref": "#/definitions/def14" } } },
+          "def13": { "type": "object", "properties": { "a": { "$ref": "#/definitions/def14" }, "b": { "$ref": "#/definitions/def0" } } },
+          "def14": { "type": "object", "properties": { "a": { "$ref": "#/definitions/def0" }, "b": { "$ref": "#/definitions/def1" } } },
+          "leaf": { "type": "string" }
+        },
+        "properties": {
+          "p0": { "$ref": "#/definitions/def0" },
+          "p1": { "$ref": "#/definitions/def0" },
+          "p2": { "$ref": "#/definitions/def0" },
+          "p3": { "$ref": "#/definitions/def0" },
+          "p4": { "$ref": "#/definitions/def0" },
+          "p5": { "$ref": "#/definitions/def1" },
+          "p6": { "$ref": "#/definitions/def1" },
+          "p7": { "$ref": "#/definitions/def1" },
+          "p8": { "$ref": "#/definitions/def1" },
+          "p9": { "$ref": "#/definitions/def1" }
+        }
+      }
+    }
+  })JSON")};
+
+  for (auto _ : state) {
+    auto result{
+        sourcemeta::blaze::compile(schema, sourcemeta::core::schema_walker,
+                                   sourcemeta::core::schema_resolver,
+                                   sourcemeta::blaze::default_schema_compiler)};
+    benchmark::DoNotOptimize(result.targets);
+  }
+}
+
 BENCHMARK(Micro_Draft4_Meta_1_No_Callback);
 BENCHMARK(Micro_Draft4_Required_Properties);
 BENCHMARK(Micro_Draft4_Many_Optional_Properties_Minimal_Match);
@@ -1178,3 +1228,4 @@ BENCHMARK(Micro_Draft4_Long_Enum_Short_Strings);
 BENCHMARK(Micro_Draft4_Type_Object);
 BENCHMARK(Micro_Draft4_Ref_Single_100);
 BENCHMARK(Micro_Draft4_Compile_Ref_Many_Nested);
+BENCHMARK(Micro_Draft4_Compile_Wrap);
