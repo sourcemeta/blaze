@@ -1386,23 +1386,18 @@ auto SchemaFrame::empty() const noexcept -> bool {
 }
 
 auto SchemaFrame::reset() -> void {
+  // Note that order of removal is important to avoid undefined behaviour
+  this->pointer_to_location_.clear();
+  this->reachability_.clear();
   this->root_.clear();
   this->locations_.clear();
   this->references_.clear();
-  this->pointer_to_location_.clear();
-  this->reachability_.clear();
 }
 
 auto SchemaFrame::populate_pointer_to_location() const -> void {
   if (!this->pointer_to_location_.empty()) {
     return;
   }
-
-#if defined(_MSC_VER)
-  // MSVC workaround for a weird STATUS_ACCESS_VIOLATION (0xc0000005) during
-  // operator[] when the map is re-used, even after the map is correctly cleared
-  this->pointer_to_location_.clear();
-#endif
 
   this->pointer_to_location_.reserve(this->locations_.size());
   for (const auto &entry : this->locations_) {
