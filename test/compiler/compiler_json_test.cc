@@ -379,3 +379,41 @@ TEST(Compiler_JSON, invalid_1) {
   const auto result{sourcemeta::blaze::from_json(input)};
   EXPECT_FALSE(result.has_value());
 }
+
+TEST(Compiler_JSON, unreachable_refs_are_pruned) {
+  const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "type": "string",
+    "$defs": {
+      "def0": { "$ref": "#/$defs/def1" },
+      "def1": { "$ref": "#/$defs/def2" },
+      "def2": { "$ref": "#/$defs/def3" },
+      "def3": { "$ref": "#/$defs/def4" },
+      "def4": { "$ref": "#/$defs/def0" },
+      "unused": {
+        "properties": {
+          "a": { "$ref": "#/$defs/def0" },
+          "b": { "$ref": "#/$defs/def1" }
+        }
+      }
+    }
+  })JSON")};
+
+  const auto schema_template{
+      sourcemeta::blaze::compile(schema, sourcemeta::core::schema_walker,
+                                 sourcemeta::core::schema_resolver,
+                                 sourcemeta::blaze::default_schema_compiler)};
+
+  const auto json_output{sourcemeta::blaze::to_json(schema_template)};
+
+  EXPECT_TRUE(json_output.is_array());
+  EXPECT_EQ(json_output.size(), 5);
+  const auto &targets{json_output.at(3)};
+
+  // NOTE: The targets must have exactly 1 entry (the root)
+  // as all definitions are unreachable from the root
+  EXPECT_TRUE(targets.is_array());
+  EXPECT_EQ(targets.size(), 1);
+
+  EXPECT_BIDIRECTIONAL_JSON_WITHOUT_EXPECTED(schema_template);
+}
