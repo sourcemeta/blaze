@@ -45,4 +45,19 @@ static void Micro_2019_09_Unevaluated_Properties(benchmark::State &state) {
   }
 }
 
+static void Micro_2019_09_Compile_Wrap(benchmark::State &state) {
+  const auto schema{sourcemeta::core::read_json(
+      std::filesystem::path{CURRENT_DIRECTORY} / "micro" / "schemas" /
+      "2019_09_krakend_wrap.json")};
+
+  for (auto _ : state) {
+    auto schema_template{
+        sourcemeta::blaze::compile(schema, sourcemeta::core::schema_walker,
+                                   sourcemeta::core::schema_resolver,
+                                   sourcemeta::blaze::default_schema_compiler)};
+    benchmark::DoNotOptimize(schema_template);
+  }
+}
+
 BENCHMARK(Micro_2019_09_Unevaluated_Properties);
+BENCHMARK(Micro_2019_09_Compile_Wrap);
