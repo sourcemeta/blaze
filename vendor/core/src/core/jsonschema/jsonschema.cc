@@ -596,11 +596,16 @@ auto sourcemeta::core::wrap(
     const sourcemeta::core::SchemaFrame::Location &location,
     const sourcemeta::core::SchemaResolver &resolver,
     sourcemeta::core::WeakPointer &base) -> sourcemeta::core::JSON {
+  assert(frame.mode() == SchemaFrame::Mode::References);
   assert(location.type != SchemaFrame::LocationType::Pointer);
+
   const auto &pointer{location.pointer};
   if (pointer.empty()) {
     auto copy = schema;
-    copy.assign("$schema", JSON{location.dialect});
+    if (copy.is_object()) {
+      copy.assign("$schema", JSON{location.dialect});
+    }
+
     return copy;
   }
 

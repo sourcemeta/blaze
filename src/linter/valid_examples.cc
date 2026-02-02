@@ -64,8 +64,8 @@ auto ValidExamples::condition(
   const auto subschema{
       sourcemeta::core::wrap(root, frame, location, resolver, base)};
   const auto schema_template{compile(subschema, walker, resolver,
-                                     this->compiler_, Mode::FastValidation, "",
-                                     default_id)};
+                                     this->compiler_, Mode::FastValidation,
+                                     location.dialect, default_id)};
 
   Evaluator evaluator;
   std::size_t cursor{0};

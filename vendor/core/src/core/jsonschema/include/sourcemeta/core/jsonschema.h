@@ -428,7 +428,7 @@ auto wrap(std::string_view identifier) -> JSON;
 ///               sourcemeta::core::schema_resolver);
 ///
 /// const auto location{frame.traverse(
-///     sourcemeta::core::Pointer{"items"},
+///     sourcemeta::core::WeakPointer{"items"},
 ///     sourcemeta::core::SchemaFrame::LocationType::Subschema)};
 ///
 /// sourcemeta::core::WeakPointer base;
