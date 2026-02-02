@@ -101,6 +101,7 @@ REGISTER_E2E_EVALUATOR(adaptivecard, "adaptivecard");
 REGISTER_E2E_EVALUATOR(ansible_meta, "ansible-meta");
 REGISTER_E2E_EVALUATOR(aws_cdk, "aws-cdk");
 REGISTER_E2E_EVALUATOR(babelrc, "babelrc");
+REGISTER_E2E_EVALUATOR(cerebrum_criminal_case, "cerebrum-criminal-case");
 REGISTER_E2E_EVALUATOR(clang_format, "clang-format");
 REGISTER_E2E_EVALUATOR(cmake_presets, "cmake-presets");
 REGISTER_E2E_EVALUATOR(code_climate, "code-climate");
