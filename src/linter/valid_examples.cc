@@ -60,9 +60,9 @@ auto ValidExamples::condition(
     default_id = "";
   }
 
-  const auto subschema{sourcemeta::core::wrap(
-      root, sourcemeta::core::to_pointer(location.pointer), resolver,
-      location.dialect)};
+  sourcemeta::core::WeakPointer base;
+  const auto subschema{
+      sourcemeta::core::wrap(root, frame, location, resolver, base)};
   const auto schema_template{compile(subschema, walker, resolver,
                                      this->compiler_, Mode::FastValidation,
                                      location.dialect, default_id)};
@@ -70,8 +70,7 @@ auto ValidExamples::condition(
   Evaluator evaluator;
   std::size_t cursor{0};
   for (const auto &example : schema.at("examples").as_array()) {
-    const std::string ref{"$ref"};
-    SimpleOutput output{example, {std::cref(ref)}};
+    SimpleOutput output{example, base};
     const auto result{
         evaluator.validate(schema_template, example, std::ref(output))};
     if (!result) {
