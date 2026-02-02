@@ -757,3 +757,45 @@ TEST(Linter, valid_default_15) {
 
   EXPECT_EQ(schema, expected);
 }
+
+TEST(Linter, valid_default_16) {
+  sourcemeta::core::SchemaTransformer bundle;
+  bundle.add<sourcemeta::blaze::ValidDefault>(
+      sourcemeta::blaze::default_schema_compiler);
+
+  auto schema{sourcemeta::core::parse_json(R"JSON({
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "$dynamicAnchor": "meta",
+    "$ref": "#/$defs/foo",
+    "$defs": {
+      "foo": {},
+      "bar": {},
+      "baz": {
+        "$ref": "#/$defs/bar",
+        "default": 0
+      }
+    }
+  })JSON")};
+
+  const auto result = bundle.apply(schema, sourcemeta::core::schema_walker,
+                                   sourcemeta::core::schema_resolver,
+                                   transformer_callback_error);
+
+  EXPECT_TRUE(result.first);
+
+  const auto expected{sourcemeta::core::parse_json(R"JSON({
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "$dynamicAnchor": "meta",
+    "$ref": "#/$defs/foo",
+    "$defs": {
+      "foo": {},
+      "bar": {},
+      "baz": {
+        "$ref": "#/$defs/bar",
+        "default": 0
+      }
+    }
+  })JSON")};
+
+  EXPECT_EQ(schema, expected);
+}
