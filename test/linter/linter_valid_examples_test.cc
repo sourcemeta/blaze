@@ -200,6 +200,59 @@ TEST(Linter, valid_examples_error_message_with_id_flat) {
       "/examples/0");
 }
 
+TEST(Linter, valid_examples_error_message_with_id_nested_ref_defs) {
+  sourcemeta::core::SchemaTransformer bundle;
+  bundle.add<sourcemeta::blaze::ValidExamples>(
+      sourcemeta::blaze::default_schema_compiler);
+
+  const auto schema{sourcemeta::core::parse_json(R"JSON({
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "$id": "https://example.com",
+    "$defs": {
+      "helper": { "type": "string" }
+    },
+    "properties": {
+      "foo": {
+        "$ref": "#/$defs/helper",
+        "examples": [ 1 ]
+      }
+    }
+  })JSON")};
+
+  std::vector<std::tuple<sourcemeta::core::Pointer, std::string, std::string,
+                         sourcemeta::core::SchemaTransformRule::Result>>
+      entries;
+  const auto result =
+      bundle.check(schema, sourcemeta::core::schema_walker,
+                   sourcemeta::core::schema_resolver,
+                   [&entries](const auto &pointer, const auto &name,
+                              const auto &message, const auto &outcome) {
+                     entries.emplace_back(pointer, name, message, outcome);
+                   });
+
+  EXPECT_FALSE(result.first);
+  EXPECT_EQ(entries.size(), 1);
+
+  EXPECT_EQ(std::get<0>(entries.at(0)),
+            sourcemeta::core::Pointer({"properties", "foo"}));
+  EXPECT_EQ(std::get<1>(entries.at(0)), "blaze/valid_examples");
+  EXPECT_EQ(std::get<2>(entries.at(0)),
+            "Only include instances in the `examples` array that validate "
+            "against the schema");
+  EXPECT_TRUE(std::get<3>(entries.at(0)).description.has_value());
+  EXPECT_EQ(std::get<3>(entries.at(0)).description.value(),
+            R"TXT(Invalid example instance at index 0
+  The value was expected to be of type string but it was of type integer
+    at instance location ""
+    at evaluate path "/$ref/type"
+)TXT");
+
+  EXPECT_EQ(std::get<3>(entries.at(0)).locations.size(), 1);
+  EXPECT_EQ(
+      sourcemeta::core::to_string(std::get<3>(entries.at(0)).locations.at(0)),
+      "/examples/0");
+}
+
 TEST(Linter, valid_examples_1) {
   sourcemeta::core::SchemaTransformer bundle;
   bundle.add<sourcemeta::blaze::ValidExamples>(
