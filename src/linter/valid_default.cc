@@ -62,7 +62,7 @@ auto ValidDefault::condition(
   // To avoid bundling twice in vain
   Tweaks tweaks{.assume_bundled = frame.standalone()};
   const auto schema_template{compile(subschema, walker, resolver,
-                                     this->compiler_, Mode::FastValidation,
+                                     this->compiler_, Mode::Exhaustive,
                                      location.dialect, default_id, tweaks)};
 
   const auto &instance{schema.at("default")};
