@@ -240,6 +240,9 @@ TEST(Linter, valid_default_error_message_with_id_nested_ref_defs) {
       R"TXT(The value was expected to be of type string but it was of type integer
   at instance location ""
   at evaluate path "/$ref/type"
+The integer value was expected to validate against the referenced schema
+  at instance location ""
+  at evaluate path "/$ref"
 )TXT");
 
   EXPECT_EQ(std::get<3>(entries.at(0)).locations.size(), 1);
