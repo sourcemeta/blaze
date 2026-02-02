@@ -37,6 +37,10 @@ if(BENCHMARK_SOURCES)
     target_link_libraries(sourcemeta_blaze_benchmark
       PRIVATE sourcemeta::blaze::output)
   endif()
+  if(BLAZE_LINTER)
+    target_link_libraries(sourcemeta_blaze_benchmark
+      PRIVATE sourcemeta::blaze::linter)
+  endif()
 
   add_custom_target(benchmark_all
     COMMAND sourcemeta_blaze_benchmark
