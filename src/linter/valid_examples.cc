@@ -63,9 +63,11 @@ auto ValidExamples::condition(
   sourcemeta::core::WeakPointer base;
   const auto subschema{
       sourcemeta::core::wrap(root, frame, location, resolver, base)};
+  // To avoid bundling twice in vain
+  Tweaks tweaks{.assume_bundled = frame.standalone()};
   const auto schema_template{compile(subschema, walker, resolver,
                                      this->compiler_, Mode::FastValidation,
-                                     location.dialect, default_id)};
+                                     location.dialect, default_id, tweaks)};
 
   Evaluator evaluator;
   std::size_t cursor{0};
