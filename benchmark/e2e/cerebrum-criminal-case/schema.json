@@ -1,0 +1,304 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "type": "object",
+  "required": [
+    "caseId",
+    "courtName",
+    "caseJurisdiction",
+    "defendant",
+    "charges"
+  ],
+  "properties": {
+    "caseId": {
+      "description": "Unique identifier for the case",
+      "type": "string"
+    },
+    "caseNumber": {
+      "description": "Official court case number (may be the same as caseId)",
+      "type": "string"
+    },
+    "courtName": {
+      "description": "Name of the court",
+      "type": "string"
+    },
+    "caseFileDate": {
+      "description": "Date when the case was filed",
+      "$ref": "#/$defs/Date"
+    },
+    "caseJurisdiction": {
+      "description": "Jurisdiction where the case was (or is being) heard",
+      "type": "string"
+    },
+    "location": {
+      "description": "Location metadata for where the case was filed",
+      "type": "object",
+      "properties": {
+        "state": {
+          "description": "ANSI state code representing where the case was filed",
+          "type": "string"
+        },
+        "fipsCode": {
+          "description": "Federal Information Processing Standards (FIPS) county code",
+          "type": "string"
+        }
+      },
+      "additionalProperties": false
+    },
+    "defendant": {
+      "type": "object",
+      "required": [ "name", "dateOfBirth", "addresses" ],
+      "properties": {
+        "name": {
+          "description": "Defendant's name",
+          "$ref": "#/$defs/PersonName"
+        },
+        "dateOfBirth": {
+          "description": "Defendant's date of birth",
+          "$ref": "#/$defs/Date"
+        },
+        "gender": {
+          "description": "Defendant's gender",
+          "type": "string"
+        },
+        "race": {
+          "description": "Defendant's race",
+          "type": "string"
+        },
+        "addresses": {
+          "description": "List of defendant's addresses",
+          "type": "array",
+          "items": {
+            "description": "Defendant's address",
+            "$ref": "#/$defs/Address"
+          }
+        }
+      },
+      "additionalProperties": false
+    },
+    "comments": {
+      "description": "Additional case comments (optional)",
+      "type": "string"
+    },
+    "charges": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "required": [
+          "chargeId",
+          "chargeCount",
+          "offenseDescription",
+          "offenseDate",
+          "offenseSeverity"
+        ],
+        "properties": {
+          "chargeId": {
+            "description": "Unique identifier for the charge",
+            "type": "string"
+          },
+          "chargeCount": {
+            "description": "Count number for the charge",
+            "type": "string"
+          },
+          "offenseDescription": {
+            "description": "A description of the offense, for example \"Assault and Battery\" or \"Burglary\" or \"Drug Possession\"",
+            "type": "string"
+          },
+          "offenseCode": {
+            "description": "The offense code if available",
+            "type": [ "string", "null" ]
+          },
+          "offenseDate": {
+            "description": "Date when the offense occurred",
+            "$ref": "#/$defs/Date"
+          },
+          "offenseSeverity": {
+            "description": "Severity level of the offense, for example \"Misdemeanor\" or \"Felony\", or \"Infraction\"",
+            "type": "string"
+          },
+          "dispositionDescription": {
+            "description": "Description of how the charge was disposed",
+            "type": [ "string", "null" ]
+          },
+          "dispositionDate": {
+            "description": "Date when the charge was disposed",
+            "oneOf": [
+              {
+                "$ref": "#/$defs/Date"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "sentence": {
+            "description": "Sentence of the charge",
+            "type": "string"
+          },
+          "comments": {
+            "description": "Additional comments about the charge (optional)",
+            "type": [ "string", "null" ]
+          },
+          "class": {
+            "description": "Class of the charge",
+            "type": "string"
+          },
+          "subClass": {
+            "description": "Subclass of the charge",
+            "type": "string"
+          },
+          "metadata": {
+            "description": "Metadata about the charge record",
+            "type": "object",
+            "properties": {
+              "source": {
+                "description": "Source of the data",
+                "type": "string"
+              },
+              "sourceId": {
+                "description": "Identifier from the source system",
+                "type": "string"
+              }
+            },
+            "additionalProperties": false
+          }
+        },
+        "additionalProperties": false
+      }
+    },
+    "metadata": {
+      "description": "Metadata about the case record",
+      "type": "object",
+      "properties": {
+        "source": {
+          "description": "Source of the data",
+          "type": "string"
+        },
+        "sourceId": {
+          "description": "Identifier from the source system",
+          "type": "string"
+        }
+      },
+      "additionalProperties": false
+    }
+  },
+  "additionalProperties": false,
+  "$defs": {
+    "Address": {
+      "title": "Address",
+      "description": "Schema for representing a physical address",
+      "type": "object",
+      "required": [
+        "raw",
+        "addressLineOne",
+        "city",
+        "state",
+        "postalCode",
+        "country"
+      ],
+      "properties": {
+        "raw": {
+          "description": "Raw address string - unparsed",
+          "type": "string"
+        },
+        "addressLineOne": {
+          "description": "Primary street address",
+          "type": "string"
+        },
+        "addressLineTwo": {
+          "description": "Secondary street address",
+          "type": [ "string", "null" ]
+        },
+        "city": {
+          "description": "City name",
+          "type": "string"
+        },
+        "county": {
+          "description": "County name",
+          "type": "string"
+        },
+        "state": {
+          "description": "State or province",
+          "type": "string"
+        },
+        "postalCode": {
+          "description": "Postal or ZIP code",
+          "type": "string"
+        },
+        "country": {
+          "description": "Country name",
+          "type": "string"
+        }
+      },
+      "additionalProperties": false
+    },
+    "PersonName": {
+      "title": "PersonName",
+      "description": "Schema for representing a person's name",
+      "type": "object",
+      "required": [ "first", "last" ],
+      "properties": {
+        "raw": {
+          "description": "Raw full name string, before parsing",
+          "type": "string"
+        },
+        "first": {
+          "description": "First/Given name",
+          "type": "string"
+        },
+        "middle": {
+          "description": "Middle name",
+          "type": [ "string", "null" ]
+        },
+        "last": {
+          "description": "Last/Family name",
+          "type": "string"
+        },
+        "suffix": {
+          "description": "Name suffix",
+          "type": [ "string", "null" ]
+        },
+        "prefix": {
+          "description": "Title/Prefix",
+          "type": [ "string", "null" ]
+        }
+      },
+      "additionalProperties": false
+    },
+    "Date": {
+      "title": "Date",
+      "description": "Schema for representing a date with year, month, and day components",
+      "type": "object",
+      "required": [ "raw", "year", "month", "day" ],
+      "properties": {
+        "raw": {
+          "description": "Raw date string",
+          "type": "string"
+        },
+        "year": {
+          "description": "Four-digit year",
+          "type": "integer",
+          "maximum": 9999,
+          "minimum": 1000
+        },
+        "month": {
+          "description": "Month (1-12)",
+          "type": "integer",
+          "maximum": 12,
+          "minimum": 1
+        },
+        "day": {
+          "description": "Day (1-31)",
+          "type": "integer",
+          "maximum": 31,
+          "minimum": 1
+        },
+        "iso": {
+          "description": "Date in ISO 8601 format",
+          "type": "string"
+        }
+      },
+      "additionalProperties": false
+    }
+  }
+}
