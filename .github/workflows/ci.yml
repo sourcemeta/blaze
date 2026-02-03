@@ -155,39 +155,3 @@ jobs:
           alert-threshold: '5%'
           comment-always: true
           fail-on-alert: false
-
-  nodejs:
-    strategy:
-      fail-fast: false
-      matrix:
-        platform:
-          - os: macos-latest
-          - os: ubuntu-latest
-            benchmark: linux/nodejs
-          - os: windows-latest
-
-    runs-on: ${{ matrix.platform.os }}
-    steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
-        with:
-          node-version: 'lts/*'
-      - run: npm install
-      - run: npm test
-      - run: npm run benchmark | tee bindings/nodejs/build/benchmark.txt
-        if: matrix.platform.benchmark
-
-      - uses: benchmark-action/github-action-benchmark@v1
-        # Avoid posting messages on forks until we figure out how to make it work
-        # See https://github.com/benchmark-action/github-action-benchmark/issues/279
-        if: matrix.platform.benchmark && github.event.pull_request.head.repo.fork == false
-        with:
-          name: Bindings (${{ matrix.platform.benchmark }})
-          tool: benchmarkjs
-          output-file-path: bindings/nodejs/build/benchmark.txt
-          github-token: ${{ secrets.GITHUB_TOKEN }}
-          auto-push: ${{ github.event_name != 'pull_request' }}
-          benchmark-data-dir-path: benchmark/${{ matrix.platform.benchmark }}
-          alert-threshold: '5%'
-          comment-always: true
-          fail-on-alert: false
