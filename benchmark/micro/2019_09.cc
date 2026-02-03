@@ -72,10 +72,10 @@ static void Micro_2019_09_KrakenD_Linter_Check(benchmark::State &state) {
       sourcemeta::blaze::default_schema_compiler);
 
   for (auto _ : state) {
-    auto result{bundle.check(
-        schema, sourcemeta::core::schema_walker,
-        sourcemeta::core::schema_resolver,
-        [](const auto &, const auto &, const auto &, const auto &) {})};
+    auto result{bundle.check(schema, sourcemeta::core::schema_walker,
+                             sourcemeta::core::schema_resolver,
+                             [](const auto &, const auto &, const auto &,
+                                const auto &, const auto) {})};
     benchmark::DoNotOptimize(result);
   }
 }
@@ -96,10 +96,10 @@ static void Micro_2019_09_KrakenD_Linter_Apply(benchmark::State &state) {
     auto copy{schema};
     state.ResumeTiming();
 
-    auto result{bundle.apply(
-        copy, sourcemeta::core::schema_walker,
-        sourcemeta::core::schema_resolver,
-        [](const auto &, const auto &, const auto &, const auto &) {})};
+    auto result{bundle.apply(copy, sourcemeta::core::schema_walker,
+                             sourcemeta::core::schema_resolver,
+                             [](const auto &, const auto &, const auto &,
+                                const auto &, const auto) {})};
     benchmark::DoNotOptimize(result);
   }
 }
