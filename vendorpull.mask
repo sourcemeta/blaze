@@ -1,5 +1,4 @@
 benchmark
-bindings
 contrib
 doxygen
 test
