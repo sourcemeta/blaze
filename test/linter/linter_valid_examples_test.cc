@@ -8,8 +8,9 @@
 static auto transformer_callback_error(
     const sourcemeta::core::Pointer &, const std::string_view,
     const std::string_view,
-    const sourcemeta::core::SchemaTransformRule::Result &) -> void {
-  throw std::runtime_error("The transform callback must not be called");
+    const sourcemeta::core::SchemaTransformRule::Result &, const bool mutable_)
+    -> void {
+  EXPECT_TRUE(mutable_);
 }
 
 TEST(Linter, valid_examples_error_message_without_id_nested) {
@@ -28,15 +29,15 @@ TEST(Linter, valid_examples_error_message_without_id_nested) {
   })JSON")};
 
   std::vector<std::tuple<sourcemeta::core::Pointer, std::string, std::string,
-                         sourcemeta::core::SchemaTransformRule::Result>>
+                         sourcemeta::core::SchemaTransformRule::Result, bool>>
       entries;
-  const auto result =
-      bundle.check(schema, sourcemeta::core::schema_walker,
-                   sourcemeta::core::schema_resolver,
-                   [&entries](const auto &pointer, const auto &name,
-                              const auto &message, const auto &outcome) {
-                     entries.emplace_back(pointer, name, message, outcome);
-                   });
+  const auto result = bundle.check(
+      schema, sourcemeta::core::schema_walker,
+      sourcemeta::core::schema_resolver,
+      [&entries](const auto &pointer, const auto &name, const auto &message,
+                 const auto &outcome, const auto mutable_) {
+        entries.emplace_back(pointer, name, message, outcome, mutable_);
+      });
 
   EXPECT_FALSE(result.first);
   EXPECT_EQ(entries.size(), 1);
@@ -59,6 +60,7 @@ TEST(Linter, valid_examples_error_message_without_id_nested) {
   EXPECT_EQ(
       sourcemeta::core::to_string(std::get<3>(entries.at(0)).locations.at(0)),
       "/examples/0");
+  EXPECT_TRUE(std::get<4>(entries.at(0)));
 }
 
 TEST(Linter, valid_examples_error_message_without_id_flat) {
@@ -73,15 +75,15 @@ TEST(Linter, valid_examples_error_message_without_id_flat) {
   })JSON")};
 
   std::vector<std::tuple<sourcemeta::core::Pointer, std::string, std::string,
-                         sourcemeta::core::SchemaTransformRule::Result>>
+                         sourcemeta::core::SchemaTransformRule::Result, bool>>
       entries;
-  const auto result =
-      bundle.check(schema, sourcemeta::core::schema_walker,
-                   sourcemeta::core::schema_resolver,
-                   [&entries](const auto &pointer, const auto &name,
-                              const auto &message, const auto &outcome) {
-                     entries.emplace_back(pointer, name, message, outcome);
-                   });
+  const auto result = bundle.check(
+      schema, sourcemeta::core::schema_walker,
+      sourcemeta::core::schema_resolver,
+      [&entries](const auto &pointer, const auto &name, const auto &message,
+                 const auto &outcome, const auto mutable_) {
+        entries.emplace_back(pointer, name, message, outcome, mutable_);
+      });
 
   EXPECT_FALSE(result.first);
   EXPECT_EQ(entries.size(), 1);
@@ -103,6 +105,7 @@ TEST(Linter, valid_examples_error_message_without_id_flat) {
   EXPECT_EQ(
       sourcemeta::core::to_string(std::get<3>(entries.at(0)).locations.at(0)),
       "/examples/0");
+  EXPECT_TRUE(std::get<4>(entries.at(0)));
 }
 
 TEST(Linter, valid_examples_error_message_with_id_nested) {
@@ -122,15 +125,15 @@ TEST(Linter, valid_examples_error_message_with_id_nested) {
   })JSON")};
 
   std::vector<std::tuple<sourcemeta::core::Pointer, std::string, std::string,
-                         sourcemeta::core::SchemaTransformRule::Result>>
+                         sourcemeta::core::SchemaTransformRule::Result, bool>>
       entries;
-  const auto result =
-      bundle.check(schema, sourcemeta::core::schema_walker,
-                   sourcemeta::core::schema_resolver,
-                   [&entries](const auto &pointer, const auto &name,
-                              const auto &message, const auto &outcome) {
-                     entries.emplace_back(pointer, name, message, outcome);
-                   });
+  const auto result = bundle.check(
+      schema, sourcemeta::core::schema_walker,
+      sourcemeta::core::schema_resolver,
+      [&entries](const auto &pointer, const auto &name, const auto &message,
+                 const auto &outcome, const auto mutable_) {
+        entries.emplace_back(pointer, name, message, outcome, mutable_);
+      });
 
   EXPECT_FALSE(result.first);
   EXPECT_EQ(entries.size(), 1);
@@ -153,6 +156,7 @@ TEST(Linter, valid_examples_error_message_with_id_nested) {
   EXPECT_EQ(
       sourcemeta::core::to_string(std::get<3>(entries.at(0)).locations.at(0)),
       "/examples/0");
+  EXPECT_TRUE(std::get<4>(entries.at(0)));
 }
 
 TEST(Linter, valid_examples_error_message_with_id_flat) {
@@ -168,15 +172,15 @@ TEST(Linter, valid_examples_error_message_with_id_flat) {
   })JSON")};
 
   std::vector<std::tuple<sourcemeta::core::Pointer, std::string, std::string,
-                         sourcemeta::core::SchemaTransformRule::Result>>
+                         sourcemeta::core::SchemaTransformRule::Result, bool>>
       entries;
-  const auto result =
-      bundle.check(schema, sourcemeta::core::schema_walker,
-                   sourcemeta::core::schema_resolver,
-                   [&entries](const auto &pointer, const auto &name,
-                              const auto &message, const auto &outcome) {
-                     entries.emplace_back(pointer, name, message, outcome);
-                   });
+  const auto result = bundle.check(
+      schema, sourcemeta::core::schema_walker,
+      sourcemeta::core::schema_resolver,
+      [&entries](const auto &pointer, const auto &name, const auto &message,
+                 const auto &outcome, const auto mutable_) {
+        entries.emplace_back(pointer, name, message, outcome, mutable_);
+      });
 
   EXPECT_FALSE(result.first);
   EXPECT_EQ(entries.size(), 1);
@@ -198,6 +202,7 @@ TEST(Linter, valid_examples_error_message_with_id_flat) {
   EXPECT_EQ(
       sourcemeta::core::to_string(std::get<3>(entries.at(0)).locations.at(0)),
       "/examples/0");
+  EXPECT_TRUE(std::get<4>(entries.at(0)));
 }
 
 TEST(Linter, valid_examples_error_message_with_id_nested_ref_defs) {
@@ -220,15 +225,15 @@ TEST(Linter, valid_examples_error_message_with_id_nested_ref_defs) {
   })JSON")};
 
   std::vector<std::tuple<sourcemeta::core::Pointer, std::string, std::string,
-                         sourcemeta::core::SchemaTransformRule::Result>>
+                         sourcemeta::core::SchemaTransformRule::Result, bool>>
       entries;
-  const auto result =
-      bundle.check(schema, sourcemeta::core::schema_walker,
-                   sourcemeta::core::schema_resolver,
-                   [&entries](const auto &pointer, const auto &name,
-                              const auto &message, const auto &outcome) {
-                     entries.emplace_back(pointer, name, message, outcome);
-                   });
+  const auto result = bundle.check(
+      schema, sourcemeta::core::schema_walker,
+      sourcemeta::core::schema_resolver,
+      [&entries](const auto &pointer, const auto &name, const auto &message,
+                 const auto &outcome, const auto mutable_) {
+        entries.emplace_back(pointer, name, message, outcome, mutable_);
+      });
 
   EXPECT_FALSE(result.first);
   EXPECT_EQ(entries.size(), 1);
@@ -254,6 +259,7 @@ TEST(Linter, valid_examples_error_message_with_id_nested_ref_defs) {
   EXPECT_EQ(
       sourcemeta::core::to_string(std::get<3>(entries.at(0)).locations.at(0)),
       "/examples/0");
+  EXPECT_TRUE(std::get<4>(entries.at(0)));
 }
 
 TEST(Linter, valid_examples_1) {
