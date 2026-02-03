@@ -16,26 +16,15 @@ const BENCHMARKS = readdirSync(E2E_DIR)
   })
   .sort();
 
-function loadSchema(name) {
-  const schemaPath = join(E2E_DIR, name, 'schema.json');
-  return BlazeJSON.parse(readFileSync(schemaPath, 'utf8'));
-}
-
-function loadInstances(name) {
-  const instancesPath = join(E2E_DIR, name, 'instances.jsonl');
-  const content = readFileSync(instancesPath, 'utf8');
-  return content.trim().split('\n').map(line => BlazeJSON.parse(line));
-}
-
 function formatName(name) {
   return name.replace(/-/g, '_');
 }
 
 const filterArg = process.argv[2];
 const benchmarksToRun = filterArg
-  ? BENCHMARKS.filter(name => name.includes(filterArg) || formatName(name).includes(filterArg))
+  ? BENCHMARKS.filter(name =>
+    name.includes(filterArg) || formatName(name).includes(filterArg))
   : BENCHMARKS;
-
 if (benchmarksToRun.length === 0) {
   console.error(`No benchmarks match filter: ${filterArg}`);
   process.exit(1);
@@ -43,34 +32,25 @@ if (benchmarksToRun.length === 0) {
 
 const suite = new Benchmark.Suite();
 const benchmarkData = new Map();
-
 for (const name of benchmarksToRun) {
   benchmarkData.set(name, {
-    schema: loadSchema(name),
-    instances: loadInstances(name)
+    schema:
+      compileSchema(
+        BlazeJSON.parse(readFileSync(join(E2E_DIR, name, 'schema.json'), 'utf8')), {
+          mode: 'fast'
+        }),
+    instances: readFileSync(join(E2E_DIR, name, 'instances.jsonl'), 'utf8')
+      .trim()
+      .split('\n')
+      .map(line => BlazeJSON.parse(line))
   });
 }
 
-const PARSE_BENCHMARK_SCHEMA = 'ui5-manifest';
-const parseBenchmarkSchemaPath = join(E2E_DIR, PARSE_BENCHMARK_SCHEMA, 'schema.json');
-const parseBenchmarkSchemaText = readFileSync(parseBenchmarkSchemaPath, 'utf8');
-
-suite.add('E2E_Parse_BlazeJSON_ui5_manifest', () => {
-  BlazeJSON.parse(parseBenchmarkSchemaText);
-});
-
-suite.add('E2E_Parse_JSON_ui5_manifest', () => {
-  JSON.parse(parseBenchmarkSchemaText);
-});
-
 for (const name of benchmarksToRun) {
   const { schema, instances } = benchmarkData.get(name);
-  const compiledSchema = compileSchema(schema, { mode: 'fast' });
-  const formattedName = formatName(name);
-
-  suite.add(`E2E_Evaluator_${formattedName}`, () => {
+  suite.add(`E2E_Evaluator_${formatName(name)}`, () => {
     for (const instance of instances) {
-      const result = evaluateSchema(compiledSchema, instance);
+      const result = evaluateSchema(schema, instance);
       if (!result.valid) {
         throw new Error(`Validation failed for ${name}`);
       }
