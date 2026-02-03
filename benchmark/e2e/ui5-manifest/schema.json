@@ -6398,7 +6398,6 @@
     "https://adaptivecards.io/schemas/adaptive-card.json": {
       "$schema": "http://json-schema.org/draft-06/schema#",
       "$id": "https://adaptivecards.io/schemas/adaptive-card.json",
-      "id": "http://adaptivecards.io/schemas/adaptive-card.json",
       "anyOf": [
         {
           "allOf": [

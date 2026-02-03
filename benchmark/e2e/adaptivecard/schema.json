@@ -1,7 +1,6 @@
 {
-  "$schema": "http://json-schema.org/draft-06/schema#",
+  "$schema": "http://json-schema.org/draft-07/schema#",
   "$id": "https://adaptivecards.io/schemas/adaptive-card.json",
-  "id": "http://adaptivecards.io/schemas/adaptive-card.json",
   "anyOf": [
     {
       "allOf": [

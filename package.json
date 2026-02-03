@@ -72,6 +72,7 @@
     "vendor/core/vendor/jsonschema-draft7/"
   ],
   "devDependencies": {
+    "ajv": "^8.17.1",
     "benchmark": "^2.1.4"
   }
 }
