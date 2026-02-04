@@ -161,9 +161,17 @@ auto compile(const sourcemeta::core::JSON &schema,
   const auto effective_tweaks{tweaks.value_or(Tweaks{})};
 
   const auto maybe_entrypoint_location{frame.traverse(entrypoint)};
-  // TODO: Throw a proper nice exception instead?
-  assert(maybe_entrypoint_location.has_value());
+  if (!maybe_entrypoint_location.has_value()) {
+    throw CompilerInvalidEntryPoint{
+        entrypoint, "The given entrypoint URI does not exist in the schema"};
+  }
+
   const auto &entrypoint_location{maybe_entrypoint_location->get()};
+  if (entrypoint_location.type ==
+      sourcemeta::core::SchemaFrame::LocationType::Pointer) {
+    throw CompilerInvalidEntryPoint{
+        entrypoint, "The given entrypoint URI is not a valid subschema"};
+  }
 
   ///////////////////////////////////////////////////////////////////
   // (1) Determine all the schema resources in the schema

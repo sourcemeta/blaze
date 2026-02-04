@@ -236,3 +236,53 @@ TEST(Evaluator, instruction_move_constructible) {
 TEST(Evaluator, instruction_move_assignable) {
   EXPECT_TRUE(std::is_move_assignable_v<sourcemeta::blaze::Instruction>);
 }
+
+TEST(Evaluator, invalid_entrypoint_does_not_exist) {
+  const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "type": "string"
+  })JSON")};
+
+  sourcemeta::core::SchemaFrame frame{
+      sourcemeta::core::SchemaFrame::Mode::References};
+  frame.analyse(schema, sourcemeta::core::schema_walker,
+                sourcemeta::core::schema_resolver);
+
+  try {
+    sourcemeta::blaze::compile(schema, sourcemeta::core::schema_walker,
+                               sourcemeta::core::schema_resolver,
+                               sourcemeta::blaze::default_schema_compiler,
+                               frame, "https://example.com/does-not-exist");
+    FAIL() << "The compile function was expected to throw";
+  } catch (const sourcemeta::blaze::CompilerInvalidEntryPoint &error) {
+    EXPECT_EQ(error.identifier(), "https://example.com/does-not-exist");
+    EXPECT_STREQ(error.what(),
+                 "The given entrypoint URI does not exist in the schema");
+  }
+}
+
+TEST(Evaluator, invalid_entrypoint_not_a_subschema) {
+  const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "properties": {
+      "foo": { "type": "string" }
+    }
+  })JSON")};
+
+  sourcemeta::core::SchemaFrame frame{
+      sourcemeta::core::SchemaFrame::Mode::References};
+  frame.analyse(schema, sourcemeta::core::schema_walker,
+                sourcemeta::core::schema_resolver);
+
+  try {
+    sourcemeta::blaze::compile(schema, sourcemeta::core::schema_walker,
+                               sourcemeta::core::schema_resolver,
+                               sourcemeta::blaze::default_schema_compiler,
+                               frame, "#/properties");
+    FAIL() << "The compile function was expected to throw";
+  } catch (const sourcemeta::blaze::CompilerInvalidEntryPoint &error) {
+    EXPECT_EQ(error.identifier(), "#/properties");
+    EXPECT_STREQ(error.what(),
+                 "The given entrypoint URI is not a valid subschema");
+  }
+}
