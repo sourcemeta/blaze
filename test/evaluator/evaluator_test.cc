@@ -181,7 +181,7 @@ TEST(Evaluator, explicit_frame) {
   const auto compiled_schema{sourcemeta::blaze::compile(
       result, sourcemeta::core::schema_walker,
       sourcemeta::core::schema_resolver,
-      sourcemeta::blaze::default_schema_compiler, frame)};
+      sourcemeta::blaze::default_schema_compiler, frame, frame.root())};
 
   sourcemeta::blaze::Evaluator evaluator;
   const sourcemeta::core::JSON instance{true};
@@ -202,11 +202,12 @@ TEST(Evaluator, explicit_frame_locations_only) {
   frame.analyse(result, sourcemeta::core::schema_walker,
                 sourcemeta::core::schema_resolver);
 
-  EXPECT_THROW(sourcemeta::blaze::compile(
-                   result, sourcemeta::core::schema_walker,
-                   sourcemeta::core::schema_resolver,
-                   sourcemeta::blaze::default_schema_compiler, frame),
-               sourcemeta::core::SchemaReferenceError);
+  EXPECT_THROW(
+      sourcemeta::blaze::compile(result, sourcemeta::core::schema_walker,
+                                 sourcemeta::core::schema_resolver,
+                                 sourcemeta::blaze::default_schema_compiler,
+                                 frame, frame.root()),
+      sourcemeta::core::SchemaReferenceError);
 }
 
 TEST(Evaluator, is_annotation) {

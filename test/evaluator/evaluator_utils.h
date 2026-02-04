@@ -51,42 +51,44 @@ inline auto FIRST_PROPERTY_IS(const sourcemeta::core::JSON &document,
     EXPECT_EQ(template_json, template_json_back);                              \
   }
 
-#define EVALUATE_WITH_TRACE_FAST_SUCCESS(schema, instance, count)              \
-  const auto compiled_schema{                                                  \
-      sourcemeta::blaze::compile(schema, sourcemeta::core::schema_walker,      \
-                                 sourcemeta::core::schema_resolver,            \
-                                 sourcemeta::blaze::default_schema_compiler,   \
-                                 sourcemeta::blaze::Mode::FastValidation)};    \
+#define EVALUATE_WITH_TRACE_FAST_SUCCESS(schema, instance, count, entrypoint)  \
+  const auto compiled_schema{sourcemeta::blaze::compile(                       \
+      schema, sourcemeta::core::schema_walker,                                 \
+      sourcemeta::core::schema_resolver,                                       \
+      sourcemeta::blaze::default_schema_compiler,                              \
+      sourcemeta::blaze::Mode::FastValidation, "", "", (entrypoint))};         \
   __ASSERT_TEMPLATE_JSON_SERIALISATION(compiled_schema);                       \
   EVALUATE_WITH_TRACE(compiled_schema, instance, count)                        \
   EXPECT_TRUE(result);
 
-#define EVALUATE_WITH_TRACE_FAST_FAILURE(schema, instance, count)              \
-  const auto compiled_schema{                                                  \
-      sourcemeta::blaze::compile(schema, sourcemeta::core::schema_walker,      \
-                                 sourcemeta::core::schema_resolver,            \
-                                 sourcemeta::blaze::default_schema_compiler,   \
-                                 sourcemeta::blaze::Mode::FastValidation)};    \
+#define EVALUATE_WITH_TRACE_FAST_FAILURE(schema, instance, count, entrypoint)  \
+  const auto compiled_schema{sourcemeta::blaze::compile(                       \
+      schema, sourcemeta::core::schema_walker,                                 \
+      sourcemeta::core::schema_resolver,                                       \
+      sourcemeta::blaze::default_schema_compiler,                              \
+      sourcemeta::blaze::Mode::FastValidation, "", "", (entrypoint))};         \
   __ASSERT_TEMPLATE_JSON_SERIALISATION(compiled_schema);                       \
   EVALUATE_WITH_TRACE(compiled_schema, instance, count)                        \
   EXPECT_FALSE(result);
 
-#define EVALUATE_WITH_TRACE_EXHAUSTIVE_SUCCESS(schema, instance, count)        \
-  const auto compiled_schema{                                                  \
-      sourcemeta::blaze::compile(schema, sourcemeta::core::schema_walker,      \
-                                 sourcemeta::core::schema_resolver,            \
-                                 sourcemeta::blaze::default_schema_compiler,   \
-                                 sourcemeta::blaze::Mode::Exhaustive)};        \
+#define EVALUATE_WITH_TRACE_EXHAUSTIVE_SUCCESS(schema, instance, count,        \
+                                               entrypoint)                     \
+  const auto compiled_schema{sourcemeta::blaze::compile(                       \
+      schema, sourcemeta::core::schema_walker,                                 \
+      sourcemeta::core::schema_resolver,                                       \
+      sourcemeta::blaze::default_schema_compiler,                              \
+      sourcemeta::blaze::Mode::Exhaustive, "", "", (entrypoint))};             \
   __ASSERT_TEMPLATE_JSON_SERIALISATION(compiled_schema);                       \
   EVALUATE_WITH_TRACE(compiled_schema, instance, count)                        \
   EXPECT_TRUE(result);
 
-#define EVALUATE_WITH_TRACE_EXHAUSTIVE_FAILURE(schema, instance, count)        \
-  const auto compiled_schema{                                                  \
-      sourcemeta::blaze::compile(schema, sourcemeta::core::schema_walker,      \
-                                 sourcemeta::core::schema_resolver,            \
-                                 sourcemeta::blaze::default_schema_compiler,   \
-                                 sourcemeta::blaze::Mode::Exhaustive)};        \
+#define EVALUATE_WITH_TRACE_EXHAUSTIVE_FAILURE(schema, instance, count,        \
+                                               entrypoint)                     \
+  const auto compiled_schema{sourcemeta::blaze::compile(                       \
+      schema, sourcemeta::core::schema_walker,                                 \
+      sourcemeta::core::schema_resolver,                                       \
+      sourcemeta::blaze::default_schema_compiler,                              \
+      sourcemeta::blaze::Mode::Exhaustive, "", "", (entrypoint))};             \
   __ASSERT_TEMPLATE_JSON_SERIALISATION(compiled_schema);                       \
   EVALUATE_WITH_TRACE(compiled_schema, instance, count)                        \
   EXPECT_FALSE(result);

@@ -21,7 +21,7 @@ TEST(Evaluator_OpenAPI_3_1, discriminator_1) {
     "name": "Rex"
   })JSON")};
 
-  EVALUATE_WITH_TRACE_FAST_SUCCESS(schema, instance, 0);
+  EVALUATE_WITH_TRACE_FAST_SUCCESS(schema, instance, 0, "");
 }
 
 TEST(Evaluator_OpenAPI_3_1, discriminator_1_exhaustive) {
@@ -37,7 +37,7 @@ TEST(Evaluator_OpenAPI_3_1, discriminator_1_exhaustive) {
     "name": "Rex"
   })JSON")};
 
-  EVALUATE_WITH_TRACE_EXHAUSTIVE_SUCCESS(schema, instance, 0);
+  EVALUATE_WITH_TRACE_EXHAUSTIVE_SUCCESS(schema, instance, 0, "");
 }
 
 TEST(Evaluator_OpenAPI_3_1, xml_1) {
@@ -56,7 +56,7 @@ TEST(Evaluator_OpenAPI_3_1, xml_1) {
     "name": "Rex"
   })JSON")};
 
-  EVALUATE_WITH_TRACE_FAST_SUCCESS(schema, instance, 0);
+  EVALUATE_WITH_TRACE_FAST_SUCCESS(schema, instance, 0, "");
 }
 
 TEST(Evaluator_OpenAPI_3_1, xml_1_exhaustive) {
@@ -75,7 +75,7 @@ TEST(Evaluator_OpenAPI_3_1, xml_1_exhaustive) {
     "name": "Rex"
   })JSON")};
 
-  EVALUATE_WITH_TRACE_EXHAUSTIVE_SUCCESS(schema, instance, 0);
+  EVALUATE_WITH_TRACE_EXHAUSTIVE_SUCCESS(schema, instance, 0, "");
 }
 
 TEST(Evaluator_OpenAPI_3_1, externalDocs_1) {
@@ -89,7 +89,7 @@ TEST(Evaluator_OpenAPI_3_1, externalDocs_1) {
 
   const sourcemeta::core::JSON instance{"foo"};
 
-  EVALUATE_WITH_TRACE_FAST_SUCCESS(schema, instance, 0);
+  EVALUATE_WITH_TRACE_FAST_SUCCESS(schema, instance, 0, "");
 }
 
 TEST(Evaluator_OpenAPI_3_1, externalDocs_1_exhaustive) {
@@ -103,7 +103,7 @@ TEST(Evaluator_OpenAPI_3_1, externalDocs_1_exhaustive) {
 
   const sourcemeta::core::JSON instance{"foo"};
 
-  EVALUATE_WITH_TRACE_EXHAUSTIVE_SUCCESS(schema, instance, 0);
+  EVALUATE_WITH_TRACE_EXHAUSTIVE_SUCCESS(schema, instance, 0, "");
 }
 
 TEST(Evaluator_OpenAPI_3_1, example_1) {
@@ -120,7 +120,7 @@ TEST(Evaluator_OpenAPI_3_1, example_1) {
     "petType": "cat"
   })JSON")};
 
-  EVALUATE_WITH_TRACE_FAST_SUCCESS(schema, instance, 0);
+  EVALUATE_WITH_TRACE_FAST_SUCCESS(schema, instance, 0, "");
 }
 
 TEST(Evaluator_OpenAPI_3_1, example_1_exhaustive) {
@@ -137,7 +137,7 @@ TEST(Evaluator_OpenAPI_3_1, example_1_exhaustive) {
     "petType": "cat"
   })JSON")};
 
-  EVALUATE_WITH_TRACE_EXHAUSTIVE_SUCCESS(schema, instance, 0);
+  EVALUATE_WITH_TRACE_EXHAUSTIVE_SUCCESS(schema, instance, 0, "");
 }
 
 TEST(Evaluator_OpenAPI_3_1, type_string_1) {
@@ -148,7 +148,7 @@ TEST(Evaluator_OpenAPI_3_1, type_string_1) {
 
   const sourcemeta::core::JSON instance{"hello"};
 
-  EVALUATE_WITH_TRACE_FAST_SUCCESS(schema, instance, 1);
+  EVALUATE_WITH_TRACE_FAST_SUCCESS(schema, instance, 1, "");
   EVALUATE_TRACE_PRE(0, AssertionTypeStrict, "/type", "#/type", "");
   EVALUATE_TRACE_POST_SUCCESS(0, AssertionTypeStrict, "/type", "#/type", "");
   EVALUATE_TRACE_POST_DESCRIBE(instance, 0,
@@ -163,7 +163,7 @@ TEST(Evaluator_OpenAPI_3_1, type_string_1_exhaustive) {
 
   const sourcemeta::core::JSON instance{"hello"};
 
-  EVALUATE_WITH_TRACE_EXHAUSTIVE_SUCCESS(schema, instance, 1);
+  EVALUATE_WITH_TRACE_EXHAUSTIVE_SUCCESS(schema, instance, 1, "");
   EVALUATE_TRACE_PRE(0, AssertionTypeStrict, "/type", "#/type", "");
   EVALUATE_TRACE_POST_SUCCESS(0, AssertionTypeStrict, "/type", "#/type", "");
   EVALUATE_TRACE_POST_DESCRIBE(instance, 0,
@@ -178,7 +178,7 @@ TEST(Evaluator_OpenAPI_3_1, type_string_failure_1) {
 
   const sourcemeta::core::JSON instance{42};
 
-  EVALUATE_WITH_TRACE_FAST_FAILURE(schema, instance, 1);
+  EVALUATE_WITH_TRACE_FAST_FAILURE(schema, instance, 1, "");
   EVALUATE_TRACE_PRE(0, AssertionTypeStrict, "/type", "#/type", "");
   EVALUATE_TRACE_POST_FAILURE(0, AssertionTypeStrict, "/type", "#/type", "");
   EVALUATE_TRACE_POST_DESCRIBE(
@@ -194,7 +194,7 @@ TEST(Evaluator_OpenAPI_3_1, type_string_failure_1_exhaustive) {
 
   const sourcemeta::core::JSON instance{42};
 
-  EVALUATE_WITH_TRACE_EXHAUSTIVE_FAILURE(schema, instance, 1);
+  EVALUATE_WITH_TRACE_EXHAUSTIVE_FAILURE(schema, instance, 1, "");
   EVALUATE_TRACE_PRE(0, AssertionTypeStrict, "/type", "#/type", "");
   EVALUATE_TRACE_POST_FAILURE(0, AssertionTypeStrict, "/type", "#/type", "");
   EVALUATE_TRACE_POST_DESCRIBE(
