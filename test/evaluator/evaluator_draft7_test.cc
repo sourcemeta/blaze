@@ -14,14 +14,15 @@ TEST(Evaluator_draft7, metaschema) {
   EXPECT_TRUE(metaschema.has_value());
 
   const sourcemeta::core::JSON instance{sourcemeta::core::parse_json("{}")};
-  EVALUATE_WITH_TRACE_FAST_SUCCESS(metaschema.value(), instance, 2);
+  EVALUATE_WITH_TRACE_FAST_SUCCESS(metaschema.value(), instance, 2, "");
 }
 
 TEST(Evaluator_draft7, metaschema_hyper_self) {
   const auto metaschema{sourcemeta::core::schema_resolver(
       "http://json-schema.org/draft-07/hyper-schema#")};
   EXPECT_TRUE(metaschema.has_value());
-  EVALUATE_WITH_TRACE_FAST_SUCCESS(metaschema.value(), metaschema.value(), 460);
+  EVALUATE_WITH_TRACE_FAST_SUCCESS(metaschema.value(), metaschema.value(), 460,
+                                   "");
 }
 
 TEST(Evaluator_draft7, metaschema_hyper_self_exhaustive) {
@@ -29,7 +30,7 @@ TEST(Evaluator_draft7, metaschema_hyper_self_exhaustive) {
       "http://json-schema.org/draft-07/hyper-schema#")};
   EXPECT_TRUE(metaschema.has_value());
   EVALUATE_WITH_TRACE_EXHAUSTIVE_SUCCESS(metaschema.value(), metaschema.value(),
-                                         566);
+                                         566, "");
 }
 
 TEST(Evaluator_draft7, if_1) {
@@ -39,7 +40,7 @@ TEST(Evaluator_draft7, if_1) {
   })JSON")};
 
   const sourcemeta::core::JSON instance{1};
-  EVALUATE_WITH_TRACE_FAST_SUCCESS(schema, instance, 2);
+  EVALUATE_WITH_TRACE_FAST_SUCCESS(schema, instance, 2, "");
 
   EVALUATE_TRACE_PRE(0, LogicalCondition, "/if", "#/if", "");
   EVALUATE_TRACE_PRE(1, AssertionEqual, "/if/const", "#/if/const", "");
@@ -62,7 +63,7 @@ TEST(Evaluator_draft7, if_1_hyperschema) {
   })JSON")};
 
   const sourcemeta::core::JSON instance{1};
-  EVALUATE_WITH_TRACE_FAST_SUCCESS(schema, instance, 2);
+  EVALUATE_WITH_TRACE_FAST_SUCCESS(schema, instance, 2, "");
 
   EVALUATE_TRACE_PRE(0, LogicalCondition, "/if", "#/if", "");
   EVALUATE_TRACE_PRE(1, AssertionEqual, "/if/const", "#/if/const", "");
@@ -85,7 +86,7 @@ TEST(Evaluator_draft7, if_2) {
   })JSON")};
 
   const sourcemeta::core::JSON instance{2};
-  EVALUATE_WITH_TRACE_FAST_SUCCESS(schema, instance, 2);
+  EVALUATE_WITH_TRACE_FAST_SUCCESS(schema, instance, 2, "");
 
   EVALUATE_TRACE_PRE(0, LogicalCondition, "/if", "#/if", "");
   EVALUATE_TRACE_PRE(1, AssertionEqual, "/if/const", "#/if/const", "");
@@ -117,7 +118,7 @@ TEST(Evaluator_draft7, if_3) {
 
   const sourcemeta::core::JSON instance{
       sourcemeta::core::parse_json(R"JSON({ "foo": {} })JSON")};
-  EVALUATE_WITH_TRACE_FAST_SUCCESS(schema, instance, 3);
+  EVALUATE_WITH_TRACE_FAST_SUCCESS(schema, instance, 3, "");
 
   EVALUATE_TRACE_PRE(0, LogicalCondition, "/properties/foo/$ref/if",
                      "#/definitions/test/if", "/foo");
@@ -151,7 +152,7 @@ TEST(Evaluator_draft7, then_1) {
   })JSON")};
 
   const sourcemeta::core::JSON instance{3};
-  EVALUATE_WITH_TRACE_FAST_SUCCESS(schema, instance, 0);
+  EVALUATE_WITH_TRACE_FAST_SUCCESS(schema, instance, 0, "");
 }
 
 TEST(Evaluator_draft7, then_2) {
@@ -162,7 +163,7 @@ TEST(Evaluator_draft7, then_2) {
   })JSON")};
 
   const sourcemeta::core::JSON instance{10};
-  EVALUATE_WITH_TRACE_FAST_SUCCESS(schema, instance, 3);
+  EVALUATE_WITH_TRACE_FAST_SUCCESS(schema, instance, 3, "");
 
   EVALUATE_TRACE_PRE(0, LogicalCondition, "/if", "#/if", "");
   EVALUATE_TRACE_PRE(1, AssertionEqual, "/if/const", "#/if/const", "");
@@ -193,7 +194,7 @@ TEST(Evaluator_draft7, then_3) {
   })JSON")};
 
   const sourcemeta::core::JSON instance{5};
-  EVALUATE_WITH_TRACE_FAST_SUCCESS(schema, instance, 2);
+  EVALUATE_WITH_TRACE_FAST_SUCCESS(schema, instance, 2, "");
 
   EVALUATE_TRACE_PRE(0, LogicalCondition, "/if", "#/if", "");
   EVALUATE_TRACE_PRE(1, AssertionEqual, "/if/const", "#/if/const", "");
@@ -218,7 +219,7 @@ TEST(Evaluator_draft7, then_4) {
   })JSON")};
 
   const sourcemeta::core::JSON instance{5};
-  EVALUATE_WITH_TRACE_FAST_SUCCESS(schema, instance, 1);
+  EVALUATE_WITH_TRACE_FAST_SUCCESS(schema, instance, 1, "");
 
   EVALUATE_TRACE_PRE(0, AssertionDivisible, "/then/multipleOf",
                      "#/then/multipleOf", "");
@@ -238,7 +239,7 @@ TEST(Evaluator_draft7, then_5) {
   })JSON")};
 
   const sourcemeta::core::JSON instance{2};
-  EVALUATE_WITH_TRACE_FAST_FAILURE(schema, instance, 1);
+  EVALUATE_WITH_TRACE_FAST_FAILURE(schema, instance, 1, "");
 
   EVALUATE_TRACE_PRE(0, AssertionDivisible, "/then/multipleOf",
                      "#/then/multipleOf", "");
@@ -270,7 +271,7 @@ TEST(Evaluator_draft7, then_6) {
   const sourcemeta::core::JSON instance{
       sourcemeta::core::parse_json("{ \"foo\": { \"bar\": 1 } }")};
 
-  EVALUATE_WITH_TRACE_FAST_SUCCESS(schema, instance, 3);
+  EVALUATE_WITH_TRACE_FAST_SUCCESS(schema, instance, 3, "");
 
   EVALUATE_TRACE_PRE(0, LogicalCondition, "/properties/foo/allOf/0/if",
                      "#/properties/foo/allOf/0/if", "/foo");
@@ -306,7 +307,7 @@ TEST(Evaluator_draft7, else_1) {
   })JSON")};
 
   const sourcemeta::core::JSON instance{3};
-  EVALUATE_WITH_TRACE_FAST_SUCCESS(schema, instance, 0);
+  EVALUATE_WITH_TRACE_FAST_SUCCESS(schema, instance, 0, "");
 }
 
 TEST(Evaluator_draft7, else_2) {
@@ -317,7 +318,7 @@ TEST(Evaluator_draft7, else_2) {
   })JSON")};
 
   const sourcemeta::core::JSON instance{1};
-  EVALUATE_WITH_TRACE_FAST_SUCCESS(schema, instance, 2);
+  EVALUATE_WITH_TRACE_FAST_SUCCESS(schema, instance, 2, "");
 
   EVALUATE_TRACE_PRE(0, LogicalCondition, "/if", "#/if", "");
   EVALUATE_TRACE_PRE(1, AssertionEqual, "/if/const", "#/if/const", "");
@@ -341,7 +342,7 @@ TEST(Evaluator_draft7, else_3) {
   })JSON")};
 
   const sourcemeta::core::JSON instance{10};
-  EVALUATE_WITH_TRACE_FAST_SUCCESS(schema, instance, 3);
+  EVALUATE_WITH_TRACE_FAST_SUCCESS(schema, instance, 3, "");
 
   EVALUATE_TRACE_PRE(0, LogicalCondition, "/if", "#/if", "");
   EVALUATE_TRACE_PRE(1, AssertionEqual, "/if/const", "#/if/const", "");
@@ -372,7 +373,7 @@ TEST(Evaluator_draft7, else_4) {
   })JSON")};
 
   const sourcemeta::core::JSON instance{8};
-  EVALUATE_WITH_TRACE_FAST_FAILURE(schema, instance, 3);
+  EVALUATE_WITH_TRACE_FAST_FAILURE(schema, instance, 3, "");
 
   EVALUATE_TRACE_PRE(0, LogicalCondition, "/if", "#/if", "");
   EVALUATE_TRACE_PRE(1, AssertionEqual, "/if/const", "#/if/const", "");
@@ -473,7 +474,7 @@ TEST(Evaluator_draft7, metadata) {
   })JSON")};
 
   const sourcemeta::core::JSON instance{5};
-  EVALUATE_WITH_TRACE_FAST_SUCCESS(schema, instance, 0);
+  EVALUATE_WITH_TRACE_FAST_SUCCESS(schema, instance, 0, "");
 }
 
 TEST(Evaluator_draft7, content) {
@@ -484,7 +485,7 @@ TEST(Evaluator_draft7, content) {
   })JSON")};
 
   const sourcemeta::core::JSON instance{"test"};
-  EVALUATE_WITH_TRACE_FAST_SUCCESS(schema, instance, 0);
+  EVALUATE_WITH_TRACE_FAST_SUCCESS(schema, instance, 0, "");
 }
 
 TEST(Evaluator_draft7, content_exhaustive) {
@@ -495,7 +496,7 @@ TEST(Evaluator_draft7, content_exhaustive) {
   })JSON")};
 
   const sourcemeta::core::JSON instance{"test"};
-  EVALUATE_WITH_TRACE_EXHAUSTIVE_SUCCESS(schema, instance, 0);
+  EVALUATE_WITH_TRACE_EXHAUSTIVE_SUCCESS(schema, instance, 0, "");
 }
 
 TEST(Evaluator_draft7, unknown_1) {
@@ -505,7 +506,7 @@ TEST(Evaluator_draft7, unknown_1) {
   })JSON")};
 
   const sourcemeta::core::JSON instance{"foo"};
-  EVALUATE_WITH_TRACE_FAST_SUCCESS(schema, instance, 0);
+  EVALUATE_WITH_TRACE_FAST_SUCCESS(schema, instance, 0, "");
 }
 
 TEST(Evaluator_draft7, unknown_2) {
@@ -515,7 +516,7 @@ TEST(Evaluator_draft7, unknown_2) {
   })JSON")};
 
   const sourcemeta::core::JSON instance{"foo"};
-  EVALUATE_WITH_TRACE_FAST_SUCCESS(schema, instance, 0);
+  EVALUATE_WITH_TRACE_FAST_SUCCESS(schema, instance, 0, "");
 }
 
 TEST(Evaluator_draft7, reference_from_unknown_keyword) {
@@ -555,7 +556,7 @@ TEST(Evaluator_draft7, items_1) {
 
   const sourcemeta::core::JSON instance{
       sourcemeta::core::parse_json("[ 11, 54 ]")};
-  EVALUATE_WITH_TRACE_FAST_SUCCESS(schema, instance, 1);
+  EVALUATE_WITH_TRACE_FAST_SUCCESS(schema, instance, 1, "");
 
   EVALUATE_TRACE_PRE(0, LoopItemsTypeStrictAny, "/items", "#/items", "");
   EVALUATE_TRACE_POST_SUCCESS(0, LoopItemsTypeStrictAny, "/items", "#/items",

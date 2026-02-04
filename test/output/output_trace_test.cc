@@ -231,11 +231,11 @@ TEST(Output_trace, pass_with_frame_exhaustive) {
   frame.analyse(schema, sourcemeta::core::schema_walker,
                 sourcemeta::core::schema_resolver);
 
-  const auto schema_template{
-      sourcemeta::blaze::compile(schema, sourcemeta::core::schema_walker,
-                                 sourcemeta::core::schema_resolver,
-                                 sourcemeta::blaze::default_schema_compiler,
-                                 frame, sourcemeta::blaze::Mode::Exhaustive)};
+  const auto schema_template{sourcemeta::blaze::compile(
+      schema, sourcemeta::core::schema_walker,
+      sourcemeta::core::schema_resolver,
+      sourcemeta::blaze::default_schema_compiler, frame, frame.root(),
+      sourcemeta::blaze::Mode::Exhaustive)};
 
   const sourcemeta::core::JSON instance{sourcemeta::core::parse_json(R"JSON({
     "foo": "bar",
@@ -308,7 +308,7 @@ TEST(Output_trace, pass_with_frame_fast) {
   const auto schema_template{sourcemeta::blaze::compile(
       schema, sourcemeta::core::schema_walker,
       sourcemeta::core::schema_resolver,
-      sourcemeta::blaze::default_schema_compiler, frame,
+      sourcemeta::blaze::default_schema_compiler, frame, frame.root(),
       sourcemeta::blaze::Mode::FastValidation)};
 
   const sourcemeta::core::JSON instance{sourcemeta::core::parse_json(R"JSON({

@@ -15,7 +15,7 @@ TEST(Evaluator_2020_12, unknown_1) {
   })JSON")};
 
   const sourcemeta::core::JSON instance{"foo"};
-  EVALUATE_WITH_TRACE_FAST_SUCCESS(schema, instance, 0);
+  EVALUATE_WITH_TRACE_FAST_SUCCESS(schema, instance, 0, "");
 }
 
 TEST(Evaluator_2020_12, metaschema_hyper_1) {
@@ -23,14 +23,15 @@ TEST(Evaluator_2020_12, metaschema_hyper_1) {
       "https://json-schema.org/draft/2020-12/hyper-schema")};
   EXPECT_TRUE(metaschema.has_value());
   const auto instance{sourcemeta::core::parse_json(R"JSON({})JSON")};
-  EVALUATE_WITH_TRACE_FAST_SUCCESS(metaschema.value(), instance, 24);
+  EVALUATE_WITH_TRACE_FAST_SUCCESS(metaschema.value(), instance, 24, "");
 }
 
 TEST(Evaluator_2020_12, metaschema_hyper_self) {
   const auto metaschema{sourcemeta::core::schema_resolver(
       "https://json-schema.org/draft/2020-12/hyper-schema")};
   EXPECT_TRUE(metaschema.has_value());
-  EVALUATE_WITH_TRACE_FAST_SUCCESS(metaschema.value(), metaschema.value(), 100);
+  EVALUATE_WITH_TRACE_FAST_SUCCESS(metaschema.value(), metaschema.value(), 100,
+                                   "");
 }
 
 TEST(Evaluator_2020_12, metaschema_hyper_self_exhaustive) {
@@ -38,7 +39,7 @@ TEST(Evaluator_2020_12, metaschema_hyper_self_exhaustive) {
       "https://json-schema.org/draft/2020-12/hyper-schema")};
   EXPECT_TRUE(metaschema.has_value());
   EVALUATE_WITH_TRACE_EXHAUSTIVE_SUCCESS(metaschema.value(), metaschema.value(),
-                                         207);
+                                         207, "");
 }
 
 TEST(Evaluator_2020_12, unknown_1_exhaustive) {
@@ -48,7 +49,7 @@ TEST(Evaluator_2020_12, unknown_1_exhaustive) {
   })JSON")};
 
   const sourcemeta::core::JSON instance{"foo"};
-  EVALUATE_WITH_TRACE_EXHAUSTIVE_SUCCESS(schema, instance, 1);
+  EVALUATE_WITH_TRACE_EXHAUSTIVE_SUCCESS(schema, instance, 1, "");
 
   EVALUATE_TRACE_PRE_ANNOTATION(0, "/fooBar", "#/fooBar", "");
   EVALUATE_TRACE_POST_ANNOTATION(0, "/fooBar", "#/fooBar", "", "baz");
@@ -65,7 +66,7 @@ TEST(Evaluator_2020_12, unknown_2) {
   })JSON")};
 
   const sourcemeta::core::JSON instance{"foo"};
-  EVALUATE_WITH_TRACE_FAST_SUCCESS(schema, instance, 0);
+  EVALUATE_WITH_TRACE_FAST_SUCCESS(schema, instance, 0, "");
 }
 
 TEST(Evaluator_2020_12, unknown_2_exhaustive) {
@@ -75,7 +76,7 @@ TEST(Evaluator_2020_12, unknown_2_exhaustive) {
   })JSON")};
 
   const sourcemeta::core::JSON instance{"foo"};
-  EVALUATE_WITH_TRACE_EXHAUSTIVE_SUCCESS(schema, instance, 1);
+  EVALUATE_WITH_TRACE_EXHAUSTIVE_SUCCESS(schema, instance, 1, "");
 
   EVALUATE_TRACE_PRE_ANNOTATION(0, "/x-test", "#/x-test", "");
   EVALUATE_TRACE_POST_ANNOTATION(0, "/x-test", "#/x-test", "", 1);
@@ -94,7 +95,7 @@ TEST(Evaluator_2020_12, items_1) {
   })JSON")};
 
   const sourcemeta::core::JSON instance{5};
-  EVALUATE_WITH_TRACE_FAST_SUCCESS(schema, instance, 0);
+  EVALUATE_WITH_TRACE_FAST_SUCCESS(schema, instance, 0, "");
 }
 
 TEST(Evaluator_2020_12, items_2) {
@@ -107,7 +108,7 @@ TEST(Evaluator_2020_12, items_2) {
 
   const sourcemeta::core::JSON instance{
       sourcemeta::core::parse_json("[ \"foo\", \"bar\", \"baz\" ]")};
-  EVALUATE_WITH_TRACE_FAST_SUCCESS(schema, instance, 4);
+  EVALUATE_WITH_TRACE_FAST_SUCCESS(schema, instance, 4, "");
 
   EVALUATE_TRACE_PRE(0, LoopItemsFrom, "/items", "#/items", "");
   EVALUATE_TRACE_PRE(1, AssertionTypeStrict, "/items/type", "#/items/type",
@@ -146,7 +147,7 @@ TEST(Evaluator_2020_12, items_2_exhaustive) {
 
   const sourcemeta::core::JSON instance{
       sourcemeta::core::parse_json("[ \"foo\", \"bar\", \"baz\" ]")};
-  EVALUATE_WITH_TRACE_EXHAUSTIVE_SUCCESS(schema, instance, 6);
+  EVALUATE_WITH_TRACE_EXHAUSTIVE_SUCCESS(schema, instance, 6, "");
 
   EVALUATE_TRACE_PRE(0, LoopItemsFrom, "/items", "#/items", "");
   EVALUATE_TRACE_PRE(1, AssertionTypeStrict, "/items/type", "#/items/type",
@@ -195,7 +196,7 @@ TEST(Evaluator_2020_12, items_3) {
 
   const sourcemeta::core::JSON instance{
       sourcemeta::core::parse_json("[ \"foo\", 5, \"baz\" ]")};
-  EVALUATE_WITH_TRACE_FAST_FAILURE(schema, instance, 3);
+  EVALUATE_WITH_TRACE_FAST_FAILURE(schema, instance, 3, "");
 
   EVALUATE_TRACE_PRE(0, LoopItemsFrom, "/items", "#/items", "");
   EVALUATE_TRACE_PRE(1, AssertionTypeStrict, "/items/type", "#/items/type",
@@ -231,7 +232,7 @@ TEST(Evaluator_2020_12, items_4) {
 
   const sourcemeta::core::JSON instance{
       sourcemeta::core::parse_json("[ true, 5 ]")};
-  EVALUATE_WITH_TRACE_FAST_SUCCESS(schema, instance, 3);
+  EVALUATE_WITH_TRACE_FAST_SUCCESS(schema, instance, 3, "");
 
   EVALUATE_TRACE_PRE(0, AssertionArrayPrefix, "/prefixItems", "#/prefixItems",
                      "");
@@ -269,7 +270,7 @@ TEST(Evaluator_2020_12, items_4_exhaustive) {
 
   const sourcemeta::core::JSON instance{
       sourcemeta::core::parse_json("[ true, 5 ]")};
-  EVALUATE_WITH_TRACE_EXHAUSTIVE_SUCCESS(schema, instance, 5);
+  EVALUATE_WITH_TRACE_EXHAUSTIVE_SUCCESS(schema, instance, 5, "");
 
   EVALUATE_TRACE_PRE(0, AssertionArrayPrefix, "/prefixItems", "#/prefixItems",
                      "");
@@ -318,7 +319,7 @@ TEST(Evaluator_2020_12, items_5) {
 
   const sourcemeta::core::JSON instance{
       sourcemeta::core::parse_json("[ true, 5, \"foo\", \"bar\" ]")};
-  EVALUATE_WITH_TRACE_FAST_SUCCESS(schema, instance, 6);
+  EVALUATE_WITH_TRACE_FAST_SUCCESS(schema, instance, 6, "");
 
   EVALUATE_TRACE_PRE(0, AssertionArrayPrefix, "/prefixItems", "#/prefixItems",
                      "");
@@ -374,7 +375,7 @@ TEST(Evaluator_2020_12, items_5_exhaustive) {
 
   const sourcemeta::core::JSON instance{
       sourcemeta::core::parse_json("[ true, 5, \"foo\", \"bar\" ]")};
-  EVALUATE_WITH_TRACE_EXHAUSTIVE_SUCCESS(schema, instance, 9);
+  EVALUATE_WITH_TRACE_EXHAUSTIVE_SUCCESS(schema, instance, 9, "");
 
   EVALUATE_TRACE_PRE(0, AssertionArrayPrefix, "/prefixItems", "#/prefixItems",
                      "");
@@ -446,7 +447,7 @@ TEST(Evaluator_2020_12, items_6) {
 
   const sourcemeta::core::JSON instance{
       sourcemeta::core::parse_json("[ true, 5, 6, \"bar\" ]")};
-  EVALUATE_WITH_TRACE_FAST_FAILURE(schema, instance, 5);
+  EVALUATE_WITH_TRACE_FAST_FAILURE(schema, instance, 5, "");
 
   EVALUATE_TRACE_PRE(0, AssertionArrayPrefix, "/prefixItems", "#/prefixItems",
                      "");
@@ -497,7 +498,7 @@ TEST(Evaluator_2020_12, items_6_exhaustive) {
 
   const sourcemeta::core::JSON instance{
       sourcemeta::core::parse_json("[ true, 5, 6, \"bar\" ]")};
-  EVALUATE_WITH_TRACE_EXHAUSTIVE_FAILURE(schema, instance, 6);
+  EVALUATE_WITH_TRACE_EXHAUSTIVE_FAILURE(schema, instance, 6, "");
 
   EVALUATE_TRACE_PRE(0, AssertionArrayPrefix, "/prefixItems", "#/prefixItems",
                      "");
@@ -549,7 +550,7 @@ TEST(Evaluator_2020_12, items_7) {
   })JSON")};
 
   const sourcemeta::core::JSON instance{sourcemeta::core::parse_json("[]")};
-  EVALUATE_WITH_TRACE_FAST_SUCCESS(schema, instance, 0);
+  EVALUATE_WITH_TRACE_FAST_SUCCESS(schema, instance, 0, "");
 }
 
 TEST(Evaluator_2020_12, items_7_exhaustive) {
@@ -559,7 +560,7 @@ TEST(Evaluator_2020_12, items_7_exhaustive) {
   })JSON")};
 
   const sourcemeta::core::JSON instance{sourcemeta::core::parse_json("[]")};
-  EVALUATE_WITH_TRACE_EXHAUSTIVE_SUCCESS(schema, instance, 0);
+  EVALUATE_WITH_TRACE_EXHAUSTIVE_SUCCESS(schema, instance, 0, "");
 }
 
 TEST(Evaluator_2020_12, prefixItems_1) {
@@ -569,7 +570,7 @@ TEST(Evaluator_2020_12, prefixItems_1) {
   })JSON")};
 
   const sourcemeta::core::JSON instance{5};
-  EVALUATE_WITH_TRACE_FAST_SUCCESS(schema, instance, 0);
+  EVALUATE_WITH_TRACE_FAST_SUCCESS(schema, instance, 0, "");
 }
 
 TEST(Evaluator_2020_12, prefixItems_2) {
@@ -579,7 +580,7 @@ TEST(Evaluator_2020_12, prefixItems_2) {
   })JSON")};
 
   const sourcemeta::core::JSON instance{sourcemeta::core::parse_json("[]")};
-  EVALUATE_WITH_TRACE_FAST_SUCCESS(schema, instance, 1);
+  EVALUATE_WITH_TRACE_FAST_SUCCESS(schema, instance, 1, "");
 
   EVALUATE_TRACE_PRE(0, AssertionArrayPrefix, "/prefixItems", "#/prefixItems",
                      "");
@@ -599,7 +600,7 @@ TEST(Evaluator_2020_12, prefixItems_2_exhaustive) {
   })JSON")};
 
   const sourcemeta::core::JSON instance{sourcemeta::core::parse_json("[]")};
-  EVALUATE_WITH_TRACE_EXHAUSTIVE_SUCCESS(schema, instance, 1);
+  EVALUATE_WITH_TRACE_EXHAUSTIVE_SUCCESS(schema, instance, 1, "");
 
   // Note: we don't want to emit any annotation for empty arrays
   EVALUATE_TRACE_PRE(0, AssertionArrayPrefix, "/prefixItems", "#/prefixItems",
@@ -620,7 +621,7 @@ TEST(Evaluator_2020_12, prefixItems_3) {
   })JSON")};
 
   const sourcemeta::core::JSON instance{sourcemeta::core::parse_json("[ 5 ]")};
-  EVALUATE_WITH_TRACE_FAST_SUCCESS(schema, instance, 2);
+  EVALUATE_WITH_TRACE_FAST_SUCCESS(schema, instance, 2, "");
 
   EVALUATE_TRACE_PRE(0, AssertionArrayPrefix, "/prefixItems", "#/prefixItems",
                      "");
@@ -647,7 +648,7 @@ TEST(Evaluator_2020_12, prefixItems_3_exhaustive) {
   })JSON")};
 
   const sourcemeta::core::JSON instance{sourcemeta::core::parse_json("[ 5 ]")};
-  EVALUATE_WITH_TRACE_EXHAUSTIVE_SUCCESS(schema, instance, 3);
+  EVALUATE_WITH_TRACE_EXHAUSTIVE_SUCCESS(schema, instance, 3, "");
 
   EVALUATE_TRACE_PRE(0, AssertionArrayPrefix, "/prefixItems", "#/prefixItems",
                      "");
@@ -681,7 +682,7 @@ TEST(Evaluator_2020_12, prefixItems_4) {
 
   const sourcemeta::core::JSON instance{
       sourcemeta::core::parse_json("[ 5, true, \"extra\" ]")};
-  EVALUATE_WITH_TRACE_FAST_SUCCESS(schema, instance, 3);
+  EVALUATE_WITH_TRACE_FAST_SUCCESS(schema, instance, 3, "");
 
   EVALUATE_TRACE_PRE(0, AssertionArrayPrefix, "/prefixItems", "#/prefixItems",
                      "");
@@ -715,7 +716,7 @@ TEST(Evaluator_2020_12, prefixItems_4_exhaustive) {
 
   const sourcemeta::core::JSON instance{
       sourcemeta::core::parse_json("[ 5, true, \"extra\" ]")};
-  EVALUATE_WITH_TRACE_EXHAUSTIVE_SUCCESS(schema, instance, 4);
+  EVALUATE_WITH_TRACE_EXHAUSTIVE_SUCCESS(schema, instance, 4, "");
 
   EVALUATE_TRACE_PRE(0, AssertionArrayPrefix, "/prefixItems", "#/prefixItems",
                      "");
@@ -755,7 +756,7 @@ TEST(Evaluator_2020_12, prefixItems_5) {
 
   const sourcemeta::core::JSON instance{
       sourcemeta::core::parse_json("[ 5, 1, \"extra\" ]")};
-  EVALUATE_WITH_TRACE_FAST_FAILURE(schema, instance, 3);
+  EVALUATE_WITH_TRACE_FAST_FAILURE(schema, instance, 3, "");
 
   EVALUATE_TRACE_PRE(0, AssertionArrayPrefix, "/prefixItems", "#/prefixItems",
                      "");
@@ -790,7 +791,7 @@ TEST(Evaluator_2020_12, prefixItems_5_exhaustive) {
 
   const sourcemeta::core::JSON instance{
       sourcemeta::core::parse_json("[ 5, 1, \"extra\" ]")};
-  EVALUATE_WITH_TRACE_EXHAUSTIVE_FAILURE(schema, instance, 3);
+  EVALUATE_WITH_TRACE_EXHAUSTIVE_FAILURE(schema, instance, 3, "");
 
   EVALUATE_TRACE_PRE(0, AssertionArrayPrefix, "/prefixItems", "#/prefixItems",
                      "");
@@ -825,7 +826,7 @@ TEST(Evaluator_2020_12, prefixItems_6) {
 
   const sourcemeta::core::JSON instance{
       sourcemeta::core::parse_json("[ 5, true ]")};
-  EVALUATE_WITH_TRACE_FAST_SUCCESS(schema, instance, 3);
+  EVALUATE_WITH_TRACE_FAST_SUCCESS(schema, instance, 3, "");
 
   EVALUATE_TRACE_PRE(0, AssertionArrayPrefix, "/prefixItems", "#/prefixItems",
                      "");
@@ -859,7 +860,7 @@ TEST(Evaluator_2020_12, prefixItems_6_exhaustive) {
 
   const sourcemeta::core::JSON instance{
       sourcemeta::core::parse_json("[ 5, true ]")};
-  EVALUATE_WITH_TRACE_EXHAUSTIVE_SUCCESS(schema, instance, 5);
+  EVALUATE_WITH_TRACE_EXHAUSTIVE_SUCCESS(schema, instance, 5, "");
 
   EVALUATE_TRACE_PRE(0, AssertionArrayPrefix, "/prefixItems", "#/prefixItems",
                      "");
@@ -903,7 +904,7 @@ TEST(Evaluator_2020_12, contains_1) {
   })JSON")};
 
   const sourcemeta::core::JSON instance{2};
-  EVALUATE_WITH_TRACE_FAST_SUCCESS(schema, instance, 0);
+  EVALUATE_WITH_TRACE_FAST_SUCCESS(schema, instance, 0, "");
 }
 
 TEST(Evaluator_2020_12, contains_2) {
@@ -914,7 +915,7 @@ TEST(Evaluator_2020_12, contains_2) {
 
   const sourcemeta::core::JSON instance{
       sourcemeta::core::parse_json("[ 1, \"bar\", 3 ]")};
-  EVALUATE_WITH_TRACE_FAST_SUCCESS(schema, instance, 3);
+  EVALUATE_WITH_TRACE_FAST_SUCCESS(schema, instance, 3, "");
 
   EVALUATE_TRACE_PRE(0, LoopContains, "/contains", "#/contains", "");
   EVALUATE_TRACE_PRE(1, AssertionTypeStrict, "/contains/type",
@@ -947,7 +948,7 @@ TEST(Evaluator_2020_12, contains_2_exhaustive) {
 
   const sourcemeta::core::JSON instance{
       sourcemeta::core::parse_json("[ 1, \"bar\", 3 ]")};
-  EVALUATE_WITH_TRACE_EXHAUSTIVE_SUCCESS(schema, instance, 5);
+  EVALUATE_WITH_TRACE_EXHAUSTIVE_SUCCESS(schema, instance, 5, "");
 
   EVALUATE_TRACE_PRE(0, LoopContains, "/contains", "#/contains", "");
   EVALUATE_TRACE_PRE(1, AssertionTypeStrict, "/contains/type",
@@ -993,7 +994,7 @@ TEST(Evaluator_2020_12, contains_3) {
 
   const sourcemeta::core::JSON instance{
       sourcemeta::core::parse_json("[ 1, 2, 3 ]")};
-  EVALUATE_WITH_TRACE_FAST_FAILURE(schema, instance, 4);
+  EVALUATE_WITH_TRACE_FAST_FAILURE(schema, instance, 4, "");
 
   EVALUATE_TRACE_PRE(0, LoopContains, "/contains", "#/contains", "");
   EVALUATE_TRACE_PRE(1, AssertionTypeStrict, "/contains/type",
@@ -1034,7 +1035,7 @@ TEST(Evaluator_2020_12, contains_3_exhaustive) {
 
   const sourcemeta::core::JSON instance{
       sourcemeta::core::parse_json("[ 1, 2, 3 ]")};
-  EVALUATE_WITH_TRACE_EXHAUSTIVE_FAILURE(schema, instance, 4);
+  EVALUATE_WITH_TRACE_EXHAUSTIVE_FAILURE(schema, instance, 4, "");
 
   EVALUATE_TRACE_PRE(0, LoopContains, "/contains", "#/contains", "");
   EVALUATE_TRACE_PRE(1, AssertionTypeStrict, "/contains/type",
@@ -1075,7 +1076,7 @@ TEST(Evaluator_2020_12, contains_4) {
 
   const sourcemeta::core::JSON instance{
       sourcemeta::core::parse_json("[ \"foo\", \"bar\", \"baz\" ]")};
-  EVALUATE_WITH_TRACE_FAST_SUCCESS(schema, instance, 2);
+  EVALUATE_WITH_TRACE_FAST_SUCCESS(schema, instance, 2, "");
 
   EVALUATE_TRACE_PRE(0, LoopContains, "/contains", "#/contains", "");
   EVALUATE_TRACE_PRE(1, AssertionTypeStrict, "/contains/type",
@@ -1101,7 +1102,7 @@ TEST(Evaluator_2020_12, contains_4_exhaustive) {
 
   const sourcemeta::core::JSON instance{
       sourcemeta::core::parse_json("[ \"foo\", \"bar\", \"baz\" ]")};
-  EVALUATE_WITH_TRACE_EXHAUSTIVE_SUCCESS(schema, instance, 7);
+  EVALUATE_WITH_TRACE_EXHAUSTIVE_SUCCESS(schema, instance, 7, "");
 
   EVALUATE_TRACE_PRE(0, LoopContains, "/contains", "#/contains", "");
   EVALUATE_TRACE_PRE(1, AssertionTypeStrict, "/contains/type",
@@ -1160,7 +1161,7 @@ TEST(Evaluator_2020_12, contains_5) {
 
   const sourcemeta::core::JSON instance{
       sourcemeta::core::parse_json("[ \"foo\", \"bar\", \"baz\" ]")};
-  EVALUATE_WITH_TRACE_FAST_FAILURE(schema, instance, 3);
+  EVALUATE_WITH_TRACE_FAST_FAILURE(schema, instance, 3, "");
 
   EVALUATE_TRACE_PRE(0, LoopContains, "/contains", "#/contains", "");
   EVALUATE_TRACE_PRE(1, AssertionTypeStrict, "/contains/type",
@@ -1193,7 +1194,7 @@ TEST(Evaluator_2020_12, contains_5_exhaustive) {
 
   const sourcemeta::core::JSON instance{
       sourcemeta::core::parse_json("[ \"foo\", \"bar\", \"baz\" ]")};
-  EVALUATE_WITH_TRACE_EXHAUSTIVE_FAILURE(schema, instance, 5);
+  EVALUATE_WITH_TRACE_EXHAUSTIVE_FAILURE(schema, instance, 5, "");
 
   EVALUATE_TRACE_PRE(0, LoopContains, "/contains", "#/contains", "");
   EVALUATE_TRACE_PRE(1, AssertionTypeStrict, "/contains/type",
@@ -1237,7 +1238,7 @@ TEST(Evaluator_2020_12, contains_6) {
 
   const sourcemeta::core::JSON instance{
       sourcemeta::core::parse_json("[ true, 1, false, 2 ]")};
-  EVALUATE_WITH_TRACE_FAST_SUCCESS(schema, instance, 2);
+  EVALUATE_WITH_TRACE_FAST_SUCCESS(schema, instance, 2, "");
 
   EVALUATE_TRACE_PRE(0, LoopContains, "/contains", "#/contains", "");
   EVALUATE_TRACE_PRE(1, AssertionTypeStrict, "/contains/type",
@@ -1263,7 +1264,7 @@ TEST(Evaluator_2020_12, contains_6_exhaustive) {
 
   const sourcemeta::core::JSON instance{
       sourcemeta::core::parse_json("[ true, 1, false, 2 ]")};
-  EVALUATE_WITH_TRACE_EXHAUSTIVE_SUCCESS(schema, instance, 7);
+  EVALUATE_WITH_TRACE_EXHAUSTIVE_SUCCESS(schema, instance, 7, "");
 
   EVALUATE_TRACE_PRE(0, LoopContains, "/contains", "#/contains", "");
   EVALUATE_TRACE_PRE(1, AssertionTypeStrict, "/contains/type",
@@ -1321,7 +1322,7 @@ TEST(Evaluator_2020_12, contains_7) {
 
   const sourcemeta::core::JSON instance{
       sourcemeta::core::parse_json("[ true, 1, false ]")};
-  EVALUATE_WITH_TRACE_FAST_SUCCESS(schema, instance, 2);
+  EVALUATE_WITH_TRACE_FAST_SUCCESS(schema, instance, 2, "");
 
   EVALUATE_TRACE_PRE(0, LoopContains, "/contains", "#/contains", "");
   EVALUATE_TRACE_PRE(1, AssertionTypeStrict, "/contains/type",
@@ -1347,7 +1348,7 @@ TEST(Evaluator_2020_12, contains_7_exhaustive) {
 
   const sourcemeta::core::JSON instance{
       sourcemeta::core::parse_json("[ true, 1, false ]")};
-  EVALUATE_WITH_TRACE_EXHAUSTIVE_SUCCESS(schema, instance, 6);
+  EVALUATE_WITH_TRACE_EXHAUSTIVE_SUCCESS(schema, instance, 6, "");
 
   EVALUATE_TRACE_PRE(0, LoopContains, "/contains", "#/contains", "");
   EVALUATE_TRACE_PRE(1, AssertionTypeStrict, "/contains/type",
@@ -1430,7 +1431,7 @@ TEST(Evaluator_2020_12, dynamicRef_1) {
   })JSON")};
 
   const sourcemeta::core::JSON instance{"foo"};
-  EVALUATE_WITH_TRACE_FAST_SUCCESS(schema, instance, 1);
+  EVALUATE_WITH_TRACE_FAST_SUCCESS(schema, instance, 1, "");
 
   EVALUATE_TRACE_PRE(0, AssertionTypeStrict, "/$dynamicRef/type",
                      "#/$defs/string/type", "");
@@ -1459,7 +1460,7 @@ TEST(Evaluator_2020_12, dynamicRef_2) {
   })JSON")};
 
   const sourcemeta::core::JSON instance{true};
-  EVALUATE_WITH_TRACE_FAST_SUCCESS(schema, instance, 2);
+  EVALUATE_WITH_TRACE_FAST_SUCCESS(schema, instance, 2, "");
 
   EVALUATE_TRACE_PRE(0, ControlDynamicAnchorJump, "/$dynamicRef",
                      "#/$dynamicRef", "");
@@ -1498,7 +1499,7 @@ TEST(Evaluator_2020_12, dynamicRef_3) {
   })JSON")};
 
   const sourcemeta::core::JSON instance{1};
-  EVALUATE_WITH_TRACE_FAST_FAILURE(schema, instance, 2);
+  EVALUATE_WITH_TRACE_FAST_FAILURE(schema, instance, 2, "");
 
   EVALUATE_TRACE_PRE(0, ControlDynamicAnchorJump, "/$dynamicRef",
                      "#/$dynamicRef", "");
@@ -1530,7 +1531,7 @@ TEST(Evaluator_2020_12, definitions_1) {
   })JSON")};
 
   const sourcemeta::core::JSON instance{"foo"};
-  EVALUATE_WITH_TRACE_FAST_SUCCESS(schema, instance, 1);
+  EVALUATE_WITH_TRACE_FAST_SUCCESS(schema, instance, 1, "");
 
   EVALUATE_TRACE_PRE(0, AssertionTypeStrict, "/$ref/$ref/type",
                      "#/definitions/string/type", "");
@@ -1551,7 +1552,7 @@ TEST(Evaluator_2020_12, definitions_1_exhaustive) {
   })JSON")};
 
   const sourcemeta::core::JSON instance{"foo"};
-  EVALUATE_WITH_TRACE_EXHAUSTIVE_SUCCESS(schema, instance, 3);
+  EVALUATE_WITH_TRACE_EXHAUSTIVE_SUCCESS(schema, instance, 3, "");
 
   EVALUATE_TRACE_PRE(0, ControlJump, "/$ref", "#/$ref", "");
   EVALUATE_TRACE_PRE(1, ControlJump, "/$ref/$ref", "#/definitions/middle/$ref",
@@ -1585,7 +1586,7 @@ TEST(Evaluator_2020_12, unevaluatedItems_1) {
   const sourcemeta::core::JSON instance{
       sourcemeta::core::parse_json("[ false ]")};
 
-  EVALUATE_WITH_TRACE_FAST_SUCCESS(schema, instance, 3);
+  EVALUATE_WITH_TRACE_FAST_SUCCESS(schema, instance, 3, "");
 
   EVALUATE_TRACE_PRE(0, LoopContains, "/contains", "#/contains", "");
   EVALUATE_TRACE_PRE(1, AssertionTypeStrict, "/contains/type",
@@ -1621,7 +1622,7 @@ TEST(Evaluator_2020_12, unevaluatedItems_1_exhaustive) {
   const sourcemeta::core::JSON instance{
       sourcemeta::core::parse_json("[ false ]")};
 
-  EVALUATE_WITH_TRACE_EXHAUSTIVE_SUCCESS(schema, instance, 4);
+  EVALUATE_WITH_TRACE_EXHAUSTIVE_SUCCESS(schema, instance, 4, "");
 
   EVALUATE_TRACE_PRE(0, LoopContains, "/contains", "#/contains", "");
   EVALUATE_TRACE_PRE(1, AssertionTypeStrict, "/contains/type",
@@ -1666,7 +1667,7 @@ TEST(Evaluator_2020_12, unevaluatedItems_2) {
   const sourcemeta::core::JSON instance{
       sourcemeta::core::parse_json("[ false, 1 ]")};
 
-  EVALUATE_WITH_TRACE_FAST_FAILURE(schema, instance, 6);
+  EVALUATE_WITH_TRACE_FAST_FAILURE(schema, instance, 6, "");
 
   EVALUATE_TRACE_PRE(0, LogicalOr, "/anyOf", "#/anyOf", "");
   EVALUATE_TRACE_PRE(1, LoopItemsFrom, "/anyOf/0/items", "#/anyOf/0/items", "");
@@ -1725,7 +1726,7 @@ TEST(Evaluator_2020_12, unevaluatedItems_2_exhaustive) {
   const sourcemeta::core::JSON instance{
       sourcemeta::core::parse_json("[ false, 1 ]")};
 
-  EVALUATE_WITH_TRACE_EXHAUSTIVE_FAILURE(schema, instance, 6);
+  EVALUATE_WITH_TRACE_EXHAUSTIVE_FAILURE(schema, instance, 6, "");
 
   EVALUATE_TRACE_PRE(0, LogicalOr, "/anyOf", "#/anyOf", "");
   EVALUATE_TRACE_PRE(1, LoopItemsFrom, "/anyOf/0/items", "#/anyOf/0/items", "");
@@ -1784,7 +1785,7 @@ TEST(Evaluator_2020_12, unevaluatedItems_3) {
   const sourcemeta::core::JSON instance{
       sourcemeta::core::parse_json("[ 1, 2 ]")};
 
-  EVALUATE_WITH_TRACE_FAST_FAILURE(schema, instance, 5);
+  EVALUATE_WITH_TRACE_FAST_FAILURE(schema, instance, 5, "");
 
   EVALUATE_TRACE_PRE(0, LogicalOr, "/anyOf", "#/anyOf", "");
   EVALUATE_TRACE_PRE(1, AssertionArrayPrefixEvaluate, "/anyOf/0/prefixItems",
@@ -1841,7 +1842,7 @@ TEST(Evaluator_2020_12, unevaluatedItems_3_exhaustive) {
   const sourcemeta::core::JSON instance{
       sourcemeta::core::parse_json("[ 1, 2 ]")};
 
-  EVALUATE_WITH_TRACE_EXHAUSTIVE_FAILURE(schema, instance, 5);
+  EVALUATE_WITH_TRACE_EXHAUSTIVE_FAILURE(schema, instance, 5, "");
 
   EVALUATE_TRACE_PRE(0, LogicalOr, "/anyOf", "#/anyOf", "");
   EVALUATE_TRACE_PRE(1, AssertionArrayPrefixEvaluate, "/anyOf/0/prefixItems",
@@ -1895,7 +1896,7 @@ TEST(Evaluator_2020_12, unevaluatedItems_4) {
   const sourcemeta::core::JSON instance{
       sourcemeta::core::parse_json("[ \"foo\" ]")};
 
-  EVALUATE_WITH_TRACE_FAST_SUCCESS(schema, instance, 2);
+  EVALUATE_WITH_TRACE_FAST_SUCCESS(schema, instance, 2, "");
 
   EVALUATE_TRACE_PRE(0, LoopItemsFrom, "/items", "#/items", "");
   EVALUATE_TRACE_PRE(1, AssertionTypeStrict, "/items/type", "#/items/type",
@@ -1922,7 +1923,7 @@ TEST(Evaluator_2020_12, unevaluatedItems_4_exhaustive) {
   const sourcemeta::core::JSON instance{
       sourcemeta::core::parse_json("[ \"foo\" ]")};
 
-  EVALUATE_WITH_TRACE_EXHAUSTIVE_SUCCESS(schema, instance, 4);
+  EVALUATE_WITH_TRACE_EXHAUSTIVE_SUCCESS(schema, instance, 4, "");
 
   EVALUATE_TRACE_PRE(0, LoopItemsFrom, "/items", "#/items", "");
   EVALUATE_TRACE_PRE(1, AssertionTypeStrict, "/items/type", "#/items/type",
@@ -1959,7 +1960,7 @@ TEST(Evaluator_2020_12, unevaluatedItems_5) {
   const sourcemeta::core::JSON instance{
       sourcemeta::core::parse_json("[ true, 1, false, 2 ]")};
 
-  EVALUATE_WITH_TRACE_FAST_SUCCESS(schema, instance, 8);
+  EVALUATE_WITH_TRACE_FAST_SUCCESS(schema, instance, 8, "");
 
   EVALUATE_TRACE_PRE(0, LoopContains, "/contains", "#/contains", "");
   EVALUATE_TRACE_PRE(1, AssertionTypeStrict, "/contains/type",
@@ -2029,7 +2030,7 @@ TEST(Evaluator_2020_12, unevaluatedItems_5_exhaustive) {
   const sourcemeta::core::JSON instance{
       sourcemeta::core::parse_json("[ true, 1, false, 2 ]")};
 
-  EVALUATE_WITH_TRACE_EXHAUSTIVE_SUCCESS(schema, instance, 12);
+  EVALUATE_WITH_TRACE_EXHAUSTIVE_SUCCESS(schema, instance, 12, "");
 
   EVALUATE_TRACE_PRE(0, LoopContains, "/contains", "#/contains", "");
   EVALUATE_TRACE_PRE(1, AssertionTypeStrict, "/contains/type",
@@ -2128,7 +2129,7 @@ TEST(Evaluator_2020_12, unevaluatedItems_6) {
   const sourcemeta::core::JSON instance{
       sourcemeta::core::parse_json("[\"foo\"]")};
 
-  EVALUATE_WITH_TRACE_FAST_SUCCESS(schema, instance, 3);
+  EVALUATE_WITH_TRACE_FAST_SUCCESS(schema, instance, 3, "");
 
   EVALUATE_TRACE_PRE(0, LoopContains, "/contains", "#/contains", "");
   EVALUATE_TRACE_PRE(1, AssertionTypeStrict, "/contains/type",
@@ -2165,7 +2166,7 @@ TEST(Evaluator_2020_12, unevaluatedItems_6_exhaustive) {
   const sourcemeta::core::JSON instance{
       sourcemeta::core::parse_json("[\"foo\"]")};
 
-  EVALUATE_WITH_TRACE_EXHAUSTIVE_SUCCESS(schema, instance, 4);
+  EVALUATE_WITH_TRACE_EXHAUSTIVE_SUCCESS(schema, instance, 4, "");
 
   EVALUATE_TRACE_PRE(0, LoopContains, "/contains", "#/contains", "");
   EVALUATE_TRACE_PRE(1, AssertionTypeStrict, "/contains/type",
@@ -2207,7 +2208,7 @@ TEST(Evaluator_2020_12, unevaluatedProperties_1) {
   const sourcemeta::core::JSON instance{
       sourcemeta::core::parse_json("{ \"foo\": \"baz\" }")};
 
-  EVALUATE_WITH_TRACE_FAST_SUCCESS(schema, instance, 1);
+  EVALUATE_WITH_TRACE_FAST_SUCCESS(schema, instance, 1, "");
 
   EVALUATE_TRACE_PRE(0, LoopPropertiesTypeStrict, "/additionalProperties/type",
                      "#/additionalProperties/type", "");
@@ -2228,7 +2229,7 @@ TEST(Evaluator_2020_12, unevaluatedProperties_1_exhaustive) {
   const sourcemeta::core::JSON instance{
       sourcemeta::core::parse_json("{ \"foo\": \"baz\" }")};
 
-  EVALUATE_WITH_TRACE_EXHAUSTIVE_SUCCESS(schema, instance, 3);
+  EVALUATE_WITH_TRACE_EXHAUSTIVE_SUCCESS(schema, instance, 3, "");
 
   EVALUATE_TRACE_PRE(0, LoopProperties, "/additionalProperties",
                      "#/additionalProperties", "");
@@ -2273,7 +2274,7 @@ TEST(Evaluator_2020_12, cross_id_1) {
   })JSON")};
 
   const sourcemeta::core::JSON instance{"foo bar"};
-  EVALUATE_WITH_TRACE_FAST_SUCCESS(schema, instance, 1);
+  EVALUATE_WITH_TRACE_FAST_SUCCESS(schema, instance, 1, "");
 
   EVALUATE_TRACE_PRE(0, AssertionTypeStrict, "/$ref/type",
                      "https://www.example.com#/items/type", "");
@@ -2317,7 +2318,7 @@ TEST(Evaluator_2020_12, propertyNames_1) {
 
   const sourcemeta::core::JSON instance{
       sourcemeta::core::parse_json("{ \"foo\": 1 }")};
-  EVALUATE_WITH_TRACE_FAST_SUCCESS(schema, instance, 0);
+  EVALUATE_WITH_TRACE_FAST_SUCCESS(schema, instance, 0, "");
 }
 
 TEST(Evaluator_2020_12, propertyNames_1_exhaustive) {
@@ -2354,7 +2355,7 @@ TEST(Evaluator_2020_12, propertyNames_1_exhaustive) {
 
   const sourcemeta::core::JSON instance{
       sourcemeta::core::parse_json("{ \"foo\": 1 }")};
-  EVALUATE_WITH_TRACE_EXHAUSTIVE_SUCCESS(schema, instance, 1);
+  EVALUATE_WITH_TRACE_EXHAUSTIVE_SUCCESS(schema, instance, 1, "");
 
   EVALUATE_TRACE_PRE(0, LoopKeys, "/propertyNames", "#/propertyNames", "");
   EVALUATE_TRACE_POST_SUCCESS(0, LoopKeys, "/propertyNames", "#/propertyNames",
@@ -2372,7 +2373,7 @@ TEST(Evaluator_2020_12, description) {
 
   const sourcemeta::core::JSON instance{1};
 
-  EVALUATE_WITH_TRACE_FAST_SUCCESS(schema, instance, 0);
+  EVALUATE_WITH_TRACE_FAST_SUCCESS(schema, instance, 0, "");
 }
 
 TEST(Evaluator_2020_12, description_exhaustive) {
@@ -2383,7 +2384,7 @@ TEST(Evaluator_2020_12, description_exhaustive) {
 
   const sourcemeta::core::JSON instance{1};
 
-  EVALUATE_WITH_TRACE_EXHAUSTIVE_SUCCESS(schema, instance, 1);
+  EVALUATE_WITH_TRACE_EXHAUSTIVE_SUCCESS(schema, instance, 1, "");
 
   EVALUATE_TRACE_PRE_ANNOTATION(0, "/description", "#/description", "");
   EVALUATE_TRACE_POST_ANNOTATION(0, "/description", "#/description", "",
@@ -2404,7 +2405,7 @@ TEST(Evaluator_2020_12, top_level_ref_with_id) {
   })JSON")};
 
   const sourcemeta::core::JSON instance{5};
-  EVALUATE_WITH_TRACE_FAST_SUCCESS(schema, instance, 0);
+  EVALUATE_WITH_TRACE_FAST_SUCCESS(schema, instance, 0, "");
 }
 
 TEST(Evaluator_2020_12, top_level_ref_with_id_exhaustive) {
@@ -2419,7 +2420,7 @@ TEST(Evaluator_2020_12, top_level_ref_with_id_exhaustive) {
 
   const sourcemeta::core::JSON instance{5};
 
-  EVALUATE_WITH_TRACE_EXHAUSTIVE_SUCCESS(schema, instance, 1);
+  EVALUATE_WITH_TRACE_EXHAUSTIVE_SUCCESS(schema, instance, 1, "");
   EVALUATE_TRACE_PRE(0, ControlJump, "/$ref", "https://www.example.com#/$ref",
                      "");
   EVALUATE_TRACE_POST_SUCCESS(0, ControlJump, "/$ref",
@@ -2442,7 +2443,7 @@ TEST(Evaluator_2020_12, openapi_discriminator_1) {
     "name": "Rex"
   })JSON")};
 
-  EVALUATE_WITH_TRACE_FAST_SUCCESS(schema, instance, 0);
+  EVALUATE_WITH_TRACE_FAST_SUCCESS(schema, instance, 0, "");
 }
 
 TEST(Evaluator_2020_12, openapi_discriminator_1_exhaustive) {
@@ -2458,7 +2459,7 @@ TEST(Evaluator_2020_12, openapi_discriminator_1_exhaustive) {
     "name": "Rex"
   })JSON")};
 
-  EVALUATE_WITH_TRACE_EXHAUSTIVE_SUCCESS(schema, instance, 1);
+  EVALUATE_WITH_TRACE_EXHAUSTIVE_SUCCESS(schema, instance, 1, "");
 
   EVALUATE_TRACE_PRE_ANNOTATION(0, "/discriminator", "#/discriminator", "");
   EVALUATE_TRACE_POST_ANNOTATION(0, "/discriminator", "#/discriminator", "",
@@ -2485,7 +2486,7 @@ TEST(Evaluator_2020_12, openapi_xml_1) {
     "name": "Rex"
   })JSON")};
 
-  EVALUATE_WITH_TRACE_FAST_SUCCESS(schema, instance, 0);
+  EVALUATE_WITH_TRACE_FAST_SUCCESS(schema, instance, 0, "");
 }
 
 TEST(Evaluator_2020_12, openapi_xml_1_exhaustive) {
@@ -2501,7 +2502,7 @@ TEST(Evaluator_2020_12, openapi_xml_1_exhaustive) {
     "name": "Rex"
   })JSON")};
 
-  EVALUATE_WITH_TRACE_EXHAUSTIVE_SUCCESS(schema, instance, 1);
+  EVALUATE_WITH_TRACE_EXHAUSTIVE_SUCCESS(schema, instance, 1, "");
 
   EVALUATE_TRACE_PRE_ANNOTATION(0, "/xml", "#/xml", "");
   EVALUATE_TRACE_POST_ANNOTATION(0, "/xml", "#/xml", "",
@@ -2526,7 +2527,7 @@ TEST(Evaluator_2020_12, openapi_externalDocs_1) {
 
   const sourcemeta::core::JSON instance{"foo"};
 
-  EVALUATE_WITH_TRACE_FAST_SUCCESS(schema, instance, 0);
+  EVALUATE_WITH_TRACE_FAST_SUCCESS(schema, instance, 0, "");
 }
 
 TEST(Evaluator_2020_12, openapi_externalDocs_1_exhaustive) {
@@ -2539,7 +2540,7 @@ TEST(Evaluator_2020_12, openapi_externalDocs_1_exhaustive) {
 
   const sourcemeta::core::JSON instance{"foo"};
 
-  EVALUATE_WITH_TRACE_EXHAUSTIVE_SUCCESS(schema, instance, 1);
+  EVALUATE_WITH_TRACE_EXHAUSTIVE_SUCCESS(schema, instance, 1, "");
 
   EVALUATE_TRACE_PRE_ANNOTATION(0, "/externalDocs", "#/externalDocs", "");
   EVALUATE_TRACE_POST_ANNOTATION(0, "/externalDocs", "#/externalDocs", "",
@@ -2567,7 +2568,7 @@ TEST(Evaluator_2020_12, openapi_example_1) {
     "petType": "cat"
   })JSON")};
 
-  EVALUATE_WITH_TRACE_FAST_SUCCESS(schema, instance, 0);
+  EVALUATE_WITH_TRACE_FAST_SUCCESS(schema, instance, 0, "");
 }
 
 TEST(Evaluator_2020_12, openapi_example_1_exhaustive) {
@@ -2584,7 +2585,7 @@ TEST(Evaluator_2020_12, openapi_example_1_exhaustive) {
     "petType": "cat"
   })JSON")};
 
-  EVALUATE_WITH_TRACE_EXHAUSTIVE_SUCCESS(schema, instance, 1);
+  EVALUATE_WITH_TRACE_EXHAUSTIVE_SUCCESS(schema, instance, 1, "");
 
   EVALUATE_TRACE_PRE_ANNOTATION(0, "/example", "#/example", "");
   EVALUATE_TRACE_POST_ANNOTATION(0, "/example", "#/example", "",
