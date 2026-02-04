@@ -257,7 +257,7 @@ TEST(Evaluator, invalid_entrypoint_does_not_exist) {
   } catch (const sourcemeta::blaze::CompilerInvalidEntryPoint &error) {
     EXPECT_EQ(error.identifier(), "https://example.com/does-not-exist");
     EXPECT_STREQ(error.what(),
-                 "The given entrypoint URI does not exist in the schema");
+                 "The given entry point URI does not exist in the schema");
   }
 }
 
@@ -283,6 +283,6 @@ TEST(Evaluator, invalid_entrypoint_not_a_subschema) {
   } catch (const sourcemeta::blaze::CompilerInvalidEntryPoint &error) {
     EXPECT_EQ(error.identifier(), "#/properties");
     EXPECT_STREQ(error.what(),
-                 "The given entrypoint URI is not a valid subschema");
+                 "The given entry point URI is not a valid subschema");
   }
 }
