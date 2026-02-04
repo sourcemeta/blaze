@@ -242,15 +242,12 @@ public:
   auto reset() -> void;
 
   /// Determines if a location could be evaluated during validation
-  [[nodiscard]] auto is_reachable(const Location &location,
+  [[nodiscard]] auto is_reachable(const Location &base,
+                                  const Location &location,
                                   const SchemaWalker &walker,
                                   const SchemaResolver &resolver) const -> bool;
 
 private:
-  auto populate_pointer_to_location() const -> void;
-  auto populate_reachability(const SchemaWalker &walker,
-                             const SchemaResolver &resolver) const -> void;
-
   Mode mode_;
 // Exporting symbols that depends on the standard C++ library is considered
 // safe.
@@ -265,10 +262,17 @@ private:
                              std::vector<const Location *>, WeakPointer::Hasher,
                              WeakPointer::Comparator>
       pointer_to_location_;
-  mutable std::unordered_map<std::reference_wrapper<const WeakPointer>, bool,
-                             WeakPointer::Hasher, WeakPointer::Comparator>
+  using ReachabilityCache =
+      std::unordered_map<std::reference_wrapper<const WeakPointer>, bool,
+                         WeakPointer::Hasher, WeakPointer::Comparator>;
+  mutable std::vector<std::pair<const Location *, ReachabilityCache>>
       reachability_;
   bool standalone_{false};
+
+  auto populate_pointer_to_location() const -> void;
+  auto populate_reachability(const Location &base, const SchemaWalker &walker,
+                             const SchemaResolver &resolver) const
+      -> const ReachabilityCache &;
 #if defined(_MSC_VER)
 #pragma warning(default : 4251 4275)
 #endif
