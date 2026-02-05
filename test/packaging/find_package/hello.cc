@@ -2,6 +2,7 @@
 #include <sourcemeta/core/jsonschema.h>
 
 #include <sourcemeta/blaze/compiler.h>
+#include <sourcemeta/blaze/configuration.h>
 #include <sourcemeta/blaze/evaluator.h>
 #include <sourcemeta/blaze/linter.h>
 #include <sourcemeta/blaze/output.h>
