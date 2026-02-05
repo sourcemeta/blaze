@@ -100,3 +100,45 @@ TEST(Configuration_applies_to, compound_extension_match) {
   EXPECT_FALSE(config.applies_to("baz.json"));
   EXPECT_FALSE(config.applies_to("qux.schema.yaml"));
 }
+
+TEST(Configuration_applies_to, empty_string_extension) {
+  const auto input{sourcemeta::core::parse_json(R"JSON({
+    "baseUri": "https://example.com",
+    "extension": ""
+  })JSON")};
+
+  const auto config{
+      sourcemeta::blaze::Configuration::from_json(input, TEST_DIRECTORY)};
+
+  EXPECT_FALSE(config.applies_to("foo.json"));
+  EXPECT_FALSE(config.applies_to("bar.yaml"));
+  EXPECT_TRUE(config.applies_to("any_file"));
+}
+
+TEST(Configuration_applies_to, empty_array_extension) {
+  const auto input{sourcemeta::core::parse_json(R"JSON({
+    "baseUri": "https://example.com",
+    "extension": []
+  })JSON")};
+
+  const auto config{
+      sourcemeta::blaze::Configuration::from_json(input, TEST_DIRECTORY)};
+
+  EXPECT_TRUE(config.applies_to("foo.json"));
+  EXPECT_TRUE(config.applies_to("bar.yaml"));
+  EXPECT_TRUE(config.applies_to("any_file"));
+}
+
+TEST(Configuration_applies_to, array_with_empty_string_extension) {
+  const auto input{sourcemeta::core::parse_json(R"JSON({
+    "baseUri": "https://example.com",
+    "extension": [ ".json", "" ]
+  })JSON")};
+
+  const auto config{
+      sourcemeta::blaze::Configuration::from_json(input, TEST_DIRECTORY)};
+
+  EXPECT_TRUE(config.applies_to("foo.json"));
+  EXPECT_FALSE(config.applies_to("bar.yaml"));
+  EXPECT_TRUE(config.applies_to("any_file"));
+}

@@ -35,10 +35,19 @@ auto Configuration::find(const std::filesystem::path &path)
 
 auto Configuration::applies_to(const std::filesystem::path &path) const
     -> bool {
+  if (this->extension.empty()) {
+    return true;
+  }
+
   const std::string filename{path.filename().string()};
-  return std::ranges::any_of(this->extension, [&filename](const auto &suffix) {
-    return filename.ends_with(suffix);
-  });
+  return std::ranges::any_of(this->extension,
+                             [&path, &filename](const auto &suffix) {
+                               if (suffix.empty()) {
+                                 return path.extension().empty();
+                               }
+
+                               return filename.ends_with(suffix);
+                             });
 }
 
 } // namespace sourcemeta::blaze
