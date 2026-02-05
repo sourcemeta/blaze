@@ -806,3 +806,40 @@ TEST(Linter, valid_examples_16) {
 
   EXPECT_EQ(schema, expected);
 }
+
+TEST(Linter, valid_examples_17) {
+  sourcemeta::core::SchemaTransformer bundle;
+  bundle.add<sourcemeta::blaze::ValidExamples>(
+      sourcemeta::blaze::default_schema_compiler);
+
+  auto schema{sourcemeta::core::parse_json(R"JSON({
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "items": { "examples": [ "10" ], "$ref": "ref.json" }
+  })JSON")};
+
+  auto resolver = [](const std::string_view identifier)
+      -> std::optional<sourcemeta::core::JSON> {
+    if (identifier == "https://example.com/ref.json") {
+      return sourcemeta::core::parse_json(R"JSON({
+        "$schema": "https://json-schema.org/draft/2020-12/schema",
+        "$id": "https://example.com/ref.json",
+        "type": "integer"
+      })JSON");
+    }
+
+    return sourcemeta::core::schema_resolver(identifier);
+  };
+
+  const auto result =
+      bundle.apply(schema, sourcemeta::core::schema_walker, resolver,
+                   transformer_callback_error, "", "https://example.com/root");
+
+  EXPECT_TRUE(result.first);
+
+  const auto expected{sourcemeta::core::parse_json(R"JSON({
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "items": { "$ref": "ref.json" }
+  })JSON")};
+
+  EXPECT_EQ(schema, expected);
+}
