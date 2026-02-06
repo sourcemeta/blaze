@@ -124,7 +124,8 @@ TEST(Configuration_fetch_frozen, dry_run_up_to_date) {
       std::filesystem::path{TEST_DIRECTORY})};
 
   std::unordered_map<std::string, std::string> files;
-  files[(std::filesystem::path{TEST_DIRECTORY} / "simple.json").string()] =
+  files[(std::filesystem::path{TEST_DIRECTORY} / "simple.json")
+            .generic_string()] =
       R"JSON({
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "$id": "https://example.com/simple.json",
@@ -163,7 +164,7 @@ TEST(Configuration_fetch_frozen, dry_run_mismatched) {
 
   std::unordered_map<std::string, std::string> files;
   files[(std::filesystem::path{TEST_DIRECTORY} / "wrong-content.json")
-            .string()] = "wrong content\n";
+            .generic_string()] = "wrong content\n";
 
   sourcemeta::blaze::Configuration::Lock lock;
   lock.emplace("https://example.com/simple.json",
@@ -195,7 +196,8 @@ TEST(Configuration_fetch_frozen, dry_run_orphaned_lock_entry) {
       std::filesystem::path{TEST_DIRECTORY})};
 
   std::unordered_map<std::string, std::string> files;
-  files[(std::filesystem::path{TEST_DIRECTORY} / "simple.json").string()] =
+  files[(std::filesystem::path{TEST_DIRECTORY} / "simple.json")
+            .generic_string()] =
       R"JSON({
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "$id": "https://example.com/simple.json",
@@ -239,7 +241,7 @@ TEST(Configuration_fetch_frozen, frozen_mismatched_fails) {
 
   std::unordered_map<std::string, std::string> files;
   files[(std::filesystem::path{TEST_DIRECTORY} / "wrong-content.json")
-            .string()] = "wrong content\n";
+            .generic_string()] = "wrong content\n";
 
   sourcemeta::blaze::Configuration::Lock lock;
   lock.emplace("https://example.com/simple.json",
@@ -392,7 +394,8 @@ TEST(Configuration_fetch_frozen, dry_run_multiple_mixed_results) {
       std::filesystem::path{TEST_DIRECTORY})};
 
   std::unordered_map<std::string, std::string> files;
-  files[(std::filesystem::path{TEST_DIRECTORY} / "simple.json").string()] =
+  files[(std::filesystem::path{TEST_DIRECTORY} / "simple.json")
+            .generic_string()] =
       R"JSON({
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "$id": "https://example.com/simple.json",
@@ -400,7 +403,7 @@ TEST(Configuration_fetch_frozen, dry_run_multiple_mixed_results) {
 }
 )JSON";
   files[(std::filesystem::path{TEST_DIRECTORY} / "wrong-content.json")
-            .string()] = "wrong content\n";
+            .generic_string()] = "wrong content\n";
 
   sourcemeta::blaze::Configuration::Lock lock;
   lock.emplace("https://example.com/simple.json",
@@ -439,7 +442,8 @@ TEST(Configuration_fetch_frozen, dry_run_multiple_with_untracked_and_missing) {
       std::filesystem::path{TEST_DIRECTORY})};
 
   std::unordered_map<std::string, std::string> files;
-  files[(std::filesystem::path{TEST_DIRECTORY} / "simple.json").string()] =
+  files[(std::filesystem::path{TEST_DIRECTORY} / "simple.json")
+            .generic_string()] =
       R"JSON({
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "$id": "https://example.com/simple.json",
@@ -500,7 +504,8 @@ TEST(Configuration_fetch_frozen, dry_run_all_status_types) {
       std::filesystem::path{TEST_DIRECTORY})};
 
   std::unordered_map<std::string, std::string> files;
-  files[(std::filesystem::path{TEST_DIRECTORY} / "simple.json").string()] =
+  files[(std::filesystem::path{TEST_DIRECTORY} / "simple.json")
+            .generic_string()] =
       R"JSON({
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "$id": "https://example.com/simple.json",
@@ -508,7 +513,7 @@ TEST(Configuration_fetch_frozen, dry_run_all_status_types) {
 }
 )JSON";
   files[(std::filesystem::path{TEST_DIRECTORY} / "wrong-content.json")
-            .string()] = "wrong content\n";
+            .generic_string()] = "wrong content\n";
 
   sourcemeta::blaze::Configuration::Lock lock;
   lock.emplace("https://example.com/simple.json",
@@ -1226,11 +1231,63 @@ TEST(Configuration_fetch_frozen, multiple_orphaned_entries) {
       true);
 
   EXPECT_EQ(events.size(), 3);
-  for (const auto &event : events) {
-    EXPECT_EQ(event.type,
-              sourcemeta::blaze::Configuration::FetchEvent::Type::Orphaned);
-    EXPECT_EQ(event.index, 0);
-    EXPECT_EQ(event.total, 0);
+  if (events[0].uri == "https://example.com/orphaned1.json") {
+    EXPECT_FETCH_EVENT(events[0], Orphaned,
+                       "https://example.com/orphaned1.json", "orphaned1.json",
+                       0, 0, "");
+    if (events[1].uri == "https://example.com/orphaned2.json") {
+      EXPECT_FETCH_EVENT(events[1], Orphaned,
+                         "https://example.com/orphaned2.json", "orphaned2.json",
+                         0, 0, "");
+      EXPECT_FETCH_EVENT(events[2], Orphaned,
+                         "https://example.com/orphaned3.json", "orphaned3.json",
+                         0, 0, "");
+    } else {
+      EXPECT_FETCH_EVENT(events[1], Orphaned,
+                         "https://example.com/orphaned3.json", "orphaned3.json",
+                         0, 0, "");
+      EXPECT_FETCH_EVENT(events[2], Orphaned,
+                         "https://example.com/orphaned2.json", "orphaned2.json",
+                         0, 0, "");
+    }
+  } else if (events[0].uri == "https://example.com/orphaned2.json") {
+    EXPECT_FETCH_EVENT(events[0], Orphaned,
+                       "https://example.com/orphaned2.json", "orphaned2.json",
+                       0, 0, "");
+    if (events[1].uri == "https://example.com/orphaned1.json") {
+      EXPECT_FETCH_EVENT(events[1], Orphaned,
+                         "https://example.com/orphaned1.json", "orphaned1.json",
+                         0, 0, "");
+      EXPECT_FETCH_EVENT(events[2], Orphaned,
+                         "https://example.com/orphaned3.json", "orphaned3.json",
+                         0, 0, "");
+    } else {
+      EXPECT_FETCH_EVENT(events[1], Orphaned,
+                         "https://example.com/orphaned3.json", "orphaned3.json",
+                         0, 0, "");
+      EXPECT_FETCH_EVENT(events[2], Orphaned,
+                         "https://example.com/orphaned1.json", "orphaned1.json",
+                         0, 0, "");
+    }
+  } else {
+    EXPECT_FETCH_EVENT(events[0], Orphaned,
+                       "https://example.com/orphaned3.json", "orphaned3.json",
+                       0, 0, "");
+    if (events[1].uri == "https://example.com/orphaned1.json") {
+      EXPECT_FETCH_EVENT(events[1], Orphaned,
+                         "https://example.com/orphaned1.json", "orphaned1.json",
+                         0, 0, "");
+      EXPECT_FETCH_EVENT(events[2], Orphaned,
+                         "https://example.com/orphaned2.json", "orphaned2.json",
+                         0, 0, "");
+    } else {
+      EXPECT_FETCH_EVENT(events[1], Orphaned,
+                         "https://example.com/orphaned2.json", "orphaned2.json",
+                         0, 0, "");
+      EXPECT_FETCH_EVENT(events[2], Orphaned,
+                         "https://example.com/orphaned1.json", "orphaned1.json",
+                         0, 0, "");
+    }
   }
 }
 
@@ -1338,7 +1395,8 @@ TEST(Configuration_fetch_frozen, up_to_date_skips_fetch_in_non_dry_run) {
       std::filesystem::path{TEST_DIRECTORY})};
 
   std::unordered_map<std::string, std::string> files;
-  files[(std::filesystem::path{TEST_DIRECTORY} / "simple.json").string()] =
+  files[(std::filesystem::path{TEST_DIRECTORY} / "simple.json")
+            .generic_string()] =
       R"JSON({
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "$id": "https://example.com/simple.json",
@@ -1451,7 +1509,8 @@ TEST(Configuration_fetch_frozen, callback_abort_on_up_to_date) {
       std::filesystem::path{TEST_DIRECTORY})};
 
   std::unordered_map<std::string, std::string> files;
-  files[(std::filesystem::path{TEST_DIRECTORY} / "simple.json").string()] =
+  files[(std::filesystem::path{TEST_DIRECTORY} / "simple.json")
+            .generic_string()] =
       R"JSON({
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "$id": "https://example.com/simple.json",

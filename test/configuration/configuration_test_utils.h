@@ -18,9 +18,9 @@ inline auto
 MAKE_READER(const std::unordered_map<std::string, std::string> &files)
     -> sourcemeta::blaze::Configuration::ReadCallback {
   return [&files](const std::filesystem::path &path) -> std::string {
-    const auto iterator{files.find(path.string())};
+    const auto iterator{files.find(path.generic_string())};
     if (iterator == files.end()) {
-      throw std::runtime_error("File not found: " + path.string());
+      throw std::runtime_error("File not found: " + path.generic_string());
     }
     return iterator->second;
   };
@@ -33,13 +33,13 @@ inline auto MAKE_WRITER(std::unordered_map<std::string, std::string> &files)
     std::ostringstream output;
     sourcemeta::core::prettify(json, output);
     output << "\n";
-    files[path.string()] = output.str();
+    files[path.generic_string()] = output.str();
   };
 }
 
 #define EXPECT_FILE_JSON_EQ(files, path, expected_json)                        \
   {                                                                            \
-    const auto path_string = (path).string();                                  \
+    const auto path_string = (path).generic_string();                          \
     EXPECT_TRUE((files).contains(path_string));                                \
     const auto written_schema =                                                \
         sourcemeta::core::parse_json((files).at(path_string));                 \
