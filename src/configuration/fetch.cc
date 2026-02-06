@@ -133,13 +133,15 @@ auto Configuration::fetch(Lock &lock, const FetchCallback &fetcher,
 
   for (const auto &[dependency_uri, dependency_path] : this->dependencies) {
     assert(dependency_path.is_absolute());
-    const auto entry_status{lock.check(dependency_uri, reader)};
+    const auto entry_status{
+        lock.check(dependency_uri, dependency_path, reader)};
 
     bool should_fetch{false};
     switch (entry_status) {
       case Lock::Entry::Status::Untracked:
       case Lock::Entry::Status::FileMissing:
       case Lock::Entry::Status::Mismatched:
+      case Lock::Entry::Status::PathMismatch:
         should_fetch = true;
         break;
       case Lock::Entry::Status::UpToDate:
@@ -188,7 +190,8 @@ auto Configuration::fetch(const Lock &lock, const FetchCallback &fetcher,
 
   for (const auto &[dependency_uri, dependency_path] : this->dependencies) {
     assert(dependency_path.is_absolute());
-    const auto entry_status{lock.check(dependency_uri, reader)};
+    const auto entry_status{
+        lock.check(dependency_uri, dependency_path, reader)};
     switch (entry_status) {
       case Lock::Entry::Status::Untracked:
         if (!emit_event(callback, FetchEvent::Type::Untracked, dependency_uri,
@@ -254,6 +257,20 @@ auto Configuration::fetch(const Lock &lock, const FetchCallback &fetcher,
           emit_event(callback, FetchEvent::Type::Error, dependency_uri,
                      dependency_path, current_index, dependency_count,
                      "File hash does not match lock file in frozen mode");
+          return;
+        }
+        break;
+
+      case Lock::Entry::Status::PathMismatch:
+        if (!emit_event(callback, FetchEvent::Type::Mismatched, dependency_uri,
+                        dependency_path, current_index, dependency_count, {},
+                        nullptr, true)) {
+          return;
+        }
+        if (!dry_run) {
+          emit_event(callback, FetchEvent::Type::Error, dependency_uri,
+                     dependency_path, current_index, dependency_count,
+                     "Configured path does not match lock file in frozen mode");
           return;
         }
         break;

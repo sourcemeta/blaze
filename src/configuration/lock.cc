@@ -192,6 +192,7 @@ auto Configuration::Lock::end() const noexcept -> const_iterator {
 }
 
 auto Configuration::Lock::check(const sourcemeta::core::JSON::String &uri,
+                                const std::filesystem::path &expected_path,
                                 const Configuration::ReadCallback &reader) const
     -> Entry::Status {
   const auto iterator{this->entries_.find(uri)};
@@ -200,6 +201,10 @@ auto Configuration::Lock::check(const sourcemeta::core::JSON::String &uri,
   }
 
   const auto &entry{iterator->second};
+
+  if (entry.path != expected_path) {
+    return Entry::Status::PathMismatch;
+  }
 
   std::string content;
   try {

@@ -643,3 +643,65 @@ TEST(Configuration_fetch, lock_to_json_after_fetch) {
 
   EXPECT_EQ(lock_json, expected);
 }
+
+TEST(Configuration_fetch,
+     path_mismatch_between_config_and_lock_triggers_fetch) {
+  const auto configuration{sourcemeta::blaze::Configuration::from_json(
+      sourcemeta::core::parse_json(R"JSON({
+        "base": "https://test.com",
+        "dependencies": {
+          "https://example.com/simple.json": "new_location.json"
+        }
+      })JSON"),
+      std::filesystem::path{TEST_DIRECTORY})};
+
+  sourcemeta::blaze::Configuration::Lock lock;
+  lock.emplace("https://example.com/simple.json",
+               std::filesystem::path{TEST_DIRECTORY} / "old_location.json",
+               "e35af8b70997788842aece3ab5f994d8");
+
+  std::unordered_map<std::string, std::string> files;
+  files[(std::filesystem::path{TEST_DIRECTORY} / "old_location.json")
+            .generic_string()] =
+      R"JSON({
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "$id": "https://example.com/simple.json",
+    "type": "string"
+  })JSON";
+
+  std::vector<sourcemeta::blaze::Configuration::FetchEvent> events;
+  configuration.fetch(
+      lock, stub_fetcher, stub_resolver, MAKE_READER(files), MAKE_WRITER(files),
+      [&events](const sourcemeta::blaze::Configuration::FetchEvent &event) {
+        events.push_back(event);
+        return true;
+      },
+      sourcemeta::blaze::Configuration::FetchMode::Missing);
+
+  EXPECT_EQ(events.size(), 6);
+  EXPECT_FETCH_EVENT(events[0], FetchStart, "https://example.com/simple.json",
+                     "new_location.json", 0, 1, "");
+  EXPECT_FETCH_EVENT(events[1], FetchEnd, "https://example.com/simple.json",
+                     "new_location.json", 0, 1, "");
+  EXPECT_FETCH_EVENT(events[2], BundleStart, "https://example.com/simple.json",
+                     "new_location.json", 0, 1, "");
+  EXPECT_FETCH_EVENT(events[3], BundleEnd, "https://example.com/simple.json",
+                     "new_location.json", 0, 1, "");
+  EXPECT_FETCH_EVENT(events[4], WriteStart, "https://example.com/simple.json",
+                     "new_location.json", 0, 1, "");
+  EXPECT_FETCH_EVENT(events[5], WriteEnd, "https://example.com/simple.json",
+                     "new_location.json", 0, 1, "");
+
+  EXPECT_EQ(lock.size(), 1);
+  EXPECT_LOCK_ENTRY(lock, "https://example.com/simple.json",
+                    std::filesystem::path{TEST_DIRECTORY} / "new_location.json",
+                    "e35af8b70997788842aece3ab5f994d8");
+
+  EXPECT_FILE_JSON_EQ(
+      files, std::filesystem::path{TEST_DIRECTORY} / "new_location.json",
+      R"JSON({
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "$id": "https://example.com/simple.json",
+    "type": "string"
+  })JSON");
+}

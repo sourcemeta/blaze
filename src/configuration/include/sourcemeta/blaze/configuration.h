@@ -75,6 +75,7 @@ struct SOURCEMETA_BLAZE_CONFIGURATION_EXPORT Configuration {
         Untracked,
         FileMissing,
         Mismatched,
+        PathMismatch,
         UpToDate
       };
     };
@@ -97,6 +98,7 @@ struct SOURCEMETA_BLAZE_CONFIGURATION_EXPORT Configuration {
 
     [[nodiscard]]
     auto check(const sourcemeta::core::JSON::String &uri,
+               const std::filesystem::path &expected_path,
                const ReadCallback &reader) const -> Entry::Status;
     [[nodiscard]]
     static auto from_json(const sourcemeta::core::JSON &value) -> Lock;

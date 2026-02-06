@@ -95,53 +95,81 @@ TEST(Configuration_Lock, check_untracked) {
 
   std::unordered_map<std::string, std::string> files;
   const auto reader{MAKE_READER(files)};
-  const auto status{lock.check("https://example.com/unknown.json", reader)};
+  const auto status{lock.check(
+      "https://example.com/unknown.json",
+      std::filesystem::path{TEST_DIRECTORY} / "schema.json", reader)};
 
   EXPECT_EQ(status,
             sourcemeta::blaze::Configuration::Lock::Entry::Status::Untracked);
 }
 
 TEST(Configuration_Lock, check_file_missing) {
+  const auto schema_path{std::filesystem::path{TEST_DIRECTORY} / "schema.json"};
+
   sourcemeta::blaze::Configuration::Lock lock;
-  lock.emplace("https://example.com/schema.json",
-               "/nonexistent/path/to/schema.json",
+  lock.emplace("https://example.com/schema.json", schema_path,
                "d41d8cd98f00b204e9800998ecf8427e");
 
   std::unordered_map<std::string, std::string> files;
   const auto reader{MAKE_READER(files)};
-  const auto status{lock.check("https://example.com/schema.json", reader)};
+  const auto status{
+      lock.check("https://example.com/schema.json", schema_path, reader)};
 
   EXPECT_EQ(status,
             sourcemeta::blaze::Configuration::Lock::Entry::Status::FileMissing);
 }
 
 TEST(Configuration_Lock, check_mismatched) {
+  const auto schema_path{std::filesystem::path{TEST_DIRECTORY} / "schema.json"};
+
   sourcemeta::blaze::Configuration::Lock lock;
-  lock.emplace("https://example.com/schema.json", "/path/to/schema.json",
+  lock.emplace("https://example.com/schema.json", schema_path,
                "0000000000000000000000000000000");
 
   std::unordered_map<std::string, std::string> files;
-  files["/path/to/schema.json"] = "{ \"type\": \"string\" }\n";
+  files[schema_path.generic_string()] = "{ \"type\": \"string\" }\n";
   const auto reader{MAKE_READER(files)};
-  const auto status{lock.check("https://example.com/schema.json", reader)};
+  const auto status{
+      lock.check("https://example.com/schema.json", schema_path, reader)};
 
   EXPECT_EQ(status,
             sourcemeta::blaze::Configuration::Lock::Entry::Status::Mismatched);
 }
 
 TEST(Configuration_Lock, check_up_to_date) {
-  sourcemeta::blaze::Configuration::Lock lock;
-
+  const auto schema_path{std::filesystem::path{TEST_DIRECTORY} / "schema.json"};
   const std::string content{"{ \"type\": \"string\" }\n"};
 
-  lock.emplace("https://example.com/schema.json", "/path/to/schema.json",
+  sourcemeta::blaze::Configuration::Lock lock;
+  lock.emplace("https://example.com/schema.json", schema_path,
                "62f43a110117f85c2b57189200ec3e84");
 
   std::unordered_map<std::string, std::string> files;
-  files["/path/to/schema.json"] = content;
+  files[schema_path.generic_string()] = content;
   const auto reader{MAKE_READER(files)};
-  const auto status{lock.check("https://example.com/schema.json", reader)};
+  const auto status{
+      lock.check("https://example.com/schema.json", schema_path, reader)};
 
   EXPECT_EQ(status,
             sourcemeta::blaze::Configuration::Lock::Entry::Status::UpToDate);
+}
+
+TEST(Configuration_Lock, check_path_mismatch) {
+  const auto old_path{std::filesystem::path{TEST_DIRECTORY} / "old.json"};
+  const auto new_path{std::filesystem::path{TEST_DIRECTORY} / "new.json"};
+  const std::string content{"{ \"type\": \"string\" }\n"};
+
+  sourcemeta::blaze::Configuration::Lock lock;
+  lock.emplace("https://example.com/schema.json", old_path,
+               "62f43a110117f85c2b57189200ec3e84");
+
+  std::unordered_map<std::string, std::string> files;
+  files[old_path.generic_string()] = content;
+  const auto reader{MAKE_READER(files)};
+  const auto status{
+      lock.check("https://example.com/schema.json", new_path, reader)};
+
+  EXPECT_EQ(
+      status,
+      sourcemeta::blaze::Configuration::Lock::Entry::Status::PathMismatch);
 }
