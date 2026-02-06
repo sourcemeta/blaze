@@ -162,6 +162,7 @@ auto Configuration::Lock::emplace(const sourcemeta::core::JSON::String &uri,
                                   const std::filesystem::path &path,
                                   const sourcemeta::core::JSON::String &hash,
                                   Entry::HashAlgorithm hash_algorithm) -> void {
+  assert(path.is_absolute());
   Entry entry;
   entry.path = path;
   entry.hash = hash;
