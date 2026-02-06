@@ -163,8 +163,30 @@ auto Configuration::fetch(Lock &lock, const FetchCallback &fetcher,
           break;
       }
 
-      const auto written_hash{compute_md5(reader(dependency_path))};
+      if (!emit_event(callback, FetchEvent::Type::VerifyStart, dependency_uri,
+                      dependency_path, current_index, dependency_count, {},
+                      nullptr, true)) {
+        return;
+      }
+
+      std::string written_content;
+      try {
+        written_content = reader(dependency_path);
+      } catch (...) {
+        emit_event(callback, FetchEvent::Type::Error, dependency_uri,
+                   dependency_path, current_index, dependency_count,
+                   "Failed to verify written schema", std::current_exception());
+        return;
+      }
+
+      const auto written_hash{compute_md5(written_content)};
       lock.emplace(dependency_uri, dependency_path, written_hash);
+
+      if (!emit_event(callback, FetchEvent::Type::VerifyEnd, dependency_uri,
+                      dependency_path, current_index, dependency_count, {},
+                      nullptr, true)) {
+        return;
+      }
     } else {
       if (!emit_event(callback, FetchEvent::Type::UpToDate, dependency_uri,
                       dependency_path, current_index, dependency_count, {},
@@ -229,8 +251,19 @@ auto Configuration::fetch(const Lock &lock, const FetchCallback &fetcher,
             return;
           }
 
+          std::string written_content;
+          try {
+            written_content = reader(dependency_path);
+          } catch (...) {
+            emit_event(callback, FetchEvent::Type::Error, dependency_uri,
+                       dependency_path, current_index, dependency_count,
+                       "Failed to verify written schema",
+                       std::current_exception());
+            return;
+          }
+
           const auto &lock_entry{lock.at(dependency_uri)->get()};
-          const auto written_hash{compute_md5(reader(dependency_path))};
+          const auto written_hash{compute_md5(written_content)};
           if (written_hash != lock_entry.hash) {
             emit_event(callback, FetchEvent::Type::Error, dependency_uri,
                        dependency_path, current_index, dependency_count,

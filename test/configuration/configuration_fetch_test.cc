@@ -73,7 +73,7 @@ TEST(Configuration_fetch, missing_mode_untracked_fetches_and_updates_lock) {
       },
       sourcemeta::blaze::Configuration::FetchMode::Missing);
 
-  EXPECT_EQ(events.size(), 6);
+  EXPECT_EQ(events.size(), 8);
   EXPECT_FETCH_EVENT(events[0], FetchStart, "https://example.com/simple.json",
                      "simple.json", 0, 1, "");
   EXPECT_FETCH_EVENT(events[1], FetchEnd, "https://example.com/simple.json",
@@ -85,6 +85,10 @@ TEST(Configuration_fetch, missing_mode_untracked_fetches_and_updates_lock) {
   EXPECT_FETCH_EVENT(events[4], WriteStart, "https://example.com/simple.json",
                      "simple.json", 0, 1, "");
   EXPECT_FETCH_EVENT(events[5], WriteEnd, "https://example.com/simple.json",
+                     "simple.json", 0, 1, "");
+  EXPECT_FETCH_EVENT(events[6], VerifyStart, "https://example.com/simple.json",
+                     "simple.json", 0, 1, "");
+  EXPECT_FETCH_EVENT(events[7], VerifyEnd, "https://example.com/simple.json",
                      "simple.json", 0, 1, "");
 
   EXPECT_EQ(lock.size(), 1);
@@ -125,7 +129,7 @@ TEST(Configuration_fetch, missing_mode_file_missing_fetches_and_updates_lock) {
       },
       sourcemeta::blaze::Configuration::FetchMode::Missing);
 
-  EXPECT_EQ(events.size(), 6);
+  EXPECT_EQ(events.size(), 8);
   EXPECT_FETCH_EVENT(events[0], FetchStart, "https://example.com/simple.json",
                      "simple.json", 0, 1, "");
   EXPECT_FETCH_EVENT(events[1], FetchEnd, "https://example.com/simple.json",
@@ -137,6 +141,10 @@ TEST(Configuration_fetch, missing_mode_file_missing_fetches_and_updates_lock) {
   EXPECT_FETCH_EVENT(events[4], WriteStart, "https://example.com/simple.json",
                      "simple.json", 0, 1, "");
   EXPECT_FETCH_EVENT(events[5], WriteEnd, "https://example.com/simple.json",
+                     "simple.json", 0, 1, "");
+  EXPECT_FETCH_EVENT(events[6], VerifyStart, "https://example.com/simple.json",
+                     "simple.json", 0, 1, "");
+  EXPECT_FETCH_EVENT(events[7], VerifyEnd, "https://example.com/simple.json",
                      "simple.json", 0, 1, "");
 
   EXPECT_EQ(lock.size(), 1);
@@ -173,7 +181,7 @@ TEST(Configuration_fetch, missing_mode_mismatched_fetches_and_updates_lock) {
       },
       sourcemeta::blaze::Configuration::FetchMode::Missing);
 
-  EXPECT_EQ(events.size(), 6);
+  EXPECT_EQ(events.size(), 8);
   EXPECT_FETCH_EVENT(events[0], FetchStart, "https://example.com/simple.json",
                      "simple.json", 0, 1, "");
   EXPECT_FETCH_EVENT(events[1], FetchEnd, "https://example.com/simple.json",
@@ -185,6 +193,10 @@ TEST(Configuration_fetch, missing_mode_mismatched_fetches_and_updates_lock) {
   EXPECT_FETCH_EVENT(events[4], WriteStart, "https://example.com/simple.json",
                      "simple.json", 0, 1, "");
   EXPECT_FETCH_EVENT(events[5], WriteEnd, "https://example.com/simple.json",
+                     "simple.json", 0, 1, "");
+  EXPECT_FETCH_EVENT(events[6], VerifyStart, "https://example.com/simple.json",
+                     "simple.json", 0, 1, "");
+  EXPECT_FETCH_EVENT(events[7], VerifyEnd, "https://example.com/simple.json",
                      "simple.json", 0, 1, "");
 
   EXPECT_EQ(lock.size(), 1);
@@ -276,7 +288,7 @@ TEST(Configuration_fetch, all_mode_up_to_date_still_fetches) {
       },
       sourcemeta::blaze::Configuration::FetchMode::All);
 
-  EXPECT_EQ(events.size(), 6);
+  EXPECT_EQ(events.size(), 8);
   EXPECT_FETCH_EVENT(events[0], FetchStart, "https://example.com/simple.json",
                      "simple.json", 0, 1, "");
   EXPECT_FETCH_EVENT(events[1], FetchEnd, "https://example.com/simple.json",
@@ -288,6 +300,10 @@ TEST(Configuration_fetch, all_mode_up_to_date_still_fetches) {
   EXPECT_FETCH_EVENT(events[4], WriteStart, "https://example.com/simple.json",
                      "simple.json", 0, 1, "");
   EXPECT_FETCH_EVENT(events[5], WriteEnd, "https://example.com/simple.json",
+                     "simple.json", 0, 1, "");
+  EXPECT_FETCH_EVENT(events[6], VerifyStart, "https://example.com/simple.json",
+                     "simple.json", 0, 1, "");
+  EXPECT_FETCH_EVENT(events[7], VerifyEnd, "https://example.com/simple.json",
                      "simple.json", 0, 1, "");
 
   EXPECT_EQ(lock.size(), 1);
@@ -560,7 +576,7 @@ TEST(Configuration_fetch, fetch_and_bundle_with_ref) {
       },
       sourcemeta::blaze::Configuration::FetchMode::Missing);
 
-  EXPECT_EQ(events.size(), 6);
+  EXPECT_EQ(events.size(), 8);
   EXPECT_FETCH_EVENT(events[0], FetchStart, "https://example.com/with-ref.json",
                      "with-ref.json", 0, 1, "");
   EXPECT_FETCH_EVENT(events[1], FetchEnd, "https://example.com/with-ref.json",
@@ -573,6 +589,11 @@ TEST(Configuration_fetch, fetch_and_bundle_with_ref) {
   EXPECT_FETCH_EVENT(events[4], WriteStart, "https://example.com/with-ref.json",
                      "with-ref.json", 0, 1, "");
   EXPECT_FETCH_EVENT(events[5], WriteEnd, "https://example.com/with-ref.json",
+                     "with-ref.json", 0, 1, "");
+  EXPECT_FETCH_EVENT(events[6], VerifyStart,
+                     "https://example.com/with-ref.json", "with-ref.json", 0, 1,
+                     "");
+  EXPECT_FETCH_EVENT(events[7], VerifyEnd, "https://example.com/with-ref.json",
                      "with-ref.json", 0, 1, "");
 
   EXPECT_EQ(lock.size(), 1);
@@ -678,7 +699,7 @@ TEST(Configuration_fetch,
       },
       sourcemeta::blaze::Configuration::FetchMode::Missing);
 
-  EXPECT_EQ(events.size(), 6);
+  EXPECT_EQ(events.size(), 8);
   EXPECT_FETCH_EVENT(events[0], FetchStart, "https://example.com/simple.json",
                      "new_location.json", 0, 1, "");
   EXPECT_FETCH_EVENT(events[1], FetchEnd, "https://example.com/simple.json",
@@ -690,6 +711,10 @@ TEST(Configuration_fetch,
   EXPECT_FETCH_EVENT(events[4], WriteStart, "https://example.com/simple.json",
                      "new_location.json", 0, 1, "");
   EXPECT_FETCH_EVENT(events[5], WriteEnd, "https://example.com/simple.json",
+                     "new_location.json", 0, 1, "");
+  EXPECT_FETCH_EVENT(events[6], VerifyStart, "https://example.com/simple.json",
+                     "new_location.json", 0, 1, "");
+  EXPECT_FETCH_EVENT(events[7], VerifyEnd, "https://example.com/simple.json",
                      "new_location.json", 0, 1, "");
 
   EXPECT_EQ(lock.size(), 1);
@@ -704,4 +729,71 @@ TEST(Configuration_fetch,
     "$id": "https://example.com/simple.json",
     "type": "string"
   })JSON");
+}
+
+TEST(Configuration_fetch, reader_exception_after_write_emits_error) {
+  const auto configuration{sourcemeta::blaze::Configuration::from_json(
+      sourcemeta::core::parse_json(R"JSON({
+        "base": "https://test.com",
+        "dependencies": {
+          "https://example.com/simple.json": "simple.json"
+        }
+      })JSON"),
+      std::filesystem::path{TEST_DIRECTORY})};
+
+  sourcemeta::blaze::Configuration::Lock lock;
+
+  std::unordered_map<std::string, std::string> files;
+  bool write_completed{false};
+  auto throwing_reader = [&write_completed, &files](
+                             const std::filesystem::path &path) -> std::string {
+    if (write_completed) {
+      throw std::runtime_error("Permission denied");
+    }
+    const auto iterator{files.find(path.generic_string())};
+    if (iterator == files.end()) {
+      throw std::runtime_error("File not found");
+    }
+    return iterator->second;
+  };
+
+  auto tracking_writer = [&write_completed,
+                          &files](const std::filesystem::path &path,
+                                  const sourcemeta::core::JSON &json) -> void {
+    std::ostringstream output;
+    sourcemeta::core::prettify(json, output);
+    output << "\n";
+    files[path.generic_string()] = output.str();
+    write_completed = true;
+  };
+
+  std::vector<sourcemeta::blaze::Configuration::FetchEvent> events;
+  configuration.fetch(
+      lock, stub_fetcher, stub_resolver, throwing_reader, tracking_writer,
+      [&events](const sourcemeta::blaze::Configuration::FetchEvent &event) {
+        events.push_back(event);
+        return true;
+      },
+      sourcemeta::blaze::Configuration::FetchMode::Missing);
+
+  EXPECT_EQ(events.size(), 8);
+  EXPECT_FETCH_EVENT(events[0], FetchStart, "https://example.com/simple.json",
+                     "simple.json", 0, 1, "");
+  EXPECT_FETCH_EVENT(events[1], FetchEnd, "https://example.com/simple.json",
+                     "simple.json", 0, 1, "");
+  EXPECT_FETCH_EVENT(events[2], BundleStart, "https://example.com/simple.json",
+                     "simple.json", 0, 1, "");
+  EXPECT_FETCH_EVENT(events[3], BundleEnd, "https://example.com/simple.json",
+                     "simple.json", 0, 1, "");
+  EXPECT_FETCH_EVENT(events[4], WriteStart, "https://example.com/simple.json",
+                     "simple.json", 0, 1, "");
+  EXPECT_FETCH_EVENT(events[5], WriteEnd, "https://example.com/simple.json",
+                     "simple.json", 0, 1, "");
+  EXPECT_FETCH_EVENT(events[6], VerifyStart, "https://example.com/simple.json",
+                     "simple.json", 0, 1, "");
+  EXPECT_FETCH_EVENT(events[7], Error, "https://example.com/simple.json",
+                     "simple.json", 0, 1, "Failed to verify written schema");
+  EXPECT_NE(events[7].exception, nullptr);
+
+  EXPECT_EQ(lock.size(), 0);
 }

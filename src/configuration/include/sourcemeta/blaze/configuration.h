@@ -21,7 +21,8 @@
 #include <sourcemeta/core/json.h>
 #include <sourcemeta/core/jsonschema.h>
 
-#include <cstdint>       // std::uint8_t, std::size_t
+#include <cstddef>       // std::size_t
+#include <cstdint>       // std::uint8_t
 #include <exception>     // std::exception_ptr
 #include <filesystem>    // std::filesystem
 #include <functional>    // std::function
@@ -68,7 +69,9 @@ struct SOURCEMETA_BLAZE_CONFIGURATION_EXPORT Configuration {
   public:
     struct Entry {
       std::filesystem::path path;
+      // TODO: Separately store the server ETag for exploiting HTTP caching?
       sourcemeta::core::JSON::String hash;
+      // TODO: Support SHA-256 only instead
       enum class HashAlgorithm : std::uint8_t { MD5 };
       HashAlgorithm hash_algorithm;
       enum class Status : std::uint8_t {
@@ -160,6 +163,7 @@ struct SOURCEMETA_BLAZE_CONFIGURATION_EXPORT Configuration {
              const sourcemeta::core::SchemaResolver &resolver,
              const ReadCallback &reader, const WriteCallback &writer,
              const FetchEvent::Callback &on_event, FetchMode mode,
+             // TODO: Make this work for real
              std::size_t concurrency = 1) const -> void;
 
   /// Fetch dependencies without modifying the lock file (frozen mode)
@@ -167,6 +171,7 @@ struct SOURCEMETA_BLAZE_CONFIGURATION_EXPORT Configuration {
              const sourcemeta::core::SchemaResolver &resolver,
              const ReadCallback &reader, const WriteCallback &writer,
              const FetchEvent::Callback &on_event, bool dry_run = false,
+             // TODO: Make this work for real
              std::size_t concurrency = 1) const -> void;
 
   /// Check if the given path represents a schema described by this
