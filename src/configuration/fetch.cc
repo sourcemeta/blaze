@@ -40,7 +40,41 @@ auto emit_event(
   return result;
 }
 
-enum class FetchAndWriteResult : std::uint8_t { Success, Error, Aborted };
+enum class FetchResult : std::uint8_t { Success, Error, Aborted };
+
+auto verify_written_schema(
+    const std::string &dependency_uri,
+    const std::filesystem::path &dependency_path,
+    const sourcemeta::blaze::Configuration::ReadCallback &reader,
+    const sourcemeta::blaze::Configuration::FetchEvent::Callback &callback,
+    std::size_t index, std::size_t total,
+    sourcemeta::core::JSON::String &out_hash) -> FetchResult {
+  using FetchEvent = sourcemeta::blaze::Configuration::FetchEvent;
+
+  if (!emit_event(callback, FetchEvent::Type::VerifyStart, dependency_uri,
+                  dependency_path, index, total, {}, nullptr, true)) {
+    return FetchResult::Aborted;
+  }
+
+  std::string written_content;
+  try {
+    written_content = reader(dependency_path);
+  } catch (...) {
+    emit_event(callback, FetchEvent::Type::Error, dependency_uri,
+               dependency_path, index, total, "Failed to verify written schema",
+               std::current_exception());
+    return FetchResult::Error;
+  }
+
+  out_hash = compute_md5(written_content);
+
+  if (!emit_event(callback, FetchEvent::Type::VerifyEnd, dependency_uri,
+                  dependency_path, index, total, {}, nullptr, true)) {
+    return FetchResult::Aborted;
+  }
+
+  return FetchResult::Success;
+}
 
 auto fetch_and_write(
     const std::string &dependency_uri,
@@ -51,12 +85,12 @@ auto fetch_and_write(
     const sourcemeta::blaze::Configuration::FetchEvent::Callback &callback,
     const std::optional<sourcemeta::core::JSON::String> &default_dialect,
     std::size_t index, std::size_t total, sourcemeta::core::JSON &out_schema)
-    -> FetchAndWriteResult {
+    -> FetchResult {
   using FetchEvent = sourcemeta::blaze::Configuration::FetchEvent;
 
   if (!emit_event(callback, FetchEvent::Type::FetchStart, dependency_uri,
                   dependency_path, index, total, {}, nullptr, true)) {
-    return FetchAndWriteResult::Aborted;
+    return FetchResult::Aborted;
   }
 
   try {
@@ -65,17 +99,17 @@ auto fetch_and_write(
     emit_event(callback, FetchEvent::Type::Error, dependency_uri,
                dependency_path, index, total, "Failed to fetch schema",
                std::current_exception());
-    return FetchAndWriteResult::Error;
+    return FetchResult::Error;
   }
 
   if (!emit_event(callback, FetchEvent::Type::FetchEnd, dependency_uri,
                   dependency_path, index, total, {}, nullptr, true)) {
-    return FetchAndWriteResult::Aborted;
+    return FetchResult::Aborted;
   }
 
   if (!emit_event(callback, FetchEvent::Type::BundleStart, dependency_uri,
                   dependency_path, index, total, {}, nullptr, true)) {
-    return FetchAndWriteResult::Aborted;
+    return FetchResult::Aborted;
   }
 
   try {
@@ -86,17 +120,17 @@ auto fetch_and_write(
     emit_event(callback, FetchEvent::Type::Error, dependency_uri,
                dependency_path, index, total, "Failed to bundle schema",
                std::current_exception());
-    return FetchAndWriteResult::Error;
+    return FetchResult::Error;
   }
 
   if (!emit_event(callback, FetchEvent::Type::BundleEnd, dependency_uri,
                   dependency_path, index, total, {}, nullptr, true)) {
-    return FetchAndWriteResult::Aborted;
+    return FetchResult::Aborted;
   }
 
   if (!emit_event(callback, FetchEvent::Type::WriteStart, dependency_uri,
                   dependency_path, index, total, {}, nullptr, true)) {
-    return FetchAndWriteResult::Aborted;
+    return FetchResult::Aborted;
   }
 
   try {
@@ -105,15 +139,15 @@ auto fetch_and_write(
     emit_event(callback, FetchEvent::Type::Error, dependency_uri,
                dependency_path, index, total, "Failed to write schema",
                std::current_exception());
-    return FetchAndWriteResult::Error;
+    return FetchResult::Error;
   }
 
   if (!emit_event(callback, FetchEvent::Type::WriteEnd, dependency_uri,
                   dependency_path, index, total, {}, nullptr, true)) {
-    return FetchAndWriteResult::Aborted;
+    return FetchResult::Aborted;
   }
 
-  return FetchAndWriteResult::Success;
+  return FetchResult::Success;
 }
 
 } // namespace
@@ -156,37 +190,27 @@ auto Configuration::fetch(Lock &lock, const FetchCallback &fetcher,
           this->default_dialect, current_index, dependency_count, schema)};
 
       switch (result) {
-        case FetchAndWriteResult::Aborted:
-        case FetchAndWriteResult::Error:
+        case FetchResult::Aborted:
+        case FetchResult::Error:
           return;
-        case FetchAndWriteResult::Success:
+        case FetchResult::Success:
           break;
       }
 
-      if (!emit_event(callback, FetchEvent::Type::VerifyStart, dependency_uri,
-                      dependency_path, current_index, dependency_count, {},
-                      nullptr, true)) {
-        return;
+      sourcemeta::core::JSON::String written_hash;
+      const auto verify_result{verify_written_schema(
+          dependency_uri, dependency_path, reader, callback, current_index,
+          dependency_count, written_hash)};
+
+      switch (verify_result) {
+        case FetchResult::Aborted:
+        case FetchResult::Error:
+          return;
+        case FetchResult::Success:
+          break;
       }
 
-      std::string written_content;
-      try {
-        written_content = reader(dependency_path);
-      } catch (...) {
-        emit_event(callback, FetchEvent::Type::Error, dependency_uri,
-                   dependency_path, current_index, dependency_count,
-                   "Failed to verify written schema", std::current_exception());
-        return;
-      }
-
-      const auto written_hash{compute_md5(written_content)};
       lock.emplace(dependency_uri, dependency_path, written_hash);
-
-      if (!emit_event(callback, FetchEvent::Type::VerifyEnd, dependency_uri,
-                      dependency_path, current_index, dependency_count, {},
-                      nullptr, true)) {
-        return;
-      }
     } else {
       if (!emit_event(callback, FetchEvent::Type::UpToDate, dependency_uri,
                       dependency_path, current_index, dependency_count, {},
@@ -238,43 +262,32 @@ auto Configuration::fetch(const Lock &lock, const FetchCallback &fetcher,
                               current_index, dependency_count, schema)};
 
           switch (result) {
-            case FetchAndWriteResult::Aborted:
-            case FetchAndWriteResult::Error:
+            case FetchResult::Aborted:
+            case FetchResult::Error:
               return;
-            case FetchAndWriteResult::Success:
+            case FetchResult::Success:
               break;
           }
 
-          if (!emit_event(callback, FetchEvent::Type::VerifyStart,
-                          dependency_uri, dependency_path, current_index,
-                          dependency_count, {}, nullptr, true)) {
-            return;
-          }
+          sourcemeta::core::JSON::String written_hash;
+          const auto verify_result{verify_written_schema(
+              dependency_uri, dependency_path, reader, callback, current_index,
+              dependency_count, written_hash)};
 
-          std::string written_content;
-          try {
-            written_content = reader(dependency_path);
-          } catch (...) {
-            emit_event(callback, FetchEvent::Type::Error, dependency_uri,
-                       dependency_path, current_index, dependency_count,
-                       "Failed to verify written schema",
-                       std::current_exception());
-            return;
+          switch (verify_result) {
+            case FetchResult::Aborted:
+            case FetchResult::Error:
+              return;
+            case FetchResult::Success:
+              break;
           }
 
           assert(lock.at(dependency_uri).has_value());
           const auto &lock_entry{lock.at(dependency_uri)->get()};
-          const auto written_hash{compute_md5(written_content)};
           if (written_hash != lock_entry.hash) {
             emit_event(callback, FetchEvent::Type::Error, dependency_uri,
                        dependency_path, current_index, dependency_count,
                        "Written file hash does not match lock file");
-            return;
-          }
-
-          if (!emit_event(callback, FetchEvent::Type::VerifyEnd, dependency_uri,
-                          dependency_path, current_index, dependency_count, {},
-                          nullptr, true)) {
             return;
           }
         }

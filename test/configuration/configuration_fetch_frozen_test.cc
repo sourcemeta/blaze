@@ -947,7 +947,7 @@ TEST(Configuration_fetch_frozen, hash_verification_failure) {
       },
       false);
 
-  EXPECT_EQ(events.size(), 8);
+  EXPECT_EQ(events.size(), 9);
   EXPECT_FETCH_EVENT(events[0], FetchStart, "https://example.com/simple.json",
                      "simple.json", 0, 1, "");
   EXPECT_FETCH_EVENT(events[1], FetchEnd, "https://example.com/simple.json",
@@ -962,7 +962,9 @@ TEST(Configuration_fetch_frozen, hash_verification_failure) {
                      "simple.json", 0, 1, "");
   EXPECT_FETCH_EVENT(events[6], VerifyStart, "https://example.com/simple.json",
                      "simple.json", 0, 1, "");
-  EXPECT_FETCH_EVENT(events[7], Error, "https://example.com/simple.json",
+  EXPECT_FETCH_EVENT(events[7], VerifyEnd, "https://example.com/simple.json",
+                     "simple.json", 0, 1, "");
+  EXPECT_FETCH_EVENT(events[8], Error, "https://example.com/simple.json",
                      "simple.json", 0, 1,
                      "Written file hash does not match lock file");
 }
