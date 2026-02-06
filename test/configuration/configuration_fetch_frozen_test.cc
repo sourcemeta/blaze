@@ -124,7 +124,8 @@ TEST(Configuration_fetch_frozen, dry_run_up_to_date) {
       std::filesystem::path{TEST_DIRECTORY})};
 
   std::unordered_map<std::string, std::string> files;
-  files[std::filesystem::path{TEST_DIRECTORY} / "simple.json"] = R"JSON({
+  files[(std::filesystem::path{TEST_DIRECTORY} / "simple.json").string()] =
+      R"JSON({
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "$id": "https://example.com/simple.json",
   "type": "string"
@@ -161,8 +162,8 @@ TEST(Configuration_fetch_frozen, dry_run_mismatched) {
       std::filesystem::path{TEST_DIRECTORY})};
 
   std::unordered_map<std::string, std::string> files;
-  files[std::filesystem::path{TEST_DIRECTORY} / "wrong-content.json"] =
-      "wrong content\n";
+  files[(std::filesystem::path{TEST_DIRECTORY} / "wrong-content.json")
+            .string()] = "wrong content\n";
 
   sourcemeta::blaze::Configuration::Lock lock;
   lock.emplace("https://example.com/simple.json",
@@ -194,7 +195,8 @@ TEST(Configuration_fetch_frozen, dry_run_orphaned_lock_entry) {
       std::filesystem::path{TEST_DIRECTORY})};
 
   std::unordered_map<std::string, std::string> files;
-  files[std::filesystem::path{TEST_DIRECTORY} / "simple.json"] = R"JSON({
+  files[(std::filesystem::path{TEST_DIRECTORY} / "simple.json").string()] =
+      R"JSON({
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "$id": "https://example.com/simple.json",
   "type": "string"
@@ -236,8 +238,8 @@ TEST(Configuration_fetch_frozen, frozen_mismatched_fails) {
       std::filesystem::path{TEST_DIRECTORY})};
 
   std::unordered_map<std::string, std::string> files;
-  files[std::filesystem::path{TEST_DIRECTORY} / "wrong-content.json"] =
-      "wrong content\n";
+  files[(std::filesystem::path{TEST_DIRECTORY} / "wrong-content.json")
+            .string()] = "wrong content\n";
 
   sourcemeta::blaze::Configuration::Lock lock;
   lock.emplace("https://example.com/simple.json",
@@ -390,14 +392,15 @@ TEST(Configuration_fetch_frozen, dry_run_multiple_mixed_results) {
       std::filesystem::path{TEST_DIRECTORY})};
 
   std::unordered_map<std::string, std::string> files;
-  files[std::filesystem::path{TEST_DIRECTORY} / "simple.json"] = R"JSON({
+  files[(std::filesystem::path{TEST_DIRECTORY} / "simple.json").string()] =
+      R"JSON({
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "$id": "https://example.com/simple.json",
   "type": "string"
 }
 )JSON";
-  files[std::filesystem::path{TEST_DIRECTORY} / "wrong-content.json"] =
-      "wrong content\n";
+  files[(std::filesystem::path{TEST_DIRECTORY} / "wrong-content.json")
+            .string()] = "wrong content\n";
 
   sourcemeta::blaze::Configuration::Lock lock;
   lock.emplace("https://example.com/simple.json",
@@ -436,7 +439,8 @@ TEST(Configuration_fetch_frozen, dry_run_multiple_with_untracked_and_missing) {
       std::filesystem::path{TEST_DIRECTORY})};
 
   std::unordered_map<std::string, std::string> files;
-  files[std::filesystem::path{TEST_DIRECTORY} / "simple.json"] = R"JSON({
+  files[(std::filesystem::path{TEST_DIRECTORY} / "simple.json").string()] =
+      R"JSON({
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "$id": "https://example.com/simple.json",
   "type": "string"
@@ -496,14 +500,15 @@ TEST(Configuration_fetch_frozen, dry_run_all_status_types) {
       std::filesystem::path{TEST_DIRECTORY})};
 
   std::unordered_map<std::string, std::string> files;
-  files[std::filesystem::path{TEST_DIRECTORY} / "simple.json"] = R"JSON({
+  files[(std::filesystem::path{TEST_DIRECTORY} / "simple.json").string()] =
+      R"JSON({
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "$id": "https://example.com/simple.json",
   "type": "string"
 }
 )JSON";
-  files[std::filesystem::path{TEST_DIRECTORY} / "wrong-content.json"] =
-      "wrong content\n";
+  files[(std::filesystem::path{TEST_DIRECTORY} / "wrong-content.json")
+            .string()] = "wrong content\n";
 
   sourcemeta::blaze::Configuration::Lock lock;
   lock.emplace("https://example.com/simple.json",
@@ -1333,7 +1338,8 @@ TEST(Configuration_fetch_frozen, up_to_date_skips_fetch_in_non_dry_run) {
       std::filesystem::path{TEST_DIRECTORY})};
 
   std::unordered_map<std::string, std::string> files;
-  files[std::filesystem::path{TEST_DIRECTORY} / "simple.json"] = R"JSON({
+  files[(std::filesystem::path{TEST_DIRECTORY} / "simple.json").string()] =
+      R"JSON({
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "$id": "https://example.com/simple.json",
   "type": "string"
@@ -1445,7 +1451,8 @@ TEST(Configuration_fetch_frozen, callback_abort_on_up_to_date) {
       std::filesystem::path{TEST_DIRECTORY})};
 
   std::unordered_map<std::string, std::string> files;
-  files[std::filesystem::path{TEST_DIRECTORY} / "simple.json"] = R"JSON({
+  files[(std::filesystem::path{TEST_DIRECTORY} / "simple.json").string()] =
+      R"JSON({
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "$id": "https://example.com/simple.json",
   "type": "string"

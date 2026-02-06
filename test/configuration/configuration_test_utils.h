@@ -6,6 +6,7 @@
 #include <sourcemeta/blaze/configuration.h>
 #include <sourcemeta/core/json.h>
 
+#include <filesystem>    // std::filesystem::path
 #include <sstream>       // std::ostringstream
 #include <stdexcept>     // std::runtime_error
 #include <string>        // std::string
@@ -38,9 +39,11 @@ inline auto MAKE_WRITER(std::unordered_map<std::string, std::string> &files)
 
 #define EXPECT_FILE_JSON_EQ(files, path, expected_json)                        \
   {                                                                            \
-    EXPECT_TRUE((files).contains(path));                                       \
-    const auto written_schema{sourcemeta::core::parse_json((files).at(path))}; \
-    const auto expected_schema{sourcemeta::core::parse_json(expected_json)};   \
+    const auto path_string = (path).string();                                  \
+    EXPECT_TRUE((files).contains(path_string));                                \
+    const auto written_schema =                                                \
+        sourcemeta::core::parse_json((files).at(path_string));                 \
+    const auto expected_schema = sourcemeta::core::parse_json(expected_json);  \
     EXPECT_EQ(written_schema, expected_schema);                                \
   }
 
