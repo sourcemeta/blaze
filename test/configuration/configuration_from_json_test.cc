@@ -391,3 +391,117 @@ TEST(Configuration_from_json, unknown_field_ignored) {
   EXPECT_EQ(manifest.resolve.size(), 0);
   EXPECT_EQ(manifest.extra.size(), 0);
 }
+
+TEST(Configuration_from_json, dependencies_empty) {
+  const auto input{sourcemeta::core::parse_json(R"JSON({
+    "dependencies": {}
+  })JSON")};
+
+  const auto manifest{
+      sourcemeta::blaze::Configuration::from_json(input, TEST_DIRECTORY)};
+
+  EXPECT_EQ(manifest.dependencies.size(), 0);
+}
+
+TEST(Configuration_from_json, dependencies_single) {
+  const auto input{sourcemeta::core::parse_json(R"JSON({
+    "dependencies": {
+      "https://json-schema.org/draft/2020-12/schema": "./vendor/2020-12.json"
+    }
+  })JSON")};
+
+  const auto manifest{
+      sourcemeta::blaze::Configuration::from_json(input, TEST_DIRECTORY)};
+
+  EXPECT_EQ(manifest.dependencies.size(), 1);
+  EXPECT_TRUE(manifest.dependencies.contains(
+      "https://json-schema.org/draft/2020-12/schema"));
+  EXPECT_EQ(
+      manifest.dependencies.at("https://json-schema.org/draft/2020-12/schema"),
+      std::filesystem::path{TEST_DIRECTORY} / "vendor" / "2020-12.json");
+}
+
+TEST(Configuration_from_json, dependencies_multiple) {
+  const auto input{sourcemeta::core::parse_json(R"JSON({
+    "dependencies": {
+      "https://json-schema.org/draft/2020-12/schema": "./vendor/2020-12.json",
+      "https://example.com/common.json": "./vendor/common.json"
+    }
+  })JSON")};
+
+  const auto manifest{
+      sourcemeta::blaze::Configuration::from_json(input, TEST_DIRECTORY)};
+
+  EXPECT_EQ(manifest.dependencies.size(), 2);
+  EXPECT_TRUE(manifest.dependencies.contains(
+      "https://json-schema.org/draft/2020-12/schema"));
+  EXPECT_EQ(
+      manifest.dependencies.at("https://json-schema.org/draft/2020-12/schema"),
+      std::filesystem::path{TEST_DIRECTORY} / "vendor" / "2020-12.json");
+  EXPECT_TRUE(
+      manifest.dependencies.contains("https://example.com/common.json"));
+  EXPECT_EQ(manifest.dependencies.at("https://example.com/common.json"),
+            std::filesystem::path{TEST_DIRECTORY} / "vendor" / "common.json");
+}
+
+TEST(Configuration_from_json, dependencies_not_object) {
+  const auto input{sourcemeta::core::parse_json(R"JSON({
+    "dependencies": []
+  })JSON")};
+
+  EXPECT_CONFIGURATION_FROM_JSON_PARSE_ERROR(
+      input, TEST_DIRECTORY, "The dependencies property must be an object",
+      "/dependencies");
+}
+
+TEST(Configuration_from_json, dependencies_value_not_string) {
+  const auto input{sourcemeta::core::parse_json(R"JSON({
+    "dependencies": {
+      "https://example.com/schema.json": 123
+    }
+  })JSON")};
+
+  EXPECT_CONFIGURATION_FROM_JSON_PARSE_ERROR(
+      input, TEST_DIRECTORY,
+      "The values in the dependencies object must be strings",
+      "/dependencies/https:~1~1example.com~1schema.json");
+}
+
+TEST(Configuration_from_json, dependencies_duplicate_paths) {
+  const auto input{sourcemeta::core::parse_json(R"JSON({
+    "dependencies": {
+      "https://example.com/first.json": "./vendor/schema.json",
+      "https://example.com/second.json": "./vendor/schema.json"
+    }
+  })JSON")};
+
+  EXPECT_CONFIGURATION_FROM_JSON_PARSE_ERROR(
+      input, TEST_DIRECTORY,
+      "Multiple dependencies cannot point to the same path",
+      "/dependencies/https:~1~1example.com~1second.json");
+}
+
+TEST(Configuration_from_json, dependencies_with_resolve) {
+  const auto input{sourcemeta::core::parse_json(R"JSON({
+    "resolve": {
+      "https://internal.corp/foo.json": "./local/foo.json"
+    },
+    "dependencies": {
+      "https://json-schema.org/draft/2020-12/schema": "./vendor/2020-12.json"
+    }
+  })JSON")};
+
+  const auto manifest{
+      sourcemeta::blaze::Configuration::from_json(input, TEST_DIRECTORY)};
+
+  EXPECT_EQ(manifest.resolve.size(), 1);
+  EXPECT_TRUE(manifest.resolve.contains("https://internal.corp/foo.json"));
+  EXPECT_EQ(manifest.resolve.at("https://internal.corp/foo.json"),
+            "local/foo.json");
+  EXPECT_EQ(manifest.dependencies.size(), 1);
+  EXPECT_TRUE(manifest.dependencies.contains(
+      "https://json-schema.org/draft/2020-12/schema"));
+  EXPECT_EQ(
+      manifest.dependencies.at("https://json-schema.org/draft/2020-12/schema"),
+      std::filesystem::path{TEST_DIRECTORY} / "vendor" / "2020-12.json");
+}
