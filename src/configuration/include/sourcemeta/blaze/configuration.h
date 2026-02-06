@@ -127,6 +127,7 @@ struct SOURCEMETA_BLAZE_CONFIGURATION_EXPORT Configuration {
       FileMissing,
       Orphaned,
       Mismatched,
+      PathMismatch,
       Untracked,
       Error
     };

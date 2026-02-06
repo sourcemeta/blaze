@@ -265,6 +265,87 @@ TEST(Configuration_fetch_frozen, frozen_mismatched_fails) {
                      "File hash does not match lock file in frozen mode");
 }
 
+TEST(Configuration_fetch_frozen, dry_run_path_mismatch) {
+  const auto configuration{sourcemeta::blaze::Configuration::from_json(
+      sourcemeta::core::parse_json(R"JSON({
+        "base": "https://test.com",
+        "dependencies": {
+          "https://example.com/simple.json": "new_location.json"
+        }
+      })JSON"),
+      std::filesystem::path{TEST_DIRECTORY})};
+
+  std::unordered_map<std::string, std::string> files;
+  files[(std::filesystem::path{TEST_DIRECTORY} / "old_location.json")
+            .generic_string()] =
+      R"JSON({
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://example.com/simple.json",
+  "type": "string"
+}
+)JSON";
+
+  sourcemeta::blaze::Configuration::Lock lock;
+  lock.emplace("https://example.com/simple.json",
+               std::filesystem::path{TEST_DIRECTORY} / "old_location.json",
+               "e35af8b70997788842aece3ab5f994d8");
+
+  std::vector<sourcemeta::blaze::Configuration::FetchEvent> events;
+  configuration.fetch(
+      lock, stub_fetcher, stub_resolver, MAKE_READER(files), MAKE_WRITER(files),
+      [&events](const sourcemeta::blaze::Configuration::FetchEvent &event) {
+        events.push_back(event);
+        return true;
+      },
+      true);
+
+  EXPECT_EQ(events.size(), 1);
+  EXPECT_FETCH_EVENT(events[0], PathMismatch, "https://example.com/simple.json",
+                     "new_location.json", 0, 1, "");
+}
+
+TEST(Configuration_fetch_frozen, frozen_path_mismatch_fails) {
+  const auto configuration{sourcemeta::blaze::Configuration::from_json(
+      sourcemeta::core::parse_json(R"JSON({
+        "base": "https://test.com",
+        "dependencies": {
+          "https://example.com/simple.json": "new_location.json"
+        }
+      })JSON"),
+      std::filesystem::path{TEST_DIRECTORY})};
+
+  std::unordered_map<std::string, std::string> files;
+  files[(std::filesystem::path{TEST_DIRECTORY} / "old_location.json")
+            .generic_string()] =
+      R"JSON({
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://example.com/simple.json",
+  "type": "string"
+}
+)JSON";
+
+  sourcemeta::blaze::Configuration::Lock lock;
+  lock.emplace("https://example.com/simple.json",
+               std::filesystem::path{TEST_DIRECTORY} / "old_location.json",
+               "e35af8b70997788842aece3ab5f994d8");
+
+  std::vector<sourcemeta::blaze::Configuration::FetchEvent> events;
+  configuration.fetch(
+      lock, stub_fetcher, stub_resolver, MAKE_READER(files), MAKE_WRITER(files),
+      [&events](const sourcemeta::blaze::Configuration::FetchEvent &event) {
+        events.push_back(event);
+        return true;
+      },
+      false);
+
+  EXPECT_EQ(events.size(), 2);
+  EXPECT_FETCH_EVENT(events[0], PathMismatch, "https://example.com/simple.json",
+                     "new_location.json", 0, 1, "");
+  EXPECT_FETCH_EVENT(events[1], Error, "https://example.com/simple.json",
+                     "new_location.json", 0, 1,
+                     "Configured path does not match lock file in frozen mode");
+}
+
 TEST(Configuration_fetch_frozen, callback_abort_stops_processing) {
   const auto configuration{sourcemeta::blaze::Configuration::from_json(
       sourcemeta::core::parse_json(R"JSON({

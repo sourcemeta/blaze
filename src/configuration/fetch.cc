@@ -262,6 +262,7 @@ auto Configuration::fetch(const Lock &lock, const FetchCallback &fetcher,
             return;
           }
 
+          assert(lock.at(dependency_uri).has_value());
           const auto &lock_entry{lock.at(dependency_uri)->get()};
           const auto written_hash{compute_md5(written_content)};
           if (written_hash != lock_entry.hash) {
@@ -295,9 +296,9 @@ auto Configuration::fetch(const Lock &lock, const FetchCallback &fetcher,
         break;
 
       case Lock::Entry::Status::PathMismatch:
-        if (!emit_event(callback, FetchEvent::Type::Mismatched, dependency_uri,
-                        dependency_path, current_index, dependency_count, {},
-                        nullptr, true)) {
+        if (!emit_event(callback, FetchEvent::Type::PathMismatch,
+                        dependency_uri, dependency_path, current_index,
+                        dependency_count, {}, nullptr, true)) {
           return;
         }
         if (!dry_run) {
