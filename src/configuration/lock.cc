@@ -144,8 +144,8 @@ auto Configuration::Lock::to_json() const -> sourcemeta::core::JSON {
   for (const auto &pair : this->entries_) {
     assert(pair.second.path.is_absolute());
     auto entry_json{sourcemeta::core::JSON::make_object()};
-    entry_json.assign("path",
-                      sourcemeta::core::JSON{pair.second.path.string()});
+    entry_json.assign(
+        "path", sourcemeta::core::JSON{pair.second.path.generic_string()});
     entry_json.assign("hash", sourcemeta::core::JSON{pair.second.hash});
     entry_json.assign("hashAlgorithm",
                       sourcemeta::core::JSON{hash_algorithm_to_string(

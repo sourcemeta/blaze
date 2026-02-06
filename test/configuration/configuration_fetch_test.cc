@@ -6,6 +6,7 @@
 
 #include "configuration_test_utils.h"
 
+#include <filesystem>    // std::filesystem
 #include <string>        // std::string
 #include <unordered_map> // std::unordered_map
 #include <vector>        // std::vector
@@ -57,7 +58,7 @@ TEST(Configuration_fetch, missing_mode_untracked_fetches_and_updates_lock) {
           "https://example.com/simple.json": "simple.json"
         }
       })JSON"),
-      "/test")};
+      std::filesystem::path{TEST_DIRECTORY})};
 
   sourcemeta::blaze::Configuration::Lock lock;
   EXPECT_EQ(lock.size(), 0);
@@ -88,9 +89,11 @@ TEST(Configuration_fetch, missing_mode_untracked_fetches_and_updates_lock) {
 
   EXPECT_EQ(lock.size(), 1);
   EXPECT_LOCK_ENTRY(lock, "https://example.com/simple.json",
-                    "/test/simple.json", "e35af8b70997788842aece3ab5f994d8");
+                    std::filesystem::path{TEST_DIRECTORY} / "simple.json",
+                    "e35af8b70997788842aece3ab5f994d8");
 
-  EXPECT_FILE_JSON_EQ(files, "/test/simple.json", R"JSON({
+  EXPECT_FILE_JSON_EQ(
+      files, std::filesystem::path{TEST_DIRECTORY} / "simple.json", R"JSON({
     "$schema": "https://json-schema.org/draft/2020-12/schema",
     "$id": "https://example.com/simple.json",
     "type": "string"
@@ -105,10 +108,11 @@ TEST(Configuration_fetch, missing_mode_file_missing_fetches_and_updates_lock) {
           "https://example.com/simple.json": "simple.json"
         }
       })JSON"),
-      "/test")};
+      std::filesystem::path{TEST_DIRECTORY})};
 
   sourcemeta::blaze::Configuration::Lock lock;
-  lock.emplace("https://example.com/simple.json", "/test/simple.json",
+  lock.emplace("https://example.com/simple.json",
+               std::filesystem::path{TEST_DIRECTORY} / "simple.json",
                "old_hash_value");
 
   std::unordered_map<std::string, std::string> files;
@@ -137,7 +141,8 @@ TEST(Configuration_fetch, missing_mode_file_missing_fetches_and_updates_lock) {
 
   EXPECT_EQ(lock.size(), 1);
   EXPECT_LOCK_ENTRY(lock, "https://example.com/simple.json",
-                    "/test/simple.json", "e35af8b70997788842aece3ab5f994d8");
+                    std::filesystem::path{TEST_DIRECTORY} / "simple.json",
+                    "e35af8b70997788842aece3ab5f994d8");
 }
 
 TEST(Configuration_fetch, missing_mode_mismatched_fetches_and_updates_lock) {
@@ -148,13 +153,15 @@ TEST(Configuration_fetch, missing_mode_mismatched_fetches_and_updates_lock) {
           "https://example.com/simple.json": "simple.json"
         }
       })JSON"),
-      "/test")};
+      std::filesystem::path{TEST_DIRECTORY})};
 
   std::unordered_map<std::string, std::string> files;
-  files["/test/simple.json"] = "wrong content\n";
+  files[std::filesystem::path{TEST_DIRECTORY} / "simple.json"] =
+      "wrong content\n";
 
   sourcemeta::blaze::Configuration::Lock lock;
-  lock.emplace("https://example.com/simple.json", "/test/simple.json",
+  lock.emplace("https://example.com/simple.json",
+               std::filesystem::path{TEST_DIRECTORY} / "simple.json",
                "old_hash_value");
 
   std::vector<sourcemeta::blaze::Configuration::FetchEvent> events;
@@ -182,7 +189,8 @@ TEST(Configuration_fetch, missing_mode_mismatched_fetches_and_updates_lock) {
 
   EXPECT_EQ(lock.size(), 1);
   EXPECT_LOCK_ENTRY(lock, "https://example.com/simple.json",
-                    "/test/simple.json", "e35af8b70997788842aece3ab5f994d8");
+                    std::filesystem::path{TEST_DIRECTORY} / "simple.json",
+                    "e35af8b70997788842aece3ab5f994d8");
 }
 
 TEST(Configuration_fetch, missing_mode_up_to_date_skips_fetch) {
@@ -193,10 +201,10 @@ TEST(Configuration_fetch, missing_mode_up_to_date_skips_fetch) {
           "https://example.com/simple.json": "simple.json"
         }
       })JSON"),
-      "/test")};
+      std::filesystem::path{TEST_DIRECTORY})};
 
   std::unordered_map<std::string, std::string> files;
-  files["/test/simple.json"] = R"JSON({
+  files[std::filesystem::path{TEST_DIRECTORY} / "simple.json"] = R"JSON({
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "$id": "https://example.com/simple.json",
   "type": "string"
@@ -204,7 +212,8 @@ TEST(Configuration_fetch, missing_mode_up_to_date_skips_fetch) {
 )JSON";
 
   sourcemeta::blaze::Configuration::Lock lock;
-  lock.emplace("https://example.com/simple.json", "/test/simple.json",
+  lock.emplace("https://example.com/simple.json",
+               std::filesystem::path{TEST_DIRECTORY} / "simple.json",
                "e35af8b70997788842aece3ab5f994d8");
 
   auto failing_fetcher = [](std::string_view) -> sourcemeta::core::JSON {
@@ -227,7 +236,8 @@ TEST(Configuration_fetch, missing_mode_up_to_date_skips_fetch) {
 
   EXPECT_EQ(lock.size(), 1);
   EXPECT_LOCK_ENTRY(lock, "https://example.com/simple.json",
-                    "/test/simple.json", "e35af8b70997788842aece3ab5f994d8");
+                    std::filesystem::path{TEST_DIRECTORY} / "simple.json",
+                    "e35af8b70997788842aece3ab5f994d8");
 }
 
 TEST(Configuration_fetch, all_mode_up_to_date_still_fetches) {
@@ -238,10 +248,10 @@ TEST(Configuration_fetch, all_mode_up_to_date_still_fetches) {
           "https://example.com/simple.json": "simple.json"
         }
       })JSON"),
-      "/test")};
+      std::filesystem::path{TEST_DIRECTORY})};
 
   std::unordered_map<std::string, std::string> files;
-  files["/test/simple.json"] = R"JSON({
+  files[std::filesystem::path{TEST_DIRECTORY} / "simple.json"] = R"JSON({
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "$id": "https://example.com/simple.json",
   "type": "string"
@@ -249,7 +259,8 @@ TEST(Configuration_fetch, all_mode_up_to_date_still_fetches) {
 )JSON";
 
   sourcemeta::blaze::Configuration::Lock lock;
-  lock.emplace("https://example.com/simple.json", "/test/simple.json",
+  lock.emplace("https://example.com/simple.json",
+               std::filesystem::path{TEST_DIRECTORY} / "simple.json",
                "e35af8b70997788842aece3ab5f994d8");
 
   std::vector<sourcemeta::blaze::Configuration::FetchEvent> events;
@@ -277,7 +288,8 @@ TEST(Configuration_fetch, all_mode_up_to_date_still_fetches) {
 
   EXPECT_EQ(lock.size(), 1);
   EXPECT_LOCK_ENTRY(lock, "https://example.com/simple.json",
-                    "/test/simple.json", "e35af8b70997788842aece3ab5f994d8");
+                    std::filesystem::path{TEST_DIRECTORY} / "simple.json",
+                    "e35af8b70997788842aece3ab5f994d8");
 }
 
 TEST(Configuration_fetch, fetcher_exception_emits_error) {
@@ -288,7 +300,7 @@ TEST(Configuration_fetch, fetcher_exception_emits_error) {
           "https://example.com/unknown.json": "unknown.json"
         }
       })JSON"),
-      "/test")};
+      std::filesystem::path{TEST_DIRECTORY})};
 
   auto throwing_fetcher = [](std::string_view) -> sourcemeta::core::JSON {
     throw std::runtime_error("Network error");
@@ -325,7 +337,7 @@ TEST(Configuration_fetch, bundle_exception_emits_error) {
           "https://example.com/with-ref.json": "with-ref.json"
         }
       })JSON"),
-      "/test")};
+      std::filesystem::path{TEST_DIRECTORY})};
 
   auto partial_resolver =
       [](std::string_view uri) -> std::optional<sourcemeta::core::JSON> {
@@ -384,7 +396,7 @@ TEST(Configuration_fetch, writer_exception_emits_error) {
           "https://example.com/simple.json": "simple.json"
         }
       })JSON"),
-      "/test")};
+      std::filesystem::path{TEST_DIRECTORY})};
 
   auto throwing_writer = [](const std::filesystem::path &,
                             const sourcemeta::core::JSON &) -> void {
@@ -429,7 +441,7 @@ TEST(Configuration_fetch, callback_abort_on_fetch_start) {
           "https://example.com/simple.json": "simple.json"
         }
       })JSON"),
-      "/test")};
+      std::filesystem::path{TEST_DIRECTORY})};
 
   sourcemeta::blaze::Configuration::Lock lock;
 
@@ -461,10 +473,10 @@ TEST(Configuration_fetch, callback_abort_on_up_to_date) {
           "https://example.com/simple.json": "simple.json"
         }
       })JSON"),
-      "/test")};
+      std::filesystem::path{TEST_DIRECTORY})};
 
   std::unordered_map<std::string, std::string> files;
-  files["/test/simple.json"] = R"JSON({
+  files[std::filesystem::path{TEST_DIRECTORY} / "simple.json"] = R"JSON({
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "$id": "https://example.com/simple.json",
   "type": "string"
@@ -472,7 +484,8 @@ TEST(Configuration_fetch, callback_abort_on_up_to_date) {
 )JSON";
 
   sourcemeta::blaze::Configuration::Lock lock;
-  lock.emplace("https://example.com/simple.json", "/test/simple.json",
+  lock.emplace("https://example.com/simple.json",
+               std::filesystem::path{TEST_DIRECTORY} / "simple.json",
                "e35af8b70997788842aece3ab5f994d8");
 
   std::vector<sourcemeta::blaze::Configuration::FetchEvent> events;
@@ -492,7 +505,8 @@ TEST(Configuration_fetch, callback_abort_on_up_to_date) {
 
   EXPECT_EQ(lock.size(), 1);
   EXPECT_LOCK_ENTRY(lock, "https://example.com/simple.json",
-                    "/test/simple.json", "e35af8b70997788842aece3ab5f994d8");
+                    std::filesystem::path{TEST_DIRECTORY} / "simple.json",
+                    "e35af8b70997788842aece3ab5f994d8");
 }
 
 TEST(Configuration_fetch, empty_dependencies_no_events) {
@@ -500,7 +514,7 @@ TEST(Configuration_fetch, empty_dependencies_no_events) {
       sourcemeta::core::parse_json(R"JSON({
         "base": "https://test.com"
       })JSON"),
-      "/test")};
+      std::filesystem::path{TEST_DIRECTORY})};
 
   sourcemeta::blaze::Configuration::Lock lock;
 
@@ -526,7 +540,7 @@ TEST(Configuration_fetch, fetch_and_bundle_with_ref) {
           "https://example.com/with-ref.json": "with-ref.json"
         }
       })JSON"),
-      "/test")};
+      std::filesystem::path{TEST_DIRECTORY})};
 
   sourcemeta::blaze::Configuration::Lock lock;
 
@@ -557,9 +571,11 @@ TEST(Configuration_fetch, fetch_and_bundle_with_ref) {
 
   EXPECT_EQ(lock.size(), 1);
   EXPECT_LOCK_ENTRY(lock, "https://example.com/with-ref.json",
-                    "/test/with-ref.json", "411100825ac747c9c6523633d3870ec3");
+                    std::filesystem::path{TEST_DIRECTORY} / "with-ref.json",
+                    "411100825ac747c9c6523633d3870ec3");
 
-  EXPECT_FILE_JSON_EQ(files, "/test/with-ref.json", R"JSON({
+  EXPECT_FILE_JSON_EQ(
+      files, std::filesystem::path{TEST_DIRECTORY} / "with-ref.json", R"JSON({
     "$schema": "https://json-schema.org/draft/2020-12/schema",
     "$id": "https://example.com/with-ref.json",
     "$ref": "https://example.com/simple.json",
@@ -581,7 +597,7 @@ TEST(Configuration_fetch, lock_to_json_after_fetch) {
           "https://example.com/simple.json": "simple.json"
         }
       })JSON"),
-      "/test")};
+      std::filesystem::path{TEST_DIRECTORY})};
 
   sourcemeta::blaze::Configuration::Lock lock;
 
@@ -597,19 +613,27 @@ TEST(Configuration_fetch, lock_to_json_after_fetch) {
 
   EXPECT_EQ(lock.size(), 1);
   EXPECT_LOCK_ENTRY(lock, "https://example.com/simple.json",
-                    "/test/simple.json", "e35af8b70997788842aece3ab5f994d8");
+                    std::filesystem::path{TEST_DIRECTORY} / "simple.json",
+                    "e35af8b70997788842aece3ab5f994d8");
 
   const auto lock_json{lock.to_json()};
-  const auto expected{sourcemeta::core::parse_json(R"JSON({
-    "version": 1,
-    "dependencies": {
-      "https://example.com/simple.json": {
-        "path": "/test/simple.json",
-        "hash": "e35af8b70997788842aece3ab5f994d8",
-        "hashAlgorithm": "md5"
-      }
-    }
-  })JSON")};
+
+  auto expected_entry{sourcemeta::core::JSON::make_object()};
+  expected_entry.assign(
+      "path", sourcemeta::core::JSON{std::filesystem::path{
+                  std::filesystem::path{TEST_DIRECTORY} / "simple.json"}
+                                         .generic_string()});
+  expected_entry.assign(
+      "hash", sourcemeta::core::JSON{"e35af8b70997788842aece3ab5f994d8"});
+  expected_entry.assign("hashAlgorithm", sourcemeta::core::JSON{"md5"});
+
+  auto expected_deps{sourcemeta::core::JSON::make_object()};
+  expected_deps.assign("https://example.com/simple.json",
+                       std::move(expected_entry));
+
+  auto expected{sourcemeta::core::JSON::make_object()};
+  expected.assign("version", sourcemeta::core::JSON{1});
+  expected.assign("dependencies", std::move(expected_deps));
 
   EXPECT_EQ(lock_json, expected);
 }

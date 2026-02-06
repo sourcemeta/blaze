@@ -6,6 +6,8 @@
 
 #include "configuration_test_utils.h"
 
+#include <filesystem> // std::filesystem
+
 TEST(Configuration_Lock_Parse_V1, empty_dependencies) {
   const auto input{sourcemeta::core::parse_json(R"JSON({
     "version": 1,
@@ -18,49 +20,40 @@ TEST(Configuration_Lock_Parse_V1, empty_dependencies) {
 }
 
 TEST(Configuration_Lock_Parse_V1, single_dependency) {
-  const auto input{sourcemeta::core::parse_json(R"JSON({
-    "version": 1,
-    "dependencies": {
-      "https://example.com/schema.json": {
-        "path": "/absolute/path/to/schema.json",
-        "hash": "d41d8cd98f00b204e9800998ecf8427e",
-        "hashAlgorithm": "md5"
-      }
-    }
-  })JSON")};
+  const std::filesystem::path schema_path =
+      std::filesystem::path{TEST_DIRECTORY} / "schema.json";
+  const auto input{make_lock_json(
+      {{"https://example.com/schema.json",
+        make_lock_entry_json(schema_path.string(),
+                             "d41d8cd98f00b204e9800998ecf8427e")}})};
 
   const auto lock{sourcemeta::blaze::Configuration::Lock::from_json(input)};
 
   EXPECT_EQ(lock.size(), 1);
-  EXPECT_LOCK_ENTRY(lock, "https://example.com/schema.json",
-                    "/absolute/path/to/schema.json",
+  EXPECT_LOCK_ENTRY(lock, "https://example.com/schema.json", schema_path,
                     "d41d8cd98f00b204e9800998ecf8427e");
 }
 
 TEST(Configuration_Lock_Parse_V1, multiple_dependencies) {
-  const auto input{sourcemeta::core::parse_json(R"JSON({
-    "version": 1,
-    "dependencies": {
-      "https://example.com/first.json": {
-        "path": "/path/to/first.json",
-        "hash": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa1",
-        "hashAlgorithm": "md5"
-      },
-      "https://example.com/second.json": {
-        "path": "/path/to/second.json",
-        "hash": "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb2",
-        "hashAlgorithm": "md5"
-      }
-    }
-  })JSON")};
+  const std::filesystem::path first_path =
+      std::filesystem::path{TEST_DIRECTORY} / "first.json";
+  const std::filesystem::path second_path =
+      std::filesystem::path{TEST_DIRECTORY} / "second.json";
+  const auto input{make_lock_json(
+      {{"https://example.com/first.json",
+        make_lock_entry_json(first_path.string(),
+                             "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa1")},
+       {"https://example.com/second.json",
+        make_lock_entry_json(second_path.string(),
+                             "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb2")}})};
 
   const auto lock{sourcemeta::blaze::Configuration::Lock::from_json(input)};
 
   EXPECT_EQ(lock.size(), 2);
-  EXPECT_LOCK_ENTRY(lock, "https://example.com/first.json",
-                    "/path/to/first.json", "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa1");
-  EXPECT_LOCK_ENTRY(lock, "https://example.com/second.json",
-                    "/path/to/second.json", "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb2");
+  EXPECT_LOCK_ENTRY(lock, "https://example.com/first.json", first_path,
+                    "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa1");
+  EXPECT_LOCK_ENTRY(lock, "https://example.com/second.json", second_path,
+                    "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb2");
 }
 
 TEST(Configuration_Lock_Parse_V1, not_an_object) {
@@ -162,15 +155,14 @@ TEST(Configuration_Lock_Parse_V1, missing_path) {
 }
 
 TEST(Configuration_Lock_Parse_V1, missing_hash) {
-  const auto input{sourcemeta::core::parse_json(R"JSON({
-    "version": 1,
-    "dependencies": {
-      "https://example.com/schema.json": {
-        "path": "/absolute/path/to/schema.json",
-        "hashAlgorithm": "md5"
-      }
-    }
-  })JSON")};
+  auto entry{sourcemeta::core::JSON::make_object()};
+  entry.assign(
+      "path",
+      sourcemeta::core::JSON{
+          (std::filesystem::path{TEST_DIRECTORY} / "schema.json").string()});
+  entry.assign("hashAlgorithm", sourcemeta::core::JSON{"md5"});
+  const auto input{
+      make_lock_json({{"https://example.com/schema.json", entry}})};
 
   try {
     const auto lock{sourcemeta::blaze::Configuration::Lock::from_json(input)};
@@ -184,15 +176,15 @@ TEST(Configuration_Lock_Parse_V1, missing_hash) {
 }
 
 TEST(Configuration_Lock_Parse_V1, missing_hash_algorithm) {
-  const auto input{sourcemeta::core::parse_json(R"JSON({
-    "version": 1,
-    "dependencies": {
-      "https://example.com/schema.json": {
-        "path": "/absolute/path/to/schema.json",
-        "hash": "d41d8cd98f00b204e9800998ecf8427e"
-      }
-    }
-  })JSON")};
+  auto entry{sourcemeta::core::JSON::make_object()};
+  entry.assign(
+      "path",
+      sourcemeta::core::JSON{
+          (std::filesystem::path{TEST_DIRECTORY} / "schema.json").string()});
+  entry.assign("hash",
+               sourcemeta::core::JSON{"d41d8cd98f00b204e9800998ecf8427e"});
+  const auto input{
+      make_lock_json({{"https://example.com/schema.json", entry}})};
 
   try {
     const auto lock{sourcemeta::blaze::Configuration::Lock::from_json(input)};
@@ -206,16 +198,16 @@ TEST(Configuration_Lock_Parse_V1, missing_hash_algorithm) {
 }
 
 TEST(Configuration_Lock_Parse_V1, unknown_hash_algorithm) {
-  const auto input{sourcemeta::core::parse_json(R"JSON({
-    "version": 1,
-    "dependencies": {
-      "https://example.com/schema.json": {
-        "path": "/absolute/path/to/schema.json",
-        "hash": "d41d8cd98f00b204e9800998ecf8427e",
-        "hashAlgorithm": "unknown"
-      }
-    }
-  })JSON")};
+  auto entry{sourcemeta::core::JSON::make_object()};
+  entry.assign(
+      "path",
+      sourcemeta::core::JSON{
+          (std::filesystem::path{TEST_DIRECTORY} / "schema.json").string()});
+  entry.assign("hash",
+               sourcemeta::core::JSON{"d41d8cd98f00b204e9800998ecf8427e"});
+  entry.assign("hashAlgorithm", sourcemeta::core::JSON{"unknown"});
+  const auto input{
+      make_lock_json({{"https://example.com/schema.json", entry}})};
 
   try {
     const auto lock{sourcemeta::blaze::Configuration::Lock::from_json(input)};

@@ -10,6 +10,8 @@
 #include <stdexcept>     // std::runtime_error
 #include <string>        // std::string
 #include <unordered_map> // std::unordered_map
+#include <utility>       // std::pair
+#include <vector>        // std::vector
 
 inline auto
 MAKE_READER(const std::unordered_map<std::string, std::string> &files)
@@ -52,6 +54,30 @@ inline auto MAKE_WRITER(std::unordered_map<std::string, std::string> &files)
         result->get().hash_algorithm,                                          \
         sourcemeta::blaze::Configuration::Lock::Entry::HashAlgorithm::MD5);    \
   }
+
+inline auto make_lock_entry_json(const std::string &path,
+                                 const std::string &hash,
+                                 const std::string &algorithm = "md5")
+    -> sourcemeta::core::JSON {
+  auto entry{sourcemeta::core::JSON::make_object()};
+  entry.assign("path", sourcemeta::core::JSON{path});
+  entry.assign("hash", sourcemeta::core::JSON{hash});
+  entry.assign("hashAlgorithm", sourcemeta::core::JSON{algorithm});
+  return entry;
+}
+
+inline auto
+make_lock_json(const std::vector<std::pair<std::string, sourcemeta::core::JSON>>
+                   &dependencies) -> sourcemeta::core::JSON {
+  auto result{sourcemeta::core::JSON::make_object()};
+  result.assign("version", sourcemeta::core::JSON{1});
+  auto dependencies_json{sourcemeta::core::JSON::make_object()};
+  for (const auto &dependency : dependencies) {
+    dependencies_json.assign(dependency.first, dependency.second);
+  }
+  result.assign("dependencies", std::move(dependencies_json));
+  return result;
+}
 
 #define EXPECT_FETCH_EVENT(event, expected_type, expected_uri,                 \
                            expected_path_filename, expected_index,             \
