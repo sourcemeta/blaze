@@ -9,5 +9,5 @@ target_link_libraries(sourcemeta_blaze_configuration PUBLIC sourcemeta::core::js
 target_link_libraries(sourcemeta_blaze_configuration PUBLIC sourcemeta::core::jsonpointer)
 target_link_libraries(sourcemeta_blaze_configuration PRIVATE sourcemeta::core::uri)
 target_link_libraries(sourcemeta_blaze_configuration PRIVATE sourcemeta::core::io)
-target_link_libraries(sourcemeta_blaze_configuration PRIVATE sourcemeta::core::md5)
+target_link_libraries(sourcemeta_blaze_configuration PRIVATE sourcemeta::core::crypto)
 target_link_libraries(sourcemeta_blaze_configuration PRIVATE sourcemeta::core::jsonschema)

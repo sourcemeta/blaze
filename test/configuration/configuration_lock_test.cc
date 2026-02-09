@@ -34,7 +34,7 @@ TEST(Configuration_Lock, to_json_single_entry) {
       "https://example.com/schema.json": {
         "path": "/absolute/path/to/schema.json",
         "hash": "d41d8cd98f00b204e9800998ecf8427e",
-        "hashAlgorithm": "md5"
+        "hashAlgorithm": "sha256"
       }
     }
   })JSON")};
@@ -57,12 +57,12 @@ TEST(Configuration_Lock, to_json_multiple_entries) {
       "https://example.com/first.json": {
         "path": "/path/to/first.json",
         "hash": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa1",
-        "hashAlgorithm": "md5"
+        "hashAlgorithm": "sha256"
       },
       "https://example.com/second.json": {
         "path": "/path/to/second.json",
         "hash": "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb2",
-        "hashAlgorithm": "md5"
+        "hashAlgorithm": "sha256"
       }
     }
   })JSON")};
@@ -141,8 +141,9 @@ TEST(Configuration_Lock, check_up_to_date) {
   const std::string content{"{ \"type\": \"string\" }\n"};
 
   sourcemeta::blaze::Configuration::Lock lock;
-  lock.emplace("https://example.com/schema.json", schema_path,
-               "62f43a110117f85c2b57189200ec3e84");
+  lock.emplace(
+      "https://example.com/schema.json", schema_path,
+      "921e340b7862536fe211b8b2862850abd0135a86748f5363373ed13e6c0ff1d6");
 
   std::unordered_map<std::string, std::string> files;
   files[schema_path.generic_string()] = content;
@@ -160,8 +161,9 @@ TEST(Configuration_Lock, check_path_mismatch) {
   const std::string content{"{ \"type\": \"string\" }\n"};
 
   sourcemeta::blaze::Configuration::Lock lock;
-  lock.emplace("https://example.com/schema.json", old_path,
-               "62f43a110117f85c2b57189200ec3e84");
+  lock.emplace(
+      "https://example.com/schema.json", old_path,
+      "921e340b7862536fe211b8b2862850abd0135a86748f5363373ed13e6c0ff1d6");
 
   std::unordered_map<std::string, std::string> files;
   files[old_path.generic_string()] = content;

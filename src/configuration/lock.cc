@@ -1,8 +1,8 @@
 #include <sourcemeta/blaze/configuration.h>
 
+#include <sourcemeta/core/crypto.h>
 #include <sourcemeta/core/json.h>
 #include <sourcemeta/core/jsonpointer.h>
-#include <sourcemeta/core/md5.h>
 
 #include <cassert> // assert
 #include <sstream> // std::ostringstream
@@ -19,9 +19,9 @@ auto compute_hash(
   using HashAlgorithm =
       sourcemeta::blaze::Configuration::Lock::Entry::HashAlgorithm;
   switch (algorithm) {
-    case HashAlgorithm::MD5: {
+    case HashAlgorithm::SHA256: {
       std::ostringstream result;
-      sourcemeta::core::md5(content, result);
+      sourcemeta::core::sha256(content, result);
       return result.str();
     }
     default:
@@ -38,8 +38,8 @@ auto hash_algorithm_to_string(
   using HashAlgorithm =
       sourcemeta::blaze::Configuration::Lock::Entry::HashAlgorithm;
   switch (algorithm) {
-    case HashAlgorithm::MD5:
-      return "md5";
+    case HashAlgorithm::SHA256:
+      return "sha256";
     default:
       throw sourcemeta::blaze::ConfigurationParseError("Unknown hash algorithm",
                                                        location);
@@ -51,8 +51,8 @@ auto string_to_hash_algorithm(const sourcemeta::core::JSON::String &value,
     -> sourcemeta::blaze::Configuration::Lock::Entry::HashAlgorithm {
   using HashAlgorithm =
       sourcemeta::blaze::Configuration::Lock::Entry::HashAlgorithm;
-  if (value == "md5") {
-    return HashAlgorithm::MD5;
+  if (value == "sha256") {
+    return HashAlgorithm::SHA256;
   }
 
   throw sourcemeta::blaze::ConfigurationParseError("Unknown hash algorithm",

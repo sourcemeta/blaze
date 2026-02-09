@@ -1,8 +1,8 @@
 #include <sourcemeta/blaze/configuration.h>
 
+#include <sourcemeta/core/crypto.h>
 #include <sourcemeta/core/json.h>
 #include <sourcemeta/core/jsonschema.h>
-#include <sourcemeta/core/md5.h>
 
 #include <cassert> // assert
 #include <cstdint> // std::uint8_t
@@ -11,9 +11,10 @@
 
 namespace {
 
-auto compute_md5(const std::string &content) -> sourcemeta::core::JSON::String {
+auto compute_sha256(const std::string &content)
+    -> sourcemeta::core::JSON::String {
   std::ostringstream result;
-  sourcemeta::core::md5(content, result);
+  sourcemeta::core::sha256(content, result);
   return result.str();
 }
 
@@ -66,7 +67,7 @@ auto verify_written_schema(
     return FetchResult::Error;
   }
 
-  out_hash = compute_md5(written_content);
+  out_hash = compute_sha256(written_content);
 
   if (!emit_event(callback, FetchEvent::Type::VerifyEnd, dependency_uri,
                   dependency_path, index, total, {}, nullptr, true)) {

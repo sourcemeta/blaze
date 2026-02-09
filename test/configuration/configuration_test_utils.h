@@ -55,12 +55,12 @@ inline auto MAKE_WRITER(std::unordered_map<std::string, std::string> &files)
     EXPECT_EQ(result->get().hash, expected_hash);                              \
     EXPECT_EQ(                                                                 \
         result->get().hash_algorithm,                                          \
-        sourcemeta::blaze::Configuration::Lock::Entry::HashAlgorithm::MD5);    \
+        sourcemeta::blaze::Configuration::Lock::Entry::HashAlgorithm::SHA256); \
   }
 
 inline auto make_lock_entry_json(const std::string &path,
                                  const std::string &hash,
-                                 const std::string &algorithm = "md5")
+                                 const std::string &algorithm = "sha256")
     -> sourcemeta::core::JSON {
   auto entry{sourcemeta::core::JSON::make_object()};
   entry.assign("path", sourcemeta::core::JSON{path});
