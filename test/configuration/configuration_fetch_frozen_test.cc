@@ -134,9 +134,10 @@ TEST(Configuration_fetch_frozen, dry_run_up_to_date) {
 )JSON";
 
   sourcemeta::blaze::Configuration::Lock lock;
-  lock.emplace("https://example.com/simple.json",
-               std::filesystem::path{TEST_DIRECTORY} / "simple.json",
-               "e35af8b70997788842aece3ab5f994d8");
+  lock.emplace(
+      "https://example.com/simple.json",
+      std::filesystem::path{TEST_DIRECTORY} / "simple.json",
+      "bb4ce6cb36147103f0514dd6d084a74681add8ed5ae5d5b1390e3684068bed0f");
 
   std::vector<sourcemeta::blaze::Configuration::FetchEvent> events;
   configuration.fetch(
@@ -206,9 +207,10 @@ TEST(Configuration_fetch_frozen, dry_run_orphaned_lock_entry) {
 )JSON";
 
   sourcemeta::blaze::Configuration::Lock lock;
-  lock.emplace("https://example.com/simple.json",
-               std::filesystem::path{TEST_DIRECTORY} / "simple.json",
-               "e35af8b70997788842aece3ab5f994d8");
+  lock.emplace(
+      "https://example.com/simple.json",
+      std::filesystem::path{TEST_DIRECTORY} / "simple.json",
+      "bb4ce6cb36147103f0514dd6d084a74681add8ed5ae5d5b1390e3684068bed0f");
   lock.emplace("https://example.com/orphaned.json",
                std::filesystem::path{TEST_DIRECTORY} / "orphaned.json",
                "orphanedhash");
@@ -286,9 +288,10 @@ TEST(Configuration_fetch_frozen, dry_run_path_mismatch) {
 )JSON";
 
   sourcemeta::blaze::Configuration::Lock lock;
-  lock.emplace("https://example.com/simple.json",
-               std::filesystem::path{TEST_DIRECTORY} / "old_location.json",
-               "e35af8b70997788842aece3ab5f994d8");
+  lock.emplace(
+      "https://example.com/simple.json",
+      std::filesystem::path{TEST_DIRECTORY} / "old_location.json",
+      "bb4ce6cb36147103f0514dd6d084a74681add8ed5ae5d5b1390e3684068bed0f");
 
   std::vector<sourcemeta::blaze::Configuration::FetchEvent> events;
   configuration.fetch(
@@ -325,9 +328,10 @@ TEST(Configuration_fetch_frozen, frozen_path_mismatch_fails) {
 )JSON";
 
   sourcemeta::blaze::Configuration::Lock lock;
-  lock.emplace("https://example.com/simple.json",
-               std::filesystem::path{TEST_DIRECTORY} / "old_location.json",
-               "e35af8b70997788842aece3ab5f994d8");
+  lock.emplace(
+      "https://example.com/simple.json",
+      std::filesystem::path{TEST_DIRECTORY} / "old_location.json",
+      "bb4ce6cb36147103f0514dd6d084a74681add8ed5ae5d5b1390e3684068bed0f");
 
   std::vector<sourcemeta::blaze::Configuration::FetchEvent> events;
   configuration.fetch(
@@ -487,9 +491,10 @@ TEST(Configuration_fetch_frozen, dry_run_multiple_mixed_results) {
             .generic_string()] = "wrong content\n";
 
   sourcemeta::blaze::Configuration::Lock lock;
-  lock.emplace("https://example.com/simple.json",
-               std::filesystem::path{TEST_DIRECTORY} / "simple.json",
-               "e35af8b70997788842aece3ab5f994d8");
+  lock.emplace(
+      "https://example.com/simple.json",
+      std::filesystem::path{TEST_DIRECTORY} / "simple.json",
+      "bb4ce6cb36147103f0514dd6d084a74681add8ed5ae5d5b1390e3684068bed0f");
   lock.emplace("https://example.com/other.json",
                std::filesystem::path{TEST_DIRECTORY} / "wrong-content.json",
                "wrong_hash_value");
@@ -533,9 +538,10 @@ TEST(Configuration_fetch_frozen, dry_run_multiple_with_untracked_and_missing) {
 )JSON";
 
   sourcemeta::blaze::Configuration::Lock lock;
-  lock.emplace("https://example.com/simple.json",
-               std::filesystem::path{TEST_DIRECTORY} / "simple.json",
-               "e35af8b70997788842aece3ab5f994d8");
+  lock.emplace(
+      "https://example.com/simple.json",
+      std::filesystem::path{TEST_DIRECTORY} / "simple.json",
+      "bb4ce6cb36147103f0514dd6d084a74681add8ed5ae5d5b1390e3684068bed0f");
   lock.emplace("https://example.com/missing.json",
                std::filesystem::path{TEST_DIRECTORY} / "missing.json",
                "somehash");
@@ -597,9 +603,10 @@ TEST(Configuration_fetch_frozen, dry_run_all_status_types) {
             .generic_string()] = "wrong content\n";
 
   sourcemeta::blaze::Configuration::Lock lock;
-  lock.emplace("https://example.com/simple.json",
-               std::filesystem::path{TEST_DIRECTORY} / "simple.json",
-               "e35af8b70997788842aece3ab5f994d8");
+  lock.emplace(
+      "https://example.com/simple.json",
+      std::filesystem::path{TEST_DIRECTORY} / "simple.json",
+      "bb4ce6cb36147103f0514dd6d084a74681add8ed5ae5d5b1390e3684068bed0f");
   lock.emplace("https://example.com/missing.json",
                std::filesystem::path{TEST_DIRECTORY} / "missing.json",
                "somehash");
@@ -674,9 +681,10 @@ TEST(Configuration_fetch_frozen, fetch_and_bundle_simple_schema) {
       std::filesystem::path{TEST_DIRECTORY})};
 
   sourcemeta::blaze::Configuration::Lock lock;
-  lock.emplace("https://example.com/simple.json",
-               std::filesystem::path{TEST_DIRECTORY} / "simple.json",
-               "e35af8b70997788842aece3ab5f994d8");
+  lock.emplace(
+      "https://example.com/simple.json",
+      std::filesystem::path{TEST_DIRECTORY} / "simple.json",
+      "bb4ce6cb36147103f0514dd6d084a74681add8ed5ae5d5b1390e3684068bed0f");
 
   std::unordered_map<std::string, std::string> files;
   std::vector<sourcemeta::blaze::Configuration::FetchEvent> events;
@@ -725,9 +733,10 @@ TEST(Configuration_fetch_frozen, fetch_and_bundle_with_ref) {
       std::filesystem::path{TEST_DIRECTORY})};
 
   sourcemeta::blaze::Configuration::Lock lock;
-  lock.emplace("https://example.com/with-ref.json",
-               std::filesystem::path{TEST_DIRECTORY} / "with-ref.json",
-               "411100825ac747c9c6523633d3870ec3");
+  lock.emplace(
+      "https://example.com/with-ref.json",
+      std::filesystem::path{TEST_DIRECTORY} / "with-ref.json",
+      "535f9c3d3270787376ebbd155c2498c147ef43ed77eaf46eccdfdd7d11d66d28");
 
   std::unordered_map<std::string, std::string> files;
   std::vector<sourcemeta::blaze::Configuration::FetchEvent> events;
@@ -786,9 +795,10 @@ TEST(Configuration_fetch_frozen, fetch_schema_without_schema_using_default) {
       std::filesystem::path{TEST_DIRECTORY})};
 
   sourcemeta::blaze::Configuration::Lock lock;
-  lock.emplace("https://example.com/no-schema.json",
-               std::filesystem::path{TEST_DIRECTORY} / "no-schema.json",
-               "b688158d45f1668036d1f26ca6de7753");
+  lock.emplace(
+      "https://example.com/no-schema.json",
+      std::filesystem::path{TEST_DIRECTORY} / "no-schema.json",
+      "aa5f1848c9964ea85439be1be19a7e8d121986d293fe77d047ed204c8353c01f");
 
   std::unordered_map<std::string, std::string> files;
   std::vector<sourcemeta::blaze::Configuration::FetchEvent> events;
@@ -887,9 +897,10 @@ TEST(Configuration_fetch_frozen, writer_exception_emits_error) {
       std::filesystem::path{TEST_DIRECTORY})};
 
   sourcemeta::blaze::Configuration::Lock lock;
-  lock.emplace("https://example.com/simple.json",
-               std::filesystem::path{TEST_DIRECTORY} / "simple.json",
-               "e35af8b70997788842aece3ab5f994d8");
+  lock.emplace(
+      "https://example.com/simple.json",
+      std::filesystem::path{TEST_DIRECTORY} / "simple.json",
+      "bb4ce6cb36147103f0514dd6d084a74681add8ed5ae5d5b1390e3684068bed0f");
 
   auto throwing_writer = [](const std::filesystem::path &,
                             const sourcemeta::core::JSON &) -> void {
@@ -980,9 +991,10 @@ TEST(Configuration_fetch_frozen, callback_abort_on_fetch_end) {
       std::filesystem::path{TEST_DIRECTORY})};
 
   sourcemeta::blaze::Configuration::Lock lock;
-  lock.emplace("https://example.com/simple.json",
-               std::filesystem::path{TEST_DIRECTORY} / "simple.json",
-               "e35af8b70997788842aece3ab5f994d8");
+  lock.emplace(
+      "https://example.com/simple.json",
+      std::filesystem::path{TEST_DIRECTORY} / "simple.json",
+      "bb4ce6cb36147103f0514dd6d084a74681add8ed5ae5d5b1390e3684068bed0f");
 
   std::unordered_map<std::string, std::string> files;
   std::vector<sourcemeta::blaze::Configuration::FetchEvent> events;
@@ -1015,9 +1027,10 @@ TEST(Configuration_fetch_frozen, callback_abort_on_bundle_start) {
       std::filesystem::path{TEST_DIRECTORY})};
 
   sourcemeta::blaze::Configuration::Lock lock;
-  lock.emplace("https://example.com/simple.json",
-               std::filesystem::path{TEST_DIRECTORY} / "simple.json",
-               "e35af8b70997788842aece3ab5f994d8");
+  lock.emplace(
+      "https://example.com/simple.json",
+      std::filesystem::path{TEST_DIRECTORY} / "simple.json",
+      "bb4ce6cb36147103f0514dd6d084a74681add8ed5ae5d5b1390e3684068bed0f");
 
   std::unordered_map<std::string, std::string> files;
   std::vector<sourcemeta::blaze::Configuration::FetchEvent> events;
@@ -1052,9 +1065,10 @@ TEST(Configuration_fetch_frozen, callback_abort_on_bundle_end) {
       std::filesystem::path{TEST_DIRECTORY})};
 
   sourcemeta::blaze::Configuration::Lock lock;
-  lock.emplace("https://example.com/simple.json",
-               std::filesystem::path{TEST_DIRECTORY} / "simple.json",
-               "e35af8b70997788842aece3ab5f994d8");
+  lock.emplace(
+      "https://example.com/simple.json",
+      std::filesystem::path{TEST_DIRECTORY} / "simple.json",
+      "bb4ce6cb36147103f0514dd6d084a74681add8ed5ae5d5b1390e3684068bed0f");
 
   std::unordered_map<std::string, std::string> files;
   std::vector<sourcemeta::blaze::Configuration::FetchEvent> events;
@@ -1091,9 +1105,10 @@ TEST(Configuration_fetch_frozen, callback_abort_on_write_start) {
       std::filesystem::path{TEST_DIRECTORY})};
 
   sourcemeta::blaze::Configuration::Lock lock;
-  lock.emplace("https://example.com/simple.json",
-               std::filesystem::path{TEST_DIRECTORY} / "simple.json",
-               "e35af8b70997788842aece3ab5f994d8");
+  lock.emplace(
+      "https://example.com/simple.json",
+      std::filesystem::path{TEST_DIRECTORY} / "simple.json",
+      "bb4ce6cb36147103f0514dd6d084a74681add8ed5ae5d5b1390e3684068bed0f");
 
   std::unordered_map<std::string, std::string> files;
   std::vector<sourcemeta::blaze::Configuration::FetchEvent> events;
@@ -1132,9 +1147,10 @@ TEST(Configuration_fetch_frozen, callback_abort_on_write_end) {
       std::filesystem::path{TEST_DIRECTORY})};
 
   sourcemeta::blaze::Configuration::Lock lock;
-  lock.emplace("https://example.com/simple.json",
-               std::filesystem::path{TEST_DIRECTORY} / "simple.json",
-               "e35af8b70997788842aece3ab5f994d8");
+  lock.emplace(
+      "https://example.com/simple.json",
+      std::filesystem::path{TEST_DIRECTORY} / "simple.json",
+      "bb4ce6cb36147103f0514dd6d084a74681add8ed5ae5d5b1390e3684068bed0f");
 
   std::unordered_map<std::string, std::string> files;
   std::vector<sourcemeta::blaze::Configuration::FetchEvent> events;
@@ -1175,9 +1191,10 @@ TEST(Configuration_fetch_frozen, callback_abort_on_verify_start) {
       std::filesystem::path{TEST_DIRECTORY})};
 
   sourcemeta::blaze::Configuration::Lock lock;
-  lock.emplace("https://example.com/simple.json",
-               std::filesystem::path{TEST_DIRECTORY} / "simple.json",
-               "e35af8b70997788842aece3ab5f994d8");
+  lock.emplace(
+      "https://example.com/simple.json",
+      std::filesystem::path{TEST_DIRECTORY} / "simple.json",
+      "bb4ce6cb36147103f0514dd6d084a74681add8ed5ae5d5b1390e3684068bed0f");
 
   std::unordered_map<std::string, std::string> files;
   std::vector<sourcemeta::blaze::Configuration::FetchEvent> events;
@@ -1220,9 +1237,10 @@ TEST(Configuration_fetch_frozen, callback_abort_on_verify_end) {
       std::filesystem::path{TEST_DIRECTORY})};
 
   sourcemeta::blaze::Configuration::Lock lock;
-  lock.emplace("https://example.com/simple.json",
-               std::filesystem::path{TEST_DIRECTORY} / "simple.json",
-               "e35af8b70997788842aece3ab5f994d8");
+  lock.emplace(
+      "https://example.com/simple.json",
+      std::filesystem::path{TEST_DIRECTORY} / "simple.json",
+      "bb4ce6cb36147103f0514dd6d084a74681add8ed5ae5d5b1390e3684068bed0f");
 
   std::unordered_map<std::string, std::string> files;
   std::vector<sourcemeta::blaze::Configuration::FetchEvent> events;
@@ -1445,9 +1463,10 @@ TEST(Configuration_fetch_frozen, callback_abort_on_fetch_start) {
       std::filesystem::path{TEST_DIRECTORY})};
 
   sourcemeta::blaze::Configuration::Lock lock;
-  lock.emplace("https://example.com/simple.json",
-               std::filesystem::path{TEST_DIRECTORY} / "simple.json",
-               "e35af8b70997788842aece3ab5f994d8");
+  lock.emplace(
+      "https://example.com/simple.json",
+      std::filesystem::path{TEST_DIRECTORY} / "simple.json",
+      "bb4ce6cb36147103f0514dd6d084a74681add8ed5ae5d5b1390e3684068bed0f");
 
   std::unordered_map<std::string, std::string> files;
   std::vector<sourcemeta::blaze::Configuration::FetchEvent> events;
@@ -1488,9 +1507,10 @@ TEST(Configuration_fetch_frozen, up_to_date_skips_fetch_in_non_dry_run) {
 )JSON";
 
   sourcemeta::blaze::Configuration::Lock lock;
-  lock.emplace("https://example.com/simple.json",
-               std::filesystem::path{TEST_DIRECTORY} / "simple.json",
-               "e35af8b70997788842aece3ab5f994d8");
+  lock.emplace(
+      "https://example.com/simple.json",
+      std::filesystem::path{TEST_DIRECTORY} / "simple.json",
+      "bb4ce6cb36147103f0514dd6d084a74681add8ed5ae5d5b1390e3684068bed0f");
 
   auto failing_fetcher = [](std::string_view) -> sourcemeta::core::JSON {
     throw std::runtime_error("Fetcher should not be called for up-to-date");
@@ -1602,9 +1622,10 @@ TEST(Configuration_fetch_frozen, callback_abort_on_up_to_date) {
 )JSON";
 
   sourcemeta::blaze::Configuration::Lock lock;
-  lock.emplace("https://example.com/simple.json",
-               std::filesystem::path{TEST_DIRECTORY} / "simple.json",
-               "e35af8b70997788842aece3ab5f994d8");
+  lock.emplace(
+      "https://example.com/simple.json",
+      std::filesystem::path{TEST_DIRECTORY} / "simple.json",
+      "bb4ce6cb36147103f0514dd6d084a74681add8ed5ae5d5b1390e3684068bed0f");
 
   std::vector<sourcemeta::blaze::Configuration::FetchEvent> events;
   configuration.fetch(

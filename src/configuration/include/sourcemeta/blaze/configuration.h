@@ -71,8 +71,7 @@ struct SOURCEMETA_BLAZE_CONFIGURATION_EXPORT Configuration {
       std::filesystem::path path;
       // TODO: Separately store the server ETag for exploiting HTTP caching?
       sourcemeta::core::JSON::String hash;
-      // TODO: Support SHA-256 only instead
-      enum class HashAlgorithm : std::uint8_t { MD5 };
+      enum class HashAlgorithm : std::uint8_t { SHA256 };
       HashAlgorithm hash_algorithm;
       enum class Status : std::uint8_t {
         Untracked,
@@ -90,7 +89,7 @@ struct SOURCEMETA_BLAZE_CONFIGURATION_EXPORT Configuration {
     emplace(const sourcemeta::core::JSON::String &uri,
             const std::filesystem::path &path,
             const sourcemeta::core::JSON::String &hash,
-            Entry::HashAlgorithm hash_algorithm = Entry::HashAlgorithm::MD5)
+            Entry::HashAlgorithm hash_algorithm = Entry::HashAlgorithm::SHA256)
         -> void;
 
     [[nodiscard]] auto size() const noexcept -> std::size_t;

@@ -138,7 +138,7 @@ TEST(Configuration_Lock_Parse_V1, missing_path) {
     "dependencies": {
       "https://example.com/schema.json": {
         "hash": "d41d8cd98f00b204e9800998ecf8427e",
-        "hashAlgorithm": "md5"
+        "hashAlgorithm": "sha256"
       }
     }
   })JSON")};
@@ -160,7 +160,7 @@ TEST(Configuration_Lock_Parse_V1, missing_hash) {
       "path",
       sourcemeta::core::JSON{
           (std::filesystem::path{TEST_DIRECTORY} / "schema.json").string()});
-  entry.assign("hashAlgorithm", sourcemeta::core::JSON{"md5"});
+  entry.assign("hashAlgorithm", sourcemeta::core::JSON{"sha256"});
   const auto input{
       make_lock_json({{"https://example.com/schema.json", entry}})};
 
@@ -226,7 +226,7 @@ TEST(Configuration_Lock_Parse_V1, relative_path) {
       "https://example.com/schema.json": {
         "path": "./relative/path/to/schema.json",
         "hash": "d41d8cd98f00b204e9800998ecf8427e",
-        "hashAlgorithm": "md5"
+        "hashAlgorithm": "sha256"
       }
     }
   })JSON")};
