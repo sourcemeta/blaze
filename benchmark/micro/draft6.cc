@@ -57,4 +57,19 @@ static void Micro_Draft6_Property_Names(benchmark::State &state) {
   }
 }
 
+static void Micro_Draft6_Compile_FHIR(benchmark::State &state) {
+  const auto schema{sourcemeta::core::read_json(
+      std::filesystem::path{CURRENT_DIRECTORY} / "micro" / "schemas" /
+      "draft6_fhir_4_0.json")};
+
+  for (auto _ : state) {
+    auto schema_template{
+        sourcemeta::blaze::compile(schema, sourcemeta::core::schema_walker,
+                                   sourcemeta::core::schema_resolver,
+                                   sourcemeta::blaze::default_schema_compiler)};
+    benchmark::DoNotOptimize(schema_template);
+  }
+}
+
 BENCHMARK(Micro_Draft6_Property_Names);
+BENCHMARK(Micro_Draft6_Compile_FHIR);
