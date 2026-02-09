@@ -83,8 +83,8 @@ struct SOURCEMETA_BLAZE_CONFIGURATION_EXPORT Configuration {
       };
     };
 
-    using const_iterator = std::unordered_map<sourcemeta::core::JSON::String,
-                                              Entry>::const_iterator;
+    using const_iterator =
+        std::map<sourcemeta::core::JSON::String, Entry>::const_iterator;
 
     auto
     emplace(const sourcemeta::core::JSON::String &uri,
@@ -109,7 +109,8 @@ struct SOURCEMETA_BLAZE_CONFIGURATION_EXPORT Configuration {
     auto to_json() const -> sourcemeta::core::JSON;
 
   private:
-    std::unordered_map<sourcemeta::core::JSON::String, Entry> entries_;
+    // Ordered to guarantee deterministic iteration
+    std::map<sourcemeta::core::JSON::String, Entry> entries_;
   };
 
   /// An event emitted during dependency fetching
