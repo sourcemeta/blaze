@@ -1,11 +1,29 @@
 #include <gtest/gtest.h>
 
 #include <sourcemeta/blaze/configuration.h>
-#include <sourcemeta/core/uri.h>
+
+#include "configuration_test_utils.h"
+
+#include <unordered_map> // std::unordered_map
 
 TEST(Configuration_read_json, valid_1) {
-  const auto path{std::filesystem::path{TEST_DIRECTORY} / "stub-valid.json"};
-  const auto manifest{sourcemeta::blaze::Configuration::read_json(path)};
+  std::unordered_map<std::string, std::string> files;
+  files["/test/blaze.json"] = R"JSON({
+    "title": "Sourcemeta",
+    "description": "The JSON Schema company",
+    "email": "hello@sourcemeta.com",
+    "github": "sourcemeta",
+    "website": "https://www.sourcemeta.com",
+    "path": "./schemas",
+    "baseUri": "https://schemas.sourcemeta.com",
+    "defaultDialect": "http://json-schema.org/draft-07/schema#",
+    "resolve": {
+      "https://other.com/single.json": "../single.json"
+    }
+  })JSON";
+
+  const auto manifest{sourcemeta::blaze::Configuration::read_json(
+      "/test/blaze.json", MAKE_READER(files))};
 
   EXPECT_TRUE(manifest.title.has_value());
   EXPECT_EQ(manifest.title.value(), "Sourcemeta");
@@ -17,8 +35,7 @@ TEST(Configuration_read_json, valid_1) {
   EXPECT_EQ(manifest.github.value(), "sourcemeta");
   EXPECT_TRUE(manifest.website.has_value());
   EXPECT_EQ(manifest.website.value(), "https://www.sourcemeta.com");
-  EXPECT_EQ(manifest.absolute_path,
-            std::filesystem::path{TEST_DIRECTORY} / "schemas");
+  EXPECT_EQ(manifest.absolute_path, std::filesystem::path{"/test"} / "schemas");
   EXPECT_EQ(manifest.base, "https://schemas.sourcemeta.com");
   EXPECT_TRUE(manifest.default_dialect.has_value());
   EXPECT_EQ(manifest.default_dialect.value(),
@@ -31,9 +48,15 @@ TEST(Configuration_read_json, valid_1) {
 }
 
 TEST(Configuration_read_json, valid_without_path) {
-  const auto path{std::filesystem::path{TEST_DIRECTORY} /
-                  "stub-valid-no-path.json"};
-  const auto manifest{sourcemeta::blaze::Configuration::read_json(path)};
+  std::unordered_map<std::string, std::string> files;
+  files["/test/blaze.json"] = R"JSON({
+    "title": "Test Config Without Path",
+    "description": "A test configuration file without a path property",
+    "baseUri": "https://example.com"
+  })JSON";
+
+  const auto manifest{sourcemeta::blaze::Configuration::read_json(
+      "/test/blaze.json", MAKE_READER(files))};
 
   EXPECT_TRUE(manifest.title.has_value());
   EXPECT_EQ(manifest.title.value(), "Test Config Without Path");
@@ -43,10 +66,8 @@ TEST(Configuration_read_json, valid_without_path) {
   EXPECT_FALSE(manifest.email.has_value());
   EXPECT_FALSE(manifest.github.has_value());
   EXPECT_FALSE(manifest.website.has_value());
-  EXPECT_EQ(manifest.absolute_path, TEST_DIRECTORY);
-  EXPECT_EQ(
-      manifest.base,
-      sourcemeta::core::URI::from_path(manifest.absolute_path).recompose());
+  EXPECT_EQ(manifest.absolute_path, std::filesystem::path{"/test"});
+  EXPECT_EQ(manifest.base, "https://example.com");
   EXPECT_FALSE(manifest.default_dialect.has_value());
   EXPECT_EQ(manifest.resolve.size(), 0);
   EXPECT_EQ(manifest.extra.size(), 0);
