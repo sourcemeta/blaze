@@ -1,24 +1,33 @@
 #include <sourcemeta/blaze/configuration.h>
 #include <sourcemeta/core/io.h>
 
-#include <algorithm> // std::ranges::any_of
-#include <cassert>   // assert
-#include <string>    // std::string
+#include <algorithm>    // std::ranges::any_of
+#include <cassert>      // assert
+#include <string>       // std::string
+#include <system_error> // std::error_code
 
 namespace sourcemeta::blaze {
 
 auto Configuration::find(const std::filesystem::path &path)
     -> std::optional<std::filesystem::path> {
-  const auto canonical{sourcemeta::core::weakly_canonical(path)};
+  // Note we use non-throwing overloads of filesystem functions to gracefully
+  // handle I/O errors on FUSE and other unusual filesystems
+  std::filesystem::path canonical;
+  try {
+    canonical = sourcemeta::core::weakly_canonical(path);
+  } catch (const std::filesystem::filesystem_error &) {
+    return std::nullopt;
+  }
+
   assert(canonical.is_absolute());
-  auto current = std::filesystem::is_directory(canonical)
-                     ? canonical
-                     : canonical.parent_path();
+  std::error_code error;
+  const auto is_directory = std::filesystem::is_directory(canonical, error);
+  auto current = !error && !is_directory ? canonical.parent_path() : canonical;
 
   while (!current.empty()) {
     auto candidate = current / "jsonschema.json";
-    if (std::filesystem::exists(candidate) &&
-        std::filesystem::is_regular_file(candidate)) {
+    if (std::filesystem::exists(candidate, error) &&
+        std::filesystem::is_regular_file(candidate, error)) {
       return candidate;
     }
 
