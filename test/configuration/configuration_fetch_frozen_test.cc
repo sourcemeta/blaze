@@ -556,25 +556,12 @@ TEST(Configuration_fetch_frozen, dry_run_multiple_with_untracked_and_missing) {
       true);
 
   EXPECT_EQ(events.size(), 3);
-  if (events[0].uri == "https://example.com/missing.json") {
-    EXPECT_FETCH_EVENT(events[0], FileMissing,
-                       "https://example.com/missing.json", "missing.json", 0, 3,
-                       "");
-    EXPECT_FETCH_EVENT(events[1], Untracked,
-                       "https://example.com/untracked.json", "untracked.json",
-                       1, 3, "");
-    EXPECT_FETCH_EVENT(events[2], UpToDate, "https://example.com/simple.json",
-                       "simple.json", 2, 3, "");
-  } else {
-    EXPECT_FETCH_EVENT(events[0], UpToDate, "https://example.com/simple.json",
-                       "simple.json", 0, 3, "");
-    EXPECT_FETCH_EVENT(events[1], Untracked,
-                       "https://example.com/untracked.json", "untracked.json",
-                       1, 3, "");
-    EXPECT_FETCH_EVENT(events[2], FileMissing,
-                       "https://example.com/missing.json", "missing.json", 2, 3,
-                       "");
-  }
+  EXPECT_FETCH_EVENT(events[0], FileMissing, "https://example.com/missing.json",
+                     "missing.json", 0, 3, "");
+  EXPECT_FETCH_EVENT(events[1], UpToDate, "https://example.com/simple.json",
+                     "simple.json", 1, 3, "");
+  EXPECT_FETCH_EVENT(events[2], Untracked, "https://example.com/untracked.json",
+                     "untracked.json", 2, 3, "");
 }
 
 TEST(Configuration_fetch_frozen, dry_run_all_status_types) {
@@ -627,45 +614,15 @@ TEST(Configuration_fetch_frozen, dry_run_all_status_types) {
       true);
 
   EXPECT_EQ(events.size(), 5);
-
-  if (events[0].uri == "https://example.com/missing.json") {
-    EXPECT_FETCH_EVENT(events[0], FileMissing,
-                       "https://example.com/missing.json", "missing.json", 0, 4,
-                       "");
-    EXPECT_FETCH_EVENT(events[1], Mismatched,
-                       "https://example.com/mismatched.json",
-                       "wrong-content.json", 1, 4, "");
-    EXPECT_FETCH_EVENT(events[2], Untracked,
-                       "https://example.com/untracked.json", "untracked.json",
-                       2, 4, "");
-    EXPECT_FETCH_EVENT(events[3], UpToDate, "https://example.com/simple.json",
-                       "simple.json", 3, 4, "");
-  } else if (events[0].uri == "https://example.com/mismatched.json") {
-    EXPECT_FETCH_EVENT(events[0], Mismatched,
-                       "https://example.com/mismatched.json",
-                       "wrong-content.json", 0, 4, "");
-    EXPECT_FETCH_EVENT(events[1], FileMissing,
-                       "https://example.com/missing.json", "missing.json", 1, 4,
-                       "");
-    EXPECT_FETCH_EVENT(events[2], Untracked,
-                       "https://example.com/untracked.json", "untracked.json",
-                       2, 4, "");
-    EXPECT_FETCH_EVENT(events[3], UpToDate, "https://example.com/simple.json",
-                       "simple.json", 3, 4, "");
-  } else {
-    EXPECT_FETCH_EVENT(events[0], UpToDate, "https://example.com/simple.json",
-                       "simple.json", 0, 4, "");
-    EXPECT_FETCH_EVENT(events[1], Untracked,
-                       "https://example.com/untracked.json", "untracked.json",
-                       1, 4, "");
-    EXPECT_FETCH_EVENT(events[2], FileMissing,
-                       "https://example.com/missing.json", "missing.json", 2, 4,
-                       "");
-    EXPECT_FETCH_EVENT(events[3], Mismatched,
-                       "https://example.com/mismatched.json",
-                       "wrong-content.json", 3, 4, "");
-  }
-
+  EXPECT_FETCH_EVENT(events[0], Mismatched,
+                     "https://example.com/mismatched.json",
+                     "wrong-content.json", 0, 4, "");
+  EXPECT_FETCH_EVENT(events[1], FileMissing, "https://example.com/missing.json",
+                     "missing.json", 1, 4, "");
+  EXPECT_FETCH_EVENT(events[2], UpToDate, "https://example.com/simple.json",
+                     "simple.json", 2, 4, "");
+  EXPECT_FETCH_EVENT(events[3], Untracked, "https://example.com/untracked.json",
+                     "untracked.json", 3, 4, "");
   EXPECT_FETCH_EVENT(events[4], Orphaned, "https://example.com/orphaned.json",
                      "orphaned.json", 0, 0, "");
 }

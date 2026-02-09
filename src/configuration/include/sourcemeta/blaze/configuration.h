@@ -26,6 +26,7 @@
 #include <exception>     // std::exception_ptr
 #include <filesystem>    // std::filesystem
 #include <functional>    // std::function
+#include <map>           // std::map
 #include <optional>      // std::optional
 #include <string>        // std::string
 #include <string_view>   // std::string_view
@@ -56,8 +57,8 @@ struct SOURCEMETA_BLAZE_CONFIGURATION_EXPORT Configuration {
   std::unordered_map<sourcemeta::core::JSON::String,
                      sourcemeta::core::JSON::String>
       resolve;
-  std::unordered_map<sourcemeta::core::JSON::String, std::filesystem::path>
-      dependencies;
+  // Ordered to guarantee deterministic iteration
+  std::map<sourcemeta::core::JSON::String, std::filesystem::path> dependencies;
   sourcemeta::core::JSON extra = sourcemeta::core::JSON::make_object();
 
   /// A callback to read file contents from a path
