@@ -1289,64 +1289,12 @@ TEST(Configuration_fetch_frozen, multiple_orphaned_entries) {
       true);
 
   EXPECT_EQ(events.size(), 3);
-  if (events[0].uri == "https://example.com/orphaned1.json") {
-    EXPECT_FETCH_EVENT(events[0], Orphaned,
-                       "https://example.com/orphaned1.json", "orphaned1.json",
-                       0, 0, "");
-    if (events[1].uri == "https://example.com/orphaned2.json") {
-      EXPECT_FETCH_EVENT(events[1], Orphaned,
-                         "https://example.com/orphaned2.json", "orphaned2.json",
-                         0, 0, "");
-      EXPECT_FETCH_EVENT(events[2], Orphaned,
-                         "https://example.com/orphaned3.json", "orphaned3.json",
-                         0, 0, "");
-    } else {
-      EXPECT_FETCH_EVENT(events[1], Orphaned,
-                         "https://example.com/orphaned3.json", "orphaned3.json",
-                         0, 0, "");
-      EXPECT_FETCH_EVENT(events[2], Orphaned,
-                         "https://example.com/orphaned2.json", "orphaned2.json",
-                         0, 0, "");
-    }
-  } else if (events[0].uri == "https://example.com/orphaned2.json") {
-    EXPECT_FETCH_EVENT(events[0], Orphaned,
-                       "https://example.com/orphaned2.json", "orphaned2.json",
-                       0, 0, "");
-    if (events[1].uri == "https://example.com/orphaned1.json") {
-      EXPECT_FETCH_EVENT(events[1], Orphaned,
-                         "https://example.com/orphaned1.json", "orphaned1.json",
-                         0, 0, "");
-      EXPECT_FETCH_EVENT(events[2], Orphaned,
-                         "https://example.com/orphaned3.json", "orphaned3.json",
-                         0, 0, "");
-    } else {
-      EXPECT_FETCH_EVENT(events[1], Orphaned,
-                         "https://example.com/orphaned3.json", "orphaned3.json",
-                         0, 0, "");
-      EXPECT_FETCH_EVENT(events[2], Orphaned,
-                         "https://example.com/orphaned1.json", "orphaned1.json",
-                         0, 0, "");
-    }
-  } else {
-    EXPECT_FETCH_EVENT(events[0], Orphaned,
-                       "https://example.com/orphaned3.json", "orphaned3.json",
-                       0, 0, "");
-    if (events[1].uri == "https://example.com/orphaned1.json") {
-      EXPECT_FETCH_EVENT(events[1], Orphaned,
-                         "https://example.com/orphaned1.json", "orphaned1.json",
-                         0, 0, "");
-      EXPECT_FETCH_EVENT(events[2], Orphaned,
-                         "https://example.com/orphaned2.json", "orphaned2.json",
-                         0, 0, "");
-    } else {
-      EXPECT_FETCH_EVENT(events[1], Orphaned,
-                         "https://example.com/orphaned2.json", "orphaned2.json",
-                         0, 0, "");
-      EXPECT_FETCH_EVENT(events[2], Orphaned,
-                         "https://example.com/orphaned1.json", "orphaned1.json",
-                         0, 0, "");
-    }
-  }
+  EXPECT_FETCH_EVENT(events[0], Orphaned, "https://example.com/orphaned1.json",
+                     "orphaned1.json", 0, 0, "");
+  EXPECT_FETCH_EVENT(events[1], Orphaned, "https://example.com/orphaned2.json",
+                     "orphaned2.json", 0, 0, "");
+  EXPECT_FETCH_EVENT(events[2], Orphaned, "https://example.com/orphaned3.json",
+                     "orphaned3.json", 0, 0, "");
 }
 
 TEST(Configuration_fetch_frozen, resolver_returns_nullopt_during_bundle) {
