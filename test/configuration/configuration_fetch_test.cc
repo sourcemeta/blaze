@@ -812,3 +812,61 @@ TEST(Configuration_fetch, reader_exception_after_write_emits_error) {
 
   EXPECT_EQ(lock.size(), 0);
 }
+
+TEST(Configuration_fetch,
+     missing_mode_removes_orphaned_lock_entries_after_dependency_removal) {
+  const auto configuration_with_two{sourcemeta::blaze::Configuration::from_json(
+      sourcemeta::core::parse_json(R"JSON({
+            "base": "https://test.com",
+            "dependencies": {
+              "https://example.com/simple.json": "simple.json",
+              "https://example.com/with-ref.json": "with-ref.json"
+            }
+          })JSON"),
+      std::filesystem::path{TEST_DIRECTORY})};
+
+  sourcemeta::blaze::Configuration::Lock lock;
+  std::unordered_map<std::string, std::string> files;
+  std::vector<sourcemeta::blaze::Configuration::FetchEvent> events;
+
+  configuration_with_two.fetch(
+      lock, stub_fetcher, stub_resolver, MAKE_READER(files), MAKE_WRITER(files),
+      [&events](const sourcemeta::blaze::Configuration::FetchEvent &event) {
+        events.push_back(event);
+        return true;
+      },
+      sourcemeta::blaze::Configuration::FetchMode::Missing);
+
+  EXPECT_EQ(lock.size(), 2);
+  EXPECT_TRUE(lock.at("https://example.com/simple.json").has_value());
+  EXPECT_TRUE(lock.at("https://example.com/with-ref.json").has_value());
+
+  const auto configuration_with_one{sourcemeta::blaze::Configuration::from_json(
+      sourcemeta::core::parse_json(R"JSON({
+            "base": "https://test.com",
+            "dependencies": {
+              "https://example.com/simple.json": "simple.json"
+            }
+          })JSON"),
+      std::filesystem::path{TEST_DIRECTORY})};
+
+  events.clear();
+
+  configuration_with_one.fetch(
+      lock, stub_fetcher, stub_resolver, MAKE_READER(files), MAKE_WRITER(files),
+      [&events](const sourcemeta::blaze::Configuration::FetchEvent &event) {
+        events.push_back(event);
+        return true;
+      },
+      sourcemeta::blaze::Configuration::FetchMode::Missing);
+
+  EXPECT_EQ(events.size(), 2);
+  EXPECT_FETCH_EVENT(events[0], UpToDate, "https://example.com/simple.json",
+                     "simple.json", 0, 1, "");
+  EXPECT_FETCH_EVENT(events[1], Orphaned, "https://example.com/with-ref.json",
+                     "with-ref.json", 0, 0, "");
+
+  EXPECT_EQ(lock.size(), 1);
+  EXPECT_TRUE(lock.at("https://example.com/simple.json").has_value());
+  EXPECT_FALSE(lock.at("https://example.com/with-ref.json").has_value());
+}
