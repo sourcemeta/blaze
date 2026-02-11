@@ -128,6 +128,16 @@ TEST(Configuration_json, to_json_minimal) {
   EXPECT_EQ(result, expected);
 }
 
+TEST(Configuration_json, to_json_empty) {
+  sourcemeta::blaze::Configuration config;
+
+  const auto result{config.to_json()};
+
+  const auto expected{sourcemeta::core::parse_json(R"JSON({})JSON")};
+
+  EXPECT_EQ(result, expected);
+}
+
 TEST(Configuration_json, to_json_with_extra) {
   sourcemeta::blaze::Configuration config;
   config.absolute_path = "/test";
