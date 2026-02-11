@@ -116,8 +116,9 @@ TEST(Configuration_add_dependency, duplicate_path) {
   } catch (const sourcemeta::blaze::ConfigurationParseError &error) {
     EXPECT_STREQ(error.what(),
                  "Multiple dependencies cannot point to the same path");
-    EXPECT_EQ(sourcemeta::core::to_string(error.location()),
-              "/dependencies/https:~1~1example.com~1other.json");
+    EXPECT_EQ(
+        sourcemeta::core::to_string(error.location()),
+        "/dependencies/https:~1~1json-schema.org~1draft~12020-12~1schema");
   } catch (...) {
     FAIL() << "The function was expected to throw a parse error";
   }
