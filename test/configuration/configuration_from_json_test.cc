@@ -481,6 +481,18 @@ TEST(Configuration_from_json, dependencies_duplicate_paths) {
       "/dependencies/https:~1~1example.com~1second.json");
 }
 
+TEST(Configuration_from_json, dependencies_invalid_uri_key) {
+  const auto input{sourcemeta::core::parse_json(R"JSON({
+    "dependencies": {
+      "%": "./vendor/schema.json"
+    }
+  })JSON")};
+
+  EXPECT_CONFIGURATION_FROM_JSON_PARSE_ERROR(input, TEST_DIRECTORY,
+                                             "The dependency URI is not valid",
+                                             "/dependencies/%");
+}
+
 TEST(Configuration_from_json, dependencies_with_resolve) {
   const auto input{sourcemeta::core::parse_json(R"JSON({
     "resolve": {
