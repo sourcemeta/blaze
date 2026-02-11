@@ -478,7 +478,7 @@ TEST(Configuration_from_json, dependencies_duplicate_paths) {
   EXPECT_CONFIGURATION_FROM_JSON_PARSE_ERROR(
       input, TEST_DIRECTORY,
       "Multiple dependencies cannot point to the same path",
-      "/dependencies/https:~1~1example.com~1second.json");
+      "/dependencies/https:~1~1example.com~1first.json");
 }
 
 TEST(Configuration_from_json, dependencies_invalid_uri_key) {
