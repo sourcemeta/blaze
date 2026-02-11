@@ -188,6 +188,10 @@ struct SOURCEMETA_BLAZE_CONFIGURATION_EXPORT Configuration {
                         const std::filesystem::path &base_path)
       -> Configuration;
 
+  /// Serialize a configuration to JSON
+  [[nodiscard]]
+  auto to_json() const -> sourcemeta::core::JSON;
+
   /// Read and parse a configuration file
   [[nodiscard]]
   static auto read_json(const std::filesystem::path &path,
