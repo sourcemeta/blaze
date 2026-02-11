@@ -41,7 +41,8 @@ auto Configuration::to_json() const -> sourcemeta::core::JSON {
                   sourcemeta::core::JSON{this->default_dialect.value()});
   }
 
-  if (!this->extension.empty()) {
+  static const Configuration defaults;
+  if (!this->extension.empty() && this->extension != defaults.extension) {
     auto extension_array{sourcemeta::core::JSON::make_array()};
     // Sort for deterministic output
     std::vector<std::string> sorted_extensions{this->extension.cbegin(),
@@ -67,7 +68,16 @@ auto Configuration::to_json() const -> sourcemeta::core::JSON {
     auto dependencies_object{sourcemeta::core::JSON::make_object()};
     for (const auto &pair : this->dependencies) {
       dependencies_object.assign(
-          pair.first, sourcemeta::core::JSON{pair.second.generic_string()});
+          pair.first, sourcemeta::core::JSON{[&]() -> std::string {
+            auto relative_path =
+                std::filesystem::relative(pair.second, this->absolute_path)
+                    .generic_string();
+            if (relative_path.starts_with("..")) {
+              return relative_path;
+            }
+
+            return "./" + relative_path;
+          }()});
     }
 
     result.assign("dependencies", std::move(dependencies_object));

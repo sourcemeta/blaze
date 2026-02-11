@@ -88,7 +88,7 @@ TEST(Configuration_json, to_json_all_fields) {
   config.resolve.emplace("https://other.com/single.json", "../single.json");
   config.dependencies.emplace(
       "https://json-schema.org/draft/2020-12/schema",
-      std::filesystem::path{"/test/vendor/2020-12.json"});
+      std::filesystem::path{"/test/schemas/vendor/2020-12.json"});
 
   const auto result{config.to_json()};
 
@@ -106,7 +106,7 @@ TEST(Configuration_json, to_json_all_fields) {
       "https://other.com/single.json": "../single.json"
     },
     "dependencies": {
-      "https://json-schema.org/draft/2020-12/schema": "/test/vendor/2020-12.json"
+      "https://json-schema.org/draft/2020-12/schema": "./vendor/2020-12.json"
     }
   })JSON")};
 
@@ -155,7 +155,91 @@ TEST(Configuration_json, to_json_roundtrip) {
     "baseUri": "https://schemas.sourcemeta.com",
     "defaultDialect": "http://json-schema.org/draft-07/schema#",
     "path": "/test/schemas",
-    "extension": [ ".json", ".yaml", ".yml" ],
+    "x-foo": "bar"
+  })JSON")};
+
+  const auto config{
+      sourcemeta::blaze::Configuration::from_json(input, "/test")};
+  const auto output{config.to_json()};
+
+  EXPECT_EQ(output, input);
+}
+
+TEST(Configuration_json, to_json_roundtrip_with_dependencies) {
+  const auto input{sourcemeta::core::parse_json(R"JSON({
+    "baseUri": "https://schemas.sourcemeta.com",
+    "path": "/test",
+    "dependencies": {
+      "https://json-schema.org/draft/2020-12/schema": "./vendor/2020-12.json"
+    }
+  })JSON")};
+
+  const auto config{
+      sourcemeta::blaze::Configuration::from_json(input, "/test")};
+  const auto output{config.to_json()};
+
+  EXPECT_EQ(output, input);
+}
+
+TEST(Configuration_json, to_json_roundtrip_with_multiple_dependencies) {
+  const auto input{sourcemeta::core::parse_json(R"JSON({
+    "baseUri": "https://schemas.sourcemeta.com",
+    "path": "/test",
+    "dependencies": {
+      "https://example.com/common.json": "./vendor/common.json",
+      "https://json-schema.org/draft/2020-12/schema": "./vendor/2020-12.json"
+    }
+  })JSON")};
+
+  const auto config{
+      sourcemeta::blaze::Configuration::from_json(input, "/test")};
+  const auto output{config.to_json()};
+
+  EXPECT_EQ(output, input);
+}
+
+TEST(Configuration_json, to_json_roundtrip_with_parent_dependency) {
+  const auto input{sourcemeta::core::parse_json(R"JSON({
+    "baseUri": "https://schemas.sourcemeta.com",
+    "path": "/test",
+    "dependencies": {
+      "https://json-schema.org/draft/2020-12/schema": "../vendor/2020-12.json"
+    }
+  })JSON")};
+
+  const auto config{
+      sourcemeta::blaze::Configuration::from_json(input, "/test")};
+  const auto output{config.to_json()};
+
+  EXPECT_EQ(output, input);
+}
+
+TEST(Configuration_json, to_json_roundtrip_path_differs_from_base) {
+  const auto input{sourcemeta::core::parse_json(R"JSON({
+    "baseUri": "https://schemas.sourcemeta.com",
+    "path": "/test/schemas",
+    "dependencies": {
+      "https://json-schema.org/draft/2020-12/schema": "./vendor/2020-12.json"
+    }
+  })JSON")};
+
+  const auto config{
+      sourcemeta::blaze::Configuration::from_json(input, "/test")};
+  const auto output{config.to_json()};
+
+  EXPECT_EQ(output, input);
+}
+
+TEST(Configuration_json, to_json_roundtrip_dependencies_resolve_extra) {
+  const auto input{sourcemeta::core::parse_json(R"JSON({
+    "baseUri": "https://schemas.sourcemeta.com",
+    "path": "/test",
+    "resolve": {
+      "https://other.com/single.json": "../single.json"
+    },
+    "dependencies": {
+      "https://json-schema.org/draft/2020-12/schema": "./vendor/2020-12.json"
+    },
     "x-foo": "bar"
   })JSON")};
 

@@ -5,6 +5,7 @@ sourcemeta_googletest(NAMESPACE sourcemeta PROJECT blaze NAME configuration
     configuration_find_test.cc
     configuration_from_json_test.cc
     configuration_json_test.cc
+    configuration_add_dependency_test.cc
     configuration_lock_test.cc
     configuration_lock_parse_v1_test.cc
     configuration_fetch_test.cc
