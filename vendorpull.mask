@@ -7,7 +7,6 @@ cmake
 .ackrc
 .editorconfig
 Brewfile
-DEPENDENCIES
 Makefile
 README.markdown
 assets
