@@ -86,9 +86,7 @@ TEST(Linter, schema_rule_fail_root_and_nested_subschema) {
   EXPECT_TRUE(std::get<3>(entries.at(0)).description.has_value());
   EXPECT_EQ(std::get<3>(entries.at(0)).description.value(),
             "The value was expected to be an object that defines the property "
-            "\"type\"\n"
-            "  at instance location \"\"\n"
-            "  at evaluate path \"/required\"\n");
+            "\"type\"");
   EXPECT_EQ(std::get<3>(entries.at(0)).locations.size(), 0);
   EXPECT_FALSE(std::get<4>(entries.at(0)));
 
@@ -99,9 +97,7 @@ TEST(Linter, schema_rule_fail_root_and_nested_subschema) {
   EXPECT_TRUE(std::get<3>(entries.at(1)).description.has_value());
   EXPECT_EQ(std::get<3>(entries.at(1)).description.value(),
             "The value was expected to be an object that defines the property "
-            "\"type\"\n"
-            "  at instance location \"\"\n"
-            "  at evaluate path \"/required\"\n");
+            "\"type\"");
   EXPECT_EQ(std::get<3>(entries.at(1)).locations.size(), 0);
   EXPECT_FALSE(std::get<4>(entries.at(1)));
 }
@@ -177,7 +173,9 @@ TEST(Linter, schema_rule_no_description_fails) {
   EXPECT_EQ(std::get<1>(entries.at(0)), "test/no_description");
   EXPECT_EQ(std::get<2>(entries.at(0)), "");
   EXPECT_TRUE(std::get<3>(entries.at(0)).description.has_value());
-  EXPECT_FALSE(std::get<3>(entries.at(0)).description.value().empty());
+  EXPECT_EQ(std::get<3>(entries.at(0)).description.value(),
+            "The value was expected to be an object that defines the property "
+            "\"type\"");
   EXPECT_EQ(std::get<3>(entries.at(0)).locations.size(), 0);
   EXPECT_FALSE(std::get<4>(entries.at(0)));
 }
@@ -230,7 +228,9 @@ TEST(Linter, schema_rule_nested_property_fails) {
   EXPECT_EQ(std::get<2>(entries.at(0)),
             "Subschemas must be objects with a type keyword");
   EXPECT_TRUE(std::get<3>(entries.at(0)).description.has_value());
-  EXPECT_FALSE(std::get<3>(entries.at(0)).description.value().empty());
+  EXPECT_EQ(std::get<3>(entries.at(0)).description.value(),
+            "The value was expected to be an object that defines the property "
+            "\"type\"");
   EXPECT_EQ(std::get<3>(entries.at(0)).locations.size(), 0);
   EXPECT_FALSE(std::get<4>(entries.at(0)));
 }
@@ -561,7 +561,9 @@ TEST(Linter, schema_rule_non_string_description_integer) {
   EXPECT_EQ(std::get<1>(entries.at(0)), "test/integer_desc");
   EXPECT_EQ(std::get<2>(entries.at(0)), "42");
   EXPECT_TRUE(std::get<3>(entries.at(0)).description.has_value());
-  EXPECT_FALSE(std::get<3>(entries.at(0)).description.value().empty());
+  EXPECT_EQ(std::get<3>(entries.at(0)).description.value(),
+            "The value was expected to be an object that defines the property "
+            "\"type\"");
   EXPECT_EQ(std::get<3>(entries.at(0)).locations.size(), 0);
   EXPECT_FALSE(std::get<4>(entries.at(0)));
 }
@@ -604,7 +606,9 @@ TEST(Linter, schema_rule_non_string_description_boolean) {
   EXPECT_EQ(std::get<1>(entries.at(0)), "test/bool_desc");
   EXPECT_EQ(std::get<2>(entries.at(0)), "true");
   EXPECT_TRUE(std::get<3>(entries.at(0)).description.has_value());
-  EXPECT_FALSE(std::get<3>(entries.at(0)).description.value().empty());
+  EXPECT_EQ(std::get<3>(entries.at(0)).description.value(),
+            "The value was expected to be an object that defines the property "
+            "\"type\"");
   EXPECT_EQ(std::get<3>(entries.at(0)).locations.size(), 0);
   EXPECT_FALSE(std::get<4>(entries.at(0)));
 }
@@ -647,7 +651,9 @@ TEST(Linter, schema_rule_non_string_description_null) {
   EXPECT_EQ(std::get<1>(entries.at(0)), "test/null_desc");
   EXPECT_EQ(std::get<2>(entries.at(0)), "null");
   EXPECT_TRUE(std::get<3>(entries.at(0)).description.has_value());
-  EXPECT_FALSE(std::get<3>(entries.at(0)).description.value().empty());
+  EXPECT_EQ(std::get<3>(entries.at(0)).description.value(),
+            "The value was expected to be an object that defines the property "
+            "\"type\"");
   EXPECT_EQ(std::get<3>(entries.at(0)).locations.size(), 0);
   EXPECT_FALSE(std::get<4>(entries.at(0)));
 }
@@ -696,7 +702,9 @@ TEST(Linter, schema_rule_with_default_dialect_no_schema_keyword) {
   EXPECT_EQ(std::get<1>(entries.at(0)), "test/require_type_no_schema");
   EXPECT_EQ(std::get<2>(entries.at(0)), "Every subschema must define a type");
   EXPECT_TRUE(std::get<3>(entries.at(0)).description.has_value());
-  EXPECT_FALSE(std::get<3>(entries.at(0)).description.value().empty());
+  EXPECT_EQ(std::get<3>(entries.at(0)).description.value(),
+            "The value was expected to be an object that defines the property "
+            "\"type\"");
   EXPECT_EQ(std::get<3>(entries.at(0)).locations.size(), 0);
   EXPECT_FALSE(std::get<4>(entries.at(0)));
 }
@@ -746,7 +754,9 @@ TEST(Linter, schema_rule_with_default_dialect_and_schema_keyword) {
   EXPECT_EQ(std::get<1>(entries.at(0)), "test/require_type_with_schema");
   EXPECT_EQ(std::get<2>(entries.at(0)), "Every subschema must define a type");
   EXPECT_TRUE(std::get<3>(entries.at(0)).description.has_value());
-  EXPECT_FALSE(std::get<3>(entries.at(0)).description.value().empty());
+  EXPECT_EQ(std::get<3>(entries.at(0)).description.value(),
+            "The value was expected to be an object that defines the property "
+            "\"type\"");
   EXPECT_EQ(std::get<3>(entries.at(0)).locations.size(), 0);
   EXPECT_FALSE(std::get<4>(entries.at(0)));
 }
@@ -809,7 +819,9 @@ TEST(Linter, schema_rule_multiple_rules_in_bundle) {
   EXPECT_EQ(std::get<1>(entries.at(0)), "test/require_type");
   EXPECT_EQ(std::get<2>(entries.at(0)), "Every subschema must define a type");
   EXPECT_TRUE(std::get<3>(entries.at(0)).description.has_value());
-  EXPECT_FALSE(std::get<3>(entries.at(0)).description.value().empty());
+  EXPECT_EQ(std::get<3>(entries.at(0)).description.value(),
+            "The value was expected to be an object that defines the property "
+            "\"type\"");
   EXPECT_EQ(std::get<3>(entries.at(0)).locations.size(), 0);
   EXPECT_FALSE(std::get<4>(entries.at(0)));
 }
@@ -855,7 +867,9 @@ TEST(Linter, schema_rule_boolean_true_schema_conforms) {
   EXPECT_EQ(std::get<1>(entries.at(0)), "test/must_be_object");
   EXPECT_EQ(std::get<2>(entries.at(0)), "Every subschema must be an object");
   EXPECT_TRUE(std::get<3>(entries.at(0)).description.has_value());
-  EXPECT_FALSE(std::get<3>(entries.at(0)).description.value().empty());
+  EXPECT_EQ(std::get<3>(entries.at(0)).description.value(),
+            "The value was expected to be of type object but it was of type "
+            "boolean");
   EXPECT_EQ(std::get<3>(entries.at(0)).locations.size(), 0);
   EXPECT_FALSE(std::get<4>(entries.at(0)));
 }
@@ -918,4 +932,59 @@ TEST(Linter, schema_rule_title_array_throws) {
                    sourcemeta::core::schema_resolver,
                    sourcemeta::blaze::default_schema_compiler),
                sourcemeta::blaze::LinterInvalidNameError);
+}
+
+TEST(Linter, schema_rule_non_empty_instance_location) {
+  const auto rule_schema{sourcemeta::core::parse_json(R"JSON({
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "title": "test/foo_must_be_string",
+    "description": "The foo property must be a string",
+    "type": "object",
+    "properties": {
+      "foo": { "type": "string" }
+    }
+  })JSON")};
+
+  sourcemeta::core::SchemaTransformer bundle;
+  bundle.add<sourcemeta::blaze::SchemaRule>(
+      rule_schema, sourcemeta::core::schema_walker,
+      sourcemeta::core::schema_resolver,
+      sourcemeta::blaze::default_schema_compiler);
+
+  const auto schema{sourcemeta::core::parse_json(R"JSON({
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "type": "object",
+    "properties": {
+      "bar": {
+        "foo": 42
+      }
+    }
+  })JSON")};
+
+  std::vector<std::tuple<sourcemeta::core::Pointer, std::string, std::string,
+                         sourcemeta::core::SchemaTransformRule::Result, bool>>
+      entries;
+  const auto result = bundle.check(
+      schema, sourcemeta::core::schema_walker,
+      sourcemeta::core::schema_resolver,
+      [&entries](const auto &pointer, const auto &name, const auto &message,
+                 const auto &outcome, const auto mutable_) {
+        entries.emplace_back(pointer, name, message, outcome, mutable_);
+      });
+
+  EXPECT_FALSE(result.first);
+  EXPECT_EQ(entries.size(), 1);
+
+  EXPECT_EQ(std::get<0>(entries.at(0)),
+            sourcemeta::core::Pointer({"properties", "bar"}));
+  EXPECT_EQ(std::get<1>(entries.at(0)), "test/foo_must_be_string");
+  EXPECT_EQ(std::get<2>(entries.at(0)), "The foo property must be a string");
+  EXPECT_TRUE(std::get<3>(entries.at(0)).description.has_value());
+  EXPECT_EQ(std::get<3>(entries.at(0)).description.value(),
+            "The value was expected to be of type string but it was of type "
+            "integer");
+  EXPECT_EQ(std::get<3>(entries.at(0)).locations.size(), 1);
+  EXPECT_EQ(std::get<3>(entries.at(0)).locations.at(0),
+            sourcemeta::core::Pointer({"foo"}));
+  EXPECT_FALSE(std::get<4>(entries.at(0)));
 }
