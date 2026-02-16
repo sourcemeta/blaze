@@ -401,8 +401,8 @@ TEST(Linter, schema_rule_invalid_name_error_preserves_name) {
         sourcemeta::blaze::default_schema_compiler);
     FAIL() << "Expected LinterInvalidNameError";
   } catch (const sourcemeta::blaze::LinterInvalidNameError &error) {
-    EXPECT_EQ(error.name(), "Bad Name!");
-    EXPECT_STREQ(error.what(), "The schema rule name is invalid");
+    EXPECT_EQ(error.identifier(), "Bad Name!");
+    EXPECT_STREQ(error.what(), "The schema rule name must match ^[a-z0-9_/]+$");
   }
 }
 
@@ -420,8 +420,9 @@ TEST(Linter, schema_rule_missing_title_error_preserves_empty_name) {
         sourcemeta::blaze::default_schema_compiler);
     FAIL() << "Expected LinterInvalidNameError";
   } catch (const sourcemeta::blaze::LinterInvalidNameError &error) {
-    EXPECT_EQ(error.name(), "");
-    EXPECT_STREQ(error.what(), "The schema rule name is invalid");
+    EXPECT_EQ(error.identifier(), "");
+    EXPECT_STREQ(error.what(),
+                 "The schema rule title is missing or not a string");
   }
 }
 
