@@ -1,6 +1,7 @@
 sourcemeta_googletest(NAMESPACE sourcemeta PROJECT blaze NAME linter
   FOLDER "Blaze/Linter"
   SOURCES
+    linter_schema_test.cc
     linter_valid_default_test.cc
     linter_valid_examples_test.cc)
 
