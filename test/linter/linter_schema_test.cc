@@ -289,7 +289,7 @@ TEST(Linter, schema_rule_missing_title_throws) {
                    rule_schema, sourcemeta::core::schema_walker,
                    sourcemeta::core::schema_resolver,
                    sourcemeta::blaze::default_schema_compiler),
-               sourcemeta::blaze::LinterInvalidNameError);
+               sourcemeta::blaze::LinterMissingNameError);
 }
 
 TEST(Linter, schema_rule_non_string_title_throws) {
@@ -406,7 +406,7 @@ TEST(Linter, schema_rule_invalid_name_error_preserves_name) {
   }
 }
 
-TEST(Linter, schema_rule_missing_title_error_preserves_empty_name) {
+TEST(Linter, schema_rule_missing_title_error_message) {
   const auto rule_schema{sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2020-12/schema",
     "type": "object"
@@ -418,11 +418,9 @@ TEST(Linter, schema_rule_missing_title_error_preserves_empty_name) {
         rule_schema, sourcemeta::core::schema_walker,
         sourcemeta::core::schema_resolver,
         sourcemeta::blaze::default_schema_compiler);
-    FAIL() << "Expected LinterInvalidNameError";
-  } catch (const sourcemeta::blaze::LinterInvalidNameError &error) {
-    EXPECT_EQ(error.identifier(), "");
-    EXPECT_STREQ(error.what(),
-                 "The schema rule title is missing or not a string");
+    FAIL() << "Expected LinterMissingNameError";
+  } catch (const sourcemeta::blaze::LinterMissingNameError &error) {
+    EXPECT_STREQ(error.what(), "The schema rule is missing a title");
   }
 }
 
