@@ -259,3 +259,87 @@ TEST(Configuration_json, to_json_roundtrip_dependencies_resolve_extra) {
 
   EXPECT_EQ(output, input);
 }
+
+TEST(Configuration_json, to_json_with_lint_rules) {
+  sourcemeta::blaze::Configuration config;
+  config.absolute_path = "/test";
+  config.base = "https://example.com";
+  config.lint.rules.emplace_back("/test/rules/my-rule.json");
+  config.lint.rules.emplace_back("/test/rules/other-rule.json");
+
+  const auto result{config.to_json()};
+
+  const auto expected{sourcemeta::core::parse_json(R"JSON({
+    "path": "/test",
+    "baseUri": "https://example.com",
+    "lint": {
+      "rules": [ "./rules/my-rule.json", "./rules/other-rule.json" ]
+    }
+  })JSON")};
+
+  EXPECT_EQ(result, expected);
+}
+
+TEST(Configuration_json, to_json_with_lint_rules_parent) {
+  sourcemeta::blaze::Configuration config;
+  config.absolute_path = "/test";
+  config.base = "https://example.com";
+  config.lint.rules.emplace_back("/other/rules/my-rule.json");
+
+  const auto result{config.to_json()};
+
+  const auto expected{sourcemeta::core::parse_json(R"JSON({
+    "path": "/test",
+    "baseUri": "https://example.com",
+    "lint": {
+      "rules": [ "../other/rules/my-rule.json" ]
+    }
+  })JSON")};
+
+  EXPECT_EQ(result, expected);
+}
+
+TEST(Configuration_json, to_json_empty_lint) {
+  sourcemeta::blaze::Configuration config;
+  config.absolute_path = "/test";
+  config.base = "https://example.com";
+
+  const auto result{config.to_json()};
+
+  EXPECT_FALSE(result.defines("lint"));
+}
+
+TEST(Configuration_json, to_json_roundtrip_with_lint_rules) {
+  const auto input{sourcemeta::core::parse_json(R"JSON({
+    "baseUri": "https://schemas.sourcemeta.com",
+    "path": "/test",
+    "lint": {
+      "rules": [ "./rules/my-rule.json" ]
+    }
+  })JSON")};
+
+  const auto config{
+      sourcemeta::blaze::Configuration::from_json(input, "/test")};
+  const auto output{config.to_json()};
+
+  EXPECT_EQ(output, input);
+}
+
+TEST(Configuration_json, to_json_roundtrip_with_lint_and_dependencies) {
+  const auto input{sourcemeta::core::parse_json(R"JSON({
+    "baseUri": "https://schemas.sourcemeta.com",
+    "path": "/test",
+    "dependencies": {
+      "https://json-schema.org/draft/2020-12/schema": "./vendor/2020-12.json"
+    },
+    "lint": {
+      "rules": [ "./rules/my-rule.json" ]
+    }
+  })JSON")};
+
+  const auto config{
+      sourcemeta::blaze::Configuration::from_json(input, "/test")};
+  const auto output{config.to_json()};
+
+  EXPECT_EQ(output, input);
+}

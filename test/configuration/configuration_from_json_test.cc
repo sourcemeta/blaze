@@ -517,3 +517,134 @@ TEST(Configuration_from_json, dependencies_with_resolve) {
       manifest.dependencies.at("https://json-schema.org/draft/2020-12/schema"),
       std::filesystem::path{TEST_DIRECTORY} / "vendor" / "2020-12.json");
 }
+
+TEST(Configuration_from_json, lint_empty_object) {
+  const auto input{sourcemeta::core::parse_json(R"JSON({
+    "lint": {}
+  })JSON")};
+
+  const auto manifest{
+      sourcemeta::blaze::Configuration::from_json(input, TEST_DIRECTORY)};
+
+  EXPECT_TRUE(manifest.lint.rules.empty());
+}
+
+TEST(Configuration_from_json, lint_rules_empty) {
+  const auto input{sourcemeta::core::parse_json(R"JSON({
+    "lint": { "rules": [] }
+  })JSON")};
+
+  const auto manifest{
+      sourcemeta::blaze::Configuration::from_json(input, TEST_DIRECTORY)};
+
+  EXPECT_TRUE(manifest.lint.rules.empty());
+}
+
+TEST(Configuration_from_json, lint_rules_single) {
+  const auto input{sourcemeta::core::parse_json(R"JSON({
+    "lint": { "rules": [ "./rules/my-rule.json" ] }
+  })JSON")};
+
+  const auto manifest{
+      sourcemeta::blaze::Configuration::from_json(input, TEST_DIRECTORY)};
+
+  EXPECT_EQ(manifest.lint.rules.size(), 1);
+  EXPECT_TRUE(manifest.lint.rules[0].is_absolute());
+  EXPECT_EQ(manifest.lint.rules[0], std::filesystem::weakly_canonical(
+                                        std::filesystem::path{TEST_DIRECTORY} /
+                                        "rules" / "my-rule.json"));
+}
+
+TEST(Configuration_from_json, lint_rules_multiple) {
+  const auto input{sourcemeta::core::parse_json(R"JSON({
+    "lint": { "rules": [ "./rules/a.json", "./rules/b.json" ] }
+  })JSON")};
+
+  const auto manifest{
+      sourcemeta::blaze::Configuration::from_json(input, TEST_DIRECTORY)};
+
+  EXPECT_EQ(manifest.lint.rules.size(), 2);
+  EXPECT_TRUE(manifest.lint.rules[0].is_absolute());
+  EXPECT_TRUE(manifest.lint.rules[1].is_absolute());
+  EXPECT_EQ(manifest.lint.rules[0],
+            std::filesystem::weakly_canonical(
+                std::filesystem::path{TEST_DIRECTORY} / "rules" / "a.json"));
+  EXPECT_EQ(manifest.lint.rules[1],
+            std::filesystem::weakly_canonical(
+                std::filesystem::path{TEST_DIRECTORY} / "rules" / "b.json"));
+}
+
+TEST(Configuration_from_json, lint_rules_absolute_path) {
+  const auto input{sourcemeta::core::parse_json(R"JSON({
+    "lint": { "rules": [ "/absolute/path/rule.json" ] }
+  })JSON")};
+
+  const auto manifest{
+      sourcemeta::blaze::Configuration::from_json(input, TEST_DIRECTORY)};
+
+  EXPECT_EQ(manifest.lint.rules.size(), 1);
+  EXPECT_TRUE(manifest.lint.rules[0].is_absolute());
+  EXPECT_EQ(manifest.lint.rules[0],
+            std::filesystem::weakly_canonical(
+                std::filesystem::path{"/absolute/path/rule.json"}));
+}
+
+TEST(Configuration_from_json, lint_rules_with_other_fields) {
+  const auto input{sourcemeta::core::parse_json(R"JSON({
+    "title": "Test",
+    "dependencies": {
+      "https://json-schema.org/draft/2020-12/schema": "./vendor/2020-12.json"
+    },
+    "lint": { "rules": [ "./rules/my-rule.json" ] }
+  })JSON")};
+
+  const auto manifest{
+      sourcemeta::blaze::Configuration::from_json(input, TEST_DIRECTORY)};
+
+  EXPECT_TRUE(manifest.title.has_value());
+  EXPECT_EQ(manifest.title.value(), "Test");
+  EXPECT_EQ(manifest.dependencies.size(), 1);
+  EXPECT_EQ(manifest.lint.rules.size(), 1);
+  EXPECT_EQ(manifest.lint.rules[0], std::filesystem::weakly_canonical(
+                                        std::filesystem::path{TEST_DIRECTORY} /
+                                        "rules" / "my-rule.json"));
+}
+
+TEST(Configuration_from_json, lint_not_object) {
+  const auto input{sourcemeta::core::parse_json(R"JSON({
+    "lint": 1
+  })JSON")};
+
+  EXPECT_CONFIGURATION_FROM_JSON_PARSE_ERROR(
+      input, TEST_DIRECTORY, "The lint property must be an object", "/lint");
+}
+
+TEST(Configuration_from_json, lint_rules_not_array) {
+  const auto input{sourcemeta::core::parse_json(R"JSON({
+    "lint": { "rules": 1 }
+  })JSON")};
+
+  EXPECT_CONFIGURATION_FROM_JSON_PARSE_ERROR(
+      input, TEST_DIRECTORY, "The lint rules property must be an array",
+      "/lint/rules");
+}
+
+TEST(Configuration_from_json, lint_rules_element_not_string) {
+  const auto input{sourcemeta::core::parse_json(R"JSON({
+    "lint": { "rules": [ 1 ] }
+  })JSON")};
+
+  EXPECT_CONFIGURATION_FROM_JSON_PARSE_ERROR(
+      input, TEST_DIRECTORY,
+      "The values in the lint rules array must be strings", "/lint/rules/0");
+}
+
+TEST(Configuration_from_json, lint_rules_mixed_types) {
+  const auto input{sourcemeta::core::parse_json(R"JSON({
+    "lint": { "rules": [ "./a.json", 2 ] }
+  })JSON")};
+
+  EXPECT_CONFIGURATION_FROM_JSON_PARSE_ERROR(
+      input, TEST_DIRECTORY,
+      "The values in the lint rules array must be strings", "/lint/rules/1");
+}
