@@ -343,3 +343,79 @@ TEST(Configuration_json, to_json_roundtrip_with_lint_and_dependencies) {
 
   EXPECT_EQ(output, input);
 }
+
+TEST(Configuration_json, to_json_with_ignore) {
+  sourcemeta::blaze::Configuration config;
+  config.absolute_path = "/test";
+  config.base = "https://example.com";
+  config.ignore.emplace_back("/test/vendor");
+  config.ignore.emplace_back("/test/build");
+
+  const auto result{config.to_json()};
+
+  const auto expected{sourcemeta::core::parse_json(R"JSON({
+    "path": "/test",
+    "baseUri": "https://example.com",
+    "ignore": [ "./vendor", "./build" ]
+  })JSON")};
+
+  EXPECT_EQ(result, expected);
+}
+
+TEST(Configuration_json, to_json_with_ignore_parent) {
+  sourcemeta::blaze::Configuration config;
+  config.absolute_path = "/test";
+  config.base = "https://example.com";
+  config.ignore.emplace_back("/other/vendor");
+
+  const auto result{config.to_json()};
+
+  const auto expected{sourcemeta::core::parse_json(R"JSON({
+    "path": "/test",
+    "baseUri": "https://example.com",
+    "ignore": [ "../other/vendor" ]
+  })JSON")};
+
+  EXPECT_EQ(result, expected);
+}
+
+TEST(Configuration_json, to_json_empty_ignore) {
+  sourcemeta::blaze::Configuration config;
+  config.absolute_path = "/test";
+  config.base = "https://example.com";
+
+  const auto result{config.to_json()};
+
+  EXPECT_FALSE(result.defines("ignore"));
+}
+
+TEST(Configuration_json, to_json_roundtrip_with_ignore) {
+  const auto input{sourcemeta::core::parse_json(R"JSON({
+    "baseUri": "https://schemas.sourcemeta.com",
+    "ignore": [ "./vendor" ],
+    "path": "/test"
+  })JSON")};
+
+  const auto config{
+      sourcemeta::blaze::Configuration::from_json(input, "/test")};
+  const auto output{config.to_json()};
+
+  EXPECT_EQ(output, input);
+}
+
+TEST(Configuration_json, to_json_roundtrip_with_ignore_and_lint) {
+  const auto input{sourcemeta::core::parse_json(R"JSON({
+    "baseUri": "https://schemas.sourcemeta.com",
+    "ignore": [ "./vendor" ],
+    "lint": {
+      "rules": [ "./rules/my-rule.json" ]
+    },
+    "path": "/test"
+  })JSON")};
+
+  const auto config{
+      sourcemeta::blaze::Configuration::from_json(input, "/test")};
+  const auto output{config.to_json()};
+
+  EXPECT_EQ(output, input);
+}
