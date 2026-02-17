@@ -584,9 +584,9 @@ TEST(Configuration_from_json, lint_rules_absolute_path) {
 
   EXPECT_EQ(manifest.lint.rules.size(), 1);
   EXPECT_TRUE(manifest.lint.rules[0].is_absolute());
-  EXPECT_EQ(manifest.lint.rules[0],
-            std::filesystem::weakly_canonical(
-                std::filesystem::path{"/absolute/path/rule.json"}));
+  EXPECT_EQ(manifest.lint.rules[0], std::filesystem::weakly_canonical(
+                                        std::filesystem::path{TEST_DIRECTORY} /
+                                        "/absolute/path/rule.json"));
 }
 
 TEST(Configuration_from_json, lint_rules_with_other_fields) {
@@ -704,9 +704,9 @@ TEST(Configuration_from_json, ignore_absolute_path) {
 
   EXPECT_EQ(manifest.ignore.size(), 1);
   EXPECT_TRUE(manifest.ignore[0].is_absolute());
-  EXPECT_EQ(manifest.ignore[0],
-            std::filesystem::weakly_canonical(
-                std::filesystem::path{"/absolute/path/vendor"}));
+  EXPECT_EQ(manifest.ignore[0], std::filesystem::weakly_canonical(
+                                    std::filesystem::path{TEST_DIRECTORY} /
+                                    "/absolute/path/vendor"));
 }
 
 TEST(Configuration_from_json, ignore_with_other_fields) {
