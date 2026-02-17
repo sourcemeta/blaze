@@ -933,6 +933,65 @@ TEST(Linter, schema_rule_title_array_throws) {
                sourcemeta::blaze::LinterInvalidNameError);
 }
 
+TEST(Linter, schema_rule_property_names_pattern_fail) {
+  const auto rule_schema{sourcemeta::core::parse_json(R"JSON({
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "title": "all_properties_camelcase",
+    "description": "Ensure camelCase properties",
+    "properties": {
+      "properties": {
+        "propertyNames": {
+          "pattern": "^[a-z][a-zA-Z0-9]*$"
+        }
+      }
+    }
+  })JSON")};
+
+  sourcemeta::core::SchemaTransformer bundle;
+  bundle.add<sourcemeta::blaze::SchemaRule>(
+      rule_schema, sourcemeta::core::schema_walker,
+      sourcemeta::core::schema_resolver,
+      sourcemeta::blaze::default_schema_compiler);
+
+  const auto schema{sourcemeta::core::parse_json(R"JSON({
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "title": "Example Schema",
+    "description": "Contains a non-camel-case property",
+    "examples": [ { "INVALID_PROPERTY": "foo" } ],
+    "properties": {
+      "INVALID_PROPERTY_1": {
+        "type": "string"
+      },
+      "INVALID_PROPERTY_2": {
+        "type": "string"
+      }
+    }
+  })JSON")};
+
+  std::vector<std::tuple<sourcemeta::core::Pointer, std::string, std::string,
+                         sourcemeta::core::SchemaTransformRule::Result, bool>>
+      entries;
+  const auto result = bundle.check(
+      schema, sourcemeta::core::schema_walker,
+      sourcemeta::core::schema_resolver,
+      [&entries](const auto &pointer, const auto &name, const auto &message,
+                 const auto &outcome, const auto mutable_) {
+        entries.emplace_back(pointer, name, message, outcome, mutable_);
+      });
+
+  EXPECT_FALSE(result.first);
+  EXPECT_EQ(entries.size(), 1);
+
+  EXPECT_EQ(std::get<0>(entries.at(0)), sourcemeta::core::Pointer({}));
+  EXPECT_EQ(std::get<1>(entries.at(0)), "all_properties_camelcase");
+  EXPECT_EQ(std::get<2>(entries.at(0)), "Ensure camelCase properties");
+  EXPECT_TRUE(std::get<3>(entries.at(0)).description.has_value());
+  EXPECT_EQ(std::get<3>(entries.at(0)).locations.size(), 1);
+  EXPECT_EQ(std::get<3>(entries.at(0)).locations.at(0),
+            sourcemeta::core::Pointer({"properties", "INVALID_PROPERTY_1"}));
+  EXPECT_FALSE(std::get<4>(entries.at(0)));
+}
+
 TEST(Linter, schema_rule_non_empty_instance_location) {
   const auto rule_schema{sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2020-12/schema",
