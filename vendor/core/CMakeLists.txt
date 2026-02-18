@@ -7,10 +7,11 @@ option(SOURCEMETA_CORE_LANG_IO "Build the Sourcemeta Core language I/O library" 
 option(SOURCEMETA_CORE_LANG_PROCESS "Build the Sourcemeta Core language Process library" ON)
 option(SOURCEMETA_CORE_LANG_PARALLEL "Build the Sourcemeta Core language parallel library" ON)
 option(SOURCEMETA_CORE_LANG_NUMERIC "Build the Sourcemeta Core language numeric library" ON)
+option(SOURCEMETA_CORE_UNICODE "Build the Sourcemeta Core Unicode library" ON)
 option(SOURCEMETA_CORE_PUNYCODE "Build the Sourcemeta Core Punycode library" ON)
 option(SOURCEMETA_CORE_TIME "Build the Sourcemeta Core time library" ON)
-option(SOURCEMETA_CORE_UUID "Build the Sourcemeta Core UUID library" ON)
 option(SOURCEMETA_CORE_CRYPTO "Build the Sourcemeta Core Crypto library" ON)
+option(SOURCEMETA_CORE_CRYPTO_USE_SYSTEM_OPENSSL "Use system OpenSSL for the Sourcemeta Core Crypto library" OFF)
 option(SOURCEMETA_CORE_REGEX "Build the Sourcemeta Core Regex library" ON)
 option(SOURCEMETA_CORE_URI "Build the Sourcemeta Core URI library" ON)
 option(SOURCEMETA_CORE_URITEMPLATE "Build the Sourcemeta Core URI Template library" ON)
@@ -76,6 +77,10 @@ if(SOURCEMETA_CORE_LANG_NUMERIC)
   add_subdirectory(src/lang/numeric)
 endif()
 
+if(SOURCEMETA_CORE_UNICODE)
+  add_subdirectory(src/core/unicode)
+endif()
+
 if(SOURCEMETA_CORE_PUNYCODE)
   add_subdirectory(src/core/punycode)
 endif()
@@ -84,11 +89,10 @@ if(SOURCEMETA_CORE_TIME)
   add_subdirectory(src/core/time)
 endif()
 
-if(SOURCEMETA_CORE_UUID)
-  add_subdirectory(src/core/uuid)
-endif()
-
 if(SOURCEMETA_CORE_CRYPTO)
+  if(SOURCEMETA_CORE_CRYPTO_USE_SYSTEM_OPENSSL)
+    find_package(OpenSSL REQUIRED)
+  endif()
   add_subdirectory(src/core/crypto)
 endif()
 
@@ -122,7 +126,6 @@ if(SOURCEMETA_CORE_JSONL)
 endif()
 
 if(SOURCEMETA_CORE_YAML)
-  find_package(yaml REQUIRED)
   add_subdirectory(src/core/yaml)
 endif()
 
@@ -193,16 +196,16 @@ if(SOURCEMETA_CORE_TESTS)
     add_subdirectory(test/numeric)
   endif()
 
+  if(SOURCEMETA_CORE_UNICODE)
+    add_subdirectory(test/unicode)
+  endif()
+
   if(SOURCEMETA_CORE_PUNYCODE)
     add_subdirectory(test/punycode)
   endif()
 
   if(SOURCEMETA_CORE_TIME)
     add_subdirectory(test/time)
-  endif()
-
-  if(SOURCEMETA_CORE_UUID)
-    add_subdirectory(test/uuid)
   endif()
 
   if(SOURCEMETA_CORE_CRYPTO)
