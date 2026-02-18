@@ -69,8 +69,11 @@ public:
   /// Move assignment operator
   auto operator=(Decimal &&other) noexcept -> Decimal &;
 
-  /// Create a NaN (Not a Number) value
-  [[nodiscard]] static auto nan() -> Decimal;
+  /// Create a quiet NaN (Not a Number) value with an optional payload
+  [[nodiscard]] static auto nan(std::uint64_t payload = 0) -> Decimal;
+
+  /// Create a signaling NaN value with an optional payload
+  [[nodiscard]] static auto snan(std::uint64_t payload = 0) -> Decimal;
 
   /// Create a positive infinity value
   [[nodiscard]] static auto infinity() -> Decimal;
@@ -139,8 +142,18 @@ public:
   /// Check if the decimal number fits in a 64-bit unsigned integer
   [[nodiscard]] auto is_uint64() const -> bool;
 
-  /// Check if the decimal number is NaN (Not a Number)
+  /// Check if the decimal number is NaN (Not a Number), either quiet or
+  /// signaling
   [[nodiscard]] auto is_nan() const -> bool;
+
+  /// Check if the decimal number is a signaling NaN
+  [[nodiscard]] auto is_snan() const -> bool;
+
+  /// Check if the decimal number is a quiet NaN
+  [[nodiscard]] auto is_qnan() const -> bool;
+
+  /// Get the payload of a NaN value (0 if no payload)
+  [[nodiscard]] auto nan_payload() const -> std::uint64_t;
 
   /// Check if the decimal number is infinite
   [[nodiscard]] auto is_infinite() const -> bool;
