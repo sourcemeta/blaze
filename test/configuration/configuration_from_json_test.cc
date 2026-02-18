@@ -444,6 +444,28 @@ TEST(Configuration_from_json, dependencies_multiple) {
             std::filesystem::path{TEST_DIRECTORY} / "vendor" / "common.json");
 }
 
+TEST(Configuration_from_json, dependencies_resolved_from_config_location) {
+  const auto input{sourcemeta::core::parse_json(R"JSON({
+    "path": "./foo/bar",
+    "dependencies": {
+      "https://json-schema.org/draft/2020-12/schema": "./vendor/2020-12.json"
+    }
+  })JSON")};
+
+  const auto manifest{
+      sourcemeta::blaze::Configuration::from_json(input, TEST_DIRECTORY)};
+
+  EXPECT_EQ(manifest.absolute_path,
+            std::filesystem::weakly_canonical(
+                std::filesystem::path{TEST_DIRECTORY} / "foo" / "bar"));
+  EXPECT_EQ(manifest.dependencies.size(), 1);
+  EXPECT_TRUE(manifest.dependencies.contains(
+      "https://json-schema.org/draft/2020-12/schema"));
+  EXPECT_EQ(
+      manifest.dependencies.at("https://json-schema.org/draft/2020-12/schema"),
+      std::filesystem::path{TEST_DIRECTORY} / "vendor" / "2020-12.json");
+}
+
 TEST(Configuration_from_json, dependencies_not_object) {
   const auto input{sourcemeta::core::parse_json(R"JSON({
     "dependencies": []
@@ -610,6 +632,47 @@ TEST(Configuration_from_json, lint_rules_with_other_fields) {
                                         "rules" / "my-rule.json"));
 }
 
+TEST(Configuration_from_json, lint_rules_resolved_from_config_location) {
+  const auto input{sourcemeta::core::parse_json(R"JSON({
+    "path": "./foo/bar",
+    "lint": { "rules": [ "./rules/my-rule.json" ] }
+  })JSON")};
+
+  const auto manifest{
+      sourcemeta::blaze::Configuration::from_json(input, TEST_DIRECTORY)};
+
+  EXPECT_EQ(manifest.absolute_path,
+            std::filesystem::weakly_canonical(
+                std::filesystem::path{TEST_DIRECTORY} / "foo" / "bar"));
+  EXPECT_EQ(manifest.lint.rules.size(), 1);
+  EXPECT_TRUE(manifest.lint.rules[0].is_absolute());
+  EXPECT_EQ(manifest.lint.rules[0], std::filesystem::weakly_canonical(
+                                        std::filesystem::path{TEST_DIRECTORY} /
+                                        "rules" / "my-rule.json"));
+}
+
+TEST(Configuration_from_json,
+     lint_rules_multiple_resolved_from_config_location) {
+  const auto input{sourcemeta::core::parse_json(R"JSON({
+    "path": "./foo/bar",
+    "lint": { "rules": [ "./rules/a.json", "./rules/b.json" ] }
+  })JSON")};
+
+  const auto manifest{
+      sourcemeta::blaze::Configuration::from_json(input, TEST_DIRECTORY)};
+
+  EXPECT_EQ(manifest.absolute_path,
+            std::filesystem::weakly_canonical(
+                std::filesystem::path{TEST_DIRECTORY} / "foo" / "bar"));
+  EXPECT_EQ(manifest.lint.rules.size(), 2);
+  EXPECT_EQ(manifest.lint.rules[0],
+            std::filesystem::weakly_canonical(
+                std::filesystem::path{TEST_DIRECTORY} / "rules" / "a.json"));
+  EXPECT_EQ(manifest.lint.rules[1],
+            std::filesystem::weakly_canonical(
+                std::filesystem::path{TEST_DIRECTORY} / "rules" / "b.json"));
+}
+
 TEST(Configuration_from_json, lint_not_object) {
   const auto input{sourcemeta::core::parse_json(R"JSON({
     "lint": 1
@@ -730,6 +793,46 @@ TEST(Configuration_from_json, ignore_with_other_fields) {
             std::filesystem::weakly_canonical(
                 std::filesystem::path{TEST_DIRECTORY} / "vendor"));
   EXPECT_EQ(manifest.lint.rules.size(), 1);
+}
+
+TEST(Configuration_from_json, ignore_resolved_from_config_location) {
+  const auto input{sourcemeta::core::parse_json(R"JSON({
+    "path": "./foo/bar",
+    "ignore": [ "./vendor" ]
+  })JSON")};
+
+  const auto manifest{
+      sourcemeta::blaze::Configuration::from_json(input, TEST_DIRECTORY)};
+
+  EXPECT_EQ(manifest.absolute_path,
+            std::filesystem::weakly_canonical(
+                std::filesystem::path{TEST_DIRECTORY} / "foo" / "bar"));
+  EXPECT_EQ(manifest.ignore.size(), 1);
+  EXPECT_TRUE(manifest.ignore[0].is_absolute());
+  EXPECT_EQ(manifest.ignore[0],
+            std::filesystem::weakly_canonical(
+                std::filesystem::path{TEST_DIRECTORY} / "vendor"));
+}
+
+TEST(Configuration_from_json, ignore_multiple_resolved_from_config_location) {
+  const auto input{sourcemeta::core::parse_json(R"JSON({
+    "path": "./foo/bar",
+    "ignore": [ "./vendor", "./build" ]
+  })JSON")};
+
+  const auto manifest{
+      sourcemeta::blaze::Configuration::from_json(input, TEST_DIRECTORY)};
+
+  EXPECT_EQ(manifest.absolute_path,
+            std::filesystem::weakly_canonical(
+                std::filesystem::path{TEST_DIRECTORY} / "foo" / "bar"));
+  EXPECT_EQ(manifest.ignore.size(), 2);
+  EXPECT_EQ(manifest.ignore[0],
+            std::filesystem::weakly_canonical(
+                std::filesystem::path{TEST_DIRECTORY} / "vendor"));
+  EXPECT_EQ(manifest.ignore[1],
+            std::filesystem::weakly_canonical(
+                std::filesystem::path{TEST_DIRECTORY} / "build"));
 }
 
 TEST(Configuration_from_json, ignore_not_array) {
