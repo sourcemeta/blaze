@@ -120,10 +120,19 @@ auto Configuration::Lock::from_json(const sourcemeta::core::JSON &value,
           pair.second.at("path").to_string()};
 
       Entry entry;
-      entry.path =
-          entry_path.is_absolute()
-              ? entry_path
-              : std::filesystem::weakly_canonical(lock_base_path / entry_path);
+      if (entry_path.is_absolute()) {
+        entry.path = entry_path;
+      } else {
+        try {
+          entry.path =
+              std::filesystem::weakly_canonical(lock_base_path / entry_path);
+        } catch (const std::filesystem::filesystem_error &) {
+          throw ConfigurationParseError(
+              "The lock file dependency entry path could not be resolved",
+              {"dependencies", pair.first, "path"});
+        }
+      }
+
       entry.hash = pair.second.at("hash").to_string();
       entry.hash_algorithm = string_to_hash_algorithm(
           pair.second.at("hashAlgorithm").to_string(),
