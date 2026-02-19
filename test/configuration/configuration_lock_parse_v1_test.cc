@@ -14,7 +14,8 @@ TEST(Configuration_Lock_Parse_V1, empty_dependencies) {
     "dependencies": {}
   })JSON")};
 
-  const auto lock{sourcemeta::blaze::Configuration::Lock::from_json(input)};
+  const auto lock{
+      sourcemeta::blaze::Configuration::Lock::from_json(input, TEST_DIRECTORY)};
 
   EXPECT_EQ(lock.size(), 0);
 }
@@ -27,7 +28,8 @@ TEST(Configuration_Lock_Parse_V1, single_dependency) {
         make_lock_entry_json(schema_path.string(),
                              "d41d8cd98f00b204e9800998ecf8427e")}})};
 
-  const auto lock{sourcemeta::blaze::Configuration::Lock::from_json(input)};
+  const auto lock{
+      sourcemeta::blaze::Configuration::Lock::from_json(input, TEST_DIRECTORY)};
 
   EXPECT_EQ(lock.size(), 1);
   EXPECT_LOCK_ENTRY(lock, "https://example.com/schema.json", schema_path,
@@ -47,7 +49,8 @@ TEST(Configuration_Lock_Parse_V1, multiple_dependencies) {
         make_lock_entry_json(second_path.string(),
                              "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb2")}})};
 
-  const auto lock{sourcemeta::blaze::Configuration::Lock::from_json(input)};
+  const auto lock{
+      sourcemeta::blaze::Configuration::Lock::from_json(input, TEST_DIRECTORY)};
 
   EXPECT_EQ(lock.size(), 2);
   EXPECT_LOCK_ENTRY(lock, "https://example.com/first.json", first_path,
@@ -60,7 +63,8 @@ TEST(Configuration_Lock_Parse_V1, not_an_object) {
   const auto input{sourcemeta::core::parse_json("[]")};
 
   try {
-    const auto lock{sourcemeta::blaze::Configuration::Lock::from_json(input)};
+    const auto lock{sourcemeta::blaze::Configuration::Lock::from_json(
+        input, TEST_DIRECTORY)};
     FAIL();
   } catch (const sourcemeta::blaze::ConfigurationParseError &error) {
     EXPECT_STREQ(error.what(), "The lock file must be an object");
@@ -74,7 +78,8 @@ TEST(Configuration_Lock_Parse_V1, missing_version) {
   })JSON")};
 
   try {
-    const auto lock{sourcemeta::blaze::Configuration::Lock::from_json(input)};
+    const auto lock{sourcemeta::blaze::Configuration::Lock::from_json(
+        input, TEST_DIRECTORY)};
     FAIL();
   } catch (const sourcemeta::blaze::ConfigurationParseError &error) {
     EXPECT_STREQ(error.what(), "The lock file must have a version property");
@@ -89,7 +94,8 @@ TEST(Configuration_Lock_Parse_V1, unsupported_version) {
   })JSON")};
 
   try {
-    const auto lock{sourcemeta::blaze::Configuration::Lock::from_json(input)};
+    const auto lock{sourcemeta::blaze::Configuration::Lock::from_json(
+        input, TEST_DIRECTORY)};
     FAIL();
   } catch (const sourcemeta::blaze::ConfigurationParseError &error) {
     EXPECT_STREQ(error.what(), "Unsupported lock file version");
@@ -104,7 +110,8 @@ TEST(Configuration_Lock_Parse_V1, dependencies_not_object) {
   })JSON")};
 
   try {
-    const auto lock{sourcemeta::blaze::Configuration::Lock::from_json(input)};
+    const auto lock{sourcemeta::blaze::Configuration::Lock::from_json(
+        input, TEST_DIRECTORY)};
     FAIL();
   } catch (const sourcemeta::blaze::ConfigurationParseError &error) {
     EXPECT_STREQ(error.what(),
@@ -122,7 +129,8 @@ TEST(Configuration_Lock_Parse_V1, entry_not_object) {
   })JSON")};
 
   try {
-    const auto lock{sourcemeta::blaze::Configuration::Lock::from_json(input)};
+    const auto lock{sourcemeta::blaze::Configuration::Lock::from_json(
+        input, TEST_DIRECTORY)};
     FAIL();
   } catch (const sourcemeta::blaze::ConfigurationParseError &error) {
     EXPECT_STREQ(error.what(),
@@ -144,7 +152,8 @@ TEST(Configuration_Lock_Parse_V1, missing_path) {
   })JSON")};
 
   try {
-    const auto lock{sourcemeta::blaze::Configuration::Lock::from_json(input)};
+    const auto lock{sourcemeta::blaze::Configuration::Lock::from_json(
+        input, TEST_DIRECTORY)};
     FAIL();
   } catch (const sourcemeta::blaze::ConfigurationParseError &error) {
     EXPECT_STREQ(error.what(),
@@ -165,7 +174,8 @@ TEST(Configuration_Lock_Parse_V1, missing_hash) {
       make_lock_json({{"https://example.com/schema.json", entry}})};
 
   try {
-    const auto lock{sourcemeta::blaze::Configuration::Lock::from_json(input)};
+    const auto lock{sourcemeta::blaze::Configuration::Lock::from_json(
+        input, TEST_DIRECTORY)};
     FAIL();
   } catch (const sourcemeta::blaze::ConfigurationParseError &error) {
     EXPECT_STREQ(error.what(),
@@ -187,7 +197,8 @@ TEST(Configuration_Lock_Parse_V1, missing_hash_algorithm) {
       make_lock_json({{"https://example.com/schema.json", entry}})};
 
   try {
-    const auto lock{sourcemeta::blaze::Configuration::Lock::from_json(input)};
+    const auto lock{sourcemeta::blaze::Configuration::Lock::from_json(
+        input, TEST_DIRECTORY)};
     FAIL();
   } catch (const sourcemeta::blaze::ConfigurationParseError &error) {
     EXPECT_STREQ(error.what(),
@@ -210,7 +221,8 @@ TEST(Configuration_Lock_Parse_V1, unknown_hash_algorithm) {
       make_lock_json({{"https://example.com/schema.json", entry}})};
 
   try {
-    const auto lock{sourcemeta::blaze::Configuration::Lock::from_json(input)};
+    const auto lock{sourcemeta::blaze::Configuration::Lock::from_json(
+        input, TEST_DIRECTORY)};
     FAIL();
   } catch (const sourcemeta::blaze::ConfigurationParseError &error) {
     EXPECT_STREQ(error.what(), "Unknown hash algorithm");
@@ -224,20 +236,21 @@ TEST(Configuration_Lock_Parse_V1, relative_path) {
     "version": 1,
     "dependencies": {
       "https://example.com/schema.json": {
-        "path": "./relative/path/to/schema.json",
+        "path": "./vendor/schema.json",
         "hash": "d41d8cd98f00b204e9800998ecf8427e",
         "hashAlgorithm": "sha256"
       }
     }
   })JSON")};
 
-  try {
-    const auto lock{sourcemeta::blaze::Configuration::Lock::from_json(input)};
-    FAIL();
-  } catch (const sourcemeta::blaze::ConfigurationParseError &error) {
-    EXPECT_STREQ(error.what(),
-                 "The lock file dependency entry path must be absolute");
-    EXPECT_EQ(sourcemeta::core::to_string(error.location()),
-              "/dependencies/https:~1~1example.com~1schema.json/path");
-  }
+  const auto lock{
+      sourcemeta::blaze::Configuration::Lock::from_json(input, TEST_DIRECTORY)};
+
+  EXPECT_EQ(lock.size(), 1);
+  const auto entry{lock.at("https://example.com/schema.json")};
+  EXPECT_TRUE(entry.has_value());
+  EXPECT_EQ(entry->get().path,
+            std::filesystem::weakly_canonical(
+                std::filesystem::path{TEST_DIRECTORY} / "vendor/schema.json"));
+  EXPECT_EQ(entry->get().hash, "d41d8cd98f00b204e9800998ecf8427e");
 }
