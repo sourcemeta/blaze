@@ -654,13 +654,10 @@ TEST(Configuration_fetch, lock_to_json_after_fetch) {
       std::filesystem::path{TEST_DIRECTORY} / "simple.json",
       "bb4ce6cb36147103f0514dd6d084a74681add8ed5ae5d5b1390e3684068bed0f");
 
-  const auto lock_json{lock.to_json()};
+  const auto lock_json{lock.to_json(TEST_DIRECTORY)};
 
   auto expected_entry{sourcemeta::core::JSON::make_object()};
-  expected_entry.assign(
-      "path", sourcemeta::core::JSON{std::filesystem::path{
-                  std::filesystem::path{TEST_DIRECTORY} / "simple.json"}
-                                         .generic_string()});
+  expected_entry.assign("path", sourcemeta::core::JSON{"./simple.json"});
   expected_entry.assign(
       "hash",
       sourcemeta::core::JSON{

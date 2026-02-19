@@ -10,7 +10,7 @@
 TEST(Configuration_Lock, to_json_empty) {
   sourcemeta::blaze::Configuration::Lock lock;
 
-  const auto result{lock.to_json()};
+  const auto result{lock.to_json("/base")};
 
   const auto expected{sourcemeta::core::parse_json(R"JSON({
     "version": 1,
@@ -26,13 +26,13 @@ TEST(Configuration_Lock, to_json_single_entry) {
                "/absolute/path/to/schema.json",
                "d41d8cd98f00b204e9800998ecf8427e");
 
-  const auto result{lock.to_json()};
+  const auto result{lock.to_json("/absolute/path")};
 
   const auto expected{sourcemeta::core::parse_json(R"JSON({
     "version": 1,
     "dependencies": {
       "https://example.com/schema.json": {
-        "path": "/absolute/path/to/schema.json",
+        "path": "./to/schema.json",
         "hash": "d41d8cd98f00b204e9800998ecf8427e",
         "hashAlgorithm": "sha256"
       }
@@ -49,18 +49,18 @@ TEST(Configuration_Lock, to_json_multiple_entries) {
   lock.emplace("https://example.com/second.json", "/path/to/second.json",
                "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb2");
 
-  const auto result{lock.to_json()};
+  const auto result{lock.to_json("/path")};
 
   const auto expected{sourcemeta::core::parse_json(R"JSON({
     "version": 1,
     "dependencies": {
       "https://example.com/first.json": {
-        "path": "/path/to/first.json",
+        "path": "./to/first.json",
         "hash": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa1",
         "hashAlgorithm": "sha256"
       },
       "https://example.com/second.json": {
-        "path": "/path/to/second.json",
+        "path": "./to/second.json",
         "hash": "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb2",
         "hashAlgorithm": "sha256"
       }
@@ -79,7 +79,7 @@ TEST(Configuration_Lock, to_json_unknown_hash_algorithm) {
           99));
 
   try {
-    static_cast<void>(lock.to_json());
+    static_cast<void>(lock.to_json("/base"));
     FAIL();
   } catch (const sourcemeta::blaze::ConfigurationParseError &error) {
     EXPECT_STREQ(error.what(), "Unknown hash algorithm");
