@@ -6,7 +6,6 @@
 #endif
 
 #include <concepts> // std::integral
-#include <cstddef>  // std::byte
 #include <cstdint>  // std::int32_t, std::int64_t, std::uint32_t, std::uint64_t
 #include <string>   // std::string
 #include <string_view> // std::string_view
@@ -234,13 +233,10 @@ public:
   [[nodiscard]] auto operator>=(const Decimal &other) const -> bool;
 
 private:
-  struct Data;
-  static constexpr std::size_t STORAGE_SIZE = 256;
-  // NOLINTNEXTLINE(modernize-avoid-c-arrays)
-  alignas(std::max_align_t) std::byte storage[STORAGE_SIZE];
-
-  [[nodiscard]] auto data() -> Data *;
-  [[nodiscard]] auto data() const -> const Data *;
+  std::int64_t coefficient_{0};
+  std::uint64_t coefficient_high_{0};
+  std::int32_t exponent_{0};
+  std::uint8_t flags_{0};
 };
 
 template <typename T>
