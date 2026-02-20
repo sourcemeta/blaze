@@ -927,6 +927,380 @@ auto Decimal::divisible_by(const Decimal &divisor) const -> bool {
   return remainder.is_zero();
 }
 
+auto Decimal::same_quantum(const Decimal &other) const -> bool {
+  if (this->is_nan() && other.is_nan()) {
+    return true;
+  }
+
+  if (this->is_infinite() && other.is_infinite()) {
+    return true;
+  }
+
+  if (this->is_nan() || other.is_nan() || this->is_infinite() ||
+      other.is_infinite()) {
+    return false;
+  }
+
+  return this->exponent_ == other.exponent_;
+}
+
+auto Decimal::reduce() const -> Decimal {
+  if (!this->is_finite()) {
+    return *this;
+  }
+
+  if (this->is_zero()) {
+    Decimal result;
+    if (this->flags_ & FLAG_SIGN) {
+      result.flags_ = FLAG_SIGN;
+    }
+
+    return result;
+  }
+
+  if (this->flags_ & FLAG_BIG) {
+    auto big = coefficient_as_big(this->coefficient_, this->coefficient_high_,
+                                  this->flags_);
+    auto stripped_count = big.strip_trailing_zeros();
+    auto new_exponent =
+        static_cast<std::int64_t>(this->exponent_) + stripped_count;
+    if (new_exponent > std::numeric_limits<std::int32_t>::max() ||
+        new_exponent < std::numeric_limits<std::int32_t>::min()) {
+      throw NumericOverflowError{};
+    }
+
+    Decimal result;
+    bool result_negative = (this->flags_ & FLAG_SIGN) != 0;
+    store_big_result(result.coefficient_, result.coefficient_high_,
+                     result.flags_, std::move(big), result_negative);
+    result.exponent_ = static_cast<std::int32_t>(new_exponent);
+    return result;
+  }
+
+  auto coefficient = this->coefficient_;
+  auto exponent = this->exponent_;
+  strip_trailing_zeros(coefficient, exponent);
+
+  Decimal result;
+  result.coefficient_ = coefficient;
+  result.exponent_ = exponent;
+  if (this->flags_ & FLAG_SIGN) {
+    result.flags_ = FLAG_SIGN;
+  }
+
+  return result;
+}
+
+auto Decimal::logb() const -> Decimal {
+  if (this->is_nan()) {
+    return *this;
+  }
+
+  if (this->is_infinite()) {
+    return Decimal::infinity();
+  }
+
+  if (this->is_zero()) {
+    throw NumericDivisionByZeroError{};
+  }
+
+  std::int64_t digits;
+  if (this->flags_ & FLAG_BIG) {
+    auto big = coefficient_as_big(this->coefficient_, this->coefficient_high_,
+                                  this->flags_);
+    digits = static_cast<std::int64_t>(big.digit_count());
+  } else {
+    digits = static_cast<std::int64_t>(
+        digit_count(static_cast<std::uint64_t>(this->coefficient_)));
+  }
+
+  auto adjusted = digits + this->exponent_ - 1;
+  return Decimal{adjusted};
+}
+
+auto Decimal::scale_by(const Decimal &scale) const -> Decimal {
+  if (this->is_snan()) {
+    throw NumericInvalidOperationError{};
+  }
+
+  if (scale.is_snan()) {
+    throw NumericInvalidOperationError{};
+  }
+
+  if (this->is_qnan()) {
+    return *this;
+  }
+
+  if (scale.is_qnan()) {
+    return scale;
+  }
+
+  if (!scale.is_finite() || scale.exponent_ != 0) {
+    throw NumericInvalidOperationError{};
+  }
+
+  if (this->is_infinite()) {
+    return *this;
+  }
+
+  if (!scale.is_int64()) {
+    throw NumericOverflowError{};
+  }
+
+  auto scale_value = scale.to_int64();
+  auto new_exponent = static_cast<std::int64_t>(this->exponent_) + scale_value;
+  if (new_exponent > std::numeric_limits<std::int32_t>::max() ||
+      new_exponent < std::numeric_limits<std::int32_t>::min()) {
+    throw NumericOverflowError{};
+  }
+
+  Decimal result{*this};
+  result.exponent_ = static_cast<std::int32_t>(new_exponent);
+  return result;
+}
+
+auto Decimal::compare_total(const Decimal &other) const -> Decimal {
+  auto classify = [](const Decimal &value) -> int {
+    if (value.is_qnan()) {
+      return value.is_signed() ? -6 : 6;
+    }
+
+    if (value.is_snan()) {
+      return value.is_signed() ? -5 : 5;
+    }
+
+    if (value.is_infinite()) {
+      return value.is_signed() ? -4 : 4;
+    }
+
+    if (value.is_zero()) {
+      return value.is_signed() ? -2 : 2;
+    }
+
+    return value.is_signed() ? -3 : 3;
+  };
+
+  auto left_class = classify(*this);
+  auto right_class = classify(other);
+
+  if (left_class != right_class) {
+    if (left_class < right_class) {
+      return Decimal{-1};
+    }
+
+    return Decimal{1};
+  }
+
+  bool is_negative = left_class < 0;
+
+  if (this->is_nan()) {
+    auto left_payload = this->nan_payload();
+    auto right_payload = other.nan_payload();
+    if (left_payload != right_payload) {
+      bool left_less = left_payload < right_payload;
+      if (is_negative) {
+        left_less = !left_less;
+      }
+
+      return left_less ? Decimal{-1} : Decimal{1};
+    }
+
+    return Decimal{0};
+  }
+
+  if (this->is_infinite()) {
+    return Decimal{0};
+  }
+
+  if (this->is_zero()) {
+    if (this->exponent_ != other.exponent_) {
+      bool left_less = this->exponent_ < other.exponent_;
+      if (is_negative) {
+        left_less = !left_less;
+      }
+
+      return left_less ? Decimal{-1} : Decimal{1};
+    }
+
+    return Decimal{0};
+  }
+
+  int magnitude_compare;
+  if ((this->flags_ & FLAG_BIG) || (other.flags_ & FLAG_BIG)) {
+    auto left_big = coefficient_as_big(this->coefficient_,
+                                       this->coefficient_high_, this->flags_);
+    auto right_big = coefficient_as_big(other.coefficient_,
+                                        other.coefficient_high_, other.flags_);
+    auto left_digit_count = static_cast<std::int64_t>(left_big.digit_count());
+    auto right_digit_count = static_cast<std::int64_t>(right_big.digit_count());
+    auto left_adjusted = this->exponent_ + left_digit_count - 1;
+    auto right_adjusted = other.exponent_ + right_digit_count - 1;
+
+    if (left_adjusted != right_adjusted) {
+      magnitude_compare = left_adjusted < right_adjusted ? -1 : 1;
+    } else {
+      BigCoefficient::align_exponents(left_big, right_big, this->exponent_,
+                                      other.exponent_);
+      magnitude_compare = left_big.compare(right_big);
+    }
+  } else {
+    if (this->exponent_ == other.exponent_) {
+      if (this->coefficient_ < other.coefficient_) {
+        magnitude_compare = -1;
+      } else if (this->coefficient_ > other.coefficient_) {
+        magnitude_compare = 1;
+      } else {
+        magnitude_compare = 0;
+      }
+    } else {
+      auto left_digits =
+          digit_count(static_cast<std::uint64_t>(this->coefficient_));
+      auto right_digits =
+          digit_count(static_cast<std::uint64_t>(other.coefficient_));
+      auto left_adjusted =
+          this->exponent_ + static_cast<std::int32_t>(left_digits) - 1;
+      auto right_adjusted =
+          other.exponent_ + static_cast<std::int32_t>(right_digits) - 1;
+
+      if (left_adjusted != right_adjusted) {
+        magnitude_compare = left_adjusted < right_adjusted ? -1 : 1;
+      } else {
+        auto exponent_difference = this->exponent_ - other.exponent_;
+        if (exponent_difference > 0) {
+          if (exponent_difference <= 18) {
+            auto multiplier =
+                POWERS_OF_10[static_cast<std::uint32_t>(exponent_difference)];
+            auto product =
+                static_cast<sourcemeta::core::uint128_t>(this->coefficient_) *
+                multiplier;
+            auto right_128 =
+                static_cast<sourcemeta::core::uint128_t>(other.coefficient_);
+            if (product < right_128) {
+              magnitude_compare = -1;
+            } else if (product > right_128) {
+              magnitude_compare = 1;
+            } else {
+              magnitude_compare = 0;
+            }
+          } else {
+            magnitude_compare = 1;
+          }
+        } else {
+          auto difference = static_cast<std::uint32_t>(-exponent_difference);
+          if (difference <= 18) {
+            auto multiplier = POWERS_OF_10[difference];
+            auto product =
+                static_cast<sourcemeta::core::uint128_t>(other.coefficient_) *
+                multiplier;
+            auto left_128 =
+                static_cast<sourcemeta::core::uint128_t>(this->coefficient_);
+            if (left_128 < product) {
+              magnitude_compare = -1;
+            } else if (left_128 > product) {
+              magnitude_compare = 1;
+            } else {
+              magnitude_compare = 0;
+            }
+          } else {
+            magnitude_compare = -1;
+          }
+        }
+      }
+    }
+  }
+
+  if (magnitude_compare != 0) {
+    if (is_negative) {
+      magnitude_compare = -magnitude_compare;
+    }
+
+    return magnitude_compare < 0 ? Decimal{-1} : Decimal{1};
+  }
+
+  if (this->exponent_ != other.exponent_) {
+    bool left_less = this->exponent_ < other.exponent_;
+    if (is_negative) {
+      left_less = !left_less;
+    }
+
+    return left_less ? Decimal{-1} : Decimal{1};
+  }
+
+  return Decimal{0};
+}
+
+auto Decimal::divide_integer(const Decimal &other) const -> Decimal {
+  if (this->is_snan() || other.is_snan()) {
+    throw NumericInvalidOperationError{};
+  }
+
+  if (this->is_nan()) {
+    return Decimal::nan(this->nan_payload());
+  }
+
+  if (other.is_nan()) {
+    return Decimal::nan(other.nan_payload());
+  }
+
+  if (this->is_infinite() && other.is_infinite()) {
+    throw NumericInvalidOperationError{};
+  }
+
+  bool result_negative = ((this->flags_ ^ other.flags_) & FLAG_SIGN) != 0;
+
+  if (this->is_infinite()) {
+    Decimal result =
+        result_negative ? Decimal::negative_infinity() : Decimal::infinity();
+    return result;
+  }
+
+  if (other.is_zero()) {
+    if (this->is_zero()) {
+      throw NumericInvalidOperationError{};
+    }
+
+    throw NumericDivisionByZeroError{};
+  }
+
+  if (other.is_infinite()) {
+    Decimal result;
+    if (result_negative) {
+      result.flags_ = FLAG_SIGN;
+    }
+
+    return result;
+  }
+
+  if (this->is_zero()) {
+    Decimal result;
+    if (result_negative) {
+      result.flags_ = FLAG_SIGN;
+    }
+
+    return result;
+  }
+
+  auto dividend_big = coefficient_as_big(this->coefficient_,
+                                         this->coefficient_high_, this->flags_);
+  auto divisor_big = coefficient_as_big(other.coefficient_,
+                                        other.coefficient_high_, other.flags_);
+
+  BigCoefficient::align_exponents(dividend_big, divisor_big, this->exponent_,
+                                  other.exponent_);
+
+  auto [quotient, remainder] = dividend_big.divide_modulo(divisor_big);
+
+  Decimal result;
+  store_big_result(result.coefficient_, result.coefficient_high_, result.flags_,
+                   std::move(quotient), result_negative);
+  if (result.is_zero()) {
+    result.flags_ = result_negative ? FLAG_SIGN : 0;
+  }
+
+  result.exponent_ = 0;
+  return result;
+}
+
 auto Decimal::operator==(const Decimal &other) const -> bool {
   if (this->is_nan() || other.is_nan()) {
     return false;
