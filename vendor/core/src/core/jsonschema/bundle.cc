@@ -137,52 +137,75 @@ auto elevate_embedded_resources(
     sourcemeta::core::JSON &remote, sourcemeta::core::JSON &root,
     const sourcemeta::core::Pointer &container,
     const sourcemeta::core::SchemaBaseDialect remote_dialect,
+    const sourcemeta::core::SchemaResolver &resolver,
+    std::string_view default_dialect,
     std::unordered_map<sourcemeta::core::JSON::String,
                        sourcemeta::core::JSON::String> &bundled) -> void {
   const auto keyword{sourcemeta::core::definitions_keyword(remote_dialect)};
+  const sourcemeta::core::JSON::String keyword_string{keyword};
   if (keyword.empty() || !remote.is_object() ||
-      !remote.defines(sourcemeta::core::JSON::String{keyword}) ||
-      !remote.at(sourcemeta::core::JSON::String{keyword}).is_object()) {
+      !remote.defines(keyword_string) ||
+      !remote.at(keyword_string).is_object()) {
     return;
   }
 
-  auto &defs{remote.at(sourcemeta::core::JSON::String{keyword})};
+  auto &defs{remote.at(keyword_string)};
+
+  // Navigate to the root container once, as it doesn't change per entry
+  const sourcemeta::core::JSON *root_container{&root};
+  bool container_exists{true};
+  for (const auto &token : container) {
+    if (!token.is_property() || !root_container->is_object() ||
+        !root_container->defines(token.to_property())) {
+      container_exists = false;
+      break;
+    }
+
+    root_container = &root_container->at(token.to_property());
+  }
 
   std::vector<sourcemeta::core::JSON::String> to_extract;
   std::vector<sourcemeta::core::JSON::String> to_remove;
   for (const auto &entry : defs.as_object()) {
     const auto &key{entry.first};
     const auto &value{entry.second};
-    const auto identifier{sourcemeta::core::identify(value, remote_dialect)};
-    if (identifier.empty()) {
+    const auto entry_dialect{
+        sourcemeta::core::base_dialect(value, resolver, default_dialect)};
+    const auto effective_entry_dialect{
+        entry_dialect.has_value() ? entry_dialect.value() : remote_dialect};
+    const auto identifier{
+        sourcemeta::core::identify(value, effective_entry_dialect)};
+    if (identifier.empty() || identifier != key ||
+        !sourcemeta::core::URI{identifier}.is_absolute()) {
       continue;
     }
 
     const sourcemeta::core::JSON::String identifier_string{identifier};
-    if (identifier_string != key) {
-      continue;
-    }
-
     if (bundled.contains(identifier_string)) {
-      auto *root_container{&root};
-      bool container_exists{true};
-      for (const auto &token : container) {
-        if (token.is_property()) {
-          if (!root_container->defines(token.to_property())) {
-            container_exists = false;
-            break;
+      if (container_exists && root_container->is_object()) {
+        for (const auto &root_entry : root_container->as_object()) {
+          if (!root_entry.first.starts_with(identifier_string)) {
+            continue;
           }
 
-          root_container = &root_container->at(token.to_property());
-        } else {
-          root_container = &root_container->at(token.to_index());
-        }
-      }
+          const auto stored_dialect{sourcemeta::core::base_dialect(
+              root_entry.second, resolver, default_dialect)};
+          const auto effective_stored_dialect{stored_dialect.has_value()
+                                                  ? stored_dialect.value()
+                                                  : remote_dialect};
+          const auto stored_id{sourcemeta::core::identify(
+              root_entry.second, effective_stored_dialect)};
+          if (stored_id != identifier_string) {
+            continue;
+          }
 
-      if (container_exists && root_container->defines(key) &&
-          root_container->at(key) != value) {
-        throw sourcemeta::core::SchemaError(
-            "Conflicting embedded resources with the same identifier");
+          if (root_entry.second != value) {
+            throw sourcemeta::core::SchemaError(
+                "Conflicting embedded resources with the same identifier");
+          }
+
+          break;
+        }
       }
 
       to_remove.emplace_back(key);
@@ -357,7 +380,7 @@ auto bundle_schema(sourcemeta::core::JSON &root,
     bundle_schema(root, container, remote, walker, resolver, default_dialect,
                   effective_id, paths, bundled, depth + 1);
     elevate_embedded_resources(remote, root, container, remote_dialect,
-                               bundled);
+                               resolver, default_dialect, bundled);
     embed_schema(root, container, effective_id, std::move(remote));
   }
 }
