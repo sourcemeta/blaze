@@ -195,22 +195,22 @@ auto from_json(const sourcemeta::core::JSON &json) -> std::optional<Template> {
     std::size_t total{0};
     for (const auto &tree_instruction : tree_instructions) {
       const auto parent_index{output.size()};
-      output.push_back({.type = tree_instruction.type,
-                        .relative_schema_location =
-                            tree_instruction.relative_schema_location,
-                        .relative_instance_location =
-                            tree_instruction.relative_instance_location,
-                        .keyword_location = tree_instruction.keyword_location,
-                        .schema_resource = tree_instruction.schema_resource,
-                        .value = tree_instruction.value,
-                        .children_count = 0,
-                        .direct_children_count = 0,
-                        .flat_offset = 0});
+      output.push_back(
+          {.type = tree_instruction.type,
+           .relative_schema_location =
+               tree_instruction.relative_schema_location,
+           .relative_instance_location =
+               tree_instruction.relative_instance_location,
+           .keyword_location = tree_instruction.keyword_location,
+           .schema_resource = tree_instruction.schema_resource,
+           .value = tree_instruction.value,
+           .children_count = 0,
+           .direct_children_count = 0,
+           .flat_offset = static_cast<std::uint32_t>(parent_index + 1),
+           .next_sibling_offset = 0});
       total += 1;
 
       if (!tree_instruction.children.empty()) {
-        output[parent_index].flat_offset =
-            static_cast<std::uint32_t>(parent_index + 1);
         output[parent_index].direct_children_count =
             static_cast<std::uint32_t>(tree_instruction.children.size());
         const auto children_count{
@@ -219,6 +219,9 @@ auto from_json(const sourcemeta::core::JSON &json) -> std::optional<Template> {
             static_cast<std::uint32_t>(children_count);
         total += children_count;
       }
+
+      output[parent_index].next_sibling_offset =
+          static_cast<std::uint32_t>(output.size());
     }
     return total;
   };

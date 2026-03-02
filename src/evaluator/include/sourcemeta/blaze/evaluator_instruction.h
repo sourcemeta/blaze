@@ -261,6 +261,7 @@ struct Instruction {
   std::uint32_t children_count{0};
   std::uint32_t direct_children_count{0};
   std::uint32_t flat_offset{0};
+  std::uint32_t next_sibling_offset{0};
 };
 
 /// @ingroup evaluator

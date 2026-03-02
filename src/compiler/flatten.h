@@ -24,12 +24,11 @@ inline auto flatten_instructions(const TreeInstructions &tree_instructions,
          .value = tree_instruction.value,
          .children_count = 0,
          .direct_children_count = 0,
-         .flat_offset = 0});
+         .flat_offset = static_cast<std::uint32_t>(parent_index + 1),
+         .next_sibling_offset = 0});
     total += 1;
 
     if (!tree_instruction.children.empty()) {
-      output[parent_index].flat_offset =
-          static_cast<std::uint32_t>(parent_index + 1);
       output[parent_index].direct_children_count =
           static_cast<std::uint32_t>(tree_instruction.children.size());
       const auto children_count{
@@ -38,6 +37,9 @@ inline auto flatten_instructions(const TreeInstructions &tree_instructions,
           static_cast<std::uint32_t>(children_count);
       total += children_count;
     }
+
+    output[parent_index].next_sibling_offset =
+        static_cast<std::uint32_t>(output.size());
   }
 
   return total;

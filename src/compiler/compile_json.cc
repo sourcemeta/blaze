@@ -59,14 +59,11 @@ auto instruction_to_json(
   // Reconstruct tree-shaped children from the flat array
   if (instruction.children_count > 0) {
     auto children_json{sourcemeta::core::JSON::make_array()};
-    std::size_t index{instruction.flat_offset};
-    const std::size_t end{instruction.flat_offset + instruction.children_count};
-    while (index < end) {
-      const auto &child{all_instructions[index]};
-      children_json.push_back(
-          instruction_to_json(child, all_instructions, resources));
-      // Skip this child and all its transitive descendants
-      index += 1 + child.children_count;
+    for (std::size_t index = instruction.flat_offset;
+         index < instruction.next_sibling_offset;
+         index = all_instructions[index].next_sibling_offset) {
+      children_json.push_back(instruction_to_json(all_instructions[index],
+                                                  all_instructions, resources));
     }
     result.push_back(std::move(children_json));
   }
@@ -88,14 +85,11 @@ auto to_json(const Template &schema_template) -> sourcemeta::core::JSON {
   auto targets{sourcemeta::core::JSON::make_array()};
   for (const auto &[offset, count] : schema_template.targets) {
     auto target_json{sourcemeta::core::JSON::make_array()};
-    std::size_t index{offset};
-    const std::size_t end{offset + count};
-    while (index < end) {
-      const auto &instruction{schema_template.instructions[index]};
-      target_json.push_back(instruction_to_json(
-          instruction, schema_template.instructions, resources));
-      // Skip this instruction and all its transitive descendants
-      index += 1 + instruction.children_count;
+    for (std::size_t index = offset; index < offset + count;
+         index = schema_template.instructions[index].next_sibling_offset) {
+      target_json.push_back(
+          instruction_to_json(schema_template.instructions[index],
+                              schema_template.instructions, resources));
     }
     targets.push_back(std::move(target_json));
   }

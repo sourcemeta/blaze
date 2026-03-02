@@ -2074,8 +2074,8 @@ auto describe(const bool valid, const Instruction &step,
       std::set<std::string> required_properties;
 
       for (std::size_t child_idx = step.flat_offset;
-           child_idx < step.flat_offset + step.children_count;
-           child_idx += 1 + all_instructions[child_idx].children_count) {
+           child_idx < step.next_sibling_offset;
+           child_idx = all_instructions[child_idx].next_sibling_offset) {
         const auto &child{all_instructions[child_idx]};
         // Schema
         if (child.type == InstructionIndex::LogicalWhenDefines) {
@@ -2200,8 +2200,8 @@ auto describe(const bool valid, const Instruction &step,
       std::set<std::string> present;
       std::set<std::string> all_dependencies;
       for (std::size_t child_idx = step.flat_offset;
-           child_idx < step.flat_offset + step.children_count;
-           child_idx += 1 + all_instructions[child_idx].children_count) {
+           child_idx < step.next_sibling_offset;
+           child_idx = all_instructions[child_idx].next_sibling_offset) {
         const auto &child{all_instructions[child_idx]};
         assert(child.type == InstructionIndex::LogicalWhenDefines);
         const auto &substep{child};

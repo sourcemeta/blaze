@@ -108,7 +108,7 @@ inline auto evaluate(const sourcemeta::core::JSON &instance,
   const auto entry_offset{entry_target.first};
   const auto entry_count{entry_target.second};
   for (std::size_t index = entry_offset; index < entry_offset + entry_count;
-       index += 1 + schema.instructions[index].children_count) {
+       index = schema.instructions[index].next_sibling_offset) {
     if (!evaluate_instruction(schema.instructions[index], schema, nullptr,
                               instance, nullptr, 0, evaluator)) [[unlikely]] {
       assert(evaluator.evaluate_path.empty());
