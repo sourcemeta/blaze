@@ -1557,17 +1557,12 @@ INSTRUCTION_HANDLER(LoopPropertiesMatch) {
   assert(!value.empty());
   result = true;
   for (const auto &entry : target.as_object()) {
-    const auto *index{value.try_at(entry.first, entry.hash)};
-    if (!index) {
+    const auto *child_offset{value.try_at(entry.first, entry.hash)};
+    if (!child_offset) {
       continue;
     }
 
-    // Walk to the *index-th direct child
-    std::size_t sub_offset{instruction.flat_offset};
-    for (std::size_t skip = 0; skip < *index; skip++) {
-      sub_offset = schema.instructions[sub_offset].next_sibling_offset;
-    }
-    const auto &subinstruction{schema.instructions[sub_offset]};
+    const auto &subinstruction{schema.instructions[*child_offset]};
     assert(subinstruction.type ==
            sourcemeta::blaze::InstructionIndex::ControlGroup);
     for (std::size_t child_index = subinstruction.flat_offset;
@@ -1596,18 +1591,13 @@ INSTRUCTION_HANDLER(LoopPropertiesMatchClosed) {
   assert(!value.empty());
   result = true;
   for (const auto &entry : target.as_object()) {
-    const auto *index{value.try_at(entry.first, entry.hash)};
-    if (!index) [[unlikely]] {
+    const auto *child_offset{value.try_at(entry.first, entry.hash)};
+    if (!child_offset) [[unlikely]] {
       result = false;
       break;
     }
 
-    // Walk to the *index-th direct child
-    std::size_t sub_offset{instruction.flat_offset};
-    for (std::size_t skip = 0; skip < *index; skip++) {
-      sub_offset = schema.instructions[sub_offset].next_sibling_offset;
-    }
-    const auto &subinstruction{schema.instructions[sub_offset]};
+    const auto &subinstruction{schema.instructions[*child_offset]};
     assert(subinstruction.type ==
            sourcemeta::blaze::InstructionIndex::ControlGroup);
     for (std::size_t child_index = subinstruction.flat_offset;

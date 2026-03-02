@@ -1,6 +1,7 @@
 #include <sourcemeta/blaze/compiler.h>
 
 #include <cassert>     // assert
+#include <map>         // std::map
 #include <string_view> // std::string_view
 #include <variant>     // std::visit
 
@@ -47,9 +48,43 @@ auto instruction_to_json(
   value.push_back(sourcemeta::core::to_json(value_index));
   // Don't encode empty values, which tend to happen a lot
   if (value_index != 0) {
-    value.push_back(std::visit(
-        [](const auto &variant) { return sourcemeta::core::to_json(variant); },
-        instruction.value));
+    // For instructions whose ValueNamedIndexes were converted from child
+    // indices to flat offsets, convert back to child indices for serialization
+    if ((instruction.type ==
+             sourcemeta::blaze::InstructionIndex::LoopPropertiesMatch ||
+         instruction.type ==
+             sourcemeta::blaze::InstructionIndex::LoopPropertiesMatchClosed) &&
+        instruction.children_count > 0) {
+      // Build flat_offset -> child_index reverse mapping
+      std::map<std::size_t, std::size_t> flat_to_child;
+      std::size_t child_idx{0};
+      for (std::size_t offset = instruction.flat_offset;
+           offset < instruction.next_sibling_offset;
+           offset = all_instructions[offset].next_sibling_offset) {
+        flat_to_child[offset] = child_idx++;
+      }
+
+      // Create a copy with child indices restored
+      auto named_indexes_copy{
+          *std::get_if<sourcemeta::blaze::ValueNamedIndexes>(
+              &instruction.value)};
+      for (const auto &[flat_offset, child_index] : flat_to_child) {
+        for (const auto &entry : named_indexes_copy) {
+          if (entry.second == flat_offset) {
+            named_indexes_copy.emplace(entry.first, child_index);
+            break;
+          }
+        }
+      }
+
+      value.push_back(sourcemeta::core::to_json(named_indexes_copy));
+    } else {
+      value.push_back(std::visit(
+          [](const auto &variant) {
+            return sourcemeta::core::to_json(variant);
+          },
+          instruction.value));
+    }
   }
   assert(value.is_array());
   assert(!value.empty());

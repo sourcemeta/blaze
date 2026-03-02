@@ -211,13 +211,41 @@ auto from_json(const sourcemeta::core::JSON &json) -> std::optional<Template> {
       total += 1;
 
       if (!tree_instruction.children.empty()) {
+        const auto direct_count{tree_instruction.children.size()};
         output[parent_index].direct_children_count =
-            static_cast<std::uint32_t>(tree_instruction.children.size());
+            static_cast<std::uint32_t>(direct_count);
         const auto children_count{
             flatten_tree(tree_instruction.children, output)};
         output[parent_index].children_count =
             static_cast<std::uint32_t>(children_count);
         total += children_count;
+
+        // Convert child indices to flat offsets in ValueNamedIndexes
+        auto &flat_instruction{output[parent_index]};
+        if (flat_instruction.type == InstructionIndex::LoopPropertiesMatch ||
+            flat_instruction.type ==
+                InstructionIndex::LoopPropertiesMatchClosed) {
+          std::vector<std::size_t> child_offsets;
+          child_offsets.reserve(direct_count);
+          auto cursor{parent_index + 1};
+          for (std::size_t child = 0; child < direct_count; child++) {
+            child_offsets.push_back(cursor);
+            cursor = output[cursor].next_sibling_offset;
+          }
+
+          auto *named_indexes{
+              std::get_if<ValueNamedIndexes>(&flat_instruction.value)};
+          assert(named_indexes);
+          std::vector<std::pair<ValueString, std::size_t>> updates;
+          updates.reserve(named_indexes->size());
+          for (const auto &entry : *named_indexes) {
+            assert(entry.second < child_offsets.size());
+            updates.emplace_back(entry.first, child_offsets[entry.second]);
+          }
+          for (const auto &update : updates) {
+            named_indexes->emplace(update.first, update.second);
+          }
+        }
       }
 
       output[parent_index].next_sibling_offset =
