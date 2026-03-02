@@ -249,19 +249,25 @@ struct TreeInstruction {
 };
 
 /// @ingroup evaluator
+/// Debug information for an instruction, stored in a parallel vector
+/// and only accessed during non-fast evaluation modes
+// NOLINTNEXTLINE(bugprone-exception-escape)
+struct InstructionDebugInfo {
+  sourcemeta::core::Pointer relative_schema_location;
+  std::string keyword_location;
+  std::size_t schema_resource;
+};
+
+/// @ingroup evaluator
 /// Represents a single instruction for evaluation
 // NOLINTNEXTLINE(bugprone-exception-escape)
 struct Instruction {
-  InstructionIndex type;
-  sourcemeta::core::Pointer relative_schema_location;
   sourcemeta::core::Pointer relative_instance_location;
-  std::string keyword_location;
-  std::size_t schema_resource;
   Value value;
   std::uint32_t children_count{0};
   std::uint32_t direct_children_count{0};
-  std::uint32_t flat_offset{0};
   std::uint32_t next_sibling_offset{0};
+  InstructionIndex type;
 };
 
 /// @ingroup evaluator
@@ -275,13 +281,13 @@ using Instructions = std::vector<Instruction>;
 /// results.
 ///
 /// Note that describing a "pre" step execution is NOT supported.
-auto SOURCEMETA_BLAZE_EVALUATOR_EXPORT
-describe(const bool valid, const Instruction &step,
-         const Instructions &all_instructions,
-         const sourcemeta::core::WeakPointer &evaluate_path,
-         const sourcemeta::core::WeakPointer &instance_location,
-         const sourcemeta::core::JSON &instance,
-         const sourcemeta::core::JSON &annotation) -> std::string;
+auto SOURCEMETA_BLAZE_EVALUATOR_EXPORT describe(
+    const bool valid, const Instruction &step,
+    const std::size_t instruction_index, const Instructions &all_instructions,
+    const sourcemeta::core::WeakPointer &evaluate_path,
+    const sourcemeta::core::WeakPointer &instance_location,
+    const sourcemeta::core::JSON &instance,
+    const sourcemeta::core::JSON &annotation) -> std::string;
 
 } // namespace sourcemeta::blaze
 

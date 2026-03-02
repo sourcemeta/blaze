@@ -54,6 +54,7 @@ auto TraceOutput::cend() const -> const_iterator { return this->output.cend(); }
 
 auto TraceOutput::operator()(
     const EvaluationType type, const bool result, const Instruction &step,
+    const InstructionDebugInfo &debug_info,
     const sourcemeta::core::WeakPointer &evaluate_path,
     const sourcemeta::core::WeakPointer &instance_location,
     const sourcemeta::core::JSON &annotation) -> void {
@@ -65,7 +66,7 @@ auto TraceOutput::operator()(
 
   // Attempt to get vocabulary information if we can get it
   auto vocabulary{try_vocabulary(this->frame_, evaluate_path, this->walker_,
-                                 this->resolver_, step.keyword_location)};
+                                 this->resolver_, debug_info.keyword_location)};
 
   if (is_annotation(step.type)) {
     if (type == EvaluationType::Pre) {
@@ -73,23 +74,23 @@ auto TraceOutput::operator()(
     } else {
       this->output.push_back(
           {EntryType::Annotation, short_step_name, instance_location,
-           std::move(effective_evaluate_path), step.keyword_location,
+           std::move(effective_evaluate_path), debug_info.keyword_location,
            annotation, std::move(vocabulary)});
     }
   } else if (type == EvaluationType::Pre) {
     this->output.push_back({EntryType::Push, short_step_name, instance_location,
                             std::move(effective_evaluate_path),
-                            step.keyword_location, std::nullopt,
+                            debug_info.keyword_location, std::nullopt,
                             std::move(vocabulary)});
   } else if (result) {
     this->output.push_back({EntryType::Pass, short_step_name, instance_location,
                             std::move(effective_evaluate_path),
-                            step.keyword_location, std::nullopt,
+                            debug_info.keyword_location, std::nullopt,
                             std::move(vocabulary)});
   } else {
     this->output.push_back({EntryType::Fail, short_step_name, instance_location,
                             std::move(effective_evaluate_path),
-                            step.keyword_location, std::nullopt,
+                            debug_info.keyword_location, std::nullopt,
                             std::move(vocabulary)});
   }
 }

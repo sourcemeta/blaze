@@ -113,6 +113,7 @@ public:
 
   auto operator()(const EvaluationType type, const bool result,
                   const Instruction &step,
+                  const InstructionDebugInfo &debug_info,
                   const sourcemeta::core::WeakPointer &evaluate_path,
                   const sourcemeta::core::WeakPointer &instance_location,
                   const sourcemeta::core::JSON &annotation) -> void;

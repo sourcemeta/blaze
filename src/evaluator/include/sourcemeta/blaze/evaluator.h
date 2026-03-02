@@ -44,6 +44,7 @@ struct Template {
   bool dynamic;
   bool track;
   Instructions instructions;
+  std::vector<InstructionDebugInfo> debug_info;
   std::vector<std::pair<std::size_t, std::size_t>> targets;
   std::vector<std::pair<std::size_t, std::size_t>> labels;
 };
@@ -72,7 +73,7 @@ enum class EvaluationType : std::uint8_t { Pre, Post };
 /// You can use this callback mechanism to implement arbitrary output formats.
 using Callback = std::function<void(
     const EvaluationType, bool, const Instruction &,
-    const sourcemeta::core::WeakPointer &,
+    const InstructionDebugInfo &, const sourcemeta::core::WeakPointer &,
     const sourcemeta::core::WeakPointer &, const sourcemeta::core::JSON &)>;
 
 /// @ingroup evaluator

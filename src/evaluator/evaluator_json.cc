@@ -189,25 +189,27 @@ auto from_json(const sourcemeta::core::JSON &json) -> std::optional<Template> {
   result.targets.reserve(tree_template.targets.size());
 
   // Forward-declare the recursive helper via a std::function
-  std::function<std::size_t(const TreeInstructions &, Instructions &)>
-      flatten_tree = [&flatten_tree](const TreeInstructions &tree_instructions,
-                                     Instructions &output) -> std::size_t {
+  std::function<std::size_t(const TreeInstructions &, Instructions &,
+                            std::vector<InstructionDebugInfo> &)>
+      flatten_tree =
+          [&flatten_tree](
+              const TreeInstructions &tree_instructions, Instructions &output,
+              std::vector<InstructionDebugInfo> &debug_output) -> std::size_t {
     std::size_t total{0};
     for (const auto &tree_instruction : tree_instructions) {
       const auto parent_index{output.size()};
-      output.push_back(
-          {.type = tree_instruction.type,
-           .relative_schema_location =
+      output.push_back({.relative_instance_location =
+                            tree_instruction.relative_instance_location,
+                        .value = tree_instruction.value,
+                        .children_count = 0,
+                        .direct_children_count = 0,
+                        .next_sibling_offset = 0,
+                        .type = tree_instruction.type});
+      debug_output.push_back(
+          {.relative_schema_location =
                tree_instruction.relative_schema_location,
-           .relative_instance_location =
-               tree_instruction.relative_instance_location,
            .keyword_location = tree_instruction.keyword_location,
-           .schema_resource = tree_instruction.schema_resource,
-           .value = tree_instruction.value,
-           .children_count = 0,
-           .direct_children_count = 0,
-           .flat_offset = static_cast<std::uint32_t>(parent_index + 1),
-           .next_sibling_offset = 0});
+           .schema_resource = tree_instruction.schema_resource});
       total += 1;
 
       if (!tree_instruction.children.empty()) {
@@ -215,7 +217,7 @@ auto from_json(const sourcemeta::core::JSON &json) -> std::optional<Template> {
         output[parent_index].direct_children_count =
             static_cast<std::uint32_t>(direct_count);
         const auto children_count{
-            flatten_tree(tree_instruction.children, output)};
+            flatten_tree(tree_instruction.children, output, debug_output)};
         output[parent_index].children_count =
             static_cast<std::uint32_t>(children_count);
         total += children_count;
@@ -256,7 +258,8 @@ auto from_json(const sourcemeta::core::JSON &json) -> std::optional<Template> {
 
   for (const auto &target : tree_template.targets) {
     const auto offset{result.instructions.size()};
-    const auto count{flatten_tree(target, result.instructions)};
+    const auto count{
+        flatten_tree(target, result.instructions, result.debug_info)};
     result.targets.emplace_back(offset, count);
   }
 

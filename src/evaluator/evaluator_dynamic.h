@@ -10,9 +10,15 @@
   if (!(precondition)) [[unlikely]] {                                          \
     return true;                                                               \
   }                                                                            \
-  evaluator.resources.push_back(instruction.schema_resource);                  \
+  const auto &debug_{schema.debug_info[static_cast<std::size_t>(               \
+      &instruction - schema.instructions.data())]};                            \
+  evaluator.resources.push_back(debug_.schema_resource);                       \
   constexpr bool track{false};                                                 \
   SOURCEMETA_MAYBE_UNUSED(track);                                              \
+  const auto children_start_{                                                  \
+      static_cast<std::size_t>(&instruction - schema.instructions.data()) +    \
+      1};                                                                      \
+  SOURCEMETA_MAYBE_UNUSED(children_start_);                                    \
   bool result{false};
 
 #define EVALUATE_BEGIN_NON_STRING(instruction_type, precondition)              \
@@ -22,9 +28,15 @@
   if (!(precondition)) [[unlikely]] {                                          \
     return true;                                                               \
   }                                                                            \
-  evaluator.resources.push_back(instruction.schema_resource);                  \
+  const auto &debug_{schema.debug_info[static_cast<std::size_t>(               \
+      &instruction - schema.instructions.data())]};                            \
+  evaluator.resources.push_back(debug_.schema_resource);                       \
   constexpr bool track{false};                                                 \
   SOURCEMETA_MAYBE_UNUSED(track);                                              \
+  const auto children_start_{                                                  \
+      static_cast<std::size_t>(&instruction - schema.instructions.data()) +    \
+      1};                                                                      \
+  SOURCEMETA_MAYBE_UNUSED(children_start_);                                    \
   bool result{false};
 
 #define EVALUATE_BEGIN_IF_STRING(instruction_type)                             \
@@ -34,8 +46,14 @@
   if (!maybe_target) [[unlikely]] {                                            \
     return true;                                                               \
   }                                                                            \
-  evaluator.resources.push_back(instruction.schema_resource);                  \
+  const auto &debug_{schema.debug_info[static_cast<std::size_t>(               \
+      &instruction - schema.instructions.data())]};                            \
+  evaluator.resources.push_back(debug_.schema_resource);                       \
   const auto &target{*maybe_target};                                           \
+  const auto children_start_{                                                  \
+      static_cast<std::size_t>(&instruction - schema.instructions.data()) +    \
+      1};                                                                      \
+  SOURCEMETA_MAYBE_UNUSED(children_start_);                                    \
   bool result{false};
 
 // This is a slightly complicated dance to avoid traversing the relative
@@ -56,22 +74,42 @@
   if (!target_check) [[unlikely]] {                                            \
     return true;                                                               \
   }                                                                            \
-  evaluator.resources.push_back(instruction.schema_resource);                  \
+  const auto &debug_{schema.debug_info[static_cast<std::size_t>(               \
+      &instruction - schema.instructions.data())]};                            \
+  evaluator.resources.push_back(debug_.schema_resource);                       \
+  const auto children_start_{                                                  \
+      static_cast<std::size_t>(&instruction - schema.instructions.data()) +    \
+      1};                                                                      \
+  SOURCEMETA_MAYBE_UNUSED(children_start_);                                    \
   bool result{false};
 
 #define EVALUATE_BEGIN_NO_PRECONDITION(instruction_type)                       \
   assert(instruction.type == InstructionIndex::instruction_type);              \
-  evaluator.resources.push_back(instruction.schema_resource);                  \
+  const auto &debug_{schema.debug_info[static_cast<std::size_t>(               \
+      &instruction - schema.instructions.data())]};                            \
+  evaluator.resources.push_back(debug_.schema_resource);                       \
   constexpr bool track{false};                                                 \
   SOURCEMETA_MAYBE_UNUSED(track);                                              \
+  const auto children_start_{                                                  \
+      static_cast<std::size_t>(&instruction - schema.instructions.data()) +    \
+      1};                                                                      \
+  SOURCEMETA_MAYBE_UNUSED(children_start_);                                    \
   bool result{false};
 
 #define EVALUATE_BEGIN_NO_PRECONDITION_AND_NO_PUSH(instruction_type)           \
   assert(instruction.type == InstructionIndex::instruction_type);              \
+  const auto children_start_{                                                  \
+      static_cast<std::size_t>(&instruction - schema.instructions.data()) +    \
+      1};                                                                      \
+  SOURCEMETA_MAYBE_UNUSED(children_start_);                                    \
   bool result{true};
 
 #define EVALUATE_BEGIN_PASS_THROUGH(instruction_type)                          \
   assert(instruction.type == InstructionIndex::instruction_type);              \
+  const auto children_start_{                                                  \
+      static_cast<std::size_t>(&instruction - schema.instructions.data()) +    \
+      1};                                                                      \
+  SOURCEMETA_MAYBE_UNUSED(children_start_);                                    \
   bool result{true};
 
 #define EVALUATE_END(instruction_type)                                         \

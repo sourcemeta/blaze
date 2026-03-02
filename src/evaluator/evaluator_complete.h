@@ -10,19 +10,26 @@
   if (!(precondition)) [[unlikely]] {                                          \
     return true;                                                               \
   }                                                                            \
+  const auto &debug_{schema.debug_info[static_cast<std::size_t>(               \
+      &instruction - schema.instructions.data())]};                            \
   const auto track{schema.track || callback};                                  \
   if (track) {                                                                 \
-    evaluator.evaluate_path.push_back(instruction.relative_schema_location);   \
+    evaluator.evaluate_path.push_back(debug_.relative_schema_location);        \
     evaluator.instance_location.push_back(                                     \
         instruction.relative_instance_location);                               \
   }                                                                            \
   if (schema.dynamic) {                                                        \
-    evaluator.resources.push_back(instruction.schema_resource);                \
+    evaluator.resources.push_back(debug_.schema_resource);                     \
   }                                                                            \
   if (callback) {                                                              \
-    callback(EvaluationType::Pre, true, instruction, evaluator.evaluate_path,  \
-             evaluator.instance_location, Evaluator::null);                    \
+    callback(EvaluationType::Pre, true, instruction, debug_,                   \
+             evaluator.evaluate_path, evaluator.instance_location,             \
+             Evaluator::null);                                                 \
   }                                                                            \
+  const auto children_start_{                                                  \
+      static_cast<std::size_t>(&instruction - schema.instructions.data()) +    \
+      1};                                                                      \
+  SOURCEMETA_MAYBE_UNUSED(children_start_);                                    \
   bool result{false};
 
 #define EVALUATE_BEGIN_NON_STRING(instruction_type, precondition)              \
@@ -32,19 +39,26 @@
   if (!(precondition)) [[unlikely]] {                                          \
     return true;                                                               \
   }                                                                            \
+  const auto &debug_{schema.debug_info[static_cast<std::size_t>(               \
+      &instruction - schema.instructions.data())]};                            \
   const auto track{schema.track || callback};                                  \
   if (track) {                                                                 \
-    evaluator.evaluate_path.push_back(instruction.relative_schema_location);   \
+    evaluator.evaluate_path.push_back(debug_.relative_schema_location);        \
     evaluator.instance_location.push_back(                                     \
         instruction.relative_instance_location);                               \
   }                                                                            \
   if (schema.dynamic) {                                                        \
-    evaluator.resources.push_back(instruction.schema_resource);                \
+    evaluator.resources.push_back(debug_.schema_resource);                     \
   }                                                                            \
   if (callback) {                                                              \
-    callback(EvaluationType::Pre, true, instruction, evaluator.evaluate_path,  \
-             evaluator.instance_location, Evaluator::null);                    \
+    callback(EvaluationType::Pre, true, instruction, debug_,                   \
+             evaluator.evaluate_path, evaluator.instance_location,             \
+             Evaluator::null);                                                 \
   }                                                                            \
+  const auto children_start_{                                                  \
+      static_cast<std::size_t>(&instruction - schema.instructions.data()) +    \
+      1};                                                                      \
+  SOURCEMETA_MAYBE_UNUSED(children_start_);                                    \
   bool result{false};
 
 #define EVALUATE_BEGIN_IF_STRING(instruction_type)                             \
@@ -54,20 +68,27 @@
   if (!maybe_target) [[unlikely]] {                                            \
     return true;                                                               \
   }                                                                            \
+  const auto &debug_{schema.debug_info[static_cast<std::size_t>(               \
+      &instruction - schema.instructions.data())]};                            \
   const auto track{schema.track || callback};                                  \
   if (track) {                                                                 \
-    evaluator.evaluate_path.push_back(instruction.relative_schema_location);   \
+    evaluator.evaluate_path.push_back(debug_.relative_schema_location);        \
     evaluator.instance_location.push_back(                                     \
         instruction.relative_instance_location);                               \
   }                                                                            \
   if (schema.dynamic) {                                                        \
-    evaluator.resources.push_back(instruction.schema_resource);                \
+    evaluator.resources.push_back(debug_.schema_resource);                     \
   }                                                                            \
   if (callback) {                                                              \
-    callback(EvaluationType::Pre, true, instruction, evaluator.evaluate_path,  \
-             evaluator.instance_location, Evaluator::null);                    \
+    callback(EvaluationType::Pre, true, instruction, debug_,                   \
+             evaluator.evaluate_path, evaluator.instance_location,             \
+             Evaluator::null);                                                 \
   }                                                                            \
   const auto &target{*maybe_target};                                           \
+  const auto children_start_{                                                  \
+      static_cast<std::size_t>(&instruction - schema.instructions.data()) +    \
+      1};                                                                      \
+  SOURCEMETA_MAYBE_UNUSED(children_start_);                                    \
   bool result{false};
 
 // This is a slightly complicated dance to avoid traversing the relative
@@ -88,59 +109,86 @@
   if (!target_check) [[unlikely]] {                                            \
     return true;                                                               \
   }                                                                            \
+  const auto &debug_{schema.debug_info[static_cast<std::size_t>(               \
+      &instruction - schema.instructions.data())]};                            \
   const auto track{schema.track || callback};                                  \
   if (track) {                                                                 \
-    evaluator.evaluate_path.push_back(instruction.relative_schema_location);   \
+    evaluator.evaluate_path.push_back(debug_.relative_schema_location);        \
     evaluator.instance_location.push_back(                                     \
         instruction.relative_instance_location);                               \
   }                                                                            \
   if (schema.dynamic) {                                                        \
-    evaluator.resources.push_back(instruction.schema_resource);                \
+    evaluator.resources.push_back(debug_.schema_resource);                     \
   }                                                                            \
   if (callback) {                                                              \
-    callback(EvaluationType::Pre, true, instruction, evaluator.evaluate_path,  \
-             evaluator.instance_location, Evaluator::null);                    \
+    callback(EvaluationType::Pre, true, instruction, debug_,                   \
+             evaluator.evaluate_path, evaluator.instance_location,             \
+             Evaluator::null);                                                 \
   }                                                                            \
+  const auto children_start_{                                                  \
+      static_cast<std::size_t>(&instruction - schema.instructions.data()) +    \
+      1};                                                                      \
+  SOURCEMETA_MAYBE_UNUSED(children_start_);                                    \
   bool result{false};
 
 #define EVALUATE_BEGIN_NO_PRECONDITION(instruction_type)                       \
   assert(instruction.type == InstructionIndex::instruction_type);              \
+  const auto &debug_{schema.debug_info[static_cast<std::size_t>(               \
+      &instruction - schema.instructions.data())]};                            \
   const auto track{schema.track || callback};                                  \
   if (track) {                                                                 \
-    evaluator.evaluate_path.push_back(instruction.relative_schema_location);   \
+    evaluator.evaluate_path.push_back(debug_.relative_schema_location);        \
     evaluator.instance_location.push_back(                                     \
         instruction.relative_instance_location);                               \
   }                                                                            \
   if (schema.dynamic) {                                                        \
-    evaluator.resources.push_back(instruction.schema_resource);                \
+    evaluator.resources.push_back(debug_.schema_resource);                     \
   }                                                                            \
   if (callback) {                                                              \
-    callback(EvaluationType::Pre, true, instruction, evaluator.evaluate_path,  \
-             evaluator.instance_location, Evaluator::null);                    \
+    callback(EvaluationType::Pre, true, instruction, debug_,                   \
+             evaluator.evaluate_path, evaluator.instance_location,             \
+             Evaluator::null);                                                 \
   }                                                                            \
+  const auto children_start_{                                                  \
+      static_cast<std::size_t>(&instruction - schema.instructions.data()) +    \
+      1};                                                                      \
+  SOURCEMETA_MAYBE_UNUSED(children_start_);                                    \
   bool result{false};
 
 #define EVALUATE_BEGIN_NO_PRECONDITION_AND_NO_PUSH(instruction_type)           \
   assert(instruction.type == InstructionIndex::instruction_type);              \
+  const auto &debug_{schema.debug_info[static_cast<std::size_t>(               \
+      &instruction - schema.instructions.data())]};                            \
   if (callback) {                                                              \
-    callback(EvaluationType::Pre, true, instruction, evaluator.evaluate_path,  \
-             evaluator.instance_location, Evaluator::null);                    \
+    callback(EvaluationType::Pre, true, instruction, debug_,                   \
+             evaluator.evaluate_path, evaluator.instance_location,             \
+             Evaluator::null);                                                 \
   }                                                                            \
+  const auto children_start_{                                                  \
+      static_cast<std::size_t>(&instruction - schema.instructions.data()) +    \
+      1};                                                                      \
+  SOURCEMETA_MAYBE_UNUSED(children_start_);                                    \
   bool result{true};
 
 #define EVALUATE_BEGIN_PASS_THROUGH(instruction_type)                          \
   assert(instruction.type == InstructionIndex::instruction_type);              \
+  const auto &debug_{schema.debug_info[static_cast<std::size_t>(               \
+      &instruction - schema.instructions.data())]};                            \
+  SOURCEMETA_MAYBE_UNUSED(debug_);                                             \
+  const auto children_start_{                                                  \
+      static_cast<std::size_t>(&instruction - schema.instructions.data()) +    \
+      1};                                                                      \
+  SOURCEMETA_MAYBE_UNUSED(children_start_);                                    \
   bool result{true};
 
 #define EVALUATE_END(instruction_type)                                         \
   if (callback) {                                                              \
-    callback(EvaluationType::Post, result, instruction,                        \
+    callback(EvaluationType::Post, result, instruction, debug_,                \
              evaluator.evaluate_path, evaluator.instance_location,             \
              Evaluator::null);                                                 \
   }                                                                            \
   if (track) {                                                                 \
-    evaluator.evaluate_path.pop_back(                                          \
-        instruction.relative_schema_location.size());                          \
+    evaluator.evaluate_path.pop_back(debug_.relative_schema_location.size());  \
     evaluator.instance_location.pop_back(                                      \
         instruction.relative_instance_location.size());                        \
   }                                                                            \
@@ -151,7 +199,7 @@
 
 #define EVALUATE_END_NO_POP(instruction_type)                                  \
   if (callback) {                                                              \
-    callback(EvaluationType::Post, result, instruction,                        \
+    callback(EvaluationType::Post, result, instruction, debug_,                \
              evaluator.evaluate_path, evaluator.instance_location,             \
              Evaluator::null);                                                 \
   }                                                                            \
@@ -161,15 +209,16 @@
 
 #define EVALUATE_ANNOTATION(instruction_type, destination, annotation_value)   \
   if (callback) {                                                              \
-    evaluator.evaluate_path.push_back(instruction.relative_schema_location);   \
+    const auto &debug_{schema.debug_info[static_cast<std::size_t>(             \
+        &instruction - schema.instructions.data())]};                          \
+    evaluator.evaluate_path.push_back(debug_.relative_schema_location);        \
     evaluator.instance_location.push_back(                                     \
         instruction.relative_instance_location);                               \
-    callback(EvaluationType::Pre, true, instruction, evaluator.evaluate_path,  \
-             destination, Evaluator::null);                                    \
-    callback(EvaluationType::Post, true, instruction, evaluator.evaluate_path, \
-             destination, annotation_value);                                   \
-    evaluator.evaluate_path.pop_back(                                          \
-        instruction.relative_schema_location.size());                          \
+    callback(EvaluationType::Pre, true, instruction, debug_,                   \
+             evaluator.evaluate_path, destination, Evaluator::null);           \
+    callback(EvaluationType::Post, true, instruction, debug_,                  \
+             evaluator.evaluate_path, destination, annotation_value);          \
+    evaluator.evaluate_path.pop_back(debug_.relative_schema_location.size());  \
     evaluator.instance_location.pop_back(                                      \
         instruction.relative_instance_location.size());                        \
   }                                                                            \

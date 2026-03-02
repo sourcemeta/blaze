@@ -830,14 +830,14 @@ INSTRUCTION_HANDLER(AssertionArrayPrefix) {
     const auto pointer{
         array_size == prefixes ? prefixes : std::min(array_size, prefixes) - 1};
     // Walk to the pointer-th direct child
-    std::size_t entry_offset{instruction.flat_offset};
+    std::size_t entry_offset{children_start_};
     for (std::size_t skip = 0; skip < pointer; skip++) {
       entry_offset = schema.instructions[entry_offset].next_sibling_offset;
     }
     const auto &entry{schema.instructions[entry_offset]};
     result = true;
     assert(entry.type == sourcemeta::blaze::InstructionIndex::ControlGroup);
-    for (std::size_t child_index = entry.flat_offset;
+    for (std::size_t child_index = entry_offset + 1;
          child_index < entry.next_sibling_offset;
          child_index = schema.instructions[child_index].next_sibling_offset) {
       if (!EVALUATE_RECURSE(schema.instructions[child_index], target))
@@ -869,14 +869,14 @@ INSTRUCTION_HANDLER(AssertionArrayPrefixEvaluate) {
     const auto pointer{
         array_size == prefixes ? prefixes : std::min(array_size, prefixes) - 1};
     // Walk to the pointer-th direct child
-    std::size_t entry_offset{instruction.flat_offset};
+    std::size_t entry_offset{children_start_};
     for (std::size_t skip = 0; skip < pointer; skip++) {
       entry_offset = schema.instructions[entry_offset].next_sibling_offset;
     }
     const auto &entry{schema.instructions[entry_offset]};
     result = true;
     assert(entry.type == sourcemeta::blaze::InstructionIndex::ControlGroup);
-    for (std::size_t child_index = entry.flat_offset;
+    for (std::size_t child_index = entry_offset + 1;
          child_index < entry.next_sibling_offset;
          child_index = schema.instructions[child_index].next_sibling_offset) {
       if (!EVALUATE_RECURSE(schema.instructions[child_index], target))
@@ -913,7 +913,7 @@ INSTRUCTION_HANDLER(LogicalOr) {
 
   // This boolean value controls whether we should be exhaustive
   if (value) {
-    for (std::size_t child_index = instruction.flat_offset;
+    for (std::size_t child_index = children_start_;
          child_index < instruction.next_sibling_offset;
          child_index = schema.instructions[child_index].next_sibling_offset) {
       if (EVALUATE_RECURSE(schema.instructions[child_index], target)) {
@@ -921,7 +921,7 @@ INSTRUCTION_HANDLER(LogicalOr) {
       }
     }
   } else {
-    for (std::size_t child_index = instruction.flat_offset;
+    for (std::size_t child_index = children_start_;
          child_index < instruction.next_sibling_offset;
          child_index = schema.instructions[child_index].next_sibling_offset) {
       if (EVALUATE_RECURSE(schema.instructions[child_index], target)) {
@@ -944,7 +944,7 @@ INSTRUCTION_HANDLER(LogicalAnd) {
   EVALUATE_BEGIN_NO_PRECONDITION(LogicalAnd);
   result = true;
   const auto &target{get(instance, instruction.relative_instance_location)};
-  for (std::size_t child_index = instruction.flat_offset;
+  for (std::size_t child_index = children_start_;
        child_index < instruction.next_sibling_offset;
        child_index = schema.instructions[child_index].next_sibling_offset) {
     if (!EVALUATE_RECURSE(schema.instructions[child_index], target))
@@ -974,7 +974,7 @@ INSTRUCTION_HANDLER(LogicalWhenType) {
 
   EVALUATE_BEGIN(LogicalWhenType, target.type() == value);
   result = true;
-  for (std::size_t child_index = instruction.flat_offset;
+  for (std::size_t child_index = children_start_;
        child_index < instruction.next_sibling_offset;
        child_index = schema.instructions[child_index].next_sibling_offset) {
     if (!EVALUATE_RECURSE(schema.instructions[child_index], target))
@@ -999,7 +999,7 @@ INSTRUCTION_HANDLER(LogicalWhenDefines) {
                             target.is_object() &&
                                 target.defines(value.first, value.second));
   result = true;
-  for (std::size_t child_index = instruction.flat_offset;
+  for (std::size_t child_index = children_start_;
        child_index < instruction.next_sibling_offset;
        child_index = schema.instructions[child_index].next_sibling_offset) {
     if (!EVALUATE_RECURSE(schema.instructions[child_index], target))
@@ -1023,7 +1023,7 @@ INSTRUCTION_HANDLER(LogicalWhenArraySizeGreater) {
   EVALUATE_BEGIN_NON_STRING(LogicalWhenArraySizeGreater,
                             target.is_array() && target.array_size() > value);
   result = true;
-  for (std::size_t child_index = instruction.flat_offset;
+  for (std::size_t child_index = children_start_;
        child_index < instruction.next_sibling_offset;
        child_index = schema.instructions[child_index].next_sibling_offset) {
     if (!EVALUATE_RECURSE(schema.instructions[child_index], target))
@@ -1048,7 +1048,7 @@ INSTRUCTION_HANDLER(LogicalXor) {
   bool has_matched{false};
   const auto &target{get(instance, instruction.relative_instance_location)};
   const auto value{*std::get_if<ValueBoolean>(&instruction.value)};
-  for (std::size_t child_index = instruction.flat_offset;
+  for (std::size_t child_index = children_start_;
        child_index < instruction.next_sibling_offset;
        child_index = schema.instructions[child_index].next_sibling_offset) {
     if (EVALUATE_RECURSE(schema.instructions[child_index], target)) {
@@ -1093,7 +1093,7 @@ INSTRUCTION_HANDLER(LogicalCondition) {
   const auto &target{get(instance, instruction.relative_instance_location)};
 
   // Walk condition children [0..condition_end)
-  std::size_t condition_flat{instruction.flat_offset};
+  std::size_t condition_flat{children_start_};
   for (std::size_t cursor = 0; cursor < condition_end; cursor++) {
     if (!EVALUATE_RECURSE(schema.instructions[condition_flat], target)) {
       result = false;
@@ -1110,13 +1110,12 @@ INSTRUCTION_HANDLER(LogicalCondition) {
 #if defined(SOURCEMETA_EVALUATOR_COMPLETE) ||                                  \
     defined(SOURCEMETA_EVALUATOR_TRACK)
     if (track) {
-      evaluator.evaluate_path.pop_back(
-          instruction.relative_schema_location.size());
+      evaluator.evaluate_path.pop_back(debug_.relative_schema_location.size());
     }
 #endif
 
     // Walk to the consequence_start-th direct child
-    std::size_t consequence_flat{instruction.flat_offset};
+    std::size_t consequence_flat{children_start_};
     for (std::size_t skip = 0; skip < consequence_start; skip++) {
       consequence_flat =
           schema.instructions[consequence_flat].next_sibling_offset;
@@ -1133,7 +1132,7 @@ INSTRUCTION_HANDLER(LogicalCondition) {
 #if defined(SOURCEMETA_EVALUATOR_COMPLETE) ||                                  \
     defined(SOURCEMETA_EVALUATOR_TRACK)
     if (track) {
-      evaluator.evaluate_path.push_back(instruction.relative_schema_location);
+      evaluator.evaluate_path.push_back(debug_.relative_schema_location);
     }
 #endif
   }
@@ -1149,7 +1148,7 @@ INSTRUCTION_HANDLER(ControlGroup) {
   SOURCEMETA_MAYBE_UNUSED(property_target);
   SOURCEMETA_MAYBE_UNUSED(evaluator);
   EVALUATE_BEGIN_PASS_THROUGH(ControlGroup);
-  for (std::size_t child_index = instruction.flat_offset;
+  for (std::size_t child_index = children_start_;
        child_index < instruction.next_sibling_offset;
        child_index = schema.instructions[child_index].next_sibling_offset) {
     if (!EVALUATE_RECURSE(schema.instructions[child_index], instance))
@@ -1176,7 +1175,7 @@ INSTRUCTION_HANDLER(ControlGroupWhenDefines) {
   const auto &target{get(instance, instruction.relative_instance_location)};
   const auto &value{*std::get_if<ValueProperty>(&instruction.value)};
   if (target.is_object() && target.defines(value.first, value.second)) {
-    for (std::size_t child_index = instruction.flat_offset;
+    for (std::size_t child_index = children_start_;
          child_index < instruction.next_sibling_offset;
          child_index = schema.instructions[child_index].next_sibling_offset) {
       // Note that in this control instruction, we purposely
@@ -1205,7 +1204,7 @@ INSTRUCTION_HANDLER(ControlGroupWhenDefinesDirect) {
   const auto &value{*std::get_if<ValueProperty>(&instruction.value)};
 
   if (instance.is_object() && instance.defines(value.first, value.second)) {
-    for (std::size_t child_index = instruction.flat_offset;
+    for (std::size_t child_index = children_start_;
          child_index < instruction.next_sibling_offset;
          child_index = schema.instructions[child_index].next_sibling_offset) {
       if (!EVALUATE_RECURSE(schema.instructions[child_index], instance))
@@ -1238,7 +1237,7 @@ INSTRUCTION_HANDLER(ControlGroupWhenType) {
   assert(value != JSON::Type::Decimal);
 
   if (instance.type() == value) [[likely]] {
-    for (std::size_t child_index = instruction.flat_offset;
+    for (std::size_t child_index = children_start_;
          child_index < instruction.next_sibling_offset;
          child_index = schema.instructions[child_index].next_sibling_offset) {
       if (!EVALUATE_RECURSE(schema.instructions[child_index], instance))
@@ -1396,7 +1395,7 @@ INSTRUCTION_HANDLER(LogicalNot) {
   EVALUATE_BEGIN_NO_PRECONDITION(LogicalNot);
 
   const auto &target{get(instance, instruction.relative_instance_location)};
-  for (std::size_t child_index = instruction.flat_offset;
+  for (std::size_t child_index = children_start_;
        child_index < instruction.next_sibling_offset;
        child_index = schema.instructions[child_index].next_sibling_offset) {
     if (!EVALUATE_RECURSE(schema.instructions[child_index], target))
@@ -1419,7 +1418,7 @@ INSTRUCTION_HANDLER(LogicalNotEvaluate) {
   EVALUATE_BEGIN_NO_PRECONDITION(LogicalNotEvaluate);
 
   const auto &target{get(instance, instruction.relative_instance_location)};
-  for (std::size_t child_index = instruction.flat_offset;
+  for (std::size_t child_index = children_start_;
        child_index < instruction.next_sibling_offset;
        child_index = schema.instructions[child_index].next_sibling_offset) {
     if (!EVALUATE_RECURSE(schema.instructions[child_index], target))
@@ -1454,7 +1453,7 @@ INSTRUCTION_HANDLER(LoopPropertiesUnevaluated) {
 #ifdef SOURCEMETA_EVALUATOR_COMPLETE
       evaluator.instance_location.push_back(entry.first);
 #endif
-      for (std::size_t child_index = instruction.flat_offset;
+      for (std::size_t child_index = children_start_;
            child_index < instruction.next_sibling_offset;
            child_index = schema.instructions[child_index].next_sibling_offset) {
         if (!EVALUATE_RECURSE(schema.instructions[child_index], entry.second))
@@ -1521,7 +1520,7 @@ INSTRUCTION_HANDLER(LoopPropertiesUnevaluatedExcept) {
 #ifdef SOURCEMETA_EVALUATOR_COMPLETE
       evaluator.instance_location.push_back(entry.first);
 #endif
-      for (std::size_t child_index = instruction.flat_offset;
+      for (std::size_t child_index = children_start_;
            child_index < instruction.next_sibling_offset;
            child_index = schema.instructions[child_index].next_sibling_offset) {
         if (!EVALUATE_RECURSE(schema.instructions[child_index], entry.second))
@@ -1565,7 +1564,7 @@ INSTRUCTION_HANDLER(LoopPropertiesMatch) {
     const auto &subinstruction{schema.instructions[*child_offset]};
     assert(subinstruction.type ==
            sourcemeta::blaze::InstructionIndex::ControlGroup);
-    for (std::size_t child_index = subinstruction.flat_offset;
+    for (std::size_t child_index = *child_offset + 1;
          child_index < subinstruction.next_sibling_offset;
          child_index = schema.instructions[child_index].next_sibling_offset) {
       if (!EVALUATE_RECURSE(schema.instructions[child_index], target))
@@ -1600,7 +1599,7 @@ INSTRUCTION_HANDLER(LoopPropertiesMatchClosed) {
     const auto &subinstruction{schema.instructions[*child_offset]};
     assert(subinstruction.type ==
            sourcemeta::blaze::InstructionIndex::ControlGroup);
-    for (std::size_t child_index = subinstruction.flat_offset;
+    for (std::size_t child_index = *child_offset + 1;
          child_index < subinstruction.next_sibling_offset;
          child_index = schema.instructions[child_index].next_sibling_offset) {
       if (!EVALUATE_RECURSE(schema.instructions[child_index], target))
@@ -1631,7 +1630,7 @@ INSTRUCTION_HANDLER(LoopProperties) {
     }
 #endif
 
-    for (std::size_t child_index = instruction.flat_offset;
+    for (std::size_t child_index = children_start_;
          child_index < instruction.next_sibling_offset;
          child_index = schema.instructions[child_index].next_sibling_offset) {
       if (!EVALUATE_RECURSE(schema.instructions[child_index], entry.second))
@@ -1675,7 +1674,7 @@ INSTRUCTION_HANDLER(LoopPropertiesEvaluate) {
     }
 #endif
 
-    for (std::size_t child_index = instruction.flat_offset;
+    for (std::size_t child_index = children_start_;
          child_index < instruction.next_sibling_offset;
          child_index = schema.instructions[child_index].next_sibling_offset) {
       if (!EVALUATE_RECURSE(schema.instructions[child_index], entry.second))
@@ -1725,7 +1724,7 @@ INSTRUCTION_HANDLER(LoopPropertiesRegex) {
     }
 #endif
 
-    for (std::size_t child_index = instruction.flat_offset;
+    for (std::size_t child_index = children_start_;
          child_index < instruction.next_sibling_offset;
          child_index = schema.instructions[child_index].next_sibling_offset) {
       if (!EVALUATE_RECURSE(schema.instructions[child_index], entry.second))
@@ -1778,7 +1777,7 @@ INSTRUCTION_HANDLER(LoopPropertiesRegexClosed) {
     }
 #endif
 
-    for (std::size_t child_index = instruction.flat_offset;
+    for (std::size_t child_index = children_start_;
          child_index < instruction.next_sibling_offset;
          child_index = schema.instructions[child_index].next_sibling_offset) {
       if (!EVALUATE_RECURSE(schema.instructions[child_index], entry.second))
@@ -1827,7 +1826,7 @@ INSTRUCTION_HANDLER(LoopPropertiesStartsWith) {
     }
 #endif
 
-    for (std::size_t child_index = instruction.flat_offset;
+    for (std::size_t child_index = children_start_;
          child_index < instruction.next_sibling_offset;
          child_index = schema.instructions[child_index].next_sibling_offset) {
       if (!EVALUATE_RECURSE(schema.instructions[child_index], entry.second))
@@ -1894,7 +1893,7 @@ INSTRUCTION_HANDLER(LoopPropertiesExcept) {
     }
 #endif
 
-    for (std::size_t child_index = instruction.flat_offset;
+    for (std::size_t child_index = children_start_;
          child_index < instruction.next_sibling_offset;
          child_index = schema.instructions[child_index].next_sibling_offset) {
       if (!EVALUATE_RECURSE(schema.instructions[child_index], entry.second))
@@ -2168,7 +2167,7 @@ INSTRUCTION_HANDLER(LoopKeys) {
     }
 #endif
 
-    for (std::size_t child_index = instruction.flat_offset;
+    for (std::size_t child_index = children_start_;
          child_index < instruction.next_sibling_offset;
          child_index = schema.instructions[child_index].next_sibling_offset) {
       if (!EVALUATE_RECURSE_ON_PROPERTY_NAME(schema.instructions[child_index],
@@ -2210,7 +2209,7 @@ INSTRUCTION_HANDLER(LoopItems) {
   // To avoid index lookups and unnecessary conditionals
 #ifdef SOURCEMETA_EVALUATOR_FAST
   for (const auto &new_instance : target.as_array()) {
-    for (std::size_t child_index = instruction.flat_offset;
+    for (std::size_t child_index = children_start_;
          child_index < instruction.next_sibling_offset;
          child_index = schema.instructions[child_index].next_sibling_offset) {
       if (!EVALUATE_RECURSE(schema.instructions[child_index], new_instance))
@@ -2229,7 +2228,7 @@ INSTRUCTION_HANDLER(LoopItems) {
 #endif
 
     const auto &new_instance{target.at(index)};
-    for (std::size_t child_index = instruction.flat_offset;
+    for (std::size_t child_index = children_start_;
          child_index < instruction.next_sibling_offset;
          child_index = schema.instructions[child_index].next_sibling_offset) {
       if (!EVALUATE_RECURSE(schema.instructions[child_index], new_instance))
@@ -2277,7 +2276,7 @@ INSTRUCTION_HANDLER(LoopItemsFrom) {
 #endif
 
     const auto &new_instance{target.at(index)};
-    for (std::size_t child_index = instruction.flat_offset;
+    for (std::size_t child_index = children_start_;
          child_index < instruction.next_sibling_offset;
          child_index = schema.instructions[child_index].next_sibling_offset) {
       if (!EVALUATE_RECURSE(schema.instructions[child_index], new_instance))
@@ -2325,7 +2324,7 @@ INSTRUCTION_HANDLER(LoopItemsUnevaluated) {
 #ifdef SOURCEMETA_EVALUATOR_COMPLETE
       evaluator.instance_location.push_back(index);
 #endif
-      for (std::size_t child_index = instruction.flat_offset;
+      for (std::size_t child_index = children_start_;
            child_index < instruction.next_sibling_offset;
            child_index = schema.instructions[child_index].next_sibling_offset) {
         if (!EVALUATE_RECURSE(schema.instructions[child_index], new_instance))
@@ -2606,7 +2605,7 @@ INSTRUCTION_HANDLER(LoopContains) {
 
     const auto &new_instance{target.at(index)};
     bool subresult{true};
-    for (std::size_t child_index = instruction.flat_offset;
+    for (std::size_t child_index = children_start_;
          child_index < instruction.next_sibling_offset;
          child_index = schema.instructions[child_index].next_sibling_offset) {
       if (!EVALUATE_RECURSE(schema.instructions[child_index], new_instance)) {

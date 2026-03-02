@@ -31,6 +31,7 @@ auto SimpleOutput::cend() const -> const_iterator {
 
 auto SimpleOutput::operator()(
     const EvaluationType type, const bool result, const Instruction &step,
+    const InstructionDebugInfo &debug_info,
     const sourcemeta::core::WeakPointer &evaluate_path,
     const sourcemeta::core::WeakPointer &instance_location,
     const sourcemeta::core::JSON &annotation) -> void {
@@ -48,7 +49,7 @@ auto SimpleOutput::operator()(
     if (type == EvaluationType::Post) {
       Location location{.instance_location = instance_location,
                         .evaluate_path = std::move(effective_evaluate_path),
-                        .schema_location = step.keyword_location};
+                        .schema_location = debug_info.keyword_location};
       const auto match{this->annotations_.find(location)};
       if (match == this->annotations_.cend()) {
         this->annotations_[std::move(location)].push_back(annotation);
@@ -115,10 +116,13 @@ auto SimpleOutput::operator()(
     for (const auto &mask_entry : this->mask) {
       if (evaluate_path.starts_with(mask_entry.first)) {
         this->masked_traces[mask_entry].push_back(
-            {describe(result, step, this->instructions_, evaluate_path,
-                      instance_location, this->instance_, annotation),
+            {describe(
+                 result, step,
+                 static_cast<std::size_t>(&step - this->instructions_.data()),
+                 this->instructions_, evaluate_path, instance_location,
+                 this->instance_, annotation),
              instance_location, std::move(effective_evaluate_path),
-             step.keyword_location});
+             debug_info.keyword_location});
 
         return;
       }
@@ -126,10 +130,12 @@ auto SimpleOutput::operator()(
   }
 
   this->output.push_back(
-      {describe(result, step, this->instructions_, evaluate_path,
-                instance_location, this->instance_, annotation),
+      {describe(result, step,
+                static_cast<std::size_t>(&step - this->instructions_.data()),
+                this->instructions_, evaluate_path, instance_location,
+                this->instance_, annotation),
        instance_location, std::move(effective_evaluate_path),
-       step.keyword_location});
+       debug_info.keyword_location});
 }
 
 } // namespace sourcemeta::blaze

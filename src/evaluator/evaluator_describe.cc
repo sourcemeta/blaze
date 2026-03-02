@@ -186,6 +186,7 @@ namespace sourcemeta::blaze {
 // TODO: What will unlock even better error messages is being able to
 // get the subschema being evaluated along with the keyword
 auto describe(const bool valid, const Instruction &step,
+              const std::size_t instruction_index,
               const Instructions &all_instructions,
               const sourcemeta::core::WeakPointer &evaluate_path,
               const sourcemeta::core::WeakPointer &instance_location,
@@ -637,8 +638,9 @@ auto describe(const bool valid, const Instruction &step,
     assert(keyword == "additionalProperties" ||
            keyword == "unevaluatedProperties");
     std::ostringstream message;
-    if (step.children_count > 0 && all_instructions[step.flat_offset].type ==
-                                       InstructionIndex::AssertionFail) {
+    if (step.children_count > 0 &&
+        all_instructions[instruction_index + 1].type ==
+            InstructionIndex::AssertionFail) {
       if (keyword == "unevaluatedProperties") {
         message << "The object value was not expected to define unevaluated "
                    "properties";
@@ -662,7 +664,7 @@ auto describe(const bool valid, const Instruction &step,
     assert(keyword == "additionalProperties");
     std::ostringstream message;
     if (static_cast<std::size_t>(step.children_count) == 1 &&
-        all_instructions[step.flat_offset].type ==
+        all_instructions[instruction_index + 1].type ==
             InstructionIndex::AssertionFail) {
       message << "The object value was not expected to define additional "
                  "properties";
@@ -678,8 +680,9 @@ auto describe(const bool valid, const Instruction &step,
       sourcemeta::blaze::InstructionIndex::LoopPropertiesUnevaluated) {
     if (keyword == "unevaluatedProperties") {
       std::ostringstream message;
-      if (step.children_count > 0 && all_instructions[step.flat_offset].type ==
-                                         InstructionIndex::AssertionFail) {
+      if (step.children_count > 0 &&
+          all_instructions[instruction_index + 1].type ==
+              InstructionIndex::AssertionFail) {
         message << "The object value was not expected to define unevaluated "
                    "properties";
       } else {
@@ -697,8 +700,9 @@ auto describe(const bool valid, const Instruction &step,
       sourcemeta::blaze::InstructionIndex::LoopPropertiesUnevaluatedExcept) {
     if (keyword == "unevaluatedProperties") {
       std::ostringstream message;
-      if (step.children_count > 0 && all_instructions[step.flat_offset].type ==
-                                         InstructionIndex::AssertionFail) {
+      if (step.children_count > 0 &&
+          all_instructions[instruction_index + 1].type ==
+              InstructionIndex::AssertionFail) {
         message << "The object value was not expected to define unevaluated "
                    "properties";
       } else {
@@ -716,8 +720,9 @@ auto describe(const bool valid, const Instruction &step,
     assert(keyword == "additionalProperties" ||
            keyword == "unevaluatedProperties");
     std::ostringstream message;
-    if (step.children_count > 0 && all_instructions[step.flat_offset].type ==
-                                       InstructionIndex::AssertionFail) {
+    if (step.children_count > 0 &&
+        all_instructions[instruction_index + 1].type ==
+            InstructionIndex::AssertionFail) {
       if (keyword == "unevaluatedProperties") {
         message << "The object value was not expected to define unevaluated "
                    "properties";
@@ -2073,7 +2078,7 @@ auto describe(const bool valid, const Instruction &step,
       std::set<std::string> all_dependencies;
       std::set<std::string> required_properties;
 
-      for (std::size_t child_idx = step.flat_offset;
+      for (std::size_t child_idx = instruction_index + 1;
            child_idx < step.next_sibling_offset;
            child_idx = all_instructions[child_idx].next_sibling_offset) {
         const auto &child{all_instructions[child_idx]};
@@ -2199,7 +2204,7 @@ auto describe(const bool valid, const Instruction &step,
       assert(step.direct_children_count > 0);
       std::set<std::string> present;
       std::set<std::string> all_dependencies;
-      for (std::size_t child_idx = step.flat_offset;
+      for (std::size_t child_idx = instruction_index + 1;
            child_idx < step.next_sibling_offset;
            child_idx = all_instructions[child_idx].next_sibling_offset) {
         const auto &child{all_instructions[child_idx]};
