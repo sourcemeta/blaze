@@ -36,7 +36,7 @@ resolve_string_target(const JSON::String *property_target, const JSON &instance,
   }
 
   const auto &target{get(instance, relative_instance_location)};
-  if (!target.is_string()) {
+  if (!target.is_string()) [[unlikely]] {
     return nullptr;
   } else {
     return &target.to_string();
