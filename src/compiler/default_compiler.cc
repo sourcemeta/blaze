@@ -15,8 +15,8 @@ auto sourcemeta::blaze::default_schema_compiler(
     const sourcemeta::blaze::Context &context,
     const sourcemeta::blaze::SchemaContext &schema_context,
     const sourcemeta::blaze::DynamicContext &dynamic_context,
-    const sourcemeta::blaze::Instructions &current)
-    -> sourcemeta::blaze::Instructions {
+    const sourcemeta::blaze::TreeInstructions &current)
+    -> sourcemeta::blaze::TreeInstructions {
   assert(!dynamic_context.keyword.empty());
 
   using Known = sourcemeta::core::Vocabularies::Known;

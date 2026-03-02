@@ -7,8 +7,8 @@ namespace internal {
 using namespace sourcemeta::blaze;
 
 auto compiler_openapi_noop(const Context &, const SchemaContext &,
-                           const DynamicContext &, const Instructions &)
-    -> Instructions {
+                           const DynamicContext &, const TreeInstructions &)
+    -> TreeInstructions {
   return {};
 }
 

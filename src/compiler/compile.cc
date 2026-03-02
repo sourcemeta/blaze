@@ -13,6 +13,7 @@
 #include <vector>        // std::vector
 
 #include "compile_helpers.h"
+#include "flatten.h"
 #include "postprocess.h"
 
 namespace {
@@ -21,7 +22,7 @@ auto compile_subschema(const sourcemeta::blaze::Context &context,
                        const sourcemeta::blaze::SchemaContext &schema_context,
                        const sourcemeta::blaze::DynamicContext &dynamic_context,
                        const std::string_view default_dialect)
-    -> sourcemeta::blaze::Instructions {
+    -> sourcemeta::blaze::TreeInstructions {
   using namespace sourcemeta::blaze;
   assert(is_schema(schema_context.schema));
 
@@ -41,7 +42,7 @@ auto compile_subschema(const sourcemeta::blaze::Context &context,
     }
   }
 
-  Instructions steps;
+  TreeInstructions steps;
   for (const auto &entry : sourcemeta::core::SchemaKeywordIterator{
            schema_context.schema, context.walker, context.resolver,
            default_dialect}) {
@@ -353,7 +354,7 @@ auto compile(const sourcemeta::core::JSON &schema,
   // (6) Compile targets for static references
   ///////////////////////////////////////////////////////////////////
 
-  std::vector<Instructions> compiled_targets;
+  std::vector<TreeInstructions> compiled_targets;
   compiled_targets.resize(context.targets.size());
   for (const auto &[destination, target_info] : context.targets) {
     const auto &[reference_type, destination_uri, is_property_name] =
@@ -414,10 +415,11 @@ auto compile(const sourcemeta::core::JSON &schema,
       std::ranges::any_of(context.unevaluated, [](const auto &dependency) {
         return dependency.first.ends_with("unevaluatedItems");
       })};
-  return {.dynamic = uses_dynamic_scopes,
-          .track = track,
-          .targets = std::move(compiled_targets),
-          .labels = std::move(labels_map)};
+  const TreeTemplate tree_template{.dynamic = uses_dynamic_scopes,
+                                   .track = track,
+                                   .targets = std::move(compiled_targets),
+                                   .labels = std::move(labels_map)};
+  return flatten(tree_template);
 }
 
 auto compile(const sourcemeta::core::JSON &schema,
@@ -446,7 +448,7 @@ auto compile(const Context &context, const SchemaContext &schema_context,
              const DynamicContext &dynamic_context,
              const sourcemeta::core::WeakPointer &schema_suffix,
              const sourcemeta::core::WeakPointer &instance_suffix,
-             const std::optional<std::string_view> uri) -> Instructions {
+             const std::optional<std::string_view> uri) -> TreeInstructions {
   // Determine URI of the destination after recursion
   const std::string destination{
       uri.has_value()

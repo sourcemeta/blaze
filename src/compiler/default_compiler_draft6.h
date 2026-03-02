@@ -13,8 +13,8 @@ using namespace sourcemeta::blaze;
 auto compiler_draft6_validation_type(const Context &context,
                                      const SchemaContext &schema_context,
                                      const DynamicContext &dynamic_context,
-                                     const Instructions &current)
-    -> Instructions {
+                                     const TreeInstructions &current)
+    -> TreeInstructions {
   if (schema_context.schema.at(dynamic_context.keyword).is_string()) {
     const auto &type{
         schema_context.schema.at(dynamic_context.keyword).to_string()};
@@ -333,7 +333,8 @@ auto compiler_draft6_validation_type(const Context &context,
 auto compiler_draft6_validation_const(const Context &context,
                                       const SchemaContext &schema_context,
                                       const DynamicContext &dynamic_context,
-                                      const Instructions &) -> Instructions {
+                                      const TreeInstructions &)
+    -> TreeInstructions {
   return {make(sourcemeta::blaze::InstructionIndex::AssertionEqual, context,
                schema_context, dynamic_context,
                sourcemeta::core::JSON{
@@ -342,8 +343,8 @@ auto compiler_draft6_validation_const(const Context &context,
 
 auto compiler_draft6_validation_exclusivemaximum(
     const Context &context, const SchemaContext &schema_context,
-    const DynamicContext &dynamic_context, const Instructions &)
-    -> Instructions {
+    const DynamicContext &dynamic_context, const TreeInstructions &)
+    -> TreeInstructions {
   if (!schema_context.schema.at(dynamic_context.keyword).is_number()) {
     return {};
   }
@@ -363,8 +364,8 @@ auto compiler_draft6_validation_exclusivemaximum(
 
 auto compiler_draft6_validation_exclusiveminimum(
     const Context &context, const SchemaContext &schema_context,
-    const DynamicContext &dynamic_context, const Instructions &)
-    -> Instructions {
+    const DynamicContext &dynamic_context, const TreeInstructions &)
+    -> TreeInstructions {
   if (!schema_context.schema.at(dynamic_context.keyword).is_number()) {
     return {};
   }
@@ -385,17 +386,18 @@ auto compiler_draft6_validation_exclusiveminimum(
 auto compiler_draft6_applicator_contains(const Context &context,
                                          const SchemaContext &schema_context,
                                          const DynamicContext &dynamic_context,
-                                         const Instructions &) -> Instructions {
+                                         const TreeInstructions &)
+    -> TreeInstructions {
   if (schema_context.schema.defines("type") &&
       schema_context.schema.at("type").is_string() &&
       schema_context.schema.at("type").to_string() != "array") {
     return {};
   }
 
-  Instructions children{compile(context, schema_context,
-                                relative_dynamic_context(),
-                                sourcemeta::core::empty_weak_pointer,
-                                sourcemeta::core::empty_weak_pointer)};
+  TreeInstructions children{compile(context, schema_context,
+                                    relative_dynamic_context(),
+                                    sourcemeta::core::empty_weak_pointer,
+                                    sourcemeta::core::empty_weak_pointer)};
 
   if (children.empty()) {
     // We still need to check the instance is not empty
@@ -411,8 +413,8 @@ auto compiler_draft6_applicator_contains(const Context &context,
 
 auto compiler_draft6_validation_propertynames(
     const Context &context, const SchemaContext &schema_context,
-    const DynamicContext &dynamic_context, const Instructions &)
-    -> Instructions {
+    const DynamicContext &dynamic_context, const TreeInstructions &)
+    -> TreeInstructions {
   if (schema_context.schema.defines("type") &&
       schema_context.schema.at("type").is_string() &&
       schema_context.schema.at("type").to_string() != "object") {
@@ -422,10 +424,10 @@ auto compiler_draft6_validation_propertynames(
   // TODO: How can we avoid this copy?
   auto nested_schema_context = schema_context;
   nested_schema_context.is_property_name = true;
-  Instructions children{compile(context, nested_schema_context,
-                                relative_dynamic_context(),
-                                sourcemeta::core::empty_weak_pointer,
-                                sourcemeta::core::empty_weak_pointer)};
+  TreeInstructions children{compile(context, nested_schema_context,
+                                    relative_dynamic_context(),
+                                    sourcemeta::core::empty_weak_pointer,
+                                    sourcemeta::core::empty_weak_pointer)};
 
   if (children.empty()) {
     return {};

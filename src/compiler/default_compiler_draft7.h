@@ -12,12 +12,13 @@ using namespace sourcemeta::blaze;
 auto compiler_draft7_applicator_if(const Context &context,
                                    const SchemaContext &schema_context,
                                    const DynamicContext &dynamic_context,
-                                   const Instructions &) -> Instructions {
+                                   const TreeInstructions &)
+    -> TreeInstructions {
   // `if`
-  Instructions children{compile(context, schema_context,
-                                relative_dynamic_context(),
-                                sourcemeta::core::empty_weak_pointer,
-                                sourcemeta::core::empty_weak_pointer)};
+  TreeInstructions children{compile(context, schema_context,
+                                    relative_dynamic_context(),
+                                    sourcemeta::core::empty_weak_pointer,
+                                    sourcemeta::core::empty_weak_pointer)};
 
   // `then`
   std::size_t then_cursor{children.size()};
@@ -79,7 +80,8 @@ auto compiler_draft7_applicator_if(const Context &context,
 // purposes
 auto compiler_draft7_applicator_then(const Context &, const SchemaContext &,
                                      const DynamicContext &,
-                                     const Instructions &) -> Instructions {
+                                     const TreeInstructions &)
+    -> TreeInstructions {
   return {};
 }
 
@@ -88,7 +90,8 @@ auto compiler_draft7_applicator_then(const Context &, const SchemaContext &,
 // purposes
 auto compiler_draft7_applicator_else(const Context &, const SchemaContext &,
                                      const DynamicContext &,
-                                     const Instructions &) -> Instructions {
+                                     const TreeInstructions &)
+    -> TreeInstructions {
   return {};
 }
 

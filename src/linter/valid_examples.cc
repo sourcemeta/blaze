@@ -59,7 +59,7 @@ auto ValidExamples::condition(
                                        Mode::Exhaustive)};
 
     for (const auto &example : schema.at("examples").as_array()) {
-      SimpleOutput output{example};
+      SimpleOutput output{example, schema_template.instructions};
       Evaluator evaluator;
       const auto result{
           evaluator.validate(schema_template, example, std::ref(output))};
@@ -103,7 +103,7 @@ auto ValidExamples::condition(
                                      location.dialect, default_id)};
 
   for (const auto &example : schema.at("examples").as_array()) {
-    SimpleOutput output{example, base};
+    SimpleOutput output{example, schema_template.instructions, base};
     Evaluator evaluator;
     const auto result{
         evaluator.validate(schema_template, example, std::ref(output))};

@@ -10,8 +10,10 @@
 namespace sourcemeta::blaze {
 
 SimpleOutput::SimpleOutput(const sourcemeta::core::JSON &instance,
+                           const Instructions &instructions,
                            sourcemeta::core::WeakPointer base)
-    : instance_{instance}, base_{std::move(base)} {}
+    : instance_{instance}, instructions_{instructions}, base_{std::move(base)} {
+}
 
 auto SimpleOutput::begin() const -> const_iterator {
   return this->output.begin();
@@ -113,8 +115,8 @@ auto SimpleOutput::operator()(
     for (const auto &mask_entry : this->mask) {
       if (evaluate_path.starts_with(mask_entry.first)) {
         this->masked_traces[mask_entry].push_back(
-            {describe(result, step, evaluate_path, instance_location,
-                      this->instance_, annotation),
+            {describe(result, step, this->instructions_, evaluate_path,
+                      instance_location, this->instance_, annotation),
              instance_location, std::move(effective_evaluate_path),
              step.keyword_location});
 
@@ -124,8 +126,8 @@ auto SimpleOutput::operator()(
   }
 
   this->output.push_back(
-      {describe(result, step, evaluate_path, instance_location, this->instance_,
-                annotation),
+      {describe(result, step, this->instructions_, evaluate_path,
+                instance_location, this->instance_, annotation),
        instance_location, std::move(effective_evaluate_path),
        step.keyword_location});
 }

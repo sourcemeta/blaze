@@ -53,7 +53,7 @@ auto ValidDefault::condition(
     const auto schema_template{compile(root, walker, resolver, this->compiler_,
                                        frame, base.value().get(),
                                        Mode::Exhaustive)};
-    SimpleOutput output{instance};
+    SimpleOutput output{instance, schema_template.instructions};
     Evaluator evaluator;
     const auto result{
         evaluator.validate(schema_template, instance, std::ref(output))};
@@ -89,7 +89,7 @@ auto ValidDefault::condition(
   const auto schema_template{compile(subschema, walker, resolver,
                                      this->compiler_, Mode::Exhaustive,
                                      location.dialect, default_id)};
-  SimpleOutput output{instance, base};
+  SimpleOutput output{instance, schema_template.instructions, base};
   Evaluator evaluator;
   const auto result{
       evaluator.validate(schema_template, instance, std::ref(output))};

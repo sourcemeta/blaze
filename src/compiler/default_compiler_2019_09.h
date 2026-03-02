@@ -11,8 +11,8 @@ using namespace sourcemeta::blaze;
 
 auto compiler_2019_09_applicator_dependentschemas(
     const Context &context, const SchemaContext &schema_context,
-    const DynamicContext &dynamic_context, const Instructions &)
-    -> Instructions {
+    const DynamicContext &dynamic_context, const TreeInstructions &)
+    -> TreeInstructions {
   if (!schema_context.schema.at(dynamic_context.keyword).is_object()) {
     return {};
   }
@@ -23,7 +23,7 @@ auto compiler_2019_09_applicator_dependentschemas(
     return {};
   }
 
-  Instructions children;
+  TreeInstructions children;
 
   // To guarantee order
   std::vector<std::string> dependents;
@@ -57,8 +57,8 @@ auto compiler_2019_09_applicator_dependentschemas(
 
 auto compiler_2019_09_validation_dependentrequired(
     const Context &context, const SchemaContext &schema_context,
-    const DynamicContext &dynamic_context, const Instructions &)
-    -> Instructions {
+    const DynamicContext &dynamic_context, const TreeInstructions &)
+    -> TreeInstructions {
   if (!schema_context.schema.at(dynamic_context.keyword).is_object()) {
     return {};
   }
@@ -99,7 +99,8 @@ auto compiler_2019_09_validation_dependentrequired(
 auto compiler_2019_09_core_annotation(const Context &context,
                                       const SchemaContext &schema_context,
                                       const DynamicContext &dynamic_context,
-                                      const Instructions &) -> Instructions {
+                                      const TreeInstructions &)
+    -> TreeInstructions {
   return {make(sourcemeta::blaze::InstructionIndex::AnnotationEmit, context,
                schema_context, dynamic_context,
                sourcemeta::core::JSON{
@@ -108,8 +109,8 @@ auto compiler_2019_09_core_annotation(const Context &context,
 
 auto compiler_2019_09_applicator_contains_with_options(
     const Context &context, const SchemaContext &schema_context,
-    const DynamicContext &dynamic_context, const Instructions &,
-    const bool annotate, const bool track_evaluation) -> Instructions {
+    const DynamicContext &dynamic_context, const TreeInstructions &,
+    const bool annotate, const bool track_evaluation) -> TreeInstructions {
   if (schema_context.is_property_name) {
     return {};
   }
@@ -153,10 +154,10 @@ auto compiler_2019_09_applicator_contains_with_options(
     return {};
   }
 
-  Instructions children{compile(context, schema_context,
-                                relative_dynamic_context(),
-                                sourcemeta::core::empty_weak_pointer,
-                                sourcemeta::core::empty_weak_pointer)};
+  TreeInstructions children{compile(context, schema_context,
+                                    relative_dynamic_context(),
+                                    sourcemeta::core::empty_weak_pointer,
+                                    sourcemeta::core::empty_weak_pointer)};
 
   if (annotate) {
     children.push_back(
@@ -191,17 +192,17 @@ auto compiler_2019_09_applicator_contains_with_options(
 auto compiler_2019_09_applicator_contains(const Context &context,
                                           const SchemaContext &schema_context,
                                           const DynamicContext &dynamic_context,
-                                          const Instructions &current)
-    -> Instructions {
+                                          const TreeInstructions &current)
+    -> TreeInstructions {
   return compiler_2019_09_applicator_contains_with_options(
       context, schema_context, dynamic_context, current, false, false);
 }
 
 auto compiler_2019_09_applicator_additionalproperties(
     const Context &context, const SchemaContext &schema_context,
-    const DynamicContext &dynamic_context, const Instructions &)
+    const DynamicContext &dynamic_context, const TreeInstructions &)
 
-    -> Instructions {
+    -> TreeInstructions {
   return compiler_draft4_applicator_additionalproperties_with_options(
       context, schema_context, dynamic_context,
       context.mode == Mode::Exhaustive,
@@ -211,7 +212,8 @@ auto compiler_2019_09_applicator_additionalproperties(
 auto compiler_2019_09_applicator_items(const Context &context,
                                        const SchemaContext &schema_context,
                                        const DynamicContext &dynamic_context,
-                                       const Instructions &) -> Instructions {
+                                       const TreeInstructions &)
+    -> TreeInstructions {
   // TODO: Be smarter about how we treat `unevaluatedItems` like how we do for
   // `unevaluatedProperties`
   const bool track{
@@ -233,8 +235,8 @@ auto compiler_2019_09_applicator_items(const Context &context,
 
 auto compiler_2019_09_applicator_additionalitems(
     const Context &context, const SchemaContext &schema_context,
-    const DynamicContext &dynamic_context, const Instructions &)
-    -> Instructions {
+    const DynamicContext &dynamic_context, const TreeInstructions &)
+    -> TreeInstructions {
   // TODO: Be smarter about how we treat `unevaluatedItems` like how we do for
   // `unevaluatedProperties`
   const bool track{
@@ -250,8 +252,8 @@ auto compiler_2019_09_applicator_additionalitems(
 
 auto compiler_2019_09_applicator_unevaluateditems(
     const Context &context, const SchemaContext &schema_context,
-    const DynamicContext &dynamic_context, const Instructions &)
-    -> Instructions {
+    const DynamicContext &dynamic_context, const TreeInstructions &)
+    -> TreeInstructions {
   if (schema_context.schema.defines("type") &&
       schema_context.schema.at("type").is_string() &&
       schema_context.schema.at("type").to_string() != "array") {
@@ -277,10 +279,10 @@ auto compiler_2019_09_applicator_unevaluateditems(
     // NOLINTEND(bugprone-branch-clone)
   }
 
-  Instructions children{compile(context, schema_context,
-                                relative_dynamic_context(),
-                                sourcemeta::core::empty_weak_pointer,
-                                sourcemeta::core::empty_weak_pointer)};
+  TreeInstructions children{compile(context, schema_context,
+                                    relative_dynamic_context(),
+                                    sourcemeta::core::empty_weak_pointer,
+                                    sourcemeta::core::empty_weak_pointer)};
 
   if (context.mode == Mode::Exhaustive) {
     children.push_back(
@@ -309,18 +311,18 @@ auto compiler_2019_09_applicator_unevaluateditems(
 
 auto compiler_2019_09_applicator_unevaluatedproperties(
     const Context &context, const SchemaContext &schema_context,
-    const DynamicContext &dynamic_context, const Instructions &)
-    -> Instructions {
+    const DynamicContext &dynamic_context, const TreeInstructions &)
+    -> TreeInstructions {
   if (schema_context.schema.defines("type") &&
       schema_context.schema.at("type").is_string() &&
       schema_context.schema.at("type").to_string() != "object") {
     return {};
   }
 
-  Instructions children{compile(context, schema_context,
-                                relative_dynamic_context(),
-                                sourcemeta::core::empty_weak_pointer,
-                                sourcemeta::core::empty_weak_pointer)};
+  TreeInstructions children{compile(context, schema_context,
+                                    relative_dynamic_context(),
+                                    sourcemeta::core::empty_weak_pointer,
+                                    sourcemeta::core::empty_weak_pointer)};
 
   if (context.mode == Mode::Exhaustive) {
     children.push_back(
@@ -413,8 +415,8 @@ auto compiler_2019_09_applicator_unevaluatedproperties(
 auto compiler_2019_09_core_recursiveref(const Context &context,
                                         const SchemaContext &schema_context,
                                         const DynamicContext &dynamic_context,
-                                        const Instructions &current)
-    -> Instructions {
+                                        const TreeInstructions &current)
+    -> TreeInstructions {
   const auto &entry{static_frame_entry(context, schema_context)};
   // In this case, just behave as a normal static reference
   if (!context.frame.references().contains(
@@ -429,8 +431,8 @@ auto compiler_2019_09_core_recursiveref(const Context &context,
 
 auto compiler_2019_09_applicator_properties(
     const Context &context, const SchemaContext &schema_context,
-    const DynamicContext &dynamic_context, const Instructions &current)
-    -> Instructions {
+    const DynamicContext &dynamic_context, const TreeInstructions &current)
+    -> TreeInstructions {
   return compiler_draft4_applicator_properties_with_options(
       context, schema_context, dynamic_context, current,
       context.mode == Mode::Exhaustive,
@@ -439,8 +441,8 @@ auto compiler_2019_09_applicator_properties(
 
 auto compiler_2019_09_applicator_patternproperties(
     const Context &context, const SchemaContext &schema_context,
-    const DynamicContext &dynamic_context, const Instructions &)
-    -> Instructions {
+    const DynamicContext &dynamic_context, const TreeInstructions &)
+    -> TreeInstructions {
   return compiler_draft4_applicator_patternproperties_with_options(
       context, schema_context, dynamic_context,
       context.mode == Mode::Exhaustive,
@@ -449,13 +451,13 @@ auto compiler_2019_09_applicator_patternproperties(
 
 auto compiler_2019_09_content_contentencoding(
     const Context &context, const SchemaContext &schema_context,
-    const DynamicContext &dynamic_context, const Instructions &)
-    -> Instructions {
+    const DynamicContext &dynamic_context, const TreeInstructions &)
+    -> TreeInstructions {
   if (context.mode == Mode::FastValidation) {
     return {};
   }
 
-  Instructions children{
+  TreeInstructions children{
       make(sourcemeta::blaze::InstructionIndex::AnnotationEmit, context,
            schema_context, dynamic_context,
            sourcemeta::core::JSON{
@@ -468,13 +470,13 @@ auto compiler_2019_09_content_contentencoding(
 
 auto compiler_2019_09_content_contentmediatype(
     const Context &context, const SchemaContext &schema_context,
-    const DynamicContext &dynamic_context, const Instructions &)
-    -> Instructions {
+    const DynamicContext &dynamic_context, const TreeInstructions &)
+    -> TreeInstructions {
   if (context.mode == Mode::FastValidation) {
     return {};
   }
 
-  Instructions children{
+  TreeInstructions children{
       make(sourcemeta::blaze::InstructionIndex::AnnotationEmit, context,
            schema_context, dynamic_context,
            sourcemeta::core::JSON{
@@ -487,8 +489,8 @@ auto compiler_2019_09_content_contentmediatype(
 
 auto compiler_2019_09_content_contentschema(
     const Context &context, const SchemaContext &schema_context,
-    const DynamicContext &dynamic_context, const Instructions &)
-    -> Instructions {
+    const DynamicContext &dynamic_context, const TreeInstructions &)
+    -> TreeInstructions {
   if (context.mode == Mode::FastValidation) {
     return {};
   }
@@ -498,7 +500,7 @@ auto compiler_2019_09_content_contentschema(
     return {};
   }
 
-  Instructions children{
+  TreeInstructions children{
       make(sourcemeta::blaze::InstructionIndex::AnnotationEmit, context,
            schema_context, dynamic_context,
            sourcemeta::core::JSON{
@@ -512,12 +514,13 @@ auto compiler_2019_09_content_contentschema(
 auto compiler_2019_09_format_format(const Context &context,
                                     const SchemaContext &schema_context,
                                     const DynamicContext &dynamic_context,
-                                    const Instructions &) -> Instructions {
+                                    const TreeInstructions &)
+    -> TreeInstructions {
   if (context.mode == Mode::FastValidation) {
     return {};
   }
 
-  Instructions children{
+  TreeInstructions children{
       make(sourcemeta::blaze::InstructionIndex::AnnotationEmit, context,
            schema_context, dynamic_context,
            sourcemeta::core::JSON{

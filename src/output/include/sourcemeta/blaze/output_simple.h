@@ -69,6 +69,7 @@ namespace sourcemeta::blaze {
 class SOURCEMETA_BLAZE_OUTPUT_EXPORT SimpleOutput {
 public:
   SimpleOutput(const sourcemeta::core::JSON &instance,
+               const Instructions &instructions,
                sourcemeta::core::WeakPointer base =
                    sourcemeta::core::empty_weak_pointer);
 
@@ -127,6 +128,7 @@ private:
 #pragma warning(disable : 4251)
 #endif
   const sourcemeta::core::JSON &instance_;
+  const Instructions &instructions_;
   const sourcemeta::core::WeakPointer base_;
   container_type output;
   std::set<

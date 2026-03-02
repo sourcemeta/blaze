@@ -1,6 +1,7 @@
 #include <sourcemeta/blaze/evaluator.h>
 
 #include <cassert> // assert
+#include <cstdint> // std::uint32_t
 
 namespace {
 auto value_from_json(const sourcemeta::core::JSON &wrapper)
@@ -48,12 +49,12 @@ auto value_from_json(const sourcemeta::core::JSON &wrapper)
 
 auto instructions_from_json(const sourcemeta::core::JSON &instructions,
                             const sourcemeta::core::JSON &resources)
-    -> std::optional<sourcemeta::blaze::Instructions> {
+    -> std::optional<sourcemeta::blaze::TreeInstructions> {
   if (!instructions.is_array()) {
     return std::nullopt;
   }
 
-  sourcemeta::blaze::Instructions result;
+  sourcemeta::blaze::TreeInstructions result;
   result.reserve(instructions.size());
   for (const auto &instruction : instructions.as_array()) {
     if (!instruction.is_array() || instruction.array_size() < 6) {
@@ -82,10 +83,10 @@ auto instructions_from_json(const sourcemeta::core::JSON &instructions,
     auto value_result{value_from_json(value)};
 
     // Parse children if there
-    std::optional<sourcemeta::blaze::Instructions> children_result{
+    std::optional<sourcemeta::blaze::TreeInstructions> children_result{
         instruction.array_size() == 7
             ? instructions_from_json(instruction.at(6), resources)
-            : sourcemeta::blaze::Instructions{}};
+            : sourcemeta::blaze::TreeInstructions{}};
 
     if (!type_result.has_value() ||
         !relative_schema_location_result.has_value() ||
@@ -145,14 +146,15 @@ auto from_json(const sourcemeta::core::JSON &json) -> std::optional<Template> {
     return std::nullopt;
   }
 
-  std::vector<Instructions> targets_result;
-  targets_result.reserve(targets.size());
+  // Parse into tree instructions first
+  std::vector<TreeInstructions> tree_targets;
+  tree_targets.reserve(targets.size());
   for (const auto &target : targets.as_array()) {
     auto target_result{instructions_from_json(target, resources)};
     if (!target_result.has_value()) {
       return std::nullopt;
     }
-    targets_result.push_back(std::move(target_result).value());
+    tree_targets.push_back(std::move(target_result).value());
   }
 
   const auto &labels{json.at(4)};
@@ -172,10 +174,62 @@ auto from_json(const sourcemeta::core::JSON &json) -> std::optional<Template> {
         static_cast<std::size_t>(label.at(1).to_integer()));
   }
 
-  return Template{.dynamic = dynamic.to_boolean(),
-                  .track = track.to_boolean(),
-                  .targets = std::move(targets_result),
-                  .labels = std::move(labels_result)};
+  // Build a tree template and flatten it
+  const TreeTemplate tree_template{.dynamic = dynamic.to_boolean(),
+                                   .track = track.to_boolean(),
+                                   .targets = std::move(tree_targets),
+                                   .labels = std::move(labels_result)};
+
+  // Inline flattening (same logic as src/compiler/flatten.h but we cannot
+  // include internal compiler headers from the evaluator)
+  Template result;
+  result.dynamic = tree_template.dynamic;
+  result.track = tree_template.track;
+  result.labels = tree_template.labels;
+  result.targets.reserve(tree_template.targets.size());
+
+  // Forward-declare the recursive helper via a std::function
+  std::function<std::size_t(const TreeInstructions &, Instructions &)>
+      flatten_tree = [&flatten_tree](const TreeInstructions &tree_instructions,
+                                     Instructions &output) -> std::size_t {
+    std::size_t total{0};
+    for (const auto &tree_instruction : tree_instructions) {
+      const auto parent_index{output.size()};
+      output.push_back({.type = tree_instruction.type,
+                        .relative_schema_location =
+                            tree_instruction.relative_schema_location,
+                        .relative_instance_location =
+                            tree_instruction.relative_instance_location,
+                        .keyword_location = tree_instruction.keyword_location,
+                        .schema_resource = tree_instruction.schema_resource,
+                        .value = tree_instruction.value,
+                        .children_count = 0,
+                        .direct_children_count = 0,
+                        .flat_offset = 0});
+      total += 1;
+
+      if (!tree_instruction.children.empty()) {
+        output[parent_index].flat_offset =
+            static_cast<std::uint32_t>(parent_index + 1);
+        output[parent_index].direct_children_count =
+            static_cast<std::uint32_t>(tree_instruction.children.size());
+        const auto children_count{
+            flatten_tree(tree_instruction.children, output)};
+        output[parent_index].children_count =
+            static_cast<std::uint32_t>(children_count);
+        total += children_count;
+      }
+    }
+    return total;
+  };
+
+  for (const auto &target : tree_template.targets) {
+    const auto offset{result.instructions.size()};
+    const auto count{flatten_tree(target, result.instructions)};
+    result.targets.emplace_back(offset, count);
+  }
+
+  return result;
 }
 
 } // namespace sourcemeta::blaze

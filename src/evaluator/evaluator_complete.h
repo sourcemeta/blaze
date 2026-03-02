@@ -195,9 +195,13 @@ inline auto evaluate(const sourcemeta::core::JSON &instance,
                      const sourcemeta::blaze::Callback &callback) -> bool {
   assert(!schema.targets.empty());
   bool overall{true};
-  for (const auto &instruction : schema.targets[0]) {
-    if (!evaluate_instruction(instruction, schema, callback, instance, nullptr,
-                              0, evaluator)) [[unlikely]] {
+  const auto &entry_target{schema.targets[0]};
+  const auto entry_offset{entry_target.first};
+  const auto entry_count{entry_target.second};
+  for (std::size_t index = entry_offset; index < entry_offset + entry_count;
+       index += 1 + schema.instructions[index].children_count) {
+    if (!evaluate_instruction(schema.instructions[index], schema, callback,
+                              instance, nullptr, 0, evaluator)) [[unlikely]] {
       overall = false;
       break;
     }

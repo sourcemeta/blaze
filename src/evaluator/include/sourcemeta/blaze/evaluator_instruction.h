@@ -228,15 +228,28 @@ inline auto is_annotation(const InstructionIndex type) noexcept -> bool {
 
 // Forward declaration for defining a circular structure
 #ifndef DOXYGEN
-struct Instruction;
+struct TreeInstruction;
 #endif
 
 /// @ingroup evaluator
-/// Represents a set of schema compilation steps that can be evaluated
-using Instructions = std::vector<Instruction>;
+/// Represents a set of tree-shaped schema compilation steps
+using TreeInstructions = std::vector<TreeInstruction>;
 
 /// @ingroup evaluator
-/// Represents a single instruction to be evaluated
+/// Represents a single tree-shaped instruction (used internally by compiler)
+// NOLINTNEXTLINE(bugprone-exception-escape)
+struct TreeInstruction {
+  InstructionIndex type;
+  sourcemeta::core::Pointer relative_schema_location;
+  sourcemeta::core::Pointer relative_instance_location;
+  std::string keyword_location;
+  std::size_t schema_resource;
+  Value value;
+  TreeInstructions children;
+};
+
+/// @ingroup evaluator
+/// Represents a single instruction for evaluation
 // NOLINTNEXTLINE(bugprone-exception-escape)
 struct Instruction {
   InstructionIndex type;
@@ -245,8 +258,14 @@ struct Instruction {
   std::string keyword_location;
   std::size_t schema_resource;
   Value value;
-  Instructions children;
+  std::uint32_t children_count{0};
+  std::uint32_t direct_children_count{0};
+  std::uint32_t flat_offset{0};
 };
+
+/// @ingroup evaluator
+/// Represents a set of instructions for evaluation
+using Instructions = std::vector<Instruction>;
 
 /// @ingroup evaluator
 ///
@@ -257,6 +276,7 @@ struct Instruction {
 /// Note that describing a "pre" step execution is NOT supported.
 auto SOURCEMETA_BLAZE_EVALUATOR_EXPORT
 describe(const bool valid, const Instruction &step,
+         const Instructions &all_instructions,
          const sourcemeta::core::WeakPointer &evaluate_path,
          const sourcemeta::core::WeakPointer &instance_location,
          const sourcemeta::core::JSON &instance,

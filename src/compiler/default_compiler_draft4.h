@@ -30,13 +30,13 @@ static auto parse_regex(const std::string &pattern,
 }
 
 static auto
-relative_schema_location_size(const sourcemeta::blaze::Instruction &step)
+relative_schema_location_size(const sourcemeta::blaze::TreeInstruction &step)
     -> std::size_t {
   return step.relative_schema_location.size();
 }
 
 static auto
-defines_direct_enumeration(const sourcemeta::blaze::Instructions &steps)
+defines_direct_enumeration(const sourcemeta::blaze::TreeInstructions &steps)
     -> std::optional<std::size_t> {
   const auto iterator{std::ranges::find_if(steps, [](const auto &step) {
     return step.type == sourcemeta::blaze::InstructionIndex::AssertionEqual ||
@@ -89,9 +89,10 @@ static auto
 compile_properties(const sourcemeta::blaze::Context &context,
                    const sourcemeta::blaze::SchemaContext &schema_context,
                    const sourcemeta::blaze::DynamicContext &dynamic_context,
-                   const sourcemeta::blaze::Instructions &)
-    -> std::vector<std::pair<std::string, sourcemeta::blaze::Instructions>> {
-  std::vector<std::pair<std::string, sourcemeta::blaze::Instructions>>
+                   const sourcemeta::blaze::TreeInstructions &)
+    -> std::vector<
+        std::pair<std::string, sourcemeta::blaze::TreeInstructions>> {
+  std::vector<std::pair<std::string, sourcemeta::blaze::TreeInstructions>>
       properties;
   for (const auto &entry : schema_context.schema.at("properties").as_object()) {
     properties.emplace_back(
@@ -183,7 +184,7 @@ using namespace sourcemeta::blaze;
 auto compiler_draft4_core_ref(const Context &context,
                               const SchemaContext &schema_context,
                               const DynamicContext &dynamic_context,
-                              const Instructions &) -> Instructions {
+                              const TreeInstructions &) -> TreeInstructions {
   const auto &entry{static_frame_entry(context, schema_context)};
   const auto type{sourcemeta::core::SchemaReferenceType::Static};
   const auto reference{context.frame.reference(type, entry.pointer)};
@@ -206,7 +207,8 @@ auto compiler_draft4_core_ref(const Context &context,
 auto compiler_draft4_validation_type(const Context &context,
                                      const SchemaContext &schema_context,
                                      const DynamicContext &dynamic_context,
-                                     const Instructions &) -> Instructions {
+                                     const TreeInstructions &)
+    -> TreeInstructions {
   if (schema_context.schema.at(dynamic_context.keyword).is_string()) {
     const auto &type{
         schema_context.schema.at(dynamic_context.keyword).to_string()};
@@ -459,8 +461,8 @@ auto compiler_draft4_validation_type(const Context &context,
 auto compiler_draft4_validation_required(const Context &context,
                                          const SchemaContext &schema_context,
                                          const DynamicContext &dynamic_context,
-                                         const Instructions &current)
-    -> Instructions {
+                                         const TreeInstructions &current)
+    -> TreeInstructions {
   if (!schema_context.schema.at(dynamic_context.keyword).is_array()) {
     return {};
   }
@@ -585,14 +587,15 @@ auto compiler_draft4_validation_required(const Context &context,
 auto compiler_draft4_applicator_allof(const Context &context,
                                       const SchemaContext &schema_context,
                                       const DynamicContext &dynamic_context,
-                                      const Instructions &) -> Instructions {
+                                      const TreeInstructions &)
+    -> TreeInstructions {
   if (!schema_context.schema.at(dynamic_context.keyword).is_array()) {
     return {};
   }
 
   assert(!schema_context.schema.at(dynamic_context.keyword).empty());
 
-  Instructions children;
+  TreeInstructions children;
 
   if (context.mode == Mode::FastValidation &&
       // TODO: Make this work with `$dynamicRef`
@@ -628,14 +631,15 @@ auto compiler_draft4_applicator_allof(const Context &context,
 auto compiler_draft4_applicator_anyof(const Context &context,
                                       const SchemaContext &schema_context,
                                       const DynamicContext &dynamic_context,
-                                      const Instructions &) -> Instructions {
+                                      const TreeInstructions &)
+    -> TreeInstructions {
   if (!schema_context.schema.at(dynamic_context.keyword).is_array()) {
     return {};
   }
 
   assert(!schema_context.schema.at(dynamic_context.keyword).empty());
 
-  Instructions disjunctors;
+  TreeInstructions disjunctors;
   for (std::uint64_t index = 0;
        index < schema_context.schema.at(dynamic_context.keyword).size();
        index++) {
@@ -703,14 +707,15 @@ auto compiler_draft4_applicator_anyof(const Context &context,
 auto compiler_draft4_applicator_oneof(const Context &context,
                                       const SchemaContext &schema_context,
                                       const DynamicContext &dynamic_context,
-                                      const Instructions &) -> Instructions {
+                                      const TreeInstructions &)
+    -> TreeInstructions {
   if (!schema_context.schema.at(dynamic_context.keyword).is_array()) {
     return {};
   }
 
   assert(!schema_context.schema.at(dynamic_context.keyword).empty());
 
-  Instructions disjunctors;
+  TreeInstructions disjunctors;
   for (std::uint64_t index = 0;
        index < schema_context.schema.at(dynamic_context.keyword).size();
        index++) {
@@ -823,8 +828,8 @@ auto properties_as_loop(const Context &context,
 
 auto compiler_draft4_applicator_properties_with_options(
     const Context &context, const SchemaContext &schema_context,
-    const DynamicContext &dynamic_context, const Instructions &current,
-    const bool annotate, const bool track_evaluation) -> Instructions {
+    const DynamicContext &dynamic_context, const TreeInstructions &current,
+    const bool annotate, const bool track_evaluation) -> TreeInstructions {
   if (schema_context.is_property_name) {
     return {};
   }
@@ -846,7 +851,7 @@ auto compiler_draft4_applicator_properties_with_options(
   if (properties_as_loop(context, schema_context,
                          schema_context.schema.at(dynamic_context.keyword))) {
     ValueNamedIndexes indexes;
-    Instructions children;
+    TreeInstructions children;
     std::size_t cursor = 0;
 
     for (auto &&[name, substeps] : compile_properties(
@@ -890,7 +895,7 @@ auto compiler_draft4_applicator_properties_with_options(
                  std::move(children))};
   }
 
-  Instructions children;
+  TreeInstructions children;
 
   const auto effective_dynamic_context{context.mode == Mode::FastValidation
                                            ? dynamic_context
@@ -1090,8 +1095,8 @@ auto compiler_draft4_applicator_properties_with_options(
 
 auto compiler_draft4_applicator_properties(
     const Context &context, const SchemaContext &schema_context,
-    const DynamicContext &dynamic_context, const Instructions &current)
-    -> Instructions {
+    const DynamicContext &dynamic_context, const TreeInstructions &current)
+    -> TreeInstructions {
   return compiler_draft4_applicator_properties_with_options(
       context, schema_context, dynamic_context, current, false, false);
 }
@@ -1099,7 +1104,7 @@ auto compiler_draft4_applicator_properties(
 auto compiler_draft4_applicator_patternproperties_with_options(
     const Context &context, const SchemaContext &schema_context,
     const DynamicContext &dynamic_context, const bool annotate,
-    const bool track_evaluation) -> Instructions {
+    const bool track_evaluation) -> TreeInstructions {
   if (!schema_context.schema.at(dynamic_context.keyword).is_object()) {
     return {};
   }
@@ -1114,7 +1119,7 @@ auto compiler_draft4_applicator_patternproperties_with_options(
     return {};
   }
 
-  Instructions children;
+  TreeInstructions children;
 
   // To guarantee ordering
   std::vector<std::string> patterns;
@@ -1181,8 +1186,8 @@ auto compiler_draft4_applicator_patternproperties_with_options(
 
 auto compiler_draft4_applicator_patternproperties(
     const Context &context, const SchemaContext &schema_context,
-    const DynamicContext &dynamic_context, const Instructions &)
-    -> Instructions {
+    const DynamicContext &dynamic_context, const TreeInstructions &)
+    -> TreeInstructions {
   return compiler_draft4_applicator_patternproperties_with_options(
       context, schema_context, dynamic_context, false, false);
 }
@@ -1190,17 +1195,17 @@ auto compiler_draft4_applicator_patternproperties(
 auto compiler_draft4_applicator_additionalproperties_with_options(
     const Context &context, const SchemaContext &schema_context,
     const DynamicContext &dynamic_context, const bool annotate,
-    const bool track_evaluation) -> Instructions {
+    const bool track_evaluation) -> TreeInstructions {
   if (schema_context.schema.defines("type") &&
       schema_context.schema.at("type").is_string() &&
       schema_context.schema.at("type").to_string() != "object") {
     return {};
   }
 
-  Instructions children{compile(context, schema_context,
-                                relative_dynamic_context(),
-                                sourcemeta::core::empty_weak_pointer,
-                                sourcemeta::core::empty_weak_pointer)};
+  TreeInstructions children{compile(context, schema_context,
+                                    relative_dynamic_context(),
+                                    sourcemeta::core::empty_weak_pointer,
+                                    sourcemeta::core::empty_weak_pointer)};
 
   if (annotate) {
     children.push_back(
@@ -1318,8 +1323,8 @@ auto compiler_draft4_applicator_additionalproperties_with_options(
 
 auto compiler_draft4_applicator_additionalproperties(
     const Context &context, const SchemaContext &schema_context,
-    const DynamicContext &dynamic_context, const Instructions &)
-    -> Instructions {
+    const DynamicContext &dynamic_context, const TreeInstructions &)
+    -> TreeInstructions {
   return compiler_draft4_applicator_additionalproperties_with_options(
       context, schema_context, dynamic_context, false, false);
 }
@@ -1327,7 +1332,8 @@ auto compiler_draft4_applicator_additionalproperties(
 auto compiler_draft4_validation_pattern(const Context &context,
                                         const SchemaContext &schema_context,
                                         const DynamicContext &dynamic_context,
-                                        const Instructions &) -> Instructions {
+                                        const TreeInstructions &)
+    -> TreeInstructions {
   if (!schema_context.schema.at(dynamic_context.keyword).is_string()) {
     return {};
   }
@@ -1351,7 +1357,8 @@ auto compiler_draft4_validation_pattern(const Context &context,
 auto compiler_draft4_validation_format(const Context &context,
                                        const SchemaContext &schema_context,
                                        const DynamicContext &dynamic_context,
-                                       const Instructions &) -> Instructions {
+                                       const TreeInstructions &)
+    -> TreeInstructions {
   if (!schema_context.schema.at(dynamic_context.keyword).is_string()) {
     return {};
   }
@@ -1398,7 +1405,8 @@ auto compiler_draft4_validation_format(const Context &context,
 auto compiler_draft4_applicator_not(const Context &context,
                                     const SchemaContext &schema_context,
                                     const DynamicContext &dynamic_context,
-                                    const Instructions &) -> Instructions {
+                                    const TreeInstructions &)
+    -> TreeInstructions {
   std::size_t subschemas{0};
   for (const auto &subschema :
        walk_subschemas(context, schema_context, dynamic_context)) {
@@ -1409,10 +1417,10 @@ auto compiler_draft4_applicator_not(const Context &context,
     subschemas += 1;
   }
 
-  Instructions children{compile(context, schema_context,
-                                relative_dynamic_context(),
-                                sourcemeta::core::empty_weak_pointer,
-                                sourcemeta::core::empty_weak_pointer)};
+  TreeInstructions children{compile(context, schema_context,
+                                    relative_dynamic_context(),
+                                    sourcemeta::core::empty_weak_pointer,
+                                    sourcemeta::core::empty_weak_pointer)};
 
   // TODO: Be smarter about how we treat `unevaluatedItems` like how we do for
   // `unevaluatedProperties`
@@ -1440,7 +1448,7 @@ auto compiler_draft4_applicator_not(const Context &context,
 auto compiler_draft4_applicator_items_array(
     const Context &context, const SchemaContext &schema_context,
     const DynamicContext &dynamic_context, const bool annotate,
-    const bool track_evaluation) -> Instructions {
+    const bool track_evaluation) -> TreeInstructions {
   if (schema_context.is_property_name) {
     return {};
   }
@@ -1462,7 +1470,7 @@ auto compiler_draft4_applicator_items_array(
   }
 
   // Precompile subschemas
-  std::vector<Instructions> subschemas;
+  std::vector<TreeInstructions> subschemas;
   subschemas.reserve(items_size);
   const auto &array{
       schema_context.schema.at(dynamic_context.keyword).as_array()};
@@ -1472,9 +1480,9 @@ auto compiler_draft4_applicator_items_array(
                                  {subschemas.size()}, {subschemas.size()}));
   }
 
-  Instructions children;
+  TreeInstructions children;
   for (std::size_t cursor = 0; cursor < items_size; cursor++) {
-    Instructions subchildren;
+    TreeInstructions subchildren;
     for (std::size_t index = 0; index < cursor + 1; index++) {
       for (const auto &substep : subschemas.at(index)) {
         subchildren.push_back(substep);
@@ -1493,7 +1501,7 @@ auto compiler_draft4_applicator_items_array(
                             ValueNone{}, std::move(subchildren)));
   }
 
-  Instructions tail;
+  TreeInstructions tail;
   for (const auto &subschema : subschemas) {
     for (const auto &substep : subschema) {
       tail.push_back(substep);
@@ -1528,7 +1536,7 @@ auto compiler_draft4_applicator_items_array(
 auto compiler_draft4_applicator_items_with_options(
     const Context &context, const SchemaContext &schema_context,
     const DynamicContext &dynamic_context, const bool annotate,
-    const bool track_evaluation) -> Instructions {
+    const bool track_evaluation) -> TreeInstructions {
   if (schema_context.schema.defines("type") &&
       schema_context.schema.at("type").is_string() &&
       schema_context.schema.at("type").to_string() != "array") {
@@ -1537,12 +1545,12 @@ auto compiler_draft4_applicator_items_with_options(
 
   if (is_schema(schema_context.schema.at(dynamic_context.keyword))) {
     if (annotate || track_evaluation) {
-      Instructions subchildren{compile(context, schema_context,
-                                       relative_dynamic_context(),
-                                       sourcemeta::core::empty_weak_pointer,
-                                       sourcemeta::core::empty_weak_pointer)};
+      TreeInstructions subchildren{
+          compile(context, schema_context, relative_dynamic_context(),
+                  sourcemeta::core::empty_weak_pointer,
+                  sourcemeta::core::empty_weak_pointer)};
 
-      Instructions children;
+      TreeInstructions children;
 
       if (!subchildren.empty()) {
         children.push_back(make(sourcemeta::blaze::InstructionIndex::LoopItems,
@@ -1554,7 +1562,7 @@ auto compiler_draft4_applicator_items_with_options(
         return children;
       }
 
-      Instructions tail;
+      TreeInstructions tail;
 
       if (annotate) {
         tail.push_back(make(sourcemeta::blaze::InstructionIndex::AnnotationEmit,
@@ -1576,10 +1584,10 @@ auto compiler_draft4_applicator_items_with_options(
       return children;
     }
 
-    Instructions children{compile(context, schema_context,
-                                  relative_dynamic_context(),
-                                  sourcemeta::core::empty_weak_pointer,
-                                  sourcemeta::core::empty_weak_pointer)};
+    TreeInstructions children{compile(context, schema_context,
+                                      relative_dynamic_context(),
+                                      sourcemeta::core::empty_weak_pointer,
+                                      sourcemeta::core::empty_weak_pointer)};
     if (track_evaluation) {
       children.push_back(
           make(sourcemeta::blaze::InstructionIndex::ControlEvaluate, context,
@@ -1611,7 +1619,7 @@ auto compiler_draft4_applicator_items_with_options(
                           context, schema_context, dynamic_context, ValueNone{},
                           std::move(children))};
         if (std::get<ValueTypedHashes>(value_copy).second.first.size() == 3) {
-          return {Instruction{
+          return {TreeInstruction{
               .type = sourcemeta::blaze::InstructionIndex::
                   LoopItemsPropertiesExactlyTypeStrictHash3,
               .relative_schema_location = current.relative_schema_location,
@@ -1622,7 +1630,7 @@ auto compiler_draft4_applicator_items_with_options(
               .children = {}}};
         }
 
-        return {Instruction{
+        return {TreeInstruction{
             .type = sourcemeta::blaze::InstructionIndex::
                 LoopItemsPropertiesExactlyTypeStrictHash,
             .relative_schema_location = current.relative_schema_location,
@@ -1646,7 +1654,8 @@ auto compiler_draft4_applicator_items_with_options(
 auto compiler_draft4_applicator_items(const Context &context,
                                       const SchemaContext &schema_context,
                                       const DynamicContext &dynamic_context,
-                                      const Instructions &) -> Instructions {
+                                      const TreeInstructions &)
+    -> TreeInstructions {
   return compiler_draft4_applicator_items_with_options(
       context, schema_context, dynamic_context, false, false);
 }
@@ -1654,19 +1663,19 @@ auto compiler_draft4_applicator_items(const Context &context,
 auto compiler_draft4_applicator_additionalitems_from_cursor(
     const Context &context, const SchemaContext &schema_context,
     const DynamicContext &dynamic_context, const std::size_t cursor,
-    const bool annotate, const bool track_evaluation) -> Instructions {
+    const bool annotate, const bool track_evaluation) -> TreeInstructions {
   if (schema_context.schema.defines("type") &&
       schema_context.schema.at("type").is_string() &&
       schema_context.schema.at("type").to_string() != "array") {
     return {};
   }
 
-  Instructions subchildren{compile(context, schema_context,
-                                   relative_dynamic_context(),
-                                   sourcemeta::core::empty_weak_pointer,
-                                   sourcemeta::core::empty_weak_pointer)};
+  TreeInstructions subchildren{compile(context, schema_context,
+                                       relative_dynamic_context(),
+                                       sourcemeta::core::empty_weak_pointer,
+                                       sourcemeta::core::empty_weak_pointer)};
 
-  Instructions children;
+  TreeInstructions children;
 
   if (!subchildren.empty()) {
     children.push_back(make(sourcemeta::blaze::InstructionIndex::LoopItemsFrom,
@@ -1680,7 +1689,7 @@ auto compiler_draft4_applicator_additionalitems_from_cursor(
     return children;
   }
 
-  Instructions tail;
+  TreeInstructions tail;
 
   if (annotate) {
     tail.push_back(make(sourcemeta::blaze::InstructionIndex::AnnotationEmit,
@@ -1706,7 +1715,7 @@ auto compiler_draft4_applicator_additionalitems_from_cursor(
 auto compiler_draft4_applicator_additionalitems_with_options(
     const Context &context, const SchemaContext &schema_context,
     const DynamicContext &dynamic_context, const bool annotate,
-    const bool track_evaluation) -> Instructions {
+    const bool track_evaluation) -> TreeInstructions {
   if (schema_context.schema.defines("type") &&
       schema_context.schema.at("type").is_string() &&
       schema_context.schema.at("type").to_string() != "array") {
@@ -1733,16 +1742,16 @@ auto compiler_draft4_applicator_additionalitems_with_options(
 
 auto compiler_draft4_applicator_additionalitems(
     const Context &context, const SchemaContext &schema_context,
-    const DynamicContext &dynamic_context, const Instructions &)
-    -> Instructions {
+    const DynamicContext &dynamic_context, const TreeInstructions &)
+    -> TreeInstructions {
   return compiler_draft4_applicator_additionalitems_with_options(
       context, schema_context, dynamic_context, false, false);
 }
 
 auto compiler_draft4_applicator_dependencies(
     const Context &context, const SchemaContext &schema_context,
-    const DynamicContext &dynamic_context, const Instructions &)
-    -> Instructions {
+    const DynamicContext &dynamic_context, const TreeInstructions &)
+    -> TreeInstructions {
   if (schema_context.schema.defines("type") &&
       schema_context.schema.at("type").is_string() &&
       schema_context.schema.at("type").to_string() != "object") {
@@ -1753,7 +1762,7 @@ auto compiler_draft4_applicator_dependencies(
     return {};
   }
 
-  Instructions children;
+  TreeInstructions children;
   ValueStringMap dependencies;
 
   for (const auto &entry :
@@ -1791,7 +1800,8 @@ auto compiler_draft4_applicator_dependencies(
 auto compiler_draft4_validation_enum(const Context &context,
                                      const SchemaContext &schema_context,
                                      const DynamicContext &dynamic_context,
-                                     const Instructions &) -> Instructions {
+                                     const TreeInstructions &)
+    -> TreeInstructions {
   if (!schema_context.schema.at(dynamic_context.keyword).is_array()) {
     return {};
   }
@@ -1837,8 +1847,8 @@ auto compiler_draft4_validation_enum(const Context &context,
 
 auto compiler_draft4_validation_uniqueitems(
     const Context &context, const SchemaContext &schema_context,
-    const DynamicContext &dynamic_context, const Instructions &)
-    -> Instructions {
+    const DynamicContext &dynamic_context, const TreeInstructions &)
+    -> TreeInstructions {
   if (!schema_context.schema.at(dynamic_context.keyword).is_boolean() ||
       !schema_context.schema.at(dynamic_context.keyword).to_boolean()) {
     return {};
@@ -1857,8 +1867,8 @@ auto compiler_draft4_validation_uniqueitems(
 auto compiler_draft4_validation_maxlength(const Context &context,
                                           const SchemaContext &schema_context,
                                           const DynamicContext &dynamic_context,
-                                          const Instructions &)
-    -> Instructions {
+                                          const TreeInstructions &)
+    -> TreeInstructions {
   if (!schema_context.schema.at(dynamic_context.keyword).is_integral()) {
     return {};
   }
@@ -1891,8 +1901,8 @@ auto compiler_draft4_validation_maxlength(const Context &context,
 auto compiler_draft4_validation_minlength(const Context &context,
                                           const SchemaContext &schema_context,
                                           const DynamicContext &dynamic_context,
-                                          const Instructions &)
-    -> Instructions {
+                                          const TreeInstructions &)
+    -> TreeInstructions {
   if (!schema_context.schema.at(dynamic_context.keyword).is_integral()) {
     return {};
   }
@@ -1927,7 +1937,8 @@ auto compiler_draft4_validation_minlength(const Context &context,
 auto compiler_draft4_validation_maxitems(const Context &context,
                                          const SchemaContext &schema_context,
                                          const DynamicContext &dynamic_context,
-                                         const Instructions &) -> Instructions {
+                                         const TreeInstructions &)
+    -> TreeInstructions {
   if (!schema_context.schema.at(dynamic_context.keyword).is_integral()) {
     return {};
   }
@@ -1960,7 +1971,8 @@ auto compiler_draft4_validation_maxitems(const Context &context,
 auto compiler_draft4_validation_minitems(const Context &context,
                                          const SchemaContext &schema_context,
                                          const DynamicContext &dynamic_context,
-                                         const Instructions &) -> Instructions {
+                                         const TreeInstructions &)
+    -> TreeInstructions {
   if (!schema_context.schema.at(dynamic_context.keyword).is_integral()) {
     return {};
   }
@@ -1994,8 +2006,8 @@ auto compiler_draft4_validation_minitems(const Context &context,
 
 auto compiler_draft4_validation_maxproperties(
     const Context &context, const SchemaContext &schema_context,
-    const DynamicContext &dynamic_context, const Instructions &)
-    -> Instructions {
+    const DynamicContext &dynamic_context, const TreeInstructions &)
+    -> TreeInstructions {
   if (!schema_context.schema.at(dynamic_context.keyword).is_integral()) {
     return {};
   }
@@ -2027,8 +2039,8 @@ auto compiler_draft4_validation_maxproperties(
 
 auto compiler_draft4_validation_minproperties(
     const Context &context, const SchemaContext &schema_context,
-    const DynamicContext &dynamic_context, const Instructions &)
-    -> Instructions {
+    const DynamicContext &dynamic_context, const TreeInstructions &)
+    -> TreeInstructions {
   if (!schema_context.schema.at(dynamic_context.keyword).is_integral()) {
     return {};
   }
@@ -2063,7 +2075,8 @@ auto compiler_draft4_validation_minproperties(
 auto compiler_draft4_validation_maximum(const Context &context,
                                         const SchemaContext &schema_context,
                                         const DynamicContext &dynamic_context,
-                                        const Instructions &) -> Instructions {
+                                        const TreeInstructions &)
+    -> TreeInstructions {
   if (!schema_context.schema.at(dynamic_context.keyword).is_number()) {
     return {};
   }
@@ -2097,7 +2110,8 @@ auto compiler_draft4_validation_maximum(const Context &context,
 auto compiler_draft4_validation_minimum(const Context &context,
                                         const SchemaContext &schema_context,
                                         const DynamicContext &dynamic_context,
-                                        const Instructions &) -> Instructions {
+                                        const TreeInstructions &)
+    -> TreeInstructions {
   if (!schema_context.schema.at(dynamic_context.keyword).is_number()) {
     return {};
   }
@@ -2130,8 +2144,8 @@ auto compiler_draft4_validation_minimum(const Context &context,
 
 auto compiler_draft4_validation_multipleof(
     const Context &context, const SchemaContext &schema_context,
-    const DynamicContext &dynamic_context, const Instructions &)
-    -> Instructions {
+    const DynamicContext &dynamic_context, const TreeInstructions &)
+    -> TreeInstructions {
   if (!schema_context.schema.at(dynamic_context.keyword).is_number()) {
     return {};
   }

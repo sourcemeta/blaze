@@ -161,7 +161,8 @@ static void Micro_2020_12_Simple_Output_Mask(benchmark::State &state) {
                                  sourcemeta::blaze::default_schema_compiler)};
   sourcemeta::blaze::Evaluator evaluator;
   for (auto _ : state) {
-    sourcemeta::blaze::SimpleOutput output{instance};
+    sourcemeta::blaze::SimpleOutput output{instance,
+                                           schema_template.instructions};
     auto result{
         evaluator.validate(schema_template, instance, std::ref(output))};
     assert(result);
@@ -205,7 +206,8 @@ static void Micro_2020_12_Simple_Output_Annotations(benchmark::State &state) {
                                  sourcemeta::blaze::default_schema_compiler)};
   sourcemeta::blaze::Evaluator evaluator;
   for (auto _ : state) {
-    sourcemeta::blaze::SimpleOutput output{instance};
+    sourcemeta::blaze::SimpleOutput output{instance,
+                                           schema_template.instructions};
     auto result{
         evaluator.validate(schema_template, instance, std::ref(output))};
     assert(result);

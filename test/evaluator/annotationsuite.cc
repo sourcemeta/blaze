@@ -89,7 +89,8 @@ public:
         assertions{std::move(test_assertions)} {}
 
   auto TestBody() -> void override {
-    sourcemeta::blaze::SimpleOutput output{this->instance};
+    sourcemeta::blaze::SimpleOutput output{this->instance,
+                                           this->schema.instructions};
     const auto result{this->evaluator.validate(this->schema, this->instance,
                                                std::ref(output))};
     EXPECT_TRUE(result);

@@ -12,8 +12,8 @@ using namespace sourcemeta::blaze;
 
 auto compiler_2020_12_applicator_prefixitems(
     const Context &context, const SchemaContext &schema_context,
-    const DynamicContext &dynamic_context, const Instructions &)
-    -> Instructions {
+    const DynamicContext &dynamic_context, const TreeInstructions &)
+    -> TreeInstructions {
   // TODO: Be smarter about how we treat `unevaluatedItems` like how we do for
   // `unevaluatedProperties`
   const bool track{
@@ -29,7 +29,8 @@ auto compiler_2020_12_applicator_prefixitems(
 auto compiler_2020_12_applicator_items(const Context &context,
                                        const SchemaContext &schema_context,
                                        const DynamicContext &dynamic_context,
-                                       const Instructions &) -> Instructions {
+                                       const TreeInstructions &)
+    -> TreeInstructions {
   const auto cursor{(schema_context.schema.defines("prefixItems") &&
                      schema_context.schema.at("prefixItems").is_array())
                         ? schema_context.schema.at("prefixItems").size()
@@ -51,8 +52,8 @@ auto compiler_2020_12_applicator_items(const Context &context,
 auto compiler_2020_12_applicator_contains(const Context &context,
                                           const SchemaContext &schema_context,
                                           const DynamicContext &dynamic_context,
-                                          const Instructions &current)
-    -> Instructions {
+                                          const TreeInstructions &current)
+    -> TreeInstructions {
   // TODO: Be smarter about how we treat `unevaluatedItems` like how we do for
   // `unevaluatedProperties`
   const bool track{
@@ -68,8 +69,8 @@ auto compiler_2020_12_applicator_contains(const Context &context,
 auto compiler_2020_12_core_dynamicref(const Context &context,
                                       const SchemaContext &schema_context,
                                       const DynamicContext &dynamic_context,
-                                      const Instructions &current)
-    -> Instructions {
+                                      const TreeInstructions &current)
+    -> TreeInstructions {
   const auto &entry{static_frame_entry(context, schema_context)};
   // In this case, just behave as a normal static reference
   if (!context.frame.references().contains(

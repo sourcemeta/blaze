@@ -186,6 +186,7 @@ namespace sourcemeta::blaze {
 // TODO: What will unlock even better error messages is being able to
 // get the subschema being evaluated along with the keyword
 auto describe(const bool valid, const Instruction &step,
+              const Instructions &all_instructions,
               const sourcemeta::core::WeakPointer &evaluate_path,
               const sourcemeta::core::WeakPointer &instance_location,
               const sourcemeta::core::JSON &instance,
@@ -226,12 +227,13 @@ auto describe(const bool valid, const Instruction &step,
   }
 
   if (step.type == sourcemeta::blaze::InstructionIndex::LogicalOr) {
-    assert(!step.children.empty());
+    assert(step.direct_children_count > 0);
     std::ostringstream message;
     message << "The " << to_string(target.type())
             << " value was expected to validate against ";
-    if (step.children.size() > 1) {
-      message << "at least one of the " << step.children.size()
+    if (static_cast<std::size_t>(step.direct_children_count) > 1) {
+      message << "at least one of the "
+              << static_cast<std::size_t>(step.direct_children_count)
               << " given subschemas";
     } else {
       message << "the given subschema";
@@ -242,12 +244,13 @@ auto describe(const bool valid, const Instruction &step,
 
   if (step.type == sourcemeta::blaze::InstructionIndex::LogicalAnd) {
     if (keyword == "allOf") {
-      assert(!step.children.empty());
+      assert(step.direct_children_count > 0);
       std::ostringstream message;
       message << "The " << to_string(target.type())
               << " value was expected to validate against the ";
-      if (step.children.size() > 1) {
-        message << step.children.size() << " given subschemas";
+      if (static_cast<std::size_t>(step.direct_children_count) > 1) {
+        message << static_cast<std::size_t>(step.direct_children_count)
+                << " given subschemas";
       } else {
         message << "given subschema";
       }
@@ -263,7 +266,7 @@ auto describe(const bool valid, const Instruction &step,
   }
 
   if (step.type == sourcemeta::blaze::InstructionIndex::LogicalXor) {
-    assert(!step.children.empty());
+    assert(step.direct_children_count > 0);
     std::ostringstream message;
 
     if (std::ranges::any_of(evaluate_path,
@@ -279,8 +282,9 @@ auto describe(const bool valid, const Instruction &step,
     }
 
     message << " was expected to validate against ";
-    if (step.children.size() > 1) {
-      message << "one and only one of the " << step.children.size()
+    if (static_cast<std::size_t>(step.direct_children_count) > 1) {
+      message << "one and only one of the "
+              << static_cast<std::size_t>(step.direct_children_count)
               << " given subschemas";
     } else {
       message << "the given subschema";
@@ -633,8 +637,8 @@ auto describe(const bool valid, const Instruction &step,
     assert(keyword == "additionalProperties" ||
            keyword == "unevaluatedProperties");
     std::ostringstream message;
-    if (!step.children.empty() &&
-        step.children.front().type == InstructionIndex::AssertionFail) {
+    if (step.children_count > 0 && all_instructions[step.flat_offset].type ==
+                                       InstructionIndex::AssertionFail) {
       if (keyword == "unevaluatedProperties") {
         message << "The object value was not expected to define unevaluated "
                    "properties";
@@ -657,8 +661,9 @@ auto describe(const bool valid, const Instruction &step,
       sourcemeta::blaze::InstructionIndex::LoopPropertiesEvaluate) {
     assert(keyword == "additionalProperties");
     std::ostringstream message;
-    if (step.children.size() == 1 &&
-        step.children.front().type == InstructionIndex::AssertionFail) {
+    if (static_cast<std::size_t>(step.children_count) == 1 &&
+        all_instructions[step.flat_offset].type ==
+            InstructionIndex::AssertionFail) {
       message << "The object value was not expected to define additional "
                  "properties";
     } else {
@@ -673,8 +678,8 @@ auto describe(const bool valid, const Instruction &step,
       sourcemeta::blaze::InstructionIndex::LoopPropertiesUnevaluated) {
     if (keyword == "unevaluatedProperties") {
       std::ostringstream message;
-      if (!step.children.empty() &&
-          step.children.front().type == InstructionIndex::AssertionFail) {
+      if (step.children_count > 0 && all_instructions[step.flat_offset].type ==
+                                         InstructionIndex::AssertionFail) {
         message << "The object value was not expected to define unevaluated "
                    "properties";
       } else {
@@ -692,8 +697,8 @@ auto describe(const bool valid, const Instruction &step,
       sourcemeta::blaze::InstructionIndex::LoopPropertiesUnevaluatedExcept) {
     if (keyword == "unevaluatedProperties") {
       std::ostringstream message;
-      if (!step.children.empty() &&
-          step.children.front().type == InstructionIndex::AssertionFail) {
+      if (step.children_count > 0 && all_instructions[step.flat_offset].type ==
+                                         InstructionIndex::AssertionFail) {
         message << "The object value was not expected to define unevaluated "
                    "properties";
       } else {
@@ -711,8 +716,8 @@ auto describe(const bool valid, const Instruction &step,
     assert(keyword == "additionalProperties" ||
            keyword == "unevaluatedProperties");
     std::ostringstream message;
-    if (!step.children.empty() &&
-        step.children.front().type == InstructionIndex::AssertionFail) {
+    if (step.children_count > 0 && all_instructions[step.flat_offset].type ==
+                                       InstructionIndex::AssertionFail) {
       if (keyword == "unevaluatedProperties") {
         message << "The object value was not expected to define unevaluated "
                    "properties";
@@ -1919,15 +1924,16 @@ auto describe(const bool valid, const Instruction &step,
 
   if (step.type == sourcemeta::blaze::InstructionIndex::AssertionArrayPrefix) {
     assert(keyword == "items" || keyword == "prefixItems");
-    assert(!step.children.empty());
+    assert(step.direct_children_count > 0);
     assert(target.is_array());
 
     std::ostringstream message;
     message << "The first ";
-    if (step.children.size() <= 2) {
+    if (static_cast<std::size_t>(step.direct_children_count) <= 2) {
       message << "item of the array value was";
     } else {
-      message << (step.children.size() - 1) << " items of the array value were";
+      message << (static_cast<std::size_t>(step.direct_children_count) - 1)
+              << " items of the array value were";
     }
 
     message << " expected to validate against the corresponding subschemas";
@@ -1937,15 +1943,16 @@ auto describe(const bool valid, const Instruction &step,
   if (step.type ==
       sourcemeta::blaze::InstructionIndex::AssertionArrayPrefixEvaluate) {
     assert(keyword == "items" || keyword == "prefixItems");
-    assert(!step.children.empty());
+    assert(step.direct_children_count > 0);
     assert(target.is_array());
 
     std::ostringstream message;
     message << "The first ";
-    if (step.children.size() <= 2) {
+    if (static_cast<std::size_t>(step.direct_children_count) <= 2) {
       message << "item of the array value was";
     } else {
-      message << (step.children.size() - 1) << " items of the array value were";
+      message << (static_cast<std::size_t>(step.direct_children_count) - 1)
+              << " items of the array value were";
     }
 
     message << " expected to validate against the corresponding subschemas";
@@ -1953,14 +1960,15 @@ auto describe(const bool valid, const Instruction &step,
   }
 
   if (step.type == sourcemeta::blaze::InstructionIndex::LoopPropertiesMatch) {
-    assert(!step.children.empty());
+    assert(step.direct_children_count > 0);
     assert(target.is_object());
     std::ostringstream message;
     message << "The object value was expected to validate against the ";
-    if (step.children.size() == 1) {
+    if (static_cast<std::size_t>(step.direct_children_count) == 1) {
       message << "single defined property subschema";
     } else {
-      message << step.children.size() << " defined properties subschemas";
+      message << static_cast<std::size_t>(step.direct_children_count)
+              << " defined properties subschemas";
     }
 
     return message.str();
@@ -1968,16 +1976,17 @@ auto describe(const bool valid, const Instruction &step,
 
   if (step.type ==
       sourcemeta::blaze::InstructionIndex::LoopPropertiesMatchClosed) {
-    assert(!step.children.empty());
+    assert(step.direct_children_count > 0);
     assert(target.is_object());
     std::ostringstream message;
-    if (step.children.size() == 1) {
+    if (static_cast<std::size_t>(step.direct_children_count) == 1) {
       message << "The object value was expected to validate against the ";
       message << "single defined property subschema";
     } else {
       message
           << "Every object value was expected to validate against one of the ";
-      message << step.children.size() << " defined properties subschemas";
+      message << static_cast<std::size_t>(step.direct_children_count)
+              << " defined properties subschemas";
     }
 
     return message.str();
@@ -2032,7 +2041,7 @@ auto describe(const bool valid, const Instruction &step,
     }
 
     if (keyword == "properties") {
-      assert(!step.children.empty());
+      assert(step.direct_children_count > 0);
       if (!target.is_object()) {
         std::ostringstream message;
         describe_type_check(valid, target.type(),
@@ -2042,7 +2051,7 @@ auto describe(const bool valid, const Instruction &step,
 
       std::ostringstream message;
       message << "The object value was expected to validate against the ";
-      if (step.children.size() == 1) {
+      if (static_cast<std::size_t>(step.direct_children_count) == 1) {
         message << "single defined property subschema";
       } else {
         // We cannot provide the specific number of properties,
@@ -2056,7 +2065,7 @@ auto describe(const bool valid, const Instruction &step,
 
     if (keyword == "dependencies") {
       assert(target.is_object());
-      assert(!step.children.empty());
+      assert(step.direct_children_count > 0);
 
       std::set<std::string> present;
       std::set<std::string> present_with_schemas;
@@ -2064,7 +2073,10 @@ auto describe(const bool valid, const Instruction &step,
       std::set<std::string> all_dependencies;
       std::set<std::string> required_properties;
 
-      for (const auto &child : step.children) {
+      for (std::size_t child_idx = step.flat_offset;
+           child_idx < step.flat_offset + step.children_count;
+           child_idx += 1 + all_instructions[child_idx].children_count) {
+        const auto &child{all_instructions[child_idx]};
         // Schema
         if (child.type == InstructionIndex::LogicalWhenDefines) {
           const auto &substep{child};
@@ -2184,10 +2196,13 @@ auto describe(const bool valid, const Instruction &step,
 
     if (keyword == "dependentSchemas") {
       assert(target.is_object());
-      assert(!step.children.empty());
+      assert(step.direct_children_count > 0);
       std::set<std::string> present;
       std::set<std::string> all_dependencies;
-      for (const auto &child : step.children) {
+      for (std::size_t child_idx = step.flat_offset;
+           child_idx < step.flat_offset + step.children_count;
+           child_idx += 1 + all_instructions[child_idx].children_count) {
+        const auto &child{all_instructions[child_idx]};
         assert(child.type == InstructionIndex::LogicalWhenDefines);
         const auto &substep{child};
         const auto &property{instruction_value<ValueProperty>(substep).first};

@@ -62,7 +62,7 @@ is_parent_to_children_instruction(const InstructionIndex type) noexcept
   }
 }
 
-inline auto convert_to_property_type_assertions(Instructions &instructions)
+inline auto convert_to_property_type_assertions(TreeInstructions &instructions)
     -> void {
   for (auto &instruction : instructions) {
     if (!instruction.relative_instance_location.empty()) {
@@ -87,7 +87,7 @@ inline auto convert_to_property_type_assertions(Instructions &instructions)
   }
 }
 
-inline auto rebase(Instruction &instruction,
+inline auto rebase(TreeInstruction &instruction,
                    const sourcemeta::core::Pointer &schema_prefix,
                    const sourcemeta::core::Pointer &instance_prefix) -> void {
   instruction.relative_schema_location =
@@ -111,7 +111,7 @@ inline auto rebase(Instruction &instruction,
   }
 }
 
-inline auto collect_statistics(const Instructions &instructions,
+inline auto collect_statistics(const TreeInstructions &instructions,
                                TargetStatistics &statistics) -> void {
   for (const auto &instruction : instructions) {
     statistics.count += 1;
@@ -131,8 +131,8 @@ inline auto collect_statistics(const Instructions &instructions,
 }
 
 inline auto
-transform_instruction(Instruction &instruction, Instructions &output,
-                      const std::vector<Instructions> &targets,
+transform_instruction(TreeInstruction &instruction, TreeInstructions &output,
+                      const std::vector<TreeInstructions> &targets,
                       const std::vector<TargetStatistics> &statistics,
                       TargetStatistics &current_stats, const Tweaks &tweaks,
                       const bool uses_dynamic_scopes) -> bool {
@@ -184,46 +184,46 @@ transform_instruction(Instruction &instruction, Instructions &output,
     auto &child{instruction.children.front()};
     if (child.type == InstructionIndex::AssertionTypeStrict) {
       output.push_back(
-          Instruction{.type = InstructionIndex::LoopPropertiesTypeStrict,
-                      .relative_schema_location =
-                          instruction.relative_schema_location.concat(
-                              child.relative_schema_location),
-                      .relative_instance_location =
-                          std::move(instruction.relative_instance_location),
-                      .keyword_location = std::move(child.keyword_location),
-                      .schema_resource = child.schema_resource,
-                      .value = std::move(child.value),
-                      .children = {}});
+          TreeInstruction{.type = InstructionIndex::LoopPropertiesTypeStrict,
+                          .relative_schema_location =
+                              instruction.relative_schema_location.concat(
+                                  child.relative_schema_location),
+                          .relative_instance_location =
+                              std::move(instruction.relative_instance_location),
+                          .keyword_location = std::move(child.keyword_location),
+                          .schema_resource = child.schema_resource,
+                          .value = std::move(child.value),
+                          .children = {}});
       return true;
     }
 
     if (child.type == InstructionIndex::AssertionType) {
       output.push_back(
-          Instruction{.type = InstructionIndex::LoopPropertiesType,
-                      .relative_schema_location =
-                          instruction.relative_schema_location.concat(
-                              child.relative_schema_location),
-                      .relative_instance_location =
-                          std::move(instruction.relative_instance_location),
-                      .keyword_location = std::move(child.keyword_location),
-                      .schema_resource = child.schema_resource,
-                      .value = std::move(child.value),
-                      .children = {}});
+          TreeInstruction{.type = InstructionIndex::LoopPropertiesType,
+                          .relative_schema_location =
+                              instruction.relative_schema_location.concat(
+                                  child.relative_schema_location),
+                          .relative_instance_location =
+                              std::move(instruction.relative_instance_location),
+                          .keyword_location = std::move(child.keyword_location),
+                          .schema_resource = child.schema_resource,
+                          .value = std::move(child.value),
+                          .children = {}});
       return true;
     }
 
     if (child.type == InstructionIndex::AssertionTypeStrictAny) {
       output.push_back(
-          Instruction{.type = InstructionIndex::LoopPropertiesTypeStrictAny,
-                      .relative_schema_location =
-                          instruction.relative_schema_location.concat(
-                              child.relative_schema_location),
-                      .relative_instance_location =
-                          std::move(instruction.relative_instance_location),
-                      .keyword_location = std::move(child.keyword_location),
-                      .schema_resource = child.schema_resource,
-                      .value = std::move(child.value),
-                      .children = {}});
+          TreeInstruction{.type = InstructionIndex::LoopPropertiesTypeStrictAny,
+                          .relative_schema_location =
+                              instruction.relative_schema_location.concat(
+                                  child.relative_schema_location),
+                          .relative_instance_location =
+                              std::move(instruction.relative_instance_location),
+                          .keyword_location = std::move(child.keyword_location),
+                          .schema_resource = child.schema_resource,
+                          .value = std::move(child.value),
+                          .children = {}});
       return true;
     }
   }
@@ -232,7 +232,7 @@ transform_instruction(Instruction &instruction, Instructions &output,
       instruction.children.size() == 1) {
     auto &child{instruction.children.front()};
     if (child.type == InstructionIndex::AssertionTypeStrict) {
-      output.push_back(Instruction{
+      output.push_back(TreeInstruction{
           .type = InstructionIndex::LoopPropertiesTypeStrictEvaluate,
           .relative_schema_location =
               instruction.relative_schema_location.concat(
@@ -248,21 +248,21 @@ transform_instruction(Instruction &instruction, Instructions &output,
 
     if (child.type == InstructionIndex::AssertionType) {
       output.push_back(
-          Instruction{.type = InstructionIndex::LoopPropertiesTypeEvaluate,
-                      .relative_schema_location =
-                          instruction.relative_schema_location.concat(
-                              child.relative_schema_location),
-                      .relative_instance_location =
-                          std::move(instruction.relative_instance_location),
-                      .keyword_location = std::move(child.keyword_location),
-                      .schema_resource = child.schema_resource,
-                      .value = std::move(child.value),
-                      .children = {}});
+          TreeInstruction{.type = InstructionIndex::LoopPropertiesTypeEvaluate,
+                          .relative_schema_location =
+                              instruction.relative_schema_location.concat(
+                                  child.relative_schema_location),
+                          .relative_instance_location =
+                              std::move(instruction.relative_instance_location),
+                          .keyword_location = std::move(child.keyword_location),
+                          .schema_resource = child.schema_resource,
+                          .value = std::move(child.value),
+                          .children = {}});
       return true;
     }
 
     if (child.type == InstructionIndex::AssertionTypeStrictAny) {
-      output.push_back(Instruction{
+      output.push_back(TreeInstruction{
           .type = InstructionIndex::LoopPropertiesTypeStrictAnyEvaluate,
           .relative_schema_location =
               instruction.relative_schema_location.concat(
@@ -304,7 +304,7 @@ transform_instruction(Instruction &instruction, Instructions &output,
   return false;
 }
 
-inline auto postprocess(std::vector<Instructions> &targets,
+inline auto postprocess(std::vector<TreeInstructions> &targets,
                         const Tweaks &tweaks, const bool uses_dynamic_scopes)
     -> void {
   std::vector<TargetStatistics> statistics;
@@ -326,8 +326,8 @@ inline auto postprocess(std::vector<Instructions> &targets,
       auto &target{targets[current_target_index]};
       auto &current_stats{statistics[current_target_index]};
 
-      std::vector<Instructions *> worklist;
-      std::vector<std::pair<Instructions *, std::size_t>> stack;
+      std::vector<TreeInstructions *> worklist;
+      std::vector<std::pair<TreeInstructions *, std::size_t>> stack;
       stack.emplace_back(&target, 0);
 
       while (!stack.empty()) {
@@ -348,7 +348,7 @@ inline auto postprocess(std::vector<Instructions> &targets,
       }
 
       for (auto *current : worklist) {
-        Instructions result;
+        TreeInstructions result;
         result.reserve(current->size());
 
         for (auto &instruction : *current) {

@@ -5,15 +5,15 @@
 #include <variant>     // std::visit
 
 namespace {
-auto to_json(const sourcemeta::blaze::Instruction &instruction,
-             std::vector<sourcemeta::core::JSON::String> &resources)
+auto instruction_to_json(
+    const sourcemeta::blaze::Instruction &instruction,
+    const sourcemeta::blaze::Instructions &all_instructions,
+    std::vector<sourcemeta::core::JSON::String> &resources)
     -> sourcemeta::core::JSON {
   // Note that we purposely avoid objects to help consumers avoid potentially
   // expensive hash-map or flat-map lookups when parsing back
   auto result{sourcemeta::core::JSON::make_array()};
 
-  // We use single characters to save space, as this serialised format
-  // is not meant to be human-readable anyway
   result.push_back(sourcemeta::core::to_json(instruction.type));
 
   result.push_back(
@@ -56,12 +56,19 @@ auto to_json(const sourcemeta::blaze::Instruction &instruction,
   assert(value.at(0).is_integer());
   result.push_back(std::move(value));
 
-  if (!instruction.children.empty()) {
+  // Reconstruct tree-shaped children from the flat array
+  if (instruction.children_count > 0) {
     auto children_json{sourcemeta::core::JSON::make_array()};
-    result.push_back(sourcemeta::core::to_json(
-        instruction.children, [&resources](const auto &subinstruction) {
-          return to_json(subinstruction, resources);
-        }));
+    std::size_t index{instruction.flat_offset};
+    const std::size_t end{instruction.flat_offset + instruction.children_count};
+    while (index < end) {
+      const auto &child{all_instructions[index]};
+      children_json.push_back(
+          instruction_to_json(child, all_instructions, resources));
+      // Skip this child and all its transitive descendants
+      index += 1 + child.children_count;
+    }
+    result.push_back(std::move(children_json));
   }
 
   return result;
@@ -79,11 +86,18 @@ auto to_json(const Template &schema_template) -> sourcemeta::core::JSON {
   std::vector<sourcemeta::core::JSON::String> resources;
 
   auto targets{sourcemeta::core::JSON::make_array()};
-  for (const auto &target : schema_template.targets) {
-    targets.push_back(sourcemeta::core::to_json(
-        target, [&resources](const auto &instruction) {
-          return ::to_json(instruction, resources);
-        }));
+  for (const auto &[offset, count] : schema_template.targets) {
+    auto target_json{sourcemeta::core::JSON::make_array()};
+    std::size_t index{offset};
+    const std::size_t end{offset + count};
+    while (index < end) {
+      const auto &instruction{schema_template.instructions[index]};
+      target_json.push_back(instruction_to_json(
+          instruction, schema_template.instructions, resources));
+      // Skip this instruction and all its transitive descendants
+      index += 1 + instruction.children_count;
+    }
+    targets.push_back(std::move(target_json));
   }
 
   result.push_back(sourcemeta::core::to_json(resources));

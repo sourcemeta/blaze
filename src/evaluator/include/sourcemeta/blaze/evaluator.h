@@ -30,11 +30,21 @@
 namespace sourcemeta::blaze {
 
 /// @ingroup evaluator
-/// Represents a compiled schema ready for execution
+/// Represents a compiled schema in tree form (used internally by compiler)
+struct TreeTemplate {
+  bool dynamic;
+  bool track;
+  std::vector<TreeInstructions> targets;
+  std::vector<std::pair<std::size_t, std::size_t>> labels;
+};
+
+/// @ingroup evaluator
+/// Represents a compiled schema ready for evaluation
 struct Template {
   bool dynamic;
   bool track;
-  std::vector<Instructions> targets;
+  Instructions instructions;
+  std::vector<std::pair<std::size_t, std::size_t>> targets;
   std::vector<std::pair<std::size_t, std::size_t>> labels;
 };
 

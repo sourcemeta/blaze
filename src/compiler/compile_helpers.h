@@ -72,7 +72,7 @@ inline auto make_with_resource(const InstructionIndex type,
                                const SchemaContext &schema_context,
                                const DynamicContext &dynamic_context,
                                const Value &value, const std::string &resource)
-    -> Instruction {
+    -> TreeInstruction {
   const auto schema_location{
       dynamic_context.keyword.empty()
           ? to_pointer(dynamic_context.base_schema_location)
@@ -94,7 +94,7 @@ inline auto make_with_resource(const InstructionIndex type,
 inline auto make(const InstructionIndex type, const Context &context,
                  const SchemaContext &schema_context,
                  const DynamicContext &dynamic_context, const Value &value)
-    -> Instruction {
+    -> TreeInstruction {
   return make_with_resource(type, context, schema_context, dynamic_context,
                             value, schema_context.base.recompose());
 }
@@ -103,7 +103,7 @@ inline auto make(const InstructionIndex type, const Context &context,
 inline auto make(const InstructionIndex type, const Context &context,
                  const SchemaContext &schema_context,
                  const DynamicContext &dynamic_context, Value &&value,
-                 Instructions &&children) -> Instruction {
+                 TreeInstructions &&children) -> TreeInstruction {
   const auto schema_location{
       dynamic_context.keyword.empty()
           ? to_pointer(dynamic_context.base_schema_location)
@@ -122,9 +122,10 @@ inline auto make(const InstructionIndex type, const Context &context,
           .children = std::move(children)};
 }
 
-inline auto unroll(const Instruction &step,
+inline auto unroll(const TreeInstruction &step,
                    const sourcemeta::core::WeakPointer &base_instance_location =
-                       sourcemeta::core::empty_weak_pointer) -> Instruction {
+                       sourcemeta::core::empty_weak_pointer)
+    -> TreeInstruction {
   return {.type = step.type,
           .relative_schema_location = step.relative_schema_location,
           .relative_instance_location =
@@ -136,8 +137,8 @@ inline auto unroll(const Instruction &step,
           .children = {}};
 }
 
-inline auto rephrase(const InstructionIndex type, const Instruction &step)
-    -> Instruction {
+inline auto rephrase(const InstructionIndex type, const TreeInstruction &step)
+    -> TreeInstruction {
   return {.type = type,
           .relative_schema_location = step.relative_schema_location,
           .relative_instance_location = step.relative_instance_location,
@@ -272,7 +273,8 @@ inline auto find_adjacent(const Context &context,
   return result;
 }
 
-inline auto recursive_template_size(const Instructions &steps) -> std::size_t {
+inline auto recursive_template_size(const TreeInstructions &steps)
+    -> std::size_t {
   std::size_t result{steps.size()};
   for (const auto &variant : steps) {
     result += recursive_template_size(variant.children);

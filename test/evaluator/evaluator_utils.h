@@ -174,6 +174,7 @@ inline auto FIRST_PROPERTY_IS(const sourcemeta::core::JSON &document,
 #define EVALUATE_TRACE_POST_DESCRIBE(instance, index, message)                 \
   EXPECT_EQ(sourcemeta::blaze::describe(std::get<0>(trace_post.at(index)),     \
                                         std::get<3>(trace_post.at(index)),     \
+                                        compiled_schema.instructions,          \
                                         std::get<1>(trace_post.at(index)),     \
                                         std::get<2>(trace_post.at(index)),     \
                                         instance,                              \

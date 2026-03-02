@@ -23,7 +23,7 @@ auto handle_standard(Evaluator &evaluator, const Template &schema,
     return result;
   } else {
     assert(format == StandardOutput::Basic);
-    SimpleOutput output{instance};
+    SimpleOutput output{instance, schema.instructions};
     const auto valid{evaluator.validate(schema, instance, std::ref(output))};
 
     if (valid) {
