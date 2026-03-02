@@ -70,11 +70,11 @@ INSTRUCTION_HANDLER(AssertionDefinesAll) {
   assert(value.size() > 1);
 
   // Otherwise there is no way the instance can satisfy it anyway
-  if (value.size() <= target.object_size()) {
+  if (value.size() <= target.object_size()) [[likely]] {
     result = true;
     const auto &object{target.as_object()};
     for (const auto &property : value) {
-      if (!object.defines(property.first, property.second)) {
+      if (!object.defines(property.first, property.second)) [[unlikely]] {
         result = false;
         break;
       }
@@ -98,11 +98,11 @@ INSTRUCTION_HANDLER(AssertionDefinesAllStrict) {
   assert(value.size() > 1);
 
   // Otherwise there is no way the instance can satisfy it anyway
-  if (target.is_object() && value.size() <= target.object_size()) {
+  if (target.is_object() && value.size() <= target.object_size()) [[likely]] {
     result = true;
     const auto &object{target.as_object()};
     for (const auto &property : value) {
-      if (!object.defines(property.first, property.second)) {
+      if (!object.defines(property.first, property.second)) [[unlikely]] {
         result = false;
         break;
       }
@@ -125,10 +125,10 @@ INSTRUCTION_HANDLER(AssertionDefinesExactly) {
   assert(value.size() > 1);
   const auto &object{target.as_object()};
 
-  if (value.size() == object.size()) {
+  if (value.size() == object.size()) [[likely]] {
     result = true;
     for (const auto &property : value) {
-      if (!object.defines(property.first, property.second)) {
+      if (!object.defines(property.first, property.second)) [[unlikely]] {
         result = false;
         break;
       }
@@ -147,16 +147,16 @@ INSTRUCTION_HANDLER(AssertionDefinesExactlyStrict) {
   SOURCEMETA_MAYBE_UNUSED(evaluator);
   EVALUATE_BEGIN_NO_PRECONDITION(AssertionDefinesExactlyStrict);
   const auto &target{get(instance, instruction.relative_instance_location)};
-  if (target.is_object()) {
+  if (target.is_object()) [[likely]] {
     const auto &value{*std::get_if<ValueStringSet>(&instruction.value)};
     // Otherwise we are we even emitting this instruction?
     assert(value.size() > 1);
     const auto &object{target.as_object()};
 
-    if (value.size() == object.size()) {
+    if (value.size() == object.size()) [[likely]] {
       result = true;
       for (const auto &property : value) {
-        if (!object.defines(property.first, property.second)) {
+        if (!object.defines(property.first, property.second)) [[unlikely]] {
           result = false;
           break;
         }
@@ -176,7 +176,7 @@ INSTRUCTION_HANDLER(AssertionDefinesExactlyStrictHash3) {
   SOURCEMETA_MAYBE_UNUSED(evaluator);
   EVALUATE_BEGIN_NO_PRECONDITION(AssertionDefinesExactlyStrictHash3);
   const auto &target{get(instance, instruction.relative_instance_location)};
-  if (target.is_object()) {
+  if (target.is_object()) [[likely]] {
     // TODO: Take advantage of the table of contents structure to speed up
     // checks
     const auto &value{*std::get_if<ValueStringHashes>(&instruction.value)};
@@ -227,7 +227,7 @@ INSTRUCTION_HANDLER(AssertionPropertyDependencies) {
 
     assert(!entry.second.empty());
     for (const auto &dependency : entry.second) {
-      if (!object.defines(dependency, hasher(dependency))) {
+      if (!object.defines(dependency, hasher(dependency))) [[unlikely]] {
         result = false;
         EVALUATE_END(AssertionPropertyDependencies);
       }
@@ -565,7 +565,7 @@ INSTRUCTION_HANDLER(AssertionEqualsAnyStringHash) {
     target_string = property_target;
   } else {
     const auto &target{get(instance, instruction.relative_instance_location)};
-    if (target.is_string()) {
+    if (target.is_string()) [[likely]] {
       target_string = &target.to_string();
     } else {
       EVALUATE_END(AssertionEqualsAnyStringHash);
@@ -576,10 +576,10 @@ INSTRUCTION_HANDLER(AssertionEqualsAnyStringHash) {
   // TODO: Put this on the evaluator to re-use it everywhere
   const sourcemeta::core::PropertyHashJSON<ValueString> hasher;
   const auto value_hash{hasher(*target_string)};
-  if (string_size < value.second.size()) {
+  if (string_size < value.second.size()) [[likely]] {
     const auto &hint{value.second[string_size]};
     assert(hint.first <= hint.second);
-    if (hint.second != 0) {
+    if (hint.second != 0) [[likely]] {
       for (std::size_t index = hint.first - 1; index < hint.second; index++) {
         assert(hasher.is_perfect(value.first[index]));
         if (value.first[index] == value_hash) {
@@ -832,7 +832,7 @@ INSTRUCTION_HANDLER(AssertionArrayPrefix) {
     result = true;
     assert(entry.type == sourcemeta::blaze::InstructionIndex::ControlGroup);
     for (const auto &child : entry.children) {
-      if (!EVALUATE_RECURSE(child, target)) {
+      if (!EVALUATE_RECURSE(child, target)) [[unlikely]] {
         result = false;
         break;
       }
@@ -862,7 +862,7 @@ INSTRUCTION_HANDLER(AssertionArrayPrefixEvaluate) {
     result = true;
     assert(entry.type == sourcemeta::blaze::InstructionIndex::ControlGroup);
     for (const auto &child : entry.children) {
-      if (!EVALUATE_RECURSE(child, target)) {
+      if (!EVALUATE_RECURSE(child, target)) [[unlikely]] {
         result = false;
         EVALUATE_END(AssertionArrayPrefixEvaluate);
       }
@@ -923,7 +923,7 @@ INSTRUCTION_HANDLER(LogicalAnd) {
   result = true;
   const auto &target{get(instance, instruction.relative_instance_location)};
   for (const auto &child : instruction.children) {
-    if (!EVALUATE_RECURSE(child, target)) {
+    if (!EVALUATE_RECURSE(child, target)) [[unlikely]] {
       result = false;
       break;
     }
@@ -950,7 +950,7 @@ INSTRUCTION_HANDLER(LogicalWhenType) {
   EVALUATE_BEGIN(LogicalWhenType, target.type() == value);
   result = true;
   for (const auto &child : instruction.children) {
-    if (!EVALUATE_RECURSE(child, target)) {
+    if (!EVALUATE_RECURSE(child, target)) [[unlikely]] {
       result = false;
       break;
     }
@@ -972,7 +972,7 @@ INSTRUCTION_HANDLER(LogicalWhenDefines) {
                                 target.defines(value.first, value.second));
   result = true;
   for (const auto &child : instruction.children) {
-    if (!EVALUATE_RECURSE(child, target)) {
+    if (!EVALUATE_RECURSE(child, target)) [[unlikely]] {
       result = false;
       break;
     }
@@ -993,7 +993,7 @@ INSTRUCTION_HANDLER(LogicalWhenArraySizeGreater) {
                             target.is_array() && target.array_size() > value);
   result = true;
   for (const auto &child : instruction.children) {
-    if (!EVALUATE_RECURSE(child, target)) {
+    if (!EVALUATE_RECURSE(child, target)) [[unlikely]] {
       result = false;
       break;
     }
@@ -1016,7 +1016,7 @@ INSTRUCTION_HANDLER(LogicalXor) {
   const auto value{*std::get_if<ValueBoolean>(&instruction.value)};
   for (const auto &child : instruction.children) {
     if (EVALUATE_RECURSE(child, target)) {
-      if (has_matched) {
+      if (has_matched) [[unlikely]] {
         result = false;
         // This boolean value controls whether we should be exhaustive
         if (!value) {
@@ -1101,7 +1101,7 @@ INSTRUCTION_HANDLER(ControlGroup) {
   SOURCEMETA_MAYBE_UNUSED(evaluator);
   EVALUATE_BEGIN_PASS_THROUGH(ControlGroup);
   for (const auto &child : instruction.children) {
-    if (!EVALUATE_RECURSE(child, instance)) {
+    if (!EVALUATE_RECURSE(child, instance)) [[unlikely]] {
       result = false;
       break;
     }
@@ -1127,7 +1127,7 @@ INSTRUCTION_HANDLER(ControlGroupWhenDefines) {
     for (const auto &child : instruction.children) {
       // Note that in this control instruction, we purposely
       // don't navigate into the target
-      if (!EVALUATE_RECURSE(child, instance)) {
+      if (!EVALUATE_RECURSE(child, instance)) [[unlikely]] {
         result = false;
         break;
       }
@@ -1151,7 +1151,7 @@ INSTRUCTION_HANDLER(ControlGroupWhenDefinesDirect) {
 
   if (instance.is_object() && instance.defines(value.first, value.second)) {
     for (const auto &child : instruction.children) {
-      if (!EVALUATE_RECURSE(child, instance)) {
+      if (!EVALUATE_RECURSE(child, instance)) [[unlikely]] {
         result = false;
         break;
       }
@@ -1179,9 +1179,9 @@ INSTRUCTION_HANDLER(ControlGroupWhenType) {
   assert(value != JSON::Type::Real);
   assert(value != JSON::Type::Decimal);
 
-  if (instance.type() == value) {
+  if (instance.type() == value) [[likely]] {
     for (const auto &child : instruction.children) {
-      if (!EVALUATE_RECURSE(child, instance)) {
+      if (!EVALUATE_RECURSE(child, instance)) [[unlikely]] {
         result = false;
         break;
       }
@@ -1219,11 +1219,11 @@ INSTRUCTION_HANDLER(ControlDynamicAnchorJump) {
         std::ranges::find_if(schema.labels, [&label](const auto &entry) {
           return entry.first == label;
         })};
-    if (match != schema.labels.cend()) {
+    if (match != schema.labels.cend()) [[likely]] {
       result = true;
       assert(match->second < schema.targets.size());
       for (const auto &child : schema.targets[match->second]) {
-        if (!EVALUATE_RECURSE(child, target)) {
+        if (!EVALUATE_RECURSE(child, target)) [[unlikely]] {
           result = false;
           EVALUATE_END(ControlDynamicAnchorJump);
         }
@@ -1249,7 +1249,7 @@ INSTRUCTION_HANDLER(ControlJump) {
   const auto &target{resolve_target(
       property_target, get(instance, instruction.relative_instance_location))};
   for (const auto &child : schema.targets[value]) {
-    if (!EVALUATE_RECURSE(child, target)) {
+    if (!EVALUATE_RECURSE(child, target)) [[unlikely]] {
       result = false;
       break;
     }
@@ -1328,7 +1328,7 @@ INSTRUCTION_HANDLER(LogicalNot) {
 
   const auto &target{get(instance, instruction.relative_instance_location)};
   for (const auto &child : instruction.children) {
-    if (!EVALUATE_RECURSE(child, target)) {
+    if (!EVALUATE_RECURSE(child, target)) [[likely]] {
       result = true;
       break;
     }
@@ -1348,7 +1348,7 @@ INSTRUCTION_HANDLER(LogicalNotEvaluate) {
 
   const auto &target{get(instance, instruction.relative_instance_location)};
   for (const auto &child : instruction.children) {
-    if (!EVALUATE_RECURSE(child, target)) {
+    if (!EVALUATE_RECURSE(child, target)) [[likely]] {
       result = true;
       break;
     }
@@ -1380,7 +1380,7 @@ INSTRUCTION_HANDLER(LoopPropertiesUnevaluated) {
       evaluator.instance_location.push_back(entry.first);
 #endif
       for (const auto &child : instruction.children) {
-        if (!EVALUATE_RECURSE(child, entry.second)) {
+        if (!EVALUATE_RECURSE(child, entry.second)) [[unlikely]] {
           result = false;
 #ifdef SOURCEMETA_EVALUATOR_COMPLETE
           evaluator.instance_location.pop_back();
@@ -1444,7 +1444,7 @@ INSTRUCTION_HANDLER(LoopPropertiesUnevaluatedExcept) {
       evaluator.instance_location.push_back(entry.first);
 #endif
       for (const auto &child : instruction.children) {
-        if (!EVALUATE_RECURSE(child, entry.second)) {
+        if (!EVALUATE_RECURSE(child, entry.second)) [[unlikely]] {
           result = false;
 #ifdef SOURCEMETA_EVALUATOR_COMPLETE
           evaluator.instance_location.pop_back();
@@ -1485,7 +1485,7 @@ INSTRUCTION_HANDLER(LoopPropertiesMatch) {
     assert(subinstruction.type ==
            sourcemeta::blaze::InstructionIndex::ControlGroup);
     for (const auto &child : subinstruction.children) {
-      if (!EVALUATE_RECURSE(child, target)) {
+      if (!EVALUATE_RECURSE(child, target)) [[unlikely]] {
         result = false;
         EVALUATE_END(LoopPropertiesMatch);
       }
@@ -1508,7 +1508,7 @@ INSTRUCTION_HANDLER(LoopPropertiesMatchClosed) {
   result = true;
   for (const auto &entry : target.as_object()) {
     const auto *index{value.try_at(entry.first, entry.hash)};
-    if (!index) {
+    if (!index) [[unlikely]] {
       result = false;
       break;
     }
@@ -1517,7 +1517,7 @@ INSTRUCTION_HANDLER(LoopPropertiesMatchClosed) {
     assert(subinstruction.type ==
            sourcemeta::blaze::InstructionIndex::ControlGroup);
     for (const auto &child : subinstruction.children) {
-      if (!EVALUATE_RECURSE(child, target)) {
+      if (!EVALUATE_RECURSE(child, target)) [[unlikely]] {
         result = false;
         EVALUATE_END(LoopPropertiesMatchClosed);
       }
@@ -1545,7 +1545,7 @@ INSTRUCTION_HANDLER(LoopProperties) {
 #endif
 
     for (const auto &child : instruction.children) {
-      if (!EVALUATE_RECURSE(child, entry.second)) {
+      if (!EVALUATE_RECURSE(child, entry.second)) [[unlikely]] {
         result = false;
 
 #ifdef SOURCEMETA_EVALUATOR_COMPLETE
@@ -1586,7 +1586,7 @@ INSTRUCTION_HANDLER(LoopPropertiesEvaluate) {
 #endif
 
     for (const auto &child : instruction.children) {
-      if (!EVALUATE_RECURSE(child, entry.second)) {
+      if (!EVALUATE_RECURSE(child, entry.second)) [[unlikely]] {
         result = false;
 
 #ifdef SOURCEMETA_EVALUATOR_COMPLETE
@@ -1633,7 +1633,7 @@ INSTRUCTION_HANDLER(LoopPropertiesRegex) {
 #endif
 
     for (const auto &child : instruction.children) {
-      if (!EVALUATE_RECURSE(child, entry.second)) {
+      if (!EVALUATE_RECURSE(child, entry.second)) [[unlikely]] {
         result = false;
 
 #ifdef SOURCEMETA_EVALUATOR_COMPLETE
@@ -1667,7 +1667,7 @@ INSTRUCTION_HANDLER(LoopPropertiesRegexClosed) {
   result = true;
   const auto &value{*std::get_if<ValueRegex>(&instruction.value)};
   for (const auto &entry : target.as_object()) {
-    if (!matches(value.first, entry.first)) {
+    if (!matches(value.first, entry.first)) [[unlikely]] {
       result = false;
       break;
     }
@@ -1683,7 +1683,7 @@ INSTRUCTION_HANDLER(LoopPropertiesRegexClosed) {
 #endif
 
     for (const auto &child : instruction.children) {
-      if (!EVALUATE_RECURSE(child, entry.second)) {
+      if (!EVALUATE_RECURSE(child, entry.second)) [[unlikely]] {
         result = false;
 
 #ifdef SOURCEMETA_EVALUATOR_COMPLETE
@@ -1729,7 +1729,7 @@ INSTRUCTION_HANDLER(LoopPropertiesStartsWith) {
 #endif
 
     for (const auto &child : instruction.children) {
-      if (!EVALUATE_RECURSE(child, entry.second)) {
+      if (!EVALUATE_RECURSE(child, entry.second)) [[unlikely]] {
         result = false;
 
 #ifdef SOURCEMETA_EVALUATOR_COMPLETE
@@ -1793,7 +1793,7 @@ INSTRUCTION_HANDLER(LoopPropertiesExcept) {
 #endif
 
     for (const auto &child : instruction.children) {
-      if (!EVALUATE_RECURSE(child, entry.second)) {
+      if (!EVALUATE_RECURSE(child, entry.second)) [[unlikely]] {
         result = false;
 
 #ifdef SOURCEMETA_EVALUATOR_COMPLETE
@@ -1830,7 +1830,8 @@ INSTRUCTION_HANDLER(LoopPropertiesType) {
     if (entry.second.type() != value &&
         // In non-strict mode, we consider a real number that represents an
         // integer to be an integer
-        (value != JSON::Type::Integer || !entry.second.is_integral())) {
+        (value != JSON::Type::Integer || !entry.second.is_integral()))
+        [[unlikely]] {
       result = false;
       break;
     }
@@ -1853,7 +1854,8 @@ INSTRUCTION_HANDLER(LoopPropertiesTypeEvaluate) {
     if (entry.second.type() != value &&
         // In non-strict mode, we consider a real number that represents an
         // integer to be an integer
-        (value != JSON::Type::Integer || !entry.second.is_integral())) {
+        (value != JSON::Type::Integer || !entry.second.is_integral()))
+        [[unlikely]] {
       result = false;
       EVALUATE_END(LoopPropertiesTypeEvaluate);
     }
@@ -1873,17 +1875,18 @@ INSTRUCTION_HANDLER(LoopPropertiesExactlyTypeStrict) {
   EVALUATE_BEGIN_NO_PRECONDITION(LoopPropertiesExactlyTypeStrict);
   const auto &target{get(instance, instruction.relative_instance_location)};
   const auto &value{*std::get_if<ValueTypedProperties>(&instruction.value)};
-  if (!target.is_object()) {
+  if (!target.is_object()) [[unlikely]] {
     EVALUATE_END(LoopPropertiesExactlyTypeStrict);
   }
 
   const auto &object{target.as_object()};
-  if (object.size() == value.second.size()) {
+  if (object.size() == value.second.size()) [[likely]] {
     // Otherwise why emit this instruction?
     assert(!value.second.empty());
     result = true;
     for (const auto &entry : object) {
-      if (effective_type_strict_real(entry.second) != value.first) {
+      if (effective_type_strict_real(entry.second) != value.first)
+          [[unlikely]] {
         result = false;
         break;
       }
@@ -1905,13 +1908,13 @@ INSTRUCTION_HANDLER(LoopPropertiesExactlyTypeStrictHash) {
   // TODO: Take advantage of the table of contents structure to speed up checks
   const auto &value{*std::get_if<ValueTypedHashes>(&instruction.value)};
 
-  if (!target.is_object()) {
+  if (!target.is_object()) [[unlikely]] {
     EVALUATE_END(LoopPropertiesExactlyTypeStrictHash);
   }
 
   const auto &object{target.as_object()};
   const auto size{object.size()};
-  if (size == value.second.first.size()) {
+  if (size == value.second.first.size()) [[likely]] {
     // Otherwise why emit this instruction?
     assert(!value.second.first.empty());
 
@@ -1964,7 +1967,7 @@ INSTRUCTION_HANDLER(LoopPropertiesTypeStrict) {
   result = true;
   const auto value{*std::get_if<ValueType>(&instruction.value)};
   for (const auto &entry : target.as_object()) {
-    if (effective_type_strict_real(entry.second) != value) {
+    if (effective_type_strict_real(entry.second) != value) [[unlikely]] {
       result = false;
       break;
     }
@@ -1985,7 +1988,7 @@ INSTRUCTION_HANDLER(LoopPropertiesTypeStrictEvaluate) {
   result = true;
   const auto value{*std::get_if<ValueType>(&instruction.value)};
   for (const auto &entry : target.as_object()) {
-    if (effective_type_strict_real(entry.second) != value) {
+    if (effective_type_strict_real(entry.second) != value) [[unlikely]] {
       result = false;
       EVALUATE_END(LoopPropertiesTypeStrictEvaluate);
     }
@@ -2009,7 +2012,7 @@ INSTRUCTION_HANDLER(LoopPropertiesTypeStrictAny) {
   for (const auto &entry : target.as_object()) {
     const auto type_index{
         static_cast<std::uint8_t>(effective_type_strict_real(entry.second))};
-    if (!value.test(type_index)) {
+    if (!value.test(type_index)) [[unlikely]] {
       result = false;
       break;
     }
@@ -2033,7 +2036,7 @@ INSTRUCTION_HANDLER(LoopPropertiesTypeStrictAnyEvaluate) {
   for (const auto &entry : target.as_object()) {
     const auto type_index{
         static_cast<std::uint8_t>(effective_type_strict_real(entry.second))};
-    if (!value.test(type_index)) {
+    if (!value.test(type_index)) [[unlikely]] {
       result = false;
       EVALUATE_END(LoopPropertiesTypeStrictAnyEvaluate);
     }
@@ -2062,7 +2065,7 @@ INSTRUCTION_HANDLER(LoopKeys) {
 
     for (const auto &child : instruction.children) {
       if (!EVALUATE_RECURSE_ON_PROPERTY_NAME(child, Evaluator::null,
-                                             entry.first)) {
+                                             entry.first)) [[unlikely]] {
         result = false;
 
 #ifdef SOURCEMETA_EVALUATOR_COMPLETE
@@ -2100,7 +2103,7 @@ INSTRUCTION_HANDLER(LoopItems) {
 #ifdef SOURCEMETA_EVALUATOR_FAST
   for (const auto &new_instance : target.as_array()) {
     for (const auto &child : instruction.children) {
-      if (!EVALUATE_RECURSE(child, new_instance)) {
+      if (!EVALUATE_RECURSE(child, new_instance)) [[unlikely]] {
         result = false;
         EVALUATE_END(LoopItems);
       }
@@ -2116,7 +2119,7 @@ INSTRUCTION_HANDLER(LoopItems) {
 
     const auto &new_instance{target.at(index)};
     for (const auto &child : instruction.children) {
-      if (!EVALUATE_RECURSE(child, new_instance)) {
+      if (!EVALUATE_RECURSE(child, new_instance)) [[unlikely]] {
         result = false;
 
 #ifdef SOURCEMETA_EVALUATOR_COMPLETE
@@ -2161,7 +2164,7 @@ INSTRUCTION_HANDLER(LoopItemsFrom) {
 
     const auto &new_instance{target.at(index)};
     for (const auto &child : instruction.children) {
-      if (!EVALUATE_RECURSE(child, new_instance)) {
+      if (!EVALUATE_RECURSE(child, new_instance)) [[unlikely]] {
         result = false;
 
 #ifdef SOURCEMETA_EVALUATOR_COMPLETE
@@ -2206,7 +2209,7 @@ INSTRUCTION_HANDLER(LoopItemsUnevaluated) {
       evaluator.instance_location.push_back(index);
 #endif
       for (const auto &child : instruction.children) {
-        if (!EVALUATE_RECURSE(child, new_instance)) {
+        if (!EVALUATE_RECURSE(child, new_instance)) [[unlikely]] {
           result = false;
 #ifdef SOURCEMETA_EVALUATOR_COMPLETE
           evaluator.instance_location.pop_back();
@@ -2240,7 +2243,7 @@ INSTRUCTION_HANDLER(LoopItemsType) {
     if (entry.type() != value &&
         // In non-strict mode, we consider a real number that represents an
         // integer to be an integer
-        (value != JSON::Type::Integer || !entry.is_integral())) {
+        (value != JSON::Type::Integer || !entry.is_integral())) [[unlikely]] {
       result = false;
       break;
     }
@@ -2260,7 +2263,7 @@ INSTRUCTION_HANDLER(LoopItemsTypeStrict) {
   result = true;
   const auto value{*std::get_if<ValueType>(&instruction.value)};
   for (const auto &entry : target.as_array()) {
-    if (effective_type_strict_real(entry) != value) {
+    if (effective_type_strict_real(entry) != value) [[unlikely]] {
       result = false;
       break;
     }
@@ -2284,7 +2287,7 @@ INSTRUCTION_HANDLER(LoopItemsTypeStrictAny) {
   for (const auto &entry : target.as_array()) {
     const auto type_index{
         static_cast<std::uint8_t>(effective_type_strict_real(entry))};
-    if (!value.test(type_index)) {
+    if (!value.test(type_index)) [[unlikely]] {
       result = false;
       break;
     }
@@ -2307,7 +2310,7 @@ INSTRUCTION_HANDLER(LoopItemsPropertiesExactlyTypeStrictHash) {
   // Otherwise why emit this instruction?
   assert(!value.second.first.empty());
 
-  if (!target.is_array()) {
+  if (!target.is_array()) [[unlikely]] {
     EVALUATE_END(LoopItemsPropertiesExactlyTypeStrictHash);
   }
 
@@ -2315,14 +2318,14 @@ INSTRUCTION_HANDLER(LoopItemsPropertiesExactlyTypeStrictHash) {
 
   const auto hashes_size{value.second.first.size()};
   for (const auto &item : target.as_array()) {
-    if (!item.is_object()) {
+    if (!item.is_object()) [[unlikely]] {
       result = false;
       EVALUATE_END(LoopItemsPropertiesExactlyTypeStrictHash);
     }
 
     const auto &object{item.as_object()};
     const auto size{object.size()};
-    if (size != hashes_size) {
+    if (size != hashes_size) [[unlikely]] {
       result = false;
       EVALUATE_END(LoopItemsPropertiesExactlyTypeStrictHash);
     }
@@ -2330,8 +2333,9 @@ INSTRUCTION_HANDLER(LoopItemsPropertiesExactlyTypeStrictHash) {
     // Unroll, for performance reasons, for small collections
     if (hashes_size == 3) {
       for (const auto &entry : object) {
-        // NOLINTNEXTLINE(bugprone-branch-clone)
-        if (effective_type_strict_real(entry.second) != value.first) {
+        if (effective_type_strict_real(entry.second) != value.first)
+            // NOLINTNEXTLINE(bugprone-branch-clone)
+            [[unlikely]] {
           result = false;
           EVALUATE_END(LoopItemsPropertiesExactlyTypeStrictHash);
         } else if (entry.hash != value.second.first[0] &&
@@ -2343,8 +2347,9 @@ INSTRUCTION_HANDLER(LoopItemsPropertiesExactlyTypeStrictHash) {
       }
     } else if (hashes_size == 2) {
       for (const auto &entry : object) {
-        // NOLINTNEXTLINE(bugprone-branch-clone)
-        if (effective_type_strict_real(entry.second) != value.first) {
+        if (effective_type_strict_real(entry.second) != value.first)
+            // NOLINTNEXTLINE(bugprone-branch-clone)
+            [[unlikely]] {
           result = false;
           EVALUATE_END(LoopItemsPropertiesExactlyTypeStrictHash);
         } else if (entry.hash != value.second.first[0] &&
@@ -2356,15 +2361,16 @@ INSTRUCTION_HANDLER(LoopItemsPropertiesExactlyTypeStrictHash) {
     } else if (hashes_size == 1) {
       const auto &entry{*object.cbegin()};
       if (effective_type_strict_real(entry.second) != value.first ||
-          entry.hash != value.second.first[0]) {
+          entry.hash != value.second.first[0]) [[unlikely]] {
         result = false;
         EVALUATE_END(LoopItemsPropertiesExactlyTypeStrictHash);
       }
     } else {
       std::size_t index{0};
       for (const auto &entry : object) {
-        // NOLINTNEXTLINE(bugprone-branch-clone)
-        if (effective_type_strict_real(entry.second) != value.first) {
+        if (effective_type_strict_real(entry.second) != value.first)
+            // NOLINTNEXTLINE(bugprone-branch-clone)
+            [[unlikely]] {
           result = false;
           EVALUATE_END(LoopItemsPropertiesExactlyTypeStrictHash);
         } else if (entry.hash == value.second.first[index]) {
@@ -2401,17 +2407,17 @@ INSTRUCTION_HANDLER(LoopItemsPropertiesExactlyTypeStrictHash3) {
   // Otherwise why emit this instruction?
   assert(!value.second.first.empty());
 
-  if (!target.is_array()) {
+  if (!target.is_array()) [[unlikely]] {
     EVALUATE_END(LoopItemsPropertiesExactlyTypeStrictHash3);
   }
 
   for (const auto &item : target.as_array()) {
-    if (!item.is_object()) {
+    if (!item.is_object()) [[unlikely]] {
       EVALUATE_END(LoopItemsPropertiesExactlyTypeStrictHash3);
     }
 
     const auto &object{item.as_object()};
-    if (object.size() != 3) {
+    if (object.size() != 3) [[unlikely]] {
       EVALUATE_END(LoopItemsPropertiesExactlyTypeStrictHash3);
     }
 
@@ -2421,7 +2427,8 @@ INSTRUCTION_HANDLER(LoopItemsPropertiesExactlyTypeStrictHash3) {
 
     if (effective_type_strict_real(value_1.second) != value.first ||
         effective_type_strict_real(value_2.second) != value.first ||
-        effective_type_strict_real(value_3.second) != value.first) {
+        effective_type_strict_real(value_3.second) != value.first)
+        [[unlikely]] {
       EVALUATE_END(LoopItemsPropertiesExactlyTypeStrictHash3);
     }
 

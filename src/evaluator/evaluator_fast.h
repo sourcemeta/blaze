@@ -7,7 +7,7 @@
       resolve_target(property_target,                                          \
                      sourcemeta::core::get(                                    \
                          instance, instruction.relative_instance_location))};  \
-  if (!(precondition)) {                                                       \
+  if (!(precondition)) [[unlikely]] {                                          \
     return true;                                                               \
   }                                                                            \
   constexpr bool track{false};                                                 \
@@ -18,7 +18,7 @@
   assert(instruction.type == InstructionIndex::instruction_type);              \
   const auto &target{sourcemeta::core::get(                                    \
       instance, instruction.relative_instance_location)};                      \
-  if (!(precondition)) {                                                       \
+  if (!(precondition)) [[unlikely]] {                                          \
     return true;                                                               \
   }                                                                            \
   constexpr bool track{false};                                                 \
@@ -29,7 +29,7 @@
   assert(instruction.type == InstructionIndex::instruction_type);              \
   const auto *maybe_target{resolve_string_target(                              \
       property_target, instance, instruction.relative_instance_location)};     \
-  if (!maybe_target) {                                                         \
+  if (!maybe_target) [[unlikely]] {                                            \
     return true;                                                               \
   }                                                                            \
   const auto &target{*maybe_target};                                           \
@@ -38,7 +38,7 @@
 #define EVALUATE_BEGIN_TRY_TARGET(instruction_type)                            \
   assert(instruction.type == InstructionIndex::instruction_type);              \
   const auto &target{instance};                                                \
-  if (!target.is_object()) {                                                   \
+  if (!target.is_object()) [[unlikely]] {                                      \
     return true;                                                               \
   }                                                                            \
   assert(!instruction.relative_instance_location.empty());                     \
@@ -48,7 +48,7 @@
                 instruction.relative_instance_location.at(0).to_property(),    \
                 instruction.relative_instance_location.at(0).property_hash())  \
           : try_get(target, instruction.relative_instance_location)};          \
-  if (!target_check) {                                                         \
+  if (!target_check) [[unlikely]] {                                            \
     return true;                                                               \
   }                                                                            \
   bool result{false};
@@ -98,7 +98,7 @@ inline auto evaluate(const sourcemeta::core::JSON &instance,
   assert(!schema.targets.empty());
   for (const auto &instruction : schema.targets[0]) {
     if (!evaluate_instruction(instruction, schema, nullptr, instance, nullptr,
-                              0, evaluator)) {
+                              0, evaluator)) [[unlikely]] {
       return false;
     }
   }
