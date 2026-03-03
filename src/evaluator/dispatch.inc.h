@@ -2,19 +2,19 @@ struct DispatchContext {
   const sourcemeta::blaze::Template *schema;
   const sourcemeta::blaze::Callback *callback;
   sourcemeta::blaze::Evaluator *evaluator;
-  mutable const sourcemeta::core::JSON::String *property_target;
+  const sourcemeta::core::JSON::String *property_target;
 };
 
 inline auto
 evaluate_instruction(const sourcemeta::blaze::Instruction &instruction,
                      const sourcemeta::core::JSON &instance,
-                     const std::uint64_t depth, const DispatchContext &context)
+                     const std::uint64_t depth, DispatchContext &context)
     -> bool;
 
 inline auto evaluate_instruction_with_property(
     const sourcemeta::blaze::Instruction &instruction,
     const sourcemeta::core::JSON &instance, const std::uint64_t depth,
-    const DispatchContext &context, const sourcemeta::core::JSON::String &name)
+    DispatchContext &context, const sourcemeta::core::JSON::String &name)
     -> bool;
 
 #define INSTRUCTION_HANDLER(name)                                              \
@@ -22,7 +22,7 @@ inline auto evaluate_instruction_with_property(
       [[maybe_unused]] const sourcemeta::blaze::Instruction &instruction,      \
       [[maybe_unused]] const sourcemeta::core::JSON &instance,                 \
       [[maybe_unused]] const std::uint64_t depth,                              \
-      [[maybe_unused]] const DispatchContext &context) -> bool
+      [[maybe_unused]] DispatchContext &context) -> bool
 
 INSTRUCTION_HANDLER(AssertionFail) {
   EVALUATE_BEGIN_NO_PRECONDITION(AssertionFail);
@@ -2019,7 +2019,7 @@ INSTRUCTION_HANDLER(LoopContains) {
 
 using DispatchHandler = bool (*)(const sourcemeta::blaze::Instruction &,
                                  const sourcemeta::core::JSON &, std::uint64_t,
-                                 const DispatchContext &);
+                                 DispatchContext &);
 
 // Must have same order as InstructionIndex
 // NOLINTNEXTLINE(modernize-avoid-c-arrays)
@@ -2120,7 +2120,7 @@ static constexpr DispatchHandler handlers[95] = {
 inline auto
 evaluate_instruction(const sourcemeta::blaze::Instruction &instruction,
                      const sourcemeta::core::JSON &instance,
-                     const std::uint64_t depth, const DispatchContext &context)
+                     const std::uint64_t depth, DispatchContext &context)
     -> bool {
   // Guard against infinite recursion in a cheap manner, as
   // infinite recursion will manifest itself through huge
@@ -2138,7 +2138,7 @@ evaluate_instruction(const sourcemeta::blaze::Instruction &instruction,
 inline auto evaluate_instruction_with_property(
     const sourcemeta::blaze::Instruction &instruction,
     const sourcemeta::core::JSON &instance, const std::uint64_t depth,
-    const DispatchContext &context, const sourcemeta::core::JSON::String &name)
+    DispatchContext &context, const sourcemeta::core::JSON::String &name)
     -> bool {
   const auto *previous = context.property_target;
   context.property_target = &name;

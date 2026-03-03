@@ -104,10 +104,10 @@ inline auto evaluate(const sourcemeta::core::JSON &instance,
                      const sourcemeta::blaze::Template &schema) -> bool {
   assert(!schema.targets.empty());
   static const sourcemeta::blaze::Callback null_callback{nullptr};
-  const DispatchContext context{.schema = &schema,
-                                .callback = &null_callback,
-                                .evaluator = &evaluator,
-                                .property_target = nullptr};
+  DispatchContext context{.schema = &schema,
+                          .callback = &null_callback,
+                          .evaluator = &evaluator,
+                          .property_target = nullptr};
   for (const auto &instruction : schema.targets[0]) {
     if (!evaluate_instruction(instruction, instance, 0, context)) [[unlikely]] {
       assert(context.evaluator->evaluate_path.empty());
