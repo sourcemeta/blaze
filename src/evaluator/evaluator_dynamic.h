@@ -4,14 +4,13 @@
 #define EVALUATE_BEGIN(instruction_type, precondition)                         \
   assert(instruction.type == InstructionIndex::instruction_type);              \
   const auto &target{resolve_target(                                           \
-      property_target,                                                         \
+      context.property_target,                                                 \
       resolve_instance(instance, instruction.relative_instance_location))};    \
   if (!(precondition)) [[unlikely]] {                                          \
     return true;                                                               \
   }                                                                            \
-  evaluator.resources.push_back(instruction.schema_resource);                  \
-  constexpr bool track{false};                                                 \
-  SOURCEMETA_MAYBE_UNUSED(track);                                              \
+  context.evaluator->resources.push_back(instruction.schema_resource);         \
+  [[maybe_unused]] constexpr bool track{false};                                \
   bool result{false};
 
 #define EVALUATE_BEGIN_NON_STRING(instruction_type, precondition)              \
@@ -21,19 +20,19 @@
   if (!(precondition)) [[unlikely]] {                                          \
     return true;                                                               \
   }                                                                            \
-  evaluator.resources.push_back(instruction.schema_resource);                  \
-  constexpr bool track{false};                                                 \
-  SOURCEMETA_MAYBE_UNUSED(track);                                              \
+  context.evaluator->resources.push_back(instruction.schema_resource);         \
+  [[maybe_unused]] constexpr bool track{false};                                \
   bool result{false};
 
 #define EVALUATE_BEGIN_IF_STRING(instruction_type)                             \
   assert(instruction.type == InstructionIndex::instruction_type);              \
-  const auto *maybe_target{resolve_string_target(                              \
-      property_target, instance, instruction.relative_instance_location)};     \
+  const auto *maybe_target{                                                    \
+      resolve_string_target(context.property_target, instance,                 \
+                            instruction.relative_instance_location)};          \
   if (!maybe_target) [[unlikely]] {                                            \
     return true;                                                               \
   }                                                                            \
-  evaluator.resources.push_back(instruction.schema_resource);                  \
+  context.evaluator->resources.push_back(instruction.schema_resource);         \
   const auto &target{*maybe_target};                                           \
   bool result{false};
 
@@ -55,14 +54,13 @@
   if (!target_check) [[unlikely]] {                                            \
     return true;                                                               \
   }                                                                            \
-  evaluator.resources.push_back(instruction.schema_resource);                  \
+  context.evaluator->resources.push_back(instruction.schema_resource);         \
   bool result{false};
 
 #define EVALUATE_BEGIN_NO_PRECONDITION(instruction_type)                       \
   assert(instruction.type == InstructionIndex::instruction_type);              \
-  evaluator.resources.push_back(instruction.schema_resource);                  \
-  constexpr bool track{false};                                                 \
-  SOURCEMETA_MAYBE_UNUSED(track);                                              \
+  context.evaluator->resources.push_back(instruction.schema_resource);         \
+  [[maybe_unused]] constexpr bool track{false};                                \
   bool result{false};
 
 #define EVALUATE_BEGIN_NO_PRECONDITION_AND_NO_PUSH(instruction_type)           \
@@ -74,7 +72,7 @@
   bool result{true};
 
 #define EVALUATE_END(instruction_type)                                         \
-  evaluator.resources.pop_back();                                              \
+  context.evaluator->resources.pop_back();                                     \
   return result;
 
 #define EVALUATE_END_NO_POP(instruction_type) return result;
@@ -85,12 +83,9 @@
   return true;
 
 #define EVALUATE_RECURSE(child, target)                                        \
-  evaluate_instruction(child, schema, callback, target, property_target,       \
-                       depth + 1, evaluator)
-// NOLINTNEXTLINE(bugprone-macro-parentheses)
+  evaluate_instruction(child, target, depth + 1, context)
 #define EVALUATE_RECURSE_ON_PROPERTY_NAME(child, target, name)                 \
-  evaluate_instruction(child, schema, callback, target, &(name), depth + 1,    \
-                       evaluator)
+  evaluate_instruction_with_property(child, target, depth + 1, context, name)
 
 #define SOURCEMETA_EVALUATOR_DYNAMIC
 
@@ -102,15 +97,19 @@ inline auto evaluate(const sourcemeta::core::JSON &instance,
                      sourcemeta::blaze::Evaluator &evaluator,
                      const sourcemeta::blaze::Template &schema) -> bool {
   assert(!schema.targets.empty());
+  static const sourcemeta::blaze::Callback null_callback{nullptr};
+  const DispatchContext context{.schema = &schema,
+                                .callback = &null_callback,
+                                .evaluator = &evaluator,
+                                .property_target = nullptr};
   for (const auto &instruction : schema.targets[0]) {
-    if (!evaluate_instruction(instruction, schema, nullptr, instance, nullptr,
-                              0, evaluator)) [[unlikely]] {
-      assert(evaluator.resources.empty());
+    if (!evaluate_instruction(instruction, instance, 0, context)) [[unlikely]] {
+      assert(context.evaluator->resources.empty());
       return false;
     }
   }
 
-  assert(evaluator.resources.empty());
+  assert(context.evaluator->resources.empty());
   return true;
 }
 

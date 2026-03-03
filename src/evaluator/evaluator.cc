@@ -71,7 +71,6 @@ inline auto effective_type_strict_real(const JSON &instance) noexcept
 } // namespace sourcemeta::blaze
 
 #define SOURCEMETA_STRINGIFY(x) #x
-#define SOURCEMETA_MAYBE_UNUSED(variable) (void)(variable);
 
 #include "evaluator_complete.h"
 #include "evaluator_dynamic.h"
@@ -79,7 +78,6 @@ inline auto effective_type_strict_real(const JSON &instance) noexcept
 #include "evaluator_track.h"
 
 #undef SOURCEMETA_STRINGIFY
-#undef SOURCEMETA_MAYBE_UNUSED
 
 namespace sourcemeta::blaze {
 
