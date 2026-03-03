@@ -4,7 +4,12 @@ sourcemeta_library(NAMESPACE sourcemeta PROJECT blaze NAME evaluator
   SOURCES evaluator.cc dispatch.inc.h evaluator_json.cc
           evaluator_string_set.cc evaluator_describe.cc
           evaluator_complete.h evaluator_dynamic.h
-          evaluator_track.h evaluator_fast.h)
+          evaluator_track.h evaluator_fast.h
+          evaluator_profiling.h)
+
+if(BLAZE_PROFILING)
+  target_compile_definitions(sourcemeta_blaze_evaluator PUBLIC BLAZE_PROFILING=1)
+endif()
 
 if(BLAZE_INSTALL)
   sourcemeta_library_install(NAMESPACE sourcemeta PROJECT blaze NAME evaluator)

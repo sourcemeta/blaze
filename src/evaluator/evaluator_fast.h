@@ -3,10 +3,13 @@
 
 #define EVALUATE_BEGIN(instruction_type, precondition)                         \
   assert(instruction.type == InstructionIndex::instruction_type);              \
+  BLAZE_PROFILE_START(get)                                                     \
   const auto &target{                                                          \
       resolve_target(property_target,                                          \
                      sourcemeta::core::get(                                    \
                          instance, instruction.relative_instance_location))};  \
+  BLAZE_PROFILE_END(get, get_target)                                           \
+  BLAZE_PROFILE_COUNT_GET_PTR(instruction.relative_instance_location)          \
   if (!(precondition)) [[unlikely]] {                                          \
     return true;                                                               \
   }                                                                            \
@@ -20,8 +23,11 @@
 
 #define EVALUATE_BEGIN_NON_STRING(instruction_type, precondition)              \
   assert(instruction.type == InstructionIndex::instruction_type);              \
+  BLAZE_PROFILE_START(get)                                                     \
   const auto &target{sourcemeta::core::get(                                    \
       instance, instruction.relative_instance_location)};                      \
+  BLAZE_PROFILE_END(get, get_target)                                           \
+  BLAZE_PROFILE_COUNT_GET_PTR(instruction.relative_instance_location)          \
   if (!(precondition)) [[unlikely]] {                                          \
     return true;                                                               \
   }                                                                            \
@@ -123,6 +129,8 @@ namespace sourcemeta::blaze::fast {
 inline auto evaluate(const sourcemeta::core::JSON &instance,
                      sourcemeta::blaze::Evaluator &evaluator,
                      const sourcemeta::blaze::Template &schema) -> bool {
+  BLAZE_PROFILE_INIT
+  BLAZE_PROFILE_START(eval)
   assert(!schema.targets.empty());
   const auto &entry_target{schema.targets[0]};
   const auto entry_offset{entry_target.first};
@@ -131,10 +139,12 @@ inline auto evaluate(const sourcemeta::core::JSON &instance,
        index = schema.instructions[index].next_sibling_offset) {
     if (!evaluate_instruction(schema.instructions[index], schema, nullptr,
                               instance, nullptr, 0, evaluator)) [[unlikely]] {
+      BLAZE_PROFILE_END(eval, total_eval)
       return false;
     }
   }
 
+  BLAZE_PROFILE_END(eval, total_eval)
   return true;
 }
 

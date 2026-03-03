@@ -18,6 +18,7 @@ option(BLAZE_DOCS "Build the Blaze docs" OFF)
 option(BLAZE_INSTALL "Install the Blaze library" ON)
 option(BLAZE_ADDRESS_SANITIZER "Build Blaze with an address sanitizer" OFF)
 option(BLAZE_UNDEFINED_SANITIZER "Build Blaze with an undefined behavior sanitizer" OFF)
+option(BLAZE_PROFILING "Enable evaluator profiling instrumentation" OFF)
 
 if(BLAZE_INSTALL)
   include(GNUInstallDirs)
