@@ -3,10 +3,9 @@
 
 #define EVALUATE_BEGIN(instruction_type, precondition)                         \
   assert(instruction.type == InstructionIndex::instruction_type);              \
-  const auto &target{                                                          \
-      resolve_target(property_target,                                          \
-                     sourcemeta::core::get(                                    \
-                         instance, instruction.relative_instance_location))};  \
+  const auto &target{resolve_target(                                           \
+      property_target,                                                         \
+      resolve_instance(instance, instruction.relative_instance_location))};    \
   if (!(precondition)) [[unlikely]] {                                          \
     return true;                                                               \
   }                                                                            \
@@ -16,8 +15,8 @@
 
 #define EVALUATE_BEGIN_NON_STRING(instruction_type, precondition)              \
   assert(instruction.type == InstructionIndex::instruction_type);              \
-  const auto &target{sourcemeta::core::get(                                    \
-      instance, instruction.relative_instance_location)};                      \
+  const auto &target{                                                          \
+      resolve_instance(instance, instruction.relative_instance_location)};     \
   if (!(precondition)) [[unlikely]] {                                          \
     return true;                                                               \
   }                                                                            \

@@ -27,6 +27,19 @@ inline auto resolve_target(const JSON::String *property_target,
   return instance;
 }
 
+// Because some compilers seem to avoid inlining the getter and short circuiting
+// on empty points
+inline auto resolve_instance(const JSON &instance,
+                             const Pointer &relative_instance_location)
+    -> const JSON & {
+  if (relative_instance_location.empty()) {
+    // NOLINTNEXTLINE(bugprone-return-const-ref-from-parameter)
+    return instance;
+  }
+
+  return get(instance, relative_instance_location);
+}
+
 inline auto
 resolve_string_target(const JSON::String *property_target, const JSON &instance,
                       const Pointer &relative_instance_location) noexcept
@@ -35,7 +48,7 @@ resolve_string_target(const JSON::String *property_target, const JSON &instance,
     return property_target;
   }
 
-  const auto &target{get(instance, relative_instance_location)};
+  const auto &target{resolve_instance(instance, relative_instance_location)};
   if (!target.is_string()) [[unlikely]] {
     return nullptr;
   } else {

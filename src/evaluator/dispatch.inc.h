@@ -51,7 +51,8 @@ INSTRUCTION_HANDLER(AssertionDefinesStrict) {
   SOURCEMETA_MAYBE_UNUSED(property_target);
   SOURCEMETA_MAYBE_UNUSED(evaluator);
   EVALUATE_BEGIN_NO_PRECONDITION(AssertionDefinesStrict);
-  const auto &target{get(instance, instruction.relative_instance_location)};
+  const auto &target{
+      resolve_instance(instance, instruction.relative_instance_location)};
   const auto &value{*std::get_if<ValueProperty>(&instruction.value)};
   result = target.is_object() && target.defines(value.first, value.second);
   EVALUATE_END(AssertionDefinesStrict);
@@ -92,7 +93,8 @@ INSTRUCTION_HANDLER(AssertionDefinesAllStrict) {
   SOURCEMETA_MAYBE_UNUSED(property_target);
   SOURCEMETA_MAYBE_UNUSED(evaluator);
   EVALUATE_BEGIN_NO_PRECONDITION(AssertionDefinesAllStrict);
-  const auto &target{get(instance, instruction.relative_instance_location)};
+  const auto &target{
+      resolve_instance(instance, instruction.relative_instance_location)};
   const auto &value{*std::get_if<ValueStringSet>(&instruction.value)};
   // Otherwise we are we even emitting this instruction?
   assert(value.size() > 1);
@@ -146,7 +148,8 @@ INSTRUCTION_HANDLER(AssertionDefinesExactlyStrict) {
   SOURCEMETA_MAYBE_UNUSED(property_target);
   SOURCEMETA_MAYBE_UNUSED(evaluator);
   EVALUATE_BEGIN_NO_PRECONDITION(AssertionDefinesExactlyStrict);
-  const auto &target{get(instance, instruction.relative_instance_location)};
+  const auto &target{
+      resolve_instance(instance, instruction.relative_instance_location)};
   if (target.is_object()) [[likely]] {
     const auto &value{*std::get_if<ValueStringSet>(&instruction.value)};
     // Otherwise we are we even emitting this instruction?
@@ -175,7 +178,8 @@ INSTRUCTION_HANDLER(AssertionDefinesExactlyStrictHash3) {
   SOURCEMETA_MAYBE_UNUSED(property_target);
   SOURCEMETA_MAYBE_UNUSED(evaluator);
   EVALUATE_BEGIN_NO_PRECONDITION(AssertionDefinesExactlyStrictHash3);
-  const auto &target{get(instance, instruction.relative_instance_location)};
+  const auto &target{
+      resolve_instance(instance, instruction.relative_instance_location)};
   if (target.is_object()) [[likely]] {
     // TODO: Take advantage of the table of contents structure to speed up
     // checks
@@ -245,7 +249,8 @@ INSTRUCTION_HANDLER(AssertionType) {
   SOURCEMETA_MAYBE_UNUSED(property_target);
   SOURCEMETA_MAYBE_UNUSED(evaluator);
   EVALUATE_BEGIN_NO_PRECONDITION(AssertionType);
-  const auto &target{get(instance, instruction.relative_instance_location)};
+  const auto &target{
+      resolve_instance(instance, instruction.relative_instance_location)};
   const auto value{*std::get_if<ValueType>(&instruction.value)};
 
   // TODO: Maybe make this instruction about integers, as it is the
@@ -269,7 +274,8 @@ INSTRUCTION_HANDLER(AssertionTypeAny) {
   EVALUATE_BEGIN_NO_PRECONDITION(AssertionTypeAny);
   const auto value{*std::get_if<ValueTypes>(&instruction.value)};
   assert(value.any());
-  const auto &target{get(instance, instruction.relative_instance_location)};
+  const auto &target{
+      resolve_instance(instance, instruction.relative_instance_location)};
   // In non-strict mode, we consider a real number that represents an
   // integer to be an integer
   const auto type_index{static_cast<std::uint8_t>(target.type())};
@@ -292,7 +298,8 @@ INSTRUCTION_HANDLER(AssertionTypeStrict) {
   SOURCEMETA_MAYBE_UNUSED(property_target);
   SOURCEMETA_MAYBE_UNUSED(evaluator);
   EVALUATE_BEGIN_NO_PRECONDITION(AssertionTypeStrict);
-  const auto &target{get(instance, instruction.relative_instance_location)};
+  const auto &target{
+      resolve_instance(instance, instruction.relative_instance_location)};
   const auto value{*std::get_if<ValueType>(&instruction.value)};
   result = effective_type_strict_real(target) == value;
   EVALUATE_END(AssertionTypeStrict);
@@ -308,7 +315,8 @@ INSTRUCTION_HANDLER(AssertionTypeStrictAny) {
   EVALUATE_BEGIN_NO_PRECONDITION(AssertionTypeStrictAny);
   const auto value{*std::get_if<ValueTypes>(&instruction.value)};
   assert(value.any());
-  const auto &target{get(instance, instruction.relative_instance_location)};
+  const auto &target{
+      resolve_instance(instance, instruction.relative_instance_location)};
   const auto type_index{
       static_cast<std::uint8_t>(effective_type_strict_real(target))};
   result = value.test(type_index);
@@ -323,7 +331,8 @@ INSTRUCTION_HANDLER(AssertionTypeStringBounded) {
   SOURCEMETA_MAYBE_UNUSED(property_target);
   SOURCEMETA_MAYBE_UNUSED(evaluator);
   EVALUATE_BEGIN_NO_PRECONDITION(AssertionTypeStringBounded);
-  const auto &target{get(instance, instruction.relative_instance_location)};
+  const auto &target{
+      resolve_instance(instance, instruction.relative_instance_location)};
   const auto &value{*std::get_if<ValueRange>(&instruction.value)};
   const auto minimum{std::get<0>(value)};
   const auto maximum{std::get<1>(value)};
@@ -344,7 +353,8 @@ INSTRUCTION_HANDLER(AssertionTypeStringUpper) {
   SOURCEMETA_MAYBE_UNUSED(property_target);
   SOURCEMETA_MAYBE_UNUSED(evaluator);
   EVALUATE_BEGIN_NO_PRECONDITION(AssertionTypeStringUpper);
-  const auto &target{get(instance, instruction.relative_instance_location)};
+  const auto &target{
+      resolve_instance(instance, instruction.relative_instance_location)};
   const auto value{*std::get_if<ValueUnsignedInteger>(&instruction.value)};
   result = target.is_string() && target.string_size() <= value;
   EVALUATE_END(AssertionTypeStringUpper);
@@ -358,7 +368,8 @@ INSTRUCTION_HANDLER(AssertionTypeArrayBounded) {
   SOURCEMETA_MAYBE_UNUSED(property_target);
   SOURCEMETA_MAYBE_UNUSED(evaluator);
   EVALUATE_BEGIN_NO_PRECONDITION(AssertionTypeArrayBounded);
-  const auto &target{get(instance, instruction.relative_instance_location)};
+  const auto &target{
+      resolve_instance(instance, instruction.relative_instance_location)};
   const auto &value{*std::get_if<ValueRange>(&instruction.value)};
   const auto minimum{std::get<0>(value)};
   const auto maximum{std::get<1>(value)};
@@ -379,7 +390,8 @@ INSTRUCTION_HANDLER(AssertionTypeArrayUpper) {
   SOURCEMETA_MAYBE_UNUSED(property_target);
   SOURCEMETA_MAYBE_UNUSED(evaluator);
   EVALUATE_BEGIN_NO_PRECONDITION(AssertionTypeArrayUpper);
-  const auto &target{get(instance, instruction.relative_instance_location)};
+  const auto &target{
+      resolve_instance(instance, instruction.relative_instance_location)};
   const auto value{*std::get_if<ValueUnsignedInteger>(&instruction.value)};
   result = target.is_array() && target.array_size() <= value;
   EVALUATE_END(AssertionTypeArrayUpper);
@@ -393,7 +405,8 @@ INSTRUCTION_HANDLER(AssertionTypeObjectBounded) {
   SOURCEMETA_MAYBE_UNUSED(property_target);
   SOURCEMETA_MAYBE_UNUSED(evaluator);
   EVALUATE_BEGIN_NO_PRECONDITION(AssertionTypeObjectBounded);
-  const auto &target{get(instance, instruction.relative_instance_location)};
+  const auto &target{
+      resolve_instance(instance, instruction.relative_instance_location)};
   const auto &value{*std::get_if<ValueRange>(&instruction.value)};
   const auto minimum{std::get<0>(value)};
   const auto maximum{std::get<1>(value)};
@@ -414,7 +427,8 @@ INSTRUCTION_HANDLER(AssertionTypeObjectUpper) {
   SOURCEMETA_MAYBE_UNUSED(property_target);
   SOURCEMETA_MAYBE_UNUSED(evaluator);
   EVALUATE_BEGIN_NO_PRECONDITION(AssertionTypeObjectUpper);
-  const auto &target{get(instance, instruction.relative_instance_location)};
+  const auto &target{
+      resolve_instance(instance, instruction.relative_instance_location)};
   const auto value{*std::get_if<ValueUnsignedInteger>(&instruction.value)};
   result = target.is_object() && target.object_size() <= value;
   EVALUATE_END(AssertionTypeObjectUpper);
@@ -523,7 +537,8 @@ INSTRUCTION_HANDLER(AssertionEqual) {
   if (property_target) [[unlikely]] {
     result = value.is_string() && value.to_string() == *property_target;
   } else {
-    const auto &target{get(instance, instruction.relative_instance_location)};
+    const auto &target{
+        resolve_instance(instance, instruction.relative_instance_location)};
     result = (target == value);
   }
 
@@ -544,7 +559,8 @@ INSTRUCTION_HANDLER(AssertionEqualsAny) {
     // TODO: This involves a string copy
     result = value.contains(JSON{*property_target});
   } else {
-    const auto &target{get(instance, instruction.relative_instance_location)};
+    const auto &target{
+        resolve_instance(instance, instruction.relative_instance_location)};
     result = value.contains(target);
   }
 
@@ -564,7 +580,8 @@ INSTRUCTION_HANDLER(AssertionEqualsAnyStringHash) {
   if (property_target) [[unlikely]] {
     target_string = property_target;
   } else {
-    const auto &target{get(instance, instruction.relative_instance_location)};
+    const auto &target{
+        resolve_instance(instance, instruction.relative_instance_location)};
     if (target.is_string()) [[likely]] {
       target_string = &target.to_string();
     } else {
@@ -890,7 +907,8 @@ INSTRUCTION_HANDLER(LogicalOr) {
   SOURCEMETA_MAYBE_UNUSED(evaluator);
   EVALUATE_BEGIN_NO_PRECONDITION(LogicalOr);
   result = instruction.children.empty();
-  const auto &target{get(instance, instruction.relative_instance_location)};
+  const auto &target{
+      resolve_instance(instance, instruction.relative_instance_location)};
   const auto value{*std::get_if<ValueBoolean>(&instruction.value)};
 
   // This boolean value controls whether we should be exhaustive
@@ -921,7 +939,8 @@ INSTRUCTION_HANDLER(LogicalAnd) {
   SOURCEMETA_MAYBE_UNUSED(evaluator);
   EVALUATE_BEGIN_NO_PRECONDITION(LogicalAnd);
   result = true;
-  const auto &target{get(instance, instruction.relative_instance_location)};
+  const auto &target{
+      resolve_instance(instance, instruction.relative_instance_location)};
   for (const auto &child : instruction.children) {
     if (!EVALUATE_RECURSE(child, target)) [[unlikely]] {
       result = false;
@@ -1012,7 +1031,8 @@ INSTRUCTION_HANDLER(LogicalXor) {
   EVALUATE_BEGIN_NO_PRECONDITION(LogicalXor);
   result = true;
   bool has_matched{false};
-  const auto &target{get(instance, instruction.relative_instance_location)};
+  const auto &target{
+      resolve_instance(instance, instruction.relative_instance_location)};
   const auto value{*std::get_if<ValueBoolean>(&instruction.value)};
   for (const auto &child : instruction.children) {
     if (EVALUATE_RECURSE(child, target)) {
@@ -1053,7 +1073,8 @@ INSTRUCTION_HANDLER(LogicalCondition) {
     condition_end = value.second;
   }
 
-  const auto &target{get(instance, instruction.relative_instance_location)};
+  const auto &target{
+      resolve_instance(instance, instruction.relative_instance_location)};
   for (std::size_t cursor = 0; cursor < condition_end; cursor++) {
     if (!EVALUATE_RECURSE(instruction.children[cursor], target)) {
       result = false;
@@ -1121,7 +1142,8 @@ INSTRUCTION_HANDLER(ControlGroupWhenDefines) {
   assert(!instruction.children.empty());
   // Otherwise why are we emitting this property?
   assert(!instruction.relative_instance_location.empty());
-  const auto &target{get(instance, instruction.relative_instance_location)};
+  const auto &target{
+      resolve_instance(instance, instruction.relative_instance_location)};
   const auto &value{*std::get_if<ValueProperty>(&instruction.value)};
   if (target.is_object() && target.defines(value.first, value.second)) {
     for (const auto &child : instruction.children) {
@@ -1211,7 +1233,8 @@ INSTRUCTION_HANDLER(ControlDynamicAnchorJump) {
   SOURCEMETA_MAYBE_UNUSED(evaluator);
   EVALUATE_BEGIN_NO_PRECONDITION(ControlDynamicAnchorJump);
   result = false;
-  const auto &target{get(instance, instruction.relative_instance_location)};
+  const auto &target{
+      resolve_instance(instance, instruction.relative_instance_location)};
   const auto &value{*std::get_if<ValueString>(&instruction.value)};
   for (const auto &resource : evaluator.resources) {
     const auto label{Evaluator::hash(resource, value)};
@@ -1247,7 +1270,8 @@ INSTRUCTION_HANDLER(ControlJump) {
   const auto value{*std::get_if<ValueUnsignedInteger>(&instruction.value)};
   assert(schema.targets.size() > value);
   const auto &target{resolve_target(
-      property_target, get(instance, instruction.relative_instance_location))};
+      property_target,
+      resolve_instance(instance, instruction.relative_instance_location))};
   for (const auto &child : schema.targets[value]) {
     if (!EVALUATE_RECURSE(child, target)) [[unlikely]] {
       result = false;
@@ -1311,7 +1335,8 @@ INSTRUCTION_HANDLER(Evaluate) {
   SOURCEMETA_MAYBE_UNUSED(instance);
   SOURCEMETA_MAYBE_UNUSED(property_target);
   EVALUATE_BEGIN_NO_PRECONDITION(Evaluate);
-  const auto &target{get(instance, instruction.relative_instance_location)};
+  const auto &target{
+      resolve_instance(instance, instruction.relative_instance_location)};
   evaluator.evaluate(&target);
   result = true;
   EVALUATE_END(Evaluate);
@@ -1326,7 +1351,8 @@ INSTRUCTION_HANDLER(LogicalNot) {
   SOURCEMETA_MAYBE_UNUSED(evaluator);
   EVALUATE_BEGIN_NO_PRECONDITION(LogicalNot);
 
-  const auto &target{get(instance, instruction.relative_instance_location)};
+  const auto &target{
+      resolve_instance(instance, instruction.relative_instance_location)};
   for (const auto &child : instruction.children) {
     if (!EVALUATE_RECURSE(child, target)) [[likely]] {
       result = true;
@@ -1346,7 +1372,8 @@ INSTRUCTION_HANDLER(LogicalNotEvaluate) {
   SOURCEMETA_MAYBE_UNUSED(evaluator);
   EVALUATE_BEGIN_NO_PRECONDITION(LogicalNotEvaluate);
 
-  const auto &target{get(instance, instruction.relative_instance_location)};
+  const auto &target{
+      resolve_instance(instance, instruction.relative_instance_location)};
   for (const auto &child : instruction.children) {
     if (!EVALUATE_RECURSE(child, target)) [[likely]] {
       result = true;
@@ -1873,7 +1900,8 @@ INSTRUCTION_HANDLER(LoopPropertiesExactlyTypeStrict) {
   SOURCEMETA_MAYBE_UNUSED(property_target);
   SOURCEMETA_MAYBE_UNUSED(evaluator);
   EVALUATE_BEGIN_NO_PRECONDITION(LoopPropertiesExactlyTypeStrict);
-  const auto &target{get(instance, instruction.relative_instance_location)};
+  const auto &target{
+      resolve_instance(instance, instruction.relative_instance_location)};
   const auto &value{*std::get_if<ValueTypedProperties>(&instruction.value)};
   if (!target.is_object()) [[unlikely]] {
     EVALUATE_END(LoopPropertiesExactlyTypeStrict);
@@ -1904,7 +1932,8 @@ INSTRUCTION_HANDLER(LoopPropertiesExactlyTypeStrictHash) {
   SOURCEMETA_MAYBE_UNUSED(property_target);
   SOURCEMETA_MAYBE_UNUSED(evaluator);
   EVALUATE_BEGIN_NO_PRECONDITION(LoopPropertiesExactlyTypeStrictHash);
-  const auto &target{get(instance, instruction.relative_instance_location)};
+  const auto &target{
+      resolve_instance(instance, instruction.relative_instance_location)};
   // TODO: Take advantage of the table of contents structure to speed up checks
   const auto &value{*std::get_if<ValueTypedHashes>(&instruction.value)};
 
@@ -2304,7 +2333,8 @@ INSTRUCTION_HANDLER(LoopItemsPropertiesExactlyTypeStrictHash) {
   SOURCEMETA_MAYBE_UNUSED(property_target);
   SOURCEMETA_MAYBE_UNUSED(evaluator);
   EVALUATE_BEGIN_NO_PRECONDITION(LoopItemsPropertiesExactlyTypeStrictHash);
-  const auto &target{get(instance, instruction.relative_instance_location)};
+  const auto &target{
+      resolve_instance(instance, instruction.relative_instance_location)};
   // TODO: Take advantage of the table of contents structure to speed up checks
   const auto &value{*std::get_if<ValueTypedHashes>(&instruction.value)};
   // Otherwise why emit this instruction?
@@ -2400,7 +2430,8 @@ INSTRUCTION_HANDLER(LoopItemsPropertiesExactlyTypeStrictHash3) {
   SOURCEMETA_MAYBE_UNUSED(property_target);
   SOURCEMETA_MAYBE_UNUSED(evaluator);
   EVALUATE_BEGIN_NO_PRECONDITION(LoopItemsPropertiesExactlyTypeStrictHash3);
-  const auto &target{get(instance, instruction.relative_instance_location)};
+  const auto &target{
+      resolve_instance(instance, instruction.relative_instance_location)};
   // TODO: Take advantage of the table of contents structure to speed up checks
   const auto &value{*std::get_if<ValueTypedHashes>(&instruction.value)};
   assert(value.second.first.size() == 3);
