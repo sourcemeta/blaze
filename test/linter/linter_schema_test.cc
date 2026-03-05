@@ -299,12 +299,19 @@ TEST(Linter, schema_rule_non_string_title_throws) {
     "type": "object"
   })JSON")};
 
-  sourcemeta::core::SchemaTransformer bundle;
-  EXPECT_THROW(bundle.add<sourcemeta::blaze::SchemaRule>(
-                   rule_schema, sourcemeta::core::schema_walker,
-                   sourcemeta::core::schema_resolver,
-                   sourcemeta::blaze::default_schema_compiler),
-               sourcemeta::blaze::LinterInvalidNameError);
+  try {
+    sourcemeta::core::SchemaTransformer bundle;
+    bundle.add<sourcemeta::blaze::SchemaRule>(
+        rule_schema, sourcemeta::core::schema_walker,
+        sourcemeta::core::schema_resolver,
+        sourcemeta::blaze::default_schema_compiler);
+    FAIL();
+  } catch (const sourcemeta::blaze::LinterInvalidNameError &error) {
+    EXPECT_EQ(error.identifier(), "123");
+    EXPECT_STREQ(error.what(), "The schema rule title is not a string");
+  } catch (...) {
+    FAIL();
+  }
 }
 
 TEST(Linter, schema_rule_uppercase_title_throws) {
@@ -314,12 +321,21 @@ TEST(Linter, schema_rule_uppercase_title_throws) {
     "type": "object"
   })JSON")};
 
-  sourcemeta::core::SchemaTransformer bundle;
-  EXPECT_THROW(bundle.add<sourcemeta::blaze::SchemaRule>(
-                   rule_schema, sourcemeta::core::schema_walker,
-                   sourcemeta::core::schema_resolver,
-                   sourcemeta::blaze::default_schema_compiler),
-               sourcemeta::blaze::LinterInvalidNameError);
+  try {
+    sourcemeta::core::SchemaTransformer bundle;
+    bundle.add<sourcemeta::blaze::SchemaRule>(
+        rule_schema, sourcemeta::core::schema_walker,
+        sourcemeta::core::schema_resolver,
+        sourcemeta::blaze::default_schema_compiler);
+    FAIL();
+  } catch (const sourcemeta::blaze::LinterInvalidNamePatternError &error) {
+    EXPECT_EQ(error.identifier(), "Test/Rule");
+    EXPECT_STREQ(error.what(),
+                 "The schema rule name does not match the required pattern");
+    EXPECT_EQ(error.regex(), "^[a-z0-9_/]+$");
+  } catch (...) {
+    FAIL();
+  }
 }
 
 TEST(Linter, schema_rule_space_in_title_throws) {
@@ -329,12 +345,21 @@ TEST(Linter, schema_rule_space_in_title_throws) {
     "type": "object"
   })JSON")};
 
-  sourcemeta::core::SchemaTransformer bundle;
-  EXPECT_THROW(bundle.add<sourcemeta::blaze::SchemaRule>(
-                   rule_schema, sourcemeta::core::schema_walker,
-                   sourcemeta::core::schema_resolver,
-                   sourcemeta::blaze::default_schema_compiler),
-               sourcemeta::blaze::LinterInvalidNameError);
+  try {
+    sourcemeta::core::SchemaTransformer bundle;
+    bundle.add<sourcemeta::blaze::SchemaRule>(
+        rule_schema, sourcemeta::core::schema_walker,
+        sourcemeta::core::schema_resolver,
+        sourcemeta::blaze::default_schema_compiler);
+    FAIL();
+  } catch (const sourcemeta::blaze::LinterInvalidNamePatternError &error) {
+    EXPECT_EQ(error.identifier(), "test rule");
+    EXPECT_STREQ(error.what(),
+                 "The schema rule name does not match the required pattern");
+    EXPECT_EQ(error.regex(), "^[a-z0-9_/]+$");
+  } catch (...) {
+    FAIL();
+  }
 }
 
 TEST(Linter, schema_rule_empty_title_throws) {
@@ -344,12 +369,19 @@ TEST(Linter, schema_rule_empty_title_throws) {
     "type": "object"
   })JSON")};
 
-  sourcemeta::core::SchemaTransformer bundle;
-  EXPECT_THROW(bundle.add<sourcemeta::blaze::SchemaRule>(
-                   rule_schema, sourcemeta::core::schema_walker,
-                   sourcemeta::core::schema_resolver,
-                   sourcemeta::blaze::default_schema_compiler),
-               sourcemeta::blaze::LinterInvalidNameError);
+  try {
+    sourcemeta::core::SchemaTransformer bundle;
+    bundle.add<sourcemeta::blaze::SchemaRule>(
+        rule_schema, sourcemeta::core::schema_walker,
+        sourcemeta::core::schema_resolver,
+        sourcemeta::blaze::default_schema_compiler);
+    FAIL();
+  } catch (const sourcemeta::blaze::LinterInvalidNameError &error) {
+    EXPECT_EQ(error.identifier(), "");
+    EXPECT_STREQ(error.what(), "The schema rule name must not be empty");
+  } catch (...) {
+    FAIL();
+  }
 }
 
 TEST(Linter, schema_rule_valid_title_with_digits_and_underscores) {
@@ -399,10 +431,14 @@ TEST(Linter, schema_rule_invalid_name_error_preserves_name) {
         rule_schema, sourcemeta::core::schema_walker,
         sourcemeta::core::schema_resolver,
         sourcemeta::blaze::default_schema_compiler);
-    FAIL() << "Expected LinterInvalidNameError";
-  } catch (const sourcemeta::blaze::LinterInvalidNameError &error) {
+    FAIL();
+  } catch (const sourcemeta::blaze::LinterInvalidNamePatternError &error) {
     EXPECT_EQ(error.identifier(), "Bad Name!");
-    EXPECT_STREQ(error.what(), "The schema rule name must match ^[a-z0-9_/]+$");
+    EXPECT_STREQ(error.what(),
+                 "The schema rule name does not match the required pattern");
+    EXPECT_EQ(error.regex(), "^[a-z0-9_/]+$");
+  } catch (...) {
+    FAIL();
   }
 }
 
@@ -418,9 +454,11 @@ TEST(Linter, schema_rule_missing_title_error_message) {
         rule_schema, sourcemeta::core::schema_walker,
         sourcemeta::core::schema_resolver,
         sourcemeta::blaze::default_schema_compiler);
-    FAIL() << "Expected LinterMissingNameError";
+    FAIL();
   } catch (const sourcemeta::blaze::LinterMissingNameError &error) {
     EXPECT_STREQ(error.what(), "The schema rule is missing a title");
+  } catch (...) {
+    FAIL();
   }
 }
 
@@ -431,12 +469,21 @@ TEST(Linter, schema_rule_title_with_hyphen_throws) {
     "type": "object"
   })JSON")};
 
-  sourcemeta::core::SchemaTransformer bundle;
-  EXPECT_THROW(bundle.add<sourcemeta::blaze::SchemaRule>(
-                   rule_schema, sourcemeta::core::schema_walker,
-                   sourcemeta::core::schema_resolver,
-                   sourcemeta::blaze::default_schema_compiler),
-               sourcemeta::blaze::LinterInvalidNameError);
+  try {
+    sourcemeta::core::SchemaTransformer bundle;
+    bundle.add<sourcemeta::blaze::SchemaRule>(
+        rule_schema, sourcemeta::core::schema_walker,
+        sourcemeta::core::schema_resolver,
+        sourcemeta::blaze::default_schema_compiler);
+    FAIL();
+  } catch (const sourcemeta::blaze::LinterInvalidNamePatternError &error) {
+    EXPECT_EQ(error.identifier(), "my-rule");
+    EXPECT_STREQ(error.what(),
+                 "The schema rule name does not match the required pattern");
+    EXPECT_EQ(error.regex(), "^[a-z0-9_/]+$");
+  } catch (...) {
+    FAIL();
+  }
 }
 
 TEST(Linter, schema_rule_title_with_dot_throws) {
@@ -446,12 +493,21 @@ TEST(Linter, schema_rule_title_with_dot_throws) {
     "type": "object"
   })JSON")};
 
-  sourcemeta::core::SchemaTransformer bundle;
-  EXPECT_THROW(bundle.add<sourcemeta::blaze::SchemaRule>(
-                   rule_schema, sourcemeta::core::schema_walker,
-                   sourcemeta::core::schema_resolver,
-                   sourcemeta::blaze::default_schema_compiler),
-               sourcemeta::blaze::LinterInvalidNameError);
+  try {
+    sourcemeta::core::SchemaTransformer bundle;
+    bundle.add<sourcemeta::blaze::SchemaRule>(
+        rule_schema, sourcemeta::core::schema_walker,
+        sourcemeta::core::schema_resolver,
+        sourcemeta::blaze::default_schema_compiler);
+    FAIL();
+  } catch (const sourcemeta::blaze::LinterInvalidNamePatternError &error) {
+    EXPECT_EQ(error.identifier(), "my.rule");
+    EXPECT_STREQ(error.what(),
+                 "The schema rule name does not match the required pattern");
+    EXPECT_EQ(error.regex(), "^[a-z0-9_/]+$");
+  } catch (...) {
+    FAIL();
+  }
 }
 
 TEST(Linter, schema_rule_title_only_digits) {
@@ -880,12 +936,21 @@ TEST(Linter, schema_rule_title_with_special_chars_throws) {
     "type": "object"
   })JSON")};
 
-  sourcemeta::core::SchemaTransformer bundle;
-  EXPECT_THROW(bundle.add<sourcemeta::blaze::SchemaRule>(
-                   rule_schema, sourcemeta::core::schema_walker,
-                   sourcemeta::core::schema_resolver,
-                   sourcemeta::blaze::default_schema_compiler),
-               sourcemeta::blaze::LinterInvalidNameError);
+  try {
+    sourcemeta::core::SchemaTransformer bundle;
+    bundle.add<sourcemeta::blaze::SchemaRule>(
+        rule_schema, sourcemeta::core::schema_walker,
+        sourcemeta::core::schema_resolver,
+        sourcemeta::blaze::default_schema_compiler);
+    FAIL();
+  } catch (const sourcemeta::blaze::LinterInvalidNamePatternError &error) {
+    EXPECT_EQ(error.identifier(), "test@rule#1");
+    EXPECT_STREQ(error.what(),
+                 "The schema rule name does not match the required pattern");
+    EXPECT_EQ(error.regex(), "^[a-z0-9_/]+$");
+  } catch (...) {
+    FAIL();
+  }
 }
 
 TEST(Linter, schema_rule_title_boolean_throws) {
@@ -895,12 +960,19 @@ TEST(Linter, schema_rule_title_boolean_throws) {
     "type": "object"
   })JSON")};
 
-  sourcemeta::core::SchemaTransformer bundle;
-  EXPECT_THROW(bundle.add<sourcemeta::blaze::SchemaRule>(
-                   rule_schema, sourcemeta::core::schema_walker,
-                   sourcemeta::core::schema_resolver,
-                   sourcemeta::blaze::default_schema_compiler),
-               sourcemeta::blaze::LinterInvalidNameError);
+  try {
+    sourcemeta::core::SchemaTransformer bundle;
+    bundle.add<sourcemeta::blaze::SchemaRule>(
+        rule_schema, sourcemeta::core::schema_walker,
+        sourcemeta::core::schema_resolver,
+        sourcemeta::blaze::default_schema_compiler);
+    FAIL();
+  } catch (const sourcemeta::blaze::LinterInvalidNameError &error) {
+    EXPECT_EQ(error.identifier(), "true");
+    EXPECT_STREQ(error.what(), "The schema rule title is not a string");
+  } catch (...) {
+    FAIL();
+  }
 }
 
 TEST(Linter, schema_rule_title_null_throws) {
@@ -910,12 +982,19 @@ TEST(Linter, schema_rule_title_null_throws) {
     "type": "object"
   })JSON")};
 
-  sourcemeta::core::SchemaTransformer bundle;
-  EXPECT_THROW(bundle.add<sourcemeta::blaze::SchemaRule>(
-                   rule_schema, sourcemeta::core::schema_walker,
-                   sourcemeta::core::schema_resolver,
-                   sourcemeta::blaze::default_schema_compiler),
-               sourcemeta::blaze::LinterInvalidNameError);
+  try {
+    sourcemeta::core::SchemaTransformer bundle;
+    bundle.add<sourcemeta::blaze::SchemaRule>(
+        rule_schema, sourcemeta::core::schema_walker,
+        sourcemeta::core::schema_resolver,
+        sourcemeta::blaze::default_schema_compiler);
+    FAIL();
+  } catch (const sourcemeta::blaze::LinterInvalidNameError &error) {
+    EXPECT_EQ(error.identifier(), "null");
+    EXPECT_STREQ(error.what(), "The schema rule title is not a string");
+  } catch (...) {
+    FAIL();
+  }
 }
 
 TEST(Linter, schema_rule_title_array_throws) {
@@ -925,12 +1004,19 @@ TEST(Linter, schema_rule_title_array_throws) {
     "type": "object"
   })JSON")};
 
-  sourcemeta::core::SchemaTransformer bundle;
-  EXPECT_THROW(bundle.add<sourcemeta::blaze::SchemaRule>(
-                   rule_schema, sourcemeta::core::schema_walker,
-                   sourcemeta::core::schema_resolver,
-                   sourcemeta::blaze::default_schema_compiler),
-               sourcemeta::blaze::LinterInvalidNameError);
+  try {
+    sourcemeta::core::SchemaTransformer bundle;
+    bundle.add<sourcemeta::blaze::SchemaRule>(
+        rule_schema, sourcemeta::core::schema_walker,
+        sourcemeta::core::schema_resolver,
+        sourcemeta::blaze::default_schema_compiler);
+    FAIL();
+  } catch (const sourcemeta::blaze::LinterInvalidNameError &error) {
+    EXPECT_EQ(error.identifier(), "[\"foo\"]");
+    EXPECT_STREQ(error.what(), "The schema rule title is not a string");
+  } catch (...) {
+    FAIL();
+  }
 }
 
 TEST(Linter, schema_rule_property_names_pattern_fail) {
