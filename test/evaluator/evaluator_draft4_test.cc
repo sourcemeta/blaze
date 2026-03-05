@@ -1049,8 +1049,15 @@ TEST(Evaluator_draft4, ref_14) {
 
   const sourcemeta::core::JSON instance{true};
   sourcemeta::blaze::Evaluator evaluator;
-  EXPECT_THROW(evaluator.validate(compiled_schema, instance),
-               sourcemeta::blaze::EvaluationError);
+  try {
+    evaluator.validate(compiled_schema, instance);
+    FAIL();
+  } catch (const sourcemeta::blaze::EvaluationError &error) {
+    EXPECT_STREQ(error.what(), "The evaluation path depth limit was reached "
+                               "likely due to infinite recursion");
+  } catch (...) {
+    FAIL();
+  }
 }
 
 TEST(Evaluator_draft4, ref_15) {
@@ -2027,14 +2034,14 @@ TEST(Evaluator_draft4, pattern_4) {
                                sourcemeta::blaze::default_schema_compiler);
     // The pattern might succeed in some standard library implementations
     SUCCEED();
-  } catch (const sourcemeta::blaze::CompilerError &error) {
-    EXPECT_STREQ(error.what(),
-                 "Invalid regular expression: ^[a-zA-Z0-9\\/\\_]{1,32}$");
+  } catch (const sourcemeta::blaze::CompilerInvalidRegexError &error) {
+    EXPECT_STREQ(error.what(), "Invalid regular expression");
+    EXPECT_EQ(error.regex(), "^[a-zA-Z0-9\\/\\_]{1,32}$");
     EXPECT_EQ(error.location(), sourcemeta::core::Pointer({"pattern"}));
     EXPECT_EQ(error.base().recompose(), "");
     SUCCEED();
-  } catch (const std::exception &) {
-    FAIL() << "The compile function was expected to throw a schema error";
+  } catch (...) {
+    FAIL();
   }
 }
 
@@ -2054,15 +2061,15 @@ TEST(Evaluator_draft4, pattern_5) {
                                sourcemeta::blaze::default_schema_compiler);
     // The pattern might succeed in some standard library implementations
     SUCCEED();
-  } catch (const sourcemeta::blaze::CompilerError &error) {
-    EXPECT_STREQ(error.what(),
-                 "Invalid regular expression: ^[a-zA-Z0-9\\/\\_]{1,32}$");
+  } catch (const sourcemeta::blaze::CompilerInvalidRegexError &error) {
+    EXPECT_STREQ(error.what(), "Invalid regular expression");
+    EXPECT_EQ(error.regex(), "^[a-zA-Z0-9\\/\\_]{1,32}$");
     EXPECT_EQ(error.location(),
               sourcemeta::core::Pointer({"properties", "foo", "pattern"}));
     EXPECT_EQ(error.base().recompose(), "");
     SUCCEED();
-  } catch (const std::exception &) {
-    FAIL() << "The compile function was expected to throw a schema error";
+  } catch (...) {
+    FAIL();
   }
 }
 
@@ -2083,14 +2090,14 @@ TEST(Evaluator_draft4, pattern_6) {
                                sourcemeta::blaze::default_schema_compiler);
     // The pattern might succeed in some standard library implementations
     SUCCEED();
-  } catch (const sourcemeta::blaze::CompilerError &error) {
-    EXPECT_STREQ(error.what(),
-                 "Invalid regular expression: ^[a-zA-Z0-9\\/\\_]{1,32}$");
+  } catch (const sourcemeta::blaze::CompilerInvalidRegexError &error) {
+    EXPECT_STREQ(error.what(), "Invalid regular expression");
+    EXPECT_EQ(error.regex(), "^[a-zA-Z0-9\\/\\_]{1,32}$");
     EXPECT_EQ(error.location(), sourcemeta::core::Pointer({"pattern"}));
     EXPECT_EQ(error.base().recompose(), "https://nested.com");
     SUCCEED();
-  } catch (const std::exception &) {
-    FAIL() << "The compile function was expected to throw a schema error";
+  } catch (...) {
+    FAIL();
   }
 }
 
@@ -2391,15 +2398,15 @@ TEST(Evaluator_draft4, patternProperties_9) {
                                sourcemeta::blaze::default_schema_compiler);
     // The pattern might succeed in some standard library implementations
     SUCCEED();
-  } catch (const sourcemeta::blaze::CompilerError &error) {
-    EXPECT_STREQ(error.what(),
-                 "Invalid regular expression: ^[a-zA-Z0-9\\_\\.\\-]*$");
+  } catch (const sourcemeta::blaze::CompilerInvalidRegexError &error) {
+    EXPECT_STREQ(error.what(), "Invalid regular expression");
+    EXPECT_EQ(error.regex(), "^[a-zA-Z0-9\\_\\.\\-]*$");
     EXPECT_EQ(error.location(),
               sourcemeta::core::Pointer({"patternProperties"}));
     EXPECT_EQ(error.base().recompose(), "");
     SUCCEED();
-  } catch (const std::exception &) {
-    FAIL() << "The compile function was expected to throw a schema error";
+  } catch (...) {
+    FAIL();
   }
 }
 
