@@ -9,8 +9,8 @@
 #include <fcntl.h>  // open, O_RDWR, AT_FDCWD
 #include <unistd.h> // close, fsync
 #if defined(__linux__)
-#include <linux/fs.h> // RENAME_EXCHANGE
-#include <stdio.h>    // renameat2
+#include <linux/fs.h>    // RENAME_EXCHANGE
+#include <sys/syscall.h> // SYS_renameat2, syscall
 #elif defined(__APPLE__)
 #include <sys/stdio.h> // renameatx_np, RENAME_SWAP
 #endif
@@ -86,8 +86,8 @@ auto atomic_directory_swap(const std::filesystem::path &original,
 
   // Atomic swap via renameat2 with RENAME_EXCHANGE
 #if defined(__linux__)
-  if (renameat2(AT_FDCWD, replacement.c_str(), AT_FDCWD, original.c_str(),
-                RENAME_EXCHANGE) != 0) {
+  if (syscall(SYS_renameat2, AT_FDCWD, replacement.c_str(), AT_FDCWD,
+              original.c_str(), RENAME_EXCHANGE) != 0) {
     throw std::filesystem::filesystem_error{
         "failed to atomically swap directories", replacement, original,
         std::error_code{errno, std::generic_category()}};
