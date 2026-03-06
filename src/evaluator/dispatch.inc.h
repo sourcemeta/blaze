@@ -2017,106 +2017,6 @@ INSTRUCTION_HANDLER(LoopContains) {
 
 #undef INSTRUCTION_HANDLER
 
-using DispatchHandler = bool (*)(const sourcemeta::blaze::Instruction &,
-                                 const sourcemeta::core::JSON &, std::uint64_t,
-                                 DispatchContext &);
-
-// Must have same order as InstructionIndex
-// NOLINTNEXTLINE(modernize-avoid-c-arrays)
-static constexpr DispatchHandler handlers[95] = {
-    AssertionFail,
-    AssertionDefines,
-    AssertionDefinesStrict,
-    AssertionDefinesAll,
-    AssertionDefinesAllStrict,
-    AssertionDefinesExactly,
-    AssertionDefinesExactlyStrict,
-    AssertionDefinesExactlyStrictHash3,
-    AssertionPropertyDependencies,
-    AssertionType,
-    AssertionTypeAny,
-    AssertionTypeStrict,
-    AssertionTypeStrictAny,
-    AssertionTypeStringBounded,
-    AssertionTypeStringUpper,
-    AssertionTypeArrayBounded,
-    AssertionTypeArrayUpper,
-    AssertionTypeObjectBounded,
-    AssertionTypeObjectUpper,
-    AssertionRegex,
-    AssertionStringSizeLess,
-    AssertionStringSizeGreater,
-    AssertionArraySizeLess,
-    AssertionArraySizeGreater,
-    AssertionObjectSizeLess,
-    AssertionObjectSizeGreater,
-    AssertionEqual,
-    AssertionEqualsAny,
-    AssertionEqualsAnyStringHash,
-    AssertionGreaterEqual,
-    AssertionLessEqual,
-    AssertionGreater,
-    AssertionLess,
-    AssertionUnique,
-    AssertionDivisible,
-    AssertionStringType,
-    AssertionPropertyType,
-    AssertionPropertyTypeEvaluate,
-    AssertionPropertyTypeStrict,
-    AssertionPropertyTypeStrictEvaluate,
-    AssertionPropertyTypeStrictAny,
-    AssertionPropertyTypeStrictAnyEvaluate,
-    AssertionArrayPrefix,
-    AssertionArrayPrefixEvaluate,
-    AnnotationEmit,
-    AnnotationToParent,
-    AnnotationBasenameToParent,
-    Evaluate,
-    LogicalNot,
-    LogicalNotEvaluate,
-    LogicalOr,
-    LogicalAnd,
-    LogicalXor,
-    LogicalCondition,
-    LogicalWhenType,
-    LogicalWhenDefines,
-    LogicalWhenArraySizeGreater,
-    LoopPropertiesUnevaluated,
-    LoopPropertiesUnevaluatedExcept,
-    LoopPropertiesMatch,
-    LoopPropertiesMatchClosed,
-    LoopProperties,
-    LoopPropertiesEvaluate,
-    LoopPropertiesRegex,
-    LoopPropertiesRegexClosed,
-    LoopPropertiesStartsWith,
-    LoopPropertiesExcept,
-    LoopPropertiesType,
-    LoopPropertiesTypeEvaluate,
-    LoopPropertiesExactlyTypeStrict,
-    LoopPropertiesExactlyTypeStrictHash,
-    LoopPropertiesTypeStrict,
-    LoopPropertiesTypeStrictEvaluate,
-    LoopPropertiesTypeStrictAny,
-    LoopPropertiesTypeStrictAnyEvaluate,
-    LoopKeys,
-    LoopItems,
-    LoopItemsFrom,
-    LoopItemsUnevaluated,
-    LoopItemsType,
-    LoopItemsTypeStrict,
-    LoopItemsTypeStrictAny,
-    LoopItemsPropertiesExactlyTypeStrictHash,
-    LoopItemsPropertiesExactlyTypeStrictHash3,
-    LoopContains,
-    ControlGroup,
-    ControlGroupWhenDefines,
-    ControlGroupWhenDefinesDirect,
-    ControlGroupWhenType,
-    ControlEvaluate,
-    ControlDynamicAnchorJump,
-    ControlJump};
-
 inline auto
 evaluate_instruction(const sourcemeta::blaze::Instruction &instruction,
                      const sourcemeta::core::JSON &instance,
@@ -2131,8 +2031,211 @@ evaluate_instruction(const sourcemeta::blaze::Instruction &instruction,
                           "likely due to infinite recursion");
   }
 
-  return handlers[static_cast<std::underlying_type_t<InstructionIndex>>(
-      instruction.type)](instruction, instance, depth, context);
+  switch (instruction.type) {
+    case InstructionIndex::AssertionFail:
+      return AssertionFail(instruction, instance, depth, context);
+    case InstructionIndex::AssertionDefines:
+      return AssertionDefines(instruction, instance, depth, context);
+    case InstructionIndex::AssertionDefinesStrict:
+      return AssertionDefinesStrict(instruction, instance, depth, context);
+    case InstructionIndex::AssertionDefinesAll:
+      return AssertionDefinesAll(instruction, instance, depth, context);
+    case InstructionIndex::AssertionDefinesAllStrict:
+      return AssertionDefinesAllStrict(instruction, instance, depth, context);
+    case InstructionIndex::AssertionDefinesExactly:
+      return AssertionDefinesExactly(instruction, instance, depth, context);
+    case InstructionIndex::AssertionDefinesExactlyStrict:
+      return AssertionDefinesExactlyStrict(instruction, instance, depth,
+                                           context);
+    case InstructionIndex::AssertionDefinesExactlyStrictHash3:
+      return AssertionDefinesExactlyStrictHash3(instruction, instance, depth,
+                                                context);
+    case InstructionIndex::AssertionPropertyDependencies:
+      return AssertionPropertyDependencies(instruction, instance, depth,
+                                           context);
+    case InstructionIndex::AssertionType:
+      return AssertionType(instruction, instance, depth, context);
+    case InstructionIndex::AssertionTypeAny:
+      return AssertionTypeAny(instruction, instance, depth, context);
+    case InstructionIndex::AssertionTypeStrict:
+      return AssertionTypeStrict(instruction, instance, depth, context);
+    case InstructionIndex::AssertionTypeStrictAny:
+      return AssertionTypeStrictAny(instruction, instance, depth, context);
+    case InstructionIndex::AssertionTypeStringBounded:
+      return AssertionTypeStringBounded(instruction, instance, depth, context);
+    case InstructionIndex::AssertionTypeStringUpper:
+      return AssertionTypeStringUpper(instruction, instance, depth, context);
+    case InstructionIndex::AssertionTypeArrayBounded:
+      return AssertionTypeArrayBounded(instruction, instance, depth, context);
+    case InstructionIndex::AssertionTypeArrayUpper:
+      return AssertionTypeArrayUpper(instruction, instance, depth, context);
+    case InstructionIndex::AssertionTypeObjectBounded:
+      return AssertionTypeObjectBounded(instruction, instance, depth, context);
+    case InstructionIndex::AssertionTypeObjectUpper:
+      return AssertionTypeObjectUpper(instruction, instance, depth, context);
+    case InstructionIndex::AssertionRegex:
+      return AssertionRegex(instruction, instance, depth, context);
+    case InstructionIndex::AssertionStringSizeLess:
+      return AssertionStringSizeLess(instruction, instance, depth, context);
+    case InstructionIndex::AssertionStringSizeGreater:
+      return AssertionStringSizeGreater(instruction, instance, depth, context);
+    case InstructionIndex::AssertionArraySizeLess:
+      return AssertionArraySizeLess(instruction, instance, depth, context);
+    case InstructionIndex::AssertionArraySizeGreater:
+      return AssertionArraySizeGreater(instruction, instance, depth, context);
+    case InstructionIndex::AssertionObjectSizeLess:
+      return AssertionObjectSizeLess(instruction, instance, depth, context);
+    case InstructionIndex::AssertionObjectSizeGreater:
+      return AssertionObjectSizeGreater(instruction, instance, depth, context);
+    case InstructionIndex::AssertionEqual:
+      return AssertionEqual(instruction, instance, depth, context);
+    case InstructionIndex::AssertionEqualsAny:
+      return AssertionEqualsAny(instruction, instance, depth, context);
+    case InstructionIndex::AssertionEqualsAnyStringHash:
+      return AssertionEqualsAnyStringHash(instruction, instance, depth,
+                                          context);
+    case InstructionIndex::AssertionGreaterEqual:
+      return AssertionGreaterEqual(instruction, instance, depth, context);
+    case InstructionIndex::AssertionLessEqual:
+      return AssertionLessEqual(instruction, instance, depth, context);
+    case InstructionIndex::AssertionGreater:
+      return AssertionGreater(instruction, instance, depth, context);
+    case InstructionIndex::AssertionLess:
+      return AssertionLess(instruction, instance, depth, context);
+    case InstructionIndex::AssertionUnique:
+      return AssertionUnique(instruction, instance, depth, context);
+    case InstructionIndex::AssertionDivisible:
+      return AssertionDivisible(instruction, instance, depth, context);
+    case InstructionIndex::AssertionStringType:
+      return AssertionStringType(instruction, instance, depth, context);
+    case InstructionIndex::AssertionPropertyType:
+      return AssertionPropertyType(instruction, instance, depth, context);
+    case InstructionIndex::AssertionPropertyTypeEvaluate:
+      return AssertionPropertyTypeEvaluate(instruction, instance, depth,
+                                           context);
+    case InstructionIndex::AssertionPropertyTypeStrict:
+      return AssertionPropertyTypeStrict(instruction, instance, depth, context);
+    case InstructionIndex::AssertionPropertyTypeStrictEvaluate:
+      return AssertionPropertyTypeStrictEvaluate(instruction, instance, depth,
+                                                 context);
+    case InstructionIndex::AssertionPropertyTypeStrictAny:
+      return AssertionPropertyTypeStrictAny(instruction, instance, depth,
+                                            context);
+    case InstructionIndex::AssertionPropertyTypeStrictAnyEvaluate:
+      return AssertionPropertyTypeStrictAnyEvaluate(instruction, instance,
+                                                    depth, context);
+    case InstructionIndex::AssertionArrayPrefix:
+      return AssertionArrayPrefix(instruction, instance, depth, context);
+    case InstructionIndex::AssertionArrayPrefixEvaluate:
+      return AssertionArrayPrefixEvaluate(instruction, instance, depth,
+                                          context);
+    case InstructionIndex::AnnotationEmit:
+      return AnnotationEmit(instruction, instance, depth, context);
+    case InstructionIndex::AnnotationToParent:
+      return AnnotationToParent(instruction, instance, depth, context);
+    case InstructionIndex::AnnotationBasenameToParent:
+      return AnnotationBasenameToParent(instruction, instance, depth, context);
+    case InstructionIndex::Evaluate:
+      return Evaluate(instruction, instance, depth, context);
+    case InstructionIndex::LogicalNot:
+      return LogicalNot(instruction, instance, depth, context);
+    case InstructionIndex::LogicalNotEvaluate:
+      return LogicalNotEvaluate(instruction, instance, depth, context);
+    case InstructionIndex::LogicalOr:
+      return LogicalOr(instruction, instance, depth, context);
+    case InstructionIndex::LogicalAnd:
+      return LogicalAnd(instruction, instance, depth, context);
+    case InstructionIndex::LogicalXor:
+      return LogicalXor(instruction, instance, depth, context);
+    case InstructionIndex::LogicalCondition:
+      return LogicalCondition(instruction, instance, depth, context);
+    case InstructionIndex::LogicalWhenType:
+      return LogicalWhenType(instruction, instance, depth, context);
+    case InstructionIndex::LogicalWhenDefines:
+      return LogicalWhenDefines(instruction, instance, depth, context);
+    case InstructionIndex::LogicalWhenArraySizeGreater:
+      return LogicalWhenArraySizeGreater(instruction, instance, depth, context);
+    case InstructionIndex::LoopPropertiesUnevaluated:
+      return LoopPropertiesUnevaluated(instruction, instance, depth, context);
+    case InstructionIndex::LoopPropertiesUnevaluatedExcept:
+      return LoopPropertiesUnevaluatedExcept(instruction, instance, depth,
+                                             context);
+    case InstructionIndex::LoopPropertiesMatch:
+      return LoopPropertiesMatch(instruction, instance, depth, context);
+    case InstructionIndex::LoopPropertiesMatchClosed:
+      return LoopPropertiesMatchClosed(instruction, instance, depth, context);
+    case InstructionIndex::LoopProperties:
+      return LoopProperties(instruction, instance, depth, context);
+    case InstructionIndex::LoopPropertiesEvaluate:
+      return LoopPropertiesEvaluate(instruction, instance, depth, context);
+    case InstructionIndex::LoopPropertiesRegex:
+      return LoopPropertiesRegex(instruction, instance, depth, context);
+    case InstructionIndex::LoopPropertiesRegexClosed:
+      return LoopPropertiesRegexClosed(instruction, instance, depth, context);
+    case InstructionIndex::LoopPropertiesStartsWith:
+      return LoopPropertiesStartsWith(instruction, instance, depth, context);
+    case InstructionIndex::LoopPropertiesExcept:
+      return LoopPropertiesExcept(instruction, instance, depth, context);
+    case InstructionIndex::LoopPropertiesType:
+      return LoopPropertiesType(instruction, instance, depth, context);
+    case InstructionIndex::LoopPropertiesTypeEvaluate:
+      return LoopPropertiesTypeEvaluate(instruction, instance, depth, context);
+    case InstructionIndex::LoopPropertiesExactlyTypeStrict:
+      return LoopPropertiesExactlyTypeStrict(instruction, instance, depth,
+                                             context);
+    case InstructionIndex::LoopPropertiesExactlyTypeStrictHash:
+      return LoopPropertiesExactlyTypeStrictHash(instruction, instance, depth,
+                                                 context);
+    case InstructionIndex::LoopPropertiesTypeStrict:
+      return LoopPropertiesTypeStrict(instruction, instance, depth, context);
+    case InstructionIndex::LoopPropertiesTypeStrictEvaluate:
+      return LoopPropertiesTypeStrictEvaluate(instruction, instance, depth,
+                                              context);
+    case InstructionIndex::LoopPropertiesTypeStrictAny:
+      return LoopPropertiesTypeStrictAny(instruction, instance, depth, context);
+    case InstructionIndex::LoopPropertiesTypeStrictAnyEvaluate:
+      return LoopPropertiesTypeStrictAnyEvaluate(instruction, instance, depth,
+                                                 context);
+    case InstructionIndex::LoopKeys:
+      return LoopKeys(instruction, instance, depth, context);
+    case InstructionIndex::LoopItems:
+      return LoopItems(instruction, instance, depth, context);
+    case InstructionIndex::LoopItemsFrom:
+      return LoopItemsFrom(instruction, instance, depth, context);
+    case InstructionIndex::LoopItemsUnevaluated:
+      return LoopItemsUnevaluated(instruction, instance, depth, context);
+    case InstructionIndex::LoopItemsType:
+      return LoopItemsType(instruction, instance, depth, context);
+    case InstructionIndex::LoopItemsTypeStrict:
+      return LoopItemsTypeStrict(instruction, instance, depth, context);
+    case InstructionIndex::LoopItemsTypeStrictAny:
+      return LoopItemsTypeStrictAny(instruction, instance, depth, context);
+    case InstructionIndex::LoopItemsPropertiesExactlyTypeStrictHash:
+      return LoopItemsPropertiesExactlyTypeStrictHash(instruction, instance,
+                                                      depth, context);
+    case InstructionIndex::LoopItemsPropertiesExactlyTypeStrictHash3:
+      return LoopItemsPropertiesExactlyTypeStrictHash3(instruction, instance,
+                                                       depth, context);
+    case InstructionIndex::LoopContains:
+      return LoopContains(instruction, instance, depth, context);
+    case InstructionIndex::ControlGroup:
+      return ControlGroup(instruction, instance, depth, context);
+    case InstructionIndex::ControlGroupWhenDefines:
+      return ControlGroupWhenDefines(instruction, instance, depth, context);
+    case InstructionIndex::ControlGroupWhenDefinesDirect:
+      return ControlGroupWhenDefinesDirect(instruction, instance, depth,
+                                           context);
+    case InstructionIndex::ControlGroupWhenType:
+      return ControlGroupWhenType(instruction, instance, depth, context);
+    case InstructionIndex::ControlEvaluate:
+      return ControlEvaluate(instruction, instance, depth, context);
+    case InstructionIndex::ControlDynamicAnchorJump:
+      return ControlDynamicAnchorJump(instruction, instance, depth, context);
+    case InstructionIndex::ControlJump:
+      return ControlJump(instruction, instance, depth, context);
+    default:
+      return false;
+  }
 }
 
 inline auto evaluate_instruction_with_property(
