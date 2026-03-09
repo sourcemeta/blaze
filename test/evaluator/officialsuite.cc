@@ -32,13 +32,7 @@ static auto test_resolver(std::string_view identifier)
   // We keep an explicit list instead of dynamically reading into the directory
   // to make sure we are only pulling in the right files
 
-  READ_SCHEMA_FILE("http://localhost:1234/different-id-ref-string.json",
-                   "different-id-ref-string.json")
   READ_SCHEMA_FILE("http://localhost:1234/integer.json", "integer.json")
-  READ_SCHEMA_FILE("http://localhost:1234/nested-absolute-ref-to-string.json",
-                   "nested-absolute-ref-to-string.json")
-  READ_SCHEMA_FILE("http://localhost:1234/urn-ref-string.json",
-                   "urn-ref-string.json")
 
   READ_SCHEMA_FILE("http://localhost:1234/nested/foo-ref-string.json",
                    std::filesystem::path{"nested"} / "foo-ref-string.json")
@@ -102,6 +96,16 @@ static auto test_resolver(std::string_view identifier)
   READ_SCHEMA_FILE("http://localhost:1234/draft2019-09/ignore-prefixItems.json",
                    std::filesystem::path{"draft2019-09"} /
                        "ignore-prefixItems.json")
+  READ_SCHEMA_FILE(
+      "http://localhost:1234/draft2019-09/different-id-ref-string.json",
+      std::filesystem::path{"draft2019-09"} / "different-id-ref-string.json")
+  READ_SCHEMA_FILE(
+      "http://localhost:1234/draft2019-09/nested-absolute-ref-to-string.json",
+      std::filesystem::path{"draft2019-09"} /
+          "nested-absolute-ref-to-string.json")
+  READ_SCHEMA_FILE("http://localhost:1234/draft2019-09/urn-ref-string.json",
+                   std::filesystem::path{"draft2019-09"} /
+                       "urn-ref-string.json")
 
   READ_SCHEMA_FILE("http://localhost:1234/draft2020-12/prefixItems.json",
                    std::filesystem::path{"draft2020-12"} / "prefixItems.json")
@@ -158,6 +162,16 @@ static auto test_resolver(std::string_view identifier)
   READ_SCHEMA_FILE("http://localhost:1234/draft2020-12/nested/string.json",
                    std::filesystem::path{"draft2020-12"} / "nested" /
                        "string.json")
+  READ_SCHEMA_FILE(
+      "http://localhost:1234/draft2020-12/different-id-ref-string.json",
+      std::filesystem::path{"draft2020-12"} / "different-id-ref-string.json")
+  READ_SCHEMA_FILE(
+      "http://localhost:1234/draft2020-12/nested-absolute-ref-to-string.json",
+      std::filesystem::path{"draft2020-12"} /
+          "nested-absolute-ref-to-string.json")
+  READ_SCHEMA_FILE("http://localhost:1234/draft2020-12/urn-ref-string.json",
+                   std::filesystem::path{"draft2020-12"} /
+                       "urn-ref-string.json")
 
   READ_SCHEMA_FILE("http://localhost:1234/draft7/detached-ref.json",
                    std::filesystem::path{"draft7"} / "detached-ref.json")
