@@ -185,45 +185,45 @@ transform_instruction(Instruction &instruction, Instructions &output,
     if (child.type == InstructionIndex::AssertionTypeStrict) {
       output.push_back(
           Instruction{.type = InstructionIndex::LoopPropertiesTypeStrict,
+                      .relative_instance_location =
+                          std::move(instruction.relative_instance_location),
+                      .value = std::move(child.value),
+                      .children = {},
                       .relative_schema_location =
                           instruction.relative_schema_location.concat(
                               child.relative_schema_location),
-                      .relative_instance_location =
-                          std::move(instruction.relative_instance_location),
                       .keyword_location = std::move(child.keyword_location),
-                      .schema_resource = child.schema_resource,
-                      .value = std::move(child.value),
-                      .children = {}});
+                      .schema_resource = child.schema_resource});
       return true;
     }
 
     if (child.type == InstructionIndex::AssertionType) {
       output.push_back(
           Instruction{.type = InstructionIndex::LoopPropertiesType,
+                      .relative_instance_location =
+                          std::move(instruction.relative_instance_location),
+                      .value = std::move(child.value),
+                      .children = {},
                       .relative_schema_location =
                           instruction.relative_schema_location.concat(
                               child.relative_schema_location),
-                      .relative_instance_location =
-                          std::move(instruction.relative_instance_location),
                       .keyword_location = std::move(child.keyword_location),
-                      .schema_resource = child.schema_resource,
-                      .value = std::move(child.value),
-                      .children = {}});
+                      .schema_resource = child.schema_resource});
       return true;
     }
 
     if (child.type == InstructionIndex::AssertionTypeStrictAny) {
       output.push_back(
           Instruction{.type = InstructionIndex::LoopPropertiesTypeStrictAny,
+                      .relative_instance_location =
+                          std::move(instruction.relative_instance_location),
+                      .value = std::move(child.value),
+                      .children = {},
                       .relative_schema_location =
                           instruction.relative_schema_location.concat(
                               child.relative_schema_location),
-                      .relative_instance_location =
-                          std::move(instruction.relative_instance_location),
                       .keyword_location = std::move(child.keyword_location),
-                      .schema_resource = child.schema_resource,
-                      .value = std::move(child.value),
-                      .children = {}});
+                      .schema_resource = child.schema_resource});
       return true;
     }
   }
@@ -234,45 +234,45 @@ transform_instruction(Instruction &instruction, Instructions &output,
     if (child.type == InstructionIndex::AssertionTypeStrict) {
       output.push_back(Instruction{
           .type = InstructionIndex::LoopPropertiesTypeStrictEvaluate,
+          .relative_instance_location =
+              std::move(instruction.relative_instance_location),
+          .value = std::move(child.value),
+          .children = {},
           .relative_schema_location =
               instruction.relative_schema_location.concat(
                   child.relative_schema_location),
-          .relative_instance_location =
-              std::move(instruction.relative_instance_location),
           .keyword_location = std::move(child.keyword_location),
-          .schema_resource = child.schema_resource,
-          .value = std::move(child.value),
-          .children = {}});
+          .schema_resource = child.schema_resource});
       return true;
     }
 
     if (child.type == InstructionIndex::AssertionType) {
       output.push_back(
           Instruction{.type = InstructionIndex::LoopPropertiesTypeEvaluate,
+                      .relative_instance_location =
+                          std::move(instruction.relative_instance_location),
+                      .value = std::move(child.value),
+                      .children = {},
                       .relative_schema_location =
                           instruction.relative_schema_location.concat(
                               child.relative_schema_location),
-                      .relative_instance_location =
-                          std::move(instruction.relative_instance_location),
                       .keyword_location = std::move(child.keyword_location),
-                      .schema_resource = child.schema_resource,
-                      .value = std::move(child.value),
-                      .children = {}});
+                      .schema_resource = child.schema_resource});
       return true;
     }
 
     if (child.type == InstructionIndex::AssertionTypeStrictAny) {
       output.push_back(Instruction{
           .type = InstructionIndex::LoopPropertiesTypeStrictAnyEvaluate,
+          .relative_instance_location =
+              std::move(instruction.relative_instance_location),
+          .value = std::move(child.value),
+          .children = {},
           .relative_schema_location =
               instruction.relative_schema_location.concat(
                   child.relative_schema_location),
-          .relative_instance_location =
-              std::move(instruction.relative_instance_location),
           .keyword_location = std::move(child.keyword_location),
-          .schema_resource = child.schema_resource,
-          .value = std::move(child.value),
-          .children = {}});
+          .schema_resource = child.schema_resource});
       return true;
     }
   }

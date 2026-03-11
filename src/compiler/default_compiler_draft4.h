@@ -1611,23 +1611,23 @@ auto compiler_draft4_applicator_items_with_options(
           return {Instruction{
               .type = sourcemeta::blaze::InstructionIndex::
                   LoopItemsPropertiesExactlyTypeStrictHash3,
-              .relative_schema_location = current.relative_schema_location,
               .relative_instance_location = current.relative_instance_location,
-              .keyword_location = current.keyword_location,
-              .schema_resource = current.schema_resource,
               .value = std::move(value_copy),
-              .children = {}}};
+              .children = {},
+              .relative_schema_location = current.relative_schema_location,
+              .keyword_location = current.keyword_location,
+              .schema_resource = current.schema_resource}};
         }
 
         return {Instruction{
             .type = sourcemeta::blaze::InstructionIndex::
                 LoopItemsPropertiesExactlyTypeStrictHash,
-            .relative_schema_location = current.relative_schema_location,
             .relative_instance_location = current.relative_instance_location,
-            .keyword_location = current.keyword_location,
-            .schema_resource = current.schema_resource,
             .value = std::move(value_copy),
-            .children = {}}};
+            .children = {},
+            .relative_schema_location = current.relative_schema_location,
+            .keyword_location = current.keyword_location,
+            .schema_resource = current.schema_resource}};
       }
     }
 

@@ -79,15 +79,15 @@ inline auto make_with_resource(const InstructionIndex type,
           : to_pointer(dynamic_context.base_schema_location)
                 .concat({dynamic_context.keyword})};
   return {.type = type,
-          .relative_schema_location = schema_location,
           .relative_instance_location =
               to_pointer(dynamic_context.base_instance_location),
+          .value = value,
+          .children = {},
+          .relative_schema_location = schema_location,
           .keyword_location =
               to_uri(schema_context.relative_pointer, schema_context.base)
                   .recompose(),
-          .schema_resource = schema_resource_id(context.resources, resource),
-          .value = value,
-          .children = {}};
+          .schema_resource = schema_resource_id(context.resources, resource)};
 }
 
 // Instantiate a value-oriented step
@@ -110,41 +110,41 @@ inline auto make(const InstructionIndex type, const Context &context,
           : to_pointer(dynamic_context.base_schema_location)
                 .concat({dynamic_context.keyword})};
   return {.type = type,
-          .relative_schema_location = schema_location,
           .relative_instance_location =
               to_pointer(dynamic_context.base_instance_location),
+          .value = std::move(value),
+          .children = std::move(children),
+          .relative_schema_location = schema_location,
           .keyword_location =
               to_uri(schema_context.relative_pointer, schema_context.base)
                   .recompose(),
           .schema_resource = schema_resource_id(
-              context.resources, schema_context.base.recompose()),
-          .value = std::move(value),
-          .children = std::move(children)};
+              context.resources, schema_context.base.recompose())};
 }
 
 inline auto unroll(const Instruction &step,
                    const sourcemeta::core::WeakPointer &base_instance_location =
                        sourcemeta::core::empty_weak_pointer) -> Instruction {
   return {.type = step.type,
-          .relative_schema_location = step.relative_schema_location,
           .relative_instance_location =
               to_pointer(base_instance_location)
                   .concat(step.relative_instance_location),
-          .keyword_location = step.keyword_location,
-          .schema_resource = step.schema_resource,
           .value = step.value,
-          .children = {}};
+          .children = {},
+          .relative_schema_location = step.relative_schema_location,
+          .keyword_location = step.keyword_location,
+          .schema_resource = step.schema_resource};
 }
 
 inline auto rephrase(const InstructionIndex type, const Instruction &step)
     -> Instruction {
   return {.type = type,
-          .relative_schema_location = step.relative_schema_location,
           .relative_instance_location = step.relative_instance_location,
-          .keyword_location = step.keyword_location,
-          .schema_resource = step.schema_resource,
           .value = step.value,
-          .children = {}};
+          .children = {},
+          .relative_schema_location = step.relative_schema_location,
+          .keyword_location = step.keyword_location,
+          .schema_resource = step.schema_resource};
 }
 
 inline auto
