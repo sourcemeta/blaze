@@ -102,21 +102,21 @@ auto instructions_from_json(const sourcemeta::core::JSON &instructions,
       // TODO: Maybe we should emplace here?
       result.push_back(
           {std::move(type_result).value(),
-           std::move(relative_schema_location_result).value(),
            std::move(relative_instance_location_result).value(),
+           std::move(value_result).value(), std::move(children_result).value(),
+           std::move(relative_schema_location_result).value(),
            resources.at(schema_resource_result.value() - 1).to_string() +
                std::move(keyword_location_result).value(),
-           schema_resource_result.value(), std::move(value_result).value(),
-           std::move(children_result).value()});
+           schema_resource_result.value()});
     } else {
       // TODO: Maybe we should emplace here?
       result.push_back({std::move(type_result).value(),
-                        std::move(relative_schema_location_result).value(),
                         std::move(relative_instance_location_result).value(),
-                        std::move(keyword_location_result).value(),
-                        std::move(schema_resource_result).value(),
                         std::move(value_result).value(),
-                        std::move(children_result).value()});
+                        std::move(children_result).value(),
+                        std::move(relative_schema_location_result).value(),
+                        std::move(keyword_location_result).value(),
+                        std::move(schema_resource_result).value()});
     }
   }
 

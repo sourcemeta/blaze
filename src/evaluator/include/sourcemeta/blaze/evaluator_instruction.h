@@ -240,12 +240,14 @@ using Instructions = std::vector<Instruction>;
 // NOLINTNEXTLINE(bugprone-exception-escape)
 struct Instruction {
   InstructionIndex type;
-  sourcemeta::core::Pointer relative_schema_location;
   sourcemeta::core::Pointer relative_instance_location;
-  std::string keyword_location;
-  std::size_t schema_resource;
   Value value;
   Instructions children;
+
+  // Not used in fast evaluation
+  sourcemeta::core::Pointer relative_schema_location;
+  std::string keyword_location;
+  std::size_t schema_resource;
 };
 
 /// @ingroup evaluator
