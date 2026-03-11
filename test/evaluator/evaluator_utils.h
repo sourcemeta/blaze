@@ -14,11 +14,13 @@ inline auto FIRST_PROPERTY_IS(const sourcemeta::core::JSON &document,
 #define EVALUATE_WITH_TRACE(schema_template, instance, count)                  \
   std::vector<std::tuple<                                                      \
       bool, sourcemeta::core::WeakPointer, sourcemeta::core::WeakPointer,      \
-      sourcemeta::blaze::Instruction, sourcemeta::core::JSON>>                 \
+      sourcemeta::blaze::Instruction, sourcemeta::core::JSON,                  \
+      sourcemeta::blaze::InstructionExtra>>                                    \
       trace_pre;                                                               \
   std::vector<std::tuple<                                                      \
       bool, sourcemeta::core::WeakPointer, sourcemeta::core::WeakPointer,      \
-      sourcemeta::blaze::Instruction, sourcemeta::core::JSON>>                 \
+      sourcemeta::blaze::Instruction, sourcemeta::core::JSON,                  \
+      sourcemeta::blaze::InstructionExtra>>                                    \
       trace_post;                                                              \
   sourcemeta::blaze::Evaluator evaluator;                                      \
   const auto result{evaluator.validate(                                        \
@@ -26,15 +28,16 @@ inline auto FIRST_PROPERTY_IS(const sourcemeta::core::JSON &document,
       [&trace_pre, &trace_post](                                               \
           const sourcemeta::blaze::EvaluationType type, const bool valid,      \
           const sourcemeta::blaze::Instruction &step,                          \
+          const sourcemeta::blaze::InstructionExtra &step_metadata,            \
           const sourcemeta::core::WeakPointer &evaluate_path,                  \
           const sourcemeta::core::WeakPointer &instance_location,              \
           const sourcemeta::core::JSON &annotation) {                          \
         if (type == sourcemeta::blaze::EvaluationType::Pre) {                  \
-          trace_pre.push_back(                                                 \
-              {valid, evaluate_path, instance_location, step, annotation});    \
+          trace_pre.push_back({valid, evaluate_path, instance_location, step,  \
+                               annotation, step_metadata});                    \
         } else if (type == sourcemeta::blaze::EvaluationType::Post) {          \
-          trace_post.push_back(                                                \
-              {valid, evaluate_path, instance_location, step, annotation});    \
+          trace_post.push_back({valid, evaluate_path, instance_location, step, \
+                                annotation, step_metadata});                   \
         }                                                                      \
       })};                                                                     \
   EXPECT_EQ(trace_pre.size(), count);                                          \
@@ -104,7 +107,7 @@ inline auto FIRST_PROPERTY_IS(const sourcemeta::core::JSON &document,
             expected_instance_location);                                       \
   EXPECT_TRUE(std::get<3>(trace_pre.at(index)).type ==                         \
               sourcemeta::blaze::InstructionIndex::step_type);                 \
-  EXPECT_EQ(std::get<3>(trace_pre.at(index)).keyword_location,                 \
+  EXPECT_EQ(std::get<5>(trace_pre.at(index)).keyword_location,                 \
             expected_keyword_location);                                        \
   EXPECT_TRUE(std::get<4>(trace_pre.at(index)).is_null());
 
@@ -117,7 +120,7 @@ inline auto FIRST_PROPERTY_IS(const sourcemeta::core::JSON &document,
             expected_instance_location);                                       \
   EXPECT_TRUE(std::get<3>(trace_post.at(index)).type ==                        \
               sourcemeta::blaze::InstructionIndex::step_type);                 \
-  EXPECT_EQ(std::get<3>(trace_post.at(index)).keyword_location,                \
+  EXPECT_EQ(std::get<5>(trace_post.at(index)).keyword_location,                \
             expected_keyword_location);
 
 #define EVALUATE_TRACE_POST_SUCCESS(index, step_type, evaluate_path,           \

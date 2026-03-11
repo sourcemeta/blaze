@@ -197,14 +197,26 @@ TEST(Compiler_JSON, example_4) {
   // Confirm that the keyword locations are fully constructed back
   const auto template_back{sourcemeta::blaze::from_json(expected)};
   EXPECT_TRUE(template_back.has_value());
-  EXPECT_EQ(template_back.value().targets.at(0).at(0).keyword_location,
+  EXPECT_EQ(template_back.value()
+                .extra[template_back.value().targets.at(0).at(0).extra_index]
+                .keyword_location,
             "https://example.com/top#/additionalProperties");
-  EXPECT_EQ(
-      template_back.value().targets.at(0).at(0).children.at(0).keyword_location,
-      "https://other.com/nested#/multipleOf");
-  EXPECT_EQ(
-      template_back.value().targets.at(0).at(0).children.at(1).keyword_location,
-      "https://other.com/nested#/type");
+  EXPECT_EQ(template_back.value()
+                .extra[template_back.value()
+                           .targets.at(0)
+                           .at(0)
+                           .children.at(0)
+                           .extra_index]
+                .keyword_location,
+            "https://other.com/nested#/multipleOf");
+  EXPECT_EQ(template_back.value()
+                .extra[template_back.value()
+                           .targets.at(0)
+                           .at(0)
+                           .children.at(1)
+                           .extra_index]
+                .keyword_location,
+            "https://other.com/nested#/type");
 }
 
 TEST(Compiler_JSON, example_5) {
@@ -244,7 +256,9 @@ TEST(Compiler_JSON, example_5) {
   // Confirm that the keyword locations are fully constructed back
   const auto template_back{sourcemeta::blaze::from_json(expected)};
   EXPECT_TRUE(template_back.has_value());
-  EXPECT_EQ(template_back.value().targets.at(0).at(0).keyword_location,
+  EXPECT_EQ(template_back.value()
+                .extra[template_back.value().targets.at(0).at(0).extra_index]
+                .keyword_location,
             "https://example.com/top#/foo%25");
 }
 
@@ -305,14 +319,26 @@ TEST(Compiler_JSON, example_6) {
   // Confirm that the keyword locations are fully constructed back
   const auto template_back{sourcemeta::blaze::from_json(expected)};
   EXPECT_TRUE(template_back.has_value());
-  EXPECT_EQ(template_back.value().targets.at(0).at(0).keyword_location,
+  EXPECT_EQ(template_back.value()
+                .extra[template_back.value().targets.at(0).at(0).extra_index]
+                .keyword_location,
             "https://example.com/top#/additionalProperties");
-  EXPECT_EQ(
-      template_back.value().targets.at(0).at(0).children.at(0).keyword_location,
-      "https://example.com/top#/additionalProperties/type");
-  EXPECT_EQ(
-      template_back.value().targets.at(0).at(0).children.at(1).keyword_location,
-      "https://example.com/top#/additionalProperties");
+  EXPECT_EQ(template_back.value()
+                .extra[template_back.value()
+                           .targets.at(0)
+                           .at(0)
+                           .children.at(0)
+                           .extra_index]
+                .keyword_location,
+            "https://example.com/top#/additionalProperties/type");
+  EXPECT_EQ(template_back.value()
+                .extra[template_back.value()
+                           .targets.at(0)
+                           .at(0)
+                           .children.at(1)
+                           .extra_index]
+                .keyword_location,
+            "https://example.com/top#/additionalProperties");
 }
 
 TEST(Compiler_JSON, without_expected_1) {
