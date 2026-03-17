@@ -21,6 +21,15 @@ static auto test_resolver(std::string_view identifier)
         "https://example.com/vocab/custom": true
       }
     })JSON");
+  } else if (identifier == "https://example.com/metaschema-format-assertion") {
+    return sourcemeta::core::parse_json(R"JSON({
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "$id": "https://example.com/metaschema-format-assertion",
+      "$vocabulary": {
+        "https://json-schema.org/draft/2020-12/vocab/core": true,
+        "https://json-schema.org/draft/2020-12/vocab/format-assertion": true
+      }
+    })JSON");
   } else if (identifier == "https://example.com/schema") {
     return sourcemeta::core::parse_json(R"JSON({
       "$schema": "https://json-schema.org/draft/2020-12/schema",
@@ -284,5 +293,24 @@ TEST(Evaluator, invalid_entrypoint_not_a_subschema) {
     EXPECT_EQ(error.identifier(), "#/properties");
     EXPECT_STREQ(error.what(),
                  "The given entry point URI is not a valid subschema");
+  }
+}
+
+TEST(Evaluator, format_assertion_vocabulary_unsupported) {
+  const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
+    "$schema": "https://example.com/metaschema-format-assertion"
+  })JSON")};
+
+  try {
+    sourcemeta::blaze::compile(schema, sourcemeta::core::schema_walker,
+                               test_resolver,
+                               sourcemeta::blaze::default_schema_compiler);
+    FAIL() << "The compile function was expected to throw";
+  } catch (const sourcemeta::core::SchemaVocabularyError &error) {
+    EXPECT_EQ(error.uri(),
+              "https://json-schema.org/draft/2020-12/vocab/format-assertion");
+    SUCCEED();
+  } catch (const std::exception &) {
+    FAIL() << "The compile function was expected to throw a vocabulary error";
   }
 }
