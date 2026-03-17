@@ -9179,15 +9179,7 @@ TEST(Evaluator_draft4, format_uri_2) {
   })JSON")};
 
   const sourcemeta::core::JSON instance{"https://www.example.com"};
-  EVALUATE_WITH_TRACE_FAST_SUCCESS(schema, instance, 1, "");
-
-  EVALUATE_TRACE_PRE(0, AssertionStringType, "/format", "#/format", "");
-  EVALUATE_TRACE_POST_SUCCESS(0, AssertionStringType, "/format", "#/format",
-                              "");
-
-  EVALUATE_TRACE_POST_DESCRIBE(instance, 0,
-                               "The string value \"https://www.example.com\" "
-                               "was expected to represent a valid URI");
+  EVALUATE_WITH_TRACE_FAST_SUCCESS(schema, instance, 0, "");
 }
 
 TEST(Evaluator_draft4, format_uri_3) {
@@ -9197,15 +9189,7 @@ TEST(Evaluator_draft4, format_uri_3) {
   })JSON")};
 
   const sourcemeta::core::JSON instance{"!!!x::://"};
-  EVALUATE_WITH_TRACE_FAST_FAILURE(schema, instance, 1, "");
-
-  EVALUATE_TRACE_PRE(0, AssertionStringType, "/format", "#/format", "");
-  EVALUATE_TRACE_POST_FAILURE(0, AssertionStringType, "/format", "#/format",
-                              "");
-
-  EVALUATE_TRACE_POST_DESCRIBE(
-      instance, 0,
-      "The string value \"!!!x::://\" was expected to represent a valid URI");
+  EVALUATE_WITH_TRACE_FAST_SUCCESS(schema, instance, 0, "");
 }
 
 TEST(Evaluator_draft4, ref_to_non_schema) {

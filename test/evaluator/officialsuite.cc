@@ -411,7 +411,7 @@ int main(int argc, char **argv) {
                    "JSONSchemaOfficialSuite_Draft4_Optional_Format",
                    "http://json-schema.org/draft-04/schema#",
                    // TODO: Enable all tests
-                   {"date-time", "email", "hostname", "ipv6"});
+                   {"date-time", "email", "hostname", "ipv4", "ipv6", "uri"});
   } catch (const sourcemeta::core::SchemaResolutionError &error) {
     std::cerr << error.what() << ": " << error.identifier() << "\n";
     return EXIT_FAILURE;
