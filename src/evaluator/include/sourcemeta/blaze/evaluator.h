@@ -98,8 +98,24 @@ public:
   /// const auto result{evaluator.validate(schema_template, instance)};
   /// assert(result);
   /// ```
-  auto validate(const Template &schema, const sourcemeta::core::JSON &instance)
-      -> bool;
+  inline auto validate(const Template &schema,
+                       const sourcemeta::core::JSON &instance) -> bool {
+    assert(this->evaluate_path.empty());
+    assert(this->instance_location.empty());
+    assert(this->resources.empty());
+
+    if (schema.track && schema.dynamic) [[unlikely]] {
+      this->evaluated_.clear();
+      return validate_complete(schema, instance, nullptr);
+    } else if (schema.track) [[unlikely]] {
+      this->evaluated_.clear();
+      return validate_track(schema, instance);
+    } else if (schema.dynamic) [[unlikely]] {
+      return validate_dynamic(schema, instance);
+    } else {
+      return validate_fast(schema, instance);
+    }
+  }
 
   /// This method evaluates a schema compiler template, executing the given
   /// callback at every step of the way. For example:
@@ -152,8 +168,15 @@ public:
   ///
   /// assert(result);
   /// ```
-  auto validate(const Template &schema, const sourcemeta::core::JSON &instance,
-                const Callback &callback) -> bool;
+  inline auto validate(const Template &schema,
+                       const sourcemeta::core::JSON &instance,
+                       const Callback &callback) -> bool {
+    assert(this->evaluate_path.empty());
+    assert(this->instance_location.empty());
+    assert(this->resources.empty());
+    this->evaluated_.clear();
+    return validate_complete(schema, instance, &callback);
+  }
 
   // All of these members are considered internal and no
   // client must depend on them
@@ -190,6 +213,17 @@ public:
 #pragma warning(default : 4251 4275)
 #endif
 #endif
+
+private:
+  auto validate_fast(const Template &schema,
+                     const sourcemeta::core::JSON &instance) -> bool;
+  auto validate_track(const Template &schema,
+                      const sourcemeta::core::JSON &instance) -> bool;
+  auto validate_dynamic(const Template &schema,
+                        const sourcemeta::core::JSON &instance) -> bool;
+  auto validate_complete(const Template &schema,
+                         const sourcemeta::core::JSON &instance,
+                         const Callback *callback) -> bool;
 };
 
 } // namespace sourcemeta::blaze

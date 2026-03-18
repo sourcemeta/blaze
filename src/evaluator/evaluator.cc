@@ -81,36 +81,31 @@ inline auto effective_type_strict_real(const JSON &instance) noexcept
 
 namespace sourcemeta::blaze {
 
-auto Evaluator::validate(const Template &schema,
-                         const sourcemeta::core::JSON &instance) -> bool {
-  // Do a full reset for the next run
-  assert(this->evaluate_path.empty());
-  assert(this->instance_location.empty());
-  assert(this->resources.empty());
-
-  if (schema.track && schema.dynamic) {
-    this->evaluated_.clear();
-    return complete::evaluate(instance, *this, schema, nullptr);
-  } else if (schema.track) {
-    this->evaluated_.clear();
-    return track::evaluate(instance, *this, schema);
-  } else if (schema.dynamic) {
-    return dynamic::evaluate(instance, *this, schema);
-  } else {
-    return fast::evaluate(instance, *this, schema);
-  }
+auto Evaluator::validate_fast(const Template &schema,
+                              const sourcemeta::core::JSON &instance) -> bool {
+  return fast::evaluate(instance, *this, schema);
 }
 
-auto Evaluator::validate(const Template &schema,
-                         const sourcemeta::core::JSON &instance,
-                         const Callback &callback) -> bool {
-  // Do a full reset for the next run
-  assert(this->evaluate_path.empty());
-  assert(this->instance_location.empty());
-  assert(this->resources.empty());
-  this->evaluated_.clear();
+auto Evaluator::validate_track(const Template &schema,
+                               const sourcemeta::core::JSON &instance) -> bool {
+  return track::evaluate(instance, *this, schema);
+}
 
-  return complete::evaluate(instance, *this, schema, callback);
+auto Evaluator::validate_dynamic(const Template &schema,
+                                 const sourcemeta::core::JSON &instance)
+    -> bool {
+  return dynamic::evaluate(instance, *this, schema);
+}
+
+auto Evaluator::validate_complete(const Template &schema,
+                                  const sourcemeta::core::JSON &instance,
+                                  const Callback *callback) -> bool {
+  if (callback) {
+    return complete::evaluate(instance, *this, schema, *callback);
+  }
+
+  static const Callback null_callback{nullptr};
+  return complete::evaluate(instance, *this, schema, null_callback);
 }
 
 const sourcemeta::core::JSON Evaluator::null{nullptr};
