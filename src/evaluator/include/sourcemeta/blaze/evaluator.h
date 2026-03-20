@@ -110,15 +110,15 @@ public:
 
     if (schema.track && schema.dynamic) [[unlikely]] {
       this->evaluated_.clear();
-      static const Callback null_callback{nullptr};
-      return this->evaluate_complete(schema, instance, null_callback);
+      return this->evaluate_impl<true, true, false>(schema, instance, nullptr);
     } else if (schema.track) [[unlikely]] {
       this->evaluated_.clear();
-      return this->evaluate_track(schema, instance);
+      return this->evaluate_impl<true, false, false>(schema, instance, nullptr);
     } else if (schema.dynamic) [[unlikely]] {
-      return this->evaluate_dynamic(schema, instance);
+      return this->evaluate_impl<false, true, false>(schema, instance, nullptr);
     } else {
-      return this->evaluate_fast(schema, instance);
+      return this->evaluate_impl<false, false, false>(schema, instance,
+                                                      nullptr);
     }
   }
 
@@ -180,19 +180,14 @@ public:
     assert(this->instance_location.empty());
     assert(this->resources.empty());
     this->evaluated_.clear();
-    return this->evaluate_complete(schema, instance, callback);
+    return this->evaluate_impl<true, true, true>(schema, instance, &callback);
   }
 
 #ifndef DOXYGEN
-  auto evaluate_fast(const Template &schema,
-                     const sourcemeta::core::JSON &instance) -> bool;
-  auto evaluate_track(const Template &schema,
-                      const sourcemeta::core::JSON &instance) -> bool;
-  auto evaluate_dynamic(const Template &schema,
-                        const sourcemeta::core::JSON &instance) -> bool;
-  auto evaluate_complete(const Template &schema,
-                         const sourcemeta::core::JSON &instance,
-                         const Callback &callback) -> bool;
+  template <bool Track, bool Dynamic, bool HasCallback>
+  auto evaluate_impl(const Template &schema,
+                     const sourcemeta::core::JSON &instance,
+                     const Callback *callback) -> bool;
 
   // NOLINTBEGIN(cppcoreguidelines-avoid-non-const-global-variables)
   static inline const sourcemeta::core::JSON null{nullptr};
@@ -264,73 +259,39 @@ public:
 
 #ifndef DOXYGEN
 
-namespace sourcemeta::blaze {
+#include <sourcemeta/blaze/evaluator_dispatch.h>
 
-inline auto
-resolve_target(const sourcemeta::core::JSON::String *property_target,
-               const sourcemeta::core::JSON &instance) noexcept
-    -> const sourcemeta::core::JSON & {
-  if (property_target) [[unlikely]] {
-    return Evaluator::empty_string;
+template <bool Track, bool Dynamic, bool HasCallback>
+auto sourcemeta::blaze::Evaluator::evaluate_impl(
+    const Template &schema, const sourcemeta::core::JSON &instance,
+    const Callback *callback) -> bool {
+  assert(!schema.targets.empty());
+  dispatch::DispatchContext<Track, Dynamic, HasCallback> context{
+      .schema = &schema,
+      .callback = callback,
+      .evaluator = this,
+      .property_target = nullptr};
+  bool overall{true};
+  for (const auto &instruction : schema.targets[0]) {
+    if (!dispatch::evaluate_instruction(instruction, instance, 0, context))
+        [[unlikely]] {
+      overall = false;
+      break;
+    }
   }
 
-  // NOLINTNEXTLINE(bugprone-return-const-ref-from-parameter)
-  return instance;
+  if constexpr (Track || HasCallback) {
+    assert(this->evaluate_path.empty());
+  }
+  if constexpr (HasCallback) {
+    assert(this->instance_location.empty());
+  }
+  if constexpr (Dynamic) {
+    assert(this->resources.empty());
+  }
+
+  return overall;
 }
-
-inline auto
-resolve_instance(const sourcemeta::core::JSON &instance,
-                 const sourcemeta::core::Pointer &relative_instance_location)
-    -> const sourcemeta::core::JSON & {
-  if (relative_instance_location.empty()) {
-    // NOLINTNEXTLINE(bugprone-return-const-ref-from-parameter)
-    return instance;
-  }
-
-  return sourcemeta::core::get(instance, relative_instance_location);
-}
-
-inline auto resolve_string_target(
-    const sourcemeta::core::JSON::String *property_target,
-    const sourcemeta::core::JSON &instance,
-    const sourcemeta::core::Pointer &relative_instance_location) noexcept
-    -> const sourcemeta::core::JSON::String * {
-  if (property_target) [[unlikely]] {
-    return property_target;
-  }
-
-  const auto &target{resolve_instance(instance, relative_instance_location)};
-  if (!target.is_string()) [[unlikely]] {
-    return nullptr;
-  } else {
-    return &target.to_string();
-  }
-}
-
-inline auto
-effective_type_strict_real(const sourcemeta::core::JSON &instance) noexcept
-    -> sourcemeta::core::JSON::Type {
-  const auto real_type{instance.type()};
-  switch (real_type) {
-    case sourcemeta::core::JSON::Type::Decimal:
-      return instance.to_decimal().is_integer()
-                 ? sourcemeta::core::JSON::Type::Integer
-                 : sourcemeta::core::JSON::Type::Real;
-    default:
-      return real_type;
-  }
-}
-
-} // namespace sourcemeta::blaze
-
-#define SOURCEMETA_STRINGIFY(x) #x
-
-#include <sourcemeta/blaze/evaluator_complete.h>
-#include <sourcemeta/blaze/evaluator_dynamic.h>
-#include <sourcemeta/blaze/evaluator_fast.h>
-#include <sourcemeta/blaze/evaluator_track.h>
-
-#undef SOURCEMETA_STRINGIFY
 
 #endif // !DOXYGEN
 
