@@ -27,9 +27,9 @@ static auto collect(std::vector<StoredTrace> &traces)
     traces.push_back(
         {entry.type, std::string{entry.name}, entry.instance_location,
          entry.evaluate_path, std::string{entry.keyword_location},
-         entry.annotation.is_null()
-             ? std::nullopt
-             : std::optional<sourcemeta::core::JSON>{entry.annotation},
+         entry.type == sourcemeta::blaze::TraceOutput::EntryType::Annotation
+             ? std::optional<sourcemeta::core::JSON>{entry.annotation}
+             : std::nullopt,
          entry.vocabulary});
   };
 }

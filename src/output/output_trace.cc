@@ -52,21 +52,27 @@ auto TraceOutput::operator()(
           step.type)]};
 
   // Only resolve vocabulary on Pre callbacks and cache for Post
-  if (type == EvaluationType::Pre) {
-    this->last_vocabulary_ =
-        try_vocabulary(this->frame_, evaluate_path, this->walker_,
-                       this->resolver_, step_metadata.keyword_location);
-  }
-
-  const auto &vocabulary{this->last_vocabulary_};
-
-  // Determine the entry type
-  EntryType entry_type;
   if (is_annotation(step.type)) {
     if (type == EvaluationType::Pre) {
       return;
     }
 
+    // Annotations get their own vocabulary lookup
+    auto vocabulary{try_vocabulary(this->frame_, evaluate_path, this->walker_,
+                                   this->resolver_,
+                                   step_metadata.keyword_location)};
+    this->vocabulary_stack_.push_back(std::move(vocabulary));
+  } else if (type == EvaluationType::Pre) {
+    this->vocabulary_stack_.push_back(
+        try_vocabulary(this->frame_, evaluate_path, this->walker_,
+                       this->resolver_, step_metadata.keyword_location));
+  }
+
+  const auto &vocabulary{this->vocabulary_stack_.back()};
+
+  // Determine the entry type
+  EntryType entry_type;
+  if (is_annotation(step.type)) {
     entry_type = EntryType::Annotation;
   } else if (type == EvaluationType::Pre) {
     entry_type = EntryType::Push;
@@ -95,6 +101,11 @@ auto TraceOutput::operator()(
                       annotation,
                       vocabulary};
     this->callback_(entry);
+  }
+
+  // Pop on Post (or Annotation, which has no Pre)
+  if (type == EvaluationType::Post || is_annotation(step.type)) {
+    this->vocabulary_stack_.pop_back();
   }
 }
 

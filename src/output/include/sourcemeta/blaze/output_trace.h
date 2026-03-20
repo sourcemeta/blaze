@@ -111,8 +111,9 @@ private:
       std::reference_wrapper<const sourcemeta::core::SchemaFrame>>
       frame_;
   Callback callback_;
-  std::pair<bool, std::optional<sourcemeta::core::Vocabularies::URI>>
-      last_vocabulary_{false, std::nullopt};
+  std::vector<
+      std::pair<bool, std::optional<sourcemeta::core::Vocabularies::URI>>>
+      vocabulary_stack_;
 #if defined(_MSC_VER)
 #pragma warning(default : 4251)
 #endif
