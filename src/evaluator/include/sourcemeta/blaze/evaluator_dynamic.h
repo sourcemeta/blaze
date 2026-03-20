@@ -99,27 +99,28 @@ using namespace sourcemeta::core;
 
 #include <sourcemeta/blaze/evaluator_dispatch.h>
 
-inline auto evaluate(const sourcemeta::core::JSON &instance,
-                     sourcemeta::blaze::Evaluator &evaluator,
-                     const sourcemeta::blaze::Template &schema) -> bool {
+} // namespace sourcemeta::blaze::dynamic
+
+inline auto sourcemeta::blaze::Evaluator::evaluate_dynamic(
+    const sourcemeta::blaze::Template &schema,
+    const sourcemeta::core::JSON &instance) -> bool {
   assert(!schema.targets.empty());
   static const sourcemeta::blaze::Callback null_callback{nullptr};
-  DispatchContext context{.schema = &schema,
-                          .callback = &null_callback,
-                          .evaluator = &evaluator,
-                          .property_target = nullptr};
+  dynamic::DispatchContext context{.schema = &schema,
+                                   .callback = &null_callback,
+                                   .evaluator = this,
+                                   .property_target = nullptr};
   for (const auto &instruction : schema.targets[0]) {
-    if (!evaluate_instruction(instruction, instance, 0, context)) [[unlikely]] {
-      assert(context.evaluator->resources.empty());
+    if (!dynamic::evaluate_instruction(instruction, instance, 0, context))
+        [[unlikely]] {
+      assert(this->resources.empty());
       return false;
     }
   }
 
-  assert(context.evaluator->resources.empty());
+  assert(this->resources.empty());
   return true;
 }
-
-} // namespace sourcemeta::blaze::dynamic
 
 #undef SOURCEMETA_EVALUATOR_DYNAMIC
 

@@ -102,8 +102,25 @@ public:
   /// const auto result{evaluator.validate(schema_template, instance)};
   /// assert(result);
   /// ```
-  auto validate(const Template &schema, const sourcemeta::core::JSON &instance)
-      -> bool;
+  inline auto validate(const Template &schema,
+                       const sourcemeta::core::JSON &instance) -> bool {
+    assert(this->evaluate_path.empty());
+    assert(this->instance_location.empty());
+    assert(this->resources.empty());
+
+    if (schema.track && schema.dynamic) [[unlikely]] {
+      this->evaluated_.clear();
+      static const Callback null_callback{nullptr};
+      return this->evaluate_complete(schema, instance, null_callback);
+    } else if (schema.track) [[unlikely]] {
+      this->evaluated_.clear();
+      return this->evaluate_track(schema, instance);
+    } else if (schema.dynamic) [[unlikely]] {
+      return this->evaluate_dynamic(schema, instance);
+    } else {
+      return this->evaluate_fast(schema, instance);
+    }
+  }
 
   /// This method evaluates a schema compiler template, executing the given
   /// callback at every step of the way. For example:
@@ -156,10 +173,27 @@ public:
   ///
   /// assert(result);
   /// ```
-  auto validate(const Template &schema, const sourcemeta::core::JSON &instance,
-                const Callback &callback) -> bool;
+  inline auto validate(const Template &schema,
+                       const sourcemeta::core::JSON &instance,
+                       const Callback &callback) -> bool {
+    assert(this->evaluate_path.empty());
+    assert(this->instance_location.empty());
+    assert(this->resources.empty());
+    this->evaluated_.clear();
+    return this->evaluate_complete(schema, instance, callback);
+  }
 
 #ifndef DOXYGEN
+  auto evaluate_fast(const Template &schema,
+                     const sourcemeta::core::JSON &instance) -> bool;
+  auto evaluate_track(const Template &schema,
+                      const sourcemeta::core::JSON &instance) -> bool;
+  auto evaluate_dynamic(const Template &schema,
+                        const sourcemeta::core::JSON &instance) -> bool;
+  auto evaluate_complete(const Template &schema,
+                         const sourcemeta::core::JSON &instance,
+                         const Callback &callback) -> bool;
+
   // NOLINTBEGIN(cppcoreguidelines-avoid-non-const-global-variables)
   static inline const sourcemeta::core::JSON null{nullptr};
   static inline const sourcemeta::core::JSON empty_string{""};
@@ -297,41 +331,6 @@ effective_type_strict_real(const sourcemeta::core::JSON &instance) noexcept
 #include <sourcemeta/blaze/evaluator_track.h>
 
 #undef SOURCEMETA_STRINGIFY
-
-namespace sourcemeta::blaze {
-
-inline auto Evaluator::validate(const Template &schema,
-                                const sourcemeta::core::JSON &instance)
-    -> bool {
-  assert(this->evaluate_path.empty());
-  assert(this->instance_location.empty());
-  assert(this->resources.empty());
-
-  if (schema.track && schema.dynamic) [[unlikely]] {
-    this->evaluated_.clear();
-    static const Callback null_callback{nullptr};
-    return complete::evaluate(instance, *this, schema, null_callback);
-  } else if (schema.track) [[unlikely]] {
-    this->evaluated_.clear();
-    return track::evaluate(instance, *this, schema);
-  } else if (schema.dynamic) [[unlikely]] {
-    return dynamic::evaluate(instance, *this, schema);
-  } else {
-    return fast::evaluate(instance, *this, schema);
-  }
-}
-
-inline auto Evaluator::validate(const Template &schema,
-                                const sourcemeta::core::JSON &instance,
-                                const Callback &callback) -> bool {
-  assert(this->evaluate_path.empty());
-  assert(this->instance_location.empty());
-  assert(this->resources.empty());
-  this->evaluated_.clear();
-  return complete::evaluate(instance, *this, schema, callback);
-}
-
-} // namespace sourcemeta::blaze
 
 #endif // !DOXYGEN
 
