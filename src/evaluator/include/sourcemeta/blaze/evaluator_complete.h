@@ -232,32 +232,31 @@ using namespace sourcemeta::core;
 
 #include <sourcemeta/blaze/evaluator_dispatch.h>
 
-inline auto evaluate(const sourcemeta::core::JSON &instance,
-                     sourcemeta::blaze::Evaluator &evaluator,
-                     const sourcemeta::blaze::Template &schema,
-                     const sourcemeta::blaze::Callback &callback) -> bool {
+} // namespace sourcemeta::blaze::complete
+
+inline auto sourcemeta::blaze::Evaluator::evaluate_complete(
+    const sourcemeta::blaze::Template &schema,
+    const sourcemeta::core::JSON &instance,
+    const sourcemeta::blaze::Callback &callback) -> bool {
   assert(!schema.targets.empty());
-  DispatchContext context{.schema = &schema,
-                          .callback = &callback,
-                          .evaluator = &evaluator,
-                          .property_target = nullptr};
+  complete::DispatchContext context{.schema = &schema,
+                                    .callback = &callback,
+                                    .evaluator = this,
+                                    .property_target = nullptr};
   bool overall{true};
   for (const auto &instruction : schema.targets[0]) {
-    if (!evaluate_instruction(instruction, instance, 0, context)) [[unlikely]] {
+    if (!complete::evaluate_instruction(instruction, instance, 0, context))
+        [[unlikely]] {
       overall = false;
       break;
     }
   }
 
-  // The evaluation path and instance location must be empty by the time
-  // we are done, otherwise there was a frame push/pop mismatch
-  assert(context.evaluator->evaluate_path.empty());
-  assert(context.evaluator->instance_location.empty());
-  assert(context.evaluator->resources.empty());
+  assert(this->evaluate_path.empty());
+  assert(this->instance_location.empty());
+  assert(this->resources.empty());
   return overall;
 }
-
-} // namespace sourcemeta::blaze::complete
 
 #undef SOURCEMETA_EVALUATOR_COMPLETE
 

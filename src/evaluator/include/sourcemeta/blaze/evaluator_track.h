@@ -106,27 +106,28 @@ using namespace sourcemeta::core;
 
 #include <sourcemeta/blaze/evaluator_dispatch.h>
 
-inline auto evaluate(const sourcemeta::core::JSON &instance,
-                     sourcemeta::blaze::Evaluator &evaluator,
-                     const sourcemeta::blaze::Template &schema) -> bool {
+} // namespace sourcemeta::blaze::track
+
+inline auto sourcemeta::blaze::Evaluator::evaluate_track(
+    const sourcemeta::blaze::Template &schema,
+    const sourcemeta::core::JSON &instance) -> bool {
   assert(!schema.targets.empty());
   static const sourcemeta::blaze::Callback null_callback{nullptr};
-  DispatchContext context{.schema = &schema,
-                          .callback = &null_callback,
-                          .evaluator = &evaluator,
-                          .property_target = nullptr};
+  track::DispatchContext context{.schema = &schema,
+                                 .callback = &null_callback,
+                                 .evaluator = this,
+                                 .property_target = nullptr};
   for (const auto &instruction : schema.targets[0]) {
-    if (!evaluate_instruction(instruction, instance, 0, context)) [[unlikely]] {
-      assert(context.evaluator->evaluate_path.empty());
+    if (!track::evaluate_instruction(instruction, instance, 0, context))
+        [[unlikely]] {
+      assert(this->evaluate_path.empty());
       return false;
     }
   }
 
-  assert(context.evaluator->evaluate_path.empty());
+  assert(this->evaluate_path.empty());
   return true;
 }
-
-} // namespace sourcemeta::blaze::track
 
 #undef SOURCEMETA_EVALUATOR_TRACK
 
