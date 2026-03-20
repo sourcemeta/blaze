@@ -82,23 +82,23 @@ auto TraceOutput::operator()(
   }
 
   if (this->base_.empty()) {
-    const Entry entry{entry_type,
-                      short_step_name,
-                      instance_location,
-                      evaluate_path,
-                      step_metadata.keyword_location,
-                      annotation,
-                      vocabulary};
+    const Entry entry{.type = entry_type,
+                      .name = short_step_name,
+                      .instance_location = instance_location,
+                      .evaluate_path = evaluate_path,
+                      .keyword_location = step_metadata.keyword_location,
+                      .annotation = annotation,
+                      .vocabulary = vocabulary};
     this->callback_(entry);
   } else {
     auto effective_evaluate_path{evaluate_path.resolve_from(this->base_)};
-    const Entry entry{entry_type,
-                      short_step_name,
-                      instance_location,
-                      effective_evaluate_path,
-                      step_metadata.keyword_location,
-                      annotation,
-                      vocabulary};
+    const Entry entry{.type = entry_type,
+                      .name = short_step_name,
+                      .instance_location = instance_location,
+                      .evaluate_path = effective_evaluate_path,
+                      .keyword_location = step_metadata.keyword_location,
+                      .annotation = annotation,
+                      .vocabulary = vocabulary};
     this->callback_(entry);
   }
 
