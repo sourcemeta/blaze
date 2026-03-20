@@ -170,6 +170,55 @@
 namespace sourcemeta::blaze::dispatch {
 using namespace sourcemeta::core;
 
+inline auto resolve_target(const JSON::String *property_target,
+                           const JSON &instance) noexcept -> const JSON & {
+  if (property_target) [[unlikely]] {
+    return Evaluator::empty_string;
+  }
+
+  // NOLINTNEXTLINE(bugprone-return-const-ref-from-parameter)
+  return instance;
+}
+
+inline auto resolve_instance(const JSON &instance,
+                             const Pointer &relative_instance_location)
+    -> const JSON & {
+  if (relative_instance_location.empty()) {
+    // NOLINTNEXTLINE(bugprone-return-const-ref-from-parameter)
+    return instance;
+  }
+
+  return get(instance, relative_instance_location);
+}
+
+inline auto
+resolve_string_target(const JSON::String *property_target, const JSON &instance,
+                      const Pointer &relative_instance_location) noexcept
+    -> const JSON::String * {
+  if (property_target) [[unlikely]] {
+    return property_target;
+  }
+
+  const auto &target{resolve_instance(instance, relative_instance_location)};
+  if (!target.is_string()) [[unlikely]] {
+    return nullptr;
+  } else {
+    return &target.to_string();
+  }
+}
+
+inline auto effective_type_strict_real(const JSON &instance) noexcept
+    -> JSON::Type {
+  const auto real_type{instance.type()};
+  switch (real_type) {
+    case JSON::Type::Decimal:
+      return instance.to_decimal().is_integer() ? JSON::Type::Integer
+                                                : JSON::Type::Real;
+    default:
+      return real_type;
+  }
+}
+
 template <bool Track, bool Dynamic, bool HasCallback> struct DispatchContext {
   const sourcemeta::blaze::Template *schema;
   const sourcemeta::blaze::Callback *callback;

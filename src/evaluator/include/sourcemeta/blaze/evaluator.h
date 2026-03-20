@@ -259,65 +259,6 @@ public:
 
 #ifndef DOXYGEN
 
-namespace sourcemeta::blaze {
-
-inline auto
-resolve_target(const sourcemeta::core::JSON::String *property_target,
-               const sourcemeta::core::JSON &instance) noexcept
-    -> const sourcemeta::core::JSON & {
-  if (property_target) [[unlikely]] {
-    return Evaluator::empty_string;
-  }
-
-  // NOLINTNEXTLINE(bugprone-return-const-ref-from-parameter)
-  return instance;
-}
-
-inline auto
-resolve_instance(const sourcemeta::core::JSON &instance,
-                 const sourcemeta::core::Pointer &relative_instance_location)
-    -> const sourcemeta::core::JSON & {
-  if (relative_instance_location.empty()) {
-    // NOLINTNEXTLINE(bugprone-return-const-ref-from-parameter)
-    return instance;
-  }
-
-  return sourcemeta::core::get(instance, relative_instance_location);
-}
-
-inline auto resolve_string_target(
-    const sourcemeta::core::JSON::String *property_target,
-    const sourcemeta::core::JSON &instance,
-    const sourcemeta::core::Pointer &relative_instance_location) noexcept
-    -> const sourcemeta::core::JSON::String * {
-  if (property_target) [[unlikely]] {
-    return property_target;
-  }
-
-  const auto &target{resolve_instance(instance, relative_instance_location)};
-  if (!target.is_string()) [[unlikely]] {
-    return nullptr;
-  } else {
-    return &target.to_string();
-  }
-}
-
-inline auto
-effective_type_strict_real(const sourcemeta::core::JSON &instance) noexcept
-    -> sourcemeta::core::JSON::Type {
-  const auto real_type{instance.type()};
-  switch (real_type) {
-    case sourcemeta::core::JSON::Type::Decimal:
-      return instance.to_decimal().is_integer()
-                 ? sourcemeta::core::JSON::Type::Integer
-                 : sourcemeta::core::JSON::Type::Real;
-    default:
-      return real_type;
-  }
-}
-
-} // namespace sourcemeta::blaze
-
 #include <sourcemeta/blaze/evaluator_dispatch.h>
 
 template <bool Track, bool Dynamic, bool HasCallback>
