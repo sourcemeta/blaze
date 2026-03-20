@@ -2184,11 +2184,108 @@ INSTRUCTION_HANDLER(LoopContains) {
 
 #undef INSTRUCTION_HANDLER
 
-#define DISPATCH_CASE(name)                                                    \
-  case InstructionIndex::name:                                                 \
-    return name(instruction, instance, depth, context)
+template <bool Track, bool Dynamic, bool HasCallback>
+using DispatchHandler = bool (*)(
+    const sourcemeta::blaze::Instruction &, const sourcemeta::core::JSON &,
+    std::uint64_t, DispatchContext<Track, Dynamic, HasCallback> &);
 
-// NOLINTBEGIN(bugprone-switch-missing-default-case)
+template <bool Track, bool Dynamic, bool HasCallback>
+// Must have same order as InstructionIndex
+// NOLINTNEXTLINE(modernize-avoid-c-arrays)
+static constexpr DispatchHandler<Track, Dynamic, HasCallback> handlers[95] = {
+    AssertionFail,
+    AssertionDefines,
+    AssertionDefinesStrict,
+    AssertionDefinesAll,
+    AssertionDefinesAllStrict,
+    AssertionDefinesExactly,
+    AssertionDefinesExactlyStrict,
+    AssertionDefinesExactlyStrictHash3,
+    AssertionPropertyDependencies,
+    AssertionType,
+    AssertionTypeAny,
+    AssertionTypeStrict,
+    AssertionTypeStrictAny,
+    AssertionTypeStringBounded,
+    AssertionTypeStringUpper,
+    AssertionTypeArrayBounded,
+    AssertionTypeArrayUpper,
+    AssertionTypeObjectBounded,
+    AssertionTypeObjectUpper,
+    AssertionRegex,
+    AssertionStringSizeLess,
+    AssertionStringSizeGreater,
+    AssertionArraySizeLess,
+    AssertionArraySizeGreater,
+    AssertionObjectSizeLess,
+    AssertionObjectSizeGreater,
+    AssertionEqual,
+    AssertionEqualsAny,
+    AssertionEqualsAnyStringHash,
+    AssertionGreaterEqual,
+    AssertionLessEqual,
+    AssertionGreater,
+    AssertionLess,
+    AssertionUnique,
+    AssertionDivisible,
+    AssertionStringType,
+    AssertionPropertyType,
+    AssertionPropertyTypeEvaluate,
+    AssertionPropertyTypeStrict,
+    AssertionPropertyTypeStrictEvaluate,
+    AssertionPropertyTypeStrictAny,
+    AssertionPropertyTypeStrictAnyEvaluate,
+    AssertionArrayPrefix,
+    AssertionArrayPrefixEvaluate,
+    AnnotationEmit,
+    AnnotationToParent,
+    AnnotationBasenameToParent,
+    Evaluate,
+    LogicalNot,
+    LogicalNotEvaluate,
+    LogicalOr,
+    LogicalAnd,
+    LogicalXor,
+    LogicalCondition,
+    LogicalWhenType,
+    LogicalWhenDefines,
+    LogicalWhenArraySizeGreater,
+    LoopPropertiesUnevaluated,
+    LoopPropertiesUnevaluatedExcept,
+    LoopPropertiesMatch,
+    LoopPropertiesMatchClosed,
+    LoopProperties,
+    LoopPropertiesEvaluate,
+    LoopPropertiesRegex,
+    LoopPropertiesRegexClosed,
+    LoopPropertiesStartsWith,
+    LoopPropertiesExcept,
+    LoopPropertiesType,
+    LoopPropertiesTypeEvaluate,
+    LoopPropertiesExactlyTypeStrict,
+    LoopPropertiesExactlyTypeStrictHash,
+    LoopPropertiesTypeStrict,
+    LoopPropertiesTypeStrictEvaluate,
+    LoopPropertiesTypeStrictAny,
+    LoopPropertiesTypeStrictAnyEvaluate,
+    LoopKeys,
+    LoopItems,
+    LoopItemsFrom,
+    LoopItemsUnevaluated,
+    LoopItemsType,
+    LoopItemsTypeStrict,
+    LoopItemsTypeStrictAny,
+    LoopItemsPropertiesExactlyTypeStrictHash,
+    LoopItemsPropertiesExactlyTypeStrictHash3,
+    LoopContains,
+    ControlGroup,
+    ControlGroupWhenDefines,
+    ControlGroupWhenDefinesDirect,
+    ControlGroupWhenType,
+    ControlEvaluate,
+    ControlDynamicAnchorJump,
+    ControlJump};
+
 template <bool Track, bool Dynamic, bool HasCallback>
 inline auto
 evaluate_instruction(const sourcemeta::blaze::Instruction &instruction,
@@ -2202,107 +2299,10 @@ evaluate_instruction(const sourcemeta::blaze::Instruction &instruction,
                           "likely due to infinite recursion");
   }
 
-  switch (instruction.type) {
-    DISPATCH_CASE(AssertionFail);
-    DISPATCH_CASE(AssertionDefines);
-    DISPATCH_CASE(AssertionDefinesStrict);
-    DISPATCH_CASE(AssertionDefinesAll);
-    DISPATCH_CASE(AssertionDefinesAllStrict);
-    DISPATCH_CASE(AssertionDefinesExactly);
-    DISPATCH_CASE(AssertionDefinesExactlyStrict);
-    DISPATCH_CASE(AssertionDefinesExactlyStrictHash3);
-    DISPATCH_CASE(AssertionPropertyDependencies);
-    DISPATCH_CASE(AssertionType);
-    DISPATCH_CASE(AssertionTypeAny);
-    DISPATCH_CASE(AssertionTypeStrict);
-    DISPATCH_CASE(AssertionTypeStrictAny);
-    DISPATCH_CASE(AssertionTypeStringBounded);
-    DISPATCH_CASE(AssertionTypeStringUpper);
-    DISPATCH_CASE(AssertionTypeArrayBounded);
-    DISPATCH_CASE(AssertionTypeArrayUpper);
-    DISPATCH_CASE(AssertionTypeObjectBounded);
-    DISPATCH_CASE(AssertionTypeObjectUpper);
-    DISPATCH_CASE(AssertionRegex);
-    DISPATCH_CASE(AssertionStringSizeLess);
-    DISPATCH_CASE(AssertionStringSizeGreater);
-    DISPATCH_CASE(AssertionArraySizeLess);
-    DISPATCH_CASE(AssertionArraySizeGreater);
-    DISPATCH_CASE(AssertionObjectSizeLess);
-    DISPATCH_CASE(AssertionObjectSizeGreater);
-    DISPATCH_CASE(AssertionEqual);
-    DISPATCH_CASE(AssertionEqualsAny);
-    DISPATCH_CASE(AssertionEqualsAnyStringHash);
-    DISPATCH_CASE(AssertionGreaterEqual);
-    DISPATCH_CASE(AssertionLessEqual);
-    DISPATCH_CASE(AssertionGreater);
-    DISPATCH_CASE(AssertionLess);
-    DISPATCH_CASE(AssertionUnique);
-    DISPATCH_CASE(AssertionDivisible);
-    DISPATCH_CASE(AssertionStringType);
-    DISPATCH_CASE(AssertionPropertyType);
-    DISPATCH_CASE(AssertionPropertyTypeEvaluate);
-    DISPATCH_CASE(AssertionPropertyTypeStrict);
-    DISPATCH_CASE(AssertionPropertyTypeStrictEvaluate);
-    DISPATCH_CASE(AssertionPropertyTypeStrictAny);
-    DISPATCH_CASE(AssertionPropertyTypeStrictAnyEvaluate);
-    DISPATCH_CASE(AssertionArrayPrefix);
-    DISPATCH_CASE(AssertionArrayPrefixEvaluate);
-    DISPATCH_CASE(AnnotationEmit);
-    DISPATCH_CASE(AnnotationToParent);
-    DISPATCH_CASE(AnnotationBasenameToParent);
-    DISPATCH_CASE(Evaluate);
-    DISPATCH_CASE(LogicalNot);
-    DISPATCH_CASE(LogicalNotEvaluate);
-    DISPATCH_CASE(LogicalOr);
-    DISPATCH_CASE(LogicalAnd);
-    DISPATCH_CASE(LogicalXor);
-    DISPATCH_CASE(LogicalCondition);
-    DISPATCH_CASE(LogicalWhenType);
-    DISPATCH_CASE(LogicalWhenDefines);
-    DISPATCH_CASE(LogicalWhenArraySizeGreater);
-    DISPATCH_CASE(LoopPropertiesUnevaluated);
-    DISPATCH_CASE(LoopPropertiesUnevaluatedExcept);
-    DISPATCH_CASE(LoopPropertiesMatch);
-    DISPATCH_CASE(LoopPropertiesMatchClosed);
-    DISPATCH_CASE(LoopProperties);
-    DISPATCH_CASE(LoopPropertiesEvaluate);
-    DISPATCH_CASE(LoopPropertiesRegex);
-    DISPATCH_CASE(LoopPropertiesRegexClosed);
-    DISPATCH_CASE(LoopPropertiesStartsWith);
-    DISPATCH_CASE(LoopPropertiesExcept);
-    DISPATCH_CASE(LoopPropertiesType);
-    DISPATCH_CASE(LoopPropertiesTypeEvaluate);
-    DISPATCH_CASE(LoopPropertiesExactlyTypeStrict);
-    DISPATCH_CASE(LoopPropertiesExactlyTypeStrictHash);
-    DISPATCH_CASE(LoopPropertiesTypeStrict);
-    DISPATCH_CASE(LoopPropertiesTypeStrictEvaluate);
-    DISPATCH_CASE(LoopPropertiesTypeStrictAny);
-    DISPATCH_CASE(LoopPropertiesTypeStrictAnyEvaluate);
-    DISPATCH_CASE(LoopKeys);
-    DISPATCH_CASE(LoopItems);
-    DISPATCH_CASE(LoopItemsFrom);
-    DISPATCH_CASE(LoopItemsUnevaluated);
-    DISPATCH_CASE(LoopItemsType);
-    DISPATCH_CASE(LoopItemsTypeStrict);
-    DISPATCH_CASE(LoopItemsTypeStrictAny);
-    DISPATCH_CASE(LoopItemsPropertiesExactlyTypeStrictHash);
-    DISPATCH_CASE(LoopItemsPropertiesExactlyTypeStrictHash3);
-    DISPATCH_CASE(LoopContains);
-    DISPATCH_CASE(ControlGroup);
-    DISPATCH_CASE(ControlGroupWhenDefines);
-    DISPATCH_CASE(ControlGroupWhenDefinesDirect);
-    DISPATCH_CASE(ControlGroupWhenType);
-    DISPATCH_CASE(ControlEvaluate);
-    DISPATCH_CASE(ControlDynamicAnchorJump);
-    DISPATCH_CASE(ControlJump);
-  }
-
-  assert(false);
-  return false;
+  return handlers<Track, Dynamic, HasCallback>[static_cast<
+      std::underlying_type_t<InstructionIndex>>(instruction.type)](
+      instruction, instance, depth, context);
 }
-// NOLINTEND(bugprone-switch-missing-default-case)
-
-#undef DISPATCH_CASE
 
 template <bool Track, bool Dynamic, bool HasCallback>
 inline auto evaluate_instruction_with_property(
