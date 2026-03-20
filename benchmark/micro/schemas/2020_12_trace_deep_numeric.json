@@ -1,0 +1,46 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "type": "object",
+  "properties": {
+    "root": { "$ref": "#/$defs/Node" }
+  },
+  "additionalProperties": false,
+  "$defs": {
+    "Node": {
+      "oneOf": [
+        {
+          "type": "object",
+          "properties": {
+            "@USE": { "type": "string" }
+          },
+          "required": ["@USE"],
+          "additionalProperties": false
+        },
+        {
+          "type": "object",
+          "properties": {
+            "@name": { "type": "string" },
+            "data": {
+              "type": "array",
+              "items": {
+                "type": "number",
+                "minimum": 0
+              }
+            },
+            "children": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "properties": {
+                  "Node": { "$ref": "#/$defs/Node" }
+                },
+                "additionalProperties": false
+              }
+            }
+          },
+          "additionalProperties": false
+        }
+      ]
+    }
+  }
+}
