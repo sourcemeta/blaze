@@ -358,3 +358,66 @@ TEST(Output_trace, pass_with_frame_fast) {
       "#/properties", std::nullopt,
       sourcemeta::core::Vocabularies::Known::JSON_Schema_2020_12_Applicator);
 }
+
+TEST(Output_trace, nested_vocabulary_correctness) {
+  const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "additionalProperties": false,
+    "properties": {
+      "foo": { "type": "string" },
+      "bar": { "type": "integer" }
+    }
+  })JSON")};
+
+  sourcemeta::core::SchemaFrame frame{
+      sourcemeta::core::SchemaFrame::Mode::References};
+  frame.analyse(schema, sourcemeta::core::schema_walker,
+                sourcemeta::core::schema_resolver);
+
+  const auto schema_template{sourcemeta::blaze::compile(
+      schema, sourcemeta::core::schema_walker,
+      sourcemeta::core::schema_resolver,
+      sourcemeta::blaze::default_schema_compiler, frame, frame.root(),
+      sourcemeta::blaze::Mode::FastValidation)};
+
+  const sourcemeta::core::JSON instance{sourcemeta::core::parse_json(R"JSON({
+    "foo": "bar",
+    "bar": 1
+  })JSON")};
+
+  std::vector<StoredTrace> traces;
+  sourcemeta::blaze::TraceOutput output{
+      sourcemeta::core::schema_walker, sourcemeta::core::schema_resolver,
+      collect(traces), sourcemeta::core::empty_weak_pointer, frame};
+  sourcemeta::blaze::Evaluator evaluator;
+  const auto result{
+      evaluator.validate(schema_template, instance, std::ref(output))};
+
+  EXPECT_TRUE(result);
+  EXPECT_EQ(traces.size(), 6);
+
+  EXPECT_OUTPUT_WITH_VOCABULARY(
+      traces, 0, Push, "LoopPropertiesMatchClosed", "", "/properties",
+      "#/properties", std::nullopt,
+      sourcemeta::core::Vocabularies::Known::JSON_Schema_2020_12_Applicator);
+  EXPECT_OUTPUT_WITH_VOCABULARY(
+      traces, 1, Push, "AssertionPropertyTypeStrict", "/foo",
+      "/properties/foo/type", "#/properties/foo/type", std::nullopt,
+      sourcemeta::core::Vocabularies::Known::JSON_Schema_2020_12_Validation);
+  EXPECT_OUTPUT_WITH_VOCABULARY(
+      traces, 2, Pass, "AssertionPropertyTypeStrict", "/foo",
+      "/properties/foo/type", "#/properties/foo/type", std::nullopt,
+      sourcemeta::core::Vocabularies::Known::JSON_Schema_2020_12_Validation);
+  EXPECT_OUTPUT_WITH_VOCABULARY(
+      traces, 3, Push, "AssertionPropertyType", "/bar", "/properties/bar/type",
+      "#/properties/bar/type", std::nullopt,
+      sourcemeta::core::Vocabularies::Known::JSON_Schema_2020_12_Validation);
+  EXPECT_OUTPUT_WITH_VOCABULARY(
+      traces, 4, Pass, "AssertionPropertyType", "/bar", "/properties/bar/type",
+      "#/properties/bar/type", std::nullopt,
+      sourcemeta::core::Vocabularies::Known::JSON_Schema_2020_12_Validation);
+  EXPECT_OUTPUT_WITH_VOCABULARY(
+      traces, 5, Pass, "LoopPropertiesMatchClosed", "", "/properties",
+      "#/properties", std::nullopt,
+      sourcemeta::core::Vocabularies::Known::JSON_Schema_2020_12_Applicator);
+}

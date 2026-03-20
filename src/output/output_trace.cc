@@ -57,7 +57,6 @@ auto TraceOutput::operator()(
       return;
     }
 
-    // Annotations get their own vocabulary lookup
     auto vocabulary{try_vocabulary(this->frame_, evaluate_path, this->walker_,
                                    this->resolver_,
                                    step_metadata.keyword_location)};
@@ -103,7 +102,6 @@ auto TraceOutput::operator()(
     this->callback_(entry);
   }
 
-  // Pop on Post (or Annotation, which has no Pre)
   if (type == EvaluationType::Post || is_annotation(step.type)) {
     this->vocabulary_stack_.pop_back();
   }
