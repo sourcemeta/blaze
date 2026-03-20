@@ -337,11 +337,57 @@ Micro_2020_12_Exhaustive_Deep_Numeric_TraceOutput(benchmark::State &state) {
                                  sourcemeta::blaze::Mode::Exhaustive)};
   sourcemeta::blaze::Evaluator evaluator;
   for (auto _ : state) {
-    sourcemeta::blaze::TraceOutput output{sourcemeta::core::schema_walker,
-                                          sourcemeta::core::schema_resolver};
+    std::size_t count{0};
+    sourcemeta::blaze::TraceOutput output{
+        sourcemeta::core::schema_walker, sourcemeta::core::schema_resolver,
+        [&count](const sourcemeta::blaze::TraceOutput::Entry &) { count++; }};
     auto result{
         evaluator.validate(schema_template, instance, std::ref(output))};
     assert(result);
+    benchmark::DoNotOptimize(count);
+  }
+}
+
+static void
+Micro_2020_12_Exhaustive_Deep_Numeric_Fail(benchmark::State &state) {
+  const auto schema{sourcemeta::core::read_json(
+      std::filesystem::path{CURRENT_DIRECTORY} / "micro" / "schemas" /
+      "2020_12_trace_deep_numeric.json")};
+  const auto instance{sourcemeta::core::read_json(
+      std::filesystem::path{CURRENT_DIRECTORY} / "micro" / "instances" /
+      "2020_12_deep_numeric_invalid.json")};
+  const auto schema_template{
+      sourcemeta::blaze::compile(schema, sourcemeta::core::schema_walker,
+                                 sourcemeta::core::schema_resolver,
+                                 sourcemeta::blaze::default_schema_compiler,
+                                 sourcemeta::blaze::Mode::Exhaustive)};
+  sourcemeta::blaze::Evaluator evaluator;
+  for (auto _ : state) {
+    auto result{evaluator.validate(schema_template, instance)};
+    assert(!result);
+    benchmark::DoNotOptimize(result);
+  }
+}
+
+static void Micro_2020_12_Exhaustive_Deep_Numeric_Fail_SimpleOutput(
+    benchmark::State &state) {
+  const auto schema{sourcemeta::core::read_json(
+      std::filesystem::path{CURRENT_DIRECTORY} / "micro" / "schemas" /
+      "2020_12_trace_deep_numeric.json")};
+  const auto instance{sourcemeta::core::read_json(
+      std::filesystem::path{CURRENT_DIRECTORY} / "micro" / "instances" /
+      "2020_12_deep_numeric_invalid.json")};
+  const auto schema_template{
+      sourcemeta::blaze::compile(schema, sourcemeta::core::schema_walker,
+                                 sourcemeta::core::schema_resolver,
+                                 sourcemeta::blaze::default_schema_compiler,
+                                 sourcemeta::blaze::Mode::Exhaustive)};
+  sourcemeta::blaze::Evaluator evaluator;
+  for (auto _ : state) {
+    sourcemeta::blaze::SimpleOutput output{instance};
+    auto result{
+        evaluator.validate(schema_template, instance, std::ref(output))};
+    assert(!result);
     benchmark::DoNotOptimize(result);
   }
 }
@@ -354,3 +400,5 @@ BENCHMARK(Micro_2020_12_Compile_NonCircular_Shared_Refs);
 BENCHMARK(Micro_2020_12_Exhaustive_Deep_Numeric);
 BENCHMARK(Micro_2020_12_Exhaustive_Deep_Numeric_SimpleOutput);
 BENCHMARK(Micro_2020_12_Exhaustive_Deep_Numeric_TraceOutput);
+BENCHMARK(Micro_2020_12_Exhaustive_Deep_Numeric_Fail);
+BENCHMARK(Micro_2020_12_Exhaustive_Deep_Numeric_Fail_SimpleOutput);
