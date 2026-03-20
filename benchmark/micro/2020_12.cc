@@ -337,12 +337,15 @@ Micro_2020_12_Exhaustive_Deep_Numeric_TraceOutput(benchmark::State &state) {
                                  sourcemeta::blaze::Mode::Exhaustive)};
   sourcemeta::blaze::Evaluator evaluator;
   for (auto _ : state) {
-    sourcemeta::blaze::TraceOutput output{sourcemeta::core::schema_walker,
-                                          sourcemeta::core::schema_resolver};
+    std::size_t count{0};
+    sourcemeta::blaze::TraceOutput output{
+        sourcemeta::core::schema_walker, sourcemeta::core::schema_resolver,
+        [&count](const sourcemeta::blaze::TraceOutput::Entry &) { count++; }};
     auto result{
         evaluator.validate(schema_template, instance, std::ref(output))};
     assert(result);
     benchmark::DoNotOptimize(result);
+    benchmark::DoNotOptimize(count);
   }
 }
 
