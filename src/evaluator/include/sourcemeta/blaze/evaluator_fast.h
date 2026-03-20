@@ -82,8 +82,9 @@
 #define SOURCEMETA_EVALUATOR_FAST
 
 namespace sourcemeta::blaze::fast {
+using namespace sourcemeta::core;
 
-#include "dispatch.inc.h"
+#include <sourcemeta/blaze/evaluator_dispatch.h>
 
 inline auto evaluate(const sourcemeta::core::JSON &instance,
                      sourcemeta::blaze::Evaluator &evaluator,

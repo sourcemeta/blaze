@@ -228,8 +228,9 @@
 #define SOURCEMETA_EVALUATOR_COMPLETE
 
 namespace sourcemeta::blaze::complete {
+using namespace sourcemeta::core;
 
-#include "dispatch.inc.h"
+#include <sourcemeta/blaze/evaluator_dispatch.h>
 
 inline auto evaluate(const sourcemeta::core::JSON &instance,
                      sourcemeta::blaze::Evaluator &evaluator,
