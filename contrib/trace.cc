@@ -48,48 +48,45 @@ auto main(int argc, char **argv) noexcept -> int {
   const std::filesystem::path instance_path{argv[2]};
   const auto instance{sourcemeta::core::read_json(instance_path)};
 
-  sourcemeta::blaze::TraceOutput output{sourcemeta::core::schema_walker,
-                                        sourcemeta::core::schema_resolver};
+  sourcemeta::blaze::TraceOutput output{
+      sourcemeta::core::schema_walker, sourcemeta::core::schema_resolver,
+      [](const sourcemeta::blaze::TraceOutput::Entry &entry) {
+        switch (entry.type) {
+          case sourcemeta::blaze::TraceOutput::EntryType::Push:
+            std::cout << "-> (push) ";
+            break;
+          case sourcemeta::blaze::TraceOutput::EntryType::Pass:
+            std::cout << "<- (pass) ";
+            break;
+          case sourcemeta::blaze::TraceOutput::EntryType::Fail:
+            std::cout << "<- (fail) ";
+            break;
+          default:
+            assert(false);
+            break;
+        }
+
+        std::cout << "\"";
+        sourcemeta::core::stringify(entry.evaluate_path, std::cout);
+        std::cout << "\" [";
+        std::cout << entry.name;
+        std::cout << "]\n";
+        std::cout << "   at \"";
+        sourcemeta::core::stringify(entry.instance_location, std::cout);
+        std::cout << "\"\n";
+
+        if (entry.type == sourcemeta::blaze::TraceOutput::EntryType::Push) {
+          global_steps_count[entry.name] += 1;
+          if (!entry.evaluate_path.empty()) {
+            assert(entry.evaluate_path.back().is_property());
+            const auto &keyword{entry.evaluate_path.back().to_property()};
+            global_keywords_count[keyword] += 1;
+          }
+        }
+      }};
   sourcemeta::blaze::Evaluator evaluator;
   const auto result{
       evaluator.validate(schema_template, instance, std::ref(output))};
-
-  for (const auto &entry : output) {
-    switch (entry.type) {
-      case sourcemeta::blaze::TraceOutput::EntryType::Push:
-        std::cout << "-> (push) ";
-        break;
-      case sourcemeta::blaze::TraceOutput::EntryType::Pass:
-        std::cout << "<- (pass) ";
-        break;
-      case sourcemeta::blaze::TraceOutput::EntryType::Fail:
-        std::cout << "<- (fail) ";
-        break;
-      default:
-        assert(false);
-        break;
-    }
-
-    std::cout << "\"";
-    sourcemeta::core::stringify(entry.evaluate_path, std::cout);
-    std::cout << "\" [";
-    std::cout << entry.name;
-    std::cout << "]\n";
-    std::cout << "   at \"";
-    sourcemeta::core::stringify(entry.instance_location, std::cout);
-    std::cout << "\"\n";
-
-    // Only count on one of the callback types, otherwise we end up
-    // duplicating the summary information
-    if (entry.type == sourcemeta::blaze::TraceOutput::EntryType::Push) {
-      global_steps_count[entry.name] += 1;
-      if (!entry.evaluate_path.empty()) {
-        assert(entry.evaluate_path.back().is_property());
-        const auto &keyword{entry.evaluate_path.back().to_property()};
-        global_keywords_count[keyword] += 1;
-      }
-    }
-  }
 
   std::cout << "\n";
   std::cout << "==== KEYWORD STATS\n";
