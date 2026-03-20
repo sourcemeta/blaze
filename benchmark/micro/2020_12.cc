@@ -344,6 +344,7 @@ Micro_2020_12_Exhaustive_Deep_Numeric_TraceOutput(benchmark::State &state) {
     auto result{
         evaluator.validate(schema_template, instance, std::ref(output))};
     assert(result);
+    benchmark::DoNotOptimize(result);
     benchmark::DoNotOptimize(count);
   }
 }
