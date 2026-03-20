@@ -19,6 +19,7 @@
 #include <limits>      // std::numeric_limits
 #include <ranges>      // std::ranges
 #include <string_view> // std::string_view
+#include <type_traits> // std::is_same_v
 #include <utility>     // std::pair
 #include <vector>      // std::vector
 
@@ -110,14 +111,14 @@ public:
 
     if (schema.track && schema.dynamic) [[unlikely]] {
       this->evaluated_.clear();
-      return this->evaluate_impl<true, true, false>(schema, instance, nullptr);
+      return this->run<true, true, false, Callback>(schema, instance, nullptr);
     } else if (schema.track) [[unlikely]] {
       this->evaluated_.clear();
-      return this->evaluate_impl<true, false, false>(schema, instance, nullptr);
+      return this->run<true, false, false, Callback>(schema, instance, nullptr);
     } else if (schema.dynamic) [[unlikely]] {
-      return this->evaluate_impl<false, true, false>(schema, instance, nullptr);
+      return this->run<false, true, false, Callback>(schema, instance, nullptr);
     } else {
-      return this->evaluate_impl<false, false, false>(schema, instance,
+      return this->run<false, false, false, Callback>(schema, instance,
                                                       nullptr);
     }
   }
@@ -173,22 +174,18 @@ public:
   ///
   /// assert(result);
   /// ```
+  template <typename CallbackT>
   inline auto validate(const Template &schema,
                        const sourcemeta::core::JSON &instance,
-                       const Callback &callback) -> bool {
+                       const CallbackT &callback) -> bool {
     assert(this->evaluate_path.empty());
     assert(this->instance_location.empty());
     assert(this->resources.empty());
     this->evaluated_.clear();
-    return this->evaluate_impl<true, true, true>(schema, instance, &callback);
+    return this->run<true, true, true>(schema, instance, &callback);
   }
 
 #ifndef DOXYGEN
-  template <bool Track, bool Dynamic, bool HasCallback>
-  auto evaluate_impl(const Template &schema,
-                     const sourcemeta::core::JSON &instance,
-                     const Callback *callback) -> bool;
-
   // NOLINTBEGIN(cppcoreguidelines-avoid-non-const-global-variables)
   static inline const sourcemeta::core::JSON null{nullptr};
   static inline const sourcemeta::core::JSON empty_string{""};
@@ -253,6 +250,14 @@ public:
 #pragma warning(default : 4251 4275)
 #endif
 #endif
+
+private:
+#ifndef DOXYGEN
+  template <bool Track, bool Dynamic, bool HasCallback,
+            typename CallbackT = Callback>
+  auto run(const Template &schema, const sourcemeta::core::JSON &instance,
+           const CallbackT *callback) -> bool;
+#endif
 };
 
 } // namespace sourcemeta::blaze
@@ -261,12 +266,12 @@ public:
 
 #include <sourcemeta/blaze/evaluator_dispatch.h>
 
-template <bool Track, bool Dynamic, bool HasCallback>
-auto sourcemeta::blaze::Evaluator::evaluate_impl(
-    const Template &schema, const sourcemeta::core::JSON &instance,
-    const Callback *callback) -> bool {
+template <bool Track, bool Dynamic, bool HasCallback, typename CallbackT>
+auto sourcemeta::blaze::Evaluator::run(const Template &schema,
+                                       const sourcemeta::core::JSON &instance,
+                                       const CallbackT *callback) -> bool {
   assert(!schema.targets.empty());
-  dispatch::DispatchContext<Track, Dynamic, HasCallback> context{
+  dispatch::DispatchContext<Track, Dynamic, HasCallback, CallbackT> context{
       .schema = &schema,
       .callback = callback,
       .evaluator = this,
