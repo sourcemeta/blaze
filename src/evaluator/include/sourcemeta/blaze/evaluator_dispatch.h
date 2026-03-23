@@ -20,20 +20,20 @@
         context.schema->extra[instruction.extra_index].schema_resource);       \
   }                                                                            \
   if constexpr (HasCallback) {                                                 \
-    (*context.callback)(EvaluationType::Pre, true, instruction,                \
-                        context.schema->extra[instruction.extra_index],        \
-                        context.evaluator->evaluate_path,                      \
-                        context.evaluator->instance_location,                  \
-                        Evaluator::null);                                      \
+    (context.callback)(context.callback_context, EvaluationType::Pre, true,    \
+                       instruction,                                            \
+                       context.schema->extra[instruction.extra_index],         \
+                       context.evaluator->evaluate_path,                       \
+                       context.evaluator->instance_location, Evaluator::null); \
   }
 
 #define EVALUATE_POP()                                                         \
   if constexpr (HasCallback) {                                                 \
-    (*context.callback)(EvaluationType::Post, result, instruction,             \
-                        context.schema->extra[instruction.extra_index],        \
-                        context.evaluator->evaluate_path,                      \
-                        context.evaluator->instance_location,                  \
-                        Evaluator::null);                                      \
+    (context.callback)(context.callback_context, EvaluationType::Post, result, \
+                       instruction,                                            \
+                       context.schema->extra[instruction.extra_index],         \
+                       context.evaluator->evaluate_path,                       \
+                       context.evaluator->instance_location, Evaluator::null); \
   }                                                                            \
   if constexpr (Track) {                                                       \
     context.evaluator->evaluate_path.pop_back(                                 \
@@ -111,11 +111,11 @@
 #define EVALUATE_BEGIN_NO_PRECONDITION_AND_NO_PUSH(instruction_type)           \
   assert(instruction.type == InstructionIndex::instruction_type);              \
   if constexpr (HasCallback) {                                                 \
-    (*context.callback)(EvaluationType::Pre, true, instruction,                \
-                        context.schema->extra[instruction.extra_index],        \
-                        context.evaluator->evaluate_path,                      \
-                        context.evaluator->instance_location,                  \
-                        Evaluator::null);                                      \
+    (context.callback)(context.callback_context, EvaluationType::Pre, true,    \
+                       instruction,                                            \
+                       context.schema->extra[instruction.extra_index],         \
+                       context.evaluator->evaluate_path,                       \
+                       context.evaluator->instance_location, Evaluator::null); \
   }                                                                            \
   bool result{true};
 
@@ -129,11 +129,11 @@
 
 #define EVALUATE_END_NO_POP(instruction_type)                                  \
   if constexpr (HasCallback) {                                                 \
-    (*context.callback)(EvaluationType::Post, result, instruction,             \
-                        context.schema->extra[instruction.extra_index],        \
-                        context.evaluator->evaluate_path,                      \
-                        context.evaluator->instance_location,                  \
-                        Evaluator::null);                                      \
+    (context.callback)(context.callback_context, EvaluationType::Post, result, \
+                       instruction,                                            \
+                       context.schema->extra[instruction.extra_index],         \
+                       context.evaluator->evaluate_path,                       \
+                       context.evaluator->instance_location, Evaluator::null); \
   }                                                                            \
   return result;
 
@@ -146,14 +146,14 @@
             .relative_schema_location);                                        \
     context.evaluator->instance_location.push_back(                            \
         instruction.relative_instance_location);                               \
-    (*context.callback)(EvaluationType::Pre, true, instruction,                \
-                        context.schema->extra[instruction.extra_index],        \
-                        context.evaluator->evaluate_path, destination,         \
-                        Evaluator::null);                                      \
-    (*context.callback)(EvaluationType::Post, true, instruction,               \
-                        context.schema->extra[instruction.extra_index],        \
-                        context.evaluator->evaluate_path, destination,         \
-                        annotation_value);                                     \
+    (context.callback)(                                                        \
+        context.callback_context, EvaluationType::Pre, true, instruction,      \
+        context.schema->extra[instruction.extra_index],                        \
+        context.evaluator->evaluate_path, destination, Evaluator::null);       \
+    (context.callback)(                                                        \
+        context.callback_context, EvaluationType::Post, true, instruction,     \
+        context.schema->extra[instruction.extra_index],                        \
+        context.evaluator->evaluate_path, destination, annotation_value);      \
     context.evaluator->evaluate_path.pop_back(                                 \
         context.schema->extra[instruction.extra_index]                         \
             .relative_schema_location.size());                                 \
@@ -219,35 +219,37 @@ inline auto effective_type_strict_real(const JSON &instance) noexcept
   }
 }
 
-template <bool Track, bool Dynamic, bool HasCallback, typename CallbackT>
-struct DispatchContext {
+template <bool Track, bool Dynamic, bool HasCallback> struct DispatchContext {
   const sourcemeta::blaze::Template *schema;
-  const CallbackT *callback;
+  sourcemeta::blaze::CallbackFn callback;
+  void *callback_context;
   sourcemeta::blaze::Evaluator *evaluator;
   const sourcemeta::core::JSON::String *property_target;
 };
 
-template <bool Track, bool Dynamic, bool HasCallback, typename CallbackT>
-inline auto evaluate_instruction(
-    const sourcemeta::blaze::Instruction &instruction,
-    const sourcemeta::core::JSON &instance, const std::uint64_t depth,
-    DispatchContext<Track, Dynamic, HasCallback, CallbackT> &context) -> bool;
+template <bool Track, bool Dynamic, bool HasCallback>
+inline auto
+evaluate_instruction(const sourcemeta::blaze::Instruction &instruction,
+                     const sourcemeta::core::JSON &instance,
+                     const std::uint64_t depth,
+                     DispatchContext<Track, Dynamic, HasCallback> &context)
+    -> bool;
 
-template <bool Track, bool Dynamic, bool HasCallback, typename CallbackT>
+template <bool Track, bool Dynamic, bool HasCallback>
 inline auto evaluate_instruction_with_property(
     const sourcemeta::blaze::Instruction &instruction,
     const sourcemeta::core::JSON &instance, const std::uint64_t depth,
-    DispatchContext<Track, Dynamic, HasCallback, CallbackT> &context,
+    DispatchContext<Track, Dynamic, HasCallback> &context,
     const sourcemeta::core::JSON::String &name) -> bool;
 
 #define INSTRUCTION_HANDLER(name)                                              \
-  template <bool Track, bool Dynamic, bool HasCallback, typename CallbackT>    \
+  template <bool Track, bool Dynamic, bool HasCallback>                        \
   static inline auto name(                                                     \
       [[maybe_unused]] const sourcemeta::blaze::Instruction &instruction,      \
       [[maybe_unused]] const sourcemeta::core::JSON &instance,                 \
       [[maybe_unused]] const std::uint64_t depth,                              \
-      [[maybe_unused]] DispatchContext<Track, Dynamic, HasCallback, CallbackT> \
-          &context) -> bool
+      [[maybe_unused]] DispatchContext<Track, Dynamic, HasCallback> &context)  \
+      -> bool
 
 INSTRUCTION_HANDLER(AssertionFail) {
   EVALUATE_BEGIN_NO_PRECONDITION(AssertionFail);
@@ -2232,129 +2234,131 @@ INSTRUCTION_HANDLER(LoopContains) {
 
 #undef INSTRUCTION_HANDLER
 
-template <bool Track, bool Dynamic, bool HasCallback, typename CallbackT>
+template <bool Track, bool Dynamic, bool HasCallback>
 using DispatchHandler = bool (*)(
     const sourcemeta::blaze::Instruction &, const sourcemeta::core::JSON &,
-    std::uint64_t, DispatchContext<Track, Dynamic, HasCallback, CallbackT> &);
+    std::uint64_t, DispatchContext<Track, Dynamic, HasCallback> &);
 
-template <bool Track, bool Dynamic, bool HasCallback, typename CallbackT>
+template <bool Track, bool Dynamic, bool HasCallback>
 // Must have same order as InstructionIndex
 // NOLINTNEXTLINE(modernize-avoid-c-arrays)
-static constexpr DispatchHandler<Track, Dynamic, HasCallback, CallbackT>
-    handlers[95] = {AssertionFail,
-                    AssertionDefines,
-                    AssertionDefinesStrict,
-                    AssertionDefinesAll,
-                    AssertionDefinesAllStrict,
-                    AssertionDefinesExactly,
-                    AssertionDefinesExactlyStrict,
-                    AssertionDefinesExactlyStrictHash3,
-                    AssertionPropertyDependencies,
-                    AssertionType,
-                    AssertionTypeAny,
-                    AssertionTypeStrict,
-                    AssertionTypeStrictAny,
-                    AssertionTypeStringBounded,
-                    AssertionTypeStringUpper,
-                    AssertionTypeArrayBounded,
-                    AssertionTypeArrayUpper,
-                    AssertionTypeObjectBounded,
-                    AssertionTypeObjectUpper,
-                    AssertionRegex,
-                    AssertionStringSizeLess,
-                    AssertionStringSizeGreater,
-                    AssertionArraySizeLess,
-                    AssertionArraySizeGreater,
-                    AssertionObjectSizeLess,
-                    AssertionObjectSizeGreater,
-                    AssertionEqual,
-                    AssertionEqualsAny,
-                    AssertionEqualsAnyStringHash,
-                    AssertionGreaterEqual,
-                    AssertionLessEqual,
-                    AssertionGreater,
-                    AssertionLess,
-                    AssertionUnique,
-                    AssertionDivisible,
-                    AssertionStringType,
-                    AssertionPropertyType,
-                    AssertionPropertyTypeEvaluate,
-                    AssertionPropertyTypeStrict,
-                    AssertionPropertyTypeStrictEvaluate,
-                    AssertionPropertyTypeStrictAny,
-                    AssertionPropertyTypeStrictAnyEvaluate,
-                    AssertionArrayPrefix,
-                    AssertionArrayPrefixEvaluate,
-                    AnnotationEmit,
-                    AnnotationToParent,
-                    AnnotationBasenameToParent,
-                    Evaluate,
-                    LogicalNot,
-                    LogicalNotEvaluate,
-                    LogicalOr,
-                    LogicalAnd,
-                    LogicalXor,
-                    LogicalCondition,
-                    LogicalWhenType,
-                    LogicalWhenDefines,
-                    LogicalWhenArraySizeGreater,
-                    LoopPropertiesUnevaluated,
-                    LoopPropertiesUnevaluatedExcept,
-                    LoopPropertiesMatch,
-                    LoopPropertiesMatchClosed,
-                    LoopProperties,
-                    LoopPropertiesEvaluate,
-                    LoopPropertiesRegex,
-                    LoopPropertiesRegexClosed,
-                    LoopPropertiesStartsWith,
-                    LoopPropertiesExcept,
-                    LoopPropertiesType,
-                    LoopPropertiesTypeEvaluate,
-                    LoopPropertiesExactlyTypeStrict,
-                    LoopPropertiesExactlyTypeStrictHash,
-                    LoopPropertiesTypeStrict,
-                    LoopPropertiesTypeStrictEvaluate,
-                    LoopPropertiesTypeStrictAny,
-                    LoopPropertiesTypeStrictAnyEvaluate,
-                    LoopKeys,
-                    LoopItems,
-                    LoopItemsFrom,
-                    LoopItemsUnevaluated,
-                    LoopItemsType,
-                    LoopItemsTypeStrict,
-                    LoopItemsTypeStrictAny,
-                    LoopItemsPropertiesExactlyTypeStrictHash,
-                    LoopItemsPropertiesExactlyTypeStrictHash3,
-                    LoopContains,
-                    ControlGroup,
-                    ControlGroupWhenDefines,
-                    ControlGroupWhenDefinesDirect,
-                    ControlGroupWhenType,
-                    ControlEvaluate,
-                    ControlDynamicAnchorJump,
-                    ControlJump};
+static constexpr DispatchHandler<Track, Dynamic, HasCallback> handlers[95] = {
+    AssertionFail,
+    AssertionDefines,
+    AssertionDefinesStrict,
+    AssertionDefinesAll,
+    AssertionDefinesAllStrict,
+    AssertionDefinesExactly,
+    AssertionDefinesExactlyStrict,
+    AssertionDefinesExactlyStrictHash3,
+    AssertionPropertyDependencies,
+    AssertionType,
+    AssertionTypeAny,
+    AssertionTypeStrict,
+    AssertionTypeStrictAny,
+    AssertionTypeStringBounded,
+    AssertionTypeStringUpper,
+    AssertionTypeArrayBounded,
+    AssertionTypeArrayUpper,
+    AssertionTypeObjectBounded,
+    AssertionTypeObjectUpper,
+    AssertionRegex,
+    AssertionStringSizeLess,
+    AssertionStringSizeGreater,
+    AssertionArraySizeLess,
+    AssertionArraySizeGreater,
+    AssertionObjectSizeLess,
+    AssertionObjectSizeGreater,
+    AssertionEqual,
+    AssertionEqualsAny,
+    AssertionEqualsAnyStringHash,
+    AssertionGreaterEqual,
+    AssertionLessEqual,
+    AssertionGreater,
+    AssertionLess,
+    AssertionUnique,
+    AssertionDivisible,
+    AssertionStringType,
+    AssertionPropertyType,
+    AssertionPropertyTypeEvaluate,
+    AssertionPropertyTypeStrict,
+    AssertionPropertyTypeStrictEvaluate,
+    AssertionPropertyTypeStrictAny,
+    AssertionPropertyTypeStrictAnyEvaluate,
+    AssertionArrayPrefix,
+    AssertionArrayPrefixEvaluate,
+    AnnotationEmit,
+    AnnotationToParent,
+    AnnotationBasenameToParent,
+    Evaluate,
+    LogicalNot,
+    LogicalNotEvaluate,
+    LogicalOr,
+    LogicalAnd,
+    LogicalXor,
+    LogicalCondition,
+    LogicalWhenType,
+    LogicalWhenDefines,
+    LogicalWhenArraySizeGreater,
+    LoopPropertiesUnevaluated,
+    LoopPropertiesUnevaluatedExcept,
+    LoopPropertiesMatch,
+    LoopPropertiesMatchClosed,
+    LoopProperties,
+    LoopPropertiesEvaluate,
+    LoopPropertiesRegex,
+    LoopPropertiesRegexClosed,
+    LoopPropertiesStartsWith,
+    LoopPropertiesExcept,
+    LoopPropertiesType,
+    LoopPropertiesTypeEvaluate,
+    LoopPropertiesExactlyTypeStrict,
+    LoopPropertiesExactlyTypeStrictHash,
+    LoopPropertiesTypeStrict,
+    LoopPropertiesTypeStrictEvaluate,
+    LoopPropertiesTypeStrictAny,
+    LoopPropertiesTypeStrictAnyEvaluate,
+    LoopKeys,
+    LoopItems,
+    LoopItemsFrom,
+    LoopItemsUnevaluated,
+    LoopItemsType,
+    LoopItemsTypeStrict,
+    LoopItemsTypeStrictAny,
+    LoopItemsPropertiesExactlyTypeStrictHash,
+    LoopItemsPropertiesExactlyTypeStrictHash3,
+    LoopContains,
+    ControlGroup,
+    ControlGroupWhenDefines,
+    ControlGroupWhenDefinesDirect,
+    ControlGroupWhenType,
+    ControlEvaluate,
+    ControlDynamicAnchorJump,
+    ControlJump};
 
-template <bool Track, bool Dynamic, bool HasCallback, typename CallbackT>
-inline auto evaluate_instruction(
-    const sourcemeta::blaze::Instruction &instruction,
-    const sourcemeta::core::JSON &instance, const std::uint64_t depth,
-    DispatchContext<Track, Dynamic, HasCallback, CallbackT> &context) -> bool {
+template <bool Track, bool Dynamic, bool HasCallback>
+inline auto
+evaluate_instruction(const sourcemeta::blaze::Instruction &instruction,
+                     const sourcemeta::core::JSON &instance,
+                     const std::uint64_t depth,
+                     DispatchContext<Track, Dynamic, HasCallback> &context)
+    -> bool {
   constexpr auto DEPTH_LIMIT{300};
   if (depth > DEPTH_LIMIT) [[unlikely]] {
     throw EvaluationError("The evaluation path depth limit was reached "
                           "likely due to infinite recursion");
   }
 
-  return handlers<Track, Dynamic, HasCallback, CallbackT>[static_cast<
+  return handlers<Track, Dynamic, HasCallback>[static_cast<
       std::underlying_type_t<InstructionIndex>>(instruction.type)](
       instruction, instance, depth, context);
 }
 
-template <bool Track, bool Dynamic, bool HasCallback, typename CallbackT>
+template <bool Track, bool Dynamic, bool HasCallback>
 inline auto evaluate_instruction_with_property(
     const sourcemeta::blaze::Instruction &instruction,
     const sourcemeta::core::JSON &instance, const std::uint64_t depth,
-    DispatchContext<Track, Dynamic, HasCallback, CallbackT> &context,
+    DispatchContext<Track, Dynamic, HasCallback> &context,
     const sourcemeta::core::JSON::String &name) -> bool {
   const auto *previous = context.property_target;
   context.property_target = &name;

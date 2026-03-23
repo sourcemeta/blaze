@@ -19,7 +19,6 @@
 #include <limits>      // std::numeric_limits
 #include <ranges>      // std::ranges
 #include <string_view> // std::string_view
-#include <type_traits> // std::is_same_v
 #include <utility>     // std::pair
 #include <vector>      // std::vector
 
@@ -73,6 +72,14 @@ using Callback = std::function<void(
     const sourcemeta::core::WeakPointer &, const sourcemeta::core::JSON &)>;
 
 /// @ingroup evaluator
+/// Raw function pointer callback type used internally for dispatch.
+using CallbackFn = void (*)(void *context, const EvaluationType, bool,
+                            const Instruction &, const InstructionExtra &,
+                            const sourcemeta::core::WeakPointer &,
+                            const sourcemeta::core::WeakPointer &,
+                            const sourcemeta::core::JSON &);
+
+/// @ingroup evaluator
 class SOURCEMETA_BLAZE_EVALUATOR_EXPORT Evaluator {
 public:
   /// This function evaluates a schema compiler template, returning a boolean
@@ -111,15 +118,14 @@ public:
 
     if (schema.track && schema.dynamic) [[unlikely]] {
       this->evaluated_.clear();
-      return this->run<true, true, false, Callback>(schema, instance, nullptr);
+      return this->run<true, true, false>(schema, instance, nullptr, nullptr);
     } else if (schema.track) [[unlikely]] {
       this->evaluated_.clear();
-      return this->run<true, false, false, Callback>(schema, instance, nullptr);
+      return this->run<true, false, false>(schema, instance, nullptr, nullptr);
     } else if (schema.dynamic) [[unlikely]] {
-      return this->run<false, true, false, Callback>(schema, instance, nullptr);
+      return this->run<false, true, false>(schema, instance, nullptr, nullptr);
     } else {
-      return this->run<false, false, false, Callback>(schema, instance,
-                                                      nullptr);
+      return this->run<false, false, false>(schema, instance, nullptr, nullptr);
     }
   }
 
@@ -182,7 +188,18 @@ public:
     assert(this->instance_location.empty());
     assert(this->resources.empty());
     this->evaluated_.clear();
-    return this->run<true, true, true>(schema, instance, &callback);
+    // Wrap the typed callback into a function pointer + void* context
+    // so that run() doesn't need to be templated on CallbackT
+    const CallbackFn fn = [](void *ctx, const EvaluationType t, bool r,
+                             const Instruction &s, const InstructionExtra &m,
+                             const sourcemeta::core::WeakPointer &ep,
+                             const sourcemeta::core::WeakPointer &il,
+                             const sourcemeta::core::JSON &a) {
+      (*static_cast<const CallbackT *>(ctx))(t, r, s, m, ep, il, a);
+    };
+    return this->run<true, true, true>(
+        schema, instance, fn,
+        const_cast<void *>(static_cast<const void *>(&callback)));
   }
 
 #ifndef DOXYGEN
@@ -253,10 +270,9 @@ public:
 
 private:
 #ifndef DOXYGEN
-  template <bool Track, bool Dynamic, bool HasCallback,
-            typename CallbackT = Callback>
+  template <bool Track, bool Dynamic, bool HasCallback>
   auto run(const Template &schema, const sourcemeta::core::JSON &instance,
-           const CallbackT *callback) -> bool;
+           CallbackFn callback, void *callback_context) -> bool;
 #endif
 };
 
@@ -266,14 +282,16 @@ private:
 
 #include <sourcemeta/blaze/evaluator_dispatch.h>
 
-template <bool Track, bool Dynamic, bool HasCallback, typename CallbackT>
+template <bool Track, bool Dynamic, bool HasCallback>
 auto sourcemeta::blaze::Evaluator::run(const Template &schema,
                                        const sourcemeta::core::JSON &instance,
-                                       const CallbackT *callback) -> bool {
+                                       CallbackFn callback,
+                                       void *callback_context) -> bool {
   assert(!schema.targets.empty());
-  dispatch::DispatchContext<Track, Dynamic, HasCallback, CallbackT> context{
+  dispatch::DispatchContext<Track, Dynamic, HasCallback> context{
       .schema = &schema,
       .callback = callback,
+      .callback_context = callback_context,
       .evaluator = this,
       .property_target = nullptr};
   bool overall{true};
