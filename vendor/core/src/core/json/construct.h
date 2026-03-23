@@ -14,7 +14,6 @@
 #include <cstdint>    // std::uint64_t, std::uint32_t
 #include <cstring>    // std::memchr
 #include <functional> // std::reference_wrapper
-#include <optional>   // std::optional
 #include <stdexcept>  // std::invalid_argument
 #include <utility>    // std::move
 #include <vector>     // std::vector
@@ -240,24 +239,25 @@ inline auto post_column_for(const TapeEntry &entry) -> std::uint64_t {
 #define CALLBACK_POST(value_type, post_line, post_column)                      \
   if (callback) {                                                              \
     callback(JSON::ParsePhase::Post, JSON::Type::value_type, post_line,        \
-             post_column, JSON::ParseContext::Root, 0, JSON::StringView{});    \
+             post_column, JSON::ParseContext::Root, 0, empty_property);        \
   }
 
 inline auto construct_json(const char *buffer,
                            const std::vector<TapeEntry> &tape,
-                           const JSON::ParseCallback &callback) -> JSON {
+                           const JSON::ParseCallback &callback, JSON &output)
+    -> void {
   using Result = JSON;
   enum class Container : std::uint8_t { Array, Object };
   std::vector<Container> levels;
   std::vector<std::reference_wrapper<Result>> frames;
   levels.reserve(32);
   frames.reserve(32);
-  std::optional<Result> result;
   typename Result::String key;
   typename Result::Object::hash_type key_hash;
   std::uint64_t key_line{0};
   std::uint64_t key_column{0};
   std::size_t tape_index{0};
+  static const JSON::String empty_property;
 
   if (tape.empty()) {
     throw JSONParseError(1, 1);
@@ -266,53 +266,51 @@ inline auto construct_json(const char *buffer,
   const auto &entry{tape[tape_index]};
   switch (entry.type) {
     case TapeType::True:
-      CALLBACK_PRE(Boolean, entry, JSON::ParseContext::Root, 0,
-                   JSON::StringView{});
+      CALLBACK_PRE(Boolean, entry, JSON::ParseContext::Root, 0, empty_property);
       CALLBACK_POST(Boolean, entry.line, internal::post_column_for(entry));
-      return JSON{true};
+      output = JSON{true};
+      return;
     case TapeType::False:
-      CALLBACK_PRE(Boolean, entry, JSON::ParseContext::Root, 0,
-                   JSON::StringView{});
+      CALLBACK_PRE(Boolean, entry, JSON::ParseContext::Root, 0, empty_property);
       CALLBACK_POST(Boolean, entry.line, internal::post_column_for(entry));
-      return JSON{false};
+      output = JSON{false};
+      return;
     case TapeType::Null:
-      CALLBACK_PRE(Null, entry, JSON::ParseContext::Root, 0,
-                   JSON::StringView{});
+      CALLBACK_PRE(Null, entry, JSON::ParseContext::Root, 0, empty_property);
       CALLBACK_POST(Null, entry.line, internal::post_column_for(entry));
-      return JSON{nullptr};
+      output = JSON{nullptr};
+      return;
     case TapeType::String: {
-      CALLBACK_PRE(String, entry, JSON::ParseContext::Root, 0,
-                   JSON::StringView{});
+      CALLBACK_PRE(String, entry, JSON::ParseContext::Root, 0, empty_property);
       auto value{Result{
           internal::unescape_string(buffer + entry.offset, entry.length)}};
       CALLBACK_POST(String, entry.line, internal::post_column_for(entry));
-      return value;
+      output = std::move(value);
+      return;
     }
     case TapeType::Number: {
       auto value =
           internal::construct_number(buffer + entry.offset, entry.length);
       if (value.is_integer()) {
         CALLBACK_PRE(Integer, entry, JSON::ParseContext::Root, 0,
-                     JSON::StringView{});
+                     empty_property);
         CALLBACK_POST(Integer, entry.line, internal::post_column_for(entry));
       } else if (value.is_decimal()) {
         CALLBACK_PRE(Decimal, entry, JSON::ParseContext::Root, 0,
-                     JSON::StringView{});
+                     empty_property);
         CALLBACK_POST(Decimal, entry.line, internal::post_column_for(entry));
       } else {
-        CALLBACK_PRE(Real, entry, JSON::ParseContext::Root, 0,
-                     JSON::StringView{});
+        CALLBACK_PRE(Real, entry, JSON::ParseContext::Root, 0, empty_property);
         CALLBACK_POST(Real, entry.line, internal::post_column_for(entry));
       }
-      return value;
+      output = std::move(value);
+      return;
     }
     case TapeType::ArrayStart:
-      CALLBACK_PRE(Array, entry, JSON::ParseContext::Root, 0,
-                   JSON::StringView{});
+      CALLBACK_PRE(Array, entry, JSON::ParseContext::Root, 0, empty_property);
       goto do_construct_array;
     case TapeType::ObjectStart:
-      CALLBACK_PRE(Object, entry, JSON::ParseContext::Root, 0,
-                   JSON::StringView{});
+      CALLBACK_PRE(Object, entry, JSON::ParseContext::Root, 0, empty_property);
       goto do_construct_object;
     default:
       throw JSONParseError(1, 1);
@@ -329,10 +327,9 @@ do_construct_array: {
   tape_index++;
 
   if (levels.empty()) {
-    assert(!result.has_value());
     levels.push_back(Container::Array);
-    result = std::make_optional<Result>(Result::make_array());
-    frames.emplace_back(result.value());
+    output = Result::make_array();
+    frames.emplace_back(output);
   } else if (levels.back() == Container::Array) {
     levels.push_back(Container::Array);
     frames.back().get().push_back(Result::make_array());
@@ -340,6 +337,11 @@ do_construct_array: {
   } else if (levels.back() == Container::Object) {
     levels.push_back(Container::Array);
     frames.back().get().assign(key, Result::make_array());
+    if (callback) {
+      callback(JSON::ParsePhase::Pre, JSON::Type::Array, key_line, key_column,
+               JSON::ParseContext::Property, 0,
+               frames.back().get().as_object().back_key());
+    }
     frames.emplace_back(frames.back().get().at(key));
   }
 
@@ -364,15 +366,15 @@ do_construct_array_item: {
   switch (item_entry.type) {
     case TapeType::ArrayStart:
       CALLBACK_PRE(Array, item_entry, JSON::ParseContext::Index,
-                   frames.back().get().size(), JSON::StringView{});
+                   frames.back().get().size(), empty_property);
       goto do_construct_array;
     case TapeType::ObjectStart:
       CALLBACK_PRE(Object, item_entry, JSON::ParseContext::Index,
-                   frames.back().get().size(), JSON::StringView{});
+                   frames.back().get().size(), empty_property);
       goto do_construct_object;
     case TapeType::True:
       CALLBACK_PRE(Boolean, item_entry, JSON::ParseContext::Index,
-                   frames.back().get().size(), JSON::StringView{});
+                   frames.back().get().size(), empty_property);
       frames.back().get().push_back(JSON{true});
       tape_index++;
       CALLBACK_POST(Boolean, item_entry.line,
@@ -380,7 +382,7 @@ do_construct_array_item: {
       goto do_construct_array_item_separator;
     case TapeType::False:
       CALLBACK_PRE(Boolean, item_entry, JSON::ParseContext::Index,
-                   frames.back().get().size(), JSON::StringView{});
+                   frames.back().get().size(), empty_property);
       frames.back().get().push_back(JSON{false});
       tape_index++;
       CALLBACK_POST(Boolean, item_entry.line,
@@ -388,7 +390,7 @@ do_construct_array_item: {
       goto do_construct_array_item_separator;
     case TapeType::Null:
       CALLBACK_PRE(Null, item_entry, JSON::ParseContext::Index,
-                   frames.back().get().size(), JSON::StringView{});
+                   frames.back().get().size(), empty_property);
       frames.back().get().push_back(JSON{nullptr});
       tape_index++;
       CALLBACK_POST(Null, item_entry.line,
@@ -396,7 +398,7 @@ do_construct_array_item: {
       goto do_construct_array_item_separator;
     case TapeType::String:
       CALLBACK_PRE(String, item_entry, JSON::ParseContext::Index,
-                   frames.back().get().size(), JSON::StringView{});
+                   frames.back().get().size(), empty_property);
       frames.back().get().push_back(Result{internal::unescape_string(
           buffer + item_entry.offset, item_entry.length)});
       tape_index++;
@@ -409,13 +411,13 @@ do_construct_array_item: {
                                               item_entry.length);
       if (value.is_integer()) {
         CALLBACK_PRE(Integer, item_entry, JSON::ParseContext::Index,
-                     current_index, JSON::StringView{});
+                     current_index, empty_property);
       } else if (value.is_decimal()) {
         CALLBACK_PRE(Decimal, item_entry, JSON::ParseContext::Index,
-                     current_index, JSON::StringView{});
+                     current_index, empty_property);
       } else {
         CALLBACK_PRE(Real, item_entry, JSON::ParseContext::Index, current_index,
-                     JSON::StringView{});
+                     empty_property);
       }
       const auto value_type{value.type()};
       frames.back().get().push_back(std::move(value));
@@ -458,10 +460,9 @@ do_construct_object: {
   tape_index++;
 
   if (levels.empty()) {
-    assert(!result.has_value());
     levels.push_back(Container::Object);
-    result = std::make_optional<Result>(Result::make_object());
-    frames.emplace_back(result.value());
+    output = Result::make_object();
+    frames.emplace_back(output);
   } else if (levels.back() == Container::Array) {
     levels.push_back(Container::Object);
     frames.back().get().push_back(Result::make_object());
@@ -469,6 +470,11 @@ do_construct_object: {
   } else if (levels.back() == Container::Object) {
     levels.push_back(Container::Object);
     frames.back().get().assign(key, Result::make_object());
+    if (callback) {
+      callback(JSON::ParsePhase::Pre, JSON::Type::Object, key_line, key_column,
+               JSON::ParseContext::Property, 0,
+               frames.back().get().as_object().back_key());
+    }
     frames.emplace_back(frames.back().get().at(key));
   }
 
@@ -510,60 +516,56 @@ do_construct_object_value: {
 
   switch (value_entry.type) {
     case TapeType::ArrayStart:
-      if (callback) {
-        callback(JSON::ParsePhase::Pre, JSON::Type::Array, key_line, key_column,
-                 JSON::ParseContext::Property, 0, key);
-      }
       goto do_construct_array;
     case TapeType::ObjectStart:
-      if (callback) {
-        callback(JSON::ParsePhase::Pre, JSON::Type::Object, key_line,
-                 key_column, JSON::ParseContext::Property, 0, key);
-      }
       goto do_construct_object;
     case TapeType::True:
-      if (callback) {
-        callback(JSON::ParsePhase::Pre, JSON::Type::Boolean, key_line,
-                 key_column, JSON::ParseContext::Property, 0, key);
-      }
       frames.back().get().assign_assume_new(std::move(key), JSON{true},
                                             key_hash);
+      if (callback) {
+        callback(JSON::ParsePhase::Pre, JSON::Type::Boolean, key_line,
+                 key_column, JSON::ParseContext::Property, 0,
+                 frames.back().get().as_object().back_key());
+      }
       tape_index++;
       CALLBACK_POST(Boolean, value_entry.line,
                     internal::post_column_for(value_entry));
       goto do_construct_object_property_end;
     case TapeType::False:
-      if (callback) {
-        callback(JSON::ParsePhase::Pre, JSON::Type::Boolean, key_line,
-                 key_column, JSON::ParseContext::Property, 0, key);
-      }
       frames.back().get().assign_assume_new(std::move(key), JSON{false},
                                             key_hash);
+      if (callback) {
+        callback(JSON::ParsePhase::Pre, JSON::Type::Boolean, key_line,
+                 key_column, JSON::ParseContext::Property, 0,
+                 frames.back().get().as_object().back_key());
+      }
       tape_index++;
       CALLBACK_POST(Boolean, value_entry.line,
                     internal::post_column_for(value_entry));
       goto do_construct_object_property_end;
     case TapeType::Null:
-      if (callback) {
-        callback(JSON::ParsePhase::Pre, JSON::Type::Null, key_line, key_column,
-                 JSON::ParseContext::Property, 0, key);
-      }
       frames.back().get().assign_assume_new(std::move(key), JSON{nullptr},
                                             key_hash);
+      if (callback) {
+        callback(JSON::ParsePhase::Pre, JSON::Type::Null, key_line, key_column,
+                 JSON::ParseContext::Property, 0,
+                 frames.back().get().as_object().back_key());
+      }
       tape_index++;
       CALLBACK_POST(Null, value_entry.line,
                     internal::post_column_for(value_entry));
       goto do_construct_object_property_end;
     case TapeType::String:
-      if (callback) {
-        callback(JSON::ParsePhase::Pre, JSON::Type::String, key_line,
-                 key_column, JSON::ParseContext::Property, 0, key);
-      }
       frames.back().get().assign_assume_new(
           std::move(key),
           Result{internal::unescape_string(buffer + value_entry.offset,
                                            value_entry.length)},
           key_hash);
+      if (callback) {
+        callback(JSON::ParsePhase::Pre, JSON::Type::String, key_line,
+                 key_column, JSON::ParseContext::Property, 0,
+                 frames.back().get().as_object().back_key());
+      }
       tape_index++;
       CALLBACK_POST(String, value_entry.line,
                     internal::post_column_for(value_entry));
@@ -572,24 +574,23 @@ do_construct_object_value: {
       auto value = internal::construct_number(buffer + value_entry.offset,
                                               value_entry.length);
       const auto value_type{value.type()};
-      if (value_type == JSON::Type::Integer) {
-        if (callback) {
-          callback(JSON::ParsePhase::Pre, JSON::Type::Integer, key_line,
-                   key_column, JSON::ParseContext::Property, 0, key);
-        }
-      } else if (value_type == JSON::Type::Decimal) {
-        if (callback) {
-          callback(JSON::ParsePhase::Pre, JSON::Type::Decimal, key_line,
-                   key_column, JSON::ParseContext::Property, 0, key);
-        }
-      } else {
-        if (callback) {
-          callback(JSON::ParsePhase::Pre, JSON::Type::Real, key_line,
-                   key_column, JSON::ParseContext::Property, 0, key);
-        }
-      }
       frames.back().get().assign_assume_new(std::move(key), std::move(value),
                                             key_hash);
+      if (callback) {
+        if (value_type == JSON::Type::Integer) {
+          callback(JSON::ParsePhase::Pre, JSON::Type::Integer, key_line,
+                   key_column, JSON::ParseContext::Property, 0,
+                   frames.back().get().as_object().back_key());
+        } else if (value_type == JSON::Type::Decimal) {
+          callback(JSON::ParsePhase::Pre, JSON::Type::Decimal, key_line,
+                   key_column, JSON::ParseContext::Property, 0,
+                   frames.back().get().as_object().back_key());
+        } else {
+          callback(JSON::ParsePhase::Pre, JSON::Type::Real, key_line,
+                   key_column, JSON::ParseContext::Property, 0,
+                   frames.back().get().as_object().back_key());
+        }
+      }
       tape_index++;
       if (value_type == JSON::Type::Integer) {
         CALLBACK_POST(Integer, value_entry.line,
@@ -625,7 +626,7 @@ do_construct_object_property_end:
 do_construct_container_end:
   assert(!levels.empty());
   if (levels.size() == 1) {
-    return std::move(*result);
+    return;
   }
 
   frames.pop_back();

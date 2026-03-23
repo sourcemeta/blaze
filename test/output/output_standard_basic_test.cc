@@ -62,10 +62,11 @@ TEST(Output_standard_basic, prettify_annotations_with_instance_positions) {
                                  sourcemeta::blaze::Mode::Exhaustive)};
 
   sourcemeta::core::PointerPositionTracker tracker;
-  const auto instance{sourcemeta::core::parse_json(R"JSON({
+  sourcemeta::core::JSON instance{nullptr};
+  sourcemeta::core::parse_json(R"JSON({
     "foo": "bar"
   })JSON",
-                                                   std::ref(tracker))};
+                               instance, std::ref(tracker));
 
   sourcemeta::blaze::Evaluator evaluator;
   const auto result{sourcemeta::blaze::standard(
@@ -147,10 +148,11 @@ TEST(Output_standard_basic, prettify_errors_with_instance_positions) {
                                  sourcemeta::blaze::Mode::FastValidation)};
 
   sourcemeta::core::PointerPositionTracker tracker;
-  const auto instance{sourcemeta::core::parse_json(R"JSON({
+  sourcemeta::core::JSON instance{nullptr};
+  sourcemeta::core::parse_json(R"JSON({
     "foo": 1
   })JSON",
-                                                   std::ref(tracker))};
+                               instance, std::ref(tracker));
 
   sourcemeta::blaze::Evaluator evaluator;
   const auto result{sourcemeta::blaze::standard(
@@ -221,10 +223,11 @@ TEST(Output_standard_basic, success_1_with_instance_positions) {
                                  sourcemeta::blaze::Mode::FastValidation)};
 
   sourcemeta::core::PointerPositionTracker tracker;
-  const auto instance{sourcemeta::core::parse_json(R"JSON({
+  sourcemeta::core::JSON instance{nullptr};
+  sourcemeta::core::parse_json(R"JSON({
     "foo": "bar"
   })JSON",
-                                                   std::ref(tracker))};
+                               instance, std::ref(tracker));
 
   sourcemeta::blaze::Evaluator evaluator;
   const auto result{sourcemeta::blaze::standard(
@@ -291,10 +294,11 @@ TEST(Output_standard_basic, success_1_exhaustive_with_instance_positions) {
                                  sourcemeta::blaze::Mode::Exhaustive)};
 
   sourcemeta::core::PointerPositionTracker tracker;
-  const auto instance{sourcemeta::core::parse_json(R"JSON({
+  sourcemeta::core::JSON instance{nullptr};
+  sourcemeta::core::parse_json(R"JSON({
     "foo": "bar"
   })JSON",
-                                                   std::ref(tracker))};
+                               instance, std::ref(tracker));
 
   sourcemeta::blaze::Evaluator evaluator;
   const auto result{sourcemeta::blaze::standard(
@@ -494,10 +498,11 @@ TEST(Output_standard_basic, failure_1_with_instance_positions) {
                                  sourcemeta::blaze::Mode::FastValidation)};
 
   sourcemeta::core::PointerPositionTracker tracker;
-  const auto instance{sourcemeta::core::parse_json(R"JSON({
+  sourcemeta::core::JSON instance{nullptr};
+  sourcemeta::core::parse_json(R"JSON({
     "foo": 1
   })JSON",
-                                                   std::ref(tracker))};
+                               instance, std::ref(tracker));
 
   sourcemeta::blaze::Evaluator evaluator;
   const auto result{sourcemeta::blaze::standard(
