@@ -17,7 +17,8 @@
 TEST(TestSuite_parse, error_not_an_object) {
   const auto input{"[]"};
   sourcemeta::core::PointerPositionTracker tracker;
-  const auto document{sourcemeta::core::parse_json(input, std::ref(tracker))};
+  sourcemeta::core::JSON document{nullptr};
+  sourcemeta::core::parse_json(input, document, std::ref(tracker));
 
   EXPECT_THROW(sourcemeta::blaze::TestSuite::parse(
                    document, tracker, std::filesystem::path{STUBS_PATH},
@@ -33,7 +34,8 @@ TEST(TestSuite_parse, error_no_target) {
   })JSON"};
 
   sourcemeta::core::PointerPositionTracker tracker;
-  const auto document{sourcemeta::core::parse_json(input, std::ref(tracker))};
+  sourcemeta::core::JSON document{nullptr};
+  sourcemeta::core::parse_json(input, document, std::ref(tracker));
 
   EXPECT_THROW(sourcemeta::blaze::TestSuite::parse(
                    document, tracker, std::filesystem::path{STUBS_PATH},
@@ -50,7 +52,8 @@ TEST(TestSuite_parse, error_target_not_string) {
   })JSON"};
 
   sourcemeta::core::PointerPositionTracker tracker;
-  const auto document{sourcemeta::core::parse_json(input, std::ref(tracker))};
+  sourcemeta::core::JSON document{nullptr};
+  sourcemeta::core::parse_json(input, document, std::ref(tracker));
 
   EXPECT_THROW(sourcemeta::blaze::TestSuite::parse(
                    document, tracker, std::filesystem::path{STUBS_PATH},
@@ -66,7 +69,8 @@ TEST(TestSuite_parse, error_no_tests) {
   })JSON"};
 
   sourcemeta::core::PointerPositionTracker tracker;
-  const auto document{sourcemeta::core::parse_json(input, std::ref(tracker))};
+  sourcemeta::core::JSON document{nullptr};
+  sourcemeta::core::parse_json(input, document, std::ref(tracker));
 
   EXPECT_THROW(sourcemeta::blaze::TestSuite::parse(
                    document, tracker, std::filesystem::path{STUBS_PATH},
@@ -83,7 +87,8 @@ TEST(TestSuite_parse, error_tests_not_array) {
   })JSON"};
 
   sourcemeta::core::PointerPositionTracker tracker;
-  const auto document{sourcemeta::core::parse_json(input, std::ref(tracker))};
+  sourcemeta::core::JSON document{nullptr};
+  sourcemeta::core::parse_json(input, document, std::ref(tracker));
 
   EXPECT_THROW(sourcemeta::blaze::TestSuite::parse(
                    document, tracker, std::filesystem::path{STUBS_PATH},
@@ -100,7 +105,8 @@ TEST(TestSuite_parse, error_unresolvable_target) {
   })JSON"};
 
   sourcemeta::core::PointerPositionTracker tracker;
-  const auto document{sourcemeta::core::parse_json(input, std::ref(tracker))};
+  sourcemeta::core::JSON document{nullptr};
+  sourcemeta::core::parse_json(input, document, std::ref(tracker));
 
   EXPECT_THROW(sourcemeta::blaze::TestSuite::parse(
                    document, tracker, std::filesystem::path{STUBS_PATH},
@@ -117,7 +123,8 @@ TEST(TestSuite_parse, valid_empty_tests) {
   })JSON"};
 
   sourcemeta::core::PointerPositionTracker tracker;
-  const auto document{sourcemeta::core::parse_json(input, std::ref(tracker))};
+  sourcemeta::core::JSON document{nullptr};
+  sourcemeta::core::parse_json(input, document, std::ref(tracker));
   const auto result{sourcemeta::blaze::TestSuite::parse(
       document, tracker, std::filesystem::path{STUBS_PATH},
       sourcemeta::core::schema_resolver, sourcemeta::core::schema_walker,
@@ -137,7 +144,8 @@ TEST(TestSuite_parse, valid_with_test_cases) {
   })JSON"};
 
   sourcemeta::core::PointerPositionTracker tracker;
-  const auto document{sourcemeta::core::parse_json(input, std::ref(tracker))};
+  sourcemeta::core::JSON document{nullptr};
+  sourcemeta::core::parse_json(input, document, std::ref(tracker));
   const auto result{sourcemeta::blaze::TestSuite::parse(
       document, tracker, std::filesystem::path{STUBS_PATH},
       sourcemeta::core::schema_resolver, sourcemeta::core::schema_walker,
@@ -169,7 +177,8 @@ TEST(TestSuite_parse, error_invalid_test_case) {
   })JSON"};
 
   sourcemeta::core::PointerPositionTracker tracker;
-  const auto document{sourcemeta::core::parse_json(input, std::ref(tracker))};
+  sourcemeta::core::JSON document{nullptr};
+  sourcemeta::core::parse_json(input, document, std::ref(tracker));
 
   EXPECT_THROW(sourcemeta::blaze::TestSuite::parse(
                    document, tracker, std::filesystem::path{STUBS_PATH},
@@ -189,7 +198,8 @@ TEST(TestSuite_parse, valid_with_file_path_target) {
   })JSON"};
 
   sourcemeta::core::PointerPositionTracker tracker;
-  const auto document{sourcemeta::core::parse_json(input, std::ref(tracker))};
+  sourcemeta::core::JSON document{nullptr};
+  sourcemeta::core::parse_json(input, document, std::ref(tracker));
   const auto test_resolver{
       [](std::string_view identifier) -> std::optional<sourcemeta::core::JSON> {
         const sourcemeta::core::URI uri{std::string{identifier}};
@@ -230,7 +240,8 @@ TEST(TestSuite_parse, error_no_dialect_without_default) {
   })JSON"};
 
   sourcemeta::core::PointerPositionTracker tracker;
-  const auto document{sourcemeta::core::parse_json(input, std::ref(tracker))};
+  sourcemeta::core::JSON document{nullptr};
+  sourcemeta::core::parse_json(input, document, std::ref(tracker));
   const auto test_resolver{
       [](std::string_view identifier) -> std::optional<sourcemeta::core::JSON> {
         const sourcemeta::core::URI uri{std::string{identifier}};
@@ -258,7 +269,8 @@ TEST(TestSuite_parse, valid_with_default_dialect) {
   })JSON"};
 
   sourcemeta::core::PointerPositionTracker tracker;
-  const auto document{sourcemeta::core::parse_json(input, std::ref(tracker))};
+  sourcemeta::core::JSON document{nullptr};
+  sourcemeta::core::parse_json(input, document, std::ref(tracker));
   const auto test_resolver{
       [](std::string_view identifier) -> std::optional<sourcemeta::core::JSON> {
         const sourcemeta::core::URI uri{std::string{identifier}};
