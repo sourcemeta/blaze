@@ -1523,7 +1523,7 @@ TEST(Evaluator_2020_12, dynamicRef_3) {
 TEST(Evaluator_2020_12, ref_with_percent_encoded_colon_in_fragment) {
   const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2020-12/schema",
-    "$ref": "#/$defs/https%3A~1~1example.com~1schema/type",
+    "$ref": "#/$defs/https%3A~1~1example.com~1schema~1type",
     "$defs": {
       "https://example.com/schema/type": { "type": "string" }
     }
@@ -1534,9 +1534,9 @@ TEST(Evaluator_2020_12, ref_with_percent_encoded_colon_in_fragment) {
 
   EVALUATE_TRACE_PRE(0, AssertionTypeStrict, "/$ref/type",
                      "#/$defs/https:~1~1example.com~1schema~1type/type", "");
-  EVALUATE_TRACE_POST_SUCCESS(0, AssertionTypeStrict, "/$ref/type",
-                              "#/$defs/https:~1~1example.com~1schema~1type/type",
-                              "");
+  EVALUATE_TRACE_POST_SUCCESS(
+      0, AssertionTypeStrict, "/$ref/type",
+      "#/$defs/https:~1~1example.com~1schema~1type/type", "");
   EVALUATE_TRACE_POST_DESCRIBE(instance, 0,
                                "The value was expected to be of type string");
 }
