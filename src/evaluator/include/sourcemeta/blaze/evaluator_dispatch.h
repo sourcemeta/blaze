@@ -3,8 +3,15 @@
 
 #include <sourcemeta/blaze/evaluator.h>
 
-// TODO(C++23): Replace __builtin_assume with [[assume]] when available in
-// Apple Clang (requires Clang 19)
+// TODO(C++23): Replace SOURCEMETA_ASSUME with [[assume]] when available
+// across all compilers (Clang 19, GCC 13)
+#if defined(__clang__)
+#define SOURCEMETA_ASSUME(x)                                                   \
+  assert(x);                                                                   \
+  __builtin_assume(x)
+#else
+#define SOURCEMETA_ASSUME(x) assert(x)
+#endif
 
 #define SOURCEMETA_STRINGIFY(x) #x
 
@@ -225,14 +232,14 @@ inline auto effective_type_strict_real(const JSON &instance) noexcept
 template <typename T>
 inline auto assume_value(const Value &variant) noexcept -> const T & {
   const auto *pointer{std::get_if<T>(&variant)};
-  __builtin_assume(pointer != nullptr);
+  SOURCEMETA_ASSUME(pointer != nullptr);
   return *pointer;
 }
 
 template <typename T>
 inline auto assume_value_copy(const Value &variant) noexcept -> T {
   const auto *pointer{std::get_if<T>(&variant)};
-  __builtin_assume(pointer != nullptr);
+  SOURCEMETA_ASSUME(pointer != nullptr);
   return *pointer;
 }
 
@@ -444,7 +451,7 @@ INSTRUCTION_HANDLER(AssertionType) {
   // TODO: Maybe make this instruction about integers, as it is the
   // only where where it is actually useful?
   assert(value == JSON::Type::Integer);
-  __builtin_assume(value == JSON::Type::Integer);
+  SOURCEMETA_ASSUME(value == JSON::Type::Integer);
 
   // In non-strict mode, we consider a real number that represents an
   // integer to be an integer
@@ -502,7 +509,7 @@ INSTRUCTION_HANDLER(AssertionTypeStringBounded) {
   assert(!maximum.has_value() || maximum.value() >= minimum);
   // Require early breaking
   assert(!exhaustive);
-  __builtin_assume(!exhaustive);
+  SOURCEMETA_ASSUME(!exhaustive);
   result = target.type() == JSON::Type::String &&
            target.string_size() >= minimum &&
            (!maximum.has_value() || target.string_size() <= maximum.value());
@@ -527,7 +534,7 @@ INSTRUCTION_HANDLER(AssertionTypeArrayBounded) {
   assert(!maximum.has_value() || maximum.value() >= minimum);
   // Require early breaking
   assert(!exhaustive);
-  __builtin_assume(!exhaustive);
+  SOURCEMETA_ASSUME(!exhaustive);
   result = target.type() == JSON::Type::Array &&
            target.array_size() >= minimum &&
            (!maximum.has_value() || target.array_size() <= maximum.value());
@@ -552,7 +559,7 @@ INSTRUCTION_HANDLER(AssertionTypeObjectBounded) {
   assert(!maximum.has_value() || maximum.value() >= minimum);
   // Require early breaking
   assert(!exhaustive);
-  __builtin_assume(!exhaustive);
+  SOURCEMETA_ASSUME(!exhaustive);
   result = target.type() == JSON::Type::Object &&
            target.object_size() >= minimum &&
            (!maximum.has_value() || target.object_size() <= maximum.value());
@@ -672,7 +679,7 @@ INSTRUCTION_HANDLER(AssertionEqualsAnyStringHash) {
   if (string_size < value.second.size()) [[likely]] {
     const auto &hint{value.second[string_size]};
     assert(hint.first <= hint.second);
-    __builtin_assume(hint.first <= hint.second);
+    SOURCEMETA_ASSUME(hint.first <= hint.second);
     if (hint.second != 0) [[likely]] {
       // TODO(C++23): Use std::views::enumerate when available in libc++
       for (std::size_t index = hint.first - 1; index < hint.second; index++) {
@@ -835,8 +842,8 @@ INSTRUCTION_HANDLER(AssertionArrayPrefix) {
     const auto &entry{instruction.children[pointer]};
     result = true;
     assert(entry.type == sourcemeta::blaze::InstructionIndex::ControlGroup);
-    __builtin_assume(entry.type ==
-                     sourcemeta::blaze::InstructionIndex::ControlGroup);
+    SOURCEMETA_ASSUME(entry.type ==
+                      sourcemeta::blaze::InstructionIndex::ControlGroup);
     for (const auto &child : entry.children) {
       if (!EVALUATE_RECURSE(child, target)) [[unlikely]] {
         result = false;
@@ -861,8 +868,8 @@ INSTRUCTION_HANDLER(AssertionArrayPrefixEvaluate) {
     const auto &entry{instruction.children[pointer]};
     result = true;
     assert(entry.type == sourcemeta::blaze::InstructionIndex::ControlGroup);
-    __builtin_assume(entry.type ==
-                     sourcemeta::blaze::InstructionIndex::ControlGroup);
+    SOURCEMETA_ASSUME(entry.type ==
+                      sourcemeta::blaze::InstructionIndex::ControlGroup);
     for (const auto &child : entry.children) {
       if (!EVALUATE_RECURSE(child, target)) [[unlikely]] {
         result = false;
@@ -871,7 +878,7 @@ INSTRUCTION_HANDLER(AssertionArrayPrefixEvaluate) {
     }
 
     assert(result);
-    __builtin_assume(result);
+    SOURCEMETA_ASSUME(result);
     if (array_size == prefixes) {
       context.evaluator->evaluate(&target);
     } else {
@@ -931,11 +938,11 @@ INSTRUCTION_HANDLER(LogicalWhenType) {
   // Not having to worry about numbers in this instruction
   // makes things a lot simpler
   assert(value != JSON::Type::Integer);
-  __builtin_assume(value != JSON::Type::Integer);
+  SOURCEMETA_ASSUME(value != JSON::Type::Integer);
   assert(value != JSON::Type::Real);
-  __builtin_assume(value != JSON::Type::Real);
+  SOURCEMETA_ASSUME(value != JSON::Type::Real);
   assert(value != JSON::Type::Decimal);
-  __builtin_assume(value != JSON::Type::Decimal);
+  SOURCEMETA_ASSUME(value != JSON::Type::Decimal);
 
   EVALUATE_BEGIN(LogicalWhenType, target.type() == value);
   result = true;
@@ -1011,9 +1018,9 @@ INSTRUCTION_HANDLER(LogicalCondition) {
   const auto value{assume_value_copy<ValueIndexPair>(instruction.value)};
   const auto children_size{instruction.children.size()};
   assert(children_size >= value.first);
-  __builtin_assume(children_size >= value.first);
+  SOURCEMETA_ASSUME(children_size >= value.first);
   assert(children_size >= value.second);
-  __builtin_assume(children_size >= value.second);
+  SOURCEMETA_ASSUME(children_size >= value.second);
 
   auto condition_end{children_size};
   if (value.first > 0) {
@@ -1124,11 +1131,11 @@ INSTRUCTION_HANDLER(ControlGroupWhenType) {
   // Not having to worry about numbers in this instruction
   // makes things a lot simpler
   assert(value != JSON::Type::Integer);
-  __builtin_assume(value != JSON::Type::Integer);
+  SOURCEMETA_ASSUME(value != JSON::Type::Integer);
   assert(value != JSON::Type::Real);
-  __builtin_assume(value != JSON::Type::Real);
+  SOURCEMETA_ASSUME(value != JSON::Type::Real);
   assert(value != JSON::Type::Decimal);
-  __builtin_assume(value != JSON::Type::Decimal);
+  SOURCEMETA_ASSUME(value != JSON::Type::Decimal);
 
   if (instance.type() == value) [[likely]] {
     for (const auto &child : instruction.children) {
@@ -2407,6 +2414,7 @@ inline auto evaluate_instruction_with_property(
 #undef EVALUATE_ANNOTATION
 #undef EVALUATE_RECURSE
 #undef EVALUATE_RECURSE_ON_PROPERTY_NAME
+#undef SOURCEMETA_ASSUME
 #undef SOURCEMETA_STRINGIFY
 
 #endif
