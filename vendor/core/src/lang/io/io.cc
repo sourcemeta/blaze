@@ -11,7 +11,7 @@
 #if defined(__linux__)
 #include <linux/fs.h>    // RENAME_EXCHANGE
 #include <sys/syscall.h> // SYS_renameat2, syscall
-#elif defined(__APPLE__)
+#elifdef __APPLE__
 #include <sys/stdio.h> // renameatx_np, RENAME_SWAP
 #endif
 #endif
@@ -94,7 +94,7 @@ auto atomic_directory_swap(const std::filesystem::path &original,
   }
 
   // Atomic swap via renameatx_np with RENAME_SWAP
-#elif defined(__APPLE__)
+#elifdef __APPLE__
   if (renameatx_np(AT_FDCWD, replacement.c_str(), AT_FDCWD, original.c_str(),
                    RENAME_SWAP) != 0) {
     throw std::filesystem::filesystem_error{

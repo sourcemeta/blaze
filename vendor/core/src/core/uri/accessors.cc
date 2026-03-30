@@ -6,10 +6,7 @@
 
 namespace sourcemeta::core {
 
-auto URI::is_relative() const -> bool {
-  return !this->scheme().has_value() ||
-         (this->path_.has_value() && this->path_.value().starts_with("."));
-}
+auto URI::is_relative() const -> bool { return !this->scheme().has_value(); }
 
 auto URI::is_absolute() const noexcept -> bool {
   return this->scheme_.has_value();
@@ -36,8 +33,7 @@ auto URI::is_file() const -> bool {
 }
 
 auto URI::is_ipv6() const -> bool {
-  return this->host_.has_value() &&
-         this->host_.value().find(':') != std::string::npos;
+  return this->host_.has_value() && this->host_.value().contains(':');
 }
 
 auto URI::is_fragment_only() const -> bool {
