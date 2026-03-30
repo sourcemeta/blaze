@@ -3,13 +3,14 @@
 
 #include <sourcemeta/core/jsonpointer_token.h>
 
-#include <algorithm>        // std::copy, std::equal
+#include <algorithm>        // std::move, std::equal
 #include <cassert>          // assert
 #include <cstddef>          // std::size_t
 #include <functional>       // std::reference_wrapper
 #include <initializer_list> // std::initializer_list
 #include <iterator>         // std::advance, std::back_inserter
-#include <type_traits>      // std::enable_if_t, std::is_same_v, std::false_type
+#include <ranges>           // std::ranges::subrange
+#include <type_traits>      // std::is_same_v, std::decay_t, std::false_type
 #include <utility>          // std::move
 #include <vector>           // std::vector
 
@@ -228,8 +229,13 @@ public:
     }
 
     this->reserve(this->data.size() + other.size());
+// TODO: Remove once GitHub Actions ship proper C++23 support
+#if __cpp_lib_containers_ranges >= 202202L
+    this->data.append_range(other.data);
+#else
     std::copy(other.data.cbegin(), other.data.cend(),
               std::back_inserter(this->data));
+#endif
   }
 
   /// Move a JSON Pointer into the back of a JSON Pointer. For example:
@@ -465,7 +471,13 @@ public:
     std::advance(new_begin, index);
     GenericPointer<PropertyT, Hash> result;
     result.reserve(this->size() - index);
+// TODO: Remove once GitHub Actions ship proper C++23 support
+#if __cpp_lib_containers_ranges >= 202202L
+    result.data.append_range(
+        std::ranges::subrange(new_begin, this->data.cend()));
+#else
     std::copy(new_begin, this->data.cend(), std::back_inserter(result.data));
+#endif
     return result;
   }
 
@@ -496,7 +508,12 @@ public:
     std::advance(new_end, end);
     GenericPointer<PropertyT, Hash> result;
     result.reserve(end - start);
+// TODO: Remove once GitHub Actions ship proper C++23 support
+#if __cpp_lib_containers_ranges >= 202202L
+    result.data.append_range(std::ranges::subrange(new_begin, new_end));
+#else
     std::copy(new_begin, new_end, std::back_inserter(result.data));
+#endif
     return result;
   }
 
@@ -669,7 +686,13 @@ public:
     auto new_begin{this->data.cbegin()};
     std::advance(new_begin, index);
     GenericPointer<PropertyT, Hash> result{replacement};
+// TODO: Remove once GitHub Actions ship proper C++23 support
+#if __cpp_lib_containers_ranges >= 202202L
+    result.data.append_range(
+        std::ranges::subrange(new_begin, this->data.cend()));
+#else
     std::copy(new_begin, this->data.cend(), std::back_inserter(result.data));
+#endif
     return result;
   }
 
@@ -710,7 +733,13 @@ public:
     const auto remaining{static_cast<typename Container::size_type>(
         this->data.cend() - new_begin)};
     result.data.reserve(remaining);
+// TODO: Remove once GitHub Actions ship proper C++23 support
+#if __cpp_lib_containers_ranges >= 202202L
+    result.data.append_range(
+        std::ranges::subrange(new_begin, this->data.cend()));
+#else
     std::copy(new_begin, this->data.cend(), std::back_inserter(result.data));
+#endif
     return result;
   }
 
