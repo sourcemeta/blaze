@@ -9,8 +9,9 @@
 #include <functional>       // std::reference_wrapper
 #include <initializer_list> // std::initializer_list
 #include <iterator>         // std::advance, std::back_inserter
+#include <optional>         // std::optional
 #include <ranges>           // std::ranges::subrange
-#include <type_traits>      // std::is_same_v, std::decay_t, std::false_type
+#include <type_traits>      // std::is_same_v, std::decay_t
 #include <utility>          // std::move
 #include <vector>           // std::vector
 
@@ -24,8 +25,6 @@ public:
   using Token = GenericToken<PropertyT, Hash>;
   using Value = typename Token::Value;
   using Container = std::vector<Token>;
-  // We manually provide a JSON transformer
-  using json_auto = std::false_type;
 
   /// This constructor creates an empty JSON Pointer. For example:
   ///
@@ -845,6 +844,40 @@ public:
       return left == right.get();
     }
   };
+
+  /// Serialise a JSON Pointer as a JSON array of tokens
+  [[nodiscard]] auto to_json() const -> Value {
+    auto result{Value::make_array()};
+    for (const auto &token : this->data) {
+      result.push_back(token.to_json());
+    }
+
+    return result;
+  }
+
+  /// Deserialise a JSON Pointer from a JSON array of tokens
+  static auto from_json(const Value &value)
+      -> std::optional<GenericPointer<PropertyT, Hash>>
+    requires std::is_same_v<PropertyT, typename Value::String>
+  {
+    if (!value.is_array()) {
+      return std::nullopt;
+    }
+
+    GenericPointer<PropertyT, Hash> result;
+    for (const auto &element : value.as_array()) {
+      if (element.is_string()) {
+        result.emplace_back(element.to_string());
+      } else if (element.is_integer()) {
+        result.emplace_back(
+            static_cast<typename Token::Index>(element.to_integer()));
+      } else {
+        return std::nullopt;
+      }
+    }
+
+    return result;
+  }
 
 private:
   Container data;

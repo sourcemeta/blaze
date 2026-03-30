@@ -38,8 +38,8 @@ TEST(Compiler_JSON, example_1) {
       [
         [
           11,
-          "/type",
-          "",
+          [ "type" ],
+          [],
           "#/type",
           0,
           [ 8, 4 ]
@@ -74,24 +74,24 @@ TEST(Compiler_JSON, example_2) {
       [
         [
           61,
-          "/additionalProperties",
-          "",
+          [ "additionalProperties" ],
+          [],
           "#/additionalProperties",
           0,
           [ 0 ],
           [
             [
               34,
-              "/multipleOf",
-              "",
+              [ "multipleOf" ],
+              [],
               "#/additionalProperties/multipleOf",
               0,
               [ 1, 2 ]
             ],
             [
               10,
-              "/type",
-              "",
+              [ "type" ],
+              [],
               "#/additionalProperties/type",
               0,
               [ 7, 156 ]
@@ -125,8 +125,8 @@ TEST(Compiler_JSON, example_3) {
       [
         [
           19,
-          "/pattern",
-          "",
+          [ "pattern" ],
+          [],
           "#/pattern",
           0,
           [ 9, "^f" ]
@@ -163,24 +163,24 @@ TEST(Compiler_JSON, example_4) {
       [
         [
           61,
-          "/additionalProperties",
-          "",
+          [ "additionalProperties" ],
+          [],
           "#/additionalProperties",
           1,
           [ 0 ],
           [
             [
               34,
-              "/multipleOf",
-              "",
+              [ "multipleOf" ],
+              [],
               "#/multipleOf",
               2,
               [ 1, 2 ]
             ],
             [
               10,
-              "/type",
-              "",
+              [ "type" ],
+              [],
               "#/type",
               2,
               [ 7, 156 ]
@@ -240,8 +240,8 @@ TEST(Compiler_JSON, example_5) {
       [
         [
           44,
-          "/foo%",
-          "",
+          [ "foo%" ],
+          [],
           "#/foo%25",
           1,
           [ 1, true ]
@@ -285,24 +285,24 @@ TEST(Compiler_JSON, example_6) {
       [
         [
           61,
-          "/additionalProperties",
-          "",
+          [ "additionalProperties" ],
+          [],
           "#/additionalProperties",
           1,
           [ 0 ],
           [
             [
               11,
-              "/type",
-              "",
+              [ "type" ],
+              [],
               "#/additionalProperties/type",
               1,
               [ 8, 4 ]
             ],
             [
               46,
-              "",
-              "",
+              [],
+              [],
               "#/additionalProperties",
               1,
               [ 0 ]
