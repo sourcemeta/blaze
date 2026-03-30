@@ -192,8 +192,8 @@ auto is_within_keyword(const sourcemeta::core::WeakPointer &evaluate_path,
 }
 
 auto unknown() -> std::string {
-  // In theory we should never get here
-  std::unreachable();
+  assert(false);
+  return "<unknown>";
 }
 
 } // namespace
