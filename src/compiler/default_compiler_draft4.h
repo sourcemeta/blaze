@@ -156,7 +156,7 @@ static auto to_string_hashes(
   result.second.resize(hashes.back().first.size() + 1, std::make_pair(0, 0));
   // TODO(C++23): Use std::views::enumerate when available in libc++
   for (std::size_t index = 0; index < hashes.size(); index++) {
-    result.first.push_back(hashes[index].second);
+    result.first.emplace_back(hashes[index].second, hashes[index].first);
     const auto string_size{hashes[index].first.size()};
     // We leave index 0 to represent the empty string
     const auto position{index + 1};
