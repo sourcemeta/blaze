@@ -2210,7 +2210,8 @@ INSTRUCTION_HANDLER(LoopContains) {
   const auto &[minimum, maximum, is_exhaustive] = value;
   assert(!maximum.has_value() || maximum.value() >= minimum);
   result = minimum == 0 && target.empty();
-  auto match_count{std::numeric_limits<decltype(minimum)>::min()};
+  auto match_count{
+      std::numeric_limits<std::remove_cvref_t<decltype(minimum)>>::min()};
 
   for (std::size_t index = 0; index < target.array_size(); index++) {
     if constexpr (HasCallback) {
