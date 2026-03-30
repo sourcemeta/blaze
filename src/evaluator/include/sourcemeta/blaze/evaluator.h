@@ -66,6 +66,7 @@ enum class EvaluationType : std::uint8_t { Pre, Post };
 /// - The annotation result, if any (otherwise null)
 ///
 /// You can use this callback mechanism to implement arbitrary output formats.
+// TODO(C++23): Use std::move_only_function when available in libc++
 using Callback = std::function<void(
     const EvaluationType, bool, const Instruction &, const InstructionExtra &,
     const sourcemeta::core::WeakPointer &,
