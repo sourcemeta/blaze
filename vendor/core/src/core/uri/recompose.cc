@@ -131,7 +131,7 @@ auto URI::recompose_without_fragment() const -> std::optional<std::string> {
 
   // Host
   if (result_host.has_value()) {
-    if (this->is_ipv6()) {
+    if (this->ip_literal_) {
       result += '[';
       result += result_host.value();
       result += ']';

@@ -1,3 +1,4 @@
+#include <sourcemeta/core/ip.h>
 #include <sourcemeta/core/uri.h>
 
 #include <cstdint>  // std::uint32_t
@@ -32,8 +33,14 @@ auto URI::is_file() const -> bool {
   return scheme.has_value() && scheme.value() == "file";
 }
 
+auto URI::is_ipv4() const -> bool {
+  return this->host_.has_value() &&
+         sourcemeta::core::is_ipv4(this->host_.value());
+}
+
 auto URI::is_ipv6() const -> bool {
-  return this->host_.has_value() && this->host_.value().contains(':');
+  return this->host_.has_value() &&
+         sourcemeta::core::is_ipv6(this->host_.value());
 }
 
 auto URI::is_fragment_only() const -> bool {

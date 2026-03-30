@@ -249,7 +249,8 @@ auto parse_ipv6(const std::string_view input,
 
 template <bool CheckOnly>
 auto parse_host(const std::string_view input,
-                std::string_view::size_type &position)
+                std::string_view::size_type &position,
+                [[maybe_unused]] bool &ip_literal)
     -> std::conditional_t<CheckOnly, void, std::string> {
   if (position >= input.size()) {
     if constexpr (!CheckOnly) {
@@ -260,6 +261,7 @@ auto parse_host(const std::string_view input,
   }
 
   if (input[position] == URI_OPEN_BRACKET) {
+    ip_literal = true;
     if constexpr (CheckOnly) {
       parse_ipv6<true>(input, position);
       return;
@@ -461,11 +463,11 @@ auto parse_authority(const std::string_view input,
                      std::string_view::size_type &position,
                      [[maybe_unused]] std::optional<std::string> &userinfo,
                      [[maybe_unused]] std::optional<std::string> &host,
-                     [[maybe_unused]] std::optional<std::uint32_t> &port)
-    -> void {
+                     [[maybe_unused]] std::optional<std::uint32_t> &port,
+                     [[maybe_unused]] bool &ip_literal) -> void {
   if constexpr (CheckOnly) {
     parse_userinfo<true>(input, position);
-    parse_host<true>(input, position);
+    parse_host<true>(input, position, ip_literal);
   } else {
     auto userinfo_raw = parse_userinfo<false>(input, position);
     if (userinfo_raw.has_value()) {
@@ -473,7 +475,7 @@ auto parse_authority(const std::string_view input,
       userinfo = std::move(userinfo_raw.value());
     }
 
-    auto host_raw = parse_host<false>(input, position);
+    auto host_raw = parse_host<false>(input, position, ip_literal);
     uri_unescape_unreserved_inplace(host_raw);
     host = std::move(host_raw);
   }
@@ -513,7 +515,8 @@ auto do_parse(const std::string_view input,
               [[maybe_unused]] std::optional<std::uint32_t> &port,
               [[maybe_unused]] std::optional<std::string> &path,
               [[maybe_unused]] std::optional<std::string> &query,
-              [[maybe_unused]] std::optional<std::string> &fragment) -> bool {
+              [[maybe_unused]] std::optional<std::string> &fragment,
+              [[maybe_unused]] bool &ip_literal) -> bool {
   if (input.empty()) {
     return false;
   }
@@ -534,7 +537,8 @@ auto do_parse(const std::string_view input,
 
   if (has_authority) {
     position += 2;
-    parse_authority<CheckOnly>(input, position, userinfo, host, port);
+    parse_authority<CheckOnly>(input, position, userinfo, host, port,
+                               ip_literal);
 
     // RFC 3986: hier-part = "//" authority path-abempty
     // path-abempty = *( "/" segment ), so after authority the next character
@@ -635,15 +639,17 @@ auto URI::parse(const std::string_view input) -> void {
   assert(!this->query_.has_value());
   assert(!this->fragment_.has_value());
   do_parse<false>(input, this->scheme_, this->userinfo_, this->host_,
-                  this->port_, this->path_, this->query_, this->fragment_);
+                  this->port_, this->path_, this->query_, this->fragment_,
+                  this->ip_literal_);
 }
 
 auto URI::is_uri(const std::string_view input) noexcept -> bool {
   try {
     std::optional<std::string> scheme, userinfo, host, path, query, fragment;
     std::optional<std::uint32_t> port;
+    bool ip_literal{false};
     return do_parse<true>(input, scheme, userinfo, host, port, path, query,
-                          fragment);
+                          fragment, ip_literal);
   } catch (...) {
     return false;
   }
@@ -653,7 +659,9 @@ auto URI::is_uri_reference(const std::string_view input) noexcept -> bool {
   try {
     std::optional<std::string> scheme, userinfo, host, path, query, fragment;
     std::optional<std::uint32_t> port;
-    do_parse<true>(input, scheme, userinfo, host, port, path, query, fragment);
+    bool ip_literal{false};
+    do_parse<true>(input, scheme, userinfo, host, port, path, query, fragment,
+                   ip_literal);
     return true;
   } catch (...) {
     return false;
