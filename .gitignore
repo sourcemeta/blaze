@@ -12,5 +12,4 @@ _deps
 Brewfile.lock.json
 .DS_Store
 .cache
-/bindings/*/build
 node_modules
