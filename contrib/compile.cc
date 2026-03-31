@@ -13,26 +13,56 @@
 #include <utility>     // std::pair
 #include <vector>      // std::vector
 
+using ResolveDirectories =
+    std::vector<std::pair<std::string, std::filesystem::path>>;
+
 static auto parse_resolve_directory(const std::string_view value)
-    -> std::pair<std::string, std::filesystem::path> {
+    -> std::optional<std::pair<std::string, std::filesystem::path>> {
   const auto comma{value.find(',')};
   if (comma == std::string_view::npos || comma == 0 ||
       comma == value.size() - 1) {
-    std::cerr << "error: --resolve-directory value must be "
-                 "<uri-prefix>,<directory>\n";
-    std::exit(EXIT_FAILURE);
+    return std::nullopt;
   }
 
-  return {std::string{value.substr(0, comma)},
-          std::filesystem::path{value.substr(comma + 1)}};
+  return std::pair{std::string{value.substr(0, comma)},
+                   std::filesystem::path{value.substr(comma + 1)}};
+}
+
+static auto resolve_schema(const std::string_view identifier,
+                           const ResolveDirectories &resolve_directories)
+    -> std::optional<sourcemeta::core::JSON> {
+  for (const auto &[prefix, directory] : resolve_directories) {
+    if (!identifier.starts_with(prefix)) {
+      continue;
+    }
+
+    auto suffix{identifier.substr(prefix.size())};
+    if (!suffix.empty() && suffix.front() == '/') {
+      suffix.remove_prefix(1);
+    }
+
+    const auto file_path{std::filesystem::weakly_canonical(
+        directory / std::filesystem::path{suffix})};
+    const auto directory_string{directory.string()};
+    const auto file_string{file_path.string()};
+    if (!file_string.starts_with(directory_string)) {
+      continue;
+    }
+
+    if (std::filesystem::exists(file_path)) {
+      return sourcemeta::core::read_json(file_path);
+    }
+  }
+
+  return sourcemeta::core::schema_resolver(identifier);
 }
 
 auto main(int argc, char **argv) noexcept -> int {
   sourcemeta::core::Options options;
-  options.flag("fast", {"-f"});
-  options.option("default-dialect", {"-d"});
-  options.option("resolve-directory", {"-r"});
-  options.option("path", {"-p"});
+  options.flag("fast", {"f"});
+  options.option("default-dialect", {"d"});
+  options.option("resolve-directory", {"r"});
+  options.option("path", {"p"});
 
   try {
     options.parse(argc, argv);
@@ -64,41 +94,39 @@ auto main(int argc, char **argv) noexcept -> int {
     std::cerr << "Default dialect: " << default_dialect << "\n";
   }
 
-  std::vector<std::pair<std::string, std::filesystem::path>>
-      resolve_directories;
-  if (options.contains("resolve-directory")) {
-    for (const auto &value : options.at("resolve-directory")) {
-      auto entry{parse_resolve_directory(value)};
-      if (!std::filesystem::is_directory(entry.second)) {
-        std::cerr << "error: not a directory: " << entry.second << "\n";
-        return EXIT_FAILURE;
-      }
-
-      std::cerr << "Resolve: " << entry.first << " -> " << entry.second << "\n";
-      resolve_directories.push_back(std::move(entry));
-    }
-  }
-
-  const auto resolver{[&resolve_directories](const std::string_view identifier)
-                          -> std::optional<sourcemeta::core::JSON> {
-    for (const auto &[prefix, directory] : resolve_directories) {
-      if (identifier.starts_with(prefix)) {
-        auto suffix{identifier.substr(prefix.size())};
-        if (!suffix.empty() && suffix.front() == '/') {
-          suffix.remove_prefix(1);
-        }
-
-        const auto file_path{directory / std::filesystem::path{suffix}};
-        if (std::filesystem::exists(file_path)) {
-          return sourcemeta::core::read_json(file_path);
-        }
-      }
-    }
-
-    return sourcemeta::core::schema_resolver(identifier);
-  }};
-
   try {
+    std::vector<std::pair<std::string, std::filesystem::path>>
+        resolve_directories;
+    if (options.contains("resolve-directory")) {
+      for (const auto &value : options.at("resolve-directory")) {
+        auto entry{parse_resolve_directory(value)};
+        if (!entry.has_value()) {
+          std::cerr << "error: --resolve-directory value must be "
+                       "<uri-prefix>,<directory>\n";
+          return EXIT_FAILURE;
+        }
+
+        const auto canonical{
+            std::filesystem::weakly_canonical(entry.value().second)};
+        if (!std::filesystem::is_directory(canonical)) {
+          std::cerr << "error: not a directory: " << entry.value().second
+                    << "\n";
+          return EXIT_FAILURE;
+        }
+
+        entry.value().second = canonical;
+        std::cerr << "Resolve: " << entry.value().first << " -> " << canonical
+                  << "\n";
+        resolve_directories.push_back(std::move(entry.value()));
+      }
+    }
+
+    const auto resolver{
+        [&resolve_directories](const std::string_view identifier)
+            -> std::optional<sourcemeta::core::JSON> {
+          return resolve_schema(identifier, resolve_directories);
+        }};
+
     auto document{
         sourcemeta::core::read_json(std::filesystem::path{positional.front()})};
     std::cerr << "Input: " << positional.front() << "\n";
