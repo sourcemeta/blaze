@@ -141,6 +141,11 @@ jobs:
       - run: cmake --build ./build --config Release --verbose --target benchmark_json
         if: matrix.platform.benchmark
 
+      # Node.js
+      - run: node --test ports/javascript/test.mjs
+      - run: node ports/javascript/benchmark.mjs > build/benchmark-javascript.json
+        if: matrix.platform.benchmark
+
       - uses: benchmark-action/github-action-benchmark@v1
         # Avoid posting messages on forks until we figure out how to make it work
         # See https://github.com/benchmark-action/github-action-benchmark/issues/279
@@ -155,12 +160,6 @@ jobs:
           alert-threshold: '5%'
           comment-always: true
           fail-on-alert: false
-
-      # Node.js
-      - run: node --test ports/javascript/test.mjs
-      - run: node ports/javascript/benchmark.mjs > build/benchmark-javascript.json
-        if: matrix.platform.benchmark
-
       - uses: benchmark-action/github-action-benchmark@v1
         # Avoid posting messages on forks until we figure out how to make it work
         # See https://github.com/benchmark-action/github-action-benchmark/issues/279
