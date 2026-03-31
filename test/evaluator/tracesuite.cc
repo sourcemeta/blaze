@@ -10,9 +10,8 @@
 
 #include <cassert>     // assert
 #include <cstdint>     // std::uint8_t
+#include <cstdio>      // std::fprintf
 #include <filesystem>  // std::filesystem::path
-#include <format>      // std::format
-#include <print>       // std::println
 #include <string>      // std::string
 #include <string_view> // std::string_view
 #include <utility>     // std::move, std::unreachable
@@ -27,7 +26,8 @@ static auto to_instruction_index(const std::string_view name)
     }
   }
 
-  std::println(stderr, "Unknown instruction type: {}", name);
+  std::fprintf(stderr, "Unknown instruction type: %.*s\n",
+               static_cast<int>(name.size()), name.data());
   std::unreachable();
 }
 
@@ -135,7 +135,7 @@ private:
 
 static auto register_tests(const std::filesystem::path &path,
                            const std::string &suite_name) -> void {
-  std::println(stderr, "-- Parsing: {}", path.string());
+  std::fprintf(stderr, "-- Parsing: %s\n", path.string().c_str());
   auto suite{sourcemeta::core::read_json(path)};
   assert(suite.is_array());
 
@@ -154,9 +154,10 @@ static auto register_tests(const std::filesystem::path &path,
         continue;
       }
 
-      const auto title{mode == sourcemeta::blaze::Mode::FastValidation
-                           ? std::format("{}_fast", description)
-                           : std::format("{}_exhaustive", description)};
+      const auto title{description +
+                       (mode == sourcemeta::blaze::Mode::FastValidation
+                            ? "_fast"
+                            : "_exhaustive")};
 
       testing::RegisterTest(suite_name.c_str(), title.c_str(), nullptr, nullptr,
                             __FILE__, __LINE__, [=]() -> TraceTest * {
@@ -192,7 +193,7 @@ auto main(int argc, char **argv) -> int {
                        "evaluator_draft4.json",
                    "Evaluator_draft4");
   } catch (const std::exception &error) {
-    std::println(stderr, "Error: {}", error.what());
+    std::fprintf(stderr, "Error: %s\n", error.what());
     return EXIT_FAILURE;
   }
 
