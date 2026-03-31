@@ -395,9 +395,7 @@
       "post": [
         [ true, "LoopItemsTypeStrictAny", "/items", "#/items", "" ]
       ],
-      "descriptions": [
-        "The array items were expected to be of type number"
-      ]
+      "descriptions": [ "The array items were expected to be of type number" ]
     }
   }
 ]

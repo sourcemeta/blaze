@@ -1749,9 +1749,7 @@
       "post": [
         [ true, "AssertionType", "/type", "#/type", "" ]
       ],
-      "descriptions": [
-        "The value was expected to be of type integer"
-      ]
+      "descriptions": [ "The value was expected to be of type integer" ]
     }
   },
   {
@@ -1769,9 +1767,7 @@
       "post": [
         [ true, "AssertionType", "/type", "#/type", "" ]
       ],
-      "descriptions": [
-        "The value was expected to be of type integer"
-      ]
+      "descriptions": [ "The value was expected to be of type integer" ]
     }
   },
   {
@@ -1871,9 +1867,7 @@
       "post": [
         [ true, "AssertionPropertyType", "/properties/foo/type", "#/properties/foo/type", "/foo" ]
       ],
-      "descriptions": [
-        "The value was expected to be of type integer"
-      ]
+      "descriptions": [ "The value was expected to be of type integer" ]
     }
   },
   {
@@ -1893,9 +1887,7 @@
       "post": [
         [ true, "AssertionPropertyType", "/properties/foo/type", "#/properties/foo/type", "/foo" ]
       ],
-      "descriptions": [
-        "The value was expected to be of type integer"
-      ]
+      "descriptions": [ "The value was expected to be of type integer" ]
     }
   },
   {
@@ -2021,9 +2013,7 @@
       "post": [
         [ true, "LoopItemsType", "/items", "#/items", "" ]
       ],
-      "descriptions": [
-        "The array items were expected to be of type integer"
-      ]
+      "descriptions": [ "The array items were expected to be of type integer" ]
     }
   },
   {
@@ -2043,9 +2033,7 @@
       "post": [
         [ true, "LoopItemsType", "/items", "#/items", "" ]
       ],
-      "descriptions": [
-        "The array items were expected to be of type integer"
-      ]
+      "descriptions": [ "The array items were expected to be of type integer" ]
     }
   },
   {
@@ -2065,9 +2053,7 @@
       "post": [
         [ false, "LoopItemsType", "/items", "#/items", "" ]
       ],
-      "descriptions": [
-        "The array items were expected to be of type integer"
-      ]
+      "descriptions": [ "The array items were expected to be of type integer" ]
     }
   },
   {

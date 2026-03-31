@@ -962,9 +962,7 @@
       "post": [
         [ true, "AssertionTypeStrict", "/$dynamicRef/type", "#/$defs/string/type", "" ]
       ],
-      "descriptions": [
-        "The value was expected to be of type string"
-      ]
+      "descriptions": [ "The value was expected to be of type string" ]
     }
   },
   {
@@ -1057,9 +1055,7 @@
       "post": [
         [ true, "AssertionTypeStrict", "/$ref/type", "#/$defs/https:~1~1example.com~1schema~1type/type", "" ]
       ],
-      "descriptions": [
-        "The value was expected to be of type string"
-      ]
+      "descriptions": [ "The value was expected to be of type string" ]
     }
   },
   {
@@ -1085,9 +1081,7 @@
       "post": [
         [ true, "AssertionTypeStrict", "/$ref/$ref/type", "#/definitions/string/type", "" ]
       ],
-      "descriptions": [
-        "The value was expected to be of type string"
-      ]
+      "descriptions": [ "The value was expected to be of type string" ]
     },
     "exhaustive": {
       "pre": [
@@ -1542,9 +1536,7 @@
       "post": [
         [ true, "AssertionTypeStrict", "/$ref/type", "https://www.example.com#/items/type", "" ]
       ],
-      "descriptions": [
-        "The value was expected to be of type string"
-      ]
+      "descriptions": [ "The value was expected to be of type string" ]
     }
   },
   {
@@ -1556,9 +1548,7 @@
         "description": "Test",
         "default": "Test",
         "deprecated": true,
-        "examples": [
-          "foo"
-        ],
+        "examples": [ "foo" ],
         "readOnly": true,
         "writeOnly": true,
         "x-foo": "bar",
@@ -1629,9 +1619,7 @@
       "post": [
         [ true, "Annotation", "/description", "#/description", "", "Foo Bar" ]
       ],
-      "descriptions": [
-        "The description of the instance was \"Foo Bar\""
-      ]
+      "descriptions": [ "The description of the instance was \"Foo Bar\"" ]
     }
   },
   {

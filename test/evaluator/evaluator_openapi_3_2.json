@@ -75,9 +75,7 @@
       "post": [
         [ true, "AssertionTypeStrict", "/type", "#/type", "" ]
       ],
-      "descriptions": [
-        "The value was expected to be of type string"
-      ]
+      "descriptions": [ "The value was expected to be of type string" ]
     },
     "exhaustive": {
       "pre": [
@@ -86,9 +84,7 @@
       "post": [
         [ true, "AssertionTypeStrict", "/type", "#/type", "" ]
       ],
-      "descriptions": [
-        "The value was expected to be of type string"
-      ]
+      "descriptions": [ "The value was expected to be of type string" ]
     }
   },
   {

@@ -113,13 +113,8 @@
     "schema": {
       "$schema": "https://json-schema.org/draft/2019-09/schema",
       "dependentRequired": {
-        "foo": [
-          "bar",
-          "baz"
-        ],
-        "qux": [
-          "extra"
-        ]
+        "foo": [ "bar", "baz" ],
+        "qux": [ "extra" ]
       }
     },
     "instance": 5,
@@ -131,13 +126,8 @@
     "schema": {
       "$schema": "https://json-schema.org/draft/2019-09/schema",
       "dependentRequired": {
-        "foo": [
-          "bar",
-          "baz"
-        ],
-        "qux": [
-          "extra"
-        ]
+        "foo": [ "bar", "baz" ],
+        "qux": [ "extra" ]
       }
     },
     "instance": {
@@ -163,13 +153,8 @@
     "schema": {
       "$schema": "https://json-schema.org/draft/2019-09/schema",
       "dependentRequired": {
-        "foo": [
-          "bar",
-          "baz"
-        ],
-        "qux": [
-          "extra"
-        ]
+        "foo": [ "bar", "baz" ],
+        "qux": [ "extra" ]
       }
     },
     "instance": {
@@ -194,13 +179,8 @@
     "schema": {
       "$schema": "https://json-schema.org/draft/2019-09/schema",
       "dependentRequired": {
-        "foo": [
-          "bar",
-          "baz"
-        ],
-        "qux": [
-          "extra"
-        ]
+        "foo": [ "bar", "baz" ],
+        "qux": [ "extra" ]
       }
     },
     "instance": {
@@ -224,10 +204,7 @@
     "schema": {
       "$schema": "https://json-schema.org/draft/2019-09/schema",
       "dependentRequired": {
-        "foo": [
-          "bar",
-          "baz"
-        ]
+        "foo": [ "bar", "baz" ]
       }
     },
     "instance": {
@@ -241,9 +218,7 @@
       "post": [
         [ true, "AssertionPropertyDependencies", "/dependentRequired", "#/dependentRequired", "" ]
       ],
-      "descriptions": [
-        "The object value did not define the property \"foo\""
-      ]
+      "descriptions": [ "The object value did not define the property \"foo\"" ]
     }
   },
   {
@@ -252,15 +227,10 @@
       "$schema": "https://json-schema.org/draft/2019-09/schema",
       "dependentSchemas": {
         "foo": {
-          "required": [
-            "bar",
-            "baz"
-          ]
+          "required": [ "bar", "baz" ]
         },
         "qux": {
-          "required": [
-            "extra"
-          ]
+          "required": [ "extra" ]
         }
       }
     },
@@ -274,15 +244,10 @@
       "$schema": "https://json-schema.org/draft/2019-09/schema",
       "dependentSchemas": {
         "foo": {
-          "required": [
-            "bar",
-            "baz"
-          ]
+          "required": [ "bar", "baz" ]
         },
         "qux": {
-          "required": [
-            "extra"
-          ]
+          "required": [ "extra" ]
         }
       }
     },
@@ -315,15 +280,10 @@
       "$schema": "https://json-schema.org/draft/2019-09/schema",
       "dependentSchemas": {
         "foo": {
-          "required": [
-            "bar",
-            "baz"
-          ]
+          "required": [ "bar", "baz" ]
         },
         "qux": {
-          "required": [
-            "extra"
-          ]
+          "required": [ "extra" ]
         }
       }
     },
@@ -349,14 +309,10 @@
       "$schema": "https://json-schema.org/draft/2019-09/schema",
       "dependentSchemas": {
         "foo": {
-          "required": [
-            "bar"
-          ]
+          "required": [ "bar" ]
         },
         "baz": {
-          "required": [
-            "qux"
-          ]
+          "required": [ "qux" ]
         }
       }
     },
@@ -616,11 +572,7 @@
         "type": "string"
       }
     },
-    "instance": [
-      1,
-      "bar",
-      3
-    ],
+    "instance": [ 1, "bar", 3 ],
     "valid": true,
     "fast": {
       "pre": [
@@ -648,11 +600,7 @@
         "type": "string"
       }
     },
-    "instance": [
-      1,
-      2,
-      3
-    ],
+    "instance": [ 1, 2, 3 ],
     "valid": false,
     "fast": {
       "pre": [
@@ -683,11 +631,7 @@
         "type": "string"
       }
     },
-    "instance": [
-      "foo",
-      "bar",
-      "baz"
-    ],
+    "instance": [ "foo", "bar", "baz" ],
     "valid": true,
     "fast": {
       "pre": [
@@ -713,11 +657,7 @@
         "type": "string"
       }
     },
-    "instance": [
-      1,
-      "bar",
-      "baz"
-    ],
+    "instance": [ 1, "bar", "baz" ],
     "valid": true,
     "fast": {
       "pre": [
@@ -749,12 +689,7 @@
         "type": "string"
       }
     },
-    "instance": [
-      1,
-      "foo",
-      "bar",
-      "baz"
-    ],
+    "instance": [ 1, "foo", "bar", "baz" ],
     "valid": true,
     "fast": {
       "pre": [
@@ -786,11 +721,7 @@
         "type": "string"
       }
     },
-    "instance": [
-      1,
-      "foo",
-      2
-    ],
+    "instance": [ 1, "foo", 2 ],
     "valid": false,
     "fast": {
       "pre": [
@@ -822,11 +753,7 @@
         "type": "string"
       }
     },
-    "instance": [
-      1,
-      "foo",
-      "bar"
-    ],
+    "instance": [ 1, "foo", "bar" ],
     "valid": true,
     "fast": {
       "pre": [
@@ -858,11 +785,7 @@
         "type": "string"
       }
     },
-    "instance": [
-      "foo",
-      "bar",
-      "baz"
-    ],
+    "instance": [ "foo", "bar", "baz" ],
     "valid": false,
     "fast": {
       "pre": [
@@ -895,11 +818,7 @@
         "type": "string"
       }
     },
-    "instance": [
-      "foo",
-      "bar",
-      1
-    ],
+    "instance": [ "foo", "bar", 1 ],
     "valid": true,
     "fast": {
       "pre": [
@@ -932,11 +851,7 @@
         "type": "string"
       }
     },
-    "instance": [
-      "foo",
-      "bar",
-      "baz"
-    ],
+    "instance": [ "foo", "bar", "baz" ],
     "valid": false,
     "fast": {
       "pre": [
@@ -969,11 +884,7 @@
         "type": "string"
       }
     },
-    "instance": [
-      "foo",
-      "bar",
-      "baz"
-    ],
+    "instance": [ "foo", "bar", "baz" ],
     "valid": false,
     "fast": {
       "pre": [
@@ -993,11 +904,7 @@
       "$schema": "https://json-schema.org/draft/2019-09/schema",
       "contains": true
     },
-    "instance": [
-      "foo",
-      "bar",
-      "baz"
-    ],
+    "instance": [ "foo", "bar", "baz" ],
     "valid": true,
     "fast": {
       "pre": [
@@ -1027,9 +934,7 @@
       "post": [
         [ true, "Annotation", "/title", "#/title", "", "My title" ]
       ],
-      "descriptions": [
-        "The title of the instance was \"My title\""
-      ]
+      "descriptions": [ "The title of the instance was \"My title\"" ]
     }
   },
   {
@@ -1051,9 +956,7 @@
       "post": [
         [ true, "Annotation", "/title", "https://example.com#/title", "", "My title" ]
       ],
-      "descriptions": [
-        "The title of the instance was \"My title\""
-      ]
+      "descriptions": [ "The title of the instance was \"My title\"" ]
     }
   },
   {
@@ -1093,9 +996,7 @@
       "post": [
         [ true, "Annotation", "/default", "#/default", "", 1 ]
       ],
-      "descriptions": [
-        "The default value of the instance was 1"
-      ]
+      "descriptions": [ "The default value of the instance was 1" ]
     }
   },
   {
@@ -1114,9 +1015,7 @@
       "post": [
         [ true, "Annotation", "/deprecated", "#/deprecated", "", true ]
       ],
-      "descriptions": [
-        "The instance was considered deprecated"
-      ]
+      "descriptions": [ "The instance was considered deprecated" ]
     }
   },
   {
@@ -1135,9 +1034,7 @@
       "post": [
         [ true, "Annotation", "/deprecated", "#/deprecated", "", false ]
       ],
-      "descriptions": [
-        "The instance was not considered deprecated"
-      ]
+      "descriptions": [ "The instance was not considered deprecated" ]
     }
   },
   {
@@ -1156,9 +1053,7 @@
       "post": [
         [ true, "Annotation", "/readOnly", "#/readOnly", "", false ]
       ],
-      "descriptions": [
-        "The instance was not considered read-only"
-      ]
+      "descriptions": [ "The instance was not considered read-only" ]
     }
   },
   {
@@ -1177,9 +1072,7 @@
       "post": [
         [ true, "Annotation", "/readOnly", "#/readOnly", "", true ]
       ],
-      "descriptions": [
-        "The instance was considered read-only"
-      ]
+      "descriptions": [ "The instance was considered read-only" ]
     }
   },
   {
@@ -1198,9 +1091,7 @@
       "post": [
         [ true, "Annotation", "/writeOnly", "#/writeOnly", "", false ]
       ],
-      "descriptions": [
-        "The instance was not considered write-only"
-      ]
+      "descriptions": [ "The instance was not considered write-only" ]
     }
   },
   {
@@ -1219,20 +1110,14 @@
       "post": [
         [ true, "Annotation", "/writeOnly", "#/writeOnly", "", true ]
       ],
-      "descriptions": [
-        "The instance was considered write-only"
-      ]
+      "descriptions": [ "The instance was considered write-only" ]
     }
   },
   {
     "description": "examples",
     "schema": {
       "$schema": "https://json-schema.org/draft/2019-09/schema",
-      "examples": [
-        1,
-        2,
-        3
-      ]
+      "examples": [ 1, 2, 3 ]
     },
     "instance": 5,
     "valid": true,
@@ -1251,9 +1136,7 @@
           [ 1, 2, 3 ]
         ]
       ],
-      "descriptions": [
-        "Examples of the instance were 1, 2, and 3"
-      ]
+      "descriptions": [ "Examples of the instance were 1, 2, and 3" ]
     }
   },
   {
@@ -1303,9 +1186,7 @@
       "post": [
         [ true, "Annotation", "/contentEncoding", "#/contentEncoding", "", "base64" ]
       ],
-      "descriptions": [
-        "The content encoding of the instance was \"base64\""
-      ]
+      "descriptions": [ "The content encoding of the instance was \"base64\"" ]
     }
   },
   {
@@ -1496,11 +1377,7 @@
         "type": "string"
       }
     },
-    "instance": [
-      "foo",
-      "bar",
-      "baz"
-    ],
+    "instance": [ "foo", "bar", "baz" ],
     "valid": true,
     "fast": {
       "pre": [
@@ -1509,9 +1386,7 @@
       "post": [
         [ true, "LoopItemsTypeStrict", "/items", "#/items", "" ]
       ],
-      "descriptions": [
-        "The array items were expected to be of type string"
-      ]
+      "descriptions": [ "The array items were expected to be of type string" ]
     },
     "exhaustive": {
       "pre": [
@@ -1548,11 +1423,7 @@
         "type": "string"
       }
     },
-    "instance": [
-      "foo",
-      5,
-      "baz"
-    ],
+    "instance": [ "foo", 5, "baz" ],
     "valid": false,
     "fast": {
       "pre": [
@@ -1561,9 +1432,7 @@
       "post": [
         [ false, "LoopItemsTypeStrict", "/items", "#/items", "" ]
       ],
-      "descriptions": [
-        "The array items were expected to be of type string"
-      ]
+      "descriptions": [ "The array items were expected to be of type string" ]
     },
     "exhaustive": {
       "pre": [
@@ -1637,9 +1506,7 @@
         }
       ]
     },
-    "instance": [
-      5
-    ],
+    "instance": [ 5 ],
     "valid": true,
     "fast": {
       "pre": [
@@ -1686,11 +1553,7 @@
         }
       ]
     },
-    "instance": [
-      5,
-      true,
-      "extra"
-    ],
+    "instance": [ 5, true, "extra" ],
     "valid": true,
     "fast": {
       "pre": [
@@ -1743,11 +1606,7 @@
         }
       ]
     },
-    "instance": [
-      5,
-      1,
-      "extra"
-    ],
+    "instance": [ 5, 1, "extra" ],
     "valid": false,
     "fast": {
       "pre": [
@@ -1797,10 +1656,7 @@
         }
       ]
     },
-    "instance": [
-      5,
-      true
-    ],
+    "instance": [ 5, true ],
     "valid": true,
     "exhaustive": {
       "pre": [
@@ -1830,13 +1686,9 @@
     "description": "items_10",
     "schema": {
       "$schema": "https://json-schema.org/draft/2019-09/schema",
-      "items": [
-        true
-      ]
+      "items": [ true ]
     },
-    "instance": [
-      5
-    ],
+    "instance": [ 5 ],
     "valid": true,
     "fast": {
       "pre": [
@@ -1858,11 +1710,7 @@
         "type": "string"
       }
     },
-    "instance": [
-      "foo",
-      "bar",
-      "baz"
-    ],
+    "instance": [ "foo", "bar", "baz" ],
     "valid": true,
     "fast": {}
   },
@@ -1877,11 +1725,7 @@
         "type": "string"
       }
     },
-    "instance": [
-      "foo",
-      "bar",
-      "baz"
-    ],
+    "instance": [ "foo", "bar", "baz" ],
     "valid": true,
     "fast": {
       "pre": [
@@ -1890,9 +1734,7 @@
       "post": [
         [ true, "LoopItemsTypeStrict", "/items", "#/items", "" ]
       ],
-      "descriptions": [
-        "The array items were expected to be of type string"
-      ]
+      "descriptions": [ "The array items were expected to be of type string" ]
     },
     "exhaustive": {
       "pre": [
@@ -1937,10 +1779,7 @@
         }
       ]
     },
-    "instance": [
-      true,
-      5
-    ],
+    "instance": [ true, 5 ],
     "valid": true,
     "fast": {
       "pre": [
@@ -1999,12 +1838,7 @@
         }
       ]
     },
-    "instance": [
-      true,
-      5,
-      "foo",
-      "bar"
-    ],
+    "instance": [ true, 5, "foo", "bar" ],
     "valid": true,
     "fast": {
       "pre": [
@@ -2084,12 +1918,7 @@
         }
       ]
     },
-    "instance": [
-      true,
-      5,
-      6,
-      "bar"
-    ],
+    "instance": [ true, 5, 6, "bar" ],
     "valid": false,
     "fast": {
       "pre": [
@@ -2950,10 +2779,7 @@
         "type": "boolean"
       }
     },
-    "instance": [
-      true,
-      false
-    ],
+    "instance": [ true, false ],
     "valid": true,
     "fast": {
       "pre": [
@@ -3007,9 +2833,7 @@
         "type": "boolean"
       }
     },
-    "instance": [
-      "foo"
-    ],
+    "instance": [ "foo" ],
     "valid": true,
     "fast": {
       "pre": [
@@ -3018,9 +2842,7 @@
       "post": [
         [ true, "LoopItemsTypeStrict", "/items", "#/items", "" ]
       ],
-      "descriptions": [
-        "The array items were expected to be of type string"
-      ]
+      "descriptions": [ "The array items were expected to be of type string" ]
     },
     "exhaustive": {
       "pre": [
@@ -3059,9 +2881,7 @@
         "type": "boolean"
       }
     },
-    "instance": [
-      "foo"
-    ],
+    "instance": [ "foo" ],
     "valid": true,
     "fast": {
       "pre": [
@@ -3114,9 +2934,7 @@
         "type": "boolean"
       }
     },
-    "instance": [
-      "foo"
-    ],
+    "instance": [ "foo" ],
     "valid": true,
     "fast": {
       "pre": [
@@ -3172,10 +2990,7 @@
         "type": "boolean"
       }
     },
-    "instance": [
-      "foo",
-      true
-    ],
+    "instance": [ "foo", true ],
     "valid": true,
     "fast": {
       "pre": [
@@ -3241,10 +3056,7 @@
         "type": "boolean"
       }
     },
-    "instance": [
-      "foo",
-      true
-    ],
+    "instance": [ "foo", true ],
     "valid": true,
     "fast": {
       "pre": [
@@ -3313,10 +3125,7 @@
         "type": "boolean"
       }
     },
-    "instance": [
-      "foo",
-      1
-    ],
+    "instance": [ "foo", 1 ],
     "valid": false,
     "fast": {
       "pre": [
@@ -3379,10 +3188,7 @@
       },
       "unevaluatedItems": false
     },
-    "instance": [
-      true,
-      false
-    ],
+    "instance": [ true, false ],
     "valid": true,
     "fast": {
       "pre": [
@@ -3443,9 +3249,7 @@
       },
       "unevaluatedItems": false
     },
-    "instance": [
-      false
-    ],
+    "instance": [ false ],
     "valid": false,
     "fast": {
       "pre": [
@@ -3502,10 +3306,7 @@
       ],
       "unevaluatedItems": false
     },
-    "instance": [
-      false,
-      1
-    ],
+    "instance": [ false, 1 ],
     "valid": false,
     "fast": {
       "pre": [
@@ -3577,9 +3378,7 @@
       },
       "unevaluatedItems": false
     },
-    "instance": [
-      1
-    ],
+    "instance": [ 1 ],
     "valid": true,
     "fast": {
       "pre": [
@@ -3843,9 +3642,7 @@
       }
     },
     "instance": [
-      [
-        1
-      ]
+      [ 1 ]
     ],
     "valid": true,
     "fast": {
@@ -4219,9 +4016,7 @@
       "post": [
         [ true, "AssertionTypeStrict", "/$ref/$ref/type", "#/definitions/string/type", "" ]
       ],
-      "descriptions": [
-        "The value was expected to be of type string"
-      ]
+      "descriptions": [ "The value was expected to be of type string" ]
     },
     "exhaustive": {
       "pre": [
@@ -4250,9 +4045,7 @@
         "description": "Test",
         "default": "Test",
         "deprecated": true,
-        "examples": [
-          "foo"
-        ],
+        "examples": [ "foo" ],
         "readOnly": true,
         "writeOnly": true,
         "x-foo": "bar",
@@ -4551,9 +4344,7 @@
       "$defs": {
         "test": {
           "if": {
-            "required": [
-              "bar"
-            ]
+            "required": [ "bar" ]
           },
           "then": {
             "properties": {

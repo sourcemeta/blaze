@@ -35,9 +35,7 @@
       "post": [
         [ true, "AssertionTypeStrict", "/type", "#/type", "" ]
       ],
-      "descriptions": [
-        "The value was expected to be of type string"
-      ]
+      "descriptions": [ "The value was expected to be of type string" ]
     }
   },
   {
@@ -55,9 +53,7 @@
       "post": [
         [ true, "AssertionTypeStrict", "/type", "#/type", "" ]
       ],
-      "descriptions": [
-        "The value was expected to be of type string"
-      ]
+      "descriptions": [ "The value was expected to be of type string" ]
     }
   },
   {
@@ -95,9 +91,7 @@
       "post": [
         [ true, "AssertionTypeStrictAny", "/type", "#/type", "" ]
       ],
-      "descriptions": [
-        "The value was expected to be of type number"
-      ]
+      "descriptions": [ "The value was expected to be of type number" ]
     }
   },
   {
@@ -115,9 +109,7 @@
       "post": [
         [ true, "AssertionTypeStrictAny", "/type", "#/type", "" ]
       ],
-      "descriptions": [
-        "The value was expected to be of type number"
-      ]
+      "descriptions": [ "The value was expected to be of type number" ]
     }
   },
   {
@@ -144,9 +136,7 @@
     "description": "type_6",
     "schema": {
       "$schema": "http://json-schema.org/draft-04/schema#",
-      "type": [
-        "string"
-      ]
+      "type": [ "string" ]
     },
     "instance": "foo",
     "valid": true,
@@ -157,18 +147,14 @@
       "post": [
         [ true, "AssertionTypeStrict", "/type", "#/type", "" ]
       ],
-      "descriptions": [
-        "The value was expected to be of type string"
-      ]
+      "descriptions": [ "The value was expected to be of type string" ]
     }
   },
   {
     "description": "type_7",
     "schema": {
       "$schema": "http://json-schema.org/draft-04/schema#",
-      "type": [
-        "string"
-      ]
+      "type": [ "string" ]
     },
     "instance": 5,
     "valid": false,
@@ -188,11 +174,7 @@
     "description": "type_8",
     "schema": {
       "$schema": "http://json-schema.org/draft-04/schema#",
-      "type": [
-        "string",
-        "number",
-        "object"
-      ]
+      "type": [ "string", "number", "object" ]
     },
     "instance": 3,
     "valid": true,
@@ -212,11 +194,7 @@
     "description": "type_9",
     "schema": {
       "$schema": "http://json-schema.org/draft-04/schema#",
-      "type": [
-        "string",
-        "number",
-        "object"
-      ]
+      "type": [ "string", "number", "object" ]
     },
     "instance": true,
     "valid": false,
@@ -247,19 +225,14 @@
       "post": [
         [ true, "AssertionTypeStrict", "/type", "#/type", "" ]
       ],
-      "descriptions": [
-        "The value was expected to be of type integer"
-      ]
+      "descriptions": [ "The value was expected to be of type integer" ]
     }
   },
   {
     "description": "type_12",
     "schema": {
       "$schema": "http://json-schema.org/draft-04/schema#",
-      "type": [
-        "integer",
-        "string"
-      ]
+      "type": [ "integer", "string" ]
     },
     "instance": 99999999999999999999999999999999999,
     "valid": true,
@@ -279,9 +252,7 @@
     "description": "required_1",
     "schema": {
       "$schema": "http://json-schema.org/draft-04/schema#",
-      "required": [
-        "foo"
-      ]
+      "required": [ "foo" ]
     },
     "instance": "foo bar",
     "valid": true,
@@ -291,9 +262,7 @@
     "description": "required_2",
     "schema": {
       "$schema": "http://json-schema.org/draft-04/schema#",
-      "required": [
-        "foo"
-      ]
+      "required": [ "foo" ]
     },
     "instance": {
       "foo": 1,
@@ -316,10 +285,7 @@
     "description": "required_3",
     "schema": {
       "$schema": "http://json-schema.org/draft-04/schema#",
-      "required": [
-        "foo",
-        "baz"
-      ]
+      "required": [ "foo", "baz" ]
     },
     "instance": {
       "foo": 1,
@@ -343,10 +309,7 @@
     "schema": {
       "$schema": "http://json-schema.org/draft-04/schema#",
       "type": "object",
-      "required": [
-        "foo",
-        "bar"
-      ]
+      "required": [ "foo", "bar" ]
     },
     "instance": {
       "foo": 1,
@@ -384,10 +347,7 @@
     "schema": {
       "$schema": "http://json-schema.org/draft-04/schema#",
       "type": "object",
-      "required": [
-        "foo",
-        "bar"
-      ],
+      "required": [ "foo", "bar" ],
       "properties": {
         "foo": true,
         "bar": true
@@ -457,9 +417,7 @@
       "post": [
         [ true, "AssertionTypeStrict", "/type", "#/type", "" ]
       ],
-      "descriptions": [
-        "The value was expected to be of type object"
-      ]
+      "descriptions": [ "The value was expected to be of type object" ]
     }
   },
   {
@@ -471,10 +429,7 @@
           "type": "object"
         },
         {
-          "required": [
-            "foo",
-            "bar"
-          ]
+          "required": [ "foo", "bar" ]
         }
       ]
     },
@@ -524,10 +479,7 @@
           "type": "object"
         },
         {
-          "required": [
-            "foo",
-            "bar"
-          ]
+          "required": [ "foo", "bar" ]
         }
       ]
     },
@@ -604,9 +556,7 @@
       "post": [
         [ true, "AssertionTypeStrict", "/allOf/0/$ref/type", "#/definitions/string/type", "" ]
       ],
-      "descriptions": [
-        "The value was expected to be of type string"
-      ]
+      "descriptions": [ "The value was expected to be of type string" ]
     },
     "exhaustive": {
       "pre": [
@@ -651,9 +601,7 @@
       "post": [
         [ true, "AssertionTypeStrict", "/$ref/type", "#/definitions/string/type", "" ]
       ],
-      "descriptions": [
-        "The value was expected to be of type string"
-      ]
+      "descriptions": [ "The value was expected to be of type string" ]
     }
   },
   {
@@ -1109,9 +1057,7 @@
       "post": [
         [ true, "AssertionPropertyTypeStrict", "/properties/foo/properties/bar/type", "#/properties/foo/properties/bar/type", "/foo/bar" ]
       ],
-      "descriptions": [
-        "The value was expected to be of type string"
-      ]
+      "descriptions": [ "The value was expected to be of type string" ]
     },
     "exhaustive": {
       "pre": [
@@ -1136,10 +1082,7 @@
     "schema": {
       "$schema": "http://json-schema.org/draft-04/schema#",
       "type": "object",
-      "required": [
-        "foo",
-        "bar"
-      ],
+      "required": [ "foo", "bar" ],
       "properties": {
         "foo": {
           "type": "string"
@@ -1178,9 +1121,7 @@
       "$schema": "http://json-schema.org/draft-04/schema#",
       "properties": {
         "image": {
-          "required": [
-            "file"
-          ],
+          "required": [ "file" ],
           "properties": {
             "file": {
               "type": "string"
@@ -1296,9 +1237,7 @@
       "post": [
         [ true, "AssertionPropertyTypeStrictAny", "/properties/foo/properties/bar/type", "#/properties/foo/properties/bar/type", "/foo/bar" ]
       ],
-      "descriptions": [
-        "The value was expected to be of type number"
-      ]
+      "descriptions": [ "The value was expected to be of type number" ]
     }
   },
   {
@@ -1322,9 +1261,7 @@
       "post": [
         [ true, "AssertionPropertyTypeStrictAny", "/properties/foo/type", "#/properties/foo/type", "/foo" ]
       ],
-      "descriptions": [
-        "The value was expected to be of type number"
-      ]
+      "descriptions": [ "The value was expected to be of type number" ]
     }
   },
   {
@@ -1346,9 +1283,7 @@
       }
     },
     "instance": {
-      "foo": [
-        3
-      ],
+      "foo": [ 3 ],
       "bar": "abc"
     },
     "valid": true,
@@ -1389,9 +1324,7 @@
         },
         "foo": {
           "type": "string",
-          "enum": [
-            "baz"
-          ]
+          "enum": [ "baz" ]
         }
       }
     },
@@ -1424,16 +1357,12 @@
           "$ref": "#/definitions/helper"
         },
         "foo": {
-          "enum": [
-            "foo"
-          ]
+          "enum": [ "foo" ]
         }
       },
       "definitions": {
         "helper": {
-          "enum": [
-            "test"
-          ]
+          "enum": [ "test" ]
         }
       }
     },
@@ -1585,10 +1514,7 @@
       "$schema": "http://json-schema.org/draft-04/schema#",
       "type": "object",
       "additionalProperties": false,
-      "required": [
-        "foo",
-        "bar"
-      ],
+      "required": [ "foo", "bar" ],
       "properties": {
         "foo": {},
         "bar": {
@@ -1627,11 +1553,7 @@
       "$schema": "http://json-schema.org/draft-04/schema#",
       "type": "object",
       "additionalProperties": false,
-      "required": [
-        "foo",
-        "bar",
-        "baz"
-      ],
+      "required": [ "foo", "bar", "baz" ],
       "properties": {
         "foo": {
           "type": "string"
@@ -1689,9 +1611,7 @@
       "post": [
         [ true, "AssertionPropertyTypeStrict", "/properties/foo/type", "#/properties/foo/type", "/foo" ]
       ],
-      "descriptions": [
-        "The value was expected to be of type integer"
-      ]
+      "descriptions": [ "The value was expected to be of type integer" ]
     }
   },
   {
@@ -1700,10 +1620,7 @@
       "$schema": "http://json-schema.org/draft-04/schema#",
       "properties": {
         "foo": {
-          "type": [
-            "integer",
-            "string"
-          ]
+          "type": [ "integer", "string" ]
         }
       }
     },
@@ -2439,10 +2356,7 @@
     "description": "additionalProperties_12",
     "schema": {
       "$schema": "http://json-schema.org/draft-04/schema#",
-      "required": [
-        "foo",
-        "bar"
-      ],
+      "required": [ "foo", "bar" ],
       "additionalProperties": false,
       "properties": {
         "foo": {
@@ -2477,10 +2391,7 @@
     "description": "additionalProperties_13",
     "schema": {
       "$schema": "http://json-schema.org/draft-04/schema#",
-      "required": [
-        "foo",
-        "bar"
-      ],
+      "required": [ "foo", "bar" ],
       "additionalProperties": false,
       "properties": {
         "foo": {
@@ -2514,10 +2425,7 @@
     "schema": {
       "$schema": "http://json-schema.org/draft-04/schema#",
       "type": "object",
-      "required": [
-        "foo",
-        "bar"
-      ],
+      "required": [ "foo", "bar" ],
       "additionalProperties": false,
       "properties": {
         "foo": {
@@ -2549,10 +2457,7 @@
     "description": "additionalProperties_15",
     "schema": {
       "$schema": "http://json-schema.org/draft-04/schema#",
-      "required": [
-        "foo",
-        "bar"
-      ],
+      "required": [ "foo", "bar" ],
       "additionalProperties": false,
       "patternProperties": {
         "^@": true
@@ -2598,10 +2503,7 @@
       "$schema": "http://json-schema.org/draft-04/schema#",
       "items": {
         "type": "object",
-        "required": [
-          "foo",
-          "bar"
-        ],
+        "required": [ "foo", "bar" ],
         "additionalProperties": false,
         "properties": {
           "foo": {
@@ -2638,10 +2540,7 @@
       "$schema": "http://json-schema.org/draft-04/schema#",
       "items": {
         "type": "object",
-        "required": [
-          "foo",
-          "bar"
-        ],
+        "required": [ "foo", "bar" ],
         "additionalProperties": false,
         "properties": {
           "foo": {
@@ -2672,9 +2571,7 @@
     "schema": {
       "$schema": "http://json-schema.org/draft-04/schema#",
       "type": "object",
-      "required": [
-        "foo"
-      ],
+      "required": [ "foo" ],
       "properties": {
         "foo": {
           "type": "boolean"
@@ -2714,10 +2611,7 @@
       "$schema": "http://json-schema.org/draft-04/schema#",
       "items": {
         "type": "object",
-        "required": [
-          "foo",
-          "bar"
-        ],
+        "required": [ "foo", "bar" ],
         "additionalProperties": false,
         "properties": {
           "foo": {
@@ -2754,11 +2648,7 @@
       "$schema": "http://json-schema.org/draft-04/schema#",
       "items": {
         "type": "object",
-        "required": [
-          "foo",
-          "bar",
-          "baz"
-        ],
+        "required": [ "foo", "bar", "baz" ],
         "additionalProperties": false,
         "properties": {
           "foo": {
@@ -2797,10 +2687,7 @@
     "description": "additionalProperties_23",
     "schema": {
       "$schema": "http://json-schema.org/draft-04/schema#",
-      "required": [
-        "foo",
-        "bar"
-      ],
+      "required": [ "foo", "bar" ],
       "additionalProperties": false,
       "properties": {
         "foo": {
@@ -2836,10 +2723,7 @@
     "schema": {
       "$schema": "http://json-schema.org/draft-04/schema#",
       "additionalProperties": {
-        "type": [
-          "integer",
-          "string"
-        ]
+        "type": [ "integer", "string" ]
       }
     },
     "instance": {
@@ -2863,10 +2747,7 @@
     "schema": {
       "$schema": "http://json-schema.org/draft-04/schema#",
       "type": "object",
-      "required": [
-        "foo",
-        "bar"
-      ],
+      "required": [ "foo", "bar" ],
       "additionalProperties": false,
       "properties": {
         "foo": {
@@ -3069,11 +2950,7 @@
         "type": "string"
       }
     },
-    "instance": [
-      "foo",
-      "bar",
-      "baz"
-    ],
+    "instance": [ "foo", "bar", "baz" ],
     "valid": true,
     "fast": {
       "pre": [
@@ -3082,9 +2959,7 @@
       "post": [
         [ true, "LoopItemsTypeStrict", "/items", "#/items", "" ]
       ],
-      "descriptions": [
-        "The array items were expected to be of type string"
-      ]
+      "descriptions": [ "The array items were expected to be of type string" ]
     },
     "exhaustive": {
       "pre": [
@@ -3115,11 +2990,7 @@
         "type": "string"
       }
     },
-    "instance": [
-      "foo",
-      5,
-      "baz"
-    ],
+    "instance": [ "foo", 5, "baz" ],
     "valid": false,
     "fast": {
       "pre": [
@@ -3128,9 +2999,7 @@
       "post": [
         [ false, "LoopItemsTypeStrict", "/items", "#/items", "" ]
       ],
-      "descriptions": [
-        "The array items were expected to be of type string"
-      ]
+      "descriptions": [ "The array items were expected to be of type string" ]
     }
   },
   {
@@ -3187,9 +3056,7 @@
         }
       ]
     },
-    "instance": [
-      5
-    ],
+    "instance": [ 5 ],
     "valid": true,
     "fast": {
       "pre": [
@@ -3219,11 +3086,7 @@
         }
       ]
     },
-    "instance": [
-      5,
-      true,
-      "extra"
-    ],
+    "instance": [ 5, true, "extra" ],
     "valid": true,
     "fast": {
       "pre": [
@@ -3256,11 +3119,7 @@
         }
       ]
     },
-    "instance": [
-      5,
-      1,
-      "extra"
-    ],
+    "instance": [ 5, 1, "extra" ],
     "valid": false,
     "fast": {
       "pre": [
@@ -3313,9 +3172,7 @@
             "properties": {
               "geometry": {
                 "type": "object",
-                "required": [
-                  "geometries"
-                ],
+                "required": [ "geometries" ],
                 "properties": {
                   "geometries": {
                     "items": {
@@ -3370,9 +3227,7 @@
         "type": "integer"
       }
     },
-    "instance": [
-      99999999999999999999999999999999999
-    ],
+    "instance": [ 99999999999999999999999999999999999 ],
     "valid": true,
     "fast": {
       "pre": [
@@ -3381,9 +3236,7 @@
       "post": [
         [ true, "LoopItemsTypeStrict", "/items", "#/items", "" ]
       ],
-      "descriptions": [
-        "The array items were expected to be of type integer"
-      ]
+      "descriptions": [ "The array items were expected to be of type integer" ]
     }
   },
   {
@@ -3391,15 +3244,10 @@
     "schema": {
       "$schema": "http://json-schema.org/draft-04/schema#",
       "items": {
-        "type": [
-          "integer",
-          "string"
-        ]
+        "type": [ "integer", "string" ]
       }
     },
-    "instance": [
-      99999999999999999999999999999999999
-    ],
+    "instance": [ 99999999999999999999999999999999999 ],
     "valid": true,
     "fast": {
       "pre": [
@@ -3421,11 +3269,7 @@
         "type": "string"
       }
     },
-    "instance": [
-      "foo",
-      "bar",
-      "baz"
-    ],
+    "instance": [ "foo", "bar", "baz" ],
     "valid": true,
     "fast": {}
   },
@@ -3440,11 +3284,7 @@
         "type": "string"
       }
     },
-    "instance": [
-      "foo",
-      "bar",
-      "baz"
-    ],
+    "instance": [ "foo", "bar", "baz" ],
     "valid": true,
     "fast": {
       "pre": [
@@ -3453,9 +3293,7 @@
       "post": [
         [ true, "LoopItemsTypeStrict", "/items", "#/items", "" ]
       ],
-      "descriptions": [
-        "The array items were expected to be of type string"
-      ]
+      "descriptions": [ "The array items were expected to be of type string" ]
     }
   },
   {
@@ -3474,10 +3312,7 @@
         }
       ]
     },
-    "instance": [
-      true,
-      5
-    ],
+    "instance": [ true, 5 ],
     "valid": true,
     "fast": {
       "pre": [
@@ -3513,12 +3348,7 @@
         }
       ]
     },
-    "instance": [
-      true,
-      5,
-      "foo",
-      "bar"
-    ],
+    "instance": [ true, 5, "foo", "bar" ],
     "valid": true,
     "fast": {
       "pre": [
@@ -3589,12 +3419,7 @@
         }
       ]
     },
-    "instance": [
-      true,
-      5,
-      6,
-      "bar"
-    ],
+    "instance": [ true, 5, 6, "bar" ],
     "valid": false,
     "fast": {
       "pre": [
@@ -3688,9 +3513,7 @@
         {
           "properties": {
             "version": {
-              "enum": [
-                1
-              ]
+              "enum": [ 1 ]
             },
             "one": {
               "items": {
@@ -3747,9 +3570,7 @@
         {
           "properties": {
             "version": {
-              "enum": [
-                2
-              ]
+              "enum": [ 2 ]
             },
             "one": {
               "type": "string"
@@ -3759,9 +3580,7 @@
         {
           "properties": {
             "version": {
-              "enum": [
-                3
-              ]
+              "enum": [ 3 ]
             },
             "one": {
               "items": {
@@ -4057,9 +3876,7 @@
         {
           "properties": {
             "version": {
-              "enum": [
-                1
-              ]
+              "enum": [ 1 ]
             },
             "one": {
               "items": {
@@ -4116,9 +3933,7 @@
         {
           "properties": {
             "version": {
-              "enum": [
-                2
-              ]
+              "enum": [ 2 ]
             },
             "one": {
               "type": "string"
@@ -4128,9 +3943,7 @@
         {
           "properties": {
             "version": {
-              "enum": [
-                3
-              ]
+              "enum": [ 3 ]
             },
             "one": {
               "items": {
@@ -4228,14 +4041,9 @@
     "schema": {
       "$schema": "http://json-schema.org/draft-04/schema#",
       "dependencies": {
-        "foo": [
-          "bar",
-          "baz"
-        ],
+        "foo": [ "bar", "baz" ],
         "qux": {
-          "required": [
-            "extra"
-          ]
+          "required": [ "extra" ]
         }
       }
     },
@@ -4248,14 +4056,9 @@
     "schema": {
       "$schema": "http://json-schema.org/draft-04/schema#",
       "dependencies": {
-        "foo": [
-          "bar",
-          "baz"
-        ],
+        "foo": [ "bar", "baz" ],
         "qux": {
-          "required": [
-            "extra"
-          ]
+          "required": [ "extra" ]
         }
       }
     },
@@ -4282,14 +4085,9 @@
     "schema": {
       "$schema": "http://json-schema.org/draft-04/schema#",
       "dependencies": {
-        "foo": [
-          "bar",
-          "baz"
-        ],
+        "foo": [ "bar", "baz" ],
         "qux": {
-          "required": [
-            "extra"
-          ]
+          "required": [ "extra" ]
         }
       }
     },
@@ -4315,14 +4113,9 @@
     "schema": {
       "$schema": "http://json-schema.org/draft-04/schema#",
       "dependencies": {
-        "foo": [
-          "bar",
-          "baz"
-        ],
+        "foo": [ "bar", "baz" ],
         "qux": {
-          "required": [
-            "extra"
-          ]
+          "required": [ "extra" ]
         }
       }
     },
@@ -4354,14 +4147,9 @@
     "schema": {
       "$schema": "http://json-schema.org/draft-04/schema#",
       "dependencies": {
-        "foo": [
-          "bar",
-          "baz"
-        ],
+        "foo": [ "bar", "baz" ],
         "qux": {
-          "required": [
-            "extra"
-          ]
+          "required": [ "extra" ]
         }
       }
     },
@@ -4389,14 +4177,9 @@
     "schema": {
       "$schema": "http://json-schema.org/draft-04/schema#",
       "dependencies": {
-        "foo": [
-          "bar",
-          "baz"
-        ],
+        "foo": [ "bar", "baz" ],
         "qux": {
-          "required": [
-            "extra"
-          ]
+          "required": [ "extra" ]
         }
       }
     },
@@ -4411,9 +4194,7 @@
       "post": [
         [ true, "AssertionPropertyDependencies", "/dependencies", "#/dependencies", "" ]
       ],
-      "descriptions": [
-        "The object value did not define the property \"foo\""
-      ]
+      "descriptions": [ "The object value did not define the property \"foo\"" ]
     }
   },
   {
@@ -4421,10 +4202,7 @@
     "schema": {
       "$schema": "http://json-schema.org/draft-04/schema#",
       "dependencies": {
-        "foo": [
-          "bar",
-          "baz"
-        ]
+        "foo": [ "bar", "baz" ]
       }
     },
     "instance": {
@@ -4438,9 +4216,7 @@
       "post": [
         [ true, "AssertionPropertyDependencies", "/dependencies", "#/dependencies", "" ]
       ],
-      "descriptions": [
-        "The object value did not define the property \"foo\""
-      ]
+      "descriptions": [ "The object value did not define the property \"foo\"" ]
     }
   },
   {
@@ -4448,14 +4224,9 @@
     "schema": {
       "$schema": "http://json-schema.org/draft-04/schema#",
       "dependencies": {
-        "foo": [
-          "bar",
-          "baz"
-        ],
+        "foo": [ "bar", "baz" ],
         "qux": {
-          "required": [
-            "extra"
-          ]
+          "required": [ "extra" ]
         }
       }
     },
@@ -4543,9 +4314,7 @@
     "description": "enum_3",
     "schema": {
       "$schema": "http://json-schema.org/draft-04/schema#",
-      "enum": [
-        1
-      ]
+      "enum": [ 1 ]
     },
     "instance": 1,
     "valid": true,
@@ -4566,9 +4335,7 @@
     "schema": {
       "$schema": "http://json-schema.org/draft-04/schema#",
       "type": "string",
-      "enum": [
-        "foo"
-      ]
+      "enum": [ "foo" ]
     },
     "instance": "foo",
     "valid": true,
@@ -4603,9 +4370,7 @@
     "schema": {
       "$schema": "http://json-schema.org/draft-04/schema#",
       "type": "boolean",
-      "enum": [
-        true
-      ]
+      "enum": [ true ]
     },
     "instance": true,
     "valid": true,
@@ -4626,9 +4391,7 @@
     "schema": {
       "$schema": "http://json-schema.org/draft-04/schema#",
       "type": "number",
-      "enum": [
-        3.14
-      ]
+      "enum": [ 3.14 ]
     },
     "instance": 3.14,
     "valid": true,
@@ -4649,9 +4412,7 @@
     "schema": {
       "$schema": "http://json-schema.org/draft-04/schema#",
       "type": "number",
-      "enum": [
-        3
-      ]
+      "enum": [ 3 ]
     },
     "instance": 3,
     "valid": true,
@@ -4672,9 +4433,7 @@
     "schema": {
       "$schema": "http://json-schema.org/draft-04/schema#",
       "type": "integer",
-      "enum": [
-        3
-      ]
+      "enum": [ 3 ]
     },
     "instance": 3,
     "valid": true,
@@ -4695,11 +4454,7 @@
     "schema": {
       "$schema": "http://json-schema.org/draft-04/schema#",
       "type": "string",
-      "enum": [
-        "foo",
-        "bar",
-        "baz"
-      ]
+      "enum": [ "foo", "bar", "baz" ]
     },
     "instance": "foo",
     "valid": true,
@@ -4720,10 +4475,7 @@
     "schema": {
       "$schema": "http://json-schema.org/draft-04/schema#",
       "type": "string",
-      "enum": [
-        "foo",
-        1
-      ]
+      "enum": [ "foo", 1 ]
     },
     "instance": "foo",
     "valid": true,
@@ -4751,9 +4503,7 @@
         [ 1 ]
       ]
     },
-    "instance": [
-      1
-    ],
+    "instance": [ 1 ],
     "valid": true,
     "fast": {
       "pre": [
@@ -4795,9 +4545,7 @@
     "schema": {
       "$schema": "http://json-schema.org/draft-04/schema#",
       "type": "null",
-      "enum": [
-        null
-      ]
+      "enum": [ null ]
     },
     "instance": null,
     "valid": true,
@@ -4819,9 +4567,7 @@
       "$schema": "http://json-schema.org/draft-04/schema#",
       "type": "string",
       "minLength": 1,
-      "enum": [
-        "foo"
-      ]
+      "enum": [ "foo" ]
     },
     "instance": "foo",
     "valid": true,
@@ -4850,9 +4596,7 @@
         [ 1 ]
       ]
     },
-    "instance": [
-      1
-    ],
+    "instance": [ 1 ],
     "valid": true,
     "fast": {
       "pre": [
@@ -4905,9 +4649,7 @@
     "schema": {
       "$schema": "http://json-schema.org/draft-04/schema#",
       "type": "integer",
-      "enum": [
-        3.0
-      ]
+      "enum": [ 3.0 ]
     },
     "instance": 3.0,
     "valid": false,
@@ -4931,11 +4673,7 @@
     "schema": {
       "$schema": "http://json-schema.org/draft-04/schema#",
       "type": "string",
-      "enum": [
-        "foo",
-        "bar",
-        "baz"
-      ]
+      "enum": [ "foo", "bar", "baz" ]
     },
     "instance": "xxxx",
     "valid": false,
@@ -4958,14 +4696,10 @@
       "properties": {
         "foo": {
           "type": "object",
-          "required": [
-            "bar"
-          ],
+          "required": [ "bar" ],
           "properties": {
             "bar": {
-              "enum": [
-                "baz"
-              ]
+              "enum": [ "baz" ]
             }
           }
         }
@@ -5008,15 +4742,10 @@
       "properties": {
         "foo": {
           "type": "object",
-          "required": [
-            "bar",
-            "baz"
-          ],
+          "required": [ "bar", "baz" ],
           "properties": {
             "bar": {
-              "enum": [
-                "qux"
-              ]
+              "enum": [ "qux" ]
             }
           }
         }
@@ -5098,11 +4827,7 @@
       "$schema": "http://json-schema.org/draft-04/schema#",
       "uniqueItems": true
     },
-    "instance": [
-      1,
-      2,
-      3
-    ],
+    "instance": [ 1, 2, 3 ],
     "valid": true,
     "fast": {
       "pre": [
@@ -5122,11 +4847,7 @@
       "$schema": "http://json-schema.org/draft-04/schema#",
       "uniqueItems": true
     },
-    "instance": [
-      2,
-      1,
-      2
-    ],
+    "instance": [ 2, 1, 2 ],
     "valid": false,
     "fast": {
       "pre": [
@@ -5146,11 +4867,7 @@
       "$schema": "http://json-schema.org/draft-04/schema#",
       "uniqueItems": false
     },
-    "instance": [
-      2,
-      1,
-      2
-    ],
+    "instance": [ 2, 1, 2 ],
     "valid": true,
     "fast": {}
   },
@@ -5160,15 +4877,7 @@
       "$schema": "http://json-schema.org/draft-04/schema#",
       "uniqueItems": true
     },
-    "instance": [
-      2,
-      1,
-      2,
-      3,
-      2,
-      2,
-      2
-    ],
+    "instance": [ 2, 1, 2, 3, 2, 2, 2 ],
     "valid": false,
     "fast": {
       "pre": [
@@ -5188,16 +4897,7 @@
       "$schema": "http://json-schema.org/draft-04/schema#",
       "uniqueItems": true
     },
-    "instance": [
-      2,
-      1,
-      2,
-      3,
-      2,
-      2,
-      1,
-      2
-    ],
+    "instance": [ 2, 1, 2, 3, 2, 2, 1, 2 ],
     "valid": false,
     "fast": {
       "pre": [
@@ -5312,9 +5012,7 @@
       "post": [
         [ true, "AssertionTypeStrict", "/type", "#/type", "" ]
       ],
-      "descriptions": [
-        "The value was expected to be of type string"
-      ]
+      "descriptions": [ "The value was expected to be of type string" ]
     }
   },
   {
@@ -5541,10 +5239,7 @@
       "$schema": "http://json-schema.org/draft-04/schema#",
       "minItems": 2
     },
-    "instance": [
-      1,
-      2
-    ],
+    "instance": [ 1, 2 ],
     "valid": true,
     "fast": {
       "pre": [
@@ -5564,9 +5259,7 @@
       "$schema": "http://json-schema.org/draft-04/schema#",
       "minItems": 2
     },
-    "instance": [
-      1
-    ],
+    "instance": [ 1 ],
     "valid": false,
     "fast": {
       "pre": [
@@ -5596,9 +5289,7 @@
       "post": [
         [ true, "AssertionTypeStrict", "/type", "#/type", "" ]
       ],
-      "descriptions": [
-        "The value was expected to be of type object"
-      ]
+      "descriptions": [ "The value was expected to be of type object" ]
     }
   },
   {
@@ -5608,11 +5299,7 @@
       "type": "array",
       "minItems": 2
     },
-    "instance": [
-      1,
-      2,
-      3
-    ],
+    "instance": [ 1, 2, 3 ],
     "valid": true,
     "fast": {
       "pre": [
@@ -5647,11 +5334,7 @@
       "type": "array",
       "minItems": 0
     },
-    "instance": [
-      1,
-      2,
-      3
-    ],
+    "instance": [ 1, 2, 3 ],
     "valid": true,
     "fast": {
       "pre": [
@@ -5660,9 +5343,7 @@
       "post": [
         [ true, "AssertionTypeStrict", "/type", "#/type", "" ]
       ],
-      "descriptions": [
-        "The value was expected to be of type array"
-      ]
+      "descriptions": [ "The value was expected to be of type array" ]
     }
   },
   {
@@ -5671,9 +5352,7 @@
       "$schema": "http://json-schema.org/draft-04/schema#",
       "minItems": 0
     },
-    "instance": [
-      1
-    ],
+    "instance": [ 1 ],
     "valid": true,
     "fast": {}
   },
@@ -5697,9 +5376,7 @@
         "type": "number"
       }
     },
-    "instance": [
-      1
-    ],
+    "instance": [ 1 ],
     "valid": true,
     "fast": {
       "pre": [
@@ -5759,10 +5436,7 @@
       "$schema": "http://json-schema.org/draft-04/schema#",
       "maxItems": 2
     },
-    "instance": [
-      1,
-      2
-    ],
+    "instance": [ 1, 2 ],
     "valid": true,
     "fast": {
       "pre": [
@@ -5782,11 +5456,7 @@
       "$schema": "http://json-schema.org/draft-04/schema#",
       "maxItems": 2
     },
-    "instance": [
-      1,
-      2,
-      3
-    ],
+    "instance": [ 1, 2, 3 ],
     "valid": false,
     "fast": {
       "pre": [
@@ -5816,9 +5486,7 @@
       "post": [
         [ true, "AssertionTypeStrict", "/type", "#/type", "" ]
       ],
-      "descriptions": [
-        "The value was expected to be of type object"
-      ]
+      "descriptions": [ "The value was expected to be of type object" ]
     }
   },
   {
@@ -5828,10 +5496,7 @@
       "type": "array",
       "maxItems": 2
     },
-    "instance": [
-      1,
-      2
-    ],
+    "instance": [ 1, 2 ],
     "valid": true,
     "fast": {
       "pre": [
@@ -5866,11 +5531,7 @@
       "type": "array",
       "maxItems": 2
     },
-    "instance": [
-      1,
-      2,
-      3
-    ],
+    "instance": [ 1, 2, 3 ],
     "valid": false,
     "fast": {
       "pre": [
@@ -5892,10 +5553,7 @@
       "minItems": 1,
       "maxItems": 2
     },
-    "instance": [
-      1,
-      2
-    ],
+    "instance": [ 1, 2 ],
     "valid": true,
     "fast": {
       "pre": [
@@ -5915,9 +5573,7 @@
       "$schema": "http://json-schema.org/draft-04/schema#",
       "maxItems": 0
     },
-    "instance": [
-      1
-    ],
+    "instance": [ 1 ],
     "valid": false,
     "fast": {
       "pre": [
@@ -6071,9 +5727,7 @@
       "post": [
         [ true, "AssertionTypeStrict", "/type", "#/type", "" ]
       ],
-      "descriptions": [
-        "The value was expected to be of type object"
-      ]
+      "descriptions": [ "The value was expected to be of type object" ]
     }
   },
   {
@@ -8407,9 +8061,7 @@
       "post": [
         [ true, "AssertionTypeStrict", "/allOf/0/$ref/type", "common#/definitions/reference/type", "" ]
       ],
-      "descriptions": [
-        "The value was expected to be of type string"
-      ]
+      "descriptions": [ "The value was expected to be of type string" ]
     }
   }
 ]
