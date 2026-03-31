@@ -175,3 +175,4 @@ jobs:
           alert-threshold: '5%'
           comment-always: true
           fail-on-alert: false
+          skip-fetch-gh-pages: true
