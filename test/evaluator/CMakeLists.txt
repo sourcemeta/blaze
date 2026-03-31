@@ -7,8 +7,6 @@ sourcemeta_googletest(NAMESPACE sourcemeta PROJECT blaze NAME evaluator
     evaluator_draft4_test.cc
     evaluator_draft6_test.cc
     evaluator_draft7_test.cc
-    evaluator_openapi_3_1_test.cc
-    evaluator_openapi_3_2_test.cc
     evaluator_test.cc)
 
 target_link_libraries(sourcemeta_blaze_evaluator_unit
@@ -48,3 +46,13 @@ target_link_libraries(sourcemeta_blaze_evaluator_annotation_suite_unit PRIVATE s
 target_link_libraries(sourcemeta_blaze_evaluator_annotation_suite_unit PRIVATE sourcemeta::blaze::compiler)
 target_link_libraries(sourcemeta_blaze_evaluator_annotation_suite_unit PRIVATE sourcemeta::blaze::evaluator)
 target_link_libraries(sourcemeta_blaze_evaluator_annotation_suite_unit PRIVATE sourcemeta::blaze::output)
+
+# Evaluator trace suite (JSON-driven trace tests)
+sourcemeta_googletest(NAMESPACE sourcemeta PROJECT blaze NAME evaluator_trace_suite
+  FOLDER "Blaze/Evaluator" SOURCES tracesuite.cc)
+target_compile_definitions(sourcemeta_blaze_evaluator_trace_suite_unit
+  PRIVATE TRACE_SUITE_PATH="${PROJECT_SOURCE_DIR}/test/evaluator")
+target_link_libraries(sourcemeta_blaze_evaluator_trace_suite_unit PRIVATE sourcemeta::core::json)
+target_link_libraries(sourcemeta_blaze_evaluator_trace_suite_unit PRIVATE sourcemeta::core::jsonschema)
+target_link_libraries(sourcemeta_blaze_evaluator_trace_suite_unit PRIVATE sourcemeta::blaze::compiler)
+target_link_libraries(sourcemeta_blaze_evaluator_trace_suite_unit PRIVATE sourcemeta::blaze::evaluator)

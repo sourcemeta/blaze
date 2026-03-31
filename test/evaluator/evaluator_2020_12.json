@@ -1,0 +1,2020 @@
+[
+  {
+    "description": "unknown_1",
+    "schema": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "fooBar": "baz"
+    },
+    "instance": "foo",
+    "valid": true,
+    "fast": {}
+  },
+  {
+    "description": "unknown_1_exhaustive",
+    "schema": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "fooBar": "baz"
+    },
+    "instance": "foo",
+    "valid": true,
+    "exhaustive": {
+      "pre": [
+        [ "Annotation", "/fooBar", "#/fooBar", "" ]
+      ],
+      "post": [
+        [ true, "Annotation", "/fooBar", "#/fooBar", "", "baz" ]
+      ],
+      "descriptions": [
+        "The unrecognized keyword \"fooBar\" was collected as the annotation \"baz\""
+      ]
+    }
+  },
+  {
+    "description": "unknown_2",
+    "schema": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "x-test": 1
+    },
+    "instance": "foo",
+    "valid": true,
+    "fast": {}
+  },
+  {
+    "description": "unknown_2_exhaustive",
+    "schema": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "x-test": 1
+    },
+    "instance": "foo",
+    "valid": true,
+    "exhaustive": {
+      "pre": [
+        [ "Annotation", "/x-test", "#/x-test", "" ]
+      ],
+      "post": [
+        [ true, "Annotation", "/x-test", "#/x-test", "", 1 ]
+      ],
+      "descriptions": [
+        "The unrecognized keyword \"x-test\" was collected as the annotation 1"
+      ]
+    }
+  },
+  {
+    "description": "items_1",
+    "schema": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "items": {
+        "type": "string"
+      }
+    },
+    "instance": 5,
+    "valid": true,
+    "fast": {}
+  },
+  {
+    "description": "items_2",
+    "schema": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "items": {
+        "type": "string"
+      }
+    },
+    "instance": [ "foo", "bar", "baz" ],
+    "valid": true,
+    "fast": {
+      "pre": [
+        [ "LoopItemsFrom", "/items", "#/items", "" ],
+        [ "AssertionTypeStrict", "/items/type", "#/items/type", "/0" ],
+        [ "AssertionTypeStrict", "/items/type", "#/items/type", "/1" ],
+        [ "AssertionTypeStrict", "/items/type", "#/items/type", "/2" ]
+      ],
+      "post": [
+        [ true, "AssertionTypeStrict", "/items/type", "#/items/type", "/0" ],
+        [ true, "AssertionTypeStrict", "/items/type", "#/items/type", "/1" ],
+        [ true, "AssertionTypeStrict", "/items/type", "#/items/type", "/2" ],
+        [ true, "LoopItemsFrom", "/items", "#/items", "" ]
+      ],
+      "descriptions": [
+        "The value was expected to be of type string",
+        "The value was expected to be of type string",
+        "The value was expected to be of type string",
+        "Every item in the array value was expected to validate against the given subschema"
+      ]
+    }
+  },
+  {
+    "description": "items_2_exhaustive",
+    "schema": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "items": {
+        "type": "string"
+      }
+    },
+    "instance": [ "foo", "bar", "baz" ],
+    "valid": true,
+    "exhaustive": {
+      "pre": [
+        [ "LoopItemsFrom", "/items", "#/items", "" ],
+        [ "AssertionTypeStrict", "/items/type", "#/items/type", "/0" ],
+        [ "AssertionTypeStrict", "/items/type", "#/items/type", "/1" ],
+        [ "AssertionTypeStrict", "/items/type", "#/items/type", "/2" ],
+        [ "LogicalWhenArraySizeGreater", "/items", "#/items", "" ],
+        [ "Annotation", "/items", "#/items", "" ]
+      ],
+      "post": [
+        [ true, "AssertionTypeStrict", "/items/type", "#/items/type", "/0" ],
+        [ true, "AssertionTypeStrict", "/items/type", "#/items/type", "/1" ],
+        [ true, "AssertionTypeStrict", "/items/type", "#/items/type", "/2" ],
+        [ true, "LoopItemsFrom", "/items", "#/items", "" ],
+        [ true, "Annotation", "/items", "#/items", "", true ],
+        [ true, "LogicalWhenArraySizeGreater", "/items", "#/items", "" ]
+      ],
+      "descriptions": [
+        "The value was expected to be of type string",
+        "The value was expected to be of type string",
+        "The value was expected to be of type string",
+        "Every item in the array value was expected to validate against the given subschema",
+        "Every item in the array value was successfully validated",
+        "The array value contains 3 additional items not described by related keywords"
+      ]
+    }
+  },
+  {
+    "description": "items_3",
+    "schema": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "items": {
+        "type": "string"
+      }
+    },
+    "instance": [ "foo", 5, "baz" ],
+    "valid": false,
+    "fast": {
+      "pre": [
+        [ "LoopItemsFrom", "/items", "#/items", "" ],
+        [ "AssertionTypeStrict", "/items/type", "#/items/type", "/0" ],
+        [ "AssertionTypeStrict", "/items/type", "#/items/type", "/1" ]
+      ],
+      "post": [
+        [ true, "AssertionTypeStrict", "/items/type", "#/items/type", "/0" ],
+        [ false, "AssertionTypeStrict", "/items/type", "#/items/type", "/1" ],
+        [ false, "LoopItemsFrom", "/items", "#/items", "" ]
+      ],
+      "descriptions": [
+        "The value was expected to be of type string",
+        "The value was expected to be of type string but it was of type integer",
+        "Every item in the array value was expected to validate against the given subschema"
+      ]
+    }
+  },
+  {
+    "description": "items_4",
+    "schema": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "items": { "type": "string" },
+      "prefixItems": [
+        { "type": "boolean" },
+        { "type": "integer" }
+      ]
+    },
+    "instance": [ true, 5 ],
+    "valid": true,
+    "fast": {
+      "pre": [
+        [ "AssertionArrayPrefix", "/prefixItems", "#/prefixItems", "" ],
+        [ "AssertionTypeStrict", "/prefixItems/0/type", "#/prefixItems/0/type", "/0" ],
+        [ "AssertionType", "/prefixItems/1/type", "#/prefixItems/1/type", "/1" ]
+      ],
+      "post": [
+        [ true, "AssertionTypeStrict", "/prefixItems/0/type", "#/prefixItems/0/type", "/0" ],
+        [ true, "AssertionType", "/prefixItems/1/type", "#/prefixItems/1/type", "/1" ],
+        [ true, "AssertionArrayPrefix", "/prefixItems", "#/prefixItems", "" ]
+      ],
+      "descriptions": [
+        "The value was expected to be of type boolean",
+        "The value was expected to be of type integer",
+        "The first 2 items of the array value were expected to validate against the corresponding subschemas"
+      ]
+    }
+  },
+  {
+    "description": "items_4_exhaustive",
+    "schema": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "items": { "type": "string" },
+      "prefixItems": [
+        { "type": "boolean" },
+        { "type": "integer" }
+      ]
+    },
+    "instance": [ true, 5 ],
+    "valid": true,
+    "exhaustive": {
+      "pre": [
+        [ "AssertionArrayPrefix", "/prefixItems", "#/prefixItems", "" ],
+        [ "AssertionTypeStrict", "/prefixItems/0/type", "#/prefixItems/0/type", "/0" ],
+        [ "AssertionType", "/prefixItems/1/type", "#/prefixItems/1/type", "/1" ],
+        [ "Annotation", "/prefixItems", "#/prefixItems", "" ],
+        [ "Annotation", "/prefixItems", "#/prefixItems", "" ]
+      ],
+      "post": [
+        [ true, "AssertionTypeStrict", "/prefixItems/0/type", "#/prefixItems/0/type", "/0" ],
+        [ true, "AssertionType", "/prefixItems/1/type", "#/prefixItems/1/type", "/1" ],
+        [ true, "Annotation", "/prefixItems", "#/prefixItems", "", 1 ],
+        [ true, "Annotation", "/prefixItems", "#/prefixItems", "", true ],
+        [ true, "AssertionArrayPrefix", "/prefixItems", "#/prefixItems", "" ]
+      ],
+      "descriptions": [
+        "The value was expected to be of type boolean",
+        "The value was expected to be of type integer",
+        "The first 2 items of the array value successfully validated against the given positional subschemas",
+        "Every item of the array value validated against the given positional subschemas",
+        "The first 2 items of the array value were expected to validate against the corresponding subschemas"
+      ]
+    }
+  },
+  {
+    "description": "items_5",
+    "schema": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "items": { "type": "string" },
+      "prefixItems": [
+        { "type": "boolean" },
+        { "type": "integer" }
+      ]
+    },
+    "instance": [ true, 5, "foo", "bar" ],
+    "valid": true,
+    "fast": {
+      "pre": [
+        [ "AssertionArrayPrefix", "/prefixItems", "#/prefixItems", "" ],
+        [ "AssertionTypeStrict", "/prefixItems/0/type", "#/prefixItems/0/type", "/0" ],
+        [ "AssertionType", "/prefixItems/1/type", "#/prefixItems/1/type", "/1" ],
+        [ "LoopItemsFrom", "/items", "#/items", "" ],
+        [ "AssertionTypeStrict", "/items/type", "#/items/type", "/2" ],
+        [ "AssertionTypeStrict", "/items/type", "#/items/type", "/3" ]
+      ],
+      "post": [
+        [ true, "AssertionTypeStrict", "/prefixItems/0/type", "#/prefixItems/0/type", "/0" ],
+        [ true, "AssertionType", "/prefixItems/1/type", "#/prefixItems/1/type", "/1" ],
+        [ true, "AssertionArrayPrefix", "/prefixItems", "#/prefixItems", "" ],
+        [ true, "AssertionTypeStrict", "/items/type", "#/items/type", "/2" ],
+        [ true, "AssertionTypeStrict", "/items/type", "#/items/type", "/3" ],
+        [ true, "LoopItemsFrom", "/items", "#/items", "" ]
+      ],
+      "descriptions": [
+        "The value was expected to be of type boolean",
+        "The value was expected to be of type integer",
+        "The first 2 items of the array value were expected to validate against the corresponding subschemas",
+        "The value was expected to be of type string",
+        "The value was expected to be of type string",
+        "Every item in the array value except for the first 2 was expected to validate against the given subschema"
+      ]
+    }
+  },
+  {
+    "description": "items_5_exhaustive",
+    "schema": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "items": { "type": "string" },
+      "prefixItems": [
+        { "type": "boolean" },
+        { "type": "integer" }
+      ]
+    },
+    "instance": [ true, 5, "foo", "bar" ],
+    "valid": true,
+    "exhaustive": {
+      "pre": [
+        [ "AssertionArrayPrefix", "/prefixItems", "#/prefixItems", "" ],
+        [ "AssertionTypeStrict", "/prefixItems/0/type", "#/prefixItems/0/type", "/0" ],
+        [ "AssertionType", "/prefixItems/1/type", "#/prefixItems/1/type", "/1" ],
+        [ "Annotation", "/prefixItems", "#/prefixItems", "" ],
+        [ "LoopItemsFrom", "/items", "#/items", "" ],
+        [ "AssertionTypeStrict", "/items/type", "#/items/type", "/2" ],
+        [ "AssertionTypeStrict", "/items/type", "#/items/type", "/3" ],
+        [ "LogicalWhenArraySizeGreater", "/items", "#/items", "" ],
+        [ "Annotation", "/items", "#/items", "" ]
+      ],
+      "post": [
+        [ true, "AssertionTypeStrict", "/prefixItems/0/type", "#/prefixItems/0/type", "/0" ],
+        [ true, "AssertionType", "/prefixItems/1/type", "#/prefixItems/1/type", "/1" ],
+        [ true, "Annotation", "/prefixItems", "#/prefixItems", "", 1 ],
+        [ true, "AssertionArrayPrefix", "/prefixItems", "#/prefixItems", "" ],
+        [ true, "AssertionTypeStrict", "/items/type", "#/items/type", "/2" ],
+        [ true, "AssertionTypeStrict", "/items/type", "#/items/type", "/3" ],
+        [ true, "LoopItemsFrom", "/items", "#/items", "" ],
+        [ true, "Annotation", "/items", "#/items", "", true ],
+        [ true, "LogicalWhenArraySizeGreater", "/items", "#/items", "" ]
+      ],
+      "descriptions": [
+        "The value was expected to be of type boolean",
+        "The value was expected to be of type integer",
+        "The first 2 items of the array value successfully validated against the given positional subschemas",
+        "The first 2 items of the array value were expected to validate against the corresponding subschemas",
+        "The value was expected to be of type string",
+        "The value was expected to be of type string",
+        "Every item in the array value except for the first 2 was expected to validate against the given subschema",
+        "Every item in the array value was successfully validated",
+        "The array value contains 2 additional items not described by related keywords"
+      ]
+    }
+  },
+  {
+    "description": "items_6",
+    "schema": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "items": { "type": "string" },
+      "prefixItems": [
+        { "type": "boolean" },
+        { "type": "integer" }
+      ]
+    },
+    "instance": [ true, 5, 6, "bar" ],
+    "valid": false,
+    "fast": {
+      "pre": [
+        [ "AssertionArrayPrefix", "/prefixItems", "#/prefixItems", "" ],
+        [ "AssertionTypeStrict", "/prefixItems/0/type", "#/prefixItems/0/type", "/0" ],
+        [ "AssertionType", "/prefixItems/1/type", "#/prefixItems/1/type", "/1" ],
+        [ "LoopItemsFrom", "/items", "#/items", "" ],
+        [ "AssertionTypeStrict", "/items/type", "#/items/type", "/2" ]
+      ],
+      "post": [
+        [ true, "AssertionTypeStrict", "/prefixItems/0/type", "#/prefixItems/0/type", "/0" ],
+        [ true, "AssertionType", "/prefixItems/1/type", "#/prefixItems/1/type", "/1" ],
+        [ true, "AssertionArrayPrefix", "/prefixItems", "#/prefixItems", "" ],
+        [ false, "AssertionTypeStrict", "/items/type", "#/items/type", "/2" ],
+        [ false, "LoopItemsFrom", "/items", "#/items", "" ]
+      ],
+      "descriptions": [
+        "The value was expected to be of type boolean",
+        "The value was expected to be of type integer",
+        "The first 2 items of the array value were expected to validate against the corresponding subschemas",
+        "The value was expected to be of type string but it was of type integer",
+        "Every item in the array value except for the first 2 was expected to validate against the given subschema"
+      ]
+    }
+  },
+  {
+    "description": "items_6_exhaustive",
+    "schema": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "items": { "type": "string" },
+      "prefixItems": [
+        { "type": "boolean" },
+        { "type": "integer" }
+      ]
+    },
+    "instance": [ true, 5, 6, "bar" ],
+    "valid": false,
+    "exhaustive": {
+      "pre": [
+        [ "AssertionArrayPrefix", "/prefixItems", "#/prefixItems", "" ],
+        [ "AssertionTypeStrict", "/prefixItems/0/type", "#/prefixItems/0/type", "/0" ],
+        [ "AssertionType", "/prefixItems/1/type", "#/prefixItems/1/type", "/1" ],
+        [ "Annotation", "/prefixItems", "#/prefixItems", "" ],
+        [ "LoopItemsFrom", "/items", "#/items", "" ],
+        [ "AssertionTypeStrict", "/items/type", "#/items/type", "/2" ]
+      ],
+      "post": [
+        [ true, "AssertionTypeStrict", "/prefixItems/0/type", "#/prefixItems/0/type", "/0" ],
+        [ true, "AssertionType", "/prefixItems/1/type", "#/prefixItems/1/type", "/1" ],
+        [ true, "Annotation", "/prefixItems", "#/prefixItems", "", 1 ],
+        [ true, "AssertionArrayPrefix", "/prefixItems", "#/prefixItems", "" ],
+        [ false, "AssertionTypeStrict", "/items/type", "#/items/type", "/2" ],
+        [ false, "LoopItemsFrom", "/items", "#/items", "" ]
+      ],
+      "descriptions": [
+        "The value was expected to be of type boolean",
+        "The value was expected to be of type integer",
+        "The first 2 items of the array value successfully validated against the given positional subschemas",
+        "The first 2 items of the array value were expected to validate against the corresponding subschemas",
+        "The value was expected to be of type string but it was of type integer",
+        "Every item in the array value except for the first 2 was expected to validate against the given subschema"
+      ]
+    }
+  },
+  {
+    "description": "items_7",
+    "schema": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "items": { "type": "string" }
+    },
+    "instance": [],
+    "valid": true,
+    "fast": {}
+  },
+  {
+    "description": "items_7_exhaustive",
+    "schema": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "items": { "type": "string" }
+    },
+    "instance": [],
+    "valid": true,
+    "exhaustive": {}
+  },
+  {
+    "description": "prefixItems_1",
+    "schema": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "prefixItems": [ { "type": "string" } ]
+    },
+    "instance": 5,
+    "valid": true,
+    "fast": {}
+  },
+  {
+    "description": "prefixItems_2",
+    "schema": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "prefixItems": [ { "type": "integer" }, { "type": "boolean" } ]
+    },
+    "instance": [],
+    "valid": true,
+    "fast": {
+      "pre": [
+        [ "AssertionArrayPrefix", "/prefixItems", "#/prefixItems", "" ]
+      ],
+      "post": [
+        [ true, "AssertionArrayPrefix", "/prefixItems", "#/prefixItems", "" ]
+      ],
+      "descriptions": [
+        "The first 2 items of the array value were expected to validate against the corresponding subschemas"
+      ]
+    }
+  },
+  {
+    "description": "prefixItems_2_exhaustive",
+    "schema": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "prefixItems": [ { "type": "integer" }, { "type": "boolean" } ]
+    },
+    "instance": [],
+    "valid": true,
+    "exhaustive": {
+      "pre": [
+        [ "AssertionArrayPrefix", "/prefixItems", "#/prefixItems", "" ]
+      ],
+      "post": [
+        [ true, "AssertionArrayPrefix", "/prefixItems", "#/prefixItems", "" ]
+      ],
+      "descriptions": [
+        "The first 2 items of the array value were expected to validate against the corresponding subschemas"
+      ]
+    }
+  },
+  {
+    "description": "prefixItems_3",
+    "schema": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "prefixItems": [ { "type": "integer" }, { "type": "boolean" } ]
+    },
+    "instance": [ 5 ],
+    "valid": true,
+    "fast": {
+      "pre": [
+        [ "AssertionArrayPrefix", "/prefixItems", "#/prefixItems", "" ],
+        [ "AssertionType", "/prefixItems/0/type", "#/prefixItems/0/type", "/0" ]
+      ],
+      "post": [
+        [ true, "AssertionType", "/prefixItems/0/type", "#/prefixItems/0/type", "/0" ],
+        [ true, "AssertionArrayPrefix", "/prefixItems", "#/prefixItems", "" ]
+      ],
+      "descriptions": [
+        "The value was expected to be of type integer",
+        "The first 2 items of the array value were expected to validate against the corresponding subschemas"
+      ]
+    }
+  },
+  {
+    "description": "prefixItems_3_exhaustive",
+    "schema": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "prefixItems": [ { "type": "integer" }, { "type": "boolean" } ]
+    },
+    "instance": [ 5 ],
+    "valid": true,
+    "exhaustive": {
+      "pre": [
+        [ "AssertionArrayPrefix", "/prefixItems", "#/prefixItems", "" ],
+        [ "AssertionType", "/prefixItems/0/type", "#/prefixItems/0/type", "/0" ],
+        [ "Annotation", "/prefixItems", "#/prefixItems", "" ]
+      ],
+      "post": [
+        [ true, "AssertionType", "/prefixItems/0/type", "#/prefixItems/0/type", "/0" ],
+        [ true, "Annotation", "/prefixItems", "#/prefixItems", "", 0 ],
+        [ true, "AssertionArrayPrefix", "/prefixItems", "#/prefixItems", "" ]
+      ],
+      "descriptions": [
+        "The value was expected to be of type integer",
+        "The first item of the array value successfully validated against the first positional subschema",
+        "The first 2 items of the array value were expected to validate against the corresponding subschemas"
+      ]
+    }
+  },
+  {
+    "description": "prefixItems_4",
+    "schema": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "prefixItems": [ { "type": "integer" }, { "type": "boolean" } ]
+    },
+    "instance": [ 5, true, "extra" ],
+    "valid": true,
+    "fast": {
+      "pre": [
+        [ "AssertionArrayPrefix", "/prefixItems", "#/prefixItems", "" ],
+        [ "AssertionType", "/prefixItems/0/type", "#/prefixItems/0/type", "/0" ],
+        [ "AssertionTypeStrict", "/prefixItems/1/type", "#/prefixItems/1/type", "/1" ]
+      ],
+      "post": [
+        [ true, "AssertionType", "/prefixItems/0/type", "#/prefixItems/0/type", "/0" ],
+        [ true, "AssertionTypeStrict", "/prefixItems/1/type", "#/prefixItems/1/type", "/1" ],
+        [ true, "AssertionArrayPrefix", "/prefixItems", "#/prefixItems", "" ]
+      ],
+      "descriptions": [
+        "The value was expected to be of type integer",
+        "The value was expected to be of type boolean",
+        "The first 2 items of the array value were expected to validate against the corresponding subschemas"
+      ]
+    }
+  },
+  {
+    "description": "prefixItems_4_exhaustive",
+    "schema": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "prefixItems": [ { "type": "integer" }, { "type": "boolean" } ]
+    },
+    "instance": [ 5, true, "extra" ],
+    "valid": true,
+    "exhaustive": {
+      "pre": [
+        [ "AssertionArrayPrefix", "/prefixItems", "#/prefixItems", "" ],
+        [ "AssertionType", "/prefixItems/0/type", "#/prefixItems/0/type", "/0" ],
+        [ "AssertionTypeStrict", "/prefixItems/1/type", "#/prefixItems/1/type", "/1" ],
+        [ "Annotation", "/prefixItems", "#/prefixItems", "" ]
+      ],
+      "post": [
+        [ true, "AssertionType", "/prefixItems/0/type", "#/prefixItems/0/type", "/0" ],
+        [ true, "AssertionTypeStrict", "/prefixItems/1/type", "#/prefixItems/1/type", "/1" ],
+        [ true, "Annotation", "/prefixItems", "#/prefixItems", "", 1 ],
+        [ true, "AssertionArrayPrefix", "/prefixItems", "#/prefixItems", "" ]
+      ],
+      "descriptions": [
+        "The value was expected to be of type integer",
+        "The value was expected to be of type boolean",
+        "The first 2 items of the array value successfully validated against the given positional subschemas",
+        "The first 2 items of the array value were expected to validate against the corresponding subschemas"
+      ]
+    }
+  },
+  {
+    "description": "prefixItems_5",
+    "schema": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "prefixItems": [ { "type": "integer" }, { "type": "boolean" } ]
+    },
+    "instance": [ 5, 1, "extra" ],
+    "valid": false,
+    "fast": {
+      "pre": [
+        [ "AssertionArrayPrefix", "/prefixItems", "#/prefixItems", "" ],
+        [ "AssertionType", "/prefixItems/0/type", "#/prefixItems/0/type", "/0" ],
+        [ "AssertionTypeStrict", "/prefixItems/1/type", "#/prefixItems/1/type", "/1" ]
+      ],
+      "post": [
+        [ true, "AssertionType", "/prefixItems/0/type", "#/prefixItems/0/type", "/0" ],
+        [ false, "AssertionTypeStrict", "/prefixItems/1/type", "#/prefixItems/1/type", "/1" ],
+        [ false, "AssertionArrayPrefix", "/prefixItems", "#/prefixItems", "" ]
+      ],
+      "descriptions": [
+        "The value was expected to be of type integer",
+        "The value was expected to be of type boolean but it was of type integer",
+        "The first 2 items of the array value were expected to validate against the corresponding subschemas"
+      ]
+    }
+  },
+  {
+    "description": "prefixItems_5_exhaustive",
+    "schema": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "prefixItems": [ { "type": "integer" }, { "type": "boolean" } ]
+    },
+    "instance": [ 5, 1, "extra" ],
+    "valid": false,
+    "exhaustive": {
+      "pre": [
+        [ "AssertionArrayPrefix", "/prefixItems", "#/prefixItems", "" ],
+        [ "AssertionType", "/prefixItems/0/type", "#/prefixItems/0/type", "/0" ],
+        [ "AssertionTypeStrict", "/prefixItems/1/type", "#/prefixItems/1/type", "/1" ]
+      ],
+      "post": [
+        [ true, "AssertionType", "/prefixItems/0/type", "#/prefixItems/0/type", "/0" ],
+        [ false, "AssertionTypeStrict", "/prefixItems/1/type", "#/prefixItems/1/type", "/1" ],
+        [ false, "AssertionArrayPrefix", "/prefixItems", "#/prefixItems", "" ]
+      ],
+      "descriptions": [
+        "The value was expected to be of type integer",
+        "The value was expected to be of type boolean but it was of type integer",
+        "The first 2 items of the array value were expected to validate against the corresponding subschemas"
+      ]
+    }
+  },
+  {
+    "description": "prefixItems_6",
+    "schema": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "prefixItems": [ { "type": "integer" }, { "type": "boolean" } ]
+    },
+    "instance": [ 5, true ],
+    "valid": true,
+    "fast": {
+      "pre": [
+        [ "AssertionArrayPrefix", "/prefixItems", "#/prefixItems", "" ],
+        [ "AssertionType", "/prefixItems/0/type", "#/prefixItems/0/type", "/0" ],
+        [ "AssertionTypeStrict", "/prefixItems/1/type", "#/prefixItems/1/type", "/1" ]
+      ],
+      "post": [
+        [ true, "AssertionType", "/prefixItems/0/type", "#/prefixItems/0/type", "/0" ],
+        [ true, "AssertionTypeStrict", "/prefixItems/1/type", "#/prefixItems/1/type", "/1" ],
+        [ true, "AssertionArrayPrefix", "/prefixItems", "#/prefixItems", "" ]
+      ],
+      "descriptions": [
+        "The value was expected to be of type integer",
+        "The value was expected to be of type boolean",
+        "The first 2 items of the array value were expected to validate against the corresponding subschemas"
+      ]
+    }
+  },
+  {
+    "description": "prefixItems_6_exhaustive",
+    "schema": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "prefixItems": [ { "type": "integer" }, { "type": "boolean" } ]
+    },
+    "instance": [ 5, true ],
+    "valid": true,
+    "exhaustive": {
+      "pre": [
+        [ "AssertionArrayPrefix", "/prefixItems", "#/prefixItems", "" ],
+        [ "AssertionType", "/prefixItems/0/type", "#/prefixItems/0/type", "/0" ],
+        [ "AssertionTypeStrict", "/prefixItems/1/type", "#/prefixItems/1/type", "/1" ],
+        [ "Annotation", "/prefixItems", "#/prefixItems", "" ],
+        [ "Annotation", "/prefixItems", "#/prefixItems", "" ]
+      ],
+      "post": [
+        [ true, "AssertionType", "/prefixItems/0/type", "#/prefixItems/0/type", "/0" ],
+        [ true, "AssertionTypeStrict", "/prefixItems/1/type", "#/prefixItems/1/type", "/1" ],
+        [ true, "Annotation", "/prefixItems", "#/prefixItems", "", 1 ],
+        [ true, "Annotation", "/prefixItems", "#/prefixItems", "", true ],
+        [ true, "AssertionArrayPrefix", "/prefixItems", "#/prefixItems", "" ]
+      ],
+      "descriptions": [
+        "The value was expected to be of type integer",
+        "The value was expected to be of type boolean",
+        "The first 2 items of the array value successfully validated against the given positional subschemas",
+        "Every item of the array value validated against the given positional subschemas",
+        "The first 2 items of the array value were expected to validate against the corresponding subschemas"
+      ]
+    }
+  },
+  {
+    "description": "contains_1",
+    "schema": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "contains": { "type": "string" }
+    },
+    "instance": 2,
+    "valid": true,
+    "fast": {}
+  },
+  {
+    "description": "contains_2",
+    "schema": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "contains": { "type": "string" }
+    },
+    "instance": [ 1, "bar", 3 ],
+    "valid": true,
+    "fast": {
+      "pre": [
+        [ "LoopContains", "/contains", "#/contains", "" ],
+        [ "AssertionTypeStrict", "/contains/type", "#/contains/type", "/0" ],
+        [ "AssertionTypeStrict", "/contains/type", "#/contains/type", "/1" ]
+      ],
+      "post": [
+        [ false, "AssertionTypeStrict", "/contains/type", "#/contains/type", "/0" ],
+        [ true, "AssertionTypeStrict", "/contains/type", "#/contains/type", "/1" ],
+        [ true, "LoopContains", "/contains", "#/contains", "" ]
+      ],
+      "descriptions": [
+        "The value was expected to be of type string but it was of type integer",
+        "The value was expected to be of type string",
+        "The array value was expected to contain at least 1 item that validates against the given subschema"
+      ]
+    }
+  },
+  {
+    "description": "contains_2_exhaustive",
+    "schema": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "contains": { "type": "string" }
+    },
+    "instance": [ 1, "bar", 3 ],
+    "valid": true,
+    "exhaustive": {
+      "pre": [
+        [ "LoopContains", "/contains", "#/contains", "" ],
+        [ "AssertionTypeStrict", "/contains/type", "#/contains/type", "/0" ],
+        [ "AssertionTypeStrict", "/contains/type", "#/contains/type", "/1" ],
+        [ "Annotation", "/contains", "#/contains", "" ],
+        [ "AssertionTypeStrict", "/contains/type", "#/contains/type", "/2" ]
+      ],
+      "post": [
+        [ false, "AssertionTypeStrict", "/contains/type", "#/contains/type", "/0" ],
+        [ true, "AssertionTypeStrict", "/contains/type", "#/contains/type", "/1" ],
+        [ true, "Annotation", "/contains", "#/contains", "", 1 ],
+        [ false, "AssertionTypeStrict", "/contains/type", "#/contains/type", "/2" ],
+        [ true, "LoopContains", "/contains", "#/contains", "" ]
+      ],
+      "descriptions": [
+        "The value was expected to be of type string but it was of type integer",
+        "The value was expected to be of type string",
+        "The item at index 1 of the array value successfully validated against the containment check subschema",
+        "The value was expected to be of type string but it was of type integer",
+        "The array value was expected to contain at least 1 item that validates against the given subschema"
+      ]
+    }
+  },
+  {
+    "description": "contains_3",
+    "schema": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "contains": { "type": "string" }
+    },
+    "instance": [ 1, 2, 3 ],
+    "valid": false,
+    "fast": {
+      "pre": [
+        [ "LoopContains", "/contains", "#/contains", "" ],
+        [ "AssertionTypeStrict", "/contains/type", "#/contains/type", "/0" ],
+        [ "AssertionTypeStrict", "/contains/type", "#/contains/type", "/1" ],
+        [ "AssertionTypeStrict", "/contains/type", "#/contains/type", "/2" ]
+      ],
+      "post": [
+        [ false, "AssertionTypeStrict", "/contains/type", "#/contains/type", "/0" ],
+        [ false, "AssertionTypeStrict", "/contains/type", "#/contains/type", "/1" ],
+        [ false, "AssertionTypeStrict", "/contains/type", "#/contains/type", "/2" ],
+        [ false, "LoopContains", "/contains", "#/contains", "" ]
+      ],
+      "descriptions": [
+        "The value was expected to be of type string but it was of type integer",
+        "The value was expected to be of type string but it was of type integer",
+        "The value was expected to be of type string but it was of type integer",
+        "The array value was expected to contain at least 1 item that validates against the given subschema"
+      ]
+    }
+  },
+  {
+    "description": "contains_3_exhaustive",
+    "schema": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "contains": { "type": "string" }
+    },
+    "instance": [ 1, 2, 3 ],
+    "valid": false,
+    "exhaustive": {
+      "pre": [
+        [ "LoopContains", "/contains", "#/contains", "" ],
+        [ "AssertionTypeStrict", "/contains/type", "#/contains/type", "/0" ],
+        [ "AssertionTypeStrict", "/contains/type", "#/contains/type", "/1" ],
+        [ "AssertionTypeStrict", "/contains/type", "#/contains/type", "/2" ]
+      ],
+      "post": [
+        [ false, "AssertionTypeStrict", "/contains/type", "#/contains/type", "/0" ],
+        [ false, "AssertionTypeStrict", "/contains/type", "#/contains/type", "/1" ],
+        [ false, "AssertionTypeStrict", "/contains/type", "#/contains/type", "/2" ],
+        [ false, "LoopContains", "/contains", "#/contains", "" ]
+      ],
+      "descriptions": [
+        "The value was expected to be of type string but it was of type integer",
+        "The value was expected to be of type string but it was of type integer",
+        "The value was expected to be of type string but it was of type integer",
+        "The array value was expected to contain at least 1 item that validates against the given subschema"
+      ]
+    }
+  },
+  {
+    "description": "contains_4",
+    "schema": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "contains": { "type": "string" }
+    },
+    "instance": [ "foo", "bar", "baz" ],
+    "valid": true,
+    "fast": {
+      "pre": [
+        [ "LoopContains", "/contains", "#/contains", "" ],
+        [ "AssertionTypeStrict", "/contains/type", "#/contains/type", "/0" ]
+      ],
+      "post": [
+        [ true, "AssertionTypeStrict", "/contains/type", "#/contains/type", "/0" ],
+        [ true, "LoopContains", "/contains", "#/contains", "" ]
+      ],
+      "descriptions": [
+        "The value was expected to be of type string",
+        "The array value was expected to contain at least 1 item that validates against the given subschema"
+      ]
+    }
+  },
+  {
+    "description": "contains_4_exhaustive",
+    "schema": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "contains": { "type": "string" }
+    },
+    "instance": [ "foo", "bar", "baz" ],
+    "valid": true,
+    "exhaustive": {
+      "pre": [
+        [ "LoopContains", "/contains", "#/contains", "" ],
+        [ "AssertionTypeStrict", "/contains/type", "#/contains/type", "/0" ],
+        [ "Annotation", "/contains", "#/contains", "" ],
+        [ "AssertionTypeStrict", "/contains/type", "#/contains/type", "/1" ],
+        [ "Annotation", "/contains", "#/contains", "" ],
+        [ "AssertionTypeStrict", "/contains/type", "#/contains/type", "/2" ],
+        [ "Annotation", "/contains", "#/contains", "" ]
+      ],
+      "post": [
+        [ true, "AssertionTypeStrict", "/contains/type", "#/contains/type", "/0" ],
+        [ true, "Annotation", "/contains", "#/contains", "", 0 ],
+        [ true, "AssertionTypeStrict", "/contains/type", "#/contains/type", "/1" ],
+        [ true, "Annotation", "/contains", "#/contains", "", 1 ],
+        [ true, "AssertionTypeStrict", "/contains/type", "#/contains/type", "/2" ],
+        [ true, "Annotation", "/contains", "#/contains", "", 2 ],
+        [ true, "LoopContains", "/contains", "#/contains", "" ]
+      ],
+      "descriptions": [
+        "The value was expected to be of type string",
+        "The item at index 0 of the array value successfully validated against the containment check subschema",
+        "The value was expected to be of type string",
+        "The item at index 1 of the array value successfully validated against the containment check subschema",
+        "The value was expected to be of type string",
+        "The item at index 2 of the array value successfully validated against the containment check subschema",
+        "The array value was expected to contain at least 1 item that validates against the given subschema"
+      ]
+    }
+  },
+  {
+    "description": "contains_5",
+    "schema": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "maxContains": 1,
+      "contains": { "type": "string" }
+    },
+    "instance": [ "foo", "bar", "baz" ],
+    "valid": false,
+    "fast": {
+      "pre": [
+        [ "LoopContains", "/contains", "#/contains", "" ],
+        [ "AssertionTypeStrict", "/contains/type", "#/contains/type", "/0" ],
+        [ "AssertionTypeStrict", "/contains/type", "#/contains/type", "/1" ]
+      ],
+      "post": [
+        [ true, "AssertionTypeStrict", "/contains/type", "#/contains/type", "/0" ],
+        [ true, "AssertionTypeStrict", "/contains/type", "#/contains/type", "/1" ],
+        [ false, "LoopContains", "/contains", "#/contains", "" ]
+      ],
+      "descriptions": [
+        "The value was expected to be of type string",
+        "The value was expected to be of type string",
+        "The array value was expected to contain exactly 1 item that validates against the given subschema"
+      ]
+    }
+  },
+  {
+    "description": "contains_5_exhaustive",
+    "schema": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "maxContains": 1,
+      "contains": { "type": "string" }
+    },
+    "instance": [ "foo", "bar", "baz" ],
+    "valid": false,
+    "exhaustive": {
+      "pre": [
+        [ "LoopContains", "/contains", "#/contains", "" ],
+        [ "AssertionTypeStrict", "/contains/type", "#/contains/type", "/0" ],
+        [ "Annotation", "/contains", "#/contains", "" ],
+        [ "AssertionTypeStrict", "/contains/type", "#/contains/type", "/1" ],
+        [ "Annotation", "/contains", "#/contains", "" ]
+      ],
+      "post": [
+        [ true, "AssertionTypeStrict", "/contains/type", "#/contains/type", "/0" ],
+        [ true, "Annotation", "/contains", "#/contains", "", 0 ],
+        [ true, "AssertionTypeStrict", "/contains/type", "#/contains/type", "/1" ],
+        [ true, "Annotation", "/contains", "#/contains", "", 1 ],
+        [ false, "LoopContains", "/contains", "#/contains", "" ]
+      ],
+      "descriptions": [
+        "The value was expected to be of type string",
+        "The item at index 0 of the array value successfully validated against the containment check subschema",
+        "The value was expected to be of type string",
+        "The item at index 1 of the array value successfully validated against the containment check subschema",
+        "The array value was expected to contain exactly 1 item that validates against the given subschema"
+      ]
+    }
+  },
+  {
+    "description": "contains_6",
+    "schema": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "contains": { "type": "boolean" }
+    },
+    "instance": [ true, 1, false, 2 ],
+    "valid": true,
+    "fast": {
+      "pre": [
+        [ "LoopContains", "/contains", "#/contains", "" ],
+        [ "AssertionTypeStrict", "/contains/type", "#/contains/type", "/0" ]
+      ],
+      "post": [
+        [ true, "AssertionTypeStrict", "/contains/type", "#/contains/type", "/0" ],
+        [ true, "LoopContains", "/contains", "#/contains", "" ]
+      ],
+      "descriptions": [
+        "The value was expected to be of type boolean",
+        "The array value was expected to contain at least 1 item that validates against the given subschema"
+      ]
+    }
+  },
+  {
+    "description": "contains_6_exhaustive",
+    "schema": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "contains": { "type": "boolean" }
+    },
+    "instance": [ true, 1, false, 2 ],
+    "valid": true,
+    "exhaustive": {
+      "pre": [
+        [ "LoopContains", "/contains", "#/contains", "" ],
+        [ "AssertionTypeStrict", "/contains/type", "#/contains/type", "/0" ],
+        [ "Annotation", "/contains", "#/contains", "" ],
+        [ "AssertionTypeStrict", "/contains/type", "#/contains/type", "/1" ],
+        [ "AssertionTypeStrict", "/contains/type", "#/contains/type", "/2" ],
+        [ "Annotation", "/contains", "#/contains", "" ],
+        [ "AssertionTypeStrict", "/contains/type", "#/contains/type", "/3" ]
+      ],
+      "post": [
+        [ true, "AssertionTypeStrict", "/contains/type", "#/contains/type", "/0" ],
+        [ true, "Annotation", "/contains", "#/contains", "", 0 ],
+        [ false, "AssertionTypeStrict", "/contains/type", "#/contains/type", "/1" ],
+        [ true, "AssertionTypeStrict", "/contains/type", "#/contains/type", "/2" ],
+        [ true, "Annotation", "/contains", "#/contains", "", 2 ],
+        [ false, "AssertionTypeStrict", "/contains/type", "#/contains/type", "/3" ],
+        [ true, "LoopContains", "/contains", "#/contains", "" ]
+      ],
+      "descriptions": [
+        "The value was expected to be of type boolean",
+        "The item at index 0 of the array value successfully validated against the containment check subschema",
+        "The value was expected to be of type boolean but it was of type integer",
+        "The value was expected to be of type boolean",
+        "The item at index 2 of the array value successfully validated against the containment check subschema",
+        "The value was expected to be of type boolean but it was of type integer",
+        "The array value was expected to contain at least 1 item that validates against the given subschema"
+      ]
+    }
+  },
+  {
+    "description": "contains_7",
+    "schema": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "contains": { "type": "boolean" }
+    },
+    "instance": [ true, 1, false ],
+    "valid": true,
+    "fast": {
+      "pre": [
+        [ "LoopContains", "/contains", "#/contains", "" ],
+        [ "AssertionTypeStrict", "/contains/type", "#/contains/type", "/0" ]
+      ],
+      "post": [
+        [ true, "AssertionTypeStrict", "/contains/type", "#/contains/type", "/0" ],
+        [ true, "LoopContains", "/contains", "#/contains", "" ]
+      ],
+      "descriptions": [
+        "The value was expected to be of type boolean",
+        "The array value was expected to contain at least 1 item that validates against the given subschema"
+      ]
+    }
+  },
+  {
+    "description": "contains_7_exhaustive",
+    "schema": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "contains": { "type": "boolean" }
+    },
+    "instance": [ true, 1, false ],
+    "valid": true,
+    "exhaustive": {
+      "pre": [
+        [ "LoopContains", "/contains", "#/contains", "" ],
+        [ "AssertionTypeStrict", "/contains/type", "#/contains/type", "/0" ],
+        [ "Annotation", "/contains", "#/contains", "" ],
+        [ "AssertionTypeStrict", "/contains/type", "#/contains/type", "/1" ],
+        [ "AssertionTypeStrict", "/contains/type", "#/contains/type", "/2" ],
+        [ "Annotation", "/contains", "#/contains", "" ]
+      ],
+      "post": [
+        [ true, "AssertionTypeStrict", "/contains/type", "#/contains/type", "/0" ],
+        [ true, "Annotation", "/contains", "#/contains", "", 0 ],
+        [ false, "AssertionTypeStrict", "/contains/type", "#/contains/type", "/1" ],
+        [ true, "AssertionTypeStrict", "/contains/type", "#/contains/type", "/2" ],
+        [ true, "Annotation", "/contains", "#/contains", "", 2 ],
+        [ true, "LoopContains", "/contains", "#/contains", "" ]
+      ],
+      "descriptions": [
+        "The value was expected to be of type boolean",
+        "The item at index 0 of the array value successfully validated against the containment check subschema",
+        "The value was expected to be of type boolean but it was of type integer",
+        "The value was expected to be of type boolean",
+        "The item at index 2 of the array value successfully validated against the containment check subschema",
+        "The array value was expected to contain at least 1 item that validates against the given subschema"
+      ]
+    }
+  },
+  {
+    "description": "dynamicRef_1",
+    "schema": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "$dynamicRef": "#foo",
+      "$defs": {
+        "string": {
+          "$dynamicAnchor": "foo",
+          "type": "string"
+        }
+      }
+    },
+    "instance": "foo",
+    "valid": true,
+    "fast": {
+      "pre": [
+        [ "AssertionTypeStrict", "/$dynamicRef/type", "#/$defs/string/type", "" ]
+      ],
+      "post": [
+        [ true, "AssertionTypeStrict", "/$dynamicRef/type", "#/$defs/string/type", "" ]
+      ],
+      "descriptions": [
+        "The value was expected to be of type string"
+      ]
+    }
+  },
+  {
+    "description": "dynamicRef_2",
+    "schema": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "$dynamicRef": "https://example.com/target#meta",
+      "$defs": {
+        "target": {
+          "$id": "https://example.com/target",
+          "$dynamicAnchor": "meta",
+          "type": "boolean"
+        },
+        "other": {
+          "$id": "https://example.com/other",
+          "$dynamicAnchor": "meta",
+          "type": "number"
+        }
+      }
+    },
+    "instance": true,
+    "valid": true,
+    "fast": {
+      "pre": [
+        [ "ControlDynamicAnchorJump", "/$dynamicRef", "#/$dynamicRef", "" ],
+        [ "AssertionTypeStrict", "/$dynamicRef/type", "https://example.com/target#/type", "" ]
+      ],
+      "post": [
+        [ true, "AssertionTypeStrict", "/$dynamicRef/type", "https://example.com/target#/type", "" ],
+        [ true, "ControlDynamicAnchorJump", "/$dynamicRef", "#/$dynamicRef", "" ]
+      ],
+      "descriptions": [
+        "The value was expected to be of type boolean",
+        "The boolean value was expected to validate against the first subschema in scope that declared the dynamic anchor \"meta\""
+      ]
+    }
+  },
+  {
+    "description": "dynamicRef_3",
+    "schema": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "$dynamicRef": "https://example.com/target#meta",
+      "$defs": {
+        "target": {
+          "$id": "https://example.com/target",
+          "$dynamicAnchor": "meta",
+          "type": "boolean"
+        },
+        "other": {
+          "$id": "https://example.com/other",
+          "$dynamicAnchor": "meta",
+          "type": "number"
+        }
+      }
+    },
+    "instance": 1,
+    "valid": false,
+    "fast": {
+      "pre": [
+        [ "ControlDynamicAnchorJump", "/$dynamicRef", "#/$dynamicRef", "" ],
+        [ "AssertionTypeStrict", "/$dynamicRef/type", "https://example.com/target#/type", "" ]
+      ],
+      "post": [
+        [ false, "AssertionTypeStrict", "/$dynamicRef/type", "https://example.com/target#/type", "" ],
+        [ false, "ControlDynamicAnchorJump", "/$dynamicRef", "#/$dynamicRef", "" ]
+      ],
+      "descriptions": [
+        "The value was expected to be of type boolean but it was of type integer",
+        "The integer value was expected to validate against the first subschema in scope that declared the dynamic anchor \"meta\""
+      ]
+    }
+  },
+  {
+    "description": "ref_with_percent_encoded_colon_in_fragment",
+    "schema": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "$ref": "#/$defs/https%3A~1~1example.com~1schema~1type",
+      "$defs": {
+        "https://example.com/schema/type": { "type": "string" }
+      }
+    },
+    "instance": "foo",
+    "valid": true,
+    "fast": {
+      "pre": [
+        [ "AssertionTypeStrict", "/$ref/type", "#/$defs/https:~1~1example.com~1schema~1type/type", "" ]
+      ],
+      "post": [
+        [ true, "AssertionTypeStrict", "/$ref/type", "#/$defs/https:~1~1example.com~1schema~1type/type", "" ]
+      ],
+      "descriptions": [
+        "The value was expected to be of type string"
+      ]
+    }
+  },
+  {
+    "description": "definitions_1",
+    "schema": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "$ref": "#/definitions/middle",
+      "definitions": {
+        "middle": { "$ref": "#/definitions/string" },
+        "string": { "type": "string" }
+      }
+    },
+    "instance": "foo",
+    "valid": true,
+    "fast": {
+      "pre": [
+        [ "AssertionTypeStrict", "/$ref/$ref/type", "#/definitions/string/type", "" ]
+      ],
+      "post": [
+        [ true, "AssertionTypeStrict", "/$ref/$ref/type", "#/definitions/string/type", "" ]
+      ],
+      "descriptions": [
+        "The value was expected to be of type string"
+      ]
+    }
+  },
+  {
+    "description": "definitions_1_exhaustive",
+    "schema": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "$ref": "#/definitions/middle",
+      "definitions": {
+        "middle": { "$ref": "#/definitions/string" },
+        "string": { "type": "string" }
+      }
+    },
+    "instance": "foo",
+    "valid": true,
+    "exhaustive": {
+      "pre": [
+        [ "ControlJump", "/$ref", "#/$ref", "" ],
+        [ "ControlJump", "/$ref/$ref", "#/definitions/middle/$ref", "" ],
+        [ "AssertionTypeStrict", "/$ref/$ref/type", "#/definitions/string/type", "" ]
+      ],
+      "post": [
+        [ true, "AssertionTypeStrict", "/$ref/$ref/type", "#/definitions/string/type", "" ],
+        [ true, "ControlJump", "/$ref/$ref", "#/definitions/middle/$ref", "" ],
+        [ true, "ControlJump", "/$ref", "#/$ref", "" ]
+      ],
+      "descriptions": [
+        "The value was expected to be of type string",
+        "The string value was expected to validate against the referenced schema",
+        "The string value was expected to validate against the referenced schema"
+      ]
+    }
+  },
+  {
+    "description": "unevaluatedItems_1",
+    "schema": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "contains": { "type": "boolean" },
+      "unevaluatedItems": false
+    },
+    "instance": [ false ],
+    "valid": true,
+    "fast": {
+      "pre": [
+        [ "LoopContains", "/contains", "#/contains", "" ],
+        [ "AssertionTypeStrict", "/contains/type", "#/contains/type", "/0" ],
+        [ "LoopItemsUnevaluated", "/unevaluatedItems", "#/unevaluatedItems", "" ]
+      ],
+      "post": [
+        [ true, "AssertionTypeStrict", "/contains/type", "#/contains/type", "/0" ],
+        [ true, "LoopContains", "/contains", "#/contains", "" ],
+        [ true, "LoopItemsUnevaluated", "/unevaluatedItems", "#/unevaluatedItems", "" ]
+      ],
+      "descriptions": [
+        "The value was expected to be of type boolean",
+        "The array value was expected to contain at least 1 item that validates against the given subschema",
+        "The array items not covered by other array keywords, if any, were expected to validate against this subschema"
+      ]
+    }
+  },
+  {
+    "description": "unevaluatedItems_1_exhaustive",
+    "schema": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "contains": { "type": "boolean" },
+      "unevaluatedItems": false
+    },
+    "instance": [ false ],
+    "valid": true,
+    "exhaustive": {
+      "pre": [
+        [ "LoopContains", "/contains", "#/contains", "" ],
+        [ "AssertionTypeStrict", "/contains/type", "#/contains/type", "/0" ],
+        [ "Annotation", "/contains", "#/contains", "" ],
+        [ "LoopItemsUnevaluated", "/unevaluatedItems", "#/unevaluatedItems", "" ]
+      ],
+      "post": [
+        [ true, "AssertionTypeStrict", "/contains/type", "#/contains/type", "/0" ],
+        [ true, "Annotation", "/contains", "#/contains", "", 0 ],
+        [ true, "LoopContains", "/contains", "#/contains", "" ],
+        [ true, "LoopItemsUnevaluated", "/unevaluatedItems", "#/unevaluatedItems", "" ]
+      ],
+      "descriptions": [
+        "The value was expected to be of type boolean",
+        "The item at index 0 of the array value successfully validated against the containment check subschema",
+        "The array value was expected to contain at least 1 item that validates against the given subschema",
+        "The array items not covered by other array keywords, if any, were expected to validate against this subschema"
+      ]
+    }
+  },
+  {
+    "description": "unevaluatedItems_2",
+    "schema": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "anyOf": [
+        { "items": { "type": "boolean" } },
+        true
+      ],
+      "unevaluatedItems": false
+    },
+    "instance": [ false, 1 ],
+    "valid": false,
+    "fast": {
+      "pre": [
+        [ "LogicalOr", "/anyOf", "#/anyOf", "" ],
+        [ "LoopItemsFrom", "/anyOf/0/items", "#/anyOf/0/items", "" ],
+        [ "AssertionTypeStrict", "/anyOf/0/items/type", "#/anyOf/0/items/type", "/0" ],
+        [ "AssertionTypeStrict", "/anyOf/0/items/type", "#/anyOf/0/items/type", "/1" ],
+        [ "LoopItemsUnevaluated", "/unevaluatedItems", "#/unevaluatedItems", "" ],
+        [ "AssertionFail", "/unevaluatedItems", "#/unevaluatedItems", "/0" ]
+      ],
+      "post": [
+        [ true, "AssertionTypeStrict", "/anyOf/0/items/type", "#/anyOf/0/items/type", "/0" ],
+        [ false, "AssertionTypeStrict", "/anyOf/0/items/type", "#/anyOf/0/items/type", "/1" ],
+        [ false, "LoopItemsFrom", "/anyOf/0/items", "#/anyOf/0/items", "" ],
+        [ true, "LogicalOr", "/anyOf", "#/anyOf", "" ],
+        [ false, "AssertionFail", "/unevaluatedItems", "#/unevaluatedItems", "/0" ],
+        [ false, "LoopItemsUnevaluated", "/unevaluatedItems", "#/unevaluatedItems", "" ]
+      ],
+      "descriptions": [
+        "The value was expected to be of type boolean",
+        "The value was expected to be of type boolean but it was of type integer",
+        "Every item in the array value was expected to validate against the given subschema",
+        "The array value was expected to validate against at least one of the 2 given subschemas",
+        "The array value was not expected to define the item at index 0",
+        "The array items not covered by other array keywords, if any, were expected to validate against this subschema"
+      ]
+    }
+  },
+  {
+    "description": "unevaluatedItems_2_exhaustive",
+    "schema": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "anyOf": [
+        { "items": { "type": "boolean" } },
+        true
+      ],
+      "unevaluatedItems": false
+    },
+    "instance": [ false, 1 ],
+    "valid": false,
+    "exhaustive": {
+      "pre": [
+        [ "LogicalOr", "/anyOf", "#/anyOf", "" ],
+        [ "LoopItemsFrom", "/anyOf/0/items", "#/anyOf/0/items", "" ],
+        [ "AssertionTypeStrict", "/anyOf/0/items/type", "#/anyOf/0/items/type", "/0" ],
+        [ "AssertionTypeStrict", "/anyOf/0/items/type", "#/anyOf/0/items/type", "/1" ],
+        [ "LoopItemsUnevaluated", "/unevaluatedItems", "#/unevaluatedItems", "" ],
+        [ "AssertionFail", "/unevaluatedItems", "#/unevaluatedItems", "/0" ]
+      ],
+      "post": [
+        [ true, "AssertionTypeStrict", "/anyOf/0/items/type", "#/anyOf/0/items/type", "/0" ],
+        [ false, "AssertionTypeStrict", "/anyOf/0/items/type", "#/anyOf/0/items/type", "/1" ],
+        [ false, "LoopItemsFrom", "/anyOf/0/items", "#/anyOf/0/items", "" ],
+        [ true, "LogicalOr", "/anyOf", "#/anyOf", "" ],
+        [ false, "AssertionFail", "/unevaluatedItems", "#/unevaluatedItems", "/0" ],
+        [ false, "LoopItemsUnevaluated", "/unevaluatedItems", "#/unevaluatedItems", "" ]
+      ],
+      "descriptions": [
+        "The value was expected to be of type boolean",
+        "The value was expected to be of type boolean but it was of type integer",
+        "Every item in the array value was expected to validate against the given subschema",
+        "The array value was expected to validate against at least one of the 2 given subschemas",
+        "The array value was not expected to define the item at index 0",
+        "The array items not covered by other array keywords, if any, were expected to validate against this subschema"
+      ]
+    }
+  },
+  {
+    "description": "unevaluatedItems_3",
+    "schema": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "anyOf": [
+        { "prefixItems": [ { "type": "boolean" } ] },
+        true
+      ],
+      "unevaluatedItems": false
+    },
+    "instance": [ 1, 2 ],
+    "valid": false,
+    "fast": {
+      "pre": [
+        [ "LogicalOr", "/anyOf", "#/anyOf", "" ],
+        [ "AssertionArrayPrefixEvaluate", "/anyOf/0/prefixItems", "#/anyOf/0/prefixItems", "" ],
+        [ "AssertionTypeStrict", "/anyOf/0/prefixItems/0/type", "#/anyOf/0/prefixItems/0/type", "/0" ],
+        [ "LoopItemsUnevaluated", "/unevaluatedItems", "#/unevaluatedItems", "" ],
+        [ "AssertionFail", "/unevaluatedItems", "#/unevaluatedItems", "/0" ]
+      ],
+      "post": [
+        [ false, "AssertionTypeStrict", "/anyOf/0/prefixItems/0/type", "#/anyOf/0/prefixItems/0/type", "/0" ],
+        [ false, "AssertionArrayPrefixEvaluate", "/anyOf/0/prefixItems", "#/anyOf/0/prefixItems", "" ],
+        [ true, "LogicalOr", "/anyOf", "#/anyOf", "" ],
+        [ false, "AssertionFail", "/unevaluatedItems", "#/unevaluatedItems", "/0" ],
+        [ false, "LoopItemsUnevaluated", "/unevaluatedItems", "#/unevaluatedItems", "" ]
+      ],
+      "descriptions": [
+        "The value was expected to be of type boolean but it was of type integer",
+        "The first item of the array value was expected to validate against the corresponding subschemas",
+        "The array value was expected to validate against at least one of the 2 given subschemas",
+        "The array value was not expected to define the item at index 0",
+        "The array items not covered by other array keywords, if any, were expected to validate against this subschema"
+      ]
+    }
+  },
+  {
+    "description": "unevaluatedItems_3_exhaustive",
+    "schema": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "anyOf": [
+        { "prefixItems": [ { "type": "boolean" } ] },
+        true
+      ],
+      "unevaluatedItems": false
+    },
+    "instance": [ 1, 2 ],
+    "valid": false,
+    "exhaustive": {
+      "pre": [
+        [ "LogicalOr", "/anyOf", "#/anyOf", "" ],
+        [ "AssertionArrayPrefixEvaluate", "/anyOf/0/prefixItems", "#/anyOf/0/prefixItems", "" ],
+        [ "AssertionTypeStrict", "/anyOf/0/prefixItems/0/type", "#/anyOf/0/prefixItems/0/type", "/0" ],
+        [ "LoopItemsUnevaluated", "/unevaluatedItems", "#/unevaluatedItems", "" ],
+        [ "AssertionFail", "/unevaluatedItems", "#/unevaluatedItems", "/0" ]
+      ],
+      "post": [
+        [ false, "AssertionTypeStrict", "/anyOf/0/prefixItems/0/type", "#/anyOf/0/prefixItems/0/type", "/0" ],
+        [ false, "AssertionArrayPrefixEvaluate", "/anyOf/0/prefixItems", "#/anyOf/0/prefixItems", "" ],
+        [ true, "LogicalOr", "/anyOf", "#/anyOf", "" ],
+        [ false, "AssertionFail", "/unevaluatedItems", "#/unevaluatedItems", "/0" ],
+        [ false, "LoopItemsUnevaluated", "/unevaluatedItems", "#/unevaluatedItems", "" ]
+      ],
+      "descriptions": [
+        "The value was expected to be of type boolean but it was of type integer",
+        "The first item of the array value was expected to validate against the corresponding subschemas",
+        "The array value was expected to validate against at least one of the 2 given subschemas",
+        "The array value was not expected to define the item at index 0",
+        "The array items not covered by other array keywords, if any, were expected to validate against this subschema"
+      ]
+    }
+  },
+  {
+    "description": "unevaluatedItems_4",
+    "schema": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "items": { "type": "string" },
+      "unevaluatedItems": { "type": "boolean" }
+    },
+    "instance": [ "foo" ],
+    "valid": true,
+    "fast": {
+      "pre": [
+        [ "LoopItemsFrom", "/items", "#/items", "" ],
+        [ "AssertionTypeStrict", "/items/type", "#/items/type", "/0" ]
+      ],
+      "post": [
+        [ true, "AssertionTypeStrict", "/items/type", "#/items/type", "/0" ],
+        [ true, "LoopItemsFrom", "/items", "#/items", "" ]
+      ],
+      "descriptions": [
+        "The value was expected to be of type string",
+        "Every item in the array value was expected to validate against the given subschema"
+      ]
+    }
+  },
+  {
+    "description": "unevaluatedItems_4_exhaustive",
+    "schema": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "items": { "type": "string" },
+      "unevaluatedItems": { "type": "boolean" }
+    },
+    "instance": [ "foo" ],
+    "valid": true,
+    "exhaustive": {
+      "pre": [
+        [ "LoopItemsFrom", "/items", "#/items", "" ],
+        [ "AssertionTypeStrict", "/items/type", "#/items/type", "/0" ],
+        [ "LogicalWhenArraySizeGreater", "/items", "#/items", "" ],
+        [ "Annotation", "/items", "#/items", "" ]
+      ],
+      "post": [
+        [ true, "AssertionTypeStrict", "/items/type", "#/items/type", "/0" ],
+        [ true, "LoopItemsFrom", "/items", "#/items", "" ],
+        [ true, "Annotation", "/items", "#/items", "", true ],
+        [ true, "LogicalWhenArraySizeGreater", "/items", "#/items", "" ]
+      ],
+      "descriptions": [
+        "The value was expected to be of type string",
+        "Every item in the array value was expected to validate against the given subschema",
+        "Every item in the array value was successfully validated",
+        "The array value contains 1 additional item not described by related keywords"
+      ]
+    }
+  },
+  {
+    "description": "unevaluatedItems_5",
+    "schema": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "contains": { "type": "boolean" },
+      "unevaluatedItems": { "type": "number" }
+    },
+    "instance": [ true, 1, false, 2 ],
+    "valid": true,
+    "fast": {
+      "pre": [
+        [ "LoopContains", "/contains", "#/contains", "" ],
+        [ "AssertionTypeStrict", "/contains/type", "#/contains/type", "/0" ],
+        [ "AssertionTypeStrict", "/contains/type", "#/contains/type", "/1" ],
+        [ "AssertionTypeStrict", "/contains/type", "#/contains/type", "/2" ],
+        [ "AssertionTypeStrict", "/contains/type", "#/contains/type", "/3" ],
+        [ "LoopItemsUnevaluated", "/unevaluatedItems", "#/unevaluatedItems", "" ],
+        [ "AssertionTypeStrictAny", "/unevaluatedItems/type", "#/unevaluatedItems/type", "/1" ],
+        [ "AssertionTypeStrictAny", "/unevaluatedItems/type", "#/unevaluatedItems/type", "/3" ]
+      ],
+      "post": [
+        [ true, "AssertionTypeStrict", "/contains/type", "#/contains/type", "/0" ],
+        [ false, "AssertionTypeStrict", "/contains/type", "#/contains/type", "/1" ],
+        [ true, "AssertionTypeStrict", "/contains/type", "#/contains/type", "/2" ],
+        [ false, "AssertionTypeStrict", "/contains/type", "#/contains/type", "/3" ],
+        [ true, "LoopContains", "/contains", "#/contains", "" ],
+        [ true, "AssertionTypeStrictAny", "/unevaluatedItems/type", "#/unevaluatedItems/type", "/1" ],
+        [ true, "AssertionTypeStrictAny", "/unevaluatedItems/type", "#/unevaluatedItems/type", "/3" ],
+        [ true, "LoopItemsUnevaluated", "/unevaluatedItems", "#/unevaluatedItems", "" ]
+      ],
+      "descriptions": [
+        "The value was expected to be of type boolean",
+        "The value was expected to be of type boolean but it was of type integer",
+        "The value was expected to be of type boolean",
+        "The value was expected to be of type boolean but it was of type integer",
+        "The array value was expected to contain at least 1 item that validates against the given subschema",
+        "The value was expected to be of type number",
+        "The value was expected to be of type number",
+        "The array items not covered by other array keywords, if any, were expected to validate against this subschema"
+      ]
+    }
+  },
+  {
+    "description": "unevaluatedItems_5_exhaustive",
+    "schema": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "contains": { "type": "boolean" },
+      "unevaluatedItems": { "type": "number" }
+    },
+    "instance": [ true, 1, false, 2 ],
+    "valid": true,
+    "exhaustive": {
+      "pre": [
+        [ "LoopContains", "/contains", "#/contains", "" ],
+        [ "AssertionTypeStrict", "/contains/type", "#/contains/type", "/0" ],
+        [ "Annotation", "/contains", "#/contains", "" ],
+        [ "AssertionTypeStrict", "/contains/type", "#/contains/type", "/1" ],
+        [ "AssertionTypeStrict", "/contains/type", "#/contains/type", "/2" ],
+        [ "Annotation", "/contains", "#/contains", "" ],
+        [ "AssertionTypeStrict", "/contains/type", "#/contains/type", "/3" ],
+        [ "LoopItemsUnevaluated", "/unevaluatedItems", "#/unevaluatedItems", "" ],
+        [ "AssertionTypeStrictAny", "/unevaluatedItems/type", "#/unevaluatedItems/type", "/1" ],
+        [ "AnnotationToParent", "/unevaluatedItems", "#/unevaluatedItems", "" ],
+        [ "AssertionTypeStrictAny", "/unevaluatedItems/type", "#/unevaluatedItems/type", "/3" ],
+        [ "AnnotationToParent", "/unevaluatedItems", "#/unevaluatedItems", "" ]
+      ],
+      "post": [
+        [ true, "AssertionTypeStrict", "/contains/type", "#/contains/type", "/0" ],
+        [ true, "Annotation", "/contains", "#/contains", "", 0 ],
+        [ false, "AssertionTypeStrict", "/contains/type", "#/contains/type", "/1" ],
+        [ true, "AssertionTypeStrict", "/contains/type", "#/contains/type", "/2" ],
+        [ true, "Annotation", "/contains", "#/contains", "", 2 ],
+        [ false, "AssertionTypeStrict", "/contains/type", "#/contains/type", "/3" ],
+        [ true, "LoopContains", "/contains", "#/contains", "" ],
+        [ true, "AssertionTypeStrictAny", "/unevaluatedItems/type", "#/unevaluatedItems/type", "/1" ],
+        [ true, "Annotation", "/unevaluatedItems", "#/unevaluatedItems", "", true ],
+        [ true, "AssertionTypeStrictAny", "/unevaluatedItems/type", "#/unevaluatedItems/type", "/3" ],
+        [ true, "Annotation", "/unevaluatedItems", "#/unevaluatedItems", "", true ],
+        [ true, "LoopItemsUnevaluated", "/unevaluatedItems", "#/unevaluatedItems", "" ]
+      ],
+      "descriptions": [
+        "The value was expected to be of type boolean",
+        "The item at index 0 of the array value successfully validated against the containment check subschema",
+        "The value was expected to be of type boolean but it was of type integer",
+        "The value was expected to be of type boolean",
+        "The item at index 2 of the array value successfully validated against the containment check subschema",
+        "The value was expected to be of type boolean but it was of type integer",
+        "The array value was expected to contain at least 1 item that validates against the given subschema",
+        "The value was expected to be of type number",
+        "At least one item of the array value successfully validated against the subschema for unevaluated items",
+        "The value was expected to be of type number",
+        "At least one item of the array value successfully validated against the subschema for unevaluated items",
+        "The array items not covered by other array keywords, if any, were expected to validate against this subschema"
+      ]
+    }
+  },
+  {
+    "description": "unevaluatedItems_6",
+    "schema": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "contains": { "type": "string" },
+      "minContains": 0,
+      "unevaluatedItems": false
+    },
+    "instance": [ "foo" ],
+    "valid": true,
+    "fast": {
+      "pre": [
+        [ "LoopContains", "/contains", "#/contains", "" ],
+        [ "AssertionTypeStrict", "/contains/type", "#/contains/type", "/0" ],
+        [ "LoopItemsUnevaluated", "/unevaluatedItems", "#/unevaluatedItems", "" ]
+      ],
+      "post": [
+        [ true, "AssertionTypeStrict", "/contains/type", "#/contains/type", "/0" ],
+        [ true, "LoopContains", "/contains", "#/contains", "" ],
+        [ true, "LoopItemsUnevaluated", "/unevaluatedItems", "#/unevaluatedItems", "" ]
+      ],
+      "descriptions": [
+        "The value was expected to be of type string",
+        "The array value was expected to contain at least 0 items that validate against the given subschema",
+        "The array items not covered by other array keywords, if any, were expected to validate against this subschema"
+      ]
+    }
+  },
+  {
+    "description": "unevaluatedItems_6_exhaustive",
+    "schema": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "contains": { "type": "string" },
+      "minContains": 0,
+      "unevaluatedItems": false
+    },
+    "instance": [ "foo" ],
+    "valid": true,
+    "exhaustive": {
+      "pre": [
+        [ "LoopContains", "/contains", "#/contains", "" ],
+        [ "AssertionTypeStrict", "/contains/type", "#/contains/type", "/0" ],
+        [ "Annotation", "/contains", "#/contains", "" ],
+        [ "LoopItemsUnevaluated", "/unevaluatedItems", "#/unevaluatedItems", "" ]
+      ],
+      "post": [
+        [ true, "AssertionTypeStrict", "/contains/type", "#/contains/type", "/0" ],
+        [ true, "Annotation", "/contains", "#/contains", "", 0 ],
+        [ true, "LoopContains", "/contains", "#/contains", "" ],
+        [ true, "LoopItemsUnevaluated", "/unevaluatedItems", "#/unevaluatedItems", "" ]
+      ],
+      "descriptions": [
+        "The value was expected to be of type string",
+        "The item at index 0 of the array value successfully validated against the containment check subschema",
+        "The array value was expected to contain at least 0 items that validate against the given subschema",
+        "The array items not covered by other array keywords, if any, were expected to validate against this subschema"
+      ]
+    }
+  },
+  {
+    "description": "unevaluatedProperties_1",
+    "schema": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "additionalProperties": { "type": "string" },
+      "unevaluatedProperties": false
+    },
+    "instance": { "foo": "baz" },
+    "valid": true,
+    "fast": {
+      "pre": [
+        [ "LoopPropertiesTypeStrict", "/additionalProperties/type", "#/additionalProperties/type", "" ]
+      ],
+      "post": [
+        [ true, "LoopPropertiesTypeStrict", "/additionalProperties/type", "#/additionalProperties/type", "" ]
+      ],
+      "descriptions": [
+        "The object properties were expected to be of type string"
+      ]
+    }
+  },
+  {
+    "description": "unevaluatedProperties_1_exhaustive",
+    "schema": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "additionalProperties": { "type": "string" },
+      "unevaluatedProperties": false
+    },
+    "instance": { "foo": "baz" },
+    "valid": true,
+    "exhaustive": {
+      "pre": [
+        [ "LoopProperties", "/additionalProperties", "#/additionalProperties", "" ],
+        [ "AssertionTypeStrict", "/additionalProperties/type", "#/additionalProperties/type", "/foo" ],
+        [ "Annotation", "/additionalProperties", "#/additionalProperties", "" ]
+      ],
+      "post": [
+        [ true, "AssertionTypeStrict", "/additionalProperties/type", "#/additionalProperties/type", "/foo" ],
+        [ true, "Annotation", "/additionalProperties", "#/additionalProperties", "", "foo" ],
+        [ true, "LoopProperties", "/additionalProperties", "#/additionalProperties", "" ]
+      ],
+      "descriptions": [
+        "The value was expected to be of type string",
+        "The object property \"foo\" successfully validated against the additional properties subschema",
+        "The object properties not covered by other adjacent object keywords were expected to validate against this subschema"
+      ]
+    }
+  },
+  {
+    "description": "cross_id_1",
+    "schema": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "$ref": "#/$defs/schema/items",
+      "$defs": {
+        "schema": {
+          "$schema": "https://json-schema.org/draft/2020-12/schema",
+          "$id": "https://www.example.com",
+          "items": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    "instance": "foo bar",
+    "valid": true,
+    "fast": {
+      "pre": [
+        [ "AssertionTypeStrict", "/$ref/type", "https://www.example.com#/items/type", "" ]
+      ],
+      "post": [
+        [ true, "AssertionTypeStrict", "/$ref/type", "https://www.example.com#/items/type", "" ]
+      ],
+      "descriptions": [
+        "The value was expected to be of type string"
+      ]
+    }
+  },
+  {
+    "description": "propertyNames_1",
+    "schema": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "propertyNames": {
+        "title": "Test",
+        "description": "Test",
+        "default": "Test",
+        "deprecated": true,
+        "examples": [ "foo" ],
+        "readOnly": true,
+        "writeOnly": true,
+
+        "x-foo": "bar",
+
+        "format": "email",
+
+        "contentEncoding": "base64",
+        "contentMediaType": "application/json",
+        "contentSchema": true,
+
+        "prefixItems": [ { "type": "string" } ],
+        "items": { "type": "string" },
+        "unevaluatedItems": { "type": "string" },
+        "contains": { "type": "string" },
+
+        "properties": { "foo": { "type": "string" } },
+        "patternProperties": { "^f": { "type": "string" } },
+        "additionalProperties": { "type": "string" },
+        "unevaluatedProperties": { "type": "string" }
+      }
+    },
+    "instance": { "foo": 1 },
+    "valid": true,
+    "fast": {}
+  },
+  {
+    "description": "propertyNames_1_exhaustive",
+    "schema": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "propertyNames": {
+        "title": "Test",
+        "description": "Test",
+        "default": "Test",
+        "deprecated": true,
+        "examples": [ "foo" ],
+        "readOnly": true,
+        "writeOnly": true,
+
+        "x-foo": "bar",
+
+        "format": "email",
+
+        "contentEncoding": "base64",
+        "contentMediaType": "application/json",
+        "contentSchema": true,
+
+        "prefixItems": [ { "type": "string" } ],
+        "items": { "type": "string" },
+        "unevaluatedItems": { "type": "string" },
+        "contains": { "type": "string" },
+
+        "properties": { "foo": { "type": "string" } },
+        "patternProperties": { "^f": { "type": "string" } },
+        "additionalProperties": { "type": "string" },
+        "unevaluatedProperties": { "type": "string" }
+      }
+    },
+    "instance": { "foo": 1 },
+    "valid": true,
+    "exhaustive": {
+      "pre": [
+        [ "LoopKeys", "/propertyNames", "#/propertyNames", "" ]
+      ],
+      "post": [
+        [ true, "LoopKeys", "/propertyNames", "#/propertyNames", "" ]
+      ],
+      "descriptions": [
+        "The object property \"foo\" was expected to validate against the given subschema"
+      ]
+    }
+  },
+  {
+    "description": "description",
+    "schema": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "description": "Foo Bar"
+    },
+    "instance": 1,
+    "valid": true,
+    "fast": {}
+  },
+  {
+    "description": "description_exhaustive",
+    "schema": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "description": "Foo Bar"
+    },
+    "instance": 1,
+    "valid": true,
+    "exhaustive": {
+      "pre": [
+        [ "Annotation", "/description", "#/description", "" ]
+      ],
+      "post": [
+        [ true, "Annotation", "/description", "#/description", "", "Foo Bar" ]
+      ],
+      "descriptions": [
+        "The description of the instance was \"Foo Bar\""
+      ]
+    }
+  },
+  {
+    "description": "top_level_ref_with_id",
+    "schema": {
+      "$id": "https://www.example.com",
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "$ref": "#/$defs/test",
+      "$defs": {
+        "test": {}
+      }
+    },
+    "instance": 5,
+    "valid": true,
+    "fast": {}
+  },
+  {
+    "description": "top_level_ref_with_id_exhaustive",
+    "schema": {
+      "$id": "https://www.example.com",
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "$ref": "#/$defs/test",
+      "$defs": {
+        "test": {}
+      }
+    },
+    "instance": 5,
+    "valid": true,
+    "exhaustive": {
+      "pre": [
+        [ "ControlJump", "/$ref", "https://www.example.com#/$ref", "" ]
+      ],
+      "post": [
+        [ true, "ControlJump", "/$ref", "https://www.example.com#/$ref", "" ]
+      ],
+      "descriptions": [
+        "The integer value was expected to validate against the referenced schema"
+      ]
+    }
+  },
+  {
+    "description": "openapi_discriminator_1",
+    "schema": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "discriminator": {
+        "propertyName": "petType"
+      }
+    },
+    "instance": {
+      "petType": "dog",
+      "name": "Rex"
+    },
+    "valid": true,
+    "fast": {}
+  },
+  {
+    "description": "openapi_discriminator_1_exhaustive",
+    "schema": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "discriminator": {
+        "propertyName": "petType"
+      }
+    },
+    "instance": {
+      "petType": "dog",
+      "name": "Rex"
+    },
+    "valid": true,
+    "exhaustive": {
+      "pre": [
+        [ "Annotation", "/discriminator", "#/discriminator", "" ]
+      ],
+      "post": [
+        [ true, "Annotation", "/discriminator", "#/discriminator", "", { "propertyName": "petType" } ]
+      ],
+      "descriptions": [
+        "The unrecognized keyword \"discriminator\" was collected as the annotation {\"propertyName\":\"petType\"}"
+      ]
+    }
+  },
+  {
+    "description": "openapi_xml_1",
+    "schema": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "xml": {
+        "name": "pet",
+        "wrapped": true
+      }
+    },
+    "instance": {
+      "name": "Rex"
+    },
+    "valid": true,
+    "fast": {}
+  },
+  {
+    "description": "openapi_xml_1_exhaustive",
+    "schema": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "xml": {
+        "name": "pet",
+        "wrapped": true
+      }
+    },
+    "instance": {
+      "name": "Rex"
+    },
+    "valid": true,
+    "exhaustive": {
+      "pre": [
+        [ "Annotation", "/xml", "#/xml", "" ]
+      ],
+      "post": [
+        [ true, "Annotation", "/xml", "#/xml", "", { "name": "pet", "wrapped": true } ]
+      ],
+      "descriptions": [
+        "The unrecognized keyword \"xml\" was collected as the annotation {\"name\":\"pet\",\"wrapped\":true}"
+      ]
+    }
+  },
+  {
+    "description": "openapi_externalDocs_1",
+    "schema": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "externalDocs": {
+        "url": "https://example.com/docs"
+      }
+    },
+    "instance": "foo",
+    "valid": true,
+    "fast": {}
+  },
+  {
+    "description": "openapi_externalDocs_1_exhaustive",
+    "schema": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "externalDocs": {
+        "url": "https://example.com/docs"
+      }
+    },
+    "instance": "foo",
+    "valid": true,
+    "exhaustive": {
+      "pre": [
+        [ "Annotation", "/externalDocs", "#/externalDocs", "" ]
+      ],
+      "post": [
+        [ true, "Annotation", "/externalDocs", "#/externalDocs", "", { "url": "https://example.com/docs" } ]
+      ],
+      "descriptions": [
+        "The unrecognized keyword \"externalDocs\" was collected as the annotation {\"url\":\"https://example.com/docs\"}"
+      ]
+    }
+  },
+  {
+    "description": "openapi_example_1",
+    "schema": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "example": {
+        "name": "Rex",
+        "petType": "dog"
+      }
+    },
+    "instance": {
+      "name": "Fluffy",
+      "petType": "cat"
+    },
+    "valid": true,
+    "fast": {}
+  },
+  {
+    "description": "openapi_example_1_exhaustive",
+    "schema": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "example": {
+        "name": "Rex",
+        "petType": "dog"
+      }
+    },
+    "instance": {
+      "name": "Fluffy",
+      "petType": "cat"
+    },
+    "valid": true,
+    "exhaustive": {
+      "pre": [
+        [ "Annotation", "/example", "#/example", "" ]
+      ],
+      "post": [
+        [ true, "Annotation", "/example", "#/example", "", { "name": "Rex", "petType": "dog" } ]
+      ],
+      "descriptions": [
+        "The unrecognized keyword \"example\" was collected as the annotation {\"name\":\"Rex\",\"petType\":\"dog\"}"
+      ]
+    }
+  }
+]
