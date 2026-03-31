@@ -1273,17 +1273,7 @@
       "descriptions": [
         "The string value \"foo\" was expected to equal the string constant \"foo\""
       ]
-    }
-  },
-  {
-    "description": "enum_1_exhaustive",
-    "schema": {
-      "$schema": "http://json-schema.org/draft-06/schema#",
-      "type": "string",
-      "enum": [ "foo" ]
     },
-    "instance": "foo",
-    "valid": true,
     "exhaustive": {
       "pre": [
         [ "AssertionEqual", "/enum", "#/enum", "" ],
@@ -1447,17 +1437,7 @@
       "descriptions": [
         "The array value [1] was expected to equal the array constant [1]"
       ]
-    }
-  },
-  {
-    "description": "enum_8_exhaustive",
-    "schema": {
-      "$schema": "http://json-schema.org/draft-06/schema#",
-      "type": "array",
-      "enum": [ [ 1 ] ]
     },
-    "instance": [ 1 ],
-    "valid": true,
     "exhaustive": {
       "pre": [
         [ "AssertionEqual", "/enum", "#/enum", "" ],
@@ -1492,17 +1472,7 @@
       "descriptions": [
         "The object value {} was expected to equal the object constant {}"
       ]
-    }
-  },
-  {
-    "description": "enum_9_exhaustive",
-    "schema": {
-      "$schema": "http://json-schema.org/draft-06/schema#",
-      "type": "object",
-      "enum": [ {} ]
     },
-    "instance": {},
-    "valid": true,
     "exhaustive": {
       "pre": [
         [ "AssertionEqual", "/enum", "#/enum", "" ],
@@ -1742,20 +1712,7 @@
       "descriptions": [
         "The value was expected to be of type null, number, or string and it was of type number"
       ]
-    }
-  },
-  {
-    "description": "anyOf_1_exhaustive",
-    "schema": {
-      "$schema": "http://json-schema.org/draft-06/schema#",
-      "anyOf": [
-        { "type": "string" },
-        { "type": "number" },
-        { "type": "null" }
-      ]
     },
-    "instance": 1,
-    "valid": true,
     "exhaustive": {
       "pre": [
         [ "LogicalOr", "/anyOf", "#/anyOf", "" ],
@@ -2137,19 +2094,7 @@
         "The value was expected to be of type string",
         "No instance is expected to succeed against the false schema"
       ]
-    }
-  },
-  {
-    "description": "allOf_1_exhaustive",
-    "schema": {
-      "$schema": "http://json-schema.org/draft-06/schema#",
-      "allOf": [
-        { "type": "string" },
-        false
-      ]
     },
-    "instance": "foo",
-    "valid": false,
     "exhaustive": {
       "pre": [
         [ "LogicalAnd", "/allOf", "#/allOf", "" ],
@@ -2189,19 +2134,7 @@
       "descriptions": [
         "The value was expected to be of type string but it was of type integer"
       ]
-    }
-  },
-  {
-    "description": "allOf_2_exhaustive",
-    "schema": {
-      "$schema": "http://json-schema.org/draft-06/schema#",
-      "allOf": [
-        { "type": "string" },
-        false
-      ]
     },
-    "instance": 5,
-    "valid": false,
     "exhaustive": {
       "pre": [
         [ "LogicalAnd", "/allOf", "#/allOf", "" ],
