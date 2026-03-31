@@ -4,7 +4,11 @@ if(BLAZE_COMPILER AND BLAZE_EVALUATOR)
   target_link_libraries(sourcemeta_blaze_contrib_compile
     PRIVATE sourcemeta::core::json)
   target_link_libraries(sourcemeta_blaze_contrib_compile
+    PRIVATE sourcemeta::core::jsonpointer)
+  target_link_libraries(sourcemeta_blaze_contrib_compile
     PRIVATE sourcemeta::core::jsonschema)
+  target_link_libraries(sourcemeta_blaze_contrib_compile
+    PRIVATE sourcemeta::core::options)
   target_link_libraries(sourcemeta_blaze_contrib_compile
     PRIVATE sourcemeta::blaze::compiler)
 
