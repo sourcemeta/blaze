@@ -3,7 +3,7 @@
 
 #if defined(__GNUC__) || defined(__clang__)
 #define SOURCEMETA_FORCEINLINE [[gnu::always_inline]]
-#elifdef _MSC_VER
+#elif defined(_MSC_VER)
 #define SOURCEMETA_FORCEINLINE [[msvc::forceinline]]
 #else
 #define SOURCEMETA_FORCEINLINE
