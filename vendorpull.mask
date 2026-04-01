@@ -10,3 +10,7 @@ Brewfile
 Makefile
 README.markdown
 assets
+ports/javascript/benchmark.mjs
+ports/javascript/compile.mjs
+ports/javascript/test.mjs
+ports/javascript/trace.mjs
