@@ -1322,3 +1322,48 @@ TEST(Evaluator_draft4, multipleOf_18) {
       "The integer value 299999999999999999999999999999999998 was expected to "
       "be divisible by the integer 99999999999999999999999999999999999");
 }
+
+TEST(Evaluator_draft4, ref_2_entrypoint) {
+  const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
+    "$schema": "http://json-schema.org/draft-04/schema#",
+    "allOf": [ { "$ref": "#/definitions/string" } ],
+    "definitions": {
+      "string": { "type": "string" }
+    }
+  })JSON")};
+
+  const sourcemeta::core::JSON instance{"foo"};
+
+  EVALUATE_WITH_TRACE_FAST_SUCCESS(schema, instance, 1, "#/allOf/0");
+
+  EVALUATE_TRACE_PRE(0, AssertionTypeStrict, "/$ref/type",
+                     "#/definitions/string/type", "");
+  EVALUATE_TRACE_POST_SUCCESS(0, AssertionTypeStrict, "/$ref/type",
+                              "#/definitions/string/type", "");
+  EVALUATE_TRACE_POST_DESCRIBE(instance, 0,
+                               "The value was expected to be of type string");
+}
+
+TEST(Evaluator_draft4, enum_17) {
+  const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
+    "$schema": "http://json-schema.org/draft-04/schema#",
+    "type": "integer",
+    "enum": [ 3.0 ]
+  })JSON")};
+
+  const sourcemeta::core::JSON instance{3.0};
+  EVALUATE_WITH_TRACE_FAST_FAILURE(schema, instance, 2, "");
+
+  EVALUATE_TRACE_PRE(0, AssertionEqual, "/enum", "#/enum", "");
+  EVALUATE_TRACE_PRE(1, AssertionTypeStrict, "/type", "#/type", "");
+
+  EVALUATE_TRACE_POST_SUCCESS(0, AssertionEqual, "/enum", "#/enum", "");
+  EVALUATE_TRACE_POST_FAILURE(1, AssertionTypeStrict, "/type", "#/type", "");
+
+  EVALUATE_TRACE_POST_DESCRIBE(
+      instance, 0,
+      "The number value 3.0 was expected to equal the number constant 3.0");
+  EVALUATE_TRACE_POST_DESCRIBE(
+      instance, 1,
+      "The value was expected to be of type integer but it was of type number");
+}
