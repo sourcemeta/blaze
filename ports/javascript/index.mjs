@@ -157,7 +157,7 @@ function collectAnchorNamesFromInstructions(instructions, result) {
 }
 
 function compile(template) {
-  const targets = template[3];
+  const targets = template[2];
   for (let targetIndex = 0; targetIndex < targets.length; targetIndex++) {
     const target = targets[targetIndex];
     for (let index = 0; index < target.length; index++) {
@@ -170,7 +170,7 @@ function compile(template) {
   }
 
   const labels = new Map();
-  const rawLabels = template[4];
+  const rawLabels = template[3];
   for (let index = 0; index < rawLabels.length; index++) {
     const pair = rawLabels[index];
     labels.set(pair[0], pair[1]);
@@ -180,7 +180,7 @@ function compile(template) {
   if (template[0]) {
     const anchorNames = new Set();
     collectAnchorNames(targets, anchorNames);
-    const resourceCount = template[2].length + 1;
+    const resourceCount = targets.length;
     for (const anchor of anchorNames) {
       for (let resource = 0; resource <= resourceCount; resource++) {
         const hash = blazeHash(resource, anchor);
@@ -192,8 +192,8 @@ function compile(template) {
     }
   }
 
-  template[5] = labels;
-  template[6] = anchors;
+  template[4] = labels;
+  template[5] = anchors;
   return template;
 }
 
@@ -205,7 +205,7 @@ class Blaze {
 
   validate(instance) {
     const template = this.template;
-    const targets = template[3];
+    const targets = template[2];
     if (targets.length === 0) return true;
 
     const track = template[1];
@@ -1548,7 +1548,7 @@ function ControlDynamicAnchorJump(instruction, instance, depth, template, evalua
 
   if (!evaluator.resources) return false;
 
-  const anchors = template[6];
+  const anchors = template[5];
   for (let index = 0; index < evaluator.resources.length; index++) {
     const jumpTarget = anchors.get(evaluator.resources[index] + ':' + anchor);
     if (jumpTarget !== undefined) {
