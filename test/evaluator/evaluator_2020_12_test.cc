@@ -89,11 +89,11 @@ TEST(Evaluator_2020_12, dynamicRef_with_multiple_anchors_from_json) {
     }
   })JSON")};
 
-  const auto original{sourcemeta::blaze::compile(
-      schema, sourcemeta::core::schema_walker,
-      sourcemeta::core::schema_resolver,
-      sourcemeta::blaze::default_schema_compiler,
-      sourcemeta::blaze::Mode::FastValidation)};
+  const auto original{
+      sourcemeta::blaze::compile(schema, sourcemeta::core::schema_walker,
+                                 sourcemeta::core::schema_resolver,
+                                 sourcemeta::blaze::default_schema_compiler,
+                                 sourcemeta::blaze::Mode::FastValidation)};
 
   const auto roundtripped{
       sourcemeta::blaze::from_json(sourcemeta::blaze::to_json(original))};
@@ -104,14 +104,14 @@ TEST(Evaluator_2020_12, dynamicRef_with_multiple_anchors_from_json) {
   EXPECT_TRUE(result);
 
   EVALUATE_TRACE_PRE(0, ControlDynamicAnchorJump, "/$dynamicRef",
-                     "https://example.com/target#/$dynamicRef", "");
+                     "#/$dynamicRef", "");
   EVALUATE_TRACE_PRE(1, AssertionTypeStrict, "/$dynamicRef/type",
                      "https://example.com/target#/type", "");
 
   EVALUATE_TRACE_POST_SUCCESS(0, AssertionTypeStrict, "/$dynamicRef/type",
                               "https://example.com/target#/type", "");
   EVALUATE_TRACE_POST_SUCCESS(1, ControlDynamicAnchorJump, "/$dynamicRef",
-                              "https://example.com/target#/$dynamicRef", "");
+                              "#/$dynamicRef", "");
 
   EVALUATE_TRACE_POST_DESCRIBE(instance, 0,
                                "The value was expected to be of type boolean");
