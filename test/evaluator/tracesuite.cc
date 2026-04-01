@@ -144,15 +144,14 @@ static auto register_tests(const std::filesystem::path &path,
     assert(test_case.defines("description"));
     const auto &description{test_case.at("description").to_string()};
 
+    assert(test_case.defines("fast"));
+    assert(test_case.defines("exhaustive"));
+
     for (const auto &[mode_key, mode] :
          {std::pair<const char *, sourcemeta::blaze::Mode>{
               "fast", sourcemeta::blaze::Mode::FastValidation},
           std::pair<const char *, sourcemeta::blaze::Mode>{
               "exhaustive", sourcemeta::blaze::Mode::Exhaustive}}) {
-
-      if (!test_case.defines(mode_key)) {
-        continue;
-      }
 
       const auto title{description +
                        (mode == sourcemeta::blaze::Mode::FastValidation
@@ -173,25 +172,25 @@ auto main(int argc, char **argv) -> int {
   try {
     register_tests(std::filesystem::path{TRACE_SUITE_PATH} /
                        "evaluator_openapi_3_1.json",
-                   "Evaluator_OpenAPI_3_1");
+                   "Evaluator_trace_OpenAPI_3_1");
     register_tests(std::filesystem::path{TRACE_SUITE_PATH} /
                        "evaluator_openapi_3_2.json",
-                   "Evaluator_OpenAPI_3_2");
+                   "Evaluator_trace_OpenAPI_3_2");
     register_tests(std::filesystem::path{TRACE_SUITE_PATH} /
                        "evaluator_draft7.json",
-                   "Evaluator_draft7");
+                   "Evaluator_trace_draft7");
     register_tests(std::filesystem::path{TRACE_SUITE_PATH} /
                        "evaluator_2019_09.json",
-                   "Evaluator_2019_09");
+                   "Evaluator_trace_2019_09");
     register_tests(std::filesystem::path{TRACE_SUITE_PATH} /
                        "evaluator_draft6.json",
-                   "Evaluator_draft6");
+                   "Evaluator_trace_draft6");
     register_tests(std::filesystem::path{TRACE_SUITE_PATH} /
                        "evaluator_2020_12.json",
-                   "Evaluator_2020_12");
+                   "Evaluator_trace_2020_12");
     register_tests(std::filesystem::path{TRACE_SUITE_PATH} /
                        "evaluator_draft4.json",
-                   "Evaluator_draft4");
+                   "Evaluator_trace_draft4");
   } catch (const std::exception &error) {
     std::fprintf(stderr, "Error: %s\n", error.what());
     return EXIT_FAILURE;
