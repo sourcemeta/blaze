@@ -43,11 +43,6 @@ public:
     const auto &instance{this->data.at("instance")};
     const bool expected_valid{this->data.at("valid").to_boolean()};
 
-    std::string entrypoint;
-    if (this->data.defines("entrypoint")) {
-      entrypoint = this->data.at("entrypoint").to_string();
-    }
-
     const auto &mode_data{this->data.at(this->mode_key)};
 
     const auto pre{
@@ -71,7 +66,7 @@ public:
         sourcemeta::blaze::compile(schema, sourcemeta::core::schema_walker,
                                    sourcemeta::core::schema_resolver,
                                    sourcemeta::blaze::default_schema_compiler,
-                                   this->mode, "", "", entrypoint)};
+                                   this->mode)};
     __ASSERT_TEMPLATE_JSON_SERIALISATION(compiled_schema);
     EVALUATE_WITH_TRACE(compiled_schema, instance, count);
 

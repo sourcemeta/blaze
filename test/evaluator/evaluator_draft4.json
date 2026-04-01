@@ -669,44 +669,6 @@
     }
   },
   {
-    "description": "ref_2_entrypoint",
-    "schema": {
-      "$schema": "http://json-schema.org/draft-04/schema#",
-      "allOf": [
-        { "$ref": "#/definitions/string" }
-      ],
-      "definitions": {
-        "string": { "type": "string" }
-      }
-    },
-    "instance": "foo",
-    "valid": true,
-    "entrypoint": "#/allOf/0",
-    "fast": {
-      "pre": [
-        [ "AssertionTypeStrict", "/$ref/type", "#/definitions/string/type", "" ]
-      ],
-      "post": [
-        [ true, "AssertionTypeStrict", "/$ref/type", "#/definitions/string/type", "" ]
-      ],
-      "descriptions": [ "The value was expected to be of type string" ]
-    },
-    "exhaustive": {
-      "pre": [
-        [ "ControlJump", "/$ref", "#/allOf/0/$ref", "" ],
-        [ "AssertionTypeStrict", "/$ref/type", "#/definitions/string/type", "" ]
-      ],
-      "post": [
-        [ true, "AssertionTypeStrict", "/$ref/type", "#/definitions/string/type", "" ],
-        [ true, "ControlJump", "/$ref", "#/allOf/0/$ref", "" ]
-      ],
-      "descriptions": [
-        "The value was expected to be of type string",
-        "The string value was expected to validate against the referenced schema"
-      ]
-    }
-  },
-  {
     "description": "ref_3",
     "schema": {
       "id": "https://example.com",
@@ -6073,44 +6035,6 @@
         "The object value {\"foo\":1} was expected to equal the object constant {\"foo\":1}",
         "The object value was expected to contain at least 1 property and it contained 1 property: \"foo\"",
         "The value was expected to be of type object"
-      ]
-    }
-  },
-  {
-    "description": "enum_17",
-    "schema": {
-      "$schema": "http://json-schema.org/draft-04/schema#",
-      "type": "integer",
-      "enum": [ 3.0 ]
-    },
-    "instance": 3.0,
-    "valid": false,
-    "fast": {
-      "pre": [
-        [ "AssertionEqual", "/enum", "#/enum", "" ],
-        [ "AssertionTypeStrict", "/type", "#/type", "" ]
-      ],
-      "post": [
-        [ true, "AssertionEqual", "/enum", "#/enum", "" ],
-        [ false, "AssertionTypeStrict", "/type", "#/type", "" ]
-      ],
-      "descriptions": [
-        "The number value 3.0 was expected to equal the number constant 3.0",
-        "The value was expected to be of type integer but it was of type number"
-      ]
-    },
-    "exhaustive": {
-      "pre": [
-        [ "AssertionEqual", "/enum", "#/enum", "" ],
-        [ "AssertionTypeStrict", "/type", "#/type", "" ]
-      ],
-      "post": [
-        [ true, "AssertionEqual", "/enum", "#/enum", "" ],
-        [ false, "AssertionTypeStrict", "/type", "#/type", "" ]
-      ],
-      "descriptions": [
-        "The number value 3.0 was expected to equal the number constant 3.0",
-        "The value was expected to be of type integer but it was of type number"
       ]
     }
   },
