@@ -96,40 +96,58 @@ inline auto FIRST_PROPERTY_IS(const sourcemeta::core::JSON &document,
   EVALUATE_WITH_TRACE(compiled_schema, instance, count)                        \
   EXPECT_FALSE(result);
 
-#define EVALUATE_TRACE_PRE(index, step_type, evaluate_path,                    \
-                           expected_keyword_location,                          \
-                           expected_instance_location)                         \
+#define __EVALUATE_TRACE_PRE(index, instruction_type, evaluate_path,           \
+                             expected_keyword_location,                        \
+                             expected_instance_location)                       \
   EXPECT_TRUE(index < trace_pre.size());                                       \
   EXPECT_TRUE(std::get<0>(trace_pre.at(index)));                               \
   EXPECT_EQ(sourcemeta::core::to_string(std::get<1>(trace_pre.at(index))),     \
             evaluate_path);                                                    \
   EXPECT_EQ(sourcemeta::core::to_string(std::get<2>(trace_pre.at(index))),     \
             expected_instance_location);                                       \
-  EXPECT_TRUE(std::get<3>(trace_pre.at(index)).type ==                         \
-              sourcemeta::blaze::InstructionIndex::step_type);                 \
+  EXPECT_TRUE(std::get<3>(trace_pre.at(index)).type == (instruction_type));    \
   EXPECT_EQ(std::get<5>(trace_pre.at(index)).keyword_location,                 \
             expected_keyword_location);                                        \
   EXPECT_TRUE(std::get<4>(trace_pre.at(index)).is_null());
 
-#define EVALUATE_TRACE_POST(index, step_type, evaluate_path,                   \
-                            expected_keyword_location,                         \
-                            expected_instance_location)                        \
+#define EVALUATE_TRACE_PRE(index, step_type, evaluate_path,                    \
+                           expected_keyword_location,                          \
+                           expected_instance_location)                         \
+  __EVALUATE_TRACE_PRE(index, sourcemeta::blaze::InstructionIndex::step_type,  \
+                       evaluate_path, expected_keyword_location,               \
+                       expected_instance_location)
+
+#define __EVALUATE_TRACE_POST(index, instruction_type, evaluate_path,          \
+                              expected_keyword_location,                       \
+                              expected_instance_location)                      \
   EXPECT_EQ(sourcemeta::core::to_string(std::get<1>(trace_post.at(index))),    \
             evaluate_path);                                                    \
   EXPECT_EQ(sourcemeta::core::to_string(std::get<2>(trace_post.at(index))),    \
             expected_instance_location);                                       \
-  EXPECT_TRUE(std::get<3>(trace_post.at(index)).type ==                        \
-              sourcemeta::blaze::InstructionIndex::step_type);                 \
+  EXPECT_TRUE(std::get<3>(trace_post.at(index)).type == (instruction_type));   \
   EXPECT_EQ(std::get<5>(trace_post.at(index)).keyword_location,                \
             expected_keyword_location);
 
-#define EVALUATE_TRACE_POST_SUCCESS(index, step_type, evaluate_path,           \
-                                    keyword_location, instance_location)       \
+#define EVALUATE_TRACE_POST(index, step_type, evaluate_path,                   \
+                            expected_keyword_location,                         \
+                            expected_instance_location)                        \
+  __EVALUATE_TRACE_POST(index, sourcemeta::blaze::InstructionIndex::step_type, \
+                        evaluate_path, expected_keyword_location,              \
+                        expected_instance_location)
+
+#define __EVALUATE_TRACE_POST_SUCCESS(index, instruction_type, evaluate_path,  \
+                                      keyword_location, instance_location)     \
   EXPECT_TRUE(index < trace_post.size());                                      \
   EXPECT_TRUE(std::get<0>(trace_post.at(index)));                              \
-  EVALUATE_TRACE_POST(index, step_type, evaluate_path, keyword_location,       \
-                      instance_location);                                      \
+  __EVALUATE_TRACE_POST(index, instruction_type, evaluate_path,                \
+                        keyword_location, instance_location);                  \
   EXPECT_TRUE(std::get<4>(trace_post.at(index)).is_null());
+
+#define EVALUATE_TRACE_POST_SUCCESS(index, step_type, evaluate_path,           \
+                                    keyword_location, instance_location)       \
+  __EVALUATE_TRACE_POST_SUCCESS(                                               \
+      index, sourcemeta::blaze::InstructionIndex::step_type, evaluate_path,    \
+      keyword_location, instance_location)
 
 #define EVALUATE_TRACE_PRE_ANNOTATION(index, evaluate_path, keyword_location,  \
                                       instance_location)                       \
@@ -166,13 +184,19 @@ inline auto FIRST_PROPERTY_IS(const sourcemeta::core::JSON &document,
   EXPECT_EQ(std::get<4>(trace_post.at(index)),                                 \
             sourcemeta::core::JSON(expected_annotation));
 
-#define EVALUATE_TRACE_POST_FAILURE(index, step_type, evaluate_path,           \
-                                    keyword_location, instance_location)       \
+#define __EVALUATE_TRACE_POST_FAILURE(index, instruction_type, evaluate_path,  \
+                                      keyword_location, instance_location)     \
   EXPECT_TRUE(index < trace_post.size());                                      \
   EXPECT_FALSE(std::get<0>(trace_post.at(index)));                             \
-  EVALUATE_TRACE_POST(index, step_type, evaluate_path, keyword_location,       \
-                      instance_location);                                      \
+  __EVALUATE_TRACE_POST(index, instruction_type, evaluate_path,                \
+                        keyword_location, instance_location);                  \
   EXPECT_TRUE(std::get<4>(trace_post.at(index)).is_null());
+
+#define EVALUATE_TRACE_POST_FAILURE(index, step_type, evaluate_path,           \
+                                    keyword_location, instance_location)       \
+  __EVALUATE_TRACE_POST_FAILURE(                                               \
+      index, sourcemeta::blaze::InstructionIndex::step_type, evaluate_path,    \
+      keyword_location, instance_location)
 
 #define EVALUATE_TRACE_POST_DESCRIBE(instance, index, message)                 \
   EXPECT_EQ(sourcemeta::blaze::describe(std::get<0>(trace_post.at(index)),     \

@@ -1,0 +1,4586 @@
+[
+  {
+    "description": "properties_1",
+    "schema": {
+      "$schema": "https://json-schema.org/draft/2019-09/schema",
+      "properties": {
+        "foo": {
+          "type": "string"
+        },
+        "bar": {
+          "type": "integer"
+        }
+      }
+    },
+    "instance": {
+      "bar": 2,
+      "foo": "xxx"
+    },
+    "valid": true,
+    "fast": {
+      "pre": [
+        [ "AssertionPropertyType", "/properties/bar/type", "#/properties/bar/type", "/bar" ],
+        [ "AssertionPropertyTypeStrict", "/properties/foo/type", "#/properties/foo/type", "/foo" ]
+      ],
+      "post": [
+        [ true, "AssertionPropertyType", "/properties/bar/type", "#/properties/bar/type", "/bar" ],
+        [ true, "AssertionPropertyTypeStrict", "/properties/foo/type", "#/properties/foo/type", "/foo" ]
+      ],
+      "descriptions": [
+        "The value was expected to be of type integer",
+        "The value was expected to be of type string"
+      ]
+    },
+    "exhaustive": {
+      "pre": [
+        [ "LogicalWhenType", "/properties", "#/properties", "" ],
+        [ "AssertionType", "/properties/bar/type", "#/properties/bar/type", "/bar" ],
+        [ "Annotation", "/properties", "#/properties", "" ],
+        [ "AssertionTypeStrict", "/properties/foo/type", "#/properties/foo/type", "/foo" ],
+        [ "Annotation", "/properties", "#/properties", "" ]
+      ],
+      "post": [
+        [ true, "AssertionType", "/properties/bar/type", "#/properties/bar/type", "/bar" ],
+        [ true, "Annotation", "/properties", "#/properties", "", "bar" ],
+        [ true, "AssertionTypeStrict", "/properties/foo/type", "#/properties/foo/type", "/foo" ],
+        [ true, "Annotation", "/properties", "#/properties", "", "foo" ],
+        [ true, "LogicalWhenType", "/properties", "#/properties", "" ]
+      ],
+      "descriptions": [
+        "The value was expected to be of type integer",
+        "The object property \"bar\" successfully validated against its property subschema",
+        "The value was expected to be of type string",
+        "The object property \"foo\" successfully validated against its property subschema",
+        "The object value was expected to validate against the defined properties subschemas"
+      ]
+    }
+  },
+  {
+    "description": "properties_2",
+    "schema": {
+      "$schema": "https://json-schema.org/draft/2019-09/schema",
+      "properties": {
+        "foo": {
+          "type": "string"
+        },
+        "bar": {
+          "type": "integer"
+        }
+      }
+    },
+    "instance": {
+      "bar": 2,
+      "foo": 1
+    },
+    "valid": false,
+    "fast": {
+      "pre": [
+        [ "AssertionPropertyType", "/properties/bar/type", "#/properties/bar/type", "/bar" ],
+        [ "AssertionPropertyTypeStrict", "/properties/foo/type", "#/properties/foo/type", "/foo" ]
+      ],
+      "post": [
+        [ true, "AssertionPropertyType", "/properties/bar/type", "#/properties/bar/type", "/bar" ],
+        [ false, "AssertionPropertyTypeStrict", "/properties/foo/type", "#/properties/foo/type", "/foo" ]
+      ],
+      "descriptions": [
+        "The value was expected to be of type integer",
+        "The value was expected to be of type string but it was of type integer"
+      ]
+    },
+    "exhaustive": {
+      "pre": [
+        [ "LogicalWhenType", "/properties", "#/properties", "" ],
+        [ "AssertionType", "/properties/bar/type", "#/properties/bar/type", "/bar" ],
+        [ "Annotation", "/properties", "#/properties", "" ],
+        [ "AssertionTypeStrict", "/properties/foo/type", "#/properties/foo/type", "/foo" ]
+      ],
+      "post": [
+        [ true, "AssertionType", "/properties/bar/type", "#/properties/bar/type", "/bar" ],
+        [ true, "Annotation", "/properties", "#/properties", "", "bar" ],
+        [ false, "AssertionTypeStrict", "/properties/foo/type", "#/properties/foo/type", "/foo" ],
+        [ false, "LogicalWhenType", "/properties", "#/properties", "" ]
+      ],
+      "descriptions": [
+        "The value was expected to be of type integer",
+        "The object property \"bar\" successfully validated against its property subschema",
+        "The value was expected to be of type string but it was of type integer",
+        "The object value was expected to validate against the defined properties subschemas"
+      ]
+    }
+  },
+  {
+    "description": "dependentRequired_1",
+    "schema": {
+      "$schema": "https://json-schema.org/draft/2019-09/schema",
+      "dependentRequired": {
+        "foo": [ "bar", "baz" ],
+        "qux": [ "extra" ]
+      }
+    },
+    "instance": 5,
+    "valid": true,
+    "fast": {}
+  },
+  {
+    "description": "dependentRequired_2",
+    "schema": {
+      "$schema": "https://json-schema.org/draft/2019-09/schema",
+      "dependentRequired": {
+        "foo": [ "bar", "baz" ],
+        "qux": [ "extra" ]
+      }
+    },
+    "instance": {
+      "foo": 1,
+      "bar": 2,
+      "baz": 3
+    },
+    "valid": true,
+    "fast": {
+      "pre": [
+        [ "AssertionPropertyDependencies", "/dependentRequired", "#/dependentRequired", "" ]
+      ],
+      "post": [
+        [ true, "AssertionPropertyDependencies", "/dependentRequired", "#/dependentRequired", "" ]
+      ],
+      "descriptions": [
+        "Because the object value defined the property \"foo\", it was also expected to define the properties \"bar\", and \"baz\""
+      ]
+    }
+  },
+  {
+    "description": "dependentRequired_3",
+    "schema": {
+      "$schema": "https://json-schema.org/draft/2019-09/schema",
+      "dependentRequired": {
+        "foo": [ "bar", "baz" ],
+        "qux": [ "extra" ]
+      }
+    },
+    "instance": {
+      "foo": 1,
+      "bar": 2
+    },
+    "valid": false,
+    "fast": {
+      "pre": [
+        [ "AssertionPropertyDependencies", "/dependentRequired", "#/dependentRequired", "" ]
+      ],
+      "post": [
+        [ false, "AssertionPropertyDependencies", "/dependentRequired", "#/dependentRequired", "" ]
+      ],
+      "descriptions": [
+        "Because the object value defined the property \"foo\", it was also expected to define the property \"baz\""
+      ]
+    }
+  },
+  {
+    "description": "dependentRequired_4",
+    "schema": {
+      "$schema": "https://json-schema.org/draft/2019-09/schema",
+      "dependentRequired": {
+        "foo": [ "bar", "baz" ],
+        "qux": [ "extra" ]
+      }
+    },
+    "instance": {
+      "none": true
+    },
+    "valid": true,
+    "fast": {
+      "pre": [
+        [ "AssertionPropertyDependencies", "/dependentRequired", "#/dependentRequired", "" ]
+      ],
+      "post": [
+        [ true, "AssertionPropertyDependencies", "/dependentRequired", "#/dependentRequired", "" ]
+      ],
+      "descriptions": [
+        "The object value did not define the properties \"foo\", or \"qux\""
+      ]
+    }
+  },
+  {
+    "description": "dependentRequired_5",
+    "schema": {
+      "$schema": "https://json-schema.org/draft/2019-09/schema",
+      "dependentRequired": {
+        "foo": [ "bar", "baz" ]
+      }
+    },
+    "instance": {
+      "none": true
+    },
+    "valid": true,
+    "fast": {
+      "pre": [
+        [ "AssertionPropertyDependencies", "/dependentRequired", "#/dependentRequired", "" ]
+      ],
+      "post": [
+        [ true, "AssertionPropertyDependencies", "/dependentRequired", "#/dependentRequired", "" ]
+      ],
+      "descriptions": [ "The object value did not define the property \"foo\"" ]
+    }
+  },
+  {
+    "description": "dependentSchemas_1",
+    "schema": {
+      "$schema": "https://json-schema.org/draft/2019-09/schema",
+      "dependentSchemas": {
+        "foo": {
+          "required": [ "bar", "baz" ]
+        },
+        "qux": {
+          "required": [ "extra" ]
+        }
+      }
+    },
+    "instance": 5,
+    "valid": true,
+    "fast": {}
+  },
+  {
+    "description": "dependentSchemas_2",
+    "schema": {
+      "$schema": "https://json-schema.org/draft/2019-09/schema",
+      "dependentSchemas": {
+        "foo": {
+          "required": [ "bar", "baz" ]
+        },
+        "qux": {
+          "required": [ "extra" ]
+        }
+      }
+    },
+    "instance": {
+      "qux": 1,
+      "extra": 2
+    },
+    "valid": true,
+    "fast": {
+      "pre": [
+        [ "LogicalWhenType", "/dependentSchemas", "#/dependentSchemas", "" ],
+        [ "LogicalWhenDefines", "/dependentSchemas", "#/dependentSchemas", "" ],
+        [ "AssertionDefines", "/dependentSchemas/qux/required", "#/dependentSchemas/qux/required", "" ]
+      ],
+      "post": [
+        [ true, "AssertionDefines", "/dependentSchemas/qux/required", "#/dependentSchemas/qux/required", "" ],
+        [ true, "LogicalWhenDefines", "/dependentSchemas", "#/dependentSchemas", "" ],
+        [ true, "LogicalWhenType", "/dependentSchemas", "#/dependentSchemas", "" ]
+      ],
+      "descriptions": [
+        "The object value was expected to define the property \"extra\"",
+        "The object value defined the property \"qux\"",
+        "Because the object value defined the property \"qux\", it was also expected to validate against the corresponding subschema"
+      ]
+    }
+  },
+  {
+    "description": "dependentSchemas_3",
+    "schema": {
+      "$schema": "https://json-schema.org/draft/2019-09/schema",
+      "dependentSchemas": {
+        "foo": {
+          "required": [ "bar", "baz" ]
+        },
+        "qux": {
+          "required": [ "extra" ]
+        }
+      }
+    },
+    "instance": {
+      "none": 1
+    },
+    "valid": true,
+    "fast": {
+      "pre": [
+        [ "LogicalWhenType", "/dependentSchemas", "#/dependentSchemas", "" ]
+      ],
+      "post": [
+        [ true, "LogicalWhenType", "/dependentSchemas", "#/dependentSchemas", "" ]
+      ],
+      "descriptions": [
+        "The object value did not define the properties \"foo\", or \"qux\""
+      ]
+    }
+  },
+  {
+    "description": "dependentSchemas_4",
+    "schema": {
+      "$schema": "https://json-schema.org/draft/2019-09/schema",
+      "dependentSchemas": {
+        "foo": {
+          "required": [ "bar" ]
+        },
+        "baz": {
+          "required": [ "qux" ]
+        }
+      }
+    },
+    "instance": {
+      "foo": 1,
+      "bar": 2,
+      "baz": 3,
+      "qux": 4
+    },
+    "valid": true,
+    "fast": {
+      "pre": [
+        [ "LogicalWhenType", "/dependentSchemas", "#/dependentSchemas", "" ],
+        [ "LogicalWhenDefines", "/dependentSchemas", "#/dependentSchemas", "" ],
+        [ "AssertionDefines", "/dependentSchemas/baz/required", "#/dependentSchemas/baz/required", "" ],
+        [ "LogicalWhenDefines", "/dependentSchemas", "#/dependentSchemas", "" ],
+        [ "AssertionDefines", "/dependentSchemas/foo/required", "#/dependentSchemas/foo/required", "" ]
+      ],
+      "post": [
+        [ true, "AssertionDefines", "/dependentSchemas/baz/required", "#/dependentSchemas/baz/required", "" ],
+        [ true, "LogicalWhenDefines", "/dependentSchemas", "#/dependentSchemas", "" ],
+        [ true, "AssertionDefines", "/dependentSchemas/foo/required", "#/dependentSchemas/foo/required", "" ],
+        [ true, "LogicalWhenDefines", "/dependentSchemas", "#/dependentSchemas", "" ],
+        [ true, "LogicalWhenType", "/dependentSchemas", "#/dependentSchemas", "" ]
+      ],
+      "descriptions": [
+        "The object value was expected to define the property \"qux\"",
+        "The object value defined the property \"baz\"",
+        "The object value was expected to define the property \"bar\"",
+        "The object value defined the property \"foo\"",
+        "Because the object value defined the properties \"baz\", and \"foo\", it was also expected to validate against the corresponding subschemas"
+      ]
+    }
+  },
+  {
+    "description": "dependentSchemas_5",
+    "schema": {
+      "$schema": "https://json-schema.org/draft/2019-09/schema",
+      "dependentSchemas": "not-an-object"
+    },
+    "instance": "foo",
+    "valid": true,
+    "fast": {}
+  },
+  {
+    "description": "additionalProperties_1",
+    "schema": {
+      "$schema": "https://json-schema.org/draft/2019-09/schema",
+      "additionalProperties": {
+        "type": "integer"
+      }
+    },
+    "instance": {
+      "bar": 2,
+      "foo": 1
+    },
+    "valid": true,
+    "fast": {
+      "pre": [
+        [ "LoopPropertiesType", "/additionalProperties/type", "#/additionalProperties/type", "" ]
+      ],
+      "post": [
+        [ true, "LoopPropertiesType", "/additionalProperties/type", "#/additionalProperties/type", "" ]
+      ],
+      "descriptions": [
+        "The object properties were expected to be of type integer"
+      ]
+    }
+  },
+  {
+    "description": "additionalProperties_2",
+    "schema": {
+      "$schema": "https://json-schema.org/draft/2019-09/schema",
+      "properties": {
+        "foo": {
+          "type": "boolean"
+        }
+      },
+      "additionalProperties": {
+        "type": "integer"
+      }
+    },
+    "instance": {
+      "bar": 2,
+      "foo": true
+    },
+    "valid": true,
+    "fast": {
+      "pre": [
+        [ "AssertionPropertyTypeStrict", "/properties/foo/type", "#/properties/foo/type", "/foo" ],
+        [ "LoopPropertiesExcept", "/additionalProperties", "#/additionalProperties", "" ],
+        [ "AssertionType", "/additionalProperties/type", "#/additionalProperties/type", "/bar" ]
+      ],
+      "post": [
+        [ true, "AssertionPropertyTypeStrict", "/properties/foo/type", "#/properties/foo/type", "/foo" ],
+        [ true, "AssertionType", "/additionalProperties/type", "#/additionalProperties/type", "/bar" ],
+        [ true, "LoopPropertiesExcept", "/additionalProperties", "#/additionalProperties", "" ]
+      ],
+      "descriptions": [
+        "The value was expected to be of type boolean",
+        "The value was expected to be of type integer",
+        "The object properties not covered by other adjacent object keywords were expected to validate against this subschema"
+      ]
+    },
+    "exhaustive": {
+      "pre": [
+        [ "LogicalWhenType", "/properties", "#/properties", "" ],
+        [ "AssertionTypeStrict", "/properties/foo/type", "#/properties/foo/type", "/foo" ],
+        [ "Annotation", "/properties", "#/properties", "" ],
+        [ "LoopPropertiesExcept", "/additionalProperties", "#/additionalProperties", "" ],
+        [ "AssertionType", "/additionalProperties/type", "#/additionalProperties/type", "/bar" ],
+        [ "Annotation", "/additionalProperties", "#/additionalProperties", "" ]
+      ],
+      "post": [
+        [ true, "AssertionTypeStrict", "/properties/foo/type", "#/properties/foo/type", "/foo" ],
+        [ true, "Annotation", "/properties", "#/properties", "", "foo" ],
+        [ true, "LogicalWhenType", "/properties", "#/properties", "" ],
+        [ true, "AssertionType", "/additionalProperties/type", "#/additionalProperties/type", "/bar" ],
+        [ true, "Annotation", "/additionalProperties", "#/additionalProperties", "", "bar" ],
+        [ true, "LoopPropertiesExcept", "/additionalProperties", "#/additionalProperties", "" ]
+      ],
+      "descriptions": [
+        "The value was expected to be of type boolean",
+        "The object property \"foo\" successfully validated against its property subschema",
+        "The object value was expected to validate against the single defined property subschema",
+        "The value was expected to be of type integer",
+        "The object property \"bar\" successfully validated against the additional properties subschema",
+        "The object properties not covered by other adjacent object keywords were expected to validate against this subschema"
+      ]
+    }
+  },
+  {
+    "description": "additionalProperties_3",
+    "schema": {
+      "$schema": "https://json-schema.org/draft/2019-09/schema",
+      "additionalProperties": {
+        "type": "integer"
+      }
+    },
+    "instance": {
+      "bar": "baz",
+      "foo": 1
+    },
+    "valid": false,
+    "fast": {
+      "pre": [
+        [ "LoopPropertiesType", "/additionalProperties/type", "#/additionalProperties/type", "" ]
+      ],
+      "post": [
+        [ false, "LoopPropertiesType", "/additionalProperties/type", "#/additionalProperties/type", "" ]
+      ],
+      "descriptions": [
+        "The object properties were expected to be of type integer"
+      ]
+    }
+  },
+  {
+    "description": "additionalProperties_4",
+    "schema": {
+      "$schema": "https://json-schema.org/draft/2019-09/schema",
+      "properties": {
+        "foo": {
+          "type": "boolean"
+        }
+      },
+      "patternProperties": {
+        "^bar$": {
+          "type": "integer"
+        }
+      },
+      "additionalProperties": {
+        "type": "string"
+      }
+    },
+    "instance": {
+      "foo": true,
+      "bar": 2,
+      "baz": "qux"
+    },
+    "valid": true,
+    "fast": {
+      "pre": [
+        [ "LoopPropertiesRegex", "/patternProperties", "#/patternProperties", "" ],
+        [ "AssertionType", "/patternProperties/^bar$/type", "#/patternProperties/%5Ebar$/type", "/bar" ],
+        [ "AssertionPropertyTypeStrict", "/properties/foo/type", "#/properties/foo/type", "/foo" ],
+        [ "LoopPropertiesExcept", "/additionalProperties", "#/additionalProperties", "" ],
+        [ "AssertionTypeStrict", "/additionalProperties/type", "#/additionalProperties/type", "/baz" ]
+      ],
+      "post": [
+        [ true, "AssertionType", "/patternProperties/^bar$/type", "#/patternProperties/%5Ebar$/type", "/bar" ],
+        [ true, "LoopPropertiesRegex", "/patternProperties", "#/patternProperties", "" ],
+        [ true, "AssertionPropertyTypeStrict", "/properties/foo/type", "#/properties/foo/type", "/foo" ],
+        [ true, "AssertionTypeStrict", "/additionalProperties/type", "#/additionalProperties/type", "/baz" ],
+        [ true, "LoopPropertiesExcept", "/additionalProperties", "#/additionalProperties", "" ]
+      ],
+      "descriptions": [
+        "The value was expected to be of type integer",
+        "The object properties that match the regular expression \"^bar$\" were expected to validate against the defined pattern property subschema",
+        "The value was expected to be of type boolean",
+        "The value was expected to be of type string",
+        "The object properties not covered by other adjacent object keywords were expected to validate against this subschema"
+      ]
+    },
+    "exhaustive": {
+      "pre": [
+        [ "LoopPropertiesRegex", "/patternProperties", "#/patternProperties", "" ],
+        [ "AssertionType", "/patternProperties/^bar$/type", "#/patternProperties/%5Ebar$/type", "/bar" ],
+        [ "Annotation", "/patternProperties", "#/patternProperties", "" ],
+        [ "LogicalWhenType", "/properties", "#/properties", "" ],
+        [ "AssertionTypeStrict", "/properties/foo/type", "#/properties/foo/type", "/foo" ],
+        [ "Annotation", "/properties", "#/properties", "" ],
+        [ "LoopPropertiesExcept", "/additionalProperties", "#/additionalProperties", "" ],
+        [ "AssertionTypeStrict", "/additionalProperties/type", "#/additionalProperties/type", "/baz" ],
+        [ "Annotation", "/additionalProperties", "#/additionalProperties", "" ]
+      ],
+      "post": [
+        [ true, "AssertionType", "/patternProperties/^bar$/type", "#/patternProperties/%5Ebar$/type", "/bar" ],
+        [ true, "Annotation", "/patternProperties", "#/patternProperties", "", "bar" ],
+        [ true, "LoopPropertiesRegex", "/patternProperties", "#/patternProperties", "" ],
+        [ true, "AssertionTypeStrict", "/properties/foo/type", "#/properties/foo/type", "/foo" ],
+        [ true, "Annotation", "/properties", "#/properties", "", "foo" ],
+        [ true, "LogicalWhenType", "/properties", "#/properties", "" ],
+        [ true, "AssertionTypeStrict", "/additionalProperties/type", "#/additionalProperties/type", "/baz" ],
+        [ true, "Annotation", "/additionalProperties", "#/additionalProperties", "", "baz" ],
+        [ true, "LoopPropertiesExcept", "/additionalProperties", "#/additionalProperties", "" ]
+      ],
+      "descriptions": [
+        "The value was expected to be of type integer",
+        "The object property \"bar\" successfully validated against its pattern property subschema",
+        "The object properties that match the regular expression \"^bar$\" were expected to validate against the defined pattern property subschema",
+        "The value was expected to be of type boolean",
+        "The object property \"foo\" successfully validated against its property subschema",
+        "The object value was expected to validate against the single defined property subschema",
+        "The value was expected to be of type string",
+        "The object property \"baz\" successfully validated against the additional properties subschema",
+        "The object properties not covered by other adjacent object keywords were expected to validate against this subschema"
+      ]
+    }
+  },
+  {
+    "description": "contains_1",
+    "schema": {
+      "$schema": "https://json-schema.org/draft/2019-09/schema",
+      "contains": {
+        "type": "string"
+      }
+    },
+    "instance": 2,
+    "valid": true,
+    "fast": {}
+  },
+  {
+    "description": "contains_2",
+    "schema": {
+      "$schema": "https://json-schema.org/draft/2019-09/schema",
+      "contains": {
+        "type": "string"
+      }
+    },
+    "instance": [ 1, "bar", 3 ],
+    "valid": true,
+    "fast": {
+      "pre": [
+        [ "LoopContains", "/contains", "#/contains", "" ],
+        [ "AssertionTypeStrict", "/contains/type", "#/contains/type", "/0" ],
+        [ "AssertionTypeStrict", "/contains/type", "#/contains/type", "/1" ]
+      ],
+      "post": [
+        [ false, "AssertionTypeStrict", "/contains/type", "#/contains/type", "/0" ],
+        [ true, "AssertionTypeStrict", "/contains/type", "#/contains/type", "/1" ],
+        [ true, "LoopContains", "/contains", "#/contains", "" ]
+      ],
+      "descriptions": [
+        "The value was expected to be of type string but it was of type integer",
+        "The value was expected to be of type string",
+        "The array value was expected to contain at least 1 item that validates against the given subschema"
+      ]
+    }
+  },
+  {
+    "description": "contains_3",
+    "schema": {
+      "$schema": "https://json-schema.org/draft/2019-09/schema",
+      "contains": {
+        "type": "string"
+      }
+    },
+    "instance": [ 1, 2, 3 ],
+    "valid": false,
+    "fast": {
+      "pre": [
+        [ "LoopContains", "/contains", "#/contains", "" ],
+        [ "AssertionTypeStrict", "/contains/type", "#/contains/type", "/0" ],
+        [ "AssertionTypeStrict", "/contains/type", "#/contains/type", "/1" ],
+        [ "AssertionTypeStrict", "/contains/type", "#/contains/type", "/2" ]
+      ],
+      "post": [
+        [ false, "AssertionTypeStrict", "/contains/type", "#/contains/type", "/0" ],
+        [ false, "AssertionTypeStrict", "/contains/type", "#/contains/type", "/1" ],
+        [ false, "AssertionTypeStrict", "/contains/type", "#/contains/type", "/2" ],
+        [ false, "LoopContains", "/contains", "#/contains", "" ]
+      ],
+      "descriptions": [
+        "The value was expected to be of type string but it was of type integer",
+        "The value was expected to be of type string but it was of type integer",
+        "The value was expected to be of type string but it was of type integer",
+        "The array value was expected to contain at least 1 item that validates against the given subschema"
+      ]
+    }
+  },
+  {
+    "description": "contains_4",
+    "schema": {
+      "$schema": "https://json-schema.org/draft/2019-09/schema",
+      "contains": {
+        "type": "string"
+      }
+    },
+    "instance": [ "foo", "bar", "baz" ],
+    "valid": true,
+    "fast": {
+      "pre": [
+        [ "LoopContains", "/contains", "#/contains", "" ],
+        [ "AssertionTypeStrict", "/contains/type", "#/contains/type", "/0" ]
+      ],
+      "post": [
+        [ true, "AssertionTypeStrict", "/contains/type", "#/contains/type", "/0" ],
+        [ true, "LoopContains", "/contains", "#/contains", "" ]
+      ],
+      "descriptions": [
+        "The value was expected to be of type string",
+        "The array value was expected to contain at least 1 item that validates against the given subschema"
+      ]
+    }
+  },
+  {
+    "description": "contains_5",
+    "schema": {
+      "$schema": "https://json-schema.org/draft/2019-09/schema",
+      "minContains": 2,
+      "contains": {
+        "type": "string"
+      }
+    },
+    "instance": [ 1, "bar", "baz" ],
+    "valid": true,
+    "fast": {
+      "pre": [
+        [ "LoopContains", "/contains", "#/contains", "" ],
+        [ "AssertionTypeStrict", "/contains/type", "#/contains/type", "/0" ],
+        [ "AssertionTypeStrict", "/contains/type", "#/contains/type", "/1" ],
+        [ "AssertionTypeStrict", "/contains/type", "#/contains/type", "/2" ]
+      ],
+      "post": [
+        [ false, "AssertionTypeStrict", "/contains/type", "#/contains/type", "/0" ],
+        [ true, "AssertionTypeStrict", "/contains/type", "#/contains/type", "/1" ],
+        [ true, "AssertionTypeStrict", "/contains/type", "#/contains/type", "/2" ],
+        [ true, "LoopContains", "/contains", "#/contains", "" ]
+      ],
+      "descriptions": [
+        "The value was expected to be of type string but it was of type integer",
+        "The value was expected to be of type string",
+        "The value was expected to be of type string",
+        "The array value was expected to contain at least 2 items that validate against the given subschema"
+      ]
+    }
+  },
+  {
+    "description": "contains_6",
+    "schema": {
+      "$schema": "https://json-schema.org/draft/2019-09/schema",
+      "minContains": 2,
+      "contains": {
+        "type": "string"
+      }
+    },
+    "instance": [ 1, "foo", "bar", "baz" ],
+    "valid": true,
+    "fast": {
+      "pre": [
+        [ "LoopContains", "/contains", "#/contains", "" ],
+        [ "AssertionTypeStrict", "/contains/type", "#/contains/type", "/0" ],
+        [ "AssertionTypeStrict", "/contains/type", "#/contains/type", "/1" ],
+        [ "AssertionTypeStrict", "/contains/type", "#/contains/type", "/2" ]
+      ],
+      "post": [
+        [ false, "AssertionTypeStrict", "/contains/type", "#/contains/type", "/0" ],
+        [ true, "AssertionTypeStrict", "/contains/type", "#/contains/type", "/1" ],
+        [ true, "AssertionTypeStrict", "/contains/type", "#/contains/type", "/2" ],
+        [ true, "LoopContains", "/contains", "#/contains", "" ]
+      ],
+      "descriptions": [
+        "The value was expected to be of type string but it was of type integer",
+        "The value was expected to be of type string",
+        "The value was expected to be of type string",
+        "The array value was expected to contain at least 2 items that validate against the given subschema"
+      ]
+    }
+  },
+  {
+    "description": "contains_7",
+    "schema": {
+      "$schema": "https://json-schema.org/draft/2019-09/schema",
+      "minContains": 2,
+      "contains": {
+        "type": "string"
+      }
+    },
+    "instance": [ 1, "foo", 2 ],
+    "valid": false,
+    "fast": {
+      "pre": [
+        [ "LoopContains", "/contains", "#/contains", "" ],
+        [ "AssertionTypeStrict", "/contains/type", "#/contains/type", "/0" ],
+        [ "AssertionTypeStrict", "/contains/type", "#/contains/type", "/1" ],
+        [ "AssertionTypeStrict", "/contains/type", "#/contains/type", "/2" ]
+      ],
+      "post": [
+        [ false, "AssertionTypeStrict", "/contains/type", "#/contains/type", "/0" ],
+        [ true, "AssertionTypeStrict", "/contains/type", "#/contains/type", "/1" ],
+        [ false, "AssertionTypeStrict", "/contains/type", "#/contains/type", "/2" ],
+        [ false, "LoopContains", "/contains", "#/contains", "" ]
+      ],
+      "descriptions": [
+        "The value was expected to be of type string but it was of type integer",
+        "The value was expected to be of type string",
+        "The value was expected to be of type string but it was of type integer",
+        "The array value was expected to contain at least 2 items that validate against the given subschema"
+      ]
+    }
+  },
+  {
+    "description": "contains_8",
+    "schema": {
+      "$schema": "https://json-schema.org/draft/2019-09/schema",
+      "maxContains": 2,
+      "contains": {
+        "type": "string"
+      }
+    },
+    "instance": [ 1, "foo", "bar" ],
+    "valid": true,
+    "fast": {
+      "pre": [
+        [ "LoopContains", "/contains", "#/contains", "" ],
+        [ "AssertionTypeStrict", "/contains/type", "#/contains/type", "/0" ],
+        [ "AssertionTypeStrict", "/contains/type", "#/contains/type", "/1" ],
+        [ "AssertionTypeStrict", "/contains/type", "#/contains/type", "/2" ]
+      ],
+      "post": [
+        [ false, "AssertionTypeStrict", "/contains/type", "#/contains/type", "/0" ],
+        [ true, "AssertionTypeStrict", "/contains/type", "#/contains/type", "/1" ],
+        [ true, "AssertionTypeStrict", "/contains/type", "#/contains/type", "/2" ],
+        [ true, "LoopContains", "/contains", "#/contains", "" ]
+      ],
+      "descriptions": [
+        "The value was expected to be of type string but it was of type integer",
+        "The value was expected to be of type string",
+        "The value was expected to be of type string",
+        "The array value was expected to contain 1 to 2 items that validate against the given subschema"
+      ]
+    }
+  },
+  {
+    "description": "contains_9",
+    "schema": {
+      "$schema": "https://json-schema.org/draft/2019-09/schema",
+      "maxContains": 2,
+      "contains": {
+        "type": "string"
+      }
+    },
+    "instance": [ "foo", "bar", "baz" ],
+    "valid": false,
+    "fast": {
+      "pre": [
+        [ "LoopContains", "/contains", "#/contains", "" ],
+        [ "AssertionTypeStrict", "/contains/type", "#/contains/type", "/0" ],
+        [ "AssertionTypeStrict", "/contains/type", "#/contains/type", "/1" ],
+        [ "AssertionTypeStrict", "/contains/type", "#/contains/type", "/2" ]
+      ],
+      "post": [
+        [ true, "AssertionTypeStrict", "/contains/type", "#/contains/type", "/0" ],
+        [ true, "AssertionTypeStrict", "/contains/type", "#/contains/type", "/1" ],
+        [ true, "AssertionTypeStrict", "/contains/type", "#/contains/type", "/2" ],
+        [ false, "LoopContains", "/contains", "#/contains", "" ]
+      ],
+      "descriptions": [
+        "The value was expected to be of type string",
+        "The value was expected to be of type string",
+        "The value was expected to be of type string",
+        "The array value was expected to contain 1 to 2 items that validate against the given subschema"
+      ]
+    }
+  },
+  {
+    "description": "contains_10",
+    "schema": {
+      "$schema": "https://json-schema.org/draft/2019-09/schema",
+      "minContains": 2,
+      "maxContains": 2,
+      "contains": {
+        "type": "string"
+      }
+    },
+    "instance": [ "foo", "bar", 1 ],
+    "valid": true,
+    "fast": {
+      "pre": [
+        [ "LoopContains", "/contains", "#/contains", "" ],
+        [ "AssertionTypeStrict", "/contains/type", "#/contains/type", "/0" ],
+        [ "AssertionTypeStrict", "/contains/type", "#/contains/type", "/1" ],
+        [ "AssertionTypeStrict", "/contains/type", "#/contains/type", "/2" ]
+      ],
+      "post": [
+        [ true, "AssertionTypeStrict", "/contains/type", "#/contains/type", "/0" ],
+        [ true, "AssertionTypeStrict", "/contains/type", "#/contains/type", "/1" ],
+        [ false, "AssertionTypeStrict", "/contains/type", "#/contains/type", "/2" ],
+        [ true, "LoopContains", "/contains", "#/contains", "" ]
+      ],
+      "descriptions": [
+        "The value was expected to be of type string",
+        "The value was expected to be of type string",
+        "The value was expected to be of type string but it was of type integer",
+        "The array value was expected to contain exactly 2 items that validate against the given subschema"
+      ]
+    }
+  },
+  {
+    "description": "contains_11",
+    "schema": {
+      "$schema": "https://json-schema.org/draft/2019-09/schema",
+      "minContains": 2,
+      "maxContains": 2,
+      "contains": {
+        "type": "string"
+      }
+    },
+    "instance": [ "foo", "bar", "baz" ],
+    "valid": false,
+    "fast": {
+      "pre": [
+        [ "LoopContains", "/contains", "#/contains", "" ],
+        [ "AssertionTypeStrict", "/contains/type", "#/contains/type", "/0" ],
+        [ "AssertionTypeStrict", "/contains/type", "#/contains/type", "/1" ],
+        [ "AssertionTypeStrict", "/contains/type", "#/contains/type", "/2" ]
+      ],
+      "post": [
+        [ true, "AssertionTypeStrict", "/contains/type", "#/contains/type", "/0" ],
+        [ true, "AssertionTypeStrict", "/contains/type", "#/contains/type", "/1" ],
+        [ true, "AssertionTypeStrict", "/contains/type", "#/contains/type", "/2" ],
+        [ false, "LoopContains", "/contains", "#/contains", "" ]
+      ],
+      "descriptions": [
+        "The value was expected to be of type string",
+        "The value was expected to be of type string",
+        "The value was expected to be of type string",
+        "The array value was expected to contain exactly 2 items that validate against the given subschema"
+      ]
+    }
+  },
+  {
+    "description": "contains_12",
+    "schema": {
+      "$schema": "https://json-schema.org/draft/2019-09/schema",
+      "minContains": 3,
+      "maxContains": 2,
+      "contains": {
+        "type": "string"
+      }
+    },
+    "instance": [ "foo", "bar", "baz" ],
+    "valid": false,
+    "fast": {
+      "pre": [
+        [ "AssertionFail", "/contains", "#/contains", "" ]
+      ],
+      "post": [
+        [ false, "AssertionFail", "/contains", "#/contains", "" ]
+      ],
+      "descriptions": [
+        "The constraints declared for this keyword were not satisfiable"
+      ]
+    }
+  },
+  {
+    "description": "contains_13",
+    "schema": {
+      "$schema": "https://json-schema.org/draft/2019-09/schema",
+      "contains": true
+    },
+    "instance": [ "foo", "bar", "baz" ],
+    "valid": true,
+    "fast": {
+      "pre": [
+        [ "AssertionArraySizeGreater", "/contains", "#/contains", "" ]
+      ],
+      "post": [
+        [ true, "AssertionArraySizeGreater", "/contains", "#/contains", "" ]
+      ],
+      "descriptions": [
+        "The array value was expected to contain at least 1 item and it contained 3 items"
+      ]
+    }
+  },
+  {
+    "description": "title",
+    "schema": {
+      "$schema": "https://json-schema.org/draft/2019-09/schema",
+      "title": "My title"
+    },
+    "instance": 5,
+    "valid": true,
+    "fast": {},
+    "exhaustive": {
+      "pre": [
+        [ "Annotation", "/title", "#/title", "" ]
+      ],
+      "post": [
+        [ true, "Annotation", "/title", "#/title", "", "My title" ]
+      ],
+      "descriptions": [ "The title of the instance was \"My title\"" ]
+    }
+  },
+  {
+    "description": "title_with_core_keywords",
+    "schema": {
+      "$schema": "https://json-schema.org/draft/2019-09/schema",
+      "$id": "https://example.com",
+      "$comment": "My comment",
+      "$anchor": "main",
+      "title": "My title"
+    },
+    "instance": 5,
+    "valid": true,
+    "fast": {},
+    "exhaustive": {
+      "pre": [
+        [ "Annotation", "/title", "https://example.com#/title", "" ]
+      ],
+      "post": [
+        [ true, "Annotation", "/title", "https://example.com#/title", "", "My title" ]
+      ],
+      "descriptions": [ "The title of the instance was \"My title\"" ]
+    }
+  },
+  {
+    "description": "description",
+    "schema": {
+      "$schema": "https://json-schema.org/draft/2019-09/schema",
+      "description": "My description"
+    },
+    "instance": 5,
+    "valid": true,
+    "fast": {},
+    "exhaustive": {
+      "pre": [
+        [ "Annotation", "/description", "#/description", "" ]
+      ],
+      "post": [
+        [ true, "Annotation", "/description", "#/description", "", "My description" ]
+      ],
+      "descriptions": [
+        "The description of the instance was \"My description\""
+      ]
+    }
+  },
+  {
+    "description": "default",
+    "schema": {
+      "$schema": "https://json-schema.org/draft/2019-09/schema",
+      "default": 1
+    },
+    "instance": 5,
+    "valid": true,
+    "fast": {},
+    "exhaustive": {
+      "pre": [
+        [ "Annotation", "/default", "#/default", "" ]
+      ],
+      "post": [
+        [ true, "Annotation", "/default", "#/default", "", 1 ]
+      ],
+      "descriptions": [ "The default value of the instance was 1" ]
+    }
+  },
+  {
+    "description": "deprecated_1",
+    "schema": {
+      "$schema": "https://json-schema.org/draft/2019-09/schema",
+      "deprecated": true
+    },
+    "instance": 5,
+    "valid": true,
+    "fast": {},
+    "exhaustive": {
+      "pre": [
+        [ "Annotation", "/deprecated", "#/deprecated", "" ]
+      ],
+      "post": [
+        [ true, "Annotation", "/deprecated", "#/deprecated", "", true ]
+      ],
+      "descriptions": [ "The instance was considered deprecated" ]
+    }
+  },
+  {
+    "description": "deprecated_2",
+    "schema": {
+      "$schema": "https://json-schema.org/draft/2019-09/schema",
+      "deprecated": false
+    },
+    "instance": 5,
+    "valid": true,
+    "fast": {},
+    "exhaustive": {
+      "pre": [
+        [ "Annotation", "/deprecated", "#/deprecated", "" ]
+      ],
+      "post": [
+        [ true, "Annotation", "/deprecated", "#/deprecated", "", false ]
+      ],
+      "descriptions": [ "The instance was not considered deprecated" ]
+    }
+  },
+  {
+    "description": "readOnly_1",
+    "schema": {
+      "$schema": "https://json-schema.org/draft/2019-09/schema",
+      "readOnly": false
+    },
+    "instance": 5,
+    "valid": true,
+    "fast": {},
+    "exhaustive": {
+      "pre": [
+        [ "Annotation", "/readOnly", "#/readOnly", "" ]
+      ],
+      "post": [
+        [ true, "Annotation", "/readOnly", "#/readOnly", "", false ]
+      ],
+      "descriptions": [ "The instance was not considered read-only" ]
+    }
+  },
+  {
+    "description": "readOnly_2",
+    "schema": {
+      "$schema": "https://json-schema.org/draft/2019-09/schema",
+      "readOnly": true
+    },
+    "instance": 5,
+    "valid": true,
+    "fast": {},
+    "exhaustive": {
+      "pre": [
+        [ "Annotation", "/readOnly", "#/readOnly", "" ]
+      ],
+      "post": [
+        [ true, "Annotation", "/readOnly", "#/readOnly", "", true ]
+      ],
+      "descriptions": [ "The instance was considered read-only" ]
+    }
+  },
+  {
+    "description": "writeOnly_1",
+    "schema": {
+      "$schema": "https://json-schema.org/draft/2019-09/schema",
+      "writeOnly": false
+    },
+    "instance": 5,
+    "valid": true,
+    "fast": {},
+    "exhaustive": {
+      "pre": [
+        [ "Annotation", "/writeOnly", "#/writeOnly", "" ]
+      ],
+      "post": [
+        [ true, "Annotation", "/writeOnly", "#/writeOnly", "", false ]
+      ],
+      "descriptions": [ "The instance was not considered write-only" ]
+    }
+  },
+  {
+    "description": "writeOnly_2",
+    "schema": {
+      "$schema": "https://json-schema.org/draft/2019-09/schema",
+      "writeOnly": true
+    },
+    "instance": 5,
+    "valid": true,
+    "fast": {},
+    "exhaustive": {
+      "pre": [
+        [ "Annotation", "/writeOnly", "#/writeOnly", "" ]
+      ],
+      "post": [
+        [ true, "Annotation", "/writeOnly", "#/writeOnly", "", true ]
+      ],
+      "descriptions": [ "The instance was considered write-only" ]
+    }
+  },
+  {
+    "description": "examples",
+    "schema": {
+      "$schema": "https://json-schema.org/draft/2019-09/schema",
+      "examples": [ 1, 2, 3 ]
+    },
+    "instance": 5,
+    "valid": true,
+    "fast": {},
+    "exhaustive": {
+      "pre": [
+        [ "Annotation", "/examples", "#/examples", "" ]
+      ],
+      "post": [
+        [
+          true,
+          "Annotation",
+          "/examples",
+          "#/examples",
+          "",
+          [ 1, 2, 3 ]
+        ]
+      ],
+      "descriptions": [ "Examples of the instance were 1, 2, and 3" ]
+    }
+  },
+  {
+    "description": "format",
+    "schema": {
+      "$schema": "https://json-schema.org/draft/2019-09/schema",
+      "format": "email"
+    },
+    "instance": "johndoe@example.com",
+    "valid": true,
+    "fast": {},
+    "exhaustive": {
+      "pre": [
+        [ "Annotation", "/format", "#/format", "" ]
+      ],
+      "post": [
+        [ true, "Annotation", "/format", "#/format", "", "email" ]
+      ],
+      "descriptions": [
+        "The logical type of the instance was expected to be \"email\""
+      ]
+    }
+  },
+  {
+    "description": "format_exhaustive_non_string",
+    "schema": {
+      "$schema": "https://json-schema.org/draft/2019-09/schema",
+      "format": "email"
+    },
+    "instance": 1,
+    "valid": true,
+    "exhaustive": {}
+  },
+  {
+    "description": "contentEncoding",
+    "schema": {
+      "$schema": "https://json-schema.org/draft/2019-09/schema",
+      "contentEncoding": "base64"
+    },
+    "instance": "foo",
+    "valid": true,
+    "fast": {},
+    "exhaustive": {
+      "pre": [
+        [ "Annotation", "/contentEncoding", "#/contentEncoding", "" ]
+      ],
+      "post": [
+        [ true, "Annotation", "/contentEncoding", "#/contentEncoding", "", "base64" ]
+      ],
+      "descriptions": [ "The content encoding of the instance was \"base64\"" ]
+    }
+  },
+  {
+    "description": "contentEncoding_exhaustive_non_string",
+    "schema": {
+      "$schema": "https://json-schema.org/draft/2019-09/schema",
+      "contentEncoding": "base64"
+    },
+    "instance": 1,
+    "valid": true,
+    "exhaustive": {}
+  },
+  {
+    "description": "contentMediaType",
+    "schema": {
+      "$schema": "https://json-schema.org/draft/2019-09/schema",
+      "contentMediaType": "application/json"
+    },
+    "instance": "foo",
+    "valid": true,
+    "fast": {},
+    "exhaustive": {
+      "pre": [
+        [ "Annotation", "/contentMediaType", "#/contentMediaType", "" ]
+      ],
+      "post": [
+        [ true, "Annotation", "/contentMediaType", "#/contentMediaType", "", "application/json" ]
+      ],
+      "descriptions": [
+        "The content media type of the instance was \"application/json\""
+      ]
+    }
+  },
+  {
+    "description": "contentMediaType_exhaustive_non_string",
+    "schema": {
+      "$schema": "https://json-schema.org/draft/2019-09/schema",
+      "contentMediaType": "application/json"
+    },
+    "instance": 1,
+    "valid": true,
+    "exhaustive": {}
+  },
+  {
+    "description": "contentSchema_with_contentMediaType",
+    "schema": {
+      "$schema": "https://json-schema.org/draft/2019-09/schema",
+      "contentMediaType": "application/json",
+      "contentSchema": {
+        "type": "string"
+      }
+    },
+    "instance": "foo",
+    "valid": true,
+    "fast": {}
+  },
+  {
+    "description": "contentSchema_without_contentMediaType",
+    "schema": {
+      "$schema": "https://json-schema.org/draft/2019-09/schema",
+      "contentSchema": {
+        "type": "string"
+      }
+    },
+    "instance": "foo",
+    "valid": true,
+    "fast": {}
+  },
+  {
+    "description": "contentSchema_exhaustive_with_contentMediaType",
+    "schema": {
+      "$schema": "https://json-schema.org/draft/2019-09/schema",
+      "contentMediaType": "application/json",
+      "contentSchema": {
+        "type": "string"
+      }
+    },
+    "instance": "foo",
+    "valid": true,
+    "exhaustive": {
+      "pre": [
+        [ "Annotation", "/contentMediaType", "#/contentMediaType", "" ],
+        [ "Annotation", "/contentSchema", "#/contentSchema", "" ]
+      ],
+      "post": [
+        [ true, "Annotation", "/contentMediaType", "#/contentMediaType", "", "application/json" ],
+        [
+          true,
+          "Annotation",
+          "/contentSchema",
+          "#/contentSchema",
+          "",
+          {
+            "type": "string"
+          }
+        ]
+      ],
+      "descriptions": [
+        "The content media type of the instance was \"application/json\"",
+        "When decoded, the instance was expected to validate against the schema {\"type\":\"string\"}"
+      ]
+    }
+  },
+  {
+    "description": "contentSchema_exhaustive_with_contentMediaType_non_string",
+    "schema": {
+      "$schema": "https://json-schema.org/draft/2019-09/schema",
+      "contentMediaType": "application/json",
+      "contentSchema": {
+        "type": "string"
+      }
+    },
+    "instance": 1,
+    "valid": true,
+    "exhaustive": {}
+  },
+  {
+    "description": "contentSchema_exhaustive_without_contentMediaType",
+    "schema": {
+      "$schema": "https://json-schema.org/draft/2019-09/schema",
+      "contentSchema": {
+        "type": "string"
+      }
+    },
+    "instance": "foo",
+    "valid": true,
+    "exhaustive": {}
+  },
+  {
+    "description": "unknown_1",
+    "schema": {
+      "$schema": "https://json-schema.org/draft/2019-09/schema",
+      "fooBar": "baz"
+    },
+    "instance": "foo",
+    "valid": true,
+    "fast": {},
+    "exhaustive": {
+      "pre": [
+        [ "Annotation", "/fooBar", "#/fooBar", "" ]
+      ],
+      "post": [
+        [ true, "Annotation", "/fooBar", "#/fooBar", "", "baz" ]
+      ],
+      "descriptions": [
+        "The unrecognized keyword \"fooBar\" was collected as the annotation \"baz\""
+      ]
+    }
+  },
+  {
+    "description": "unknown_2",
+    "schema": {
+      "$schema": "https://json-schema.org/draft/2019-09/schema",
+      "x-test": 1
+    },
+    "instance": "foo",
+    "valid": true,
+    "fast": {},
+    "exhaustive": {
+      "pre": [
+        [ "Annotation", "/x-test", "#/x-test", "" ]
+      ],
+      "post": [
+        [ true, "Annotation", "/x-test", "#/x-test", "", 1 ]
+      ],
+      "descriptions": [
+        "The unrecognized keyword \"x-test\" was collected as the annotation 1"
+      ]
+    }
+  },
+  {
+    "description": "items_1",
+    "schema": {
+      "$schema": "https://json-schema.org/draft/2019-09/schema",
+      "items": {
+        "type": "string"
+      }
+    },
+    "instance": 5,
+    "valid": true,
+    "fast": {}
+  },
+  {
+    "description": "items_2",
+    "schema": {
+      "$schema": "https://json-schema.org/draft/2019-09/schema",
+      "items": {
+        "type": "string"
+      }
+    },
+    "instance": [ "foo", "bar", "baz" ],
+    "valid": true,
+    "fast": {
+      "pre": [
+        [ "LoopItemsTypeStrict", "/items", "#/items", "" ]
+      ],
+      "post": [
+        [ true, "LoopItemsTypeStrict", "/items", "#/items", "" ]
+      ],
+      "descriptions": [ "The array items were expected to be of type string" ]
+    },
+    "exhaustive": {
+      "pre": [
+        [ "LoopItems", "/items", "#/items", "" ],
+        [ "AssertionTypeStrict", "/items/type", "#/items/type", "/0" ],
+        [ "AssertionTypeStrict", "/items/type", "#/items/type", "/1" ],
+        [ "AssertionTypeStrict", "/items/type", "#/items/type", "/2" ],
+        [ "LogicalWhenType", "/items", "#/items", "" ],
+        [ "Annotation", "/items", "#/items", "" ]
+      ],
+      "post": [
+        [ true, "AssertionTypeStrict", "/items/type", "#/items/type", "/0" ],
+        [ true, "AssertionTypeStrict", "/items/type", "#/items/type", "/1" ],
+        [ true, "AssertionTypeStrict", "/items/type", "#/items/type", "/2" ],
+        [ true, "LoopItems", "/items", "#/items", "" ],
+        [ true, "Annotation", "/items", "#/items", "", true ],
+        [ true, "LogicalWhenType", "/items", "#/items", "" ]
+      ],
+      "descriptions": [
+        "The value was expected to be of type string",
+        "The value was expected to be of type string",
+        "The value was expected to be of type string",
+        "Every item in the array value was expected to validate against the given subschema",
+        "Every item in the array value was successfully validated",
+        "The value was expected to be of type array"
+      ]
+    }
+  },
+  {
+    "description": "items_3",
+    "schema": {
+      "$schema": "https://json-schema.org/draft/2019-09/schema",
+      "items": {
+        "type": "string"
+      }
+    },
+    "instance": [ "foo", 5, "baz" ],
+    "valid": false,
+    "fast": {
+      "pre": [
+        [ "LoopItemsTypeStrict", "/items", "#/items", "" ]
+      ],
+      "post": [
+        [ false, "LoopItemsTypeStrict", "/items", "#/items", "" ]
+      ],
+      "descriptions": [ "The array items were expected to be of type string" ]
+    },
+    "exhaustive": {
+      "pre": [
+        [ "LoopItems", "/items", "#/items", "" ],
+        [ "AssertionTypeStrict", "/items/type", "#/items/type", "/0" ],
+        [ "AssertionTypeStrict", "/items/type", "#/items/type", "/1" ]
+      ],
+      "post": [
+        [ true, "AssertionTypeStrict", "/items/type", "#/items/type", "/0" ],
+        [ false, "AssertionTypeStrict", "/items/type", "#/items/type", "/1" ],
+        [ false, "LoopItems", "/items", "#/items", "" ]
+      ],
+      "descriptions": [
+        "The value was expected to be of type string",
+        "The value was expected to be of type string but it was of type integer",
+        "Every item in the array value was expected to validate against the given subschema"
+      ]
+    }
+  },
+  {
+    "description": "items_4",
+    "schema": {
+      "$schema": "https://json-schema.org/draft/2019-09/schema",
+      "items": [
+        {
+          "type": "string"
+        }
+      ]
+    },
+    "instance": 5,
+    "valid": true,
+    "fast": {}
+  },
+  {
+    "description": "items_5",
+    "schema": {
+      "$schema": "https://json-schema.org/draft/2019-09/schema",
+      "items": [
+        {
+          "type": "integer"
+        },
+        {
+          "type": "boolean"
+        }
+      ]
+    },
+    "instance": [],
+    "valid": true,
+    "fast": {
+      "pre": [
+        [ "AssertionArrayPrefix", "/items", "#/items", "" ]
+      ],
+      "post": [
+        [ true, "AssertionArrayPrefix", "/items", "#/items", "" ]
+      ],
+      "descriptions": [
+        "The first 2 items of the array value were expected to validate against the corresponding subschemas"
+      ]
+    }
+  },
+  {
+    "description": "items_6",
+    "schema": {
+      "$schema": "https://json-schema.org/draft/2019-09/schema",
+      "items": [
+        {
+          "type": "integer"
+        },
+        {
+          "type": "boolean"
+        }
+      ]
+    },
+    "instance": [ 5 ],
+    "valid": true,
+    "fast": {
+      "pre": [
+        [ "AssertionArrayPrefix", "/items", "#/items", "" ],
+        [ "AssertionType", "/items/0/type", "#/items/0/type", "/0" ]
+      ],
+      "post": [
+        [ true, "AssertionType", "/items/0/type", "#/items/0/type", "/0" ],
+        [ true, "AssertionArrayPrefix", "/items", "#/items", "" ]
+      ],
+      "descriptions": [
+        "The value was expected to be of type integer",
+        "The first 2 items of the array value were expected to validate against the corresponding subschemas"
+      ]
+    },
+    "exhaustive": {
+      "pre": [
+        [ "AssertionArrayPrefix", "/items", "#/items", "" ],
+        [ "AssertionType", "/items/0/type", "#/items/0/type", "/0" ],
+        [ "Annotation", "/items", "#/items", "" ]
+      ],
+      "post": [
+        [ true, "AssertionType", "/items/0/type", "#/items/0/type", "/0" ],
+        [ true, "Annotation", "/items", "#/items", "", 0 ],
+        [ true, "AssertionArrayPrefix", "/items", "#/items", "" ]
+      ],
+      "descriptions": [
+        "The value was expected to be of type integer",
+        "The first item of the array value successfully validated against the first positional subschema",
+        "The first 2 items of the array value were expected to validate against the corresponding subschemas"
+      ]
+    }
+  },
+  {
+    "description": "items_7",
+    "schema": {
+      "$schema": "https://json-schema.org/draft/2019-09/schema",
+      "items": [
+        {
+          "type": "integer"
+        },
+        {
+          "type": "boolean"
+        }
+      ]
+    },
+    "instance": [ 5, true, "extra" ],
+    "valid": true,
+    "fast": {
+      "pre": [
+        [ "AssertionArrayPrefix", "/items", "#/items", "" ],
+        [ "AssertionType", "/items/0/type", "#/items/0/type", "/0" ],
+        [ "AssertionTypeStrict", "/items/1/type", "#/items/1/type", "/1" ]
+      ],
+      "post": [
+        [ true, "AssertionType", "/items/0/type", "#/items/0/type", "/0" ],
+        [ true, "AssertionTypeStrict", "/items/1/type", "#/items/1/type", "/1" ],
+        [ true, "AssertionArrayPrefix", "/items", "#/items", "" ]
+      ],
+      "descriptions": [
+        "The value was expected to be of type integer",
+        "The value was expected to be of type boolean",
+        "The first 2 items of the array value were expected to validate against the corresponding subschemas"
+      ]
+    },
+    "exhaustive": {
+      "pre": [
+        [ "AssertionArrayPrefix", "/items", "#/items", "" ],
+        [ "AssertionType", "/items/0/type", "#/items/0/type", "/0" ],
+        [ "AssertionTypeStrict", "/items/1/type", "#/items/1/type", "/1" ],
+        [ "Annotation", "/items", "#/items", "" ]
+      ],
+      "post": [
+        [ true, "AssertionType", "/items/0/type", "#/items/0/type", "/0" ],
+        [ true, "AssertionTypeStrict", "/items/1/type", "#/items/1/type", "/1" ],
+        [ true, "Annotation", "/items", "#/items", "", 1 ],
+        [ true, "AssertionArrayPrefix", "/items", "#/items", "" ]
+      ],
+      "descriptions": [
+        "The value was expected to be of type integer",
+        "The value was expected to be of type boolean",
+        "The first 2 items of the array value successfully validated against the given positional subschemas",
+        "The first 2 items of the array value were expected to validate against the corresponding subschemas"
+      ]
+    }
+  },
+  {
+    "description": "items_8",
+    "schema": {
+      "$schema": "https://json-schema.org/draft/2019-09/schema",
+      "items": [
+        {
+          "type": "integer"
+        },
+        {
+          "type": "boolean"
+        }
+      ]
+    },
+    "instance": [ 5, 1, "extra" ],
+    "valid": false,
+    "fast": {
+      "pre": [
+        [ "AssertionArrayPrefix", "/items", "#/items", "" ],
+        [ "AssertionType", "/items/0/type", "#/items/0/type", "/0" ],
+        [ "AssertionTypeStrict", "/items/1/type", "#/items/1/type", "/1" ]
+      ],
+      "post": [
+        [ true, "AssertionType", "/items/0/type", "#/items/0/type", "/0" ],
+        [ false, "AssertionTypeStrict", "/items/1/type", "#/items/1/type", "/1" ],
+        [ false, "AssertionArrayPrefix", "/items", "#/items", "" ]
+      ],
+      "descriptions": [
+        "The value was expected to be of type integer",
+        "The value was expected to be of type boolean but it was of type integer",
+        "The first 2 items of the array value were expected to validate against the corresponding subschemas"
+      ]
+    },
+    "exhaustive": {
+      "pre": [
+        [ "AssertionArrayPrefix", "/items", "#/items", "" ],
+        [ "AssertionType", "/items/0/type", "#/items/0/type", "/0" ],
+        [ "AssertionTypeStrict", "/items/1/type", "#/items/1/type", "/1" ]
+      ],
+      "post": [
+        [ true, "AssertionType", "/items/0/type", "#/items/0/type", "/0" ],
+        [ false, "AssertionTypeStrict", "/items/1/type", "#/items/1/type", "/1" ],
+        [ false, "AssertionArrayPrefix", "/items", "#/items", "" ]
+      ],
+      "descriptions": [
+        "The value was expected to be of type integer",
+        "The value was expected to be of type boolean but it was of type integer",
+        "The first 2 items of the array value were expected to validate against the corresponding subschemas"
+      ]
+    }
+  },
+  {
+    "description": "items_9",
+    "schema": {
+      "$schema": "https://json-schema.org/draft/2019-09/schema",
+      "items": [
+        {
+          "type": "integer"
+        },
+        {
+          "type": "boolean"
+        }
+      ]
+    },
+    "instance": [ 5, true ],
+    "valid": true,
+    "exhaustive": {
+      "pre": [
+        [ "AssertionArrayPrefix", "/items", "#/items", "" ],
+        [ "AssertionType", "/items/0/type", "#/items/0/type", "/0" ],
+        [ "AssertionTypeStrict", "/items/1/type", "#/items/1/type", "/1" ],
+        [ "Annotation", "/items", "#/items", "" ],
+        [ "Annotation", "/items", "#/items", "" ]
+      ],
+      "post": [
+        [ true, "AssertionType", "/items/0/type", "#/items/0/type", "/0" ],
+        [ true, "AssertionTypeStrict", "/items/1/type", "#/items/1/type", "/1" ],
+        [ true, "Annotation", "/items", "#/items", "", 1 ],
+        [ true, "Annotation", "/items", "#/items", "", true ],
+        [ true, "AssertionArrayPrefix", "/items", "#/items", "" ]
+      ],
+      "descriptions": [
+        "The value was expected to be of type integer",
+        "The value was expected to be of type boolean",
+        "The first 2 items of the array value successfully validated against the given positional subschemas",
+        "Every item in the array value was successfully validated",
+        "The first 2 items of the array value were expected to validate against the corresponding subschemas"
+      ]
+    }
+  },
+  {
+    "description": "items_10",
+    "schema": {
+      "$schema": "https://json-schema.org/draft/2019-09/schema",
+      "items": [ true ]
+    },
+    "instance": [ 5 ],
+    "valid": true,
+    "fast": {
+      "pre": [
+        [ "AssertionArrayPrefix", "/items", "#/items", "" ]
+      ],
+      "post": [
+        [ true, "AssertionArrayPrefix", "/items", "#/items", "" ]
+      ],
+      "descriptions": [
+        "The first item of the array value was expected to validate against the corresponding subschemas"
+      ]
+    }
+  },
+  {
+    "description": "additionalItems_1",
+    "schema": {
+      "$schema": "https://json-schema.org/draft/2019-09/schema",
+      "additionalItems": {
+        "type": "string"
+      }
+    },
+    "instance": [ "foo", "bar", "baz" ],
+    "valid": true,
+    "fast": {}
+  },
+  {
+    "description": "additionalItems_2",
+    "schema": {
+      "$schema": "https://json-schema.org/draft/2019-09/schema",
+      "additionalItems": {
+        "type": "integer"
+      },
+      "items": {
+        "type": "string"
+      }
+    },
+    "instance": [ "foo", "bar", "baz" ],
+    "valid": true,
+    "fast": {
+      "pre": [
+        [ "LoopItemsTypeStrict", "/items", "#/items", "" ]
+      ],
+      "post": [
+        [ true, "LoopItemsTypeStrict", "/items", "#/items", "" ]
+      ],
+      "descriptions": [ "The array items were expected to be of type string" ]
+    },
+    "exhaustive": {
+      "pre": [
+        [ "LoopItems", "/items", "#/items", "" ],
+        [ "AssertionTypeStrict", "/items/type", "#/items/type", "/0" ],
+        [ "AssertionTypeStrict", "/items/type", "#/items/type", "/1" ],
+        [ "AssertionTypeStrict", "/items/type", "#/items/type", "/2" ],
+        [ "LogicalWhenType", "/items", "#/items", "" ],
+        [ "Annotation", "/items", "#/items", "" ]
+      ],
+      "post": [
+        [ true, "AssertionTypeStrict", "/items/type", "#/items/type", "/0" ],
+        [ true, "AssertionTypeStrict", "/items/type", "#/items/type", "/1" ],
+        [ true, "AssertionTypeStrict", "/items/type", "#/items/type", "/2" ],
+        [ true, "LoopItems", "/items", "#/items", "" ],
+        [ true, "Annotation", "/items", "#/items", "", true ],
+        [ true, "LogicalWhenType", "/items", "#/items", "" ]
+      ],
+      "descriptions": [
+        "The value was expected to be of type string",
+        "The value was expected to be of type string",
+        "The value was expected to be of type string",
+        "Every item in the array value was expected to validate against the given subschema",
+        "Every item in the array value was successfully validated",
+        "The value was expected to be of type array"
+      ]
+    }
+  },
+  {
+    "description": "additionalItems_3",
+    "schema": {
+      "$schema": "https://json-schema.org/draft/2019-09/schema",
+      "additionalItems": {
+        "type": "string"
+      },
+      "items": [
+        {
+          "type": "boolean"
+        },
+        {
+          "type": "integer"
+        }
+      ]
+    },
+    "instance": [ true, 5 ],
+    "valid": true,
+    "fast": {
+      "pre": [
+        [ "AssertionArrayPrefix", "/items", "#/items", "" ],
+        [ "AssertionTypeStrict", "/items/0/type", "#/items/0/type", "/0" ],
+        [ "AssertionType", "/items/1/type", "#/items/1/type", "/1" ]
+      ],
+      "post": [
+        [ true, "AssertionTypeStrict", "/items/0/type", "#/items/0/type", "/0" ],
+        [ true, "AssertionType", "/items/1/type", "#/items/1/type", "/1" ],
+        [ true, "AssertionArrayPrefix", "/items", "#/items", "" ]
+      ],
+      "descriptions": [
+        "The value was expected to be of type boolean",
+        "The value was expected to be of type integer",
+        "The first 2 items of the array value were expected to validate against the corresponding subschemas"
+      ]
+    },
+    "exhaustive": {
+      "pre": [
+        [ "AssertionArrayPrefix", "/items", "#/items", "" ],
+        [ "AssertionTypeStrict", "/items/0/type", "#/items/0/type", "/0" ],
+        [ "AssertionType", "/items/1/type", "#/items/1/type", "/1" ],
+        [ "Annotation", "/items", "#/items", "" ],
+        [ "Annotation", "/items", "#/items", "" ]
+      ],
+      "post": [
+        [ true, "AssertionTypeStrict", "/items/0/type", "#/items/0/type", "/0" ],
+        [ true, "AssertionType", "/items/1/type", "#/items/1/type", "/1" ],
+        [ true, "Annotation", "/items", "#/items", "", 1 ],
+        [ true, "Annotation", "/items", "#/items", "", true ],
+        [ true, "AssertionArrayPrefix", "/items", "#/items", "" ]
+      ],
+      "descriptions": [
+        "The value was expected to be of type boolean",
+        "The value was expected to be of type integer",
+        "The first 2 items of the array value successfully validated against the given positional subschemas",
+        "Every item in the array value was successfully validated",
+        "The first 2 items of the array value were expected to validate against the corresponding subschemas"
+      ]
+    }
+  },
+  {
+    "description": "additionalItems_4",
+    "schema": {
+      "$schema": "https://json-schema.org/draft/2019-09/schema",
+      "additionalItems": {
+        "type": "string"
+      },
+      "items": [
+        {
+          "type": "boolean"
+        },
+        {
+          "type": "integer"
+        }
+      ]
+    },
+    "instance": [ true, 5, "foo", "bar" ],
+    "valid": true,
+    "fast": {
+      "pre": [
+        [ "AssertionArrayPrefix", "/items", "#/items", "" ],
+        [ "AssertionTypeStrict", "/items/0/type", "#/items/0/type", "/0" ],
+        [ "AssertionType", "/items/1/type", "#/items/1/type", "/1" ],
+        [ "LoopItemsFrom", "/additionalItems", "#/additionalItems", "" ],
+        [ "AssertionTypeStrict", "/additionalItems/type", "#/additionalItems/type", "/2" ],
+        [ "AssertionTypeStrict", "/additionalItems/type", "#/additionalItems/type", "/3" ]
+      ],
+      "post": [
+        [ true, "AssertionTypeStrict", "/items/0/type", "#/items/0/type", "/0" ],
+        [ true, "AssertionType", "/items/1/type", "#/items/1/type", "/1" ],
+        [ true, "AssertionArrayPrefix", "/items", "#/items", "" ],
+        [ true, "AssertionTypeStrict", "/additionalItems/type", "#/additionalItems/type", "/2" ],
+        [ true, "AssertionTypeStrict", "/additionalItems/type", "#/additionalItems/type", "/3" ],
+        [ true, "LoopItemsFrom", "/additionalItems", "#/additionalItems", "" ]
+      ],
+      "descriptions": [
+        "The value was expected to be of type boolean",
+        "The value was expected to be of type integer",
+        "The first 2 items of the array value were expected to validate against the corresponding subschemas",
+        "The value was expected to be of type string",
+        "The value was expected to be of type string",
+        "Every item in the array value except for the first 2 was expected to validate against the given subschema"
+      ]
+    },
+    "exhaustive": {
+      "pre": [
+        [ "AssertionArrayPrefix", "/items", "#/items", "" ],
+        [ "AssertionTypeStrict", "/items/0/type", "#/items/0/type", "/0" ],
+        [ "AssertionType", "/items/1/type", "#/items/1/type", "/1" ],
+        [ "Annotation", "/items", "#/items", "" ],
+        [ "LoopItemsFrom", "/additionalItems", "#/additionalItems", "" ],
+        [ "AssertionTypeStrict", "/additionalItems/type", "#/additionalItems/type", "/2" ],
+        [ "AssertionTypeStrict", "/additionalItems/type", "#/additionalItems/type", "/3" ],
+        [ "LogicalWhenArraySizeGreater", "/additionalItems", "#/additionalItems", "" ],
+        [ "Annotation", "/additionalItems", "#/additionalItems", "" ]
+      ],
+      "post": [
+        [ true, "AssertionTypeStrict", "/items/0/type", "#/items/0/type", "/0" ],
+        [ true, "AssertionType", "/items/1/type", "#/items/1/type", "/1" ],
+        [ true, "Annotation", "/items", "#/items", "", 1 ],
+        [ true, "AssertionArrayPrefix", "/items", "#/items", "" ],
+        [ true, "AssertionTypeStrict", "/additionalItems/type", "#/additionalItems/type", "/2" ],
+        [ true, "AssertionTypeStrict", "/additionalItems/type", "#/additionalItems/type", "/3" ],
+        [ true, "LoopItemsFrom", "/additionalItems", "#/additionalItems", "" ],
+        [ true, "Annotation", "/additionalItems", "#/additionalItems", "", true ],
+        [ true, "LogicalWhenArraySizeGreater", "/additionalItems", "#/additionalItems", "" ]
+      ],
+      "descriptions": [
+        "The value was expected to be of type boolean",
+        "The value was expected to be of type integer",
+        "The first 2 items of the array value successfully validated against the given positional subschemas",
+        "The first 2 items of the array value were expected to validate against the corresponding subschemas",
+        "The value was expected to be of type string",
+        "The value was expected to be of type string",
+        "Every item in the array value except for the first 2 was expected to validate against the given subschema",
+        "Every item in the array value was successfully validated",
+        "The array value contains 2 additional items not described by related keywords"
+      ]
+    }
+  },
+  {
+    "description": "additionalItems_5",
+    "schema": {
+      "$schema": "https://json-schema.org/draft/2019-09/schema",
+      "additionalItems": {
+        "type": "string"
+      },
+      "items": [
+        {
+          "type": "boolean"
+        },
+        {
+          "type": "integer"
+        }
+      ]
+    },
+    "instance": [ true, 5, 6, "bar" ],
+    "valid": false,
+    "fast": {
+      "pre": [
+        [ "AssertionArrayPrefix", "/items", "#/items", "" ],
+        [ "AssertionTypeStrict", "/items/0/type", "#/items/0/type", "/0" ],
+        [ "AssertionType", "/items/1/type", "#/items/1/type", "/1" ],
+        [ "LoopItemsFrom", "/additionalItems", "#/additionalItems", "" ],
+        [ "AssertionTypeStrict", "/additionalItems/type", "#/additionalItems/type", "/2" ]
+      ],
+      "post": [
+        [ true, "AssertionTypeStrict", "/items/0/type", "#/items/0/type", "/0" ],
+        [ true, "AssertionType", "/items/1/type", "#/items/1/type", "/1" ],
+        [ true, "AssertionArrayPrefix", "/items", "#/items", "" ],
+        [ false, "AssertionTypeStrict", "/additionalItems/type", "#/additionalItems/type", "/2" ],
+        [ false, "LoopItemsFrom", "/additionalItems", "#/additionalItems", "" ]
+      ],
+      "descriptions": [
+        "The value was expected to be of type boolean",
+        "The value was expected to be of type integer",
+        "The first 2 items of the array value were expected to validate against the corresponding subschemas",
+        "The value was expected to be of type string but it was of type integer",
+        "Every item in the array value except for the first 2 was expected to validate against the given subschema"
+      ]
+    },
+    "exhaustive": {
+      "pre": [
+        [ "AssertionArrayPrefix", "/items", "#/items", "" ],
+        [ "AssertionTypeStrict", "/items/0/type", "#/items/0/type", "/0" ],
+        [ "AssertionType", "/items/1/type", "#/items/1/type", "/1" ],
+        [ "Annotation", "/items", "#/items", "" ],
+        [ "LoopItemsFrom", "/additionalItems", "#/additionalItems", "" ],
+        [ "AssertionTypeStrict", "/additionalItems/type", "#/additionalItems/type", "/2" ]
+      ],
+      "post": [
+        [ true, "AssertionTypeStrict", "/items/0/type", "#/items/0/type", "/0" ],
+        [ true, "AssertionType", "/items/1/type", "#/items/1/type", "/1" ],
+        [ true, "Annotation", "/items", "#/items", "", 1 ],
+        [ true, "AssertionArrayPrefix", "/items", "#/items", "" ],
+        [ false, "AssertionTypeStrict", "/additionalItems/type", "#/additionalItems/type", "/2" ],
+        [ false, "LoopItemsFrom", "/additionalItems", "#/additionalItems", "" ]
+      ],
+      "descriptions": [
+        "The value was expected to be of type boolean",
+        "The value was expected to be of type integer",
+        "The first 2 items of the array value successfully validated against the given positional subschemas",
+        "The first 2 items of the array value were expected to validate against the corresponding subschemas",
+        "The value was expected to be of type string but it was of type integer",
+        "Every item in the array value except for the first 2 was expected to validate against the given subschema"
+      ]
+    }
+  },
+  {
+    "description": "unevaluatedProperties_1",
+    "schema": {
+      "$schema": "https://json-schema.org/draft/2019-09/schema",
+      "unevaluatedProperties": {
+        "type": "boolean"
+      },
+      "properties": {
+        "foo": {
+          "type": "string"
+        }
+      }
+    },
+    "instance": {
+      "foo": "baz",
+      "bar": true
+    },
+    "valid": true,
+    "fast": {
+      "pre": [
+        [ "AssertionPropertyTypeStrict", "/properties/foo/type", "#/properties/foo/type", "/foo" ],
+        [ "LoopPropertiesExcept", "/unevaluatedProperties", "#/unevaluatedProperties", "" ],
+        [ "AssertionTypeStrict", "/unevaluatedProperties/type", "#/unevaluatedProperties/type", "/bar" ]
+      ],
+      "post": [
+        [ true, "AssertionPropertyTypeStrict", "/properties/foo/type", "#/properties/foo/type", "/foo" ],
+        [ true, "AssertionTypeStrict", "/unevaluatedProperties/type", "#/unevaluatedProperties/type", "/bar" ],
+        [ true, "LoopPropertiesExcept", "/unevaluatedProperties", "#/unevaluatedProperties", "" ]
+      ],
+      "descriptions": [
+        "The value was expected to be of type string",
+        "The value was expected to be of type boolean",
+        "The object properties not covered by other object keywords were expected to validate against this subschema"
+      ]
+    },
+    "exhaustive": {
+      "pre": [
+        [ "LogicalWhenType", "/properties", "#/properties", "" ],
+        [ "AssertionTypeStrict", "/properties/foo/type", "#/properties/foo/type", "/foo" ],
+        [ "Annotation", "/properties", "#/properties", "" ],
+        [ "LoopPropertiesExcept", "/unevaluatedProperties", "#/unevaluatedProperties", "" ],
+        [ "AssertionTypeStrict", "/unevaluatedProperties/type", "#/unevaluatedProperties/type", "/bar" ],
+        [ "Annotation", "/unevaluatedProperties", "#/unevaluatedProperties", "" ]
+      ],
+      "post": [
+        [ true, "AssertionTypeStrict", "/properties/foo/type", "#/properties/foo/type", "/foo" ],
+        [ true, "Annotation", "/properties", "#/properties", "", "foo" ],
+        [ true, "LogicalWhenType", "/properties", "#/properties", "" ],
+        [ true, "AssertionTypeStrict", "/unevaluatedProperties/type", "#/unevaluatedProperties/type", "/bar" ],
+        [ true, "Annotation", "/unevaluatedProperties", "#/unevaluatedProperties", "", "bar" ],
+        [ true, "LoopPropertiesExcept", "/unevaluatedProperties", "#/unevaluatedProperties", "" ]
+      ],
+      "descriptions": [
+        "The value was expected to be of type string",
+        "The object property \"foo\" successfully validated against its property subschema",
+        "The object value was expected to validate against the single defined property subschema",
+        "The value was expected to be of type boolean",
+        "The object property \"bar\" successfully validated against the subschema for unevaluated properties",
+        "The object properties not covered by other object keywords were expected to validate against this subschema"
+      ]
+    }
+  },
+  {
+    "description": "unevaluatedProperties_2",
+    "schema": {
+      "$schema": "https://json-schema.org/draft/2019-09/schema",
+      "unevaluatedProperties": {
+        "type": "boolean"
+      },
+      "allOf": [
+        {
+          "properties": {
+            "foo": {
+              "type": "string"
+            }
+          }
+        }
+      ]
+    },
+    "instance": {
+      "foo": "baz",
+      "bar": true
+    },
+    "valid": true,
+    "fast": {
+      "pre": [
+        [ "AssertionPropertyTypeStrict", "/allOf/0/properties/foo/type", "#/allOf/0/properties/foo/type", "/foo" ],
+        [ "LoopPropertiesExcept", "/unevaluatedProperties", "#/unevaluatedProperties", "" ],
+        [ "AssertionTypeStrict", "/unevaluatedProperties/type", "#/unevaluatedProperties/type", "/bar" ]
+      ],
+      "post": [
+        [ true, "AssertionPropertyTypeStrict", "/allOf/0/properties/foo/type", "#/allOf/0/properties/foo/type", "/foo" ],
+        [ true, "AssertionTypeStrict", "/unevaluatedProperties/type", "#/unevaluatedProperties/type", "/bar" ],
+        [ true, "LoopPropertiesExcept", "/unevaluatedProperties", "#/unevaluatedProperties", "" ]
+      ],
+      "descriptions": [
+        "The value was expected to be of type string",
+        "The value was expected to be of type boolean",
+        "The object properties not covered by other object keywords were expected to validate against this subschema"
+      ]
+    },
+    "exhaustive": {
+      "pre": [
+        [ "LogicalAnd", "/allOf", "#/allOf", "" ],
+        [ "LogicalWhenType", "/allOf/0/properties", "#/allOf/0/properties", "" ],
+        [ "AssertionTypeStrict", "/allOf/0/properties/foo/type", "#/allOf/0/properties/foo/type", "/foo" ],
+        [ "Annotation", "/allOf/0/properties", "#/allOf/0/properties", "" ],
+        [ "LoopPropertiesExcept", "/unevaluatedProperties", "#/unevaluatedProperties", "" ],
+        [ "AssertionTypeStrict", "/unevaluatedProperties/type", "#/unevaluatedProperties/type", "/bar" ],
+        [ "Annotation", "/unevaluatedProperties", "#/unevaluatedProperties", "" ]
+      ],
+      "post": [
+        [ true, "AssertionTypeStrict", "/allOf/0/properties/foo/type", "#/allOf/0/properties/foo/type", "/foo" ],
+        [ true, "Annotation", "/allOf/0/properties", "#/allOf/0/properties", "", "foo" ],
+        [ true, "LogicalWhenType", "/allOf/0/properties", "#/allOf/0/properties", "" ],
+        [ true, "LogicalAnd", "/allOf", "#/allOf", "" ],
+        [ true, "AssertionTypeStrict", "/unevaluatedProperties/type", "#/unevaluatedProperties/type", "/bar" ],
+        [ true, "Annotation", "/unevaluatedProperties", "#/unevaluatedProperties", "", "bar" ],
+        [ true, "LoopPropertiesExcept", "/unevaluatedProperties", "#/unevaluatedProperties", "" ]
+      ],
+      "descriptions": [
+        "The value was expected to be of type string",
+        "The object property \"foo\" successfully validated against its property subschema",
+        "The object value was expected to validate against the single defined property subschema",
+        "The object value was expected to validate against the given subschema",
+        "The value was expected to be of type boolean",
+        "The object property \"bar\" successfully validated against the subschema for unevaluated properties",
+        "The object properties not covered by other object keywords were expected to validate against this subschema"
+      ]
+    }
+  },
+  {
+    "description": "unevaluatedProperties_3",
+    "schema": {
+      "$schema": "https://json-schema.org/draft/2019-09/schema",
+      "unevaluatedProperties": {
+        "type": "boolean"
+      },
+      "allOf": [
+        {
+          "properties": {
+            "foo": {
+              "type": "string"
+            }
+          }
+        }
+      ]
+    },
+    "instance": {
+      "foo": "baz",
+      "bar": 1
+    },
+    "valid": false,
+    "fast": {
+      "pre": [
+        [ "AssertionPropertyTypeStrict", "/allOf/0/properties/foo/type", "#/allOf/0/properties/foo/type", "/foo" ],
+        [ "LoopPropertiesExcept", "/unevaluatedProperties", "#/unevaluatedProperties", "" ],
+        [ "AssertionTypeStrict", "/unevaluatedProperties/type", "#/unevaluatedProperties/type", "/bar" ]
+      ],
+      "post": [
+        [ true, "AssertionPropertyTypeStrict", "/allOf/0/properties/foo/type", "#/allOf/0/properties/foo/type", "/foo" ],
+        [ false, "AssertionTypeStrict", "/unevaluatedProperties/type", "#/unevaluatedProperties/type", "/bar" ],
+        [ false, "LoopPropertiesExcept", "/unevaluatedProperties", "#/unevaluatedProperties", "" ]
+      ],
+      "descriptions": [
+        "The value was expected to be of type string",
+        "The value was expected to be of type boolean but it was of type integer",
+        "The object properties not covered by other object keywords were expected to validate against this subschema"
+      ]
+    },
+    "exhaustive": {
+      "pre": [
+        [ "LogicalAnd", "/allOf", "#/allOf", "" ],
+        [ "LogicalWhenType", "/allOf/0/properties", "#/allOf/0/properties", "" ],
+        [ "AssertionTypeStrict", "/allOf/0/properties/foo/type", "#/allOf/0/properties/foo/type", "/foo" ],
+        [ "Annotation", "/allOf/0/properties", "#/allOf/0/properties", "" ],
+        [ "LoopPropertiesExcept", "/unevaluatedProperties", "#/unevaluatedProperties", "" ],
+        [ "AssertionTypeStrict", "/unevaluatedProperties/type", "#/unevaluatedProperties/type", "/bar" ]
+      ],
+      "post": [
+        [ true, "AssertionTypeStrict", "/allOf/0/properties/foo/type", "#/allOf/0/properties/foo/type", "/foo" ],
+        [ true, "Annotation", "/allOf/0/properties", "#/allOf/0/properties", "", "foo" ],
+        [ true, "LogicalWhenType", "/allOf/0/properties", "#/allOf/0/properties", "" ],
+        [ true, "LogicalAnd", "/allOf", "#/allOf", "" ],
+        [ false, "AssertionTypeStrict", "/unevaluatedProperties/type", "#/unevaluatedProperties/type", "/bar" ],
+        [ false, "LoopPropertiesExcept", "/unevaluatedProperties", "#/unevaluatedProperties", "" ]
+      ],
+      "descriptions": [
+        "The value was expected to be of type string",
+        "The object property \"foo\" successfully validated against its property subschema",
+        "The object value was expected to validate against the single defined property subschema",
+        "The object value was expected to validate against the given subschema",
+        "The value was expected to be of type boolean but it was of type integer",
+        "The object properties not covered by other object keywords were expected to validate against this subschema"
+      ]
+    }
+  },
+  {
+    "description": "unevaluatedProperties_4",
+    "schema": {
+      "$schema": "https://json-schema.org/draft/2019-09/schema",
+      "unevaluatedProperties": false,
+      "properties": {
+        "foo": {
+          "type": "string"
+        }
+      }
+    },
+    "instance": {
+      "foo": "baz",
+      "bar": true
+    },
+    "valid": false,
+    "fast": {
+      "pre": [
+        [ "AssertionPropertyTypeStrict", "/properties/foo/type", "#/properties/foo/type", "/foo" ],
+        [ "LoopPropertiesExcept", "/unevaluatedProperties", "#/unevaluatedProperties", "" ],
+        [ "AssertionFail", "/unevaluatedProperties", "#/unevaluatedProperties", "/bar" ]
+      ],
+      "post": [
+        [ true, "AssertionPropertyTypeStrict", "/properties/foo/type", "#/properties/foo/type", "/foo" ],
+        [ false, "AssertionFail", "/unevaluatedProperties", "#/unevaluatedProperties", "/bar" ],
+        [ false, "LoopPropertiesExcept", "/unevaluatedProperties", "#/unevaluatedProperties", "" ]
+      ],
+      "descriptions": [
+        "The value was expected to be of type string",
+        "The object value was not expected to define the property \"bar\"",
+        "The object value was not expected to define unevaluated properties"
+      ]
+    },
+    "exhaustive": {
+      "pre": [
+        [ "LogicalWhenType", "/properties", "#/properties", "" ],
+        [ "AssertionTypeStrict", "/properties/foo/type", "#/properties/foo/type", "/foo" ],
+        [ "Annotation", "/properties", "#/properties", "" ],
+        [ "LoopPropertiesExcept", "/unevaluatedProperties", "#/unevaluatedProperties", "" ],
+        [ "AssertionFail", "/unevaluatedProperties", "#/unevaluatedProperties", "/bar" ]
+      ],
+      "post": [
+        [ true, "AssertionTypeStrict", "/properties/foo/type", "#/properties/foo/type", "/foo" ],
+        [ true, "Annotation", "/properties", "#/properties", "", "foo" ],
+        [ true, "LogicalWhenType", "/properties", "#/properties", "" ],
+        [ false, "AssertionFail", "/unevaluatedProperties", "#/unevaluatedProperties", "/bar" ],
+        [ false, "LoopPropertiesExcept", "/unevaluatedProperties", "#/unevaluatedProperties", "" ]
+      ],
+      "descriptions": [
+        "The value was expected to be of type string",
+        "The object property \"foo\" successfully validated against its property subschema",
+        "The object value was expected to validate against the single defined property subschema",
+        "The object value was not expected to define the property \"bar\"",
+        "The object value was not expected to define unevaluated properties"
+      ]
+    }
+  },
+  {
+    "description": "unevaluatedProperties_5",
+    "schema": {
+      "$schema": "https://json-schema.org/draft/2019-09/schema",
+      "additionalProperties": true,
+      "unevaluatedProperties": false
+    },
+    "instance": {
+      "foo": "baz"
+    },
+    "valid": true,
+    "fast": {},
+    "exhaustive": {
+      "pre": [
+        [ "LoopProperties", "/additionalProperties", "#/additionalProperties", "" ],
+        [ "Annotation", "/additionalProperties", "#/additionalProperties", "" ]
+      ],
+      "post": [
+        [ true, "Annotation", "/additionalProperties", "#/additionalProperties", "", "foo" ],
+        [ true, "LoopProperties", "/additionalProperties", "#/additionalProperties", "" ]
+      ],
+      "descriptions": [
+        "The object property \"foo\" successfully validated against the additional properties subschema",
+        "The object properties not covered by other adjacent object keywords were expected to validate against this subschema"
+      ]
+    }
+  },
+  {
+    "description": "unevaluatedProperties_6",
+    "schema": {
+      "$schema": "https://json-schema.org/draft/2019-09/schema",
+      "patternProperties": {
+        "^@": true
+      },
+      "unevaluatedProperties": false
+    },
+    "instance": {
+      "@foo": "bar"
+    },
+    "valid": true,
+    "fast": {
+      "pre": [
+        [ "LoopPropertiesExcept", "/unevaluatedProperties", "#/unevaluatedProperties", "" ]
+      ],
+      "post": [
+        [ true, "LoopPropertiesExcept", "/unevaluatedProperties", "#/unevaluatedProperties", "" ]
+      ],
+      "descriptions": [
+        "The object value was not expected to define unevaluated properties"
+      ]
+    },
+    "exhaustive": {
+      "pre": [
+        [ "LoopPropertiesRegex", "/patternProperties", "#/patternProperties", "" ],
+        [ "Annotation", "/patternProperties", "#/patternProperties", "" ],
+        [ "LoopPropertiesExcept", "/unevaluatedProperties", "#/unevaluatedProperties", "" ]
+      ],
+      "post": [
+        [ true, "Annotation", "/patternProperties", "#/patternProperties", "", "@foo" ],
+        [ true, "LoopPropertiesRegex", "/patternProperties", "#/patternProperties", "" ],
+        [ true, "LoopPropertiesExcept", "/unevaluatedProperties", "#/unevaluatedProperties", "" ]
+      ],
+      "descriptions": [
+        "The object property \"@foo\" successfully validated against its pattern property subschema",
+        "The object properties that match the regular expression \"^@\" were expected to validate against the defined pattern property subschema",
+        "The object value was not expected to define unevaluated properties"
+      ]
+    }
+  },
+  {
+    "description": "unevaluatedProperties_7",
+    "schema": {
+      "$schema": "https://json-schema.org/draft/2019-09/schema",
+      "allOf": [
+        {
+          "properties": {
+            "foo": true
+          }
+        },
+        {
+          "unevaluatedProperties": false
+        }
+      ]
+    },
+    "instance": {
+      "foo": "bar"
+    },
+    "valid": false,
+    "fast": {
+      "pre": [
+        [ "LoopProperties", "/allOf/1/unevaluatedProperties", "#/allOf/1/unevaluatedProperties", "" ],
+        [ "AssertionFail", "/allOf/1/unevaluatedProperties", "#/allOf/1/unevaluatedProperties", "/foo" ]
+      ],
+      "post": [
+        [ false, "AssertionFail", "/allOf/1/unevaluatedProperties", "#/allOf/1/unevaluatedProperties", "/foo" ],
+        [ false, "LoopProperties", "/allOf/1/unevaluatedProperties", "#/allOf/1/unevaluatedProperties", "" ]
+      ],
+      "descriptions": [
+        "The object value was not expected to define the property \"foo\"",
+        "The object value was not expected to define unevaluated properties"
+      ]
+    },
+    "exhaustive": {
+      "pre": [
+        [ "LogicalAnd", "/allOf", "#/allOf", "" ],
+        [ "LogicalWhenType", "/allOf/0/properties", "#/allOf/0/properties", "" ],
+        [ "Annotation", "/allOf/0/properties", "#/allOf/0/properties", "" ],
+        [ "LoopProperties", "/allOf/1/unevaluatedProperties", "#/allOf/1/unevaluatedProperties", "" ],
+        [ "AssertionFail", "/allOf/1/unevaluatedProperties", "#/allOf/1/unevaluatedProperties", "/foo" ]
+      ],
+      "post": [
+        [ true, "Annotation", "/allOf/0/properties", "#/allOf/0/properties", "", "foo" ],
+        [ true, "LogicalWhenType", "/allOf/0/properties", "#/allOf/0/properties", "" ],
+        [ false, "AssertionFail", "/allOf/1/unevaluatedProperties", "#/allOf/1/unevaluatedProperties", "/foo" ],
+        [ false, "LoopProperties", "/allOf/1/unevaluatedProperties", "#/allOf/1/unevaluatedProperties", "" ],
+        [ false, "LogicalAnd", "/allOf", "#/allOf", "" ]
+      ],
+      "descriptions": [
+        "The object property \"foo\" successfully validated against its property subschema",
+        "The object value was expected to validate against the single defined property subschema",
+        "The object value was not expected to define the property \"foo\"",
+        "The object value was not expected to define unevaluated properties",
+        "The object value was expected to validate against the 2 given subschemas"
+      ]
+    }
+  },
+  {
+    "description": "unevaluatedProperties_8",
+    "schema": {
+      "$schema": "https://json-schema.org/draft/2019-09/schema",
+      "not": {
+        "not": {
+          "properties": {
+            "foo": true
+          }
+        }
+      },
+      "unevaluatedProperties": false
+    },
+    "instance": {
+      "foo": "bar"
+    },
+    "valid": false,
+    "fast": {
+      "pre": [
+        [ "LogicalNot", "/not", "#/not", "" ],
+        [ "LogicalNot", "/not/not", "#/not/not", "" ],
+        [ "LoopProperties", "/unevaluatedProperties", "#/unevaluatedProperties", "" ],
+        [ "AssertionFail", "/unevaluatedProperties", "#/unevaluatedProperties", "/foo" ]
+      ],
+      "post": [
+        [ false, "LogicalNot", "/not/not", "#/not/not", "" ],
+        [ true, "LogicalNot", "/not", "#/not", "" ],
+        [ false, "AssertionFail", "/unevaluatedProperties", "#/unevaluatedProperties", "/foo" ],
+        [ false, "LoopProperties", "/unevaluatedProperties", "#/unevaluatedProperties", "" ]
+      ],
+      "descriptions": [
+        "The object value was expected to not validate against the given subschema, but it did",
+        "The object value was expected to not validate against the given subschema",
+        "The object value was not expected to define the property \"foo\"",
+        "The object value was not expected to define unevaluated properties"
+      ]
+    },
+    "exhaustive": {
+      "pre": [
+        [ "LogicalNot", "/not", "#/not", "" ],
+        [ "LogicalNot", "/not/not", "#/not/not", "" ],
+        [ "LogicalWhenType", "/not/not/properties", "#/not/not/properties", "" ],
+        [ "Annotation", "/not/not/properties", "#/not/not/properties", "" ],
+        [ "LoopProperties", "/unevaluatedProperties", "#/unevaluatedProperties", "" ],
+        [ "AssertionFail", "/unevaluatedProperties", "#/unevaluatedProperties", "/foo" ]
+      ],
+      "post": [
+        [ true, "Annotation", "/not/not/properties", "#/not/not/properties", "", "foo" ],
+        [ true, "LogicalWhenType", "/not/not/properties", "#/not/not/properties", "" ],
+        [ false, "LogicalNot", "/not/not", "#/not/not", "" ],
+        [ true, "LogicalNot", "/not", "#/not", "" ],
+        [ false, "AssertionFail", "/unevaluatedProperties", "#/unevaluatedProperties", "/foo" ],
+        [ false, "LoopProperties", "/unevaluatedProperties", "#/unevaluatedProperties", "" ]
+      ],
+      "descriptions": [
+        "The object property \"foo\" successfully validated against its property subschema",
+        "The object value was expected to validate against the single defined property subschema",
+        "The object value was expected to not validate against the given subschema, but it did",
+        "The object value was expected to not validate against the given subschema",
+        "The object value was not expected to define the property \"foo\"",
+        "The object value was not expected to define unevaluated properties"
+      ]
+    }
+  },
+  {
+    "description": "unevaluatedProperties_9",
+    "schema": {
+      "$schema": "https://json-schema.org/draft/2019-09/schema",
+      "unevaluatedProperties": false,
+      "properties": {
+        "a": {
+          "type": "boolean"
+        },
+        "b": {
+          "type": "boolean"
+        },
+        "c": {
+          "type": "boolean"
+        },
+        "d": {
+          "type": "boolean"
+        },
+        "e": {
+          "type": "boolean"
+        },
+        "f": {
+          "type": "boolean"
+        },
+        "g": {
+          "type": "boolean"
+        },
+        "h": {
+          "type": "boolean"
+        },
+        "i": {
+          "type": "boolean"
+        },
+        "j": {
+          "type": "boolean"
+        },
+        "k": {
+          "type": "boolean"
+        },
+        "l": {
+          "type": "boolean"
+        },
+        "m": {
+          "type": "boolean"
+        },
+        "n": {
+          "type": "boolean"
+        },
+        "o": {
+          "type": "boolean"
+        },
+        "p": {
+          "type": "boolean"
+        },
+        "q": {
+          "type": "boolean"
+        },
+        "r": {
+          "type": "boolean"
+        },
+        "s": {
+          "type": "boolean"
+        },
+        "t": {
+          "type": "boolean"
+        },
+        "u": {
+          "type": "boolean"
+        },
+        "v": {
+          "type": "boolean"
+        },
+        "w": {
+          "type": "boolean"
+        },
+        "x": {
+          "type": "boolean"
+        },
+        "y": {
+          "type": "boolean"
+        },
+        "z": {
+          "type": "boolean"
+        }
+      }
+    },
+    "instance": {
+      "a": true
+    },
+    "valid": true,
+    "fast": {
+      "pre": [
+        [ "LoopPropertiesMatch", "/properties", "#/properties", "" ],
+        [ "AssertionPropertyTypeStrict", "/properties/a/type", "#/properties/a/type", "/a" ],
+        [ "LoopPropertiesExcept", "/unevaluatedProperties", "#/unevaluatedProperties", "" ]
+      ],
+      "post": [
+        [ true, "AssertionPropertyTypeStrict", "/properties/a/type", "#/properties/a/type", "/a" ],
+        [ true, "LoopPropertiesMatch", "/properties", "#/properties", "" ],
+        [ true, "LoopPropertiesExcept", "/unevaluatedProperties", "#/unevaluatedProperties", "" ]
+      ],
+      "descriptions": [
+        "The value was expected to be of type boolean",
+        "The object value was expected to validate against the 26 defined properties subschemas",
+        "The object value was not expected to define unevaluated properties"
+      ]
+    },
+    "exhaustive": {
+      "pre": [
+        [ "LoopPropertiesMatch", "/properties", "#/properties", "" ],
+        [ "AssertionTypeStrict", "/properties/a/type", "#/properties/a/type", "/a" ],
+        [ "Annotation", "/properties", "#/properties", "" ],
+        [ "LoopPropertiesExcept", "/unevaluatedProperties", "#/unevaluatedProperties", "" ]
+      ],
+      "post": [
+        [ true, "AssertionTypeStrict", "/properties/a/type", "#/properties/a/type", "/a" ],
+        [ true, "Annotation", "/properties", "#/properties", "", "a" ],
+        [ true, "LoopPropertiesMatch", "/properties", "#/properties", "" ],
+        [ true, "LoopPropertiesExcept", "/unevaluatedProperties", "#/unevaluatedProperties", "" ]
+      ],
+      "descriptions": [
+        "The value was expected to be of type boolean",
+        "The object property \"a\" successfully validated against its property subschema",
+        "The object value was expected to validate against the 26 defined properties subschemas",
+        "The object value was not expected to define unevaluated properties"
+      ]
+    }
+  },
+  {
+    "description": "unevaluatedProperties_10",
+    "schema": {
+      "$schema": "https://json-schema.org/draft/2019-09/schema",
+      "additionalProperties": {
+        "type": "string"
+      },
+      "unevaluatedProperties": false
+    },
+    "instance": {
+      "foo": "baz"
+    },
+    "valid": true,
+    "fast": {
+      "pre": [
+        [ "LoopPropertiesTypeStrict", "/additionalProperties/type", "#/additionalProperties/type", "" ]
+      ],
+      "post": [
+        [ true, "LoopPropertiesTypeStrict", "/additionalProperties/type", "#/additionalProperties/type", "" ]
+      ],
+      "descriptions": [
+        "The object properties were expected to be of type string"
+      ]
+    },
+    "exhaustive": {
+      "pre": [
+        [ "LoopProperties", "/additionalProperties", "#/additionalProperties", "" ],
+        [ "AssertionTypeStrict", "/additionalProperties/type", "#/additionalProperties/type", "/foo" ],
+        [ "Annotation", "/additionalProperties", "#/additionalProperties", "" ]
+      ],
+      "post": [
+        [ true, "AssertionTypeStrict", "/additionalProperties/type", "#/additionalProperties/type", "/foo" ],
+        [ true, "Annotation", "/additionalProperties", "#/additionalProperties", "", "foo" ],
+        [ true, "LoopProperties", "/additionalProperties", "#/additionalProperties", "" ]
+      ],
+      "descriptions": [
+        "The value was expected to be of type string",
+        "The object property \"foo\" successfully validated against the additional properties subschema",
+        "The object properties not covered by other adjacent object keywords were expected to validate against this subschema"
+      ]
+    }
+  },
+  {
+    "description": "unevaluatedProperties_11",
+    "schema": {
+      "$schema": "https://json-schema.org/draft/2019-09/schema",
+      "unevaluatedProperties": false,
+      "allOf": [
+        {
+          "patternProperties": {
+            "^f": true
+          }
+        }
+      ]
+    },
+    "instance": {
+      "foo": "bar"
+    },
+    "valid": true,
+    "fast": {
+      "pre": [
+        [ "LoopPropertiesExcept", "/unevaluatedProperties", "#/unevaluatedProperties", "" ]
+      ],
+      "post": [
+        [ true, "LoopPropertiesExcept", "/unevaluatedProperties", "#/unevaluatedProperties", "" ]
+      ],
+      "descriptions": [
+        "The object value was not expected to define unevaluated properties"
+      ]
+    }
+  },
+  {
+    "description": "unevaluatedProperties_12",
+    "schema": {
+      "$schema": "https://json-schema.org/draft/2019-09/schema",
+      "unevaluatedProperties": {
+        "type": "boolean"
+      },
+      "allOf": [
+        {
+          "properties": {
+            "foo": {
+              "type": "number"
+            }
+          }
+        }
+      ]
+    },
+    "instance": {
+      "foo": 1,
+      "bar": true
+    },
+    "valid": true,
+    "fast": {
+      "pre": [
+        [ "AssertionPropertyTypeStrictAny", "/allOf/0/properties/foo/type", "#/allOf/0/properties/foo/type", "/foo" ],
+        [ "LoopPropertiesExcept", "/unevaluatedProperties", "#/unevaluatedProperties", "" ],
+        [ "AssertionTypeStrict", "/unevaluatedProperties/type", "#/unevaluatedProperties/type", "/bar" ]
+      ],
+      "post": [
+        [ true, "AssertionPropertyTypeStrictAny", "/allOf/0/properties/foo/type", "#/allOf/0/properties/foo/type", "/foo" ],
+        [ true, "AssertionTypeStrict", "/unevaluatedProperties/type", "#/unevaluatedProperties/type", "/bar" ],
+        [ true, "LoopPropertiesExcept", "/unevaluatedProperties", "#/unevaluatedProperties", "" ]
+      ],
+      "descriptions": [
+        "The value was expected to be of type number",
+        "The value was expected to be of type boolean",
+        "The object properties not covered by other object keywords were expected to validate against this subschema"
+      ]
+    }
+  },
+  {
+    "description": "unevaluatedProperties_13",
+    "schema": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "properties": {
+        "foo": {
+          "type": "object"
+        }
+      },
+      "allOf": [
+        {
+          "properties": {
+            "bar": true
+          }
+        }
+      ],
+      "unevaluatedProperties": false
+    },
+    "instance": {
+      "foo": {},
+      "bar": {}
+    },
+    "valid": true,
+    "fast": {
+      "pre": [
+        [ "AssertionPropertyTypeStrict", "/properties/foo/type", "#/properties/foo/type", "/foo" ],
+        [ "LoopPropertiesExcept", "/unevaluatedProperties", "#/unevaluatedProperties", "" ]
+      ],
+      "post": [
+        [ true, "AssertionPropertyTypeStrict", "/properties/foo/type", "#/properties/foo/type", "/foo" ],
+        [ true, "LoopPropertiesExcept", "/unevaluatedProperties", "#/unevaluatedProperties", "" ]
+      ],
+      "descriptions": [
+        "The value was expected to be of type object",
+        "The object value was not expected to define unevaluated properties"
+      ]
+    }
+  },
+  {
+    "description": "unevaluatedProperties_14",
+    "schema": {
+      "$schema": "https://json-schema.org/draft/2019-09/schema",
+      "anyOf": [
+        {
+          "properties": {
+            "foo": true
+          }
+        }
+      ],
+      "unevaluatedProperties": false
+    },
+    "instance": {
+      "foo": 1
+    },
+    "valid": true,
+    "fast": {
+      "pre": [
+        [ "LogicalOr", "/anyOf", "#/anyOf", "" ],
+        [ "Evaluate", "/anyOf/0/properties", "#/anyOf/0/properties", "/foo" ],
+        [ "LoopPropertiesUnevaluated", "/unevaluatedProperties", "#/unevaluatedProperties", "" ]
+      ],
+      "post": [
+        [ true, "Evaluate", "/anyOf/0/properties", "#/anyOf/0/properties", "/foo" ],
+        [ true, "LogicalOr", "/anyOf", "#/anyOf", "" ],
+        [ true, "LoopPropertiesUnevaluated", "/unevaluatedProperties", "#/unevaluatedProperties", "" ]
+      ],
+      "descriptions": [
+        "The instance location was marked as evaluated",
+        "The object value was expected to validate against the given subschema",
+        "The object value was not expected to define unevaluated properties"
+      ]
+    },
+    "exhaustive": {
+      "pre": [
+        [ "LogicalOr", "/anyOf", "#/anyOf", "" ],
+        [ "LogicalWhenType", "/anyOf/0/properties", "#/anyOf/0/properties", "" ],
+        [ "Annotation", "/anyOf/0/properties", "#/anyOf/0/properties", "" ],
+        [ "Evaluate", "/anyOf/0/properties", "#/anyOf/0/properties", "/foo" ],
+        [ "LoopPropertiesUnevaluated", "/unevaluatedProperties", "#/unevaluatedProperties", "" ]
+      ],
+      "post": [
+        [ true, "Annotation", "/anyOf/0/properties", "#/anyOf/0/properties", "", "foo" ],
+        [ true, "Evaluate", "/anyOf/0/properties", "#/anyOf/0/properties", "/foo" ],
+        [ true, "LogicalWhenType", "/anyOf/0/properties", "#/anyOf/0/properties", "" ],
+        [ true, "LogicalOr", "/anyOf", "#/anyOf", "" ],
+        [ true, "LoopPropertiesUnevaluated", "/unevaluatedProperties", "#/unevaluatedProperties", "" ]
+      ],
+      "descriptions": [
+        "The object property \"foo\" successfully validated against its property subschema",
+        "The instance location was marked as evaluated",
+        "The object value was expected to validate against the single defined property subschema",
+        "The object value was expected to validate against the given subschema",
+        "The object value was not expected to define unevaluated properties"
+      ]
+    }
+  },
+  {
+    "description": "unevaluatedItems_1",
+    "schema": {
+      "$schema": "https://json-schema.org/draft/2019-09/schema",
+      "unevaluatedItems": {
+        "type": "boolean"
+      }
+    },
+    "instance": [],
+    "valid": true,
+    "fast": {
+      "pre": [
+        [ "LoopItemsUnevaluated", "/unevaluatedItems", "#/unevaluatedItems", "" ]
+      ],
+      "post": [
+        [ true, "LoopItemsUnevaluated", "/unevaluatedItems", "#/unevaluatedItems", "" ]
+      ],
+      "descriptions": [
+        "The array items not covered by other array keywords, if any, were expected to validate against this subschema"
+      ]
+    }
+  },
+  {
+    "description": "unevaluatedItems_2",
+    "schema": {
+      "$schema": "https://json-schema.org/draft/2019-09/schema",
+      "unevaluatedItems": {
+        "type": "boolean"
+      }
+    },
+    "instance": [ true, false ],
+    "valid": true,
+    "fast": {
+      "pre": [
+        [ "LoopItemsUnevaluated", "/unevaluatedItems", "#/unevaluatedItems", "" ],
+        [ "AssertionTypeStrict", "/unevaluatedItems/type", "#/unevaluatedItems/type", "/0" ],
+        [ "AssertionTypeStrict", "/unevaluatedItems/type", "#/unevaluatedItems/type", "/1" ]
+      ],
+      "post": [
+        [ true, "AssertionTypeStrict", "/unevaluatedItems/type", "#/unevaluatedItems/type", "/0" ],
+        [ true, "AssertionTypeStrict", "/unevaluatedItems/type", "#/unevaluatedItems/type", "/1" ],
+        [ true, "LoopItemsUnevaluated", "/unevaluatedItems", "#/unevaluatedItems", "" ]
+      ],
+      "descriptions": [
+        "The value was expected to be of type boolean",
+        "The value was expected to be of type boolean",
+        "The array items not covered by other array keywords, if any, were expected to validate against this subschema"
+      ]
+    },
+    "exhaustive": {
+      "pre": [
+        [ "LoopItemsUnevaluated", "/unevaluatedItems", "#/unevaluatedItems", "" ],
+        [ "AssertionTypeStrict", "/unevaluatedItems/type", "#/unevaluatedItems/type", "/0" ],
+        [ "Annotation", "/unevaluatedItems", "#/unevaluatedItems", "" ],
+        [ "AssertionTypeStrict", "/unevaluatedItems/type", "#/unevaluatedItems/type", "/1" ],
+        [ "Annotation", "/unevaluatedItems", "#/unevaluatedItems", "" ]
+      ],
+      "post": [
+        [ true, "AssertionTypeStrict", "/unevaluatedItems/type", "#/unevaluatedItems/type", "/0" ],
+        [ true, "Annotation", "/unevaluatedItems", "#/unevaluatedItems", "", true ],
+        [ true, "AssertionTypeStrict", "/unevaluatedItems/type", "#/unevaluatedItems/type", "/1" ],
+        [ true, "Annotation", "/unevaluatedItems", "#/unevaluatedItems", "", true ],
+        [ true, "LoopItemsUnevaluated", "/unevaluatedItems", "#/unevaluatedItems", "" ]
+      ],
+      "descriptions": [
+        "The value was expected to be of type boolean",
+        "At least one item of the array value successfully validated against the subschema for unevaluated items",
+        "The value was expected to be of type boolean",
+        "At least one item of the array value successfully validated against the subschema for unevaluated items",
+        "The array items not covered by other array keywords, if any, were expected to validate against this subschema"
+      ]
+    }
+  },
+  {
+    "description": "unevaluatedItems_3",
+    "schema": {
+      "$schema": "https://json-schema.org/draft/2019-09/schema",
+      "items": {
+        "type": "string"
+      },
+      "unevaluatedItems": {
+        "type": "boolean"
+      }
+    },
+    "instance": [ "foo" ],
+    "valid": true,
+    "fast": {
+      "pre": [
+        [ "LoopItemsTypeStrict", "/items", "#/items", "" ]
+      ],
+      "post": [
+        [ true, "LoopItemsTypeStrict", "/items", "#/items", "" ]
+      ],
+      "descriptions": [ "The array items were expected to be of type string" ]
+    },
+    "exhaustive": {
+      "pre": [
+        [ "LoopItems", "/items", "#/items", "" ],
+        [ "AssertionTypeStrict", "/items/type", "#/items/type", "/0" ],
+        [ "LogicalWhenType", "/items", "#/items", "" ],
+        [ "Annotation", "/items", "#/items", "" ]
+      ],
+      "post": [
+        [ true, "AssertionTypeStrict", "/items/type", "#/items/type", "/0" ],
+        [ true, "LoopItems", "/items", "#/items", "" ],
+        [ true, "Annotation", "/items", "#/items", "", true ],
+        [ true, "LogicalWhenType", "/items", "#/items", "" ]
+      ],
+      "descriptions": [
+        "The value was expected to be of type string",
+        "Every item in the array value was expected to validate against the given subschema",
+        "Every item in the array value was successfully validated",
+        "The value was expected to be of type array"
+      ]
+    }
+  },
+  {
+    "description": "unevaluatedItems_4",
+    "schema": {
+      "$schema": "https://json-schema.org/draft/2019-09/schema",
+      "items": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "string"
+        }
+      ],
+      "unevaluatedItems": {
+        "type": "boolean"
+      }
+    },
+    "instance": [ "foo" ],
+    "valid": true,
+    "fast": {
+      "pre": [
+        [ "AssertionArrayPrefixEvaluate", "/items", "#/items", "" ],
+        [ "AssertionTypeStrict", "/items/0/type", "#/items/0/type", "/0" ],
+        [ "LoopItemsUnevaluated", "/unevaluatedItems", "#/unevaluatedItems", "" ]
+      ],
+      "post": [
+        [ true, "AssertionTypeStrict", "/items/0/type", "#/items/0/type", "/0" ],
+        [ true, "AssertionArrayPrefixEvaluate", "/items", "#/items", "" ],
+        [ true, "LoopItemsUnevaluated", "/unevaluatedItems", "#/unevaluatedItems", "" ]
+      ],
+      "descriptions": [
+        "The value was expected to be of type string",
+        "The first 2 items of the array value were expected to validate against the corresponding subschemas",
+        "The array items not covered by other array keywords, if any, were expected to validate against this subschema"
+      ]
+    },
+    "exhaustive": {
+      "pre": [
+        [ "AssertionArrayPrefixEvaluate", "/items", "#/items", "" ],
+        [ "AssertionTypeStrict", "/items/0/type", "#/items/0/type", "/0" ],
+        [ "Annotation", "/items", "#/items", "" ],
+        [ "LoopItemsUnevaluated", "/unevaluatedItems", "#/unevaluatedItems", "" ]
+      ],
+      "post": [
+        [ true, "AssertionTypeStrict", "/items/0/type", "#/items/0/type", "/0" ],
+        [ true, "Annotation", "/items", "#/items", "", 0 ],
+        [ true, "AssertionArrayPrefixEvaluate", "/items", "#/items", "" ],
+        [ true, "LoopItemsUnevaluated", "/unevaluatedItems", "#/unevaluatedItems", "" ]
+      ],
+      "descriptions": [
+        "The value was expected to be of type string",
+        "The first item of the array value successfully validated against the first positional subschema",
+        "The first 2 items of the array value were expected to validate against the corresponding subschemas",
+        "The array items not covered by other array keywords, if any, were expected to validate against this subschema"
+      ]
+    }
+  },
+  {
+    "description": "unevaluatedItems_5",
+    "schema": {
+      "$schema": "https://json-schema.org/draft/2019-09/schema",
+      "items": [
+        {
+          "type": "string"
+        }
+      ],
+      "unevaluatedItems": {
+        "type": "boolean"
+      }
+    },
+    "instance": [ "foo" ],
+    "valid": true,
+    "fast": {
+      "pre": [
+        [ "AssertionArrayPrefixEvaluate", "/items", "#/items", "" ],
+        [ "AssertionTypeStrict", "/items/0/type", "#/items/0/type", "/0" ],
+        [ "LoopItemsUnevaluated", "/unevaluatedItems", "#/unevaluatedItems", "" ]
+      ],
+      "post": [
+        [ true, "AssertionTypeStrict", "/items/0/type", "#/items/0/type", "/0" ],
+        [ true, "AssertionArrayPrefixEvaluate", "/items", "#/items", "" ],
+        [ true, "LoopItemsUnevaluated", "/unevaluatedItems", "#/unevaluatedItems", "" ]
+      ],
+      "descriptions": [
+        "The value was expected to be of type string",
+        "The first item of the array value was expected to validate against the corresponding subschemas",
+        "The array items not covered by other array keywords, if any, were expected to validate against this subschema"
+      ]
+    },
+    "exhaustive": {
+      "pre": [
+        [ "AssertionArrayPrefixEvaluate", "/items", "#/items", "" ],
+        [ "AssertionTypeStrict", "/items/0/type", "#/items/0/type", "/0" ],
+        [ "Annotation", "/items", "#/items", "" ],
+        [ "Annotation", "/items", "#/items", "" ],
+        [ "LoopItemsUnevaluated", "/unevaluatedItems", "#/unevaluatedItems", "" ]
+      ],
+      "post": [
+        [ true, "AssertionTypeStrict", "/items/0/type", "#/items/0/type", "/0" ],
+        [ true, "Annotation", "/items", "#/items", "", 0 ],
+        [ true, "Annotation", "/items", "#/items", "", true ],
+        [ true, "AssertionArrayPrefixEvaluate", "/items", "#/items", "" ],
+        [ true, "LoopItemsUnevaluated", "/unevaluatedItems", "#/unevaluatedItems", "" ]
+      ],
+      "descriptions": [
+        "The value was expected to be of type string",
+        "The first item of the array value successfully validated against the first positional subschema",
+        "Every item in the array value was successfully validated",
+        "The first item of the array value was expected to validate against the corresponding subschemas",
+        "The array items not covered by other array keywords, if any, were expected to validate against this subschema"
+      ]
+    }
+  },
+  {
+    "description": "unevaluatedItems_6",
+    "schema": {
+      "$schema": "https://json-schema.org/draft/2019-09/schema",
+      "items": [
+        {
+          "type": "string"
+        }
+      ],
+      "unevaluatedItems": {
+        "type": "boolean"
+      }
+    },
+    "instance": [ "foo", true ],
+    "valid": true,
+    "fast": {
+      "pre": [
+        [ "AssertionArrayPrefixEvaluate", "/items", "#/items", "" ],
+        [ "AssertionTypeStrict", "/items/0/type", "#/items/0/type", "/0" ],
+        [ "LoopItemsUnevaluated", "/unevaluatedItems", "#/unevaluatedItems", "" ],
+        [ "AssertionTypeStrict", "/unevaluatedItems/type", "#/unevaluatedItems/type", "/1" ]
+      ],
+      "post": [
+        [ true, "AssertionTypeStrict", "/items/0/type", "#/items/0/type", "/0" ],
+        [ true, "AssertionArrayPrefixEvaluate", "/items", "#/items", "" ],
+        [ true, "AssertionTypeStrict", "/unevaluatedItems/type", "#/unevaluatedItems/type", "/1" ],
+        [ true, "LoopItemsUnevaluated", "/unevaluatedItems", "#/unevaluatedItems", "" ]
+      ],
+      "descriptions": [
+        "The value was expected to be of type string",
+        "The first item of the array value was expected to validate against the corresponding subschemas",
+        "The value was expected to be of type boolean",
+        "The array items not covered by other array keywords, if any, were expected to validate against this subschema"
+      ]
+    },
+    "exhaustive": {
+      "pre": [
+        [ "AssertionArrayPrefixEvaluate", "/items", "#/items", "" ],
+        [ "AssertionTypeStrict", "/items/0/type", "#/items/0/type", "/0" ],
+        [ "Annotation", "/items", "#/items", "" ],
+        [ "LoopItemsUnevaluated", "/unevaluatedItems", "#/unevaluatedItems", "" ],
+        [ "AssertionTypeStrict", "/unevaluatedItems/type", "#/unevaluatedItems/type", "/1" ],
+        [ "Annotation", "/unevaluatedItems", "#/unevaluatedItems", "" ]
+      ],
+      "post": [
+        [ true, "AssertionTypeStrict", "/items/0/type", "#/items/0/type", "/0" ],
+        [ true, "Annotation", "/items", "#/items", "", 0 ],
+        [ true, "AssertionArrayPrefixEvaluate", "/items", "#/items", "" ],
+        [ true, "AssertionTypeStrict", "/unevaluatedItems/type", "#/unevaluatedItems/type", "/1" ],
+        [ true, "Annotation", "/unevaluatedItems", "#/unevaluatedItems", "", true ],
+        [ true, "LoopItemsUnevaluated", "/unevaluatedItems", "#/unevaluatedItems", "" ]
+      ],
+      "descriptions": [
+        "The value was expected to be of type string",
+        "The first item of the array value successfully validated against the first positional subschema",
+        "The first item of the array value was expected to validate against the corresponding subschemas",
+        "The value was expected to be of type boolean",
+        "At least one item of the array value successfully validated against the subschema for unevaluated items",
+        "The array items not covered by other array keywords, if any, were expected to validate against this subschema"
+      ]
+    }
+  },
+  {
+    "description": "unevaluatedItems_7",
+    "schema": {
+      "$schema": "https://json-schema.org/draft/2019-09/schema",
+      "allOf": [
+        {
+          "items": [
+            {
+              "type": "string"
+            }
+          ]
+        }
+      ],
+      "unevaluatedItems": {
+        "type": "boolean"
+      }
+    },
+    "instance": [ "foo", true ],
+    "valid": true,
+    "fast": {
+      "pre": [
+        [ "AssertionArrayPrefixEvaluate", "/allOf/0/items", "#/allOf/0/items", "" ],
+        [ "AssertionTypeStrict", "/allOf/0/items/0/type", "#/allOf/0/items/0/type", "/0" ],
+        [ "LoopItemsUnevaluated", "/unevaluatedItems", "#/unevaluatedItems", "" ],
+        [ "AssertionTypeStrict", "/unevaluatedItems/type", "#/unevaluatedItems/type", "/1" ]
+      ],
+      "post": [
+        [ true, "AssertionTypeStrict", "/allOf/0/items/0/type", "#/allOf/0/items/0/type", "/0" ],
+        [ true, "AssertionArrayPrefixEvaluate", "/allOf/0/items", "#/allOf/0/items", "" ],
+        [ true, "AssertionTypeStrict", "/unevaluatedItems/type", "#/unevaluatedItems/type", "/1" ],
+        [ true, "LoopItemsUnevaluated", "/unevaluatedItems", "#/unevaluatedItems", "" ]
+      ],
+      "descriptions": [
+        "The value was expected to be of type string",
+        "The first item of the array value was expected to validate against the corresponding subschemas",
+        "The value was expected to be of type boolean",
+        "The array items not covered by other array keywords, if any, were expected to validate against this subschema"
+      ]
+    },
+    "exhaustive": {
+      "pre": [
+        [ "LogicalAnd", "/allOf", "#/allOf", "" ],
+        [ "AssertionArrayPrefixEvaluate", "/allOf/0/items", "#/allOf/0/items", "" ],
+        [ "AssertionTypeStrict", "/allOf/0/items/0/type", "#/allOf/0/items/0/type", "/0" ],
+        [ "Annotation", "/allOf/0/items", "#/allOf/0/items", "" ],
+        [ "LoopItemsUnevaluated", "/unevaluatedItems", "#/unevaluatedItems", "" ],
+        [ "AssertionTypeStrict", "/unevaluatedItems/type", "#/unevaluatedItems/type", "/1" ],
+        [ "Annotation", "/unevaluatedItems", "#/unevaluatedItems", "" ]
+      ],
+      "post": [
+        [ true, "AssertionTypeStrict", "/allOf/0/items/0/type", "#/allOf/0/items/0/type", "/0" ],
+        [ true, "Annotation", "/allOf/0/items", "#/allOf/0/items", "", 0 ],
+        [ true, "AssertionArrayPrefixEvaluate", "/allOf/0/items", "#/allOf/0/items", "" ],
+        [ true, "LogicalAnd", "/allOf", "#/allOf", "" ],
+        [ true, "AssertionTypeStrict", "/unevaluatedItems/type", "#/unevaluatedItems/type", "/1" ],
+        [ true, "Annotation", "/unevaluatedItems", "#/unevaluatedItems", "", true ],
+        [ true, "LoopItemsUnevaluated", "/unevaluatedItems", "#/unevaluatedItems", "" ]
+      ],
+      "descriptions": [
+        "The value was expected to be of type string",
+        "The first item of the array value successfully validated against the first positional subschema",
+        "The first item of the array value was expected to validate against the corresponding subschemas",
+        "The array value was expected to validate against the given subschema",
+        "The value was expected to be of type boolean",
+        "At least one item of the array value successfully validated against the subschema for unevaluated items",
+        "The array items not covered by other array keywords, if any, were expected to validate against this subschema"
+      ]
+    }
+  },
+  {
+    "description": "unevaluatedItems_8",
+    "schema": {
+      "$schema": "https://json-schema.org/draft/2019-09/schema",
+      "allOf": [
+        {
+          "items": [
+            {
+              "type": "string"
+            }
+          ]
+        }
+      ],
+      "unevaluatedItems": {
+        "type": "boolean"
+      }
+    },
+    "instance": [ "foo", 1 ],
+    "valid": false,
+    "fast": {
+      "pre": [
+        [ "AssertionArrayPrefixEvaluate", "/allOf/0/items", "#/allOf/0/items", "" ],
+        [ "AssertionTypeStrict", "/allOf/0/items/0/type", "#/allOf/0/items/0/type", "/0" ],
+        [ "LoopItemsUnevaluated", "/unevaluatedItems", "#/unevaluatedItems", "" ],
+        [ "AssertionTypeStrict", "/unevaluatedItems/type", "#/unevaluatedItems/type", "/1" ]
+      ],
+      "post": [
+        [ true, "AssertionTypeStrict", "/allOf/0/items/0/type", "#/allOf/0/items/0/type", "/0" ],
+        [ true, "AssertionArrayPrefixEvaluate", "/allOf/0/items", "#/allOf/0/items", "" ],
+        [ false, "AssertionTypeStrict", "/unevaluatedItems/type", "#/unevaluatedItems/type", "/1" ],
+        [ false, "LoopItemsUnevaluated", "/unevaluatedItems", "#/unevaluatedItems", "" ]
+      ],
+      "descriptions": [
+        "The value was expected to be of type string",
+        "The first item of the array value was expected to validate against the corresponding subschemas",
+        "The value was expected to be of type boolean but it was of type integer",
+        "The array items not covered by other array keywords, if any, were expected to validate against this subschema"
+      ]
+    },
+    "exhaustive": {
+      "pre": [
+        [ "LogicalAnd", "/allOf", "#/allOf", "" ],
+        [ "AssertionArrayPrefixEvaluate", "/allOf/0/items", "#/allOf/0/items", "" ],
+        [ "AssertionTypeStrict", "/allOf/0/items/0/type", "#/allOf/0/items/0/type", "/0" ],
+        [ "Annotation", "/allOf/0/items", "#/allOf/0/items", "" ],
+        [ "LoopItemsUnevaluated", "/unevaluatedItems", "#/unevaluatedItems", "" ],
+        [ "AssertionTypeStrict", "/unevaluatedItems/type", "#/unevaluatedItems/type", "/1" ]
+      ],
+      "post": [
+        [ true, "AssertionTypeStrict", "/allOf/0/items/0/type", "#/allOf/0/items/0/type", "/0" ],
+        [ true, "Annotation", "/allOf/0/items", "#/allOf/0/items", "", 0 ],
+        [ true, "AssertionArrayPrefixEvaluate", "/allOf/0/items", "#/allOf/0/items", "" ],
+        [ true, "LogicalAnd", "/allOf", "#/allOf", "" ],
+        [ false, "AssertionTypeStrict", "/unevaluatedItems/type", "#/unevaluatedItems/type", "/1" ],
+        [ false, "LoopItemsUnevaluated", "/unevaluatedItems", "#/unevaluatedItems", "" ]
+      ],
+      "descriptions": [
+        "The value was expected to be of type string",
+        "The first item of the array value successfully validated against the first positional subschema",
+        "The first item of the array value was expected to validate against the corresponding subschemas",
+        "The array value was expected to validate against the given subschema",
+        "The value was expected to be of type boolean but it was of type integer",
+        "The array items not covered by other array keywords, if any, were expected to validate against this subschema"
+      ]
+    }
+  },
+  {
+    "description": "unevaluatedItems_9",
+    "schema": {
+      "$schema": "https://json-schema.org/draft/2019-09/schema",
+      "items": [
+        {
+          "type": "boolean"
+        }
+      ],
+      "additionalItems": {
+        "type": "boolean"
+      },
+      "unevaluatedItems": false
+    },
+    "instance": [ true, false ],
+    "valid": true,
+    "fast": {
+      "pre": [
+        [ "AssertionArrayPrefixEvaluate", "/items", "#/items", "" ],
+        [ "AssertionTypeStrict", "/items/0/type", "#/items/0/type", "/0" ],
+        [ "LoopItemsFrom", "/additionalItems", "#/additionalItems", "" ],
+        [ "AssertionTypeStrict", "/additionalItems/type", "#/additionalItems/type", "/1" ]
+      ],
+      "post": [
+        [ true, "AssertionTypeStrict", "/items/0/type", "#/items/0/type", "/0" ],
+        [ true, "AssertionArrayPrefixEvaluate", "/items", "#/items", "" ],
+        [ true, "AssertionTypeStrict", "/additionalItems/type", "#/additionalItems/type", "/1" ],
+        [ true, "LoopItemsFrom", "/additionalItems", "#/additionalItems", "" ]
+      ],
+      "descriptions": [
+        "The value was expected to be of type boolean",
+        "The first item of the array value was expected to validate against the corresponding subschemas",
+        "The value was expected to be of type boolean",
+        "Every item in the array value except for the first one was expected to validate against the given subschema"
+      ]
+    },
+    "exhaustive": {
+      "pre": [
+        [ "AssertionArrayPrefixEvaluate", "/items", "#/items", "" ],
+        [ "AssertionTypeStrict", "/items/0/type", "#/items/0/type", "/0" ],
+        [ "Annotation", "/items", "#/items", "" ],
+        [ "LoopItemsFrom", "/additionalItems", "#/additionalItems", "" ],
+        [ "AssertionTypeStrict", "/additionalItems/type", "#/additionalItems/type", "/1" ],
+        [ "LogicalWhenArraySizeGreater", "/additionalItems", "#/additionalItems", "" ],
+        [ "Annotation", "/additionalItems", "#/additionalItems", "" ]
+      ],
+      "post": [
+        [ true, "AssertionTypeStrict", "/items/0/type", "#/items/0/type", "/0" ],
+        [ true, "Annotation", "/items", "#/items", "", 0 ],
+        [ true, "AssertionArrayPrefixEvaluate", "/items", "#/items", "" ],
+        [ true, "AssertionTypeStrict", "/additionalItems/type", "#/additionalItems/type", "/1" ],
+        [ true, "LoopItemsFrom", "/additionalItems", "#/additionalItems", "" ],
+        [ true, "Annotation", "/additionalItems", "#/additionalItems", "", true ],
+        [ true, "LogicalWhenArraySizeGreater", "/additionalItems", "#/additionalItems", "" ]
+      ],
+      "descriptions": [
+        "The value was expected to be of type boolean",
+        "The first item of the array value successfully validated against the first positional subschema",
+        "The first item of the array value was expected to validate against the corresponding subschemas",
+        "The value was expected to be of type boolean",
+        "Every item in the array value except for the first one was expected to validate against the given subschema",
+        "Every item in the array value was successfully validated",
+        "The array value contains 1 additional item not described by related keywords"
+      ]
+    }
+  },
+  {
+    "description": "unevaluatedItems_10",
+    "schema": {
+      "$schema": "https://json-schema.org/draft/2019-09/schema",
+      "contains": {
+        "type": "boolean"
+      },
+      "unevaluatedItems": false
+    },
+    "instance": [ false ],
+    "valid": false,
+    "fast": {
+      "pre": [
+        [ "LoopContains", "/contains", "#/contains", "" ],
+        [ "AssertionTypeStrict", "/contains/type", "#/contains/type", "/0" ],
+        [ "LoopItemsUnevaluated", "/unevaluatedItems", "#/unevaluatedItems", "" ],
+        [ "AssertionFail", "/unevaluatedItems", "#/unevaluatedItems", "/0" ]
+      ],
+      "post": [
+        [ true, "AssertionTypeStrict", "/contains/type", "#/contains/type", "/0" ],
+        [ true, "LoopContains", "/contains", "#/contains", "" ],
+        [ false, "AssertionFail", "/unevaluatedItems", "#/unevaluatedItems", "/0" ],
+        [ false, "LoopItemsUnevaluated", "/unevaluatedItems", "#/unevaluatedItems", "" ]
+      ],
+      "descriptions": [
+        "The value was expected to be of type boolean",
+        "The array value was expected to contain at least 1 item that validates against the given subschema",
+        "The array value was not expected to define the item at index 0",
+        "The array items not covered by other array keywords, if any, were expected to validate against this subschema"
+      ]
+    },
+    "exhaustive": {
+      "pre": [
+        [ "LoopContains", "/contains", "#/contains", "" ],
+        [ "AssertionTypeStrict", "/contains/type", "#/contains/type", "/0" ],
+        [ "LoopItemsUnevaluated", "/unevaluatedItems", "#/unevaluatedItems", "" ],
+        [ "AssertionFail", "/unevaluatedItems", "#/unevaluatedItems", "/0" ]
+      ],
+      "post": [
+        [ true, "AssertionTypeStrict", "/contains/type", "#/contains/type", "/0" ],
+        [ true, "LoopContains", "/contains", "#/contains", "" ],
+        [ false, "AssertionFail", "/unevaluatedItems", "#/unevaluatedItems", "/0" ],
+        [ false, "LoopItemsUnevaluated", "/unevaluatedItems", "#/unevaluatedItems", "" ]
+      ],
+      "descriptions": [
+        "The value was expected to be of type boolean",
+        "The array value was expected to contain at least 1 item that validates against the given subschema",
+        "The array value was not expected to define the item at index 0",
+        "The array items not covered by other array keywords, if any, were expected to validate against this subschema"
+      ]
+    }
+  },
+  {
+    "description": "unevaluatedItems_11",
+    "schema": {
+      "$schema": "https://json-schema.org/draft/2019-09/schema",
+      "anyOf": [
+        {
+          "items": {
+            "type": "boolean"
+          }
+        },
+        true
+      ],
+      "unevaluatedItems": false
+    },
+    "instance": [ false, 1 ],
+    "valid": false,
+    "fast": {
+      "pre": [
+        [ "LogicalOr", "/anyOf", "#/anyOf", "" ],
+        [ "LoopItems", "/anyOf/0/items", "#/anyOf/0/items", "" ],
+        [ "AssertionTypeStrict", "/anyOf/0/items/type", "#/anyOf/0/items/type", "/0" ],
+        [ "AssertionTypeStrict", "/anyOf/0/items/type", "#/anyOf/0/items/type", "/1" ],
+        [ "LoopItemsUnevaluated", "/unevaluatedItems", "#/unevaluatedItems", "" ],
+        [ "AssertionFail", "/unevaluatedItems", "#/unevaluatedItems", "/0" ]
+      ],
+      "post": [
+        [ true, "AssertionTypeStrict", "/anyOf/0/items/type", "#/anyOf/0/items/type", "/0" ],
+        [ false, "AssertionTypeStrict", "/anyOf/0/items/type", "#/anyOf/0/items/type", "/1" ],
+        [ false, "LoopItems", "/anyOf/0/items", "#/anyOf/0/items", "" ],
+        [ true, "LogicalOr", "/anyOf", "#/anyOf", "" ],
+        [ false, "AssertionFail", "/unevaluatedItems", "#/unevaluatedItems", "/0" ],
+        [ false, "LoopItemsUnevaluated", "/unevaluatedItems", "#/unevaluatedItems", "" ]
+      ],
+      "descriptions": [
+        "The value was expected to be of type boolean",
+        "The value was expected to be of type boolean but it was of type integer",
+        "Every item in the array value was expected to validate against the given subschema",
+        "The array value was expected to validate against at least one of the 2 given subschemas",
+        "The array value was not expected to define the item at index 0",
+        "The array items not covered by other array keywords, if any, were expected to validate against this subschema"
+      ]
+    },
+    "exhaustive": {
+      "pre": [
+        [ "LogicalOr", "/anyOf", "#/anyOf", "" ],
+        [ "LoopItems", "/anyOf/0/items", "#/anyOf/0/items", "" ],
+        [ "AssertionTypeStrict", "/anyOf/0/items/type", "#/anyOf/0/items/type", "/0" ],
+        [ "AssertionTypeStrict", "/anyOf/0/items/type", "#/anyOf/0/items/type", "/1" ],
+        [ "LoopItemsUnevaluated", "/unevaluatedItems", "#/unevaluatedItems", "" ],
+        [ "AssertionFail", "/unevaluatedItems", "#/unevaluatedItems", "/0" ]
+      ],
+      "post": [
+        [ true, "AssertionTypeStrict", "/anyOf/0/items/type", "#/anyOf/0/items/type", "/0" ],
+        [ false, "AssertionTypeStrict", "/anyOf/0/items/type", "#/anyOf/0/items/type", "/1" ],
+        [ false, "LoopItems", "/anyOf/0/items", "#/anyOf/0/items", "" ],
+        [ true, "LogicalOr", "/anyOf", "#/anyOf", "" ],
+        [ false, "AssertionFail", "/unevaluatedItems", "#/unevaluatedItems", "/0" ],
+        [ false, "LoopItemsUnevaluated", "/unevaluatedItems", "#/unevaluatedItems", "" ]
+      ],
+      "descriptions": [
+        "The value was expected to be of type boolean",
+        "The value was expected to be of type boolean but it was of type integer",
+        "Every item in the array value was expected to validate against the given subschema",
+        "The array value was expected to validate against at least one of the 2 given subschemas",
+        "The array value was not expected to define the item at index 0",
+        "The array items not covered by other array keywords, if any, were expected to validate against this subschema"
+      ]
+    }
+  },
+  {
+    "description": "unevaluatedItems_12",
+    "schema": {
+      "$schema": "https://json-schema.org/draft/2019-09/schema",
+      "type": "array",
+      "items": [
+        {
+          "type": "integer"
+        }
+      ],
+      "not": {
+        "contains": {
+          "const": 999
+        }
+      },
+      "unevaluatedItems": false
+    },
+    "instance": [ 1 ],
+    "valid": true,
+    "fast": {
+      "pre": [
+        [ "AssertionArrayPrefixEvaluate", "/items", "#/items", "" ],
+        [ "AssertionType", "/items/0/type", "#/items/0/type", "/0" ],
+        [ "LogicalNotEvaluate", "/not", "#/not", "" ],
+        [ "LoopContains", "/not/contains", "#/not/contains", "" ],
+        [ "AssertionEqual", "/not/contains/const", "#/not/contains/const", "/0" ],
+        [ "AssertionTypeStrict", "/type", "#/type", "" ],
+        [ "LoopItemsUnevaluated", "/unevaluatedItems", "#/unevaluatedItems", "" ]
+      ],
+      "post": [
+        [ true, "AssertionType", "/items/0/type", "#/items/0/type", "/0" ],
+        [ true, "AssertionArrayPrefixEvaluate", "/items", "#/items", "" ],
+        [ false, "AssertionEqual", "/not/contains/const", "#/not/contains/const", "/0" ],
+        [ false, "LoopContains", "/not/contains", "#/not/contains", "" ],
+        [ true, "LogicalNotEvaluate", "/not", "#/not", "" ],
+        [ true, "AssertionTypeStrict", "/type", "#/type", "" ],
+        [ true, "LoopItemsUnevaluated", "/unevaluatedItems", "#/unevaluatedItems", "" ]
+      ],
+      "descriptions": [
+        "The value was expected to be of type integer",
+        "The first item of the array value was expected to validate against the corresponding subschemas",
+        "The integer value 1 was expected to equal the integer constant 999",
+        "The array value was expected to contain at least 1 item that validates against the given subschema",
+        "The array value was expected to not validate against the given subschema",
+        "The value was expected to be of type array",
+        "The array items not covered by other array keywords, if any, were expected to validate against this subschema"
+      ]
+    }
+  },
+  {
+    "description": "recursiveRef_1",
+    "schema": {
+      "$id": "https://example.com/schema",
+      "$schema": "https://json-schema.org/draft/2019-09/schema",
+      "$recursiveAnchor": true,
+      "additionalProperties": {
+        "$recursiveRef": "#"
+      }
+    },
+    "instance": {
+      "foo": 1
+    },
+    "valid": true,
+    "fast": {
+      "pre": [
+        [ "LoopProperties", "/additionalProperties", "https://example.com/schema#/additionalProperties", "" ],
+        [ "ControlDynamicAnchorJump", "/additionalProperties/$recursiveRef", "https://example.com/schema#/additionalProperties/$recursiveRef", "/foo" ]
+      ],
+      "post": [
+        [ true, "ControlDynamicAnchorJump", "/additionalProperties/$recursiveRef", "https://example.com/schema#/additionalProperties/$recursiveRef", "/foo" ],
+        [ true, "LoopProperties", "/additionalProperties", "https://example.com/schema#/additionalProperties", "" ]
+      ],
+      "descriptions": [
+        "The integer value was expected to validate against the first subschema in scope that declared a recursive anchor",
+        "The object properties not covered by other adjacent object keywords were expected to validate against this subschema"
+      ]
+    },
+    "exhaustive": {
+      "pre": [
+        [ "LoopProperties", "/additionalProperties", "https://example.com/schema#/additionalProperties", "" ],
+        [ "ControlDynamicAnchorJump", "/additionalProperties/$recursiveRef", "https://example.com/schema#/additionalProperties/$recursiveRef", "/foo" ],
+        [ "Annotation", "/additionalProperties", "https://example.com/schema#/additionalProperties", "" ]
+      ],
+      "post": [
+        [ true, "ControlDynamicAnchorJump", "/additionalProperties/$recursiveRef", "https://example.com/schema#/additionalProperties/$recursiveRef", "/foo" ],
+        [ true, "Annotation", "/additionalProperties", "https://example.com/schema#/additionalProperties", "", "foo" ],
+        [ true, "LoopProperties", "/additionalProperties", "https://example.com/schema#/additionalProperties", "" ]
+      ],
+      "descriptions": [
+        "The integer value was expected to validate against the first subschema in scope that declared a recursive anchor",
+        "The object property \"foo\" successfully validated against the additional properties subschema",
+        "The object properties not covered by other adjacent object keywords were expected to validate against this subschema"
+      ]
+    }
+  },
+  {
+    "description": "recursiveRef_2",
+    "schema": {
+      "$id": "https://example.com/schema",
+      "$schema": "https://json-schema.org/draft/2019-09/schema",
+      "$recursiveAnchor": true,
+      "minimum": 1,
+      "additionalProperties": {
+        "$recursiveRef": "#"
+      }
+    },
+    "instance": {
+      "foo": 1
+    },
+    "valid": true,
+    "fast": {
+      "pre": [
+        [ "LoopProperties", "/additionalProperties", "https://example.com/schema#/additionalProperties", "" ],
+        [ "ControlDynamicAnchorJump", "/additionalProperties/$recursiveRef", "https://example.com/schema#/additionalProperties/$recursiveRef", "/foo" ],
+        [ "AssertionGreaterEqual", "/additionalProperties/$recursiveRef/minimum", "https://example.com/schema#/minimum", "/foo" ]
+      ],
+      "post": [
+        [ true, "AssertionGreaterEqual", "/additionalProperties/$recursiveRef/minimum", "https://example.com/schema#/minimum", "/foo" ],
+        [ true, "ControlDynamicAnchorJump", "/additionalProperties/$recursiveRef", "https://example.com/schema#/additionalProperties/$recursiveRef", "/foo" ],
+        [ true, "LoopProperties", "/additionalProperties", "https://example.com/schema#/additionalProperties", "" ]
+      ],
+      "descriptions": [
+        "The integer value 1 was expected to be greater than or equal to the integer 1",
+        "The integer value was expected to validate against the first subschema in scope that declared a recursive anchor",
+        "The object properties not covered by other adjacent object keywords were expected to validate against this subschema"
+      ]
+    },
+    "exhaustive": {
+      "pre": [
+        [ "LoopProperties", "/additionalProperties", "https://example.com/schema#/additionalProperties", "" ],
+        [ "ControlDynamicAnchorJump", "/additionalProperties/$recursiveRef", "https://example.com/schema#/additionalProperties/$recursiveRef", "/foo" ],
+        [ "AssertionGreaterEqual", "/additionalProperties/$recursiveRef/minimum", "https://example.com/schema#/minimum", "/foo" ],
+        [ "Annotation", "/additionalProperties", "https://example.com/schema#/additionalProperties", "" ]
+      ],
+      "post": [
+        [ true, "AssertionGreaterEqual", "/additionalProperties/$recursiveRef/minimum", "https://example.com/schema#/minimum", "/foo" ],
+        [ true, "ControlDynamicAnchorJump", "/additionalProperties/$recursiveRef", "https://example.com/schema#/additionalProperties/$recursiveRef", "/foo" ],
+        [ true, "Annotation", "/additionalProperties", "https://example.com/schema#/additionalProperties", "", "foo" ],
+        [ true, "LoopProperties", "/additionalProperties", "https://example.com/schema#/additionalProperties", "" ]
+      ],
+      "descriptions": [
+        "The integer value 1 was expected to be greater than or equal to the integer 1",
+        "The integer value was expected to validate against the first subschema in scope that declared a recursive anchor",
+        "The object property \"foo\" successfully validated against the additional properties subschema",
+        "The object properties not covered by other adjacent object keywords were expected to validate against this subschema"
+      ]
+    }
+  },
+  {
+    "description": "recursiveRef_3",
+    "schema": {
+      "$id": "https://example.com/schema",
+      "$schema": "https://json-schema.org/draft/2019-09/schema",
+      "additionalProperties": {
+        "$id": "nested",
+        "$recursiveAnchor": true,
+        "minimum": 1,
+        "additionalProperties": {
+          "$recursiveRef": "#"
+        }
+      }
+    },
+    "instance": {
+      "foo": 1
+    },
+    "valid": true,
+    "fast": {
+      "pre": [
+        [ "LoopProperties", "/additionalProperties", "https://example.com/schema#/additionalProperties", "" ],
+        [ "AssertionGreaterEqual", "/additionalProperties/minimum", "https://example.com/nested#/minimum", "/foo" ]
+      ],
+      "post": [
+        [ true, "AssertionGreaterEqual", "/additionalProperties/minimum", "https://example.com/nested#/minimum", "/foo" ],
+        [ true, "LoopProperties", "/additionalProperties", "https://example.com/schema#/additionalProperties", "" ]
+      ],
+      "descriptions": [
+        "The integer value 1 was expected to be greater than or equal to the integer 1",
+        "The object properties not covered by other adjacent object keywords were expected to validate against this subschema"
+      ]
+    },
+    "exhaustive": {
+      "pre": [
+        [ "LoopProperties", "/additionalProperties", "https://example.com/schema#/additionalProperties", "" ],
+        [ "AssertionGreaterEqual", "/additionalProperties/minimum", "https://example.com/nested#/minimum", "/foo" ],
+        [ "Annotation", "/additionalProperties", "https://example.com/schema#/additionalProperties", "" ]
+      ],
+      "post": [
+        [ true, "AssertionGreaterEqual", "/additionalProperties/minimum", "https://example.com/nested#/minimum", "/foo" ],
+        [ true, "Annotation", "/additionalProperties", "https://example.com/schema#/additionalProperties", "", "foo" ],
+        [ true, "LoopProperties", "/additionalProperties", "https://example.com/schema#/additionalProperties", "" ]
+      ],
+      "descriptions": [
+        "The integer value 1 was expected to be greater than or equal to the integer 1",
+        "The object property \"foo\" successfully validated against the additional properties subschema",
+        "The object properties not covered by other adjacent object keywords were expected to validate against this subschema"
+      ]
+    }
+  },
+  {
+    "description": "recursiveRef_4",
+    "schema": {
+      "$id": "https://example.com/schema",
+      "$schema": "https://json-schema.org/draft/2019-09/schema",
+      "additionalProperties": {
+        "$id": "nested",
+        "$recursiveAnchor": true,
+        "minimum": 1,
+        "additionalProperties": {
+          "$recursiveRef": "#"
+        }
+      }
+    },
+    "instance": {
+      "foo": {
+        "bar": 1
+      }
+    },
+    "valid": true,
+    "fast": {
+      "pre": [
+        [ "LoopProperties", "/additionalProperties", "https://example.com/schema#/additionalProperties", "" ],
+        [ "LoopProperties", "/additionalProperties/additionalProperties", "https://example.com/nested#/additionalProperties", "/foo" ],
+        [ "ControlDynamicAnchorJump", "/additionalProperties/additionalProperties/$recursiveRef", "https://example.com/nested#/additionalProperties/$recursiveRef", "/foo/bar" ],
+        [ "AssertionGreaterEqual", "/additionalProperties/additionalProperties/$recursiveRef/minimum", "https://example.com/nested#/minimum", "/foo/bar" ]
+      ],
+      "post": [
+        [ true, "AssertionGreaterEqual", "/additionalProperties/additionalProperties/$recursiveRef/minimum", "https://example.com/nested#/minimum", "/foo/bar" ],
+        [ true, "ControlDynamicAnchorJump", "/additionalProperties/additionalProperties/$recursiveRef", "https://example.com/nested#/additionalProperties/$recursiveRef", "/foo/bar" ],
+        [ true, "LoopProperties", "/additionalProperties/additionalProperties", "https://example.com/nested#/additionalProperties", "/foo" ],
+        [ true, "LoopProperties", "/additionalProperties", "https://example.com/schema#/additionalProperties", "" ]
+      ],
+      "descriptions": [
+        "The integer value 1 was expected to be greater than or equal to the integer 1",
+        "The integer value was expected to validate against the first subschema in scope that declared a recursive anchor",
+        "The object properties not covered by other adjacent object keywords were expected to validate against this subschema",
+        "The object properties not covered by other adjacent object keywords were expected to validate against this subschema"
+      ]
+    },
+    "exhaustive": {
+      "pre": [
+        [ "LoopProperties", "/additionalProperties", "https://example.com/schema#/additionalProperties", "" ],
+        [ "LoopProperties", "/additionalProperties/additionalProperties", "https://example.com/nested#/additionalProperties", "/foo" ],
+        [ "ControlDynamicAnchorJump", "/additionalProperties/additionalProperties/$recursiveRef", "https://example.com/nested#/additionalProperties/$recursiveRef", "/foo/bar" ],
+        [ "AssertionGreaterEqual", "/additionalProperties/additionalProperties/$recursiveRef/minimum", "https://example.com/nested#/minimum", "/foo/bar" ],
+        [ "Annotation", "/additionalProperties/additionalProperties", "https://example.com/nested#/additionalProperties", "/foo" ],
+        [ "Annotation", "/additionalProperties", "https://example.com/schema#/additionalProperties", "" ]
+      ],
+      "post": [
+        [ true, "AssertionGreaterEqual", "/additionalProperties/additionalProperties/$recursiveRef/minimum", "https://example.com/nested#/minimum", "/foo/bar" ],
+        [ true, "ControlDynamicAnchorJump", "/additionalProperties/additionalProperties/$recursiveRef", "https://example.com/nested#/additionalProperties/$recursiveRef", "/foo/bar" ],
+        [ true, "Annotation", "/additionalProperties/additionalProperties", "https://example.com/nested#/additionalProperties", "/foo", "bar" ],
+        [ true, "LoopProperties", "/additionalProperties/additionalProperties", "https://example.com/nested#/additionalProperties", "/foo" ],
+        [ true, "Annotation", "/additionalProperties", "https://example.com/schema#/additionalProperties", "", "foo" ],
+        [ true, "LoopProperties", "/additionalProperties", "https://example.com/schema#/additionalProperties", "" ]
+      ],
+      "descriptions": [
+        "The integer value 1 was expected to be greater than or equal to the integer 1",
+        "The integer value was expected to validate against the first subschema in scope that declared a recursive anchor",
+        "The object property \"bar\" successfully validated against the additional properties subschema",
+        "The object properties not covered by other adjacent object keywords were expected to validate against this subschema",
+        "The object property \"foo\" successfully validated against the additional properties subschema",
+        "The object properties not covered by other adjacent object keywords were expected to validate against this subschema"
+      ]
+    }
+  },
+  {
+    "description": "recursiveRef_5",
+    "schema": {
+      "$id": "https://example.com/schema",
+      "$schema": "https://json-schema.org/draft/2019-09/schema",
+      "items": {
+        "$id": "nested",
+        "$recursiveAnchor": true,
+        "items": [
+          {
+            "$recursiveRef": "#"
+          }
+        ]
+      }
+    },
+    "instance": [
+      [ 1 ]
+    ],
+    "valid": true,
+    "fast": {
+      "pre": [
+        [ "LoopItems", "/items", "https://example.com/schema#/items", "" ],
+        [ "AssertionArrayPrefix", "/items/items", "https://example.com/nested#/items", "/0" ],
+        [ "ControlDynamicAnchorJump", "/items/items/0/$recursiveRef", "https://example.com/nested#/items/0/$recursiveRef", "/0/0" ]
+      ],
+      "post": [
+        [ true, "ControlDynamicAnchorJump", "/items/items/0/$recursiveRef", "https://example.com/nested#/items/0/$recursiveRef", "/0/0" ],
+        [ true, "AssertionArrayPrefix", "/items/items", "https://example.com/nested#/items", "/0" ],
+        [ true, "LoopItems", "/items", "https://example.com/schema#/items", "" ]
+      ],
+      "descriptions": [
+        "The integer value was expected to validate against the first subschema in scope that declared a recursive anchor",
+        "The first item of the array value was expected to validate against the corresponding subschemas",
+        "Every item in the array value was expected to validate against the given subschema"
+      ]
+    },
+    "exhaustive": {
+      "pre": [
+        [ "LoopItems", "/items", "https://example.com/schema#/items", "" ],
+        [ "AssertionArrayPrefix", "/items/items", "https://example.com/nested#/items", "/0" ],
+        [ "ControlDynamicAnchorJump", "/items/items/0/$recursiveRef", "https://example.com/nested#/items/0/$recursiveRef", "/0/0" ],
+        [ "Annotation", "/items/items", "https://example.com/nested#/items", "/0" ],
+        [ "Annotation", "/items/items", "https://example.com/nested#/items", "/0" ],
+        [ "LogicalWhenType", "/items", "https://example.com/schema#/items", "" ],
+        [ "Annotation", "/items", "https://example.com/schema#/items", "" ]
+      ],
+      "post": [
+        [ true, "ControlDynamicAnchorJump", "/items/items/0/$recursiveRef", "https://example.com/nested#/items/0/$recursiveRef", "/0/0" ],
+        [ true, "Annotation", "/items/items", "https://example.com/nested#/items", "/0", 0 ],
+        [ true, "Annotation", "/items/items", "https://example.com/nested#/items", "/0", true ],
+        [ true, "AssertionArrayPrefix", "/items/items", "https://example.com/nested#/items", "/0" ],
+        [ true, "LoopItems", "/items", "https://example.com/schema#/items", "" ],
+        [ true, "Annotation", "/items", "https://example.com/schema#/items", "", true ],
+        [ true, "LogicalWhenType", "/items", "https://example.com/schema#/items", "" ]
+      ],
+      "descriptions": [
+        "The integer value was expected to validate against the first subschema in scope that declared a recursive anchor",
+        "The first item of the array value successfully validated against the first positional subschema",
+        "Every item in the array value was successfully validated",
+        "The first item of the array value was expected to validate against the corresponding subschemas",
+        "Every item in the array value was expected to validate against the given subschema",
+        "Every item in the array value was successfully validated",
+        "The value was expected to be of type array"
+      ]
+    }
+  },
+  {
+    "description": "recursiveRef_6",
+    "schema": {
+      "$schema": "https://json-schema.org/draft/2019-09/schema",
+      "$recursiveAnchor": true,
+      "additionalProperties": {
+        "$recursiveRef": "#"
+      }
+    },
+    "instance": {
+      "foo": 1
+    },
+    "valid": true,
+    "fast": {
+      "pre": [
+        [ "LoopProperties", "/additionalProperties", "#/additionalProperties", "" ],
+        [ "ControlDynamicAnchorJump", "/additionalProperties/$recursiveRef", "#/additionalProperties/$recursiveRef", "/foo" ]
+      ],
+      "post": [
+        [ true, "ControlDynamicAnchorJump", "/additionalProperties/$recursiveRef", "#/additionalProperties/$recursiveRef", "/foo" ],
+        [ true, "LoopProperties", "/additionalProperties", "#/additionalProperties", "" ]
+      ],
+      "descriptions": [
+        "The integer value was expected to validate against the first subschema in scope that declared a recursive anchor",
+        "The object properties not covered by other adjacent object keywords were expected to validate against this subschema"
+      ]
+    },
+    "exhaustive": {
+      "pre": [
+        [ "LoopProperties", "/additionalProperties", "#/additionalProperties", "" ],
+        [ "ControlDynamicAnchorJump", "/additionalProperties/$recursiveRef", "#/additionalProperties/$recursiveRef", "/foo" ],
+        [ "Annotation", "/additionalProperties", "#/additionalProperties", "" ]
+      ],
+      "post": [
+        [ true, "ControlDynamicAnchorJump", "/additionalProperties/$recursiveRef", "#/additionalProperties/$recursiveRef", "/foo" ],
+        [ true, "Annotation", "/additionalProperties", "#/additionalProperties", "", "foo" ],
+        [ true, "LoopProperties", "/additionalProperties", "#/additionalProperties", "" ]
+      ],
+      "descriptions": [
+        "The integer value was expected to validate against the first subschema in scope that declared a recursive anchor",
+        "The object property \"foo\" successfully validated against the additional properties subschema",
+        "The object properties not covered by other adjacent object keywords were expected to validate against this subschema"
+      ]
+    }
+  },
+  {
+    "description": "patternProperties_1",
+    "schema": {
+      "$schema": "https://json-schema.org/draft/2019-09/schema",
+      "patternProperties": {
+        "^f": true
+      }
+    },
+    "instance": {
+      "foo": 1,
+      "bar": 2
+    },
+    "valid": true,
+    "fast": {},
+    "exhaustive": {
+      "pre": [
+        [ "LoopPropertiesStartsWith", "/patternProperties", "#/patternProperties", "" ],
+        [ "Annotation", "/patternProperties", "#/patternProperties", "" ]
+      ],
+      "post": [
+        [ true, "Annotation", "/patternProperties", "#/patternProperties", "", "foo" ],
+        [ true, "LoopPropertiesStartsWith", "/patternProperties", "#/patternProperties", "" ]
+      ],
+      "descriptions": [
+        "The object property \"foo\" successfully validated against its pattern property subschema",
+        "The object properties that start with the string \"f\" were expected to validate against the defined pattern property subschema"
+      ]
+    }
+  },
+  {
+    "description": "patternProperties_2",
+    "schema": {
+      "$schema": "https://json-schema.org/draft/2019-09/schema",
+      "patternProperties": {
+        "^f": {
+          "type": "integer"
+        }
+      }
+    },
+    "instance": {
+      "foo": 1,
+      "bar": 2
+    },
+    "valid": true,
+    "fast": {
+      "pre": [
+        [ "LoopPropertiesStartsWith", "/patternProperties", "#/patternProperties", "" ],
+        [ "AssertionType", "/patternProperties/^f/type", "#/patternProperties/%5Ef/type", "/foo" ]
+      ],
+      "post": [
+        [ true, "AssertionType", "/patternProperties/^f/type", "#/patternProperties/%5Ef/type", "/foo" ],
+        [ true, "LoopPropertiesStartsWith", "/patternProperties", "#/patternProperties", "" ]
+      ],
+      "descriptions": [
+        "The value was expected to be of type integer",
+        "The object properties that start with the string \"f\" were expected to validate against the defined pattern property subschema"
+      ]
+    },
+    "exhaustive": {
+      "pre": [
+        [ "LoopPropertiesStartsWith", "/patternProperties", "#/patternProperties", "" ],
+        [ "AssertionType", "/patternProperties/^f/type", "#/patternProperties/%5Ef/type", "/foo" ],
+        [ "Annotation", "/patternProperties", "#/patternProperties", "" ]
+      ],
+      "post": [
+        [ true, "AssertionType", "/patternProperties/^f/type", "#/patternProperties/%5Ef/type", "/foo" ],
+        [ true, "Annotation", "/patternProperties", "#/patternProperties", "", "foo" ],
+        [ true, "LoopPropertiesStartsWith", "/patternProperties", "#/patternProperties", "" ]
+      ],
+      "descriptions": [
+        "The value was expected to be of type integer",
+        "The object property \"foo\" successfully validated against its pattern property subschema",
+        "The object properties that start with the string \"f\" were expected to validate against the defined pattern property subschema"
+      ]
+    }
+  },
+  {
+    "description": "patternProperties_3",
+    "schema": {
+      "$schema": "https://json-schema.org/draft/2019-09/schema",
+      "patternProperties": {
+        "o$": {
+          "type": "integer"
+        },
+        "^f": {
+          "type": "integer"
+        }
+      }
+    },
+    "instance": {
+      "bar": 2,
+      "foo": 1
+    },
+    "valid": true,
+    "fast": {
+      "pre": [
+        [ "LoopPropertiesStartsWith", "/patternProperties", "#/patternProperties", "" ],
+        [ "AssertionType", "/patternProperties/^f/type", "#/patternProperties/%5Ef/type", "/foo" ],
+        [ "LoopPropertiesRegex", "/patternProperties", "#/patternProperties", "" ],
+        [ "AssertionType", "/patternProperties/o$/type", "#/patternProperties/o$/type", "/foo" ]
+      ],
+      "post": [
+        [ true, "AssertionType", "/patternProperties/^f/type", "#/patternProperties/%5Ef/type", "/foo" ],
+        [ true, "LoopPropertiesStartsWith", "/patternProperties", "#/patternProperties", "" ],
+        [ true, "AssertionType", "/patternProperties/o$/type", "#/patternProperties/o$/type", "/foo" ],
+        [ true, "LoopPropertiesRegex", "/patternProperties", "#/patternProperties", "" ]
+      ],
+      "descriptions": [
+        "The value was expected to be of type integer",
+        "The object properties that start with the string \"f\" were expected to validate against the defined pattern property subschema",
+        "The value was expected to be of type integer",
+        "The object properties that match the regular expression \"o$\" were expected to validate against the defined pattern property subschema"
+      ]
+    },
+    "exhaustive": {
+      "pre": [
+        [ "LoopPropertiesStartsWith", "/patternProperties", "#/patternProperties", "" ],
+        [ "AssertionType", "/patternProperties/^f/type", "#/patternProperties/%5Ef/type", "/foo" ],
+        [ "Annotation", "/patternProperties", "#/patternProperties", "" ],
+        [ "LoopPropertiesRegex", "/patternProperties", "#/patternProperties", "" ],
+        [ "AssertionType", "/patternProperties/o$/type", "#/patternProperties/o$/type", "/foo" ],
+        [ "Annotation", "/patternProperties", "#/patternProperties", "" ]
+      ],
+      "post": [
+        [ true, "AssertionType", "/patternProperties/^f/type", "#/patternProperties/%5Ef/type", "/foo" ],
+        [ true, "Annotation", "/patternProperties", "#/patternProperties", "", "foo" ],
+        [ true, "LoopPropertiesStartsWith", "/patternProperties", "#/patternProperties", "" ],
+        [ true, "AssertionType", "/patternProperties/o$/type", "#/patternProperties/o$/type", "/foo" ],
+        [ true, "Annotation", "/patternProperties", "#/patternProperties", "", "foo" ],
+        [ true, "LoopPropertiesRegex", "/patternProperties", "#/patternProperties", "" ]
+      ],
+      "descriptions": [
+        "The value was expected to be of type integer",
+        "The object property \"foo\" successfully validated against its pattern property subschema",
+        "The object properties that start with the string \"f\" were expected to validate against the defined pattern property subschema",
+        "The value was expected to be of type integer",
+        "The object property \"foo\" successfully validated against its pattern property subschema",
+        "The object properties that match the regular expression \"o$\" were expected to validate against the defined pattern property subschema"
+      ]
+    }
+  },
+  {
+    "description": "patternProperties_4",
+    "schema": {
+      "$schema": "https://json-schema.org/draft/2019-09/schema",
+      "patternProperties": {
+        "^f": {
+          "patternProperties": {
+            "^b": {
+              "type": "integer"
+            }
+          }
+        }
+      }
+    },
+    "instance": {
+      "foo": {
+        "bar": 2
+      }
+    },
+    "valid": true,
+    "fast": {
+      "pre": [
+        [ "LoopPropertiesStartsWith", "/patternProperties", "#/patternProperties", "" ],
+        [ "LoopPropertiesStartsWith", "/patternProperties/^f/patternProperties", "#/patternProperties/%5Ef/patternProperties", "/foo" ],
+        [ "AssertionType", "/patternProperties/^f/patternProperties/^b/type", "#/patternProperties/%5Ef/patternProperties/%5Eb/type", "/foo/bar" ]
+      ],
+      "post": [
+        [ true, "AssertionType", "/patternProperties/^f/patternProperties/^b/type", "#/patternProperties/%5Ef/patternProperties/%5Eb/type", "/foo/bar" ],
+        [ true, "LoopPropertiesStartsWith", "/patternProperties/^f/patternProperties", "#/patternProperties/%5Ef/patternProperties", "/foo" ],
+        [ true, "LoopPropertiesStartsWith", "/patternProperties", "#/patternProperties", "" ]
+      ],
+      "descriptions": [
+        "The value was expected to be of type integer",
+        "The object properties that start with the string \"b\" were expected to validate against the defined pattern property subschema",
+        "The object properties that start with the string \"f\" were expected to validate against the defined pattern property subschema"
+      ]
+    },
+    "exhaustive": {
+      "pre": [
+        [ "LoopPropertiesStartsWith", "/patternProperties", "#/patternProperties", "" ],
+        [ "LoopPropertiesStartsWith", "/patternProperties/^f/patternProperties", "#/patternProperties/%5Ef/patternProperties", "/foo" ],
+        [ "AssertionType", "/patternProperties/^f/patternProperties/^b/type", "#/patternProperties/%5Ef/patternProperties/%5Eb/type", "/foo/bar" ],
+        [ "Annotation", "/patternProperties/^f/patternProperties", "#/patternProperties/%5Ef/patternProperties", "/foo" ],
+        [ "Annotation", "/patternProperties", "#/patternProperties", "" ]
+      ],
+      "post": [
+        [ true, "AssertionType", "/patternProperties/^f/patternProperties/^b/type", "#/patternProperties/%5Ef/patternProperties/%5Eb/type", "/foo/bar" ],
+        [ true, "Annotation", "/patternProperties/^f/patternProperties", "#/patternProperties/%5Ef/patternProperties", "/foo", "bar" ],
+        [ true, "LoopPropertiesStartsWith", "/patternProperties/^f/patternProperties", "#/patternProperties/%5Ef/patternProperties", "/foo" ],
+        [ true, "Annotation", "/patternProperties", "#/patternProperties", "", "foo" ],
+        [ true, "LoopPropertiesStartsWith", "/patternProperties", "#/patternProperties", "" ]
+      ],
+      "descriptions": [
+        "The value was expected to be of type integer",
+        "The object property \"bar\" successfully validated against its pattern property subschema",
+        "The object properties that start with the string \"b\" were expected to validate against the defined pattern property subschema",
+        "The object property \"foo\" successfully validated against its pattern property subschema",
+        "The object properties that start with the string \"f\" were expected to validate against the defined pattern property subschema"
+      ]
+    }
+  },
+  {
+    "description": "patternProperties_5",
+    "schema": {
+      "$schema": "https://json-schema.org/draft/2019-09/schema",
+      "patternProperties": {
+        "^@": true
+      },
+      "additionalProperties": {
+        "type": "string"
+      }
+    },
+    "instance": {
+      "@foo": 1,
+      "bar": "baz"
+    },
+    "valid": true,
+    "fast": {
+      "pre": [
+        [ "LoopPropertiesExcept", "/additionalProperties", "#/additionalProperties", "" ],
+        [ "AssertionTypeStrict", "/additionalProperties/type", "#/additionalProperties/type", "/bar" ]
+      ],
+      "post": [
+        [ true, "AssertionTypeStrict", "/additionalProperties/type", "#/additionalProperties/type", "/bar" ],
+        [ true, "LoopPropertiesExcept", "/additionalProperties", "#/additionalProperties", "" ]
+      ],
+      "descriptions": [
+        "The value was expected to be of type string",
+        "The object properties not covered by other adjacent object keywords were expected to validate against this subschema"
+      ]
+    },
+    "exhaustive": {
+      "pre": [
+        [ "LoopPropertiesRegex", "/patternProperties", "#/patternProperties", "" ],
+        [ "Annotation", "/patternProperties", "#/patternProperties", "" ],
+        [ "LoopPropertiesExcept", "/additionalProperties", "#/additionalProperties", "" ],
+        [ "AssertionTypeStrict", "/additionalProperties/type", "#/additionalProperties/type", "/bar" ],
+        [ "Annotation", "/additionalProperties", "#/additionalProperties", "" ]
+      ],
+      "post": [
+        [ true, "Annotation", "/patternProperties", "#/patternProperties", "", "@foo" ],
+        [ true, "LoopPropertiesRegex", "/patternProperties", "#/patternProperties", "" ],
+        [ true, "AssertionTypeStrict", "/additionalProperties/type", "#/additionalProperties/type", "/bar" ],
+        [ true, "Annotation", "/additionalProperties", "#/additionalProperties", "", "bar" ],
+        [ true, "LoopPropertiesExcept", "/additionalProperties", "#/additionalProperties", "" ]
+      ],
+      "descriptions": [
+        "The object property \"@foo\" successfully validated against its pattern property subschema",
+        "The object properties that match the regular expression \"^@\" were expected to validate against the defined pattern property subschema",
+        "The value was expected to be of type string",
+        "The object property \"bar\" successfully validated against the additional properties subschema",
+        "The object properties not covered by other adjacent object keywords were expected to validate against this subschema"
+      ]
+    }
+  },
+  {
+    "description": "definitions_1",
+    "schema": {
+      "$schema": "https://json-schema.org/draft/2019-09/schema",
+      "$ref": "#/definitions/middle",
+      "definitions": {
+        "middle": {
+          "$ref": "#/definitions/string"
+        },
+        "string": {
+          "type": "string"
+        }
+      }
+    },
+    "instance": "foo",
+    "valid": true,
+    "fast": {
+      "pre": [
+        [ "AssertionTypeStrict", "/$ref/$ref/type", "#/definitions/string/type", "" ]
+      ],
+      "post": [
+        [ true, "AssertionTypeStrict", "/$ref/$ref/type", "#/definitions/string/type", "" ]
+      ],
+      "descriptions": [ "The value was expected to be of type string" ]
+    },
+    "exhaustive": {
+      "pre": [
+        [ "ControlJump", "/$ref", "#/$ref", "" ],
+        [ "ControlJump", "/$ref/$ref", "#/definitions/middle/$ref", "" ],
+        [ "AssertionTypeStrict", "/$ref/$ref/type", "#/definitions/string/type", "" ]
+      ],
+      "post": [
+        [ true, "AssertionTypeStrict", "/$ref/$ref/type", "#/definitions/string/type", "" ],
+        [ true, "ControlJump", "/$ref/$ref", "#/definitions/middle/$ref", "" ],
+        [ true, "ControlJump", "/$ref", "#/$ref", "" ]
+      ],
+      "descriptions": [
+        "The value was expected to be of type string",
+        "The string value was expected to validate against the referenced schema",
+        "The string value was expected to validate against the referenced schema"
+      ]
+    }
+  },
+  {
+    "description": "propertyNames_1",
+    "schema": {
+      "$schema": "https://json-schema.org/draft/2019-09/schema",
+      "propertyNames": {
+        "title": "Test",
+        "description": "Test",
+        "default": "Test",
+        "deprecated": true,
+        "examples": [ "foo" ],
+        "readOnly": true,
+        "writeOnly": true,
+        "x-foo": "bar",
+        "format": "email",
+        "contentEncoding": "base64",
+        "contentMediaType": "application/json",
+        "contentSchema": true,
+        "items": [
+          {
+            "type": "string"
+          }
+        ],
+        "additionalItems": {
+          "type": "string"
+        },
+        "unevaluatedItems": {
+          "type": "string"
+        },
+        "properties": {
+          "foo": {
+            "type": "string"
+          }
+        },
+        "patternProperties": {
+          "^f": {
+            "type": "string"
+          }
+        },
+        "additionalProperties": {
+          "type": "string"
+        },
+        "unevaluatedProperties": {
+          "type": "string"
+        }
+      }
+    },
+    "instance": {
+      "foo": 1
+    },
+    "valid": true,
+    "fast": {},
+    "exhaustive": {
+      "pre": [
+        [ "LoopKeys", "/propertyNames", "#/propertyNames", "" ]
+      ],
+      "post": [
+        [ true, "LoopKeys", "/propertyNames", "#/propertyNames", "" ]
+      ],
+      "descriptions": [
+        "The object property \"foo\" was expected to validate against the given subschema"
+      ]
+    }
+  },
+  {
+    "description": "top_level_ref_with_id",
+    "schema": {
+      "$id": "https://www.example.com",
+      "$schema": "https://json-schema.org/draft/2019-09/schema",
+      "$ref": "#/$defs/test",
+      "$defs": {
+        "test": {}
+      }
+    },
+    "instance": 5,
+    "valid": true,
+    "fast": {},
+    "exhaustive": {
+      "pre": [
+        [ "ControlJump", "/$ref", "https://www.example.com#/$ref", "" ]
+      ],
+      "post": [
+        [ true, "ControlJump", "/$ref", "https://www.example.com#/$ref", "" ]
+      ],
+      "descriptions": [
+        "The integer value was expected to validate against the referenced schema"
+      ]
+    }
+  },
+  {
+    "description": "properties_3",
+    "schema": {
+      "$schema": "https://json-schema.org/draft/2019-09/schema",
+      "if": {
+        "properties": {
+          "kind": {
+            "const": "A"
+          }
+        }
+      },
+      "then": {
+        "properties": {
+          "count": {
+            "type": "integer"
+          }
+        }
+      },
+      "unevaluatedProperties": false
+    },
+    "instance": {
+      "kind": "A",
+      "count": 42
+    },
+    "valid": true,
+    "fast": {
+      "pre": [
+        [ "LogicalCondition", "/if", "#/if", "" ],
+        [ "AssertionEqual", "/if/properties/kind/const", "#/if/properties/kind/const", "/kind" ],
+        [ "Evaluate", "/if/properties", "#/if/properties", "/kind" ],
+        [ "AssertionPropertyTypeEvaluate", "/then/properties/count/type", "#/then/properties/count/type", "/count" ],
+        [ "LoopPropertiesUnevaluated", "/unevaluatedProperties", "#/unevaluatedProperties", "" ]
+      ],
+      "post": [
+        [ true, "AssertionEqual", "/if/properties/kind/const", "#/if/properties/kind/const", "/kind" ],
+        [ true, "Evaluate", "/if/properties", "#/if/properties", "/kind" ],
+        [ true, "AssertionPropertyTypeEvaluate", "/then/properties/count/type", "#/then/properties/count/type", "/count" ],
+        [ true, "LogicalCondition", "/if", "#/if", "" ],
+        [ true, "LoopPropertiesUnevaluated", "/unevaluatedProperties", "#/unevaluatedProperties", "" ]
+      ],
+      "descriptions": [
+        "The string value \"A\" was expected to equal the string constant \"A\"",
+        "The instance location was marked as evaluated",
+        "The value was expected to be of type integer",
+        "The object value was expected to validate against the given conditional",
+        "The object value was not expected to define unevaluated properties"
+      ]
+    }
+  },
+  {
+    "description": "properties_4",
+    "schema": {
+      "$schema": "https://json-schema.org/draft/2019-09/schema",
+      "if": {
+        "properties": {
+          "kind": {
+            "const": "A"
+          }
+        }
+      },
+      "then": {
+        "properties": {
+          "name": {
+            "type": "string"
+          }
+        }
+      },
+      "unevaluatedProperties": false
+    },
+    "instance": {
+      "kind": "A",
+      "name": "test"
+    },
+    "valid": true,
+    "fast": {
+      "pre": [
+        [ "LogicalCondition", "/if", "#/if", "" ],
+        [ "AssertionEqual", "/if/properties/kind/const", "#/if/properties/kind/const", "/kind" ],
+        [ "Evaluate", "/if/properties", "#/if/properties", "/kind" ],
+        [ "AssertionPropertyTypeStrictEvaluate", "/then/properties/name/type", "#/then/properties/name/type", "/name" ],
+        [ "LoopPropertiesUnevaluated", "/unevaluatedProperties", "#/unevaluatedProperties", "" ]
+      ],
+      "post": [
+        [ true, "AssertionEqual", "/if/properties/kind/const", "#/if/properties/kind/const", "/kind" ],
+        [ true, "Evaluate", "/if/properties", "#/if/properties", "/kind" ],
+        [ true, "AssertionPropertyTypeStrictEvaluate", "/then/properties/name/type", "#/then/properties/name/type", "/name" ],
+        [ true, "LogicalCondition", "/if", "#/if", "" ],
+        [ true, "LoopPropertiesUnevaluated", "/unevaluatedProperties", "#/unevaluatedProperties", "" ]
+      ],
+      "descriptions": [
+        "The string value \"A\" was expected to equal the string constant \"A\"",
+        "The instance location was marked as evaluated",
+        "The value was expected to be of type string",
+        "The object value was expected to validate against the given conditional",
+        "The object value was not expected to define unevaluated properties"
+      ]
+    }
+  },
+  {
+    "description": "properties_5",
+    "schema": {
+      "$schema": "https://json-schema.org/draft/2019-09/schema",
+      "if": {
+        "properties": {
+          "kind": {
+            "const": "A"
+          }
+        }
+      },
+      "then": {
+        "properties": {
+          "value": {
+            "type": "number"
+          }
+        }
+      },
+      "unevaluatedProperties": false
+    },
+    "instance": {
+      "kind": "A",
+      "value": 3.14
+    },
+    "valid": true,
+    "fast": {
+      "pre": [
+        [ "LogicalCondition", "/if", "#/if", "" ],
+        [ "AssertionEqual", "/if/properties/kind/const", "#/if/properties/kind/const", "/kind" ],
+        [ "Evaluate", "/if/properties", "#/if/properties", "/kind" ],
+        [ "AssertionPropertyTypeStrictAnyEvaluate", "/then/properties/value/type", "#/then/properties/value/type", "/value" ],
+        [ "LoopPropertiesUnevaluated", "/unevaluatedProperties", "#/unevaluatedProperties", "" ]
+      ],
+      "post": [
+        [ true, "AssertionEqual", "/if/properties/kind/const", "#/if/properties/kind/const", "/kind" ],
+        [ true, "Evaluate", "/if/properties", "#/if/properties", "/kind" ],
+        [ true, "AssertionPropertyTypeStrictAnyEvaluate", "/then/properties/value/type", "#/then/properties/value/type", "/value" ],
+        [ true, "LogicalCondition", "/if", "#/if", "" ],
+        [ true, "LoopPropertiesUnevaluated", "/unevaluatedProperties", "#/unevaluatedProperties", "" ]
+      ],
+      "descriptions": [
+        "The string value \"A\" was expected to equal the string constant \"A\"",
+        "The instance location was marked as evaluated",
+        "The value was expected to be of type number",
+        "The object value was expected to validate against the given conditional",
+        "The object value was not expected to define unevaluated properties"
+      ]
+    }
+  },
+  {
+    "description": "unevaluatedProperties_15",
+    "schema": {
+      "$schema": "https://json-schema.org/draft/2019-09/schema",
+      "properties": {
+        "known": {
+          "type": "string"
+        }
+      },
+      "if": {
+        "properties": {
+          "known": {
+            "const": "special"
+          }
+        }
+      },
+      "then": {
+        "properties": {
+          "extra": {
+            "type": "integer"
+          }
+        }
+      },
+      "unevaluatedProperties": {
+        "type": "boolean"
+      }
+    },
+    "instance": {
+      "known": "special",
+      "extra": 10,
+      "other": true
+    },
+    "valid": true,
+    "fast": {
+      "pre": [
+        [ "LogicalCondition", "/if", "#/if", "" ],
+        [ "AssertionEqual", "/if/properties/known/const", "#/if/properties/known/const", "/known" ],
+        [ "Evaluate", "/if/properties", "#/if/properties", "/known" ],
+        [ "AssertionPropertyTypeEvaluate", "/then/properties/extra/type", "#/then/properties/extra/type", "/extra" ],
+        [ "AssertionPropertyTypeStrict", "/properties/known/type", "#/properties/known/type", "/known" ],
+        [ "LoopPropertiesUnevaluatedExcept", "/unevaluatedProperties", "#/unevaluatedProperties", "" ],
+        [ "AssertionTypeStrict", "/unevaluatedProperties/type", "#/unevaluatedProperties/type", "/other" ]
+      ],
+      "post": [
+        [ true, "AssertionEqual", "/if/properties/known/const", "#/if/properties/known/const", "/known" ],
+        [ true, "Evaluate", "/if/properties", "#/if/properties", "/known" ],
+        [ true, "AssertionPropertyTypeEvaluate", "/then/properties/extra/type", "#/then/properties/extra/type", "/extra" ],
+        [ true, "LogicalCondition", "/if", "#/if", "" ],
+        [ true, "AssertionPropertyTypeStrict", "/properties/known/type", "#/properties/known/type", "/known" ],
+        [ true, "AssertionTypeStrict", "/unevaluatedProperties/type", "#/unevaluatedProperties/type", "/other" ],
+        [ true, "LoopPropertiesUnevaluatedExcept", "/unevaluatedProperties", "#/unevaluatedProperties", "" ]
+      ],
+      "descriptions": [
+        "The string value \"special\" was expected to equal the string constant \"special\"",
+        "The instance location was marked as evaluated",
+        "The value was expected to be of type integer",
+        "The object value was expected to validate against the given conditional",
+        "The value was expected to be of type string",
+        "The value was expected to be of type boolean",
+        "The object properties not covered by other object keywords were expected to validate against this subschema"
+      ]
+    }
+  },
+  {
+    "description": "unevaluatedProperties_16",
+    "schema": {
+      "$schema": "https://json-schema.org/draft/2019-09/schema",
+      "additionalProperties": {
+        "$ref": "#/$defs/test"
+      },
+      "$defs": {
+        "test": {
+          "if": {
+            "required": [ "bar" ]
+          },
+          "then": {
+            "properties": {
+              "baz": true
+            }
+          },
+          "properties": {
+            "bar": true
+          },
+          "unevaluatedProperties": false
+        }
+      }
+    },
+    "instance": {
+      "foo": {
+        "bar": 1,
+        "baz": 2
+      }
+    },
+    "valid": true,
+    "fast": {
+      "pre": [
+        [ "LoopProperties", "/additionalProperties", "#/additionalProperties", "" ],
+        [ "LogicalCondition", "/additionalProperties/$ref/if", "#/$defs/test/if", "/foo" ],
+        [ "AssertionDefines", "/additionalProperties/$ref/if/required", "#/$defs/test/if/required", "/foo" ],
+        [ "Evaluate", "/additionalProperties/$ref/then/properties", "#/$defs/test/then/properties", "/foo/baz" ],
+        [ "LoopPropertiesUnevaluatedExcept", "/additionalProperties/$ref/unevaluatedProperties", "#/$defs/test/unevaluatedProperties", "/foo" ]
+      ],
+      "post": [
+        [ true, "AssertionDefines", "/additionalProperties/$ref/if/required", "#/$defs/test/if/required", "/foo" ],
+        [ true, "Evaluate", "/additionalProperties/$ref/then/properties", "#/$defs/test/then/properties", "/foo/baz" ],
+        [ true, "LogicalCondition", "/additionalProperties/$ref/if", "#/$defs/test/if", "/foo" ],
+        [ true, "LoopPropertiesUnevaluatedExcept", "/additionalProperties/$ref/unevaluatedProperties", "#/$defs/test/unevaluatedProperties", "/foo" ],
+        [ true, "LoopProperties", "/additionalProperties", "#/additionalProperties", "" ]
+      ],
+      "descriptions": [
+        "The object value was expected to define the property \"bar\"",
+        "The instance location was marked as evaluated",
+        "The object value was expected to validate against the given conditional",
+        "The object value was not expected to define unevaluated properties",
+        "The object properties not covered by other adjacent object keywords were expected to validate against this subschema"
+      ]
+    }
+  },
+  {
+    "description": "additionalProperties_5",
+    "schema": {
+      "$schema": "https://json-schema.org/draft/2019-09/schema",
+      "if": {
+        "properties": {
+          "kind": {
+            "const": "AB"
+          }
+        }
+      },
+      "then": {
+        "additionalProperties": {
+          "minLength": 2
+        }
+      },
+      "unevaluatedProperties": false
+    },
+    "instance": {
+      "kind": "AB",
+      "other": "cd"
+    },
+    "valid": true,
+    "fast": {
+      "pre": [
+        [ "LogicalCondition", "/if", "#/if", "" ],
+        [ "AssertionEqual", "/if/properties/kind/const", "#/if/properties/kind/const", "/kind" ],
+        [ "Evaluate", "/if/properties", "#/if/properties", "/kind" ],
+        [ "LoopPropertiesEvaluate", "/then/additionalProperties", "#/then/additionalProperties", "" ],
+        [ "AssertionStringSizeGreater", "/then/additionalProperties/minLength", "#/then/additionalProperties/minLength", "/kind" ],
+        [ "AssertionStringSizeGreater", "/then/additionalProperties/minLength", "#/then/additionalProperties/minLength", "/other" ],
+        [ "LoopPropertiesUnevaluated", "/unevaluatedProperties", "#/unevaluatedProperties", "" ]
+      ],
+      "post": [
+        [ true, "AssertionEqual", "/if/properties/kind/const", "#/if/properties/kind/const", "/kind" ],
+        [ true, "Evaluate", "/if/properties", "#/if/properties", "/kind" ],
+        [ true, "AssertionStringSizeGreater", "/then/additionalProperties/minLength", "#/then/additionalProperties/minLength", "/kind" ],
+        [ true, "AssertionStringSizeGreater", "/then/additionalProperties/minLength", "#/then/additionalProperties/minLength", "/other" ],
+        [ true, "LoopPropertiesEvaluate", "/then/additionalProperties", "#/then/additionalProperties", "" ],
+        [ true, "LogicalCondition", "/if", "#/if", "" ],
+        [ true, "LoopPropertiesUnevaluated", "/unevaluatedProperties", "#/unevaluatedProperties", "" ]
+      ],
+      "descriptions": [
+        "The string value \"AB\" was expected to equal the string constant \"AB\"",
+        "The instance location was marked as evaluated",
+        "The string value \"AB\" was expected to consist of at least 2 characters and it consisted of 2 characters",
+        "The string value \"cd\" was expected to consist of at least 2 characters and it consisted of 2 characters",
+        "The object properties not covered by other adjacent object keywords were expected to validate against this subschema",
+        "The object value was expected to validate against the given conditional",
+        "The object value was not expected to define unevaluated properties"
+      ]
+    }
+  },
+  {
+    "description": "additionalProperties_6",
+    "schema": {
+      "$schema": "https://json-schema.org/draft/2019-09/schema",
+      "if": {
+        "properties": {
+          "flag": {
+            "const": 1
+          }
+        }
+      },
+      "then": {
+        "additionalProperties": {
+          "type": "integer"
+        }
+      },
+      "unevaluatedProperties": false
+    },
+    "instance": {
+      "flag": 1,
+      "value": 42
+    },
+    "valid": true,
+    "fast": {
+      "pre": [
+        [ "LogicalCondition", "/if", "#/if", "" ],
+        [ "AssertionEqual", "/if/properties/flag/const", "#/if/properties/flag/const", "/flag" ],
+        [ "Evaluate", "/if/properties", "#/if/properties", "/flag" ],
+        [ "LoopPropertiesTypeEvaluate", "/then/additionalProperties/type", "#/then/additionalProperties/type", "" ],
+        [ "LoopPropertiesUnevaluated", "/unevaluatedProperties", "#/unevaluatedProperties", "" ]
+      ],
+      "post": [
+        [ true, "AssertionEqual", "/if/properties/flag/const", "#/if/properties/flag/const", "/flag" ],
+        [ true, "Evaluate", "/if/properties", "#/if/properties", "/flag" ],
+        [ true, "LoopPropertiesTypeEvaluate", "/then/additionalProperties/type", "#/then/additionalProperties/type", "" ],
+        [ true, "LogicalCondition", "/if", "#/if", "" ],
+        [ true, "LoopPropertiesUnevaluated", "/unevaluatedProperties", "#/unevaluatedProperties", "" ]
+      ],
+      "descriptions": [
+        "The integer value 1 was expected to equal the integer constant 1",
+        "The instance location was marked as evaluated",
+        "The object properties were expected to be of type integer",
+        "The object value was expected to validate against the given conditional",
+        "The object value was not expected to define unevaluated properties"
+      ]
+    }
+  },
+  {
+    "description": "additionalProperties_7",
+    "schema": {
+      "$schema": "https://json-schema.org/draft/2019-09/schema",
+      "if": {
+        "properties": {
+          "kind": {
+            "const": "A"
+          }
+        }
+      },
+      "then": {
+        "additionalProperties": {
+          "type": "string"
+        }
+      },
+      "unevaluatedProperties": false
+    },
+    "instance": {
+      "kind": "A",
+      "other": "test"
+    },
+    "valid": true,
+    "fast": {
+      "pre": [
+        [ "LogicalCondition", "/if", "#/if", "" ],
+        [ "AssertionEqual", "/if/properties/kind/const", "#/if/properties/kind/const", "/kind" ],
+        [ "Evaluate", "/if/properties", "#/if/properties", "/kind" ],
+        [ "LoopPropertiesTypeStrictEvaluate", "/then/additionalProperties/type", "#/then/additionalProperties/type", "" ],
+        [ "LoopPropertiesUnevaluated", "/unevaluatedProperties", "#/unevaluatedProperties", "" ]
+      ],
+      "post": [
+        [ true, "AssertionEqual", "/if/properties/kind/const", "#/if/properties/kind/const", "/kind" ],
+        [ true, "Evaluate", "/if/properties", "#/if/properties", "/kind" ],
+        [ true, "LoopPropertiesTypeStrictEvaluate", "/then/additionalProperties/type", "#/then/additionalProperties/type", "" ],
+        [ true, "LogicalCondition", "/if", "#/if", "" ],
+        [ true, "LoopPropertiesUnevaluated", "/unevaluatedProperties", "#/unevaluatedProperties", "" ]
+      ],
+      "descriptions": [
+        "The string value \"A\" was expected to equal the string constant \"A\"",
+        "The instance location was marked as evaluated",
+        "The object properties were expected to be of type string",
+        "The object value was expected to validate against the given conditional",
+        "The object value was not expected to define unevaluated properties"
+      ]
+    }
+  },
+  {
+    "description": "additionalProperties_8",
+    "schema": {
+      "$schema": "https://json-schema.org/draft/2019-09/schema",
+      "if": {
+        "properties": {
+          "flag": {
+            "const": 1
+          }
+        }
+      },
+      "then": {
+        "additionalProperties": {
+          "type": "number"
+        }
+      },
+      "unevaluatedProperties": false
+    },
+    "instance": {
+      "flag": 1,
+      "value": 3.14
+    },
+    "valid": true,
+    "fast": {
+      "pre": [
+        [ "LogicalCondition", "/if", "#/if", "" ],
+        [ "AssertionEqual", "/if/properties/flag/const", "#/if/properties/flag/const", "/flag" ],
+        [ "Evaluate", "/if/properties", "#/if/properties", "/flag" ],
+        [ "LoopPropertiesTypeStrictAnyEvaluate", "/then/additionalProperties/type", "#/then/additionalProperties/type", "" ],
+        [ "LoopPropertiesUnevaluated", "/unevaluatedProperties", "#/unevaluatedProperties", "" ]
+      ],
+      "post": [
+        [ true, "AssertionEqual", "/if/properties/flag/const", "#/if/properties/flag/const", "/flag" ],
+        [ true, "Evaluate", "/if/properties", "#/if/properties", "/flag" ],
+        [ true, "LoopPropertiesTypeStrictAnyEvaluate", "/then/additionalProperties/type", "#/then/additionalProperties/type", "" ],
+        [ true, "LogicalCondition", "/if", "#/if", "" ],
+        [ true, "LoopPropertiesUnevaluated", "/unevaluatedProperties", "#/unevaluatedProperties", "" ]
+      ],
+      "descriptions": [
+        "The integer value 1 was expected to equal the integer constant 1",
+        "The instance location was marked as evaluated",
+        "The object properties were expected to be of type number",
+        "The object value was expected to validate against the given conditional",
+        "The object value was not expected to define unevaluated properties"
+      ]
+    }
+  }
+]
