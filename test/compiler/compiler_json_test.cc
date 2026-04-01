@@ -33,7 +33,6 @@ TEST(Compiler_JSON, example_1) {
   const sourcemeta::core::JSON expected{sourcemeta::core::parse_json(R"JSON([
     false,
     false,
-    [],
     [
       [
         [
@@ -69,7 +68,6 @@ TEST(Compiler_JSON, example_2) {
   const sourcemeta::core::JSON expected{sourcemeta::core::parse_json(R"JSON([
     false,
     false,
-    [],
     [
       [
         [
@@ -120,7 +118,6 @@ TEST(Compiler_JSON, example_3) {
   const sourcemeta::core::JSON expected{sourcemeta::core::parse_json(R"JSON([
     false,
     false,
-    [],
     [
       [
         [
@@ -158,14 +155,13 @@ TEST(Compiler_JSON, example_4) {
   const sourcemeta::core::JSON expected{sourcemeta::core::parse_json(R"JSON([
     false,
     false,
-    [ "https://example.com/top", "https://other.com/nested" ],
     [
       [
         [
           61,
           [ "additionalProperties" ],
           [],
-          "#/additionalProperties",
+          "https://example.com/top#/additionalProperties",
           1,
           [ 0 ],
           [
@@ -173,7 +169,7 @@ TEST(Compiler_JSON, example_4) {
               34,
               [ "multipleOf" ],
               [],
-              "#/multipleOf",
+              "https://other.com/nested#/multipleOf",
               2,
               [ 1, 2 ]
             ],
@@ -181,7 +177,7 @@ TEST(Compiler_JSON, example_4) {
               10,
               [ "type" ],
               [],
-              "#/type",
+              "https://other.com/nested#/type",
               2,
               [ 7, 156 ]
             ]
@@ -235,14 +231,13 @@ TEST(Compiler_JSON, example_5) {
   const sourcemeta::core::JSON expected{sourcemeta::core::parse_json(R"JSON([
     false,
     true,
-    [ "https://example.com/top" ],
     [
       [
         [
           44,
           [ "foo%" ],
           [],
-          "#/foo%25",
+          "https://example.com/top#/foo%25",
           1,
           [ 1, true ]
         ]
@@ -280,14 +275,13 @@ TEST(Compiler_JSON, example_6) {
   const sourcemeta::core::JSON expected{sourcemeta::core::parse_json(R"JSON([
     false,
     true,
-    [ "https://example.com/top" ],
     [
       [
         [
           61,
           [ "additionalProperties" ],
           [],
-          "#/additionalProperties",
+          "https://example.com/top#/additionalProperties",
           1,
           [ 0 ],
           [
@@ -295,7 +289,7 @@ TEST(Compiler_JSON, example_6) {
               11,
               [ "type" ],
               [],
-              "#/additionalProperties/type",
+              "https://example.com/top#/additionalProperties/type",
               1,
               [ 8, 4 ]
             ],
@@ -303,7 +297,7 @@ TEST(Compiler_JSON, example_6) {
               46,
               [],
               [],
-              "#/additionalProperties",
+              "https://example.com/top#/additionalProperties",
               1,
               [ 0 ]
             ]
@@ -433,8 +427,8 @@ TEST(Compiler_JSON, unreachable_refs_are_pruned) {
   const auto json_output{sourcemeta::blaze::to_json(schema_template)};
 
   EXPECT_TRUE(json_output.is_array());
-  EXPECT_EQ(json_output.size(), 5);
-  const auto &targets{json_output.at(3)};
+  EXPECT_EQ(json_output.size(), 4);
+  const auto &targets{json_output.at(2)};
 
   // NOTE: The targets must have exactly 1 entry (the root)
   // as all definitions are unreachable from the root
