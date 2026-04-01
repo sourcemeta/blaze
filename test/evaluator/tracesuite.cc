@@ -62,11 +62,10 @@ public:
     assert(pre.size() == trace_descriptions.size());
     const auto count{pre.size()};
 
-    const auto compiled_schema{
-        sourcemeta::blaze::compile(schema, sourcemeta::core::schema_walker,
-                                   sourcemeta::core::schema_resolver,
-                                   sourcemeta::blaze::default_schema_compiler,
-                                   this->mode)};
+    const auto compiled_schema{sourcemeta::blaze::compile(
+        schema, sourcemeta::core::schema_walker,
+        sourcemeta::core::schema_resolver,
+        sourcemeta::blaze::default_schema_compiler, this->mode)};
     __ASSERT_TEMPLATE_JSON_SERIALISATION(compiled_schema);
     EVALUATE_WITH_TRACE(compiled_schema, instance, count);
 
