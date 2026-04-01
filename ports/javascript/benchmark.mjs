@@ -8,11 +8,12 @@ const MODULE_DIR = dirname(fileURLToPath(import.meta.url));
 const PROJECT_ROOT = resolve(MODULE_DIR, '../..');
 const BENCHMARK_DIR = join(PROJECT_ROOT, 'benchmark/e2e');
 
-const MINIMUM_DURATION_NS = 1_000_000_000;
-const WARMUP_ITERATIONS = 3;
+const MINIMUM_DURATION_NS = 1_000_000_000n;
+const WARMUP_DURATION_NS = 500_000_000n;
 
 function measure(callback) {
-  for (let index = 0; index < WARMUP_ITERATIONS; index++) {
+  const warmupStart = process.hrtime.bigint();
+  while (process.hrtime.bigint() - warmupStart < WARMUP_DURATION_NS) {
     callback();
   }
 
