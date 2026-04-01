@@ -41,7 +41,7 @@ public:
   auto TestBody() -> void override {
     const auto &schema{this->data.at("schema")};
     const auto &instance{this->data.at("instance")};
-    const bool valid{this->data.at("valid").to_boolean()};
+    const bool expected_valid{this->data.at("valid").to_boolean()};
 
     std::string entrypoint;
     if (this->data.defines("entrypoint")) {
@@ -75,7 +75,7 @@ public:
     __ASSERT_TEMPLATE_JSON_SERIALISATION(compiled_schema);
     EVALUATE_WITH_TRACE(compiled_schema, instance, count);
 
-    if (valid) {
+    if (expected_valid) {
       EXPECT_TRUE(result);
     } else {
       EXPECT_FALSE(result);
