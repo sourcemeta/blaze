@@ -9623,6 +9623,30 @@
     }
   },
   {
+    "description": "multipleOf_23",
+    "schema": { "$schema": "http://json-schema.org/draft-04/schema#", "multipleOf": 0.01 },
+    "instance": 1280.32,
+    "valid": true,
+    "fast": {
+      "pre": [
+        [ "AssertionDivisible", "/multipleOf", "#/multipleOf", "" ]
+      ],
+      "post": [
+        [ true, "AssertionDivisible", "/multipleOf", "#/multipleOf", "" ]
+      ],
+      "descriptions": [ "The number value 1280.32 was expected to be divisible by the number 0.01" ]
+    },
+    "exhaustive": {
+      "pre": [
+        [ "AssertionDivisible", "/multipleOf", "#/multipleOf", "" ]
+      ],
+      "post": [
+        [ true, "AssertionDivisible", "/multipleOf", "#/multipleOf", "" ]
+      ],
+      "descriptions": [ "The number value 1280.32 was expected to be divisible by the number 0.01" ]
+    }
+  },
+  {
     "description": "metadata",
     "schema": {
       "$schema": "http://json-schema.org/draft-04/schema#",

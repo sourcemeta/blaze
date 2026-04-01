@@ -1066,6 +1066,27 @@ TEST(Evaluator_draft4, multipleOf_19) {
       "The number value 0.3 was expected to be divisible by the number 0.1");
 }
 
+TEST(Evaluator_draft4, multipleOf_20) {
+  auto schema{sourcemeta::core::JSON::make_object()};
+  schema.assign_assume_new(
+      "$schema",
+      sourcemeta::core::JSON{"http://json-schema.org/draft-04/schema#"});
+  schema.assign_assume_new(
+      "multipleOf", sourcemeta::core::JSON{sourcemeta::core::Decimal{"0.01"}});
+
+  const sourcemeta::core::JSON instance{sourcemeta::core::Decimal{"1280.32"}};
+  EVALUATE_WITH_TRACE_FAST_SUCCESS(schema, instance, 1, "");
+
+  EVALUATE_TRACE_PRE(0, AssertionDivisible, "/multipleOf", "#/multipleOf", "");
+  EVALUATE_TRACE_POST_SUCCESS(0, AssertionDivisible, "/multipleOf",
+                              "#/multipleOf", "");
+
+  EVALUATE_TRACE_POST_DESCRIBE(
+      instance, 0,
+      "The number value 1280.32 was expected to be divisible by the number "
+      "0.01");
+}
+
 TEST(Evaluator_draft4, minimum_18) {
   auto schema{sourcemeta::core::JSON::make_object()};
   schema.assign_assume_new(
