@@ -3,9 +3,7 @@
     "description": "discriminator_1",
     "schema": {
       "$schema": "https://spec.openapis.org/oas/3.1/dialect/base",
-      "discriminator": {
-        "propertyName": "petType"
-      }
+      "discriminator": { "propertyName": "petType" }
     },
     "instance": { "petType": "dog", "name": "Rex" },
     "valid": true,
@@ -33,10 +31,7 @@
     "description": "externalDocs_1",
     "schema": {
       "$schema": "https://spec.openapis.org/oas/3.1/dialect/base",
-      "externalDocs": {
-        "url": "https://example.com/docs",
-        "description": "Find more info here"
-      }
+      "externalDocs": { "url": "https://example.com/docs", "description": "Find more info here" }
     },
     "instance": "foo",
     "valid": true,
@@ -47,10 +42,7 @@
     "description": "example_1",
     "schema": {
       "$schema": "https://spec.openapis.org/oas/3.1/dialect/base",
-      "example": {
-        "name": "Rex",
-        "petType": "dog"
-      }
+      "example": { "name": "Rex", "petType": "dog" }
     },
     "instance": { "name": "Fluffy", "petType": "cat" },
     "valid": true,
@@ -59,10 +51,7 @@
   },
   {
     "description": "type_string_1",
-    "schema": {
-      "$schema": "https://spec.openapis.org/oas/3.1/dialect/base",
-      "type": "string"
-    },
+    "schema": { "$schema": "https://spec.openapis.org/oas/3.1/dialect/base", "type": "string" },
     "instance": "hello",
     "valid": true,
     "fast": {
@@ -86,10 +75,7 @@
   },
   {
     "description": "type_string_failure_1",
-    "schema": {
-      "$schema": "https://spec.openapis.org/oas/3.1/dialect/base",
-      "type": "string"
-    },
+    "schema": { "$schema": "https://spec.openapis.org/oas/3.1/dialect/base", "type": "string" },
     "instance": 42,
     "valid": false,
     "fast": {
@@ -99,9 +85,7 @@
       "post": [
         [ false, "AssertionTypeStrict", "/type", "#/type", "" ]
       ],
-      "descriptions": [
-        "The value was expected to be of type string but it was of type integer"
-      ]
+      "descriptions": [ "The value was expected to be of type string but it was of type integer" ]
     },
     "exhaustive": {
       "pre": [
@@ -110,9 +94,7 @@
       "post": [
         [ false, "AssertionTypeStrict", "/type", "#/type", "" ]
       ],
-      "descriptions": [
-        "The value was expected to be of type string but it was of type integer"
-      ]
+      "descriptions": [ "The value was expected to be of type string but it was of type integer" ]
     }
   }
 ]

@@ -1,20 +1,15 @@
 [
   {
     "description": "unknown_keyword",
-    "schema": {
-      "$schema": "http://json-schema.org/draft-06/schema#",
-      "foobar": "baz"
-    },
+    "schema": { "$schema": "http://json-schema.org/draft-06/schema#", "foobar": "baz" },
     "instance": "foo bar",
     "valid": true,
-    "fast": {}
+    "fast": {},
+    "exhaustive": {}
   },
   {
     "description": "const_1",
-    "schema": {
-      "$schema": "http://json-schema.org/draft-06/schema#",
-      "const": 1
-    },
+    "schema": { "$schema": "http://json-schema.org/draft-06/schema#", "const": 1 },
     "instance": 1,
     "valid": true,
     "fast": {
@@ -24,17 +19,21 @@
       "post": [
         [ true, "AssertionEqual", "/const", "#/const", "" ]
       ],
-      "descriptions": [
-        "The integer value 1 was expected to equal the integer constant 1"
-      ]
+      "descriptions": [ "The integer value 1 was expected to equal the integer constant 1" ]
+    },
+    "exhaustive": {
+      "pre": [
+        [ "AssertionEqual", "/const", "#/const", "" ]
+      ],
+      "post": [
+        [ true, "AssertionEqual", "/const", "#/const", "" ]
+      ],
+      "descriptions": [ "The integer value 1 was expected to equal the integer constant 1" ]
     }
   },
   {
     "description": "const_1_hyperschema",
-    "schema": {
-      "$schema": "http://json-schema.org/draft-06/hyper-schema#",
-      "const": 1
-    },
+    "schema": { "$schema": "http://json-schema.org/draft-06/hyper-schema#", "const": 1 },
     "instance": 1,
     "valid": true,
     "fast": {
@@ -44,17 +43,21 @@
       "post": [
         [ true, "AssertionEqual", "/const", "#/const", "" ]
       ],
-      "descriptions": [
-        "The integer value 1 was expected to equal the integer constant 1"
-      ]
+      "descriptions": [ "The integer value 1 was expected to equal the integer constant 1" ]
+    },
+    "exhaustive": {
+      "pre": [
+        [ "AssertionEqual", "/const", "#/const", "" ]
+      ],
+      "post": [
+        [ true, "AssertionEqual", "/const", "#/const", "" ]
+      ],
+      "descriptions": [ "The integer value 1 was expected to equal the integer constant 1" ]
     }
   },
   {
     "description": "const_2",
-    "schema": {
-      "$schema": "http://json-schema.org/draft-06/schema#",
-      "const": 1
-    },
+    "schema": { "$schema": "http://json-schema.org/draft-06/schema#", "const": 1 },
     "instance": "foo",
     "valid": false,
     "fast": {
@@ -64,18 +67,21 @@
       "post": [
         [ false, "AssertionEqual", "/const", "#/const", "" ]
       ],
-      "descriptions": [
-        "The string value \"foo\" was expected to equal the integer constant 1"
-      ]
+      "descriptions": [ "The string value \"foo\" was expected to equal the integer constant 1" ]
+    },
+    "exhaustive": {
+      "pre": [
+        [ "AssertionEqual", "/const", "#/const", "" ]
+      ],
+      "post": [
+        [ false, "AssertionEqual", "/const", "#/const", "" ]
+      ],
+      "descriptions": [ "The string value \"foo\" was expected to equal the integer constant 1" ]
     }
   },
   {
     "description": "const_3",
-    "schema": {
-      "$schema": "http://json-schema.org/draft-06/schema#",
-      "type": "string",
-      "const": "foo"
-    },
+    "schema": { "$schema": "http://json-schema.org/draft-06/schema#", "type": "string", "const": "foo" },
     "instance": "foo",
     "valid": true,
     "fast": {
@@ -85,18 +91,26 @@
       "post": [
         [ true, "AssertionEqual", "/const", "#/const", "" ]
       ],
+      "descriptions": [ "The string value \"foo\" was expected to equal the string constant \"foo\"" ]
+    },
+    "exhaustive": {
+      "pre": [
+        [ "AssertionEqual", "/const", "#/const", "" ],
+        [ "AssertionTypeStrict", "/type", "#/type", "" ]
+      ],
+      "post": [
+        [ true, "AssertionEqual", "/const", "#/const", "" ],
+        [ true, "AssertionTypeStrict", "/type", "#/type", "" ]
+      ],
       "descriptions": [
-        "The string value \"foo\" was expected to equal the string constant \"foo\""
+        "The string value \"foo\" was expected to equal the string constant \"foo\"",
+        "The value was expected to be of type string"
       ]
     }
   },
   {
     "description": "const_4",
-    "schema": {
-      "$schema": "http://json-schema.org/draft-06/schema#",
-      "type": "null",
-      "const": null
-    },
+    "schema": { "$schema": "http://json-schema.org/draft-06/schema#", "type": "null", "const": null },
     "instance": null,
     "valid": true,
     "fast": {
@@ -106,18 +120,26 @@
       "post": [
         [ true, "AssertionEqual", "/const", "#/const", "" ]
       ],
+      "descriptions": [ "The null value null was expected to equal the null constant null" ]
+    },
+    "exhaustive": {
+      "pre": [
+        [ "AssertionEqual", "/const", "#/const", "" ],
+        [ "AssertionTypeStrict", "/type", "#/type", "" ]
+      ],
+      "post": [
+        [ true, "AssertionEqual", "/const", "#/const", "" ],
+        [ true, "AssertionTypeStrict", "/type", "#/type", "" ]
+      ],
       "descriptions": [
-        "The null value null was expected to equal the null constant null"
+        "The null value null was expected to equal the null constant null",
+        "The value was expected to be of type null"
       ]
     }
   },
   {
     "description": "const_5",
-    "schema": {
-      "$schema": "http://json-schema.org/draft-06/schema#",
-      "type": "boolean",
-      "const": true
-    },
+    "schema": { "$schema": "http://json-schema.org/draft-06/schema#", "type": "boolean", "const": true },
     "instance": true,
     "valid": true,
     "fast": {
@@ -127,18 +149,26 @@
       "post": [
         [ true, "AssertionEqual", "/const", "#/const", "" ]
       ],
+      "descriptions": [ "The boolean value true was expected to equal the boolean constant true" ]
+    },
+    "exhaustive": {
+      "pre": [
+        [ "AssertionEqual", "/const", "#/const", "" ],
+        [ "AssertionTypeStrict", "/type", "#/type", "" ]
+      ],
+      "post": [
+        [ true, "AssertionEqual", "/const", "#/const", "" ],
+        [ true, "AssertionTypeStrict", "/type", "#/type", "" ]
+      ],
       "descriptions": [
-        "The boolean value true was expected to equal the boolean constant true"
+        "The boolean value true was expected to equal the boolean constant true",
+        "The value was expected to be of type boolean"
       ]
     }
   },
   {
     "description": "const_6",
-    "schema": {
-      "$schema": "http://json-schema.org/draft-06/schema#",
-      "type": "number",
-      "const": 3.14
-    },
+    "schema": { "$schema": "http://json-schema.org/draft-06/schema#", "type": "number", "const": 3.14 },
     "instance": 3.14,
     "valid": true,
     "fast": {
@@ -148,18 +178,26 @@
       "post": [
         [ true, "AssertionEqual", "/const", "#/const", "" ]
       ],
+      "descriptions": [ "The number value 3.14 was expected to equal the number constant 3.14" ]
+    },
+    "exhaustive": {
+      "pre": [
+        [ "AssertionEqual", "/const", "#/const", "" ],
+        [ "AssertionTypeStrictAny", "/type", "#/type", "" ]
+      ],
+      "post": [
+        [ true, "AssertionEqual", "/const", "#/const", "" ],
+        [ true, "AssertionTypeStrictAny", "/type", "#/type", "" ]
+      ],
       "descriptions": [
-        "The number value 3.14 was expected to equal the number constant 3.14"
+        "The number value 3.14 was expected to equal the number constant 3.14",
+        "The value was expected to be of type number"
       ]
     }
   },
   {
     "description": "const_7",
-    "schema": {
-      "$schema": "http://json-schema.org/draft-06/schema#",
-      "type": "integer",
-      "const": 3
-    },
+    "schema": { "$schema": "http://json-schema.org/draft-06/schema#", "type": "integer", "const": 3 },
     "instance": 3,
     "valid": true,
     "fast": {
@@ -169,18 +207,26 @@
       "post": [
         [ true, "AssertionEqual", "/const", "#/const", "" ]
       ],
+      "descriptions": [ "The integer value 3 was expected to equal the integer constant 3" ]
+    },
+    "exhaustive": {
+      "pre": [
+        [ "AssertionEqual", "/const", "#/const", "" ],
+        [ "AssertionType", "/type", "#/type", "" ]
+      ],
+      "post": [
+        [ true, "AssertionEqual", "/const", "#/const", "" ],
+        [ true, "AssertionType", "/type", "#/type", "" ]
+      ],
       "descriptions": [
-        "The integer value 3 was expected to equal the integer constant 3"
+        "The integer value 3 was expected to equal the integer constant 3",
+        "The value was expected to be of type integer"
       ]
     }
   },
   {
     "description": "const_8",
-    "schema": {
-      "$schema": "http://json-schema.org/draft-06/schema#",
-      "type": "integer",
-      "const": 3.0
-    },
+    "schema": { "$schema": "http://json-schema.org/draft-06/schema#", "type": "integer", "const": 3.0 },
     "instance": 3.0,
     "valid": true,
     "fast": {
@@ -190,8 +236,20 @@
       "post": [
         [ true, "AssertionEqual", "/const", "#/const", "" ]
       ],
+      "descriptions": [ "The number value 3.0 was expected to equal the number constant 3.0" ]
+    },
+    "exhaustive": {
+      "pre": [
+        [ "AssertionEqual", "/const", "#/const", "" ],
+        [ "AssertionType", "/type", "#/type", "" ]
+      ],
+      "post": [
+        [ true, "AssertionEqual", "/const", "#/const", "" ],
+        [ true, "AssertionType", "/type", "#/type", "" ]
+      ],
       "descriptions": [
-        "The number value 3.0 was expected to equal the number constant 3.0"
+        "The number value 3.0 was expected to equal the number constant 3.0",
+        "The value was expected to be of type integer"
       ]
     }
   },
@@ -214,6 +272,20 @@
       "descriptions": [
         "The array value [] was expected to equal the array constant []"
       ]
+    },
+    "exhaustive": {
+      "pre": [
+        [ "AssertionEqual", "/const", "#/const", "" ],
+        [ "AssertionTypeStrict", "/type", "#/type", "" ]
+      ],
+      "post": [
+        [ true, "AssertionEqual", "/const", "#/const", "" ],
+        [ true, "AssertionTypeStrict", "/type", "#/type", "" ]
+      ],
+      "descriptions": [
+        "The array value [] was expected to equal the array constant []",
+        "The value was expected to be of type array"
+      ]
     }
   },
   {
@@ -234,6 +306,20 @@
       ],
       "descriptions": [
         "The object value {} was expected to equal the object constant {}"
+      ]
+    },
+    "exhaustive": {
+      "pre": [
+        [ "AssertionEqual", "/const", "#/const", "" ],
+        [ "AssertionTypeStrict", "/type", "#/type", "" ]
+      ],
+      "post": [
+        [ true, "AssertionEqual", "/const", "#/const", "" ],
+        [ true, "AssertionTypeStrict", "/type", "#/type", "" ]
+      ],
+      "descriptions": [
+        "The object value {} was expected to equal the object constant {}",
+        "The value was expected to be of type object"
       ]
     }
   },
@@ -260,6 +346,23 @@
         "The object value {\"foo\":1} was expected to equal the object constant {\"foo\":1}",
         "The value was expected to consist of an object of at least 1 property"
       ]
+    },
+    "exhaustive": {
+      "pre": [
+        [ "AssertionEqual", "/const", "#/const", "" ],
+        [ "AssertionObjectSizeGreater", "/minProperties", "#/minProperties", "" ],
+        [ "AssertionTypeStrict", "/type", "#/type", "" ]
+      ],
+      "post": [
+        [ true, "AssertionEqual", "/const", "#/const", "" ],
+        [ true, "AssertionObjectSizeGreater", "/minProperties", "#/minProperties", "" ],
+        [ true, "AssertionTypeStrict", "/type", "#/type", "" ]
+      ],
+      "descriptions": [
+        "The object value {\"foo\":1} was expected to equal the object constant {\"foo\":1}",
+        "The object value was expected to contain at least 1 property and it contained 1 property: \"foo\"",
+        "The value was expected to be of type object"
+      ]
     }
   },
   {
@@ -284,6 +387,23 @@
       "descriptions": [
         "The array value [1] was expected to equal the array constant [1]",
         "The value was expected to consist of an array of at least 1 item"
+      ]
+    },
+    "exhaustive": {
+      "pre": [
+        [ "AssertionEqual", "/const", "#/const", "" ],
+        [ "AssertionArraySizeGreater", "/minItems", "#/minItems", "" ],
+        [ "AssertionTypeStrict", "/type", "#/type", "" ]
+      ],
+      "post": [
+        [ true, "AssertionEqual", "/const", "#/const", "" ],
+        [ true, "AssertionArraySizeGreater", "/minItems", "#/minItems", "" ],
+        [ true, "AssertionTypeStrict", "/type", "#/type", "" ]
+      ],
+      "descriptions": [
+        "The array value [1] was expected to equal the array constant [1]",
+        "The array value was expected to contain at least 1 item and it contained 1 item",
+        "The value was expected to be of type array"
       ]
     }
   },
@@ -310,14 +430,28 @@
         "The string value \"foo\" was expected to equal the string constant \"foo\"",
         "The value was expected to consist of a string of at least 1 character"
       ]
+    },
+    "exhaustive": {
+      "pre": [
+        [ "AssertionEqual", "/const", "#/const", "" ],
+        [ "AssertionStringSizeGreater", "/minLength", "#/minLength", "" ],
+        [ "AssertionTypeStrict", "/type", "#/type", "" ]
+      ],
+      "post": [
+        [ true, "AssertionEqual", "/const", "#/const", "" ],
+        [ true, "AssertionStringSizeGreater", "/minLength", "#/minLength", "" ],
+        [ true, "AssertionTypeStrict", "/type", "#/type", "" ]
+      ],
+      "descriptions": [
+        "The string value \"foo\" was expected to equal the string constant \"foo\"",
+        "The string value \"foo\" was expected to consist of at least 1 character and it consisted of 3 characters",
+        "The value was expected to be of type string"
+      ]
     }
   },
   {
     "description": "exclusiveMinimum_1",
-    "schema": {
-      "$schema": "http://json-schema.org/draft-06/schema#",
-      "exclusiveMinimum": 2
-    },
+    "schema": { "$schema": "http://json-schema.org/draft-06/schema#", "exclusiveMinimum": 2 },
     "instance": 2.1,
     "valid": true,
     "fast": {
@@ -327,17 +461,21 @@
       "post": [
         [ true, "AssertionGreater", "/exclusiveMinimum", "#/exclusiveMinimum", "" ]
       ],
-      "descriptions": [
-        "The number value 2.1 was expected to be greater than the integer 2"
-      ]
+      "descriptions": [ "The number value 2.1 was expected to be greater than the integer 2" ]
+    },
+    "exhaustive": {
+      "pre": [
+        [ "AssertionGreater", "/exclusiveMinimum", "#/exclusiveMinimum", "" ]
+      ],
+      "post": [
+        [ true, "AssertionGreater", "/exclusiveMinimum", "#/exclusiveMinimum", "" ]
+      ],
+      "descriptions": [ "The number value 2.1 was expected to be greater than the integer 2" ]
     }
   },
   {
     "description": "exclusiveMinimum_2",
-    "schema": {
-      "$schema": "http://json-schema.org/draft-06/schema#",
-      "exclusiveMinimum": 2
-    },
+    "schema": { "$schema": "http://json-schema.org/draft-06/schema#", "exclusiveMinimum": 2 },
     "instance": 2,
     "valid": false,
     "fast": {
@@ -347,17 +485,21 @@
       "post": [
         [ false, "AssertionGreater", "/exclusiveMinimum", "#/exclusiveMinimum", "" ]
       ],
-      "descriptions": [
-        "The integer value 2 was expected to be greater than the integer 2, but they were equal"
-      ]
+      "descriptions": [ "The integer value 2 was expected to be greater than the integer 2, but they were equal" ]
+    },
+    "exhaustive": {
+      "pre": [
+        [ "AssertionGreater", "/exclusiveMinimum", "#/exclusiveMinimum", "" ]
+      ],
+      "post": [
+        [ false, "AssertionGreater", "/exclusiveMinimum", "#/exclusiveMinimum", "" ]
+      ],
+      "descriptions": [ "The integer value 2 was expected to be greater than the integer 2, but they were equal" ]
     }
   },
   {
     "description": "exclusiveMinimum_3",
-    "schema": {
-      "$schema": "http://json-schema.org/draft-06/schema#",
-      "exclusiveMinimum": 0
-    },
+    "schema": { "$schema": "http://json-schema.org/draft-06/schema#", "exclusiveMinimum": 0 },
     "instance": 1,
     "valid": true,
     "fast": {
@@ -367,27 +509,29 @@
       "post": [
         [ true, "AssertionGreater", "/exclusiveMinimum", "#/exclusiveMinimum", "" ]
       ],
-      "descriptions": [
-        "The integer value 1 was expected to be greater than the integer 0"
-      ]
+      "descriptions": [ "The integer value 1 was expected to be greater than the integer 0" ]
+    },
+    "exhaustive": {
+      "pre": [
+        [ "AssertionGreater", "/exclusiveMinimum", "#/exclusiveMinimum", "" ]
+      ],
+      "post": [
+        [ true, "AssertionGreater", "/exclusiveMinimum", "#/exclusiveMinimum", "" ]
+      ],
+      "descriptions": [ "The integer value 1 was expected to be greater than the integer 0" ]
     }
   },
   {
     "description": "exclusiveMinimum_4",
-    "schema": {
-      "$schema": "http://json-schema.org/draft-06/schema#",
-      "exclusiveMinimum": "not-a-number"
-    },
+    "schema": { "$schema": "http://json-schema.org/draft-06/schema#", "exclusiveMinimum": "not-a-number" },
     "instance": "foo",
     "valid": true,
-    "fast": {}
+    "fast": {},
+    "exhaustive": {}
   },
   {
     "description": "exclusiveMaximum_1",
-    "schema": {
-      "$schema": "http://json-schema.org/draft-06/schema#",
-      "exclusiveMaximum": 2
-    },
+    "schema": { "$schema": "http://json-schema.org/draft-06/schema#", "exclusiveMaximum": 2 },
     "instance": 1.9,
     "valid": true,
     "fast": {
@@ -397,17 +541,21 @@
       "post": [
         [ true, "AssertionLess", "/exclusiveMaximum", "#/exclusiveMaximum", "" ]
       ],
-      "descriptions": [
-        "The number value 1.9 was expected to be less than the integer 2"
-      ]
+      "descriptions": [ "The number value 1.9 was expected to be less than the integer 2" ]
+    },
+    "exhaustive": {
+      "pre": [
+        [ "AssertionLess", "/exclusiveMaximum", "#/exclusiveMaximum", "" ]
+      ],
+      "post": [
+        [ true, "AssertionLess", "/exclusiveMaximum", "#/exclusiveMaximum", "" ]
+      ],
+      "descriptions": [ "The number value 1.9 was expected to be less than the integer 2" ]
     }
   },
   {
     "description": "exclusiveMaximum_2",
-    "schema": {
-      "$schema": "http://json-schema.org/draft-06/schema#",
-      "exclusiveMaximum": 2
-    },
+    "schema": { "$schema": "http://json-schema.org/draft-06/schema#", "exclusiveMaximum": 2 },
     "instance": 2,
     "valid": false,
     "fast": {
@@ -417,17 +565,21 @@
       "post": [
         [ false, "AssertionLess", "/exclusiveMaximum", "#/exclusiveMaximum", "" ]
       ],
-      "descriptions": [
-        "The integer value 2 was expected to be less than the integer 2, but they were equal"
-      ]
+      "descriptions": [ "The integer value 2 was expected to be less than the integer 2, but they were equal" ]
+    },
+    "exhaustive": {
+      "pre": [
+        [ "AssertionLess", "/exclusiveMaximum", "#/exclusiveMaximum", "" ]
+      ],
+      "post": [
+        [ false, "AssertionLess", "/exclusiveMaximum", "#/exclusiveMaximum", "" ]
+      ],
+      "descriptions": [ "The integer value 2 was expected to be less than the integer 2, but they were equal" ]
     }
   },
   {
     "description": "exclusiveMaximum_3",
-    "schema": {
-      "$schema": "http://json-schema.org/draft-06/schema#",
-      "exclusiveMaximum": 0
-    },
+    "schema": { "$schema": "http://json-schema.org/draft-06/schema#", "exclusiveMaximum": 0 },
     "instance": 0,
     "valid": false,
     "fast": {
@@ -437,20 +589,25 @@
       "post": [
         [ false, "AssertionLess", "/exclusiveMaximum", "#/exclusiveMaximum", "" ]
       ],
-      "descriptions": [
-        "The integer value 0 was expected to be less than the integer 0, but they were equal"
-      ]
+      "descriptions": [ "The integer value 0 was expected to be less than the integer 0, but they were equal" ]
+    },
+    "exhaustive": {
+      "pre": [
+        [ "AssertionLess", "/exclusiveMaximum", "#/exclusiveMaximum", "" ]
+      ],
+      "post": [
+        [ false, "AssertionLess", "/exclusiveMaximum", "#/exclusiveMaximum", "" ]
+      ],
+      "descriptions": [ "The integer value 0 was expected to be less than the integer 0, but they were equal" ]
     }
   },
   {
     "description": "exclusiveMaximum_4",
-    "schema": {
-      "$schema": "http://json-schema.org/draft-06/schema#",
-      "exclusiveMaximum": "not-a-number"
-    },
+    "schema": { "$schema": "http://json-schema.org/draft-06/schema#", "exclusiveMaximum": "not-a-number" },
     "instance": "foo",
     "valid": true,
-    "fast": {}
+    "fast": {},
+    "exhaustive": {}
   },
   {
     "description": "contains_1",
@@ -460,7 +617,8 @@
     },
     "instance": 2,
     "valid": true,
-    "fast": {}
+    "fast": {},
+    "exhaustive": {}
   },
   {
     "description": "contains_2",
@@ -471,6 +629,23 @@
     "instance": [ 1, "bar", 3 ],
     "valid": true,
     "fast": {
+      "pre": [
+        [ "LoopContains", "/contains", "#/contains", "" ],
+        [ "AssertionTypeStrict", "/contains/type", "#/contains/type", "/0" ],
+        [ "AssertionTypeStrict", "/contains/type", "#/contains/type", "/1" ]
+      ],
+      "post": [
+        [ false, "AssertionTypeStrict", "/contains/type", "#/contains/type", "/0" ],
+        [ true, "AssertionTypeStrict", "/contains/type", "#/contains/type", "/1" ],
+        [ true, "LoopContains", "/contains", "#/contains", "" ]
+      ],
+      "descriptions": [
+        "The value was expected to be of type string but it was of type integer",
+        "The value was expected to be of type string",
+        "The array value was expected to contain at least 1 item that validates against the given subschema"
+      ]
+    },
+    "exhaustive": {
       "pre": [
         [ "LoopContains", "/contains", "#/contains", "" ],
         [ "AssertionTypeStrict", "/contains/type", "#/contains/type", "/0" ],
@@ -515,6 +690,26 @@
         "The value was expected to be of type string but it was of type integer",
         "The array value was expected to contain at least 1 item that validates against the given subschema"
       ]
+    },
+    "exhaustive": {
+      "pre": [
+        [ "LoopContains", "/contains", "#/contains", "" ],
+        [ "AssertionTypeStrict", "/contains/type", "#/contains/type", "/0" ],
+        [ "AssertionTypeStrict", "/contains/type", "#/contains/type", "/1" ],
+        [ "AssertionTypeStrict", "/contains/type", "#/contains/type", "/2" ]
+      ],
+      "post": [
+        [ false, "AssertionTypeStrict", "/contains/type", "#/contains/type", "/0" ],
+        [ false, "AssertionTypeStrict", "/contains/type", "#/contains/type", "/1" ],
+        [ false, "AssertionTypeStrict", "/contains/type", "#/contains/type", "/2" ],
+        [ false, "LoopContains", "/contains", "#/contains", "" ]
+      ],
+      "descriptions": [
+        "The value was expected to be of type string but it was of type integer",
+        "The value was expected to be of type string but it was of type integer",
+        "The value was expected to be of type string but it was of type integer",
+        "The array value was expected to contain at least 1 item that validates against the given subschema"
+      ]
     }
   },
   {
@@ -538,14 +733,25 @@
         "The value was expected to be of type string",
         "The array value was expected to contain at least 1 item that validates against the given subschema"
       ]
+    },
+    "exhaustive": {
+      "pre": [
+        [ "LoopContains", "/contains", "#/contains", "" ],
+        [ "AssertionTypeStrict", "/contains/type", "#/contains/type", "/0" ]
+      ],
+      "post": [
+        [ true, "AssertionTypeStrict", "/contains/type", "#/contains/type", "/0" ],
+        [ true, "LoopContains", "/contains", "#/contains", "" ]
+      ],
+      "descriptions": [
+        "The value was expected to be of type string",
+        "The array value was expected to contain at least 1 item that validates against the given subschema"
+      ]
     }
   },
   {
     "description": "contains_5",
-    "schema": {
-      "$schema": "http://json-schema.org/draft-06/schema#",
-      "contains": true
-    },
+    "schema": { "$schema": "http://json-schema.org/draft-06/schema#", "contains": true },
     "instance": [ "foo", "bar", "baz" ],
     "valid": true,
     "fast": {
@@ -555,9 +761,16 @@
       "post": [
         [ true, "AssertionArraySizeGreater", "/contains", "#/contains", "" ]
       ],
-      "descriptions": [
-        "The array value was expected to contain at least 1 item and it contained 3 items"
-      ]
+      "descriptions": [ "The array value was expected to contain at least 1 item and it contained 3 items" ]
+    },
+    "exhaustive": {
+      "pre": [
+        [ "AssertionArraySizeGreater", "/contains", "#/contains", "" ]
+      ],
+      "post": [
+        [ true, "AssertionArraySizeGreater", "/contains", "#/contains", "" ]
+      ],
+      "descriptions": [ "The array value was expected to contain at least 1 item and it contained 3 items" ]
     }
   },
   {
@@ -568,7 +781,8 @@
     },
     "instance": 2,
     "valid": true,
-    "fast": {}
+    "fast": {},
+    "exhaustive": {}
   },
   {
     "description": "propertyNames_4",
@@ -580,9 +794,12 @@
         }
       }
     },
-    "instance": { "foo": {} },
+    "instance": {
+      "foo": {}
+    },
     "valid": true,
-    "fast": {}
+    "fast": {},
+    "exhaustive": {}
   },
   {
     "description": "propertyNames_6",
@@ -593,6 +810,20 @@
     "instance": { "bar": 2 },
     "valid": false,
     "fast": {
+      "pre": [
+        [ "LoopKeys", "/propertyNames", "#/propertyNames", "" ],
+        [ "AssertionRegex", "/propertyNames/pattern", "#/propertyNames/pattern", "/bar" ]
+      ],
+      "post": [
+        [ false, "AssertionRegex", "/propertyNames/pattern", "#/propertyNames/pattern", "/bar" ],
+        [ false, "LoopKeys", "/propertyNames", "#/propertyNames", "" ]
+      ],
+      "descriptions": [
+        "The property name \"bar\" was expected to match the regular expression \"^f\"",
+        "The object property \"bar\" was expected to validate against the given subschema"
+      ]
+    },
+    "exhaustive": {
       "pre": [
         [ "LoopKeys", "/propertyNames", "#/propertyNames", "" ],
         [ "AssertionRegex", "/propertyNames/pattern", "#/propertyNames/pattern", "/bar" ]
@@ -631,6 +862,23 @@
         "The property name \"bar\" was expected to match the regular expression \"^f\"",
         "The object property \"bar\" was expected to validate against the given subschema"
       ]
+    },
+    "exhaustive": {
+      "pre": [
+        [ "LoopKeys", "/propertyNames", "#/propertyNames", "" ],
+        [ "ControlJump", "/propertyNames/$ref", "#/propertyNames/$ref", "/bar" ],
+        [ "AssertionRegex", "/propertyNames/$ref/pattern", "#/definitions/test/pattern", "/bar" ]
+      ],
+      "post": [
+        [ false, "AssertionRegex", "/propertyNames/$ref/pattern", "#/definitions/test/pattern", "/bar" ],
+        [ false, "ControlJump", "/propertyNames/$ref", "#/propertyNames/$ref", "/bar" ],
+        [ false, "LoopKeys", "/propertyNames", "#/propertyNames", "" ]
+      ],
+      "descriptions": [
+        "The property name \"bar\" was expected to match the regular expression \"^f\"",
+        "The string value was expected to validate against the referenced schema",
+        "The object property \"bar\" was expected to validate against the given subschema"
+      ]
     }
   },
   {
@@ -641,7 +889,8 @@
     },
     "instance": { "bar": 2 },
     "valid": true,
-    "fast": {}
+    "fast": {},
+    "exhaustive": {}
   },
   {
     "description": "propertyNames_9",
@@ -654,6 +903,20 @@
     "instance": { "foo": 1 },
     "valid": true,
     "fast": {
+      "pre": [
+        [ "LoopKeys", "/propertyNames", "#/propertyNames", "" ],
+        [ "AssertionEqual", "/propertyNames/enum", "#/propertyNames/enum", "/foo" ]
+      ],
+      "post": [
+        [ true, "AssertionEqual", "/propertyNames/enum", "#/propertyNames/enum", "/foo" ],
+        [ true, "LoopKeys", "/propertyNames", "#/propertyNames", "" ]
+      ],
+      "descriptions": [
+        "The property name \"foo\" was expected to equal the string constant \"foo\"",
+        "The object property \"foo\" was expected to validate against the given subschema"
+      ]
+    },
+    "exhaustive": {
       "pre": [
         [ "LoopKeys", "/propertyNames", "#/propertyNames", "" ],
         [ "AssertionEqual", "/propertyNames/enum", "#/propertyNames/enum", "/foo" ]
@@ -691,6 +954,20 @@
         "The property name \"foo\" was expected to equal one of the given declared values",
         "The object property \"foo\" was expected to validate against the given subschema"
       ]
+    },
+    "exhaustive": {
+      "pre": [
+        [ "LoopKeys", "/propertyNames", "#/propertyNames", "" ],
+        [ "AssertionEqualsAny", "/propertyNames/enum", "#/propertyNames/enum", "/foo" ]
+      ],
+      "post": [
+        [ true, "AssertionEqualsAny", "/propertyNames/enum", "#/propertyNames/enum", "/foo" ],
+        [ true, "LoopKeys", "/propertyNames", "#/propertyNames", "" ]
+      ],
+      "descriptions": [
+        "The property name \"foo\" was expected to equal one of the 3 declared values",
+        "The object property \"foo\" was expected to validate against the given subschema"
+      ]
     }
   },
   {
@@ -716,6 +993,20 @@
         "The property name \"foo\" was expected to equal one of the 3 declared values",
         "The object property \"foo\" was expected to validate against the given subschema"
       ]
+    },
+    "exhaustive": {
+      "pre": [
+        [ "LoopKeys", "/propertyNames", "#/propertyNames", "" ],
+        [ "AssertionEqualsAny", "/propertyNames/enum", "#/propertyNames/enum", "/foo" ]
+      ],
+      "post": [
+        [ true, "AssertionEqualsAny", "/propertyNames/enum", "#/propertyNames/enum", "/foo" ],
+        [ true, "LoopKeys", "/propertyNames", "#/propertyNames", "" ]
+      ],
+      "descriptions": [
+        "The property name \"foo\" was expected to equal one of the 3 declared values",
+        "The object property \"foo\" was expected to validate against the given subschema"
+      ]
     }
   },
   {
@@ -724,7 +1015,9 @@
       "$schema": "http://json-schema.org/draft-06/schema#",
       "propertyNames": {
         "oneOf": [
-          { "enum": [ "foo", "bar", "baz" ] },
+          {
+            "enum": [ "foo", "bar", "baz" ]
+          },
           { "type": "string" }
         ]
       }
@@ -747,6 +1040,23 @@
         "The property name \"foo\" was expected to validate against one and only one of the 2 given subschemas",
         "The object property \"foo\" was expected to validate against the given subschema"
       ]
+    },
+    "exhaustive": {
+      "pre": [
+        [ "LoopKeys", "/propertyNames", "#/propertyNames", "" ],
+        [ "LogicalXor", "/propertyNames/oneOf", "#/propertyNames/oneOf", "/foo" ],
+        [ "AssertionEqualsAny", "/propertyNames/oneOf/0/enum", "#/propertyNames/oneOf/0/enum", "/foo" ]
+      ],
+      "post": [
+        [ true, "AssertionEqualsAny", "/propertyNames/oneOf/0/enum", "#/propertyNames/oneOf/0/enum", "/foo" ],
+        [ false, "LogicalXor", "/propertyNames/oneOf", "#/propertyNames/oneOf", "/foo" ],
+        [ false, "LoopKeys", "/propertyNames", "#/propertyNames", "" ]
+      ],
+      "descriptions": [
+        "The property name \"foo\" was expected to equal one of the 3 declared values",
+        "The property name \"foo\" was expected to validate against one and only one of the 2 given subschemas",
+        "The object property \"foo\" was expected to validate against the given subschema"
+      ]
     }
   },
   {
@@ -760,7 +1070,21 @@
     },
     "instance": { "foo": 1 },
     "valid": true,
-    "fast": {}
+    "fast": {},
+    "exhaustive": {
+      "pre": [
+        [ "LoopKeys", "/propertyNames", "#/propertyNames", "" ],
+        [ "ControlJump", "/propertyNames/$ref", "#/propertyNames/$ref", "/foo" ]
+      ],
+      "post": [
+        [ true, "ControlJump", "/propertyNames/$ref", "#/propertyNames/$ref", "/foo" ],
+        [ true, "LoopKeys", "/propertyNames", "#/propertyNames", "" ]
+      ],
+      "descriptions": [
+        "The string value was expected to validate against the referenced schema",
+        "The object property \"foo\" was expected to validate against the given subschema"
+      ]
+    }
   },
   {
     "description": "propertyNames_14",
@@ -781,8 +1105,29 @@
       "post": [
         [ false, "LoopPropertiesTypeStrict", "/additionalProperties/$ref/type", "#/definitions/stringType/type", "" ]
       ],
+      "descriptions": [ "The object properties were expected to be of type string" ]
+    },
+    "exhaustive": {
+      "pre": [
+        [ "LoopKeys", "/propertyNames", "#/propertyNames", "" ],
+        [ "ControlJump", "/propertyNames/$ref", "#/propertyNames/$ref", "/foo" ],
+        [ "LoopProperties", "/additionalProperties", "#/additionalProperties", "" ],
+        [ "ControlJump", "/additionalProperties/$ref", "#/additionalProperties/$ref", "/foo" ],
+        [ "AssertionTypeStrict", "/additionalProperties/$ref/type", "#/definitions/stringType/type", "/foo" ]
+      ],
+      "post": [
+        [ true, "ControlJump", "/propertyNames/$ref", "#/propertyNames/$ref", "/foo" ],
+        [ true, "LoopKeys", "/propertyNames", "#/propertyNames", "" ],
+        [ false, "AssertionTypeStrict", "/additionalProperties/$ref/type", "#/definitions/stringType/type", "/foo" ],
+        [ false, "ControlJump", "/additionalProperties/$ref", "#/additionalProperties/$ref", "/foo" ],
+        [ false, "LoopProperties", "/additionalProperties", "#/additionalProperties", "" ]
+      ],
       "descriptions": [
-        "The object properties were expected to be of type string"
+        "The string value was expected to validate against the referenced schema",
+        "The object property \"foo\" was expected to validate against the given subschema",
+        "The value was expected to be of type string but it was of type integer",
+        "The integer value was expected to validate against the referenced schema",
+        "The object properties not covered by other adjacent object keywords were expected to validate against this subschema"
       ]
     }
   },
@@ -805,8 +1150,29 @@
       "post": [
         [ false, "LoopPropertiesTypeStrict", "/additionalProperties/$ref/type", "#/definitions/stringType/type", "" ]
       ],
+      "descriptions": [ "The object properties were expected to be of type string" ]
+    },
+    "exhaustive": {
+      "pre": [
+        [ "LoopKeys", "/propertyNames", "#/propertyNames", "" ],
+        [ "ControlJump", "/propertyNames/$ref", "#/propertyNames/$ref", "/foo" ],
+        [ "LoopProperties", "/additionalProperties", "#/additionalProperties", "" ],
+        [ "ControlJump", "/additionalProperties/$ref", "#/additionalProperties/$ref", "/foo" ],
+        [ "AssertionTypeStrict", "/additionalProperties/$ref/type", "#/definitions/stringType/type", "/foo" ]
+      ],
+      "post": [
+        [ true, "ControlJump", "/propertyNames/$ref", "#/propertyNames/$ref", "/foo" ],
+        [ true, "LoopKeys", "/propertyNames", "#/propertyNames", "" ],
+        [ false, "AssertionTypeStrict", "/additionalProperties/$ref/type", "#/definitions/stringType/type", "/foo" ],
+        [ false, "ControlJump", "/additionalProperties/$ref", "#/additionalProperties/$ref", "/foo" ],
+        [ false, "LoopProperties", "/additionalProperties", "#/additionalProperties", "" ]
+      ],
       "descriptions": [
-        "The object properties were expected to be of type string"
+        "The string value was expected to validate against the referenced schema",
+        "The object property \"foo\" was expected to validate against the given subschema",
+        "The value was expected to be of type string but it was of type integer",
+        "The integer value was expected to validate against the referenced schema",
+        "The object properties not covered by other adjacent object keywords were expected to validate against this subschema"
       ]
     }
   },
@@ -829,8 +1195,29 @@
       "post": [
         [ true, "LoopPropertiesTypeStrict", "/additionalProperties/$ref/type", "#/definitions/stringType/type", "" ]
       ],
+      "descriptions": [ "The object properties were expected to be of type string" ]
+    },
+    "exhaustive": {
+      "pre": [
+        [ "LoopKeys", "/propertyNames", "#/propertyNames", "" ],
+        [ "ControlJump", "/propertyNames/$ref", "#/propertyNames/$ref", "/foo" ],
+        [ "LoopProperties", "/additionalProperties", "#/additionalProperties", "" ],
+        [ "ControlJump", "/additionalProperties/$ref", "#/additionalProperties/$ref", "/foo" ],
+        [ "AssertionTypeStrict", "/additionalProperties/$ref/type", "#/definitions/stringType/type", "/foo" ]
+      ],
+      "post": [
+        [ true, "ControlJump", "/propertyNames/$ref", "#/propertyNames/$ref", "/foo" ],
+        [ true, "LoopKeys", "/propertyNames", "#/propertyNames", "" ],
+        [ true, "AssertionTypeStrict", "/additionalProperties/$ref/type", "#/definitions/stringType/type", "/foo" ],
+        [ true, "ControlJump", "/additionalProperties/$ref", "#/additionalProperties/$ref", "/foo" ],
+        [ true, "LoopProperties", "/additionalProperties", "#/additionalProperties", "" ]
+      ],
       "descriptions": [
-        "The object properties were expected to be of type string"
+        "The string value was expected to validate against the referenced schema",
+        "The object property \"foo\" was expected to validate against the given subschema",
+        "The value was expected to be of type string",
+        "The string value was expected to validate against the referenced schema",
+        "The object properties not covered by other adjacent object keywords were expected to validate against this subschema"
       ]
     }
   },
@@ -838,9 +1225,7 @@
     "description": "propertyNames_17",
     "schema": {
       "$schema": "http://json-schema.org/draft-06/schema#",
-      "propertyNames": {
-        "$ref": "#/definitions/foo"
-      },
+      "propertyNames": { "$ref": "#/definitions/foo" },
       "definitions": {
         "foo": { "$ref": "#/definitions/bar" },
         "bar": {}
@@ -848,7 +1233,24 @@
     },
     "instance": { "foo": "bar" },
     "valid": true,
-    "fast": {}
+    "fast": {},
+    "exhaustive": {
+      "pre": [
+        [ "LoopKeys", "/propertyNames", "#/propertyNames", "" ],
+        [ "ControlJump", "/propertyNames/$ref", "#/propertyNames/$ref", "/foo" ],
+        [ "ControlJump", "/propertyNames/$ref/$ref", "#/definitions/foo/$ref", "/foo" ]
+      ],
+      "post": [
+        [ true, "ControlJump", "/propertyNames/$ref/$ref", "#/definitions/foo/$ref", "/foo" ],
+        [ true, "ControlJump", "/propertyNames/$ref", "#/propertyNames/$ref", "/foo" ],
+        [ true, "LoopKeys", "/propertyNames", "#/propertyNames", "" ]
+      ],
+      "descriptions": [
+        "The string value was expected to validate against the referenced schema",
+        "The string value was expected to validate against the referenced schema",
+        "The object property \"foo\" was expected to validate against the given subschema"
+      ]
+    }
   },
   {
     "description": "propertyNames_18",
@@ -856,9 +1258,7 @@
       "$schema": "http://json-schema.org/draft-06/schema#",
       "propertyNames": {
         "allOf": [
-          {
-            "$ref": "#/definitions/foo"
-          }
+          { "$ref": "#/definitions/foo" }
         ]
       },
       "definitions": {
@@ -868,7 +1268,27 @@
     },
     "instance": { "foo": "bar" },
     "valid": true,
-    "fast": {}
+    "fast": {},
+    "exhaustive": {
+      "pre": [
+        [ "LoopKeys", "/propertyNames", "#/propertyNames", "" ],
+        [ "LogicalAnd", "/propertyNames/allOf", "#/propertyNames/allOf", "/foo" ],
+        [ "ControlJump", "/propertyNames/allOf/0/$ref", "#/propertyNames/allOf/0/$ref", "/foo" ],
+        [ "ControlJump", "/propertyNames/allOf/0/$ref/$ref", "#/definitions/foo/$ref", "/foo" ]
+      ],
+      "post": [
+        [ true, "ControlJump", "/propertyNames/allOf/0/$ref/$ref", "#/definitions/foo/$ref", "/foo" ],
+        [ true, "ControlJump", "/propertyNames/allOf/0/$ref", "#/propertyNames/allOf/0/$ref", "/foo" ],
+        [ true, "LogicalAnd", "/propertyNames/allOf", "#/propertyNames/allOf", "/foo" ],
+        [ true, "LoopKeys", "/propertyNames", "#/propertyNames", "" ]
+      ],
+      "descriptions": [
+        "The string value was expected to validate against the referenced schema",
+        "The string value was expected to validate against the referenced schema",
+        "The string value was expected to validate against the given subschema",
+        "The object property \"foo\" was expected to validate against the given subschema"
+      ]
+    }
   },
   {
     "description": "propertyNames_19",
@@ -880,9 +1300,7 @@
             "anyOf": [
               {
                 "allOf": [
-                  {
-                    "$ref": "#/definitions/foo"
-                  }
+                  { "$ref": "#/definitions/foo" }
                 ]
               }
             ]
@@ -906,6 +1324,43 @@
         [ true, "LoopKeys", "/propertyNames", "#/propertyNames", "" ]
       ],
       "descriptions": [
+        "The string value was expected to validate against the given subschema",
+        "The object property \"foo\" was expected to validate against the given subschema"
+      ]
+    },
+    "exhaustive": {
+      "pre": [
+        [ "LoopKeys", "/propertyNames", "#/propertyNames", "" ],
+        [ "LogicalAnd", "/propertyNames/allOf", "#/propertyNames/allOf", "/foo" ],
+        [ "LogicalOr", "/propertyNames/allOf/0/anyOf", "#/propertyNames/allOf/0/anyOf", "/foo" ],
+        [ "LogicalAnd", "/propertyNames/allOf/0/anyOf/0/allOf", "#/propertyNames/allOf/0/anyOf/0/allOf", "/foo" ],
+        [
+          "ControlJump",
+          "/propertyNames/allOf/0/anyOf/0/allOf/0/$ref",
+          "#/propertyNames/allOf/0/anyOf/0/allOf/0/$ref",
+          "/foo"
+        ],
+        [ "ControlJump", "/propertyNames/allOf/0/anyOf/0/allOf/0/$ref/$ref", "#/definitions/foo/$ref", "/foo" ]
+      ],
+      "post": [
+        [ true, "ControlJump", "/propertyNames/allOf/0/anyOf/0/allOf/0/$ref/$ref", "#/definitions/foo/$ref", "/foo" ],
+        [
+          true,
+          "ControlJump",
+          "/propertyNames/allOf/0/anyOf/0/allOf/0/$ref",
+          "#/propertyNames/allOf/0/anyOf/0/allOf/0/$ref",
+          "/foo"
+        ],
+        [ true, "LogicalAnd", "/propertyNames/allOf/0/anyOf/0/allOf", "#/propertyNames/allOf/0/anyOf/0/allOf", "/foo" ],
+        [ true, "LogicalOr", "/propertyNames/allOf/0/anyOf", "#/propertyNames/allOf/0/anyOf", "/foo" ],
+        [ true, "LogicalAnd", "/propertyNames/allOf", "#/propertyNames/allOf", "/foo" ],
+        [ true, "LoopKeys", "/propertyNames", "#/propertyNames", "" ]
+      ],
+      "descriptions": [
+        "The string value was expected to validate against the referenced schema",
+        "The string value was expected to validate against the referenced schema",
+        "The string value was expected to validate against the given subschema",
+        "The string value was expected to validate against the given subschema",
         "The string value was expected to validate against the given subschema",
         "The object property \"foo\" was expected to validate against the given subschema"
       ]
@@ -933,8 +1388,23 @@
       "post": [
         [ false, "AssertionTypeStrict", "/allOf/0/$ref/type", "#/propertyNames/definitions/test/type", "" ]
       ],
+      "descriptions": [ "The value was expected to be of type string but it was of type integer" ]
+    },
+    "exhaustive": {
+      "pre": [
+        [ "LogicalAnd", "/allOf", "#/allOf", "" ],
+        [ "ControlJump", "/allOf/0/$ref", "#/allOf/0/$ref", "" ],
+        [ "AssertionTypeStrict", "/allOf/0/$ref/type", "#/propertyNames/definitions/test/type", "" ]
+      ],
+      "post": [
+        [ false, "AssertionTypeStrict", "/allOf/0/$ref/type", "#/propertyNames/definitions/test/type", "" ],
+        [ false, "ControlJump", "/allOf/0/$ref", "#/allOf/0/$ref", "" ],
+        [ false, "LogicalAnd", "/allOf", "#/allOf", "" ]
+      ],
       "descriptions": [
-        "The value was expected to be of type string but it was of type integer"
+        "The value was expected to be of type string but it was of type integer",
+        "The integer value was expected to validate against the referenced schema",
+        "The integer value was expected to validate against the given subschema"
       ]
     }
   },
@@ -943,7 +1413,9 @@
     "schema": {
       "$schema": "http://json-schema.org/draft-06/schema#",
       "propertyNames": {
-        "definitions": { "inner": { "$ref": "#/definitions/outer" } }
+        "definitions": {
+          "inner": { "$ref": "#/definitions/outer" }
+        }
       },
       "allOf": [
         { "$ref": "#/propertyNames/definitions/inner" }
@@ -961,8 +1433,26 @@
       "post": [
         [ false, "AssertionTypeStrict", "/allOf/0/$ref/$ref/type", "#/definitions/outer/type", "" ]
       ],
+      "descriptions": [ "The value was expected to be of type string but it was of type integer" ]
+    },
+    "exhaustive": {
+      "pre": [
+        [ "LogicalAnd", "/allOf", "#/allOf", "" ],
+        [ "ControlJump", "/allOf/0/$ref", "#/allOf/0/$ref", "" ],
+        [ "ControlJump", "/allOf/0/$ref/$ref", "#/propertyNames/definitions/inner/$ref", "" ],
+        [ "AssertionTypeStrict", "/allOf/0/$ref/$ref/type", "#/definitions/outer/type", "" ]
+      ],
+      "post": [
+        [ false, "AssertionTypeStrict", "/allOf/0/$ref/$ref/type", "#/definitions/outer/type", "" ],
+        [ false, "ControlJump", "/allOf/0/$ref/$ref", "#/propertyNames/definitions/inner/$ref", "" ],
+        [ false, "ControlJump", "/allOf/0/$ref", "#/allOf/0/$ref", "" ],
+        [ false, "LogicalAnd", "/allOf", "#/allOf", "" ]
+      ],
       "descriptions": [
-        "The value was expected to be of type string but it was of type integer"
+        "The value was expected to be of type string but it was of type integer",
+        "The integer value was expected to validate against the referenced schema",
+        "The integer value was expected to validate against the referenced schema",
+        "The integer value was expected to validate against the given subschema"
       ]
     }
   },
@@ -977,35 +1467,28 @@
     },
     "instance": 5,
     "valid": true,
-    "fast": {}
+    "fast": {},
+    "exhaustive": {}
   },
   {
     "description": "unknown_1",
-    "schema": {
-      "$schema": "http://json-schema.org/draft-06/schema#",
-      "fooBar": "baz"
-    },
+    "schema": { "$schema": "http://json-schema.org/draft-06/schema#", "fooBar": "baz" },
     "instance": "foo",
     "valid": true,
-    "fast": {}
+    "fast": {},
+    "exhaustive": {}
   },
   {
     "description": "unknown_2",
-    "schema": {
-      "$schema": "http://json-schema.org/draft-06/schema#",
-      "x-test": 1
-    },
+    "schema": { "$schema": "http://json-schema.org/draft-06/schema#", "x-test": 1 },
     "instance": "foo",
     "valid": true,
-    "fast": {}
+    "fast": {},
+    "exhaustive": {}
   },
   {
     "description": "minLength_1",
-    "schema": {
-      "$schema": "http://json-schema.org/draft-06/schema#",
-      "type": "string",
-      "minLength": 1
-    },
+    "schema": { "$schema": "http://json-schema.org/draft-06/schema#", "type": "string", "minLength": 1 },
     "instance": "xx",
     "valid": true,
     "fast": {
@@ -1015,18 +1498,26 @@
       "post": [
         [ true, "AssertionTypeStringBounded", "/type", "#/type", "" ]
       ],
+      "descriptions": [ "The value was expected to consist of a string of at least 1 character" ]
+    },
+    "exhaustive": {
+      "pre": [
+        [ "AssertionStringSizeGreater", "/minLength", "#/minLength", "" ],
+        [ "AssertionTypeStrict", "/type", "#/type", "" ]
+      ],
+      "post": [
+        [ true, "AssertionStringSizeGreater", "/minLength", "#/minLength", "" ],
+        [ true, "AssertionTypeStrict", "/type", "#/type", "" ]
+      ],
       "descriptions": [
-        "The value was expected to consist of a string of at least 1 character"
+        "The string value \"xx\" was expected to consist of at least 1 character and it consisted of 2 characters",
+        "The value was expected to be of type string"
       ]
     }
   },
   {
     "description": "maxLength_1",
-    "schema": {
-      "$schema": "http://json-schema.org/draft-06/schema#",
-      "type": "string",
-      "maxLength": 2
-    },
+    "schema": { "$schema": "http://json-schema.org/draft-06/schema#", "type": "string", "maxLength": 2 },
     "instance": "xx",
     "valid": true,
     "fast": {
@@ -1036,18 +1527,26 @@
       "post": [
         [ true, "AssertionTypeStringUpper", "/type", "#/type", "" ]
       ],
+      "descriptions": [ "The value was expected to consist of a string of at most 2 characters" ]
+    },
+    "exhaustive": {
+      "pre": [
+        [ "AssertionStringSizeLess", "/maxLength", "#/maxLength", "" ],
+        [ "AssertionTypeStrict", "/type", "#/type", "" ]
+      ],
+      "post": [
+        [ true, "AssertionStringSizeLess", "/maxLength", "#/maxLength", "" ],
+        [ true, "AssertionTypeStrict", "/type", "#/type", "" ]
+      ],
       "descriptions": [
-        "The value was expected to consist of a string of at most 2 characters"
+        "The string value \"xx\" was expected to consist of at most 2 characters and it consisted of 2 characters",
+        "The value was expected to be of type string"
       ]
     }
   },
   {
     "description": "maxLength_2",
-    "schema": {
-      "$schema": "http://json-schema.org/draft-06/schema#",
-      "type": "string",
-      "maxLength": 2
-    },
+    "schema": { "$schema": "http://json-schema.org/draft-06/schema#", "type": "string", "maxLength": 2 },
     "instance": "xxx",
     "valid": false,
     "fast": {
@@ -1057,8 +1556,17 @@
       "post": [
         [ false, "AssertionTypeStringUpper", "/type", "#/type", "" ]
       ],
+      "descriptions": [ "The value was expected to consist of a string of at most 2 characters" ]
+    },
+    "exhaustive": {
+      "pre": [
+        [ "AssertionStringSizeLess", "/maxLength", "#/maxLength", "" ]
+      ],
+      "post": [
+        [ false, "AssertionStringSizeLess", "/maxLength", "#/maxLength", "" ]
+      ],
       "descriptions": [
-        "The value was expected to consist of a string of at most 2 characters"
+        "The string value \"xxx\" was expected to consist of at most 2 characters but it consisted of 3 characters"
       ]
     }
   },
@@ -1079,18 +1587,29 @@
       "post": [
         [ true, "AssertionTypeStringBounded", "/type", "#/type", "" ]
       ],
+      "descriptions": [ "The value was expected to consist of a string of 1 to 2 characters" ]
+    },
+    "exhaustive": {
+      "pre": [
+        [ "AssertionStringSizeLess", "/maxLength", "#/maxLength", "" ],
+        [ "AssertionStringSizeGreater", "/minLength", "#/minLength", "" ],
+        [ "AssertionTypeStrict", "/type", "#/type", "" ]
+      ],
+      "post": [
+        [ true, "AssertionStringSizeLess", "/maxLength", "#/maxLength", "" ],
+        [ true, "AssertionStringSizeGreater", "/minLength", "#/minLength", "" ],
+        [ true, "AssertionTypeStrict", "/type", "#/type", "" ]
+      ],
       "descriptions": [
-        "The value was expected to consist of a string of 1 to 2 characters"
+        "The string value \"xx\" was expected to consist of at most 2 characters and it consisted of 2 characters",
+        "The string value \"xx\" was expected to consist of at least 1 character and it consisted of 2 characters",
+        "The value was expected to be of type string"
       ]
     }
   },
   {
     "description": "minItems_1",
-    "schema": {
-      "$schema": "http://json-schema.org/draft-06/schema#",
-      "type": "array",
-      "minItems": 2
-    },
+    "schema": { "$schema": "http://json-schema.org/draft-06/schema#", "type": "array", "minItems": 2 },
     "instance": [ 1, 2, 3 ],
     "valid": true,
     "fast": {
@@ -1100,18 +1619,26 @@
       "post": [
         [ true, "AssertionTypeArrayBounded", "/type", "#/type", "" ]
       ],
+      "descriptions": [ "The value was expected to consist of an array of at least 2 items" ]
+    },
+    "exhaustive": {
+      "pre": [
+        [ "AssertionArraySizeGreater", "/minItems", "#/minItems", "" ],
+        [ "AssertionTypeStrict", "/type", "#/type", "" ]
+      ],
+      "post": [
+        [ true, "AssertionArraySizeGreater", "/minItems", "#/minItems", "" ],
+        [ true, "AssertionTypeStrict", "/type", "#/type", "" ]
+      ],
       "descriptions": [
-        "The value was expected to consist of an array of at least 2 items"
+        "The array value was expected to contain at least 2 items and it contained 3 items",
+        "The value was expected to be of type array"
       ]
     }
   },
   {
     "description": "maxItems_1",
-    "schema": {
-      "$schema": "http://json-schema.org/draft-06/schema#",
-      "type": "array",
-      "maxItems": 2
-    },
+    "schema": { "$schema": "http://json-schema.org/draft-06/schema#", "type": "array", "maxItems": 2 },
     "instance": [ 1, 2 ],
     "valid": true,
     "fast": {
@@ -1121,18 +1648,26 @@
       "post": [
         [ true, "AssertionTypeArrayUpper", "/type", "#/type", "" ]
       ],
+      "descriptions": [ "The value was expected to consist of an array of at most 2 items" ]
+    },
+    "exhaustive": {
+      "pre": [
+        [ "AssertionArraySizeLess", "/maxItems", "#/maxItems", "" ],
+        [ "AssertionTypeStrict", "/type", "#/type", "" ]
+      ],
+      "post": [
+        [ true, "AssertionArraySizeLess", "/maxItems", "#/maxItems", "" ],
+        [ true, "AssertionTypeStrict", "/type", "#/type", "" ]
+      ],
       "descriptions": [
-        "The value was expected to consist of an array of at most 2 items"
+        "The array value was expected to contain at most 2 items and it contained 2 items",
+        "The value was expected to be of type array"
       ]
     }
   },
   {
     "description": "maxItems_2",
-    "schema": {
-      "$schema": "http://json-schema.org/draft-06/schema#",
-      "type": "array",
-      "maxItems": 2
-    },
+    "schema": { "$schema": "http://json-schema.org/draft-06/schema#", "type": "array", "maxItems": 2 },
     "instance": [ 1, 2, 3 ],
     "valid": false,
     "fast": {
@@ -1142,19 +1677,21 @@
       "post": [
         [ false, "AssertionTypeArrayUpper", "/type", "#/type", "" ]
       ],
-      "descriptions": [
-        "The value was expected to consist of an array of at most 2 items"
-      ]
+      "descriptions": [ "The value was expected to consist of an array of at most 2 items" ]
+    },
+    "exhaustive": {
+      "pre": [
+        [ "AssertionArraySizeLess", "/maxItems", "#/maxItems", "" ]
+      ],
+      "post": [
+        [ false, "AssertionArraySizeLess", "/maxItems", "#/maxItems", "" ]
+      ],
+      "descriptions": [ "The array value was expected to contain at most 2 items but it contained 3 items" ]
     }
   },
   {
     "description": "maxItems_3",
-    "schema": {
-      "$schema": "http://json-schema.org/draft-06/schema#",
-      "type": "array",
-      "minItems": 1,
-      "maxItems": 2
-    },
+    "schema": { "$schema": "http://json-schema.org/draft-06/schema#", "type": "array", "minItems": 1, "maxItems": 2 },
     "instance": [ 1, 2 ],
     "valid": true,
     "fast": {
@@ -1164,18 +1701,29 @@
       "post": [
         [ true, "AssertionTypeArrayBounded", "/type", "#/type", "" ]
       ],
+      "descriptions": [ "The value was expected to consist of an array of 1 to 2 items" ]
+    },
+    "exhaustive": {
+      "pre": [
+        [ "AssertionArraySizeLess", "/maxItems", "#/maxItems", "" ],
+        [ "AssertionArraySizeGreater", "/minItems", "#/minItems", "" ],
+        [ "AssertionTypeStrict", "/type", "#/type", "" ]
+      ],
+      "post": [
+        [ true, "AssertionArraySizeLess", "/maxItems", "#/maxItems", "" ],
+        [ true, "AssertionArraySizeGreater", "/minItems", "#/minItems", "" ],
+        [ true, "AssertionTypeStrict", "/type", "#/type", "" ]
+      ],
       "descriptions": [
-        "The value was expected to consist of an array of 1 to 2 items"
+        "The array value was expected to contain at most 2 items and it contained 2 items",
+        "The array value was expected to contain at least 1 item and it contained 2 items",
+        "The value was expected to be of type array"
       ]
     }
   },
   {
     "description": "minProperties_1",
-    "schema": {
-      "$schema": "http://json-schema.org/draft-06/schema#",
-      "type": "object",
-      "minProperties": 1
-    },
+    "schema": { "$schema": "http://json-schema.org/draft-06/schema#", "type": "object", "minProperties": 1 },
     "instance": { "foo": 1 },
     "valid": true,
     "fast": {
@@ -1185,18 +1733,26 @@
       "post": [
         [ true, "AssertionTypeObjectBounded", "/type", "#/type", "" ]
       ],
+      "descriptions": [ "The value was expected to consist of an object of at least 1 property" ]
+    },
+    "exhaustive": {
+      "pre": [
+        [ "AssertionObjectSizeGreater", "/minProperties", "#/minProperties", "" ],
+        [ "AssertionTypeStrict", "/type", "#/type", "" ]
+      ],
+      "post": [
+        [ true, "AssertionObjectSizeGreater", "/minProperties", "#/minProperties", "" ],
+        [ true, "AssertionTypeStrict", "/type", "#/type", "" ]
+      ],
       "descriptions": [
-        "The value was expected to consist of an object of at least 1 property"
+        "The object value was expected to contain at least 1 property and it contained 1 property: \"foo\"",
+        "The value was expected to be of type object"
       ]
     }
   },
   {
     "description": "maxProperties_1",
-    "schema": {
-      "$schema": "http://json-schema.org/draft-06/schema#",
-      "type": "object",
-      "maxProperties": 2
-    },
+    "schema": { "$schema": "http://json-schema.org/draft-06/schema#", "type": "object", "maxProperties": 2 },
     "instance": { "bar": 2, "foo": 1 },
     "valid": true,
     "fast": {
@@ -1206,18 +1762,26 @@
       "post": [
         [ true, "AssertionTypeObjectUpper", "/type", "#/type", "" ]
       ],
+      "descriptions": [ "The value was expected to consist of an object of at most 2 properties" ]
+    },
+    "exhaustive": {
+      "pre": [
+        [ "AssertionObjectSizeLess", "/maxProperties", "#/maxProperties", "" ],
+        [ "AssertionTypeStrict", "/type", "#/type", "" ]
+      ],
+      "post": [
+        [ true, "AssertionObjectSizeLess", "/maxProperties", "#/maxProperties", "" ],
+        [ true, "AssertionTypeStrict", "/type", "#/type", "" ]
+      ],
       "descriptions": [
-        "The value was expected to consist of an object of at most 2 properties"
+        "The object value was expected to contain at most 2 properties and it contained 2 properties: \"bar\", and \"foo\"",
+        "The value was expected to be of type object"
       ]
     }
   },
   {
     "description": "maxProperties_2",
-    "schema": {
-      "$schema": "http://json-schema.org/draft-06/schema#",
-      "type": "object",
-      "maxProperties": 2
-    },
+    "schema": { "$schema": "http://json-schema.org/draft-06/schema#", "type": "object", "maxProperties": 2 },
     "instance": { "bar": 2, "foo": 1, "baz": 3 },
     "valid": false,
     "fast": {
@@ -1227,8 +1791,17 @@
       "post": [
         [ false, "AssertionTypeObjectUpper", "/type", "#/type", "" ]
       ],
+      "descriptions": [ "The value was expected to consist of an object of at most 2 properties" ]
+    },
+    "exhaustive": {
+      "pre": [
+        [ "AssertionObjectSizeLess", "/maxProperties", "#/maxProperties", "" ]
+      ],
+      "post": [
+        [ false, "AssertionObjectSizeLess", "/maxProperties", "#/maxProperties", "" ]
+      ],
       "descriptions": [
-        "The value was expected to consist of an object of at most 2 properties"
+        "The object value was expected to contain at most 2 properties but it contained 3 properties: \"bar\", \"baz\", and \"foo\""
       ]
     }
   },
@@ -1249,8 +1822,23 @@
       "post": [
         [ true, "AssertionTypeObjectBounded", "/type", "#/type", "" ]
       ],
+      "descriptions": [ "The value was expected to consist of an object of 1 to 2 properties" ]
+    },
+    "exhaustive": {
+      "pre": [
+        [ "AssertionObjectSizeLess", "/maxProperties", "#/maxProperties", "" ],
+        [ "AssertionObjectSizeGreater", "/minProperties", "#/minProperties", "" ],
+        [ "AssertionTypeStrict", "/type", "#/type", "" ]
+      ],
+      "post": [
+        [ true, "AssertionObjectSizeLess", "/maxProperties", "#/maxProperties", "" ],
+        [ true, "AssertionObjectSizeGreater", "/minProperties", "#/minProperties", "" ],
+        [ true, "AssertionTypeStrict", "/type", "#/type", "" ]
+      ],
       "descriptions": [
-        "The value was expected to consist of an object of 1 to 2 properties"
+        "The object value was expected to contain at most 2 properties and it contained 2 properties: \"bar\", and \"foo\"",
+        "The object value was expected to contain at least 1 property and it contained 2 properties: \"bar\", and \"foo\"",
+        "The value was expected to be of type object"
       ]
     }
   },
@@ -1270,9 +1858,7 @@
       "post": [
         [ true, "AssertionEqual", "/enum", "#/enum", "" ]
       ],
-      "descriptions": [
-        "The string value \"foo\" was expected to equal the string constant \"foo\""
-      ]
+      "descriptions": [ "The string value \"foo\" was expected to equal the string constant \"foo\"" ]
     },
     "exhaustive": {
       "pre": [
@@ -1305,8 +1891,20 @@
       "post": [
         [ true, "AssertionEqual", "/enum", "#/enum", "" ]
       ],
+      "descriptions": [ "The boolean value true was expected to equal the boolean constant true" ]
+    },
+    "exhaustive": {
+      "pre": [
+        [ "AssertionEqual", "/enum", "#/enum", "" ],
+        [ "AssertionTypeStrict", "/type", "#/type", "" ]
+      ],
+      "post": [
+        [ true, "AssertionEqual", "/enum", "#/enum", "" ],
+        [ true, "AssertionTypeStrict", "/type", "#/type", "" ]
+      ],
       "descriptions": [
-        "The boolean value true was expected to equal the boolean constant true"
+        "The boolean value true was expected to equal the boolean constant true",
+        "The value was expected to be of type boolean"
       ]
     }
   },
@@ -1326,8 +1924,20 @@
       "post": [
         [ true, "AssertionEqual", "/enum", "#/enum", "" ]
       ],
+      "descriptions": [ "The number value 3.14 was expected to equal the number constant 3.14" ]
+    },
+    "exhaustive": {
+      "pre": [
+        [ "AssertionEqual", "/enum", "#/enum", "" ],
+        [ "AssertionTypeStrictAny", "/type", "#/type", "" ]
+      ],
+      "post": [
+        [ true, "AssertionEqual", "/enum", "#/enum", "" ],
+        [ true, "AssertionTypeStrictAny", "/type", "#/type", "" ]
+      ],
       "descriptions": [
-        "The number value 3.14 was expected to equal the number constant 3.14"
+        "The number value 3.14 was expected to equal the number constant 3.14",
+        "The value was expected to be of type number"
       ]
     }
   },
@@ -1347,8 +1957,20 @@
       "post": [
         [ true, "AssertionEqual", "/enum", "#/enum", "" ]
       ],
+      "descriptions": [ "The integer value 3 was expected to equal the integer constant 3" ]
+    },
+    "exhaustive": {
+      "pre": [
+        [ "AssertionEqual", "/enum", "#/enum", "" ],
+        [ "AssertionTypeStrictAny", "/type", "#/type", "" ]
+      ],
+      "post": [
+        [ true, "AssertionEqual", "/enum", "#/enum", "" ],
+        [ true, "AssertionTypeStrictAny", "/type", "#/type", "" ]
+      ],
       "descriptions": [
-        "The integer value 3 was expected to equal the integer constant 3"
+        "The integer value 3 was expected to equal the integer constant 3",
+        "The value was expected to be of type number"
       ]
     }
   },
@@ -1368,8 +1990,20 @@
       "post": [
         [ true, "AssertionEqual", "/enum", "#/enum", "" ]
       ],
+      "descriptions": [ "The integer value 3 was expected to equal the integer constant 3" ]
+    },
+    "exhaustive": {
+      "pre": [
+        [ "AssertionEqual", "/enum", "#/enum", "" ],
+        [ "AssertionType", "/type", "#/type", "" ]
+      ],
+      "post": [
+        [ true, "AssertionEqual", "/enum", "#/enum", "" ],
+        [ true, "AssertionType", "/type", "#/type", "" ]
+      ],
       "descriptions": [
-        "The integer value 3 was expected to equal the integer constant 3"
+        "The integer value 3 was expected to equal the integer constant 3",
+        "The value was expected to be of type integer"
       ]
     }
   },
@@ -1389,8 +2023,20 @@
       "post": [
         [ true, "AssertionEqualsAnyStringHash", "/enum", "#/enum", "" ]
       ],
+      "descriptions": [ "The string value \"foo\" was expected to equal one of the given declared values" ]
+    },
+    "exhaustive": {
+      "pre": [
+        [ "AssertionEqualsAny", "/enum", "#/enum", "" ],
+        [ "AssertionTypeStrict", "/type", "#/type", "" ]
+      ],
+      "post": [
+        [ true, "AssertionEqualsAny", "/enum", "#/enum", "" ],
+        [ true, "AssertionTypeStrict", "/type", "#/type", "" ]
+      ],
       "descriptions": [
-        "The string value \"foo\" was expected to equal one of the given declared values"
+        "The string value \"foo\" was expected to equal one of the 3 declared values",
+        "The value was expected to be of type string"
       ]
     }
   },
@@ -1416,6 +2062,20 @@
         "The string value \"foo\" was expected to equal one of the 2 declared values",
         "The value was expected to be of type string"
       ]
+    },
+    "exhaustive": {
+      "pre": [
+        [ "AssertionEqualsAny", "/enum", "#/enum", "" ],
+        [ "AssertionTypeStrict", "/type", "#/type", "" ]
+      ],
+      "post": [
+        [ true, "AssertionEqualsAny", "/enum", "#/enum", "" ],
+        [ true, "AssertionTypeStrict", "/type", "#/type", "" ]
+      ],
+      "descriptions": [
+        "The string value \"foo\" was expected to equal one of the 2 declared values",
+        "The value was expected to be of type string"
+      ]
     }
   },
   {
@@ -1423,7 +2083,9 @@
     "schema": {
       "$schema": "http://json-schema.org/draft-06/schema#",
       "type": "array",
-      "enum": [ [ 1 ] ]
+      "enum": [
+        [ 1 ]
+      ]
     },
     "instance": [ 1 ],
     "valid": true,
@@ -1458,7 +2120,9 @@
     "schema": {
       "$schema": "http://json-schema.org/draft-06/schema#",
       "type": "object",
-      "enum": [ {} ]
+      "enum": [
+        {}
+      ]
     },
     "instance": {},
     "valid": true,
@@ -1504,8 +2168,20 @@
       "post": [
         [ true, "AssertionEqual", "/enum", "#/enum", "" ]
       ],
+      "descriptions": [ "The null value null was expected to equal the null constant null" ]
+    },
+    "exhaustive": {
+      "pre": [
+        [ "AssertionEqual", "/enum", "#/enum", "" ],
+        [ "AssertionTypeStrict", "/type", "#/type", "" ]
+      ],
+      "post": [
+        [ true, "AssertionEqual", "/enum", "#/enum", "" ],
+        [ true, "AssertionTypeStrict", "/type", "#/type", "" ]
+      ],
       "descriptions": [
-        "The null value null was expected to equal the null constant null"
+        "The null value null was expected to equal the null constant null",
+        "The value was expected to be of type null"
       ]
     }
   },
@@ -1532,6 +2208,23 @@
         "The string value \"foo\" was expected to equal the string constant \"foo\"",
         "The value was expected to consist of a string of at least 1 character"
       ]
+    },
+    "exhaustive": {
+      "pre": [
+        [ "AssertionEqual", "/enum", "#/enum", "" ],
+        [ "AssertionStringSizeGreater", "/minLength", "#/minLength", "" ],
+        [ "AssertionTypeStrict", "/type", "#/type", "" ]
+      ],
+      "post": [
+        [ true, "AssertionEqual", "/enum", "#/enum", "" ],
+        [ true, "AssertionStringSizeGreater", "/minLength", "#/minLength", "" ],
+        [ true, "AssertionTypeStrict", "/type", "#/type", "" ]
+      ],
+      "descriptions": [
+        "The string value \"foo\" was expected to equal the string constant \"foo\"",
+        "The string value \"foo\" was expected to consist of at least 1 character and it consisted of 3 characters",
+        "The value was expected to be of type string"
+      ]
     }
   },
   {
@@ -1540,7 +2233,9 @@
       "$schema": "http://json-schema.org/draft-06/schema#",
       "type": "array",
       "minItems": 1,
-      "enum": [ [ 1 ] ]
+      "enum": [
+        [ 1 ]
+      ]
     },
     "instance": [ 1 ],
     "valid": true,
@@ -1557,6 +2252,23 @@
         "The array value [1] was expected to equal the array constant [1]",
         "The value was expected to consist of an array of at least 1 item"
       ]
+    },
+    "exhaustive": {
+      "pre": [
+        [ "AssertionEqual", "/enum", "#/enum", "" ],
+        [ "AssertionArraySizeGreater", "/minItems", "#/minItems", "" ],
+        [ "AssertionTypeStrict", "/type", "#/type", "" ]
+      ],
+      "post": [
+        [ true, "AssertionEqual", "/enum", "#/enum", "" ],
+        [ true, "AssertionArraySizeGreater", "/minItems", "#/minItems", "" ],
+        [ true, "AssertionTypeStrict", "/type", "#/type", "" ]
+      ],
+      "descriptions": [
+        "The array value [1] was expected to equal the array constant [1]",
+        "The array value was expected to contain at least 1 item and it contained 1 item",
+        "The value was expected to be of type array"
+      ]
     }
   },
   {
@@ -1565,7 +2277,9 @@
       "$schema": "http://json-schema.org/draft-06/schema#",
       "type": "object",
       "minProperties": 1,
-      "enum": [ { "foo": 1 } ]
+      "enum": [
+        { "foo": 1 }
+      ]
     },
     "instance": { "foo": 1 },
     "valid": true,
@@ -1581,6 +2295,23 @@
       "descriptions": [
         "The object value {\"foo\":1} was expected to equal the object constant {\"foo\":1}",
         "The value was expected to consist of an object of at least 1 property"
+      ]
+    },
+    "exhaustive": {
+      "pre": [
+        [ "AssertionEqual", "/enum", "#/enum", "" ],
+        [ "AssertionObjectSizeGreater", "/minProperties", "#/minProperties", "" ],
+        [ "AssertionTypeStrict", "/type", "#/type", "" ]
+      ],
+      "post": [
+        [ true, "AssertionEqual", "/enum", "#/enum", "" ],
+        [ true, "AssertionObjectSizeGreater", "/minProperties", "#/minProperties", "" ],
+        [ true, "AssertionTypeStrict", "/type", "#/type", "" ]
+      ],
+      "descriptions": [
+        "The object value {\"foo\":1} was expected to equal the object constant {\"foo\":1}",
+        "The object value was expected to contain at least 1 property and it contained 1 property: \"foo\"",
+        "The value was expected to be of type object"
       ]
     }
   },
@@ -1600,8 +2331,20 @@
       "post": [
         [ true, "AssertionEqual", "/enum", "#/enum", "" ]
       ],
+      "descriptions": [ "The number value 3.0 was expected to equal the number constant 3.0" ]
+    },
+    "exhaustive": {
+      "pre": [
+        [ "AssertionEqual", "/enum", "#/enum", "" ],
+        [ "AssertionType", "/type", "#/type", "" ]
+      ],
+      "post": [
+        [ true, "AssertionEqual", "/enum", "#/enum", "" ],
+        [ true, "AssertionType", "/type", "#/type", "" ]
+      ],
       "descriptions": [
-        "The number value 3.0 was expected to equal the number constant 3.0"
+        "The number value 3.0 was expected to equal the number constant 3.0",
+        "The value was expected to be of type integer"
       ]
     }
   },
@@ -1626,8 +2369,32 @@
       "post": [
         [ true, "LoopPropertiesExactlyTypeStrictHash", "/properties", "#/properties", "" ]
       ],
+      "descriptions": [ "The required object properties were expected to be of type boolean" ]
+    },
+    "exhaustive": {
+      "pre": [
+        [ "AssertionDefinesExactly", "/required", "#/required", "" ],
+        [ "LogicalWhenType", "/properties", "#/properties", "" ],
+        [ "AssertionTypeStrict", "/properties/bar/type", "#/properties/bar/type", "/bar" ],
+        [ "AssertionTypeStrict", "/properties/foo/type", "#/properties/foo/type", "/foo" ],
+        [ "LoopPropertiesExcept", "/additionalProperties", "#/additionalProperties", "" ],
+        [ "AssertionTypeStrict", "/type", "#/type", "" ]
+      ],
+      "post": [
+        [ true, "AssertionDefinesExactly", "/required", "#/required", "" ],
+        [ true, "AssertionTypeStrict", "/properties/bar/type", "#/properties/bar/type", "/bar" ],
+        [ true, "AssertionTypeStrict", "/properties/foo/type", "#/properties/foo/type", "/foo" ],
+        [ true, "LogicalWhenType", "/properties", "#/properties", "" ],
+        [ true, "LoopPropertiesExcept", "/additionalProperties", "#/additionalProperties", "" ],
+        [ true, "AssertionTypeStrict", "/type", "#/type", "" ]
+      ],
       "descriptions": [
-        "The required object properties were expected to be of type boolean"
+        "The object value was expected to only define properties \"bar\", and \"foo\"",
+        "The value was expected to be of type boolean",
+        "The value was expected to be of type boolean",
+        "The object value was expected to validate against the defined properties subschemas",
+        "The object value was not expected to define additional properties",
+        "The value was expected to be of type object"
       ]
     }
   },
@@ -1657,6 +2424,32 @@
       "descriptions": [
         "The value was expected to be an object that only defines properties \"bar\", and \"foo\"",
         "The object properties were expected to be of type integer"
+      ]
+    },
+    "exhaustive": {
+      "pre": [
+        [ "AssertionDefinesExactly", "/required", "#/required", "" ],
+        [ "LogicalWhenType", "/properties", "#/properties", "" ],
+        [ "AssertionType", "/properties/bar/type", "#/properties/bar/type", "/bar" ],
+        [ "AssertionType", "/properties/foo/type", "#/properties/foo/type", "/foo" ],
+        [ "LoopPropertiesExcept", "/additionalProperties", "#/additionalProperties", "" ],
+        [ "AssertionTypeStrict", "/type", "#/type", "" ]
+      ],
+      "post": [
+        [ true, "AssertionDefinesExactly", "/required", "#/required", "" ],
+        [ true, "AssertionType", "/properties/bar/type", "#/properties/bar/type", "/bar" ],
+        [ true, "AssertionType", "/properties/foo/type", "#/properties/foo/type", "/foo" ],
+        [ true, "LogicalWhenType", "/properties", "#/properties", "" ],
+        [ true, "LoopPropertiesExcept", "/additionalProperties", "#/additionalProperties", "" ],
+        [ true, "AssertionTypeStrict", "/type", "#/type", "" ]
+      ],
+      "descriptions": [
+        "The object value was expected to only define properties \"bar\", and \"foo\"",
+        "The value was expected to be of type integer",
+        "The value was expected to be of type integer",
+        "The object value was expected to validate against the defined properties subschemas",
+        "The object value was not expected to define additional properties",
+        "The value was expected to be of type object"
       ]
     }
   },
@@ -1688,6 +2481,35 @@
         "The value was expected to be an object that only defines the 3 given properties",
         "The object properties were expected to be of type integer"
       ]
+    },
+    "exhaustive": {
+      "pre": [
+        [ "AssertionDefinesExactly", "/required", "#/required", "" ],
+        [ "LogicalWhenType", "/properties", "#/properties", "" ],
+        [ "AssertionType", "/properties/bar/type", "#/properties/bar/type", "/bar" ],
+        [ "AssertionType", "/properties/baz/type", "#/properties/baz/type", "/baz" ],
+        [ "AssertionType", "/properties/foo/type", "#/properties/foo/type", "/foo" ],
+        [ "LoopPropertiesExcept", "/additionalProperties", "#/additionalProperties", "" ],
+        [ "AssertionTypeStrict", "/type", "#/type", "" ]
+      ],
+      "post": [
+        [ true, "AssertionDefinesExactly", "/required", "#/required", "" ],
+        [ true, "AssertionType", "/properties/bar/type", "#/properties/bar/type", "/bar" ],
+        [ true, "AssertionType", "/properties/baz/type", "#/properties/baz/type", "/baz" ],
+        [ true, "AssertionType", "/properties/foo/type", "#/properties/foo/type", "/foo" ],
+        [ true, "LogicalWhenType", "/properties", "#/properties", "" ],
+        [ true, "LoopPropertiesExcept", "/additionalProperties", "#/additionalProperties", "" ],
+        [ true, "AssertionTypeStrict", "/type", "#/type", "" ]
+      ],
+      "descriptions": [
+        "The object value was expected to only define properties \"bar\", \"baz\", and \"foo\"",
+        "The value was expected to be of type integer",
+        "The value was expected to be of type integer",
+        "The value was expected to be of type integer",
+        "The object value was expected to validate against the defined properties subschemas",
+        "The object value was not expected to define additional properties",
+        "The value was expected to be of type object"
+      ]
     }
   },
   {
@@ -1709,9 +2531,7 @@
       "post": [
         [ true, "AssertionTypeStrictAny", "/anyOf", "#/anyOf", "" ]
       ],
-      "descriptions": [
-        "The value was expected to be of type null, number, or string and it was of type number"
-      ]
+      "descriptions": [ "The value was expected to be of type null, number, or string and it was of type number" ]
     },
     "exhaustive": {
       "pre": [
@@ -1736,13 +2556,19 @@
   },
   {
     "description": "type_1",
-    "schema": {
-      "$schema": "http://json-schema.org/draft-06/schema#",
-      "type": "integer"
-    },
+    "schema": { "$schema": "http://json-schema.org/draft-06/schema#", "type": "integer" },
     "instance": 3,
     "valid": true,
     "fast": {
+      "pre": [
+        [ "AssertionType", "/type", "#/type", "" ]
+      ],
+      "post": [
+        [ true, "AssertionType", "/type", "#/type", "" ]
+      ],
+      "descriptions": [ "The value was expected to be of type integer" ]
+    },
+    "exhaustive": {
       "pre": [
         [ "AssertionType", "/type", "#/type", "" ]
       ],
@@ -1754,13 +2580,19 @@
   },
   {
     "description": "type_2",
-    "schema": {
-      "$schema": "http://json-schema.org/draft-06/schema#",
-      "type": "integer"
-    },
+    "schema": { "$schema": "http://json-schema.org/draft-06/schema#", "type": "integer" },
     "instance": 3.0,
     "valid": true,
     "fast": {
+      "pre": [
+        [ "AssertionType", "/type", "#/type", "" ]
+      ],
+      "post": [
+        [ true, "AssertionType", "/type", "#/type", "" ]
+      ],
+      "descriptions": [ "The value was expected to be of type integer" ]
+    },
+    "exhaustive": {
       "pre": [
         [ "AssertionType", "/type", "#/type", "" ]
       ],
@@ -1772,10 +2604,7 @@
   },
   {
     "description": "type_3",
-    "schema": {
-      "$schema": "http://json-schema.org/draft-06/schema#",
-      "type": "integer"
-    },
+    "schema": { "$schema": "http://json-schema.org/draft-06/schema#", "type": "integer" },
     "instance": 3.2,
     "valid": false,
     "fast": {
@@ -1785,9 +2614,16 @@
       "post": [
         [ false, "AssertionType", "/type", "#/type", "" ]
       ],
-      "descriptions": [
-        "The value was expected to be of type integer but it was of type number"
-      ]
+      "descriptions": [ "The value was expected to be of type integer but it was of type number" ]
+    },
+    "exhaustive": {
+      "pre": [
+        [ "AssertionType", "/type", "#/type", "" ]
+      ],
+      "post": [
+        [ false, "AssertionType", "/type", "#/type", "" ]
+      ],
+      "descriptions": [ "The value was expected to be of type integer but it was of type number" ]
     }
   },
   {
@@ -1805,9 +2641,16 @@
       "post": [
         [ true, "AssertionTypeAny", "/type", "#/type", "" ]
       ],
-      "descriptions": [
-        "The value was expected to be of type integer, or string and it was of type integer"
-      ]
+      "descriptions": [ "The value was expected to be of type integer, or string and it was of type integer" ]
+    },
+    "exhaustive": {
+      "pre": [
+        [ "AssertionTypeAny", "/type", "#/type", "" ]
+      ],
+      "post": [
+        [ true, "AssertionTypeAny", "/type", "#/type", "" ]
+      ],
+      "descriptions": [ "The value was expected to be of type integer, or string and it was of type integer" ]
     }
   },
   {
@@ -1825,9 +2668,16 @@
       "post": [
         [ true, "AssertionTypeAny", "/type", "#/type", "" ]
       ],
-      "descriptions": [
-        "The value was expected to be of type integer, or string and it was of type number"
-      ]
+      "descriptions": [ "The value was expected to be of type integer, or string and it was of type number" ]
+    },
+    "exhaustive": {
+      "pre": [
+        [ "AssertionTypeAny", "/type", "#/type", "" ]
+      ],
+      "post": [
+        [ true, "AssertionTypeAny", "/type", "#/type", "" ]
+      ],
+      "descriptions": [ "The value was expected to be of type integer, or string and it was of type number" ]
     }
   },
   {
@@ -1845,9 +2695,16 @@
       "post": [
         [ false, "AssertionTypeAny", "/type", "#/type", "" ]
       ],
-      "descriptions": [
-        "The value was expected to be of type integer, or string but it was of type number"
-      ]
+      "descriptions": [ "The value was expected to be of type integer, or string but it was of type number" ]
+    },
+    "exhaustive": {
+      "pre": [
+        [ "AssertionTypeAny", "/type", "#/type", "" ]
+      ],
+      "post": [
+        [ false, "AssertionTypeAny", "/type", "#/type", "" ]
+      ],
+      "descriptions": [ "The value was expected to be of type integer, or string but it was of type number" ]
     }
   },
   {
@@ -1868,6 +2725,20 @@
         [ true, "AssertionPropertyType", "/properties/foo/type", "#/properties/foo/type", "/foo" ]
       ],
       "descriptions": [ "The value was expected to be of type integer" ]
+    },
+    "exhaustive": {
+      "pre": [
+        [ "LogicalWhenType", "/properties", "#/properties", "" ],
+        [ "AssertionType", "/properties/foo/type", "#/properties/foo/type", "/foo" ]
+      ],
+      "post": [
+        [ true, "AssertionType", "/properties/foo/type", "#/properties/foo/type", "/foo" ],
+        [ true, "LogicalWhenType", "/properties", "#/properties", "" ]
+      ],
+      "descriptions": [
+        "The value was expected to be of type integer",
+        "The object value was expected to validate against the single defined property subschema"
+      ]
     }
   },
   {
@@ -1888,6 +2759,20 @@
         [ true, "AssertionPropertyType", "/properties/foo/type", "#/properties/foo/type", "/foo" ]
       ],
       "descriptions": [ "The value was expected to be of type integer" ]
+    },
+    "exhaustive": {
+      "pre": [
+        [ "LogicalWhenType", "/properties", "#/properties", "" ],
+        [ "AssertionType", "/properties/foo/type", "#/properties/foo/type", "/foo" ]
+      ],
+      "post": [
+        [ true, "AssertionType", "/properties/foo/type", "#/properties/foo/type", "/foo" ],
+        [ true, "LogicalWhenType", "/properties", "#/properties", "" ]
+      ],
+      "descriptions": [
+        "The value was expected to be of type integer",
+        "The object value was expected to validate against the single defined property subschema"
+      ]
     }
   },
   {
@@ -1907,8 +2792,20 @@
       "post": [
         [ false, "AssertionPropertyType", "/properties/foo/type", "#/properties/foo/type", "/foo" ]
       ],
+      "descriptions": [ "The value was expected to be of type integer but it was of type number" ]
+    },
+    "exhaustive": {
+      "pre": [
+        [ "LogicalWhenType", "/properties", "#/properties", "" ],
+        [ "AssertionType", "/properties/foo/type", "#/properties/foo/type", "/foo" ]
+      ],
+      "post": [
+        [ false, "AssertionType", "/properties/foo/type", "#/properties/foo/type", "/foo" ],
+        [ false, "LogicalWhenType", "/properties", "#/properties", "" ]
+      ],
       "descriptions": [
-        "The value was expected to be of type integer but it was of type number"
+        "The value was expected to be of type integer but it was of type number",
+        "The object value was expected to validate against the single defined property subschema"
       ]
     }
   },
@@ -1938,6 +2835,29 @@
         "The object value was expected to only define properties \"bar\", and \"foo\"",
         "The object properties were expected to be of type integer"
       ]
+    },
+    "exhaustive": {
+      "pre": [
+        [ "AssertionDefinesExactly", "/required", "#/required", "" ],
+        [ "LogicalWhenType", "/properties", "#/properties", "" ],
+        [ "AssertionType", "/properties/bar/type", "#/properties/bar/type", "/bar" ],
+        [ "AssertionType", "/properties/foo/type", "#/properties/foo/type", "/foo" ],
+        [ "LoopPropertiesExcept", "/additionalProperties", "#/additionalProperties", "" ]
+      ],
+      "post": [
+        [ true, "AssertionDefinesExactly", "/required", "#/required", "" ],
+        [ true, "AssertionType", "/properties/bar/type", "#/properties/bar/type", "/bar" ],
+        [ true, "AssertionType", "/properties/foo/type", "#/properties/foo/type", "/foo" ],
+        [ true, "LogicalWhenType", "/properties", "#/properties", "" ],
+        [ true, "LoopPropertiesExcept", "/additionalProperties", "#/additionalProperties", "" ]
+      ],
+      "descriptions": [
+        "The object value was expected to only define properties \"bar\", and \"foo\"",
+        "The value was expected to be of type integer",
+        "The value was expected to be of type integer",
+        "The object value was expected to validate against the defined properties subschemas",
+        "The object value was not expected to define additional properties"
+      ]
     }
   },
   {
@@ -1965,6 +2885,29 @@
       "descriptions": [
         "The object value was expected to only define properties \"bar\", and \"foo\"",
         "The object properties were expected to be of type integer"
+      ]
+    },
+    "exhaustive": {
+      "pre": [
+        [ "AssertionDefinesExactly", "/required", "#/required", "" ],
+        [ "LogicalWhenType", "/properties", "#/properties", "" ],
+        [ "AssertionType", "/properties/bar/type", "#/properties/bar/type", "/bar" ],
+        [ "AssertionType", "/properties/foo/type", "#/properties/foo/type", "/foo" ],
+        [ "LoopPropertiesExcept", "/additionalProperties", "#/additionalProperties", "" ]
+      ],
+      "post": [
+        [ true, "AssertionDefinesExactly", "/required", "#/required", "" ],
+        [ true, "AssertionType", "/properties/bar/type", "#/properties/bar/type", "/bar" ],
+        [ true, "AssertionType", "/properties/foo/type", "#/properties/foo/type", "/foo" ],
+        [ true, "LogicalWhenType", "/properties", "#/properties", "" ],
+        [ true, "LoopPropertiesExcept", "/additionalProperties", "#/additionalProperties", "" ]
+      ],
+      "descriptions": [
+        "The object value was expected to only define properties \"bar\", and \"foo\"",
+        "The value was expected to be of type integer",
+        "The value was expected to be of type integer",
+        "The object value was expected to validate against the defined properties subschemas",
+        "The object value was not expected to define additional properties"
       ]
     }
   },
@@ -1994,15 +2937,30 @@
         "The object value was expected to only define properties \"bar\", and \"foo\"",
         "The object properties were expected to be of type integer"
       ]
+    },
+    "exhaustive": {
+      "pre": [
+        [ "AssertionDefinesExactly", "/required", "#/required", "" ],
+        [ "LogicalWhenType", "/properties", "#/properties", "" ],
+        [ "AssertionType", "/properties/bar/type", "#/properties/bar/type", "/bar" ]
+      ],
+      "post": [
+        [ true, "AssertionDefinesExactly", "/required", "#/required", "" ],
+        [ false, "AssertionType", "/properties/bar/type", "#/properties/bar/type", "/bar" ],
+        [ false, "LogicalWhenType", "/properties", "#/properties", "" ]
+      ],
+      "descriptions": [
+        "The object value was expected to only define properties \"bar\", and \"foo\"",
+        "The value was expected to be of type integer but it was of type number",
+        "The object value was expected to validate against the defined properties subschemas"
+      ]
     }
   },
   {
     "description": "items_1",
     "schema": {
       "$schema": "http://json-schema.org/draft-06/schema#",
-      "items": {
-        "type": "integer"
-      }
+      "items": { "type": "integer" }
     },
     "instance": [ 1, 2, 3 ],
     "valid": true,
@@ -2014,15 +2972,33 @@
         [ true, "LoopItemsType", "/items", "#/items", "" ]
       ],
       "descriptions": [ "The array items were expected to be of type integer" ]
+    },
+    "exhaustive": {
+      "pre": [
+        [ "LoopItems", "/items", "#/items", "" ],
+        [ "AssertionType", "/items/type", "#/items/type", "/0" ],
+        [ "AssertionType", "/items/type", "#/items/type", "/1" ],
+        [ "AssertionType", "/items/type", "#/items/type", "/2" ]
+      ],
+      "post": [
+        [ true, "AssertionType", "/items/type", "#/items/type", "/0" ],
+        [ true, "AssertionType", "/items/type", "#/items/type", "/1" ],
+        [ true, "AssertionType", "/items/type", "#/items/type", "/2" ],
+        [ true, "LoopItems", "/items", "#/items", "" ]
+      ],
+      "descriptions": [
+        "The value was expected to be of type integer",
+        "The value was expected to be of type integer",
+        "The value was expected to be of type integer",
+        "Every item in the array value was expected to validate against the given subschema"
+      ]
     }
   },
   {
     "description": "items_2",
     "schema": {
       "$schema": "http://json-schema.org/draft-06/schema#",
-      "items": {
-        "type": "integer"
-      }
+      "items": { "type": "integer" }
     },
     "instance": [ 1.0, 2.0, 3.0 ],
     "valid": true,
@@ -2034,15 +3010,33 @@
         [ true, "LoopItemsType", "/items", "#/items", "" ]
       ],
       "descriptions": [ "The array items were expected to be of type integer" ]
+    },
+    "exhaustive": {
+      "pre": [
+        [ "LoopItems", "/items", "#/items", "" ],
+        [ "AssertionType", "/items/type", "#/items/type", "/0" ],
+        [ "AssertionType", "/items/type", "#/items/type", "/1" ],
+        [ "AssertionType", "/items/type", "#/items/type", "/2" ]
+      ],
+      "post": [
+        [ true, "AssertionType", "/items/type", "#/items/type", "/0" ],
+        [ true, "AssertionType", "/items/type", "#/items/type", "/1" ],
+        [ true, "AssertionType", "/items/type", "#/items/type", "/2" ],
+        [ true, "LoopItems", "/items", "#/items", "" ]
+      ],
+      "descriptions": [
+        "The value was expected to be of type integer",
+        "The value was expected to be of type integer",
+        "The value was expected to be of type integer",
+        "Every item in the array value was expected to validate against the given subschema"
+      ]
     }
   },
   {
     "description": "items_3",
     "schema": {
       "$schema": "http://json-schema.org/draft-06/schema#",
-      "items": {
-        "type": "integer"
-      }
+      "items": { "type": "integer" }
     },
     "instance": [ 1.1, 2.1, 3.1 ],
     "valid": false,
@@ -2054,6 +3048,20 @@
         [ false, "LoopItemsType", "/items", "#/items", "" ]
       ],
       "descriptions": [ "The array items were expected to be of type integer" ]
+    },
+    "exhaustive": {
+      "pre": [
+        [ "LoopItems", "/items", "#/items", "" ],
+        [ "AssertionType", "/items/type", "#/items/type", "/0" ]
+      ],
+      "post": [
+        [ false, "AssertionType", "/items/type", "#/items/type", "/0" ],
+        [ false, "LoopItems", "/items", "#/items", "" ]
+      ],
+      "descriptions": [
+        "The value was expected to be of type integer but it was of type number",
+        "Every item in the array value was expected to validate against the given subschema"
+      ]
     }
   },
   {
@@ -2117,9 +3125,7 @@
       "post": [
         [ false, "AssertionTypeStrict", "/allOf/0/type", "#/allOf/0/type", "" ]
       ],
-      "descriptions": [
-        "The value was expected to be of type string but it was of type integer"
-      ]
+      "descriptions": [ "The value was expected to be of type string but it was of type integer" ]
     },
     "exhaustive": {
       "pre": [

@@ -20,6 +20,20 @@
         "The integer value 1 was expected to equal the integer constant 1",
         "The integer value was expected to validate against the given conditional"
       ]
+    },
+    "exhaustive": {
+      "pre": [
+        [ "LogicalCondition", "/if", "#/if", "" ],
+        [ "AssertionEqual", "/if/const", "#/if/const", "" ]
+      ],
+      "post": [
+        [ true, "AssertionEqual", "/if/const", "#/if/const", "" ],
+        [ true, "LogicalCondition", "/if", "#/if", "" ]
+      ],
+      "descriptions": [
+        "The integer value 1 was expected to equal the integer constant 1",
+        "The integer value was expected to validate against the given conditional"
+      ]
     }
   },
   {
@@ -31,6 +45,20 @@
     "instance": 1,
     "valid": true,
     "fast": {
+      "pre": [
+        [ "LogicalCondition", "/if", "#/if", "" ],
+        [ "AssertionEqual", "/if/const", "#/if/const", "" ]
+      ],
+      "post": [
+        [ true, "AssertionEqual", "/if/const", "#/if/const", "" ],
+        [ true, "LogicalCondition", "/if", "#/if", "" ]
+      ],
+      "descriptions": [
+        "The integer value 1 was expected to equal the integer constant 1",
+        "The integer value was expected to validate against the given conditional"
+      ]
+    },
+    "exhaustive": {
       "pre": [
         [ "LogicalCondition", "/if", "#/if", "" ],
         [ "AssertionEqual", "/if/const", "#/if/const", "" ]
@@ -66,6 +94,20 @@
         "The integer value 2 was expected to equal the integer constant 1",
         "The integer value was expected to validate against the given conditional"
       ]
+    },
+    "exhaustive": {
+      "pre": [
+        [ "LogicalCondition", "/if", "#/if", "" ],
+        [ "AssertionEqual", "/if/const", "#/if/const", "" ]
+      ],
+      "post": [
+        [ false, "AssertionEqual", "/if/const", "#/if/const", "" ],
+        [ true, "LogicalCondition", "/if", "#/if", "" ]
+      ],
+      "descriptions": [
+        "The integer value 2 was expected to equal the integer constant 1",
+        "The integer value was expected to validate against the given conditional"
+      ]
     }
   },
   {
@@ -82,7 +124,9 @@
         }
       }
     },
-    "instance": { "foo": {} },
+    "instance": {
+      "foo": {}
+    },
     "valid": true,
     "fast": {
       "pre": [
@@ -100,6 +144,29 @@
         "The value was expected to be of type object",
         "The object value was expected to validate against the given conditional"
       ]
+    },
+    "exhaustive": {
+      "pre": [
+        [ "LogicalWhenType", "/properties", "#/properties", "" ],
+        [ "ControlJump", "/properties/foo/$ref", "#/properties/foo/$ref", "/foo" ],
+        [ "LogicalCondition", "/properties/foo/$ref/if", "#/definitions/test/if", "/foo" ],
+        [ "AssertionFail", "/properties/foo/$ref/if", "#/definitions/test/if", "/foo" ],
+        [ "AssertionTypeStrict", "/properties/foo/$ref/else/type", "#/definitions/test/else/type", "/foo" ]
+      ],
+      "post": [
+        [ false, "AssertionFail", "/properties/foo/$ref/if", "#/definitions/test/if", "/foo" ],
+        [ true, "AssertionTypeStrict", "/properties/foo/$ref/else/type", "#/definitions/test/else/type", "/foo" ],
+        [ true, "LogicalCondition", "/properties/foo/$ref/if", "#/definitions/test/if", "/foo" ],
+        [ true, "ControlJump", "/properties/foo/$ref", "#/properties/foo/$ref", "/foo" ],
+        [ true, "LogicalWhenType", "/properties", "#/properties", "" ]
+      ],
+      "descriptions": [
+        "No instance is expected to succeed against the false schema",
+        "The value was expected to be of type object",
+        "The object value was expected to validate against the given conditional",
+        "The object value was expected to validate against the referenced schema",
+        "The object value was expected to validate against the single defined property subschema"
+      ]
     }
   },
   {
@@ -110,7 +177,8 @@
     },
     "instance": 3,
     "valid": true,
-    "fast": {}
+    "fast": {},
+    "exhaustive": {}
   },
   {
     "description": "then_2",
@@ -122,6 +190,23 @@
     "instance": 10,
     "valid": true,
     "fast": {
+      "pre": [
+        [ "LogicalCondition", "/if", "#/if", "" ],
+        [ "AssertionEqual", "/if/const", "#/if/const", "" ],
+        [ "AssertionDivisible", "/then/multipleOf", "#/then/multipleOf", "" ]
+      ],
+      "post": [
+        [ true, "AssertionEqual", "/if/const", "#/if/const", "" ],
+        [ true, "AssertionDivisible", "/then/multipleOf", "#/then/multipleOf", "" ],
+        [ true, "LogicalCondition", "/if", "#/if", "" ]
+      ],
+      "descriptions": [
+        "The integer value 10 was expected to equal the integer constant 10",
+        "The integer value 10 was expected to be divisible by the integer 5",
+        "The integer value was expected to validate against the given conditional"
+      ]
+    },
+    "exhaustive": {
       "pre": [
         [ "LogicalCondition", "/if", "#/if", "" ],
         [ "AssertionEqual", "/if/const", "#/if/const", "" ],
@@ -161,6 +246,20 @@
         "The integer value 5 was expected to equal the integer constant 10",
         "The integer value was expected to validate against the given conditional"
       ]
+    },
+    "exhaustive": {
+      "pre": [
+        [ "LogicalCondition", "/if", "#/if", "" ],
+        [ "AssertionEqual", "/if/const", "#/if/const", "" ]
+      ],
+      "post": [
+        [ false, "AssertionEqual", "/if/const", "#/if/const", "" ],
+        [ true, "LogicalCondition", "/if", "#/if", "" ]
+      ],
+      "descriptions": [
+        "The integer value 5 was expected to equal the integer constant 10",
+        "The integer value was expected to validate against the given conditional"
+      ]
     }
   },
   {
@@ -180,9 +279,16 @@
       "post": [
         [ true, "AssertionDivisible", "/then/multipleOf", "#/then/multipleOf", "" ]
       ],
-      "descriptions": [
-        "The integer value 5 was expected to be divisible by the integer 5"
-      ]
+      "descriptions": [ "The integer value 5 was expected to be divisible by the integer 5" ]
+    },
+    "exhaustive": {
+      "pre": [
+        [ "AssertionDivisible", "/then/multipleOf", "#/then/multipleOf", "" ]
+      ],
+      "post": [
+        [ true, "AssertionDivisible", "/then/multipleOf", "#/then/multipleOf", "" ]
+      ],
+      "descriptions": [ "The integer value 5 was expected to be divisible by the integer 5" ]
     }
   },
   {
@@ -201,9 +307,16 @@
       "post": [
         [ false, "AssertionDivisible", "/then/multipleOf", "#/then/multipleOf", "" ]
       ],
-      "descriptions": [
-        "The integer value 2 was expected to be divisible by the integer 5"
-      ]
+      "descriptions": [ "The integer value 2 was expected to be divisible by the integer 5" ]
+    },
+    "exhaustive": {
+      "pre": [
+        [ "AssertionDivisible", "/then/multipleOf", "#/then/multipleOf", "" ]
+      ],
+      "post": [
+        [ false, "AssertionDivisible", "/then/multipleOf", "#/then/multipleOf", "" ]
+      ],
+      "descriptions": [ "The integer value 2 was expected to be divisible by the integer 5" ]
     }
   },
   {
@@ -223,23 +336,70 @@
         }
       }
     },
-    "instance": { "foo": { "bar": 1 } },
+    "instance": {
+      "foo": { "bar": 1 }
+    },
     "valid": true,
     "fast": {
       "pre": [
         [ "LogicalCondition", "/properties/foo/allOf/0/if", "#/properties/foo/allOf/0/if", "/foo" ],
         [ "AssertionTypeStrict", "/properties/foo/allOf/0/if/type", "#/properties/foo/allOf/0/if/type", "/foo" ],
-        [ "AssertionDefines", "/properties/foo/allOf/0/then/required", "#/properties/foo/allOf/0/then/required", "/foo" ]
+        [
+          "AssertionDefines",
+          "/properties/foo/allOf/0/then/required",
+          "#/properties/foo/allOf/0/then/required",
+          "/foo"
+        ]
       ],
       "post": [
         [ true, "AssertionTypeStrict", "/properties/foo/allOf/0/if/type", "#/properties/foo/allOf/0/if/type", "/foo" ],
-        [ true, "AssertionDefines", "/properties/foo/allOf/0/then/required", "#/properties/foo/allOf/0/then/required", "/foo" ],
+        [
+          true,
+          "AssertionDefines",
+          "/properties/foo/allOf/0/then/required",
+          "#/properties/foo/allOf/0/then/required",
+          "/foo"
+        ],
         [ true, "LogicalCondition", "/properties/foo/allOf/0/if", "#/properties/foo/allOf/0/if", "/foo" ]
       ],
       "descriptions": [
         "The value was expected to be of type object",
         "The object value was expected to define the property \"bar\"",
         "The object value was expected to validate against the given conditional"
+      ]
+    },
+    "exhaustive": {
+      "pre": [
+        [ "LogicalWhenType", "/properties", "#/properties", "" ],
+        [ "LogicalAnd", "/properties/foo/allOf", "#/properties/foo/allOf", "/foo" ],
+        [ "LogicalCondition", "/properties/foo/allOf/0/if", "#/properties/foo/allOf/0/if", "/foo" ],
+        [ "AssertionTypeStrict", "/properties/foo/allOf/0/if/type", "#/properties/foo/allOf/0/if/type", "/foo" ],
+        [
+          "AssertionDefines",
+          "/properties/foo/allOf/0/then/required",
+          "#/properties/foo/allOf/0/then/required",
+          "/foo"
+        ]
+      ],
+      "post": [
+        [ true, "AssertionTypeStrict", "/properties/foo/allOf/0/if/type", "#/properties/foo/allOf/0/if/type", "/foo" ],
+        [
+          true,
+          "AssertionDefines",
+          "/properties/foo/allOf/0/then/required",
+          "#/properties/foo/allOf/0/then/required",
+          "/foo"
+        ],
+        [ true, "LogicalCondition", "/properties/foo/allOf/0/if", "#/properties/foo/allOf/0/if", "/foo" ],
+        [ true, "LogicalAnd", "/properties/foo/allOf", "#/properties/foo/allOf", "/foo" ],
+        [ true, "LogicalWhenType", "/properties", "#/properties", "" ]
+      ],
+      "descriptions": [
+        "The value was expected to be of type object",
+        "The object value was expected to define the property \"bar\"",
+        "The object value was expected to validate against the given conditional",
+        "The object value was expected to validate against the given subschema",
+        "The object value was expected to validate against the single defined property subschema"
       ]
     }
   },
@@ -251,7 +411,8 @@
     },
     "instance": 3,
     "valid": true,
-    "fast": {}
+    "fast": {},
+    "exhaustive": {}
   },
   {
     "description": "else_2",
@@ -263,6 +424,20 @@
     "instance": 1,
     "valid": true,
     "fast": {
+      "pre": [
+        [ "LogicalCondition", "/if", "#/if", "" ],
+        [ "AssertionEqual", "/if/const", "#/if/const", "" ]
+      ],
+      "post": [
+        [ true, "AssertionEqual", "/if/const", "#/if/const", "" ],
+        [ true, "LogicalCondition", "/if", "#/if", "" ]
+      ],
+      "descriptions": [
+        "The integer value 1 was expected to equal the integer constant 1",
+        "The integer value was expected to validate against the given conditional"
+      ]
+    },
+    "exhaustive": {
       "pre": [
         [ "LogicalCondition", "/if", "#/if", "" ],
         [ "AssertionEqual", "/if/const", "#/if/const", "" ]
@@ -287,6 +462,23 @@
     "instance": 10,
     "valid": true,
     "fast": {
+      "pre": [
+        [ "LogicalCondition", "/if", "#/if", "" ],
+        [ "AssertionEqual", "/if/const", "#/if/const", "" ],
+        [ "AssertionDivisible", "/else/multipleOf", "#/else/multipleOf", "" ]
+      ],
+      "post": [
+        [ false, "AssertionEqual", "/if/const", "#/if/const", "" ],
+        [ true, "AssertionDivisible", "/else/multipleOf", "#/else/multipleOf", "" ],
+        [ true, "LogicalCondition", "/if", "#/if", "" ]
+      ],
+      "descriptions": [
+        "The integer value 10 was expected to equal the integer constant 1",
+        "The integer value 10 was expected to be divisible by the integer 5",
+        "The integer value was expected to validate against the given conditional"
+      ]
+    },
+    "exhaustive": {
       "pre": [
         [ "LogicalCondition", "/if", "#/if", "" ],
         [ "AssertionEqual", "/if/const", "#/if/const", "" ],
@@ -329,6 +521,23 @@
         "The integer value 8 was expected to be divisible by the integer 5",
         "The integer value was expected to validate against the given conditional"
       ]
+    },
+    "exhaustive": {
+      "pre": [
+        [ "LogicalCondition", "/if", "#/if", "" ],
+        [ "AssertionEqual", "/if/const", "#/if/const", "" ],
+        [ "AssertionDivisible", "/else/multipleOf", "#/else/multipleOf", "" ]
+      ],
+      "post": [
+        [ false, "AssertionEqual", "/if/const", "#/if/const", "" ],
+        [ false, "AssertionDivisible", "/else/multipleOf", "#/else/multipleOf", "" ],
+        [ false, "LogicalCondition", "/if", "#/if", "" ]
+      ],
+      "descriptions": [
+        "The integer value 8 was expected to equal the integer constant 1",
+        "The integer value 8 was expected to be divisible by the integer 5",
+        "The integer value was expected to validate against the given conditional"
+      ]
     }
   },
   {
@@ -344,7 +553,8 @@
     },
     "instance": 5,
     "valid": true,
-    "fast": {}
+    "fast": {},
+    "exhaustive": {}
   },
   {
     "description": "content",
@@ -360,31 +570,25 @@
   },
   {
     "description": "unknown_1",
-    "schema": {
-      "$schema": "http://json-schema.org/draft-07/schema#",
-      "fooBar": "baz"
-    },
+    "schema": { "$schema": "http://json-schema.org/draft-07/schema#", "fooBar": "baz" },
     "instance": "foo",
     "valid": true,
-    "fast": {}
+    "fast": {},
+    "exhaustive": {}
   },
   {
     "description": "unknown_2",
-    "schema": {
-      "$schema": "http://json-schema.org/draft-07/schema#",
-      "x-test": 1
-    },
+    "schema": { "$schema": "http://json-schema.org/draft-07/schema#", "x-test": 1 },
     "instance": "foo",
     "valid": true,
-    "fast": {}
+    "fast": {},
+    "exhaustive": {}
   },
   {
     "description": "items_1",
     "schema": {
       "$schema": "http://json-schema.org/draft-07/schema#",
-      "items": {
-        "type": "number"
-      }
+      "items": { "type": "number" }
     },
     "instance": [ 11, 54 ],
     "valid": true,
@@ -396,6 +600,23 @@
         [ true, "LoopItemsTypeStrictAny", "/items", "#/items", "" ]
       ],
       "descriptions": [ "The array items were expected to be of type number" ]
+    },
+    "exhaustive": {
+      "pre": [
+        [ "LoopItems", "/items", "#/items", "" ],
+        [ "AssertionTypeStrictAny", "/items/type", "#/items/type", "/0" ],
+        [ "AssertionTypeStrictAny", "/items/type", "#/items/type", "/1" ]
+      ],
+      "post": [
+        [ true, "AssertionTypeStrictAny", "/items/type", "#/items/type", "/0" ],
+        [ true, "AssertionTypeStrictAny", "/items/type", "#/items/type", "/1" ],
+        [ true, "LoopItems", "/items", "#/items", "" ]
+      ],
+      "descriptions": [
+        "The value was expected to be of type number",
+        "The value was expected to be of type number",
+        "Every item in the array value was expected to validate against the given subschema"
+      ]
     }
   }
 ]
