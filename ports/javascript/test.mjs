@@ -113,3 +113,18 @@ for (const [subdirectory, blacklist] of Object.entries(BLACKLISTS)) {
   const defaultDialect = DIALECTS[draftKey];
   registerTests(subdirectory, defaultDialect, blacklist);
 }
+
+describe('version', () => {
+  it('rejects a template with an unsupported version', () => {
+    const template = [2, false, false, [[]], []];
+    assert.throws(() => new Blaze(template), {
+      message: 'Only version 1 of the compiled template is supported by this version of the evaluator'
+    });
+  });
+
+  it('rejects a template that is not an array', () => {
+    assert.throws(() => new Blaze({}), {
+      message: 'Only version 1 of the compiled template is supported by this version of the evaluator'
+    });
+  });
+});

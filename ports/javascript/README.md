@@ -1,5 +1,9 @@
 # @sourcemeta/blaze
 
+[![NPM Version](https://img.shields.io/npm/v/@sourcemeta/blaze)](https://www.npmjs.com/package/@sourcemeta/blaze)
+[![NPM Downloads](https://img.shields.io/npm/dm/%40sourcemeta%2Fblaze)](https://www.npmjs.com/package/@sourcemeta/blaze)
+[![GitHub contributors](https://img.shields.io/github/contributors/sourcemeta/blaze.svg)](https://github.com/sourcemeta/blaze/graphs/contributors/)
+
 A pure JavaScript port of the evaluator from
 [Blaze](https://github.com/sourcemeta/blaze), a high-performance
 C++ JSON Schema validator. Zero dependencies. Supports Draft 4,

@@ -1,3 +1,4 @@
+const JSON_VERSION = 1;
 const DEPTH_LIMIT = 300;
 const ANNOTATION_EMIT = 44;
 const ANNOTATION_TO_PARENT = 45;
@@ -194,7 +195,7 @@ function collectAnchorNamesFromInstructions(instructions, result) {
 }
 
 function compile(template) {
-  const targets = template[2];
+  const targets = template[3];
   for (let targetIndex = 0; targetIndex < targets.length; targetIndex++) {
     const target = targets[targetIndex];
     for (let index = 0; index < target.length; index++) {
@@ -207,14 +208,14 @@ function compile(template) {
   }
 
   const labels = new Map();
-  const rawLabels = template[3];
+  const rawLabels = template[4];
   for (let index = 0; index < rawLabels.length; index++) {
     const pair = rawLabels[index];
     labels.set(pair[0], pair[1]);
   }
 
   const anchors = new Map();
-  if (template[0]) {
+  if (template[1]) {
     const anchorNames = new Set();
     collectAnchorNames(targets, anchorNames);
     const resourceCount = targets.length;
@@ -333,8 +334,8 @@ function compileInstructionToCode(instruction, captures, visited, budget) {
 }
 
 function generateNativeValidator(template) {
-  if (template[0] || template[1]) return null;
-  const targets = template[2];
+  if (template[1] || template[2]) return null;
+  const targets = template[3];
   if (targets.length === 0) return () => true;
   const instructions = targets[0];
   if (instructions.length === 0) return () => true;
@@ -367,6 +368,10 @@ function generateNativeValidator(template) {
 
 class Blaze {
   constructor(template) {
+    if (!Array.isArray(template) || template[0] !== JSON_VERSION) {
+      throw new Error(
+        `Only version ${JSON_VERSION} of the compiled template is supported by this version of the evaluator`);
+    }
     compile(template);
     this.template = template;
     this.callbackMode = false;
@@ -391,11 +396,11 @@ class Blaze {
     }
 
     const template = this.template;
-    const targets = template[2];
+    const targets = template[3];
     if (targets.length === 0) return true;
 
-    const track = template[1];
-    const dynamic = template[0];
+    const track = template[2];
+    const dynamic = template[1];
     this.trackMode = track;
     this.dynamicMode = dynamic;
     this.callbackMode = callback !== undefined;

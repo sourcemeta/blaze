@@ -31,6 +31,7 @@ TEST(Compiler_JSON, example_1) {
                                  sourcemeta::blaze::default_schema_compiler)};
 
   const sourcemeta::core::JSON expected{sourcemeta::core::parse_json(R"JSON([
+    1,
     false,
     false,
     [
@@ -66,6 +67,7 @@ TEST(Compiler_JSON, example_2) {
                                  sourcemeta::blaze::default_schema_compiler)};
 
   const sourcemeta::core::JSON expected{sourcemeta::core::parse_json(R"JSON([
+    1,
     false,
     false,
     [
@@ -116,6 +118,7 @@ TEST(Compiler_JSON, example_3) {
                                  sourcemeta::blaze::default_schema_compiler)};
 
   const sourcemeta::core::JSON expected{sourcemeta::core::parse_json(R"JSON([
+    1,
     false,
     false,
     [
@@ -153,6 +156,7 @@ TEST(Compiler_JSON, example_4) {
                                  sourcemeta::blaze::default_schema_compiler)};
 
   const sourcemeta::core::JSON expected{sourcemeta::core::parse_json(R"JSON([
+    1,
     false,
     false,
     [
@@ -229,6 +233,7 @@ TEST(Compiler_JSON, example_5) {
                                  sourcemeta::blaze::Mode::Exhaustive)};
 
   const sourcemeta::core::JSON expected{sourcemeta::core::parse_json(R"JSON([
+    1,
     false,
     true,
     [
@@ -273,6 +278,7 @@ TEST(Compiler_JSON, example_6) {
                                  sourcemeta::blaze::Mode::Exhaustive)};
 
   const sourcemeta::core::JSON expected{sourcemeta::core::parse_json(R"JSON([
+    1,
     false,
     true,
     [
@@ -400,6 +406,30 @@ TEST(Compiler_JSON, invalid_1) {
   EXPECT_FALSE(result.has_value());
 }
 
+TEST(Compiler_JSON, invalid_version) {
+  const auto input{sourcemeta::core::parse_json(R"JSON([
+    2,
+    false,
+    false,
+    [
+      [
+        [
+          11,
+          [ "type" ],
+          [],
+          "#/type",
+          0,
+          [ 8, 4 ]
+        ]
+      ]
+    ],
+    []
+  ])JSON")};
+
+  const auto result{sourcemeta::blaze::from_json(input)};
+  EXPECT_FALSE(result.has_value());
+}
+
 TEST(Compiler_JSON, unreachable_refs_are_pruned) {
   const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2020-12/schema",
@@ -427,8 +457,8 @@ TEST(Compiler_JSON, unreachable_refs_are_pruned) {
   const auto json_output{sourcemeta::blaze::to_json(schema_template)};
 
   EXPECT_TRUE(json_output.is_array());
-  EXPECT_EQ(json_output.size(), 4);
-  const auto &targets{json_output.at(2)};
+  EXPECT_EQ(json_output.size(), 5);
+  const auto &targets{json_output.at(3)};
 
   // NOTE: The targets must have exactly 1 entry (the root)
   // as all definitions are unreachable from the root
