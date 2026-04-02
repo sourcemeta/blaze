@@ -12,7 +12,7 @@
     }
   },
   "types": "./index.d.mts",
-  "license": "LGPL-3.0",
+  "license": "LGPL-3.0-or-later",
   "homepage": "https://github.com/sourcemeta/blaze",
   "author": {
     "email": "hello@sourcemeta.com",
@@ -65,6 +65,7 @@
   "files": [
     "index.mjs",
     "index.d.mts",
-    "README.md"
+    "README.md",
+    "LICENSE"
   ]
 }

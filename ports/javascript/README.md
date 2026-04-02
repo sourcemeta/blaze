@@ -54,6 +54,7 @@ console.log(evaluator.validate({ name: "John", age: 30 }));
 With an evaluation callback for tracing:
 
 ```javascript
+const instance = { name: "John", age: 30 };
 const result = evaluator.validate(instance,
   (type, valid, instruction,
    evaluatePath, instanceLocation, annotation) => {
