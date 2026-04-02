@@ -53,6 +53,8 @@ auto to_json(const Template &schema_template) -> sourcemeta::core::JSON {
   // Note that we purposely avoid objects to help consumers avoid potentially
   // expensive hash-map or flat-map lookups when parsing back
   auto result{sourcemeta::core::JSON::make_array()};
+  result.push_back(sourcemeta::core::JSON{
+      static_cast<std::int64_t>(sourcemeta::blaze::JSON_VERSION)});
   result.push_back(sourcemeta::core::JSON{schema_template.dynamic});
   result.push_back(sourcemeta::core::JSON{schema_template.track});
 

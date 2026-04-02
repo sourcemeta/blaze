@@ -119,18 +119,24 @@ auto instructions_from_json(
 namespace sourcemeta::blaze {
 
 auto from_json(const sourcemeta::core::JSON &json) -> std::optional<Template> {
-  if (!json.is_array() || json.array_size() != 4) {
+  if (!json.is_array() || json.array_size() != 5) {
     return std::nullopt;
   }
 
-  const auto &dynamic{json.at(0)};
-  const auto &track{json.at(1)};
+  const auto &version{json.at(0)};
+  if (!version.is_integer() ||
+      version.to_integer() != static_cast<std::int64_t>(JSON_VERSION)) {
+    return std::nullopt;
+  }
+
+  const auto &dynamic{json.at(1)};
+  const auto &track{json.at(2)};
 
   if (!dynamic.is_boolean() || !track.is_boolean()) {
     return std::nullopt;
   }
 
-  const auto &targets{json.at(2)};
+  const auto &targets{json.at(3)};
   if (!targets.is_array()) {
     return std::nullopt;
   }
@@ -146,7 +152,7 @@ auto from_json(const sourcemeta::core::JSON &json) -> std::optional<Template> {
     targets_result.push_back(std::move(target_result).value());
   }
 
-  const auto &labels{json.at(3)};
+  const auto &labels{json.at(4)};
   if (!labels.is_array()) {
     return std::nullopt;
   }
