@@ -84,6 +84,7 @@ TEST(Configuration_json, to_json_all_fields) {
   config.github = "sourcemeta";
   config.website = "https://www.sourcemeta.com";
   config.absolute_path = "/test/schemas";
+  config.absolute_path_explicit = true;
   config.base_path = "/test/schemas";
   config.base = "https://schemas.sourcemeta.com";
   config.default_dialect = "http://json-schema.org/draft-07/schema#";
@@ -119,6 +120,7 @@ TEST(Configuration_json, to_json_all_fields) {
 TEST(Configuration_json, to_json_minimal) {
   sourcemeta::blaze::Configuration config;
   config.absolute_path = "/test";
+  config.absolute_path_explicit = true;
   config.base = "https://example.com";
 
   const auto result{config.to_json()};
@@ -144,6 +146,7 @@ TEST(Configuration_json, to_json_empty) {
 TEST(Configuration_json, to_json_with_extra) {
   sourcemeta::blaze::Configuration config;
   config.absolute_path = "/test";
+  config.absolute_path_explicit = true;
   config.base = "https://example.com";
   config.extra.assign("x-foo", sourcemeta::core::JSON{"bar"});
 
@@ -173,6 +176,20 @@ TEST(Configuration_json, to_json_roundtrip) {
 
   const auto config{
       sourcemeta::blaze::Configuration::from_json(input, "/test")};
+  const auto output{config.to_json()};
+
+  EXPECT_EQ(output, input);
+}
+
+TEST(Configuration_json, to_json_roundtrip_without_path) {
+  const auto input{sourcemeta::core::parse_json(R"JSON({
+    "title": "Test Project",
+    "baseUri": "https://schemas.sourcemeta.com"
+  })JSON")};
+
+  const auto config{
+      sourcemeta::blaze::Configuration::from_json(input, "/test")};
+  EXPECT_FALSE(config.absolute_path_explicit);
   const auto output{config.to_json()};
 
   EXPECT_EQ(output, input);
@@ -266,6 +283,7 @@ TEST(Configuration_json, to_json_roundtrip_dependencies_resolve_extra) {
 TEST(Configuration_json, to_json_with_lint_rules) {
   sourcemeta::blaze::Configuration config;
   config.absolute_path = "/test";
+  config.absolute_path_explicit = true;
   config.base_path = "/test";
   config.base = "https://example.com";
   config.lint.rules.emplace_back("/test/rules/my-rule.json");
@@ -287,6 +305,7 @@ TEST(Configuration_json, to_json_with_lint_rules) {
 TEST(Configuration_json, to_json_with_lint_rules_parent) {
   sourcemeta::blaze::Configuration config;
   config.absolute_path = "/test";
+  config.absolute_path_explicit = true;
   config.base_path = "/test";
   config.base = "https://example.com";
   config.lint.rules.emplace_back("/other/rules/my-rule.json");
@@ -352,6 +371,7 @@ TEST(Configuration_json, to_json_roundtrip_with_lint_and_dependencies) {
 TEST(Configuration_json, to_json_with_ignore) {
   sourcemeta::blaze::Configuration config;
   config.absolute_path = "/test";
+  config.absolute_path_explicit = true;
   config.base_path = "/test";
   config.base = "https://example.com";
   config.ignore.emplace_back("/test/vendor");
@@ -371,6 +391,7 @@ TEST(Configuration_json, to_json_with_ignore) {
 TEST(Configuration_json, to_json_with_ignore_parent) {
   sourcemeta::blaze::Configuration config;
   config.absolute_path = "/test";
+  config.absolute_path_explicit = true;
   config.base_path = "/test";
   config.base = "https://example.com";
   config.ignore.emplace_back("/other/vendor");
