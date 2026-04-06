@@ -37,6 +37,7 @@ TEST(Configuration_json, read_json_valid_1) {
   EXPECT_TRUE(manifest.website.has_value());
   EXPECT_EQ(manifest.website.value(), "https://www.sourcemeta.com");
   EXPECT_EQ(manifest.absolute_path, std::filesystem::path{"/test"} / "schemas");
+  EXPECT_TRUE(manifest.absolute_path_explicit);
   EXPECT_EQ(manifest.base, "https://schemas.sourcemeta.com");
   EXPECT_TRUE(manifest.default_dialect.has_value());
   EXPECT_EQ(manifest.default_dialect.value(),
@@ -68,6 +69,7 @@ TEST(Configuration_json, read_json_valid_without_path) {
   EXPECT_FALSE(manifest.github.has_value());
   EXPECT_FALSE(manifest.website.has_value());
   EXPECT_EQ(manifest.absolute_path, std::filesystem::path{"/test"});
+  EXPECT_FALSE(manifest.absolute_path_explicit);
   EXPECT_EQ(manifest.base, "https://example.com");
   EXPECT_FALSE(manifest.default_dialect.has_value());
   EXPECT_EQ(manifest.resolve.size(), 0);
