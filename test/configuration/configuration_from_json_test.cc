@@ -47,6 +47,7 @@ TEST(Configuration_from_json, valid_1) {
   EXPECT_EQ(manifest.website.value(), "https://www.sourcemeta.com");
   EXPECT_EQ(manifest.absolute_path,
             std::filesystem::path{TEST_DIRECTORY} / "schemas");
+  EXPECT_TRUE(manifest.absolute_path_explicit);
   EXPECT_EQ(manifest.base, "https://schemas.sourcemeta.com");
   EXPECT_TRUE(manifest.default_dialect.has_value());
   EXPECT_EQ(manifest.default_dialect.value(),
@@ -73,6 +74,7 @@ TEST(Configuration_from_json, valid_2) {
   EXPECT_FALSE(manifest.website.has_value());
   EXPECT_EQ(manifest.absolute_path,
             std::filesystem::path{TEST_DIRECTORY} / "schemas");
+  EXPECT_TRUE(manifest.absolute_path_explicit);
   EXPECT_EQ(
       manifest.base,
       sourcemeta::core::URI::from_path(manifest.absolute_path).recompose());
@@ -99,6 +101,7 @@ TEST(Configuration_from_json, valid_3) {
   EXPECT_FALSE(manifest.github.has_value());
   EXPECT_FALSE(manifest.website.has_value());
   EXPECT_TRUE(manifest.absolute_path.is_absolute());
+  EXPECT_TRUE(manifest.absolute_path_explicit);
   EXPECT_EQ(
       manifest.base,
       sourcemeta::core::URI::from_path(manifest.absolute_path).recompose());
@@ -122,6 +125,7 @@ TEST(Configuration_from_json, valid_4) {
   EXPECT_FALSE(manifest.github.has_value());
   EXPECT_FALSE(manifest.website.has_value());
   EXPECT_TRUE(manifest.absolute_path.is_absolute());
+  EXPECT_TRUE(manifest.absolute_path_explicit);
   EXPECT_EQ(
       manifest.base,
       sourcemeta::core::URI::from_path(manifest.absolute_path).recompose());
@@ -148,6 +152,7 @@ TEST(Configuration_from_json, valid_without_path) {
   EXPECT_FALSE(manifest.github.has_value());
   EXPECT_FALSE(manifest.website.has_value());
   EXPECT_EQ(manifest.absolute_path, TEST_DIRECTORY);
+  EXPECT_FALSE(manifest.absolute_path_explicit);
   EXPECT_EQ(
       manifest.base,
       sourcemeta::core::URI::from_path(manifest.absolute_path).recompose());
@@ -384,6 +389,7 @@ TEST(Configuration_from_json, unknown_field_ignored) {
   EXPECT_FALSE(manifest.github.has_value());
   EXPECT_FALSE(manifest.website.has_value());
   EXPECT_EQ(manifest.absolute_path, TEST_DIRECTORY);
+  EXPECT_FALSE(manifest.absolute_path_explicit);
   EXPECT_EQ(
       manifest.base,
       sourcemeta::core::URI::from_path(manifest.absolute_path).recompose());
@@ -458,6 +464,7 @@ TEST(Configuration_from_json, dependencies_resolved_from_config_location) {
   EXPECT_EQ(manifest.absolute_path,
             std::filesystem::weakly_canonical(
                 std::filesystem::path{TEST_DIRECTORY} / "foo" / "bar"));
+  EXPECT_TRUE(manifest.absolute_path_explicit);
   EXPECT_EQ(manifest.dependencies.size(), 1);
   EXPECT_TRUE(manifest.dependencies.contains(
       "https://json-schema.org/draft/2020-12/schema"));
@@ -644,6 +651,7 @@ TEST(Configuration_from_json, lint_rules_resolved_from_config_location) {
   EXPECT_EQ(manifest.absolute_path,
             std::filesystem::weakly_canonical(
                 std::filesystem::path{TEST_DIRECTORY} / "foo" / "bar"));
+  EXPECT_TRUE(manifest.absolute_path_explicit);
   EXPECT_EQ(manifest.lint.rules.size(), 1);
   EXPECT_TRUE(manifest.lint.rules[0].is_absolute());
   EXPECT_EQ(manifest.lint.rules[0], std::filesystem::weakly_canonical(
@@ -664,6 +672,7 @@ TEST(Configuration_from_json,
   EXPECT_EQ(manifest.absolute_path,
             std::filesystem::weakly_canonical(
                 std::filesystem::path{TEST_DIRECTORY} / "foo" / "bar"));
+  EXPECT_TRUE(manifest.absolute_path_explicit);
   EXPECT_EQ(manifest.lint.rules.size(), 2);
   EXPECT_EQ(manifest.lint.rules[0],
             std::filesystem::weakly_canonical(
@@ -807,6 +816,7 @@ TEST(Configuration_from_json, ignore_resolved_from_config_location) {
   EXPECT_EQ(manifest.absolute_path,
             std::filesystem::weakly_canonical(
                 std::filesystem::path{TEST_DIRECTORY} / "foo" / "bar"));
+  EXPECT_TRUE(manifest.absolute_path_explicit);
   EXPECT_EQ(manifest.ignore.size(), 1);
   EXPECT_TRUE(manifest.ignore[0].is_absolute());
   EXPECT_EQ(manifest.ignore[0],
@@ -826,6 +836,7 @@ TEST(Configuration_from_json, ignore_multiple_resolved_from_config_location) {
   EXPECT_EQ(manifest.absolute_path,
             std::filesystem::weakly_canonical(
                 std::filesystem::path{TEST_DIRECTORY} / "foo" / "bar"));
+  EXPECT_TRUE(manifest.absolute_path_explicit);
   EXPECT_EQ(manifest.ignore.size(), 2);
   EXPECT_EQ(manifest.ignore[0],
             std::filesystem::weakly_canonical(
