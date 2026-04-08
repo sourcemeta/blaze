@@ -132,14 +132,6 @@ auto main(int argc, char **argv) noexcept -> int {
         sourcemeta::core::read_json(std::filesystem::path{positional.front()})};
     std::cerr << "Input: " << positional.front() << "\n";
 
-    // The compiler assumes valid schema input (object or boolean) and
-    // asserts otherwise. Guard here at the CLI boundary to ensure
-    // graceful failure instead of aborting on malformed inputs.
-    if (!sourcemeta::core::is_schema(document)) {
-      std::cerr << "error: the input is not a valid JSON Schema\n";
-      return EXIT_FAILURE;
-    }
-
     if (options.contains("path")) {
       const auto pointer{sourcemeta::core::to_pointer(
           std::string{options.at("path").front()})};
@@ -158,6 +150,12 @@ auto main(int argc, char **argv) noexcept -> int {
                      "JSON Schema\n";
         return EXIT_FAILURE;
       }
+    } else if (!sourcemeta::core::is_schema(document)) {
+      // The compiler assumes valid schema input (object or boolean) and
+      // asserts otherwise. Guard here at the CLI boundary to ensure
+      // graceful failure instead of aborting on malformed inputs.
+      std::cerr << "error: the input is not a valid JSON Schema\n";
+      return EXIT_FAILURE;
     }
 
     const auto compile_start{std::chrono::high_resolution_clock::now()};
