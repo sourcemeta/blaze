@@ -1,0 +1,7 @@
+{
+  "$schema": "urn:not:a:real:schema",
+  "type": "object",
+  "properties": {
+    "name": { "type": "string" }
+  }
+}
