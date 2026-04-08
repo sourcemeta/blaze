@@ -1,0 +1,19 @@
+{
+  "$schema": "https://json-schema.org/draft/2019-09/schema",
+  "type": "object",
+  "properties": {
+    "name": { "type": "string" },
+    "age": { "type": "integer" }
+  },
+  "dependentRequired": {
+    "age": ["name"]
+  },
+  "dependentSchemas": {
+    "name": {
+      "properties": {
+        "nickname": { "type": "string" }
+      }
+    }
+  },
+  "unevaluatedProperties": false
+}

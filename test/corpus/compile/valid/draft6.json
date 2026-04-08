@@ -1,0 +1,9 @@
+{
+  "$schema": "http://json-schema.org/draft-06/schema#",
+  "type": "object",
+  "properties": {
+    "tag": { "type": "string", "const": "v1" }
+  },
+  "propertyNames": { "pattern": "^[a-z]" },
+  "contains": { "type": "number" }
+}

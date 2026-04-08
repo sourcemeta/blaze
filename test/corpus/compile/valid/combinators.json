@@ -1,0 +1,18 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "allOf": [
+    { "type": "object" },
+    {
+      "anyOf": [
+        { "required": ["a"] },
+        { "required": ["b"] }
+      ]
+    },
+    {
+      "oneOf": [
+        { "properties": { "x": { "type": "string" } } },
+        { "properties": { "x": { "type": "number" } } }
+      ]
+    }
+  ]
+}
