@@ -1,0 +1,156 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "type": "object",
+  "patternProperties": {
+    "^prefix_0_": {
+      "type": "string"
+    },
+    "^prefix_1_": {
+      "type": "string"
+    },
+    "^prefix_2_": {
+      "type": "string"
+    },
+    "^prefix_3_": {
+      "type": "string"
+    },
+    "^prefix_4_": {
+      "type": "string"
+    },
+    "^prefix_5_": {
+      "type": "string"
+    },
+    "^prefix_6_": {
+      "type": "string"
+    },
+    "^prefix_7_": {
+      "type": "string"
+    },
+    "^prefix_8_": {
+      "type": "string"
+    },
+    "^prefix_9_": {
+      "type": "string"
+    },
+    "^prefix_10_": {
+      "type": "string"
+    },
+    "^prefix_11_": {
+      "type": "string"
+    },
+    "^prefix_12_": {
+      "type": "string"
+    },
+    "^prefix_13_": {
+      "type": "string"
+    },
+    "^prefix_14_": {
+      "type": "string"
+    },
+    "^prefix_15_": {
+      "type": "string"
+    },
+    "^prefix_16_": {
+      "type": "string"
+    },
+    "^prefix_17_": {
+      "type": "string"
+    },
+    "^prefix_18_": {
+      "type": "string"
+    },
+    "^prefix_19_": {
+      "type": "string"
+    },
+    "^prefix_20_": {
+      "type": "string"
+    },
+    "^prefix_21_": {
+      "type": "string"
+    },
+    "^prefix_22_": {
+      "type": "string"
+    },
+    "^prefix_23_": {
+      "type": "string"
+    },
+    "^prefix_24_": {
+      "type": "string"
+    },
+    "^prefix_25_": {
+      "type": "string"
+    },
+    "^prefix_26_": {
+      "type": "string"
+    },
+    "^prefix_27_": {
+      "type": "string"
+    },
+    "^prefix_28_": {
+      "type": "string"
+    },
+    "^prefix_29_": {
+      "type": "string"
+    },
+    "^prefix_30_": {
+      "type": "string"
+    },
+    "^prefix_31_": {
+      "type": "string"
+    },
+    "^prefix_32_": {
+      "type": "string"
+    },
+    "^prefix_33_": {
+      "type": "string"
+    },
+    "^prefix_34_": {
+      "type": "string"
+    },
+    "^prefix_35_": {
+      "type": "string"
+    },
+    "^prefix_36_": {
+      "type": "string"
+    },
+    "^prefix_37_": {
+      "type": "string"
+    },
+    "^prefix_38_": {
+      "type": "string"
+    },
+    "^prefix_39_": {
+      "type": "string"
+    },
+    "^prefix_40_": {
+      "type": "string"
+    },
+    "^prefix_41_": {
+      "type": "string"
+    },
+    "^prefix_42_": {
+      "type": "string"
+    },
+    "^prefix_43_": {
+      "type": "string"
+    },
+    "^prefix_44_": {
+      "type": "string"
+    },
+    "^prefix_45_": {
+      "type": "string"
+    },
+    "^prefix_46_": {
+      "type": "string"
+    },
+    "^prefix_47_": {
+      "type": "string"
+    },
+    "^prefix_48_": {
+      "type": "string"
+    },
+    "^prefix_49_": {
+      "type": "string"
+    }
+  }
+}
