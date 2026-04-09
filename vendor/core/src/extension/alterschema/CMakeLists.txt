@@ -12,7 +12,6 @@ sourcemeta_library(NAMESPACE sourcemeta PROJECT core NAME alterschema
     canonicalizer/min_properties_covered_by_required.h
     canonicalizer/min_properties_implicit.h
     canonicalizer/multiple_of_implicit.h
-    canonicalizer/no_metadata.h
     canonicalizer/properties_implicit.h
     canonicalizer/type_array_to_any_of.h
     canonicalizer/type_boolean_as_enum.h
@@ -31,6 +30,7 @@ sourcemeta_library(NAMESPACE sourcemeta PROJECT core NAME alterschema
     common/content_schema_without_media_type.h
     common/dependencies_property_tautology.h
     common/dependent_required_tautology.h
+    common/draft_official_dialect_with_https.h
     common/draft_official_dialect_without_empty_fragment.h
     common/draft_ref_siblings.h
     common/drop_allof_empty_schemas.h
@@ -52,6 +52,7 @@ sourcemeta_library(NAMESPACE sourcemeta PROJECT core NAME alterschema
     common/min_contains_without_contains.h
     common/minimum_real_for_integer.h
     common/modern_official_dialect_with_empty_fragment.h
+    common/modern_official_dialect_with_http.h
     common/non_applicable_additional_items.h
     common/non_applicable_enum_validation_keywords.h
     common/non_applicable_type_specific_keywords.h
@@ -83,6 +84,7 @@ sourcemeta_library(NAMESPACE sourcemeta PROJECT core NAME alterschema
     linter/enum_to_const.h
     linter/equal_numeric_bounds_to_const.h
     linter/forbid_empty_enum.h
+    linter/incoherent_min_max_contains.h
     linter/invalid_external_ref.h
     linter/items_array_default.h
     linter/items_schema_default.h

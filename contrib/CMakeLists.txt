@@ -57,3 +57,15 @@ if(BLAZE_COMPILER AND BLAZE_EVALUATOR)
       PRIVATE sourcemeta::blaze::evaluator)
   endif()
 endif()
+
+if(BLAZE_ALTERSCHEMA)
+  sourcemeta_executable(NAMESPACE sourcemeta PROJECT blaze
+    NAME contrib_canonicalize
+    FOLDER "Blaze/Contrib" SOURCES canonicalize.cc)
+  target_link_libraries(sourcemeta_blaze_contrib_canonicalize
+    PRIVATE sourcemeta::core::json)
+  target_link_libraries(sourcemeta_blaze_contrib_canonicalize
+    PRIVATE sourcemeta::core::jsonschema)
+  target_link_libraries(sourcemeta_blaze_contrib_canonicalize
+    PRIVATE sourcemeta::blaze::alterschema)
+endif()

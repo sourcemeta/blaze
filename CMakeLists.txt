@@ -8,9 +8,9 @@ list(APPEND CMAKE_MODULE_PATH "${PROJECT_SOURCE_DIR}/cmake")
 option(BLAZE_COMPILER "Build the Blaze compiler library" ON)
 option(BLAZE_EVALUATOR "Build the Blaze evaluator library" ON)
 option(BLAZE_OUTPUT "Build the Blaze output formats library" ON)
-option(BLAZE_LINTER "Build the Blaze linter rule library" ON)
 option(BLAZE_TEST "Build the Blaze test runner library" ON)
 option(BLAZE_CONFIGURATION "Build the Blaze configuration file library" ON)
+option(BLAZE_ALTERSCHEMA "Build the Blaze alterschema rule library" ON)
 option(BLAZE_TESTS "Build the Blaze tests" OFF)
 option(BLAZE_BENCHMARK "Build the Blaze benchmarks" OFF)
 option(BLAZE_CONTRIB "Build the Blaze contrib programs" OFF)
@@ -55,16 +55,16 @@ if(BLAZE_OUTPUT)
   add_subdirectory(src/output)
 endif()
 
-if(BLAZE_LINTER)
-  add_subdirectory(src/linter)
-endif()
-
 if(BLAZE_TEST)
   add_subdirectory(src/test)
 endif()
 
 if(BLAZE_CONFIGURATION)
   add_subdirectory(src/configuration)
+endif()
+
+if(BLAZE_ALTERSCHEMA)
+  add_subdirectory(src/alterschema)
 endif()
 
 if(BLAZE_CONTRIB)
@@ -106,16 +106,16 @@ if(BLAZE_TESTS)
     add_subdirectory(test/output)
   endif()
 
-  if(BLAZE_LINTER)
-    add_subdirectory(test/linter)
-  endif()
-
   if(BLAZE_TEST)
     add_subdirectory(test/test)
   endif()
 
   if(BLAZE_CONFIGURATION)
     add_subdirectory(test/configuration)
+  endif()
+
+  if(BLAZE_ALTERSCHEMA)
+    add_subdirectory(test/alterschema)
   endif()
 
   if(PROJECT_IS_TOP_LEVEL)
