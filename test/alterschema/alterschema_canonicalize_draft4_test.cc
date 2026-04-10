@@ -269,6 +269,31 @@ TEST(AlterSchema_canonicalize_draft4, min_properties_implicit_2) {
   EXPECT_EQ(document, expected);
 }
 
+TEST(AlterSchema_canonicalize_draft4,
+     pattern_properties_additional_properties_false) {
+  auto document = sourcemeta::core::parse_json(R"JSON({
+    "$schema": "http://json-schema.org/draft-04/schema#",
+    "type": "object",
+    "patternProperties": { "^[a-z]+$": true },
+    "additionalProperties": false
+  })JSON");
+
+  CANONICALIZE(document, result, traces);
+
+  EXPECT_TRUE(result.first);
+
+  const auto expected = sourcemeta::core::parse_json(R"JSON({
+    "$schema": "http://json-schema.org/draft-04/schema#",
+    "type": "object",
+    "minProperties": 0,
+    "properties": {},
+    "patternProperties": { "^[a-z]+$": true },
+    "additionalProperties": false
+  })JSON");
+
+  EXPECT_EQ(document, expected);
+}
+
 TEST(AlterSchema_canonicalize_draft4, equal_numeric_bounds_to_enum_2) {
   sourcemeta::core::JSON document = sourcemeta::core::parse_json(R"JSON({
     "$schema": "http://json-schema.org/draft-04/schema#",

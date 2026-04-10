@@ -1136,7 +1136,10 @@ auto compiler_draft4_applicator_patternproperties_with_options(
     }
 
     if (context.mode == Mode::FastValidation && !track_evaluation &&
-        patterns.size() == 1 && !schema_context.schema.defines("properties") &&
+        patterns.size() == 1 &&
+        (!schema_context.schema.defines("properties") ||
+         (schema_context.schema.at("properties").is_object() &&
+          schema_context.schema.at("properties").empty())) &&
         schema_context.schema.defines("additionalProperties") &&
         schema_context.schema.at("additionalProperties").is_boolean() &&
         !schema_context.schema.at("additionalProperties").to_boolean()) {
