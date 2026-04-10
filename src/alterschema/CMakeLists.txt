@@ -1,7 +1,7 @@
 sourcemeta_library(NAMESPACE sourcemeta PROJECT blaze NAME alterschema
   FOLDER "Blaze/AlterSchema"
-  PRIVATE_HEADERS error.h
-  SOURCES alterschema.cc schema_rule.cc
+  PRIVATE_HEADERS error.h transformer.h
+  SOURCES alterschema.cc schema_rule.cc transformer.cc
     # Canonicalizer
     canonicalizer/const_as_enum.h
     canonicalizer/exclusive_maximum_integer_to_maximum.h
@@ -123,3 +123,5 @@ target_link_libraries(sourcemeta_blaze_alterschema PRIVATE
   sourcemeta::blaze::output)
 target_link_libraries(sourcemeta_blaze_alterschema PRIVATE
   sourcemeta::core::regex)
+target_link_libraries(sourcemeta_blaze_alterschema PRIVATE
+  sourcemeta::core::uri)

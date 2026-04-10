@@ -15,7 +15,7 @@ public:
             const sourcemeta::core::SchemaFrame::Location &location,
             const sourcemeta::core::SchemaWalker &walker,
             const sourcemeta::core::SchemaResolver &) const
-      -> sourcemeta::core::SchemaTransformRule::Result override {
+      -> SchemaTransformRule::Result override {
     ONLY_CONTINUE_IF(schema.is_object());
 
     auto current_types{vocabularies.contains_any(

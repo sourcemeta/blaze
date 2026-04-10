@@ -15,6 +15,7 @@
 #endif
 
 #include <sourcemeta/blaze/alterschema_error.h>
+#include <sourcemeta/blaze/alterschema_transformer.h>
 
 #include <sourcemeta/blaze/compiler.h>
 #include <sourcemeta/core/jsonschema.h>
@@ -54,7 +55,7 @@ enum class AlterSchemaMode : std::uint8_t {
 /// #include <sourcemeta/core/jsonschema.h>
 /// #include <sourcemeta/blaze/alterschema.h>
 ///
-/// sourcemeta::core::SchemaTransformer bundle;
+/// sourcemeta::blaze::SchemaTransformer bundle;
 ///
 /// sourcemeta::blaze::add(bundle,
 ///   sourcemeta::blaze::AlterSchemaMode::Linter);
@@ -72,8 +73,7 @@ enum class AlterSchemaMode : std::uint8_t {
 ///              sourcemeta::core::schema_resolver);
 /// ```
 SOURCEMETA_BLAZE_ALTERSCHEMA_EXPORT
-auto add(sourcemeta::core::SchemaTransformer &bundle,
-         const AlterSchemaMode mode) -> void;
+auto add(SchemaTransformer &bundle, const AlterSchemaMode mode) -> void;
 
 /// @ingroup alterschema
 ///
@@ -85,7 +85,7 @@ auto add(sourcemeta::core::SchemaTransformer &bundle,
 /// `description` keyword. The title must consist only of lowercase ASCII
 /// letters, digits, underscores, or slashes.
 class SOURCEMETA_BLAZE_ALTERSCHEMA_EXPORT SchemaRule final
-    : public sourcemeta::core::SchemaTransformRule {
+    : public SchemaTransformRule {
 public:
   using mutates = std::false_type;
   using reframe_after_transform = std::false_type;
@@ -102,7 +102,7 @@ public:
                                const sourcemeta::core::SchemaFrame::Location &,
                                const sourcemeta::core::SchemaWalker &,
                                const sourcemeta::core::SchemaResolver &) const
-      -> sourcemeta::core::SchemaTransformRule::Result override;
+      -> SchemaTransformRule::Result override;
 
 private:
   Template template_;

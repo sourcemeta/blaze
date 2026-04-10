@@ -15,7 +15,7 @@ Alterschema_Check_Readibility_ISO_Language_Set_3(benchmark::State &state) {
       std::filesystem::path{CURRENT_DIRECTORY} / "files" /
       "2020_12_iso_language_2023_set_3.json")};
 
-  sourcemeta::core::SchemaTransformer bundle;
+  sourcemeta::blaze::SchemaTransformer bundle;
   sourcemeta::blaze::add(bundle, sourcemeta::blaze::AlterSchemaMode::Linter);
 
   for (auto _ : state) {
@@ -34,7 +34,7 @@ static void Alterschema_Check_Readibility_OMC(benchmark::State &state) {
       sourcemeta::core::read_json(std::filesystem::path{CURRENT_DIRECTORY} /
                                   "files" / "2019_09_omc_json_v2.json")};
 
-  sourcemeta::core::SchemaTransformer bundle;
+  sourcemeta::blaze::SchemaTransformer bundle;
   sourcemeta::blaze::add(bundle, sourcemeta::blaze::AlterSchemaMode::Linter);
 
   for (auto _ : state) {
@@ -52,7 +52,7 @@ static void Alterschema_Check_Readibility_KrakenD(benchmark::State &state) {
       sourcemeta::core::read_json(std::filesystem::path{CURRENT_DIRECTORY} /
                                   "files" / "2019_09_krakend.json")};
 
-  sourcemeta::core::SchemaTransformer bundle;
+  sourcemeta::blaze::SchemaTransformer bundle;
   sourcemeta::blaze::add(bundle, sourcemeta::blaze::AlterSchemaMode::Linter);
 
   for (auto _ : state) {
@@ -65,7 +65,7 @@ static void Alterschema_Check_Readibility_KrakenD(benchmark::State &state) {
 }
 
 static void Alterschema_Apply_Readibility_KrakenD(benchmark::State &state) {
-  sourcemeta::core::SchemaTransformer bundle;
+  sourcemeta::blaze::SchemaTransformer bundle;
   sourcemeta::blaze::add(bundle, sourcemeta::blaze::AlterSchemaMode::Linter);
 
   const auto schema{
@@ -90,7 +90,7 @@ static void Alterschema_Check_Invalid_External_Refs(benchmark::State &state) {
       std::filesystem::path{CURRENT_DIRECTORY} / "files" /
       "2020_12_many_invalid_external_refs.json")};
 
-  sourcemeta::core::SchemaTransformer bundle;
+  sourcemeta::blaze::SchemaTransformer bundle;
   sourcemeta::blaze::add(bundle, sourcemeta::blaze::AlterSchemaMode::Linter);
 
   for (auto _ : state) {

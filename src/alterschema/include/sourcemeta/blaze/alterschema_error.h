@@ -5,9 +5,12 @@
 #include <sourcemeta/blaze/alterschema_export.h>
 #endif
 
+#include <sourcemeta/core/jsonpointer.h>
+
 #include <exception>   // std::exception
 #include <string>      // std::string
 #include <string_view> // std::string_view
+#include <utility>     // std::move
 
 namespace sourcemeta::blaze {
 
@@ -82,6 +85,33 @@ public:
 private:
   std::string identifier_;
   std::string regex_;
+};
+
+/// @ingroup alterschema
+/// An error that signifies that a transform rule was applied more than once
+class SOURCEMETA_BLAZE_ALTERSCHEMA_EXPORT SchemaTransformRuleProcessedTwiceError
+    : public std::exception {
+public:
+  SchemaTransformRuleProcessedTwiceError(const std::string_view name,
+                                         sourcemeta::core::Pointer location)
+      : name_{name}, location_{std::move(location)} {}
+
+  [[nodiscard]] auto what() const noexcept -> const char * override {
+    return "Transformation rules must only be processed once";
+  }
+
+  [[nodiscard]] auto name() const noexcept -> std::string_view {
+    return this->name_;
+  }
+
+  [[nodiscard]] auto location() const noexcept
+      -> const sourcemeta::core::Pointer & {
+    return this->location_;
+  }
+
+private:
+  std::string name_;
+  sourcemeta::core::Pointer location_;
 };
 
 #if defined(_MSC_VER)
