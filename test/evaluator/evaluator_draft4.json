@@ -2605,6 +2605,45 @@
     }
   },
   {
+    "description": "patternProperties_14b",
+    "schema": {
+      "$schema": "http://json-schema.org/draft-04/schema#",
+      "type": "object",
+      "properties": {},
+      "patternProperties": {
+        "^[a-z]+$": true
+      },
+      "additionalProperties": false
+    },
+    "instance": { "foo": "bar", "@bar": 1 },
+    "valid": false,
+    "fast": {
+      "pre": [
+        [ "LoopPropertiesRegexClosed", "/patternProperties", "#/patternProperties", "" ]
+      ],
+      "post": [
+        [ false, "LoopPropertiesRegexClosed", "/patternProperties", "#/patternProperties", "" ]
+      ],
+      "descriptions": [
+        "The object properties were expected to match the regular expression \"^[a-z]+$\" and validate against the defined pattern property subschema"
+      ]
+    },
+    "exhaustive": {
+      "pre": [
+        [ "LoopPropertiesExcept", "/additionalProperties", "#/additionalProperties", "" ],
+        [ "AssertionFail", "/additionalProperties", "#/additionalProperties", "/@bar" ]
+      ],
+      "post": [
+        [ false, "AssertionFail", "/additionalProperties", "#/additionalProperties", "/@bar" ],
+        [ false, "LoopPropertiesExcept", "/additionalProperties", "#/additionalProperties", "" ]
+      ],
+      "descriptions": [
+        "The object value was not expected to define the property \"@bar\"",
+        "The object value was not expected to define additional properties"
+      ]
+    }
+  },
+  {
     "description": "patternProperties_15",
     "schema": { "$schema": "http://json-schema.org/draft-04/schema#", "patternProperties": "not-an-object" },
     "instance": "foo",
