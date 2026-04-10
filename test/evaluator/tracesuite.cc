@@ -1,5 +1,6 @@
 #include <gtest/gtest.h>
 
+#include <sourcemeta/blaze/alterschema.h>
 #include <sourcemeta/blaze/compiler.h>
 #include <sourcemeta/blaze/evaluator.h>
 
@@ -127,6 +128,54 @@ private:
   const char *mode_key;
 };
 
+class CanonicalizeTraceTest : public testing::Test {
+public:
+  explicit CanonicalizeTraceTest(sourcemeta::core::JSON test_data,
+                                 const sourcemeta::blaze::Mode test_mode)
+      : data{std::move(test_data)}, mode{test_mode} {}
+
+  auto TestBody() -> void override {
+    auto schema{this->data.at("schema")};
+    const auto &instance{this->data.at("instance")};
+    const bool expected_valid{this->data.at("valid").to_boolean()};
+
+    sourcemeta::core::SchemaTransformer bundle;
+    sourcemeta::blaze::add(bundle,
+                           sourcemeta::blaze::AlterSchemaMode::Canonicalizer);
+    const auto canonicalize_result{bundle.apply(
+        schema, sourcemeta::core::schema_walker,
+        sourcemeta::core::schema_resolver,
+        [](const auto &pointer, const auto &name, const auto &message,
+           const auto &, const auto &) {
+          // TODO: Temporary for debugging purposes. Remove once everything
+          // passes
+          std::fprintf(stderr, "  canonicalize: %s: %s: %s\n",
+                       sourcemeta::core::to_string(pointer).c_str(),
+                       std::string{name}.c_str(), std::string{message}.c_str());
+        })};
+    EXPECT_TRUE(canonicalize_result.first);
+
+    const auto compiled_schema{sourcemeta::blaze::compile(
+        schema, sourcemeta::core::schema_walker,
+        sourcemeta::core::schema_resolver,
+        sourcemeta::blaze::default_schema_compiler, this->mode)};
+    __ASSERT_TEMPLATE_JSON_SERIALISATION(compiled_schema);
+
+    sourcemeta::blaze::Evaluator evaluator;
+    const auto result{evaluator.validate(compiled_schema, instance)};
+
+    if (expected_valid) {
+      EXPECT_TRUE(result);
+    } else {
+      EXPECT_FALSE(result);
+    }
+  }
+
+private:
+  const sourcemeta::core::JSON data;
+  const sourcemeta::blaze::Mode mode;
+};
+
 static auto register_tests(const std::filesystem::path &path,
                            const std::string &suite_name) -> void {
   std::fprintf(stderr, "-- Parsing: %s\n", path.string().c_str());
@@ -155,6 +204,23 @@ static auto register_tests(const std::filesystem::path &path,
       testing::RegisterTest(suite_name.c_str(), title.c_str(), nullptr, nullptr,
                             __FILE__, __LINE__, [=]() -> TraceTest * {
                               return new TraceTest(test_case, mode, mode_key);
+                            });
+    }
+
+    for (const auto &[mode_suffix, mode] :
+         {std::pair<const char *, sourcemeta::blaze::Mode>{
+              "_canonicalize_fast", sourcemeta::blaze::Mode::FastValidation},
+          std::pair<const char *, sourcemeta::blaze::Mode>{
+              "_canonicalize_exhaustive",
+              sourcemeta::blaze::Mode::Exhaustive}}) {
+
+      const auto title{description + mode_suffix};
+
+      const auto canonicalize_suite_name{suite_name + "_canonicalize"};
+      testing::RegisterTest(canonicalize_suite_name.c_str(), title.c_str(),
+                            nullptr, nullptr, __FILE__, __LINE__,
+                            [=]() -> CanonicalizeTraceTest * {
+                              return new CanonicalizeTraceTest(test_case, mode);
                             });
     }
   }
