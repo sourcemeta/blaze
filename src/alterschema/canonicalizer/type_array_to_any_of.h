@@ -37,7 +37,12 @@ public:
       }
 
       const auto &metadata{walker(entry.first, vocabularies)};
-      if (metadata.instances.any()) {
+      if (metadata.instances.any() &&
+          !(vocabularies.contains_any(
+                {Vocabularies::Known::JSON_Schema_2020_12_Unevaluated,
+                 Vocabularies::Known::JSON_Schema_2019_09_Applicator}) &&
+            (entry.first == "unevaluatedProperties" ||
+             entry.first == "unevaluatedItems"))) {
         this->keyword_instances_[entry.first] = metadata.instances;
       }
     }

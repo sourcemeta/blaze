@@ -27,6 +27,14 @@ public:
 
     std::unordered_set<std::string_view> dependency_blocked;
     for (const auto &entry : schema.as_object()) {
+      if ((entry.first == "unevaluatedProperties" ||
+           entry.first == "unevaluatedItems") &&
+          vocabularies.contains_any(
+              {Vocabularies::Known::JSON_Schema_2020_12_Unevaluated,
+               Vocabularies::Known::JSON_Schema_2019_09_Applicator})) {
+        continue;
+      }
+
       for (const auto &dependency :
            walker(entry.first, vocabularies).dependencies) {
         dependency_blocked.emplace(dependency);
@@ -70,6 +78,14 @@ public:
         continue;
       }
 
+      if (vocabularies.contains_any(
+              {Vocabularies::Known::JSON_Schema_2020_12_Unevaluated,
+               Vocabularies::Known::JSON_Schema_2019_09_Applicator}) &&
+          (entry.defines("unevaluatedProperties") ||
+           entry.defines("unevaluatedItems"))) {
+        continue;
+      }
+
       for (const auto &keyword_entry : entry.as_object()) {
         const auto &keyword{keyword_entry.first};
         const auto &metadata{walker(keyword, vocabularies)};
@@ -101,9 +117,15 @@ public:
         locations.push_back(Pointer{KEYWORD, index - 1, keyword});
         elevated.emplace(keyword);
 
-        for (const auto &dependency : metadata.dependencies) {
-          if (!entry.defines(std::string{dependency})) {
-            dependency_blocked.emplace(dependency);
+        if (!(vocabularies.contains_any(
+                  {Vocabularies::Known::JSON_Schema_2020_12_Unevaluated,
+                   Vocabularies::Known::JSON_Schema_2019_09_Applicator}) &&
+              (keyword == "unevaluatedProperties" ||
+               keyword == "unevaluatedItems"))) {
+          for (const auto &dependency : metadata.dependencies) {
+            if (!entry.defines(std::string{dependency})) {
+              dependency_blocked.emplace(dependency);
+            }
           }
         }
       }
