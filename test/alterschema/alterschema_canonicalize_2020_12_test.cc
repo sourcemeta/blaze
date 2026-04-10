@@ -1697,6 +1697,88 @@ TEST(AlterSchema_canonicalize_2020_12,
   EXPECT_EQ(document, expected);
 }
 
+TEST(AlterSchema_canonicalize_2020_12,
+     items_implicit_skipped_with_anyof_items_and_unevaluated_items) {
+  auto document = sourcemeta::core::parse_json(R"JSON({
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "anyOf": [
+      { "items": { "type": "boolean" } },
+      true
+    ],
+    "unevaluatedItems": false
+  })JSON");
+
+  CANONICALIZE(document, result, traces);
+
+  EXPECT_TRUE(result.first);
+
+  const auto expected = sourcemeta::core::parse_json(R"JSON({
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "anyOf": [
+      { "enum": [ null ] },
+      { "enum": [ false, true ] },
+      {
+        "type": "object",
+        "minProperties": 0,
+        "properties": {}
+      },
+      {
+        "type": "array",
+        "minItems": 0
+      },
+      {
+        "type": "string",
+        "minLength": 0
+      },
+      { "type": "number" }
+    ],
+    "unevaluatedItems": false
+  })JSON");
+
+  EXPECT_EQ(document, expected);
+}
+
+TEST(AlterSchema_canonicalize_2020_12,
+     items_implicit_skipped_with_anyof_prefix_items_and_unevaluated_items) {
+  auto document = sourcemeta::core::parse_json(R"JSON({
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "anyOf": [
+      { "prefixItems": [ { "type": "boolean" } ] },
+      true
+    ],
+    "unevaluatedItems": false
+  })JSON");
+
+  CANONICALIZE(document, result, traces);
+
+  EXPECT_TRUE(result.first);
+
+  const auto expected = sourcemeta::core::parse_json(R"JSON({
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "anyOf": [
+      { "enum": [ null ] },
+      { "enum": [ false, true ] },
+      {
+        "type": "object",
+        "minProperties": 0,
+        "properties": {}
+      },
+      {
+        "type": "array",
+        "minItems": 0
+      },
+      {
+        "type": "string",
+        "minLength": 0
+      },
+      { "type": "number" }
+    ],
+    "unevaluatedItems": false
+  })JSON");
+
+  EXPECT_EQ(document, expected);
+}
+
 TEST(AlterSchema_canonicalize_2020_12, ref_into_subschema_via_absolute_uri) {
   auto document = sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2020-12/schema",

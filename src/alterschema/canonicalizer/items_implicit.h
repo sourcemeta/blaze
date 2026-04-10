@@ -9,12 +9,12 @@ public:
 
   [[nodiscard]] auto
   condition(const sourcemeta::core::JSON &schema,
-            const sourcemeta::core::JSON &,
+            const sourcemeta::core::JSON &root,
             const sourcemeta::core::Vocabularies &vocabularies,
-            const sourcemeta::core::SchemaFrame &,
-            const sourcemeta::core::SchemaFrame::Location &,
-            const sourcemeta::core::SchemaWalker &,
-            const sourcemeta::core::SchemaResolver &) const
+            const sourcemeta::core::SchemaFrame &frame,
+            const sourcemeta::core::SchemaFrame::Location &location,
+            const sourcemeta::core::SchemaWalker &walker,
+            const sourcemeta::core::SchemaResolver &resolver) const
       -> SchemaTransformRule::Result override {
     ONLY_CONTINUE_IF(
         ((vocabularies.contains(
@@ -31,6 +31,12 @@ public:
         schema.is_object() && schema.defines("type") &&
         schema.at("type").is_string() &&
         schema.at("type").to_string() == "array" && !schema.defines("items"));
+    ONLY_CONTINUE_IF(!WALK_UP_IN_PLACE_APPLICATORS(
+                          root, frame, location, walker, resolver,
+                          [](const JSON &ancestor) {
+                            return ancestor.defines("unevaluatedItems");
+                          })
+                          .has_value());
     return true;
   }
 
