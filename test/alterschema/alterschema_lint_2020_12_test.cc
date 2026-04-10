@@ -7305,9 +7305,7 @@ TEST(AlterSchema_lint_2020_12,
   const sourcemeta::core::JSON expected = sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2020-12/schema",
     "unevaluatedProperties": false,
-    "allOf": [
-      { "properties": { "foo": { "type": "string" } } }
-    ]
+    "properties": { "foo": { "type": "string" } }
   })JSON");
 
   EXPECT_EQ(document, expected);
@@ -7331,9 +7329,7 @@ TEST(
   const sourcemeta::core::JSON expected = sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2020-12/schema",
     "unevaluatedProperties": false,
-    "allOf": [
-      { "patternProperties": { "^f": { "type": "string" } } }
-    ]
+    "patternProperties": { "^f": { "type": "string" } }
   })JSON");
 
   EXPECT_EQ(document, expected);
@@ -7357,9 +7353,7 @@ TEST(
   const sourcemeta::core::JSON expected = sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2020-12/schema",
     "unevaluatedProperties": false,
-    "allOf": [
-      { "additionalProperties": { "type": "string" } }
-    ]
+    "additionalProperties": { "type": "string" }
   })JSON");
 
   EXPECT_EQ(document, expected);
@@ -7436,10 +7430,14 @@ TEST(
 
   const sourcemeta::core::JSON expected = sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2020-12/schema",
-    "properties": { "foo": { "type": "string" } },
-    "patternProperties": { "^b": { "type": "number" } },
-    "additionalProperties": { "type": "boolean" },
-    "unevaluatedProperties": false
+    "allOf": [
+      {
+        "properties": { "foo": { "type": "string" } },
+        "patternProperties": { "^b": { "type": "number" } },
+        "additionalProperties": { "type": "boolean" },
+        "unevaluatedProperties": false
+      }
+    ]
   })JSON");
 
   EXPECT_EQ(document, expected);
@@ -7462,9 +7460,7 @@ TEST(AlterSchema_lint_2020_12,
   const sourcemeta::core::JSON expected = sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2020-12/schema",
     "unevaluatedItems": false,
-    "allOf": [
-      { "prefixItems": [ { "type": "string" } ] }
-    ]
+    "prefixItems": [ { "type": "string" } ]
   })JSON");
 
   EXPECT_EQ(document, expected);
@@ -7487,9 +7483,7 @@ TEST(AlterSchema_lint_2020_12,
   const sourcemeta::core::JSON expected = sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2020-12/schema",
     "unevaluatedItems": false,
-    "allOf": [
-      { "items": { "type": "string" } }
-    ]
+    "items": { "type": "string" }
   })JSON");
 
   EXPECT_EQ(document, expected);
@@ -7512,9 +7506,7 @@ TEST(AlterSchema_lint_2020_12,
   const sourcemeta::core::JSON expected = sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2020-12/schema",
     "unevaluatedItems": false,
-    "allOf": [
-      { "contains": { "type": "string" } }
-    ]
+    "contains": { "type": "string" }
   })JSON");
 
   EXPECT_EQ(document, expected);
@@ -7590,10 +7582,14 @@ TEST(AlterSchema_lint_2020_12,
 
   const sourcemeta::core::JSON expected = sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2020-12/schema",
-    "prefixItems": [ { "type": "string" } ],
-    "items": { "type": "number" },
-    "contains": { "minimum": 0 },
-    "unevaluatedItems": false
+    "allOf": [
+      {
+        "prefixItems": [ { "type": "string" } ],
+        "items": { "type": "number" },
+        "contains": { "minimum": 0 },
+        "unevaluatedItems": false
+      }
+    ]
   })JSON");
 
   EXPECT_EQ(document, expected);
@@ -7759,12 +7755,10 @@ TEST(AlterSchema_lint_2020_12,
     "$schema": "https://json-schema.org/draft/2020-12/schema",
     "unevaluatedProperties": false,
     "unevaluatedItems": false,
-    "title": "Test schema",
     "description": "A test",
-    "allOf": [
-      { "properties": { "foo": { "type": "string" } } },
-      { "prefixItems": [ { "type": "number" } ] }
-    ]
+    "title": "Test schema",
+    "prefixItems": [ { "type": "number" } ],
+    "properties": { "foo": { "type": "string" } }
   })JSON");
 
   EXPECT_EQ(document, expected);

@@ -573,6 +573,101 @@ TEST(AlterSchema_canonicalize_2019_09,
   EXPECT_EQ(document, expected);
 }
 
+TEST(AlterSchema_canonicalize_2019_09,
+     unevaluated_properties_with_allof_properties) {
+  auto document = sourcemeta::core::parse_json(R"JSON({
+    "$schema": "https://json-schema.org/draft/2019-09/schema",
+    "unevaluatedProperties": { "type": "boolean" },
+    "allOf": [
+      { "properties": { "foo": { "type": "string" } } }
+    ]
+  })JSON");
+
+  CANONICALIZE(document, result, traces);
+
+  EXPECT_TRUE(result.first);
+
+  const auto expected = sourcemeta::core::parse_json(R"JSON({
+    "$schema": "https://json-schema.org/draft/2019-09/schema",
+    "anyOf": [
+      { "enum": [ null ] },
+      { "enum": [ false, true ] },
+      {
+        "type": "object",
+        "minProperties": 0,
+        "properties": {
+          "foo": {
+            "type": "string",
+            "minLength": 0
+          }
+        }
+      },
+      {
+        "type": "array",
+        "minItems": 0,
+        "items": true
+      },
+      {
+        "type": "string",
+        "minLength": 0
+      },
+      { "type": "number" }
+    ],
+    "unevaluatedProperties": {
+      "enum": [ false, true ]
+    }
+  })JSON");
+
+  EXPECT_EQ(document, expected);
+}
+
+TEST(AlterSchema_canonicalize_2019_09, unevaluated_properties_inside_allof) {
+  auto document = sourcemeta::core::parse_json(R"JSON({
+    "$schema": "https://json-schema.org/draft/2019-09/schema",
+    "allOf": [
+      { "properties": { "foo": true } },
+      { "unevaluatedProperties": false }
+    ]
+  })JSON");
+
+  CANONICALIZE(document, result, traces);
+
+  EXPECT_TRUE(result.first);
+
+  const auto expected = sourcemeta::core::parse_json(R"JSON({
+    "$schema": "https://json-schema.org/draft/2019-09/schema",
+    "allOf": [
+      {
+        "anyOf": [
+          { "enum": [ null ] },
+          { "enum": [ false, true ] },
+          {
+            "type": "object",
+            "minProperties": 0,
+            "properties": {}
+          },
+          {
+            "type": "array",
+            "minItems": 0,
+            "items": true
+          },
+          {
+            "type": "string",
+            "minLength": 0
+          },
+          { "type": "number" }
+        ],
+        "unevaluatedProperties": false
+      }
+    ],
+    "properties": {
+      "foo": true
+    }
+  })JSON");
+
+  EXPECT_EQ(document, expected);
+}
+
 TEST(AlterSchema_canonicalize_2019_09, items_implicit_1) {
   auto document = sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2019-09/schema",
