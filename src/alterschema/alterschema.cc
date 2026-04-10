@@ -35,6 +35,70 @@ inline auto APPLIES_TO_POINTERS(std::vector<Pointer> &&keywords)
   return {std::move(keywords)};
 }
 
+// TODO: Move upstream
+inline auto IS_IN_PLACE_APPLICATOR(const SchemaKeywordType type) -> bool {
+  return type == SchemaKeywordType::ApplicatorValueOrElementsInPlace ||
+         type == SchemaKeywordType::ApplicatorMembersInPlaceSome ||
+         type == SchemaKeywordType::ApplicatorElementsInPlace ||
+         type == SchemaKeywordType::ApplicatorElementsInPlaceSome ||
+         type == SchemaKeywordType::ApplicatorElementsInPlaceSomeNegate ||
+         type == SchemaKeywordType::ApplicatorValueInPlaceMaybe ||
+         type == SchemaKeywordType::ApplicatorValueInPlaceOther ||
+         type == SchemaKeywordType::ApplicatorValueInPlaceNegate;
+}
+
+// Walk up from a schema location, continuing as long as the traversal
+// predicate returns true for each keyword type encountered. Returns a
+// reference to the pointer of the ancestor where the match callback returned
+// true, or nullopt if no match was found or the traversal predicate stopped
+// the walk.
+template <typename TraversePredicate, typename MatchCallback>
+auto WALK_UP(const JSON &root, const SchemaFrame &frame,
+             const SchemaFrame::Location &location, const SchemaWalker &walker,
+             const SchemaResolver &resolver,
+             const TraversePredicate &should_continue,
+             const MatchCallback &matches)
+    -> std::optional<std::reference_wrapper<const WeakPointer>> {
+  auto current_pointer{location.pointer};
+  auto current_parent{location.parent};
+
+  while (current_parent.has_value()) {
+    const auto &parent_pointer{current_parent.value()};
+    const auto relative_pointer{current_pointer.resolve_from(parent_pointer)};
+    assert(!relative_pointer.empty() && relative_pointer.at(0).is_property());
+    const auto parent{frame.traverse(frame.uri(parent_pointer).value().get())};
+    assert(parent.has_value());
+    const auto keyword_type{
+        walker(relative_pointer.at(0).to_property(),
+               frame.vocabularies(parent.value().get(), resolver))
+            .type};
+
+    if (!should_continue(keyword_type)) {
+      return std::nullopt;
+    }
+
+    if (matches(get(root, parent_pointer))) {
+      return std::cref(parent.value().get().pointer);
+    }
+
+    current_pointer = parent_pointer;
+    current_parent = parent.value().get().parent;
+  }
+
+  return std::nullopt;
+}
+
+template <typename MatchCallback>
+auto WALK_UP_IN_PLACE_APPLICATORS(const JSON &root, const SchemaFrame &frame,
+                                  const SchemaFrame::Location &location,
+                                  const SchemaWalker &walker,
+                                  const SchemaResolver &resolver,
+                                  const MatchCallback &matches)
+    -> std::optional<std::reference_wrapper<const WeakPointer>> {
+  return WALK_UP(root, frame, location, walker, resolver,
+                 IS_IN_PLACE_APPLICATOR, matches);
+}
+
 #define ONLY_CONTINUE_IF(condition)                                            \
   if (!(condition)) {                                                          \
     return false;                                                              \
@@ -55,6 +119,7 @@ inline auto APPLIES_TO_POINTERS(std::vector<Pointer> &&keywords)
 #include "canonicalizer/properties_implicit.h"
 #include "canonicalizer/type_array_to_any_of.h"
 #include "canonicalizer/type_boolean_as_enum.h"
+#include "canonicalizer/type_inherit_in_place.h"
 #include "canonicalizer/type_null_as_enum.h"
 #include "canonicalizer/type_union_implicit.h"
 
@@ -155,6 +220,7 @@ namespace sourcemeta::blaze {
 auto add(sourcemeta::core::SchemaTransformer &bundle,
          const AlterSchemaMode mode) -> void {
   if (mode == AlterSchemaMode::Canonicalizer) {
+    bundle.add<TypeInheritInPlace>();
     bundle.add<TypeUnionImplicit>();
     bundle.add<TypeArrayToAnyOf>();
   }

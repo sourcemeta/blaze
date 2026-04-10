@@ -1148,19 +1148,13 @@ TEST(AlterSchema_canonicalize_2020_12,
   const auto expected = sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2020-12/schema",
     "type": "string",
-    "minLength": 0,
     "anyOf": [
       {
-        "anyOf": [
-          { "enum": [ null ] },
-          { "enum": [ false, true ] },
-          { "type": "object", "minProperties": 0, "properties": {} },
-          { "type": "array", "minItems": 0, "items": true },
-          { "type": "string", "minLength": 1 },
-          { "type": "number" }
-        ]
+        "minLength": 1,
+        "type": "string"
       }
-    ]
+    ],
+    "minLength": 0
   })JSON");
 
   EXPECT_EQ(document, expected);
@@ -1187,14 +1181,8 @@ TEST(AlterSchema_canonicalize_2020_12,
     "oneOf": [
       false,
       {
-        "anyOf": [
-          { "enum": [ null ] },
-          { "enum": [ false, true ] },
-          { "type": "object", "minProperties": 0, "properties": {} },
-          { "type": "array", "minItems": 0, "items": true },
-          { "type": "string", "minLength": 0 },
-          { "type": "number", "minimum": 0 }
-        ]
+        "minimum": 0,
+        "type": "number"
       }
     ]
   })JSON");
@@ -1324,6 +1312,55 @@ TEST(AlterSchema_canonicalize_2020_12, items_implicit_2) {
     "type": "array",
     "minItems": 0,
     "items": { "type": "string", "minLength": 0 }
+  })JSON");
+
+  EXPECT_EQ(document, expected);
+}
+
+TEST(AlterSchema_canonicalize_2020_12, object_anyof_untyped_branches_1) {
+  auto document = sourcemeta::core::parse_json(R"JSON({
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "type": "object",
+    "title": "Pet",
+    "properties": {
+      "kind": { "const": "cat" }
+    },
+    "anyOf": [
+      { "properties": { "indoor":  { "type": "boolean" } } },
+      { "properties": { "outdoor": { "type": "boolean" } } }
+    ]
+  })JSON");
+
+  CANONICALIZE(document, result, traces);
+
+  EXPECT_TRUE(result.first);
+
+  const auto expected = sourcemeta::core::parse_json(R"JSON({
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "type": "object",
+    "title": "Pet",
+    "properties": {
+      "kind": {
+        "enum": [ "cat" ]
+      }
+    },
+    "anyOf": [
+      {
+        "type": "object",
+        "properties": {
+          "indoor": { "enum": [ false, true ] }
+        },
+        "minProperties": 0
+      },
+      {
+        "type": "object",
+        "properties": {
+          "outdoor": { "enum": [ false, true ] }
+        },
+        "minProperties": 0
+      }
+    ],
+    "minProperties": 0
   })JSON");
 
   EXPECT_EQ(document, expected);
