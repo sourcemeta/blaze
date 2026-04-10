@@ -209,6 +209,7 @@ auto SchemaTransformer::apply(core::JSON &schema,
     core::Pointer origin;
     core::JSON::String original;
     core::JSON::String destination;
+    core::JSON::String fragment;
     core::Pointer target_pointer;
     std::size_t target_relative_pointer;
   };
@@ -266,8 +267,9 @@ auto SchemaTransformer::apply(core::JSON &schema,
           potentially_broken_references.push_back(
               {core::to_pointer(reference.first.second),
                core::JSON::String{reference.second.original},
-               reference.second.destination, core::to_pointer(target.pointer),
-               target.relative_pointer});
+               reference.second.destination,
+               core::JSON::String{reference.second.fragment.value()},
+               core::to_pointer(target.pointer), target.relative_pointer});
         }
 
         rule->transform(current, outcome);
@@ -311,21 +313,9 @@ auto SchemaTransformer::apply(core::JSON &schema,
                   saved_reference.target_relative_pointer),
               entry_pointer.slice(
                   new_location.value().get().relative_pointer))};
-          // Rereference operates in resource-relative coordinates.
-          // The original URI fragment may be document-root-relative
-          // (e.g. #/$defs/schema/items) or resource-relative (e.g.
-          // https://example.com#/items or #/items inside a resource).
-          // We detect which by comparing the original fragment to the
-          // full document path. If they match, prepend the resource
-          // prefix that was sliced off before calling rereference
-          const core::URI original_uri{saved_reference.original};
-          const auto original_fragment{original_uri.fragment()};
-          const auto is_document_root_relative{
-              original_fragment.has_value() &&
-              original_fragment.value() ==
-                  core::to_string(saved_reference.target_pointer)};
           const auto new_fragment{
-              is_document_root_relative
+              saved_reference.fragment ==
+                      core::to_string(saved_reference.target_pointer)
                   ? saved_reference.target_pointer
                         .slice(0, saved_reference.target_relative_pointer)
                         .concat(new_relative)
