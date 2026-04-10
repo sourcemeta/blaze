@@ -314,3 +314,51 @@ TEST(Evaluator, format_assertion_vocabulary_unsupported) {
     FAIL() << "The compile function was expected to throw a vocabulary error";
   }
 }
+
+TEST(Evaluator, invalid_additional_properties_type_crash) {
+  const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "type": "object",
+    "additionalProperties": 42
+  })JSON")};
+
+  try {
+    sourcemeta::blaze::compile(schema, sourcemeta::core::schema_walker,
+                               sourcemeta::core::schema_resolver,
+                               sourcemeta::blaze::default_schema_compiler);
+    FAIL() << "The compile function was expected to throw";
+  } catch (const std::exception &) {
+    SUCCEED();
+  }
+}
+
+TEST(Evaluator, invalid_items_type_crash) {
+  const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "items": "invalid"
+  })JSON")};
+
+  try {
+    sourcemeta::blaze::compile(schema, sourcemeta::core::schema_walker,
+                               sourcemeta::core::schema_resolver,
+                               sourcemeta::blaze::default_schema_compiler);
+    FAIL() << "The compile function was expected to throw";
+  } catch (const std::exception &) {
+    SUCCEED();
+  }
+}
+
+TEST(Evaluator, number_root_crash) {
+  const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON(
+    1
+  )JSON")};
+
+  try {
+    sourcemeta::blaze::compile(schema, sourcemeta::core::schema_walker,
+                               sourcemeta::core::schema_resolver,
+                               sourcemeta::blaze::default_schema_compiler);
+    FAIL() << "The compile function was expected to throw";
+  } catch (const std::exception &) {
+    SUCCEED();
+  }
+}
