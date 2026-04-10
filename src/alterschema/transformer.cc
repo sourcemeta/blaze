@@ -305,12 +305,22 @@ auto SchemaTransformer::apply(core::JSON &schema,
             continue;
           }
 
-          const auto new_fragment{rule->rereference(
+          const auto resource_prefix{saved_reference.target_pointer.slice(
+              0, saved_reference.target_relative_pointer)};
+          const auto new_relative{rule->rereference(
               saved_reference.destination, saved_reference.origin,
               saved_reference.target_pointer.slice(
                   saved_reference.target_relative_pointer),
               entry_pointer.slice(
                   new_location.value().get().relative_pointer))};
+          // Rereference operates in resource-relative coordinates.
+          // If the reference origin is outside the target resource, the URI
+          // fragment is document-root-relative and we must re-prepend the
+          // resource prefix that was sliced off
+          const auto new_fragment{
+              saved_reference.origin.starts_with(resource_prefix)
+                  ? new_relative
+                  : resource_prefix.concat(new_relative)};
 
           core::URI original{saved_reference.original};
           original.fragment(core::to_string(new_fragment));

@@ -2140,3 +2140,54 @@ TEST(AlterSchema_transformer, check_exclude_keyword_array_with_non_strings) {
   EXPECT_EQ(result.second, 100);
   EXPECT_EQ(entries.size(), 0);
 }
+
+TEST(AlterSchema_transformer, rereference_fixed_through_subschema_with_id) {
+  sourcemeta::blaze::SchemaTransformer bundle;
+  EXPECT_EQ(bundle.add<ExampleRuleDefinitionsToDefsWithRereference>(),
+            "example_rule_definitions_to_defs_with_rereference");
+
+  sourcemeta::core::JSON document = sourcemeta::core::parse_json(R"JSON({
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "$ref": "#/properties/nested/definitions/foo",
+    "properties": {
+      "nested": {
+        "$schema": "https://json-schema.org/draft/2020-12/schema",
+        "$id": "https://www.example.com",
+        "definitions": {
+          "foo": { "type": "string" }
+        }
+      }
+    }
+  })JSON");
+
+  TestTransformTraces entries;
+  const auto result = bundle.apply(document, sourcemeta::core::schema_walker,
+                                   sourcemeta::core::schema_resolver,
+                                   transformer_callback_trace(entries));
+
+  EXPECT_TRUE(result.first);
+  EXPECT_EQ(result.second, 100);
+  EXPECT_EQ(entries.size(), 1);
+
+  EXPECT_EQ(std::get<0>(entries.at(0)),
+            sourcemeta::core::Pointer({"properties", "nested"}));
+  EXPECT_EQ(std::get<1>(entries.at(0)),
+            "example_rule_definitions_to_defs_with_rereference");
+  EXPECT_TRUE(std::get<4>(entries.at(0)));
+
+  const sourcemeta::core::JSON expected = sourcemeta::core::parse_json(R"JSON({
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "$ref": "#/properties/nested/$defs/foo",
+    "properties": {
+      "nested": {
+        "$schema": "https://json-schema.org/draft/2020-12/schema",
+        "$id": "https://www.example.com",
+        "$defs": {
+          "foo": { "type": "string" }
+        }
+      }
+    }
+  })JSON");
+
+  EXPECT_EQ(document, expected);
+}
