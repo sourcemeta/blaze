@@ -32,6 +32,11 @@ public:
         schema.at("type").is_string() &&
         schema.at("type").to_string() == "array" && !schema.defines("items"));
     ONLY_CONTINUE_IF(
+        !(schema.defines("unevaluatedItems") &&
+          vocabularies.contains_any(
+              {Vocabularies::Known::JSON_Schema_2020_12_Unevaluated,
+               Vocabularies::Known::JSON_Schema_2019_09_Applicator})));
+    ONLY_CONTINUE_IF(
         !WALK_UP_IN_PLACE_APPLICATORS(
              root, frame, location, walker, resolver,
              [](const JSON &ancestor,

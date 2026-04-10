@@ -1698,6 +1698,28 @@ TEST(AlterSchema_canonicalize_2020_12,
 }
 
 TEST(AlterSchema_canonicalize_2020_12,
+     items_implicit_skipped_with_direct_unevaluated_items) {
+  auto document = sourcemeta::core::parse_json(R"JSON({
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "type": "array",
+    "unevaluatedItems": false
+  })JSON");
+
+  CANONICALIZE(document, result, traces);
+
+  EXPECT_TRUE(result.first);
+
+  const auto expected = sourcemeta::core::parse_json(R"JSON({
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "type": "array",
+    "minItems": 0,
+    "unevaluatedItems": false
+  })JSON");
+
+  EXPECT_EQ(document, expected);
+}
+
+TEST(AlterSchema_canonicalize_2020_12,
      items_implicit_skipped_with_anyof_items_and_unevaluated_items) {
   auto document = sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2020-12/schema",
