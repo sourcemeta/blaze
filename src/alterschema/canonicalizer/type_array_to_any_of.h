@@ -46,7 +46,9 @@ public:
   }
 
   auto transform(JSON &schema, const Result &) const -> void override {
+    this->keyword_branch_index_.clear();
     auto disjunctors{sourcemeta::core::JSON::make_array()};
+    std::size_t branch_index{0};
     for (const auto &type : schema.at("type").as_array()) {
       auto branch{sourcemeta::core::JSON::make_object()};
       branch.assign("type", type);
@@ -54,16 +56,22 @@ public:
       for (const auto &[keyword, instances] : this->keyword_instances_) {
         if ((instances & current_type_set).any()) {
           branch.assign(keyword, schema.at(keyword));
+          if (!this->keyword_branch_index_.contains(keyword)) {
+            this->keyword_branch_index_[keyword] = branch_index;
+          }
         }
       }
 
       disjunctors.push_back(std::move(branch));
+      branch_index++;
     }
 
     for (const auto &[keyword, instances] : this->keyword_instances_) {
       schema.erase(keyword);
     }
 
+    static const std::string anyof_keyword{"anyOf"};
+    static const std::string allof_keyword{"allOf"};
     if (schema.defines("anyOf")) {
       auto first_branch{sourcemeta::core::JSON::make_object()};
       first_branch.assign("anyOf", schema.at("anyOf"));
@@ -72,23 +80,48 @@ public:
       schema.erase("anyOf");
 
       if (schema.defines("allOf")) {
+        const auto allof_index{schema.at("allOf").size() + 1};
         schema.at("allOf").push_back(std::move(first_branch));
         schema.at("allOf").push_back(std::move(second_branch));
         schema.erase("type");
+        this->disjunctors_prefix_ = {allof_keyword, allof_index, anyof_keyword};
       } else {
         auto allof_wrapper{sourcemeta::core::JSON::make_array()};
         allof_wrapper.push_back(std::move(first_branch));
         allof_wrapper.push_back(std::move(second_branch));
         schema.at("type").into(std::move(allof_wrapper));
         schema.rename("type", "allOf");
+        this->disjunctors_prefix_ = {allof_keyword, 1, anyof_keyword};
       }
     } else {
       schema.at("type").into(std::move(disjunctors));
       schema.rename("type", "anyOf");
+      this->disjunctors_prefix_ = {anyof_keyword};
     }
+  }
+
+  [[nodiscard]] auto rereference(const std::string_view reference,
+                                 const Pointer &origin, const Pointer &target,
+                                 const Pointer &current) const
+      -> Pointer override {
+    const auto relative{target.resolve_from(current)};
+    assert(!relative.empty() && relative.at(0).is_property());
+    const auto &keyword{relative.at(0).to_property()};
+    const auto match{this->keyword_branch_index_.find(keyword)};
+    if (match == this->keyword_branch_index_.end()) {
+      return SchemaTransformRule::rereference(reference, origin, target,
+                                              current);
+    }
+
+    const Pointer old_prefix{current.concat({keyword})};
+    const Pointer new_prefix{current.concat(this->disjunctors_prefix_)
+                                 .concat({match->second, keyword})};
+    return target.rebase(old_prefix, new_prefix);
   }
 
 private:
   mutable std::unordered_map<std::string, sourcemeta::core::JSON::TypeSet>
       keyword_instances_;
+  mutable std::unordered_map<std::string, std::size_t> keyword_branch_index_;
+  mutable Pointer disjunctors_prefix_;
 };

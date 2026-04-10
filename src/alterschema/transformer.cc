@@ -209,6 +209,7 @@ auto SchemaTransformer::apply(core::JSON &schema,
     core::Pointer origin;
     core::JSON::String original;
     core::JSON::String destination;
+    core::JSON::String fragment;
     core::Pointer target_pointer;
     std::size_t target_relative_pointer;
   };
@@ -266,8 +267,9 @@ auto SchemaTransformer::apply(core::JSON &schema,
           potentially_broken_references.push_back(
               {core::to_pointer(reference.first.second),
                core::JSON::String{reference.second.original},
-               reference.second.destination, core::to_pointer(target.pointer),
-               target.relative_pointer});
+               reference.second.destination,
+               core::JSON::String{reference.second.fragment.value()},
+               core::to_pointer(target.pointer), target.relative_pointer});
         }
 
         rule->transform(current, outcome);
@@ -305,12 +307,19 @@ auto SchemaTransformer::apply(core::JSON &schema,
             continue;
           }
 
-          const auto new_fragment{rule->rereference(
+          const auto new_relative{rule->rereference(
               saved_reference.destination, saved_reference.origin,
               saved_reference.target_pointer.slice(
                   saved_reference.target_relative_pointer),
               entry_pointer.slice(
                   new_location.value().get().relative_pointer))};
+          const auto new_fragment{
+              saved_reference.fragment ==
+                      core::to_string(saved_reference.target_pointer)
+                  ? saved_reference.target_pointer
+                        .slice(0, saved_reference.target_relative_pointer)
+                        .concat(new_relative)
+                  : new_relative};
 
           core::URI original{saved_reference.original};
           original.fragment(core::to_string(new_fragment));
