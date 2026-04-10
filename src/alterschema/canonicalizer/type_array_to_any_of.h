@@ -104,8 +104,9 @@ public:
                                  const Pointer &origin, const Pointer &target,
                                  const Pointer &current) const
       -> Pointer override {
-    assert(!target.empty() && target.at(0).is_property());
-    const auto &keyword{target.at(0).to_property()};
+    const auto relative{target.resolve_from(current)};
+    assert(!relative.empty() && relative.at(0).is_property());
+    const auto &keyword{relative.at(0).to_property()};
     const auto match{this->keyword_branch_index_.find(keyword)};
     if (match == this->keyword_branch_index_.end()) {
       return SchemaTransformRule::rereference(reference, origin, target,
