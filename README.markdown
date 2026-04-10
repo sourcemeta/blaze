@@ -58,6 +58,13 @@ Features
   adheres to the [annotations official test
   suite](https://github.com/json-schema-org/JSON-Schema-Test-Suite/tree/main/annotations)
 
+- **No Code Generation:** Blaze does not generate C++ code that needs to be
+  built with a compiler toolchain. Instead, it compiles schemas into a set of
+  low-level instructions serializable as JSON. The evaluator is
+  schema-agnostic, executing these instructions without any knowledge of the
+  original schema. This design means that systems can accept and validate
+  against unknown schemas at runtime
+
 - **Numerics:** Blaze supports high precision decimals. For performance
   reasons, these representations are only used if the numbers fail to be parsed
   at the JSON level using the 64-bit signed and IEEE 764 double precision
