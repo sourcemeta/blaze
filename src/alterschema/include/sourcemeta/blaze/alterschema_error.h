@@ -88,6 +88,54 @@ private:
 };
 
 /// @ingroup alterschema
+/// An error that represents that a schema operation cannot continue
+class SOURCEMETA_BLAZE_ALTERSCHEMA_EXPORT SchemaAbortError
+    : public std::exception {
+public:
+  SchemaAbortError(const char *message) : message_{message} {}
+  SchemaAbortError(std::string message) = delete;
+  SchemaAbortError(std::string &&message) = delete;
+  SchemaAbortError(std::string_view message) = delete;
+
+  [[nodiscard]] auto what() const noexcept -> const char * override {
+    return this->message_;
+  }
+
+private:
+  const char *message_;
+};
+
+/// @ingroup alterschema
+/// An error that represents a broken schema reference after transformation
+class SOURCEMETA_BLAZE_ALTERSCHEMA_EXPORT SchemaBrokenReferenceError
+    : public std::exception {
+public:
+  SchemaBrokenReferenceError(const std::string_view identifier,
+                             sourcemeta::core::Pointer schema_location,
+                             const char *message)
+      : identifier_{identifier}, schema_location_{std::move(schema_location)},
+        message_{message} {}
+
+  [[nodiscard]] auto what() const noexcept -> const char * override {
+    return this->message_;
+  }
+
+  [[nodiscard]] auto identifier() const noexcept -> std::string_view {
+    return this->identifier_;
+  }
+
+  [[nodiscard]] auto location() const noexcept
+      -> const sourcemeta::core::Pointer & {
+    return this->schema_location_;
+  }
+
+private:
+  std::string identifier_;
+  sourcemeta::core::Pointer schema_location_;
+  const char *message_;
+};
+
+/// @ingroup alterschema
 /// An error that signifies that a transform rule was applied more than once
 class SOURCEMETA_BLAZE_ALTERSCHEMA_EXPORT SchemaTransformRuleProcessedTwiceError
     : public std::exception {

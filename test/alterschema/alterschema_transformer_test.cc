@@ -1166,11 +1166,11 @@ TEST(AlterSchema_transformer, rereference_not_fixed_ref) {
         document, sourcemeta::core::schema_walker,
         sourcemeta::core::schema_resolver, transformer_callback_trace(entries));
     FAIL() << "The transformation was expected to throw";
-  } catch (const sourcemeta::core::SchemaBrokenReferenceError &error) {
+  } catch (const sourcemeta::blaze::SchemaBrokenReferenceError &error) {
     EXPECT_EQ(error.identifier(), "#/definitions/foo");
     EXPECT_EQ(sourcemeta::core::to_string(error.location()), "/$ref");
     SUCCEED();
-  } catch (const sourcemeta::core::SchemaReferenceError &) {
+  } catch (...) {
     FAIL();
   }
 

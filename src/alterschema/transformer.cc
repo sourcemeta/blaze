@@ -137,7 +137,7 @@ auto SchemaTransformRule::message() const noexcept -> std::string_view {
 
 auto SchemaTransformRule::transform(core::JSON &, const Result &) const
     -> void {
-  throw core::SchemaAbortError("This rule cannot be automatically transformed");
+  throw SchemaAbortError("This rule cannot be automatically transformed");
 }
 
 auto SchemaTransformRule::rereference(const std::string_view reference,
@@ -145,8 +145,8 @@ auto SchemaTransformRule::rereference(const std::string_view reference,
                                       const core::Pointer &,
                                       const core::Pointer &) const
     -> core::Pointer {
-  throw core::SchemaBrokenReferenceError(
-      reference, origin, "The reference broke after transformation");
+  throw SchemaBrokenReferenceError(reference, origin,
+                                   "The reference broke after transformation");
 }
 
 auto SchemaTransformRule::check(const core::JSON &schema,
