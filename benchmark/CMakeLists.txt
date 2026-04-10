@@ -10,6 +10,10 @@ if(BLAZE_COMPILER AND BLAZE_EVALUATOR AND BLAZE_OUTPUT)
     micro/2020_12.cc)
 endif()
 
+if(BLAZE_ALTERSCHEMA)
+  list(APPEND BENCHMARK_SOURCES alterschema.cc)
+endif()
+
 if(BENCHMARK_SOURCES)
   sourcemeta_googlebenchmark(NAMESPACE sourcemeta PROJECT blaze
     FOLDER "Blaze" SOURCES ${BENCHMARK_SOURCES})
@@ -37,9 +41,9 @@ if(BENCHMARK_SOURCES)
     target_link_libraries(sourcemeta_blaze_benchmark
       PRIVATE sourcemeta::blaze::output)
   endif()
-  if(BLAZE_LINTER)
+  if(BLAZE_ALTERSCHEMA)
     target_link_libraries(sourcemeta_blaze_benchmark
-      PRIVATE sourcemeta::blaze::linter)
+      PRIVATE sourcemeta::blaze::alterschema)
   endif()
 
   add_custom_target(benchmark_all
