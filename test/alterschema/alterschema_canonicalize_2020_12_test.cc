@@ -1419,3 +1419,49 @@ TEST(AlterSchema_canonicalize_2020_12,
 
   EXPECT_EQ(document, expected);
 }
+
+TEST(AlterSchema_canonicalize_2020_12, ref_into_subschema_with_existing_anyof) {
+  auto document = sourcemeta::core::parse_json(R"JSON({
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "$ref": "#/$defs/schema/items",
+    "$defs": {
+      "schema": {
+        "$schema": "https://json-schema.org/draft/2020-12/schema",
+        "$id": "https://www.example.com",
+        "type": [ "array", "string" ],
+        "anyOf": [ { "minLength": 1 } ],
+        "items": { "type": "integer" }
+      }
+    }
+  })JSON");
+
+  CANONICALIZE(document, result, traces);
+
+  EXPECT_TRUE(result.first);
+  EXPECT_TRUE(document.defines("$ref"));
+  EXPECT_TRUE(document.defines("$defs"));
+}
+
+TEST(AlterSchema_canonicalize_2020_12,
+     ref_into_subschema_with_existing_allof_and_anyof) {
+  auto document = sourcemeta::core::parse_json(R"JSON({
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "$ref": "#/$defs/schema/items",
+    "$defs": {
+      "schema": {
+        "$schema": "https://json-schema.org/draft/2020-12/schema",
+        "$id": "https://www.example.com",
+        "type": [ "array", "string" ],
+        "allOf": [ { "maxLength": 100 } ],
+        "anyOf": [ { "minLength": 1 } ],
+        "items": { "type": "integer" }
+      }
+    }
+  })JSON");
+
+  CANONICALIZE(document, result, traces);
+
+  EXPECT_TRUE(result.first);
+  EXPECT_TRUE(document.defines("$ref"));
+  EXPECT_TRUE(document.defines("$defs"));
+}

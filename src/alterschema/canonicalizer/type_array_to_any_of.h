@@ -70,6 +70,8 @@ public:
       schema.erase(keyword);
     }
 
+    static const std::string anyof_keyword{"anyOf"};
+    static const std::string allof_keyword{"allOf"};
     if (schema.defines("anyOf")) {
       auto first_branch{sourcemeta::core::JSON::make_object()};
       first_branch.assign("anyOf", schema.at("anyOf"));
@@ -78,19 +80,23 @@ public:
       schema.erase("anyOf");
 
       if (schema.defines("allOf")) {
+        const auto allof_index{schema.at("allOf").size() + 1};
         schema.at("allOf").push_back(std::move(first_branch));
         schema.at("allOf").push_back(std::move(second_branch));
         schema.erase("type");
+        this->disjunctors_prefix_ = {allof_keyword, allof_index, anyof_keyword};
       } else {
         auto allof_wrapper{sourcemeta::core::JSON::make_array()};
         allof_wrapper.push_back(std::move(first_branch));
         allof_wrapper.push_back(std::move(second_branch));
         schema.at("type").into(std::move(allof_wrapper));
         schema.rename("type", "allOf");
+        this->disjunctors_prefix_ = {allof_keyword, 1, anyof_keyword};
       }
     } else {
       schema.at("type").into(std::move(disjunctors));
       schema.rename("type", "anyOf");
+      this->disjunctors_prefix_ = {anyof_keyword};
     }
   }
 
@@ -106,10 +112,9 @@ public:
                                               current);
     }
 
-    static const std::string anyof_keyword{"anyOf"};
     const Pointer old_prefix{current.concat({keyword})};
-    const Pointer new_prefix{
-        current.concat({anyof_keyword, match->second, keyword})};
+    const Pointer new_prefix{current.concat(this->disjunctors_prefix_)
+                                 .concat({match->second, keyword})};
     return target.rebase(old_prefix, new_prefix);
   }
 
@@ -117,4 +122,5 @@ private:
   mutable std::unordered_map<std::string, sourcemeta::core::JSON::TypeSet>
       keyword_instances_;
   mutable std::unordered_map<std::string, std::size_t> keyword_branch_index_;
+  mutable Pointer disjunctors_prefix_;
 };
