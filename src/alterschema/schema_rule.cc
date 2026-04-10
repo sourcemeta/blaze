@@ -70,8 +70,7 @@ SchemaRule::SchemaRule(const sourcemeta::core::JSON &schema,
                        const Compiler &compiler,
                        const std::string_view default_dialect,
                        const std::optional<Tweaks> &tweaks)
-    : sourcemeta::core::SchemaTransformRule{extract_title(schema),
-                                            extract_description(schema)},
+    : SchemaTransformRule{extract_title(schema), extract_description(schema)},
       template_{compile(schema, walker, resolver, compiler, Mode::Exhaustive,
                         default_dialect, "", "", tweaks)} {};
 
@@ -82,7 +81,7 @@ auto SchemaRule::condition(const sourcemeta::core::JSON &schema,
                            const sourcemeta::core::SchemaFrame::Location &,
                            const sourcemeta::core::SchemaWalker &,
                            const sourcemeta::core::SchemaResolver &) const
-    -> sourcemeta::core::SchemaTransformRule::Result {
+    -> SchemaTransformRule::Result {
   SimpleOutput output{schema};
   Evaluator evaluator;
   const auto result{

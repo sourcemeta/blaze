@@ -14,7 +14,7 @@ TEST(AlterSchema_schema_rule, schema_rule_pass_when_all_subschemas_conform) {
     "type": "object"
   })JSON")};
 
-  sourcemeta::core::SchemaTransformer bundle;
+  sourcemeta::blaze::SchemaTransformer bundle;
   bundle.add<sourcemeta::blaze::SchemaRule>(
       rule_schema, sourcemeta::core::schema_walker,
       sourcemeta::core::schema_resolver,
@@ -26,7 +26,7 @@ TEST(AlterSchema_schema_rule, schema_rule_pass_when_all_subschemas_conform) {
   })JSON")};
 
   std::vector<std::tuple<sourcemeta::core::Pointer, std::string, std::string,
-                         sourcemeta::core::SchemaTransformRule::Result, bool>>
+                         sourcemeta::blaze::SchemaTransformRule::Result, bool>>
       entries;
   const auto result = bundle.check(
       schema, sourcemeta::core::schema_walker,
@@ -49,7 +49,7 @@ TEST(AlterSchema_schema_rule, schema_rule_fail_root_and_nested_subschema) {
     "required": [ "type" ]
   })JSON")};
 
-  sourcemeta::core::SchemaTransformer bundle;
+  sourcemeta::blaze::SchemaTransformer bundle;
   bundle.add<sourcemeta::blaze::SchemaRule>(
       rule_schema, sourcemeta::core::schema_walker,
       sourcemeta::core::schema_resolver,
@@ -68,7 +68,7 @@ TEST(AlterSchema_schema_rule, schema_rule_fail_root_and_nested_subschema) {
   })JSON")};
 
   std::vector<std::tuple<sourcemeta::core::Pointer, std::string, std::string,
-                         sourcemeta::core::SchemaTransformRule::Result, bool>>
+                         sourcemeta::blaze::SchemaTransformRule::Result, bool>>
       entries;
   const auto result = bundle.check(
       schema, sourcemeta::core::schema_walker,
@@ -111,7 +111,7 @@ TEST(AlterSchema_schema_rule, schema_rule_no_description_in_rule_schema) {
     "required": [ "type" ]
   })JSON")};
 
-  sourcemeta::core::SchemaTransformer bundle;
+  sourcemeta::blaze::SchemaTransformer bundle;
   bundle.add<sourcemeta::blaze::SchemaRule>(
       rule_schema, sourcemeta::core::schema_walker,
       sourcemeta::core::schema_resolver,
@@ -123,7 +123,7 @@ TEST(AlterSchema_schema_rule, schema_rule_no_description_in_rule_schema) {
   })JSON")};
 
   std::vector<std::tuple<sourcemeta::core::Pointer, std::string, std::string,
-                         sourcemeta::core::SchemaTransformRule::Result, bool>>
+                         sourcemeta::blaze::SchemaTransformRule::Result, bool>>
       entries;
   const auto result = bundle.check(
       schema, sourcemeta::core::schema_walker,
@@ -145,7 +145,7 @@ TEST(AlterSchema_schema_rule, schema_rule_no_description_fails) {
     "required": [ "type" ]
   })JSON")};
 
-  sourcemeta::core::SchemaTransformer bundle;
+  sourcemeta::blaze::SchemaTransformer bundle;
   bundle.add<sourcemeta::blaze::SchemaRule>(
       rule_schema, sourcemeta::core::schema_walker,
       sourcemeta::core::schema_resolver,
@@ -157,7 +157,7 @@ TEST(AlterSchema_schema_rule, schema_rule_no_description_fails) {
   })JSON")};
 
   std::vector<std::tuple<sourcemeta::core::Pointer, std::string, std::string,
-                         sourcemeta::core::SchemaTransformRule::Result, bool>>
+                         sourcemeta::blaze::SchemaTransformRule::Result, bool>>
       entries;
   const auto result = bundle.check(
       schema, sourcemeta::core::schema_walker,
@@ -193,7 +193,7 @@ TEST(AlterSchema_schema_rule, schema_rule_nested_property_fails) {
     }
   })JSON")};
 
-  sourcemeta::core::SchemaTransformer bundle;
+  sourcemeta::blaze::SchemaTransformer bundle;
   bundle.add<sourcemeta::blaze::SchemaRule>(
       rule_schema, sourcemeta::core::schema_walker,
       sourcemeta::core::schema_resolver,
@@ -210,7 +210,7 @@ TEST(AlterSchema_schema_rule, schema_rule_nested_property_fails) {
   })JSON")};
 
   std::vector<std::tuple<sourcemeta::core::Pointer, std::string, std::string,
-                         sourcemeta::core::SchemaTransformRule::Result, bool>>
+                         sourcemeta::blaze::SchemaTransformRule::Result, bool>>
       entries;
   const auto result = bundle.check(
       schema, sourcemeta::core::schema_walker,
@@ -245,7 +245,7 @@ TEST(AlterSchema_schema_rule, schema_rule_all_subschemas_pass) {
     "required": [ "type" ]
   })JSON")};
 
-  sourcemeta::core::SchemaTransformer bundle;
+  sourcemeta::blaze::SchemaTransformer bundle;
   bundle.add<sourcemeta::blaze::SchemaRule>(
       rule_schema, sourcemeta::core::schema_walker,
       sourcemeta::core::schema_resolver,
@@ -265,7 +265,7 @@ TEST(AlterSchema_schema_rule, schema_rule_all_subschemas_pass) {
   })JSON")};
 
   std::vector<std::tuple<sourcemeta::core::Pointer, std::string, std::string,
-                         sourcemeta::core::SchemaTransformRule::Result, bool>>
+                         sourcemeta::blaze::SchemaTransformRule::Result, bool>>
       entries;
   const auto result = bundle.check(
       schema, sourcemeta::core::schema_walker,
@@ -285,7 +285,7 @@ TEST(AlterSchema_schema_rule, schema_rule_missing_title_throws) {
     "type": "object"
   })JSON")};
 
-  sourcemeta::core::SchemaTransformer bundle;
+  sourcemeta::blaze::SchemaTransformer bundle;
   EXPECT_THROW(bundle.add<sourcemeta::blaze::SchemaRule>(
                    rule_schema, sourcemeta::core::schema_walker,
                    sourcemeta::core::schema_resolver,
@@ -301,7 +301,7 @@ TEST(AlterSchema_schema_rule, schema_rule_non_string_title_throws) {
   })JSON")};
 
   try {
-    sourcemeta::core::SchemaTransformer bundle;
+    sourcemeta::blaze::SchemaTransformer bundle;
     bundle.add<sourcemeta::blaze::SchemaRule>(
         rule_schema, sourcemeta::core::schema_walker,
         sourcemeta::core::schema_resolver,
@@ -323,7 +323,7 @@ TEST(AlterSchema_schema_rule, schema_rule_uppercase_title_throws) {
   })JSON")};
 
   try {
-    sourcemeta::core::SchemaTransformer bundle;
+    sourcemeta::blaze::SchemaTransformer bundle;
     bundle.add<sourcemeta::blaze::SchemaRule>(
         rule_schema, sourcemeta::core::schema_walker,
         sourcemeta::core::schema_resolver,
@@ -347,7 +347,7 @@ TEST(AlterSchema_schema_rule, schema_rule_space_in_title_throws) {
   })JSON")};
 
   try {
-    sourcemeta::core::SchemaTransformer bundle;
+    sourcemeta::blaze::SchemaTransformer bundle;
     bundle.add<sourcemeta::blaze::SchemaRule>(
         rule_schema, sourcemeta::core::schema_walker,
         sourcemeta::core::schema_resolver,
@@ -371,7 +371,7 @@ TEST(AlterSchema_schema_rule, schema_rule_empty_title_throws) {
   })JSON")};
 
   try {
-    sourcemeta::core::SchemaTransformer bundle;
+    sourcemeta::blaze::SchemaTransformer bundle;
     bundle.add<sourcemeta::blaze::SchemaRule>(
         rule_schema, sourcemeta::core::schema_walker,
         sourcemeta::core::schema_resolver,
@@ -394,7 +394,7 @@ TEST(AlterSchema_schema_rule,
     "type": "object"
   })JSON")};
 
-  sourcemeta::core::SchemaTransformer bundle;
+  sourcemeta::blaze::SchemaTransformer bundle;
   bundle.add<sourcemeta::blaze::SchemaRule>(
       rule_schema, sourcemeta::core::schema_walker,
       sourcemeta::core::schema_resolver,
@@ -406,7 +406,7 @@ TEST(AlterSchema_schema_rule,
   })JSON")};
 
   std::vector<std::tuple<sourcemeta::core::Pointer, std::string, std::string,
-                         sourcemeta::core::SchemaTransformRule::Result, bool>>
+                         sourcemeta::blaze::SchemaTransformRule::Result, bool>>
       entries;
   const auto result = bundle.check(
       schema, sourcemeta::core::schema_walker,
@@ -428,7 +428,7 @@ TEST(AlterSchema_schema_rule, schema_rule_invalid_name_error_preserves_name) {
   })JSON")};
 
   try {
-    sourcemeta::core::SchemaTransformer bundle;
+    sourcemeta::blaze::SchemaTransformer bundle;
     bundle.add<sourcemeta::blaze::SchemaRule>(
         rule_schema, sourcemeta::core::schema_walker,
         sourcemeta::core::schema_resolver,
@@ -451,7 +451,7 @@ TEST(AlterSchema_schema_rule, schema_rule_missing_title_error_message) {
   })JSON")};
 
   try {
-    sourcemeta::core::SchemaTransformer bundle;
+    sourcemeta::blaze::SchemaTransformer bundle;
     bundle.add<sourcemeta::blaze::SchemaRule>(
         rule_schema, sourcemeta::core::schema_walker,
         sourcemeta::core::schema_resolver,
@@ -472,7 +472,7 @@ TEST(AlterSchema_schema_rule, schema_rule_title_with_hyphen_throws) {
   })JSON")};
 
   try {
-    sourcemeta::core::SchemaTransformer bundle;
+    sourcemeta::blaze::SchemaTransformer bundle;
     bundle.add<sourcemeta::blaze::SchemaRule>(
         rule_schema, sourcemeta::core::schema_walker,
         sourcemeta::core::schema_resolver,
@@ -496,7 +496,7 @@ TEST(AlterSchema_schema_rule, schema_rule_title_with_dot_throws) {
   })JSON")};
 
   try {
-    sourcemeta::core::SchemaTransformer bundle;
+    sourcemeta::blaze::SchemaTransformer bundle;
     bundle.add<sourcemeta::blaze::SchemaRule>(
         rule_schema, sourcemeta::core::schema_walker,
         sourcemeta::core::schema_resolver,
@@ -520,7 +520,7 @@ TEST(AlterSchema_schema_rule, schema_rule_title_only_digits) {
     "type": "object"
   })JSON")};
 
-  sourcemeta::core::SchemaTransformer bundle;
+  sourcemeta::blaze::SchemaTransformer bundle;
   bundle.add<sourcemeta::blaze::SchemaRule>(
       rule_schema, sourcemeta::core::schema_walker,
       sourcemeta::core::schema_resolver,
@@ -532,7 +532,7 @@ TEST(AlterSchema_schema_rule, schema_rule_title_only_digits) {
   })JSON")};
 
   std::vector<std::tuple<sourcemeta::core::Pointer, std::string, std::string,
-                         sourcemeta::core::SchemaTransformRule::Result, bool>>
+                         sourcemeta::blaze::SchemaTransformRule::Result, bool>>
       entries;
   const auto result = bundle.check(
       schema, sourcemeta::core::schema_walker,
@@ -554,7 +554,7 @@ TEST(AlterSchema_schema_rule, schema_rule_title_only_underscores) {
     "type": "object"
   })JSON")};
 
-  sourcemeta::core::SchemaTransformer bundle;
+  sourcemeta::blaze::SchemaTransformer bundle;
   bundle.add<sourcemeta::blaze::SchemaRule>(
       rule_schema, sourcemeta::core::schema_walker,
       sourcemeta::core::schema_resolver,
@@ -566,7 +566,7 @@ TEST(AlterSchema_schema_rule, schema_rule_title_only_underscores) {
   })JSON")};
 
   std::vector<std::tuple<sourcemeta::core::Pointer, std::string, std::string,
-                         sourcemeta::core::SchemaTransformRule::Result, bool>>
+                         sourcemeta::blaze::SchemaTransformRule::Result, bool>>
       entries;
   const auto result = bundle.check(
       schema, sourcemeta::core::schema_walker,
@@ -589,7 +589,7 @@ TEST(AlterSchema_schema_rule, schema_rule_non_string_description_integer) {
     "required": [ "type" ]
   })JSON")};
 
-  sourcemeta::core::SchemaTransformer bundle;
+  sourcemeta::blaze::SchemaTransformer bundle;
   bundle.add<sourcemeta::blaze::SchemaRule>(
       rule_schema, sourcemeta::core::schema_walker,
       sourcemeta::core::schema_resolver,
@@ -601,7 +601,7 @@ TEST(AlterSchema_schema_rule, schema_rule_non_string_description_integer) {
   })JSON")};
 
   std::vector<std::tuple<sourcemeta::core::Pointer, std::string, std::string,
-                         sourcemeta::core::SchemaTransformRule::Result, bool>>
+                         sourcemeta::blaze::SchemaTransformRule::Result, bool>>
       entries;
   const auto result = bundle.check(
       schema, sourcemeta::core::schema_walker,
@@ -634,7 +634,7 @@ TEST(AlterSchema_schema_rule, schema_rule_non_string_description_boolean) {
     "required": [ "type" ]
   })JSON")};
 
-  sourcemeta::core::SchemaTransformer bundle;
+  sourcemeta::blaze::SchemaTransformer bundle;
   bundle.add<sourcemeta::blaze::SchemaRule>(
       rule_schema, sourcemeta::core::schema_walker,
       sourcemeta::core::schema_resolver,
@@ -646,7 +646,7 @@ TEST(AlterSchema_schema_rule, schema_rule_non_string_description_boolean) {
   })JSON")};
 
   std::vector<std::tuple<sourcemeta::core::Pointer, std::string, std::string,
-                         sourcemeta::core::SchemaTransformRule::Result, bool>>
+                         sourcemeta::blaze::SchemaTransformRule::Result, bool>>
       entries;
   const auto result = bundle.check(
       schema, sourcemeta::core::schema_walker,
@@ -679,7 +679,7 @@ TEST(AlterSchema_schema_rule, schema_rule_non_string_description_null) {
     "required": [ "type" ]
   })JSON")};
 
-  sourcemeta::core::SchemaTransformer bundle;
+  sourcemeta::blaze::SchemaTransformer bundle;
   bundle.add<sourcemeta::blaze::SchemaRule>(
       rule_schema, sourcemeta::core::schema_walker,
       sourcemeta::core::schema_resolver,
@@ -691,7 +691,7 @@ TEST(AlterSchema_schema_rule, schema_rule_non_string_description_null) {
   })JSON")};
 
   std::vector<std::tuple<sourcemeta::core::Pointer, std::string, std::string,
-                         sourcemeta::core::SchemaTransformRule::Result, bool>>
+                         sourcemeta::blaze::SchemaTransformRule::Result, bool>>
       entries;
   const auto result = bundle.check(
       schema, sourcemeta::core::schema_walker,
@@ -724,7 +724,7 @@ TEST(AlterSchema_schema_rule,
     "required": [ "type" ]
   })JSON")};
 
-  sourcemeta::core::SchemaTransformer bundle;
+  sourcemeta::blaze::SchemaTransformer bundle;
   bundle.add<sourcemeta::blaze::SchemaRule>(
       rule_schema, sourcemeta::core::schema_walker,
       sourcemeta::core::schema_resolver,
@@ -741,7 +741,7 @@ TEST(AlterSchema_schema_rule,
   })JSON")};
 
   std::vector<std::tuple<sourcemeta::core::Pointer, std::string, std::string,
-                         sourcemeta::core::SchemaTransformRule::Result, bool>>
+                         sourcemeta::blaze::SchemaTransformRule::Result, bool>>
       entries;
   const auto result = bundle.check(
       schema, sourcemeta::core::schema_walker,
@@ -777,7 +777,7 @@ TEST(AlterSchema_schema_rule,
     "required": [ "type" ]
   })JSON")};
 
-  sourcemeta::core::SchemaTransformer bundle;
+  sourcemeta::blaze::SchemaTransformer bundle;
   bundle.add<sourcemeta::blaze::SchemaRule>(
       rule_schema, sourcemeta::core::schema_walker,
       sourcemeta::core::schema_resolver,
@@ -795,7 +795,7 @@ TEST(AlterSchema_schema_rule,
   })JSON")};
 
   std::vector<std::tuple<sourcemeta::core::Pointer, std::string, std::string,
-                         sourcemeta::core::SchemaTransformRule::Result, bool>>
+                         sourcemeta::blaze::SchemaTransformRule::Result, bool>>
       entries;
   const auto result = bundle.check(
       schema, sourcemeta::core::schema_walker,
@@ -836,7 +836,7 @@ TEST(AlterSchema_schema_rule, schema_rule_multiple_rules_in_bundle) {
     "type": "object"
   })JSON")};
 
-  sourcemeta::core::SchemaTransformer bundle;
+  sourcemeta::blaze::SchemaTransformer bundle;
   bundle.add<sourcemeta::blaze::SchemaRule>(
       rule_schema_1, sourcemeta::core::schema_walker,
       sourcemeta::core::schema_resolver,
@@ -860,7 +860,7 @@ TEST(AlterSchema_schema_rule, schema_rule_multiple_rules_in_bundle) {
   })JSON")};
 
   std::vector<std::tuple<sourcemeta::core::Pointer, std::string, std::string,
-                         sourcemeta::core::SchemaTransformRule::Result, bool>>
+                         sourcemeta::blaze::SchemaTransformRule::Result, bool>>
       entries;
   const auto result = bundle.check(
       schema, sourcemeta::core::schema_walker,
@@ -893,7 +893,7 @@ TEST(AlterSchema_schema_rule, schema_rule_boolean_true_schema_conforms) {
     "type": "object"
   })JSON")};
 
-  sourcemeta::core::SchemaTransformer bundle;
+  sourcemeta::blaze::SchemaTransformer bundle;
   bundle.add<sourcemeta::blaze::SchemaRule>(
       rule_schema, sourcemeta::core::schema_walker,
       sourcemeta::core::schema_resolver,
@@ -908,7 +908,7 @@ TEST(AlterSchema_schema_rule, schema_rule_boolean_true_schema_conforms) {
   })JSON")};
 
   std::vector<std::tuple<sourcemeta::core::Pointer, std::string, std::string,
-                         sourcemeta::core::SchemaTransformRule::Result, bool>>
+                         sourcemeta::blaze::SchemaTransformRule::Result, bool>>
       entries;
   const auto result = bundle.check(
       schema, sourcemeta::core::schema_walker,
@@ -941,7 +941,7 @@ TEST(AlterSchema_schema_rule, schema_rule_title_with_special_chars_throws) {
   })JSON")};
 
   try {
-    sourcemeta::core::SchemaTransformer bundle;
+    sourcemeta::blaze::SchemaTransformer bundle;
     bundle.add<sourcemeta::blaze::SchemaRule>(
         rule_schema, sourcemeta::core::schema_walker,
         sourcemeta::core::schema_resolver,
@@ -965,7 +965,7 @@ TEST(AlterSchema_schema_rule, schema_rule_title_boolean_throws) {
   })JSON")};
 
   try {
-    sourcemeta::core::SchemaTransformer bundle;
+    sourcemeta::blaze::SchemaTransformer bundle;
     bundle.add<sourcemeta::blaze::SchemaRule>(
         rule_schema, sourcemeta::core::schema_walker,
         sourcemeta::core::schema_resolver,
@@ -987,7 +987,7 @@ TEST(AlterSchema_schema_rule, schema_rule_title_null_throws) {
   })JSON")};
 
   try {
-    sourcemeta::core::SchemaTransformer bundle;
+    sourcemeta::blaze::SchemaTransformer bundle;
     bundle.add<sourcemeta::blaze::SchemaRule>(
         rule_schema, sourcemeta::core::schema_walker,
         sourcemeta::core::schema_resolver,
@@ -1009,7 +1009,7 @@ TEST(AlterSchema_schema_rule, schema_rule_title_array_throws) {
   })JSON")};
 
   try {
-    sourcemeta::core::SchemaTransformer bundle;
+    sourcemeta::blaze::SchemaTransformer bundle;
     bundle.add<sourcemeta::blaze::SchemaRule>(
         rule_schema, sourcemeta::core::schema_walker,
         sourcemeta::core::schema_resolver,
@@ -1037,7 +1037,7 @@ TEST(AlterSchema_schema_rule, schema_rule_property_names_pattern_fail) {
     }
   })JSON")};
 
-  sourcemeta::core::SchemaTransformer bundle;
+  sourcemeta::blaze::SchemaTransformer bundle;
   bundle.add<sourcemeta::blaze::SchemaRule>(
       rule_schema, sourcemeta::core::schema_walker,
       sourcemeta::core::schema_resolver,
@@ -1059,7 +1059,7 @@ TEST(AlterSchema_schema_rule, schema_rule_property_names_pattern_fail) {
   })JSON")};
 
   std::vector<std::tuple<sourcemeta::core::Pointer, std::string, std::string,
-                         sourcemeta::core::SchemaTransformRule::Result, bool>>
+                         sourcemeta::blaze::SchemaTransformRule::Result, bool>>
       entries;
   const auto result = bundle.check(
       schema, sourcemeta::core::schema_walker,
@@ -1093,7 +1093,7 @@ TEST(AlterSchema_schema_rule, schema_rule_non_empty_instance_location) {
     }
   })JSON")};
 
-  sourcemeta::core::SchemaTransformer bundle;
+  sourcemeta::blaze::SchemaTransformer bundle;
   bundle.add<sourcemeta::blaze::SchemaRule>(
       rule_schema, sourcemeta::core::schema_walker,
       sourcemeta::core::schema_resolver,
@@ -1110,7 +1110,7 @@ TEST(AlterSchema_schema_rule, schema_rule_non_empty_instance_location) {
   })JSON")};
 
   std::vector<std::tuple<sourcemeta::core::Pointer, std::string, std::string,
-                         sourcemeta::core::SchemaTransformRule::Result, bool>>
+                         sourcemeta::blaze::SchemaTransformRule::Result, bool>>
       entries;
   const auto result = bundle.check(
       schema, sourcemeta::core::schema_walker,

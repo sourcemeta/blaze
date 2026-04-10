@@ -217,8 +217,7 @@ auto WALK_UP_IN_PLACE_APPLICATORS(const JSON &root, const SchemaFrame &frame,
 
 namespace sourcemeta::blaze {
 
-auto add(sourcemeta::core::SchemaTransformer &bundle,
-         const AlterSchemaMode mode) -> void {
+auto add(SchemaTransformer &bundle, const AlterSchemaMode mode) -> void {
   if (mode == AlterSchemaMode::Canonicalizer) {
     bundle.add<TypeInheritInPlace>();
     bundle.add<TypeUnionImplicit>();

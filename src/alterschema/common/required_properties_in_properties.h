@@ -16,7 +16,7 @@ public:
             const sourcemeta::core::SchemaFrame::Location &location,
             const sourcemeta::core::SchemaWalker &walker,
             const sourcemeta::core::SchemaResolver &resolver) const
-      -> sourcemeta::core::SchemaTransformRule::Result override {
+      -> SchemaTransformRule::Result override {
     ONLY_CONTINUE_IF(
         ((vocabularies.contains(
               Vocabularies::Known::JSON_Schema_2020_12_Validation) &&

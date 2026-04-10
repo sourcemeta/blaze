@@ -11051,9 +11051,9 @@ TEST(AlterSchema_lint_2020_12, valid_examples_11) {
   })JSON");
 
   std::vector<std::tuple<sourcemeta::core::Pointer, std::string, std::string,
-                         sourcemeta::core::SchemaTransformRule::Result, bool>>
+                         sourcemeta::blaze::SchemaTransformRule::Result, bool>>
       traces;
-  sourcemeta::core::SchemaTransformer bundle;
+  sourcemeta::blaze::SchemaTransformer bundle;
   sourcemeta::blaze::add(bundle, sourcemeta::blaze::AlterSchemaMode::Linter);
   const auto result = bundle.apply(
       document, sourcemeta::core::schema_walker, alterschema_test_resolver,
@@ -11081,9 +11081,9 @@ TEST(AlterSchema_lint_2020_12, valid_examples_12) {
   })JSON");
 
   std::vector<std::tuple<sourcemeta::core::Pointer, std::string, std::string,
-                         sourcemeta::core::SchemaTransformRule::Result, bool>>
+                         sourcemeta::blaze::SchemaTransformRule::Result, bool>>
       traces;
-  sourcemeta::core::SchemaTransformer bundle;
+  sourcemeta::blaze::SchemaTransformer bundle;
   sourcemeta::blaze::add(bundle, sourcemeta::blaze::AlterSchemaMode::Linter);
   const auto result = bundle.apply(
       document, sourcemeta::core::schema_walker, alterschema_test_resolver,
@@ -11111,9 +11111,9 @@ TEST(AlterSchema_lint_2020_12, valid_examples_17) {
   })JSON");
 
   std::vector<std::tuple<sourcemeta::core::Pointer, std::string, std::string,
-                         sourcemeta::core::SchemaTransformRule::Result, bool>>
+                         sourcemeta::blaze::SchemaTransformRule::Result, bool>>
       traces;
-  sourcemeta::core::SchemaTransformer bundle;
+  sourcemeta::blaze::SchemaTransformer bundle;
   sourcemeta::blaze::add(bundle, sourcemeta::blaze::AlterSchemaMode::Linter);
   const auto result = bundle.apply(
       document, sourcemeta::core::schema_walker, alterschema_test_resolver,
@@ -11164,9 +11164,9 @@ TEST(AlterSchema_lint_2020_12, valid_default_10) {
   })JSON");
 
   std::vector<std::tuple<sourcemeta::core::Pointer, std::string, std::string,
-                         sourcemeta::core::SchemaTransformRule::Result, bool>>
+                         sourcemeta::blaze::SchemaTransformRule::Result, bool>>
       traces;
-  sourcemeta::core::SchemaTransformer bundle;
+  sourcemeta::blaze::SchemaTransformer bundle;
   sourcemeta::blaze::add(bundle, sourcemeta::blaze::AlterSchemaMode::Linter);
   const auto result = bundle.apply(
       document, sourcemeta::core::schema_walker, alterschema_test_resolver,
@@ -11194,9 +11194,9 @@ TEST(AlterSchema_lint_2020_12, valid_default_11) {
   })JSON");
 
   std::vector<std::tuple<sourcemeta::core::Pointer, std::string, std::string,
-                         sourcemeta::core::SchemaTransformRule::Result, bool>>
+                         sourcemeta::blaze::SchemaTransformRule::Result, bool>>
       traces;
-  sourcemeta::core::SchemaTransformer bundle;
+  sourcemeta::blaze::SchemaTransformer bundle;
   sourcemeta::blaze::add(bundle, sourcemeta::blaze::AlterSchemaMode::Linter);
   const auto result = bundle.apply(
       document, sourcemeta::core::schema_walker, alterschema_test_resolver,
@@ -11224,9 +11224,9 @@ TEST(AlterSchema_lint_2020_12, valid_default_18) {
   })JSON");
 
   std::vector<std::tuple<sourcemeta::core::Pointer, std::string, std::string,
-                         sourcemeta::core::SchemaTransformRule::Result, bool>>
+                         sourcemeta::blaze::SchemaTransformRule::Result, bool>>
       traces;
-  sourcemeta::core::SchemaTransformer bundle;
+  sourcemeta::blaze::SchemaTransformer bundle;
   sourcemeta::blaze::add(bundle, sourcemeta::blaze::AlterSchemaMode::Linter);
   const auto result = bundle.apply(
       document, sourcemeta::core::schema_walker, alterschema_test_resolver,

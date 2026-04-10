@@ -16,7 +16,7 @@ public:
             const sourcemeta::core::SchemaFrame::Location &location,
             const sourcemeta::core::SchemaWalker &walker,
             const sourcemeta::core::SchemaResolver &resolver) const
-      -> sourcemeta::core::SchemaTransformRule::Result override {
+      -> SchemaTransformRule::Result override {
     using Known = Vocabularies::Known;
     ONLY_CONTINUE_IF(
         vocabularies.contains_any({Known::JSON_Schema_2020_12_Meta_Data,

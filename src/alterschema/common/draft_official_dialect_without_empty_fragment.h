@@ -15,7 +15,7 @@ public:
                                const sourcemeta::core::SchemaFrame::Location &,
                                const sourcemeta::core::SchemaWalker &,
                                const sourcemeta::core::SchemaResolver &) const
-      -> sourcemeta::core::SchemaTransformRule::Result override {
+      -> SchemaTransformRule::Result override {
     ONLY_CONTINUE_IF(schema.is_object() && schema.defines("$schema") &&
                      schema.at("$schema").is_string());
     const auto &dialect{schema.at("$schema").to_string()};

@@ -21,6 +21,9 @@ sourcemeta_googletest(NAMESPACE sourcemeta PROJECT blaze NAME alterschema
     alterschema_lint_draft0_test.cc
     alterschema_lint_openapi_test.cc
     alterschema_schema_rule_test.cc
+    alterschema_transform_rule_test.cc
+    alterschema_transformer_test.cc
+    alterschema_transform_rules.h
     alterschema_test_utils.h)
 
 target_link_libraries(sourcemeta_blaze_alterschema_unit

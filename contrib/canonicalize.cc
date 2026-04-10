@@ -13,7 +13,7 @@ auto main(int argc, char *argv[]) -> int {
 
   auto document{sourcemeta::core::read_json(argv[1])};
 
-  sourcemeta::core::SchemaTransformer bundle;
+  sourcemeta::blaze::SchemaTransformer bundle;
   sourcemeta::blaze::add(bundle,
                          sourcemeta::blaze::AlterSchemaMode::Canonicalizer);
   const auto result{

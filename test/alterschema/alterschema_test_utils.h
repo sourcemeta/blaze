@@ -56,10 +56,11 @@ static auto alterschema_test_resolver(std::string_view identifier)
 }
 
 #define LINT_WITHOUT_FIX(document, result, traces)                             \
-  std::vector<std::tuple<sourcemeta::core::Pointer, std::string, std::string,  \
-                         sourcemeta::core::SchemaTransformRule::Result, bool>> \
+  std::vector<                                                                 \
+      std::tuple<sourcemeta::core::Pointer, std::string, std::string,          \
+                 sourcemeta::blaze::SchemaTransformRule::Result, bool>>        \
       traces;                                                                  \
-  sourcemeta::core::SchemaTransformer bundle;                                  \
+  sourcemeta::blaze::SchemaTransformer bundle;                                 \
   sourcemeta::blaze::add(bundle, sourcemeta::blaze::AlterSchemaMode::Linter);  \
   const auto result = bundle.check(                                            \
       document, sourcemeta::core::schema_walker, alterschema_test_resolver,    \
@@ -76,10 +77,11 @@ static auto alterschema_test_resolver(std::string_view identifier)
   EXPECT_EQ(std::get<4>((traces).at(index)), (fixable));
 
 #define LINT_AND_FIX(document, result, traces)                                 \
-  std::vector<std::tuple<sourcemeta::core::Pointer, std::string, std::string,  \
-                         sourcemeta::core::SchemaTransformRule::Result, bool>> \
+  std::vector<                                                                 \
+      std::tuple<sourcemeta::core::Pointer, std::string, std::string,          \
+                 sourcemeta::blaze::SchemaTransformRule::Result, bool>>        \
       traces;                                                                  \
-  sourcemeta::core::SchemaTransformer bundle;                                  \
+  sourcemeta::blaze::SchemaTransformer bundle;                                 \
   sourcemeta::blaze::add(bundle, sourcemeta::blaze::AlterSchemaMode::Linter);  \
   const auto result = bundle.apply(                                            \
       document, sourcemeta::core::schema_walker, alterschema_test_resolver,    \
@@ -89,10 +91,11 @@ static auto alterschema_test_resolver(std::string_view identifier)
       });
 
 #define CANONICALIZE(document, result, traces)                                 \
-  std::vector<std::tuple<sourcemeta::core::Pointer, std::string, std::string,  \
-                         sourcemeta::core::SchemaTransformRule::Result, bool>> \
+  std::vector<                                                                 \
+      std::tuple<sourcemeta::core::Pointer, std::string, std::string,          \
+                 sourcemeta::blaze::SchemaTransformRule::Result, bool>>        \
       traces;                                                                  \
-  sourcemeta::core::SchemaTransformer bundle;                                  \
+  sourcemeta::blaze::SchemaTransformer bundle;                                 \
   sourcemeta::blaze::add(bundle,                                               \
                          sourcemeta::blaze::AlterSchemaMode::Canonicalizer);   \
   const auto result = bundle.apply(                                            \

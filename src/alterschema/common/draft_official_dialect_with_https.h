@@ -16,7 +16,7 @@ public:
             const sourcemeta::core::SchemaFrame::Location &location,
             const sourcemeta::core::SchemaWalker &,
             const sourcemeta::core::SchemaResolver &) const
-      -> sourcemeta::core::SchemaTransformRule::Result override {
+      -> SchemaTransformRule::Result override {
     using sourcemeta::core::SchemaBaseDialect;
     ONLY_CONTINUE_IF(
         location.base_dialect == SchemaBaseDialect::JSON_Schema_Draft_7 ||

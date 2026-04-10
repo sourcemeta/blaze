@@ -16,7 +16,7 @@ public:
             const sourcemeta::core::SchemaFrame::Location &location,
             const sourcemeta::core::SchemaWalker &walker,
             const sourcemeta::core::SchemaResolver &resolver) const
-      -> sourcemeta::core::SchemaTransformRule::Result override {
+      -> SchemaTransformRule::Result override {
     using namespace sourcemeta::core;
     ONLY_CONTINUE_IF(schema.is_object());
     ONLY_CONTINUE_IF(vocabularies.contains_any(
