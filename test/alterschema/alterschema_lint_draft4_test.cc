@@ -1753,6 +1753,197 @@ TEST(AlterSchema_lint_draft4, non_applicable_type_specific_keywords_1) {
   EXPECT_EQ(document, expected);
 }
 
+TEST(AlterSchema_lint_draft4, format_type_mismatch_1) {
+  const sourcemeta::core::JSON document = sourcemeta::core::parse_json(R"JSON({
+    "$schema": "http://json-schema.org/draft-04/schema#",
+    "title": "Test",
+    "description": "A test schema",
+    "type": "integer",
+    "format": "email"
+  })JSON");
+
+  LINT_WITHOUT_FIX(document, result, traces);
+
+  EXPECT_FALSE(result.first);
+  EXPECT_EQ(traces.size(), 2);
+  EXPECT_LINT_TRACE(traces, 0, "", "non_applicable_type_specific_keywords",
+                    "Avoid keywords that don't apply to the type or "
+                    "types that the current subschema expects",
+                    true);
+  EXPECT_LINT_TRACE(traces, 1, "", "format_type_mismatch",
+                    "The `format` keyword validates string instances but "
+                    "`type` is not `string`",
+                    false);
+}
+
+TEST(AlterSchema_lint_draft4, format_type_mismatch_2) {
+  const sourcemeta::core::JSON document = sourcemeta::core::parse_json(R"JSON({
+    "$schema": "http://json-schema.org/draft-04/schema#",
+    "title": "Test",
+    "description": "A test schema",
+    "type": "string",
+    "format": "email"
+  })JSON");
+
+  LINT_WITHOUT_FIX(document, result, traces);
+
+  EXPECT_TRUE(result.first);
+  EXPECT_EQ(traces.size(), 0);
+}
+
+TEST(AlterSchema_lint_draft4, format_type_mismatch_3) {
+  const sourcemeta::core::JSON document = sourcemeta::core::parse_json(R"JSON({
+    "$schema": "http://json-schema.org/draft-04/schema#",
+    "title": "Test",
+    "description": "A test schema",
+    "format": "email"
+  })JSON");
+
+  LINT_WITHOUT_FIX(document, result, traces);
+
+  EXPECT_TRUE(result.first);
+  EXPECT_EQ(traces.size(), 0);
+}
+
+TEST(AlterSchema_lint_draft4, format_type_mismatch_4) {
+  const sourcemeta::core::JSON document = sourcemeta::core::parse_json(R"JSON({
+    "$schema": "http://json-schema.org/draft-04/schema#",
+    "title": "Test",
+    "description": "A test schema",
+    "properties": {
+      "foo": {
+        "type": "integer",
+        "format": "email"
+      }
+    }
+  })JSON");
+
+  LINT_WITHOUT_FIX(document, result, traces);
+
+  EXPECT_FALSE(result.first);
+  EXPECT_EQ(traces.size(), 2);
+  EXPECT_LINT_TRACE(traces, 0, "/properties/foo",
+                    "non_applicable_type_specific_keywords",
+                    "Avoid keywords that don't apply to the type or "
+                    "types that the current subschema expects",
+                    true);
+  EXPECT_LINT_TRACE(traces, 1, "/properties/foo", "format_type_mismatch",
+                    "The `format` keyword validates string instances but "
+                    "`type` is not `string`",
+                    false);
+}
+
+TEST(AlterSchema_lint_draft4, format_type_mismatch_5) {
+  const sourcemeta::core::JSON document = sourcemeta::core::parse_json(R"JSON({
+    "$schema": "http://json-schema.org/draft-04/schema#",
+    "title": "Test",
+    "description": "A test schema",
+    "type": "integer"
+  })JSON");
+
+  LINT_WITHOUT_FIX(document, result, traces);
+
+  EXPECT_TRUE(result.first);
+  EXPECT_EQ(traces.size(), 0);
+}
+
+TEST(AlterSchema_lint_draft4, format_type_mismatch_6) {
+  const sourcemeta::core::JSON document = sourcemeta::core::parse_json(R"JSON({
+    "$schema": "http://json-schema.org/draft-04/schema#",
+    "title": "Test",
+    "description": "A test schema",
+    "type": "array",
+    "items": {
+      "type": "number",
+      "format": "date-time"
+    }
+  })JSON");
+
+  LINT_WITHOUT_FIX(document, result, traces);
+
+  EXPECT_FALSE(result.first);
+  EXPECT_EQ(traces.size(), 2);
+  EXPECT_LINT_TRACE(traces, 0, "/items",
+                    "non_applicable_type_specific_keywords",
+                    "Avoid keywords that don't apply to the type or "
+                    "types that the current subschema expects",
+                    true);
+  EXPECT_LINT_TRACE(traces, 1, "/items", "format_type_mismatch",
+                    "The `format` keyword validates string instances but "
+                    "`type` is not `string`",
+                    false);
+}
+
+TEST(AlterSchema_lint_draft4, format_type_mismatch_7) {
+  const sourcemeta::core::JSON document = sourcemeta::core::parse_json(R"JSON({
+    "$schema": "http://json-schema.org/draft-04/schema#",
+    "title": "Test",
+    "description": "A test schema",
+    "properties": {
+      "x": { "$ref": "#/definitions/foo" }
+    },
+    "definitions": {
+      "foo": {
+        "type": "integer",
+        "format": "uri"
+      }
+    }
+  })JSON");
+
+  LINT_WITHOUT_FIX(document, result, traces);
+
+  EXPECT_FALSE(result.first);
+  EXPECT_EQ(traces.size(), 1);
+  EXPECT_LINT_TRACE(traces, 0, "/definitions/foo", "format_type_mismatch",
+                    "The `format` keyword validates string instances but "
+                    "`type` is not `string`",
+                    false);
+}
+
+TEST(AlterSchema_lint_draft4, format_type_mismatch_8) {
+  const sourcemeta::core::JSON document = sourcemeta::core::parse_json(R"JSON({
+    "$schema": "http://json-schema.org/draft-04/schema#",
+    "title": "Test",
+    "description": "A test schema",
+    "properties": {
+      "x": { "$ref": "#/definitions/A/properties/bar" }
+    },
+    "definitions": {
+      "A": {
+        "type": "integer",
+        "format": "uri",
+        "properties": {
+          "bar": { "type": "string" }
+        }
+      }
+    }
+  })JSON");
+
+  LINT_WITHOUT_FIX(document, result, traces);
+
+  EXPECT_FALSE(result.first);
+  EXPECT_EQ(traces.size(), 1);
+  EXPECT_LINT_TRACE(traces, 0, "/definitions/A", "format_type_mismatch",
+                    "The `format` keyword validates string instances but "
+                    "`type` is not `string`",
+                    false);
+}
+
+TEST(AlterSchema_lint_draft4, format_type_mismatch_9) {
+  const sourcemeta::core::JSON document = sourcemeta::core::parse_json(R"JSON({
+    "$schema": "http://json-schema.org/draft-04/schema#",
+    "title": "Test",
+    "description": "A test schema",
+    "type": [ "integer", "string" ],
+    "format": "email"
+  })JSON");
+
+  LINT_WITHOUT_FIX(document, result, traces);
+
+  EXPECT_TRUE(result.first);
+  EXPECT_EQ(traces.size(), 0);
+}
+
 TEST(AlterSchema_lint_draft4, not_false_1) {
   sourcemeta::core::JSON document = sourcemeta::core::parse_json(R"JSON({
     "$schema": "http://json-schema.org/draft-04/schema#",

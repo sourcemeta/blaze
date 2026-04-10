@@ -124,6 +124,7 @@ inline auto APPLIES_TO_POINTERS(std::vector<Pointer> &&keywords)
 #include "linter/enum_to_const.h"
 #include "linter/equal_numeric_bounds_to_const.h"
 #include "linter/forbid_empty_enum.h"
+#include "linter/format_type_mismatch.h"
 #include "linter/incoherent_min_max_contains.h"
 #include "linter/invalid_external_ref.h"
 #include "linter/items_array_default.h"
@@ -248,6 +249,7 @@ auto add(sourcemeta::core::SchemaTransformer &bundle,
     bundle.add<UnsatisfiableMinProperties>();
     bundle.add<EnumToConst>();
     bundle.add<ForbidEmptyEnum>();
+    bundle.add<FormatTypeMismatch>();
     bundle.add<TopLevelTitle>();
     bundle.add<TopLevelDescription>();
     bundle.add<TopLevelExamples>();
