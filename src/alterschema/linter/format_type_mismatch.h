@@ -14,20 +14,21 @@ public:
             const sourcemeta::core::Vocabularies &vocabularies,
             const sourcemeta::core::SchemaFrame &,
             const sourcemeta::core::SchemaFrame::Location &,
-            const sourcemeta::core::SchemaWalker &walker,
+            const sourcemeta::core::SchemaWalker &,
             const sourcemeta::core::SchemaResolver &) const
       -> sourcemeta::core::SchemaTransformRule::Result override {
-    ONLY_CONTINUE_IF(schema.is_object() && schema.defines("format") &&
-                     schema.at("format").is_string() &&
-                     schema.defines("type") && schema.at("type").is_string());
-
-    const auto current_types{parse_schema_type(schema.at("type"))};
-    ONLY_CONTINUE_IF(current_types.any());
-
-    const auto &metadata{walker("format", vocabularies)};
-    ONLY_CONTINUE_IF(metadata.instances.any() &&
-                     (metadata.instances & current_types).none());
-
-    return APPLIES_TO_KEYWORDS("format");
+    ONLY_CONTINUE_IF(vocabularies.contains_any(
+                         {Vocabularies::Known::JSON_Schema_2020_12_Validation,
+                          Vocabularies::Known::JSON_Schema_2019_09_Validation,
+                          Vocabularies::Known::JSON_Schema_Draft_7,
+                          Vocabularies::Known::JSON_Schema_Draft_6,
+                          Vocabularies::Known::JSON_Schema_Draft_4,
+                          Vocabularies::Known::JSON_Schema_Draft_3}) &&
+                     schema.is_object() && schema.defines("type") &&
+                     schema.at("type").is_string() &&
+                     schema.at("type").to_string() != "string" &&
+                     schema.defines("format") &&
+                     schema.at("format").is_string());
+    return APPLIES_TO_KEYWORDS("format", "type");
   }
 };
