@@ -40,8 +40,13 @@ public:
     for (const auto &property : schema.at("required").as_array()) {
       if (property.is_string() &&
           !this->defined_in_properties_sibling(schema, property.to_string()) &&
-          !this->defined_in_properties_parent(root, frame, location, walker,
-                                              resolver, property.to_string())) {
+          !WALK_UP_IN_PLACE_APPLICATORS(
+               root, frame, location, walker, resolver,
+               [&](const JSON &ancestor) {
+                 return this->defined_in_properties_sibling(
+                     ancestor, property.to_string());
+               })
+               .has_value()) {
         locations.push_back(Pointer{"required", index});
       }
 
@@ -70,44 +75,5 @@ private:
     return schema.defines("properties") &&
            schema.at("properties").is_object() &&
            schema.at("properties").defines(property);
-  };
-
-  [[nodiscard]] auto
-  defined_in_properties_parent(const JSON &root, const SchemaFrame &frame,
-                               const SchemaFrame::Location &location,
-                               const SchemaWalker &walker,
-                               const SchemaResolver &resolver,
-                               const JSON::String &property) const -> bool {
-    auto current_pointer = location.pointer;
-    auto current_parent = location.parent;
-
-    while (current_parent.has_value()) {
-      const auto &parent_pointer{current_parent.value()};
-      const auto relative_pointer{current_pointer.resolve_from(parent_pointer)};
-      assert(!relative_pointer.empty() && relative_pointer.at(0).is_property());
-      const auto parent{
-          frame.traverse(frame.uri(parent_pointer).value().get())};
-      assert(parent.has_value());
-      const auto type{walker(relative_pointer.at(0).to_property(),
-                             frame.vocabularies(parent.value().get(), resolver))
-                          .type};
-      if (type != SchemaKeywordType::ApplicatorElementsInPlaceSome &&
-          type != SchemaKeywordType::ApplicatorElementsInPlace &&
-          type != SchemaKeywordType::ApplicatorValueInPlaceMaybe &&
-          type != SchemaKeywordType::ApplicatorValueInPlaceNegate &&
-          type != SchemaKeywordType::ApplicatorValueInPlaceOther) {
-        return false;
-      }
-
-      if (this->defined_in_properties_sibling(get(root, parent_pointer),
-                                              property)) {
-        return true;
-      }
-
-      current_pointer = parent_pointer;
-      current_parent = parent.value().get().parent;
-    }
-
-    return false;
   };
 };
