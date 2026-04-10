@@ -209,10 +209,9 @@ static auto register_tests(const std::filesystem::path &path,
 
     for (const auto &[mode_suffix, mode] :
          {std::pair<const char *, sourcemeta::blaze::Mode>{
-              "_canonicalize_fast", sourcemeta::blaze::Mode::FastValidation},
+              "_fast", sourcemeta::blaze::Mode::FastValidation},
           std::pair<const char *, sourcemeta::blaze::Mode>{
-              "_canonicalize_exhaustive",
-              sourcemeta::blaze::Mode::Exhaustive}}) {
+              "_exhaustive", sourcemeta::blaze::Mode::Exhaustive}}) {
 
       const auto title{description + mode_suffix};
 
