@@ -139,7 +139,7 @@ public:
     const auto &instance{this->data.at("instance")};
     const bool expected_valid{this->data.at("valid").to_boolean()};
 
-    sourcemeta::core::SchemaTransformer bundle;
+    sourcemeta::blaze::SchemaTransformer bundle;
     sourcemeta::blaze::add(bundle,
                            sourcemeta::blaze::AlterSchemaMode::Canonicalizer);
     const auto canonicalize_result{bundle.apply(
