@@ -31,12 +31,18 @@ public:
         schema.is_object() && schema.defines("type") &&
         schema.at("type").is_string() &&
         schema.at("type").to_string() == "array" && !schema.defines("items"));
-    ONLY_CONTINUE_IF(!WALK_UP_IN_PLACE_APPLICATORS(
-                          root, frame, location, walker, resolver,
-                          [](const JSON &ancestor) {
-                            return ancestor.defines("unevaluatedItems");
-                          })
-                          .has_value());
+    ONLY_CONTINUE_IF(
+        !WALK_UP_IN_PLACE_APPLICATORS(
+             root, frame, location, walker, resolver,
+             [](const JSON &ancestor,
+                const Vocabularies &ancestor_vocabularies) {
+               return ancestor.defines("unevaluatedItems") &&
+                      ancestor_vocabularies.contains_any(
+                          {Vocabularies::Known::JSON_Schema_2020_12_Unevaluated,
+                           Vocabularies::Known::
+                               JSON_Schema_2019_09_Applicator});
+             })
+             .has_value());
     return true;
   }
 

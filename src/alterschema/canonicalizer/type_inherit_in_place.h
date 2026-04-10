@@ -55,7 +55,7 @@ public:
           return IS_IN_PLACE_APPLICATOR(keyword_type) &&
                  keyword_type != SchemaKeywordType::ApplicatorElementsInPlace;
         },
-        [](const JSON &ancestor_schema) {
+        [](const JSON &ancestor_schema, const Vocabularies &) {
           return ancestor_schema.defines("type");
         })};
 
