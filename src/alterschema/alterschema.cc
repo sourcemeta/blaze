@@ -68,16 +68,16 @@ auto WALK_UP(const JSON &root, const SchemaFrame &frame,
     assert(!relative_pointer.empty() && relative_pointer.at(0).is_property());
     const auto parent{frame.traverse(frame.uri(parent_pointer).value().get())};
     assert(parent.has_value());
+    const auto parent_vocabularies{
+        frame.vocabularies(parent.value().get(), resolver)};
     const auto keyword_type{
-        walker(relative_pointer.at(0).to_property(),
-               frame.vocabularies(parent.value().get(), resolver))
-            .type};
+        walker(relative_pointer.at(0).to_property(), parent_vocabularies).type};
 
     if (!should_continue(keyword_type)) {
       return std::nullopt;
     }
 
-    if (matches(get(root, parent_pointer))) {
+    if (matches(get(root, parent_pointer), parent_vocabularies)) {
       return std::cref(parent.value().get().pointer);
     }
 
