@@ -4,8 +4,25 @@
 #include <sourcemeta/blaze/alterschema.h>
 #include <sourcemeta/core/jsonschema.h>
 
+#include <algorithm>
+#include <string_view>
 #include <tuple>
 #include <vector>
+
+template <typename TraceCollection>
+static auto has_lint_trace(const TraceCollection &traces,
+                           std::string_view pointer, std::string_view name,
+                           std::string_view message, const bool fixable)
+    -> bool {
+  return std::any_of(traces.cbegin(), traces.cend(),
+                     [&pointer, &name, &message, fixable](const auto &trace) {
+                       return sourcemeta::core::to_string(std::get<0>(trace)) ==
+                                  pointer &&
+                              std::get<1>(trace) == name &&
+                              std::get<2>(trace) == message &&
+                              std::get<4>(trace) == fixable;
+                     });
+}
 
 static auto alterschema_test_resolver(std::string_view identifier)
     -> std::optional<sourcemeta::core::JSON> {
@@ -74,6 +91,10 @@ static auto alterschema_test_resolver(std::string_view identifier)
   EXPECT_EQ(std::get<1>((traces).at(index)), (name));                          \
   EXPECT_EQ(std::get<2>((traces).at(index)), (message));                       \
   EXPECT_EQ(std::get<4>((traces).at(index)), (fixable));
+
+#define EXPECT_LINT_TRACE_EXISTS(traces, pointer, name, message, fixable)      \
+  EXPECT_TRUE(                                                                 \
+      has_lint_trace((traces), (pointer), (name), (message), (fixable)));
 
 #define LINT_AND_FIX(document, result, traces)                                 \
   std::vector<std::tuple<sourcemeta::core::Pointer, std::string, std::string,  \

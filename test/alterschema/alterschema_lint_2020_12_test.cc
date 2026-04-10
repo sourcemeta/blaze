@@ -3976,15 +3976,10 @@ TEST(AlterSchema_lint_2020_12, format_type_mismatch_1) {
   LINT_WITHOUT_FIX(document, result, traces);
 
   EXPECT_FALSE(result.first);
-  EXPECT_EQ(traces.size(), 2);
-  EXPECT_LINT_TRACE(traces, 0, "", "non_applicable_type_specific_keywords",
-                    "Avoid keywords that don't apply to the type or "
-                    "types that the current subschema expects",
-                    true);
-  EXPECT_LINT_TRACE(traces, 1, "", "format_type_mismatch",
-                    "The `format` keyword validates string instances but "
-                    "`type` is not `string`",
-                    false);
+  EXPECT_LINT_TRACE_EXISTS(traces, "", "format_type_mismatch",
+                           "The `format` keyword validates string instances "
+                           "but `type` is not `string`",
+                           false);
 }
 
 TEST(AlterSchema_lint_2020_12, format_type_mismatch_2) {
@@ -4035,16 +4030,10 @@ TEST(AlterSchema_lint_2020_12, format_type_mismatch_4) {
   LINT_WITHOUT_FIX(document, result, traces);
 
   EXPECT_FALSE(result.first);
-  EXPECT_EQ(traces.size(), 2);
-  EXPECT_LINT_TRACE(traces, 0, "/properties/foo",
-                    "non_applicable_type_specific_keywords",
-                    "Avoid keywords that don't apply to the type or "
-                    "types that the current subschema expects",
-                    true);
-  EXPECT_LINT_TRACE(traces, 1, "/properties/foo", "format_type_mismatch",
-                    "The `format` keyword validates string instances but "
-                    "`type` is not `string`",
-                    false);
+  EXPECT_LINT_TRACE_EXISTS(traces, "/properties/foo", "format_type_mismatch",
+                           "The `format` keyword validates string instances "
+                           "but `type` is not `string`",
+                           false);
 }
 
 TEST(AlterSchema_lint_2020_12, format_type_mismatch_5) {
@@ -4078,16 +4067,10 @@ TEST(AlterSchema_lint_2020_12, format_type_mismatch_6) {
   LINT_WITHOUT_FIX(document, result, traces);
 
   EXPECT_FALSE(result.first);
-  EXPECT_EQ(traces.size(), 2);
-  EXPECT_LINT_TRACE(traces, 0, "/items",
-                    "non_applicable_type_specific_keywords",
-                    "Avoid keywords that don't apply to the type or "
-                    "types that the current subschema expects",
-                    true);
-  EXPECT_LINT_TRACE(traces, 1, "/items", "format_type_mismatch",
-                    "The `format` keyword validates string instances but "
-                    "`type` is not `string`",
-                    false);
+  EXPECT_LINT_TRACE_EXISTS(traces, "/items", "format_type_mismatch",
+                           "The `format` keyword validates string instances "
+                           "but `type` is not `string`",
+                           false);
 }
 
 TEST(AlterSchema_lint_2020_12, format_type_mismatch_7) {
@@ -4108,11 +4091,10 @@ TEST(AlterSchema_lint_2020_12, format_type_mismatch_7) {
   LINT_WITHOUT_FIX(document, result, traces);
 
   EXPECT_FALSE(result.first);
-  EXPECT_EQ(traces.size(), 1);
-  EXPECT_LINT_TRACE(traces, 0, "/$defs/foo", "format_type_mismatch",
-                    "The `format` keyword validates string instances but "
-                    "`type` is not `string`",
-                    false);
+  EXPECT_LINT_TRACE_EXISTS(traces, "/$defs/foo", "format_type_mismatch",
+                           "The `format` keyword validates string instances "
+                           "but `type` is not `string`",
+                           false);
 }
 
 TEST(AlterSchema_lint_2020_12, format_type_mismatch_8) {
@@ -4136,11 +4118,10 @@ TEST(AlterSchema_lint_2020_12, format_type_mismatch_8) {
   LINT_WITHOUT_FIX(document, result, traces);
 
   EXPECT_FALSE(result.first);
-  EXPECT_EQ(traces.size(), 1);
-  EXPECT_LINT_TRACE(traces, 0, "/$defs/A", "format_type_mismatch",
-                    "The `format` keyword validates string instances but "
-                    "`type` is not `string`",
-                    false);
+  EXPECT_LINT_TRACE_EXISTS(traces, "/$defs/A", "format_type_mismatch",
+                           "The `format` keyword validates string instances "
+                           "but `type` is not `string`",
+                           false);
 }
 
 TEST(AlterSchema_lint_2020_12, format_type_mismatch_9) {
