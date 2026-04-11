@@ -315,50 +315,39 @@ TEST(Evaluator, format_assertion_vocabulary_unsupported) {
   }
 }
 
-TEST(Evaluator, compile_rejects_invalid_additional_properties_type) {
+TEST(Evaluator, invalid_additional_properties_type) {
   const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2020-12/schema",
     "type": "object",
     "additionalProperties": 42
   })JSON")};
 
-  try {
-    sourcemeta::blaze::compile(schema, sourcemeta::core::schema_walker,
-                               sourcemeta::core::schema_resolver,
-                               sourcemeta::blaze::default_schema_compiler);
-    FAIL() << "The compile function was expected to reject the schema";
-  } catch (const std::exception &) {
-    SUCCEED();
-  }
+  EXPECT_THROW(
+      sourcemeta::blaze::compile(schema, sourcemeta::core::schema_walker,
+                                 sourcemeta::core::schema_resolver,
+                                 sourcemeta::blaze::default_schema_compiler),
+      sourcemeta::core::SchemaError);
 }
 
-TEST(Evaluator, compile_rejects_invalid_items_type) {
+TEST(Evaluator, invalid_items_type) {
   const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2020-12/schema",
     "items": "invalid"
   })JSON")};
 
-  try {
-    sourcemeta::blaze::compile(schema, sourcemeta::core::schema_walker,
-                               sourcemeta::core::schema_resolver,
-                               sourcemeta::blaze::default_schema_compiler);
-    FAIL() << "The compile function was expected to reject the schema";
-  } catch (const std::exception &) {
-    SUCCEED();
-  }
+  EXPECT_THROW(
+      sourcemeta::blaze::compile(schema, sourcemeta::core::schema_walker,
+                                 sourcemeta::core::schema_resolver,
+                                 sourcemeta::blaze::default_schema_compiler),
+      sourcemeta::core::SchemaError);
 }
 
-TEST(Evaluator, compile_rejects_non_schema_root) {
-  const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON(
-    1
-  )JSON")};
+TEST(Evaluator, non_schema_root) {
+  const sourcemeta::core::JSON schema{sourcemeta::core::parse_json("1")};
 
-  try {
-    sourcemeta::blaze::compile(schema, sourcemeta::core::schema_walker,
-                               sourcemeta::core::schema_resolver,
-                               sourcemeta::blaze::default_schema_compiler);
-    FAIL() << "The compile function was expected to reject the schema";
-  } catch (const std::exception &) {
-    SUCCEED();
-  }
+  EXPECT_THROW(
+      sourcemeta::blaze::compile(schema, sourcemeta::core::schema_walker,
+                                 sourcemeta::core::schema_resolver,
+                                 sourcemeta::blaze::default_schema_compiler),
+      sourcemeta::core::SchemaError);
 }
