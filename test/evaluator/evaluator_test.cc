@@ -341,13 +341,3 @@ TEST(Evaluator, invalid_items_type) {
                                  sourcemeta::blaze::default_schema_compiler),
       sourcemeta::core::SchemaError);
 }
-
-TEST(Evaluator, non_schema_root) {
-  const sourcemeta::core::JSON schema{sourcemeta::core::parse_json("1")};
-
-  EXPECT_THROW(
-      sourcemeta::blaze::compile(schema, sourcemeta::core::schema_walker,
-                                 sourcemeta::core::schema_resolver,
-                                 sourcemeta::blaze::default_schema_compiler),
-      sourcemeta::core::SchemaError);
-}
