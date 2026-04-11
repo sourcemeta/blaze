@@ -1,4 +1,0 @@
-{
-  "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "allOf": [{"allOf": [{"allOf": [{"allOf": [{"allOf": [{"allOf": [{"allOf": [{"allOf": [{"allOf": [{"allOf": [{"type": "string"}]}]}]}]}]}]}]}]}]}]
-}

@@ -315,7 +315,7 @@ TEST(Evaluator, format_assertion_vocabulary_unsupported) {
   }
 }
 
-TEST(Evaluator, invalid_additional_properties_type_crash) {
+TEST(Evaluator, compile_rejects_invalid_additional_properties_type) {
   const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2020-12/schema",
     "type": "object",
@@ -326,13 +326,13 @@ TEST(Evaluator, invalid_additional_properties_type_crash) {
     sourcemeta::blaze::compile(schema, sourcemeta::core::schema_walker,
                                sourcemeta::core::schema_resolver,
                                sourcemeta::blaze::default_schema_compiler);
-    FAIL() << "The compile function was expected to throw";
+    FAIL() << "The compile function was expected to reject the schema";
   } catch (const std::exception &) {
     SUCCEED();
   }
 }
 
-TEST(Evaluator, invalid_items_type_crash) {
+TEST(Evaluator, compile_rejects_invalid_items_type) {
   const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2020-12/schema",
     "items": "invalid"
@@ -342,13 +342,13 @@ TEST(Evaluator, invalid_items_type_crash) {
     sourcemeta::blaze::compile(schema, sourcemeta::core::schema_walker,
                                sourcemeta::core::schema_resolver,
                                sourcemeta::blaze::default_schema_compiler);
-    FAIL() << "The compile function was expected to throw";
+    FAIL() << "The compile function was expected to reject the schema";
   } catch (const std::exception &) {
     SUCCEED();
   }
 }
 
-TEST(Evaluator, number_root_crash) {
+TEST(Evaluator, compile_rejects_non_schema_root) {
   const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON(
     1
   )JSON")};
@@ -357,7 +357,7 @@ TEST(Evaluator, number_root_crash) {
     sourcemeta::blaze::compile(schema, sourcemeta::core::schema_walker,
                                sourcemeta::core::schema_resolver,
                                sourcemeta::blaze::default_schema_compiler);
-    FAIL() << "The compile function was expected to throw";
+    FAIL() << "The compile function was expected to reject the schema";
   } catch (const std::exception &) {
     SUCCEED();
   }

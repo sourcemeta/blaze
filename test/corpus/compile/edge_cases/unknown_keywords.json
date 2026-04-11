@@ -1,7 +1,0 @@
-{
-  "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "type": "object",
-  "unknown_keyword": true,
-  "x-custom-extension": { "foo": "bar" },
-  "notAKeyword": [1, 2, 3]
-}

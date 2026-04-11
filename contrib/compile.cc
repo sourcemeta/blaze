@@ -144,17 +144,19 @@ auto main(int argc, char **argv) noexcept -> int {
 
       auto extracted{*result};
       document = std::move(extracted);
+    }
 
-      if (!sourcemeta::core::is_schema(document)) {
+    // The compiler assumes valid schema input (object or boolean) and
+    // asserts otherwise. Guard here at the CLI boundary to ensure
+    // graceful failure instead of aborting on malformed inputs.
+    if (!sourcemeta::core::is_schema(document)) {
+      if (options.contains("path")) {
         std::cerr << "error: the value at the given path is not a valid "
                      "JSON Schema\n";
-        return EXIT_FAILURE;
+      } else {
+        std::cerr << "error: the input is not a valid JSON Schema\n";
       }
-    } else if (!sourcemeta::core::is_schema(document)) {
-      // The compiler assumes valid schema input (object or boolean) and
-      // asserts otherwise. Guard here at the CLI boundary to ensure
-      // graceful failure instead of aborting on malformed inputs.
-      std::cerr << "error: the input is not a valid JSON Schema\n";
+
       return EXIT_FAILURE;
     }
 
