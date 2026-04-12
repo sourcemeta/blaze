@@ -20,6 +20,24 @@ sourcemeta_library(NAMESPACE sourcemeta PROJECT blaze NAME alterschema
     canonicalizer/type_null_as_enum.h
     canonicalizer/type_union_implicit.h
 
+    # CanonicalizerNext (Draft 4)
+    canonicalizer/draft4/additional_items_implicit.h
+    canonicalizer/draft4/additional_properties_implicit.h
+    canonicalizer/draft4/empty_dependencies_drop.h
+    canonicalizer/draft4/enum_filter_by_type.h
+    canonicalizer/draft4/empty_definitions_drop.h
+    canonicalizer/draft4/dependencies_property_to_any_of.h
+    canonicalizer/draft4/dependencies_schema_to_any_of.h
+    canonicalizer/draft4/empty_object_as_true_draft4.h
+    canonicalizer/draft4/enum_drop_redundant_validation.h
+    canonicalizer/draft4/exclusive_bounds_false_drop.h
+    canonicalizer/draft4/exclusive_maximum_boolean_integer_fold.h
+    canonicalizer/draft4/exclusive_minimum_boolean_integer_fold.h
+    canonicalizer/draft4/implicit_array_keywords.h
+    canonicalizer/draft4/implicit_object_keywords.h
+    canonicalizer/draft4/type_with_applicator_to_allof.h
+    canonicalizer/draft4/unsatisfiable_type_and_enum.h
+
     # Common
     common/allof_false_simplify.h
     common/anyof_false_simplify.h

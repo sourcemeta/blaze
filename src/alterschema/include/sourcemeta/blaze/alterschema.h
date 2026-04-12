@@ -45,6 +45,11 @@ enum class AlterSchemaMode : std::uint8_t {
   /// are syntax sugar to other keywords, potentially decreasing human
   /// readability in favor of explicitness
   Canonicalizer,
+
+  /// Extended canonicalizer targeting a formal canonical meta-schema.
+  /// Includes all Canonicalizer rules plus additional rules for full
+  /// compliance with the canonical form specification
+  CanonicalizerNext,
 };
 
 /// @ingroup alterschema
