@@ -28,7 +28,13 @@ public:
          schema.at("type").to_string() == "number") &&
         schema.defines("minimum") && schema.at("minimum").is_number() &&
         schema.defines("maximum") && schema.at("maximum").is_number() &&
-        schema.at("minimum") == schema.at("maximum"));
+        schema.at("minimum") == schema.at("maximum") &&
+        !(schema.defines("exclusiveMinimum") &&
+          schema.at("exclusiveMinimum").is_boolean() &&
+          schema.at("exclusiveMinimum").to_boolean()) &&
+        !(schema.defines("exclusiveMaximum") &&
+          schema.at("exclusiveMaximum").is_boolean() &&
+          schema.at("exclusiveMaximum").to_boolean()));
     return APPLIES_TO_KEYWORDS("minimum", "maximum");
   }
 
