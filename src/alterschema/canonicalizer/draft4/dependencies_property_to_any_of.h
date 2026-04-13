@@ -24,7 +24,7 @@ public:
 
     for (const auto &entry : schema.at("dependencies").as_object()) {
       if (entry.second.is_array()) {
-        return APPLIES_TO_KEYWORDS("dependencies");
+        return true;
       }
     }
 

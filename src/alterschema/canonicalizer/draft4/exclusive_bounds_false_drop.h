@@ -23,35 +23,28 @@ public:
         schema.at("type").is_string() &&
         schema.at("type").to_string() == "integer");
 
-    const bool has_exclusive_min{schema.defines("exclusiveMinimum") &&
-                                 schema.at("exclusiveMinimum").is_boolean() &&
-                                 !schema.at("exclusiveMinimum").to_boolean()};
-    const bool has_exclusive_max{schema.defines("exclusiveMaximum") &&
-                                 schema.at("exclusiveMaximum").is_boolean() &&
-                                 !schema.at("exclusiveMaximum").to_boolean()};
+    this->has_exclusive_min_ = schema.defines("exclusiveMinimum") &&
+                               schema.at("exclusiveMinimum").is_boolean() &&
+                               !schema.at("exclusiveMinimum").to_boolean();
+    this->has_exclusive_max_ = schema.defines("exclusiveMaximum") &&
+                               schema.at("exclusiveMaximum").is_boolean() &&
+                               !schema.at("exclusiveMaximum").to_boolean();
 
-    ONLY_CONTINUE_IF(has_exclusive_min || has_exclusive_max);
-
-    if (has_exclusive_min && has_exclusive_max) {
-      return APPLIES_TO_KEYWORDS("exclusiveMinimum", "exclusiveMaximum");
-    } else if (has_exclusive_min) {
-      return APPLIES_TO_KEYWORDS("exclusiveMinimum");
-    } else {
-      return APPLIES_TO_KEYWORDS("exclusiveMaximum");
-    }
+    ONLY_CONTINUE_IF(this->has_exclusive_min_ || this->has_exclusive_max_);
+    return true;
   }
 
   auto transform(JSON &schema, const Result &) const -> void override {
-    if (schema.defines("exclusiveMinimum") &&
-        schema.at("exclusiveMinimum").is_boolean() &&
-        !schema.at("exclusiveMinimum").to_boolean()) {
+    if (this->has_exclusive_min_) {
       schema.erase("exclusiveMinimum");
     }
 
-    if (schema.defines("exclusiveMaximum") &&
-        schema.at("exclusiveMaximum").is_boolean() &&
-        !schema.at("exclusiveMaximum").to_boolean()) {
+    if (this->has_exclusive_max_) {
       schema.erase("exclusiveMaximum");
     }
   }
+
+private:
+  mutable bool has_exclusive_min_{false};
+  mutable bool has_exclusive_max_{false};
 };

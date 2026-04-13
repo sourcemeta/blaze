@@ -19,10 +19,10 @@ class CanonicalizeTest : public testing::Test {
 public:
   explicit CanonicalizeTest(
       sourcemeta::core::JSON test_data, const sourcemeta::blaze::Mode test_mode,
-      const sourcemeta::blaze::AlterSchemaMode alter_mode =
+      const sourcemeta::blaze::AlterSchemaMode canonicalizer_mode =
           sourcemeta::blaze::AlterSchemaMode::Canonicalizer)
       : data{std::move(test_data)}, mode{test_mode},
-        alter_schema_mode{alter_mode} {}
+        canonicalizer_mode_{canonicalizer_mode} {}
 
   auto TestBody() -> void override {
     auto schema{this->data.at("schema")};
@@ -30,7 +30,7 @@ public:
     const bool expected_valid{this->data.at("valid").to_boolean()};
 
     sourcemeta::blaze::SchemaTransformer bundle;
-    sourcemeta::blaze::add(bundle, this->alter_schema_mode);
+    sourcemeta::blaze::add(bundle, this->canonicalizer_mode_);
     const auto canonicalize_result{
         bundle.apply(schema, sourcemeta::core::schema_walker,
                      sourcemeta::core::schema_resolver,
@@ -57,12 +57,12 @@ public:
 private:
   const sourcemeta::core::JSON data;
   const sourcemeta::blaze::Mode mode;
-  const sourcemeta::blaze::AlterSchemaMode alter_schema_mode;
+  const sourcemeta::blaze::AlterSchemaMode canonicalizer_mode_;
 };
 
 static auto
 register_tests(const std::filesystem::path &path, const std::string &suite_name,
-               const sourcemeta::blaze::AlterSchemaMode alter_mode =
+               const sourcemeta::blaze::AlterSchemaMode canonicalizer_mode =
                    sourcemeta::blaze::AlterSchemaMode::Canonicalizer) -> void {
   std::fprintf(stderr, "-- Parsing: %s\n", path.string().c_str());
   auto suite{sourcemeta::core::read_json(path)};
@@ -84,7 +84,7 @@ register_tests(const std::filesystem::path &path, const std::string &suite_name,
       testing::RegisterTest(suite_name.c_str(), title.c_str(), nullptr, nullptr,
                             __FILE__, __LINE__, [=]() -> CanonicalizeTest * {
                               return new CanonicalizeTest(test_case, mode,
-                                                          alter_mode);
+                                                          canonicalizer_mode);
                             });
     }
   }

@@ -24,13 +24,11 @@ public:
         schema.at("enum").is_array() && !schema.at("enum").empty());
 
     const auto declared_types{parse_schema_type(schema.at("type"))};
-    for (const auto &value : schema.at("enum").as_array()) {
-      if (declared_types.test(std::to_underlying(value.type()))) {
-        return false;
-      }
-    }
-
-    return APPLIES_TO_KEYWORDS("type", "enum");
+    ONLY_CONTINUE_IF(std::ranges::none_of(
+        schema.at("enum").as_array(), [&declared_types](const auto &value) {
+          return declared_types.test(std::to_underlying(value.type()));
+        }));
+    return true;
   }
 
   auto transform(JSON &schema, const Result &) const -> void override {

@@ -25,32 +25,34 @@ public:
 
     const auto declared_types{parse_schema_type(schema.at("type"))};
 
-    bool has_match{false};
+    this->matching_indices_.clear();
     bool has_mismatch{false};
+    std::size_t index{0};
     for (const auto &value : schema.at("enum").as_array()) {
       if (declared_types.test(std::to_underlying(value.type()))) {
-        has_match = true;
+        this->matching_indices_.push_back(index);
       } else {
         has_mismatch = true;
       }
+      index++;
     }
 
     // Only fire when there is a MIX: some match, some don't.
     // If all match, EnumWithType handles it.
     // If none match, UnsatisfiableTypeAndEnum handles it.
-    ONLY_CONTINUE_IF(has_match && has_mismatch);
-    return APPLIES_TO_KEYWORDS("enum", "type");
+    ONLY_CONTINUE_IF(!this->matching_indices_.empty() && has_mismatch);
+    return true;
   }
 
   auto transform(JSON &schema, const Result &) const -> void override {
-    const auto declared_types{parse_schema_type(schema.at("type"))};
     auto filtered{JSON::make_array()};
-    for (const auto &value : schema.at("enum").as_array()) {
-      if (declared_types.test(std::to_underlying(value.type()))) {
-        filtered.push_back(value);
-      }
+    for (const auto &index : this->matching_indices_) {
+      filtered.push_back(schema.at("enum").at(index));
     }
 
     schema.assign("enum", std::move(filtered));
   }
+
+private:
+  mutable std::vector<std::size_t> matching_indices_;
 };

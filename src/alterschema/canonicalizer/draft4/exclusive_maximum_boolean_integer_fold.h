@@ -26,7 +26,7 @@ public:
         schema.at("exclusiveMaximum").is_boolean() &&
         schema.at("exclusiveMaximum").to_boolean() &&
         schema.defines("maximum") && schema.at("maximum").is_number());
-    return APPLIES_TO_KEYWORDS("exclusiveMaximum", "maximum");
+    return true;
   }
 
   auto transform(JSON &schema, const Result &) const -> void override {

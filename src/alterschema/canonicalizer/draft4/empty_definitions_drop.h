@@ -22,7 +22,7 @@ public:
         schema.is_object() && schema.defines("definitions") &&
         schema.at("definitions").is_object() &&
         schema.at("definitions").empty());
-    return APPLIES_TO_KEYWORDS("definitions");
+    return true;
   }
 
   auto transform(JSON &schema, const Result &) const -> void override {

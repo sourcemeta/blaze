@@ -5,7 +5,7 @@
 #include <sourcemeta/core/regex.h>
 
 // For built-in rules
-#include <algorithm>     // std::sort, std::unique
+#include <algorithm>     // std::sort, std::unique, std::ranges::none_of
 #include <cassert>       // assert
 #include <cmath>         // std::floor
 #include <cstddef>       // std::size_t
@@ -106,24 +106,6 @@ auto WALK_UP_IN_PLACE_APPLICATORS(const JSON &root, const SchemaFrame &frame,
 
 // Canonicalizer
 #include "canonicalizer/const_as_enum.h"
-#include "canonicalizer/exclusive_maximum_integer_to_maximum.h"
-#include "canonicalizer/exclusive_minimum_integer_to_minimum.h"
-#include "canonicalizer/items_implicit.h"
-#include "canonicalizer/max_contains_covered_by_max_items.h"
-#include "canonicalizer/min_items_given_min_contains.h"
-#include "canonicalizer/min_items_implicit.h"
-#include "canonicalizer/min_length_implicit.h"
-#include "canonicalizer/min_properties_covered_by_required.h"
-#include "canonicalizer/min_properties_implicit.h"
-#include "canonicalizer/multiple_of_implicit.h"
-#include "canonicalizer/properties_implicit.h"
-#include "canonicalizer/type_array_to_any_of.h"
-#include "canonicalizer/type_boolean_as_enum.h"
-#include "canonicalizer/type_inherit_in_place.h"
-#include "canonicalizer/type_null_as_enum.h"
-#include "canonicalizer/type_union_implicit.h"
-
-// CanonicalizerNext (Draft 4)
 #include "canonicalizer/draft4/additional_items_implicit.h"
 #include "canonicalizer/draft4/additional_properties_implicit.h"
 #include "canonicalizer/draft4/dependencies_property_to_any_of.h"
@@ -140,6 +122,22 @@ auto WALK_UP_IN_PLACE_APPLICATORS(const JSON &root, const SchemaFrame &frame,
 #include "canonicalizer/draft4/implicit_object_keywords.h"
 #include "canonicalizer/draft4/type_with_applicator_to_allof.h"
 #include "canonicalizer/draft4/unsatisfiable_type_and_enum.h"
+#include "canonicalizer/exclusive_maximum_integer_to_maximum.h"
+#include "canonicalizer/exclusive_minimum_integer_to_minimum.h"
+#include "canonicalizer/items_implicit.h"
+#include "canonicalizer/max_contains_covered_by_max_items.h"
+#include "canonicalizer/min_items_given_min_contains.h"
+#include "canonicalizer/min_items_implicit.h"
+#include "canonicalizer/min_length_implicit.h"
+#include "canonicalizer/min_properties_covered_by_required.h"
+#include "canonicalizer/min_properties_implicit.h"
+#include "canonicalizer/multiple_of_implicit.h"
+#include "canonicalizer/properties_implicit.h"
+#include "canonicalizer/type_array_to_any_of.h"
+#include "canonicalizer/type_boolean_as_enum.h"
+#include "canonicalizer/type_inherit_in_place.h"
+#include "canonicalizer/type_null_as_enum.h"
+#include "canonicalizer/type_union_implicit.h"
 
 // Common
 #include "common/allof_false_simplify.h"

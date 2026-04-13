@@ -26,7 +26,7 @@ public:
         schema.at("exclusiveMinimum").is_boolean() &&
         schema.at("exclusiveMinimum").to_boolean() &&
         schema.defines("minimum") && schema.at("minimum").is_number());
-    return APPLIES_TO_KEYWORDS("exclusiveMinimum", "minimum");
+    return true;
   }
 
   auto transform(JSON &schema, const Result &) const -> void override {

@@ -20,7 +20,6 @@ sourcemeta_library(NAMESPACE sourcemeta PROJECT blaze NAME alterschema
     canonicalizer/type_null_as_enum.h
     canonicalizer/type_union_implicit.h
 
-    # CanonicalizerNext (Draft 4)
     canonicalizer/draft4/additional_items_implicit.h
     canonicalizer/draft4/additional_properties_implicit.h
     canonicalizer/draft4/empty_dependencies_drop.h

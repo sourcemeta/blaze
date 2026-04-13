@@ -22,7 +22,7 @@ public:
         schema.is_object() && schema.defines("enum") &&
         schema.at("enum").is_array() && !schema.defines("type"));
 
-    std::vector<Pointer> locations;
+    this->locations_.clear();
     for (const auto &entry : schema.as_object()) {
       if (entry.first == "enum") {
         continue;
@@ -38,16 +38,20 @@ public:
         continue;
       }
 
-      locations.push_back(Pointer{entry.first});
+      this->locations_.push_back(Pointer{entry.first});
     }
 
-    ONLY_CONTINUE_IF(!locations.empty());
-    return APPLIES_TO_POINTERS(std::move(locations));
+    ONLY_CONTINUE_IF(!this->locations_.empty());
+    return true;
   }
 
-  auto transform(JSON &schema, const Result &result) const -> void override {
-    for (const auto &location : result.locations) {
+  auto transform(JSON &schema, const Result &) const -> void override {
+    for (const auto &location : this->locations_) {
       schema.erase(location.at(0).to_property());
     }
   }
+
+private:
+  // TODO: Use WeakPointer to avoid copies
+  mutable std::vector<Pointer> locations_;
 };
