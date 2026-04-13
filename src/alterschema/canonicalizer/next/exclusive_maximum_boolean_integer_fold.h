@@ -62,13 +62,13 @@ public:
       const auto value{maximum.to_real()};
       const auto floor_value{std::floor(value)};
       if (floor_value == value) {
-        auto decimal_result{sourcemeta::core::Decimal{
-            std::to_string(static_cast<std::int64_t>(value))}};
         if (value >=
                 static_cast<double>(std::numeric_limits<std::int64_t>::min()) &&
             value <
                 static_cast<double>(std::numeric_limits<std::int64_t>::max()) +
                     1.0) {
+          auto decimal_result{sourcemeta::core::Decimal{
+              std::to_string(static_cast<std::int64_t>(value))}};
           decimal_result -= sourcemeta::core::Decimal{1};
           if (decimal_result.is_int64()) {
             schema.assign("maximum",
