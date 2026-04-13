@@ -218,6 +218,10 @@ auto SchemaTransformer::apply(core::JSON &schema,
 
   while (true) {
     if (frame.empty()) {
+      if (schema.is_boolean()) {
+        break;
+      }
+
       analyse_frame(frame, schema, walker, resolver, default_dialect,
                     default_id);
     }
@@ -280,6 +284,17 @@ auto SchemaTransformer::apply(core::JSON &schema,
         if (reframe_after_transform) {
           analyse_frame(frame, schema, walker, resolver, default_dialect,
                         default_id);
+        } else if (current.is_boolean()) {
+          std::tuple<const core::JSON *, std::string_view, std::uint64_t> mark{
+              &current, rule->name(), current.fast_hash()};
+          if (processed_rules.contains(mark)) {
+            throw SchemaTransformRuleProcessedTwiceError(rule->name(),
+                                                         entry_pointer);
+          }
+
+          processed_rules.emplace(std::move(mark));
+          frame.reset();
+          goto blaze_transformer_start_again;
         }
 
         const auto new_location{
@@ -353,8 +368,12 @@ auto SchemaTransformer::apply(core::JSON &schema,
     }
   }
 
-  if (frame.empty()) {
+  if (frame.empty() && !schema.is_boolean()) {
     analyse_frame(frame, schema, walker, resolver, default_dialect, default_id);
+  }
+
+  if (frame.empty()) {
+    return {true, 100};
   }
 
   return check_rules(schema, frame, this->rules, walker, resolver, callback,
