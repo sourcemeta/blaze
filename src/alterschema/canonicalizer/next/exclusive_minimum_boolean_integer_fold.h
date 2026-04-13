@@ -32,9 +32,16 @@ public:
   auto transform(JSON &schema, const Result &) const -> void override {
     const auto &minimum{schema.at("minimum")};
     if (minimum.is_integer()) {
-      auto new_minimum = minimum;
-      new_minimum += sourcemeta::core::JSON{1};
-      schema.assign("minimum", std::move(new_minimum));
+      if (minimum.to_integer() < std::numeric_limits<std::int64_t>::max()) {
+        auto new_minimum = minimum;
+        new_minimum += sourcemeta::core::JSON{1};
+        schema.assign("minimum", std::move(new_minimum));
+      } else {
+        auto result{
+            sourcemeta::core::Decimal{std::to_string(minimum.to_integer())}};
+        result += sourcemeta::core::Decimal{1};
+        schema.assign("minimum", sourcemeta::core::JSON{std::move(result)});
+      }
     } else if (minimum.is_decimal()) {
       auto current{minimum.to_decimal()};
       auto ceiled{current.to_integral()};
@@ -53,12 +60,30 @@ public:
       }
     } else {
       const auto value{minimum.to_real()};
-      auto ceiled{static_cast<std::int64_t>(std::ceil(value))};
-      if (std::ceil(value) == value) {
-        ceiled += 1;
-      }
+      const auto ceil_value{std::ceil(value)};
+      const auto result{(ceil_value == value) ? ceil_value + 1.0 : ceil_value};
+      if (std::isfinite(result) &&
+          result >=
+              static_cast<double>(std::numeric_limits<std::int64_t>::min()) &&
+          result <
+              static_cast<double>(std::numeric_limits<std::int64_t>::max()) +
+                  1.0) {
+        schema.assign("minimum", sourcemeta::core::JSON{
+                                     static_cast<std::int64_t>(result)});
+      } else {
+        auto decimal_result{sourcemeta::core::Decimal{value}};
+        if (decimal_result.is_integer()) {
+          decimal_result += sourcemeta::core::Decimal{1};
+        } else {
+          decimal_result = decimal_result.to_integral();
+          if (decimal_result < sourcemeta::core::Decimal{value}) {
+            decimal_result += sourcemeta::core::Decimal{1};
+          }
+        }
 
-      schema.assign("minimum", sourcemeta::core::JSON{ceiled});
+        schema.assign("minimum",
+                      sourcemeta::core::JSON{std::move(decimal_result)});
+      }
     }
 
     schema.erase("exclusiveMinimum");

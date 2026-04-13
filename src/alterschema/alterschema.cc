@@ -9,10 +9,11 @@
 #include <array>         // std::array
 #include <bit>           // std::popcount
 #include <cassert>       // assert
-#include <cmath>         // std::floor
+#include <cmath>         // std::floor, std::ceil, std::isfinite
 #include <cstddef>       // std::size_t
 #include <functional>    // std::ref
 #include <iterator>      // std::back_inserter
+#include <limits>        // std::numeric_limits
 #include <memory>        // std::unique_ptr, std::make_unique
 #include <sstream>       // std::ostringstream
 #include <string_view>   // std::string_view
