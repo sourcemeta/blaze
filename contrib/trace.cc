@@ -1,5 +1,6 @@
 #include <sourcemeta/core/json.h>
 #include <sourcemeta/core/jsonschema.h>
+#include <sourcemeta/core/options.h>
 
 #include <sourcemeta/blaze/compiler.h>
 #include <sourcemeta/blaze/evaluator.h>
@@ -35,72 +36,95 @@ static std::map<std::string_view, std::size_t> global_keywords_count;
 static std::map<std::string_view, std::size_t> global_steps_count;
 
 auto main(int argc, char **argv) noexcept -> int {
-  if (argc < 3) {
-    std::cerr << "Usage: " << argv[0] << " <schema.json> <instance.json>\n";
+  sourcemeta::core::Options options;
+  options.flag("fast", {"f"});
+
+  try {
+    options.parse(argc, argv);
+  } catch (const sourcemeta::core::OptionsError &error) {
+    std::cerr << "error: " << error.what() << "\n";
     return EXIT_FAILURE;
   }
 
-  const auto schema{sourcemeta::core::read_json(argv[1])};
-  const auto schema_template{
-      sourcemeta::blaze::compile(schema, sourcemeta::core::schema_walker,
-                                 sourcemeta::core::schema_resolver,
-                                 sourcemeta::blaze::default_schema_compiler)};
-  const std::filesystem::path instance_path{argv[2]};
-  const auto instance{sourcemeta::core::read_json(instance_path)};
+  const auto &positional{options.positional()};
+  if (positional.size() < 2) {
+    std::cerr << "Usage: " << argv[0]
+              << " [--fast] <schema.json> <instance.json>\n";
+    return EXIT_FAILURE;
+  }
 
-  sourcemeta::blaze::TraceOutput output{
-      sourcemeta::core::schema_walker, sourcemeta::core::schema_resolver,
-      [](const sourcemeta::blaze::TraceOutput::Entry &entry) {
-        switch (entry.type) {
-          case sourcemeta::blaze::TraceOutput::EntryType::Push:
-            std::cout << "-> (push) ";
-            break;
-          case sourcemeta::blaze::TraceOutput::EntryType::Pass:
-            std::cout << "<- (pass) ";
-            break;
-          case sourcemeta::blaze::TraceOutput::EntryType::Fail:
-            std::cout << "<- (fail) ";
-            break;
-          default:
-            assert(false);
-            break;
-        }
+  const auto mode{options.contains("fast")
+                      ? sourcemeta::blaze::Mode::FastValidation
+                      : sourcemeta::blaze::Mode::Exhaustive};
 
-        std::cout << "\"";
-        sourcemeta::core::stringify(entry.evaluate_path, std::cout);
-        std::cout << "\" [";
-        std::cout << entry.name;
-        std::cout << "]\n";
-        std::cout << "   at \"";
-        sourcemeta::core::stringify(entry.instance_location, std::cout);
-        std::cout << "\"\n";
+  try {
+    const auto schema{
+        sourcemeta::core::read_json(std::filesystem::path{positional.at(0)})};
+    const auto schema_template{sourcemeta::blaze::compile(
+        schema, sourcemeta::core::schema_walker,
+        sourcemeta::core::schema_resolver,
+        sourcemeta::blaze::default_schema_compiler, mode)};
+    const auto instance{
+        sourcemeta::core::read_json(std::filesystem::path{positional.at(1)})};
 
-        if (entry.type == sourcemeta::blaze::TraceOutput::EntryType::Push) {
-          global_steps_count[entry.name] += 1;
-          if (!entry.evaluate_path.empty()) {
-            assert(entry.evaluate_path.back().is_property());
-            const auto &keyword{entry.evaluate_path.back().to_property()};
-            global_keywords_count[keyword] += 1;
+    sourcemeta::blaze::TraceOutput output{
+        sourcemeta::core::schema_walker, sourcemeta::core::schema_resolver,
+        [](const sourcemeta::blaze::TraceOutput::Entry &entry) {
+          switch (entry.type) {
+            case sourcemeta::blaze::TraceOutput::EntryType::Push:
+              std::cout << "-> (push) ";
+              break;
+            case sourcemeta::blaze::TraceOutput::EntryType::Pass:
+              std::cout << "<- (pass) ";
+              break;
+            case sourcemeta::blaze::TraceOutput::EntryType::Fail:
+              std::cout << "<- (fail) ";
+              break;
+            default:
+              assert(false);
+              break;
           }
-        }
-      }};
-  sourcemeta::blaze::Evaluator evaluator;
-  const auto result{
-      evaluator.validate(schema_template, instance, std::ref(output))};
 
-  std::cout << "\n";
-  std::cout << "==== KEYWORD STATS\n";
-  print_map(global_keywords_count);
-  std::cout << "\n";
-  std::cout << "==== STEP STATS\n";
-  print_map(global_steps_count);
-  std::cout << "\n";
+          std::cout << "\"";
+          sourcemeta::core::stringify(entry.evaluate_path, std::cout);
+          std::cout << "\" [";
+          std::cout << entry.name;
+          std::cout << "]\n";
+          std::cout << "   at \"";
+          sourcemeta::core::stringify(entry.instance_location, std::cout);
+          std::cout << "\"\n";
 
-  if (!result) {
-    std::cerr << "FAIL\n";
+          if (entry.type == sourcemeta::blaze::TraceOutput::EntryType::Push) {
+            global_steps_count[entry.name] += 1;
+            if (!entry.evaluate_path.empty()) {
+              assert(entry.evaluate_path.back().is_property());
+              const auto &keyword{entry.evaluate_path.back().to_property()};
+              global_keywords_count[keyword] += 1;
+            }
+          }
+        }};
+    sourcemeta::blaze::Evaluator evaluator;
+    const auto result{
+        evaluator.validate(schema_template, instance, std::ref(output))};
+
+    std::cout << "\n";
+    std::cout << "==== KEYWORD STATS\n";
+    print_map(global_keywords_count);
+    std::cout << "\n";
+    std::cout << "==== STEP STATS\n";
+    print_map(global_steps_count);
+    std::cout << "\n";
+
+    if (!result) {
+      std::cerr << "FAIL\n";
+      return EXIT_FAILURE;
+    }
+
+    std::cerr << "PASS\n";
+  } catch (const std::exception &error) {
+    std::cerr << "error: " << error.what() << "\n";
     return EXIT_FAILURE;
   }
 
-  std::cerr << "PASS\n";
   return EXIT_SUCCESS;
 }
