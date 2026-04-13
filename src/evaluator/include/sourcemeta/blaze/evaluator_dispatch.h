@@ -2207,6 +2207,36 @@ INSTRUCTION_HANDLER(LoopItemsPropertiesExactlyTypeStrictHash3) {
   EVALUATE_END(LoopItemsPropertiesExactlyTypeStrictHash3);
 }
 
+INSTRUCTION_HANDLER(LoopItemsIntegerBounded) {
+  EVALUATE_BEGIN_NON_STRING(LoopItemsIntegerBounded,
+                            target.is_array() && !target.empty());
+  const auto value{assume_value_copy<ValueIntegerBounds>(instruction.value)};
+  result = true;
+  for (const auto &element : target.as_array()) {
+    if (!element.is_number()) [[unlikely]] {
+      result = false;
+      break;
+    }
+
+    if (element.is_integer()) {
+      const auto integer{element.to_integer()};
+      if (integer < value.first || integer > value.second) [[unlikely]] {
+        result = false;
+        break;
+      }
+    } else {
+      const auto real{element.as_real()};
+      if (real < static_cast<double>(value.first) ||
+          real > static_cast<double>(value.second)) [[unlikely]] {
+        result = false;
+        break;
+      }
+    }
+  }
+
+  EVALUATE_END(LoopItemsIntegerBounded);
+}
+
 INSTRUCTION_HANDLER(LoopContains) {
   EVALUATE_BEGIN_NON_STRING(LoopContains, target.is_array());
   assert(!instruction.children.empty());
@@ -2277,7 +2307,7 @@ using DispatchHandler = bool (*)(
 template <bool Track, bool Dynamic, bool HasCallback>
 // Must have same order as InstructionIndex
 // NOLINTNEXTLINE(modernize-avoid-c-arrays)
-static constexpr DispatchHandler<Track, Dynamic, HasCallback> handlers[95] = {
+static constexpr DispatchHandler<Track, Dynamic, HasCallback> handlers[93] = {
     AssertionFail,
     AssertionDefines,
     AssertionDefinesStrict,
@@ -2362,6 +2392,7 @@ static constexpr DispatchHandler<Track, Dynamic, HasCallback> handlers[95] = {
     LoopItemsTypeStrictAny,
     LoopItemsPropertiesExactlyTypeStrictHash,
     LoopItemsPropertiesExactlyTypeStrictHash3,
+    LoopItemsIntegerBounded,
     LoopContains,
     ControlGroup,
     ControlGroupWhenDefines,

@@ -95,14 +95,15 @@ const INSTRUCTION_NAMES = {
   "LoopItemsTypeStrictAny": 81,
   "LoopItemsPropertiesExactlyTypeStrictHash": 82,
   "LoopItemsPropertiesExactlyTypeStrictHash3": 83,
-  "LoopContains": 84,
-  "ControlGroup": 85,
-  "ControlGroupWhenDefines": 86,
-  "ControlGroupWhenDefinesDirect": 87,
-  "ControlGroupWhenType": 88,
-  "ControlEvaluate": 89,
-  "ControlDynamicAnchorJump": 90,
-  "ControlJump": 91,
+  "LoopItemsIntegerBounded": 84,
+  "LoopContains": 85,
+  "ControlGroup": 86,
+  "ControlGroupWhenDefines": 87,
+  "ControlGroupWhenDefinesDirect": 88,
+  "ControlGroupWhenType": 89,
+  "ControlEvaluate": 90,
+  "ControlDynamicAnchorJump": 91,
+  "ControlJump": 92,
   "Annotation": -1
 };
 

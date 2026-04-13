@@ -1474,6 +1474,71 @@ auto compiler_draft4_applicator_items_array(
   }
 }
 
+auto is_number_type_check(const Instruction &instruction) -> bool {
+  if (instruction.type == InstructionIndex::AssertionTypeStrictAny) {
+    const auto &value{std::get<ValueTypes>(instruction.value)};
+    return value.test(
+               std::to_underlying(sourcemeta::core::JSON::Type::Integer)) &&
+           value.test(std::to_underlying(sourcemeta::core::JSON::Type::Real));
+  }
+
+  if (instruction.type == InstructionIndex::AssertionTypeStrict) {
+    const auto &value{std::get<ValueType>(instruction.value)};
+    return value == sourcemeta::core::JSON::Type::Integer ||
+           value == sourcemeta::core::JSON::Type::Real;
+  }
+
+  if (instruction.type == InstructionIndex::AssertionType) {
+    const auto &value{std::get<ValueType>(instruction.value)};
+    return value == sourcemeta::core::JSON::Type::Integer ||
+           value == sourcemeta::core::JSON::Type::Real;
+  }
+
+  return false;
+}
+
+auto is_integer_bounded_pattern(const Instructions &children) -> bool {
+  if (children.size() != 3) {
+    return false;
+  }
+
+  bool has_type{false};
+  bool has_min{false};
+  bool has_max{false};
+  for (const auto &child : children) {
+    if (is_number_type_check(child)) {
+      has_type = true;
+    } else if (child.type == InstructionIndex::AssertionGreaterEqual) {
+      if (!std::get<ValueJSON>(child.value).is_integer()) {
+        return false;
+      }
+      has_min = true;
+    } else if (child.type == InstructionIndex::AssertionLessEqual) {
+      if (!std::get<ValueJSON>(child.value).is_integer()) {
+        return false;
+      }
+      has_max = true;
+    }
+  }
+
+  return has_type && has_min && has_max;
+}
+
+auto extract_integer_bounds(const Instructions &children)
+    -> ValueIntegerBounds {
+  std::int64_t minimum{0};
+  std::int64_t maximum{0};
+  for (const auto &child : children) {
+    if (child.type == InstructionIndex::AssertionGreaterEqual) {
+      minimum = std::get<ValueJSON>(child.value).to_integer();
+    } else if (child.type == InstructionIndex::AssertionLessEqual) {
+      maximum = std::get<ValueJSON>(child.value).to_integer();
+    }
+  }
+
+  return {minimum, maximum};
+}
+
 auto compiler_draft4_applicator_items_with_options(
     const Context &context, const SchemaContext &schema_context,
     const DynamicContext &dynamic_context, const bool annotate,
@@ -1537,6 +1602,13 @@ auto compiler_draft4_applicator_items_with_options(
 
     if (children.empty()) {
       return {};
+    }
+
+    if (context.mode == Mode::FastValidation && children.size() == 3 &&
+        is_integer_bounded_pattern(children)) {
+      return {make(sourcemeta::blaze::InstructionIndex::LoopItemsIntegerBounded,
+                   context, schema_context, dynamic_context,
+                   extract_integer_bounds(children))};
     }
 
     if (context.mode == Mode::FastValidation && children.size() == 1) {
@@ -1614,6 +1686,15 @@ auto compiler_draft4_applicator_additionalitems_from_cursor(
   Instructions children;
 
   if (!subchildren.empty()) {
+    if (context.mode == Mode::FastValidation && cursor == 0 && !annotate &&
+        !track_evaluation && is_integer_bounded_pattern(subchildren)) {
+      children.push_back(
+          make(sourcemeta::blaze::InstructionIndex::LoopItemsIntegerBounded,
+               context, schema_context, dynamic_context,
+               extract_integer_bounds(subchildren)));
+      return children;
+    }
+
     children.push_back(make(sourcemeta::blaze::InstructionIndex::LoopItemsFrom,
                             context, schema_context, dynamic_context,
                             ValueUnsignedInteger{cursor},
