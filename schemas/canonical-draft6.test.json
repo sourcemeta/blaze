@@ -2211,7 +2211,6 @@
           "type": "string",
           "minLength": 0
         },
-        "contains": true,
         "minItems": 0,
         "uniqueItems": false
       }
@@ -2222,7 +2221,6 @@
       "data": {
         "type": "array",
         "items": true,
-        "contains": true,
         "minItems": 0,
         "uniqueItems": true
       }
@@ -2233,7 +2231,6 @@
       "data": {
         "type": "array",
         "items": false,
-        "contains": true,
         "minItems": 0,
         "uniqueItems": false
       }
@@ -2269,7 +2266,6 @@
       "data": {
         "type": "array",
         "items": true,
-        "contains": true,
         "minItems": 0,
         "maxItems": 10,
         "uniqueItems": true
@@ -2281,7 +2277,6 @@
       "data": {
         "type": "array",
         "items": true,
-        "contains": true,
         "minItems": 0,
         "uniqueItems": false,
         "title": "List",
@@ -2295,7 +2290,6 @@
       "data": {
         "type": "array",
         "items": true,
-        "contains": true,
         "minItems": 0,
         "uniqueItems": false,
         "examples": [
@@ -2309,7 +2303,6 @@
       "data": {
         "type": "array",
         "items": true,
-        "contains": true,
         "minItems": 0,
         "uniqueItems": false,
         "$schema": "http://json-schema.org/draft-06/schema#"
@@ -2321,7 +2314,6 @@
       "data": {
         "type": "array",
         "items": true,
-        "contains": true,
         "minItems": 0,
         "uniqueItems": false,
         "$id": "https://example.com/a"
@@ -2333,7 +2325,6 @@
       "data": {
         "type": "array",
         "items": true,
-        "contains": true,
         "minItems": 0,
         "uniqueItems": false,
         "definitions": {
@@ -2347,7 +2338,6 @@
       "data": {
         "type": "array",
         "items": true,
-        "contains": true,
         "minItems": 0,
         "uniqueItems": false,
         "x-max": 100
@@ -2384,8 +2374,8 @@
       }
     },
     {
-      "description": "Array without contains is rejected",
-      "valid": false,
+      "description": "Array without contains is canonical",
+      "valid": true,
       "data": {
         "type": "array",
         "items": true,
@@ -2399,7 +2389,6 @@
       "data": {
         "type": "array",
         "items": true,
-        "contains": true,
         "uniqueItems": false
       }
     },
@@ -2408,7 +2397,6 @@
       "valid": false,
       "data": {
         "type": "array",
-        "contains": true,
         "minItems": 0,
         "uniqueItems": false
       }
@@ -2419,7 +2407,6 @@
       "data": {
         "type": "array",
         "items": true,
-        "contains": true,
         "minItems": 0
       }
     },
@@ -2432,7 +2419,6 @@
           "type": "string",
           "minLength": 0
         },
-        "contains": true,
         "minItems": 0,
         "uniqueItems": false,
         "additionalItems": true
@@ -2444,7 +2430,6 @@
       "data": {
         "type": "array",
         "items": true,
-        "contains": true,
         "minItems": 0,
         "uniqueItems": false,
         "minLength": 0
@@ -2456,7 +2441,6 @@
       "data": {
         "type": "array",
         "items": true,
-        "contains": true,
         "minItems": 0,
         "uniqueItems": false,
         "properties": {}
@@ -2468,7 +2452,6 @@
       "data": {
         "type": "array",
         "items": true,
-        "contains": true,
         "minItems": 0,
         "uniqueItems": false,
         "minimum": 0
@@ -2480,7 +2463,6 @@
       "data": {
         "type": "array",
         "items": true,
-        "contains": true,
         "minItems": 0,
         "uniqueItems": false,
         "enum": [
@@ -2494,7 +2476,6 @@
       "data": {
         "type": "array",
         "items": true,
-        "contains": true,
         "minItems": 0,
         "uniqueItems": false,
         "anyOf": [ true ]
@@ -2506,7 +2487,6 @@
       "data": {
         "type": "array",
         "items": true,
-        "contains": true,
         "minItems": 0,
         "uniqueItems": false,
         "allOf": [ true ]
@@ -2518,7 +2498,6 @@
       "data": {
         "type": "array",
         "items": true,
-        "contains": true,
         "minItems": 0,
         "uniqueItems": false,
         "oneOf": [ true ]
@@ -2530,7 +2509,6 @@
       "data": {
         "type": "array",
         "items": true,
-        "contains": true,
         "minItems": 0,
         "uniqueItems": false,
         "not": true
@@ -2542,7 +2520,6 @@
       "data": {
         "type": "array",
         "items": true,
-        "contains": true,
         "minItems": 0,
         "uniqueItems": false,
         "$ref": "#/definitions/foo"
@@ -2554,7 +2531,6 @@
       "data": {
         "type": "array",
         "items": true,
-        "contains": true,
         "minItems": 0,
         "uniqueItems": false,
         "definitions": {}
@@ -2568,7 +2544,6 @@
         "items": {
           "type": "boolean"
         },
-        "contains": true,
         "minItems": 0,
         "uniqueItems": false
       }
@@ -2592,7 +2567,6 @@
       "data": {
         "type": "array",
         "items": true,
-        "contains": true,
         "minItems": 0,
         "uniqueItems": false,
         "definitions": {
@@ -2608,7 +2582,6 @@
       "data": {
         "type": "array",
         "items": true,
-        "contains": true,
         "minItems": 0,
         "uniqueItems": false,
         "id": "https://example.com"
@@ -2620,7 +2593,6 @@
       "data": {
         "type": "array",
         "items": true,
-        "contains": true,
         "minItems": 0,
         "uniqueItems": false,
         "examples": []
@@ -2632,7 +2604,6 @@
       "data": {
         "type": "array",
         "items": true,
-        "contains": true,
         "minItems": 0,
         "uniqueItems": false,
         "examples": "foo"
@@ -2644,7 +2615,6 @@
       "data": {
         "type": "array",
         "items": true,
-        "contains": true,
         "minItems": -1,
         "uniqueItems": false
       }
@@ -2655,7 +2625,6 @@
       "data": {
         "type": "array",
         "items": true,
-        "contains": true,
         "minItems": 1.5,
         "uniqueItems": false
       }
@@ -2666,7 +2635,6 @@
       "data": {
         "type": "array",
         "items": true,
-        "contains": true,
         "minItems": 0,
         "maxItems": -1,
         "uniqueItems": false
@@ -2678,7 +2646,6 @@
       "data": {
         "type": "array",
         "items": true,
-        "contains": true,
         "minItems": 0,
         "uniqueItems": "true"
       }
@@ -2689,7 +2656,6 @@
       "data": {
         "type": "array",
         "items": true,
-        "contains": true,
         "minItems": 0,
         "uniqueItems": false,
         "propertyNames": true
@@ -2710,7 +2676,6 @@
           }
         ],
         "additionalItems": true,
-        "contains": true,
         "minItems": 0,
         "uniqueItems": false
       }
@@ -2750,7 +2715,6 @@
           }
         ],
         "additionalItems": true,
-        "contains": true,
         "minItems": 0,
         "uniqueItems": false,
         "title": "Pair"
@@ -2768,7 +2732,6 @@
           }
         ],
         "additionalItems": true,
-        "contains": true,
         "minItems": 0,
         "uniqueItems": false,
         "examples": [
@@ -2787,7 +2750,6 @@
           }
         ],
         "additionalItems": false,
-        "contains": true,
         "minItems": 0,
         "uniqueItems": false,
         "$schema": "http://json-schema.org/draft-06/schema#"
@@ -2804,7 +2766,6 @@
           }
         ],
         "additionalItems": true,
-        "contains": true,
         "minItems": 0,
         "uniqueItems": false,
         "$id": "https://example.com/tuple"
@@ -2821,7 +2782,6 @@
           }
         ],
         "additionalItems": true,
-        "contains": true,
         "minItems": 0,
         "uniqueItems": false,
         "definitions": {
@@ -2840,7 +2800,6 @@
           }
         ],
         "additionalItems": true,
-        "contains": true,
         "minItems": 0,
         "uniqueItems": false,
         "x-custom": "value"
@@ -2894,7 +2853,6 @@
             "minLength": 0
           }
         ],
-        "contains": true,
         "minItems": 0,
         "uniqueItems": false
       }
@@ -2906,7 +2864,6 @@
         "type": "array",
         "items": [],
         "additionalItems": true,
-        "contains": true,
         "minItems": 0,
         "uniqueItems": false
       }
@@ -2923,7 +2880,6 @@
           }
         ],
         "additionalItems": true,
-        "contains": true,
         "minItems": 0
       }
     },
@@ -2939,13 +2895,12 @@
           }
         ],
         "additionalItems": true,
-        "contains": true,
         "uniqueItems": false
       }
     },
     {
-      "description": "Array tuple without contains is rejected",
-      "valid": false,
+      "description": "Array tuple without contains is canonical",
+      "valid": true,
       "data": {
         "type": "array",
         "items": [
@@ -2971,7 +2926,6 @@
           }
         ],
         "additionalItems": true,
-        "contains": true,
         "minItems": 0,
         "uniqueItems": false,
         "minimum": 0
@@ -2989,7 +2943,6 @@
           }
         ],
         "additionalItems": true,
-        "contains": true,
         "minItems": 0,
         "uniqueItems": false,
         "minLength": 0
@@ -3007,7 +2960,6 @@
           }
         ],
         "additionalItems": true,
-        "contains": true,
         "minItems": 0,
         "uniqueItems": false,
         "properties": {}
@@ -3025,7 +2977,6 @@
           }
         ],
         "additionalItems": true,
-        "contains": true,
         "minItems": 0,
         "uniqueItems": false,
         "definitions": {}
@@ -3042,7 +2993,6 @@
           }
         ],
         "additionalItems": true,
-        "contains": true,
         "minItems": 0,
         "uniqueItems": false
       }
@@ -3061,7 +3011,6 @@
         "additionalItems": {
           "type": "boolean"
         },
-        "contains": true,
         "minItems": 0,
         "uniqueItems": false
       }
@@ -3097,7 +3046,6 @@
           }
         ],
         "additionalItems": true,
-        "contains": true,
         "minItems": 0,
         "uniqueItems": false,
         "id": "https://example.com"
@@ -3115,7 +3063,6 @@
           }
         ],
         "additionalItems": true,
-        "contains": true,
         "minItems": 0,
         "uniqueItems": false,
         "examples": []
@@ -3133,7 +3080,6 @@
           }
         ],
         "additionalItems": true,
-        "contains": true,
         "minItems": 0,
         "uniqueItems": false,
         "definitions": {
@@ -3155,7 +3101,6 @@
           }
         ],
         "additionalItems": true,
-        "contains": true,
         "minItems": 0,
         "uniqueItems": false,
         "enum": [
@@ -3175,7 +3120,6 @@
           }
         ],
         "additionalItems": true,
-        "contains": true,
         "minItems": 0,
         "uniqueItems": false,
         "anyOf": [ true ]
@@ -4509,7 +4453,6 @@
               "type": "string",
               "minLength": 0
             },
-            "contains": true,
             "minItems": 0,
             "uniqueItems": false
           }
@@ -4600,7 +4543,6 @@
                     }
                   ]
                 },
-                "contains": true,
                 "minItems": 0,
                 "uniqueItems": false
               }
@@ -4633,7 +4575,6 @@
                     }
                   ]
                 },
-                "contains": true,
                 "minItems": 0,
                 "uniqueItems": false
               }
@@ -4706,7 +4647,6 @@
           }
         ],
         "additionalItems": true,
-        "contains": true,
         "minItems": -1,
         "uniqueItems": false
       }
@@ -4794,7 +4734,6 @@
       "data": {
         "type": "array",
         "items": true,
-        "contains": true,
         "minItems": 5,
         "maxItems": 5,
         "uniqueItems": false

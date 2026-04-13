@@ -330,7 +330,7 @@
         {
           "x-lint-exclude": "simple_properties_identifiers",
           "type": "object",
-          "required": [ "type", "items", "contains", "minItems", "uniqueItems" ],
+          "required": [ "type", "items", "minItems", "uniqueItems" ],
           "properties": {
             "type": {
               "const": "array"
@@ -390,7 +390,6 @@
             "type",
             "items",
             "additionalItems",
-            "contains",
             "minItems",
             "uniqueItems"
           ],

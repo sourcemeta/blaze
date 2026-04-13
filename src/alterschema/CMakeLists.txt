@@ -22,7 +22,6 @@ sourcemeta_library(NAMESPACE sourcemeta PROJECT blaze NAME alterschema
 
     canonicalizer/next/additional_items_implicit.h
     canonicalizer/next/additional_properties_implicit.h
-    canonicalizer/next/contains_implicit.h
     canonicalizer/next/empty_dependencies_drop.h
     canonicalizer/next/enum_filter_by_type.h
     canonicalizer/next/empty_definitions_drop.h

@@ -177,7 +177,7 @@ TEST_F(CanonicalizerDraft6Test, boolean_true_1) {
         "propertyNames": true,
         "minProperties": 0
       },
-      { "type": "array", "minItems": 0, "uniqueItems": false, "items": true, "contains": true },
+      { "type": "array", "minItems": 0, "uniqueItems": false, "items": true },
       { "type": "string", "minLength": 0 },
       { "type": "number" }
     ]
@@ -585,8 +585,7 @@ TEST_F(CanonicalizerDraft6Test, array_bare) {
     "type": "array",
     "minItems": 0,
     "uniqueItems": false,
-    "items": true,
-    "contains": true
+    "items": true
   })JSON");
 
   CANONICALIZE_NEXT(document, expected, *compiled_meta_);
@@ -604,8 +603,7 @@ TEST_F(CanonicalizerDraft6Test, array_with_items_schema) {
     "type": "array",
     "minItems": 0,
     "uniqueItems": false,
-    "items": { "type": "string", "minLength": 0 },
-    "contains": true
+    "items": { "type": "string", "minLength": 0 }
   })JSON");
 
   CANONICALIZE_NEXT(document, expected, *compiled_meta_);
@@ -626,8 +624,7 @@ TEST_F(CanonicalizerDraft6Test, array_with_max_items_and_unique) {
     "items": { "type": "number" },
     "minItems": 0,
     "maxItems": 10,
-    "uniqueItems": true,
-    "contains": true
+    "uniqueItems": true
   })JSON");
 
   CANONICALIZE_NEXT(document, expected, *compiled_meta_);
@@ -646,8 +643,7 @@ TEST_F(CanonicalizerDraft6Test, array_schema_items_additional_items_stripped) {
     "type": "array",
     "items": { "type": "string", "minLength": 0 },
     "minItems": 0,
-    "uniqueItems": false,
-    "contains": true
+    "uniqueItems": false
   })JSON");
 
   CANONICALIZE_NEXT(document, expected, *compiled_meta_);
@@ -672,8 +668,7 @@ TEST_F(CanonicalizerDraft6Test, array_tuple_items) {
     ],
     "additionalItems": true,
     "minItems": 0,
-    "uniqueItems": false,
-    "contains": true
+    "uniqueItems": false
   })JSON");
 
   CANONICALIZE_NEXT(document, expected, *compiled_meta_);
@@ -697,8 +692,7 @@ TEST_F(CanonicalizerDraft6Test, array_tuple_with_additional_items) {
     ],
     "additionalItems": { "type": "number" },
     "minItems": 0,
-    "uniqueItems": false,
-    "contains": true
+    "uniqueItems": false
   })JSON");
 
   CANONICALIZE_NEXT(document, expected, *compiled_meta_);
@@ -718,8 +712,7 @@ TEST_F(CanonicalizerDraft6Test, array_tuple_additional_items_false) {
     "items": [ { "type": "number" } ],
     "additionalItems": false,
     "minItems": 0,
-    "uniqueItems": false,
-    "contains": true
+    "uniqueItems": false
   })JSON");
 
   CANONICALIZE_NEXT(document, expected, *compiled_meta_);
@@ -1019,8 +1012,7 @@ TEST_F(CanonicalizerDraft6Test, nested_object_with_array_property) {
         "type": "array",
         "items": { "type": "string", "minLength": 0 },
         "minItems": 0,
-        "uniqueItems": false,
-        "contains": true
+        "uniqueItems": false
       }
     },
     "patternProperties": {},
@@ -1066,8 +1058,7 @@ TEST_F(CanonicalizerDraft6Test, full_realistic_schema) {
         "type": "array",
         "items": { "type": "string", "minLength": 0 },
         "minItems": 0,
-        "uniqueItems": true,
-        "contains": true
+        "uniqueItems": true
       }
     },
     "required": [ "name", "email" ],
@@ -1254,7 +1245,7 @@ TEST_F(CanonicalizerDraft6Test, type_array_object_and_array) {
       { "type": "object", "properties": {}, "patternProperties": {},
         "additionalProperties": true, "propertyNames": true,
         "minProperties": 1 },
-      { "type": "array", "minItems": 1, "uniqueItems": false, "items": true, "contains": true }
+      { "type": "array", "minItems": 1, "uniqueItems": false, "items": true }
     ]
   })JSON");
 
@@ -1362,7 +1353,7 @@ TEST_F(CanonicalizerDraft6Test, dependencies_schema_single) {
                         "additionalProperties": true,
                         "propertyNames": true
                       },
-                      { "type": "array", "minItems": 0, "uniqueItems": false, "items": true, "contains": true },
+                      { "type": "array", "minItems": 0, "uniqueItems": false, "items": true },
                       { "type": "string", "minLength": 0 },
                       { "type": "number" }
                     ]
@@ -1652,8 +1643,7 @@ TEST_F(CanonicalizerDraft6Test, array_items_object_schema) {
       "minProperties": 1
     },
     "minItems": 0,
-    "uniqueItems": false,
-    "contains": true
+    "uniqueItems": false
   })JSON");
 
   CANONICALIZE_NEXT(document, expected, *compiled_meta_);
@@ -2131,7 +2121,6 @@ TEST_F(CanonicalizerDraft6Test, enum_with_allof_sibling) {
                 "type": "array",
                 "minItems": 0,
                 "uniqueItems": false,
-                "contains": true,
                 "items": true
               },
               { "type": "string", "minLength": 0 },
@@ -2219,14 +2208,12 @@ TEST_F(CanonicalizerDraft6Test, tuple_items_with_nested_objects) {
         "type": "array",
         "items": { "type": "string", "minLength": 0 },
         "minItems": 0,
-        "uniqueItems": false,
-        "contains": true
+        "uniqueItems": false
       }
     ],
     "additionalItems": false,
     "minItems": 0,
-    "uniqueItems": false,
-    "contains": true
+    "uniqueItems": false
   })JSON");
 
   CANONICALIZE_NEXT(document, expected, *compiled_meta_);
@@ -2341,8 +2328,7 @@ TEST_F(CanonicalizerDraft6Test, tuple_duplicate_schemas) {
       { "type": "string", "minLength": 0 },
       { "type": "string", "minLength": 0 }
     ],
-    "additionalItems": true,
-    "contains": true
+    "additionalItems": true
   })JSON");
 
   CANONICALIZE_NEXT(document, expected, *compiled_meta_);
@@ -2507,8 +2493,7 @@ TEST_F(CanonicalizerDraft6Test, array_items_not_null) {
     },
     "minItems": 1,
     "maxItems": 1,
-    "uniqueItems": false,
-    "contains": true
+    "uniqueItems": false
   })JSON");
 
   CANONICALIZE_NEXT(document, expected, *compiled_meta_);
@@ -2692,7 +2677,6 @@ TEST_F(CanonicalizerDraft6Test, recursive_ref_in_array_items) {
     "minItems": 0,
     "uniqueItems": false,
     "items": { "$ref": "#/definitions/item" },
-    "contains": true,
     "definitions": {
       "item": {
         "type": "object",
@@ -2706,8 +2690,7 @@ TEST_F(CanonicalizerDraft6Test, recursive_ref_in_array_items) {
             "type": "array",
             "minItems": 0,
             "uniqueItems": false,
-            "items": { "$ref": "#/definitions/item" },
-            "contains": true
+            "items": { "$ref": "#/definitions/item" }
           }
         },
         "patternProperties": {},
@@ -2751,8 +2734,7 @@ TEST_F(CanonicalizerDraft6Test, property_named_ref_not_a_reference) {
               "type": "array",
               "minItems": 0,
               "uniqueItems": false,
-              "items": true,
-              "contains": true
+              "items": true
             },
             { "type": "string", "minLength": 0 },
             { "type": "number" }
@@ -2978,7 +2960,7 @@ TEST_F(CanonicalizerDraft6Test, dependencies_with_existing_anyof) {
                 "additionalProperties": true,
                 "propertyNames": true
               },
-              { "type": "array", "minItems": 0, "uniqueItems": false, "items": true, "contains": true },
+              { "type": "array", "minItems": 0, "uniqueItems": false, "items": true },
               { "type": "string", "minLength": 0 },
               { "type": "number" }
             ]
@@ -2996,7 +2978,7 @@ TEST_F(CanonicalizerDraft6Test, dependencies_with_existing_anyof) {
                 "additionalProperties": true,
                 "propertyNames": true
               },
-              { "type": "array", "minItems": 0, "uniqueItems": false, "items": true, "contains": true },
+              { "type": "array", "minItems": 0, "uniqueItems": false, "items": true },
               { "type": "string", "minLength": 0 },
               { "type": "number" }
             ]
@@ -3079,7 +3061,7 @@ TEST_F(CanonicalizerDraft6Test, full_restructure_ref_in_typed_keyword) {
               "additionalProperties": true,
               "propertyNames": true
             },
-            { "type": "array", "minItems": 0, "uniqueItems": false, "items": true, "contains": true },
+            { "type": "array", "minItems": 0, "uniqueItems": false, "items": true },
             { "type": "string", "minLength": 0 },
             { "type": "number" }
           ]
@@ -3100,7 +3082,7 @@ TEST_F(CanonicalizerDraft6Test, full_restructure_ref_in_typed_keyword) {
                 "additionalProperties": true,
                 "propertyNames": true
               },
-              { "type": "array", "minItems": 0, "uniqueItems": false, "items": true, "contains": true },
+              { "type": "array", "minItems": 0, "uniqueItems": false, "items": true },
               { "type": "string", "minLength": 0 },
               { "type": "number" }
             ]
@@ -3118,7 +3100,7 @@ TEST_F(CanonicalizerDraft6Test, full_restructure_ref_in_typed_keyword) {
                 "additionalProperties": true,
                 "propertyNames": true
               },
-              { "type": "array", "minItems": 0, "uniqueItems": false, "items": true, "contains": true },
+              { "type": "array", "minItems": 0, "uniqueItems": false, "items": true },
               { "type": "string", "minLength": 0 },
               { "type": "number" }
             ]
@@ -3464,7 +3446,7 @@ TEST_F(CanonicalizerDraft6Test, exclusive_maximum_without_type) {
         "propertyNames": true,
         "minProperties": 0
       },
-      { "type": "array", "minItems": 0, "uniqueItems": false, "items": true, "contains": true },
+      { "type": "array", "minItems": 0, "uniqueItems": false, "items": true },
       { "type": "string", "minLength": 0 },
       { "type": "number", "exclusiveMaximum": 1 }
     ]
@@ -3492,7 +3474,7 @@ TEST_F(CanonicalizerDraft6Test, exclusive_minimum_without_type) {
         "propertyNames": true,
         "minProperties": 0
       },
-      { "type": "array", "minItems": 0, "uniqueItems": false, "items": true, "contains": true },
+      { "type": "array", "minItems": 0, "uniqueItems": false, "items": true },
       { "type": "string", "minLength": 0 },
       { "type": "number", "exclusiveMinimum": 1 }
     ]
@@ -3585,26 +3567,6 @@ TEST_F(CanonicalizerDraft6Test, const_to_enum_array) {
   CANONICALIZE_NEXT(document, expected, *compiled_meta_);
 }
 
-TEST_F(CanonicalizerDraft6Test, contains_implicit_on_array) {
-  auto document = sourcemeta::core::parse_json(R"JSON({
-    "$schema": "http://json-schema.org/draft-06/schema#",
-    "type": "array",
-    "items": { "type": "integer" },
-    "minItems": 1
-  })JSON");
-
-  const auto expected = sourcemeta::core::parse_json(R"JSON({
-    "$schema": "http://json-schema.org/draft-06/schema#",
-    "type": "array",
-    "items": { "type": "integer", "multipleOf": 1 },
-    "minItems": 1,
-    "uniqueItems": false,
-    "contains": true
-  })JSON");
-
-  CANONICALIZE_NEXT(document, expected, *compiled_meta_);
-}
-
 TEST_F(CanonicalizerDraft6Test, property_names_implicit_on_object) {
   auto document = sourcemeta::core::parse_json(R"JSON({
     "$schema": "http://json-schema.org/draft-06/schema#",
@@ -3692,8 +3654,7 @@ TEST_F(CanonicalizerDraft6Test, property_names_with_schema) {
           "type": "array",
           "uniqueItems": false,
           "items": true,
-          "minItems": 0,
-          "contains": true
+          "minItems": 0
         },
         {
           "type": "string",
@@ -3926,7 +3887,6 @@ TEST_F(CanonicalizerDraft6Test, enum_constraining_items_schema_kept) {
             "type": "array",
             "minItems": 0,
             "uniqueItems": false,
-            "contains": true,
             "items": {
               "type": "integer",
               "multipleOf": 1
@@ -3984,7 +3944,6 @@ TEST_F(CanonicalizerDraft6Test,
             "type": "array",
             "minItems": 0,
             "uniqueItems": false,
-            "contains": true,
             "items": true
           },
           {
@@ -4067,7 +4026,6 @@ TEST_F(CanonicalizerDraft6Test, enum_constraining_not_kept) {
               "type": "array",
               "minItems": 0,
               "uniqueItems": false,
-              "contains": true,
               "items": true
             },
             {
@@ -4122,7 +4080,6 @@ TEST_F(CanonicalizerDraft6Test, enum_constraining_oneof_kept) {
                 "type": "array",
                 "minItems": 0,
                 "uniqueItems": false,
-                "contains": true,
                 "items": true
               },
               {
@@ -4179,7 +4136,6 @@ TEST_F(CanonicalizerDraft6Test, enum_mixed_assertion_and_applicator) {
                 "type": "array",
                 "minItems": 0,
                 "uniqueItems": false,
-                "contains": true,
                 "items": true
               },
               {

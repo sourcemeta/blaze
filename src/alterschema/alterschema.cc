@@ -121,7 +121,6 @@ auto WALK_UP_IN_PLACE_APPLICATORS(const JSON &root, const SchemaFrame &frame,
 #include "canonicalizer/multiple_of_implicit.h"
 #include "canonicalizer/next/additional_items_implicit.h"
 #include "canonicalizer/next/additional_properties_implicit.h"
-#include "canonicalizer/next/contains_implicit.h"
 #include "canonicalizer/next/dependencies_to_any_of.h"
 #include "canonicalizer/next/empty_definitions_drop.h"
 #include "canonicalizer/next/empty_dependencies_drop.h"
@@ -248,7 +247,6 @@ auto add(SchemaTransformer &bundle, const AlterSchemaMode mode) -> void {
     bundle.add<ImplicitObjectKeywords>();
     bundle.add<PropertyNamesImplicit>();
     bundle.add<ImplicitArrayKeywords>();
-    bundle.add<ContainsImplicit>();
   }
 
   if (mode == AlterSchemaMode::Canonicalizer ||
