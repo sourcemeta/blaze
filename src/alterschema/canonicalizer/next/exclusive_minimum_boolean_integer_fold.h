@@ -35,6 +35,22 @@ public:
       auto new_minimum = minimum;
       new_minimum += sourcemeta::core::JSON{1};
       schema.assign("minimum", std::move(new_minimum));
+    } else if (minimum.is_decimal()) {
+      auto current{minimum.to_decimal()};
+      auto ceiled{current.to_integral()};
+      if (ceiled < current) {
+        ceiled += sourcemeta::core::Decimal{1};
+      }
+
+      if (current.is_integer()) {
+        ceiled += sourcemeta::core::Decimal{1};
+      }
+
+      if (ceiled.is_int64()) {
+        schema.assign("minimum", sourcemeta::core::JSON{ceiled.to_int64()});
+      } else {
+        schema.assign("minimum", sourcemeta::core::JSON{std::move(ceiled)});
+      }
     } else {
       const auto ceiled{
           static_cast<std::int64_t>(std::ceil(minimum.to_real()))};

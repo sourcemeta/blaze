@@ -35,6 +35,22 @@ public:
       auto new_maximum = maximum;
       new_maximum += sourcemeta::core::JSON{-1};
       schema.assign("maximum", std::move(new_maximum));
+    } else if (maximum.is_decimal()) {
+      auto current{maximum.to_decimal()};
+      auto floored{current.to_integral()};
+      if (floored > current) {
+        floored -= sourcemeta::core::Decimal{1};
+      }
+
+      if (current.is_integer()) {
+        floored -= sourcemeta::core::Decimal{1};
+      }
+
+      if (floored.is_int64()) {
+        schema.assign("maximum", sourcemeta::core::JSON{floored.to_int64()});
+      } else {
+        schema.assign("maximum", sourcemeta::core::JSON{std::move(floored)});
+      }
     } else {
       const auto floored{
           static_cast<std::int64_t>(std::floor(maximum.to_real()))};
