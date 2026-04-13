@@ -15,7 +15,7 @@ auto main(int argc, char *argv[]) -> int {
 
   sourcemeta::blaze::SchemaTransformer bundle;
   sourcemeta::blaze::add(bundle,
-                         sourcemeta::blaze::AlterSchemaMode::Canonicalizer);
+                         sourcemeta::blaze::AlterSchemaMode::CanonicalizerNext);
   const auto result{
       bundle.apply(document, sourcemeta::core::schema_walker,
                    sourcemeta::core::schema_resolver,

@@ -32,3 +32,9 @@ target_link_libraries(sourcemeta_blaze_alterschema_unit
   PRIVATE sourcemeta::core::jsonschema)
 target_link_libraries(sourcemeta_blaze_alterschema_unit
   PRIVATE sourcemeta::blaze::alterschema)
+target_link_libraries(sourcemeta_blaze_alterschema_unit
+  PRIVATE sourcemeta::blaze::compiler)
+target_link_libraries(sourcemeta_blaze_alterschema_unit
+  PRIVATE sourcemeta::blaze::evaluator)
+target_compile_definitions(sourcemeta_blaze_alterschema_unit
+  PRIVATE SCHEMAS_PATH="${PROJECT_SOURCE_DIR}/schemas")

@@ -1,0 +1,31 @@
+class EmptyDependenciesDrop final : public SchemaTransformRule {
+public:
+  using mutates = std::true_type;
+  using reframe_after_transform = std::true_type;
+  EmptyDependenciesDrop()
+      : SchemaTransformRule{
+            "empty_dependencies_drop",
+            "An empty `dependencies` object adds no value and can be "
+            "removed"} {};
+
+  [[nodiscard]] auto
+  condition(const sourcemeta::core::JSON &schema,
+            const sourcemeta::core::JSON &,
+            const sourcemeta::core::Vocabularies &vocabularies,
+            const sourcemeta::core::SchemaFrame &,
+            const sourcemeta::core::SchemaFrame::Location &,
+            const sourcemeta::core::SchemaWalker &,
+            const sourcemeta::core::SchemaResolver &) const
+      -> SchemaTransformRule::Result override {
+    ONLY_CONTINUE_IF(
+        vocabularies.contains(Vocabularies::Known::JSON_Schema_Draft_4) &&
+        schema.is_object() && schema.defines("dependencies") &&
+        schema.at("dependencies").is_object() &&
+        schema.at("dependencies").empty());
+    return true;
+  }
+
+  auto transform(JSON &schema, const Result &) const -> void override {
+    schema.erase("dependencies");
+  }
+};

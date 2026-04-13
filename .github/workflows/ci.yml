@@ -10,6 +10,13 @@ on:
   pull_request:
 
 jobs:
+  schemas:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: sourcemeta/jsonschema@main
+      - run: make -C schemas ci
+
   test:
     strategy:
       fail-fast: false

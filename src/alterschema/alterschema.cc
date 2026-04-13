@@ -5,7 +5,8 @@
 #include <sourcemeta/core/regex.h>
 
 // For built-in rules
-#include <algorithm>     // std::sort, std::unique
+#include <algorithm>     // std::sort, std::unique, std::ranges::none_of
+#include <array>         // std::array
 #include <cassert>       // assert
 #include <cmath>         // std::floor
 #include <cstddef>       // std::size_t
@@ -116,6 +117,21 @@ auto WALK_UP_IN_PLACE_APPLICATORS(const JSON &root, const SchemaFrame &frame,
 #include "canonicalizer/min_properties_covered_by_required.h"
 #include "canonicalizer/min_properties_implicit.h"
 #include "canonicalizer/multiple_of_implicit.h"
+#include "canonicalizer/next/additional_items_implicit.h"
+#include "canonicalizer/next/additional_properties_implicit.h"
+#include "canonicalizer/next/dependencies_to_any_of.h"
+#include "canonicalizer/next/empty_definitions_drop.h"
+#include "canonicalizer/next/empty_dependencies_drop.h"
+#include "canonicalizer/next/empty_object_as_true_draft4.h"
+#include "canonicalizer/next/enum_drop_redundant_validation.h"
+#include "canonicalizer/next/enum_filter_by_type.h"
+#include "canonicalizer/next/exclusive_bounds_false_drop.h"
+#include "canonicalizer/next/exclusive_maximum_boolean_integer_fold.h"
+#include "canonicalizer/next/exclusive_minimum_boolean_integer_fold.h"
+#include "canonicalizer/next/implicit_array_keywords.h"
+#include "canonicalizer/next/implicit_object_keywords.h"
+#include "canonicalizer/next/type_with_applicator_to_allof.h"
+#include "canonicalizer/next/unsatisfiable_type_and_enum.h"
 #include "canonicalizer/properties_implicit.h"
 #include "canonicalizer/type_array_to_any_of.h"
 #include "canonicalizer/type_boolean_as_enum.h"
@@ -218,7 +234,17 @@ auto WALK_UP_IN_PLACE_APPLICATORS(const JSON &root, const SchemaFrame &frame,
 namespace sourcemeta::blaze {
 
 auto add(SchemaTransformer &bundle, const AlterSchemaMode mode) -> void {
-  if (mode == AlterSchemaMode::Canonicalizer) {
+  if (mode == AlterSchemaMode::CanonicalizerNext) {
+    bundle.add<EmptyObjectAsTrueDraft4>();
+    bundle.add<ExclusiveMinimumBooleanIntegerFold>();
+    bundle.add<ExclusiveMaximumBooleanIntegerFold>();
+    bundle.add<ExclusiveBoundsFalseDrop>();
+    bundle.add<ImplicitObjectKeywords>();
+    bundle.add<ImplicitArrayKeywords>();
+  }
+
+  if (mode == AlterSchemaMode::Canonicalizer ||
+      mode == AlterSchemaMode::CanonicalizerNext) {
     bundle.add<TypeInheritInPlace>();
     bundle.add<TypeUnionImplicit>();
     bundle.add<TypeArrayToAnyOf>();
@@ -275,7 +301,8 @@ auto add(SchemaTransformer &bundle, const AlterSchemaMode mode) -> void {
   bundle.add<RequiredPropertiesInProperties>();
   bundle.add<OrphanDefinitions>();
 
-  if (mode == AlterSchemaMode::Canonicalizer) {
+  if (mode == AlterSchemaMode::Canonicalizer ||
+      mode == AlterSchemaMode::CanonicalizerNext) {
     bundle.add<ConstAsEnum>();
     bundle.add<EqualNumericBoundsToConst>();
     bundle.add<ExclusiveMaximumIntegerToMaximum>();
@@ -331,9 +358,25 @@ auto add(SchemaTransformer &bundle, const AlterSchemaMode mode) -> void {
 
   bundle.add<UnnecessaryAllOfRefWrapperModern>();
   bundle.add<UnnecessaryAllOfRefWrapperDraft>();
-  bundle.add<UnnecessaryAllOfWrapper>();
+
+  if (mode != AlterSchemaMode::CanonicalizerNext) {
+    bundle.add<UnnecessaryAllOfWrapper>();
+  }
+
   bundle.add<DropAllOfEmptySchemas>();
   bundle.add<EmptyObjectAsTrue>();
+
+  if (mode == AlterSchemaMode::CanonicalizerNext) {
+    bundle.add<UnsatisfiableTypeAndEnum>();
+    bundle.add<EnumFilterByType>();
+    bundle.add<DependenciesToAnyOf>();
+    bundle.add<EnumDropRedundantValidation>();
+    bundle.add<TypeWithApplicatorToAllOf>();
+    bundle.add<EmptyDefinitionsDrop>();
+    bundle.add<EmptyDependenciesDrop>();
+    bundle.add<AdditionalPropertiesImplicit>();
+    bundle.add<AdditionalItemsImplicit>();
+  }
 }
 
 } // namespace sourcemeta::blaze

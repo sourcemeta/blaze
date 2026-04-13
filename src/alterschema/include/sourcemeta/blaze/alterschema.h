@@ -45,6 +45,11 @@ enum class AlterSchemaMode : std::uint8_t {
   /// are syntax sugar to other keywords, potentially decreasing human
   /// readability in favor of explicitness
   Canonicalizer,
+
+  /// Rules that surface implicit constraints and simplifies keywords that
+  /// are syntax sugar to other keywords, potentially decreasing human
+  /// readability in favor of explicitness
+  CanonicalizerNext,
 };
 
 /// @ingroup alterschema
