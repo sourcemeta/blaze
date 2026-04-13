@@ -124,7 +124,8 @@ public:
     for (const auto &entry : schema.as_object()) {
       if (entry.first == "not" || entry.first == "anyOf" ||
           entry.first == "allOf" || entry.first == "oneOf" ||
-          entry.first == "$schema" || entry.first == "id") {
+          entry.first == "$schema" || entry.first == "id" ||
+          entry.first == "$id") {
         continue;
       }
       typed_branch.assign(entry.first, entry.second);
@@ -185,6 +186,9 @@ public:
     }
     if (schema.defines("id")) {
       new_schema.assign("id", schema.at("id"));
+    }
+    if (schema.defines("$id")) {
+      new_schema.assign("$id", schema.at("$id"));
     }
     new_schema.assign("allOf", std::move(new_allof));
     schema.into(std::move(new_schema));
