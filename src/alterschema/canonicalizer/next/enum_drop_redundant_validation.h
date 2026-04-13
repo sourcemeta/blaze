@@ -24,6 +24,7 @@ public:
         schema.at("enum").is_array() && !schema.defines("type"));
 
     this->keywords_.clear();
+    this->wrap_keywords_.clear();
     for (const auto &entry : schema.as_object()) {
       if (entry.first == "enum") {
         continue;
@@ -44,19 +45,23 @@ public:
         continue;
       }
 
-      if (!(entry.second.is_boolean() && entry.second.to_boolean())) {
+      if (entry.second.is_boolean() && entry.second.to_boolean()) {
+        if (!frame.has_references_through(
+                location.pointer, WeakPointer::Token{std::cref(entry.first)})) {
+          this->keywords_.emplace_back(entry.first);
+        }
         continue;
       }
 
-      if (frame.has_references_through(
-              location.pointer, WeakPointer::Token{std::cref(entry.first)})) {
+      if (entry.second.is_object() && entry.second.empty()) {
+        this->keywords_.emplace_back(entry.first);
         continue;
       }
 
-      this->keywords_.emplace_back(entry.first);
+      this->wrap_keywords_.emplace_back(entry.first);
     }
 
-    ONLY_CONTINUE_IF(!this->keywords_.empty());
+    ONLY_CONTINUE_IF(!this->keywords_.empty() || !this->wrap_keywords_.empty());
     return true;
   }
 
@@ -64,8 +69,29 @@ public:
     for (const auto &keyword : this->keywords_) {
       schema.erase(keyword);
     }
+
+    if (this->wrap_keywords_.empty()) {
+      return;
+    }
+
+    auto applicator_branch{JSON::make_object()};
+    for (const auto &keyword : this->wrap_keywords_) {
+      applicator_branch.assign(keyword, schema.at(keyword));
+      schema.erase(keyword);
+    }
+
+    auto enum_branch{JSON::make_object()};
+    enum_branch.assign("enum", schema.at("enum"));
+    schema.erase("enum");
+
+    auto new_allof{JSON::make_array()};
+    new_allof.push_back(std::move(applicator_branch));
+    new_allof.push_back(std::move(enum_branch));
+
+    schema.assign("allOf", std::move(new_allof));
   }
 
 private:
   mutable std::vector<JSON::String> keywords_;
+  mutable std::vector<JSON::String> wrap_keywords_;
 };
