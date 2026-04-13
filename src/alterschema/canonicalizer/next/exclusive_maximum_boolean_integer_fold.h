@@ -52,8 +52,12 @@ public:
         schema.assign("maximum", sourcemeta::core::JSON{std::move(floored)});
       }
     } else {
-      const auto floored{
-          static_cast<std::int64_t>(std::floor(maximum.to_real()))};
+      const auto value{maximum.to_real()};
+      auto floored{static_cast<std::int64_t>(std::floor(value))};
+      if (std::floor(value) == value) {
+        floored -= 1;
+      }
+
       schema.assign("maximum", sourcemeta::core::JSON{floored});
     }
 

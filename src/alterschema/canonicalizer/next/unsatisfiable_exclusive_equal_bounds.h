@@ -20,9 +20,12 @@ public:
       -> SchemaTransformRule::Result override {
     ONLY_CONTINUE_IF(
         vocabularies.contains(Vocabularies::Known::JSON_Schema_Draft_4) &&
-        schema.is_object() && schema.defines("minimum") &&
-        schema.at("minimum").is_number() && schema.defines("maximum") &&
-        schema.at("maximum").is_number() &&
+        schema.is_object() && schema.defines("type") &&
+        schema.at("type").is_string() &&
+        (schema.at("type").to_string() == "number" ||
+         schema.at("type").to_string() == "integer") &&
+        schema.defines("minimum") && schema.at("minimum").is_number() &&
+        schema.defines("maximum") && schema.at("maximum").is_number() &&
         schema.at("minimum") == schema.at("maximum"));
 
     const bool exclusive_min{schema.defines("exclusiveMinimum") &&

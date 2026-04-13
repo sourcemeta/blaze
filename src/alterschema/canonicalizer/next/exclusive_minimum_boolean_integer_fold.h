@@ -52,8 +52,12 @@ public:
         schema.assign("minimum", sourcemeta::core::JSON{std::move(ceiled)});
       }
     } else {
-      const auto ceiled{
-          static_cast<std::int64_t>(std::ceil(minimum.to_real()))};
+      const auto value{minimum.to_real()};
+      auto ceiled{static_cast<std::int64_t>(std::ceil(value))};
+      if (std::ceil(value) == value) {
+        ceiled += 1;
+      }
+
       schema.assign("minimum", sourcemeta::core::JSON{ceiled});
     }
 
