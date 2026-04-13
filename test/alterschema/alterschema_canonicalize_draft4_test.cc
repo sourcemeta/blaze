@@ -2030,7 +2030,7 @@ TEST_F(CanonicalizerDraft4Test,
   CANONICALIZE_NEXT(document, expected, *compiled_meta_);
 }
 
-TEST_F(CanonicalizerDraft4Test, number_exclusive_minimum_false_kept) {
+TEST_F(CanonicalizerDraft4Test, number_exclusive_minimum_false_dropped) {
   auto document = sourcemeta::core::parse_json(R"JSON({
     "$schema": "http://json-schema.org/draft-04/schema#",
     "type": "number",
@@ -2041,7 +2041,6 @@ TEST_F(CanonicalizerDraft4Test, number_exclusive_minimum_false_kept) {
   const auto expected = sourcemeta::core::parse_json(R"JSON({
     "$schema": "http://json-schema.org/draft-04/schema#",
     "type": "number",
-    "exclusiveMinimum": false,
     "minimum": 0
   })JSON");
 
@@ -3427,6 +3426,40 @@ TEST_F(CanonicalizerDraft4Test,
       { "type": "string", "minLength": 0 },
       false
     ]
+  })JSON");
+
+  CANONICALIZE_NEXT(document, expected, *compiled_meta_);
+}
+
+TEST_F(CanonicalizerDraft4Test, exclusive_minimum_false_dropped_on_number) {
+  auto document = sourcemeta::core::parse_json(R"JSON({
+    "$schema": "http://json-schema.org/draft-04/schema#",
+    "type": "number",
+    "minimum": 5,
+    "exclusiveMinimum": false
+  })JSON");
+
+  const auto expected = sourcemeta::core::parse_json(R"JSON({
+    "$schema": "http://json-schema.org/draft-04/schema#",
+    "type": "number",
+    "minimum": 5
+  })JSON");
+
+  CANONICALIZE_NEXT(document, expected, *compiled_meta_);
+}
+
+TEST_F(CanonicalizerDraft4Test, exclusive_maximum_false_dropped_on_number) {
+  auto document = sourcemeta::core::parse_json(R"JSON({
+    "$schema": "http://json-schema.org/draft-04/schema#",
+    "type": "number",
+    "maximum": 10,
+    "exclusiveMaximum": false
+  })JSON");
+
+  const auto expected = sourcemeta::core::parse_json(R"JSON({
+    "$schema": "http://json-schema.org/draft-04/schema#",
+    "type": "number",
+    "maximum": 10
   })JSON");
 
   CANONICALIZE_NEXT(document, expected, *compiled_meta_);

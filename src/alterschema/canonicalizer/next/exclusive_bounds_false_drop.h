@@ -21,7 +21,8 @@ public:
         vocabularies.contains(Vocabularies::Known::JSON_Schema_Draft_4) &&
         schema.is_object() && schema.defines("type") &&
         schema.at("type").is_string() &&
-        schema.at("type").to_string() == "integer");
+        (schema.at("type").to_string() == "integer" ||
+         schema.at("type").to_string() == "number"));
 
     this->has_exclusive_min_ = schema.defines("exclusiveMinimum") &&
                                schema.at("exclusiveMinimum").is_boolean() &&
