@@ -22,13 +22,10 @@ public:
         schema.is_object() && schema.defines("dependencies") &&
         schema.at("dependencies").is_object());
 
-    for (const auto &entry : schema.at("dependencies").as_object()) {
-      if (entry.second.is_array()) {
-        return true;
-      }
-    }
-
-    return false;
+    ONLY_CONTINUE_IF(std::ranges::any_of(
+        schema.at("dependencies").as_object(),
+        [](const auto &entry) { return entry.second.is_array(); }));
+    return true;
   }
 
   auto transform(JSON &schema, const Result &) const -> void override {

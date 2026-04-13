@@ -37,9 +37,6 @@ public:
       index++;
     }
 
-    // Only fire when there is a MIX: some match, some don't.
-    // If all match, EnumWithType handles it.
-    // If none match, UnsatisfiableTypeAndEnum handles it.
     ONLY_CONTINUE_IF(!this->matching_indices_.empty() && has_mismatch);
     return true;
   }

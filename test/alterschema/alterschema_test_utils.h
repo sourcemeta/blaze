@@ -105,7 +105,7 @@ static auto alterschema_test_resolver(std::string_view identifier)
         traces.emplace_back(pointer, name, message, outcome, fixable);         \
       });
 
-#define CANONICALIZE_NEXT(document, expected)                                  \
+#define CANONICALIZE_NEXT(document, expected, compiled_template)               \
   {                                                                            \
     sourcemeta::blaze::SchemaTransformer _bundle;                              \
     sourcemeta::blaze::add(                                                    \
@@ -116,6 +116,8 @@ static auto alterschema_test_resolver(std::string_view identifier)
            const auto &) {});                                                  \
     EXPECT_TRUE(_result.first);                                                \
     EXPECT_EQ(document, expected);                                             \
+    sourcemeta::blaze::Evaluator _evaluator;                                   \
+    EXPECT_TRUE(_evaluator.validate(compiled_template, document));             \
   }
 
 #endif

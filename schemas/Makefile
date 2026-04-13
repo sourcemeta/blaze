@@ -1,9 +1,17 @@
 SCHEMAS = canonical-draft4.json
 TESTS = canonical-draft4.test.json
+JSONSCHEMA ?= jsonschema
 
 .PHONY: all
 all:
-	jsonschema fmt $(SCHEMAS) $(TESTS) --default-dialect "https://json-schema.org/draft/2020-12/schema"
-	jsonschema metaschema $(SCHEMAS)
-	jsonschema lint $(SCHEMAS)
-	jsonschema test $(TESTS)
+	$(JSONSCHEMA) fmt $(SCHEMAS) $(TESTS)
+	$(JSONSCHEMA) metaschema $(SCHEMAS)
+	$(JSONSCHEMA) lint $(SCHEMAS)
+	$(JSONSCHEMA) test $(TESTS)
+
+.PHONY: ci
+ci:
+	$(JSONSCHEMA) fmt $(SCHEMAS) $(TESTS) --check
+	$(JSONSCHEMA) metaschema $(SCHEMAS)
+	$(JSONSCHEMA) lint $(SCHEMAS)
+	$(JSONSCHEMA) test $(TESTS)

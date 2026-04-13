@@ -1,5 +1,5 @@
 {
-  "target": "canonical-draft4.json",
+  "target": "./canonical-draft4.json",
   "tests": [
     {
       "description": "Boolean true is canonical",

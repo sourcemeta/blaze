@@ -37,4 +37,4 @@ target_link_libraries(sourcemeta_blaze_alterschema_unit
 target_link_libraries(sourcemeta_blaze_alterschema_unit
   PRIVATE sourcemeta::blaze::evaluator)
 target_compile_definitions(sourcemeta_blaze_alterschema_unit
-  PRIVATE CANONICAL_SCHEMAS_PATH="${PROJECT_SOURCE_DIR}/schemas")
+  PRIVATE SCHEMAS_PATH="${PROJECT_SOURCE_DIR}/schemas")

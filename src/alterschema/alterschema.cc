@@ -236,7 +236,6 @@ namespace sourcemeta::blaze {
 auto add(SchemaTransformer &bundle, const AlterSchemaMode mode) -> void {
   if (mode == AlterSchemaMode::CanonicalizerNext) {
     bundle.add<EmptyObjectAsTrueDraft4>();
-    // Exclusive bounds fold must run before EqualNumericBoundsToEnum
     bundle.add<ExclusiveMinimumBooleanIntegerFold>();
     bundle.add<ExclusiveMaximumBooleanIntegerFold>();
     bundle.add<ExclusiveBoundsFalseDrop>();

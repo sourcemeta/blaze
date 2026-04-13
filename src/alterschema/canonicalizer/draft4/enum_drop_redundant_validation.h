@@ -22,7 +22,7 @@ public:
         schema.is_object() && schema.defines("enum") &&
         schema.at("enum").is_array() && !schema.defines("type"));
 
-    this->locations_.clear();
+    this->keywords_.clear();
     for (const auto &entry : schema.as_object()) {
       if (entry.first == "enum") {
         continue;
@@ -38,20 +38,19 @@ public:
         continue;
       }
 
-      this->locations_.push_back(Pointer{entry.first});
+      this->keywords_.emplace_back(entry.first);
     }
 
-    ONLY_CONTINUE_IF(!this->locations_.empty());
+    ONLY_CONTINUE_IF(!this->keywords_.empty());
     return true;
   }
 
   auto transform(JSON &schema, const Result &) const -> void override {
-    for (const auto &location : this->locations_) {
-      schema.erase(location.at(0).to_property());
+    for (const auto &keyword : this->keywords_) {
+      schema.erase(keyword);
     }
   }
 
 private:
-  // TODO: Use WeakPointer to avoid copies
-  mutable std::vector<Pointer> locations_;
+  mutable std::vector<JSON::String> keywords_;
 };
