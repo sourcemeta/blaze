@@ -7,6 +7,7 @@
 // For built-in rules
 #include <algorithm>     // std::sort, std::unique, std::ranges::none_of
 #include <array>         // std::array
+#include <bit>           // std::popcount
 #include <cassert>       // assert
 #include <cmath>         // std::floor
 #include <cstddef>       // std::size_t

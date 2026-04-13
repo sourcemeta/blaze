@@ -30,9 +30,17 @@ public:
   }
 
   auto transform(JSON &schema, const Result &) const -> void override {
-    auto new_maximum = schema.at("maximum");
-    new_maximum += sourcemeta::core::JSON{-1};
-    schema.assign("maximum", std::move(new_maximum));
+    const auto &maximum{schema.at("maximum")};
+    if (maximum.is_integer()) {
+      auto new_maximum = maximum;
+      new_maximum += sourcemeta::core::JSON{-1};
+      schema.assign("maximum", std::move(new_maximum));
+    } else {
+      const auto floored{
+          static_cast<std::int64_t>(std::floor(maximum.to_real()))};
+      schema.assign("maximum", sourcemeta::core::JSON{floored});
+    }
+
     schema.erase("exclusiveMaximum");
   }
 };

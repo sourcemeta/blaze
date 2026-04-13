@@ -30,8 +30,7 @@ public:
   }
 
   auto transform(JSON &schema, const Result &) const -> void override {
-    auto result_branches{schema.defines("anyOf") ? schema.at("anyOf")
-                                                 : JSON::make_array()};
+    auto result_branches{JSON::make_array()};
 
     std::vector<JSON::String> processed;
     for (const auto &entry : schema.at("dependencies").as_object()) {

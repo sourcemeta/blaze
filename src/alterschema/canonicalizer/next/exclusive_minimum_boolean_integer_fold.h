@@ -30,9 +30,17 @@ public:
   }
 
   auto transform(JSON &schema, const Result &) const -> void override {
-    auto new_minimum = schema.at("minimum");
-    new_minimum += sourcemeta::core::JSON{1};
-    schema.assign("minimum", std::move(new_minimum));
+    const auto &minimum{schema.at("minimum")};
+    if (minimum.is_integer()) {
+      auto new_minimum = minimum;
+      new_minimum += sourcemeta::core::JSON{1};
+      schema.assign("minimum", std::move(new_minimum));
+    } else {
+      const auto ceiled{
+          static_cast<std::int64_t>(std::ceil(minimum.to_real()))};
+      schema.assign("minimum", sourcemeta::core::JSON{ceiled});
+    }
+
     schema.erase("exclusiveMinimum");
   }
 };
