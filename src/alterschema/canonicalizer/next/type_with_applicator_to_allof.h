@@ -19,7 +19,8 @@ public:
             const sourcemeta::core::SchemaResolver &) const
       -> SchemaTransformRule::Result override {
     ONLY_CONTINUE_IF(
-        vocabularies.contains(Vocabularies::Known::JSON_Schema_Draft_4) &&
+        vocabularies.contains_any({Vocabularies::Known::JSON_Schema_Draft_4,
+                                   Vocabularies::Known::JSON_Schema_Draft_6}) &&
         schema.is_object());
 
     const bool has_not{schema.defines("not")};

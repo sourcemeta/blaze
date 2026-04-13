@@ -18,7 +18,8 @@ public:
             const sourcemeta::core::SchemaResolver &) const
       -> SchemaTransformRule::Result override {
     ONLY_CONTINUE_IF(
-        vocabularies.contains(Vocabularies::Known::JSON_Schema_Draft_4) &&
+        vocabularies.contains_any({Vocabularies::Known::JSON_Schema_Draft_4,
+                                   Vocabularies::Known::JSON_Schema_Draft_6}) &&
         schema.is_object() && schema.defines("enum") &&
         schema.at("enum").is_array() && !schema.defines("type"));
 
@@ -29,7 +30,12 @@ public:
       }
 
       const auto &metadata{walker(entry.first, vocabularies)};
-      if (metadata.type != sourcemeta::core::SchemaKeywordType::Assertion) {
+      if (metadata.type == sourcemeta::core::SchemaKeywordType::Unknown ||
+          metadata.type == sourcemeta::core::SchemaKeywordType::Annotation ||
+          metadata.type == sourcemeta::core::SchemaKeywordType::Other ||
+          metadata.type == sourcemeta::core::SchemaKeywordType::Comment ||
+          metadata.type ==
+              sourcemeta::core::SchemaKeywordType::LocationMembers) {
         continue;
       }
 
