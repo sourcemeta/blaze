@@ -30,12 +30,21 @@ public:
       }
 
       const auto &metadata{walker(entry.first, vocabularies)};
+      if (metadata.type == sourcemeta::core::SchemaKeywordType::Assertion) {
+        this->keywords_.emplace_back(entry.first);
+        continue;
+      }
+
       if (metadata.type == sourcemeta::core::SchemaKeywordType::Unknown ||
           metadata.type == sourcemeta::core::SchemaKeywordType::Annotation ||
           metadata.type == sourcemeta::core::SchemaKeywordType::Other ||
           metadata.type == sourcemeta::core::SchemaKeywordType::Comment ||
           metadata.type ==
               sourcemeta::core::SchemaKeywordType::LocationMembers) {
+        continue;
+      }
+
+      if (!(entry.second.is_boolean() && entry.second.to_boolean())) {
         continue;
       }
 

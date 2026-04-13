@@ -25,27 +25,14 @@ public:
         schema.at("enum").is_array() && !schema.at("enum").empty());
 
     const auto declared_types{parse_schema_type(schema.at("type"))};
-    const bool integer_matches_real{
+    const bool integer_matches_integral{
         vocabularies.contains(Vocabularies::Known::JSON_Schema_Draft_6) &&
         declared_types.test(std::to_underlying(JSON::Type::Integer))};
     ONLY_CONTINUE_IF(std::ranges::none_of(
         schema.at("enum").as_array(),
-        [&declared_types, integer_matches_real](const auto &value) {
-          if (declared_types.test(std::to_underlying(value.type()))) {
-            return true;
-          }
-
-          if (integer_matches_real && value.is_real() &&
-              std::floor(value.to_real()) == value.to_real()) {
-            return true;
-          }
-
-          if (integer_matches_real && value.is_decimal() &&
-              value.to_decimal() == value.to_decimal().to_integral()) {
-            return true;
-          }
-
-          return false;
+        [&declared_types, integer_matches_integral](const auto &value) {
+          return declared_types.test(std::to_underlying(value.type())) ||
+                 (integer_matches_integral && value.is_integral());
         }));
     return true;
   }

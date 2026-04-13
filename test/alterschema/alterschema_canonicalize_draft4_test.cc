@@ -2094,7 +2094,34 @@ TEST_F(CanonicalizerDraft4Test, enum_with_allof_sibling) {
 
   const auto expected = sourcemeta::core::parse_json(R"JSON({
     "$schema": "http://json-schema.org/draft-04/schema#",
-    "enum": [ 1, 2, 3 ]
+    "allOf": [
+      {
+        "allOf": [
+          {
+            "anyOf": [
+              { "enum": [ null ] },
+              { "enum": [ false, true ] },
+              {
+                "type": "object",
+                "minProperties": 0,
+                "properties": {},
+                "patternProperties": {},
+                "additionalProperties": true
+              },
+              {
+                "type": "array",
+                "minItems": 0,
+                "uniqueItems": false,
+                "items": true
+              },
+              { "type": "string", "minLength": 0 },
+              { "type": "number", "minimum": 2 }
+            ]
+          }
+        ]
+      },
+      { "enum": [ 1, 2, 3 ] }
+    ]
   })JSON");
 
   CANONICALIZE_NEXT(document, expected, *compiled_meta_);

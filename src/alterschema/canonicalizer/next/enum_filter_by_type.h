@@ -25,7 +25,7 @@ public:
         schema.at("enum").is_array() && !schema.at("enum").empty());
 
     const auto declared_types{parse_schema_type(schema.at("type"))};
-    const bool integer_matches_real{
+    const bool integer_matches_integral{
         vocabularies.contains(Vocabularies::Known::JSON_Schema_Draft_6) &&
         declared_types.test(std::to_underlying(JSON::Type::Integer))};
 
@@ -33,16 +33,9 @@ public:
     bool has_mismatch{false};
     std::size_t index{0};
     for (const auto &value : schema.at("enum").as_array()) {
-      bool matches{declared_types.test(std::to_underlying(value.type()))};
-      if (!matches && integer_matches_real) {
-        if (value.is_real() && std::floor(value.to_real()) == value.to_real()) {
-          matches = true;
-        } else if (value.is_decimal() &&
-                   value.to_decimal() == value.to_decimal().to_integral()) {
-          matches = true;
-        }
-      }
-
+      const bool matches{
+          declared_types.test(std::to_underlying(value.type())) ||
+          (integer_matches_integral && value.is_integral())};
       if (matches) {
         this->matching_indices_.push_back(index);
       } else {
