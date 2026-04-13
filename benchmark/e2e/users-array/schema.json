@@ -1,0 +1,46 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "type": "object",
+  "properties": {
+    "users": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "id": { "type": "integer", "minimum": 1 },
+          "name": { "type": "string", "minLength": 1 },
+          "email": { "type": "string", "format": "email" },
+          "age": { "type": "integer", "minimum": 0, "maximum": 150 },
+          "active": { "type": "boolean" },
+          "role": { "enum": [ "admin", "user", "moderator" ] },
+          "scores": {
+            "type": "array",
+            "items": { "type": "number", "minimum": 0, "maximum": 100 },
+            "minItems": 1
+          },
+          "address": {
+            "type": "object",
+            "properties": {
+              "street": { "type": "string" },
+              "city": { "type": "string" },
+              "country": { "type": "string" },
+              "zip": { "type": "string" }
+            },
+            "required": [ "street", "city", "country" ]
+          }
+        },
+        "required": [ "id", "name", "email", "active", "role" ]
+      }
+    },
+    "metadata": {
+      "type": "object",
+      "properties": {
+        "total": { "type": "integer" },
+        "page": { "type": "integer", "minimum": 1 },
+        "perPage": { "type": "integer", "minimum": 1, "maximum": 100 }
+      },
+      "required": [ "total", "page", "perPage" ]
+    }
+  },
+  "required": [ "users", "metadata" ]
+}
