@@ -7,6 +7,7 @@
 // For built-in rules
 #include <algorithm>     // std::sort, std::unique, std::ranges::none_of
 #include <array>         // std::array
+#include <bit>           // std::popcount
 #include <cassert>       // assert
 #include <cmath>         // std::floor
 #include <cstddef>       // std::size_t
@@ -131,6 +132,7 @@ auto WALK_UP_IN_PLACE_APPLICATORS(const JSON &root, const SchemaFrame &frame,
 #include "canonicalizer/next/implicit_array_keywords.h"
 #include "canonicalizer/next/implicit_object_keywords.h"
 #include "canonicalizer/next/type_with_applicator_to_allof.h"
+#include "canonicalizer/next/unsatisfiable_exclusive_equal_bounds.h"
 #include "canonicalizer/next/unsatisfiable_type_and_enum.h"
 #include "canonicalizer/properties_implicit.h"
 #include "canonicalizer/type_array_to_any_of.h"
@@ -239,6 +241,7 @@ auto add(SchemaTransformer &bundle, const AlterSchemaMode mode) -> void {
     bundle.add<ExclusiveMinimumBooleanIntegerFold>();
     bundle.add<ExclusiveMaximumBooleanIntegerFold>();
     bundle.add<ExclusiveBoundsFalseDrop>();
+    bundle.add<UnsatisfiableExclusiveEqualBounds>();
     bundle.add<ImplicitObjectKeywords>();
     bundle.add<ImplicitArrayKeywords>();
   }

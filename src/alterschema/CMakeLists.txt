@@ -34,6 +34,7 @@ sourcemeta_library(NAMESPACE sourcemeta PROJECT blaze NAME alterschema
     canonicalizer/next/implicit_array_keywords.h
     canonicalizer/next/implicit_object_keywords.h
     canonicalizer/next/type_with_applicator_to_allof.h
+    canonicalizer/next/unsatisfiable_exclusive_equal_bounds.h
     canonicalizer/next/unsatisfiable_type_and_enum.h
 
     # Common
