@@ -30,9 +30,14 @@ public:
                      schema.defines("enum") && schema.at("enum").is_array());
 
     const auto current_types{parse_schema_type(schema.at("type"))};
+    const bool integer_matches_integral{
+        vocabularies.contains(Vocabularies::Known::JSON_Schema_Draft_6) &&
+        current_types.test(std::to_underlying(JSON::Type::Integer))};
     ONLY_CONTINUE_IF(std::ranges::all_of(
-        schema.at("enum").as_array(), [&current_types](const auto &item) {
-          return current_types.test(std::to_underlying(item.type()));
+        schema.at("enum").as_array(),
+        [&current_types, integer_matches_integral](const auto &item) {
+          return current_types.test(std::to_underlying(item.type())) ||
+                 (integer_matches_integral && item.is_integral());
         }));
 
     return APPLIES_TO_KEYWORDS("enum", "type");
