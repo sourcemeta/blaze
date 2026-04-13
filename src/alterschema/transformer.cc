@@ -373,7 +373,7 @@ auto SchemaTransformer::apply(core::JSON &schema,
   }
 
   if (frame.empty()) {
-    return {true, 100};
+    return {true, static_cast<std::uint8_t>(100)};
   }
 
   return check_rules(schema, frame, this->rules, walker, resolver, callback,
