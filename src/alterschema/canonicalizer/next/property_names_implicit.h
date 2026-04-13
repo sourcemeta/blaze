@@ -1,12 +1,12 @@
-class EmptyObjectAsTrueDraft4 final : public SchemaTransformRule {
+class PropertyNamesImplicit final : public SchemaTransformRule {
 public:
   using mutates = std::true_type;
-  using reframe_after_transform = std::false_type;
-  EmptyObjectAsTrueDraft4()
+  using reframe_after_transform = std::true_type;
+  PropertyNamesImplicit()
       : SchemaTransformRule{
-            "empty_object_as_true_draft4",
-            "The empty schema `{}` accepts all values and is equivalent to the "
-            "boolean schema `true`"} {};
+            "property_names_implicit",
+            "Every object schema has an implicit `propertyNames` keyword "
+            "of the boolean schema `true`"} {};
 
   [[nodiscard]] auto
   condition(const sourcemeta::core::JSON &schema,
@@ -18,12 +18,15 @@ public:
             const sourcemeta::core::SchemaResolver &) const
       -> SchemaTransformRule::Result override {
     ONLY_CONTINUE_IF(
-        vocabularies.contains(Vocabularies::Known::JSON_Schema_Draft_4) &&
-        schema.is_object() && schema.empty());
+        vocabularies.contains(Vocabularies::Known::JSON_Schema_Draft_6) &&
+        schema.is_object() && schema.defines("type") &&
+        schema.at("type").is_string() &&
+        schema.at("type").to_string() == "object" &&
+        !schema.defines("propertyNames"));
     return true;
   }
 
   auto transform(JSON &schema, const Result &) const -> void override {
-    schema.into(JSON{true});
+    schema.assign("propertyNames", sourcemeta::core::JSON{true});
   }
 };

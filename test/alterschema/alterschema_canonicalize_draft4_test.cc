@@ -2424,7 +2424,41 @@ TEST_F(CanonicalizerDraft4Test, string_enum_minlength_collapsed) {
 
   const auto expected = sourcemeta::core::parse_json(R"JSON({
     "$schema": "http://json-schema.org/draft-04/schema#",
-    "enum": [ "a", "b" ]
+    "allOf": [
+      {
+        "anyOf": [
+          {
+            "enum": [ null ]
+          },
+          {
+            "enum": [ false, true ]
+          },
+          {
+            "type": "object",
+            "minProperties": 0,
+            "properties": {},
+            "patternProperties": {},
+            "additionalProperties": true
+          },
+          {
+            "type": "array",
+            "minItems": 0,
+            "uniqueItems": false,
+            "items": true
+          },
+          {
+            "type": "string",
+            "minLength": 1
+          },
+          {
+            "type": "number"
+          }
+        ]
+      },
+      {
+        "enum": [ "a", "b" ]
+      }
+    ]
   })JSON");
 
   CANONICALIZE_NEXT(document, expected, *compiled_meta_);
@@ -2874,7 +2908,41 @@ TEST_F(CanonicalizerDraft4Test, enum_partial_type_match_filtered) {
 
   const auto expected = sourcemeta::core::parse_json(R"JSON({
     "$schema": "http://json-schema.org/draft-04/schema#",
-    "enum": [ "hello", "world" ]
+    "allOf": [
+      {
+        "anyOf": [
+          {
+            "enum": [ null ]
+          },
+          {
+            "enum": [ false, true ]
+          },
+          {
+            "type": "object",
+            "minProperties": 0,
+            "properties": {},
+            "patternProperties": {},
+            "additionalProperties": true
+          },
+          {
+            "type": "array",
+            "minItems": 0,
+            "uniqueItems": false,
+            "items": true
+          },
+          {
+            "type": "string",
+            "minLength": 0
+          },
+          {
+            "type": "number"
+          }
+        ]
+      },
+      {
+        "enum": [ "hello", "world" ]
+      }
+    ]
   })JSON");
 
   CANONICALIZE_NEXT(document, expected, *compiled_meta_);
@@ -3568,6 +3636,688 @@ TEST_F(CanonicalizerDraft4Test, exclusive_minimum_fold_large_integer_real) {
     "type": "integer",
     "minimum": 18014398509481985,
     "multipleOf": 1
+  })JSON");
+
+  CANONICALIZE_NEXT(document, expected, *compiled_meta_);
+}
+
+TEST_F(CanonicalizerDraft4Test, enum_assertion_minLength_wrapped) {
+  auto document = sourcemeta::core::parse_json(R"JSON({
+    "$schema": "http://json-schema.org/draft-04/schema#",
+    "enum": [ "abc", "def" ],
+    "minLength": 2
+  })JSON");
+
+  const auto expected = sourcemeta::core::parse_json(R"JSON({
+    "$schema": "http://json-schema.org/draft-04/schema#",
+    "allOf": [
+      {
+        "anyOf": [
+          {
+            "enum": [ null ]
+          },
+          {
+            "enum": [ false, true ]
+          },
+          {
+            "type": "object",
+            "minProperties": 0,
+            "properties": {},
+            "patternProperties": {},
+            "additionalProperties": true
+          },
+          {
+            "type": "array",
+            "minItems": 0,
+            "uniqueItems": false,
+            "items": true
+          },
+          {
+            "type": "string",
+            "minLength": 2
+          },
+          {
+            "type": "number"
+          }
+        ]
+      },
+      {
+        "enum": [ "abc", "def" ]
+      }
+    ]
+  })JSON");
+
+  CANONICALIZE_NEXT(document, expected, *compiled_meta_);
+}
+
+TEST_F(CanonicalizerDraft4Test, enum_assertion_multipleOf_wrapped) {
+  auto document = sourcemeta::core::parse_json(R"JSON({
+    "$schema": "http://json-schema.org/draft-04/schema#",
+    "enum": [ 2, 4, 6 ],
+    "multipleOf": 2
+  })JSON");
+
+  const auto expected = sourcemeta::core::parse_json(R"JSON({
+    "$schema": "http://json-schema.org/draft-04/schema#",
+    "allOf": [
+      {
+        "anyOf": [
+          {
+            "enum": [ null ]
+          },
+          {
+            "enum": [ false, true ]
+          },
+          {
+            "type": "object",
+            "minProperties": 0,
+            "properties": {},
+            "patternProperties": {},
+            "additionalProperties": true
+          },
+          {
+            "type": "array",
+            "minItems": 0,
+            "uniqueItems": false,
+            "items": true
+          },
+          {
+            "type": "string",
+            "minLength": 0
+          },
+          {
+            "type": "number",
+            "multipleOf": 2
+          }
+        ]
+      },
+      {
+        "enum": [ 2, 4, 6 ]
+      }
+    ]
+  })JSON");
+
+  CANONICALIZE_NEXT(document, expected, *compiled_meta_);
+}
+
+TEST_F(CanonicalizerDraft4Test, enum_assertion_minimum_wrapped) {
+  auto document = sourcemeta::core::parse_json(R"JSON({
+    "$schema": "http://json-schema.org/draft-04/schema#",
+    "enum": [ 5, 10 ],
+    "minimum": 3
+  })JSON");
+
+  const auto expected = sourcemeta::core::parse_json(R"JSON({
+    "$schema": "http://json-schema.org/draft-04/schema#",
+    "allOf": [
+      {
+        "anyOf": [
+          {
+            "enum": [ null ]
+          },
+          {
+            "enum": [ false, true ]
+          },
+          {
+            "type": "object",
+            "minProperties": 0,
+            "properties": {},
+            "patternProperties": {},
+            "additionalProperties": true
+          },
+          {
+            "type": "array",
+            "minItems": 0,
+            "uniqueItems": false,
+            "items": true
+          },
+          {
+            "type": "string",
+            "minLength": 0
+          },
+          {
+            "type": "number",
+            "minimum": 3
+          }
+        ]
+      },
+      {
+        "enum": [ 5, 10 ]
+      }
+    ]
+  })JSON");
+
+  CANONICALIZE_NEXT(document, expected, *compiled_meta_);
+}
+
+TEST_F(CanonicalizerDraft4Test, enum_assertion_pattern_wrapped) {
+  auto document = sourcemeta::core::parse_json(R"JSON({
+    "$schema": "http://json-schema.org/draft-04/schema#",
+    "enum": [ "foo", "bar" ],
+    "pattern": "^f"
+  })JSON");
+
+  const auto expected = sourcemeta::core::parse_json(R"JSON({
+    "$schema": "http://json-schema.org/draft-04/schema#",
+    "allOf": [
+      {
+        "anyOf": [
+          {
+            "enum": [ null ]
+          },
+          {
+            "enum": [ false, true ]
+          },
+          {
+            "type": "object",
+            "minProperties": 0,
+            "properties": {},
+            "patternProperties": {},
+            "additionalProperties": true
+          },
+          {
+            "type": "array",
+            "minItems": 0,
+            "uniqueItems": false,
+            "items": true
+          },
+          {
+            "type": "string",
+            "pattern": "^f",
+            "minLength": 0
+          },
+          {
+            "type": "number"
+          }
+        ]
+      },
+      {
+        "enum": [ "foo", "bar" ]
+      }
+    ]
+  })JSON");
+
+  CANONICALIZE_NEXT(document, expected, *compiled_meta_);
+}
+
+TEST_F(CanonicalizerDraft4Test, enum_tautological_items_true_dropped) {
+  auto document = sourcemeta::core::parse_json(R"JSON({
+    "$schema": "http://json-schema.org/draft-04/schema#",
+    "enum": [ [ 1 ], [ 2 ] ],
+    "items": true
+  })JSON");
+
+  const auto expected = sourcemeta::core::parse_json(R"JSON({
+    "$schema": "http://json-schema.org/draft-04/schema#",
+    "enum": [
+      [ 1 ],
+      [ 2 ]
+    ]
+  })JSON");
+
+  CANONICALIZE_NEXT(document, expected, *compiled_meta_);
+}
+
+TEST_F(CanonicalizerDraft4Test,
+       enum_tautological_additionalProperties_true_dropped) {
+  auto document = sourcemeta::core::parse_json(R"JSON({
+    "$schema": "http://json-schema.org/draft-04/schema#",
+    "enum": [ { "a": 1 } ],
+    "additionalProperties": true
+  })JSON");
+
+  const auto expected = sourcemeta::core::parse_json(R"JSON({
+    "$schema": "http://json-schema.org/draft-04/schema#",
+    "enum": [
+      {
+        "a": 1
+      }
+    ]
+  })JSON");
+
+  CANONICALIZE_NEXT(document, expected, *compiled_meta_);
+}
+
+TEST_F(CanonicalizerDraft4Test, enum_constraining_items_schema_kept) {
+  auto document = sourcemeta::core::parse_json(R"JSON({
+    "$schema": "http://json-schema.org/draft-04/schema#",
+    "enum": [ [ 1 ], [ 2 ] ],
+    "items": { "type": "integer" }
+  })JSON");
+
+  const auto expected = sourcemeta::core::parse_json(R"JSON({
+    "$schema": "http://json-schema.org/draft-04/schema#",
+    "allOf": [
+      {
+        "anyOf": [
+          {
+            "enum": [ null ]
+          },
+          {
+            "enum": [ false, true ]
+          },
+          {
+            "type": "object",
+            "minProperties": 0,
+            "properties": {},
+            "patternProperties": {},
+            "additionalProperties": true
+          },
+          {
+            "type": "array",
+            "minItems": 0,
+            "uniqueItems": false,
+            "items": {
+              "type": "integer",
+              "multipleOf": 1
+            }
+          },
+          {
+            "type": "string",
+            "minLength": 0
+          },
+          {
+            "type": "number"
+          }
+        ]
+      },
+      {
+        "enum": [
+          [ 1 ],
+          [ 2 ]
+        ]
+      }
+    ]
+  })JSON");
+
+  CANONICALIZE_NEXT(document, expected, *compiled_meta_);
+}
+
+TEST_F(CanonicalizerDraft4Test,
+       enum_constraining_additionalProperties_false_kept) {
+  auto document = sourcemeta::core::parse_json(R"JSON({
+    "$schema": "http://json-schema.org/draft-04/schema#",
+    "enum": [ { "a": 1 } ],
+    "additionalProperties": false
+  })JSON");
+
+  const auto expected = sourcemeta::core::parse_json(R"JSON({
+    "$schema": "http://json-schema.org/draft-04/schema#",
+    "allOf": [
+      {
+        "anyOf": [
+          {
+            "enum": [ null ]
+          },
+          {
+            "enum": [ false, true ]
+          },
+          {
+            "type": "object",
+            "minProperties": 0,
+            "properties": {},
+            "patternProperties": {},
+            "additionalProperties": false
+          },
+          {
+            "type": "array",
+            "minItems": 0,
+            "uniqueItems": false,
+            "items": true
+          },
+          {
+            "type": "string",
+            "minLength": 0
+          },
+          {
+            "type": "number"
+          }
+        ]
+      },
+      {
+        "enum": [
+          {
+            "a": 1
+          }
+        ]
+      }
+    ]
+  })JSON");
+
+  CANONICALIZE_NEXT(document, expected, *compiled_meta_);
+}
+
+TEST_F(CanonicalizerDraft4Test, enum_constraining_anyof_kept) {
+  auto document = sourcemeta::core::parse_json(R"JSON({
+    "$schema": "http://json-schema.org/draft-04/schema#",
+    "enum": [ "a", "b", 1 ],
+    "anyOf": [ { "type": "string" } ]
+  })JSON");
+
+  const auto expected = sourcemeta::core::parse_json(R"JSON({
+    "$schema": "http://json-schema.org/draft-04/schema#",
+    "allOf": [
+      {
+        "anyOf": [
+          {
+            "type": "string",
+            "minLength": 0
+          }
+        ]
+      },
+      {
+        "enum": [ "a", "b", 1 ]
+      }
+    ]
+  })JSON");
+
+  CANONICALIZE_NEXT(document, expected, *compiled_meta_);
+}
+
+TEST_F(CanonicalizerDraft4Test, enum_constraining_not_kept) {
+  auto document = sourcemeta::core::parse_json(R"JSON({
+    "$schema": "http://json-schema.org/draft-04/schema#",
+    "enum": [ 1, 2, 3 ],
+    "not": { "minimum": 3 }
+  })JSON");
+
+  const auto expected = sourcemeta::core::parse_json(R"JSON({
+    "$schema": "http://json-schema.org/draft-04/schema#",
+    "allOf": [
+      {
+        "not": {
+          "anyOf": [
+            {
+              "enum": [ null ]
+            },
+            {
+              "enum": [ false, true ]
+            },
+            {
+              "type": "object",
+              "minProperties": 0,
+              "properties": {},
+              "patternProperties": {},
+              "additionalProperties": true
+            },
+            {
+              "type": "array",
+              "minItems": 0,
+              "uniqueItems": false,
+              "items": true
+            },
+            {
+              "type": "string",
+              "minLength": 0
+            },
+            {
+              "type": "number",
+              "minimum": 3
+            }
+          ]
+        }
+      },
+      {
+        "enum": [ 1, 2, 3 ]
+      }
+    ]
+  })JSON");
+
+  CANONICALIZE_NEXT(document, expected, *compiled_meta_);
+}
+
+TEST_F(CanonicalizerDraft4Test, enum_constraining_oneof_kept) {
+  auto document = sourcemeta::core::parse_json(R"JSON({
+    "$schema": "http://json-schema.org/draft-04/schema#",
+    "enum": [ 1, 2 ],
+    "oneOf": [ { "minimum": 2 } ]
+  })JSON");
+
+  const auto expected = sourcemeta::core::parse_json(R"JSON({
+    "$schema": "http://json-schema.org/draft-04/schema#",
+    "allOf": [
+      {
+        "oneOf": [
+          {
+            "anyOf": [
+              {
+                "enum": [ null ]
+              },
+              {
+                "enum": [ false, true ]
+              },
+              {
+                "type": "object",
+                "minProperties": 0,
+                "properties": {},
+                "patternProperties": {},
+                "additionalProperties": true
+              },
+              {
+                "type": "array",
+                "minItems": 0,
+                "uniqueItems": false,
+                "items": true
+              },
+              {
+                "type": "string",
+                "minLength": 0
+              },
+              {
+                "type": "number",
+                "minimum": 2
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "enum": [ 1, 2 ]
+      }
+    ]
+  })JSON");
+
+  CANONICALIZE_NEXT(document, expected, *compiled_meta_);
+}
+
+TEST_F(CanonicalizerDraft4Test, enum_mixed_assertion_and_applicator) {
+  auto document = sourcemeta::core::parse_json(R"JSON({
+    "$schema": "http://json-schema.org/draft-04/schema#",
+    "enum": [ 1, 2, 3 ],
+    "minimum": 0,
+    "allOf": [ { "maximum": 5 } ]
+  })JSON");
+
+  const auto expected = sourcemeta::core::parse_json(R"JSON({
+    "$schema": "http://json-schema.org/draft-04/schema#",
+    "allOf": [
+      {
+        "anyOf": [
+          {
+            "enum": [ null ]
+          },
+          {
+            "enum": [ false, true ]
+          },
+          {
+            "type": "object",
+            "minProperties": 0,
+            "properties": {},
+            "patternProperties": {},
+            "additionalProperties": true
+          },
+          {
+            "type": "array",
+            "minItems": 0,
+            "uniqueItems": false,
+            "items": true
+          },
+          {
+            "type": "string",
+            "minLength": 0
+          },
+          {
+            "type": "number",
+            "minimum": 0
+          }
+        ]
+      },
+      {
+        "allOf": [
+          {
+            "anyOf": [
+              {
+                "enum": [ null ]
+              },
+              {
+                "enum": [ false, true ]
+              },
+              {
+                "type": "object",
+                "minProperties": 0,
+                "properties": {},
+                "patternProperties": {},
+                "additionalProperties": true
+              },
+              {
+                "type": "array",
+                "minItems": 0,
+                "uniqueItems": false,
+                "items": true
+              },
+              {
+                "type": "string",
+                "minLength": 0
+              },
+              {
+                "type": "number",
+                "maximum": 5
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "enum": [ 1, 2, 3 ]
+      }
+    ]
+  })JSON");
+
+  CANONICALIZE_NEXT(document, expected, *compiled_meta_);
+}
+
+TEST_F(CanonicalizerDraft4Test,
+       enum_tautological_patternProperties_empty_dropped) {
+  auto document = sourcemeta::core::parse_json(R"JSON({
+    "$schema": "http://json-schema.org/draft-04/schema#",
+    "enum": [ { "a": 1 } ],
+    "patternProperties": {}
+  })JSON");
+
+  const auto expected = sourcemeta::core::parse_json(R"JSON({
+    "$schema": "http://json-schema.org/draft-04/schema#",
+    "enum": [
+      {
+        "a": 1
+      }
+    ]
+  })JSON");
+
+  CANONICALIZE_NEXT(document, expected, *compiled_meta_);
+}
+
+TEST_F(CanonicalizerDraft4Test, enum_assertion_uniqueItems_wrapped) {
+  auto document = sourcemeta::core::parse_json(R"JSON({
+    "$schema": "http://json-schema.org/draft-04/schema#",
+    "enum": [ [ 1, 2 ], [ 3, 4 ] ],
+    "uniqueItems": false
+  })JSON");
+
+  const auto expected = sourcemeta::core::parse_json(R"JSON({
+    "$schema": "http://json-schema.org/draft-04/schema#",
+    "allOf": [
+      {
+        "anyOf": [
+          {
+            "enum": [ null ]
+          },
+          {
+            "enum": [ false, true ]
+          },
+          {
+            "type": "object",
+            "minProperties": 0,
+            "properties": {},
+            "patternProperties": {},
+            "additionalProperties": true
+          },
+          {
+            "type": "array",
+            "minItems": 0,
+            "uniqueItems": false,
+            "items": true
+          },
+          {
+            "type": "string",
+            "minLength": 0
+          },
+          {
+            "type": "number"
+          }
+        ]
+      },
+      {
+        "enum": [
+          [ 1, 2 ],
+          [ 3, 4 ]
+        ]
+      }
+    ]
+  })JSON");
+
+  CANONICALIZE_NEXT(document, expected, *compiled_meta_);
+}
+
+TEST_F(CanonicalizerDraft4Test, enum_wrap_with_ref_through_sibling) {
+  auto document = sourcemeta::core::parse_json(R"JSON({
+    "$schema": "http://json-schema.org/draft-04/schema#",
+    "enum": [ 1, 2, 3 ],
+    "not": { "minimum": 3 },
+    "allOf": [
+      { "$ref": "#/not" }
+    ]
+  })JSON");
+
+  const auto expected = sourcemeta::core::parse_json(R"JSON({
+    "$schema": "http://json-schema.org/draft-04/schema#",
+    "allOf": [
+      {
+        "enum": [ 1, 2, 3 ]
+      },
+      {
+        "not": {
+          "anyOf": [
+            { "enum": [ null ] },
+            { "enum": [ false, true ] },
+            {
+              "type": "object",
+              "minProperties": 0,
+              "properties": {},
+              "patternProperties": {},
+              "additionalProperties": true
+            },
+            {
+              "type": "array",
+              "minItems": 0,
+              "uniqueItems": false,
+              "items": true
+            },
+            { "type": "string", "minLength": 0 },
+            { "type": "number", "minimum": 3 }
+          ]
+        }
+      }
+    ]
   })JSON");
 
   CANONICALIZE_NEXT(document, expected, *compiled_meta_);

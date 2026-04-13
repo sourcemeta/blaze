@@ -18,18 +18,25 @@ public:
             const sourcemeta::core::SchemaResolver &) const
       -> SchemaTransformRule::Result override {
     ONLY_CONTINUE_IF(
-        vocabularies.contains(Vocabularies::Known::JSON_Schema_Draft_4) &&
+        vocabularies.contains_any({Vocabularies::Known::JSON_Schema_Draft_4,
+                                   Vocabularies::Known::JSON_Schema_Draft_6}) &&
         schema.is_object() && schema.defines("type") &&
         schema.at("type").is_string() && schema.defines("enum") &&
         schema.at("enum").is_array() && !schema.at("enum").empty());
 
     const auto declared_types{parse_schema_type(schema.at("type"))};
+    const bool integer_matches_integral{
+        vocabularies.contains(Vocabularies::Known::JSON_Schema_Draft_6) &&
+        declared_types.test(std::to_underlying(JSON::Type::Integer))};
 
     this->matching_indices_.clear();
     bool has_mismatch{false};
     std::size_t index{0};
     for (const auto &value : schema.at("enum").as_array()) {
-      if (declared_types.test(std::to_underlying(value.type()))) {
+      const bool matches{
+          declared_types.test(std::to_underlying(value.type())) ||
+          (integer_matches_integral && value.is_integral())};
+      if (matches) {
         this->matching_indices_.push_back(index);
       } else {
         has_mismatch = true;

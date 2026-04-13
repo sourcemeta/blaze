@@ -33,9 +33,19 @@ public:
 
   auto transform(JSON &schema, const Result &) const -> void override {
     if (schema.at("exclusiveMinimum").is_integer()) {
-      auto new_minimum = schema.at("exclusiveMinimum");
-      new_minimum += sourcemeta::core::JSON{1};
-      schema.at("exclusiveMinimum").into(new_minimum);
+      if (schema.at("exclusiveMinimum").to_integer() <
+          std::numeric_limits<std::int64_t>::max()) {
+        auto new_minimum = schema.at("exclusiveMinimum");
+        new_minimum += sourcemeta::core::JSON{1};
+        schema.at("exclusiveMinimum").into(new_minimum);
+      } else {
+        auto result{sourcemeta::core::Decimal{
+            std::to_string(schema.at("exclusiveMinimum").to_integer())}};
+        result += sourcemeta::core::Decimal{1};
+        schema.at("exclusiveMinimum")
+            .into(sourcemeta::core::JSON{std::move(result)});
+      }
+
       schema.rename("exclusiveMinimum", "minimum");
     } else if (schema.at("exclusiveMinimum").is_decimal()) {
       const auto current{schema.at("exclusiveMinimum").to_decimal()};
@@ -44,7 +54,7 @@ public:
         new_value += sourcemeta::core::Decimal{1};
       }
 
-      if (current.is_integer()) {
+      if (new_value == current) {
         new_value += sourcemeta::core::Decimal{1};
       }
 
@@ -58,8 +68,37 @@ public:
       schema.rename("exclusiveMinimum", "minimum");
     } else {
       const auto current{schema.at("exclusiveMinimum").to_real()};
-      const auto new_value{static_cast<std::int64_t>(std::ceil(current))};
-      schema.at("exclusiveMinimum").into(sourcemeta::core::JSON{new_value});
+      const auto ceil_value{std::ceil(current)};
+      if (ceil_value == current) {
+        auto result{sourcemeta::core::Decimal{current}};
+        result += sourcemeta::core::Decimal{1};
+        if (result.is_int64()) {
+          schema.at("exclusiveMinimum")
+              .into(sourcemeta::core::JSON{result.to_int64()});
+        } else {
+          schema.at("exclusiveMinimum")
+              .into(sourcemeta::core::JSON{std::move(result)});
+        }
+      } else if (std::isfinite(ceil_value) &&
+                 ceil_value >= static_cast<double>(
+                                   std::numeric_limits<std::int64_t>::min()) &&
+                 ceil_value < static_cast<double>(
+                                  std::numeric_limits<std::int64_t>::max()) +
+                                  1.0) {
+        schema.at("exclusiveMinimum")
+            .into(
+                sourcemeta::core::JSON{static_cast<std::int64_t>(ceil_value)});
+      } else {
+        auto result{sourcemeta::core::Decimal{current}};
+        result = result.to_integral();
+        if (result < sourcemeta::core::Decimal{current}) {
+          result += sourcemeta::core::Decimal{1};
+        }
+
+        schema.at("exclusiveMinimum")
+            .into(sourcemeta::core::JSON{std::move(result)});
+      }
+
       schema.rename("exclusiveMinimum", "minimum");
     }
   }

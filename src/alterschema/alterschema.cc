@@ -124,7 +124,7 @@ auto WALK_UP_IN_PLACE_APPLICATORS(const JSON &root, const SchemaFrame &frame,
 #include "canonicalizer/next/dependencies_to_any_of.h"
 #include "canonicalizer/next/empty_definitions_drop.h"
 #include "canonicalizer/next/empty_dependencies_drop.h"
-#include "canonicalizer/next/empty_object_as_true_draft4.h"
+#include "canonicalizer/next/empty_object_as_true_next.h"
 #include "canonicalizer/next/enum_drop_redundant_validation.h"
 #include "canonicalizer/next/enum_filter_by_type.h"
 #include "canonicalizer/next/exclusive_bounds_false_drop.h"
@@ -132,6 +132,7 @@ auto WALK_UP_IN_PLACE_APPLICATORS(const JSON &root, const SchemaFrame &frame,
 #include "canonicalizer/next/exclusive_minimum_boolean_integer_fold.h"
 #include "canonicalizer/next/implicit_array_keywords.h"
 #include "canonicalizer/next/implicit_object_keywords.h"
+#include "canonicalizer/next/property_names_implicit.h"
 #include "canonicalizer/next/type_with_applicator_to_allof.h"
 #include "canonicalizer/next/unsatisfiable_exclusive_equal_bounds.h"
 #include "canonicalizer/next/unsatisfiable_type_and_enum.h"
@@ -238,12 +239,13 @@ namespace sourcemeta::blaze {
 
 auto add(SchemaTransformer &bundle, const AlterSchemaMode mode) -> void {
   if (mode == AlterSchemaMode::CanonicalizerNext) {
-    bundle.add<EmptyObjectAsTrueDraft4>();
+    bundle.add<EmptyObjectAsTrueNext>();
     bundle.add<ExclusiveMinimumBooleanIntegerFold>();
     bundle.add<ExclusiveMaximumBooleanIntegerFold>();
     bundle.add<ExclusiveBoundsFalseDrop>();
     bundle.add<UnsatisfiableExclusiveEqualBounds>();
     bundle.add<ImplicitObjectKeywords>();
+    bundle.add<PropertyNamesImplicit>();
     bundle.add<ImplicitArrayKeywords>();
   }
 
