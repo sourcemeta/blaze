@@ -25,8 +25,7 @@ sourcemeta_library(NAMESPACE sourcemeta PROJECT blaze NAME alterschema
     canonicalizer/draft4/empty_dependencies_drop.h
     canonicalizer/draft4/enum_filter_by_type.h
     canonicalizer/draft4/empty_definitions_drop.h
-    canonicalizer/draft4/dependencies_property_to_any_of.h
-    canonicalizer/draft4/dependencies_schema_to_any_of.h
+    canonicalizer/draft4/dependencies_to_any_of.h
     canonicalizer/draft4/empty_object_as_true_draft4.h
     canonicalizer/draft4/enum_drop_redundant_validation.h
     canonicalizer/draft4/exclusive_bounds_false_drop.h

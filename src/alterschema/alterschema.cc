@@ -6,6 +6,7 @@
 
 // For built-in rules
 #include <algorithm>     // std::sort, std::unique, std::ranges::none_of
+#include <array>         // std::array
 #include <cassert>       // assert
 #include <cmath>         // std::floor
 #include <cstddef>       // std::size_t
@@ -108,8 +109,7 @@ auto WALK_UP_IN_PLACE_APPLICATORS(const JSON &root, const SchemaFrame &frame,
 #include "canonicalizer/const_as_enum.h"
 #include "canonicalizer/draft4/additional_items_implicit.h"
 #include "canonicalizer/draft4/additional_properties_implicit.h"
-#include "canonicalizer/draft4/dependencies_property_to_any_of.h"
-#include "canonicalizer/draft4/dependencies_schema_to_any_of.h"
+#include "canonicalizer/draft4/dependencies_to_any_of.h"
 #include "canonicalizer/draft4/empty_definitions_drop.h"
 #include "canonicalizer/draft4/empty_dependencies_drop.h"
 #include "canonicalizer/draft4/empty_object_as_true_draft4.h"
@@ -369,8 +369,7 @@ auto add(SchemaTransformer &bundle, const AlterSchemaMode mode) -> void {
   if (mode == AlterSchemaMode::CanonicalizerNext) {
     bundle.add<UnsatisfiableTypeAndEnum>();
     bundle.add<EnumFilterByType>();
-    bundle.add<DependenciesPropertyToAnyOf>();
-    bundle.add<DependenciesSchemaToAnyOf>();
+    bundle.add<DependenciesToAnyOf>();
     bundle.add<EnumDropRedundantValidation>();
     bundle.add<TypeWithApplicatorToAllOf>();
     bundle.add<EmptyDefinitionsDrop>();

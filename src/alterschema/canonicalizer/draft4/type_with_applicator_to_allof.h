@@ -38,10 +38,8 @@ public:
     ONLY_CONTINUE_IF((has_structural && applicator_count >= 1) ||
                      applicator_count >= 2);
 
-    // Determine strategy based on whether references exist inside
-    // applicator subtrees. Use SchemaFrame to detect real references.
     this->strategy_ = Strategy::FullRestructure;
-    this->applicators_with_refs_.clear();
+    this->applicators_with_refs_ = 0;
     for (const auto &reference : frame.references()) {
       const auto &source_pointer{reference.first.second};
       if (!source_pointer.starts_with(location.pointer)) {
@@ -52,25 +50,18 @@ public:
         continue;
       }
       const auto &first_keyword{relative.at(0).to_property()};
-      if (first_keyword == "not" || first_keyword == "anyOf" ||
-          first_keyword == "allOf" || first_keyword == "oneOf") {
+      const auto bit{applicator_bit(first_keyword)};
+      if (bit != 0) {
         this->strategy_ = Strategy::SafeExtract;
-        this->applicators_with_refs_.emplace(first_keyword);
+        this->applicators_with_refs_ |= bit;
       }
     }
 
-    // SafeExtract only makes sense when we have typed keywords to extract.
-    // If we only have applicators (e.g. not + allOf from a previous safe
-    // extract), use MergeIntoAllOf: push applicators into existing allOf.
-    // This is safe ONLY IF the refs have already been rereferenced to
-    // point into allOf branches. We detect this by checking if reference
-    // destinations resolve to paths starting with allOf/.
     if (this->strategy_ == Strategy::SafeExtract && !has_structural) {
       if (!has_allof) {
         return false;
       }
 
-      // Check if all references in applicators already point into allOf
       bool all_refs_fixed{true};
       for (const auto &reference : frame.references()) {
         const auto &source_pointer{reference.first.second};
@@ -87,7 +78,6 @@ public:
           continue;
         }
 
-        // Check where this reference points to
         const auto destination{frame.traverse(reference.second.destination)};
         if (!destination.has_value()) {
           all_refs_fixed = false;
@@ -117,11 +107,7 @@ public:
     this->typed_keywords_.clear();
 
     if (this->strategy_ == Strategy::MergeIntoAllOf) {
-      // Push non-allOf applicators into the existing allOf as new branches.
-      // Existing allOf branches stay at their original indices so $ref
-      // values pointing into them remain valid. Applicator origins move
-      // but their targets don't, so no rereference is needed.
-      for (const auto &applicator : {"not", "anyOf", "oneOf"}) {
+      for (const auto &applicator : APPLICATORS_WITHOUT_ALLOF) {
         if (!schema.defines(applicator)) {
           continue;
         }
@@ -133,7 +119,6 @@ public:
       return;
     }
 
-    // Collect non-applicator, non-identity keywords
     auto typed_branch{JSON::make_object()};
     for (const auto &entry : schema.as_object()) {
       if (entry.first == "not" || entry.first == "anyOf" ||
@@ -150,8 +135,6 @@ public:
     }
 
     if (this->strategy_ == Strategy::SafeExtract) {
-      // Keep applicators at root, inject typed branch into allOf.
-      // Applicator $ref origins stay at their positions.
       if (schema.defines("allOf") && schema.at("allOf").is_array()) {
         this->typed_branch_index_ = schema.at("allOf").size();
         schema.at("allOf").push_back(std::move(typed_branch));
@@ -162,14 +145,11 @@ public:
         schema.assign("allOf", std::move(new_allof));
       }
 
-      // Push applicators WITHOUT refs into allOf immediately. Only
-      // applicators WITH refs stay at root (their $ref values need to
-      // be fixed by rereference before they can move).
-      for (const auto &applicator : {"not", "anyOf", "oneOf"}) {
+      for (const auto &applicator : APPLICATORS_WITHOUT_ALLOF) {
         if (!schema.defines(applicator)) {
           continue;
         }
-        if (this->applicators_with_refs_.contains(applicator)) {
+        if (this->applicators_with_refs_ & applicator_bit(applicator)) {
           continue;
         }
         auto branch{JSON::make_object()};
@@ -181,19 +161,17 @@ public:
       return;
     }
 
-    // FullRestructure: each applicator becomes its own allOf branch.
-    // Typed keywords (if any) get their own branch too.
     auto new_allof{JSON::make_array()};
-    this->applicator_indices_.clear();
+    this->applicator_indices_ = 0;
 
-    for (const auto &applicator : {"not", "anyOf", "allOf", "oneOf"}) {
+    for (const auto &applicator : APPLICATORS) {
       if (!schema.defines(applicator)) {
         continue;
       }
       auto branch{JSON::make_object()};
       branch.assign(applicator, schema.at(applicator));
       new_allof.push_back(std::move(branch));
-      this->applicator_indices_.emplace(applicator);
+      this->applicator_indices_ |= applicator_bit(applicator);
     }
 
     if (!this->typed_keywords_.empty()) {
@@ -223,7 +201,6 @@ public:
     const auto &keyword{relative.at(0).to_property()};
     static const JSON::String allof_keyword{"allOf"};
 
-    // Typed keywords moved
     for (const auto &typed_kw : this->typed_keywords_) {
       if (typed_kw == keyword) {
         const Pointer old_prefix{current.concat({keyword})};
@@ -238,20 +215,16 @@ public:
       }
     }
 
-    // In FullRestructure, each applicator is at its own allOf index
     if (this->strategy_ == Strategy::FullRestructure) {
       std::size_t index{0};
-      for (const auto &applicator : {"not", "anyOf", "allOf", "oneOf"}) {
+      for (const auto &applicator : APPLICATORS) {
         if (keyword == applicator) {
           const Pointer old_prefix{current.concat({keyword})};
           const Pointer new_prefix{
               current.concat({allof_keyword, index, keyword})};
           return target.rebase(old_prefix, new_prefix);
         }
-        // Only increment for applicators that exist in the schema
-        // (they were added to allOf in this order)
-        // We can't check the schema here, so track during transform
-        if (this->applicator_indices_.contains(applicator)) {
+        if (this->applicator_indices_ & applicator_bit(applicator)) {
           index++;
         }
       }
@@ -261,6 +234,24 @@ public:
   }
 
 private:
+  static constexpr std::array<const char *, 4> APPLICATORS{"not", "anyOf",
+                                                           "allOf", "oneOf"};
+  static constexpr std::array<const char *, 3> APPLICATORS_WITHOUT_ALLOF{
+      "not", "anyOf", "oneOf"};
+
+  static constexpr auto applicator_bit(std::string_view keyword)
+      -> std::uint8_t {
+    if (keyword == "not")
+      return 1;
+    if (keyword == "anyOf")
+      return 2;
+    if (keyword == "allOf")
+      return 4;
+    if (keyword == "oneOf")
+      return 8;
+    return 0;
+  }
+
   enum class Strategy : std::uint8_t {
     FullRestructure,
     SafeExtract,
@@ -268,7 +259,7 @@ private:
   };
   mutable Strategy strategy_{Strategy::FullRestructure};
   mutable std::vector<std::string> typed_keywords_;
-  mutable std::unordered_set<std::string> applicator_indices_;
-  mutable std::unordered_set<std::string> applicators_with_refs_;
+  mutable std::uint8_t applicator_indices_{0};
+  mutable std::uint8_t applicators_with_refs_{0};
   mutable std::size_t typed_branch_index_{0};
 };
