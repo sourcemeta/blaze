@@ -49,7 +49,7 @@ public:
         ceiled += sourcemeta::core::Decimal{1};
       }
 
-      if (current.is_integer()) {
+      if (ceiled == current) {
         ceiled += sourcemeta::core::Decimal{1};
       }
 
@@ -61,24 +61,41 @@ public:
     } else {
       const auto value{minimum.to_real()};
       const auto ceil_value{std::ceil(value)};
-      const auto result{(ceil_value == value) ? ceil_value + 1.0 : ceil_value};
-      if (std::isfinite(result) &&
-          result >=
-              static_cast<double>(std::numeric_limits<std::int64_t>::min()) &&
-          result <
-              static_cast<double>(std::numeric_limits<std::int64_t>::max()) +
-                  1.0) {
+      if (ceil_value == value) {
+        if (value >=
+                static_cast<double>(std::numeric_limits<std::int64_t>::min()) &&
+            value <
+                static_cast<double>(std::numeric_limits<std::int64_t>::max()) +
+                    1.0) {
+          auto decimal_result{sourcemeta::core::Decimal{
+              std::to_string(static_cast<std::int64_t>(value))}};
+          decimal_result += sourcemeta::core::Decimal{1};
+          if (decimal_result.is_int64()) {
+            schema.assign("minimum",
+                          sourcemeta::core::JSON{decimal_result.to_int64()});
+          } else {
+            schema.assign("minimum",
+                          sourcemeta::core::JSON{std::move(decimal_result)});
+          }
+        } else {
+          auto decimal_fallback{sourcemeta::core::Decimal{value}};
+          decimal_fallback += sourcemeta::core::Decimal{1};
+          schema.assign("minimum",
+                        sourcemeta::core::JSON{std::move(decimal_fallback)});
+        }
+      } else if (std::isfinite(ceil_value) &&
+                 ceil_value >= static_cast<double>(
+                                   std::numeric_limits<std::int64_t>::min()) &&
+                 ceil_value < static_cast<double>(
+                                  std::numeric_limits<std::int64_t>::max()) +
+                                  1.0) {
         schema.assign("minimum", sourcemeta::core::JSON{
-                                     static_cast<std::int64_t>(result)});
+                                     static_cast<std::int64_t>(ceil_value)});
       } else {
         auto decimal_result{sourcemeta::core::Decimal{value}};
-        if (decimal_result.is_integer()) {
+        decimal_result = decimal_result.to_integral();
+        if (decimal_result < sourcemeta::core::Decimal{value}) {
           decimal_result += sourcemeta::core::Decimal{1};
-        } else {
-          decimal_result = decimal_result.to_integral();
-          if (decimal_result < sourcemeta::core::Decimal{value}) {
-            decimal_result += sourcemeta::core::Decimal{1};
-          }
         }
 
         schema.assign("minimum",

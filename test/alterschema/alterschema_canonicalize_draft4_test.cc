@@ -3518,3 +3518,39 @@ TEST_F(CanonicalizerDraft4Test, exclusive_minimum_fold_large_real) {
 
   CANONICALIZE_NEXT(document, expected, *compiled_meta_);
 }
+
+TEST_F(CanonicalizerDraft4Test, exclusive_maximum_fold_large_integer_real) {
+  auto document = sourcemeta::core::parse_json(R"JSON({
+    "$schema": "http://json-schema.org/draft-04/schema#",
+    "type": "integer",
+    "maximum": 18014398509481984.0,
+    "exclusiveMaximum": true
+  })JSON");
+
+  const auto expected = sourcemeta::core::parse_json(R"JSON({
+    "$schema": "http://json-schema.org/draft-04/schema#",
+    "type": "integer",
+    "maximum": 18014398509481983,
+    "multipleOf": 1
+  })JSON");
+
+  CANONICALIZE_NEXT(document, expected, *compiled_meta_);
+}
+
+TEST_F(CanonicalizerDraft4Test, exclusive_minimum_fold_large_integer_real) {
+  auto document = sourcemeta::core::parse_json(R"JSON({
+    "$schema": "http://json-schema.org/draft-04/schema#",
+    "type": "integer",
+    "minimum": 18014398509481984.0,
+    "exclusiveMinimum": true
+  })JSON");
+
+  const auto expected = sourcemeta::core::parse_json(R"JSON({
+    "$schema": "http://json-schema.org/draft-04/schema#",
+    "type": "integer",
+    "minimum": 18014398509481985,
+    "multipleOf": 1
+  })JSON");
+
+  CANONICALIZE_NEXT(document, expected, *compiled_meta_);
+}
