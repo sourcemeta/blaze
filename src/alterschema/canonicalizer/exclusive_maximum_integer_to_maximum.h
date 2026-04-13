@@ -33,9 +33,19 @@ public:
 
   auto transform(JSON &schema, const Result &) const -> void override {
     if (schema.at("exclusiveMaximum").is_integer()) {
-      auto new_maximum = schema.at("exclusiveMaximum");
-      new_maximum += sourcemeta::core::JSON{-1};
-      schema.at("exclusiveMaximum").into(new_maximum);
+      if (schema.at("exclusiveMaximum").to_integer() >
+          std::numeric_limits<std::int64_t>::min()) {
+        auto new_maximum = schema.at("exclusiveMaximum");
+        new_maximum += sourcemeta::core::JSON{-1};
+        schema.at("exclusiveMaximum").into(new_maximum);
+      } else {
+        auto result{sourcemeta::core::Decimal{
+            std::to_string(schema.at("exclusiveMaximum").to_integer())}};
+        result -= sourcemeta::core::Decimal{1};
+        schema.at("exclusiveMaximum")
+            .into(sourcemeta::core::JSON{std::move(result)});
+      }
+
       schema.rename("exclusiveMaximum", "maximum");
     } else if (schema.at("exclusiveMaximum").is_decimal()) {
       const auto current{schema.at("exclusiveMaximum").to_decimal()};
@@ -44,7 +54,7 @@ public:
         new_value -= sourcemeta::core::Decimal{1};
       }
 
-      if (current.is_integer()) {
+      if (new_value == current) {
         new_value -= sourcemeta::core::Decimal{1};
       }
 
@@ -58,8 +68,38 @@ public:
       schema.rename("exclusiveMaximum", "maximum");
     } else {
       const auto current{schema.at("exclusiveMaximum").to_real()};
-      const auto new_value{static_cast<std::int64_t>(std::floor(current))};
-      schema.at("exclusiveMaximum").into(sourcemeta::core::JSON{new_value});
+      const auto floor_value{std::floor(current)};
+      if (floor_value == current) {
+        auto result{sourcemeta::core::Decimal{
+            std::to_string(static_cast<std::int64_t>(current))}};
+        result -= sourcemeta::core::Decimal{1};
+        if (result.is_int64()) {
+          schema.at("exclusiveMaximum")
+              .into(sourcemeta::core::JSON{result.to_int64()});
+        } else {
+          schema.at("exclusiveMaximum")
+              .into(sourcemeta::core::JSON{std::move(result)});
+        }
+      } else if (std::isfinite(floor_value) &&
+                 floor_value >= static_cast<double>(
+                                    std::numeric_limits<std::int64_t>::min()) &&
+                 floor_value < static_cast<double>(
+                                   std::numeric_limits<std::int64_t>::max()) +
+                                   1.0) {
+        schema.at("exclusiveMaximum")
+            .into(
+                sourcemeta::core::JSON{static_cast<std::int64_t>(floor_value)});
+      } else {
+        auto result{sourcemeta::core::Decimal{current}};
+        result = result.to_integral();
+        if (result > sourcemeta::core::Decimal{current}) {
+          result -= sourcemeta::core::Decimal{1};
+        }
+
+        schema.at("exclusiveMaximum")
+            .into(sourcemeta::core::JSON{std::move(result)});
+      }
+
       schema.rename("exclusiveMaximum", "maximum");
     }
   }

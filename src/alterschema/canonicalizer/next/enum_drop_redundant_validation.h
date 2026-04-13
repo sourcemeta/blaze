@@ -31,11 +31,6 @@ public:
       }
 
       const auto &metadata{walker(entry.first, vocabularies)};
-      if (metadata.type == sourcemeta::core::SchemaKeywordType::Assertion) {
-        this->keywords_.emplace_back(entry.first);
-        continue;
-      }
-
       if (metadata.type == sourcemeta::core::SchemaKeywordType::Unknown ||
           metadata.type == sourcemeta::core::SchemaKeywordType::Annotation ||
           metadata.type == sourcemeta::core::SchemaKeywordType::Other ||
@@ -74,18 +69,17 @@ public:
       return;
     }
 
-    auto applicator_branch{JSON::make_object()};
+    auto new_allof{JSON::make_array()};
     for (const auto &keyword : this->wrap_keywords_) {
-      applicator_branch.assign(keyword, schema.at(keyword));
+      auto branch{JSON::make_object()};
+      branch.assign(keyword, schema.at(keyword));
       schema.erase(keyword);
+      new_allof.push_back(std::move(branch));
     }
 
     auto enum_branch{JSON::make_object()};
     enum_branch.assign("enum", schema.at("enum"));
     schema.erase("enum");
-
-    auto new_allof{JSON::make_array()};
-    new_allof.push_back(std::move(applicator_branch));
     new_allof.push_back(std::move(enum_branch));
 
     schema.assign("allOf", std::move(new_allof));
