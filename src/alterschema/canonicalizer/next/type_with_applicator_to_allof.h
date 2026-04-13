@@ -234,10 +234,10 @@ public:
   }
 
 private:
-  static constexpr std::array<const char *, 4> APPLICATORS{"not", "anyOf",
-                                                           "allOf", "oneOf"};
+  static constexpr std::array<const char *, 4> APPLICATORS{
+      {"not", "anyOf", "allOf", "oneOf"}};
   static constexpr std::array<const char *, 3> APPLICATORS_WITHOUT_ALLOF{
-      "not", "anyOf", "oneOf"};
+      {"not", "anyOf", "oneOf"}};
 
   static constexpr auto applicator_bit(std::string_view keyword)
       -> std::uint8_t {
