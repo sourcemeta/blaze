@@ -53,7 +53,10 @@ public:
         continue;
       }
 
-      this->wrap_keywords_.emplace_back(entry.first);
+      if (!frame.has_references_through(
+              location.pointer, WeakPointer::Token{std::cref(entry.first)})) {
+        this->wrap_keywords_.emplace_back(entry.first);
+      }
     }
 
     ONLY_CONTINUE_IF(!this->keywords_.empty() || !this->wrap_keywords_.empty());

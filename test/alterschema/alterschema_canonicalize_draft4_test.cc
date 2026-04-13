@@ -4277,3 +4277,48 @@ TEST_F(CanonicalizerDraft4Test, enum_assertion_uniqueItems_wrapped) {
 
   CANONICALIZE_NEXT(document, expected, *compiled_meta_);
 }
+
+TEST_F(CanonicalizerDraft4Test, enum_wrap_with_ref_through_sibling) {
+  auto document = sourcemeta::core::parse_json(R"JSON({
+    "$schema": "http://json-schema.org/draft-04/schema#",
+    "enum": [ 1, 2, 3 ],
+    "not": { "minimum": 3 },
+    "allOf": [
+      { "$ref": "#/not" }
+    ]
+  })JSON");
+
+  const auto expected = sourcemeta::core::parse_json(R"JSON({
+    "$schema": "http://json-schema.org/draft-04/schema#",
+    "allOf": [
+      {
+        "enum": [ 1, 2, 3 ]
+      },
+      {
+        "not": {
+          "anyOf": [
+            { "enum": [ null ] },
+            { "enum": [ false, true ] },
+            {
+              "type": "object",
+              "minProperties": 0,
+              "properties": {},
+              "patternProperties": {},
+              "additionalProperties": true
+            },
+            {
+              "type": "array",
+              "minItems": 0,
+              "uniqueItems": false,
+              "items": true
+            },
+            { "type": "string", "minLength": 0 },
+            { "type": "number", "minimum": 3 }
+          ]
+        }
+      }
+    ]
+  })JSON");
+
+  CANONICALIZE_NEXT(document, expected, *compiled_meta_);
+}

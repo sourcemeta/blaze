@@ -70,8 +70,7 @@ public:
       const auto current{schema.at("exclusiveMinimum").to_real()};
       const auto ceil_value{std::ceil(current)};
       if (ceil_value == current) {
-        auto result{sourcemeta::core::Decimal{
-            std::to_string(static_cast<std::int64_t>(current))}};
+        auto result{sourcemeta::core::Decimal{current}};
         result += sourcemeta::core::Decimal{1};
         if (result.is_int64()) {
           schema.at("exclusiveMinimum")

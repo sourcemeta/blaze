@@ -70,8 +70,7 @@ public:
       const auto current{schema.at("exclusiveMaximum").to_real()};
       const auto floor_value{std::floor(current)};
       if (floor_value == current) {
-        auto result{sourcemeta::core::Decimal{
-            std::to_string(static_cast<std::int64_t>(current))}};
+        auto result{sourcemeta::core::Decimal{current}};
         result -= sourcemeta::core::Decimal{1};
         if (result.is_int64()) {
           schema.at("exclusiveMaximum")
