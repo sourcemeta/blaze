@@ -39,6 +39,13 @@ Features
   nano-second range, making it a perfect fit for low-latency gateways and
   validation of large datasets
 
+- **Single-Threaded:** Blaze evaluation is single-threaded by design. In
+  servers and gateways, parallelism naturally occurs across requests. Each
+  incoming validation gets its own thread, scaling across all cores with zero
+  coordination overhead. Parallelising a single evaluation across multiple
+  cores _may look faster in isolation_, but monopolises resources and degrades
+  both throughput and tail latency under concurrent load
+
 - **Compliance:** Blaze achieves a 100% compliance score in the official
   [Bowtie](https://bowtie.report/#/implementations/cpp-blaze) benchmark, while
   popular validators like [AJV](https://bowtie.report/#/implementations/js-ajv)
