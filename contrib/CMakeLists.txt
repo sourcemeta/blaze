@@ -34,6 +34,8 @@ if(BLAZE_COMPILER AND BLAZE_EVALUATOR)
   target_link_libraries(sourcemeta_blaze_contrib_trace
     PRIVATE sourcemeta::core::jsonschema)
   target_link_libraries(sourcemeta_blaze_contrib_trace
+    PRIVATE sourcemeta::core::options)
+  target_link_libraries(sourcemeta_blaze_contrib_trace
     PRIVATE sourcemeta::blaze::compiler)
   target_link_libraries(sourcemeta_blaze_contrib_trace
     PRIVATE sourcemeta::blaze::evaluator)
