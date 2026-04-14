@@ -19,7 +19,8 @@ public:
             {Vocabularies::Known::JSON_Schema_Draft_4,
              Vocabularies::Known::JSON_Schema_Draft_6,
              Vocabularies::Known::JSON_Schema_Draft_7,
-             Vocabularies::Known::JSON_Schema_2019_09_Applicator}) &&
+             Vocabularies::Known::JSON_Schema_2019_09_Applicator,
+             Vocabularies::Known::JSON_Schema_2020_12_Applicator}) &&
         schema.is_object() && schema.defines("type") &&
         schema.at("type").is_string() &&
         schema.at("type").to_string() == "array");
@@ -28,9 +29,10 @@ public:
     // because adding `items: true` marks all items as "evaluated",
     // which changes the behavior of `unevaluatedItems` at higher
     // levels
-    const bool is_2019_09{vocabularies.contains(
-        Vocabularies::Known::JSON_Schema_2019_09_Applicator)};
-    const bool needs_items{!is_2019_09 && !schema.defines("items")};
+    const bool is_modern{vocabularies.contains_any(
+        {Vocabularies::Known::JSON_Schema_2019_09_Applicator,
+         Vocabularies::Known::JSON_Schema_2020_12_Applicator})};
+    const bool needs_items{!is_modern && !schema.defines("items")};
     ONLY_CONTINUE_IF(!schema.defines("uniqueItems") || needs_items ||
                      !schema.defines("minItems"));
 

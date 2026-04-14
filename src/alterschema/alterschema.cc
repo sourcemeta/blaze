@@ -145,6 +145,8 @@ auto WALK_UP_IN_PLACE_APPLICATORS(const JSON &root, const SchemaFrame &frame,
 #include "canonicalizer/next/property_names_implicit.h"
 #include "canonicalizer/next/recursive_anchor_false_drop.h"
 #include "canonicalizer/next/type_with_applicator_to_allof.h"
+#include "canonicalizer/next/unevaluated_items_to_items.h"
+#include "canonicalizer/next/unevaluated_properties_to_additional_properties.h"
 #include "canonicalizer/next/unsatisfiable_exclusive_equal_bounds.h"
 #include "canonicalizer/next/unsatisfiable_type_and_enum.h"
 #include "canonicalizer/properties_implicit.h"
@@ -259,6 +261,8 @@ auto add(SchemaTransformer &bundle, const AlterSchemaMode mode) -> void {
     bundle.add<DefinitionsToDefsNext>();
     bundle.add<DeprecatedFalseDrop>();
     bundle.add<RecursiveAnchorFalseDrop>();
+    bundle.add<UnevaluatedItemsToItems>();
+    bundle.add<UnevaluatedPropertiesToAdditionalProperties>();
     bundle.add<IfThenElseImplicit>();
     bundle.add<ImplicitObjectKeywords>();
     bundle.add<PropertyNamesImplicit>();
@@ -381,7 +385,9 @@ auto add(SchemaTransformer &bundle, const AlterSchemaMode mode) -> void {
     bundle.add<ValidExamples>();
   }
 
-  bundle.add<UnnecessaryAllOfRefWrapperModern>();
+  if (mode != AlterSchemaMode::CanonicalizerNext) {
+    bundle.add<UnnecessaryAllOfRefWrapperModern>();
+  }
   bundle.add<UnnecessaryAllOfRefWrapperDraft>();
 
   if (mode != AlterSchemaMode::CanonicalizerNext) {

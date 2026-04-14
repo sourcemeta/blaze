@@ -18,4 +18,5 @@ schemas/canonical-draft4.test.json
 schemas/canonical-draft6.test.json
 schemas/canonical-draft7.test.json
 schemas/canonical-2019-09.test.json
+schemas/canonical-2020-12.test.json
 schemas/Makefile

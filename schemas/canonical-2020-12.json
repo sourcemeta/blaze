@@ -1,8 +1,8 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "tag:sourcemeta.com,2026:canonical:2019-09",
-  "title": "Canonical JSON Schema 2019-09",
-  "description": "Meta-schema that validates whether a given JSON Schema 2019-09 document is in canonical form",
+  "$id": "tag:sourcemeta.com,2026:canonical:2020-12",
+  "title": "Canonical JSON Schema 2020-12",
+  "description": "Meta-schema that validates whether a given JSON Schema 2020-12 document is in canonical form",
   "examples": [
     true,
     {
@@ -46,6 +46,37 @@
         "^x-": true
       }
     },
+    "core": {
+      "x-lint-exclude": "simple_properties_identifiers",
+      "properties": {
+        "$schema": {
+          "type": "string"
+        },
+        "$id": {
+          "type": "string"
+        },
+        "$anchor": {
+          "type": "string"
+        },
+        "$dynamicAnchor": {
+          "type": "string"
+        },
+        "$vocabulary": {
+          "type": "object",
+          "minProperties": 1,
+          "additionalProperties": {
+            "type": "boolean"
+          }
+        },
+        "$defs": {
+          "type": "object",
+          "minProperties": 1,
+          "additionalProperties": {
+            "$ref": "#/$defs/schema"
+          }
+        }
+      }
+    },
     "unevaluated": {
       "not": {
         "required": [ "unevaluatedProperties", "unevaluatedItems" ]
@@ -61,37 +92,6 @@
           "$ref": "#/$defs/schema",
           "not": {
             "const": true
-          }
-        }
-      }
-    },
-    "core": {
-      "x-lint-exclude": "simple_properties_identifiers",
-      "properties": {
-        "$schema": {
-          "type": "string"
-        },
-        "$id": {
-          "type": "string"
-        },
-        "$anchor": {
-          "type": "string"
-        },
-        "$recursiveAnchor": {
-          "const": true
-        },
-        "$vocabulary": {
-          "type": "object",
-          "minProperties": 1,
-          "additionalProperties": {
-            "type": "boolean"
-          }
-        },
-        "$defs": {
-          "type": "object",
-          "minProperties": 1,
-          "additionalProperties": {
-            "$ref": "#/$defs/schema"
           }
         }
       }
@@ -117,10 +117,10 @@
           "x-lint-exclude": "simple_properties_identifiers",
           "$ref": "#/$defs/metadata",
           "type": "object",
-          "required": [ "$recursiveRef" ],
+          "required": [ "$dynamicRef" ],
           "properties": {
-            "$recursiveRef": {
-              "const": "#"
+            "$dynamicRef": {
+              "type": "string"
             }
           },
           "unevaluatedProperties": false
@@ -439,14 +439,7 @@
               "$ref": "#/$defs/core"
             }
           ],
-          "required": [
-            "type",
-            "items",
-            "contains",
-            "minContains",
-            "minItems",
-            "uniqueItems"
-          ],
+          "required": [ "type", "items", "minItems", "uniqueItems" ],
           "properties": {
             "type": {
               "const": "array"
@@ -490,13 +483,7 @@
               "$ref": "#/$defs/core"
             }
           ],
-          "required": [
-            "type",
-            "contains",
-            "minContains",
-            "minItems",
-            "uniqueItems"
-          ],
+          "required": [ "type", "minItems", "uniqueItems" ],
           "properties": {
             "type": {
               "const": "array"
@@ -539,10 +526,8 @@
           ],
           "required": [
             "type",
+            "prefixItems",
             "items",
-            "additionalItems",
-            "contains",
-            "minContains",
             "minItems",
             "uniqueItems"
           ],
@@ -550,14 +535,14 @@
             "type": {
               "const": "array"
             },
-            "items": {
+            "prefixItems": {
               "type": "array",
               "minItems": 1,
               "items": {
                 "$ref": "#/$defs/schema"
               }
             },
-            "additionalItems": {
+            "items": {
               "$ref": "#/$defs/schema"
             },
             "contains": {
@@ -598,10 +583,8 @@
           ],
           "required": [
             "type",
-            "items",
+            "prefixItems",
             "unevaluatedItems",
-            "contains",
-            "minContains",
             "minItems",
             "uniqueItems"
           ],
@@ -609,7 +592,7 @@
             "type": {
               "const": "array"
             },
-            "items": {
+            "prefixItems": {
               "type": "array",
               "minItems": 1,
               "items": {
@@ -655,19 +638,12 @@
               "$ref": "#/$defs/core"
             }
           ],
-          "required": [
-            "type",
-            "items",
-            "contains",
-            "minContains",
-            "minItems",
-            "uniqueItems"
-          ],
+          "required": [ "type", "prefixItems", "minItems", "uniqueItems" ],
           "properties": {
             "type": {
               "const": "array"
             },
-            "items": {
+            "prefixItems": {
               "type": "array",
               "minItems": 1,
               "items": {
