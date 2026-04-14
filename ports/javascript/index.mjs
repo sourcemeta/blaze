@@ -1,4 +1,4 @@
-const JSON_VERSION = 1;
+const JSON_VERSION = 2;
 const DEPTH_LIMIT = 300;
 const ANNOTATION_EMIT = 44;
 const ANNOTATION_TO_PARENT = 45;
