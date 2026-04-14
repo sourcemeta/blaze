@@ -114,19 +114,10 @@
     "description": "if_3",
     "schema": {
       "$schema": "http://json-schema.org/draft-07/schema#",
-      "properties": {
-        "foo": { "$ref": "#/definitions/test" }
-      },
-      "definitions": {
-        "test": {
-          "if": false,
-          "else": { "type": "object" }
-        }
-      }
+      "properties": { "foo": { "$ref": "#/definitions/test" } },
+      "definitions": { "test": { "if": false, "else": { "type": "object" } } }
     },
-    "instance": {
-      "foo": {}
-    },
+    "instance": { "foo": {} },
     "valid": true,
     "fast": {
       "pre": [
@@ -279,7 +270,9 @@
       "post": [
         [ true, "AssertionDivisible", "/then/multipleOf", "#/then/multipleOf", "" ]
       ],
-      "descriptions": [ "The integer value 5 was expected to be divisible by the integer 5" ]
+      "descriptions": [
+        "The integer value 5 was expected to be divisible by the integer 5"
+      ]
     },
     "exhaustive": {
       "pre": [
@@ -288,7 +281,9 @@
       "post": [
         [ true, "AssertionDivisible", "/then/multipleOf", "#/then/multipleOf", "" ]
       ],
-      "descriptions": [ "The integer value 5 was expected to be divisible by the integer 5" ]
+      "descriptions": [
+        "The integer value 5 was expected to be divisible by the integer 5"
+      ]
     }
   },
   {
@@ -307,7 +302,9 @@
       "post": [
         [ false, "AssertionDivisible", "/then/multipleOf", "#/then/multipleOf", "" ]
       ],
-      "descriptions": [ "The integer value 2 was expected to be divisible by the integer 5" ]
+      "descriptions": [
+        "The integer value 2 was expected to be divisible by the integer 5"
+      ]
     },
     "exhaustive": {
       "pre": [
@@ -316,7 +313,9 @@
       "post": [
         [ false, "AssertionDivisible", "/then/multipleOf", "#/then/multipleOf", "" ]
       ],
-      "descriptions": [ "The integer value 2 was expected to be divisible by the integer 5" ]
+      "descriptions": [
+        "The integer value 2 was expected to be divisible by the integer 5"
+      ]
     }
   },
   {
@@ -325,41 +324,21 @@
       "$schema": "http://json-schema.org/draft-07/schema#",
       "properties": {
         "foo": {
-          "allOf": [
-            {
-              "if": { "type": "object" },
-              "then": {
-                "required": [ "bar" ]
-              }
-            }
-          ]
+          "allOf": [ { "if": { "type": "object" }, "then": { "required": [ "bar" ] } } ]
         }
       }
     },
-    "instance": {
-      "foo": { "bar": 1 }
-    },
+    "instance": { "foo": { "bar": 1 } },
     "valid": true,
     "fast": {
       "pre": [
         [ "LogicalCondition", "/properties/foo/allOf/0/if", "#/properties/foo/allOf/0/if", "/foo" ],
         [ "AssertionTypeStrict", "/properties/foo/allOf/0/if/type", "#/properties/foo/allOf/0/if/type", "/foo" ],
-        [
-          "AssertionDefines",
-          "/properties/foo/allOf/0/then/required",
-          "#/properties/foo/allOf/0/then/required",
-          "/foo"
-        ]
+        [ "AssertionDefines", "/properties/foo/allOf/0/then/required", "#/properties/foo/allOf/0/then/required", "/foo" ]
       ],
       "post": [
         [ true, "AssertionTypeStrict", "/properties/foo/allOf/0/if/type", "#/properties/foo/allOf/0/if/type", "/foo" ],
-        [
-          true,
-          "AssertionDefines",
-          "/properties/foo/allOf/0/then/required",
-          "#/properties/foo/allOf/0/then/required",
-          "/foo"
-        ],
+        [ true, "AssertionDefines", "/properties/foo/allOf/0/then/required", "#/properties/foo/allOf/0/then/required", "/foo" ],
         [ true, "LogicalCondition", "/properties/foo/allOf/0/if", "#/properties/foo/allOf/0/if", "/foo" ]
       ],
       "descriptions": [
@@ -374,22 +353,11 @@
         [ "LogicalAnd", "/properties/foo/allOf", "#/properties/foo/allOf", "/foo" ],
         [ "LogicalCondition", "/properties/foo/allOf/0/if", "#/properties/foo/allOf/0/if", "/foo" ],
         [ "AssertionTypeStrict", "/properties/foo/allOf/0/if/type", "#/properties/foo/allOf/0/if/type", "/foo" ],
-        [
-          "AssertionDefines",
-          "/properties/foo/allOf/0/then/required",
-          "#/properties/foo/allOf/0/then/required",
-          "/foo"
-        ]
+        [ "AssertionDefines", "/properties/foo/allOf/0/then/required", "#/properties/foo/allOf/0/then/required", "/foo" ]
       ],
       "post": [
         [ true, "AssertionTypeStrict", "/properties/foo/allOf/0/if/type", "#/properties/foo/allOf/0/if/type", "/foo" ],
-        [
-          true,
-          "AssertionDefines",
-          "/properties/foo/allOf/0/then/required",
-          "#/properties/foo/allOf/0/then/required",
-          "/foo"
-        ],
+        [ true, "AssertionDefines", "/properties/foo/allOf/0/then/required", "#/properties/foo/allOf/0/then/required", "/foo" ],
         [ true, "LogicalCondition", "/properties/foo/allOf/0/if", "#/properties/foo/allOf/0/if", "/foo" ],
         [ true, "LogicalAnd", "/properties/foo/allOf", "#/properties/foo/allOf", "/foo" ],
         [ true, "LogicalWhenType", "/properties", "#/properties", "" ]
@@ -599,7 +567,9 @@
       "post": [
         [ true, "LoopItemsTypeStrictAny", "/items", "#/items", "" ]
       ],
-      "descriptions": [ "The array items were expected to be of type number" ]
+      "descriptions": [
+        "The array items were expected to be of type number"
+      ]
     },
     "exhaustive": {
       "pre": [

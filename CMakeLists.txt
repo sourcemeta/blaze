@@ -88,6 +88,22 @@ if(PROJECT_IS_TOP_LEVEL)
     src/*.h src/*.cc
     benchmark/*.h benchmark/*.cc
     test/*.h test/*.cc)
+
+  find_package(Python3 COMPONENTS Interpreter)
+  if(Python3_FOUND)
+    add_custom_target(blaze_format_trace_json
+      COMMAND "${Python3_EXECUTABLE}"
+        "${PROJECT_SOURCE_DIR}/contrib/format_trace_json.py"
+        "${PROJECT_SOURCE_DIR}/test/evaluator/evaluator_draft4.json"
+        "${PROJECT_SOURCE_DIR}/test/evaluator/evaluator_draft6.json"
+        "${PROJECT_SOURCE_DIR}/test/evaluator/evaluator_draft7.json"
+        "${PROJECT_SOURCE_DIR}/test/evaluator/evaluator_2019_09.json"
+        "${PROJECT_SOURCE_DIR}/test/evaluator/evaluator_2020_12.json"
+        "${PROJECT_SOURCE_DIR}/test/evaluator/evaluator_openapi_3_1.json"
+        "${PROJECT_SOURCE_DIR}/test/evaluator/evaluator_openapi_3_2.json"
+      COMMENT "Formatting trace JSON test files"
+      VERBATIM)
+  endif()
 endif()
 
 # Testing

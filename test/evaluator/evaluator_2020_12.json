@@ -1,7 +1,10 @@
 [
   {
     "description": "unknown_1",
-    "schema": { "$schema": "https://json-schema.org/draft/2020-12/schema", "fooBar": "baz" },
+    "schema": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "fooBar": "baz"
+    },
     "instance": "foo",
     "valid": true,
     "fast": {},
@@ -12,7 +15,9 @@
       "post": [
         [ true, "Annotation", "/fooBar", "#/fooBar", "", "baz" ]
       ],
-      "descriptions": [ "The unrecognized keyword \"fooBar\" was collected as the annotation \"baz\"" ]
+      "descriptions": [
+        "The unrecognized keyword \"fooBar\" was collected as the annotation \"baz\""
+      ]
     }
   },
   {
@@ -28,7 +33,9 @@
       "post": [
         [ true, "Annotation", "/x-test", "#/x-test", "", 1 ]
       ],
-      "descriptions": [ "The unrecognized keyword \"x-test\" was collected as the annotation 1" ]
+      "descriptions": [
+        "The unrecognized keyword \"x-test\" was collected as the annotation 1"
+      ]
     }
   },
   {
@@ -145,10 +152,7 @@
     "schema": {
       "$schema": "https://json-schema.org/draft/2020-12/schema",
       "items": { "type": "string" },
-      "prefixItems": [
-        { "type": "boolean" },
-        { "type": "integer" }
-      ]
+      "prefixItems": [ { "type": "boolean" }, { "type": "integer" } ]
     },
     "instance": [ true, 5 ],
     "valid": true,
@@ -198,10 +202,7 @@
     "schema": {
       "$schema": "https://json-schema.org/draft/2020-12/schema",
       "items": { "type": "string" },
-      "prefixItems": [
-        { "type": "boolean" },
-        { "type": "integer" }
-      ]
+      "prefixItems": [ { "type": "boolean" }, { "type": "integer" } ]
     },
     "instance": [ true, 5, "foo", "bar" ],
     "valid": true,
@@ -272,10 +273,7 @@
     "schema": {
       "$schema": "https://json-schema.org/draft/2020-12/schema",
       "items": { "type": "string" },
-      "prefixItems": [
-        { "type": "boolean" },
-        { "type": "integer" }
-      ]
+      "prefixItems": [ { "type": "boolean" }, { "type": "integer" } ]
     },
     "instance": [ true, 5, 6, "bar" ],
     "valid": false,
@@ -344,9 +342,7 @@
     "description": "prefixItems_1",
     "schema": {
       "$schema": "https://json-schema.org/draft/2020-12/schema",
-      "prefixItems": [
-        { "type": "string" }
-      ]
+      "prefixItems": [ { "type": "string" } ]
     },
     "instance": 5,
     "valid": true,
@@ -357,10 +353,7 @@
     "description": "prefixItems_2",
     "schema": {
       "$schema": "https://json-schema.org/draft/2020-12/schema",
-      "prefixItems": [
-        { "type": "integer" },
-        { "type": "boolean" }
-      ]
+      "prefixItems": [ { "type": "integer" }, { "type": "boolean" } ]
     },
     "instance": [],
     "valid": true,
@@ -391,10 +384,7 @@
     "description": "prefixItems_3",
     "schema": {
       "$schema": "https://json-schema.org/draft/2020-12/schema",
-      "prefixItems": [
-        { "type": "integer" },
-        { "type": "boolean" }
-      ]
+      "prefixItems": [ { "type": "integer" }, { "type": "boolean" } ]
     },
     "instance": [ 5 ],
     "valid": true,
@@ -434,10 +424,7 @@
     "description": "prefixItems_4",
     "schema": {
       "$schema": "https://json-schema.org/draft/2020-12/schema",
-      "prefixItems": [
-        { "type": "integer" },
-        { "type": "boolean" }
-      ]
+      "prefixItems": [ { "type": "integer" }, { "type": "boolean" } ]
     },
     "instance": [ 5, true, "extra" ],
     "valid": true,
@@ -483,10 +470,7 @@
     "description": "prefixItems_5",
     "schema": {
       "$schema": "https://json-schema.org/draft/2020-12/schema",
-      "prefixItems": [
-        { "type": "integer" },
-        { "type": "boolean" }
-      ]
+      "prefixItems": [ { "type": "integer" }, { "type": "boolean" } ]
     },
     "instance": [ 5, 1, "extra" ],
     "valid": false,
@@ -529,10 +513,7 @@
     "description": "prefixItems_6",
     "schema": {
       "$schema": "https://json-schema.org/draft/2020-12/schema",
-      "prefixItems": [
-        { "type": "integer" },
-        { "type": "boolean" }
-      ]
+      "prefixItems": [ { "type": "integer" }, { "type": "boolean" } ]
     },
     "instance": [ 5, true ],
     "valid": true,
@@ -894,9 +875,7 @@
     "schema": {
       "$schema": "https://json-schema.org/draft/2020-12/schema",
       "$dynamicRef": "#foo",
-      "$defs": {
-        "string": { "$dynamicAnchor": "foo", "type": "string" }
-      }
+      "$defs": { "string": { "$dynamicAnchor": "foo", "type": "string" } }
     },
     "instance": "foo",
     "valid": true,
@@ -907,7 +886,9 @@
       "post": [
         [ true, "AssertionTypeStrict", "/$dynamicRef/type", "#/$defs/string/type", "" ]
       ],
-      "descriptions": [ "The value was expected to be of type string" ]
+      "descriptions": [
+        "The value was expected to be of type string"
+      ]
     },
     "exhaustive": {
       "pre": [
@@ -930,8 +911,16 @@
       "$schema": "https://json-schema.org/draft/2020-12/schema",
       "$dynamicRef": "https://example.com/target#meta",
       "$defs": {
-        "target": { "$id": "https://example.com/target", "$dynamicAnchor": "meta", "type": "boolean" },
-        "other": { "$id": "https://example.com/other", "$dynamicAnchor": "meta", "type": "number" }
+        "target": {
+          "$id": "https://example.com/target",
+          "$dynamicAnchor": "meta",
+          "type": "boolean"
+        },
+        "other": {
+          "$id": "https://example.com/other",
+          "$dynamicAnchor": "meta",
+          "type": "number"
+        }
       }
     },
     "instance": true,
@@ -971,8 +960,16 @@
       "$schema": "https://json-schema.org/draft/2020-12/schema",
       "$dynamicRef": "https://example.com/target#meta",
       "$defs": {
-        "target": { "$id": "https://example.com/target", "$dynamicAnchor": "meta", "type": "boolean" },
-        "other": { "$id": "https://example.com/other", "$dynamicAnchor": "meta", "type": "number" }
+        "target": {
+          "$id": "https://example.com/target",
+          "$dynamicAnchor": "meta",
+          "type": "boolean"
+        },
+        "other": {
+          "$id": "https://example.com/other",
+          "$dynamicAnchor": "meta",
+          "type": "number"
+        }
       }
     },
     "instance": 1,
@@ -1011,9 +1008,7 @@
     "schema": {
       "$schema": "https://json-schema.org/draft/2020-12/schema",
       "$ref": "#/$defs/https%3A~1~1example.com~1schema~1type",
-      "$defs": {
-        "https://example.com/schema/type": { "type": "string" }
-      }
+      "$defs": { "https://example.com/schema/type": { "type": "string" } }
     },
     "instance": "foo",
     "valid": true,
@@ -1024,7 +1019,9 @@
       "post": [
         [ true, "AssertionTypeStrict", "/$ref/type", "#/$defs/https:~1~1example.com~1schema~1type/type", "" ]
       ],
-      "descriptions": [ "The value was expected to be of type string" ]
+      "descriptions": [
+        "The value was expected to be of type string"
+      ]
     },
     "exhaustive": {
       "pre": [
@@ -1060,7 +1057,9 @@
       "post": [
         [ true, "AssertionTypeStrict", "/$ref/$ref/type", "#/definitions/string/type", "" ]
       ],
-      "descriptions": [ "The value was expected to be of type string" ]
+      "descriptions": [
+        "The value was expected to be of type string"
+      ]
     },
     "exhaustive": {
       "pre": [
@@ -1131,12 +1130,7 @@
     "description": "unevaluatedItems_2",
     "schema": {
       "$schema": "https://json-schema.org/draft/2020-12/schema",
-      "anyOf": [
-        {
-          "items": { "type": "boolean" }
-        },
-        true
-      ],
+      "anyOf": [ { "items": { "type": "boolean" } }, true ],
       "unevaluatedItems": false
     },
     "instance": [ false, 1 ],
@@ -1198,14 +1192,7 @@
     "description": "unevaluatedItems_3",
     "schema": {
       "$schema": "https://json-schema.org/draft/2020-12/schema",
-      "anyOf": [
-        {
-          "prefixItems": [
-            { "type": "boolean" }
-          ]
-        },
-        true
-      ],
+      "anyOf": [ { "prefixItems": [ { "type": "boolean" } ] }, true ],
       "unevaluatedItems": false
     },
     "instance": [ 1, 2 ],
@@ -1451,7 +1438,9 @@
       "post": [
         [ true, "LoopPropertiesTypeStrict", "/additionalProperties/type", "#/additionalProperties/type", "" ]
       ],
-      "descriptions": [ "The object properties were expected to be of type string" ]
+      "descriptions": [
+        "The object properties were expected to be of type string"
+      ]
     },
     "exhaustive": {
       "pre": [
@@ -1493,7 +1482,9 @@
       "post": [
         [ true, "AssertionTypeStrict", "/$ref/type", "https://www.example.com#/items/type", "" ]
       ],
-      "descriptions": [ "The value was expected to be of type string" ]
+      "descriptions": [
+        "The value was expected to be of type string"
+      ]
     },
     "exhaustive": {
       "pre": [
@@ -1527,18 +1518,12 @@
         "contentEncoding": "base64",
         "contentMediaType": "application/json",
         "contentSchema": true,
-        "prefixItems": [
-          { "type": "string" }
-        ],
+        "prefixItems": [ { "type": "string" } ],
         "items": { "type": "string" },
         "unevaluatedItems": { "type": "string" },
         "contains": { "type": "string" },
-        "properties": {
-          "foo": { "type": "string" }
-        },
-        "patternProperties": {
-          "^f": { "type": "string" }
-        },
+        "properties": { "foo": { "type": "string" } },
+        "patternProperties": { "^f": { "type": "string" } },
         "additionalProperties": { "type": "string" },
         "unevaluatedProperties": { "type": "string" }
       }
@@ -1553,12 +1538,17 @@
       "post": [
         [ true, "LoopKeys", "/propertyNames", "#/propertyNames", "" ]
       ],
-      "descriptions": [ "The object property \"foo\" was expected to validate against the given subschema" ]
+      "descriptions": [
+        "The object property \"foo\" was expected to validate against the given subschema"
+      ]
     }
   },
   {
     "description": "description",
-    "schema": { "$schema": "https://json-schema.org/draft/2020-12/schema", "description": "Foo Bar" },
+    "schema": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "description": "Foo Bar"
+    },
     "instance": 1,
     "valid": true,
     "fast": {},
@@ -1569,7 +1559,9 @@
       "post": [
         [ true, "Annotation", "/description", "#/description", "", "Foo Bar" ]
       ],
-      "descriptions": [ "The description of the instance was \"Foo Bar\"" ]
+      "descriptions": [
+        "The description of the instance was \"Foo Bar\""
+      ]
     }
   },
   {
@@ -1578,9 +1570,7 @@
       "$id": "https://www.example.com",
       "$schema": "https://json-schema.org/draft/2020-12/schema",
       "$ref": "#/$defs/test",
-      "$defs": {
-        "test": {}
-      }
+      "$defs": { "test": {} }
     },
     "instance": 5,
     "valid": true,
@@ -1592,7 +1582,9 @@
       "post": [
         [ true, "ControlJump", "/$ref", "https://www.example.com#/$ref", "" ]
       ],
-      "descriptions": [ "The integer value was expected to validate against the referenced schema" ]
+      "descriptions": [
+        "The integer value was expected to validate against the referenced schema"
+      ]
     }
   },
   {
@@ -1609,14 +1601,7 @@
         [ "Annotation", "/discriminator", "#/discriminator", "" ]
       ],
       "post": [
-        [
-          true,
-          "Annotation",
-          "/discriminator",
-          "#/discriminator",
-          "",
-          { "propertyName": "petType" }
-        ]
+        [ true, "Annotation", "/discriminator", "#/discriminator", "", {"propertyName": "petType"} ]
       ],
       "descriptions": [
         "The unrecognized keyword \"discriminator\" was collected as the annotation {\"propertyName\":\"petType\"}"
@@ -1637,14 +1622,7 @@
         [ "Annotation", "/xml", "#/xml", "" ]
       ],
       "post": [
-        [
-          true,
-          "Annotation",
-          "/xml",
-          "#/xml",
-          "",
-          { "name": "pet", "wrapped": true }
-        ]
+        [ true, "Annotation", "/xml", "#/xml", "", {"name": "pet", "wrapped": true} ]
       ],
       "descriptions": [
         "The unrecognized keyword \"xml\" was collected as the annotation {\"name\":\"pet\",\"wrapped\":true}"
@@ -1665,14 +1643,7 @@
         [ "Annotation", "/externalDocs", "#/externalDocs", "" ]
       ],
       "post": [
-        [
-          true,
-          "Annotation",
-          "/externalDocs",
-          "#/externalDocs",
-          "",
-          { "url": "https://example.com/docs" }
-        ]
+        [ true, "Annotation", "/externalDocs", "#/externalDocs", "", {"url": "https://example.com/docs"} ]
       ],
       "descriptions": [
         "The unrecognized keyword \"externalDocs\" was collected as the annotation {\"url\":\"https://example.com/docs\"}"
@@ -1693,14 +1664,7 @@
         [ "Annotation", "/example", "#/example", "" ]
       ],
       "post": [
-        [
-          true,
-          "Annotation",
-          "/example",
-          "#/example",
-          "",
-          { "name": "Rex", "petType": "dog" }
-        ]
+        [ true, "Annotation", "/example", "#/example", "", {"name": "Rex", "petType": "dog"} ]
       ],
       "descriptions": [
         "The unrecognized keyword \"example\" was collected as the annotation {\"name\":\"Rex\",\"petType\":\"dog\"}"
