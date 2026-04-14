@@ -4643,8 +4643,8 @@
       }
     },
     {
-      "description": "Array single-items without items is rejected",
-      "valid": false,
+      "description": "Array without items is canonical",
+      "valid": true,
       "data": {
         "type": "array",
         "contains": true,
@@ -5901,6 +5901,234 @@
         "minItems": 0,
         "uniqueItems": false,
         "if": true
+      }
+    },
+    {
+      "description": "Array without items with all required keywords is canonical",
+      "valid": true,
+      "data": {
+        "type": "array",
+        "contains": true,
+        "minContains": 0,
+        "minItems": 0,
+        "uniqueItems": false
+      }
+    },
+    {
+      "description": "Array without items with contains schema is canonical",
+      "valid": true,
+      "data": {
+        "type": "array",
+        "contains": {
+          "type": "string",
+          "minLength": 0
+        },
+        "minContains": 1,
+        "minItems": 0,
+        "uniqueItems": false
+      }
+    },
+    {
+      "description": "Array without items with all optional fields is canonical",
+      "valid": true,
+      "data": {
+        "type": "array",
+        "contains": true,
+        "minContains": 0,
+        "maxContains": 10,
+        "minItems": 0,
+        "maxItems": 100,
+        "uniqueItems": true,
+        "$schema": "https://json-schema.org/draft/2019-09/schema",
+        "$id": "https://example.com/arr-no-items",
+        "$anchor": "noitems",
+        "$defs": {
+          "helper": true
+        },
+        "title": "No items array",
+        "description": "An array without items",
+        "default": [],
+        "deprecated": true,
+        "readOnly": false,
+        "writeOnly": false,
+        "examples": [
+          [ 1, 2 ]
+        ],
+        "x-custom": "value"
+      }
+    },
+    {
+      "description": "Array without items branch does not reject items (matches single-items branch)",
+      "valid": true,
+      "data": {
+        "type": "array",
+        "items": true,
+        "contains": true,
+        "minContains": 0,
+        "minItems": 0,
+        "uniqueItems": false
+      }
+    },
+    {
+      "description": "Array without items with additionalItems sibling is rejected",
+      "valid": false,
+      "data": {
+        "type": "array",
+        "additionalItems": true,
+        "contains": true,
+        "minContains": 0,
+        "minItems": 0,
+        "uniqueItems": false
+      }
+    },
+    {
+      "description": "Array without items with unevaluatedItems sibling is rejected",
+      "valid": false,
+      "data": {
+        "type": "array",
+        "unevaluatedItems": false,
+        "contains": true,
+        "minContains": 0,
+        "minItems": 0,
+        "uniqueItems": false
+      }
+    },
+    {
+      "description": "Array without items without contains is rejected",
+      "valid": false,
+      "data": {
+        "type": "array",
+        "minContains": 0,
+        "minItems": 0,
+        "uniqueItems": false
+      }
+    },
+    {
+      "description": "Array without items without minContains is rejected",
+      "valid": false,
+      "data": {
+        "type": "array",
+        "contains": true,
+        "minItems": 0,
+        "uniqueItems": false
+      }
+    },
+    {
+      "description": "Array without items without minItems is rejected",
+      "valid": false,
+      "data": {
+        "type": "array",
+        "contains": true,
+        "minContains": 0,
+        "uniqueItems": false
+      }
+    },
+    {
+      "description": "Array without items without uniqueItems is rejected",
+      "valid": false,
+      "data": {
+        "type": "array",
+        "contains": true,
+        "minContains": 0,
+        "minItems": 0
+      }
+    },
+    {
+      "description": "Array without items with $comment is rejected",
+      "valid": false,
+      "data": {
+        "type": "array",
+        "contains": true,
+        "minContains": 0,
+        "minItems": 0,
+        "uniqueItems": false,
+        "$comment": "A comment"
+      }
+    },
+    {
+      "description": "Array without items with definitions is rejected",
+      "valid": false,
+      "data": {
+        "type": "array",
+        "contains": true,
+        "minContains": 0,
+        "minItems": 0,
+        "uniqueItems": false,
+        "definitions": {
+          "x": true
+        }
+      }
+    },
+    {
+      "description": "Array without items with Draft 4 id is rejected",
+      "valid": false,
+      "data": {
+        "type": "array",
+        "contains": true,
+        "minContains": 0,
+        "minItems": 0,
+        "uniqueItems": false,
+        "id": "https://example.com"
+      }
+    },
+    {
+      "description": "Array without items with string keywords is rejected",
+      "valid": false,
+      "data": {
+        "type": "array",
+        "contains": true,
+        "minContains": 0,
+        "minItems": 0,
+        "uniqueItems": false,
+        "minLength": 0
+      }
+    },
+    {
+      "description": "Array without items with object keywords is rejected",
+      "valid": false,
+      "data": {
+        "type": "array",
+        "contains": true,
+        "minContains": 0,
+        "minItems": 0,
+        "uniqueItems": false,
+        "properties": {}
+      }
+    },
+    {
+      "description": "Array without items contains subschema must be canonical",
+      "valid": false,
+      "data": {
+        "type": "array",
+        "contains": {
+          "type": "boolean"
+        },
+        "minContains": 0,
+        "minItems": 0,
+        "uniqueItems": false
+      }
+    },
+    {
+      "description": "Array without items with negative minContains is rejected",
+      "valid": false,
+      "data": {
+        "type": "array",
+        "contains": true,
+        "minContains": -1,
+        "minItems": 0,
+        "uniqueItems": false
+      }
+    },
+    {
+      "description": "Array without items with negative maxContains is rejected",
+      "valid": false,
+      "data": {
+        "type": "array",
+        "contains": true,
+        "minContains": 0,
+        "maxContains": -1,
+        "minItems": 0,
+        "uniqueItems": false
       }
     },
     {

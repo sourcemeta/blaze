@@ -26,6 +26,15 @@ public:
                      schema.is_object() && schema.defines(KEYWORD) &&
                      schema.at(KEYWORD).is_array());
 
+    // When unevaluated keywords are present, anyOf annotations are
+    // semantically meaningful even if one branch always succeeds
+    if (vocabularies.contains_any(
+            {Vocabularies::Known::JSON_Schema_2019_09_Applicator,
+             Vocabularies::Known::JSON_Schema_2020_12_Applicator})) {
+      ONLY_CONTINUE_IF(!schema.defines("unevaluatedItems") &&
+                       !schema.defines("unevaluatedProperties"));
+    }
+
     const auto &anyof{schema.at(KEYWORD)};
     for (std::size_t index = 0; index < anyof.size(); ++index) {
       const auto &entry{anyof.at(index)};

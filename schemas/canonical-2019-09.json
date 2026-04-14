@@ -473,6 +473,53 @@
           ],
           "required": [
             "type",
+            "contains",
+            "minContains",
+            "minItems",
+            "uniqueItems"
+          ],
+          "properties": {
+            "type": {
+              "const": "array"
+            },
+            "contains": {
+              "$ref": "#/$defs/schema"
+            },
+            "minContains": {
+              "type": "integer",
+              "minimum": 0
+            },
+            "maxContains": {
+              "type": "integer",
+              "minimum": 0
+            },
+            "minItems": {
+              "type": "integer",
+              "minimum": 0
+            },
+            "maxItems": {
+              "type": "integer",
+              "minimum": 0
+            },
+            "uniqueItems": {
+              "type": "boolean"
+            }
+          },
+          "unevaluatedProperties": false
+        },
+        {
+          "x-lint-exclude": "simple_properties_identifiers",
+          "type": "object",
+          "allOf": [
+            {
+              "$ref": "#/$defs/metadata"
+            },
+            {
+              "$ref": "#/$defs/core"
+            }
+          ],
+          "required": [
+            "type",
             "items",
             "additionalItems",
             "contains",

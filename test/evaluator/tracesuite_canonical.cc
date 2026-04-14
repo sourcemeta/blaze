@@ -106,7 +106,8 @@ auto main(int argc, char **argv) -> int {
                    sourcemeta::blaze::AlterSchemaMode::CanonicalizerNext);
     register_tests(std::filesystem::path{TRACE_SUITE_CANONICAL_PATH} /
                        "evaluator_2019_09.json",
-                   "Canonicalize_2019_09");
+                   "Canonicalize_2019_09",
+                   sourcemeta::blaze::AlterSchemaMode::CanonicalizerNext);
     register_tests(std::filesystem::path{TRACE_SUITE_CANONICAL_PATH} /
                        "evaluator_draft6.json",
                    "Canonicalize_draft6",

@@ -1737,22 +1737,30 @@ TEST(AlterSchema_canonicalize_2020_12,
   const auto expected = sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2020-12/schema",
     "anyOf": [
-      { "enum": [ null ] },
-      { "enum": [ false, true ] },
       {
-        "type": "object",
-        "minProperties": 0,
-        "properties": {}
+        "anyOf": [
+          { "enum": [ null ] },
+          { "enum": [ false, true ] },
+          {
+            "type": "object",
+            "minProperties": 0,
+            "properties": {}
+          },
+          {
+            "type": "array",
+            "minItems": 0,
+            "items": {
+              "enum": [ false, true ]
+            }
+          },
+          {
+            "type": "string",
+            "minLength": 0
+          },
+          { "type": "number" }
+        ]
       },
-      {
-        "type": "array",
-        "minItems": 0
-      },
-      {
-        "type": "string",
-        "minLength": 0
-      },
-      { "type": "number" }
+      true
     ],
     "unevaluatedItems": false
   })JSON");
@@ -1778,22 +1786,32 @@ TEST(AlterSchema_canonicalize_2020_12,
   const auto expected = sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2020-12/schema",
     "anyOf": [
-      { "enum": [ null ] },
-      { "enum": [ false, true ] },
       {
-        "type": "object",
-        "minProperties": 0,
-        "properties": {}
+        "anyOf": [
+          { "enum": [ null ] },
+          { "enum": [ false, true ] },
+          {
+            "type": "object",
+            "minProperties": 0,
+            "properties": {}
+          },
+          {
+            "type": "array",
+            "minItems": 0,
+            "prefixItems": [
+              {
+                "enum": [ false, true ]
+              }
+            ]
+          },
+          {
+            "type": "string",
+            "minLength": 0
+          },
+          { "type": "number" }
+        ]
       },
-      {
-        "type": "array",
-        "minItems": 0
-      },
-      {
-        "type": "string",
-        "minLength": 0
-      },
-      { "type": "number" }
+      true
     ],
     "unevaluatedItems": false
   })JSON");
