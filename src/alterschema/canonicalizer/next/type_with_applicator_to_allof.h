@@ -58,6 +58,21 @@ public:
       const auto &first_keyword{relative.at(0).to_property()};
       const auto bit{applicator_bit(first_keyword)};
       if (bit != 0) {
+        const auto destination{frame.traverse(reference.second.destination)};
+        if (destination.has_value()) {
+          const auto &dest_pointer{destination->get().pointer};
+          if (dest_pointer.starts_with(location.pointer)) {
+            const auto relative_dest{
+                dest_pointer.resolve_from(location.pointer)};
+            if (!relative_dest.empty() && relative_dest.at(0).is_property() &&
+                (relative_dest.at(0).to_property() == "definitions" ||
+                 relative_dest.at(0).to_property() == "dependencies")) {
+              continue;
+            }
+          } else {
+            continue;
+          }
+        }
         this->strategy_ = Strategy::SafeExtract;
         this->applicators_with_refs_ |= bit;
       }
@@ -65,7 +80,8 @@ public:
 
     if (this->strategy_ == Strategy::SafeExtract && !has_structural) {
       if (!has_allof) {
-        return false;
+        this->strategy_ = Strategy::FullRestructure;
+        return true;
       }
 
       bool all_refs_fixed{true};
@@ -149,7 +165,8 @@ public:
       if (entry.first == "not" || entry.first == "anyOf" ||
           entry.first == "allOf" || entry.first == "oneOf" ||
           entry.first == "$schema" || entry.first == "id" ||
-          entry.first == "$id" ||
+          entry.first == "$id" || entry.first == "definitions" ||
+          entry.first == "dependencies" ||
           (this->has_if_then_else_ &&
            (entry.first == "if" || entry.first == "then" ||
             entry.first == "else"))) {
@@ -240,6 +257,12 @@ public:
     }
     if (schema.defines("$id")) {
       new_schema.assign("$id", schema.at("$id"));
+    }
+    if (schema.defines("definitions")) {
+      new_schema.assign("definitions", schema.at("definitions"));
+    }
+    if (schema.defines("dependencies")) {
+      new_schema.assign("dependencies", schema.at("dependencies"));
     }
     new_schema.assign("allOf", std::move(new_allof));
     schema.into(std::move(new_schema));

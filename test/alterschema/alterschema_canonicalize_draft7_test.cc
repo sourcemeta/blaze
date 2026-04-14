@@ -2651,11 +2651,12 @@ TEST_F(CanonicalizerDraft7Test, allof_ref_with_type_and_properties) {
     "$schema": "http://json-schema.org/draft-07/schema#",
     "allOf": [
       {
-        "$ref": "#/allOf/1/definitions/base"
+        "$ref": "#/definitions/base"
       },
       {
         "type": "object",
         "minProperties": 0,
+        "propertyNames": true,
         "properties": {
           "name": {
             "type": "string",
@@ -2663,25 +2664,24 @@ TEST_F(CanonicalizerDraft7Test, allof_ref_with_type_and_properties) {
           }
         },
         "patternProperties": {},
-        "additionalProperties": true,
-        "propertyNames": true,
-        "definitions": {
-          "base": {
-            "type": "object",
-            "minProperties": 0,
-            "properties": {
-              "id": {
-                "type": "integer",
-                "multipleOf": 1
-              }
-            },
-            "patternProperties": {},
-            "additionalProperties": true,
-            "propertyNames": true
-          }
-        }
+        "additionalProperties": true
       }
-    ]
+    ],
+    "definitions": {
+      "base": {
+        "type": "object",
+        "minProperties": 0,
+        "propertyNames": true,
+        "properties": {
+          "id": {
+            "type": "integer",
+            "multipleOf": 1
+          }
+        },
+        "patternProperties": {},
+        "additionalProperties": true
+      }
+    }
   })JSON");
 
   CANONICALIZE_NEXT(document, expected, *compiled_meta_);
@@ -2930,38 +2930,38 @@ TEST_F(CanonicalizerDraft7Test, type_allof_ref_and_typed_not) {
     "$schema": "http://json-schema.org/draft-07/schema#",
     "allOf": [
       {
-        "$ref": "#/allOf/1/definitions/base"
-      },
-      {
-        "type": "object",
-        "minProperties": 0,
-        "properties": {},
-        "patternProperties": {},
-        "additionalProperties": true,
-        "propertyNames": true,
-        "definitions": {
-          "base": {
-            "type": "object",
-            "minProperties": 0,
-            "properties": {},
-            "patternProperties": {},
-            "additionalProperties": true,
-            "propertyNames": true
-          }
-        }
-      },
-      {
         "not": {
           "type": "object",
           "required": [ "forbidden" ],
           "minProperties": 1,
+          "propertyNames": true,
           "properties": { "forbidden": true },
           "patternProperties": {},
-          "additionalProperties": true,
-          "propertyNames": true
+          "additionalProperties": true
         }
+      },
+      {
+        "$ref": "#/definitions/base"
+      },
+      {
+        "type": "object",
+        "minProperties": 0,
+        "propertyNames": true,
+        "properties": {},
+        "patternProperties": {},
+        "additionalProperties": true
       }
-    ]
+    ],
+    "definitions": {
+      "base": {
+        "type": "object",
+        "minProperties": 0,
+        "propertyNames": true,
+        "properties": {},
+        "patternProperties": {},
+        "additionalProperties": true
+      }
+    }
   })JSON");
 
   CANONICALIZE_NEXT(document, expected, *compiled_meta_);
@@ -3180,12 +3180,23 @@ TEST_F(CanonicalizerDraft7Test, full_restructure_ref_in_typed_keyword) {
       {
         "type": "object",
         "minProperties": 0,
-        "properties": { "x": true },
+        "propertyNames": true,
+        "properties": {
+          "x": {
+            "$ref": "#/definitions/pos"
+          }
+        },
         "patternProperties": {},
-        "additionalProperties": true,
-        "propertyNames": true
+        "additionalProperties": true
       }
-    ]
+    ],
+    "definitions": {
+      "pos": {
+        "type": "integer",
+        "minimum": 0,
+        "multipleOf": 1
+      }
+    }
   })JSON");
 
   CANONICALIZE_NEXT(document, expected, *compiled_meta_);
@@ -5576,18 +5587,18 @@ TEST_F(CanonicalizerDraft7Test, ref_inside_if_with_type) {
     "$schema": "http://json-schema.org/draft-07/schema#",
     "allOf": [
       {
-        "definitions": {
-          "positive": { "type": "integer", "multipleOf": 1, "minimum": 0 }
-        },
-        "type": "integer",
-        "multipleOf": 1
+        "if": { "$ref": "#/definitions/positive" },
+        "then": { "type": "integer", "maximum": 100, "multipleOf": 1 },
+        "else": true
       },
       {
-        "if": { "$ref": "#/allOf/0/definitions/positive" },
-        "then": { "type": "integer", "multipleOf": 1, "maximum": 100 },
-        "else": true
+        "type": "integer",
+        "multipleOf": 1
       }
-    ]
+    ],
+    "definitions": {
+      "positive": { "type": "integer", "minimum": 0, "multipleOf": 1 }
+    }
   })JSON");
 
   CANONICALIZE_NEXT(document, expected, *compiled_meta_);
@@ -5980,18 +5991,18 @@ TEST_F(CanonicalizerDraft7Test, ref_inside_then_with_type) {
     "$schema": "http://json-schema.org/draft-07/schema#",
     "allOf": [
       {
-        "type": "string",
-        "minLength": 0,
-        "definitions": {
-          "strict": { "type": "string", "minLength": 1, "maxLength": 100 }
-        }
+        "if": { "type": "string", "format": "email", "minLength": 0 },
+        "then": { "$ref": "#/definitions/strict" },
+        "else": true
       },
       {
-        "if": { "type": "string", "minLength": 0, "format": "email" },
-        "then": { "$ref": "#/allOf/0/definitions/strict" },
-        "else": true
+        "type": "string",
+        "minLength": 0
       }
-    ]
+    ],
+    "definitions": {
+      "strict": { "type": "string", "maxLength": 100, "minLength": 1 }
+    }
   })JSON");
 
   CANONICALIZE_NEXT(document, expected, *compiled_meta_);
