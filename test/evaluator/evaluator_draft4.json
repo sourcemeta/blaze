@@ -10422,96 +10422,6 @@
     }
   },
   {
-    "description": "type_integer_bounded_strict_5",
-    "schema": {
-      "$schema": "http://json-schema.org/draft-04/schema#",
-      "type": "integer",
-      "minimum": 0,
-      "maximum": 100
-    },
-    "instance": 3.0,
-    "valid": false,
-    "fast": {
-      "pre": [
-        [ "AssertionLessEqual", "/maximum", "#/maximum", "" ],
-        [ "AssertionGreaterEqual", "/minimum", "#/minimum", "" ],
-        [ "AssertionTypeStrict", "/type", "#/type", "" ]
-      ],
-      "post": [
-        [ true, "AssertionLessEqual", "/maximum", "#/maximum", "" ],
-        [ true, "AssertionGreaterEqual", "/minimum", "#/minimum", "" ],
-        [ false, "AssertionTypeStrict", "/type", "#/type", "" ]
-      ],
-      "descriptions": [
-        "The number value 3.0 was expected to be less than or equal to the integer 100",
-        "The number value 3.0 was expected to be greater than or equal to the integer 0",
-        "The value was expected to be of type integer but it was of type number"
-      ]
-    },
-    "exhaustive": {
-      "pre": [
-        [ "AssertionLessEqual", "/maximum", "#/maximum", "" ],
-        [ "AssertionGreaterEqual", "/minimum", "#/minimum", "" ],
-        [ "AssertionTypeStrict", "/type", "#/type", "" ]
-      ],
-      "post": [
-        [ true, "AssertionLessEqual", "/maximum", "#/maximum", "" ],
-        [ true, "AssertionGreaterEqual", "/minimum", "#/minimum", "" ],
-        [ false, "AssertionTypeStrict", "/type", "#/type", "" ]
-      ],
-      "descriptions": [
-        "The number value 3.0 was expected to be less than or equal to the integer 100",
-        "The number value 3.0 was expected to be greater than or equal to the integer 0",
-        "The value was expected to be of type integer but it was of type number"
-      ]
-    }
-  },
-  {
-    "description": "type_integer_bounded_strict_6",
-    "schema": {
-      "$schema": "http://json-schema.org/draft-04/schema#",
-      "type": "integer",
-      "minimum": 0,
-      "maximum": 100
-    },
-    "instance": 3.5,
-    "valid": false,
-    "fast": {
-      "pre": [
-        [ "AssertionLessEqual", "/maximum", "#/maximum", "" ],
-        [ "AssertionGreaterEqual", "/minimum", "#/minimum", "" ],
-        [ "AssertionTypeStrict", "/type", "#/type", "" ]
-      ],
-      "post": [
-        [ true, "AssertionLessEqual", "/maximum", "#/maximum", "" ],
-        [ true, "AssertionGreaterEqual", "/minimum", "#/minimum", "" ],
-        [ false, "AssertionTypeStrict", "/type", "#/type", "" ]
-      ],
-      "descriptions": [
-        "The number value 3.5 was expected to be less than or equal to the integer 100",
-        "The number value 3.5 was expected to be greater than or equal to the integer 0",
-        "The value was expected to be of type integer but it was of type number"
-      ]
-    },
-    "exhaustive": {
-      "pre": [
-        [ "AssertionLessEqual", "/maximum", "#/maximum", "" ],
-        [ "AssertionGreaterEqual", "/minimum", "#/minimum", "" ],
-        [ "AssertionTypeStrict", "/type", "#/type", "" ]
-      ],
-      "post": [
-        [ true, "AssertionLessEqual", "/maximum", "#/maximum", "" ],
-        [ true, "AssertionGreaterEqual", "/minimum", "#/minimum", "" ],
-        [ false, "AssertionTypeStrict", "/type", "#/type", "" ]
-      ],
-      "descriptions": [
-        "The number value 3.5 was expected to be less than or equal to the integer 100",
-        "The number value 3.5 was expected to be greater than or equal to the integer 0",
-        "The value was expected to be of type integer but it was of type number"
-      ]
-    }
-  },
-  {
     "description": "type_integer_lower_bound_strict_1",
     "schema": {
       "$schema": "http://json-schema.org/draft-04/schema#",
@@ -10578,44 +10488,6 @@
       ],
       "descriptions": [
         "The integer value 0 was expected to be greater than or equal to the integer 1"
-      ]
-    }
-  },
-  {
-    "description": "type_integer_lower_bound_strict_3",
-    "schema": {
-      "$schema": "http://json-schema.org/draft-04/schema#",
-      "type": "integer",
-      "minimum": 1
-    },
-    "instance": 5.0,
-    "valid": false,
-    "fast": {
-      "pre": [
-        [ "AssertionGreaterEqual", "/minimum", "#/minimum", "" ],
-        [ "AssertionTypeStrict", "/type", "#/type", "" ]
-      ],
-      "post": [
-        [ true, "AssertionGreaterEqual", "/minimum", "#/minimum", "" ],
-        [ false, "AssertionTypeStrict", "/type", "#/type", "" ]
-      ],
-      "descriptions": [
-        "The number value 5.0 was expected to be greater than or equal to the integer 1",
-        "The value was expected to be of type integer but it was of type number"
-      ]
-    },
-    "exhaustive": {
-      "pre": [
-        [ "AssertionGreaterEqual", "/minimum", "#/minimum", "" ],
-        [ "AssertionTypeStrict", "/type", "#/type", "" ]
-      ],
-      "post": [
-        [ true, "AssertionGreaterEqual", "/minimum", "#/minimum", "" ],
-        [ false, "AssertionTypeStrict", "/type", "#/type", "" ]
-      ],
-      "descriptions": [
-        "The number value 5.0 was expected to be greater than or equal to the integer 1",
-        "The value was expected to be of type integer but it was of type number"
       ]
     }
   },
@@ -10952,86 +10824,6 @@
     }
   },
   {
-    "description": "prop_type_integer_bounded_strict_6",
-    "schema": {
-      "$schema": "http://json-schema.org/draft-04/schema#",
-      "properties": { "x": { "type": "integer", "minimum": 0, "maximum": 100 } }
-    },
-    "instance": { "x": 3.0 },
-    "valid": false,
-    "fast": {
-      "pre": [
-        [ "AssertionTypeIntegerBoundedStrict", "", "#/properties", "/x" ]
-      ],
-      "post": [
-        [ false, "AssertionTypeIntegerBoundedStrict", "", "#/properties", "/x" ]
-      ],
-      "descriptions": [
-        "The value was expected to be an integer within the given range"
-      ]
-    },
-    "exhaustive": {
-      "pre": [
-        [ "LogicalWhenType", "/properties", "#/properties", "" ],
-        [ "AssertionLessEqual", "/properties/x/maximum", "#/properties/x/maximum", "/x" ],
-        [ "AssertionGreaterEqual", "/properties/x/minimum", "#/properties/x/minimum", "/x" ],
-        [ "AssertionTypeStrict", "/properties/x/type", "#/properties/x/type", "/x" ]
-      ],
-      "post": [
-        [ true, "AssertionLessEqual", "/properties/x/maximum", "#/properties/x/maximum", "/x" ],
-        [ true, "AssertionGreaterEqual", "/properties/x/minimum", "#/properties/x/minimum", "/x" ],
-        [ false, "AssertionTypeStrict", "/properties/x/type", "#/properties/x/type", "/x" ],
-        [ false, "LogicalWhenType", "/properties", "#/properties", "" ]
-      ],
-      "descriptions": [
-        "The number value 3.0 was expected to be less than or equal to the integer 100",
-        "The number value 3.0 was expected to be greater than or equal to the integer 0",
-        "The value was expected to be of type integer but it was of type number",
-        "The object value was expected to validate against the single defined property subschema"
-      ]
-    }
-  },
-  {
-    "description": "prop_type_integer_bounded_strict_7",
-    "schema": {
-      "$schema": "http://json-schema.org/draft-04/schema#",
-      "properties": { "x": { "type": "integer", "minimum": 0, "maximum": 100 } }
-    },
-    "instance": { "x": 3.5 },
-    "valid": false,
-    "fast": {
-      "pre": [
-        [ "AssertionTypeIntegerBoundedStrict", "", "#/properties", "/x" ]
-      ],
-      "post": [
-        [ false, "AssertionTypeIntegerBoundedStrict", "", "#/properties", "/x" ]
-      ],
-      "descriptions": [
-        "The value was expected to be an integer within the given range"
-      ]
-    },
-    "exhaustive": {
-      "pre": [
-        [ "LogicalWhenType", "/properties", "#/properties", "" ],
-        [ "AssertionLessEqual", "/properties/x/maximum", "#/properties/x/maximum", "/x" ],
-        [ "AssertionGreaterEqual", "/properties/x/minimum", "#/properties/x/minimum", "/x" ],
-        [ "AssertionTypeStrict", "/properties/x/type", "#/properties/x/type", "/x" ]
-      ],
-      "post": [
-        [ true, "AssertionLessEqual", "/properties/x/maximum", "#/properties/x/maximum", "/x" ],
-        [ true, "AssertionGreaterEqual", "/properties/x/minimum", "#/properties/x/minimum", "/x" ],
-        [ false, "AssertionTypeStrict", "/properties/x/type", "#/properties/x/type", "/x" ],
-        [ false, "LogicalWhenType", "/properties", "#/properties", "" ]
-      ],
-      "descriptions": [
-        "The number value 3.5 was expected to be less than or equal to the integer 100",
-        "The number value 3.5 was expected to be greater than or equal to the integer 0",
-        "The value was expected to be of type integer but it was of type number",
-        "The object value was expected to validate against the single defined property subschema"
-      ]
-    }
-  },
-  {
     "description": "prop_type_integer_bounded_strict_8",
     "schema": {
       "$schema": "http://json-schema.org/draft-04/schema#",
@@ -11190,43 +10982,6 @@
       "descriptions": [
         "The integer value 1 was expected to be greater than or equal to the integer 1",
         "The value was expected to be of type integer",
-        "The object value was expected to validate against the single defined property subschema"
-      ]
-    }
-  },
-  {
-    "description": "prop_type_integer_lower_bound_strict_4",
-    "schema": {
-      "$schema": "http://json-schema.org/draft-04/schema#",
-      "properties": { "x": { "type": "integer", "minimum": 1 } }
-    },
-    "instance": { "x": 5.0 },
-    "valid": false,
-    "fast": {
-      "pre": [
-        [ "AssertionTypeIntegerLowerBoundStrict", "", "#/properties", "/x" ]
-      ],
-      "post": [
-        [ false, "AssertionTypeIntegerLowerBoundStrict", "", "#/properties", "/x" ]
-      ],
-      "descriptions": [
-        "The value was expected to be an integer above the given minimum"
-      ]
-    },
-    "exhaustive": {
-      "pre": [
-        [ "LogicalWhenType", "/properties", "#/properties", "" ],
-        [ "AssertionGreaterEqual", "/properties/x/minimum", "#/properties/x/minimum", "/x" ],
-        [ "AssertionTypeStrict", "/properties/x/type", "#/properties/x/type", "/x" ]
-      ],
-      "post": [
-        [ true, "AssertionGreaterEqual", "/properties/x/minimum", "#/properties/x/minimum", "/x" ],
-        [ false, "AssertionTypeStrict", "/properties/x/type", "#/properties/x/type", "/x" ],
-        [ false, "LogicalWhenType", "/properties", "#/properties", "" ]
-      ],
-      "descriptions": [
-        "The number value 5.0 was expected to be greater than or equal to the integer 1",
-        "The value was expected to be of type integer but it was of type number",
         "The object value was expected to validate against the single defined property subschema"
       ]
     }

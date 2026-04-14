@@ -1287,7 +1287,6 @@ function AssertionDivisible(instruction, instance, depth, template, evaluator) {
 
 function AssertionTypeIntegerBounded(instruction, instance, depth, template, evaluator) {
   const target = resolveInstance(instance, instruction[2]);
-  if (typeof target !== 'number') return true;
   if (evaluator.callbackMode) evaluator.callbackPush(instruction);
   const range = instruction[5];
   const __result = Number.isInteger(target) && target >= range[0] && target <= range[1];
@@ -1297,17 +1296,15 @@ function AssertionTypeIntegerBounded(instruction, instance, depth, template, eva
 
 function AssertionTypeIntegerBoundedStrict(instruction, instance, depth, template, evaluator) {
   const target = resolveInstance(instance, instruction[2]);
-  if (!Number.isInteger(target)) return true;
   if (evaluator.callbackMode) evaluator.callbackPush(instruction);
   const range = instruction[5];
-  const __result = target >= range[0] && target <= range[1];
+  const __result = Number.isInteger(target) && target >= range[0] && target <= range[1];
   if (evaluator.callbackMode) evaluator.callbackPop(instruction, __result);
   return __result;
 };
 
 function AssertionTypeIntegerLowerBound(instruction, instance, depth, template, evaluator) {
   const target = resolveInstance(instance, instruction[2]);
-  if (typeof target !== 'number') return true;
   if (evaluator.callbackMode) evaluator.callbackPush(instruction);
   const range = instruction[5];
   const __result = Number.isInteger(target) && target >= range[0];
@@ -1317,10 +1314,9 @@ function AssertionTypeIntegerLowerBound(instruction, instance, depth, template, 
 
 function AssertionTypeIntegerLowerBoundStrict(instruction, instance, depth, template, evaluator) {
   const target = resolveInstance(instance, instruction[2]);
-  if (!Number.isInteger(target)) return true;
   if (evaluator.callbackMode) evaluator.callbackPush(instruction);
   const range = instruction[5];
-  const __result = target >= range[0];
+  const __result = Number.isInteger(target) && target >= range[0];
   if (evaluator.callbackMode) evaluator.callbackPop(instruction, __result);
   return __result;
 };
@@ -3743,30 +3739,26 @@ function LoopItemsIntegerBoundedSized_fast(instruction, instance, depth, templat
 
 function AssertionTypeIntegerBounded_fast(instruction, instance, depth, template, evaluator) {
   const target = resolveInstance(instance, instruction[2]);
-  if (typeof target !== 'number') return true;
   const range = instruction[5];
   return Number.isInteger(target) && target >= range[0] && target <= range[1];
 }
 
 function AssertionTypeIntegerBoundedStrict_fast(instruction, instance, depth, template, evaluator) {
   const target = resolveInstance(instance, instruction[2]);
-  if (!Number.isInteger(target)) return true;
   const range = instruction[5];
-  return target >= range[0] && target <= range[1];
+  return Number.isInteger(target) && target >= range[0] && target <= range[1];
 }
 
 function AssertionTypeIntegerLowerBound_fast(instruction, instance, depth, template, evaluator) {
   const target = resolveInstance(instance, instruction[2]);
-  if (typeof target !== 'number') return true;
   const range = instruction[5];
   return Number.isInteger(target) && target >= range[0];
 }
 
 function AssertionTypeIntegerLowerBoundStrict_fast(instruction, instance, depth, template, evaluator) {
   const target = resolveInstance(instance, instruction[2]);
-  if (!Number.isInteger(target)) return true;
   const range = instruction[5];
-  return target >= range[0];
+  return Number.isInteger(target) && target >= range[0];
 }
 
 const fastHandlers = handlers.slice();

@@ -1414,3 +1414,109 @@ TEST(Evaluator_draft4, items_integer_bounded_large_decimal_in_range) {
   EVALUATE_TRACE_POST_SUCCESS(0, LoopItemsIntegerBounded, "/items", "#/items",
                               "");
 }
+
+TEST(Evaluator_draft4, prop_type_integer_bounded_strict_real_3_0_fails) {
+  const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
+    "$schema": "http://json-schema.org/draft-04/schema#",
+    "properties": {
+      "x": { "type": "integer", "minimum": 0, "maximum": 100 }
+    }
+  })JSON")};
+
+  const sourcemeta::core::JSON instance{
+      sourcemeta::core::parse_json(R"JSON({ "x": 3.0 })JSON")};
+  EVALUATE_WITH_TRACE_FAST_FAILURE(schema, instance, 1, "");
+
+  EVALUATE_TRACE_PRE(0, AssertionTypeIntegerBoundedStrict, "", "#/properties",
+                     "/x");
+  EVALUATE_TRACE_POST_FAILURE(0, AssertionTypeIntegerBoundedStrict, "",
+                              "#/properties", "/x");
+  EVALUATE_TRACE_POST_DESCRIBE(
+      instance, 0,
+      "The value was expected to be an integer within the given range");
+}
+
+TEST(Evaluator_draft4, prop_type_integer_bounded_strict_real_3_5_fails) {
+  const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
+    "$schema": "http://json-schema.org/draft-04/schema#",
+    "properties": {
+      "x": { "type": "integer", "minimum": 0, "maximum": 100 }
+    }
+  })JSON")};
+
+  const sourcemeta::core::JSON instance{
+      sourcemeta::core::parse_json(R"JSON({ "x": 3.5 })JSON")};
+  EVALUATE_WITH_TRACE_FAST_FAILURE(schema, instance, 1, "");
+
+  EVALUATE_TRACE_PRE(0, AssertionTypeIntegerBoundedStrict, "", "#/properties",
+                     "/x");
+  EVALUATE_TRACE_POST_FAILURE(0, AssertionTypeIntegerBoundedStrict, "",
+                              "#/properties", "/x");
+  EVALUATE_TRACE_POST_DESCRIBE(
+      instance, 0,
+      "The value was expected to be an integer within the given range");
+}
+
+TEST(Evaluator_draft4, prop_type_integer_lower_bound_strict_real_5_0_fails) {
+  const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
+    "$schema": "http://json-schema.org/draft-04/schema#",
+    "properties": {
+      "x": { "type": "integer", "minimum": 1 }
+    }
+  })JSON")};
+
+  const sourcemeta::core::JSON instance{
+      sourcemeta::core::parse_json(R"JSON({ "x": 5.0 })JSON")};
+  EVALUATE_WITH_TRACE_FAST_FAILURE(schema, instance, 1, "");
+
+  EVALUATE_TRACE_PRE(0, AssertionTypeIntegerLowerBoundStrict, "",
+                     "#/properties", "/x");
+  EVALUATE_TRACE_POST_FAILURE(0, AssertionTypeIntegerLowerBoundStrict, "",
+                              "#/properties", "/x");
+  EVALUATE_TRACE_POST_DESCRIBE(
+      instance, 0,
+      "The value was expected to be an integer above the given minimum");
+}
+
+TEST(Evaluator_draft4, prop_type_integer_lower_bound_strict_real_5_5_fails) {
+  const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
+    "$schema": "http://json-schema.org/draft-04/schema#",
+    "properties": {
+      "x": { "type": "integer", "minimum": 1 }
+    }
+  })JSON")};
+
+  const sourcemeta::core::JSON instance{
+      sourcemeta::core::parse_json(R"JSON({ "x": 5.5 })JSON")};
+  EVALUATE_WITH_TRACE_FAST_FAILURE(schema, instance, 1, "");
+
+  EVALUATE_TRACE_PRE(0, AssertionTypeIntegerLowerBoundStrict, "",
+                     "#/properties", "/x");
+  EVALUATE_TRACE_POST_FAILURE(0, AssertionTypeIntegerLowerBoundStrict, "",
+                              "#/properties", "/x");
+  EVALUATE_TRACE_POST_DESCRIBE(
+      instance, 0,
+      "The value was expected to be an integer above the given minimum");
+}
+
+TEST(Evaluator_draft4, prop_type_integer_bounded_strict_decimal_3_0_fails) {
+  const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
+    "$schema": "http://json-schema.org/draft-04/schema#",
+    "properties": {
+      "x": { "type": "integer", "minimum": 0, "maximum": 100 }
+    }
+  })JSON")};
+
+  sourcemeta::core::JSON instance{sourcemeta::core::parse_json("{}")};
+  instance.assign("x",
+                  sourcemeta::core::JSON{sourcemeta::core::Decimal{"3.0"}});
+  EVALUATE_WITH_TRACE_FAST_FAILURE(schema, instance, 1, "");
+
+  EVALUATE_TRACE_PRE(0, AssertionTypeIntegerBoundedStrict, "", "#/properties",
+                     "/x");
+  EVALUATE_TRACE_POST_FAILURE(0, AssertionTypeIntegerBoundedStrict, "",
+                              "#/properties", "/x");
+  EVALUATE_TRACE_POST_DESCRIBE(
+      instance, 0,
+      "The value was expected to be an integer within the given range");
+}
