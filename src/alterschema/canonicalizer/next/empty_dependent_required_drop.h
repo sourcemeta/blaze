@@ -1,8 +1,9 @@
-class IfThenElseImplicit final : public SchemaTransformRule {
+class EmptyDependentRequiredDrop final : public SchemaTransformRule {
 public:
   using mutates = std::true_type;
   using reframe_after_transform = std::true_type;
-  IfThenElseImplicit() : SchemaTransformRule{"if_then_else_implicit", ""} {};
+  EmptyDependentRequiredDrop()
+      : SchemaTransformRule{"empty_dependent_required_drop", ""} {};
 
   [[nodiscard]] auto
   condition(const sourcemeta::core::JSON &schema,
@@ -15,20 +16,15 @@ public:
       -> SchemaTransformRule::Result override {
     ONLY_CONTINUE_IF(
         vocabularies.contains_any(
-            {Vocabularies::Known::JSON_Schema_Draft_7,
-             Vocabularies::Known::JSON_Schema_2019_09_Applicator}) &&
-        schema.is_object() && schema.defines("if") &&
-        (schema.defines("then") || schema.defines("else")) &&
-        (!schema.defines("then") || !schema.defines("else")));
+            {Vocabularies::Known::JSON_Schema_2019_09_Validation,
+             Vocabularies::Known::JSON_Schema_2020_12_Validation}) &&
+        schema.is_object() && schema.defines("dependentRequired") &&
+        schema.at("dependentRequired").is_object() &&
+        schema.at("dependentRequired").empty());
     return true;
   }
 
   auto transform(JSON &schema, const Result &) const -> void override {
-    if (!schema.defines("then")) {
-      schema.assign("then", JSON{true});
-    }
-    if (!schema.defines("else")) {
-      schema.assign("else", JSON{true});
-    }
+    schema.erase("dependentRequired");
   }
 };

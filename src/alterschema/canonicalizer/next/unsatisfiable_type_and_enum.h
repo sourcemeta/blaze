@@ -15,17 +15,21 @@ public:
             const sourcemeta::core::SchemaResolver &) const
       -> SchemaTransformRule::Result override {
     ONLY_CONTINUE_IF(
-        vocabularies.contains_any({Vocabularies::Known::JSON_Schema_Draft_4,
-                                   Vocabularies::Known::JSON_Schema_Draft_6,
-                                   Vocabularies::Known::JSON_Schema_Draft_7}) &&
+        vocabularies.contains_any(
+            {Vocabularies::Known::JSON_Schema_Draft_4,
+             Vocabularies::Known::JSON_Schema_Draft_6,
+             Vocabularies::Known::JSON_Schema_Draft_7,
+             Vocabularies::Known::JSON_Schema_2019_09_Validation}) &&
         schema.is_object() && schema.defines("type") &&
         schema.at("type").is_string() && schema.defines("enum") &&
         schema.at("enum").is_array() && !schema.at("enum").empty());
 
     const auto declared_types{parse_schema_type(schema.at("type"))};
     const bool integer_matches_integral{
-        vocabularies.contains_any({Vocabularies::Known::JSON_Schema_Draft_6,
-                                   Vocabularies::Known::JSON_Schema_Draft_7}) &&
+        vocabularies.contains_any(
+            {Vocabularies::Known::JSON_Schema_Draft_6,
+             Vocabularies::Known::JSON_Schema_Draft_7,
+             Vocabularies::Known::JSON_Schema_2019_09_Validation}) &&
         declared_types.test(std::to_underlying(JSON::Type::Integer))};
     ONLY_CONTINUE_IF(std::ranges::none_of(
         schema.at("enum").as_array(),

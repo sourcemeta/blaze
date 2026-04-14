@@ -15,9 +15,11 @@ public:
             const sourcemeta::core::SchemaResolver &) const
       -> SchemaTransformRule::Result override {
     ONLY_CONTINUE_IF(
-        vocabularies.contains_any({Vocabularies::Known::JSON_Schema_Draft_4,
-                                   Vocabularies::Known::JSON_Schema_Draft_6,
-                                   Vocabularies::Known::JSON_Schema_Draft_7}) &&
+        vocabularies.contains_any(
+            {Vocabularies::Known::JSON_Schema_Draft_4,
+             Vocabularies::Known::JSON_Schema_Draft_6,
+             Vocabularies::Known::JSON_Schema_Draft_7,
+             Vocabularies::Known::JSON_Schema_2019_09_Applicator}) &&
         schema.is_object());
 
     const bool has_not{schema.defines("not")};
@@ -25,7 +27,9 @@ public:
     const bool has_allof{schema.defines("allOf")};
     const bool has_oneof{schema.defines("oneOf")};
     const bool has_if{
-        vocabularies.contains(Vocabularies::Known::JSON_Schema_Draft_7) &&
+        vocabularies.contains_any(
+            {Vocabularies::Known::JSON_Schema_Draft_7,
+             Vocabularies::Known::JSON_Schema_2019_09_Applicator}) &&
         schema.defines("if")};
     this->has_if_then_else_ = has_if;
     const bool has_type{schema.defines("type") &&
@@ -62,7 +66,9 @@ public:
                 dest_pointer.resolve_from(location.pointer)};
             if (!relative_dest.empty() && relative_dest.at(0).is_property() &&
                 (relative_dest.at(0).to_property() == "definitions" ||
-                 relative_dest.at(0).to_property() == "dependencies")) {
+                 relative_dest.at(0).to_property() == "$defs" ||
+                 relative_dest.at(0).to_property() == "dependencies" ||
+                 relative_dest.at(0).to_property() == "dependentSchemas")) {
               continue;
             }
           } else {
@@ -162,7 +168,8 @@ public:
           entry.first == "allOf" || entry.first == "oneOf" ||
           entry.first == "$schema" || entry.first == "id" ||
           entry.first == "$id" || entry.first == "definitions" ||
-          entry.first == "dependencies" ||
+          entry.first == "$defs" || entry.first == "dependencies" ||
+          entry.first == "dependentSchemas" ||
           (this->has_if_then_else_ &&
            (entry.first == "if" || entry.first == "then" ||
             entry.first == "else"))) {
@@ -257,8 +264,14 @@ public:
     if (schema.defines("definitions")) {
       new_schema.assign("definitions", schema.at("definitions"));
     }
+    if (schema.defines("$defs")) {
+      new_schema.assign("$defs", schema.at("$defs"));
+    }
     if (schema.defines("dependencies")) {
       new_schema.assign("dependencies", schema.at("dependencies"));
+    }
+    if (schema.defines("dependentSchemas")) {
+      new_schema.assign("dependentSchemas", schema.at("dependentSchemas"));
     }
     new_schema.assign("allOf", std::move(new_allof));
     schema.into(std::move(new_schema));

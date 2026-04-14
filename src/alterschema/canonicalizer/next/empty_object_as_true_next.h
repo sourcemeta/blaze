@@ -14,11 +14,12 @@ public:
             const sourcemeta::core::SchemaWalker &,
             const sourcemeta::core::SchemaResolver &) const
       -> SchemaTransformRule::Result override {
-    ONLY_CONTINUE_IF(
-        vocabularies.contains_any({Vocabularies::Known::JSON_Schema_Draft_4,
-                                   Vocabularies::Known::JSON_Schema_Draft_6,
-                                   Vocabularies::Known::JSON_Schema_Draft_7}) &&
-        schema.is_object() && schema.empty());
+    ONLY_CONTINUE_IF(vocabularies.contains_any(
+                         {Vocabularies::Known::JSON_Schema_Draft_4,
+                          Vocabularies::Known::JSON_Schema_Draft_6,
+                          Vocabularies::Known::JSON_Schema_Draft_7,
+                          Vocabularies::Known::JSON_Schema_2019_09_Core}) &&
+                     schema.is_object() && schema.empty());
     return true;
   }
 

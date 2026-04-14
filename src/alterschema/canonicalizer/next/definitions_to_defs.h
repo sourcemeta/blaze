@@ -1,8 +1,9 @@
-class CommentDrop final : public SchemaTransformRule {
+class DefinitionsToDefsNext final : public SchemaTransformRule {
 public:
   using mutates = std::true_type;
   using reframe_after_transform = std::true_type;
-  CommentDrop() : SchemaTransformRule{"comment_drop", ""} {};
+  DefinitionsToDefsNext()
+      : SchemaTransformRule{"definitions_to_defs_next", ""} {};
 
   [[nodiscard]] auto
   condition(const sourcemeta::core::JSON &schema,
@@ -14,13 +15,22 @@ public:
             const sourcemeta::core::SchemaResolver &) const
       -> SchemaTransformRule::Result override {
     ONLY_CONTINUE_IF(vocabularies.contains_any(
-                         {Vocabularies::Known::JSON_Schema_Draft_7,
+                         {Vocabularies::Known::JSON_Schema_2020_12_Core,
                           Vocabularies::Known::JSON_Schema_2019_09_Core}) &&
-                     schema.is_object() && schema.defines("$comment"));
+                     schema.is_object() && schema.defines("definitions") &&
+                     !schema.defines("$defs"));
     return true;
   }
 
   auto transform(JSON &schema, const Result &) const -> void override {
-    schema.erase("$comment");
+    schema.rename("definitions", "$defs");
+  }
+
+  [[nodiscard]] auto rereference(const std::string_view, const Pointer &,
+                                 const Pointer &target,
+                                 const Pointer &current) const
+      -> Pointer override {
+    return target.rebase(current.concat({"definitions"}),
+                         current.concat({"$defs"}));
   }
 };
