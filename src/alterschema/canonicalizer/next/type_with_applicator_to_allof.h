@@ -35,7 +35,11 @@ public:
     const bool has_type{schema.defines("type") &&
                         schema.at("type").is_string()};
     const bool has_enum{schema.defines("enum")};
-    const bool has_ref{schema.defines("$ref")};
+    // In 2019-09+, $ref no longer overrides siblings, so it is just
+    // another applicator that coexists with other keywords
+    const bool has_ref{
+        !vocabularies.contains(Vocabularies::Known::JSON_Schema_2019_09_Core) &&
+        schema.defines("$ref")};
     const unsigned int applicator_count{
         (has_not ? 1U : 0U) + (has_anyof ? 1U : 0U) + (has_allof ? 1U : 0U) +
         (has_oneof ? 1U : 0U) + (has_if ? 1U : 0U)};
