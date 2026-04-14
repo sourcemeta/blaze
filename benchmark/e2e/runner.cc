@@ -94,6 +94,7 @@ REGISTER_E2E_COMPILER(tmuxinator, "tmuxinator");
 REGISTER_E2E_COMPILER(ui5, "ui5");
 REGISTER_E2E_COMPILER(ui5_manifest, "ui5-manifest");
 REGISTER_E2E_COMPILER(unreal_engine_uproject, "unreal-engine-uproject");
+REGISTER_E2E_COMPILER(users_array, "users-array");
 REGISTER_E2E_COMPILER(vercel, "vercel");
 REGISTER_E2E_COMPILER(yamllint, "yamllint");
 
@@ -135,5 +136,6 @@ REGISTER_E2E_EVALUATOR(tmuxinator, "tmuxinator");
 REGISTER_E2E_EVALUATOR(ui5, "ui5");
 REGISTER_E2E_EVALUATOR(ui5_manifest, "ui5-manifest");
 REGISTER_E2E_EVALUATOR(unreal_engine_uproject, "unreal-engine-uproject");
+REGISTER_E2E_EVALUATOR(users_array, "users-array");
 REGISTER_E2E_EVALUATOR(vercel, "vercel");
 REGISTER_E2E_EVALUATOR(yamllint, "yamllint");
