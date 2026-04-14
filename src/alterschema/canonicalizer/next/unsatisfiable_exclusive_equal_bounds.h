@@ -3,11 +3,7 @@ public:
   using mutates = std::true_type;
   using reframe_after_transform = std::false_type;
   UnsatisfiableExclusiveEqualBounds()
-      : SchemaTransformRule{
-            "unsatisfiable_exclusive_equal_bounds",
-            "When `minimum` equals `maximum` and either boolean "
-            "`exclusiveMinimum` or `exclusiveMaximum` is true, "
-            "no value can satisfy the schema"} {};
+      : SchemaTransformRule{"unsatisfiable_exclusive_equal_bounds", ""} {};
 
   [[nodiscard]] auto
   condition(const sourcemeta::core::JSON &schema,

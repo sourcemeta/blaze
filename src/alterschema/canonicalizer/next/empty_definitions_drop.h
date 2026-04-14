@@ -2,11 +2,7 @@ class EmptyDefinitionsDrop final : public SchemaTransformRule {
 public:
   using mutates = std::true_type;
   using reframe_after_transform = std::true_type;
-  EmptyDefinitionsDrop()
-      : SchemaTransformRule{
-            "empty_definitions_drop",
-            "An empty `definitions` object adds no value and can be "
-            "removed"} {};
+  EmptyDefinitionsDrop() : SchemaTransformRule{"empty_definitions_drop", ""} {};
 
   [[nodiscard]] auto
   condition(const sourcemeta::core::JSON &schema,
@@ -19,7 +15,8 @@ public:
       -> SchemaTransformRule::Result override {
     ONLY_CONTINUE_IF(
         vocabularies.contains_any({Vocabularies::Known::JSON_Schema_Draft_4,
-                                   Vocabularies::Known::JSON_Schema_Draft_6}) &&
+                                   Vocabularies::Known::JSON_Schema_Draft_6,
+                                   Vocabularies::Known::JSON_Schema_Draft_7}) &&
         schema.is_object() && schema.defines("definitions") &&
         schema.at("definitions").is_object() &&
         schema.at("definitions").empty());

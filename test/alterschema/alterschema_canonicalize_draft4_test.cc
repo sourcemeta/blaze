@@ -2721,7 +2721,7 @@ TEST_F(CanonicalizerDraft4Test, allof_ref_with_type_and_properties) {
     "$schema": "http://json-schema.org/draft-04/schema#",
     "allOf": [
       {
-        "$ref": "#/allOf/1/definitions/base"
+        "$ref": "#/definitions/base"
       },
       {
         "type": "object",
@@ -2733,23 +2733,23 @@ TEST_F(CanonicalizerDraft4Test, allof_ref_with_type_and_properties) {
           }
         },
         "patternProperties": {},
-        "additionalProperties": true,
-        "definitions": {
-          "base": {
-            "type": "object",
-            "minProperties": 0,
-            "properties": {
-              "id": {
-                "type": "integer",
-                "multipleOf": 1
-              }
-            },
-            "patternProperties": {},
-            "additionalProperties": true
-          }
-        }
+        "additionalProperties": true
       }
-    ]
+    ],
+    "definitions": {
+      "base": {
+        "type": "object",
+        "minProperties": 0,
+        "properties": {
+          "id": {
+            "type": "integer",
+            "multipleOf": 1
+          }
+        },
+        "patternProperties": {},
+        "additionalProperties": true
+      }
+    }
   })JSON");
 
   CANONICALIZE_NEXT(document, expected, *compiled_meta_);
@@ -2991,25 +2991,6 @@ TEST_F(CanonicalizerDraft4Test, type_allof_ref_and_typed_not) {
     "$schema": "http://json-schema.org/draft-04/schema#",
     "allOf": [
       {
-        "$ref": "#/allOf/1/definitions/base"
-      },
-      {
-        "type": "object",
-        "minProperties": 0,
-        "properties": {},
-        "patternProperties": {},
-        "additionalProperties": true,
-        "definitions": {
-          "base": {
-            "type": "object",
-            "minProperties": 0,
-            "properties": {},
-            "patternProperties": {},
-            "additionalProperties": true
-          }
-        }
-      },
-      {
         "not": {
           "type": "object",
           "required": [ "forbidden" ],
@@ -3018,8 +2999,27 @@ TEST_F(CanonicalizerDraft4Test, type_allof_ref_and_typed_not) {
           "patternProperties": {},
           "additionalProperties": true
         }
+      },
+      {
+        "$ref": "#/definitions/base"
+      },
+      {
+        "type": "object",
+        "minProperties": 0,
+        "properties": {},
+        "patternProperties": {},
+        "additionalProperties": true
       }
-    ]
+    ],
+    "definitions": {
+      "base": {
+        "type": "object",
+        "minProperties": 0,
+        "properties": {},
+        "patternProperties": {},
+        "additionalProperties": true
+      }
+    }
   })JSON");
 
   CANONICALIZE_NEXT(document, expected, *compiled_meta_);
@@ -3232,11 +3232,22 @@ TEST_F(CanonicalizerDraft4Test, full_restructure_ref_in_typed_keyword) {
       {
         "type": "object",
         "minProperties": 0,
-        "properties": { "x": true },
+        "properties": {
+          "x": {
+            "$ref": "#/definitions/pos"
+          }
+        },
         "patternProperties": {},
         "additionalProperties": true
       }
-    ]
+    ],
+    "definitions": {
+      "pos": {
+        "type": "integer",
+        "minimum": 0,
+        "multipleOf": 1
+      }
+    }
   })JSON");
 
   CANONICALIZE_NEXT(document, expected, *compiled_meta_);

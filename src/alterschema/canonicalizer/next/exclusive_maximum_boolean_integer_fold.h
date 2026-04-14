@@ -3,10 +3,7 @@ public:
   using mutates = std::true_type;
   using reframe_after_transform = std::true_type;
   ExclusiveMaximumBooleanIntegerFold()
-      : SchemaTransformRule{
-            "exclusive_maximum_boolean_integer_fold",
-            "Setting boolean `exclusiveMaximum` when `type` is `integer` "
-            "can be folded into an adjusted `maximum`"} {};
+      : SchemaTransformRule{"exclusive_maximum_boolean_integer_fold", ""} {};
 
   [[nodiscard]] auto
   condition(const sourcemeta::core::JSON &schema,

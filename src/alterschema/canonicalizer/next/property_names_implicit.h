@@ -3,10 +3,7 @@ public:
   using mutates = std::true_type;
   using reframe_after_transform = std::true_type;
   PropertyNamesImplicit()
-      : SchemaTransformRule{
-            "property_names_implicit",
-            "Every object schema has an implicit `propertyNames` keyword "
-            "of the boolean schema `true`"} {};
+      : SchemaTransformRule{"property_names_implicit", ""} {};
 
   [[nodiscard]] auto
   condition(const sourcemeta::core::JSON &schema,
@@ -18,7 +15,8 @@ public:
             const sourcemeta::core::SchemaResolver &) const
       -> SchemaTransformRule::Result override {
     ONLY_CONTINUE_IF(
-        vocabularies.contains(Vocabularies::Known::JSON_Schema_Draft_6) &&
+        vocabularies.contains_any({Vocabularies::Known::JSON_Schema_Draft_6,
+                                   Vocabularies::Known::JSON_Schema_Draft_7}) &&
         schema.is_object() && schema.defines("type") &&
         schema.at("type").is_string() &&
         schema.at("type").to_string() == "object" &&

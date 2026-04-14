@@ -3,10 +3,7 @@ public:
   using mutates = std::true_type;
   using reframe_after_transform = std::true_type;
   AdditionalItemsImplicit()
-      : SchemaTransformRule{
-            "additional_items_implicit",
-            "Every tuple array has an implicit `additionalItems` "
-            "of the boolean schema `true`"} {};
+      : SchemaTransformRule{"additional_items_implicit", ""} {};
 
   [[nodiscard]] auto
   condition(const sourcemeta::core::JSON &schema,
@@ -19,7 +16,8 @@ public:
       -> SchemaTransformRule::Result override {
     ONLY_CONTINUE_IF(
         vocabularies.contains_any({Vocabularies::Known::JSON_Schema_Draft_4,
-                                   Vocabularies::Known::JSON_Schema_Draft_6}) &&
+                                   Vocabularies::Known::JSON_Schema_Draft_6,
+                                   Vocabularies::Known::JSON_Schema_Draft_7}) &&
         schema.is_object() && schema.defines("type") &&
         schema.at("type").is_string() &&
         schema.at("type").to_string() == "array" && schema.defines("items") &&

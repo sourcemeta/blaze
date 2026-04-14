@@ -3,10 +3,7 @@ public:
   using mutates = std::true_type;
   using reframe_after_transform = std::true_type;
   EnumDropRedundantValidation()
-      : SchemaTransformRule{
-            "enum_drop_redundant_validation",
-            "Validation keywords alongside `enum` are redundant because "
-            "the enumeration already fully constrains the allowed values"} {};
+      : SchemaTransformRule{"enum_drop_redundant_validation", ""} {};
 
   [[nodiscard]] auto
   condition(const sourcemeta::core::JSON &schema,
@@ -19,14 +16,23 @@ public:
       -> SchemaTransformRule::Result override {
     ONLY_CONTINUE_IF(
         vocabularies.contains_any({Vocabularies::Known::JSON_Schema_Draft_4,
-                                   Vocabularies::Known::JSON_Schema_Draft_6}) &&
+                                   Vocabularies::Known::JSON_Schema_Draft_6,
+                                   Vocabularies::Known::JSON_Schema_Draft_7}) &&
         schema.is_object() && schema.defines("enum") &&
         schema.at("enum").is_array() && !schema.defines("type"));
 
     this->keywords_.clear();
     this->wrap_keywords_.clear();
+    this->has_if_group_ =
+        vocabularies.contains(Vocabularies::Known::JSON_Schema_Draft_7) &&
+        schema.defines("if");
     for (const auto &entry : schema.as_object()) {
       if (entry.first == "enum") {
+        continue;
+      }
+
+      if (this->has_if_group_ &&
+          (entry.first == "then" || entry.first == "else")) {
         continue;
       }
 
@@ -76,8 +82,24 @@ public:
     for (const auto &keyword : this->wrap_keywords_) {
       auto branch{JSON::make_object()};
       branch.assign(keyword, schema.at(keyword));
-      schema.erase(keyword);
+      if (keyword == "if" && this->has_if_group_) {
+        if (schema.defines("then")) {
+          branch.assign("then", schema.at("then"));
+        }
+        if (schema.defines("else")) {
+          branch.assign("else", schema.at("else"));
+        }
+      }
       new_allof.push_back(std::move(branch));
+      schema.erase(keyword);
+      if (keyword == "if" && this->has_if_group_) {
+        if (schema.defines("then")) {
+          schema.erase("then");
+        }
+        if (schema.defines("else")) {
+          schema.erase("else");
+        }
+      }
     }
 
     auto enum_branch{JSON::make_object()};
@@ -91,4 +113,5 @@ public:
 private:
   mutable std::vector<JSON::String> keywords_;
   mutable std::vector<JSON::String> wrap_keywords_;
+  mutable bool has_if_group_{false};
 };

@@ -31,7 +31,8 @@ public:
 
     const auto current_types{parse_schema_type(schema.at("type"))};
     const bool integer_matches_integral{
-        vocabularies.contains(Vocabularies::Known::JSON_Schema_Draft_6) &&
+        vocabularies.contains_any({Vocabularies::Known::JSON_Schema_Draft_6,
+                                   Vocabularies::Known::JSON_Schema_Draft_7}) &&
         current_types.test(std::to_underlying(JSON::Type::Integer))};
     ONLY_CONTINUE_IF(std::ranges::all_of(
         schema.at("enum").as_array(),

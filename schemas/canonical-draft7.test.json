@@ -1,0 +1,6381 @@
+{
+  "target": "./canonical-draft7.json",
+  "tests": [
+    {
+      "description": "Boolean true is canonical",
+      "valid": true,
+      "data": true
+    },
+    {
+      "description": "Boolean false is canonical",
+      "valid": true,
+      "data": false
+    },
+    {
+      "description": "String value is rejected",
+      "valid": false,
+      "data": "not a schema"
+    },
+    {
+      "description": "Number value is rejected",
+      "valid": false,
+      "data": 42
+    },
+    {
+      "description": "Null value is rejected",
+      "valid": false,
+      "data": null
+    },
+    {
+      "description": "Array value is rejected",
+      "valid": false,
+      "data": [ 1, 2, 3 ]
+    },
+    {
+      "description": "$ref alone is canonical",
+      "valid": true,
+      "data": {
+        "$ref": "#/definitions/foo"
+      }
+    },
+    {
+      "description": "$ref with title is canonical",
+      "valid": true,
+      "data": {
+        "$ref": "#/definitions/foo",
+        "title": "A reference"
+      }
+    },
+    {
+      "description": "$ref with description is canonical",
+      "valid": true,
+      "data": {
+        "$ref": "#/definitions/foo",
+        "description": "Refers to foo"
+      }
+    },
+    {
+      "description": "$ref with default is canonical",
+      "valid": true,
+      "data": {
+        "$ref": "#/definitions/foo",
+        "default": 42
+      }
+    },
+    {
+      "description": "$ref with examples is canonical",
+      "valid": true,
+      "data": {
+        "$ref": "#/definitions/foo",
+        "examples": [ "bar" ]
+      }
+    },
+    {
+      "description": "$ref with readOnly is canonical",
+      "valid": true,
+      "data": {
+        "$ref": "#/definitions/foo",
+        "readOnly": true
+      }
+    },
+    {
+      "description": "$ref with writeOnly is canonical",
+      "valid": true,
+      "data": {
+        "$ref": "#/definitions/foo",
+        "writeOnly": true
+      }
+    },
+    {
+      "description": "$ref with readOnly false is canonical",
+      "valid": true,
+      "data": {
+        "$ref": "#/definitions/foo",
+        "readOnly": false
+      }
+    },
+    {
+      "description": "$ref with writeOnly false is canonical",
+      "valid": true,
+      "data": {
+        "$ref": "#/definitions/foo",
+        "writeOnly": false
+      }
+    },
+    {
+      "description": "$ref with all annotations is canonical",
+      "valid": true,
+      "data": {
+        "$ref": "#/definitions/foo",
+        "title": "Ref",
+        "description": "A ref",
+        "default": null,
+        "readOnly": true,
+        "writeOnly": false,
+        "examples": [ 1, 2 ]
+      }
+    },
+    {
+      "description": "$ref with x-keyword is canonical",
+      "valid": true,
+      "data": {
+        "$ref": "#/definitions/foo",
+        "x-note": "important"
+      }
+    },
+    {
+      "description": "$ref with multiple x-keywords is canonical",
+      "valid": true,
+      "data": {
+        "$ref": "#/definitions/foo",
+        "x-note": "important",
+        "x-source": "api"
+      }
+    },
+    {
+      "description": "$ref as non-string is rejected",
+      "valid": false,
+      "data": {
+        "$ref": 42
+      }
+    },
+    {
+      "description": "$ref as boolean is rejected",
+      "valid": false,
+      "data": {
+        "$ref": true
+      }
+    },
+    {
+      "description": "$ref as null is rejected",
+      "valid": false,
+      "data": {
+        "$ref": null
+      }
+    },
+    {
+      "description": "$ref as array is rejected",
+      "valid": false,
+      "data": {
+        "$ref": [ "#/definitions/foo" ]
+      }
+    },
+    {
+      "description": "$ref as object is rejected",
+      "valid": false,
+      "data": {
+        "$ref": {}
+      }
+    },
+    {
+      "description": "$ref with type sibling is rejected",
+      "valid": false,
+      "data": {
+        "$ref": "#/definitions/foo",
+        "type": "string"
+      }
+    },
+    {
+      "description": "$ref with properties sibling is rejected",
+      "valid": false,
+      "data": {
+        "$ref": "#/definitions/foo",
+        "properties": {}
+      }
+    },
+    {
+      "description": "$ref with enum sibling is rejected",
+      "valid": false,
+      "data": {
+        "$ref": "#/definitions/foo",
+        "enum": [ 1 ]
+      }
+    },
+    {
+      "description": "$ref with $schema sibling is rejected",
+      "valid": false,
+      "data": {
+        "$ref": "#/definitions/foo",
+        "$schema": "http://json-schema.org/draft-07/schema#"
+      }
+    },
+    {
+      "description": "$ref with $id sibling is rejected",
+      "valid": false,
+      "data": {
+        "$ref": "#/definitions/foo",
+        "$id": "https://example.com"
+      }
+    },
+    {
+      "description": "$ref with definitions sibling is rejected",
+      "valid": false,
+      "data": {
+        "$ref": "#/definitions/foo",
+        "definitions": {
+          "x": true
+        }
+      }
+    },
+    {
+      "description": "$ref with anyOf sibling is rejected",
+      "valid": false,
+      "data": {
+        "$ref": "#/definitions/foo",
+        "anyOf": [ true ]
+      }
+    },
+    {
+      "description": "$ref with allOf sibling is rejected",
+      "valid": false,
+      "data": {
+        "$ref": "#/definitions/foo",
+        "allOf": [ true ]
+      }
+    },
+    {
+      "description": "$ref with minimum sibling is rejected",
+      "valid": false,
+      "data": {
+        "$ref": "#/definitions/foo",
+        "minimum": 0
+      }
+    },
+    {
+      "description": "$ref with minLength sibling is rejected",
+      "valid": false,
+      "data": {
+        "$ref": "#/definitions/foo",
+        "minLength": 0
+      }
+    },
+    {
+      "description": "$ref with items sibling is rejected",
+      "valid": false,
+      "data": {
+        "$ref": "#/definitions/foo",
+        "items": true
+      }
+    },
+    {
+      "description": "$ref with not sibling is rejected",
+      "valid": false,
+      "data": {
+        "$ref": "#/definitions/foo",
+        "not": true
+      }
+    },
+    {
+      "description": "$ref with oneOf sibling is rejected",
+      "valid": false,
+      "data": {
+        "$ref": "#/definitions/foo",
+        "oneOf": [ true ]
+      }
+    },
+    {
+      "description": "$ref with contains sibling is rejected",
+      "valid": false,
+      "data": {
+        "$ref": "#/definitions/foo",
+        "contains": true
+      }
+    },
+    {
+      "description": "$ref with propertyNames sibling is rejected",
+      "valid": false,
+      "data": {
+        "$ref": "#/definitions/foo",
+        "propertyNames": true
+      }
+    },
+    {
+      "description": "$ref with Draft 4 id sibling is rejected",
+      "valid": false,
+      "data": {
+        "$ref": "#/definitions/foo",
+        "id": "https://example.com"
+      }
+    },
+    {
+      "description": "$ref with empty examples is rejected",
+      "valid": false,
+      "data": {
+        "$ref": "#/definitions/foo",
+        "examples": []
+      }
+    },
+    {
+      "description": "$ref with examples as non-array is rejected",
+      "valid": false,
+      "data": {
+        "$ref": "#/definitions/foo",
+        "examples": "foo"
+      }
+    },
+    {
+      "description": "$ref with examples as number is rejected",
+      "valid": false,
+      "data": {
+        "$ref": "#/definitions/foo",
+        "examples": 42
+      }
+    },
+    {
+      "description": "$ref with examples with duplicate values is rejected",
+      "valid": false,
+      "data": {
+        "$ref": "#/definitions/foo",
+        "examples": [ 1, 1 ]
+      }
+    },
+    {
+      "description": "$ref with $comment is rejected",
+      "valid": false,
+      "data": {
+        "$ref": "#/definitions/foo",
+        "$comment": "A comment"
+      }
+    },
+    {
+      "description": "$ref with readOnly as non-boolean is rejected",
+      "valid": false,
+      "data": {
+        "$ref": "#/definitions/foo",
+        "readOnly": "true"
+      }
+    },
+    {
+      "description": "$ref with writeOnly as non-boolean is rejected",
+      "valid": false,
+      "data": {
+        "$ref": "#/definitions/foo",
+        "writeOnly": "true"
+      }
+    },
+    {
+      "description": "$ref with readOnly as integer is rejected",
+      "valid": false,
+      "data": {
+        "$ref": "#/definitions/foo",
+        "readOnly": 1
+      }
+    },
+    {
+      "description": "$ref with writeOnly as integer is rejected",
+      "valid": false,
+      "data": {
+        "$ref": "#/definitions/foo",
+        "writeOnly": 1
+      }
+    },
+    {
+      "description": "$ref with if sibling is rejected",
+      "valid": false,
+      "data": {
+        "$ref": "#/definitions/foo",
+        "if": true
+      }
+    },
+    {
+      "description": "Enum with booleans is canonical",
+      "valid": true,
+      "data": {
+        "enum": [ false, true ]
+      }
+    },
+    {
+      "description": "Enum with null is canonical",
+      "valid": true,
+      "data": {
+        "enum": [ null ]
+      }
+    },
+    {
+      "description": "Enum with values is canonical",
+      "valid": true,
+      "data": {
+        "enum": [ 1, 2, 3 ]
+      }
+    },
+    {
+      "description": "Enum with title is canonical",
+      "valid": true,
+      "data": {
+        "enum": [ 1 ],
+        "title": "One"
+      }
+    },
+    {
+      "description": "Enum with description is canonical",
+      "valid": true,
+      "data": {
+        "enum": [ "a" ],
+        "description": "A value"
+      }
+    },
+    {
+      "description": "Enum with default is canonical",
+      "valid": true,
+      "data": {
+        "enum": [ 1, 2 ],
+        "default": 1
+      }
+    },
+    {
+      "description": "Enum with examples is canonical",
+      "valid": true,
+      "data": {
+        "enum": [ 1, 2, 3 ],
+        "examples": [ 1 ]
+      }
+    },
+    {
+      "description": "Enum with readOnly is canonical",
+      "valid": true,
+      "data": {
+        "enum": [ 1 ],
+        "readOnly": true
+      }
+    },
+    {
+      "description": "Enum with writeOnly is canonical",
+      "valid": true,
+      "data": {
+        "enum": [ 1 ],
+        "writeOnly": true
+      }
+    },
+    {
+      "description": "Enum with $schema is canonical",
+      "valid": true,
+      "data": {
+        "enum": [ 1 ],
+        "$schema": "http://json-schema.org/draft-07/schema#"
+      }
+    },
+    {
+      "description": "Enum with $id is canonical",
+      "valid": true,
+      "data": {
+        "enum": [ 1 ],
+        "$id": "https://example.com/e"
+      }
+    },
+    {
+      "description": "Enum with definitions is canonical",
+      "valid": true,
+      "data": {
+        "enum": [ 1 ],
+        "definitions": {
+          "x": true
+        }
+      }
+    },
+    {
+      "description": "Enum with x-keyword is canonical",
+      "valid": true,
+      "data": {
+        "enum": [ 1, 2 ],
+        "x-source": "config"
+      }
+    },
+    {
+      "description": "Enum with all optional fields is canonical",
+      "valid": true,
+      "data": {
+        "enum": [ 1, 2, 3 ],
+        "$schema": "http://json-schema.org/draft-07/schema#",
+        "$id": "https://example.com/enum",
+        "definitions": {
+          "helper": true
+        },
+        "title": "My enum",
+        "description": "An enumeration",
+        "default": 1,
+        "readOnly": false,
+        "writeOnly": false,
+        "examples": [ 2 ],
+        "x-source": "api"
+      }
+    },
+    {
+      "description": "Empty enum is rejected",
+      "valid": false,
+      "data": {
+        "enum": []
+      }
+    },
+    {
+      "description": "Enum with duplicate values is rejected",
+      "valid": false,
+      "data": {
+        "enum": [ 1, 1 ]
+      }
+    },
+    {
+      "description": "Enum with type sibling is rejected",
+      "valid": false,
+      "data": {
+        "enum": [ 1, 2 ],
+        "type": "integer"
+      }
+    },
+    {
+      "description": "Enum with properties sibling is rejected",
+      "valid": false,
+      "data": {
+        "enum": [ 1, 2 ],
+        "properties": {}
+      }
+    },
+    {
+      "description": "Enum with minimum sibling is rejected",
+      "valid": false,
+      "data": {
+        "enum": [ 1, 2 ],
+        "minimum": 0
+      }
+    },
+    {
+      "description": "Enum with minLength sibling is rejected",
+      "valid": false,
+      "data": {
+        "enum": [ "a" ],
+        "minLength": 0
+      }
+    },
+    {
+      "description": "Enum with anyOf sibling is rejected",
+      "valid": false,
+      "data": {
+        "enum": [ 1 ],
+        "anyOf": [ true ]
+      }
+    },
+    {
+      "description": "Enum with items sibling is rejected",
+      "valid": false,
+      "data": {
+        "enum": [ 1 ],
+        "items": true
+      }
+    },
+    {
+      "description": "Enum with $ref sibling is rejected",
+      "valid": false,
+      "data": {
+        "enum": [ 1 ],
+        "$ref": "#/definitions/foo"
+      }
+    },
+    {
+      "description": "Enum with not sibling is rejected",
+      "valid": false,
+      "data": {
+        "enum": [ 1 ],
+        "not": true
+      }
+    },
+    {
+      "description": "Enum with allOf sibling is rejected",
+      "valid": false,
+      "data": {
+        "enum": [ 1 ],
+        "allOf": [ true ]
+      }
+    },
+    {
+      "description": "Enum with oneOf sibling is rejected",
+      "valid": false,
+      "data": {
+        "enum": [ 1 ],
+        "oneOf": [ true ]
+      }
+    },
+    {
+      "description": "Enum with contains sibling is rejected",
+      "valid": false,
+      "data": {
+        "enum": [ 1 ],
+        "contains": true
+      }
+    },
+    {
+      "description": "Enum with propertyNames sibling is rejected",
+      "valid": false,
+      "data": {
+        "enum": [ 1 ],
+        "propertyNames": true
+      }
+    },
+    {
+      "description": "Enum with empty definitions is rejected",
+      "valid": false,
+      "data": {
+        "enum": [ 1 ],
+        "definitions": {}
+      }
+    },
+    {
+      "description": "Enum definitions subschemas must be canonical",
+      "valid": false,
+      "data": {
+        "enum": [ 1 ],
+        "definitions": {
+          "x": {
+            "type": "boolean"
+          }
+        }
+      }
+    },
+    {
+      "description": "Enum with Draft 4 id is rejected",
+      "valid": false,
+      "data": {
+        "enum": [ 1 ],
+        "id": "https://example.com"
+      }
+    },
+    {
+      "description": "Enum with empty examples is rejected",
+      "valid": false,
+      "data": {
+        "enum": [ 1 ],
+        "examples": []
+      }
+    },
+    {
+      "description": "Enum with examples as string is rejected",
+      "valid": false,
+      "data": {
+        "enum": [ 1 ],
+        "examples": "foo"
+      }
+    },
+    {
+      "description": "Enum with examples with duplicate values is rejected",
+      "valid": false,
+      "data": {
+        "enum": [ 1, 2 ],
+        "examples": [ 1, 1 ]
+      }
+    },
+    {
+      "description": "Enum as non-array is rejected",
+      "valid": false,
+      "data": {
+        "enum": "foo"
+      }
+    },
+    {
+      "description": "Enum as number is rejected",
+      "valid": false,
+      "data": {
+        "enum": 42
+      }
+    },
+    {
+      "description": "Enum with $comment is rejected",
+      "valid": false,
+      "data": {
+        "enum": [ 1 ],
+        "$comment": "A comment"
+      }
+    },
+    {
+      "description": "Enum with readOnly as non-boolean is rejected",
+      "valid": false,
+      "data": {
+        "enum": [ 1 ],
+        "readOnly": "true"
+      }
+    },
+    {
+      "description": "Enum with writeOnly as non-boolean is rejected",
+      "valid": false,
+      "data": {
+        "enum": [ 1 ],
+        "writeOnly": "true"
+      }
+    },
+    {
+      "description": "Enum with $schema as non-string is rejected",
+      "valid": false,
+      "data": {
+        "enum": [ 1 ],
+        "$schema": 42
+      }
+    },
+    {
+      "description": "Enum with $id as non-string is rejected",
+      "valid": false,
+      "data": {
+        "enum": [ 1 ],
+        "$id": 42
+      }
+    },
+    {
+      "description": "Enum with title as non-string is rejected",
+      "valid": false,
+      "data": {
+        "enum": [ 1 ],
+        "title": 42
+      }
+    },
+    {
+      "description": "Enum with description as non-string is rejected",
+      "valid": false,
+      "data": {
+        "enum": [ 1 ],
+        "description": 42
+      }
+    },
+    {
+      "description": "Enum with definitions as non-object is rejected",
+      "valid": false,
+      "data": {
+        "enum": [ 1 ],
+        "definitions": "foo"
+      }
+    },
+    {
+      "description": "Enum with if sibling is rejected",
+      "valid": false,
+      "data": {
+        "enum": [ 1 ],
+        "if": true
+      }
+    },
+    {
+      "description": "String with minLength is canonical",
+      "valid": true,
+      "data": {
+        "type": "string",
+        "minLength": 0
+      }
+    },
+    {
+      "description": "String with all keywords is canonical",
+      "valid": true,
+      "data": {
+        "type": "string",
+        "minLength": 0,
+        "maxLength": 100,
+        "pattern": "^[a-z]+$",
+        "format": "email"
+      }
+    },
+    {
+      "description": "String with contentEncoding is canonical",
+      "valid": true,
+      "data": {
+        "type": "string",
+        "minLength": 0,
+        "contentEncoding": "base64"
+      }
+    },
+    {
+      "description": "String with contentMediaType is canonical",
+      "valid": true,
+      "data": {
+        "type": "string",
+        "minLength": 0,
+        "contentMediaType": "application/json"
+      }
+    },
+    {
+      "description": "String with contentEncoding and contentMediaType is canonical",
+      "valid": true,
+      "data": {
+        "type": "string",
+        "minLength": 0,
+        "contentEncoding": "base64",
+        "contentMediaType": "image/png"
+      }
+    },
+    {
+      "description": "String with annotations is canonical",
+      "valid": true,
+      "data": {
+        "type": "string",
+        "minLength": 0,
+        "title": "Name",
+        "description": "A name",
+        "default": "unknown"
+      }
+    },
+    {
+      "description": "String with examples is canonical",
+      "valid": true,
+      "data": {
+        "type": "string",
+        "minLength": 0,
+        "examples": [ "hello" ]
+      }
+    },
+    {
+      "description": "String with readOnly is canonical",
+      "valid": true,
+      "data": {
+        "type": "string",
+        "minLength": 0,
+        "readOnly": true
+      }
+    },
+    {
+      "description": "String with writeOnly is canonical",
+      "valid": true,
+      "data": {
+        "type": "string",
+        "minLength": 0,
+        "writeOnly": true
+      }
+    },
+    {
+      "description": "String with $schema is canonical",
+      "valid": true,
+      "data": {
+        "type": "string",
+        "minLength": 0,
+        "$schema": "http://json-schema.org/draft-07/schema#"
+      }
+    },
+    {
+      "description": "String with $id is canonical",
+      "valid": true,
+      "data": {
+        "type": "string",
+        "minLength": 0,
+        "$id": "https://example.com/s"
+      }
+    },
+    {
+      "description": "String with definitions is canonical",
+      "valid": true,
+      "data": {
+        "type": "string",
+        "minLength": 0,
+        "definitions": {
+          "x": true
+        }
+      }
+    },
+    {
+      "description": "String with x-keyword is canonical",
+      "valid": true,
+      "data": {
+        "type": "string",
+        "minLength": 0,
+        "x-custom": "value"
+      }
+    },
+    {
+      "description": "String with all optional fields is canonical",
+      "valid": true,
+      "data": {
+        "type": "string",
+        "minLength": 1,
+        "maxLength": 255,
+        "pattern": "^[A-Z]",
+        "format": "uri",
+        "contentEncoding": "base64",
+        "contentMediaType": "text/plain",
+        "$schema": "http://json-schema.org/draft-07/schema#",
+        "$id": "https://example.com/str",
+        "definitions": {
+          "helper": true
+        },
+        "title": "My string",
+        "description": "A string value",
+        "default": "",
+        "readOnly": false,
+        "writeOnly": false,
+        "examples": [ "abc", "def" ],
+        "x-custom": "value"
+      }
+    },
+    {
+      "description": "String without minLength is rejected",
+      "valid": false,
+      "data": {
+        "type": "string"
+      }
+    },
+    {
+      "description": "String with negative minLength is rejected",
+      "valid": false,
+      "data": {
+        "type": "string",
+        "minLength": -1
+      }
+    },
+    {
+      "description": "String with float minLength is rejected",
+      "valid": false,
+      "data": {
+        "type": "string",
+        "minLength": 1.5
+      }
+    },
+    {
+      "description": "String with negative maxLength is rejected",
+      "valid": false,
+      "data": {
+        "type": "string",
+        "minLength": 0,
+        "maxLength": -1
+      }
+    },
+    {
+      "description": "String with float maxLength is rejected",
+      "valid": false,
+      "data": {
+        "type": "string",
+        "minLength": 0,
+        "maxLength": 1.5
+      }
+    },
+    {
+      "description": "String with numeric keywords is rejected",
+      "valid": false,
+      "data": {
+        "type": "string",
+        "minLength": 0,
+        "minimum": 0
+      }
+    },
+    {
+      "description": "String with object keywords is rejected",
+      "valid": false,
+      "data": {
+        "type": "string",
+        "minLength": 0,
+        "properties": {}
+      }
+    },
+    {
+      "description": "String with array keywords is rejected",
+      "valid": false,
+      "data": {
+        "type": "string",
+        "minLength": 0,
+        "items": true
+      }
+    },
+    {
+      "description": "String with enum sibling is rejected",
+      "valid": false,
+      "data": {
+        "type": "string",
+        "minLength": 0,
+        "enum": [ "a" ]
+      }
+    },
+    {
+      "description": "String with anyOf sibling is rejected",
+      "valid": false,
+      "data": {
+        "type": "string",
+        "minLength": 0,
+        "anyOf": [ true ]
+      }
+    },
+    {
+      "description": "String with allOf sibling is rejected",
+      "valid": false,
+      "data": {
+        "type": "string",
+        "minLength": 0,
+        "allOf": [ true ]
+      }
+    },
+    {
+      "description": "String with oneOf sibling is rejected",
+      "valid": false,
+      "data": {
+        "type": "string",
+        "minLength": 0,
+        "oneOf": [ true ]
+      }
+    },
+    {
+      "description": "String with not sibling is rejected",
+      "valid": false,
+      "data": {
+        "type": "string",
+        "minLength": 0,
+        "not": true
+      }
+    },
+    {
+      "description": "String with $ref sibling is rejected",
+      "valid": false,
+      "data": {
+        "type": "string",
+        "minLength": 0,
+        "$ref": "#/definitions/foo"
+      }
+    },
+    {
+      "description": "String with contains sibling is rejected",
+      "valid": false,
+      "data": {
+        "type": "string",
+        "minLength": 0,
+        "contains": true
+      }
+    },
+    {
+      "description": "String with propertyNames sibling is rejected",
+      "valid": false,
+      "data": {
+        "type": "string",
+        "minLength": 0,
+        "propertyNames": true
+      }
+    },
+    {
+      "description": "String with empty definitions is rejected",
+      "valid": false,
+      "data": {
+        "type": "string",
+        "minLength": 0,
+        "definitions": {}
+      }
+    },
+    {
+      "description": "String definitions subschemas must be canonical",
+      "valid": false,
+      "data": {
+        "type": "string",
+        "minLength": 0,
+        "definitions": {
+          "x": {
+            "type": "boolean"
+          }
+        }
+      }
+    },
+    {
+      "description": "String with Draft 4 id is rejected",
+      "valid": false,
+      "data": {
+        "type": "string",
+        "minLength": 0,
+        "id": "https://example.com"
+      }
+    },
+    {
+      "description": "String with empty examples is rejected",
+      "valid": false,
+      "data": {
+        "type": "string",
+        "minLength": 0,
+        "examples": []
+      }
+    },
+    {
+      "description": "String with examples as string is rejected",
+      "valid": false,
+      "data": {
+        "type": "string",
+        "minLength": 0,
+        "examples": "foo"
+      }
+    },
+    {
+      "description": "String with examples with duplicate values is rejected",
+      "valid": false,
+      "data": {
+        "type": "string",
+        "minLength": 0,
+        "examples": [ "a", "a" ]
+      }
+    },
+    {
+      "description": "String with minLength as string is rejected",
+      "valid": false,
+      "data": {
+        "type": "string",
+        "minLength": "0"
+      }
+    },
+    {
+      "description": "String with pattern as number is rejected",
+      "valid": false,
+      "data": {
+        "type": "string",
+        "minLength": 0,
+        "pattern": 42
+      }
+    },
+    {
+      "description": "String with format as number is rejected",
+      "valid": false,
+      "data": {
+        "type": "string",
+        "minLength": 0,
+        "format": 42
+      }
+    },
+    {
+      "description": "String with $comment is rejected",
+      "valid": false,
+      "data": {
+        "type": "string",
+        "minLength": 0,
+        "$comment": "A comment"
+      }
+    },
+    {
+      "description": "String with readOnly as non-boolean is rejected",
+      "valid": false,
+      "data": {
+        "type": "string",
+        "minLength": 0,
+        "readOnly": "true"
+      }
+    },
+    {
+      "description": "String with writeOnly as non-boolean is rejected",
+      "valid": false,
+      "data": {
+        "type": "string",
+        "minLength": 0,
+        "writeOnly": "true"
+      }
+    },
+    {
+      "description": "String with contentEncoding as number is rejected",
+      "valid": false,
+      "data": {
+        "type": "string",
+        "minLength": 0,
+        "contentEncoding": 42
+      }
+    },
+    {
+      "description": "String with contentMediaType as number is rejected",
+      "valid": false,
+      "data": {
+        "type": "string",
+        "minLength": 0,
+        "contentMediaType": 42
+      }
+    },
+    {
+      "description": "String with $schema as non-string is rejected",
+      "valid": false,
+      "data": {
+        "type": "string",
+        "minLength": 0,
+        "$schema": 42
+      }
+    },
+    {
+      "description": "String with $id as non-string is rejected",
+      "valid": false,
+      "data": {
+        "type": "string",
+        "minLength": 0,
+        "$id": 42
+      }
+    },
+    {
+      "description": "String with title as non-string is rejected",
+      "valid": false,
+      "data": {
+        "type": "string",
+        "minLength": 0,
+        "title": 42
+      }
+    },
+    {
+      "description": "String with description as non-string is rejected",
+      "valid": false,
+      "data": {
+        "type": "string",
+        "minLength": 0,
+        "description": 42
+      }
+    },
+    {
+      "description": "String with if sibling is rejected",
+      "valid": false,
+      "data": {
+        "type": "string",
+        "minLength": 0,
+        "if": true
+      }
+    },
+    {
+      "description": "Integer with multipleOf is canonical",
+      "valid": true,
+      "data": {
+        "type": "integer",
+        "multipleOf": 1
+      }
+    },
+    {
+      "description": "Integer with bounds is canonical",
+      "valid": true,
+      "data": {
+        "type": "integer",
+        "multipleOf": 1,
+        "minimum": 0,
+        "maximum": 100
+      }
+    },
+    {
+      "description": "Integer with annotations is canonical",
+      "valid": true,
+      "data": {
+        "type": "integer",
+        "multipleOf": 1,
+        "title": "Age",
+        "description": "Years",
+        "default": 0
+      }
+    },
+    {
+      "description": "Integer with examples is canonical",
+      "valid": true,
+      "data": {
+        "type": "integer",
+        "multipleOf": 1,
+        "examples": [ 42 ]
+      }
+    },
+    {
+      "description": "Integer with readOnly is canonical",
+      "valid": true,
+      "data": {
+        "type": "integer",
+        "multipleOf": 1,
+        "readOnly": true
+      }
+    },
+    {
+      "description": "Integer with writeOnly is canonical",
+      "valid": true,
+      "data": {
+        "type": "integer",
+        "multipleOf": 1,
+        "writeOnly": true
+      }
+    },
+    {
+      "description": "Integer with $schema is canonical",
+      "valid": true,
+      "data": {
+        "type": "integer",
+        "multipleOf": 1,
+        "$schema": "http://json-schema.org/draft-07/schema#"
+      }
+    },
+    {
+      "description": "Integer with $id is canonical",
+      "valid": true,
+      "data": {
+        "type": "integer",
+        "multipleOf": 1,
+        "$id": "https://example.com/i"
+      }
+    },
+    {
+      "description": "Integer with definitions is canonical",
+      "valid": true,
+      "data": {
+        "type": "integer",
+        "multipleOf": 1,
+        "definitions": {
+          "x": true
+        }
+      }
+    },
+    {
+      "description": "Integer with x-keyword is canonical",
+      "valid": true,
+      "data": {
+        "type": "integer",
+        "multipleOf": 1,
+        "x-source": "db"
+      }
+    },
+    {
+      "description": "Integer with all optional fields is canonical",
+      "valid": true,
+      "data": {
+        "type": "integer",
+        "multipleOf": 1,
+        "minimum": 0,
+        "maximum": 100,
+        "$schema": "http://json-schema.org/draft-07/schema#",
+        "$id": "https://example.com/int",
+        "definitions": {
+          "helper": true
+        },
+        "title": "My integer",
+        "description": "An integer value",
+        "default": 0,
+        "readOnly": false,
+        "writeOnly": false,
+        "examples": [ 1, 50, 100 ],
+        "x-source": "db"
+      }
+    },
+    {
+      "description": "Integer with fractional multipleOf is canonical",
+      "valid": true,
+      "data": {
+        "type": "integer",
+        "multipleOf": 0.5
+      }
+    },
+    {
+      "description": "Integer without multipleOf is rejected",
+      "valid": false,
+      "data": {
+        "type": "integer"
+      }
+    },
+    {
+      "description": "Integer with multipleOf zero is rejected",
+      "valid": false,
+      "data": {
+        "type": "integer",
+        "multipleOf": 0
+      }
+    },
+    {
+      "description": "Integer with negative multipleOf is rejected",
+      "valid": false,
+      "data": {
+        "type": "integer",
+        "multipleOf": -1
+      }
+    },
+    {
+      "description": "Integer with exclusiveMinimum is rejected",
+      "valid": false,
+      "data": {
+        "type": "integer",
+        "multipleOf": 1,
+        "exclusiveMinimum": 0
+      }
+    },
+    {
+      "description": "Integer with exclusiveMaximum is rejected",
+      "valid": false,
+      "data": {
+        "type": "integer",
+        "multipleOf": 1,
+        "exclusiveMaximum": 100
+      }
+    },
+    {
+      "description": "Integer with boolean exclusiveMinimum is rejected",
+      "valid": false,
+      "data": {
+        "type": "integer",
+        "multipleOf": 1,
+        "minimum": 0,
+        "exclusiveMinimum": true
+      }
+    },
+    {
+      "description": "Integer with boolean exclusiveMaximum is rejected",
+      "valid": false,
+      "data": {
+        "type": "integer",
+        "multipleOf": 1,
+        "maximum": 100,
+        "exclusiveMaximum": true
+      }
+    },
+    {
+      "description": "Integer with string keywords is rejected",
+      "valid": false,
+      "data": {
+        "type": "integer",
+        "multipleOf": 1,
+        "minLength": 0
+      }
+    },
+    {
+      "description": "Integer with object keywords is rejected",
+      "valid": false,
+      "data": {
+        "type": "integer",
+        "multipleOf": 1,
+        "properties": {}
+      }
+    },
+    {
+      "description": "Integer with array keywords is rejected",
+      "valid": false,
+      "data": {
+        "type": "integer",
+        "multipleOf": 1,
+        "items": true
+      }
+    },
+    {
+      "description": "Integer with enum sibling is rejected",
+      "valid": false,
+      "data": {
+        "type": "integer",
+        "multipleOf": 1,
+        "enum": [ 1 ]
+      }
+    },
+    {
+      "description": "Integer with anyOf sibling is rejected",
+      "valid": false,
+      "data": {
+        "type": "integer",
+        "multipleOf": 1,
+        "anyOf": [ true ]
+      }
+    },
+    {
+      "description": "Integer with allOf sibling is rejected",
+      "valid": false,
+      "data": {
+        "type": "integer",
+        "multipleOf": 1,
+        "allOf": [ true ]
+      }
+    },
+    {
+      "description": "Integer with oneOf sibling is rejected",
+      "valid": false,
+      "data": {
+        "type": "integer",
+        "multipleOf": 1,
+        "oneOf": [ true ]
+      }
+    },
+    {
+      "description": "Integer with not sibling is rejected",
+      "valid": false,
+      "data": {
+        "type": "integer",
+        "multipleOf": 1,
+        "not": true
+      }
+    },
+    {
+      "description": "Integer with $ref sibling is rejected",
+      "valid": false,
+      "data": {
+        "type": "integer",
+        "multipleOf": 1,
+        "$ref": "#/definitions/foo"
+      }
+    },
+    {
+      "description": "Integer with contains sibling is rejected",
+      "valid": false,
+      "data": {
+        "type": "integer",
+        "multipleOf": 1,
+        "contains": true
+      }
+    },
+    {
+      "description": "Integer with propertyNames sibling is rejected",
+      "valid": false,
+      "data": {
+        "type": "integer",
+        "multipleOf": 1,
+        "propertyNames": true
+      }
+    },
+    {
+      "description": "Integer with empty definitions is rejected",
+      "valid": false,
+      "data": {
+        "type": "integer",
+        "multipleOf": 1,
+        "definitions": {}
+      }
+    },
+    {
+      "description": "Integer definitions subschemas must be canonical",
+      "valid": false,
+      "data": {
+        "type": "integer",
+        "multipleOf": 1,
+        "definitions": {
+          "x": {
+            "type": "boolean"
+          }
+        }
+      }
+    },
+    {
+      "description": "Integer with Draft 4 id is rejected",
+      "valid": false,
+      "data": {
+        "type": "integer",
+        "multipleOf": 1,
+        "id": "https://example.com"
+      }
+    },
+    {
+      "description": "Integer with empty examples is rejected",
+      "valid": false,
+      "data": {
+        "type": "integer",
+        "multipleOf": 1,
+        "examples": []
+      }
+    },
+    {
+      "description": "Integer with examples as string is rejected",
+      "valid": false,
+      "data": {
+        "type": "integer",
+        "multipleOf": 1,
+        "examples": "foo"
+      }
+    },
+    {
+      "description": "Integer with examples with duplicate values is rejected",
+      "valid": false,
+      "data": {
+        "type": "integer",
+        "multipleOf": 1,
+        "examples": [ 1, 1 ]
+      }
+    },
+    {
+      "description": "Integer with multipleOf as string is rejected",
+      "valid": false,
+      "data": {
+        "type": "integer",
+        "multipleOf": "1"
+      }
+    },
+    {
+      "description": "Integer with minimum as string is rejected",
+      "valid": false,
+      "data": {
+        "type": "integer",
+        "multipleOf": 1,
+        "minimum": "0"
+      }
+    },
+    {
+      "description": "Integer with maximum as string is rejected",
+      "valid": false,
+      "data": {
+        "type": "integer",
+        "multipleOf": 1,
+        "maximum": "100"
+      }
+    },
+    {
+      "description": "Integer with $comment is rejected",
+      "valid": false,
+      "data": {
+        "type": "integer",
+        "multipleOf": 1,
+        "$comment": "A comment"
+      }
+    },
+    {
+      "description": "Integer with readOnly as non-boolean is rejected",
+      "valid": false,
+      "data": {
+        "type": "integer",
+        "multipleOf": 1,
+        "readOnly": "true"
+      }
+    },
+    {
+      "description": "Integer with writeOnly as non-boolean is rejected",
+      "valid": false,
+      "data": {
+        "type": "integer",
+        "multipleOf": 1,
+        "writeOnly": "true"
+      }
+    },
+    {
+      "description": "Integer with $schema as non-string is rejected",
+      "valid": false,
+      "data": {
+        "type": "integer",
+        "multipleOf": 1,
+        "$schema": 42
+      }
+    },
+    {
+      "description": "Integer with $id as non-string is rejected",
+      "valid": false,
+      "data": {
+        "type": "integer",
+        "multipleOf": 1,
+        "$id": 42
+      }
+    },
+    {
+      "description": "Integer with title as non-string is rejected",
+      "valid": false,
+      "data": {
+        "type": "integer",
+        "multipleOf": 1,
+        "title": 42
+      }
+    },
+    {
+      "description": "Integer with description as non-string is rejected",
+      "valid": false,
+      "data": {
+        "type": "integer",
+        "multipleOf": 1,
+        "description": 42
+      }
+    },
+    {
+      "description": "Integer with if sibling is rejected",
+      "valid": false,
+      "data": {
+        "type": "integer",
+        "multipleOf": 1,
+        "if": true
+      }
+    },
+    {
+      "description": "Number alone is canonical",
+      "valid": true,
+      "data": {
+        "type": "number"
+      }
+    },
+    {
+      "description": "Number with bounds is canonical",
+      "valid": true,
+      "data": {
+        "type": "number",
+        "minimum": 0,
+        "maximum": 1.5
+      }
+    },
+    {
+      "description": "Number with multipleOf is canonical",
+      "valid": true,
+      "data": {
+        "type": "number",
+        "multipleOf": 0.1
+      }
+    },
+    {
+      "description": "Number with exclusiveMinimum as number is canonical",
+      "valid": true,
+      "data": {
+        "type": "number",
+        "exclusiveMinimum": 0
+      }
+    },
+    {
+      "description": "Number with exclusiveMaximum as number is canonical",
+      "valid": true,
+      "data": {
+        "type": "number",
+        "exclusiveMaximum": 100
+      }
+    },
+    {
+      "description": "Number with all keywords is canonical",
+      "valid": true,
+      "data": {
+        "type": "number",
+        "multipleOf": 0.5,
+        "minimum": 0,
+        "maximum": 100,
+        "exclusiveMinimum": -1,
+        "exclusiveMaximum": 101
+      }
+    },
+    {
+      "description": "Number with annotations is canonical",
+      "valid": true,
+      "data": {
+        "type": "number",
+        "title": "Score",
+        "description": "A score",
+        "default": 0
+      }
+    },
+    {
+      "description": "Number with examples is canonical",
+      "valid": true,
+      "data": {
+        "type": "number",
+        "examples": [ 3.14 ]
+      }
+    },
+    {
+      "description": "Number with readOnly is canonical",
+      "valid": true,
+      "data": {
+        "type": "number",
+        "readOnly": true
+      }
+    },
+    {
+      "description": "Number with writeOnly is canonical",
+      "valid": true,
+      "data": {
+        "type": "number",
+        "writeOnly": true
+      }
+    },
+    {
+      "description": "Number with $schema is canonical",
+      "valid": true,
+      "data": {
+        "type": "number",
+        "$schema": "http://json-schema.org/draft-07/schema#"
+      }
+    },
+    {
+      "description": "Number with $id is canonical",
+      "valid": true,
+      "data": {
+        "type": "number",
+        "$id": "https://example.com/n"
+      }
+    },
+    {
+      "description": "Number with definitions is canonical",
+      "valid": true,
+      "data": {
+        "type": "number",
+        "definitions": {
+          "x": true
+        }
+      }
+    },
+    {
+      "description": "Number with x-keyword is canonical",
+      "valid": true,
+      "data": {
+        "type": "number",
+        "x-unit": "meters"
+      }
+    },
+    {
+      "description": "Number with all optional fields is canonical",
+      "valid": true,
+      "data": {
+        "type": "number",
+        "multipleOf": 0.1,
+        "minimum": 0,
+        "maximum": 100,
+        "exclusiveMinimum": -1,
+        "exclusiveMaximum": 101,
+        "$schema": "http://json-schema.org/draft-07/schema#",
+        "$id": "https://example.com/num",
+        "definitions": {
+          "helper": true
+        },
+        "title": "My number",
+        "description": "A number value",
+        "default": 0,
+        "readOnly": false,
+        "writeOnly": false,
+        "examples": [ 1.5, 99.9 ],
+        "x-unit": "meters"
+      }
+    },
+    {
+      "description": "Number with multipleOf zero is rejected",
+      "valid": false,
+      "data": {
+        "type": "number",
+        "multipleOf": 0
+      }
+    },
+    {
+      "description": "Number with negative multipleOf is rejected",
+      "valid": false,
+      "data": {
+        "type": "number",
+        "multipleOf": -0.5
+      }
+    },
+    {
+      "description": "Number with boolean exclusiveMinimum is rejected",
+      "valid": false,
+      "data": {
+        "type": "number",
+        "minimum": 0,
+        "exclusiveMinimum": true
+      }
+    },
+    {
+      "description": "Number with boolean exclusiveMaximum is rejected",
+      "valid": false,
+      "data": {
+        "type": "number",
+        "maximum": 100,
+        "exclusiveMaximum": true
+      }
+    },
+    {
+      "description": "Number with boolean false exclusiveMinimum is rejected",
+      "valid": false,
+      "data": {
+        "type": "number",
+        "minimum": 0,
+        "exclusiveMinimum": false
+      }
+    },
+    {
+      "description": "Number with boolean false exclusiveMaximum is rejected",
+      "valid": false,
+      "data": {
+        "type": "number",
+        "maximum": 100,
+        "exclusiveMaximum": false
+      }
+    },
+    {
+      "description": "Number with string exclusiveMinimum is rejected",
+      "valid": false,
+      "data": {
+        "type": "number",
+        "exclusiveMinimum": "0"
+      }
+    },
+    {
+      "description": "Number with string exclusiveMaximum is rejected",
+      "valid": false,
+      "data": {
+        "type": "number",
+        "exclusiveMaximum": "100"
+      }
+    },
+    {
+      "description": "Number with string keywords is rejected",
+      "valid": false,
+      "data": {
+        "type": "number",
+        "minLength": 0
+      }
+    },
+    {
+      "description": "Number with object keywords is rejected",
+      "valid": false,
+      "data": {
+        "type": "number",
+        "properties": {}
+      }
+    },
+    {
+      "description": "Number with array keywords is rejected",
+      "valid": false,
+      "data": {
+        "type": "number",
+        "items": true
+      }
+    },
+    {
+      "description": "Number with enum sibling is rejected",
+      "valid": false,
+      "data": {
+        "type": "number",
+        "enum": [ 1 ]
+      }
+    },
+    {
+      "description": "Number with anyOf sibling is rejected",
+      "valid": false,
+      "data": {
+        "type": "number",
+        "anyOf": [ true ]
+      }
+    },
+    {
+      "description": "Number with allOf sibling is rejected",
+      "valid": false,
+      "data": {
+        "type": "number",
+        "allOf": [ true ]
+      }
+    },
+    {
+      "description": "Number with oneOf sibling is rejected",
+      "valid": false,
+      "data": {
+        "type": "number",
+        "oneOf": [ true ]
+      }
+    },
+    {
+      "description": "Number with not sibling is rejected",
+      "valid": false,
+      "data": {
+        "type": "number",
+        "not": true
+      }
+    },
+    {
+      "description": "Number with $ref sibling is rejected",
+      "valid": false,
+      "data": {
+        "type": "number",
+        "$ref": "#/definitions/foo"
+      }
+    },
+    {
+      "description": "Number with contains sibling is rejected",
+      "valid": false,
+      "data": {
+        "type": "number",
+        "contains": true
+      }
+    },
+    {
+      "description": "Number with propertyNames sibling is rejected",
+      "valid": false,
+      "data": {
+        "type": "number",
+        "propertyNames": true
+      }
+    },
+    {
+      "description": "Number with empty definitions is rejected",
+      "valid": false,
+      "data": {
+        "type": "number",
+        "definitions": {}
+      }
+    },
+    {
+      "description": "Number definitions subschemas must be canonical",
+      "valid": false,
+      "data": {
+        "type": "number",
+        "definitions": {
+          "x": {
+            "type": "boolean"
+          }
+        }
+      }
+    },
+    {
+      "description": "Number with Draft 4 id is rejected",
+      "valid": false,
+      "data": {
+        "type": "number",
+        "id": "https://example.com"
+      }
+    },
+    {
+      "description": "Number with empty examples is rejected",
+      "valid": false,
+      "data": {
+        "type": "number",
+        "examples": []
+      }
+    },
+    {
+      "description": "Number with examples as string is rejected",
+      "valid": false,
+      "data": {
+        "type": "number",
+        "examples": "foo"
+      }
+    },
+    {
+      "description": "Number with examples with duplicate values is rejected",
+      "valid": false,
+      "data": {
+        "type": "number",
+        "examples": [ 1, 1 ]
+      }
+    },
+    {
+      "description": "Number with minimum as string is rejected",
+      "valid": false,
+      "data": {
+        "type": "number",
+        "minimum": "0"
+      }
+    },
+    {
+      "description": "Number with maximum as string is rejected",
+      "valid": false,
+      "data": {
+        "type": "number",
+        "maximum": "100"
+      }
+    },
+    {
+      "description": "Number with $comment is rejected",
+      "valid": false,
+      "data": {
+        "type": "number",
+        "$comment": "A comment"
+      }
+    },
+    {
+      "description": "Number with readOnly as non-boolean is rejected",
+      "valid": false,
+      "data": {
+        "type": "number",
+        "readOnly": "true"
+      }
+    },
+    {
+      "description": "Number with writeOnly as non-boolean is rejected",
+      "valid": false,
+      "data": {
+        "type": "number",
+        "writeOnly": "true"
+      }
+    },
+    {
+      "description": "Number with $schema as non-string is rejected",
+      "valid": false,
+      "data": {
+        "type": "number",
+        "$schema": 42
+      }
+    },
+    {
+      "description": "Number with $id as non-string is rejected",
+      "valid": false,
+      "data": {
+        "type": "number",
+        "$id": 42
+      }
+    },
+    {
+      "description": "Number with title as non-string is rejected",
+      "valid": false,
+      "data": {
+        "type": "number",
+        "title": 42
+      }
+    },
+    {
+      "description": "Number with description as non-string is rejected",
+      "valid": false,
+      "data": {
+        "type": "number",
+        "description": 42
+      }
+    },
+    {
+      "description": "Number with if sibling is rejected",
+      "valid": false,
+      "data": {
+        "type": "number",
+        "if": true
+      }
+    },
+    {
+      "description": "Object with all required keywords is canonical",
+      "valid": true,
+      "data": {
+        "type": "object",
+        "properties": {},
+        "patternProperties": {},
+        "additionalProperties": true,
+        "propertyNames": true,
+        "minProperties": 0
+      }
+    },
+    {
+      "description": "Object with all keywords is canonical",
+      "valid": true,
+      "data": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string",
+            "minLength": 0
+          }
+        },
+        "patternProperties": {
+          "^x-": true
+        },
+        "additionalProperties": false,
+        "propertyNames": {
+          "type": "string",
+          "minLength": 1
+        },
+        "required": [ "name" ],
+        "minProperties": 1,
+        "maxProperties": 10
+      }
+    },
+    {
+      "description": "Object with annotations is canonical",
+      "valid": true,
+      "data": {
+        "type": "object",
+        "properties": {},
+        "patternProperties": {},
+        "additionalProperties": true,
+        "propertyNames": true,
+        "minProperties": 0,
+        "title": "Obj",
+        "description": "An object",
+        "default": {}
+      }
+    },
+    {
+      "description": "Object with examples is canonical",
+      "valid": true,
+      "data": {
+        "type": "object",
+        "properties": {},
+        "patternProperties": {},
+        "additionalProperties": true,
+        "propertyNames": true,
+        "minProperties": 0,
+        "examples": [
+          {
+            "foo": "bar"
+          }
+        ]
+      }
+    },
+    {
+      "description": "Object with readOnly is canonical",
+      "valid": true,
+      "data": {
+        "type": "object",
+        "properties": {},
+        "patternProperties": {},
+        "additionalProperties": true,
+        "propertyNames": true,
+        "minProperties": 0,
+        "readOnly": true
+      }
+    },
+    {
+      "description": "Object with writeOnly is canonical",
+      "valid": true,
+      "data": {
+        "type": "object",
+        "properties": {},
+        "patternProperties": {},
+        "additionalProperties": true,
+        "propertyNames": true,
+        "minProperties": 0,
+        "writeOnly": true
+      }
+    },
+    {
+      "description": "Object with $schema is canonical",
+      "valid": true,
+      "data": {
+        "type": "object",
+        "properties": {},
+        "patternProperties": {},
+        "additionalProperties": true,
+        "propertyNames": true,
+        "minProperties": 0,
+        "$schema": "http://json-schema.org/draft-07/schema#"
+      }
+    },
+    {
+      "description": "Object with $id is canonical",
+      "valid": true,
+      "data": {
+        "type": "object",
+        "properties": {},
+        "patternProperties": {},
+        "additionalProperties": true,
+        "propertyNames": true,
+        "minProperties": 0,
+        "$id": "https://example.com/o"
+      }
+    },
+    {
+      "description": "Object with definitions is canonical",
+      "valid": true,
+      "data": {
+        "type": "object",
+        "properties": {},
+        "patternProperties": {},
+        "additionalProperties": true,
+        "propertyNames": true,
+        "minProperties": 0,
+        "definitions": {
+          "x": true
+        }
+      }
+    },
+    {
+      "description": "Object with x-keyword is canonical",
+      "valid": true,
+      "data": {
+        "type": "object",
+        "properties": {},
+        "patternProperties": {},
+        "additionalProperties": true,
+        "propertyNames": true,
+        "minProperties": 0,
+        "x-db": "users"
+      }
+    },
+    {
+      "description": "Object with false propertyNames is canonical",
+      "valid": true,
+      "data": {
+        "type": "object",
+        "properties": {},
+        "patternProperties": {},
+        "additionalProperties": true,
+        "propertyNames": false,
+        "minProperties": 0
+      }
+    },
+    {
+      "description": "Object with schema propertyNames is canonical",
+      "valid": true,
+      "data": {
+        "type": "object",
+        "properties": {},
+        "patternProperties": {},
+        "additionalProperties": true,
+        "propertyNames": {
+          "type": "string",
+          "minLength": 0
+        },
+        "minProperties": 0
+      }
+    },
+    {
+      "description": "Object with all optional fields is canonical",
+      "valid": true,
+      "data": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string",
+            "minLength": 1
+          }
+        },
+        "patternProperties": {
+          "^x-": true
+        },
+        "additionalProperties": false,
+        "propertyNames": {
+          "type": "string",
+          "minLength": 1
+        },
+        "required": [ "name" ],
+        "minProperties": 1,
+        "maxProperties": 10,
+        "$schema": "http://json-schema.org/draft-07/schema#",
+        "$id": "https://example.com/obj",
+        "definitions": {
+          "helper": true
+        },
+        "title": "My object",
+        "description": "An object value",
+        "default": {},
+        "readOnly": false,
+        "writeOnly": false,
+        "examples": [
+          {
+            "name": "foo"
+          }
+        ],
+        "x-db": "users"
+      }
+    },
+    {
+      "description": "Object without properties is rejected",
+      "valid": false,
+      "data": {
+        "type": "object",
+        "patternProperties": {},
+        "additionalProperties": true,
+        "propertyNames": true,
+        "minProperties": 0
+      }
+    },
+    {
+      "description": "Object without minProperties is rejected",
+      "valid": false,
+      "data": {
+        "type": "object",
+        "properties": {},
+        "patternProperties": {},
+        "additionalProperties": true,
+        "propertyNames": true
+      }
+    },
+    {
+      "description": "Object without patternProperties is rejected",
+      "valid": false,
+      "data": {
+        "type": "object",
+        "properties": {},
+        "additionalProperties": true,
+        "propertyNames": true,
+        "minProperties": 0
+      }
+    },
+    {
+      "description": "Object without additionalProperties is rejected",
+      "valid": false,
+      "data": {
+        "type": "object",
+        "properties": {},
+        "patternProperties": {},
+        "propertyNames": true,
+        "minProperties": 0
+      }
+    },
+    {
+      "description": "Object without propertyNames is rejected",
+      "valid": false,
+      "data": {
+        "type": "object",
+        "properties": {},
+        "patternProperties": {},
+        "additionalProperties": true,
+        "minProperties": 0
+      }
+    },
+    {
+      "description": "Object with string keywords is rejected",
+      "valid": false,
+      "data": {
+        "type": "object",
+        "properties": {},
+        "patternProperties": {},
+        "additionalProperties": true,
+        "propertyNames": true,
+        "minProperties": 0,
+        "minLength": 0
+      }
+    },
+    {
+      "description": "Object with array keywords is rejected",
+      "valid": false,
+      "data": {
+        "type": "object",
+        "properties": {},
+        "patternProperties": {},
+        "additionalProperties": true,
+        "propertyNames": true,
+        "minProperties": 0,
+        "items": true
+      }
+    },
+    {
+      "description": "Object with numeric keywords is rejected",
+      "valid": false,
+      "data": {
+        "type": "object",
+        "properties": {},
+        "patternProperties": {},
+        "additionalProperties": true,
+        "propertyNames": true,
+        "minProperties": 0,
+        "minimum": 0
+      }
+    },
+    {
+      "description": "Object with enum sibling is rejected",
+      "valid": false,
+      "data": {
+        "type": "object",
+        "properties": {},
+        "patternProperties": {},
+        "additionalProperties": true,
+        "propertyNames": true,
+        "minProperties": 0,
+        "enum": [
+          {}
+        ]
+      }
+    },
+    {
+      "description": "Object with anyOf sibling is rejected",
+      "valid": false,
+      "data": {
+        "type": "object",
+        "properties": {},
+        "patternProperties": {},
+        "additionalProperties": true,
+        "propertyNames": true,
+        "minProperties": 0,
+        "anyOf": [ true ]
+      }
+    },
+    {
+      "description": "Object with allOf sibling is rejected",
+      "valid": false,
+      "data": {
+        "type": "object",
+        "properties": {},
+        "patternProperties": {},
+        "additionalProperties": true,
+        "propertyNames": true,
+        "minProperties": 0,
+        "allOf": [ true ]
+      }
+    },
+    {
+      "description": "Object with oneOf sibling is rejected",
+      "valid": false,
+      "data": {
+        "type": "object",
+        "properties": {},
+        "patternProperties": {},
+        "additionalProperties": true,
+        "propertyNames": true,
+        "minProperties": 0,
+        "oneOf": [ true ]
+      }
+    },
+    {
+      "description": "Object with not sibling is rejected",
+      "valid": false,
+      "data": {
+        "type": "object",
+        "properties": {},
+        "patternProperties": {},
+        "additionalProperties": true,
+        "propertyNames": true,
+        "minProperties": 0,
+        "not": true
+      }
+    },
+    {
+      "description": "Object with $ref sibling is rejected",
+      "valid": false,
+      "data": {
+        "type": "object",
+        "properties": {},
+        "patternProperties": {},
+        "additionalProperties": true,
+        "propertyNames": true,
+        "minProperties": 0,
+        "$ref": "#/definitions/foo"
+      }
+    },
+    {
+      "description": "Object with contains sibling is rejected",
+      "valid": false,
+      "data": {
+        "type": "object",
+        "properties": {},
+        "patternProperties": {},
+        "additionalProperties": true,
+        "propertyNames": true,
+        "minProperties": 0,
+        "contains": true
+      }
+    },
+    {
+      "description": "Object with dependencies is rejected",
+      "valid": false,
+      "data": {
+        "type": "object",
+        "properties": {},
+        "patternProperties": {},
+        "additionalProperties": true,
+        "propertyNames": true,
+        "minProperties": 0,
+        "dependencies": {
+          "foo": [ "bar" ]
+        }
+      }
+    },
+    {
+      "description": "Object with empty required is rejected",
+      "valid": false,
+      "data": {
+        "type": "object",
+        "properties": {},
+        "patternProperties": {},
+        "additionalProperties": true,
+        "propertyNames": true,
+        "minProperties": 0,
+        "required": []
+      }
+    },
+    {
+      "description": "Object with empty definitions is rejected",
+      "valid": false,
+      "data": {
+        "type": "object",
+        "properties": {},
+        "patternProperties": {},
+        "additionalProperties": true,
+        "propertyNames": true,
+        "minProperties": 0,
+        "definitions": {}
+      }
+    },
+    {
+      "description": "Recursive object properties must be canonical",
+      "valid": false,
+      "data": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "boolean"
+          }
+        },
+        "patternProperties": {},
+        "additionalProperties": true,
+        "propertyNames": true,
+        "minProperties": 0
+      }
+    },
+    {
+      "description": "Recursive object patternProperties must be canonical",
+      "valid": false,
+      "data": {
+        "type": "object",
+        "properties": {},
+        "patternProperties": {
+          "^x-": {
+            "type": "boolean"
+          }
+        },
+        "additionalProperties": true,
+        "propertyNames": true,
+        "minProperties": 0
+      }
+    },
+    {
+      "description": "Recursive object additionalProperties must be canonical",
+      "valid": false,
+      "data": {
+        "type": "object",
+        "properties": {},
+        "patternProperties": {},
+        "additionalProperties": {
+          "type": "boolean"
+        },
+        "propertyNames": true,
+        "minProperties": 0
+      }
+    },
+    {
+      "description": "Recursive object propertyNames must be canonical",
+      "valid": false,
+      "data": {
+        "type": "object",
+        "properties": {},
+        "patternProperties": {},
+        "additionalProperties": true,
+        "propertyNames": {
+          "type": "boolean"
+        },
+        "minProperties": 0
+      }
+    },
+    {
+      "description": "Object definitions subschemas must be canonical",
+      "valid": false,
+      "data": {
+        "type": "object",
+        "properties": {},
+        "patternProperties": {},
+        "additionalProperties": true,
+        "propertyNames": true,
+        "minProperties": 0,
+        "definitions": {
+          "x": {
+            "type": "boolean"
+          }
+        }
+      }
+    },
+    {
+      "description": "Object with Draft 4 id is rejected",
+      "valid": false,
+      "data": {
+        "type": "object",
+        "properties": {},
+        "patternProperties": {},
+        "additionalProperties": true,
+        "propertyNames": true,
+        "minProperties": 0,
+        "id": "https://example.com"
+      }
+    },
+    {
+      "description": "Object with empty examples is rejected",
+      "valid": false,
+      "data": {
+        "type": "object",
+        "properties": {},
+        "patternProperties": {},
+        "additionalProperties": true,
+        "propertyNames": true,
+        "minProperties": 0,
+        "examples": []
+      }
+    },
+    {
+      "description": "Object with examples as string is rejected",
+      "valid": false,
+      "data": {
+        "type": "object",
+        "properties": {},
+        "patternProperties": {},
+        "additionalProperties": true,
+        "propertyNames": true,
+        "minProperties": 0,
+        "examples": "foo"
+      }
+    },
+    {
+      "description": "Object with examples with duplicate values is rejected",
+      "valid": false,
+      "data": {
+        "type": "object",
+        "properties": {},
+        "patternProperties": {},
+        "additionalProperties": true,
+        "propertyNames": true,
+        "minProperties": 0,
+        "examples": [ 1, 1 ]
+      }
+    },
+    {
+      "description": "Object with negative minProperties is rejected",
+      "valid": false,
+      "data": {
+        "type": "object",
+        "properties": {},
+        "patternProperties": {},
+        "additionalProperties": true,
+        "propertyNames": true,
+        "minProperties": -1
+      }
+    },
+    {
+      "description": "Object with float minProperties is rejected",
+      "valid": false,
+      "data": {
+        "type": "object",
+        "properties": {},
+        "patternProperties": {},
+        "additionalProperties": true,
+        "propertyNames": true,
+        "minProperties": 1.5
+      }
+    },
+    {
+      "description": "Object with negative maxProperties is rejected",
+      "valid": false,
+      "data": {
+        "type": "object",
+        "properties": {},
+        "patternProperties": {},
+        "additionalProperties": true,
+        "propertyNames": true,
+        "minProperties": 0,
+        "maxProperties": -1
+      }
+    },
+    {
+      "description": "Object with required containing non-strings is rejected",
+      "valid": false,
+      "data": {
+        "type": "object",
+        "properties": {},
+        "patternProperties": {},
+        "additionalProperties": true,
+        "propertyNames": true,
+        "minProperties": 0,
+        "required": [ 42 ]
+      }
+    },
+    {
+      "description": "Object with duplicate required is rejected",
+      "valid": false,
+      "data": {
+        "type": "object",
+        "properties": {},
+        "patternProperties": {},
+        "additionalProperties": true,
+        "propertyNames": true,
+        "minProperties": 0,
+        "required": [ "a", "a" ]
+      }
+    },
+    {
+      "description": "Object with $comment is rejected",
+      "valid": false,
+      "data": {
+        "type": "object",
+        "properties": {},
+        "patternProperties": {},
+        "additionalProperties": true,
+        "propertyNames": true,
+        "minProperties": 0,
+        "$comment": "A comment"
+      }
+    },
+    {
+      "description": "Object with readOnly as non-boolean is rejected",
+      "valid": false,
+      "data": {
+        "type": "object",
+        "properties": {},
+        "patternProperties": {},
+        "additionalProperties": true,
+        "propertyNames": true,
+        "minProperties": 0,
+        "readOnly": "true"
+      }
+    },
+    {
+      "description": "Object with writeOnly as non-boolean is rejected",
+      "valid": false,
+      "data": {
+        "type": "object",
+        "properties": {},
+        "patternProperties": {},
+        "additionalProperties": true,
+        "propertyNames": true,
+        "minProperties": 0,
+        "writeOnly": "true"
+      }
+    },
+    {
+      "description": "Object with $schema as non-string is rejected",
+      "valid": false,
+      "data": {
+        "type": "object",
+        "properties": {},
+        "patternProperties": {},
+        "additionalProperties": true,
+        "propertyNames": true,
+        "minProperties": 0,
+        "$schema": 42
+      }
+    },
+    {
+      "description": "Object with $id as non-string is rejected",
+      "valid": false,
+      "data": {
+        "type": "object",
+        "properties": {},
+        "patternProperties": {},
+        "additionalProperties": true,
+        "propertyNames": true,
+        "minProperties": 0,
+        "$id": 42
+      }
+    },
+    {
+      "description": "Object with title as non-string is rejected",
+      "valid": false,
+      "data": {
+        "type": "object",
+        "properties": {},
+        "patternProperties": {},
+        "additionalProperties": true,
+        "propertyNames": true,
+        "minProperties": 0,
+        "title": 42
+      }
+    },
+    {
+      "description": "Object with description as non-string is rejected",
+      "valid": false,
+      "data": {
+        "type": "object",
+        "properties": {},
+        "patternProperties": {},
+        "additionalProperties": true,
+        "propertyNames": true,
+        "minProperties": 0,
+        "description": 42
+      }
+    },
+    {
+      "description": "Object with if sibling is rejected",
+      "valid": false,
+      "data": {
+        "type": "object",
+        "properties": {},
+        "patternProperties": {},
+        "additionalProperties": true,
+        "propertyNames": true,
+        "minProperties": 0,
+        "if": true
+      }
+    },
+    {
+      "description": "Array with schema items is canonical",
+      "valid": true,
+      "data": {
+        "type": "array",
+        "items": {
+          "type": "string",
+          "minLength": 0
+        },
+        "minItems": 0,
+        "uniqueItems": false
+      }
+    },
+    {
+      "description": "Array with boolean items is canonical",
+      "valid": true,
+      "data": {
+        "type": "array",
+        "items": true,
+        "minItems": 0,
+        "uniqueItems": true
+      }
+    },
+    {
+      "description": "Array with false items is canonical",
+      "valid": true,
+      "data": {
+        "type": "array",
+        "items": false,
+        "minItems": 0,
+        "uniqueItems": false
+      }
+    },
+    {
+      "description": "Array with false contains is canonical",
+      "valid": true,
+      "data": {
+        "type": "array",
+        "items": true,
+        "contains": false,
+        "minItems": 0,
+        "uniqueItems": false
+      }
+    },
+    {
+      "description": "Array with schema contains is canonical",
+      "valid": true,
+      "data": {
+        "type": "array",
+        "items": true,
+        "contains": {
+          "type": "string",
+          "minLength": 0
+        },
+        "minItems": 0,
+        "uniqueItems": false
+      }
+    },
+    {
+      "description": "Array with all keywords (schema items) is canonical",
+      "valid": true,
+      "data": {
+        "type": "array",
+        "items": true,
+        "minItems": 0,
+        "maxItems": 10,
+        "uniqueItems": true
+      }
+    },
+    {
+      "description": "Array schema items with annotations is canonical",
+      "valid": true,
+      "data": {
+        "type": "array",
+        "items": true,
+        "minItems": 0,
+        "uniqueItems": false,
+        "title": "List",
+        "description": "A list",
+        "default": []
+      }
+    },
+    {
+      "description": "Array schema items with examples is canonical",
+      "valid": true,
+      "data": {
+        "type": "array",
+        "items": true,
+        "minItems": 0,
+        "uniqueItems": false,
+        "examples": [
+          [ 1, 2 ]
+        ]
+      }
+    },
+    {
+      "description": "Array schema items with readOnly is canonical",
+      "valid": true,
+      "data": {
+        "type": "array",
+        "items": true,
+        "minItems": 0,
+        "uniqueItems": false,
+        "readOnly": true
+      }
+    },
+    {
+      "description": "Array schema items with writeOnly is canonical",
+      "valid": true,
+      "data": {
+        "type": "array",
+        "items": true,
+        "minItems": 0,
+        "uniqueItems": false,
+        "writeOnly": true
+      }
+    },
+    {
+      "description": "Array schema items with $schema is canonical",
+      "valid": true,
+      "data": {
+        "type": "array",
+        "items": true,
+        "minItems": 0,
+        "uniqueItems": false,
+        "$schema": "http://json-schema.org/draft-07/schema#"
+      }
+    },
+    {
+      "description": "Array schema items with $id is canonical",
+      "valid": true,
+      "data": {
+        "type": "array",
+        "items": true,
+        "minItems": 0,
+        "uniqueItems": false,
+        "$id": "https://example.com/a"
+      }
+    },
+    {
+      "description": "Array schema items with definitions is canonical",
+      "valid": true,
+      "data": {
+        "type": "array",
+        "items": true,
+        "minItems": 0,
+        "uniqueItems": false,
+        "definitions": {
+          "x": true
+        }
+      }
+    },
+    {
+      "description": "Array schema items with x-keyword is canonical",
+      "valid": true,
+      "data": {
+        "type": "array",
+        "items": true,
+        "minItems": 0,
+        "uniqueItems": false,
+        "x-max": 100
+      }
+    },
+    {
+      "description": "Array schema items with all optional fields is canonical",
+      "valid": true,
+      "data": {
+        "type": "array",
+        "items": {
+          "type": "string",
+          "minLength": 0
+        },
+        "contains": {
+          "type": "string",
+          "minLength": 1
+        },
+        "minItems": 1,
+        "maxItems": 100,
+        "uniqueItems": true,
+        "$schema": "http://json-schema.org/draft-07/schema#",
+        "$id": "https://example.com/arr",
+        "definitions": {
+          "helper": true
+        },
+        "title": "My array",
+        "description": "An array value",
+        "default": [],
+        "readOnly": false,
+        "writeOnly": false,
+        "examples": [
+          [ "a" ]
+        ],
+        "x-max": 100
+      }
+    },
+    {
+      "description": "Array without contains is canonical",
+      "valid": true,
+      "data": {
+        "type": "array",
+        "items": true,
+        "minItems": 0,
+        "uniqueItems": false
+      }
+    },
+    {
+      "description": "Array without minItems is rejected",
+      "valid": false,
+      "data": {
+        "type": "array",
+        "items": true,
+        "uniqueItems": false
+      }
+    },
+    {
+      "description": "Array without items is rejected",
+      "valid": false,
+      "data": {
+        "type": "array",
+        "minItems": 0,
+        "uniqueItems": false
+      }
+    },
+    {
+      "description": "Array without uniqueItems is rejected",
+      "valid": false,
+      "data": {
+        "type": "array",
+        "items": true,
+        "minItems": 0
+      }
+    },
+    {
+      "description": "Array schema items with additionalItems is rejected",
+      "valid": false,
+      "data": {
+        "type": "array",
+        "items": {
+          "type": "string",
+          "minLength": 0
+        },
+        "minItems": 0,
+        "uniqueItems": false,
+        "additionalItems": true
+      }
+    },
+    {
+      "description": "Array with string keywords is rejected",
+      "valid": false,
+      "data": {
+        "type": "array",
+        "items": true,
+        "minItems": 0,
+        "uniqueItems": false,
+        "minLength": 0
+      }
+    },
+    {
+      "description": "Array with object keywords is rejected",
+      "valid": false,
+      "data": {
+        "type": "array",
+        "items": true,
+        "minItems": 0,
+        "uniqueItems": false,
+        "properties": {}
+      }
+    },
+    {
+      "description": "Array with numeric keywords is rejected",
+      "valid": false,
+      "data": {
+        "type": "array",
+        "items": true,
+        "minItems": 0,
+        "uniqueItems": false,
+        "minimum": 0
+      }
+    },
+    {
+      "description": "Array with enum sibling is rejected",
+      "valid": false,
+      "data": {
+        "type": "array",
+        "items": true,
+        "minItems": 0,
+        "uniqueItems": false,
+        "enum": [
+          []
+        ]
+      }
+    },
+    {
+      "description": "Array with anyOf sibling is rejected",
+      "valid": false,
+      "data": {
+        "type": "array",
+        "items": true,
+        "minItems": 0,
+        "uniqueItems": false,
+        "anyOf": [ true ]
+      }
+    },
+    {
+      "description": "Array with allOf sibling is rejected",
+      "valid": false,
+      "data": {
+        "type": "array",
+        "items": true,
+        "minItems": 0,
+        "uniqueItems": false,
+        "allOf": [ true ]
+      }
+    },
+    {
+      "description": "Array with oneOf sibling is rejected",
+      "valid": false,
+      "data": {
+        "type": "array",
+        "items": true,
+        "minItems": 0,
+        "uniqueItems": false,
+        "oneOf": [ true ]
+      }
+    },
+    {
+      "description": "Array with not sibling is rejected",
+      "valid": false,
+      "data": {
+        "type": "array",
+        "items": true,
+        "minItems": 0,
+        "uniqueItems": false,
+        "not": true
+      }
+    },
+    {
+      "description": "Array with $ref sibling is rejected",
+      "valid": false,
+      "data": {
+        "type": "array",
+        "items": true,
+        "minItems": 0,
+        "uniqueItems": false,
+        "$ref": "#/definitions/foo"
+      }
+    },
+    {
+      "description": "Array schema items with empty definitions is rejected",
+      "valid": false,
+      "data": {
+        "type": "array",
+        "items": true,
+        "minItems": 0,
+        "uniqueItems": false,
+        "definitions": {}
+      }
+    },
+    {
+      "description": "Recursive array schema items must be canonical",
+      "valid": false,
+      "data": {
+        "type": "array",
+        "items": {
+          "type": "boolean"
+        },
+        "minItems": 0,
+        "uniqueItems": false
+      }
+    },
+    {
+      "description": "Recursive array schema contains must be canonical",
+      "valid": false,
+      "data": {
+        "type": "array",
+        "items": true,
+        "contains": {
+          "type": "boolean"
+        },
+        "minItems": 0,
+        "uniqueItems": false
+      }
+    },
+    {
+      "description": "Array schema items definitions subschemas must be canonical",
+      "valid": false,
+      "data": {
+        "type": "array",
+        "items": true,
+        "minItems": 0,
+        "uniqueItems": false,
+        "definitions": {
+          "x": {
+            "type": "boolean"
+          }
+        }
+      }
+    },
+    {
+      "description": "Array schema items with Draft 4 id is rejected",
+      "valid": false,
+      "data": {
+        "type": "array",
+        "items": true,
+        "minItems": 0,
+        "uniqueItems": false,
+        "id": "https://example.com"
+      }
+    },
+    {
+      "description": "Array schema items with empty examples is rejected",
+      "valid": false,
+      "data": {
+        "type": "array",
+        "items": true,
+        "minItems": 0,
+        "uniqueItems": false,
+        "examples": []
+      }
+    },
+    {
+      "description": "Array schema items with examples as string is rejected",
+      "valid": false,
+      "data": {
+        "type": "array",
+        "items": true,
+        "minItems": 0,
+        "uniqueItems": false,
+        "examples": "foo"
+      }
+    },
+    {
+      "description": "Array schema items with negative minItems is rejected",
+      "valid": false,
+      "data": {
+        "type": "array",
+        "items": true,
+        "minItems": -1,
+        "uniqueItems": false
+      }
+    },
+    {
+      "description": "Array schema items with float minItems is rejected",
+      "valid": false,
+      "data": {
+        "type": "array",
+        "items": true,
+        "minItems": 1.5,
+        "uniqueItems": false
+      }
+    },
+    {
+      "description": "Array schema items with negative maxItems is rejected",
+      "valid": false,
+      "data": {
+        "type": "array",
+        "items": true,
+        "minItems": 0,
+        "maxItems": -1,
+        "uniqueItems": false
+      }
+    },
+    {
+      "description": "Array schema items with uniqueItems as string is rejected",
+      "valid": false,
+      "data": {
+        "type": "array",
+        "items": true,
+        "minItems": 0,
+        "uniqueItems": "true"
+      }
+    },
+    {
+      "description": "Array schema items with propertyNames sibling is rejected",
+      "valid": false,
+      "data": {
+        "type": "array",
+        "items": true,
+        "minItems": 0,
+        "uniqueItems": false,
+        "propertyNames": true
+      }
+    },
+    {
+      "description": "Array schema items with $comment is rejected",
+      "valid": false,
+      "data": {
+        "type": "array",
+        "items": true,
+        "minItems": 0,
+        "uniqueItems": false,
+        "$comment": "A comment"
+      }
+    },
+    {
+      "description": "Array schema items with readOnly as non-boolean is rejected",
+      "valid": false,
+      "data": {
+        "type": "array",
+        "items": true,
+        "minItems": 0,
+        "uniqueItems": false,
+        "readOnly": "true"
+      }
+    },
+    {
+      "description": "Array schema items with writeOnly as non-boolean is rejected",
+      "valid": false,
+      "data": {
+        "type": "array",
+        "items": true,
+        "minItems": 0,
+        "uniqueItems": false,
+        "writeOnly": "true"
+      }
+    },
+    {
+      "description": "Array schema items with if sibling is rejected",
+      "valid": false,
+      "data": {
+        "type": "array",
+        "items": true,
+        "minItems": 0,
+        "uniqueItems": false,
+        "if": true
+      }
+    },
+    {
+      "description": "Array with tuple items and additionalItems is canonical",
+      "valid": true,
+      "data": {
+        "type": "array",
+        "items": [
+          {
+            "type": "string",
+            "minLength": 0
+          },
+          {
+            "type": "number"
+          }
+        ],
+        "additionalItems": true,
+        "minItems": 0,
+        "uniqueItems": false
+      }
+    },
+    {
+      "description": "Array with all keywords (tuple items) is canonical",
+      "valid": true,
+      "data": {
+        "type": "array",
+        "items": [
+          {
+            "type": "string",
+            "minLength": 0
+          }
+        ],
+        "additionalItems": {
+          "type": "number"
+        },
+        "contains": {
+          "type": "string",
+          "minLength": 0
+        },
+        "minItems": 0,
+        "maxItems": 5,
+        "uniqueItems": true
+      }
+    },
+    {
+      "description": "Array tuple items with annotations is canonical",
+      "valid": true,
+      "data": {
+        "type": "array",
+        "items": [
+          {
+            "type": "string",
+            "minLength": 0
+          }
+        ],
+        "additionalItems": true,
+        "minItems": 0,
+        "uniqueItems": false,
+        "title": "Pair"
+      }
+    },
+    {
+      "description": "Array tuple items with examples is canonical",
+      "valid": true,
+      "data": {
+        "type": "array",
+        "items": [
+          {
+            "type": "string",
+            "minLength": 0
+          }
+        ],
+        "additionalItems": true,
+        "minItems": 0,
+        "uniqueItems": false,
+        "examples": [
+          [ "hello" ]
+        ]
+      }
+    },
+    {
+      "description": "Array tuple items with readOnly is canonical",
+      "valid": true,
+      "data": {
+        "type": "array",
+        "items": [
+          {
+            "type": "string",
+            "minLength": 0
+          }
+        ],
+        "additionalItems": true,
+        "minItems": 0,
+        "uniqueItems": false,
+        "readOnly": true
+      }
+    },
+    {
+      "description": "Array tuple items with writeOnly is canonical",
+      "valid": true,
+      "data": {
+        "type": "array",
+        "items": [
+          {
+            "type": "string",
+            "minLength": 0
+          }
+        ],
+        "additionalItems": true,
+        "minItems": 0,
+        "uniqueItems": false,
+        "writeOnly": true
+      }
+    },
+    {
+      "description": "Array tuple items with $schema is canonical",
+      "valid": true,
+      "data": {
+        "type": "array",
+        "items": [
+          {
+            "type": "number"
+          }
+        ],
+        "additionalItems": false,
+        "minItems": 0,
+        "uniqueItems": false,
+        "$schema": "http://json-schema.org/draft-07/schema#"
+      }
+    },
+    {
+      "description": "Array tuple items with $id is canonical",
+      "valid": true,
+      "data": {
+        "type": "array",
+        "items": [
+          {
+            "type": "number"
+          }
+        ],
+        "additionalItems": true,
+        "minItems": 0,
+        "uniqueItems": false,
+        "$id": "https://example.com/tuple"
+      }
+    },
+    {
+      "description": "Array tuple items with definitions is canonical",
+      "valid": true,
+      "data": {
+        "type": "array",
+        "items": [
+          {
+            "type": "number"
+          }
+        ],
+        "additionalItems": true,
+        "minItems": 0,
+        "uniqueItems": false,
+        "definitions": {
+          "x": true
+        }
+      }
+    },
+    {
+      "description": "Array tuple items with x-keyword is canonical",
+      "valid": true,
+      "data": {
+        "type": "array",
+        "items": [
+          {
+            "type": "number"
+          }
+        ],
+        "additionalItems": true,
+        "minItems": 0,
+        "uniqueItems": false,
+        "x-custom": "value"
+      }
+    },
+    {
+      "description": "Array tuple items with all optional fields is canonical",
+      "valid": true,
+      "data": {
+        "type": "array",
+        "items": [
+          {
+            "type": "string",
+            "minLength": 0
+          },
+          {
+            "type": "integer",
+            "multipleOf": 1
+          }
+        ],
+        "additionalItems": false,
+        "contains": {
+          "type": "string",
+          "minLength": 0
+        },
+        "minItems": 2,
+        "maxItems": 2,
+        "uniqueItems": true,
+        "$schema": "http://json-schema.org/draft-07/schema#",
+        "$id": "https://example.com/tuple",
+        "definitions": {
+          "helper": true
+        },
+        "title": "My tuple",
+        "description": "A tuple value",
+        "default": [ "", 0 ],
+        "readOnly": false,
+        "writeOnly": false,
+        "examples": [
+          [ "a", 1 ]
+        ],
+        "x-custom": "value"
+      }
+    },
+    {
+      "description": "Array tuple without additionalItems is rejected",
+      "valid": false,
+      "data": {
+        "type": "array",
+        "items": [
+          {
+            "type": "string",
+            "minLength": 0
+          }
+        ],
+        "minItems": 0,
+        "uniqueItems": false
+      }
+    },
+    {
+      "description": "Array with empty tuple items is rejected",
+      "valid": false,
+      "data": {
+        "type": "array",
+        "items": [],
+        "additionalItems": true,
+        "minItems": 0,
+        "uniqueItems": false
+      }
+    },
+    {
+      "description": "Array tuple without uniqueItems is rejected",
+      "valid": false,
+      "data": {
+        "type": "array",
+        "items": [
+          {
+            "type": "string",
+            "minLength": 0
+          }
+        ],
+        "additionalItems": true,
+        "minItems": 0
+      }
+    },
+    {
+      "description": "Array tuple without minItems is rejected",
+      "valid": false,
+      "data": {
+        "type": "array",
+        "items": [
+          {
+            "type": "string",
+            "minLength": 0
+          }
+        ],
+        "additionalItems": true,
+        "uniqueItems": false
+      }
+    },
+    {
+      "description": "Array tuple without contains is canonical",
+      "valid": true,
+      "data": {
+        "type": "array",
+        "items": [
+          {
+            "type": "string",
+            "minLength": 0
+          }
+        ],
+        "additionalItems": true,
+        "minItems": 0,
+        "uniqueItems": false
+      }
+    },
+    {
+      "description": "Array tuple with numeric keywords is rejected",
+      "valid": false,
+      "data": {
+        "type": "array",
+        "items": [
+          {
+            "type": "string",
+            "minLength": 0
+          }
+        ],
+        "additionalItems": true,
+        "minItems": 0,
+        "uniqueItems": false,
+        "minimum": 0
+      }
+    },
+    {
+      "description": "Array tuple with string keywords is rejected",
+      "valid": false,
+      "data": {
+        "type": "array",
+        "items": [
+          {
+            "type": "string",
+            "minLength": 0
+          }
+        ],
+        "additionalItems": true,
+        "minItems": 0,
+        "uniqueItems": false,
+        "minLength": 0
+      }
+    },
+    {
+      "description": "Array tuple with object keywords is rejected",
+      "valid": false,
+      "data": {
+        "type": "array",
+        "items": [
+          {
+            "type": "string",
+            "minLength": 0
+          }
+        ],
+        "additionalItems": true,
+        "minItems": 0,
+        "uniqueItems": false,
+        "properties": {}
+      }
+    },
+    {
+      "description": "Array tuple with empty definitions is rejected",
+      "valid": false,
+      "data": {
+        "type": "array",
+        "items": [
+          {
+            "type": "string",
+            "minLength": 0
+          }
+        ],
+        "additionalItems": true,
+        "minItems": 0,
+        "uniqueItems": false,
+        "definitions": {}
+      }
+    },
+    {
+      "description": "Recursive tuple items must be canonical",
+      "valid": false,
+      "data": {
+        "type": "array",
+        "items": [
+          {
+            "type": "boolean"
+          }
+        ],
+        "additionalItems": true,
+        "minItems": 0,
+        "uniqueItems": false
+      }
+    },
+    {
+      "description": "Recursive tuple additionalItems must be canonical",
+      "valid": false,
+      "data": {
+        "type": "array",
+        "items": [
+          {
+            "type": "string",
+            "minLength": 0
+          }
+        ],
+        "additionalItems": {
+          "type": "boolean"
+        },
+        "minItems": 0,
+        "uniqueItems": false
+      }
+    },
+    {
+      "description": "Recursive tuple contains must be canonical",
+      "valid": false,
+      "data": {
+        "type": "array",
+        "items": [
+          {
+            "type": "string",
+            "minLength": 0
+          }
+        ],
+        "additionalItems": true,
+        "contains": {
+          "type": "boolean"
+        },
+        "minItems": 0,
+        "uniqueItems": false
+      }
+    },
+    {
+      "description": "Array tuple with Draft 4 id is rejected",
+      "valid": false,
+      "data": {
+        "type": "array",
+        "items": [
+          {
+            "type": "string",
+            "minLength": 0
+          }
+        ],
+        "additionalItems": true,
+        "minItems": 0,
+        "uniqueItems": false,
+        "id": "https://example.com"
+      }
+    },
+    {
+      "description": "Array tuple with empty examples is rejected",
+      "valid": false,
+      "data": {
+        "type": "array",
+        "items": [
+          {
+            "type": "string",
+            "minLength": 0
+          }
+        ],
+        "additionalItems": true,
+        "minItems": 0,
+        "uniqueItems": false,
+        "examples": []
+      }
+    },
+    {
+      "description": "Array tuple definitions subschemas must be canonical",
+      "valid": false,
+      "data": {
+        "type": "array",
+        "items": [
+          {
+            "type": "string",
+            "minLength": 0
+          }
+        ],
+        "additionalItems": true,
+        "minItems": 0,
+        "uniqueItems": false,
+        "definitions": {
+          "x": {
+            "type": "boolean"
+          }
+        }
+      }
+    },
+    {
+      "description": "Array tuple with enum sibling is rejected",
+      "valid": false,
+      "data": {
+        "type": "array",
+        "items": [
+          {
+            "type": "string",
+            "minLength": 0
+          }
+        ],
+        "additionalItems": true,
+        "minItems": 0,
+        "uniqueItems": false,
+        "enum": [
+          []
+        ]
+      }
+    },
+    {
+      "description": "Array tuple with anyOf sibling is rejected",
+      "valid": false,
+      "data": {
+        "type": "array",
+        "items": [
+          {
+            "type": "string",
+            "minLength": 0
+          }
+        ],
+        "additionalItems": true,
+        "minItems": 0,
+        "uniqueItems": false,
+        "anyOf": [ true ]
+      }
+    },
+    {
+      "description": "Array tuple with negative minItems is rejected",
+      "valid": false,
+      "data": {
+        "type": "array",
+        "items": [
+          {
+            "type": "string",
+            "minLength": 0
+          }
+        ],
+        "additionalItems": true,
+        "minItems": -1,
+        "uniqueItems": false
+      }
+    },
+    {
+      "description": "Array tuple with $comment is rejected",
+      "valid": false,
+      "data": {
+        "type": "array",
+        "items": [
+          {
+            "type": "string",
+            "minLength": 0
+          }
+        ],
+        "additionalItems": true,
+        "minItems": 0,
+        "uniqueItems": false,
+        "$comment": "A comment"
+      }
+    },
+    {
+      "description": "Array tuple with readOnly as non-boolean is rejected",
+      "valid": false,
+      "data": {
+        "type": "array",
+        "items": [
+          {
+            "type": "string",
+            "minLength": 0
+          }
+        ],
+        "additionalItems": true,
+        "minItems": 0,
+        "uniqueItems": false,
+        "readOnly": "true"
+      }
+    },
+    {
+      "description": "Array tuple with writeOnly as non-boolean is rejected",
+      "valid": false,
+      "data": {
+        "type": "array",
+        "items": [
+          {
+            "type": "string",
+            "minLength": 0
+          }
+        ],
+        "additionalItems": true,
+        "minItems": 0,
+        "uniqueItems": false,
+        "writeOnly": "true"
+      }
+    },
+    {
+      "description": "Array tuple with if sibling is rejected",
+      "valid": false,
+      "data": {
+        "type": "array",
+        "items": [
+          {
+            "type": "string",
+            "minLength": 0
+          }
+        ],
+        "additionalItems": true,
+        "minItems": 0,
+        "uniqueItems": false,
+        "if": true
+      }
+    },
+    {
+      "description": "if/then/else with all required keywords is canonical",
+      "valid": true,
+      "data": {
+        "if": {
+          "type": "string",
+          "minLength": 0
+        },
+        "then": {
+          "type": "string",
+          "minLength": 1
+        },
+        "else": false
+      }
+    },
+    {
+      "description": "if/then/else with boolean schemas is canonical",
+      "valid": true,
+      "data": {
+        "if": true,
+        "then": true,
+        "else": false
+      }
+    },
+    {
+      "description": "if/then/else with title is canonical",
+      "valid": true,
+      "data": {
+        "if": true,
+        "then": true,
+        "else": false,
+        "title": "Conditional"
+      }
+    },
+    {
+      "description": "if/then/else with description is canonical",
+      "valid": true,
+      "data": {
+        "if": true,
+        "then": true,
+        "else": false,
+        "description": "A conditional schema"
+      }
+    },
+    {
+      "description": "if/then/else with default is canonical",
+      "valid": true,
+      "data": {
+        "if": true,
+        "then": true,
+        "else": false,
+        "default": "foo"
+      }
+    },
+    {
+      "description": "if/then/else with readOnly is canonical",
+      "valid": true,
+      "data": {
+        "if": true,
+        "then": true,
+        "else": false,
+        "readOnly": true
+      }
+    },
+    {
+      "description": "if/then/else with writeOnly is canonical",
+      "valid": true,
+      "data": {
+        "if": true,
+        "then": true,
+        "else": false,
+        "writeOnly": true
+      }
+    },
+    {
+      "description": "if/then/else with examples is canonical",
+      "valid": true,
+      "data": {
+        "if": true,
+        "then": true,
+        "else": false,
+        "examples": [ "bar" ]
+      }
+    },
+    {
+      "description": "if/then/else with $schema is canonical",
+      "valid": true,
+      "data": {
+        "if": true,
+        "then": true,
+        "else": false,
+        "$schema": "http://json-schema.org/draft-07/schema#"
+      }
+    },
+    {
+      "description": "if/then/else with $id is canonical",
+      "valid": true,
+      "data": {
+        "if": true,
+        "then": true,
+        "else": false,
+        "$id": "https://example.com/ite"
+      }
+    },
+    {
+      "description": "if/then/else with definitions is canonical",
+      "valid": true,
+      "data": {
+        "if": {
+          "$ref": "#/definitions/check"
+        },
+        "then": true,
+        "else": false,
+        "definitions": {
+          "check": {
+            "type": "string",
+            "minLength": 0
+          }
+        }
+      }
+    },
+    {
+      "description": "if/then/else with x-keyword is canonical",
+      "valid": true,
+      "data": {
+        "if": true,
+        "then": true,
+        "else": false,
+        "x-reason": "conditional"
+      }
+    },
+    {
+      "description": "if/then/else with all optional fields is canonical",
+      "valid": true,
+      "data": {
+        "if": {
+          "type": "string",
+          "minLength": 0
+        },
+        "then": {
+          "type": "string",
+          "minLength": 1
+        },
+        "else": {
+          "type": "number"
+        },
+        "$schema": "http://json-schema.org/draft-07/schema#",
+        "$id": "https://example.com/ite",
+        "definitions": {
+          "helper": true
+        },
+        "title": "My conditional",
+        "description": "A conditional schema",
+        "default": "hello",
+        "readOnly": false,
+        "writeOnly": false,
+        "examples": [ "world" ],
+        "x-reason": "conditional"
+      }
+    },
+    {
+      "description": "if/then/else without then is rejected",
+      "valid": false,
+      "data": {
+        "if": true,
+        "else": false
+      }
+    },
+    {
+      "description": "if/then/else without else is rejected",
+      "valid": false,
+      "data": {
+        "if": true,
+        "then": true
+      }
+    },
+    {
+      "description": "if/then/else without if is rejected",
+      "valid": false,
+      "data": {
+        "then": true,
+        "else": false
+      }
+    },
+    {
+      "description": "if/then/else with type sibling is rejected",
+      "valid": false,
+      "data": {
+        "if": true,
+        "then": true,
+        "else": false,
+        "type": "string"
+      }
+    },
+    {
+      "description": "if/then/else with properties sibling is rejected",
+      "valid": false,
+      "data": {
+        "if": true,
+        "then": true,
+        "else": false,
+        "properties": {}
+      }
+    },
+    {
+      "description": "if/then/else with $ref sibling is rejected",
+      "valid": false,
+      "data": {
+        "if": true,
+        "then": true,
+        "else": false,
+        "$ref": "#/definitions/a"
+      }
+    },
+    {
+      "description": "if/then/else with minimum sibling is rejected",
+      "valid": false,
+      "data": {
+        "if": true,
+        "then": true,
+        "else": false,
+        "minimum": 0
+      }
+    },
+    {
+      "description": "if/then/else with minLength sibling is rejected",
+      "valid": false,
+      "data": {
+        "if": true,
+        "then": true,
+        "else": false,
+        "minLength": 0
+      }
+    },
+    {
+      "description": "if/then/else with items sibling is rejected",
+      "valid": false,
+      "data": {
+        "if": true,
+        "then": true,
+        "else": false,
+        "items": true
+      }
+    },
+    {
+      "description": "if/then/else with anyOf sibling is rejected",
+      "valid": false,
+      "data": {
+        "if": true,
+        "then": true,
+        "else": false,
+        "anyOf": [ true ]
+      }
+    },
+    {
+      "description": "if/then/else with allOf sibling is rejected",
+      "valid": false,
+      "data": {
+        "if": true,
+        "then": true,
+        "else": false,
+        "allOf": [ true ]
+      }
+    },
+    {
+      "description": "if/then/else with oneOf sibling is rejected",
+      "valid": false,
+      "data": {
+        "if": true,
+        "then": true,
+        "else": false,
+        "oneOf": [ true ]
+      }
+    },
+    {
+      "description": "if/then/else with not sibling is rejected",
+      "valid": false,
+      "data": {
+        "if": true,
+        "then": true,
+        "else": false,
+        "not": true
+      }
+    },
+    {
+      "description": "if/then/else with enum sibling is rejected",
+      "valid": false,
+      "data": {
+        "if": true,
+        "then": true,
+        "else": false,
+        "enum": [ 1 ]
+      }
+    },
+    {
+      "description": "if/then/else with contains sibling is rejected",
+      "valid": false,
+      "data": {
+        "if": true,
+        "then": true,
+        "else": false,
+        "contains": true
+      }
+    },
+    {
+      "description": "if/then/else with propertyNames sibling is rejected",
+      "valid": false,
+      "data": {
+        "if": true,
+        "then": true,
+        "else": false,
+        "propertyNames": true
+      }
+    },
+    {
+      "description": "if/then/else with empty definitions is rejected",
+      "valid": false,
+      "data": {
+        "if": true,
+        "then": true,
+        "else": false,
+        "definitions": {}
+      }
+    },
+    {
+      "description": "Recursive if subschema must be canonical",
+      "valid": false,
+      "data": {
+        "if": {
+          "type": "boolean"
+        },
+        "then": true,
+        "else": false
+      }
+    },
+    {
+      "description": "Recursive then subschema must be canonical",
+      "valid": false,
+      "data": {
+        "if": true,
+        "then": {
+          "type": "boolean"
+        },
+        "else": false
+      }
+    },
+    {
+      "description": "Recursive else subschema must be canonical",
+      "valid": false,
+      "data": {
+        "if": true,
+        "then": true,
+        "else": {
+          "type": "boolean"
+        }
+      }
+    },
+    {
+      "description": "if/then/else definitions subschemas must be canonical",
+      "valid": false,
+      "data": {
+        "if": true,
+        "then": true,
+        "else": false,
+        "definitions": {
+          "x": {
+            "type": "boolean"
+          }
+        }
+      }
+    },
+    {
+      "description": "if/then/else with Draft 4 id is rejected",
+      "valid": false,
+      "data": {
+        "if": true,
+        "then": true,
+        "else": false,
+        "id": "https://example.com"
+      }
+    },
+    {
+      "description": "if/then/else with empty examples is rejected",
+      "valid": false,
+      "data": {
+        "if": true,
+        "then": true,
+        "else": false,
+        "examples": []
+      }
+    },
+    {
+      "description": "if/then/else with examples as string is rejected",
+      "valid": false,
+      "data": {
+        "if": true,
+        "then": true,
+        "else": false,
+        "examples": "foo"
+      }
+    },
+    {
+      "description": "if/then/else with examples with duplicate values is rejected",
+      "valid": false,
+      "data": {
+        "if": true,
+        "then": true,
+        "else": false,
+        "examples": [ 1, 1 ]
+      }
+    },
+    {
+      "description": "if/then/else with $comment is rejected",
+      "valid": false,
+      "data": {
+        "if": true,
+        "then": true,
+        "else": false,
+        "$comment": "A comment"
+      }
+    },
+    {
+      "description": "if/then/else with readOnly as non-boolean is rejected",
+      "valid": false,
+      "data": {
+        "if": true,
+        "then": true,
+        "else": false,
+        "readOnly": "true"
+      }
+    },
+    {
+      "description": "if/then/else with writeOnly as non-boolean is rejected",
+      "valid": false,
+      "data": {
+        "if": true,
+        "then": true,
+        "else": false,
+        "writeOnly": "true"
+      }
+    },
+    {
+      "description": "anyOf with canonical branches is canonical",
+      "valid": true,
+      "data": {
+        "anyOf": [
+          {
+            "type": "string",
+            "minLength": 0
+          },
+          {
+            "type": "number"
+          }
+        ]
+      }
+    },
+    {
+      "description": "anyOf with title is canonical",
+      "valid": true,
+      "data": {
+        "anyOf": [
+          {
+            "type": "string",
+            "minLength": 0
+          }
+        ],
+        "title": "Wrapper"
+      }
+    },
+    {
+      "description": "anyOf with description is canonical",
+      "valid": true,
+      "data": {
+        "anyOf": [ true ],
+        "description": "A union"
+      }
+    },
+    {
+      "description": "anyOf with default is canonical",
+      "valid": true,
+      "data": {
+        "anyOf": [ true ],
+        "default": "foo"
+      }
+    },
+    {
+      "description": "anyOf with examples is canonical",
+      "valid": true,
+      "data": {
+        "anyOf": [ true ],
+        "examples": [ "bar" ]
+      }
+    },
+    {
+      "description": "anyOf with readOnly is canonical",
+      "valid": true,
+      "data": {
+        "anyOf": [ true ],
+        "readOnly": true
+      }
+    },
+    {
+      "description": "anyOf with writeOnly is canonical",
+      "valid": true,
+      "data": {
+        "anyOf": [ true ],
+        "writeOnly": true
+      }
+    },
+    {
+      "description": "anyOf with $schema is canonical",
+      "valid": true,
+      "data": {
+        "anyOf": [ true ],
+        "$schema": "http://json-schema.org/draft-07/schema#"
+      }
+    },
+    {
+      "description": "anyOf with $id is canonical",
+      "valid": true,
+      "data": {
+        "anyOf": [ true ],
+        "$id": "https://example.com/u"
+      }
+    },
+    {
+      "description": "anyOf with definitions is canonical",
+      "valid": true,
+      "data": {
+        "anyOf": [
+          {
+            "$ref": "#/definitions/a"
+          }
+        ],
+        "definitions": {
+          "a": {
+            "type": "string",
+            "minLength": 0
+          }
+        }
+      }
+    },
+    {
+      "description": "anyOf with x-keyword is canonical",
+      "valid": true,
+      "data": {
+        "anyOf": [
+          {
+            "type": "string",
+            "minLength": 0
+          }
+        ],
+        "x-gen": "tool"
+      }
+    },
+    {
+      "description": "anyOf with all optional fields is canonical",
+      "valid": true,
+      "data": {
+        "anyOf": [
+          {
+            "type": "string",
+            "minLength": 0
+          },
+          {
+            "type": "number"
+          }
+        ],
+        "$schema": "http://json-schema.org/draft-07/schema#",
+        "$id": "https://example.com/anyof",
+        "definitions": {
+          "helper": true
+        },
+        "title": "My anyOf",
+        "description": "An anyOf schema",
+        "default": "hello",
+        "readOnly": false,
+        "writeOnly": false,
+        "examples": [ "world" ],
+        "x-gen": "tool"
+      }
+    },
+    {
+      "description": "Empty anyOf is rejected",
+      "valid": false,
+      "data": {
+        "anyOf": []
+      }
+    },
+    {
+      "description": "anyOf with type sibling is rejected",
+      "valid": false,
+      "data": {
+        "type": "object",
+        "anyOf": [
+          {
+            "type": "string",
+            "minLength": 0
+          }
+        ]
+      }
+    },
+    {
+      "description": "anyOf with properties sibling is rejected",
+      "valid": false,
+      "data": {
+        "anyOf": [
+          {
+            "type": "string",
+            "minLength": 0
+          }
+        ],
+        "properties": {}
+      }
+    },
+    {
+      "description": "anyOf with $ref sibling is rejected",
+      "valid": false,
+      "data": {
+        "anyOf": [
+          {
+            "type": "string",
+            "minLength": 0
+          }
+        ],
+        "$ref": "#/definitions/a"
+      }
+    },
+    {
+      "description": "anyOf with minimum sibling is rejected",
+      "valid": false,
+      "data": {
+        "anyOf": [
+          {
+            "type": "number"
+          }
+        ],
+        "minimum": 0
+      }
+    },
+    {
+      "description": "anyOf with minLength sibling is rejected",
+      "valid": false,
+      "data": {
+        "anyOf": [
+          {
+            "type": "string",
+            "minLength": 0
+          }
+        ],
+        "minLength": 0
+      }
+    },
+    {
+      "description": "anyOf with items sibling is rejected",
+      "valid": false,
+      "data": {
+        "anyOf": [
+          {
+            "type": "string",
+            "minLength": 0
+          }
+        ],
+        "items": true
+      }
+    },
+    {
+      "description": "anyOf with allOf sibling is rejected",
+      "valid": false,
+      "data": {
+        "anyOf": [ true ],
+        "allOf": [ true ]
+      }
+    },
+    {
+      "description": "anyOf with oneOf sibling is rejected",
+      "valid": false,
+      "data": {
+        "anyOf": [ true ],
+        "oneOf": [ true ]
+      }
+    },
+    {
+      "description": "anyOf with not sibling is rejected",
+      "valid": false,
+      "data": {
+        "anyOf": [ true ],
+        "not": true
+      }
+    },
+    {
+      "description": "anyOf with enum sibling is rejected",
+      "valid": false,
+      "data": {
+        "anyOf": [ true ],
+        "enum": [ 1 ]
+      }
+    },
+    {
+      "description": "anyOf with contains sibling is rejected",
+      "valid": false,
+      "data": {
+        "anyOf": [ true ],
+        "contains": true
+      }
+    },
+    {
+      "description": "anyOf with propertyNames sibling is rejected",
+      "valid": false,
+      "data": {
+        "anyOf": [ true ],
+        "propertyNames": true
+      }
+    },
+    {
+      "description": "anyOf with empty definitions is rejected",
+      "valid": false,
+      "data": {
+        "anyOf": [ true ],
+        "definitions": {}
+      }
+    },
+    {
+      "description": "Recursive anyOf branches must be canonical",
+      "valid": false,
+      "data": {
+        "anyOf": [
+          {
+            "type": "string"
+          },
+          {
+            "type": "number"
+          }
+        ]
+      }
+    },
+    {
+      "description": "anyOf definitions subschemas must be canonical",
+      "valid": false,
+      "data": {
+        "anyOf": [ true ],
+        "definitions": {
+          "x": {
+            "type": "boolean"
+          }
+        }
+      }
+    },
+    {
+      "description": "anyOf with Draft 4 id is rejected",
+      "valid": false,
+      "data": {
+        "anyOf": [ true ],
+        "id": "https://example.com"
+      }
+    },
+    {
+      "description": "anyOf with empty examples is rejected",
+      "valid": false,
+      "data": {
+        "anyOf": [ true ],
+        "examples": []
+      }
+    },
+    {
+      "description": "anyOf with examples as string is rejected",
+      "valid": false,
+      "data": {
+        "anyOf": [ true ],
+        "examples": "foo"
+      }
+    },
+    {
+      "description": "anyOf with examples with duplicate values is rejected",
+      "valid": false,
+      "data": {
+        "anyOf": [ true ],
+        "examples": [ 1, 1 ]
+      }
+    },
+    {
+      "description": "anyOf as non-array is rejected",
+      "valid": false,
+      "data": {
+        "anyOf": true
+      }
+    },
+    {
+      "description": "anyOf with $comment is rejected",
+      "valid": false,
+      "data": {
+        "anyOf": [ true ],
+        "$comment": "A comment"
+      }
+    },
+    {
+      "description": "anyOf with readOnly as non-boolean is rejected",
+      "valid": false,
+      "data": {
+        "anyOf": [ true ],
+        "readOnly": "true"
+      }
+    },
+    {
+      "description": "anyOf with writeOnly as non-boolean is rejected",
+      "valid": false,
+      "data": {
+        "anyOf": [ true ],
+        "writeOnly": "true"
+      }
+    },
+    {
+      "description": "anyOf with if sibling is rejected",
+      "valid": false,
+      "data": {
+        "anyOf": [ true ],
+        "if": true
+      }
+    },
+    {
+      "description": "allOf with canonical branches is canonical",
+      "valid": true,
+      "data": {
+        "allOf": [
+          {
+            "$ref": "#/definitions/base"
+          },
+          {
+            "type": "object",
+            "properties": {},
+            "patternProperties": {},
+            "additionalProperties": true,
+            "propertyNames": true,
+            "minProperties": 0
+          }
+        ]
+      }
+    },
+    {
+      "description": "allOf with title is canonical",
+      "valid": true,
+      "data": {
+        "allOf": [
+          {
+            "type": "string",
+            "minLength": 0
+          }
+        ],
+        "title": "Wrapper"
+      }
+    },
+    {
+      "description": "allOf with description is canonical",
+      "valid": true,
+      "data": {
+        "allOf": [ true ],
+        "description": "Combined"
+      }
+    },
+    {
+      "description": "allOf with default is canonical",
+      "valid": true,
+      "data": {
+        "allOf": [ true ],
+        "default": {}
+      }
+    },
+    {
+      "description": "allOf with examples is canonical",
+      "valid": true,
+      "data": {
+        "allOf": [ true ],
+        "examples": [ "foo" ]
+      }
+    },
+    {
+      "description": "allOf with readOnly is canonical",
+      "valid": true,
+      "data": {
+        "allOf": [ true ],
+        "readOnly": true
+      }
+    },
+    {
+      "description": "allOf with writeOnly is canonical",
+      "valid": true,
+      "data": {
+        "allOf": [ true ],
+        "writeOnly": true
+      }
+    },
+    {
+      "description": "allOf with $schema is canonical",
+      "valid": true,
+      "data": {
+        "allOf": [ true ],
+        "$schema": "http://json-schema.org/draft-07/schema#"
+      }
+    },
+    {
+      "description": "allOf with $id is canonical",
+      "valid": true,
+      "data": {
+        "allOf": [ true ],
+        "$id": "https://example.com/c"
+      }
+    },
+    {
+      "description": "allOf with definitions is canonical",
+      "valid": true,
+      "data": {
+        "allOf": [
+          {
+            "$ref": "#/definitions/a"
+          }
+        ],
+        "definitions": {
+          "a": {
+            "type": "number"
+          }
+        }
+      }
+    },
+    {
+      "description": "allOf with x-keyword is canonical",
+      "valid": true,
+      "data": {
+        "allOf": [ true ],
+        "x-note": "combined"
+      }
+    },
+    {
+      "description": "allOf with all optional fields is canonical",
+      "valid": true,
+      "data": {
+        "allOf": [
+          {
+            "type": "string",
+            "minLength": 0
+          }
+        ],
+        "$schema": "http://json-schema.org/draft-07/schema#",
+        "$id": "https://example.com/allof",
+        "definitions": {
+          "helper": true
+        },
+        "title": "My allOf",
+        "description": "An allOf schema",
+        "default": "hello",
+        "readOnly": false,
+        "writeOnly": false,
+        "examples": [ "world" ],
+        "x-note": "combined"
+      }
+    },
+    {
+      "description": "Empty allOf is rejected",
+      "valid": false,
+      "data": {
+        "allOf": []
+      }
+    },
+    {
+      "description": "allOf with type sibling is rejected",
+      "valid": false,
+      "data": {
+        "type": "object",
+        "allOf": [
+          {
+            "$ref": "#/definitions/base"
+          }
+        ]
+      }
+    },
+    {
+      "description": "allOf with properties sibling is rejected",
+      "valid": false,
+      "data": {
+        "allOf": [
+          {
+            "$ref": "#/definitions/base"
+          }
+        ],
+        "properties": {}
+      }
+    },
+    {
+      "description": "allOf with $ref sibling is rejected",
+      "valid": false,
+      "data": {
+        "allOf": [ true ],
+        "$ref": "#/definitions/a"
+      }
+    },
+    {
+      "description": "allOf with minimum sibling is rejected",
+      "valid": false,
+      "data": {
+        "allOf": [
+          {
+            "type": "number"
+          }
+        ],
+        "minimum": 0
+      }
+    },
+    {
+      "description": "allOf with minLength sibling is rejected",
+      "valid": false,
+      "data": {
+        "allOf": [ true ],
+        "minLength": 0
+      }
+    },
+    {
+      "description": "allOf with items sibling is rejected",
+      "valid": false,
+      "data": {
+        "allOf": [ true ],
+        "items": true
+      }
+    },
+    {
+      "description": "allOf with anyOf sibling is rejected",
+      "valid": false,
+      "data": {
+        "allOf": [ true ],
+        "anyOf": [ true ]
+      }
+    },
+    {
+      "description": "allOf with oneOf sibling is rejected",
+      "valid": false,
+      "data": {
+        "allOf": [ true ],
+        "oneOf": [ true ]
+      }
+    },
+    {
+      "description": "allOf with not sibling is rejected",
+      "valid": false,
+      "data": {
+        "allOf": [ true ],
+        "not": true
+      }
+    },
+    {
+      "description": "allOf with enum sibling is rejected",
+      "valid": false,
+      "data": {
+        "allOf": [ true ],
+        "enum": [ 1 ]
+      }
+    },
+    {
+      "description": "allOf with contains sibling is rejected",
+      "valid": false,
+      "data": {
+        "allOf": [ true ],
+        "contains": true
+      }
+    },
+    {
+      "description": "allOf with propertyNames sibling is rejected",
+      "valid": false,
+      "data": {
+        "allOf": [ true ],
+        "propertyNames": true
+      }
+    },
+    {
+      "description": "allOf with empty definitions is rejected",
+      "valid": false,
+      "data": {
+        "allOf": [ true ],
+        "definitions": {}
+      }
+    },
+    {
+      "description": "Recursive allOf branches must be canonical",
+      "valid": false,
+      "data": {
+        "allOf": [
+          {
+            "type": "string"
+          }
+        ]
+      }
+    },
+    {
+      "description": "allOf definitions subschemas must be canonical",
+      "valid": false,
+      "data": {
+        "allOf": [ true ],
+        "definitions": {
+          "x": {
+            "type": "boolean"
+          }
+        }
+      }
+    },
+    {
+      "description": "allOf with Draft 4 id is rejected",
+      "valid": false,
+      "data": {
+        "allOf": [ true ],
+        "id": "https://example.com"
+      }
+    },
+    {
+      "description": "allOf with empty examples is rejected",
+      "valid": false,
+      "data": {
+        "allOf": [ true ],
+        "examples": []
+      }
+    },
+    {
+      "description": "allOf with examples as string is rejected",
+      "valid": false,
+      "data": {
+        "allOf": [ true ],
+        "examples": "foo"
+      }
+    },
+    {
+      "description": "allOf with examples with duplicate values is rejected",
+      "valid": false,
+      "data": {
+        "allOf": [ true ],
+        "examples": [ 1, 1 ]
+      }
+    },
+    {
+      "description": "allOf as non-array is rejected",
+      "valid": false,
+      "data": {
+        "allOf": true
+      }
+    },
+    {
+      "description": "allOf with $comment is rejected",
+      "valid": false,
+      "data": {
+        "allOf": [ true ],
+        "$comment": "A comment"
+      }
+    },
+    {
+      "description": "allOf with readOnly as non-boolean is rejected",
+      "valid": false,
+      "data": {
+        "allOf": [ true ],
+        "readOnly": "true"
+      }
+    },
+    {
+      "description": "allOf with writeOnly as non-boolean is rejected",
+      "valid": false,
+      "data": {
+        "allOf": [ true ],
+        "writeOnly": "true"
+      }
+    },
+    {
+      "description": "allOf with if sibling is rejected",
+      "valid": false,
+      "data": {
+        "allOf": [ true ],
+        "if": true
+      }
+    },
+    {
+      "description": "oneOf with canonical branches is canonical",
+      "valid": true,
+      "data": {
+        "oneOf": [
+          {
+            "type": "string",
+            "minLength": 0
+          },
+          {
+            "type": "number"
+          }
+        ]
+      }
+    },
+    {
+      "description": "oneOf with title is canonical",
+      "valid": true,
+      "data": {
+        "oneOf": [
+          {
+            "type": "string",
+            "minLength": 0
+          }
+        ],
+        "title": "Wrapper"
+      }
+    },
+    {
+      "description": "oneOf with description is canonical",
+      "valid": true,
+      "data": {
+        "oneOf": [ true ],
+        "description": "Exclusive"
+      }
+    },
+    {
+      "description": "oneOf with default is canonical",
+      "valid": true,
+      "data": {
+        "oneOf": [ true ],
+        "default": "x"
+      }
+    },
+    {
+      "description": "oneOf with examples is canonical",
+      "valid": true,
+      "data": {
+        "oneOf": [ true ],
+        "examples": [ "bar" ]
+      }
+    },
+    {
+      "description": "oneOf with readOnly is canonical",
+      "valid": true,
+      "data": {
+        "oneOf": [ true ],
+        "readOnly": true
+      }
+    },
+    {
+      "description": "oneOf with writeOnly is canonical",
+      "valid": true,
+      "data": {
+        "oneOf": [ true ],
+        "writeOnly": true
+      }
+    },
+    {
+      "description": "oneOf with $schema is canonical",
+      "valid": true,
+      "data": {
+        "oneOf": [ true ],
+        "$schema": "http://json-schema.org/draft-07/schema#"
+      }
+    },
+    {
+      "description": "oneOf with $id is canonical",
+      "valid": true,
+      "data": {
+        "oneOf": [ true ],
+        "$id": "https://example.com/x"
+      }
+    },
+    {
+      "description": "oneOf with definitions is canonical",
+      "valid": true,
+      "data": {
+        "oneOf": [
+          {
+            "$ref": "#/definitions/a"
+          }
+        ],
+        "definitions": {
+          "a": {
+            "type": "number"
+          }
+        }
+      }
+    },
+    {
+      "description": "oneOf with x-keyword is canonical",
+      "valid": true,
+      "data": {
+        "oneOf": [ true ],
+        "x-mode": "strict"
+      }
+    },
+    {
+      "description": "oneOf with all optional fields is canonical",
+      "valid": true,
+      "data": {
+        "oneOf": [
+          {
+            "type": "string",
+            "minLength": 0
+          },
+          {
+            "type": "number"
+          }
+        ],
+        "$schema": "http://json-schema.org/draft-07/schema#",
+        "$id": "https://example.com/oneof",
+        "definitions": {
+          "helper": true
+        },
+        "title": "My oneOf",
+        "description": "A oneOf schema",
+        "default": "hello",
+        "readOnly": false,
+        "writeOnly": false,
+        "examples": [ "world" ],
+        "x-mode": "strict"
+      }
+    },
+    {
+      "description": "Empty oneOf is rejected",
+      "valid": false,
+      "data": {
+        "oneOf": []
+      }
+    },
+    {
+      "description": "oneOf with type sibling is rejected",
+      "valid": false,
+      "data": {
+        "type": "object",
+        "oneOf": [
+          {
+            "type": "string",
+            "minLength": 0
+          }
+        ]
+      }
+    },
+    {
+      "description": "oneOf with properties sibling is rejected",
+      "valid": false,
+      "data": {
+        "oneOf": [ true ],
+        "properties": {}
+      }
+    },
+    {
+      "description": "oneOf with $ref sibling is rejected",
+      "valid": false,
+      "data": {
+        "oneOf": [ true ],
+        "$ref": "#/definitions/a"
+      }
+    },
+    {
+      "description": "oneOf with minimum sibling is rejected",
+      "valid": false,
+      "data": {
+        "oneOf": [
+          {
+            "type": "number"
+          }
+        ],
+        "minimum": 0
+      }
+    },
+    {
+      "description": "oneOf with minLength sibling is rejected",
+      "valid": false,
+      "data": {
+        "oneOf": [ true ],
+        "minLength": 0
+      }
+    },
+    {
+      "description": "oneOf with items sibling is rejected",
+      "valid": false,
+      "data": {
+        "oneOf": [ true ],
+        "items": true
+      }
+    },
+    {
+      "description": "oneOf with anyOf sibling is rejected",
+      "valid": false,
+      "data": {
+        "oneOf": [ true ],
+        "anyOf": [ true ]
+      }
+    },
+    {
+      "description": "oneOf with allOf sibling is rejected",
+      "valid": false,
+      "data": {
+        "oneOf": [ true ],
+        "allOf": [ true ]
+      }
+    },
+    {
+      "description": "oneOf with not sibling is rejected",
+      "valid": false,
+      "data": {
+        "oneOf": [ true ],
+        "not": true
+      }
+    },
+    {
+      "description": "oneOf with enum sibling is rejected",
+      "valid": false,
+      "data": {
+        "oneOf": [ true ],
+        "enum": [ 1 ]
+      }
+    },
+    {
+      "description": "oneOf with contains sibling is rejected",
+      "valid": false,
+      "data": {
+        "oneOf": [ true ],
+        "contains": true
+      }
+    },
+    {
+      "description": "oneOf with propertyNames sibling is rejected",
+      "valid": false,
+      "data": {
+        "oneOf": [ true ],
+        "propertyNames": true
+      }
+    },
+    {
+      "description": "oneOf with empty definitions is rejected",
+      "valid": false,
+      "data": {
+        "oneOf": [ true ],
+        "definitions": {}
+      }
+    },
+    {
+      "description": "Recursive oneOf branches must be canonical",
+      "valid": false,
+      "data": {
+        "oneOf": [
+          {
+            "type": "string"
+          },
+          {
+            "type": "number"
+          }
+        ]
+      }
+    },
+    {
+      "description": "oneOf definitions subschemas must be canonical",
+      "valid": false,
+      "data": {
+        "oneOf": [ true ],
+        "definitions": {
+          "x": {
+            "type": "boolean"
+          }
+        }
+      }
+    },
+    {
+      "description": "oneOf with Draft 4 id is rejected",
+      "valid": false,
+      "data": {
+        "oneOf": [ true ],
+        "id": "https://example.com"
+      }
+    },
+    {
+      "description": "oneOf with empty examples is rejected",
+      "valid": false,
+      "data": {
+        "oneOf": [ true ],
+        "examples": []
+      }
+    },
+    {
+      "description": "oneOf with examples as string is rejected",
+      "valid": false,
+      "data": {
+        "oneOf": [ true ],
+        "examples": "foo"
+      }
+    },
+    {
+      "description": "oneOf with examples with duplicate values is rejected",
+      "valid": false,
+      "data": {
+        "oneOf": [ true ],
+        "examples": [ 1, 1 ]
+      }
+    },
+    {
+      "description": "oneOf as non-array is rejected",
+      "valid": false,
+      "data": {
+        "oneOf": true
+      }
+    },
+    {
+      "description": "oneOf with $comment is rejected",
+      "valid": false,
+      "data": {
+        "oneOf": [ true ],
+        "$comment": "A comment"
+      }
+    },
+    {
+      "description": "oneOf with readOnly as non-boolean is rejected",
+      "valid": false,
+      "data": {
+        "oneOf": [ true ],
+        "readOnly": "true"
+      }
+    },
+    {
+      "description": "oneOf with writeOnly as non-boolean is rejected",
+      "valid": false,
+      "data": {
+        "oneOf": [ true ],
+        "writeOnly": "true"
+      }
+    },
+    {
+      "description": "oneOf with if sibling is rejected",
+      "valid": false,
+      "data": {
+        "oneOf": [ true ],
+        "if": true
+      }
+    },
+    {
+      "description": "not with boolean is canonical",
+      "valid": true,
+      "data": {
+        "not": true
+      }
+    },
+    {
+      "description": "not with false is canonical",
+      "valid": true,
+      "data": {
+        "not": false
+      }
+    },
+    {
+      "description": "not with schema is canonical",
+      "valid": true,
+      "data": {
+        "not": {
+          "type": "string",
+          "minLength": 0
+        }
+      }
+    },
+    {
+      "description": "not with title is canonical",
+      "valid": true,
+      "data": {
+        "not": true,
+        "title": "Impossible"
+      }
+    },
+    {
+      "description": "not with description is canonical",
+      "valid": true,
+      "data": {
+        "not": true,
+        "description": "Negated"
+      }
+    },
+    {
+      "description": "not with default is canonical",
+      "valid": true,
+      "data": {
+        "not": true,
+        "default": null
+      }
+    },
+    {
+      "description": "not with examples is canonical",
+      "valid": true,
+      "data": {
+        "not": true,
+        "examples": [ "bar" ]
+      }
+    },
+    {
+      "description": "not with readOnly is canonical",
+      "valid": true,
+      "data": {
+        "not": true,
+        "readOnly": true
+      }
+    },
+    {
+      "description": "not with writeOnly is canonical",
+      "valid": true,
+      "data": {
+        "not": true,
+        "writeOnly": true
+      }
+    },
+    {
+      "description": "not with $schema is canonical",
+      "valid": true,
+      "data": {
+        "not": true,
+        "$schema": "http://json-schema.org/draft-07/schema#"
+      }
+    },
+    {
+      "description": "not with $id is canonical",
+      "valid": true,
+      "data": {
+        "not": true,
+        "$id": "https://example.com/not"
+      }
+    },
+    {
+      "description": "not with definitions is canonical",
+      "valid": true,
+      "data": {
+        "not": true,
+        "definitions": {
+          "x": true
+        }
+      }
+    },
+    {
+      "description": "not with x-keyword is canonical",
+      "valid": true,
+      "data": {
+        "not": true,
+        "x-reason": "legacy"
+      }
+    },
+    {
+      "description": "not with all optional fields is canonical",
+      "valid": true,
+      "data": {
+        "not": {
+          "type": "string",
+          "minLength": 0
+        },
+        "$schema": "http://json-schema.org/draft-07/schema#",
+        "$id": "https://example.com/not",
+        "definitions": {
+          "helper": true
+        },
+        "title": "My not",
+        "description": "A not schema",
+        "default": null,
+        "readOnly": false,
+        "writeOnly": false,
+        "examples": [ "bar" ],
+        "x-reason": "legacy"
+      }
+    },
+    {
+      "description": "not with type sibling is rejected",
+      "valid": false,
+      "data": {
+        "not": true,
+        "type": "string"
+      }
+    },
+    {
+      "description": "not with properties sibling is rejected",
+      "valid": false,
+      "data": {
+        "not": true,
+        "properties": {}
+      }
+    },
+    {
+      "description": "not with $ref sibling is rejected",
+      "valid": false,
+      "data": {
+        "not": true,
+        "$ref": "#/definitions/a"
+      }
+    },
+    {
+      "description": "not with minimum sibling is rejected",
+      "valid": false,
+      "data": {
+        "not": true,
+        "minimum": 0
+      }
+    },
+    {
+      "description": "not with minLength sibling is rejected",
+      "valid": false,
+      "data": {
+        "not": true,
+        "minLength": 0
+      }
+    },
+    {
+      "description": "not with items sibling is rejected",
+      "valid": false,
+      "data": {
+        "not": true,
+        "items": true
+      }
+    },
+    {
+      "description": "not with anyOf sibling is rejected",
+      "valid": false,
+      "data": {
+        "not": true,
+        "anyOf": [ true ]
+      }
+    },
+    {
+      "description": "not with allOf sibling is rejected",
+      "valid": false,
+      "data": {
+        "not": true,
+        "allOf": [ true ]
+      }
+    },
+    {
+      "description": "not with oneOf sibling is rejected",
+      "valid": false,
+      "data": {
+        "not": true,
+        "oneOf": [ true ]
+      }
+    },
+    {
+      "description": "not with enum sibling is rejected",
+      "valid": false,
+      "data": {
+        "not": true,
+        "enum": [ 1 ]
+      }
+    },
+    {
+      "description": "not with contains sibling is rejected",
+      "valid": false,
+      "data": {
+        "not": true,
+        "contains": true
+      }
+    },
+    {
+      "description": "not with propertyNames sibling is rejected",
+      "valid": false,
+      "data": {
+        "not": true,
+        "propertyNames": true
+      }
+    },
+    {
+      "description": "not with empty definitions is rejected",
+      "valid": false,
+      "data": {
+        "not": true,
+        "definitions": {}
+      }
+    },
+    {
+      "description": "Recursive not subschema must be canonical",
+      "valid": false,
+      "data": {
+        "not": {
+          "type": "boolean"
+        }
+      }
+    },
+    {
+      "description": "not definitions subschemas must be canonical",
+      "valid": false,
+      "data": {
+        "not": true,
+        "definitions": {
+          "x": {
+            "type": "boolean"
+          }
+        }
+      }
+    },
+    {
+      "description": "not with Draft 4 id is rejected",
+      "valid": false,
+      "data": {
+        "not": true,
+        "id": "https://example.com"
+      }
+    },
+    {
+      "description": "not with empty examples is rejected",
+      "valid": false,
+      "data": {
+        "not": true,
+        "examples": []
+      }
+    },
+    {
+      "description": "not with examples as string is rejected",
+      "valid": false,
+      "data": {
+        "not": true,
+        "examples": "foo"
+      }
+    },
+    {
+      "description": "not with examples with duplicate values is rejected",
+      "valid": false,
+      "data": {
+        "not": true,
+        "examples": [ 1, 1 ]
+      }
+    },
+    {
+      "description": "not with $comment is rejected",
+      "valid": false,
+      "data": {
+        "not": true,
+        "$comment": "A comment"
+      }
+    },
+    {
+      "description": "not with readOnly as non-boolean is rejected",
+      "valid": false,
+      "data": {
+        "not": true,
+        "readOnly": "true"
+      }
+    },
+    {
+      "description": "not with writeOnly as non-boolean is rejected",
+      "valid": false,
+      "data": {
+        "not": true,
+        "writeOnly": "true"
+      }
+    },
+    {
+      "description": "not with if sibling is rejected",
+      "valid": false,
+      "data": {
+        "not": true,
+        "if": true
+      }
+    },
+    {
+      "description": "type boolean is rejected (must be enum)",
+      "valid": false,
+      "data": {
+        "type": "boolean"
+      }
+    },
+    {
+      "description": "type null is rejected (must be enum)",
+      "valid": false,
+      "data": {
+        "type": "null"
+      }
+    },
+    {
+      "description": "type array is rejected (must be anyOf)",
+      "valid": false,
+      "data": {
+        "type": [ "string", "number" ]
+      }
+    },
+    {
+      "description": "const is rejected (must be enum)",
+      "valid": false,
+      "data": {
+        "const": 42
+      }
+    },
+    {
+      "description": "const with type is rejected",
+      "valid": false,
+      "data": {
+        "type": "string",
+        "const": "hello"
+      }
+    },
+    {
+      "description": "Empty object is rejected",
+      "valid": false,
+      "data": {}
+    },
+    {
+      "description": "Object with only title is rejected",
+      "valid": false,
+      "data": {
+        "title": "Something"
+      }
+    },
+    {
+      "description": "Object with only description is rejected",
+      "valid": false,
+      "data": {
+        "description": "Nothing"
+      }
+    },
+    {
+      "description": "Object with only $schema is rejected",
+      "valid": false,
+      "data": {
+        "$schema": "http://json-schema.org/draft-07/schema#"
+      }
+    },
+    {
+      "description": "Object with only $id is rejected",
+      "valid": false,
+      "data": {
+        "$id": "https://example.com"
+      }
+    },
+    {
+      "description": "Object with only definitions is rejected",
+      "valid": false,
+      "data": {
+        "definitions": {
+          "x": true
+        }
+      }
+    },
+    {
+      "description": "Object with only examples is rejected",
+      "valid": false,
+      "data": {
+        "examples": [ 1 ]
+      }
+    },
+    {
+      "description": "Object with only default is rejected",
+      "valid": false,
+      "data": {
+        "default": 42
+      }
+    },
+    {
+      "description": "Object with only x-keyword is rejected",
+      "valid": false,
+      "data": {
+        "x-custom": "value"
+      }
+    },
+    {
+      "description": "Object with only $comment is rejected",
+      "valid": false,
+      "data": {
+        "$comment": "A comment"
+      }
+    },
+    {
+      "description": "Full canonical root schema",
+      "valid": true,
+      "data": {
+        "$schema": "http://json-schema.org/draft-07/schema#",
+        "$id": "https://example.com/person",
+        "type": "object",
+        "title": "Person",
+        "properties": {
+          "name": {
+            "type": "string",
+            "minLength": 1
+          },
+          "age": {
+            "type": "integer",
+            "multipleOf": 1,
+            "minimum": 0
+          },
+          "email": {
+            "type": "string",
+            "minLength": 0,
+            "format": "email"
+          },
+          "tags": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "minLength": 0
+            },
+            "minItems": 0,
+            "uniqueItems": false
+          }
+        },
+        "patternProperties": {},
+        "additionalProperties": true,
+        "propertyNames": true,
+        "required": [ "name" ],
+        "minProperties": 1,
+        "definitions": {
+          "address": {
+            "type": "object",
+            "properties": {},
+            "patternProperties": {},
+            "additionalProperties": true,
+            "propertyNames": true,
+            "minProperties": 0
+          }
+        }
+      }
+    },
+    {
+      "description": "Full canonical root schema with examples",
+      "valid": true,
+      "data": {
+        "$schema": "http://json-schema.org/draft-07/schema#",
+        "$id": "https://example.com/config",
+        "type": "object",
+        "title": "Config",
+        "description": "Application configuration",
+        "examples": [
+          {
+            "name": "test",
+            "port": 8080
+          }
+        ],
+        "properties": {
+          "name": {
+            "type": "string",
+            "minLength": 1,
+            "examples": [ "my-app" ]
+          },
+          "port": {
+            "type": "integer",
+            "multipleOf": 1,
+            "minimum": 1,
+            "maximum": 65535,
+            "examples": [ 80, 443, 8080 ]
+          }
+        },
+        "patternProperties": {},
+        "additionalProperties": false,
+        "propertyNames": {
+          "type": "string",
+          "minLength": 1
+        },
+        "required": [ "name" ],
+        "minProperties": 1,
+        "definitions": {
+          "port-range": {
+            "type": "integer",
+            "multipleOf": 1,
+            "minimum": 0,
+            "maximum": 65535
+          }
+        }
+      }
+    },
+    {
+      "description": "Deeply nested canonical schema",
+      "valid": true,
+      "data": {
+        "anyOf": [
+          {
+            "type": "object",
+            "properties": {
+              "items": {
+                "type": "array",
+                "items": {
+                  "oneOf": [
+                    {
+                      "type": "string",
+                      "minLength": 0
+                    },
+                    {
+                      "type": "integer",
+                      "multipleOf": 1
+                    }
+                  ]
+                },
+                "minItems": 0,
+                "uniqueItems": false
+              }
+            },
+            "patternProperties": {},
+            "additionalProperties": true,
+            "propertyNames": true,
+            "minProperties": 0
+          },
+          {
+            "not": false
+          }
+        ]
+      }
+    },
+    {
+      "description": "Deeply nested non-canonical schema is rejected",
+      "valid": false,
+      "data": {
+        "anyOf": [
+          {
+            "type": "object",
+            "properties": {
+              "items": {
+                "type": "array",
+                "items": {
+                  "oneOf": [
+                    {
+                      "type": "string"
+                    }
+                  ]
+                },
+                "minItems": 0,
+                "uniqueItems": false
+              }
+            },
+            "patternProperties": {},
+            "additionalProperties": true,
+            "propertyNames": true,
+            "minProperties": 0
+          }
+        ]
+      }
+    },
+    {
+      "description": "Number with exclusiveMinimum zero is canonical",
+      "valid": true,
+      "data": {
+        "type": "number",
+        "exclusiveMinimum": 0
+      }
+    },
+    {
+      "description": "Number with exclusiveMaximum zero is canonical",
+      "valid": true,
+      "data": {
+        "type": "number",
+        "exclusiveMaximum": 0
+      }
+    },
+    {
+      "description": "Number with negative exclusiveMinimum is canonical",
+      "valid": true,
+      "data": {
+        "type": "number",
+        "exclusiveMinimum": -100
+      }
+    },
+    {
+      "description": "Number with negative exclusiveMaximum is canonical",
+      "valid": true,
+      "data": {
+        "type": "number",
+        "exclusiveMaximum": -100
+      }
+    },
+    {
+      "description": "Number with fractional exclusiveMinimum is canonical",
+      "valid": true,
+      "data": {
+        "type": "number",
+        "exclusiveMinimum": 0.5
+      }
+    },
+    {
+      "description": "Number with fractional exclusiveMaximum is canonical",
+      "valid": true,
+      "data": {
+        "type": "number",
+        "exclusiveMaximum": 99.9
+      }
+    },
+    {
+      "description": "Enum with mixed types is canonical",
+      "valid": true,
+      "data": {
+        "enum": [
+          1,
+          "two",
+          true,
+          null,
+          {
+            "three": 3
+          },
+          [ 4 ]
+        ]
+      }
+    },
+    {
+      "description": "Enum with single value is canonical",
+      "valid": true,
+      "data": {
+        "enum": [ 42 ]
+      }
+    },
+    {
+      "description": "String with minLength 0 and maxLength 0 is canonical",
+      "valid": true,
+      "data": {
+        "type": "string",
+        "minLength": 0,
+        "maxLength": 0
+      }
+    },
+    {
+      "description": "Integer with only minimum is canonical",
+      "valid": true,
+      "data": {
+        "type": "integer",
+        "multipleOf": 1,
+        "minimum": 0
+      }
+    },
+    {
+      "description": "Integer with only maximum is canonical",
+      "valid": true,
+      "data": {
+        "type": "integer",
+        "multipleOf": 1,
+        "maximum": 100
+      }
+    },
+    {
+      "description": "Object with boolean additionalProperties is canonical",
+      "valid": true,
+      "data": {
+        "type": "object",
+        "properties": {},
+        "patternProperties": {},
+        "additionalProperties": false,
+        "propertyNames": true,
+        "minProperties": 0
+      }
+    },
+    {
+      "description": "Object with schema additionalProperties is canonical",
+      "valid": true,
+      "data": {
+        "type": "object",
+        "properties": {},
+        "patternProperties": {},
+        "additionalProperties": {
+          "type": "string",
+          "minLength": 0
+        },
+        "propertyNames": true,
+        "minProperties": 0
+      }
+    },
+    {
+      "description": "Array with maxItems same as minItems is canonical",
+      "valid": true,
+      "data": {
+        "type": "array",
+        "items": true,
+        "minItems": 5,
+        "maxItems": 5,
+        "uniqueItems": false
+      }
+    },
+    {
+      "description": "Object with required list is canonical",
+      "valid": true,
+      "data": {
+        "type": "object",
+        "properties": {
+          "a": true,
+          "b": true
+        },
+        "patternProperties": {},
+        "additionalProperties": true,
+        "propertyNames": true,
+        "required": [ "a", "b" ],
+        "minProperties": 2
+      }
+    },
+    {
+      "description": "anyOf with boolean branches is canonical",
+      "valid": true,
+      "data": {
+        "anyOf": [ true, false ]
+      }
+    },
+    {
+      "description": "allOf with boolean branches is canonical",
+      "valid": true,
+      "data": {
+        "allOf": [ true, false ]
+      }
+    },
+    {
+      "description": "oneOf with boolean branches is canonical",
+      "valid": true,
+      "data": {
+        "oneOf": [ true, false ]
+      }
+    },
+    {
+      "description": "$ref with title as non-string is rejected",
+      "valid": false,
+      "data": {
+        "$ref": "#/definitions/foo",
+        "title": 42
+      }
+    },
+    {
+      "description": "$ref with description as non-string is rejected",
+      "valid": false,
+      "data": {
+        "$ref": "#/definitions/foo",
+        "description": 42
+      }
+    },
+    {
+      "description": "Schema with if/then/else using complex subschemas is canonical",
+      "valid": true,
+      "data": {
+        "if": {
+          "type": "object",
+          "properties": {
+            "kind": {
+              "enum": [ "a" ]
+            }
+          },
+          "patternProperties": {},
+          "additionalProperties": true,
+          "propertyNames": true,
+          "minProperties": 0
+        },
+        "then": {
+          "type": "object",
+          "properties": {
+            "value": {
+              "type": "string",
+              "minLength": 1
+            }
+          },
+          "patternProperties": {},
+          "additionalProperties": true,
+          "propertyNames": true,
+          "minProperties": 0
+        },
+        "else": {
+          "type": "object",
+          "properties": {
+            "value": {
+              "type": "number"
+            }
+          },
+          "patternProperties": {},
+          "additionalProperties": true,
+          "propertyNames": true,
+          "minProperties": 0
+        }
+      }
+    },
+    {
+      "description": "String with contentEncoding as boolean is rejected",
+      "valid": false,
+      "data": {
+        "type": "string",
+        "minLength": 0,
+        "contentEncoding": true
+      }
+    },
+    {
+      "description": "String with contentMediaType as boolean is rejected",
+      "valid": false,
+      "data": {
+        "type": "string",
+        "minLength": 0,
+        "contentMediaType": true
+      }
+    },
+    {
+      "description": "if/then/else only if is rejected",
+      "valid": false,
+      "data": {
+        "if": true
+      }
+    },
+    {
+      "description": "if/then/else only then is rejected",
+      "valid": false,
+      "data": {
+        "then": true
+      }
+    },
+    {
+      "description": "if/then/else only else is rejected",
+      "valid": false,
+      "data": {
+        "else": true
+      }
+    },
+    {
+      "description": "Full canonical root schema with readOnly and writeOnly",
+      "valid": true,
+      "data": {
+        "$schema": "http://json-schema.org/draft-07/schema#",
+        "$id": "https://example.com/user",
+        "type": "object",
+        "title": "User",
+        "properties": {
+          "id": {
+            "type": "integer",
+            "multipleOf": 1,
+            "minimum": 1,
+            "readOnly": true
+          },
+          "name": {
+            "type": "string",
+            "minLength": 1
+          },
+          "password": {
+            "type": "string",
+            "minLength": 8,
+            "writeOnly": true
+          }
+        },
+        "patternProperties": {},
+        "additionalProperties": false,
+        "propertyNames": true,
+        "required": [ "name" ],
+        "minProperties": 1
+      }
+    },
+    {
+      "description": "Full canonical root schema with if/then/else",
+      "valid": true,
+      "data": {
+        "if": {
+          "type": "string",
+          "minLength": 0
+        },
+        "then": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 255
+        },
+        "else": {
+          "type": "number",
+          "minimum": 0
+        },
+        "title": "Polymorphic value"
+      }
+    },
+    {
+      "description": "Full canonical root schema with contentEncoding",
+      "valid": true,
+      "data": {
+        "$schema": "http://json-schema.org/draft-07/schema#",
+        "$id": "https://example.com/encoded",
+        "type": "string",
+        "minLength": 0,
+        "contentEncoding": "base64",
+        "contentMediaType": "application/octet-stream",
+        "title": "Encoded data"
+      }
+    }
+  ]
+}
