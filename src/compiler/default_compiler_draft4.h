@@ -1134,19 +1134,25 @@ auto compiler_draft4_applicator_properties_with_options(
               has_strict_integer_type(substeps)
                   ? InstructionIndex::AssertionTypeIntegerBoundedStrict
                   : InstructionIndex::AssertionTypeIntegerBounded;
+          auto instance_location = substeps.front().relative_instance_location;
           substeps.clear();
-          substeps.push_back(make(index, context, schema_context,
-                                  relative_dynamic_context(), bounds));
+          auto fused = make(index, context, schema_context,
+                            relative_dynamic_context(), bounds);
+          fused.relative_instance_location = std::move(instance_location);
+          substeps.push_back(std::move(fused));
         } else if (is_integer_type_lower_bound_pattern(substeps)) {
           const auto minimum = extract_integer_lower_bound(substeps);
           const auto index =
               has_strict_integer_type(substeps)
                   ? InstructionIndex::AssertionTypeIntegerLowerBoundStrict
                   : InstructionIndex::AssertionTypeIntegerLowerBound;
+          auto instance_location = substeps.front().relative_instance_location;
           substeps.clear();
-          substeps.push_back(make(index, context, schema_context,
-                                  relative_dynamic_context(),
-                                  ValueIntegerBounds{minimum, 0}));
+          auto fused =
+              make(index, context, schema_context, relative_dynamic_context(),
+                   ValueIntegerBounds{minimum, 0});
+          fused.relative_instance_location = std::move(instance_location);
+          substeps.push_back(std::move(fused));
         } else if (substeps.size() == 2) {
           bool has_items_bounded{false};
           bool has_array_type{false};

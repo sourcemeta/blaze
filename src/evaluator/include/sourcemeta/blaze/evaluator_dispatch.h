@@ -739,7 +739,7 @@ INSTRUCTION_HANDLER(AssertionDivisible) {
 }
 
 INSTRUCTION_HANDLER(AssertionTypeIntegerBounded) {
-  EVALUATE_BEGIN_NON_STRING(AssertionTypeIntegerBounded, target.is_number());
+  EVALUATE_BEGIN_NON_STRING(AssertionTypeIntegerBounded, true);
   const auto value{assume_value_copy<ValueIntegerBounds>(instruction.value)};
   if (target.is_integer()) {
     const auto integer{target.to_integer()};
@@ -753,16 +753,18 @@ INSTRUCTION_HANDLER(AssertionTypeIntegerBounded) {
 }
 
 INSTRUCTION_HANDLER(AssertionTypeIntegerBoundedStrict) {
-  EVALUATE_BEGIN_NON_STRING(AssertionTypeIntegerBoundedStrict,
-                            target.is_integer());
+  EVALUATE_BEGIN_NON_STRING(AssertionTypeIntegerBoundedStrict, true);
   const auto value{assume_value_copy<ValueIntegerBounds>(instruction.value)};
-  const auto integer{target.to_integer()};
-  result = integer >= value.first && integer <= value.second;
+  if (target.is_integer()) {
+    const auto integer{target.to_integer()};
+    result = integer >= value.first && integer <= value.second;
+  }
+
   EVALUATE_END(AssertionTypeIntegerBoundedStrict);
 }
 
 INSTRUCTION_HANDLER(AssertionTypeIntegerLowerBound) {
-  EVALUATE_BEGIN_NON_STRING(AssertionTypeIntegerLowerBound, target.is_number());
+  EVALUATE_BEGIN_NON_STRING(AssertionTypeIntegerLowerBound, true);
   const auto value{assume_value_copy<ValueIntegerBounds>(instruction.value)};
   if (target.is_integer()) {
     result = target.to_integer() >= value.first;
@@ -774,10 +776,12 @@ INSTRUCTION_HANDLER(AssertionTypeIntegerLowerBound) {
 }
 
 INSTRUCTION_HANDLER(AssertionTypeIntegerLowerBoundStrict) {
-  EVALUATE_BEGIN_NON_STRING(AssertionTypeIntegerLowerBoundStrict,
-                            target.is_integer());
+  EVALUATE_BEGIN_NON_STRING(AssertionTypeIntegerLowerBoundStrict, true);
   const auto value{assume_value_copy<ValueIntegerBounds>(instruction.value)};
-  result = target.to_integer() >= value.first;
+  if (target.is_integer()) {
+    result = target.to_integer() >= value.first;
+  }
+
   EVALUATE_END(AssertionTypeIntegerLowerBoundStrict);
 }
 
