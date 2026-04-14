@@ -2224,8 +2224,15 @@ INSTRUCTION_HANDLER(LoopItemsIntegerBounded) {
         result = false;
         break;
       }
+    } else if (element.is_real()) {
+      const auto real{element.to_real()};
+      if (real < static_cast<double>(value.first) ||
+          real > static_cast<double>(value.second)) [[unlikely]] {
+        result = false;
+        break;
+      }
     } else {
-      const auto real{element.as_real()};
+      const auto real{element.to_decimal().to_double()};
       if (real < static_cast<double>(value.first) ||
           real > static_cast<double>(value.second)) [[unlikely]] {
         result = false;

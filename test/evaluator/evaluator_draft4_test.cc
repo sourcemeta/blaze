@@ -1367,3 +1367,50 @@ TEST(Evaluator_draft4, enum_17) {
       instance, 1,
       "The value was expected to be of type integer but it was of type number");
 }
+
+TEST(Evaluator_draft4, items_integer_bounded_decimal_in_range) {
+  const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
+    "$schema": "http://json-schema.org/draft-04/schema#",
+    "items": { "type": "number", "minimum": 0, "maximum": 100 }
+  })JSON")};
+
+  sourcemeta::core::JSON instance{sourcemeta::core::JSON::Array{}};
+  instance.push_back(sourcemeta::core::JSON{sourcemeta::core::Decimal{"50.5"}});
+  EVALUATE_WITH_TRACE_FAST_SUCCESS(schema, instance, 1, "");
+
+  EVALUATE_TRACE_PRE(0, LoopItemsIntegerBounded, "/items", "#/items", "");
+  EVALUATE_TRACE_POST_SUCCESS(0, LoopItemsIntegerBounded, "/items", "#/items",
+                              "");
+}
+
+TEST(Evaluator_draft4, items_integer_bounded_decimal_out_of_range) {
+  const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
+    "$schema": "http://json-schema.org/draft-04/schema#",
+    "items": { "type": "number", "minimum": 0, "maximum": 100 }
+  })JSON")};
+
+  sourcemeta::core::JSON instance{sourcemeta::core::JSON::Array{}};
+  instance.push_back(
+      sourcemeta::core::JSON{sourcemeta::core::Decimal{"200.5"}});
+  EVALUATE_WITH_TRACE_FAST_FAILURE(schema, instance, 1, "");
+
+  EVALUATE_TRACE_PRE(0, LoopItemsIntegerBounded, "/items", "#/items", "");
+  EVALUATE_TRACE_POST_FAILURE(0, LoopItemsIntegerBounded, "/items", "#/items",
+                              "");
+}
+
+TEST(Evaluator_draft4, items_integer_bounded_large_decimal_in_range) {
+  const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
+    "$schema": "http://json-schema.org/draft-04/schema#",
+    "items": { "type": "number", "minimum": 0, "maximum": 100 }
+  })JSON")};
+
+  sourcemeta::core::JSON instance{sourcemeta::core::JSON::Array{}};
+  instance.push_back(sourcemeta::core::JSON{
+      sourcemeta::core::Decimal{"99.99999999999999999999999999999"}});
+  EVALUATE_WITH_TRACE_FAST_SUCCESS(schema, instance, 1, "");
+
+  EVALUATE_TRACE_PRE(0, LoopItemsIntegerBounded, "/items", "#/items", "");
+  EVALUATE_TRACE_POST_SUCCESS(0, LoopItemsIntegerBounded, "/items", "#/items",
+                              "");
+}
