@@ -26,7 +26,8 @@ public:
 
     // In 2019-09+, the absence of `items` is semantically meaningful
     // because adding `items: true` marks all items as "evaluated",
-    // which changes the behavior of `unevaluatedItems` at higher levels
+    // which changes the behavior of `unevaluatedItems` at higher
+    // levels
     const bool is_2019_09{vocabularies.contains(
         Vocabularies::Known::JSON_Schema_2019_09_Applicator)};
     const bool needs_items{!is_2019_09 && !schema.defines("items")};
