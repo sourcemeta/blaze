@@ -1475,26 +1475,19 @@ auto compiler_draft4_applicator_items_array(
 }
 
 auto is_number_type_check(const Instruction &instruction) -> bool {
-  if (instruction.type == InstructionIndex::AssertionTypeStrictAny) {
-    const auto &value{std::get<ValueTypes>(instruction.value)};
-    return value.test(
-               std::to_underlying(sourcemeta::core::JSON::Type::Integer)) &&
-           value.test(std::to_underlying(sourcemeta::core::JSON::Type::Real));
+  if (instruction.type != InstructionIndex::AssertionTypeStrictAny) {
+    return false;
   }
 
-  if (instruction.type == InstructionIndex::AssertionTypeStrict) {
-    const auto &value{std::get<ValueType>(instruction.value)};
-    return value == sourcemeta::core::JSON::Type::Integer ||
-           value == sourcemeta::core::JSON::Type::Real;
-  }
-
-  if (instruction.type == InstructionIndex::AssertionType) {
-    const auto &value{std::get<ValueType>(instruction.value)};
-    return value == sourcemeta::core::JSON::Type::Integer ||
-           value == sourcemeta::core::JSON::Type::Real;
-  }
-
-  return false;
+  const auto &value{std::get<ValueTypes>(instruction.value)};
+  const auto numeric_count{
+      static_cast<std::size_t>(value.test(
+          std::to_underlying(sourcemeta::core::JSON::Type::Integer))) +
+      static_cast<std::size_t>(
+          value.test(std::to_underlying(sourcemeta::core::JSON::Type::Real))) +
+      static_cast<std::size_t>(value.test(
+          std::to_underlying(sourcemeta::core::JSON::Type::Decimal)))};
+  return numeric_count >= 2 && value.count() == numeric_count;
 }
 
 auto is_integer_bounded_pattern(const Instructions &children) -> bool {
