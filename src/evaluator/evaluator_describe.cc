@@ -775,6 +775,12 @@ auto describe(const bool valid, const Instruction &step,
     return message.str();
   }
 
+  if (step.type ==
+      sourcemeta::blaze::InstructionIndex::LoopItemsIntegerBounded) {
+    return "Every item in the array was expected to be a number within the "
+           "given range";
+  }
+
   if (step.type == sourcemeta::blaze::InstructionIndex::LoopPropertiesType) {
     std::ostringstream message;
     message << "The object properties were expected to be of type "

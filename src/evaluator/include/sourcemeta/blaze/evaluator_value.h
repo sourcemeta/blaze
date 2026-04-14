@@ -156,13 +156,18 @@ using ValueStringHashes =
 using ValueTypedHashes = std::pair<ValueType, ValueStringHashes>;
 
 /// @ingroup evaluator
+/// Represents integer bounds with minimum and maximum
+using ValueIntegerBounds = std::pair<std::int64_t, std::int64_t>;
+
+/// @ingroup evaluator
 using Value =
     std::variant<ValueNone, ValueJSON, ValueSet, ValueString, ValueProperty,
                  ValueStrings, ValueStringSet, ValueTypes, ValueType,
                  ValueRegex, ValueUnsignedInteger, ValueRange, ValueBoolean,
                  ValueNamedIndexes, ValueStringType, ValueStringMap,
                  ValuePropertyFilter, ValueIndexPair, ValuePointer,
-                 ValueTypedProperties, ValueStringHashes, ValueTypedHashes>;
+                 ValueTypedProperties, ValueStringHashes, ValueTypedHashes,
+                 ValueIntegerBounds>;
 
 } // namespace sourcemeta::blaze
 
