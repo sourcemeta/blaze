@@ -44,7 +44,7 @@ struct Template {
 };
 
 /// @ingroup evaluator
-constexpr std::size_t JSON_VERSION{2};
+constexpr std::size_t JSON_VERSION{3};
 
 /// @ingroup evaluator
 /// Parse a template from JSON

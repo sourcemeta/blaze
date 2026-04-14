@@ -47,6 +47,28 @@ auto value_from_json(const sourcemeta::core::JSON &wrapper)
                                   value.at(1).to_integer()};
       }
       return std::nullopt;
+    case 23:
+      if (value.is_array() && value.array_size() == 2) {
+        const auto &bounds_json{value.at(0)};
+        const auto &range_json{value.at(1)};
+        if (bounds_json.is_array() && bounds_json.array_size() == 2 &&
+            bounds_json.at(0).is_integer() &&
+            bounds_json.at(1).is_integer() &&
+            range_json.is_array() && range_json.array_size() == 3 &&
+            range_json.at(0).is_integer() && range_json.at(2).is_boolean()) {
+          return ValueIntegerBoundsWithSize{
+              ValueIntegerBounds{bounds_json.at(0).to_integer(),
+                                bounds_json.at(1).to_integer()},
+              ValueRange{
+                  static_cast<std::size_t>(range_json.at(0).to_integer()),
+                  range_json.at(1).is_null()
+                      ? std::nullopt
+                      : std::optional<std::size_t>{static_cast<std::size_t>(
+                            range_json.at(1).to_integer())},
+                  range_json.at(2).to_boolean()}};
+        }
+      }
+      return std::nullopt;
     // clang-format on
     default:
       std::unreachable();

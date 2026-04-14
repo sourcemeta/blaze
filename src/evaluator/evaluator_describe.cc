@@ -781,6 +781,26 @@ auto describe(const bool valid, const Instruction &step,
            "given range";
   }
 
+  if (step.type ==
+      sourcemeta::blaze::InstructionIndex::LoopItemsIntegerBoundedSized) {
+    return "Every item in the array was expected to be a number within the "
+           "given range";
+  }
+
+  if (step.type ==
+          sourcemeta::blaze::InstructionIndex::AssertionTypeIntegerBounded ||
+      step.type == sourcemeta::blaze::InstructionIndex::
+                       AssertionTypeIntegerBoundedStrict) {
+    return "The value was expected to be an integer within the given range";
+  }
+
+  if (step.type ==
+          sourcemeta::blaze::InstructionIndex::AssertionTypeIntegerLowerBound ||
+      step.type == sourcemeta::blaze::InstructionIndex::
+                       AssertionTypeIntegerLowerBoundStrict) {
+    return "The value was expected to be an integer above the given minimum";
+  }
+
   if (step.type == sourcemeta::blaze::InstructionIndex::LoopPropertiesType) {
     std::ostringstream message;
     message << "The object properties were expected to be of type "
