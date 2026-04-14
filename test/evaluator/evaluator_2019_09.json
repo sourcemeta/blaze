@@ -4,11 +4,18 @@
     "schema": {
       "$schema": "https://json-schema.org/draft/2019-09/schema",
       "properties": {
-        "foo": { "type": "string" },
-        "bar": { "type": "integer" }
+        "foo": {
+          "type": "string"
+        },
+        "bar": {
+          "type": "integer"
+        }
       }
     },
-    "instance": { "bar": 2, "foo": "xxx" },
+    "instance": {
+      "bar": 2,
+      "foo": "xxx"
+    },
     "valid": true,
     "fast": {
       "pre": [
@@ -53,11 +60,18 @@
     "schema": {
       "$schema": "https://json-schema.org/draft/2019-09/schema",
       "properties": {
-        "foo": { "type": "string" },
-        "bar": { "type": "integer" }
+        "foo": {
+          "type": "string"
+        },
+        "bar": {
+          "type": "integer"
+        }
       }
     },
-    "instance": { "bar": 2, "foo": 1 },
+    "instance": {
+      "bar": 2,
+      "foo": 1
+    },
     "valid": false,
     "fast": {
       "pre": [
@@ -117,7 +131,11 @@
         "qux": [ "extra" ]
       }
     },
-    "instance": { "foo": 1, "bar": 2, "baz": 3 },
+    "instance": {
+      "foo": 1,
+      "bar": 2,
+      "baz": 3
+    },
     "valid": true,
     "fast": {
       "pre": [
@@ -151,7 +169,10 @@
         "qux": [ "extra" ]
       }
     },
-    "instance": { "foo": 1, "bar": 2 },
+    "instance": {
+      "foo": 1,
+      "bar": 2
+    },
     "valid": false,
     "fast": {
       "pre": [
@@ -185,7 +206,9 @@
         "qux": [ "extra" ]
       }
     },
-    "instance": { "none": true },
+    "instance": {
+      "none": true
+    },
     "valid": true,
     "fast": {
       "pre": [
@@ -194,7 +217,9 @@
       "post": [
         [ true, "AssertionPropertyDependencies", "/dependentRequired", "#/dependentRequired", "" ]
       ],
-      "descriptions": [ "The object value did not define the properties \"foo\", or \"qux\"" ]
+      "descriptions": [
+        "The object value did not define the properties \"foo\", or \"qux\""
+      ]
     },
     "exhaustive": {
       "pre": [
@@ -203,7 +228,9 @@
       "post": [
         [ true, "AssertionPropertyDependencies", "/dependentRequired", "#/dependentRequired", "" ]
       ],
-      "descriptions": [ "The object value did not define the properties \"foo\", or \"qux\"" ]
+      "descriptions": [
+        "The object value did not define the properties \"foo\", or \"qux\""
+      ]
     }
   },
   {
@@ -214,7 +241,9 @@
         "foo": [ "bar", "baz" ]
       }
     },
-    "instance": { "none": true },
+    "instance": {
+      "none": true
+    },
     "valid": true,
     "fast": {
       "pre": [
@@ -223,7 +252,9 @@
       "post": [
         [ true, "AssertionPropertyDependencies", "/dependentRequired", "#/dependentRequired", "" ]
       ],
-      "descriptions": [ "The object value did not define the property \"foo\"" ]
+      "descriptions": [
+        "The object value did not define the property \"foo\""
+      ]
     },
     "exhaustive": {
       "pre": [
@@ -232,7 +263,9 @@
       "post": [
         [ true, "AssertionPropertyDependencies", "/dependentRequired", "#/dependentRequired", "" ]
       ],
-      "descriptions": [ "The object value did not define the property \"foo\"" ]
+      "descriptions": [
+        "The object value did not define the property \"foo\""
+      ]
     }
   },
   {
@@ -266,7 +299,10 @@
         }
       }
     },
-    "instance": { "qux": 1, "extra": 2 },
+    "instance": {
+      "qux": 1,
+      "extra": 2
+    },
     "valid": true,
     "fast": {
       "pre": [
@@ -316,7 +352,9 @@
         }
       }
     },
-    "instance": { "none": 1 },
+    "instance": {
+      "none": 1
+    },
     "valid": true,
     "fast": {
       "pre": [
@@ -325,7 +363,9 @@
       "post": [
         [ true, "LogicalWhenType", "/dependentSchemas", "#/dependentSchemas", "" ]
       ],
-      "descriptions": [ "The object value did not define the properties \"foo\", or \"qux\"" ]
+      "descriptions": [
+        "The object value did not define the properties \"foo\", or \"qux\""
+      ]
     },
     "exhaustive": {
       "pre": [
@@ -334,7 +374,9 @@
       "post": [
         [ true, "LogicalWhenType", "/dependentSchemas", "#/dependentSchemas", "" ]
       ],
-      "descriptions": [ "The object value did not define the properties \"foo\", or \"qux\"" ]
+      "descriptions": [
+        "The object value did not define the properties \"foo\", or \"qux\""
+      ]
     }
   },
   {
@@ -350,7 +392,12 @@
         }
       }
     },
-    "instance": { "foo": 1, "bar": 2, "baz": 3, "qux": 4 },
+    "instance": {
+      "foo": 1,
+      "bar": 2,
+      "baz": 3,
+      "qux": 4
+    },
     "valid": true,
     "fast": {
       "pre": [
@@ -401,7 +448,10 @@
   },
   {
     "description": "dependentSchemas_5",
-    "schema": { "$schema": "https://json-schema.org/draft/2019-09/schema", "dependentSchemas": "not-an-object" },
+    "schema": {
+      "$schema": "https://json-schema.org/draft/2019-09/schema",
+      "dependentSchemas": "not-an-object"
+    },
     "instance": "foo",
     "valid": true,
     "fast": {},
@@ -411,9 +461,14 @@
     "description": "additionalProperties_1",
     "schema": {
       "$schema": "https://json-schema.org/draft/2019-09/schema",
-      "additionalProperties": { "type": "integer" }
+      "additionalProperties": {
+        "type": "integer"
+      }
     },
-    "instance": { "bar": 2, "foo": 1 },
+    "instance": {
+      "bar": 2,
+      "foo": 1
+    },
     "valid": true,
     "fast": {
       "pre": [
@@ -422,7 +477,9 @@
       "post": [
         [ true, "LoopPropertiesType", "/additionalProperties/type", "#/additionalProperties/type", "" ]
       ],
-      "descriptions": [ "The object properties were expected to be of type integer" ]
+      "descriptions": [
+        "The object properties were expected to be of type integer"
+      ]
     },
     "exhaustive": {
       "pre": [
@@ -453,11 +510,18 @@
     "schema": {
       "$schema": "https://json-schema.org/draft/2019-09/schema",
       "properties": {
-        "foo": { "type": "boolean" }
+        "foo": {
+          "type": "boolean"
+        }
       },
-      "additionalProperties": { "type": "integer" }
+      "additionalProperties": {
+        "type": "integer"
+      }
     },
-    "instance": { "bar": 2, "foo": true },
+    "instance": {
+      "bar": 2,
+      "foo": true
+    },
     "valid": true,
     "fast": {
       "pre": [
@@ -507,9 +571,14 @@
     "description": "additionalProperties_3",
     "schema": {
       "$schema": "https://json-schema.org/draft/2019-09/schema",
-      "additionalProperties": { "type": "integer" }
+      "additionalProperties": {
+        "type": "integer"
+      }
     },
-    "instance": { "bar": "baz", "foo": 1 },
+    "instance": {
+      "bar": "baz",
+      "foo": 1
+    },
     "valid": false,
     "fast": {
       "pre": [
@@ -518,7 +587,9 @@
       "post": [
         [ false, "LoopPropertiesType", "/additionalProperties/type", "#/additionalProperties/type", "" ]
       ],
-      "descriptions": [ "The object properties were expected to be of type integer" ]
+      "descriptions": [
+        "The object properties were expected to be of type integer"
+      ]
     },
     "exhaustive": {
       "pre": [
@@ -540,14 +611,24 @@
     "schema": {
       "$schema": "https://json-schema.org/draft/2019-09/schema",
       "properties": {
-        "foo": { "type": "boolean" }
+        "foo": {
+          "type": "boolean"
+        }
       },
       "patternProperties": {
-        "^bar$": { "type": "integer" }
+        "^bar$": {
+          "type": "integer"
+        }
       },
-      "additionalProperties": { "type": "string" }
+      "additionalProperties": {
+        "type": "string"
+      }
     },
-    "instance": { "foo": true, "bar": 2, "baz": "qux" },
+    "instance": {
+      "foo": true,
+      "bar": 2,
+      "baz": "qux"
+    },
     "valid": true,
     "fast": {
       "pre": [
@@ -612,7 +693,9 @@
     "description": "contains_1",
     "schema": {
       "$schema": "https://json-schema.org/draft/2019-09/schema",
-      "contains": { "type": "string" }
+      "contains": {
+        "type": "string"
+      }
     },
     "instance": 2,
     "valid": true,
@@ -623,7 +706,9 @@
     "description": "contains_2",
     "schema": {
       "$schema": "https://json-schema.org/draft/2019-09/schema",
-      "contains": { "type": "string" }
+      "contains": {
+        "type": "string"
+      }
     },
     "instance": [ 1, "bar", 3 ],
     "valid": true,
@@ -666,7 +751,9 @@
     "description": "contains_3",
     "schema": {
       "$schema": "https://json-schema.org/draft/2019-09/schema",
-      "contains": { "type": "string" }
+      "contains": {
+        "type": "string"
+      }
     },
     "instance": [ 1, 2, 3 ],
     "valid": false,
@@ -715,7 +802,9 @@
     "description": "contains_4",
     "schema": {
       "$schema": "https://json-schema.org/draft/2019-09/schema",
-      "contains": { "type": "string" }
+      "contains": {
+        "type": "string"
+      }
     },
     "instance": [ "foo", "bar", "baz" ],
     "valid": true,
@@ -753,7 +842,9 @@
     "schema": {
       "$schema": "https://json-schema.org/draft/2019-09/schema",
       "minContains": 2,
-      "contains": { "type": "string" }
+      "contains": {
+        "type": "string"
+      }
     },
     "instance": [ 1, "bar", "baz" ],
     "valid": true,
@@ -803,7 +894,9 @@
     "schema": {
       "$schema": "https://json-schema.org/draft/2019-09/schema",
       "minContains": 2,
-      "contains": { "type": "string" }
+      "contains": {
+        "type": "string"
+      }
     },
     "instance": [ 1, "foo", "bar", "baz" ],
     "valid": true,
@@ -853,7 +946,9 @@
     "schema": {
       "$schema": "https://json-schema.org/draft/2019-09/schema",
       "minContains": 2,
-      "contains": { "type": "string" }
+      "contains": {
+        "type": "string"
+      }
     },
     "instance": [ 1, "foo", 2 ],
     "valid": false,
@@ -903,7 +998,9 @@
     "schema": {
       "$schema": "https://json-schema.org/draft/2019-09/schema",
       "maxContains": 2,
-      "contains": { "type": "string" }
+      "contains": {
+        "type": "string"
+      }
     },
     "instance": [ 1, "foo", "bar" ],
     "valid": true,
@@ -953,7 +1050,9 @@
     "schema": {
       "$schema": "https://json-schema.org/draft/2019-09/schema",
       "maxContains": 2,
-      "contains": { "type": "string" }
+      "contains": {
+        "type": "string"
+      }
     },
     "instance": [ "foo", "bar", "baz" ],
     "valid": false,
@@ -1004,7 +1103,9 @@
       "$schema": "https://json-schema.org/draft/2019-09/schema",
       "minContains": 2,
       "maxContains": 2,
-      "contains": { "type": "string" }
+      "contains": {
+        "type": "string"
+      }
     },
     "instance": [ "foo", "bar", 1 ],
     "valid": true,
@@ -1055,7 +1156,9 @@
       "$schema": "https://json-schema.org/draft/2019-09/schema",
       "minContains": 2,
       "maxContains": 2,
-      "contains": { "type": "string" }
+      "contains": {
+        "type": "string"
+      }
     },
     "instance": [ "foo", "bar", "baz" ],
     "valid": false,
@@ -1106,7 +1209,9 @@
       "$schema": "https://json-schema.org/draft/2019-09/schema",
       "minContains": 3,
       "maxContains": 2,
-      "contains": { "type": "string" }
+      "contains": {
+        "type": "string"
+      }
     },
     "instance": [ "foo", "bar", "baz" ],
     "valid": false,
@@ -1117,7 +1222,9 @@
       "post": [
         [ false, "AssertionFail", "/contains", "#/contains", "" ]
       ],
-      "descriptions": [ "The constraints declared for this keyword were not satisfiable" ]
+      "descriptions": [
+        "The constraints declared for this keyword were not satisfiable"
+      ]
     },
     "exhaustive": {
       "pre": [
@@ -1126,12 +1233,17 @@
       "post": [
         [ false, "AssertionFail", "/contains", "#/contains", "" ]
       ],
-      "descriptions": [ "The constraints declared for this keyword were not satisfiable" ]
+      "descriptions": [
+        "The constraints declared for this keyword were not satisfiable"
+      ]
     }
   },
   {
     "description": "contains_13",
-    "schema": { "$schema": "https://json-schema.org/draft/2019-09/schema", "contains": true },
+    "schema": {
+      "$schema": "https://json-schema.org/draft/2019-09/schema",
+      "contains": true
+    },
     "instance": [ "foo", "bar", "baz" ],
     "valid": true,
     "fast": {
@@ -1141,7 +1253,9 @@
       "post": [
         [ true, "AssertionArraySizeGreater", "/contains", "#/contains", "" ]
       ],
-      "descriptions": [ "The array value was expected to contain at least 1 item and it contained 3 items" ]
+      "descriptions": [
+        "The array value was expected to contain at least 1 item and it contained 3 items"
+      ]
     },
     "exhaustive": {
       "pre": [
@@ -1150,12 +1264,17 @@
       "post": [
         [ true, "AssertionArraySizeGreater", "/contains", "#/contains", "" ]
       ],
-      "descriptions": [ "The array value was expected to contain at least 1 item and it contained 3 items" ]
+      "descriptions": [
+        "The array value was expected to contain at least 1 item and it contained 3 items"
+      ]
     }
   },
   {
     "description": "title",
-    "schema": { "$schema": "https://json-schema.org/draft/2019-09/schema", "title": "My title" },
+    "schema": {
+      "$schema": "https://json-schema.org/draft/2019-09/schema",
+      "title": "My title"
+    },
     "instance": 5,
     "valid": true,
     "fast": {},
@@ -1166,7 +1285,9 @@
       "post": [
         [ true, "Annotation", "/title", "#/title", "", "My title" ]
       ],
-      "descriptions": [ "The title of the instance was \"My title\"" ]
+      "descriptions": [
+        "The title of the instance was \"My title\""
+      ]
     }
   },
   {
@@ -1188,12 +1309,17 @@
       "post": [
         [ true, "Annotation", "/title", "https://example.com#/title", "", "My title" ]
       ],
-      "descriptions": [ "The title of the instance was \"My title\"" ]
+      "descriptions": [
+        "The title of the instance was \"My title\""
+      ]
     }
   },
   {
     "description": "description",
-    "schema": { "$schema": "https://json-schema.org/draft/2019-09/schema", "description": "My description" },
+    "schema": {
+      "$schema": "https://json-schema.org/draft/2019-09/schema",
+      "description": "My description"
+    },
     "instance": 5,
     "valid": true,
     "fast": {},
@@ -1204,12 +1330,17 @@
       "post": [
         [ true, "Annotation", "/description", "#/description", "", "My description" ]
       ],
-      "descriptions": [ "The description of the instance was \"My description\"" ]
+      "descriptions": [
+        "The description of the instance was \"My description\""
+      ]
     }
   },
   {
     "description": "default",
-    "schema": { "$schema": "https://json-schema.org/draft/2019-09/schema", "default": 1 },
+    "schema": {
+      "$schema": "https://json-schema.org/draft/2019-09/schema",
+      "default": 1
+    },
     "instance": 5,
     "valid": true,
     "fast": {},
@@ -1220,12 +1351,17 @@
       "post": [
         [ true, "Annotation", "/default", "#/default", "", 1 ]
       ],
-      "descriptions": [ "The default value of the instance was 1" ]
+      "descriptions": [
+        "The default value of the instance was 1"
+      ]
     }
   },
   {
     "description": "deprecated_1",
-    "schema": { "$schema": "https://json-schema.org/draft/2019-09/schema", "deprecated": true },
+    "schema": {
+      "$schema": "https://json-schema.org/draft/2019-09/schema",
+      "deprecated": true
+    },
     "instance": 5,
     "valid": true,
     "fast": {},
@@ -1236,12 +1372,17 @@
       "post": [
         [ true, "Annotation", "/deprecated", "#/deprecated", "", true ]
       ],
-      "descriptions": [ "The instance was considered deprecated" ]
+      "descriptions": [
+        "The instance was considered deprecated"
+      ]
     }
   },
   {
     "description": "deprecated_2",
-    "schema": { "$schema": "https://json-schema.org/draft/2019-09/schema", "deprecated": false },
+    "schema": {
+      "$schema": "https://json-schema.org/draft/2019-09/schema",
+      "deprecated": false
+    },
     "instance": 5,
     "valid": true,
     "fast": {},
@@ -1252,12 +1393,17 @@
       "post": [
         [ true, "Annotation", "/deprecated", "#/deprecated", "", false ]
       ],
-      "descriptions": [ "The instance was not considered deprecated" ]
+      "descriptions": [
+        "The instance was not considered deprecated"
+      ]
     }
   },
   {
     "description": "readOnly_1",
-    "schema": { "$schema": "https://json-schema.org/draft/2019-09/schema", "readOnly": false },
+    "schema": {
+      "$schema": "https://json-schema.org/draft/2019-09/schema",
+      "readOnly": false
+    },
     "instance": 5,
     "valid": true,
     "fast": {},
@@ -1268,12 +1414,17 @@
       "post": [
         [ true, "Annotation", "/readOnly", "#/readOnly", "", false ]
       ],
-      "descriptions": [ "The instance was not considered read-only" ]
+      "descriptions": [
+        "The instance was not considered read-only"
+      ]
     }
   },
   {
     "description": "readOnly_2",
-    "schema": { "$schema": "https://json-schema.org/draft/2019-09/schema", "readOnly": true },
+    "schema": {
+      "$schema": "https://json-schema.org/draft/2019-09/schema",
+      "readOnly": true
+    },
     "instance": 5,
     "valid": true,
     "fast": {},
@@ -1284,12 +1435,17 @@
       "post": [
         [ true, "Annotation", "/readOnly", "#/readOnly", "", true ]
       ],
-      "descriptions": [ "The instance was considered read-only" ]
+      "descriptions": [
+        "The instance was considered read-only"
+      ]
     }
   },
   {
     "description": "writeOnly_1",
-    "schema": { "$schema": "https://json-schema.org/draft/2019-09/schema", "writeOnly": false },
+    "schema": {
+      "$schema": "https://json-schema.org/draft/2019-09/schema",
+      "writeOnly": false
+    },
     "instance": 5,
     "valid": true,
     "fast": {},
@@ -1300,12 +1456,17 @@
       "post": [
         [ true, "Annotation", "/writeOnly", "#/writeOnly", "", false ]
       ],
-      "descriptions": [ "The instance was not considered write-only" ]
+      "descriptions": [
+        "The instance was not considered write-only"
+      ]
     }
   },
   {
     "description": "writeOnly_2",
-    "schema": { "$schema": "https://json-schema.org/draft/2019-09/schema", "writeOnly": true },
+    "schema": {
+      "$schema": "https://json-schema.org/draft/2019-09/schema",
+      "writeOnly": true
+    },
     "instance": 5,
     "valid": true,
     "fast": {},
@@ -1316,7 +1477,9 @@
       "post": [
         [ true, "Annotation", "/writeOnly", "#/writeOnly", "", true ]
       ],
-      "descriptions": [ "The instance was considered write-only" ]
+      "descriptions": [
+        "The instance was considered write-only"
+      ]
     }
   },
   {
@@ -1333,21 +1496,19 @@
         [ "Annotation", "/examples", "#/examples", "" ]
       ],
       "post": [
-        [
-          true,
-          "Annotation",
-          "/examples",
-          "#/examples",
-          "",
-          [ 1, 2, 3 ]
-        ]
+        [ true, "Annotation", "/examples", "#/examples", "", [1, 2, 3] ]
       ],
-      "descriptions": [ "Examples of the instance were 1, 2, and 3" ]
+      "descriptions": [
+        "Examples of the instance were 1, 2, and 3"
+      ]
     }
   },
   {
     "description": "format",
-    "schema": { "$schema": "https://json-schema.org/draft/2019-09/schema", "format": "email" },
+    "schema": {
+      "$schema": "https://json-schema.org/draft/2019-09/schema",
+      "format": "email"
+    },
     "instance": "johndoe@example.com",
     "valid": true,
     "fast": {},
@@ -1358,20 +1519,28 @@
       "post": [
         [ true, "Annotation", "/format", "#/format", "", "email" ]
       ],
-      "descriptions": [ "The logical type of the instance was expected to be \"email\"" ]
+      "descriptions": [
+        "The logical type of the instance was expected to be \"email\""
+      ]
     }
   },
   {
     "description": "format_exhaustive_non_string",
-    "schema": { "$schema": "https://json-schema.org/draft/2019-09/schema", "format": "email" },
+    "schema": {
+      "$schema": "https://json-schema.org/draft/2019-09/schema",
+      "format": "email"
+    },
     "instance": 1,
     "valid": true,
-    "exhaustive": {},
-    "fast": {}
+    "fast": {},
+    "exhaustive": {}
   },
   {
     "description": "contentEncoding",
-    "schema": { "$schema": "https://json-schema.org/draft/2019-09/schema", "contentEncoding": "base64" },
+    "schema": {
+      "$schema": "https://json-schema.org/draft/2019-09/schema",
+      "contentEncoding": "base64"
+    },
     "instance": "foo",
     "valid": true,
     "fast": {},
@@ -1382,20 +1551,28 @@
       "post": [
         [ true, "Annotation", "/contentEncoding", "#/contentEncoding", "", "base64" ]
       ],
-      "descriptions": [ "The content encoding of the instance was \"base64\"" ]
+      "descriptions": [
+        "The content encoding of the instance was \"base64\""
+      ]
     }
   },
   {
     "description": "contentEncoding_exhaustive_non_string",
-    "schema": { "$schema": "https://json-schema.org/draft/2019-09/schema", "contentEncoding": "base64" },
+    "schema": {
+      "$schema": "https://json-schema.org/draft/2019-09/schema",
+      "contentEncoding": "base64"
+    },
     "instance": 1,
     "valid": true,
-    "exhaustive": {},
-    "fast": {}
+    "fast": {},
+    "exhaustive": {}
   },
   {
     "description": "contentMediaType",
-    "schema": { "$schema": "https://json-schema.org/draft/2019-09/schema", "contentMediaType": "application/json" },
+    "schema": {
+      "$schema": "https://json-schema.org/draft/2019-09/schema",
+      "contentMediaType": "application/json"
+    },
     "instance": "foo",
     "valid": true,
     "fast": {},
@@ -1406,23 +1583,30 @@
       "post": [
         [ true, "Annotation", "/contentMediaType", "#/contentMediaType", "", "application/json" ]
       ],
-      "descriptions": [ "The content media type of the instance was \"application/json\"" ]
+      "descriptions": [
+        "The content media type of the instance was \"application/json\""
+      ]
     }
   },
   {
     "description": "contentMediaType_exhaustive_non_string",
-    "schema": { "$schema": "https://json-schema.org/draft/2019-09/schema", "contentMediaType": "application/json" },
+    "schema": {
+      "$schema": "https://json-schema.org/draft/2019-09/schema",
+      "contentMediaType": "application/json"
+    },
     "instance": 1,
     "valid": true,
-    "exhaustive": {},
-    "fast": {}
+    "fast": {},
+    "exhaustive": {}
   },
   {
     "description": "contentSchema_with_contentMediaType",
     "schema": {
       "$schema": "https://json-schema.org/draft/2019-09/schema",
       "contentMediaType": "application/json",
-      "contentSchema": { "type": "string" }
+      "contentSchema": {
+        "type": "string"
+      }
     },
     "instance": "foo",
     "valid": true,
@@ -1434,14 +1618,7 @@
       ],
       "post": [
         [ true, "Annotation", "/contentMediaType", "#/contentMediaType", "", "application/json" ],
-        [
-          true,
-          "Annotation",
-          "/contentSchema",
-          "#/contentSchema",
-          "",
-          { "type": "string" }
-        ]
+        [ true, "Annotation", "/contentSchema", "#/contentSchema", "", {"type": "string"} ]
       ],
       "descriptions": [
         "The content media type of the instance was \"application/json\"",
@@ -1453,7 +1630,9 @@
     "description": "contentSchema_without_contentMediaType",
     "schema": {
       "$schema": "https://json-schema.org/draft/2019-09/schema",
-      "contentSchema": { "type": "string" }
+      "contentSchema": {
+        "type": "string"
+      }
     },
     "instance": "foo",
     "valid": true,
@@ -1465,10 +1644,13 @@
     "schema": {
       "$schema": "https://json-schema.org/draft/2019-09/schema",
       "contentMediaType": "application/json",
-      "contentSchema": { "type": "string" }
+      "contentSchema": {
+        "type": "string"
+      }
     },
     "instance": "foo",
     "valid": true,
+    "fast": {},
     "exhaustive": {
       "pre": [
         [ "Annotation", "/contentMediaType", "#/contentMediaType", "" ],
@@ -1476,48 +1658,47 @@
       ],
       "post": [
         [ true, "Annotation", "/contentMediaType", "#/contentMediaType", "", "application/json" ],
-        [
-          true,
-          "Annotation",
-          "/contentSchema",
-          "#/contentSchema",
-          "",
-          { "type": "string" }
-        ]
+        [ true, "Annotation", "/contentSchema", "#/contentSchema", "", {"type": "string"} ]
       ],
       "descriptions": [
         "The content media type of the instance was \"application/json\"",
         "When decoded, the instance was expected to validate against the schema {\"type\":\"string\"}"
       ]
-    },
-    "fast": {}
+    }
   },
   {
     "description": "contentSchema_exhaustive_with_contentMediaType_non_string",
     "schema": {
       "$schema": "https://json-schema.org/draft/2019-09/schema",
       "contentMediaType": "application/json",
-      "contentSchema": { "type": "string" }
+      "contentSchema": {
+        "type": "string"
+      }
     },
     "instance": 1,
     "valid": true,
-    "exhaustive": {},
-    "fast": {}
+    "fast": {},
+    "exhaustive": {}
   },
   {
     "description": "contentSchema_exhaustive_without_contentMediaType",
     "schema": {
       "$schema": "https://json-schema.org/draft/2019-09/schema",
-      "contentSchema": { "type": "string" }
+      "contentSchema": {
+        "type": "string"
+      }
     },
     "instance": "foo",
     "valid": true,
-    "exhaustive": {},
-    "fast": {}
+    "fast": {},
+    "exhaustive": {}
   },
   {
     "description": "unknown_1",
-    "schema": { "$schema": "https://json-schema.org/draft/2019-09/schema", "fooBar": "baz" },
+    "schema": {
+      "$schema": "https://json-schema.org/draft/2019-09/schema",
+      "fooBar": "baz"
+    },
     "instance": "foo",
     "valid": true,
     "fast": {},
@@ -1528,12 +1709,17 @@
       "post": [
         [ true, "Annotation", "/fooBar", "#/fooBar", "", "baz" ]
       ],
-      "descriptions": [ "The unrecognized keyword \"fooBar\" was collected as the annotation \"baz\"" ]
+      "descriptions": [
+        "The unrecognized keyword \"fooBar\" was collected as the annotation \"baz\""
+      ]
     }
   },
   {
     "description": "unknown_2",
-    "schema": { "$schema": "https://json-schema.org/draft/2019-09/schema", "x-test": 1 },
+    "schema": {
+      "$schema": "https://json-schema.org/draft/2019-09/schema",
+      "x-test": 1
+    },
     "instance": "foo",
     "valid": true,
     "fast": {},
@@ -1544,14 +1730,18 @@
       "post": [
         [ true, "Annotation", "/x-test", "#/x-test", "", 1 ]
       ],
-      "descriptions": [ "The unrecognized keyword \"x-test\" was collected as the annotation 1" ]
+      "descriptions": [
+        "The unrecognized keyword \"x-test\" was collected as the annotation 1"
+      ]
     }
   },
   {
     "description": "items_1",
     "schema": {
       "$schema": "https://json-schema.org/draft/2019-09/schema",
-      "items": { "type": "string" }
+      "items": {
+        "type": "string"
+      }
     },
     "instance": 5,
     "valid": true,
@@ -1562,7 +1752,9 @@
     "description": "items_2",
     "schema": {
       "$schema": "https://json-schema.org/draft/2019-09/schema",
-      "items": { "type": "string" }
+      "items": {
+        "type": "string"
+      }
     },
     "instance": [ "foo", "bar", "baz" ],
     "valid": true,
@@ -1573,7 +1765,9 @@
       "post": [
         [ true, "LoopItemsTypeStrict", "/items", "#/items", "" ]
       ],
-      "descriptions": [ "The array items were expected to be of type string" ]
+      "descriptions": [
+        "The array items were expected to be of type string"
+      ]
     },
     "exhaustive": {
       "pre": [
@@ -1606,7 +1800,9 @@
     "description": "items_3",
     "schema": {
       "$schema": "https://json-schema.org/draft/2019-09/schema",
-      "items": { "type": "string" }
+      "items": {
+        "type": "string"
+      }
     },
     "instance": [ "foo", 5, "baz" ],
     "valid": false,
@@ -1617,7 +1813,9 @@
       "post": [
         [ false, "LoopItemsTypeStrict", "/items", "#/items", "" ]
       ],
-      "descriptions": [ "The array items were expected to be of type string" ]
+      "descriptions": [
+        "The array items were expected to be of type string"
+      ]
     },
     "exhaustive": {
       "pre": [
@@ -1642,7 +1840,9 @@
     "schema": {
       "$schema": "https://json-schema.org/draft/2019-09/schema",
       "items": [
-        { "type": "string" }
+        {
+          "type": "string"
+        }
       ]
     },
     "instance": 5,
@@ -1655,8 +1855,12 @@
     "schema": {
       "$schema": "https://json-schema.org/draft/2019-09/schema",
       "items": [
-        { "type": "integer" },
-        { "type": "boolean" }
+        {
+          "type": "integer"
+        },
+        {
+          "type": "boolean"
+        }
       ]
     },
     "instance": [],
@@ -1689,8 +1893,12 @@
     "schema": {
       "$schema": "https://json-schema.org/draft/2019-09/schema",
       "items": [
-        { "type": "integer" },
-        { "type": "boolean" }
+        {
+          "type": "integer"
+        },
+        {
+          "type": "boolean"
+        }
       ]
     },
     "instance": [ 5 ],
@@ -1732,8 +1940,12 @@
     "schema": {
       "$schema": "https://json-schema.org/draft/2019-09/schema",
       "items": [
-        { "type": "integer" },
-        { "type": "boolean" }
+        {
+          "type": "integer"
+        },
+        {
+          "type": "boolean"
+        }
       ]
     },
     "instance": [ 5, true, "extra" ],
@@ -1781,8 +1993,12 @@
     "schema": {
       "$schema": "https://json-schema.org/draft/2019-09/schema",
       "items": [
-        { "type": "integer" },
-        { "type": "boolean" }
+        {
+          "type": "integer"
+        },
+        {
+          "type": "boolean"
+        }
       ]
     },
     "instance": [ 5, 1, "extra" ],
@@ -1827,12 +2043,33 @@
     "schema": {
       "$schema": "https://json-schema.org/draft/2019-09/schema",
       "items": [
-        { "type": "integer" },
-        { "type": "boolean" }
+        {
+          "type": "integer"
+        },
+        {
+          "type": "boolean"
+        }
       ]
     },
     "instance": [ 5, true ],
     "valid": true,
+    "fast": {
+      "pre": [
+        [ "AssertionArrayPrefix", "/items", "#/items", "" ],
+        [ "AssertionType", "/items/0/type", "#/items/0/type", "/0" ],
+        [ "AssertionTypeStrict", "/items/1/type", "#/items/1/type", "/1" ]
+      ],
+      "post": [
+        [ true, "AssertionType", "/items/0/type", "#/items/0/type", "/0" ],
+        [ true, "AssertionTypeStrict", "/items/1/type", "#/items/1/type", "/1" ],
+        [ true, "AssertionArrayPrefix", "/items", "#/items", "" ]
+      ],
+      "descriptions": [
+        "The value was expected to be of type integer",
+        "The value was expected to be of type boolean",
+        "The first 2 items of the array value were expected to validate against the corresponding subschemas"
+      ]
+    },
     "exhaustive": {
       "pre": [
         [ "AssertionArrayPrefix", "/items", "#/items", "" ],
@@ -1853,23 +2090,6 @@
         "The value was expected to be of type boolean",
         "The first 2 items of the array value successfully validated against the given positional subschemas",
         "Every item in the array value was successfully validated",
-        "The first 2 items of the array value were expected to validate against the corresponding subschemas"
-      ]
-    },
-    "fast": {
-      "pre": [
-        [ "AssertionArrayPrefix", "/items", "#/items", "" ],
-        [ "AssertionType", "/items/0/type", "#/items/0/type", "/0" ],
-        [ "AssertionTypeStrict", "/items/1/type", "#/items/1/type", "/1" ]
-      ],
-      "post": [
-        [ true, "AssertionType", "/items/0/type", "#/items/0/type", "/0" ],
-        [ true, "AssertionTypeStrict", "/items/1/type", "#/items/1/type", "/1" ],
-        [ true, "AssertionArrayPrefix", "/items", "#/items", "" ]
-      ],
-      "descriptions": [
-        "The value was expected to be of type integer",
-        "The value was expected to be of type boolean",
         "The first 2 items of the array value were expected to validate against the corresponding subschemas"
       ]
     }
@@ -1915,7 +2135,9 @@
     "description": "additionalItems_1",
     "schema": {
       "$schema": "https://json-schema.org/draft/2019-09/schema",
-      "additionalItems": { "type": "string" }
+      "additionalItems": {
+        "type": "string"
+      }
     },
     "instance": [ "foo", "bar", "baz" ],
     "valid": true,
@@ -1926,8 +2148,12 @@
     "description": "additionalItems_2",
     "schema": {
       "$schema": "https://json-schema.org/draft/2019-09/schema",
-      "additionalItems": { "type": "integer" },
-      "items": { "type": "string" }
+      "additionalItems": {
+        "type": "integer"
+      },
+      "items": {
+        "type": "string"
+      }
     },
     "instance": [ "foo", "bar", "baz" ],
     "valid": true,
@@ -1938,7 +2164,9 @@
       "post": [
         [ true, "LoopItemsTypeStrict", "/items", "#/items", "" ]
       ],
-      "descriptions": [ "The array items were expected to be of type string" ]
+      "descriptions": [
+        "The array items were expected to be of type string"
+      ]
     },
     "exhaustive": {
       "pre": [
@@ -1971,10 +2199,16 @@
     "description": "additionalItems_3",
     "schema": {
       "$schema": "https://json-schema.org/draft/2019-09/schema",
-      "additionalItems": { "type": "string" },
+      "additionalItems": {
+        "type": "string"
+      },
       "items": [
-        { "type": "boolean" },
-        { "type": "integer" }
+        {
+          "type": "boolean"
+        },
+        {
+          "type": "integer"
+        }
       ]
     },
     "instance": [ true, 5 ],
@@ -2024,10 +2258,16 @@
     "description": "additionalItems_4",
     "schema": {
       "$schema": "https://json-schema.org/draft/2019-09/schema",
-      "additionalItems": { "type": "string" },
+      "additionalItems": {
+        "type": "string"
+      },
       "items": [
-        { "type": "boolean" },
-        { "type": "integer" }
+        {
+          "type": "boolean"
+        },
+        {
+          "type": "integer"
+        }
       ]
     },
     "instance": [ true, 5, "foo", "bar" ],
@@ -2098,10 +2338,16 @@
     "description": "additionalItems_5",
     "schema": {
       "$schema": "https://json-schema.org/draft/2019-09/schema",
-      "additionalItems": { "type": "string" },
+      "additionalItems": {
+        "type": "string"
+      },
       "items": [
-        { "type": "boolean" },
-        { "type": "integer" }
+        {
+          "type": "boolean"
+        },
+        {
+          "type": "integer"
+        }
       ]
     },
     "instance": [ true, 5, 6, "bar" ],
@@ -2160,12 +2406,19 @@
     "description": "unevaluatedProperties_1",
     "schema": {
       "$schema": "https://json-schema.org/draft/2019-09/schema",
-      "unevaluatedProperties": { "type": "boolean" },
+      "unevaluatedProperties": {
+        "type": "boolean"
+      },
       "properties": {
-        "foo": { "type": "string" }
+        "foo": {
+          "type": "string"
+        }
       }
     },
-    "instance": { "foo": "baz", "bar": true },
+    "instance": {
+      "foo": "baz",
+      "bar": true
+    },
     "valid": true,
     "fast": {
       "pre": [
@@ -2215,16 +2468,23 @@
     "description": "unevaluatedProperties_2",
     "schema": {
       "$schema": "https://json-schema.org/draft/2019-09/schema",
-      "unevaluatedProperties": { "type": "boolean" },
+      "unevaluatedProperties": {
+        "type": "boolean"
+      },
       "allOf": [
         {
           "properties": {
-            "foo": { "type": "string" }
+            "foo": {
+              "type": "string"
+            }
           }
         }
       ]
     },
-    "instance": { "foo": "baz", "bar": true },
+    "instance": {
+      "foo": "baz",
+      "bar": true
+    },
     "valid": true,
     "fast": {
       "pre": [
@@ -2233,13 +2493,7 @@
         [ "AssertionTypeStrict", "/unevaluatedProperties/type", "#/unevaluatedProperties/type", "/bar" ]
       ],
       "post": [
-        [
-          true,
-          "AssertionPropertyTypeStrict",
-          "/allOf/0/properties/foo/type",
-          "#/allOf/0/properties/foo/type",
-          "/foo"
-        ],
+        [ true, "AssertionPropertyTypeStrict", "/allOf/0/properties/foo/type", "#/allOf/0/properties/foo/type", "/foo" ],
         [ true, "AssertionTypeStrict", "/unevaluatedProperties/type", "#/unevaluatedProperties/type", "/bar" ],
         [ true, "LoopPropertiesExcept", "/unevaluatedProperties", "#/unevaluatedProperties", "" ]
       ],
@@ -2283,16 +2537,23 @@
     "description": "unevaluatedProperties_3",
     "schema": {
       "$schema": "https://json-schema.org/draft/2019-09/schema",
-      "unevaluatedProperties": { "type": "boolean" },
+      "unevaluatedProperties": {
+        "type": "boolean"
+      },
       "allOf": [
         {
           "properties": {
-            "foo": { "type": "string" }
+            "foo": {
+              "type": "string"
+            }
           }
         }
       ]
     },
-    "instance": { "foo": "baz", "bar": 1 },
+    "instance": {
+      "foo": "baz",
+      "bar": 1
+    },
     "valid": false,
     "fast": {
       "pre": [
@@ -2301,13 +2562,7 @@
         [ "AssertionTypeStrict", "/unevaluatedProperties/type", "#/unevaluatedProperties/type", "/bar" ]
       ],
       "post": [
-        [
-          true,
-          "AssertionPropertyTypeStrict",
-          "/allOf/0/properties/foo/type",
-          "#/allOf/0/properties/foo/type",
-          "/foo"
-        ],
+        [ true, "AssertionPropertyTypeStrict", "/allOf/0/properties/foo/type", "#/allOf/0/properties/foo/type", "/foo" ],
         [ false, "AssertionTypeStrict", "/unevaluatedProperties/type", "#/unevaluatedProperties/type", "/bar" ],
         [ false, "LoopPropertiesExcept", "/unevaluatedProperties", "#/unevaluatedProperties", "" ]
       ],
@@ -2350,10 +2605,15 @@
       "$schema": "https://json-schema.org/draft/2019-09/schema",
       "unevaluatedProperties": false,
       "properties": {
-        "foo": { "type": "string" }
+        "foo": {
+          "type": "string"
+        }
       }
     },
-    "instance": { "foo": "baz", "bar": true },
+    "instance": {
+      "foo": "baz",
+      "bar": true
+    },
     "valid": false,
     "fast": {
       "pre": [
@@ -2403,7 +2663,9 @@
       "additionalProperties": true,
       "unevaluatedProperties": false
     },
-    "instance": { "foo": "baz" },
+    "instance": {
+      "foo": "baz"
+    },
     "valid": true,
     "fast": {},
     "exhaustive": {
@@ -2425,10 +2687,14 @@
     "description": "unevaluatedProperties_6",
     "schema": {
       "$schema": "https://json-schema.org/draft/2019-09/schema",
-      "patternProperties": { "^@": true },
+      "patternProperties": {
+        "^@": true
+      },
       "unevaluatedProperties": false
     },
-    "instance": { "@foo": "bar" },
+    "instance": {
+      "@foo": "bar"
+    },
     "valid": true,
     "fast": {
       "pre": [
@@ -2437,7 +2703,9 @@
       "post": [
         [ true, "LoopPropertiesExcept", "/unevaluatedProperties", "#/unevaluatedProperties", "" ]
       ],
-      "descriptions": [ "The object value was not expected to define unevaluated properties" ]
+      "descriptions": [
+        "The object value was not expected to define unevaluated properties"
+      ]
     },
     "exhaustive": {
       "pre": [
@@ -2463,12 +2731,18 @@
       "$schema": "https://json-schema.org/draft/2019-09/schema",
       "allOf": [
         {
-          "properties": { "foo": true }
+          "properties": {
+            "foo": true
+          }
         },
-        { "unevaluatedProperties": false }
+        {
+          "unevaluatedProperties": false
+        }
       ]
     },
-    "instance": { "foo": "bar" },
+    "instance": {
+      "foo": "bar"
+    },
     "valid": false,
     "fast": {
       "pre": [
@@ -2514,12 +2788,16 @@
       "$schema": "https://json-schema.org/draft/2019-09/schema",
       "not": {
         "not": {
-          "properties": { "foo": true }
+          "properties": {
+            "foo": true
+          }
         }
       },
       "unevaluatedProperties": false
     },
-    "instance": { "foo": "bar" },
+    "instance": {
+      "foo": "bar"
+    },
     "valid": false,
     "fast": {
       "pre": [
@@ -2574,35 +2852,89 @@
       "$schema": "https://json-schema.org/draft/2019-09/schema",
       "unevaluatedProperties": false,
       "properties": {
-        "a": { "type": "boolean" },
-        "b": { "type": "boolean" },
-        "c": { "type": "boolean" },
-        "d": { "type": "boolean" },
-        "e": { "type": "boolean" },
-        "f": { "type": "boolean" },
-        "g": { "type": "boolean" },
-        "h": { "type": "boolean" },
-        "i": { "type": "boolean" },
-        "j": { "type": "boolean" },
-        "k": { "type": "boolean" },
-        "l": { "type": "boolean" },
-        "m": { "type": "boolean" },
-        "n": { "type": "boolean" },
-        "o": { "type": "boolean" },
-        "p": { "type": "boolean" },
-        "q": { "type": "boolean" },
-        "r": { "type": "boolean" },
-        "s": { "type": "boolean" },
-        "t": { "type": "boolean" },
-        "u": { "type": "boolean" },
-        "v": { "type": "boolean" },
-        "w": { "type": "boolean" },
-        "x": { "type": "boolean" },
-        "y": { "type": "boolean" },
-        "z": { "type": "boolean" }
+        "a": {
+          "type": "boolean"
+        },
+        "b": {
+          "type": "boolean"
+        },
+        "c": {
+          "type": "boolean"
+        },
+        "d": {
+          "type": "boolean"
+        },
+        "e": {
+          "type": "boolean"
+        },
+        "f": {
+          "type": "boolean"
+        },
+        "g": {
+          "type": "boolean"
+        },
+        "h": {
+          "type": "boolean"
+        },
+        "i": {
+          "type": "boolean"
+        },
+        "j": {
+          "type": "boolean"
+        },
+        "k": {
+          "type": "boolean"
+        },
+        "l": {
+          "type": "boolean"
+        },
+        "m": {
+          "type": "boolean"
+        },
+        "n": {
+          "type": "boolean"
+        },
+        "o": {
+          "type": "boolean"
+        },
+        "p": {
+          "type": "boolean"
+        },
+        "q": {
+          "type": "boolean"
+        },
+        "r": {
+          "type": "boolean"
+        },
+        "s": {
+          "type": "boolean"
+        },
+        "t": {
+          "type": "boolean"
+        },
+        "u": {
+          "type": "boolean"
+        },
+        "v": {
+          "type": "boolean"
+        },
+        "w": {
+          "type": "boolean"
+        },
+        "x": {
+          "type": "boolean"
+        },
+        "y": {
+          "type": "boolean"
+        },
+        "z": {
+          "type": "boolean"
+        }
       }
     },
-    "instance": { "a": true },
+    "instance": {
+      "a": true
+    },
     "valid": true,
     "fast": {
       "pre": [
@@ -2646,10 +2978,14 @@
     "description": "unevaluatedProperties_10",
     "schema": {
       "$schema": "https://json-schema.org/draft/2019-09/schema",
-      "additionalProperties": { "type": "string" },
+      "additionalProperties": {
+        "type": "string"
+      },
       "unevaluatedProperties": false
     },
-    "instance": { "foo": "baz" },
+    "instance": {
+      "foo": "baz"
+    },
     "valid": true,
     "fast": {
       "pre": [
@@ -2658,7 +2994,9 @@
       "post": [
         [ true, "LoopPropertiesTypeStrict", "/additionalProperties/type", "#/additionalProperties/type", "" ]
       ],
-      "descriptions": [ "The object properties were expected to be of type string" ]
+      "descriptions": [
+        "The object properties were expected to be of type string"
+      ]
     },
     "exhaustive": {
       "pre": [
@@ -2685,11 +3023,15 @@
       "unevaluatedProperties": false,
       "allOf": [
         {
-          "patternProperties": { "^f": true }
+          "patternProperties": {
+            "^f": true
+          }
         }
       ]
     },
-    "instance": { "foo": "bar" },
+    "instance": {
+      "foo": "bar"
+    },
     "valid": true,
     "fast": {
       "pre": [
@@ -2698,7 +3040,9 @@
       "post": [
         [ true, "LoopPropertiesExcept", "/unevaluatedProperties", "#/unevaluatedProperties", "" ]
       ],
-      "descriptions": [ "The object value was not expected to define unevaluated properties" ]
+      "descriptions": [
+        "The object value was not expected to define unevaluated properties"
+      ]
     },
     "exhaustive": {
       "pre": [
@@ -2725,16 +3069,23 @@
     "description": "unevaluatedProperties_12",
     "schema": {
       "$schema": "https://json-schema.org/draft/2019-09/schema",
-      "unevaluatedProperties": { "type": "boolean" },
+      "unevaluatedProperties": {
+        "type": "boolean"
+      },
       "allOf": [
         {
           "properties": {
-            "foo": { "type": "number" }
+            "foo": {
+              "type": "number"
+            }
           }
         }
       ]
     },
-    "instance": { "foo": 1, "bar": true },
+    "instance": {
+      "foo": 1,
+      "bar": true
+    },
     "valid": true,
     "fast": {
       "pre": [
@@ -2743,13 +3094,7 @@
         [ "AssertionTypeStrict", "/unevaluatedProperties/type", "#/unevaluatedProperties/type", "/bar" ]
       ],
       "post": [
-        [
-          true,
-          "AssertionPropertyTypeStrictAny",
-          "/allOf/0/properties/foo/type",
-          "#/allOf/0/properties/foo/type",
-          "/foo"
-        ],
+        [ true, "AssertionPropertyTypeStrictAny", "/allOf/0/properties/foo/type", "#/allOf/0/properties/foo/type", "/foo" ],
         [ true, "AssertionTypeStrict", "/unevaluatedProperties/type", "#/unevaluatedProperties/type", "/bar" ],
         [ true, "LoopPropertiesExcept", "/unevaluatedProperties", "#/unevaluatedProperties", "" ]
       ],
@@ -2794,11 +3139,15 @@
     "schema": {
       "$schema": "https://json-schema.org/draft/2020-12/schema",
       "properties": {
-        "foo": { "type": "object" }
+        "foo": {
+          "type": "object"
+        }
       },
       "allOf": [
         {
-          "properties": { "bar": true }
+          "properties": {
+            "bar": true
+          }
         }
       ],
       "unevaluatedProperties": false
@@ -2858,12 +3207,16 @@
       "$schema": "https://json-schema.org/draft/2019-09/schema",
       "anyOf": [
         {
-          "properties": { "foo": true }
+          "properties": {
+            "foo": true
+          }
         }
       ],
       "unevaluatedProperties": false
     },
-    "instance": { "foo": 1 },
+    "instance": {
+      "foo": 1
+    },
     "valid": true,
     "fast": {
       "pre": [
@@ -2910,7 +3263,9 @@
     "description": "unevaluatedItems_1",
     "schema": {
       "$schema": "https://json-schema.org/draft/2019-09/schema",
-      "unevaluatedItems": { "type": "boolean" }
+      "unevaluatedItems": {
+        "type": "boolean"
+      }
     },
     "instance": [],
     "valid": true,
@@ -2941,7 +3296,9 @@
     "description": "unevaluatedItems_2",
     "schema": {
       "$schema": "https://json-schema.org/draft/2019-09/schema",
-      "unevaluatedItems": { "type": "boolean" }
+      "unevaluatedItems": {
+        "type": "boolean"
+      }
     },
     "instance": [ true, false ],
     "valid": true,
@@ -2990,8 +3347,12 @@
     "description": "unevaluatedItems_3",
     "schema": {
       "$schema": "https://json-schema.org/draft/2019-09/schema",
-      "items": { "type": "string" },
-      "unevaluatedItems": { "type": "boolean" }
+      "items": {
+        "type": "string"
+      },
+      "unevaluatedItems": {
+        "type": "boolean"
+      }
     },
     "instance": [ "foo" ],
     "valid": true,
@@ -3002,7 +3363,9 @@
       "post": [
         [ true, "LoopItemsTypeStrict", "/items", "#/items", "" ]
       ],
-      "descriptions": [ "The array items were expected to be of type string" ]
+      "descriptions": [
+        "The array items were expected to be of type string"
+      ]
     },
     "exhaustive": {
       "pre": [
@@ -3030,10 +3393,16 @@
     "schema": {
       "$schema": "https://json-schema.org/draft/2019-09/schema",
       "items": [
-        { "type": "string" },
-        { "type": "string" }
+        {
+          "type": "string"
+        },
+        {
+          "type": "string"
+        }
       ],
-      "unevaluatedItems": { "type": "boolean" }
+      "unevaluatedItems": {
+        "type": "boolean"
+      }
     },
     "instance": [ "foo" ],
     "valid": true,
@@ -3080,9 +3449,13 @@
     "schema": {
       "$schema": "https://json-schema.org/draft/2019-09/schema",
       "items": [
-        { "type": "string" }
+        {
+          "type": "string"
+        }
       ],
-      "unevaluatedItems": { "type": "boolean" }
+      "unevaluatedItems": {
+        "type": "boolean"
+      }
     },
     "instance": [ "foo" ],
     "valid": true,
@@ -3132,9 +3505,13 @@
     "schema": {
       "$schema": "https://json-schema.org/draft/2019-09/schema",
       "items": [
-        { "type": "string" }
+        {
+          "type": "string"
+        }
       ],
-      "unevaluatedItems": { "type": "boolean" }
+      "unevaluatedItems": {
+        "type": "boolean"
+      }
     },
     "instance": [ "foo", true ],
     "valid": true,
@@ -3192,11 +3569,15 @@
       "allOf": [
         {
           "items": [
-            { "type": "string" }
+            {
+              "type": "string"
+            }
           ]
         }
       ],
-      "unevaluatedItems": { "type": "boolean" }
+      "unevaluatedItems": {
+        "type": "boolean"
+      }
     },
     "instance": [ "foo", true ],
     "valid": true,
@@ -3257,11 +3638,15 @@
       "allOf": [
         {
           "items": [
-            { "type": "string" }
+            {
+              "type": "string"
+            }
           ]
         }
       ],
-      "unevaluatedItems": { "type": "boolean" }
+      "unevaluatedItems": {
+        "type": "boolean"
+      }
     },
     "instance": [ "foo", 1 ],
     "valid": false,
@@ -3317,9 +3702,13 @@
     "schema": {
       "$schema": "https://json-schema.org/draft/2019-09/schema",
       "items": [
-        { "type": "boolean" }
+        {
+          "type": "boolean"
+        }
       ],
-      "additionalItems": { "type": "boolean" },
+      "additionalItems": {
+        "type": "boolean"
+      },
       "unevaluatedItems": false
     },
     "instance": [ true, false ],
@@ -3378,7 +3767,9 @@
     "description": "unevaluatedItems_10",
     "schema": {
       "$schema": "https://json-schema.org/draft/2019-09/schema",
-      "contains": { "type": "boolean" },
+      "contains": {
+        "type": "boolean"
+      },
       "unevaluatedItems": false
     },
     "instance": [ false ],
@@ -3430,7 +3821,9 @@
       "$schema": "https://json-schema.org/draft/2019-09/schema",
       "anyOf": [
         {
-          "items": { "type": "boolean" }
+          "items": {
+            "type": "boolean"
+          }
         },
         true
       ],
@@ -3497,10 +3890,14 @@
       "$schema": "https://json-schema.org/draft/2019-09/schema",
       "type": "array",
       "items": [
-        { "type": "integer" }
+        {
+          "type": "integer"
+        }
       ],
       "not": {
-        "contains": { "const": 999 }
+        "contains": {
+          "const": 999
+        }
       },
       "unevaluatedItems": false
     },
@@ -3577,28 +3974,21 @@
       "$id": "https://example.com/schema",
       "$schema": "https://json-schema.org/draft/2019-09/schema",
       "$recursiveAnchor": true,
-      "additionalProperties": { "$recursiveRef": "#" }
+      "additionalProperties": {
+        "$recursiveRef": "#"
+      }
     },
-    "instance": { "foo": 1 },
+    "instance": {
+      "foo": 1
+    },
     "valid": true,
     "fast": {
       "pre": [
         [ "LoopProperties", "/additionalProperties", "https://example.com/schema#/additionalProperties", "" ],
-        [
-          "ControlDynamicAnchorJump",
-          "/additionalProperties/$recursiveRef",
-          "https://example.com/schema#/additionalProperties/$recursiveRef",
-          "/foo"
-        ]
+        [ "ControlDynamicAnchorJump", "/additionalProperties/$recursiveRef", "https://example.com/schema#/additionalProperties/$recursiveRef", "/foo" ]
       ],
       "post": [
-        [
-          true,
-          "ControlDynamicAnchorJump",
-          "/additionalProperties/$recursiveRef",
-          "https://example.com/schema#/additionalProperties/$recursiveRef",
-          "/foo"
-        ],
+        [ true, "ControlDynamicAnchorJump", "/additionalProperties/$recursiveRef", "https://example.com/schema#/additionalProperties/$recursiveRef", "/foo" ],
         [ true, "LoopProperties", "/additionalProperties", "https://example.com/schema#/additionalProperties", "" ]
       ],
       "descriptions": [
@@ -3609,22 +3999,11 @@
     "exhaustive": {
       "pre": [
         [ "LoopProperties", "/additionalProperties", "https://example.com/schema#/additionalProperties", "" ],
-        [
-          "ControlDynamicAnchorJump",
-          "/additionalProperties/$recursiveRef",
-          "https://example.com/schema#/additionalProperties/$recursiveRef",
-          "/foo"
-        ],
+        [ "ControlDynamicAnchorJump", "/additionalProperties/$recursiveRef", "https://example.com/schema#/additionalProperties/$recursiveRef", "/foo" ],
         [ "Annotation", "/additionalProperties", "https://example.com/schema#/additionalProperties", "" ]
       ],
       "post": [
-        [
-          true,
-          "ControlDynamicAnchorJump",
-          "/additionalProperties/$recursiveRef",
-          "https://example.com/schema#/additionalProperties/$recursiveRef",
-          "/foo"
-        ],
+        [ true, "ControlDynamicAnchorJump", "/additionalProperties/$recursiveRef", "https://example.com/schema#/additionalProperties/$recursiveRef", "/foo" ],
         [ true, "Annotation", "/additionalProperties", "https://example.com/schema#/additionalProperties", "", "foo" ],
         [ true, "LoopProperties", "/additionalProperties", "https://example.com/schema#/additionalProperties", "" ]
       ],
@@ -3642,41 +4021,23 @@
       "$schema": "https://json-schema.org/draft/2019-09/schema",
       "$recursiveAnchor": true,
       "minimum": 1,
-      "additionalProperties": { "$recursiveRef": "#" }
+      "additionalProperties": {
+        "$recursiveRef": "#"
+      }
     },
-    "instance": { "foo": 1 },
+    "instance": {
+      "foo": 1
+    },
     "valid": true,
     "fast": {
       "pre": [
         [ "LoopProperties", "/additionalProperties", "https://example.com/schema#/additionalProperties", "" ],
-        [
-          "ControlDynamicAnchorJump",
-          "/additionalProperties/$recursiveRef",
-          "https://example.com/schema#/additionalProperties/$recursiveRef",
-          "/foo"
-        ],
-        [
-          "AssertionGreaterEqual",
-          "/additionalProperties/$recursiveRef/minimum",
-          "https://example.com/schema#/minimum",
-          "/foo"
-        ]
+        [ "ControlDynamicAnchorJump", "/additionalProperties/$recursiveRef", "https://example.com/schema#/additionalProperties/$recursiveRef", "/foo" ],
+        [ "AssertionGreaterEqual", "/additionalProperties/$recursiveRef/minimum", "https://example.com/schema#/minimum", "/foo" ]
       ],
       "post": [
-        [
-          true,
-          "AssertionGreaterEqual",
-          "/additionalProperties/$recursiveRef/minimum",
-          "https://example.com/schema#/minimum",
-          "/foo"
-        ],
-        [
-          true,
-          "ControlDynamicAnchorJump",
-          "/additionalProperties/$recursiveRef",
-          "https://example.com/schema#/additionalProperties/$recursiveRef",
-          "/foo"
-        ],
+        [ true, "AssertionGreaterEqual", "/additionalProperties/$recursiveRef/minimum", "https://example.com/schema#/minimum", "/foo" ],
+        [ true, "ControlDynamicAnchorJump", "/additionalProperties/$recursiveRef", "https://example.com/schema#/additionalProperties/$recursiveRef", "/foo" ],
         [ true, "LoopProperties", "/additionalProperties", "https://example.com/schema#/additionalProperties", "" ]
       ],
       "descriptions": [
@@ -3688,35 +4049,13 @@
     "exhaustive": {
       "pre": [
         [ "LoopProperties", "/additionalProperties", "https://example.com/schema#/additionalProperties", "" ],
-        [
-          "ControlDynamicAnchorJump",
-          "/additionalProperties/$recursiveRef",
-          "https://example.com/schema#/additionalProperties/$recursiveRef",
-          "/foo"
-        ],
-        [
-          "AssertionGreaterEqual",
-          "/additionalProperties/$recursiveRef/minimum",
-          "https://example.com/schema#/minimum",
-          "/foo"
-        ],
+        [ "ControlDynamicAnchorJump", "/additionalProperties/$recursiveRef", "https://example.com/schema#/additionalProperties/$recursiveRef", "/foo" ],
+        [ "AssertionGreaterEqual", "/additionalProperties/$recursiveRef/minimum", "https://example.com/schema#/minimum", "/foo" ],
         [ "Annotation", "/additionalProperties", "https://example.com/schema#/additionalProperties", "" ]
       ],
       "post": [
-        [
-          true,
-          "AssertionGreaterEqual",
-          "/additionalProperties/$recursiveRef/minimum",
-          "https://example.com/schema#/minimum",
-          "/foo"
-        ],
-        [
-          true,
-          "ControlDynamicAnchorJump",
-          "/additionalProperties/$recursiveRef",
-          "https://example.com/schema#/additionalProperties/$recursiveRef",
-          "/foo"
-        ],
+        [ true, "AssertionGreaterEqual", "/additionalProperties/$recursiveRef/minimum", "https://example.com/schema#/minimum", "/foo" ],
+        [ true, "ControlDynamicAnchorJump", "/additionalProperties/$recursiveRef", "https://example.com/schema#/additionalProperties/$recursiveRef", "/foo" ],
         [ true, "Annotation", "/additionalProperties", "https://example.com/schema#/additionalProperties", "", "foo" ],
         [ true, "LoopProperties", "/additionalProperties", "https://example.com/schema#/additionalProperties", "" ]
       ],
@@ -3737,10 +4076,14 @@
         "$id": "nested",
         "$recursiveAnchor": true,
         "minimum": 1,
-        "additionalProperties": { "$recursiveRef": "#" }
+        "additionalProperties": {
+          "$recursiveRef": "#"
+        }
       }
     },
-    "instance": { "foo": 1 },
+    "instance": {
+      "foo": 1
+    },
     "valid": true,
     "fast": {
       "pre": [
@@ -3748,13 +4091,7 @@
         [ "AssertionGreaterEqual", "/additionalProperties/minimum", "https://example.com/nested#/minimum", "/foo" ]
       ],
       "post": [
-        [
-          true,
-          "AssertionGreaterEqual",
-          "/additionalProperties/minimum",
-          "https://example.com/nested#/minimum",
-          "/foo"
-        ],
+        [ true, "AssertionGreaterEqual", "/additionalProperties/minimum", "https://example.com/nested#/minimum", "/foo" ],
         [ true, "LoopProperties", "/additionalProperties", "https://example.com/schema#/additionalProperties", "" ]
       ],
       "descriptions": [
@@ -3769,13 +4106,7 @@
         [ "Annotation", "/additionalProperties", "https://example.com/schema#/additionalProperties", "" ]
       ],
       "post": [
-        [
-          true,
-          "AssertionGreaterEqual",
-          "/additionalProperties/minimum",
-          "https://example.com/nested#/minimum",
-          "/foo"
-        ],
+        [ true, "AssertionGreaterEqual", "/additionalProperties/minimum", "https://example.com/nested#/minimum", "/foo" ],
         [ true, "Annotation", "/additionalProperties", "https://example.com/schema#/additionalProperties", "", "foo" ],
         [ true, "LoopProperties", "/additionalProperties", "https://example.com/schema#/additionalProperties", "" ]
       ],
@@ -3795,57 +4126,28 @@
         "$id": "nested",
         "$recursiveAnchor": true,
         "minimum": 1,
-        "additionalProperties": { "$recursiveRef": "#" }
+        "additionalProperties": {
+          "$recursiveRef": "#"
+        }
       }
     },
     "instance": {
-      "foo": { "bar": 1 }
+      "foo": {
+        "bar": 1
+      }
     },
     "valid": true,
     "fast": {
       "pre": [
         [ "LoopProperties", "/additionalProperties", "https://example.com/schema#/additionalProperties", "" ],
-        [
-          "LoopProperties",
-          "/additionalProperties/additionalProperties",
-          "https://example.com/nested#/additionalProperties",
-          "/foo"
-        ],
-        [
-          "ControlDynamicAnchorJump",
-          "/additionalProperties/additionalProperties/$recursiveRef",
-          "https://example.com/nested#/additionalProperties/$recursiveRef",
-          "/foo/bar"
-        ],
-        [
-          "AssertionGreaterEqual",
-          "/additionalProperties/additionalProperties/$recursiveRef/minimum",
-          "https://example.com/nested#/minimum",
-          "/foo/bar"
-        ]
+        [ "LoopProperties", "/additionalProperties/additionalProperties", "https://example.com/nested#/additionalProperties", "/foo" ],
+        [ "ControlDynamicAnchorJump", "/additionalProperties/additionalProperties/$recursiveRef", "https://example.com/nested#/additionalProperties/$recursiveRef", "/foo/bar" ],
+        [ "AssertionGreaterEqual", "/additionalProperties/additionalProperties/$recursiveRef/minimum", "https://example.com/nested#/minimum", "/foo/bar" ]
       ],
       "post": [
-        [
-          true,
-          "AssertionGreaterEqual",
-          "/additionalProperties/additionalProperties/$recursiveRef/minimum",
-          "https://example.com/nested#/minimum",
-          "/foo/bar"
-        ],
-        [
-          true,
-          "ControlDynamicAnchorJump",
-          "/additionalProperties/additionalProperties/$recursiveRef",
-          "https://example.com/nested#/additionalProperties/$recursiveRef",
-          "/foo/bar"
-        ],
-        [
-          true,
-          "LoopProperties",
-          "/additionalProperties/additionalProperties",
-          "https://example.com/nested#/additionalProperties",
-          "/foo"
-        ],
+        [ true, "AssertionGreaterEqual", "/additionalProperties/additionalProperties/$recursiveRef/minimum", "https://example.com/nested#/minimum", "/foo/bar" ],
+        [ true, "ControlDynamicAnchorJump", "/additionalProperties/additionalProperties/$recursiveRef", "https://example.com/nested#/additionalProperties/$recursiveRef", "/foo/bar" ],
+        [ true, "LoopProperties", "/additionalProperties/additionalProperties", "https://example.com/nested#/additionalProperties", "/foo" ],
         [ true, "LoopProperties", "/additionalProperties", "https://example.com/schema#/additionalProperties", "" ]
       ],
       "descriptions": [
@@ -3858,62 +4160,17 @@
     "exhaustive": {
       "pre": [
         [ "LoopProperties", "/additionalProperties", "https://example.com/schema#/additionalProperties", "" ],
-        [
-          "LoopProperties",
-          "/additionalProperties/additionalProperties",
-          "https://example.com/nested#/additionalProperties",
-          "/foo"
-        ],
-        [
-          "ControlDynamicAnchorJump",
-          "/additionalProperties/additionalProperties/$recursiveRef",
-          "https://example.com/nested#/additionalProperties/$recursiveRef",
-          "/foo/bar"
-        ],
-        [
-          "AssertionGreaterEqual",
-          "/additionalProperties/additionalProperties/$recursiveRef/minimum",
-          "https://example.com/nested#/minimum",
-          "/foo/bar"
-        ],
-        [
-          "Annotation",
-          "/additionalProperties/additionalProperties",
-          "https://example.com/nested#/additionalProperties",
-          "/foo"
-        ],
+        [ "LoopProperties", "/additionalProperties/additionalProperties", "https://example.com/nested#/additionalProperties", "/foo" ],
+        [ "ControlDynamicAnchorJump", "/additionalProperties/additionalProperties/$recursiveRef", "https://example.com/nested#/additionalProperties/$recursiveRef", "/foo/bar" ],
+        [ "AssertionGreaterEqual", "/additionalProperties/additionalProperties/$recursiveRef/minimum", "https://example.com/nested#/minimum", "/foo/bar" ],
+        [ "Annotation", "/additionalProperties/additionalProperties", "https://example.com/nested#/additionalProperties", "/foo" ],
         [ "Annotation", "/additionalProperties", "https://example.com/schema#/additionalProperties", "" ]
       ],
       "post": [
-        [
-          true,
-          "AssertionGreaterEqual",
-          "/additionalProperties/additionalProperties/$recursiveRef/minimum",
-          "https://example.com/nested#/minimum",
-          "/foo/bar"
-        ],
-        [
-          true,
-          "ControlDynamicAnchorJump",
-          "/additionalProperties/additionalProperties/$recursiveRef",
-          "https://example.com/nested#/additionalProperties/$recursiveRef",
-          "/foo/bar"
-        ],
-        [
-          true,
-          "Annotation",
-          "/additionalProperties/additionalProperties",
-          "https://example.com/nested#/additionalProperties",
-          "/foo",
-          "bar"
-        ],
-        [
-          true,
-          "LoopProperties",
-          "/additionalProperties/additionalProperties",
-          "https://example.com/nested#/additionalProperties",
-          "/foo"
-        ],
+        [ true, "AssertionGreaterEqual", "/additionalProperties/additionalProperties/$recursiveRef/minimum", "https://example.com/nested#/minimum", "/foo/bar" ],
+        [ true, "ControlDynamicAnchorJump", "/additionalProperties/additionalProperties/$recursiveRef", "https://example.com/nested#/additionalProperties/$recursiveRef", "/foo/bar" ],
+        [ true, "Annotation", "/additionalProperties/additionalProperties", "https://example.com/nested#/additionalProperties", "/foo", "bar" ],
+        [ true, "LoopProperties", "/additionalProperties/additionalProperties", "https://example.com/nested#/additionalProperties", "/foo" ],
         [ true, "Annotation", "/additionalProperties", "https://example.com/schema#/additionalProperties", "", "foo" ],
         [ true, "LoopProperties", "/additionalProperties", "https://example.com/schema#/additionalProperties", "" ]
       ],
@@ -3936,7 +4193,9 @@
         "$id": "nested",
         "$recursiveAnchor": true,
         "items": [
-          { "$recursiveRef": "#" }
+          {
+            "$recursiveRef": "#"
+          }
         ]
       }
     },
@@ -3948,21 +4207,10 @@
       "pre": [
         [ "LoopItems", "/items", "https://example.com/schema#/items", "" ],
         [ "AssertionArrayPrefix", "/items/items", "https://example.com/nested#/items", "/0" ],
-        [
-          "ControlDynamicAnchorJump",
-          "/items/items/0/$recursiveRef",
-          "https://example.com/nested#/items/0/$recursiveRef",
-          "/0/0"
-        ]
+        [ "ControlDynamicAnchorJump", "/items/items/0/$recursiveRef", "https://example.com/nested#/items/0/$recursiveRef", "/0/0" ]
       ],
       "post": [
-        [
-          true,
-          "ControlDynamicAnchorJump",
-          "/items/items/0/$recursiveRef",
-          "https://example.com/nested#/items/0/$recursiveRef",
-          "/0/0"
-        ],
+        [ true, "ControlDynamicAnchorJump", "/items/items/0/$recursiveRef", "https://example.com/nested#/items/0/$recursiveRef", "/0/0" ],
         [ true, "AssertionArrayPrefix", "/items/items", "https://example.com/nested#/items", "/0" ],
         [ true, "LoopItems", "/items", "https://example.com/schema#/items", "" ]
       ],
@@ -3976,25 +4224,14 @@
       "pre": [
         [ "LoopItems", "/items", "https://example.com/schema#/items", "" ],
         [ "AssertionArrayPrefix", "/items/items", "https://example.com/nested#/items", "/0" ],
-        [
-          "ControlDynamicAnchorJump",
-          "/items/items/0/$recursiveRef",
-          "https://example.com/nested#/items/0/$recursiveRef",
-          "/0/0"
-        ],
+        [ "ControlDynamicAnchorJump", "/items/items/0/$recursiveRef", "https://example.com/nested#/items/0/$recursiveRef", "/0/0" ],
         [ "Annotation", "/items/items", "https://example.com/nested#/items", "/0" ],
         [ "Annotation", "/items/items", "https://example.com/nested#/items", "/0" ],
         [ "LogicalWhenType", "/items", "https://example.com/schema#/items", "" ],
         [ "Annotation", "/items", "https://example.com/schema#/items", "" ]
       ],
       "post": [
-        [
-          true,
-          "ControlDynamicAnchorJump",
-          "/items/items/0/$recursiveRef",
-          "https://example.com/nested#/items/0/$recursiveRef",
-          "/0/0"
-        ],
+        [ true, "ControlDynamicAnchorJump", "/items/items/0/$recursiveRef", "https://example.com/nested#/items/0/$recursiveRef", "/0/0" ],
         [ true, "Annotation", "/items/items", "https://example.com/nested#/items", "/0", 0 ],
         [ true, "Annotation", "/items/items", "https://example.com/nested#/items", "/0", true ],
         [ true, "AssertionArrayPrefix", "/items/items", "https://example.com/nested#/items", "/0" ],
@@ -4018,28 +4255,21 @@
     "schema": {
       "$schema": "https://json-schema.org/draft/2019-09/schema",
       "$recursiveAnchor": true,
-      "additionalProperties": { "$recursiveRef": "#" }
+      "additionalProperties": {
+        "$recursiveRef": "#"
+      }
     },
-    "instance": { "foo": 1 },
+    "instance": {
+      "foo": 1
+    },
     "valid": true,
     "fast": {
       "pre": [
         [ "LoopProperties", "/additionalProperties", "#/additionalProperties", "" ],
-        [
-          "ControlDynamicAnchorJump",
-          "/additionalProperties/$recursiveRef",
-          "#/additionalProperties/$recursiveRef",
-          "/foo"
-        ]
+        [ "ControlDynamicAnchorJump", "/additionalProperties/$recursiveRef", "#/additionalProperties/$recursiveRef", "/foo" ]
       ],
       "post": [
-        [
-          true,
-          "ControlDynamicAnchorJump",
-          "/additionalProperties/$recursiveRef",
-          "#/additionalProperties/$recursiveRef",
-          "/foo"
-        ],
+        [ true, "ControlDynamicAnchorJump", "/additionalProperties/$recursiveRef", "#/additionalProperties/$recursiveRef", "/foo" ],
         [ true, "LoopProperties", "/additionalProperties", "#/additionalProperties", "" ]
       ],
       "descriptions": [
@@ -4050,22 +4280,11 @@
     "exhaustive": {
       "pre": [
         [ "LoopProperties", "/additionalProperties", "#/additionalProperties", "" ],
-        [
-          "ControlDynamicAnchorJump",
-          "/additionalProperties/$recursiveRef",
-          "#/additionalProperties/$recursiveRef",
-          "/foo"
-        ],
+        [ "ControlDynamicAnchorJump", "/additionalProperties/$recursiveRef", "#/additionalProperties/$recursiveRef", "/foo" ],
         [ "Annotation", "/additionalProperties", "#/additionalProperties", "" ]
       ],
       "post": [
-        [
-          true,
-          "ControlDynamicAnchorJump",
-          "/additionalProperties/$recursiveRef",
-          "#/additionalProperties/$recursiveRef",
-          "/foo"
-        ],
+        [ true, "ControlDynamicAnchorJump", "/additionalProperties/$recursiveRef", "#/additionalProperties/$recursiveRef", "/foo" ],
         [ true, "Annotation", "/additionalProperties", "#/additionalProperties", "", "foo" ],
         [ true, "LoopProperties", "/additionalProperties", "#/additionalProperties", "" ]
       ],
@@ -4080,9 +4299,14 @@
     "description": "patternProperties_1",
     "schema": {
       "$schema": "https://json-schema.org/draft/2019-09/schema",
-      "patternProperties": { "^f": true }
+      "patternProperties": {
+        "^f": true
+      }
     },
-    "instance": { "foo": 1, "bar": 2 },
+    "instance": {
+      "foo": 1,
+      "bar": 2
+    },
     "valid": true,
     "fast": {},
     "exhaustive": {
@@ -4105,10 +4329,15 @@
     "schema": {
       "$schema": "https://json-schema.org/draft/2019-09/schema",
       "patternProperties": {
-        "^f": { "type": "integer" }
+        "^f": {
+          "type": "integer"
+        }
       }
     },
-    "instance": { "foo": 1, "bar": 2 },
+    "instance": {
+      "foo": 1,
+      "bar": 2
+    },
     "valid": true,
     "fast": {
       "pre": [
@@ -4147,11 +4376,18 @@
     "schema": {
       "$schema": "https://json-schema.org/draft/2019-09/schema",
       "patternProperties": {
-        "o$": { "type": "integer" },
-        "^f": { "type": "integer" }
+        "o$": {
+          "type": "integer"
+        },
+        "^f": {
+          "type": "integer"
+        }
       }
     },
-    "instance": { "bar": 2, "foo": 1 },
+    "instance": {
+      "bar": 2,
+      "foo": 1
+    },
     "valid": true,
     "fast": {
       "pre": [
@@ -4207,46 +4443,28 @@
       "patternProperties": {
         "^f": {
           "patternProperties": {
-            "^b": { "type": "integer" }
+            "^b": {
+              "type": "integer"
+            }
           }
         }
       }
     },
     "instance": {
-      "foo": { "bar": 2 }
+      "foo": {
+        "bar": 2
+      }
     },
     "valid": true,
     "fast": {
       "pre": [
         [ "LoopPropertiesStartsWith", "/patternProperties", "#/patternProperties", "" ],
-        [
-          "LoopPropertiesStartsWith",
-          "/patternProperties/^f/patternProperties",
-          "#/patternProperties/%5Ef/patternProperties",
-          "/foo"
-        ],
-        [
-          "AssertionType",
-          "/patternProperties/^f/patternProperties/^b/type",
-          "#/patternProperties/%5Ef/patternProperties/%5Eb/type",
-          "/foo/bar"
-        ]
+        [ "LoopPropertiesStartsWith", "/patternProperties/^f/patternProperties", "#/patternProperties/%5Ef/patternProperties", "/foo" ],
+        [ "AssertionType", "/patternProperties/^f/patternProperties/^b/type", "#/patternProperties/%5Ef/patternProperties/%5Eb/type", "/foo/bar" ]
       ],
       "post": [
-        [
-          true,
-          "AssertionType",
-          "/patternProperties/^f/patternProperties/^b/type",
-          "#/patternProperties/%5Ef/patternProperties/%5Eb/type",
-          "/foo/bar"
-        ],
-        [
-          true,
-          "LoopPropertiesStartsWith",
-          "/patternProperties/^f/patternProperties",
-          "#/patternProperties/%5Ef/patternProperties",
-          "/foo"
-        ],
+        [ true, "AssertionType", "/patternProperties/^f/patternProperties/^b/type", "#/patternProperties/%5Ef/patternProperties/%5Eb/type", "/foo/bar" ],
+        [ true, "LoopPropertiesStartsWith", "/patternProperties/^f/patternProperties", "#/patternProperties/%5Ef/patternProperties", "/foo" ],
         [ true, "LoopPropertiesStartsWith", "/patternProperties", "#/patternProperties", "" ]
       ],
       "descriptions": [
@@ -4258,49 +4476,15 @@
     "exhaustive": {
       "pre": [
         [ "LoopPropertiesStartsWith", "/patternProperties", "#/patternProperties", "" ],
-        [
-          "LoopPropertiesStartsWith",
-          "/patternProperties/^f/patternProperties",
-          "#/patternProperties/%5Ef/patternProperties",
-          "/foo"
-        ],
-        [
-          "AssertionType",
-          "/patternProperties/^f/patternProperties/^b/type",
-          "#/patternProperties/%5Ef/patternProperties/%5Eb/type",
-          "/foo/bar"
-        ],
-        [
-          "Annotation",
-          "/patternProperties/^f/patternProperties",
-          "#/patternProperties/%5Ef/patternProperties",
-          "/foo"
-        ],
+        [ "LoopPropertiesStartsWith", "/patternProperties/^f/patternProperties", "#/patternProperties/%5Ef/patternProperties", "/foo" ],
+        [ "AssertionType", "/patternProperties/^f/patternProperties/^b/type", "#/patternProperties/%5Ef/patternProperties/%5Eb/type", "/foo/bar" ],
+        [ "Annotation", "/patternProperties/^f/patternProperties", "#/patternProperties/%5Ef/patternProperties", "/foo" ],
         [ "Annotation", "/patternProperties", "#/patternProperties", "" ]
       ],
       "post": [
-        [
-          true,
-          "AssertionType",
-          "/patternProperties/^f/patternProperties/^b/type",
-          "#/patternProperties/%5Ef/patternProperties/%5Eb/type",
-          "/foo/bar"
-        ],
-        [
-          true,
-          "Annotation",
-          "/patternProperties/^f/patternProperties",
-          "#/patternProperties/%5Ef/patternProperties",
-          "/foo",
-          "bar"
-        ],
-        [
-          true,
-          "LoopPropertiesStartsWith",
-          "/patternProperties/^f/patternProperties",
-          "#/patternProperties/%5Ef/patternProperties",
-          "/foo"
-        ],
+        [ true, "AssertionType", "/patternProperties/^f/patternProperties/^b/type", "#/patternProperties/%5Ef/patternProperties/%5Eb/type", "/foo/bar" ],
+        [ true, "Annotation", "/patternProperties/^f/patternProperties", "#/patternProperties/%5Ef/patternProperties", "/foo", "bar" ],
+        [ true, "LoopPropertiesStartsWith", "/patternProperties/^f/patternProperties", "#/patternProperties/%5Ef/patternProperties", "/foo" ],
         [ true, "Annotation", "/patternProperties", "#/patternProperties", "", "foo" ],
         [ true, "LoopPropertiesStartsWith", "/patternProperties", "#/patternProperties", "" ]
       ],
@@ -4317,10 +4501,17 @@
     "description": "patternProperties_5",
     "schema": {
       "$schema": "https://json-schema.org/draft/2019-09/schema",
-      "patternProperties": { "^@": true },
-      "additionalProperties": { "type": "string" }
+      "patternProperties": {
+        "^@": true
+      },
+      "additionalProperties": {
+        "type": "string"
+      }
     },
-    "instance": { "@foo": 1, "bar": "baz" },
+    "instance": {
+      "@foo": 1,
+      "bar": "baz"
+    },
     "valid": true,
     "fast": {
       "pre": [
@@ -4366,8 +4557,12 @@
       "$schema": "https://json-schema.org/draft/2019-09/schema",
       "$ref": "#/definitions/middle",
       "definitions": {
-        "middle": { "$ref": "#/definitions/string" },
-        "string": { "type": "string" }
+        "middle": {
+          "$ref": "#/definitions/string"
+        },
+        "string": {
+          "type": "string"
+        }
       }
     },
     "instance": "foo",
@@ -4379,7 +4574,9 @@
       "post": [
         [ true, "AssertionTypeStrict", "/$ref/$ref/type", "#/definitions/string/type", "" ]
       ],
-      "descriptions": [ "The value was expected to be of type string" ]
+      "descriptions": [
+        "The value was expected to be of type string"
+      ]
     },
     "exhaustive": {
       "pre": [
@@ -4417,21 +4614,37 @@
         "contentMediaType": "application/json",
         "contentSchema": true,
         "items": [
-          { "type": "string" }
+          {
+            "type": "string"
+          }
         ],
-        "additionalItems": { "type": "string" },
-        "unevaluatedItems": { "type": "string" },
+        "additionalItems": {
+          "type": "string"
+        },
+        "unevaluatedItems": {
+          "type": "string"
+        },
         "properties": {
-          "foo": { "type": "string" }
+          "foo": {
+            "type": "string"
+          }
         },
         "patternProperties": {
-          "^f": { "type": "string" }
+          "^f": {
+            "type": "string"
+          }
         },
-        "additionalProperties": { "type": "string" },
-        "unevaluatedProperties": { "type": "string" }
+        "additionalProperties": {
+          "type": "string"
+        },
+        "unevaluatedProperties": {
+          "type": "string"
+        }
       }
     },
-    "instance": { "foo": 1 },
+    "instance": {
+      "foo": 1
+    },
     "valid": true,
     "fast": {},
     "exhaustive": {
@@ -4441,7 +4654,9 @@
       "post": [
         [ true, "LoopKeys", "/propertyNames", "#/propertyNames", "" ]
       ],
-      "descriptions": [ "The object property \"foo\" was expected to validate against the given subschema" ]
+      "descriptions": [
+        "The object property \"foo\" was expected to validate against the given subschema"
+      ]
     }
   },
   {
@@ -4464,7 +4679,9 @@
       "post": [
         [ true, "ControlJump", "/$ref", "https://www.example.com#/$ref", "" ]
       ],
-      "descriptions": [ "The integer value was expected to validate against the referenced schema" ]
+      "descriptions": [
+        "The integer value was expected to validate against the referenced schema"
+      ]
     }
   },
   {
@@ -4473,17 +4690,24 @@
       "$schema": "https://json-schema.org/draft/2019-09/schema",
       "if": {
         "properties": {
-          "kind": { "const": "A" }
+          "kind": {
+            "const": "A"
+          }
         }
       },
       "then": {
         "properties": {
-          "count": { "type": "integer" }
+          "count": {
+            "type": "integer"
+          }
         }
       },
       "unevaluatedProperties": false
     },
-    "instance": { "kind": "A", "count": 42 },
+    "instance": {
+      "kind": "A",
+      "count": 42
+    },
     "valid": true,
     "fast": {
       "pre": [
@@ -4496,13 +4720,7 @@
       "post": [
         [ true, "AssertionEqual", "/if/properties/kind/const", "#/if/properties/kind/const", "/kind" ],
         [ true, "Evaluate", "/if/properties", "#/if/properties", "/kind" ],
-        [
-          true,
-          "AssertionPropertyTypeEvaluate",
-          "/then/properties/count/type",
-          "#/then/properties/count/type",
-          "/count"
-        ],
+        [ true, "AssertionPropertyTypeEvaluate", "/then/properties/count/type", "#/then/properties/count/type", "/count" ],
         [ true, "LogicalCondition", "/if", "#/if", "" ],
         [ true, "LoopPropertiesUnevaluated", "/unevaluatedProperties", "#/unevaluatedProperties", "" ]
       ],
@@ -4559,17 +4777,24 @@
       "$schema": "https://json-schema.org/draft/2019-09/schema",
       "if": {
         "properties": {
-          "kind": { "const": "A" }
+          "kind": {
+            "const": "A"
+          }
         }
       },
       "then": {
         "properties": {
-          "name": { "type": "string" }
+          "name": {
+            "type": "string"
+          }
         }
       },
       "unevaluatedProperties": false
     },
-    "instance": { "kind": "A", "name": "test" },
+    "instance": {
+      "kind": "A",
+      "name": "test"
+    },
     "valid": true,
     "fast": {
       "pre": [
@@ -4582,13 +4807,7 @@
       "post": [
         [ true, "AssertionEqual", "/if/properties/kind/const", "#/if/properties/kind/const", "/kind" ],
         [ true, "Evaluate", "/if/properties", "#/if/properties", "/kind" ],
-        [
-          true,
-          "AssertionPropertyTypeStrictEvaluate",
-          "/then/properties/name/type",
-          "#/then/properties/name/type",
-          "/name"
-        ],
+        [ true, "AssertionPropertyTypeStrictEvaluate", "/then/properties/name/type", "#/then/properties/name/type", "/name" ],
         [ true, "LogicalCondition", "/if", "#/if", "" ],
         [ true, "LoopPropertiesUnevaluated", "/unevaluatedProperties", "#/unevaluatedProperties", "" ]
       ],
@@ -4645,41 +4864,37 @@
       "$schema": "https://json-schema.org/draft/2019-09/schema",
       "if": {
         "properties": {
-          "kind": { "const": "A" }
+          "kind": {
+            "const": "A"
+          }
         }
       },
       "then": {
         "properties": {
-          "value": { "type": "number" }
+          "value": {
+            "type": "number"
+          }
         }
       },
       "unevaluatedProperties": false
     },
-    "instance": { "kind": "A", "value": 3.14 },
+    "instance": {
+      "kind": "A",
+      "value": 3.14
+    },
     "valid": true,
     "fast": {
       "pre": [
         [ "LogicalCondition", "/if", "#/if", "" ],
         [ "AssertionEqual", "/if/properties/kind/const", "#/if/properties/kind/const", "/kind" ],
         [ "Evaluate", "/if/properties", "#/if/properties", "/kind" ],
-        [
-          "AssertionPropertyTypeStrictAnyEvaluate",
-          "/then/properties/value/type",
-          "#/then/properties/value/type",
-          "/value"
-        ],
+        [ "AssertionPropertyTypeStrictAnyEvaluate", "/then/properties/value/type", "#/then/properties/value/type", "/value" ],
         [ "LoopPropertiesUnevaluated", "/unevaluatedProperties", "#/unevaluatedProperties", "" ]
       ],
       "post": [
         [ true, "AssertionEqual", "/if/properties/kind/const", "#/if/properties/kind/const", "/kind" ],
         [ true, "Evaluate", "/if/properties", "#/if/properties", "/kind" ],
-        [
-          true,
-          "AssertionPropertyTypeStrictAnyEvaluate",
-          "/then/properties/value/type",
-          "#/then/properties/value/type",
-          "/value"
-        ],
+        [ true, "AssertionPropertyTypeStrictAnyEvaluate", "/then/properties/value/type", "#/then/properties/value/type", "/value" ],
         [ true, "LogicalCondition", "/if", "#/if", "" ],
         [ true, "LoopPropertiesUnevaluated", "/unevaluatedProperties", "#/unevaluatedProperties", "" ]
       ],
@@ -4735,21 +4950,33 @@
     "schema": {
       "$schema": "https://json-schema.org/draft/2019-09/schema",
       "properties": {
-        "known": { "type": "string" }
+        "known": {
+          "type": "string"
+        }
       },
       "if": {
         "properties": {
-          "known": { "const": "special" }
+          "known": {
+            "const": "special"
+          }
         }
       },
       "then": {
         "properties": {
-          "extra": { "type": "integer" }
+          "extra": {
+            "type": "integer"
+          }
         }
       },
-      "unevaluatedProperties": { "type": "boolean" }
+      "unevaluatedProperties": {
+        "type": "boolean"
+      }
     },
-    "instance": { "known": "special", "extra": 10, "other": true },
+    "instance": {
+      "known": "special",
+      "extra": 10,
+      "other": true
+    },
     "valid": true,
     "fast": {
       "pre": [
@@ -4764,13 +4991,7 @@
       "post": [
         [ true, "AssertionEqual", "/if/properties/known/const", "#/if/properties/known/const", "/known" ],
         [ true, "Evaluate", "/if/properties", "#/if/properties", "/known" ],
-        [
-          true,
-          "AssertionPropertyTypeEvaluate",
-          "/then/properties/extra/type",
-          "#/then/properties/extra/type",
-          "/extra"
-        ],
+        [ true, "AssertionPropertyTypeEvaluate", "/then/properties/extra/type", "#/then/properties/extra/type", "/extra" ],
         [ true, "LogicalCondition", "/if", "#/if", "" ],
         [ true, "AssertionPropertyTypeStrict", "/properties/known/type", "#/properties/known/type", "/known" ],
         [ true, "AssertionTypeStrict", "/unevaluatedProperties/type", "#/unevaluatedProperties/type", "/other" ],
@@ -4844,22 +5065,31 @@
     "description": "unevaluatedProperties_16",
     "schema": {
       "$schema": "https://json-schema.org/draft/2019-09/schema",
-      "additionalProperties": { "$ref": "#/$defs/test" },
+      "additionalProperties": {
+        "$ref": "#/$defs/test"
+      },
       "$defs": {
         "test": {
           "if": {
             "required": [ "bar" ]
           },
           "then": {
-            "properties": { "baz": true }
+            "properties": {
+              "baz": true
+            }
           },
-          "properties": { "bar": true },
+          "properties": {
+            "bar": true
+          },
           "unevaluatedProperties": false
         }
       }
     },
     "instance": {
-      "foo": { "bar": 1, "baz": 2 }
+      "foo": {
+        "bar": 1,
+        "baz": 2
+      }
     },
     "valid": true,
     "fast": {
@@ -4868,24 +5098,13 @@
         [ "LogicalCondition", "/additionalProperties/$ref/if", "#/$defs/test/if", "/foo" ],
         [ "AssertionDefines", "/additionalProperties/$ref/if/required", "#/$defs/test/if/required", "/foo" ],
         [ "Evaluate", "/additionalProperties/$ref/then/properties", "#/$defs/test/then/properties", "/foo/baz" ],
-        [
-          "LoopPropertiesUnevaluatedExcept",
-          "/additionalProperties/$ref/unevaluatedProperties",
-          "#/$defs/test/unevaluatedProperties",
-          "/foo"
-        ]
+        [ "LoopPropertiesUnevaluatedExcept", "/additionalProperties/$ref/unevaluatedProperties", "#/$defs/test/unevaluatedProperties", "/foo" ]
       ],
       "post": [
         [ true, "AssertionDefines", "/additionalProperties/$ref/if/required", "#/$defs/test/if/required", "/foo" ],
         [ true, "Evaluate", "/additionalProperties/$ref/then/properties", "#/$defs/test/then/properties", "/foo/baz" ],
         [ true, "LogicalCondition", "/additionalProperties/$ref/if", "#/$defs/test/if", "/foo" ],
-        [
-          true,
-          "LoopPropertiesUnevaluatedExcept",
-          "/additionalProperties/$ref/unevaluatedProperties",
-          "#/$defs/test/unevaluatedProperties",
-          "/foo"
-        ],
+        [ true, "LoopPropertiesUnevaluatedExcept", "/additionalProperties/$ref/unevaluatedProperties", "#/$defs/test/unevaluatedProperties", "/foo" ],
         [ true, "LoopProperties", "/additionalProperties", "#/additionalProperties", "" ]
       ],
       "descriptions": [
@@ -4907,42 +5126,18 @@
         [ "Evaluate", "/additionalProperties/$ref/then/properties", "#/$defs/test/then/properties", "/foo/baz" ],
         [ "LogicalWhenType", "/additionalProperties/$ref/properties", "#/$defs/test/properties", "/foo" ],
         [ "Annotation", "/additionalProperties/$ref/properties", "#/$defs/test/properties", "/foo" ],
-        [
-          "LoopPropertiesUnevaluatedExcept",
-          "/additionalProperties/$ref/unevaluatedProperties",
-          "#/$defs/test/unevaluatedProperties",
-          "/foo"
-        ],
+        [ "LoopPropertiesUnevaluatedExcept", "/additionalProperties/$ref/unevaluatedProperties", "#/$defs/test/unevaluatedProperties", "/foo" ],
         [ "Annotation", "/additionalProperties", "#/additionalProperties", "" ]
       ],
       "post": [
         [ true, "AssertionDefines", "/additionalProperties/$ref/if/required", "#/$defs/test/if/required", "/foo" ],
-        [
-          true,
-          "Annotation",
-          "/additionalProperties/$ref/then/properties",
-          "#/$defs/test/then/properties",
-          "/foo",
-          "baz"
-        ],
+        [ true, "Annotation", "/additionalProperties/$ref/then/properties", "#/$defs/test/then/properties", "/foo", "baz" ],
         [ true, "Evaluate", "/additionalProperties/$ref/then/properties", "#/$defs/test/then/properties", "/foo/baz" ],
-        [
-          true,
-          "LogicalWhenType",
-          "/additionalProperties/$ref/then/properties",
-          "#/$defs/test/then/properties",
-          "/foo"
-        ],
+        [ true, "LogicalWhenType", "/additionalProperties/$ref/then/properties", "#/$defs/test/then/properties", "/foo" ],
         [ true, "LogicalCondition", "/additionalProperties/$ref/if", "#/$defs/test/if", "/foo" ],
         [ true, "Annotation", "/additionalProperties/$ref/properties", "#/$defs/test/properties", "/foo", "bar" ],
         [ true, "LogicalWhenType", "/additionalProperties/$ref/properties", "#/$defs/test/properties", "/foo" ],
-        [
-          true,
-          "LoopPropertiesUnevaluatedExcept",
-          "/additionalProperties/$ref/unevaluatedProperties",
-          "#/$defs/test/unevaluatedProperties",
-          "/foo"
-        ],
+        [ true, "LoopPropertiesUnevaluatedExcept", "/additionalProperties/$ref/unevaluatedProperties", "#/$defs/test/unevaluatedProperties", "/foo" ],
         [ true, "ControlJump", "/additionalProperties/$ref", "#/additionalProperties/$ref", "/foo" ],
         [ true, "Annotation", "/additionalProperties", "#/additionalProperties", "", "foo" ],
         [ true, "LoopProperties", "/additionalProperties", "#/additionalProperties", "" ]
@@ -4968,15 +5163,22 @@
       "$schema": "https://json-schema.org/draft/2019-09/schema",
       "if": {
         "properties": {
-          "kind": { "const": "AB" }
+          "kind": {
+            "const": "AB"
+          }
         }
       },
       "then": {
-        "additionalProperties": { "minLength": 2 }
+        "additionalProperties": {
+          "minLength": 2
+        }
       },
       "unevaluatedProperties": false
     },
-    "instance": { "kind": "AB", "other": "cd" },
+    "instance": {
+      "kind": "AB",
+      "other": "cd"
+    },
     "valid": true,
     "fast": {
       "pre": [
@@ -4984,37 +5186,15 @@
         [ "AssertionEqual", "/if/properties/kind/const", "#/if/properties/kind/const", "/kind" ],
         [ "Evaluate", "/if/properties", "#/if/properties", "/kind" ],
         [ "LoopPropertiesEvaluate", "/then/additionalProperties", "#/then/additionalProperties", "" ],
-        [
-          "AssertionStringSizeGreater",
-          "/then/additionalProperties/minLength",
-          "#/then/additionalProperties/minLength",
-          "/kind"
-        ],
-        [
-          "AssertionStringSizeGreater",
-          "/then/additionalProperties/minLength",
-          "#/then/additionalProperties/minLength",
-          "/other"
-        ],
+        [ "AssertionStringSizeGreater", "/then/additionalProperties/minLength", "#/then/additionalProperties/minLength", "/kind" ],
+        [ "AssertionStringSizeGreater", "/then/additionalProperties/minLength", "#/then/additionalProperties/minLength", "/other" ],
         [ "LoopPropertiesUnevaluated", "/unevaluatedProperties", "#/unevaluatedProperties", "" ]
       ],
       "post": [
         [ true, "AssertionEqual", "/if/properties/kind/const", "#/if/properties/kind/const", "/kind" ],
         [ true, "Evaluate", "/if/properties", "#/if/properties", "/kind" ],
-        [
-          true,
-          "AssertionStringSizeGreater",
-          "/then/additionalProperties/minLength",
-          "#/then/additionalProperties/minLength",
-          "/kind"
-        ],
-        [
-          true,
-          "AssertionStringSizeGreater",
-          "/then/additionalProperties/minLength",
-          "#/then/additionalProperties/minLength",
-          "/other"
-        ],
+        [ true, "AssertionStringSizeGreater", "/then/additionalProperties/minLength", "#/then/additionalProperties/minLength", "/kind" ],
+        [ true, "AssertionStringSizeGreater", "/then/additionalProperties/minLength", "#/then/additionalProperties/minLength", "/other" ],
         [ true, "LoopPropertiesEvaluate", "/then/additionalProperties", "#/then/additionalProperties", "" ],
         [ true, "LogicalCondition", "/if", "#/if", "" ],
         [ true, "LoopPropertiesUnevaluated", "/unevaluatedProperties", "#/unevaluatedProperties", "" ]
@@ -5037,19 +5217,9 @@
         [ "Annotation", "/if/properties", "#/if/properties", "" ],
         [ "Evaluate", "/if/properties", "#/if/properties", "/kind" ],
         [ "LoopPropertiesEvaluate", "/then/additionalProperties", "#/then/additionalProperties", "" ],
-        [
-          "AssertionStringSizeGreater",
-          "/then/additionalProperties/minLength",
-          "#/then/additionalProperties/minLength",
-          "/kind"
-        ],
+        [ "AssertionStringSizeGreater", "/then/additionalProperties/minLength", "#/then/additionalProperties/minLength", "/kind" ],
         [ "Annotation", "/then/additionalProperties", "#/then/additionalProperties", "" ],
-        [
-          "AssertionStringSizeGreater",
-          "/then/additionalProperties/minLength",
-          "#/then/additionalProperties/minLength",
-          "/other"
-        ],
+        [ "AssertionStringSizeGreater", "/then/additionalProperties/minLength", "#/then/additionalProperties/minLength", "/other" ],
         [ "Annotation", "/then/additionalProperties", "#/then/additionalProperties", "" ],
         [ "LoopPropertiesUnevaluated", "/unevaluatedProperties", "#/unevaluatedProperties", "" ]
       ],
@@ -5058,21 +5228,9 @@
         [ true, "Annotation", "/if/properties", "#/if/properties", "", "kind" ],
         [ true, "Evaluate", "/if/properties", "#/if/properties", "/kind" ],
         [ true, "LogicalWhenType", "/if/properties", "#/if/properties", "" ],
-        [
-          true,
-          "AssertionStringSizeGreater",
-          "/then/additionalProperties/minLength",
-          "#/then/additionalProperties/minLength",
-          "/kind"
-        ],
+        [ true, "AssertionStringSizeGreater", "/then/additionalProperties/minLength", "#/then/additionalProperties/minLength", "/kind" ],
         [ true, "Annotation", "/then/additionalProperties", "#/then/additionalProperties", "", "kind" ],
-        [
-          true,
-          "AssertionStringSizeGreater",
-          "/then/additionalProperties/minLength",
-          "#/then/additionalProperties/minLength",
-          "/other"
-        ],
+        [ true, "AssertionStringSizeGreater", "/then/additionalProperties/minLength", "#/then/additionalProperties/minLength", "/other" ],
         [ true, "Annotation", "/then/additionalProperties", "#/then/additionalProperties", "", "other" ],
         [ true, "LoopPropertiesEvaluate", "/then/additionalProperties", "#/then/additionalProperties", "" ],
         [ true, "LogicalCondition", "/if", "#/if", "" ],
@@ -5099,15 +5257,22 @@
       "$schema": "https://json-schema.org/draft/2019-09/schema",
       "if": {
         "properties": {
-          "flag": { "const": 1 }
+          "flag": {
+            "const": 1
+          }
         }
       },
       "then": {
-        "additionalProperties": { "type": "integer" }
+        "additionalProperties": {
+          "type": "integer"
+        }
       },
       "unevaluatedProperties": false
     },
-    "instance": { "flag": 1, "value": 42 },
+    "instance": {
+      "flag": 1,
+      "value": 42
+    },
     "valid": true,
     "fast": {
       "pre": [
@@ -5120,13 +5285,7 @@
       "post": [
         [ true, "AssertionEqual", "/if/properties/flag/const", "#/if/properties/flag/const", "/flag" ],
         [ true, "Evaluate", "/if/properties", "#/if/properties", "/flag" ],
-        [
-          true,
-          "LoopPropertiesTypeEvaluate",
-          "/then/additionalProperties/type",
-          "#/then/additionalProperties/type",
-          ""
-        ],
+        [ true, "LoopPropertiesTypeEvaluate", "/then/additionalProperties/type", "#/then/additionalProperties/type", "" ],
         [ true, "LogicalCondition", "/if", "#/if", "" ],
         [ true, "LoopPropertiesUnevaluated", "/unevaluatedProperties", "#/unevaluatedProperties", "" ]
       ],
@@ -5186,39 +5345,35 @@
       "$schema": "https://json-schema.org/draft/2019-09/schema",
       "if": {
         "properties": {
-          "kind": { "const": "A" }
+          "kind": {
+            "const": "A"
+          }
         }
       },
       "then": {
-        "additionalProperties": { "type": "string" }
+        "additionalProperties": {
+          "type": "string"
+        }
       },
       "unevaluatedProperties": false
     },
-    "instance": { "kind": "A", "other": "test" },
+    "instance": {
+      "kind": "A",
+      "other": "test"
+    },
     "valid": true,
     "fast": {
       "pre": [
         [ "LogicalCondition", "/if", "#/if", "" ],
         [ "AssertionEqual", "/if/properties/kind/const", "#/if/properties/kind/const", "/kind" ],
         [ "Evaluate", "/if/properties", "#/if/properties", "/kind" ],
-        [
-          "LoopPropertiesTypeStrictEvaluate",
-          "/then/additionalProperties/type",
-          "#/then/additionalProperties/type",
-          ""
-        ],
+        [ "LoopPropertiesTypeStrictEvaluate", "/then/additionalProperties/type", "#/then/additionalProperties/type", "" ],
         [ "LoopPropertiesUnevaluated", "/unevaluatedProperties", "#/unevaluatedProperties", "" ]
       ],
       "post": [
         [ true, "AssertionEqual", "/if/properties/kind/const", "#/if/properties/kind/const", "/kind" ],
         [ true, "Evaluate", "/if/properties", "#/if/properties", "/kind" ],
-        [
-          true,
-          "LoopPropertiesTypeStrictEvaluate",
-          "/then/additionalProperties/type",
-          "#/then/additionalProperties/type",
-          ""
-        ],
+        [ true, "LoopPropertiesTypeStrictEvaluate", "/then/additionalProperties/type", "#/then/additionalProperties/type", "" ],
         [ true, "LogicalCondition", "/if", "#/if", "" ],
         [ true, "LoopPropertiesUnevaluated", "/unevaluatedProperties", "#/unevaluatedProperties", "" ]
       ],
@@ -5251,13 +5406,7 @@
         [ true, "LogicalWhenType", "/if/properties", "#/if/properties", "" ],
         [ true, "AssertionTypeStrict", "/then/additionalProperties/type", "#/then/additionalProperties/type", "/kind" ],
         [ true, "Annotation", "/then/additionalProperties", "#/then/additionalProperties", "", "kind" ],
-        [
-          true,
-          "AssertionTypeStrict",
-          "/then/additionalProperties/type",
-          "#/then/additionalProperties/type",
-          "/other"
-        ],
+        [ true, "AssertionTypeStrict", "/then/additionalProperties/type", "#/then/additionalProperties/type", "/other" ],
         [ true, "Annotation", "/then/additionalProperties", "#/then/additionalProperties", "", "other" ],
         [ true, "LoopPropertiesEvaluate", "/then/additionalProperties", "#/then/additionalProperties", "" ],
         [ true, "LogicalCondition", "/if", "#/if", "" ],
@@ -5284,39 +5433,35 @@
       "$schema": "https://json-schema.org/draft/2019-09/schema",
       "if": {
         "properties": {
-          "flag": { "const": 1 }
+          "flag": {
+            "const": 1
+          }
         }
       },
       "then": {
-        "additionalProperties": { "type": "number" }
+        "additionalProperties": {
+          "type": "number"
+        }
       },
       "unevaluatedProperties": false
     },
-    "instance": { "flag": 1, "value": 3.14 },
+    "instance": {
+      "flag": 1,
+      "value": 3.14
+    },
     "valid": true,
     "fast": {
       "pre": [
         [ "LogicalCondition", "/if", "#/if", "" ],
         [ "AssertionEqual", "/if/properties/flag/const", "#/if/properties/flag/const", "/flag" ],
         [ "Evaluate", "/if/properties", "#/if/properties", "/flag" ],
-        [
-          "LoopPropertiesTypeStrictAnyEvaluate",
-          "/then/additionalProperties/type",
-          "#/then/additionalProperties/type",
-          ""
-        ],
+        [ "LoopPropertiesTypeStrictAnyEvaluate", "/then/additionalProperties/type", "#/then/additionalProperties/type", "" ],
         [ "LoopPropertiesUnevaluated", "/unevaluatedProperties", "#/unevaluatedProperties", "" ]
       ],
       "post": [
         [ true, "AssertionEqual", "/if/properties/flag/const", "#/if/properties/flag/const", "/flag" ],
         [ true, "Evaluate", "/if/properties", "#/if/properties", "/flag" ],
-        [
-          true,
-          "LoopPropertiesTypeStrictAnyEvaluate",
-          "/then/additionalProperties/type",
-          "#/then/additionalProperties/type",
-          ""
-        ],
+        [ true, "LoopPropertiesTypeStrictAnyEvaluate", "/then/additionalProperties/type", "#/then/additionalProperties/type", "" ],
         [ true, "LogicalCondition", "/if", "#/if", "" ],
         [ true, "LoopPropertiesUnevaluated", "/unevaluatedProperties", "#/unevaluatedProperties", "" ]
       ],
@@ -5347,21 +5492,9 @@
         [ true, "Annotation", "/if/properties", "#/if/properties", "", "flag" ],
         [ true, "Evaluate", "/if/properties", "#/if/properties", "/flag" ],
         [ true, "LogicalWhenType", "/if/properties", "#/if/properties", "" ],
-        [
-          true,
-          "AssertionTypeStrictAny",
-          "/then/additionalProperties/type",
-          "#/then/additionalProperties/type",
-          "/flag"
-        ],
+        [ true, "AssertionTypeStrictAny", "/then/additionalProperties/type", "#/then/additionalProperties/type", "/flag" ],
         [ true, "Annotation", "/then/additionalProperties", "#/then/additionalProperties", "", "flag" ],
-        [
-          true,
-          "AssertionTypeStrictAny",
-          "/then/additionalProperties/type",
-          "#/then/additionalProperties/type",
-          "/value"
-        ],
+        [ true, "AssertionTypeStrictAny", "/then/additionalProperties/type", "#/then/additionalProperties/type", "/value" ],
         [ true, "Annotation", "/then/additionalProperties", "#/then/additionalProperties", "", "value" ],
         [ true, "LoopPropertiesEvaluate", "/then/additionalProperties", "#/then/additionalProperties", "" ],
         [ true, "LogicalCondition", "/if", "#/if", "" ],

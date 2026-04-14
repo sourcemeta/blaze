@@ -5,10 +5,16 @@
       "$schema": "https://spec.openapis.org/oas/3.2/dialect/2025-09-17",
       "discriminator": {
         "propertyName": "petType",
-        "mapping": { "dog": "#/definitions/Dog", "cat": "#/definitions/Cat" }
+        "mapping": {
+          "dog": "#/definitions/Dog",
+          "cat": "#/definitions/Cat"
+        }
       }
     },
-    "instance": { "petType": "dog", "name": "Rex" },
+    "instance": {
+      "petType": "dog",
+      "name": "Rex"
+    },
     "valid": true,
     "fast": {},
     "exhaustive": {}
@@ -17,9 +23,16 @@
     "description": "xml_1",
     "schema": {
       "$schema": "https://spec.openapis.org/oas/3.2/dialect/2025-09-17",
-      "xml": { "nodeType": "element", "name": "pet", "namespace": "http://example.com/schema", "prefix": "ex" }
+      "xml": {
+        "nodeType": "element",
+        "name": "pet",
+        "namespace": "http://example.com/schema",
+        "prefix": "ex"
+      }
     },
-    "instance": { "name": "Rex" },
+    "instance": {
+      "name": "Rex"
+    },
     "valid": true,
     "fast": {},
     "exhaustive": {}
@@ -28,7 +41,10 @@
     "description": "externalDocs_1",
     "schema": {
       "$schema": "https://spec.openapis.org/oas/3.2/dialect/2025-09-17",
-      "externalDocs": { "url": "https://example.com/docs", "description": "Find more info here" }
+      "externalDocs": {
+        "url": "https://example.com/docs",
+        "description": "Find more info here"
+      }
     },
     "instance": "foo",
     "valid": true,
@@ -39,16 +55,25 @@
     "description": "example_1",
     "schema": {
       "$schema": "https://spec.openapis.org/oas/3.2/dialect/2025-09-17",
-      "example": { "name": "Rex", "petType": "dog" }
+      "example": {
+        "name": "Rex",
+        "petType": "dog"
+      }
     },
-    "instance": { "name": "Fluffy", "petType": "cat" },
+    "instance": {
+      "name": "Fluffy",
+      "petType": "cat"
+    },
     "valid": true,
     "fast": {},
     "exhaustive": {}
   },
   {
     "description": "type_string_1",
-    "schema": { "$schema": "https://spec.openapis.org/oas/3.2/dialect/2025-09-17", "type": "string" },
+    "schema": {
+      "$schema": "https://spec.openapis.org/oas/3.2/dialect/2025-09-17",
+      "type": "string"
+    },
     "instance": "hello",
     "valid": true,
     "fast": {
@@ -58,7 +83,9 @@
       "post": [
         [ true, "AssertionTypeStrict", "/type", "#/type", "" ]
       ],
-      "descriptions": [ "The value was expected to be of type string" ]
+      "descriptions": [
+        "The value was expected to be of type string"
+      ]
     },
     "exhaustive": {
       "pre": [
@@ -67,12 +94,17 @@
       "post": [
         [ true, "AssertionTypeStrict", "/type", "#/type", "" ]
       ],
-      "descriptions": [ "The value was expected to be of type string" ]
+      "descriptions": [
+        "The value was expected to be of type string"
+      ]
     }
   },
   {
     "description": "type_string_failure_1",
-    "schema": { "$schema": "https://spec.openapis.org/oas/3.2/dialect/2025-09-17", "type": "string" },
+    "schema": {
+      "$schema": "https://spec.openapis.org/oas/3.2/dialect/2025-09-17",
+      "type": "string"
+    },
     "instance": 42,
     "valid": false,
     "fast": {
@@ -82,7 +114,9 @@
       "post": [
         [ false, "AssertionTypeStrict", "/type", "#/type", "" ]
       ],
-      "descriptions": [ "The value was expected to be of type string but it was of type integer" ]
+      "descriptions": [
+        "The value was expected to be of type string but it was of type integer"
+      ]
     },
     "exhaustive": {
       "pre": [
@@ -91,7 +125,9 @@
       "post": [
         [ false, "AssertionTypeStrict", "/type", "#/type", "" ]
       ],
-      "descriptions": [ "The value was expected to be of type string but it was of type integer" ]
+      "descriptions": [
+        "The value was expected to be of type string but it was of type integer"
+      ]
     }
   }
 ]
