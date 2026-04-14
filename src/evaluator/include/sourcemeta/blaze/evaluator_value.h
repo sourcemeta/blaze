@@ -157,88 +157,11 @@ using ValueTypedHashes = std::pair<ValueType, ValueStringHashes>;
 
 /// @ingroup evaluator
 /// Represents integer bounds with minimum and maximum
-struct ValueIntegerBounds {
-  using first_type = std::int64_t;
-  using second_type = std::int64_t;
-  first_type first;
-  second_type second;
-
-  // TODO: Elevate into the Core project
-  [[nodiscard]] auto to_json() const -> sourcemeta::core::JSON {
-    auto result{sourcemeta::core::JSON::make_array()};
-    result.push_back(sourcemeta::core::JSON{this->first});
-    result.push_back(sourcemeta::core::JSON{this->second});
-    return result;
-  }
-
-  // TODO: Elevate into the Core project
-  static auto from_json(const sourcemeta::core::JSON &value)
-      -> std::optional<ValueIntegerBounds> {
-    if (!value.is_array() || value.array_size() != 2 ||
-        !value.at(0).is_integer() || !value.at(1).is_integer()) {
-      return std::nullopt;
-    }
-
-    return ValueIntegerBounds{.first = value.at(0).to_integer(),
-                              .second = value.at(1).to_integer()};
-  }
-};
+using ValueIntegerBounds = std::pair<std::int64_t, std::int64_t>;
 
 /// @ingroup evaluator
 /// Represents integer bounds combined with array size range
-struct ValueIntegerBoundsWithSize {
-  using first_type = ValueIntegerBounds;
-  using second_type = ValueRange;
-  first_type first;
-  second_type second;
-
-  // TODO: Elevate into the Core project
-  [[nodiscard]] auto to_json() const -> sourcemeta::core::JSON {
-    auto result{sourcemeta::core::JSON::make_array()};
-    result.push_back(this->first.to_json());
-    auto range{sourcemeta::core::JSON::make_array()};
-    range.push_back(sourcemeta::core::JSON{
-        static_cast<std::int64_t>(std::get<0>(this->second))});
-    if (std::get<1>(this->second).has_value()) {
-      range.push_back(sourcemeta::core::JSON{
-          static_cast<std::int64_t>(std::get<1>(this->second).value())});
-    } else {
-      range.push_back(sourcemeta::core::JSON{nullptr});
-    }
-    range.push_back(sourcemeta::core::JSON{std::get<2>(this->second)});
-    result.push_back(std::move(range));
-    return result;
-  }
-
-  // TODO: Elevate into the Core project
-  static auto from_json(const sourcemeta::core::JSON &value)
-      -> std::optional<ValueIntegerBoundsWithSize> {
-    if (!value.is_array() || value.array_size() != 2) {
-      return std::nullopt;
-    }
-
-    auto bounds{ValueIntegerBounds::from_json(value.at(0))};
-    if (!bounds.has_value()) {
-      return std::nullopt;
-    }
-
-    const auto &range_json{value.at(1)};
-    if (!range_json.is_array() || range_json.array_size() != 3 ||
-        !range_json.at(0).is_integer() || !range_json.at(2).is_boolean()) {
-      return std::nullopt;
-    }
-
-    return ValueIntegerBoundsWithSize{
-        .first = std::move(bounds).value(),
-        .second = ValueRange{
-            static_cast<std::size_t>(range_json.at(0).to_integer()),
-            range_json.at(1).is_null()
-                ? std::nullopt
-                : std::optional<std::size_t>{static_cast<std::size_t>(
-                      range_json.at(1).to_integer())},
-            range_json.at(2).to_boolean()}};
-  }
-};
+using ValueIntegerBoundsWithSize = std::pair<ValueIntegerBounds, ValueRange>;
 
 /// @ingroup evaluator
 using Value =

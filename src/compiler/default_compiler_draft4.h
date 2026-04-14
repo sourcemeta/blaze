@@ -891,7 +891,7 @@ auto extract_integer_bounds(const Instructions &children)
     }
   }
 
-  return {.first = minimum, .second = maximum};
+  return {minimum, maximum};
 }
 
 auto compiler_draft4_applicator_properties_with_options(
@@ -1144,9 +1144,9 @@ auto compiler_draft4_applicator_properties_with_options(
                   ? InstructionIndex::AssertionTypeIntegerLowerBoundStrict
                   : InstructionIndex::AssertionTypeIntegerLowerBound;
           substeps.clear();
-          substeps.push_back(
-              make(index, context, schema_context, relative_dynamic_context(),
-                   ValueIntegerBounds{.first = minimum, .second = 0}));
+          substeps.push_back(make(index, context, schema_context,
+                                  relative_dynamic_context(),
+                                  ValueIntegerBounds{minimum, 0}));
         } else if (substeps.size() == 2) {
           bool has_items_bounded{false};
           bool has_array_type{false};
@@ -1168,8 +1168,8 @@ auto compiler_draft4_applicator_properties_with_options(
             auto integer_bounds{
                 std::get<ValueIntegerBounds>(substeps[items_index].value)};
             auto range{std::get<ValueRange>(substeps[array_index].value)};
-            Value fused_value{ValueIntegerBoundsWithSize{
-                .first = integer_bounds, .second = std::move(range)}};
+            Value fused_value{
+                ValueIntegerBoundsWithSize{integer_bounds, std::move(range)}};
             substeps.clear();
             substeps.push_back(
                 make(InstructionIndex::LoopItemsIntegerBoundedSized, context,
