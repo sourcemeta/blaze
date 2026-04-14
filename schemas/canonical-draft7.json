@@ -18,6 +18,49 @@
   ],
   "$ref": "#/$defs/schema",
   "$defs": {
+    "metadata": {
+      "properties": {
+        "title": {
+          "type": "string"
+        },
+        "description": {
+          "type": "string"
+        },
+        "default": true,
+        "readOnly": {
+          "type": "boolean"
+        },
+        "writeOnly": {
+          "type": "boolean"
+        },
+        "examples": {
+          "type": "array",
+          "minItems": 1,
+          "uniqueItems": true
+        }
+      },
+      "patternProperties": {
+        "^x-": true
+      }
+    },
+    "core": {
+      "x-lint-exclude": "simple_properties_identifiers",
+      "properties": {
+        "$schema": {
+          "type": "string"
+        },
+        "$id": {
+          "type": "string"
+        },
+        "definitions": {
+          "type": "object",
+          "minProperties": 1,
+          "additionalProperties": {
+            "$ref": "#/$defs/schema"
+          }
+        }
+      }
+    },
     "schema": {
       "anyOf": [
         {
@@ -25,86 +68,48 @@
         },
         {
           "x-lint-exclude": "simple_properties_identifiers",
+          "$ref": "#/$defs/metadata",
           "type": "object",
           "required": [ "$ref" ],
           "properties": {
             "$ref": {
               "type": "string"
-            },
-            "title": {
-              "type": "string"
-            },
-            "description": {
-              "type": "string"
-            },
-            "default": true,
-            "readOnly": {
-              "type": "boolean"
-            },
-            "writeOnly": {
-              "type": "boolean"
-            },
-            "examples": {
-              "type": "array",
-              "minItems": 1,
-              "uniqueItems": true
             }
           },
-          "patternProperties": {
-            "^x-": true
-          },
-          "additionalProperties": false
+          "unevaluatedProperties": false
         },
         {
           "x-lint-exclude": "simple_properties_identifiers",
           "type": "object",
+          "allOf": [
+            {
+              "$ref": "#/$defs/metadata"
+            },
+            {
+              "$ref": "#/$defs/core"
+            }
+          ],
           "required": [ "enum" ],
           "properties": {
             "enum": {
               "type": "array",
               "minItems": 1,
               "uniqueItems": true
-            },
-            "$schema": {
-              "type": "string"
-            },
-            "$id": {
-              "type": "string"
-            },
-            "definitions": {
-              "type": "object",
-              "minProperties": 1,
-              "additionalProperties": {
-                "$ref": "#/$defs/schema"
-              }
-            },
-            "title": {
-              "type": "string"
-            },
-            "description": {
-              "type": "string"
-            },
-            "default": true,
-            "readOnly": {
-              "type": "boolean"
-            },
-            "writeOnly": {
-              "type": "boolean"
-            },
-            "examples": {
-              "type": "array",
-              "minItems": 1,
-              "uniqueItems": true
             }
           },
-          "patternProperties": {
-            "^x-": true
-          },
-          "additionalProperties": false
+          "unevaluatedProperties": false
         },
         {
           "x-lint-exclude": "simple_properties_identifiers",
           "type": "object",
+          "allOf": [
+            {
+              "$ref": "#/$defs/metadata"
+            },
+            {
+              "$ref": "#/$defs/core"
+            }
+          ],
           "required": [ "type", "minLength" ],
           "properties": {
             "type": {
@@ -129,47 +134,21 @@
             },
             "contentMediaType": {
               "type": "string"
-            },
-            "$schema": {
-              "type": "string"
-            },
-            "$id": {
-              "type": "string"
-            },
-            "definitions": {
-              "type": "object",
-              "minProperties": 1,
-              "additionalProperties": {
-                "$ref": "#/$defs/schema"
-              }
-            },
-            "title": {
-              "type": "string"
-            },
-            "description": {
-              "type": "string"
-            },
-            "default": true,
-            "readOnly": {
-              "type": "boolean"
-            },
-            "writeOnly": {
-              "type": "boolean"
-            },
-            "examples": {
-              "type": "array",
-              "minItems": 1,
-              "uniqueItems": true
             }
           },
-          "patternProperties": {
-            "^x-": true
-          },
-          "additionalProperties": false
+          "unevaluatedProperties": false
         },
         {
           "x-lint-exclude": "simple_properties_identifiers",
           "type": "object",
+          "allOf": [
+            {
+              "$ref": "#/$defs/metadata"
+            },
+            {
+              "$ref": "#/$defs/core"
+            }
+          ],
           "required": [ "type", "multipleOf" ],
           "properties": {
             "type": {
@@ -184,47 +163,21 @@
             },
             "maximum": {
               "type": "number"
-            },
-            "$schema": {
-              "type": "string"
-            },
-            "$id": {
-              "type": "string"
-            },
-            "definitions": {
-              "type": "object",
-              "minProperties": 1,
-              "additionalProperties": {
-                "$ref": "#/$defs/schema"
-              }
-            },
-            "title": {
-              "type": "string"
-            },
-            "description": {
-              "type": "string"
-            },
-            "default": true,
-            "readOnly": {
-              "type": "boolean"
-            },
-            "writeOnly": {
-              "type": "boolean"
-            },
-            "examples": {
-              "type": "array",
-              "minItems": 1,
-              "uniqueItems": true
             }
           },
-          "patternProperties": {
-            "^x-": true
-          },
-          "additionalProperties": false
+          "unevaluatedProperties": false
         },
         {
           "x-lint-exclude": "simple_properties_identifiers",
           "type": "object",
+          "allOf": [
+            {
+              "$ref": "#/$defs/metadata"
+            },
+            {
+              "$ref": "#/$defs/core"
+            }
+          ],
           "required": [ "type" ],
           "properties": {
             "type": {
@@ -245,47 +198,21 @@
             },
             "exclusiveMaximum": {
               "type": "number"
-            },
-            "$schema": {
-              "type": "string"
-            },
-            "$id": {
-              "type": "string"
-            },
-            "definitions": {
-              "type": "object",
-              "minProperties": 1,
-              "additionalProperties": {
-                "$ref": "#/$defs/schema"
-              }
-            },
-            "title": {
-              "type": "string"
-            },
-            "description": {
-              "type": "string"
-            },
-            "default": true,
-            "readOnly": {
-              "type": "boolean"
-            },
-            "writeOnly": {
-              "type": "boolean"
-            },
-            "examples": {
-              "type": "array",
-              "minItems": 1,
-              "uniqueItems": true
             }
           },
-          "patternProperties": {
-            "^x-": true
-          },
-          "additionalProperties": false
+          "unevaluatedProperties": false
         },
         {
           "x-lint-exclude": "simple_properties_identifiers",
           "type": "object",
+          "allOf": [
+            {
+              "$ref": "#/$defs/metadata"
+            },
+            {
+              "$ref": "#/$defs/core"
+            }
+          ],
           "required": [
             "type",
             "properties",
@@ -331,47 +258,21 @@
             "maxProperties": {
               "type": "integer",
               "minimum": 0
-            },
-            "$schema": {
-              "type": "string"
-            },
-            "$id": {
-              "type": "string"
-            },
-            "definitions": {
-              "type": "object",
-              "minProperties": 1,
-              "additionalProperties": {
-                "$ref": "#/$defs/schema"
-              }
-            },
-            "title": {
-              "type": "string"
-            },
-            "description": {
-              "type": "string"
-            },
-            "default": true,
-            "readOnly": {
-              "type": "boolean"
-            },
-            "writeOnly": {
-              "type": "boolean"
-            },
-            "examples": {
-              "type": "array",
-              "minItems": 1,
-              "uniqueItems": true
             }
           },
-          "patternProperties": {
-            "^x-": true
-          },
-          "additionalProperties": false
+          "unevaluatedProperties": false
         },
         {
           "x-lint-exclude": "simple_properties_identifiers",
           "type": "object",
+          "allOf": [
+            {
+              "$ref": "#/$defs/metadata"
+            },
+            {
+              "$ref": "#/$defs/core"
+            }
+          ],
           "required": [ "type", "items", "minItems", "uniqueItems" ],
           "properties": {
             "type": {
@@ -393,47 +294,21 @@
             },
             "uniqueItems": {
               "type": "boolean"
-            },
-            "$schema": {
-              "type": "string"
-            },
-            "$id": {
-              "type": "string"
-            },
-            "definitions": {
-              "type": "object",
-              "minProperties": 1,
-              "additionalProperties": {
-                "$ref": "#/$defs/schema"
-              }
-            },
-            "title": {
-              "type": "string"
-            },
-            "description": {
-              "type": "string"
-            },
-            "default": true,
-            "readOnly": {
-              "type": "boolean"
-            },
-            "writeOnly": {
-              "type": "boolean"
-            },
-            "examples": {
-              "type": "array",
-              "minItems": 1,
-              "uniqueItems": true
             }
           },
-          "patternProperties": {
-            "^x-": true
-          },
-          "additionalProperties": false
+          "unevaluatedProperties": false
         },
         {
           "x-lint-exclude": "simple_properties_identifiers",
           "type": "object",
+          "allOf": [
+            {
+              "$ref": "#/$defs/metadata"
+            },
+            {
+              "$ref": "#/$defs/core"
+            }
+          ],
           "required": [
             "type",
             "items",
@@ -468,47 +343,21 @@
             },
             "uniqueItems": {
               "type": "boolean"
-            },
-            "$schema": {
-              "type": "string"
-            },
-            "$id": {
-              "type": "string"
-            },
-            "definitions": {
-              "type": "object",
-              "minProperties": 1,
-              "additionalProperties": {
-                "$ref": "#/$defs/schema"
-              }
-            },
-            "title": {
-              "type": "string"
-            },
-            "description": {
-              "type": "string"
-            },
-            "default": true,
-            "readOnly": {
-              "type": "boolean"
-            },
-            "writeOnly": {
-              "type": "boolean"
-            },
-            "examples": {
-              "type": "array",
-              "minItems": 1,
-              "uniqueItems": true
             }
           },
-          "patternProperties": {
-            "^x-": true
-          },
-          "additionalProperties": false
+          "unevaluatedProperties": false
         },
         {
           "x-lint-exclude": "simple_properties_identifiers",
           "type": "object",
+          "allOf": [
+            {
+              "$ref": "#/$defs/metadata"
+            },
+            {
+              "$ref": "#/$defs/core"
+            }
+          ],
           "required": [ "if", "then", "else" ],
           "properties": {
             "if": {
@@ -519,47 +368,21 @@
             },
             "else": {
               "$ref": "#/$defs/schema"
-            },
-            "$schema": {
-              "type": "string"
-            },
-            "$id": {
-              "type": "string"
-            },
-            "definitions": {
-              "type": "object",
-              "minProperties": 1,
-              "additionalProperties": {
-                "$ref": "#/$defs/schema"
-              }
-            },
-            "title": {
-              "type": "string"
-            },
-            "description": {
-              "type": "string"
-            },
-            "default": true,
-            "readOnly": {
-              "type": "boolean"
-            },
-            "writeOnly": {
-              "type": "boolean"
-            },
-            "examples": {
-              "type": "array",
-              "minItems": 1,
-              "uniqueItems": true
             }
           },
-          "patternProperties": {
-            "^x-": true
-          },
-          "additionalProperties": false
+          "unevaluatedProperties": false
         },
         {
           "x-lint-exclude": "simple_properties_identifiers",
           "type": "object",
+          "allOf": [
+            {
+              "$ref": "#/$defs/metadata"
+            },
+            {
+              "$ref": "#/$defs/core"
+            }
+          ],
           "required": [ "anyOf" ],
           "properties": {
             "anyOf": {
@@ -568,47 +391,21 @@
               "items": {
                 "$ref": "#/$defs/schema"
               }
-            },
-            "$schema": {
-              "type": "string"
-            },
-            "$id": {
-              "type": "string"
-            },
-            "definitions": {
-              "type": "object",
-              "minProperties": 1,
-              "additionalProperties": {
-                "$ref": "#/$defs/schema"
-              }
-            },
-            "title": {
-              "type": "string"
-            },
-            "description": {
-              "type": "string"
-            },
-            "default": true,
-            "readOnly": {
-              "type": "boolean"
-            },
-            "writeOnly": {
-              "type": "boolean"
-            },
-            "examples": {
-              "type": "array",
-              "minItems": 1,
-              "uniqueItems": true
             }
           },
-          "patternProperties": {
-            "^x-": true
-          },
-          "additionalProperties": false
+          "unevaluatedProperties": false
         },
         {
           "x-lint-exclude": "simple_properties_identifiers",
           "type": "object",
+          "allOf": [
+            {
+              "$ref": "#/$defs/metadata"
+            },
+            {
+              "$ref": "#/$defs/core"
+            }
+          ],
           "required": [ "allOf" ],
           "properties": {
             "allOf": {
@@ -617,47 +414,21 @@
               "items": {
                 "$ref": "#/$defs/schema"
               }
-            },
-            "$schema": {
-              "type": "string"
-            },
-            "$id": {
-              "type": "string"
-            },
-            "definitions": {
-              "type": "object",
-              "minProperties": 1,
-              "additionalProperties": {
-                "$ref": "#/$defs/schema"
-              }
-            },
-            "title": {
-              "type": "string"
-            },
-            "description": {
-              "type": "string"
-            },
-            "default": true,
-            "readOnly": {
-              "type": "boolean"
-            },
-            "writeOnly": {
-              "type": "boolean"
-            },
-            "examples": {
-              "type": "array",
-              "minItems": 1,
-              "uniqueItems": true
             }
           },
-          "patternProperties": {
-            "^x-": true
-          },
-          "additionalProperties": false
+          "unevaluatedProperties": false
         },
         {
           "x-lint-exclude": "simple_properties_identifiers",
           "type": "object",
+          "allOf": [
+            {
+              "$ref": "#/$defs/metadata"
+            },
+            {
+              "$ref": "#/$defs/core"
+            }
+          ],
           "required": [ "oneOf" ],
           "properties": {
             "oneOf": {
@@ -666,88 +437,28 @@
               "items": {
                 "$ref": "#/$defs/schema"
               }
-            },
-            "$schema": {
-              "type": "string"
-            },
-            "$id": {
-              "type": "string"
-            },
-            "definitions": {
-              "type": "object",
-              "minProperties": 1,
-              "additionalProperties": {
-                "$ref": "#/$defs/schema"
-              }
-            },
-            "title": {
-              "type": "string"
-            },
-            "description": {
-              "type": "string"
-            },
-            "default": true,
-            "readOnly": {
-              "type": "boolean"
-            },
-            "writeOnly": {
-              "type": "boolean"
-            },
-            "examples": {
-              "type": "array",
-              "minItems": 1,
-              "uniqueItems": true
             }
           },
-          "patternProperties": {
-            "^x-": true
-          },
-          "additionalProperties": false
+          "unevaluatedProperties": false
         },
         {
           "x-lint-exclude": "simple_properties_identifiers",
           "type": "object",
+          "allOf": [
+            {
+              "$ref": "#/$defs/metadata"
+            },
+            {
+              "$ref": "#/$defs/core"
+            }
+          ],
           "required": [ "not" ],
           "properties": {
             "not": {
               "$ref": "#/$defs/schema"
-            },
-            "$schema": {
-              "type": "string"
-            },
-            "$id": {
-              "type": "string"
-            },
-            "definitions": {
-              "type": "object",
-              "minProperties": 1,
-              "additionalProperties": {
-                "$ref": "#/$defs/schema"
-              }
-            },
-            "title": {
-              "type": "string"
-            },
-            "description": {
-              "type": "string"
-            },
-            "default": true,
-            "readOnly": {
-              "type": "boolean"
-            },
-            "writeOnly": {
-              "type": "boolean"
-            },
-            "examples": {
-              "type": "array",
-              "minItems": 1,
-              "uniqueItems": true
             }
           },
-          "patternProperties": {
-            "^x-": true
-          },
-          "additionalProperties": false
+          "unevaluatedProperties": false
         }
       ]
     }

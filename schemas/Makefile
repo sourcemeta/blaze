@@ -1,5 +1,13 @@
-SCHEMAS = canonical-draft4.json canonical-draft6.json canonical-draft7.json
-TESTS = canonical-draft4.test.json canonical-draft6.test.json canonical-draft7.test.json
+SCHEMAS = \
+	canonical-draft4.json \
+	canonical-draft6.json \
+	canonical-draft7.json \
+	canonical-2019-09.json
+TESTS = \
+	canonical-draft4.test.json \
+	canonical-draft6.test.json \
+	canonical-draft7.test.json \
+	canonical-2019-09.test.json
 JSONSCHEMA ?= jsonschema
 
 .PHONY: all
