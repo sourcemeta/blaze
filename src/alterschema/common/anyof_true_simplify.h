@@ -9,7 +9,7 @@ public:
 
   [[nodiscard]] auto
   condition(const sourcemeta::core::JSON &schema,
-            const sourcemeta::core::JSON &,
+            const sourcemeta::core::JSON &root,
             const sourcemeta::core::Vocabularies &vocabularies,
             const sourcemeta::core::SchemaFrame &frame,
             const sourcemeta::core::SchemaFrame::Location &location,
@@ -26,13 +26,30 @@ public:
                      schema.is_object() && schema.defines(KEYWORD) &&
                      schema.at(KEYWORD).is_array());
 
-    // When unevaluated keywords are present, anyOf annotations are
-    // semantically meaningful even if one branch always succeeds
+    // When unevaluated keywords are present at this level or any
+    // ancestor, `anyOf` annotations are semantically meaningful even
+    // if one branch always succeeds
     if (vocabularies.contains_any(
             {Vocabularies::Known::JSON_Schema_2019_09_Applicator,
              Vocabularies::Known::JSON_Schema_2020_12_Applicator})) {
-      ONLY_CONTINUE_IF(!schema.defines("unevaluatedItems") &&
-                       !schema.defines("unevaluatedProperties"));
+      auto cursor{std::cref(location)};
+      while (true) {
+        const auto &current_schema{
+            sourcemeta::core::get(root, cursor.get().pointer)};
+        if (current_schema.is_object() &&
+            (current_schema.defines("unevaluatedItems") ||
+             current_schema.defines("unevaluatedProperties"))) {
+          return false;
+        }
+        if (!cursor.get().parent.has_value()) {
+          break;
+        }
+        const auto parent_location{frame.traverse(cursor.get().parent.value())};
+        if (!parent_location.has_value()) {
+          break;
+        }
+        cursor = parent_location.value();
+      }
     }
 
     const auto &anyof{schema.at(KEYWORD)};
