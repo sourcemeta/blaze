@@ -30,9 +30,6 @@ public:
       schema.assign("contains", sourcemeta::core::JSON{true});
     }
     if (!schema.defines("minContains")) {
-      // When contains was already present, the default minContains is 1.
-      // When we are adding an implicit contains: true, use minContains: 0
-      // to keep both trivial (no-op)
       schema.assign("minContains",
                     sourcemeta::core::JSON{had_contains ? 1 : 0});
     }
