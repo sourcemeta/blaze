@@ -1174,12 +1174,16 @@ auto compiler_draft4_applicator_properties_with_options(
             auto integer_bounds{
                 std::get<ValueIntegerBounds>(substeps[items_index].value)};
             auto range{std::get<ValueRange>(substeps[array_index].value)};
+            auto instance_location =
+                substeps[items_index].relative_instance_location;
             Value fused_value{
                 ValueIntegerBoundsWithSize{integer_bounds, std::move(range)}};
             substeps.clear();
-            substeps.push_back(
+            auto fused =
                 make(InstructionIndex::LoopItemsIntegerBoundedSized, context,
-                     schema_context, effective_dynamic_context, fused_value));
+                     schema_context, effective_dynamic_context, fused_value);
+            fused.relative_instance_location = std::move(instance_location);
+            substeps.push_back(std::move(fused));
           }
         }
       }

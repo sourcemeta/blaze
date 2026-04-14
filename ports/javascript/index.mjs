@@ -2354,8 +2354,11 @@ function LoopItemsIntegerBoundedSized(instruction, instance, depth, template, ev
   const maximum = value[0][1];
   const minimumSize = value[1][0];
   const target = resolveInstance(instance, instruction[2]);
-  if (!Array.isArray(target) || target.length < minimumSize) return true;
   if (evaluator.callbackMode) evaluator.callbackPush(instruction);
+  if (!Array.isArray(target) || target.length < minimumSize) {
+    if (evaluator.callbackMode) evaluator.callbackPop(instruction, false);
+    return false;
+  }
   for (let index = 0; index < target.length; index++) {
     const element = target[index];
     if (typeof element !== 'number') {
@@ -3729,7 +3732,7 @@ function LoopItemsIntegerBoundedSized_fast(instruction, instance, depth, templat
   const maximum = value[0][1];
   const minimumSize = value[1][0];
   const target = resolveInstance(instance, instruction[2]);
-  if (!Array.isArray(target) || target.length < minimumSize) return true;
+  if (!Array.isArray(target) || target.length < minimumSize) return false;
   for (let index = 0; index < target.length; index++) {
     const element = target[index];
     if (typeof element !== 'number' || element < minimum || element > maximum) return false;
