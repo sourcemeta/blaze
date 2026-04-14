@@ -3,10 +3,7 @@ public:
   using mutates = std::true_type;
   using reframe_after_transform = std::false_type;
   EmptyObjectAsTrueNext()
-      : SchemaTransformRule{
-            "empty_object_as_true_next",
-            "The empty schema `{}` accepts all values and is equivalent to the "
-            "boolean schema `true`"} {};
+      : SchemaTransformRule{"empty_object_as_true_next", ""} {};
 
   [[nodiscard]] auto
   condition(const sourcemeta::core::JSON &schema,

@@ -3,10 +3,7 @@ public:
   using mutates = std::true_type;
   using reframe_after_transform = std::true_type;
   EmptyDependenciesDrop()
-      : SchemaTransformRule{
-            "empty_dependencies_drop",
-            "An empty `dependencies` object adds no value and can be "
-            "removed"} {};
+      : SchemaTransformRule{"empty_dependencies_drop", ""} {};
 
   [[nodiscard]] auto
   condition(const sourcemeta::core::JSON &schema,

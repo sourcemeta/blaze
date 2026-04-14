@@ -2,11 +2,7 @@ class IfThenElseImplicit final : public SchemaTransformRule {
 public:
   using mutates = std::true_type;
   using reframe_after_transform = std::true_type;
-  IfThenElseImplicit()
-      : SchemaTransformRule{
-            "if_then_else_implicit",
-            "When `if` is present with `then` or `else`, the missing "
-            "counterpart has an implicit value of `true`"} {};
+  IfThenElseImplicit() : SchemaTransformRule{"if_then_else_implicit", ""} {};
 
   [[nodiscard]] auto
   condition(const sourcemeta::core::JSON &schema,

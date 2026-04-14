@@ -2,11 +2,7 @@ class EmptyDefinitionsDrop final : public SchemaTransformRule {
 public:
   using mutates = std::true_type;
   using reframe_after_transform = std::true_type;
-  EmptyDefinitionsDrop()
-      : SchemaTransformRule{
-            "empty_definitions_drop",
-            "An empty `definitions` object adds no value and can be "
-            "removed"} {};
+  EmptyDefinitionsDrop() : SchemaTransformRule{"empty_definitions_drop", ""} {};
 
   [[nodiscard]] auto
   condition(const sourcemeta::core::JSON &schema,

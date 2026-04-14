@@ -2,11 +2,7 @@ class EnumFilterByType final : public SchemaTransformRule {
 public:
   using mutates = std::true_type;
   using reframe_after_transform = std::true_type;
-  EnumFilterByType()
-      : SchemaTransformRule{
-            "enum_filter_by_type",
-            "When `type` and `enum` coexist, enum values whose JSON type "
-            "does not match the declared type can be removed"} {};
+  EnumFilterByType() : SchemaTransformRule{"enum_filter_by_type", ""} {};
 
   [[nodiscard]] auto
   condition(const sourcemeta::core::JSON &schema,

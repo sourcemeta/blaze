@@ -2,11 +2,7 @@ class CommentDrop final : public SchemaTransformRule {
 public:
   using mutates = std::true_type;
   using reframe_after_transform = std::true_type;
-  CommentDrop()
-      : SchemaTransformRule{
-            "comment_drop",
-            "The `$comment` keyword is not part of the canonical form "
-            "and can be removed"} {};
+  CommentDrop() : SchemaTransformRule{"comment_drop", ""} {};
 
   [[nodiscard]] auto
   condition(const sourcemeta::core::JSON &schema,

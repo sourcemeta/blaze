@@ -3,10 +3,7 @@ public:
   using mutates = std::true_type;
   using reframe_after_transform = std::true_type;
   ExclusiveBoundsFalseDrop()
-      : SchemaTransformRule{
-            "exclusive_bounds_false_drop",
-            "Setting boolean `exclusiveMinimum` or `exclusiveMaximum` to "
-            "false on an integer is a no-op and can be removed"} {};
+      : SchemaTransformRule{"exclusive_bounds_false_drop", ""} {};
 
   [[nodiscard]] auto
   condition(const sourcemeta::core::JSON &schema,

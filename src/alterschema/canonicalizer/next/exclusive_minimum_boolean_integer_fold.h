@@ -3,10 +3,7 @@ public:
   using mutates = std::true_type;
   using reframe_after_transform = std::true_type;
   ExclusiveMinimumBooleanIntegerFold()
-      : SchemaTransformRule{
-            "exclusive_minimum_boolean_integer_fold",
-            "Setting boolean `exclusiveMinimum` when `type` is `integer` "
-            "can be folded into an adjusted `minimum`"} {};
+      : SchemaTransformRule{"exclusive_minimum_boolean_integer_fold", ""} {};
 
   [[nodiscard]] auto
   condition(const sourcemeta::core::JSON &schema,

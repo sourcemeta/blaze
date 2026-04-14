@@ -3,10 +3,7 @@ public:
   using mutates = std::true_type;
   using reframe_after_transform = std::false_type;
   UnsatisfiableTypeAndEnum()
-      : SchemaTransformRule{
-            "unsatisfiable_type_and_enum",
-            "When `type` and `enum` are both present and no enum value "
-            "matches the declared type, the schema is unsatisfiable"} {};
+      : SchemaTransformRule{"unsatisfiable_type_and_enum", ""} {};
 
   [[nodiscard]] auto
   condition(const sourcemeta::core::JSON &schema,

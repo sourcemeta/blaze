@@ -2,11 +2,7 @@ class DependenciesToAnyOf final : public SchemaTransformRule {
 public:
   using mutates = std::true_type;
   using reframe_after_transform = std::true_type;
-  DependenciesToAnyOf()
-      : SchemaTransformRule{
-            "dependencies_to_any_of",
-            "The `dependencies` keyword entries can be decomposed "
-            "into an equivalent `anyOf`"} {};
+  DependenciesToAnyOf() : SchemaTransformRule{"dependencies_to_any_of", ""} {};
 
   [[nodiscard]] auto
   condition(const sourcemeta::core::JSON &schema,

@@ -3,10 +3,7 @@ public:
   using mutates = std::true_type;
   using reframe_after_transform = std::true_type;
   AdditionalItemsImplicit()
-      : SchemaTransformRule{
-            "additional_items_implicit",
-            "Every tuple array has an implicit `additionalItems` "
-            "of the boolean schema `true`"} {};
+      : SchemaTransformRule{"additional_items_implicit", ""} {};
 
   [[nodiscard]] auto
   condition(const sourcemeta::core::JSON &schema,

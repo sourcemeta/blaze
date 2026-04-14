@@ -3,10 +3,7 @@ public:
   using mutates = std::true_type;
   using reframe_after_transform = std::true_type;
   PropertyNamesImplicit()
-      : SchemaTransformRule{
-            "property_names_implicit",
-            "Every object schema has an implicit `propertyNames` keyword "
-            "of the boolean schema `true`"} {};
+      : SchemaTransformRule{"property_names_implicit", ""} {};
 
   [[nodiscard]] auto
   condition(const sourcemeta::core::JSON &schema,

@@ -3,9 +3,7 @@ public:
   using mutates = std::true_type;
   using reframe_after_transform = std::true_type;
   ImplicitObjectKeywords()
-      : SchemaTransformRule{"implicit_object_keywords",
-                            "Every object has implicit `patternProperties` and "
-                            "`additionalProperties` keywords"} {};
+      : SchemaTransformRule{"implicit_object_keywords", ""} {};
 
   [[nodiscard]] auto
   condition(const sourcemeta::core::JSON &schema,

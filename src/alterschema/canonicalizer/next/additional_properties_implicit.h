@@ -3,10 +3,7 @@ public:
   using mutates = std::true_type;
   using reframe_after_transform = std::true_type;
   AdditionalPropertiesImplicit()
-      : SchemaTransformRule{
-            "additional_properties_implicit",
-            "Every object has an implicit `additionalProperties` "
-            "of the boolean schema `true`"} {};
+      : SchemaTransformRule{"additional_properties_implicit", ""} {};
 
   [[nodiscard]] auto
   condition(const sourcemeta::core::JSON &schema,

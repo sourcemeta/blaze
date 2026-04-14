@@ -3,11 +3,7 @@ public:
   using mutates = std::true_type;
   using reframe_after_transform = std::true_type;
   TypeWithApplicatorToAllOf()
-      : SchemaTransformRule{
-            "type_with_applicator_to_allof",
-            "When multiple structural keywords coexist (type with "
-            "applicator, or multiple applicators), wrap in allOf to "
-            "isolate each one"} {};
+      : SchemaTransformRule{"type_with_applicator_to_allof", ""} {};
 
   [[nodiscard]] auto
   condition(const sourcemeta::core::JSON &schema,

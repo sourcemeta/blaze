@@ -3,10 +3,7 @@ public:
   using mutates = std::true_type;
   using reframe_after_transform = std::true_type;
   EnumDropRedundantValidation()
-      : SchemaTransformRule{
-            "enum_drop_redundant_validation",
-            "Validation keywords alongside `enum` are redundant because "
-            "the enumeration already fully constrains the allowed values"} {};
+      : SchemaTransformRule{"enum_drop_redundant_validation", ""} {};
 
   [[nodiscard]] auto
   condition(const sourcemeta::core::JSON &schema,

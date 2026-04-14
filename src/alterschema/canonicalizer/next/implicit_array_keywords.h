@@ -3,9 +3,7 @@ public:
   using mutates = std::true_type;
   using reframe_after_transform = std::true_type;
   ImplicitArrayKeywords()
-      : SchemaTransformRule{
-            "implicit_array_keywords",
-            "Every array has implicit `uniqueItems` and `items` keywords"} {};
+      : SchemaTransformRule{"implicit_array_keywords", ""} {};
 
   [[nodiscard]] auto
   condition(const sourcemeta::core::JSON &schema,
