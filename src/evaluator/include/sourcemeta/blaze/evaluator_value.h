@@ -160,6 +160,10 @@ using ValueTypedHashes = std::pair<ValueType, ValueStringHashes>;
 using ValueIntegerBounds = std::pair<std::int64_t, std::int64_t>;
 
 /// @ingroup evaluator
+/// Represents integer bounds combined with array size range
+using ValueIntegerBoundsWithSize = std::pair<ValueIntegerBounds, ValueRange>;
+
+/// @ingroup evaluator
 using Value =
     std::variant<ValueNone, ValueJSON, ValueSet, ValueString, ValueProperty,
                  ValueStrings, ValueStringSet, ValueTypes, ValueType,
@@ -167,7 +171,7 @@ using Value =
                  ValueNamedIndexes, ValueStringType, ValueStringMap,
                  ValuePropertyFilter, ValueIndexPair, ValuePointer,
                  ValueTypedProperties, ValueStringHashes, ValueTypedHashes,
-                 ValueIntegerBounds>;
+                 ValueIntegerBounds, ValueIntegerBoundsWithSize>;
 
 } // namespace sourcemeta::blaze
 

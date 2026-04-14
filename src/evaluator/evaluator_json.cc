@@ -40,13 +40,8 @@ auto value_from_json(const sourcemeta::core::JSON &wrapper)
     case 19: return sourcemeta::core::from_json<ValueTypedProperties>(value);
     case 20: return sourcemeta::core::from_json<ValueStringHashes>(value);
     case 21: return sourcemeta::core::from_json<ValueTypedHashes>(value);
-    case 22:
-      if (value.is_array() && value.array_size() == 2 &&
-          value.at(0).is_integer() && value.at(1).is_integer()) {
-        return ValueIntegerBounds{value.at(0).to_integer(),
-                                  value.at(1).to_integer()};
-      }
-      return std::nullopt;
+    case 22: return sourcemeta::core::from_json<ValueIntegerBounds>(value);
+    case 23: return sourcemeta::core::from_json<ValueIntegerBoundsWithSize>(value);
     // clang-format on
     default:
       std::unreachable();

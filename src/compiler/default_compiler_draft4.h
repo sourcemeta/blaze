@@ -808,6 +808,92 @@ auto properties_as_loop(const Context &context,
        }));
 }
 
+auto is_integer_type_check(const Instruction &instruction) -> bool {
+  return (instruction.type == InstructionIndex::AssertionType ||
+          instruction.type == InstructionIndex::AssertionTypeStrict) &&
+         std::get<ValueType>(instruction.value) ==
+             sourcemeta::core::JSON::Type::Integer;
+}
+
+auto has_strict_integer_type(const Instructions &children) -> bool {
+  for (const auto &child : children) {
+    if (child.type == InstructionIndex::AssertionTypeStrict &&
+        std::get<ValueType>(child.value) ==
+            sourcemeta::core::JSON::Type::Integer) {
+      return true;
+    }
+  }
+
+  return false;
+}
+
+auto is_integer_type_bounded_pattern(const Instructions &children) -> bool {
+  if (children.size() != 3) {
+    return false;
+  }
+
+  bool has_type{false};
+  bool has_min{false};
+  bool has_max{false};
+  for (const auto &child : children) {
+    if (is_integer_type_check(child)) {
+      has_type = true;
+    } else if (child.type == InstructionIndex::AssertionGreaterEqual &&
+               std::get<ValueJSON>(child.value).is_integer()) {
+      has_min = true;
+    } else if (child.type == InstructionIndex::AssertionLessEqual &&
+               std::get<ValueJSON>(child.value).is_integer()) {
+      has_max = true;
+    }
+  }
+
+  return has_type && has_min && has_max;
+}
+
+auto is_integer_type_lower_bound_pattern(const Instructions &children) -> bool {
+  if (children.size() != 2) {
+    return false;
+  }
+
+  bool has_type{false};
+  bool has_min{false};
+  for (const auto &child : children) {
+    if (is_integer_type_check(child)) {
+      has_type = true;
+    } else if (child.type == InstructionIndex::AssertionGreaterEqual &&
+               std::get<ValueJSON>(child.value).is_integer()) {
+      has_min = true;
+    }
+  }
+
+  return has_type && has_min;
+}
+
+auto extract_integer_lower_bound(const Instructions &children) -> std::int64_t {
+  for (const auto &child : children) {
+    if (child.type == InstructionIndex::AssertionGreaterEqual) {
+      return std::get<ValueJSON>(child.value).to_integer();
+    }
+  }
+
+  return 0;
+}
+
+auto extract_integer_bounds(const Instructions &children)
+    -> ValueIntegerBounds {
+  std::int64_t minimum{0};
+  std::int64_t maximum{0};
+  for (const auto &child : children) {
+    if (child.type == InstructionIndex::AssertionGreaterEqual) {
+      minimum = std::get<ValueJSON>(child.value).to_integer();
+    } else if (child.type == InstructionIndex::AssertionLessEqual) {
+      maximum = std::get<ValueJSON>(child.value).to_integer();
+    }
+  }
+
+  return {minimum, maximum};
+}
+
 auto compiler_draft4_applicator_properties_with_options(
     const Context &context, const SchemaContext &schema_context,
     const DynamicContext &dynamic_context, const Instructions &current,
@@ -1039,6 +1125,67 @@ auto compiler_draft4_applicator_properties_with_options(
                          effective_dynamic_context.base_schema_location,
                      .base_instance_location = new_base_instance_location},
                  ValueNone{}));
+      }
+
+      if (context.mode == Mode::FastValidation && !substeps.empty()) {
+        if (is_integer_type_bounded_pattern(substeps)) {
+          auto bounds = extract_integer_bounds(substeps);
+          const auto index =
+              has_strict_integer_type(substeps)
+                  ? InstructionIndex::AssertionTypeIntegerBoundedStrict
+                  : InstructionIndex::AssertionTypeIntegerBounded;
+          auto instance_location = substeps.front().relative_instance_location;
+          substeps.clear();
+          auto fused = make(index, context, schema_context,
+                            relative_dynamic_context(), bounds);
+          fused.relative_instance_location = std::move(instance_location);
+          substeps.push_back(std::move(fused));
+        } else if (is_integer_type_lower_bound_pattern(substeps)) {
+          const auto minimum = extract_integer_lower_bound(substeps);
+          const auto index =
+              has_strict_integer_type(substeps)
+                  ? InstructionIndex::AssertionTypeIntegerLowerBoundStrict
+                  : InstructionIndex::AssertionTypeIntegerLowerBound;
+          auto instance_location = substeps.front().relative_instance_location;
+          substeps.clear();
+          auto fused =
+              make(index, context, schema_context, relative_dynamic_context(),
+                   ValueIntegerBounds{minimum, 0});
+          fused.relative_instance_location = std::move(instance_location);
+          substeps.push_back(std::move(fused));
+        } else if (substeps.size() == 2) {
+          bool has_items_bounded{false};
+          bool has_array_type{false};
+          std::size_t items_index{0};
+          std::size_t array_index{0};
+          for (std::size_t step_index = 0; step_index < 2; step_index++) {
+            if (substeps[step_index].type ==
+                InstructionIndex::LoopItemsIntegerBounded) {
+              has_items_bounded = true;
+              items_index = step_index;
+            } else if (substeps[step_index].type ==
+                       InstructionIndex::AssertionTypeArrayBounded) {
+              has_array_type = true;
+              array_index = step_index;
+            }
+          }
+
+          if (has_items_bounded && has_array_type) {
+            auto integer_bounds{
+                std::get<ValueIntegerBounds>(substeps[items_index].value)};
+            auto range{std::get<ValueRange>(substeps[array_index].value)};
+            auto instance_location =
+                substeps[items_index].relative_instance_location;
+            Value fused_value{
+                ValueIntegerBoundsWithSize{integer_bounds, std::move(range)}};
+            substeps.clear();
+            auto fused =
+                make(InstructionIndex::LoopItemsIntegerBoundedSized, context,
+                     schema_context, effective_dynamic_context, fused_value);
+            fused.relative_instance_location = std::move(instance_location);
+            substeps.push_back(std::move(fused));
+          }
+        }
       }
 
       if (!substeps.empty()) {
@@ -1515,21 +1662,6 @@ auto is_integer_bounded_pattern(const Instructions &children) -> bool {
   }
 
   return has_type && has_min && has_max;
-}
-
-auto extract_integer_bounds(const Instructions &children)
-    -> ValueIntegerBounds {
-  std::int64_t minimum{0};
-  std::int64_t maximum{0};
-  for (const auto &child : children) {
-    if (child.type == InstructionIndex::AssertionGreaterEqual) {
-      minimum = std::get<ValueJSON>(child.value).to_integer();
-    } else if (child.type == InstructionIndex::AssertionLessEqual) {
-      maximum = std::get<ValueJSON>(child.value).to_integer();
-    }
-  }
-
-  return {minimum, maximum};
 }
 
 auto compiler_draft4_applicator_items_with_options(

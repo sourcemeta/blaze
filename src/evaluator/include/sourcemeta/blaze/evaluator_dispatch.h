@@ -738,6 +738,53 @@ INSTRUCTION_HANDLER(AssertionDivisible) {
   EVALUATE_END(AssertionDivisible);
 }
 
+INSTRUCTION_HANDLER(AssertionTypeIntegerBounded) {
+  EVALUATE_BEGIN_NON_STRING(AssertionTypeIntegerBounded, true);
+  const auto value{assume_value_copy<ValueIntegerBounds>(instruction.value)};
+  if (target.is_integer()) {
+    const auto integer{target.to_integer()};
+    result = integer >= value.first && integer <= value.second;
+  } else if (target.is_integral()) {
+    const auto integer{target.as_integer()};
+    result = integer >= value.first && integer <= value.second;
+  }
+
+  EVALUATE_END(AssertionTypeIntegerBounded);
+}
+
+INSTRUCTION_HANDLER(AssertionTypeIntegerBoundedStrict) {
+  EVALUATE_BEGIN_NON_STRING(AssertionTypeIntegerBoundedStrict, true);
+  const auto value{assume_value_copy<ValueIntegerBounds>(instruction.value)};
+  if (target.is_integer()) {
+    const auto integer{target.to_integer()};
+    result = integer >= value.first && integer <= value.second;
+  }
+
+  EVALUATE_END(AssertionTypeIntegerBoundedStrict);
+}
+
+INSTRUCTION_HANDLER(AssertionTypeIntegerLowerBound) {
+  EVALUATE_BEGIN_NON_STRING(AssertionTypeIntegerLowerBound, true);
+  const auto value{assume_value_copy<ValueIntegerBounds>(instruction.value)};
+  if (target.is_integer()) {
+    result = target.to_integer() >= value.first;
+  } else if (target.is_integral()) {
+    result = target.as_integer() >= value.first;
+  }
+
+  EVALUATE_END(AssertionTypeIntegerLowerBound);
+}
+
+INSTRUCTION_HANDLER(AssertionTypeIntegerLowerBoundStrict) {
+  EVALUATE_BEGIN_NON_STRING(AssertionTypeIntegerLowerBoundStrict, true);
+  const auto value{assume_value_copy<ValueIntegerBounds>(instruction.value)};
+  if (target.is_integer()) {
+    result = target.to_integer() >= value.first;
+  }
+
+  EVALUATE_END(AssertionTypeIntegerLowerBoundStrict);
+}
+
 INSTRUCTION_HANDLER(AssertionStringType) {
   EVALUATE_BEGIN_IF_STRING(AssertionStringType);
   const auto value{assume_value_copy<ValueStringType>(instruction.value)};
@@ -2244,6 +2291,50 @@ INSTRUCTION_HANDLER(LoopItemsIntegerBounded) {
   EVALUATE_END(LoopItemsIntegerBounded);
 }
 
+INSTRUCTION_HANDLER(LoopItemsIntegerBoundedSized) {
+  const auto &value{
+      assume_value<ValueIntegerBoundsWithSize>(instruction.value)};
+  const auto &integer_bounds{value.first};
+  const auto minimum_size{std::get<0>(value.second)};
+  EVALUATE_BEGIN_NON_STRING(LoopItemsIntegerBoundedSized, true);
+  if (!target.is_array() || target.array_size() < minimum_size) {
+    EVALUATE_END(LoopItemsIntegerBoundedSized);
+  }
+
+  result = true;
+  for (const auto &element : target.as_array()) {
+    if (!element.is_number()) [[unlikely]] {
+      result = false;
+      break;
+    }
+
+    if (element.is_integer()) {
+      const auto integer{element.to_integer()};
+      if (integer < integer_bounds.first || integer > integer_bounds.second)
+          [[unlikely]] {
+        result = false;
+        break;
+      }
+    } else if (element.is_real()) {
+      const auto real{element.to_real()};
+      if (real < static_cast<double>(integer_bounds.first) ||
+          real > static_cast<double>(integer_bounds.second)) [[unlikely]] {
+        result = false;
+        break;
+      }
+    } else {
+      const auto real{element.to_decimal().to_double()};
+      if (real < static_cast<double>(integer_bounds.first) ||
+          real > static_cast<double>(integer_bounds.second)) [[unlikely]] {
+        result = false;
+        break;
+      }
+    }
+  }
+
+  EVALUATE_END(LoopItemsIntegerBoundedSized);
+}
+
 INSTRUCTION_HANDLER(LoopContains) {
   EVALUATE_BEGIN_NON_STRING(LoopContains, target.is_array());
   assert(!instruction.children.empty());
@@ -2314,7 +2405,7 @@ using DispatchHandler = bool (*)(
 template <bool Track, bool Dynamic, bool HasCallback>
 // Must have same order as InstructionIndex
 // NOLINTNEXTLINE(modernize-avoid-c-arrays)
-static constexpr DispatchHandler<Track, Dynamic, HasCallback> handlers[93] = {
+static constexpr DispatchHandler<Track, Dynamic, HasCallback> handlers[98] = {
     AssertionFail,
     AssertionDefines,
     AssertionDefinesStrict,
@@ -2350,6 +2441,10 @@ static constexpr DispatchHandler<Track, Dynamic, HasCallback> handlers[93] = {
     AssertionLess,
     AssertionUnique,
     AssertionDivisible,
+    AssertionTypeIntegerBounded,
+    AssertionTypeIntegerBoundedStrict,
+    AssertionTypeIntegerLowerBound,
+    AssertionTypeIntegerLowerBoundStrict,
     AssertionStringType,
     AssertionPropertyType,
     AssertionPropertyTypeEvaluate,
@@ -2400,6 +2495,7 @@ static constexpr DispatchHandler<Track, Dynamic, HasCallback> handlers[93] = {
     LoopItemsPropertiesExactlyTypeStrictHash,
     LoopItemsPropertiesExactlyTypeStrictHash3,
     LoopItemsIntegerBounded,
+    LoopItemsIntegerBoundedSized,
     LoopContains,
     ControlGroup,
     ControlGroupWhenDefines,
