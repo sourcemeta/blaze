@@ -3265,11 +3265,7 @@
     "description": "items_integer_bounded_1",
     "schema": {
       "$schema": "http://json-schema.org/draft-06/schema#",
-      "items": {
-        "type": "number",
-        "minimum": 0,
-        "maximum": 100
-      }
+      "items": { "type": "number", "minimum": 0, "maximum": 100 }
     },
     "instance": [ 10, 50, 99 ],
     "valid": true,
@@ -3327,11 +3323,7 @@
     "description": "items_integer_bounded_2",
     "schema": {
       "$schema": "http://json-schema.org/draft-06/schema#",
-      "items": {
-        "type": "number",
-        "minimum": 0,
-        "maximum": 100
-      }
+      "items": { "type": "number", "minimum": 0, "maximum": 100 }
     },
     "instance": [ 10, 200, 50 ],
     "valid": false,
@@ -3374,11 +3366,7 @@
     "description": "items_integer_bounded_3",
     "schema": {
       "$schema": "http://json-schema.org/draft-06/schema#",
-      "items": {
-        "type": "number",
-        "minimum": 0,
-        "maximum": 100
-      }
+      "items": { "type": "number", "minimum": 0, "maximum": 100 }
     },
     "instance": [ "foo" ],
     "valid": false,
@@ -3412,11 +3400,7 @@
     "description": "items_integer_bounded_4",
     "schema": {
       "$schema": "http://json-schema.org/draft-06/schema#",
-      "items": {
-        "type": "number",
-        "minimum": 0,
-        "maximum": 100
-      }
+      "items": { "type": "number", "minimum": 0, "maximum": 100 }
     },
     "instance": "not an array",
     "valid": true,
@@ -3427,11 +3411,7 @@
     "description": "items_integer_bounded_5",
     "schema": {
       "$schema": "http://json-schema.org/draft-06/schema#",
-      "items": {
-        "type": "number",
-        "minimum": 0,
-        "maximum": 100
-      }
+      "items": { "type": "number", "minimum": 0, "maximum": 100 }
     },
     "instance": [],
     "valid": true,
@@ -3452,11 +3432,7 @@
     "description": "items_integer_bounded_6",
     "schema": {
       "$schema": "http://json-schema.org/draft-06/schema#",
-      "items": {
-        "type": "number",
-        "minimum": 0,
-        "maximum": 100
-      }
+      "items": { "type": "number", "minimum": 0, "maximum": 100 }
     },
     "instance": [ 10.5, 99.9 ],
     "valid": true,
@@ -3505,11 +3481,7 @@
     "description": "items_integer_bounded_7_real_bounds",
     "schema": {
       "$schema": "http://json-schema.org/draft-06/schema#",
-      "items": {
-        "type": "number",
-        "minimum": 0.5,
-        "maximum": 100
-      }
+      "items": { "type": "number", "minimum": 0.5, "maximum": 100 }
     },
     "instance": [ 1, 50 ],
     "valid": true,
@@ -3576,11 +3548,7 @@
     "description": "items_integer_bounded_8_boundary_values",
     "schema": {
       "$schema": "http://json-schema.org/draft-06/schema#",
-      "items": {
-        "type": "number",
-        "minimum": 0,
-        "maximum": 100
-      }
+      "items": { "type": "number", "minimum": 0, "maximum": 100 }
     },
     "instance": [ 0, 100 ],
     "valid": true,
