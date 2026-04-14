@@ -16,4 +16,6 @@ ports/javascript/test.mjs
 ports/javascript/trace.mjs
 schemas/canonical-draft4.test.json
 schemas/canonical-draft6.test.json
+schemas/canonical-draft7.test.json
+schemas/canonical-2019-09.test.json
 schemas/Makefile

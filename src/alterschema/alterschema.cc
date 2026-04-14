@@ -122,9 +122,16 @@ auto WALK_UP_IN_PLACE_APPLICATORS(const JSON &root, const SchemaFrame &frame,
 #include "canonicalizer/next/additional_items_implicit.h"
 #include "canonicalizer/next/additional_properties_implicit.h"
 #include "canonicalizer/next/comment_drop.h"
+#include "canonicalizer/next/definitions_to_defs.h"
 #include "canonicalizer/next/dependencies_to_any_of.h"
+#include "canonicalizer/next/dependent_required_to_any_of.h"
+#include "canonicalizer/next/dependent_schemas_to_any_of.h"
+#include "canonicalizer/next/deprecated_false_drop.h"
 #include "canonicalizer/next/empty_definitions_drop.h"
+#include "canonicalizer/next/empty_defs_drop.h"
 #include "canonicalizer/next/empty_dependencies_drop.h"
+#include "canonicalizer/next/empty_dependent_required_drop.h"
+#include "canonicalizer/next/empty_dependent_schemas_drop.h"
 #include "canonicalizer/next/empty_object_as_true_next.h"
 #include "canonicalizer/next/enum_drop_redundant_validation.h"
 #include "canonicalizer/next/enum_filter_by_type.h"
@@ -133,8 +140,10 @@ auto WALK_UP_IN_PLACE_APPLICATORS(const JSON &root, const SchemaFrame &frame,
 #include "canonicalizer/next/exclusive_minimum_boolean_integer_fold.h"
 #include "canonicalizer/next/if_then_else_implicit.h"
 #include "canonicalizer/next/implicit_array_keywords.h"
+#include "canonicalizer/next/implicit_contains_keywords.h"
 #include "canonicalizer/next/implicit_object_keywords.h"
 #include "canonicalizer/next/property_names_implicit.h"
+#include "canonicalizer/next/recursive_anchor_false_drop.h"
 #include "canonicalizer/next/type_with_applicator_to_allof.h"
 #include "canonicalizer/next/unsatisfiable_exclusive_equal_bounds.h"
 #include "canonicalizer/next/unsatisfiable_type_and_enum.h"
@@ -247,10 +256,14 @@ auto add(SchemaTransformer &bundle, const AlterSchemaMode mode) -> void {
     bundle.add<ExclusiveBoundsFalseDrop>();
     bundle.add<UnsatisfiableExclusiveEqualBounds>();
     bundle.add<CommentDrop>();
+    bundle.add<DefinitionsToDefsNext>();
+    bundle.add<DeprecatedFalseDrop>();
+    bundle.add<RecursiveAnchorFalseDrop>();
     bundle.add<IfThenElseImplicit>();
     bundle.add<ImplicitObjectKeywords>();
     bundle.add<PropertyNamesImplicit>();
     bundle.add<ImplicitArrayKeywords>();
+    bundle.add<ImplicitContainsKeywords>();
   }
 
   if (mode == AlterSchemaMode::Canonicalizer ||
@@ -382,10 +395,15 @@ auto add(SchemaTransformer &bundle, const AlterSchemaMode mode) -> void {
     bundle.add<UnsatisfiableTypeAndEnum>();
     bundle.add<EnumFilterByType>();
     bundle.add<DependenciesToAnyOf>();
+    bundle.add<DependentSchemasToAnyOf>();
+    bundle.add<DependentRequiredToAnyOf>();
     bundle.add<EnumDropRedundantValidation>();
     bundle.add<TypeWithApplicatorToAllOf>();
     bundle.add<EmptyDefinitionsDrop>();
+    bundle.add<EmptyDefsDrop>();
     bundle.add<EmptyDependenciesDrop>();
+    bundle.add<EmptyDependentSchemasDrop>();
+    bundle.add<EmptyDependentRequiredDrop>();
     bundle.add<AdditionalPropertiesImplicit>();
     bundle.add<AdditionalItemsImplicit>();
   }

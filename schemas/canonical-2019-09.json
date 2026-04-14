@@ -1,12 +1,12 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "tag:sourcemeta.com,2026:canonical:draft7",
-  "title": "Canonical JSON Schema Draft 7",
-  "description": "Meta-schema that validates whether a given JSON Schema Draft 7 document is in canonical form",
+  "$id": "tag:sourcemeta.com,2026:canonical:2019-09",
+  "title": "Canonical JSON Schema 2019-09",
+  "description": "Meta-schema that validates whether a given JSON Schema 2019-09 document is in canonical form",
   "examples": [
     true,
     {
-      "$ref": "#/definitions/foo"
+      "$ref": "#/$defs/foo"
     },
     {
       "enum": [ 1, 2, 3 ]
@@ -27,6 +27,9 @@
           "type": "string"
         },
         "default": true,
+        "deprecated": {
+          "type": "boolean"
+        },
         "readOnly": {
           "type": "boolean"
         },
@@ -52,7 +55,20 @@
         "$id": {
           "type": "string"
         },
-        "definitions": {
+        "$anchor": {
+          "type": "string"
+        },
+        "$recursiveAnchor": {
+          "const": true
+        },
+        "$vocabulary": {
+          "type": "object",
+          "minProperties": 1,
+          "additionalProperties": {
+            "type": "boolean"
+          }
+        },
+        "$defs": {
           "type": "object",
           "minProperties": 1,
           "additionalProperties": {
@@ -74,6 +90,18 @@
           "properties": {
             "$ref": {
               "type": "string"
+            }
+          },
+          "unevaluatedProperties": false
+        },
+        {
+          "x-lint-exclude": "simple_properties_identifiers",
+          "$ref": "#/$defs/metadata",
+          "type": "object",
+          "required": [ "$recursiveRef" ],
+          "properties": {
+            "$recursiveRef": {
+              "const": "#"
             }
           },
           "unevaluatedProperties": false
@@ -134,6 +162,9 @@
             },
             "contentMediaType": {
               "type": "string"
+            },
+            "contentSchema": {
+              "$ref": "#/$defs/schema"
             }
           },
           "unevaluatedProperties": false
@@ -273,7 +304,130 @@
               "$ref": "#/$defs/core"
             }
           ],
-          "required": [ "type", "items", "minItems", "uniqueItems" ],
+          "required": [
+            "type",
+            "properties",
+            "patternProperties",
+            "unevaluatedProperties",
+            "propertyNames",
+            "minProperties"
+          ],
+          "properties": {
+            "type": {
+              "const": "object"
+            },
+            "properties": {
+              "type": "object",
+              "additionalProperties": {
+                "$ref": "#/$defs/schema"
+              }
+            },
+            "patternProperties": {
+              "type": "object",
+              "additionalProperties": {
+                "$ref": "#/$defs/schema"
+              }
+            },
+            "unevaluatedProperties": {
+              "$ref": "#/$defs/schema"
+            },
+            "propertyNames": {
+              "$ref": "#/$defs/schema"
+            },
+            "required": {
+              "type": "array",
+              "minItems": 1,
+              "uniqueItems": true,
+              "items": {
+                "type": "string"
+              }
+            },
+            "minProperties": {
+              "type": "integer",
+              "minimum": 0
+            },
+            "maxProperties": {
+              "type": "integer",
+              "minimum": 0
+            }
+          },
+          "unevaluatedProperties": false
+        },
+        {
+          "x-lint-exclude": "simple_properties_identifiers",
+          "type": "object",
+          "allOf": [
+            {
+              "$ref": "#/$defs/metadata"
+            },
+            {
+              "$ref": "#/$defs/core"
+            }
+          ],
+          "required": [
+            "type",
+            "properties",
+            "patternProperties",
+            "propertyNames",
+            "minProperties"
+          ],
+          "properties": {
+            "type": {
+              "const": "object"
+            },
+            "properties": {
+              "type": "object",
+              "additionalProperties": {
+                "$ref": "#/$defs/schema"
+              }
+            },
+            "patternProperties": {
+              "type": "object",
+              "additionalProperties": {
+                "$ref": "#/$defs/schema"
+              }
+            },
+            "propertyNames": {
+              "$ref": "#/$defs/schema"
+            },
+            "required": {
+              "type": "array",
+              "minItems": 1,
+              "uniqueItems": true,
+              "items": {
+                "type": "string"
+              }
+            },
+            "minProperties": {
+              "type": "integer",
+              "minimum": 0
+            },
+            "maxProperties": {
+              "type": "integer",
+              "minimum": 0
+            }
+          },
+          "unevaluatedProperties": false
+        },
+        {
+          "x-lint-exclude": "simple_properties_identifiers",
+          "type": "object",
+          "allOf": [
+            {
+              "$ref": "#/$defs/metadata"
+            },
+            {
+              "$ref": "#/$defs/core"
+            }
+          ],
+          "required": [
+            "type",
+            "items",
+            "contains",
+            "minContains",
+            "minItems",
+            "uniqueItems"
+          ],
           "properties": {
             "type": {
               "const": "array"
@@ -283,6 +437,61 @@
             },
             "contains": {
               "$ref": "#/$defs/schema"
+            },
+            "minContains": {
+              "type": "integer",
+              "minimum": 0
+            },
+            "maxContains": {
+              "type": "integer",
+              "minimum": 0
+            },
+            "minItems": {
+              "type": "integer",
+              "minimum": 0
+            },
+            "maxItems": {
+              "type": "integer",
+              "minimum": 0
+            },
+            "uniqueItems": {
+              "type": "boolean"
+            }
+          },
+          "unevaluatedProperties": false
+        },
+        {
+          "x-lint-exclude": "simple_properties_identifiers",
+          "type": "object",
+          "allOf": [
+            {
+              "$ref": "#/$defs/metadata"
+            },
+            {
+              "$ref": "#/$defs/core"
+            }
+          ],
+          "required": [
+            "type",
+            "contains",
+            "minContains",
+            "minItems",
+            "uniqueItems"
+          ],
+          "properties": {
+            "type": {
+              "const": "array"
+            },
+            "contains": {
+              "$ref": "#/$defs/schema"
+            },
+            "minContains": {
+              "type": "integer",
+              "minimum": 0
+            },
+            "maxContains": {
+              "type": "integer",
+              "minimum": 0
             },
             "minItems": {
               "type": "integer",
@@ -313,6 +522,8 @@
             "type",
             "items",
             "additionalItems",
+            "contains",
+            "minContains",
             "minItems",
             "uniqueItems"
           ],
@@ -332,6 +543,128 @@
             },
             "contains": {
               "$ref": "#/$defs/schema"
+            },
+            "minContains": {
+              "type": "integer",
+              "minimum": 0
+            },
+            "maxContains": {
+              "type": "integer",
+              "minimum": 0
+            },
+            "minItems": {
+              "type": "integer",
+              "minimum": 0
+            },
+            "maxItems": {
+              "type": "integer",
+              "minimum": 0
+            },
+            "uniqueItems": {
+              "type": "boolean"
+            }
+          },
+          "unevaluatedProperties": false
+        },
+        {
+          "x-lint-exclude": "simple_properties_identifiers",
+          "type": "object",
+          "allOf": [
+            {
+              "$ref": "#/$defs/metadata"
+            },
+            {
+              "$ref": "#/$defs/core"
+            }
+          ],
+          "required": [
+            "type",
+            "items",
+            "unevaluatedItems",
+            "contains",
+            "minContains",
+            "minItems",
+            "uniqueItems"
+          ],
+          "properties": {
+            "type": {
+              "const": "array"
+            },
+            "items": {
+              "type": "array",
+              "minItems": 1,
+              "items": {
+                "$ref": "#/$defs/schema"
+              }
+            },
+            "unevaluatedItems": {
+              "$ref": "#/$defs/schema"
+            },
+            "contains": {
+              "$ref": "#/$defs/schema"
+            },
+            "minContains": {
+              "type": "integer",
+              "minimum": 0
+            },
+            "maxContains": {
+              "type": "integer",
+              "minimum": 0
+            },
+            "minItems": {
+              "type": "integer",
+              "minimum": 0
+            },
+            "maxItems": {
+              "type": "integer",
+              "minimum": 0
+            },
+            "uniqueItems": {
+              "type": "boolean"
+            }
+          },
+          "unevaluatedProperties": false
+        },
+        {
+          "x-lint-exclude": "simple_properties_identifiers",
+          "type": "object",
+          "allOf": [
+            {
+              "$ref": "#/$defs/metadata"
+            },
+            {
+              "$ref": "#/$defs/core"
+            }
+          ],
+          "required": [
+            "type",
+            "items",
+            "contains",
+            "minContains",
+            "minItems",
+            "uniqueItems"
+          ],
+          "properties": {
+            "type": {
+              "const": "array"
+            },
+            "items": {
+              "type": "array",
+              "minItems": 1,
+              "items": {
+                "$ref": "#/$defs/schema"
+              }
+            },
+            "contains": {
+              "$ref": "#/$defs/schema"
+            },
+            "minContains": {
+              "type": "integer",
+              "minimum": 0
+            },
+            "maxContains": {
+              "type": "integer",
+              "minimum": 0
             },
             "minItems": {
               "type": "integer",
