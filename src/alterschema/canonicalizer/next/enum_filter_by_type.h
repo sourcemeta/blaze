@@ -19,14 +19,16 @@ public:
       -> SchemaTransformRule::Result override {
     ONLY_CONTINUE_IF(
         vocabularies.contains_any({Vocabularies::Known::JSON_Schema_Draft_4,
-                                   Vocabularies::Known::JSON_Schema_Draft_6}) &&
+                                   Vocabularies::Known::JSON_Schema_Draft_6,
+                                   Vocabularies::Known::JSON_Schema_Draft_7}) &&
         schema.is_object() && schema.defines("type") &&
         schema.at("type").is_string() && schema.defines("enum") &&
         schema.at("enum").is_array() && !schema.at("enum").empty());
 
     const auto declared_types{parse_schema_type(schema.at("type"))};
     const bool integer_matches_integral{
-        vocabularies.contains(Vocabularies::Known::JSON_Schema_Draft_6) &&
+        vocabularies.contains_any({Vocabularies::Known::JSON_Schema_Draft_6,
+                                   Vocabularies::Known::JSON_Schema_Draft_7}) &&
         declared_types.test(std::to_underlying(JSON::Type::Integer))};
 
     this->matching_indices_.clear();

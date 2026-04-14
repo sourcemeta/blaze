@@ -1,12 +1,12 @@
-class EmptyDefinitionsDrop final : public SchemaTransformRule {
+class CommentDrop final : public SchemaTransformRule {
 public:
   using mutates = std::true_type;
   using reframe_after_transform = std::true_type;
-  EmptyDefinitionsDrop()
+  CommentDrop()
       : SchemaTransformRule{
-            "empty_definitions_drop",
-            "An empty `definitions` object adds no value and can be "
-            "removed"} {};
+            "comment_drop",
+            "The `$comment` keyword is not part of the canonical form "
+            "and can be removed"} {};
 
   [[nodiscard]] auto
   condition(const sourcemeta::core::JSON &schema,
@@ -18,16 +18,12 @@ public:
             const sourcemeta::core::SchemaResolver &) const
       -> SchemaTransformRule::Result override {
     ONLY_CONTINUE_IF(
-        vocabularies.contains_any({Vocabularies::Known::JSON_Schema_Draft_4,
-                                   Vocabularies::Known::JSON_Schema_Draft_6,
-                                   Vocabularies::Known::JSON_Schema_Draft_7}) &&
-        schema.is_object() && schema.defines("definitions") &&
-        schema.at("definitions").is_object() &&
-        schema.at("definitions").empty());
+        vocabularies.contains(Vocabularies::Known::JSON_Schema_Draft_7) &&
+        schema.is_object() && schema.defines("$comment"));
     return true;
   }
 
   auto transform(JSON &schema, const Result &) const -> void override {
-    schema.erase("definitions");
+    schema.erase("$comment");
   }
 };

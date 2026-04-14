@@ -20,20 +20,25 @@ public:
       -> SchemaTransformRule::Result override {
     ONLY_CONTINUE_IF(
         vocabularies.contains_any({Vocabularies::Known::JSON_Schema_Draft_4,
-                                   Vocabularies::Known::JSON_Schema_Draft_6}) &&
+                                   Vocabularies::Known::JSON_Schema_Draft_6,
+                                   Vocabularies::Known::JSON_Schema_Draft_7}) &&
         schema.is_object());
 
     const bool has_not{schema.defines("not")};
     const bool has_anyof{schema.defines("anyOf")};
     const bool has_allof{schema.defines("allOf")};
     const bool has_oneof{schema.defines("oneOf")};
+    const bool has_if{
+        vocabularies.contains(Vocabularies::Known::JSON_Schema_Draft_7) &&
+        schema.defines("if")};
+    this->has_if_then_else_ = has_if;
     const bool has_type{schema.defines("type") &&
                         schema.at("type").is_string()};
     const bool has_enum{schema.defines("enum")};
     const bool has_ref{schema.defines("$ref")};
     const unsigned int applicator_count{
         (has_not ? 1U : 0U) + (has_anyof ? 1U : 0U) + (has_allof ? 1U : 0U) +
-        (has_oneof ? 1U : 0U)};
+        (has_oneof ? 1U : 0U) + (has_if ? 1U : 0U)};
     const bool has_structural{has_type || has_enum || has_ref};
 
     ONLY_CONTINUE_IF((has_structural && applicator_count >= 1) ||
@@ -75,7 +80,10 @@ public:
         }
         const auto &src_keyword{relative_src.at(0).to_property()};
         if (src_keyword != "not" && src_keyword != "anyOf" &&
-            src_keyword != "oneOf") {
+            src_keyword != "oneOf" &&
+            !(this->has_if_then_else_ &&
+              (src_keyword == "if" || src_keyword == "then" ||
+               src_keyword == "else"))) {
           continue;
         }
 
@@ -114,8 +122,24 @@ public:
         }
         auto branch{JSON::make_object()};
         branch.assign(applicator, schema.at(applicator));
+        if (std::string_view{applicator} == "if" && this->has_if_then_else_) {
+          if (schema.defines("then")) {
+            branch.assign("then", schema.at("then"));
+          }
+          if (schema.defines("else")) {
+            branch.assign("else", schema.at("else"));
+          }
+        }
         schema.at("allOf").push_back(std::move(branch));
         schema.erase(applicator);
+      }
+      if (this->has_if_then_else_) {
+        if (schema.defines("then")) {
+          schema.erase("then");
+        }
+        if (schema.defines("else")) {
+          schema.erase("else");
+        }
       }
       return;
     }
@@ -125,7 +149,10 @@ public:
       if (entry.first == "not" || entry.first == "anyOf" ||
           entry.first == "allOf" || entry.first == "oneOf" ||
           entry.first == "$schema" || entry.first == "id" ||
-          entry.first == "$id") {
+          entry.first == "$id" ||
+          (this->has_if_then_else_ &&
+           (entry.first == "if" || entry.first == "then" ||
+            entry.first == "else"))) {
         continue;
       }
       typed_branch.assign(entry.first, entry.second);
@@ -156,8 +183,24 @@ public:
         }
         auto branch{JSON::make_object()};
         branch.assign(applicator, schema.at(applicator));
+        if (std::string_view{applicator} == "if" && this->has_if_then_else_) {
+          if (schema.defines("then")) {
+            branch.assign("then", schema.at("then"));
+          }
+          if (schema.defines("else")) {
+            branch.assign("else", schema.at("else"));
+          }
+        }
         schema.at("allOf").push_back(std::move(branch));
         schema.erase(applicator);
+        if (std::string_view{applicator} == "if" && this->has_if_then_else_) {
+          if (schema.defines("then")) {
+            schema.erase("then");
+          }
+          if (schema.defines("else")) {
+            schema.erase("else");
+          }
+        }
       }
 
       return;
@@ -172,6 +215,14 @@ public:
       }
       auto branch{JSON::make_object()};
       branch.assign(applicator, schema.at(applicator));
+      if (std::string_view{applicator} == "if" && this->has_if_then_else_) {
+        if (schema.defines("then")) {
+          branch.assign("then", schema.at("then"));
+        }
+        if (schema.defines("else")) {
+          branch.assign("else", schema.at("else"));
+        }
+      }
       new_allof.push_back(std::move(branch));
       this->applicator_indices_ |= applicator_bit(applicator);
     }
@@ -226,7 +277,9 @@ public:
     if (this->strategy_ == Strategy::FullRestructure) {
       std::size_t index{0};
       for (const auto &applicator : APPLICATORS) {
-        if (keyword == applicator) {
+        if (keyword == applicator ||
+            (this->has_if_then_else_ && std::string_view{applicator} == "if" &&
+             (keyword == "then" || keyword == "else"))) {
           const Pointer old_prefix{current.concat({keyword})};
           const Pointer new_prefix{
               current.concat({allof_keyword, index, keyword})};
@@ -242,10 +295,10 @@ public:
   }
 
 private:
-  static constexpr std::array<const char *, 4> APPLICATORS{
-      {"not", "anyOf", "allOf", "oneOf"}};
-  static constexpr std::array<const char *, 3> APPLICATORS_WITHOUT_ALLOF{
-      {"not", "anyOf", "oneOf"}};
+  static constexpr std::array<const char *, 5> APPLICATORS{
+      {"not", "anyOf", "allOf", "oneOf", "if"}};
+  static constexpr std::array<const char *, 4> APPLICATORS_WITHOUT_ALLOF{
+      {"not", "anyOf", "oneOf", "if"}};
 
   static constexpr auto applicator_bit(std::string_view keyword)
       -> std::uint8_t {
@@ -257,6 +310,8 @@ private:
       return 4;
     if (keyword == "oneOf")
       return 8;
+    if (keyword == "if" || keyword == "then" || keyword == "else")
+      return 16;
     return 0;
   }
 
@@ -266,6 +321,7 @@ private:
     MergeIntoAllOf
   };
   mutable Strategy strategy_{Strategy::FullRestructure};
+  mutable bool has_if_then_else_{false};
   mutable std::vector<std::string> typed_keywords_;
   mutable std::uint8_t applicator_indices_{0};
   mutable std::uint8_t applicators_with_refs_{0};

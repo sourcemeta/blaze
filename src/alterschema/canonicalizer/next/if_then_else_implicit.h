@@ -1,12 +1,12 @@
-class EmptyDefinitionsDrop final : public SchemaTransformRule {
+class IfThenElseImplicit final : public SchemaTransformRule {
 public:
   using mutates = std::true_type;
   using reframe_after_transform = std::true_type;
-  EmptyDefinitionsDrop()
+  IfThenElseImplicit()
       : SchemaTransformRule{
-            "empty_definitions_drop",
-            "An empty `definitions` object adds no value and can be "
-            "removed"} {};
+            "if_then_else_implicit",
+            "When `if` is present with `then` or `else`, the missing "
+            "counterpart has an implicit value of `true`"} {};
 
   [[nodiscard]] auto
   condition(const sourcemeta::core::JSON &schema,
@@ -18,16 +18,19 @@ public:
             const sourcemeta::core::SchemaResolver &) const
       -> SchemaTransformRule::Result override {
     ONLY_CONTINUE_IF(
-        vocabularies.contains_any({Vocabularies::Known::JSON_Schema_Draft_4,
-                                   Vocabularies::Known::JSON_Schema_Draft_6,
-                                   Vocabularies::Known::JSON_Schema_Draft_7}) &&
-        schema.is_object() && schema.defines("definitions") &&
-        schema.at("definitions").is_object() &&
-        schema.at("definitions").empty());
+        vocabularies.contains(Vocabularies::Known::JSON_Schema_Draft_7) &&
+        schema.is_object() && schema.defines("if") &&
+        (schema.defines("then") || schema.defines("else")) &&
+        (!schema.defines("then") || !schema.defines("else")));
     return true;
   }
 
   auto transform(JSON &schema, const Result &) const -> void override {
-    schema.erase("definitions");
+    if (!schema.defines("then")) {
+      schema.assign("then", JSON{true});
+    }
+    if (!schema.defines("else")) {
+      schema.assign("else", JSON{true});
+    }
   }
 };

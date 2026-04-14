@@ -121,6 +121,7 @@ auto WALK_UP_IN_PLACE_APPLICATORS(const JSON &root, const SchemaFrame &frame,
 #include "canonicalizer/multiple_of_implicit.h"
 #include "canonicalizer/next/additional_items_implicit.h"
 #include "canonicalizer/next/additional_properties_implicit.h"
+#include "canonicalizer/next/comment_drop.h"
 #include "canonicalizer/next/dependencies_to_any_of.h"
 #include "canonicalizer/next/empty_definitions_drop.h"
 #include "canonicalizer/next/empty_dependencies_drop.h"
@@ -130,6 +131,7 @@ auto WALK_UP_IN_PLACE_APPLICATORS(const JSON &root, const SchemaFrame &frame,
 #include "canonicalizer/next/exclusive_bounds_false_drop.h"
 #include "canonicalizer/next/exclusive_maximum_boolean_integer_fold.h"
 #include "canonicalizer/next/exclusive_minimum_boolean_integer_fold.h"
+#include "canonicalizer/next/if_then_else_implicit.h"
 #include "canonicalizer/next/implicit_array_keywords.h"
 #include "canonicalizer/next/implicit_object_keywords.h"
 #include "canonicalizer/next/property_names_implicit.h"
@@ -244,6 +246,8 @@ auto add(SchemaTransformer &bundle, const AlterSchemaMode mode) -> void {
     bundle.add<ExclusiveMaximumBooleanIntegerFold>();
     bundle.add<ExclusiveBoundsFalseDrop>();
     bundle.add<UnsatisfiableExclusiveEqualBounds>();
+    bundle.add<CommentDrop>();
+    bundle.add<IfThenElseImplicit>();
     bundle.add<ImplicitObjectKeywords>();
     bundle.add<PropertyNamesImplicit>();
     bundle.add<ImplicitArrayKeywords>();
@@ -281,8 +285,10 @@ auto add(SchemaTransformer &bundle, const AlterSchemaMode mode) -> void {
   bundle.add<MaxContainsWithoutContains>();
   bundle.add<MinContainsWithoutContains>();
   bundle.add<NotFalse>();
-  bundle.add<ThenEmpty>();
-  bundle.add<ElseEmpty>();
+  if (mode != AlterSchemaMode::CanonicalizerNext) {
+    bundle.add<ThenEmpty>();
+    bundle.add<ElseEmpty>();
+  }
   bundle.add<ThenWithoutIf>();
   bundle.add<DependenciesPropertyTautology>();
   bundle.add<DependentRequiredTautology>();
