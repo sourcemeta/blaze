@@ -3,14 +3,9 @@
     "description": "discriminator_1",
     "schema": {
       "$schema": "https://spec.openapis.org/oas/3.1/dialect/base",
-      "discriminator": {
-        "propertyName": "petType"
-      }
+      "discriminator": { "propertyName": "petType" }
     },
-    "instance": {
-      "petType": "dog",
-      "name": "Rex"
-    },
+    "instance": { "petType": "dog", "name": "Rex" },
     "valid": true,
     "fast": {},
     "exhaustive": {}
@@ -27,9 +22,7 @@
         "wrapped": true
       }
     },
-    "instance": {
-      "name": "Rex"
-    },
+    "instance": { "name": "Rex" },
     "valid": true,
     "fast": {},
     "exhaustive": {}
@@ -52,15 +45,9 @@
     "description": "example_1",
     "schema": {
       "$schema": "https://spec.openapis.org/oas/3.1/dialect/base",
-      "example": {
-        "name": "Rex",
-        "petType": "dog"
-      }
+      "example": { "name": "Rex", "petType": "dog" }
     },
-    "instance": {
-      "name": "Fluffy",
-      "petType": "cat"
-    },
+    "instance": { "name": "Fluffy", "petType": "cat" },
     "valid": true,
     "fast": {},
     "exhaustive": {}

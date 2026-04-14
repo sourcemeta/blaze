@@ -1,10 +1,7 @@
 [
   {
     "description": "unknown_keyword",
-    "schema": {
-      "$schema": "http://json-schema.org/draft-06/schema#",
-      "foobar": "baz"
-    },
+    "schema": { "$schema": "http://json-schema.org/draft-06/schema#", "foobar": "baz" },
     "instance": "foo bar",
     "valid": true,
     "fast": {},
@@ -12,10 +9,7 @@
   },
   {
     "description": "const_1",
-    "schema": {
-      "$schema": "http://json-schema.org/draft-06/schema#",
-      "const": 1
-    },
+    "schema": { "$schema": "http://json-schema.org/draft-06/schema#", "const": 1 },
     "instance": 1,
     "valid": true,
     "fast": {
@@ -43,10 +37,7 @@
   },
   {
     "description": "const_1_hyperschema",
-    "schema": {
-      "$schema": "http://json-schema.org/draft-06/hyper-schema#",
-      "const": 1
-    },
+    "schema": { "$schema": "http://json-schema.org/draft-06/hyper-schema#", "const": 1 },
     "instance": 1,
     "valid": true,
     "fast": {
@@ -74,10 +65,7 @@
   },
   {
     "description": "const_2",
-    "schema": {
-      "$schema": "http://json-schema.org/draft-06/schema#",
-      "const": 1
-    },
+    "schema": { "$schema": "http://json-schema.org/draft-06/schema#", "const": 1 },
     "instance": "foo",
     "valid": false,
     "fast": {
@@ -389,13 +377,9 @@
       "$schema": "http://json-schema.org/draft-06/schema#",
       "type": "object",
       "minProperties": 1,
-      "const": {
-        "foo": 1
-      }
+      "const": { "foo": 1 }
     },
-    "instance": {
-      "foo": 1
-    },
+    "instance": { "foo": 1 },
     "valid": true,
     "fast": {
       "pre": [
@@ -725,9 +709,7 @@
     "description": "contains_1",
     "schema": {
       "$schema": "http://json-schema.org/draft-06/schema#",
-      "contains": {
-        "type": "string"
-      }
+      "contains": { "type": "string" }
     },
     "instance": 2,
     "valid": true,
@@ -738,9 +720,7 @@
     "description": "contains_2",
     "schema": {
       "$schema": "http://json-schema.org/draft-06/schema#",
-      "contains": {
-        "type": "string"
-      }
+      "contains": { "type": "string" }
     },
     "instance": [ 1, "bar", 3 ],
     "valid": true,
@@ -783,9 +763,7 @@
     "description": "contains_3",
     "schema": {
       "$schema": "http://json-schema.org/draft-06/schema#",
-      "contains": {
-        "type": "string"
-      }
+      "contains": { "type": "string" }
     },
     "instance": [ 1, 2, 3 ],
     "valid": false,
@@ -834,9 +812,7 @@
     "description": "contains_4",
     "schema": {
       "$schema": "http://json-schema.org/draft-06/schema#",
-      "contains": {
-        "type": "string"
-      }
+      "contains": { "type": "string" }
     },
     "instance": [ "foo", "bar", "baz" ],
     "valid": true,
@@ -871,10 +847,7 @@
   },
   {
     "description": "contains_5",
-    "schema": {
-      "$schema": "http://json-schema.org/draft-06/schema#",
-      "contains": true
-    },
+    "schema": { "$schema": "http://json-schema.org/draft-06/schema#", "contains": true },
     "instance": [ "foo", "bar", "baz" ],
     "valid": true,
     "fast": {
@@ -904,9 +877,7 @@
     "description": "propertyNames_1",
     "schema": {
       "$schema": "http://json-schema.org/draft-06/schema#",
-      "propertyNames": {
-        "minLength": 5
-      }
+      "propertyNames": { "minLength": 5 }
     },
     "instance": 2,
     "valid": true,
@@ -917,15 +888,9 @@
     "description": "propertyNames_4",
     "schema": {
       "$schema": "http://json-schema.org/draft-06/schema#",
-      "properties": {
-        "foo": {
-          "propertyNames": {}
-        }
-      }
+      "properties": { "foo": { "propertyNames": {} } }
     },
-    "instance": {
-      "foo": {}
-    },
+    "instance": { "foo": {} },
     "valid": true,
     "fast": {},
     "exhaustive": {}
@@ -934,13 +899,9 @@
     "description": "propertyNames_6",
     "schema": {
       "$schema": "http://json-schema.org/draft-06/schema#",
-      "propertyNames": {
-        "pattern": "^f"
-      }
+      "propertyNames": { "pattern": "^f" }
     },
-    "instance": {
-      "bar": 2
-    },
+    "instance": { "bar": 2 },
     "valid": false,
     "fast": {
       "pre": [
@@ -975,18 +936,10 @@
     "description": "propertyNames_7",
     "schema": {
       "$schema": "http://json-schema.org/draft-06/schema#",
-      "propertyNames": {
-        "$ref": "#/definitions/test"
-      },
-      "definitions": {
-        "test": {
-          "pattern": "^f"
-        }
-      }
+      "propertyNames": { "$ref": "#/definitions/test" },
+      "definitions": { "test": { "pattern": "^f" } }
     },
-    "instance": {
-      "bar": 2
-    },
+    "instance": { "bar": 2 },
     "valid": false,
     "fast": {
       "pre": [
@@ -1024,13 +977,9 @@
     "description": "propertyNames_8",
     "schema": {
       "$schema": "http://json-schema.org/draft-06/schema#",
-      "propertyNames": {
-        "type": "string"
-      }
+      "propertyNames": { "type": "string" }
     },
-    "instance": {
-      "bar": 2
-    },
+    "instance": { "bar": 2 },
     "valid": true,
     "fast": {},
     "exhaustive": {}
@@ -1039,13 +988,9 @@
     "description": "propertyNames_9",
     "schema": {
       "$schema": "http://json-schema.org/draft-06/schema#",
-      "propertyNames": {
-        "enum": [ "foo" ]
-      }
+      "propertyNames": { "enum": [ "foo" ] }
     },
-    "instance": {
-      "foo": 1
-    },
+    "instance": { "foo": 1 },
     "valid": true,
     "fast": {
       "pre": [
@@ -1080,13 +1025,9 @@
     "description": "propertyNames_10",
     "schema": {
       "$schema": "http://json-schema.org/draft-06/schema#",
-      "propertyNames": {
-        "enum": [ "foo", "bar", "baz" ]
-      }
+      "propertyNames": { "enum": [ "foo", "bar", "baz" ] }
     },
-    "instance": {
-      "foo": 1
-    },
+    "instance": { "foo": 1 },
     "valid": true,
     "fast": {
       "pre": [
@@ -1121,13 +1062,9 @@
     "description": "propertyNames_11",
     "schema": {
       "$schema": "http://json-schema.org/draft-06/schema#",
-      "propertyNames": {
-        "enum": [ "foo", "bar", true ]
-      }
+      "propertyNames": { "enum": [ "foo", "bar", true ] }
     },
-    "instance": {
-      "foo": 1
-    },
+    "instance": { "foo": 1 },
     "valid": true,
     "fast": {
       "pre": [
@@ -1162,20 +1099,9 @@
     "description": "propertyNames_12",
     "schema": {
       "$schema": "http://json-schema.org/draft-06/schema#",
-      "propertyNames": {
-        "oneOf": [
-          {
-            "enum": [ "foo", "bar", "baz" ]
-          },
-          {
-            "type": "string"
-          }
-        ]
-      }
+      "propertyNames": { "oneOf": [ { "enum": [ "foo", "bar", "baz" ] }, { "type": "string" } ] }
     },
-    "instance": {
-      "foo": 1
-    },
+    "instance": { "foo": 1 },
     "valid": false,
     "fast": {
       "pre": [
@@ -1216,18 +1142,10 @@
     "description": "propertyNames_13",
     "schema": {
       "$schema": "http://json-schema.org/draft-06/schema#",
-      "propertyNames": {
-        "$ref": "#/definitions/test"
-      },
-      "definitions": {
-        "test": {
-          "type": "string"
-        }
-      }
+      "propertyNames": { "$ref": "#/definitions/test" },
+      "definitions": { "test": { "type": "string" } }
     },
-    "instance": {
-      "foo": 1
-    },
+    "instance": { "foo": 1 },
     "valid": true,
     "fast": {},
     "exhaustive": {
@@ -1249,21 +1167,11 @@
     "description": "propertyNames_14",
     "schema": {
       "$schema": "http://json-schema.org/draft-06/schema#",
-      "definitions": {
-        "stringType": {
-          "type": "string"
-        }
-      },
-      "propertyNames": {
-        "$ref": "#/definitions/stringType"
-      },
-      "additionalProperties": {
-        "$ref": "#/definitions/stringType"
-      }
+      "definitions": { "stringType": { "type": "string" } },
+      "propertyNames": { "$ref": "#/definitions/stringType" },
+      "additionalProperties": { "$ref": "#/definitions/stringType" }
     },
-    "instance": {
-      "foo": 123
-    },
+    "instance": { "foo": 123 },
     "valid": false,
     "fast": {
       "pre": [
@@ -1304,21 +1212,11 @@
     "description": "propertyNames_15",
     "schema": {
       "$schema": "http://json-schema.org/draft-06/schema#",
-      "definitions": {
-        "stringType": {
-          "type": "string"
-        }
-      },
-      "additionalProperties": {
-        "$ref": "#/definitions/stringType"
-      },
-      "propertyNames": {
-        "$ref": "#/definitions/stringType"
-      }
+      "definitions": { "stringType": { "type": "string" } },
+      "additionalProperties": { "$ref": "#/definitions/stringType" },
+      "propertyNames": { "$ref": "#/definitions/stringType" }
     },
-    "instance": {
-      "foo": 123
-    },
+    "instance": { "foo": 123 },
     "valid": false,
     "fast": {
       "pre": [
@@ -1359,21 +1257,11 @@
     "description": "propertyNames_16",
     "schema": {
       "$schema": "http://json-schema.org/draft-06/schema#",
-      "definitions": {
-        "stringType": {
-          "type": "string"
-        }
-      },
-      "propertyNames": {
-        "$ref": "#/definitions/stringType"
-      },
-      "additionalProperties": {
-        "$ref": "#/definitions/stringType"
-      }
+      "definitions": { "stringType": { "type": "string" } },
+      "propertyNames": { "$ref": "#/definitions/stringType" },
+      "additionalProperties": { "$ref": "#/definitions/stringType" }
     },
-    "instance": {
-      "foo": "bar"
-    },
+    "instance": { "foo": "bar" },
     "valid": true,
     "fast": {
       "pre": [
@@ -1414,19 +1302,10 @@
     "description": "propertyNames_17",
     "schema": {
       "$schema": "http://json-schema.org/draft-06/schema#",
-      "propertyNames": {
-        "$ref": "#/definitions/foo"
-      },
-      "definitions": {
-        "foo": {
-          "$ref": "#/definitions/bar"
-        },
-        "bar": {}
-      }
+      "propertyNames": { "$ref": "#/definitions/foo" },
+      "definitions": { "foo": { "$ref": "#/definitions/bar" }, "bar": {} }
     },
-    "instance": {
-      "foo": "bar"
-    },
+    "instance": { "foo": "bar" },
     "valid": true,
     "fast": {},
     "exhaustive": {
@@ -1451,23 +1330,10 @@
     "description": "propertyNames_18",
     "schema": {
       "$schema": "http://json-schema.org/draft-06/schema#",
-      "propertyNames": {
-        "allOf": [
-          {
-            "$ref": "#/definitions/foo"
-          }
-        ]
-      },
-      "definitions": {
-        "foo": {
-          "$ref": "#/definitions/bar"
-        },
-        "bar": {}
-      }
+      "propertyNames": { "allOf": [ { "$ref": "#/definitions/foo" } ] },
+      "definitions": { "foo": { "$ref": "#/definitions/bar" }, "bar": {} }
     },
-    "instance": {
-      "foo": "bar"
-    },
+    "instance": { "foo": "bar" },
     "valid": true,
     "fast": {},
     "exhaustive": {
@@ -1496,30 +1362,11 @@
     "schema": {
       "$schema": "http://json-schema.org/draft-06/schema#",
       "propertyNames": {
-        "allOf": [
-          {
-            "anyOf": [
-              {
-                "allOf": [
-                  {
-                    "$ref": "#/definitions/foo"
-                  }
-                ]
-              }
-            ]
-          }
-        ]
+        "allOf": [ { "anyOf": [ { "allOf": [ { "$ref": "#/definitions/foo" } ] } ] } ]
       },
-      "definitions": {
-        "foo": {
-          "$ref": "#/definitions/bar"
-        },
-        "bar": {}
-      }
+      "definitions": { "foo": { "$ref": "#/definitions/bar" }, "bar": {} }
     },
-    "instance": {
-      "foo": "bar"
-    },
+    "instance": { "foo": "bar" },
     "valid": true,
     "fast": {
       "pre": [
@@ -1566,18 +1413,8 @@
     "description": "propertyNames_20",
     "schema": {
       "$schema": "http://json-schema.org/draft-06/schema#",
-      "propertyNames": {
-        "definitions": {
-          "test": {
-            "type": "string"
-          }
-        }
-      },
-      "allOf": [
-        {
-          "$ref": "#/propertyNames/definitions/test"
-        }
-      ]
+      "propertyNames": { "definitions": { "test": { "type": "string" } } },
+      "allOf": [ { "$ref": "#/propertyNames/definitions/test" } ]
     },
     "instance": 1,
     "valid": false,
@@ -1614,23 +1451,9 @@
     "description": "propertyNames_21",
     "schema": {
       "$schema": "http://json-schema.org/draft-06/schema#",
-      "propertyNames": {
-        "definitions": {
-          "inner": {
-            "$ref": "#/definitions/outer"
-          }
-        }
-      },
-      "allOf": [
-        {
-          "$ref": "#/propertyNames/definitions/inner"
-        }
-      ],
-      "definitions": {
-        "outer": {
-          "type": "string"
-        }
-      }
+      "propertyNames": { "definitions": { "inner": { "$ref": "#/definitions/outer" } } },
+      "allOf": [ { "$ref": "#/propertyNames/definitions/inner" } ],
+      "definitions": { "outer": { "type": "string" } }
     },
     "instance": 1,
     "valid": false,
@@ -1682,10 +1505,7 @@
   },
   {
     "description": "unknown_1",
-    "schema": {
-      "$schema": "http://json-schema.org/draft-06/schema#",
-      "fooBar": "baz"
-    },
+    "schema": { "$schema": "http://json-schema.org/draft-06/schema#", "fooBar": "baz" },
     "instance": "foo",
     "valid": true,
     "fast": {},
@@ -1693,10 +1513,7 @@
   },
   {
     "description": "unknown_2",
-    "schema": {
-      "$schema": "http://json-schema.org/draft-06/schema#",
-      "x-test": 1
-    },
+    "schema": { "$schema": "http://json-schema.org/draft-06/schema#", "x-test": 1 },
     "instance": "foo",
     "valid": true,
     "fast": {},
@@ -1991,9 +1808,7 @@
       "type": "object",
       "minProperties": 1
     },
-    "instance": {
-      "foo": 1
-    },
+    "instance": { "foo": 1 },
     "valid": true,
     "fast": {
       "pre": [
@@ -2028,10 +1843,7 @@
       "type": "object",
       "maxProperties": 2
     },
-    "instance": {
-      "bar": 2,
-      "foo": 1
-    },
+    "instance": { "bar": 2, "foo": 1 },
     "valid": true,
     "fast": {
       "pre": [
@@ -2066,11 +1878,7 @@
       "type": "object",
       "maxProperties": 2
     },
-    "instance": {
-      "bar": 2,
-      "foo": 1,
-      "baz": 3
-    },
+    "instance": { "bar": 2, "foo": 1, "baz": 3 },
     "valid": false,
     "fast": {
       "pre": [
@@ -2103,10 +1911,7 @@
       "minProperties": 1,
       "maxProperties": 2
     },
-    "instance": {
-      "bar": 2,
-      "foo": 1
-    },
+    "instance": { "bar": 2, "foo": 1 },
     "valid": true,
     "fast": {
       "pre": [
@@ -2390,9 +2195,7 @@
     "schema": {
       "$schema": "http://json-schema.org/draft-06/schema#",
       "type": "array",
-      "enum": [
-        [ 1 ]
-      ]
+      "enum": [ [ 1 ] ]
     },
     "instance": [ 1 ],
     "valid": true,
@@ -2427,9 +2230,7 @@
     "schema": {
       "$schema": "http://json-schema.org/draft-06/schema#",
       "type": "object",
-      "enum": [
-        {}
-      ]
+      "enum": [ {} ]
     },
     "instance": {},
     "valid": true,
@@ -2542,9 +2343,7 @@
       "$schema": "http://json-schema.org/draft-06/schema#",
       "type": "array",
       "minItems": 1,
-      "enum": [
-        [ 1 ]
-      ]
+      "enum": [ [ 1 ] ]
     },
     "instance": [ 1 ],
     "valid": true,
@@ -2586,15 +2385,9 @@
       "$schema": "http://json-schema.org/draft-06/schema#",
       "type": "object",
       "minProperties": 1,
-      "enum": [
-        {
-          "foo": 1
-        }
-      ]
+      "enum": [ { "foo": 1 } ]
     },
-    "instance": {
-      "foo": 1
-    },
+    "instance": { "foo": 1 },
     "valid": true,
     "fast": {
       "pre": [
@@ -2670,19 +2463,9 @@
       "type": "object",
       "required": [ "foo", "bar" ],
       "additionalProperties": false,
-      "properties": {
-        "foo": {
-          "type": "boolean"
-        },
-        "bar": {
-          "type": "boolean"
-        }
-      }
+      "properties": { "foo": { "type": "boolean" }, "bar": { "type": "boolean" } }
     },
-    "instance": {
-      "foo": true,
-      "bar": false
-    },
+    "instance": { "foo": true, "bar": false },
     "valid": true,
     "fast": {
       "pre": [
@@ -2729,19 +2512,9 @@
       "type": "object",
       "required": [ "foo", "bar" ],
       "additionalProperties": false,
-      "properties": {
-        "foo": {
-          "type": "integer"
-        },
-        "bar": {
-          "type": "integer"
-        }
-      }
+      "properties": { "foo": { "type": "integer" }, "bar": { "type": "integer" } }
     },
-    "instance": {
-      "foo": 1,
-      "bar": 2
-    },
+    "instance": { "foo": 1, "bar": 2 },
     "valid": true,
     "fast": {
       "pre": [
@@ -2792,22 +2565,12 @@
       "required": [ "foo", "bar", "baz" ],
       "additionalProperties": false,
       "properties": {
-        "foo": {
-          "type": "integer"
-        },
-        "bar": {
-          "type": "integer"
-        },
-        "baz": {
-          "type": "integer"
-        }
+        "foo": { "type": "integer" },
+        "bar": { "type": "integer" },
+        "baz": { "type": "integer" }
       }
     },
-    "instance": {
-      "foo": 1,
-      "bar": 2,
-      "baz": 3
-    },
+    "instance": { "foo": 1, "bar": 2, "baz": 3 },
     "valid": true,
     "fast": {
       "pre": [
@@ -2857,17 +2620,7 @@
     "description": "anyOf_1",
     "schema": {
       "$schema": "http://json-schema.org/draft-06/schema#",
-      "anyOf": [
-        {
-          "type": "string"
-        },
-        {
-          "type": "number"
-        },
-        {
-          "type": "null"
-        }
-      ]
+      "anyOf": [ { "type": "string" }, { "type": "number" }, { "type": "null" } ]
     },
     "instance": 1,
     "valid": true,
@@ -2905,10 +2658,7 @@
   },
   {
     "description": "type_1",
-    "schema": {
-      "$schema": "http://json-schema.org/draft-06/schema#",
-      "type": "integer"
-    },
+    "schema": { "$schema": "http://json-schema.org/draft-06/schema#", "type": "integer" },
     "instance": 3,
     "valid": true,
     "fast": {
@@ -2936,10 +2686,7 @@
   },
   {
     "description": "type_2",
-    "schema": {
-      "$schema": "http://json-schema.org/draft-06/schema#",
-      "type": "integer"
-    },
+    "schema": { "$schema": "http://json-schema.org/draft-06/schema#", "type": "integer" },
     "instance": 3.0,
     "valid": true,
     "fast": {
@@ -2967,10 +2714,7 @@
   },
   {
     "description": "type_3",
-    "schema": {
-      "$schema": "http://json-schema.org/draft-06/schema#",
-      "type": "integer"
-    },
+    "schema": { "$schema": "http://json-schema.org/draft-06/schema#", "type": "integer" },
     "instance": 3.2,
     "valid": false,
     "fast": {
@@ -3093,15 +2837,9 @@
     "description": "properties_1",
     "schema": {
       "$schema": "http://json-schema.org/draft-06/schema#",
-      "properties": {
-        "foo": {
-          "type": "integer"
-        }
-      }
+      "properties": { "foo": { "type": "integer" } }
     },
-    "instance": {
-      "foo": 1
-    },
+    "instance": { "foo": 1 },
     "valid": true,
     "fast": {
       "pre": [
@@ -3133,15 +2871,9 @@
     "description": "properties_2",
     "schema": {
       "$schema": "http://json-schema.org/draft-06/schema#",
-      "properties": {
-        "foo": {
-          "type": "integer"
-        }
-      }
+      "properties": { "foo": { "type": "integer" } }
     },
-    "instance": {
-      "foo": 1.0
-    },
+    "instance": { "foo": 1.0 },
     "valid": true,
     "fast": {
       "pre": [
@@ -3173,15 +2905,9 @@
     "description": "properties_3",
     "schema": {
       "$schema": "http://json-schema.org/draft-06/schema#",
-      "properties": {
-        "foo": {
-          "type": "integer"
-        }
-      }
+      "properties": { "foo": { "type": "integer" } }
     },
-    "instance": {
-      "foo": 1.1
-    },
+    "instance": { "foo": 1.1 },
     "valid": false,
     "fast": {
       "pre": [
@@ -3214,20 +2940,10 @@
     "schema": {
       "$schema": "http://json-schema.org/draft-06/schema#",
       "required": [ "foo", "bar" ],
-      "properties": {
-        "foo": {
-          "type": "integer"
-        },
-        "bar": {
-          "type": "integer"
-        }
-      },
+      "properties": { "foo": { "type": "integer" }, "bar": { "type": "integer" } },
       "additionalProperties": false
     },
-    "instance": {
-      "foo": 1,
-      "bar": 2
-    },
+    "instance": { "foo": 1, "bar": 2 },
     "valid": true,
     "fast": {
       "pre": [
@@ -3272,20 +2988,10 @@
     "schema": {
       "$schema": "http://json-schema.org/draft-06/schema#",
       "required": [ "foo", "bar" ],
-      "properties": {
-        "foo": {
-          "type": "integer"
-        },
-        "bar": {
-          "type": "integer"
-        }
-      },
+      "properties": { "foo": { "type": "integer" }, "bar": { "type": "integer" } },
       "additionalProperties": false
     },
-    "instance": {
-      "foo": 1.0,
-      "bar": 2.0
-    },
+    "instance": { "foo": 1.0, "bar": 2.0 },
     "valid": true,
     "fast": {
       "pre": [
@@ -3330,20 +3036,10 @@
     "schema": {
       "$schema": "http://json-schema.org/draft-06/schema#",
       "required": [ "foo", "bar" ],
-      "properties": {
-        "foo": {
-          "type": "integer"
-        },
-        "bar": {
-          "type": "integer"
-        }
-      },
+      "properties": { "foo": { "type": "integer" }, "bar": { "type": "integer" } },
       "additionalProperties": false
     },
-    "instance": {
-      "foo": 1.1,
-      "bar": 2.1
-    },
+    "instance": { "foo": 1.1, "bar": 2.1 },
     "valid": false,
     "fast": {
       "pre": [
@@ -3381,9 +3077,7 @@
     "description": "items_1",
     "schema": {
       "$schema": "http://json-schema.org/draft-06/schema#",
-      "items": {
-        "type": "integer"
-      }
+      "items": { "type": "integer" }
     },
     "instance": [ 1, 2, 3 ],
     "valid": true,
@@ -3423,9 +3117,7 @@
     "description": "items_2",
     "schema": {
       "$schema": "http://json-schema.org/draft-06/schema#",
-      "items": {
-        "type": "integer"
-      }
+      "items": { "type": "integer" }
     },
     "instance": [ 1.0, 2.0, 3.0 ],
     "valid": true,
@@ -3465,9 +3157,7 @@
     "description": "items_3",
     "schema": {
       "$schema": "http://json-schema.org/draft-06/schema#",
-      "items": {
-        "type": "integer"
-      }
+      "items": { "type": "integer" }
     },
     "instance": [ 1.1, 2.1, 3.1 ],
     "valid": false,
@@ -3501,12 +3191,7 @@
     "description": "allOf_1",
     "schema": {
       "$schema": "http://json-schema.org/draft-06/schema#",
-      "allOf": [
-        {
-          "type": "string"
-        },
-        false
-      ]
+      "allOf": [ { "type": "string" }, false ]
     },
     "instance": "foo",
     "valid": false,
@@ -3546,12 +3231,7 @@
     "description": "allOf_2",
     "schema": {
       "$schema": "http://json-schema.org/draft-06/schema#",
-      "allOf": [
-        {
-          "type": "string"
-        },
-        false
-      ]
+      "allOf": [ { "type": "string" }, false ]
     },
     "instance": 5,
     "valid": false,

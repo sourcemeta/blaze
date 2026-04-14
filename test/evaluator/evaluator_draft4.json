@@ -1,10 +1,7 @@
 [
   {
     "description": "unknown_keyword",
-    "schema": {
-      "$schema": "http://json-schema.org/draft-04/schema#",
-      "foobar": "baz"
-    },
+    "schema": { "$schema": "http://json-schema.org/draft-04/schema#", "foobar": "baz" },
     "instance": "foo bar",
     "valid": true,
     "fast": {},
@@ -12,10 +9,7 @@
   },
   {
     "description": "annotation_keyword",
-    "schema": {
-      "$schema": "http://json-schema.org/draft-04/schema#",
-      "title": "foo"
-    },
+    "schema": { "$schema": "http://json-schema.org/draft-04/schema#", "title": "foo" },
     "instance": "foo bar",
     "valid": true,
     "fast": {},
@@ -23,10 +17,7 @@
   },
   {
     "description": "type_1",
-    "schema": {
-      "$schema": "http://json-schema.org/draft-04/schema#",
-      "type": "string"
-    },
+    "schema": { "$schema": "http://json-schema.org/draft-04/schema#", "type": "string" },
     "instance": "foo bar",
     "valid": true,
     "fast": {
@@ -85,10 +76,7 @@
   },
   {
     "description": "type_2",
-    "schema": {
-      "$schema": "http://json-schema.org/draft-04/schema#",
-      "type": "string"
-    },
+    "schema": { "$schema": "http://json-schema.org/draft-04/schema#", "type": "string" },
     "instance": 5,
     "valid": false,
     "fast": {
@@ -116,10 +104,7 @@
   },
   {
     "description": "type_3",
-    "schema": {
-      "$schema": "http://json-schema.org/draft-04/schema#",
-      "type": "number"
-    },
+    "schema": { "$schema": "http://json-schema.org/draft-04/schema#", "type": "number" },
     "instance": 5,
     "valid": true,
     "fast": {
@@ -147,10 +132,7 @@
   },
   {
     "description": "type_4",
-    "schema": {
-      "$schema": "http://json-schema.org/draft-04/schema#",
-      "type": "number"
-    },
+    "schema": { "$schema": "http://json-schema.org/draft-04/schema#", "type": "number" },
     "instance": 3.14,
     "valid": true,
     "fast": {
@@ -178,10 +160,7 @@
   },
   {
     "description": "type_5",
-    "schema": {
-      "$schema": "http://json-schema.org/draft-04/schema#",
-      "type": "number"
-    },
+    "schema": { "$schema": "http://json-schema.org/draft-04/schema#", "type": "number" },
     "instance": "3.14",
     "valid": false,
     "fast": {
@@ -333,10 +312,7 @@
   },
   {
     "description": "type_10",
-    "schema": {
-      "$schema": "http://json-schema.org/draft-04/schema#",
-      "type": "integer"
-    },
+    "schema": { "$schema": "http://json-schema.org/draft-04/schema#", "type": "integer" },
     "instance": 1e+35,
     "valid": true,
     "fast": {
@@ -410,10 +386,7 @@
       "$schema": "http://json-schema.org/draft-04/schema#",
       "required": [ "foo" ]
     },
-    "instance": {
-      "foo": 1,
-      "bar": 2
-    },
+    "instance": { "foo": 1, "bar": 2 },
     "valid": true,
     "fast": {
       "pre": [
@@ -444,10 +417,7 @@
       "$schema": "http://json-schema.org/draft-04/schema#",
       "required": [ "foo", "baz" ]
     },
-    "instance": {
-      "foo": 1,
-      "bar": 2
-    },
+    "instance": { "foo": 1, "bar": 2 },
     "valid": false,
     "fast": {
       "pre": [
@@ -479,10 +449,7 @@
       "type": "object",
       "required": [ "foo", "bar" ]
     },
-    "instance": {
-      "foo": 1,
-      "bar": 2
-    },
+    "instance": { "foo": 1, "bar": 2 },
     "valid": true,
     "fast": {
       "pre": [
@@ -516,20 +483,11 @@
       "$schema": "http://json-schema.org/draft-04/schema#",
       "type": "object",
       "required": [ "foo", "bar" ],
-      "properties": {
-        "foo": true,
-        "bar": true
-      },
-      "patternProperties": {
-        "^@": {}
-      },
+      "properties": { "foo": true, "bar": true },
+      "patternProperties": { "^@": {} },
       "additionalProperties": false
     },
-    "instance": {
-      "foo": true,
-      "bar": true,
-      "@baz": true
-    },
+    "instance": { "foo": true, "bar": true, "@baz": true },
     "valid": true,
     "fast": {
       "pre": [
@@ -568,15 +526,9 @@
     "schema": {
       "$schema": "http://json-schema.org/draft-04/schema#",
       "type": "object",
-      "properties": {
-        "foo": {
-          "required": "bar"
-        }
-      }
+      "properties": { "foo": { "required": "bar" } }
     },
-    "instance": {
-      "foo": {}
-    },
+    "instance": { "foo": {} },
     "valid": true,
     "fast": {
       "pre": [
@@ -605,19 +557,9 @@
     "description": "allOf_1",
     "schema": {
       "$schema": "http://json-schema.org/draft-04/schema#",
-      "allOf": [
-        {
-          "type": "object"
-        },
-        {
-          "required": [ "foo", "bar" ]
-        }
-      ]
+      "allOf": [ { "type": "object" }, { "required": [ "foo", "bar" ] } ]
     },
-    "instance": {
-      "foo": 1,
-      "bar": 2
-    },
+    "instance": { "foo": 1, "bar": 2 },
     "valid": true,
     "fast": {
       "pre": [
@@ -655,19 +597,9 @@
     "description": "allOf_2",
     "schema": {
       "$schema": "http://json-schema.org/draft-04/schema#",
-      "allOf": [
-        {
-          "type": "object"
-        },
-        {
-          "required": [ "foo", "bar" ]
-        }
-      ]
+      "allOf": [ { "type": "object" }, { "required": [ "foo", "bar" ] } ]
     },
-    "instance": {
-      "foo": 1,
-      "baz": 2
-    },
+    "instance": { "foo": 1, "baz": 2 },
     "valid": false,
     "fast": {
       "pre": [
@@ -705,16 +637,8 @@
     "description": "ref_1",
     "schema": {
       "$schema": "http://json-schema.org/draft-04/schema#",
-      "allOf": [
-        {
-          "$ref": "#/definitions/string"
-        }
-      ],
-      "definitions": {
-        "string": {
-          "type": "string"
-        }
-      }
+      "allOf": [ { "$ref": "#/definitions/string" } ],
+      "definitions": { "string": { "type": "string" } }
     },
     "instance": 5,
     "valid": false,
@@ -751,16 +675,8 @@
     "description": "ref_2",
     "schema": {
       "$schema": "http://json-schema.org/draft-04/schema#",
-      "allOf": [
-        {
-          "$ref": "#/definitions/string"
-        }
-      ],
-      "definitions": {
-        "string": {
-          "type": "string"
-        }
-      }
+      "allOf": [ { "$ref": "#/definitions/string" } ],
+      "definitions": { "string": { "type": "string" } }
     },
     "instance": "foo",
     "valid": true,
@@ -799,15 +715,9 @@
       "id": "https://example.com",
       "$schema": "http://json-schema.org/draft-04/schema#",
       "type": "object",
-      "properties": {
-        "foo": {
-          "$ref": "https://example.com"
-        }
-      }
+      "properties": { "foo": { "$ref": "https://example.com" } }
     },
-    "instance": {
-      "foo": {}
-    },
+    "instance": { "foo": {} },
     "valid": true,
     "fast": {
       "pre": [
@@ -856,17 +766,9 @@
       "id": "https://example.com",
       "$schema": "http://json-schema.org/draft-04/schema#",
       "type": "object",
-      "properties": {
-        "foo": {
-          "$ref": "https://example.com"
-        }
-      }
+      "properties": { "foo": { "$ref": "https://example.com" } }
     },
-    "instance": {
-      "foo": {
-        "foo": {}
-      }
-    },
+    "instance": { "foo": { "foo": {} } },
     "valid": true,
     "fast": {
       "pre": [
@@ -930,17 +832,9 @@
       "id": "https://example.com",
       "$schema": "http://json-schema.org/draft-04/schema#",
       "type": "object",
-      "properties": {
-        "foo": {
-          "$ref": "https://example.com"
-        }
-      }
+      "properties": { "foo": { "$ref": "https://example.com" } }
     },
-    "instance": {
-      "foo": {
-        "foo": 1
-      }
-    },
+    "instance": { "foo": { "foo": 1 } },
     "valid": false,
     "fast": {
       "pre": [
@@ -988,15 +882,9 @@
     "schema": {
       "$schema": "http://json-schema.org/draft-04/schema#",
       "type": "object",
-      "properties": {
-        "foo": {
-          "$ref": "#"
-        }
-      }
+      "properties": { "foo": { "$ref": "#" } }
     },
-    "instance": {
-      "foo": {}
-    },
+    "instance": { "foo": {} },
     "valid": true,
     "fast": {
       "pre": [
@@ -1044,29 +932,15 @@
     "schema": {
       "$schema": "http://json-schema.org/draft-04/schema#",
       "properties": {
-        "a": {
-          "$ref": "#"
-        },
-        "b": {
-          "$ref": "#"
-        },
-        "c": {
-          "$ref": "#"
-        },
-        "d": {
-          "$ref": "#"
-        },
-        "e": {
-          "$ref": "#"
-        },
-        "f": {
-          "$ref": "#"
-        }
+        "a": { "$ref": "#" },
+        "b": { "$ref": "#" },
+        "c": { "$ref": "#" },
+        "d": { "$ref": "#" },
+        "e": { "$ref": "#" },
+        "f": { "$ref": "#" }
       }
     },
-    "instance": {
-      "foo": 1
-    },
+    "instance": { "foo": 1 },
     "valid": true,
     "fast": {
       "pre": [
@@ -1095,22 +969,10 @@
     "description": "ref_8",
     "schema": {
       "$schema": "http://json-schema.org/draft-04/schema#",
-      "allOf": [
-        {
-          "$ref": "#/definitions/foo"
-        }
-      ],
+      "allOf": [ { "$ref": "#/definitions/foo" } ],
       "definitions": {
-        "foo": {
-          "additionalProperties": {
-            "$ref": "#/definitions/bar"
-          }
-        },
-        "bar": {
-          "additionalProperties": {
-            "$ref": "#/definitions/foo"
-          }
-        }
+        "foo": { "additionalProperties": { "$ref": "#/definitions/bar" } },
+        "bar": { "additionalProperties": { "$ref": "#/definitions/foo" } }
       }
     },
     "instance": true,
@@ -1135,21 +997,10 @@
     "description": "ref_9",
     "schema": {
       "$schema": "http://json-schema.org/draft-04/schema#",
-      "additionalProperties": {
-        "$ref": "#/definitions/one"
-      },
-      "definitions": {
-        "one": {
-          "$ref": "#/definitions/two"
-        },
-        "two": {
-          "type": "boolean"
-        }
-      }
+      "additionalProperties": { "$ref": "#/definitions/one" },
+      "definitions": { "one": { "$ref": "#/definitions/two" }, "two": { "type": "boolean" } }
     },
-    "instance": {
-      "foo": true
-    },
+    "instance": { "foo": true },
     "valid": true,
     "fast": {
       "pre": [
@@ -1187,24 +1038,11 @@
     "description": "ref_10",
     "schema": {
       "$schema": "http://json-schema.org/draft-04/schema#",
-      "items": {
-        "$ref": "#/definitions/one"
-      },
-      "additionalProperties": {
-        "$ref": "#/definitions/one"
-      },
-      "definitions": {
-        "one": {
-          "$ref": "#/definitions/two"
-        },
-        "two": {
-          "type": "boolean"
-        }
-      }
+      "items": { "$ref": "#/definitions/one" },
+      "additionalProperties": { "$ref": "#/definitions/one" },
+      "definitions": { "one": { "$ref": "#/definitions/two" }, "two": { "type": "boolean" } }
     },
-    "instance": {
-      "foo": true
-    },
+    "instance": { "foo": true },
     "valid": true,
     "fast": {
       "pre": [
@@ -1242,34 +1080,16 @@
     "description": "ref_15",
     "schema": {
       "$schema": "http://json-schema.org/draft-04/schema#",
-      "properties": {
-        "foo": {
-          "$ref": "#/definitions/three"
-        }
-      },
+      "properties": { "foo": { "$ref": "#/definitions/three" } },
       "definitions": {
-        "three": {
-          "$ref": "#/definitions/four"
-        },
-        "four": {
-          "$ref": "#/definitions/five"
-        },
+        "three": { "$ref": "#/definitions/four" },
+        "four": { "$ref": "#/definitions/five" },
         "five": {
-          "properties": {
-            "requires": {
-              "additionalProperties": {
-                "type": "string"
-              }
-            }
-          }
+          "properties": { "requires": { "additionalProperties": { "type": "string" } } }
         }
       }
     },
-    "instance": {
-      "foo": {
-        "bar": {}
-      }
-    },
+    "instance": { "foo": { "bar": {} } },
     "valid": true,
     "fast": {
       "pre": [
@@ -1310,19 +1130,9 @@
     "description": "properties_1",
     "schema": {
       "$schema": "http://json-schema.org/draft-04/schema#",
-      "properties": {
-        "foo": {
-          "type": "string"
-        },
-        "bar": {
-          "type": "integer"
-        }
-      }
+      "properties": { "foo": { "type": "string" }, "bar": { "type": "integer" } }
     },
-    "instance": {
-      "bar": 2,
-      "foo": 1
-    },
+    "instance": { "bar": 2, "foo": 1 },
     "valid": false,
     "fast": {
       "pre": [
@@ -1360,19 +1170,9 @@
     "description": "properties_2",
     "schema": {
       "$schema": "http://json-schema.org/draft-04/schema#",
-      "properties": {
-        "foo": {
-          "type": "string"
-        },
-        "bar": {
-          "type": "integer"
-        }
-      }
+      "properties": { "foo": { "type": "string" }, "bar": { "type": "integer" } }
     },
-    "instance": {
-      "bar": 2,
-      "foo": "xxx"
-    },
+    "instance": { "bar": 2, "foo": "xxx" },
     "valid": true,
     "fast": {
       "pre": [
@@ -1410,18 +1210,9 @@
     "description": "properties_3",
     "schema": {
       "$schema": "http://json-schema.org/draft-04/schema#",
-      "properties": {
-        "foo": {
-          "type": "string"
-        },
-        "bar": {
-          "type": "integer"
-        }
-      }
+      "properties": { "foo": { "type": "string" }, "bar": { "type": "integer" } }
     },
-    "instance": {
-      "baz": []
-    },
+    "instance": { "baz": [] },
     "valid": true,
     "fast": {},
     "exhaustive": {
@@ -1440,21 +1231,9 @@
     "description": "properties_4",
     "schema": {
       "$schema": "http://json-schema.org/draft-04/schema#",
-      "properties": {
-        "foo": {
-          "properties": {
-            "bar": {
-              "type": "string"
-            }
-          }
-        }
-      }
+      "properties": { "foo": { "properties": { "bar": { "type": "string" } } } }
     },
-    "instance": {
-      "foo": {
-        "bar": "baz"
-      }
-    },
+    "instance": { "foo": { "bar": "baz" } },
     "valid": true,
     "fast": {
       "pre": [
@@ -1491,19 +1270,9 @@
       "$schema": "http://json-schema.org/draft-04/schema#",
       "type": "object",
       "required": [ "foo", "bar" ],
-      "properties": {
-        "foo": {
-          "type": "string"
-        },
-        "bar": {
-          "type": "integer"
-        }
-      }
+      "properties": { "foo": { "type": "string" }, "bar": { "type": "integer" } }
     },
-    "instance": {
-      "foo": "xxx",
-      "bar": 2
-    },
+    "instance": { "foo": "xxx", "bar": 2 },
     "valid": true,
     "fast": {
       "pre": [
@@ -1553,17 +1322,11 @@
       "properties": {
         "image": {
           "required": [ "file" ],
-          "properties": {
-            "file": {
-              "type": "string"
-            }
-          }
+          "properties": { "file": { "type": "string" } }
         }
       }
     },
-    "instance": {
-      "image": "foo"
-    },
+    "instance": { "image": "foo" },
     "valid": true,
     "fast": {},
     "exhaustive": {
@@ -1583,19 +1346,11 @@
     "schema": {
       "$schema": "http://json-schema.org/draft-04/schema#",
       "properties": {
-        "foo": {
-          "type": "string",
-          "pattern": "^a"
-        },
-        "bar": {
-          "type": "integer"
-        }
+        "foo": { "type": "string", "pattern": "^a" },
+        "bar": { "type": "integer" }
       }
     },
-    "instance": {
-      "bar": 2,
-      "foo": "abc"
-    },
+    "instance": { "bar": 2, "foo": "abc" },
     "valid": true,
     "fast": {
       "pre": [
@@ -1640,19 +1395,11 @@
     "schema": {
       "$schema": "http://json-schema.org/draft-04/schema#",
       "properties": {
-        "bar": {
-          "type": "string",
-          "pattern": "^a"
-        },
-        "foo": {
-          "type": "integer"
-        }
+        "bar": { "type": "string", "pattern": "^a" },
+        "foo": { "type": "integer" }
       }
     },
-    "instance": {
-      "foo": 2,
-      "bar": "abc"
-    },
+    "instance": { "foo": 2, "bar": "abc" },
     "valid": true,
     "fast": {
       "pre": [
@@ -1696,21 +1443,9 @@
     "description": "properties_9",
     "schema": {
       "$schema": "http://json-schema.org/draft-04/schema#",
-      "properties": {
-        "foo": {
-          "properties": {
-            "bar": {
-              "type": "number"
-            }
-          }
-        }
-      }
+      "properties": { "foo": { "properties": { "bar": { "type": "number" } } } }
     },
-    "instance": {
-      "foo": {
-        "bar": 1
-      }
-    },
+    "instance": { "foo": { "bar": 1 } },
     "valid": true,
     "fast": {
       "pre": [
@@ -1745,15 +1480,9 @@
     "description": "properties_10",
     "schema": {
       "$schema": "http://json-schema.org/draft-04/schema#",
-      "properties": {
-        "foo": {
-          "type": "number"
-        }
-      }
+      "properties": { "foo": { "type": "number" } }
     },
-    "instance": {
-      "foo": 1
-    },
+    "instance": { "foo": 1 },
     "valid": true,
     "fast": {
       "pre": [
@@ -1786,23 +1515,11 @@
     "schema": {
       "$schema": "http://json-schema.org/draft-04/schema#",
       "properties": {
-        "foo": {
-          "items": {
-            "type": "number",
-            "multipleOf": 3,
-            "maximum": 100
-          }
-        },
-        "bar": {
-          "type": "string",
-          "pattern": "^a"
-        }
+        "foo": { "items": { "type": "number", "multipleOf": 3, "maximum": 100 } },
+        "bar": { "type": "string", "pattern": "^a" }
       }
     },
-    "instance": {
-      "foo": [ 3 ],
-      "bar": "abc"
-    },
+    "instance": { "foo": [ 3 ], "bar": "abc" },
     "valid": true,
     "fast": {
       "pre": [
@@ -1865,19 +1582,11 @@
     "schema": {
       "$schema": "http://json-schema.org/draft-04/schema#",
       "properties": {
-        "bar": {
-          "type": "string"
-        },
-        "foo": {
-          "type": "string",
-          "enum": [ "baz" ]
-        }
+        "bar": { "type": "string" },
+        "foo": { "type": "string", "enum": [ "baz" ] }
       }
     },
-    "instance": {
-      "bar": "foo",
-      "foo": "baz"
-    },
+    "instance": { "bar": "foo", "foo": "baz" },
     "valid": true,
     "fast": {
       "pre": [
@@ -1919,23 +1628,12 @@
     "schema": {
       "$schema": "http://json-schema.org/draft-04/schema#",
       "properties": {
-        "bar": {
-          "$ref": "#/definitions/helper"
-        },
-        "foo": {
-          "enum": [ "foo" ]
-        }
+        "bar": { "$ref": "#/definitions/helper" },
+        "foo": { "enum": [ "foo" ] }
       },
-      "definitions": {
-        "helper": {
-          "enum": [ "test" ]
-        }
-      }
+      "definitions": { "helper": { "enum": [ "test" ] } }
     },
-    "instance": {
-      "bar": "test",
-      "foo": "foo"
-    },
+    "instance": { "bar": "test", "foo": "foo" },
     "valid": true,
     "fast": {
       "pre": [
@@ -1978,89 +1676,35 @@
       "$schema": "http://json-schema.org/draft-04/schema#",
       "additionalProperties": false,
       "properties": {
-        "a": {
-          "type": "string"
-        },
-        "b": {
-          "type": "string"
-        },
-        "c": {
-          "type": "string"
-        },
-        "d": {
-          "type": "string"
-        },
-        "e": {
-          "type": "string"
-        },
-        "f": {
-          "type": "string"
-        },
-        "g": {
-          "type": "string"
-        },
-        "h": {
-          "type": "string"
-        },
-        "i": {
-          "type": "string"
-        },
-        "j": {
-          "type": "string"
-        },
-        "k": {
-          "type": "string"
-        },
-        "l": {
-          "type": "string"
-        },
-        "m": {
-          "type": "string"
-        },
-        "n": {
-          "type": "string"
-        },
-        "o": {
-          "type": "string"
-        },
-        "p": {
-          "type": "string"
-        },
-        "q": {
-          "type": "string"
-        },
-        "r": {
-          "type": "string"
-        },
-        "s": {
-          "type": "string"
-        },
-        "t": {
-          "type": "string"
-        },
-        "u": {
-          "type": "string"
-        },
-        "v": {
-          "type": "string"
-        },
-        "w": {
-          "type": "string"
-        },
-        "x": {
-          "type": "string"
-        },
-        "y": {
-          "type": "string"
-        },
-        "z": {
-          "type": "string"
-        }
+        "a": { "type": "string" },
+        "b": { "type": "string" },
+        "c": { "type": "string" },
+        "d": { "type": "string" },
+        "e": { "type": "string" },
+        "f": { "type": "string" },
+        "g": { "type": "string" },
+        "h": { "type": "string" },
+        "i": { "type": "string" },
+        "j": { "type": "string" },
+        "k": { "type": "string" },
+        "l": { "type": "string" },
+        "m": { "type": "string" },
+        "n": { "type": "string" },
+        "o": { "type": "string" },
+        "p": { "type": "string" },
+        "q": { "type": "string" },
+        "r": { "type": "string" },
+        "s": { "type": "string" },
+        "t": { "type": "string" },
+        "u": { "type": "string" },
+        "v": { "type": "string" },
+        "w": { "type": "string" },
+        "x": { "type": "string" },
+        "y": { "type": "string" },
+        "z": { "type": "string" }
       }
     },
-    "instance": {
-      "f": "foo"
-    },
+    "instance": { "f": "foo" },
     "valid": true,
     "fast": {
       "pre": [
@@ -2101,12 +1745,7 @@
       "type": "object",
       "additionalProperties": false,
       "required": [ "foo", "bar" ],
-      "properties": {
-        "foo": {},
-        "bar": {
-          "type": "object"
-        }
-      }
+      "properties": { "foo": {}, "bar": { "type": "object" } }
     },
     "instance": "baz",
     "valid": false,
@@ -2141,15 +1780,9 @@
       "additionalProperties": false,
       "required": [ "foo", "bar", "baz" ],
       "properties": {
-        "foo": {
-          "type": "string"
-        },
-        "bar": {
-          "type": "array"
-        },
-        "baz": {
-          "type": "object"
-        }
+        "foo": { "type": "string" },
+        "bar": { "type": "array" },
+        "baz": { "type": "object" }
       }
     },
     "instance": "baz",
@@ -2192,15 +1825,9 @@
     "description": "properties_19",
     "schema": {
       "$schema": "http://json-schema.org/draft-04/schema#",
-      "properties": {
-        "foo": {
-          "type": "integer"
-        }
-      }
+      "properties": { "foo": { "type": "integer" } }
     },
-    "instance": {
-      "foo": 1e+35
-    },
+    "instance": { "foo": 1e+35 },
     "valid": true,
     "fast": {
       "pre": [
@@ -2232,15 +1859,9 @@
     "description": "properties_21",
     "schema": {
       "$schema": "http://json-schema.org/draft-04/schema#",
-      "properties": {
-        "foo": {
-          "type": [ "integer", "string" ]
-        }
-      }
+      "properties": { "foo": { "type": [ "integer", "string" ] } }
     },
-    "instance": {
-      "foo": 1e+35
-    },
+    "instance": { "foo": 1e+35 },
     "valid": true,
     "fast": {
       "pre": [
@@ -2270,10 +1891,7 @@
   },
   {
     "description": "pattern_1",
-    "schema": {
-      "$schema": "http://json-schema.org/draft-04/schema#",
-      "pattern": "^x"
-    },
+    "schema": { "$schema": "http://json-schema.org/draft-04/schema#", "pattern": "^x" },
     "instance": "xxx",
     "valid": true,
     "fast": {
@@ -2301,10 +1919,7 @@
   },
   {
     "description": "pattern_2",
-    "schema": {
-      "$schema": "http://json-schema.org/draft-04/schema#",
-      "pattern": "^x"
-    },
+    "schema": { "$schema": "http://json-schema.org/draft-04/schema#", "pattern": "^x" },
     "instance": "aaa",
     "valid": false,
     "fast": {
@@ -2332,10 +1947,7 @@
   },
   {
     "description": "pattern_3",
-    "schema": {
-      "$schema": "http://json-schema.org/draft-04/schema#",
-      "pattern": "^x"
-    },
+    "schema": { "$schema": "http://json-schema.org/draft-04/schema#", "pattern": "^x" },
     "instance": 5,
     "valid": true,
     "fast": {},
@@ -2343,10 +1955,7 @@
   },
   {
     "description": "pattern_7",
-    "schema": {
-      "$schema": "http://json-schema.org/draft-04/schema#",
-      "pattern": 123
-    },
+    "schema": { "$schema": "http://json-schema.org/draft-04/schema#", "pattern": 123 },
     "instance": "foo",
     "valid": true,
     "fast": {},
@@ -2358,10 +1967,7 @@
       "$schema": "http://json-schema.org/draft-04/schema#",
       "patternProperties": {}
     },
-    "instance": {
-      "foo": 1,
-      "bar": 2
-    },
+    "instance": { "foo": 1, "bar": 2 },
     "valid": true,
     "fast": {},
     "exhaustive": {}
@@ -2370,14 +1976,9 @@
     "description": "patternProperties_2",
     "schema": {
       "$schema": "http://json-schema.org/draft-04/schema#",
-      "patternProperties": {
-        "^v": true
-      }
+      "patternProperties": { "^v": true }
     },
-    "instance": {
-      "foo": 1,
-      "bar": 2
-    },
+    "instance": { "foo": 1, "bar": 2 },
     "valid": true,
     "fast": {},
     "exhaustive": {}
@@ -2386,14 +1987,9 @@
     "description": "patternProperties_3",
     "schema": {
       "$schema": "http://json-schema.org/draft-04/schema#",
-      "patternProperties": {
-        "^f": true
-      }
+      "patternProperties": { "^f": true }
     },
-    "instance": {
-      "foo": 1,
-      "bar": 2
-    },
+    "instance": { "foo": 1, "bar": 2 },
     "valid": true,
     "fast": {},
     "exhaustive": {}
@@ -2402,16 +1998,9 @@
     "description": "patternProperties_4",
     "schema": {
       "$schema": "http://json-schema.org/draft-04/schema#",
-      "patternProperties": {
-        "^f": {
-          "type": "integer"
-        }
-      }
+      "patternProperties": { "^f": { "type": "integer" } }
     },
-    "instance": {
-      "foo": 1,
-      "bar": 2
-    },
+    "instance": { "foo": 1, "bar": 2 },
     "valid": true,
     "fast": {
       "pre": [
@@ -2446,16 +2035,9 @@
     "description": "patternProperties_5",
     "schema": {
       "$schema": "http://json-schema.org/draft-04/schema#",
-      "patternProperties": {
-        "^f": {
-          "type": "string"
-        }
-      }
+      "patternProperties": { "^f": { "type": "string" } }
     },
-    "instance": {
-      "foo": 1,
-      "bar": 2
-    },
+    "instance": { "foo": 1, "bar": 2 },
     "valid": false,
     "fast": {
       "pre": [
@@ -2490,19 +2072,9 @@
     "description": "patternProperties_6",
     "schema": {
       "$schema": "http://json-schema.org/draft-04/schema#",
-      "patternProperties": {
-        "o$": {
-          "type": "integer"
-        },
-        "^f": {
-          "type": "integer"
-        }
-      }
+      "patternProperties": { "o$": { "type": "integer" }, "^f": { "type": "integer" } }
     },
-    "instance": {
-      "bar": 2,
-      "foo": 1
-    },
+    "instance": { "bar": 2, "foo": 1 },
     "valid": true,
     "fast": {
       "pre": [
@@ -2549,21 +2121,9 @@
     "description": "patternProperties_7",
     "schema": {
       "$schema": "http://json-schema.org/draft-04/schema#",
-      "patternProperties": {
-        "^f": {
-          "patternProperties": {
-            "^b": {
-              "type": "integer"
-            }
-          }
-        }
-      }
+      "patternProperties": { "^f": { "patternProperties": { "^b": { "type": "integer" } } } }
     },
-    "instance": {
-      "foo": {
-        "bar": 2
-      }
-    },
+    "instance": { "foo": { "bar": 2 } },
     "valid": true,
     "fast": {
       "pre": [
@@ -2604,17 +2164,10 @@
     "description": "patternProperties_8",
     "schema": {
       "$schema": "http://json-schema.org/draft-04/schema#",
-      "patternProperties": {
-        "^@": true
-      },
-      "additionalProperties": {
-        "type": "string"
-      }
+      "patternProperties": { "^@": true },
+      "additionalProperties": { "type": "string" }
     },
-    "instance": {
-      "@foo": 1,
-      "bar": "baz"
-    },
+    "instance": { "@foo": 1, "bar": "baz" },
     "valid": true,
     "fast": {
       "pre": [
@@ -2649,16 +2202,9 @@
     "description": "patternProperties_10",
     "schema": {
       "$schema": "http://json-schema.org/draft-04/schema#",
-      "patternProperties": {
-        "^/": {
-          "type": "integer"
-        }
-      }
+      "patternProperties": { "^/": { "type": "integer" } }
     },
-    "instance": {
-      "/foo": 1,
-      "bar": 2
-    },
+    "instance": { "/foo": 1, "bar": 2 },
     "valid": true,
     "fast": {
       "pre": [
@@ -2693,16 +2239,10 @@
     "description": "patternProperties_11",
     "schema": {
       "$schema": "http://json-schema.org/draft-04/schema#",
-      "patternProperties": {
-        "^[a-z]+$": {
-          "type": "string"
-        }
-      },
+      "patternProperties": { "^[a-z]+$": { "type": "string" } },
       "additionalProperties": false
     },
-    "instance": {
-      "foo": "bar"
-    },
+    "instance": { "foo": "bar" },
     "valid": true,
     "fast": {
       "pre": [
@@ -2740,14 +2280,10 @@
     "description": "patternProperties_13",
     "schema": {
       "$schema": "http://json-schema.org/draft-04/schema#",
-      "patternProperties": {
-        "^[a-z]+$": true
-      },
+      "patternProperties": { "^[a-z]+$": true },
       "additionalProperties": false
     },
-    "instance": {
-      "foo": "bar"
-    },
+    "instance": { "foo": "bar" },
     "valid": true,
     "fast": {
       "pre": [
@@ -2776,15 +2312,10 @@
     "description": "patternProperties_14",
     "schema": {
       "$schema": "http://json-schema.org/draft-04/schema#",
-      "patternProperties": {
-        "^[a-z]+$": true
-      },
+      "patternProperties": { "^[a-z]+$": true },
       "additionalProperties": false
     },
-    "instance": {
-      "foo": "bar",
-      "@bar": 1
-    },
+    "instance": { "foo": "bar", "@bar": 1 },
     "valid": false,
     "fast": {
       "pre": [
@@ -2818,15 +2349,10 @@
       "$schema": "http://json-schema.org/draft-04/schema#",
       "type": "object",
       "properties": {},
-      "patternProperties": {
-        "^[a-z]+$": true
-      },
+      "patternProperties": { "^[a-z]+$": true },
       "additionalProperties": false
     },
-    "instance": {
-      "foo": "bar",
-      "@bar": 1
-    },
+    "instance": { "foo": "bar", "@bar": 1 },
     "valid": false,
     "fast": {
       "pre": [
@@ -2869,14 +2395,9 @@
     "description": "additionalProperties_1",
     "schema": {
       "$schema": "http://json-schema.org/draft-04/schema#",
-      "additionalProperties": {
-        "type": "integer"
-      }
+      "additionalProperties": { "type": "integer" }
     },
-    "instance": {
-      "bar": 2,
-      "foo": 1
-    },
+    "instance": { "bar": 2, "foo": 1 },
     "valid": true,
     "fast": {
       "pre": [
@@ -2911,19 +2432,10 @@
     "description": "additionalProperties_2",
     "schema": {
       "$schema": "http://json-schema.org/draft-04/schema#",
-      "properties": {
-        "foo": {
-          "type": "boolean"
-        }
-      },
-      "additionalProperties": {
-        "type": "integer"
-      }
+      "properties": { "foo": { "type": "boolean" } },
+      "additionalProperties": { "type": "integer" }
     },
-    "instance": {
-      "foo": true,
-      "bar": 2
-    },
+    "instance": { "foo": true, "bar": 2 },
     "valid": true,
     "fast": {
       "pre": [
@@ -2967,25 +2479,11 @@
     "description": "additionalProperties_4",
     "schema": {
       "$schema": "http://json-schema.org/draft-04/schema#",
-      "properties": {
-        "foo": {
-          "type": "boolean"
-        }
-      },
-      "patternProperties": {
-        "^bar$": {
-          "type": "integer"
-        }
-      },
-      "additionalProperties": {
-        "type": "string"
-      }
+      "properties": { "foo": { "type": "boolean" } },
+      "patternProperties": { "^bar$": { "type": "integer" } },
+      "additionalProperties": { "type": "string" }
     },
-    "instance": {
-      "foo": true,
-      "bar": 2,
-      "baz": "qux"
-    },
+    "instance": { "foo": true, "bar": 2, "baz": "qux" },
     "valid": true,
     "fast": {
       "pre": [
@@ -3041,23 +2539,11 @@
     "description": "additionalProperties_6",
     "schema": {
       "$schema": "http://json-schema.org/draft-04/schema#",
-      "properties": {
-        "foo": {
-          "type": "boolean"
-        }
-      },
-      "patternProperties": {
-        "^bar$": {
-          "type": "integer"
-        }
-      },
+      "properties": { "foo": { "type": "boolean" } },
+      "patternProperties": { "^bar$": { "type": "integer" } },
       "additionalProperties": {}
     },
-    "instance": {
-      "foo": true,
-      "bar": 2,
-      "baz": "qux"
-    },
+    "instance": { "foo": true, "bar": 2, "baz": "qux" },
     "valid": true,
     "fast": {
       "pre": [
@@ -3101,23 +2587,11 @@
     "description": "additionalProperties_7",
     "schema": {
       "$schema": "http://json-schema.org/draft-04/schema#",
-      "properties": {
-        "foo": {
-          "type": "boolean"
-        }
-      },
-      "patternProperties": {
-        "^bar$": {
-          "type": "integer"
-        }
-      },
+      "properties": { "foo": { "type": "boolean" } },
+      "patternProperties": { "^bar$": { "type": "integer" } },
       "additionalProperties": true
     },
-    "instance": {
-      "foo": true,
-      "bar": 2,
-      "baz": "qux"
-    },
+    "instance": { "foo": true, "bar": 2, "baz": "qux" },
     "valid": true,
     "fast": {
       "pre": [
@@ -3163,11 +2637,7 @@
       "$schema": "http://json-schema.org/draft-04/schema#",
       "additionalProperties": {}
     },
-    "instance": {
-      "foo": true,
-      "bar": 2,
-      "baz": "qux"
-    },
+    "instance": { "foo": true, "bar": 2, "baz": "qux" },
     "valid": true,
     "fast": {},
     "exhaustive": {}
@@ -3178,11 +2648,7 @@
       "$schema": "http://json-schema.org/draft-04/schema#",
       "additionalProperties": true
     },
-    "instance": {
-      "foo": true,
-      "bar": 2,
-      "baz": "qux"
-    },
+    "instance": { "foo": true, "bar": 2, "baz": "qux" },
     "valid": true,
     "fast": {},
     "exhaustive": {}
@@ -3191,14 +2657,9 @@
     "description": "additionalProperties_10",
     "schema": {
       "$schema": "http://json-schema.org/draft-04/schema#",
-      "additionalProperties": {
-        "type": "number"
-      }
+      "additionalProperties": { "type": "number" }
     },
-    "instance": {
-      "bar": 2,
-      "foo": 1
-    },
+    "instance": { "bar": 2, "foo": 1 },
     "valid": true,
     "fast": {
       "pre": [
@@ -3267,19 +2728,9 @@
       "$schema": "http://json-schema.org/draft-04/schema#",
       "required": [ "foo", "bar" ],
       "additionalProperties": false,
-      "properties": {
-        "foo": {
-          "type": "boolean"
-        },
-        "bar": {
-          "type": "boolean"
-        }
-      }
+      "properties": { "foo": { "type": "boolean" }, "bar": { "type": "boolean" } }
     },
-    "instance": {
-      "foo": true,
-      "bar": false
-    },
+    "instance": { "foo": true, "bar": false },
     "valid": true,
     "fast": {
       "pre": [
@@ -3325,20 +2776,9 @@
       "$schema": "http://json-schema.org/draft-04/schema#",
       "required": [ "foo", "bar" ],
       "additionalProperties": false,
-      "properties": {
-        "foo": {
-          "type": "boolean"
-        },
-        "bar": {
-          "type": "boolean"
-        }
-      }
+      "properties": { "foo": { "type": "boolean" }, "bar": { "type": "boolean" } }
     },
-    "instance": {
-      "foo": true,
-      "bar": false,
-      "baz": 1
-    },
+    "instance": { "foo": true, "bar": false, "baz": 1 },
     "valid": false,
     "fast": {
       "pre": [
@@ -3370,19 +2810,9 @@
       "type": "object",
       "required": [ "foo", "bar" ],
       "additionalProperties": false,
-      "properties": {
-        "foo": {
-          "type": "boolean"
-        },
-        "bar": {
-          "type": "boolean"
-        }
-      }
+      "properties": { "foo": { "type": "boolean" }, "bar": { "type": "boolean" } }
     },
-    "instance": {
-      "foo": true,
-      "bar": false
-    },
+    "instance": { "foo": true, "bar": false },
     "valid": true,
     "fast": {
       "pre": [
@@ -3428,22 +2858,10 @@
       "$schema": "http://json-schema.org/draft-04/schema#",
       "required": [ "foo", "bar" ],
       "additionalProperties": false,
-      "patternProperties": {
-        "^@": true
-      },
-      "properties": {
-        "foo": {
-          "type": "boolean"
-        },
-        "bar": {
-          "type": "boolean"
-        }
-      }
+      "patternProperties": { "^@": true },
+      "properties": { "foo": { "type": "boolean" }, "bar": { "type": "boolean" } }
     },
-    "instance": {
-      "foo": true,
-      "bar": false
-    },
+    "instance": { "foo": true, "bar": false },
     "valid": true,
     "fast": {
       "pre": [
@@ -3497,22 +2915,10 @@
         "type": "object",
         "required": [ "foo", "bar" ],
         "additionalProperties": false,
-        "properties": {
-          "foo": {
-            "type": "boolean"
-          },
-          "bar": {
-            "type": "boolean"
-          }
-        }
+        "properties": { "foo": { "type": "boolean" }, "bar": { "type": "boolean" } }
       }
     },
-    "instance": [
-      {
-        "foo": true,
-        "bar": false
-      }
-    ],
+    "instance": [ { "foo": true, "bar": false } ],
     "valid": true,
     "fast": {
       "pre": [
@@ -3563,14 +2969,7 @@
         "type": "object",
         "required": [ "foo", "bar" ],
         "additionalProperties": false,
-        "properties": {
-          "foo": {
-            "type": "boolean"
-          },
-          "bar": {
-            "type": "boolean"
-          }
-        }
+        "properties": { "foo": { "type": "boolean" }, "bar": { "type": "boolean" } }
       }
     },
     "instance": [],
@@ -3604,20 +3003,11 @@
       "$schema": "http://json-schema.org/draft-04/schema#",
       "type": "object",
       "required": [ "foo" ],
-      "properties": {
-        "foo": {
-          "type": "boolean"
-        }
-      },
-      "patternProperties": {
-        "^[@$_#]": {}
-      },
+      "properties": { "foo": { "type": "boolean" } },
+      "patternProperties": { "^[@$_#]": {} },
       "additionalProperties": false
     },
-    "instance": {
-      "foo": false,
-      "@bar": "baz"
-    },
+    "instance": { "foo": false, "@bar": "baz" },
     "valid": true,
     "fast": {
       "pre": [
@@ -3668,22 +3058,10 @@
         "type": "object",
         "required": [ "foo", "bar" ],
         "additionalProperties": false,
-        "properties": {
-          "foo": {
-            "type": "integer"
-          },
-          "bar": {
-            "type": "integer"
-          }
-        }
+        "properties": { "foo": { "type": "integer" }, "bar": { "type": "integer" } }
       }
     },
-    "instance": [
-      {
-        "foo": 1e+35,
-        "bar": 1e+35
-      }
-    ],
+    "instance": [ { "foo": 1e+35, "bar": 1e+35 } ],
     "valid": true,
     "fast": {
       "pre": [
@@ -3735,25 +3113,13 @@
         "required": [ "foo", "bar", "baz" ],
         "additionalProperties": false,
         "properties": {
-          "foo": {
-            "type": "integer"
-          },
-          "bar": {
-            "type": "integer"
-          },
-          "baz": {
-            "type": "integer"
-          }
+          "foo": { "type": "integer" },
+          "bar": { "type": "integer" },
+          "baz": { "type": "integer" }
         }
       }
     },
-    "instance": [
-      {
-        "foo": 1e+35,
-        "bar": 1e+35,
-        "baz": 1e+35
-      }
-    ],
+    "instance": [ { "foo": 1e+35, "bar": 1e+35, "baz": 1e+35 } ],
     "valid": true,
     "fast": {
       "pre": [
@@ -3805,19 +3171,9 @@
       "$schema": "http://json-schema.org/draft-04/schema#",
       "required": [ "foo", "bar" ],
       "additionalProperties": false,
-      "properties": {
-        "foo": {
-          "type": "integer"
-        },
-        "bar": {
-          "type": "integer"
-        }
-      }
+      "properties": { "foo": { "type": "integer" }, "bar": { "type": "integer" } }
     },
-    "instance": {
-      "foo": 1e+35,
-      "bar": 1e+35
-    },
+    "instance": { "foo": 1e+35, "bar": 1e+35 },
     "valid": true,
     "fast": {
       "pre": [
@@ -3861,13 +3217,9 @@
     "description": "additionalProperties_25",
     "schema": {
       "$schema": "http://json-schema.org/draft-04/schema#",
-      "additionalProperties": {
-        "type": [ "integer", "string" ]
-      }
+      "additionalProperties": { "type": [ "integer", "string" ] }
     },
-    "instance": {
-      "foo": 1e+35
-    },
+    "instance": { "foo": 1e+35 },
     "valid": true,
     "fast": {
       "pre": [
@@ -3902,19 +3254,9 @@
       "type": "object",
       "required": [ "foo", "bar" ],
       "additionalProperties": false,
-      "properties": {
-        "foo": {
-          "type": "integer"
-        },
-        "bar": {
-          "type": "integer"
-        }
-      }
+      "properties": { "foo": { "type": "integer" }, "bar": { "type": "integer" } }
     },
-    "instance": {
-      "foo": 1e+35,
-      "bar": 1e+35
-    },
+    "instance": { "foo": 1e+35, "bar": 1e+35 },
     "valid": true,
     "fast": {
       "pre": [
@@ -3962,12 +3304,8 @@
       "required": [ "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx", "yyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyy" ],
       "additionalProperties": false,
       "properties": {
-        "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx": {
-          "type": "integer"
-        },
-        "yyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyy": {
-          "type": "integer"
-        }
+        "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx": { "type": "integer" },
+        "yyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyy": { "type": "integer" }
       }
     },
     "instance": {
@@ -4017,9 +3355,7 @@
     "description": "not_1",
     "schema": {
       "$schema": "http://json-schema.org/draft-04/schema#",
-      "not": {
-        "type": "string"
-      }
+      "not": { "type": "string" }
     },
     "instance": 5,
     "valid": true,
@@ -4056,9 +3392,7 @@
     "description": "not_2",
     "schema": {
       "$schema": "http://json-schema.org/draft-04/schema#",
-      "not": {
-        "type": "string"
-      }
+      "not": { "type": "string" }
     },
     "instance": "foo",
     "valid": false,
@@ -4096,20 +3430,11 @@
     "schema": {
       "$schema": "http://json-schema.org/draft-04/schema#",
       "not": {
-        "properties": {
-          "foo": {
-            "type": "boolean"
-          }
-        },
-        "additionalProperties": {
-          "type": "integer"
-        }
+        "properties": { "foo": { "type": "boolean" } },
+        "additionalProperties": { "type": "integer" }
       }
     },
-    "instance": {
-      "foo": true,
-      "bar": false
-    },
+    "instance": { "foo": true, "bar": false },
     "valid": true,
     "fast": {
       "pre": [
@@ -4159,9 +3484,7 @@
     "description": "items_1",
     "schema": {
       "$schema": "http://json-schema.org/draft-04/schema#",
-      "items": {
-        "type": "string"
-      }
+      "items": { "type": "string" }
     },
     "instance": 5,
     "valid": true,
@@ -4172,9 +3495,7 @@
     "description": "items_2",
     "schema": {
       "$schema": "http://json-schema.org/draft-04/schema#",
-      "items": {
-        "type": "string"
-      }
+      "items": { "type": "string" }
     },
     "instance": [ "foo", "bar", "baz" ],
     "valid": true,
@@ -4214,9 +3535,7 @@
     "description": "items_3",
     "schema": {
       "$schema": "http://json-schema.org/draft-04/schema#",
-      "items": {
-        "type": "string"
-      }
+      "items": { "type": "string" }
     },
     "instance": [ "foo", 5, "baz" ],
     "valid": false,
@@ -4253,11 +3572,7 @@
     "description": "items_4",
     "schema": {
       "$schema": "http://json-schema.org/draft-04/schema#",
-      "items": [
-        {
-          "type": "string"
-        }
-      ]
+      "items": [ { "type": "string" } ]
     },
     "instance": 5,
     "valid": true,
@@ -4268,14 +3583,7 @@
     "description": "items_5",
     "schema": {
       "$schema": "http://json-schema.org/draft-04/schema#",
-      "items": [
-        {
-          "type": "integer"
-        },
-        {
-          "type": "boolean"
-        }
-      ]
+      "items": [ { "type": "integer" }, { "type": "boolean" } ]
     },
     "instance": [],
     "valid": true,
@@ -4306,14 +3614,7 @@
     "description": "items_6",
     "schema": {
       "$schema": "http://json-schema.org/draft-04/schema#",
-      "items": [
-        {
-          "type": "integer"
-        },
-        {
-          "type": "boolean"
-        }
-      ]
+      "items": [ { "type": "integer" }, { "type": "boolean" } ]
     },
     "instance": [ 5 ],
     "valid": true,
@@ -4350,14 +3651,7 @@
     "description": "items_7",
     "schema": {
       "$schema": "http://json-schema.org/draft-04/schema#",
-      "items": [
-        {
-          "type": "integer"
-        },
-        {
-          "type": "boolean"
-        }
-      ]
+      "items": [ { "type": "integer" }, { "type": "boolean" } ]
     },
     "instance": [ 5, true, "extra" ],
     "valid": true,
@@ -4400,14 +3694,7 @@
     "description": "items_8",
     "schema": {
       "$schema": "http://json-schema.org/draft-04/schema#",
-      "items": [
-        {
-          "type": "integer"
-        },
-        {
-          "type": "boolean"
-        }
-      ]
+      "items": [ { "type": "integer" }, { "type": "boolean" } ]
     },
     "instance": [ 5, 1, "extra" ],
     "valid": false,
@@ -4450,22 +3737,9 @@
     "description": "items_9",
     "schema": {
       "$schema": "http://json-schema.org/draft-04/schema#",
-      "properties": {
-        "foo": {
-          "properties": {
-            "bar": {
-              "items": {
-                "type": "string"
-              }
-            }
-          }
-        }
-      }
+      "properties": { "foo": { "properties": { "bar": { "items": { "type": "string" } } } } }
     },
-    "instance": {
-      "foo": {},
-      "bar": []
-    },
+    "instance": { "foo": {}, "bar": [] },
     "valid": true,
     "fast": {},
     "exhaustive": {
@@ -4494,26 +3768,14 @@
               "geometry": {
                 "type": "object",
                 "required": [ "geometries" ],
-                "properties": {
-                  "geometries": {
-                    "items": {
-                      "type": "string"
-                    }
-                  }
-                }
+                "properties": { "geometries": { "items": { "type": "string" } } }
               }
             }
           }
         }
       }
     },
-    "instance": {
-      "features": [
-        {
-          "geometry": null
-        }
-      ]
-    },
+    "instance": { "features": [ { "geometry": null } ] },
     "valid": false,
     "fast": {
       "pre": [
@@ -4565,9 +3827,7 @@
     "description": "items_12",
     "schema": {
       "$schema": "http://json-schema.org/draft-04/schema#",
-      "items": {
-        "type": "integer"
-      }
+      "items": { "type": "integer" }
     },
     "instance": [ 1e+35 ],
     "valid": true,
@@ -4601,9 +3861,7 @@
     "description": "items_14",
     "schema": {
       "$schema": "http://json-schema.org/draft-04/schema#",
-      "items": {
-        "type": [ "integer", "string" ]
-      }
+      "items": { "type": [ "integer", "string" ] }
     },
     "instance": [ 1e+35 ],
     "valid": true,
@@ -4637,9 +3895,7 @@
     "description": "additionalItems_1",
     "schema": {
       "$schema": "http://json-schema.org/draft-04/schema#",
-      "additionalItems": {
-        "type": "string"
-      }
+      "additionalItems": { "type": "string" }
     },
     "instance": [ "foo", "bar", "baz" ],
     "valid": true,
@@ -4650,12 +3906,8 @@
     "description": "additionalItems_2",
     "schema": {
       "$schema": "http://json-schema.org/draft-04/schema#",
-      "additionalItems": {
-        "type": "integer"
-      },
-      "items": {
-        "type": "string"
-      }
+      "additionalItems": { "type": "integer" },
+      "items": { "type": "string" }
     },
     "instance": [ "foo", "bar", "baz" ],
     "valid": true,
@@ -4695,17 +3947,8 @@
     "description": "additionalItems_3",
     "schema": {
       "$schema": "http://json-schema.org/draft-04/schema#",
-      "additionalItems": {
-        "type": "string"
-      },
-      "items": [
-        {
-          "type": "boolean"
-        },
-        {
-          "type": "integer"
-        }
-      ]
+      "additionalItems": { "type": "string" },
+      "items": [ { "type": "boolean" }, { "type": "integer" } ]
     },
     "instance": [ true, 5 ],
     "valid": true,
@@ -4748,17 +3991,8 @@
     "description": "additionalItems_4",
     "schema": {
       "$schema": "http://json-schema.org/draft-04/schema#",
-      "additionalItems": {
-        "type": "string"
-      },
-      "items": [
-        {
-          "type": "boolean"
-        },
-        {
-          "type": "integer"
-        }
-      ]
+      "additionalItems": { "type": "string" },
+      "items": [ { "type": "boolean" }, { "type": "integer" } ]
     },
     "instance": [ true, 5, "foo", "bar" ],
     "valid": true,
@@ -4819,17 +4053,8 @@
     "description": "additionalItems_5",
     "schema": {
       "$schema": "http://json-schema.org/draft-04/schema#",
-      "additionalItems": {
-        "type": "string"
-      },
-      "items": [
-        {
-          "type": "boolean"
-        },
-        {
-          "type": "integer"
-        }
-      ]
+      "additionalItems": { "type": "string" },
+      "items": [ { "type": "boolean" }, { "type": "integer" } ]
     },
     "instance": [ true, 5, 6, "bar" ],
     "valid": false,
@@ -4884,17 +4109,7 @@
     "description": "anyOf_1",
     "schema": {
       "$schema": "http://json-schema.org/draft-04/schema#",
-      "anyOf": [
-        {
-          "type": "string"
-        },
-        {
-          "type": "integer"
-        },
-        {
-          "type": "number"
-        }
-      ]
+      "anyOf": [ { "type": "string" }, { "type": "integer" }, { "type": "number" } ]
     },
     "instance": 1,
     "valid": true,
@@ -4934,17 +4149,7 @@
     "description": "anyOf_2",
     "schema": {
       "$schema": "http://json-schema.org/draft-04/schema#",
-      "anyOf": [
-        {
-          "type": "string"
-        },
-        {
-          "type": "integer"
-        },
-        {
-          "type": "number"
-        }
-      ]
+      "anyOf": [ { "type": "string" }, { "type": "integer" }, { "type": "number" } ]
     },
     "instance": true,
     "valid": false,
@@ -4987,99 +4192,33 @@
       "anyOf": [
         {
           "properties": {
-            "version": {
-              "enum": [ 1 ]
-            },
-            "one": {
-              "items": {
-                "type": "integer"
-              }
-            },
-            "two": {
-              "items": {
-                "type": "boolean"
-              }
-            },
-            "three": {
-              "items": {
-                "type": "object"
-              }
-            },
-            "four": {
-              "items": {
-                "type": "integer"
-              }
-            },
-            "five": {
-              "items": {
-                "type": "boolean"
-              }
-            },
-            "six": {
-              "items": {
-                "type": "object"
-              }
-            },
-            "seven": {
-              "items": {
-                "type": "object"
-              }
-            },
-            "eight": {
-              "items": {
-                "type": "object"
-              }
-            },
-            "nine": {
-              "items": {
-                "type": "object"
-              }
-            },
-            "then": {
-              "items": {
-                "type": "object"
-              }
-            }
+            "version": { "enum": [ 1 ] },
+            "one": { "items": { "type": "integer" } },
+            "two": { "items": { "type": "boolean" } },
+            "three": { "items": { "type": "object" } },
+            "four": { "items": { "type": "integer" } },
+            "five": { "items": { "type": "boolean" } },
+            "six": { "items": { "type": "object" } },
+            "seven": { "items": { "type": "object" } },
+            "eight": { "items": { "type": "object" } },
+            "nine": { "items": { "type": "object" } },
+            "then": { "items": { "type": "object" } }
           }
         },
         {
-          "properties": {
-            "version": {
-              "enum": [ 2 ]
-            },
-            "one": {
-              "type": "string"
-            }
-          }
+          "properties": { "version": { "enum": [ 2 ] }, "one": { "type": "string" } }
         },
         {
           "properties": {
-            "version": {
-              "enum": [ 3 ]
-            },
-            "one": {
-              "items": {
-                "type": "integer"
-              }
-            },
-            "two": {
-              "items": {
-                "type": "boolean"
-              }
-            },
-            "three": {
-              "items": {
-                "type": "object"
-              }
-            }
+            "version": { "enum": [ 3 ] },
+            "one": { "items": { "type": "integer" } },
+            "two": { "items": { "type": "boolean" } },
+            "three": { "items": { "type": "object" } }
           }
         }
       ]
     },
-    "instance": {
-      "version": 2,
-      "one": "two"
-    },
+    "instance": { "version": 2, "one": "two" },
     "valid": true,
     "fast": {
       "pre": [
@@ -5138,65 +4277,26 @@
     "description": "anyOf_4",
     "schema": {
       "$schema": "http://json-schema.org/draft-04/schema#",
-      "anyOf": [
-        {
-          "$ref": "#/definitions/test"
-        },
-        true
-      ],
+      "anyOf": [ { "$ref": "#/definitions/test" }, true ],
       "definitions": {
         "test": {
           "properties": {
-            "a": {
-              "type": "string"
-            },
-            "b": {
-              "type": "string",
-              "pattern": "^b"
-            },
-            "c": {
-              "type": "string",
-              "pattern": "^c"
-            },
-            "d": {
-              "type": "string",
-              "pattern": "^d"
-            },
-            "e": {
-              "type": "string",
-              "pattern": "^e"
-            },
-            "f": {
-              "type": "string",
-              "pattern": "^f"
-            },
-            "g": {
-              "type": "string",
-              "pattern": "^g"
-            },
-            "h": {
-              "type": "string",
-              "pattern": "^h"
-            },
-            "i": {
-              "type": "string",
-              "pattern": "^i"
-            },
-            "j": {
-              "type": "string",
-              "pattern": "^j"
-            },
-            "k": {
-              "type": "string",
-              "pattern": "^k"
-            }
+            "a": { "type": "string" },
+            "b": { "type": "string", "pattern": "^b" },
+            "c": { "type": "string", "pattern": "^c" },
+            "d": { "type": "string", "pattern": "^d" },
+            "e": { "type": "string", "pattern": "^e" },
+            "f": { "type": "string", "pattern": "^f" },
+            "g": { "type": "string", "pattern": "^g" },
+            "h": { "type": "string", "pattern": "^h" },
+            "i": { "type": "string", "pattern": "^i" },
+            "j": { "type": "string", "pattern": "^j" },
+            "k": { "type": "string", "pattern": "^k" }
           }
         }
       }
     },
-    "instance": {
-      "a": "foo"
-    },
+    "instance": { "a": "foo" },
     "valid": true,
     "fast": {
       "pre": [
@@ -5241,18 +4341,10 @@
     "schema": {
       "$schema": "http://json-schema.org/draft-04/schema#",
       "oneOf": [
-        {
-          "type": "string"
-        },
-        {
-          "type": "integer"
-        },
-        {
-          "type": "number"
-        },
-        {
-          "type": "boolean"
-        }
+        { "type": "string" },
+        { "type": "integer" },
+        { "type": "number" },
+        { "type": "boolean" }
       ]
     },
     "instance": "foo",
@@ -5309,18 +4401,10 @@
     "schema": {
       "$schema": "http://json-schema.org/draft-04/schema#",
       "oneOf": [
-        {
-          "type": "string"
-        },
-        {
-          "type": "integer"
-        },
-        {
-          "type": "number"
-        },
-        {
-          "type": "boolean"
-        }
+        { "type": "string" },
+        { "type": "integer" },
+        { "type": "number" },
+        { "type": "boolean" }
       ]
     },
     "instance": 3.14,
@@ -5377,18 +4461,10 @@
     "schema": {
       "$schema": "http://json-schema.org/draft-04/schema#",
       "oneOf": [
-        {
-          "type": "string"
-        },
-        {
-          "type": "integer"
-        },
-        {
-          "type": "number"
-        },
-        {
-          "type": "boolean"
-        }
+        { "type": "string" },
+        { "type": "integer" },
+        { "type": "number" },
+        { "type": "boolean" }
       ]
     },
     "instance": 5,
@@ -5441,11 +4517,7 @@
     "description": "oneOf_4",
     "schema": {
       "$schema": "http://json-schema.org/draft-04/schema#",
-      "oneOf": [
-        {
-          "type": "number"
-        }
-      ]
+      "oneOf": [ { "type": "number" } ]
     },
     "instance": 3.14,
     "valid": true,
@@ -5485,99 +4557,33 @@
       "oneOf": [
         {
           "properties": {
-            "version": {
-              "enum": [ 1 ]
-            },
-            "one": {
-              "items": {
-                "type": "integer"
-              }
-            },
-            "two": {
-              "items": {
-                "type": "boolean"
-              }
-            },
-            "three": {
-              "items": {
-                "type": "object"
-              }
-            },
-            "four": {
-              "items": {
-                "type": "integer"
-              }
-            },
-            "five": {
-              "items": {
-                "type": "boolean"
-              }
-            },
-            "six": {
-              "items": {
-                "type": "object"
-              }
-            },
-            "seven": {
-              "items": {
-                "type": "object"
-              }
-            },
-            "eight": {
-              "items": {
-                "type": "object"
-              }
-            },
-            "nine": {
-              "items": {
-                "type": "object"
-              }
-            },
-            "then": {
-              "items": {
-                "type": "object"
-              }
-            }
+            "version": { "enum": [ 1 ] },
+            "one": { "items": { "type": "integer" } },
+            "two": { "items": { "type": "boolean" } },
+            "three": { "items": { "type": "object" } },
+            "four": { "items": { "type": "integer" } },
+            "five": { "items": { "type": "boolean" } },
+            "six": { "items": { "type": "object" } },
+            "seven": { "items": { "type": "object" } },
+            "eight": { "items": { "type": "object" } },
+            "nine": { "items": { "type": "object" } },
+            "then": { "items": { "type": "object" } }
           }
         },
         {
-          "properties": {
-            "version": {
-              "enum": [ 2 ]
-            },
-            "one": {
-              "type": "string"
-            }
-          }
+          "properties": { "version": { "enum": [ 2 ] }, "one": { "type": "string" } }
         },
         {
           "properties": {
-            "version": {
-              "enum": [ 3 ]
-            },
-            "one": {
-              "items": {
-                "type": "integer"
-              }
-            },
-            "two": {
-              "items": {
-                "type": "boolean"
-              }
-            },
-            "three": {
-              "items": {
-                "type": "object"
-              }
-            }
+            "version": { "enum": [ 3 ] },
+            "one": { "items": { "type": "integer" } },
+            "two": { "items": { "type": "boolean" } },
+            "three": { "items": { "type": "object" } }
           }
         }
       ]
     },
-    "instance": {
-      "version": 2,
-      "one": "two"
-    },
+    "instance": { "version": 2, "one": "two" },
     "valid": true,
     "fast": {
       "pre": [
@@ -5650,14 +4656,7 @@
     "description": "oneOf_7",
     "schema": {
       "$schema": "http://json-schema.org/draft-04/schema#",
-      "oneOf": [
-        {
-          "type": "string"
-        },
-        {
-          "type": "integer"
-        }
-      ]
+      "oneOf": [ { "type": "string" }, { "type": "integer" } ]
     },
     "instance": true,
     "valid": false,
@@ -5700,12 +4699,7 @@
     "description": "dependencies_1",
     "schema": {
       "$schema": "http://json-schema.org/draft-04/schema#",
-      "dependencies": {
-        "foo": [ "bar", "baz" ],
-        "qux": {
-          "required": [ "extra" ]
-        }
-      }
+      "dependencies": { "foo": [ "bar", "baz" ], "qux": { "required": [ "extra" ] } }
     },
     "instance": 5,
     "valid": true,
@@ -5716,18 +4710,9 @@
     "description": "dependencies_2",
     "schema": {
       "$schema": "http://json-schema.org/draft-04/schema#",
-      "dependencies": {
-        "foo": [ "bar", "baz" ],
-        "qux": {
-          "required": [ "extra" ]
-        }
-      }
+      "dependencies": { "foo": [ "bar", "baz" ], "qux": { "required": [ "extra" ] } }
     },
-    "instance": {
-      "foo": 1,
-      "bar": 2,
-      "baz": 3
-    },
+    "instance": { "foo": 1, "bar": 2, "baz": 3 },
     "valid": true,
     "fast": {
       "pre": [
@@ -5756,17 +4741,9 @@
     "description": "dependencies_3",
     "schema": {
       "$schema": "http://json-schema.org/draft-04/schema#",
-      "dependencies": {
-        "foo": [ "bar", "baz" ],
-        "qux": {
-          "required": [ "extra" ]
-        }
-      }
+      "dependencies": { "foo": [ "bar", "baz" ], "qux": { "required": [ "extra" ] } }
     },
-    "instance": {
-      "foo": 1,
-      "baz": 3
-    },
+    "instance": { "foo": 1, "baz": 3 },
     "valid": false,
     "fast": {
       "pre": [
@@ -5795,17 +4772,9 @@
     "description": "dependencies_4",
     "schema": {
       "$schema": "http://json-schema.org/draft-04/schema#",
-      "dependencies": {
-        "foo": [ "bar", "baz" ],
-        "qux": {
-          "required": [ "extra" ]
-        }
-      }
+      "dependencies": { "foo": [ "bar", "baz" ], "qux": { "required": [ "extra" ] } }
     },
-    "instance": {
-      "qux": 1,
-      "extra": 2
-    },
+    "instance": { "qux": 1, "extra": 2 },
     "valid": true,
     "fast": {
       "pre": [
@@ -5846,16 +4815,9 @@
     "description": "dependencies_5",
     "schema": {
       "$schema": "http://json-schema.org/draft-04/schema#",
-      "dependencies": {
-        "foo": [ "bar", "baz" ],
-        "qux": {
-          "required": [ "extra" ]
-        }
-      }
+      "dependencies": { "foo": [ "bar", "baz" ], "qux": { "required": [ "extra" ] } }
     },
-    "instance": {
-      "qux": 1
-    },
+    "instance": { "qux": 1 },
     "valid": false,
     "fast": {
       "pre": [
@@ -5890,16 +4852,9 @@
     "description": "dependencies_6",
     "schema": {
       "$schema": "http://json-schema.org/draft-04/schema#",
-      "dependencies": {
-        "foo": [ "bar", "baz" ],
-        "qux": {
-          "required": [ "extra" ]
-        }
-      }
+      "dependencies": { "foo": [ "bar", "baz" ], "qux": { "required": [ "extra" ] } }
     },
-    "instance": {
-      "none": 1
-    },
+    "instance": { "none": 1 },
     "valid": true,
     "fast": {
       "pre": [
@@ -5928,13 +4883,9 @@
     "description": "dependencies_7",
     "schema": {
       "$schema": "http://json-schema.org/draft-04/schema#",
-      "dependencies": {
-        "foo": [ "bar", "baz" ]
-      }
+      "dependencies": { "foo": [ "bar", "baz" ] }
     },
-    "instance": {
-      "none": 1
-    },
+    "instance": { "none": 1 },
     "valid": true,
     "fast": {
       "pre": [
@@ -5963,17 +4914,9 @@
     "description": "dependencies_8",
     "schema": {
       "$schema": "http://json-schema.org/draft-04/schema#",
-      "dependencies": {
-        "foo": [ "bar", "baz" ],
-        "qux": {
-          "required": [ "extra" ]
-        }
-      }
+      "dependencies": { "foo": [ "bar", "baz" ], "qux": { "required": [ "extra" ] } }
     },
-    "instance": {
-      "foo": 1,
-      "qux": 2
-    },
+    "instance": { "foo": 1, "qux": 2 },
     "valid": false,
     "fast": {
       "pre": [
@@ -6019,11 +4962,7 @@
     "description": "enum_1",
     "schema": {
       "$schema": "http://json-schema.org/draft-04/schema#",
-      "enum": [
-        1,
-        {},
-        "foo"
-      ]
+      "enum": [ 1, {}, "foo" ]
     },
     "instance": {},
     "valid": true,
@@ -6054,15 +4993,9 @@
     "description": "enum_2",
     "schema": {
       "$schema": "http://json-schema.org/draft-04/schema#",
-      "enum": [
-        1,
-        {},
-        "foo"
-      ]
+      "enum": [ 1, {}, "foo" ]
     },
-    "instance": {
-      "foo": 1
-    },
+    "instance": { "foo": 1 },
     "valid": false,
     "fast": {
       "pre": [
@@ -6089,10 +5022,7 @@
   },
   {
     "description": "enum_3",
-    "schema": {
-      "$schema": "http://json-schema.org/draft-04/schema#",
-      "enum": [ 1 ]
-    },
+    "schema": { "$schema": "http://json-schema.org/draft-04/schema#", "enum": [ 1 ] },
     "instance": 1,
     "valid": true,
     "fast": {
@@ -6371,9 +5301,7 @@
     "schema": {
       "$schema": "http://json-schema.org/draft-04/schema#",
       "type": "array",
-      "enum": [
-        [ 1 ]
-      ]
+      "enum": [ [ 1 ] ]
     },
     "instance": [ 1 ],
     "valid": true,
@@ -6408,9 +5336,7 @@
     "schema": {
       "$schema": "http://json-schema.org/draft-04/schema#",
       "type": "object",
-      "enum": [
-        {}
-      ]
+      "enum": [ {} ]
     },
     "instance": {},
     "valid": true,
@@ -6523,9 +5449,7 @@
       "$schema": "http://json-schema.org/draft-04/schema#",
       "type": "array",
       "minItems": 1,
-      "enum": [
-        [ 1 ]
-      ]
+      "enum": [ [ 1 ] ]
     },
     "instance": [ 1 ],
     "valid": true,
@@ -6567,15 +5491,9 @@
       "$schema": "http://json-schema.org/draft-04/schema#",
       "type": "object",
       "minProperties": 1,
-      "enum": [
-        {
-          "foo": 1
-        }
-      ]
+      "enum": [ { "foo": 1 } ]
     },
-    "instance": {
-      "foo": 1
-    },
+    "instance": { "foo": 1 },
     "valid": true,
     "fast": {
       "pre": [
@@ -6649,17 +5567,11 @@
         "foo": {
           "type": "object",
           "required": [ "bar" ],
-          "properties": {
-            "bar": {
-              "enum": [ "baz" ]
-            }
-          }
+          "properties": { "bar": { "enum": [ "baz" ] } }
         }
       }
     },
-    "instance": {
-      "foo": "bar"
-    },
+    "instance": { "foo": "bar" },
     "valid": false,
     "fast": {
       "pre": [
@@ -6695,17 +5607,11 @@
         "foo": {
           "type": "object",
           "required": [ "bar", "baz" ],
-          "properties": {
-            "bar": {
-              "enum": [ "qux" ]
-            }
-          }
+          "properties": { "bar": { "enum": [ "qux" ] } }
         }
       }
     },
-    "instance": {
-      "foo": "bar"
-    },
+    "instance": { "foo": "bar" },
     "valid": false,
     "fast": {
       "pre": [
@@ -6923,10 +5829,7 @@
   },
   {
     "description": "minLength_1",
-    "schema": {
-      "$schema": "http://json-schema.org/draft-04/schema#",
-      "minLength": 2
-    },
+    "schema": { "$schema": "http://json-schema.org/draft-04/schema#", "minLength": 2 },
     "instance": 5,
     "valid": true,
     "fast": {},
@@ -6934,10 +5837,7 @@
   },
   {
     "description": "minLength_2",
-    "schema": {
-      "$schema": "http://json-schema.org/draft-04/schema#",
-      "minLength": 2
-    },
+    "schema": { "$schema": "http://json-schema.org/draft-04/schema#", "minLength": 2 },
     "instance": "xx",
     "valid": true,
     "fast": {
@@ -6965,10 +5865,7 @@
   },
   {
     "description": "minLength_3",
-    "schema": {
-      "$schema": "http://json-schema.org/draft-04/schema#",
-      "minLength": 2
-    },
+    "schema": { "$schema": "http://json-schema.org/draft-04/schema#", "minLength": 2 },
     "instance": "x",
     "valid": false,
     "fast": {
@@ -7063,10 +5960,7 @@
   },
   {
     "description": "minLength_6",
-    "schema": {
-      "$schema": "http://json-schema.org/draft-04/schema#",
-      "minLength": 0
-    },
+    "schema": { "$schema": "http://json-schema.org/draft-04/schema#", "minLength": 0 },
     "instance": "x",
     "valid": true,
     "fast": {},
@@ -7074,10 +5968,7 @@
   },
   {
     "description": "minLength_7",
-    "schema": {
-      "$schema": "http://json-schema.org/draft-04/schema#",
-      "minLength": 0
-    },
+    "schema": { "$schema": "http://json-schema.org/draft-04/schema#", "minLength": 0 },
     "instance": "",
     "valid": true,
     "fast": {},
@@ -7096,10 +5987,7 @@
   },
   {
     "description": "maxLength_1",
-    "schema": {
-      "$schema": "http://json-schema.org/draft-04/schema#",
-      "maxLength": 2
-    },
+    "schema": { "$schema": "http://json-schema.org/draft-04/schema#", "maxLength": 2 },
     "instance": 5,
     "valid": true,
     "fast": {},
@@ -7107,10 +5995,7 @@
   },
   {
     "description": "maxLength_2",
-    "schema": {
-      "$schema": "http://json-schema.org/draft-04/schema#",
-      "maxLength": 2
-    },
+    "schema": { "$schema": "http://json-schema.org/draft-04/schema#", "maxLength": 2 },
     "instance": "xx",
     "valid": true,
     "fast": {
@@ -7138,10 +6023,7 @@
   },
   {
     "description": "maxLength_3",
-    "schema": {
-      "$schema": "http://json-schema.org/draft-04/schema#",
-      "maxLength": 2
-    },
+    "schema": { "$schema": "http://json-schema.org/draft-04/schema#", "maxLength": 2 },
     "instance": "xxx",
     "valid": false,
     "fast": {
@@ -7275,10 +6157,7 @@
   },
   {
     "description": "maxLength_7",
-    "schema": {
-      "$schema": "http://json-schema.org/draft-04/schema#",
-      "maxLength": 0
-    },
+    "schema": { "$schema": "http://json-schema.org/draft-04/schema#", "maxLength": 0 },
     "instance": "x",
     "valid": false,
     "fast": {
@@ -7306,10 +6185,7 @@
   },
   {
     "description": "maxLength_8",
-    "schema": {
-      "$schema": "http://json-schema.org/draft-04/schema#",
-      "maxLength": 0
-    },
+    "schema": { "$schema": "http://json-schema.org/draft-04/schema#", "maxLength": 0 },
     "instance": "",
     "valid": true,
     "fast": {
@@ -7348,10 +6224,7 @@
   },
   {
     "description": "minItems_1",
-    "schema": {
-      "$schema": "http://json-schema.org/draft-04/schema#",
-      "minItems": 2
-    },
+    "schema": { "$schema": "http://json-schema.org/draft-04/schema#", "minItems": 2 },
     "instance": 5,
     "valid": true,
     "fast": {},
@@ -7359,10 +6232,7 @@
   },
   {
     "description": "minItems_2",
-    "schema": {
-      "$schema": "http://json-schema.org/draft-04/schema#",
-      "minItems": 2
-    },
+    "schema": { "$schema": "http://json-schema.org/draft-04/schema#", "minItems": 2 },
     "instance": [ 1, 2 ],
     "valid": true,
     "fast": {
@@ -7390,10 +6260,7 @@
   },
   {
     "description": "minItems_3",
-    "schema": {
-      "$schema": "http://json-schema.org/draft-04/schema#",
-      "minItems": 2
-    },
+    "schema": { "$schema": "http://json-schema.org/draft-04/schema#", "minItems": 2 },
     "instance": [ 1 ],
     "valid": false,
     "fast": {
@@ -7520,10 +6387,7 @@
   },
   {
     "description": "minItems_7",
-    "schema": {
-      "$schema": "http://json-schema.org/draft-04/schema#",
-      "minItems": 0
-    },
+    "schema": { "$schema": "http://json-schema.org/draft-04/schema#", "minItems": 0 },
     "instance": [ 1 ],
     "valid": true,
     "fast": {},
@@ -7531,10 +6395,7 @@
   },
   {
     "description": "minItems_8",
-    "schema": {
-      "$schema": "http://json-schema.org/draft-04/schema#",
-      "minItems": 0
-    },
+    "schema": { "$schema": "http://json-schema.org/draft-04/schema#", "minItems": 0 },
     "instance": [],
     "valid": true,
     "fast": {},
@@ -7546,9 +6407,7 @@
       "$schema": "http://json-schema.org/draft-04/schema#",
       "type": "array",
       "minItems": 0,
-      "items": {
-        "type": "number"
-      }
+      "items": { "type": "number" }
     },
     "instance": [ 1 ],
     "valid": true,
@@ -7597,10 +6456,7 @@
   },
   {
     "description": "maxItems_1",
-    "schema": {
-      "$schema": "http://json-schema.org/draft-04/schema#",
-      "maxItems": 2
-    },
+    "schema": { "$schema": "http://json-schema.org/draft-04/schema#", "maxItems": 2 },
     "instance": 5,
     "valid": true,
     "fast": {},
@@ -7608,10 +6464,7 @@
   },
   {
     "description": "maxItems_2",
-    "schema": {
-      "$schema": "http://json-schema.org/draft-04/schema#",
-      "maxItems": 2
-    },
+    "schema": { "$schema": "http://json-schema.org/draft-04/schema#", "maxItems": 2 },
     "instance": [ 1, 2 ],
     "valid": true,
     "fast": {
@@ -7639,10 +6492,7 @@
   },
   {
     "description": "maxItems_3",
-    "schema": {
-      "$schema": "http://json-schema.org/draft-04/schema#",
-      "maxItems": 2
-    },
+    "schema": { "$schema": "http://json-schema.org/draft-04/schema#", "maxItems": 2 },
     "instance": [ 1, 2, 3 ],
     "valid": false,
     "fast": {
@@ -7808,10 +6658,7 @@
   },
   {
     "description": "maxItems_8",
-    "schema": {
-      "$schema": "http://json-schema.org/draft-04/schema#",
-      "maxItems": 0
-    },
+    "schema": { "$schema": "http://json-schema.org/draft-04/schema#", "maxItems": 0 },
     "instance": [ 1 ],
     "valid": false,
     "fast": {
@@ -7839,10 +6686,7 @@
   },
   {
     "description": "maxItems_9",
-    "schema": {
-      "$schema": "http://json-schema.org/draft-04/schema#",
-      "maxItems": 0
-    },
+    "schema": { "$schema": "http://json-schema.org/draft-04/schema#", "maxItems": 0 },
     "instance": [],
     "valid": true,
     "fast": {
@@ -7881,10 +6725,7 @@
   },
   {
     "description": "minProperties_1",
-    "schema": {
-      "$schema": "http://json-schema.org/draft-04/schema#",
-      "minProperties": 2
-    },
+    "schema": { "$schema": "http://json-schema.org/draft-04/schema#", "minProperties": 2 },
     "instance": 5,
     "valid": true,
     "fast": {},
@@ -7892,14 +6733,8 @@
   },
   {
     "description": "minProperties_2",
-    "schema": {
-      "$schema": "http://json-schema.org/draft-04/schema#",
-      "minProperties": 2
-    },
-    "instance": {
-      "bar": 2,
-      "foo": 1
-    },
+    "schema": { "$schema": "http://json-schema.org/draft-04/schema#", "minProperties": 2 },
+    "instance": { "bar": 2, "foo": 1 },
     "valid": true,
     "fast": {
       "pre": [
@@ -7926,13 +6761,8 @@
   },
   {
     "description": "minProperties_3",
-    "schema": {
-      "$schema": "http://json-schema.org/draft-04/schema#",
-      "minProperties": 2
-    },
-    "instance": {
-      "foo": 1
-    },
+    "schema": { "$schema": "http://json-schema.org/draft-04/schema#", "minProperties": 2 },
+    "instance": { "foo": 1 },
     "valid": false,
     "fast": {
       "pre": [
@@ -7964,9 +6794,7 @@
       "type": "object",
       "minProperties": 1
     },
-    "instance": {
-      "foo": 1
-    },
+    "instance": { "foo": 1 },
     "valid": true,
     "fast": {
       "pre": [
@@ -8001,9 +6829,7 @@
       "type": "object",
       "minProperties": 0
     },
-    "instance": {
-      "foo": 1
-    },
+    "instance": { "foo": 1 },
     "valid": true,
     "fast": {
       "pre": [
@@ -8030,23 +6856,15 @@
   },
   {
     "description": "minProperties_6",
-    "schema": {
-      "$schema": "http://json-schema.org/draft-04/schema#",
-      "minProperties": 0
-    },
-    "instance": {
-      "foo": 1
-    },
+    "schema": { "$schema": "http://json-schema.org/draft-04/schema#", "minProperties": 0 },
+    "instance": { "foo": 1 },
     "valid": true,
     "fast": {},
     "exhaustive": {}
   },
   {
     "description": "minProperties_7",
-    "schema": {
-      "$schema": "http://json-schema.org/draft-04/schema#",
-      "minProperties": 0
-    },
+    "schema": { "$schema": "http://json-schema.org/draft-04/schema#", "minProperties": 0 },
     "instance": {},
     "valid": true,
     "fast": {},
@@ -8065,10 +6883,7 @@
   },
   {
     "description": "maxProperties_1",
-    "schema": {
-      "$schema": "http://json-schema.org/draft-04/schema#",
-      "maxProperties": 2
-    },
+    "schema": { "$schema": "http://json-schema.org/draft-04/schema#", "maxProperties": 2 },
     "instance": 5,
     "valid": true,
     "fast": {},
@@ -8076,14 +6891,8 @@
   },
   {
     "description": "maxProperties_2",
-    "schema": {
-      "$schema": "http://json-schema.org/draft-04/schema#",
-      "maxProperties": 2
-    },
-    "instance": {
-      "bar": 2,
-      "foo": 1
-    },
+    "schema": { "$schema": "http://json-schema.org/draft-04/schema#", "maxProperties": 2 },
+    "instance": { "bar": 2, "foo": 1 },
     "valid": true,
     "fast": {
       "pre": [
@@ -8110,15 +6919,8 @@
   },
   {
     "description": "maxProperties_3",
-    "schema": {
-      "$schema": "http://json-schema.org/draft-04/schema#",
-      "maxProperties": 2
-    },
-    "instance": {
-      "bar": 2,
-      "baz": 3,
-      "foo": 1
-    },
+    "schema": { "$schema": "http://json-schema.org/draft-04/schema#", "maxProperties": 2 },
+    "instance": { "bar": 2, "baz": 3, "foo": 1 },
     "valid": false,
     "fast": {
       "pre": [
@@ -8150,10 +6952,7 @@
       "type": "object",
       "maxProperties": 2
     },
-    "instance": {
-      "bar": 2,
-      "foo": 1
-    },
+    "instance": { "bar": 2, "foo": 1 },
     "valid": true,
     "fast": {
       "pre": [
@@ -8188,11 +6987,7 @@
       "type": "object",
       "maxProperties": 2
     },
-    "instance": {
-      "bar": 2,
-      "foo": 1,
-      "baz": 3
-    },
+    "instance": { "bar": 2, "foo": 1, "baz": 3 },
     "valid": false,
     "fast": {
       "pre": [
@@ -8225,10 +7020,7 @@
       "minProperties": 1,
       "maxProperties": 2
     },
-    "instance": {
-      "bar": 2,
-      "foo": 1
-    },
+    "instance": { "bar": 2, "foo": 1 },
     "valid": true,
     "fast": {
       "pre": [
@@ -8261,13 +7053,8 @@
   },
   {
     "description": "maxProperties_7",
-    "schema": {
-      "$schema": "http://json-schema.org/draft-04/schema#",
-      "maxProperties": 0
-    },
-    "instance": {
-      "foo": 1
-    },
+    "schema": { "$schema": "http://json-schema.org/draft-04/schema#", "maxProperties": 0 },
+    "instance": { "foo": 1 },
     "valid": false,
     "fast": {
       "pre": [
@@ -8294,10 +7081,7 @@
   },
   {
     "description": "maxProperties_8",
-    "schema": {
-      "$schema": "http://json-schema.org/draft-04/schema#",
-      "maxProperties": 0
-    },
+    "schema": { "$schema": "http://json-schema.org/draft-04/schema#", "maxProperties": 0 },
     "instance": {},
     "valid": true,
     "fast": {
@@ -8336,10 +7120,7 @@
   },
   {
     "description": "minimum_1",
-    "schema": {
-      "$schema": "http://json-schema.org/draft-04/schema#",
-      "minimum": 2
-    },
+    "schema": { "$schema": "http://json-schema.org/draft-04/schema#", "minimum": 2 },
     "instance": "foo",
     "valid": true,
     "fast": {},
@@ -8347,10 +7128,7 @@
   },
   {
     "description": "minimum_2",
-    "schema": {
-      "$schema": "http://json-schema.org/draft-04/schema#",
-      "minimum": 2
-    },
+    "schema": { "$schema": "http://json-schema.org/draft-04/schema#", "minimum": 2 },
     "instance": 2.1,
     "valid": true,
     "fast": {
@@ -8378,10 +7156,7 @@
   },
   {
     "description": "minimum_3",
-    "schema": {
-      "$schema": "http://json-schema.org/draft-04/schema#",
-      "minimum": 2
-    },
+    "schema": { "$schema": "http://json-schema.org/draft-04/schema#", "minimum": 2 },
     "instance": 2,
     "valid": true,
     "fast": {
@@ -8409,10 +7184,7 @@
   },
   {
     "description": "minimum_4",
-    "schema": {
-      "$schema": "http://json-schema.org/draft-04/schema#",
-      "minimum": 2
-    },
+    "schema": { "$schema": "http://json-schema.org/draft-04/schema#", "minimum": 2 },
     "instance": 1.8,
     "valid": false,
     "fast": {
@@ -8440,10 +7212,7 @@
   },
   {
     "description": "minimum_5",
-    "schema": {
-      "$schema": "http://json-schema.org/draft-04/schema#",
-      "minimum": 0
-    },
+    "schema": { "$schema": "http://json-schema.org/draft-04/schema#", "minimum": 0 },
     "instance": 1,
     "valid": true,
     "fast": {
@@ -8471,10 +7240,7 @@
   },
   {
     "description": "minimum_6",
-    "schema": {
-      "$schema": "http://json-schema.org/draft-04/schema#",
-      "minimum": 0
-    },
+    "schema": { "$schema": "http://json-schema.org/draft-04/schema#", "minimum": 0 },
     "instance": 0,
     "valid": true,
     "fast": {
@@ -8513,10 +7279,7 @@
   },
   {
     "description": "maximum_1",
-    "schema": {
-      "$schema": "http://json-schema.org/draft-04/schema#",
-      "maximum": 2
-    },
+    "schema": { "$schema": "http://json-schema.org/draft-04/schema#", "maximum": 2 },
     "instance": "foo",
     "valid": true,
     "fast": {},
@@ -8524,10 +7287,7 @@
   },
   {
     "description": "maximum_2",
-    "schema": {
-      "$schema": "http://json-schema.org/draft-04/schema#",
-      "maximum": 2
-    },
+    "schema": { "$schema": "http://json-schema.org/draft-04/schema#", "maximum": 2 },
     "instance": 1.9,
     "valid": true,
     "fast": {
@@ -8555,10 +7315,7 @@
   },
   {
     "description": "maximum_3",
-    "schema": {
-      "$schema": "http://json-schema.org/draft-04/schema#",
-      "maximum": 2
-    },
+    "schema": { "$schema": "http://json-schema.org/draft-04/schema#", "maximum": 2 },
     "instance": 2,
     "valid": true,
     "fast": {
@@ -8586,10 +7343,7 @@
   },
   {
     "description": "maximum_4",
-    "schema": {
-      "$schema": "http://json-schema.org/draft-04/schema#",
-      "maximum": 2
-    },
+    "schema": { "$schema": "http://json-schema.org/draft-04/schema#", "maximum": 2 },
     "instance": 2.1,
     "valid": false,
     "fast": {
@@ -8617,10 +7371,7 @@
   },
   {
     "description": "maximum_5",
-    "schema": {
-      "$schema": "http://json-schema.org/draft-04/schema#",
-      "maximum": 0
-    },
+    "schema": { "$schema": "http://json-schema.org/draft-04/schema#", "maximum": 0 },
     "instance": 0,
     "valid": true,
     "fast": {
@@ -8659,10 +7410,7 @@
   },
   {
     "description": "minimum_8",
-    "schema": {
-      "$schema": "http://json-schema.org/draft-04/schema#",
-      "minimum": 5
-    },
+    "schema": { "$schema": "http://json-schema.org/draft-04/schema#", "minimum": 5 },
     "instance": 10,
     "valid": true,
     "fast": {
@@ -8690,10 +7438,7 @@
   },
   {
     "description": "minimum_9",
-    "schema": {
-      "$schema": "http://json-schema.org/draft-04/schema#",
-      "minimum": 5
-    },
+    "schema": { "$schema": "http://json-schema.org/draft-04/schema#", "minimum": 5 },
     "instance": 3,
     "valid": false,
     "fast": {
@@ -8721,10 +7466,7 @@
   },
   {
     "description": "minimum_10",
-    "schema": {
-      "$schema": "http://json-schema.org/draft-04/schema#",
-      "minimum": 5
-    },
+    "schema": { "$schema": "http://json-schema.org/draft-04/schema#", "minimum": 5 },
     "instance": 10,
     "valid": true,
     "fast": {
@@ -8752,10 +7494,7 @@
   },
   {
     "description": "minimum_11",
-    "schema": {
-      "$schema": "http://json-schema.org/draft-04/schema#",
-      "minimum": 5
-    },
+    "schema": { "$schema": "http://json-schema.org/draft-04/schema#", "minimum": 5 },
     "instance": 3,
     "valid": false,
     "fast": {
@@ -8783,10 +7522,7 @@
   },
   {
     "description": "minimum_12",
-    "schema": {
-      "$schema": "http://json-schema.org/draft-04/schema#",
-      "minimum": 2.5
-    },
+    "schema": { "$schema": "http://json-schema.org/draft-04/schema#", "minimum": 2.5 },
     "instance": 3.0,
     "valid": true,
     "fast": {
@@ -8814,10 +7550,7 @@
   },
   {
     "description": "minimum_13",
-    "schema": {
-      "$schema": "http://json-schema.org/draft-04/schema#",
-      "minimum": 2.5
-    },
+    "schema": { "$schema": "http://json-schema.org/draft-04/schema#", "minimum": 2.5 },
     "instance": 2.0,
     "valid": false,
     "fast": {
@@ -8845,10 +7578,7 @@
   },
   {
     "description": "minimum_14",
-    "schema": {
-      "$schema": "http://json-schema.org/draft-04/schema#",
-      "minimum": 5
-    },
+    "schema": { "$schema": "http://json-schema.org/draft-04/schema#", "minimum": 5 },
     "instance": 10,
     "valid": true,
     "fast": {
@@ -8876,10 +7606,7 @@
   },
   {
     "description": "minimum_15",
-    "schema": {
-      "$schema": "http://json-schema.org/draft-04/schema#",
-      "minimum": 5
-    },
+    "schema": { "$schema": "http://json-schema.org/draft-04/schema#", "minimum": 5 },
     "instance": 3,
     "valid": false,
     "fast": {
@@ -8907,10 +7634,7 @@
   },
   {
     "description": "minimum_16",
-    "schema": {
-      "$schema": "http://json-schema.org/draft-04/schema#",
-      "minimum": 2.5
-    },
+    "schema": { "$schema": "http://json-schema.org/draft-04/schema#", "minimum": 2.5 },
     "instance": 3.0,
     "valid": true,
     "fast": {
@@ -8938,10 +7662,7 @@
   },
   {
     "description": "minimum_17",
-    "schema": {
-      "$schema": "http://json-schema.org/draft-04/schema#",
-      "minimum": 2.5
-    },
+    "schema": { "$schema": "http://json-schema.org/draft-04/schema#", "minimum": 2.5 },
     "instance": 2.0,
     "valid": false,
     "fast": {
@@ -8969,10 +7690,7 @@
   },
   {
     "description": "minimum_20",
-    "schema": {
-      "$schema": "http://json-schema.org/draft-04/schema#",
-      "minimum": 0.5
-    },
+    "schema": { "$schema": "http://json-schema.org/draft-04/schema#", "minimum": 0.5 },
     "instance": 0.7,
     "valid": true,
     "fast": {
@@ -9000,10 +7718,7 @@
   },
   {
     "description": "minimum_21",
-    "schema": {
-      "$schema": "http://json-schema.org/draft-04/schema#",
-      "minimum": 0.5
-    },
+    "schema": { "$schema": "http://json-schema.org/draft-04/schema#", "minimum": 0.5 },
     "instance": 0.3,
     "valid": false,
     "fast": {
@@ -9031,10 +7746,7 @@
   },
   {
     "description": "minimum_22",
-    "schema": {
-      "$schema": "http://json-schema.org/draft-04/schema#",
-      "minimum": 5.0
-    },
+    "schema": { "$schema": "http://json-schema.org/draft-04/schema#", "minimum": 5.0 },
     "instance": 10.0,
     "valid": true,
     "fast": {
@@ -9062,10 +7774,7 @@
   },
   {
     "description": "minimum_23",
-    "schema": {
-      "$schema": "http://json-schema.org/draft-04/schema#",
-      "minimum": 5
-    },
+    "schema": { "$schema": "http://json-schema.org/draft-04/schema#", "minimum": 5 },
     "instance": 5,
     "valid": true,
     "fast": {
@@ -9093,10 +7802,7 @@
   },
   {
     "description": "minimum_24",
-    "schema": {
-      "$schema": "http://json-schema.org/draft-04/schema#",
-      "minimum": 2.5
-    },
+    "schema": { "$schema": "http://json-schema.org/draft-04/schema#", "minimum": 2.5 },
     "instance": 5,
     "valid": true,
     "fast": {
@@ -9124,10 +7830,7 @@
   },
   {
     "description": "maximum_7",
-    "schema": {
-      "$schema": "http://json-schema.org/draft-04/schema#",
-      "maximum": 5
-    },
+    "schema": { "$schema": "http://json-schema.org/draft-04/schema#", "maximum": 5 },
     "instance": 3,
     "valid": true,
     "fast": {
@@ -9155,10 +7858,7 @@
   },
   {
     "description": "maximum_8",
-    "schema": {
-      "$schema": "http://json-schema.org/draft-04/schema#",
-      "maximum": 5
-    },
+    "schema": { "$schema": "http://json-schema.org/draft-04/schema#", "maximum": 5 },
     "instance": 10,
     "valid": false,
     "fast": {
@@ -9186,10 +7886,7 @@
   },
   {
     "description": "maximum_9",
-    "schema": {
-      "$schema": "http://json-schema.org/draft-04/schema#",
-      "maximum": 5
-    },
+    "schema": { "$schema": "http://json-schema.org/draft-04/schema#", "maximum": 5 },
     "instance": 3,
     "valid": true,
     "fast": {
@@ -9217,10 +7914,7 @@
   },
   {
     "description": "maximum_10",
-    "schema": {
-      "$schema": "http://json-schema.org/draft-04/schema#",
-      "maximum": 5
-    },
+    "schema": { "$schema": "http://json-schema.org/draft-04/schema#", "maximum": 5 },
     "instance": 10,
     "valid": false,
     "fast": {
@@ -9248,10 +7942,7 @@
   },
   {
     "description": "maximum_11",
-    "schema": {
-      "$schema": "http://json-schema.org/draft-04/schema#",
-      "maximum": 2.5
-    },
+    "schema": { "$schema": "http://json-schema.org/draft-04/schema#", "maximum": 2.5 },
     "instance": 2.0,
     "valid": true,
     "fast": {
@@ -9279,10 +7970,7 @@
   },
   {
     "description": "maximum_12",
-    "schema": {
-      "$schema": "http://json-schema.org/draft-04/schema#",
-      "maximum": 2.5
-    },
+    "schema": { "$schema": "http://json-schema.org/draft-04/schema#", "maximum": 2.5 },
     "instance": 3.0,
     "valid": false,
     "fast": {
@@ -9310,10 +7998,7 @@
   },
   {
     "description": "maximum_13",
-    "schema": {
-      "$schema": "http://json-schema.org/draft-04/schema#",
-      "maximum": 5
-    },
+    "schema": { "$schema": "http://json-schema.org/draft-04/schema#", "maximum": 5 },
     "instance": 3,
     "valid": true,
     "fast": {
@@ -9341,10 +8026,7 @@
   },
   {
     "description": "maximum_14",
-    "schema": {
-      "$schema": "http://json-schema.org/draft-04/schema#",
-      "maximum": 5
-    },
+    "schema": { "$schema": "http://json-schema.org/draft-04/schema#", "maximum": 5 },
     "instance": 10,
     "valid": false,
     "fast": {
@@ -9372,10 +8054,7 @@
   },
   {
     "description": "maximum_15",
-    "schema": {
-      "$schema": "http://json-schema.org/draft-04/schema#",
-      "maximum": 2.5
-    },
+    "schema": { "$schema": "http://json-schema.org/draft-04/schema#", "maximum": 2.5 },
     "instance": 2.0,
     "valid": true,
     "fast": {
@@ -9403,10 +8082,7 @@
   },
   {
     "description": "maximum_16",
-    "schema": {
-      "$schema": "http://json-schema.org/draft-04/schema#",
-      "maximum": 2.5
-    },
+    "schema": { "$schema": "http://json-schema.org/draft-04/schema#", "maximum": 2.5 },
     "instance": 3.0,
     "valid": false,
     "fast": {
@@ -9434,10 +8110,7 @@
   },
   {
     "description": "maximum_19",
-    "schema": {
-      "$schema": "http://json-schema.org/draft-04/schema#",
-      "maximum": 0.5
-    },
+    "schema": { "$schema": "http://json-schema.org/draft-04/schema#", "maximum": 0.5 },
     "instance": 0.3,
     "valid": true,
     "fast": {
@@ -9465,10 +8138,7 @@
   },
   {
     "description": "maximum_20",
-    "schema": {
-      "$schema": "http://json-schema.org/draft-04/schema#",
-      "maximum": 0.5
-    },
+    "schema": { "$schema": "http://json-schema.org/draft-04/schema#", "maximum": 0.5 },
     "instance": 0.7,
     "valid": false,
     "fast": {
@@ -9496,10 +8166,7 @@
   },
   {
     "description": "maximum_21",
-    "schema": {
-      "$schema": "http://json-schema.org/draft-04/schema#",
-      "maximum": 5.0
-    },
+    "schema": { "$schema": "http://json-schema.org/draft-04/schema#", "maximum": 5.0 },
     "instance": 3.0,
     "valid": true,
     "fast": {
@@ -9527,10 +8194,7 @@
   },
   {
     "description": "maximum_22",
-    "schema": {
-      "$schema": "http://json-schema.org/draft-04/schema#",
-      "maximum": 5
-    },
+    "schema": { "$schema": "http://json-schema.org/draft-04/schema#", "maximum": 5 },
     "instance": 5,
     "valid": true,
     "fast": {
@@ -9558,10 +8222,7 @@
   },
   {
     "description": "maximum_23",
-    "schema": {
-      "$schema": "http://json-schema.org/draft-04/schema#",
-      "maximum": 5.5
-    },
+    "schema": { "$schema": "http://json-schema.org/draft-04/schema#", "maximum": 5.5 },
     "instance": 3,
     "valid": true,
     "fast": {
@@ -10549,10 +9210,7 @@
   },
   {
     "description": "multipleOf_1",
-    "schema": {
-      "$schema": "http://json-schema.org/draft-04/schema#",
-      "multipleOf": 3
-    },
+    "schema": { "$schema": "http://json-schema.org/draft-04/schema#", "multipleOf": 3 },
     "instance": "foo",
     "valid": true,
     "fast": {},
@@ -10560,10 +9218,7 @@
   },
   {
     "description": "multipleOf_2",
-    "schema": {
-      "$schema": "http://json-schema.org/draft-04/schema#",
-      "multipleOf": 3
-    },
+    "schema": { "$schema": "http://json-schema.org/draft-04/schema#", "multipleOf": 3 },
     "instance": 6,
     "valid": true,
     "fast": {
@@ -10591,10 +9246,7 @@
   },
   {
     "description": "multipleOf_3",
-    "schema": {
-      "$schema": "http://json-schema.org/draft-04/schema#",
-      "multipleOf": 3
-    },
+    "schema": { "$schema": "http://json-schema.org/draft-04/schema#", "multipleOf": 3 },
     "instance": 7,
     "valid": false,
     "fast": {
@@ -10622,10 +9274,7 @@
   },
   {
     "description": "multipleOf_4",
-    "schema": {
-      "$schema": "http://json-schema.org/draft-04/schema#",
-      "multipleOf": 3.2
-    },
+    "schema": { "$schema": "http://json-schema.org/draft-04/schema#", "multipleOf": 3.2 },
     "instance": 6.4,
     "valid": true,
     "fast": {
@@ -10653,10 +9302,7 @@
   },
   {
     "description": "multipleOf_5",
-    "schema": {
-      "$schema": "http://json-schema.org/draft-04/schema#",
-      "multipleOf": 3.2
-    },
+    "schema": { "$schema": "http://json-schema.org/draft-04/schema#", "multipleOf": 3.2 },
     "instance": 6.0,
     "valid": false,
     "fast": {
@@ -10695,10 +9341,7 @@
   },
   {
     "description": "multipleOf_7",
-    "schema": {
-      "$schema": "http://json-schema.org/draft-04/schema#",
-      "multipleOf": 3
-    },
+    "schema": { "$schema": "http://json-schema.org/draft-04/schema#", "multipleOf": 3 },
     "instance": 9,
     "valid": true,
     "fast": {
@@ -10726,10 +9369,7 @@
   },
   {
     "description": "multipleOf_8",
-    "schema": {
-      "$schema": "http://json-schema.org/draft-04/schema#",
-      "multipleOf": 3
-    },
+    "schema": { "$schema": "http://json-schema.org/draft-04/schema#", "multipleOf": 3 },
     "instance": 10,
     "valid": false,
     "fast": {
@@ -10757,10 +9397,7 @@
   },
   {
     "description": "multipleOf_9",
-    "schema": {
-      "$schema": "http://json-schema.org/draft-04/schema#",
-      "multipleOf": 3
-    },
+    "schema": { "$schema": "http://json-schema.org/draft-04/schema#", "multipleOf": 3 },
     "instance": 9,
     "valid": true,
     "fast": {
@@ -10788,10 +9425,7 @@
   },
   {
     "description": "multipleOf_10",
-    "schema": {
-      "$schema": "http://json-schema.org/draft-04/schema#",
-      "multipleOf": 3
-    },
+    "schema": { "$schema": "http://json-schema.org/draft-04/schema#", "multipleOf": 3 },
     "instance": 10,
     "valid": false,
     "fast": {
@@ -10819,10 +9453,7 @@
   },
   {
     "description": "multipleOf_11",
-    "schema": {
-      "$schema": "http://json-schema.org/draft-04/schema#",
-      "multipleOf": 2.5
-    },
+    "schema": { "$schema": "http://json-schema.org/draft-04/schema#", "multipleOf": 2.5 },
     "instance": 5.0,
     "valid": true,
     "fast": {
@@ -10850,10 +9481,7 @@
   },
   {
     "description": "multipleOf_12",
-    "schema": {
-      "$schema": "http://json-schema.org/draft-04/schema#",
-      "multipleOf": 2.5
-    },
+    "schema": { "$schema": "http://json-schema.org/draft-04/schema#", "multipleOf": 2.5 },
     "instance": 6.0,
     "valid": false,
     "fast": {
@@ -10881,10 +9509,7 @@
   },
   {
     "description": "multipleOf_13",
-    "schema": {
-      "$schema": "http://json-schema.org/draft-04/schema#",
-      "multipleOf": 3
-    },
+    "schema": { "$schema": "http://json-schema.org/draft-04/schema#", "multipleOf": 3 },
     "instance": 9,
     "valid": true,
     "fast": {
@@ -10912,10 +9537,7 @@
   },
   {
     "description": "multipleOf_14",
-    "schema": {
-      "$schema": "http://json-schema.org/draft-04/schema#",
-      "multipleOf": 3
-    },
+    "schema": { "$schema": "http://json-schema.org/draft-04/schema#", "multipleOf": 3 },
     "instance": 10,
     "valid": false,
     "fast": {
@@ -10943,10 +9565,7 @@
   },
   {
     "description": "multipleOf_15",
-    "schema": {
-      "$schema": "http://json-schema.org/draft-04/schema#",
-      "multipleOf": 2.5
-    },
+    "schema": { "$schema": "http://json-schema.org/draft-04/schema#", "multipleOf": 2.5 },
     "instance": 5.0,
     "valid": true,
     "fast": {
@@ -10974,10 +9593,7 @@
   },
   {
     "description": "multipleOf_16",
-    "schema": {
-      "$schema": "http://json-schema.org/draft-04/schema#",
-      "multipleOf": 2.5
-    },
+    "schema": { "$schema": "http://json-schema.org/draft-04/schema#", "multipleOf": 2.5 },
     "instance": 6.0,
     "valid": false,
     "fast": {
@@ -11005,10 +9621,7 @@
   },
   {
     "description": "multipleOf_20",
-    "schema": {
-      "$schema": "http://json-schema.org/draft-04/schema#",
-      "multipleOf": 0.1
-    },
+    "schema": { "$schema": "http://json-schema.org/draft-04/schema#", "multipleOf": 0.1 },
     "instance": 0.35,
     "valid": false,
     "fast": {
@@ -11036,10 +9649,7 @@
   },
   {
     "description": "multipleOf_21",
-    "schema": {
-      "$schema": "http://json-schema.org/draft-04/schema#",
-      "multipleOf": 5.0
-    },
+    "schema": { "$schema": "http://json-schema.org/draft-04/schema#", "multipleOf": 5.0 },
     "instance": 15.0,
     "valid": true,
     "fast": {
@@ -11067,10 +9677,7 @@
   },
   {
     "description": "multipleOf_22",
-    "schema": {
-      "$schema": "http://json-schema.org/draft-04/schema#",
-      "multipleOf": 1.5
-    },
+    "schema": { "$schema": "http://json-schema.org/draft-04/schema#", "multipleOf": 1.5 },
     "instance": 3,
     "valid": true,
     "fast": {
@@ -11098,10 +9705,7 @@
   },
   {
     "description": "multipleOf_23",
-    "schema": {
-      "$schema": "http://json-schema.org/draft-04/schema#",
-      "multipleOf": 0.01
-    },
+    "schema": { "$schema": "http://json-schema.org/draft-04/schema#", "multipleOf": 0.01 },
     "instance": 1280.32,
     "valid": true,
     "fast": {
@@ -11142,10 +9746,7 @@
   },
   {
     "description": "unknown_1",
-    "schema": {
-      "$schema": "http://json-schema.org/draft-04/schema#",
-      "fooBar": "baz"
-    },
+    "schema": { "$schema": "http://json-schema.org/draft-04/schema#", "fooBar": "baz" },
     "instance": "foo",
     "valid": true,
     "fast": {},
@@ -11153,10 +9754,7 @@
   },
   {
     "description": "unknown_2",
-    "schema": {
-      "$schema": "http://json-schema.org/draft-04/schema#",
-      "x-test": 1
-    },
+    "schema": { "$schema": "http://json-schema.org/draft-04/schema#", "x-test": 1 },
     "instance": "foo",
     "valid": true,
     "fast": {},
@@ -11164,10 +9762,7 @@
   },
   {
     "description": "format_uri_1",
-    "schema": {
-      "$schema": "http://json-schema.org/draft-04/schema#",
-      "format": "uri"
-    },
+    "schema": { "$schema": "http://json-schema.org/draft-04/schema#", "format": "uri" },
     "instance": 6,
     "valid": true,
     "fast": {},
@@ -11175,10 +9770,7 @@
   },
   {
     "description": "format_uri_2",
-    "schema": {
-      "$schema": "http://json-schema.org/draft-04/schema#",
-      "format": "uri"
-    },
+    "schema": { "$schema": "http://json-schema.org/draft-04/schema#", "format": "uri" },
     "instance": "https://www.example.com",
     "valid": true,
     "fast": {},
@@ -11186,10 +9778,7 @@
   },
   {
     "description": "format_uri_3",
-    "schema": {
-      "$schema": "http://json-schema.org/draft-04/schema#",
-      "format": "uri"
-    },
+    "schema": { "$schema": "http://json-schema.org/draft-04/schema#", "format": "uri" },
     "instance": "!!!x::://",
     "valid": true,
     "fast": {},
@@ -11200,17 +9789,8 @@
     "schema": {
       "$schema": "http://json-schema.org/draft-04/schema",
       "id": "common",
-      "allOf": [
-        {
-          "$ref": "#reference"
-        }
-      ],
-      "definitions": {
-        "reference": {
-          "id": "#reference",
-          "type": "string"
-        }
-      }
+      "allOf": [ { "$ref": "#reference" } ],
+      "definitions": { "reference": { "id": "#reference", "type": "string" } }
     },
     "instance": "test",
     "valid": true,

@@ -1,4 +1,5 @@
 #!/usr/bin/env python3
+
 """Formatter for Blaze evaluator trace JSON test files.
 
 Usage:
@@ -9,9 +10,37 @@ import json
 import sys
 
 
+MAX_LINE_LENGTH = 80
+
+
+def compact_json(value):
+    """Try to produce a compact single-line JSON representation."""
+    if isinstance(value, dict):
+        if not value:
+            return "{}"
+        pairs = ", ".join(
+            f"{json.dumps(k)}: {compact_json(v)}"
+            for k, v in value.items()
+        )
+        return "{ " + pairs + " }"
+    if isinstance(value, list):
+        if not value:
+            return "[]"
+        inner = ", ".join(compact_json(element) for element in value)
+        return "[ " + inner + " ]"
+    return json.dumps(value)
+
+
 def format_json_value(value, indent_level):
     """Format a JSON value with standard indentation."""
     spaces = "  " * indent_level
+    current_indent = len(spaces)
+
+    # Try compact single-line first
+    one_line = compact_json(value)
+    if "\n" not in one_line and current_indent + len(one_line) <= MAX_LINE_LENGTH:
+        return one_line
+
     if isinstance(value, dict):
         if not value:
             return "{}"

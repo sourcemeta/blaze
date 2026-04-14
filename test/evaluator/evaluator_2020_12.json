@@ -22,10 +22,7 @@
   },
   {
     "description": "unknown_2",
-    "schema": {
-      "$schema": "https://json-schema.org/draft/2020-12/schema",
-      "x-test": 1
-    },
+    "schema": { "$schema": "https://json-schema.org/draft/2020-12/schema", "x-test": 1 },
     "instance": "foo",
     "valid": true,
     "fast": {},
@@ -45,9 +42,7 @@
     "description": "items_1",
     "schema": {
       "$schema": "https://json-schema.org/draft/2020-12/schema",
-      "items": {
-        "type": "string"
-      }
+      "items": { "type": "string" }
     },
     "instance": 5,
     "valid": true,
@@ -58,9 +53,7 @@
     "description": "items_2",
     "schema": {
       "$schema": "https://json-schema.org/draft/2020-12/schema",
-      "items": {
-        "type": "string"
-      }
+      "items": { "type": "string" }
     },
     "instance": [ "foo", "bar", "baz" ],
     "valid": true,
@@ -115,9 +108,7 @@
     "description": "items_3",
     "schema": {
       "$schema": "https://json-schema.org/draft/2020-12/schema",
-      "items": {
-        "type": "string"
-      }
+      "items": { "type": "string" }
     },
     "instance": [ "foo", 5, "baz" ],
     "valid": false,
@@ -160,17 +151,8 @@
     "description": "items_4",
     "schema": {
       "$schema": "https://json-schema.org/draft/2020-12/schema",
-      "items": {
-        "type": "string"
-      },
-      "prefixItems": [
-        {
-          "type": "boolean"
-        },
-        {
-          "type": "integer"
-        }
-      ]
+      "items": { "type": "string" },
+      "prefixItems": [ { "type": "boolean" }, { "type": "integer" } ]
     },
     "instance": [ true, 5 ],
     "valid": true,
@@ -219,17 +201,8 @@
     "description": "items_5",
     "schema": {
       "$schema": "https://json-schema.org/draft/2020-12/schema",
-      "items": {
-        "type": "string"
-      },
-      "prefixItems": [
-        {
-          "type": "boolean"
-        },
-        {
-          "type": "integer"
-        }
-      ]
+      "items": { "type": "string" },
+      "prefixItems": [ { "type": "boolean" }, { "type": "integer" } ]
     },
     "instance": [ true, 5, "foo", "bar" ],
     "valid": true,
@@ -299,17 +272,8 @@
     "description": "items_6",
     "schema": {
       "$schema": "https://json-schema.org/draft/2020-12/schema",
-      "items": {
-        "type": "string"
-      },
-      "prefixItems": [
-        {
-          "type": "boolean"
-        },
-        {
-          "type": "integer"
-        }
-      ]
+      "items": { "type": "string" },
+      "prefixItems": [ { "type": "boolean" }, { "type": "integer" } ]
     },
     "instance": [ true, 5, 6, "bar" ],
     "valid": false,
@@ -367,9 +331,7 @@
     "description": "items_7",
     "schema": {
       "$schema": "https://json-schema.org/draft/2020-12/schema",
-      "items": {
-        "type": "string"
-      }
+      "items": { "type": "string" }
     },
     "instance": [],
     "valid": true,
@@ -380,11 +342,7 @@
     "description": "prefixItems_1",
     "schema": {
       "$schema": "https://json-schema.org/draft/2020-12/schema",
-      "prefixItems": [
-        {
-          "type": "string"
-        }
-      ]
+      "prefixItems": [ { "type": "string" } ]
     },
     "instance": 5,
     "valid": true,
@@ -395,14 +353,7 @@
     "description": "prefixItems_2",
     "schema": {
       "$schema": "https://json-schema.org/draft/2020-12/schema",
-      "prefixItems": [
-        {
-          "type": "integer"
-        },
-        {
-          "type": "boolean"
-        }
-      ]
+      "prefixItems": [ { "type": "integer" }, { "type": "boolean" } ]
     },
     "instance": [],
     "valid": true,
@@ -433,14 +384,7 @@
     "description": "prefixItems_3",
     "schema": {
       "$schema": "https://json-schema.org/draft/2020-12/schema",
-      "prefixItems": [
-        {
-          "type": "integer"
-        },
-        {
-          "type": "boolean"
-        }
-      ]
+      "prefixItems": [ { "type": "integer" }, { "type": "boolean" } ]
     },
     "instance": [ 5 ],
     "valid": true,
@@ -480,14 +424,7 @@
     "description": "prefixItems_4",
     "schema": {
       "$schema": "https://json-schema.org/draft/2020-12/schema",
-      "prefixItems": [
-        {
-          "type": "integer"
-        },
-        {
-          "type": "boolean"
-        }
-      ]
+      "prefixItems": [ { "type": "integer" }, { "type": "boolean" } ]
     },
     "instance": [ 5, true, "extra" ],
     "valid": true,
@@ -533,14 +470,7 @@
     "description": "prefixItems_5",
     "schema": {
       "$schema": "https://json-schema.org/draft/2020-12/schema",
-      "prefixItems": [
-        {
-          "type": "integer"
-        },
-        {
-          "type": "boolean"
-        }
-      ]
+      "prefixItems": [ { "type": "integer" }, { "type": "boolean" } ]
     },
     "instance": [ 5, 1, "extra" ],
     "valid": false,
@@ -583,14 +513,7 @@
     "description": "prefixItems_6",
     "schema": {
       "$schema": "https://json-schema.org/draft/2020-12/schema",
-      "prefixItems": [
-        {
-          "type": "integer"
-        },
-        {
-          "type": "boolean"
-        }
-      ]
+      "prefixItems": [ { "type": "integer" }, { "type": "boolean" } ]
     },
     "instance": [ 5, true ],
     "valid": true,
@@ -639,9 +562,7 @@
     "description": "contains_1",
     "schema": {
       "$schema": "https://json-schema.org/draft/2020-12/schema",
-      "contains": {
-        "type": "string"
-      }
+      "contains": { "type": "string" }
     },
     "instance": 2,
     "valid": true,
@@ -652,9 +573,7 @@
     "description": "contains_2",
     "schema": {
       "$schema": "https://json-schema.org/draft/2020-12/schema",
-      "contains": {
-        "type": "string"
-      }
+      "contains": { "type": "string" }
     },
     "instance": [ 1, "bar", 3 ],
     "valid": true,
@@ -703,9 +622,7 @@
     "description": "contains_3",
     "schema": {
       "$schema": "https://json-schema.org/draft/2020-12/schema",
-      "contains": {
-        "type": "string"
-      }
+      "contains": { "type": "string" }
     },
     "instance": [ 1, 2, 3 ],
     "valid": false,
@@ -754,9 +671,7 @@
     "description": "contains_4",
     "schema": {
       "$schema": "https://json-schema.org/draft/2020-12/schema",
-      "contains": {
-        "type": "string"
-      }
+      "contains": { "type": "string" }
     },
     "instance": [ "foo", "bar", "baz" ],
     "valid": true,
@@ -809,9 +724,7 @@
     "schema": {
       "$schema": "https://json-schema.org/draft/2020-12/schema",
       "maxContains": 1,
-      "contains": {
-        "type": "string"
-      }
+      "contains": { "type": "string" }
     },
     "instance": [ "foo", "bar", "baz" ],
     "valid": false,
@@ -860,9 +773,7 @@
     "description": "contains_6",
     "schema": {
       "$schema": "https://json-schema.org/draft/2020-12/schema",
-      "contains": {
-        "type": "boolean"
-      }
+      "contains": { "type": "boolean" }
     },
     "instance": [ true, 1, false, 2 ],
     "valid": true,
@@ -914,9 +825,7 @@
     "description": "contains_7",
     "schema": {
       "$schema": "https://json-schema.org/draft/2020-12/schema",
-      "contains": {
-        "type": "boolean"
-      }
+      "contains": { "type": "boolean" }
     },
     "instance": [ true, 1, false ],
     "valid": true,
@@ -966,12 +875,7 @@
     "schema": {
       "$schema": "https://json-schema.org/draft/2020-12/schema",
       "$dynamicRef": "#foo",
-      "$defs": {
-        "string": {
-          "$dynamicAnchor": "foo",
-          "type": "string"
-        }
-      }
+      "$defs": { "string": { "$dynamicAnchor": "foo", "type": "string" } }
     },
     "instance": "foo",
     "valid": true,
@@ -1104,11 +1008,7 @@
     "schema": {
       "$schema": "https://json-schema.org/draft/2020-12/schema",
       "$ref": "#/$defs/https%3A~1~1example.com~1schema~1type",
-      "$defs": {
-        "https://example.com/schema/type": {
-          "type": "string"
-        }
-      }
+      "$defs": { "https://example.com/schema/type": { "type": "string" } }
     },
     "instance": "foo",
     "valid": true,
@@ -1144,12 +1044,8 @@
       "$schema": "https://json-schema.org/draft/2020-12/schema",
       "$ref": "#/definitions/middle",
       "definitions": {
-        "middle": {
-          "$ref": "#/definitions/string"
-        },
-        "string": {
-          "type": "string"
-        }
+        "middle": { "$ref": "#/definitions/string" },
+        "string": { "type": "string" }
       }
     },
     "instance": "foo",
@@ -1187,9 +1083,7 @@
     "description": "unevaluatedItems_1",
     "schema": {
       "$schema": "https://json-schema.org/draft/2020-12/schema",
-      "contains": {
-        "type": "boolean"
-      },
+      "contains": { "type": "boolean" },
       "unevaluatedItems": false
     },
     "instance": [ false ],
@@ -1236,14 +1130,7 @@
     "description": "unevaluatedItems_2",
     "schema": {
       "$schema": "https://json-schema.org/draft/2020-12/schema",
-      "anyOf": [
-        {
-          "items": {
-            "type": "boolean"
-          }
-        },
-        true
-      ],
+      "anyOf": [ { "items": { "type": "boolean" } }, true ],
       "unevaluatedItems": false
     },
     "instance": [ false, 1 ],
@@ -1305,16 +1192,7 @@
     "description": "unevaluatedItems_3",
     "schema": {
       "$schema": "https://json-schema.org/draft/2020-12/schema",
-      "anyOf": [
-        {
-          "prefixItems": [
-            {
-              "type": "boolean"
-            }
-          ]
-        },
-        true
-      ],
+      "anyOf": [ { "prefixItems": [ { "type": "boolean" } ] }, true ],
       "unevaluatedItems": false
     },
     "instance": [ 1, 2 ],
@@ -1370,12 +1248,8 @@
     "description": "unevaluatedItems_4",
     "schema": {
       "$schema": "https://json-schema.org/draft/2020-12/schema",
-      "items": {
-        "type": "string"
-      },
-      "unevaluatedItems": {
-        "type": "boolean"
-      }
+      "items": { "type": "string" },
+      "unevaluatedItems": { "type": "boolean" }
     },
     "instance": [ "foo" ],
     "valid": true,
@@ -1418,12 +1292,8 @@
     "description": "unevaluatedItems_5",
     "schema": {
       "$schema": "https://json-schema.org/draft/2020-12/schema",
-      "contains": {
-        "type": "boolean"
-      },
-      "unevaluatedItems": {
-        "type": "number"
-      }
+      "contains": { "type": "boolean" },
+      "unevaluatedItems": { "type": "number" }
     },
     "instance": [ true, 1, false, 2 ],
     "valid": true,
@@ -1508,9 +1378,7 @@
     "description": "unevaluatedItems_6",
     "schema": {
       "$schema": "https://json-schema.org/draft/2020-12/schema",
-      "contains": {
-        "type": "string"
-      },
+      "contains": { "type": "string" },
       "minContains": 0,
       "unevaluatedItems": false
     },
@@ -1558,14 +1426,10 @@
     "description": "unevaluatedProperties_1",
     "schema": {
       "$schema": "https://json-schema.org/draft/2020-12/schema",
-      "additionalProperties": {
-        "type": "string"
-      },
+      "additionalProperties": { "type": "string" },
       "unevaluatedProperties": false
     },
-    "instance": {
-      "foo": "baz"
-    },
+    "instance": { "foo": "baz" },
     "valid": true,
     "fast": {
       "pre": [
@@ -1605,9 +1469,7 @@
         "schema": {
           "$schema": "https://json-schema.org/draft/2020-12/schema",
           "$id": "https://www.example.com",
-          "items": {
-            "type": "string"
-          }
+          "items": { "type": "string" }
         }
       }
     },
@@ -1656,41 +1518,17 @@
         "contentEncoding": "base64",
         "contentMediaType": "application/json",
         "contentSchema": true,
-        "prefixItems": [
-          {
-            "type": "string"
-          }
-        ],
-        "items": {
-          "type": "string"
-        },
-        "unevaluatedItems": {
-          "type": "string"
-        },
-        "contains": {
-          "type": "string"
-        },
-        "properties": {
-          "foo": {
-            "type": "string"
-          }
-        },
-        "patternProperties": {
-          "^f": {
-            "type": "string"
-          }
-        },
-        "additionalProperties": {
-          "type": "string"
-        },
-        "unevaluatedProperties": {
-          "type": "string"
-        }
+        "prefixItems": [ { "type": "string" } ],
+        "items": { "type": "string" },
+        "unevaluatedItems": { "type": "string" },
+        "contains": { "type": "string" },
+        "properties": { "foo": { "type": "string" } },
+        "patternProperties": { "^f": { "type": "string" } },
+        "additionalProperties": { "type": "string" },
+        "unevaluatedProperties": { "type": "string" }
       }
     },
-    "instance": {
-      "foo": 1
-    },
+    "instance": { "foo": 1 },
     "valid": true,
     "fast": {},
     "exhaustive": {
@@ -1732,9 +1570,7 @@
       "$id": "https://www.example.com",
       "$schema": "https://json-schema.org/draft/2020-12/schema",
       "$ref": "#/$defs/test",
-      "$defs": {
-        "test": {}
-      }
+      "$defs": { "test": {} }
     },
     "instance": 5,
     "valid": true,
@@ -1755,14 +1591,9 @@
     "description": "openapi_discriminator_1",
     "schema": {
       "$schema": "https://json-schema.org/draft/2020-12/schema",
-      "discriminator": {
-        "propertyName": "petType"
-      }
+      "discriminator": { "propertyName": "petType" }
     },
-    "instance": {
-      "petType": "dog",
-      "name": "Rex"
-    },
+    "instance": { "petType": "dog", "name": "Rex" },
     "valid": true,
     "fast": {},
     "exhaustive": {
@@ -1781,14 +1612,9 @@
     "description": "openapi_xml_1",
     "schema": {
       "$schema": "https://json-schema.org/draft/2020-12/schema",
-      "xml": {
-        "name": "pet",
-        "wrapped": true
-      }
+      "xml": { "name": "pet", "wrapped": true }
     },
-    "instance": {
-      "name": "Rex"
-    },
+    "instance": { "name": "Rex" },
     "valid": true,
     "fast": {},
     "exhaustive": {
@@ -1807,9 +1633,7 @@
     "description": "openapi_externalDocs_1",
     "schema": {
       "$schema": "https://json-schema.org/draft/2020-12/schema",
-      "externalDocs": {
-        "url": "https://example.com/docs"
-      }
+      "externalDocs": { "url": "https://example.com/docs" }
     },
     "instance": "foo",
     "valid": true,
@@ -1830,15 +1654,9 @@
     "description": "openapi_example_1",
     "schema": {
       "$schema": "https://json-schema.org/draft/2020-12/schema",
-      "example": {
-        "name": "Rex",
-        "petType": "dog"
-      }
+      "example": { "name": "Rex", "petType": "dog" }
     },
-    "instance": {
-      "name": "Fluffy",
-      "petType": "cat"
-    },
+    "instance": { "name": "Fluffy", "petType": "cat" },
     "valid": true,
     "fast": {},
     "exhaustive": {

@@ -3,9 +3,7 @@
     "description": "if_1",
     "schema": {
       "$schema": "http://json-schema.org/draft-07/schema#",
-      "if": {
-        "const": 1
-      }
+      "if": { "const": 1 }
     },
     "instance": 1,
     "valid": true,
@@ -42,9 +40,7 @@
     "description": "if_1_hyperschema",
     "schema": {
       "$schema": "http://json-schema.org/draft-07/hyper-schema#",
-      "if": {
-        "const": 1
-      }
+      "if": { "const": 1 }
     },
     "instance": 1,
     "valid": true,
@@ -81,9 +77,7 @@
     "description": "if_2",
     "schema": {
       "$schema": "http://json-schema.org/draft-07/schema#",
-      "if": {
-        "const": 1
-      }
+      "if": { "const": 1 }
     },
     "instance": 2,
     "valid": true,
@@ -120,23 +114,10 @@
     "description": "if_3",
     "schema": {
       "$schema": "http://json-schema.org/draft-07/schema#",
-      "properties": {
-        "foo": {
-          "$ref": "#/definitions/test"
-        }
-      },
-      "definitions": {
-        "test": {
-          "if": false,
-          "else": {
-            "type": "object"
-          }
-        }
-      }
+      "properties": { "foo": { "$ref": "#/definitions/test" } },
+      "definitions": { "test": { "if": false, "else": { "type": "object" } } }
     },
-    "instance": {
-      "foo": {}
-    },
+    "instance": { "foo": {} },
     "valid": true,
     "fast": {
       "pre": [
@@ -183,9 +164,7 @@
     "description": "then_1",
     "schema": {
       "$schema": "http://json-schema.org/draft-07/schema#",
-      "then": {
-        "multipleOf": 5
-      }
+      "then": { "multipleOf": 5 }
     },
     "instance": 3,
     "valid": true,
@@ -196,12 +175,8 @@
     "description": "then_2",
     "schema": {
       "$schema": "http://json-schema.org/draft-07/schema#",
-      "if": {
-        "const": 10
-      },
-      "then": {
-        "multipleOf": 5
-      }
+      "if": { "const": 10 },
+      "then": { "multipleOf": 5 }
     },
     "instance": 10,
     "valid": true,
@@ -244,12 +219,8 @@
     "description": "then_3",
     "schema": {
       "$schema": "http://json-schema.org/draft-07/schema#",
-      "if": {
-        "const": 10
-      },
-      "then": {
-        "multipleOf": 5
-      }
+      "if": { "const": 10 },
+      "then": { "multipleOf": 5 }
     },
     "instance": 5,
     "valid": true,
@@ -287,12 +258,8 @@
     "schema": {
       "$schema": "http://json-schema.org/draft-07/schema#",
       "if": true,
-      "then": {
-        "multipleOf": 5
-      },
-      "else": {
-        "multipleOf": 8
-      }
+      "then": { "multipleOf": 5 },
+      "else": { "multipleOf": 8 }
     },
     "instance": 5,
     "valid": true,
@@ -324,9 +291,7 @@
     "schema": {
       "$schema": "http://json-schema.org/draft-07/schema#",
       "if": true,
-      "then": {
-        "multipleOf": 5
-      }
+      "then": { "multipleOf": 5 }
     },
     "instance": 2,
     "valid": false,
@@ -359,24 +324,11 @@
       "$schema": "http://json-schema.org/draft-07/schema#",
       "properties": {
         "foo": {
-          "allOf": [
-            {
-              "if": {
-                "type": "object"
-              },
-              "then": {
-                "required": [ "bar" ]
-              }
-            }
-          ]
+          "allOf": [ { "if": { "type": "object" }, "then": { "required": [ "bar" ] } } ]
         }
       }
     },
-    "instance": {
-      "foo": {
-        "bar": 1
-      }
-    },
+    "instance": { "foo": { "bar": 1 } },
     "valid": true,
     "fast": {
       "pre": [
@@ -423,9 +375,7 @@
     "description": "else_1",
     "schema": {
       "$schema": "http://json-schema.org/draft-07/schema#",
-      "else": {
-        "multipleOf": 5
-      }
+      "else": { "multipleOf": 5 }
     },
     "instance": 3,
     "valid": true,
@@ -436,12 +386,8 @@
     "description": "else_2",
     "schema": {
       "$schema": "http://json-schema.org/draft-07/schema#",
-      "if": {
-        "const": 1
-      },
-      "else": {
-        "multipleOf": 5
-      }
+      "if": { "const": 1 },
+      "else": { "multipleOf": 5 }
     },
     "instance": 1,
     "valid": true,
@@ -478,12 +424,8 @@
     "description": "else_3",
     "schema": {
       "$schema": "http://json-schema.org/draft-07/schema#",
-      "if": {
-        "const": 1
-      },
-      "else": {
-        "multipleOf": 5
-      }
+      "if": { "const": 1 },
+      "else": { "multipleOf": 5 }
     },
     "instance": 10,
     "valid": true,
@@ -526,12 +468,8 @@
     "description": "else_4",
     "schema": {
       "$schema": "http://json-schema.org/draft-07/schema#",
-      "if": {
-        "const": 1
-      },
-      "else": {
-        "multipleOf": 5
-      }
+      "if": { "const": 1 },
+      "else": { "multipleOf": 5 }
     },
     "instance": 8,
     "valid": false,
@@ -600,10 +538,7 @@
   },
   {
     "description": "unknown_1",
-    "schema": {
-      "$schema": "http://json-schema.org/draft-07/schema#",
-      "fooBar": "baz"
-    },
+    "schema": { "$schema": "http://json-schema.org/draft-07/schema#", "fooBar": "baz" },
     "instance": "foo",
     "valid": true,
     "fast": {},
@@ -611,10 +546,7 @@
   },
   {
     "description": "unknown_2",
-    "schema": {
-      "$schema": "http://json-schema.org/draft-07/schema#",
-      "x-test": 1
-    },
+    "schema": { "$schema": "http://json-schema.org/draft-07/schema#", "x-test": 1 },
     "instance": "foo",
     "valid": true,
     "fast": {},
@@ -624,9 +556,7 @@
     "description": "items_1",
     "schema": {
       "$schema": "http://json-schema.org/draft-07/schema#",
-      "items": {
-        "type": "number"
-      }
+      "items": { "type": "number" }
     },
     "instance": [ 11, 54 ],
     "valid": true,
