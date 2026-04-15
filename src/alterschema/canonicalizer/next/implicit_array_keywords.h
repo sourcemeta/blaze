@@ -25,10 +25,6 @@ public:
         schema.at("type").is_string() &&
         schema.at("type").to_string() == "array");
 
-    // In 2019-09+, the absence of `items` is semantically meaningful
-    // because adding `items: true` marks all items as "evaluated",
-    // which changes the behavior of `unevaluatedItems` at higher
-    // levels
     const bool is_modern{vocabularies.contains_any(
         {Vocabularies::Known::JSON_Schema_2019_09_Applicator,
          Vocabularies::Known::JSON_Schema_2020_12_Applicator})};

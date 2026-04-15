@@ -20,14 +20,11 @@ public:
              Vocabularies::Known::JSON_Schema_2019_09_Applicator}) &&
         schema.is_object() && schema.defines("unevaluatedItems"));
 
-    // Only convert when no other keyword could produce item annotations
-    // or affect which items are considered "evaluated"
     for (const auto &entry : schema.as_object()) {
       if (entry.first == "unevaluatedItems") {
         continue;
       }
       const auto &metadata{walker(entry.first, vocabularies)};
-      // Any applicator type could potentially produce annotations
       const auto keyword_type{metadata.type};
       if (keyword_type !=
               sourcemeta::core::SchemaKeywordType::Unknown &&

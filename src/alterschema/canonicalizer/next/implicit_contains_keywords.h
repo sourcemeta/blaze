@@ -23,21 +23,10 @@ public:
         schema.at("type").to_string() == "array");
 
     if (schema.defines("contains")) {
-      // `contains` is present, just fill in the default `minContains`
       ONLY_CONTINUE_IF(!schema.defines("minContains"));
     } else {
-      // Only synthesize `contains` when no contains-related keywords
-      // exist. If `minContains`/`maxContains` are present without
-      // `contains`, they are no-ops per the spec and should be stripped
-      // by other rules first
       ONLY_CONTINUE_IF(!schema.defines("minContains") &&
                        !schema.defines("maxContains"));
-
-      // In 2020-12, `contains` annotations affect `unevaluatedItems`,
-      // so adding implicit `contains: true` with `minContains: 0`
-      // would change semantics when `unevaluatedItems` is at an ancestor.
-      // This does NOT apply to 2019-09 where `contains` does not
-      // produce annotations that affect `unevaluatedItems`
       ONLY_CONTINUE_IF(!WALK_UP_IN_PLACE_APPLICATORS(
                             root, frame, location, walker, resolver,
                             [](const JSON &ancestor,

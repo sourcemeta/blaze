@@ -40,12 +40,8 @@ public:
     const bool is_modern{
         vocabularies.contains(Vocabularies::Known::JSON_Schema_2019_09_Core) ||
         vocabularies.contains(Vocabularies::Known::JSON_Schema_2020_12_Core)};
-    // In pre-2019-09, `$ref` overrides siblings so it is structural
     const bool has_ref{!is_modern && schema.defines("$ref")};
-    // In 2019-09+, `$ref` no longer overrides siblings, so it is
-    // just another applicator that coexists with other keywords
     this->has_modern_ref_ = is_modern && schema.defines("$ref");
-    // `$dynamicRef` is an applicator in 2020-12
     this->has_dynamic_ref_ =
         vocabularies.contains(Vocabularies::Known::JSON_Schema_2020_12_Core) &&
         schema.defines("$dynamicRef");
@@ -55,17 +51,9 @@ public:
         (this->has_modern_ref_ ? 1U : 0U) + (this->has_dynamic_ref_ ? 1U : 0U)};
     const bool has_structural{has_type || has_enum || has_ref};
 
-    // In 2019-09+, `$ref`/`$dynamicRef` must be alone (with only
-    // metadata). If they have ANY other sibling, the rule must fire
-    // to wrap them into allOf even if there are no other applicators
     const bool modern_ref_needs_wrapping{
         (this->has_modern_ref_ || this->has_dynamic_ref_) && schema.size() > 1};
 
-    // Orphaned typed keywords (like `multipleOf` or `properties`)
-    // alongside an applicator must be pushed into the allOf
-    // In pre-2019-09 drafts, `UnnecessaryAllOfWrapper` handles merging
-    // keywords into allOf. In 2019-09+, that rule is excluded from
-    // CanonicalizerNext, so we handle it here
     this->has_unevaluated_ =
         vocabularies.contains_any(
             {Vocabularies::Known::JSON_Schema_2020_12_Unevaluated,
@@ -75,8 +63,6 @@ public:
     bool has_orphaned_typed_keywords{false};
     if (is_modern && applicator_count >= 1 && !has_structural) {
       for (const auto &entry : schema.as_object()) {
-        // `unevaluatedProperties`/`unevaluatedItems` depend on annotations
-        // from siblings, so they stay at root - don't count them
         if (entry.first == "unevaluatedProperties" ||
             entry.first == "unevaluatedItems") {
           continue;
@@ -382,7 +368,6 @@ public:
     }
 
     if (this->strategy_ == Strategy::FullRestructure) {
-      // `$ref` and `$dynamicRef` are placed at the start of the allOf
       std::size_t index{0};
       if (this->has_modern_ref_) {
         index++;

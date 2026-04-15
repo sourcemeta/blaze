@@ -22,14 +22,11 @@ public:
              Vocabularies::Known::JSON_Schema_2019_09_Applicator}) &&
         schema.is_object() && schema.defines("unevaluatedProperties"));
 
-    // Only convert when no other keyword could produce property annotations
-    // or affect which properties are considered "evaluated"
     for (const auto &entry : schema.as_object()) {
       if (entry.first == "unevaluatedProperties") {
         continue;
       }
       const auto &metadata{walker(entry.first, vocabularies)};
-      // Any applicator type could potentially produce annotations
       const auto keyword_type{metadata.type};
       if (keyword_type !=
               sourcemeta::core::SchemaKeywordType::Unknown &&
