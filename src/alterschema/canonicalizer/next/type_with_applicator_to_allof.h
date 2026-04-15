@@ -51,8 +51,21 @@ public:
         (this->has_modern_ref_ ? 1U : 0U) + (this->has_dynamic_ref_ ? 1U : 0U)};
     const bool has_structural{has_type || has_enum || has_ref};
 
-    const bool modern_ref_needs_wrapping{
-        (this->has_modern_ref_ || this->has_dynamic_ref_) && schema.size() > 1};
+    bool modern_ref_needs_wrapping{false};
+    if (this->has_modern_ref_ || this->has_dynamic_ref_) {
+      for (const auto &entry : schema.as_object()) {
+        if (entry.first == "$ref" || entry.first == "$dynamicRef") {
+          continue;
+        }
+        const auto keyword_type{walker(entry.first, vocabularies).type};
+        if (keyword_type != sourcemeta::core::SchemaKeywordType::Unknown &&
+            keyword_type != sourcemeta::core::SchemaKeywordType::Annotation &&
+            keyword_type != sourcemeta::core::SchemaKeywordType::Comment) {
+          modern_ref_needs_wrapping = true;
+          break;
+        }
+      }
+    }
 
     this->has_unevaluated_ =
         vocabularies.contains_any(

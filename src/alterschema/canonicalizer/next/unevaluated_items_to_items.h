@@ -41,8 +41,14 @@ public:
   }
 
   auto transform(JSON &schema, const Result &) const -> void override {
-    const auto value{schema.at("unevaluatedItems")};
-    schema.erase("unevaluatedItems");
-    schema.assign("items", value);
+    schema.rename("unevaluatedItems", "items");
+  }
+
+  [[nodiscard]] auto rereference(const std::string_view, const Pointer &,
+                                 const Pointer &target,
+                                 const Pointer &current) const
+      -> Pointer override {
+    return target.rebase(current.concat({"unevaluatedItems"}),
+                         current.concat({"items"}));
   }
 };

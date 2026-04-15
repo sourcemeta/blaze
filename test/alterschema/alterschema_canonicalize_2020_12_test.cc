@@ -3068,3 +3068,105 @@ TEST_F(Canonicalizer202012Test, ref_with_type_sibling) {
 
   CANONICALIZE_NEXT(document, expected, *compiled_meta_);
 }
+
+TEST_F(Canonicalizer202012Test, ref_through_unevaluated_items) {
+  auto document = sourcemeta::core::parse_json(R"JSON({
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "$defs": {
+      "arr": {
+        "type": "array",
+        "unevaluatedItems": false
+      }
+    },
+    "$ref": "#/$defs/arr/unevaluatedItems"
+  })JSON");
+
+  const auto expected = sourcemeta::core::parse_json(R"JSON({
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "$defs": {
+      "arr": {
+        "type": "array",
+        "minItems": 0,
+        "uniqueItems": false,
+        "minContains": 0,
+        "contains": true,
+        "items": false
+      }
+    },
+    "allOf": [
+      {
+        "$ref": "#/$defs/arr/items"
+      }
+    ]
+  })JSON");
+
+  CANONICALIZE_NEXT(document, expected, *compiled_meta_);
+}
+
+TEST_F(Canonicalizer202012Test, ref_through_unevaluated_properties) {
+  auto document = sourcemeta::core::parse_json(R"JSON({
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "$defs": {
+      "obj": {
+        "type": "object",
+        "unevaluatedProperties": false
+      }
+    },
+    "$ref": "#/$defs/obj/unevaluatedProperties"
+  })JSON");
+
+  const auto expected = sourcemeta::core::parse_json(R"JSON({
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "$defs": {
+      "obj": {
+        "type": "object",
+        "minProperties": 0,
+        "propertyNames": true,
+        "properties": {},
+        "patternProperties": {},
+        "additionalProperties": false
+      }
+    },
+    "allOf": [
+      {
+        "$ref": "#/$defs/obj/additionalProperties"
+      }
+    ]
+  })JSON");
+
+  CANONICALIZE_NEXT(document, expected, *compiled_meta_);
+}
+
+TEST_F(Canonicalizer202012Test, lone_ref_with_defs_not_wrapped) {
+  auto document = sourcemeta::core::parse_json(R"JSON({
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "$ref": "#/$defs/foo",
+    "$defs": {
+      "foo": true
+    }
+  })JSON");
+
+  const auto expected = sourcemeta::core::parse_json(R"JSON({
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "$ref": "#/$defs/foo",
+    "$defs": {
+      "foo": true
+    }
+  })JSON");
+
+  CANONICALIZE_NEXT(document, expected, *compiled_meta_);
+}
+
+TEST_F(Canonicalizer202012Test, lone_dynamic_ref_not_wrapped) {
+  auto document = sourcemeta::core::parse_json(R"JSON({
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "$dynamicRef": "#foo"
+  })JSON");
+
+  const auto expected = sourcemeta::core::parse_json(R"JSON({
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "$dynamicRef": "#foo"
+  })JSON");
+
+  CANONICALIZE_NEXT(document, expected, *compiled_meta_);
+}
