@@ -19,8 +19,7 @@ public:
         schema.is_object() && schema.defines("type") &&
         schema.at("type").is_string() &&
         schema.at("type").to_string() == "object" &&
-        schema.defines("properties") &&
-        schema.at("properties").is_object());
+        schema.defines("properties") && schema.at("properties").is_object());
 
     for (const auto &entry : schema.at("properties").as_object()) {
       if (entry.second.is_object() && !entry.second.empty() &&
@@ -41,8 +40,9 @@ public:
       }
     }
     for (const auto &key : keys) {
-      schema.at("properties").at(key).assign("required",
-                                             sourcemeta::core::JSON{false});
+      schema.at("properties")
+          .at(key)
+          .assign("required", sourcemeta::core::JSON{false});
     }
   }
 };

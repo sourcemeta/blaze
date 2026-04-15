@@ -2,8 +2,7 @@ class DivisibleByImplicit final : public SchemaTransformRule {
 public:
   using mutates = std::true_type;
   using reframe_after_transform = std::true_type;
-  DivisibleByImplicit()
-      : SchemaTransformRule{"divisible_by_implicit", ""} {};
+  DivisibleByImplicit() : SchemaTransformRule{"divisible_by_implicit", ""} {};
 
   [[nodiscard]] auto
   condition(const sourcemeta::core::JSON &schema,
