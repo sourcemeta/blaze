@@ -114,6 +114,18 @@ for (const [subdirectory, blacklist] of Object.entries(BLACKLISTS)) {
   registerTests(subdirectory, defaultDialect, blacklist);
 }
 
+describe('reviver', () => {
+  it('does not crash when the third argument is undefined', () => {
+    assert.doesNotThrow(() => {
+      Blaze.reviver('key', 42, undefined);
+    });
+  });
+
+  it('returns the value unchanged when context is missing', () => {
+    assert.equal(Blaze.reviver('key', 42, undefined), 42);
+  });
+});
+
 describe('version', () => {
   it('rejects a template with an unsupported version', () => {
     const template = [4, false, false, [[]], []];

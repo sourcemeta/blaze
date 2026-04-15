@@ -11504,5 +11504,33 @@
         "The integer value 299999999999999999999999999999999998 was expected to be divisible by the integer 99999999999999999999999999999999999"
       ]
     }
+  },
+  {
+    "description": "multipleOf_21",
+    "schema": { "$schema": "http://json-schema.org/draft-04/schema#", "multipleOf": 0.5 },
+    "instance": 99999999999999999999999999999999999,
+    "valid": true,
+    "fast": {
+      "pre": [
+        [ "AssertionDivisible", "/multipleOf", "#/multipleOf", "" ]
+      ],
+      "post": [
+        [ true, "AssertionDivisible", "/multipleOf", "#/multipleOf", "" ]
+      ],
+      "descriptions": [
+        "The integer value 99999999999999999999999999999999999 was expected to be divisible by the number 0.5"
+      ]
+    },
+    "exhaustive": {
+      "pre": [
+        [ "AssertionDivisible", "/multipleOf", "#/multipleOf", "" ]
+      ],
+      "post": [
+        [ true, "AssertionDivisible", "/multipleOf", "#/multipleOf", "" ]
+      ],
+      "descriptions": [
+        "The integer value 99999999999999999999999999999999999 was expected to be divisible by the number 0.5"
+      ]
+    }
   }
 ]

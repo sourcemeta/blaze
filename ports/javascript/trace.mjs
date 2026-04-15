@@ -5,6 +5,7 @@ import { readFileSync, readdirSync } from 'node:fs';
 import { join, dirname, basename } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { Blaze } from './index.mjs';
+const reviver = Blaze.reviver;
 import { compileSchema } from './compile.mjs';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
@@ -128,7 +129,7 @@ for (const file of suiteFiles) {
   const suiteName = basename(file, '.json');
   const filePath = join(TRACE_SUITE_PATH, file);
   console.log(`-- Loading: ${file} (${suiteName})`);
-  const tests = JSON.parse(readFileSync(filePath, 'utf8'));
+  const tests = JSON.parse(readFileSync(filePath, 'utf8'), reviver);
   console.log(`   ${tests.length} test entries`);
 
   describe(suiteName, () => {

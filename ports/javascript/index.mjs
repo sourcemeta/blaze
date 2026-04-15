@@ -288,10 +288,10 @@ function compileInstructionToCode(instruction, captures, visited, budget) {
     case 25: { var r=R('t'); return r?r+TO+'return true;var s=0;for(var k in t)s++;return s>'+value+';':null; }
     case 26: { if(typeof value==='string'||typeof value==='number'||typeof value==='boolean'||value===null){var r=R('t');return r?r+'return t==='+JSON.stringify(value)+';':null;}return fb(26); }
     case 27: return fb(27); case 28: return fb(28);
-    case 29: { var r=R('t'); return r?r+"var tt=typeof t;if(tt!=='number'&&tt!=='bigint')return true;return t>="+value+';':null; }
-    case 30: { var r=R('t'); return r?r+"var tt=typeof t;if(tt!=='number'&&tt!=='bigint')return true;return t<="+value+';':null; }
-    case 31: { var r=R('t'); return r?r+"var tt=typeof t;if(tt!=='number'&&tt!=='bigint')return true;return t>"+value+';':null; }
-    case 32: { var r=R('t'); return r?r+"var tt=typeof t;if(tt!=='number'&&tt!=='bigint')return true;return t<"+value+';':null; }
+    case 29: { var r=R('t'),v=typeof value==='bigint'?value+'n':value; return r?r+"var tt=typeof t;if(tt!=='number'&&tt!=='bigint')return true;return t>="+v+';':null; }
+    case 30: { var r=R('t'),v=typeof value==='bigint'?value+'n':value; return r?r+"var tt=typeof t;if(tt!=='number'&&tt!=='bigint')return true;return t<="+v+';':null; }
+    case 31: { var r=R('t'),v=typeof value==='bigint'?value+'n':value; return r?r+"var tt=typeof t;if(tt!=='number'&&tt!=='bigint')return true;return t>"+v+';':null; }
+    case 32: { var r=R('t'),v=typeof value==='bigint'?value+'n':value; return r?r+"var tt=typeof t;if(tt!=='number'&&tt!=='bigint')return true;return t<"+v+';':null; }
     case 33: return fb(33); case 34: return fb(34);
     case 35: return fb(35); case 36: return fb(36); case 37: return fb(37); case 38: return fb(38);
     case 39: return fb(39);
@@ -370,19 +370,30 @@ function generateNativeValidator(template) {
   }
 }
 
-function reviver(_key, value, { source }) {
-  if (typeof value === 'number'
-    // This ensures we only attempt conversion on integer source strings,
-    // not floats or exponential notation, as `BigInt` cannot parse those
-    && /^-?[0-9]+$/.test(source)
-    // Detects whether JSON.parse actually truncated the value, avoiding
-    // unnecessary `BigInt` conversion for integers that are exactly
-    // representable as doubles
-    && String(value) !== source) {
-    return BigInt(source);
-  }
+function sourceToBigInt(source) {
+  // Plain integer like "99999999999999999999999999999999999"
+  if (/^-?[0-9]+$/.test(source)) return BigInt(source);
+  // Exponential notation like "9.9999999999999999e+34". Parse the coefficient
+  // and exponent to reconstruct the exact integer, as `BigInt` cannot parse
+  // exponential notation directly
+  const match = source.match(/^(-?)([0-9]+)\.?([0-9]*)e[+]?([0-9]+)$/);
+  if (!match) return null;
+  const exponent = parseInt(match[4]) - match[3].length;
+  if (exponent < 0) return null;
+  return BigInt(match[1] + match[2] + match[3]) * (10n ** BigInt(exponent));
+}
 
-  return value;
+function reviver(_key, value, context) {
+  // On older engines, `JSON.parse` calls the reviver with only two arguments
+  if (context === undefined) return value;
+  if (typeof value !== 'number') return value;
+  const source = context.source;
+  // Only convert when `JSON.parse` actually truncated the value, avoiding
+  // unnecessary `BigInt` conversion for integers that are exactly
+  // representable as doubles
+  if (String(value) === source) return value;
+  const bigint = sourceToBigInt(source);
+  return bigint !== null ? bigint : value;
 }
 
 class Blaze {
@@ -806,8 +817,13 @@ function isUnique(array) {
 
 function isDivisibleBy(value, divisor) {
   if (divisor === 0 || divisor === 0n) return false;
-  if (typeof value === 'bigint' || typeof divisor === 'bigint') {
-    return BigInt(value) % BigInt(divisor) === 0n;
+  if (typeof value === 'bigint' && typeof divisor === 'bigint') {
+    return value % divisor === 0n;
+  }
+  if (typeof value === 'bigint') {
+    value = Number(value);
+  } else if (typeof divisor === 'bigint') {
+    divisor = Number(divisor);
   }
   const remainder = value % divisor;
   if (remainder === 0) return true;
