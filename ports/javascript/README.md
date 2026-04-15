@@ -68,6 +68,34 @@ const result = evaluator.validate(instance,
 console.log(result); // true or false
 ```
 
+### Parsing large integers
+
+JavaScript's
+[`JSON.parse`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/JSON/parse)
+silently truncates integers that exceed
+[`Number.MAX_SAFE_INTEGER`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Number/MAX_SAFE_INTEGER)
+to IEEE 754 double-precision floats. If your schemas or instances contain large
+integers, pass `Blaze.reviver` to `JSON.parse` to preserve them as
+[`BigInt`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/BigInt)
+values. This relies on the
+[`JSON.parse` source text
+access](https://github.com/tc39/proposal-json-parse-with-source) proposal
+(Stage 4, shipped in all major engines):
+
+```javascript
+const template =
+  JSON.parse(readFileSync("template.json", "utf-8"), Blaze.reviver);
+const evaluator = new Blaze(template);
+
+const instance =
+  JSON.parse(readFileSync("instance.json", "utf-8"), Blaze.reviver);
+console.log(evaluator.validate(instance));
+```
+
+The evaluator handles `BigInt` values natively in all numeric instructions.
+Without a reviver, large integers are silently truncated and validation may
+produce incorrect results for affected values.
+
 ## Why compile separately?
 
 Unlike validators that compile and evaluate in a single step, Blaze separates
@@ -95,24 +123,18 @@ against your data, with no knowledge of JSON Schema itself.
 
 ## Limitations
 
-**No high-precision decimal support.** Compiled templates preserve
-arbitrary-precision numbers exactly as they appear in your schemas. However,
-JavaScript's
-[`JSON.parse`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/JSON/parse)
-silently truncates all numbers to IEEE 754 double-precision floats before the
-evaluator ever sees them. While JavaScript has
-[`BigInt`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/BigInt),
-[`JSON.parse`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/JSON/parse)
-does not use it. This is a language-level limitation that affects any numeric
-keyword that depends on exact arithmetic. For example:
+**No arbitrary-precision real number support.** Large integers can be preserved
+as `BigInt` using a reviver (see above), but JavaScript has no equivalent type
+for arbitrary-precision real numbers. `JSON.parse` truncates values like
+`0.1000000000000000000000000000000001` to IEEE 754 doubles, and there is no
+reviver-based workaround:
 
-```sh
-$ node --eval "console.log(JSON.parse('9007199254740993'))"
-9007199254740992 # Note the result is off by 1
+```
+$ node --eval "console.log(JSON.parse('0.1000000000000000000000000000000001'))"
+0.1
 ```
 
-The TC39 [`JSON.parse` source text
-access](https://github.com/tc39/proposal-json-parse-with-source) proposal
-(Stage 4, shipped in all major engines) provides a path forward by exposing the
-raw source text to a reviver function. We plan to take advantage of this in a
-future release.
+Numeric keywords like `multipleOf` that depend on exact decimal arithmetic may
+produce incorrect results for real values that lose precision during parsing.
+The TC39 [Decimal proposal](https://github.com/tc39/proposal-decimal) (Stage 2)
+aims to address this in the future.

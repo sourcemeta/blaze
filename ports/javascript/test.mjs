@@ -73,7 +73,7 @@ function registerTests(subdirectory, defaultDialect, blacklist) {
 
       const filePath = join(testsDir, file);
       console.error(`Loading ${subdirectory}/${name}`);
-      const suite = JSON.parse(readFileSync(filePath, 'utf-8'));
+      const suite = JSON.parse(readFileSync(filePath, 'utf-8'), Blaze.reviver);
 
       for (let groupIndex = 0; groupIndex < suite.length; groupIndex++) {
         const testGroup = suite[groupIndex];
@@ -113,6 +113,23 @@ for (const [subdirectory, blacklist] of Object.entries(BLACKLISTS)) {
   const defaultDialect = DIALECTS[draftKey];
   registerTests(subdirectory, defaultDialect, blacklist);
 }
+
+describe('reviver', () => {
+  it('does not crash when the third argument is undefined', () => {
+    assert.doesNotThrow(() => {
+      Blaze.reviver('key', 42, undefined);
+    });
+  });
+
+  it('returns the value unchanged when context is missing', () => {
+    assert.equal(Blaze.reviver('key', 42, undefined), 42);
+  });
+
+  it('handles uppercase E in exponential notation', () => {
+    const result = Blaze.reviver('key', 1e+35, { source: '9.9999999999999999999999999999999999E+34' });
+    assert.equal(result, 99999999999999999999999999999999999n);
+  });
+});
 
 describe('version', () => {
   it('rejects a template with an unsupported version', () => {

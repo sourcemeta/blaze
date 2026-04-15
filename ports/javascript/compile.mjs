@@ -2,6 +2,7 @@ import { spawnSync } from 'node:child_process';
 import { existsSync } from 'node:fs';
 import { resolve, dirname } from 'node:path';
 import { fileURLToPath } from 'node:url';
+import { Blaze } from './index.mjs';
 
 const MODULE_DIR = dirname(fileURLToPath(import.meta.url));
 const PROJECT_ROOT = resolve(MODULE_DIR, '../..');
@@ -49,5 +50,5 @@ export function compileSchema(schemaPath, options) {
     throw new Error(result.stderr.trim());
   }
 
-  return JSON.parse(result.stdout);
+  return JSON.parse(result.stdout, Blaze.reviver);
 }

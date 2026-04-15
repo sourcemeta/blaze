@@ -11190,5 +11190,347 @@
         "The object value was expected to validate against the single defined property subschema"
       ]
     }
+  },
+  {
+    "description": "minimum_18",
+    "schema": {
+      "$schema": "http://json-schema.org/draft-04/schema#",
+      "minimum": 99999999999999999999999999999999999
+    },
+    "instance": 199999999999999999999999999999999998,
+    "valid": true,
+    "fast": {
+      "pre": [
+        [ "AssertionGreaterEqual", "/minimum", "#/minimum", "" ]
+      ],
+      "post": [
+        [ true, "AssertionGreaterEqual", "/minimum", "#/minimum", "" ]
+      ],
+      "descriptions": [
+        "The integer value 199999999999999999999999999999999998 was expected to be greater than or equal to the integer 99999999999999999999999999999999999"
+      ]
+    },
+    "exhaustive": {
+      "pre": [
+        [ "AssertionGreaterEqual", "/minimum", "#/minimum", "" ]
+      ],
+      "post": [
+        [ true, "AssertionGreaterEqual", "/minimum", "#/minimum", "" ]
+      ],
+      "descriptions": [
+        "The integer value 199999999999999999999999999999999998 was expected to be greater than or equal to the integer 99999999999999999999999999999999999"
+      ]
+    }
+  },
+  {
+    "description": "minimum_19",
+    "schema": {
+      "$schema": "http://json-schema.org/draft-04/schema#",
+      "minimum": 99999999999999999999999999999999999
+    },
+    "instance": 99999999999999999999999999999999998,
+    "valid": false,
+    "fast": {
+      "pre": [
+        [ "AssertionGreaterEqual", "/minimum", "#/minimum", "" ]
+      ],
+      "post": [
+        [ false, "AssertionGreaterEqual", "/minimum", "#/minimum", "" ]
+      ],
+      "descriptions": [
+        "The integer value 99999999999999999999999999999999998 was expected to be greater than or equal to the integer 99999999999999999999999999999999999"
+      ]
+    },
+    "exhaustive": {
+      "pre": [
+        [ "AssertionGreaterEqual", "/minimum", "#/minimum", "" ]
+      ],
+      "post": [
+        [ false, "AssertionGreaterEqual", "/minimum", "#/minimum", "" ]
+      ],
+      "descriptions": [
+        "The integer value 99999999999999999999999999999999998 was expected to be greater than or equal to the integer 99999999999999999999999999999999999"
+      ]
+    }
+  },
+  {
+    "description": "maximum_17",
+    "schema": {
+      "$schema": "http://json-schema.org/draft-04/schema#",
+      "maximum": 99999999999999999999999999999999999
+    },
+    "instance": 99999999999999999999999999999999998,
+    "valid": true,
+    "fast": {
+      "pre": [
+        [ "AssertionLessEqual", "/maximum", "#/maximum", "" ]
+      ],
+      "post": [
+        [ true, "AssertionLessEqual", "/maximum", "#/maximum", "" ]
+      ],
+      "descriptions": [
+        "The integer value 99999999999999999999999999999999998 was expected to be less than or equal to the integer 99999999999999999999999999999999999"
+      ]
+    },
+    "exhaustive": {
+      "pre": [
+        [ "AssertionLessEqual", "/maximum", "#/maximum", "" ]
+      ],
+      "post": [
+        [ true, "AssertionLessEqual", "/maximum", "#/maximum", "" ]
+      ],
+      "descriptions": [
+        "The integer value 99999999999999999999999999999999998 was expected to be less than or equal to the integer 99999999999999999999999999999999999"
+      ]
+    }
+  },
+  {
+    "description": "maximum_18",
+    "schema": {
+      "$schema": "http://json-schema.org/draft-04/schema#",
+      "maximum": 99999999999999999999999999999999999
+    },
+    "instance": 199999999999999999999999999999999998,
+    "valid": false,
+    "fast": {
+      "pre": [
+        [ "AssertionLessEqual", "/maximum", "#/maximum", "" ]
+      ],
+      "post": [
+        [ false, "AssertionLessEqual", "/maximum", "#/maximum", "" ]
+      ],
+      "descriptions": [
+        "The integer value 199999999999999999999999999999999998 was expected to be less than or equal to the integer 99999999999999999999999999999999999"
+      ]
+    },
+    "exhaustive": {
+      "pre": [
+        [ "AssertionLessEqual", "/maximum", "#/maximum", "" ]
+      ],
+      "post": [
+        [ false, "AssertionLessEqual", "/maximum", "#/maximum", "" ]
+      ],
+      "descriptions": [
+        "The integer value 199999999999999999999999999999999998 was expected to be less than or equal to the integer 99999999999999999999999999999999999"
+      ]
+    }
+  },
+  {
+    "description": "exclusiveMinimum_14",
+    "schema": {
+      "$schema": "http://json-schema.org/draft-04/schema#",
+      "minimum": 99999999999999999999999999999999999,
+      "exclusiveMinimum": true
+    },
+    "instance": 199999999999999999999999999999999998,
+    "valid": true,
+    "fast": {
+      "pre": [
+        [ "AssertionGreater", "/minimum", "#/minimum", "" ]
+      ],
+      "post": [
+        [ true, "AssertionGreater", "/minimum", "#/minimum", "" ]
+      ],
+      "descriptions": [
+        "The integer value 199999999999999999999999999999999998 was expected to be greater than the integer 99999999999999999999999999999999999"
+      ]
+    },
+    "exhaustive": {
+      "pre": [
+        [ "AssertionGreater", "/minimum", "#/minimum", "" ]
+      ],
+      "post": [
+        [ true, "AssertionGreater", "/minimum", "#/minimum", "" ]
+      ],
+      "descriptions": [
+        "The integer value 199999999999999999999999999999999998 was expected to be greater than the integer 99999999999999999999999999999999999"
+      ]
+    }
+  },
+  {
+    "description": "exclusiveMinimum_15",
+    "schema": {
+      "$schema": "http://json-schema.org/draft-04/schema#",
+      "minimum": 99999999999999999999999999999999999,
+      "exclusiveMinimum": true
+    },
+    "instance": 99999999999999999999999999999999999,
+    "valid": false,
+    "fast": {
+      "pre": [
+        [ "AssertionGreater", "/minimum", "#/minimum", "" ]
+      ],
+      "post": [
+        [ false, "AssertionGreater", "/minimum", "#/minimum", "" ]
+      ],
+      "descriptions": [
+        "The integer value 99999999999999999999999999999999999 was expected to be greater than the integer 99999999999999999999999999999999999, but they were equal"
+      ]
+    },
+    "exhaustive": {
+      "pre": [
+        [ "AssertionGreater", "/minimum", "#/minimum", "" ]
+      ],
+      "post": [
+        [ false, "AssertionGreater", "/minimum", "#/minimum", "" ]
+      ],
+      "descriptions": [
+        "The integer value 99999999999999999999999999999999999 was expected to be greater than the integer 99999999999999999999999999999999999, but they were equal"
+      ]
+    }
+  },
+  {
+    "description": "exclusiveMaximum_14",
+    "schema": {
+      "$schema": "http://json-schema.org/draft-04/schema#",
+      "maximum": 99999999999999999999999999999999999,
+      "exclusiveMaximum": true
+    },
+    "instance": 99999999999999999999999999999999998,
+    "valid": true,
+    "fast": {
+      "pre": [
+        [ "AssertionLess", "/maximum", "#/maximum", "" ]
+      ],
+      "post": [
+        [ true, "AssertionLess", "/maximum", "#/maximum", "" ]
+      ],
+      "descriptions": [
+        "The integer value 99999999999999999999999999999999998 was expected to be less than the integer 99999999999999999999999999999999999"
+      ]
+    },
+    "exhaustive": {
+      "pre": [
+        [ "AssertionLess", "/maximum", "#/maximum", "" ]
+      ],
+      "post": [
+        [ true, "AssertionLess", "/maximum", "#/maximum", "" ]
+      ],
+      "descriptions": [
+        "The integer value 99999999999999999999999999999999998 was expected to be less than the integer 99999999999999999999999999999999999"
+      ]
+    }
+  },
+  {
+    "description": "exclusiveMaximum_15",
+    "schema": {
+      "$schema": "http://json-schema.org/draft-04/schema#",
+      "maximum": 99999999999999999999999999999999999,
+      "exclusiveMaximum": true
+    },
+    "instance": 99999999999999999999999999999999999,
+    "valid": false,
+    "fast": {
+      "pre": [
+        [ "AssertionLess", "/maximum", "#/maximum", "" ]
+      ],
+      "post": [
+        [ false, "AssertionLess", "/maximum", "#/maximum", "" ]
+      ],
+      "descriptions": [
+        "The integer value 99999999999999999999999999999999999 was expected to be less than the integer 99999999999999999999999999999999999, but they were equal"
+      ]
+    },
+    "exhaustive": {
+      "pre": [
+        [ "AssertionLess", "/maximum", "#/maximum", "" ]
+      ],
+      "post": [
+        [ false, "AssertionLess", "/maximum", "#/maximum", "" ]
+      ],
+      "descriptions": [
+        "The integer value 99999999999999999999999999999999999 was expected to be less than the integer 99999999999999999999999999999999999, but they were equal"
+      ]
+    }
+  },
+  {
+    "description": "multipleOf_17",
+    "schema": {
+      "$schema": "http://json-schema.org/draft-04/schema#",
+      "multipleOf": 99999999999999999999999999999999999
+    },
+    "instance": 299999999999999999999999999999999997,
+    "valid": true,
+    "fast": {
+      "pre": [
+        [ "AssertionDivisible", "/multipleOf", "#/multipleOf", "" ]
+      ],
+      "post": [
+        [ true, "AssertionDivisible", "/multipleOf", "#/multipleOf", "" ]
+      ],
+      "descriptions": [
+        "The integer value 299999999999999999999999999999999997 was expected to be divisible by the integer 99999999999999999999999999999999999"
+      ]
+    },
+    "exhaustive": {
+      "pre": [
+        [ "AssertionDivisible", "/multipleOf", "#/multipleOf", "" ]
+      ],
+      "post": [
+        [ true, "AssertionDivisible", "/multipleOf", "#/multipleOf", "" ]
+      ],
+      "descriptions": [
+        "The integer value 299999999999999999999999999999999997 was expected to be divisible by the integer 99999999999999999999999999999999999"
+      ]
+    }
+  },
+  {
+    "description": "multipleOf_18",
+    "schema": {
+      "$schema": "http://json-schema.org/draft-04/schema#",
+      "multipleOf": 99999999999999999999999999999999999
+    },
+    "instance": 299999999999999999999999999999999998,
+    "valid": false,
+    "fast": {
+      "pre": [
+        [ "AssertionDivisible", "/multipleOf", "#/multipleOf", "" ]
+      ],
+      "post": [
+        [ false, "AssertionDivisible", "/multipleOf", "#/multipleOf", "" ]
+      ],
+      "descriptions": [
+        "The integer value 299999999999999999999999999999999998 was expected to be divisible by the integer 99999999999999999999999999999999999"
+      ]
+    },
+    "exhaustive": {
+      "pre": [
+        [ "AssertionDivisible", "/multipleOf", "#/multipleOf", "" ]
+      ],
+      "post": [
+        [ false, "AssertionDivisible", "/multipleOf", "#/multipleOf", "" ]
+      ],
+      "descriptions": [
+        "The integer value 299999999999999999999999999999999998 was expected to be divisible by the integer 99999999999999999999999999999999999"
+      ]
+    }
+  },
+  {
+    "description": "multipleOf_21",
+    "schema": { "$schema": "http://json-schema.org/draft-04/schema#", "multipleOf": 0.5 },
+    "instance": 99999999999999999999999999999999999,
+    "valid": true,
+    "fast": {
+      "pre": [
+        [ "AssertionDivisible", "/multipleOf", "#/multipleOf", "" ]
+      ],
+      "post": [
+        [ true, "AssertionDivisible", "/multipleOf", "#/multipleOf", "" ]
+      ],
+      "descriptions": [
+        "The integer value 99999999999999999999999999999999999 was expected to be divisible by the number 0.5"
+      ]
+    },
+    "exhaustive": {
+      "pre": [
+        [ "AssertionDivisible", "/multipleOf", "#/multipleOf", "" ]
+      ],
+      "post": [
+        [ true, "AssertionDivisible", "/multipleOf", "#/multipleOf", "" ]
+      ],
+      "descriptions": [
+        "The integer value 99999999999999999999999999999999999 was expected to be divisible by the number 0.5"
+      ]
+    }
   }
 ]

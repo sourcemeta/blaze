@@ -4558,5 +4558,129 @@
         "The object value was expected to validate against the single defined property subschema"
       ]
     }
+  },
+  {
+    "description": "exclusiveMinimum_15",
+    "schema": {
+      "$schema": "http://json-schema.org/draft-06/schema#",
+      "exclusiveMinimum": 99999999999999999999999999999999999
+    },
+    "instance": 199999999999999999999999999999999998,
+    "valid": true,
+    "fast": {
+      "pre": [
+        [ "AssertionGreater", "/exclusiveMinimum", "#/exclusiveMinimum", "" ]
+      ],
+      "post": [
+        [ true, "AssertionGreater", "/exclusiveMinimum", "#/exclusiveMinimum", "" ]
+      ],
+      "descriptions": [
+        "The integer value 199999999999999999999999999999999998 was expected to be greater than the integer 99999999999999999999999999999999999"
+      ]
+    },
+    "exhaustive": {
+      "pre": [
+        [ "AssertionGreater", "/exclusiveMinimum", "#/exclusiveMinimum", "" ]
+      ],
+      "post": [
+        [ true, "AssertionGreater", "/exclusiveMinimum", "#/exclusiveMinimum", "" ]
+      ],
+      "descriptions": [
+        "The integer value 199999999999999999999999999999999998 was expected to be greater than the integer 99999999999999999999999999999999999"
+      ]
+    }
+  },
+  {
+    "description": "exclusiveMinimum_16",
+    "schema": {
+      "$schema": "http://json-schema.org/draft-06/schema#",
+      "exclusiveMinimum": 99999999999999999999999999999999999
+    },
+    "instance": 99999999999999999999999999999999999,
+    "valid": false,
+    "fast": {
+      "pre": [
+        [ "AssertionGreater", "/exclusiveMinimum", "#/exclusiveMinimum", "" ]
+      ],
+      "post": [
+        [ false, "AssertionGreater", "/exclusiveMinimum", "#/exclusiveMinimum", "" ]
+      ],
+      "descriptions": [
+        "The integer value 99999999999999999999999999999999999 was expected to be greater than the integer 99999999999999999999999999999999999, but they were equal"
+      ]
+    },
+    "exhaustive": {
+      "pre": [
+        [ "AssertionGreater", "/exclusiveMinimum", "#/exclusiveMinimum", "" ]
+      ],
+      "post": [
+        [ false, "AssertionGreater", "/exclusiveMinimum", "#/exclusiveMinimum", "" ]
+      ],
+      "descriptions": [
+        "The integer value 99999999999999999999999999999999999 was expected to be greater than the integer 99999999999999999999999999999999999, but they were equal"
+      ]
+    }
+  },
+  {
+    "description": "exclusiveMaximum_15",
+    "schema": {
+      "$schema": "http://json-schema.org/draft-06/schema#",
+      "exclusiveMaximum": 99999999999999999999999999999999999
+    },
+    "instance": 99999999999999999999999999999999998,
+    "valid": true,
+    "fast": {
+      "pre": [
+        [ "AssertionLess", "/exclusiveMaximum", "#/exclusiveMaximum", "" ]
+      ],
+      "post": [
+        [ true, "AssertionLess", "/exclusiveMaximum", "#/exclusiveMaximum", "" ]
+      ],
+      "descriptions": [
+        "The integer value 99999999999999999999999999999999998 was expected to be less than the integer 99999999999999999999999999999999999"
+      ]
+    },
+    "exhaustive": {
+      "pre": [
+        [ "AssertionLess", "/exclusiveMaximum", "#/exclusiveMaximum", "" ]
+      ],
+      "post": [
+        [ true, "AssertionLess", "/exclusiveMaximum", "#/exclusiveMaximum", "" ]
+      ],
+      "descriptions": [
+        "The integer value 99999999999999999999999999999999998 was expected to be less than the integer 99999999999999999999999999999999999"
+      ]
+    }
+  },
+  {
+    "description": "exclusiveMaximum_16",
+    "schema": {
+      "$schema": "http://json-schema.org/draft-06/schema#",
+      "exclusiveMaximum": 99999999999999999999999999999999999
+    },
+    "instance": 99999999999999999999999999999999999,
+    "valid": false,
+    "fast": {
+      "pre": [
+        [ "AssertionLess", "/exclusiveMaximum", "#/exclusiveMaximum", "" ]
+      ],
+      "post": [
+        [ false, "AssertionLess", "/exclusiveMaximum", "#/exclusiveMaximum", "" ]
+      ],
+      "descriptions": [
+        "The integer value 99999999999999999999999999999999999 was expected to be less than the integer 99999999999999999999999999999999999, but they were equal"
+      ]
+    },
+    "exhaustive": {
+      "pre": [
+        [ "AssertionLess", "/exclusiveMaximum", "#/exclusiveMaximum", "" ]
+      ],
+      "post": [
+        [ false, "AssertionLess", "/exclusiveMaximum", "#/exclusiveMaximum", "" ]
+      ],
+      "descriptions": [
+        "The integer value 99999999999999999999999999999999999 was expected to be less than the integer 99999999999999999999999999999999999, but they were equal"
+      ]
+    }
   }
 ]

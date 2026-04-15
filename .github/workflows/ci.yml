@@ -148,7 +148,10 @@ jobs:
       - run: cmake --build ./build --config Release --verbose --target benchmark_json
         if: matrix.platform.benchmark
 
-      # Node.js
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 'latest'
+      - run: node --version
       - run: node --test ports/javascript/test.mjs ports/javascript/trace.mjs
       - run: node ports/javascript/benchmark.mjs > build/benchmark-javascript.json
         if: matrix.platform.benchmark
