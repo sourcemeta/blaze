@@ -1057,6 +1057,38 @@ auto compiler_draft4_applicator_properties_with_options(
     }
   }
 
+  auto attempt_object_fusion{context.mode == Mode::FastValidation &&
+                             !annotate && !track_evaluation && assume_object};
+  if (attempt_object_fusion) {
+    for (const auto &entry : schema_context.schema.as_object()) {
+      const auto &keyword{entry.first};
+      if (keyword == "type" || keyword == "required" ||
+          keyword == dynamic_context.keyword) {
+        continue;
+      }
+
+      if (keyword == "additionalProperties" && entry.second.is_boolean() &&
+          entry.second.to_boolean()) {
+        continue;
+      }
+
+      const auto &keyword_type{
+          context.walker(keyword, schema_context.vocabularies).type};
+      using enum sourcemeta::core::SchemaKeywordType;
+      if (keyword_type == Assertion || keyword_type == Annotation ||
+          keyword_type == Unknown || keyword_type == Comment ||
+          keyword_type == Other || keyword_type == LocationMembers) {
+        continue;
+      }
+
+      attempt_object_fusion = false;
+      break;
+    }
+  }
+  ValueObjectProperties fusion_entries;
+  Instructions fusion_children;
+  bool fusion_possible{attempt_object_fusion};
+
   for (auto &&[name, substeps] : properties) {
     if (annotate) {
       substeps.push_back(
@@ -1091,19 +1123,22 @@ auto compiler_draft4_applicator_properties_with_options(
                                   substeps.front()));
 
       // NOLINTBEGIN(bugprone-branch-clone)
-    } else if (context.mode == Mode::FastValidation && substeps.size() == 1 &&
+    } else if (!fusion_possible && context.mode == Mode::FastValidation &&
+               substeps.size() == 1 &&
                substeps.front().type ==
                    InstructionIndex::AssertionPropertyTypeStrict) {
       children.push_back(
           unroll(context, substeps.front(),
                  effective_dynamic_context.base_instance_location));
-    } else if (context.mode == Mode::FastValidation && substeps.size() == 1 &&
+    } else if (!fusion_possible && context.mode == Mode::FastValidation &&
+               substeps.size() == 1 &&
                substeps.front().type ==
                    InstructionIndex::AssertionPropertyType) {
       children.push_back(
           unroll(context, substeps.front(),
                  effective_dynamic_context.base_instance_location));
-    } else if (context.mode == Mode::FastValidation && substeps.size() == 1 &&
+    } else if (!fusion_possible && context.mode == Mode::FastValidation &&
+               substeps.size() == 1 &&
                substeps.front().type ==
                    InstructionIndex::AssertionPropertyTypeStrictAny) {
       children.push_back(
@@ -1188,6 +1223,50 @@ auto compiler_draft4_applicator_properties_with_options(
         }
       }
 
+      if (fusion_possible && substeps.size() >= 2 &&
+          std::ranges::any_of(substeps, [](const auto &step) {
+            return step.type ==
+                   InstructionIndex::AssertionObjectPropertiesSimple;
+          })) {
+        std::erase_if(substeps, [](const auto &step) {
+          if (step.type == InstructionIndex::AssertionDefinesAllStrict ||
+              step.type == InstructionIndex::AssertionDefinesAll) {
+            return true;
+          }
+
+          if ((step.type == InstructionIndex::AssertionTypeStrict ||
+               step.type == InstructionIndex::AssertionType) &&
+              std::get<ValueType>(step.value) ==
+                  sourcemeta::core::JSON::Type::Object) {
+            return true;
+          }
+
+          return false;
+        });
+      }
+
+      if (fusion_possible && substeps.size() == 1 &&
+          substeps.front().type != InstructionIndex::ControlJump &&
+          substeps.front().type != InstructionIndex::ControlDynamicAnchorJump) {
+        const auto is_required{
+            assume_object && schema_context.schema.defines("required") &&
+            schema_context.schema.at("required").is_array() &&
+            schema_context.schema.at("required")
+                .contains(sourcemeta::core::JSON{name})};
+        auto prop{make_property(name)};
+        auto fusion_child{substeps.front()};
+        fusion_child.relative_instance_location = {};
+        auto fusion_extra{context.extra[fusion_child.extra_index]};
+        fusion_extra.relative_schema_location = {};
+        fusion_child.extra_index = context.extra.size();
+        context.extra.push_back(std::move(fusion_extra));
+
+        fusion_entries.emplace_back(prop.first, prop.second, is_required);
+        fusion_children.push_back(std::move(fusion_child));
+      } else {
+        fusion_possible = false;
+      }
+
       if (!substeps.empty()) {
         // As a performance shortcut
         if (effective_dynamic_context.base_instance_location.empty()) {
@@ -1218,6 +1297,35 @@ auto compiler_draft4_applicator_properties_with_options(
   }
 
   if (context.mode == Mode::FastValidation) {
+    if (fusion_possible && !fusion_entries.empty()) {
+      if (schema_context.schema.defines("required") &&
+          schema_context.schema.at("required").is_array()) {
+        for (const auto &req :
+             schema_context.schema.at("required").as_array()) {
+          if (!req.is_string()) {
+            continue;
+          }
+          const auto &req_name{req.to_string()};
+          bool already_tracked{false};
+          for (const auto &entry : fusion_entries) {
+            if (std::get<0>(entry) == req_name) {
+              already_tracked = true;
+              break;
+            }
+          }
+          if (!already_tracked) {
+            auto prop{make_property(req_name)};
+            fusion_entries.emplace_back(prop.first, prop.second, true);
+          }
+        }
+      }
+
+      return {make(InstructionIndex::AssertionObjectPropertiesSimple, context,
+                   schema_context, dynamic_context,
+                   Value{std::move(fusion_entries)},
+                   std::move(fusion_children))};
+    }
+
     return children;
   } else if (children.empty()) {
     return {};

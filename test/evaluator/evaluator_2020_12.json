@@ -3000,5 +3000,973 @@
         "The object value was expected to validate against the single defined property subschema"
       ]
     }
+  },
+  {
+    "description": "assertion_object_properties_simple_1",
+    "schema": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "required": [ "a", "b" ],
+      "properties": { "a": { "type": "string" }, "b": { "type": "integer" } }
+    },
+    "instance": { "a": "hello", "b": 42 },
+    "valid": true,
+    "fast": {
+      "pre": [
+        [ "AssertionObjectPropertiesSimple", "/properties", "#/properties", "" ]
+      ],
+      "post": [
+        [ true, "AssertionObjectPropertiesSimple", "/properties", "#/properties", "" ]
+      ],
+      "descriptions": [
+        "The object value was expected to validate against the defined property subschemas"
+      ]
+    },
+    "exhaustive": {
+      "pre": [
+        [ "AssertionDefinesAllStrict", "/required", "#/required", "" ],
+        [ "LogicalWhenType", "/properties", "#/properties", "" ],
+        [ "AssertionTypeStrict", "/properties/a/type", "#/properties/a/type", "/a" ],
+        [ "Annotation", "/properties", "#/properties", "" ],
+        [ "AssertionType", "/properties/b/type", "#/properties/b/type", "/b" ],
+        [ "Annotation", "/properties", "#/properties", "" ],
+        [ "AssertionTypeStrict", "/type", "#/type", "" ]
+      ],
+      "post": [
+        [ true, "AssertionDefinesAllStrict", "/required", "#/required", "" ],
+        [ true, "AssertionTypeStrict", "/properties/a/type", "#/properties/a/type", "/a" ],
+        [ true, "Annotation", "/properties", "#/properties", "", "a" ],
+        [ true, "AssertionType", "/properties/b/type", "#/properties/b/type", "/b" ],
+        [ true, "Annotation", "/properties", "#/properties", "", "b" ],
+        [ true, "LogicalWhenType", "/properties", "#/properties", "" ],
+        [ true, "AssertionTypeStrict", "/type", "#/type", "" ]
+      ],
+      "descriptions": [
+        "The value was expected to be an object that defines properties \"a\", and \"b\"",
+        "The value was expected to be of type string",
+        "The object property \"a\" successfully validated against its property subschema",
+        "The value was expected to be of type integer",
+        "The object property \"b\" successfully validated against its property subschema",
+        "The object value was expected to validate against the defined properties subschemas",
+        "The value was expected to be of type object"
+      ]
+    }
+  },
+  {
+    "description": "assertion_object_properties_simple_2",
+    "schema": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "required": [ "a", "b" ],
+      "properties": { "a": { "type": "string" }, "b": { "type": "integer" } }
+    },
+    "instance": { "a": "hello" },
+    "valid": false,
+    "fast": {
+      "pre": [
+        [ "AssertionObjectPropertiesSimple", "/properties", "#/properties", "" ]
+      ],
+      "post": [
+        [ false, "AssertionObjectPropertiesSimple", "/properties", "#/properties", "" ]
+      ],
+      "descriptions": [
+        "The object value was expected to validate against the defined property subschemas"
+      ]
+    },
+    "exhaustive": {
+      "pre": [
+        [ "AssertionDefinesAllStrict", "/required", "#/required", "" ]
+      ],
+      "post": [
+        [ false, "AssertionDefinesAllStrict", "/required", "#/required", "" ]
+      ],
+      "descriptions": [
+        "The value was expected to be an object that defines properties \"a\", and \"b\""
+      ]
+    }
+  },
+  {
+    "description": "assertion_object_properties_simple_3",
+    "schema": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "required": [ "a", "b" ],
+      "properties": { "a": { "type": "string" }, "b": { "type": "integer" } }
+    },
+    "instance": { "a": 123, "b": 42 },
+    "valid": false,
+    "fast": {
+      "pre": [
+        [ "AssertionObjectPropertiesSimple", "/properties", "#/properties", "" ]
+      ],
+      "post": [
+        [ false, "AssertionObjectPropertiesSimple", "/properties", "#/properties", "" ]
+      ],
+      "descriptions": [
+        "The object value was expected to validate against the defined property subschemas"
+      ]
+    },
+    "exhaustive": {
+      "pre": [
+        [ "AssertionDefinesAllStrict", "/required", "#/required", "" ],
+        [ "LogicalWhenType", "/properties", "#/properties", "" ],
+        [ "AssertionTypeStrict", "/properties/a/type", "#/properties/a/type", "/a" ]
+      ],
+      "post": [
+        [ true, "AssertionDefinesAllStrict", "/required", "#/required", "" ],
+        [ false, "AssertionTypeStrict", "/properties/a/type", "#/properties/a/type", "/a" ],
+        [ false, "LogicalWhenType", "/properties", "#/properties", "" ]
+      ],
+      "descriptions": [
+        "The value was expected to be an object that defines properties \"a\", and \"b\"",
+        "The value was expected to be of type string but it was of type integer",
+        "The object value was expected to validate against the defined properties subschemas"
+      ]
+    }
+  },
+  {
+    "description": "assertion_object_properties_simple_4",
+    "schema": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "properties": { "x": { "type": "string" }, "y": { "type": "integer" } }
+    },
+    "instance": { "x": "hello", "y": 42 },
+    "valid": true,
+    "fast": {
+      "pre": [
+        [ "AssertionObjectPropertiesSimple", "/properties", "#/properties", "" ]
+      ],
+      "post": [
+        [ true, "AssertionObjectPropertiesSimple", "/properties", "#/properties", "" ]
+      ],
+      "descriptions": [
+        "The object value was expected to validate against the defined property subschemas"
+      ]
+    },
+    "exhaustive": {
+      "pre": [
+        [ "LogicalWhenType", "/properties", "#/properties", "" ],
+        [ "AssertionTypeStrict", "/properties/x/type", "#/properties/x/type", "/x" ],
+        [ "Annotation", "/properties", "#/properties", "" ],
+        [ "AssertionType", "/properties/y/type", "#/properties/y/type", "/y" ],
+        [ "Annotation", "/properties", "#/properties", "" ],
+        [ "AssertionTypeStrict", "/type", "#/type", "" ]
+      ],
+      "post": [
+        [ true, "AssertionTypeStrict", "/properties/x/type", "#/properties/x/type", "/x" ],
+        [ true, "Annotation", "/properties", "#/properties", "", "x" ],
+        [ true, "AssertionType", "/properties/y/type", "#/properties/y/type", "/y" ],
+        [ true, "Annotation", "/properties", "#/properties", "", "y" ],
+        [ true, "LogicalWhenType", "/properties", "#/properties", "" ],
+        [ true, "AssertionTypeStrict", "/type", "#/type", "" ]
+      ],
+      "descriptions": [
+        "The value was expected to be of type string",
+        "The object property \"x\" successfully validated against its property subschema",
+        "The value was expected to be of type integer",
+        "The object property \"y\" successfully validated against its property subschema",
+        "The object value was expected to validate against the defined properties subschemas",
+        "The value was expected to be of type object"
+      ]
+    }
+  },
+  {
+    "description": "assertion_object_properties_simple_5",
+    "schema": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "properties": { "x": { "type": "string" }, "y": { "type": "integer" } }
+    },
+    "instance": {},
+    "valid": true,
+    "fast": {
+      "pre": [
+        [ "AssertionObjectPropertiesSimple", "/properties", "#/properties", "" ]
+      ],
+      "post": [
+        [ true, "AssertionObjectPropertiesSimple", "/properties", "#/properties", "" ]
+      ],
+      "descriptions": [
+        "The object value was expected to validate against the defined property subschemas"
+      ]
+    },
+    "exhaustive": {
+      "pre": [
+        [ "LogicalWhenType", "/properties", "#/properties", "" ],
+        [ "AssertionTypeStrict", "/type", "#/type", "" ]
+      ],
+      "post": [
+        [ true, "LogicalWhenType", "/properties", "#/properties", "" ],
+        [ true, "AssertionTypeStrict", "/type", "#/type", "" ]
+      ],
+      "descriptions": [
+        "The object value was expected to validate against the defined properties subschemas",
+        "The value was expected to be of type object"
+      ]
+    }
+  },
+  {
+    "description": "assertion_object_properties_simple_6",
+    "schema": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "properties": { "x": { "type": "string" }, "y": { "type": "integer" } }
+    },
+    "instance": "not an object",
+    "valid": false,
+    "fast": {
+      "pre": [
+        [ "AssertionObjectPropertiesSimple", "/properties", "#/properties", "" ]
+      ],
+      "post": [
+        [ false, "AssertionObjectPropertiesSimple", "/properties", "#/properties", "" ]
+      ],
+      "descriptions": [
+        "The object value was expected to validate against the defined property subschemas"
+      ]
+    },
+    "exhaustive": {
+      "pre": [
+        [ "AssertionTypeStrict", "/type", "#/type", "" ]
+      ],
+      "post": [
+        [ false, "AssertionTypeStrict", "/type", "#/type", "" ]
+      ],
+      "descriptions": [
+        "The value was expected to be of type object but it was of type string"
+      ]
+    }
+  },
+  {
+    "description": "assertion_object_properties_simple_7",
+    "schema": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "properties": { "a": { "type": "string" } }
+    },
+    "instance": { "a": "hello", "extra": 999 },
+    "valid": true,
+    "fast": {
+      "pre": [
+        [ "AssertionObjectPropertiesSimple", "/properties", "#/properties", "" ]
+      ],
+      "post": [
+        [ true, "AssertionObjectPropertiesSimple", "/properties", "#/properties", "" ]
+      ],
+      "descriptions": [
+        "The object value was expected to validate against the defined property subschemas"
+      ]
+    },
+    "exhaustive": {
+      "pre": [
+        [ "LogicalWhenType", "/properties", "#/properties", "" ],
+        [ "AssertionTypeStrict", "/properties/a/type", "#/properties/a/type", "/a" ],
+        [ "Annotation", "/properties", "#/properties", "" ],
+        [ "AssertionTypeStrict", "/type", "#/type", "" ]
+      ],
+      "post": [
+        [ true, "AssertionTypeStrict", "/properties/a/type", "#/properties/a/type", "/a" ],
+        [ true, "Annotation", "/properties", "#/properties", "", "a" ],
+        [ true, "LogicalWhenType", "/properties", "#/properties", "" ],
+        [ true, "AssertionTypeStrict", "/type", "#/type", "" ]
+      ],
+      "descriptions": [
+        "The value was expected to be of type string",
+        "The object property \"a\" successfully validated against its property subschema",
+        "The object value was expected to validate against the single defined property subschema",
+        "The value was expected to be of type object"
+      ]
+    }
+  },
+  {
+    "description": "assertion_object_properties_simple_8",
+    "schema": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "required": [ "a" ],
+      "properties": { "a": { "type": "string" }, "b": { "type": "integer" } }
+    },
+    "instance": { "a": "hello" },
+    "valid": true,
+    "fast": {
+      "pre": [
+        [ "AssertionObjectPropertiesSimple", "/properties", "#/properties", "" ]
+      ],
+      "post": [
+        [ true, "AssertionObjectPropertiesSimple", "/properties", "#/properties", "" ]
+      ],
+      "descriptions": [
+        "The object value was expected to validate against the defined property subschemas"
+      ]
+    },
+    "exhaustive": {
+      "pre": [
+        [ "AssertionDefinesStrict", "/required", "#/required", "" ],
+        [ "LogicalWhenType", "/properties", "#/properties", "" ],
+        [ "AssertionTypeStrict", "/properties/a/type", "#/properties/a/type", "/a" ],
+        [ "Annotation", "/properties", "#/properties", "" ],
+        [ "AssertionTypeStrict", "/type", "#/type", "" ]
+      ],
+      "post": [
+        [ true, "AssertionDefinesStrict", "/required", "#/required", "" ],
+        [ true, "AssertionTypeStrict", "/properties/a/type", "#/properties/a/type", "/a" ],
+        [ true, "Annotation", "/properties", "#/properties", "", "a" ],
+        [ true, "LogicalWhenType", "/properties", "#/properties", "" ],
+        [ true, "AssertionTypeStrict", "/type", "#/type", "" ]
+      ],
+      "descriptions": [
+        "The value was expected to be an object that defines the property \"a\"",
+        "The value was expected to be of type string",
+        "The object property \"a\" successfully validated against its property subschema",
+        "The object value was expected to validate against the defined properties subschemas",
+        "The value was expected to be of type object"
+      ]
+    }
+  },
+  {
+    "description": "assertion_object_properties_simple_9",
+    "schema": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "properties": {}
+    },
+    "instance": { "anything": true },
+    "valid": true,
+    "fast": {
+      "pre": [
+        [ "AssertionTypeStrict", "/type", "#/type", "" ]
+      ],
+      "post": [
+        [ true, "AssertionTypeStrict", "/type", "#/type", "" ]
+      ],
+      "descriptions": [
+        "The value was expected to be of type object"
+      ]
+    },
+    "exhaustive": {
+      "pre": [
+        [ "AssertionTypeStrict", "/type", "#/type", "" ]
+      ],
+      "post": [
+        [ true, "AssertionTypeStrict", "/type", "#/type", "" ]
+      ],
+      "descriptions": [
+        "The value was expected to be of type object"
+      ]
+    }
+  },
+  {
+    "description": "assertion_object_properties_simple_10",
+    "schema": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "required": [ "a", "b" ],
+      "properties": { "a": { "type": "string" } }
+    },
+    "instance": { "a": "hello", "b": "anything" },
+    "valid": true,
+    "fast": {
+      "pre": [
+        [ "AssertionObjectPropertiesSimple", "/properties", "#/properties", "" ]
+      ],
+      "post": [
+        [ true, "AssertionObjectPropertiesSimple", "/properties", "#/properties", "" ]
+      ],
+      "descriptions": [
+        "The object value was expected to validate against the defined property subschemas"
+      ]
+    },
+    "exhaustive": {
+      "pre": [
+        [ "AssertionDefinesAllStrict", "/required", "#/required", "" ],
+        [ "LogicalWhenType", "/properties", "#/properties", "" ],
+        [ "AssertionTypeStrict", "/properties/a/type", "#/properties/a/type", "/a" ],
+        [ "Annotation", "/properties", "#/properties", "" ],
+        [ "AssertionTypeStrict", "/type", "#/type", "" ]
+      ],
+      "post": [
+        [ true, "AssertionDefinesAllStrict", "/required", "#/required", "" ],
+        [ true, "AssertionTypeStrict", "/properties/a/type", "#/properties/a/type", "/a" ],
+        [ true, "Annotation", "/properties", "#/properties", "", "a" ],
+        [ true, "LogicalWhenType", "/properties", "#/properties", "" ],
+        [ true, "AssertionTypeStrict", "/type", "#/type", "" ]
+      ],
+      "descriptions": [
+        "The value was expected to be an object that defines properties \"a\", and \"b\"",
+        "The value was expected to be of type string",
+        "The object property \"a\" successfully validated against its property subschema",
+        "The object value was expected to validate against the defined properties subschemas",
+        "The value was expected to be of type object"
+      ]
+    }
+  },
+  {
+    "description": "assertion_object_properties_simple_11",
+    "schema": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "required": [ "a", "b" ],
+      "properties": { "a": { "type": "string" } }
+    },
+    "instance": { "a": "hello" },
+    "valid": false,
+    "fast": {
+      "pre": [
+        [ "AssertionObjectPropertiesSimple", "/properties", "#/properties", "" ]
+      ],
+      "post": [
+        [ false, "AssertionObjectPropertiesSimple", "/properties", "#/properties", "" ]
+      ],
+      "descriptions": [
+        "The object value was expected to validate against the defined property subschemas"
+      ]
+    },
+    "exhaustive": {
+      "pre": [
+        [ "AssertionDefinesAllStrict", "/required", "#/required", "" ]
+      ],
+      "post": [
+        [ false, "AssertionDefinesAllStrict", "/required", "#/required", "" ]
+      ],
+      "descriptions": [
+        "The value was expected to be an object that defines properties \"a\", and \"b\""
+      ]
+    }
+  },
+  {
+    "description": "assertion_object_properties_simple_12",
+    "schema": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "properties": {
+        "inner": { "type": "object", "properties": { "x": { "type": "string" } } }
+      }
+    },
+    "instance": { "inner": { "x": "hello" } },
+    "valid": true,
+    "fast": {
+      "pre": [
+        [ "AssertionObjectPropertiesSimple", "/properties", "#/properties", "" ]
+      ],
+      "post": [
+        [ true, "AssertionObjectPropertiesSimple", "/properties", "#/properties", "" ]
+      ],
+      "descriptions": [
+        "The object value was expected to validate against the defined property subschemas"
+      ]
+    },
+    "exhaustive": {
+      "pre": [
+        [ "LogicalWhenType", "/properties", "#/properties", "" ],
+        [ "LogicalWhenType", "/properties/inner/properties", "#/properties/inner/properties", "/inner" ],
+        [ "AssertionTypeStrict", "/properties/inner/properties/x/type", "#/properties/inner/properties/x/type", "/inner/x" ],
+        [ "Annotation", "/properties/inner/properties", "#/properties/inner/properties", "/inner" ],
+        [ "AssertionTypeStrict", "/properties/inner/type", "#/properties/inner/type", "/inner" ],
+        [ "Annotation", "/properties", "#/properties", "" ],
+        [ "AssertionTypeStrict", "/type", "#/type", "" ]
+      ],
+      "post": [
+        [ true, "AssertionTypeStrict", "/properties/inner/properties/x/type", "#/properties/inner/properties/x/type", "/inner/x" ],
+        [ true, "Annotation", "/properties/inner/properties", "#/properties/inner/properties", "/inner", "x" ],
+        [ true, "LogicalWhenType", "/properties/inner/properties", "#/properties/inner/properties", "/inner" ],
+        [ true, "AssertionTypeStrict", "/properties/inner/type", "#/properties/inner/type", "/inner" ],
+        [ true, "Annotation", "/properties", "#/properties", "", "inner" ],
+        [ true, "LogicalWhenType", "/properties", "#/properties", "" ],
+        [ true, "AssertionTypeStrict", "/type", "#/type", "" ]
+      ],
+      "descriptions": [
+        "The value was expected to be of type string",
+        "The object property \"x\" successfully validated against its property subschema",
+        "The object value was expected to validate against the single defined property subschema",
+        "The value was expected to be of type object",
+        "The object property \"inner\" successfully validated against its property subschema",
+        "The object value was expected to validate against the single defined property subschema",
+        "The value was expected to be of type object"
+      ]
+    }
+  },
+  {
+    "description": "assertion_object_properties_simple_13",
+    "schema": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "properties": {
+        "inner": { "type": "object", "properties": { "x": { "type": "string" } } }
+      }
+    },
+    "instance": { "inner": { "x": 123 } },
+    "valid": false,
+    "fast": {
+      "pre": [
+        [ "AssertionObjectPropertiesSimple", "/properties", "#/properties", "" ]
+      ],
+      "post": [
+        [ false, "AssertionObjectPropertiesSimple", "/properties", "#/properties", "" ]
+      ],
+      "descriptions": [
+        "The object value was expected to validate against the defined property subschemas"
+      ]
+    },
+    "exhaustive": {
+      "pre": [
+        [ "LogicalWhenType", "/properties", "#/properties", "" ],
+        [ "LogicalWhenType", "/properties/inner/properties", "#/properties/inner/properties", "/inner" ],
+        [ "AssertionTypeStrict", "/properties/inner/properties/x/type", "#/properties/inner/properties/x/type", "/inner/x" ]
+      ],
+      "post": [
+        [ false, "AssertionTypeStrict", "/properties/inner/properties/x/type", "#/properties/inner/properties/x/type", "/inner/x" ],
+        [ false, "LogicalWhenType", "/properties/inner/properties", "#/properties/inner/properties", "/inner" ],
+        [ false, "LogicalWhenType", "/properties", "#/properties", "" ]
+      ],
+      "descriptions": [
+        "The value was expected to be of type string but it was of type integer",
+        "The object value was expected to validate against the single defined property subschema",
+        "The object value was expected to validate against the single defined property subschema"
+      ]
+    }
+  },
+  {
+    "description": "assertion_object_properties_simple_no_fusion_pattern_properties",
+    "schema": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "properties": { "a": { "type": "string" } },
+      "patternProperties": { "^b": { "type": "integer" } }
+    },
+    "instance": { "a": "hello" },
+    "valid": true,
+    "fast": {
+      "pre": [
+        [ "LoopPropertiesStartsWith", "/patternProperties", "#/patternProperties", "" ],
+        [ "AssertionPropertyTypeStrict", "/properties/a/type", "#/properties/a/type", "/a" ],
+        [ "AssertionTypeStrict", "/type", "#/type", "" ]
+      ],
+      "post": [
+        [ true, "LoopPropertiesStartsWith", "/patternProperties", "#/patternProperties", "" ],
+        [ true, "AssertionPropertyTypeStrict", "/properties/a/type", "#/properties/a/type", "/a" ],
+        [ true, "AssertionTypeStrict", "/type", "#/type", "" ]
+      ],
+      "descriptions": [
+        "The object properties that start with the string \"b\" were expected to validate against the defined pattern property subschema",
+        "The value was expected to be of type string",
+        "The value was expected to be of type object"
+      ]
+    },
+    "exhaustive": {
+      "pre": [
+        [ "LoopPropertiesStartsWith", "/patternProperties", "#/patternProperties", "" ],
+        [ "LogicalWhenType", "/properties", "#/properties", "" ],
+        [ "AssertionTypeStrict", "/properties/a/type", "#/properties/a/type", "/a" ],
+        [ "Annotation", "/properties", "#/properties", "" ],
+        [ "AssertionTypeStrict", "/type", "#/type", "" ]
+      ],
+      "post": [
+        [ true, "LoopPropertiesStartsWith", "/patternProperties", "#/patternProperties", "" ],
+        [ true, "AssertionTypeStrict", "/properties/a/type", "#/properties/a/type", "/a" ],
+        [ true, "Annotation", "/properties", "#/properties", "", "a" ],
+        [ true, "LogicalWhenType", "/properties", "#/properties", "" ],
+        [ true, "AssertionTypeStrict", "/type", "#/type", "" ]
+      ],
+      "descriptions": [
+        "The object properties that start with the string \"b\" were expected to validate against the defined pattern property subschema",
+        "The value was expected to be of type string",
+        "The object property \"a\" successfully validated against its property subschema",
+        "The object value was expected to validate against the single defined property subschema",
+        "The value was expected to be of type object"
+      ]
+    }
+  },
+  {
+    "description": "assertion_object_properties_simple_no_fusion_additional_properties_false",
+    "schema": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "properties": { "a": { "type": "string" } },
+      "additionalProperties": false
+    },
+    "instance": { "a": "hello" },
+    "valid": true,
+    "fast": {
+      "pre": [
+        [ "LoopPropertiesMatchClosed", "/properties", "#/properties", "" ],
+        [ "AssertionPropertyTypeStrict", "/properties/a/type", "#/properties/a/type", "/a" ],
+        [ "AssertionTypeStrict", "/type", "#/type", "" ]
+      ],
+      "post": [
+        [ true, "AssertionPropertyTypeStrict", "/properties/a/type", "#/properties/a/type", "/a" ],
+        [ true, "LoopPropertiesMatchClosed", "/properties", "#/properties", "" ],
+        [ true, "AssertionTypeStrict", "/type", "#/type", "" ]
+      ],
+      "descriptions": [
+        "The value was expected to be of type string",
+        "The object value was expected to validate against the single defined property subschema",
+        "The value was expected to be of type object"
+      ]
+    },
+    "exhaustive": {
+      "pre": [
+        [ "LoopPropertiesMatch", "/properties", "#/properties", "" ],
+        [ "AssertionTypeStrict", "/properties/a/type", "#/properties/a/type", "/a" ],
+        [ "Annotation", "/properties", "#/properties", "" ],
+        [ "LoopPropertiesExcept", "/additionalProperties", "#/additionalProperties", "" ],
+        [ "AssertionTypeStrict", "/type", "#/type", "" ]
+      ],
+      "post": [
+        [ true, "AssertionTypeStrict", "/properties/a/type", "#/properties/a/type", "/a" ],
+        [ true, "Annotation", "/properties", "#/properties", "", "a" ],
+        [ true, "LoopPropertiesMatch", "/properties", "#/properties", "" ],
+        [ true, "LoopPropertiesExcept", "/additionalProperties", "#/additionalProperties", "" ],
+        [ true, "AssertionTypeStrict", "/type", "#/type", "" ]
+      ],
+      "descriptions": [
+        "The value was expected to be of type string",
+        "The object property \"a\" successfully validated against its property subschema",
+        "The object value was expected to validate against the single defined property subschema",
+        "The object value was not expected to define additional properties",
+        "The value was expected to be of type object"
+      ]
+    }
+  },
+  {
+    "description": "assertion_object_properties_simple_no_fusion_any_of",
+    "schema": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "properties": { "a": { "type": "string" } },
+      "anyOf": [ { "required": [ "a" ] } ]
+    },
+    "instance": { "a": "hello" },
+    "valid": true,
+    "fast": {
+      "pre": [
+        [ "LogicalOr", "/anyOf", "#/anyOf", "" ],
+        [ "AssertionDefines", "/anyOf/0/required", "#/anyOf/0/required", "" ],
+        [ "AssertionPropertyTypeStrict", "/properties/a/type", "#/properties/a/type", "/a" ],
+        [ "AssertionTypeStrict", "/type", "#/type", "" ]
+      ],
+      "post": [
+        [ true, "AssertionDefines", "/anyOf/0/required", "#/anyOf/0/required", "" ],
+        [ true, "LogicalOr", "/anyOf", "#/anyOf", "" ],
+        [ true, "AssertionPropertyTypeStrict", "/properties/a/type", "#/properties/a/type", "/a" ],
+        [ true, "AssertionTypeStrict", "/type", "#/type", "" ]
+      ],
+      "descriptions": [
+        "The object value was expected to define the property \"a\"",
+        "The object value was expected to validate against the given subschema",
+        "The value was expected to be of type string",
+        "The value was expected to be of type object"
+      ]
+    },
+    "exhaustive": {
+      "pre": [
+        [ "LogicalOr", "/anyOf", "#/anyOf", "" ],
+        [ "AssertionDefines", "/anyOf/0/required", "#/anyOf/0/required", "" ],
+        [ "LogicalWhenType", "/properties", "#/properties", "" ],
+        [ "AssertionTypeStrict", "/properties/a/type", "#/properties/a/type", "/a" ],
+        [ "Annotation", "/properties", "#/properties", "" ],
+        [ "AssertionTypeStrict", "/type", "#/type", "" ]
+      ],
+      "post": [
+        [ true, "AssertionDefines", "/anyOf/0/required", "#/anyOf/0/required", "" ],
+        [ true, "LogicalOr", "/anyOf", "#/anyOf", "" ],
+        [ true, "AssertionTypeStrict", "/properties/a/type", "#/properties/a/type", "/a" ],
+        [ true, "Annotation", "/properties", "#/properties", "", "a" ],
+        [ true, "LogicalWhenType", "/properties", "#/properties", "" ],
+        [ true, "AssertionTypeStrict", "/type", "#/type", "" ]
+      ],
+      "descriptions": [
+        "The object value was expected to define the property \"a\"",
+        "The object value was expected to validate against the given subschema",
+        "The value was expected to be of type string",
+        "The object property \"a\" successfully validated against its property subschema",
+        "The object value was expected to validate against the single defined property subschema",
+        "The value was expected to be of type object"
+      ]
+    }
+  },
+  {
+    "description": "assertion_object_properties_simple_with_min_properties",
+    "schema": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "properties": { "a": { "type": "string" } },
+      "minProperties": 1
+    },
+    "instance": { "a": "hello" },
+    "valid": true,
+    "fast": {
+      "pre": [
+        [ "AssertionObjectPropertiesSimple", "/properties", "#/properties", "" ],
+        [ "AssertionTypeObjectBounded", "/type", "#/type", "" ]
+      ],
+      "post": [
+        [ true, "AssertionObjectPropertiesSimple", "/properties", "#/properties", "" ],
+        [ true, "AssertionTypeObjectBounded", "/type", "#/type", "" ]
+      ],
+      "descriptions": [
+        "The object value was expected to validate against the defined property subschemas",
+        "The value was expected to consist of an object of at least 1 property"
+      ]
+    },
+    "exhaustive": {
+      "pre": [
+        [ "AssertionObjectSizeGreater", "/minProperties", "#/minProperties", "" ],
+        [ "LogicalWhenType", "/properties", "#/properties", "" ],
+        [ "AssertionTypeStrict", "/properties/a/type", "#/properties/a/type", "/a" ],
+        [ "Annotation", "/properties", "#/properties", "" ],
+        [ "AssertionTypeStrict", "/type", "#/type", "" ]
+      ],
+      "post": [
+        [ true, "AssertionObjectSizeGreater", "/minProperties", "#/minProperties", "" ],
+        [ true, "AssertionTypeStrict", "/properties/a/type", "#/properties/a/type", "/a" ],
+        [ true, "Annotation", "/properties", "#/properties", "", "a" ],
+        [ true, "LogicalWhenType", "/properties", "#/properties", "" ],
+        [ true, "AssertionTypeStrict", "/type", "#/type", "" ]
+      ],
+      "descriptions": [
+        "The object value was expected to contain at least 1 property and it contained 1 property: \"a\"",
+        "The value was expected to be of type string",
+        "The object property \"a\" successfully validated against its property subschema",
+        "The object value was expected to validate against the single defined property subschema",
+        "The value was expected to be of type object"
+      ]
+    }
+  },
+  {
+    "description": "assertion_object_properties_simple_no_fusion_dynamic_ref",
+    "schema": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "$dynamicRef": "#foo",
+      "properties": { "a": { "type": "string" } },
+      "$defs": { "bar": { "$dynamicAnchor": "foo" } }
+    },
+    "instance": { "a": "hello" },
+    "valid": true,
+    "fast": {
+      "pre": [
+        [ "AssertionPropertyTypeStrict", "/properties/a/type", "#/properties/a/type", "/a" ],
+        [ "AssertionTypeStrict", "/type", "#/type", "" ]
+      ],
+      "post": [
+        [ true, "AssertionPropertyTypeStrict", "/properties/a/type", "#/properties/a/type", "/a" ],
+        [ true, "AssertionTypeStrict", "/type", "#/type", "" ]
+      ],
+      "descriptions": [
+        "The value was expected to be of type string",
+        "The value was expected to be of type object"
+      ]
+    },
+    "exhaustive": {
+      "pre": [
+        [ "ControlJump", "/$dynamicRef", "#/$dynamicRef", "" ],
+        [ "LogicalWhenType", "/properties", "#/properties", "" ],
+        [ "AssertionTypeStrict", "/properties/a/type", "#/properties/a/type", "/a" ],
+        [ "Annotation", "/properties", "#/properties", "" ],
+        [ "AssertionTypeStrict", "/type", "#/type", "" ]
+      ],
+      "post": [
+        [ true, "ControlJump", "/$dynamicRef", "#/$dynamicRef", "" ],
+        [ true, "AssertionTypeStrict", "/properties/a/type", "#/properties/a/type", "/a" ],
+        [ true, "Annotation", "/properties", "#/properties", "", "a" ],
+        [ true, "LogicalWhenType", "/properties", "#/properties", "" ],
+        [ true, "AssertionTypeStrict", "/type", "#/type", "" ]
+      ],
+      "descriptions": [
+        "The object value was expected to validate against the referenced schema",
+        "The value was expected to be of type string",
+        "The object property \"a\" successfully validated against its property subschema",
+        "The object value was expected to validate against the single defined property subschema",
+        "The value was expected to be of type object"
+      ]
+    }
+  },
+  {
+    "description": "inline_ref_does_not_drop_sibling_required_valid",
+    "schema": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "required": [ "x" ],
+      "$ref": "#/$defs/sub",
+      "$defs": {
+        "sub": {
+          "type": "object",
+          "properties": { "a": { "type": "string" } },
+          "required": [ "a" ]
+        }
+      }
+    },
+    "instance": { "a": "hello", "x": 1 },
+    "valid": true,
+    "fast": {
+      "pre": [
+        [ "AssertionObjectPropertiesSimple", "/$ref/properties", "#/$defs/sub/properties", "" ],
+        [ "AssertionDefines", "/required", "#/required", "" ]
+      ],
+      "post": [
+        [ true, "AssertionObjectPropertiesSimple", "/$ref/properties", "#/$defs/sub/properties", "" ],
+        [ true, "AssertionDefines", "/required", "#/required", "" ]
+      ],
+      "descriptions": [
+        "The object value was expected to validate against the defined property subschemas",
+        "The object value was expected to define the property \"x\""
+      ]
+    },
+    "exhaustive": {
+      "pre": [
+        [ "ControlJump", "/$ref", "#/$ref", "" ],
+        [ "AssertionDefinesStrict", "/$ref/required", "#/$defs/sub/required", "" ],
+        [ "LogicalWhenType", "/$ref/properties", "#/$defs/sub/properties", "" ],
+        [ "AssertionTypeStrict", "/$ref/properties/a/type", "#/$defs/sub/properties/a/type", "/a" ],
+        [ "Annotation", "/$ref/properties", "#/$defs/sub/properties", "" ],
+        [ "AssertionTypeStrict", "/$ref/type", "#/$defs/sub/type", "" ],
+        [ "AssertionDefines", "/required", "#/required", "" ]
+      ],
+      "post": [
+        [ true, "AssertionDefinesStrict", "/$ref/required", "#/$defs/sub/required", "" ],
+        [ true, "AssertionTypeStrict", "/$ref/properties/a/type", "#/$defs/sub/properties/a/type", "/a" ],
+        [ true, "Annotation", "/$ref/properties", "#/$defs/sub/properties", "", "a" ],
+        [ true, "LogicalWhenType", "/$ref/properties", "#/$defs/sub/properties", "" ],
+        [ true, "AssertionTypeStrict", "/$ref/type", "#/$defs/sub/type", "" ],
+        [ true, "ControlJump", "/$ref", "#/$ref", "" ],
+        [ true, "AssertionDefines", "/required", "#/required", "" ]
+      ],
+      "descriptions": [
+        "The value was expected to be an object that defines the property \"a\"",
+        "The value was expected to be of type string",
+        "The object property \"a\" successfully validated against its property subschema",
+        "The object value was expected to validate against the defined properties subschemas",
+        "The value was expected to be of type object",
+        "The object value was expected to validate against the referenced schema",
+        "The object value was expected to define the property \"x\""
+      ]
+    }
+  },
+  {
+    "description": "inline_ref_does_not_drop_sibling_required_invalid",
+    "schema": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "required": [ "x" ],
+      "$ref": "#/$defs/sub",
+      "$defs": {
+        "sub": {
+          "type": "object",
+          "properties": { "a": { "type": "string" } },
+          "required": [ "a" ]
+        }
+      }
+    },
+    "instance": { "a": "hello" },
+    "valid": false,
+    "fast": {
+      "pre": [
+        [ "AssertionObjectPropertiesSimple", "/$ref/properties", "#/$defs/sub/properties", "" ],
+        [ "AssertionDefines", "/required", "#/required", "" ]
+      ],
+      "post": [
+        [ true, "AssertionObjectPropertiesSimple", "/$ref/properties", "#/$defs/sub/properties", "" ],
+        [ false, "AssertionDefines", "/required", "#/required", "" ]
+      ],
+      "descriptions": [
+        "The object value was expected to validate against the defined property subschemas",
+        "The object value was expected to define the property \"x\""
+      ]
+    },
+    "exhaustive": {
+      "pre": [
+        [ "ControlJump", "/$ref", "#/$ref", "" ],
+        [ "AssertionDefinesStrict", "/$ref/required", "#/$defs/sub/required", "" ],
+        [ "LogicalWhenType", "/$ref/properties", "#/$defs/sub/properties", "" ],
+        [ "AssertionTypeStrict", "/$ref/properties/a/type", "#/$defs/sub/properties/a/type", "/a" ],
+        [ "Annotation", "/$ref/properties", "#/$defs/sub/properties", "" ],
+        [ "AssertionTypeStrict", "/$ref/type", "#/$defs/sub/type", "" ],
+        [ "AssertionDefines", "/required", "#/required", "" ]
+      ],
+      "post": [
+        [ true, "AssertionDefinesStrict", "/$ref/required", "#/$defs/sub/required", "" ],
+        [ true, "AssertionTypeStrict", "/$ref/properties/a/type", "#/$defs/sub/properties/a/type", "/a" ],
+        [ true, "Annotation", "/$ref/properties", "#/$defs/sub/properties", "", "a" ],
+        [ true, "LogicalWhenType", "/$ref/properties", "#/$defs/sub/properties", "" ],
+        [ true, "AssertionTypeStrict", "/$ref/type", "#/$defs/sub/type", "" ],
+        [ true, "ControlJump", "/$ref", "#/$ref", "" ],
+        [ false, "AssertionDefines", "/required", "#/required", "" ]
+      ],
+      "descriptions": [
+        "The value was expected to be an object that defines the property \"a\"",
+        "The value was expected to be of type string",
+        "The object property \"a\" successfully validated against its property subschema",
+        "The object value was expected to validate against the defined properties subschemas",
+        "The value was expected to be of type object",
+        "The object value was expected to validate against the referenced schema",
+        "The object value was expected to define the property \"x\""
+      ]
+    }
+  },
+  {
+    "description": "partial_fusion_preserves_extra_metadata",
+    "schema": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "properties": { "a": { "type": "string" }, "b": { "$ref": "#/$defs/num" } },
+      "required": [ "a" ],
+      "$defs": { "num": { "type": "number", "minimum": 0 } }
+    },
+    "instance": { "a": "hello", "b": 42 },
+    "valid": true,
+    "fast": {
+      "pre": [
+        [ "AssertionDefinesStrict", "/required", "#/required", "" ],
+        [ "AssertionPropertyTypeStrict", "/properties/a/type", "#/properties/a/type", "/a" ],
+        [ "AssertionPropertyTypeStrictAny", "/properties/b/$ref/type", "#/$defs/num/type", "/b" ],
+        [ "AssertionGreaterEqual", "/properties/b/$ref/minimum", "#/$defs/num/minimum", "/b" ]
+      ],
+      "post": [
+        [ true, "AssertionDefinesStrict", "/required", "#/required", "" ],
+        [ true, "AssertionPropertyTypeStrict", "/properties/a/type", "#/properties/a/type", "/a" ],
+        [ true, "AssertionPropertyTypeStrictAny", "/properties/b/$ref/type", "#/$defs/num/type", "/b" ],
+        [ true, "AssertionGreaterEqual", "/properties/b/$ref/minimum", "#/$defs/num/minimum", "/b" ]
+      ],
+      "descriptions": [
+        "The value was expected to be an object that defines the property \"a\"",
+        "The value was expected to be of type string",
+        "The value was expected to be of type number",
+        "The integer value 42 was expected to be greater than or equal to the integer 0"
+      ]
+    },
+    "exhaustive": {
+      "pre": [
+        [ "AssertionDefinesStrict", "/required", "#/required", "" ],
+        [ "LogicalWhenType", "/properties", "#/properties", "" ],
+        [ "AssertionTypeStrict", "/properties/a/type", "#/properties/a/type", "/a" ],
+        [ "Annotation", "/properties", "#/properties", "" ],
+        [ "ControlJump", "/properties/b/$ref", "#/properties/b/$ref", "/b" ],
+        [ "AssertionTypeStrictAny", "/properties/b/$ref/type", "#/$defs/num/type", "/b" ],
+        [ "AssertionGreaterEqual", "/properties/b/$ref/minimum", "#/$defs/num/minimum", "/b" ],
+        [ "Annotation", "/properties", "#/properties", "" ],
+        [ "AssertionTypeStrict", "/type", "#/type", "" ]
+      ],
+      "post": [
+        [ true, "AssertionDefinesStrict", "/required", "#/required", "" ],
+        [ true, "AssertionTypeStrict", "/properties/a/type", "#/properties/a/type", "/a" ],
+        [ true, "Annotation", "/properties", "#/properties", "", "a" ],
+        [ true, "AssertionTypeStrictAny", "/properties/b/$ref/type", "#/$defs/num/type", "/b" ],
+        [ true, "AssertionGreaterEqual", "/properties/b/$ref/minimum", "#/$defs/num/minimum", "/b" ],
+        [ true, "ControlJump", "/properties/b/$ref", "#/properties/b/$ref", "/b" ],
+        [ true, "Annotation", "/properties", "#/properties", "", "b" ],
+        [ true, "LogicalWhenType", "/properties", "#/properties", "" ],
+        [ true, "AssertionTypeStrict", "/type", "#/type", "" ]
+      ],
+      "descriptions": [
+        "The value was expected to be an object that defines the property \"a\"",
+        "The value was expected to be of type string",
+        "The object property \"a\" successfully validated against its property subschema",
+        "The value was expected to be of type number",
+        "The integer value 42 was expected to be greater than or equal to the integer 0",
+        "The integer value was expected to validate against the referenced schema",
+        "The object property \"b\" successfully validated against its property subschema",
+        "The object value was expected to validate against the defined properties subschemas",
+        "The value was expected to be of type object"
+      ]
+    }
   }
 ]

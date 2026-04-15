@@ -801,6 +801,12 @@ auto describe(const bool valid, const Instruction &step,
     return "The value was expected to be an integer above the given minimum";
   }
 
+  if (step.type ==
+      sourcemeta::blaze::InstructionIndex::AssertionObjectPropertiesSimple) {
+    return "The object value was expected to validate against the defined "
+           "property subschemas";
+  }
+
   if (step.type == sourcemeta::blaze::InstructionIndex::LoopPropertiesType) {
     std::ostringstream message;
     message << "The object properties were expected to be of type "

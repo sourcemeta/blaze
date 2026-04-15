@@ -80,8 +80,8 @@ auto main(int argc, char **argv) noexcept -> int {
             case sourcemeta::blaze::TraceOutput::EntryType::Fail:
               std::cout << "<- (fail) ";
               break;
-            default:
-              assert(false);
+            case sourcemeta::blaze::TraceOutput::EntryType::Annotation:
+              std::cout << "<- (note) ";
               break;
           }
 
