@@ -3137,7 +3137,7 @@ TEST_F(Canonicalizer202012Test, ref_through_unevaluated_properties) {
   CANONICALIZE_NEXT(document, expected, *compiled_meta_);
 }
 
-TEST_F(Canonicalizer202012Test, lone_ref_with_defs_not_wrapped) {
+TEST_F(Canonicalizer202012Test, lone_ref_with_defs_wrapped) {
   auto document = sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2020-12/schema",
     "$ref": "#/$defs/foo",
@@ -3148,7 +3148,11 @@ TEST_F(Canonicalizer202012Test, lone_ref_with_defs_not_wrapped) {
 
   const auto expected = sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2020-12/schema",
-    "$ref": "#/$defs/foo",
+    "allOf": [
+      {
+        "$ref": "#/$defs/foo"
+      }
+    ],
     "$defs": {
       "foo": true
     }
@@ -3157,7 +3161,7 @@ TEST_F(Canonicalizer202012Test, lone_ref_with_defs_not_wrapped) {
   CANONICALIZE_NEXT(document, expected, *compiled_meta_);
 }
 
-TEST_F(Canonicalizer202012Test, lone_dynamic_ref_not_wrapped) {
+TEST_F(Canonicalizer202012Test, lone_dynamic_ref_wrapped) {
   auto document = sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2020-12/schema",
     "$dynamicRef": "#foo"
@@ -3165,7 +3169,11 @@ TEST_F(Canonicalizer202012Test, lone_dynamic_ref_not_wrapped) {
 
   const auto expected = sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2020-12/schema",
-    "$dynamicRef": "#foo"
+    "allOf": [
+      {
+        "$dynamicRef": "#foo"
+      }
+    ]
   })JSON");
 
   CANONICALIZE_NEXT(document, expected, *compiled_meta_);
