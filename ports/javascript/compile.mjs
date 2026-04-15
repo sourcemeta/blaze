@@ -49,5 +49,11 @@ export function compileSchema(schemaPath, options) {
     throw new Error(result.stderr.trim());
   }
 
-  return JSON.parse(result.stdout);
+  return JSON.parse(result.stdout, (_key, value, { source }) => {
+    if (typeof value === 'number' && /^-?[0-9]+$/.test(source)
+        && String(value) !== source) {
+      return BigInt(source);
+    }
+    return value;
+  });
 }

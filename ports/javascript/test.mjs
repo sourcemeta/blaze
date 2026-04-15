@@ -6,6 +6,14 @@ import { fileURLToPath } from 'node:url';
 import { compileSchema } from './compile.mjs';
 import { Blaze } from './index.mjs';
 
+function bigintReviver(_key, value, { source }) {
+  if (typeof value === 'number' && /^-?[0-9]+$/.test(source)
+      && String(value) !== source) {
+    return BigInt(source);
+  }
+  return value;
+}
+
 const MODULE_DIR = dirname(fileURLToPath(import.meta.url));
 const PROJECT_ROOT = resolve(MODULE_DIR, '../..');
 const SUITE_PATH = join(PROJECT_ROOT, 'vendor/jsonschema-test-suite');
@@ -73,7 +81,7 @@ function registerTests(subdirectory, defaultDialect, blacklist) {
 
       const filePath = join(testsDir, file);
       console.error(`Loading ${subdirectory}/${name}`);
-      const suite = JSON.parse(readFileSync(filePath, 'utf-8'));
+      const suite = JSON.parse(readFileSync(filePath, 'utf-8'), bigintReviver);
 
       for (let groupIndex = 0; groupIndex < suite.length; groupIndex++) {
         const testGroup = suite[groupIndex];
