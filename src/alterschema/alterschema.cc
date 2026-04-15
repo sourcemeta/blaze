@@ -146,6 +146,11 @@ auto WALK_UP_IN_PLACE_APPLICATORS(const JSON &root, const SchemaFrame &frame,
 #include "canonicalizer/next/implicit_array_keywords.h"
 #include "canonicalizer/next/implicit_contains_keywords.h"
 #include "canonicalizer/next/implicit_object_keywords.h"
+#include "canonicalizer/next/maximum_can_equal_integer_fold.h"
+#include "canonicalizer/next/maximum_can_equal_true_drop.h"
+#include "canonicalizer/next/minimum_can_equal_integer_fold.h"
+#include "canonicalizer/next/minimum_can_equal_true_drop.h"
+#include "canonicalizer/next/optional_property_implicit.h"
 #include "canonicalizer/next/property_names_implicit.h"
 #include "canonicalizer/next/recursive_anchor_false_drop.h"
 #include "canonicalizer/next/required_property_implicit.h"
@@ -154,6 +159,7 @@ auto WALK_UP_IN_PLACE_APPLICATORS(const JSON &root, const SchemaFrame &frame,
 #include "canonicalizer/next/type_with_applicator_to_extends.h"
 #include "canonicalizer/next/unevaluated_items_to_items.h"
 #include "canonicalizer/next/unevaluated_properties_to_additional_properties.h"
+#include "canonicalizer/next/unsatisfiable_can_equal_bounds.h"
 #include "canonicalizer/next/unsatisfiable_exclusive_equal_bounds.h"
 #include "canonicalizer/next/unsatisfiable_type_and_enum.h"
 #include "canonicalizer/properties_implicit.h"
@@ -264,6 +270,11 @@ auto add(SchemaTransformer &bundle, const AlterSchemaMode mode) -> void {
     bundle.add<ExclusiveMaximumBooleanIntegerFold>();
     bundle.add<ExclusiveBoundsFalseDrop>();
     bundle.add<UnsatisfiableExclusiveEqualBounds>();
+    bundle.add<MinimumCanEqualIntegerFold>();
+    bundle.add<MaximumCanEqualIntegerFold>();
+    bundle.add<MinimumCanEqualTrueDrop>();
+    bundle.add<MaximumCanEqualTrueDrop>();
+    bundle.add<UnsatisfiableCanEqualBounds>();
     bundle.add<CommentDrop>();
     bundle.add<DefinitionsToDefsNext>();
     bundle.add<DeprecatedFalseDrop>();
@@ -426,6 +437,7 @@ auto add(SchemaTransformer &bundle, const AlterSchemaMode mode) -> void {
     bundle.add<AdditionalPropertiesImplicit>();
     bundle.add<AdditionalItemsImplicit>();
     bundle.add<RequiredPropertyImplicit>();
+    bundle.add<OptionalPropertyImplicit>();
   }
 }
 

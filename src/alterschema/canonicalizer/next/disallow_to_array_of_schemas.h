@@ -15,18 +15,24 @@ public:
             const sourcemeta::core::SchemaResolver &) const
       -> SchemaTransformRule::Result override {
     ONLY_CONTINUE_IF(
-        vocabularies.contains(Vocabularies::Known::JSON_Schema_Draft_3) &&
+        vocabularies.contains_any({Vocabularies::Known::JSON_Schema_Draft_2,
+                                   Vocabularies::Known::JSON_Schema_Draft_3}) &&
         schema.is_object() && schema.defines("disallow"));
+
+    this->convert_to_schemas_ =
+        vocabularies.contains(Vocabularies::Known::JSON_Schema_Draft_3);
 
     const auto &disallow{schema.at("disallow")};
     if (disallow.is_string()) {
       return true;
     }
 
-    ONLY_CONTINUE_IF(disallow.is_array());
-    for (const auto &element : disallow.as_array()) {
-      if (element.is_string()) {
-        return true;
+    if (this->convert_to_schemas_) {
+      ONLY_CONTINUE_IF(disallow.is_array());
+      for (const auto &element : disallow.as_array()) {
+        if (element.is_string()) {
+          return true;
+        }
       }
     }
 
@@ -38,14 +44,18 @@ public:
 
     if (disallow.is_string()) {
       auto array{JSON::make_array()};
-      array.push_back(type_string_to_schema(disallow.to_string()));
+      if (this->convert_to_schemas_) {
+        array.push_back(type_string_to_schema(disallow.to_string()));
+      } else {
+        array.push_back(disallow);
+      }
       schema.assign("disallow", std::move(array));
       return;
     }
 
     auto new_array{JSON::make_array()};
     for (const auto &element : disallow.as_array()) {
-      if (element.is_string()) {
+      if (element.is_string() && this->convert_to_schemas_) {
         new_array.push_back(type_string_to_schema(element.to_string()));
       } else {
         new_array.push_back(element);
@@ -89,4 +99,6 @@ private:
     result.assign("type", JSON{type_name});
     return result;
   }
+
+  mutable bool convert_to_schemas_{true};
 };
