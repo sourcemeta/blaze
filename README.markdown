@@ -52,7 +52,8 @@ Features
   only achieve an average 85% compliance. It also supports the [Standard
   Output](https://json-schema.org/draft/2020-12/json-schema-core#name-output-formatting)
   format (Flag, and Basic). Furthermore, Blaze is built and maintained by a
-  [JSON Schema TSC member](https://www.jviotti.com)
+  [JSON Schema TSC member](https://www.jviotti.com), ensuring compliance even
+  on subtle aspects that the test suite does not cover yet
 
 - **Extensibility:** Blaze supports the implementation of custom vocabularies
   of arbitrary complexity, and the ability to setup custom resolution of
