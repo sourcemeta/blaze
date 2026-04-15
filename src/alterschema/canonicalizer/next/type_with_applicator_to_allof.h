@@ -11,7 +11,7 @@ public:
             const sourcemeta::core::Vocabularies &vocabularies,
             const sourcemeta::core::SchemaFrame &frame,
             const sourcemeta::core::SchemaFrame::Location &location,
-            const sourcemeta::core::SchemaWalker &,
+            const sourcemeta::core::SchemaWalker &walker,
             const sourcemeta::core::SchemaResolver &) const
       -> SchemaTransformRule::Result override {
     ONLY_CONTINUE_IF(
@@ -19,7 +19,8 @@ public:
             {Vocabularies::Known::JSON_Schema_Draft_4,
              Vocabularies::Known::JSON_Schema_Draft_6,
              Vocabularies::Known::JSON_Schema_Draft_7,
-             Vocabularies::Known::JSON_Schema_2019_09_Applicator}) &&
+             Vocabularies::Known::JSON_Schema_2019_09_Applicator,
+             Vocabularies::Known::JSON_Schema_2020_12_Applicator}) &&
         schema.is_object());
 
     const bool has_not{schema.defines("not")};
@@ -29,24 +30,67 @@ public:
     const bool has_if{
         vocabularies.contains_any(
             {Vocabularies::Known::JSON_Schema_Draft_7,
-             Vocabularies::Known::JSON_Schema_2019_09_Applicator}) &&
+             Vocabularies::Known::JSON_Schema_2019_09_Applicator,
+             Vocabularies::Known::JSON_Schema_2020_12_Applicator}) &&
         schema.defines("if")};
     this->has_if_then_else_ = has_if;
     const bool has_type{schema.defines("type") &&
                         schema.at("type").is_string()};
     const bool has_enum{schema.defines("enum")};
-    // In 2019-09+, `$ref` no longer overrides siblings, so it is
-    // just another applicator that coexists with other keywords
-    const bool has_ref{
-        !vocabularies.contains(Vocabularies::Known::JSON_Schema_2019_09_Core) &&
-        schema.defines("$ref")};
+    const bool is_modern{
+        vocabularies.contains(Vocabularies::Known::JSON_Schema_2019_09_Core) ||
+        vocabularies.contains(Vocabularies::Known::JSON_Schema_2020_12_Core)};
+    const bool has_ref{!is_modern && schema.defines("$ref")};
+    this->has_modern_ref_ = is_modern && schema.defines("$ref");
+    this->has_dynamic_ref_ =
+        vocabularies.contains(Vocabularies::Known::JSON_Schema_2020_12_Core) &&
+        schema.defines("$dynamicRef");
     const unsigned int applicator_count{
         (has_not ? 1U : 0U) + (has_anyof ? 1U : 0U) + (has_allof ? 1U : 0U) +
-        (has_oneof ? 1U : 0U) + (has_if ? 1U : 0U)};
+        (has_oneof ? 1U : 0U) + (has_if ? 1U : 0U) +
+        (this->has_modern_ref_ ? 1U : 0U) + (this->has_dynamic_ref_ ? 1U : 0U)};
     const bool has_structural{has_type || has_enum || has_ref};
 
+    bool modern_ref_needs_wrapping{false};
+    if (this->has_modern_ref_ || this->has_dynamic_ref_) {
+      for (const auto &entry : schema.as_object()) {
+        if (entry.first == "$ref" || entry.first == "$dynamicRef") {
+          continue;
+        }
+        const auto keyword_type{walker(entry.first, vocabularies).type};
+        if (keyword_type != sourcemeta::core::SchemaKeywordType::Unknown &&
+            keyword_type != sourcemeta::core::SchemaKeywordType::Annotation &&
+            keyword_type != sourcemeta::core::SchemaKeywordType::Comment) {
+          modern_ref_needs_wrapping = true;
+          break;
+        }
+      }
+    }
+
+    this->has_unevaluated_ =
+        vocabularies.contains_any(
+            {Vocabularies::Known::JSON_Schema_2020_12_Unevaluated,
+             Vocabularies::Known::JSON_Schema_2019_09_Applicator}) &&
+        (schema.defines("unevaluatedProperties") ||
+         schema.defines("unevaluatedItems"));
+    bool has_orphaned_typed_keywords{false};
+    if (is_modern && applicator_count >= 1 && !has_structural) {
+      for (const auto &entry : schema.as_object()) {
+        if (entry.first == "unevaluatedProperties" ||
+            entry.first == "unevaluatedItems") {
+          continue;
+        }
+        const auto &metadata{walker(entry.first, vocabularies)};
+        if (metadata.instances.any()) {
+          has_orphaned_typed_keywords = true;
+          break;
+        }
+      }
+    }
+
     ONLY_CONTINUE_IF((has_structural && applicator_count >= 1) ||
-                     applicator_count >= 2);
+                     applicator_count >= 2 || modern_ref_needs_wrapping ||
+                     has_orphaned_typed_keywords);
 
     this->strategy_ = Strategy::FullRestructure;
     this->applicators_with_refs_ = 0;
@@ -176,7 +220,11 @@ public:
           entry.first == "dependentSchemas" ||
           (this->has_if_then_else_ &&
            (entry.first == "if" || entry.first == "then" ||
-            entry.first == "else"))) {
+            entry.first == "else")) ||
+          (this->has_modern_ref_ && entry.first == "$ref") ||
+          (this->has_dynamic_ref_ && entry.first == "$dynamicRef") ||
+          (this->has_unevaluated_ && (entry.first == "unevaluatedProperties" ||
+                                      entry.first == "unevaluatedItems"))) {
         continue;
       }
       typed_branch.assign(entry.first, entry.second);
@@ -233,6 +281,17 @@ public:
     auto new_allof{JSON::make_array()};
     this->applicator_indices_ = 0;
 
+    if (this->has_modern_ref_ && schema.defines("$ref")) {
+      auto branch{JSON::make_object()};
+      branch.assign("$ref", schema.at("$ref"));
+      new_allof.push_back(std::move(branch));
+    }
+    if (this->has_dynamic_ref_ && schema.defines("$dynamicRef")) {
+      auto branch{JSON::make_object()};
+      branch.assign("$dynamicRef", schema.at("$dynamicRef"));
+      new_allof.push_back(std::move(branch));
+    }
+
     for (const auto &applicator : APPLICATORS) {
       if (!schema.defines(applicator)) {
         continue;
@@ -277,6 +336,15 @@ public:
     if (schema.defines("dependentSchemas")) {
       new_schema.assign("dependentSchemas", schema.at("dependentSchemas"));
     }
+    if (this->has_unevaluated_) {
+      if (schema.defines("unevaluatedProperties")) {
+        new_schema.assign("unevaluatedProperties",
+                          schema.at("unevaluatedProperties"));
+      }
+      if (schema.defines("unevaluatedItems")) {
+        new_schema.assign("unevaluatedItems", schema.at("unevaluatedItems"));
+      }
+    }
     new_schema.assign("allOf", std::move(new_allof));
     schema.into(std::move(new_schema));
   }
@@ -301,8 +369,10 @@ public:
               {allof_keyword, this->typed_branch_index_, keyword})};
           return target.rebase(old_prefix, new_prefix);
         } else {
-          const std::size_t typed_index{static_cast<std::size_t>(
-              std::popcount(this->applicator_indices_))};
+          const std::size_t typed_index{(this->has_modern_ref_ ? 1U : 0U) +
+                                        (this->has_dynamic_ref_ ? 1U : 0U) +
+                                        static_cast<std::size_t>(std::popcount(
+                                            this->applicator_indices_))};
           const Pointer new_prefix{
               current.concat({allof_keyword, typed_index, keyword})};
           return target.rebase(old_prefix, new_prefix);
@@ -312,6 +382,13 @@ public:
 
     if (this->strategy_ == Strategy::FullRestructure) {
       std::size_t index{0};
+      if (this->has_modern_ref_) {
+        index++;
+      }
+      if (this->has_dynamic_ref_) {
+        index++;
+      }
+
       for (const auto &applicator : APPLICATORS) {
         if (keyword == applicator ||
             (this->has_if_then_else_ && std::string_view{applicator} == "if" &&
@@ -358,6 +435,9 @@ private:
   };
   mutable Strategy strategy_{Strategy::FullRestructure};
   mutable bool has_if_then_else_{false};
+  mutable bool has_modern_ref_{false};
+  mutable bool has_dynamic_ref_{false};
+  mutable bool has_unevaluated_{false};
   mutable std::vector<std::string> typed_keywords_;
   mutable std::uint8_t applicator_indices_{0};
   mutable std::uint8_t applicators_with_refs_{0};

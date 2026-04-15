@@ -19,7 +19,8 @@ public:
             {Vocabularies::Known::JSON_Schema_Draft_4,
              Vocabularies::Known::JSON_Schema_Draft_6,
              Vocabularies::Known::JSON_Schema_Draft_7,
-             Vocabularies::Known::JSON_Schema_2019_09_Validation}) &&
+             Vocabularies::Known::JSON_Schema_2019_09_Validation,
+             Vocabularies::Known::JSON_Schema_2020_12_Validation}) &&
         schema.is_object() && schema.defines("enum") &&
         schema.at("enum").is_array() && !schema.defines("type"));
 
@@ -28,7 +29,8 @@ public:
     this->has_if_group_ =
         vocabularies.contains_any(
             {Vocabularies::Known::JSON_Schema_Draft_7,
-             Vocabularies::Known::JSON_Schema_2019_09_Applicator}) &&
+             Vocabularies::Known::JSON_Schema_2019_09_Applicator,
+             Vocabularies::Known::JSON_Schema_2020_12_Applicator}) &&
         schema.defines("if");
     for (const auto &entry : schema.as_object()) {
       if (entry.first == "enum") {

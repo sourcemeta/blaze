@@ -15,7 +15,8 @@ public:
       -> SchemaTransformRule::Result override {
     ONLY_CONTINUE_IF(vocabularies.contains_any(
                          {Vocabularies::Known::JSON_Schema_Draft_7,
-                          Vocabularies::Known::JSON_Schema_2019_09_Core}) &&
+                          Vocabularies::Known::JSON_Schema_2019_09_Core,
+                          Vocabularies::Known::JSON_Schema_2020_12_Core}) &&
                      schema.is_object() && schema.defines("$comment"));
     return true;
   }

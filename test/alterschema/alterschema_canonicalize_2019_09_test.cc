@@ -28,7 +28,7 @@ protected:
 std::unique_ptr<sourcemeta::blaze::Template>
     Canonicalizer201909Test::compiled_meta_ = nullptr;
 
-TEST(AlterSchema_canonicalize_2019_09, duplicate_allof_branches_2) {
+TEST_F(Canonicalizer201909Test, duplicate_allof_branches_2) {
   auto document = sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2019-09/schema",
     "allOf": [
@@ -38,19 +38,23 @@ TEST(AlterSchema_canonicalize_2019_09, duplicate_allof_branches_2) {
     ]
   })JSON");
 
-  CANONICALIZE(document, result, traces);
-
-  EXPECT_TRUE(result.first);
-
   const auto expected = sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2019-09/schema",
-    "not": true
+    "allOf": [
+      {
+        "type": "number"
+      },
+      {
+        "type": "string",
+        "minLength": 0
+      }
+    ]
   })JSON");
 
-  EXPECT_EQ(document, expected);
+  CANONICALIZE_NEXT(document, expected, *compiled_meta_);
 }
 
-TEST(AlterSchema_canonicalize_2019_09, duplicate_allof_branches_3) {
+TEST_F(Canonicalizer201909Test, duplicate_allof_branches_3) {
   auto document = sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2019-09/schema",
     "allOf": [
@@ -60,19 +64,23 @@ TEST(AlterSchema_canonicalize_2019_09, duplicate_allof_branches_3) {
     ]
   })JSON");
 
-  CANONICALIZE(document, result, traces);
-
-  EXPECT_TRUE(result.first);
-
   const auto expected = sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2019-09/schema",
-    "not": true
+    "allOf": [
+      {
+        "type": "number"
+      },
+      {
+        "type": "string",
+        "minLength": 0
+      }
+    ]
   })JSON");
 
-  EXPECT_EQ(document, expected);
+  CANONICALIZE_NEXT(document, expected, *compiled_meta_);
 }
 
-TEST(AlterSchema_canonicalize_2019_09, duplicate_allof_branches_4) {
+TEST_F(Canonicalizer201909Test, duplicate_allof_branches_4) {
   auto document = sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2019-09/schema",
     "allOf": [
@@ -89,321 +97,325 @@ TEST(AlterSchema_canonicalize_2019_09, duplicate_allof_branches_4) {
     ]
   })JSON");
 
-  CANONICALIZE(document, result, traces);
-
-  EXPECT_TRUE(result.first);
-
   const auto expected = sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2019-09/schema",
-    "not": true
+    "allOf": [
+      {
+        "type": "number"
+      },
+      {
+        "type": "string",
+        "minLength": 0
+      }
+    ]
   })JSON");
 
-  EXPECT_EQ(document, expected);
+  CANONICALIZE_NEXT(document, expected, *compiled_meta_);
 }
 
-TEST(AlterSchema_canonicalize_2019_09, type_boolean_as_enum_1) {
-  sourcemeta::core::JSON document = sourcemeta::core::parse_json(R"JSON({
+TEST_F(Canonicalizer201909Test, type_boolean_as_enum_1) {
+  auto document = sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2019-09/schema",
     "type": "boolean"
   })JSON");
 
-  CANONICALIZE(document, result, traces);
-
-  EXPECT_TRUE(result.first);
-
-  const sourcemeta::core::JSON expected = sourcemeta::core::parse_json(R"JSON({
+  const auto expected = sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2019-09/schema",
     "enum": [ false, true ]
   })JSON");
 
-  EXPECT_EQ(document, expected);
+  CANONICALIZE_NEXT(document, expected, *compiled_meta_);
 }
 
-TEST(AlterSchema_canonicalize_2019_09, type_boolean_as_enum_2) {
-  sourcemeta::core::JSON document = sourcemeta::core::parse_json(R"JSON({
+TEST_F(Canonicalizer201909Test, type_boolean_as_enum_2) {
+  auto document = sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2019-09/schema",
     "type": "boolean",
     "enum": [ 1, 2, 3 ]
   })JSON");
 
-  CANONICALIZE(document, result, traces);
+  const auto expected = sourcemeta::core::parse_json("false");
 
-  EXPECT_TRUE(result.first);
-
-  const sourcemeta::core::JSON expected = sourcemeta::core::parse_json(R"JSON({
-    "$schema": "https://json-schema.org/draft/2019-09/schema",
-    "type": "boolean",
-    "enum": [ 1, 2, 3 ]
-  })JSON");
-
-  EXPECT_EQ(document, expected);
+  CANONICALIZE_NEXT(document, expected, *compiled_meta_);
 }
 
-TEST(AlterSchema_canonicalize_2019_09, type_null_as_enum_1) {
-  sourcemeta::core::JSON document = sourcemeta::core::parse_json(R"JSON({
+TEST_F(Canonicalizer201909Test, type_null_as_enum_1) {
+  auto document = sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2019-09/schema",
     "type": "null"
   })JSON");
 
-  CANONICALIZE(document, result, traces);
-
-  EXPECT_TRUE(result.first);
-
-  const sourcemeta::core::JSON expected = sourcemeta::core::parse_json(R"JSON({
+  const auto expected = sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2019-09/schema",
     "enum": [ null ]
   })JSON");
 
-  EXPECT_EQ(document, expected);
+  CANONICALIZE_NEXT(document, expected, *compiled_meta_);
 }
 
-TEST(AlterSchema_canonicalize_2019_09, type_null_as_enum_2) {
-  sourcemeta::core::JSON document = sourcemeta::core::parse_json(R"JSON({
+TEST_F(Canonicalizer201909Test, type_null_as_enum_2) {
+  auto document = sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2019-09/schema",
     "type": "null",
     "enum": [ 1, 2, 3 ]
   })JSON");
 
-  CANONICALIZE(document, result, traces);
+  const auto expected = sourcemeta::core::parse_json("false");
 
-  EXPECT_TRUE(result.first);
-
-  const sourcemeta::core::JSON expected = sourcemeta::core::parse_json(R"JSON({
-    "$schema": "https://json-schema.org/draft/2019-09/schema",
-    "type": "null",
-    "enum": [ 1, 2, 3 ]
-  })JSON");
-
-  EXPECT_EQ(document, expected);
+  CANONICALIZE_NEXT(document, expected, *compiled_meta_);
 }
 
-TEST(AlterSchema_canonicalize_2019_09, const_as_enum_1) {
-  sourcemeta::core::JSON document = sourcemeta::core::parse_json(R"JSON({
+TEST_F(Canonicalizer201909Test, const_as_enum_1) {
+  auto document = sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2019-09/schema",
     "const": 1
   })JSON");
 
-  CANONICALIZE(document, result, traces);
-
-  EXPECT_TRUE(result.first);
-
-  const sourcemeta::core::JSON expected = sourcemeta::core::parse_json(R"JSON({
+  const auto expected = sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2019-09/schema",
     "enum": [ 1 ]
   })JSON");
 
-  EXPECT_EQ(document, expected);
+  CANONICALIZE_NEXT(document, expected, *compiled_meta_);
 }
 
-TEST(AlterSchema_canonicalize_2019_09, exclusive_maximum_integer_to_maximum_1) {
-  sourcemeta::core::JSON document = sourcemeta::core::parse_json(R"JSON({
+TEST_F(Canonicalizer201909Test, exclusive_maximum_integer_to_maximum_1) {
+  auto document = sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2019-09/schema",
     "type": "integer",
     "exclusiveMaximum": 1
   })JSON");
 
-  CANONICALIZE(document, result, traces);
-
-  EXPECT_TRUE(result.first);
-
-  const sourcemeta::core::JSON expected = sourcemeta::core::parse_json(R"JSON({
+  const auto expected = sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2019-09/schema",
     "type": "integer",
     "multipleOf": 1,
     "maximum": 0
   })JSON");
 
-  EXPECT_EQ(document, expected);
+  CANONICALIZE_NEXT(document, expected, *compiled_meta_);
 }
 
-TEST(AlterSchema_canonicalize_2019_09, exclusive_maximum_integer_to_maximum_2) {
-  sourcemeta::core::JSON document = sourcemeta::core::parse_json(R"JSON({
+TEST_F(Canonicalizer201909Test, exclusive_maximum_integer_to_maximum_2) {
+  auto document = sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2019-09/schema",
     "type": "integer",
     "exclusiveMaximum": 1.2
   })JSON");
 
-  CANONICALIZE(document, result, traces);
-
-  EXPECT_TRUE(result.first);
-
-  const sourcemeta::core::JSON expected = sourcemeta::core::parse_json(R"JSON({
+  const auto expected = sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2019-09/schema",
     "type": "integer",
     "multipleOf": 1,
     "maximum": 1
   })JSON");
 
-  EXPECT_EQ(document, expected);
+  CANONICALIZE_NEXT(document, expected, *compiled_meta_);
 }
 
-TEST(AlterSchema_canonicalize_2019_09, exclusive_maximum_integer_to_maximum_3) {
-  sourcemeta::core::JSON document = sourcemeta::core::parse_json(R"JSON({
+TEST_F(Canonicalizer201909Test, exclusive_maximum_integer_to_maximum_3) {
+  auto document = sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2019-09/schema",
     "type": "number",
     "exclusiveMaximum": 1
   })JSON");
 
-  CANONICALIZE(document, result, traces);
-
-  EXPECT_TRUE(result.first);
-
-  const sourcemeta::core::JSON expected = sourcemeta::core::parse_json(R"JSON({
+  const auto expected = sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2019-09/schema",
     "type": "number",
     "exclusiveMaximum": 1
   })JSON");
 
-  EXPECT_EQ(document, expected);
+  CANONICALIZE_NEXT(document, expected, *compiled_meta_);
 }
 
-TEST(AlterSchema_canonicalize_2019_09, exclusive_maximum_integer_to_maximum_5) {
-  sourcemeta::core::JSON document = sourcemeta::core::parse_json(R"JSON({
+TEST_F(Canonicalizer201909Test, exclusive_maximum_integer_to_maximum_5) {
+  auto document = sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2019-09/schema",
     "exclusiveMaximum": 1
   })JSON");
 
-  CANONICALIZE(document, result, traces);
-
-  EXPECT_TRUE(result.first);
-
-  const sourcemeta::core::JSON expected = sourcemeta::core::parse_json(R"JSON({
+  const auto expected = sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2019-09/schema",
     "anyOf": [
-      { "enum": [ null ] },
-      { "enum": [ false, true ] },
-      { "properties": {}, "minProperties": 0, "type": "object" },
-      { "minItems": 0, "type": "array", "items": true },
-      { "minLength": 0, "type": "string" },
-      { "type": "number", "exclusiveMaximum": 1 }
+      {
+        "enum": [ null ]
+      },
+      {
+        "enum": [ false, true ]
+      },
+      {
+        "type": "object",
+        "minProperties": 0,
+        "propertyNames": true,
+        "properties": {},
+        "patternProperties": {}
+      },
+      {
+        "type": "array",
+        "minItems": 0,
+        "uniqueItems": false,
+        "minContains": 0,
+        "contains": true,
+        "items": true
+      },
+      {
+        "type": "string",
+        "minLength": 0
+      },
+      {
+        "type": "number",
+        "exclusiveMaximum": 1
+      }
     ]
   })JSON");
 
-  EXPECT_EQ(document, expected);
+  CANONICALIZE_NEXT(document, expected, *compiled_meta_);
 }
 
-TEST(AlterSchema_canonicalize_2019_09, exclusive_minimum_integer_to_minimum_1) {
-  sourcemeta::core::JSON document = sourcemeta::core::parse_json(R"JSON({
+TEST_F(Canonicalizer201909Test, exclusive_minimum_integer_to_minimum_1) {
+  auto document = sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2019-09/schema",
     "type": "integer",
     "exclusiveMinimum": 1
   })JSON");
 
-  CANONICALIZE(document, result, traces);
-
-  EXPECT_TRUE(result.first);
-
-  const sourcemeta::core::JSON expected = sourcemeta::core::parse_json(R"JSON({
+  const auto expected = sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2019-09/schema",
     "type": "integer",
     "multipleOf": 1,
     "minimum": 2
   })JSON");
 
-  EXPECT_EQ(document, expected);
+  CANONICALIZE_NEXT(document, expected, *compiled_meta_);
 }
 
-TEST(AlterSchema_canonicalize_2019_09, exclusive_minimum_integer_to_minimum_2) {
-  sourcemeta::core::JSON document = sourcemeta::core::parse_json(R"JSON({
+TEST_F(Canonicalizer201909Test, exclusive_minimum_integer_to_minimum_2) {
+  auto document = sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2019-09/schema",
     "type": "integer",
     "exclusiveMinimum": 1.2
   })JSON");
 
-  CANONICALIZE(document, result, traces);
-
-  EXPECT_TRUE(result.first);
-
-  const sourcemeta::core::JSON expected = sourcemeta::core::parse_json(R"JSON({
+  const auto expected = sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2019-09/schema",
     "type": "integer",
     "multipleOf": 1,
     "minimum": 2
   })JSON");
 
-  EXPECT_EQ(document, expected);
+  CANONICALIZE_NEXT(document, expected, *compiled_meta_);
 }
 
-TEST(AlterSchema_canonicalize_2019_09, exclusive_minimum_integer_to_minimum_3) {
-  sourcemeta::core::JSON document = sourcemeta::core::parse_json(R"JSON({
+TEST_F(Canonicalizer201909Test, exclusive_minimum_integer_to_minimum_3) {
+  auto document = sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2019-09/schema",
     "type": "number",
     "exclusiveMinimum": 1
   })JSON");
 
-  CANONICALIZE(document, result, traces);
-
-  EXPECT_TRUE(result.first);
-
-  const sourcemeta::core::JSON expected = sourcemeta::core::parse_json(R"JSON({
+  const auto expected = sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2019-09/schema",
     "type": "number",
     "exclusiveMinimum": 1
   })JSON");
 
-  EXPECT_EQ(document, expected);
+  CANONICALIZE_NEXT(document, expected, *compiled_meta_);
 }
 
-TEST(AlterSchema_canonicalize_2019_09, exclusive_minimum_integer_to_minimum_5) {
-  sourcemeta::core::JSON document = sourcemeta::core::parse_json(R"JSON({
+TEST_F(Canonicalizer201909Test, exclusive_minimum_integer_to_minimum_5) {
+  auto document = sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2019-09/schema",
     "exclusiveMinimum": 1
   })JSON");
 
-  CANONICALIZE(document, result, traces);
-
-  EXPECT_TRUE(result.first);
-
-  const sourcemeta::core::JSON expected = sourcemeta::core::parse_json(R"JSON({
+  const auto expected = sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2019-09/schema",
     "anyOf": [
-      { "enum": [ null ] },
-      { "enum": [ false, true ] },
-      { "properties": {}, "minProperties": 0, "type": "object" },
-      { "minItems": 0, "type": "array", "items": true },
-      { "minLength": 0, "type": "string" },
-      { "type": "number", "exclusiveMinimum": 1 }
+      {
+        "enum": [ null ]
+      },
+      {
+        "enum": [ false, true ]
+      },
+      {
+        "type": "object",
+        "minProperties": 0,
+        "propertyNames": true,
+        "properties": {},
+        "patternProperties": {}
+      },
+      {
+        "type": "array",
+        "minItems": 0,
+        "uniqueItems": false,
+        "minContains": 0,
+        "contains": true,
+        "items": true
+      },
+      {
+        "type": "string",
+        "minLength": 0
+      },
+      {
+        "type": "number",
+        "exclusiveMinimum": 1
+      }
     ]
   })JSON");
 
-  EXPECT_EQ(document, expected);
+  CANONICALIZE_NEXT(document, expected, *compiled_meta_);
 }
 
-TEST(AlterSchema_canonicalize_2019_09, boolean_true_1) {
-  sourcemeta::core::JSON document = sourcemeta::core::parse_json(R"JSON({
+TEST_F(Canonicalizer201909Test, boolean_true_1) {
+  auto document = sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2019-09/schema",
     "properties": {
       "foo": true
     }
   })JSON");
 
-  CANONICALIZE(document, result, traces);
-
-  EXPECT_TRUE(result.first);
-
-  const sourcemeta::core::JSON expected = sourcemeta::core::parse_json(R"JSON({
+  const auto expected = sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2019-09/schema",
     "anyOf": [
-      { "enum": [ null ] },
-      { "enum": [ false, true ] },
+      {
+        "enum": [ null ]
+      },
+      {
+        "enum": [ false, true ]
+      },
       {
         "type": "object",
+        "minProperties": 0,
+        "propertyNames": true,
         "properties": {
           "foo": true
         },
-        "minProperties": 0
+        "patternProperties": {}
       },
-      { "type": "array", "minItems": 0, "items": true },
-      { "type": "string", "minLength": 0 },
-      { "type": "number" }
+      {
+        "type": "array",
+        "minItems": 0,
+        "uniqueItems": false,
+        "minContains": 0,
+        "contains": true,
+        "items": true
+      },
+      {
+        "type": "string",
+        "minLength": 0
+      },
+      {
+        "type": "number"
+      }
     ]
   })JSON");
 
-  EXPECT_EQ(document, expected);
+  CANONICALIZE_NEXT(document, expected, *compiled_meta_);
 }
 
-TEST(AlterSchema_canonicalize_2019_09, max_contains_covered_by_max_items_1) {
-  sourcemeta::core::JSON document = sourcemeta::core::parse_json(R"JSON({
+TEST_F(Canonicalizer201909Test, max_contains_covered_by_max_items_1) {
+  auto document = sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2019-09/schema",
     "type": "array",
     "contains": { "type": "string" },
@@ -411,194 +423,175 @@ TEST(AlterSchema_canonicalize_2019_09, max_contains_covered_by_max_items_1) {
     "maxItems": 1
   })JSON");
 
-  CANONICALIZE(document, result, traces);
-
-  EXPECT_TRUE(result.first);
-
-  const sourcemeta::core::JSON expected = sourcemeta::core::parse_json(R"JSON({
+  const auto expected = sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2019-09/schema",
     "type": "array",
+    "maxItems": 1,
+    "minItems": 0,
+    "uniqueItems": false,
+    "maxContains": 1,
+    "minContains": 1,
     "contains": {
       "type": "string",
       "minLength": 0
     },
-    "maxContains": 1,
-    "minItems": 0,
-    "maxItems": 1,
     "items": true
   })JSON");
 
-  EXPECT_EQ(document, expected);
+  CANONICALIZE_NEXT(document, expected, *compiled_meta_);
 }
 
-TEST(AlterSchema_canonicalize_2019_09, min_properties_covered_by_required_1) {
-  sourcemeta::core::JSON document = sourcemeta::core::parse_json(R"JSON({
+TEST_F(Canonicalizer201909Test, min_properties_covered_by_required_1) {
+  auto document = sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2019-09/schema",
     "type": "object",
     "minProperties": 1,
     "required": [ "foo", "bar" ]
   })JSON");
 
-  CANONICALIZE(document, result, traces);
-
-  EXPECT_TRUE(result.first);
-
-  const sourcemeta::core::JSON expected = sourcemeta::core::parse_json(R"JSON({
+  const auto expected = sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2019-09/schema",
     "type": "object",
-    "minProperties": 2,
     "required": [ "foo", "bar" ],
+    "minProperties": 2,
+    "propertyNames": true,
     "properties": {
       "foo": true,
       "bar": true
-    }
+    },
+    "patternProperties": {}
   })JSON");
 
-  EXPECT_EQ(document, expected);
+  CANONICALIZE_NEXT(document, expected, *compiled_meta_);
 }
 
-TEST(AlterSchema_canonicalize_2019_09, min_properties_implicit_1) {
-  sourcemeta::core::JSON document = sourcemeta::core::parse_json(R"JSON({
+TEST_F(Canonicalizer201909Test, min_properties_implicit_1) {
+  auto document = sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2019-09/schema",
     "type": "object",
     "required": [ "foo", "bar" ]
   })JSON");
 
-  CANONICALIZE(document, result, traces);
-
-  EXPECT_TRUE(result.first);
-
-  const sourcemeta::core::JSON expected = sourcemeta::core::parse_json(R"JSON({
+  const auto expected = sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2019-09/schema",
     "type": "object",
     "required": [ "foo", "bar" ],
+    "minProperties": 2,
+    "propertyNames": true,
     "properties": {
       "foo": true,
       "bar": true
     },
-    "minProperties": 2
+    "patternProperties": {}
   })JSON");
 
-  EXPECT_EQ(document, expected);
+  CANONICALIZE_NEXT(document, expected, *compiled_meta_);
 }
 
-TEST(AlterSchema_canonicalize_2019_09, min_properties_implicit_2) {
-  sourcemeta::core::JSON document = sourcemeta::core::parse_json(R"JSON({
+TEST_F(Canonicalizer201909Test, min_properties_implicit_2) {
+  auto document = sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2019-09/schema",
     "type": "object",
     "minProperties": 2,
     "required": [ "foo", "bar" ]
   })JSON");
 
-  CANONICALIZE(document, result, traces);
-
-  EXPECT_TRUE(result.first);
-
-  const sourcemeta::core::JSON expected = sourcemeta::core::parse_json(R"JSON({
+  const auto expected = sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2019-09/schema",
     "type": "object",
     "required": [ "foo", "bar" ],
+    "minProperties": 2,
+    "propertyNames": true,
     "properties": {
       "foo": true,
       "bar": true
     },
-    "minProperties": 2
+    "patternProperties": {}
   })JSON");
 
-  EXPECT_EQ(document, expected);
+  CANONICALIZE_NEXT(document, expected, *compiled_meta_);
 }
 
-TEST(AlterSchema_canonicalize_2019_09, min_items_given_min_contains_1) {
-  sourcemeta::core::JSON document = sourcemeta::core::parse_json(R"JSON({
+TEST_F(Canonicalizer201909Test, min_items_given_min_contains_1) {
+  auto document = sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2019-09/schema",
     "type": "array",
     "contains": { "type": "boolean" },
     "minContains": 3
   })JSON");
 
-  CANONICALIZE(document, result, traces);
-
-  EXPECT_TRUE(result.first);
-
-  const sourcemeta::core::JSON expected = sourcemeta::core::parse_json(R"JSON({
+  const auto expected = sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2019-09/schema",
     "type": "array",
-    "contains": { "enum": [ false, true ] },
+    "minItems": 0,
+    "uniqueItems": false,
     "minContains": 3,
-    "minItems": 3,
+    "contains": {
+      "enum": [ false, true ]
+    },
     "items": true
   })JSON");
 
-  EXPECT_EQ(document, expected);
+  CANONICALIZE_NEXT(document, expected, *compiled_meta_);
 }
 
-TEST(AlterSchema_canonicalize_2019_09, min_items_given_min_contains_2) {
-  sourcemeta::core::JSON document = sourcemeta::core::parse_json(R"JSON({
+TEST_F(Canonicalizer201909Test, min_items_given_min_contains_2) {
+  auto document = sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2019-09/schema",
     "type": "array",
     "minContains": 3
   })JSON");
 
-  CANONICALIZE(document, result, traces);
-
-  EXPECT_TRUE(result.first);
-
-  const sourcemeta::core::JSON expected = sourcemeta::core::parse_json(R"JSON({
+  const auto expected = sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2019-09/schema",
     "type": "array",
     "minItems": 0,
+    "uniqueItems": false,
+    "minContains": 0,
+    "contains": true,
     "items": true
   })JSON");
 
-  EXPECT_EQ(document, expected);
+  CANONICALIZE_NEXT(document, expected, *compiled_meta_);
 }
 
-TEST(AlterSchema_canonicalize_2019_09,
-     exclusive_maximum_integer_to_maximum_decimal_1) {
-  sourcemeta::core::JSON document = sourcemeta::core::parse_json(R"JSON({
+TEST_F(Canonicalizer201909Test,
+       exclusive_maximum_integer_to_maximum_decimal_1) {
+  auto document = sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2019-09/schema",
     "type": "integer",
     "exclusiveMaximum": 1.0e400
   })JSON");
 
-  CANONICALIZE(document, result, traces);
-
-  EXPECT_TRUE(result.first);
-
-  const sourcemeta::core::JSON expected = sourcemeta::core::parse_json(R"JSON({
+  const auto expected = sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2019-09/schema",
     "type": "integer",
     "multipleOf": 1,
     "maximum": 10.00000000000000e+399
   })JSON");
 
-  EXPECT_EQ(document, expected);
+  CANONICALIZE_NEXT(document, expected, *compiled_meta_);
 }
 
-TEST(AlterSchema_canonicalize_2019_09,
-     exclusive_minimum_integer_to_minimum_decimal_1) {
-  sourcemeta::core::JSON document = sourcemeta::core::parse_json(R"JSON({
+TEST_F(Canonicalizer201909Test,
+       exclusive_minimum_integer_to_minimum_decimal_1) {
+  auto document = sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2019-09/schema",
     "type": "integer",
     "exclusiveMinimum": 1.0e400
   })JSON");
 
-  CANONICALIZE(document, result, traces);
-
-  EXPECT_TRUE(result.first);
-
-  const sourcemeta::core::JSON expected = sourcemeta::core::parse_json(R"JSON({
+  const auto expected = sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2019-09/schema",
     "type": "integer",
     "multipleOf": 1,
     "minimum": 1.0e+400
   })JSON");
 
-  EXPECT_EQ(document, expected);
+  CANONICALIZE_NEXT(document, expected, *compiled_meta_);
 }
 
-TEST(AlterSchema_canonicalize_2019_09,
-     unevaluated_properties_with_allof_properties) {
+TEST_F(Canonicalizer201909Test, unevaluated_properties_with_allof_properties) {
   auto document = sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2019-09/schema",
     "unevaluatedProperties": { "type": "boolean" },
@@ -607,45 +600,56 @@ TEST(AlterSchema_canonicalize_2019_09,
     ]
   })JSON");
 
-  CANONICALIZE(document, result, traces);
-
-  EXPECT_TRUE(result.first);
-
   const auto expected = sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2019-09/schema",
-    "anyOf": [
-      { "enum": [ null ] },
-      { "enum": [ false, true ] },
+    "allOf": [
       {
-        "type": "object",
-        "minProperties": 0,
-        "properties": {
-          "foo": {
+        "anyOf": [
+          {
+            "enum": [ null ]
+          },
+          {
+            "enum": [ false, true ]
+          },
+          {
+            "type": "object",
+            "minProperties": 0,
+            "propertyNames": true,
+            "properties": {
+              "foo": {
+                "type": "string",
+                "minLength": 0
+              }
+            },
+            "patternProperties": {}
+          },
+          {
+            "type": "array",
+            "minItems": 0,
+            "uniqueItems": false,
+            "minContains": 0,
+            "contains": true,
+            "items": true
+          },
+          {
             "type": "string",
             "minLength": 0
+          },
+          {
+            "type": "number"
           }
-        }
-      },
-      {
-        "type": "array",
-        "minItems": 0,
-        "items": true
-      },
-      {
-        "type": "string",
-        "minLength": 0
-      },
-      { "type": "number" }
+        ]
+      }
     ],
     "unevaluatedProperties": {
       "enum": [ false, true ]
     }
   })JSON");
 
-  EXPECT_EQ(document, expected);
+  CANONICALIZE_NEXT(document, expected, *compiled_meta_);
 }
 
-TEST(AlterSchema_canonicalize_2019_09, unevaluated_properties_inside_allof) {
+TEST_F(Canonicalizer201909Test, unevaluated_properties_inside_allof) {
   auto document = sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2019-09/schema",
     "allOf": [
@@ -654,89 +658,129 @@ TEST(AlterSchema_canonicalize_2019_09, unevaluated_properties_inside_allof) {
     ]
   })JSON");
 
-  CANONICALIZE(document, result, traces);
-
-  EXPECT_TRUE(result.first);
-
   const auto expected = sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2019-09/schema",
     "allOf": [
       {
         "anyOf": [
-          { "enum": [ null ] },
-          { "enum": [ false, true ] },
+          {
+            "enum": [ null ]
+          },
+          {
+            "enum": [ false, true ]
+          },
           {
             "type": "object",
             "minProperties": 0,
-            "properties": {}
+            "propertyNames": true,
+            "properties": {
+              "foo": true
+            },
+            "patternProperties": {}
           },
           {
             "type": "array",
             "minItems": 0,
+            "uniqueItems": false,
+            "minContains": 0,
+            "contains": true,
             "items": true
           },
           {
             "type": "string",
             "minLength": 0
           },
-          { "type": "number" }
-        ],
-        "unevaluatedProperties": false
+          {
+            "type": "number"
+          }
+        ]
+      },
+      {
+        "anyOf": [
+          {
+            "enum": [ null ]
+          },
+          {
+            "enum": [ false, true ]
+          },
+          {
+            "type": "object",
+            "minProperties": 0,
+            "propertyNames": true,
+            "properties": {},
+            "patternProperties": {},
+            "additionalProperties": false
+          },
+          {
+            "type": "array",
+            "minItems": 0,
+            "uniqueItems": false,
+            "minContains": 0,
+            "contains": true,
+            "items": true
+          },
+          {
+            "type": "string",
+            "minLength": 0
+          },
+          {
+            "type": "number"
+          }
+        ]
       }
-    ],
-    "properties": {
-      "foo": true
-    }
+    ]
   })JSON");
 
-  EXPECT_EQ(document, expected);
+  CANONICALIZE_NEXT(document, expected, *compiled_meta_);
 }
 
-TEST(AlterSchema_canonicalize_2019_09, items_implicit_1) {
+TEST_F(Canonicalizer201909Test, items_implicit_1) {
   auto document = sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2019-09/schema",
     "type": "array"
   })JSON");
 
-  CANONICALIZE(document, result, traces);
-
-  EXPECT_TRUE(result.first);
-
   const auto expected = sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2019-09/schema",
     "type": "array",
     "minItems": 0,
+    "uniqueItems": false,
+    "minContains": 0,
+    "contains": true,
     "items": true
   })JSON");
 
-  EXPECT_EQ(document, expected);
+  CANONICALIZE_NEXT(document, expected, *compiled_meta_);
 }
 
-TEST(AlterSchema_canonicalize_2019_09,
-     items_implicit_skipped_with_unevaluated_items) {
+TEST_F(Canonicalizer201909Test, items_implicit_skipped_with_unevaluated_items) {
   auto document = sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2019-09/schema",
     "contains": { "type": "boolean" },
     "unevaluatedItems": false
   })JSON");
 
-  CANONICALIZE(document, result, traces);
-
-  EXPECT_TRUE(result.first);
-
   const auto expected = sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2019-09/schema",
     "anyOf": [
-      { "enum": [ null ] },
-      { "enum": [ false, true ] },
+      {
+        "enum": [ null ]
+      },
+      {
+        "enum": [ false, true ]
+      },
       {
         "type": "object",
         "minProperties": 0,
-        "properties": {}
+        "propertyNames": true,
+        "properties": {},
+        "patternProperties": {}
       },
       {
         "type": "array",
         "minItems": 0,
+        "uniqueItems": false,
+        "minContains": 1,
         "contains": {
           "enum": [ false, true ]
         }
@@ -745,38 +789,39 @@ TEST(AlterSchema_canonicalize_2019_09,
         "type": "string",
         "minLength": 0
       },
-      { "type": "number" }
+      {
+        "type": "number"
+      }
     ],
     "unevaluatedItems": false
   })JSON");
 
-  EXPECT_EQ(document, expected);
+  CANONICALIZE_NEXT(document, expected, *compiled_meta_);
 }
 
-TEST(AlterSchema_canonicalize_2019_09,
-     items_implicit_skipped_with_direct_unevaluated_items) {
+TEST_F(Canonicalizer201909Test,
+       items_implicit_skipped_with_direct_unevaluated_items) {
   auto document = sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2019-09/schema",
     "type": "array",
     "unevaluatedItems": false
   })JSON");
 
-  CANONICALIZE(document, result, traces);
-
-  EXPECT_TRUE(result.first);
-
   const auto expected = sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2019-09/schema",
     "type": "array",
     "minItems": 0,
-    "unevaluatedItems": false
+    "uniqueItems": false,
+    "minContains": 0,
+    "contains": true,
+    "items": false
   })JSON");
 
-  EXPECT_EQ(document, expected);
+  CANONICALIZE_NEXT(document, expected, *compiled_meta_);
 }
 
-TEST(AlterSchema_canonicalize_2019_09,
-     items_implicit_skipped_with_anyof_and_unevaluated_items) {
+TEST_F(Canonicalizer201909Test,
+       items_implicit_skipped_with_anyof_and_unevaluated_items) {
   auto document = sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2019-09/schema",
     "anyOf": [
@@ -786,34 +831,41 @@ TEST(AlterSchema_canonicalize_2019_09,
     "unevaluatedItems": false
   })JSON");
 
-  CANONICALIZE(document, result, traces);
-
-  EXPECT_TRUE(result.first);
-
   const auto expected = sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2019-09/schema",
     "anyOf": [
       {
         "anyOf": [
-          { "enum": [ null ] },
-          { "enum": [ false, true ] },
+          {
+            "enum": [ null ]
+          },
+          {
+            "enum": [ false, true ]
+          },
           {
             "type": "object",
             "minProperties": 0,
-            "properties": {}
+            "propertyNames": true,
+            "properties": {},
+            "patternProperties": {}
           },
           {
             "type": "array",
+            "minItems": 0,
+            "uniqueItems": false,
+            "minContains": 0,
+            "contains": true,
             "items": {
               "enum": [ false, true ]
-            },
-            "minItems": 0
+            }
           },
           {
             "type": "string",
             "minLength": 0
           },
-          { "type": "number" }
+          {
+            "type": "number"
+          }
         ]
       },
       true
@@ -821,7 +873,7 @@ TEST(AlterSchema_canonicalize_2019_09,
     "unevaluatedItems": false
   })JSON");
 
-  EXPECT_EQ(document, expected);
+  CANONICALIZE_NEXT(document, expected, *compiled_meta_);
 }
 
 TEST_F(Canonicalizer201909Test, empty_object_as_true) {
