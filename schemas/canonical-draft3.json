@@ -46,20 +46,32 @@
       }
     },
     "subproperty": {
-      "anyOf": [
-        {
-          "$ref": "#/$defs/schema",
-          "required": [ "required" ],
-          "properties": {
-            "required": {
-              "type": "boolean"
+      "$ref": "#/$defs/schema",
+      "if": {
+        "type": "object",
+        "not": {
+          "anyOf": [
+            {
+              "maxProperties": 0
+            },
+            {
+              "x-lint-exclude": "simple_properties_identifiers",
+              "required": [ "$ref" ],
+              "properties": {
+                "$ref": true
+              }
             }
-          }
-        },
-        {
-          "const": {}
+          ]
         }
-      ]
+      },
+      "then": {
+        "required": [ "required" ],
+        "properties": {
+          "required": {
+            "type": "boolean"
+          }
+        }
+      }
     },
     "schema": {
       "anyOf": [

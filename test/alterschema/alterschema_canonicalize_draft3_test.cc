@@ -348,6 +348,30 @@ TEST_F(CanonicalizerDraft3Test, enum_simple) {
   CANONICALIZE_NEXT(document, expected, *compiled_meta_);
 }
 
+TEST_F(CanonicalizerDraft3Test, object_with_ref_property) {
+  auto document = sourcemeta::core::parse_json(R"JSON({
+    "$schema": "http://json-schema.org/draft-03/schema#",
+    "type": "object",
+    "properties": {
+      "foo": { "type": "string" },
+      "bar": { "$ref": "#" }
+    }
+  })JSON");
+
+  const auto expected = sourcemeta::core::parse_json(R"JSON({
+    "$schema": "http://json-schema.org/draft-03/schema#",
+    "type": "object",
+    "properties": {
+      "foo": { "type": "string", "minLength": 0, "required": false },
+      "bar": { "$ref": "#" }
+    },
+    "patternProperties": {},
+    "additionalProperties": {}
+  })JSON");
+
+  CANONICALIZE_NEXT(document, expected, *compiled_meta_);
+}
+
 TEST_F(CanonicalizerDraft3Test, additionalProperties_false) {
   auto document = sourcemeta::core::parse_json(R"JSON({
     "$schema": "http://json-schema.org/draft-03/schema#",

@@ -71,11 +71,11 @@ public:
         auto wrapper{JSON::make_object()};
         wrapper.assign("type", std::move(type_array));
         result_branches.push_back(std::move(wrapper));
-      } else {
+      } else if (entry.second.is_string() || entry.second.is_array()) {
         std::vector<std::string> dependent_props;
         if (entry.second.is_string()) {
           dependent_props.push_back(entry.second.to_string());
-        } else if (entry.second.is_array()) {
+        } else {
           for (const auto &dependent : entry.second.as_array()) {
             if (dependent.is_string()) {
               dependent_props.push_back(dependent.to_string());
@@ -105,6 +105,8 @@ public:
         auto wrapper{JSON::make_object()};
         wrapper.assign("type", std::move(type_array));
         result_branches.push_back(std::move(wrapper));
+      } else {
+        continue;
       }
 
       processed.emplace_back(entry.first);
