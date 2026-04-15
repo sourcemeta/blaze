@@ -55,44 +55,6 @@ const evaluator = new Blaze(template);
 console.log(evaluator.validate({ name: "John", age: 30 }));
 ```
 
-### Parsing large integers
-
-JavaScript's
-[`JSON.parse`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/JSON/parse)
-silently truncates integers that exceed
-[`Number.MAX_SAFE_INTEGER`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Number/MAX_SAFE_INTEGER)
-to IEEE 754 double-precision floats. If your schemas or instances contain large
-integers, use a
-[reviver](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/JSON/parse#reviver)
-to preserve them as
-[`BigInt`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/BigInt)
-values. This is supported in all major engines via the
-[`JSON.parse` source text
-access](https://github.com/tc39/proposal-json-parse-with-source) proposal
-(Stage 4):
-
-```javascript
-function reviver(_key, value, { source }) {
-  if (typeof value === "number" && /^-?[0-9]+$/.test(source)
-      && String(value) !== source) {
-    return BigInt(source);
-  }
-  return value;
-}
-
-const template =
-  JSON.parse(readFileSync("template.json", "utf-8"), reviver);
-const evaluator = new Blaze(template);
-
-const instance =
-  JSON.parse(readFileSync("instance.json", "utf-8"), reviver);
-console.log(evaluator.validate(instance));
-```
-
-The evaluator handles `BigInt` values natively in all numeric instructions.
-Without a reviver, large integers are silently truncated and validation may
-produce incorrect results for affected values.
-
 With an evaluation callback for tracing:
 
 ```javascript
@@ -105,6 +67,34 @@ const result = evaluator.validate(instance,
   });
 console.log(result); // true or false
 ```
+
+### Parsing large integers
+
+JavaScript's
+[`JSON.parse`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/JSON/parse)
+silently truncates integers that exceed
+[`Number.MAX_SAFE_INTEGER`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Number/MAX_SAFE_INTEGER)
+to IEEE 754 double-precision floats. If your schemas or instances contain large
+integers, pass `Blaze.reviver` to `JSON.parse` to preserve them as
+[`BigInt`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/BigInt)
+values. This relies on the
+[`JSON.parse` source text
+access](https://github.com/tc39/proposal-json-parse-with-source) proposal
+(Stage 4, shipped in all major engines):
+
+```javascript
+const template =
+  JSON.parse(readFileSync("template.json", "utf-8"), Blaze.reviver);
+const evaluator = new Blaze(template);
+
+const instance =
+  JSON.parse(readFileSync("instance.json", "utf-8"), Blaze.reviver);
+console.log(evaluator.validate(instance));
+```
+
+The evaluator handles `BigInt` values natively in all numeric instructions.
+Without a reviver, large integers are silently truncated and validation may
+produce incorrect results for affected values.
 
 ## Why compile separately?
 

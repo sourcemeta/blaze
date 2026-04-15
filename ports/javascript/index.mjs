@@ -370,7 +370,24 @@ function generateNativeValidator(template) {
   }
 }
 
+function reviver(_key, value, { source }) {
+  if (typeof value === 'number'
+    // This ensures we only attempt conversion on integer source strings,
+    // not floats or exponential notation, as `BigInt` cannot parse those
+    && /^-?[0-9]+$/.test(source)
+    // Detects whether JSON.parse actually truncated the value, avoiding
+    // unnecessary `BigInt` conversion for integers that are exactly
+    // representable as doubles
+    && String(value) !== source) {
+    return BigInt(source);
+  }
+
+  return value;
+}
+
 class Blaze {
+  static reviver = reviver;
+
   constructor(template) {
     if (!Array.isArray(template) || template[0] !== JSON_VERSION) {
       throw new Error(
