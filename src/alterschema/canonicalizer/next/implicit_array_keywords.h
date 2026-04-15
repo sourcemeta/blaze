@@ -16,7 +16,8 @@ public:
       -> SchemaTransformRule::Result override {
     ONLY_CONTINUE_IF(
         vocabularies.contains_any(
-            {Vocabularies::Known::JSON_Schema_Draft_4,
+            {Vocabularies::Known::JSON_Schema_Draft_3,
+             Vocabularies::Known::JSON_Schema_Draft_4,
              Vocabularies::Known::JSON_Schema_Draft_6,
              Vocabularies::Known::JSON_Schema_Draft_7,
              Vocabularies::Known::JSON_Schema_2019_09_Applicator,
@@ -28,6 +29,8 @@ public:
     const bool is_modern{vocabularies.contains_any(
         {Vocabularies::Known::JSON_Schema_2019_09_Applicator,
          Vocabularies::Known::JSON_Schema_2020_12_Applicator})};
+    this->is_draft3_ =
+        vocabularies.contains(Vocabularies::Known::JSON_Schema_Draft_3);
     const bool needs_items{!is_modern && !schema.defines("items")};
     ONLY_CONTINUE_IF(!schema.defines("uniqueItems") || needs_items ||
                      !schema.defines("minItems"));
@@ -41,7 +44,9 @@ public:
       schema.assign("uniqueItems", sourcemeta::core::JSON{false});
     }
     if (this->add_items_ && !schema.defines("items")) {
-      schema.assign("items", sourcemeta::core::JSON{true});
+      schema.assign("items", this->is_draft3_
+                                 ? sourcemeta::core::JSON::make_object()
+                                 : sourcemeta::core::JSON{true});
     }
     if (!schema.defines("minItems")) {
       schema.assign("minItems", sourcemeta::core::JSON{0});
@@ -50,4 +55,5 @@ public:
 
 private:
   mutable bool add_items_{true};
+  mutable bool is_draft3_{false};
 };
