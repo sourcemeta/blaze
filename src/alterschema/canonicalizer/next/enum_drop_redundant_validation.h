@@ -16,7 +16,8 @@ public:
       -> SchemaTransformRule::Result override {
     ONLY_CONTINUE_IF(
         vocabularies.contains_any(
-            {Vocabularies::Known::JSON_Schema_Draft_4,
+            {Vocabularies::Known::JSON_Schema_Draft_3,
+             Vocabularies::Known::JSON_Schema_Draft_4,
              Vocabularies::Known::JSON_Schema_Draft_6,
              Vocabularies::Known::JSON_Schema_Draft_7,
              Vocabularies::Known::JSON_Schema_2019_09_Validation,
@@ -26,6 +27,8 @@ public:
 
     this->keywords_.clear();
     this->wrap_keywords_.clear();
+    this->is_draft3_ =
+        vocabularies.contains(Vocabularies::Known::JSON_Schema_Draft_3);
     this->has_if_group_ =
         vocabularies.contains_any(
             {Vocabularies::Known::JSON_Schema_Draft_7,
@@ -113,11 +116,13 @@ public:
     schema.erase("enum");
     new_allof.push_back(std::move(enum_branch));
 
-    schema.assign("allOf", std::move(new_allof));
+    const auto wrapper_keyword{this->is_draft3_ ? "extends" : "allOf"};
+    schema.assign(wrapper_keyword, std::move(new_allof));
   }
 
 private:
   mutable std::vector<JSON::String> keywords_;
   mutable std::vector<JSON::String> wrap_keywords_;
   mutable bool has_if_group_{false};
+  mutable bool is_draft3_{false};
 };

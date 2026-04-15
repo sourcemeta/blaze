@@ -72,6 +72,11 @@ public:
         continue;
       }
 
+      if (entry.first == "required" &&
+          vocabularies.contains(Vocabularies::Known::JSON_Schema_Draft_3)) {
+        continue;
+      }
+
       // If none of the types that the keyword applies to is a valid
       // type for the current schema, then by definition we can remove it
       if ((metadata.instances & current_types).none()) {
