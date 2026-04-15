@@ -28,16 +28,11 @@ public:
       }
       const auto &metadata{walker(entry.first, vocabularies)};
       const auto keyword_type{metadata.type};
-      if (keyword_type !=
-              sourcemeta::core::SchemaKeywordType::Unknown &&
-          keyword_type !=
-              sourcemeta::core::SchemaKeywordType::Assertion &&
-          keyword_type !=
-              sourcemeta::core::SchemaKeywordType::Annotation &&
-          keyword_type !=
-              sourcemeta::core::SchemaKeywordType::Comment &&
-          keyword_type !=
-              sourcemeta::core::SchemaKeywordType::Other &&
+      if (keyword_type != sourcemeta::core::SchemaKeywordType::Unknown &&
+          keyword_type != sourcemeta::core::SchemaKeywordType::Assertion &&
+          keyword_type != sourcemeta::core::SchemaKeywordType::Annotation &&
+          keyword_type != sourcemeta::core::SchemaKeywordType::Comment &&
+          keyword_type != sourcemeta::core::SchemaKeywordType::Other &&
           keyword_type !=
               sourcemeta::core::SchemaKeywordType::LocationMembers) {
         return false;
