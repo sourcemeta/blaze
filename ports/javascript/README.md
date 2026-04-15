@@ -18,10 +18,10 @@ npm install --save @sourcemeta/blaze
 
 ## Usage
 
-Blaze evaluates pre-compiled schema templates. Compile your JSON
-Schema using the
-[jsonschema](https://github.com/sourcemeta/jsonschema) CLI
-([compile docs](https://github.com/sourcemeta/jsonschema/blob/main/docs/compile.markdown)):
+Blaze evaluates pre-compiled schema templates. Compile your JSON Schema using
+the [JSON Schema CLI](https://github.com/sourcemeta/jsonschema) (see the
+[`compile`](https://github.com/sourcemeta/jsonschema/blob/main/docs/compile.markdown)
+command):
 
 ```sh
 npm install --global @sourcemeta/jsonschema
@@ -67,3 +67,52 @@ const result = evaluator.validate(instance,
   });
 console.log(result); // true or false
 ```
+
+## Why compile separately?
+
+Unlike validators that compile and evaluate in a single step, Blaze separates
+the two. You compile your schemas ahead of time using the [JSON Schema
+CLI](https://github.com/sourcemeta/jsonschema) (`jsonschema compile
+schema.json`) on CI or at build time.
+
+The compilation step analyses the schema, resolves all references, and produces
+a set of optimised low-level instructions serialised as JSON that every
+evaluator can rely on. This evaluator package then executes those instructions
+against your data, with no knowledge of JSON Schema itself.
+
+- **Consistent validation across languages.** The same compiled schema produces
+  identical results whether evaluated in JavaScript, Python, Java, or C++ (we
+  are working hard increase the number of ports) so you never have to rely on
+  multiple implementations with different interpretations of the standard
+
+- **No schema processing at startup.** The evaluator loads pre-compiled
+  instructions. There is no reference resolution, or vocabulary processing at
+  runtime
+
+- **Schema governance.** Compiled schemas can be managed, versioned, and
+  distributed centrally via [Sourcemeta One](https://one.sourcemeta.com),
+  ensuring all consumers validate against the same compiled artifact
+
+## Limitations
+
+**No high-precision decimal support.** Compiled templates preserve
+arbitrary-precision numbers exactly as they appear in your schemas. However,
+JavaScript's
+[`JSON.parse`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/JSON/parse)
+silently truncates all numbers to IEEE 754 double-precision floats before the
+evaluator ever sees them. While JavaScript has
+[`BigInt`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/BigInt),
+[`JSON.parse`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/JSON/parse)
+does not use it. This is a language-level limitation that affects any numeric
+keyword that depends on exact arithmetic. For example:
+
+```sh
+$ node --eval "console.log(JSON.parse('9007199254740993'))"
+9007199254740992 # Note the result is off by 1
+```
+
+The TC39 [`JSON.parse` source text
+access](https://github.com/tc39/proposal-json-parse-with-source) proposal
+(Stage 4, shipped in all major engines) provides a path forward by exposing the
+raw source text to a reviver function. We plan to take advantage of this in a
+future release.
