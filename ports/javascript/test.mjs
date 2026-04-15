@@ -124,6 +124,11 @@ describe('reviver', () => {
   it('returns the value unchanged when context is missing', () => {
     assert.equal(Blaze.reviver('key', 42, undefined), 42);
   });
+
+  it('handles uppercase E in exponential notation', () => {
+    const result = Blaze.reviver('key', 1e+35, { source: '9.9999999999999999999999999999999999E+34' });
+    assert.equal(result, 99999999999999999999999999999999999n);
+  });
 });
 
 describe('version', () => {

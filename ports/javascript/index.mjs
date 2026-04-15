@@ -376,7 +376,7 @@ function sourceToBigInt(source) {
   // Exponential notation like "9.9999999999999999e+34". Parse the coefficient
   // and exponent to reconstruct the exact integer, as `BigInt` cannot parse
   // exponential notation directly
-  const match = source.match(/^(-?)([0-9]+)\.?([0-9]*)e[+]?([0-9]+)$/);
+  const match = source.match(/^(-?)([0-9]+)\.?([0-9]*)[eE][+]?([0-9]+)$/);
   if (!match) return null;
   const exponent = parseInt(match[4]) - match[3].length;
   if (exponent < 0) return null;
