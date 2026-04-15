@@ -75,8 +75,8 @@
       }
     },
     {
-      "description": "$ref with required is canonical",
-      "valid": true,
+      "description": "$ref with required is rejected",
+      "valid": false,
       "data": {
         "$ref": "#/foo",
         "required": true
@@ -233,8 +233,8 @@
       }
     },
     {
-      "description": "Enum with required is canonical",
-      "valid": true,
+      "description": "Enum with required is rejected",
+      "valid": false,
       "data": {
         "enum": [ 1 ],
         "required": true
@@ -1077,6 +1077,70 @@
       }
     },
     {
+      "description": "Object property with $ref is canonical without required",
+      "valid": true,
+      "data": {
+        "type": "object",
+        "properties": {
+          "foo": {
+            "$ref": "#/bar"
+          }
+        },
+        "patternProperties": {},
+        "additionalProperties": false
+      }
+    },
+    {
+      "description": "Object property with $ref and metadata is canonical",
+      "valid": true,
+      "data": {
+        "type": "object",
+        "properties": {
+          "foo": {
+            "$ref": "#/bar",
+            "title": "A ref"
+          }
+        },
+        "patternProperties": {},
+        "additionalProperties": false
+      }
+    },
+    {
+      "description": "Object property with $ref and required is rejected",
+      "valid": false,
+      "data": {
+        "type": "object",
+        "properties": {
+          "foo": {
+            "$ref": "#/bar",
+            "required": true
+          }
+        },
+        "patternProperties": {},
+        "additionalProperties": false
+      }
+    },
+    {
+      "description": "Object with mixed property types is canonical",
+      "valid": true,
+      "data": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string",
+            "minLength": 0,
+            "required": true
+          },
+          "ref_prop": {
+            "$ref": "#/other"
+          },
+          "any_prop": {}
+        },
+        "patternProperties": {},
+        "additionalProperties": false
+      }
+    },
+    {
       "description": "Object with string keywords is rejected",
       "valid": false,
       "data": {
@@ -1758,8 +1822,8 @@
       }
     },
     {
-      "description": "Type array with required is canonical",
-      "valid": true,
+      "description": "Type array with required is rejected",
+      "valid": false,
       "data": {
         "type": [
           {
@@ -2016,8 +2080,8 @@
       }
     },
     {
-      "description": "Extends with required is canonical",
-      "valid": true,
+      "description": "Extends with required is rejected",
+      "valid": false,
       "data": {
         "extends": [
           {
@@ -2256,8 +2320,8 @@
       }
     },
     {
-      "description": "Disallow with required is canonical",
-      "valid": true,
+      "description": "Disallow with required is rejected",
+      "valid": false,
       "data": {
         "disallow": [
           {
