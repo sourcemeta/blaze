@@ -312,6 +312,26 @@ TEST_F(CanonicalizerDraft2Test, disallow_string_to_array) {
   CANONICALIZE_NEXT(document, expected, *compiled_meta_);
 }
 
+TEST_F(CanonicalizerDraft2Test, minimum_can_equal_false_with_equal_bounds) {
+  auto document = sourcemeta::core::parse_json(R"JSON({
+    "$schema": "http://json-schema.org/draft-02/schema#",
+    "type": "integer",
+    "minimum": 3,
+    "maximum": 3,
+    "minimumCanEqual": false
+  })JSON");
+
+  const auto expected = sourcemeta::core::parse_json(R"JSON({
+    "$schema": "http://json-schema.org/draft-02/schema#",
+    "type": "integer",
+    "divisibleBy": 1,
+    "minimum": 4,
+    "maximum": 3
+  })JSON");
+
+  CANONICALIZE_NEXT(document, expected, *compiled_meta_);
+}
+
 TEST_F(CanonicalizerDraft2Test, enum_simple) {
   auto document = sourcemeta::core::parse_json(R"JSON({
     "$schema": "http://json-schema.org/draft-02/schema#",

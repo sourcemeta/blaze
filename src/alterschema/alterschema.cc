@@ -274,7 +274,6 @@ auto add(SchemaTransformer &bundle, const AlterSchemaMode mode) -> void {
     bundle.add<MaximumCanEqualIntegerFold>();
     bundle.add<MinimumCanEqualTrueDrop>();
     bundle.add<MaximumCanEqualTrueDrop>();
-    bundle.add<UnsatisfiableCanEqualBounds>();
     bundle.add<CommentDrop>();
     bundle.add<DefinitionsToDefsNext>();
     bundle.add<DeprecatedFalseDrop>();
