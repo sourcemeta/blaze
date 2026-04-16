@@ -877,6 +877,42 @@ INSTRUCTION_HANDLER(AssertionPropertyTypeStrictAnyEvaluate) {
   EVALUATE_END(AssertionPropertyTypeStrictAnyEvaluate);
 }
 
+INSTRUCTION_HANDLER(AssertionObjectPropertiesSimple) {
+  EVALUATE_BEGIN_NON_STRING(AssertionObjectPropertiesSimple, true);
+  if (!target.is_object()) {
+    EVALUATE_END(AssertionObjectPropertiesSimple);
+  }
+
+  const auto &value{assume_value<ValueObjectProperties>(instruction.value)};
+  assert(value.size() >= instruction.children.size());
+  result = true;
+  for (std::size_t index = 0; index < value.size(); index++) {
+    const auto &entry{value[index]};
+    const auto &name{std::get<0>(entry)};
+    const auto hash{std::get<1>(entry)};
+    const auto is_required{std::get<2>(entry)};
+    const auto *property_value{target.try_at(name, hash)};
+    if (!property_value) {
+      if (is_required) [[unlikely]] {
+        result = false;
+        EVALUATE_END(AssertionObjectPropertiesSimple);
+      }
+
+      continue;
+    }
+
+    if (index < instruction.children.size() &&
+        !evaluate_instruction_without_callback(
+            instruction.children[index], *property_value, depth + 1, context))
+        [[unlikely]] {
+      result = false;
+      EVALUATE_END(AssertionObjectPropertiesSimple);
+    }
+  }
+
+  EVALUATE_END(AssertionObjectPropertiesSimple);
+}
+
 INSTRUCTION_HANDLER(AssertionArrayPrefix) {
   EVALUATE_BEGIN_NON_STRING(AssertionArrayPrefix, target.is_array());
   // Otherwise there is no point in emitting this instruction
@@ -2405,7 +2441,7 @@ using DispatchHandler = bool (*)(
 template <bool Track, bool Dynamic, bool HasCallback>
 // Must have same order as InstructionIndex
 // NOLINTNEXTLINE(modernize-avoid-c-arrays)
-static constexpr DispatchHandler<Track, Dynamic, HasCallback> handlers[98] = {
+static constexpr DispatchHandler<Track, Dynamic, HasCallback> handlers[99] = {
     AssertionFail,
     AssertionDefines,
     AssertionDefinesStrict,
@@ -2454,6 +2490,7 @@ static constexpr DispatchHandler<Track, Dynamic, HasCallback> handlers[98] = {
     AssertionPropertyTypeStrictAnyEvaluate,
     AssertionArrayPrefix,
     AssertionArrayPrefixEvaluate,
+    AssertionObjectPropertiesSimple,
     AnnotationEmit,
     AnnotationToParent,
     AnnotationBasenameToParent,
@@ -2520,6 +2557,24 @@ evaluate_instruction(const sourcemeta::blaze::Instruction &instruction,
 
   return handlers<Track, Dynamic, HasCallback>[std::to_underlying(
       instruction.type)](instruction, instance, depth, context);
+}
+
+template <bool Track, bool Dynamic, bool HasCallback>
+inline auto evaluate_instruction_without_callback(
+    const sourcemeta::blaze::Instruction &instruction,
+    const sourcemeta::core::JSON &instance, const std::uint64_t depth,
+    DispatchContext<Track, Dynamic, HasCallback> &context) -> bool {
+  constexpr auto DEPTH_LIMIT{300};
+  if (depth > DEPTH_LIMIT) [[unlikely]] {
+    throw EvaluationError("The evaluation path depth limit was reached "
+                          "likely due to infinite recursion");
+  }
+
+  DispatchContext<false, Dynamic, false> plain_context{
+      context.schema, context.callback, context.evaluator,
+      context.property_target};
+  return handlers<false, Dynamic, false>[std::to_underlying(instruction.type)](
+      instruction, instance, depth, plain_context);
 }
 
 template <bool Track, bool Dynamic, bool HasCallback>
