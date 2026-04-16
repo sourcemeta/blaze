@@ -1320,6 +1320,10 @@ auto compiler_draft4_applicator_properties_with_options(
         }
       }
 
+      if (fusion_entries.size() > 32) {
+        return children;
+      }
+
       return {make(InstructionIndex::AssertionObjectPropertiesSimple, context,
                    schema_context, dynamic_context,
                    Value{std::move(fusion_entries)},
