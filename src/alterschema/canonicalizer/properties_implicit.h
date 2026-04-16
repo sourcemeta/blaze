@@ -2,7 +2,6 @@ class PropertiesImplicit final : public SchemaTransformRule {
 public:
   using mutates = std::true_type;
   using reframe_after_transform = std::true_type;
-  using needs_frame_analysis = std::false_type;
   PropertiesImplicit()
       : SchemaTransformRule{"properties_implicit",
                             "Every object has an implicit `properties` "

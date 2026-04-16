@@ -2,7 +2,6 @@ class ImplicitContainsKeywords final : public SchemaTransformRule {
 public:
   using mutates = std::true_type;
   using reframe_after_transform = std::true_type;
-  using needs_frame_analysis = std::false_type;
   ImplicitContainsKeywords()
       : SchemaTransformRule{"implicit_contains_keywords", ""} {};
 

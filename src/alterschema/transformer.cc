@@ -76,8 +76,10 @@ auto check_rules(
     const auto current_vocabularies{frame.vocabularies(entry.second, resolver)};
 
     bool subschema_failed{false};
-    for (const auto &[rule, mutates, unused1_, unused2_] : rules) {
-      if (non_mutating_only && mutates) {
+    for (const auto &rule_entry : rules) {
+      const auto &rule{std::get<0>(rule_entry)};
+      const auto rule_mutates{std::get<1>(rule_entry)};
+      if (non_mutating_only && rule_mutates) {
         continue;
       }
 
@@ -87,7 +89,7 @@ auto check_rules(
       if (outcome.applies) {
         subschema_failed = true;
         callback(entry_pointer, rule->name(), rule->message(), outcome,
-                 mutates);
+                 rule_mutates);
       }
     }
 
@@ -288,8 +290,16 @@ auto SchemaTransformer::apply(core::JSON &schema,
           // This rule only adds or removes leaf validation keywords without
           // creating new subschema locations or affecting references. Skip
           // the expensive frame re-analysis, post-condition verification,
-          // and reference fixing. Continue checking more rules for the same
-          // subschema without restarting.
+          // and reference fixing, but still restart the loop and record the
+          // application for cycle detection
+          std::tuple<const core::JSON *, std::string_view, std::uint64_t> mark{
+              &current, rule->name(), current.fast_hash()};
+          if (processed_rules.contains(mark)) {
+            throw SchemaTransformRuleProcessedTwiceError(rule->name(),
+                                                         entry_pointer);
+          }
+
+          processed_rules.emplace(std::move(mark));
           needs_reframe = true;
           goto blaze_transformer_start_again;
         }

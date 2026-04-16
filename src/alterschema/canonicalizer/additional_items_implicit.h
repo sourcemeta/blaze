@@ -2,7 +2,6 @@ class AdditionalItemsImplicit final : public SchemaTransformRule {
 public:
   using mutates = std::true_type;
   using reframe_after_transform = std::true_type;
-  using needs_frame_analysis = std::false_type;
   AdditionalItemsImplicit()
       : SchemaTransformRule{"additional_items_implicit", ""} {};
 
