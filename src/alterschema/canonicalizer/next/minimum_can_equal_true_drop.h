@@ -15,7 +15,9 @@ public:
             const sourcemeta::core::SchemaResolver &) const
       -> SchemaTransformRule::Result override {
     ONLY_CONTINUE_IF(
-        vocabularies.contains(Vocabularies::Known::JSON_Schema_Draft_2) &&
+        vocabularies.contains_any({Vocabularies::Known::JSON_Schema_Draft_0,
+                                   Vocabularies::Known::JSON_Schema_Draft_1,
+                                   Vocabularies::Known::JSON_Schema_Draft_2}) &&
         schema.is_object() && schema.defines("type") &&
         schema.at("type").is_string() &&
         (schema.at("type").to_string() == "integer" ||

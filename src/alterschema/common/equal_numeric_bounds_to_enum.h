@@ -21,7 +21,8 @@ public:
         vocabularies.contains_any({Vocabularies::Known::JSON_Schema_Draft_4,
                                    Vocabularies::Known::JSON_Schema_Draft_3,
                                    Vocabularies::Known::JSON_Schema_Draft_2,
-                                   Vocabularies::Known::JSON_Schema_Draft_1}) &&
+                                   Vocabularies::Known::JSON_Schema_Draft_1,
+                                   Vocabularies::Known::JSON_Schema_Draft_0}) &&
         schema.is_object() && schema.defines("type") &&
         schema.at("type").is_string() &&
         (schema.at("type").to_string() == "integer" ||
@@ -34,7 +35,13 @@ public:
           schema.at("exclusiveMinimum").to_boolean()) &&
         !(schema.defines("exclusiveMaximum") &&
           schema.at("exclusiveMaximum").is_boolean() &&
-          schema.at("exclusiveMaximum").to_boolean()));
+          schema.at("exclusiveMaximum").to_boolean()) &&
+        !(schema.defines("minimumCanEqual") &&
+          schema.at("minimumCanEqual").is_boolean() &&
+          !schema.at("minimumCanEqual").to_boolean()) &&
+        !(schema.defines("maximumCanEqual") &&
+          schema.at("maximumCanEqual").is_boolean() &&
+          !schema.at("maximumCanEqual").to_boolean()));
     return APPLIES_TO_KEYWORDS("minimum", "maximum");
   }
 

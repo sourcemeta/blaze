@@ -16,7 +16,9 @@ public:
       -> SchemaTransformRule::Result override {
     ONLY_CONTINUE_IF(
         vocabularies.contains_any(
-            {Vocabularies::Known::JSON_Schema_Draft_2,
+            {Vocabularies::Known::JSON_Schema_Draft_0,
+             Vocabularies::Known::JSON_Schema_Draft_1,
+             Vocabularies::Known::JSON_Schema_Draft_2,
              Vocabularies::Known::JSON_Schema_Draft_3,
              Vocabularies::Known::JSON_Schema_Draft_4,
              Vocabularies::Known::JSON_Schema_Draft_6,
@@ -31,18 +33,24 @@ public:
         {Vocabularies::Known::JSON_Schema_2019_09_Applicator,
          Vocabularies::Known::JSON_Schema_2020_12_Applicator})};
     this->is_pre_draft4_ =
-        vocabularies.contains_any({Vocabularies::Known::JSON_Schema_Draft_2,
+        vocabularies.contains_any({Vocabularies::Known::JSON_Schema_Draft_0,
+                                   Vocabularies::Known::JSON_Schema_Draft_1,
+                                   Vocabularies::Known::JSON_Schema_Draft_2,
                                    Vocabularies::Known::JSON_Schema_Draft_3});
+    this->has_unique_items_ =
+        !vocabularies.contains_any({Vocabularies::Known::JSON_Schema_Draft_0,
+                                    Vocabularies::Known::JSON_Schema_Draft_1});
     const bool needs_items{!is_modern && !schema.defines("items")};
-    ONLY_CONTINUE_IF(!schema.defines("uniqueItems") || needs_items ||
-                     !schema.defines("minItems"));
+    ONLY_CONTINUE_IF(
+        (this->has_unique_items_ && !schema.defines("uniqueItems")) ||
+        needs_items || !schema.defines("minItems"));
 
     this->add_items_ = needs_items;
     return true;
   }
 
   auto transform(JSON &schema, const Result &) const -> void override {
-    if (!schema.defines("uniqueItems")) {
+    if (this->has_unique_items_ && !schema.defines("uniqueItems")) {
       schema.assign("uniqueItems", sourcemeta::core::JSON{false});
     }
     if (this->add_items_ && !schema.defines("items")) {
@@ -58,4 +66,5 @@ public:
 private:
   mutable bool add_items_{true};
   mutable bool is_pre_draft4_{false};
+  mutable bool has_unique_items_{true};
 };

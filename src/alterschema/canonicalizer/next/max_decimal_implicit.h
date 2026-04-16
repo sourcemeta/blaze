@@ -1,9 +1,8 @@
-class MaximumCanEqualTrueDrop final : public SchemaTransformRule {
+class MaxDecimalImplicit final : public SchemaTransformRule {
 public:
   using mutates = std::true_type;
   using reframe_after_transform = std::true_type;
-  MaximumCanEqualTrueDrop()
-      : SchemaTransformRule{"maximum_can_equal_true_drop", ""} {};
+  MaxDecimalImplicit() : SchemaTransformRule{"max_decimal_implicit", ""} {};
 
   [[nodiscard]] auto
   condition(const sourcemeta::core::JSON &schema,
@@ -16,19 +15,15 @@ public:
       -> SchemaTransformRule::Result override {
     ONLY_CONTINUE_IF(
         vocabularies.contains_any({Vocabularies::Known::JSON_Schema_Draft_0,
-                                   Vocabularies::Known::JSON_Schema_Draft_1,
-                                   Vocabularies::Known::JSON_Schema_Draft_2}) &&
+                                   Vocabularies::Known::JSON_Schema_Draft_1}) &&
         schema.is_object() && schema.defines("type") &&
         schema.at("type").is_string() &&
-        (schema.at("type").to_string() == "integer" ||
-         schema.at("type").to_string() == "number") &&
-        schema.defines("maximumCanEqual") &&
-        schema.at("maximumCanEqual").is_boolean() &&
-        schema.at("maximumCanEqual").to_boolean());
+        schema.at("type").to_string() == "integer" &&
+        !schema.defines("maxDecimal"));
     return true;
   }
 
   auto transform(JSON &schema, const Result &) const -> void override {
-    schema.erase("maximumCanEqual");
+    schema.assign("maxDecimal", sourcemeta::core::JSON{0});
   }
 };

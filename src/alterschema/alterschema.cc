@@ -146,6 +146,7 @@ auto WALK_UP_IN_PLACE_APPLICATORS(const JSON &root, const SchemaFrame &frame,
 #include "canonicalizer/next/implicit_array_keywords.h"
 #include "canonicalizer/next/implicit_contains_keywords.h"
 #include "canonicalizer/next/implicit_object_keywords.h"
+#include "canonicalizer/next/max_decimal_implicit.h"
 #include "canonicalizer/next/maximum_can_equal_integer_fold.h"
 #include "canonicalizer/next/maximum_can_equal_true_drop.h"
 #include "canonicalizer/next/minimum_can_equal_integer_fold.h"
@@ -365,6 +366,7 @@ auto add(SchemaTransformer &bundle, const AlterSchemaMode mode) -> void {
     bundle.add<MinPropertiesImplicit>();
     bundle.add<MultipleOfImplicit>();
     bundle.add<DivisibleByImplicit>();
+    bundle.add<MaxDecimalImplicit>();
     bundle.add<PropertiesImplicit>();
     bundle.add<ItemsImplicit>();
   }
