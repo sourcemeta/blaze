@@ -111,7 +111,6 @@ auto WALK_UP_IN_PLACE_APPLICATORS(const JSON &root, const SchemaFrame &frame,
 #include "canonicalizer/additional_properties_implicit.h"
 #include "canonicalizer/comment_drop.h"
 #include "canonicalizer/const_as_enum.h"
-#include "canonicalizer/definitions_to_defs_rename.h"
 #include "canonicalizer/dependencies_to_any_of.h"
 #include "canonicalizer/dependencies_to_extends_disallow.h"
 #include "canonicalizer/dependent_required_to_any_of.h"
@@ -124,7 +123,6 @@ auto WALK_UP_IN_PLACE_APPLICATORS(const JSON &root, const SchemaFrame &frame,
 #include "canonicalizer/empty_dependencies_drop.h"
 #include "canonicalizer/empty_dependent_required_drop.h"
 #include "canonicalizer/empty_dependent_schemas_drop.h"
-#include "canonicalizer/empty_object_as_boolean_true.h"
 #include "canonicalizer/enum_drop_redundant_validation.h"
 #include "canonicalizer/enum_filter_by_type.h"
 #include "canonicalizer/exclusive_bounds_false_drop.h"
@@ -264,7 +262,6 @@ namespace sourcemeta::blaze {
 
 auto add(SchemaTransformer &bundle, const AlterSchemaMode mode) -> void {
   if (mode == AlterSchemaMode::Canonicalizer) {
-    bundle.add<EmptyObjectAsBooleanTrue>();
     bundle.add<ExclusiveMinimumBooleanIntegerFold>();
     bundle.add<ExclusiveMaximumBooleanIntegerFold>();
     bundle.add<ExclusiveBoundsFalseDrop>();
@@ -274,7 +271,6 @@ auto add(SchemaTransformer &bundle, const AlterSchemaMode mode) -> void {
     bundle.add<MinimumCanEqualTrueDrop>();
     bundle.add<MaximumCanEqualTrueDrop>();
     bundle.add<CommentDrop>();
-    bundle.add<DefinitionsToDefsRename>();
     bundle.add<DeprecatedFalseDrop>();
     bundle.add<RecursiveAnchorFalseDrop>();
     bundle.add<UnevaluatedItemsToItems>();
@@ -294,7 +290,8 @@ auto add(SchemaTransformer &bundle, const AlterSchemaMode mode) -> void {
     bundle.add<TypeArrayToAnyOf>();
   }
 
-  if (mode == AlterSchemaMode::Linter) {
+  if (mode == AlterSchemaMode::Linter ||
+      mode == AlterSchemaMode::Canonicalizer) {
     bundle.add<DefinitionsToDefs>();
   }
 

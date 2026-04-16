@@ -7,7 +7,6 @@ sourcemeta_library(NAMESPACE sourcemeta PROJECT blaze NAME alterschema
     canonicalizer/additional_properties_implicit.h
     canonicalizer/comment_drop.h
     canonicalizer/const_as_enum.h
-    canonicalizer/definitions_to_defs_rename.h
     canonicalizer/dependencies_to_any_of.h
     canonicalizer/dependencies_to_extends_disallow.h
     canonicalizer/dependent_required_to_any_of.h
@@ -20,7 +19,6 @@ sourcemeta_library(NAMESPACE sourcemeta PROJECT blaze NAME alterschema
     canonicalizer/empty_dependencies_drop.h
     canonicalizer/empty_dependent_required_drop.h
     canonicalizer/empty_dependent_schemas_drop.h
-    canonicalizer/empty_object_as_boolean_true.h
     canonicalizer/enum_drop_redundant_validation.h
     canonicalizer/enum_filter_by_type.h
     canonicalizer/exclusive_bounds_false_drop.h
