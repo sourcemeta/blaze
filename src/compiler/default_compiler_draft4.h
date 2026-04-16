@@ -1320,6 +1320,11 @@ auto compiler_draft4_applicator_properties_with_options(
         }
       }
 
+      // The handler uses a uint32_t bitmask for required tracking
+      if (fusion_entries.size() > 32) {
+        return children;
+      }
+
       return {make(InstructionIndex::AssertionObjectPropertiesSimple, context,
                    schema_context, dynamic_context,
                    Value{std::move(fusion_entries)},
