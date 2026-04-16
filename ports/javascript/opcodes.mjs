@@ -90,14 +90,15 @@ export const LOOP_ITEMS_PROPERTIES_EXACTLY_TYPE_STRICT_HASH = 88;
 export const LOOP_ITEMS_PROPERTIES_EXACTLY_TYPE_STRICT_HASH3 = 89;
 export const LOOP_ITEMS_INTEGER_BOUNDED = 90;
 export const LOOP_ITEMS_INTEGER_BOUNDED_SIZED = 91;
-export const LOOP_CONTAINS = 92;
-export const CONTROL_GROUP = 93;
-export const CONTROL_GROUP_WHEN_DEFINES = 94;
-export const CONTROL_GROUP_WHEN_DEFINES_DIRECT = 95;
-export const CONTROL_GROUP_WHEN_TYPE = 96;
-export const CONTROL_EVALUATE = 97;
-export const CONTROL_DYNAMIC_ANCHOR_JUMP = 98;
-export const CONTROL_JUMP = 99;
+export const LOOP_ITEMS_OBJECT_PROPERTIES = 92;
+export const LOOP_CONTAINS = 93;
+export const CONTROL_GROUP = 94;
+export const CONTROL_GROUP_WHEN_DEFINES = 95;
+export const CONTROL_GROUP_WHEN_DEFINES_DIRECT = 96;
+export const CONTROL_GROUP_WHEN_TYPE = 97;
+export const CONTROL_EVALUATE = 98;
+export const CONTROL_DYNAMIC_ANCHOR_JUMP = 99;
+export const CONTROL_JUMP = 100;
 
 export const INSTRUCTION_NAMES = {
   "AssertionFail": ASSERTION_FAIL,
@@ -192,6 +193,7 @@ export const INSTRUCTION_NAMES = {
   "LoopItemsPropertiesExactlyTypeStrictHash3": LOOP_ITEMS_PROPERTIES_EXACTLY_TYPE_STRICT_HASH3,
   "LoopItemsIntegerBounded": LOOP_ITEMS_INTEGER_BOUNDED,
   "LoopItemsIntegerBoundedSized": LOOP_ITEMS_INTEGER_BOUNDED_SIZED,
+  "LoopItemsObjectProperties": LOOP_ITEMS_OBJECT_PROPERTIES,
   "LoopContains": LOOP_CONTAINS,
   "ControlGroup": CONTROL_GROUP,
   "ControlGroupWhenDefines": CONTROL_GROUP_WHEN_DEFINES,

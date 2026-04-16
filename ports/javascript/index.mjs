@@ -1561,6 +1561,44 @@ function AssertionObjectPropertiesSimple(instruction, instance, depth, template,
   return true;
 };
 
+function LoopItemsObjectProperties(instruction, instance, depth, template, evaluator) {
+  const target = resolveInstance(instance, instruction[2]);
+  if (evaluator.callbackMode) evaluator.callbackPush(instruction);
+  if (!Array.isArray(target)) {
+    if (evaluator.callbackMode) evaluator.callbackPop(instruction, false);
+    return false;
+  }
+  const value = instruction[5];
+  const children = instruction[6];
+  for (let elementIndex = 0; elementIndex < target.length; elementIndex++) {
+    const element = target[elementIndex];
+    if (!isObject(element)) {
+      if (evaluator.callbackMode) evaluator.callbackPop(instruction, false);
+      return false;
+    }
+    for (let index = 0; index < value.length; index++) {
+      const entry = value[index];
+      const name = entry[0];
+      const required = entry[2];
+      if (!Object.hasOwn(element, name)) {
+        if (required) {
+          if (evaluator.callbackMode) evaluator.callbackPop(instruction, false);
+          return false;
+        }
+        continue;
+      }
+      if (index < children.length) {
+        if (!evaluateInstructionFast(children[index], element[name], depth + 1, template, evaluator)) {
+          if (evaluator.callbackMode) evaluator.callbackPop(instruction, false);
+          return false;
+        }
+      }
+    }
+  }
+  if (evaluator.callbackMode) evaluator.callbackPop(instruction, true);
+  return true;
+}
+
 function AnnotationEmit(instruction, instance, depth, template, evaluator) {
   if (evaluator.callbackMode) evaluator.callbackAnnotation(instruction);
   return true;
@@ -2707,14 +2745,15 @@ const handlers = [
   LoopItemsPropertiesExactlyTypeStrictHash,   // 89
   LoopItemsIntegerBounded,                    // 90
   LoopItemsIntegerBoundedSized,               // 91
-  LoopContains,                               // 92
-  ControlGroup,                               // 93
-  ControlGroupWhenDefines,                    // 94
-  ControlGroupWhenDefinesDirect,              // 95
-  ControlGroupWhenType,                       // 96
-  ControlEvaluate,                            // 97
-  ControlDynamicAnchorJump,                   // 98
-  ControlJump                                 // 99
+  LoopItemsObjectProperties,                  // 92
+  LoopContains,                               // 93
+  ControlGroup,                               // 94
+  ControlGroupWhenDefines,                    // 95
+  ControlGroupWhenDefinesDirect,              // 96
+  ControlGroupWhenType,                       // 97
+  ControlEvaluate,                            // 98
+  ControlDynamicAnchorJump,                   // 99
+  ControlJump                                 // 100
 ];
 
 function AssertionTypeArrayBounded_fast(instruction, instance, depth, template, evaluator) {
@@ -3461,6 +3500,30 @@ function AssertionObjectPropertiesSimple_fast(instruction, instance, depth, temp
   return true;
 }
 
+function LoopItemsObjectProperties_fast(instruction, instance, depth, template, evaluator) {
+  const target = resolveInstance(instance, instruction[2]);
+  if (!Array.isArray(target)) return false;
+  const value = instruction[5];
+  const children = instruction[6];
+  for (let elementIndex = 0; elementIndex < target.length; elementIndex++) {
+    const element = target[elementIndex];
+    if (!isObject(element)) return false;
+    for (let index = 0; index < value.length; index++) {
+      const entry = value[index];
+      const name = entry[0];
+      const required = entry[2];
+      if (!Object.hasOwn(element, name)) {
+        if (required) return false;
+        continue;
+      }
+      if (index < children.length) {
+        if (!evaluateInstructionFast(children[index], element[name], depth + 1, template, evaluator)) return false;
+      }
+    }
+  }
+  return true;
+}
+
 function AnnotationEmit_fast() { return true; }
 function AnnotationToParent_fast() { return true; }
 function AnnotationBasenameToParent_fast() { return true; }
@@ -3905,7 +3968,7 @@ fastHandlers[4] = AssertionDefinesAllStrict_fast;
 fastHandlers[27] = AssertionEqual_fast;
 fastHandlers[65] = LoopPropertiesMatch_fast;
 fastHandlers[56] = LogicalOr_fast;
-fastHandlers[99] = ControlJump_fast;
+fastHandlers[100] = ControlJump_fast;
 fastHandlers[29] = AssertionEqualsAnyStringHash_fast;
 fastHandlers[58] = LogicalXor_fast;
 fastHandlers[2] = AssertionDefinesStrict_fast;
@@ -3923,7 +3986,7 @@ fastHandlers[1] = AssertionDefines_fast;
 fastHandlers[60] = LogicalWhenType_fast;
 fastHandlers[61] = LogicalWhenDefines_fast;
 fastHandlers[0] = AssertionFail_fast;
-fastHandlers[92] = LoopContains_fast;
+fastHandlers[93] = LoopContains_fast;
 fastHandlers[54] = LogicalNot_fast;
 fastHandlers[85] = LoopItemsType_fast;
 fastHandlers[86] = LoopItemsTypeStrict_fast;
@@ -3991,7 +4054,8 @@ fastHandlers[88] = LoopItemsPropertiesExactlyTypeStrictHash_fast;
 fastHandlers[89] = LoopItemsPropertiesExactlyTypeStrictHash_fast;
 fastHandlers[90] = LoopItemsIntegerBounded_fast;
 fastHandlers[91] = LoopItemsIntegerBoundedSized_fast;
-fastHandlers[98] = ControlDynamicAnchorJump_fast;
+fastHandlers[92] = LoopItemsObjectProperties_fast;
+fastHandlers[99] = ControlDynamicAnchorJump_fast;
 
 import { describe } from './describe.mjs';
 
