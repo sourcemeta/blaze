@@ -108,8 +108,8 @@ static auto alterschema_test_resolver(std::string_view identifier)
 #define CANONICALIZE_NEXT(document, expected, compiled_template)               \
   {                                                                            \
     sourcemeta::blaze::SchemaTransformer _bundle;                              \
-    sourcemeta::blaze::add(                                                    \
-        _bundle, sourcemeta::blaze::AlterSchemaMode::CanonicalizerNext);       \
+    sourcemeta::blaze::add(_bundle,                                            \
+                           sourcemeta::blaze::AlterSchemaMode::Canonicalizer); \
     const auto _result = _bundle.apply(                                        \
         document, sourcemeta::core::schema_walker, alterschema_test_resolver,  \
         [](const auto &, const auto &, const auto &, const auto &,             \

@@ -103,23 +103,23 @@ auto main(int argc, char **argv) -> int {
     register_tests(std::filesystem::path{TRACE_SUITE_CANONICAL_PATH} /
                        "evaluator_draft7.json",
                    "Canonicalize_draft7",
-                   sourcemeta::blaze::AlterSchemaMode::CanonicalizerNext);
+                   sourcemeta::blaze::AlterSchemaMode::Canonicalizer);
     register_tests(std::filesystem::path{TRACE_SUITE_CANONICAL_PATH} /
                        "evaluator_2019_09.json",
                    "Canonicalize_2019_09",
-                   sourcemeta::blaze::AlterSchemaMode::CanonicalizerNext);
+                   sourcemeta::blaze::AlterSchemaMode::Canonicalizer);
     register_tests(std::filesystem::path{TRACE_SUITE_CANONICAL_PATH} /
                        "evaluator_draft6.json",
                    "Canonicalize_draft6",
-                   sourcemeta::blaze::AlterSchemaMode::CanonicalizerNext);
+                   sourcemeta::blaze::AlterSchemaMode::Canonicalizer);
     register_tests(std::filesystem::path{TRACE_SUITE_CANONICAL_PATH} /
                        "evaluator_2020_12.json",
                    "Canonicalize_2020_12",
-                   sourcemeta::blaze::AlterSchemaMode::CanonicalizerNext);
+                   sourcemeta::blaze::AlterSchemaMode::Canonicalizer);
     register_tests(std::filesystem::path{TRACE_SUITE_CANONICAL_PATH} /
                        "evaluator_draft4.json",
                    "Canonicalize_draft4",
-                   sourcemeta::blaze::AlterSchemaMode::CanonicalizerNext);
+                   sourcemeta::blaze::AlterSchemaMode::Canonicalizer);
   } catch (const std::exception &error) {
     std::fprintf(stderr, "Error: %s\n", error.what());
     return EXIT_FAILURE;
