@@ -331,6 +331,48 @@ TEST_F(CanonicalizerDraft1Test, minimum_can_equal_false_with_equal_bounds) {
   CANONICALIZE_NEXT(document, expected, *compiled_meta_);
 }
 
+TEST_F(CanonicalizerDraft1Test,
+       number_minimum_can_equal_false_with_equal_bounds) {
+  auto document = sourcemeta::core::parse_json(R"JSON({
+    "$schema": "http://json-schema.org/draft-01/schema#",
+    "type": "number",
+    "minimum": 3,
+    "maximum": 3,
+    "minimumCanEqual": false
+  })JSON");
+
+  const auto expected = sourcemeta::core::parse_json(R"JSON({
+    "$schema": "http://json-schema.org/draft-01/schema#",
+    "type": "number",
+    "minimum": 3,
+    "maximum": 3,
+    "minimumCanEqual": false
+  })JSON");
+
+  CANONICALIZE_NEXT(document, expected, *compiled_meta_);
+}
+
+TEST_F(CanonicalizerDraft1Test,
+       number_maximum_can_equal_false_with_equal_bounds) {
+  auto document = sourcemeta::core::parse_json(R"JSON({
+    "$schema": "http://json-schema.org/draft-01/schema#",
+    "type": "number",
+    "minimum": 5,
+    "maximum": 5,
+    "maximumCanEqual": false
+  })JSON");
+
+  const auto expected = sourcemeta::core::parse_json(R"JSON({
+    "$schema": "http://json-schema.org/draft-01/schema#",
+    "type": "number",
+    "minimum": 5,
+    "maximum": 5,
+    "maximumCanEqual": false
+  })JSON");
+
+  CANONICALIZE_NEXT(document, expected, *compiled_meta_);
+}
+
 TEST_F(CanonicalizerDraft1Test, enum_simple) {
   auto document = sourcemeta::core::parse_json(R"JSON({
     "$schema": "http://json-schema.org/draft-01/schema#",
