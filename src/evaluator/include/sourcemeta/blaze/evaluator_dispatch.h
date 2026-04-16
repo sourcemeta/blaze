@@ -2696,7 +2696,7 @@ using DispatchHandler = bool (*)(
 template <bool Track, bool Dynamic, bool HasCallback>
 // Must have same order as InstructionIndex
 // NOLINTNEXTLINE(modernize-avoid-c-arrays)
-static constexpr DispatchHandler<Track, Dynamic, HasCallback> handlers[100] = {
+static constexpr DispatchHandler<Track, Dynamic, HasCallback> handlers[101] = {
     AssertionFail,
     AssertionDefines,
     AssertionDefinesStrict,
