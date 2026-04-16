@@ -31,7 +31,7 @@ TEST(Compiler_JSON, example_1) {
                                  sourcemeta::blaze::default_schema_compiler)};
 
   const sourcemeta::core::JSON expected{sourcemeta::core::parse_json(R"JSON([
-    4,
+    5,
     false,
     false,
     [
@@ -67,7 +67,7 @@ TEST(Compiler_JSON, example_2) {
                                  sourcemeta::blaze::default_schema_compiler)};
 
   const sourcemeta::core::JSON expected{sourcemeta::core::parse_json(R"JSON([
-    4,
+    5,
     false,
     false,
     [
@@ -118,7 +118,7 @@ TEST(Compiler_JSON, example_3) {
                                  sourcemeta::blaze::default_schema_compiler)};
 
   const sourcemeta::core::JSON expected{sourcemeta::core::parse_json(R"JSON([
-    4,
+    5,
     false,
     false,
     [
@@ -156,7 +156,7 @@ TEST(Compiler_JSON, example_4) {
                                  sourcemeta::blaze::default_schema_compiler)};
 
   const sourcemeta::core::JSON expected{sourcemeta::core::parse_json(R"JSON([
-    4,
+    5,
     false,
     false,
     [
@@ -233,7 +233,7 @@ TEST(Compiler_JSON, example_5) {
                                  sourcemeta::blaze::Mode::Exhaustive)};
 
   const sourcemeta::core::JSON expected{sourcemeta::core::parse_json(R"JSON([
-    4,
+    5,
     false,
     true,
     [
@@ -278,7 +278,7 @@ TEST(Compiler_JSON, example_6) {
                                  sourcemeta::blaze::Mode::Exhaustive)};
 
   const sourcemeta::core::JSON expected{sourcemeta::core::parse_json(R"JSON([
-    4,
+    5,
     false,
     true,
     [
@@ -408,7 +408,7 @@ TEST(Compiler_JSON, invalid_1) {
 
 TEST(Compiler_JSON, invalid_version) {
   const auto input{sourcemeta::core::parse_json(R"JSON([
-    5,
+    6,
     false,
     false,
     [

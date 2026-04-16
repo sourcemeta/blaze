@@ -2371,6 +2371,50 @@ INSTRUCTION_HANDLER(LoopItemsIntegerBoundedSized) {
   EVALUATE_END(LoopItemsIntegerBoundedSized);
 }
 
+INSTRUCTION_HANDLER(LoopItemsObjectProperties) {
+  EVALUATE_BEGIN_NON_STRING(LoopItemsObjectProperties, true);
+  if (!target.is_array()) {
+    EVALUATE_END(LoopItemsObjectProperties);
+  }
+
+  const auto &value{assume_value<ValueObjectProperties>(instruction.value)};
+  assert(value.size() >= instruction.children.size());
+  result = true;
+
+  for (const auto &element : target.as_array()) {
+    if (!element.is_object()) [[unlikely]] {
+      result = false;
+      EVALUATE_END(LoopItemsObjectProperties);
+    }
+
+    for (std::size_t index = 0; index < value.size(); index++) {
+      const auto &entry{value[index]};
+      const auto &name{std::get<0>(entry)};
+      const auto hash{std::get<1>(entry)};
+      const auto is_required{std::get<2>(entry)};
+      const auto *property_value{element.try_at(name, hash)};
+      if (!property_value) {
+        if (is_required) [[unlikely]] {
+          result = false;
+          EVALUATE_END(LoopItemsObjectProperties);
+        }
+
+        continue;
+      }
+
+      if (index < instruction.children.size() &&
+          !evaluate_instruction_without_callback(
+              instruction.children[index], *property_value, depth + 1, context))
+          [[unlikely]] {
+        result = false;
+        EVALUATE_END(LoopItemsObjectProperties);
+      }
+    }
+  }
+
+  EVALUATE_END(LoopItemsObjectProperties);
+}
+
 INSTRUCTION_HANDLER(LoopContains) {
   EVALUATE_BEGIN_NON_STRING(LoopContains, target.is_array());
   assert(!instruction.children.empty());
@@ -2441,7 +2485,7 @@ using DispatchHandler = bool (*)(
 template <bool Track, bool Dynamic, bool HasCallback>
 // Must have same order as InstructionIndex
 // NOLINTNEXTLINE(modernize-avoid-c-arrays)
-static constexpr DispatchHandler<Track, Dynamic, HasCallback> handlers[99] = {
+static constexpr DispatchHandler<Track, Dynamic, HasCallback> handlers[100] = {
     AssertionFail,
     AssertionDefines,
     AssertionDefinesStrict,
@@ -2533,6 +2577,7 @@ static constexpr DispatchHandler<Track, Dynamic, HasCallback> handlers[99] = {
     LoopItemsPropertiesExactlyTypeStrictHash3,
     LoopItemsIntegerBounded,
     LoopItemsIntegerBoundedSized,
+    LoopItemsObjectProperties,
     LoopContains,
     ControlGroup,
     ControlGroupWhenDefines,
