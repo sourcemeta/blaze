@@ -3,8 +3,8 @@ const DEPTH_LIMIT = 300;
 const ANNOTATION_EMIT = 49;
 const ANNOTATION_TO_PARENT = 50;
 const ANNOTATION_BASENAME_TO_PARENT = 51;
-const CONTROL_GROUP_START = 92;
-const CONTROL_EVALUATE_END = 96;
+const CONTROL_GROUP_START = 93;
+const CONTROL_EVALUATE_END = 97;
 const URI_REGEX = /^[a-zA-Z][a-zA-Z0-9+\-.]*:[^\s]*$/;
 
 function buildJsonPointer(tokens, length) {
@@ -326,14 +326,14 @@ function compileInstructionToCode(instruction, captures, visited, budget) {
     case 84: { var r=R('t'); return r?r+'if(!Array.isArray(t))return true;for(var j=0;j<t.length;j++){var a=_jt(t[j]);if(a!=='+value+'&&!('+value+'===2&&_ii(t[j])))return false;}return true;':null; }
     case 85: { var r=R('t'); return r?r+'if(!Array.isArray(t))return true;for(var j=0;j<t.length;j++){if(_es(t[j])!=='+value+')return false;}return true;':null; }
     case 86: { var r=R('t'); return r?r+'if(!Array.isArray(t))return true;for(var j=0;j<t.length;j++){if(('+value+'&(1<<_es(t[j])))===0)return false;}return true;':null; }
-    case 87: return fb(87); case 88: return fb(88); case 89: return fb(89); case 90: return fb(90); case 91: return fb(91);
-    case 92: { if(!children||children.length===0)return 'return true;'; var c=''; for(var j=0;j<children.length;j++){var r2=compileInstructionToCode(children[j],captures,visited,budget); if(r2===null){var ci=captures.length;captures.push(children[j]);c+='if(!_e(_c['+ci+'],i,d+1,_t,_v))return false;';}else{budget[0]-=r2.length;c+='if(!(function(i,d,_t,_v){'+r2+'})(i,d+1,_t,_v))return false;';}} return c+'return true;'; }
-    case 93: { var r=R('t'); if(!r)return null; var c=r+TO+'return true;if(!Object.hasOwn(t,'+JSON.stringify(value)+'))return true;'; if(children&&children.length>0)c+=seq(children,'i'); return c+'return true;'; }
-    case 94: { var c=IO+'if(!Object.hasOwn(i,'+JSON.stringify(value)+'))return true;'; if(children&&children.length>0)c+=seq(children,'i'); return c+'return true;'; }
-    case 95: { var c='if(_jt(i)!=='+value+')return true;'; if(children&&children.length>0)c+=seq(children,'i'); return c+'return true;'; }
-    case 96: return 'return true;';
-    case 97: return fb(97);
-    case 98: { if(!value)return 'return true;'; if(visited&&visited.has(instruction))return fb(98); if(!visited)visited=new Set(); visited.add(instruction); var r=R('t'); if(!r)return fb(98); var c=r; for(var j=0;j<value.length;j++){var r2=compileInstructionToCode(value[j],captures,visited,budget); if(r2===null){var ci=captures.length;captures.push(value[j]);c+='if(!_e(_c['+ci+'],t,d+1,_t,_v))return false;';}else{budget[0]-=r2.length;c+='if(!(function(i,d,_t,_v){'+r2+'})(t,d+1,_t,_v))return false;';}} return c+'return true;'; }
+    case 87: return fb(87); case 88: return fb(88); case 89: return fb(89); case 90: return fb(90); case 91: return fb(91); case 92: return fb(92);
+    case 93: { if(!children||children.length===0)return 'return true;'; var c=''; for(var j=0;j<children.length;j++){var r2=compileInstructionToCode(children[j],captures,visited,budget); if(r2===null){var ci=captures.length;captures.push(children[j]);c+='if(!_e(_c['+ci+'],i,d+1,_t,_v))return false;';}else{budget[0]-=r2.length;c+='if(!(function(i,d,_t,_v){'+r2+'})(i,d+1,_t,_v))return false;';}} return c+'return true;'; }
+    case 94: { var r=R('t'); if(!r)return null; var c=r+TO+'return true;if(!Object.hasOwn(t,'+JSON.stringify(value)+'))return true;'; if(children&&children.length>0)c+=seq(children,'i'); return c+'return true;'; }
+    case 95: { var c=IO+'if(!Object.hasOwn(i,'+JSON.stringify(value)+'))return true;'; if(children&&children.length>0)c+=seq(children,'i'); return c+'return true;'; }
+    case 96: { var c='if(_jt(i)!=='+value+')return true;'; if(children&&children.length>0)c+=seq(children,'i'); return c+'return true;'; }
+    case 97: return 'return true;';
+    case 98: return fb(98);
+    case 99: { if(!value)return 'return true;'; if(visited&&visited.has(instruction))return fb(99); if(!visited)visited=new Set(); visited.add(instruction); var r=R('t'); if(!r)return fb(99); var c=r; for(var j=0;j<value.length;j++){var r2=compileInstructionToCode(value[j],captures,visited,budget); if(r2===null){var ci=captures.length;captures.push(value[j]);c+='if(!_e(_c['+ci+'],t,d+1,_t,_v))return false;';}else{budget[0]-=r2.length;c+='if(!(function(i,d,_t,_v){'+r2+'})(t,d+1,_t,_v))return false;';}} return c+'return true;'; }
     default: return null;
   }
 }
@@ -656,7 +656,7 @@ function evaluateInstructionTracked(instruction, instance, depth, template, eval
   if (!handler) return true;
 
   const type = instruction[0];
-  if (type < 92 || type > 96) {
+  if (type < 93 || type > 97) {
     if (evaluator.trackMode) {
       evaluator.pushPath(instruction[1]);
     }
