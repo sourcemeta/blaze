@@ -77,8 +77,18 @@ public:
         continue;
       }
 
+      if (entry.first == "maxDecimal" &&
+          vocabularies.contains_any(
+              {Vocabularies::Known::JSON_Schema_Draft_0,
+               Vocabularies::Known::JSON_Schema_Draft_1})) {
+        continue;
+      }
+
       if (entry.first == "optional" &&
-          vocabularies.contains(Vocabularies::Known::JSON_Schema_Draft_2)) {
+          vocabularies.contains_any(
+              {Vocabularies::Known::JSON_Schema_Draft_0,
+               Vocabularies::Known::JSON_Schema_Draft_1,
+               Vocabularies::Known::JSON_Schema_Draft_2})) {
         continue;
       }
 

@@ -19,7 +19,9 @@ public:
     using namespace sourcemeta::core;
     ONLY_CONTINUE_IF(schema.is_object());
     ONLY_CONTINUE_IF(!vocabularies.contains_any(
-                         {Vocabularies::Known::JSON_Schema_Draft_2,
+                         {Vocabularies::Known::JSON_Schema_Draft_0,
+                          Vocabularies::Known::JSON_Schema_Draft_1,
+                          Vocabularies::Known::JSON_Schema_Draft_2,
                           Vocabularies::Known::JSON_Schema_Draft_3}) ||
                      (!schema.empty() && !schema.defines("disallow")));
     ONLY_CONTINUE_IF(vocabularies.contains_any(

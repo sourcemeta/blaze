@@ -1,0 +1,1572 @@
+{
+  "target": "./canonical-draft1.json",
+  "tests": [
+    {
+      "description": "Boolean true is rejected",
+      "valid": false,
+      "data": true
+    },
+    {
+      "description": "Boolean false is rejected",
+      "valid": false,
+      "data": false
+    },
+    {
+      "description": "String value is rejected",
+      "valid": false,
+      "data": "not a schema"
+    },
+    {
+      "description": "Number value is rejected",
+      "valid": false,
+      "data": 42
+    },
+    {
+      "description": "Null value is rejected",
+      "valid": false,
+      "data": null
+    },
+    {
+      "description": "Array value is rejected",
+      "valid": false,
+      "data": [ 1, 2, 3 ]
+    },
+    {
+      "description": "Empty object is canonical (accept all)",
+      "valid": true,
+      "data": {}
+    },
+    {
+      "description": "Object with only metadata is not canonical",
+      "valid": false,
+      "data": {
+        "title": "something"
+      }
+    },
+    {
+      "description": "Enum with values is canonical",
+      "valid": true,
+      "data": {
+        "enum": [ 1, 2, 3 ]
+      }
+    },
+    {
+      "description": "Enum with $schema is canonical",
+      "valid": true,
+      "data": {
+        "$schema": "http://json-schema.org/draft-01/schema#",
+        "enum": [ 1 ]
+      }
+    },
+    {
+      "description": "String with $schema is canonical",
+      "valid": true,
+      "data": {
+        "$schema": "http://json-schema.org/draft-01/schema#",
+        "type": "string",
+        "minLength": 0
+      }
+    },
+    {
+      "description": "Integer with $schema is canonical",
+      "valid": true,
+      "data": {
+        "$schema": "http://json-schema.org/draft-01/schema#",
+        "type": "integer",
+        "maxDecimal": 0
+      }
+    },
+    {
+      "description": "Number with $schema is canonical",
+      "valid": true,
+      "data": {
+        "$schema": "http://json-schema.org/draft-01/schema#",
+        "type": "number"
+      }
+    },
+    {
+      "description": "Object with $schema is canonical",
+      "valid": true,
+      "data": {
+        "$schema": "http://json-schema.org/draft-01/schema#",
+        "type": "object",
+        "properties": {},
+        "additionalProperties": {}
+      }
+    },
+    {
+      "description": "Array with $schema is canonical",
+      "valid": true,
+      "data": {
+        "$schema": "http://json-schema.org/draft-01/schema#",
+        "type": "array",
+        "minItems": 0,
+        "items": {}
+      }
+    },
+    {
+      "description": "Extends with $schema is canonical",
+      "valid": true,
+      "data": {
+        "$schema": "http://json-schema.org/draft-01/schema#",
+        "extends": [
+          {
+            "enum": [ 1 ]
+          }
+        ]
+      }
+    },
+    {
+      "description": "Disallow with $schema is canonical",
+      "valid": true,
+      "data": {
+        "$schema": "http://json-schema.org/draft-01/schema#",
+        "disallow": [ "number" ]
+      }
+    },
+    {
+      "description": "Type array with $schema is canonical",
+      "valid": true,
+      "data": {
+        "$schema": "http://json-schema.org/draft-01/schema#",
+        "type": [
+          {
+            "enum": [ 1 ]
+          }
+        ]
+      }
+    },
+    {
+      "description": "$schema alone is not canonical",
+      "valid": false,
+      "data": {
+        "$schema": "http://json-schema.org/draft-01/schema#"
+      }
+    },
+    {
+      "description": "Enum with booleans is canonical",
+      "valid": true,
+      "data": {
+        "enum": [ false, true ]
+      }
+    },
+    {
+      "description": "Enum with null is canonical",
+      "valid": true,
+      "data": {
+        "enum": [ null ]
+      }
+    },
+    {
+      "description": "Enum with title is canonical",
+      "valid": true,
+      "data": {
+        "enum": [ 1 ],
+        "title": "One"
+      }
+    },
+    {
+      "description": "Enum with description is canonical",
+      "valid": true,
+      "data": {
+        "enum": [ "a" ],
+        "description": "A value"
+      }
+    },
+    {
+      "description": "Enum with default is canonical",
+      "valid": true,
+      "data": {
+        "enum": [ 1, 2 ],
+        "default": 1
+      }
+    },
+    {
+      "description": "Enum with x-keyword is canonical",
+      "valid": true,
+      "data": {
+        "enum": [ 1, 2 ],
+        "x-source": "config"
+      }
+    },
+    {
+      "description": "Empty enum is rejected",
+      "valid": false,
+      "data": {
+        "enum": []
+      }
+    },
+    {
+      "description": "Enum with duplicate values is rejected",
+      "valid": false,
+      "data": {
+        "enum": [ 1, 1 ]
+      }
+    },
+    {
+      "description": "Enum with type sibling is rejected",
+      "valid": false,
+      "data": {
+        "enum": [ 1, 2 ],
+        "type": "integer"
+      }
+    },
+    {
+      "description": "Enum with optional is rejected",
+      "valid": false,
+      "data": {
+        "enum": [ 1 ],
+        "optional": true
+      }
+    },
+    {
+      "description": "Enum with requires is rejected",
+      "valid": false,
+      "data": {
+        "enum": [ 1 ],
+        "requires": "foo"
+      }
+    },
+    {
+      "description": "Enum with properties sibling is rejected",
+      "valid": false,
+      "data": {
+        "enum": [ 1, 2 ],
+        "properties": {}
+      }
+    },
+    {
+      "description": "Enum with minimum sibling is rejected",
+      "valid": false,
+      "data": {
+        "enum": [ 1, 2 ],
+        "minimum": 0
+      }
+    },
+    {
+      "description": "Enum with extends sibling is rejected",
+      "valid": false,
+      "data": {
+        "enum": [ 1 ],
+        "extends": [
+          {
+            "enum": [ 1 ]
+          }
+        ]
+      }
+    },
+    {
+      "description": "Enum with disallow sibling is rejected",
+      "valid": false,
+      "data": {
+        "enum": [ 1 ],
+        "disallow": [ "number" ]
+      }
+    },
+    {
+      "description": "String with minLength is canonical",
+      "valid": true,
+      "data": {
+        "type": "string",
+        "minLength": 0
+      }
+    },
+    {
+      "description": "String with all keywords is canonical",
+      "valid": true,
+      "data": {
+        "type": "string",
+        "minLength": 0,
+        "maxLength": 100,
+        "pattern": "^[a-z]+$",
+        "format": "email",
+        "contentEncoding": "base64"
+      }
+    },
+    {
+      "description": "String with annotations is canonical",
+      "valid": true,
+      "data": {
+        "type": "string",
+        "minLength": 0,
+        "title": "Name",
+        "description": "A name",
+        "default": "unknown"
+      }
+    },
+    {
+      "description": "String with optional is canonical",
+      "valid": true,
+      "data": {
+        "type": "string",
+        "minLength": 0,
+        "optional": true
+      }
+    },
+    {
+      "description": "String with requires string is canonical",
+      "valid": true,
+      "data": {
+        "type": "string",
+        "minLength": 0,
+        "requires": "other"
+      }
+    },
+    {
+      "description": "String with requires schema is canonical",
+      "valid": true,
+      "data": {
+        "type": "string",
+        "minLength": 0,
+        "requires": {
+          "type": "number"
+        }
+      }
+    },
+    {
+      "description": "String with x-keyword is canonical",
+      "valid": true,
+      "data": {
+        "type": "string",
+        "minLength": 0,
+        "x-custom": "value"
+      }
+    },
+    {
+      "description": "String without minLength is rejected",
+      "valid": false,
+      "data": {
+        "type": "string"
+      }
+    },
+    {
+      "description": "String with negative minLength is rejected",
+      "valid": false,
+      "data": {
+        "type": "string",
+        "minLength": -1
+      }
+    },
+    {
+      "description": "String with float minLength is rejected",
+      "valid": false,
+      "data": {
+        "type": "string",
+        "minLength": 1.5
+      }
+    },
+    {
+      "description": "String with negative maxLength is rejected",
+      "valid": false,
+      "data": {
+        "type": "string",
+        "minLength": 0,
+        "maxLength": -1
+      }
+    },
+    {
+      "description": "String with numeric keywords is rejected",
+      "valid": false,
+      "data": {
+        "type": "string",
+        "minLength": 0,
+        "minimum": 0
+      }
+    },
+    {
+      "description": "String with object keywords is rejected",
+      "valid": false,
+      "data": {
+        "type": "string",
+        "minLength": 0,
+        "properties": {}
+      }
+    },
+    {
+      "description": "String with array keywords is rejected",
+      "valid": false,
+      "data": {
+        "type": "string",
+        "minLength": 0,
+        "items": {
+          "enum": [ 1 ]
+        }
+      }
+    },
+    {
+      "description": "String with enum sibling is rejected",
+      "valid": false,
+      "data": {
+        "type": "string",
+        "minLength": 0,
+        "enum": [ "a" ]
+      }
+    },
+    {
+      "description": "Integer with maxDecimal is canonical",
+      "valid": true,
+      "data": {
+        "type": "integer",
+        "maxDecimal": 0
+      }
+    },
+    {
+      "description": "Integer with bounds is canonical",
+      "valid": true,
+      "data": {
+        "type": "integer",
+        "maxDecimal": 0,
+        "minimum": 0,
+        "maximum": 100
+      }
+    },
+    {
+      "description": "Integer with annotations is canonical",
+      "valid": true,
+      "data": {
+        "type": "integer",
+        "maxDecimal": 0,
+        "title": "Age",
+        "description": "Years",
+        "default": 0
+      }
+    },
+    {
+      "description": "Integer with optional is canonical",
+      "valid": true,
+      "data": {
+        "type": "integer",
+        "maxDecimal": 0,
+        "optional": false
+      }
+    },
+    {
+      "description": "Integer with x-keyword is canonical",
+      "valid": true,
+      "data": {
+        "type": "integer",
+        "maxDecimal": 0,
+        "x-source": "db"
+      }
+    },
+    {
+      "description": "Integer without maxDecimal is rejected",
+      "valid": false,
+      "data": {
+        "type": "integer"
+      }
+    },
+    {
+      "description": "Integer with negative maxDecimal is rejected",
+      "valid": false,
+      "data": {
+        "type": "integer",
+        "maxDecimal": -1
+      }
+    },
+    {
+      "description": "Integer with float maxDecimal is rejected",
+      "valid": false,
+      "data": {
+        "type": "integer",
+        "maxDecimal": 1.5
+      }
+    },
+    {
+      "description": "Integer with minimumCanEqual is rejected",
+      "valid": false,
+      "data": {
+        "type": "integer",
+        "maxDecimal": 0,
+        "minimum": 0,
+        "minimumCanEqual": false
+      }
+    },
+    {
+      "description": "Integer with maximumCanEqual is rejected",
+      "valid": false,
+      "data": {
+        "type": "integer",
+        "maxDecimal": 0,
+        "maximum": 100,
+        "maximumCanEqual": false
+      }
+    },
+    {
+      "description": "Integer with string keywords is rejected",
+      "valid": false,
+      "data": {
+        "type": "integer",
+        "maxDecimal": 0,
+        "minLength": 0
+      }
+    },
+    {
+      "description": "Integer with object keywords is rejected",
+      "valid": false,
+      "data": {
+        "type": "integer",
+        "maxDecimal": 0,
+        "properties": {}
+      }
+    },
+    {
+      "description": "Integer with enum sibling is rejected",
+      "valid": false,
+      "data": {
+        "type": "integer",
+        "maxDecimal": 0,
+        "enum": [ 1 ]
+      }
+    },
+    {
+      "description": "Number alone is canonical",
+      "valid": true,
+      "data": {
+        "type": "number"
+      }
+    },
+    {
+      "description": "Number with bounds is canonical",
+      "valid": true,
+      "data": {
+        "type": "number",
+        "minimum": 0,
+        "maximum": 1.5
+      }
+    },
+    {
+      "description": "Number with maxDecimal is canonical",
+      "valid": true,
+      "data": {
+        "type": "number",
+        "maxDecimal": 2
+      }
+    },
+    {
+      "description": "Number with minimumCanEqual false is canonical",
+      "valid": true,
+      "data": {
+        "type": "number",
+        "minimum": 0,
+        "minimumCanEqual": false
+      }
+    },
+    {
+      "description": "Number with maximumCanEqual false is canonical",
+      "valid": true,
+      "data": {
+        "type": "number",
+        "maximum": 100,
+        "maximumCanEqual": false
+      }
+    },
+    {
+      "description": "Number with all keywords is canonical",
+      "valid": true,
+      "data": {
+        "type": "number",
+        "maxDecimal": 2,
+        "minimum": 0,
+        "maximum": 100,
+        "minimumCanEqual": false,
+        "maximumCanEqual": false
+      }
+    },
+    {
+      "description": "Number with annotations is canonical",
+      "valid": true,
+      "data": {
+        "type": "number",
+        "title": "Score",
+        "description": "A score",
+        "default": 0
+      }
+    },
+    {
+      "description": "Number with optional is canonical",
+      "valid": true,
+      "data": {
+        "type": "number",
+        "optional": true
+      }
+    },
+    {
+      "description": "Number with x-keyword is canonical",
+      "valid": true,
+      "data": {
+        "type": "number",
+        "x-unit": "meters"
+      }
+    },
+    {
+      "description": "Number with negative maxDecimal is rejected",
+      "valid": false,
+      "data": {
+        "type": "number",
+        "maxDecimal": -1
+      }
+    },
+    {
+      "description": "Number with float maxDecimal is rejected",
+      "valid": false,
+      "data": {
+        "type": "number",
+        "maxDecimal": 1.5
+      }
+    },
+    {
+      "description": "Number with minimumCanEqual as number is rejected",
+      "valid": false,
+      "data": {
+        "type": "number",
+        "minimumCanEqual": 5
+      }
+    },
+    {
+      "description": "Number with maximumCanEqual as number is rejected",
+      "valid": false,
+      "data": {
+        "type": "number",
+        "maximumCanEqual": 10
+      }
+    },
+    {
+      "description": "Number with string keywords is rejected",
+      "valid": false,
+      "data": {
+        "type": "number",
+        "minLength": 0
+      }
+    },
+    {
+      "description": "Number with object keywords is rejected",
+      "valid": false,
+      "data": {
+        "type": "number",
+        "properties": {}
+      }
+    },
+    {
+      "description": "Number with enum sibling is rejected",
+      "valid": false,
+      "data": {
+        "type": "number",
+        "enum": [ 1 ]
+      }
+    },
+    {
+      "description": "Object with all required keywords is canonical",
+      "valid": true,
+      "data": {
+        "type": "object",
+        "properties": {},
+        "additionalProperties": {
+          "enum": [ 1 ]
+        }
+      }
+    },
+    {
+      "description": "Object with additionalProperties false is canonical",
+      "valid": true,
+      "data": {
+        "type": "object",
+        "properties": {},
+        "additionalProperties": false
+      }
+    },
+    {
+      "description": "Object with additionalProperties true is canonical",
+      "valid": true,
+      "data": {
+        "type": "object",
+        "properties": {},
+        "additionalProperties": true
+      }
+    },
+    {
+      "description": "Object with additionalProperties empty schema is canonical",
+      "valid": true,
+      "data": {
+        "type": "object",
+        "properties": {},
+        "additionalProperties": {}
+      }
+    },
+    {
+      "description": "Object with property with optional false is canonical",
+      "valid": true,
+      "data": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string",
+            "minLength": 0,
+            "optional": false
+          }
+        },
+        "additionalProperties": false
+      }
+    },
+    {
+      "description": "Object with property with optional true is canonical",
+      "valid": true,
+      "data": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string",
+            "minLength": 0,
+            "optional": true
+          }
+        },
+        "additionalProperties": false
+      }
+    },
+    {
+      "description": "Object with property with requires string is canonical",
+      "valid": true,
+      "data": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string",
+            "minLength": 0,
+            "optional": false,
+            "requires": "email"
+          }
+        },
+        "additionalProperties": false
+      }
+    },
+    {
+      "description": "Object with property with requires schema is canonical",
+      "valid": true,
+      "data": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string",
+            "minLength": 0,
+            "optional": false,
+            "requires": {
+              "type": "object",
+              "properties": {},
+              "additionalProperties": false
+            }
+          }
+        },
+        "additionalProperties": false
+      }
+    },
+    {
+      "description": "Object with property value as empty schema is canonical",
+      "valid": true,
+      "data": {
+        "type": "object",
+        "properties": {
+          "name": {}
+        },
+        "additionalProperties": false
+      }
+    },
+    {
+      "description": "Object with all keywords is canonical",
+      "valid": true,
+      "data": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string",
+            "minLength": 0,
+            "optional": false
+          },
+          "age": {
+            "type": "integer",
+            "maxDecimal": 0,
+            "optional": true
+          }
+        },
+        "additionalProperties": false
+      }
+    },
+    {
+      "description": "Object with optional is canonical",
+      "valid": true,
+      "data": {
+        "type": "object",
+        "properties": {},
+        "additionalProperties": {
+          "enum": [ 1 ]
+        },
+        "optional": true
+      }
+    },
+    {
+      "description": "Object with annotations is canonical",
+      "valid": true,
+      "data": {
+        "type": "object",
+        "properties": {},
+        "additionalProperties": {
+          "enum": [ 1 ]
+        },
+        "title": "Obj",
+        "description": "An object",
+        "default": {}
+      }
+    },
+    {
+      "description": "Object without properties is rejected",
+      "valid": false,
+      "data": {
+        "type": "object",
+        "additionalProperties": {
+          "enum": [ 1 ]
+        }
+      }
+    },
+    {
+      "description": "Object without additionalProperties is rejected",
+      "valid": false,
+      "data": {
+        "type": "object",
+        "properties": {}
+      }
+    },
+    {
+      "description": "Object with patternProperties is rejected",
+      "valid": false,
+      "data": {
+        "type": "object",
+        "properties": {},
+        "additionalProperties": false,
+        "patternProperties": {}
+      }
+    },
+    {
+      "description": "Object property without optional is rejected",
+      "valid": false,
+      "data": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string",
+            "minLength": 0
+          }
+        },
+        "additionalProperties": false
+      }
+    },
+    {
+      "description": "Object property with non-boolean optional is rejected",
+      "valid": false,
+      "data": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string",
+            "minLength": 0,
+            "optional": "yes"
+          }
+        },
+        "additionalProperties": false
+      }
+    },
+    {
+      "description": "Object with string keywords is rejected",
+      "valid": false,
+      "data": {
+        "type": "object",
+        "properties": {},
+        "additionalProperties": {
+          "enum": [ 1 ]
+        },
+        "minLength": 0
+      }
+    },
+    {
+      "description": "Object with enum sibling is rejected",
+      "valid": false,
+      "data": {
+        "type": "object",
+        "properties": {},
+        "additionalProperties": {
+          "enum": [ 1 ]
+        },
+        "enum": [
+          {}
+        ]
+      }
+    },
+    {
+      "description": "Recursive object properties must be canonical",
+      "valid": false,
+      "data": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string",
+            "optional": false
+          }
+        },
+        "additionalProperties": {
+          "enum": [ 1 ]
+        }
+      }
+    },
+    {
+      "description": "Recursive object additionalProperties must be canonical",
+      "valid": false,
+      "data": {
+        "type": "object",
+        "properties": {},
+        "additionalProperties": {
+          "type": "string"
+        }
+      }
+    },
+    {
+      "description": "Array with schema items is canonical",
+      "valid": true,
+      "data": {
+        "type": "array",
+        "minItems": 0,
+        "items": {
+          "type": "string",
+          "minLength": 0
+        }
+      }
+    },
+    {
+      "description": "Array with empty schema items is canonical",
+      "valid": true,
+      "data": {
+        "type": "array",
+        "minItems": 0,
+        "items": {}
+      }
+    },
+    {
+      "description": "Array with all keywords is canonical",
+      "valid": true,
+      "data": {
+        "type": "array",
+        "minItems": 0,
+        "maxItems": 10,
+        "items": {
+          "enum": [ 1 ]
+        }
+      }
+    },
+    {
+      "description": "Array with optional is canonical",
+      "valid": true,
+      "data": {
+        "type": "array",
+        "minItems": 0,
+        "items": {
+          "enum": [ 1 ]
+        },
+        "optional": true
+      }
+    },
+    {
+      "description": "Array with annotations is canonical",
+      "valid": true,
+      "data": {
+        "type": "array",
+        "minItems": 0,
+        "items": {
+          "enum": [ 1 ]
+        },
+        "title": "List",
+        "description": "A list"
+      }
+    },
+    {
+      "description": "Array without minItems is rejected",
+      "valid": false,
+      "data": {
+        "type": "array",
+        "items": {
+          "enum": [ 1 ]
+        }
+      }
+    },
+    {
+      "description": "Array without items is rejected",
+      "valid": false,
+      "data": {
+        "type": "array",
+        "minItems": 0
+      }
+    },
+    {
+      "description": "Array with uniqueItems is rejected",
+      "valid": false,
+      "data": {
+        "type": "array",
+        "minItems": 0,
+        "items": {
+          "enum": [ 1 ]
+        },
+        "uniqueItems": false
+      }
+    },
+    {
+      "description": "Array with string keywords is rejected",
+      "valid": false,
+      "data": {
+        "type": "array",
+        "minItems": 0,
+        "items": {
+          "enum": [ 1 ]
+        },
+        "minLength": 0
+      }
+    },
+    {
+      "description": "Array with enum sibling is rejected",
+      "valid": false,
+      "data": {
+        "type": "array",
+        "minItems": 0,
+        "items": {
+          "enum": [ 1 ]
+        },
+        "enum": [
+          []
+        ]
+      }
+    },
+    {
+      "description": "Recursive array items must be canonical",
+      "valid": false,
+      "data": {
+        "type": "array",
+        "minItems": 0,
+        "items": {
+          "type": "string"
+        }
+      }
+    },
+    {
+      "description": "Array with tuple items is canonical",
+      "valid": true,
+      "data": {
+        "type": "array",
+        "minItems": 0,
+        "items": [
+          {
+            "type": "string",
+            "minLength": 0
+          },
+          {
+            "type": "number"
+          }
+        ]
+      }
+    },
+    {
+      "description": "Array tuple with all keywords is canonical",
+      "valid": true,
+      "data": {
+        "type": "array",
+        "minItems": 0,
+        "maxItems": 5,
+        "items": [
+          {
+            "type": "string",
+            "minLength": 0
+          }
+        ]
+      }
+    },
+    {
+      "description": "Array tuple with optional is canonical",
+      "valid": true,
+      "data": {
+        "type": "array",
+        "minItems": 0,
+        "items": [
+          {
+            "enum": [ 1 ]
+          }
+        ],
+        "optional": true
+      }
+    },
+    {
+      "description": "Array with empty tuple items is rejected",
+      "valid": false,
+      "data": {
+        "type": "array",
+        "minItems": 0,
+        "items": []
+      }
+    },
+    {
+      "description": "Array tuple with uniqueItems is rejected",
+      "valid": false,
+      "data": {
+        "type": "array",
+        "minItems": 0,
+        "items": [
+          {
+            "type": "string",
+            "minLength": 0
+          }
+        ],
+        "uniqueItems": true
+      }
+    },
+    {
+      "description": "Array tuple without minItems is rejected",
+      "valid": false,
+      "data": {
+        "type": "array",
+        "items": [
+          {
+            "type": "string",
+            "minLength": 0
+          }
+        ]
+      }
+    },
+    {
+      "description": "Recursive tuple items must be canonical",
+      "valid": false,
+      "data": {
+        "type": "array",
+        "minItems": 0,
+        "items": [
+          {
+            "type": "string"
+          }
+        ]
+      }
+    },
+    {
+      "description": "Type array with canonical branches is canonical",
+      "valid": true,
+      "data": {
+        "type": [
+          {
+            "type": "string",
+            "minLength": 0
+          },
+          {
+            "type": "number"
+          }
+        ]
+      }
+    },
+    {
+      "description": "Type array with single element is canonical",
+      "valid": true,
+      "data": {
+        "type": [
+          {
+            "type": "string",
+            "minLength": 0
+          }
+        ]
+      }
+    },
+    {
+      "description": "Type array with title is canonical",
+      "valid": true,
+      "data": {
+        "type": [
+          {
+            "enum": [ 1 ]
+          }
+        ],
+        "title": "Wrapper"
+      }
+    },
+    {
+      "description": "Type array with optional is rejected",
+      "valid": false,
+      "data": {
+        "type": [
+          {
+            "enum": [ 1 ]
+          }
+        ],
+        "optional": true
+      }
+    },
+    {
+      "description": "Type array with requires is rejected",
+      "valid": false,
+      "data": {
+        "type": [
+          {
+            "enum": [ 1 ]
+          }
+        ],
+        "requires": "foo"
+      }
+    },
+    {
+      "description": "Empty type array is rejected",
+      "valid": false,
+      "data": {
+        "type": []
+      }
+    },
+    {
+      "description": "Type array with string elements is rejected",
+      "valid": false,
+      "data": {
+        "type": [ "string", "number" ]
+      }
+    },
+    {
+      "description": "Type array with properties sibling is rejected",
+      "valid": false,
+      "data": {
+        "type": [
+          {
+            "type": "string",
+            "minLength": 0
+          }
+        ],
+        "properties": {}
+      }
+    },
+    {
+      "description": "Type array with extends sibling is rejected",
+      "valid": false,
+      "data": {
+        "type": [
+          {
+            "type": "string",
+            "minLength": 0
+          }
+        ],
+        "extends": [
+          {
+            "enum": [ 1 ]
+          }
+        ]
+      }
+    },
+    {
+      "description": "Type array with enum sibling is rejected",
+      "valid": false,
+      "data": {
+        "type": [
+          {
+            "type": "string",
+            "minLength": 0
+          }
+        ],
+        "enum": [ 1 ]
+      }
+    },
+    {
+      "description": "Recursive type array branches must be canonical",
+      "valid": false,
+      "data": {
+        "type": [
+          {
+            "type": "string"
+          }
+        ]
+      }
+    },
+    {
+      "description": "Extends with canonical branches is canonical",
+      "valid": true,
+      "data": {
+        "extends": [
+          {
+            "type": "string",
+            "minLength": 0
+          },
+          {
+            "type": "number"
+          }
+        ]
+      }
+    },
+    {
+      "description": "Extends with single element is canonical",
+      "valid": true,
+      "data": {
+        "extends": [
+          {
+            "type": "string",
+            "minLength": 0
+          }
+        ]
+      }
+    },
+    {
+      "description": "Extends with title is canonical",
+      "valid": true,
+      "data": {
+        "extends": [
+          {
+            "enum": [ 1 ]
+          }
+        ],
+        "title": "Wrapper"
+      }
+    },
+    {
+      "description": "Extends with optional is rejected",
+      "valid": false,
+      "data": {
+        "extends": [
+          {
+            "enum": [ 1 ]
+          }
+        ],
+        "optional": true
+      }
+    },
+    {
+      "description": "Extends with requires is rejected",
+      "valid": false,
+      "data": {
+        "extends": [
+          {
+            "enum": [ 1 ]
+          }
+        ],
+        "requires": "foo"
+      }
+    },
+    {
+      "description": "Empty extends is rejected",
+      "valid": false,
+      "data": {
+        "extends": []
+      }
+    },
+    {
+      "description": "Extends as single schema is rejected",
+      "valid": false,
+      "data": {
+        "extends": {
+          "type": "string",
+          "minLength": 0
+        }
+      }
+    },
+    {
+      "description": "Extends with type sibling is rejected",
+      "valid": false,
+      "data": {
+        "type": "object",
+        "extends": [
+          {
+            "enum": [ 1 ]
+          }
+        ]
+      }
+    },
+    {
+      "description": "Extends with disallow sibling is rejected",
+      "valid": false,
+      "data": {
+        "extends": [
+          {
+            "enum": [ 1 ]
+          }
+        ],
+        "disallow": [ "number" ]
+      }
+    },
+    {
+      "description": "Extends with enum sibling is rejected",
+      "valid": false,
+      "data": {
+        "extends": [
+          {
+            "enum": [ 1 ]
+          }
+        ],
+        "enum": [ 1 ]
+      }
+    },
+    {
+      "description": "Recursive extends branches must be canonical",
+      "valid": false,
+      "data": {
+        "extends": [
+          {
+            "type": "string"
+          }
+        ]
+      }
+    },
+    {
+      "description": "Disallow with type strings is canonical",
+      "valid": true,
+      "data": {
+        "disallow": [ "string", "number" ]
+      }
+    },
+    {
+      "description": "Disallow with single element is canonical",
+      "valid": true,
+      "data": {
+        "disallow": [ "number" ]
+      }
+    },
+    {
+      "description": "Disallow with title is canonical",
+      "valid": true,
+      "data": {
+        "disallow": [ "number" ],
+        "title": "Forbidden"
+      }
+    },
+    {
+      "description": "Disallow with optional is rejected",
+      "valid": false,
+      "data": {
+        "disallow": [ "number" ],
+        "optional": true
+      }
+    },
+    {
+      "description": "Disallow with requires is rejected",
+      "valid": false,
+      "data": {
+        "disallow": [ "number" ],
+        "requires": "foo"
+      }
+    },
+    {
+      "description": "Empty disallow is rejected",
+      "valid": false,
+      "data": {
+        "disallow": []
+      }
+    },
+    {
+      "description": "Disallow as single string is rejected",
+      "valid": false,
+      "data": {
+        "disallow": "number"
+      }
+    },
+    {
+      "description": "Disallow with schema elements is rejected",
+      "valid": false,
+      "data": {
+        "disallow": [
+          {
+            "type": "number"
+          }
+        ]
+      }
+    },
+    {
+      "description": "Disallow with duplicate elements is rejected",
+      "valid": false,
+      "data": {
+        "disallow": [ "number", "number" ]
+      }
+    },
+    {
+      "description": "Disallow with type sibling is rejected",
+      "valid": false,
+      "data": {
+        "disallow": [ "number" ],
+        "type": "string"
+      }
+    },
+    {
+      "description": "Disallow with extends sibling is rejected",
+      "valid": false,
+      "data": {
+        "disallow": [ "number" ],
+        "extends": [
+          {
+            "enum": [ 1 ]
+          }
+        ]
+      }
+    },
+    {
+      "description": "Disallow with enum sibling is rejected",
+      "valid": false,
+      "data": {
+        "disallow": [ "number" ],
+        "enum": [ 1 ]
+      }
+    },
+    {
+      "description": "type boolean is rejected (must be enum)",
+      "valid": false,
+      "data": {
+        "type": "boolean"
+      }
+    },
+    {
+      "description": "type null is rejected (must be enum)",
+      "valid": false,
+      "data": {
+        "type": "null"
+      }
+    },
+    {
+      "description": "Object with only title is rejected",
+      "valid": false,
+      "data": {
+        "title": "Something"
+      }
+    },
+    {
+      "description": "Object with only description is rejected",
+      "valid": false,
+      "data": {
+        "description": "Nothing"
+      }
+    },
+    {
+      "description": "Full canonical root schema",
+      "valid": true,
+      "data": {
+        "type": "object",
+        "title": "Person",
+        "properties": {
+          "name": {
+            "type": "string",
+            "minLength": 1,
+            "optional": false
+          },
+          "age": {
+            "type": "integer",
+            "maxDecimal": 0,
+            "minimum": 0,
+            "optional": true
+          },
+          "email": {
+            "type": "string",
+            "minLength": 0,
+            "format": "email",
+            "optional": true
+          },
+          "tags": {
+            "type": "array",
+            "minItems": 0,
+            "items": {
+              "type": "string",
+              "minLength": 0
+            },
+            "optional": true
+          }
+        },
+        "additionalProperties": false
+      }
+    }
+  ]
+}

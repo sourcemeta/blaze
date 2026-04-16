@@ -1,4 +1,5 @@
 SCHEMAS = \
+	canonical-draft1.json \
 	canonical-draft2.json \
 	canonical-draft3.json \
 	canonical-draft4.json \
@@ -7,6 +8,7 @@ SCHEMAS = \
 	canonical-2019-09.json \
 	canonical-2020-12.json
 TESTS = \
+	canonical-draft1.test.json \
 	canonical-draft2.test.json \
 	canonical-draft3.test.json \
 	canonical-draft4.test.json \

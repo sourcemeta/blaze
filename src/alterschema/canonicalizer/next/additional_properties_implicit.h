@@ -15,7 +15,9 @@ public:
             const sourcemeta::core::SchemaResolver &) const
       -> SchemaTransformRule::Result override {
     ONLY_CONTINUE_IF(
-        vocabularies.contains_any({Vocabularies::Known::JSON_Schema_Draft_2,
+        vocabularies.contains_any({Vocabularies::Known::JSON_Schema_Draft_0,
+                                   Vocabularies::Known::JSON_Schema_Draft_1,
+                                   Vocabularies::Known::JSON_Schema_Draft_2,
                                    Vocabularies::Known::JSON_Schema_Draft_3,
                                    Vocabularies::Known::JSON_Schema_Draft_4,
                                    Vocabularies::Known::JSON_Schema_Draft_6,
@@ -25,7 +27,9 @@ public:
         schema.at("type").to_string() == "object" &&
         !schema.defines("additionalProperties"));
     this->is_pre_draft4_ =
-        vocabularies.contains_any({Vocabularies::Known::JSON_Schema_Draft_2,
+        vocabularies.contains_any({Vocabularies::Known::JSON_Schema_Draft_0,
+                                   Vocabularies::Known::JSON_Schema_Draft_1,
+                                   Vocabularies::Known::JSON_Schema_Draft_2,
                                    Vocabularies::Known::JSON_Schema_Draft_3});
     return true;
   }
