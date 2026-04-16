@@ -2,6 +2,7 @@ class MaximumCanEqualIntegerFold final : public SchemaTransformRule {
 public:
   using mutates = std::true_type;
   using reframe_after_transform = std::true_type;
+  using needs_frame_analysis = std::false_type;
   MaximumCanEqualIntegerFold()
       : SchemaTransformRule{"maximum_can_equal_integer_fold", ""} {};
 

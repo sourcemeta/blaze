@@ -40,9 +40,9 @@ auto calculate_health_percentage(const std::size_t subschemas,
 auto check_rules(
     const sourcemeta::core::JSON &schema,
     const sourcemeta::core::SchemaFrame &frame,
-    const std::vector<std::tuple<
-        std::unique_ptr<sourcemeta::blaze::SchemaTransformRule>, bool, bool>>
-        &rules,
+    const std::vector<
+        std::tuple<std::unique_ptr<sourcemeta::blaze::SchemaTransformRule>,
+                   bool, bool, bool>> &rules,
     const sourcemeta::core::SchemaWalker &walker,
     const sourcemeta::core::SchemaResolver &resolver,
     const sourcemeta::blaze::SchemaTransformer::Callback &callback,
@@ -76,7 +76,7 @@ auto check_rules(
     const auto current_vocabularies{frame.vocabularies(entry.second, resolver)};
 
     bool subschema_failed{false};
-    for (const auto &[rule, mutates, _] : rules) {
+    for (const auto &[rule, mutates, unused1_, unused2_] : rules) {
       if (non_mutating_only && mutates) {
         continue;
       }
@@ -216,8 +216,10 @@ auto SchemaTransformer::apply(core::JSON &schema,
 
   std::vector<PotentiallyBrokenReference> potentially_broken_references;
 
+  bool needs_reframe{false};
   while (true) {
-    if (frame.empty()) {
+    if (frame.empty() || needs_reframe) {
+      needs_reframe = false;
       if (schema.is_boolean()) {
         break;
       }
@@ -245,7 +247,8 @@ auto SchemaTransformer::apply(core::JSON &schema,
       const auto current_vocabularies{
           frame.vocabularies(entry.second, resolver)};
 
-      for (const auto &[rule, mutates, reframe_after_transform] : this->rules) {
+      for (const auto &[rule, mutates, reframe_after_transform,
+                        needs_frame_analysis] : this->rules) {
         if (!mutates) {
           continue;
         }
@@ -280,6 +283,16 @@ auto SchemaTransformer::apply(core::JSON &schema,
         callback(entry_pointer, rule->name(), rule->message(), outcome, true);
 
         applied = true;
+
+        if (!needs_frame_analysis && !current.is_boolean()) {
+          // This rule only adds or removes leaf validation keywords without
+          // creating new subschema locations or affecting references. Skip
+          // the expensive frame re-analysis, post-condition verification,
+          // and reference fixing. Continue checking more rules for the same
+          // subschema without restarting.
+          needs_reframe = true;
+          goto blaze_transformer_start_again;
+        }
 
         if (reframe_after_transform) {
           analyse_frame(frame, schema, walker, resolver, default_dialect,

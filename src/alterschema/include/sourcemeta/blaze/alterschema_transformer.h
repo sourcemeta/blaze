@@ -159,10 +159,18 @@ public:
     static_assert(
         std::is_same_v<typename T::mutates, std::true_type> ||
         std::is_same_v<typename T::reframe_after_transform, std::false_type>);
+    const bool needs_frame_analysis{[]() {
+      if constexpr (requires { typename T::needs_frame_analysis; }) {
+        return std::is_same_v<typename T::needs_frame_analysis, std::true_type>;
+      } else {
+        return true;
+      }
+    }()};
     auto &entry{this->rules.emplace_back(
         std::make_unique<T>(std::forward<Args>(args)...),
         std::is_same_v<typename T::mutates, std::true_type>,
-        std::is_same_v<typename T::reframe_after_transform, std::true_type>)};
+        std::is_same_v<typename T::reframe_after_transform, std::true_type>,
+        needs_frame_analysis)};
     return std::get<0>(entry)->name();
   }
 
@@ -201,7 +209,8 @@ private:
 #if defined(_MSC_VER)
 #pragma warning(disable : 4251)
 #endif
-  std::vector<std::tuple<std::unique_ptr<SchemaTransformRule>, bool, bool>>
+  std::vector<
+      std::tuple<std::unique_ptr<SchemaTransformRule>, bool, bool, bool>>
       rules;
 #if defined(_MSC_VER)
 #pragma warning(default : 4251)

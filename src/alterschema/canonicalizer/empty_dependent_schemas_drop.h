@@ -2,6 +2,7 @@ class EmptyDependentSchemasDrop final : public SchemaTransformRule {
 public:
   using mutates = std::true_type;
   using reframe_after_transform = std::true_type;
+  using needs_frame_analysis = std::false_type;
   EmptyDependentSchemasDrop()
       : SchemaTransformRule{"empty_dependent_schemas_drop", ""} {};
 

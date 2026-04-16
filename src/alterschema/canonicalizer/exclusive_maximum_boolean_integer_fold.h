@@ -2,6 +2,7 @@ class ExclusiveMaximumBooleanIntegerFold final : public SchemaTransformRule {
 public:
   using mutates = std::true_type;
   using reframe_after_transform = std::true_type;
+  using needs_frame_analysis = std::false_type;
   ExclusiveMaximumBooleanIntegerFold()
       : SchemaTransformRule{"exclusive_maximum_boolean_integer_fold", ""} {};
 

@@ -2,6 +2,7 @@ class RecursiveAnchorFalseDrop final : public SchemaTransformRule {
 public:
   using mutates = std::true_type;
   using reframe_after_transform = std::true_type;
+  using needs_frame_analysis = std::false_type;
   RecursiveAnchorFalseDrop()
       : SchemaTransformRule{"recursive_anchor_false_drop", ""} {};
 

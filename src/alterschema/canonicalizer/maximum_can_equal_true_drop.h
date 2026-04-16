@@ -2,6 +2,7 @@ class MaximumCanEqualTrueDrop final : public SchemaTransformRule {
 public:
   using mutates = std::true_type;
   using reframe_after_transform = std::true_type;
+  using needs_frame_analysis = std::false_type;
   MaximumCanEqualTrueDrop()
       : SchemaTransformRule{"maximum_can_equal_true_drop", ""} {};
 
