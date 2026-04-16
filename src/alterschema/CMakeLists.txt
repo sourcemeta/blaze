@@ -3,40 +3,64 @@ sourcemeta_library(NAMESPACE sourcemeta PROJECT blaze NAME alterschema
   PRIVATE_HEADERS error.h transformer.h
   SOURCES alterschema.cc schema_rule.cc transformer.cc
     # Canonicalizer
+    canonicalizer/additional_items_implicit.h
+    canonicalizer/additional_properties_implicit.h
+    canonicalizer/comment_drop.h
     canonicalizer/const_as_enum.h
+    canonicalizer/dependencies_to_any_of.h
+    canonicalizer/dependencies_to_extends_disallow.h
+    canonicalizer/dependent_required_to_any_of.h
+    canonicalizer/dependent_schemas_to_any_of.h
+    canonicalizer/deprecated_false_drop.h
+    canonicalizer/disallow_to_array_of_schemas.h
+    canonicalizer/divisible_by_implicit.h
+    canonicalizer/empty_definitions_drop.h
+    canonicalizer/empty_defs_drop.h
+    canonicalizer/empty_dependencies_drop.h
+    canonicalizer/empty_dependent_required_drop.h
+    canonicalizer/empty_dependent_schemas_drop.h
+    canonicalizer/enum_drop_redundant_validation.h
+    canonicalizer/enum_filter_by_type.h
+    canonicalizer/exclusive_bounds_false_drop.h
+    canonicalizer/exclusive_maximum_boolean_integer_fold.h
     canonicalizer/exclusive_maximum_integer_to_maximum.h
+    canonicalizer/exclusive_minimum_boolean_integer_fold.h
     canonicalizer/exclusive_minimum_integer_to_minimum.h
+    canonicalizer/extends_to_array.h
+    canonicalizer/if_then_else_implicit.h
+    canonicalizer/implicit_array_keywords.h
+    canonicalizer/implicit_contains_keywords.h
+    canonicalizer/implicit_object_keywords.h
     canonicalizer/items_implicit.h
     canonicalizer/max_contains_covered_by_max_items.h
+    canonicalizer/max_decimal_implicit.h
+    canonicalizer/maximum_can_equal_integer_fold.h
+    canonicalizer/maximum_can_equal_true_drop.h
     canonicalizer/min_items_given_min_contains.h
-    canonicalizer/min_items_implicit.h
     canonicalizer/min_length_implicit.h
     canonicalizer/min_properties_covered_by_required.h
     canonicalizer/min_properties_implicit.h
+    canonicalizer/minimum_can_equal_integer_fold.h
+    canonicalizer/minimum_can_equal_true_drop.h
     canonicalizer/multiple_of_implicit.h
+    canonicalizer/optional_property_implicit.h
     canonicalizer/properties_implicit.h
+    canonicalizer/property_names_implicit.h
+    canonicalizer/recursive_anchor_false_drop.h
+    canonicalizer/required_property_implicit.h
     canonicalizer/type_array_to_any_of.h
     canonicalizer/type_boolean_as_enum.h
+    canonicalizer/type_inherit_in_place.h
     canonicalizer/type_null_as_enum.h
     canonicalizer/type_union_implicit.h
-
-    canonicalizer/next/additional_items_implicit.h
-    canonicalizer/next/additional_properties_implicit.h
-    canonicalizer/next/empty_dependencies_drop.h
-    canonicalizer/next/enum_filter_by_type.h
-    canonicalizer/next/empty_definitions_drop.h
-    canonicalizer/next/dependencies_to_any_of.h
-    canonicalizer/next/empty_object_as_true_next.h
-    canonicalizer/next/enum_drop_redundant_validation.h
-    canonicalizer/next/exclusive_bounds_false_drop.h
-    canonicalizer/next/exclusive_maximum_boolean_integer_fold.h
-    canonicalizer/next/exclusive_minimum_boolean_integer_fold.h
-    canonicalizer/next/implicit_array_keywords.h
-    canonicalizer/next/implicit_object_keywords.h
-    canonicalizer/next/property_names_implicit.h
-    canonicalizer/next/type_with_applicator_to_allof.h
-    canonicalizer/next/unsatisfiable_exclusive_equal_bounds.h
-    canonicalizer/next/unsatisfiable_type_and_enum.h
+    canonicalizer/type_union_to_schemas.h
+    canonicalizer/type_with_applicator_to_allof.h
+    canonicalizer/type_with_applicator_to_extends.h
+    canonicalizer/unevaluated_items_to_items.h
+    canonicalizer/unevaluated_properties_to_additional_properties.h
+    canonicalizer/unsatisfiable_can_equal_bounds.h
+    canonicalizer/unsatisfiable_exclusive_equal_bounds.h
+    canonicalizer/unsatisfiable_type_and_enum.h
 
     # Common
     common/allof_false_simplify.h
@@ -59,7 +83,6 @@ sourcemeta_library(NAMESPACE sourcemeta PROJECT blaze NAME alterschema
     common/duplicate_enum_values.h
     common/duplicate_required_values.h
     common/empty_object_as_true.h
-    common/else_empty.h
     common/else_without_if.h
     common/enum_with_type.h
     common/equal_numeric_bounds_to_enum.h
@@ -81,14 +104,11 @@ sourcemeta_library(NAMESPACE sourcemeta PROJECT blaze NAME alterschema
     common/oneof_to_anyof_disjoint_types.h
     common/required_properties_in_properties.h
     common/single_type_array.h
-    common/then_empty.h
     common/then_without_if.h
     common/unknown_keywords_prefix.h
     common/unknown_local_ref.h
     common/unsatisfiable_drop_validation.h
     common/unnecessary_allof_ref_wrapper_draft.h
-    common/unnecessary_allof_ref_wrapper_modern.h
-    common/unnecessary_allof_wrapper.h
     common/unsatisfiable_in_place_applicator_type.h
 
     # Linter
@@ -101,6 +121,7 @@ sourcemeta_library(NAMESPACE sourcemeta PROJECT blaze NAME alterschema
     linter/description_trailing_period.h
     linter/description_trim.h
     linter/duplicate_examples.h
+    linter/else_empty.h
     linter/enum_to_const.h
     linter/equal_numeric_bounds_to_const.h
     linter/forbid_empty_enum.h
@@ -114,6 +135,7 @@ sourcemeta_library(NAMESPACE sourcemeta PROJECT blaze NAME alterschema
     linter/property_names_default.h
     linter/property_names_type_default.h
     linter/simple_properties_identifiers.h
+    linter/then_empty.h
     linter/title_description_equal.h
     linter/title_trailing_period.h
     linter/title_trim.h
@@ -122,6 +144,8 @@ sourcemeta_library(NAMESPACE sourcemeta PROJECT blaze NAME alterschema
     linter/top_level_title.h
     linter/unevaluated_items_default.h
     linter/unevaluated_properties_default.h
+    linter/unnecessary_allof_ref_wrapper_modern.h
+    linter/unnecessary_allof_wrapper.h
     linter/unsatisfiable_max_contains.h
     linter/unsatisfiable_min_properties.h
     linter/valid_default.h

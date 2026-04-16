@@ -46,7 +46,7 @@ TEST_F(CanonicalizerDraft4Test, duplicate_allof_branches_2) {
     ]
   })JSON");
 
-  CANONICALIZE_NEXT(document, expected, *compiled_meta_);
+  CANONICALIZE_AND_VALIDATE(document, expected, *compiled_meta_);
 }
 
 TEST_F(CanonicalizerDraft4Test, duplicate_allof_branches_3) {
@@ -67,7 +67,7 @@ TEST_F(CanonicalizerDraft4Test, duplicate_allof_branches_3) {
     ]
   })JSON");
 
-  CANONICALIZE_NEXT(document, expected, *compiled_meta_);
+  CANONICALIZE_AND_VALIDATE(document, expected, *compiled_meta_);
 }
 
 TEST_F(CanonicalizerDraft4Test, duplicate_allof_branches_4) {
@@ -95,7 +95,7 @@ TEST_F(CanonicalizerDraft4Test, duplicate_allof_branches_4) {
     ]
   })JSON");
 
-  CANONICALIZE_NEXT(document, expected, *compiled_meta_);
+  CANONICALIZE_AND_VALIDATE(document, expected, *compiled_meta_);
 }
 
 TEST_F(CanonicalizerDraft4Test, type_boolean_as_enum_1) {
@@ -109,7 +109,7 @@ TEST_F(CanonicalizerDraft4Test, type_boolean_as_enum_1) {
     "enum": [ false, true ]
   })JSON");
 
-  CANONICALIZE_NEXT(document, expected, *compiled_meta_);
+  CANONICALIZE_AND_VALIDATE(document, expected, *compiled_meta_);
 }
 
 TEST_F(CanonicalizerDraft4Test, type_boolean_as_enum_2) {
@@ -123,7 +123,7 @@ TEST_F(CanonicalizerDraft4Test, type_boolean_as_enum_2) {
     false
   )JSON");
 
-  CANONICALIZE_NEXT(document, expected, *compiled_meta_);
+  CANONICALIZE_AND_VALIDATE(document, expected, *compiled_meta_);
 }
 
 TEST_F(CanonicalizerDraft4Test, type_null_as_enum_1) {
@@ -137,7 +137,7 @@ TEST_F(CanonicalizerDraft4Test, type_null_as_enum_1) {
     "enum": [ null ]
   })JSON");
 
-  CANONICALIZE_NEXT(document, expected, *compiled_meta_);
+  CANONICALIZE_AND_VALIDATE(document, expected, *compiled_meta_);
 }
 
 TEST_F(CanonicalizerDraft4Test, type_null_as_enum_2) {
@@ -151,7 +151,7 @@ TEST_F(CanonicalizerDraft4Test, type_null_as_enum_2) {
     false
   )JSON");
 
-  CANONICALIZE_NEXT(document, expected, *compiled_meta_);
+  CANONICALIZE_AND_VALIDATE(document, expected, *compiled_meta_);
 }
 
 TEST_F(CanonicalizerDraft4Test, boolean_true_1) {
@@ -182,7 +182,7 @@ TEST_F(CanonicalizerDraft4Test, boolean_true_1) {
     ]
   })JSON");
 
-  CANONICALIZE_NEXT(document, expected, *compiled_meta_);
+  CANONICALIZE_AND_VALIDATE(document, expected, *compiled_meta_);
 }
 
 TEST_F(CanonicalizerDraft4Test, min_properties_covered_by_required_1) {
@@ -206,7 +206,7 @@ TEST_F(CanonicalizerDraft4Test, min_properties_covered_by_required_1) {
     "additionalProperties": true
   })JSON");
 
-  CANONICALIZE_NEXT(document, expected, *compiled_meta_);
+  CANONICALIZE_AND_VALIDATE(document, expected, *compiled_meta_);
 }
 
 TEST_F(CanonicalizerDraft4Test, min_properties_implicit_1) {
@@ -229,7 +229,7 @@ TEST_F(CanonicalizerDraft4Test, min_properties_implicit_1) {
     "additionalProperties": true
   })JSON");
 
-  CANONICALIZE_NEXT(document, expected, *compiled_meta_);
+  CANONICALIZE_AND_VALIDATE(document, expected, *compiled_meta_);
 }
 
 TEST_F(CanonicalizerDraft4Test, min_properties_implicit_2) {
@@ -253,7 +253,7 @@ TEST_F(CanonicalizerDraft4Test, min_properties_implicit_2) {
     "additionalProperties": true
   })JSON");
 
-  CANONICALIZE_NEXT(document, expected, *compiled_meta_);
+  CANONICALIZE_AND_VALIDATE(document, expected, *compiled_meta_);
 }
 
 TEST_F(CanonicalizerDraft4Test,
@@ -274,7 +274,7 @@ TEST_F(CanonicalizerDraft4Test,
     "additionalProperties": false
   })JSON");
 
-  CANONICALIZE_NEXT(document, expected, *compiled_meta_);
+  CANONICALIZE_AND_VALIDATE(document, expected, *compiled_meta_);
 }
 
 TEST_F(CanonicalizerDraft4Test, equal_numeric_bounds_to_enum_2) {
@@ -290,7 +290,7 @@ TEST_F(CanonicalizerDraft4Test, equal_numeric_bounds_to_enum_2) {
     "enum": [ 3 ]
   })JSON");
 
-  CANONICALIZE_NEXT(document, expected, *compiled_meta_);
+  CANONICALIZE_AND_VALIDATE(document, expected, *compiled_meta_);
 }
 
 TEST_F(CanonicalizerDraft4Test, string_bare) {
@@ -305,7 +305,7 @@ TEST_F(CanonicalizerDraft4Test, string_bare) {
     "minLength": 0
   })JSON");
 
-  CANONICALIZE_NEXT(document, expected, *compiled_meta_);
+  CANONICALIZE_AND_VALIDATE(document, expected, *compiled_meta_);
 }
 
 TEST_F(CanonicalizerDraft4Test, string_with_all_keywords) {
@@ -327,7 +327,7 @@ TEST_F(CanonicalizerDraft4Test, string_with_all_keywords) {
     "format": "email"
   })JSON");
 
-  CANONICALIZE_NEXT(document, expected, *compiled_meta_);
+  CANONICALIZE_AND_VALIDATE(document, expected, *compiled_meta_);
 }
 
 TEST_F(CanonicalizerDraft4Test, integer_bare) {
@@ -342,7 +342,7 @@ TEST_F(CanonicalizerDraft4Test, integer_bare) {
     "multipleOf": 1
   })JSON");
 
-  CANONICALIZE_NEXT(document, expected, *compiled_meta_);
+  CANONICALIZE_AND_VALIDATE(document, expected, *compiled_meta_);
 }
 
 TEST_F(CanonicalizerDraft4Test, integer_with_bounds) {
@@ -361,7 +361,7 @@ TEST_F(CanonicalizerDraft4Test, integer_with_bounds) {
     "maximum": 100
   })JSON");
 
-  CANONICALIZE_NEXT(document, expected, *compiled_meta_);
+  CANONICALIZE_AND_VALIDATE(document, expected, *compiled_meta_);
 }
 
 TEST_F(CanonicalizerDraft4Test, integer_exclusive_minimum_boolean_fold) {
@@ -379,7 +379,7 @@ TEST_F(CanonicalizerDraft4Test, integer_exclusive_minimum_boolean_fold) {
     "minimum": 6
   })JSON");
 
-  CANONICALIZE_NEXT(document, expected, *compiled_meta_);
+  CANONICALIZE_AND_VALIDATE(document, expected, *compiled_meta_);
 }
 
 TEST_F(CanonicalizerDraft4Test, integer_exclusive_maximum_boolean_fold) {
@@ -397,7 +397,7 @@ TEST_F(CanonicalizerDraft4Test, integer_exclusive_maximum_boolean_fold) {
     "maximum": 9
   })JSON");
 
-  CANONICALIZE_NEXT(document, expected, *compiled_meta_);
+  CANONICALIZE_AND_VALIDATE(document, expected, *compiled_meta_);
 }
 
 TEST_F(CanonicalizerDraft4Test, integer_both_exclusive_bounds_fold) {
@@ -418,7 +418,7 @@ TEST_F(CanonicalizerDraft4Test, integer_both_exclusive_bounds_fold) {
     "maximum": 9
   })JSON");
 
-  CANONICALIZE_NEXT(document, expected, *compiled_meta_);
+  CANONICALIZE_AND_VALIDATE(document, expected, *compiled_meta_);
 }
 
 TEST_F(CanonicalizerDraft4Test, integer_exclusive_minimum_false_dropped) {
@@ -436,7 +436,7 @@ TEST_F(CanonicalizerDraft4Test, integer_exclusive_minimum_false_dropped) {
     "minimum": 5
   })JSON");
 
-  CANONICALIZE_NEXT(document, expected, *compiled_meta_);
+  CANONICALIZE_AND_VALIDATE(document, expected, *compiled_meta_);
 }
 
 TEST_F(CanonicalizerDraft4Test, number_bare) {
@@ -450,7 +450,7 @@ TEST_F(CanonicalizerDraft4Test, number_bare) {
     "type": "number"
   })JSON");
 
-  CANONICALIZE_NEXT(document, expected, *compiled_meta_);
+  CANONICALIZE_AND_VALIDATE(document, expected, *compiled_meta_);
 }
 
 TEST_F(CanonicalizerDraft4Test, number_with_exclusive_minimum_boolean) {
@@ -468,7 +468,7 @@ TEST_F(CanonicalizerDraft4Test, number_with_exclusive_minimum_boolean) {
     "exclusiveMinimum": true
   })JSON");
 
-  CANONICALIZE_NEXT(document, expected, *compiled_meta_);
+  CANONICALIZE_AND_VALIDATE(document, expected, *compiled_meta_);
 }
 
 TEST_F(CanonicalizerDraft4Test, number_with_bounds) {
@@ -488,7 +488,7 @@ TEST_F(CanonicalizerDraft4Test, number_with_bounds) {
     "multipleOf": 0.1
   })JSON");
 
-  CANONICALIZE_NEXT(document, expected, *compiled_meta_);
+  CANONICALIZE_AND_VALIDATE(document, expected, *compiled_meta_);
 }
 
 TEST_F(CanonicalizerDraft4Test, object_bare) {
@@ -506,7 +506,7 @@ TEST_F(CanonicalizerDraft4Test, object_bare) {
     "minProperties": 0
   })JSON");
 
-  CANONICALIZE_NEXT(document, expected, *compiled_meta_);
+  CANONICALIZE_AND_VALIDATE(document, expected, *compiled_meta_);
 }
 
 TEST_F(CanonicalizerDraft4Test, object_with_properties) {
@@ -531,7 +531,7 @@ TEST_F(CanonicalizerDraft4Test, object_with_properties) {
     "minProperties": 0
   })JSON");
 
-  CANONICALIZE_NEXT(document, expected, *compiled_meta_);
+  CANONICALIZE_AND_VALIDATE(document, expected, *compiled_meta_);
 }
 
 TEST_F(CanonicalizerDraft4Test, object_with_additional_properties_schema) {
@@ -550,7 +550,7 @@ TEST_F(CanonicalizerDraft4Test, object_with_additional_properties_schema) {
     "minProperties": 0
   })JSON");
 
-  CANONICALIZE_NEXT(document, expected, *compiled_meta_);
+  CANONICALIZE_AND_VALIDATE(document, expected, *compiled_meta_);
 }
 
 TEST_F(CanonicalizerDraft4Test, object_with_max_properties) {
@@ -570,7 +570,7 @@ TEST_F(CanonicalizerDraft4Test, object_with_max_properties) {
     "maxProperties": 5
   })JSON");
 
-  CANONICALIZE_NEXT(document, expected, *compiled_meta_);
+  CANONICALIZE_AND_VALIDATE(document, expected, *compiled_meta_);
 }
 
 TEST_F(CanonicalizerDraft4Test, array_bare) {
@@ -587,7 +587,7 @@ TEST_F(CanonicalizerDraft4Test, array_bare) {
     "items": true
   })JSON");
 
-  CANONICALIZE_NEXT(document, expected, *compiled_meta_);
+  CANONICALIZE_AND_VALIDATE(document, expected, *compiled_meta_);
 }
 
 TEST_F(CanonicalizerDraft4Test, array_with_items_schema) {
@@ -605,7 +605,7 @@ TEST_F(CanonicalizerDraft4Test, array_with_items_schema) {
     "items": { "type": "string", "minLength": 0 }
   })JSON");
 
-  CANONICALIZE_NEXT(document, expected, *compiled_meta_);
+  CANONICALIZE_AND_VALIDATE(document, expected, *compiled_meta_);
 }
 
 TEST_F(CanonicalizerDraft4Test, array_with_max_items_and_unique) {
@@ -626,7 +626,7 @@ TEST_F(CanonicalizerDraft4Test, array_with_max_items_and_unique) {
     "uniqueItems": true
   })JSON");
 
-  CANONICALIZE_NEXT(document, expected, *compiled_meta_);
+  CANONICALIZE_AND_VALIDATE(document, expected, *compiled_meta_);
 }
 
 TEST_F(CanonicalizerDraft4Test, array_schema_items_additional_items_stripped) {
@@ -645,7 +645,7 @@ TEST_F(CanonicalizerDraft4Test, array_schema_items_additional_items_stripped) {
     "uniqueItems": false
   })JSON");
 
-  CANONICALIZE_NEXT(document, expected, *compiled_meta_);
+  CANONICALIZE_AND_VALIDATE(document, expected, *compiled_meta_);
 }
 
 TEST_F(CanonicalizerDraft4Test, array_tuple_items) {
@@ -670,7 +670,7 @@ TEST_F(CanonicalizerDraft4Test, array_tuple_items) {
     "uniqueItems": false
   })JSON");
 
-  CANONICALIZE_NEXT(document, expected, *compiled_meta_);
+  CANONICALIZE_AND_VALIDATE(document, expected, *compiled_meta_);
 }
 
 TEST_F(CanonicalizerDraft4Test, array_tuple_with_additional_items) {
@@ -694,7 +694,7 @@ TEST_F(CanonicalizerDraft4Test, array_tuple_with_additional_items) {
     "uniqueItems": false
   })JSON");
 
-  CANONICALIZE_NEXT(document, expected, *compiled_meta_);
+  CANONICALIZE_AND_VALIDATE(document, expected, *compiled_meta_);
 }
 
 TEST_F(CanonicalizerDraft4Test, array_tuple_additional_items_false) {
@@ -714,7 +714,7 @@ TEST_F(CanonicalizerDraft4Test, array_tuple_additional_items_false) {
     "uniqueItems": false
   })JSON");
 
-  CANONICALIZE_NEXT(document, expected, *compiled_meta_);
+  CANONICALIZE_AND_VALIDATE(document, expected, *compiled_meta_);
 }
 
 TEST_F(CanonicalizerDraft4Test, enum_bare) {
@@ -728,7 +728,7 @@ TEST_F(CanonicalizerDraft4Test, enum_bare) {
     "enum": [ "red", "green", "blue" ]
   })JSON");
 
-  CANONICALIZE_NEXT(document, expected, *compiled_meta_);
+  CANONICALIZE_AND_VALIDATE(document, expected, *compiled_meta_);
 }
 
 TEST_F(CanonicalizerDraft4Test, enum_with_type_matching) {
@@ -743,7 +743,7 @@ TEST_F(CanonicalizerDraft4Test, enum_with_type_matching) {
     "enum": [ "a", "b", "c" ]
   })JSON");
 
-  CANONICALIZE_NEXT(document, expected, *compiled_meta_);
+  CANONICALIZE_AND_VALIDATE(document, expected, *compiled_meta_);
 }
 
 TEST_F(CanonicalizerDraft4Test, equal_numeric_bounds_number) {
@@ -759,7 +759,7 @@ TEST_F(CanonicalizerDraft4Test, equal_numeric_bounds_number) {
     "enum": [ 3.5 ]
   })JSON");
 
-  CANONICALIZE_NEXT(document, expected, *compiled_meta_);
+  CANONICALIZE_AND_VALIDATE(document, expected, *compiled_meta_);
 }
 
 TEST_F(CanonicalizerDraft4Test, ref_with_siblings_stripped) {
@@ -791,7 +791,7 @@ TEST_F(CanonicalizerDraft4Test, ref_with_siblings_stripped) {
     "minProperties": 0
   })JSON");
 
-  CANONICALIZE_NEXT(document, expected, *compiled_meta_);
+  CANONICALIZE_AND_VALIDATE(document, expected, *compiled_meta_);
 }
 
 TEST_F(CanonicalizerDraft4Test, type_array_to_any_of) {
@@ -808,7 +808,7 @@ TEST_F(CanonicalizerDraft4Test, type_array_to_any_of) {
     ]
   })JSON");
 
-  CANONICALIZE_NEXT(document, expected, *compiled_meta_);
+  CANONICALIZE_AND_VALIDATE(document, expected, *compiled_meta_);
 }
 
 TEST_F(CanonicalizerDraft4Test, type_array_single_element) {
@@ -824,7 +824,7 @@ TEST_F(CanonicalizerDraft4Test, type_array_single_element) {
     ]
   })JSON");
 
-  CANONICALIZE_NEXT(document, expected, *compiled_meta_);
+  CANONICALIZE_AND_VALIDATE(document, expected, *compiled_meta_);
 }
 
 TEST_F(CanonicalizerDraft4Test, empty_subschema_to_true) {
@@ -847,7 +847,7 @@ TEST_F(CanonicalizerDraft4Test, empty_subschema_to_true) {
     "minProperties": 0
   })JSON");
 
-  CANONICALIZE_NEXT(document, expected, *compiled_meta_);
+  CANONICALIZE_AND_VALIDATE(document, expected, *compiled_meta_);
 }
 
 TEST_F(CanonicalizerDraft4Test, anyof_standalone) {
@@ -867,7 +867,7 @@ TEST_F(CanonicalizerDraft4Test, anyof_standalone) {
     ]
   })JSON");
 
-  CANONICALIZE_NEXT(document, expected, *compiled_meta_);
+  CANONICALIZE_AND_VALIDATE(document, expected, *compiled_meta_);
 }
 
 TEST_F(CanonicalizerDraft4Test, oneof_standalone) {
@@ -887,7 +887,7 @@ TEST_F(CanonicalizerDraft4Test, oneof_standalone) {
     ]
   })JSON");
 
-  CANONICALIZE_NEXT(document, expected, *compiled_meta_);
+  CANONICALIZE_AND_VALIDATE(document, expected, *compiled_meta_);
 }
 
 TEST_F(CanonicalizerDraft4Test, not_with_boolean_true) {
@@ -901,7 +901,7 @@ TEST_F(CanonicalizerDraft4Test, not_with_boolean_true) {
     "not": true
   })JSON");
 
-  CANONICALIZE_NEXT(document, expected, *compiled_meta_);
+  CANONICALIZE_AND_VALIDATE(document, expected, *compiled_meta_);
 }
 
 TEST_F(CanonicalizerDraft4Test, not_with_schema) {
@@ -915,7 +915,7 @@ TEST_F(CanonicalizerDraft4Test, not_with_schema) {
     "not": { "type": "string", "minLength": 0 }
   })JSON");
 
-  CANONICALIZE_NEXT(document, expected, *compiled_meta_);
+  CANONICALIZE_AND_VALIDATE(document, expected, *compiled_meta_);
 }
 
 TEST_F(CanonicalizerDraft4Test, allof_single_branch) {
@@ -933,7 +933,7 @@ TEST_F(CanonicalizerDraft4Test, allof_single_branch) {
     ]
   })JSON");
 
-  CANONICALIZE_NEXT(document, expected, *compiled_meta_);
+  CANONICALIZE_AND_VALIDATE(document, expected, *compiled_meta_);
 }
 
 TEST_F(CanonicalizerDraft4Test, unknown_keyword_prefixed) {
@@ -950,7 +950,7 @@ TEST_F(CanonicalizerDraft4Test, unknown_keyword_prefixed) {
     "x-customKeyword": "value"
   })JSON");
 
-  CANONICALIZE_NEXT(document, expected, *compiled_meta_);
+  CANONICALIZE_AND_VALIDATE(document, expected, *compiled_meta_);
 }
 
 TEST_F(CanonicalizerDraft4Test, definitions_subschemas_canonicalized) {
@@ -985,7 +985,7 @@ TEST_F(CanonicalizerDraft4Test, definitions_subschemas_canonicalized) {
     "minProperties": 1
   })JSON");
 
-  CANONICALIZE_NEXT(document, expected, *compiled_meta_);
+  CANONICALIZE_AND_VALIDATE(document, expected, *compiled_meta_);
 }
 
 TEST_F(CanonicalizerDraft4Test, nested_object_with_array_property) {
@@ -1016,7 +1016,7 @@ TEST_F(CanonicalizerDraft4Test, nested_object_with_array_property) {
     "minProperties": 0
   })JSON");
 
-  CANONICALIZE_NEXT(document, expected, *compiled_meta_);
+  CANONICALIZE_AND_VALIDATE(document, expected, *compiled_meta_);
 }
 
 TEST_F(CanonicalizerDraft4Test, full_realistic_schema) {
@@ -1062,7 +1062,7 @@ TEST_F(CanonicalizerDraft4Test, full_realistic_schema) {
     "minProperties": 2
   })JSON");
 
-  CANONICALIZE_NEXT(document, expected, *compiled_meta_);
+  CANONICALIZE_AND_VALIDATE(document, expected, *compiled_meta_);
 }
 
 TEST_F(CanonicalizerDraft4Test, annotations_preserved_on_string) {
@@ -1083,7 +1083,7 @@ TEST_F(CanonicalizerDraft4Test, annotations_preserved_on_string) {
     "default": "unknown"
   })JSON");
 
-  CANONICALIZE_NEXT(document, expected, *compiled_meta_);
+  CANONICALIZE_AND_VALIDATE(document, expected, *compiled_meta_);
 }
 
 TEST_F(CanonicalizerDraft4Test, string_with_numeric_keywords_stripped) {
@@ -1099,7 +1099,7 @@ TEST_F(CanonicalizerDraft4Test, string_with_numeric_keywords_stripped) {
     "minLength": 0
   })JSON");
 
-  CANONICALIZE_NEXT(document, expected, *compiled_meta_);
+  CANONICALIZE_AND_VALIDATE(document, expected, *compiled_meta_);
 }
 
 TEST_F(CanonicalizerDraft4Test, object_with_string_keywords_stripped) {
@@ -1119,7 +1119,7 @@ TEST_F(CanonicalizerDraft4Test, object_with_string_keywords_stripped) {
     "minProperties": 0
   })JSON");
 
-  CANONICALIZE_NEXT(document, expected, *compiled_meta_);
+  CANONICALIZE_AND_VALIDATE(document, expected, *compiled_meta_);
 }
 
 TEST_F(CanonicalizerDraft4Test, circular_ref_in_property) {
@@ -1163,7 +1163,7 @@ TEST_F(CanonicalizerDraft4Test, circular_ref_in_property) {
     "minProperties": 0
   })JSON");
 
-  CANONICALIZE_NEXT(document, expected, *compiled_meta_);
+  CANONICALIZE_AND_VALIDATE(document, expected, *compiled_meta_);
 }
 
 TEST_F(CanonicalizerDraft4Test,
@@ -1182,7 +1182,7 @@ TEST_F(CanonicalizerDraft4Test,
     ]
   })JSON");
 
-  CANONICALIZE_NEXT(document, expected, *compiled_meta_);
+  CANONICALIZE_AND_VALIDATE(document, expected, *compiled_meta_);
 }
 
 TEST_F(CanonicalizerDraft4Test, type_array_string_and_null) {
@@ -1199,7 +1199,7 @@ TEST_F(CanonicalizerDraft4Test, type_array_string_and_null) {
     ]
   })JSON");
 
-  CANONICALIZE_NEXT(document, expected, *compiled_meta_);
+  CANONICALIZE_AND_VALIDATE(document, expected, *compiled_meta_);
 }
 
 TEST_F(CanonicalizerDraft4Test, type_array_three_types_with_mixed_keywords) {
@@ -1219,7 +1219,7 @@ TEST_F(CanonicalizerDraft4Test, type_array_three_types_with_mixed_keywords) {
     ]
   })JSON");
 
-  CANONICALIZE_NEXT(document, expected, *compiled_meta_);
+  CANONICALIZE_AND_VALIDATE(document, expected, *compiled_meta_);
 }
 
 TEST_F(CanonicalizerDraft4Test, type_array_object_and_array) {
@@ -1240,7 +1240,7 @@ TEST_F(CanonicalizerDraft4Test, type_array_object_and_array) {
     ]
   })JSON");
 
-  CANONICALIZE_NEXT(document, expected, *compiled_meta_);
+  CANONICALIZE_AND_VALIDATE(document, expected, *compiled_meta_);
 }
 
 TEST_F(CanonicalizerDraft4Test, dependencies_property_single) {
@@ -1289,7 +1289,7 @@ TEST_F(CanonicalizerDraft4Test, dependencies_property_single) {
     ]
   })JSON");
 
-  CANONICALIZE_NEXT(document, expected, *compiled_meta_);
+  CANONICALIZE_AND_VALIDATE(document, expected, *compiled_meta_);
 }
 
 TEST_F(CanonicalizerDraft4Test, dependencies_schema_single) {
@@ -1359,7 +1359,7 @@ TEST_F(CanonicalizerDraft4Test, dependencies_schema_single) {
     ]
   })JSON");
 
-  CANONICALIZE_NEXT(document, expected, *compiled_meta_);
+  CANONICALIZE_AND_VALIDATE(document, expected, *compiled_meta_);
 }
 
 TEST_F(CanonicalizerDraft4Test, type_with_not_sibling_wrapped) {
@@ -1386,7 +1386,7 @@ TEST_F(CanonicalizerDraft4Test, type_with_not_sibling_wrapped) {
     ]
   })JSON");
 
-  CANONICALIZE_NEXT(document, expected, *compiled_meta_);
+  CANONICALIZE_AND_VALIDATE(document, expected, *compiled_meta_);
 }
 
 TEST_F(CanonicalizerDraft4Test, ref_siblings_stripped_in_subschema) {
@@ -1409,7 +1409,7 @@ TEST_F(CanonicalizerDraft4Test, ref_siblings_stripped_in_subschema) {
     "minProperties": 0
   })JSON");
 
-  CANONICALIZE_NEXT(document, expected, *compiled_meta_);
+  CANONICALIZE_AND_VALIDATE(document, expected, *compiled_meta_);
 }
 
 TEST_F(CanonicalizerDraft4Test, string_with_format_only) {
@@ -1426,7 +1426,7 @@ TEST_F(CanonicalizerDraft4Test, string_with_format_only) {
     "format": "date-time"
   })JSON");
 
-  CANONICALIZE_NEXT(document, expected, *compiled_meta_);
+  CANONICALIZE_AND_VALIDATE(document, expected, *compiled_meta_);
 }
 
 TEST_F(CanonicalizerDraft4Test, deeply_nested_objects) {
@@ -1468,7 +1468,7 @@ TEST_F(CanonicalizerDraft4Test, deeply_nested_objects) {
     "minProperties": 0
   })JSON");
 
-  CANONICALIZE_NEXT(document, expected, *compiled_meta_);
+  CANONICALIZE_AND_VALIDATE(document, expected, *compiled_meta_);
 }
 
 TEST_F(CanonicalizerDraft4Test, pattern_properties_with_schemas) {
@@ -1493,7 +1493,7 @@ TEST_F(CanonicalizerDraft4Test, pattern_properties_with_schemas) {
     "minProperties": 0
   })JSON");
 
-  CANONICALIZE_NEXT(document, expected, *compiled_meta_);
+  CANONICALIZE_AND_VALIDATE(document, expected, *compiled_meta_);
 }
 
 TEST_F(CanonicalizerDraft4Test, allof_with_compatible_branches) {
@@ -1513,7 +1513,7 @@ TEST_F(CanonicalizerDraft4Test, allof_with_compatible_branches) {
     ]
   })JSON");
 
-  CANONICALIZE_NEXT(document, expected, *compiled_meta_);
+  CANONICALIZE_AND_VALIDATE(document, expected, *compiled_meta_);
 }
 
 TEST_F(CanonicalizerDraft4Test, enum_mixed_types) {
@@ -1527,7 +1527,7 @@ TEST_F(CanonicalizerDraft4Test, enum_mixed_types) {
     "enum": [ 1, "two", true, null, { "x": 1 }, [ 1 ] ]
   })JSON");
 
-  CANONICALIZE_NEXT(document, expected, *compiled_meta_);
+  CANONICALIZE_AND_VALIDATE(document, expected, *compiled_meta_);
 }
 
 TEST_F(CanonicalizerDraft4Test, enum_single_value) {
@@ -1541,7 +1541,7 @@ TEST_F(CanonicalizerDraft4Test, enum_single_value) {
     "enum": [ 42 ]
   })JSON");
 
-  CANONICALIZE_NEXT(document, expected, *compiled_meta_);
+  CANONICALIZE_AND_VALIDATE(document, expected, *compiled_meta_);
 }
 
 TEST_F(CanonicalizerDraft4Test, enum_duplicate_values_removed) {
@@ -1555,7 +1555,7 @@ TEST_F(CanonicalizerDraft4Test, enum_duplicate_values_removed) {
     "enum": [ 1, 2, 3 ]
   })JSON");
 
-  CANONICALIZE_NEXT(document, expected, *compiled_meta_);
+  CANONICALIZE_AND_VALIDATE(document, expected, *compiled_meta_);
 }
 
 TEST_F(CanonicalizerDraft4Test, object_additional_properties_false_named) {
@@ -1575,7 +1575,7 @@ TEST_F(CanonicalizerDraft4Test, object_additional_properties_false_named) {
     "minProperties": 0
   })JSON");
 
-  CANONICALIZE_NEXT(document, expected, *compiled_meta_);
+  CANONICALIZE_AND_VALIDATE(document, expected, *compiled_meta_);
 }
 
 TEST_F(CanonicalizerDraft4Test,
@@ -1594,7 +1594,7 @@ TEST_F(CanonicalizerDraft4Test,
     "enum": [ 5 ]
   })JSON");
 
-  CANONICALIZE_NEXT(document, expected, *compiled_meta_);
+  CANONICALIZE_AND_VALIDATE(document, expected, *compiled_meta_);
 }
 
 TEST_F(CanonicalizerDraft4Test, array_items_object_schema) {
@@ -1626,7 +1626,7 @@ TEST_F(CanonicalizerDraft4Test, array_items_object_schema) {
     "uniqueItems": false
   })JSON");
 
-  CANONICALIZE_NEXT(document, expected, *compiled_meta_);
+  CANONICALIZE_AND_VALIDATE(document, expected, *compiled_meta_);
 }
 
 TEST_F(CanonicalizerDraft4Test, anyof_with_nested_allof) {
@@ -1658,7 +1658,7 @@ TEST_F(CanonicalizerDraft4Test, anyof_with_nested_allof) {
     ]
   })JSON");
 
-  CANONICALIZE_NEXT(document, expected, *compiled_meta_);
+  CANONICALIZE_AND_VALIDATE(document, expected, *compiled_meta_);
 }
 
 TEST_F(CanonicalizerDraft4Test, oneof_disjoint_types_to_anyof) {
@@ -1678,7 +1678,7 @@ TEST_F(CanonicalizerDraft4Test, oneof_disjoint_types_to_anyof) {
     ]
   })JSON");
 
-  CANONICALIZE_NEXT(document, expected, *compiled_meta_);
+  CANONICALIZE_AND_VALIDATE(document, expected, *compiled_meta_);
 }
 
 TEST_F(CanonicalizerDraft4Test, not_with_object_schema) {
@@ -1695,7 +1695,7 @@ TEST_F(CanonicalizerDraft4Test, not_with_object_schema) {
       "minProperties": 1 }
   })JSON");
 
-  CANONICALIZE_NEXT(document, expected, *compiled_meta_);
+  CANONICALIZE_AND_VALIDATE(document, expected, *compiled_meta_);
 }
 
 TEST_F(CanonicalizerDraft4Test, schema_with_id) {
@@ -1713,7 +1713,7 @@ TEST_F(CanonicalizerDraft4Test, schema_with_id) {
     "minLength": 1
   })JSON");
 
-  CANONICALIZE_NEXT(document, expected, *compiled_meta_);
+  CANONICALIZE_AND_VALIDATE(document, expected, *compiled_meta_);
 }
 
 TEST_F(CanonicalizerDraft4Test, allof_empty_branch_dropped) {
@@ -1727,7 +1727,7 @@ TEST_F(CanonicalizerDraft4Test, allof_empty_branch_dropped) {
     "allOf": [ { "type": "string", "minLength": 0 } ]
   })JSON");
 
-  CANONICALIZE_NEXT(document, expected, *compiled_meta_);
+  CANONICALIZE_AND_VALIDATE(document, expected, *compiled_meta_);
 }
 
 TEST_F(CanonicalizerDraft4Test, multiple_x_keywords_preserved) {
@@ -1746,7 +1746,7 @@ TEST_F(CanonicalizerDraft4Test, multiple_x_keywords_preserved) {
     "x-deprecated-since": "2.0"
   })JSON");
 
-  CANONICALIZE_NEXT(document, expected, *compiled_meta_);
+  CANONICALIZE_AND_VALIDATE(document, expected, *compiled_meta_);
 }
 
 TEST_F(CanonicalizerDraft4Test, object_required_already_in_properties) {
@@ -1767,7 +1767,7 @@ TEST_F(CanonicalizerDraft4Test, object_required_already_in_properties) {
     "minProperties": 1
   })JSON");
 
-  CANONICALIZE_NEXT(document, expected, *compiled_meta_);
+  CANONICALIZE_AND_VALIDATE(document, expected, *compiled_meta_);
 }
 
 TEST_F(CanonicalizerDraft4Test, orphan_definitions_removed) {
@@ -1783,7 +1783,7 @@ TEST_F(CanonicalizerDraft4Test, orphan_definitions_removed) {
     "minLength": 0
   })JSON");
 
-  CANONICALIZE_NEXT(document, expected, *compiled_meta_);
+  CANONICALIZE_AND_VALIDATE(document, expected, *compiled_meta_);
 }
 
 TEST_F(CanonicalizerDraft4Test, enum_with_type_matching_stripped) {
@@ -1798,7 +1798,7 @@ TEST_F(CanonicalizerDraft4Test, enum_with_type_matching_stripped) {
     "enum": [ "a", "b", "c" ]
   })JSON");
 
-  CANONICALIZE_NEXT(document, expected, *compiled_meta_);
+  CANONICALIZE_AND_VALIDATE(document, expected, *compiled_meta_);
 }
 
 TEST_F(CanonicalizerDraft4Test, string_cross_type_keywords_stripped) {
@@ -1814,7 +1814,7 @@ TEST_F(CanonicalizerDraft4Test, string_cross_type_keywords_stripped) {
     "minLength": 0
   })JSON");
 
-  CANONICALIZE_NEXT(document, expected, *compiled_meta_);
+  CANONICALIZE_AND_VALIDATE(document, expected, *compiled_meta_);
 }
 
 TEST_F(CanonicalizerDraft4Test, object_cross_type_keywords_stripped) {
@@ -1834,7 +1834,7 @@ TEST_F(CanonicalizerDraft4Test, object_cross_type_keywords_stripped) {
     "minProperties": 0
   })JSON");
 
-  CANONICALIZE_NEXT(document, expected, *compiled_meta_);
+  CANONICALIZE_AND_VALIDATE(document, expected, *compiled_meta_);
 }
 
 TEST_F(CanonicalizerDraft4Test, anyof_with_type_sibling) {
@@ -1880,7 +1880,7 @@ TEST_F(CanonicalizerDraft4Test, anyof_with_type_sibling) {
     ]
   })JSON");
 
-  CANONICALIZE_NEXT(document, expected, *compiled_meta_);
+  CANONICALIZE_AND_VALIDATE(document, expected, *compiled_meta_);
 }
 
 TEST_F(CanonicalizerDraft4Test, not_with_anyof_sibling) {
@@ -1914,7 +1914,7 @@ TEST_F(CanonicalizerDraft4Test, not_with_anyof_sibling) {
     ]
   })JSON");
 
-  CANONICALIZE_NEXT(document, expected, *compiled_meta_);
+  CANONICALIZE_AND_VALIDATE(document, expected, *compiled_meta_);
 }
 
 TEST_F(CanonicalizerDraft4Test, type_with_anyof_and_properties) {
@@ -1968,7 +1968,7 @@ TEST_F(CanonicalizerDraft4Test, type_with_anyof_and_properties) {
     ]
   })JSON");
 
-  CANONICALIZE_NEXT(document, expected, *compiled_meta_);
+  CANONICALIZE_AND_VALIDATE(document, expected, *compiled_meta_);
 }
 
 TEST_F(CanonicalizerDraft4Test, double_negation) {
@@ -1989,7 +1989,7 @@ TEST_F(CanonicalizerDraft4Test, double_negation) {
     }
   })JSON");
 
-  CANONICALIZE_NEXT(document, expected, *compiled_meta_);
+  CANONICALIZE_AND_VALIDATE(document, expected, *compiled_meta_);
 }
 
 TEST_F(CanonicalizerDraft4Test, unsatisfiable_integer_min_gt_max) {
@@ -2008,7 +2008,7 @@ TEST_F(CanonicalizerDraft4Test, unsatisfiable_integer_min_gt_max) {
     "multipleOf": 1
   })JSON");
 
-  CANONICALIZE_NEXT(document, expected, *compiled_meta_);
+  CANONICALIZE_AND_VALIDATE(document, expected, *compiled_meta_);
 }
 
 TEST_F(CanonicalizerDraft4Test,
@@ -2027,7 +2027,7 @@ TEST_F(CanonicalizerDraft4Test,
     "enum": [ 1 ]
   })JSON");
 
-  CANONICALIZE_NEXT(document, expected, *compiled_meta_);
+  CANONICALIZE_AND_VALIDATE(document, expected, *compiled_meta_);
 }
 
 TEST_F(CanonicalizerDraft4Test, number_exclusive_minimum_false_dropped) {
@@ -2044,7 +2044,7 @@ TEST_F(CanonicalizerDraft4Test, number_exclusive_minimum_false_dropped) {
     "minimum": 0
   })JSON");
 
-  CANONICALIZE_NEXT(document, expected, *compiled_meta_);
+  CANONICALIZE_AND_VALIDATE(document, expected, *compiled_meta_);
 }
 
 TEST_F(CanonicalizerDraft4Test, deeply_nested_anyof) {
@@ -2080,7 +2080,7 @@ TEST_F(CanonicalizerDraft4Test, deeply_nested_anyof) {
     ]
   })JSON");
 
-  CANONICALIZE_NEXT(document, expected, *compiled_meta_);
+  CANONICALIZE_AND_VALIDATE(document, expected, *compiled_meta_);
 }
 
 TEST_F(CanonicalizerDraft4Test, enum_with_allof_sibling) {
@@ -2124,7 +2124,7 @@ TEST_F(CanonicalizerDraft4Test, enum_with_allof_sibling) {
     ]
   })JSON");
 
-  CANONICALIZE_NEXT(document, expected, *compiled_meta_);
+  CANONICALIZE_AND_VALIDATE(document, expected, *compiled_meta_);
 }
 
 TEST_F(CanonicalizerDraft4Test, deeply_nested_additional_properties) {
@@ -2157,7 +2157,7 @@ TEST_F(CanonicalizerDraft4Test, deeply_nested_additional_properties) {
     "minProperties": 0
   })JSON");
 
-  CANONICALIZE_NEXT(document, expected, *compiled_meta_);
+  CANONICALIZE_AND_VALIDATE(document, expected, *compiled_meta_);
 }
 
 TEST_F(CanonicalizerDraft4Test, tuple_items_with_nested_objects) {
@@ -2204,7 +2204,7 @@ TEST_F(CanonicalizerDraft4Test, tuple_items_with_nested_objects) {
     "uniqueItems": false
   })JSON");
 
-  CANONICALIZE_NEXT(document, expected, *compiled_meta_);
+  CANONICALIZE_AND_VALIDATE(document, expected, *compiled_meta_);
 }
 
 TEST_F(CanonicalizerDraft4Test, object_required_max_less_than_required) {
@@ -2230,7 +2230,7 @@ TEST_F(CanonicalizerDraft4Test, object_required_max_less_than_required) {
     "minProperties": 3
   })JSON");
 
-  CANONICALIZE_NEXT(document, expected, *compiled_meta_);
+  CANONICALIZE_AND_VALIDATE(document, expected, *compiled_meta_);
 }
 
 TEST_F(CanonicalizerDraft4Test, definitions_chain_ref) {
@@ -2264,7 +2264,7 @@ TEST_F(CanonicalizerDraft4Test, definitions_chain_ref) {
     "minProperties": 0
   })JSON");
 
-  CANONICALIZE_NEXT(document, expected, *compiled_meta_);
+  CANONICALIZE_AND_VALIDATE(document, expected, *compiled_meta_);
 }
 
 TEST_F(CanonicalizerDraft4Test, oneof_non_disjoint_stays) {
@@ -2291,7 +2291,7 @@ TEST_F(CanonicalizerDraft4Test, oneof_non_disjoint_stays) {
     ]
   })JSON");
 
-  CANONICALIZE_NEXT(document, expected, *compiled_meta_);
+  CANONICALIZE_AND_VALIDATE(document, expected, *compiled_meta_);
 }
 
 TEST_F(CanonicalizerDraft4Test, tuple_duplicate_schemas) {
@@ -2317,7 +2317,7 @@ TEST_F(CanonicalizerDraft4Test, tuple_duplicate_schemas) {
     "additionalItems": true
   })JSON");
 
-  CANONICALIZE_NEXT(document, expected, *compiled_meta_);
+  CANONICALIZE_AND_VALIDATE(document, expected, *compiled_meta_);
 }
 
 TEST_F(CanonicalizerDraft4Test, empty_subschemas_become_true) {
@@ -2341,7 +2341,7 @@ TEST_F(CanonicalizerDraft4Test, empty_subschemas_become_true) {
     "additionalProperties": true
   })JSON");
 
-  CANONICALIZE_NEXT(document, expected, *compiled_meta_);
+  CANONICALIZE_AND_VALIDATE(document, expected, *compiled_meta_);
 }
 
 TEST_F(CanonicalizerDraft4Test, integer_multipleof_with_exclusive_max) {
@@ -2362,7 +2362,7 @@ TEST_F(CanonicalizerDraft4Test, integer_multipleof_with_exclusive_max) {
     "multipleOf": 3
   })JSON");
 
-  CANONICALIZE_NEXT(document, expected, *compiled_meta_);
+  CANONICALIZE_AND_VALIDATE(document, expected, *compiled_meta_);
 }
 
 TEST_F(CanonicalizerDraft4Test, definitions_exclusive_bounds_folded) {
@@ -2411,7 +2411,7 @@ TEST_F(CanonicalizerDraft4Test, definitions_exclusive_bounds_folded) {
     }
   })JSON");
 
-  CANONICALIZE_NEXT(document, expected, *compiled_meta_);
+  CANONICALIZE_AND_VALIDATE(document, expected, *compiled_meta_);
 }
 
 TEST_F(CanonicalizerDraft4Test, string_enum_minlength_collapsed) {
@@ -2461,7 +2461,7 @@ TEST_F(CanonicalizerDraft4Test, string_enum_minlength_collapsed) {
     ]
   })JSON");
 
-  CANONICALIZE_NEXT(document, expected, *compiled_meta_);
+  CANONICALIZE_AND_VALIDATE(document, expected, *compiled_meta_);
 }
 
 TEST_F(CanonicalizerDraft4Test, not_with_anyof_child) {
@@ -2485,7 +2485,7 @@ TEST_F(CanonicalizerDraft4Test, not_with_anyof_child) {
     }
   })JSON");
 
-  CANONICALIZE_NEXT(document, expected, *compiled_meta_);
+  CANONICALIZE_AND_VALIDATE(document, expected, *compiled_meta_);
 }
 
 TEST_F(CanonicalizerDraft4Test, object_with_enum_additional_properties) {
@@ -2509,7 +2509,7 @@ TEST_F(CanonicalizerDraft4Test, object_with_enum_additional_properties) {
     }
   })JSON");
 
-  CANONICALIZE_NEXT(document, expected, *compiled_meta_);
+  CANONICALIZE_AND_VALIDATE(document, expected, *compiled_meta_);
 }
 
 TEST_F(CanonicalizerDraft4Test, enum_single_true) {
@@ -2525,7 +2525,7 @@ TEST_F(CanonicalizerDraft4Test, enum_single_true) {
     "title": "Always true"
   })JSON");
 
-  CANONICALIZE_NEXT(document, expected, *compiled_meta_);
+  CANONICALIZE_AND_VALIDATE(document, expected, *compiled_meta_);
 }
 
 TEST_F(CanonicalizerDraft4Test, empty_definitions_stripped) {
@@ -2541,7 +2541,7 @@ TEST_F(CanonicalizerDraft4Test, empty_definitions_stripped) {
     "minLength": 0
   })JSON");
 
-  CANONICALIZE_NEXT(document, expected, *compiled_meta_);
+  CANONICALIZE_AND_VALIDATE(document, expected, *compiled_meta_);
 }
 
 TEST_F(CanonicalizerDraft4Test, exclusive_min_with_equal_max_unsatisfiable) {
@@ -2561,7 +2561,7 @@ TEST_F(CanonicalizerDraft4Test, exclusive_min_with_equal_max_unsatisfiable) {
     "multipleOf": 1
   })JSON");
 
-  CANONICALIZE_NEXT(document, expected, *compiled_meta_);
+  CANONICALIZE_AND_VALIDATE(document, expected, *compiled_meta_);
 }
 
 TEST_F(CanonicalizerDraft4Test, string_maxlength_zero) {
@@ -2579,7 +2579,7 @@ TEST_F(CanonicalizerDraft4Test, string_maxlength_zero) {
     "maxLength": 0
   })JSON");
 
-  CANONICALIZE_NEXT(document, expected, *compiled_meta_);
+  CANONICALIZE_AND_VALIDATE(document, expected, *compiled_meta_);
 }
 
 TEST_F(CanonicalizerDraft4Test, array_items_not_null) {
@@ -2604,7 +2604,7 @@ TEST_F(CanonicalizerDraft4Test, array_items_not_null) {
     "uniqueItems": false
   })JSON");
 
-  CANONICALIZE_NEXT(document, expected, *compiled_meta_);
+  CANONICALIZE_AND_VALIDATE(document, expected, *compiled_meta_);
 }
 
 TEST_F(CanonicalizerDraft4Test, deeply_nested_closed_object) {
@@ -2656,7 +2656,7 @@ TEST_F(CanonicalizerDraft4Test, deeply_nested_closed_object) {
     "minProperties": 0
   })JSON");
 
-  CANONICALIZE_NEXT(document, expected, *compiled_meta_);
+  CANONICALIZE_AND_VALIDATE(document, expected, *compiled_meta_);
 }
 
 TEST_F(CanonicalizerDraft4Test, number_precise_multipleof) {
@@ -2676,7 +2676,7 @@ TEST_F(CanonicalizerDraft4Test, number_precise_multipleof) {
     "maximum": 1
   })JSON");
 
-  CANONICALIZE_NEXT(document, expected, *compiled_meta_);
+  CANONICALIZE_AND_VALIDATE(document, expected, *compiled_meta_);
 }
 
 TEST_F(CanonicalizerDraft4Test, anyof_single_enum_branch) {
@@ -2694,7 +2694,7 @@ TEST_F(CanonicalizerDraft4Test, anyof_single_enum_branch) {
     ]
   })JSON");
 
-  CANONICALIZE_NEXT(document, expected, *compiled_meta_);
+  CANONICALIZE_AND_VALIDATE(document, expected, *compiled_meta_);
 }
 
 TEST_F(CanonicalizerDraft4Test, allof_ref_with_type_and_properties) {
@@ -2752,7 +2752,7 @@ TEST_F(CanonicalizerDraft4Test, allof_ref_with_type_and_properties) {
     }
   })JSON");
 
-  CANONICALIZE_NEXT(document, expected, *compiled_meta_);
+  CANONICALIZE_AND_VALIDATE(document, expected, *compiled_meta_);
 }
 
 TEST_F(CanonicalizerDraft4Test, recursive_ref_in_array_items) {
@@ -2802,7 +2802,7 @@ TEST_F(CanonicalizerDraft4Test, recursive_ref_in_array_items) {
     }
   })JSON");
 
-  CANONICALIZE_NEXT(document, expected, *compiled_meta_);
+  CANONICALIZE_AND_VALIDATE(document, expected, *compiled_meta_);
 }
 
 TEST_F(CanonicalizerDraft4Test, property_named_ref_not_a_reference) {
@@ -2854,7 +2854,7 @@ TEST_F(CanonicalizerDraft4Test, property_named_ref_not_a_reference) {
     ]
   })JSON");
 
-  CANONICALIZE_NEXT(document, expected, *compiled_meta_);
+  CANONICALIZE_AND_VALIDATE(document, expected, *compiled_meta_);
 }
 
 TEST_F(CanonicalizerDraft4Test, enum_value_containing_ref_string) {
@@ -2896,7 +2896,7 @@ TEST_F(CanonicalizerDraft4Test, enum_value_containing_ref_string) {
     ]
   })JSON");
 
-  CANONICALIZE_NEXT(document, expected, *compiled_meta_);
+  CANONICALIZE_AND_VALIDATE(document, expected, *compiled_meta_);
 }
 
 TEST_F(CanonicalizerDraft4Test, enum_partial_type_match_filtered) {
@@ -2945,7 +2945,7 @@ TEST_F(CanonicalizerDraft4Test, enum_partial_type_match_filtered) {
     ]
   })JSON");
 
-  CANONICALIZE_NEXT(document, expected, *compiled_meta_);
+  CANONICALIZE_AND_VALIDATE(document, expected, *compiled_meta_);
 }
 
 TEST_F(CanonicalizerDraft4Test, dependencies_tautology_stripped) {
@@ -2971,7 +2971,7 @@ TEST_F(CanonicalizerDraft4Test, dependencies_tautology_stripped) {
     "additionalProperties": true
   })JSON");
 
-  CANONICALIZE_NEXT(document, expected, *compiled_meta_);
+  CANONICALIZE_AND_VALIDATE(document, expected, *compiled_meta_);
 }
 
 TEST_F(CanonicalizerDraft4Test, type_allof_ref_and_typed_not) {
@@ -3022,7 +3022,7 @@ TEST_F(CanonicalizerDraft4Test, type_allof_ref_and_typed_not) {
     }
   })JSON");
 
-  CANONICALIZE_NEXT(document, expected, *compiled_meta_);
+  CANONICALIZE_AND_VALIDATE(document, expected, *compiled_meta_);
 }
 
 TEST_F(CanonicalizerDraft4Test, exclusive_maximum_fold_non_integral) {
@@ -3040,7 +3040,7 @@ TEST_F(CanonicalizerDraft4Test, exclusive_maximum_fold_non_integral) {
     "multipleOf": 1
   })JSON");
 
-  CANONICALIZE_NEXT(document, expected, *compiled_meta_);
+  CANONICALIZE_AND_VALIDATE(document, expected, *compiled_meta_);
 }
 
 TEST_F(CanonicalizerDraft4Test, exclusive_minimum_fold_non_integral) {
@@ -3058,7 +3058,7 @@ TEST_F(CanonicalizerDraft4Test, exclusive_minimum_fold_non_integral) {
     "multipleOf": 1
   })JSON");
 
-  CANONICALIZE_NEXT(document, expected, *compiled_meta_);
+  CANONICALIZE_AND_VALIDATE(document, expected, *compiled_meta_);
 }
 
 TEST_F(CanonicalizerDraft4Test, dependencies_with_existing_anyof) {
@@ -3149,7 +3149,7 @@ TEST_F(CanonicalizerDraft4Test, dependencies_with_existing_anyof) {
     ]
   })JSON");
 
-  CANONICALIZE_NEXT(document, expected, *compiled_meta_);
+  CANONICALIZE_AND_VALIDATE(document, expected, *compiled_meta_);
 }
 
 TEST_F(CanonicalizerDraft4Test, full_restructure_ref_in_typed_keyword) {
@@ -3250,7 +3250,7 @@ TEST_F(CanonicalizerDraft4Test, full_restructure_ref_in_typed_keyword) {
     }
   })JSON");
 
-  CANONICALIZE_NEXT(document, expected, *compiled_meta_);
+  CANONICALIZE_AND_VALIDATE(document, expected, *compiled_meta_);
 }
 
 TEST_F(CanonicalizerDraft4Test,
@@ -3267,7 +3267,7 @@ TEST_F(CanonicalizerDraft4Test,
     false
   )JSON");
 
-  CANONICALIZE_NEXT(document, expected, *compiled_meta_);
+  CANONICALIZE_AND_VALIDATE(document, expected, *compiled_meta_);
 }
 
 TEST_F(CanonicalizerDraft4Test,
@@ -3284,7 +3284,7 @@ TEST_F(CanonicalizerDraft4Test,
     false
   )JSON");
 
-  CANONICALIZE_NEXT(document, expected, *compiled_meta_);
+  CANONICALIZE_AND_VALIDATE(document, expected, *compiled_meta_);
 }
 
 TEST_F(CanonicalizerDraft4Test, exclusive_maximum_fold_exponential_notation) {
@@ -3302,7 +3302,7 @@ TEST_F(CanonicalizerDraft4Test, exclusive_maximum_fold_exponential_notation) {
     "multipleOf": 1
   })JSON");
 
-  CANONICALIZE_NEXT(document, expected, *compiled_meta_);
+  CANONICALIZE_AND_VALIDATE(document, expected, *compiled_meta_);
 }
 
 TEST_F(CanonicalizerDraft4Test, exclusive_minimum_fold_exponential_notation) {
@@ -3320,7 +3320,7 @@ TEST_F(CanonicalizerDraft4Test, exclusive_minimum_fold_exponential_notation) {
     "multipleOf": 1
   })JSON");
 
-  CANONICALIZE_NEXT(document, expected, *compiled_meta_);
+  CANONICALIZE_AND_VALIDATE(document, expected, *compiled_meta_);
 }
 
 TEST_F(CanonicalizerDraft4Test,
@@ -3339,7 +3339,7 @@ TEST_F(CanonicalizerDraft4Test,
     "multipleOf": 1
   })JSON");
 
-  CANONICALIZE_NEXT(document, expected, *compiled_meta_);
+  CANONICALIZE_AND_VALIDATE(document, expected, *compiled_meta_);
 }
 
 TEST_F(CanonicalizerDraft4Test,
@@ -3358,7 +3358,7 @@ TEST_F(CanonicalizerDraft4Test,
     "multipleOf": 1
   })JSON");
 
-  CANONICALIZE_NEXT(document, expected, *compiled_meta_);
+  CANONICALIZE_AND_VALIDATE(document, expected, *compiled_meta_);
 }
 
 TEST_F(CanonicalizerDraft4Test, equal_bounds_to_enum_exponential) {
@@ -3374,7 +3374,7 @@ TEST_F(CanonicalizerDraft4Test, equal_bounds_to_enum_exponential) {
     "enum": [ 10 ]
   })JSON");
 
-  CANONICALIZE_NEXT(document, expected, *compiled_meta_);
+  CANONICALIZE_AND_VALIDATE(document, expected, *compiled_meta_);
 }
 
 TEST_F(CanonicalizerDraft4Test,
@@ -3391,7 +3391,7 @@ TEST_F(CanonicalizerDraft4Test,
     false
   )JSON");
 
-  CANONICALIZE_NEXT(document, expected, *compiled_meta_);
+  CANONICALIZE_AND_VALIDATE(document, expected, *compiled_meta_);
 }
 
 TEST_F(CanonicalizerDraft4Test, integer_minimum_large_decimal) {
@@ -3408,7 +3408,7 @@ TEST_F(CanonicalizerDraft4Test, integer_minimum_large_decimal) {
     "multipleOf": 1
   })JSON");
 
-  CANONICALIZE_NEXT(document, expected, *compiled_meta_);
+  CANONICALIZE_AND_VALIDATE(document, expected, *compiled_meta_);
 }
 
 TEST_F(CanonicalizerDraft4Test, integer_maximum_large_decimal) {
@@ -3425,7 +3425,7 @@ TEST_F(CanonicalizerDraft4Test, integer_maximum_large_decimal) {
     "multipleOf": 1
   })JSON");
 
-  CANONICALIZE_NEXT(document, expected, *compiled_meta_);
+  CANONICALIZE_AND_VALIDATE(document, expected, *compiled_meta_);
 }
 
 TEST_F(CanonicalizerDraft4Test, number_multiple_of_exponential) {
@@ -3441,7 +3441,7 @@ TEST_F(CanonicalizerDraft4Test, number_multiple_of_exponential) {
     "multipleOf": 1e-1
   })JSON");
 
-  CANONICALIZE_NEXT(document, expected, *compiled_meta_);
+  CANONICALIZE_AND_VALIDATE(document, expected, *compiled_meta_);
 }
 
 TEST_F(CanonicalizerDraft4Test, exclusive_maximum_fold_real_integral) {
@@ -3459,7 +3459,7 @@ TEST_F(CanonicalizerDraft4Test, exclusive_maximum_fold_real_integral) {
     "multipleOf": 1
   })JSON");
 
-  CANONICALIZE_NEXT(document, expected, *compiled_meta_);
+  CANONICALIZE_AND_VALIDATE(document, expected, *compiled_meta_);
 }
 
 TEST_F(CanonicalizerDraft4Test, exclusive_minimum_fold_real_integral) {
@@ -3477,7 +3477,7 @@ TEST_F(CanonicalizerDraft4Test, exclusive_minimum_fold_real_integral) {
     "multipleOf": 1
   })JSON");
 
-  CANONICALIZE_NEXT(document, expected, *compiled_meta_);
+  CANONICALIZE_AND_VALIDATE(document, expected, *compiled_meta_);
 }
 
 TEST_F(CanonicalizerDraft4Test,
@@ -3507,7 +3507,7 @@ TEST_F(CanonicalizerDraft4Test,
     ]
   })JSON");
 
-  CANONICALIZE_NEXT(document, expected, *compiled_meta_);
+  CANONICALIZE_AND_VALIDATE(document, expected, *compiled_meta_);
 }
 
 TEST_F(CanonicalizerDraft4Test, exclusive_minimum_false_dropped_on_number) {
@@ -3524,7 +3524,7 @@ TEST_F(CanonicalizerDraft4Test, exclusive_minimum_false_dropped_on_number) {
     "minimum": 5
   })JSON");
 
-  CANONICALIZE_NEXT(document, expected, *compiled_meta_);
+  CANONICALIZE_AND_VALIDATE(document, expected, *compiled_meta_);
 }
 
 TEST_F(CanonicalizerDraft4Test, exclusive_maximum_false_dropped_on_number) {
@@ -3541,7 +3541,7 @@ TEST_F(CanonicalizerDraft4Test, exclusive_maximum_false_dropped_on_number) {
     "maximum": 10
   })JSON");
 
-  CANONICALIZE_NEXT(document, expected, *compiled_meta_);
+  CANONICALIZE_AND_VALIDATE(document, expected, *compiled_meta_);
 }
 
 TEST_F(CanonicalizerDraft4Test, exclusive_minimum_fold_int64_max) {
@@ -3559,7 +3559,7 @@ TEST_F(CanonicalizerDraft4Test, exclusive_minimum_fold_int64_max) {
     "multipleOf": 1
   })JSON");
 
-  CANONICALIZE_NEXT(document, expected, *compiled_meta_);
+  CANONICALIZE_AND_VALIDATE(document, expected, *compiled_meta_);
 }
 
 TEST_F(CanonicalizerDraft4Test, exclusive_maximum_fold_int64_min) {
@@ -3577,7 +3577,7 @@ TEST_F(CanonicalizerDraft4Test, exclusive_maximum_fold_int64_min) {
     "multipleOf": 1
   })JSON");
 
-  CANONICALIZE_NEXT(document, expected, *compiled_meta_);
+  CANONICALIZE_AND_VALIDATE(document, expected, *compiled_meta_);
 }
 
 TEST_F(CanonicalizerDraft4Test, exclusive_minimum_fold_large_real) {
@@ -3595,7 +3595,7 @@ TEST_F(CanonicalizerDraft4Test, exclusive_minimum_fold_large_real) {
     "multipleOf": 1
   })JSON");
 
-  CANONICALIZE_NEXT(document, expected, *compiled_meta_);
+  CANONICALIZE_AND_VALIDATE(document, expected, *compiled_meta_);
 }
 
 TEST_F(CanonicalizerDraft4Test, exclusive_maximum_fold_large_real) {
@@ -3613,7 +3613,7 @@ TEST_F(CanonicalizerDraft4Test, exclusive_maximum_fold_large_real) {
     "multipleOf": 1
   })JSON");
 
-  CANONICALIZE_NEXT(document, expected, *compiled_meta_);
+  CANONICALIZE_AND_VALIDATE(document, expected, *compiled_meta_);
 }
 
 TEST_F(CanonicalizerDraft4Test, exclusive_maximum_fold_large_integer_real) {
@@ -3631,7 +3631,7 @@ TEST_F(CanonicalizerDraft4Test, exclusive_maximum_fold_large_integer_real) {
     "multipleOf": 1
   })JSON");
 
-  CANONICALIZE_NEXT(document, expected, *compiled_meta_);
+  CANONICALIZE_AND_VALIDATE(document, expected, *compiled_meta_);
 }
 
 TEST_F(CanonicalizerDraft4Test, exclusive_minimum_fold_large_integer_real) {
@@ -3649,7 +3649,7 @@ TEST_F(CanonicalizerDraft4Test, exclusive_minimum_fold_large_integer_real) {
     "multipleOf": 1
   })JSON");
 
-  CANONICALIZE_NEXT(document, expected, *compiled_meta_);
+  CANONICALIZE_AND_VALIDATE(document, expected, *compiled_meta_);
 }
 
 TEST_F(CanonicalizerDraft4Test, enum_assertion_minLength_wrapped) {
@@ -3698,7 +3698,7 @@ TEST_F(CanonicalizerDraft4Test, enum_assertion_minLength_wrapped) {
     ]
   })JSON");
 
-  CANONICALIZE_NEXT(document, expected, *compiled_meta_);
+  CANONICALIZE_AND_VALIDATE(document, expected, *compiled_meta_);
 }
 
 TEST_F(CanonicalizerDraft4Test, enum_assertion_multipleOf_wrapped) {
@@ -3748,7 +3748,7 @@ TEST_F(CanonicalizerDraft4Test, enum_assertion_multipleOf_wrapped) {
     ]
   })JSON");
 
-  CANONICALIZE_NEXT(document, expected, *compiled_meta_);
+  CANONICALIZE_AND_VALIDATE(document, expected, *compiled_meta_);
 }
 
 TEST_F(CanonicalizerDraft4Test, enum_assertion_minimum_wrapped) {
@@ -3798,7 +3798,7 @@ TEST_F(CanonicalizerDraft4Test, enum_assertion_minimum_wrapped) {
     ]
   })JSON");
 
-  CANONICALIZE_NEXT(document, expected, *compiled_meta_);
+  CANONICALIZE_AND_VALIDATE(document, expected, *compiled_meta_);
 }
 
 TEST_F(CanonicalizerDraft4Test, enum_assertion_pattern_wrapped) {
@@ -3848,7 +3848,7 @@ TEST_F(CanonicalizerDraft4Test, enum_assertion_pattern_wrapped) {
     ]
   })JSON");
 
-  CANONICALIZE_NEXT(document, expected, *compiled_meta_);
+  CANONICALIZE_AND_VALIDATE(document, expected, *compiled_meta_);
 }
 
 TEST_F(CanonicalizerDraft4Test, enum_tautological_items_true_dropped) {
@@ -3866,7 +3866,7 @@ TEST_F(CanonicalizerDraft4Test, enum_tautological_items_true_dropped) {
     ]
   })JSON");
 
-  CANONICALIZE_NEXT(document, expected, *compiled_meta_);
+  CANONICALIZE_AND_VALIDATE(document, expected, *compiled_meta_);
 }
 
 TEST_F(CanonicalizerDraft4Test,
@@ -3886,7 +3886,7 @@ TEST_F(CanonicalizerDraft4Test,
     ]
   })JSON");
 
-  CANONICALIZE_NEXT(document, expected, *compiled_meta_);
+  CANONICALIZE_AND_VALIDATE(document, expected, *compiled_meta_);
 }
 
 TEST_F(CanonicalizerDraft4Test, enum_constraining_items_schema_kept) {
@@ -3941,7 +3941,7 @@ TEST_F(CanonicalizerDraft4Test, enum_constraining_items_schema_kept) {
     ]
   })JSON");
 
-  CANONICALIZE_NEXT(document, expected, *compiled_meta_);
+  CANONICALIZE_AND_VALIDATE(document, expected, *compiled_meta_);
 }
 
 TEST_F(CanonicalizerDraft4Test,
@@ -3995,7 +3995,7 @@ TEST_F(CanonicalizerDraft4Test,
     ]
   })JSON");
 
-  CANONICALIZE_NEXT(document, expected, *compiled_meta_);
+  CANONICALIZE_AND_VALIDATE(document, expected, *compiled_meta_);
 }
 
 TEST_F(CanonicalizerDraft4Test, enum_constraining_anyof_kept) {
@@ -4022,7 +4022,7 @@ TEST_F(CanonicalizerDraft4Test, enum_constraining_anyof_kept) {
     ]
   })JSON");
 
-  CANONICALIZE_NEXT(document, expected, *compiled_meta_);
+  CANONICALIZE_AND_VALIDATE(document, expected, *compiled_meta_);
 }
 
 TEST_F(CanonicalizerDraft4Test, enum_constraining_not_kept) {
@@ -4074,7 +4074,7 @@ TEST_F(CanonicalizerDraft4Test, enum_constraining_not_kept) {
     ]
   })JSON");
 
-  CANONICALIZE_NEXT(document, expected, *compiled_meta_);
+  CANONICALIZE_AND_VALIDATE(document, expected, *compiled_meta_);
 }
 
 TEST_F(CanonicalizerDraft4Test, enum_constraining_oneof_kept) {
@@ -4128,7 +4128,7 @@ TEST_F(CanonicalizerDraft4Test, enum_constraining_oneof_kept) {
     ]
   })JSON");
 
-  CANONICALIZE_NEXT(document, expected, *compiled_meta_);
+  CANONICALIZE_AND_VALIDATE(document, expected, *compiled_meta_);
 }
 
 TEST_F(CanonicalizerDraft4Test, enum_mixed_assertion_and_applicator) {
@@ -4214,7 +4214,7 @@ TEST_F(CanonicalizerDraft4Test, enum_mixed_assertion_and_applicator) {
     ]
   })JSON");
 
-  CANONICALIZE_NEXT(document, expected, *compiled_meta_);
+  CANONICALIZE_AND_VALIDATE(document, expected, *compiled_meta_);
 }
 
 TEST_F(CanonicalizerDraft4Test,
@@ -4234,7 +4234,7 @@ TEST_F(CanonicalizerDraft4Test,
     ]
   })JSON");
 
-  CANONICALIZE_NEXT(document, expected, *compiled_meta_);
+  CANONICALIZE_AND_VALIDATE(document, expected, *compiled_meta_);
 }
 
 TEST_F(CanonicalizerDraft4Test, enum_assertion_uniqueItems_wrapped) {
@@ -4286,7 +4286,7 @@ TEST_F(CanonicalizerDraft4Test, enum_assertion_uniqueItems_wrapped) {
     ]
   })JSON");
 
-  CANONICALIZE_NEXT(document, expected, *compiled_meta_);
+  CANONICALIZE_AND_VALIDATE(document, expected, *compiled_meta_);
 }
 
 TEST_F(CanonicalizerDraft4Test, enum_wrap_with_ref_through_sibling) {
@@ -4331,5 +4331,5 @@ TEST_F(CanonicalizerDraft4Test, enum_wrap_with_ref_through_sibling) {
     ]
   })JSON");
 
-  CANONICALIZE_NEXT(document, expected, *compiled_meta_);
+  CANONICALIZE_AND_VALIDATE(document, expected, *compiled_meta_);
 }

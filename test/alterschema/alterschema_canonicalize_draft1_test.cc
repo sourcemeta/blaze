@@ -39,7 +39,7 @@ TEST_F(CanonicalizerDraft1Test, type_boolean_as_enum) {
     "enum": [ false, true ]
   })JSON");
 
-  CANONICALIZE_NEXT(document, expected, *compiled_meta_);
+  CANONICALIZE_AND_VALIDATE(document, expected, *compiled_meta_);
 }
 
 TEST_F(CanonicalizerDraft1Test, type_null_as_enum) {
@@ -53,7 +53,7 @@ TEST_F(CanonicalizerDraft1Test, type_null_as_enum) {
     "enum": [ null ]
   })JSON");
 
-  CANONICALIZE_NEXT(document, expected, *compiled_meta_);
+  CANONICALIZE_AND_VALIDATE(document, expected, *compiled_meta_);
 }
 
 TEST_F(CanonicalizerDraft1Test, equal_numeric_bounds_to_enum) {
@@ -69,7 +69,7 @@ TEST_F(CanonicalizerDraft1Test, equal_numeric_bounds_to_enum) {
     "enum": [ 3 ]
   })JSON");
 
-  CANONICALIZE_NEXT(document, expected, *compiled_meta_);
+  CANONICALIZE_AND_VALIDATE(document, expected, *compiled_meta_);
 }
 
 TEST_F(CanonicalizerDraft1Test, string_minimal) {
@@ -84,7 +84,7 @@ TEST_F(CanonicalizerDraft1Test, string_minimal) {
     "minLength": 0
   })JSON");
 
-  CANONICALIZE_NEXT(document, expected, *compiled_meta_);
+  CANONICALIZE_AND_VALIDATE(document, expected, *compiled_meta_);
 }
 
 TEST_F(CanonicalizerDraft1Test, integer_minimal) {
@@ -99,7 +99,7 @@ TEST_F(CanonicalizerDraft1Test, integer_minimal) {
     "maxDecimal": 0
   })JSON");
 
-  CANONICALIZE_NEXT(document, expected, *compiled_meta_);
+  CANONICALIZE_AND_VALIDATE(document, expected, *compiled_meta_);
 }
 
 TEST_F(CanonicalizerDraft1Test, number_minimal) {
@@ -113,7 +113,7 @@ TEST_F(CanonicalizerDraft1Test, number_minimal) {
     "type": "number"
   })JSON");
 
-  CANONICALIZE_NEXT(document, expected, *compiled_meta_);
+  CANONICALIZE_AND_VALIDATE(document, expected, *compiled_meta_);
 }
 
 TEST_F(CanonicalizerDraft1Test, object_minimal) {
@@ -129,7 +129,7 @@ TEST_F(CanonicalizerDraft1Test, object_minimal) {
     "additionalProperties": {}
   })JSON");
 
-  CANONICALIZE_NEXT(document, expected, *compiled_meta_);
+  CANONICALIZE_AND_VALIDATE(document, expected, *compiled_meta_);
 }
 
 TEST_F(CanonicalizerDraft1Test, array_minimal) {
@@ -145,7 +145,7 @@ TEST_F(CanonicalizerDraft1Test, array_minimal) {
     "minItems": 0
   })JSON");
 
-  CANONICALIZE_NEXT(document, expected, *compiled_meta_);
+  CANONICALIZE_AND_VALIDATE(document, expected, *compiled_meta_);
 }
 
 TEST_F(CanonicalizerDraft1Test, minimum_can_equal_true_drop) {
@@ -162,7 +162,7 @@ TEST_F(CanonicalizerDraft1Test, minimum_can_equal_true_drop) {
     "minimum": 0
   })JSON");
 
-  CANONICALIZE_NEXT(document, expected, *compiled_meta_);
+  CANONICALIZE_AND_VALIDATE(document, expected, *compiled_meta_);
 }
 
 TEST_F(CanonicalizerDraft1Test, maximum_can_equal_true_drop) {
@@ -179,7 +179,7 @@ TEST_F(CanonicalizerDraft1Test, maximum_can_equal_true_drop) {
     "maximum": 100
   })JSON");
 
-  CANONICALIZE_NEXT(document, expected, *compiled_meta_);
+  CANONICALIZE_AND_VALIDATE(document, expected, *compiled_meta_);
 }
 
 TEST_F(CanonicalizerDraft1Test, minimum_can_equal_integer_fold) {
@@ -197,7 +197,7 @@ TEST_F(CanonicalizerDraft1Test, minimum_can_equal_integer_fold) {
     "minimum": 1
   })JSON");
 
-  CANONICALIZE_NEXT(document, expected, *compiled_meta_);
+  CANONICALIZE_AND_VALIDATE(document, expected, *compiled_meta_);
 }
 
 TEST_F(CanonicalizerDraft1Test, maximum_can_equal_integer_fold) {
@@ -215,7 +215,7 @@ TEST_F(CanonicalizerDraft1Test, maximum_can_equal_integer_fold) {
     "maximum": 9
   })JSON");
 
-  CANONICALIZE_NEXT(document, expected, *compiled_meta_);
+  CANONICALIZE_AND_VALIDATE(document, expected, *compiled_meta_);
 }
 
 TEST_F(CanonicalizerDraft1Test, object_with_property_optional_implicit) {
@@ -236,7 +236,7 @@ TEST_F(CanonicalizerDraft1Test, object_with_property_optional_implicit) {
     "additionalProperties": {}
   })JSON");
 
-  CANONICALIZE_NEXT(document, expected, *compiled_meta_);
+  CANONICALIZE_AND_VALIDATE(document, expected, *compiled_meta_);
 }
 
 TEST_F(CanonicalizerDraft1Test, object_with_property_optional_true) {
@@ -257,7 +257,7 @@ TEST_F(CanonicalizerDraft1Test, object_with_property_optional_true) {
     "additionalProperties": {}
   })JSON");
 
-  CANONICALIZE_NEXT(document, expected, *compiled_meta_);
+  CANONICALIZE_AND_VALIDATE(document, expected, *compiled_meta_);
 }
 
 TEST_F(CanonicalizerDraft1Test, object_with_empty_property) {
@@ -278,7 +278,7 @@ TEST_F(CanonicalizerDraft1Test, object_with_empty_property) {
     "additionalProperties": {}
   })JSON");
 
-  CANONICALIZE_NEXT(document, expected, *compiled_meta_);
+  CANONICALIZE_AND_VALIDATE(document, expected, *compiled_meta_);
 }
 
 TEST_F(CanonicalizerDraft1Test, extends_single_to_array) {
@@ -294,7 +294,7 @@ TEST_F(CanonicalizerDraft1Test, extends_single_to_array) {
     ]
   })JSON");
 
-  CANONICALIZE_NEXT(document, expected, *compiled_meta_);
+  CANONICALIZE_AND_VALIDATE(document, expected, *compiled_meta_);
 }
 
 TEST_F(CanonicalizerDraft1Test, disallow_string_to_array) {
@@ -308,7 +308,7 @@ TEST_F(CanonicalizerDraft1Test, disallow_string_to_array) {
     "disallow": [ "number" ]
   })JSON");
 
-  CANONICALIZE_NEXT(document, expected, *compiled_meta_);
+  CANONICALIZE_AND_VALIDATE(document, expected, *compiled_meta_);
 }
 
 TEST_F(CanonicalizerDraft1Test, minimum_can_equal_false_with_equal_bounds) {
@@ -328,7 +328,7 @@ TEST_F(CanonicalizerDraft1Test, minimum_can_equal_false_with_equal_bounds) {
     "maximum": 3
   })JSON");
 
-  CANONICALIZE_NEXT(document, expected, *compiled_meta_);
+  CANONICALIZE_AND_VALIDATE(document, expected, *compiled_meta_);
 }
 
 TEST_F(CanonicalizerDraft1Test,
@@ -349,7 +349,7 @@ TEST_F(CanonicalizerDraft1Test,
     "minimumCanEqual": false
   })JSON");
 
-  CANONICALIZE_NEXT(document, expected, *compiled_meta_);
+  CANONICALIZE_AND_VALIDATE(document, expected, *compiled_meta_);
 }
 
 TEST_F(CanonicalizerDraft1Test,
@@ -370,7 +370,7 @@ TEST_F(CanonicalizerDraft1Test,
     "maximumCanEqual": false
   })JSON");
 
-  CANONICALIZE_NEXT(document, expected, *compiled_meta_);
+  CANONICALIZE_AND_VALIDATE(document, expected, *compiled_meta_);
 }
 
 TEST_F(CanonicalizerDraft1Test, enum_simple) {
@@ -384,7 +384,7 @@ TEST_F(CanonicalizerDraft1Test, enum_simple) {
     "enum": [ 1, 2, 3 ]
   })JSON");
 
-  CANONICALIZE_NEXT(document, expected, *compiled_meta_);
+  CANONICALIZE_AND_VALIDATE(document, expected, *compiled_meta_);
 }
 
 TEST_F(CanonicalizerDraft1Test, additionalProperties_false) {
@@ -401,5 +401,5 @@ TEST_F(CanonicalizerDraft1Test, additionalProperties_false) {
     "additionalProperties": false
   })JSON");
 
-  CANONICALIZE_NEXT(document, expected, *compiled_meta_);
+  CANONICALIZE_AND_VALIDATE(document, expected, *compiled_meta_);
 }

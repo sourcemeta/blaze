@@ -1822,7 +1822,7 @@ TEST(AlterSchema_lint_draft4, not_false_4) {
   const sourcemeta::core::JSON expected = sourcemeta::core::parse_json(R"JSON({
     "$schema": "http://json-schema.org/draft-04/schema#",
     "type": "string",
-    "not": {}
+    "not": true
   })JSON");
 
   EXPECT_EQ(document, expected);
@@ -1918,7 +1918,7 @@ TEST(AlterSchema_lint_draft4, required_properties_in_properties_3) {
     "$schema": "http://json-schema.org/draft-04/schema#",
     "required": [ "foo", "bar" ],
     "properties": {
-      "foo": {},
+      "foo": true,
       "bar": false,
       "baz": true
     }
@@ -2545,7 +2545,7 @@ TEST(AlterSchema_lint_draft4,
   EXPECT_EQ(traces.size(), 0);
 }
 
-TEST(AlterSchema_lint_draft4, empty_object_as_true_not_applicable) {
+TEST(AlterSchema_lint_draft4, empty_object_as_true) {
   sourcemeta::core::JSON document = sourcemeta::core::parse_json(R"JSON({
     "$schema": "http://json-schema.org/draft-04/schema#",
     "properties": {
@@ -2560,7 +2560,7 @@ TEST(AlterSchema_lint_draft4, empty_object_as_true_not_applicable) {
   const sourcemeta::core::JSON expected = sourcemeta::core::parse_json(R"JSON({
     "$schema": "http://json-schema.org/draft-04/schema#",
     "properties": {
-      "foo": {}
+      "foo": true
     }
   })JSON");
 
@@ -2621,7 +2621,7 @@ TEST(AlterSchema_lint_draft4, forbid_empty_enum_1) {
     "$schema": "http://json-schema.org/draft-04/schema#",
     "title": "Example",
     "description": "Example schema",
-    "not": {}
+    "not": true
   })JSON");
 
   EXPECT_EQ(document, expected);
@@ -2693,7 +2693,7 @@ TEST(AlterSchema_lint_draft4, forbid_empty_enum_4) {
     "description": "Example schema",
     "properties": {
       "foo": {
-        "not": {}
+        "not": true
       }
     }
   })JSON");

@@ -107,68 +107,64 @@ auto WALK_UP_IN_PLACE_APPLICATORS(const JSON &root, const SchemaFrame &frame,
     return false;                                                              \
   }
 
-// Canonicalizer
+#include "canonicalizer/additional_items_implicit.h"
+#include "canonicalizer/additional_properties_implicit.h"
+#include "canonicalizer/comment_drop.h"
 #include "canonicalizer/const_as_enum.h"
+#include "canonicalizer/dependencies_to_any_of.h"
+#include "canonicalizer/dependencies_to_extends_disallow.h"
+#include "canonicalizer/dependent_required_to_any_of.h"
+#include "canonicalizer/dependent_schemas_to_any_of.h"
+#include "canonicalizer/deprecated_false_drop.h"
+#include "canonicalizer/disallow_to_array_of_schemas.h"
+#include "canonicalizer/divisible_by_implicit.h"
+#include "canonicalizer/empty_definitions_drop.h"
+#include "canonicalizer/empty_defs_drop.h"
+#include "canonicalizer/empty_dependencies_drop.h"
+#include "canonicalizer/empty_dependent_required_drop.h"
+#include "canonicalizer/empty_dependent_schemas_drop.h"
+#include "canonicalizer/enum_drop_redundant_validation.h"
+#include "canonicalizer/enum_filter_by_type.h"
+#include "canonicalizer/exclusive_bounds_false_drop.h"
+#include "canonicalizer/exclusive_maximum_boolean_integer_fold.h"
 #include "canonicalizer/exclusive_maximum_integer_to_maximum.h"
+#include "canonicalizer/exclusive_minimum_boolean_integer_fold.h"
 #include "canonicalizer/exclusive_minimum_integer_to_minimum.h"
+#include "canonicalizer/extends_to_array.h"
+#include "canonicalizer/if_then_else_implicit.h"
+#include "canonicalizer/implicit_array_keywords.h"
+#include "canonicalizer/implicit_contains_keywords.h"
+#include "canonicalizer/implicit_object_keywords.h"
 #include "canonicalizer/items_implicit.h"
 #include "canonicalizer/max_contains_covered_by_max_items.h"
+#include "canonicalizer/max_decimal_implicit.h"
+#include "canonicalizer/maximum_can_equal_integer_fold.h"
+#include "canonicalizer/maximum_can_equal_true_drop.h"
 #include "canonicalizer/min_items_given_min_contains.h"
-#include "canonicalizer/min_items_implicit.h"
 #include "canonicalizer/min_length_implicit.h"
 #include "canonicalizer/min_properties_covered_by_required.h"
 #include "canonicalizer/min_properties_implicit.h"
+#include "canonicalizer/minimum_can_equal_integer_fold.h"
+#include "canonicalizer/minimum_can_equal_true_drop.h"
 #include "canonicalizer/multiple_of_implicit.h"
-#include "canonicalizer/next/additional_items_implicit.h"
-#include "canonicalizer/next/additional_properties_implicit.h"
-#include "canonicalizer/next/comment_drop.h"
-#include "canonicalizer/next/definitions_to_defs.h"
-#include "canonicalizer/next/dependencies_to_any_of.h"
-#include "canonicalizer/next/dependencies_to_extends_disallow.h"
-#include "canonicalizer/next/dependent_required_to_any_of.h"
-#include "canonicalizer/next/dependent_schemas_to_any_of.h"
-#include "canonicalizer/next/deprecated_false_drop.h"
-#include "canonicalizer/next/disallow_to_array_of_schemas.h"
-#include "canonicalizer/next/divisible_by_implicit.h"
-#include "canonicalizer/next/empty_definitions_drop.h"
-#include "canonicalizer/next/empty_defs_drop.h"
-#include "canonicalizer/next/empty_dependencies_drop.h"
-#include "canonicalizer/next/empty_dependent_required_drop.h"
-#include "canonicalizer/next/empty_dependent_schemas_drop.h"
-#include "canonicalizer/next/empty_object_as_true_next.h"
-#include "canonicalizer/next/enum_drop_redundant_validation.h"
-#include "canonicalizer/next/enum_filter_by_type.h"
-#include "canonicalizer/next/exclusive_bounds_false_drop.h"
-#include "canonicalizer/next/exclusive_maximum_boolean_integer_fold.h"
-#include "canonicalizer/next/exclusive_minimum_boolean_integer_fold.h"
-#include "canonicalizer/next/extends_to_array.h"
-#include "canonicalizer/next/if_then_else_implicit.h"
-#include "canonicalizer/next/implicit_array_keywords.h"
-#include "canonicalizer/next/implicit_contains_keywords.h"
-#include "canonicalizer/next/implicit_object_keywords.h"
-#include "canonicalizer/next/max_decimal_implicit.h"
-#include "canonicalizer/next/maximum_can_equal_integer_fold.h"
-#include "canonicalizer/next/maximum_can_equal_true_drop.h"
-#include "canonicalizer/next/minimum_can_equal_integer_fold.h"
-#include "canonicalizer/next/minimum_can_equal_true_drop.h"
-#include "canonicalizer/next/optional_property_implicit.h"
-#include "canonicalizer/next/property_names_implicit.h"
-#include "canonicalizer/next/recursive_anchor_false_drop.h"
-#include "canonicalizer/next/required_property_implicit.h"
-#include "canonicalizer/next/type_union_to_schemas.h"
-#include "canonicalizer/next/type_with_applicator_to_allof.h"
-#include "canonicalizer/next/type_with_applicator_to_extends.h"
-#include "canonicalizer/next/unevaluated_items_to_items.h"
-#include "canonicalizer/next/unevaluated_properties_to_additional_properties.h"
-#include "canonicalizer/next/unsatisfiable_can_equal_bounds.h"
-#include "canonicalizer/next/unsatisfiable_exclusive_equal_bounds.h"
-#include "canonicalizer/next/unsatisfiable_type_and_enum.h"
+#include "canonicalizer/optional_property_implicit.h"
 #include "canonicalizer/properties_implicit.h"
+#include "canonicalizer/property_names_implicit.h"
+#include "canonicalizer/recursive_anchor_false_drop.h"
+#include "canonicalizer/required_property_implicit.h"
 #include "canonicalizer/type_array_to_any_of.h"
 #include "canonicalizer/type_boolean_as_enum.h"
 #include "canonicalizer/type_inherit_in_place.h"
 #include "canonicalizer/type_null_as_enum.h"
 #include "canonicalizer/type_union_implicit.h"
+#include "canonicalizer/type_union_to_schemas.h"
+#include "canonicalizer/type_with_applicator_to_allof.h"
+#include "canonicalizer/type_with_applicator_to_extends.h"
+#include "canonicalizer/unevaluated_items_to_items.h"
+#include "canonicalizer/unevaluated_properties_to_additional_properties.h"
+#include "canonicalizer/unsatisfiable_can_equal_bounds.h"
+#include "canonicalizer/unsatisfiable_exclusive_equal_bounds.h"
+#include "canonicalizer/unsatisfiable_type_and_enum.h"
 
 // Common
 #include "common/allof_false_simplify.h"
@@ -189,7 +185,6 @@ auto WALK_UP_IN_PLACE_APPLICATORS(const JSON &root, const SchemaFrame &frame,
 #include "common/duplicate_anyof_branches.h"
 #include "common/duplicate_enum_values.h"
 #include "common/duplicate_required_values.h"
-#include "common/else_empty.h"
 #include "common/else_without_if.h"
 #include "common/empty_object_as_true.h"
 #include "common/enum_with_type.h"
@@ -213,15 +208,16 @@ auto WALK_UP_IN_PLACE_APPLICATORS(const JSON &root, const SchemaFrame &frame,
 #include "common/orphan_definitions.h"
 #include "common/required_properties_in_properties.h"
 #include "common/single_type_array.h"
-#include "common/then_empty.h"
 #include "common/then_without_if.h"
 #include "common/unknown_keywords_prefix.h"
 #include "common/unknown_local_ref.h"
 #include "common/unnecessary_allof_ref_wrapper_draft.h"
-#include "common/unnecessary_allof_ref_wrapper_modern.h"
-#include "common/unnecessary_allof_wrapper.h"
 #include "common/unsatisfiable_drop_validation.h"
 #include "common/unsatisfiable_in_place_applicator_type.h"
+#include "linter/else_empty.h"
+#include "linter/then_empty.h"
+#include "linter/unnecessary_allof_ref_wrapper_modern.h"
+#include "linter/unnecessary_allof_wrapper.h"
 
 // Linter
 #include "linter/comment_trim.h"
@@ -265,8 +261,7 @@ auto WALK_UP_IN_PLACE_APPLICATORS(const JSON &root, const SchemaFrame &frame,
 namespace sourcemeta::blaze {
 
 auto add(SchemaTransformer &bundle, const AlterSchemaMode mode) -> void {
-  if (mode == AlterSchemaMode::CanonicalizerNext) {
-    bundle.add<EmptyObjectAsTrueNext>();
+  if (mode == AlterSchemaMode::Canonicalizer) {
     bundle.add<ExclusiveMinimumBooleanIntegerFold>();
     bundle.add<ExclusiveMaximumBooleanIntegerFold>();
     bundle.add<ExclusiveBoundsFalseDrop>();
@@ -276,7 +271,6 @@ auto add(SchemaTransformer &bundle, const AlterSchemaMode mode) -> void {
     bundle.add<MinimumCanEqualTrueDrop>();
     bundle.add<MaximumCanEqualTrueDrop>();
     bundle.add<CommentDrop>();
-    bundle.add<DefinitionsToDefsNext>();
     bundle.add<DeprecatedFalseDrop>();
     bundle.add<RecursiveAnchorFalseDrop>();
     bundle.add<UnevaluatedItemsToItems>();
@@ -290,14 +284,14 @@ auto add(SchemaTransformer &bundle, const AlterSchemaMode mode) -> void {
     bundle.add<DisallowToArrayOfSchemas>();
   }
 
-  if (mode == AlterSchemaMode::Canonicalizer ||
-      mode == AlterSchemaMode::CanonicalizerNext) {
+  if (mode == AlterSchemaMode::Canonicalizer) {
     bundle.add<TypeInheritInPlace>();
     bundle.add<TypeUnionImplicit>();
     bundle.add<TypeArrayToAnyOf>();
   }
 
-  if (mode == AlterSchemaMode::Linter) {
+  if (mode == AlterSchemaMode::Linter ||
+      mode == AlterSchemaMode::Canonicalizer) {
     bundle.add<DefinitionsToDefs>();
   }
 
@@ -322,7 +316,7 @@ auto add(SchemaTransformer &bundle, const AlterSchemaMode mode) -> void {
   bundle.add<MaxContainsWithoutContains>();
   bundle.add<MinContainsWithoutContains>();
   bundle.add<NotFalse>();
-  if (mode != AlterSchemaMode::CanonicalizerNext) {
+  if (mode != AlterSchemaMode::Canonicalizer) {
     bundle.add<ThenEmpty>();
     bundle.add<ElseEmpty>();
   }
@@ -350,8 +344,7 @@ auto add(SchemaTransformer &bundle, const AlterSchemaMode mode) -> void {
   bundle.add<RequiredPropertiesInProperties>();
   bundle.add<OrphanDefinitions>();
 
-  if (mode == AlterSchemaMode::Canonicalizer ||
-      mode == AlterSchemaMode::CanonicalizerNext) {
+  if (mode == AlterSchemaMode::Canonicalizer) {
     bundle.add<ConstAsEnum>();
     bundle.add<EqualNumericBoundsToConst>();
     bundle.add<ExclusiveMaximumIntegerToMaximum>();
@@ -361,7 +354,6 @@ auto add(SchemaTransformer &bundle, const AlterSchemaMode mode) -> void {
     bundle.add<MaxContainsCoveredByMaxItems>();
     bundle.add<MinItemsGivenMinContains>();
     bundle.add<MinPropertiesCoveredByRequired>();
-    bundle.add<MinItemsImplicit>();
     bundle.add<MinLengthImplicit>();
     bundle.add<MinPropertiesImplicit>();
     bundle.add<MultipleOfImplicit>();
@@ -407,19 +399,19 @@ auto add(SchemaTransformer &bundle, const AlterSchemaMode mode) -> void {
     bundle.add<ValidExamples>();
   }
 
-  if (mode != AlterSchemaMode::CanonicalizerNext) {
+  if (mode != AlterSchemaMode::Canonicalizer) {
     bundle.add<UnnecessaryAllOfRefWrapperModern>();
   }
   bundle.add<UnnecessaryAllOfRefWrapperDraft>();
 
-  if (mode != AlterSchemaMode::CanonicalizerNext) {
+  if (mode != AlterSchemaMode::Canonicalizer) {
     bundle.add<UnnecessaryAllOfWrapper>();
   }
 
   bundle.add<DropAllOfEmptySchemas>();
   bundle.add<EmptyObjectAsTrue>();
 
-  if (mode == AlterSchemaMode::CanonicalizerNext) {
+  if (mode == AlterSchemaMode::Canonicalizer) {
     bundle.add<UnsatisfiableTypeAndEnum>();
     bundle.add<EnumFilterByType>();
     bundle.add<TypeUnionToSchemas>();
