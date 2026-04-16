@@ -1,9 +1,9 @@
-class DefinitionsToDefsNext final : public SchemaTransformRule {
+class DefinitionsToDefsRename final : public SchemaTransformRule {
 public:
   using mutates = std::true_type;
   using reframe_after_transform = std::true_type;
-  DefinitionsToDefsNext()
-      : SchemaTransformRule{"definitions_to_defs_next", ""} {};
+  DefinitionsToDefsRename()
+      : SchemaTransformRule{"definitions_to_defs_rename", ""} {};
 
   [[nodiscard]] auto
   condition(const sourcemeta::core::JSON &schema,

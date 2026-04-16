@@ -105,7 +105,7 @@ static auto alterschema_test_resolver(std::string_view identifier)
         traces.emplace_back(pointer, name, message, outcome, fixable);         \
       });
 
-#define CANONICALIZE_NEXT(document, expected, compiled_template)               \
+#define CANONICALIZE_AND_VALIDATE(document, expected, compiled_template)       \
   {                                                                            \
     sourcemeta::blaze::SchemaTransformer _bundle;                              \
     sourcemeta::blaze::add(_bundle,                                            \

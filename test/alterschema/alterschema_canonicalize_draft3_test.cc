@@ -39,7 +39,7 @@ TEST_F(CanonicalizerDraft3Test, type_boolean_as_enum_1) {
     "enum": [ false, true ]
   })JSON");
 
-  CANONICALIZE_NEXT(document, expected, *compiled_meta_);
+  CANONICALIZE_AND_VALIDATE(document, expected, *compiled_meta_);
 }
 
 TEST_F(CanonicalizerDraft3Test, type_null_as_enum_1) {
@@ -53,7 +53,7 @@ TEST_F(CanonicalizerDraft3Test, type_null_as_enum_1) {
     "enum": [ null ]
   })JSON");
 
-  CANONICALIZE_NEXT(document, expected, *compiled_meta_);
+  CANONICALIZE_AND_VALIDATE(document, expected, *compiled_meta_);
 }
 
 TEST_F(CanonicalizerDraft3Test, equal_numeric_bounds_to_enum) {
@@ -69,7 +69,7 @@ TEST_F(CanonicalizerDraft3Test, equal_numeric_bounds_to_enum) {
     "enum": [ 3 ]
   })JSON");
 
-  CANONICALIZE_NEXT(document, expected, *compiled_meta_);
+  CANONICALIZE_AND_VALIDATE(document, expected, *compiled_meta_);
 }
 
 TEST_F(CanonicalizerDraft3Test, string_minimal) {
@@ -84,7 +84,7 @@ TEST_F(CanonicalizerDraft3Test, string_minimal) {
     "minLength": 0
   })JSON");
 
-  CANONICALIZE_NEXT(document, expected, *compiled_meta_);
+  CANONICALIZE_AND_VALIDATE(document, expected, *compiled_meta_);
 }
 
 TEST_F(CanonicalizerDraft3Test, integer_minimal) {
@@ -99,7 +99,7 @@ TEST_F(CanonicalizerDraft3Test, integer_minimal) {
     "divisibleBy": 1
   })JSON");
 
-  CANONICALIZE_NEXT(document, expected, *compiled_meta_);
+  CANONICALIZE_AND_VALIDATE(document, expected, *compiled_meta_);
 }
 
 TEST_F(CanonicalizerDraft3Test, number_minimal) {
@@ -113,7 +113,7 @@ TEST_F(CanonicalizerDraft3Test, number_minimal) {
     "type": "number"
   })JSON");
 
-  CANONICALIZE_NEXT(document, expected, *compiled_meta_);
+  CANONICALIZE_AND_VALIDATE(document, expected, *compiled_meta_);
 }
 
 TEST_F(CanonicalizerDraft3Test, object_minimal) {
@@ -130,7 +130,7 @@ TEST_F(CanonicalizerDraft3Test, object_minimal) {
     "additionalProperties": {}
   })JSON");
 
-  CANONICALIZE_NEXT(document, expected, *compiled_meta_);
+  CANONICALIZE_AND_VALIDATE(document, expected, *compiled_meta_);
 }
 
 TEST_F(CanonicalizerDraft3Test, array_minimal) {
@@ -147,7 +147,7 @@ TEST_F(CanonicalizerDraft3Test, array_minimal) {
     "uniqueItems": false
   })JSON");
 
-  CANONICALIZE_NEXT(document, expected, *compiled_meta_);
+  CANONICALIZE_AND_VALIDATE(document, expected, *compiled_meta_);
 }
 
 TEST_F(CanonicalizerDraft3Test, divisible_by_implicit) {
@@ -164,7 +164,7 @@ TEST_F(CanonicalizerDraft3Test, divisible_by_implicit) {
     "minimum": 0
   })JSON");
 
-  CANONICALIZE_NEXT(document, expected, *compiled_meta_);
+  CANONICALIZE_AND_VALIDATE(document, expected, *compiled_meta_);
 }
 
 TEST_F(CanonicalizerDraft3Test, divisible_by_explicit) {
@@ -180,7 +180,7 @@ TEST_F(CanonicalizerDraft3Test, divisible_by_explicit) {
     "divisibleBy": 2
   })JSON");
 
-  CANONICALIZE_NEXT(document, expected, *compiled_meta_);
+  CANONICALIZE_AND_VALIDATE(document, expected, *compiled_meta_);
 }
 
 TEST_F(CanonicalizerDraft3Test, exclusive_minimum_false_drop) {
@@ -197,7 +197,7 @@ TEST_F(CanonicalizerDraft3Test, exclusive_minimum_false_drop) {
     "minimum": 0
   })JSON");
 
-  CANONICALIZE_NEXT(document, expected, *compiled_meta_);
+  CANONICALIZE_AND_VALIDATE(document, expected, *compiled_meta_);
 }
 
 TEST_F(CanonicalizerDraft3Test, exclusive_minimum_integer_fold) {
@@ -215,7 +215,7 @@ TEST_F(CanonicalizerDraft3Test, exclusive_minimum_integer_fold) {
     "minimum": 1
   })JSON");
 
-  CANONICALIZE_NEXT(document, expected, *compiled_meta_);
+  CANONICALIZE_AND_VALIDATE(document, expected, *compiled_meta_);
 }
 
 TEST_F(CanonicalizerDraft3Test, exclusive_maximum_integer_fold) {
@@ -233,7 +233,7 @@ TEST_F(CanonicalizerDraft3Test, exclusive_maximum_integer_fold) {
     "maximum": 9
   })JSON");
 
-  CANONICALIZE_NEXT(document, expected, *compiled_meta_);
+  CANONICALIZE_AND_VALIDATE(document, expected, *compiled_meta_);
 }
 
 TEST_F(CanonicalizerDraft3Test, object_with_property_required_implicit) {
@@ -255,7 +255,7 @@ TEST_F(CanonicalizerDraft3Test, object_with_property_required_implicit) {
     "additionalProperties": {}
   })JSON");
 
-  CANONICALIZE_NEXT(document, expected, *compiled_meta_);
+  CANONICALIZE_AND_VALIDATE(document, expected, *compiled_meta_);
 }
 
 TEST_F(CanonicalizerDraft3Test, object_with_property_required_true) {
@@ -277,7 +277,7 @@ TEST_F(CanonicalizerDraft3Test, object_with_property_required_true) {
     "additionalProperties": {}
   })JSON");
 
-  CANONICALIZE_NEXT(document, expected, *compiled_meta_);
+  CANONICALIZE_AND_VALIDATE(document, expected, *compiled_meta_);
 }
 
 TEST_F(CanonicalizerDraft3Test, object_with_empty_property) {
@@ -299,7 +299,7 @@ TEST_F(CanonicalizerDraft3Test, object_with_empty_property) {
     "additionalProperties": {}
   })JSON");
 
-  CANONICALIZE_NEXT(document, expected, *compiled_meta_);
+  CANONICALIZE_AND_VALIDATE(document, expected, *compiled_meta_);
 }
 
 TEST_F(CanonicalizerDraft3Test, extends_single_to_array) {
@@ -315,7 +315,7 @@ TEST_F(CanonicalizerDraft3Test, extends_single_to_array) {
     ]
   })JSON");
 
-  CANONICALIZE_NEXT(document, expected, *compiled_meta_);
+  CANONICALIZE_AND_VALIDATE(document, expected, *compiled_meta_);
 }
 
 TEST_F(CanonicalizerDraft3Test, disallow_string_to_array) {
@@ -331,7 +331,7 @@ TEST_F(CanonicalizerDraft3Test, disallow_string_to_array) {
     ]
   })JSON");
 
-  CANONICALIZE_NEXT(document, expected, *compiled_meta_);
+  CANONICALIZE_AND_VALIDATE(document, expected, *compiled_meta_);
 }
 
 TEST_F(CanonicalizerDraft3Test, enum_simple) {
@@ -345,7 +345,7 @@ TEST_F(CanonicalizerDraft3Test, enum_simple) {
     "enum": [ 1, 2, 3 ]
   })JSON");
 
-  CANONICALIZE_NEXT(document, expected, *compiled_meta_);
+  CANONICALIZE_AND_VALIDATE(document, expected, *compiled_meta_);
 }
 
 TEST_F(CanonicalizerDraft3Test, object_with_ref_property) {
@@ -369,7 +369,7 @@ TEST_F(CanonicalizerDraft3Test, object_with_ref_property) {
     "additionalProperties": {}
   })JSON");
 
-  CANONICALIZE_NEXT(document, expected, *compiled_meta_);
+  CANONICALIZE_AND_VALIDATE(document, expected, *compiled_meta_);
 }
 
 TEST_F(CanonicalizerDraft3Test, additionalProperties_false) {
@@ -387,5 +387,5 @@ TEST_F(CanonicalizerDraft3Test, additionalProperties_false) {
     "additionalProperties": false
   })JSON");
 
-  CANONICALIZE_NEXT(document, expected, *compiled_meta_);
+  CANONICALIZE_AND_VALIDATE(document, expected, *compiled_meta_);
 }

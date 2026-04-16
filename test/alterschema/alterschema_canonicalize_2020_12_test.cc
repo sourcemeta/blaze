@@ -51,7 +51,7 @@ TEST_F(Canonicalizer202012Test, duplicate_allof_branches_2) {
     ]
   })JSON");
 
-  CANONICALIZE_NEXT(document, expected, *compiled_meta_);
+  CANONICALIZE_AND_VALIDATE(document, expected, *compiled_meta_);
 }
 
 TEST_F(Canonicalizer202012Test, duplicate_allof_branches_3) {
@@ -77,7 +77,7 @@ TEST_F(Canonicalizer202012Test, duplicate_allof_branches_3) {
     ]
   })JSON");
 
-  CANONICALIZE_NEXT(document, expected, *compiled_meta_);
+  CANONICALIZE_AND_VALIDATE(document, expected, *compiled_meta_);
 }
 
 TEST_F(Canonicalizer202012Test, duplicate_allof_branches_4) {
@@ -110,7 +110,7 @@ TEST_F(Canonicalizer202012Test, duplicate_allof_branches_4) {
     ]
   })JSON");
 
-  CANONICALIZE_NEXT(document, expected, *compiled_meta_);
+  CANONICALIZE_AND_VALIDATE(document, expected, *compiled_meta_);
 }
 
 TEST_F(Canonicalizer202012Test, allof_false_simplify_preserves_id) {
@@ -127,7 +127,7 @@ TEST_F(Canonicalizer202012Test, allof_false_simplify_preserves_id) {
     "not": true
   })JSON");
 
-  CANONICALIZE_NEXT(document, expected, *compiled_meta_);
+  CANONICALIZE_AND_VALIDATE(document, expected, *compiled_meta_);
 }
 
 TEST_F(Canonicalizer202012Test, allof_false_simplify_preserves_anchor) {
@@ -144,7 +144,7 @@ TEST_F(Canonicalizer202012Test, allof_false_simplify_preserves_anchor) {
     "not": true
   })JSON");
 
-  CANONICALIZE_NEXT(document, expected, *compiled_meta_);
+  CANONICALIZE_AND_VALIDATE(document, expected, *compiled_meta_);
 }
 
 TEST_F(Canonicalizer202012Test, allof_false_simplify_removes_defs) {
@@ -162,7 +162,7 @@ TEST_F(Canonicalizer202012Test, allof_false_simplify_removes_defs) {
     "not": true
   })JSON");
 
-  CANONICALIZE_NEXT(document, expected, *compiled_meta_);
+  CANONICALIZE_AND_VALIDATE(document, expected, *compiled_meta_);
 }
 
 TEST_F(Canonicalizer202012Test, duplicate_allof_branches_5) {
@@ -221,7 +221,7 @@ TEST_F(Canonicalizer202012Test, duplicate_allof_branches_5) {
     ]
   })JSON");
 
-  CANONICALIZE_NEXT(document, expected, *compiled_meta_);
+  CANONICALIZE_AND_VALIDATE(document, expected, *compiled_meta_);
 }
 
 TEST_F(Canonicalizer202012Test, dependent_required_tautology_3) {
@@ -249,7 +249,7 @@ TEST_F(Canonicalizer202012Test, dependent_required_tautology_3) {
     "patternProperties": {}
   })JSON");
 
-  CANONICALIZE_NEXT(document, expected, *compiled_meta_);
+  CANONICALIZE_AND_VALIDATE(document, expected, *compiled_meta_);
 }
 
 TEST_F(Canonicalizer202012Test, type_boolean_as_enum_1) {
@@ -263,7 +263,7 @@ TEST_F(Canonicalizer202012Test, type_boolean_as_enum_1) {
     "enum": [ false, true ]
   })JSON");
 
-  CANONICALIZE_NEXT(document, expected, *compiled_meta_);
+  CANONICALIZE_AND_VALIDATE(document, expected, *compiled_meta_);
 }
 
 TEST_F(Canonicalizer202012Test, type_boolean_as_enum_2) {
@@ -275,7 +275,7 @@ TEST_F(Canonicalizer202012Test, type_boolean_as_enum_2) {
 
   const sourcemeta::core::JSON expected = sourcemeta::core::parse_json("false");
 
-  CANONICALIZE_NEXT(document, expected, *compiled_meta_);
+  CANONICALIZE_AND_VALIDATE(document, expected, *compiled_meta_);
 }
 
 TEST_F(Canonicalizer202012Test, type_null_as_enum_1) {
@@ -289,7 +289,7 @@ TEST_F(Canonicalizer202012Test, type_null_as_enum_1) {
     "enum": [ null ]
   })JSON");
 
-  CANONICALIZE_NEXT(document, expected, *compiled_meta_);
+  CANONICALIZE_AND_VALIDATE(document, expected, *compiled_meta_);
 }
 
 TEST_F(Canonicalizer202012Test, type_null_as_enum_2) {
@@ -301,7 +301,7 @@ TEST_F(Canonicalizer202012Test, type_null_as_enum_2) {
 
   const sourcemeta::core::JSON expected = sourcemeta::core::parse_json("false");
 
-  CANONICALIZE_NEXT(document, expected, *compiled_meta_);
+  CANONICALIZE_AND_VALIDATE(document, expected, *compiled_meta_);
 }
 
 TEST_F(Canonicalizer202012Test, const_as_enum_1) {
@@ -315,7 +315,7 @@ TEST_F(Canonicalizer202012Test, const_as_enum_1) {
     "enum": [ 1 ]
   })JSON");
 
-  CANONICALIZE_NEXT(document, expected, *compiled_meta_);
+  CANONICALIZE_AND_VALIDATE(document, expected, *compiled_meta_);
 }
 
 TEST_F(Canonicalizer202012Test, exclusive_maximum_integer_to_maximum_1) {
@@ -332,7 +332,7 @@ TEST_F(Canonicalizer202012Test, exclusive_maximum_integer_to_maximum_1) {
     "maximum": 0
   })JSON");
 
-  CANONICALIZE_NEXT(document, expected, *compiled_meta_);
+  CANONICALIZE_AND_VALIDATE(document, expected, *compiled_meta_);
 }
 
 TEST_F(Canonicalizer202012Test, exclusive_maximum_integer_to_maximum_2) {
@@ -349,7 +349,7 @@ TEST_F(Canonicalizer202012Test, exclusive_maximum_integer_to_maximum_2) {
     "maximum": 1
   })JSON");
 
-  CANONICALIZE_NEXT(document, expected, *compiled_meta_);
+  CANONICALIZE_AND_VALIDATE(document, expected, *compiled_meta_);
 }
 
 TEST_F(Canonicalizer202012Test, exclusive_maximum_integer_to_maximum_3) {
@@ -365,7 +365,7 @@ TEST_F(Canonicalizer202012Test, exclusive_maximum_integer_to_maximum_3) {
     "exclusiveMaximum": 1
   })JSON");
 
-  CANONICALIZE_NEXT(document, expected, *compiled_meta_);
+  CANONICALIZE_AND_VALIDATE(document, expected, *compiled_meta_);
 }
 
 TEST_F(Canonicalizer202012Test, exclusive_maximum_integer_to_maximum_5) {
@@ -409,7 +409,7 @@ TEST_F(Canonicalizer202012Test, exclusive_maximum_integer_to_maximum_5) {
     ]
   })JSON");
 
-  CANONICALIZE_NEXT(document, expected, *compiled_meta_);
+  CANONICALIZE_AND_VALIDATE(document, expected, *compiled_meta_);
 }
 
 TEST_F(Canonicalizer202012Test, exclusive_minimum_integer_to_minimum_1) {
@@ -426,7 +426,7 @@ TEST_F(Canonicalizer202012Test, exclusive_minimum_integer_to_minimum_1) {
     "minimum": 2
   })JSON");
 
-  CANONICALIZE_NEXT(document, expected, *compiled_meta_);
+  CANONICALIZE_AND_VALIDATE(document, expected, *compiled_meta_);
 }
 
 TEST_F(Canonicalizer202012Test, exclusive_minimum_integer_to_minimum_2) {
@@ -443,7 +443,7 @@ TEST_F(Canonicalizer202012Test, exclusive_minimum_integer_to_minimum_2) {
     "minimum": 2
   })JSON");
 
-  CANONICALIZE_NEXT(document, expected, *compiled_meta_);
+  CANONICALIZE_AND_VALIDATE(document, expected, *compiled_meta_);
 }
 
 TEST_F(Canonicalizer202012Test, exclusive_minimum_integer_to_minimum_3) {
@@ -459,7 +459,7 @@ TEST_F(Canonicalizer202012Test, exclusive_minimum_integer_to_minimum_3) {
     "exclusiveMinimum": 1
   })JSON");
 
-  CANONICALIZE_NEXT(document, expected, *compiled_meta_);
+  CANONICALIZE_AND_VALIDATE(document, expected, *compiled_meta_);
 }
 
 TEST_F(Canonicalizer202012Test, exclusive_minimum_integer_to_minimum_5) {
@@ -503,7 +503,7 @@ TEST_F(Canonicalizer202012Test, exclusive_minimum_integer_to_minimum_5) {
     ]
   })JSON");
 
-  CANONICALIZE_NEXT(document, expected, *compiled_meta_);
+  CANONICALIZE_AND_VALIDATE(document, expected, *compiled_meta_);
 }
 
 TEST_F(Canonicalizer202012Test, boolean_true_1) {
@@ -550,7 +550,7 @@ TEST_F(Canonicalizer202012Test, boolean_true_1) {
     ]
   })JSON");
 
-  CANONICALIZE_NEXT(document, expected, *compiled_meta_);
+  CANONICALIZE_AND_VALIDATE(document, expected, *compiled_meta_);
 }
 
 TEST_F(Canonicalizer202012Test, type_array_to_any_of_1) {
@@ -573,7 +573,7 @@ TEST_F(Canonicalizer202012Test, type_array_to_any_of_1) {
     ]
   })JSON");
 
-  CANONICALIZE_NEXT(document, expected, *compiled_meta_);
+  CANONICALIZE_AND_VALIDATE(document, expected, *compiled_meta_);
 }
 
 TEST_F(Canonicalizer202012Test, type_array_to_any_of_2) {
@@ -621,7 +621,7 @@ TEST_F(Canonicalizer202012Test, type_array_to_any_of_2) {
     ]
   })JSON");
 
-  CANONICALIZE_NEXT(document, expected, *compiled_meta_);
+  CANONICALIZE_AND_VALIDATE(document, expected, *compiled_meta_);
 }
 
 TEST_F(Canonicalizer202012Test, type_array_to_any_of_3) {
@@ -664,7 +664,7 @@ TEST_F(Canonicalizer202012Test, type_array_to_any_of_3) {
     ]
   })JSON");
 
-  CANONICALIZE_NEXT(document, expected, *compiled_meta_);
+  CANONICALIZE_AND_VALIDATE(document, expected, *compiled_meta_);
 }
 
 TEST_F(Canonicalizer202012Test, type_array_to_any_of_4) {
@@ -714,7 +714,7 @@ TEST_F(Canonicalizer202012Test, type_array_to_any_of_4) {
     }
   })JSON");
 
-  CANONICALIZE_NEXT(document, expected, *compiled_meta_);
+  CANONICALIZE_AND_VALIDATE(document, expected, *compiled_meta_);
 }
 
 TEST_F(Canonicalizer202012Test, type_array_to_any_of_5) {
@@ -849,7 +849,7 @@ TEST_F(Canonicalizer202012Test, type_array_to_any_of_5) {
     ]
   })JSON");
 
-  CANONICALIZE_NEXT(document, expected, *compiled_meta_);
+  CANONICALIZE_AND_VALIDATE(document, expected, *compiled_meta_);
 }
 
 TEST_F(Canonicalizer202012Test, max_contains_covered_by_max_items_1) {
@@ -876,7 +876,7 @@ TEST_F(Canonicalizer202012Test, max_contains_covered_by_max_items_1) {
     "items": true
   })JSON");
 
-  CANONICALIZE_NEXT(document, expected, *compiled_meta_);
+  CANONICALIZE_AND_VALIDATE(document, expected, *compiled_meta_);
 }
 
 TEST_F(Canonicalizer202012Test, min_properties_covered_by_required_1) {
@@ -900,7 +900,7 @@ TEST_F(Canonicalizer202012Test, min_properties_covered_by_required_1) {
     "patternProperties": {}
   })JSON");
 
-  CANONICALIZE_NEXT(document, expected, *compiled_meta_);
+  CANONICALIZE_AND_VALIDATE(document, expected, *compiled_meta_);
 }
 
 TEST_F(Canonicalizer202012Test, min_properties_implicit_1) {
@@ -923,7 +923,7 @@ TEST_F(Canonicalizer202012Test, min_properties_implicit_1) {
     "patternProperties": {}
   })JSON");
 
-  CANONICALIZE_NEXT(document, expected, *compiled_meta_);
+  CANONICALIZE_AND_VALIDATE(document, expected, *compiled_meta_);
 }
 
 TEST_F(Canonicalizer202012Test, min_properties_implicit_2) {
@@ -947,7 +947,7 @@ TEST_F(Canonicalizer202012Test, min_properties_implicit_2) {
     "patternProperties": {}
   })JSON");
 
-  CANONICALIZE_NEXT(document, expected, *compiled_meta_);
+  CANONICALIZE_AND_VALIDATE(document, expected, *compiled_meta_);
 }
 
 TEST_F(Canonicalizer202012Test, min_items_given_min_contains_1) {
@@ -970,7 +970,7 @@ TEST_F(Canonicalizer202012Test, min_items_given_min_contains_1) {
     "items": true
   })JSON");
 
-  CANONICALIZE_NEXT(document, expected, *compiled_meta_);
+  CANONICALIZE_AND_VALIDATE(document, expected, *compiled_meta_);
 }
 
 TEST_F(Canonicalizer202012Test, min_items_given_min_contains_2) {
@@ -990,7 +990,7 @@ TEST_F(Canonicalizer202012Test, min_items_given_min_contains_2) {
     "items": true
   })JSON");
 
-  CANONICALIZE_NEXT(document, expected, *compiled_meta_);
+  CANONICALIZE_AND_VALIDATE(document, expected, *compiled_meta_);
 }
 
 TEST_F(Canonicalizer202012Test,
@@ -1008,7 +1008,7 @@ TEST_F(Canonicalizer202012Test,
     "maximum": 10.00000000000000e+399
   })JSON");
 
-  CANONICALIZE_NEXT(document, expected, *compiled_meta_);
+  CANONICALIZE_AND_VALIDATE(document, expected, *compiled_meta_);
 }
 
 TEST_F(Canonicalizer202012Test,
@@ -1026,7 +1026,7 @@ TEST_F(Canonicalizer202012Test,
     "minimum": 1.0e+400
   })JSON");
 
-  CANONICALIZE_NEXT(document, expected, *compiled_meta_);
+  CANONICALIZE_AND_VALIDATE(document, expected, *compiled_meta_);
 }
 
 TEST_F(Canonicalizer202012Test, circular_ref_through_defs_1) {
@@ -1056,7 +1056,7 @@ TEST_F(Canonicalizer202012Test, circular_ref_through_defs_1) {
     }
   })JSON");
 
-  CANONICALIZE_NEXT(document, expected, *compiled_meta_);
+  CANONICALIZE_AND_VALIDATE(document, expected, *compiled_meta_);
 }
 
 TEST_F(Canonicalizer202012Test, conflicting_type_and_const_1) {
@@ -1068,7 +1068,7 @@ TEST_F(Canonicalizer202012Test, conflicting_type_and_const_1) {
 
   const auto expected = sourcemeta::core::parse_json("false");
 
-  CANONICALIZE_NEXT(document, expected, *compiled_meta_);
+  CANONICALIZE_AND_VALIDATE(document, expected, *compiled_meta_);
 }
 
 TEST_F(Canonicalizer202012Test, conflicting_type_and_enum_1) {
@@ -1080,7 +1080,7 @@ TEST_F(Canonicalizer202012Test, conflicting_type_and_enum_1) {
 
   const auto expected = sourcemeta::core::parse_json("false");
 
-  CANONICALIZE_NEXT(document, expected, *compiled_meta_);
+  CANONICALIZE_AND_VALIDATE(document, expected, *compiled_meta_);
 }
 
 TEST_F(Canonicalizer202012Test, allof_two_required_branches_1) {
@@ -1180,7 +1180,7 @@ TEST_F(Canonicalizer202012Test, allof_two_required_branches_1) {
     ]
   })JSON");
 
-  CANONICALIZE_NEXT(document, expected, *compiled_meta_);
+  CANONICALIZE_AND_VALIDATE(document, expected, *compiled_meta_);
 }
 
 TEST_F(Canonicalizer202012Test, allof_min_max_constraints_1) {
@@ -1236,7 +1236,7 @@ TEST_F(Canonicalizer202012Test, allof_min_max_constraints_1) {
     ]
   })JSON");
 
-  CANONICALIZE_NEXT(document, expected, *compiled_meta_);
+  CANONICALIZE_AND_VALIDATE(document, expected, *compiled_meta_);
 }
 
 TEST_F(Canonicalizer202012Test, allof_two_properties_branches_1) {
@@ -1334,7 +1334,7 @@ TEST_F(Canonicalizer202012Test, allof_two_properties_branches_1) {
     ]
   })JSON");
 
-  CANONICALIZE_NEXT(document, expected, *compiled_meta_);
+  CANONICALIZE_AND_VALIDATE(document, expected, *compiled_meta_);
 }
 
 TEST_F(Canonicalizer202012Test, type_union_implicit_with_content_schema) {
@@ -1388,7 +1388,7 @@ TEST_F(Canonicalizer202012Test, type_union_implicit_with_content_schema) {
     ]
   })JSON");
 
-  CANONICALIZE_NEXT(document, expected, *compiled_meta_);
+  CANONICALIZE_AND_VALIDATE(document, expected, *compiled_meta_);
 }
 
 TEST_F(Canonicalizer202012Test, unsatisfiable_logic_branch_type_anyof_1) {
@@ -1447,7 +1447,7 @@ TEST_F(Canonicalizer202012Test, unsatisfiable_logic_branch_type_anyof_1) {
     ]
   })JSON");
 
-  CANONICALIZE_NEXT(document, expected, *compiled_meta_);
+  CANONICALIZE_AND_VALIDATE(document, expected, *compiled_meta_);
 }
 
 TEST_F(Canonicalizer202012Test, unsatisfiable_logic_branch_type_oneof_1) {
@@ -1507,7 +1507,7 @@ TEST_F(Canonicalizer202012Test, unsatisfiable_logic_branch_type_oneof_1) {
     ]
   })JSON");
 
-  CANONICALIZE_NEXT(document, expected, *compiled_meta_);
+  CANONICALIZE_AND_VALIDATE(document, expected, *compiled_meta_);
 }
 
 TEST_F(Canonicalizer202012Test,
@@ -1535,7 +1535,7 @@ TEST_F(Canonicalizer202012Test,
     ]
   })JSON");
 
-  CANONICALIZE_NEXT(document, expected, *compiled_meta_);
+  CANONICALIZE_AND_VALIDATE(document, expected, *compiled_meta_);
 }
 
 TEST_F(Canonicalizer202012Test,
@@ -1648,7 +1648,7 @@ TEST_F(Canonicalizer202012Test,
     ]
   })JSON");
 
-  CANONICALIZE_NEXT(document, expected, *compiled_meta_);
+  CANONICALIZE_AND_VALIDATE(document, expected, *compiled_meta_);
 }
 
 TEST_F(Canonicalizer202012Test, items_implicit_1) {
@@ -1667,7 +1667,7 @@ TEST_F(Canonicalizer202012Test, items_implicit_1) {
     "items": true
   })JSON");
 
-  CANONICALIZE_NEXT(document, expected, *compiled_meta_);
+  CANONICALIZE_AND_VALIDATE(document, expected, *compiled_meta_);
 }
 
 TEST_F(Canonicalizer202012Test, items_implicit_2) {
@@ -1690,7 +1690,7 @@ TEST_F(Canonicalizer202012Test, items_implicit_2) {
     }
   })JSON");
 
-  CANONICALIZE_NEXT(document, expected, *compiled_meta_);
+  CANONICALIZE_AND_VALIDATE(document, expected, *compiled_meta_);
 }
 
 TEST_F(Canonicalizer202012Test, object_anyof_untyped_branches_1) {
@@ -1801,7 +1801,7 @@ TEST_F(Canonicalizer202012Test, object_anyof_untyped_branches_1) {
     ]
   })JSON");
 
-  CANONICALIZE_NEXT(document, expected, *compiled_meta_);
+  CANONICALIZE_AND_VALIDATE(document, expected, *compiled_meta_);
 }
 
 TEST_F(Canonicalizer202012Test,
@@ -1866,7 +1866,7 @@ TEST_F(Canonicalizer202012Test,
     }
   })JSON");
 
-  CANONICALIZE_NEXT(document, expected, *compiled_meta_);
+  CANONICALIZE_AND_VALIDATE(document, expected, *compiled_meta_);
 }
 
 TEST_F(Canonicalizer202012Test, ref_into_subschema_with_existing_anyof) {
@@ -1956,7 +1956,7 @@ TEST_F(Canonicalizer202012Test, ref_into_subschema_with_existing_anyof) {
     }
   })JSON");
 
-  CANONICALIZE_NEXT(document, expected, *compiled_meta_);
+  CANONICALIZE_AND_VALIDATE(document, expected, *compiled_meta_);
 }
 
 TEST_F(Canonicalizer202012Test,
@@ -2081,7 +2081,7 @@ TEST_F(Canonicalizer202012Test,
     }
   })JSON");
 
-  CANONICALIZE_NEXT(document, expected, *compiled_meta_);
+  CANONICALIZE_AND_VALIDATE(document, expected, *compiled_meta_);
 }
 
 TEST_F(Canonicalizer202012Test,
@@ -2182,7 +2182,7 @@ TEST_F(Canonicalizer202012Test,
     "unevaluatedProperties": false
   })JSON");
 
-  CANONICALIZE_NEXT(document, expected, *compiled_meta_);
+  CANONICALIZE_AND_VALIDATE(document, expected, *compiled_meta_);
 }
 
 TEST_F(Canonicalizer202012Test, ref_into_nested_subschema_within_resource) {
@@ -2268,7 +2268,7 @@ TEST_F(Canonicalizer202012Test, ref_into_nested_subschema_within_resource) {
     }
   })JSON");
 
-  CANONICALIZE_NEXT(document, expected, *compiled_meta_);
+  CANONICALIZE_AND_VALIDATE(document, expected, *compiled_meta_);
 }
 
 TEST_F(Canonicalizer202012Test,
@@ -2289,7 +2289,7 @@ TEST_F(Canonicalizer202012Test,
     "items": false
   })JSON");
 
-  CANONICALIZE_NEXT(document, expected, *compiled_meta_);
+  CANONICALIZE_AND_VALIDATE(document, expected, *compiled_meta_);
 }
 
 TEST_F(Canonicalizer202012Test,
@@ -2343,7 +2343,7 @@ TEST_F(Canonicalizer202012Test,
     "unevaluatedItems": false
   })JSON");
 
-  CANONICALIZE_NEXT(document, expected, *compiled_meta_);
+  CANONICALIZE_AND_VALIDATE(document, expected, *compiled_meta_);
 }
 
 TEST_F(Canonicalizer202012Test,
@@ -2399,7 +2399,7 @@ TEST_F(Canonicalizer202012Test,
     "unevaluatedItems": false
   })JSON");
 
-  CANONICALIZE_NEXT(document, expected, *compiled_meta_);
+  CANONICALIZE_AND_VALIDATE(document, expected, *compiled_meta_);
 }
 
 TEST_F(Canonicalizer202012Test, ref_into_subschema_via_absolute_uri) {
@@ -2463,7 +2463,7 @@ TEST_F(Canonicalizer202012Test, ref_into_subschema_via_absolute_uri) {
     }
   })JSON");
 
-  CANONICALIZE_NEXT(document, expected, *compiled_meta_);
+  CANONICALIZE_AND_VALIDATE(document, expected, *compiled_meta_);
 }
 
 TEST_F(Canonicalizer202012Test, empty_object_as_true) {
@@ -2486,7 +2486,7 @@ TEST_F(Canonicalizer202012Test, empty_object_as_true) {
     "patternProperties": {}
   })JSON");
 
-  CANONICALIZE_NEXT(document, expected, *compiled_meta_);
+  CANONICALIZE_AND_VALIDATE(document, expected, *compiled_meta_);
 }
 
 TEST_F(Canonicalizer202012Test, comment_drop) {
@@ -2502,7 +2502,7 @@ TEST_F(Canonicalizer202012Test, comment_drop) {
     "minLength": 0
   })JSON");
 
-  CANONICALIZE_NEXT(document, expected, *compiled_meta_);
+  CANONICALIZE_AND_VALIDATE(document, expected, *compiled_meta_);
 }
 
 TEST_F(Canonicalizer202012Test, definitions_to_defs) {
@@ -2536,7 +2536,7 @@ TEST_F(Canonicalizer202012Test, definitions_to_defs) {
     }
   })JSON");
 
-  CANONICALIZE_NEXT(document, expected, *compiled_meta_);
+  CANONICALIZE_AND_VALIDATE(document, expected, *compiled_meta_);
 }
 
 TEST_F(Canonicalizer202012Test, deprecated_false_drop) {
@@ -2552,7 +2552,7 @@ TEST_F(Canonicalizer202012Test, deprecated_false_drop) {
     "minLength": 0
   })JSON");
 
-  CANONICALIZE_NEXT(document, expected, *compiled_meta_);
+  CANONICALIZE_AND_VALIDATE(document, expected, *compiled_meta_);
 }
 
 TEST_F(Canonicalizer202012Test, implicit_contains_keywords) {
@@ -2571,7 +2571,7 @@ TEST_F(Canonicalizer202012Test, implicit_contains_keywords) {
     "items": true
   })JSON");
 
-  CANONICALIZE_NEXT(document, expected, *compiled_meta_);
+  CANONICALIZE_AND_VALIDATE(document, expected, *compiled_meta_);
 }
 
 TEST_F(Canonicalizer202012Test, implicit_object_keywords) {
@@ -2589,7 +2589,7 @@ TEST_F(Canonicalizer202012Test, implicit_object_keywords) {
     "patternProperties": {}
   })JSON");
 
-  CANONICALIZE_NEXT(document, expected, *compiled_meta_);
+  CANONICALIZE_AND_VALIDATE(document, expected, *compiled_meta_);
 }
 
 TEST_F(Canonicalizer202012Test, property_names_implicit) {
@@ -2615,7 +2615,7 @@ TEST_F(Canonicalizer202012Test, property_names_implicit) {
     "patternProperties": {}
   })JSON");
 
-  CANONICALIZE_NEXT(document, expected, *compiled_meta_);
+  CANONICALIZE_AND_VALIDATE(document, expected, *compiled_meta_);
 }
 
 TEST_F(Canonicalizer202012Test, if_then_else_implicit) {
@@ -2632,7 +2632,7 @@ TEST_F(Canonicalizer202012Test, if_then_else_implicit) {
     "else": true
   })JSON");
 
-  CANONICALIZE_NEXT(document, expected, *compiled_meta_);
+  CANONICALIZE_AND_VALIDATE(document, expected, *compiled_meta_);
 }
 
 TEST_F(Canonicalizer202012Test, no_additional_properties_implicit) {
@@ -2654,7 +2654,7 @@ TEST_F(Canonicalizer202012Test, no_additional_properties_implicit) {
     "patternProperties": {}
   })JSON");
 
-  CANONICALIZE_NEXT(document, expected, *compiled_meta_);
+  CANONICALIZE_AND_VALIDATE(document, expected, *compiled_meta_);
 }
 
 TEST_F(Canonicalizer202012Test, no_additional_items_implicit_prefix) {
@@ -2679,7 +2679,7 @@ TEST_F(Canonicalizer202012Test, no_additional_items_implicit_prefix) {
     "items": true
   })JSON");
 
-  CANONICALIZE_NEXT(document, expected, *compiled_meta_);
+  CANONICALIZE_AND_VALIDATE(document, expected, *compiled_meta_);
 }
 
 TEST_F(Canonicalizer202012Test, dependent_schemas_to_any_of) {
@@ -2730,7 +2730,7 @@ TEST_F(Canonicalizer202012Test, dependent_schemas_to_any_of) {
     ]
   })JSON");
 
-  CANONICALIZE_NEXT(document, expected, *compiled_meta_);
+  CANONICALIZE_AND_VALIDATE(document, expected, *compiled_meta_);
 }
 
 TEST_F(Canonicalizer202012Test, dependent_required_to_any_of) {
@@ -2810,7 +2810,7 @@ TEST_F(Canonicalizer202012Test, dependent_required_to_any_of) {
     ]
   })JSON");
 
-  CANONICALIZE_NEXT(document, expected, *compiled_meta_);
+  CANONICALIZE_AND_VALIDATE(document, expected, *compiled_meta_);
 }
 
 TEST_F(Canonicalizer202012Test, empty_defs_drop) {
@@ -2826,7 +2826,7 @@ TEST_F(Canonicalizer202012Test, empty_defs_drop) {
     "minLength": 0
   })JSON");
 
-  CANONICALIZE_NEXT(document, expected, *compiled_meta_);
+  CANONICALIZE_AND_VALIDATE(document, expected, *compiled_meta_);
 }
 
 TEST_F(Canonicalizer202012Test, empty_dependent_schemas_drop) {
@@ -2842,7 +2842,7 @@ TEST_F(Canonicalizer202012Test, empty_dependent_schemas_drop) {
     "minLength": 0
   })JSON");
 
-  CANONICALIZE_NEXT(document, expected, *compiled_meta_);
+  CANONICALIZE_AND_VALIDATE(document, expected, *compiled_meta_);
 }
 
 TEST_F(Canonicalizer202012Test, empty_dependent_required_drop) {
@@ -2858,7 +2858,7 @@ TEST_F(Canonicalizer202012Test, empty_dependent_required_drop) {
     "minLength": 0
   })JSON");
 
-  CANONICALIZE_NEXT(document, expected, *compiled_meta_);
+  CANONICALIZE_AND_VALIDATE(document, expected, *compiled_meta_);
 }
 
 TEST_F(Canonicalizer202012Test, type_with_allof) {
@@ -2875,7 +2875,7 @@ TEST_F(Canonicalizer202012Test, type_with_allof) {
     "minLength": 0
   })JSON");
 
-  CANONICALIZE_NEXT(document, expected, *compiled_meta_);
+  CANONICALIZE_AND_VALIDATE(document, expected, *compiled_meta_);
 }
 
 TEST_F(Canonicalizer202012Test, enum_filter_by_type) {
@@ -2926,7 +2926,7 @@ TEST_F(Canonicalizer202012Test, enum_filter_by_type) {
     ]
   })JSON");
 
-  CANONICALIZE_NEXT(document, expected, *compiled_meta_);
+  CANONICALIZE_AND_VALIDATE(document, expected, *compiled_meta_);
 }
 
 TEST_F(Canonicalizer202012Test, full_string_schema) {
@@ -2947,7 +2947,7 @@ TEST_F(Canonicalizer202012Test, full_string_schema) {
     "minLength": 1
   })JSON");
 
-  CANONICALIZE_NEXT(document, expected, *compiled_meta_);
+  CANONICALIZE_AND_VALIDATE(document, expected, *compiled_meta_);
 }
 
 TEST_F(Canonicalizer202012Test, full_object_schema) {
@@ -2976,7 +2976,7 @@ TEST_F(Canonicalizer202012Test, full_object_schema) {
     "patternProperties": {}
   })JSON");
 
-  CANONICALIZE_NEXT(document, expected, *compiled_meta_);
+  CANONICALIZE_AND_VALIDATE(document, expected, *compiled_meta_);
 }
 
 TEST_F(Canonicalizer202012Test, type_with_not_and_anyof) {
@@ -2999,7 +2999,7 @@ TEST_F(Canonicalizer202012Test, type_with_not_and_anyof) {
     ]
   })JSON");
 
-  CANONICALIZE_NEXT(document, expected, *compiled_meta_);
+  CANONICALIZE_AND_VALIDATE(document, expected, *compiled_meta_);
 }
 
 TEST_F(Canonicalizer202012Test, type_with_if_then_else) {
@@ -3024,7 +3024,7 @@ TEST_F(Canonicalizer202012Test, type_with_if_then_else) {
     ]
   })JSON");
 
-  CANONICALIZE_NEXT(document, expected, *compiled_meta_);
+  CANONICALIZE_AND_VALIDATE(document, expected, *compiled_meta_);
 }
 
 TEST_F(Canonicalizer202012Test, dynamic_ref_with_type_sibling) {
@@ -3042,7 +3042,7 @@ TEST_F(Canonicalizer202012Test, dynamic_ref_with_type_sibling) {
     ]
   })JSON");
 
-  CANONICALIZE_NEXT(document, expected, *compiled_meta_);
+  CANONICALIZE_AND_VALIDATE(document, expected, *compiled_meta_);
 }
 
 TEST_F(Canonicalizer202012Test, ref_with_type_sibling) {
@@ -3066,7 +3066,7 @@ TEST_F(Canonicalizer202012Test, ref_with_type_sibling) {
     ]
   })JSON");
 
-  CANONICALIZE_NEXT(document, expected, *compiled_meta_);
+  CANONICALIZE_AND_VALIDATE(document, expected, *compiled_meta_);
 }
 
 TEST_F(Canonicalizer202012Test, ref_through_unevaluated_items) {
@@ -3100,7 +3100,7 @@ TEST_F(Canonicalizer202012Test, ref_through_unevaluated_items) {
     ]
   })JSON");
 
-  CANONICALIZE_NEXT(document, expected, *compiled_meta_);
+  CANONICALIZE_AND_VALIDATE(document, expected, *compiled_meta_);
 }
 
 TEST_F(Canonicalizer202012Test, ref_through_unevaluated_properties) {
@@ -3134,7 +3134,7 @@ TEST_F(Canonicalizer202012Test, ref_through_unevaluated_properties) {
     ]
   })JSON");
 
-  CANONICALIZE_NEXT(document, expected, *compiled_meta_);
+  CANONICALIZE_AND_VALIDATE(document, expected, *compiled_meta_);
 }
 
 TEST_F(Canonicalizer202012Test, lone_ref_with_defs_wrapped) {
@@ -3158,7 +3158,7 @@ TEST_F(Canonicalizer202012Test, lone_ref_with_defs_wrapped) {
     }
   })JSON");
 
-  CANONICALIZE_NEXT(document, expected, *compiled_meta_);
+  CANONICALIZE_AND_VALIDATE(document, expected, *compiled_meta_);
 }
 
 TEST_F(Canonicalizer202012Test, lone_dynamic_ref_wrapped) {
@@ -3176,5 +3176,5 @@ TEST_F(Canonicalizer202012Test, lone_dynamic_ref_wrapped) {
     ]
   })JSON");
 
-  CANONICALIZE_NEXT(document, expected, *compiled_meta_);
+  CANONICALIZE_AND_VALIDATE(document, expected, *compiled_meta_);
 }
