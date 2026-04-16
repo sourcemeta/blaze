@@ -807,6 +807,12 @@ auto describe(const bool valid, const Instruction &step,
            "property subschemas";
   }
 
+  if (step.type ==
+      sourcemeta::blaze::InstructionIndex::LoopItemsObjectProperties) {
+    return "Every item in the array value was expected to be an object "
+           "validating against the defined property subschemas";
+  }
+
   if (step.type == sourcemeta::blaze::InstructionIndex::LoopPropertiesType) {
     std::ostringstream message;
     message << "The object properties were expected to be of type "

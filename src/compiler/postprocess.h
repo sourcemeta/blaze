@@ -40,6 +40,7 @@ inline auto is_noop_without_children(const InstructionIndex type) noexcept
     case InstructionIndex::LoopItems:
     case InstructionIndex::LoopItemsFrom:
     case InstructionIndex::LoopItemsUnevaluated:
+    case InstructionIndex::LoopItemsObjectProperties:
     case InstructionIndex::LoopContains:
     case InstructionIndex::ControlGroupWhenDefines:
     case InstructionIndex::ControlGroupWhenDefinesDirect:
@@ -414,7 +415,65 @@ inline auto postprocess(std::vector<Instructions> &targets,
           }
         }
 
+        std::size_t loop_items_object_candidate{SIZE_MAX};
+        std::size_t type_array_candidate{SIZE_MAX};
+        for (std::size_t scan = 0; scan < current->size(); scan++) {
+          const auto &scan_instruction{(*current)[scan]};
+          if ((scan_instruction.type == InstructionIndex::LoopItems ||
+               (scan_instruction.type == InstructionIndex::LoopItemsFrom &&
+                std::get<ValueUnsignedInteger>(scan_instruction.value) == 0)) &&
+              scan_instruction.children.size() == 1 &&
+              scan_instruction.children.front().type ==
+                  InstructionIndex::AssertionObjectPropertiesSimple) {
+            loop_items_object_candidate = scan;
+          }
+
+          if ((scan_instruction.type == InstructionIndex::AssertionTypeStrict ||
+               scan_instruction.type == InstructionIndex::AssertionType ||
+               scan_instruction.type ==
+                   InstructionIndex::AssertionPropertyTypeStrict ||
+               scan_instruction.type ==
+                   InstructionIndex::AssertionPropertyType) &&
+              std::get<ValueType>(scan_instruction.value) ==
+                  sourcemeta::core::JSON::Type::Array) {
+            type_array_candidate = scan;
+          }
+        }
+
+        const bool fuse_loop_items_object{loop_items_object_candidate !=
+                                              SIZE_MAX &&
+                                          type_array_candidate != SIZE_MAX};
+
         for (auto &instruction : *current) {
+          if (fuse_loop_items_object) {
+            if (&instruction == &(*current)[type_array_candidate]) {
+              changed = true;
+              continue;
+            }
+
+            if (&instruction == &(*current)[loop_items_object_candidate]) {
+              auto &child{instruction.children.front()};
+              const auto new_extra_index{extra.size()};
+              auto &parent_meta{extra[instruction.extra_index]};
+              auto &child_meta{extra[child.extra_index]};
+              extra.push_back(
+                  {.relative_schema_location =
+                       parent_meta.relative_schema_location.concat(
+                           child_meta.relative_schema_location),
+                   .keyword_location = std::move(child_meta.keyword_location),
+                   .schema_resource = child_meta.schema_resource});
+              result.push_back(Instruction{
+                  .type = InstructionIndex::LoopItemsObjectProperties,
+                  .relative_instance_location =
+                      std::move(instruction.relative_instance_location),
+                  .value = std::move(child.value),
+                  .children = std::move(child.children),
+                  .extra_index = new_extra_index});
+              changed = true;
+              continue;
+            }
+          }
+
           if (!fusion_covered_properties.empty()) {
             switch (instruction.type) {
               case InstructionIndex::AssertionDefinesAllStrict:
