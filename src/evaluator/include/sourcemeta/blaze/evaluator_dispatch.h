@@ -1017,7 +1017,10 @@ INSTRUCTION_HANDLER(AssertionObjectPropertiesSimple) {
   }
 
   // Check required properties that were not seen
-  if (seen != (static_cast<std::uint32_t>(1) << schema_size) - 1) [[unlikely]] {
+  const auto all_seen{schema_size == 32
+                          ? ~std::uint32_t{0}
+                          : (std::uint32_t{1} << schema_size) - 1};
+  if (seen != all_seen) [[unlikely]] {
     for (std::size_t schema_index = 0; schema_index < schema_size;
          schema_index++) {
       if (std::get<2>(value[schema_index]) &&
