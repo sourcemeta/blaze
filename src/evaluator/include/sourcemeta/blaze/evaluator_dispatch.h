@@ -459,6 +459,8 @@ INSTRUCTION_HANDLER(AssertionPropertyDependencies) {
 }
 
 INSTRUCTION_DIRECT_COPY(AssertionType, ValueType) {
+  // In non-strict mode, we consider a real number that represents an
+  // integer to be an integer
   return target.type() == value ||
          (value == JSON::Type::Integer && target.is_integral());
 }
@@ -468,6 +470,8 @@ INSTRUCTION_HANDLER(AssertionType) {
   const auto &target{
       resolve_instance(instance, instruction.relative_instance_location)};
   const auto value{assume_value_copy<ValueType>(instruction.value)};
+  // TODO: Maybe make this instruction about integers, as it is the
+  // only where where it is actually useful?
   assert(value == JSON::Type::Integer);
   SOURCEMETA_ASSUME(value == JSON::Type::Integer);
   result = DIRECT(AssertionType, target, value);
@@ -475,6 +479,8 @@ INSTRUCTION_HANDLER(AssertionType) {
 }
 
 INSTRUCTION_DIRECT(AssertionTypeAny, ValueTypes) {
+  // In non-strict mode, we consider a real number that represents an
+  // integer to be an integer
   return value.test(std::to_underlying(target.type())) ||
          (value.test(std::to_underlying(JSON::Type::Integer)) &&
           target.is_integral());
