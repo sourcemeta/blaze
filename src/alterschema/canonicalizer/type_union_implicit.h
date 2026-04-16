@@ -17,13 +17,13 @@ public:
             const sourcemeta::core::SchemaResolver &) const
       -> SchemaTransformRule::Result override {
     using namespace sourcemeta::core;
-    ONLY_CONTINUE_IF(schema.is_object());
+    ONLY_CONTINUE_IF(schema.is_object() && !schema.empty());
     ONLY_CONTINUE_IF(!vocabularies.contains_any(
                          {Vocabularies::Known::JSON_Schema_Draft_0,
                           Vocabularies::Known::JSON_Schema_Draft_1,
                           Vocabularies::Known::JSON_Schema_Draft_2,
                           Vocabularies::Known::JSON_Schema_Draft_3}) ||
-                     (!schema.empty() && !schema.defines("disallow")));
+                     !schema.defines("disallow"));
     ONLY_CONTINUE_IF(vocabularies.contains_any(
         {Vocabularies::Known::JSON_Schema_2020_12_Validation,
          Vocabularies::Known::JSON_Schema_2019_09_Validation,
