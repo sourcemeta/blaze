@@ -43,6 +43,9 @@ sourcemeta_library(NAMESPACE sourcemeta PROJECT blaze NAME alterschema
     canonicalizer/optional_property_implicit.h
     canonicalizer/recursive_anchor_false_drop.h
     canonicalizer/required_property_implicit.h
+    canonicalizer/single_branch_allof.h
+    canonicalizer/single_branch_anyof.h
+    canonicalizer/single_branch_oneof.h
     canonicalizer/type_array_to_any_of.h
     canonicalizer/type_boolean_as_enum.h
     canonicalizer/type_inherit_in_place.h

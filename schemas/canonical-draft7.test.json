@@ -4395,7 +4395,8 @@
           {
             "type": "string",
             "minLength": 0
-          }
+          },
+          true
         ],
         "title": "Wrapper"
       }
@@ -4404,7 +4405,7 @@
       "description": "anyOf with description is canonical",
       "valid": true,
       "data": {
-        "anyOf": [ true ],
+        "anyOf": [ true, false ],
         "description": "A union"
       }
     },
@@ -4412,7 +4413,7 @@
       "description": "anyOf with default is canonical",
       "valid": true,
       "data": {
-        "anyOf": [ true ],
+        "anyOf": [ true, false ],
         "default": "foo"
       }
     },
@@ -4420,7 +4421,7 @@
       "description": "anyOf with examples is canonical",
       "valid": true,
       "data": {
-        "anyOf": [ true ],
+        "anyOf": [ true, false ],
         "examples": [ "bar" ]
       }
     },
@@ -4428,7 +4429,7 @@
       "description": "anyOf with readOnly is canonical",
       "valid": true,
       "data": {
-        "anyOf": [ true ],
+        "anyOf": [ true, false ],
         "readOnly": true
       }
     },
@@ -4436,7 +4437,7 @@
       "description": "anyOf with writeOnly is canonical",
       "valid": true,
       "data": {
-        "anyOf": [ true ],
+        "anyOf": [ true, false ],
         "writeOnly": true
       }
     },
@@ -4444,7 +4445,7 @@
       "description": "anyOf with $schema is canonical",
       "valid": true,
       "data": {
-        "anyOf": [ true ],
+        "anyOf": [ true, false ],
         "$schema": "http://json-schema.org/draft-07/schema#"
       }
     },
@@ -4452,7 +4453,7 @@
       "description": "anyOf with $id is canonical",
       "valid": true,
       "data": {
-        "anyOf": [ true ],
+        "anyOf": [ true, false ],
         "$id": "https://example.com/u"
       }
     },
@@ -4463,7 +4464,8 @@
         "anyOf": [
           {
             "$ref": "#/definitions/a"
-          }
+          },
+          true
         ],
         "definitions": {
           "a": {
@@ -4481,7 +4483,8 @@
           {
             "type": "string",
             "minLength": 0
-          }
+          },
+          true
         ],
         "x-gen": "tool"
       }
@@ -4751,6 +4754,20 @@
       }
     },
     {
+      "description": "anyOf with single branch is rejected",
+      "valid": false,
+      "data": {
+        "anyOf": [ true ]
+      }
+    },
+    {
+      "description": "anyOf with duplicate branches is rejected",
+      "valid": false,
+      "data": {
+        "anyOf": [ true, true ]
+      }
+    },
+    {
       "description": "allOf with canonical branches is canonical",
       "valid": true,
       "data": {
@@ -4777,7 +4794,8 @@
           {
             "type": "string",
             "minLength": 0
-          }
+          },
+          true
         ],
         "title": "Wrapper"
       }
@@ -4786,7 +4804,7 @@
       "description": "allOf with description is canonical",
       "valid": true,
       "data": {
-        "allOf": [ true ],
+        "allOf": [ true, false ],
         "description": "Combined"
       }
     },
@@ -4794,7 +4812,7 @@
       "description": "allOf with default is canonical",
       "valid": true,
       "data": {
-        "allOf": [ true ],
+        "allOf": [ true, false ],
         "default": {}
       }
     },
@@ -4802,7 +4820,7 @@
       "description": "allOf with examples is canonical",
       "valid": true,
       "data": {
-        "allOf": [ true ],
+        "allOf": [ true, false ],
         "examples": [ "foo" ]
       }
     },
@@ -4810,7 +4828,7 @@
       "description": "allOf with readOnly is canonical",
       "valid": true,
       "data": {
-        "allOf": [ true ],
+        "allOf": [ true, false ],
         "readOnly": true
       }
     },
@@ -4818,7 +4836,7 @@
       "description": "allOf with writeOnly is canonical",
       "valid": true,
       "data": {
-        "allOf": [ true ],
+        "allOf": [ true, false ],
         "writeOnly": true
       }
     },
@@ -4826,7 +4844,7 @@
       "description": "allOf with $schema is canonical",
       "valid": true,
       "data": {
-        "allOf": [ true ],
+        "allOf": [ true, false ],
         "$schema": "http://json-schema.org/draft-07/schema#"
       }
     },
@@ -4834,7 +4852,7 @@
       "description": "allOf with $id is canonical",
       "valid": true,
       "data": {
-        "allOf": [ true ],
+        "allOf": [ true, false ],
         "$id": "https://example.com/c"
       }
     },
@@ -4845,7 +4863,8 @@
         "allOf": [
           {
             "$ref": "#/definitions/a"
-          }
+          },
+          true
         ],
         "definitions": {
           "a": {
@@ -4858,7 +4877,7 @@
       "description": "allOf with x-keyword is canonical",
       "valid": true,
       "data": {
-        "allOf": [ true ],
+        "allOf": [ true, false ],
         "x-note": "combined"
       }
     },
@@ -4870,7 +4889,8 @@
           {
             "type": "string",
             "minLength": 0
-          }
+          },
+          true
         ],
         "$schema": "http://json-schema.org/draft-07/schema#",
         "$id": "https://example.com/allof",
@@ -5104,6 +5124,20 @@
       }
     },
     {
+      "description": "allOf with single branch is rejected",
+      "valid": false,
+      "data": {
+        "allOf": [ true ]
+      }
+    },
+    {
+      "description": "allOf with duplicate branches is rejected",
+      "valid": false,
+      "data": {
+        "allOf": [ true, true ]
+      }
+    },
+    {
       "description": "oneOf with canonical branches is canonical",
       "valid": true,
       "data": {
@@ -5126,7 +5160,8 @@
           {
             "type": "string",
             "minLength": 0
-          }
+          },
+          true
         ],
         "title": "Wrapper"
       }
@@ -5135,7 +5170,7 @@
       "description": "oneOf with description is canonical",
       "valid": true,
       "data": {
-        "oneOf": [ true ],
+        "oneOf": [ true, false ],
         "description": "Exclusive"
       }
     },
@@ -5143,7 +5178,7 @@
       "description": "oneOf with default is canonical",
       "valid": true,
       "data": {
-        "oneOf": [ true ],
+        "oneOf": [ true, false ],
         "default": "x"
       }
     },
@@ -5151,7 +5186,7 @@
       "description": "oneOf with examples is canonical",
       "valid": true,
       "data": {
-        "oneOf": [ true ],
+        "oneOf": [ true, false ],
         "examples": [ "bar" ]
       }
     },
@@ -5159,7 +5194,7 @@
       "description": "oneOf with readOnly is canonical",
       "valid": true,
       "data": {
-        "oneOf": [ true ],
+        "oneOf": [ true, false ],
         "readOnly": true
       }
     },
@@ -5167,7 +5202,7 @@
       "description": "oneOf with writeOnly is canonical",
       "valid": true,
       "data": {
-        "oneOf": [ true ],
+        "oneOf": [ true, false ],
         "writeOnly": true
       }
     },
@@ -5175,7 +5210,7 @@
       "description": "oneOf with $schema is canonical",
       "valid": true,
       "data": {
-        "oneOf": [ true ],
+        "oneOf": [ true, false ],
         "$schema": "http://json-schema.org/draft-07/schema#"
       }
     },
@@ -5183,7 +5218,7 @@
       "description": "oneOf with $id is canonical",
       "valid": true,
       "data": {
-        "oneOf": [ true ],
+        "oneOf": [ true, false ],
         "$id": "https://example.com/x"
       }
     },
@@ -5194,7 +5229,8 @@
         "oneOf": [
           {
             "$ref": "#/definitions/a"
-          }
+          },
+          true
         ],
         "definitions": {
           "a": {
@@ -5207,7 +5243,7 @@
       "description": "oneOf with x-keyword is canonical",
       "valid": true,
       "data": {
-        "oneOf": [ true ],
+        "oneOf": [ true, false ],
         "x-mode": "strict"
       }
     },
@@ -5453,6 +5489,13 @@
       "data": {
         "oneOf": [ true ],
         "if": true
+      }
+    },
+    {
+      "description": "oneOf with single branch is rejected",
+      "valid": false,
+      "data": {
+        "oneOf": [ true ]
       }
     },
     {
