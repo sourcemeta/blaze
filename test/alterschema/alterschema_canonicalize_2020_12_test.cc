@@ -3432,6 +3432,8 @@ TEST(AlterSchema_canonicalize_2020_12, object_required_annotations_1) {
       }
     },
     "required": [ "email" ],
+    "patternProperties": {},
+    "propertyNames": true,
     "minProperties": 1
   })JSON");
 
