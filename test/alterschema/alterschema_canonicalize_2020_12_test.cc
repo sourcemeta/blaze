@@ -3178,3 +3178,130 @@ TEST_F(Canonicalizer202012Test, lone_dynamic_ref_wrapped) {
 
   CANONICALIZE_AND_VALIDATE(document, expected, *compiled_meta_);
 }
+
+TEST_F(Canonicalizer202012Test, dynamic_ref_to_static_ref_no_anchor) {
+  auto document = sourcemeta::core::parse_json(R"JSON({
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "$dynamicRef": "#/$defs/string",
+    "$defs": {
+      "string": { "type": "string" }
+    }
+  })JSON");
+
+  const auto expected = sourcemeta::core::parse_json(R"JSON({
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "$defs": {
+      "string": {
+        "type": "string",
+        "minLength": 0
+      }
+    },
+    "allOf": [
+      {
+        "$ref": "#/$defs/string"
+      }
+    ]
+  })JSON");
+
+  CANONICALIZE_AND_VALIDATE(document, expected, *compiled_meta_);
+}
+
+TEST_F(Canonicalizer202012Test, dynamic_ref_to_static_ref_single_anchor) {
+  auto document = sourcemeta::core::parse_json(R"JSON({
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "$dynamicRef": "#foo",
+    "$defs": {
+      "string": {
+        "$dynamicAnchor": "foo",
+        "type": "string"
+      }
+    }
+  })JSON");
+
+  const auto expected = sourcemeta::core::parse_json(R"JSON({
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "$defs": {
+      "string": {
+        "$dynamicAnchor": "foo",
+        "type": "string",
+        "minLength": 0
+      }
+    },
+    "allOf": [
+      {
+        "$ref": "#foo"
+      }
+    ]
+  })JSON");
+
+  CANONICALIZE_AND_VALIDATE(document, expected, *compiled_meta_);
+}
+
+TEST_F(Canonicalizer202012Test, dynamic_ref_stays_dynamic_multiple_resources) {
+  auto document = sourcemeta::core::parse_json(R"JSON({
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "$id": "https://example.com/root",
+    "$dynamicAnchor": "foo",
+    "$dynamicRef": "#foo",
+    "$defs": {
+      "other": {
+        "$id": "https://example.com/other",
+        "$dynamicAnchor": "foo",
+        "type": "string"
+      }
+    }
+  })JSON");
+
+  const auto expected = sourcemeta::core::parse_json(R"JSON({
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "$id": "https://example.com/root",
+    "$defs": {
+      "other": {
+        "$id": "https://example.com/other",
+        "$dynamicAnchor": "foo",
+        "type": "string",
+        "minLength": 0
+      }
+    },
+    "allOf": [
+      {
+        "$dynamicRef": "#foo"
+      },
+      {
+        "$dynamicAnchor": "foo",
+        "anyOf": [
+          {
+            "enum": [ null ]
+          },
+          {
+            "enum": [ false, true ]
+          },
+          {
+            "type": "object",
+            "patternProperties": {},
+            "propertyNames": true,
+            "minProperties": 0,
+            "properties": {}
+          },
+          {
+            "type": "array",
+            "uniqueItems": false,
+            "minItems": 0,
+            "contains": true,
+            "minContains": 0,
+            "items": true
+          },
+          {
+            "type": "string",
+            "minLength": 0
+          },
+          {
+            "type": "number"
+          }
+        ]
+      }
+    ]
+  })JSON");
+
+  CANONICALIZE_AND_VALIDATE(document, expected, *compiled_meta_);
+}

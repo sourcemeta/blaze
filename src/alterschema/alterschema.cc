@@ -180,6 +180,7 @@ auto WALK_UP_IN_PLACE_APPLICATORS(const JSON &root, const SchemaFrame &frame,
 #include "common/duplicate_anyof_branches.h"
 #include "common/duplicate_enum_values.h"
 #include "common/duplicate_required_values.h"
+#include "common/dynamic_ref_to_static_ref.h"
 #include "common/else_without_if.h"
 #include "common/empty_object_as_true.h"
 #include "common/enum_with_type.h"
@@ -332,6 +333,7 @@ auto add(SchemaTransformer &bundle, const AlterSchemaMode mode) -> void {
   bundle.add<ExclusiveMaximumNumberAndMaximum>();
   bundle.add<ExclusiveMinimumNumberAndMinimum>();
   bundle.add<DraftRefSiblings>();
+  bundle.add<DynamicRefToStaticRef>();
   bundle.add<UnknownKeywordsPrefix>();
   bundle.add<UnknownLocalRef>();
   bundle.add<RequiredPropertiesInProperties>();

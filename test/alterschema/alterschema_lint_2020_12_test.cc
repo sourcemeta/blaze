@@ -11644,3 +11644,63 @@ TEST(AlterSchema_lint_2020_12,
             "/examples/0");
   EXPECT_TRUE(std::get<4>(*valid_examples_entry));
 }
+
+TEST(AlterSchema_lint_2020_12, dynamic_ref_to_static_ref_no_anchor) {
+  sourcemeta::core::JSON document = sourcemeta::core::parse_json(R"JSON({
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "$dynamicRef": "#/$defs/string",
+    "$defs": {
+      "string": { "type": "string" }
+    }
+  })JSON");
+
+  LINT_AND_FIX(document, result, traces);
+
+  EXPECT_FALSE(result.first);
+
+  const sourcemeta::core::JSON expected = sourcemeta::core::parse_json(R"JSON({
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "$ref": "#/$defs/string",
+    "$defs": {
+      "string": { "type": "string" }
+    }
+  })JSON");
+
+  EXPECT_EQ(document, expected);
+}
+
+TEST(AlterSchema_lint_2020_12, dynamic_ref_stays_dynamic_multiple_resources) {
+  sourcemeta::core::JSON document = sourcemeta::core::parse_json(R"JSON({
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "$id": "https://example.com/root",
+    "$dynamicAnchor": "foo",
+    "$dynamicRef": "#foo",
+    "$defs": {
+      "other": {
+        "$id": "https://example.com/other",
+        "$dynamicAnchor": "foo",
+        "type": "string"
+      }
+    }
+  })JSON");
+
+  LINT_AND_FIX(document, result, traces);
+
+  EXPECT_FALSE(result.first);
+
+  const sourcemeta::core::JSON expected = sourcemeta::core::parse_json(R"JSON({
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "$id": "https://example.com/root",
+    "$dynamicAnchor": "foo",
+    "$dynamicRef": "#foo",
+    "$defs": {
+      "other": {
+        "$id": "https://example.com/other",
+        "$dynamicAnchor": "foo",
+        "type": "string"
+      }
+    }
+  })JSON");
+
+  EXPECT_EQ(document, expected);
+}
