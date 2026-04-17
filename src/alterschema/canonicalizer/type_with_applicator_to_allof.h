@@ -45,16 +45,22 @@ public:
     this->has_dynamic_ref_ =
         vocabularies.contains(Vocabularies::Known::JSON_Schema_2020_12_Core) &&
         schema.defines("$dynamicRef");
+    this->has_recursive_ref_ =
+        vocabularies.contains(Vocabularies::Known::JSON_Schema_2019_09_Core) &&
+        schema.defines("$recursiveRef");
     const unsigned int applicator_count{
         (has_not ? 1U : 0U) + (has_anyof ? 1U : 0U) + (has_allof ? 1U : 0U) +
         (has_oneof ? 1U : 0U) + (has_if ? 1U : 0U) +
-        (this->has_modern_ref_ ? 1U : 0U) + (this->has_dynamic_ref_ ? 1U : 0U)};
+        (this->has_modern_ref_ ? 1U : 0U) + (this->has_dynamic_ref_ ? 1U : 0U) +
+        (this->has_recursive_ref_ ? 1U : 0U)};
     const bool has_structural{has_type || has_enum || has_ref};
 
     bool modern_ref_needs_wrapping{false};
-    if (this->has_modern_ref_ || this->has_dynamic_ref_) {
+    if (this->has_modern_ref_ || this->has_dynamic_ref_ ||
+        this->has_recursive_ref_) {
       for (const auto &entry : schema.as_object()) {
-        if (entry.first == "$ref" || entry.first == "$dynamicRef") {
+        if (entry.first == "$ref" || entry.first == "$dynamicRef" ||
+            entry.first == "$recursiveRef") {
           continue;
         }
         const auto keyword_type{walker(entry.first, vocabularies).type};
@@ -223,6 +229,7 @@ public:
             entry.first == "else")) ||
           (this->has_modern_ref_ && entry.first == "$ref") ||
           (this->has_dynamic_ref_ && entry.first == "$dynamicRef") ||
+          (this->has_recursive_ref_ && entry.first == "$recursiveRef") ||
           (this->has_unevaluated_ && (entry.first == "unevaluatedProperties" ||
                                       entry.first == "unevaluatedItems"))) {
         continue;
@@ -289,6 +296,11 @@ public:
     if (this->has_dynamic_ref_ && schema.defines("$dynamicRef")) {
       auto branch{JSON::make_object()};
       branch.assign("$dynamicRef", schema.at("$dynamicRef"));
+      new_allof.push_back(std::move(branch));
+    }
+    if (this->has_recursive_ref_ && schema.defines("$recursiveRef")) {
+      auto branch{JSON::make_object()};
+      branch.assign("$recursiveRef", schema.at("$recursiveRef"));
       new_allof.push_back(std::move(branch));
     }
 
@@ -371,6 +383,7 @@ public:
         } else {
           const std::size_t typed_index{(this->has_modern_ref_ ? 1U : 0U) +
                                         (this->has_dynamic_ref_ ? 1U : 0U) +
+                                        (this->has_recursive_ref_ ? 1U : 0U) +
                                         static_cast<std::size_t>(std::popcount(
                                             this->applicator_indices_))};
           const Pointer new_prefix{
@@ -386,6 +399,9 @@ public:
         index++;
       }
       if (this->has_dynamic_ref_) {
+        index++;
+      }
+      if (this->has_recursive_ref_) {
         index++;
       }
 
@@ -437,6 +453,7 @@ private:
   mutable bool has_if_then_else_{false};
   mutable bool has_modern_ref_{false};
   mutable bool has_dynamic_ref_{false};
+  mutable bool has_recursive_ref_{false};
   mutable bool has_unevaluated_{false};
   mutable std::vector<std::string> typed_keywords_;
   mutable std::uint8_t applicator_indices_{0};

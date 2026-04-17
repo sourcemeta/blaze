@@ -75,6 +75,7 @@ sourcemeta_library(NAMESPACE sourcemeta PROJECT blaze NAME alterschema
     common/drop_allof_empty_schemas.h
     common/duplicate_allof_branches.h
     common/duplicate_anyof_branches.h
+    common/dynamic_ref_to_static_ref.h
     common/duplicate_enum_values.h
     common/duplicate_required_values.h
     common/empty_object_as_true.h
