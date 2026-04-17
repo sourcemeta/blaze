@@ -21,7 +21,7 @@ public:
             const sourcemeta::core::SchemaWalker &,
             const sourcemeta::core::SchemaResolver &) const
       -> SchemaTransformRule::Result override {
-    ONLY_CONTINUE_IF(schema.is_object());
+    ONLY_CONTINUE_IF(schema.is_object() && !schema.defines("$ref"));
 
     if (vocabularies.contains(Vocabularies::Known::JSON_Schema_2020_12_Core) &&
         schema.defines("$dynamicRef")) {
