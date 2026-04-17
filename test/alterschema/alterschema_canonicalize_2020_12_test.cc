@@ -3396,6 +3396,37 @@ TEST_F(Canonicalizer202012Test, lone_dynamic_ref_wrapped) {
   CANONICALIZE_AND_VALIDATE(document, expected, *compiled_meta_);
 }
 
+TEST_F(Canonicalizer202012Test, ref_and_dynamic_ref_in_separate_branches) {
+  auto document = sourcemeta::core::parse_json(R"JSON({
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "$ref": "#/$defs/a",
+    "$dynamicRef": "#foo",
+    "$defs": {
+      "a": { "type": "string" }
+    }
+  })JSON");
+
+  const auto expected = sourcemeta::core::parse_json(R"JSON({
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "$defs": {
+      "a": {
+        "type": "string",
+        "minLength": 0
+      }
+    },
+    "allOf": [
+      {
+        "$ref": "#/$defs/a"
+      },
+      {
+        "$dynamicRef": "#foo"
+      }
+    ]
+  })JSON");
+
+  CANONICALIZE_AND_VALIDATE(document, expected, *compiled_meta_);
+}
+
 TEST_F(Canonicalizer202012Test, dynamic_ref_to_static_ref_no_anchor) {
   auto document = sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2020-12/schema",
