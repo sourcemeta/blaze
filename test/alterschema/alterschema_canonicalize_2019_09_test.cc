@@ -835,38 +835,34 @@ TEST_F(Canonicalizer201909Test,
     "$schema": "https://json-schema.org/draft/2019-09/schema",
     "anyOf": [
       {
-        "anyOf": [
-          {
-            "enum": [ null ]
-          },
-          {
-            "enum": [ false, true ]
-          },
-          {
-            "type": "object",
-            "minProperties": 0,
-            "propertyNames": true,
-            "properties": {},
-            "patternProperties": {}
-          },
-          {
-            "type": "array",
-            "minItems": 0,
-            "uniqueItems": false,
-            "minContains": 0,
-            "contains": true,
-            "items": {
-              "enum": [ false, true ]
-            }
-          },
-          {
-            "type": "string",
-            "minLength": 0
-          },
-          {
-            "type": "number"
-          }
-        ]
+        "enum": [ null ]
+      },
+      {
+        "enum": [ false, true ]
+      },
+      {
+        "type": "object",
+        "patternProperties": {},
+        "propertyNames": true,
+        "minProperties": 0,
+        "properties": {}
+      },
+      {
+        "type": "array",
+        "items": {
+          "enum": [ false, true ]
+        },
+        "uniqueItems": false,
+        "minItems": 0,
+        "contains": true,
+        "minContains": 0
+      },
+      {
+        "type": "string",
+        "minLength": 0
+      },
+      {
+        "type": "number"
       },
       true
     ],

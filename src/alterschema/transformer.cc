@@ -281,9 +281,12 @@ auto SchemaTransformer::apply(core::JSON &schema,
 
         applied = true;
 
-        if (reframe_after_transform) {
+        if (reframe_after_transform && !schema.is_boolean()) {
           analyse_frame(frame, schema, walker, resolver, default_dialect,
                         default_id);
+        } else if (schema.is_boolean()) {
+          frame.reset();
+          goto blaze_transformer_start_again;
         } else if (current.is_boolean()) {
           std::tuple<const core::JSON *, std::string_view, std::uint64_t> mark{
               &current, rule->name(), current.fast_hash()};

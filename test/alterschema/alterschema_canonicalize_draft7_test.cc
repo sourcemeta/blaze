@@ -2024,12 +2024,8 @@ TEST_F(CanonicalizerDraft7Test, double_negation) {
 
   const auto expected = sourcemeta::core::parse_json(R"JSON({
     "$schema": "http://json-schema.org/draft-07/schema#",
-    "not": {
-      "not": {
-        "type": "string",
-        "minLength": 0
-      }
-    }
+    "type": "string",
+    "minLength": 0
   })JSON");
 
   CANONICALIZE_AND_VALIDATE(document, expected, *compiled_meta_);
@@ -2091,24 +2087,13 @@ TEST_F(CanonicalizerDraft7Test, deeply_nested_anyof) {
   const auto expected = sourcemeta::core::parse_json(R"JSON({
     "$schema": "http://json-schema.org/draft-07/schema#",
     "anyOf": [
-      { "enum": [ null ] },
-      { "enum": [ false, true ] },
       {
-        "type": "object",
-        "patternProperties": {},
-        "propertyNames": true,
-        "minProperties": 0,
-        "properties": {},
-        "additionalProperties": true
+        "type": "string",
+        "minLength": 0
       },
       {
-        "type": "array",
-        "uniqueItems": false,
-        "items": true,
-        "minItems": 0
-      },
-      { "type": "string", "minLength": 0 },
-      { "type": "number" }
+        "type": "number"
+      }
     ]
   })JSON");
 
@@ -3233,68 +3218,41 @@ TEST_F(CanonicalizerDraft7Test, dependencies_with_existing_anyof) {
     {
       "anyOf": [
         {
-          "anyOf": [
-            {
-              "enum": [ null ]
-            },
-            {
-              "enum": [ false, true ]
-            },
-            {
-              "type": "object",
-              "required": [ "a" ],
-              "patternProperties": {},
-              "propertyNames": true,
-              "minProperties": 1,
-              "properties": {},
-              "additionalProperties": true
-            },
-            {
-              "type": "array",
-              "uniqueItems": false,
-              "items": true,
-              "minItems": 0
-            },
-            {
-              "type": "string",
-              "minLength": 0
-            },
-            {
-              "type": "number"
-            }
-          ]
+          "enum": [ null ]
         },
         {
-          "anyOf": [
-            {
-              "enum": [ null ]
-            },
-            {
-              "enum": [ false, true ]
-            },
-            {
-              "type": "object",
-              "required": [ "b" ],
-              "patternProperties": {},
-              "propertyNames": true,
-              "minProperties": 1,
-              "properties": {},
-              "additionalProperties": true
-            },
-            {
-              "type": "array",
-              "uniqueItems": false,
-              "items": true,
-              "minItems": 0
-            },
-            {
-              "type": "string",
-              "minLength": 0
-            },
-            {
-              "type": "number"
-            }
-          ]
+          "enum": [ false, true ]
+        },
+        {
+          "type": "object",
+          "required": [ "a" ],
+          "patternProperties": {},
+          "propertyNames": true,
+          "minProperties": 1,
+          "properties": {},
+          "additionalProperties": true
+        },
+        {
+          "type": "array",
+          "uniqueItems": false,
+          "items": true,
+          "minItems": 0
+        },
+        {
+          "type": "string",
+          "minLength": 0
+        },
+        {
+          "type": "number"
+        },
+        {
+          "type": "object",
+          "required": [ "b" ],
+          "patternProperties": {},
+          "propertyNames": true,
+          "minProperties": 1,
+          "properties": {},
+          "additionalProperties": true
         }
       ]
     },
@@ -3400,68 +3358,41 @@ TEST_F(CanonicalizerDraft7Test, full_restructure_ref_in_typed_keyword) {
     {
       "anyOf": [
         {
-          "anyOf": [
-            {
-              "enum": [ null ]
-            },
-            {
-              "enum": [ false, true ]
-            },
-            {
-              "type": "object",
-              "required": [ "a" ],
-              "patternProperties": {},
-              "propertyNames": true,
-              "minProperties": 1,
-              "properties": {},
-              "additionalProperties": true
-            },
-            {
-              "type": "array",
-              "uniqueItems": false,
-              "items": true,
-              "minItems": 0
-            },
-            {
-              "type": "string",
-              "minLength": 0
-            },
-            {
-              "type": "number"
-            }
-          ]
+          "enum": [ null ]
         },
         {
-          "anyOf": [
-            {
-              "enum": [ null ]
-            },
-            {
-              "enum": [ false, true ]
-            },
-            {
-              "type": "object",
-              "required": [ "b" ],
-              "patternProperties": {},
-              "propertyNames": true,
-              "minProperties": 1,
-              "properties": {},
-              "additionalProperties": true
-            },
-            {
-              "type": "array",
-              "uniqueItems": false,
-              "items": true,
-              "minItems": 0
-            },
-            {
-              "type": "string",
-              "minLength": 0
-            },
-            {
-              "type": "number"
-            }
-          ]
+          "enum": [ false, true ]
+        },
+        {
+          "type": "object",
+          "required": [ "a" ],
+          "patternProperties": {},
+          "propertyNames": true,
+          "minProperties": 1,
+          "properties": {},
+          "additionalProperties": true
+        },
+        {
+          "type": "array",
+          "uniqueItems": false,
+          "items": true,
+          "minItems": 0
+        },
+        {
+          "type": "string",
+          "minLength": 0
+        },
+        {
+          "type": "number"
+        },
+        {
+          "type": "object",
+          "required": [ "b" ],
+          "patternProperties": {},
+          "propertyNames": true,
+          "minProperties": 1,
+          "properties": {},
+          "additionalProperties": true
         }
       ]
     },
