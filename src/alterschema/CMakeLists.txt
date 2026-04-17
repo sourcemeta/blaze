@@ -4,7 +4,6 @@ sourcemeta_library(NAMESPACE sourcemeta PROJECT blaze NAME alterschema
   SOURCES alterschema.cc schema_rule.cc transformer.cc
     # Canonicalizer
     canonicalizer/additional_items_implicit.h
-    canonicalizer/additional_properties_implicit.h
     canonicalizer/comment_drop.h
     canonicalizer/const_as_enum.h
     canonicalizer/dependencies_to_any_of.h
@@ -39,13 +38,10 @@ sourcemeta_library(NAMESPACE sourcemeta PROJECT blaze NAME alterschema
     canonicalizer/min_items_given_min_contains.h
     canonicalizer/min_length_implicit.h
     canonicalizer/min_properties_covered_by_required.h
-    canonicalizer/min_properties_implicit.h
     canonicalizer/minimum_can_equal_integer_fold.h
     canonicalizer/minimum_can_equal_true_drop.h
     canonicalizer/multiple_of_implicit.h
     canonicalizer/optional_property_implicit.h
-    canonicalizer/properties_implicit.h
-    canonicalizer/property_names_implicit.h
     canonicalizer/recursive_anchor_false_drop.h
     canonicalizer/required_property_implicit.h
     canonicalizer/type_array_to_any_of.h
