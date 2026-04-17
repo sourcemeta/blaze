@@ -721,9 +721,105 @@
           "properties": {
             "anyOf": {
               "type": "array",
-              "minItems": 1,
+              "minItems": 2,
+              "uniqueItems": true,
               "items": {
                 "$ref": "#/$defs/schema"
+              }
+            }
+          },
+          "unevaluatedProperties": false
+        },
+        {
+          "x-lint-exclude": "simple_properties_identifiers",
+          "type": "object",
+          "allOf": [
+            {
+              "$ref": "#/$defs/metadata"
+            },
+            {
+              "$ref": "#/$defs/core"
+            }
+          ],
+          "not": {
+            "anyOf": [
+              {
+                "x-lint-exclude": "required_properties_in_properties",
+                "required": [ "unevaluatedProperties" ]
+              },
+              {
+                "x-lint-exclude": "required_properties_in_properties",
+                "required": [ "unevaluatedItems" ]
+              }
+            ]
+          },
+          "required": [ "allOf" ],
+          "properties": {
+            "allOf": {
+              "type": "array",
+              "minItems": 2,
+              "uniqueItems": true,
+              "items": {
+                "$ref": "#/$defs/schema"
+              }
+            }
+          },
+          "unevaluatedProperties": false
+        },
+        {
+          "x-lint-exclude": "simple_properties_identifiers",
+          "type": "object",
+          "allOf": [
+            {
+              "$ref": "#/$defs/metadata"
+            },
+            {
+              "$ref": "#/$defs/core"
+            }
+          ],
+          "not": {
+            "anyOf": [
+              {
+                "x-lint-exclude": "required_properties_in_properties",
+                "required": [ "unevaluatedProperties" ]
+              },
+              {
+                "x-lint-exclude": "required_properties_in_properties",
+                "required": [ "unevaluatedItems" ]
+              }
+            ]
+          },
+          "required": [ "allOf" ],
+          "properties": {
+            "allOf": {
+              "type": "array",
+              "maxItems": 1,
+              "minItems": 1,
+              "items": {
+                "x-lint-exclude": "simple_properties_identifiers",
+                "$ref": "#/$defs/metadata",
+                "type": "object",
+                "oneOf": [
+                  {
+                    "x-lint-exclude": "simple_properties_identifiers",
+                    "required": [ "$ref" ],
+                    "properties": {
+                      "$ref": {
+                        "type": "string"
+                      }
+                    }
+                  },
+                  {
+                    "x-lint-exclude": "simple_properties_identifiers",
+                    "required": [ "$dynamicRef" ],
+                    "properties": {
+                      "$dynamicRef": {
+                        "type": "string"
+                      }
+                    }
+                  }
+                ],
+                "unevaluatedProperties": false
               }
             }
           },
@@ -743,11 +839,22 @@
               "$ref": "#/$defs/unevaluated"
             }
           ],
+          "anyOf": [
+            {
+              "x-lint-exclude": "required_properties_in_properties",
+              "required": [ "unevaluatedProperties" ]
+            },
+            {
+              "x-lint-exclude": "required_properties_in_properties",
+              "required": [ "unevaluatedItems" ]
+            }
+          ],
           "required": [ "allOf" ],
           "properties": {
             "allOf": {
               "type": "array",
               "minItems": 1,
+              "uniqueItems": true,
               "items": {
                 "$ref": "#/$defs/schema"
               }
@@ -773,7 +880,7 @@
           "properties": {
             "oneOf": {
               "type": "array",
-              "minItems": 1,
+              "minItems": 2,
               "items": {
                 "$ref": "#/$defs/schema"
               }

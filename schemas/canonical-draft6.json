@@ -350,7 +350,8 @@
           "properties": {
             "anyOf": {
               "type": "array",
-              "minItems": 1,
+              "minItems": 2,
+              "uniqueItems": true,
               "items": {
                 "$ref": "#/$defs/schema"
               }
@@ -373,7 +374,8 @@
           "properties": {
             "allOf": {
               "type": "array",
-              "minItems": 1,
+              "minItems": 2,
+              "uniqueItems": true,
               "items": {
                 "$ref": "#/$defs/schema"
               }
@@ -396,7 +398,7 @@
           "properties": {
             "oneOf": {
               "type": "array",
-              "minItems": 1,
+              "minItems": 2,
               "items": {
                 "$ref": "#/$defs/schema"
               }
