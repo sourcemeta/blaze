@@ -3305,3 +3305,90 @@ TEST_F(Canonicalizer202012Test, dynamic_ref_stays_dynamic_multiple_resources) {
 
   CANONICALIZE_AND_VALIDATE(document, expected, *compiled_meta_);
 }
+
+TEST_F(Canonicalizer202012Test, dynamic_ref_to_static_ref_id_no_fragment) {
+  auto document = sourcemeta::core::parse_json(R"JSON({
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "$id": "https://example.com/root",
+    "$dynamicRef": "https://example.com/nested",
+    "$defs": {
+      "nested": {
+        "$id": "https://example.com/nested",
+        "type": "string"
+      }
+    }
+  })JSON");
+
+  const auto expected = sourcemeta::core::parse_json(R"JSON({
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "$id": "https://example.com/root",
+    "$defs": {
+      "nested": {
+        "$id": "https://example.com/nested",
+        "type": "string",
+        "minLength": 0
+      }
+    },
+    "allOf": [
+      {
+        "$ref": "https://example.com/nested"
+      }
+    ]
+  })JSON");
+
+  CANONICALIZE_AND_VALIDATE(document, expected, *compiled_meta_);
+}
+
+TEST_F(Canonicalizer202012Test, dynamic_ref_to_static_ref_static_anchor) {
+  auto document = sourcemeta::core::parse_json(R"JSON({
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "$dynamicRef": "#bar",
+    "$defs": {
+      "string": {
+        "$anchor": "bar",
+        "type": "string"
+      }
+    }
+  })JSON");
+
+  const auto expected = sourcemeta::core::parse_json(R"JSON({
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "$defs": {
+      "string": {
+        "$anchor": "bar",
+        "type": "string",
+        "minLength": 0
+      }
+    },
+    "allOf": [
+      {
+        "$ref": "#bar"
+      }
+    ]
+  })JSON");
+
+  CANONICALIZE_AND_VALIDATE(document, expected, *compiled_meta_);
+}
+
+TEST_F(Canonicalizer202012Test, dynamic_ref_to_static_ref_self_root) {
+  auto document = sourcemeta::core::parse_json(R"JSON({
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "$dynamicRef": "#",
+    "type": "string"
+  })JSON");
+
+  const auto expected = sourcemeta::core::parse_json(R"JSON({
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "allOf": [
+      {
+        "$ref": "#"
+      },
+      {
+        "type": "string",
+        "minLength": 0
+      }
+    ]
+  })JSON");
+
+  CANONICALIZE_AND_VALIDATE(document, expected, *compiled_meta_);
+}
