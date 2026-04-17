@@ -12,7 +12,6 @@ sourcemeta_library(NAMESPACE sourcemeta PROJECT blaze NAME alterschema
     canonicalizer/dependent_schemas_to_any_of.h
     canonicalizer/deprecated_false_drop.h
     canonicalizer/disallow_to_array_of_schemas.h
-    canonicalizer/divisible_by_implicit.h
     canonicalizer/empty_definitions_drop.h
     canonicalizer/empty_defs_drop.h
     canonicalizer/empty_dependencies_drop.h
@@ -27,20 +26,16 @@ sourcemeta_library(NAMESPACE sourcemeta PROJECT blaze NAME alterschema
     canonicalizer/exclusive_minimum_integer_to_minimum.h
     canonicalizer/extends_to_array.h
     canonicalizer/if_then_else_implicit.h
-    canonicalizer/implicit_array_keywords.h
     canonicalizer/implicit_contains_keywords.h
     canonicalizer/implicit_object_keywords.h
     canonicalizer/items_implicit.h
     canonicalizer/max_contains_covered_by_max_items.h
-    canonicalizer/max_decimal_implicit.h
     canonicalizer/maximum_can_equal_integer_fold.h
     canonicalizer/maximum_can_equal_true_drop.h
     canonicalizer/min_items_given_min_contains.h
-    canonicalizer/min_length_implicit.h
     canonicalizer/min_properties_covered_by_required.h
     canonicalizer/minimum_can_equal_integer_fold.h
     canonicalizer/minimum_can_equal_true_drop.h
-    canonicalizer/multiple_of_implicit.h
     canonicalizer/optional_property_implicit.h
     canonicalizer/recursive_anchor_false_drop.h
     canonicalizer/required_property_implicit.h
