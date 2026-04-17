@@ -108,7 +108,6 @@ auto WALK_UP_IN_PLACE_APPLICATORS(const JSON &root, const SchemaFrame &frame,
   }
 
 #include "canonicalizer/additional_items_implicit.h"
-#include "canonicalizer/additional_properties_implicit.h"
 #include "canonicalizer/comment_drop.h"
 #include "canonicalizer/const_as_enum.h"
 #include "canonicalizer/dependencies_to_any_of.h"
@@ -132,7 +131,6 @@ auto WALK_UP_IN_PLACE_APPLICATORS(const JSON &root, const SchemaFrame &frame,
 #include "canonicalizer/exclusive_minimum_integer_to_minimum.h"
 #include "canonicalizer/extends_to_array.h"
 #include "canonicalizer/if_then_else_implicit.h"
-#include "canonicalizer/implicit_array_keywords.h"
 #include "canonicalizer/implicit_contains_keywords.h"
 #include "canonicalizer/implicit_object_keywords.h"
 #include "canonicalizer/items_implicit.h"
@@ -143,13 +141,10 @@ auto WALK_UP_IN_PLACE_APPLICATORS(const JSON &root, const SchemaFrame &frame,
 #include "canonicalizer/min_items_given_min_contains.h"
 #include "canonicalizer/min_length_implicit.h"
 #include "canonicalizer/min_properties_covered_by_required.h"
-#include "canonicalizer/min_properties_implicit.h"
 #include "canonicalizer/minimum_can_equal_integer_fold.h"
 #include "canonicalizer/minimum_can_equal_true_drop.h"
 #include "canonicalizer/multiple_of_implicit.h"
 #include "canonicalizer/optional_property_implicit.h"
-#include "canonicalizer/properties_implicit.h"
-#include "canonicalizer/property_names_implicit.h"
 #include "canonicalizer/recursive_anchor_false_drop.h"
 #include "canonicalizer/required_property_implicit.h"
 #include "canonicalizer/type_array_to_any_of.h"
@@ -277,8 +272,6 @@ auto add(SchemaTransformer &bundle, const AlterSchemaMode mode) -> void {
     bundle.add<UnevaluatedPropertiesToAdditionalProperties>();
     bundle.add<IfThenElseImplicit>();
     bundle.add<ImplicitObjectKeywords>();
-    bundle.add<PropertyNamesImplicit>();
-    bundle.add<ImplicitArrayKeywords>();
     bundle.add<ImplicitContainsKeywords>();
     bundle.add<ExtendsToArray>();
     bundle.add<DisallowToArrayOfSchemas>();
@@ -355,11 +348,9 @@ auto add(SchemaTransformer &bundle, const AlterSchemaMode mode) -> void {
     bundle.add<MinItemsGivenMinContains>();
     bundle.add<MinPropertiesCoveredByRequired>();
     bundle.add<MinLengthImplicit>();
-    bundle.add<MinPropertiesImplicit>();
     bundle.add<MultipleOfImplicit>();
     bundle.add<DivisibleByImplicit>();
     bundle.add<MaxDecimalImplicit>();
-    bundle.add<PropertiesImplicit>();
     bundle.add<ItemsImplicit>();
   }
 
@@ -427,7 +418,6 @@ auto add(SchemaTransformer &bundle, const AlterSchemaMode mode) -> void {
     bundle.add<EmptyDependenciesDrop>();
     bundle.add<EmptyDependentSchemasDrop>();
     bundle.add<EmptyDependentRequiredDrop>();
-    bundle.add<AdditionalPropertiesImplicit>();
     bundle.add<AdditionalItemsImplicit>();
     bundle.add<RequiredPropertyImplicit>();
     bundle.add<OptionalPropertyImplicit>();
