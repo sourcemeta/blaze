@@ -90,21 +90,6 @@ static auto alterschema_test_resolver(std::string_view identifier)
         traces.emplace_back(pointer, name, message, outcome, fixable);         \
       });
 
-#define CANONICALIZE(document, result, traces)                                 \
-  std::vector<                                                                 \
-      std::tuple<sourcemeta::core::Pointer, std::string, std::string,          \
-                 sourcemeta::blaze::SchemaTransformRule::Result, bool>>        \
-      traces;                                                                  \
-  sourcemeta::blaze::SchemaTransformer bundle;                                 \
-  sourcemeta::blaze::add(bundle,                                               \
-                         sourcemeta::blaze::AlterSchemaMode::Canonicalizer);   \
-  const auto result = bundle.apply(                                            \
-      document, sourcemeta::core::schema_walker, alterschema_test_resolver,    \
-      [&traces](const auto &pointer, const auto &name, const auto &message,    \
-                const auto &outcome, const auto &fixable) {                    \
-        traces.emplace_back(pointer, name, message, outcome, fixable);         \
-      });
-
 #define CANONICALIZE_AND_VALIDATE(document, expected, compiled_template)       \
   {                                                                            \
     sourcemeta::blaze::SchemaTransformer _bundle;                              \

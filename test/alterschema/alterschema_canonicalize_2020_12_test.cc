@@ -3392,3 +3392,46 @@ TEST_F(Canonicalizer202012Test, dynamic_ref_to_static_ref_self_root) {
 
   CANONICALIZE_AND_VALIDATE(document, expected, *compiled_meta_);
 }
+
+TEST_F(Canonicalizer202012Test, object_required_annotations_1) {
+  auto document = sourcemeta::core::parse_json(R"JSON({
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "type": "object",
+    "properties": {
+      "email": {
+        "type": "string",
+        "format": "email",
+        "description": "The user email address"
+      },
+      "age": {
+        "type": "integer",
+        "minimum": 0
+      }
+    },
+    "required": ["email"]
+  })JSON");
+
+  const auto expected = sourcemeta::core::parse_json(R"JSON({
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "type": "object",
+    "properties": {
+      "email": {
+        "type": "string",
+        "format": "email",
+        "description": "The user email address",
+        "minLength": 0
+      },
+      "age": {
+        "type": "integer",
+        "minimum": 0,
+        "multipleOf": 1
+      }
+    },
+    "required": [ "email" ],
+    "patternProperties": {},
+    "propertyNames": true,
+    "minProperties": 1
+  })JSON");
+
+  CANONICALIZE_AND_VALIDATE(document, expected, *compiled_meta_);
+}
