@@ -3963,6 +3963,202 @@ TEST(AlterSchema_lint_2020_12, non_applicable_type_specific_keywords_3) {
   EXPECT_EQ(document, expected);
 }
 
+TEST(AlterSchema_lint_2020_12, format_type_mismatch_1) {
+  const sourcemeta::core::JSON document = sourcemeta::core::parse_json(R"JSON({
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "title": "Test",
+    "description": "A test schema",
+    "examples": [ 1 ],
+    "type": "integer",
+    "format": "email"
+  })JSON");
+
+  LINT_WITHOUT_FIX(document, result, traces);
+
+  EXPECT_FALSE(result.first);
+  EXPECT_EQ(traces.size(), 2);
+  EXPECT_LINT_TRACE(traces, 0, "", "non_applicable_type_specific_keywords",
+                    "Avoid keywords that don't apply to the type or "
+                    "types that the current subschema expects",
+                    true);
+  EXPECT_LINT_TRACE(traces, 1, "", "format_type_mismatch",
+                    "The `format` keyword validates string instances but "
+                    "`type` is not `string`",
+                    false);
+}
+
+TEST(AlterSchema_lint_2020_12, format_type_mismatch_2) {
+  const sourcemeta::core::JSON document = sourcemeta::core::parse_json(R"JSON({
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "title": "Test",
+    "description": "A test schema",
+    "examples": [ "foo@bar.com" ],
+    "type": "string",
+    "format": "email"
+  })JSON");
+
+  LINT_WITHOUT_FIX(document, result, traces);
+
+  EXPECT_TRUE(result.first);
+  EXPECT_EQ(traces.size(), 0);
+}
+
+TEST(AlterSchema_lint_2020_12, format_type_mismatch_3) {
+  const sourcemeta::core::JSON document = sourcemeta::core::parse_json(R"JSON({
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "title": "Test",
+    "description": "A test schema",
+    "examples": [ "foo@bar.com" ],
+    "format": "email"
+  })JSON");
+
+  LINT_WITHOUT_FIX(document, result, traces);
+
+  EXPECT_TRUE(result.first);
+  EXPECT_EQ(traces.size(), 0);
+}
+
+TEST(AlterSchema_lint_2020_12, format_type_mismatch_4) {
+  const sourcemeta::core::JSON document = sourcemeta::core::parse_json(R"JSON({
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "title": "Test",
+    "description": "A test schema",
+    "examples": [ {} ],
+    "properties": {
+      "foo": {
+        "type": "integer",
+        "format": "email"
+      }
+    }
+  })JSON");
+
+  LINT_WITHOUT_FIX(document, result, traces);
+
+  EXPECT_FALSE(result.first);
+  EXPECT_EQ(traces.size(), 2);
+  EXPECT_LINT_TRACE(traces, 0, "/properties/foo",
+                    "non_applicable_type_specific_keywords",
+                    "Avoid keywords that don't apply to the type or "
+                    "types that the current subschema expects",
+                    true);
+  EXPECT_LINT_TRACE(traces, 1, "/properties/foo", "format_type_mismatch",
+                    "The `format` keyword validates string instances but "
+                    "`type` is not `string`",
+                    false);
+}
+
+TEST(AlterSchema_lint_2020_12, format_type_mismatch_5) {
+  const sourcemeta::core::JSON document = sourcemeta::core::parse_json(R"JSON({
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "title": "Test",
+    "description": "A test schema",
+    "examples": [ 1 ],
+    "type": "integer"
+  })JSON");
+
+  LINT_WITHOUT_FIX(document, result, traces);
+
+  EXPECT_TRUE(result.first);
+  EXPECT_EQ(traces.size(), 0);
+}
+
+TEST(AlterSchema_lint_2020_12, format_type_mismatch_6) {
+  const sourcemeta::core::JSON document = sourcemeta::core::parse_json(R"JSON({
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "title": "Test",
+    "description": "A test schema",
+    "examples": [ [] ],
+    "type": "array",
+    "items": {
+      "type": "number",
+      "format": "date-time"
+    }
+  })JSON");
+
+  LINT_WITHOUT_FIX(document, result, traces);
+
+  EXPECT_FALSE(result.first);
+  EXPECT_EQ(traces.size(), 2);
+  EXPECT_LINT_TRACE(traces, 0, "/items",
+                    "non_applicable_type_specific_keywords",
+                    "Avoid keywords that don't apply to the type or "
+                    "types that the current subschema expects",
+                    true);
+  EXPECT_LINT_TRACE(traces, 1, "/items", "format_type_mismatch",
+                    "The `format` keyword validates string instances but "
+                    "`type` is not `string`",
+                    false);
+}
+
+TEST(AlterSchema_lint_2020_12, format_type_mismatch_7) {
+  const sourcemeta::core::JSON document = sourcemeta::core::parse_json(R"JSON({
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "title": "Test",
+    "description": "A test schema",
+    "examples": [ 1 ],
+    "$ref": "#/$defs/foo",
+    "$defs": {
+      "foo": {
+        "type": "integer",
+        "format": "uri"
+      }
+    }
+  })JSON");
+
+  LINT_WITHOUT_FIX(document, result, traces);
+
+  EXPECT_FALSE(result.first);
+  EXPECT_EQ(traces.size(), 1);
+  EXPECT_LINT_TRACE(traces, 0, "/$defs/foo", "format_type_mismatch",
+                    "The `format` keyword validates string instances but "
+                    "`type` is not `string`",
+                    false);
+}
+
+TEST(AlterSchema_lint_2020_12, format_type_mismatch_8) {
+  const sourcemeta::core::JSON document = sourcemeta::core::parse_json(R"JSON({
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "title": "Test",
+    "description": "A test schema",
+    "examples": [ "https://example.com" ],
+    "$ref": "#/$defs/A/properties/bar",
+    "$defs": {
+      "A": {
+        "type": "integer",
+        "format": "uri",
+        "properties": {
+          "bar": { "type": "string" }
+        }
+      }
+    }
+  })JSON");
+
+  LINT_WITHOUT_FIX(document, result, traces);
+
+  EXPECT_FALSE(result.first);
+  EXPECT_EQ(traces.size(), 1);
+  EXPECT_LINT_TRACE(traces, 0, "/$defs/A", "format_type_mismatch",
+                    "The `format` keyword validates string instances but "
+                    "`type` is not `string`",
+                    false);
+}
+
+TEST(AlterSchema_lint_2020_12, format_type_mismatch_9) {
+  const sourcemeta::core::JSON document = sourcemeta::core::parse_json(R"JSON({
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "title": "Test",
+    "description": "A test schema",
+    "examples": [ 1 ],
+    "type": [ "integer", "string" ],
+    "format": "email"
+  })JSON");
+
+  LINT_WITHOUT_FIX(document, result, traces);
+
+  EXPECT_TRUE(result.first);
+  EXPECT_EQ(traces.size(), 0);
+}
+
 TEST(AlterSchema_lint_2020_12, not_false_1) {
   sourcemeta::core::JSON document = sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2020-12/schema",
