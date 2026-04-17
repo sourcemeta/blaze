@@ -7679,6 +7679,63 @@
       }
     },
     {
+      "description": "allOf with single branch wrapping $ref is canonical",
+      "valid": true,
+      "data": {
+        "allOf": [
+          {
+            "$ref": "#/$defs/foo"
+          }
+        ]
+      }
+    },
+    {
+      "description": "allOf with single branch wrapping $dynamicRef is canonical",
+      "valid": true,
+      "data": {
+        "allOf": [
+          {
+            "$dynamicRef": "#foo"
+          }
+        ]
+      }
+    },
+    {
+      "description": "allOf with single branch wrapping $ref with title is canonical",
+      "valid": true,
+      "data": {
+        "allOf": [
+          {
+            "$ref": "#/$defs/foo",
+            "title": "A ref"
+          }
+        ]
+      }
+    },
+    {
+      "description": "allOf with single branch wrapping both $ref and $dynamicRef is rejected",
+      "valid": false,
+      "data": {
+        "allOf": [
+          {
+            "$ref": "#/$defs/foo",
+            "$dynamicRef": "#bar"
+          }
+        ]
+      }
+    },
+    {
+      "description": "allOf with single branch wrapping non-ref schema is rejected",
+      "valid": false,
+      "data": {
+        "allOf": [
+          {
+            "type": "string"
+          }
+        ]
+      }
+    },
+    {
       "description": "allOf with boolean branches is canonical",
       "valid": true,
       "data": {

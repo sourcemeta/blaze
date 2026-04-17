@@ -823,12 +823,26 @@
                 "x-lint-exclude": "simple_properties_identifiers",
                 "$ref": "#/$defs/metadata",
                 "type": "object",
-                "required": [ "$ref" ],
-                "properties": {
-                  "$ref": {
-                    "type": "string"
+                "oneOf": [
+                  {
+                    "x-lint-exclude": "simple_properties_identifiers",
+                    "required": [ "$ref" ],
+                    "properties": {
+                      "$ref": {
+                        "type": "string"
+                      }
+                    }
+                  },
+                  {
+                    "x-lint-exclude": "simple_properties_identifiers",
+                    "required": [ "$recursiveRef" ],
+                    "properties": {
+                      "$recursiveRef": {
+                        "type": "string"
+                      }
+                    }
                   }
-                },
+                ],
                 "unevaluatedProperties": false
               }
             }
