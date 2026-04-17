@@ -670,6 +670,28 @@ TEST(AlterSchema_lint_draft6, duplicate_anyof_branches_1) {
   EXPECT_EQ(document, expected);
 }
 
+TEST(AlterSchema_lint_draft6, unsatisfiable_duplicate_oneof_branches_1) {
+  sourcemeta::core::JSON document = sourcemeta::core::parse_json(R"JSON({
+    "$schema": "http://json-schema.org/draft-06/schema#",
+    "oneOf": [
+      { "type": "string" },
+      { "type": "integer" },
+      { "type": "string" }
+    ]
+  })JSON");
+
+  LINT_AND_FIX(document, result, traces);
+
+  EXPECT_FALSE(result.first);
+
+  const sourcemeta::core::JSON expected = sourcemeta::core::parse_json(R"JSON({
+    "$schema": "http://json-schema.org/draft-06/schema#",
+    "not": true
+  })JSON");
+
+  EXPECT_EQ(document, expected);
+}
+
 TEST(AlterSchema_lint_draft6, anyof_true_simplify_1) {
   sourcemeta::core::JSON document = sourcemeta::core::parse_json(R"JSON({
     "$schema": "http://json-schema.org/draft-06/schema#",
@@ -819,10 +841,7 @@ TEST(AlterSchema_lint_draft6, oneof_to_anyof_disjoint_types_2) {
 
   const sourcemeta::core::JSON expected = sourcemeta::core::parse_json(R"JSON({
     "$schema": "http://json-schema.org/draft-06/schema#",
-    "oneOf": [
-      { "type": "string" },
-      { "type": "string" }
-    ]
+    "not": true
   })JSON");
 
   EXPECT_EQ(document, expected);

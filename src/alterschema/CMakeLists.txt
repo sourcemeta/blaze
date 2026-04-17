@@ -105,6 +105,7 @@ sourcemeta_library(NAMESPACE sourcemeta PROJECT blaze NAME alterschema
     common/unknown_local_ref.h
     common/unsatisfiable_drop_validation.h
     common/unnecessary_allof_ref_wrapper_draft.h
+    common/unsatisfiable_duplicate_oneof_branches.h
     common/unsatisfiable_in_place_applicator_type.h
 
     # Linter

@@ -209,6 +209,7 @@ auto WALK_UP_IN_PLACE_APPLICATORS(const JSON &root, const SchemaFrame &frame,
 #include "common/unknown_local_ref.h"
 #include "common/unnecessary_allof_ref_wrapper_draft.h"
 #include "common/unsatisfiable_drop_validation.h"
+#include "common/unsatisfiable_duplicate_oneof_branches.h"
 #include "common/unsatisfiable_in_place_applicator_type.h"
 #include "linter/else_empty.h"
 #include "linter/then_empty.h"
@@ -299,6 +300,7 @@ auto add(SchemaTransformer &bundle, const AlterSchemaMode mode) -> void {
   bundle.add<DuplicateAllOfBranches>();
   bundle.add<DuplicateAnyOfBranches>();
   bundle.add<UnsatisfiableInPlaceApplicatorType>();
+  bundle.add<UnsatisfiableDuplicateOneOfBranches>();
   bundle.add<AllOfFalseSimplify>();
   bundle.add<AnyOfFalseSimplify>();
   bundle.add<OneOfFalseSimplify>();

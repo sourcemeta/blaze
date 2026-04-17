@@ -1321,6 +1321,28 @@ TEST(AlterSchema_lint_2020_12, duplicate_anyof_branches_1) {
   EXPECT_EQ(document, expected);
 }
 
+TEST(AlterSchema_lint_2020_12, unsatisfiable_duplicate_oneof_branches_1) {
+  sourcemeta::core::JSON document = sourcemeta::core::parse_json(R"JSON({
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "oneOf": [
+      { "type": "string" },
+      { "type": "integer" },
+      { "type": "string" }
+    ]
+  })JSON");
+
+  LINT_AND_FIX(document, result, traces);
+
+  EXPECT_FALSE(result.first);
+
+  const sourcemeta::core::JSON expected = sourcemeta::core::parse_json(R"JSON({
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "not": true
+  })JSON");
+
+  EXPECT_EQ(document, expected);
+}
+
 TEST(AlterSchema_lint_2020_12, unsatisfiable_logic_branch_type_anyof_1) {
   sourcemeta::core::JSON document = sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2020-12/schema",
@@ -9490,10 +9512,7 @@ TEST(AlterSchema_lint_2020_12, oneof_to_anyof_disjoint_types_4) {
 
   const sourcemeta::core::JSON expected = sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2020-12/schema",
-    "oneOf": [
-      { "type": "string" },
-      { "type": "string" }
-    ]
+    "not": true
   })JSON");
 
   EXPECT_EQ(document, expected);
