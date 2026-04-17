@@ -24,10 +24,6 @@ public:
       this->check_object(schema, vocabularies);
     } else if (type_value == "array") {
       this->check_array(schema, vocabularies);
-    } else if (type_value == "string") {
-      this->check_string(schema, vocabularies);
-    } else if (type_value == "integer") {
-      this->check_integer(schema, vocabularies);
     }
 
     ONLY_CONTINUE_IF(this->has_work_);
@@ -78,24 +74,6 @@ public:
     if (this->add_min_items_) {
       schema.assign("minItems", sourcemeta::core::JSON{0});
     }
-
-    // String keywords
-    if (this->add_min_length_) {
-      schema.assign("minLength", sourcemeta::core::JSON{0});
-    }
-
-    // Integer keywords
-    if (this->add_multiple_of_) {
-      schema.assign("multipleOf", sourcemeta::core::JSON{1});
-    }
-
-    if (this->add_divisible_by_) {
-      schema.assign("divisibleBy", sourcemeta::core::JSON{1});
-    }
-
-    if (this->add_max_decimal_) {
-      schema.assign("maxDecimal", sourcemeta::core::JSON{0});
-    }
   }
 
 private:
@@ -111,10 +89,6 @@ private:
     this->add_items_ = false;
     this->items_as_object_ = false;
     this->add_min_items_ = false;
-    this->add_min_length_ = false;
-    this->add_multiple_of_ = false;
-    this->add_divisible_by_ = false;
-    this->add_max_decimal_ = false;
   }
 
   auto check_object(const sourcemeta::core::JSON &schema,
@@ -226,50 +200,6 @@ private:
         this->add_unique_items_ || this->add_items_ || this->add_min_items_;
   }
 
-  auto check_string(const sourcemeta::core::JSON &schema,
-                    const sourcemeta::core::Vocabularies &vocabularies) const
-      -> void {
-    this->add_min_length_ =
-        !schema.defines("minLength") &&
-        vocabularies.contains_any(
-            {Vocabularies::Known::JSON_Schema_2020_12_Validation,
-             Vocabularies::Known::JSON_Schema_2019_09_Validation,
-             Vocabularies::Known::JSON_Schema_Draft_7,
-             Vocabularies::Known::JSON_Schema_Draft_6,
-             Vocabularies::Known::JSON_Schema_Draft_4,
-             Vocabularies::Known::JSON_Schema_Draft_3,
-             Vocabularies::Known::JSON_Schema_Draft_2,
-             Vocabularies::Known::JSON_Schema_Draft_1,
-             Vocabularies::Known::JSON_Schema_Draft_0});
-    this->has_work_ = this->add_min_length_;
-  }
-
-  auto check_integer(const sourcemeta::core::JSON &schema,
-                     const sourcemeta::core::Vocabularies &vocabularies) const
-      -> void {
-    this->add_multiple_of_ =
-        !schema.defines("multipleOf") &&
-        vocabularies.contains_any(
-            {Vocabularies::Known::JSON_Schema_2020_12_Validation,
-             Vocabularies::Known::JSON_Schema_2019_09_Validation,
-             Vocabularies::Known::JSON_Schema_Draft_7,
-             Vocabularies::Known::JSON_Schema_Draft_6,
-             Vocabularies::Known::JSON_Schema_Draft_4});
-
-    this->add_divisible_by_ =
-        !schema.defines("divisibleBy") &&
-        vocabularies.contains_any({Vocabularies::Known::JSON_Schema_Draft_2,
-                                   Vocabularies::Known::JSON_Schema_Draft_3});
-
-    this->add_max_decimal_ =
-        !schema.defines("maxDecimal") &&
-        vocabularies.contains_any({Vocabularies::Known::JSON_Schema_Draft_0,
-                                   Vocabularies::Known::JSON_Schema_Draft_1});
-
-    this->has_work_ = this->add_multiple_of_ || this->add_divisible_by_ ||
-                      this->add_max_decimal_;
-  }
-
   mutable bool has_work_{false};
   // Object
   mutable bool add_pattern_properties_{false};
@@ -283,10 +213,4 @@ private:
   mutable bool add_items_{false};
   mutable bool items_as_object_{false};
   mutable bool add_min_items_{false};
-  // String
-  mutable bool add_min_length_{false};
-  // Integer
-  mutable bool add_multiple_of_{false};
-  mutable bool add_divisible_by_{false};
-  mutable bool add_max_decimal_{false};
 };

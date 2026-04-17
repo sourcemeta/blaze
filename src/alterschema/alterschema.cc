@@ -116,6 +116,7 @@ auto WALK_UP_IN_PLACE_APPLICATORS(const JSON &root, const SchemaFrame &frame,
 #include "canonicalizer/dependent_schemas_to_any_of.h"
 #include "canonicalizer/deprecated_false_drop.h"
 #include "canonicalizer/disallow_to_array_of_schemas.h"
+#include "canonicalizer/divisible_by_implicit.h"
 #include "canonicalizer/empty_definitions_drop.h"
 #include "canonicalizer/empty_defs_drop.h"
 #include "canonicalizer/empty_dependencies_drop.h"
@@ -134,12 +135,15 @@ auto WALK_UP_IN_PLACE_APPLICATORS(const JSON &root, const SchemaFrame &frame,
 #include "canonicalizer/implicit_object_keywords.h"
 #include "canonicalizer/items_implicit.h"
 #include "canonicalizer/max_contains_covered_by_max_items.h"
+#include "canonicalizer/max_decimal_implicit.h"
 #include "canonicalizer/maximum_can_equal_integer_fold.h"
 #include "canonicalizer/maximum_can_equal_true_drop.h"
 #include "canonicalizer/min_items_given_min_contains.h"
+#include "canonicalizer/min_length_implicit.h"
 #include "canonicalizer/min_properties_covered_by_required.h"
 #include "canonicalizer/minimum_can_equal_integer_fold.h"
 #include "canonicalizer/minimum_can_equal_true_drop.h"
+#include "canonicalizer/multiple_of_implicit.h"
 #include "canonicalizer/optional_property_implicit.h"
 #include "canonicalizer/recursive_anchor_false_drop.h"
 #include "canonicalizer/required_property_implicit.h"
@@ -343,6 +347,10 @@ auto add(SchemaTransformer &bundle, const AlterSchemaMode mode) -> void {
     bundle.add<MaxContainsCoveredByMaxItems>();
     bundle.add<MinItemsGivenMinContains>();
     bundle.add<MinPropertiesCoveredByRequired>();
+    bundle.add<MinLengthImplicit>();
+    bundle.add<MultipleOfImplicit>();
+    bundle.add<DivisibleByImplicit>();
+    bundle.add<MaxDecimalImplicit>();
     bundle.add<ItemsImplicit>();
   }
 
