@@ -27,10 +27,9 @@ public:
                      schema.is_object() && schema.defines(KEYWORD) &&
                      schema.at(KEYWORD).is_object() &&
                      schema.at(KEYWORD).size() == 1 &&
-                     schema.at(KEYWORD).defines(KEYWORD));
-    // The `not` boundary resets the evaluation context for
-    // unevaluatedProperties/unevaluatedItems. Eliminating the double
-    // negation would change what those keywords consider "evaluated".
+                     schema.at(KEYWORD).defines(KEYWORD) &&
+                     !(schema.at(KEYWORD).at(KEYWORD).is_boolean() &&
+                       !schema.at(KEYWORD).at(KEYWORD).to_boolean()));
     ONLY_CONTINUE_IF(
         !(vocabularies.contains_any(
               {Vocabularies::Known::JSON_Schema_2020_12_Unevaluated,
@@ -45,11 +44,7 @@ public:
   auto transform(JSON &schema, const Result &) const -> void override {
     auto inner{schema.at("not").at("not")};
     schema.erase("not");
-    if (inner.is_boolean()) {
-      if (!inner.to_boolean()) {
-        schema.into(JSON{false});
-      }
-    } else if (inner.is_object()) {
+    if (inner.is_object()) {
       for (const auto &entry : inner.as_object()) {
         schema.assign(entry.first, entry.second);
       }

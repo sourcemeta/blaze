@@ -4292,10 +4292,12 @@ TEST(AlterSchema_lint_draft7, double_negation_elimination_false) {
 
   LINT_AND_FIX(document, result, traces);
 
-  EXPECT_TRUE(result.first);
+  EXPECT_FALSE(result.first);
 
-  const sourcemeta::core::JSON expected =
-      sourcemeta::core::parse_json(R"JSON(false)JSON");
+  const sourcemeta::core::JSON expected = sourcemeta::core::parse_json(R"JSON({
+    "$schema": "http://json-schema.org/draft-07/schema#",
+    "not": true
+  })JSON");
 
   EXPECT_EQ(document, expected);
 }
