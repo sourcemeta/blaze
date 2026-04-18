@@ -50,9 +50,7 @@ public:
       return;
     }
 
-    for (const auto &entry : branch.as_object()) {
-      schema.assign(entry.first, entry.second);
-    }
+    schema.merge(branch.as_object());
     schema.erase("anyOf");
   }
 

@@ -45,9 +45,7 @@ public:
     auto inner{schema.at("not").at("not")};
     schema.erase("not");
     if (inner.is_object()) {
-      for (const auto &entry : inner.as_object()) {
-        schema.assign(entry.first, entry.second);
-      }
+      schema.merge(inner.as_object());
     }
   }
 

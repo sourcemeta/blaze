@@ -27,17 +27,17 @@ public:
                      schema.is_object() && schema.defines(KEYWORD) &&
                      schema.at(KEYWORD).is_array());
 
+    this->flatten_indices_.clear();
     const auto &branches{schema.at(KEYWORD)};
-    bool found{false};
-    for (const auto &branch : branches.as_array()) {
+    for (std::size_t index = 0; index < branches.size(); ++index) {
+      const auto &branch{branches.at(index)};
       if (branch.is_object() && branch.size() == 1 && branch.defines(KEYWORD) &&
           branch.at(KEYWORD).is_array()) {
-        found = true;
-        break;
+        this->flatten_indices_.push_back(index);
       }
     }
 
-    ONLY_CONTINUE_IF(found);
+    ONLY_CONTINUE_IF(!this->flatten_indices_.empty());
     ONLY_CONTINUE_IF(!frame.has_references_through(
         location.pointer, WeakPointer::Token{std::cref(KEYWORD)}));
     return APPLIES_TO_KEYWORDS(KEYWORD);
@@ -49,11 +49,12 @@ public:
     const auto &original{schema.at(KEYWORD)};
     auto result{JSON::make_array()};
     std::size_t new_index{0};
+    std::size_t flatten_cursor{0};
 
     for (std::size_t index = 0; index < original.size(); ++index) {
-      const auto &branch{original.at(index)};
-      if (branch.is_object() && branch.size() == 1 && branch.defines(KEYWORD) &&
-          branch.at(KEYWORD).is_array()) {
+      if (flatten_cursor < this->flatten_indices_.size() &&
+          this->flatten_indices_[flatten_cursor] == index) {
+        const auto &branch{original.at(index)};
         const auto &inner{branch.at(KEYWORD)};
         for (std::size_t inner_index = 0; inner_index < inner.size();
              ++inner_index) {
@@ -61,9 +62,10 @@ public:
           result.push_back(inner.at(inner_index));
           ++new_index;
         }
+        ++flatten_cursor;
       } else {
         this->index_mapping_.emplace_back(index, std::nullopt, new_index);
-        result.push_back(branch);
+        result.push_back(original.at(index));
         ++new_index;
       }
     }
@@ -103,6 +105,7 @@ public:
   }
 
 private:
+  mutable std::vector<std::size_t> flatten_indices_;
   mutable std::vector<
       std::tuple<std::size_t, std::optional<std::size_t>, std::size_t>>
       index_mapping_;
