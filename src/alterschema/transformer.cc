@@ -14,12 +14,13 @@
 namespace {
 
 struct ProcessedRuleHasher {
-  auto operator()(const std::tuple<sourcemeta::core::Pointer, std::string_view,
-                                   std::uint64_t> &value) const noexcept
+  auto
+  operator()(const std::tuple<sourcemeta::core::Pointer, std::string_view,
+                              sourcemeta::core::JSON> &value) const noexcept
       -> std::size_t {
     return sourcemeta::core::Pointer::Hasher{}(std::get<0>(value)) ^
            (std::hash<std::string_view>{}(std::get<1>(value)) << 1) ^
-           (std::hash<std::uint64_t>{}(std::get<2>(value)) << 2);
+           (std::hash<std::uint64_t>{}(std::get<2>(value).fast_hash()) << 2);
   }
 };
 
@@ -197,7 +198,7 @@ auto SchemaTransformer::apply(core::JSON &schema,
                               const core::JSON::String &exclude_keyword) const
     -> std::pair<bool, std::uint8_t> {
   assert(!this->rules.empty());
-  std::unordered_set<std::tuple<core::Pointer, std::string_view, std::uint64_t>,
+  std::unordered_set<std::tuple<core::Pointer, std::string_view, core::JSON>,
                      ProcessedRuleHasher>
       processed_rules;
 
@@ -283,8 +284,8 @@ auto SchemaTransformer::apply(core::JSON &schema,
           analyse_frame(frame, schema, walker, resolver, default_dialect,
                         default_id);
         } else if (current.is_boolean()) {
-          std::tuple<core::Pointer, std::string_view, std::uint64_t> mark{
-              entry_pointer, rule->name(), current.fast_hash()};
+          std::tuple<core::Pointer, std::string_view, core::JSON> mark{
+              entry_pointer, rule->name(), current};
           if (processed_rules.contains(mark)) {
             throw SchemaTransformRuleProcessedTwiceError(rule->name(),
                                                          entry_pointer);
@@ -341,8 +342,8 @@ auto SchemaTransformer::apply(core::JSON &schema,
           references_fixed = true;
         }
 
-        std::tuple<core::Pointer, std::string_view, std::uint64_t> mark{
-            entry_pointer, rule->name(), current.fast_hash()};
+        std::tuple<core::Pointer, std::string_view, core::JSON> mark{
+            entry_pointer, rule->name(), current};
         if (processed_rules.contains(mark)) {
           throw SchemaTransformRuleProcessedTwiceError(rule->name(),
                                                        entry_pointer);
