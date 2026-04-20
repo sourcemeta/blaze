@@ -974,17 +974,17 @@ TEST_F(Canonicalizer202012Test, type_array_to_any_of_5) {
           },
           {
             "type": "object",
-            "minProperties": 0,
+            "patternProperties": {},
             "propertyNames": true,
-            "properties": {},
-            "patternProperties": {}
+            "minProperties": 0,
+            "properties": {}
           },
           {
             "type": "array",
-            "minItems": 0,
             "uniqueItems": false,
-            "minContains": 0,
+            "minItems": 0,
             "contains": true,
+            "minContains": 0,
             "items": true
           },
           {
@@ -999,69 +999,40 @@ TEST_F(Canonicalizer202012Test, type_array_to_any_of_5) {
       {
         "anyOf": [
           {
-            "anyOf": [
-              {
-                "enum": [ null ]
-              },
-              {
-                "enum": [ false, true ]
-              },
-              {
-                "type": "object",
-                "minProperties": 0,
-                "propertyNames": true,
-                "properties": {},
-                "patternProperties": {}
-              },
-              {
-                "type": "array",
-                "minItems": 0,
-                "uniqueItems": false,
-                "minContains": 0,
-                "contains": true,
-                "items": true
-              },
-              {
-                "type": "string",
-                "minLength": 1
-              },
-              {
-                "type": "number"
-              }
-            ]
+            "enum": [ null ]
           },
           {
-            "anyOf": [
-              {
-                "enum": [ null ]
-              },
-              {
-                "enum": [ false, true ]
-              },
-              {
-                "type": "object",
-                "minProperties": 0,
-                "propertyNames": true,
-                "properties": {},
-                "patternProperties": {}
-              },
-              {
-                "type": "array",
-                "minItems": 0,
-                "uniqueItems": false,
-                "minContains": 0,
-                "contains": true,
-                "items": true
-              },
-              {
-                "type": "string",
-                "minLength": 0
-              },
-              {
-                "type": "number",
-                "minimum": 0
-              }
-            ]
+            "enum": [ false, true ]
+          },
+          {
+            "type": "object",
+            "patternProperties": {},
+            "propertyNames": true,
+            "minProperties": 0,
+            "properties": {}
+          },
+          {
+            "type": "array",
+            "uniqueItems": false,
+            "minItems": 0,
+            "contains": true,
+            "minContains": 0,
+            "items": true
+          },
+          {
+            "type": "string",
+            "minLength": 1
+          },
+          {
+            "type": "number"
+          },
+          {
+            "type": "string",
+            "minLength": 0
+          },
+          {
+            "type": "number",
+            "minimum": 0
           }
         ]
       },
@@ -1327,85 +1298,81 @@ TEST_F(Canonicalizer202012Test, allof_two_required_branches_1) {
     "$schema": "https://json-schema.org/draft/2020-12/schema",
     "allOf": [
       {
-        "allOf": [
+        "anyOf": [
           {
-            "anyOf": [
-              {
-                "enum": [ null ]
-              },
-              {
-                "enum": [ false, true ]
-              },
-              {
-                "type": "object",
-                "required": [ "a" ],
-                "minProperties": 1,
-                "propertyNames": true,
-                "properties": {
-                  "a": true
-                },
-                "patternProperties": {}
-              },
-              {
-                "type": "array",
-                "minItems": 0,
-                "uniqueItems": false,
-                "minContains": 0,
-                "contains": true,
-                "items": true
-              },
-              {
-                "type": "string",
-                "minLength": 0
-              },
-              {
-                "type": "number"
-              }
-            ]
+            "enum": [ null ]
           },
           {
-            "anyOf": [
-              {
-                "enum": [ null ]
-              },
-              {
-                "enum": [ false, true ]
-              },
-              {
-                "type": "object",
-                "required": [ "b" ],
-                "minProperties": 1,
-                "propertyNames": true,
-                "properties": {
-                  "b": true
-                },
-                "patternProperties": {}
-              },
-              {
-                "type": "array",
-                "minItems": 0,
-                "uniqueItems": false,
-                "minContains": 0,
-                "contains": true,
-                "items": true
-              },
-              {
-                "type": "string",
-                "minLength": 0
-              },
-              {
-                "type": "number"
-              }
-            ]
+            "enum": [ false, true ]
+          },
+          {
+            "type": "object",
+            "required": [ "a" ],
+            "patternProperties": {},
+            "propertyNames": true,
+            "minProperties": 1,
+            "properties": {
+              "a": true
+            }
+          },
+          {
+            "type": "array",
+            "uniqueItems": false,
+            "minItems": 0,
+            "contains": true,
+            "minContains": 0,
+            "items": true
+          },
+          {
+            "type": "string",
+            "minLength": 0
+          },
+          {
+            "type": "number"
+          }
+        ]
+      },
+      {
+        "anyOf": [
+          {
+            "enum": [ null ]
+          },
+          {
+            "enum": [ false, true ]
+          },
+          {
+            "type": "object",
+            "required": [ "b" ],
+            "patternProperties": {},
+            "propertyNames": true,
+            "minProperties": 1,
+            "properties": {
+              "b": true
+            }
+          },
+          {
+            "type": "array",
+            "uniqueItems": false,
+            "minItems": 0,
+            "contains": true,
+            "minContains": 0,
+            "items": true
+          },
+          {
+            "type": "string",
+            "minLength": 0
+          },
+          {
+            "type": "number"
           }
         ]
       },
       {
         "type": "object",
-        "minProperties": 0,
+        "patternProperties": {},
         "propertyNames": true,
-        "properties": {},
-        "patternProperties": {}
+        "minProperties": 0,
+        "properties": {}
       }
     ]
   })JSON");
@@ -1483,83 +1450,79 @@ TEST_F(Canonicalizer202012Test, allof_two_properties_branches_1) {
     "$schema": "https://json-schema.org/draft/2020-12/schema",
     "allOf": [
       {
-        "allOf": [
+        "anyOf": [
           {
-            "anyOf": [
-              {
-                "enum": [ null ]
-              },
-              {
-                "enum": [ false, true ]
-              },
-              {
-                "type": "object",
-                "minProperties": 0,
-                "propertyNames": true,
-                "properties": {
-                  "a": true
-                },
-                "patternProperties": {}
-              },
-              {
-                "type": "array",
-                "minItems": 0,
-                "uniqueItems": false,
-                "minContains": 0,
-                "contains": true,
-                "items": true
-              },
-              {
-                "type": "string",
-                "minLength": 0
-              },
-              {
-                "type": "number"
-              }
-            ]
+            "enum": [ null ]
           },
           {
-            "anyOf": [
-              {
-                "enum": [ null ]
-              },
-              {
-                "enum": [ false, true ]
-              },
-              {
-                "type": "object",
-                "minProperties": 0,
-                "propertyNames": true,
-                "properties": {
-                  "b": true
-                },
-                "patternProperties": {}
-              },
-              {
-                "type": "array",
-                "minItems": 0,
-                "uniqueItems": false,
-                "minContains": 0,
-                "contains": true,
-                "items": true
-              },
-              {
-                "type": "string",
-                "minLength": 0
-              },
-              {
-                "type": "number"
-              }
-            ]
+            "enum": [ false, true ]
+          },
+          {
+            "type": "object",
+            "properties": {
+              "a": true
+            },
+            "patternProperties": {},
+            "propertyNames": true,
+            "minProperties": 0
+          },
+          {
+            "type": "array",
+            "uniqueItems": false,
+            "minItems": 0,
+            "contains": true,
+            "minContains": 0,
+            "items": true
+          },
+          {
+            "type": "string",
+            "minLength": 0
+          },
+          {
+            "type": "number"
+          }
+        ]
+      },
+      {
+        "anyOf": [
+          {
+            "enum": [ null ]
+          },
+          {
+            "enum": [ false, true ]
+          },
+          {
+            "type": "object",
+            "properties": {
+              "b": true
+            },
+            "patternProperties": {},
+            "propertyNames": true,
+            "minProperties": 0
+          },
+          {
+            "type": "array",
+            "uniqueItems": false,
+            "minItems": 0,
+            "contains": true,
+            "minContains": 0,
+            "items": true
+          },
+          {
+            "type": "string",
+            "minLength": 0
+          },
+          {
+            "type": "number"
           }
         ]
       },
       {
         "type": "object",
-        "minProperties": 0,
+        "patternProperties": {},
         "propertyNames": true,
-        "properties": {},
-        "patternProperties": {}
+        "minProperties": 0,
+        "properties": {}
       }
     ]
   })JSON");
@@ -1787,89 +1750,85 @@ TEST_F(Canonicalizer202012Test,
     "$schema": "https://json-schema.org/draft/2020-12/schema",
     "allOf": [
       {
-        "allOf": [
+        "anyOf": [
           {
-            "anyOf": [
-              {
-                "enum": [ null ]
-              },
-              {
-                "enum": [ false, true ]
-              },
-              {
-                "type": "object",
-                "minProperties": 0,
-                "propertyNames": true,
-                "properties": {
-                  "name": {
-                    "type": "string",
-                    "minLength": 0
-                  }
-                },
-                "patternProperties": {}
-              },
-              {
-                "type": "array",
-                "minItems": 0,
-                "uniqueItems": false,
-                "minContains": 0,
-                "contains": true,
-                "items": true
-              },
-              {
-                "type": "string",
-                "minLength": 0
-              },
-              {
-                "type": "number"
-              }
-            ]
+            "enum": [ null ]
           },
           {
-            "anyOf": [
-              {
-                "enum": [ null ]
-              },
-              {
-                "enum": [ false, true ]
-              },
-              {
-                "type": "object",
-                "minProperties": 0,
-                "propertyNames": true,
-                "properties": {
-                  "age": {
-                    "type": "integer",
-                    "multipleOf": 1
-                  }
-                },
-                "patternProperties": {}
-              },
-              {
-                "type": "array",
-                "minItems": 0,
-                "uniqueItems": false,
-                "minContains": 0,
-                "contains": true,
-                "items": true
-              },
-              {
+            "enum": [ false, true ]
+          },
+          {
+            "type": "object",
+            "properties": {
+              "name": {
                 "type": "string",
                 "minLength": 0
-              },
-              {
-                "type": "number"
               }
-            ]
+            },
+            "patternProperties": {},
+            "propertyNames": true,
+            "minProperties": 0
+          },
+          {
+            "type": "array",
+            "uniqueItems": false,
+            "minItems": 0,
+            "contains": true,
+            "minContains": 0,
+            "items": true
+          },
+          {
+            "type": "string",
+            "minLength": 0
+          },
+          {
+            "type": "number"
+          }
+        ]
+      },
+      {
+        "anyOf": [
+          {
+            "enum": [ null ]
+          },
+          {
+            "enum": [ false, true ]
+          },
+          {
+            "type": "object",
+            "properties": {
+              "age": {
+                "type": "integer",
+                "multipleOf": 1
+              }
+            },
+            "patternProperties": {},
+            "propertyNames": true,
+            "minProperties": 0
+          },
+          {
+            "type": "array",
+            "uniqueItems": false,
+            "minItems": 0,
+            "contains": true,
+            "minContains": 0,
+            "items": true
+          },
+          {
+            "type": "string",
+            "minLength": 0
+          },
+          {
+            "type": "number"
           }
         ]
       },
       {
         "type": "object",
-        "minProperties": 0,
+        "patternProperties": {},
         "propertyNames": true,
-        "properties": {},
-        "patternProperties": {}
+        "minProperties": 0,
+        "properties": {}
       }
     ]
   })JSON");
@@ -1939,90 +1898,61 @@ TEST_F(Canonicalizer202012Test, object_anyof_untyped_branches_1) {
       {
         "anyOf": [
           {
-            "anyOf": [
-              {
-                "enum": [ null ]
-              },
-              {
-                "enum": [ false, true ]
-              },
-              {
-                "type": "object",
-                "minProperties": 0,
-                "propertyNames": true,
-                "properties": {
-                  "indoor": {
-                    "enum": [ false, true ]
-                  }
-                },
-                "patternProperties": {}
-              },
-              {
-                "type": "array",
-                "minItems": 0,
-                "uniqueItems": false,
-                "minContains": 0,
-                "contains": true,
-                "items": true
-              },
-              {
-                "type": "string",
-                "minLength": 0
-              },
-              {
-                "type": "number"
-              }
-            ]
+            "enum": [ null ]
           },
           {
-            "anyOf": [
-              {
-                "enum": [ null ]
-              },
-              {
+            "enum": [ false, true ]
+          },
+          {
+            "type": "object",
+            "properties": {
+              "indoor": {
                 "enum": [ false, true ]
-              },
-              {
-                "type": "object",
-                "minProperties": 0,
-                "propertyNames": true,
-                "properties": {
-                  "outdoor": {
-                    "enum": [ false, true ]
-                  }
-                },
-                "patternProperties": {}
-              },
-              {
-                "type": "array",
-                "minItems": 0,
-                "uniqueItems": false,
-                "minContains": 0,
-                "contains": true,
-                "items": true
-              },
-              {
-                "type": "string",
-                "minLength": 0
-              },
-              {
-                "type": "number"
               }
-            ]
+            },
+            "patternProperties": {},
+            "propertyNames": true,
+            "minProperties": 0
+          },
+          {
+            "type": "array",
+            "uniqueItems": false,
+            "minItems": 0,
+            "contains": true,
+            "minContains": 0,
+            "items": true
+          },
+          {
+            "type": "string",
+            "minLength": 0
+          },
+          {
+            "type": "number"
+          },
+          {
+            "type": "object",
+            "properties": {
+              "outdoor": {
+                "enum": [ false, true ]
+              }
+            },
+            "patternProperties": {},
+            "propertyNames": true,
+            "minProperties": 0
           }
         ]
       },
       {
-        "title": "Pet",
         "type": "object",
-        "minProperties": 0,
-        "propertyNames": true,
+        "title": "Pet",
         "properties": {
           "kind": {
             "enum": [ "cat" ]
           }
         },
-        "patternProperties": {}
+        "patternProperties": {},
+        "propertyNames": true,
+        "minProperties": 0
       }
     ]
   })JSON");
@@ -2521,36 +2451,32 @@ TEST_F(Canonicalizer202012Test,
     "$schema": "https://json-schema.org/draft/2020-12/schema",
     "anyOf": [
       {
-        "anyOf": [
-          {
-            "enum": [ null ]
-          },
-          {
-            "enum": [ false, true ]
-          },
-          {
-            "type": "object",
-            "minProperties": 0,
-            "propertyNames": true,
-            "properties": {},
-            "patternProperties": {}
-          },
-          {
-            "type": "array",
-            "minItems": 0,
-            "uniqueItems": false,
-            "items": {
-              "enum": [ false, true ]
-            }
-          },
-          {
-            "type": "string",
-            "minLength": 0
-          },
-          {
-            "type": "number"
-          }
-        ]
+        "enum": [ null ]
+      },
+      {
+        "enum": [ false, true ]
+      },
+      {
+        "type": "object",
+        "patternProperties": {},
+        "propertyNames": true,
+        "minProperties": 0,
+        "properties": {}
+      },
+      {
+        "type": "array",
+        "items": {
+          "enum": [ false, true ]
+        },
+        "uniqueItems": false,
+        "minItems": 0
+      },
+      {
+        "type": "string",
+        "minLength": 0
+      },
+      {
+        "type": "number"
       },
       true
     ],
@@ -2575,38 +2501,34 @@ TEST_F(Canonicalizer202012Test,
     "$schema": "https://json-schema.org/draft/2020-12/schema",
     "anyOf": [
       {
-        "anyOf": [
-          {
-            "enum": [ null ]
-          },
+        "enum": [ null ]
+      },
+      {
+        "enum": [ false, true ]
+      },
+      {
+        "type": "object",
+        "patternProperties": {},
+        "propertyNames": true,
+        "minProperties": 0,
+        "properties": {}
+      },
+      {
+        "type": "array",
+        "prefixItems": [
           {
             "enum": [ false, true ]
-          },
-          {
-            "type": "object",
-            "minProperties": 0,
-            "propertyNames": true,
-            "properties": {},
-            "patternProperties": {}
-          },
-          {
-            "type": "array",
-            "minItems": 0,
-            "uniqueItems": false,
-            "prefixItems": [
-              {
-                "enum": [ false, true ]
-              }
-            ]
-          },
-          {
-            "type": "string",
-            "minLength": 0
-          },
-          {
-            "type": "number"
           }
-        ]
+        ],
+        "uniqueItems": false,
+        "minItems": 0
+      },
+      {
+        "type": "string",
+        "minLength": 0
+      },
+      {
+        "type": "number"
       },
       true
     ],

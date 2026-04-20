@@ -10178,11 +10178,7 @@ TEST(AlterSchema_lint_2020_12, forbid_empty_enum_9) {
     "description": "Example schema",
     "examples": [{}],
     "properties": {
-      "foo": {
-        "not": {
-          "not": true
-        }
-      }
+      "foo": true
     }
   })JSON");
 

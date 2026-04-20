@@ -175,6 +175,7 @@ auto WALK_UP_IN_PLACE_APPLICATORS(const JSON &root, const SchemaFrame &frame,
 #include "common/content_schema_without_media_type.h"
 #include "common/dependencies_property_tautology.h"
 #include "common/dependent_required_tautology.h"
+#include "common/double_negation_elimination.h"
 #include "common/draft_official_dialect_with_https.h"
 #include "common/draft_official_dialect_without_empty_fragment.h"
 #include "common/draft_ref_siblings.h"
@@ -190,6 +191,8 @@ auto WALK_UP_IN_PLACE_APPLICATORS(const JSON &root, const SchemaFrame &frame,
 #include "common/equal_numeric_bounds_to_enum.h"
 #include "common/exclusive_maximum_number_and_maximum.h"
 #include "common/exclusive_minimum_number_and_minimum.h"
+#include "common/flatten_nested_allof.h"
+#include "common/flatten_nested_anyof.h"
 #include "common/if_without_then_else.h"
 #include "common/ignored_metaschema.h"
 #include "common/max_contains_without_contains.h"
@@ -301,10 +304,13 @@ auto add(SchemaTransformer &bundle, const AlterSchemaMode mode) -> void {
   bundle.add<AnyOfTrueSimplify>();
   bundle.add<DuplicateAllOfBranches>();
   bundle.add<DuplicateAnyOfBranches>();
+  bundle.add<FlattenNestedAllOf>();
+  bundle.add<FlattenNestedAnyOf>();
   bundle.add<UnsatisfiableInPlaceApplicatorType>();
   bundle.add<AllOfFalseSimplify>();
   bundle.add<AnyOfFalseSimplify>();
   bundle.add<OneOfFalseSimplify>();
+  bundle.add<DoubleNegationElimination>();
   bundle.add<OneOfToAnyOfDisjointTypes>();
   bundle.add<UnsatisfiableDropValidation>();
   bundle.add<ElseWithoutIf>();

@@ -1994,12 +1994,8 @@ TEST_F(CanonicalizerDraft4Test, double_negation) {
 
   const auto expected = sourcemeta::core::parse_json(R"JSON({
     "$schema": "http://json-schema.org/draft-04/schema#",
-    "not": {
-      "not": {
-        "type": "string",
-        "minLength": 0
-      }
-    }
+    "type": "string",
+    "minLength": 0
   })JSON");
 
   CANONICALIZE_AND_VALIDATE(document, expected, *compiled_meta_);
@@ -2080,25 +2076,6 @@ TEST_F(CanonicalizerDraft4Test, deeply_nested_anyof) {
   const auto expected = sourcemeta::core::parse_json(R"JSON({
     "$schema": "http://json-schema.org/draft-04/schema#",
     "anyOf": [
-      {
-        "enum": [ null ]
-      },
-      {
-        "enum": [ false, true ]
-      },
-      {
-        "type": "object",
-        "patternProperties": {},
-        "minProperties": 0,
-        "properties": {},
-        "additionalProperties": true
-      },
-      {
-        "type": "array",
-        "uniqueItems": false,
-        "items": true,
-        "minItems": 0
-      },
       {
         "type": "string",
         "minLength": 0
@@ -3104,66 +3081,39 @@ TEST_F(CanonicalizerDraft4Test, dependencies_with_existing_anyof) {
     {
       "anyOf": [
         {
-          "anyOf": [
-            {
-              "enum": [ null ]
-            },
-            {
-              "enum": [ false, true ]
-            },
-            {
-              "type": "object",
-              "required": [ "a" ],
-              "patternProperties": {},
-              "minProperties": 1,
-              "properties": {},
-              "additionalProperties": true
-            },
-            {
-              "type": "array",
-              "uniqueItems": false,
-              "items": true,
-              "minItems": 0
-            },
-            {
-              "type": "string",
-              "minLength": 0
-            },
-            {
-              "type": "number"
-            }
-          ]
+          "enum": [ null ]
         },
         {
-          "anyOf": [
-            {
-              "enum": [ null ]
-            },
-            {
-              "enum": [ false, true ]
-            },
-            {
-              "type": "object",
-              "required": [ "b" ],
-              "patternProperties": {},
-              "minProperties": 1,
-              "properties": {},
-              "additionalProperties": true
-            },
-            {
-              "type": "array",
-              "uniqueItems": false,
-              "items": true,
-              "minItems": 0
-            },
-            {
-              "type": "string",
-              "minLength": 0
-            },
-            {
-              "type": "number"
-            }
-          ]
+          "enum": [ false, true ]
+        },
+        {
+          "type": "object",
+          "required": [ "a" ],
+          "patternProperties": {},
+          "minProperties": 1,
+          "properties": {},
+          "additionalProperties": true
+        },
+        {
+          "type": "array",
+          "uniqueItems": false,
+          "items": true,
+          "minItems": 0
+        },
+        {
+          "type": "string",
+          "minLength": 0
+        },
+        {
+          "type": "number"
+        },
+        {
+          "type": "object",
+          "required": [ "b" ],
+          "patternProperties": {},
+          "minProperties": 1,
+          "properties": {},
+          "additionalProperties": true
         }
       ]
     },
@@ -3265,66 +3215,39 @@ TEST_F(CanonicalizerDraft4Test, full_restructure_ref_in_typed_keyword) {
     {
       "anyOf": [
         {
-          "anyOf": [
-            {
-              "enum": [ null ]
-            },
-            {
-              "enum": [ false, true ]
-            },
-            {
-              "type": "object",
-              "required": [ "a" ],
-              "patternProperties": {},
-              "minProperties": 1,
-              "properties": {},
-              "additionalProperties": true
-            },
-            {
-              "type": "array",
-              "uniqueItems": false,
-              "items": true,
-              "minItems": 0
-            },
-            {
-              "type": "string",
-              "minLength": 0
-            },
-            {
-              "type": "number"
-            }
-          ]
+          "enum": [ null ]
         },
         {
-          "anyOf": [
-            {
-              "enum": [ null ]
-            },
-            {
-              "enum": [ false, true ]
-            },
-            {
-              "type": "object",
-              "required": [ "b" ],
-              "patternProperties": {},
-              "minProperties": 1,
-              "properties": {},
-              "additionalProperties": true
-            },
-            {
-              "type": "array",
-              "uniqueItems": false,
-              "items": true,
-              "minItems": 0
-            },
-            {
-              "type": "string",
-              "minLength": 0
-            },
-            {
-              "type": "number"
-            }
-          ]
+          "enum": [ false, true ]
+        },
+        {
+          "type": "object",
+          "required": [ "a" ],
+          "patternProperties": {},
+          "minProperties": 1,
+          "properties": {},
+          "additionalProperties": true
+        },
+        {
+          "type": "array",
+          "uniqueItems": false,
+          "items": true,
+          "minItems": 0
+        },
+        {
+          "type": "string",
+          "minLength": 0
+        },
+        {
+          "type": "number"
+        },
+        {
+          "type": "object",
+          "required": [ "b" ],
+          "patternProperties": {},
+          "minProperties": 1,
+          "properties": {},
+          "additionalProperties": true
         }
       ]
     },
@@ -4407,6 +4330,83 @@ TEST_F(CanonicalizerDraft4Test, enum_wrap_with_ref_through_sibling) {
             { "type": "number", "minimum": 3 }
           ]
         }
+      }
+    ]
+  })JSON");
+
+  CANONICALIZE_AND_VALIDATE(document, expected, *compiled_meta_);
+}
+
+TEST_F(CanonicalizerDraft4Test, anyof_with_untyped_properties_branches) {
+  auto document = sourcemeta::core::parse_json(R"JSON({
+    "$schema": "http://json-schema.org/draft-04/schema#",
+    "anyOf": [
+      {
+        "properties": {
+          "version": { "enum": [ 1 ] },
+          "data": { "type": "string" }
+        }
+      },
+      {
+        "properties": {
+          "version": { "enum": [ 2 ] },
+          "data": { "type": "integer" }
+        }
+      }
+    ]
+  })JSON");
+
+  const auto expected = sourcemeta::core::parse_json(R"JSON({
+    "$schema": "http://json-schema.org/draft-04/schema#",
+    "anyOf": [
+      {
+        "enum": [ null ]
+      },
+      {
+        "enum": [ false, true ]
+      },
+      {
+        "type": "object",
+        "properties": {
+          "version": {
+            "enum": [ 1 ]
+          },
+          "data": {
+            "type": "string",
+            "minLength": 0
+          }
+        },
+        "patternProperties": {},
+        "minProperties": 0,
+        "additionalProperties": true
+      },
+      {
+        "type": "array",
+        "uniqueItems": false,
+        "items": true,
+        "minItems": 0
+      },
+      {
+        "type": "string",
+        "minLength": 0
+      },
+      {
+        "type": "number"
+      },
+      {
+        "type": "object",
+        "properties": {
+          "version": {
+            "enum": [ 2 ]
+          },
+          "data": {
+            "type": "integer",
+            "multipleOf": 1
+          }
+        },
+        "patternProperties": {},
+        "minProperties": 0,
+        "additionalProperties": true
       }
     ]
   })JSON");

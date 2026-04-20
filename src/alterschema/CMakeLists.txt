@@ -72,11 +72,14 @@ sourcemeta_library(NAMESPACE sourcemeta PROJECT blaze NAME alterschema
     common/content_schema_without_media_type.h
     common/dependencies_property_tautology.h
     common/dependent_required_tautology.h
+    common/double_negation_elimination.h
     common/draft_official_dialect_with_https.h
     common/draft_official_dialect_without_empty_fragment.h
     common/draft_ref_siblings.h
     common/drop_allof_empty_schemas.h
     common/duplicate_allof_branches.h
+    common/flatten_nested_allof.h
+    common/flatten_nested_anyof.h
     common/duplicate_anyof_branches.h
     common/dynamic_ref_to_static_ref.h
     common/duplicate_enum_values.h
