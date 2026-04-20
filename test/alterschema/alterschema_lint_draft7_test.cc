@@ -4156,6 +4156,63 @@ TEST(AlterSchema_lint_draft7, flatten_nested_anyof_single_inner_branch) {
   EXPECT_EQ(document, expected);
 }
 
+TEST(AlterSchema_lint_draft7, flatten_nested_anyof_triple_nesting) {
+  sourcemeta::core::JSON document = sourcemeta::core::parse_json(R"JSON({
+    "$schema": "http://json-schema.org/draft-07/schema#",
+    "anyOf": [
+      { "anyOf": [
+        { "anyOf": [ { "type": "string" }, { "type": "number" } ] },
+        { "type": "boolean" }
+      ]},
+      { "type": "integer" }
+    ]
+  })JSON");
+
+  LINT_AND_FIX(document, result, traces);
+
+  EXPECT_FALSE(result.first);
+
+  const sourcemeta::core::JSON expected = sourcemeta::core::parse_json(R"JSON({
+    "$schema": "http://json-schema.org/draft-07/schema#",
+    "anyOf": [
+      { "type": "string" },
+      { "type": "number" },
+      { "type": "boolean" },
+      { "type": "integer" }
+    ]
+  })JSON");
+
+  EXPECT_EQ(document, expected);
+}
+
+TEST(AlterSchema_lint_draft7, flatten_nested_anyof_quadruple_nesting) {
+  sourcemeta::core::JSON document = sourcemeta::core::parse_json(R"JSON({
+    "$schema": "http://json-schema.org/draft-07/schema#",
+    "anyOf": [
+      { "anyOf": [
+        { "anyOf": [
+          { "anyOf": [ { "type": "string" } ] }
+        ]}
+      ]},
+      { "type": "number" }
+    ]
+  })JSON");
+
+  LINT_AND_FIX(document, result, traces);
+
+  EXPECT_FALSE(result.first);
+
+  const sourcemeta::core::JSON expected = sourcemeta::core::parse_json(R"JSON({
+    "$schema": "http://json-schema.org/draft-07/schema#",
+    "anyOf": [
+      { "type": "string" },
+      { "type": "number" }
+    ]
+  })JSON");
+
+  EXPECT_EQ(document, expected);
+}
+
 TEST(AlterSchema_lint_draft7, flatten_nested_allof_1) {
   sourcemeta::core::JSON document = sourcemeta::core::parse_json(R"JSON({
     "$schema": "http://json-schema.org/draft-07/schema#",
@@ -4230,6 +4287,33 @@ TEST(AlterSchema_lint_draft7, flatten_nested_allof_middle_branch) {
     "allOf": [
       { "type": "string" },
       { "allOf": [ { "minLength": 1 }, { "maxLength": 10 } ] },
+      { "pattern": "^[a-z]+$" }
+    ]
+  })JSON");
+
+  LINT_AND_FIX(document, result, traces);
+
+  EXPECT_FALSE(result.first);
+
+  const sourcemeta::core::JSON expected = sourcemeta::core::parse_json(R"JSON({
+    "$schema": "http://json-schema.org/draft-07/schema#",
+    "type": "string",
+    "minLength": 1,
+    "maxLength": 10,
+    "pattern": "^[a-z]+$"
+  })JSON");
+
+  EXPECT_EQ(document, expected);
+}
+
+TEST(AlterSchema_lint_draft7, flatten_nested_allof_triple_nesting) {
+  sourcemeta::core::JSON document = sourcemeta::core::parse_json(R"JSON({
+    "$schema": "http://json-schema.org/draft-07/schema#",
+    "allOf": [
+      { "allOf": [
+        { "allOf": [ { "type": "string" }, { "minLength": 1 } ] },
+        { "maxLength": 10 }
+      ]},
       { "pattern": "^[a-z]+$" }
     ]
   })JSON");

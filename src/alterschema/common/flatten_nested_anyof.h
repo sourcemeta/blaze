@@ -82,7 +82,7 @@ public:
     }
     const auto old_index{relative.at(0).to_index()};
     for (const auto &[outer, inner, mapped] : this->index_mapping_) {
-      if (inner.has_value()) {
+      if (outer == old_index && inner.has_value()) {
         const Pointer old_prefix{
             prefix.concat({old_index, KEYWORD, inner.value()})};
         if (target.starts_with(old_prefix)) {

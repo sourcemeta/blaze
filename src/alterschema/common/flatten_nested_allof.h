@@ -54,14 +54,8 @@ public:
     for (std::size_t index = 0; index < original.size(); ++index) {
       if (flatten_cursor < this->flatten_indices_.size() &&
           this->flatten_indices_[flatten_cursor] == index) {
-        const auto &branch{original.at(index)};
-        const auto &inner{branch.at(KEYWORD)};
-        for (std::size_t inner_index = 0; inner_index < inner.size();
-             ++inner_index) {
-          this->index_mapping_.emplace_back(index, inner_index, new_index);
-          result.push_back(inner.at(inner_index));
-          ++new_index;
-        }
+        this->collect_leaves_(original.at(index), KEYWORD, index, result,
+                              new_index);
         ++flatten_cursor;
       } else {
         this->index_mapping_.emplace_back(index, std::nullopt, new_index);
@@ -88,7 +82,7 @@ public:
     }
     const auto old_index{relative.at(0).to_index()};
     for (const auto &[outer, inner, mapped] : this->index_mapping_) {
-      if (inner.has_value()) {
+      if (outer == old_index && inner.has_value()) {
         const Pointer old_prefix{
             prefix.concat({old_index, KEYWORD, inner.value()})};
         if (target.starts_with(old_prefix)) {
@@ -105,6 +99,24 @@ public:
   }
 
 private:
+  auto collect_leaves_(const JSON &node, const JSON::String &keyword,
+                       std::size_t outer_index, JSON &result,
+                       std::size_t &new_index) const -> void {
+    const auto &inner{node.at(keyword)};
+    for (std::size_t inner_index = 0; inner_index < inner.size();
+         ++inner_index) {
+      const auto &child{inner.at(inner_index)};
+      if (child.is_object() && child.size() == 1 && child.defines(keyword) &&
+          child.at(keyword).is_array()) {
+        this->collect_leaves_(child, keyword, outer_index, result, new_index);
+      } else {
+        this->index_mapping_.emplace_back(outer_index, inner_index, new_index);
+        result.push_back(child);
+        ++new_index;
+      }
+    }
+  }
+
   mutable std::vector<std::size_t> flatten_indices_;
   mutable std::vector<
       std::tuple<std::size_t, std::optional<std::size_t>, std::size_t>>
