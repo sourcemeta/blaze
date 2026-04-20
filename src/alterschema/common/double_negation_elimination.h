@@ -44,6 +44,16 @@ public:
   auto transform(JSON &schema, const Result &) const -> void override {
     auto inner{schema.at("not").at("not")};
     schema.erase("not");
+
+    while (inner.is_object() && inner.size() == 1 && inner.defines("not") &&
+           inner.at("not").is_object() && inner.at("not").size() == 1 &&
+           inner.at("not").defines("not") &&
+           !(inner.at("not").at("not").is_boolean() &&
+             !inner.at("not").at("not").to_boolean())) {
+      auto next{inner.at("not").at("not")};
+      inner = std::move(next);
+    }
+
     if (inner.is_object()) {
       schema.merge(inner.as_object());
     }
@@ -53,7 +63,10 @@ public:
                                  const Pointer &target,
                                  const Pointer &current) const
       -> Pointer override {
-    const Pointer old_prefix{current.concat({"not", "not"})};
+    auto old_prefix{current.concat({"not", "not"})};
+    while (target.starts_with(old_prefix.concat({"not", "not"}))) {
+      old_prefix = old_prefix.concat({"not", "not"});
+    }
     if (!target.starts_with(old_prefix)) {
       return target;
     }
