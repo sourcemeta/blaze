@@ -11729,3 +11729,38 @@ TEST(AlterSchema_lint_2020_12,
 
   EXPECT_EQ(document, expected);
 }
+
+TEST(AlterSchema_lint_2020_12, valid_default_throws_on_unsupported_vocabulary) {
+  sourcemeta::core::JSON document = sourcemeta::core::parse_json(R"JSON({
+    "$schema": "https://example.com/unsupported-vocabulary-metaschema",
+    "type": "string",
+    "default": "hello"
+  })JSON");
+
+  sourcemeta::blaze::SchemaTransformer bundle;
+  sourcemeta::blaze::add(bundle, sourcemeta::blaze::AlterSchemaMode::Linter);
+  EXPECT_THROW(static_cast<void>(
+                   bundle.check(document, sourcemeta::core::schema_walker,
+                                alterschema_test_resolver,
+                                [](const auto &, const auto &, const auto &,
+                                   const auto &, const auto &) {})),
+               sourcemeta::core::SchemaVocabularyError);
+}
+
+TEST(AlterSchema_lint_2020_12,
+     valid_examples_throws_on_unsupported_vocabulary) {
+  sourcemeta::core::JSON document = sourcemeta::core::parse_json(R"JSON({
+    "$schema": "https://example.com/unsupported-vocabulary-metaschema",
+    "type": "string",
+    "examples": [ "hello" ]
+  })JSON");
+
+  sourcemeta::blaze::SchemaTransformer bundle;
+  sourcemeta::blaze::add(bundle, sourcemeta::blaze::AlterSchemaMode::Linter);
+  EXPECT_THROW(static_cast<void>(
+                   bundle.check(document, sourcemeta::core::schema_walker,
+                                alterschema_test_resolver,
+                                [](const auto &, const auto &, const auto &,
+                                   const auto &, const auto &) {})),
+               sourcemeta::core::SchemaVocabularyError);
+}
