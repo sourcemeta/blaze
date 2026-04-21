@@ -5,6 +5,7 @@
 #include <sourcemeta/blaze/codegen.h>
 #include <sourcemeta/blaze/compiler.h>
 #include <sourcemeta/blaze/configuration.h>
+#include <sourcemeta/blaze/documentation.h>
 #include <sourcemeta/blaze/evaluator.h>
 #include <sourcemeta/blaze/output.h>
 #include <sourcemeta/blaze/test.h>

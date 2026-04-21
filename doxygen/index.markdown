@@ -71,6 +71,7 @@ CMake
 | `BLAZE_EVALUATOR`           | Boolean | `ON`    | Build the Blaze evaluator library       |
 | `BLAZE_TEST`                | Boolean | `ON`    | Build the Blaze test runner library     |
 | `BLAZE_ALTERSCHEMA`         | Boolean | `ON`    | Build the Blaze alterschema rule library|
+| `BLAZE_DOCUMENTATION`       | Boolean | `ON`    | Build the Blaze documentation library   |
 | `BLAZE_TESTS`               | Boolean | `OFF`   | Build the Blaze tests                   |
 | `BLAZE_BENCHMARK`           | Boolean | `OFF`   | Build the Blaze benchmarks              |
 | `BLAZE_CONTRIB`             | Boolean | `OFF`   | Build the Blaze contrib programs        |

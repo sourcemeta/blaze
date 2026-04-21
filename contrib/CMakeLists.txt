@@ -80,3 +80,19 @@ if(BLAZE_ALTERSCHEMA)
   target_link_libraries(sourcemeta_blaze_contrib_canonicalize
     PRIVATE sourcemeta::blaze::alterschema)
 endif()
+
+if(BLAZE_DOCUMENTATION)
+  sourcemeta_executable(NAMESPACE sourcemeta PROJECT blaze
+    NAME contrib_document
+    FOLDER "Blaze/Contrib" SOURCES document.cc)
+  target_link_libraries(sourcemeta_blaze_contrib_document
+    PRIVATE sourcemeta::core::json)
+  target_link_libraries(sourcemeta_blaze_contrib_document
+    PRIVATE sourcemeta::core::jsonschema)
+  target_link_libraries(sourcemeta_blaze_contrib_document
+    PRIVATE sourcemeta::core::html)
+  target_link_libraries(sourcemeta_blaze_contrib_document
+    PRIVATE sourcemeta::core::options)
+  target_link_libraries(sourcemeta_blaze_contrib_document
+    PRIVATE sourcemeta::blaze::documentation)
+endif()

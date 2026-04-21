@@ -1,0 +1,1375 @@
+{
+  "target": "./documentation.json",
+  "tests": [
+    {
+      "description": "Minimal valid table with one row",
+      "valid": true,
+      "data": {
+        "identifier": 0,
+        "rows": [
+          {
+            "identifier": 1,
+            "path": [
+              {
+                "type": "synthetic",
+                "value": "root"
+              }
+            ],
+            "type": {
+              "kind": "primitive",
+              "name": "string"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "description": "Table with title and dynamic anchor",
+      "valid": true,
+      "data": {
+        "identifier": 0,
+        "title": "My Schema",
+        "dynamicAnchor": "node",
+        "rows": [
+          {
+            "identifier": 1,
+            "path": [
+              {
+                "type": "synthetic",
+                "value": "root"
+              }
+            ],
+            "type": {
+              "kind": "object"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "description": "Table with children section",
+      "valid": true,
+      "data": {
+        "identifier": 0,
+        "rows": [
+          {
+            "identifier": 1,
+            "path": [
+              {
+                "type": "synthetic",
+                "value": "root"
+              }
+            ],
+            "type": {
+              "kind": "any"
+            }
+          }
+        ],
+        "children": [
+          {
+            "label": "Any of",
+            "children": [
+              {
+                "identifier": 2,
+                "rows": [
+                  {
+                    "identifier": 3,
+                    "path": [
+                      {
+                        "type": "synthetic",
+                        "value": "root"
+                      }
+                    ],
+                    "type": {
+                      "kind": "primitive",
+                      "name": "string"
+                    }
+                  }
+                ]
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "description": "Row with all optional fields",
+      "valid": true,
+      "data": {
+        "identifier": 0,
+        "rows": [
+          {
+            "identifier": 1,
+            "path": [
+              {
+                "type": "synthetic",
+                "value": "root"
+              }
+            ],
+            "modifiers": [ "readOnly", "deprecated" ],
+            "type": {
+              "kind": "primitive",
+              "name": "string"
+            },
+            "badges": [
+              {
+                "kind": "format",
+                "value": "email"
+              }
+            ],
+            "required": true,
+            "constraints": [ ">= 1 chars" ],
+            "title": "Email",
+            "description": "The user email",
+            "default": "user@example.com",
+            "examples": [ "alice@example.com" ],
+            "children": [
+              {
+                "label": "Must NOT match",
+                "children": [
+                  {
+                    "identifier": 2,
+                    "rows": [
+                      {
+                        "identifier": 3,
+                        "path": [
+                          {
+                            "type": "synthetic",
+                            "value": "value"
+                          }
+                        ],
+                        "type": {
+                          "kind": "any"
+                        }
+                      }
+                    ]
+                  }
+                ]
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "description": "Row with default set to null",
+      "valid": true,
+      "data": {
+        "identifier": 0,
+        "rows": [
+          {
+            "identifier": 1,
+            "path": [
+              {
+                "type": "literal",
+                "value": "x"
+              }
+            ],
+            "type": {
+              "kind": "primitive",
+              "name": "string"
+            },
+            "default": null
+          }
+        ]
+      }
+    },
+    {
+      "description": "Row with default set to integer",
+      "valid": true,
+      "data": {
+        "identifier": 0,
+        "rows": [
+          {
+            "identifier": 1,
+            "path": [
+              {
+                "type": "literal",
+                "value": "x"
+              }
+            ],
+            "type": {
+              "kind": "primitive",
+              "name": "integer"
+            },
+            "default": 42
+          }
+        ]
+      }
+    },
+    {
+      "description": "All path segment types",
+      "valid": true,
+      "data": {
+        "identifier": 0,
+        "rows": [
+          {
+            "identifier": 1,
+            "path": [
+              {
+                "type": "literal",
+                "value": "foo"
+              }
+            ],
+            "type": {
+              "kind": "object"
+            }
+          },
+          {
+            "identifier": 2,
+            "path": [
+              {
+                "type": "pattern",
+                "value": "^x"
+              }
+            ],
+            "type": {
+              "kind": "primitive",
+              "name": "string"
+            }
+          },
+          {
+            "identifier": 3,
+            "path": [
+              {
+                "type": "wildcard",
+                "value": "*"
+              }
+            ],
+            "type": {
+              "kind": "primitive",
+              "name": "integer"
+            }
+          },
+          {
+            "identifier": 4,
+            "path": [
+              {
+                "type": "synthetic",
+                "value": "root"
+              }
+            ],
+            "type": {
+              "kind": "any"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "description": "All type expression kinds",
+      "valid": true,
+      "data": {
+        "identifier": 0,
+        "rows": [
+          {
+            "identifier": 1,
+            "path": [
+              {
+                "type": "synthetic",
+                "value": "root"
+              }
+            ],
+            "type": {
+              "kind": "object"
+            }
+          },
+          {
+            "identifier": 2,
+            "path": [
+              {
+                "type": "literal",
+                "value": "a"
+              }
+            ],
+            "type": {
+              "kind": "primitive",
+              "name": "string"
+            }
+          },
+          {
+            "identifier": 3,
+            "path": [
+              {
+                "type": "literal",
+                "value": "b"
+              }
+            ],
+            "type": {
+              "kind": "array"
+            }
+          },
+          {
+            "identifier": 4,
+            "path": [
+              {
+                "type": "literal",
+                "value": "c"
+              }
+            ],
+            "type": {
+              "kind": "array",
+              "items": {
+                "kind": "primitive",
+                "name": "string"
+              }
+            }
+          },
+          {
+            "identifier": 5,
+            "path": [
+              {
+                "type": "literal",
+                "value": "d"
+              }
+            ],
+            "type": {
+              "kind": "tuple",
+              "items": [
+                {
+                  "kind": "primitive",
+                  "name": "string"
+                },
+                {
+                  "kind": "primitive",
+                  "name": "integer"
+                }
+              ]
+            }
+          },
+          {
+            "identifier": 6,
+            "path": [
+              {
+                "type": "literal",
+                "value": "e"
+              }
+            ],
+            "type": {
+              "kind": "tuple",
+              "items": [
+                {
+                  "kind": "primitive",
+                  "name": "string"
+                }
+              ],
+              "additional": {
+                "kind": "primitive",
+                "name": "number"
+              }
+            }
+          },
+          {
+            "identifier": 7,
+            "path": [
+              {
+                "type": "literal",
+                "value": "f"
+              }
+            ],
+            "type": {
+              "kind": "enum",
+              "values": [ "a", "b", "c" ]
+            }
+          },
+          {
+            "identifier": 8,
+            "path": [
+              {
+                "type": "literal",
+                "value": "g"
+              }
+            ],
+            "type": {
+              "kind": "enum",
+              "values": [ 1 ],
+              "overflow": [ 2, 3 ]
+            }
+          },
+          {
+            "identifier": 9,
+            "path": [
+              {
+                "type": "literal",
+                "value": "h"
+              }
+            ],
+            "type": {
+              "kind": "externalRef",
+              "url": "https://example.com/schema.json"
+            }
+          },
+          {
+            "identifier": 10,
+            "path": [
+              {
+                "type": "literal",
+                "value": "i"
+              }
+            ],
+            "type": {
+              "kind": "recursiveRef",
+              "identifier": 0
+            }
+          },
+          {
+            "identifier": 11,
+            "path": [
+              {
+                "type": "literal",
+                "value": "j"
+              }
+            ],
+            "type": {
+              "kind": "dynamicRef",
+              "anchor": "node"
+            }
+          },
+          {
+            "identifier": 12,
+            "path": [
+              {
+                "type": "literal",
+                "value": "k"
+              }
+            ],
+            "type": {
+              "kind": "any"
+            }
+          },
+          {
+            "identifier": 13,
+            "path": [
+              {
+                "type": "literal",
+                "value": "l"
+              }
+            ],
+            "type": {
+              "kind": "never"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "description": "All badge kinds",
+      "valid": true,
+      "data": {
+        "identifier": 0,
+        "rows": [
+          {
+            "identifier": 1,
+            "path": [
+              {
+                "type": "synthetic",
+                "value": "root"
+              }
+            ],
+            "type": {
+              "kind": "primitive",
+              "name": "string"
+            },
+            "badges": [
+              {
+                "kind": "format",
+                "value": "email"
+              },
+              {
+                "kind": "encoding",
+                "value": "base64"
+              },
+              {
+                "kind": "mime",
+                "value": "application/json"
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "description": "All modifier values",
+      "valid": true,
+      "data": {
+        "identifier": 0,
+        "rows": [
+          {
+            "identifier": 1,
+            "path": [
+              {
+                "type": "synthetic",
+                "value": "root"
+              }
+            ],
+            "modifiers": [ "readOnly", "writeOnly", "deprecated" ],
+            "type": {
+              "kind": "primitive",
+              "name": "string"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "description": "All section labels",
+      "valid": true,
+      "data": {
+        "identifier": 0,
+        "rows": [],
+        "children": [
+          {
+            "label": "Any of",
+            "children": [
+              {
+                "identifier": 1,
+                "rows": [
+                  {
+                    "identifier": 2,
+                    "path": [
+                      {
+                        "type": "synthetic",
+                        "value": "root"
+                      }
+                    ],
+                    "type": {
+                      "kind": "any"
+                    }
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "label": "All of",
+            "children": [
+              {
+                "identifier": 3,
+                "rows": [
+                  {
+                    "identifier": 4,
+                    "path": [
+                      {
+                        "type": "synthetic",
+                        "value": "root"
+                      }
+                    ],
+                    "type": {
+                      "kind": "any"
+                    }
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "label": "One of",
+            "children": [
+              {
+                "identifier": 5,
+                "rows": [
+                  {
+                    "identifier": 6,
+                    "path": [
+                      {
+                        "type": "synthetic",
+                        "value": "root"
+                      }
+                    ],
+                    "type": {
+                      "kind": "any"
+                    }
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "label": "Property names",
+            "children": [
+              {
+                "identifier": 7,
+                "rows": [
+                  {
+                    "identifier": 8,
+                    "path": [
+                      {
+                        "type": "synthetic",
+                        "value": "root"
+                      }
+                    ],
+                    "type": {
+                      "kind": "any"
+                    }
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "label": "Contains",
+            "children": [
+              {
+                "identifier": 9,
+                "rows": [
+                  {
+                    "identifier": 10,
+                    "path": [
+                      {
+                        "type": "synthetic",
+                        "value": "root"
+                      }
+                    ],
+                    "type": {
+                      "kind": "any"
+                    }
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "label": "Decoded content",
+            "children": [
+              {
+                "identifier": 11,
+                "rows": [
+                  {
+                    "identifier": 12,
+                    "path": [
+                      {
+                        "type": "synthetic",
+                        "value": "root"
+                      }
+                    ],
+                    "type": {
+                      "kind": "any"
+                    }
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "label": "Must NOT match",
+            "children": [
+              {
+                "identifier": 13,
+                "rows": [
+                  {
+                    "identifier": 14,
+                    "path": [
+                      {
+                        "type": "synthetic",
+                        "value": "root"
+                      }
+                    ],
+                    "type": {
+                      "kind": "any"
+                    }
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "label": "If",
+            "children": [
+              {
+                "identifier": 15,
+                "rows": [
+                  {
+                    "identifier": 16,
+                    "path": [
+                      {
+                        "type": "synthetic",
+                        "value": "root"
+                      }
+                    ],
+                    "type": {
+                      "kind": "any"
+                    }
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "label": "Then",
+            "children": [
+              {
+                "identifier": 17,
+                "rows": [
+                  {
+                    "identifier": 18,
+                    "path": [
+                      {
+                        "type": "synthetic",
+                        "value": "root"
+                      }
+                    ],
+                    "type": {
+                      "kind": "any"
+                    }
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "label": "Else",
+            "children": [
+              {
+                "identifier": 19,
+                "rows": [
+                  {
+                    "identifier": 20,
+                    "path": [
+                      {
+                        "type": "synthetic",
+                        "value": "root"
+                      }
+                    ],
+                    "type": {
+                      "kind": "any"
+                    }
+                  }
+                ]
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "description": "Section with position",
+      "valid": true,
+      "data": {
+        "identifier": 0,
+        "rows": [],
+        "children": [
+          {
+            "label": "Any of",
+            "position": "/foo",
+            "children": [
+              {
+                "identifier": 1,
+                "rows": [
+                  {
+                    "identifier": 2,
+                    "path": [
+                      {
+                        "type": "synthetic",
+                        "value": "root"
+                      }
+                    ],
+                    "type": {
+                      "kind": "any"
+                    }
+                  }
+                ]
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "description": "Missing identifier is invalid",
+      "valid": false,
+      "data": {
+        "rows": []
+      }
+    },
+    {
+      "description": "Missing rows is invalid",
+      "valid": false,
+      "data": {
+        "identifier": 0
+      }
+    },
+    {
+      "description": "Missing row identifier is invalid",
+      "valid": false,
+      "data": {
+        "identifier": 0,
+        "rows": [
+          {
+            "path": [
+              {
+                "type": "synthetic",
+                "value": "root"
+              }
+            ],
+            "type": {
+              "kind": "any"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "description": "Missing row path is invalid",
+      "valid": false,
+      "data": {
+        "identifier": 0,
+        "rows": [
+          {
+            "identifier": 1,
+            "type": {
+              "kind": "any"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "description": "Missing row type is invalid",
+      "valid": false,
+      "data": {
+        "identifier": 0,
+        "rows": [
+          {
+            "identifier": 1,
+            "path": [
+              {
+                "type": "synthetic",
+                "value": "root"
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "description": "Empty path is invalid",
+      "valid": false,
+      "data": {
+        "identifier": 0,
+        "rows": [
+          {
+            "identifier": 1,
+            "path": [],
+            "type": {
+              "kind": "any"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "description": "Unknown path segment type is invalid",
+      "valid": false,
+      "data": {
+        "identifier": 0,
+        "rows": [
+          {
+            "identifier": 1,
+            "path": [
+              {
+                "type": "unknown",
+                "value": "x"
+              }
+            ],
+            "type": {
+              "kind": "any"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "description": "Unknown type kind is invalid",
+      "valid": false,
+      "data": {
+        "identifier": 0,
+        "rows": [
+          {
+            "identifier": 1,
+            "path": [
+              {
+                "type": "synthetic",
+                "value": "root"
+              }
+            ],
+            "type": {
+              "kind": "unknown"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "description": "Unknown modifier is invalid",
+      "valid": false,
+      "data": {
+        "identifier": 0,
+        "rows": [
+          {
+            "identifier": 1,
+            "path": [
+              {
+                "type": "synthetic",
+                "value": "root"
+              }
+            ],
+            "modifiers": [ "immutable" ],
+            "type": {
+              "kind": "any"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "description": "Unknown badge kind is invalid",
+      "valid": false,
+      "data": {
+        "identifier": 0,
+        "rows": [
+          {
+            "identifier": 1,
+            "path": [
+              {
+                "type": "synthetic",
+                "value": "root"
+              }
+            ],
+            "type": {
+              "kind": "any"
+            },
+            "badges": [
+              {
+                "kind": "unknown",
+                "value": "x"
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "description": "Unknown section label is invalid",
+      "valid": false,
+      "data": {
+        "identifier": 0,
+        "rows": [],
+        "children": [
+          {
+            "label": "Some of",
+            "children": [
+              {
+                "identifier": 1,
+                "rows": [
+                  {
+                    "identifier": 2,
+                    "path": [
+                      {
+                        "type": "synthetic",
+                        "value": "root"
+                      }
+                    ],
+                    "type": {
+                      "kind": "any"
+                    }
+                  }
+                ]
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "description": "Array item label is valid",
+      "valid": true,
+      "data": {
+        "identifier": 0,
+        "rows": [],
+        "children": [
+          {
+            "label": "Array item 0",
+            "children": [
+              {
+                "identifier": 1,
+                "rows": [
+                  {
+                    "identifier": 2,
+                    "path": [
+                      {
+                        "type": "synthetic",
+                        "value": "root"
+                      }
+                    ],
+                    "type": {
+                      "kind": "any"
+                    }
+                  }
+                ]
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "description": "Array item label with larger index is valid",
+      "valid": true,
+      "data": {
+        "identifier": 0,
+        "rows": [],
+        "children": [
+          {
+            "label": "Array item 42",
+            "children": [
+              {
+                "identifier": 1,
+                "rows": [
+                  {
+                    "identifier": 2,
+                    "path": [
+                      {
+                        "type": "synthetic",
+                        "value": "root"
+                      }
+                    ],
+                    "type": {
+                      "kind": "any"
+                    }
+                  }
+                ]
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "description": "Array item label without index is invalid",
+      "valid": false,
+      "data": {
+        "identifier": 0,
+        "rows": [],
+        "children": [
+          {
+            "label": "Array item",
+            "children": [
+              {
+                "identifier": 1,
+                "rows": [
+                  {
+                    "identifier": 2,
+                    "path": [
+                      {
+                        "type": "synthetic",
+                        "value": "root"
+                      }
+                    ],
+                    "type": {
+                      "kind": "any"
+                    }
+                  }
+                ]
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "description": "Array item label with non-numeric index is invalid",
+      "valid": false,
+      "data": {
+        "identifier": 0,
+        "rows": [],
+        "children": [
+          {
+            "label": "Array item abc",
+            "children": [
+              {
+                "identifier": 1,
+                "rows": [
+                  {
+                    "identifier": 2,
+                    "path": [
+                      {
+                        "type": "synthetic",
+                        "value": "root"
+                      }
+                    ],
+                    "type": {
+                      "kind": "any"
+                    }
+                  }
+                ]
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "description": "Unknown primitive name is invalid",
+      "valid": false,
+      "data": {
+        "identifier": 0,
+        "rows": [
+          {
+            "identifier": 1,
+            "path": [
+              {
+                "type": "synthetic",
+                "value": "root"
+              }
+            ],
+            "type": {
+              "kind": "primitive",
+              "name": "boolean"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "description": "Negative identifier is invalid",
+      "valid": false,
+      "data": {
+        "identifier": -1,
+        "rows": []
+      }
+    },
+    {
+      "description": "Empty title is invalid",
+      "valid": false,
+      "data": {
+        "identifier": 0,
+        "title": "",
+        "rows": []
+      }
+    },
+    {
+      "description": "Empty constraint string is invalid",
+      "valid": false,
+      "data": {
+        "identifier": 0,
+        "rows": [
+          {
+            "identifier": 1,
+            "path": [
+              {
+                "type": "synthetic",
+                "value": "root"
+              }
+            ],
+            "type": {
+              "kind": "any"
+            },
+            "constraints": [ "" ]
+          }
+        ]
+      }
+    },
+    {
+      "description": "Extra property on table is invalid",
+      "valid": false,
+      "data": {
+        "identifier": 0,
+        "rows": [],
+        "extra": true
+      }
+    },
+    {
+      "description": "Extra property on row is invalid",
+      "valid": false,
+      "data": {
+        "identifier": 0,
+        "rows": [
+          {
+            "identifier": 1,
+            "path": [
+              {
+                "type": "synthetic",
+                "value": "root"
+              }
+            ],
+            "type": {
+              "kind": "any"
+            },
+            "extra": true
+          }
+        ]
+      }
+    },
+    {
+      "description": "Empty children array is invalid",
+      "valid": false,
+      "data": {
+        "identifier": 0,
+        "rows": [],
+        "children": []
+      }
+    },
+    {
+      "description": "Empty modifiers array is invalid",
+      "valid": false,
+      "data": {
+        "identifier": 0,
+        "rows": [
+          {
+            "identifier": 1,
+            "path": [
+              {
+                "type": "synthetic",
+                "value": "root"
+              }
+            ],
+            "modifiers": [],
+            "type": {
+              "kind": "any"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "description": "Empty badges array is invalid",
+      "valid": false,
+      "data": {
+        "identifier": 0,
+        "rows": [
+          {
+            "identifier": 1,
+            "path": [
+              {
+                "type": "synthetic",
+                "value": "root"
+              }
+            ],
+            "type": {
+              "kind": "any"
+            },
+            "badges": []
+          }
+        ]
+      }
+    },
+    {
+      "description": "Empty constraints array is invalid",
+      "valid": false,
+      "data": {
+        "identifier": 0,
+        "rows": [
+          {
+            "identifier": 1,
+            "path": [
+              {
+                "type": "synthetic",
+                "value": "root"
+              }
+            ],
+            "type": {
+              "kind": "any"
+            },
+            "constraints": []
+          }
+        ]
+      }
+    },
+    {
+      "description": "Enum with empty values is invalid",
+      "valid": false,
+      "data": {
+        "identifier": 0,
+        "rows": [
+          {
+            "identifier": 1,
+            "path": [
+              {
+                "type": "synthetic",
+                "value": "root"
+              }
+            ],
+            "type": {
+              "kind": "enum",
+              "values": []
+            }
+          }
+        ]
+      }
+    },
+    {
+      "description": "Tuple with empty items is invalid",
+      "valid": false,
+      "data": {
+        "identifier": 0,
+        "rows": [
+          {
+            "identifier": 1,
+            "path": [
+              {
+                "type": "synthetic",
+                "value": "root"
+              }
+            ],
+            "type": {
+              "kind": "tuple",
+              "items": []
+            }
+          }
+        ]
+      }
+    },
+    {
+      "description": "Section with empty children is invalid",
+      "valid": false,
+      "data": {
+        "identifier": 0,
+        "rows": [],
+        "children": [
+          {
+            "label": "Any of",
+            "children": []
+          }
+        ]
+      }
+    },
+    {
+      "description": "Nested property with same name produces valid duplicate path segments",
+      "valid": true,
+      "data": {
+        "identifier": 0,
+        "rows": [
+          {
+            "identifier": 1,
+            "path": [
+              {
+                "type": "synthetic",
+                "value": "root"
+              }
+            ],
+            "type": {
+              "kind": "object"
+            }
+          },
+          {
+            "identifier": 2,
+            "path": [
+              {
+                "type": "literal",
+                "value": "a"
+              },
+              {
+                "type": "literal",
+                "value": "a"
+              }
+            ],
+            "type": {
+              "kind": "primitive",
+              "name": "string"
+            }
+          }
+        ]
+      }
+    }
+  ]
+}
