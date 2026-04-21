@@ -1027,19 +1027,17 @@ auto walk_schema(const sourcemeta::core::JSON &schema, const bool include_root,
       const auto visited_entry{visited.find(&target_schema)};
       if (visited_entry != visited.end()) {
         auto documentation{sourcemeta::core::JSON::make_object()};
-        documentation.assign(
-            "identifier", sourcemeta::core::JSON{static_cast<std::int64_t>(0)});
+        documentation.assign("identifier",
+                             sourcemeta::core::JSON{
+                                 static_cast<std::int64_t>(next_identifier++)});
         auto rows{sourcemeta::core::JSON::make_array()};
         auto row{sourcemeta::core::JSON::make_object()};
         row.assign("identifier",
-                   sourcemeta::core::JSON{static_cast<std::int64_t>(0)});
-        if (include_root) {
-          auto path{sourcemeta::core::JSON::make_array()};
-          path.push_back(make_path_segment("synthetic", "root"));
-          row.assign("path", std::move(path));
-        } else {
-          row.assign("path", sourcemeta::core::JSON::make_array());
-        }
+                   sourcemeta::core::JSON{
+                       static_cast<std::int64_t>(next_identifier++)});
+        auto path{sourcemeta::core::JSON::make_array()};
+        path.push_back(make_path_segment("synthetic", "root"));
+        row.assign("path", std::move(path));
         auto type_expr{sourcemeta::core::JSON::make_object()};
         type_expr.assign("kind", sourcemeta::core::JSON{"recursiveRef"});
         type_expr.assign("identifier",

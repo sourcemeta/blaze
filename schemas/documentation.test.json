@@ -1332,6 +1332,44 @@
           }
         ]
       }
+    },
+    {
+      "description": "Nested property with same name produces valid duplicate path segments",
+      "valid": true,
+      "data": {
+        "identifier": 0,
+        "rows": [
+          {
+            "identifier": 1,
+            "path": [
+              {
+                "type": "synthetic",
+                "value": "root"
+              }
+            ],
+            "type": {
+              "kind": "object"
+            }
+          },
+          {
+            "identifier": 2,
+            "path": [
+              {
+                "type": "literal",
+                "value": "a"
+              },
+              {
+                "type": "literal",
+                "value": "a"
+              }
+            ],
+            "type": {
+              "kind": "primitive",
+              "name": "string"
+            }
+          }
+        ]
+      }
     }
   ]
 }

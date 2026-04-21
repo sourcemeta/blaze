@@ -65,6 +65,23 @@ auto main(int argc, char *argv[]) -> int {
 
   const auto has_pointer{options.contains("pointer")};
   const auto has_title{options.contains("title")};
+
+  if (has_pointer) {
+    const auto &value{options.at("pointer").front()};
+    if (value.size() < 2 || value[0] != '/') {
+      std::cerr << "Error: --pointer must start with / and have a key name\n";
+      return EXIT_FAILURE;
+    }
+  }
+
+  if (has_title) {
+    const auto &value{options.at("title").front()};
+    if (value.size() < 2 || value[0] != '/') {
+      std::cerr << "Error: --title must start with / and have a key name\n";
+      return EXIT_FAILURE;
+    }
+  }
+
   const std::string pointer_key{
       has_pointer ? std::string{options.at("pointer").front().substr(1)} : ""};
   const std::string title_key{
@@ -265,6 +282,11 @@ auto main(int argc, char *argv[]) -> int {
     if (has_pointer && document.is_array()) {
       std::size_t index{0};
       for (const auto &entry : document.as_array()) {
+        if (!entry.is_object() || !entry.defines(pointer_key)) {
+          index++;
+          continue;
+        }
+
         const auto &schema{entry.at(pointer_key)};
 
         std::string heading;

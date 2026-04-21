@@ -125,7 +125,9 @@ auto render_type_expression(sourcemeta::core::HTMLWriter &writer,
   } else if (kind == "externalRef") {
     assert(type.defines("url"));
     const auto &url{type.at("url").to_string()};
-    writer.a(url).attribute("href", url);
+    writer.a().attribute("href", url);
+    writer.text(url);
+    writer.close();
   } else if (kind == "recursiveRef") {
     assert(type.defines("identifier"));
     const auto identifier{std::to_string(type.at("identifier").to_integer())};
