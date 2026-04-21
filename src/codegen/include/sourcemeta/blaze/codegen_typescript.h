@@ -14,33 +14,33 @@
 
 namespace sourcemeta::blaze {
 
-struct IRScalar;
-struct IREnumeration;
-struct IRObject;
-struct IRImpossible;
-struct IRAny;
-struct IRArray;
-struct IRReference;
-struct IRTuple;
-struct IRUnion;
-struct IRIntersection;
-struct IRConditional;
+struct CodegenIRScalar;
+struct CodegenIREnumeration;
+struct CodegenIRObject;
+struct CodegenIRImpossible;
+struct CodegenIRAny;
+struct CodegenIRArray;
+struct CodegenIRReference;
+struct CodegenIRTuple;
+struct CodegenIRUnion;
+struct CodegenIRIntersection;
+struct CodegenIRConditional;
 
 /// @ingroup codegen
 class SOURCEMETA_BLAZE_CODEGEN_EXPORT TypeScript {
 public:
   TypeScript(std::ostream &stream, std::string_view type_prefix);
-  auto operator()(const IRScalar &entry) -> void;
-  auto operator()(const IREnumeration &entry) -> void;
-  auto operator()(const IRObject &entry) -> void;
-  auto operator()(const IRImpossible &entry) -> void;
-  auto operator()(const IRAny &entry) -> void;
-  auto operator()(const IRArray &entry) -> void;
-  auto operator()(const IRReference &entry) -> void;
-  auto operator()(const IRTuple &entry) -> void;
-  auto operator()(const IRUnion &entry) -> void;
-  auto operator()(const IRIntersection &entry) -> void;
-  auto operator()(const IRConditional &entry) -> void;
+  auto operator()(const CodegenIRScalar &entry) -> void;
+  auto operator()(const CodegenIREnumeration &entry) -> void;
+  auto operator()(const CodegenIRObject &entry) -> void;
+  auto operator()(const CodegenIRImpossible &entry) -> void;
+  auto operator()(const CodegenIRAny &entry) -> void;
+  auto operator()(const CodegenIRArray &entry) -> void;
+  auto operator()(const CodegenIRReference &entry) -> void;
+  auto operator()(const CodegenIRTuple &entry) -> void;
+  auto operator()(const CodegenIRUnion &entry) -> void;
+  auto operator()(const CodegenIRIntersection &entry) -> void;
+  auto operator()(const CodegenIRConditional &entry) -> void;
 
 private:
 // Exporting symbols that depends on the standard C++ library is considered

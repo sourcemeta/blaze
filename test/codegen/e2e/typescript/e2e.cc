@@ -69,8 +69,8 @@ auto main(int argc, char **argv) -> int {
 
       const auto case_name{case_entry.path().filename().string()};
       const auto test_name{dialect_name + "/" + case_name};
-      testing::RegisterTest("TypeScriptE2E", test_name.c_str(), nullptr,
-                            nullptr, __FILE__, __LINE__,
+      testing::RegisterTest("Codegen_e2e_typescript", test_name.c_str(),
+                            nullptr, nullptr, __FILE__, __LINE__,
                             [=]() -> TypeScriptE2ETest * {
                               return new TypeScriptE2ETest(case_entry.path());
                             });

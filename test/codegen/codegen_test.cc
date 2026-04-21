@@ -3,7 +3,7 @@
 #include <sourcemeta/blaze/codegen.h>
 #include <sourcemeta/core/jsonschema.h>
 
-TEST(IR, unsupported_dialect_draft3) {
+TEST(Codegen, unsupported_dialect_draft3) {
   const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
     "$schema": "http://json-schema.org/draft-03/schema#",
     "type": "string"
@@ -16,7 +16,7 @@ TEST(IR, unsupported_dialect_draft3) {
                sourcemeta::core::SchemaVocabularyError);
 }
 
-TEST(IR, unsupported_keyword_error_not) {
+TEST(Codegen, unsupported_keyword_error_not) {
   const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2020-12/schema",
     "not": { "type": "string" }
@@ -26,10 +26,10 @@ TEST(IR, unsupported_keyword_error_not) {
                                           sourcemeta::core::schema_walker,
                                           sourcemeta::core::schema_resolver,
                                           sourcemeta::blaze::default_compiler),
-               sourcemeta::blaze::UnsupportedKeywordError);
+               sourcemeta::blaze::CodegenUnsupportedKeywordError);
 }
 
-TEST(IR, unsupported_keyword_value_error_type_not_string) {
+TEST(Codegen, unsupported_keyword_value_error_type_not_string) {
   const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2020-12/schema",
     "type": 123
@@ -39,10 +39,10 @@ TEST(IR, unsupported_keyword_value_error_type_not_string) {
                                           sourcemeta::core::schema_walker,
                                           sourcemeta::core::schema_resolver,
                                           sourcemeta::blaze::default_compiler),
-               sourcemeta::blaze::UnsupportedKeywordValueError);
+               sourcemeta::blaze::CodegenUnsupportedKeywordValueError);
 }
 
-TEST(IR, unsupported_keyword_value_error_unknown_type) {
+TEST(Codegen, unsupported_keyword_value_error_unknown_type) {
   const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2020-12/schema",
     "type": "foo"
@@ -52,5 +52,5 @@ TEST(IR, unsupported_keyword_value_error_unknown_type) {
                                           sourcemeta::core::schema_walker,
                                           sourcemeta::core::schema_resolver,
                                           sourcemeta::blaze::default_compiler),
-               sourcemeta::blaze::UnsupportedKeywordValueError);
+               sourcemeta::blaze::CodegenUnsupportedKeywordValueError);
 }

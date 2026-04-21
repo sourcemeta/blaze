@@ -19,7 +19,7 @@
     static const std::unordered_set<std::string_view> allowed{__VA_ARGS__};    \
     for (const auto &entry : (subschema).as_object()) {                        \
       if (!allowed.contains(entry.first)) {                                    \
-        throw sourcemeta::blaze::UnsupportedKeywordError(                      \
+        throw sourcemeta::blaze::CodegenUnsupportedKeywordError(               \
             (schema), (pointer), entry.first,                                  \
             "Unsupported keyword in subschema");                               \
       }                                                                        \
@@ -33,8 +33,8 @@ auto handle_impossible(const sourcemeta::core::JSON &,
                        const sourcemeta::core::SchemaFrame::Location &location,
                        const sourcemeta::core::Vocabularies &,
                        const sourcemeta::core::SchemaResolver &,
-                       const sourcemeta::core::JSON &) -> IRImpossible {
-  return IRImpossible{
+                       const sourcemeta::core::JSON &) -> CodegenIRImpossible {
+  return CodegenIRImpossible{
       {.pointer = sourcemeta::core::to_pointer(location.pointer),
        .symbol = symbol(frame, location)}};
 }
@@ -44,9 +44,10 @@ auto handle_any(const sourcemeta::core::JSON &,
                 const sourcemeta::core::SchemaFrame::Location &location,
                 const sourcemeta::core::Vocabularies &,
                 const sourcemeta::core::SchemaResolver &,
-                const sourcemeta::core::JSON &) -> IRAny {
-  return IRAny{{.pointer = sourcemeta::core::to_pointer(location.pointer),
-                .symbol = symbol(frame, location)}};
+                const sourcemeta::core::JSON &) -> CodegenIRAny {
+  return CodegenIRAny{
+      {.pointer = sourcemeta::core::to_pointer(location.pointer),
+       .symbol = symbol(frame, location)}};
 }
 
 auto handle_string(const sourcemeta::core::JSON &schema,
@@ -54,7 +55,7 @@ auto handle_string(const sourcemeta::core::JSON &schema,
                    const sourcemeta::core::SchemaFrame::Location &location,
                    const sourcemeta::core::Vocabularies &,
                    const sourcemeta::core::SchemaResolver &,
-                   const sourcemeta::core::JSON &subschema) -> IRScalar {
+                   const sourcemeta::core::JSON &subschema) -> CodegenIRScalar {
   ONLY_WHITELIST_KEYWORDS(schema, subschema, location.pointer,
                           {"$schema",
                            "$id",
@@ -77,9 +78,10 @@ auto handle_string(const sourcemeta::core::JSON &schema,
                            "contentEncoding",
                            "contentMediaType",
                            "contentSchema"});
-  return IRScalar{{.pointer = sourcemeta::core::to_pointer(location.pointer),
-                   .symbol = symbol(frame, location)},
-                  IRScalarType::String};
+  return CodegenIRScalar{
+      {.pointer = sourcemeta::core::to_pointer(location.pointer),
+       .symbol = symbol(frame, location)},
+      CodegenIRScalarType::String};
 }
 
 auto handle_object(const sourcemeta::core::JSON &schema,
@@ -87,7 +89,7 @@ auto handle_object(const sourcemeta::core::JSON &schema,
                    const sourcemeta::core::SchemaFrame::Location &location,
                    const sourcemeta::core::Vocabularies &,
                    const sourcemeta::core::SchemaResolver &,
-                   const sourcemeta::core::JSON &subschema) -> IRObject {
+                   const sourcemeta::core::JSON &subschema) -> CodegenIRObject {
   ONLY_WHITELIST_KEYWORDS(
       schema, subschema, location.pointer,
       {"$defs", "$schema", "$id", "$anchor", "$dynamicAnchor", "$vocabulary",
@@ -100,7 +102,8 @@ auto handle_object(const sourcemeta::core::JSON &schema,
        "propertyNames", "patternProperties", "title", "description", "default",
        "deprecated", "readOnly", "writeOnly", "examples"});
 
-  std::vector<std::pair<sourcemeta::core::JSON::String, IRObjectValue>> members;
+  std::vector<std::pair<sourcemeta::core::JSON::String, CodegenIRObjectValue>>
+      members;
 
   // Guaranteed by canonicalisation
   assert(subschema.defines("properties"));
@@ -126,7 +129,7 @@ auto handle_object(const sourcemeta::core::JSON &schema,
         frame.traverse(sourcemeta::core::to_weak_pointer(property_pointer))};
     assert(property_location.has_value());
 
-    IRObjectValue member_value{
+    CodegenIRObjectValue member_value{
         {.pointer = std::move(property_pointer),
          .symbol = symbol(frame, property_location.value().get())},
         required_set.contains(entry.first),
@@ -135,7 +138,7 @@ auto handle_object(const sourcemeta::core::JSON &schema,
     members.emplace_back(entry.first, std::move(member_value));
   }
 
-  std::variant<bool, IRType> additional{true};
+  std::variant<bool, CodegenIRType> additional{true};
   if (subschema.defines("additionalProperties")) {
     const auto &additional_schema{subschema.at("additionalProperties")};
     if (additional_schema.is_boolean()) {
@@ -148,13 +151,13 @@ auto handle_object(const sourcemeta::core::JSON &schema,
           sourcemeta::core::to_weak_pointer(additional_pointer))};
       assert(additional_location.has_value());
 
-      additional =
-          IRType{.pointer = std::move(additional_pointer),
-                 .symbol = symbol(frame, additional_location.value().get())};
+      additional = CodegenIRType{
+          .pointer = std::move(additional_pointer),
+          .symbol = symbol(frame, additional_location.value().get())};
     }
   }
 
-  std::vector<IRObjectPatternProperty> pattern;
+  std::vector<CodegenIRObjectPatternProperty> pattern;
   if (subschema.defines("patternProperties")) {
     const auto &pattern_props{subschema.at("patternProperties")};
     for (const auto &entry : pattern_props.as_object()) {
@@ -174,18 +177,19 @@ auto handle_object(const sourcemeta::core::JSON &schema,
         prefix = std::get<sourcemeta::core::RegexTypePrefix>(regex.value());
       }
 
-      pattern.push_back(IRObjectPatternProperty{
+      pattern.push_back(CodegenIRObjectPatternProperty{
           {.pointer = std::move(pattern_pointer),
            .symbol = symbol(frame, pattern_location.value().get())},
           std::move(prefix)});
     }
   }
 
-  return IRObject{{.pointer = sourcemeta::core::to_pointer(location.pointer),
-                   .symbol = symbol(frame, location)},
-                  std::move(members),
-                  std::move(additional),
-                  std::move(pattern)};
+  return CodegenIRObject{
+      {.pointer = sourcemeta::core::to_pointer(location.pointer),
+       .symbol = symbol(frame, location)},
+      std::move(members),
+      std::move(additional),
+      std::move(pattern)};
 }
 
 auto handle_integer(const sourcemeta::core::JSON &schema,
@@ -193,16 +197,18 @@ auto handle_integer(const sourcemeta::core::JSON &schema,
                     const sourcemeta::core::SchemaFrame::Location &location,
                     const sourcemeta::core::Vocabularies &,
                     const sourcemeta::core::SchemaResolver &,
-                    const sourcemeta::core::JSON &subschema) -> IRScalar {
+                    const sourcemeta::core::JSON &subschema)
+    -> CodegenIRScalar {
   ONLY_WHITELIST_KEYWORDS(schema, subschema, location.pointer,
                           {"$schema", "$id", "$anchor", "$dynamicAnchor",
                            "$defs", "$vocabulary", "type", "minimum", "maximum",
                            "exclusiveMinimum", "exclusiveMaximum", "multipleOf",
                            "title", "description", "default", "deprecated",
                            "readOnly", "writeOnly", "examples"});
-  return IRScalar{{.pointer = sourcemeta::core::to_pointer(location.pointer),
-                   .symbol = symbol(frame, location)},
-                  IRScalarType::Integer};
+  return CodegenIRScalar{
+      {.pointer = sourcemeta::core::to_pointer(location.pointer),
+       .symbol = symbol(frame, location)},
+      CodegenIRScalarType::Integer};
 }
 
 auto handle_number(const sourcemeta::core::JSON &schema,
@@ -210,16 +216,17 @@ auto handle_number(const sourcemeta::core::JSON &schema,
                    const sourcemeta::core::SchemaFrame::Location &location,
                    const sourcemeta::core::Vocabularies &,
                    const sourcemeta::core::SchemaResolver &,
-                   const sourcemeta::core::JSON &subschema) -> IRScalar {
+                   const sourcemeta::core::JSON &subschema) -> CodegenIRScalar {
   ONLY_WHITELIST_KEYWORDS(schema, subschema, location.pointer,
                           {"$schema", "$id", "$anchor", "$dynamicAnchor",
                            "$defs", "$vocabulary", "type", "minimum", "maximum",
                            "exclusiveMinimum", "exclusiveMaximum", "multipleOf",
                            "title", "description", "default", "deprecated",
                            "readOnly", "writeOnly", "examples"});
-  return IRScalar{{.pointer = sourcemeta::core::to_pointer(location.pointer),
-                   .symbol = symbol(frame, location)},
-                  IRScalarType::Number};
+  return CodegenIRScalar{
+      {.pointer = sourcemeta::core::to_pointer(location.pointer),
+       .symbol = symbol(frame, location)},
+      CodegenIRScalarType::Number};
 }
 
 auto handle_array(const sourcemeta::core::JSON &schema,
@@ -227,7 +234,7 @@ auto handle_array(const sourcemeta::core::JSON &schema,
                   const sourcemeta::core::SchemaFrame::Location &location,
                   const sourcemeta::core::Vocabularies &vocabularies,
                   const sourcemeta::core::SchemaResolver &,
-                  const sourcemeta::core::JSON &subschema) -> IREntity {
+                  const sourcemeta::core::JSON &subschema) -> CodegenIREntity {
   ONLY_WHITELIST_KEYWORDS(schema, subschema, location.pointer,
                           {"$schema",        "$id",         "$anchor",
                            "$dynamicAnchor", "$defs",       "$vocabulary",
@@ -246,7 +253,7 @@ auto handle_array(const sourcemeta::core::JSON &schema,
     const auto &prefix_items{subschema.at("prefixItems")};
     assert(prefix_items.is_array());
 
-    std::vector<IRType> tuple_items;
+    std::vector<CodegenIRType> tuple_items;
     for (std::size_t index = 0; index < prefix_items.size(); ++index) {
       auto item_pointer{sourcemeta::core::to_pointer(location.pointer)};
       item_pointer.push_back("prefixItems");
@@ -261,7 +268,7 @@ auto handle_array(const sourcemeta::core::JSON &schema,
            .symbol = symbol(frame, item_location.value().get())});
     }
 
-    std::optional<IRType> additional{std::nullopt};
+    std::optional<CodegenIRType> additional{std::nullopt};
     if (subschema.defines("items")) {
       auto additional_pointer{sourcemeta::core::to_pointer(location.pointer)};
       additional_pointer.push_back("items");
@@ -270,15 +277,16 @@ auto handle_array(const sourcemeta::core::JSON &schema,
           sourcemeta::core::to_weak_pointer(additional_pointer))};
       assert(additional_location.has_value());
 
-      additional =
-          IRType{.pointer = std::move(additional_pointer),
-                 .symbol = symbol(frame, additional_location.value().get())};
+      additional = CodegenIRType{
+          .pointer = std::move(additional_pointer),
+          .symbol = symbol(frame, additional_location.value().get())};
     }
 
-    return IRTuple{{.pointer = sourcemeta::core::to_pointer(location.pointer),
-                    .symbol = symbol(frame, location)},
-                   std::move(tuple_items),
-                   std::move(additional)};
+    return CodegenIRTuple{
+        {.pointer = sourcemeta::core::to_pointer(location.pointer),
+         .symbol = symbol(frame, location)},
+        std::move(tuple_items),
+        std::move(additional)};
   }
 
   if (vocabularies.contains_any(
@@ -290,7 +298,7 @@ auto handle_array(const sourcemeta::core::JSON &schema,
       subschema.defines("items") && subschema.at("items").is_array()) {
     const auto &items_array{subschema.at("items")};
 
-    std::vector<IRType> tuple_items;
+    std::vector<CodegenIRType> tuple_items;
     for (std::size_t index = 0; index < items_array.size(); ++index) {
       auto item_pointer{sourcemeta::core::to_pointer(location.pointer)};
       item_pointer.push_back("items");
@@ -305,7 +313,7 @@ auto handle_array(const sourcemeta::core::JSON &schema,
            .symbol = symbol(frame, item_location.value().get())});
     }
 
-    std::optional<IRType> additional{std::nullopt};
+    std::optional<CodegenIRType> additional{std::nullopt};
     if (subschema.defines("additionalItems")) {
       auto additional_pointer{sourcemeta::core::to_pointer(location.pointer)};
       additional_pointer.push_back("additionalItems");
@@ -314,18 +322,19 @@ auto handle_array(const sourcemeta::core::JSON &schema,
           sourcemeta::core::to_weak_pointer(additional_pointer))};
       assert(additional_location.has_value());
 
-      additional =
-          IRType{.pointer = std::move(additional_pointer),
-                 .symbol = symbol(frame, additional_location.value().get())};
+      additional = CodegenIRType{
+          .pointer = std::move(additional_pointer),
+          .symbol = symbol(frame, additional_location.value().get())};
     }
 
-    return IRTuple{{.pointer = sourcemeta::core::to_pointer(location.pointer),
-                    .symbol = symbol(frame, location)},
-                   std::move(tuple_items),
-                   std::move(additional)};
+    return CodegenIRTuple{
+        {.pointer = sourcemeta::core::to_pointer(location.pointer),
+         .symbol = symbol(frame, location)},
+        std::move(tuple_items),
+        std::move(additional)};
   }
 
-  std::optional<IRType> items_type{std::nullopt};
+  std::optional<CodegenIRType> items_type{std::nullopt};
   if (subschema.defines("items")) {
     auto items_pointer{sourcemeta::core::to_pointer(location.pointer)};
     items_pointer.push_back("items");
@@ -334,13 +343,15 @@ auto handle_array(const sourcemeta::core::JSON &schema,
         frame.traverse(sourcemeta::core::to_weak_pointer(items_pointer))};
     assert(items_location.has_value());
 
-    items_type = IRType{.pointer = std::move(items_pointer),
-                        .symbol = symbol(frame, items_location.value().get())};
+    items_type =
+        CodegenIRType{.pointer = std::move(items_pointer),
+                      .symbol = symbol(frame, items_location.value().get())};
   }
 
-  return IRArray{{.pointer = sourcemeta::core::to_pointer(location.pointer),
-                  .symbol = symbol(frame, location)},
-                 std::move(items_type)};
+  return CodegenIRArray{
+      {.pointer = sourcemeta::core::to_pointer(location.pointer),
+       .symbol = symbol(frame, location)},
+      std::move(items_type)};
 }
 
 auto handle_enum(const sourcemeta::core::JSON &schema,
@@ -348,7 +359,7 @@ auto handle_enum(const sourcemeta::core::JSON &schema,
                  const sourcemeta::core::SchemaFrame::Location &location,
                  const sourcemeta::core::Vocabularies &,
                  const sourcemeta::core::SchemaResolver &,
-                 const sourcemeta::core::JSON &subschema) -> IREntity {
+                 const sourcemeta::core::JSON &subschema) -> CodegenIREntity {
   ONLY_WHITELIST_KEYWORDS(schema, subschema, location.pointer,
                           {"$schema", "$id", "$anchor", "$dynamicAnchor",
                            "$defs", "$vocabulary", "enum", "title",
@@ -358,24 +369,25 @@ auto handle_enum(const sourcemeta::core::JSON &schema,
 
   // Boolean and null special cases
   if (enum_json.size() == 1 && enum_json.at(0).is_null()) {
-    return IRScalar{{.pointer = sourcemeta::core::to_pointer(location.pointer),
-                     .symbol = symbol(frame, location)},
-                    IRScalarType::Null};
+    return CodegenIRScalar{
+        {.pointer = sourcemeta::core::to_pointer(location.pointer),
+         .symbol = symbol(frame, location)},
+        CodegenIRScalarType::Null};
   } else if (enum_json.size() == 2) {
     const auto &first{enum_json.at(0)};
     const auto &second{enum_json.at(1)};
     if ((first.is_boolean() && second.is_boolean()) &&
         (first.to_boolean() != second.to_boolean())) {
-      return IRScalar{
+      return CodegenIRScalar{
           {.pointer = sourcemeta::core::to_pointer(location.pointer),
            .symbol = symbol(frame, location)},
-          IRScalarType::Boolean};
+          CodegenIRScalarType::Boolean};
     }
   }
 
   std::vector<sourcemeta::core::JSON> values{enum_json.as_array().cbegin(),
                                              enum_json.as_array().cend()};
-  return IREnumeration{
+  return CodegenIREnumeration{
       {.pointer = sourcemeta::core::to_pointer(location.pointer),
        .symbol = symbol(frame, location)},
       std::move(values)};
@@ -386,7 +398,7 @@ auto handle_anyof(const sourcemeta::core::JSON &schema,
                   const sourcemeta::core::SchemaFrame::Location &location,
                   const sourcemeta::core::Vocabularies &,
                   const sourcemeta::core::SchemaResolver &,
-                  const sourcemeta::core::JSON &subschema) -> IREntity {
+                  const sourcemeta::core::JSON &subschema) -> CodegenIREntity {
   ONLY_WHITELIST_KEYWORDS(
       schema, subschema, location.pointer,
       {"$schema", "$id", "$anchor", "$dynamicAnchor", "$defs", "$vocabulary",
@@ -397,7 +409,7 @@ auto handle_anyof(const sourcemeta::core::JSON &schema,
   assert(any_of.is_array());
   assert(any_of.size() >= 2);
 
-  std::vector<IRType> branches;
+  std::vector<CodegenIRType> branches;
   for (std::size_t index = 0; index < any_of.size(); ++index) {
     auto branch_pointer{sourcemeta::core::to_pointer(location.pointer)};
     branch_pointer.push_back("anyOf");
@@ -412,9 +424,10 @@ auto handle_anyof(const sourcemeta::core::JSON &schema,
          .symbol = symbol(frame, branch_location.value().get())});
   }
 
-  return IRUnion{{.pointer = sourcemeta::core::to_pointer(location.pointer),
-                  .symbol = symbol(frame, location)},
-                 std::move(branches)};
+  return CodegenIRUnion{
+      {.pointer = sourcemeta::core::to_pointer(location.pointer),
+       .symbol = symbol(frame, location)},
+      std::move(branches)};
 }
 
 auto handle_oneof(const sourcemeta::core::JSON &schema,
@@ -422,7 +435,7 @@ auto handle_oneof(const sourcemeta::core::JSON &schema,
                   const sourcemeta::core::SchemaFrame::Location &location,
                   const sourcemeta::core::Vocabularies &,
                   const sourcemeta::core::SchemaResolver &,
-                  const sourcemeta::core::JSON &subschema) -> IREntity {
+                  const sourcemeta::core::JSON &subschema) -> CodegenIREntity {
   ONLY_WHITELIST_KEYWORDS(
       schema, subschema, location.pointer,
       {"$schema", "$id", "$anchor", "$dynamicAnchor", "$defs", "$vocabulary",
@@ -433,7 +446,7 @@ auto handle_oneof(const sourcemeta::core::JSON &schema,
   assert(one_of.is_array());
   assert(one_of.size() >= 2);
 
-  std::vector<IRType> branches;
+  std::vector<CodegenIRType> branches;
   for (std::size_t index = 0; index < one_of.size(); ++index) {
     auto branch_pointer{sourcemeta::core::to_pointer(location.pointer)};
     branch_pointer.push_back("oneOf");
@@ -448,9 +461,10 @@ auto handle_oneof(const sourcemeta::core::JSON &schema,
          .symbol = symbol(frame, branch_location.value().get())});
   }
 
-  return IRUnion{{.pointer = sourcemeta::core::to_pointer(location.pointer),
-                  .symbol = symbol(frame, location)},
-                 std::move(branches)};
+  return CodegenIRUnion{
+      {.pointer = sourcemeta::core::to_pointer(location.pointer),
+       .symbol = symbol(frame, location)},
+      std::move(branches)};
 }
 
 auto handle_ref(const sourcemeta::core::JSON &schema,
@@ -458,7 +472,7 @@ auto handle_ref(const sourcemeta::core::JSON &schema,
                 const sourcemeta::core::SchemaFrame::Location &location,
                 const sourcemeta::core::Vocabularies &,
                 const sourcemeta::core::SchemaResolver &,
-                const sourcemeta::core::JSON &subschema) -> IREntity {
+                const sourcemeta::core::JSON &subschema) -> CodegenIREntity {
   ONLY_WHITELIST_KEYWORDS(schema, subschema, location.pointer,
                           {"$schema", "$id", "$anchor", "$dynamicAnchor",
                            "$defs", "$vocabulary", "$ref", "title",
@@ -477,13 +491,13 @@ auto handle_ref(const sourcemeta::core::JSON &schema,
   const auto &destination{reference->second.destination};
   const auto target{frame.traverse(destination)};
   if (!target.has_value()) {
-    throw UnexpectedSchemaError(schema, location.pointer,
-                                "Could not resolve reference destination");
+    throw CodegenUnexpectedSchemaError(
+        schema, location.pointer, "Could not resolve reference destination");
   }
 
   const auto &target_location{target.value().get()};
 
-  return IRReference{
+  return CodegenIRReference{
       {.pointer = sourcemeta::core::to_pointer(location.pointer),
        .symbol = symbol(frame, location)},
       {.pointer = sourcemeta::core::to_pointer(target_location.pointer),
@@ -495,7 +509,8 @@ auto handle_dynamic_ref(const sourcemeta::core::JSON &schema,
                         const sourcemeta::core::SchemaFrame::Location &location,
                         const sourcemeta::core::Vocabularies &,
                         const sourcemeta::core::SchemaResolver &,
-                        const sourcemeta::core::JSON &subschema) -> IREntity {
+                        const sourcemeta::core::JSON &subschema)
+    -> CodegenIREntity {
   ONLY_WHITELIST_KEYWORDS(schema, subschema, location.pointer,
                           {"$schema", "$id", "$anchor", "$dynamicAnchor",
                            "$defs", "$vocabulary", "$dynamicRef", "title",
@@ -516,13 +531,13 @@ auto handle_dynamic_ref(const sourcemeta::core::JSON &schema,
     const auto &destination{static_reference->second.destination};
     const auto target{frame.traverse(destination)};
     if (!target.has_value()) {
-      throw UnexpectedSchemaError(schema, location.pointer,
-                                  "Could not resolve reference destination");
+      throw CodegenUnexpectedSchemaError(
+          schema, location.pointer, "Could not resolve reference destination");
     }
 
     const auto &target_location{target.value().get()};
 
-    return IRReference{
+    return CodegenIRReference{
         {.pointer = sourcemeta::core::to_pointer(location.pointer),
          .symbol = symbol(frame, location)},
         {.pointer = sourcemeta::core::to_pointer(target_location.pointer),
@@ -537,7 +552,7 @@ auto handle_dynamic_ref(const sourcemeta::core::JSON &schema,
   assert(dynamic_reference->second.fragment.has_value());
   const auto &fragment{dynamic_reference->second.fragment.value()};
 
-  std::vector<IRType> branches;
+  std::vector<CodegenIRType> branches;
   for (const auto &[key, entry] : frame.locations()) {
     if (key.first != sourcemeta::core::SchemaReferenceType::Dynamic ||
         entry.type != sourcemeta::core::SchemaFrame::LocationType::Anchor) {
@@ -555,9 +570,10 @@ auto handle_dynamic_ref(const sourcemeta::core::JSON &schema,
   }
 
   assert(!branches.empty());
-  return IRUnion{{.pointer = sourcemeta::core::to_pointer(location.pointer),
-                  .symbol = symbol(frame, location)},
-                 std::move(branches)};
+  return CodegenIRUnion{
+      {.pointer = sourcemeta::core::to_pointer(location.pointer),
+       .symbol = symbol(frame, location)},
+      std::move(branches)};
 }
 
 auto handle_allof(const sourcemeta::core::JSON &schema,
@@ -565,7 +581,7 @@ auto handle_allof(const sourcemeta::core::JSON &schema,
                   const sourcemeta::core::SchemaFrame::Location &location,
                   const sourcemeta::core::Vocabularies &,
                   const sourcemeta::core::SchemaResolver &,
-                  const sourcemeta::core::JSON &subschema) -> IREntity {
+                  const sourcemeta::core::JSON &subschema) -> CodegenIREntity {
   ONLY_WHITELIST_KEYWORDS(
       schema, subschema, location.pointer,
       {"$schema", "$id", "$anchor", "$dynamicAnchor", "$defs", "$vocabulary",
@@ -584,14 +600,14 @@ auto handle_allof(const sourcemeta::core::JSON &schema,
         frame.traverse(sourcemeta::core::to_weak_pointer(target_pointer))};
     assert(target_location.has_value());
 
-    return IRReference{
+    return CodegenIRReference{
         {.pointer = sourcemeta::core::to_pointer(location.pointer),
          .symbol = symbol(frame, location)},
         {.pointer = std::move(target_pointer),
          .symbol = symbol(frame, target_location.value().get())}};
   }
 
-  std::vector<IRType> branches;
+  std::vector<CodegenIRType> branches;
   for (std::size_t index = 0; index < all_of.size(); ++index) {
     auto branch_pointer{sourcemeta::core::to_pointer(location.pointer)};
     branch_pointer.push_back("allOf");
@@ -606,7 +622,7 @@ auto handle_allof(const sourcemeta::core::JSON &schema,
          .symbol = symbol(frame, branch_location.value().get())});
   }
 
-  return IRIntersection{
+  return CodegenIRIntersection{
       {.pointer = sourcemeta::core::to_pointer(location.pointer),
        .symbol = symbol(frame, location)},
       std::move(branches)};
@@ -618,7 +634,7 @@ auto handle_if_then_else(
     const sourcemeta::core::SchemaFrame::Location &location,
     const sourcemeta::core::Vocabularies &,
     const sourcemeta::core::SchemaResolver &,
-    const sourcemeta::core::JSON &subschema) -> IREntity {
+    const sourcemeta::core::JSON &subschema) -> CodegenIREntity {
   ONLY_WHITELIST_KEYWORDS(schema, subschema, location.pointer,
                           {"$schema", "$id", "$anchor", "$dynamicAnchor",
                            "$defs", "$vocabulary", "if", "then", "else",
@@ -648,7 +664,7 @@ auto handle_if_then_else(
       frame.traverse(sourcemeta::core::to_weak_pointer(else_pointer))};
   assert(else_location.has_value());
 
-  return IRConditional{
+  return CodegenIRConditional{
       {.pointer = sourcemeta::core::to_pointer(location.pointer),
        .symbol = symbol(frame, location)},
       {.pointer = std::move(if_pointer),
@@ -663,7 +679,8 @@ auto default_compiler(const sourcemeta::core::JSON &schema,
                       const sourcemeta::core::SchemaFrame &frame,
                       const sourcemeta::core::SchemaFrame::Location &location,
                       const sourcemeta::core::SchemaResolver &resolver,
-                      const sourcemeta::core::JSON &subschema) -> IREntity {
+                      const sourcemeta::core::JSON &subschema)
+    -> CodegenIREntity {
   const auto vocabularies{frame.vocabularies(location, resolver)};
   assert(!vocabularies.empty());
 
@@ -704,8 +721,8 @@ auto default_compiler(const sourcemeta::core::JSON &schema,
   } else if (subschema.defines("type")) {
     const auto &type_value{subschema.at("type")};
     if (!type_value.is_string()) {
-      throw UnsupportedKeywordValueError(schema, location.pointer, "type",
-                                         "Expected a string value");
+      throw CodegenUnsupportedKeywordValueError(
+          schema, location.pointer, "type", "Expected a string value");
     }
 
     const auto &type_string{type_value.to_string()};
@@ -727,8 +744,8 @@ auto default_compiler(const sourcemeta::core::JSON &schema,
       return handle_array(schema, frame, location, vocabularies, resolver,
                           subschema);
     } else {
-      throw UnsupportedKeywordValueError(schema, location.pointer, "type",
-                                         "Unsupported type value");
+      throw CodegenUnsupportedKeywordValueError(
+          schema, location.pointer, "type", "Unsupported type value");
     }
   } else if (subschema.defines("enum")) {
     return handle_enum(schema, frame, location, vocabularies, resolver,
@@ -754,10 +771,11 @@ auto default_compiler(const sourcemeta::core::JSON &schema,
     return handle_if_then_else(schema, frame, location, vocabularies, resolver,
                                subschema);
   } else if (subschema.defines("not")) {
-    throw UnsupportedKeywordError(schema, location.pointer, "not",
-                                  "Unsupported keyword in subschema");
+    throw CodegenUnsupportedKeywordError(schema, location.pointer, "not",
+                                         "Unsupported keyword in subschema");
   } else {
-    throw UnexpectedSchemaError(schema, location.pointer, "Unsupported schema");
+    throw CodegenUnexpectedSchemaError(schema, location.pointer,
+                                       "Unsupported schema");
   }
 }
 

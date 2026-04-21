@@ -31,7 +31,7 @@
 namespace sourcemeta::blaze {
 
 /// @ingroup codegen
-enum class IRScalarType : std::uint8_t {
+enum class CodegenIRScalarType : std::uint8_t {
   String,
   Number,
   Integer,
@@ -40,89 +40,92 @@ enum class IRScalarType : std::uint8_t {
 };
 
 /// @ingroup codegen
-struct IRType {
+struct CodegenIRType {
   sourcemeta::core::Pointer pointer;
   std::vector<std::string> symbol;
 };
 
 /// @ingroup codegen
-struct IRScalar : IRType {
-  IRScalarType value;
+struct CodegenIRScalar : CodegenIRType {
+  CodegenIRScalarType value;
 };
 
 /// @ingroup codegen
-struct IREnumeration : IRType {
+struct CodegenIREnumeration : CodegenIRType {
   std::vector<sourcemeta::core::JSON> values;
 };
 
 /// @ingroup codegen
-struct IRUnion : IRType {
-  std::vector<IRType> values;
+struct CodegenIRUnion : CodegenIRType {
+  std::vector<CodegenIRType> values;
 };
 
 /// @ingroup codegen
-struct IRIntersection : IRType {
-  std::vector<IRType> values;
+struct CodegenIRIntersection : CodegenIRType {
+  std::vector<CodegenIRType> values;
 };
 
 /// @ingroup codegen
-struct IRObjectValue : IRType {
+struct CodegenIRObjectValue : CodegenIRType {
   bool required;
   bool immutable;
 };
 
 /// @ingroup codegen
-struct IRObjectPatternProperty : IRType {
+struct CodegenIRObjectPatternProperty : CodegenIRType {
   std::optional<std::string> prefix;
 };
 
 /// @ingroup codegen
-struct IRObject : IRType {
+struct CodegenIRObject : CodegenIRType {
   // To preserve the user's ordering
-  std::vector<std::pair<sourcemeta::core::JSON::String, IRObjectValue>> members;
-  std::variant<bool, IRType> additional;
-  std::vector<IRObjectPatternProperty> pattern;
+  std::vector<std::pair<sourcemeta::core::JSON::String, CodegenIRObjectValue>>
+      members;
+  std::variant<bool, CodegenIRType> additional;
+  std::vector<CodegenIRObjectPatternProperty> pattern;
 };
 
 /// @ingroup codegen
-struct IRArray : IRType {
-  std::optional<IRType> items;
+struct CodegenIRArray : CodegenIRType {
+  std::optional<CodegenIRType> items;
 };
 
 /// @ingroup codegen
-struct IRTuple : IRType {
-  std::vector<IRType> items;
-  std::optional<IRType> additional;
+struct CodegenIRTuple : CodegenIRType {
+  std::vector<CodegenIRType> items;
+  std::optional<CodegenIRType> additional;
 };
 
 /// @ingroup codegen
-struct IRImpossible : IRType {};
+struct CodegenIRImpossible : CodegenIRType {};
 
 /// @ingroup codegen
-struct IRAny : IRType {};
+struct CodegenIRAny : CodegenIRType {};
 
 /// @ingroup codegen
-struct IRConditional : IRType {
-  IRType condition;
-  IRType consequent;
-  IRType alternative;
+struct CodegenIRConditional : CodegenIRType {
+  CodegenIRType condition;
+  CodegenIRType consequent;
+  CodegenIRType alternative;
 };
 
 /// @ingroup codegen
-struct IRReference : IRType {
-  IRType target;
+struct CodegenIRReference : CodegenIRType {
+  CodegenIRType target;
 };
 
 /// @ingroup codegen
-using IREntity = std::variant<IRObject, IRScalar, IREnumeration, IRUnion,
-                              IRIntersection, IRConditional, IRArray, IRTuple,
-                              IRImpossible, IRAny, IRReference>;
+using CodegenIREntity =
+    std::variant<CodegenIRObject, CodegenIRScalar, CodegenIREnumeration,
+                 CodegenIRUnion, CodegenIRIntersection, CodegenIRConditional,
+                 CodegenIRArray, CodegenIRTuple, CodegenIRImpossible,
+                 CodegenIRAny, CodegenIRReference>;
 
 /// @ingroup codegen
-using IRResult = std::vector<IREntity>;
+using CodegenIRResult = std::vector<CodegenIREntity>;
 
 /// @ingroup codegen
-using CodegenCompiler = std::function<IREntity(
+using CodegenCompiler = std::function<CodegenIREntity(
     const sourcemeta::core::JSON &, const sourcemeta::core::SchemaFrame &,
     const sourcemeta::core::SchemaFrame::Location &,
     const sourcemeta::core::SchemaResolver &, const sourcemeta::core::JSON &)>;
@@ -133,7 +136,8 @@ auto default_compiler(const sourcemeta::core::JSON &schema,
                       const sourcemeta::core::SchemaFrame &frame,
                       const sourcemeta::core::SchemaFrame::Location &location,
                       const sourcemeta::core::SchemaResolver &resolver,
-                      const sourcemeta::core::JSON &subschema) -> IREntity;
+                      const sourcemeta::core::JSON &subschema)
+    -> CodegenIREntity;
 
 /// @ingroup codegen
 SOURCEMETA_BLAZE_CODEGEN_EXPORT
@@ -142,7 +146,7 @@ auto compile(const sourcemeta::core::JSON &schema,
              const sourcemeta::core::SchemaResolver &resolver,
              const CodegenCompiler &compiler,
              const std::string_view default_dialect = "",
-             const std::string_view default_id = "") -> IRResult;
+             const std::string_view default_id = "") -> CodegenIRResult;
 
 /// @ingroup codegen
 SOURCEMETA_BLAZE_CODEGEN_EXPORT
@@ -160,7 +164,7 @@ auto mangle(const std::string_view prefix,
 
 /// @ingroup codegen
 template <typename T>
-auto generate(std::ostream &output, const IRResult &result,
+auto generate(std::ostream &output, const CodegenIRResult &result,
               const std::string_view prefix = "Schema") -> void {
   T visitor{output, prefix};
   const char *separator{""};

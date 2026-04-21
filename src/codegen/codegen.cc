@@ -55,7 +55,7 @@ auto compile(const sourcemeta::core::JSON &input,
              const sourcemeta::core::SchemaResolver &resolver,
              const CodegenCompiler &compiler,
              const std::string_view default_dialect,
-             const std::string_view default_id) -> IRResult {
+             const std::string_view default_id) -> CodegenIRResult {
   // --------------------------------------------------------------------------
   // (1) Bundle the schema to resolve external references
   // --------------------------------------------------------------------------
@@ -93,7 +93,7 @@ auto compile(const sourcemeta::core::JSON &input,
                      sourcemeta::core::WeakPointer::Hasher,
                      sourcemeta::core::WeakPointer::Comparator>
       visited;
-  IRResult result;
+  CodegenIRResult result;
   for (const auto &[key, location] : frame.locations()) {
     if (location.type !=
             sourcemeta::core::SchemaFrame::LocationType::Resource &&
@@ -124,7 +124,8 @@ auto compile(const sourcemeta::core::JSON &input,
   // --------------------------------------------------------------------------
 
   std::ranges::sort(
-      result, [](const IREntity &left, const IREntity &right) -> bool {
+      result,
+      [](const CodegenIREntity &left, const CodegenIREntity &right) -> bool {
         return std::visit([](const auto &entry) { return entry.pointer; },
                           right) <
                std::visit([](const auto &entry) { return entry.pointer; },

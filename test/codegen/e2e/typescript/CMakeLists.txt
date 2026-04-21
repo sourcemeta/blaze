@@ -23,7 +23,7 @@ foreach(DIALECT_DIRECTORY ${TYPESCRIPT_DIALECT_DIRECTORIES})
       if(IS_DIRECTORY ${CASE_DIRECTORY})
         get_filename_component(CASE_NAME ${CASE_DIRECTORY} NAME)
         list(APPEND E2E_SCHEMAS "${CASE_DIRECTORY}/schema.json")
-        add_test(NAME "e2e.typescript.tsc.${DIALECT_NAME}.${CASE_NAME}"
+        add_test(NAME "blaze.codegen.e2e.typescript.tsc.${DIALECT_NAME}.${CASE_NAME}"
           COMMAND "${TSC_BIN}" --strict --noEmit
             "${CASE_DIRECTORY}/expected.d.ts"
             "${CASE_DIRECTORY}/test.ts")

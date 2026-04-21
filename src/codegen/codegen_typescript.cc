@@ -54,23 +54,23 @@ namespace sourcemeta::blaze {
 TypeScript::TypeScript(std::ostream &stream, const std::string_view type_prefix)
     : output{stream}, prefix{type_prefix} {}
 
-auto TypeScript::operator()(const IRScalar &entry) -> void {
+auto TypeScript::operator()(const CodegenIRScalar &entry) -> void {
   this->output << "export type "
                << mangle(this->prefix, entry.pointer, entry.symbol, this->cache)
                << " = ";
 
   switch (entry.value) {
-    case IRScalarType::String:
+    case CodegenIRScalarType::String:
       this->output << "string";
       break;
-    case IRScalarType::Number:
-    case IRScalarType::Integer:
+    case CodegenIRScalarType::Number:
+    case CodegenIRScalarType::Integer:
       this->output << "number";
       break;
-    case IRScalarType::Boolean:
+    case CodegenIRScalarType::Boolean:
       this->output << "boolean";
       break;
-    case IRScalarType::Null:
+    case CodegenIRScalarType::Null:
       this->output << "null";
       break;
   }
@@ -78,7 +78,7 @@ auto TypeScript::operator()(const IRScalar &entry) -> void {
   this->output << ";\n";
 }
 
-auto TypeScript::operator()(const IREnumeration &entry) -> void {
+auto TypeScript::operator()(const CodegenIREnumeration &entry) -> void {
   this->output << "export type "
                << mangle(this->prefix, entry.pointer, entry.symbol, this->cache)
                << " = ";
@@ -93,17 +93,17 @@ auto TypeScript::operator()(const IREnumeration &entry) -> void {
   this->output << ";\n";
 }
 
-auto TypeScript::operator()(const IRObject &entry) -> void {
+auto TypeScript::operator()(const CodegenIRObject &entry) -> void {
   const auto type_name{
       mangle(this->prefix, entry.pointer, entry.symbol, this->cache)};
   const auto has_typed_additional{
-      std::holds_alternative<IRType>(entry.additional)};
+      std::holds_alternative<CodegenIRType>(entry.additional)};
   const auto allows_any_additional{
       std::holds_alternative<bool>(entry.additional) &&
       std::get<bool>(entry.additional)};
 
   if (has_typed_additional && entry.members.empty() && entry.pattern.empty()) {
-    const auto &additional_type{std::get<IRType>(entry.additional)};
+    const auto &additional_type{std::get<CodegenIRType>(entry.additional)};
     this->output << "export type " << type_name << " = Record<string, "
                  << mangle(this->prefix, additional_type.pointer,
                            additional_type.symbol, this->cache)
@@ -198,7 +198,7 @@ auto TypeScript::operator()(const IRObject &entry) -> void {
     }
 
     if (has_typed_additional) {
-      const auto &additional_type{std::get<IRType>(entry.additional)};
+      const auto &additional_type{std::get<CodegenIRType>(entry.additional)};
       this->output << "    "
                    << mangle(this->prefix, additional_type.pointer,
                              additional_type.symbol, this->cache)
@@ -211,19 +211,19 @@ auto TypeScript::operator()(const IRObject &entry) -> void {
   this->output << "}\n";
 }
 
-auto TypeScript::operator()(const IRImpossible &entry) -> void {
+auto TypeScript::operator()(const CodegenIRImpossible &entry) -> void {
   this->output << "export type "
                << mangle(this->prefix, entry.pointer, entry.symbol, this->cache)
                << " = never;\n";
 }
 
-auto TypeScript::operator()(const IRAny &entry) -> void {
+auto TypeScript::operator()(const CodegenIRAny &entry) -> void {
   this->output << "export type "
                << mangle(this->prefix, entry.pointer, entry.symbol, this->cache)
                << " = unknown;\n";
 }
 
-auto TypeScript::operator()(const IRArray &entry) -> void {
+auto TypeScript::operator()(const CodegenIRArray &entry) -> void {
   this->output << "export type "
                << mangle(this->prefix, entry.pointer, entry.symbol, this->cache)
                << " = ";
@@ -239,7 +239,7 @@ auto TypeScript::operator()(const IRArray &entry) -> void {
   this->output << ";\n";
 }
 
-auto TypeScript::operator()(const IRReference &entry) -> void {
+auto TypeScript::operator()(const CodegenIRReference &entry) -> void {
   this->output << "export type "
                << mangle(this->prefix, entry.pointer, entry.symbol, this->cache)
                << " = "
@@ -248,7 +248,7 @@ auto TypeScript::operator()(const IRReference &entry) -> void {
                << ";\n";
 }
 
-auto TypeScript::operator()(const IRTuple &entry) -> void {
+auto TypeScript::operator()(const CodegenIRTuple &entry) -> void {
   this->output << "export type "
                << mangle(this->prefix, entry.pointer, entry.symbol, this->cache)
                << " = [";
@@ -271,7 +271,7 @@ auto TypeScript::operator()(const IRTuple &entry) -> void {
   this->output << "];\n";
 }
 
-auto TypeScript::operator()(const IRUnion &entry) -> void {
+auto TypeScript::operator()(const CodegenIRUnion &entry) -> void {
   this->output << "export type "
                << mangle(this->prefix, entry.pointer, entry.symbol, this->cache)
                << " =\n";
@@ -287,7 +287,7 @@ auto TypeScript::operator()(const IRUnion &entry) -> void {
   this->output << ";\n";
 }
 
-auto TypeScript::operator()(const IRIntersection &entry) -> void {
+auto TypeScript::operator()(const CodegenIRIntersection &entry) -> void {
   this->output << "export type "
                << mangle(this->prefix, entry.pointer, entry.symbol, this->cache)
                << " =\n";
@@ -303,7 +303,7 @@ auto TypeScript::operator()(const IRIntersection &entry) -> void {
   this->output << ";\n";
 }
 
-auto TypeScript::operator()(const IRConditional &entry) -> void {
+auto TypeScript::operator()(const CodegenIRConditional &entry) -> void {
   // As a notable limitation, TypeScript cannot express the negation of an
   // if/then/else condition, so the else branch is wider than what JSON
   // Schema allows

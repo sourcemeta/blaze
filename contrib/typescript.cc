@@ -39,7 +39,7 @@ auto main(int argc, char *argv[]) -> int {
 
     sourcemeta::blaze::generate<sourcemeta::blaze::TypeScript>(std::cout,
                                                                result, prefix);
-  } catch (const sourcemeta::blaze::UnsupportedKeywordError &error) {
+  } catch (const sourcemeta::blaze::CodegenUnsupportedKeywordError &error) {
     std::ostringstream pointer;
     sourcemeta::core::stringify(error.pointer(), pointer);
     std::cerr << "error: " << error.what() << "\n";
@@ -49,7 +49,8 @@ auto main(int argc, char *argv[]) -> int {
     sourcemeta::core::prettify(error.json(), std::cerr);
     std::cerr << "\n";
     return EXIT_FAILURE;
-  } catch (const sourcemeta::blaze::UnsupportedKeywordValueError &error) {
+  } catch (
+      const sourcemeta::blaze::CodegenUnsupportedKeywordValueError &error) {
     std::ostringstream pointer;
     sourcemeta::core::stringify(error.pointer(), pointer);
     std::cerr << "error: " << error.what() << "\n";
@@ -59,7 +60,7 @@ auto main(int argc, char *argv[]) -> int {
     sourcemeta::core::prettify(error.json(), std::cerr);
     std::cerr << "\n";
     return EXIT_FAILURE;
-  } catch (const sourcemeta::blaze::UnexpectedSchemaError &error) {
+  } catch (const sourcemeta::blaze::CodegenUnexpectedSchemaError &error) {
     std::ostringstream pointer;
     sourcemeta::core::stringify(error.pointer(), pointer);
     std::cerr << "error: " << error.what() << "\n";

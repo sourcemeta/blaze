@@ -4,7 +4,7 @@
 
 #include <sourcemeta/core/jsonschema.h>
 
-TEST(IR_Symbol, nested_additional_properties_items) {
+TEST(Codegen_symbol, nested_additional_properties_items) {
   const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2020-12/schema",
     "type": "object",
@@ -39,7 +39,7 @@ TEST(IR_Symbol, nested_additional_properties_items) {
   EXPECT_EQ(result.at(2), "items");
 }
 
-TEST(IR_Symbol, inside_defs) {
+TEST(Codegen_symbol, inside_defs) {
   const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2020-12/schema",
     "$defs": {
@@ -70,7 +70,7 @@ TEST(IR_Symbol, inside_defs) {
   EXPECT_EQ(result.at(1), "name");
 }
 
-TEST(IR_Symbol, property_named_properties) {
+TEST(Codegen_symbol, property_named_properties) {
   const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2020-12/schema",
     "type": "object",
@@ -96,7 +96,7 @@ TEST(IR_Symbol, property_named_properties) {
   EXPECT_EQ(result.at(0), "properties");
 }
 
-TEST(IR_Symbol, anyof_child) {
+TEST(Codegen_symbol, anyof_child) {
   const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2020-12/schema",
     "anyOf": [

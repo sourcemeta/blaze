@@ -24,30 +24,32 @@ namespace sourcemeta::blaze {
 
 /// @ingroup codegen
 /// An error that represents an unsupported keyword during IR compilation
-class SOURCEMETA_BLAZE_CODEGEN_EXPORT UnsupportedKeywordError
+class SOURCEMETA_BLAZE_CODEGEN_EXPORT CodegenUnsupportedKeywordError
     : public std::exception {
 public:
-  UnsupportedKeywordError(sourcemeta::core::JSON json,
-                          sourcemeta::core::Pointer pointer,
-                          std::string keyword, const char *message)
+  CodegenUnsupportedKeywordError(sourcemeta::core::JSON json,
+                                 sourcemeta::core::Pointer pointer,
+                                 std::string keyword, const char *message)
       : json_{std::move(json)}, pointer_{std::move(pointer)},
         keyword_{std::move(keyword)}, message_{message} {}
-  UnsupportedKeywordError(sourcemeta::core::JSON json,
-                          const sourcemeta::core::WeakPointer &pointer,
-                          std::string keyword, const char *message)
-      : UnsupportedKeywordError{std::move(json),
-                                sourcemeta::core::to_pointer(pointer),
-                                std::move(keyword), message} {}
-  UnsupportedKeywordError(sourcemeta::core::JSON json,
-                          sourcemeta::core::Pointer pointer,
-                          std::string keyword, std::string message) = delete;
-  UnsupportedKeywordError(sourcemeta::core::JSON json,
-                          sourcemeta::core::Pointer pointer,
-                          std::string keyword, std::string &&message) = delete;
-  UnsupportedKeywordError(sourcemeta::core::JSON json,
-                          sourcemeta::core::Pointer pointer,
-                          std::string keyword,
-                          std::string_view message) = delete;
+  CodegenUnsupportedKeywordError(sourcemeta::core::JSON json,
+                                 const sourcemeta::core::WeakPointer &pointer,
+                                 std::string keyword, const char *message)
+      : CodegenUnsupportedKeywordError{std::move(json),
+                                       sourcemeta::core::to_pointer(pointer),
+                                       std::move(keyword), message} {}
+  CodegenUnsupportedKeywordError(sourcemeta::core::JSON json,
+                                 sourcemeta::core::Pointer pointer,
+                                 std::string keyword,
+                                 std::string message) = delete;
+  CodegenUnsupportedKeywordError(sourcemeta::core::JSON json,
+                                 sourcemeta::core::Pointer pointer,
+                                 std::string keyword,
+                                 std::string &&message) = delete;
+  CodegenUnsupportedKeywordError(sourcemeta::core::JSON json,
+                                 sourcemeta::core::Pointer pointer,
+                                 std::string keyword,
+                                 std::string_view message) = delete;
 
   [[nodiscard]] auto what() const noexcept -> const char * override {
     return this->message_;
@@ -75,32 +77,32 @@ private:
 
 /// @ingroup codegen
 /// An error that represents an unsupported keyword value during IR compilation
-class SOURCEMETA_BLAZE_CODEGEN_EXPORT UnsupportedKeywordValueError
+class SOURCEMETA_BLAZE_CODEGEN_EXPORT CodegenUnsupportedKeywordValueError
     : public std::exception {
 public:
-  UnsupportedKeywordValueError(sourcemeta::core::JSON json,
-                               sourcemeta::core::Pointer pointer,
-                               std::string keyword, const char *message)
+  CodegenUnsupportedKeywordValueError(sourcemeta::core::JSON json,
+                                      sourcemeta::core::Pointer pointer,
+                                      std::string keyword, const char *message)
       : json_{std::move(json)}, pointer_{std::move(pointer)},
         keyword_{std::move(keyword)}, message_{message} {}
-  UnsupportedKeywordValueError(sourcemeta::core::JSON json,
-                               const sourcemeta::core::WeakPointer &pointer,
-                               std::string keyword, const char *message)
-      : UnsupportedKeywordValueError{std::move(json),
-                                     sourcemeta::core::to_pointer(pointer),
-                                     std::move(keyword), message} {}
-  UnsupportedKeywordValueError(sourcemeta::core::JSON json,
-                               sourcemeta::core::Pointer pointer,
-                               std::string keyword,
-                               std::string message) = delete;
-  UnsupportedKeywordValueError(sourcemeta::core::JSON json,
-                               sourcemeta::core::Pointer pointer,
-                               std::string keyword,
-                               std::string &&message) = delete;
-  UnsupportedKeywordValueError(sourcemeta::core::JSON json,
-                               sourcemeta::core::Pointer pointer,
-                               std::string keyword,
-                               std::string_view message) = delete;
+  CodegenUnsupportedKeywordValueError(
+      sourcemeta::core::JSON json, const sourcemeta::core::WeakPointer &pointer,
+      std::string keyword, const char *message)
+      : CodegenUnsupportedKeywordValueError{
+            std::move(json), sourcemeta::core::to_pointer(pointer),
+            std::move(keyword), message} {}
+  CodegenUnsupportedKeywordValueError(sourcemeta::core::JSON json,
+                                      sourcemeta::core::Pointer pointer,
+                                      std::string keyword,
+                                      std::string message) = delete;
+  CodegenUnsupportedKeywordValueError(sourcemeta::core::JSON json,
+                                      sourcemeta::core::Pointer pointer,
+                                      std::string keyword,
+                                      std::string &&message) = delete;
+  CodegenUnsupportedKeywordValueError(sourcemeta::core::JSON json,
+                                      sourcemeta::core::Pointer pointer,
+                                      std::string keyword,
+                                      std::string_view message) = delete;
 
   [[nodiscard]] auto what() const noexcept -> const char * override {
     return this->message_;
@@ -128,27 +130,28 @@ private:
 
 /// @ingroup codegen
 /// An error that represents an unexpected schema during IR compilation
-class SOURCEMETA_BLAZE_CODEGEN_EXPORT UnexpectedSchemaError
+class SOURCEMETA_BLAZE_CODEGEN_EXPORT CodegenUnexpectedSchemaError
     : public std::exception {
 public:
-  UnexpectedSchemaError(sourcemeta::core::JSON json,
-                        sourcemeta::core::Pointer pointer, const char *message)
+  CodegenUnexpectedSchemaError(sourcemeta::core::JSON json,
+                               sourcemeta::core::Pointer pointer,
+                               const char *message)
       : json_{std::move(json)}, pointer_{std::move(pointer)},
         message_{message} {}
-  UnexpectedSchemaError(sourcemeta::core::JSON json,
-                        const sourcemeta::core::WeakPointer &pointer,
-                        const char *message)
-      : UnexpectedSchemaError{std::move(json),
-                              sourcemeta::core::to_pointer(pointer), message} {}
-  UnexpectedSchemaError(sourcemeta::core::JSON json,
-                        sourcemeta::core::Pointer pointer,
-                        std::string message) = delete;
-  UnexpectedSchemaError(sourcemeta::core::JSON json,
-                        sourcemeta::core::Pointer pointer,
-                        std::string &&message) = delete;
-  UnexpectedSchemaError(sourcemeta::core::JSON json,
-                        sourcemeta::core::Pointer pointer,
-                        std::string_view message) = delete;
+  CodegenUnexpectedSchemaError(sourcemeta::core::JSON json,
+                               const sourcemeta::core::WeakPointer &pointer,
+                               const char *message)
+      : CodegenUnexpectedSchemaError{
+            std::move(json), sourcemeta::core::to_pointer(pointer), message} {}
+  CodegenUnexpectedSchemaError(sourcemeta::core::JSON json,
+                               sourcemeta::core::Pointer pointer,
+                               std::string message) = delete;
+  CodegenUnexpectedSchemaError(sourcemeta::core::JSON json,
+                               sourcemeta::core::Pointer pointer,
+                               std::string &&message) = delete;
+  CodegenUnexpectedSchemaError(sourcemeta::core::JSON json,
+                               sourcemeta::core::Pointer pointer,
+                               std::string_view message) = delete;
 
   [[nodiscard]] auto what() const noexcept -> const char * override {
     return this->message_;

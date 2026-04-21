@@ -4,7 +4,7 @@
 
 #include "codegen_test_utils.h"
 
-TEST(IR_2020_12, test_1) {
+TEST(Codegen_2020_12, test_1) {
   const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2020-12/schema",
     "type": "string"
@@ -19,10 +19,10 @@ TEST(IR_2020_12, test_1) {
   EXPECT_EQ(result.size(), 1);
 
   EXPECT_IR_SCALAR(result, 0, String, "");
-  EXPECT_SYMBOL(std::get<IRScalar>(result.at(0)).symbol);
+  EXPECT_SYMBOL(std::get<CodegenIRScalar>(result.at(0)).symbol);
 }
 
-TEST(IR_2020_12, default_dialect_parameter) {
+TEST(Codegen_2020_12, default_dialect_parameter) {
   const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
     "type": "string"
   })JSON")};
@@ -37,10 +37,10 @@ TEST(IR_2020_12, default_dialect_parameter) {
   EXPECT_EQ(result.size(), 1);
 
   EXPECT_IR_SCALAR(result, 0, String, "");
-  EXPECT_SYMBOL(std::get<IRScalar>(result.at(0)).symbol);
+  EXPECT_SYMBOL(std::get<CodegenIRScalar>(result.at(0)).symbol);
 }
 
-TEST(IR_2020_12, test_2) {
+TEST(Codegen_2020_12, test_2) {
   const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2020-12/schema",
     "type": "object",
@@ -60,26 +60,30 @@ TEST(IR_2020_12, test_2) {
   EXPECT_EQ(result.size(), 2);
 
   EXPECT_IR_SCALAR(result, 0, String, "/properties/foo");
-  EXPECT_SYMBOL(std::get<IRScalar>(result.at(0)).symbol, "foo");
+  EXPECT_SYMBOL(std::get<CodegenIRScalar>(result.at(0)).symbol, "foo");
 
-  EXPECT_TRUE(std::holds_alternative<IRObject>(result.at(1)));
-  EXPECT_AS_STRING(std::get<IRObject>(result.at(1)).pointer, "");
-  EXPECT_SYMBOL(std::get<IRObject>(result.at(1)).symbol);
-  EXPECT_EQ(std::get<IRObject>(result.at(1)).members.size(), 1);
-  EXPECT_EQ(std::get<IRObject>(result.at(1)).members.at(0).first, "foo");
-  EXPECT_FALSE(std::get<IRObject>(result.at(1)).members.at(0).second.required);
-  EXPECT_FALSE(std::get<IRObject>(result.at(1)).members.at(0).second.immutable);
+  EXPECT_TRUE(std::holds_alternative<CodegenIRObject>(result.at(1)));
+  EXPECT_AS_STRING(std::get<CodegenIRObject>(result.at(1)).pointer, "");
+  EXPECT_SYMBOL(std::get<CodegenIRObject>(result.at(1)).symbol);
+  EXPECT_EQ(std::get<CodegenIRObject>(result.at(1)).members.size(), 1);
+  EXPECT_EQ(std::get<CodegenIRObject>(result.at(1)).members.at(0).first, "foo");
+  EXPECT_FALSE(
+      std::get<CodegenIRObject>(result.at(1)).members.at(0).second.required);
+  EXPECT_FALSE(
+      std::get<CodegenIRObject>(result.at(1)).members.at(0).second.immutable);
   EXPECT_AS_STRING(
-      std::get<IRObject>(result.at(1)).members.at(0).second.pointer,
+      std::get<CodegenIRObject>(result.at(1)).members.at(0).second.pointer,
       "/properties/foo");
-  EXPECT_SYMBOL(std::get<IRObject>(result.at(1)).members.at(0).second.symbol,
-                "foo");
+  EXPECT_SYMBOL(
+      std::get<CodegenIRObject>(result.at(1)).members.at(0).second.symbol,
+      "foo");
   EXPECT_TRUE(std::holds_alternative<bool>(
-      std::get<IRObject>(result.at(1)).additional));
-  EXPECT_TRUE(std::get<bool>(std::get<IRObject>(result.at(1)).additional));
+      std::get<CodegenIRObject>(result.at(1)).additional));
+  EXPECT_TRUE(
+      std::get<bool>(std::get<CodegenIRObject>(result.at(1)).additional));
 }
 
-TEST(IR_2020_12, test_3) {
+TEST(Codegen_2020_12, test_3) {
   const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2020-12/schema",
     "type": "integer"
@@ -94,10 +98,10 @@ TEST(IR_2020_12, test_3) {
   EXPECT_EQ(result.size(), 1);
 
   EXPECT_IR_SCALAR(result, 0, Integer, "");
-  EXPECT_SYMBOL(std::get<IRScalar>(result.at(0)).symbol);
+  EXPECT_SYMBOL(std::get<CodegenIRScalar>(result.at(0)).symbol);
 }
 
-TEST(IR_2020_12, test_4) {
+TEST(Codegen_2020_12, test_4) {
   const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2020-12/schema",
     "type": "number"
@@ -112,10 +116,10 @@ TEST(IR_2020_12, test_4) {
   EXPECT_EQ(result.size(), 1);
 
   EXPECT_IR_SCALAR(result, 0, Number, "");
-  EXPECT_SYMBOL(std::get<IRScalar>(result.at(0)).symbol);
+  EXPECT_SYMBOL(std::get<CodegenIRScalar>(result.at(0)).symbol);
 }
 
-TEST(IR_2020_12, test_5) {
+TEST(Codegen_2020_12, test_5) {
   const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2020-12/schema",
     "type": "integer",
@@ -133,10 +137,10 @@ TEST(IR_2020_12, test_5) {
   EXPECT_EQ(result.size(), 1);
 
   EXPECT_IR_SCALAR(result, 0, Integer, "");
-  EXPECT_SYMBOL(std::get<IRScalar>(result.at(0)).symbol);
+  EXPECT_SYMBOL(std::get<CodegenIRScalar>(result.at(0)).symbol);
 }
 
-TEST(IR_2020_12, test_6) {
+TEST(Codegen_2020_12, test_6) {
   const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2020-12/schema",
     "type": "number",
@@ -154,10 +158,10 @@ TEST(IR_2020_12, test_6) {
   EXPECT_EQ(result.size(), 1);
 
   EXPECT_IR_SCALAR(result, 0, Number, "");
-  EXPECT_SYMBOL(std::get<IRScalar>(result.at(0)).symbol);
+  EXPECT_SYMBOL(std::get<CodegenIRScalar>(result.at(0)).symbol);
 }
 
-TEST(IR_2020_12, enum_null) {
+TEST(Codegen_2020_12, enum_null) {
   const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2020-12/schema",
     "enum": [ null ]
@@ -172,10 +176,10 @@ TEST(IR_2020_12, enum_null) {
   EXPECT_EQ(result.size(), 1);
 
   EXPECT_IR_SCALAR(result, 0, Null, "");
-  EXPECT_SYMBOL(std::get<IRScalar>(result.at(0)).symbol);
+  EXPECT_SYMBOL(std::get<CodegenIRScalar>(result.at(0)).symbol);
 }
 
-TEST(IR_2020_12, enum_boolean_true_false) {
+TEST(Codegen_2020_12, enum_boolean_true_false) {
   const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2020-12/schema",
     "enum": [ true, false ]
@@ -190,10 +194,10 @@ TEST(IR_2020_12, enum_boolean_true_false) {
   EXPECT_EQ(result.size(), 1);
 
   EXPECT_IR_SCALAR(result, 0, Boolean, "");
-  EXPECT_SYMBOL(std::get<IRScalar>(result.at(0)).symbol);
+  EXPECT_SYMBOL(std::get<CodegenIRScalar>(result.at(0)).symbol);
 }
 
-TEST(IR_2020_12, enum_boolean_false_true) {
+TEST(Codegen_2020_12, enum_boolean_false_true) {
   const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2020-12/schema",
     "enum": [ false, true ]
@@ -208,10 +212,10 @@ TEST(IR_2020_12, enum_boolean_false_true) {
   EXPECT_EQ(result.size(), 1);
 
   EXPECT_IR_SCALAR(result, 0, Boolean, "");
-  EXPECT_SYMBOL(std::get<IRScalar>(result.at(0)).symbol);
+  EXPECT_SYMBOL(std::get<CodegenIRScalar>(result.at(0)).symbol);
 }
 
-TEST(IR_2020_12, enum_string_values) {
+TEST(Codegen_2020_12, enum_string_values) {
   const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2020-12/schema",
     "enum": [ "foo", "bar", "baz" ]
@@ -225,19 +229,22 @@ TEST(IR_2020_12, enum_string_values) {
 
   EXPECT_EQ(result.size(), 1);
 
-  EXPECT_TRUE(std::holds_alternative<IREnumeration>(result.at(0)));
-  EXPECT_AS_STRING(std::get<IREnumeration>(result.at(0)).pointer, "");
-  EXPECT_SYMBOL(std::get<IREnumeration>(result.at(0)).symbol);
-  EXPECT_EQ(std::get<IREnumeration>(result.at(0)).values.size(), 3);
-  EXPECT_EQ(std::get<IREnumeration>(result.at(0)).values.at(0).to_string(),
-            "foo");
-  EXPECT_EQ(std::get<IREnumeration>(result.at(0)).values.at(1).to_string(),
-            "bar");
-  EXPECT_EQ(std::get<IREnumeration>(result.at(0)).values.at(2).to_string(),
-            "baz");
+  EXPECT_TRUE(std::holds_alternative<CodegenIREnumeration>(result.at(0)));
+  EXPECT_AS_STRING(std::get<CodegenIREnumeration>(result.at(0)).pointer, "");
+  EXPECT_SYMBOL(std::get<CodegenIREnumeration>(result.at(0)).symbol);
+  EXPECT_EQ(std::get<CodegenIREnumeration>(result.at(0)).values.size(), 3);
+  EXPECT_EQ(
+      std::get<CodegenIREnumeration>(result.at(0)).values.at(0).to_string(),
+      "foo");
+  EXPECT_EQ(
+      std::get<CodegenIREnumeration>(result.at(0)).values.at(1).to_string(),
+      "bar");
+  EXPECT_EQ(
+      std::get<CodegenIREnumeration>(result.at(0)).values.at(2).to_string(),
+      "baz");
 }
 
-TEST(IR_2020_12, const_null) {
+TEST(Codegen_2020_12, const_null) {
   const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2020-12/schema",
     "const": null
@@ -252,10 +259,10 @@ TEST(IR_2020_12, const_null) {
   EXPECT_EQ(result.size(), 1);
 
   EXPECT_IR_SCALAR(result, 0, Null, "");
-  EXPECT_SYMBOL(std::get<IRScalar>(result.at(0)).symbol);
+  EXPECT_SYMBOL(std::get<CodegenIRScalar>(result.at(0)).symbol);
 }
 
-TEST(IR_2020_12, const_string) {
+TEST(Codegen_2020_12, const_string) {
   const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2020-12/schema",
     "const": "hello"
@@ -269,15 +276,16 @@ TEST(IR_2020_12, const_string) {
 
   EXPECT_EQ(result.size(), 1);
 
-  EXPECT_TRUE(std::holds_alternative<IREnumeration>(result.at(0)));
-  EXPECT_AS_STRING(std::get<IREnumeration>(result.at(0)).pointer, "");
-  EXPECT_SYMBOL(std::get<IREnumeration>(result.at(0)).symbol);
-  EXPECT_EQ(std::get<IREnumeration>(result.at(0)).values.size(), 1);
-  EXPECT_EQ(std::get<IREnumeration>(result.at(0)).values.at(0).to_string(),
-            "hello");
+  EXPECT_TRUE(std::holds_alternative<CodegenIREnumeration>(result.at(0)));
+  EXPECT_AS_STRING(std::get<CodegenIREnumeration>(result.at(0)).pointer, "");
+  EXPECT_SYMBOL(std::get<CodegenIREnumeration>(result.at(0)).symbol);
+  EXPECT_EQ(std::get<CodegenIREnumeration>(result.at(0)).values.size(), 1);
+  EXPECT_EQ(
+      std::get<CodegenIREnumeration>(result.at(0)).values.at(0).to_string(),
+      "hello");
 }
 
-TEST(IR_2020_12, const_integer) {
+TEST(Codegen_2020_12, const_integer) {
   const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2020-12/schema",
     "const": 42
@@ -291,15 +299,16 @@ TEST(IR_2020_12, const_integer) {
 
   EXPECT_EQ(result.size(), 1);
 
-  EXPECT_TRUE(std::holds_alternative<IREnumeration>(result.at(0)));
-  EXPECT_AS_STRING(std::get<IREnumeration>(result.at(0)).pointer, "");
-  EXPECT_SYMBOL(std::get<IREnumeration>(result.at(0)).symbol);
-  EXPECT_EQ(std::get<IREnumeration>(result.at(0)).values.size(), 1);
-  EXPECT_EQ(std::get<IREnumeration>(result.at(0)).values.at(0).to_integer(),
-            42);
+  EXPECT_TRUE(std::holds_alternative<CodegenIREnumeration>(result.at(0)));
+  EXPECT_AS_STRING(std::get<CodegenIREnumeration>(result.at(0)).pointer, "");
+  EXPECT_SYMBOL(std::get<CodegenIREnumeration>(result.at(0)).symbol);
+  EXPECT_EQ(std::get<CodegenIREnumeration>(result.at(0)).values.size(), 1);
+  EXPECT_EQ(
+      std::get<CodegenIREnumeration>(result.at(0)).values.at(0).to_integer(),
+      42);
 }
 
-TEST(IR_2020_12, const_boolean_true) {
+TEST(Codegen_2020_12, const_boolean_true) {
   const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2020-12/schema",
     "const": true
@@ -313,14 +322,15 @@ TEST(IR_2020_12, const_boolean_true) {
 
   EXPECT_EQ(result.size(), 1);
 
-  EXPECT_TRUE(std::holds_alternative<IREnumeration>(result.at(0)));
-  EXPECT_AS_STRING(std::get<IREnumeration>(result.at(0)).pointer, "");
-  EXPECT_SYMBOL(std::get<IREnumeration>(result.at(0)).symbol);
-  EXPECT_EQ(std::get<IREnumeration>(result.at(0)).values.size(), 1);
-  EXPECT_TRUE(std::get<IREnumeration>(result.at(0)).values.at(0).to_boolean());
+  EXPECT_TRUE(std::holds_alternative<CodegenIREnumeration>(result.at(0)));
+  EXPECT_AS_STRING(std::get<CodegenIREnumeration>(result.at(0)).pointer, "");
+  EXPECT_SYMBOL(std::get<CodegenIREnumeration>(result.at(0)).symbol);
+  EXPECT_EQ(std::get<CodegenIREnumeration>(result.at(0)).values.size(), 1);
+  EXPECT_TRUE(
+      std::get<CodegenIREnumeration>(result.at(0)).values.at(0).to_boolean());
 }
 
-TEST(IR_2020_12, object_type_only) {
+TEST(Codegen_2020_12, object_type_only) {
   const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2020-12/schema",
     "type": "object"
@@ -334,16 +344,17 @@ TEST(IR_2020_12, object_type_only) {
 
   EXPECT_EQ(result.size(), 1);
 
-  EXPECT_TRUE(std::holds_alternative<IRObject>(result.at(0)));
-  EXPECT_AS_STRING(std::get<IRObject>(result.at(0)).pointer, "");
-  EXPECT_SYMBOL(std::get<IRObject>(result.at(0)).symbol);
-  EXPECT_TRUE(std::get<IRObject>(result.at(0)).members.empty());
+  EXPECT_TRUE(std::holds_alternative<CodegenIRObject>(result.at(0)));
+  EXPECT_AS_STRING(std::get<CodegenIRObject>(result.at(0)).pointer, "");
+  EXPECT_SYMBOL(std::get<CodegenIRObject>(result.at(0)).symbol);
+  EXPECT_TRUE(std::get<CodegenIRObject>(result.at(0)).members.empty());
   EXPECT_TRUE(std::holds_alternative<bool>(
-      std::get<IRObject>(result.at(0)).additional));
-  EXPECT_TRUE(std::get<bool>(std::get<IRObject>(result.at(0)).additional));
+      std::get<CodegenIRObject>(result.at(0)).additional));
+  EXPECT_TRUE(
+      std::get<bool>(std::get<CodegenIRObject>(result.at(0)).additional));
 }
 
-TEST(IR_2020_12, object_empty_properties) {
+TEST(Codegen_2020_12, object_empty_properties) {
   const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2020-12/schema",
     "type": "object",
@@ -358,16 +369,17 @@ TEST(IR_2020_12, object_empty_properties) {
 
   EXPECT_EQ(result.size(), 1);
 
-  EXPECT_TRUE(std::holds_alternative<IRObject>(result.at(0)));
-  EXPECT_AS_STRING(std::get<IRObject>(result.at(0)).pointer, "");
-  EXPECT_SYMBOL(std::get<IRObject>(result.at(0)).symbol);
-  EXPECT_TRUE(std::get<IRObject>(result.at(0)).members.empty());
+  EXPECT_TRUE(std::holds_alternative<CodegenIRObject>(result.at(0)));
+  EXPECT_AS_STRING(std::get<CodegenIRObject>(result.at(0)).pointer, "");
+  EXPECT_SYMBOL(std::get<CodegenIRObject>(result.at(0)).symbol);
+  EXPECT_TRUE(std::get<CodegenIRObject>(result.at(0)).members.empty());
   EXPECT_TRUE(std::holds_alternative<bool>(
-      std::get<IRObject>(result.at(0)).additional));
-  EXPECT_TRUE(std::get<bool>(std::get<IRObject>(result.at(0)).additional));
+      std::get<CodegenIRObject>(result.at(0)).additional));
+  EXPECT_TRUE(
+      std::get<bool>(std::get<CodegenIRObject>(result.at(0)).additional));
 }
 
-TEST(IR_2020_12, object_with_additional_properties) {
+TEST(Codegen_2020_12, object_with_additional_properties) {
   const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2020-12/schema",
     "type": "object",
@@ -386,35 +398,41 @@ TEST(IR_2020_12, object_with_additional_properties) {
   EXPECT_EQ(result.size(), 3);
 
   EXPECT_IR_SCALAR(result, 0, String, "/properties/foo");
-  EXPECT_SYMBOL(std::get<IRScalar>(result.at(0)).symbol, "foo");
+  EXPECT_SYMBOL(std::get<CodegenIRScalar>(result.at(0)).symbol, "foo");
   EXPECT_IR_SCALAR(result, 1, Integer, "/additionalProperties");
-  EXPECT_SYMBOL(std::get<IRScalar>(result.at(1)).symbol,
+  EXPECT_SYMBOL(std::get<CodegenIRScalar>(result.at(1)).symbol,
                 "additionalProperties");
 
-  EXPECT_TRUE(std::holds_alternative<IRObject>(result.at(2)));
-  EXPECT_AS_STRING(std::get<IRObject>(result.at(2)).pointer, "");
-  EXPECT_SYMBOL(std::get<IRObject>(result.at(2)).symbol);
-  EXPECT_EQ(std::get<IRObject>(result.at(2)).members.size(), 1);
-  EXPECT_TRUE(std::get<IRObject>(result.at(2)).members.at(0).first == "foo");
-  EXPECT_FALSE(std::get<IRObject>(result.at(2)).members.at(0).second.required);
-  EXPECT_FALSE(std::get<IRObject>(result.at(2)).members.at(0).second.immutable);
+  EXPECT_TRUE(std::holds_alternative<CodegenIRObject>(result.at(2)));
+  EXPECT_AS_STRING(std::get<CodegenIRObject>(result.at(2)).pointer, "");
+  EXPECT_SYMBOL(std::get<CodegenIRObject>(result.at(2)).symbol);
+  EXPECT_EQ(std::get<CodegenIRObject>(result.at(2)).members.size(), 1);
+  EXPECT_TRUE(std::get<CodegenIRObject>(result.at(2)).members.at(0).first ==
+              "foo");
+  EXPECT_FALSE(
+      std::get<CodegenIRObject>(result.at(2)).members.at(0).second.required);
+  EXPECT_FALSE(
+      std::get<CodegenIRObject>(result.at(2)).members.at(0).second.immutable);
   EXPECT_AS_STRING(
-      std::get<IRObject>(result.at(2)).members.at(0).second.pointer,
+      std::get<CodegenIRObject>(result.at(2)).members.at(0).second.pointer,
       "/properties/foo");
-  EXPECT_SYMBOL(std::get<IRObject>(result.at(2)).members.at(0).second.symbol,
-                "foo");
-
-  EXPECT_TRUE(std::holds_alternative<IRType>(
-      std::get<IRObject>(result.at(2)).additional));
-  EXPECT_AS_STRING(
-      std::get<IRType>(std::get<IRObject>(result.at(2)).additional).pointer,
-      "/additionalProperties");
   EXPECT_SYMBOL(
-      std::get<IRType>(std::get<IRObject>(result.at(2)).additional).symbol,
-      "additionalProperties");
+      std::get<CodegenIRObject>(result.at(2)).members.at(0).second.symbol,
+      "foo");
+
+  EXPECT_TRUE(std::holds_alternative<CodegenIRType>(
+      std::get<CodegenIRObject>(result.at(2)).additional));
+  EXPECT_AS_STRING(std::get<CodegenIRType>(
+                       std::get<CodegenIRObject>(result.at(2)).additional)
+                       .pointer,
+                   "/additionalProperties");
+  EXPECT_SYMBOL(std::get<CodegenIRType>(
+                    std::get<CodegenIRObject>(result.at(2)).additional)
+                    .symbol,
+                "additionalProperties");
 }
 
-TEST(IR_2020_12, object_with_impossible_property) {
+TEST(Codegen_2020_12, object_with_impossible_property) {
   const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2020-12/schema",
     "type": "object",
@@ -432,26 +450,31 @@ TEST(IR_2020_12, object_with_impossible_property) {
   EXPECT_EQ(result.size(), 2);
 
   EXPECT_IR_IMPOSSIBLE(result, 0, "/properties/foo");
-  EXPECT_SYMBOL(std::get<IRImpossible>(result.at(0)).symbol, "foo");
+  EXPECT_SYMBOL(std::get<CodegenIRImpossible>(result.at(0)).symbol, "foo");
 
-  EXPECT_TRUE(std::holds_alternative<IRObject>(result.at(1)));
-  EXPECT_AS_STRING(std::get<IRObject>(result.at(1)).pointer, "");
-  EXPECT_SYMBOL(std::get<IRObject>(result.at(1)).symbol);
-  EXPECT_EQ(std::get<IRObject>(result.at(1)).members.size(), 1);
-  EXPECT_TRUE(std::get<IRObject>(result.at(1)).members.at(0).first == "foo");
-  EXPECT_FALSE(std::get<IRObject>(result.at(1)).members.at(0).second.required);
-  EXPECT_FALSE(std::get<IRObject>(result.at(1)).members.at(0).second.immutable);
+  EXPECT_TRUE(std::holds_alternative<CodegenIRObject>(result.at(1)));
+  EXPECT_AS_STRING(std::get<CodegenIRObject>(result.at(1)).pointer, "");
+  EXPECT_SYMBOL(std::get<CodegenIRObject>(result.at(1)).symbol);
+  EXPECT_EQ(std::get<CodegenIRObject>(result.at(1)).members.size(), 1);
+  EXPECT_TRUE(std::get<CodegenIRObject>(result.at(1)).members.at(0).first ==
+              "foo");
+  EXPECT_FALSE(
+      std::get<CodegenIRObject>(result.at(1)).members.at(0).second.required);
+  EXPECT_FALSE(
+      std::get<CodegenIRObject>(result.at(1)).members.at(0).second.immutable);
   EXPECT_AS_STRING(
-      std::get<IRObject>(result.at(1)).members.at(0).second.pointer,
+      std::get<CodegenIRObject>(result.at(1)).members.at(0).second.pointer,
       "/properties/foo");
-  EXPECT_SYMBOL(std::get<IRObject>(result.at(1)).members.at(0).second.symbol,
-                "foo");
+  EXPECT_SYMBOL(
+      std::get<CodegenIRObject>(result.at(1)).members.at(0).second.symbol,
+      "foo");
   EXPECT_TRUE(std::holds_alternative<bool>(
-      std::get<IRObject>(result.at(1)).additional));
-  EXPECT_TRUE(std::get<bool>(std::get<IRObject>(result.at(1)).additional));
+      std::get<CodegenIRObject>(result.at(1)).additional));
+  EXPECT_TRUE(
+      std::get<bool>(std::get<CodegenIRObject>(result.at(1)).additional));
 }
 
-TEST(IR_2020_12, object_with_impossible_additional_properties) {
+TEST(Codegen_2020_12, object_with_impossible_additional_properties) {
   const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2020-12/schema",
     "type": "object",
@@ -470,31 +493,36 @@ TEST(IR_2020_12, object_with_impossible_additional_properties) {
   EXPECT_EQ(result.size(), 3);
 
   EXPECT_IR_SCALAR(result, 0, String, "/properties/foo");
-  EXPECT_SYMBOL(std::get<IRScalar>(result.at(0)).symbol, "foo");
+  EXPECT_SYMBOL(std::get<CodegenIRScalar>(result.at(0)).symbol, "foo");
 
   EXPECT_IR_IMPOSSIBLE(result, 1, "/additionalProperties");
-  EXPECT_SYMBOL(std::get<IRImpossible>(result.at(1)).symbol,
+  EXPECT_SYMBOL(std::get<CodegenIRImpossible>(result.at(1)).symbol,
                 "additionalProperties");
 
-  EXPECT_TRUE(std::holds_alternative<IRObject>(result.at(2)));
-  EXPECT_AS_STRING(std::get<IRObject>(result.at(2)).pointer, "");
-  EXPECT_SYMBOL(std::get<IRObject>(result.at(2)).symbol);
-  EXPECT_EQ(std::get<IRObject>(result.at(2)).members.size(), 1);
-  EXPECT_TRUE(std::get<IRObject>(result.at(2)).members.at(0).first == "foo");
-  EXPECT_FALSE(std::get<IRObject>(result.at(2)).members.at(0).second.required);
-  EXPECT_FALSE(std::get<IRObject>(result.at(2)).members.at(0).second.immutable);
+  EXPECT_TRUE(std::holds_alternative<CodegenIRObject>(result.at(2)));
+  EXPECT_AS_STRING(std::get<CodegenIRObject>(result.at(2)).pointer, "");
+  EXPECT_SYMBOL(std::get<CodegenIRObject>(result.at(2)).symbol);
+  EXPECT_EQ(std::get<CodegenIRObject>(result.at(2)).members.size(), 1);
+  EXPECT_TRUE(std::get<CodegenIRObject>(result.at(2)).members.at(0).first ==
+              "foo");
+  EXPECT_FALSE(
+      std::get<CodegenIRObject>(result.at(2)).members.at(0).second.required);
+  EXPECT_FALSE(
+      std::get<CodegenIRObject>(result.at(2)).members.at(0).second.immutable);
   EXPECT_AS_STRING(
-      std::get<IRObject>(result.at(2)).members.at(0).second.pointer,
+      std::get<CodegenIRObject>(result.at(2)).members.at(0).second.pointer,
       "/properties/foo");
-  EXPECT_SYMBOL(std::get<IRObject>(result.at(2)).members.at(0).second.symbol,
-                "foo");
+  EXPECT_SYMBOL(
+      std::get<CodegenIRObject>(result.at(2)).members.at(0).second.symbol,
+      "foo");
 
   EXPECT_TRUE(std::holds_alternative<bool>(
-      std::get<IRObject>(result.at(2)).additional));
-  EXPECT_FALSE(std::get<bool>(std::get<IRObject>(result.at(2)).additional));
+      std::get<CodegenIRObject>(result.at(2)).additional));
+  EXPECT_FALSE(
+      std::get<bool>(std::get<CodegenIRObject>(result.at(2)).additional));
 }
 
-TEST(IR_2020_12, array_with_items) {
+TEST(Codegen_2020_12, array_with_items) {
   const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2020-12/schema",
     "type": "array",
@@ -510,14 +538,14 @@ TEST(IR_2020_12, array_with_items) {
   EXPECT_EQ(result.size(), 2);
 
   EXPECT_IR_SCALAR(result, 0, String, "/items");
-  EXPECT_SYMBOL(std::get<IRScalar>(result.at(0)).symbol, "items");
+  EXPECT_SYMBOL(std::get<CodegenIRScalar>(result.at(0)).symbol, "items");
 
   EXPECT_IR_ARRAY(result, 1, "", "/items");
-  EXPECT_SYMBOL(std::get<IRArray>(result.at(1)).symbol);
-  EXPECT_SYMBOL(std::get<IRArray>(result.at(1)).items->symbol, "items");
+  EXPECT_SYMBOL(std::get<CodegenIRArray>(result.at(1)).symbol);
+  EXPECT_SYMBOL(std::get<CodegenIRArray>(result.at(1)).items->symbol, "items");
 }
 
-TEST(IR_2020_12, array_nested_in_object) {
+TEST(Codegen_2020_12, array_nested_in_object) {
   const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2020-12/schema",
     "type": "object",
@@ -538,18 +566,20 @@ TEST(IR_2020_12, array_nested_in_object) {
   EXPECT_EQ(result.size(), 3);
 
   EXPECT_IR_SCALAR(result, 0, String, "/properties/tags/items");
-  EXPECT_SYMBOL(std::get<IRScalar>(result.at(0)).symbol, "tags", "items");
+  EXPECT_SYMBOL(std::get<CodegenIRScalar>(result.at(0)).symbol, "tags",
+                "items");
 
   EXPECT_IR_ARRAY(result, 1, "/properties/tags", "/properties/tags/items");
-  EXPECT_SYMBOL(std::get<IRArray>(result.at(1)).symbol, "tags");
-  EXPECT_SYMBOL(std::get<IRArray>(result.at(1)).items->symbol, "tags", "items");
+  EXPECT_SYMBOL(std::get<CodegenIRArray>(result.at(1)).symbol, "tags");
+  EXPECT_SYMBOL(std::get<CodegenIRArray>(result.at(1)).items->symbol, "tags",
+                "items");
 
-  EXPECT_TRUE(std::holds_alternative<IRObject>(result.at(2)));
-  EXPECT_AS_STRING(std::get<IRObject>(result.at(2)).pointer, "");
-  EXPECT_SYMBOL(std::get<IRObject>(result.at(2)).symbol);
+  EXPECT_TRUE(std::holds_alternative<CodegenIRObject>(result.at(2)));
+  EXPECT_AS_STRING(std::get<CodegenIRObject>(result.at(2)).pointer, "");
+  EXPECT_SYMBOL(std::get<CodegenIRObject>(result.at(2)).symbol);
 }
 
-TEST(IR_2020_12, tuple_with_prefix_items) {
+TEST(Codegen_2020_12, tuple_with_prefix_items) {
   const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2020-12/schema",
     "type": "array",
@@ -568,29 +598,30 @@ TEST(IR_2020_12, tuple_with_prefix_items) {
   EXPECT_EQ(result.size(), 4);
 
   EXPECT_IR_SCALAR(result, 0, Integer, "/prefixItems/1");
-  EXPECT_SYMBOL(std::get<IRScalar>(result.at(0)).symbol, "1");
+  EXPECT_SYMBOL(std::get<CodegenIRScalar>(result.at(0)).symbol, "1");
   EXPECT_IR_SCALAR(result, 1, String, "/prefixItems/0");
-  EXPECT_SYMBOL(std::get<IRScalar>(result.at(1)).symbol, "0");
+  EXPECT_SYMBOL(std::get<CodegenIRScalar>(result.at(1)).symbol, "0");
   EXPECT_IR_ANY(result, 2, "/items");
-  EXPECT_SYMBOL(std::get<IRAny>(result.at(2)).symbol, "items");
+  EXPECT_SYMBOL(std::get<CodegenIRAny>(result.at(2)).symbol, "items");
 
-  EXPECT_TRUE(std::holds_alternative<IRTuple>(result.at(3)));
-  EXPECT_AS_STRING(std::get<IRTuple>(result.at(3)).pointer, "");
-  EXPECT_SYMBOL(std::get<IRTuple>(result.at(3)).symbol);
-  EXPECT_EQ(std::get<IRTuple>(result.at(3)).items.size(), 2);
-  EXPECT_AS_STRING(std::get<IRTuple>(result.at(3)).items.at(0).pointer,
+  EXPECT_TRUE(std::holds_alternative<CodegenIRTuple>(result.at(3)));
+  EXPECT_AS_STRING(std::get<CodegenIRTuple>(result.at(3)).pointer, "");
+  EXPECT_SYMBOL(std::get<CodegenIRTuple>(result.at(3)).symbol);
+  EXPECT_EQ(std::get<CodegenIRTuple>(result.at(3)).items.size(), 2);
+  EXPECT_AS_STRING(std::get<CodegenIRTuple>(result.at(3)).items.at(0).pointer,
                    "/prefixItems/0");
-  EXPECT_SYMBOL(std::get<IRTuple>(result.at(3)).items.at(0).symbol, "0");
-  EXPECT_AS_STRING(std::get<IRTuple>(result.at(3)).items.at(1).pointer,
+  EXPECT_SYMBOL(std::get<CodegenIRTuple>(result.at(3)).items.at(0).symbol, "0");
+  EXPECT_AS_STRING(std::get<CodegenIRTuple>(result.at(3)).items.at(1).pointer,
                    "/prefixItems/1");
-  EXPECT_SYMBOL(std::get<IRTuple>(result.at(3)).items.at(1).symbol, "1");
-  EXPECT_TRUE(std::get<IRTuple>(result.at(3)).additional.has_value());
-  EXPECT_AS_STRING(std::get<IRTuple>(result.at(3)).additional->pointer,
+  EXPECT_SYMBOL(std::get<CodegenIRTuple>(result.at(3)).items.at(1).symbol, "1");
+  EXPECT_TRUE(std::get<CodegenIRTuple>(result.at(3)).additional.has_value());
+  EXPECT_AS_STRING(std::get<CodegenIRTuple>(result.at(3)).additional->pointer,
                    "/items");
-  EXPECT_SYMBOL(std::get<IRTuple>(result.at(3)).additional->symbol, "items");
+  EXPECT_SYMBOL(std::get<CodegenIRTuple>(result.at(3)).additional->symbol,
+                "items");
 }
 
-TEST(IR_2020_12, tuple_with_prefix_items_and_items) {
+TEST(Codegen_2020_12, tuple_with_prefix_items_and_items) {
   const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2020-12/schema",
     "type": "array",
@@ -609,24 +640,25 @@ TEST(IR_2020_12, tuple_with_prefix_items_and_items) {
   EXPECT_EQ(result.size(), 3);
 
   EXPECT_IR_SCALAR(result, 0, String, "/prefixItems/0");
-  EXPECT_SYMBOL(std::get<IRScalar>(result.at(0)).symbol, "0");
+  EXPECT_SYMBOL(std::get<CodegenIRScalar>(result.at(0)).symbol, "0");
   EXPECT_IR_SCALAR(result, 1, Boolean, "/items");
-  EXPECT_SYMBOL(std::get<IRScalar>(result.at(1)).symbol, "items");
+  EXPECT_SYMBOL(std::get<CodegenIRScalar>(result.at(1)).symbol, "items");
 
-  EXPECT_TRUE(std::holds_alternative<IRTuple>(result.at(2)));
-  EXPECT_AS_STRING(std::get<IRTuple>(result.at(2)).pointer, "");
-  EXPECT_SYMBOL(std::get<IRTuple>(result.at(2)).symbol);
-  EXPECT_EQ(std::get<IRTuple>(result.at(2)).items.size(), 1);
-  EXPECT_AS_STRING(std::get<IRTuple>(result.at(2)).items.at(0).pointer,
+  EXPECT_TRUE(std::holds_alternative<CodegenIRTuple>(result.at(2)));
+  EXPECT_AS_STRING(std::get<CodegenIRTuple>(result.at(2)).pointer, "");
+  EXPECT_SYMBOL(std::get<CodegenIRTuple>(result.at(2)).symbol);
+  EXPECT_EQ(std::get<CodegenIRTuple>(result.at(2)).items.size(), 1);
+  EXPECT_AS_STRING(std::get<CodegenIRTuple>(result.at(2)).items.at(0).pointer,
                    "/prefixItems/0");
-  EXPECT_SYMBOL(std::get<IRTuple>(result.at(2)).items.at(0).symbol, "0");
-  EXPECT_TRUE(std::get<IRTuple>(result.at(2)).additional.has_value());
-  EXPECT_AS_STRING(std::get<IRTuple>(result.at(2)).additional->pointer,
+  EXPECT_SYMBOL(std::get<CodegenIRTuple>(result.at(2)).items.at(0).symbol, "0");
+  EXPECT_TRUE(std::get<CodegenIRTuple>(result.at(2)).additional.has_value());
+  EXPECT_AS_STRING(std::get<CodegenIRTuple>(result.at(2)).additional->pointer,
                    "/items");
-  EXPECT_SYMBOL(std::get<IRTuple>(result.at(2)).additional->symbol, "items");
+  EXPECT_SYMBOL(std::get<CodegenIRTuple>(result.at(2)).additional->symbol,
+                "items");
 }
 
-TEST(IR_2020_12, anyof_two_branches) {
+TEST(Codegen_2020_12, anyof_two_branches) {
   const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2020-12/schema",
     "anyOf": [
@@ -644,23 +676,25 @@ TEST(IR_2020_12, anyof_two_branches) {
   EXPECT_EQ(result.size(), 3);
 
   EXPECT_IR_SCALAR(result, 0, Integer, "/anyOf/1");
-  EXPECT_SYMBOL(std::get<IRScalar>(result.at(0)).symbol, "1");
+  EXPECT_SYMBOL(std::get<CodegenIRScalar>(result.at(0)).symbol, "1");
   EXPECT_IR_SCALAR(result, 1, String, "/anyOf/0");
-  EXPECT_SYMBOL(std::get<IRScalar>(result.at(1)).symbol, "0");
+  EXPECT_SYMBOL(std::get<CodegenIRScalar>(result.at(1)).symbol, "0");
 
-  EXPECT_TRUE(std::holds_alternative<IRUnion>(result.at(2)));
-  EXPECT_AS_STRING(std::get<IRUnion>(result.at(2)).pointer, "");
-  EXPECT_SYMBOL(std::get<IRUnion>(result.at(2)).symbol);
-  EXPECT_EQ(std::get<IRUnion>(result.at(2)).values.size(), 2);
-  EXPECT_AS_STRING(std::get<IRUnion>(result.at(2)).values.at(0).pointer,
+  EXPECT_TRUE(std::holds_alternative<CodegenIRUnion>(result.at(2)));
+  EXPECT_AS_STRING(std::get<CodegenIRUnion>(result.at(2)).pointer, "");
+  EXPECT_SYMBOL(std::get<CodegenIRUnion>(result.at(2)).symbol);
+  EXPECT_EQ(std::get<CodegenIRUnion>(result.at(2)).values.size(), 2);
+  EXPECT_AS_STRING(std::get<CodegenIRUnion>(result.at(2)).values.at(0).pointer,
                    "/anyOf/0");
-  EXPECT_SYMBOL(std::get<IRUnion>(result.at(2)).values.at(0).symbol, "0");
-  EXPECT_AS_STRING(std::get<IRUnion>(result.at(2)).values.at(1).pointer,
+  EXPECT_SYMBOL(std::get<CodegenIRUnion>(result.at(2)).values.at(0).symbol,
+                "0");
+  EXPECT_AS_STRING(std::get<CodegenIRUnion>(result.at(2)).values.at(1).pointer,
                    "/anyOf/1");
-  EXPECT_SYMBOL(std::get<IRUnion>(result.at(2)).values.at(1).symbol, "1");
+  EXPECT_SYMBOL(std::get<CodegenIRUnion>(result.at(2)).values.at(1).symbol,
+                "1");
 }
 
-TEST(IR_2020_12, anyof_three_branches) {
+TEST(Codegen_2020_12, anyof_three_branches) {
   const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2020-12/schema",
     "anyOf": [
@@ -679,28 +713,31 @@ TEST(IR_2020_12, anyof_three_branches) {
   EXPECT_EQ(result.size(), 4);
 
   EXPECT_IR_SCALAR(result, 0, Boolean, "/anyOf/2");
-  EXPECT_SYMBOL(std::get<IRScalar>(result.at(0)).symbol, "2");
+  EXPECT_SYMBOL(std::get<CodegenIRScalar>(result.at(0)).symbol, "2");
   EXPECT_IR_SCALAR(result, 1, Integer, "/anyOf/1");
-  EXPECT_SYMBOL(std::get<IRScalar>(result.at(1)).symbol, "1");
+  EXPECT_SYMBOL(std::get<CodegenIRScalar>(result.at(1)).symbol, "1");
   EXPECT_IR_SCALAR(result, 2, String, "/anyOf/0");
-  EXPECT_SYMBOL(std::get<IRScalar>(result.at(2)).symbol, "0");
+  EXPECT_SYMBOL(std::get<CodegenIRScalar>(result.at(2)).symbol, "0");
 
-  EXPECT_TRUE(std::holds_alternative<IRUnion>(result.at(3)));
-  EXPECT_AS_STRING(std::get<IRUnion>(result.at(3)).pointer, "");
-  EXPECT_SYMBOL(std::get<IRUnion>(result.at(3)).symbol);
-  EXPECT_EQ(std::get<IRUnion>(result.at(3)).values.size(), 3);
-  EXPECT_AS_STRING(std::get<IRUnion>(result.at(3)).values.at(0).pointer,
+  EXPECT_TRUE(std::holds_alternative<CodegenIRUnion>(result.at(3)));
+  EXPECT_AS_STRING(std::get<CodegenIRUnion>(result.at(3)).pointer, "");
+  EXPECT_SYMBOL(std::get<CodegenIRUnion>(result.at(3)).symbol);
+  EXPECT_EQ(std::get<CodegenIRUnion>(result.at(3)).values.size(), 3);
+  EXPECT_AS_STRING(std::get<CodegenIRUnion>(result.at(3)).values.at(0).pointer,
                    "/anyOf/0");
-  EXPECT_SYMBOL(std::get<IRUnion>(result.at(3)).values.at(0).symbol, "0");
-  EXPECT_AS_STRING(std::get<IRUnion>(result.at(3)).values.at(1).pointer,
+  EXPECT_SYMBOL(std::get<CodegenIRUnion>(result.at(3)).values.at(0).symbol,
+                "0");
+  EXPECT_AS_STRING(std::get<CodegenIRUnion>(result.at(3)).values.at(1).pointer,
                    "/anyOf/1");
-  EXPECT_SYMBOL(std::get<IRUnion>(result.at(3)).values.at(1).symbol, "1");
-  EXPECT_AS_STRING(std::get<IRUnion>(result.at(3)).values.at(2).pointer,
+  EXPECT_SYMBOL(std::get<CodegenIRUnion>(result.at(3)).values.at(1).symbol,
+                "1");
+  EXPECT_AS_STRING(std::get<CodegenIRUnion>(result.at(3)).values.at(2).pointer,
                    "/anyOf/2");
-  EXPECT_SYMBOL(std::get<IRUnion>(result.at(3)).values.at(2).symbol, "2");
+  EXPECT_SYMBOL(std::get<CodegenIRUnion>(result.at(3)).values.at(2).symbol,
+                "2");
 }
 
-TEST(IR_2020_12, oneof_two_branches) {
+TEST(Codegen_2020_12, oneof_two_branches) {
   const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2020-12/schema",
     "oneOf": [
@@ -719,23 +756,25 @@ TEST(IR_2020_12, oneof_two_branches) {
   EXPECT_EQ(result.size(), 3);
 
   EXPECT_IR_SCALAR(result, 0, Integer, "/anyOf/1");
-  EXPECT_SYMBOL(std::get<IRScalar>(result.at(0)).symbol, "1");
+  EXPECT_SYMBOL(std::get<CodegenIRScalar>(result.at(0)).symbol, "1");
   EXPECT_IR_SCALAR(result, 1, String, "/anyOf/0");
-  EXPECT_SYMBOL(std::get<IRScalar>(result.at(1)).symbol, "0");
+  EXPECT_SYMBOL(std::get<CodegenIRScalar>(result.at(1)).symbol, "0");
 
-  EXPECT_TRUE(std::holds_alternative<IRUnion>(result.at(2)));
-  EXPECT_AS_STRING(std::get<IRUnion>(result.at(2)).pointer, "");
-  EXPECT_SYMBOL(std::get<IRUnion>(result.at(2)).symbol);
-  EXPECT_EQ(std::get<IRUnion>(result.at(2)).values.size(), 2);
-  EXPECT_AS_STRING(std::get<IRUnion>(result.at(2)).values.at(0).pointer,
+  EXPECT_TRUE(std::holds_alternative<CodegenIRUnion>(result.at(2)));
+  EXPECT_AS_STRING(std::get<CodegenIRUnion>(result.at(2)).pointer, "");
+  EXPECT_SYMBOL(std::get<CodegenIRUnion>(result.at(2)).symbol);
+  EXPECT_EQ(std::get<CodegenIRUnion>(result.at(2)).values.size(), 2);
+  EXPECT_AS_STRING(std::get<CodegenIRUnion>(result.at(2)).values.at(0).pointer,
                    "/anyOf/0");
-  EXPECT_SYMBOL(std::get<IRUnion>(result.at(2)).values.at(0).symbol, "0");
-  EXPECT_AS_STRING(std::get<IRUnion>(result.at(2)).values.at(1).pointer,
+  EXPECT_SYMBOL(std::get<CodegenIRUnion>(result.at(2)).values.at(0).symbol,
+                "0");
+  EXPECT_AS_STRING(std::get<CodegenIRUnion>(result.at(2)).values.at(1).pointer,
                    "/anyOf/1");
-  EXPECT_SYMBOL(std::get<IRUnion>(result.at(2)).values.at(1).symbol, "1");
+  EXPECT_SYMBOL(std::get<CodegenIRUnion>(result.at(2)).values.at(1).symbol,
+                "1");
 }
 
-TEST(IR_2020_12, oneof_three_branches) {
+TEST(Codegen_2020_12, oneof_three_branches) {
   const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2020-12/schema",
     "oneOf": [
@@ -755,28 +794,31 @@ TEST(IR_2020_12, oneof_three_branches) {
   EXPECT_EQ(result.size(), 4);
 
   EXPECT_IR_SCALAR(result, 0, Boolean, "/anyOf/2");
-  EXPECT_SYMBOL(std::get<IRScalar>(result.at(0)).symbol, "2");
+  EXPECT_SYMBOL(std::get<CodegenIRScalar>(result.at(0)).symbol, "2");
   EXPECT_IR_SCALAR(result, 1, Integer, "/anyOf/1");
-  EXPECT_SYMBOL(std::get<IRScalar>(result.at(1)).symbol, "1");
+  EXPECT_SYMBOL(std::get<CodegenIRScalar>(result.at(1)).symbol, "1");
   EXPECT_IR_SCALAR(result, 2, String, "/anyOf/0");
-  EXPECT_SYMBOL(std::get<IRScalar>(result.at(2)).symbol, "0");
+  EXPECT_SYMBOL(std::get<CodegenIRScalar>(result.at(2)).symbol, "0");
 
-  EXPECT_TRUE(std::holds_alternative<IRUnion>(result.at(3)));
-  EXPECT_AS_STRING(std::get<IRUnion>(result.at(3)).pointer, "");
-  EXPECT_SYMBOL(std::get<IRUnion>(result.at(3)).symbol);
-  EXPECT_EQ(std::get<IRUnion>(result.at(3)).values.size(), 3);
-  EXPECT_AS_STRING(std::get<IRUnion>(result.at(3)).values.at(0).pointer,
+  EXPECT_TRUE(std::holds_alternative<CodegenIRUnion>(result.at(3)));
+  EXPECT_AS_STRING(std::get<CodegenIRUnion>(result.at(3)).pointer, "");
+  EXPECT_SYMBOL(std::get<CodegenIRUnion>(result.at(3)).symbol);
+  EXPECT_EQ(std::get<CodegenIRUnion>(result.at(3)).values.size(), 3);
+  EXPECT_AS_STRING(std::get<CodegenIRUnion>(result.at(3)).values.at(0).pointer,
                    "/anyOf/0");
-  EXPECT_SYMBOL(std::get<IRUnion>(result.at(3)).values.at(0).symbol, "0");
-  EXPECT_AS_STRING(std::get<IRUnion>(result.at(3)).values.at(1).pointer,
+  EXPECT_SYMBOL(std::get<CodegenIRUnion>(result.at(3)).values.at(0).symbol,
+                "0");
+  EXPECT_AS_STRING(std::get<CodegenIRUnion>(result.at(3)).values.at(1).pointer,
                    "/anyOf/1");
-  EXPECT_SYMBOL(std::get<IRUnion>(result.at(3)).values.at(1).symbol, "1");
-  EXPECT_AS_STRING(std::get<IRUnion>(result.at(3)).values.at(2).pointer,
+  EXPECT_SYMBOL(std::get<CodegenIRUnion>(result.at(3)).values.at(1).symbol,
+                "1");
+  EXPECT_AS_STRING(std::get<CodegenIRUnion>(result.at(3)).values.at(2).pointer,
                    "/anyOf/2");
-  EXPECT_SYMBOL(std::get<IRUnion>(result.at(3)).values.at(2).symbol, "2");
+  EXPECT_SYMBOL(std::get<CodegenIRUnion>(result.at(3)).values.at(2).symbol,
+                "2");
 }
 
-TEST(IR_2020_12, ref_recursive_to_root) {
+TEST(Codegen_2020_12, ref_recursive_to_root) {
   const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2020-12/schema",
     "type": "object",
@@ -794,27 +836,32 @@ TEST(IR_2020_12, ref_recursive_to_root) {
   EXPECT_EQ(result.size(), 2);
 
   EXPECT_IR_REFERENCE(result, 0, "/properties/child", "");
-  EXPECT_SYMBOL(std::get<IRReference>(result.at(0)).symbol, "child");
-  EXPECT_SYMBOL(std::get<IRReference>(result.at(0)).target.symbol);
+  EXPECT_SYMBOL(std::get<CodegenIRReference>(result.at(0)).symbol, "child");
+  EXPECT_SYMBOL(std::get<CodegenIRReference>(result.at(0)).target.symbol);
 
-  EXPECT_TRUE(std::holds_alternative<IRObject>(result.at(1)));
-  EXPECT_AS_STRING(std::get<IRObject>(result.at(1)).pointer, "");
-  EXPECT_SYMBOL(std::get<IRObject>(result.at(1)).symbol);
-  EXPECT_EQ(std::get<IRObject>(result.at(1)).members.size(), 1);
-  EXPECT_TRUE(std::get<IRObject>(result.at(1)).members.at(0).first == "child");
-  EXPECT_FALSE(std::get<IRObject>(result.at(1)).members.at(0).second.required);
-  EXPECT_FALSE(std::get<IRObject>(result.at(1)).members.at(0).second.immutable);
+  EXPECT_TRUE(std::holds_alternative<CodegenIRObject>(result.at(1)));
+  EXPECT_AS_STRING(std::get<CodegenIRObject>(result.at(1)).pointer, "");
+  EXPECT_SYMBOL(std::get<CodegenIRObject>(result.at(1)).symbol);
+  EXPECT_EQ(std::get<CodegenIRObject>(result.at(1)).members.size(), 1);
+  EXPECT_TRUE(std::get<CodegenIRObject>(result.at(1)).members.at(0).first ==
+              "child");
+  EXPECT_FALSE(
+      std::get<CodegenIRObject>(result.at(1)).members.at(0).second.required);
+  EXPECT_FALSE(
+      std::get<CodegenIRObject>(result.at(1)).members.at(0).second.immutable);
   EXPECT_AS_STRING(
-      std::get<IRObject>(result.at(1)).members.at(0).second.pointer,
+      std::get<CodegenIRObject>(result.at(1)).members.at(0).second.pointer,
       "/properties/child");
-  EXPECT_SYMBOL(std::get<IRObject>(result.at(1)).members.at(0).second.symbol,
-                "child");
+  EXPECT_SYMBOL(
+      std::get<CodegenIRObject>(result.at(1)).members.at(0).second.symbol,
+      "child");
   EXPECT_TRUE(std::holds_alternative<bool>(
-      std::get<IRObject>(result.at(1)).additional));
-  EXPECT_TRUE(std::get<bool>(std::get<IRObject>(result.at(1)).additional));
+      std::get<CodegenIRObject>(result.at(1)).additional));
+  EXPECT_TRUE(
+      std::get<bool>(std::get<CodegenIRObject>(result.at(1)).additional));
 }
 
-TEST(IR_2020_12, nested_object_with_required_property) {
+TEST(Codegen_2020_12, nested_object_with_required_property) {
   const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2020-12/schema",
     "type": "object",
@@ -838,43 +885,54 @@ TEST(IR_2020_12, nested_object_with_required_property) {
   EXPECT_EQ(result.size(), 3);
 
   EXPECT_IR_SCALAR(result, 0, String, "/properties/nested/properties/name");
-  EXPECT_SYMBOL(std::get<IRScalar>(result.at(0)).symbol, "nested", "name");
+  EXPECT_SYMBOL(std::get<CodegenIRScalar>(result.at(0)).symbol, "nested",
+                "name");
 
-  EXPECT_TRUE(std::holds_alternative<IRObject>(result.at(1)));
-  EXPECT_AS_STRING(std::get<IRObject>(result.at(1)).pointer,
+  EXPECT_TRUE(std::holds_alternative<CodegenIRObject>(result.at(1)));
+  EXPECT_AS_STRING(std::get<CodegenIRObject>(result.at(1)).pointer,
                    "/properties/nested");
-  EXPECT_SYMBOL(std::get<IRObject>(result.at(1)).symbol, "nested");
-  EXPECT_EQ(std::get<IRObject>(result.at(1)).members.size(), 1);
-  EXPECT_TRUE(std::get<IRObject>(result.at(1)).members.at(0).first == "name");
-  EXPECT_TRUE(std::get<IRObject>(result.at(1)).members.at(0).second.required);
-  EXPECT_FALSE(std::get<IRObject>(result.at(1)).members.at(0).second.immutable);
+  EXPECT_SYMBOL(std::get<CodegenIRObject>(result.at(1)).symbol, "nested");
+  EXPECT_EQ(std::get<CodegenIRObject>(result.at(1)).members.size(), 1);
+  EXPECT_TRUE(std::get<CodegenIRObject>(result.at(1)).members.at(0).first ==
+              "name");
+  EXPECT_TRUE(
+      std::get<CodegenIRObject>(result.at(1)).members.at(0).second.required);
+  EXPECT_FALSE(
+      std::get<CodegenIRObject>(result.at(1)).members.at(0).second.immutable);
   EXPECT_AS_STRING(
-      std::get<IRObject>(result.at(1)).members.at(0).second.pointer,
+      std::get<CodegenIRObject>(result.at(1)).members.at(0).second.pointer,
       "/properties/nested/properties/name");
-  EXPECT_SYMBOL(std::get<IRObject>(result.at(1)).members.at(0).second.symbol,
-                "nested", "name");
+  EXPECT_SYMBOL(
+      std::get<CodegenIRObject>(result.at(1)).members.at(0).second.symbol,
+      "nested", "name");
   EXPECT_TRUE(std::holds_alternative<bool>(
-      std::get<IRObject>(result.at(1)).additional));
-  EXPECT_TRUE(std::get<bool>(std::get<IRObject>(result.at(1)).additional));
+      std::get<CodegenIRObject>(result.at(1)).additional));
+  EXPECT_TRUE(
+      std::get<bool>(std::get<CodegenIRObject>(result.at(1)).additional));
 
-  EXPECT_TRUE(std::holds_alternative<IRObject>(result.at(2)));
-  EXPECT_AS_STRING(std::get<IRObject>(result.at(2)).pointer, "");
-  EXPECT_SYMBOL(std::get<IRObject>(result.at(2)).symbol);
-  EXPECT_EQ(std::get<IRObject>(result.at(2)).members.size(), 1);
-  EXPECT_TRUE(std::get<IRObject>(result.at(2)).members.at(0).first == "nested");
-  EXPECT_FALSE(std::get<IRObject>(result.at(2)).members.at(0).second.required);
-  EXPECT_FALSE(std::get<IRObject>(result.at(2)).members.at(0).second.immutable);
+  EXPECT_TRUE(std::holds_alternative<CodegenIRObject>(result.at(2)));
+  EXPECT_AS_STRING(std::get<CodegenIRObject>(result.at(2)).pointer, "");
+  EXPECT_SYMBOL(std::get<CodegenIRObject>(result.at(2)).symbol);
+  EXPECT_EQ(std::get<CodegenIRObject>(result.at(2)).members.size(), 1);
+  EXPECT_TRUE(std::get<CodegenIRObject>(result.at(2)).members.at(0).first ==
+              "nested");
+  EXPECT_FALSE(
+      std::get<CodegenIRObject>(result.at(2)).members.at(0).second.required);
+  EXPECT_FALSE(
+      std::get<CodegenIRObject>(result.at(2)).members.at(0).second.immutable);
   EXPECT_AS_STRING(
-      std::get<IRObject>(result.at(2)).members.at(0).second.pointer,
+      std::get<CodegenIRObject>(result.at(2)).members.at(0).second.pointer,
       "/properties/nested");
-  EXPECT_SYMBOL(std::get<IRObject>(result.at(2)).members.at(0).second.symbol,
-                "nested");
+  EXPECT_SYMBOL(
+      std::get<CodegenIRObject>(result.at(2)).members.at(0).second.symbol,
+      "nested");
   EXPECT_TRUE(std::holds_alternative<bool>(
-      std::get<IRObject>(result.at(2)).additional));
-  EXPECT_TRUE(std::get<bool>(std::get<IRObject>(result.at(2)).additional));
+      std::get<CodegenIRObject>(result.at(2)).additional));
+  EXPECT_TRUE(
+      std::get<bool>(std::get<CodegenIRObject>(result.at(2)).additional));
 }
 
-TEST(IR_2020_12, array_without_items) {
+TEST(Codegen_2020_12, array_without_items) {
   const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2020-12/schema",
     "type": "array",
@@ -891,17 +949,18 @@ TEST(IR_2020_12, array_without_items) {
   EXPECT_EQ(result.size(), 2);
 
   EXPECT_IR_ANY(result, 0, "/items");
-  EXPECT_SYMBOL(std::get<IRAny>(result.at(0)).symbol, "items");
+  EXPECT_SYMBOL(std::get<CodegenIRAny>(result.at(0)).symbol, "items");
 
-  EXPECT_TRUE(std::holds_alternative<IRArray>(result.at(1)));
-  EXPECT_AS_STRING(std::get<IRArray>(result.at(1)).pointer, "");
-  EXPECT_SYMBOL(std::get<IRArray>(result.at(1)).symbol);
-  EXPECT_TRUE(std::get<IRArray>(result.at(1)).items.has_value());
-  EXPECT_AS_STRING(std::get<IRArray>(result.at(1)).items->pointer, "/items");
-  EXPECT_SYMBOL(std::get<IRArray>(result.at(1)).items->symbol, "items");
+  EXPECT_TRUE(std::holds_alternative<CodegenIRArray>(result.at(1)));
+  EXPECT_AS_STRING(std::get<CodegenIRArray>(result.at(1)).pointer, "");
+  EXPECT_SYMBOL(std::get<CodegenIRArray>(result.at(1)).symbol);
+  EXPECT_TRUE(std::get<CodegenIRArray>(result.at(1)).items.has_value());
+  EXPECT_AS_STRING(std::get<CodegenIRArray>(result.at(1)).items->pointer,
+                   "/items");
+  EXPECT_SYMBOL(std::get<CodegenIRArray>(result.at(1)).items->symbol, "items");
 }
 
-TEST(IR_2020_12, object_with_additional_properties_true) {
+TEST(Codegen_2020_12, object_with_additional_properties_true) {
   const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2020-12/schema",
     "type": "object",
@@ -917,35 +976,42 @@ TEST(IR_2020_12, object_with_additional_properties_true) {
 
   using namespace sourcemeta::blaze;
 
-  // Note: The canonicalizer now keeps additionalProperties: true as IRAny
-  // instead of expanding it into a union of all types
+  // Note: The canonicalizer now keeps additionalProperties: true as
+  // CodegenIRAny instead of expanding it into a union of all types
   EXPECT_EQ(result.size(), 3);
 
   EXPECT_IR_SCALAR(result, 0, String, "/properties/name");
-  EXPECT_SYMBOL(std::get<IRScalar>(result.at(0)).symbol, "name");
+  EXPECT_SYMBOL(std::get<CodegenIRScalar>(result.at(0)).symbol, "name");
   EXPECT_IR_ANY(result, 1, "/additionalProperties");
-  EXPECT_SYMBOL(std::get<IRAny>(result.at(1)).symbol, "additionalProperties");
+  EXPECT_SYMBOL(std::get<CodegenIRAny>(result.at(1)).symbol,
+                "additionalProperties");
 
-  EXPECT_TRUE(std::holds_alternative<IRObject>(result.at(2)));
-  EXPECT_AS_STRING(std::get<IRObject>(result.at(2)).pointer, "");
-  EXPECT_SYMBOL(std::get<IRObject>(result.at(2)).symbol);
-  EXPECT_EQ(std::get<IRObject>(result.at(2)).members.size(), 1);
-  EXPECT_TRUE(std::get<IRObject>(result.at(2)).members.at(0).first == "name");
-  EXPECT_FALSE(std::get<IRObject>(result.at(2)).members.at(0).second.required);
-  EXPECT_FALSE(std::get<IRObject>(result.at(2)).members.at(0).second.immutable);
+  EXPECT_TRUE(std::holds_alternative<CodegenIRObject>(result.at(2)));
+  EXPECT_AS_STRING(std::get<CodegenIRObject>(result.at(2)).pointer, "");
+  EXPECT_SYMBOL(std::get<CodegenIRObject>(result.at(2)).symbol);
+  EXPECT_EQ(std::get<CodegenIRObject>(result.at(2)).members.size(), 1);
+  EXPECT_TRUE(std::get<CodegenIRObject>(result.at(2)).members.at(0).first ==
+              "name");
+  EXPECT_FALSE(
+      std::get<CodegenIRObject>(result.at(2)).members.at(0).second.required);
+  EXPECT_FALSE(
+      std::get<CodegenIRObject>(result.at(2)).members.at(0).second.immutable);
   EXPECT_AS_STRING(
-      std::get<IRObject>(result.at(2)).members.at(0).second.pointer,
+      std::get<CodegenIRObject>(result.at(2)).members.at(0).second.pointer,
       "/properties/name");
-  EXPECT_SYMBOL(std::get<IRObject>(result.at(2)).members.at(0).second.symbol,
-                "name");
+  EXPECT_SYMBOL(
+      std::get<CodegenIRObject>(result.at(2)).members.at(0).second.symbol,
+      "name");
   // When additionalProperties is a boolean schema, the object stores the
-  // boolean value directly (while the schema itself is compiled as IRAny)
+  // boolean value directly (while the schema itself is compiled as
+  // CodegenIRAny)
   EXPECT_TRUE(std::holds_alternative<bool>(
-      std::get<IRObject>(result.at(2)).additional));
-  EXPECT_TRUE(std::get<bool>(std::get<IRObject>(result.at(2)).additional));
+      std::get<CodegenIRObject>(result.at(2)).additional));
+  EXPECT_TRUE(
+      std::get<bool>(std::get<CodegenIRObject>(result.at(2)).additional));
 }
 
-TEST(IR_2020_12, object_only_additional_properties) {
+TEST(Codegen_2020_12, object_only_additional_properties) {
   const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2020-12/schema",
     "type": "object",
@@ -961,24 +1027,26 @@ TEST(IR_2020_12, object_only_additional_properties) {
   EXPECT_EQ(result.size(), 2);
 
   EXPECT_IR_SCALAR(result, 0, Boolean, "/additionalProperties");
-  EXPECT_SYMBOL(std::get<IRScalar>(result.at(0)).symbol,
+  EXPECT_SYMBOL(std::get<CodegenIRScalar>(result.at(0)).symbol,
                 "additionalProperties");
 
-  EXPECT_TRUE(std::holds_alternative<IRObject>(result.at(1)));
-  EXPECT_AS_STRING(std::get<IRObject>(result.at(1)).pointer, "");
-  EXPECT_SYMBOL(std::get<IRObject>(result.at(1)).symbol);
-  EXPECT_EQ(std::get<IRObject>(result.at(1)).members.size(), 0);
-  EXPECT_TRUE(std::holds_alternative<IRType>(
-      std::get<IRObject>(result.at(1)).additional));
-  EXPECT_AS_STRING(
-      std::get<IRType>(std::get<IRObject>(result.at(1)).additional).pointer,
-      "/additionalProperties");
-  EXPECT_SYMBOL(
-      std::get<IRType>(std::get<IRObject>(result.at(1)).additional).symbol,
-      "additionalProperties");
+  EXPECT_TRUE(std::holds_alternative<CodegenIRObject>(result.at(1)));
+  EXPECT_AS_STRING(std::get<CodegenIRObject>(result.at(1)).pointer, "");
+  EXPECT_SYMBOL(std::get<CodegenIRObject>(result.at(1)).symbol);
+  EXPECT_EQ(std::get<CodegenIRObject>(result.at(1)).members.size(), 0);
+  EXPECT_TRUE(std::holds_alternative<CodegenIRType>(
+      std::get<CodegenIRObject>(result.at(1)).additional));
+  EXPECT_AS_STRING(std::get<CodegenIRType>(
+                       std::get<CodegenIRObject>(result.at(1)).additional)
+                       .pointer,
+                   "/additionalProperties");
+  EXPECT_SYMBOL(std::get<CodegenIRType>(
+                    std::get<CodegenIRObject>(result.at(1)).additional)
+                    .symbol,
+                "additionalProperties");
 }
 
-TEST(IR_2020_12, embedded_resource_with_nested_id_no_duplicates) {
+TEST(Codegen_2020_12, embedded_resource_with_nested_id_no_duplicates) {
   const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2020-12/schema",
     "$id": "https://example.com/main",
@@ -1010,52 +1078,62 @@ TEST(IR_2020_12, embedded_resource_with_nested_id_no_duplicates) {
   EXPECT_EQ(result.size(), 6);
 
   EXPECT_IR_REFERENCE(result, 0, "/properties/item", "/$defs/Item");
-  EXPECT_SYMBOL(std::get<IRReference>(result.at(0)).symbol, "item");
-  EXPECT_SYMBOL(std::get<IRReference>(result.at(0)).target.symbol, "Item");
+  EXPECT_SYMBOL(std::get<CodegenIRReference>(result.at(0)).symbol, "item");
+  EXPECT_SYMBOL(std::get<CodegenIRReference>(result.at(0)).target.symbol,
+                "Item");
 
   EXPECT_IR_IMPOSSIBLE(result, 1, "/additionalProperties");
-  EXPECT_SYMBOL(std::get<IRImpossible>(result.at(1)).symbol,
+  EXPECT_SYMBOL(std::get<CodegenIRImpossible>(result.at(1)).symbol,
                 "additionalProperties");
 
   EXPECT_IR_SCALAR(result, 2, String, "/$defs/Item/properties/name");
-  EXPECT_SYMBOL(std::get<IRScalar>(result.at(2)).symbol, "Item", "name");
+  EXPECT_SYMBOL(std::get<CodegenIRScalar>(result.at(2)).symbol, "Item", "name");
 
   EXPECT_IR_IMPOSSIBLE(result, 3, "/$defs/Item/additionalProperties");
-  EXPECT_SYMBOL(std::get<IRImpossible>(result.at(3)).symbol, "Item",
+  EXPECT_SYMBOL(std::get<CodegenIRImpossible>(result.at(3)).symbol, "Item",
                 "additionalProperties");
 
-  EXPECT_TRUE(std::holds_alternative<IRObject>(result.at(4)));
-  EXPECT_AS_STRING(std::get<IRObject>(result.at(4)).pointer, "/$defs/Item");
-  EXPECT_SYMBOL(std::get<IRObject>(result.at(4)).symbol, "Item");
-  EXPECT_EQ(std::get<IRObject>(result.at(4)).members.size(), 1);
-  EXPECT_EQ(std::get<IRObject>(result.at(4)).members.at(0).first, "name");
-  EXPECT_TRUE(std::get<IRObject>(result.at(4)).members.at(0).second.required);
+  EXPECT_TRUE(std::holds_alternative<CodegenIRObject>(result.at(4)));
+  EXPECT_AS_STRING(std::get<CodegenIRObject>(result.at(4)).pointer,
+                   "/$defs/Item");
+  EXPECT_SYMBOL(std::get<CodegenIRObject>(result.at(4)).symbol, "Item");
+  EXPECT_EQ(std::get<CodegenIRObject>(result.at(4)).members.size(), 1);
+  EXPECT_EQ(std::get<CodegenIRObject>(result.at(4)).members.at(0).first,
+            "name");
+  EXPECT_TRUE(
+      std::get<CodegenIRObject>(result.at(4)).members.at(0).second.required);
   EXPECT_AS_STRING(
-      std::get<IRObject>(result.at(4)).members.at(0).second.pointer,
+      std::get<CodegenIRObject>(result.at(4)).members.at(0).second.pointer,
       "/$defs/Item/properties/name");
-  EXPECT_SYMBOL(std::get<IRObject>(result.at(4)).members.at(0).second.symbol,
-                "Item", "name");
+  EXPECT_SYMBOL(
+      std::get<CodegenIRObject>(result.at(4)).members.at(0).second.symbol,
+      "Item", "name");
   EXPECT_TRUE(std::holds_alternative<bool>(
-      std::get<IRObject>(result.at(4)).additional));
-  EXPECT_FALSE(std::get<bool>(std::get<IRObject>(result.at(4)).additional));
+      std::get<CodegenIRObject>(result.at(4)).additional));
+  EXPECT_FALSE(
+      std::get<bool>(std::get<CodegenIRObject>(result.at(4)).additional));
 
-  EXPECT_TRUE(std::holds_alternative<IRObject>(result.at(5)));
-  EXPECT_AS_STRING(std::get<IRObject>(result.at(5)).pointer, "");
-  EXPECT_SYMBOL(std::get<IRObject>(result.at(5)).symbol);
-  EXPECT_EQ(std::get<IRObject>(result.at(5)).members.size(), 1);
-  EXPECT_EQ(std::get<IRObject>(result.at(5)).members.at(0).first, "item");
-  EXPECT_TRUE(std::get<IRObject>(result.at(5)).members.at(0).second.required);
+  EXPECT_TRUE(std::holds_alternative<CodegenIRObject>(result.at(5)));
+  EXPECT_AS_STRING(std::get<CodegenIRObject>(result.at(5)).pointer, "");
+  EXPECT_SYMBOL(std::get<CodegenIRObject>(result.at(5)).symbol);
+  EXPECT_EQ(std::get<CodegenIRObject>(result.at(5)).members.size(), 1);
+  EXPECT_EQ(std::get<CodegenIRObject>(result.at(5)).members.at(0).first,
+            "item");
+  EXPECT_TRUE(
+      std::get<CodegenIRObject>(result.at(5)).members.at(0).second.required);
   EXPECT_AS_STRING(
-      std::get<IRObject>(result.at(5)).members.at(0).second.pointer,
+      std::get<CodegenIRObject>(result.at(5)).members.at(0).second.pointer,
       "/properties/item");
-  EXPECT_SYMBOL(std::get<IRObject>(result.at(5)).members.at(0).second.symbol,
-                "item");
+  EXPECT_SYMBOL(
+      std::get<CodegenIRObject>(result.at(5)).members.at(0).second.symbol,
+      "item");
   EXPECT_TRUE(std::holds_alternative<bool>(
-      std::get<IRObject>(result.at(5)).additional));
-  EXPECT_FALSE(std::get<bool>(std::get<IRObject>(result.at(5)).additional));
+      std::get<CodegenIRObject>(result.at(5)).additional));
+  EXPECT_FALSE(
+      std::get<bool>(std::get<CodegenIRObject>(result.at(5)).additional));
 }
 
-TEST(IR_2020_12, boolean_true_schema) {
+TEST(Codegen_2020_12, boolean_true_schema) {
   const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2020-12/schema",
     "type": "object",
@@ -1073,26 +1151,31 @@ TEST(IR_2020_12, boolean_true_schema) {
   EXPECT_EQ(result.size(), 2);
 
   EXPECT_IR_ANY(result, 0, "/properties/anything");
-  EXPECT_SYMBOL(std::get<IRAny>(result.at(0)).symbol, "anything");
+  EXPECT_SYMBOL(std::get<CodegenIRAny>(result.at(0)).symbol, "anything");
 
-  EXPECT_TRUE(std::holds_alternative<IRObject>(result.at(1)));
-  EXPECT_AS_STRING(std::get<IRObject>(result.at(1)).pointer, "");
-  EXPECT_SYMBOL(std::get<IRObject>(result.at(1)).symbol);
-  EXPECT_EQ(std::get<IRObject>(result.at(1)).members.size(), 1);
-  EXPECT_EQ(std::get<IRObject>(result.at(1)).members.at(0).first, "anything");
-  EXPECT_FALSE(std::get<IRObject>(result.at(1)).members.at(0).second.required);
-  EXPECT_FALSE(std::get<IRObject>(result.at(1)).members.at(0).second.immutable);
+  EXPECT_TRUE(std::holds_alternative<CodegenIRObject>(result.at(1)));
+  EXPECT_AS_STRING(std::get<CodegenIRObject>(result.at(1)).pointer, "");
+  EXPECT_SYMBOL(std::get<CodegenIRObject>(result.at(1)).symbol);
+  EXPECT_EQ(std::get<CodegenIRObject>(result.at(1)).members.size(), 1);
+  EXPECT_EQ(std::get<CodegenIRObject>(result.at(1)).members.at(0).first,
+            "anything");
+  EXPECT_FALSE(
+      std::get<CodegenIRObject>(result.at(1)).members.at(0).second.required);
+  EXPECT_FALSE(
+      std::get<CodegenIRObject>(result.at(1)).members.at(0).second.immutable);
   EXPECT_AS_STRING(
-      std::get<IRObject>(result.at(1)).members.at(0).second.pointer,
+      std::get<CodegenIRObject>(result.at(1)).members.at(0).second.pointer,
       "/properties/anything");
-  EXPECT_SYMBOL(std::get<IRObject>(result.at(1)).members.at(0).second.symbol,
-                "anything");
+  EXPECT_SYMBOL(
+      std::get<CodegenIRObject>(result.at(1)).members.at(0).second.symbol,
+      "anything");
   EXPECT_TRUE(std::holds_alternative<bool>(
-      std::get<IRObject>(result.at(1)).additional));
-  EXPECT_TRUE(std::get<bool>(std::get<IRObject>(result.at(1)).additional));
+      std::get<CodegenIRObject>(result.at(1)).additional));
+  EXPECT_TRUE(
+      std::get<bool>(std::get<CodegenIRObject>(result.at(1)).additional));
 }
 
-TEST(IR_2020_12, boolean_false_schema) {
+TEST(Codegen_2020_12, boolean_false_schema) {
   const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2020-12/schema",
     "type": "object",
@@ -1110,26 +1193,31 @@ TEST(IR_2020_12, boolean_false_schema) {
   EXPECT_EQ(result.size(), 2);
 
   EXPECT_IR_IMPOSSIBLE(result, 0, "/properties/nothing");
-  EXPECT_SYMBOL(std::get<IRImpossible>(result.at(0)).symbol, "nothing");
+  EXPECT_SYMBOL(std::get<CodegenIRImpossible>(result.at(0)).symbol, "nothing");
 
-  EXPECT_TRUE(std::holds_alternative<IRObject>(result.at(1)));
-  EXPECT_AS_STRING(std::get<IRObject>(result.at(1)).pointer, "");
-  EXPECT_SYMBOL(std::get<IRObject>(result.at(1)).symbol);
-  EXPECT_EQ(std::get<IRObject>(result.at(1)).members.size(), 1);
-  EXPECT_EQ(std::get<IRObject>(result.at(1)).members.at(0).first, "nothing");
-  EXPECT_FALSE(std::get<IRObject>(result.at(1)).members.at(0).second.required);
-  EXPECT_FALSE(std::get<IRObject>(result.at(1)).members.at(0).second.immutable);
+  EXPECT_TRUE(std::holds_alternative<CodegenIRObject>(result.at(1)));
+  EXPECT_AS_STRING(std::get<CodegenIRObject>(result.at(1)).pointer, "");
+  EXPECT_SYMBOL(std::get<CodegenIRObject>(result.at(1)).symbol);
+  EXPECT_EQ(std::get<CodegenIRObject>(result.at(1)).members.size(), 1);
+  EXPECT_EQ(std::get<CodegenIRObject>(result.at(1)).members.at(0).first,
+            "nothing");
+  EXPECT_FALSE(
+      std::get<CodegenIRObject>(result.at(1)).members.at(0).second.required);
+  EXPECT_FALSE(
+      std::get<CodegenIRObject>(result.at(1)).members.at(0).second.immutable);
   EXPECT_AS_STRING(
-      std::get<IRObject>(result.at(1)).members.at(0).second.pointer,
+      std::get<CodegenIRObject>(result.at(1)).members.at(0).second.pointer,
       "/properties/nothing");
-  EXPECT_SYMBOL(std::get<IRObject>(result.at(1)).members.at(0).second.symbol,
-                "nothing");
+  EXPECT_SYMBOL(
+      std::get<CodegenIRObject>(result.at(1)).members.at(0).second.symbol,
+      "nothing");
   EXPECT_TRUE(std::holds_alternative<bool>(
-      std::get<IRObject>(result.at(1)).additional));
-  EXPECT_TRUE(std::get<bool>(std::get<IRObject>(result.at(1)).additional));
+      std::get<CodegenIRObject>(result.at(1)).additional));
+  EXPECT_TRUE(
+      std::get<bool>(std::get<CodegenIRObject>(result.at(1)).additional));
 }
 
-TEST(IR_2020_12, object_with_pattern_properties_prefix) {
+TEST(Codegen_2020_12, object_with_pattern_properties_prefix) {
   const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2020-12/schema",
     "type": "object",
@@ -1150,12 +1238,12 @@ TEST(IR_2020_12, object_with_pattern_properties_prefix) {
   EXPECT_EQ(result.size(), 3);
 
   EXPECT_IR_SCALAR(result, 0, String, "/properties/name");
-  EXPECT_SYMBOL(std::get<IRScalar>(result.at(0)).symbol, "name");
+  EXPECT_SYMBOL(std::get<CodegenIRScalar>(result.at(0)).symbol, "name");
 
   EXPECT_IR_SCALAR(result, 1, String, "/patternProperties/^x-");
 
-  EXPECT_TRUE(std::holds_alternative<IRObject>(result.at(2)));
-  const auto &object{std::get<IRObject>(result.at(2))};
+  EXPECT_TRUE(std::holds_alternative<CodegenIRObject>(result.at(2)));
+  const auto &object{std::get<CodegenIRObject>(result.at(2))};
   EXPECT_AS_STRING(object.pointer, "");
   EXPECT_EQ(object.members.size(), 1);
   EXPECT_EQ(object.members.at(0).first, "name");
@@ -1168,7 +1256,7 @@ TEST(IR_2020_12, object_with_pattern_properties_prefix) {
   EXPECT_TRUE(std::get<bool>(object.additional));
 }
 
-TEST(IR_2020_12, object_with_multiple_pattern_properties) {
+TEST(Codegen_2020_12, object_with_multiple_pattern_properties) {
   const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2020-12/schema",
     "type": "object",
@@ -1185,14 +1273,14 @@ TEST(IR_2020_12, object_with_multiple_pattern_properties) {
   using namespace sourcemeta::blaze;
 
   ASSERT_FALSE(result.empty());
-  EXPECT_TRUE(std::holds_alternative<IRObject>(result.back()));
-  const auto &object{std::get<IRObject>(result.back())};
+  EXPECT_TRUE(std::holds_alternative<CodegenIRObject>(result.back()));
+  const auto &object{std::get<CodegenIRObject>(result.back())};
   EXPECT_EQ(object.pattern.size(), 2);
   EXPECT_EQ(object.pattern.at(0).prefix, "x-");
   EXPECT_EQ(object.pattern.at(1).prefix, "data-");
 }
 
-TEST(IR_2020_12, object_with_pattern_properties_and_additional_false) {
+TEST(Codegen_2020_12, object_with_pattern_properties_and_additional_false) {
   const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2020-12/schema",
     "type": "object",
@@ -1212,8 +1300,8 @@ TEST(IR_2020_12, object_with_pattern_properties_and_additional_false) {
   using namespace sourcemeta::blaze;
 
   ASSERT_FALSE(result.empty());
-  EXPECT_TRUE(std::holds_alternative<IRObject>(result.back()));
-  const auto &object{std::get<IRObject>(result.back())};
+  EXPECT_TRUE(std::holds_alternative<CodegenIRObject>(result.back()));
+  const auto &object{std::get<CodegenIRObject>(result.back())};
   EXPECT_EQ(object.members.size(), 1);
   EXPECT_EQ(object.pattern.size(), 1);
   EXPECT_EQ(object.pattern.at(0).prefix, "x-");
@@ -1221,7 +1309,7 @@ TEST(IR_2020_12, object_with_pattern_properties_and_additional_false) {
   EXPECT_FALSE(std::get<bool>(object.additional));
 }
 
-TEST(IR_2020_12, object_with_non_prefix_pattern_properties) {
+TEST(Codegen_2020_12, object_with_non_prefix_pattern_properties) {
   const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2020-12/schema",
     "type": "object",
@@ -1237,13 +1325,13 @@ TEST(IR_2020_12, object_with_non_prefix_pattern_properties) {
   using namespace sourcemeta::blaze;
 
   ASSERT_FALSE(result.empty());
-  EXPECT_TRUE(std::holds_alternative<IRObject>(result.back()));
-  const auto &object{std::get<IRObject>(result.back())};
+  EXPECT_TRUE(std::holds_alternative<CodegenIRObject>(result.back()));
+  const auto &object{std::get<CodegenIRObject>(result.back())};
   EXPECT_EQ(object.pattern.size(), 1);
   EXPECT_FALSE(object.pattern.at(0).prefix.has_value());
 }
 
-TEST(IR_2020_12, object_with_mixed_prefix_and_non_prefix_patterns) {
+TEST(Codegen_2020_12, object_with_mixed_prefix_and_non_prefix_patterns) {
   const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2020-12/schema",
     "type": "object",
@@ -1260,15 +1348,15 @@ TEST(IR_2020_12, object_with_mixed_prefix_and_non_prefix_patterns) {
   using namespace sourcemeta::blaze;
 
   ASSERT_FALSE(result.empty());
-  EXPECT_TRUE(std::holds_alternative<IRObject>(result.back()));
-  const auto &object{std::get<IRObject>(result.back())};
+  EXPECT_TRUE(std::holds_alternative<CodegenIRObject>(result.back()));
+  const auto &object{std::get<CodegenIRObject>(result.back())};
   EXPECT_EQ(object.pattern.size(), 2);
   EXPECT_TRUE(object.pattern.at(0).prefix.has_value());
   EXPECT_EQ(object.pattern.at(0).prefix.value(), "x-");
   EXPECT_FALSE(object.pattern.at(1).prefix.has_value());
 }
 
-TEST(IR_2020_12, dynamic_ref_single_anchor) {
+TEST(Codegen_2020_12, dynamic_ref_single_anchor) {
   const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2020-12/schema",
     "type": "array",
@@ -1292,7 +1380,7 @@ TEST(IR_2020_12, dynamic_ref_single_anchor) {
   EXPECT_IR_SCALAR(result, 1, String, "/$defs/foo");
 }
 
-TEST(IR_2020_12, dynamic_ref_multiple_anchors) {
+TEST(Codegen_2020_12, dynamic_ref_multiple_anchors) {
   const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2020-12/schema",
     "$id": "https://example.com/root",
@@ -1325,16 +1413,16 @@ TEST(IR_2020_12, dynamic_ref_multiple_anchors) {
   ASSERT_EQ(result.size(), 6);
   EXPECT_IR_REFERENCE(result, 0, "/allOf/0", "/$defs/list");
   EXPECT_IR_SCALAR(result, 1, String, "/$defs/stringItem");
-  EXPECT_TRUE(std::holds_alternative<IRUnion>(result.at(2)));
-  EXPECT_AS_STRING(std::get<IRUnion>(result.at(2)).pointer,
+  EXPECT_TRUE(std::holds_alternative<CodegenIRUnion>(result.at(2)));
+  EXPECT_AS_STRING(std::get<CodegenIRUnion>(result.at(2)).pointer,
                    "/$defs/list/items");
-  EXPECT_EQ(std::get<IRUnion>(result.at(2)).values.size(), 2);
+  EXPECT_EQ(std::get<CodegenIRUnion>(result.at(2)).values.size(), 2);
   EXPECT_IR_SCALAR(result, 3, Number, "/$defs/list/$defs/defaultItem");
   EXPECT_IR_ARRAY(result, 4, "/$defs/list", "/$defs/list/items");
   EXPECT_IR_REFERENCE(result, 5, "", "/allOf/0");
 }
 
-TEST(IR_2020_12, dynamic_anchor_on_typed_schema) {
+TEST(Codegen_2020_12, dynamic_anchor_on_typed_schema) {
   const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2020-12/schema",
     "$dynamicAnchor": "item",
@@ -1351,7 +1439,7 @@ TEST(IR_2020_12, dynamic_anchor_on_typed_schema) {
   EXPECT_IR_SCALAR(result, 0, String, "");
 }
 
-TEST(IR_2020_12, allof_two_objects) {
+TEST(Codegen_2020_12, allof_two_objects) {
   const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2020-12/schema",
     "allOf": [
@@ -1380,7 +1468,7 @@ TEST(IR_2020_12, allof_two_objects) {
   EXPECT_IR_INTERSECTION(result, 6, "", 2);
 }
 
-TEST(IR_2020_12, allof_ref_and_object) {
+TEST(Codegen_2020_12, allof_ref_and_object) {
   const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2020-12/schema",
     "allOf": [
@@ -1410,7 +1498,7 @@ TEST(IR_2020_12, allof_ref_and_object) {
   EXPECT_IR_INTERSECTION(result, result.size() - 1, "", 2);
 }
 
-TEST(IR_2020_12, allof_single_element) {
+TEST(Codegen_2020_12, allof_single_element) {
   const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2020-12/schema",
     "allOf": [
@@ -1429,7 +1517,7 @@ TEST(IR_2020_12, allof_single_element) {
   EXPECT_IR_SCALAR(result, 0, String, "");
 }
 
-TEST(IR_2020_12, allof_three_branches) {
+TEST(Codegen_2020_12, allof_three_branches) {
   const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2020-12/schema",
     "allOf": [
@@ -1460,7 +1548,7 @@ TEST(IR_2020_12, allof_three_branches) {
   EXPECT_IR_INTERSECTION(result, result.size() - 1, "", 3);
 }
 
-TEST(IR_2020_12, allof_with_defs) {
+TEST(Codegen_2020_12, allof_with_defs) {
   const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2020-12/schema",
     "$defs": {
@@ -1494,7 +1582,7 @@ TEST(IR_2020_12, allof_with_defs) {
   EXPECT_IR_REFERENCE(result, 1, "/allOf/0", "/$defs/Named");
 }
 
-TEST(IR_2020_12, if_then_else_distinct_object_branches) {
+TEST(Codegen_2020_12, if_then_else_distinct_object_branches) {
   const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2020-12/schema",
     "if": {
@@ -1523,7 +1611,7 @@ TEST(IR_2020_12, if_then_else_distinct_object_branches) {
   EXPECT_IR_CONDITIONAL(result, result.size() - 1, "", "/if", "/then", "/else");
 }
 
-TEST(IR_2020_12, if_then_else_implicit_else) {
+TEST(Codegen_2020_12, if_then_else_implicit_else) {
   const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2020-12/schema",
     "if": { "type": "string" },
@@ -1539,7 +1627,7 @@ TEST(IR_2020_12, if_then_else_implicit_else) {
   EXPECT_IR_CONDITIONAL(result, result.size() - 1, "", "/if", "/then", "/else");
 }
 
-TEST(IR_2020_12, if_then_else_with_type_sibling) {
+TEST(Codegen_2020_12, if_then_else_with_type_sibling) {
   const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2020-12/schema",
     "type": "string",
@@ -1559,7 +1647,7 @@ TEST(IR_2020_12, if_then_else_with_type_sibling) {
   EXPECT_IR_INTERSECTION(result, result.size() - 1, "", 2);
 }
 
-TEST(IR_2020_12, if_then_else_with_ref_branches) {
+TEST(Codegen_2020_12, if_then_else_with_ref_branches) {
   const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2020-12/schema",
     "$defs": {
@@ -1597,7 +1685,7 @@ TEST(IR_2020_12, if_then_else_with_ref_branches) {
   EXPECT_IR_CONDITIONAL(result, 10, "", "/if", "/then", "/else");
 }
 
-TEST(IR_2020_12, if_then_else_nested_in_object_property) {
+TEST(Codegen_2020_12, if_then_else_nested_in_object_property) {
   const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2020-12/schema",
     "type": "object",
