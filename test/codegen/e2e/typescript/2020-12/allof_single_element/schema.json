@@ -1,0 +1,13 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "allOf": [
+    {
+      "type": "object",
+      "properties": {
+        "value": { "type": "string" }
+      },
+      "required": [ "value" ],
+      "additionalProperties": false
+    }
+  ]
+}

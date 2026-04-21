@@ -1,0 +1,13 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "type": "object",
+  "properties": {
+    "normal": { "type": "string" },
+    "with\bbackspace": { "type": "string" },
+    "with\fformfeed": { "type": "string" },
+    "with\u0000null": { "type": "string" },
+    "with\u0001soh": { "type": "string" },
+    "with\u001fus": { "type": "string" }
+  },
+  "additionalProperties": false
+}

@@ -1,0 +1,14 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "type": "object",
+  "properties": {
+    "name": { "type": "string" },
+    "age": { "type": "integer" }
+  },
+  "required": [ "name" ],
+  "patternProperties": {
+    "^x-": { "type": "string" },
+    "[0-9]+_id": { "type": "integer" }
+  },
+  "additionalProperties": { "type": "boolean" }
+}

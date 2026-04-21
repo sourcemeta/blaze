@@ -1,1 +1,6 @@
+* text=auto
+*.cc text eol=lf
+*.h text eol=lf
+*.json text eol=lf
+*.ts text eol=lf
 /vendor/** linguist-generated=true

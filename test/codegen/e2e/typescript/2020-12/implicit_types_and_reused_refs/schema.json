@@ -1,0 +1,181 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://example.com/document-system",
+  "type": "object",
+  "required": [ "document", "permissions", "history" ],
+  "properties": {
+    "document": {
+      "type": "object",
+      "required": [ "id", "title", "content", "author" ],
+      "properties": {
+        "id": { "$ref": "#/$defs/UUID" },
+        "title": { "type": "string" },
+        "content": {
+          "type": "object",
+          "required": [ "format", "body" ],
+          "properties": {
+            "format": { "enum": [ "markdown", "html", "plaintext" ] },
+            "body": { "type": "string" },
+            "summary": {
+              "anyOf": [
+                { "type": "string" },
+                { "type": "null" }
+              ]
+            }
+          },
+          "additionalProperties": false
+        },
+        "author": { "$ref": "#/$defs/User" },
+        "reviewers": {
+          "type": "array",
+          "items": { "$ref": "#/$defs/User" }
+        },
+        "tags": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": [ "name" ],
+            "properties": {
+              "name": { "type": "string" },
+              "color": {
+                "anyOf": [
+                  { "type": "string" },
+                  { "type": "null" }
+                ]
+              }
+            },
+            "additionalProperties": false
+          }
+        },
+        "metadata": {
+          "type": "object",
+          "properties": {
+            "createdAt": { "$ref": "#/$defs/Timestamp" },
+            "updatedAt": { "$ref": "#/$defs/Timestamp" },
+            "version": { "type": "integer" }
+          },
+          "additionalProperties": false
+        }
+      },
+      "additionalProperties": false
+    },
+    "permissions": {
+      "type": "object",
+      "required": [ "owner", "readers", "editors" ],
+      "properties": {
+        "owner": { "$ref": "#/$defs/User" },
+        "readers": {
+          "type": "array",
+          "items": { "$ref": "#/$defs/User" }
+        },
+        "editors": {
+          "type": "array",
+          "items": { "$ref": "#/$defs/User" }
+        },
+        "isPublic": { "enum": [ true, false ] },
+        "expiresAt": {
+          "anyOf": [
+            { "$ref": "#/$defs/Timestamp" },
+            { "type": "null" }
+          ]
+        }
+      },
+      "additionalProperties": false
+    },
+    "history": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": [ "action", "actor", "timestamp" ],
+        "properties": {
+          "action": { "enum": [ "created", "updated", "deleted", "restored", "shared" ] },
+          "actor": { "$ref": "#/$defs/User" },
+          "timestamp": { "$ref": "#/$defs/Timestamp" },
+          "details": {
+            "anyOf": [
+              {
+                "type": "object",
+                "properties": {
+                  "field": { "type": "string" },
+                  "oldValue": {
+                    "anyOf": [
+                      { "type": "string" },
+                      { "type": "number" },
+                      { "type": "null" }
+                    ]
+                  },
+                  "newValue": {
+                    "anyOf": [
+                      { "type": "string" },
+                      { "type": "number" },
+                      { "type": "null" }
+                    ]
+                  }
+                },
+                "additionalProperties": false
+              },
+              { "type": "null" }
+            ]
+          }
+        },
+        "additionalProperties": false
+      }
+    },
+    "relatedDocuments": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": [ "id", "relationship" ],
+        "properties": {
+          "id": { "$ref": "#/$defs/UUID" },
+          "relationship": { "enum": [ "parent", "child", "sibling", "reference" ] },
+          "title": {
+            "anyOf": [
+              { "type": "string" },
+              { "type": "null" }
+            ]
+          }
+        },
+        "additionalProperties": false
+      }
+    }
+  },
+  "additionalProperties": false,
+  "$defs": {
+    "UUID": {
+      "type": "string",
+      "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$"
+    },
+    "User": {
+      "type": "object",
+      "required": [ "id", "email" ],
+      "properties": {
+        "id": { "$ref": "#/$defs/UUID" },
+        "email": { "type": "string" },
+        "displayName": {
+          "anyOf": [
+            { "type": "string" },
+            { "type": "null" }
+          ]
+        },
+        "role": { "enum": [ "admin", "editor", "viewer", "guest" ] }
+      },
+      "additionalProperties": false
+    },
+    "Timestamp": {
+      "type": "object",
+      "required": [ "unix", "iso" ],
+      "properties": {
+        "unix": { "type": "integer" },
+        "iso": { "type": "string" },
+        "timezone": {
+          "anyOf": [
+            { "type": "string" },
+            { "type": "null" }
+          ]
+        }
+      },
+      "additionalProperties": false
+    }
+  }
+}

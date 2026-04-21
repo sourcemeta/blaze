@@ -1,0 +1,18 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "if": {
+    "type": "object",
+    "properties": { "kind": { "const": "circle" } },
+    "required": [ "kind" ]
+  },
+  "then": {
+    "type": "object",
+    "properties": { "radius": { "type": "number" } },
+    "required": [ "radius" ]
+  },
+  "else": {
+    "type": "object",
+    "properties": { "sides": { "type": "integer" } },
+    "required": [ "sides" ]
+  }
+}

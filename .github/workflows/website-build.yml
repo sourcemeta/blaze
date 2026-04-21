@@ -22,6 +22,7 @@ jobs:
           -DBLAZE_TEST:BOOL=OFF
           -DBLAZE_CONFIGURATION:BOOL=OFF
           -DBLAZE_ALTERSCHEMA:BOOL=OFF
+          -DBLAZE_CODEGEN:BOOL=OFF
           -DBLAZE_TESTS:BOOL=OFF
           -DBLAZE_DOCS:BOOL=ON
       - run: cmake --build ./build --config Release --target doxygen

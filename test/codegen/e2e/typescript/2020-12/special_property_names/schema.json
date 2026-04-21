@@ -1,0 +1,15 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "type": "object",
+  "properties": {
+    "say \"hello\"": { "type": "string" },
+    "path\\to\\file": { "type": "string" },
+    "line1\nline2": { "type": "string" },
+    "col1\tcol2": { "type": "string" },
+    "$special@chars": { "type": "string" },
+    "my property name": { "type": "string" },
+    "123abc": { "type": "string" },
+    "class": { "type": "string" }
+  },
+  "additionalProperties": false
+}

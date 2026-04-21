@@ -1,0 +1,126 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://example.com/defs-refs-test",
+  "type": "object",
+  "required": [ "user", "posts", "settings" ],
+  "properties": {
+    "user": { "$ref": "#/$defs/User" },
+    "posts": {
+      "type": "array",
+      "items": { "$ref": "#/$defs/Post" }
+    },
+    "settings": { "$ref": "#/$defs/Settings" },
+    "followers": {
+      "type": "array",
+      "items": { "$ref": "#/$defs/User" }
+    },
+    "pinnedPost": {
+      "anyOf": [
+        { "$ref": "#/$defs/Post" },
+        { "type": "null" }
+      ]
+    }
+  },
+  "additionalProperties": false,
+  "$defs": {
+    "User": {
+      "type": "object",
+      "required": [ "id", "username", "email" ],
+      "properties": {
+        "id": { "$ref": "#/$defs/UUID" },
+        "username": { "type": "string" },
+        "email": { "$ref": "#/$defs/Email" },
+        "profile": { "$ref": "#/$defs/Profile" }
+      },
+      "additionalProperties": false
+    },
+    "Profile": {
+      "type": "object",
+      "properties": {
+        "bio": {
+          "anyOf": [
+            { "type": "string" },
+            { "type": "null" }
+          ]
+        },
+        "avatar": { "$ref": "#/$defs/URL" },
+        "location": {
+          "anyOf": [
+            { "type": "string" },
+            { "type": "null" }
+          ]
+        }
+      },
+      "additionalProperties": false
+    },
+    "Post": {
+      "type": "object",
+      "required": [ "id", "title", "author" ],
+      "properties": {
+        "id": { "$ref": "#/$defs/UUID" },
+        "title": { "type": "string" },
+        "content": { "type": "string" },
+        "author": { "$ref": "#/$defs/User" },
+        "tags": {
+          "type": "array",
+          "items": { "$ref": "#/$defs/Tag" }
+        },
+        "status": { "$ref": "#/$defs/PostStatus" }
+      },
+      "additionalProperties": false
+    },
+    "Tag": {
+      "type": "object",
+      "required": [ "name" ],
+      "properties": {
+        "name": { "type": "string" },
+        "slug": { "type": "string" }
+      },
+      "additionalProperties": false
+    },
+    "Settings": {
+      "type": "object",
+      "properties": {
+        "theme": { "$ref": "#/$defs/Theme" },
+        "notifications": { "$ref": "#/$defs/NotificationSettings" },
+        "privacy": { "$ref": "#/$defs/PrivacySettings" }
+      },
+      "additionalProperties": false
+    },
+    "Theme": {
+      "enum": [ "light", "dark", "system" ]
+    },
+    "NotificationSettings": {
+      "type": "object",
+      "properties": {
+        "email": { "type": "boolean" },
+        "push": { "type": "boolean" },
+        "sms": { "type": "boolean" }
+      },
+      "additionalProperties": false
+    },
+    "PrivacySettings": {
+      "type": "object",
+      "properties": {
+        "profileVisible": { "type": "boolean" },
+        "showEmail": { "type": "boolean" }
+      },
+      "additionalProperties": false
+    },
+    "PostStatus": {
+      "enum": [ "draft", "published", "archived" ]
+    },
+    "UUID": {
+      "type": "string",
+      "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$"
+    },
+    "Email": {
+      "type": "string",
+      "format": "email"
+    },
+    "URL": {
+      "type": "string",
+      "format": "uri"
+    }
+  }
+}

@@ -1,0 +1,22 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://example.com/string-list",
+  "$ref": "https://example.com/generic-list",
+  "$defs": {
+    "StringItem": {
+      "$dynamicAnchor": "list-item",
+      "type": "string"
+    },
+    "GenericList": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "$id": "https://example.com/generic-list",
+      "type": "array",
+      "items": { "$dynamicRef": "#list-item" },
+      "$defs": {
+        "DefaultItem": {
+          "$dynamicAnchor": "list-item"
+        }
+      }
+    }
+  }
+}

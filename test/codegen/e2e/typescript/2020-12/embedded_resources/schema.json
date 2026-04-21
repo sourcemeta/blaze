@@ -1,0 +1,21 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://example.com/main",
+  "type": "object",
+  "required": [ "item" ],
+  "properties": {
+    "item": { "$ref": "https://example.com/item" }
+  },
+  "additionalProperties": false,
+  "$defs": {
+    "Item": {
+      "$id": "https://example.com/item",
+      "type": "object",
+      "required": [ "name" ],
+      "properties": {
+        "name": { "type": "string" }
+      },
+      "additionalProperties": false
+    }
+  }
+}

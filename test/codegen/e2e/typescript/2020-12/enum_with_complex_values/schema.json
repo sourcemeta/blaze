@@ -1,0 +1,19 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "type": "object",
+  "properties": {
+    "simpleEnum": {
+      "enum": [ "foo", "bar", "baz" ]
+    },
+    "mixedEnum": {
+      "enum": [ "active", 42, true, null ]
+    },
+    "enumWithObject": {
+      "enum": [ "simple", { "type": "complex", "value": 123 } ]
+    },
+    "enumWithArray": {
+      "enum": [ 1, [ 1, 2, 3 ] ]
+    }
+  },
+  "additionalProperties": false
+}

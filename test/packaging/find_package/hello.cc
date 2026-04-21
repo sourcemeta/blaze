@@ -2,6 +2,7 @@
 #include <sourcemeta/core/jsonschema.h>
 
 #include <sourcemeta/blaze/alterschema.h>
+#include <sourcemeta/blaze/codegen.h>
 #include <sourcemeta/blaze/compiler.h>
 #include <sourcemeta/blaze/configuration.h>
 #include <sourcemeta/blaze/evaluator.h>

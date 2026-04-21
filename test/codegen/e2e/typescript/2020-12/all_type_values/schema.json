@@ -1,0 +1,65 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://example.com/all-types",
+  "type": "object",
+  "required": [
+    "stringField",
+    "numberField",
+    "integerField",
+    "booleanField",
+    "nullField",
+    "arrayField",
+    "objectField"
+  ],
+  "properties": {
+    "stringField": {
+      "type": "string"
+    },
+    "numberField": {
+      "type": "number"
+    },
+    "integerField": {
+      "type": "integer"
+    },
+    "booleanField": {
+      "type": "boolean"
+    },
+    "nullField": {
+      "type": "null"
+    },
+    "arrayField": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "objectField": {
+      "type": "object",
+      "properties": {
+        "nested": {
+          "type": "string"
+        }
+      },
+      "additionalProperties": false
+    },
+    "multiType": {
+      "type": [ "string", "number", "null" ]
+    },
+    "nestedTypes": {
+      "type": "object",
+      "properties": {
+        "deepBoolean": {
+          "type": "boolean"
+        },
+        "deepNull": {
+          "type": "null"
+        },
+        "deepInteger": {
+          "type": "integer"
+        }
+      },
+      "additionalProperties": false
+    }
+  },
+  "additionalProperties": false
+}
