@@ -3563,3 +3563,49 @@ TEST_F(Documentation202012Test, default_explicit_null) {
                        sourcemeta::core::schema_resolver, *compiled_schema_,
                        expected);
 }
+
+TEST_F(Documentation202012Test, recursive_ref_walk_schema_cycle) {
+  const auto schema{sourcemeta::core::parse_json(R"JSON({
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "$id": "https://example.com/tree",
+    "type": "object",
+    "properties": {
+      "value": { "type": "string" },
+      "left": { "$ref": "#" },
+      "right": { "$ref": "#" }
+    }
+  })JSON")};
+
+  const auto expected{sourcemeta::core::parse_json(R"JSON({
+    "identifier": 0,
+    "rows": [
+      {
+        "identifier": 1,
+        "path": [ { "type": "synthetic", "value": "root" } ],
+        "type": { "kind": "object" }
+      },
+      {
+        "identifier": 2,
+        "path": [ { "type": "literal", "value": "value" } ],
+        "type": { "kind": "primitive", "name": "string" },
+        "required": false
+      },
+      {
+        "identifier": 3,
+        "path": [ { "type": "literal", "value": "left" } ],
+        "type": { "kind": "recursiveRef", "identifier": 1 },
+        "required": false
+      },
+      {
+        "identifier": 4,
+        "path": [ { "type": "literal", "value": "right" } ],
+        "type": { "kind": "recursiveRef", "identifier": 1 },
+        "required": false
+      }
+    ]
+  })JSON")};
+
+  EXPECT_DOCUMENTATION(schema, sourcemeta::core::schema_walker,
+                       sourcemeta::core::schema_resolver, *compiled_schema_,
+                       expected);
+}
