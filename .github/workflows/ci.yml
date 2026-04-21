@@ -97,9 +97,6 @@ jobs:
         env:
           HOMEBREW_NO_ANALYTICS: 1
           HOMEBREW_NO_AUTO_UPDATE: 1
-      - uses: actions/setup-node@v4
-        with:
-          node-version: 'latest'
       - run: npm ci
       - run: cmake --version
       - name: Configure Blaze (static)
