@@ -3609,3 +3609,214 @@ TEST_F(Documentation202012Test, recursive_ref_walk_schema_cycle) {
                        sourcemeta::core::schema_resolver, *compiled_schema_,
                        expected);
 }
+
+TEST_F(Documentation202012Test, array_items_ref_to_object) {
+  const auto schema{sourcemeta::core::parse_json(R"JSON({
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "type": "array",
+    "items": { "$ref": "#/$defs/item" },
+    "$defs": {
+      "item": {
+        "type": "object",
+        "properties": { "name": { "type": "string" } }
+      }
+    }
+  })JSON")};
+
+  const auto expected{sourcemeta::core::parse_json(R"JSON({
+    "identifier": 0,
+    "rows": [
+      {
+        "identifier": 1,
+        "path": [ { "type": "synthetic", "value": "root" } ],
+        "type": { "kind": "array", "items": { "kind": "object" } }
+      },
+      {
+        "identifier": 2,
+        "path": [ { "type": "wildcard", "value": "*" } ],
+        "type": { "kind": "object" }
+      },
+      {
+        "identifier": 3,
+        "path": [
+          { "type": "wildcard", "value": "*" },
+          { "type": "literal", "value": "name" }
+        ],
+        "type": { "kind": "primitive", "name": "string" },
+        "required": false
+      }
+    ]
+  })JSON")};
+
+  EXPECT_DOCUMENTATION(schema, sourcemeta::core::schema_walker,
+                       sourcemeta::core::schema_resolver, *compiled_schema_,
+                       expected);
+}
+
+TEST_F(Documentation202012Test, array_items_ref_to_string) {
+  const auto schema{sourcemeta::core::parse_json(R"JSON({
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "type": "array",
+    "items": { "$ref": "#/$defs/item" },
+    "$defs": {
+      "item": { "type": "string" }
+    }
+  })JSON")};
+
+  const auto expected{sourcemeta::core::parse_json(R"JSON({
+    "identifier": 0,
+    "rows": [
+      {
+        "identifier": 1,
+        "path": [ { "type": "synthetic", "value": "root" } ],
+        "type": { "kind": "array", "items": { "kind": "primitive", "name": "string" } }
+      }
+    ]
+  })JSON")};
+
+  EXPECT_DOCUMENTATION(schema, sourcemeta::core::schema_walker,
+                       sourcemeta::core::schema_resolver, *compiled_schema_,
+                       expected);
+}
+
+TEST_F(Documentation202012Test, array_items_object_with_properties) {
+  const auto schema{sourcemeta::core::parse_json(R"JSON({
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "type": "array",
+    "items": {
+      "type": "object",
+      "properties": {
+        "name": { "type": "string" }
+      }
+    }
+  })JSON")};
+
+  const auto expected{sourcemeta::core::parse_json(R"JSON({
+    "identifier": 0,
+    "rows": [
+      {
+        "identifier": 1,
+        "path": [ { "type": "synthetic", "value": "root" } ],
+        "type": { "kind": "array", "items": { "kind": "object" } }
+      },
+      {
+        "identifier": 2,
+        "path": [ { "type": "wildcard", "value": "*" } ],
+        "type": { "kind": "object" }
+      },
+      {
+        "identifier": 3,
+        "path": [
+          { "type": "wildcard", "value": "*" },
+          { "type": "literal", "value": "name" }
+        ],
+        "type": { "kind": "primitive", "name": "string" },
+        "required": false
+      }
+    ]
+  })JSON")};
+
+  EXPECT_DOCUMENTATION(schema, sourcemeta::core::schema_walker,
+                       sourcemeta::core::schema_resolver, *compiled_schema_,
+                       expected);
+}
+
+TEST_F(Documentation202012Test, array_items_ref_to_object_with_properties) {
+  const auto schema{sourcemeta::core::parse_json(R"JSON({
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "type": "array",
+    "items": { "$ref": "#/$defs/item" },
+    "$defs": {
+      "item": {
+        "type": "object",
+        "properties": { "name": { "type": "string" } }
+      }
+    }
+  })JSON")};
+
+  const auto expected{sourcemeta::core::parse_json(R"JSON({
+    "identifier": 0,
+    "rows": [
+      {
+        "identifier": 1,
+        "path": [ { "type": "synthetic", "value": "root" } ],
+        "type": { "kind": "array", "items": { "kind": "object" } }
+      },
+      {
+        "identifier": 2,
+        "path": [ { "type": "wildcard", "value": "*" } ],
+        "type": { "kind": "object" }
+      },
+      {
+        "identifier": 3,
+        "path": [
+          { "type": "wildcard", "value": "*" },
+          { "type": "literal", "value": "name" }
+        ],
+        "type": { "kind": "primitive", "name": "string" },
+        "required": false
+      }
+    ]
+  })JSON")};
+
+  EXPECT_DOCUMENTATION(schema, sourcemeta::core::schema_walker,
+                       sourcemeta::core::schema_resolver, *compiled_schema_,
+                       expected);
+}
+
+TEST_F(Documentation202012Test, object_property_array_of_objects) {
+  const auto schema{sourcemeta::core::parse_json(R"JSON({
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "type": "object",
+    "properties": {
+      "tags": {
+        "type": "array",
+        "items": {
+          "type": "object",
+          "properties": {
+            "name": { "type": "string" }
+          }
+        }
+      }
+    }
+  })JSON")};
+
+  const auto expected{sourcemeta::core::parse_json(R"JSON({
+    "identifier": 0,
+    "rows": [
+      {
+        "identifier": 1,
+        "path": [ { "type": "synthetic", "value": "root" } ],
+        "type": { "kind": "object" }
+      },
+      {
+        "identifier": 2,
+        "path": [ { "type": "literal", "value": "tags" } ],
+        "type": { "kind": "array", "items": { "kind": "object" } },
+        "required": false
+      },
+      {
+        "identifier": 3,
+        "path": [
+          { "type": "literal", "value": "tags" },
+          { "type": "wildcard", "value": "*" }
+        ],
+        "type": { "kind": "object" }
+      },
+      {
+        "identifier": 4,
+        "path": [
+          { "type": "literal", "value": "tags" },
+          { "type": "wildcard", "value": "*" },
+          { "type": "literal", "value": "name" }
+        ],
+        "type": { "kind": "primitive", "name": "string" },
+        "required": false
+      }
+    ]
+  })JSON")};
+
+  EXPECT_DOCUMENTATION(schema, sourcemeta::core::schema_walker,
+                       sourcemeta::core::schema_resolver, *compiled_schema_,
+                       expected);
+}

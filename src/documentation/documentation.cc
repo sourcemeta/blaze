@@ -73,6 +73,8 @@ auto type_expression_of(const sourcemeta::core::JSON &schema,
                         static_cast<std::int64_t>(visited_entry->second)});
       return result;
     }
+
+    return type_expression_of(target_schema, frame, root, visited);
   }
 
   if (schema.defines("$dynamicRef") && schema.at("$dynamicRef").is_string()) {
@@ -642,18 +644,40 @@ auto walk_properties(const sourcemeta::core::JSON &schema,
     rows.push_back(std::move(row));
 
     if (resolved.is_object() && resolved.defines("type") &&
-        resolved.at("type").is_string() &&
-        resolved.at("type").to_string() == "object") {
-      visited.emplace(&resolved, row_identifier);
-      walk_properties(resolved, path, rows, frame, root, visited,
-                      next_identifier);
-      walk_pattern_properties(resolved, path, rows, frame, root, visited,
-                              next_identifier);
-      walk_wildcard_keyword(resolved, "additionalProperties", path, rows, frame,
-                            root, visited, next_identifier);
-      walk_wildcard_keyword(resolved, "unevaluatedProperties", path, rows,
-                            frame, root, visited, next_identifier);
-      visited.erase(&resolved);
+        resolved.at("type").is_string()) {
+      const auto &resolved_type{resolved.at("type").to_string()};
+      if (resolved_type == "object") {
+        visited.emplace(&resolved, row_identifier);
+        walk_properties(resolved, path, rows, frame, root, visited,
+                        next_identifier);
+        walk_pattern_properties(resolved, path, rows, frame, root, visited,
+                                next_identifier);
+        walk_wildcard_keyword(resolved, "additionalProperties", path, rows,
+                              frame, root, visited, next_identifier);
+        walk_wildcard_keyword(resolved, "unevaluatedProperties", path, rows,
+                              frame, root, visited, next_identifier);
+        visited.erase(&resolved);
+      } else if (resolved_type == "array" && resolved.defines("items") &&
+                 resolved.at("items").is_object() &&
+                 !resolved.defines("prefixItems")) {
+        const auto &items_schema{
+            resolve_ref(resolved.at("items"), frame, root, visited)};
+        if (items_schema.is_object() && items_schema.defines("type") &&
+            items_schema.at("type").is_string() &&
+            items_schema.at("type").to_string() == "object") {
+          auto wildcard_path{path};
+          wildcard_path.push_back(make_path_segment("wildcard", "*"));
+          emit_row(items_schema, wildcard_path, rows, frame, root, visited,
+                   next_identifier);
+          walk_properties(items_schema, wildcard_path, rows, frame, root,
+                          visited, next_identifier);
+          walk_pattern_properties(items_schema, wildcard_path, rows, frame,
+                                  root, visited, next_identifier);
+          walk_wildcard_keyword(items_schema, "additionalProperties",
+                                wildcard_path, rows, frame, root, visited,
+                                next_identifier);
+        }
+      }
     }
   }
 }
@@ -1109,6 +1133,27 @@ auto walk_schema(const sourcemeta::core::JSON &schema, const bool include_root,
                         root, visited, next_identifier);
   walk_prefix_items(schema, empty_path, rows, doc_children, frame, root,
                     visited, next_identifier);
+
+  if (schema.is_object() && schema.defines("items") &&
+      schema.at("items").is_object() && !schema.defines("prefixItems")) {
+    const auto &items_schema{
+        resolve_ref(schema.at("items"), frame, root, visited)};
+    if (items_schema.is_object() && items_schema.defines("type") &&
+        items_schema.at("type").is_string() &&
+        items_schema.at("type").to_string() == "object") {
+      auto wildcard_path{sourcemeta::core::JSON::make_array()};
+      wildcard_path.push_back(make_path_segment("wildcard", "*"));
+      emit_row(items_schema, wildcard_path, rows, frame, root, visited,
+               next_identifier);
+      walk_properties(items_schema, wildcard_path, rows, frame, root, visited,
+                      next_identifier);
+      walk_pattern_properties(items_schema, wildcard_path, rows, frame, root,
+                              visited, next_identifier);
+      walk_wildcard_keyword(items_schema, "additionalProperties", wildcard_path,
+                            rows, frame, root, visited, next_identifier);
+    }
+  }
+
   walk_branches("anyOf", "Any of", schema, doc_children, frame, root, visited,
                 next_identifier);
   walk_branches("oneOf", "One of", schema, doc_children, frame, root, visited,

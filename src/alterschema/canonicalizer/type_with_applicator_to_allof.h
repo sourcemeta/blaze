@@ -56,8 +56,10 @@ public:
     const bool has_structural{has_type || has_enum || has_ref};
 
     bool modern_ref_needs_wrapping{false};
+    this->ref_annotations_only_ = false;
     if (this->has_modern_ref_ || this->has_dynamic_ref_ ||
         this->has_recursive_ref_) {
+      this->ref_annotations_only_ = true;
       for (const auto &entry : schema.as_object()) {
         if (entry.first == "$ref" || entry.first == "$dynamicRef" ||
             entry.first == "$recursiveRef") {
@@ -68,7 +70,9 @@ public:
             keyword_type != sourcemeta::core::SchemaKeywordType::Annotation &&
             keyword_type != sourcemeta::core::SchemaKeywordType::Comment) {
           modern_ref_needs_wrapping = true;
-          break;
+          if (keyword_type == sourcemeta::core::SchemaKeywordType::Assertion) {
+            this->ref_annotations_only_ = false;
+          }
         }
       }
     }
@@ -94,9 +98,10 @@ public:
       }
     }
 
-    ONLY_CONTINUE_IF((has_structural && applicator_count >= 1) ||
-                     applicator_count >= 2 || modern_ref_needs_wrapping ||
-                     has_orphaned_typed_keywords);
+    ONLY_CONTINUE_IF(
+        (has_structural && applicator_count >= 1) || applicator_count >= 2 ||
+        modern_ref_needs_wrapping ||
+        (has_orphaned_typed_keywords && !this->ref_annotations_only_));
 
     this->strategy_ = Strategy::FullRestructure;
     this->applicators_with_refs_ = 0;
@@ -222,7 +227,10 @@ public:
           entry.first == "allOf" || entry.first == "oneOf" ||
           entry.first == "$schema" || entry.first == "id" ||
           entry.first == "$id" || entry.first == "definitions" ||
-          entry.first == "$defs" || entry.first == "dependencies" ||
+          entry.first == "$defs" || entry.first == "$anchor" ||
+          entry.first == "$dynamicAnchor" || entry.first == "$recursiveAnchor" ||
+          entry.first == "$vocabulary" ||
+          entry.first == "dependencies" ||
           entry.first == "dependentSchemas" ||
           (this->has_if_then_else_ &&
            (entry.first == "if" || entry.first == "then" ||
@@ -291,16 +299,34 @@ public:
     if (this->has_modern_ref_ && schema.defines("$ref")) {
       auto branch{JSON::make_object()};
       branch.assign("$ref", schema.at("$ref"));
+      if (this->ref_annotations_only_ && !this->typed_keywords_.empty()) {
+        for (const auto &entry : typed_branch.as_object()) {
+          branch.assign(entry.first, entry.second);
+        }
+        this->typed_keywords_.clear();
+      }
       new_allof.push_back(std::move(branch));
     }
     if (this->has_dynamic_ref_ && schema.defines("$dynamicRef")) {
       auto branch{JSON::make_object()};
       branch.assign("$dynamicRef", schema.at("$dynamicRef"));
+      if (this->ref_annotations_only_ && !this->typed_keywords_.empty()) {
+        for (const auto &entry : typed_branch.as_object()) {
+          branch.assign(entry.first, entry.second);
+        }
+        this->typed_keywords_.clear();
+      }
       new_allof.push_back(std::move(branch));
     }
     if (this->has_recursive_ref_ && schema.defines("$recursiveRef")) {
       auto branch{JSON::make_object()};
       branch.assign("$recursiveRef", schema.at("$recursiveRef"));
+      if (this->ref_annotations_only_ && !this->typed_keywords_.empty()) {
+        for (const auto &entry : typed_branch.as_object()) {
+          branch.assign(entry.first, entry.second);
+        }
+        this->typed_keywords_.clear();
+      }
       new_allof.push_back(std::move(branch));
     }
 
@@ -341,6 +367,18 @@ public:
     }
     if (schema.defines("$defs")) {
       new_schema.assign("$defs", schema.at("$defs"));
+    }
+    if (schema.defines("$anchor")) {
+      new_schema.assign("$anchor", schema.at("$anchor"));
+    }
+    if (schema.defines("$dynamicAnchor")) {
+      new_schema.assign("$dynamicAnchor", schema.at("$dynamicAnchor"));
+    }
+    if (schema.defines("$recursiveAnchor")) {
+      new_schema.assign("$recursiveAnchor", schema.at("$recursiveAnchor"));
+    }
+    if (schema.defines("$vocabulary")) {
+      new_schema.assign("$vocabulary", schema.at("$vocabulary"));
     }
     if (schema.defines("dependencies")) {
       new_schema.assign("dependencies", schema.at("dependencies"));
@@ -455,6 +493,7 @@ private:
   mutable bool has_dynamic_ref_{false};
   mutable bool has_recursive_ref_{false};
   mutable bool has_unevaluated_{false};
+  mutable bool ref_annotations_only_{false};
   mutable std::vector<std::string> typed_keywords_;
   mutable std::uint8_t applicator_indices_{0};
   mutable std::uint8_t applicators_with_refs_{0};

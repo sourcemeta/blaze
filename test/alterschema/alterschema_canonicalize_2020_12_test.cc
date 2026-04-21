@@ -3433,42 +3433,10 @@ TEST_F(Canonicalizer202012Test, dynamic_ref_stays_dynamic_multiple_resources) {
         "minLength": 0
       }
     },
+    "$dynamicAnchor": "foo",
     "allOf": [
       {
         "$dynamicRef": "#foo"
-      },
-      {
-        "$dynamicAnchor": "foo",
-        "anyOf": [
-          {
-            "enum": [ null ]
-          },
-          {
-            "enum": [ false, true ]
-          },
-          {
-            "type": "object",
-            "patternProperties": {},
-            "propertyNames": true,
-            "minProperties": 0,
-            "properties": {}
-          },
-          {
-            "type": "array",
-            "uniqueItems": false,
-            "minItems": 0,
-            "contains": true,
-            "minContains": 0,
-            "items": true
-          },
-          {
-            "type": "string",
-            "minLength": 0
-          },
-          {
-            "type": "number"
-          }
-        ]
       }
     ]
   })JSON");
@@ -3769,6 +3737,35 @@ TEST_F(Canonicalizer202012Test, content_schema_object_anyof) {
       },
       { "type": "number" }
     ]
+  })JSON");
+
+  CANONICALIZE_AND_VALIDATE(document, expected, *compiled_meta_);
+}
+
+TEST_F(Canonicalizer202012Test, ref_with_annotation_no_type_expansion) {
+  auto document = sourcemeta::core::parse_json(R"JSON({
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "$ref": "#/$defs/main",
+    "title": "My Schema",
+    "$defs": {
+      "main": { "type": "string" }
+    }
+  })JSON");
+
+  const auto expected = sourcemeta::core::parse_json(R"JSON({
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "allOf": [
+      {
+        "title": "My Schema",
+        "$ref": "#/$defs/main"
+      }
+    ],
+    "$defs": {
+      "main": {
+        "type": "string",
+        "minLength": 0
+      }
+    }
   })JSON");
 
   CANONICALIZE_AND_VALIDATE(document, expected, *compiled_meta_);
