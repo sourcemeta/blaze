@@ -50,6 +50,19 @@ static auto alterschema_test_resolver(std::string_view identifier)
       "$schema": "https://json-schema.org/draft/2020-12/schema",
       "type": "integer"
     })JSON");
+  } else if (identifier ==
+             "https://example.com/unsupported-vocabulary-metaschema") {
+    return sourcemeta::core::parse_json(R"JSON({
+      "$id": "https://example.com/unsupported-vocabulary-metaschema",
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "$vocabulary": {
+        "https://json-schema.org/draft/2020-12/vocab/core": true,
+        "https://json-schema.org/draft/2020-12/vocab/applicator": true,
+        "https://json-schema.org/draft/2020-12/vocab/validation": true,
+        "https://json-schema.org/draft/2020-12/vocab/meta-data": true,
+        "https://json-schema.org/draft/2020-12/vocab/format-assertion": true
+      }
+    })JSON");
   } else {
     return sourcemeta::core::schema_resolver(identifier);
   }

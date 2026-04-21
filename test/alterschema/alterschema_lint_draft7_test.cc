@@ -1,5 +1,6 @@
 #include <gtest/gtest.h>
 
+#include <sourcemeta/blaze/compiler_error.h>
 #include <sourcemeta/core/json.h>
 
 #include "alterschema_test_utils.h"
@@ -4455,4 +4456,48 @@ TEST(AlterSchema_lint_draft7, quintuple_negation_to_single) {
   })JSON");
 
   EXPECT_EQ(document, expected);
+}
+
+TEST(AlterSchema_lint_draft7, valid_default_throws_on_invalid_ref_target) {
+  sourcemeta::core::JSON document = sourcemeta::core::parse_json(R"JSON({
+    "$schema": "http://json-schema.org/draft-07/schema#",
+    "allOf": [
+      { "$ref": "#/$defs/foo" }
+    ],
+    "$defs": {
+      "foo": { "type": "string" }
+    },
+    "default": "test"
+  })JSON");
+
+  sourcemeta::blaze::SchemaTransformer bundle;
+  sourcemeta::blaze::add(bundle, sourcemeta::blaze::AlterSchemaMode::Linter);
+  EXPECT_THROW(static_cast<void>(
+                   bundle.check(document, sourcemeta::core::schema_walker,
+                                alterschema_test_resolver,
+                                [](const auto &, const auto &, const auto &,
+                                   const auto &, const auto &) {})),
+               sourcemeta::blaze::CompilerReferenceTargetNotSchemaError);
+}
+
+TEST(AlterSchema_lint_draft7, valid_examples_throws_on_invalid_ref_target) {
+  sourcemeta::core::JSON document = sourcemeta::core::parse_json(R"JSON({
+    "$schema": "http://json-schema.org/draft-07/schema#",
+    "allOf": [
+      { "$ref": "#/$defs/foo" }
+    ],
+    "$defs": {
+      "foo": { "type": "string" }
+    },
+    "examples": [ "test" ]
+  })JSON");
+
+  sourcemeta::blaze::SchemaTransformer bundle;
+  sourcemeta::blaze::add(bundle, sourcemeta::blaze::AlterSchemaMode::Linter);
+  EXPECT_THROW(static_cast<void>(
+                   bundle.check(document, sourcemeta::core::schema_walker,
+                                alterschema_test_resolver,
+                                [](const auto &, const auto &, const auto &,
+                                   const auto &, const auto &) {})),
+               sourcemeta::blaze::CompilerReferenceTargetNotSchemaError);
 }
