@@ -1,0 +1,27 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "type": "object",
+  "properties": {
+    "status": {
+      "enum": [
+        { "code": 200, "message": "OK" },
+        { "code": 404, "message": "Not Found" },
+        { "code": 500, "message": "Internal Server Error" }
+      ]
+    },
+    "coordinates": {
+      "enum": [
+        [ 0, 0 ],
+        [ 1, 1 ],
+        [ -1, -1 ]
+      ]
+    },
+    "fixedConfig": {
+      "const": { "enabled": true, "maxRetries": 3 }
+    },
+    "fixedList": {
+      "const": [ "read", "write", "execute" ]
+    }
+  },
+  "additionalProperties": false
+}

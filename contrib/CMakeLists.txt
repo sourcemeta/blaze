@@ -60,6 +60,15 @@ if(BLAZE_COMPILER AND BLAZE_EVALUATOR)
   endif()
 endif()
 
+if(BLAZE_CODEGEN)
+  sourcemeta_executable(NAMESPACE sourcemeta PROJECT blaze NAME contrib_typescript
+    FOLDER "Blaze/Contrib" SOURCES typescript.cc)
+  target_link_libraries(sourcemeta_blaze_contrib_typescript
+    PRIVATE sourcemeta::blaze::codegen)
+  target_link_libraries(sourcemeta_blaze_contrib_typescript
+    PRIVATE sourcemeta::core::options)
+endif()
+
 if(BLAZE_ALTERSCHEMA)
   sourcemeta_executable(NAMESPACE sourcemeta PROJECT blaze
     NAME contrib_canonicalize

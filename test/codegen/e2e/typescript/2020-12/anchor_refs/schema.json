@@ -1,0 +1,25 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "type": "object",
+  "required": [ "primary", "secondary" ],
+  "properties": {
+    "primary": { "$ref": "#color" },
+    "secondary": { "$ref": "#color" },
+    "background": { "$ref": "#color" }
+  },
+  "additionalProperties": false,
+  "$defs": {
+    "Color": {
+      "$anchor": "color",
+      "type": "object",
+      "required": [ "r", "g", "b" ],
+      "properties": {
+        "r": { "type": "integer" },
+        "g": { "type": "integer" },
+        "b": { "type": "integer" },
+        "alpha": { "type": "number" }
+      },
+      "additionalProperties": false
+    }
+  }
+}

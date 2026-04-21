@@ -1,0 +1,11 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$dynamicAnchor": "node",
+  "type": "object",
+  "required": [ "name" ],
+  "properties": {
+    "name": { "type": "string" },
+    "value": { "type": "integer" }
+  },
+  "additionalProperties": false
+}

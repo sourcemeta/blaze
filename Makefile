@@ -1,6 +1,7 @@
 # Programs
 CMAKE = cmake
 CTEST = ctest
+NPM = npm
 
 # Options
 PRESET = Debug
@@ -8,7 +9,10 @@ SHARED = OFF
 
 all: configure compile test
 
-configure: .always
+node_modules: package.json package-lock.json
+	$(NPM) ci
+
+configure: node_modules .always
 	$(CMAKE) -S . -B ./build \
 		-DCMAKE_BUILD_TYPE:STRING=$(PRESET) \
 		-DCMAKE_COMPILE_WARNING_AS_ERROR:BOOL=ON \

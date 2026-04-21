@@ -1,0 +1,21 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "type": "object",
+  "properties": {
+    "value": {
+      "oneOf": [
+        { "type": "string" },
+        { "type": "integer" },
+        { "type": "boolean" }
+      ]
+    },
+    "status": {
+      "oneOf": [
+        { "enum": [ "pending", "active" ] },
+        { "enum": [ "completed", "cancelled" ] }
+      ]
+    }
+  },
+  "required": [ "value" ],
+  "additionalProperties": false
+}

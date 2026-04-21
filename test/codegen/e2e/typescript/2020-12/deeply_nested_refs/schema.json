@@ -1,0 +1,239 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://example.com/api-response",
+  "type": "object",
+  "required": [ "status", "data", "meta" ],
+  "properties": {
+    "status": {
+      "enum": [ "success", "error", "pending" ]
+    },
+    "errorCode": {
+      "anyOf": [
+        { "type": "string" },
+        { "type": "null" }
+      ]
+    },
+    "data": {
+      "$ref": "#/$defs/PaginatedResult"
+    },
+    "meta": {
+      "$ref": "#/$defs/ResponseMeta"
+    }
+  },
+  "additionalProperties": false,
+  "$defs": {
+    "PaginatedResult": {
+      "type": "object",
+      "required": [ "items", "pagination" ],
+      "properties": {
+        "items": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/Entity"
+          }
+        },
+        "pagination": {
+          "$ref": "#/$defs/PaginationInfo"
+        },
+        "filters": {
+          "$ref": "#/$defs/AppliedFilters"
+        }
+      },
+      "additionalProperties": false
+    },
+    "Entity": {
+      "type": "object",
+      "required": [ "id", "type", "attributes" ],
+      "properties": {
+        "id": {
+          "type": "string"
+        },
+        "type": {
+          "enum": [ "user", "organization", "resource" ]
+        },
+        "attributes": {
+          "$ref": "#/$defs/EntityAttributes"
+        },
+        "relationships": {
+          "type": "object",
+          "properties": {
+            "parent": {
+              "$ref": "#/$defs/EntityReference"
+            },
+            "children": {
+              "type": "array",
+              "items": {
+                "$ref": "#/$defs/EntityReference"
+              }
+            }
+          },
+          "additionalProperties": {
+            "$ref": "#/$defs/EntityReference"
+          }
+        }
+      },
+      "additionalProperties": false
+    },
+    "EntityAttributes": {
+      "type": "object",
+      "required": [ "name", "createdAt" ],
+      "properties": {
+        "name": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 255
+        },
+        "description": {
+          "anyOf": [
+            { "type": "string" },
+            { "type": "null" }
+          ]
+        },
+        "createdAt": {
+          "type": "string"
+        },
+        "updatedAt": {
+          "anyOf": [
+            { "type": "string" },
+            { "type": "null" }
+          ]
+        },
+        "tags": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "metadata": {
+          "type": "object",
+          "additionalProperties": {
+            "anyOf": [
+              { "type": "string" },
+              { "type": "number" },
+              { "type": "boolean" }
+            ]
+          }
+        }
+      },
+      "additionalProperties": false
+    },
+    "EntityReference": {
+      "type": "object",
+      "required": [ "id", "type" ],
+      "properties": {
+        "id": {
+          "type": "string"
+        },
+        "type": {
+          "type": "string"
+        }
+      },
+      "additionalProperties": false
+    },
+    "PaginationInfo": {
+      "type": "object",
+      "required": [ "page", "pageSize", "totalItems", "totalPages" ],
+      "properties": {
+        "page": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "pageSize": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 100
+        },
+        "totalItems": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "totalPages": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "hasNextPage": {
+          "enum": [ true, false ]
+        },
+        "hasPreviousPage": {
+          "enum": [ true, false ]
+        }
+      },
+      "additionalProperties": false
+    },
+    "AppliedFilters": {
+      "type": "object",
+      "properties": {
+        "search": {
+          "anyOf": [
+            { "type": "string" },
+            { "type": "null" }
+          ]
+        },
+        "dateRange": {
+          "type": "object",
+          "properties": {
+            "start": {
+              "type": "string"
+            },
+            "end": {
+              "type": "string"
+            }
+          },
+          "required": [ "start", "end" ],
+          "additionalProperties": false
+        },
+        "types": {
+          "type": "array",
+          "items": {
+            "enum": [ "user", "organization", "resource" ]
+          }
+        },
+        "sortBy": {
+          "enum": [ "name", "createdAt", "updatedAt", null ]
+        },
+        "sortOrder": {
+          "enum": [ "asc", "desc" ]
+        }
+      },
+      "additionalProperties": false
+    },
+    "ResponseMeta": {
+      "type": "object",
+      "required": [ "requestId", "timestamp" ],
+      "properties": {
+        "requestId": {
+          "type": "string"
+        },
+        "timestamp": {
+          "type": "string"
+        },
+        "version": {
+          "type": "string"
+        },
+        "deprecationWarnings": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": [ "message", "field" ],
+            "properties": {
+              "message": {
+                "type": "string"
+              },
+              "field": {
+                "type": "string"
+              },
+              "suggestedAlternative": {
+                "anyOf": [
+                  { "type": "string" },
+                  { "type": "null" }
+                ]
+              }
+            },
+            "additionalProperties": false
+          }
+        }
+      },
+      "additionalProperties": false
+    }
+  }
+}

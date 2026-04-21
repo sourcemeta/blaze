@@ -1,0 +1,22 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://example.com/root",
+  "$ref": "list",
+  "$defs": {
+    "StringItem": {
+      "$dynamicAnchor": "item",
+      "type": "string"
+    },
+    "List": {
+      "$id": "list",
+      "type": "array",
+      "items": { "$dynamicRef": "#item" },
+      "$defs": {
+        "DefaultItem": {
+          "$dynamicAnchor": "item",
+          "type": "number"
+        }
+      }
+    }
+  }
+}

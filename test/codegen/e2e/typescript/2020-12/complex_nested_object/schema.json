@@ -1,0 +1,246 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "type": "object",
+  "required": [
+    "recordId",
+    "organizationName",
+    "region",
+    "entity",
+    "items"
+  ],
+  "properties": {
+    "recordId": {
+      "type": "string"
+    },
+    "referenceCode": {
+      "type": "string"
+    },
+    "organizationName": {
+      "type": "string"
+    },
+    "createdAt": {
+      "$ref": "#/$defs/Timestamp"
+    },
+    "region": {
+      "type": "string"
+    },
+    "locationInfo": {
+      "type": "object",
+      "properties": {
+        "stateCode": {
+          "type": "string"
+        },
+        "areaCode": {
+          "type": "string"
+        }
+      },
+      "additionalProperties": false
+    },
+    "entity": {
+      "type": "object",
+      "required": [ "fullName", "birthDate", "locations" ],
+      "properties": {
+        "fullName": {
+          "$ref": "#/$defs/FullName"
+        },
+        "birthDate": {
+          "$ref": "#/$defs/Timestamp"
+        },
+        "category": {
+          "type": "string"
+        },
+        "classification": {
+          "type": "string"
+        },
+        "locations": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/Location"
+          }
+        }
+      },
+      "additionalProperties": false
+    },
+    "notes": {
+      "type": "string"
+    },
+    "items": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "required": [
+          "itemId",
+          "sequenceNumber",
+          "description",
+          "occurredAt",
+          "severity"
+        ],
+        "properties": {
+          "itemId": {
+            "type": "string"
+          },
+          "sequenceNumber": {
+            "type": "string"
+          },
+          "description": {
+            "type": "string"
+          },
+          "code": {
+            "type": [ "string", "null" ]
+          },
+          "occurredAt": {
+            "$ref": "#/$defs/Timestamp"
+          },
+          "severity": {
+            "type": "string"
+          },
+          "resolution": {
+            "type": [ "string", "null" ]
+          },
+          "resolvedAt": {
+            "anyOf": [
+              {
+                "$ref": "#/$defs/Timestamp"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "outcome": {
+            "type": "string"
+          },
+          "remarks": {
+            "type": [ "string", "null" ]
+          },
+          "category": {
+            "type": "string"
+          },
+          "subCategory": {
+            "type": "string"
+          },
+          "meta": {
+            "type": "object",
+            "properties": {
+              "origin": {
+                "type": "string"
+              },
+              "originId": {
+                "type": "string"
+              }
+            },
+            "additionalProperties": false
+          }
+        },
+        "additionalProperties": false
+      }
+    },
+    "meta": {
+      "type": "object",
+      "properties": {
+        "origin": {
+          "type": "string"
+        },
+        "originId": {
+          "type": "string"
+        }
+      },
+      "additionalProperties": false
+    }
+  },
+  "additionalProperties": false,
+  "$defs": {
+    "Location": {
+      "type": "object",
+      "required": [
+        "rawValue",
+        "line1",
+        "city",
+        "region",
+        "postalCode",
+        "country"
+      ],
+      "properties": {
+        "rawValue": {
+          "type": "string"
+        },
+        "line1": {
+          "type": "string"
+        },
+        "line2": {
+          "type": [ "string", "null" ]
+        },
+        "city": {
+          "type": "string"
+        },
+        "district": {
+          "type": "string"
+        },
+        "region": {
+          "type": "string"
+        },
+        "postalCode": {
+          "type": "string"
+        },
+        "country": {
+          "type": "string"
+        }
+      },
+      "additionalProperties": false
+    },
+    "FullName": {
+      "type": "object",
+      "required": [ "givenName", "familyName" ],
+      "properties": {
+        "rawValue": {
+          "type": "string"
+        },
+        "givenName": {
+          "type": "string"
+        },
+        "middleName": {
+          "type": [ "string", "null" ]
+        },
+        "familyName": {
+          "type": "string"
+        },
+        "suffix": {
+          "type": [ "string", "null" ]
+        },
+        "prefix": {
+          "type": [ "string", "null" ]
+        }
+      },
+      "additionalProperties": false
+    },
+    "Timestamp": {
+      "type": "object",
+      "required": [ "rawValue", "year", "month", "day" ],
+      "properties": {
+        "rawValue": {
+          "type": "string"
+        },
+        "year": {
+          "type": "integer",
+          "maximum": 9999,
+          "minimum": 1000
+        },
+        "month": {
+          "type": "integer",
+          "maximum": 12,
+          "minimum": 1
+        },
+        "day": {
+          "type": "integer",
+          "maximum": 31,
+          "minimum": 1
+        },
+        "isoFormat": {
+          "type": "string"
+        }
+      },
+      "additionalProperties": false
+    }
+  }
+}

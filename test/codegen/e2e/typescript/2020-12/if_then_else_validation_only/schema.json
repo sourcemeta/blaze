@@ -1,0 +1,7 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "type": "string",
+  "if": { "type": "string", "maxLength": 10 },
+  "then": { "type": "string", "pattern": "^short" },
+  "else": { "type": "string", "pattern": "^long" }
+}

@@ -1,0 +1,145 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://example.com/data-pipeline",
+  "type": "object",
+  "required": [ "pipeline", "stages", "connections" ],
+  "properties": {
+    "pipeline": {
+      "type": "object",
+      "required": [ "id", "version", "coordinates" ],
+      "properties": {
+        "id": { "type": "string" },
+        "version": {
+          "prefixItems": [
+            { "type": "integer", "minimum": 0 },
+            { "type": "integer", "minimum": 0 },
+            { "type": "integer", "minimum": 0 }
+          ],
+          "items": false
+        },
+        "coordinates": {
+          "prefixItems": [
+            { "type": "number" },
+            { "type": "number" },
+            { "type": "number" }
+          ],
+          "items": { "type": "number" }
+        },
+        "tags": {
+          "type": "array",
+          "items": { "type": "string" }
+        }
+      },
+      "additionalProperties": false
+    },
+    "stages": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": [ "name", "inputTypes", "outputType" ],
+        "properties": {
+          "name": { "type": "string" },
+          "inputTypes": {
+            "prefixItems": [
+              { "enum": [ "string", "number", "boolean", "object", "array" ] },
+              {
+                "anyOf": [
+                  { "enum": [ "required", "optional" ] },
+                  { "type": "null" }
+                ]
+              }
+            ],
+            "items": {
+              "type": "object",
+              "properties": {
+                "typeName": { "type": "string" },
+                "nullable": { "enum": [ true, false ] }
+              },
+              "additionalProperties": false
+            }
+          },
+          "outputType": {
+            "prefixItems": [
+              { "type": "string" },
+              { "enum": [ "sync", "async" ] }
+            ],
+            "items": false
+          },
+          "config": {
+            "anyOf": [
+              {
+                "type": "object",
+                "properties": {
+                  "timeout": { "type": "integer" },
+                  "retries": { "type": "integer" }
+                },
+                "additionalProperties": false
+              },
+              { "type": "null" }
+            ]
+          },
+          "metrics": {
+            "prefixItems": [
+              { "type": "number" },
+              { "type": "number" },
+              { "type": "number" }
+            ],
+            "items": false
+          }
+        },
+        "additionalProperties": false
+      }
+    },
+    "connections": {
+      "type": "array",
+      "items": {
+        "prefixItems": [
+          { "type": "string" },
+          { "type": "string" },
+          {
+            "type": "object",
+            "properties": {
+              "weight": { "type": "number" },
+              "bidirectional": { "enum": [ true, false ] }
+            },
+            "required": [ "weight" ],
+            "additionalProperties": false
+          }
+        ],
+        "items": false
+      }
+    },
+    "metadata": {
+      "type": "object",
+      "properties": {
+        "createdAt": { "type": "string" },
+        "modifiedAt": {
+          "anyOf": [
+            { "type": "string" },
+            { "type": "null" }
+          ]
+        },
+        "authors": {
+          "type": "array",
+          "items": {
+            "prefixItems": [
+              { "type": "string" },
+              { "type": "string" }
+            ],
+            "items": { "type": "string" }
+          }
+        },
+        "flags": {
+          "prefixItems": [
+            { "enum": [ true, false ] },
+            { "enum": [ true, false ] },
+            { "enum": [ true, false ] }
+          ],
+          "items": false
+        }
+      },
+      "additionalProperties": false
+    }
+  },
+  "additionalProperties": false
+}

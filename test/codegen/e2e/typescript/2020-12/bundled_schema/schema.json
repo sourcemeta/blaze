@@ -1,0 +1,42 @@
+{
+  "$id": "https://example.com/api/response",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "description": "A bundled API response schema with embedded resource schemas",
+  "type": "object",
+  "required": [ "data", "meta" ],
+  "properties": {
+    "data": { "$ref": "https://example.com/schemas/user.json" },
+    "meta": { "$ref": "https://example.com/schemas/metadata.json" }
+  },
+  "additionalProperties": false,
+  "$defs": {
+    "https://example.com/schemas/user.json": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "$id": "https://example.com/schemas/user.json",
+      "type": "object",
+      "required": [ "id", "name" ],
+      "properties": {
+        "id": { "type": "integer" },
+        "name": { "type": "string" },
+        "email": { "$ref": "https://example.com/schemas/email.schema.json" }
+      },
+      "additionalProperties": false
+    },
+    "https://example.com/schemas/email.schema.json": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "$id": "https://example.com/schemas/email.schema.json",
+      "type": "string",
+      "format": "email"
+    },
+    "https://example.com/schemas/metadata.json": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "$id": "https://example.com/schemas/metadata.json",
+      "type": "object",
+      "properties": {
+        "timestamp": { "type": "string" },
+        "version": { "type": "integer" }
+      },
+      "additionalProperties": false
+    }
+  }
+}

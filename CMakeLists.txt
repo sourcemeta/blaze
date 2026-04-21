@@ -11,6 +11,7 @@ option(BLAZE_OUTPUT "Build the Blaze output formats library" ON)
 option(BLAZE_TEST "Build the Blaze test runner library" ON)
 option(BLAZE_CONFIGURATION "Build the Blaze configuration file library" ON)
 option(BLAZE_ALTERSCHEMA "Build the Blaze alterschema rule library" ON)
+option(BLAZE_CODEGEN "Build the Blaze codegen library" ON)
 option(BLAZE_TESTS "Build the Blaze tests" OFF)
 option(BLAZE_BENCHMARK "Build the Blaze benchmarks" OFF)
 option(BLAZE_CONTRIB "Build the Blaze contrib programs" OFF)
@@ -65,6 +66,10 @@ endif()
 
 if(BLAZE_ALTERSCHEMA)
   add_subdirectory(src/alterschema)
+endif()
+
+if(BLAZE_CODEGEN)
+  add_subdirectory(src/codegen)
 endif()
 
 if(BLAZE_CONTRIB)
@@ -132,6 +137,10 @@ if(BLAZE_TESTS)
 
   if(BLAZE_ALTERSCHEMA)
     add_subdirectory(test/alterschema)
+  endif()
+
+  if(BLAZE_CODEGEN)
+    add_subdirectory(test/codegen)
   endif()
 
   if(PROJECT_IS_TOP_LEVEL)
