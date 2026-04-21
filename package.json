@@ -3,7 +3,6 @@
   "version": "0.0.1",
   "private": true,
   "devDependencies": {
-    "@sourcemeta/jsonschema": "^14.0.3",
     "typescript": "^5.9.3"
   }
 }

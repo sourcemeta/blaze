@@ -43,9 +43,6 @@ test: .always
 benchmark: .always
 	$(CMAKE) --build ./build --config $(PRESET) --target benchmark_all
 
-lint: .always
-	$(CMAKE) --build ./build --config $(PRESET) --target jsonschema_metaschema
-
 doxygen: .always
 	$(CMAKE) --build ./build --config $(PRESET) --target doxygen
 

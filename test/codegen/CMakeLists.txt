@@ -9,10 +9,3 @@ target_link_libraries(sourcemeta_blaze_codegen_unit
 if(BLAZE_CODEGEN)
   add_subdirectory(e2e/typescript)
 endif()
-
-if(E2E_SCHEMAS)
-  add_custom_target(jsonschema_metaschema
-    COMMAND "${PROJECT_SOURCE_DIR}/node_modules/.bin/jsonschema"
-      metaschema ${E2E_SCHEMAS}
-    VERBATIM)
-endif()

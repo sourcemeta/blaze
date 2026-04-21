@@ -13,7 +13,6 @@ else()
   set(TSC_BIN "${PROJECT_SOURCE_DIR}/node_modules/.bin/tsc")
 endif()
 
-set(E2E_SCHEMAS "")
 file(GLOB TYPESCRIPT_DIALECT_DIRECTORIES "${CMAKE_CURRENT_SOURCE_DIR}/*")
 foreach(DIALECT_DIRECTORY ${TYPESCRIPT_DIALECT_DIRECTORIES})
   if(IS_DIRECTORY ${DIALECT_DIRECTORY})
@@ -22,7 +21,6 @@ foreach(DIALECT_DIRECTORY ${TYPESCRIPT_DIALECT_DIRECTORIES})
     foreach(CASE_DIRECTORY ${TYPESCRIPT_CASE_DIRECTORIES})
       if(IS_DIRECTORY ${CASE_DIRECTORY})
         get_filename_component(CASE_NAME ${CASE_DIRECTORY} NAME)
-        list(APPEND E2E_SCHEMAS "${CASE_DIRECTORY}/schema.json")
         add_test(NAME "blaze.codegen.e2e.typescript.tsc.${DIALECT_NAME}.${CASE_NAME}"
           COMMAND "${TSC_BIN}" --strict --noEmit
             "${CASE_DIRECTORY}/expected.d.ts"
@@ -31,4 +29,3 @@ foreach(DIALECT_DIRECTORY ${TYPESCRIPT_DIALECT_DIRECTORIES})
     endforeach()
   endif()
 endforeach()
-set(E2E_SCHEMAS "${E2E_SCHEMAS}" PARENT_SCOPE)

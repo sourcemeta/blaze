@@ -26,7 +26,7 @@
 #include <vector>      // std::vector
 
 /// @defgroup codegen Codegen
-/// @brief The codegen JSON Schema code generation package
+/// @brief A code generation utility built on top of Blaze
 
 namespace sourcemeta::blaze {
 
