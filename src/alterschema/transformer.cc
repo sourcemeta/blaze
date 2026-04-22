@@ -303,8 +303,8 @@ auto SchemaTransformer::apply(core::JSON &schema,
         // Fix broken references before re-checking the condition,
         // as the re-check may mutate rule state that rereference needs
         bool references_fixed{false};
-        const auto current_slice{
-            entry_pointer.slice(new_location.value().get().relative_pointer)};
+        const auto resource_offset{new_location.value().get().relative_pointer};
+        const auto current_slice{entry_pointer.slice(resource_offset)};
         for (const auto &saved_reference : potentially_broken_references) {
           if (core::try_get(schema, saved_reference.target_pointer)) {
             continue;
@@ -316,12 +316,10 @@ auto SchemaTransformer::apply(core::JSON &schema,
             try {
               const auto new_origin{rule->rereference(
                   saved_reference.destination, saved_reference.origin,
-                  saved_reference.origin.slice(
-                      saved_reference.target_relative_pointer),
+                  saved_reference.origin.slice(resource_offset),
                   current_slice)};
               effective_origin =
-                  saved_reference.origin
-                      .slice(0, saved_reference.target_relative_pointer)
+                  saved_reference.origin.slice(0, resource_offset)
                       .concat(new_origin);
             } catch (...) {
               continue;
