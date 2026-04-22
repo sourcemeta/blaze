@@ -704,26 +704,28 @@ auto walk_properties(const sourcemeta::core::JSON &schema,
                  !resolved.defines("prefixItems")) {
         const auto &items_schema{
             resolve_ref(resolved.at("items"), frame, root, visited)};
-        if (items_schema.is_object() && items_schema.defines("type") &&
-            items_schema.at("type").is_string() &&
-            items_schema.at("type").to_string() == "object") {
+        if (items_schema.is_object()) {
           auto wildcard_path{path};
           wildcard_path.push_back(make_path_segment("wildcard", "*"));
           const auto items_row_id{next_identifier};
           emit_row(items_schema, wildcard_path, rows, frame, root, visited,
                    next_identifier);
-          visited.emplace(&items_schema, items_row_id);
-          walk_properties(items_schema, wildcard_path, rows, frame, root,
-                          visited, next_identifier);
-          walk_pattern_properties(items_schema, wildcard_path, rows, frame,
-                                  root, visited, next_identifier);
-          walk_wildcard_keyword(items_schema, "additionalProperties",
-                                wildcard_path, rows, frame, root, visited,
-                                next_identifier);
-          walk_wildcard_keyword(items_schema, "unevaluatedProperties",
-                                wildcard_path, rows, frame, root, visited,
-                                next_identifier);
-          visited.erase(&items_schema);
+          if (items_schema.defines("type") &&
+              items_schema.at("type").is_string() &&
+              items_schema.at("type").to_string() == "object") {
+            visited.emplace(&items_schema, items_row_id);
+            walk_properties(items_schema, wildcard_path, rows, frame, root,
+                            visited, next_identifier);
+            walk_pattern_properties(items_schema, wildcard_path, rows, frame,
+                                    root, visited, next_identifier);
+            walk_wildcard_keyword(items_schema, "additionalProperties",
+                                  wildcard_path, rows, frame, root, visited,
+                                  next_identifier);
+            walk_wildcard_keyword(items_schema, "unevaluatedProperties",
+                                  wildcard_path, rows, frame, root, visited,
+                                  next_identifier);
+            visited.erase(&items_schema);
+          }
         }
       }
     }
@@ -1213,25 +1215,27 @@ auto walk_schema(const sourcemeta::core::JSON &schema, const bool include_root,
       schema.at("items").is_object() && !schema.defines("prefixItems")) {
     const auto &items_schema{
         resolve_ref(schema.at("items"), frame, root, visited)};
-    if (items_schema.is_object() && items_schema.defines("type") &&
-        items_schema.at("type").is_string() &&
-        items_schema.at("type").to_string() == "object") {
+    if (items_schema.is_object()) {
       auto wildcard_path{sourcemeta::core::JSON::make_array()};
       wildcard_path.push_back(make_path_segment("wildcard", "*"));
       const auto items_row_id{next_identifier};
       emit_row(items_schema, wildcard_path, rows, frame, root, visited,
                next_identifier);
-      visited.emplace(&items_schema, items_row_id);
-      walk_properties(items_schema, wildcard_path, rows, frame, root, visited,
-                      next_identifier);
-      walk_pattern_properties(items_schema, wildcard_path, rows, frame, root,
-                              visited, next_identifier);
-      walk_wildcard_keyword(items_schema, "additionalProperties", wildcard_path,
-                            rows, frame, root, visited, next_identifier);
-      walk_wildcard_keyword(items_schema, "unevaluatedProperties",
-                            wildcard_path, rows, frame, root, visited,
-                            next_identifier);
-      visited.erase(&items_schema);
+      if (items_schema.defines("type") && items_schema.at("type").is_string() &&
+          items_schema.at("type").to_string() == "object") {
+        visited.emplace(&items_schema, items_row_id);
+        walk_properties(items_schema, wildcard_path, rows, frame, root, visited,
+                        next_identifier);
+        walk_pattern_properties(items_schema, wildcard_path, rows, frame, root,
+                                visited, next_identifier);
+        walk_wildcard_keyword(items_schema, "additionalProperties",
+                              wildcard_path, rows, frame, root, visited,
+                              next_identifier);
+        walk_wildcard_keyword(items_schema, "unevaluatedProperties",
+                              wildcard_path, rows, frame, root, visited,
+                              next_identifier);
+        visited.erase(&items_schema);
+      }
     }
   }
 

@@ -689,16 +689,42 @@ TEST_F(DocumentationDraft4Test, array_items_string) {
     "items": { "type": "string" }
   })JSON")};
 
-  const auto expected{sourcemeta::core::parse_json(R"JSON({
-    "identifier": 0,
-    "rows": [
-      {
-        "identifier": 1,
-        "path": [ { "type": "synthetic", "value": "root" } ],
-        "type": { "kind": "array", "items": { "kind": "primitive", "name": "string" } }
-      }
-    ]
-  })JSON")};
+  const auto expected{sourcemeta::core::parse_json(R"JSON(
+    {
+      "identifier": 0,
+      "rows": [
+        {
+          "identifier": 1,
+          "path": [
+            {
+              "type": "synthetic",
+              "value": "root"
+            }
+          ],
+          "type": {
+            "kind": "array",
+            "items": {
+              "kind": "primitive",
+              "name": "string"
+            }
+          }
+        },
+        {
+          "identifier": 2,
+          "path": [
+            {
+              "type": "wildcard",
+              "value": "*"
+            }
+          ],
+          "type": {
+            "kind": "primitive",
+            "name": "string"
+          }
+        }
+      ]
+    }
+  )JSON")};
 
   EXPECT_DOCUMENTATION(schema, sourcemeta::core::schema_walker,
                        sourcemeta::core::schema_resolver, *compiled_schema_,
@@ -714,17 +740,46 @@ TEST_F(DocumentationDraft4Test, array_min_max_items) {
     "maxItems": 10
   })JSON")};
 
-  const auto expected{sourcemeta::core::parse_json(R"JSON({
-    "identifier": 0,
-    "rows": [
-      {
-        "identifier": 1,
-        "path": [ { "type": "synthetic", "value": "root" } ],
-        "type": { "kind": "array", "items": { "kind": "primitive", "name": "string" } },
-        "constraints": [ ">= 1 items", "<= 10 items" ]
-      }
-    ]
-  })JSON")};
+  const auto expected{sourcemeta::core::parse_json(R"JSON(
+    {
+      "identifier": 0,
+      "rows": [
+        {
+          "identifier": 1,
+          "path": [
+            {
+              "type": "synthetic",
+              "value": "root"
+            }
+          ],
+          "type": {
+            "kind": "array",
+            "items": {
+              "kind": "primitive",
+              "name": "string"
+            }
+          },
+          "constraints": [
+            ">= 1 items",
+            "<= 10 items"
+          ]
+        },
+        {
+          "identifier": 2,
+          "path": [
+            {
+              "type": "wildcard",
+              "value": "*"
+            }
+          ],
+          "type": {
+            "kind": "primitive",
+            "name": "string"
+          }
+        }
+      ]
+    }
+  )JSON")};
 
   EXPECT_DOCUMENTATION(schema, sourcemeta::core::schema_walker,
                        sourcemeta::core::schema_resolver, *compiled_schema_,
@@ -739,14 +794,77 @@ TEST_F(DocumentationDraft4Test, array_unique_items) {
     "uniqueItems": true
   })JSON")};
 
+  const auto expected{sourcemeta::core::parse_json(R"JSON(
+    {
+      "identifier": 0,
+      "rows": [
+        {
+          "identifier": 1,
+          "path": [
+            {
+              "type": "synthetic",
+              "value": "root"
+            }
+          ],
+          "type": {
+            "kind": "array",
+            "items": {
+              "kind": "primitive",
+              "name": "integer"
+            }
+          },
+          "constraints": [
+            "unique"
+          ]
+        },
+        {
+          "identifier": 2,
+          "path": [
+            {
+              "type": "wildcard",
+              "value": "*"
+            }
+          ],
+          "type": {
+            "kind": "primitive",
+            "name": "integer"
+          }
+        }
+      ]
+    }
+  )JSON")};
+
+  EXPECT_DOCUMENTATION(schema, sourcemeta::core::schema_walker,
+                       sourcemeta::core::schema_resolver, *compiled_schema_,
+                       expected);
+}
+
+TEST_F(DocumentationDraft4Test, array_items_with_constraints) {
+  const auto schema{sourcemeta::core::parse_json(R"JSON({
+    "$schema": "http://json-schema.org/draft-04/schema#",
+    "type": "array",
+    "items": {
+      "type": "number",
+      "minimum": 0,
+      "maximum": 100
+    },
+    "minItems": 1
+  })JSON")};
+
   const auto expected{sourcemeta::core::parse_json(R"JSON({
     "identifier": 0,
     "rows": [
       {
         "identifier": 1,
         "path": [ { "type": "synthetic", "value": "root" } ],
-        "type": { "kind": "array", "items": { "kind": "primitive", "name": "integer" } },
-        "constraints": [ "unique" ]
+        "type": { "kind": "array", "items": { "kind": "primitive", "name": "number" } },
+        "constraints": [ ">= 1 items" ]
+      },
+      {
+        "identifier": 2,
+        "path": [ { "type": "wildcard", "value": "*" } ],
+        "type": { "kind": "primitive", "name": "number" },
+        "constraints": [ ">= 0", "<= 100" ]
       }
     ]
   })JSON")};
