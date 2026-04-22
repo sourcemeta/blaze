@@ -69,32 +69,78 @@ TEST_F(Documentation202012Test, object_required_with_annotations) {
     "required": [ "email" ]
   })JSON")};
 
-  const auto expected{sourcemeta::core::parse_json(R"JSON({
-    "identifier": 0,
-    "rows": [
-      {
-        "identifier": 1,
-        "path": [ { "type": "synthetic", "value": "root" } ],
-        "type": { "kind": "object" },
-        "constraints": [ ">= 1 properties" ]
-      },
-      {
-        "identifier": 2,
-        "path": [ { "type": "literal", "value": "email" } ],
-        "type": { "kind": "primitive", "name": "string" },
-        "badges": [ { "kind": "format", "value": "email" } ],
-        "required": true,
-        "description": "The user email address"
-      },
-      {
-        "identifier": 3,
-        "path": [ { "type": "literal", "value": "age" } ],
-        "type": { "kind": "primitive", "name": "integer" },
-        "required": false,
-        "constraints": [ ">= 0" ]
-      }
-    ]
-  })JSON")};
+  const auto expected{sourcemeta::core::parse_json(R"JSON(
+    {
+      "identifier": 0,
+      "rows": [
+        {
+          "identifier": 1,
+          "path": [
+            {
+              "type": "synthetic",
+              "value": "root"
+            }
+          ],
+          "type": {
+            "kind": "object"
+          },
+          "constraints": [
+            ">= 1 properties"
+          ]
+        },
+        {
+          "identifier": 2,
+          "path": [
+            {
+              "type": "literal",
+              "value": "email"
+            }
+          ],
+          "type": {
+            "kind": "primitive",
+            "name": "string"
+          },
+          "badges": [
+            {
+              "kind": "format",
+              "value": "email"
+            }
+          ],
+          "required": true,
+          "description": "The user email address"
+        },
+        {
+          "identifier": 3,
+          "path": [
+            {
+              "type": "literal",
+              "value": "age"
+            }
+          ],
+          "type": {
+            "kind": "primitive",
+            "name": "integer"
+          },
+          "required": false,
+          "constraints": [
+            ">= 0"
+          ]
+        },
+        {
+          "identifier": 4,
+          "path": [
+            {
+              "type": "wildcard",
+              "value": "*"
+            }
+          ],
+          "type": {
+            "kind": "any"
+          }
+        }
+      ]
+    }
+  )JSON")};
 
   EXPECT_DOCUMENTATION(schema, sourcemeta::core::schema_walker,
                        sourcemeta::core::schema_resolver, *compiled_schema_,
@@ -161,6 +207,106 @@ TEST_F(Documentation202012Test, object_additional_properties_true) {
         "identifier": 3,
         "path": [ { "type": "wildcard", "value": "*" } ],
         "type": { "kind": "any" }
+      }
+    ]
+  })JSON")};
+
+  EXPECT_DOCUMENTATION(schema, sourcemeta::core::schema_walker,
+                       sourcemeta::core::schema_resolver, *compiled_schema_,
+                       expected);
+}
+
+TEST_F(Documentation202012Test, object_open_implicit) {
+  const auto schema{sourcemeta::core::parse_json(R"JSON({
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "type": "object",
+    "properties": {
+      "name": { "type": "string" }
+    }
+  })JSON")};
+
+  const auto expected{sourcemeta::core::parse_json(R"JSON({
+    "identifier": 0,
+    "rows": [
+      {
+        "identifier": 1,
+        "path": [ { "type": "synthetic", "value": "root" } ],
+        "type": { "kind": "object" }
+      },
+      {
+        "identifier": 2,
+        "path": [ { "type": "literal", "value": "name" } ],
+        "type": { "kind": "primitive", "name": "string" },
+        "required": false
+      },
+      {
+        "identifier": 3,
+        "path": [ { "type": "wildcard", "value": "*" } ],
+        "type": { "kind": "any" }
+      }
+    ]
+  })JSON")};
+
+  EXPECT_DOCUMENTATION(schema, sourcemeta::core::schema_walker,
+                       sourcemeta::core::schema_resolver, *compiled_schema_,
+                       expected);
+}
+
+TEST_F(Documentation202012Test, object_closed_unevaluated_false) {
+  const auto schema{sourcemeta::core::parse_json(R"JSON({
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "type": "object",
+    "properties": {
+      "name": { "type": "string" }
+    },
+    "unevaluatedProperties": false
+  })JSON")};
+
+  const auto expected{sourcemeta::core::parse_json(R"JSON({
+    "identifier": 0,
+    "rows": [
+      {
+        "identifier": 1,
+        "path": [ { "type": "synthetic", "value": "root" } ],
+        "type": { "kind": "object" }
+      },
+      {
+        "identifier": 2,
+        "path": [ { "type": "literal", "value": "name" } ],
+        "type": { "kind": "primitive", "name": "string" },
+        "required": false
+      }
+    ]
+  })JSON")};
+
+  EXPECT_DOCUMENTATION(schema, sourcemeta::core::schema_walker,
+                       sourcemeta::core::schema_resolver, *compiled_schema_,
+                       expected);
+}
+
+TEST_F(Documentation202012Test, object_closed_additional_false) {
+  const auto schema{sourcemeta::core::parse_json(R"JSON({
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "type": "object",
+    "properties": {
+      "name": { "type": "string" }
+    },
+    "additionalProperties": false
+  })JSON")};
+
+  const auto expected{sourcemeta::core::parse_json(R"JSON({
+    "identifier": 0,
+    "rows": [
+      {
+        "identifier": 1,
+        "path": [ { "type": "synthetic", "value": "root" } ],
+        "type": { "kind": "object" }
+      },
+      {
+        "identifier": 2,
+        "path": [ { "type": "literal", "value": "name" } ],
+        "type": { "kind": "primitive", "name": "string" },
+        "required": false
       }
     ]
   })JSON")};
@@ -272,42 +418,106 @@ TEST_F(Documentation202012Test, nested_object_with_default) {
     }
   })JSON")};
 
-  const auto expected{sourcemeta::core::parse_json(R"JSON({
-    "identifier": 0,
-    "rows": [
-      {
-        "identifier": 1,
-        "path": [ { "type": "synthetic", "value": "root" } ],
-        "type": { "kind": "object" }
-      },
-      {
-        "identifier": 2,
-        "path": [ { "type": "literal", "value": "address" } ],
-        "type": { "kind": "object" },
-        "required": false,
-        "constraints": [ ">= 1 properties" ]
-      },
-      {
-        "identifier": 3,
-        "path": [
-          { "type": "literal", "value": "address" },
-          { "type": "literal", "value": "street" }
-        ],
-        "type": { "kind": "primitive", "name": "string" },
-        "required": true
-      },
-      {
-        "identifier": 4,
-        "path": [
-          { "type": "literal", "value": "address" },
-          { "type": "literal", "value": "city" }
-        ],
-        "type": { "kind": "primitive", "name": "string" },
-        "required": false,
-        "default": "Unknown"
-      }
-    ]
-  })JSON")};
+  const auto expected{sourcemeta::core::parse_json(R"JSON(
+    {
+      "identifier": 0,
+      "rows": [
+        {
+          "identifier": 1,
+          "path": [
+            {
+              "type": "synthetic",
+              "value": "root"
+            }
+          ],
+          "type": {
+            "kind": "object"
+          }
+        },
+        {
+          "identifier": 2,
+          "path": [
+            {
+              "type": "literal",
+              "value": "address"
+            }
+          ],
+          "type": {
+            "kind": "object"
+          },
+          "required": false,
+          "constraints": [
+            ">= 1 properties"
+          ]
+        },
+        {
+          "identifier": 3,
+          "path": [
+            {
+              "type": "literal",
+              "value": "address"
+            },
+            {
+              "type": "literal",
+              "value": "street"
+            }
+          ],
+          "type": {
+            "kind": "primitive",
+            "name": "string"
+          },
+          "required": true
+        },
+        {
+          "identifier": 4,
+          "path": [
+            {
+              "type": "literal",
+              "value": "address"
+            },
+            {
+              "type": "literal",
+              "value": "city"
+            }
+          ],
+          "type": {
+            "kind": "primitive",
+            "name": "string"
+          },
+          "required": false,
+          "default": "Unknown"
+        },
+        {
+          "identifier": 5,
+          "path": [
+            {
+              "type": "literal",
+              "value": "address"
+            },
+            {
+              "type": "wildcard",
+              "value": "*"
+            }
+          ],
+          "type": {
+            "kind": "any"
+          }
+        },
+        {
+          "identifier": 6,
+          "path": [
+            {
+              "type": "wildcard",
+              "value": "*"
+            }
+          ],
+          "type": {
+            "kind": "any"
+          }
+        }
+      ]
+    }
+  )JSON")};
 
   EXPECT_DOCUMENTATION(schema, sourcemeta::core::schema_walker,
                        sourcemeta::core::schema_resolver, *compiled_schema_,
@@ -663,17 +873,41 @@ TEST_F(Documentation202012Test, object_min_max_properties) {
     "maxProperties": 5
   })JSON")};
 
-  const auto expected{sourcemeta::core::parse_json(R"JSON({
-    "identifier": 0,
-    "rows": [
-      {
-        "identifier": 1,
-        "path": [ { "type": "synthetic", "value": "root" } ],
-        "type": { "kind": "object" },
-        "constraints": [ ">= 1 properties", "<= 5 properties" ]
-      }
-    ]
-  })JSON")};
+  const auto expected{sourcemeta::core::parse_json(R"JSON(
+    {
+      "identifier": 0,
+      "rows": [
+        {
+          "identifier": 1,
+          "path": [
+            {
+              "type": "synthetic",
+              "value": "root"
+            }
+          ],
+          "type": {
+            "kind": "object"
+          },
+          "constraints": [
+            ">= 1 properties",
+            "<= 5 properties"
+          ]
+        },
+        {
+          "identifier": 2,
+          "path": [
+            {
+              "type": "wildcard",
+              "value": "*"
+            }
+          ],
+          "type": {
+            "kind": "any"
+          }
+        }
+      ]
+    }
+  )JSON")};
 
   EXPECT_DOCUMENTATION(schema, sourcemeta::core::schema_walker,
                        sourcemeta::core::schema_resolver, *compiled_schema_,
@@ -1200,23 +1434,54 @@ TEST_F(Documentation202012Test, property_write_only) {
     }
   })JSON")};
 
-  const auto expected{sourcemeta::core::parse_json(R"JSON({
-    "identifier": 0,
-    "rows": [
-      {
-        "identifier": 1,
-        "path": [ { "type": "synthetic", "value": "root" } ],
-        "type": { "kind": "object" }
-      },
-      {
-        "identifier": 2,
-        "path": [ { "type": "literal", "value": "password" } ],
-        "modifiers": [ "writeOnly" ],
-        "type": { "kind": "primitive", "name": "string" },
-        "required": false
-      }
-    ]
-  })JSON")};
+  const auto expected{sourcemeta::core::parse_json(R"JSON(
+    {
+      "identifier": 0,
+      "rows": [
+        {
+          "identifier": 1,
+          "path": [
+            {
+              "type": "synthetic",
+              "value": "root"
+            }
+          ],
+          "type": {
+            "kind": "object"
+          }
+        },
+        {
+          "identifier": 2,
+          "path": [
+            {
+              "type": "literal",
+              "value": "password"
+            }
+          ],
+          "modifiers": [
+            "writeOnly"
+          ],
+          "type": {
+            "kind": "primitive",
+            "name": "string"
+          },
+          "required": false
+        },
+        {
+          "identifier": 3,
+          "path": [
+            {
+              "type": "wildcard",
+              "value": "*"
+            }
+          ],
+          "type": {
+            "kind": "any"
+          }
+        }
+      ]
+    }
+  )JSON")};
 
   EXPECT_DOCUMENTATION(schema, sourcemeta::core::schema_walker,
                        sourcemeta::core::schema_resolver, *compiled_schema_,
@@ -1246,36 +1511,80 @@ TEST_F(Documentation202012Test, nested_property_annotations) {
     "required": [ "name" ]
   })JSON")};
 
-  const auto expected{sourcemeta::core::parse_json(R"JSON({
-    "identifier": 0,
-    "rows": [
-      {
-        "identifier": 1,
-        "path": [ { "type": "synthetic", "value": "root" } ],
-        "type": { "kind": "object" },
-        "constraints": [ ">= 1 properties" ],
-        "title": "User",
-        "description": "A user record"
-      },
-      {
-        "identifier": 2,
-        "path": [ { "type": "literal", "value": "name" } ],
-        "type": { "kind": "primitive", "name": "string" },
-        "required": true,
-        "title": "Full name",
-        "description": "First and last name",
-        "default": "Unknown",
-        "examples": [ "Alice Smith" ]
-      },
-      {
-        "identifier": 3,
-        "path": [ { "type": "literal", "value": "token" } ],
-        "modifiers": [ "readOnly", "deprecated" ],
-        "type": { "kind": "primitive", "name": "string" },
-        "required": false
-      }
-    ]
-  })JSON")};
+  const auto expected{sourcemeta::core::parse_json(R"JSON(
+    {
+      "identifier": 0,
+      "rows": [
+        {
+          "identifier": 1,
+          "path": [
+            {
+              "type": "synthetic",
+              "value": "root"
+            }
+          ],
+          "type": {
+            "kind": "object"
+          },
+          "constraints": [
+            ">= 1 properties"
+          ],
+          "title": "User",
+          "description": "A user record"
+        },
+        {
+          "identifier": 2,
+          "path": [
+            {
+              "type": "literal",
+              "value": "name"
+            }
+          ],
+          "type": {
+            "kind": "primitive",
+            "name": "string"
+          },
+          "required": true,
+          "title": "Full name",
+          "description": "First and last name",
+          "default": "Unknown",
+          "examples": [
+            "Alice Smith"
+          ]
+        },
+        {
+          "identifier": 3,
+          "path": [
+            {
+              "type": "literal",
+              "value": "token"
+            }
+          ],
+          "modifiers": [
+            "readOnly",
+            "deprecated"
+          ],
+          "type": {
+            "kind": "primitive",
+            "name": "string"
+          },
+          "required": false
+        },
+        {
+          "identifier": 4,
+          "path": [
+            {
+              "type": "wildcard",
+              "value": "*"
+            }
+          ],
+          "type": {
+            "kind": "any"
+          }
+        }
+      ]
+    }
+  )JSON")};
 
   EXPECT_DOCUMENTATION(schema, sourcemeta::core::schema_walker,
                        sourcemeta::core::schema_resolver, *compiled_schema_,
@@ -1354,17 +1663,41 @@ TEST_F(Documentation202012Test, property_names_flat) {
     }
   })JSON")};
 
-  const auto expected{sourcemeta::core::parse_json(R"JSON({
-    "identifier": 0,
-    "rows": [
-      {
-        "identifier": 1,
-        "path": [ { "type": "synthetic", "value": "root" } ],
-        "type": { "kind": "object" },
-        "constraints": [ "keys >= 1 chars", "keys <= 50 chars" ]
-      }
-    ]
-  })JSON")};
+  const auto expected{sourcemeta::core::parse_json(R"JSON(
+    {
+      "identifier": 0,
+      "rows": [
+        {
+          "identifier": 1,
+          "path": [
+            {
+              "type": "synthetic",
+              "value": "root"
+            }
+          ],
+          "type": {
+            "kind": "object"
+          },
+          "constraints": [
+            "keys >= 1 chars",
+            "keys <= 50 chars"
+          ]
+        },
+        {
+          "identifier": 2,
+          "path": [
+            {
+              "type": "wildcard",
+              "value": "*"
+            }
+          ],
+          "type": {
+            "kind": "any"
+          }
+        }
+      ]
+    }
+  )JSON")};
 
   EXPECT_DOCUMENTATION(schema, sourcemeta::core::schema_walker,
                        sourcemeta::core::schema_resolver, *compiled_schema_,
@@ -1381,17 +1714,40 @@ TEST_F(Documentation202012Test, property_names_flat_pattern) {
     }
   })JSON")};
 
-  const auto expected{sourcemeta::core::parse_json(R"JSON({
-    "identifier": 0,
-    "rows": [
-      {
-        "identifier": 1,
-        "path": [ { "type": "synthetic", "value": "root" } ],
-        "type": { "kind": "object" },
-        "constraints": [ "keys pattern: ^[a-z_]+$" ]
-      }
-    ]
-  })JSON")};
+  const auto expected{sourcemeta::core::parse_json(R"JSON(
+    {
+      "identifier": 0,
+      "rows": [
+        {
+          "identifier": 1,
+          "path": [
+            {
+              "type": "synthetic",
+              "value": "root"
+            }
+          ],
+          "type": {
+            "kind": "object"
+          },
+          "constraints": [
+            "keys pattern: ^[a-z_]+$"
+          ]
+        },
+        {
+          "identifier": 2,
+          "path": [
+            {
+              "type": "wildcard",
+              "value": "*"
+            }
+          ],
+          "type": {
+            "kind": "any"
+          }
+        }
+      ]
+    }
+  )JSON")};
 
   EXPECT_DOCUMENTATION(schema, sourcemeta::core::schema_walker,
                        sourcemeta::core::schema_resolver, *compiled_schema_,
@@ -1407,21 +1763,50 @@ TEST_F(Documentation202012Test, pattern_properties_only) {
     }
   })JSON")};
 
-  const auto expected{sourcemeta::core::parse_json(R"JSON({
-    "identifier": 0,
-    "rows": [
-      {
-        "identifier": 1,
-        "path": [ { "type": "synthetic", "value": "root" } ],
-        "type": { "kind": "object" }
-      },
-      {
-        "identifier": 2,
-        "path": [ { "type": "pattern", "value": "^x-" } ],
-        "type": { "kind": "primitive", "name": "string" }
-      }
-    ]
-  })JSON")};
+  const auto expected{sourcemeta::core::parse_json(R"JSON(
+    {
+      "identifier": 0,
+      "rows": [
+        {
+          "identifier": 1,
+          "path": [
+            {
+              "type": "synthetic",
+              "value": "root"
+            }
+          ],
+          "type": {
+            "kind": "object"
+          }
+        },
+        {
+          "identifier": 2,
+          "path": [
+            {
+              "type": "pattern",
+              "value": "^x-"
+            }
+          ],
+          "type": {
+            "kind": "primitive",
+            "name": "string"
+          }
+        },
+        {
+          "identifier": 3,
+          "path": [
+            {
+              "type": "wildcard",
+              "value": "*"
+            }
+          ],
+          "type": {
+            "kind": "any"
+          }
+        }
+      ]
+    }
+  )JSON")};
 
   EXPECT_DOCUMENTATION(schema, sourcemeta::core::schema_walker,
                        sourcemeta::core::schema_resolver, *compiled_schema_,
@@ -1440,27 +1825,64 @@ TEST_F(Documentation202012Test, pattern_properties_with_properties) {
     }
   })JSON")};
 
-  const auto expected{sourcemeta::core::parse_json(R"JSON({
-    "identifier": 0,
-    "rows": [
-      {
-        "identifier": 1,
-        "path": [ { "type": "synthetic", "value": "root" } ],
-        "type": { "kind": "object" }
-      },
-      {
-        "identifier": 2,
-        "path": [ { "type": "literal", "value": "name" } ],
-        "type": { "kind": "primitive", "name": "string" },
-        "required": false
-      },
-      {
-        "identifier": 3,
-        "path": [ { "type": "pattern", "value": "^x-" } ],
-        "type": { "kind": "primitive", "name": "string" }
-      }
-    ]
-  })JSON")};
+  const auto expected{sourcemeta::core::parse_json(R"JSON(
+    {
+      "identifier": 0,
+      "rows": [
+        {
+          "identifier": 1,
+          "path": [
+            {
+              "type": "synthetic",
+              "value": "root"
+            }
+          ],
+          "type": {
+            "kind": "object"
+          }
+        },
+        {
+          "identifier": 2,
+          "path": [
+            {
+              "type": "literal",
+              "value": "name"
+            }
+          ],
+          "type": {
+            "kind": "primitive",
+            "name": "string"
+          },
+          "required": false
+        },
+        {
+          "identifier": 3,
+          "path": [
+            {
+              "type": "pattern",
+              "value": "^x-"
+            }
+          ],
+          "type": {
+            "kind": "primitive",
+            "name": "string"
+          }
+        },
+        {
+          "identifier": 4,
+          "path": [
+            {
+              "type": "wildcard",
+              "value": "*"
+            }
+          ],
+          "type": {
+            "kind": "any"
+          }
+        }
+      ]
+    }
+  )JSON")};
 
   EXPECT_DOCUMENTATION(schema, sourcemeta::core::schema_walker,
                        sourcemeta::core::schema_resolver, *compiled_schema_,
@@ -1606,22 +2028,51 @@ TEST_F(Documentation202012Test, property_name_with_slash) {
     }
   })JSON")};
 
-  const auto expected{sourcemeta::core::parse_json(R"JSON({
-    "identifier": 0,
-    "rows": [
-      {
-        "identifier": 1,
-        "path": [ { "type": "synthetic", "value": "root" } ],
-        "type": { "kind": "object" }
-      },
-      {
-        "identifier": 2,
-        "path": [ { "type": "literal", "value": "foo/bar" } ],
-        "type": { "kind": "primitive", "name": "string" },
-        "required": false
-      }
-    ]
-  })JSON")};
+  const auto expected{sourcemeta::core::parse_json(R"JSON(
+    {
+      "identifier": 0,
+      "rows": [
+        {
+          "identifier": 1,
+          "path": [
+            {
+              "type": "synthetic",
+              "value": "root"
+            }
+          ],
+          "type": {
+            "kind": "object"
+          }
+        },
+        {
+          "identifier": 2,
+          "path": [
+            {
+              "type": "literal",
+              "value": "foo/bar"
+            }
+          ],
+          "type": {
+            "kind": "primitive",
+            "name": "string"
+          },
+          "required": false
+        },
+        {
+          "identifier": 3,
+          "path": [
+            {
+              "type": "wildcard",
+              "value": "*"
+            }
+          ],
+          "type": {
+            "kind": "any"
+          }
+        }
+      ]
+    }
+  )JSON")};
 
   EXPECT_DOCUMENTATION(schema, sourcemeta::core::schema_walker,
                        sourcemeta::core::schema_resolver, *compiled_schema_,
@@ -1637,22 +2088,51 @@ TEST_F(Documentation202012Test, property_name_with_tilde) {
     }
   })JSON")};
 
-  const auto expected{sourcemeta::core::parse_json(R"JSON({
-    "identifier": 0,
-    "rows": [
-      {
-        "identifier": 1,
-        "path": [ { "type": "synthetic", "value": "root" } ],
-        "type": { "kind": "object" }
-      },
-      {
-        "identifier": 2,
-        "path": [ { "type": "literal", "value": "foo~bar" } ],
-        "type": { "kind": "primitive", "name": "string" },
-        "required": false
-      }
-    ]
-  })JSON")};
+  const auto expected{sourcemeta::core::parse_json(R"JSON(
+    {
+      "identifier": 0,
+      "rows": [
+        {
+          "identifier": 1,
+          "path": [
+            {
+              "type": "synthetic",
+              "value": "root"
+            }
+          ],
+          "type": {
+            "kind": "object"
+          }
+        },
+        {
+          "identifier": 2,
+          "path": [
+            {
+              "type": "literal",
+              "value": "foo~bar"
+            }
+          ],
+          "type": {
+            "kind": "primitive",
+            "name": "string"
+          },
+          "required": false
+        },
+        {
+          "identifier": 3,
+          "path": [
+            {
+              "type": "wildcard",
+              "value": "*"
+            }
+          ],
+          "type": {
+            "kind": "any"
+          }
+        }
+      ]
+    }
+  )JSON")};
 
   EXPECT_DOCUMENTATION(schema, sourcemeta::core::schema_walker,
                        sourcemeta::core::schema_resolver, *compiled_schema_,
@@ -1668,22 +2148,51 @@ TEST_F(Documentation202012Test, property_name_with_slash_and_tilde) {
     }
   })JSON")};
 
-  const auto expected{sourcemeta::core::parse_json(R"JSON({
-    "identifier": 0,
-    "rows": [
-      {
-        "identifier": 1,
-        "path": [ { "type": "synthetic", "value": "root" } ],
-        "type": { "kind": "object" }
-      },
-      {
-        "identifier": 2,
-        "path": [ { "type": "literal", "value": "a/b~c" } ],
-        "type": { "kind": "primitive", "name": "string" },
-        "required": false
-      }
-    ]
-  })JSON")};
+  const auto expected{sourcemeta::core::parse_json(R"JSON(
+    {
+      "identifier": 0,
+      "rows": [
+        {
+          "identifier": 1,
+          "path": [
+            {
+              "type": "synthetic",
+              "value": "root"
+            }
+          ],
+          "type": {
+            "kind": "object"
+          }
+        },
+        {
+          "identifier": 2,
+          "path": [
+            {
+              "type": "literal",
+              "value": "a/b~c"
+            }
+          ],
+          "type": {
+            "kind": "primitive",
+            "name": "string"
+          },
+          "required": false
+        },
+        {
+          "identifier": 3,
+          "path": [
+            {
+              "type": "wildcard",
+              "value": "*"
+            }
+          ],
+          "type": {
+            "kind": "any"
+          }
+        }
+      ]
+    }
+  )JSON")};
 
   EXPECT_DOCUMENTATION(schema, sourcemeta::core::schema_walker,
                        sourcemeta::core::schema_resolver, *compiled_schema_,
@@ -1802,58 +2311,115 @@ TEST_F(Documentation202012Test, tuple_prefix_items_complex) {
     ]
   })JSON")};
 
-  const auto expected{sourcemeta::core::parse_json(R"JSON({
-    "identifier": 0,
-    "rows": [
-      {
-        "identifier": 1,
-        "path": [ { "type": "synthetic", "value": "root" } ],
-        "type": {
-          "kind": "tuple",
-          "items": [
-            { "kind": "primitive", "name": "string" },
-            { "kind": "object" }
-          ]
-        }
-      },
-      {
-        "identifier": 2,
-        "path": [ { "type": "literal", "value": "0" } ],
-        "type": { "kind": "primitive", "name": "string" },
-        "required": false
-      }
-    ],
-    "children": [
-      {
-        "label": "Array item 1",
-        "children": [
-          {
-            "identifier": 3,
-            "rows": [
+  const auto expected{sourcemeta::core::parse_json(R"JSON(
+    {
+      "identifier": 0,
+      "rows": [
+        {
+          "identifier": 1,
+          "path": [
+            {
+              "type": "synthetic",
+              "value": "root"
+            }
+          ],
+          "type": {
+            "kind": "tuple",
+            "items": [
               {
-                "identifier": 4,
-                "path": [ { "type": "synthetic", "value": "root" } ],
-                "type": { "kind": "object" },
-                "constraints": [ ">= 1 properties" ]
+                "kind": "primitive",
+                "name": "string"
               },
               {
-                "identifier": 5,
-                "path": [ { "type": "literal", "value": "name" } ],
-                "type": { "kind": "primitive", "name": "string" },
-                "required": true
-              },
-              {
-                "identifier": 6,
-                "path": [ { "type": "literal", "value": "age" } ],
-                "type": { "kind": "primitive", "name": "integer" },
-                "required": false
+                "kind": "object"
               }
             ]
           }
-        ]
-      }
-    ]
-  })JSON")};
+        },
+        {
+          "identifier": 2,
+          "path": [
+            {
+              "type": "literal",
+              "value": "0"
+            }
+          ],
+          "type": {
+            "kind": "primitive",
+            "name": "string"
+          },
+          "required": false
+        }
+      ],
+      "children": [
+        {
+          "label": "Array item 1",
+          "children": [
+            {
+              "identifier": 3,
+              "rows": [
+                {
+                  "identifier": 4,
+                  "path": [
+                    {
+                      "type": "synthetic",
+                      "value": "root"
+                    }
+                  ],
+                  "type": {
+                    "kind": "object"
+                  },
+                  "constraints": [
+                    ">= 1 properties"
+                  ]
+                },
+                {
+                  "identifier": 5,
+                  "path": [
+                    {
+                      "type": "literal",
+                      "value": "name"
+                    }
+                  ],
+                  "type": {
+                    "kind": "primitive",
+                    "name": "string"
+                  },
+                  "required": true
+                },
+                {
+                  "identifier": 6,
+                  "path": [
+                    {
+                      "type": "literal",
+                      "value": "age"
+                    }
+                  ],
+                  "type": {
+                    "kind": "primitive",
+                    "name": "integer"
+                  },
+                  "required": false
+                },
+                {
+                  "identifier": 7,
+                  "path": [
+                    {
+                      "type": "wildcard",
+                      "value": "*"
+                    }
+                  ],
+                  "type": {
+                    "kind": "any"
+                  }
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  )JSON")};
 
   EXPECT_DOCUMENTATION(schema, sourcemeta::core::schema_walker,
                        sourcemeta::core::schema_resolver, *compiled_schema_,
@@ -2006,22 +2572,50 @@ TEST_F(Documentation202012Test, property_boolean_true) {
     }
   })JSON")};
 
-  const auto expected{sourcemeta::core::parse_json(R"JSON({
-    "identifier": 0,
-    "rows": [
-      {
-        "identifier": 1,
-        "path": [ { "type": "synthetic", "value": "root" } ],
-        "type": { "kind": "object" }
-      },
-      {
-        "identifier": 2,
-        "path": [ { "type": "literal", "value": "anything" } ],
-        "type": { "kind": "any" },
-        "required": false
-      }
-    ]
-  })JSON")};
+  const auto expected{sourcemeta::core::parse_json(R"JSON(
+    {
+      "identifier": 0,
+      "rows": [
+        {
+          "identifier": 1,
+          "path": [
+            {
+              "type": "synthetic",
+              "value": "root"
+            }
+          ],
+          "type": {
+            "kind": "object"
+          }
+        },
+        {
+          "identifier": 2,
+          "path": [
+            {
+              "type": "literal",
+              "value": "anything"
+            }
+          ],
+          "type": {
+            "kind": "any"
+          },
+          "required": false
+        },
+        {
+          "identifier": 3,
+          "path": [
+            {
+              "type": "wildcard",
+              "value": "*"
+            }
+          ],
+          "type": {
+            "kind": "any"
+          }
+        }
+      ]
+    }
+  )JSON")};
 
   EXPECT_DOCUMENTATION(schema, sourcemeta::core::schema_walker,
                        sourcemeta::core::schema_resolver, *compiled_schema_,
@@ -2037,22 +2631,50 @@ TEST_F(Documentation202012Test, property_boolean_false) {
     }
   })JSON")};
 
-  const auto expected{sourcemeta::core::parse_json(R"JSON({
-    "identifier": 0,
-    "rows": [
-      {
-        "identifier": 1,
-        "path": [ { "type": "synthetic", "value": "root" } ],
-        "type": { "kind": "object" }
-      },
-      {
-        "identifier": 2,
-        "path": [ { "type": "literal", "value": "impossible" } ],
-        "type": { "kind": "never" },
-        "required": false
-      }
-    ]
-  })JSON")};
+  const auto expected{sourcemeta::core::parse_json(R"JSON(
+    {
+      "identifier": 0,
+      "rows": [
+        {
+          "identifier": 1,
+          "path": [
+            {
+              "type": "synthetic",
+              "value": "root"
+            }
+          ],
+          "type": {
+            "kind": "object"
+          }
+        },
+        {
+          "identifier": 2,
+          "path": [
+            {
+              "type": "literal",
+              "value": "impossible"
+            }
+          ],
+          "type": {
+            "kind": "never"
+          },
+          "required": false
+        },
+        {
+          "identifier": 3,
+          "path": [
+            {
+              "type": "wildcard",
+              "value": "*"
+            }
+          ],
+          "type": {
+            "kind": "any"
+          }
+        }
+      ]
+    }
+  )JSON")};
 
   EXPECT_DOCUMENTATION(schema, sourcemeta::core::schema_walker,
                        sourcemeta::core::schema_resolver, *compiled_schema_,
@@ -2068,25 +2690,51 @@ TEST_F(Documentation202012Test, external_ref_property) {
     }
   })JSON")};
 
-  const auto expected{sourcemeta::core::parse_json(R"JSON({
-    "identifier": 0,
-    "rows": [
-      {
-        "identifier": 1,
-        "path": [ { "type": "synthetic", "value": "root" } ],
-        "type": { "kind": "object" }
-      },
-      {
-        "identifier": 2,
-        "path": [ { "type": "literal", "value": "address" } ],
-        "type": {
-          "kind": "externalRef",
-          "url": "https://example.com/address.json"
+  const auto expected{sourcemeta::core::parse_json(R"JSON(
+    {
+      "identifier": 0,
+      "rows": [
+        {
+          "identifier": 1,
+          "path": [
+            {
+              "type": "synthetic",
+              "value": "root"
+            }
+          ],
+          "type": {
+            "kind": "object"
+          }
         },
-        "required": false
-      }
-    ]
-  })JSON")};
+        {
+          "identifier": 2,
+          "path": [
+            {
+              "type": "literal",
+              "value": "address"
+            }
+          ],
+          "type": {
+            "kind": "externalRef",
+            "url": "https://example.com/address.json"
+          },
+          "required": false
+        },
+        {
+          "identifier": 3,
+          "path": [
+            {
+              "type": "wildcard",
+              "value": "*"
+            }
+          ],
+          "type": {
+            "kind": "any"
+          }
+        }
+      ]
+    }
+  )JSON")};
 
   EXPECT_DOCUMENTATION(schema, sourcemeta::core::schema_walker,
                        sourcemeta::core::schema_resolver, *compiled_schema_,
@@ -2209,6 +2857,18 @@ TEST_F(Documentation202012Test, dynamic_ref_with_anchor) {
               }
             ]
           }
+        },
+        {
+          "identifier": 5,
+          "path": [
+            {
+              "type": "wildcard",
+              "value": "*"
+            }
+          ],
+          "type": {
+            "kind": "any"
+          }
         }
       ]
     }
@@ -2283,66 +2943,173 @@ TEST_F(Documentation202012Test, internal_ref_non_recursive) {
     }
   })JSON")};
 
-  const auto expected{sourcemeta::core::parse_json(R"JSON({
-    "identifier": 0,
-    "rows": [
-      {
-        "identifier": 1,
-        "path": [ { "type": "synthetic", "value": "root" } ],
-        "type": { "kind": "object" }
-      },
-      {
-        "identifier": 2,
-        "path": [ { "type": "literal", "value": "billing" } ],
-        "type": { "kind": "object" },
-        "required": false,
-        "constraints": [ ">= 1 properties" ]
-      },
-      {
-        "identifier": 3,
-        "path": [
-          { "type": "literal", "value": "billing" },
-          { "type": "literal", "value": "street" }
-        ],
-        "type": { "kind": "primitive", "name": "string" },
-        "required": true
-      },
-      {
-        "identifier": 4,
-        "path": [
-          { "type": "literal", "value": "billing" },
-          { "type": "literal", "value": "city" }
-        ],
-        "type": { "kind": "primitive", "name": "string" },
-        "required": false
-      },
-      {
-        "identifier": 5,
-        "path": [ { "type": "literal", "value": "shipping" } ],
-        "type": { "kind": "object" },
-        "required": false,
-        "constraints": [ ">= 1 properties" ]
-      },
-      {
-        "identifier": 6,
-        "path": [
-          { "type": "literal", "value": "shipping" },
-          { "type": "literal", "value": "street" }
-        ],
-        "type": { "kind": "primitive", "name": "string" },
-        "required": true
-      },
-      {
-        "identifier": 7,
-        "path": [
-          { "type": "literal", "value": "shipping" },
-          { "type": "literal", "value": "city" }
-        ],
-        "type": { "kind": "primitive", "name": "string" },
-        "required": false
-      }
-    ]
-  })JSON")};
+  const auto expected{sourcemeta::core::parse_json(R"JSON(
+    {
+      "identifier": 0,
+      "rows": [
+        {
+          "identifier": 1,
+          "path": [
+            {
+              "type": "synthetic",
+              "value": "root"
+            }
+          ],
+          "type": {
+            "kind": "object"
+          }
+        },
+        {
+          "identifier": 2,
+          "path": [
+            {
+              "type": "literal",
+              "value": "billing"
+            }
+          ],
+          "type": {
+            "kind": "object"
+          },
+          "required": false,
+          "constraints": [
+            ">= 1 properties"
+          ]
+        },
+        {
+          "identifier": 3,
+          "path": [
+            {
+              "type": "literal",
+              "value": "billing"
+            },
+            {
+              "type": "literal",
+              "value": "street"
+            }
+          ],
+          "type": {
+            "kind": "primitive",
+            "name": "string"
+          },
+          "required": true
+        },
+        {
+          "identifier": 4,
+          "path": [
+            {
+              "type": "literal",
+              "value": "billing"
+            },
+            {
+              "type": "literal",
+              "value": "city"
+            }
+          ],
+          "type": {
+            "kind": "primitive",
+            "name": "string"
+          },
+          "required": false
+        },
+        {
+          "identifier": 5,
+          "path": [
+            {
+              "type": "literal",
+              "value": "billing"
+            },
+            {
+              "type": "wildcard",
+              "value": "*"
+            }
+          ],
+          "type": {
+            "kind": "any"
+          }
+        },
+        {
+          "identifier": 6,
+          "path": [
+            {
+              "type": "literal",
+              "value": "shipping"
+            }
+          ],
+          "type": {
+            "kind": "object"
+          },
+          "required": false,
+          "constraints": [
+            ">= 1 properties"
+          ]
+        },
+        {
+          "identifier": 7,
+          "path": [
+            {
+              "type": "literal",
+              "value": "shipping"
+            },
+            {
+              "type": "literal",
+              "value": "street"
+            }
+          ],
+          "type": {
+            "kind": "primitive",
+            "name": "string"
+          },
+          "required": true
+        },
+        {
+          "identifier": 8,
+          "path": [
+            {
+              "type": "literal",
+              "value": "shipping"
+            },
+            {
+              "type": "literal",
+              "value": "city"
+            }
+          ],
+          "type": {
+            "kind": "primitive",
+            "name": "string"
+          },
+          "required": false
+        },
+        {
+          "identifier": 9,
+          "path": [
+            {
+              "type": "literal",
+              "value": "shipping"
+            },
+            {
+              "type": "wildcard",
+              "value": "*"
+            }
+          ],
+          "type": {
+            "kind": "any"
+          }
+        },
+        {
+          "identifier": 10,
+          "path": [
+            {
+              "type": "wildcard",
+              "value": "*"
+            }
+          ],
+          "type": {
+            "kind": "any"
+          }
+        }
+      ]
+    }
+  )JSON")};
 
   EXPECT_DOCUMENTATION(schema, sourcemeta::core::schema_walker,
                        sourcemeta::core::schema_resolver, *compiled_schema_,
@@ -2436,6 +3203,18 @@ TEST_F(Documentation202012Test, internal_ref_recursive_root) {
                 "value": "root"
               }
             ]
+          }
+        },
+        {
+          "identifier": 5,
+          "path": [
+            {
+              "type": "wildcard",
+              "value": "*"
+            }
+          ],
+          "type": {
+            "kind": "any"
           }
         }
       ]
@@ -2560,6 +3339,18 @@ TEST_F(Documentation202012Test, internal_ref_recursive_via_def) {
                       }
                     ]
                   }
+                },
+                {
+                  "identifier": 7,
+                  "path": [
+                    {
+                      "type": "wildcard",
+                      "value": "*"
+                    }
+                  ],
+                  "type": {
+                    "kind": "any"
+                  }
                 }
               ]
             }
@@ -2662,6 +3453,18 @@ TEST_F(Documentation202012Test, internal_ref_recursive_with_id) {
                 "value": "root"
               }
             ]
+          }
+        },
+        {
+          "identifier": 5,
+          "path": [
+            {
+              "type": "wildcard",
+              "value": "*"
+            }
+          ],
+          "type": {
+            "kind": "any"
           }
         }
       ]
@@ -2768,6 +3571,22 @@ TEST_F(Documentation202012Test, internal_ref_shared_def_with_recursion) {
           "path": [
             {
               "type": "literal",
+              "value": "primary"
+            },
+            {
+              "type": "wildcard",
+              "value": "*"
+            }
+          ],
+          "type": {
+            "kind": "any"
+          }
+        },
+        {
+          "identifier": 6,
+          "path": [
+            {
+              "type": "literal",
               "value": "emergency"
             }
           ],
@@ -2777,7 +3596,7 @@ TEST_F(Documentation202012Test, internal_ref_shared_def_with_recursion) {
           "required": false
         },
         {
-          "identifier": 6,
+          "identifier": 7,
           "path": [
             {
               "type": "literal",
@@ -2795,7 +3614,7 @@ TEST_F(Documentation202012Test, internal_ref_shared_def_with_recursion) {
           "required": false
         },
         {
-          "identifier": 7,
+          "identifier": 8,
           "path": [
             {
               "type": "literal",
@@ -2808,7 +3627,7 @@ TEST_F(Documentation202012Test, internal_ref_shared_def_with_recursion) {
           ],
           "type": {
             "kind": "recursiveRef",
-            "identifier": 5,
+            "identifier": 6,
             "path": [
               {
                 "type": "literal",
@@ -2817,6 +3636,34 @@ TEST_F(Documentation202012Test, internal_ref_shared_def_with_recursion) {
             ]
           },
           "required": false
+        },
+        {
+          "identifier": 9,
+          "path": [
+            {
+              "type": "literal",
+              "value": "emergency"
+            },
+            {
+              "type": "wildcard",
+              "value": "*"
+            }
+          ],
+          "type": {
+            "kind": "any"
+          }
+        },
+        {
+          "identifier": 10,
+          "path": [
+            {
+              "type": "wildcard",
+              "value": "*"
+            }
+          ],
+          "type": {
+            "kind": "any"
+          }
         }
       ]
     }
@@ -2838,155 +3685,270 @@ TEST_F(Documentation202012Test, object_with_anyof) {
     ]
   })JSON")};
 
-  const auto expected{sourcemeta::core::parse_json(R"JSON({
-    "identifier": 0,
-    "rows": [
-      {
-        "identifier": 1,
-        "path": [ { "type": "synthetic", "value": "root" } ],
-        "type": { "kind": "any" }
-      }
-    ],
-    "children": [
-      {
-        "label": "All of",
-        "children": [
-          {
-            "identifier": 2,
-            "rows": [
-              {
-                "identifier": 3,
-                "path": [ { "type": "synthetic", "value": "root" } ],
-                "type": { "kind": "any" }
-              }
-            ],
-            "children": [
-              {
-                "label": "Any of",
-                "children": [
-                  {
-                    "identifier": 4,
-                    "rows": [
-                      {
-                        "identifier": 5,
-                        "path": [
-                          { "type": "synthetic", "value": "root" }
-                        ],
-                        "type": {
-                          "kind": "enum",
-                          "values": [ null ]
-                        }
-                      }
-                    ]
-                  },
-                  {
-                    "identifier": 6,
-                    "rows": [
-                      {
-                        "identifier": 7,
-                        "path": [
-                          { "type": "synthetic", "value": "root" }
-                        ],
-                        "type": {
-                          "kind": "enum",
-                          "values": [ false, true ]
-                        }
-                      }
-                    ]
-                  },
-                  {
-                    "identifier": 8,
-                    "rows": [
-                      {
-                        "identifier": 9,
-                        "path": [
-                          { "type": "synthetic", "value": "root" }
-                        ],
-                        "type": { "kind": "object" },
-                        "constraints": [ ">= 1 properties" ]
-                      },
-                      {
-                        "identifier": 10,
-                        "path": [ { "type": "literal", "value": "a" } ],
-                        "type": { "kind": "any" },
-                        "required": true
-                      }
-                    ]
-                  },
-                  {
-                    "identifier": 11,
-                    "rows": [
-                      {
-                        "identifier": 12,
-                        "path": [
-                          { "type": "synthetic", "value": "root" }
-                        ],
-                        "type": { "kind": "array" }
-                      }
-                    ]
-                  },
-                  {
-                    "identifier": 13,
-                    "rows": [
-                      {
-                        "identifier": 14,
-                        "path": [
-                          { "type": "synthetic", "value": "root" }
-                        ],
-                        "type": { "kind": "primitive", "name": "string" }
-                      }
-                    ]
-                  },
-                  {
-                    "identifier": 15,
-                    "rows": [
-                      {
-                        "identifier": 16,
-                        "path": [
-                          { "type": "synthetic", "value": "root" }
-                        ],
-                        "type": { "kind": "primitive", "name": "number" }
-                      }
-                    ]
-                  },
-                  {
-                    "identifier": 17,
-                    "rows": [
-                      {
-                        "identifier": 18,
-                        "path": [
-                          { "type": "synthetic", "value": "root" }
-                        ],
-                        "type": { "kind": "object" },
-                        "constraints": [ ">= 1 properties" ]
-                      },
-                      {
-                        "identifier": 19,
-                        "path": [ { "type": "literal", "value": "b" } ],
-                        "type": { "kind": "any" },
-                        "required": true
-                      }
-                    ]
-                  }
-                ]
-              }
-            ]
-          },
-          {
-            "identifier": 20,
-            "rows": [
-              {
-                "identifier": 21,
-                "path": [ { "type": "synthetic", "value": "root" } ],
-                "type": { "kind": "object" },
-                "title": "T"
-              }
-            ]
+  const auto expected{sourcemeta::core::parse_json(R"JSON(
+    {
+      "identifier": 0,
+      "rows": [
+        {
+          "identifier": 1,
+          "path": [
+            {
+              "type": "synthetic",
+              "value": "root"
+            }
+          ],
+          "type": {
+            "kind": "any"
           }
-        ]
-      }
-    ]
-  })JSON")};
+        }
+      ],
+      "children": [
+        {
+          "label": "All of",
+          "children": [
+            {
+              "identifier": 2,
+              "rows": [
+                {
+                  "identifier": 3,
+                  "path": [
+                    {
+                      "type": "synthetic",
+                      "value": "root"
+                    }
+                  ],
+                  "type": {
+                    "kind": "any"
+                  }
+                }
+              ],
+              "children": [
+                {
+                  "label": "Any of",
+                  "children": [
+                    {
+                      "identifier": 4,
+                      "rows": [
+                        {
+                          "identifier": 5,
+                          "path": [
+                            {
+                              "type": "synthetic",
+                              "value": "root"
+                            }
+                          ],
+                          "type": {
+                            "kind": "enum",
+                            "values": [
+                              null
+                            ]
+                          }
+                        }
+                      ]
+                    },
+                    {
+                      "identifier": 6,
+                      "rows": [
+                        {
+                          "identifier": 7,
+                          "path": [
+                            {
+                              "type": "synthetic",
+                              "value": "root"
+                            }
+                          ],
+                          "type": {
+                            "kind": "enum",
+                            "values": [
+                              false,
+                              true
+                            ]
+                          }
+                        }
+                      ]
+                    },
+                    {
+                      "identifier": 8,
+                      "rows": [
+                        {
+                          "identifier": 9,
+                          "path": [
+                            {
+                              "type": "synthetic",
+                              "value": "root"
+                            }
+                          ],
+                          "type": {
+                            "kind": "object"
+                          },
+                          "constraints": [
+                            ">= 1 properties"
+                          ]
+                        },
+                        {
+                          "identifier": 10,
+                          "path": [
+                            {
+                              "type": "literal",
+                              "value": "a"
+                            }
+                          ],
+                          "type": {
+                            "kind": "any"
+                          },
+                          "required": true
+                        },
+                        {
+                          "identifier": 11,
+                          "path": [
+                            {
+                              "type": "wildcard",
+                              "value": "*"
+                            }
+                          ],
+                          "type": {
+                            "kind": "any"
+                          }
+                        }
+                      ]
+                    },
+                    {
+                      "identifier": 12,
+                      "rows": [
+                        {
+                          "identifier": 13,
+                          "path": [
+                            {
+                              "type": "synthetic",
+                              "value": "root"
+                            }
+                          ],
+                          "type": {
+                            "kind": "array"
+                          }
+                        }
+                      ]
+                    },
+                    {
+                      "identifier": 14,
+                      "rows": [
+                        {
+                          "identifier": 15,
+                          "path": [
+                            {
+                              "type": "synthetic",
+                              "value": "root"
+                            }
+                          ],
+                          "type": {
+                            "kind": "primitive",
+                            "name": "string"
+                          }
+                        }
+                      ]
+                    },
+                    {
+                      "identifier": 16,
+                      "rows": [
+                        {
+                          "identifier": 17,
+                          "path": [
+                            {
+                              "type": "synthetic",
+                              "value": "root"
+                            }
+                          ],
+                          "type": {
+                            "kind": "primitive",
+                            "name": "number"
+                          }
+                        }
+                      ]
+                    },
+                    {
+                      "identifier": 18,
+                      "rows": [
+                        {
+                          "identifier": 19,
+                          "path": [
+                            {
+                              "type": "synthetic",
+                              "value": "root"
+                            }
+                          ],
+                          "type": {
+                            "kind": "object"
+                          },
+                          "constraints": [
+                            ">= 1 properties"
+                          ]
+                        },
+                        {
+                          "identifier": 20,
+                          "path": [
+                            {
+                              "type": "literal",
+                              "value": "b"
+                            }
+                          ],
+                          "type": {
+                            "kind": "any"
+                          },
+                          "required": true
+                        },
+                        {
+                          "identifier": 21,
+                          "path": [
+                            {
+                              "type": "wildcard",
+                              "value": "*"
+                            }
+                          ],
+                          "type": {
+                            "kind": "any"
+                          }
+                        }
+                      ]
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "identifier": 22,
+              "rows": [
+                {
+                  "identifier": 23,
+                  "path": [
+                    {
+                      "type": "synthetic",
+                      "value": "root"
+                    }
+                  ],
+                  "type": {
+                    "kind": "object"
+                  },
+                  "title": "T"
+                },
+                {
+                  "identifier": 24,
+                  "path": [
+                    {
+                      "type": "wildcard",
+                      "value": "*"
+                    }
+                  ],
+                  "type": {
+                    "kind": "any"
+                  }
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  )JSON")};
 
   EXPECT_DOCUMENTATION(schema, sourcemeta::core::schema_walker,
                        sourcemeta::core::schema_resolver, *compiled_schema_,
@@ -3134,236 +4096,337 @@ TEST_F(Documentation202012Test, dependent_schemas) {
     }
   })JSON")};
 
-  const auto expected{sourcemeta::core::parse_json(R"JSON({
-    "identifier": 0,
-    "rows": [
-      {
-        "identifier": 1,
-        "path": [ { "type": "synthetic", "value": "root" } ],
-        "type": { "kind": "any" }
-      }
-    ],
-    "children": [
-      {
-        "label": "All of",
-        "children": [
-          {
-            "identifier": 2,
-            "rows": [
-              {
-                "identifier": 3,
-                "path": [ { "type": "synthetic", "value": "root" } ],
-                "type": { "kind": "any" }
-              }
-            ],
-            "children": [
-              {
-                "label": "Any of",
-                "children": [
-                  {
-                    "identifier": 4,
-                    "rows": [
-                      {
-                        "identifier": 5,
-                        "path": [
-                          { "type": "synthetic", "value": "root" }
-                        ],
-                        "type": { "kind": "any" },
-                        "constraints": [ "must NOT match >= 1 properties" ]
-                      }
-                    ]
-                  },
-                  {
-                    "identifier": 6,
-                    "rows": [
-                      {
-                        "identifier": 7,
-                        "path": [
-                          { "type": "synthetic", "value": "root" }
-                        ],
-                        "type": { "kind": "any" }
-                      }
-                    ],
-                    "children": [
-                      {
-                        "label": "All of",
-                        "children": [
-                          {
-                            "identifier": 8,
-                            "rows": [
-                              {
-                                "identifier": 9,
-                                "path": [
-                                  { "type": "synthetic", "value": "root" }
-                                ],
-                                "type": { "kind": "object" },
-                                "constraints": [ ">= 1 properties" ]
-                              },
-                              {
-                                "identifier": 10,
-                                "path": [
-                                  { "type": "literal", "value": "a" }
-                                ],
-                                "type": { "kind": "any" },
-                                "required": true
-                              }
-                            ]
-                          },
-                          {
-                            "identifier": 11,
-                            "rows": [
-                              {
-                                "identifier": 12,
-                                "path": [
-                                  { "type": "synthetic", "value": "root" }
-                                ],
-                                "type": { "kind": "any" }
-                              }
-                            ],
-                            "children": [
-                              {
-                                "label": "Any of",
-                                "children": [
-                                  {
-                                    "identifier": 13,
-                                    "rows": [
-                                      {
-                                        "identifier": 14,
-                                        "path": [
-                                          {
-                                            "type": "synthetic",
-                                            "value": "root"
-                                          }
-                                        ],
-                                        "type": {
-                                          "kind": "enum",
-                                          "values": [ null ]
-                                        }
-                                      }
-                                    ]
-                                  },
-                                  {
-                                    "identifier": 15,
-                                    "rows": [
-                                      {
-                                        "identifier": 16,
-                                        "path": [
-                                          {
-                                            "type": "synthetic",
-                                            "value": "root"
-                                          }
-                                        ],
-                                        "type": {
-                                          "kind": "enum",
-                                          "values": [ false, true ]
-                                        }
-                                      }
-                                    ]
-                                  },
-                                  {
-                                    "identifier": 17,
-                                    "rows": [
-                                      {
-                                        "identifier": 18,
-                                        "path": [
-                                          {
-                                            "type": "synthetic",
-                                            "value": "root"
-                                          }
-                                        ],
-                                        "type": { "kind": "object" },
-                                        "constraints": [ ">= 1 properties" ]
-                                      },
-                                      {
-                                        "identifier": 19,
-                                        "path": [
-                                          {
-                                            "type": "literal",
-                                            "value": "b"
-                                          }
-                                        ],
-                                        "type": { "kind": "any" },
-                                        "required": true
-                                      }
-                                    ]
-                                  },
-                                  {
-                                    "identifier": 20,
-                                    "rows": [
-                                      {
-                                        "identifier": 21,
-                                        "path": [
-                                          {
-                                            "type": "synthetic",
-                                            "value": "root"
-                                          }
-                                        ],
-                                        "type": { "kind": "array" }
-                                      }
-                                    ]
-                                  },
-                                  {
-                                    "identifier": 22,
-                                    "rows": [
-                                      {
-                                        "identifier": 23,
-                                        "path": [
-                                          {
-                                            "type": "synthetic",
-                                            "value": "root"
-                                          }
-                                        ],
-                                        "type": {
-                                          "kind": "primitive",
-                                          "name": "string"
-                                        }
-                                      }
-                                    ]
-                                  },
-                                  {
-                                    "identifier": 24,
-                                    "rows": [
-                                      {
-                                        "identifier": 25,
-                                        "path": [
-                                          {
-                                            "type": "synthetic",
-                                            "value": "root"
-                                          }
-                                        ],
-                                        "type": {
-                                          "kind": "primitive",
-                                          "name": "number"
-                                        }
-                                      }
-                                    ]
-                                  }
-                                ]
-                              }
-                            ]
-                          }
-                        ]
-                      }
-                    ]
-                  }
-                ]
-              }
-            ]
-          },
-          {
-            "identifier": 26,
-            "rows": [
-              {
-                "identifier": 27,
-                "path": [ { "type": "synthetic", "value": "root" } ],
-                "type": { "kind": "object" }
-              }
-            ]
+  const auto expected{sourcemeta::core::parse_json(R"JSON(
+    {
+      "identifier": 0,
+      "rows": [
+        {
+          "identifier": 1,
+          "path": [
+            {
+              "type": "synthetic",
+              "value": "root"
+            }
+          ],
+          "type": {
+            "kind": "any"
           }
-        ]
-      }
-    ]
-  })JSON")};
+        }
+      ],
+      "children": [
+        {
+          "label": "All of",
+          "children": [
+            {
+              "identifier": 2,
+              "rows": [
+                {
+                  "identifier": 3,
+                  "path": [
+                    {
+                      "type": "synthetic",
+                      "value": "root"
+                    }
+                  ],
+                  "type": {
+                    "kind": "any"
+                  }
+                }
+              ],
+              "children": [
+                {
+                  "label": "Any of",
+                  "children": [
+                    {
+                      "identifier": 4,
+                      "rows": [
+                        {
+                          "identifier": 5,
+                          "path": [
+                            {
+                              "type": "synthetic",
+                              "value": "root"
+                            }
+                          ],
+                          "type": {
+                            "kind": "any"
+                          },
+                          "constraints": [
+                            "must NOT match >= 1 properties"
+                          ]
+                        }
+                      ]
+                    },
+                    {
+                      "identifier": 6,
+                      "rows": [
+                        {
+                          "identifier": 7,
+                          "path": [
+                            {
+                              "type": "synthetic",
+                              "value": "root"
+                            }
+                          ],
+                          "type": {
+                            "kind": "any"
+                          }
+                        }
+                      ],
+                      "children": [
+                        {
+                          "label": "All of",
+                          "children": [
+                            {
+                              "identifier": 8,
+                              "rows": [
+                                {
+                                  "identifier": 9,
+                                  "path": [
+                                    {
+                                      "type": "synthetic",
+                                      "value": "root"
+                                    }
+                                  ],
+                                  "type": {
+                                    "kind": "object"
+                                  },
+                                  "constraints": [
+                                    ">= 1 properties"
+                                  ]
+                                },
+                                {
+                                  "identifier": 10,
+                                  "path": [
+                                    {
+                                      "type": "literal",
+                                      "value": "a"
+                                    }
+                                  ],
+                                  "type": {
+                                    "kind": "any"
+                                  },
+                                  "required": true
+                                },
+                                {
+                                  "identifier": 11,
+                                  "path": [
+                                    {
+                                      "type": "wildcard",
+                                      "value": "*"
+                                    }
+                                  ],
+                                  "type": {
+                                    "kind": "any"
+                                  }
+                                }
+                              ]
+                            },
+                            {
+                              "identifier": 12,
+                              "rows": [
+                                {
+                                  "identifier": 13,
+                                  "path": [
+                                    {
+                                      "type": "synthetic",
+                                      "value": "root"
+                                    }
+                                  ],
+                                  "type": {
+                                    "kind": "any"
+                                  }
+                                }
+                              ],
+                              "children": [
+                                {
+                                  "label": "Any of",
+                                  "children": [
+                                    {
+                                      "identifier": 14,
+                                      "rows": [
+                                        {
+                                          "identifier": 15,
+                                          "path": [
+                                            {
+                                              "type": "synthetic",
+                                              "value": "root"
+                                            }
+                                          ],
+                                          "type": {
+                                            "kind": "enum",
+                                            "values": [
+                                              null
+                                            ]
+                                          }
+                                        }
+                                      ]
+                                    },
+                                    {
+                                      "identifier": 16,
+                                      "rows": [
+                                        {
+                                          "identifier": 17,
+                                          "path": [
+                                            {
+                                              "type": "synthetic",
+                                              "value": "root"
+                                            }
+                                          ],
+                                          "type": {
+                                            "kind": "enum",
+                                            "values": [
+                                              false,
+                                              true
+                                            ]
+                                          }
+                                        }
+                                      ]
+                                    },
+                                    {
+                                      "identifier": 18,
+                                      "rows": [
+                                        {
+                                          "identifier": 19,
+                                          "path": [
+                                            {
+                                              "type": "synthetic",
+                                              "value": "root"
+                                            }
+                                          ],
+                                          "type": {
+                                            "kind": "object"
+                                          },
+                                          "constraints": [
+                                            ">= 1 properties"
+                                          ]
+                                        },
+                                        {
+                                          "identifier": 20,
+                                          "path": [
+                                            {
+                                              "type": "literal",
+                                              "value": "b"
+                                            }
+                                          ],
+                                          "type": {
+                                            "kind": "any"
+                                          },
+                                          "required": true
+                                        },
+                                        {
+                                          "identifier": 21,
+                                          "path": [
+                                            {
+                                              "type": "wildcard",
+                                              "value": "*"
+                                            }
+                                          ],
+                                          "type": {
+                                            "kind": "any"
+                                          }
+                                        }
+                                      ]
+                                    },
+                                    {
+                                      "identifier": 22,
+                                      "rows": [
+                                        {
+                                          "identifier": 23,
+                                          "path": [
+                                            {
+                                              "type": "synthetic",
+                                              "value": "root"
+                                            }
+                                          ],
+                                          "type": {
+                                            "kind": "array"
+                                          }
+                                        }
+                                      ]
+                                    },
+                                    {
+                                      "identifier": 24,
+                                      "rows": [
+                                        {
+                                          "identifier": 25,
+                                          "path": [
+                                            {
+                                              "type": "synthetic",
+                                              "value": "root"
+                                            }
+                                          ],
+                                          "type": {
+                                            "kind": "primitive",
+                                            "name": "string"
+                                          }
+                                        }
+                                      ]
+                                    },
+                                    {
+                                      "identifier": 26,
+                                      "rows": [
+                                        {
+                                          "identifier": 27,
+                                          "path": [
+                                            {
+                                              "type": "synthetic",
+                                              "value": "root"
+                                            }
+                                          ],
+                                          "type": {
+                                            "kind": "primitive",
+                                            "name": "number"
+                                          }
+                                        }
+                                      ]
+                                    }
+                                  ]
+                                }
+                              ]
+                            }
+                          ]
+                        }
+                      ]
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "identifier": 28,
+              "rows": [
+                {
+                  "identifier": 29,
+                  "path": [
+                    {
+                      "type": "synthetic",
+                      "value": "root"
+                    }
+                  ],
+                  "type": {
+                    "kind": "object"
+                  }
+                },
+                {
+                  "identifier": 30,
+                  "path": [
+                    {
+                      "type": "wildcard",
+                      "value": "*"
+                    }
+                  ],
+                  "type": {
+                    "kind": "any"
+                  }
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  )JSON")};
 
   EXPECT_DOCUMENTATION(schema, sourcemeta::core::schema_walker,
                        sourcemeta::core::schema_resolver, *compiled_schema_,
@@ -3379,88 +4442,163 @@ TEST_F(Documentation202012Test, dependent_required) {
     }
   })JSON")};
 
-  const auto expected{sourcemeta::core::parse_json(R"JSON({
-    "identifier": 0,
-    "rows": [
-      {
-        "identifier": 1,
-        "path": [ { "type": "synthetic", "value": "root" } ],
-        "type": { "kind": "any" }
-      }
-    ],
-    "children": [
-      {
-        "label": "All of",
-        "children": [
-          {
-            "identifier": 2,
-            "rows": [
-              {
-                "identifier": 3,
-                "path": [ { "type": "synthetic", "value": "root" } ],
-                "type": { "kind": "any" }
-              }
-            ],
-            "children": [
-              {
-                "label": "Any of",
-                "children": [
-                  {
-                    "identifier": 4,
-                    "rows": [
-                      {
-                        "identifier": 5,
-                        "path": [
-                          { "type": "synthetic", "value": "root" }
-                        ],
-                        "type": { "kind": "any" },
-                        "constraints": [ "must NOT match >= 1 properties" ]
-                      }
-                    ]
-                  },
-                  {
-                    "identifier": 6,
-                    "rows": [
-                      {
-                        "identifier": 7,
-                        "path": [
-                          { "type": "synthetic", "value": "root" }
-                        ],
-                        "type": { "kind": "object" },
-                        "constraints": [ ">= 2 properties" ]
-                      },
-                      {
-                        "identifier": 8,
-                        "path": [ { "type": "literal", "value": "a" } ],
-                        "type": { "kind": "any" },
-                        "required": true
-                      },
-                      {
-                        "identifier": 9,
-                        "path": [ { "type": "literal", "value": "b" } ],
-                        "type": { "kind": "any" },
-                        "required": true
-                      }
-                    ]
-                  }
-                ]
-              }
-            ]
-          },
-          {
-            "identifier": 10,
-            "rows": [
-              {
-                "identifier": 11,
-                "path": [ { "type": "synthetic", "value": "root" } ],
-                "type": { "kind": "object" }
-              }
-            ]
+  const auto expected{sourcemeta::core::parse_json(R"JSON(
+    {
+      "identifier": 0,
+      "rows": [
+        {
+          "identifier": 1,
+          "path": [
+            {
+              "type": "synthetic",
+              "value": "root"
+            }
+          ],
+          "type": {
+            "kind": "any"
           }
-        ]
-      }
-    ]
-  })JSON")};
+        }
+      ],
+      "children": [
+        {
+          "label": "All of",
+          "children": [
+            {
+              "identifier": 2,
+              "rows": [
+                {
+                  "identifier": 3,
+                  "path": [
+                    {
+                      "type": "synthetic",
+                      "value": "root"
+                    }
+                  ],
+                  "type": {
+                    "kind": "any"
+                  }
+                }
+              ],
+              "children": [
+                {
+                  "label": "Any of",
+                  "children": [
+                    {
+                      "identifier": 4,
+                      "rows": [
+                        {
+                          "identifier": 5,
+                          "path": [
+                            {
+                              "type": "synthetic",
+                              "value": "root"
+                            }
+                          ],
+                          "type": {
+                            "kind": "any"
+                          },
+                          "constraints": [
+                            "must NOT match >= 1 properties"
+                          ]
+                        }
+                      ]
+                    },
+                    {
+                      "identifier": 6,
+                      "rows": [
+                        {
+                          "identifier": 7,
+                          "path": [
+                            {
+                              "type": "synthetic",
+                              "value": "root"
+                            }
+                          ],
+                          "type": {
+                            "kind": "object"
+                          },
+                          "constraints": [
+                            ">= 2 properties"
+                          ]
+                        },
+                        {
+                          "identifier": 8,
+                          "path": [
+                            {
+                              "type": "literal",
+                              "value": "a"
+                            }
+                          ],
+                          "type": {
+                            "kind": "any"
+                          },
+                          "required": true
+                        },
+                        {
+                          "identifier": 9,
+                          "path": [
+                            {
+                              "type": "literal",
+                              "value": "b"
+                            }
+                          ],
+                          "type": {
+                            "kind": "any"
+                          },
+                          "required": true
+                        },
+                        {
+                          "identifier": 10,
+                          "path": [
+                            {
+                              "type": "wildcard",
+                              "value": "*"
+                            }
+                          ],
+                          "type": {
+                            "kind": "any"
+                          }
+                        }
+                      ]
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "identifier": 11,
+              "rows": [
+                {
+                  "identifier": 12,
+                  "path": [
+                    {
+                      "type": "synthetic",
+                      "value": "root"
+                    }
+                  ],
+                  "type": {
+                    "kind": "object"
+                  }
+                },
+                {
+                  "identifier": 13,
+                  "path": [
+                    {
+                      "type": "wildcard",
+                      "value": "*"
+                    }
+                  ],
+                  "type": {
+                    "kind": "any"
+                  }
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  )JSON")};
 
   EXPECT_DOCUMENTATION(schema, sourcemeta::core::schema_walker,
                        sourcemeta::core::schema_resolver, *compiled_schema_,
@@ -3710,66 +4848,110 @@ TEST_F(Documentation202012Test, property_names_branching) {
     }
   })JSON")};
 
-  const auto expected{sourcemeta::core::parse_json(R"JSON({
-    "identifier": 0,
-    "rows": [
-      {
-        "identifier": 1,
-        "path": [ { "type": "synthetic", "value": "root" } ],
-        "type": { "kind": "object" }
-      }
-    ],
-    "children": [
-      {
-        "label": "Property names",
-        "children": [
-          {
-            "identifier": 2,
-            "rows": [
-              {
-                "identifier": 3,
-                "path": [ { "type": "synthetic", "value": "key" } ],
-                "type": { "kind": "any" }
-              }
-            ],
-            "children": [
-              {
-                "label": "Any of",
-                "children": [
-                  {
-                    "identifier": 4,
-                    "rows": [
-                      {
-                        "identifier": 5,
-                        "path": [
-                          { "type": "synthetic", "value": "root" }
-                        ],
-                        "type": { "kind": "primitive", "name": "string" },
-                        "constraints": [ "pattern: ^x" ]
-                      }
-                    ]
-                  },
-                  {
-                    "identifier": 6,
-                    "rows": [
-                      {
-                        "identifier": 7,
-                        "path": [
-                          { "type": "synthetic", "value": "root" }
-                        ],
-                        "type": { "kind": "primitive", "name": "string" },
-                        "constraints": [ "pattern: ^y" ]
-                      }
-                    ]
-                  }
-                ]
-              }
-            ]
+  const auto expected{sourcemeta::core::parse_json(R"JSON(
+    {
+      "identifier": 0,
+      "rows": [
+        {
+          "identifier": 1,
+          "path": [
+            {
+              "type": "synthetic",
+              "value": "root"
+            }
+          ],
+          "type": {
+            "kind": "object"
           }
-        ]
-      }
-    ]
-  })JSON")};
+        },
+        {
+          "identifier": 2,
+          "path": [
+            {
+              "type": "wildcard",
+              "value": "*"
+            }
+          ],
+          "type": {
+            "kind": "any"
+          }
+        }
+      ],
+      "children": [
+        {
+          "label": "Property names",
+          "children": [
+            {
+              "identifier": 3,
+              "rows": [
+                {
+                  "identifier": 4,
+                  "path": [
+                    {
+                      "type": "synthetic",
+                      "value": "key"
+                    }
+                  ],
+                  "type": {
+                    "kind": "any"
+                  }
+                }
+              ],
+              "children": [
+                {
+                  "label": "Any of",
+                  "children": [
+                    {
+                      "identifier": 5,
+                      "rows": [
+                        {
+                          "identifier": 6,
+                          "path": [
+                            {
+                              "type": "synthetic",
+                              "value": "root"
+                            }
+                          ],
+                          "type": {
+                            "kind": "primitive",
+                            "name": "string"
+                          },
+                          "constraints": [
+                            "pattern: ^x"
+                          ]
+                        }
+                      ]
+                    },
+                    {
+                      "identifier": 7,
+                      "rows": [
+                        {
+                          "identifier": 8,
+                          "path": [
+                            {
+                              "type": "synthetic",
+                              "value": "root"
+                            }
+                          ],
+                          "type": {
+                            "kind": "primitive",
+                            "name": "string"
+                          },
+                          "constraints": [
+                            "pattern: ^y"
+                          ]
+                        }
+                      ]
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  )JSON")};
 
   EXPECT_DOCUMENTATION(schema, sourcemeta::core::schema_walker,
                        sourcemeta::core::schema_resolver, *compiled_schema_,
@@ -3995,60 +5177,131 @@ TEST_F(Documentation202012Test, anyof_unevaluated) {
     "unevaluatedProperties": { "type": "string" }
   })JSON")};
 
-  const auto expected{sourcemeta::core::parse_json(R"JSON({
-    "identifier": 0,
-    "rows": [
-      {
-        "identifier": 1,
-        "path": [ { "type": "synthetic", "value": "root" } ],
-        "type": { "kind": "any" }
-      },
-      {
-        "identifier": 8,
-        "path": [ { "type": "wildcard", "value": "*" } ],
-        "type": { "kind": "primitive", "name": "string" }
-      }
-    ],
-    "children": [
-      {
-        "label": "Any of",
-        "children": [
-          {
-            "identifier": 2,
-            "rows": [
-              {
-                "identifier": 3,
-                "path": [ { "type": "synthetic", "value": "root" } ],
-                "type": { "kind": "object" }
-              },
-              {
-                "identifier": 4,
-                "path": [ { "type": "literal", "value": "a" } ],
-                "type": { "kind": "primitive", "name": "string" },
-                "required": false
-              }
-            ]
-          },
-          {
-            "identifier": 5,
-            "rows": [
-              {
-                "identifier": 6,
-                "path": [ { "type": "synthetic", "value": "root" } ],
-                "type": { "kind": "object" }
-              },
-              {
-                "identifier": 7,
-                "path": [ { "type": "literal", "value": "b" } ],
-                "type": { "kind": "primitive", "name": "integer" },
-                "required": false
-              }
-            ]
+  const auto expected{sourcemeta::core::parse_json(R"JSON(
+    {
+      "identifier": 0,
+      "rows": [
+        {
+          "identifier": 1,
+          "path": [
+            {
+              "type": "synthetic",
+              "value": "root"
+            }
+          ],
+          "type": {
+            "kind": "any"
           }
-        ]
-      }
-    ]
-  })JSON")};
+        },
+        {
+          "identifier": 10,
+          "path": [
+            {
+              "type": "wildcard",
+              "value": "*"
+            }
+          ],
+          "type": {
+            "kind": "primitive",
+            "name": "string"
+          }
+        }
+      ],
+      "children": [
+        {
+          "label": "Any of",
+          "children": [
+            {
+              "identifier": 2,
+              "rows": [
+                {
+                  "identifier": 3,
+                  "path": [
+                    {
+                      "type": "synthetic",
+                      "value": "root"
+                    }
+                  ],
+                  "type": {
+                    "kind": "object"
+                  }
+                },
+                {
+                  "identifier": 4,
+                  "path": [
+                    {
+                      "type": "literal",
+                      "value": "a"
+                    }
+                  ],
+                  "type": {
+                    "kind": "primitive",
+                    "name": "string"
+                  },
+                  "required": false
+                },
+                {
+                  "identifier": 5,
+                  "path": [
+                    {
+                      "type": "wildcard",
+                      "value": "*"
+                    }
+                  ],
+                  "type": {
+                    "kind": "any"
+                  }
+                }
+              ]
+            },
+            {
+              "identifier": 6,
+              "rows": [
+                {
+                  "identifier": 7,
+                  "path": [
+                    {
+                      "type": "synthetic",
+                      "value": "root"
+                    }
+                  ],
+                  "type": {
+                    "kind": "object"
+                  }
+                },
+                {
+                  "identifier": 8,
+                  "path": [
+                    {
+                      "type": "literal",
+                      "value": "b"
+                    }
+                  ],
+                  "type": {
+                    "kind": "primitive",
+                    "name": "integer"
+                  },
+                  "required": false
+                },
+                {
+                  "identifier": 9,
+                  "path": [
+                    {
+                      "type": "wildcard",
+                      "value": "*"
+                    }
+                  ],
+                  "type": {
+                    "kind": "any"
+                  }
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  )JSON")};
 
   EXPECT_DOCUMENTATION(schema, sourcemeta::core::schema_walker,
                        sourcemeta::core::schema_resolver, *compiled_schema_,
@@ -4158,23 +5411,52 @@ TEST_F(Documentation202012Test, default_explicit_null) {
     }
   })JSON")};
 
-  const auto expected{sourcemeta::core::parse_json(R"JSON({
-    "identifier": 0,
-    "rows": [
-      {
-        "identifier": 1,
-        "path": [ { "type": "synthetic", "value": "root" } ],
-        "type": { "kind": "object" }
-      },
-      {
-        "identifier": 2,
-        "path": [ { "type": "literal", "value": "value" } ],
-        "type": { "kind": "primitive", "name": "string" },
-        "required": false,
-        "default": null
-      }
-    ]
-  })JSON")};
+  const auto expected{sourcemeta::core::parse_json(R"JSON(
+    {
+      "identifier": 0,
+      "rows": [
+        {
+          "identifier": 1,
+          "path": [
+            {
+              "type": "synthetic",
+              "value": "root"
+            }
+          ],
+          "type": {
+            "kind": "object"
+          }
+        },
+        {
+          "identifier": 2,
+          "path": [
+            {
+              "type": "literal",
+              "value": "value"
+            }
+          ],
+          "type": {
+            "kind": "primitive",
+            "name": "string"
+          },
+          "required": false,
+          "default": null
+        },
+        {
+          "identifier": 3,
+          "path": [
+            {
+              "type": "wildcard",
+              "value": "*"
+            }
+          ],
+          "type": {
+            "kind": "any"
+          }
+        }
+      ]
+    }
+  )JSON")};
 
   EXPECT_DOCUMENTATION(schema, sourcemeta::core::schema_walker,
                        sourcemeta::core::schema_resolver, *compiled_schema_,
@@ -4262,6 +5544,18 @@ TEST_F(Documentation202012Test, recursive_ref_walk_schema_cycle) {
             ]
           },
           "required": false
+        },
+        {
+          "identifier": 5,
+          "path": [
+            {
+              "type": "wildcard",
+              "value": "*"
+            }
+          ],
+          "type": {
+            "kind": "any"
+          }
         }
       ]
     }
@@ -4285,30 +5579,74 @@ TEST_F(Documentation202012Test, array_items_ref_to_object) {
     }
   })JSON")};
 
-  const auto expected{sourcemeta::core::parse_json(R"JSON({
-    "identifier": 0,
-    "rows": [
-      {
-        "identifier": 1,
-        "path": [ { "type": "synthetic", "value": "root" } ],
-        "type": { "kind": "array", "items": { "kind": "object" } }
-      },
-      {
-        "identifier": 2,
-        "path": [ { "type": "wildcard", "value": "*" } ],
-        "type": { "kind": "object" }
-      },
-      {
-        "identifier": 3,
-        "path": [
-          { "type": "wildcard", "value": "*" },
-          { "type": "literal", "value": "name" }
-        ],
-        "type": { "kind": "primitive", "name": "string" },
-        "required": false
-      }
-    ]
-  })JSON")};
+  const auto expected{sourcemeta::core::parse_json(R"JSON(
+    {
+      "identifier": 0,
+      "rows": [
+        {
+          "identifier": 1,
+          "path": [
+            {
+              "type": "synthetic",
+              "value": "root"
+            }
+          ],
+          "type": {
+            "kind": "array",
+            "items": {
+              "kind": "object"
+            }
+          }
+        },
+        {
+          "identifier": 2,
+          "path": [
+            {
+              "type": "wildcard",
+              "value": "*"
+            }
+          ],
+          "type": {
+            "kind": "object"
+          }
+        },
+        {
+          "identifier": 3,
+          "path": [
+            {
+              "type": "wildcard",
+              "value": "*"
+            },
+            {
+              "type": "literal",
+              "value": "name"
+            }
+          ],
+          "type": {
+            "kind": "primitive",
+            "name": "string"
+          },
+          "required": false
+        },
+        {
+          "identifier": 4,
+          "path": [
+            {
+              "type": "wildcard",
+              "value": "*"
+            },
+            {
+              "type": "wildcard",
+              "value": "*"
+            }
+          ],
+          "type": {
+            "kind": "any"
+          }
+        }
+      ]
+    }
+  )JSON")};
 
   EXPECT_DOCUMENTATION(schema, sourcemeta::core::schema_walker,
                        sourcemeta::core::schema_resolver, *compiled_schema_,
@@ -4379,30 +5717,74 @@ TEST_F(Documentation202012Test, array_items_object_with_properties) {
     }
   })JSON")};
 
-  const auto expected{sourcemeta::core::parse_json(R"JSON({
-    "identifier": 0,
-    "rows": [
-      {
-        "identifier": 1,
-        "path": [ { "type": "synthetic", "value": "root" } ],
-        "type": { "kind": "array", "items": { "kind": "object" } }
-      },
-      {
-        "identifier": 2,
-        "path": [ { "type": "wildcard", "value": "*" } ],
-        "type": { "kind": "object" }
-      },
-      {
-        "identifier": 3,
-        "path": [
-          { "type": "wildcard", "value": "*" },
-          { "type": "literal", "value": "name" }
-        ],
-        "type": { "kind": "primitive", "name": "string" },
-        "required": false
-      }
-    ]
-  })JSON")};
+  const auto expected{sourcemeta::core::parse_json(R"JSON(
+    {
+      "identifier": 0,
+      "rows": [
+        {
+          "identifier": 1,
+          "path": [
+            {
+              "type": "synthetic",
+              "value": "root"
+            }
+          ],
+          "type": {
+            "kind": "array",
+            "items": {
+              "kind": "object"
+            }
+          }
+        },
+        {
+          "identifier": 2,
+          "path": [
+            {
+              "type": "wildcard",
+              "value": "*"
+            }
+          ],
+          "type": {
+            "kind": "object"
+          }
+        },
+        {
+          "identifier": 3,
+          "path": [
+            {
+              "type": "wildcard",
+              "value": "*"
+            },
+            {
+              "type": "literal",
+              "value": "name"
+            }
+          ],
+          "type": {
+            "kind": "primitive",
+            "name": "string"
+          },
+          "required": false
+        },
+        {
+          "identifier": 4,
+          "path": [
+            {
+              "type": "wildcard",
+              "value": "*"
+            },
+            {
+              "type": "wildcard",
+              "value": "*"
+            }
+          ],
+          "type": {
+            "kind": "any"
+          }
+        }
+      ]
+    }
+  )JSON")};
 
   EXPECT_DOCUMENTATION(schema, sourcemeta::core::schema_walker,
                        sourcemeta::core::schema_resolver, *compiled_schema_,
@@ -4422,30 +5804,74 @@ TEST_F(Documentation202012Test, array_items_ref_to_object_with_properties) {
     }
   })JSON")};
 
-  const auto expected{sourcemeta::core::parse_json(R"JSON({
-    "identifier": 0,
-    "rows": [
-      {
-        "identifier": 1,
-        "path": [ { "type": "synthetic", "value": "root" } ],
-        "type": { "kind": "array", "items": { "kind": "object" } }
-      },
-      {
-        "identifier": 2,
-        "path": [ { "type": "wildcard", "value": "*" } ],
-        "type": { "kind": "object" }
-      },
-      {
-        "identifier": 3,
-        "path": [
-          { "type": "wildcard", "value": "*" },
-          { "type": "literal", "value": "name" }
-        ],
-        "type": { "kind": "primitive", "name": "string" },
-        "required": false
-      }
-    ]
-  })JSON")};
+  const auto expected{sourcemeta::core::parse_json(R"JSON(
+    {
+      "identifier": 0,
+      "rows": [
+        {
+          "identifier": 1,
+          "path": [
+            {
+              "type": "synthetic",
+              "value": "root"
+            }
+          ],
+          "type": {
+            "kind": "array",
+            "items": {
+              "kind": "object"
+            }
+          }
+        },
+        {
+          "identifier": 2,
+          "path": [
+            {
+              "type": "wildcard",
+              "value": "*"
+            }
+          ],
+          "type": {
+            "kind": "object"
+          }
+        },
+        {
+          "identifier": 3,
+          "path": [
+            {
+              "type": "wildcard",
+              "value": "*"
+            },
+            {
+              "type": "literal",
+              "value": "name"
+            }
+          ],
+          "type": {
+            "kind": "primitive",
+            "name": "string"
+          },
+          "required": false
+        },
+        {
+          "identifier": 4,
+          "path": [
+            {
+              "type": "wildcard",
+              "value": "*"
+            },
+            {
+              "type": "wildcard",
+              "value": "*"
+            }
+          ],
+          "type": {
+            "kind": "any"
+          }
+        }
+      ]
+    }
+  )JSON")};
 
   EXPECT_DOCUMENTATION(schema, sourcemeta::core::schema_walker,
                        sourcemeta::core::schema_resolver, *compiled_schema_,
@@ -4469,40 +5895,111 @@ TEST_F(Documentation202012Test, object_property_array_of_objects) {
     }
   })JSON")};
 
-  const auto expected{sourcemeta::core::parse_json(R"JSON({
-    "identifier": 0,
-    "rows": [
-      {
-        "identifier": 1,
-        "path": [ { "type": "synthetic", "value": "root" } ],
-        "type": { "kind": "object" }
-      },
-      {
-        "identifier": 2,
-        "path": [ { "type": "literal", "value": "tags" } ],
-        "type": { "kind": "array", "items": { "kind": "object" } },
-        "required": false
-      },
-      {
-        "identifier": 3,
-        "path": [
-          { "type": "literal", "value": "tags" },
-          { "type": "wildcard", "value": "*" }
-        ],
-        "type": { "kind": "object" }
-      },
-      {
-        "identifier": 4,
-        "path": [
-          { "type": "literal", "value": "tags" },
-          { "type": "wildcard", "value": "*" },
-          { "type": "literal", "value": "name" }
-        ],
-        "type": { "kind": "primitive", "name": "string" },
-        "required": false
-      }
-    ]
-  })JSON")};
+  const auto expected{sourcemeta::core::parse_json(R"JSON(
+    {
+      "identifier": 0,
+      "rows": [
+        {
+          "identifier": 1,
+          "path": [
+            {
+              "type": "synthetic",
+              "value": "root"
+            }
+          ],
+          "type": {
+            "kind": "object"
+          }
+        },
+        {
+          "identifier": 2,
+          "path": [
+            {
+              "type": "literal",
+              "value": "tags"
+            }
+          ],
+          "type": {
+            "kind": "array",
+            "items": {
+              "kind": "object"
+            }
+          },
+          "required": false
+        },
+        {
+          "identifier": 3,
+          "path": [
+            {
+              "type": "literal",
+              "value": "tags"
+            },
+            {
+              "type": "wildcard",
+              "value": "*"
+            }
+          ],
+          "type": {
+            "kind": "object"
+          }
+        },
+        {
+          "identifier": 4,
+          "path": [
+            {
+              "type": "literal",
+              "value": "tags"
+            },
+            {
+              "type": "wildcard",
+              "value": "*"
+            },
+            {
+              "type": "literal",
+              "value": "name"
+            }
+          ],
+          "type": {
+            "kind": "primitive",
+            "name": "string"
+          },
+          "required": false
+        },
+        {
+          "identifier": 5,
+          "path": [
+            {
+              "type": "literal",
+              "value": "tags"
+            },
+            {
+              "type": "wildcard",
+              "value": "*"
+            },
+            {
+              "type": "wildcard",
+              "value": "*"
+            }
+          ],
+          "type": {
+            "kind": "any"
+          }
+        },
+        {
+          "identifier": 6,
+          "path": [
+            {
+              "type": "wildcard",
+              "value": "*"
+            }
+          ],
+          "type": {
+            "kind": "any"
+          }
+        }
+      ]
+    }
+  )JSON")};
 
   EXPECT_DOCUMENTATION(schema, sourcemeta::core::schema_walker,
                        sourcemeta::core::schema_resolver, *compiled_schema_,
@@ -4522,22 +6019,50 @@ TEST_F(Documentation202012Test, mutual_ref_cycle_in_type_expression) {
     }
   })JSON")};
 
-  const auto expected{sourcemeta::core::parse_json(R"JSON({
-    "identifier": 0,
-    "rows": [
-      {
-        "identifier": 1,
-        "path": [ { "type": "synthetic", "value": "root" } ],
-        "type": { "kind": "object" }
-      },
-      {
-        "identifier": 2,
-        "path": [ { "type": "literal", "value": "foo" } ],
-        "type": { "kind": "any" },
-        "required": false
-      }
-    ]
-  })JSON")};
+  const auto expected{sourcemeta::core::parse_json(R"JSON(
+    {
+      "identifier": 0,
+      "rows": [
+        {
+          "identifier": 1,
+          "path": [
+            {
+              "type": "synthetic",
+              "value": "root"
+            }
+          ],
+          "type": {
+            "kind": "object"
+          }
+        },
+        {
+          "identifier": 2,
+          "path": [
+            {
+              "type": "literal",
+              "value": "foo"
+            }
+          ],
+          "type": {
+            "kind": "any"
+          },
+          "required": false
+        },
+        {
+          "identifier": 3,
+          "path": [
+            {
+              "type": "wildcard",
+              "value": "*"
+            }
+          ],
+          "type": {
+            "kind": "any"
+          }
+        }
+      ]
+    }
+  )JSON")};
 
   EXPECT_DOCUMENTATION(schema, sourcemeta::core::schema_walker,
                        sourcemeta::core::schema_resolver, *compiled_schema_,
@@ -4695,6 +6220,22 @@ TEST_F(Documentation202012Test, recursive_ref_inside_array_items) {
               }
             ]
           }
+        },
+        {
+          "identifier": 5,
+          "path": [
+            {
+              "type": "wildcard",
+              "value": "*"
+            },
+            {
+              "type": "wildcard",
+              "value": "*"
+            }
+          ],
+          "type": {
+            "kind": "any"
+          }
         }
       ]
     }
@@ -4724,49 +6265,115 @@ TEST_F(Documentation202012Test,
     }
   })JSON")};
 
-  const auto expected{sourcemeta::core::parse_json(R"JSON({
-    "identifier": 0,
-    "rows": [
-      {
-        "identifier": 1,
-        "path": [ { "type": "synthetic", "value": "root" } ],
-        "type": { "kind": "object" }
-      },
-      {
-        "identifier": 2,
-        "path": [ { "type": "literal", "value": "tags" } ],
-        "type": { "kind": "array", "items": { "kind": "object" } },
-        "required": false
-      },
-      {
-        "identifier": 3,
-        "path": [
-          { "type": "literal", "value": "tags" },
-          { "type": "wildcard", "value": "*" }
-        ],
-        "type": { "kind": "object" }
-      },
-      {
-        "identifier": 4,
-        "path": [
-          { "type": "literal", "value": "tags" },
-          { "type": "wildcard", "value": "*" },
-          { "type": "literal", "value": "name" }
-        ],
-        "type": { "kind": "primitive", "name": "string" },
-        "required": false
-      },
-      {
-        "identifier": 5,
-        "path": [
-          { "type": "literal", "value": "tags" },
-          { "type": "wildcard", "value": "*" },
-          { "type": "wildcard", "value": "*" }
-        ],
-        "type": { "kind": "enum", "values": [ false, true ] }
-      }
-    ]
-  })JSON")};
+  const auto expected{sourcemeta::core::parse_json(R"JSON(
+    {
+      "identifier": 0,
+      "rows": [
+        {
+          "identifier": 1,
+          "path": [
+            {
+              "type": "synthetic",
+              "value": "root"
+            }
+          ],
+          "type": {
+            "kind": "object"
+          }
+        },
+        {
+          "identifier": 2,
+          "path": [
+            {
+              "type": "literal",
+              "value": "tags"
+            }
+          ],
+          "type": {
+            "kind": "array",
+            "items": {
+              "kind": "object"
+            }
+          },
+          "required": false
+        },
+        {
+          "identifier": 3,
+          "path": [
+            {
+              "type": "literal",
+              "value": "tags"
+            },
+            {
+              "type": "wildcard",
+              "value": "*"
+            }
+          ],
+          "type": {
+            "kind": "object"
+          }
+        },
+        {
+          "identifier": 4,
+          "path": [
+            {
+              "type": "literal",
+              "value": "tags"
+            },
+            {
+              "type": "wildcard",
+              "value": "*"
+            },
+            {
+              "type": "literal",
+              "value": "name"
+            }
+          ],
+          "type": {
+            "kind": "primitive",
+            "name": "string"
+          },
+          "required": false
+        },
+        {
+          "identifier": 5,
+          "path": [
+            {
+              "type": "literal",
+              "value": "tags"
+            },
+            {
+              "type": "wildcard",
+              "value": "*"
+            },
+            {
+              "type": "wildcard",
+              "value": "*"
+            }
+          ],
+          "type": {
+            "kind": "enum",
+            "values": [
+              false,
+              true
+            ]
+          }
+        },
+        {
+          "identifier": 6,
+          "path": [
+            {
+              "type": "wildcard",
+              "value": "*"
+            }
+          ],
+          "type": {
+            "kind": "any"
+          }
+        }
+      ]
+    }
+  )JSON")};
 
   EXPECT_DOCUMENTATION(schema, sourcemeta::core::schema_walker,
                        sourcemeta::core::schema_resolver, *compiled_schema_,
