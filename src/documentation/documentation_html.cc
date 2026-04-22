@@ -43,10 +43,8 @@ auto render_path(sourcemeta::core::HTMLWriter &writer,
       writer.text("/");
     }
 
-    if (type == "literal") {
+    if (type == "literal" || type == "pattern") {
       writer.text(first ? "/" + value : value);
-    } else if (type == "pattern") {
-      writer.text(value);
     } else if (type == "wildcard") {
       writer.text(first ? "/*" : "*");
     } else if (type == "synthetic") {
