@@ -933,6 +933,45 @@ TEST_F(DocumentationDraft4Test, anyof) {
                        expected);
 }
 
+TEST_F(DocumentationDraft4Test, not_type_only) {
+  const auto schema{sourcemeta::core::parse_json(R"JSON({
+    "$schema": "http://json-schema.org/draft-04/schema#",
+    "not": { "type": "string" }
+  })JSON")};
+
+  const auto expected{sourcemeta::core::parse_json(R"JSON({
+    "identifier": 0,
+    "rows": [
+      {
+        "identifier": 1,
+        "path": [ { "type": "synthetic", "value": "root" } ],
+        "type": { "kind": "any" }
+      }
+    ],
+    "children": [
+      {
+        "label": "Must NOT match",
+        "children": [
+          {
+            "identifier": 2,
+            "rows": [
+              {
+                "identifier": 3,
+                "path": [ { "type": "synthetic", "value": "value" } ],
+                "type": { "kind": "primitive", "name": "string" }
+              }
+            ]
+          }
+        ]
+      }
+    ]
+  })JSON")};
+
+  EXPECT_DOCUMENTATION(schema, sourcemeta::core::schema_walker,
+                       sourcemeta::core::schema_resolver, *compiled_schema_,
+                       expected);
+}
+
 TEST_F(DocumentationDraft4Test, nested_object_in_property) {
   const auto schema{sourcemeta::core::parse_json(R"JSON({
     "$schema": "http://json-schema.org/draft-04/schema#",

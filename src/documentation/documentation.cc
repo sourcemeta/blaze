@@ -1276,24 +1276,19 @@ auto walk_schema(const sourcemeta::core::JSON &schema, const bool include_root,
     }
   }
 
-  if (schema.is_object() && schema.defines("not") &&
-      schema.at("not").is_object()) {
+  if (schema.is_object() && schema.defines("not")) {
     const auto &not_schema{schema.at("not")};
     const auto is_branching{
-        not_schema.defines("anyOf") || not_schema.defines("oneOf") ||
-        not_schema.defines("allOf") || not_schema.defines("not")};
-    if (is_branching) {
+        not_schema.is_object() &&
+        (not_schema.defines("anyOf") || not_schema.defines("oneOf") ||
+         not_schema.defines("allOf") || not_schema.defines("not"))};
+    const auto has_inline_constraints{!is_branching && not_schema.is_object() &&
+                                      !constraints_of(not_schema).empty()};
+    if (!has_inline_constraints) {
       walk_branching_subschema("Must NOT match", "value", not_schema,
                                doc_children, frame, root, visited,
                                next_identifier, false);
     }
-  }
-
-  if (schema.is_object() && schema.defines("not") &&
-      schema.at("not").is_boolean()) {
-    walk_branching_subschema("Must NOT match", "value", schema.at("not"),
-                             doc_children, frame, root, visited,
-                             next_identifier, false);
   }
 
   assert(!rows.empty() || !doc_children.empty());
