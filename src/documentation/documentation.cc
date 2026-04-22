@@ -689,8 +689,10 @@ auto walk_properties(const sourcemeta::core::JSON &schema,
             items_schema.at("type").to_string() == "object") {
           auto wildcard_path{path};
           wildcard_path.push_back(make_path_segment("wildcard", "*"));
+          const auto items_row_id{next_identifier};
           emit_row(items_schema, wildcard_path, rows, frame, root, visited,
                    next_identifier);
+          visited.emplace(&items_schema, items_row_id);
           walk_properties(items_schema, wildcard_path, rows, frame, root,
                           visited, next_identifier);
           walk_pattern_properties(items_schema, wildcard_path, rows, frame,
@@ -701,6 +703,7 @@ auto walk_properties(const sourcemeta::core::JSON &schema,
           walk_wildcard_keyword(items_schema, "unevaluatedProperties",
                                 wildcard_path, rows, frame, root, visited,
                                 next_identifier);
+          visited.erase(&items_schema);
         }
       }
     }
@@ -1168,8 +1171,10 @@ auto walk_schema(const sourcemeta::core::JSON &schema, const bool include_root,
         items_schema.at("type").to_string() == "object") {
       auto wildcard_path{sourcemeta::core::JSON::make_array()};
       wildcard_path.push_back(make_path_segment("wildcard", "*"));
+      const auto items_row_id{next_identifier};
       emit_row(items_schema, wildcard_path, rows, frame, root, visited,
                next_identifier);
+      visited.emplace(&items_schema, items_row_id);
       walk_properties(items_schema, wildcard_path, rows, frame, root, visited,
                       next_identifier);
       walk_pattern_properties(items_schema, wildcard_path, rows, frame, root,
@@ -1179,6 +1184,7 @@ auto walk_schema(const sourcemeta::core::JSON &schema, const bool include_root,
       walk_wildcard_keyword(items_schema, "unevaluatedProperties",
                             wildcard_path, rows, frame, root, visited,
                             next_identifier);
+      visited.erase(&items_schema);
     }
   }
 

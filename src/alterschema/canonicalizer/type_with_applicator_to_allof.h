@@ -263,6 +263,25 @@ public:
         schema.assign("allOf", std::move(new_allof));
       }
 
+      if (this->has_modern_ref_ && schema.defines("$ref")) {
+        auto branch{JSON::make_object()};
+        branch.assign("$ref", schema.at("$ref"));
+        schema.at("allOf").push_back(std::move(branch));
+        schema.erase("$ref");
+      }
+      if (this->has_dynamic_ref_ && schema.defines("$dynamicRef")) {
+        auto branch{JSON::make_object()};
+        branch.assign("$dynamicRef", schema.at("$dynamicRef"));
+        schema.at("allOf").push_back(std::move(branch));
+        schema.erase("$dynamicRef");
+      }
+      if (this->has_recursive_ref_ && schema.defines("$recursiveRef")) {
+        auto branch{JSON::make_object()};
+        branch.assign("$recursiveRef", schema.at("$recursiveRef"));
+        schema.at("allOf").push_back(std::move(branch));
+        schema.erase("$recursiveRef");
+      }
+
       for (const auto &applicator : APPLICATORS_WITHOUT_ALLOF) {
         if (!schema.defines(applicator)) {
           continue;

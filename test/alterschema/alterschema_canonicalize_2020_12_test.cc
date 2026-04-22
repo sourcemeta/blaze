@@ -3771,6 +3771,71 @@ TEST_F(Canonicalizer202012Test, ref_with_annotation_no_type_expansion) {
   CANONICALIZE_AND_VALIDATE(document, expected, *compiled_meta_);
 }
 
+TEST_F(Canonicalizer202012Test, safe_extract_wraps_modern_ref_into_allof) {
+  auto document = sourcemeta::core::parse_json(R"JSON({
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "type": "object",
+    "$ref": "#/$defs/base",
+    "properties": {
+      "name": { "type": "string" }
+    },
+    "allOf": [
+      {
+        "type": "object",
+        "properties": {
+          "alias": { "$ref": "#/properties/name" }
+        }
+      }
+    ],
+    "$defs": {
+      "base": { "type": "object" }
+    }
+  })JSON");
+
+  const auto expected = sourcemeta::core::parse_json(R"JSON({
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "allOf": [
+      {
+        "type": "object",
+        "minProperties": 0,
+        "propertyNames": true,
+        "properties": {
+          "alias": {
+            "$ref": "#/allOf/1/properties/name"
+          }
+        },
+        "patternProperties": {}
+      },
+      {
+        "type": "object",
+        "minProperties": 0,
+        "propertyNames": true,
+        "properties": {
+          "name": {
+            "type": "string",
+            "minLength": 0
+          }
+        },
+        "patternProperties": {}
+      },
+      {
+        "$ref": "#/$defs/base"
+      }
+    ],
+    "$defs": {
+      "base": {
+        "type": "object",
+        "minProperties": 0,
+        "propertyNames": true,
+        "properties": {},
+        "patternProperties": {}
+      }
+    }
+  })JSON");
+
+  CANONICALIZE_AND_VALIDATE(document, expected, *compiled_meta_);
+}
+
 TEST_F(Canonicalizer202012Test,
        ref_with_applicator_sibling_preserves_cross_refs) {
   auto document = sourcemeta::core::parse_json(R"JSON({
