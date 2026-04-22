@@ -114,6 +114,13 @@ TEST(Documentation_HTML, draft4_pattern_property_path) {
             "<td></td>"
             "<td></td>"
             "</tr>"
+            "<tr data-index=\"3\">"
+            "<td><code>/*</code></td>"
+            "<td>Any</td>"
+            "<td></td>"
+            "<td></td>"
+            "<td></td>"
+            "</tr>"
             "</tbody>"
             "</table>");
 }

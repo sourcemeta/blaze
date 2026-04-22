@@ -738,19 +738,31 @@ auto walk_wildcard_keyword(const sourcemeta::core::JSON &schema,
                            const sourcemeta::core::JSON &root,
                            VisitedSchemas &visited,
                            std::size_t &next_identifier) -> void {
-  if (!schema.is_object() || !schema.defines(keyword) ||
-      !schema.at(keyword).is_object()) {
+  if (!schema.is_object() || !schema.defines(keyword)) {
     return;
   }
+
+  const auto &value{schema.at(keyword)};
 
   if (keyword == "unevaluatedItems" && schema.defines("prefixItems")) {
     return;
   }
 
+  if (value.is_boolean() && value.to_boolean()) {
+    auto path{base_path};
+    path.push_back(make_path_segment("wildcard", "*"));
+    emit_row(value, std::move(path), rows, frame, root, visited,
+             next_identifier);
+    return;
+  }
+
+  if (!value.is_object()) {
+    return;
+  }
+
   auto path{base_path};
   path.push_back(make_path_segment("wildcard", "*"));
-  emit_row(schema.at(keyword), std::move(path), rows, frame, root, visited,
-           next_identifier);
+  emit_row(value, std::move(path), rows, frame, root, visited, next_identifier);
 }
 
 auto walk_pattern_properties(const sourcemeta::core::JSON &schema,

@@ -133,6 +133,43 @@ TEST_F(Documentation202012Test, object_additional_properties_false) {
                        expected);
 }
 
+TEST_F(Documentation202012Test, object_additional_properties_true) {
+  const auto schema{sourcemeta::core::parse_json(R"JSON({
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "type": "object",
+    "properties": {
+      "name": { "type": "string" }
+    },
+    "additionalProperties": true
+  })JSON")};
+
+  const auto expected{sourcemeta::core::parse_json(R"JSON({
+    "identifier": 0,
+    "rows": [
+      {
+        "identifier": 1,
+        "path": [ { "type": "synthetic", "value": "root" } ],
+        "type": { "kind": "object" }
+      },
+      {
+        "identifier": 2,
+        "path": [ { "type": "literal", "value": "name" } ],
+        "type": { "kind": "primitive", "name": "string" },
+        "required": false
+      },
+      {
+        "identifier": 3,
+        "path": [ { "type": "wildcard", "value": "*" } ],
+        "type": { "kind": "any" }
+      }
+    ]
+  })JSON")};
+
+  EXPECT_DOCUMENTATION(schema, sourcemeta::core::schema_walker,
+                       sourcemeta::core::schema_resolver, *compiled_schema_,
+                       expected);
+}
+
 TEST_F(Documentation202012Test, object_additional_properties_typed) {
   const auto schema{sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2020-12/schema",
