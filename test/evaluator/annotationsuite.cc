@@ -25,9 +25,10 @@ static auto slugify(const std::string &input, std::ostream &output) -> void {
   }
 }
 
-static auto schema_location_matches(
-    const std::string &actual, const std::string &expected,
-    const sourcemeta::core::SchemaFrame &frame) -> bool {
+static auto schema_location_matches(const std::string &actual,
+                                    const std::string &expected,
+                                    const sourcemeta::core::SchemaFrame &frame)
+    -> bool {
   if (actual == expected) {
     return true;
   }
@@ -104,23 +105,24 @@ has_matching_annotations(const sourcemeta::blaze::SimpleOutput &output,
 
 class AnnotationTest : public testing::Test {
 public:
-  explicit AnnotationTest(sourcemeta::blaze::Template test_schema,
-                          sourcemeta::core::JSON test_schema_json,
-                          std::string test_default_dialect,
+  explicit AnnotationTest(sourcemeta::core::JSON test_schema_json,
+                          const std::string &test_default_dialect,
                           sourcemeta::core::JSON test_instance,
                           sourcemeta::core::JSON::Array test_assertions)
-      : schema{std::move(test_schema)},
-        schema_json{std::move(test_schema_json)},
-        default_dialect{std::move(test_default_dialect)},
+      : schema_json{std::move(test_schema_json)},
         instance{std::move(test_instance)},
-        assertions{std::move(test_assertions)} {}
+        assertions{std::move(test_assertions)} {
+    this->frame.analyse(this->schema_json, sourcemeta::core::schema_walker,
+                        sourcemeta::core::schema_resolver,
+                        test_default_dialect);
+    this->schema = sourcemeta::blaze::compile(
+        this->schema_json, sourcemeta::core::schema_walker,
+        sourcemeta::core::schema_resolver,
+        sourcemeta::blaze::default_schema_compiler, this->frame,
+        this->frame.root(), sourcemeta::blaze::Mode::Exhaustive);
+  }
 
   auto TestBody() -> void override {
-    sourcemeta::core::SchemaFrame frame{
-        sourcemeta::core::SchemaFrame::Mode::References};
-    frame.analyse(this->schema_json, sourcemeta::core::schema_walker,
-                  sourcemeta::core::schema_resolver, this->default_dialect);
-
     sourcemeta::blaze::SimpleOutput output{this->instance};
     const auto result{this->evaluator.validate(this->schema, this->instance,
                                                std::ref(output))};
@@ -158,11 +160,12 @@ public:
   }
 
 private:
-  const sourcemeta::blaze::Template schema;
-  const sourcemeta::core::JSON schema_json;
-  const std::string default_dialect;
-  const sourcemeta::core::JSON instance;
-  const sourcemeta::core::JSON::Array assertions;
+  sourcemeta::core::JSON schema_json;
+  sourcemeta::core::SchemaFrame frame{
+      sourcemeta::core::SchemaFrame::Mode::References};
+  sourcemeta::blaze::Template schema;
+  sourcemeta::core::JSON instance;
+  sourcemeta::core::JSON::Array assertions;
   sourcemeta::blaze::Evaluator evaluator;
 };
 
@@ -213,11 +216,6 @@ static auto register_tests(const std::string &suite_name,
     assert(entry.defines("schema"));
     const auto &schema{entry.at("schema")};
     assert(sourcemeta::core::is_schema(schema));
-    const auto schema_template{sourcemeta::blaze::compile(
-        schema, sourcemeta::core::schema_walker,
-        sourcemeta::core::schema_resolver,
-        sourcemeta::blaze::default_schema_compiler,
-        sourcemeta::blaze::Mode::Exhaustive, default_dialect)};
 
     assert(entry.defines("tests"));
     assert(entry.at("tests").is_array());
@@ -232,12 +230,12 @@ static auto register_tests(const std::string &suite_name,
       assert(test.at("assertions").is_array());
       const auto &assertions{test.at("assertions").as_array()};
 
-      testing::RegisterTest(
-          category.str().c_str(), title.str().c_str(), nullptr, nullptr,
-          __FILE__, __LINE__, [=]() -> AnnotationTest * {
-            return new AnnotationTest(schema_template, schema,
-                                      default_dialect, instance, assertions);
-          });
+      testing::RegisterTest(category.str().c_str(), title.str().c_str(),
+                            nullptr, nullptr, __FILE__, __LINE__,
+                            [=]() -> AnnotationTest * {
+                              return new AnnotationTest(schema, default_dialect,
+                                                        instance, assertions);
+                            });
     }
   }
 }
