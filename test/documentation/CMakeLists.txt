@@ -3,6 +3,7 @@ sourcemeta_googletest(NAMESPACE sourcemeta PROJECT blaze NAME documentation
   SOURCES
     documentation_test_utils.h
     documentation_2020_12_test.cc
+    documentation_draft4_test.cc
     documentation_html_test.cc)
 
 target_link_libraries(sourcemeta_blaze_documentation_unit

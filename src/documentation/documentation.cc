@@ -150,6 +150,20 @@ auto type_expression_of(const sourcemeta::core::JSON &schema,
                         type_expression_of(schema.at("unevaluatedItems"), frame,
                                            root, visited, ref_chain));
         }
+      } else if (schema.defines("items") && schema.at("items").is_array()) {
+        result.assign("kind", sourcemeta::core::JSON{"tuple"});
+        auto items{sourcemeta::core::JSON::make_array()};
+        for (const auto &item : schema.at("items").as_array()) {
+          items.push_back(
+              type_expression_of(item, frame, root, visited, ref_chain));
+        }
+        result.assign("items", std::move(items));
+        if (schema.defines("additionalItems") &&
+            schema.at("additionalItems").is_object()) {
+          result.assign("additional",
+                        type_expression_of(schema.at("additionalItems"), frame,
+                                           root, visited, ref_chain));
+        }
       } else {
         result.assign("kind", sourcemeta::core::JSON{"array"});
         if (schema.defines("items") && schema.at("items").is_object()) {
@@ -274,12 +288,18 @@ auto constraints_of(const sourcemeta::core::JSON &schema)
   }
 
   if (schema.defines("minimum") && schema.at("minimum").is_number()) {
+    const auto exclusive{schema.defines("exclusiveMinimum") &&
+                         schema.at("exclusiveMinimum").is_boolean() &&
+                         schema.at("exclusiveMinimum").to_boolean()};
     constraints.push_back(sourcemeta::core::JSON{
-        ">= " + format_json_number(schema.at("minimum"))});
+        (exclusive ? "> " : ">= ") + format_json_number(schema.at("minimum"))});
   }
   if (schema.defines("maximum") && schema.at("maximum").is_number()) {
+    const auto exclusive{schema.defines("exclusiveMaximum") &&
+                         schema.at("exclusiveMaximum").is_boolean() &&
+                         schema.at("exclusiveMaximum").to_boolean()};
     constraints.push_back(sourcemeta::core::JSON{
-        "<= " + format_json_number(schema.at("maximum"))});
+        (exclusive ? "< " : "<= ") + format_json_number(schema.at("maximum"))});
   }
   if (schema.defines("exclusiveMinimum") &&
       schema.at("exclusiveMinimum").is_number()) {
@@ -774,10 +794,18 @@ auto walk_prefix_items(const sourcemeta::core::JSON &schema,
                        const sourcemeta::core::JSON &root,
                        VisitedSchemas &visited, std::size_t &next_identifier)
     -> void {
-  if (!schema.is_object() || !schema.defines("prefixItems") ||
-      !schema.at("prefixItems").is_array()) {
+  const auto has_prefix_items{schema.is_object() &&
+                              schema.defines("prefixItems") &&
+                              schema.at("prefixItems").is_array()};
+  const auto has_draft4_tuple{!has_prefix_items && schema.is_object() &&
+                              schema.defines("items") &&
+                              schema.at("items").is_array()};
+  if (!has_prefix_items && !has_draft4_tuple) {
     return;
   }
+
+  const auto &tuple_items{has_prefix_items ? schema.at("prefixItems")
+                                           : schema.at("items")};
 
   std::size_t min_items{0};
   if (schema.defines("minItems") && schema.at("minItems").is_integer() &&
@@ -786,7 +814,7 @@ auto walk_prefix_items(const sourcemeta::core::JSON &schema,
   }
 
   std::size_t index{0};
-  for (const auto &item : schema.at("prefixItems").as_array()) {
+  for (const auto &item : tuple_items.as_array()) {
     if (is_complex_schema(item)) {
       auto section_children{sourcemeta::core::JSON::make_array()};
       section_children.push_back(
@@ -847,11 +875,18 @@ auto walk_prefix_items(const sourcemeta::core::JSON &schema,
     ++index;
   }
 
-  if (schema.defines("items") && schema.at("items").is_object()) {
+  if (has_prefix_items && schema.defines("items") &&
+      schema.at("items").is_object()) {
     auto path{base_path};
     path.push_back(make_path_segment("wildcard", "*"));
     emit_row(schema.at("items"), std::move(path), rows, frame, root, visited,
              next_identifier);
+  } else if (has_draft4_tuple && schema.defines("additionalItems") &&
+             schema.at("additionalItems").is_object()) {
+    auto path{base_path};
+    path.push_back(make_path_segment("wildcard", "*"));
+    emit_row(schema.at("additionalItems"), std::move(path), rows, frame, root,
+             visited, next_identifier);
   }
 }
 
