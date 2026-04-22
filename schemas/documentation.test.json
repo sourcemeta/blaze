@@ -409,7 +409,13 @@
             ],
             "type": {
               "kind": "recursiveRef",
-              "identifier": 0
+              "identifier": 0,
+              "path": [
+                {
+                  "type": "synthetic",
+                  "value": "root"
+                }
+              ]
             }
           },
           {
