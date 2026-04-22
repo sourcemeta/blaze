@@ -228,10 +228,9 @@ public:
           entry.first == "$schema" || entry.first == "id" ||
           entry.first == "$id" || entry.first == "definitions" ||
           entry.first == "$defs" || entry.first == "$anchor" ||
-          entry.first == "$dynamicAnchor" || entry.first == "$recursiveAnchor" ||
-          entry.first == "$vocabulary" ||
-          entry.first == "dependencies" ||
-          entry.first == "dependentSchemas" ||
+          entry.first == "$dynamicAnchor" ||
+          entry.first == "$recursiveAnchor" || entry.first == "$vocabulary" ||
+          entry.first == "dependencies" || entry.first == "dependentSchemas" ||
           (this->has_if_then_else_ &&
            (entry.first == "if" || entry.first == "then" ||
             entry.first == "else")) ||
