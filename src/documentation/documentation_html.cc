@@ -4,6 +4,7 @@
 #include <sourcemeta/core/json.h>
 
 #include <cassert> // assert
+#include <set>     // std::set
 #include <sstream> // std::ostringstream
 #include <string>  // std::string, std::to_string
 
@@ -28,6 +29,31 @@ auto is_empty_row(const sourcemeta::core::JSON &row) -> bool {
          !row.defines("examples");
 }
 
+auto collect_ref_targets(const sourcemeta::core::JSON &table,
+                         std::set<std::int64_t> &targets) -> void {
+  for (const auto &row : table.at("rows").as_array()) {
+    if (row.defines("type") && row.at("type").defines("kind") &&
+        row.at("type").at("kind").to_string() == "recursiveRef" &&
+        row.at("type").defines("identifier")) {
+      targets.insert(row.at("type").at("identifier").to_integer());
+    }
+    if (row.defines("children")) {
+      for (const auto &section : row.at("children").as_array()) {
+        for (const auto &child : section.at("children").as_array()) {
+          collect_ref_targets(child, targets);
+        }
+      }
+    }
+  }
+  if (table.defines("children")) {
+    for (const auto &section : table.at("children").as_array()) {
+      for (const auto &child : section.at("children").as_array()) {
+        collect_ref_targets(child, targets);
+      }
+    }
+  }
+}
+
 auto render_path(sourcemeta::core::HTMLWriter &writer,
                  const sourcemeta::core::JSON &path) -> void {
   assert(path.is_array());
@@ -43,10 +69,8 @@ auto render_path(sourcemeta::core::HTMLWriter &writer,
       writer.text("/");
     }
 
-    if (type == "literal") {
+    if (type == "literal" || type == "pattern") {
       writer.text(first ? "/" + value : value);
-    } else if (type == "pattern") {
-      writer.text(value);
     } else if (type == "wildcard") {
       writer.text(first ? "/*" : "*");
     } else if (type == "synthetic") {
@@ -132,7 +156,27 @@ auto render_type_expression(sourcemeta::core::HTMLWriter &writer,
     assert(type.defines("identifier"));
     const auto identifier{std::to_string(type.at("identifier").to_integer())};
     writer.a().attribute("data-index", identifier);
-    writer.text(identifier);
+    if (type.defines("path")) {
+      bool first_seg{true};
+      for (const auto &segment : type.at("path").as_array()) {
+        const auto &seg_type{segment.at("type").to_string()};
+        const auto &seg_value{segment.at("value").to_string()};
+        if (!first_seg) {
+          writer.text("/");
+        }
+        if (seg_type == "synthetic") {
+          writer.text("(" + seg_value + ")");
+        } else if (seg_type == "literal" || seg_type == "pattern") {
+          writer.text(first_seg ? "/" + seg_value : seg_value);
+        } else if (seg_type == "wildcard") {
+          writer.text(first_seg ? "/*" : "*");
+        }
+        first_seg = false;
+      }
+      writer.text(" #" + identifier);
+    } else {
+      writer.text(identifier);
+    }
     writer.close();
   } else if (kind == "dynamicRef") {
     assert(type.defines("anchor"));
@@ -184,11 +228,14 @@ auto render_notes(sourcemeta::core::HTMLWriter &writer,
 }
 
 auto render_row(sourcemeta::core::HTMLWriter &writer,
-                const sourcemeta::core::JSON &row) -> void;
+                const sourcemeta::core::JSON &row,
+                const std::set<std::int64_t> &ref_targets) -> void;
 auto render_section(sourcemeta::core::HTMLWriter &writer,
-                    const sourcemeta::core::JSON &section) -> void;
+                    const sourcemeta::core::JSON &section,
+                    const std::set<std::int64_t> &ref_targets) -> void;
 auto render_table(sourcemeta::core::HTMLWriter &writer,
-                  const sourcemeta::core::JSON &table) -> void;
+                  const sourcemeta::core::JSON &table,
+                  const std::set<std::int64_t> &ref_targets) -> void;
 
 auto emit_header(sourcemeta::core::HTMLWriter &writer) -> void {
   writer.thead();
@@ -203,17 +250,22 @@ auto emit_header(sourcemeta::core::HTMLWriter &writer) -> void {
 }
 
 auto render_row(sourcemeta::core::HTMLWriter &writer,
-                const sourcemeta::core::JSON &row) -> void {
+                const sourcemeta::core::JSON &row,
+                const std::set<std::int64_t> &ref_targets) -> void {
   assert(row.defines("identifier"));
   assert(row.defines("path"));
   assert(row.defines("type"));
 
-  writer.tr().attribute("data-index",
-                        std::to_string(row.at("identifier").to_integer()));
+  const auto identifier{row.at("identifier").to_integer()};
+  writer.tr().attribute("data-index", std::to_string(identifier));
 
   // Path
   writer.td();
   render_path(writer, row.at("path"));
+  if (ref_targets.contains(identifier)) {
+    writer.text(" ");
+    writer.strong("#" + std::to_string(identifier));
+  }
   render_modifiers(writer, row);
   writer.close();
 
@@ -248,13 +300,14 @@ auto render_row(sourcemeta::core::HTMLWriter &writer,
 
   if (row.defines("children")) {
     for (const auto &section : row.at("children").as_array()) {
-      render_section(writer, section);
+      render_section(writer, section, ref_targets);
     }
   }
 }
 
 auto render_section(sourcemeta::core::HTMLWriter &writer,
-                    const sourcemeta::core::JSON &section) -> void {
+                    const sourcemeta::core::JSON &section,
+                    const std::set<std::int64_t> &ref_targets) -> void {
   assert(section.defines("label"));
   assert(section.defines("children"));
 
@@ -276,7 +329,7 @@ auto render_section(sourcemeta::core::HTMLWriter &writer,
       writer.div(child.at("title").to_string());
     }
 
-    render_table(writer, child);
+    render_table(writer, child, ref_targets);
     writer.close();
   }
 
@@ -286,7 +339,8 @@ auto render_section(sourcemeta::core::HTMLWriter &writer,
 }
 
 auto render_table(sourcemeta::core::HTMLWriter &writer,
-                  const sourcemeta::core::JSON &table) -> void {
+                  const sourcemeta::core::JSON &table,
+                  const std::set<std::int64_t> &ref_targets) -> void {
   assert(table.defines("identifier"));
   assert(table.defines("rows"));
 
@@ -295,8 +349,11 @@ auto render_table(sourcemeta::core::HTMLWriter &writer,
 
   const auto &rows{table.at("rows")};
   const auto has_children{table.defines("children")};
+  const auto root_is_ref_target{
+      !rows.empty() && rows.at(0).defines("identifier") &&
+      ref_targets.contains(rows.at(0).at("identifier").to_integer())};
   const auto skip_root{has_children && !rows.empty() &&
-                       is_empty_row(rows.at(0))};
+                       is_empty_row(rows.at(0)) && !root_is_ref_target};
 
   if (!skip_root || rows.array_size() > 1) {
     emit_header(writer);
@@ -305,12 +362,12 @@ auto render_table(sourcemeta::core::HTMLWriter &writer,
   writer.tbody();
   for (std::size_t index = skip_root ? 1 : 0; index < rows.array_size();
        ++index) {
-    render_row(writer, rows.at(index));
+    render_row(writer, rows.at(index), ref_targets);
   }
 
   if (has_children) {
     for (const auto &section : table.at("children").as_array()) {
-      render_section(writer, section);
+      render_section(writer, section, ref_targets);
     }
   }
 
@@ -324,13 +381,19 @@ auto to_html(const sourcemeta::core::JSON &documentation) -> std::string {
   assert(documentation.is_object());
   assert(documentation.defines("rows"));
 
+  std::set<std::int64_t> ref_targets;
+  collect_ref_targets(documentation, ref_targets);
+
   sourcemeta::core::HTMLWriter writer;
   writer.table().attribute("class", "sourcemeta-blaze-documentation");
 
   const auto &rows{documentation.at("rows")};
   const auto has_children{documentation.defines("children")};
+  const auto root_is_ref_target{
+      !rows.empty() && rows.at(0).defines("identifier") &&
+      ref_targets.contains(rows.at(0).at("identifier").to_integer())};
   const auto skip_root{has_children && !rows.empty() &&
-                       is_empty_row(rows.at(0))};
+                       is_empty_row(rows.at(0)) && !root_is_ref_target};
 
   if (!skip_root || rows.array_size() > 1) {
     emit_header(writer);
@@ -339,12 +402,12 @@ auto to_html(const sourcemeta::core::JSON &documentation) -> std::string {
   writer.tbody();
   for (std::size_t index = skip_root ? 1 : 0; index < rows.array_size();
        ++index) {
-    render_row(writer, rows.at(index));
+    render_row(writer, rows.at(index), ref_targets);
   }
 
   if (has_children) {
     for (const auto &section : documentation.at("children").as_array()) {
-      render_section(writer, section);
+      render_section(writer, section, ref_targets);
     }
   }
 

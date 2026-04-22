@@ -194,16 +194,24 @@ TEST_F(CanonicalizerDraft7Test, min_properties_covered_by_required_1) {
     "required": [ "foo", "bar" ]
   })JSON");
 
-  const auto expected = sourcemeta::core::parse_json(R"JSON({
-  "$schema": "http://json-schema.org/draft-07/schema#",
-  "type": "object",
-  "minProperties": 2,
-  "required": [ "foo", "bar" ],
-  "patternProperties": {},
-  "propertyNames": true,
-  "properties": {},
-  "additionalProperties": true
-})JSON");
+  const auto expected = sourcemeta::core::parse_json(R"JSON(
+    {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "type": "object",
+      "minProperties": 2,
+      "required": [
+        "foo",
+        "bar"
+      ],
+      "patternProperties": {},
+      "propertyNames": true,
+      "properties": {
+        "foo": true,
+        "bar": true
+      },
+      "additionalProperties": true
+    }
+  )JSON");
 
   CANONICALIZE_AND_VALIDATE(document, expected, *compiled_meta_);
 }
@@ -215,16 +223,24 @@ TEST_F(CanonicalizerDraft7Test, min_properties_implicit_1) {
     "required": [ "foo", "bar" ]
   })JSON");
 
-  const auto expected = sourcemeta::core::parse_json(R"JSON({
-  "$schema": "http://json-schema.org/draft-07/schema#",
-  "type": "object",
-  "required": [ "foo", "bar" ],
-  "patternProperties": {},
-  "propertyNames": true,
-  "minProperties": 2,
-  "properties": {},
-  "additionalProperties": true
-})JSON");
+  const auto expected = sourcemeta::core::parse_json(R"JSON(
+    {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "type": "object",
+      "required": [
+        "foo",
+        "bar"
+      ],
+      "patternProperties": {},
+      "propertyNames": true,
+      "minProperties": 2,
+      "properties": {
+        "foo": true,
+        "bar": true
+      },
+      "additionalProperties": true
+    }
+  )JSON");
 
   CANONICALIZE_AND_VALIDATE(document, expected, *compiled_meta_);
 }
@@ -237,16 +253,24 @@ TEST_F(CanonicalizerDraft7Test, min_properties_implicit_2) {
     "required": [ "foo", "bar" ]
   })JSON");
 
-  const auto expected = sourcemeta::core::parse_json(R"JSON({
-  "$schema": "http://json-schema.org/draft-07/schema#",
-  "type": "object",
-  "minProperties": 2,
-  "required": [ "foo", "bar" ],
-  "patternProperties": {},
-  "propertyNames": true,
-  "properties": {},
-  "additionalProperties": true
-})JSON");
+  const auto expected = sourcemeta::core::parse_json(R"JSON(
+    {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "type": "object",
+      "minProperties": 2,
+      "required": [
+        "foo",
+        "bar"
+      ],
+      "patternProperties": {},
+      "propertyNames": true,
+      "properties": {
+        "foo": true,
+        "bar": true
+      },
+      "additionalProperties": true
+    }
+  )JSON");
 
   CANONICALIZE_AND_VALIDATE(document, expected, *compiled_meta_);
 }
@@ -1248,43 +1272,55 @@ TEST_F(CanonicalizerDraft7Test, dependencies_property_single) {
     "dependencies": { "foo": [ "bar" ] }
   })JSON");
 
-  const auto expected = sourcemeta::core::parse_json(R"JSON({
-  "$schema": "http://json-schema.org/draft-07/schema#",
-  "allOf": [
+  const auto expected = sourcemeta::core::parse_json(R"JSON(
     {
-      "anyOf": [
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "allOf": [
         {
-          "not": {
-            "type": "object",
-            "required": [ "foo" ],
-            "patternProperties": {},
-            "propertyNames": true,
-            "minProperties": 1,
-            "properties": {},
-            "additionalProperties": true
-          }
+          "anyOf": [
+            {
+              "not": {
+                "type": "object",
+                "required": [
+                  "foo"
+                ],
+                "patternProperties": {},
+                "propertyNames": true,
+                "minProperties": 1,
+                "properties": {
+                  "foo": true
+                },
+                "additionalProperties": true
+              }
+            },
+            {
+              "type": "object",
+              "required": [
+                "foo",
+                "bar"
+              ],
+              "patternProperties": {},
+              "propertyNames": true,
+              "minProperties": 2,
+              "properties": {
+                "foo": true,
+                "bar": true
+              },
+              "additionalProperties": true
+            }
+          ]
         },
         {
           "type": "object",
-          "required": [ "foo", "bar" ],
           "patternProperties": {},
           "propertyNames": true,
-          "minProperties": 2,
+          "minProperties": 0,
           "properties": {},
           "additionalProperties": true
         }
       ]
-    },
-    {
-      "type": "object",
-      "patternProperties": {},
-      "propertyNames": true,
-      "minProperties": 0,
-      "properties": {},
-      "additionalProperties": true
     }
-  ]
-})JSON");
+  )JSON");
 
   CANONICALIZE_AND_VALIDATE(document, expected, *compiled_meta_);
 }
@@ -1296,79 +1332,98 @@ TEST_F(CanonicalizerDraft7Test, dependencies_schema_single) {
     "dependencies": { "foo": { "required": [ "bar" ] } }
   })JSON");
 
-  const auto expected = sourcemeta::core::parse_json(R"JSON({
-  "$schema": "http://json-schema.org/draft-07/schema#",
-  "allOf": [
+  const auto expected = sourcemeta::core::parse_json(R"JSON(
     {
-      "anyOf": [
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "allOf": [
         {
-          "not": {
-            "type": "object",
-            "required": [ "foo" ],
-            "patternProperties": {},
-            "propertyNames": true,
-            "minProperties": 1,
-            "properties": {},
-            "additionalProperties": true
-          }
-        },
-        {
-          "allOf": [
+          "anyOf": [
             {
-              "type": "object",
-              "required": [ "foo" ],
-              "patternProperties": {},
-              "propertyNames": true,
-              "minProperties": 1,
-              "properties": {},
-              "additionalProperties": true
+              "not": {
+                "type": "object",
+                "required": [
+                  "foo"
+                ],
+                "patternProperties": {},
+                "propertyNames": true,
+                "minProperties": 1,
+                "properties": {
+                  "foo": true
+                },
+                "additionalProperties": true
+              }
             },
             {
-              "anyOf": [
-                {
-                  "enum": [ null ]
-                },
-                {
-                  "enum": [ false, true ]
-                },
+              "allOf": [
                 {
                   "type": "object",
-                  "required": [ "bar" ],
+                  "required": [
+                    "foo"
+                  ],
                   "patternProperties": {},
                   "propertyNames": true,
                   "minProperties": 1,
-                  "properties": {},
+                  "properties": {
+                    "foo": true
+                  },
                   "additionalProperties": true
                 },
                 {
-                  "type": "array",
-                  "uniqueItems": false,
-                  "items": true,
-                  "minItems": 0
-                },
-                {
-                  "type": "string",
-                  "minLength": 0
-                },
-                {
-                  "type": "number"
+                  "anyOf": [
+                    {
+                      "enum": [
+                        null
+                      ]
+                    },
+                    {
+                      "enum": [
+                        false,
+                        true
+                      ]
+                    },
+                    {
+                      "type": "object",
+                      "required": [
+                        "bar"
+                      ],
+                      "patternProperties": {},
+                      "propertyNames": true,
+                      "minProperties": 1,
+                      "properties": {
+                        "bar": true
+                      },
+                      "additionalProperties": true
+                    },
+                    {
+                      "type": "array",
+                      "uniqueItems": false,
+                      "items": true,
+                      "minItems": 0
+                    },
+                    {
+                      "type": "string",
+                      "minLength": 0
+                    },
+                    {
+                      "type": "number"
+                    }
+                  ]
                 }
               ]
             }
           ]
+        },
+        {
+          "type": "object",
+          "patternProperties": {},
+          "propertyNames": true,
+          "minProperties": 0,
+          "properties": {},
+          "additionalProperties": true
         }
       ]
-    },
-    {
-      "type": "object",
-      "patternProperties": {},
-      "propertyNames": true,
-      "minProperties": 0,
-      "properties": {},
-      "additionalProperties": true
     }
-  ]
-})JSON");
+  )JSON");
 
   CANONICALIZE_AND_VALIDATE(document, expected, *compiled_meta_);
 }
@@ -1656,37 +1711,47 @@ TEST_F(CanonicalizerDraft7Test, anyof_with_nested_allof) {
     ]
   })JSON");
 
-  const auto expected = sourcemeta::core::parse_json(R"JSON({
-  "$schema": "http://json-schema.org/draft-07/schema#",
-  "anyOf": [
+  const auto expected = sourcemeta::core::parse_json(R"JSON(
     {
-      "allOf": [
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "anyOf": [
         {
-          "type": "object",
-          "required": [ "name" ],
-          "patternProperties": {},
-          "propertyNames": true,
-          "minProperties": 1,
-          "properties": {},
-          "additionalProperties": true
+          "allOf": [
+            {
+              "type": "object",
+              "required": [
+                "name"
+              ],
+              "patternProperties": {},
+              "propertyNames": true,
+              "minProperties": 1,
+              "properties": {
+                "name": true
+              },
+              "additionalProperties": true
+            },
+            {
+              "type": "object",
+              "required": [
+                "age"
+              ],
+              "patternProperties": {},
+              "propertyNames": true,
+              "minProperties": 1,
+              "properties": {
+                "age": true
+              },
+              "additionalProperties": true
+            }
+          ]
         },
         {
-          "type": "object",
-          "required": [ "age" ],
-          "patternProperties": {},
-          "propertyNames": true,
-          "minProperties": 1,
-          "properties": {},
-          "additionalProperties": true
+          "type": "string",
+          "minLength": 0
         }
       ]
-    },
-    {
-      "type": "string",
-      "minLength": 0
     }
-  ]
-})JSON");
+  )JSON");
 
   CANONICALIZE_AND_VALIDATE(document, expected, *compiled_meta_);
 }
@@ -1717,18 +1782,24 @@ TEST_F(CanonicalizerDraft7Test, not_with_object_schema) {
     "not": { "type": "object", "required": [ "forbidden" ] }
   })JSON");
 
-  const auto expected = sourcemeta::core::parse_json(R"JSON({
-  "$schema": "http://json-schema.org/draft-07/schema#",
-  "not": {
-    "type": "object",
-    "required": [ "forbidden" ],
-    "patternProperties": {},
-    "propertyNames": true,
-    "minProperties": 1,
-    "properties": {},
-    "additionalProperties": true
-  }
-})JSON");
+  const auto expected = sourcemeta::core::parse_json(R"JSON(
+    {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "not": {
+        "type": "object",
+        "required": [
+          "forbidden"
+        ],
+        "patternProperties": {},
+        "propertyNames": true,
+        "minProperties": 1,
+        "properties": {
+          "forbidden": true
+        },
+        "additionalProperties": true
+      }
+    }
+  )JSON");
 
   CANONICALIZE_AND_VALIDATE(document, expected, *compiled_meta_);
 }
@@ -1884,41 +1955,51 @@ TEST_F(CanonicalizerDraft7Test, anyof_with_type_sibling) {
     ]
   })JSON");
 
-  const auto expected = sourcemeta::core::parse_json(R"JSON({
-  "$schema": "http://json-schema.org/draft-07/schema#",
-  "allOf": [
+  const auto expected = sourcemeta::core::parse_json(R"JSON(
     {
-      "anyOf": [
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "allOf": [
         {
-          "type": "object",
-          "required": [ "a" ],
-          "patternProperties": {},
-          "propertyNames": true,
-          "minProperties": 1,
-          "properties": {},
-          "additionalProperties": true
+          "anyOf": [
+            {
+              "type": "object",
+              "required": [
+                "a"
+              ],
+              "patternProperties": {},
+              "propertyNames": true,
+              "minProperties": 1,
+              "properties": {
+                "a": true
+              },
+              "additionalProperties": true
+            },
+            {
+              "type": "object",
+              "required": [
+                "b"
+              ],
+              "patternProperties": {},
+              "propertyNames": true,
+              "minProperties": 1,
+              "properties": {
+                "b": true
+              },
+              "additionalProperties": true
+            }
+          ]
         },
         {
           "type": "object",
-          "required": [ "b" ],
           "patternProperties": {},
           "propertyNames": true,
-          "minProperties": 1,
+          "minProperties": 0,
           "properties": {},
           "additionalProperties": true
         }
       ]
-    },
-    {
-      "type": "object",
-      "patternProperties": {},
-      "propertyNames": true,
-      "minProperties": 0,
-      "properties": {},
-      "additionalProperties": true
     }
-  ]
-})JSON");
+  )JSON");
 
   CANONICALIZE_AND_VALIDATE(document, expected, *compiled_meta_);
 }
@@ -1970,46 +2051,56 @@ TEST_F(CanonicalizerDraft7Test, type_with_anyof_and_properties) {
     ]
   })JSON");
 
-  const auto expected = sourcemeta::core::parse_json(R"JSON({
-  "$schema": "http://json-schema.org/draft-07/schema#",
-  "allOf": [
+  const auto expected = sourcemeta::core::parse_json(R"JSON(
     {
-      "anyOf": [
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "allOf": [
         {
-          "type": "object",
-          "required": [ "name" ],
-          "patternProperties": {},
-          "propertyNames": true,
-          "minProperties": 1,
-          "properties": {},
-          "additionalProperties": true
+          "anyOf": [
+            {
+              "type": "object",
+              "required": [
+                "name"
+              ],
+              "patternProperties": {},
+              "propertyNames": true,
+              "minProperties": 1,
+              "properties": {
+                "name": true
+              },
+              "additionalProperties": true
+            },
+            {
+              "type": "object",
+              "required": [
+                "age"
+              ],
+              "patternProperties": {},
+              "propertyNames": true,
+              "minProperties": 1,
+              "properties": {
+                "age": true
+              },
+              "additionalProperties": true
+            }
+          ]
         },
         {
           "type": "object",
-          "required": [ "age" ],
+          "properties": {
+            "name": {
+              "type": "string",
+              "minLength": 0
+            }
+          },
           "patternProperties": {},
           "propertyNames": true,
-          "minProperties": 1,
-          "properties": {},
+          "minProperties": 0,
           "additionalProperties": true
         }
       ]
-    },
-    {
-      "type": "object",
-      "properties": {
-        "name": {
-          "type": "string",
-          "minLength": 0
-        }
-      },
-      "patternProperties": {},
-      "propertyNames": true,
-      "minProperties": 0,
-      "additionalProperties": true
     }
-  ]
-})JSON");
+  )JSON");
 
   CANONICALIZE_AND_VALIDATE(document, expected, *compiled_meta_);
 }
@@ -2232,17 +2323,27 @@ TEST_F(CanonicalizerDraft7Test, object_required_max_less_than_required) {
     "maxProperties": 2
   })JSON");
 
-  const auto expected = sourcemeta::core::parse_json(R"JSON({
-  "$schema": "http://json-schema.org/draft-07/schema#",
-  "type": "object",
-  "required": [ "a", "b", "c" ],
-  "maxProperties": 2,
-  "patternProperties": {},
-  "propertyNames": true,
-  "minProperties": 3,
-  "properties": {},
-  "additionalProperties": true
-})JSON");
+  const auto expected = sourcemeta::core::parse_json(R"JSON(
+    {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "type": "object",
+      "required": [
+        "a",
+        "b",
+        "c"
+      ],
+      "maxProperties": 2,
+      "patternProperties": {},
+      "propertyNames": true,
+      "minProperties": 3,
+      "properties": {
+        "a": true,
+        "b": true,
+        "c": true
+      },
+      "additionalProperties": true
+    }
+  )JSON");
 
   CANONICALIZE_AND_VALIDATE(document, expected, *compiled_meta_);
 }
@@ -2941,58 +3042,69 @@ TEST_F(CanonicalizerDraft7Test, property_named_ref_not_a_reference) {
     "not": { "required": [ "admin" ] }
   })JSON");
 
-  const auto expected = sourcemeta::core::parse_json(R"JSON({
-  "$schema": "http://json-schema.org/draft-07/schema#",
-  "allOf": [
+  const auto expected = sourcemeta::core::parse_json(R"JSON(
     {
-      "not": {
-        "anyOf": [
-          {
-            "enum": [ null ]
-          },
-          {
-            "enum": [ false, true ]
-          },
-          {
-            "type": "object",
-            "required": [ "admin" ],
-            "patternProperties": {},
-            "propertyNames": true,
-            "minProperties": 1,
-            "properties": {},
-            "additionalProperties": true
-          },
-          {
-            "type": "array",
-            "uniqueItems": false,
-            "items": true,
-            "minItems": 0
-          },
-          {
-            "type": "string",
-            "minLength": 0
-          },
-          {
-            "type": "number"
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "allOf": [
+        {
+          "not": {
+            "anyOf": [
+              {
+                "enum": [
+                  null
+                ]
+              },
+              {
+                "enum": [
+                  false,
+                  true
+                ]
+              },
+              {
+                "type": "object",
+                "required": [
+                  "admin"
+                ],
+                "patternProperties": {},
+                "propertyNames": true,
+                "minProperties": 1,
+                "properties": {
+                  "admin": true
+                },
+                "additionalProperties": true
+              },
+              {
+                "type": "array",
+                "uniqueItems": false,
+                "items": true,
+                "minItems": 0
+              },
+              {
+                "type": "string",
+                "minLength": 0
+              },
+              {
+                "type": "number"
+              }
+            ]
           }
-        ]
-      }
-    },
-    {
-      "type": "object",
-      "properties": {
-        "$ref": {
-          "type": "string",
-          "minLength": 0
+        },
+        {
+          "type": "object",
+          "properties": {
+            "$ref": {
+              "type": "string",
+              "minLength": 0
+            }
+          },
+          "patternProperties": {},
+          "propertyNames": true,
+          "minProperties": 0,
+          "additionalProperties": true
         }
-      },
-      "patternProperties": {},
-      "propertyNames": true,
-      "minProperties": 0,
-      "additionalProperties": true
+      ]
     }
-  ]
-})JSON");
+  )JSON");
 
   CANONICALIZE_AND_VALIDATE(document, expected, *compiled_meta_);
 }
@@ -3009,32 +3121,41 @@ TEST_F(CanonicalizerDraft7Test, enum_value_containing_ref_string) {
     ]
   })JSON");
 
-  const auto expected = sourcemeta::core::parse_json(R"JSON({
-  "$schema": "http://json-schema.org/draft-07/schema#",
-  "allOf": [
+  const auto expected = sourcemeta::core::parse_json(R"JSON(
     {
-      "type": "object",
-      "required": [ "kind" ],
-      "patternProperties": {},
-      "propertyNames": true,
-      "minProperties": 1,
-      "properties": {},
-      "additionalProperties": true
-    },
-    {
-      "type": "object",
-      "properties": {
-        "kind": {
-          "enum": [ "$ref", "inline" ]
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "allOf": [
+        {
+          "type": "object",
+          "required": [
+            "kind"
+          ],
+          "patternProperties": {},
+          "propertyNames": true,
+          "minProperties": 1,
+          "properties": {
+            "kind": true
+          },
+          "additionalProperties": true
+        },
+        {
+          "type": "object",
+          "properties": {
+            "kind": {
+              "enum": [
+                "$ref",
+                "inline"
+              ]
+            }
+          },
+          "patternProperties": {},
+          "propertyNames": true,
+          "minProperties": 0,
+          "additionalProperties": true
         }
-      },
-      "patternProperties": {},
-      "propertyNames": true,
-      "minProperties": 0,
-      "additionalProperties": true
+      ]
     }
-  ]
-})JSON");
+  )JSON");
 
   CANONICALIZE_AND_VALIDATE(document, expected, *compiled_meta_);
 }
@@ -3099,16 +3220,24 @@ TEST_F(CanonicalizerDraft7Test, dependencies_tautology_stripped) {
     }
   })JSON");
 
-  const auto expected = sourcemeta::core::parse_json(R"JSON({
-  "$schema": "http://json-schema.org/draft-07/schema#",
-  "type": "object",
-  "required": [ "bar", "foo" ],
-  "patternProperties": {},
-  "propertyNames": true,
-  "minProperties": 2,
-  "properties": {},
-  "additionalProperties": true
-})JSON");
+  const auto expected = sourcemeta::core::parse_json(R"JSON(
+    {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "type": "object",
+      "required": [
+        "bar",
+        "foo"
+      ],
+      "patternProperties": {},
+      "propertyNames": true,
+      "minProperties": 2,
+      "properties": {
+        "bar": true,
+        "foo": true
+      },
+      "additionalProperties": true
+    }
+  )JSON");
 
   CANONICALIZE_AND_VALIDATE(document, expected, *compiled_meta_);
 }
@@ -3126,43 +3255,49 @@ TEST_F(CanonicalizerDraft7Test, type_allof_ref_and_typed_not) {
     "not": { "type": "object", "required": [ "forbidden" ] }
   })JSON");
 
-  const auto expected = sourcemeta::core::parse_json(R"JSON({
-  "$schema": "http://json-schema.org/draft-07/schema#",
-  "definitions": {
-    "base": {
-      "type": "object",
-      "patternProperties": {},
-      "propertyNames": true,
-      "minProperties": 0,
-      "properties": {},
-      "additionalProperties": true
+  const auto expected = sourcemeta::core::parse_json(R"JSON(
+    {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "definitions": {
+        "base": {
+          "type": "object",
+          "patternProperties": {},
+          "propertyNames": true,
+          "minProperties": 0,
+          "properties": {},
+          "additionalProperties": true
+        }
+      },
+      "allOf": [
+        {
+          "not": {
+            "type": "object",
+            "required": [
+              "forbidden"
+            ],
+            "patternProperties": {},
+            "propertyNames": true,
+            "minProperties": 1,
+            "properties": {
+              "forbidden": true
+            },
+            "additionalProperties": true
+          }
+        },
+        {
+          "$ref": "#/definitions/base"
+        },
+        {
+          "type": "object",
+          "patternProperties": {},
+          "propertyNames": true,
+          "minProperties": 0,
+          "properties": {},
+          "additionalProperties": true
+        }
+      ]
     }
-  },
-  "allOf": [
-    {
-      "not": {
-        "type": "object",
-        "required": [ "forbidden" ],
-        "patternProperties": {},
-        "propertyNames": true,
-        "minProperties": 1,
-        "properties": {},
-        "additionalProperties": true
-      }
-    },
-    {
-      "$ref": "#/definitions/base"
-    },
-    {
-      "type": "object",
-      "patternProperties": {},
-      "propertyNames": true,
-      "minProperties": 0,
-      "properties": {},
-      "additionalProperties": true
-    }
-  ]
-})JSON");
+  )JSON");
 
   CANONICALIZE_AND_VALIDATE(document, expected, *compiled_meta_);
 }
@@ -3212,84 +3347,109 @@ TEST_F(CanonicalizerDraft7Test, dependencies_with_existing_anyof) {
     "dependencies": { "x": [ "y" ] }
   })JSON");
 
-  const auto expected = sourcemeta::core::parse_json(R"JSON({
-  "$schema": "http://json-schema.org/draft-07/schema#",
-  "allOf": [
+  const auto expected = sourcemeta::core::parse_json(R"JSON(
     {
-      "anyOf": [
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "allOf": [
         {
-          "enum": [ null ]
+          "anyOf": [
+            {
+              "enum": [
+                null
+              ]
+            },
+            {
+              "enum": [
+                false,
+                true
+              ]
+            },
+            {
+              "type": "object",
+              "required": [
+                "a"
+              ],
+              "patternProperties": {},
+              "propertyNames": true,
+              "minProperties": 1,
+              "properties": {
+                "a": true
+              },
+              "additionalProperties": true
+            },
+            {
+              "type": "array",
+              "uniqueItems": false,
+              "items": true,
+              "minItems": 0
+            },
+            {
+              "type": "string",
+              "minLength": 0
+            },
+            {
+              "type": "number"
+            },
+            {
+              "type": "object",
+              "required": [
+                "b"
+              ],
+              "patternProperties": {},
+              "propertyNames": true,
+              "minProperties": 1,
+              "properties": {
+                "b": true
+              },
+              "additionalProperties": true
+            }
+          ]
         },
         {
-          "enum": [ false, true ]
+          "anyOf": [
+            {
+              "not": {
+                "type": "object",
+                "required": [
+                  "x"
+                ],
+                "patternProperties": {},
+                "propertyNames": true,
+                "minProperties": 1,
+                "properties": {
+                  "x": true
+                },
+                "additionalProperties": true
+              }
+            },
+            {
+              "type": "object",
+              "required": [
+                "x",
+                "y"
+              ],
+              "patternProperties": {},
+              "propertyNames": true,
+              "minProperties": 2,
+              "properties": {
+                "x": true,
+                "y": true
+              },
+              "additionalProperties": true
+            }
+          ]
         },
         {
           "type": "object",
-          "required": [ "a" ],
           "patternProperties": {},
           "propertyNames": true,
-          "minProperties": 1,
-          "properties": {},
-          "additionalProperties": true
-        },
-        {
-          "type": "array",
-          "uniqueItems": false,
-          "items": true,
-          "minItems": 0
-        },
-        {
-          "type": "string",
-          "minLength": 0
-        },
-        {
-          "type": "number"
-        },
-        {
-          "type": "object",
-          "required": [ "b" ],
-          "patternProperties": {},
-          "propertyNames": true,
-          "minProperties": 1,
+          "minProperties": 0,
           "properties": {},
           "additionalProperties": true
         }
       ]
-    },
-    {
-      "anyOf": [
-        {
-          "not": {
-            "type": "object",
-            "required": [ "x" ],
-            "patternProperties": {},
-            "propertyNames": true,
-            "minProperties": 1,
-            "properties": {},
-            "additionalProperties": true
-          }
-        },
-        {
-          "type": "object",
-          "required": [ "x", "y" ],
-          "patternProperties": {},
-          "propertyNames": true,
-          "minProperties": 2,
-          "properties": {},
-          "additionalProperties": true
-        }
-      ]
-    },
-    {
-      "type": "object",
-      "patternProperties": {},
-      "propertyNames": true,
-      "minProperties": 0,
-      "properties": {},
-      "additionalProperties": true
     }
-  ]
-})JSON");
+  )JSON");
 
   CANONICALIZE_AND_VALIDATE(document, expected, *compiled_meta_);
 }
@@ -3311,105 +3471,129 @@ TEST_F(CanonicalizerDraft7Test, full_restructure_ref_in_typed_keyword) {
     }
   })JSON");
 
-  const auto expected = sourcemeta::core::parse_json(R"JSON({
-  "$schema": "http://json-schema.org/draft-07/schema#",
-  "definitions": {
-    "pos": {
-      "type": "integer",
-      "minimum": 0,
-      "multipleOf": 1
-    }
-  },
-  "allOf": [
+  const auto expected = sourcemeta::core::parse_json(R"JSON(
     {
-      "not": {
-        "anyOf": [
-          {
-            "enum": [ null ]
-          },
-          {
-            "enum": [ false, true ]
-          },
-          {
-            "type": "object",
-            "required": [ "forbidden" ],
-            "patternProperties": {},
-            "propertyNames": true,
-            "minProperties": 1,
-            "properties": {},
-            "additionalProperties": true
-          },
-          {
-            "type": "array",
-            "uniqueItems": false,
-            "items": true,
-            "minItems": 0
-          },
-          {
-            "type": "string",
-            "minLength": 0
-          },
-          {
-            "type": "number"
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "definitions": {
+        "pos": {
+          "type": "integer",
+          "minimum": 0,
+          "multipleOf": 1
+        }
+      },
+      "allOf": [
+        {
+          "not": {
+            "anyOf": [
+              {
+                "enum": [
+                  null
+                ]
+              },
+              {
+                "enum": [
+                  false,
+                  true
+                ]
+              },
+              {
+                "type": "object",
+                "required": [
+                  "forbidden"
+                ],
+                "patternProperties": {},
+                "propertyNames": true,
+                "minProperties": 1,
+                "properties": {
+                  "forbidden": true
+                },
+                "additionalProperties": true
+              },
+              {
+                "type": "array",
+                "uniqueItems": false,
+                "items": true,
+                "minItems": 0
+              },
+              {
+                "type": "string",
+                "minLength": 0
+              },
+              {
+                "type": "number"
+              }
+            ]
           }
-        ]
-      }
-    },
-    {
-      "anyOf": [
-        {
-          "enum": [ null ]
         },
         {
-          "enum": [ false, true ]
+          "anyOf": [
+            {
+              "enum": [
+                null
+              ]
+            },
+            {
+              "enum": [
+                false,
+                true
+              ]
+            },
+            {
+              "type": "object",
+              "required": [
+                "a"
+              ],
+              "patternProperties": {},
+              "propertyNames": true,
+              "minProperties": 1,
+              "properties": {
+                "a": true
+              },
+              "additionalProperties": true
+            },
+            {
+              "type": "array",
+              "uniqueItems": false,
+              "items": true,
+              "minItems": 0
+            },
+            {
+              "type": "string",
+              "minLength": 0
+            },
+            {
+              "type": "number"
+            },
+            {
+              "type": "object",
+              "required": [
+                "b"
+              ],
+              "patternProperties": {},
+              "propertyNames": true,
+              "minProperties": 1,
+              "properties": {
+                "b": true
+              },
+              "additionalProperties": true
+            }
+          ]
         },
         {
           "type": "object",
-          "required": [ "a" ],
+          "properties": {
+            "x": {
+              "$ref": "#/definitions/pos"
+            }
+          },
           "patternProperties": {},
           "propertyNames": true,
-          "minProperties": 1,
-          "properties": {},
-          "additionalProperties": true
-        },
-        {
-          "type": "array",
-          "uniqueItems": false,
-          "items": true,
-          "minItems": 0
-        },
-        {
-          "type": "string",
-          "minLength": 0
-        },
-        {
-          "type": "number"
-        },
-        {
-          "type": "object",
-          "required": [ "b" ],
-          "patternProperties": {},
-          "propertyNames": true,
-          "minProperties": 1,
-          "properties": {},
+          "minProperties": 0,
           "additionalProperties": true
         }
       ]
-    },
-    {
-      "type": "object",
-      "properties": {
-        "x": {
-          "$ref": "#/definitions/pos"
-        }
-      },
-      "patternProperties": {},
-      "propertyNames": true,
-      "minProperties": 0,
-      "additionalProperties": true
     }
-  ]
-})JSON");
+  )JSON");
 
   CANONICALIZE_AND_VALIDATE(document, expected, *compiled_meta_);
 }
@@ -4981,40 +5165,50 @@ TEST_F(CanonicalizerDraft7Test, if_then_else_with_type_object) {
     "else": true
   })JSON");
 
-  const auto expected = sourcemeta::core::parse_json(R"JSON({
-  "$schema": "http://json-schema.org/draft-07/schema#",
-  "allOf": [
+  const auto expected = sourcemeta::core::parse_json(R"JSON(
     {
-      "if": {
-        "type": "object",
-        "required": [ "foo" ],
-        "patternProperties": {},
-        "propertyNames": true,
-        "minProperties": 1,
-        "properties": {},
-        "additionalProperties": true
-      },
-      "then": {
-        "type": "object",
-        "required": [ "bar" ],
-        "patternProperties": {},
-        "propertyNames": true,
-        "minProperties": 1,
-        "properties": {},
-        "additionalProperties": true
-      },
-      "else": true
-    },
-    {
-      "type": "object",
-      "patternProperties": {},
-      "propertyNames": true,
-      "minProperties": 0,
-      "properties": {},
-      "additionalProperties": true
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "allOf": [
+        {
+          "if": {
+            "type": "object",
+            "required": [
+              "foo"
+            ],
+            "patternProperties": {},
+            "propertyNames": true,
+            "minProperties": 1,
+            "properties": {
+              "foo": true
+            },
+            "additionalProperties": true
+          },
+          "then": {
+            "type": "object",
+            "required": [
+              "bar"
+            ],
+            "patternProperties": {},
+            "propertyNames": true,
+            "minProperties": 1,
+            "properties": {
+              "bar": true
+            },
+            "additionalProperties": true
+          },
+          "else": true
+        },
+        {
+          "type": "object",
+          "patternProperties": {},
+          "propertyNames": true,
+          "minProperties": 0,
+          "properties": {},
+          "additionalProperties": true
+        }
+      ]
     }
-  ]
-})JSON");
+  )JSON");
 
   CANONICALIZE_AND_VALIDATE(document, expected, *compiled_meta_);
 }
@@ -5607,39 +5801,51 @@ TEST_F(CanonicalizerDraft7Test, nested_if_then_else_in_then) {
     "else": true
   })JSON");
 
-  const auto expected = sourcemeta::core::parse_json(R"JSON({
-  "$schema": "http://json-schema.org/draft-07/schema#",
-  "if": {
-    "type": "object",
-    "patternProperties": {},
-    "propertyNames": true,
-    "minProperties": 0,
-    "properties": {},
-    "additionalProperties": true
-  },
-  "then": {
-    "if": {
-      "type": "object",
-      "required": [ "name" ],
-      "patternProperties": {},
-      "propertyNames": true,
-      "minProperties": 1,
-      "properties": {},
-      "additionalProperties": true
-    },
-    "then": {
-      "type": "object",
-      "required": [ "name", "age" ],
-      "patternProperties": {},
-      "propertyNames": true,
-      "minProperties": 2,
-      "properties": {},
-      "additionalProperties": true
-    },
-    "else": true
-  },
-  "else": true
-})JSON");
+  const auto expected = sourcemeta::core::parse_json(R"JSON(
+    {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "if": {
+        "type": "object",
+        "patternProperties": {},
+        "propertyNames": true,
+        "minProperties": 0,
+        "properties": {},
+        "additionalProperties": true
+      },
+      "then": {
+        "if": {
+          "type": "object",
+          "required": [
+            "name"
+          ],
+          "patternProperties": {},
+          "propertyNames": true,
+          "minProperties": 1,
+          "properties": {
+            "name": true
+          },
+          "additionalProperties": true
+        },
+        "then": {
+          "type": "object",
+          "required": [
+            "name",
+            "age"
+          ],
+          "patternProperties": {},
+          "propertyNames": true,
+          "minProperties": 2,
+          "properties": {
+            "name": true,
+            "age": true
+          },
+          "additionalProperties": true
+        },
+        "else": true
+      },
+      "else": true
+    }
+  )JSON");
 
   CANONICALIZE_AND_VALIDATE(document, expected, *compiled_meta_);
 }
@@ -5685,64 +5891,86 @@ TEST_F(CanonicalizerDraft7Test, dependencies_with_if_then_else) {
     "else": true
   })JSON");
 
-  const auto expected = sourcemeta::core::parse_json(R"JSON({
-  "$schema": "http://json-schema.org/draft-07/schema#",
-  "allOf": [
+  const auto expected = sourcemeta::core::parse_json(R"JSON(
     {
-      "anyOf": [
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "allOf": [
         {
-          "not": {
+          "anyOf": [
+            {
+              "not": {
+                "type": "object",
+                "required": [
+                  "foo"
+                ],
+                "patternProperties": {},
+                "propertyNames": true,
+                "minProperties": 1,
+                "properties": {
+                  "foo": true
+                },
+                "additionalProperties": true
+              }
+            },
+            {
+              "type": "object",
+              "required": [
+                "foo",
+                "bar"
+              ],
+              "patternProperties": {},
+              "propertyNames": true,
+              "minProperties": 2,
+              "properties": {
+                "foo": true,
+                "bar": true
+              },
+              "additionalProperties": true
+            }
+          ]
+        },
+        {
+          "if": {
             "type": "object",
-            "required": [ "foo" ],
+            "required": [
+              "baz"
+            ],
             "patternProperties": {},
             "propertyNames": true,
             "minProperties": 1,
-            "properties": {},
+            "properties": {
+              "baz": true
+            },
             "additionalProperties": true
-          }
+          },
+          "then": {
+            "type": "object",
+            "required": [
+              "baz",
+              "qux"
+            ],
+            "patternProperties": {},
+            "propertyNames": true,
+            "minProperties": 2,
+            "properties": {
+              "baz": true,
+              "qux": true
+            },
+            "additionalProperties": true
+          },
+          "else": true
         },
         {
           "type": "object",
-          "required": [ "foo", "bar" ],
           "patternProperties": {},
           "propertyNames": true,
-          "minProperties": 2,
+          "minProperties": 0,
           "properties": {},
           "additionalProperties": true
         }
       ]
-    },
-    {
-      "if": {
-        "type": "object",
-        "required": [ "baz" ],
-        "patternProperties": {},
-        "propertyNames": true,
-        "minProperties": 1,
-        "properties": {},
-        "additionalProperties": true
-      },
-      "then": {
-        "type": "object",
-        "required": [ "baz", "qux" ],
-        "patternProperties": {},
-        "propertyNames": true,
-        "minProperties": 2,
-        "properties": {},
-        "additionalProperties": true
-      },
-      "else": true
-    },
-    {
-      "type": "object",
-      "patternProperties": {},
-      "propertyNames": true,
-      "minProperties": 0,
-      "properties": {},
-      "additionalProperties": true
     }
-  ]
-})JSON");
+  )JSON");
 
   CANONICALIZE_AND_VALIDATE(document, expected, *compiled_meta_);
 }
@@ -5980,73 +6208,97 @@ TEST_F(CanonicalizerDraft7Test, if_then_else_with_type_not_anyof) {
     "else": true
   })JSON");
 
-  const auto expected = sourcemeta::core::parse_json(R"JSON({
-  "$schema": "http://json-schema.org/draft-07/schema#",
-  "allOf": [
+  const auto expected = sourcemeta::core::parse_json(R"JSON(
     {
-      "not": {
-        "type": "object",
-        "required": [ "banned" ],
-        "patternProperties": {},
-        "propertyNames": true,
-        "minProperties": 1,
-        "properties": {},
-        "additionalProperties": true
-      }
-    },
-    {
-      "anyOf": [
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "allOf": [
         {
-          "type": "object",
-          "required": [ "a" ],
-          "patternProperties": {},
-          "propertyNames": true,
-          "minProperties": 1,
-          "properties": {},
-          "additionalProperties": true
+          "not": {
+            "type": "object",
+            "required": [
+              "banned"
+            ],
+            "patternProperties": {},
+            "propertyNames": true,
+            "minProperties": 1,
+            "properties": {
+              "banned": true
+            },
+            "additionalProperties": true
+          }
+        },
+        {
+          "anyOf": [
+            {
+              "type": "object",
+              "required": [
+                "a"
+              ],
+              "patternProperties": {},
+              "propertyNames": true,
+              "minProperties": 1,
+              "properties": {
+                "a": true
+              },
+              "additionalProperties": true
+            },
+            {
+              "type": "object",
+              "required": [
+                "b"
+              ],
+              "patternProperties": {},
+              "propertyNames": true,
+              "minProperties": 1,
+              "properties": {
+                "b": true
+              },
+              "additionalProperties": true
+            }
+          ]
+        },
+        {
+          "if": {
+            "type": "object",
+            "required": [
+              "flag"
+            ],
+            "patternProperties": {},
+            "propertyNames": true,
+            "minProperties": 1,
+            "properties": {
+              "flag": true
+            },
+            "additionalProperties": true
+          },
+          "then": {
+            "type": "object",
+            "required": [
+              "flag",
+              "extra"
+            ],
+            "patternProperties": {},
+            "propertyNames": true,
+            "minProperties": 2,
+            "properties": {
+              "flag": true,
+              "extra": true
+            },
+            "additionalProperties": true
+          },
+          "else": true
         },
         {
           "type": "object",
-          "required": [ "b" ],
           "patternProperties": {},
           "propertyNames": true,
-          "minProperties": 1,
+          "minProperties": 0,
           "properties": {},
           "additionalProperties": true
         }
       ]
-    },
-    {
-      "if": {
-        "type": "object",
-        "required": [ "flag" ],
-        "patternProperties": {},
-        "propertyNames": true,
-        "minProperties": 1,
-        "properties": {},
-        "additionalProperties": true
-      },
-      "then": {
-        "type": "object",
-        "required": [ "flag", "extra" ],
-        "patternProperties": {},
-        "propertyNames": true,
-        "minProperties": 2,
-        "properties": {},
-        "additionalProperties": true
-      },
-      "else": true
-    },
-    {
-      "type": "object",
-      "patternProperties": {},
-      "propertyNames": true,
-      "minProperties": 0,
-      "properties": {},
-      "additionalProperties": true
     }
-  ]
-})JSON");
+  )JSON");
 
   CANONICALIZE_AND_VALIDATE(document, expected, *compiled_meta_);
 }
@@ -6063,77 +6315,101 @@ TEST_F(CanonicalizerDraft7Test, if_then_else_with_dependencies_and_type) {
     "else": true
   })JSON");
 
-  const auto expected = sourcemeta::core::parse_json(R"JSON({
-  "$schema": "http://json-schema.org/draft-07/schema#",
-  "allOf": [
+  const auto expected = sourcemeta::core::parse_json(R"JSON(
     {
-      "anyOf": [
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "allOf": [
         {
-          "not": {
+          "anyOf": [
+            {
+              "not": {
+                "type": "object",
+                "required": [
+                  "credit_card"
+                ],
+                "patternProperties": {},
+                "propertyNames": true,
+                "minProperties": 1,
+                "properties": {
+                  "credit_card": true
+                },
+                "additionalProperties": true
+              }
+            },
+            {
+              "allOf": [
+                {
+                  "type": "object",
+                  "required": [
+                    "credit_card"
+                  ],
+                  "patternProperties": {},
+                  "propertyNames": true,
+                  "minProperties": 1,
+                  "properties": {
+                    "credit_card": true
+                  },
+                  "additionalProperties": true
+                },
+                {
+                  "type": "object",
+                  "required": [
+                    "billing_address"
+                  ],
+                  "patternProperties": {},
+                  "propertyNames": true,
+                  "minProperties": 1,
+                  "properties": {
+                    "billing_address": true
+                  },
+                  "additionalProperties": true
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "if": {
             "type": "object",
-            "required": [ "credit_card" ],
+            "required": [
+              "premium"
+            ],
             "patternProperties": {},
             "propertyNames": true,
             "minProperties": 1,
-            "properties": {},
+            "properties": {
+              "premium": true
+            },
             "additionalProperties": true
-          }
+          },
+          "then": {
+            "type": "object",
+            "required": [
+              "premium",
+              "support_level"
+            ],
+            "patternProperties": {},
+            "propertyNames": true,
+            "minProperties": 2,
+            "properties": {
+              "premium": true,
+              "support_level": true
+            },
+            "additionalProperties": true
+          },
+          "else": true
         },
         {
-          "allOf": [
-            {
-              "type": "object",
-              "required": [ "credit_card" ],
-              "patternProperties": {},
-              "propertyNames": true,
-              "minProperties": 1,
-              "properties": {},
-              "additionalProperties": true
-            },
-            {
-              "type": "object",
-              "required": [ "billing_address" ],
-              "patternProperties": {},
-              "propertyNames": true,
-              "minProperties": 1,
-              "properties": {},
-              "additionalProperties": true
-            }
-          ]
+          "type": "object",
+          "patternProperties": {},
+          "propertyNames": true,
+          "minProperties": 0,
+          "properties": {},
+          "additionalProperties": true
         }
       ]
-    },
-    {
-      "if": {
-        "type": "object",
-        "required": [ "premium" ],
-        "patternProperties": {},
-        "propertyNames": true,
-        "minProperties": 1,
-        "properties": {},
-        "additionalProperties": true
-      },
-      "then": {
-        "type": "object",
-        "required": [ "premium", "support_level" ],
-        "patternProperties": {},
-        "propertyNames": true,
-        "minProperties": 2,
-        "properties": {},
-        "additionalProperties": true
-      },
-      "else": true
-    },
-    {
-      "type": "object",
-      "patternProperties": {},
-      "propertyNames": true,
-      "minProperties": 0,
-      "properties": {},
-      "additionalProperties": true
     }
-  ]
-})JSON");
+  )JSON");
 
   CANONICALIZE_AND_VALIDATE(document, expected, *compiled_meta_);
 }
@@ -6281,49 +6557,55 @@ TEST_F(CanonicalizerDraft7Test, if_then_else_closed_object) {
     "else": true
   })JSON");
 
-  const auto expected = sourcemeta::core::parse_json(R"JSON({
-  "$schema": "http://json-schema.org/draft-07/schema#",
-  "allOf": [
+  const auto expected = sourcemeta::core::parse_json(R"JSON(
     {
-      "if": {
-        "type": "object",
-        "required": [ "name" ],
-        "patternProperties": {},
-        "propertyNames": true,
-        "minProperties": 1,
-        "properties": {},
-        "additionalProperties": true
-      },
-      "then": {
-        "type": "object",
-        "properties": {
-          "name": {
-            "type": "string",
-            "minLength": 1
-          }
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "allOf": [
+        {
+          "if": {
+            "type": "object",
+            "required": [
+              "name"
+            ],
+            "patternProperties": {},
+            "propertyNames": true,
+            "minProperties": 1,
+            "properties": {
+              "name": true
+            },
+            "additionalProperties": true
+          },
+          "then": {
+            "type": "object",
+            "properties": {
+              "name": {
+                "type": "string",
+                "minLength": 1
+              }
+            },
+            "patternProperties": {},
+            "propertyNames": true,
+            "minProperties": 0,
+            "additionalProperties": true
+          },
+          "else": true
         },
-        "patternProperties": {},
-        "propertyNames": true,
-        "minProperties": 0,
-        "additionalProperties": true
-      },
-      "else": true
-    },
-    {
-      "type": "object",
-      "properties": {
-        "name": {
-          "type": "string",
-          "minLength": 0
+        {
+          "type": "object",
+          "properties": {
+            "name": {
+              "type": "string",
+              "minLength": 0
+            }
+          },
+          "additionalProperties": false,
+          "patternProperties": {},
+          "propertyNames": true,
+          "minProperties": 0
         }
-      },
-      "additionalProperties": false,
-      "patternProperties": {},
-      "propertyNames": true,
-      "minProperties": 0
+      ]
     }
-  ]
-})JSON");
+  )JSON");
 
   CANONICALIZE_AND_VALIDATE(document, expected, *compiled_meta_);
 }

@@ -34,7 +34,11 @@ auto resolve_destination(const sourcemeta::core::JSON::String &raw_ref,
   return std::nullopt;
 }
 
-using VisitedSchemas = std::map<const sourcemeta::core::JSON *, std::size_t>;
+struct VisitedEntry {
+  std::size_t identifier;
+  sourcemeta::core::JSON path;
+};
+using VisitedSchemas = std::map<const sourcemeta::core::JSON *, VisitedEntry>;
 using RefChain = std::set<const sourcemeta::core::JSON *>;
 
 auto type_expression_of(const sourcemeta::core::JSON &schema,
@@ -71,8 +75,9 @@ auto type_expression_of(const sourcemeta::core::JSON &schema,
     if (visited_entry != visited.end()) {
       result.assign("kind", sourcemeta::core::JSON{"recursiveRef"});
       result.assign("identifier",
-                    sourcemeta::core::JSON{
-                        static_cast<std::int64_t>(visited_entry->second)});
+                    sourcemeta::core::JSON{static_cast<std::int64_t>(
+                        visited_entry->second.identifier)});
+      result.assign("path", visited_entry->second.path);
       return result;
     }
 
@@ -689,7 +694,8 @@ auto walk_properties(const sourcemeta::core::JSON &schema,
         resolved.at("type").is_string()) {
       const auto &resolved_type{resolved.at("type").to_string()};
       if (resolved_type == "object") {
-        visited.emplace(&resolved, row_identifier);
+        visited.emplace(&resolved, VisitedEntry{.identifier = row_identifier,
+                                                .path = path});
         walk_properties(resolved, path, rows, frame, root, visited,
                         next_identifier);
         walk_pattern_properties(resolved, path, rows, frame, root, visited,
@@ -704,26 +710,30 @@ auto walk_properties(const sourcemeta::core::JSON &schema,
                  !resolved.defines("prefixItems")) {
         const auto &items_schema{
             resolve_ref(resolved.at("items"), frame, root, visited)};
-        if (items_schema.is_object() && items_schema.defines("type") &&
-            items_schema.at("type").is_string() &&
-            items_schema.at("type").to_string() == "object") {
+        if (items_schema.is_object()) {
           auto wildcard_path{path};
           wildcard_path.push_back(make_path_segment("wildcard", "*"));
           const auto items_row_id{next_identifier};
           emit_row(items_schema, wildcard_path, rows, frame, root, visited,
                    next_identifier);
-          visited.emplace(&items_schema, items_row_id);
-          walk_properties(items_schema, wildcard_path, rows, frame, root,
-                          visited, next_identifier);
-          walk_pattern_properties(items_schema, wildcard_path, rows, frame,
-                                  root, visited, next_identifier);
-          walk_wildcard_keyword(items_schema, "additionalProperties",
-                                wildcard_path, rows, frame, root, visited,
-                                next_identifier);
-          walk_wildcard_keyword(items_schema, "unevaluatedProperties",
-                                wildcard_path, rows, frame, root, visited,
-                                next_identifier);
-          visited.erase(&items_schema);
+          if (items_schema.defines("type") &&
+              items_schema.at("type").is_string() &&
+              items_schema.at("type").to_string() == "object") {
+            visited.emplace(&items_schema,
+                            VisitedEntry{.identifier = items_row_id,
+                                         .path = wildcard_path});
+            walk_properties(items_schema, wildcard_path, rows, frame, root,
+                            visited, next_identifier);
+            walk_pattern_properties(items_schema, wildcard_path, rows, frame,
+                                    root, visited, next_identifier);
+            walk_wildcard_keyword(items_schema, "additionalProperties",
+                                  wildcard_path, rows, frame, root, visited,
+                                  next_identifier);
+            walk_wildcard_keyword(items_schema, "unevaluatedProperties",
+                                  wildcard_path, rows, frame, root, visited,
+                                  next_identifier);
+            visited.erase(&items_schema);
+          }
         }
       }
     }
@@ -738,19 +748,31 @@ auto walk_wildcard_keyword(const sourcemeta::core::JSON &schema,
                            const sourcemeta::core::JSON &root,
                            VisitedSchemas &visited,
                            std::size_t &next_identifier) -> void {
-  if (!schema.is_object() || !schema.defines(keyword) ||
-      !schema.at(keyword).is_object()) {
+  if (!schema.is_object() || !schema.defines(keyword)) {
     return;
   }
+
+  const auto &value{schema.at(keyword)};
 
   if (keyword == "unevaluatedItems" && schema.defines("prefixItems")) {
     return;
   }
 
+  if (value.is_boolean() && value.to_boolean()) {
+    auto path{base_path};
+    path.push_back(make_path_segment("wildcard", "*"));
+    emit_row(value, std::move(path), rows, frame, root, visited,
+             next_identifier);
+    return;
+  }
+
+  if (!value.is_object()) {
+    return;
+  }
+
   auto path{base_path};
   path.push_back(make_path_segment("wildcard", "*"));
-  emit_row(schema.at(keyword), std::move(path), rows, frame, root, visited,
-           next_identifier);
+  emit_row(value, std::move(path), rows, frame, root, visited, next_identifier);
 }
 
 auto walk_pattern_properties(const sourcemeta::core::JSON &schema,
@@ -1128,14 +1150,19 @@ auto walk_schema(const sourcemeta::core::JSON &schema, const bool include_root,
         auto type_expr{sourcemeta::core::JSON::make_object()};
         type_expr.assign("kind", sourcemeta::core::JSON{"recursiveRef"});
         type_expr.assign("identifier",
-                         sourcemeta::core::JSON{
-                             static_cast<std::int64_t>(visited_entry->second)});
+                         sourcemeta::core::JSON{static_cast<std::int64_t>(
+                             visited_entry->second.identifier)});
+        type_expr.assign("path", visited_entry->second.path);
         row.assign("type", std::move(type_expr));
         rows.push_back(std::move(row));
         documentation.assign("rows", std::move(rows));
         return documentation;
       }
-      visited.emplace(&target_schema, next_identifier);
+      auto ref_path{sourcemeta::core::JSON::make_array()};
+      ref_path.push_back(make_path_segment("synthetic", "root"));
+      visited.emplace(&target_schema,
+                      VisitedEntry{.identifier = next_identifier,
+                                   .path = std::move(ref_path)});
       auto result{walk_schema(target_schema, include_root, frame, root, visited,
                               next_identifier)};
       visited.erase(&target_schema);
@@ -1166,7 +1193,11 @@ auto walk_schema(const sourcemeta::core::JSON &schema, const bool include_root,
              next_identifier);
     const auto root_row_identifier{static_cast<std::size_t>(
         rows.at(rows.size() - 1).at("identifier").to_integer())};
-    visited.emplace(&schema, root_row_identifier);
+    auto visited_root_path{sourcemeta::core::JSON::make_array()};
+    visited_root_path.push_back(make_path_segment("synthetic", "root"));
+    visited.emplace(&schema,
+                    VisitedEntry{.identifier = root_row_identifier,
+                                 .path = std::move(visited_root_path)});
   }
 
   if (!schema.is_object()) {
@@ -1201,25 +1232,28 @@ auto walk_schema(const sourcemeta::core::JSON &schema, const bool include_root,
       schema.at("items").is_object() && !schema.defines("prefixItems")) {
     const auto &items_schema{
         resolve_ref(schema.at("items"), frame, root, visited)};
-    if (items_schema.is_object() && items_schema.defines("type") &&
-        items_schema.at("type").is_string() &&
-        items_schema.at("type").to_string() == "object") {
+    if (items_schema.is_object()) {
       auto wildcard_path{sourcemeta::core::JSON::make_array()};
       wildcard_path.push_back(make_path_segment("wildcard", "*"));
       const auto items_row_id{next_identifier};
       emit_row(items_schema, wildcard_path, rows, frame, root, visited,
                next_identifier);
-      visited.emplace(&items_schema, items_row_id);
-      walk_properties(items_schema, wildcard_path, rows, frame, root, visited,
-                      next_identifier);
-      walk_pattern_properties(items_schema, wildcard_path, rows, frame, root,
-                              visited, next_identifier);
-      walk_wildcard_keyword(items_schema, "additionalProperties", wildcard_path,
-                            rows, frame, root, visited, next_identifier);
-      walk_wildcard_keyword(items_schema, "unevaluatedProperties",
-                            wildcard_path, rows, frame, root, visited,
-                            next_identifier);
-      visited.erase(&items_schema);
+      if (items_schema.defines("type") && items_schema.at("type").is_string() &&
+          items_schema.at("type").to_string() == "object") {
+        visited.emplace(&items_schema, VisitedEntry{.identifier = items_row_id,
+                                                    .path = wildcard_path});
+        walk_properties(items_schema, wildcard_path, rows, frame, root, visited,
+                        next_identifier);
+        walk_pattern_properties(items_schema, wildcard_path, rows, frame, root,
+                                visited, next_identifier);
+        walk_wildcard_keyword(items_schema, "additionalProperties",
+                              wildcard_path, rows, frame, root, visited,
+                              next_identifier);
+        walk_wildcard_keyword(items_schema, "unevaluatedProperties",
+                              wildcard_path, rows, frame, root, visited,
+                              next_identifier);
+        visited.erase(&items_schema);
+      }
     }
   }
 
@@ -1276,24 +1310,19 @@ auto walk_schema(const sourcemeta::core::JSON &schema, const bool include_root,
     }
   }
 
-  if (schema.is_object() && schema.defines("not") &&
-      schema.at("not").is_object()) {
+  if (schema.is_object() && schema.defines("not")) {
     const auto &not_schema{schema.at("not")};
     const auto is_branching{
-        not_schema.defines("anyOf") || not_schema.defines("oneOf") ||
-        not_schema.defines("allOf") || not_schema.defines("not")};
-    if (is_branching) {
+        not_schema.is_object() &&
+        (not_schema.defines("anyOf") || not_schema.defines("oneOf") ||
+         not_schema.defines("allOf") || not_schema.defines("not"))};
+    const auto has_inline_constraints{!is_branching && not_schema.is_object() &&
+                                      !constraints_of(not_schema).empty()};
+    if (!has_inline_constraints) {
       walk_branching_subschema("Must NOT match", "value", not_schema,
                                doc_children, frame, root, visited,
                                next_identifier, false);
     }
-  }
-
-  if (schema.is_object() && schema.defines("not") &&
-      schema.at("not").is_boolean()) {
-    walk_branching_subschema("Must NOT match", "value", schema.at("not"),
-                             doc_children, frame, root, visited,
-                             next_identifier, false);
   }
 
   assert(!rows.empty() || !doc_children.empty());
