@@ -704,6 +704,13 @@ auto walk_properties(const sourcemeta::core::JSON &schema,
                               frame, root, visited, next_identifier);
         walk_wildcard_keyword(resolved, "unevaluatedProperties", path, rows,
                               frame, root, visited, next_identifier);
+        if (!resolved.defines("additionalProperties") &&
+            !resolved.defines("unevaluatedProperties")) {
+          auto open_path{path};
+          open_path.push_back(make_path_segment("wildcard", "*"));
+          emit_row(sourcemeta::core::JSON{true}, std::move(open_path), rows,
+                   frame, root, visited, next_identifier);
+        }
         visited.erase(&resolved);
       } else if (resolved_type == "array" && resolved.defines("items") &&
                  resolved.at("items").is_object() &&
@@ -1225,6 +1232,15 @@ auto walk_schema(const sourcemeta::core::JSON &schema, const bool include_root,
                           next_identifier);
   walk_wildcard_keyword(schema, "additionalProperties", empty_path, rows, frame,
                         root, visited, next_identifier);
+  if (schema.defines("type") && schema.at("type").is_string() &&
+      schema.at("type").to_string() == "object" &&
+      !schema.defines("additionalProperties") &&
+      !schema.defines("unevaluatedProperties")) {
+    auto open_path{empty_path};
+    open_path.push_back(make_path_segment("wildcard", "*"));
+    emit_row(sourcemeta::core::JSON{true}, std::move(open_path), rows, frame,
+             root, visited, next_identifier);
+  }
   walk_prefix_items(schema, empty_path, rows, doc_children, frame, root,
                     visited, next_identifier);
 
