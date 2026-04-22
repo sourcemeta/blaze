@@ -739,6 +739,13 @@ auto walk_properties(const sourcemeta::core::JSON &schema,
             walk_wildcard_keyword(items_schema, "unevaluatedProperties",
                                   wildcard_path, rows, frame, root, visited,
                                   next_identifier);
+            if (!items_schema.defines("additionalProperties") &&
+                !items_schema.defines("unevaluatedProperties")) {
+              auto open_path{wildcard_path};
+              open_path.push_back(make_path_segment("wildcard", "*"));
+              emit_row(sourcemeta::core::JSON{true}, std::move(open_path), rows,
+                       frame, root, visited, next_identifier);
+            }
             visited.erase(&items_schema);
           }
         }
@@ -1268,6 +1275,13 @@ auto walk_schema(const sourcemeta::core::JSON &schema, const bool include_root,
         walk_wildcard_keyword(items_schema, "unevaluatedProperties",
                               wildcard_path, rows, frame, root, visited,
                               next_identifier);
+        if (!items_schema.defines("additionalProperties") &&
+            !items_schema.defines("unevaluatedProperties")) {
+          auto open_path{wildcard_path};
+          open_path.push_back(make_path_segment("wildcard", "*"));
+          emit_row(sourcemeta::core::JSON{true}, std::move(open_path), rows,
+                   frame, root, visited, next_identifier);
+        }
         visited.erase(&items_schema);
       }
     }

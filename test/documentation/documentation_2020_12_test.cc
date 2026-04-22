@@ -5579,30 +5579,74 @@ TEST_F(Documentation202012Test, array_items_ref_to_object) {
     }
   })JSON")};
 
-  const auto expected{sourcemeta::core::parse_json(R"JSON({
-    "identifier": 0,
-    "rows": [
-      {
-        "identifier": 1,
-        "path": [ { "type": "synthetic", "value": "root" } ],
-        "type": { "kind": "array", "items": { "kind": "object" } }
-      },
-      {
-        "identifier": 2,
-        "path": [ { "type": "wildcard", "value": "*" } ],
-        "type": { "kind": "object" }
-      },
-      {
-        "identifier": 3,
-        "path": [
-          { "type": "wildcard", "value": "*" },
-          { "type": "literal", "value": "name" }
-        ],
-        "type": { "kind": "primitive", "name": "string" },
-        "required": false
-      }
-    ]
-  })JSON")};
+  const auto expected{sourcemeta::core::parse_json(R"JSON(
+    {
+      "identifier": 0,
+      "rows": [
+        {
+          "identifier": 1,
+          "path": [
+            {
+              "type": "synthetic",
+              "value": "root"
+            }
+          ],
+          "type": {
+            "kind": "array",
+            "items": {
+              "kind": "object"
+            }
+          }
+        },
+        {
+          "identifier": 2,
+          "path": [
+            {
+              "type": "wildcard",
+              "value": "*"
+            }
+          ],
+          "type": {
+            "kind": "object"
+          }
+        },
+        {
+          "identifier": 3,
+          "path": [
+            {
+              "type": "wildcard",
+              "value": "*"
+            },
+            {
+              "type": "literal",
+              "value": "name"
+            }
+          ],
+          "type": {
+            "kind": "primitive",
+            "name": "string"
+          },
+          "required": false
+        },
+        {
+          "identifier": 4,
+          "path": [
+            {
+              "type": "wildcard",
+              "value": "*"
+            },
+            {
+              "type": "wildcard",
+              "value": "*"
+            }
+          ],
+          "type": {
+            "kind": "any"
+          }
+        }
+      ]
+    }
+  )JSON")};
 
   EXPECT_DOCUMENTATION(schema, sourcemeta::core::schema_walker,
                        sourcemeta::core::schema_resolver, *compiled_schema_,
@@ -5673,30 +5717,74 @@ TEST_F(Documentation202012Test, array_items_object_with_properties) {
     }
   })JSON")};
 
-  const auto expected{sourcemeta::core::parse_json(R"JSON({
-    "identifier": 0,
-    "rows": [
-      {
-        "identifier": 1,
-        "path": [ { "type": "synthetic", "value": "root" } ],
-        "type": { "kind": "array", "items": { "kind": "object" } }
-      },
-      {
-        "identifier": 2,
-        "path": [ { "type": "wildcard", "value": "*" } ],
-        "type": { "kind": "object" }
-      },
-      {
-        "identifier": 3,
-        "path": [
-          { "type": "wildcard", "value": "*" },
-          { "type": "literal", "value": "name" }
-        ],
-        "type": { "kind": "primitive", "name": "string" },
-        "required": false
-      }
-    ]
-  })JSON")};
+  const auto expected{sourcemeta::core::parse_json(R"JSON(
+    {
+      "identifier": 0,
+      "rows": [
+        {
+          "identifier": 1,
+          "path": [
+            {
+              "type": "synthetic",
+              "value": "root"
+            }
+          ],
+          "type": {
+            "kind": "array",
+            "items": {
+              "kind": "object"
+            }
+          }
+        },
+        {
+          "identifier": 2,
+          "path": [
+            {
+              "type": "wildcard",
+              "value": "*"
+            }
+          ],
+          "type": {
+            "kind": "object"
+          }
+        },
+        {
+          "identifier": 3,
+          "path": [
+            {
+              "type": "wildcard",
+              "value": "*"
+            },
+            {
+              "type": "literal",
+              "value": "name"
+            }
+          ],
+          "type": {
+            "kind": "primitive",
+            "name": "string"
+          },
+          "required": false
+        },
+        {
+          "identifier": 4,
+          "path": [
+            {
+              "type": "wildcard",
+              "value": "*"
+            },
+            {
+              "type": "wildcard",
+              "value": "*"
+            }
+          ],
+          "type": {
+            "kind": "any"
+          }
+        }
+      ]
+    }
+  )JSON")};
 
   EXPECT_DOCUMENTATION(schema, sourcemeta::core::schema_walker,
                        sourcemeta::core::schema_resolver, *compiled_schema_,
@@ -5716,30 +5804,74 @@ TEST_F(Documentation202012Test, array_items_ref_to_object_with_properties) {
     }
   })JSON")};
 
-  const auto expected{sourcemeta::core::parse_json(R"JSON({
-    "identifier": 0,
-    "rows": [
-      {
-        "identifier": 1,
-        "path": [ { "type": "synthetic", "value": "root" } ],
-        "type": { "kind": "array", "items": { "kind": "object" } }
-      },
-      {
-        "identifier": 2,
-        "path": [ { "type": "wildcard", "value": "*" } ],
-        "type": { "kind": "object" }
-      },
-      {
-        "identifier": 3,
-        "path": [
-          { "type": "wildcard", "value": "*" },
-          { "type": "literal", "value": "name" }
-        ],
-        "type": { "kind": "primitive", "name": "string" },
-        "required": false
-      }
-    ]
-  })JSON")};
+  const auto expected{sourcemeta::core::parse_json(R"JSON(
+    {
+      "identifier": 0,
+      "rows": [
+        {
+          "identifier": 1,
+          "path": [
+            {
+              "type": "synthetic",
+              "value": "root"
+            }
+          ],
+          "type": {
+            "kind": "array",
+            "items": {
+              "kind": "object"
+            }
+          }
+        },
+        {
+          "identifier": 2,
+          "path": [
+            {
+              "type": "wildcard",
+              "value": "*"
+            }
+          ],
+          "type": {
+            "kind": "object"
+          }
+        },
+        {
+          "identifier": 3,
+          "path": [
+            {
+              "type": "wildcard",
+              "value": "*"
+            },
+            {
+              "type": "literal",
+              "value": "name"
+            }
+          ],
+          "type": {
+            "kind": "primitive",
+            "name": "string"
+          },
+          "required": false
+        },
+        {
+          "identifier": 4,
+          "path": [
+            {
+              "type": "wildcard",
+              "value": "*"
+            },
+            {
+              "type": "wildcard",
+              "value": "*"
+            }
+          ],
+          "type": {
+            "kind": "any"
+          }
+        }
+      ]
+    }
+  )JSON")};
 
   EXPECT_DOCUMENTATION(schema, sourcemeta::core::schema_walker,
                        sourcemeta::core::schema_resolver, *compiled_schema_,
@@ -5835,6 +5967,26 @@ TEST_F(Documentation202012Test, object_property_array_of_objects) {
         },
         {
           "identifier": 5,
+          "path": [
+            {
+              "type": "literal",
+              "value": "tags"
+            },
+            {
+              "type": "wildcard",
+              "value": "*"
+            },
+            {
+              "type": "wildcard",
+              "value": "*"
+            }
+          ],
+          "type": {
+            "kind": "any"
+          }
+        },
+        {
+          "identifier": 6,
           "path": [
             {
               "type": "wildcard",
@@ -6067,6 +6219,22 @@ TEST_F(Documentation202012Test, recursive_ref_inside_array_items) {
                 "value": "*"
               }
             ]
+          }
+        },
+        {
+          "identifier": 5,
+          "path": [
+            {
+              "type": "wildcard",
+              "value": "*"
+            },
+            {
+              "type": "wildcard",
+              "value": "*"
+            }
+          ],
+          "type": {
+            "kind": "any"
           }
         }
       ]
