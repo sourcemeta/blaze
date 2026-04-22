@@ -1241,7 +1241,13 @@ TEST_F(DocumentationDraft4Test, ref_recursive) {
           ],
           "type": {
             "kind": "recursiveRef",
-            "identifier": 1
+            "identifier": 1,
+            "path": [
+              {
+                "type": "synthetic",
+                "value": "root"
+              }
+            ]
           },
           "required": false
         },

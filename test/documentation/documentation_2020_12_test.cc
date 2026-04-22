@@ -2176,7 +2176,13 @@ TEST_F(Documentation202012Test, dynamic_ref_with_anchor) {
             "kind": "array",
             "items": {
               "kind": "recursiveRef",
-              "identifier": 1
+              "identifier": 1,
+              "path": [
+                {
+                  "type": "synthetic",
+                  "value": "root"
+                }
+              ]
             }
           },
           "required": false
@@ -2195,7 +2201,13 @@ TEST_F(Documentation202012Test, dynamic_ref_with_anchor) {
           ],
           "type": {
             "kind": "recursiveRef",
-            "identifier": 1
+            "identifier": 1,
+            "path": [
+              {
+                "type": "synthetic",
+                "value": "root"
+              }
+            ]
           }
         }
       ]
@@ -2392,7 +2404,13 @@ TEST_F(Documentation202012Test, internal_ref_recursive_root) {
             "kind": "array",
             "items": {
               "kind": "recursiveRef",
-              "identifier": 1
+              "identifier": 1,
+              "path": [
+                {
+                  "type": "synthetic",
+                  "value": "root"
+                }
+              ]
             }
           },
           "required": false
@@ -2411,7 +2429,13 @@ TEST_F(Documentation202012Test, internal_ref_recursive_root) {
           ],
           "type": {
             "kind": "recursiveRef",
-            "identifier": 1
+            "identifier": 1,
+            "path": [
+              {
+                "type": "synthetic",
+                "value": "root"
+              }
+            ]
           }
         }
       ]
@@ -2503,7 +2527,13 @@ TEST_F(Documentation202012Test, internal_ref_recursive_via_def) {
                     "kind": "array",
                     "items": {
                       "kind": "recursiveRef",
-                      "identifier": 2
+                      "identifier": 2,
+                      "path": [
+                        {
+                          "type": "synthetic",
+                          "value": "root"
+                        }
+                      ]
                     }
                   },
                   "required": false
@@ -2522,7 +2552,13 @@ TEST_F(Documentation202012Test, internal_ref_recursive_via_def) {
                   ],
                   "type": {
                     "kind": "recursiveRef",
-                    "identifier": 2
+                    "identifier": 2,
+                    "path": [
+                      {
+                        "type": "synthetic",
+                        "value": "root"
+                      }
+                    ]
                   }
                 }
               ]
@@ -2594,7 +2630,13 @@ TEST_F(Documentation202012Test, internal_ref_recursive_with_id) {
             "kind": "array",
             "items": {
               "kind": "recursiveRef",
-              "identifier": 1
+              "identifier": 1,
+              "path": [
+                {
+                  "type": "synthetic",
+                  "value": "root"
+                }
+              ]
             }
           },
           "required": false
@@ -2613,7 +2655,13 @@ TEST_F(Documentation202012Test, internal_ref_recursive_with_id) {
           ],
           "type": {
             "kind": "recursiveRef",
-            "identifier": 1
+            "identifier": 1,
+            "path": [
+              {
+                "type": "synthetic",
+                "value": "root"
+              }
+            ]
           }
         }
       ]
@@ -2644,64 +2692,135 @@ TEST_F(Documentation202012Test, internal_ref_shared_def_with_recursion) {
     }
   })JSON")};
 
-  const auto expected{sourcemeta::core::parse_json(R"JSON({
-    "identifier": 0,
-    "rows": [
-      {
-        "identifier": 1,
-        "path": [ { "type": "synthetic", "value": "root" } ],
-        "type": { "kind": "object" }
-      },
-      {
-        "identifier": 2,
-        "path": [ { "type": "literal", "value": "primary" } ],
-        "type": { "kind": "object" },
-        "required": false
-      },
-      {
-        "identifier": 3,
-        "path": [
-          { "type": "literal", "value": "primary" },
-          { "type": "literal", "value": "name" }
-        ],
-        "type": { "kind": "primitive", "name": "string" },
-        "required": false
-      },
-      {
-        "identifier": 4,
-        "path": [
-          { "type": "literal", "value": "primary" },
-          { "type": "literal", "value": "backup" }
-        ],
-        "type": { "kind": "recursiveRef", "identifier": 2 },
-        "required": false
-      },
-      {
-        "identifier": 5,
-        "path": [ { "type": "literal", "value": "emergency" } ],
-        "type": { "kind": "object" },
-        "required": false
-      },
-      {
-        "identifier": 6,
-        "path": [
-          { "type": "literal", "value": "emergency" },
-          { "type": "literal", "value": "name" }
-        ],
-        "type": { "kind": "primitive", "name": "string" },
-        "required": false
-      },
-      {
-        "identifier": 7,
-        "path": [
-          { "type": "literal", "value": "emergency" },
-          { "type": "literal", "value": "backup" }
-        ],
-        "type": { "kind": "recursiveRef", "identifier": 5 },
-        "required": false
-      }
-    ]
-  })JSON")};
+  const auto expected{sourcemeta::core::parse_json(R"JSON(
+    {
+      "identifier": 0,
+      "rows": [
+        {
+          "identifier": 1,
+          "path": [
+            {
+              "type": "synthetic",
+              "value": "root"
+            }
+          ],
+          "type": {
+            "kind": "object"
+          }
+        },
+        {
+          "identifier": 2,
+          "path": [
+            {
+              "type": "literal",
+              "value": "primary"
+            }
+          ],
+          "type": {
+            "kind": "object"
+          },
+          "required": false
+        },
+        {
+          "identifier": 3,
+          "path": [
+            {
+              "type": "literal",
+              "value": "primary"
+            },
+            {
+              "type": "literal",
+              "value": "name"
+            }
+          ],
+          "type": {
+            "kind": "primitive",
+            "name": "string"
+          },
+          "required": false
+        },
+        {
+          "identifier": 4,
+          "path": [
+            {
+              "type": "literal",
+              "value": "primary"
+            },
+            {
+              "type": "literal",
+              "value": "backup"
+            }
+          ],
+          "type": {
+            "kind": "recursiveRef",
+            "identifier": 2,
+            "path": [
+              {
+                "type": "literal",
+                "value": "primary"
+              }
+            ]
+          },
+          "required": false
+        },
+        {
+          "identifier": 5,
+          "path": [
+            {
+              "type": "literal",
+              "value": "emergency"
+            }
+          ],
+          "type": {
+            "kind": "object"
+          },
+          "required": false
+        },
+        {
+          "identifier": 6,
+          "path": [
+            {
+              "type": "literal",
+              "value": "emergency"
+            },
+            {
+              "type": "literal",
+              "value": "name"
+            }
+          ],
+          "type": {
+            "kind": "primitive",
+            "name": "string"
+          },
+          "required": false
+        },
+        {
+          "identifier": 7,
+          "path": [
+            {
+              "type": "literal",
+              "value": "emergency"
+            },
+            {
+              "type": "literal",
+              "value": "backup"
+            }
+          ],
+          "type": {
+            "kind": "recursiveRef",
+            "identifier": 5,
+            "path": [
+              {
+                "type": "literal",
+                "value": "emergency"
+              }
+            ]
+          },
+          "required": false
+        }
+      ]
+    }
+  )JSON")};
 
   EXPECT_DOCUMENTATION(schema, sourcemeta::core::schema_walker,
                        sourcemeta::core::schema_resolver, *compiled_schema_,
@@ -4074,34 +4193,79 @@ TEST_F(Documentation202012Test, recursive_ref_walk_schema_cycle) {
     }
   })JSON")};
 
-  const auto expected{sourcemeta::core::parse_json(R"JSON({
-    "identifier": 0,
-    "rows": [
-      {
-        "identifier": 1,
-        "path": [ { "type": "synthetic", "value": "root" } ],
-        "type": { "kind": "object" }
-      },
-      {
-        "identifier": 2,
-        "path": [ { "type": "literal", "value": "value" } ],
-        "type": { "kind": "primitive", "name": "string" },
-        "required": false
-      },
-      {
-        "identifier": 3,
-        "path": [ { "type": "literal", "value": "left" } ],
-        "type": { "kind": "recursiveRef", "identifier": 1 },
-        "required": false
-      },
-      {
-        "identifier": 4,
-        "path": [ { "type": "literal", "value": "right" } ],
-        "type": { "kind": "recursiveRef", "identifier": 1 },
-        "required": false
-      }
-    ]
-  })JSON")};
+  const auto expected{sourcemeta::core::parse_json(R"JSON(
+    {
+      "identifier": 0,
+      "rows": [
+        {
+          "identifier": 1,
+          "path": [
+            {
+              "type": "synthetic",
+              "value": "root"
+            }
+          ],
+          "type": {
+            "kind": "object"
+          }
+        },
+        {
+          "identifier": 2,
+          "path": [
+            {
+              "type": "literal",
+              "value": "value"
+            }
+          ],
+          "type": {
+            "kind": "primitive",
+            "name": "string"
+          },
+          "required": false
+        },
+        {
+          "identifier": 3,
+          "path": [
+            {
+              "type": "literal",
+              "value": "left"
+            }
+          ],
+          "type": {
+            "kind": "recursiveRef",
+            "identifier": 1,
+            "path": [
+              {
+                "type": "synthetic",
+                "value": "root"
+              }
+            ]
+          },
+          "required": false
+        },
+        {
+          "identifier": 4,
+          "path": [
+            {
+              "type": "literal",
+              "value": "right"
+            }
+          ],
+          "type": {
+            "kind": "recursiveRef",
+            "identifier": 1,
+            "path": [
+              {
+                "type": "synthetic",
+                "value": "root"
+              }
+            ]
+          },
+          "required": false
+        }
+      ]
+    }
+  )JSON")};
 
   EXPECT_DOCUMENTATION(schema, sourcemeta::core::schema_walker,
                        sourcemeta::core::schema_resolver, *compiled_schema_,
@@ -4494,7 +4658,13 @@ TEST_F(Documentation202012Test, recursive_ref_inside_array_items) {
             "kind": "array",
             "items": {
               "kind": "recursiveRef",
-              "identifier": 2
+              "identifier": 2,
+              "path": [
+                {
+                  "type": "wildcard",
+                  "value": "*"
+                }
+              ]
             }
           },
           "required": false
@@ -4517,7 +4687,13 @@ TEST_F(Documentation202012Test, recursive_ref_inside_array_items) {
           ],
           "type": {
             "kind": "recursiveRef",
-            "identifier": 2
+            "identifier": 2,
+            "path": [
+              {
+                "type": "wildcard",
+                "value": "*"
+              }
+            ]
           }
         }
       ]
