@@ -125,7 +125,9 @@ private:
     }
     return !branch.defines("$ref") && !branch.defines("$dynamicRef") &&
            !branch.defines("$recursiveRef") && !branch.defines("$id") &&
-           !branch.defines("$schema") && !branch.defines("id");
+           !branch.defines("$schema") && !branch.defines("id") &&
+           !branch.defines("$anchor") && !branch.defines("$dynamicAnchor") &&
+           !branch.defines("$recursiveAnchor");
   }
 
   static auto has_overlapping_keywords(const JSON &branch_a,
