@@ -4204,18 +4204,54 @@ TEST_F(CanonicalizerDraft4Test, enum_constraining_anyof_kept) {
     "anyOf": [ { "type": "string" } ]
   })JSON");
 
-  const auto expected = sourcemeta::core::parse_json(R"JSON({
-    "$schema": "http://json-schema.org/draft-04/schema#",
-    "allOf": [
-      {
-        "type": "string",
-        "minLength": 0
-      },
-      {
-        "enum": [ "a", "b", 1 ]
-      }
-    ]
-  })JSON");
+  const auto expected = sourcemeta::core::parse_json(R"JSON(
+    {
+      "$schema": "http://json-schema.org/draft-04/schema#",
+      "allOf": [
+        {
+          "anyOf": [
+            {
+              "enum": [
+                null
+              ]
+            },
+            {
+              "enum": [
+                false,
+                true
+              ]
+            },
+            {
+              "type": "object",
+              "patternProperties": {},
+              "minProperties": 0,
+              "properties": {},
+              "additionalProperties": true
+            },
+            {
+              "type": "array",
+              "uniqueItems": false,
+              "items": true,
+              "minItems": 0
+            },
+            {
+              "type": "string",
+              "minLength": 0
+            },
+            {
+              "type": "number"
+            }
+          ]
+        },
+        {
+          "enum": [
+            "a",
+            "b"
+          ]
+        }
+      ]
+    }
+  )JSON");
 
   CANONICALIZE_AND_VALIDATE(document, expected, *compiled_meta_);
 }
@@ -4517,6 +4553,36 @@ TEST_F(CanonicalizerDraft4Test, enum_wrap_with_ref_through_sibling) {
       }
     ]
   })JSON");
+
+  CANONICALIZE_AND_VALIDATE(document, expected, *compiled_meta_);
+}
+
+TEST_F(CanonicalizerDraft4Test, allof_type_union_redundant_with_sibling_type) {
+  auto document = sourcemeta::core::parse_json(R"JSON({
+    "$schema": "http://json-schema.org/draft-04/schema#",
+    "allOf": [
+      { "type": "object" },
+      { "required": [ "foo", "bar" ] }
+    ]
+  })JSON");
+
+  const auto expected = sourcemeta::core::parse_json(R"JSON(
+    {
+      "$schema": "http://json-schema.org/draft-04/schema#",
+      "type": "object",
+      "required": [
+        "foo",
+        "bar"
+      ],
+      "patternProperties": {},
+      "minProperties": 2,
+      "properties": {
+        "foo": true,
+        "bar": true
+      },
+      "additionalProperties": true
+    }
+  )JSON");
 
   CANONICALIZE_AND_VALIDATE(document, expected, *compiled_meta_);
 }

@@ -108,6 +108,7 @@ auto WALK_UP_IN_PLACE_APPLICATORS(const JSON &root, const SchemaFrame &frame,
   }
 
 #include "canonicalizer/additional_items_implicit.h"
+#include "canonicalizer/allof_merge_compatible_branches.h"
 #include "canonicalizer/comment_drop.h"
 #include "canonicalizer/const_as_enum.h"
 #include "canonicalizer/dependencies_to_any_of.h"
@@ -285,6 +286,7 @@ auto add(SchemaTransformer &bundle, const AlterSchemaMode mode) -> void {
   }
 
   if (mode == AlterSchemaMode::Canonicalizer) {
+    bundle.add<AllOfMergeCompatibleBranches>();
     bundle.add<TypeInheritInPlace>();
     bundle.add<TypeUnionImplicit>();
     bundle.add<TypeArrayToAnyOf>();
