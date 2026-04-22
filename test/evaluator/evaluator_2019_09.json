@@ -4819,5 +4819,61 @@
         "The object value was not expected to define unevaluated properties"
       ]
     }
+  },
+  {
+    "description": "empty_enum_string",
+    "schema": { "$schema": "https://json-schema.org/draft/2019-09/schema", "enum": [] },
+    "instance": "foo",
+    "valid": false,
+    "fast": {
+      "pre": [
+        [ "AssertionFail", "/enum", "#/enum", "" ]
+      ],
+      "post": [
+        [ false, "AssertionFail", "/enum", "#/enum", "" ]
+      ],
+      "descriptions": [
+        "The string value was not expected to validate against the empty enumeration"
+      ]
+    },
+    "exhaustive": {
+      "pre": [
+        [ "AssertionFail", "/enum", "#/enum", "" ]
+      ],
+      "post": [
+        [ false, "AssertionFail", "/enum", "#/enum", "" ]
+      ],
+      "descriptions": [
+        "The string value was not expected to validate against the empty enumeration"
+      ]
+    }
+  },
+  {
+    "description": "empty_enum_integer",
+    "schema": { "$schema": "https://json-schema.org/draft/2019-09/schema", "enum": [] },
+    "instance": 42,
+    "valid": false,
+    "fast": {
+      "pre": [
+        [ "AssertionFail", "/enum", "#/enum", "" ]
+      ],
+      "post": [
+        [ false, "AssertionFail", "/enum", "#/enum", "" ]
+      ],
+      "descriptions": [
+        "The integer value was not expected to validate against the empty enumeration"
+      ]
+    },
+    "exhaustive": {
+      "pre": [
+        [ "AssertionFail", "/enum", "#/enum", "" ]
+      ],
+      "post": [
+        [ false, "AssertionFail", "/enum", "#/enum", "" ]
+      ],
+      "descriptions": [
+        "The integer value was not expected to validate against the empty enumeration"
+      ]
+    }
   }
 ]
