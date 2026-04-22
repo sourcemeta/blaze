@@ -8,6 +8,7 @@
 #include <cassert> // assert
 #include <cstdint> // std::int64_t
 #include <map>     // std::map
+#include <set>     // std::set
 #include <sstream> // std::ostringstream
 #include <string>  // std::to_string
 #include <utility> // std::move
@@ -34,11 +35,12 @@ auto resolve_destination(const sourcemeta::core::JSON::String &raw_ref,
 }
 
 using VisitedSchemas = std::map<const sourcemeta::core::JSON *, std::size_t>;
+using RefChain = std::set<const sourcemeta::core::JSON *>;
 
 auto type_expression_of(const sourcemeta::core::JSON &schema,
                         const sourcemeta::core::SchemaFrame &frame,
                         const sourcemeta::core::JSON &root,
-                        const VisitedSchemas &visited)
+                        const VisitedSchemas &visited, RefChain &ref_chain)
     -> sourcemeta::core::JSON {
   auto result{sourcemeta::core::JSON::make_object()};
 
@@ -74,7 +76,16 @@ auto type_expression_of(const sourcemeta::core::JSON &schema,
       return result;
     }
 
-    return type_expression_of(target_schema, frame, root, visited);
+    if (ref_chain.contains(&target_schema)) {
+      result.assign("kind", sourcemeta::core::JSON{"any"});
+      return result;
+    }
+
+    ref_chain.insert(&target_schema);
+    auto ref_result{
+        type_expression_of(target_schema, frame, root, visited, ref_chain)};
+    ref_chain.erase(&target_schema);
+    return ref_result;
   }
 
   if (schema.defines("$dynamicRef") && schema.at("$dynamicRef").is_string()) {
@@ -125,23 +136,25 @@ auto type_expression_of(const sourcemeta::core::JSON &schema,
         result.assign("kind", sourcemeta::core::JSON{"tuple"});
         auto items{sourcemeta::core::JSON::make_array()};
         for (const auto &item : schema.at("prefixItems").as_array()) {
-          items.push_back(type_expression_of(item, frame, root, visited));
+          items.push_back(
+              type_expression_of(item, frame, root, visited, ref_chain));
         }
         result.assign("items", std::move(items));
         if (schema.defines("items") && schema.at("items").is_object()) {
-          result.assign("additional", type_expression_of(schema.at("items"),
-                                                         frame, root, visited));
+          result.assign("additional",
+                        type_expression_of(schema.at("items"), frame, root,
+                                           visited, ref_chain));
         } else if (schema.defines("unevaluatedItems") &&
                    schema.at("unevaluatedItems").is_object()) {
           result.assign("additional",
                         type_expression_of(schema.at("unevaluatedItems"), frame,
-                                           root, visited));
+                                           root, visited, ref_chain));
         }
       } else {
         result.assign("kind", sourcemeta::core::JSON{"array"});
         if (schema.defines("items") && schema.at("items").is_object()) {
           result.assign("items", type_expression_of(schema.at("items"), frame,
-                                                    root, visited));
+                                                    root, visited, ref_chain));
         }
       }
     } else if (type == "string") {
@@ -157,6 +170,15 @@ auto type_expression_of(const sourcemeta::core::JSON &schema,
   }
 
   return result;
+}
+
+auto type_expression_of(const sourcemeta::core::JSON &schema,
+                        const sourcemeta::core::SchemaFrame &frame,
+                        const sourcemeta::core::JSON &root,
+                        const VisitedSchemas &visited)
+    -> sourcemeta::core::JSON {
+  RefChain ref_chain;
+  return type_expression_of(schema, frame, root, visited, ref_chain);
 }
 
 auto badges_of(const sourcemeta::core::JSON &schema) -> sourcemeta::core::JSON {
@@ -676,6 +698,9 @@ auto walk_properties(const sourcemeta::core::JSON &schema,
           walk_wildcard_keyword(items_schema, "additionalProperties",
                                 wildcard_path, rows, frame, root, visited,
                                 next_identifier);
+          walk_wildcard_keyword(items_schema, "unevaluatedProperties",
+                                wildcard_path, rows, frame, root, visited,
+                                next_identifier);
         }
       }
     }
@@ -1151,6 +1176,9 @@ auto walk_schema(const sourcemeta::core::JSON &schema, const bool include_root,
                               visited, next_identifier);
       walk_wildcard_keyword(items_schema, "additionalProperties", wildcard_path,
                             rows, frame, root, visited, next_identifier);
+      walk_wildcard_keyword(items_schema, "unevaluatedProperties",
+                            wildcard_path, rows, frame, root, visited,
+                            next_identifier);
     }
   }
 

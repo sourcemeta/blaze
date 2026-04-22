@@ -70,7 +70,10 @@ public:
             keyword_type != sourcemeta::core::SchemaKeywordType::Annotation &&
             keyword_type != sourcemeta::core::SchemaKeywordType::Comment) {
           modern_ref_needs_wrapping = true;
-          if (keyword_type == sourcemeta::core::SchemaKeywordType::Assertion) {
+          if (keyword_type != sourcemeta::core::SchemaKeywordType::Reference &&
+              keyword_type != sourcemeta::core::SchemaKeywordType::Other &&
+              keyword_type !=
+                  sourcemeta::core::SchemaKeywordType::LocationMembers) {
             this->ref_annotations_only_ = false;
           }
         }
