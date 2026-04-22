@@ -25,11 +25,33 @@ static auto slugify(const std::string &input, std::ostream &output) -> void {
   }
 }
 
+static auto schema_location_matches(const std::string &actual,
+                                    const std::string &expected,
+                                    const sourcemeta::core::SchemaFrame &frame)
+    -> bool {
+  if (actual == expected) {
+    return true;
+  }
+
+  // The annotation may use an absolute URI based on an intermediate
+  // identifier while the test suite uses root-relative JSON pointer
+  // fragments. Resolve via the frame to normalize to the root-relative form.
+  const auto entry{frame.traverse(actual)};
+  if (entry.has_value()) {
+    const auto normalized{
+        sourcemeta::core::to_uri(entry->get().pointer).recompose()};
+    return normalized == expected;
+  }
+
+  return false;
+}
+
 static auto
 has_annotation(const sourcemeta::blaze::SimpleOutput &output,
                const sourcemeta::core::WeakPointer &instance_location,
                const std::string &schema_location,
-               const sourcemeta::core::JSON &value) -> bool {
+               const sourcemeta::core::JSON &value,
+               const sourcemeta::core::SchemaFrame &frame) -> bool {
   std::cerr << "Looking for ";
   sourcemeta::core::stringify(value, std::cerr);
   std::cerr << " at instance location \""
@@ -43,7 +65,8 @@ has_annotation(const sourcemeta::blaze::SimpleOutput &output,
               << annotation.first.schema_location.get() << "\"" << "\n";
 
     if (annotation.first.instance_location != instance_location ||
-        annotation.first.schema_location.get() != schema_location) {
+        !schema_location_matches(annotation.first.schema_location.get(),
+                                 schema_location, frame)) {
       continue;
     } else if (std::find(annotation.second.cbegin(), annotation.second.cend(),
                          value) != annotation.second.cend()) {
@@ -82,11 +105,22 @@ has_matching_annotations(const sourcemeta::blaze::SimpleOutput &output,
 
 class AnnotationTest : public testing::Test {
 public:
-  explicit AnnotationTest(sourcemeta::blaze::Template test_schema,
+  explicit AnnotationTest(sourcemeta::core::JSON test_schema_json,
+                          const std::string &test_default_dialect,
                           sourcemeta::core::JSON test_instance,
                           sourcemeta::core::JSON::Array test_assertions)
-      : schema{std::move(test_schema)}, instance{std::move(test_instance)},
-        assertions{std::move(test_assertions)} {}
+      : schema_json{std::move(test_schema_json)},
+        instance{std::move(test_instance)},
+        assertions{std::move(test_assertions)} {
+    this->frame.analyse(this->schema_json, sourcemeta::core::schema_walker,
+                        sourcemeta::core::schema_resolver,
+                        test_default_dialect);
+    this->schema = sourcemeta::blaze::compile(
+        this->schema_json, sourcemeta::core::schema_walker,
+        sourcemeta::core::schema_resolver,
+        sourcemeta::blaze::default_schema_compiler, this->frame,
+        this->frame.root(), sourcemeta::blaze::Mode::Exhaustive);
+  }
 
   auto TestBody() -> void override {
     sourcemeta::blaze::SimpleOutput output{this->instance};
@@ -119,16 +153,19 @@ public:
 
           EXPECT_TRUE(has_annotation(
               output, sourcemeta::core::to_weak_pointer(instance_location),
-              schema_location.str(), entry.second));
+              schema_location.str(), entry.second, frame));
         }
       }
     }
   }
 
 private:
-  const sourcemeta::blaze::Template schema;
-  const sourcemeta::core::JSON instance;
-  const sourcemeta::core::JSON::Array assertions;
+  sourcemeta::core::JSON schema_json;
+  sourcemeta::core::SchemaFrame frame{
+      sourcemeta::core::SchemaFrame::Mode::References};
+  sourcemeta::blaze::Template schema;
+  sourcemeta::core::JSON instance;
+  sourcemeta::core::JSON::Array assertions;
   sourcemeta::blaze::Evaluator evaluator;
 };
 
@@ -179,11 +216,6 @@ static auto register_tests(const std::string &suite_name,
     assert(entry.defines("schema"));
     const auto &schema{entry.at("schema")};
     assert(sourcemeta::core::is_schema(schema));
-    const auto schema_template{sourcemeta::blaze::compile(
-        schema, sourcemeta::core::schema_walker,
-        sourcemeta::core::schema_resolver,
-        sourcemeta::blaze::default_schema_compiler,
-        sourcemeta::blaze::Mode::Exhaustive, default_dialect)};
 
     assert(entry.defines("tests"));
     assert(entry.at("tests").is_array());
@@ -198,11 +230,12 @@ static auto register_tests(const std::string &suite_name,
       assert(test.at("assertions").is_array());
       const auto &assertions{test.at("assertions").as_array()};
 
-      testing::RegisterTest(
-          category.str().c_str(), title.str().c_str(), nullptr, nullptr,
-          __FILE__, __LINE__, [=]() -> AnnotationTest * {
-            return new AnnotationTest(schema_template, instance, assertions);
-          });
+      testing::RegisterTest(category.str().c_str(), title.str().c_str(),
+                            nullptr, nullptr, __FILE__, __LINE__,
+                            [=]() -> AnnotationTest * {
+                              return new AnnotationTest(schema, default_dialect,
+                                                        instance, assertions);
+                            });
     }
   }
 }
