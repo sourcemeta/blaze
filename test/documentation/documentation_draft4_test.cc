@@ -1363,6 +1363,63 @@ TEST_F(DocumentationDraft4Test, not_type_only) {
                        expected);
 }
 
+TEST_F(DocumentationDraft4Test, pattern_property_nested_object) {
+  const auto schema{sourcemeta::core::parse_json(R"JSON({
+    "$schema": "http://json-schema.org/draft-04/schema#",
+    "type": "object",
+    "patternProperties": {
+      "^x-": {
+        "type": "object",
+        "properties": {
+          "value": { "type": "string" }
+        }
+      }
+    }
+  })JSON")};
+
+  const auto expected{sourcemeta::core::parse_json(R"JSON({
+    "identifier": 0,
+    "rows": [
+      {
+        "identifier": 1,
+        "path": [ { "type": "synthetic", "value": "root" } ],
+        "type": { "kind": "object" }
+      },
+      {
+        "identifier": 2,
+        "path": [ { "type": "pattern", "value": "^x-" } ],
+        "type": { "kind": "object" }
+      },
+      {
+        "identifier": 3,
+        "path": [
+          { "type": "pattern", "value": "^x-" },
+          { "type": "literal", "value": "value" }
+        ],
+        "type": { "kind": "primitive", "name": "string" },
+        "required": false
+      },
+      {
+        "identifier": 4,
+        "path": [
+          { "type": "pattern", "value": "^x-" },
+          { "type": "wildcard", "value": "*" }
+        ],
+        "type": { "kind": "any" }
+      },
+      {
+        "identifier": 5,
+        "path": [ { "type": "wildcard", "value": "*" } ],
+        "type": { "kind": "any" }
+      }
+    ]
+  })JSON")};
+
+  EXPECT_DOCUMENTATION(schema, sourcemeta::core::schema_walker,
+                       sourcemeta::core::schema_resolver, *compiled_schema_,
+                       expected);
+}
+
 TEST_F(DocumentationDraft4Test, nested_object_in_property) {
   const auto schema{sourcemeta::core::parse_json(R"JSON({
     "$schema": "http://json-schema.org/draft-04/schema#",

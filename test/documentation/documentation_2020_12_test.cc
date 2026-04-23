@@ -1813,6 +1813,968 @@ TEST_F(Documentation202012Test, pattern_properties_only) {
                        expected);
 }
 
+TEST_F(Documentation202012Test, property_with_anyof) {
+  const auto schema{sourcemeta::core::parse_json(R"JSON({
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "type": "object",
+    "properties": {
+      "value": {
+        "anyOf": [
+          { "type": "string" },
+          { "type": "integer" }
+        ]
+      }
+    }
+  })JSON")};
+
+  const auto expected{sourcemeta::core::parse_json(R"JSON(
+    {
+      "identifier": 0,
+      "rows": [
+        {
+          "identifier": 1,
+          "path": [
+            {
+              "type": "synthetic",
+              "value": "root"
+            }
+          ],
+          "type": {
+            "kind": "object"
+          }
+        },
+        {
+          "identifier": 2,
+          "path": [
+            {
+              "type": "literal",
+              "value": "value"
+            }
+          ],
+          "type": {
+            "kind": "any"
+          },
+          "required": false,
+          "children": [
+            {
+              "label": "Any of",
+              "children": [
+                {
+                  "identifier": 3,
+                  "rows": [
+                    {
+                      "identifier": 4,
+                      "path": [
+                        {
+                          "type": "synthetic",
+                          "value": "root"
+                        }
+                      ],
+                      "type": {
+                        "kind": "primitive",
+                        "name": "string"
+                      }
+                    }
+                  ]
+                },
+                {
+                  "identifier": 5,
+                  "rows": [
+                    {
+                      "identifier": 6,
+                      "path": [
+                        {
+                          "type": "synthetic",
+                          "value": "root"
+                        }
+                      ],
+                      "type": {
+                        "kind": "primitive",
+                        "name": "integer"
+                      }
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "identifier": 7,
+          "path": [
+            {
+              "type": "wildcard",
+              "value": "*"
+            }
+          ],
+          "type": {
+            "kind": "any"
+          }
+        }
+      ]
+    }
+  )JSON")};
+
+  EXPECT_DOCUMENTATION(schema, sourcemeta::core::schema_walker,
+                       sourcemeta::core::schema_resolver, *compiled_schema_,
+                       expected);
+}
+
+TEST_F(Documentation202012Test, additional_properties_object_deep) {
+  const auto schema{sourcemeta::core::parse_json(R"JSON({
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "type": "object",
+    "additionalProperties": {
+      "type": "object",
+      "properties": { "id": { "type": "integer" } }
+    }
+  })JSON")};
+
+  const auto expected{sourcemeta::core::parse_json(R"JSON(
+    {
+      "identifier": 0,
+      "rows": [
+        {
+          "identifier": 1,
+          "path": [
+            {
+              "type": "synthetic",
+              "value": "root"
+            }
+          ],
+          "type": {
+            "kind": "object"
+          }
+        },
+        {
+          "identifier": 2,
+          "path": [
+            {
+              "type": "wildcard",
+              "value": "*"
+            }
+          ],
+          "type": {
+            "kind": "object"
+          }
+        },
+        {
+          "identifier": 3,
+          "path": [
+            {
+              "type": "wildcard",
+              "value": "*"
+            },
+            {
+              "type": "literal",
+              "value": "id"
+            }
+          ],
+          "type": {
+            "kind": "primitive",
+            "name": "integer"
+          },
+          "required": false
+        },
+        {
+          "identifier": 4,
+          "path": [
+            {
+              "type": "wildcard",
+              "value": "*"
+            },
+            {
+              "type": "wildcard",
+              "value": "*"
+            }
+          ],
+          "type": {
+            "kind": "any"
+          }
+        }
+      ]
+    }
+  )JSON")};
+
+  EXPECT_DOCUMENTATION(schema, sourcemeta::core::schema_walker,
+                       sourcemeta::core::schema_resolver, *compiled_schema_,
+                       expected);
+}
+
+TEST_F(Documentation202012Test, additional_properties_array_object_deep) {
+  const auto schema{sourcemeta::core::parse_json(R"JSON({
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "type": "object",
+    "additionalProperties": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": { "id": { "type": "integer" } }
+      }
+    }
+  })JSON")};
+
+  const auto expected{sourcemeta::core::parse_json(R"JSON(
+    {
+      "identifier": 0,
+      "rows": [
+        {
+          "identifier": 1,
+          "path": [
+            {
+              "type": "synthetic",
+              "value": "root"
+            }
+          ],
+          "type": {
+            "kind": "object"
+          }
+        },
+        {
+          "identifier": 2,
+          "path": [
+            {
+              "type": "wildcard",
+              "value": "*"
+            }
+          ],
+          "type": {
+            "kind": "array",
+            "items": {
+              "kind": "object"
+            }
+          }
+        },
+        {
+          "identifier": 3,
+          "path": [
+            {
+              "type": "wildcard",
+              "value": "*"
+            },
+            {
+              "type": "wildcard",
+              "value": "*"
+            }
+          ],
+          "type": {
+            "kind": "object"
+          }
+        },
+        {
+          "identifier": 4,
+          "path": [
+            {
+              "type": "wildcard",
+              "value": "*"
+            },
+            {
+              "type": "wildcard",
+              "value": "*"
+            },
+            {
+              "type": "literal",
+              "value": "id"
+            }
+          ],
+          "type": {
+            "kind": "primitive",
+            "name": "integer"
+          },
+          "required": false
+        },
+        {
+          "identifier": 5,
+          "path": [
+            {
+              "type": "wildcard",
+              "value": "*"
+            },
+            {
+              "type": "wildcard",
+              "value": "*"
+            },
+            {
+              "type": "wildcard",
+              "value": "*"
+            }
+          ],
+          "type": {
+            "kind": "any"
+          }
+        }
+      ]
+    }
+  )JSON")};
+
+  EXPECT_DOCUMENTATION(schema, sourcemeta::core::schema_walker,
+                       sourcemeta::core::schema_resolver, *compiled_schema_,
+                       expected);
+}
+
+TEST_F(Documentation202012Test, unevaluated_properties_object_deep) {
+  const auto schema{sourcemeta::core::parse_json(R"JSON({
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "type": "object",
+    "properties": { "name": { "type": "string" } },
+    "unevaluatedProperties": {
+      "type": "object",
+      "properties": { "extra": { "type": "boolean" } }
+    }
+  })JSON")};
+
+  const auto expected{sourcemeta::core::parse_json(R"JSON(
+    {
+      "identifier": 0,
+      "rows": [
+        {
+          "identifier": 1,
+          "path": [
+            {
+              "type": "synthetic",
+              "value": "root"
+            }
+          ],
+          "type": {
+            "kind": "object"
+          }
+        },
+        {
+          "identifier": 2,
+          "path": [
+            {
+              "type": "literal",
+              "value": "name"
+            }
+          ],
+          "type": {
+            "kind": "primitive",
+            "name": "string"
+          },
+          "required": false
+        },
+        {
+          "identifier": 3,
+          "path": [
+            {
+              "type": "wildcard",
+              "value": "*"
+            }
+          ],
+          "type": {
+            "kind": "object"
+          }
+        },
+        {
+          "identifier": 4,
+          "path": [
+            {
+              "type": "wildcard",
+              "value": "*"
+            },
+            {
+              "type": "literal",
+              "value": "extra"
+            }
+          ],
+          "type": {
+            "kind": "enum",
+            "values": [
+              false,
+              true
+            ]
+          },
+          "required": false
+        },
+        {
+          "identifier": 5,
+          "path": [
+            {
+              "type": "wildcard",
+              "value": "*"
+            },
+            {
+              "type": "wildcard",
+              "value": "*"
+            }
+          ],
+          "type": {
+            "kind": "any"
+          }
+        }
+      ]
+    }
+  )JSON")};
+
+  EXPECT_DOCUMENTATION(schema, sourcemeta::core::schema_walker,
+                       sourcemeta::core::schema_resolver, *compiled_schema_,
+                       expected);
+}
+
+TEST_F(Documentation202012Test, property_additional_properties_object_deep) {
+  const auto schema{sourcemeta::core::parse_json(R"JSON({
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "type": "object",
+    "properties": {
+      "meta": {
+        "type": "object",
+        "additionalProperties": {
+          "type": "object",
+          "properties": { "label": { "type": "string" } }
+        }
+      }
+    }
+  })JSON")};
+
+  const auto expected{sourcemeta::core::parse_json(R"JSON(
+    {
+      "identifier": 0,
+      "rows": [
+        {
+          "identifier": 1,
+          "path": [
+            {
+              "type": "synthetic",
+              "value": "root"
+            }
+          ],
+          "type": {
+            "kind": "object"
+          }
+        },
+        {
+          "identifier": 2,
+          "path": [
+            {
+              "type": "literal",
+              "value": "meta"
+            }
+          ],
+          "type": {
+            "kind": "object"
+          },
+          "required": false
+        },
+        {
+          "identifier": 3,
+          "path": [
+            {
+              "type": "literal",
+              "value": "meta"
+            },
+            {
+              "type": "wildcard",
+              "value": "*"
+            }
+          ],
+          "type": {
+            "kind": "object"
+          }
+        },
+        {
+          "identifier": 4,
+          "path": [
+            {
+              "type": "literal",
+              "value": "meta"
+            },
+            {
+              "type": "wildcard",
+              "value": "*"
+            },
+            {
+              "type": "literal",
+              "value": "label"
+            }
+          ],
+          "type": {
+            "kind": "primitive",
+            "name": "string"
+          },
+          "required": false
+        },
+        {
+          "identifier": 5,
+          "path": [
+            {
+              "type": "literal",
+              "value": "meta"
+            },
+            {
+              "type": "wildcard",
+              "value": "*"
+            },
+            {
+              "type": "wildcard",
+              "value": "*"
+            }
+          ],
+          "type": {
+            "kind": "any"
+          }
+        },
+        {
+          "identifier": 6,
+          "path": [
+            {
+              "type": "wildcard",
+              "value": "*"
+            }
+          ],
+          "type": {
+            "kind": "any"
+          }
+        }
+      ]
+    }
+  )JSON")};
+
+  EXPECT_DOCUMENTATION(schema, sourcemeta::core::schema_walker,
+                       sourcemeta::core::schema_resolver, *compiled_schema_,
+                       expected);
+}
+
+TEST_F(Documentation202012Test, additional_properties_with_anyof) {
+  const auto schema{sourcemeta::core::parse_json(R"JSON({
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "type": "object",
+    "properties": { "name": { "type": "string" } },
+    "additionalProperties": {
+      "anyOf": [ { "type": "integer" }, { "type": "boolean" } ]
+    }
+  })JSON")};
+
+  const auto expected{sourcemeta::core::parse_json(R"JSON(
+    {
+      "identifier": 0,
+      "rows": [
+        {
+          "identifier": 1,
+          "path": [
+            {
+              "type": "synthetic",
+              "value": "root"
+            }
+          ],
+          "type": {
+            "kind": "object"
+          }
+        },
+        {
+          "identifier": 2,
+          "path": [
+            {
+              "type": "literal",
+              "value": "name"
+            }
+          ],
+          "type": {
+            "kind": "primitive",
+            "name": "string"
+          },
+          "required": false
+        },
+        {
+          "identifier": 3,
+          "path": [
+            {
+              "type": "wildcard",
+              "value": "*"
+            }
+          ],
+          "type": {
+            "kind": "any"
+          },
+          "children": [
+            {
+              "label": "Any of",
+              "children": [
+                {
+                  "identifier": 4,
+                  "rows": [
+                    {
+                      "identifier": 5,
+                      "path": [
+                        {
+                          "type": "synthetic",
+                          "value": "root"
+                        }
+                      ],
+                      "type": {
+                        "kind": "primitive",
+                        "name": "integer"
+                      }
+                    }
+                  ]
+                },
+                {
+                  "identifier": 6,
+                  "rows": [
+                    {
+                      "identifier": 7,
+                      "path": [
+                        {
+                          "type": "synthetic",
+                          "value": "root"
+                        }
+                      ],
+                      "type": {
+                        "kind": "enum",
+                        "values": [
+                          false,
+                          true
+                        ]
+                      }
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  )JSON")};
+
+  EXPECT_DOCUMENTATION(schema, sourcemeta::core::schema_walker,
+                       sourcemeta::core::schema_resolver, *compiled_schema_,
+                       expected);
+}
+
+TEST_F(Documentation202012Test, items_with_anyof) {
+  const auto schema{sourcemeta::core::parse_json(R"JSON({
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "type": "array",
+    "items": {
+      "anyOf": [ { "type": "string" }, { "type": "integer" } ]
+    }
+  })JSON")};
+
+  const auto expected{sourcemeta::core::parse_json(R"JSON(
+    {
+      "identifier": 0,
+      "rows": [
+        {
+          "identifier": 1,
+          "path": [
+            {
+              "type": "synthetic",
+              "value": "root"
+            }
+          ],
+          "type": {
+            "kind": "array",
+            "items": {
+              "kind": "any"
+            }
+          }
+        },
+        {
+          "identifier": 2,
+          "path": [
+            {
+              "type": "wildcard",
+              "value": "*"
+            }
+          ],
+          "type": {
+            "kind": "any"
+          },
+          "children": [
+            {
+              "label": "Any of",
+              "children": [
+                {
+                  "identifier": 3,
+                  "rows": [
+                    {
+                      "identifier": 4,
+                      "path": [
+                        {
+                          "type": "synthetic",
+                          "value": "root"
+                        }
+                      ],
+                      "type": {
+                        "kind": "primitive",
+                        "name": "string"
+                      }
+                    }
+                  ]
+                },
+                {
+                  "identifier": 5,
+                  "rows": [
+                    {
+                      "identifier": 6,
+                      "path": [
+                        {
+                          "type": "synthetic",
+                          "value": "root"
+                        }
+                      ],
+                      "type": {
+                        "kind": "primitive",
+                        "name": "integer"
+                      }
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  )JSON")};
+
+  EXPECT_DOCUMENTATION(schema, sourcemeta::core::schema_walker,
+                       sourcemeta::core::schema_resolver, *compiled_schema_,
+                       expected);
+}
+
+TEST_F(Documentation202012Test, property_with_not) {
+  const auto schema{sourcemeta::core::parse_json(R"JSON({
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "type": "object",
+    "properties": {
+      "value": { "not": { "type": "string" } }
+    }
+  })JSON")};
+
+  const auto expected{sourcemeta::core::parse_json(R"JSON(
+    {
+      "identifier": 0,
+      "rows": [
+        {
+          "identifier": 1,
+          "path": [
+            {
+              "type": "synthetic",
+              "value": "root"
+            }
+          ],
+          "type": {
+            "kind": "object"
+          }
+        },
+        {
+          "identifier": 2,
+          "path": [
+            {
+              "type": "literal",
+              "value": "value"
+            }
+          ],
+          "type": {
+            "kind": "any"
+          },
+          "required": false,
+          "children": [
+            {
+              "label": "Must NOT match",
+              "children": [
+                {
+                  "identifier": 3,
+                  "rows": [
+                    {
+                      "identifier": 4,
+                      "path": [
+                        {
+                          "type": "synthetic",
+                          "value": "value"
+                        }
+                      ],
+                      "type": {
+                        "kind": "primitive",
+                        "name": "string"
+                      }
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "identifier": 5,
+          "path": [
+            {
+              "type": "wildcard",
+              "value": "*"
+            }
+          ],
+          "type": {
+            "kind": "any"
+          }
+        }
+      ]
+    }
+  )JSON")};
+
+  EXPECT_DOCUMENTATION(schema, sourcemeta::core::schema_walker,
+                       sourcemeta::core::schema_resolver, *compiled_schema_,
+                       expected);
+}
+
+TEST_F(Documentation202012Test, pattern_property_with_oneof) {
+  const auto schema{sourcemeta::core::parse_json(R"JSON({
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "type": "object",
+    "patternProperties": {
+      "^x-": { "oneOf": [ { "type": "string" }, { "type": "integer" } ] }
+    }
+  })JSON")};
+
+  const auto expected{sourcemeta::core::parse_json(R"JSON(
+    {
+      "identifier": 0,
+      "rows": [
+        {
+          "identifier": 1,
+          "path": [
+            {
+              "type": "synthetic",
+              "value": "root"
+            }
+          ],
+          "type": {
+            "kind": "object"
+          }
+        },
+        {
+          "identifier": 2,
+          "path": [
+            {
+              "type": "pattern",
+              "value": "^x-"
+            }
+          ],
+          "type": {
+            "kind": "any"
+          },
+          "children": [
+            {
+              "label": "Any of",
+              "children": [
+                {
+                  "identifier": 3,
+                  "rows": [
+                    {
+                      "identifier": 4,
+                      "path": [
+                        {
+                          "type": "synthetic",
+                          "value": "root"
+                        }
+                      ],
+                      "type": {
+                        "kind": "primitive",
+                        "name": "string"
+                      }
+                    }
+                  ]
+                },
+                {
+                  "identifier": 5,
+                  "rows": [
+                    {
+                      "identifier": 6,
+                      "path": [
+                        {
+                          "type": "synthetic",
+                          "value": "root"
+                        }
+                      ],
+                      "type": {
+                        "kind": "primitive",
+                        "name": "integer"
+                      }
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "identifier": 7,
+          "path": [
+            {
+              "type": "wildcard",
+              "value": "*"
+            }
+          ],
+          "type": {
+            "kind": "any"
+          }
+        }
+      ]
+    }
+  )JSON")};
+
+  EXPECT_DOCUMENTATION(schema, sourcemeta::core::schema_walker,
+                       sourcemeta::core::schema_resolver, *compiled_schema_,
+                       expected);
+}
+
+TEST_F(Documentation202012Test, pattern_property_nested_object) {
+  const auto schema{sourcemeta::core::parse_json(R"JSON({
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "type": "object",
+    "patternProperties": {
+      "^x-": {
+        "type": "object",
+        "properties": {
+          "value": { "type": "string" }
+        }
+      }
+    }
+  })JSON")};
+
+  const auto expected{sourcemeta::core::parse_json(R"JSON({
+    "identifier": 0,
+    "rows": [
+      {
+        "identifier": 1,
+        "path": [ { "type": "synthetic", "value": "root" } ],
+        "type": { "kind": "object" }
+      },
+      {
+        "identifier": 2,
+        "path": [ { "type": "pattern", "value": "^x-" } ],
+        "type": { "kind": "object" }
+      },
+      {
+        "identifier": 3,
+        "path": [
+          { "type": "pattern", "value": "^x-" },
+          { "type": "literal", "value": "value" }
+        ],
+        "type": { "kind": "primitive", "name": "string" },
+        "required": false
+      },
+      {
+        "identifier": 4,
+        "path": [
+          { "type": "pattern", "value": "^x-" },
+          { "type": "wildcard", "value": "*" }
+        ],
+        "type": { "kind": "any" }
+      },
+      {
+        "identifier": 5,
+        "path": [ { "type": "wildcard", "value": "*" } ],
+        "type": { "kind": "any" }
+      }
+    ]
+  })JSON")};
+
+  EXPECT_DOCUMENTATION(schema, sourcemeta::core::schema_walker,
+                       sourcemeta::core::schema_resolver, *compiled_schema_,
+                       expected);
+}
+
 TEST_F(Documentation202012Test, pattern_properties_with_properties) {
   const auto schema{sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2020-12/schema",
