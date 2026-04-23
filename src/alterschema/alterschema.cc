@@ -134,6 +134,7 @@ auto WALK_UP_IN_PLACE_APPLICATORS(const JSON &root, const SchemaFrame &frame,
 #include "canonicalizer/if_then_else_implicit.h"
 #include "canonicalizer/implicit_contains_keywords.h"
 #include "canonicalizer/implicit_object_keywords.h"
+#include "canonicalizer/inline_single_use_ref.h"
 #include "canonicalizer/items_implicit.h"
 #include "canonicalizer/max_contains_covered_by_max_items.h"
 #include "canonicalizer/max_decimal_implicit.h"
@@ -286,6 +287,7 @@ auto add(SchemaTransformer &bundle, const AlterSchemaMode mode) -> void {
   }
 
   if (mode == AlterSchemaMode::Canonicalizer) {
+    bundle.add<InlineSingleUseRef>();
     bundle.add<AllOfMergeCompatibleBranches>();
     bundle.add<TypeInheritInPlace>();
     bundle.add<TypeUnionImplicit>();

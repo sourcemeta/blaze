@@ -38,3 +38,5 @@ target_link_libraries(sourcemeta_blaze_alterschema_unit
   PRIVATE sourcemeta::blaze::evaluator)
 target_compile_definitions(sourcemeta_blaze_alterschema_unit
   PRIVATE SCHEMAS_PATH="${PROJECT_SOURCE_DIR}/schemas")
+
+set_tests_properties(blaze.alterschema PROPERTIES TIMEOUT 60)

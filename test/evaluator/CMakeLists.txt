@@ -67,3 +67,4 @@ target_link_libraries(sourcemeta_blaze_evaluator_trace_suite_canonical_unit PRIV
 target_link_libraries(sourcemeta_blaze_evaluator_trace_suite_canonical_unit PRIVATE sourcemeta::blaze::compiler)
 target_link_libraries(sourcemeta_blaze_evaluator_trace_suite_canonical_unit PRIVATE sourcemeta::blaze::evaluator)
 target_link_libraries(sourcemeta_blaze_evaluator_trace_suite_canonical_unit PRIVATE sourcemeta::blaze::alterschema)
+set_tests_properties(blaze.evaluator_trace_suite_canonical PROPERTIES TIMEOUT 60)
