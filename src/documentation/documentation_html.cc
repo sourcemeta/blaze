@@ -127,14 +127,7 @@ auto render_type_expression(sourcemeta::core::HTMLWriter &writer,
     } else if (name == "number") {
       writer.text("Number");
     }
-  } else if (kind == "array") {
-    if (type.defines("items")) {
-      writer.text("Array of ");
-      render_type_expression(writer, type.at("items"));
-    } else {
-      writer.text("Array");
-    }
-  } else if (kind == "tuple") {
+  } else if (kind == "array" || kind == "tuple") {
     writer.text("Array");
   } else if (kind == "enum") {
     assert(type.defines("values"));
