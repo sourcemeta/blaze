@@ -4557,6 +4557,434 @@ TEST_F(CanonicalizerDraft4Test, enum_wrap_with_ref_through_sibling) {
   CANONICALIZE_AND_VALIDATE(document, expected, *compiled_meta_);
 }
 
+TEST_F(CanonicalizerDraft4Test,
+       allof_enum_plus_untyped_has_redundant_type_union) {
+  auto document = sourcemeta::core::parse_json(R"JSON({
+    "$schema": "http://json-schema.org/draft-04/schema#",
+    "allOf": [
+      { "enum": [ "foo", "bar" ] },
+      { "minLength": 1 }
+    ]
+  })JSON");
+
+  const auto expected = sourcemeta::core::parse_json(R"JSON({
+    "$schema": "http://json-schema.org/draft-04/schema#",
+    "allOf": [
+      { "enum": [ "foo", "bar" ] },
+      {
+        "anyOf": [
+          { "enum": [ null ] },
+          { "enum": [ false, true ] },
+          {
+            "type": "object",
+            "minProperties": 0,
+            "properties": {},
+            "patternProperties": {},
+            "additionalProperties": true
+          },
+          {
+            "type": "array",
+            "minItems": 0,
+            "uniqueItems": false,
+            "items": true
+          },
+          { "type": "string", "minLength": 1 },
+          { "type": "number" }
+        ]
+      }
+    ]
+  })JSON");
+
+  CANONICALIZE_AND_VALIDATE(document, expected, *compiled_meta_);
+}
+
+TEST_F(CanonicalizerDraft4Test,
+       allof_typed_with_cross_dep_plus_untyped_has_redundant_type_union) {
+  auto document = sourcemeta::core::parse_json(R"JSON({
+    "$schema": "http://json-schema.org/draft-04/schema#",
+    "allOf": [
+      { "type": "object", "additionalProperties": { "type": "string" } },
+      { "required": [ "name" ] }
+    ]
+  })JSON");
+
+  const auto expected = sourcemeta::core::parse_json(R"JSON({
+    "$schema": "http://json-schema.org/draft-04/schema#",
+    "allOf": [
+      {
+        "type": "object",
+        "minProperties": 0,
+        "properties": {},
+        "patternProperties": {},
+        "additionalProperties": { "type": "string", "minLength": 0 }
+      },
+      {
+        "anyOf": [
+          { "enum": [ null ] },
+          { "enum": [ false, true ] },
+          {
+            "type": "object",
+            "required": [ "name" ],
+            "minProperties": 1,
+            "properties": { "name": true },
+            "patternProperties": {},
+            "additionalProperties": true
+          },
+          {
+            "type": "array",
+            "minItems": 0,
+            "uniqueItems": false,
+            "items": true
+          },
+          { "type": "string", "minLength": 0 },
+          { "type": "number" }
+        ]
+      }
+    ]
+  })JSON");
+
+  CANONICALIZE_AND_VALIDATE(document, expected, *compiled_meta_);
+}
+
+TEST_F(CanonicalizerDraft4Test,
+       type_object_not_untyped_has_redundant_type_union) {
+  auto document = sourcemeta::core::parse_json(R"JSON({
+    "$schema": "http://json-schema.org/draft-04/schema#",
+    "type": "object",
+    "not": { "required": [ "forbidden" ] }
+  })JSON");
+
+  const auto expected = sourcemeta::core::parse_json(R"JSON({
+    "$schema": "http://json-schema.org/draft-04/schema#",
+    "allOf": [
+      {
+        "not": {
+          "anyOf": [
+            { "enum": [ null ] },
+            { "enum": [ false, true ] },
+            {
+              "type": "object",
+              "required": [ "forbidden" ],
+              "minProperties": 1,
+              "properties": { "forbidden": true },
+              "patternProperties": {},
+              "additionalProperties": true
+            },
+            {
+              "type": "array",
+              "minItems": 0,
+              "uniqueItems": false,
+              "items": true
+            },
+            { "type": "string", "minLength": 0 },
+            { "type": "number" }
+          ]
+        }
+      },
+      {
+        "type": "object",
+        "minProperties": 0,
+        "properties": {},
+        "patternProperties": {},
+        "additionalProperties": true
+      }
+    ]
+  })JSON");
+
+  CANONICALIZE_AND_VALIDATE(document, expected, *compiled_meta_);
+}
+
+TEST_F(CanonicalizerDraft4Test,
+       type_object_anyof_and_allof_both_untyped_has_redundant_type_union) {
+  auto document = sourcemeta::core::parse_json(R"JSON({
+    "$schema": "http://json-schema.org/draft-04/schema#",
+    "type": "object",
+    "anyOf": [ { "required": [ "a" ] } ],
+    "allOf": [ { "required": [ "b" ] } ]
+  })JSON");
+
+  const auto expected = sourcemeta::core::parse_json(R"JSON({
+    "$schema": "http://json-schema.org/draft-04/schema#",
+    "allOf": [
+      {
+        "anyOf": [
+          { "enum": [ null ] },
+          { "enum": [ false, true ] },
+          {
+            "type": "object",
+            "required": [ "a" ],
+            "minProperties": 1,
+            "properties": { "a": true },
+            "patternProperties": {},
+            "additionalProperties": true
+          },
+          {
+            "type": "array",
+            "minItems": 0,
+            "uniqueItems": false,
+            "items": true
+          },
+          { "type": "string", "minLength": 0 },
+          { "type": "number" }
+        ]
+      },
+      {
+        "anyOf": [
+          { "enum": [ null ] },
+          { "enum": [ false, true ] },
+          {
+            "type": "object",
+            "required": [ "b" ],
+            "minProperties": 1,
+            "properties": { "b": true },
+            "patternProperties": {},
+            "additionalProperties": true
+          },
+          {
+            "type": "array",
+            "minItems": 0,
+            "uniqueItems": false,
+            "items": true
+          },
+          { "type": "string", "minLength": 0 },
+          { "type": "number" }
+        ]
+      },
+      {
+        "type": "object",
+        "minProperties": 0,
+        "properties": {},
+        "patternProperties": {},
+        "additionalProperties": true
+      }
+    ]
+  })JSON");
+
+  CANONICALIZE_AND_VALIDATE(document, expected, *compiled_meta_);
+}
+
+TEST_F(CanonicalizerDraft4Test,
+       allof_ref_typed_plus_untyped_has_redundant_type_union) {
+  auto document = sourcemeta::core::parse_json(R"JSON({
+    "$schema": "http://json-schema.org/draft-04/schema#",
+    "allOf": [
+      { "$ref": "#/definitions/base" },
+      { "title": "Extended", "required": [ "name" ] }
+    ],
+    "definitions": {
+      "base": {
+        "type": "object",
+        "properties": { "id": { "type": "integer" } }
+      }
+    }
+  })JSON");
+
+  const auto expected = sourcemeta::core::parse_json(R"JSON({
+    "$schema": "http://json-schema.org/draft-04/schema#",
+    "allOf": [
+      { "$ref": "#/definitions/base" },
+      {
+        "title": "Extended",
+        "anyOf": [
+          { "enum": [ null ] },
+          { "enum": [ false, true ] },
+          {
+            "type": "object",
+            "required": [ "name" ],
+            "minProperties": 1,
+            "properties": { "name": true },
+            "patternProperties": {},
+            "additionalProperties": true
+          },
+          {
+            "type": "array",
+            "minItems": 0,
+            "uniqueItems": false,
+            "items": true
+          },
+          { "type": "string", "minLength": 0 },
+          { "type": "number" }
+        ]
+      }
+    ],
+    "definitions": {
+      "base": {
+        "type": "object",
+        "minProperties": 0,
+        "properties": {
+          "id": { "type": "integer", "multipleOf": 1 }
+        },
+        "patternProperties": {},
+        "additionalProperties": true
+      }
+    }
+  })JSON");
+
+  CANONICALIZE_AND_VALIDATE(document, expected, *compiled_meta_);
+}
+
+TEST_F(CanonicalizerDraft4Test,
+       allof_ref_typed_plus_untyped_properties_has_redundant_type_union) {
+  auto document = sourcemeta::core::parse_json(R"JSON({
+    "$schema": "http://json-schema.org/draft-04/schema#",
+    "allOf": [
+      { "$ref": "#/definitions/base" },
+      { "properties": { "extra": { "type": "string" } } }
+    ],
+    "definitions": {
+      "base": { "type": "object" }
+    }
+  })JSON");
+
+  const auto expected = sourcemeta::core::parse_json(R"JSON({
+    "$schema": "http://json-schema.org/draft-04/schema#",
+    "allOf": [
+      { "$ref": "#/definitions/base" },
+      {
+        "anyOf": [
+          { "enum": [ null ] },
+          { "enum": [ false, true ] },
+          {
+            "type": "object",
+            "minProperties": 0,
+            "properties": {
+              "extra": { "type": "string", "minLength": 0 }
+            },
+            "patternProperties": {},
+            "additionalProperties": true
+          },
+          {
+            "type": "array",
+            "minItems": 0,
+            "uniqueItems": false,
+            "items": true
+          },
+          { "type": "string", "minLength": 0 },
+          { "type": "number" }
+        ]
+      }
+    ],
+    "definitions": {
+      "base": {
+        "type": "object",
+        "minProperties": 0,
+        "properties": {},
+        "patternProperties": {},
+        "additionalProperties": true
+      }
+    }
+  })JSON");
+
+  CANONICALIZE_AND_VALIDATE(document, expected, *compiled_meta_);
+}
+
+TEST_F(CanonicalizerDraft4Test,
+       type_object_allof_ref_untyped_has_redundant_type_union) {
+  auto document = sourcemeta::core::parse_json(R"JSON({
+    "$schema": "http://json-schema.org/draft-04/schema#",
+    "type": "object",
+    "allOf": [
+      { "$ref": "#/definitions/constraints" }
+    ],
+    "definitions": {
+      "constraints": { "required": [ "name" ], "minProperties": 1 }
+    }
+  })JSON");
+
+  const auto expected = sourcemeta::core::parse_json(R"JSON({
+    "$schema": "http://json-schema.org/draft-04/schema#",
+    "allOf": [
+      { "$ref": "#/definitions/constraints" },
+      {
+        "type": "object",
+        "minProperties": 0,
+        "properties": {},
+        "patternProperties": {},
+        "additionalProperties": true
+      }
+    ],
+    "definitions": {
+      "constraints": {
+        "anyOf": [
+          { "enum": [ null ] },
+          { "enum": [ false, true ] },
+          {
+            "type": "object",
+            "required": [ "name" ],
+            "minProperties": 1,
+            "properties": { "name": true },
+            "patternProperties": {},
+            "additionalProperties": true
+          },
+          {
+            "type": "array",
+            "minItems": 0,
+            "uniqueItems": false,
+            "items": true
+          },
+          { "type": "string", "minLength": 0 },
+          { "type": "number" }
+        ]
+      }
+    }
+  })JSON");
+
+  CANONICALIZE_AND_VALIDATE(document, expected, *compiled_meta_);
+}
+
+TEST_F(CanonicalizerDraft4Test,
+       type_object_with_anyof_has_redundant_type_union) {
+  auto document = sourcemeta::core::parse_json(R"JSON({
+    "$schema": "http://json-schema.org/draft-04/schema#",
+    "type": "object",
+    "properties": {
+      "a": { "type": "string" }
+    },
+    "anyOf": [
+      { "required": [ "a" ] }
+    ]
+  })JSON");
+
+  const auto expected = sourcemeta::core::parse_json(R"JSON({
+    "$schema": "http://json-schema.org/draft-04/schema#",
+    "allOf": [
+      {
+        "anyOf": [
+          { "enum": [ null ] },
+          { "enum": [ false, true ] },
+          {
+            "type": "object",
+            "required": [ "a" ],
+            "minProperties": 1,
+            "properties": { "a": true },
+            "patternProperties": {},
+            "additionalProperties": true
+          },
+          {
+            "type": "array",
+            "minItems": 0,
+            "uniqueItems": false,
+            "items": true
+          },
+          { "type": "string", "minLength": 0 },
+          { "type": "number" }
+        ]
+      },
+      {
+        "type": "object",
+        "minProperties": 0,
+        "properties": {
+          "a": { "type": "string", "minLength": 0 }
+        },
+        "patternProperties": {},
+        "additionalProperties": true
+      }
+    ]
+  })JSON");
+
+  CANONICALIZE_AND_VALIDATE(document, expected, *compiled_meta_);
+}
+
 TEST_F(CanonicalizerDraft4Test, allof_merge_type_and_minimum) {
   auto document = sourcemeta::core::parse_json(R"JSON({
     "$schema": "http://json-schema.org/draft-04/schema#",

@@ -3836,6 +3836,67 @@ TEST_F(Canonicalizer202012Test, safe_extract_wraps_modern_ref_into_allof) {
   CANONICALIZE_AND_VALIDATE(document, expected, *compiled_meta_);
 }
 
+TEST_F(Canonicalizer202012Test,
+       allof_ref_typed_plus_untyped_has_redundant_type_union) {
+  auto document = sourcemeta::core::parse_json(R"JSON({
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "allOf": [
+      { "$ref": "#/$defs/base" },
+      { "required": [ "name" ] }
+    ],
+    "$defs": {
+      "base": {
+        "type": "object",
+        "properties": { "id": { "type": "integer" } }
+      }
+    }
+  })JSON");
+
+  const auto expected = sourcemeta::core::parse_json(R"JSON({
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "allOf": [
+      { "$ref": "#/$defs/base" },
+      {
+        "anyOf": [
+          { "enum": [ null ] },
+          { "enum": [ false, true ] },
+          {
+            "type": "object",
+            "required": [ "name" ],
+            "minProperties": 1,
+            "propertyNames": true,
+            "properties": { "name": true },
+            "patternProperties": {}
+          },
+          {
+            "type": "array",
+            "minItems": 0,
+            "uniqueItems": false,
+            "minContains": 0,
+            "contains": true,
+            "items": true
+          },
+          { "type": "string", "minLength": 0 },
+          { "type": "number" }
+        ]
+      }
+    ],
+    "$defs": {
+      "base": {
+        "type": "object",
+        "minProperties": 0,
+        "propertyNames": true,
+        "properties": {
+          "id": { "type": "integer", "multipleOf": 1 }
+        },
+        "patternProperties": {}
+      }
+    }
+  })JSON");
+
+  CANONICALIZE_AND_VALIDATE(document, expected, *compiled_meta_);
+}
+
 TEST_F(Canonicalizer202012Test, allof_merge_type_and_required) {
   auto document = sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2020-12/schema",
