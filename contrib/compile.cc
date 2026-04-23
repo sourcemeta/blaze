@@ -1,6 +1,7 @@
 #include <sourcemeta/blaze/compiler.h>
 #include <sourcemeta/core/json.h>
 #include <sourcemeta/core/jsonpointer.h>
+#include <sourcemeta/core/jsonschema.h>
 #include <sourcemeta/core/options.h>
 
 #include <chrono>      // std::chrono
@@ -143,6 +144,20 @@ auto main(int argc, char **argv) noexcept -> int {
 
       auto extracted{*result};
       document = std::move(extracted);
+    }
+
+    // The compiler assumes valid schema input (object or boolean) and
+    // asserts otherwise. Guard here at the CLI boundary to ensure
+    // graceful failure instead of aborting on malformed inputs.
+    if (!sourcemeta::core::is_schema(document)) {
+      if (options.contains("path")) {
+        std::cerr << "error: the value at the given path is not a valid "
+                     "JSON Schema\n";
+      } else {
+        std::cerr << "error: the input is not a valid JSON Schema\n";
+      }
+
+      return EXIT_FAILURE;
     }
 
     const auto compile_start{std::chrono::high_resolution_clock::now()};
