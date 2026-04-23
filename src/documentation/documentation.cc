@@ -346,8 +346,23 @@ auto constraints_of(const sourcemeta::core::JSON &schema)
       schema.at("minProperties").is_integer()) {
     const auto value{schema.at("minProperties").to_integer()};
     if (value > 0) {
-      constraints.push_back(sourcemeta::core::JSON{
-          ">= " + std::to_string(value) + " properties"});
+      bool covered_by_required{false};
+      if (schema.defines("required") && schema.at("required").is_array() &&
+          schema.defines("properties") && schema.at("properties").is_object() &&
+          std::cmp_equal(schema.at("required").size(), value)) {
+        covered_by_required = true;
+        for (const auto &req : schema.at("required").as_array()) {
+          if (!req.is_string() ||
+              !schema.at("properties").defines(req.to_string())) {
+            covered_by_required = false;
+            break;
+          }
+        }
+      }
+      if (!covered_by_required) {
+        constraints.push_back(sourcemeta::core::JSON{
+            ">= " + std::to_string(value) + " properties"});
+      }
     }
   }
   if (schema.defines("maxProperties") &&
