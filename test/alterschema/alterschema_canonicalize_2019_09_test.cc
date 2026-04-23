@@ -923,24 +923,26 @@ TEST_F(Canonicalizer201909Test, definitions_to_defs) {
     }
   })JSON");
 
-  const auto expected = sourcemeta::core::parse_json(R"JSON({
-    "$schema": "https://json-schema.org/draft/2019-09/schema",
-    "type": "object",
-    "minProperties": 0,
-    "propertyNames": true,
-    "properties": {
-      "x": {
-        "$ref": "#/$defs/foo"
-      }
-    },
-    "patternProperties": {},
-    "$defs": {
-      "foo": {
-        "type": "string",
-        "minLength": 0
-      }
+  const auto expected = sourcemeta::core::parse_json(R"JSON(
+    {
+      "$schema": "https://json-schema.org/draft/2019-09/schema",
+      "$defs": {
+        "foo": {
+          "type": "string",
+          "minLength": 0
+        }
+      },
+      "type": "object",
+      "properties": {
+        "x": {
+          "$ref": "#/$defs/foo"
+        }
+      },
+      "patternProperties": {},
+      "propertyNames": true,
+      "minProperties": 0
     }
-  })JSON");
+  )JSON");
 
   CANONICALIZE_AND_VALIDATE(document, expected, *compiled_meta_);
 }

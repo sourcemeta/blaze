@@ -54,8 +54,6 @@ public:
           !IS_IN_PLACE_APPLICATOR(keyword_type));
     }
 
-    // Skip if an allOf sibling already constrains the type, including
-    // through $ref or enum
     ONLY_CONTINUE_IF(!this->allof_sibling_constrains_type(root, frame, location,
                                                           walker, resolver));
 

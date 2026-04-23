@@ -883,39 +883,41 @@ TEST_F(Canonicalizer202012Test, type_array_to_any_of_4) {
     }
   })JSON");
 
-  const sourcemeta::core::JSON expected = sourcemeta::core::parse_json(R"JSON({
-    "$schema": "https://json-schema.org/draft/2020-12/schema",
-    "allOf": [
-      {
-        "$ref": "#/$defs/foo"
+  const sourcemeta::core::JSON expected = sourcemeta::core::parse_json(R"JSON(
+    {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "$defs": {
+        "foo": {
+          "type": "string",
+          "minLength": 0
+        }
       },
-      {
-        "anyOf": [
-          {
-            "type": "object",
-            "minProperties": 0,
-            "propertyNames": true,
-            "properties": {},
-            "patternProperties": {}
-          },
-          {
-            "type": "array",
-            "minItems": 0,
-            "uniqueItems": false,
-            "minContains": 0,
-            "contains": true,
-            "items": true
-          }
-        ]
-      }
-    ],
-    "$defs": {
-      "foo": {
-        "type": "string",
-        "minLength": 0
-      }
+      "allOf": [
+        {
+          "$ref": "#/$defs/foo"
+        },
+        {
+          "anyOf": [
+            {
+              "type": "object",
+              "patternProperties": {},
+              "propertyNames": true,
+              "minProperties": 0,
+              "properties": {}
+            },
+            {
+              "type": "array",
+              "uniqueItems": false,
+              "minItems": 0,
+              "contains": true,
+              "minContains": 0,
+              "items": true
+            }
+          ]
+        }
+      ]
     }
-  })JSON");
+  )JSON");
 
   CANONICALIZE_AND_VALIDATE(document, expected, *compiled_meta_);
 }
@@ -1213,22 +1215,24 @@ TEST_F(Canonicalizer202012Test, circular_ref_through_defs_1) {
     "$ref": "#/$defs/a"
   })JSON");
 
-  const auto expected = sourcemeta::core::parse_json(R"JSON({
-    "$schema": "https://json-schema.org/draft/2020-12/schema",
-    "allOf": [
-      {
-        "$ref": "#/$defs/a"
-      }
-    ],
-    "$defs": {
-      "a": {
-        "$ref": "#/$defs/b"
+  const auto expected = sourcemeta::core::parse_json(R"JSON(
+    {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "$defs": {
+        "a": {
+          "$ref": "#/$defs/b"
+        },
+        "b": {
+          "$ref": "#/$defs/a"
+        }
       },
-      "b": {
-        "$ref": "#/$defs/a"
-      }
+      "allOf": [
+        {
+          "$ref": "#/$defs/a"
+        }
+      ]
     }
-  })JSON");
+  )JSON");
 
   CANONICALIZE_AND_VALIDATE(document, expected, *compiled_meta_);
 }
@@ -1717,53 +1721,60 @@ TEST_F(Canonicalizer202012Test,
     }
   })JSON");
 
-  const auto expected = sourcemeta::core::parse_json(R"JSON({
-    "$schema": "https://json-schema.org/draft/2020-12/schema",
-    "allOf": [
-      {
-        "$ref": "#/$defs/schema/anyOf/3/items"
-      }
-    ],
-    "$defs": {
-      "schema": {
-        "$schema": "https://json-schema.org/draft/2020-12/schema",
-        "$id": "https://www.example.com",
-        "anyOf": [
-          {
-            "enum": [ null ]
-          },
-          {
-            "enum": [ false, true ]
-          },
-          {
-            "type": "object",
-            "minProperties": 0,
-            "propertyNames": true,
-            "properties": {},
-            "patternProperties": {}
-          },
-          {
-            "type": "array",
-            "minItems": 0,
-            "uniqueItems": false,
-            "minContains": 0,
-            "contains": true,
-            "items": {
+  const auto expected = sourcemeta::core::parse_json(R"JSON(
+    {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "$defs": {
+        "schema": {
+          "$schema": "https://json-schema.org/draft/2020-12/schema",
+          "$id": "https://www.example.com",
+          "anyOf": [
+            {
+              "enum": [
+                null
+              ]
+            },
+            {
+              "enum": [
+                false,
+                true
+              ]
+            },
+            {
+              "type": "object",
+              "patternProperties": {},
+              "propertyNames": true,
+              "minProperties": 0,
+              "properties": {}
+            },
+            {
+              "type": "array",
+              "items": {
+                "type": "string",
+                "minLength": 0
+              },
+              "uniqueItems": false,
+              "minItems": 0,
+              "contains": true,
+              "minContains": 0
+            },
+            {
               "type": "string",
               "minLength": 0
+            },
+            {
+              "type": "number"
             }
-          },
-          {
-            "type": "string",
-            "minLength": 0
-          },
-          {
-            "type": "number"
-          }
-        ]
-      }
+          ]
+        }
+      },
+      "allOf": [
+        {
+          "$ref": "#/$defs/schema/anyOf/3/items"
+        }
+      ]
     }
-  })JSON");
+  )JSON");
 
   CANONICALIZE_AND_VALIDATE(document, expected, *compiled_meta_);
 }
@@ -1783,73 +1794,80 @@ TEST_F(Canonicalizer202012Test, ref_into_subschema_with_existing_anyof) {
     }
   })JSON");
 
-  const auto expected = sourcemeta::core::parse_json(R"JSON({
-    "$schema": "https://json-schema.org/draft/2020-12/schema",
-    "$defs": {
-      "schema": {
-        "$schema": "https://json-schema.org/draft/2020-12/schema",
-        "$id": "https://www.example.com",
-        "allOf": [
-          {
-            "anyOf": [
-              {
-                "enum": [ null ]
-              },
-              {
-                "enum": [ false, true ]
-              },
-              {
-                "type": "object",
-                "patternProperties": {},
-                "propertyNames": true,
-                "minProperties": 0,
-                "properties": {}
-              },
-              {
-                "type": "array",
-                "uniqueItems": false,
-                "minItems": 0,
-                "contains": true,
-                "minContains": 0,
-                "items": true
-              },
-              {
-                "type": "string",
-                "minLength": 1
-              },
-              {
-                "type": "number"
-              }
-            ]
-          },
-          {
-            "anyOf": [
-              {
-                "type": "array",
-                "items": {
-                  "type": "integer",
-                  "multipleOf": 1
+  const auto expected = sourcemeta::core::parse_json(R"JSON(
+    {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "$defs": {
+        "schema": {
+          "$schema": "https://json-schema.org/draft/2020-12/schema",
+          "$id": "https://www.example.com",
+          "allOf": [
+            {
+              "anyOf": [
+                {
+                  "enum": [
+                    null
+                  ]
                 },
-                "uniqueItems": false,
-                "minItems": 0,
-                "contains": true,
-                "minContains": 0
-              },
-              {
-                "type": "string",
-                "minLength": 0
-              }
-            ]
-          }
-        ]
-      }
-    },
-    "allOf": [
-      {
-        "$ref": "#/$defs/schema/allOf/1/anyOf/0/items"
-      }
-    ]
-  })JSON");
+                {
+                  "enum": [
+                    false,
+                    true
+                  ]
+                },
+                {
+                  "type": "object",
+                  "patternProperties": {},
+                  "propertyNames": true,
+                  "minProperties": 0,
+                  "properties": {}
+                },
+                {
+                  "type": "array",
+                  "uniqueItems": false,
+                  "minItems": 0,
+                  "contains": true,
+                  "minContains": 0,
+                  "items": true
+                },
+                {
+                  "type": "string",
+                  "minLength": 1
+                },
+                {
+                  "type": "number"
+                }
+              ]
+            },
+            {
+              "anyOf": [
+                {
+                  "type": "array",
+                  "items": {
+                    "type": "integer",
+                    "multipleOf": 1
+                  },
+                  "uniqueItems": false,
+                  "minItems": 0,
+                  "contains": true,
+                  "minContains": 0
+                },
+                {
+                  "type": "string",
+                  "minLength": 0
+                }
+              ]
+            }
+          ]
+        }
+      },
+      "allOf": [
+        {
+          "$ref": "#/$defs/schema/allOf/1/anyOf/0/items"
+        }
+      ]
+    }
+  )JSON");
 
   CANONICALIZE_AND_VALIDATE(document, expected, *compiled_meta_);
 }
@@ -1871,106 +1889,118 @@ TEST_F(Canonicalizer202012Test,
     }
   })JSON");
 
-  const auto expected = sourcemeta::core::parse_json(R"JSON({
-    "$schema": "https://json-schema.org/draft/2020-12/schema",
-    "$defs": {
-      "schema": {
-        "$schema": "https://json-schema.org/draft/2020-12/schema",
-        "$id": "https://www.example.com",
-        "allOf": [
-          {
-            "anyOf": [
-              {
-                "enum": [ null ]
-              },
-              {
-                "enum": [ false, true ]
-              },
-              {
-                "type": "object",
-                "patternProperties": {},
-                "propertyNames": true,
-                "minProperties": 0,
-                "properties": {}
-              },
-              {
-                "type": "array",
-                "uniqueItems": false,
-                "minItems": 0,
-                "contains": true,
-                "minContains": 0,
-                "items": true
-              },
-              {
-                "type": "string",
-                "maxLength": 100,
-                "minLength": 0
-              },
-              {
-                "type": "number"
-              }
-            ]
-          },
-          {
-            "anyOf": [
-              {
-                "enum": [ null ]
-              },
-              {
-                "enum": [ false, true ]
-              },
-              {
-                "type": "object",
-                "patternProperties": {},
-                "propertyNames": true,
-                "minProperties": 0,
-                "properties": {}
-              },
-              {
-                "type": "array",
-                "uniqueItems": false,
-                "minItems": 0,
-                "contains": true,
-                "minContains": 0,
-                "items": true
-              },
-              {
-                "type": "string",
-                "minLength": 1
-              },
-              {
-                "type": "number"
-              }
-            ]
-          },
-          {
-            "anyOf": [
-              {
-                "type": "array",
-                "items": {
-                  "type": "integer",
-                  "multipleOf": 1
+  const auto expected = sourcemeta::core::parse_json(R"JSON(
+    {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "$defs": {
+        "schema": {
+          "$schema": "https://json-schema.org/draft/2020-12/schema",
+          "$id": "https://www.example.com",
+          "allOf": [
+            {
+              "anyOf": [
+                {
+                  "enum": [
+                    null
+                  ]
                 },
-                "uniqueItems": false,
-                "minItems": 0,
-                "contains": true,
-                "minContains": 0
-              },
-              {
-                "type": "string",
-                "minLength": 0
-              }
-            ]
-          }
-        ]
-      }
-    },
-    "allOf": [
-      {
-        "$ref": "#/$defs/schema/allOf/2/anyOf/0/items"
-      }
-    ]
-  })JSON");
+                {
+                  "enum": [
+                    false,
+                    true
+                  ]
+                },
+                {
+                  "type": "object",
+                  "patternProperties": {},
+                  "propertyNames": true,
+                  "minProperties": 0,
+                  "properties": {}
+                },
+                {
+                  "type": "array",
+                  "uniqueItems": false,
+                  "minItems": 0,
+                  "contains": true,
+                  "minContains": 0,
+                  "items": true
+                },
+                {
+                  "type": "string",
+                  "maxLength": 100,
+                  "minLength": 0
+                },
+                {
+                  "type": "number"
+                }
+              ]
+            },
+            {
+              "anyOf": [
+                {
+                  "enum": [
+                    null
+                  ]
+                },
+                {
+                  "enum": [
+                    false,
+                    true
+                  ]
+                },
+                {
+                  "type": "object",
+                  "patternProperties": {},
+                  "propertyNames": true,
+                  "minProperties": 0,
+                  "properties": {}
+                },
+                {
+                  "type": "array",
+                  "uniqueItems": false,
+                  "minItems": 0,
+                  "contains": true,
+                  "minContains": 0,
+                  "items": true
+                },
+                {
+                  "type": "string",
+                  "minLength": 1
+                },
+                {
+                  "type": "number"
+                }
+              ]
+            },
+            {
+              "anyOf": [
+                {
+                  "type": "array",
+                  "items": {
+                    "type": "integer",
+                    "multipleOf": 1
+                  },
+                  "uniqueItems": false,
+                  "minItems": 0,
+                  "contains": true,
+                  "minContains": 0
+                },
+                {
+                  "type": "string",
+                  "minLength": 0
+                }
+              ]
+            }
+          ]
+        }
+      },
+      "allOf": [
+        {
+          "$ref": "#/$defs/schema/allOf/2/anyOf/0/items"
+        }
+      ]
+    }
+  )JSON");
 
   CANONICALIZE_AND_VALIDATE(document, expected, *compiled_meta_);
 }
@@ -2090,70 +2120,77 @@ TEST_F(Canonicalizer202012Test, ref_into_nested_subschema_within_resource) {
     }
   })JSON");
 
-  const auto expected = sourcemeta::core::parse_json(R"JSON({
-    "$schema": "https://json-schema.org/draft/2020-12/schema",
-    "allOf": [
-      {
-        "$ref": "#/$defs/resource/anyOf/2/properties/nested/anyOf/0/items"
-      }
-    ],
-    "$defs": {
-      "resource": {
-        "$schema": "https://json-schema.org/draft/2020-12/schema",
-        "$id": "https://www.example.com",
-        "anyOf": [
-          {
-            "enum": [ null ]
-          },
-          {
-            "enum": [ false, true ]
-          },
-          {
-            "type": "object",
-            "minProperties": 0,
-            "propertyNames": true,
-            "properties": {
-              "nested": {
-                "anyOf": [
-                  {
-                    "type": "array",
-                    "minItems": 0,
-                    "uniqueItems": false,
-                    "minContains": 0,
-                    "contains": true,
-                    "items": {
-                      "type": "integer",
-                      "multipleOf": 1
-                    }
-                  },
-                  {
-                    "type": "string",
-                    "minLength": 0
-                  }
-                ]
-              }
+  const auto expected = sourcemeta::core::parse_json(R"JSON(
+    {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "$defs": {
+        "resource": {
+          "$schema": "https://json-schema.org/draft/2020-12/schema",
+          "$id": "https://www.example.com",
+          "anyOf": [
+            {
+              "enum": [
+                null
+              ]
             },
-            "patternProperties": {}
-          },
-          {
-            "type": "array",
-            "minItems": 0,
-            "uniqueItems": false,
-            "minContains": 0,
-            "contains": true,
-            "items": true
-          },
-          {
-            "type": "string",
-            "minLength": 0
-          },
-          {
-            "type": "number"
-          }
-        ]
-      }
+            {
+              "enum": [
+                false,
+                true
+              ]
+            },
+            {
+              "type": "object",
+              "properties": {
+                "nested": {
+                  "anyOf": [
+                    {
+                      "type": "array",
+                      "items": {
+                        "type": "integer",
+                        "multipleOf": 1
+                      },
+                      "uniqueItems": false,
+                      "minItems": 0,
+                      "contains": true,
+                      "minContains": 0
+                    },
+                    {
+                      "type": "string",
+                      "minLength": 0
+                    }
+                  ]
+                }
+              },
+              "patternProperties": {},
+              "propertyNames": true,
+              "minProperties": 0
+            },
+            {
+              "type": "array",
+              "uniqueItems": false,
+              "minItems": 0,
+              "contains": true,
+              "minContains": 0,
+              "items": true
+            },
+            {
+              "type": "string",
+              "minLength": 0
+            },
+            {
+              "type": "number"
+            }
+          ]
+        }
+      },
+      "allOf": [
+        {
+          "$ref": "#/$defs/resource/anyOf/2/properties/nested/anyOf/0/items"
+        }
+      ]
     }
-  })JSON");
+  )JSON");
 
   CANONICALIZE_AND_VALIDATE(document, expected, *compiled_meta_);
 }
@@ -2294,53 +2331,60 @@ TEST_F(Canonicalizer202012Test, ref_into_subschema_via_absolute_uri) {
     }
   })JSON");
 
-  const auto expected = sourcemeta::core::parse_json(R"JSON({
-    "$schema": "https://json-schema.org/draft/2020-12/schema",
-    "allOf": [
-      {
-        "$ref": "https://www.example.com#/anyOf/3/items"
-      }
-    ],
-    "$defs": {
-      "schema": {
-        "$schema": "https://json-schema.org/draft/2020-12/schema",
-        "$id": "https://www.example.com",
-        "anyOf": [
-          {
-            "enum": [ null ]
-          },
-          {
-            "enum": [ false, true ]
-          },
-          {
-            "type": "object",
-            "minProperties": 0,
-            "propertyNames": true,
-            "properties": {},
-            "patternProperties": {}
-          },
-          {
-            "type": "array",
-            "minItems": 0,
-            "uniqueItems": false,
-            "minContains": 0,
-            "contains": true,
-            "items": {
+  const auto expected = sourcemeta::core::parse_json(R"JSON(
+    {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "$defs": {
+        "schema": {
+          "$schema": "https://json-schema.org/draft/2020-12/schema",
+          "$id": "https://www.example.com",
+          "anyOf": [
+            {
+              "enum": [
+                null
+              ]
+            },
+            {
+              "enum": [
+                false,
+                true
+              ]
+            },
+            {
+              "type": "object",
+              "patternProperties": {},
+              "propertyNames": true,
+              "minProperties": 0,
+              "properties": {}
+            },
+            {
+              "type": "array",
+              "items": {
+                "type": "string",
+                "minLength": 0
+              },
+              "uniqueItems": false,
+              "minItems": 0,
+              "contains": true,
+              "minContains": 0
+            },
+            {
               "type": "string",
               "minLength": 0
+            },
+            {
+              "type": "number"
             }
-          },
-          {
-            "type": "string",
-            "minLength": 0
-          },
-          {
-            "type": "number"
-          }
-        ]
-      }
+          ]
+        }
+      },
+      "allOf": [
+        {
+          "$ref": "https://www.example.com#/anyOf/3/items"
+        }
+      ]
     }
-  })JSON");
+  )JSON");
 
   CANONICALIZE_AND_VALIDATE(document, expected, *compiled_meta_);
 }
@@ -2396,24 +2440,26 @@ TEST_F(Canonicalizer202012Test, definitions_to_defs) {
     }
   })JSON");
 
-  const auto expected = sourcemeta::core::parse_json(R"JSON({
-    "$schema": "https://json-schema.org/draft/2020-12/schema",
-    "type": "object",
-    "minProperties": 0,
-    "propertyNames": true,
-    "properties": {
-      "x": {
-        "$ref": "#/$defs/foo"
-      }
-    },
-    "patternProperties": {},
-    "$defs": {
-      "foo": {
-        "type": "string",
-        "minLength": 0
-      }
+  const auto expected = sourcemeta::core::parse_json(R"JSON(
+    {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "$defs": {
+        "foo": {
+          "type": "string",
+          "minLength": 0
+        }
+      },
+      "type": "object",
+      "properties": {
+        "x": {
+          "$ref": "#/$defs/foo"
+        }
+      },
+      "patternProperties": {},
+      "propertyNames": true,
+      "minProperties": 0
     }
-  })JSON");
+  )JSON");
 
   CANONICALIZE_AND_VALIDATE(document, expected, *compiled_meta_);
 }
@@ -2913,16 +2959,25 @@ TEST_F(Canonicalizer202012Test, ref_with_type_sibling) {
     }
   })JSON");
 
-  const auto expected = sourcemeta::core::parse_json(R"JSON({
-    "$schema": "https://json-schema.org/draft/2020-12/schema",
-    "$defs": {
-      "foo": { "type": "number" }
-    },
-    "allOf": [
-      { "$ref": "#/$defs/foo" },
-      { "type": "string", "minLength": 0 }
-    ]
-  })JSON");
+  const auto expected = sourcemeta::core::parse_json(R"JSON(
+    {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "$defs": {
+        "foo": {
+          "type": "number"
+        }
+      },
+      "allOf": [
+        {
+          "$ref": "#/$defs/foo"
+        },
+        {
+          "type": "string",
+          "minLength": 0
+        }
+      ]
+    }
+  )JSON");
 
   CANONICALIZE_AND_VALIDATE(document, expected, *compiled_meta_);
 }
@@ -3047,23 +3102,25 @@ TEST_F(Canonicalizer202012Test, ref_and_dynamic_ref_in_separate_branches) {
     }
   })JSON");
 
-  const auto expected = sourcemeta::core::parse_json(R"JSON({
-    "$schema": "https://json-schema.org/draft/2020-12/schema",
-    "$defs": {
-      "a": {
-        "type": "string",
-        "minLength": 0
-      }
-    },
-    "allOf": [
-      {
-        "$ref": "#/$defs/a"
+  const auto expected = sourcemeta::core::parse_json(R"JSON(
+    {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "$defs": {
+        "a": {
+          "type": "string",
+          "minLength": 0
+        }
       },
-      {
-        "$dynamicRef": "#foo"
-      }
-    ]
-  })JSON");
+      "allOf": [
+        {
+          "$ref": "#/$defs/a"
+        },
+        {
+          "$dynamicRef": "#foo"
+        }
+      ]
+    }
+  )JSON");
 
   CANONICALIZE_AND_VALIDATE(document, expected, *compiled_meta_);
 }
@@ -3077,20 +3134,22 @@ TEST_F(Canonicalizer202012Test, dynamic_ref_to_static_ref_no_anchor) {
     }
   })JSON");
 
-  const auto expected = sourcemeta::core::parse_json(R"JSON({
-    "$schema": "https://json-schema.org/draft/2020-12/schema",
-    "$defs": {
-      "string": {
-        "type": "string",
-        "minLength": 0
-      }
-    },
-    "allOf": [
-      {
-        "$ref": "#/$defs/string"
-      }
-    ]
-  })JSON");
+  const auto expected = sourcemeta::core::parse_json(R"JSON(
+    {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "$defs": {
+        "string": {
+          "type": "string",
+          "minLength": 0
+        }
+      },
+      "allOf": [
+        {
+          "$ref": "#/$defs/string"
+        }
+      ]
+    }
+  )JSON");
 
   CANONICALIZE_AND_VALIDATE(document, expected, *compiled_meta_);
 }
@@ -3540,46 +3599,48 @@ TEST_F(Canonicalizer202012Test, safe_extract_wraps_modern_ref_into_allof) {
     }
   })JSON");
 
-  const auto expected = sourcemeta::core::parse_json(R"JSON({
-    "$schema": "https://json-schema.org/draft/2020-12/schema",
-    "allOf": [
-      {
-        "type": "object",
-        "minProperties": 0,
-        "propertyNames": true,
-        "properties": {
-          "alias": {
-            "$ref": "#/allOf/1/properties/name"
-          }
+  const auto expected = sourcemeta::core::parse_json(R"JSON(
+    {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "allOf": [
+        {
+          "type": "object",
+          "properties": {
+            "alias": {
+              "$ref": "#/allOf/1/properties/name"
+            }
+          },
+          "patternProperties": {},
+          "propertyNames": true,
+          "minProperties": 0
         },
-        "patternProperties": {}
-      },
-      {
-        "type": "object",
-        "minProperties": 0,
-        "propertyNames": true,
-        "properties": {
-          "name": {
-            "type": "string",
-            "minLength": 0
-          }
+        {
+          "type": "object",
+          "properties": {
+            "name": {
+              "type": "string",
+              "minLength": 0
+            }
+          },
+          "patternProperties": {},
+          "propertyNames": true,
+          "minProperties": 0
         },
-        "patternProperties": {}
-      },
-      {
-        "$ref": "#/$defs/base"
-      }
-    ],
-    "$defs": {
-      "base": {
-        "type": "object",
-        "minProperties": 0,
-        "propertyNames": true,
-        "properties": {},
-        "patternProperties": {}
+        {
+          "$ref": "#/$defs/base"
+        }
+      ],
+      "$defs": {
+        "base": {
+          "type": "object",
+          "patternProperties": {},
+          "propertyNames": true,
+          "minProperties": 0,
+          "properties": {}
+        }
       }
     }
-  })JSON");
+  )JSON");
 
   CANONICALIZE_AND_VALIDATE(document, expected, *compiled_meta_);
 }
@@ -3608,46 +3669,16 @@ TEST_F(Canonicalizer202012Test,
           "$ref": "#/$defs/base"
         },
         {
-          "anyOf": [
-            {
-              "enum": [
-                null
-              ]
-            },
-            {
-              "enum": [
-                false,
-                true
-              ]
-            },
-            {
-              "type": "object",
-              "required": [
-                "name"
-              ],
-              "patternProperties": {},
-              "propertyNames": true,
-              "minProperties": 1,
-              "properties": {
-                "name": true
-              }
-            },
-            {
-              "type": "array",
-              "uniqueItems": false,
-              "minItems": 0,
-              "contains": true,
-              "minContains": 0,
-              "items": true
-            },
-            {
-              "type": "string",
-              "minLength": 0
-            },
-            {
-              "type": "number"
-            }
-          ]
+          "required": [
+            "name"
+          ],
+          "type": "object",
+          "patternProperties": {},
+          "propertyNames": true,
+          "minProperties": 1,
+          "properties": {
+            "name": true
+          }
         }
       ],
       "$defs": {
@@ -3831,38 +3862,40 @@ TEST_F(Canonicalizer202012Test,
     }
   })JSON");
 
-  const auto expected = sourcemeta::core::parse_json(R"JSON({
-    "$schema": "https://json-schema.org/draft/2020-12/schema",
-    "allOf": [
-      {
-        "$ref": "#/$defs/base"
-      },
-      {
-        "type": "object",
-        "minProperties": 0,
-        "propertyNames": true,
-        "properties": {
-          "name": {
-            "type": "string",
-            "minLength": 0
-          }
-        },
-        "patternProperties": {}
-      }
-    ],
-    "$defs": {
-      "base": {
-        "type": "object",
-        "minProperties": 0,
-        "propertyNames": true,
-        "properties": {},
-        "patternProperties": {},
-        "additionalProperties": {
-          "$ref": "#/allOf/1/properties/name"
+  const auto expected = sourcemeta::core::parse_json(R"JSON(
+    {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "$defs": {
+        "base": {
+          "type": "object",
+          "additionalProperties": {
+            "$ref": "#/allOf/1/properties/name"
+          },
+          "patternProperties": {},
+          "propertyNames": true,
+          "minProperties": 0,
+          "properties": {}
         }
-      }
+      },
+      "allOf": [
+        {
+          "$ref": "#/$defs/base"
+        },
+        {
+          "type": "object",
+          "properties": {
+            "name": {
+              "type": "string",
+              "minLength": 0
+            }
+          },
+          "patternProperties": {},
+          "propertyNames": true,
+          "minProperties": 0
+        }
+      ]
     }
-  })JSON");
+  )JSON");
 
   CANONICALIZE_AND_VALIDATE(document, expected, *compiled_meta_);
 }

@@ -64,8 +64,6 @@ public:
       return true;
     }
 
-    // Walk up through in-place applicators including allOf, checking
-    // for typed siblings at each allOf boundary
     auto walk_pointer{location.pointer};
     auto walk_parent{location.parent};
     while (walk_parent.has_value()) {
@@ -112,6 +110,20 @@ public:
                 if (!inferred.empty()) {
                   this->inherited_type_ = JSON{inferred};
                   return true;
+                }
+              }
+              if (sibling.is_object() && sibling.defines("$ref") &&
+                  sibling.at("$ref").is_string()) {
+                const auto ref_target{
+                    frame.traverse(sibling.at("$ref").to_string())};
+                if (ref_target.has_value()) {
+                  const auto &ref_schema{
+                      get(root, ref_target.value().get().pointer)};
+                  if (ref_schema.is_object() && ref_schema.defines("type") &&
+                      ref_schema.at("type").is_string()) {
+                    this->inherited_type_ = ref_schema.at("type");
+                    return true;
+                  }
                 }
               }
             }
