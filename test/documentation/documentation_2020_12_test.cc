@@ -51,6 +51,50 @@ TEST_F(Documentation202012Test, type_string) {
                        expected);
 }
 
+TEST_F(Documentation202012Test, required_covered_by_properties_no_constraint) {
+  const auto schema{sourcemeta::core::parse_json(R"JSON({
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "type": "object",
+    "required": [ "foo", "bar" ],
+    "properties": {
+      "foo": { "type": "string" },
+      "bar": { "type": "integer" }
+    }
+  })JSON")};
+
+  const auto expected{sourcemeta::core::parse_json(R"JSON({
+    "identifier": 0,
+    "rows": [
+      {
+        "identifier": 1,
+        "path": [ { "type": "synthetic", "value": "root" } ],
+        "type": { "kind": "object" }
+      },
+      {
+        "identifier": 2,
+        "path": [ { "type": "literal", "value": "foo" } ],
+        "type": { "kind": "primitive", "name": "string" },
+        "required": true
+      },
+      {
+        "identifier": 3,
+        "path": [ { "type": "literal", "value": "bar" } ],
+        "type": { "kind": "primitive", "name": "integer" },
+        "required": true
+      },
+      {
+        "identifier": 4,
+        "path": [ { "type": "wildcard", "value": "*" } ],
+        "type": { "kind": "any" }
+      }
+    ]
+  })JSON")};
+
+  EXPECT_DOCUMENTATION(schema, sourcemeta::core::schema_walker,
+                       sourcemeta::core::schema_resolver, *compiled_schema_,
+                       expected);
+}
+
 TEST_F(Documentation202012Test, object_required_with_annotations) {
   const auto schema{sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2020-12/schema",
@@ -83,10 +127,7 @@ TEST_F(Documentation202012Test, object_required_with_annotations) {
           ],
           "type": {
             "kind": "object"
-          },
-          "constraints": [
-            ">= 1 properties"
-          ]
+          }
         },
         {
           "identifier": 2,
@@ -445,10 +486,7 @@ TEST_F(Documentation202012Test, nested_object_with_default) {
           "type": {
             "kind": "object"
           },
-          "required": false,
-          "constraints": [
-            ">= 1 properties"
-          ]
+          "required": false
         },
         {
           "identifier": 3,
@@ -1526,9 +1564,6 @@ TEST_F(Documentation202012Test, nested_property_annotations) {
           "type": {
             "kind": "object"
           },
-          "constraints": [
-            ">= 1 properties"
-          ],
           "title": "User",
           "description": "A user record"
         },
@@ -3330,10 +3365,7 @@ TEST_F(Documentation202012Test, tuple_prefix_items_complex) {
                   ],
                   "type": {
                     "kind": "object"
-                  },
-                  "constraints": [
-                    ">= 1 properties"
-                  ]
+                  }
                 },
                 {
                   "identifier": 5,
@@ -3932,10 +3964,7 @@ TEST_F(Documentation202012Test, internal_ref_non_recursive) {
           "type": {
             "kind": "object"
           },
-          "required": false,
-          "constraints": [
-            ">= 1 properties"
-          ]
+          "required": false
         },
         {
           "identifier": 3,
@@ -4000,10 +4029,7 @@ TEST_F(Documentation202012Test, internal_ref_non_recursive) {
           "type": {
             "kind": "object"
           },
-          "required": false,
-          "constraints": [
-            ">= 1 properties"
-          ]
+          "required": false
         },
         {
           "identifier": 7,
@@ -4701,10 +4727,7 @@ TEST_F(Documentation202012Test, object_with_anyof) {
                           ],
                           "type": {
                             "kind": "object"
-                          },
-                          "constraints": [
-                            ">= 1 properties"
-                          ]
+                          }
                         },
                         {
                           "identifier": 6,
@@ -4746,10 +4769,7 @@ TEST_F(Documentation202012Test, object_with_anyof) {
                           ],
                           "type": {
                             "kind": "object"
-                          },
-                          "constraints": [
-                            ">= 1 properties"
-                          ]
+                          }
                         },
                         {
                           "identifier": 10,
@@ -5018,18 +5038,39 @@ TEST_F(Documentation202012Test, dependent_schemas) {
                           ],
                           "type": {
                             "kind": "any"
-                          },
-                          "constraints": [
-                            "must NOT match >= 1 properties"
+                          }
+                        }
+                      ],
+                      "children": [
+                        {
+                          "label": "Must NOT match",
+                          "children": [
+                            {
+                              "identifier": 6,
+                              "rows": [
+                                {
+                                  "identifier": 7,
+                                  "path": [
+                                    {
+                                      "type": "synthetic",
+                                      "value": "value"
+                                    }
+                                  ],
+                                  "type": {
+                                    "kind": "object"
+                                  }
+                                }
+                              ]
+                            }
                           ]
                         }
                       ]
                     },
                     {
-                      "identifier": 6,
+                      "identifier": 8,
                       "rows": [
                         {
-                          "identifier": 7,
+                          "identifier": 9,
                           "path": [
                             {
                               "type": "synthetic",
@@ -5046,10 +5087,10 @@ TEST_F(Documentation202012Test, dependent_schemas) {
                           "label": "All of",
                           "children": [
                             {
-                              "identifier": 8,
+                              "identifier": 10,
                               "rows": [
                                 {
-                                  "identifier": 9,
+                                  "identifier": 11,
                                   "path": [
                                     {
                                       "type": "synthetic",
@@ -5058,13 +5099,10 @@ TEST_F(Documentation202012Test, dependent_schemas) {
                                   ],
                                   "type": {
                                     "kind": "object"
-                                  },
-                                  "constraints": [
-                                    ">= 1 properties"
-                                  ]
+                                  }
                                 },
                                 {
-                                  "identifier": 10,
+                                  "identifier": 12,
                                   "path": [
                                     {
                                       "type": "literal",
@@ -5077,7 +5115,7 @@ TEST_F(Documentation202012Test, dependent_schemas) {
                                   "required": true
                                 },
                                 {
-                                  "identifier": 11,
+                                  "identifier": 13,
                                   "path": [
                                     {
                                       "type": "wildcard",
@@ -5091,10 +5129,10 @@ TEST_F(Documentation202012Test, dependent_schemas) {
                               ]
                             },
                             {
-                              "identifier": 12,
+                              "identifier": 14,
                               "rows": [
                                 {
-                                  "identifier": 13,
+                                  "identifier": 15,
                                   "path": [
                                     {
                                       "type": "synthetic",
@@ -5103,13 +5141,10 @@ TEST_F(Documentation202012Test, dependent_schemas) {
                                   ],
                                   "type": {
                                     "kind": "object"
-                                  },
-                                  "constraints": [
-                                    ">= 1 properties"
-                                  ]
+                                  }
                                 },
                                 {
-                                  "identifier": 14,
+                                  "identifier": 16,
                                   "path": [
                                     {
                                       "type": "literal",
@@ -5122,7 +5157,7 @@ TEST_F(Documentation202012Test, dependent_schemas) {
                                   "required": true
                                 },
                                 {
-                                  "identifier": 15,
+                                  "identifier": 17,
                                   "path": [
                                     {
                                       "type": "wildcard",
@@ -5144,10 +5179,10 @@ TEST_F(Documentation202012Test, dependent_schemas) {
               ]
             },
             {
-              "identifier": 16,
+              "identifier": 18,
               "rows": [
                 {
-                  "identifier": 17,
+                  "identifier": 19,
                   "path": [
                     {
                       "type": "synthetic",
@@ -5159,7 +5194,7 @@ TEST_F(Documentation202012Test, dependent_schemas) {
                   }
                 },
                 {
-                  "identifier": 18,
+                  "identifier": 20,
                   "path": [
                     {
                       "type": "wildcard",
@@ -5246,18 +5281,39 @@ TEST_F(Documentation202012Test, dependent_required) {
                           ],
                           "type": {
                             "kind": "any"
-                          },
-                          "constraints": [
-                            "must NOT match >= 1 properties"
+                          }
+                        }
+                      ],
+                      "children": [
+                        {
+                          "label": "Must NOT match",
+                          "children": [
+                            {
+                              "identifier": 6,
+                              "rows": [
+                                {
+                                  "identifier": 7,
+                                  "path": [
+                                    {
+                                      "type": "synthetic",
+                                      "value": "value"
+                                    }
+                                  ],
+                                  "type": {
+                                    "kind": "object"
+                                  }
+                                }
+                              ]
+                            }
                           ]
                         }
                       ]
                     },
                     {
-                      "identifier": 6,
+                      "identifier": 8,
                       "rows": [
                         {
-                          "identifier": 7,
+                          "identifier": 9,
                           "path": [
                             {
                               "type": "synthetic",
@@ -5266,13 +5322,10 @@ TEST_F(Documentation202012Test, dependent_required) {
                           ],
                           "type": {
                             "kind": "object"
-                          },
-                          "constraints": [
-                            ">= 2 properties"
-                          ]
+                          }
                         },
                         {
-                          "identifier": 8,
+                          "identifier": 10,
                           "path": [
                             {
                               "type": "literal",
@@ -5285,7 +5338,7 @@ TEST_F(Documentation202012Test, dependent_required) {
                           "required": true
                         },
                         {
-                          "identifier": 9,
+                          "identifier": 11,
                           "path": [
                             {
                               "type": "literal",
@@ -5298,7 +5351,7 @@ TEST_F(Documentation202012Test, dependent_required) {
                           "required": true
                         },
                         {
-                          "identifier": 10,
+                          "identifier": 12,
                           "path": [
                             {
                               "type": "wildcard",
@@ -5316,10 +5369,10 @@ TEST_F(Documentation202012Test, dependent_required) {
               ]
             },
             {
-              "identifier": 11,
+              "identifier": 13,
               "rows": [
                 {
-                  "identifier": 12,
+                  "identifier": 14,
                   "path": [
                     {
                       "type": "synthetic",
@@ -5331,7 +5384,7 @@ TEST_F(Documentation202012Test, dependent_required) {
                   }
                 },
                 {
-                  "identifier": 13,
+                  "identifier": 15,
                   "path": [
                     {
                       "type": "wildcard",

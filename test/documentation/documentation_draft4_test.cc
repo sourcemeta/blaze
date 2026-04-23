@@ -461,10 +461,7 @@ TEST_F(DocumentationDraft4Test, object_required) {
           ],
           "type": {
             "kind": "object"
-          },
-          "constraints": [
-            ">= 1 properties"
-          ]
+          }
         },
         {
           "identifier": 2,
