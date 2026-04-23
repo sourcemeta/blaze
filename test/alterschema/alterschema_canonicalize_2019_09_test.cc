@@ -1298,46 +1298,22 @@ TEST_F(Canonicalizer201909Test, enum_filter_by_type) {
     "enum": [ "a", 1 ]
   })JSON");
 
-  const auto expected = sourcemeta::core::parse_json(R"JSON({
-    "$schema": "https://json-schema.org/draft/2019-09/schema",
-    "allOf": [
-      {
-        "anyOf": [
-          {
-            "enum": [ null ]
-          },
-          {
-            "enum": [ false, true ]
-          },
-          {
-            "type": "object",
-            "minProperties": 0,
-            "propertyNames": true,
-            "properties": {},
-            "patternProperties": {}
-          },
-          {
-            "type": "array",
-            "minItems": 0,
-            "uniqueItems": false,
-            "minContains": 0,
-            "contains": true,
-            "items": true
-          },
-          {
-            "type": "string",
-            "minLength": 0
-          },
-          {
-            "type": "number"
-          }
-        ]
-      },
-      {
-        "enum": [ "a" ]
-      }
-    ]
-  })JSON");
+  const auto expected = sourcemeta::core::parse_json(R"JSON(
+    {
+      "$schema": "https://json-schema.org/draft/2019-09/schema",
+      "allOf": [
+        {
+          "minLength": 0,
+          "type": "string"
+        },
+        {
+          "enum": [
+            "a"
+          ]
+        }
+      ]
+    }
+  )JSON");
 
   CANONICALIZE_AND_VALIDATE(document, expected, *compiled_meta_);
 }

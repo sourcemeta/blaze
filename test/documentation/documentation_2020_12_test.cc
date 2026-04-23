@@ -3738,31 +3738,35 @@ TEST_F(Documentation202012Test, object_with_anyof) {
                             }
                           ],
                           "type": {
-                            "kind": "enum",
-                            "values": [
-                              null
-                            ]
-                          }
-                        }
-                      ]
-                    },
-                    {
-                      "identifier": 6,
-                      "rows": [
+                            "kind": "object"
+                          },
+                          "constraints": [
+                            ">= 1 properties"
+                          ]
+                        },
+                        {
+                          "identifier": 6,
+                          "path": [
+                            {
+                              "type": "literal",
+                              "value": "a"
+                            }
+                          ],
+                          "type": {
+                            "kind": "any"
+                          },
+                          "required": true
+                        },
                         {
                           "identifier": 7,
                           "path": [
                             {
-                              "type": "synthetic",
-                              "value": "root"
+                              "type": "wildcard",
+                              "value": "*"
                             }
                           ],
                           "type": {
-                            "kind": "enum",
-                            "values": [
-                              false,
-                              true
-                            ]
+                            "kind": "any"
                           }
                         }
                       ]
@@ -3790,7 +3794,7 @@ TEST_F(Documentation202012Test, object_with_anyof) {
                           "path": [
                             {
                               "type": "literal",
-                              "value": "a"
+                              "value": "b"
                             }
                           ],
                           "type": {
@@ -3811,114 +3815,16 @@ TEST_F(Documentation202012Test, object_with_anyof) {
                           }
                         }
                       ]
-                    },
-                    {
-                      "identifier": 12,
-                      "rows": [
-                        {
-                          "identifier": 13,
-                          "path": [
-                            {
-                              "type": "synthetic",
-                              "value": "root"
-                            }
-                          ],
-                          "type": {
-                            "kind": "array"
-                          }
-                        }
-                      ]
-                    },
-                    {
-                      "identifier": 14,
-                      "rows": [
-                        {
-                          "identifier": 15,
-                          "path": [
-                            {
-                              "type": "synthetic",
-                              "value": "root"
-                            }
-                          ],
-                          "type": {
-                            "kind": "primitive",
-                            "name": "string"
-                          }
-                        }
-                      ]
-                    },
-                    {
-                      "identifier": 16,
-                      "rows": [
-                        {
-                          "identifier": 17,
-                          "path": [
-                            {
-                              "type": "synthetic",
-                              "value": "root"
-                            }
-                          ],
-                          "type": {
-                            "kind": "primitive",
-                            "name": "number"
-                          }
-                        }
-                      ]
-                    },
-                    {
-                      "identifier": 18,
-                      "rows": [
-                        {
-                          "identifier": 19,
-                          "path": [
-                            {
-                              "type": "synthetic",
-                              "value": "root"
-                            }
-                          ],
-                          "type": {
-                            "kind": "object"
-                          },
-                          "constraints": [
-                            ">= 1 properties"
-                          ]
-                        },
-                        {
-                          "identifier": 20,
-                          "path": [
-                            {
-                              "type": "literal",
-                              "value": "b"
-                            }
-                          ],
-                          "type": {
-                            "kind": "any"
-                          },
-                          "required": true
-                        },
-                        {
-                          "identifier": 21,
-                          "path": [
-                            {
-                              "type": "wildcard",
-                              "value": "*"
-                            }
-                          ],
-                          "type": {
-                            "kind": "any"
-                          }
-                        }
-                      ]
                     }
                   ]
                 }
               ]
             },
             {
-              "identifier": 22,
+              "identifier": 12,
               "rows": [
                 {
-                  "identifier": 23,
+                  "identifier": 13,
                   "path": [
                     {
                       "type": "synthetic",
@@ -3931,7 +3837,7 @@ TEST_F(Documentation202012Test, object_with_anyof) {
                   "title": "T"
                 },
                 {
-                  "identifier": 24,
+                  "identifier": 14,
                   "path": [
                     {
                       "type": "wildcard",
@@ -4234,154 +4140,36 @@ TEST_F(Documentation202012Test, dependent_schemas) {
                                     }
                                   ],
                                   "type": {
+                                    "kind": "object"
+                                  },
+                                  "constraints": [
+                                    ">= 1 properties"
+                                  ]
+                                },
+                                {
+                                  "identifier": 14,
+                                  "path": [
+                                    {
+                                      "type": "literal",
+                                      "value": "b"
+                                    }
+                                  ],
+                                  "type": {
+                                    "kind": "any"
+                                  },
+                                  "required": true
+                                },
+                                {
+                                  "identifier": 15,
+                                  "path": [
+                                    {
+                                      "type": "wildcard",
+                                      "value": "*"
+                                    }
+                                  ],
+                                  "type": {
                                     "kind": "any"
                                   }
-                                }
-                              ],
-                              "children": [
-                                {
-                                  "label": "Any of",
-                                  "children": [
-                                    {
-                                      "identifier": 14,
-                                      "rows": [
-                                        {
-                                          "identifier": 15,
-                                          "path": [
-                                            {
-                                              "type": "synthetic",
-                                              "value": "root"
-                                            }
-                                          ],
-                                          "type": {
-                                            "kind": "enum",
-                                            "values": [
-                                              null
-                                            ]
-                                          }
-                                        }
-                                      ]
-                                    },
-                                    {
-                                      "identifier": 16,
-                                      "rows": [
-                                        {
-                                          "identifier": 17,
-                                          "path": [
-                                            {
-                                              "type": "synthetic",
-                                              "value": "root"
-                                            }
-                                          ],
-                                          "type": {
-                                            "kind": "enum",
-                                            "values": [
-                                              false,
-                                              true
-                                            ]
-                                          }
-                                        }
-                                      ]
-                                    },
-                                    {
-                                      "identifier": 18,
-                                      "rows": [
-                                        {
-                                          "identifier": 19,
-                                          "path": [
-                                            {
-                                              "type": "synthetic",
-                                              "value": "root"
-                                            }
-                                          ],
-                                          "type": {
-                                            "kind": "object"
-                                          },
-                                          "constraints": [
-                                            ">= 1 properties"
-                                          ]
-                                        },
-                                        {
-                                          "identifier": 20,
-                                          "path": [
-                                            {
-                                              "type": "literal",
-                                              "value": "b"
-                                            }
-                                          ],
-                                          "type": {
-                                            "kind": "any"
-                                          },
-                                          "required": true
-                                        },
-                                        {
-                                          "identifier": 21,
-                                          "path": [
-                                            {
-                                              "type": "wildcard",
-                                              "value": "*"
-                                            }
-                                          ],
-                                          "type": {
-                                            "kind": "any"
-                                          }
-                                        }
-                                      ]
-                                    },
-                                    {
-                                      "identifier": 22,
-                                      "rows": [
-                                        {
-                                          "identifier": 23,
-                                          "path": [
-                                            {
-                                              "type": "synthetic",
-                                              "value": "root"
-                                            }
-                                          ],
-                                          "type": {
-                                            "kind": "array"
-                                          }
-                                        }
-                                      ]
-                                    },
-                                    {
-                                      "identifier": 24,
-                                      "rows": [
-                                        {
-                                          "identifier": 25,
-                                          "path": [
-                                            {
-                                              "type": "synthetic",
-                                              "value": "root"
-                                            }
-                                          ],
-                                          "type": {
-                                            "kind": "primitive",
-                                            "name": "string"
-                                          }
-                                        }
-                                      ]
-                                    },
-                                    {
-                                      "identifier": 26,
-                                      "rows": [
-                                        {
-                                          "identifier": 27,
-                                          "path": [
-                                            {
-                                              "type": "synthetic",
-                                              "value": "root"
-                                            }
-                                          ],
-                                          "type": {
-                                            "kind": "primitive",
-                                            "name": "number"
-                                          }
-                                        }
-                                      ]
-                                    }
-                                  ]
                                 }
                               ]
                             }
@@ -4394,10 +4182,10 @@ TEST_F(Documentation202012Test, dependent_schemas) {
               ]
             },
             {
-              "identifier": 28,
+              "identifier": 16,
               "rows": [
                 {
-                  "identifier": 29,
+                  "identifier": 17,
                   "path": [
                     {
                       "type": "synthetic",
@@ -4409,7 +4197,7 @@ TEST_F(Documentation202012Test, dependent_schemas) {
                   }
                 },
                 {
-                  "identifier": 30,
+                  "identifier": 18,
                   "path": [
                     {
                       "type": "wildcard",
