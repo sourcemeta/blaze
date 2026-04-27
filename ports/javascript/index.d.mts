@@ -25,9 +25,15 @@ export interface StandardOutputAnnotationEntry {
   annotation: unknown[];
 }
 
-export type StandardOutputResult =
+export type StandardOutputFlagResult = { valid: boolean };
+
+export type StandardOutputBasicResult =
   | { valid: true; annotations?: StandardOutputAnnotationEntry[] }
   | { valid: false; errors: StandardOutputErrorEntry[] };
+
+export type StandardOutputResult =
+  | StandardOutputFlagResult
+  | StandardOutputBasicResult;
 
 export declare class Blaze {
   static reviver(
@@ -38,7 +44,8 @@ export declare class Blaze {
   constructor(template: Template);
   validate(instance: unknown): boolean;
   validate(instance: unknown, callback: EvaluationCallback): boolean;
-  validate(instance: unknown, format: StandardOutputFormat): StandardOutputResult;
+  validate(instance: unknown, format: 'flag'): StandardOutputFlagResult;
+  validate(instance: unknown, format: 'basic'): StandardOutputBasicResult;
 }
 
 export declare function describe(
