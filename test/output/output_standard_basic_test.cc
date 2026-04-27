@@ -992,3 +992,272 @@ TEST(Output_standard_basic, failure_contains_1) {
 
   EXPECT_EQ(result, expected);
 }
+
+TEST(Output_standard_basic, success_oneof_1_exhaustive) {
+  const auto schema{sourcemeta::core::parse_json(R"JSON({
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "oneOf": [
+      { "title": "First", "type": "string" },
+      { "title": "Second", "type": "integer" }
+    ]
+  })JSON")};
+
+  const auto schema_template{
+      sourcemeta::blaze::compile(schema, sourcemeta::core::schema_walker,
+                                 sourcemeta::core::schema_resolver,
+                                 sourcemeta::blaze::default_schema_compiler,
+                                 sourcemeta::blaze::Mode::Exhaustive)};
+
+  const sourcemeta::core::JSON instance{5};
+
+  sourcemeta::blaze::Evaluator evaluator;
+  const auto result{
+      sourcemeta::blaze::standard(evaluator, schema_template, instance,
+                                  sourcemeta::blaze::StandardOutput::Basic)};
+
+  const auto expected{sourcemeta::core::parse_json(R"JSON({
+    "valid": true,
+    "annotations": [
+      {
+        "keywordLocation": "/oneOf/1/title",
+        "absoluteKeywordLocation": "#/oneOf/1/title",
+        "instanceLocation": "",
+        "annotation": [ "Second" ]
+      }
+    ]
+  })JSON")};
+
+  EXPECT_EQ(result, expected);
+}
+
+TEST(Output_standard_basic, success_not_1_exhaustive) {
+  const auto schema{sourcemeta::core::parse_json(R"JSON({
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "not": {
+      "title": "Negation",
+      "type": "string"
+    }
+  })JSON")};
+
+  const auto schema_template{
+      sourcemeta::blaze::compile(schema, sourcemeta::core::schema_walker,
+                                 sourcemeta::core::schema_resolver,
+                                 sourcemeta::blaze::default_schema_compiler,
+                                 sourcemeta::blaze::Mode::Exhaustive)};
+
+  const sourcemeta::core::JSON instance{42};
+
+  sourcemeta::blaze::Evaluator evaluator;
+  const auto result{
+      sourcemeta::blaze::standard(evaluator, schema_template, instance,
+                                  sourcemeta::blaze::StandardOutput::Basic)};
+
+  const auto expected{sourcemeta::core::parse_json(R"JSON({
+    "valid": true
+  })JSON")};
+
+  EXPECT_EQ(result, expected);
+}
+
+TEST(Output_standard_basic, success_anyof_1_exhaustive) {
+  const auto schema{sourcemeta::core::parse_json(R"JSON({
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "anyOf": [
+      { "title": "#1", "type": "string" },
+      { "title": "#2", "type": "integer" }
+    ]
+  })JSON")};
+
+  const auto schema_template{
+      sourcemeta::blaze::compile(schema, sourcemeta::core::schema_walker,
+                                 sourcemeta::core::schema_resolver,
+                                 sourcemeta::blaze::default_schema_compiler,
+                                 sourcemeta::blaze::Mode::Exhaustive)};
+
+  const sourcemeta::core::JSON instance{5};
+
+  sourcemeta::blaze::Evaluator evaluator;
+  const auto result{
+      sourcemeta::blaze::standard(evaluator, schema_template, instance,
+                                  sourcemeta::blaze::StandardOutput::Basic)};
+
+  const auto expected{sourcemeta::core::parse_json(R"JSON({
+    "valid": true,
+    "annotations": [
+      {
+        "keywordLocation": "/anyOf/1/title",
+        "absoluteKeywordLocation": "#/anyOf/1/title",
+        "instanceLocation": "",
+        "annotation": [ "#2" ]
+      }
+    ]
+  })JSON")};
+
+  EXPECT_EQ(result, expected);
+}
+
+TEST(Output_standard_basic, success_if_then_1_exhaustive) {
+  const auto schema{sourcemeta::core::parse_json(R"JSON({
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "if": { "type": "string" },
+    "then": { "title": "Then Title", "minLength": 3 }
+  })JSON")};
+
+  const auto schema_template{
+      sourcemeta::blaze::compile(schema, sourcemeta::core::schema_walker,
+                                 sourcemeta::core::schema_resolver,
+                                 sourcemeta::blaze::default_schema_compiler,
+                                 sourcemeta::blaze::Mode::Exhaustive)};
+
+  const sourcemeta::core::JSON instance{"foobar"};
+
+  sourcemeta::blaze::Evaluator evaluator;
+  const auto result{
+      sourcemeta::blaze::standard(evaluator, schema_template, instance,
+                                  sourcemeta::blaze::StandardOutput::Basic)};
+
+  const auto expected{sourcemeta::core::parse_json(R"JSON({
+    "valid": true,
+    "annotations": [
+      {
+        "keywordLocation": "/then/title",
+        "absoluteKeywordLocation": "#/then/title",
+        "instanceLocation": "",
+        "annotation": [ "Then Title" ]
+      }
+    ]
+  })JSON")};
+
+  EXPECT_EQ(result, expected);
+}
+
+TEST(Output_standard_basic, success_if_else_1_exhaustive) {
+  const auto schema{sourcemeta::core::parse_json(R"JSON({
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "if": { "type": "string" },
+    "else": { "title": "Else Title", "minimum": 0 }
+  })JSON")};
+
+  const auto schema_template{
+      sourcemeta::blaze::compile(schema, sourcemeta::core::schema_walker,
+                                 sourcemeta::core::schema_resolver,
+                                 sourcemeta::blaze::default_schema_compiler,
+                                 sourcemeta::blaze::Mode::Exhaustive)};
+
+  const sourcemeta::core::JSON instance{42};
+
+  sourcemeta::blaze::Evaluator evaluator;
+  const auto result{
+      sourcemeta::blaze::standard(evaluator, schema_template, instance,
+                                  sourcemeta::blaze::StandardOutput::Basic)};
+
+  const auto expected{sourcemeta::core::parse_json(R"JSON({
+    "valid": true,
+    "annotations": [
+      {
+        "keywordLocation": "/else/title",
+        "absoluteKeywordLocation": "#/else/title",
+        "instanceLocation": "",
+        "annotation": [ "Else Title" ]
+      }
+    ]
+  })JSON")};
+
+  EXPECT_EQ(result, expected);
+}
+
+TEST(Output_standard_basic, success_contains_1_exhaustive) {
+  const auto schema{sourcemeta::core::parse_json(R"JSON({
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "contains": { "type": "boolean" }
+  })JSON")};
+
+  const auto schema_template{
+      sourcemeta::blaze::compile(schema, sourcemeta::core::schema_walker,
+                                 sourcemeta::core::schema_resolver,
+                                 sourcemeta::blaze::default_schema_compiler,
+                                 sourcemeta::blaze::Mode::Exhaustive)};
+
+  const sourcemeta::core::JSON instance{
+      sourcemeta::core::parse_json("[ false, 1, true ]")};
+
+  sourcemeta::blaze::Evaluator evaluator;
+  const auto result{
+      sourcemeta::blaze::standard(evaluator, schema_template, instance,
+                                  sourcemeta::blaze::StandardOutput::Basic)};
+
+  const auto expected{sourcemeta::core::parse_json(R"JSON({
+    "valid": true,
+    "annotations": [
+      {
+        "keywordLocation": "/contains",
+        "absoluteKeywordLocation": "#/contains",
+        "instanceLocation": "",
+        "annotation": [ 0, 2 ]
+      }
+    ]
+  })JSON")};
+
+  EXPECT_EQ(result, expected);
+}
+
+TEST(Output_standard_basic, failure_nested_oneof_anyof_1) {
+  const auto schema{sourcemeta::core::parse_json(R"JSON({
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "oneOf": [
+      { "anyOf": [ { "type": "string" }, { "type": "integer" } ] },
+      { "type": "boolean" }
+    ]
+  })JSON")};
+
+  const auto schema_template{
+      sourcemeta::blaze::compile(schema, sourcemeta::core::schema_walker,
+                                 sourcemeta::core::schema_resolver,
+                                 sourcemeta::blaze::default_schema_compiler,
+                                 sourcemeta::blaze::Mode::FastValidation)};
+
+  const sourcemeta::core::JSON instance{sourcemeta::core::JSON{nullptr}};
+
+  sourcemeta::blaze::Evaluator evaluator;
+  const auto result{
+      sourcemeta::blaze::standard(evaluator, schema_template, instance,
+                                  sourcemeta::blaze::StandardOutput::Basic)};
+
+  const auto expected{sourcemeta::core::parse_json(R"JSON({
+    "valid": false,
+    "errors": [
+      {
+        "keywordLocation": "/oneOf/0/anyOf/0/type",
+        "absoluteKeywordLocation": "#/oneOf/0/anyOf/0/type",
+        "instanceLocation": "",
+        "error": "The value was expected to be of type string but it was of type null"
+      },
+      {
+        "keywordLocation": "/oneOf/0/anyOf/1/type",
+        "absoluteKeywordLocation": "#/oneOf/0/anyOf/1/type",
+        "instanceLocation": "",
+        "error": "The value was expected to be of type integer but it was of type null"
+      },
+      {
+        "keywordLocation": "/oneOf/0/anyOf",
+        "absoluteKeywordLocation": "#/oneOf/0/anyOf",
+        "instanceLocation": "",
+        "error": "The null value was expected to validate against at least one of the 2 given subschemas"
+      },
+      {
+        "keywordLocation": "/oneOf/1/type",
+        "absoluteKeywordLocation": "#/oneOf/1/type",
+        "instanceLocation": "",
+        "error": "The value was expected to be of type boolean but it was of type null"
+      },
+      {
+        "keywordLocation": "/oneOf",
+        "absoluteKeywordLocation": "#/oneOf",
+        "instanceLocation": "",
+        "error": "The null value was expected to validate against one and only one of the 2 given subschemas"
+      }
+    ]
+  })JSON")};
+
+  EXPECT_EQ(result, expected);
+}
