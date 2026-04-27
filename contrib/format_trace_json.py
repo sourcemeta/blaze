@@ -1,9 +1,10 @@
 #!/usr/bin/env python3
 
-"""Formatter for Blaze evaluator trace JSON test files.
+"""Formatter for Blaze JSON test files (evaluator traces and output suites).
 
 Usage:
     python3 contrib/format_trace_json.py test/evaluator/evaluator_*.json
+    python3 contrib/format_trace_json.py test/output/output_standard_basic.json
 """
 
 import json
@@ -99,8 +100,8 @@ def format_descriptions(descriptions, indent_level):
     return "\n".join(lines)
 
 
-def format_mode_section(mode_data, indent_level):
-    """Format a fast/exhaustive section."""
+def format_trace_mode_section(mode_data, indent_level):
+    """Format a fast/exhaustive section containing trace data."""
     spaces = "  " * indent_level
     if not mode_data:
         return "{}"
@@ -130,8 +131,28 @@ def format_mode_section(mode_data, indent_level):
     return "\n".join(lines)
 
 
+def format_output_mode_section(mode_data, indent_level):
+    """Format a fast/exhaustive section containing standard output data."""
+    if not mode_data:
+        return "{}"
+    return format_json_value(mode_data, indent_level)
+
+
+def is_trace_format(test):
+    """Detect whether a test entry uses trace format or output format."""
+    fast = test.get("fast", {})
+    exhaustive = test.get("exhaustive", {})
+    return ("pre" in fast or "post" in fast
+            or "pre" in exhaustive or "post" in exhaustive)
+
+
 def format_test_entry(test):
     """Format a single test entry."""
+    if is_trace_format(test):
+        fmt = format_trace_mode_section
+    else:
+        fmt = format_output_mode_section
+
     lines = []
     lines.append("  {")
     lines.append(
@@ -147,10 +168,10 @@ def format_test_entry(test):
         f"    \"valid\": {json.dumps(test['valid'])},"
     )
     lines.append(
-        f"    \"fast\": {format_mode_section(test['fast'], 2)},"
+        f"    \"fast\": {fmt(test['fast'], 2)},"
     )
     lines.append(
-        f"    \"exhaustive\": {format_mode_section(test['exhaustive'], 2)}"
+        f"    \"exhaustive\": {fmt(test['exhaustive'], 2)}"
     )
     lines.append("  }")
     return "\n".join(lines)
