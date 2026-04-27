@@ -191,6 +191,63 @@ TEST(Output_simple, success_oneof_1) {
   EXPECT_ANNOTATION_COUNT(output, 0);
 }
 
+TEST(Output_simple, success_anyof_1) {
+  const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "anyOf": [
+      { "type": "string" },
+      { "type": "integer" }
+    ]
+  })JSON")};
+
+  const auto schema_template{
+      sourcemeta::blaze::compile(schema, sourcemeta::core::schema_walker,
+                                 sourcemeta::core::schema_resolver,
+                                 sourcemeta::blaze::default_schema_compiler)};
+
+  const sourcemeta::core::JSON instance{42};
+
+  sourcemeta::blaze::SimpleOutput output{instance};
+  sourcemeta::blaze::Evaluator evaluator;
+  const auto result{
+      evaluator.validate(schema_template, instance, std::ref(output))};
+
+  EXPECT_TRUE(result);
+  std::vector<sourcemeta::blaze::SimpleOutput::Entry> traces{output.cbegin(),
+                                                             output.cend()};
+  EXPECT_TRUE(traces.empty());
+
+  EXPECT_ANNOTATION_COUNT(output, 0);
+}
+
+TEST(Output_simple, success_not_1) {
+  const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "not": {
+      "type": "string"
+    }
+  })JSON")};
+
+  const auto schema_template{
+      sourcemeta::blaze::compile(schema, sourcemeta::core::schema_walker,
+                                 sourcemeta::core::schema_resolver,
+                                 sourcemeta::blaze::default_schema_compiler)};
+
+  const sourcemeta::core::JSON instance{42};
+
+  sourcemeta::blaze::SimpleOutput output{instance};
+  sourcemeta::blaze::Evaluator evaluator;
+  const auto result{
+      evaluator.validate(schema_template, instance, std::ref(output))};
+
+  EXPECT_TRUE(result);
+  std::vector<sourcemeta::blaze::SimpleOutput::Entry> traces{output.cbegin(),
+                                                             output.cend()};
+  EXPECT_TRUE(traces.empty());
+
+  EXPECT_ANNOTATION_COUNT(output, 0);
+}
+
 TEST(Output_simple, fail_string) {
   const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2020-12/schema",
