@@ -4,117 +4,13 @@ import { isDeepStrictEqual } from 'node:util';
 import { readFileSync, readdirSync } from 'node:fs';
 import { join, dirname, basename } from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { Blaze } from './index.mjs';
+import { Blaze, describe as describeInstruction } from './index.mjs';
 const reviver = Blaze.reviver;
 import { compileSchema } from './compile.mjs';
+import { INSTRUCTION_NAMES, ANNOTATION_OPCODES } from './opcodes.mjs';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const TRACE_SUITE_PATH = join(__dirname, '..', '..', 'test', 'evaluator');
-
-const INSTRUCTION_NAMES = {
-  "AssertionFail": 0,
-  "AssertionDefines": 1,
-  "AssertionDefinesStrict": 2,
-  "AssertionDefinesAll": 3,
-  "AssertionDefinesAllStrict": 4,
-  "AssertionDefinesExactly": 5,
-  "AssertionDefinesExactlyStrict": 6,
-  "AssertionDefinesExactlyStrictHash3": 7,
-  "AssertionPropertyDependencies": 8,
-  "AssertionType": 9,
-  "AssertionTypeAny": 10,
-  "AssertionTypeStrict": 11,
-  "AssertionTypeStrictAny": 12,
-  "AssertionTypeStringBounded": 13,
-  "AssertionTypeStringUpper": 14,
-  "AssertionTypeArrayBounded": 15,
-  "AssertionTypeArrayUpper": 16,
-  "AssertionTypeObjectBounded": 17,
-  "AssertionTypeObjectUpper": 18,
-  "AssertionRegex": 19,
-  "AssertionStringSizeLess": 20,
-  "AssertionStringSizeGreater": 21,
-  "AssertionArraySizeLess": 22,
-  "AssertionArraySizeGreater": 23,
-  "AssertionObjectSizeLess": 24,
-  "AssertionObjectSizeGreater": 25,
-  "AssertionEqual": 26,
-  "AssertionEqualsAny": 27,
-  "AssertionEqualsAnyStringHash": 28,
-  "AssertionGreaterEqual": 29,
-  "AssertionLessEqual": 30,
-  "AssertionGreater": 31,
-  "AssertionLess": 32,
-  "AssertionUnique": 33,
-  "AssertionDivisible": 34,
-  "AssertionTypeIntegerBounded": 35,
-  "AssertionTypeIntegerBoundedStrict": 36,
-  "AssertionTypeIntegerLowerBound": 37,
-  "AssertionTypeIntegerLowerBoundStrict": 38,
-  "AssertionStringType": 39,
-  "AssertionPropertyType": 40,
-  "AssertionPropertyTypeEvaluate": 41,
-  "AssertionPropertyTypeStrict": 42,
-  "AssertionPropertyTypeStrictEvaluate": 43,
-  "AssertionPropertyTypeStrictAny": 44,
-  "AssertionPropertyTypeStrictAnyEvaluate": 45,
-  "AssertionArrayPrefix": 46,
-  "AssertionArrayPrefixEvaluate": 47,
-  "AssertionObjectPropertiesSimple": 48,
-  "AnnotationEmit": 49,
-  "AnnotationToParent": 50,
-  "AnnotationBasenameToParent": 51,
-  "Evaluate": 52,
-  "LogicalNot": 53,
-  "LogicalNotEvaluate": 54,
-  "LogicalOr": 55,
-  "LogicalAnd": 56,
-  "LogicalXor": 57,
-  "LogicalCondition": 58,
-  "LogicalWhenType": 59,
-  "LogicalWhenDefines": 60,
-  "LogicalWhenArraySizeGreater": 61,
-  "LoopPropertiesUnevaluated": 62,
-  "LoopPropertiesUnevaluatedExcept": 63,
-  "LoopPropertiesMatch": 64,
-  "LoopPropertiesMatchClosed": 65,
-  "LoopProperties": 66,
-  "LoopPropertiesEvaluate": 67,
-  "LoopPropertiesRegex": 68,
-  "LoopPropertiesRegexClosed": 69,
-  "LoopPropertiesStartsWith": 70,
-  "LoopPropertiesExcept": 71,
-  "LoopPropertiesType": 72,
-  "LoopPropertiesTypeEvaluate": 73,
-  "LoopPropertiesExactlyTypeStrict": 74,
-  "LoopPropertiesExactlyTypeStrictHash": 75,
-  "LoopPropertiesTypeStrict": 76,
-  "LoopPropertiesTypeStrictEvaluate": 77,
-  "LoopPropertiesTypeStrictAny": 78,
-  "LoopPropertiesTypeStrictAnyEvaluate": 79,
-  "LoopKeys": 80,
-  "LoopItems": 81,
-  "LoopItemsFrom": 82,
-  "LoopItemsUnevaluated": 83,
-  "LoopItemsType": 84,
-  "LoopItemsTypeStrict": 85,
-  "LoopItemsTypeStrictAny": 86,
-  "LoopItemsPropertiesExactlyTypeStrictHash": 87,
-  "LoopItemsPropertiesExactlyTypeStrictHash3": 88,
-  "LoopItemsIntegerBounded": 89,
-  "LoopItemsIntegerBoundedSized": 90,
-  "LoopContains": 91,
-  "ControlGroup": 92,
-  "ControlGroupWhenDefines": 93,
-  "ControlGroupWhenDefinesDirect": 94,
-  "ControlGroupWhenType": 95,
-  "ControlEvaluate": 96,
-  "ControlDynamicAnchorJump": 97,
-  "ControlJump": 98,
-  "Annotation": -1
-};
-
-const ANNOTATION_OPCODES = new Set([49, 50, 51]);
 
 function resolveInstructionType(name) {
   const opcode = INSTRUCTION_NAMES[name];
@@ -156,7 +52,7 @@ for (const file of suiteFiles) {
             if (type === 'pre') {
               tracePre.push({ opcode: instruction[0], evaluatePath, keywordLocation: instruction[3], instanceLocation });
             } else {
-              tracePost.push({ valid, opcode: instruction[0], evaluatePath, keywordLocation: instruction[3], instanceLocation, annotation });
+              tracePost.push({ valid, opcode: instruction[0], evaluatePath, keywordLocation: instruction[3], instanceLocation, annotation, instruction });
             }
           });
 
@@ -219,6 +115,20 @@ for (const file of suiteFiles) {
               assert.ok(isDeepStrictEqual(actual.annotation, expected[5]),
                 `Post[${index}] annotation: expected ${JSON.stringify(expected[5])}, got ${JSON.stringify(actual.annotation)}`);
             }
+          }
+
+          const expectedDescriptions = modeData.descriptions || [];
+          assert.equal(tracePost.length, expectedDescriptions.length,
+            `Description count: expected ${expectedDescriptions.length}, got ${tracePost.length}`);
+          for (let index = 0; index < expectedDescriptions.length; index++) {
+            const post = tracePost[index];
+            const actual = describeInstruction(
+              post.valid, post.instruction,
+              post.evaluatePath, post.instanceLocation,
+              testCase.instance, post.annotation
+            );
+            assert.equal(actual, expectedDescriptions[index],
+              `Description[${index}]: expected ${JSON.stringify(expectedDescriptions[index])}, got ${JSON.stringify(actual)}`);
           }
         });
       }

@@ -18,3 +18,12 @@ export declare class Blaze {
   constructor(template: Template);
   validate(instance: unknown, callback?: EvaluationCallback): boolean;
 }
+
+export declare function describe(
+  valid: boolean,
+  instruction: unknown[],
+  evaluatePath: string,
+  instanceLocation: string,
+  instance: unknown,
+  annotation: unknown
+): string;

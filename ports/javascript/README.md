@@ -68,6 +68,37 @@ const result = evaluator.validate(instance,
 console.log(result); // true or false
 ```
 
+### Human-readable descriptions
+
+The `describe` function converts a callback result into a human-readable
+message explaining what the evaluator expected at each step. Pass it the same
+arguments the callback receives, plus the original instance:
+
+```javascript
+import { Blaze, describe } from "@sourcemeta/blaze";
+
+const evaluator = new Blaze(template);
+const instance = { name: 123 };
+const errors = [];
+
+const valid = evaluator.validate(instance,
+  (type, valid, instruction,
+   evaluatePath, instanceLocation, annotation) => {
+    if (type === "post" && !valid) {
+      errors.push(describe(valid, instruction,
+        evaluatePath, instanceLocation,
+        instance, annotation));
+    }
+  });
+
+if (!valid) {
+  for (const error of errors) {
+    console.log(error);
+    // "The value was expected to be of type string but it was of type integer"
+  }
+}
+```
+
 ### Parsing large integers
 
 JavaScript's

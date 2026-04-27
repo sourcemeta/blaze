@@ -7515,62 +7515,6 @@
     }
   },
   {
-    "description": "minimum_12",
-    "schema": { "$schema": "http://json-schema.org/draft-04/schema#", "minimum": 2.5 },
-    "instance": 3.0,
-    "valid": true,
-    "fast": {
-      "pre": [
-        [ "AssertionGreaterEqual", "/minimum", "#/minimum", "" ]
-      ],
-      "post": [
-        [ true, "AssertionGreaterEqual", "/minimum", "#/minimum", "" ]
-      ],
-      "descriptions": [
-        "The number value 3.0 was expected to be greater than or equal to the number 2.5"
-      ]
-    },
-    "exhaustive": {
-      "pre": [
-        [ "AssertionGreaterEqual", "/minimum", "#/minimum", "" ]
-      ],
-      "post": [
-        [ true, "AssertionGreaterEqual", "/minimum", "#/minimum", "" ]
-      ],
-      "descriptions": [
-        "The number value 3.0 was expected to be greater than or equal to the number 2.5"
-      ]
-    }
-  },
-  {
-    "description": "minimum_13",
-    "schema": { "$schema": "http://json-schema.org/draft-04/schema#", "minimum": 2.5 },
-    "instance": 2.0,
-    "valid": false,
-    "fast": {
-      "pre": [
-        [ "AssertionGreaterEqual", "/minimum", "#/minimum", "" ]
-      ],
-      "post": [
-        [ false, "AssertionGreaterEqual", "/minimum", "#/minimum", "" ]
-      ],
-      "descriptions": [
-        "The number value 2.0 was expected to be greater than or equal to the number 2.5"
-      ]
-    },
-    "exhaustive": {
-      "pre": [
-        [ "AssertionGreaterEqual", "/minimum", "#/minimum", "" ]
-      ],
-      "post": [
-        [ false, "AssertionGreaterEqual", "/minimum", "#/minimum", "" ]
-      ],
-      "descriptions": [
-        "The number value 2.0 was expected to be greater than or equal to the number 2.5"
-      ]
-    }
-  },
-  {
     "description": "minimum_14",
     "schema": { "$schema": "http://json-schema.org/draft-04/schema#", "minimum": 5 },
     "instance": 10,
@@ -7627,62 +7571,6 @@
     }
   },
   {
-    "description": "minimum_16",
-    "schema": { "$schema": "http://json-schema.org/draft-04/schema#", "minimum": 2.5 },
-    "instance": 3.0,
-    "valid": true,
-    "fast": {
-      "pre": [
-        [ "AssertionGreaterEqual", "/minimum", "#/minimum", "" ]
-      ],
-      "post": [
-        [ true, "AssertionGreaterEqual", "/minimum", "#/minimum", "" ]
-      ],
-      "descriptions": [
-        "The number value 3.0 was expected to be greater than or equal to the number 2.5"
-      ]
-    },
-    "exhaustive": {
-      "pre": [
-        [ "AssertionGreaterEqual", "/minimum", "#/minimum", "" ]
-      ],
-      "post": [
-        [ true, "AssertionGreaterEqual", "/minimum", "#/minimum", "" ]
-      ],
-      "descriptions": [
-        "The number value 3.0 was expected to be greater than or equal to the number 2.5"
-      ]
-    }
-  },
-  {
-    "description": "minimum_17",
-    "schema": { "$schema": "http://json-schema.org/draft-04/schema#", "minimum": 2.5 },
-    "instance": 2.0,
-    "valid": false,
-    "fast": {
-      "pre": [
-        [ "AssertionGreaterEqual", "/minimum", "#/minimum", "" ]
-      ],
-      "post": [
-        [ false, "AssertionGreaterEqual", "/minimum", "#/minimum", "" ]
-      ],
-      "descriptions": [
-        "The number value 2.0 was expected to be greater than or equal to the number 2.5"
-      ]
-    },
-    "exhaustive": {
-      "pre": [
-        [ "AssertionGreaterEqual", "/minimum", "#/minimum", "" ]
-      ],
-      "post": [
-        [ false, "AssertionGreaterEqual", "/minimum", "#/minimum", "" ]
-      ],
-      "descriptions": [
-        "The number value 2.0 was expected to be greater than or equal to the number 2.5"
-      ]
-    }
-  },
-  {
     "description": "minimum_20",
     "schema": { "$schema": "http://json-schema.org/draft-04/schema#", "minimum": 0.5 },
     "instance": 0.7,
@@ -7735,34 +7623,6 @@
       ],
       "descriptions": [
         "The number value 0.3 was expected to be greater than or equal to the number 0.5"
-      ]
-    }
-  },
-  {
-    "description": "minimum_22",
-    "schema": { "$schema": "http://json-schema.org/draft-04/schema#", "minimum": 5.0 },
-    "instance": 10.0,
-    "valid": true,
-    "fast": {
-      "pre": [
-        [ "AssertionGreaterEqual", "/minimum", "#/minimum", "" ]
-      ],
-      "post": [
-        [ true, "AssertionGreaterEqual", "/minimum", "#/minimum", "" ]
-      ],
-      "descriptions": [
-        "The number value 10.0 was expected to be greater than or equal to the number 5.0"
-      ]
-    },
-    "exhaustive": {
-      "pre": [
-        [ "AssertionGreaterEqual", "/minimum", "#/minimum", "" ]
-      ],
-      "post": [
-        [ true, "AssertionGreaterEqual", "/minimum", "#/minimum", "" ]
-      ],
-      "descriptions": [
-        "The number value 10.0 was expected to be greater than or equal to the number 5.0"
       ]
     }
   },
@@ -7935,62 +7795,6 @@
     }
   },
   {
-    "description": "maximum_11",
-    "schema": { "$schema": "http://json-schema.org/draft-04/schema#", "maximum": 2.5 },
-    "instance": 2.0,
-    "valid": true,
-    "fast": {
-      "pre": [
-        [ "AssertionLessEqual", "/maximum", "#/maximum", "" ]
-      ],
-      "post": [
-        [ true, "AssertionLessEqual", "/maximum", "#/maximum", "" ]
-      ],
-      "descriptions": [
-        "The number value 2.0 was expected to be less than or equal to the number 2.5"
-      ]
-    },
-    "exhaustive": {
-      "pre": [
-        [ "AssertionLessEqual", "/maximum", "#/maximum", "" ]
-      ],
-      "post": [
-        [ true, "AssertionLessEqual", "/maximum", "#/maximum", "" ]
-      ],
-      "descriptions": [
-        "The number value 2.0 was expected to be less than or equal to the number 2.5"
-      ]
-    }
-  },
-  {
-    "description": "maximum_12",
-    "schema": { "$schema": "http://json-schema.org/draft-04/schema#", "maximum": 2.5 },
-    "instance": 3.0,
-    "valid": false,
-    "fast": {
-      "pre": [
-        [ "AssertionLessEqual", "/maximum", "#/maximum", "" ]
-      ],
-      "post": [
-        [ false, "AssertionLessEqual", "/maximum", "#/maximum", "" ]
-      ],
-      "descriptions": [
-        "The number value 3.0 was expected to be less than or equal to the number 2.5"
-      ]
-    },
-    "exhaustive": {
-      "pre": [
-        [ "AssertionLessEqual", "/maximum", "#/maximum", "" ]
-      ],
-      "post": [
-        [ false, "AssertionLessEqual", "/maximum", "#/maximum", "" ]
-      ],
-      "descriptions": [
-        "The number value 3.0 was expected to be less than or equal to the number 2.5"
-      ]
-    }
-  },
-  {
     "description": "maximum_13",
     "schema": { "$schema": "http://json-schema.org/draft-04/schema#", "maximum": 5 },
     "instance": 3,
@@ -8047,62 +7851,6 @@
     }
   },
   {
-    "description": "maximum_15",
-    "schema": { "$schema": "http://json-schema.org/draft-04/schema#", "maximum": 2.5 },
-    "instance": 2.0,
-    "valid": true,
-    "fast": {
-      "pre": [
-        [ "AssertionLessEqual", "/maximum", "#/maximum", "" ]
-      ],
-      "post": [
-        [ true, "AssertionLessEqual", "/maximum", "#/maximum", "" ]
-      ],
-      "descriptions": [
-        "The number value 2.0 was expected to be less than or equal to the number 2.5"
-      ]
-    },
-    "exhaustive": {
-      "pre": [
-        [ "AssertionLessEqual", "/maximum", "#/maximum", "" ]
-      ],
-      "post": [
-        [ true, "AssertionLessEqual", "/maximum", "#/maximum", "" ]
-      ],
-      "descriptions": [
-        "The number value 2.0 was expected to be less than or equal to the number 2.5"
-      ]
-    }
-  },
-  {
-    "description": "maximum_16",
-    "schema": { "$schema": "http://json-schema.org/draft-04/schema#", "maximum": 2.5 },
-    "instance": 3.0,
-    "valid": false,
-    "fast": {
-      "pre": [
-        [ "AssertionLessEqual", "/maximum", "#/maximum", "" ]
-      ],
-      "post": [
-        [ false, "AssertionLessEqual", "/maximum", "#/maximum", "" ]
-      ],
-      "descriptions": [
-        "The number value 3.0 was expected to be less than or equal to the number 2.5"
-      ]
-    },
-    "exhaustive": {
-      "pre": [
-        [ "AssertionLessEqual", "/maximum", "#/maximum", "" ]
-      ],
-      "post": [
-        [ false, "AssertionLessEqual", "/maximum", "#/maximum", "" ]
-      ],
-      "descriptions": [
-        "The number value 3.0 was expected to be less than or equal to the number 2.5"
-      ]
-    }
-  },
-  {
     "description": "maximum_19",
     "schema": { "$schema": "http://json-schema.org/draft-04/schema#", "maximum": 0.5 },
     "instance": 0.3,
@@ -8155,34 +7903,6 @@
       ],
       "descriptions": [
         "The number value 0.7 was expected to be less than or equal to the number 0.5"
-      ]
-    }
-  },
-  {
-    "description": "maximum_21",
-    "schema": { "$schema": "http://json-schema.org/draft-04/schema#", "maximum": 5.0 },
-    "instance": 3.0,
-    "valid": true,
-    "fast": {
-      "pre": [
-        [ "AssertionLessEqual", "/maximum", "#/maximum", "" ]
-      ],
-      "post": [
-        [ true, "AssertionLessEqual", "/maximum", "#/maximum", "" ]
-      ],
-      "descriptions": [
-        "The number value 3.0 was expected to be less than or equal to the number 5.0"
-      ]
-    },
-    "exhaustive": {
-      "pre": [
-        [ "AssertionLessEqual", "/maximum", "#/maximum", "" ]
-      ],
-      "post": [
-        [ true, "AssertionLessEqual", "/maximum", "#/maximum", "" ]
-      ],
-      "descriptions": [
-        "The number value 3.0 was expected to be less than or equal to the number 5.0"
       ]
     }
   },
@@ -8563,38 +8283,6 @@
     }
   },
   {
-    "description": "exclusiveMinimum_8",
-    "schema": {
-      "$schema": "http://json-schema.org/draft-04/schema#",
-      "minimum": 2.5,
-      "exclusiveMinimum": true
-    },
-    "instance": 3.0,
-    "valid": true,
-    "fast": {
-      "pre": [
-        [ "AssertionGreater", "/minimum", "#/minimum", "" ]
-      ],
-      "post": [
-        [ true, "AssertionGreater", "/minimum", "#/minimum", "" ]
-      ],
-      "descriptions": [
-        "The number value 3.0 was expected to be greater than the number 2.5"
-      ]
-    },
-    "exhaustive": {
-      "pre": [
-        [ "AssertionGreater", "/minimum", "#/minimum", "" ]
-      ],
-      "post": [
-        [ true, "AssertionGreater", "/minimum", "#/minimum", "" ]
-      ],
-      "descriptions": [
-        "The number value 3.0 was expected to be greater than the number 2.5"
-      ]
-    }
-  },
-  {
     "description": "exclusiveMinimum_9",
     "schema": {
       "$schema": "http://json-schema.org/draft-04/schema#",
@@ -8687,38 +8375,6 @@
       ],
       "descriptions": [
         "The integer value 5 was expected to be greater than the integer 5, but they were equal"
-      ]
-    }
-  },
-  {
-    "description": "exclusiveMinimum_12",
-    "schema": {
-      "$schema": "http://json-schema.org/draft-04/schema#",
-      "minimum": 2.5,
-      "exclusiveMinimum": true
-    },
-    "instance": 3.0,
-    "valid": true,
-    "fast": {
-      "pre": [
-        [ "AssertionGreater", "/minimum", "#/minimum", "" ]
-      ],
-      "post": [
-        [ true, "AssertionGreater", "/minimum", "#/minimum", "" ]
-      ],
-      "descriptions": [
-        "The number value 3.0 was expected to be greater than the number 2.5"
-      ]
-    },
-    "exhaustive": {
-      "pre": [
-        [ "AssertionGreater", "/minimum", "#/minimum", "" ]
-      ],
-      "post": [
-        [ true, "AssertionGreater", "/minimum", "#/minimum", "" ]
-      ],
-      "descriptions": [
-        "The number value 3.0 was expected to be greater than the number 2.5"
       ]
     }
   },
@@ -8947,38 +8603,6 @@
     }
   },
   {
-    "description": "exclusiveMaximum_8",
-    "schema": {
-      "$schema": "http://json-schema.org/draft-04/schema#",
-      "maximum": 2.5,
-      "exclusiveMaximum": true
-    },
-    "instance": 2.0,
-    "valid": true,
-    "fast": {
-      "pre": [
-        [ "AssertionLess", "/maximum", "#/maximum", "" ]
-      ],
-      "post": [
-        [ true, "AssertionLess", "/maximum", "#/maximum", "" ]
-      ],
-      "descriptions": [
-        "The number value 2.0 was expected to be less than the number 2.5"
-      ]
-    },
-    "exhaustive": {
-      "pre": [
-        [ "AssertionLess", "/maximum", "#/maximum", "" ]
-      ],
-      "post": [
-        [ true, "AssertionLess", "/maximum", "#/maximum", "" ]
-      ],
-      "descriptions": [
-        "The number value 2.0 was expected to be less than the number 2.5"
-      ]
-    }
-  },
-  {
     "description": "exclusiveMaximum_9",
     "schema": {
       "$schema": "http://json-schema.org/draft-04/schema#",
@@ -9071,38 +8695,6 @@
       ],
       "descriptions": [
         "The integer value 5 was expected to be less than the integer 5, but they were equal"
-      ]
-    }
-  },
-  {
-    "description": "exclusiveMaximum_12",
-    "schema": {
-      "$schema": "http://json-schema.org/draft-04/schema#",
-      "maximum": 2.5,
-      "exclusiveMaximum": true
-    },
-    "instance": 2.0,
-    "valid": true,
-    "fast": {
-      "pre": [
-        [ "AssertionLess", "/maximum", "#/maximum", "" ]
-      ],
-      "post": [
-        [ true, "AssertionLess", "/maximum", "#/maximum", "" ]
-      ],
-      "descriptions": [
-        "The number value 2.0 was expected to be less than the number 2.5"
-      ]
-    },
-    "exhaustive": {
-      "pre": [
-        [ "AssertionLess", "/maximum", "#/maximum", "" ]
-      ],
-      "post": [
-        [ true, "AssertionLess", "/maximum", "#/maximum", "" ]
-      ],
-      "descriptions": [
-        "The number value 2.0 was expected to be less than the number 2.5"
       ]
     }
   },
@@ -9295,34 +8887,6 @@
     }
   },
   {
-    "description": "multipleOf_5",
-    "schema": { "$schema": "http://json-schema.org/draft-04/schema#", "multipleOf": 3.2 },
-    "instance": 6.0,
-    "valid": false,
-    "fast": {
-      "pre": [
-        [ "AssertionDivisible", "/multipleOf", "#/multipleOf", "" ]
-      ],
-      "post": [
-        [ false, "AssertionDivisible", "/multipleOf", "#/multipleOf", "" ]
-      ],
-      "descriptions": [
-        "The number value 6.0 was expected to be divisible by the number 3.2"
-      ]
-    },
-    "exhaustive": {
-      "pre": [
-        [ "AssertionDivisible", "/multipleOf", "#/multipleOf", "" ]
-      ],
-      "post": [
-        [ false, "AssertionDivisible", "/multipleOf", "#/multipleOf", "" ]
-      ],
-      "descriptions": [
-        "The number value 6.0 was expected to be divisible by the number 3.2"
-      ]
-    }
-  },
-  {
     "description": "multipleOf_6",
     "schema": {
       "$schema": "http://json-schema.org/draft-04/schema#",
@@ -9446,62 +9010,6 @@
     }
   },
   {
-    "description": "multipleOf_11",
-    "schema": { "$schema": "http://json-schema.org/draft-04/schema#", "multipleOf": 2.5 },
-    "instance": 5.0,
-    "valid": true,
-    "fast": {
-      "pre": [
-        [ "AssertionDivisible", "/multipleOf", "#/multipleOf", "" ]
-      ],
-      "post": [
-        [ true, "AssertionDivisible", "/multipleOf", "#/multipleOf", "" ]
-      ],
-      "descriptions": [
-        "The number value 5.0 was expected to be divisible by the number 2.5"
-      ]
-    },
-    "exhaustive": {
-      "pre": [
-        [ "AssertionDivisible", "/multipleOf", "#/multipleOf", "" ]
-      ],
-      "post": [
-        [ true, "AssertionDivisible", "/multipleOf", "#/multipleOf", "" ]
-      ],
-      "descriptions": [
-        "The number value 5.0 was expected to be divisible by the number 2.5"
-      ]
-    }
-  },
-  {
-    "description": "multipleOf_12",
-    "schema": { "$schema": "http://json-schema.org/draft-04/schema#", "multipleOf": 2.5 },
-    "instance": 6.0,
-    "valid": false,
-    "fast": {
-      "pre": [
-        [ "AssertionDivisible", "/multipleOf", "#/multipleOf", "" ]
-      ],
-      "post": [
-        [ false, "AssertionDivisible", "/multipleOf", "#/multipleOf", "" ]
-      ],
-      "descriptions": [
-        "The number value 6.0 was expected to be divisible by the number 2.5"
-      ]
-    },
-    "exhaustive": {
-      "pre": [
-        [ "AssertionDivisible", "/multipleOf", "#/multipleOf", "" ]
-      ],
-      "post": [
-        [ false, "AssertionDivisible", "/multipleOf", "#/multipleOf", "" ]
-      ],
-      "descriptions": [
-        "The number value 6.0 was expected to be divisible by the number 2.5"
-      ]
-    }
-  },
-  {
     "description": "multipleOf_13",
     "schema": { "$schema": "http://json-schema.org/draft-04/schema#", "multipleOf": 3 },
     "instance": 9,
@@ -9558,62 +9066,6 @@
     }
   },
   {
-    "description": "multipleOf_15",
-    "schema": { "$schema": "http://json-schema.org/draft-04/schema#", "multipleOf": 2.5 },
-    "instance": 5.0,
-    "valid": true,
-    "fast": {
-      "pre": [
-        [ "AssertionDivisible", "/multipleOf", "#/multipleOf", "" ]
-      ],
-      "post": [
-        [ true, "AssertionDivisible", "/multipleOf", "#/multipleOf", "" ]
-      ],
-      "descriptions": [
-        "The number value 5.0 was expected to be divisible by the number 2.5"
-      ]
-    },
-    "exhaustive": {
-      "pre": [
-        [ "AssertionDivisible", "/multipleOf", "#/multipleOf", "" ]
-      ],
-      "post": [
-        [ true, "AssertionDivisible", "/multipleOf", "#/multipleOf", "" ]
-      ],
-      "descriptions": [
-        "The number value 5.0 was expected to be divisible by the number 2.5"
-      ]
-    }
-  },
-  {
-    "description": "multipleOf_16",
-    "schema": { "$schema": "http://json-schema.org/draft-04/schema#", "multipleOf": 2.5 },
-    "instance": 6.0,
-    "valid": false,
-    "fast": {
-      "pre": [
-        [ "AssertionDivisible", "/multipleOf", "#/multipleOf", "" ]
-      ],
-      "post": [
-        [ false, "AssertionDivisible", "/multipleOf", "#/multipleOf", "" ]
-      ],
-      "descriptions": [
-        "The number value 6.0 was expected to be divisible by the number 2.5"
-      ]
-    },
-    "exhaustive": {
-      "pre": [
-        [ "AssertionDivisible", "/multipleOf", "#/multipleOf", "" ]
-      ],
-      "post": [
-        [ false, "AssertionDivisible", "/multipleOf", "#/multipleOf", "" ]
-      ],
-      "descriptions": [
-        "The number value 6.0 was expected to be divisible by the number 2.5"
-      ]
-    }
-  },
-  {
     "description": "multipleOf_20",
     "schema": { "$schema": "http://json-schema.org/draft-04/schema#", "multipleOf": 0.1 },
     "instance": 0.35,
@@ -9638,34 +9090,6 @@
       ],
       "descriptions": [
         "The number value 0.35 was expected to be divisible by the number 0.1"
-      ]
-    }
-  },
-  {
-    "description": "multipleOf_21",
-    "schema": { "$schema": "http://json-schema.org/draft-04/schema#", "multipleOf": 5.0 },
-    "instance": 15.0,
-    "valid": true,
-    "fast": {
-      "pre": [
-        [ "AssertionDivisible", "/multipleOf", "#/multipleOf", "" ]
-      ],
-      "post": [
-        [ true, "AssertionDivisible", "/multipleOf", "#/multipleOf", "" ]
-      ],
-      "descriptions": [
-        "The number value 15.0 was expected to be divisible by the number 5.0"
-      ]
-    },
-    "exhaustive": {
-      "pre": [
-        [ "AssertionDivisible", "/multipleOf", "#/multipleOf", "" ]
-      ],
-      "post": [
-        [ true, "AssertionDivisible", "/multipleOf", "#/multipleOf", "" ]
-      ],
-      "descriptions": [
-        "The number value 15.0 was expected to be divisible by the number 5.0"
       ]
     }
   },

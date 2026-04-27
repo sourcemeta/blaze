@@ -1,10 +1,11 @@
+import {
+  ANNOTATION_EMIT, ANNOTATION_TO_PARENT, ANNOTATION_BASENAME_TO_PARENT,
+  CONTROL_GROUP as CONTROL_GROUP_START,
+  CONTROL_EVALUATE as CONTROL_EVALUATE_END
+} from './opcodes.mjs';
+
 const JSON_VERSION = 4;
 const DEPTH_LIMIT = 300;
-const ANNOTATION_EMIT = 49;
-const ANNOTATION_TO_PARENT = 50;
-const ANNOTATION_BASENAME_TO_PARENT = 51;
-const CONTROL_GROUP_START = 92;
-const CONTROL_EVALUATE_END = 96;
 const URI_REGEX = /^[a-zA-Z][a-zA-Z0-9+\-.]*:[^\s]*$/;
 
 function buildJsonPointer(tokens, length) {
@@ -3968,3 +3969,4 @@ fastHandlers[90] = LoopItemsIntegerBoundedSized_fast;
 fastHandlers[97] = ControlDynamicAnchorJump_fast;
 
 export { Blaze };
+export { describe } from './describe.mjs';
