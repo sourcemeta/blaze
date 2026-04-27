@@ -1,0 +1,160 @@
+[
+  {
+    "description": "success_1",
+    "schema": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "properties": { "foo": { "type": "string" } }
+    },
+    "instance": { "foo": "bar" },
+    "valid": true,
+    "fast": { "valid": true },
+    "exhaustive": { "valid": true }
+  },
+  {
+    "description": "failure_1",
+    "schema": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "properties": { "foo": { "type": "string" } }
+    },
+    "instance": { "foo": 1 },
+    "valid": false,
+    "fast": { "valid": false },
+    "exhaustive": { "valid": false }
+  },
+  {
+    "description": "success_oneof_1",
+    "schema": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "oneOf": [ { "type": "string" }, { "minLength": 3 } ]
+    },
+    "instance": "fo",
+    "valid": true,
+    "fast": { "valid": true },
+    "exhaustive": { "valid": true }
+  },
+  {
+    "description": "failure_oneof_1",
+    "schema": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "oneOf": [ { "type": "string" }, { "type": "integer" } ]
+    },
+    "instance": true,
+    "valid": false,
+    "fast": { "valid": false },
+    "exhaustive": { "valid": false }
+  },
+  {
+    "description": "success_not_1",
+    "schema": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "not": { "type": "string" }
+    },
+    "instance": 42,
+    "valid": true,
+    "fast": { "valid": true },
+    "exhaustive": { "valid": true }
+  },
+  {
+    "description": "failure_not_1",
+    "schema": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "not": { "type": "string" }
+    },
+    "instance": "foo",
+    "valid": false,
+    "fast": { "valid": false },
+    "exhaustive": { "valid": false }
+  },
+  {
+    "description": "success_anyof_1",
+    "schema": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "anyOf": [ { "type": "string" }, { "type": "integer" } ]
+    },
+    "instance": 42,
+    "valid": true,
+    "fast": { "valid": true },
+    "exhaustive": { "valid": true }
+  },
+  {
+    "description": "failure_anyof_1",
+    "schema": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "anyOf": [ { "type": "string" }, { "type": "integer" } ]
+    },
+    "instance": true,
+    "valid": false,
+    "fast": { "valid": false },
+    "exhaustive": { "valid": false }
+  },
+  {
+    "description": "success_if_then_1",
+    "schema": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "if": { "type": "string" },
+      "then": { "minLength": 3 }
+    },
+    "instance": "foobar",
+    "valid": true,
+    "fast": { "valid": true },
+    "exhaustive": { "valid": true }
+  },
+  {
+    "description": "failure_if_then_1",
+    "schema": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "if": { "type": "string" },
+      "then": { "minLength": 10 }
+    },
+    "instance": "foo",
+    "valid": false,
+    "fast": { "valid": false },
+    "exhaustive": { "valid": false }
+  },
+  {
+    "description": "success_if_else_1",
+    "schema": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "if": { "type": "string" },
+      "else": { "minimum": 0 }
+    },
+    "instance": 42,
+    "valid": true,
+    "fast": { "valid": true },
+    "exhaustive": { "valid": true }
+  },
+  {
+    "description": "failure_if_else_1",
+    "schema": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "if": { "type": "string" },
+      "else": { "minimum": 100 }
+    },
+    "instance": 42,
+    "valid": false,
+    "fast": { "valid": false },
+    "exhaustive": { "valid": false }
+  },
+  {
+    "description": "success_contains_1",
+    "schema": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "contains": { "type": "string" }
+    },
+    "instance": [ 1, 2, "foo", 3 ],
+    "valid": true,
+    "fast": { "valid": true },
+    "exhaustive": { "valid": true }
+  },
+  {
+    "description": "failure_contains_1",
+    "schema": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "contains": { "type": "string" }
+    },
+    "instance": [ 1, 2, 3 ],
+    "valid": false,
+    "fast": { "valid": false },
+    "exhaustive": { "valid": false }
+  }
+]

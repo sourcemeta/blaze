@@ -9,15 +9,9 @@
     "valid": true,
     "fast": {},
     "exhaustive": {
-      "pre": [
-        [ "Annotation", "/fooBar", "#/fooBar", "" ]
-      ],
-      "post": [
-        [ true, "Annotation", "/fooBar", "#/fooBar", "", "baz" ]
-      ],
-      "descriptions": [
-        "The unrecognized keyword \"fooBar\" was collected as the annotation \"baz\""
-      ]
+      "pre": [ [ "Annotation", "/fooBar", "#/fooBar", "" ] ],
+      "post": [ [ true, "Annotation", "/fooBar", "#/fooBar", "", "baz" ] ],
+      "descriptions": [ "The unrecognized keyword \"fooBar\" was collected as the annotation \"baz\"" ]
     }
   },
   {
@@ -27,15 +21,9 @@
     "valid": true,
     "fast": {},
     "exhaustive": {
-      "pre": [
-        [ "Annotation", "/x-test", "#/x-test", "" ]
-      ],
-      "post": [
-        [ true, "Annotation", "/x-test", "#/x-test", "", 1 ]
-      ],
-      "descriptions": [
-        "The unrecognized keyword \"x-test\" was collected as the annotation 1"
-      ]
+      "pre": [ [ "Annotation", "/x-test", "#/x-test", "" ] ],
+      "post": [ [ true, "Annotation", "/x-test", "#/x-test", "", 1 ] ],
+      "descriptions": [ "The unrecognized keyword \"x-test\" was collected as the annotation 1" ]
     }
   },
   {
@@ -1532,15 +1520,9 @@
     "valid": true,
     "fast": {},
     "exhaustive": {
-      "pre": [
-        [ "LoopKeys", "/propertyNames", "#/propertyNames", "" ]
-      ],
-      "post": [
-        [ true, "LoopKeys", "/propertyNames", "#/propertyNames", "" ]
-      ],
-      "descriptions": [
-        "The object property \"foo\" was expected to validate against the given subschema"
-      ]
+      "pre": [ [ "LoopKeys", "/propertyNames", "#/propertyNames", "" ] ],
+      "post": [ [ true, "LoopKeys", "/propertyNames", "#/propertyNames", "" ] ],
+      "descriptions": [ "The object property \"foo\" was expected to validate against the given subschema" ]
     }
   },
   {
@@ -1553,15 +1535,9 @@
     "valid": true,
     "fast": {},
     "exhaustive": {
-      "pre": [
-        [ "Annotation", "/description", "#/description", "" ]
-      ],
-      "post": [
-        [ true, "Annotation", "/description", "#/description", "", "Foo Bar" ]
-      ],
-      "descriptions": [
-        "The description of the instance was \"Foo Bar\""
-      ]
+      "pre": [ [ "Annotation", "/description", "#/description", "" ] ],
+      "post": [ [ true, "Annotation", "/description", "#/description", "", "Foo Bar" ] ],
+      "descriptions": [ "The description of the instance was \"Foo Bar\"" ]
     }
   },
   {
@@ -1576,15 +1552,9 @@
     "valid": true,
     "fast": {},
     "exhaustive": {
-      "pre": [
-        [ "ControlJump", "/$ref", "https://www.example.com#/$ref", "" ]
-      ],
-      "post": [
-        [ true, "ControlJump", "/$ref", "https://www.example.com#/$ref", "" ]
-      ],
-      "descriptions": [
-        "The integer value was expected to validate against the referenced schema"
-      ]
+      "pre": [ [ "ControlJump", "/$ref", "https://www.example.com#/$ref", "" ] ],
+      "post": [ [ true, "ControlJump", "/$ref", "https://www.example.com#/$ref", "" ] ],
+      "descriptions": [ "The integer value was expected to validate against the referenced schema" ]
     }
   },
   {
@@ -1597,15 +1567,18 @@
     "valid": true,
     "fast": {},
     "exhaustive": {
-      "pre": [
-        [ "Annotation", "/discriminator", "#/discriminator", "" ]
-      ],
+      "pre": [ [ "Annotation", "/discriminator", "#/discriminator", "" ] ],
       "post": [
-        [ true, "Annotation", "/discriminator", "#/discriminator", "", {"propertyName": "petType"} ]
+        [
+          true,
+          "Annotation",
+          "/discriminator",
+          "#/discriminator",
+          "",
+          { "propertyName": "petType" }
+        ]
       ],
-      "descriptions": [
-        "The unrecognized keyword \"discriminator\" was collected as the annotation {\"propertyName\":\"petType\"}"
-      ]
+      "descriptions": [ "The unrecognized keyword \"discriminator\" was collected as the annotation {\"propertyName\":\"petType\"}" ]
     }
   },
   {
@@ -1618,15 +1591,18 @@
     "valid": true,
     "fast": {},
     "exhaustive": {
-      "pre": [
-        [ "Annotation", "/xml", "#/xml", "" ]
-      ],
+      "pre": [ [ "Annotation", "/xml", "#/xml", "" ] ],
       "post": [
-        [ true, "Annotation", "/xml", "#/xml", "", {"name": "pet", "wrapped": true} ]
+        [
+          true,
+          "Annotation",
+          "/xml",
+          "#/xml",
+          "",
+          { "name": "pet", "wrapped": true }
+        ]
       ],
-      "descriptions": [
-        "The unrecognized keyword \"xml\" was collected as the annotation {\"name\":\"pet\",\"wrapped\":true}"
-      ]
+      "descriptions": [ "The unrecognized keyword \"xml\" was collected as the annotation {\"name\":\"pet\",\"wrapped\":true}" ]
     }
   },
   {
@@ -1639,15 +1615,18 @@
     "valid": true,
     "fast": {},
     "exhaustive": {
-      "pre": [
-        [ "Annotation", "/externalDocs", "#/externalDocs", "" ]
-      ],
+      "pre": [ [ "Annotation", "/externalDocs", "#/externalDocs", "" ] ],
       "post": [
-        [ true, "Annotation", "/externalDocs", "#/externalDocs", "", {"url": "https://example.com/docs"} ]
+        [
+          true,
+          "Annotation",
+          "/externalDocs",
+          "#/externalDocs",
+          "",
+          { "url": "https://example.com/docs" }
+        ]
       ],
-      "descriptions": [
-        "The unrecognized keyword \"externalDocs\" was collected as the annotation {\"url\":\"https://example.com/docs\"}"
-      ]
+      "descriptions": [ "The unrecognized keyword \"externalDocs\" was collected as the annotation {\"url\":\"https://example.com/docs\"}" ]
     }
   },
   {
@@ -1660,15 +1639,18 @@
     "valid": true,
     "fast": {},
     "exhaustive": {
-      "pre": [
-        [ "Annotation", "/example", "#/example", "" ]
-      ],
+      "pre": [ [ "Annotation", "/example", "#/example", "" ] ],
       "post": [
-        [ true, "Annotation", "/example", "#/example", "", {"name": "Rex", "petType": "dog"} ]
+        [
+          true,
+          "Annotation",
+          "/example",
+          "#/example",
+          "",
+          { "name": "Rex", "petType": "dog" }
+        ]
       ],
-      "descriptions": [
-        "The unrecognized keyword \"example\" was collected as the annotation {\"name\":\"Rex\",\"petType\":\"dog\"}"
-      ]
+      "descriptions": [ "The unrecognized keyword \"example\" was collected as the annotation {\"name\":\"Rex\",\"petType\":\"dog\"}" ]
     }
   },
   {
@@ -2778,15 +2760,9 @@
     "valid": true,
     "fast": {},
     "exhaustive": {
-      "pre": [
-        [ "LogicalWhenType", "/properties", "#/properties", "" ]
-      ],
-      "post": [
-        [ true, "LogicalWhenType", "/properties", "#/properties", "" ]
-      ],
-      "descriptions": [
-        "The object value was expected to validate against the single defined property subschema"
-      ]
+      "pre": [ [ "LogicalWhenType", "/properties", "#/properties", "" ] ],
+      "post": [ [ true, "LogicalWhenType", "/properties", "#/properties", "" ] ],
+      "descriptions": [ "The object value was expected to validate against the single defined property subschema" ]
     }
   },
   {
@@ -2990,15 +2966,9 @@
     "valid": true,
     "fast": {},
     "exhaustive": {
-      "pre": [
-        [ "LogicalWhenType", "/properties", "#/properties", "" ]
-      ],
-      "post": [
-        [ true, "LogicalWhenType", "/properties", "#/properties", "" ]
-      ],
-      "descriptions": [
-        "The object value was expected to validate against the single defined property subschema"
-      ]
+      "pre": [ [ "LogicalWhenType", "/properties", "#/properties", "" ] ],
+      "post": [ [ true, "LogicalWhenType", "/properties", "#/properties", "" ] ],
+      "descriptions": [ "The object value was expected to validate against the single defined property subschema" ]
     }
   },
   {

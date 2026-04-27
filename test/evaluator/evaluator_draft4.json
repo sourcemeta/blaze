@@ -987,10 +987,7 @@
         [ true, "ControlJump", "/allOf/0/$ref", "#/allOf/0/$ref", "" ],
         [ true, "LogicalAnd", "/allOf", "#/allOf", "" ]
       ],
-      "descriptions": [
-        "The boolean value was expected to validate against the referenced schema",
-        "The boolean value was expected to validate against the given subschema"
-      ]
+      "descriptions": [ "The boolean value was expected to validate against the referenced schema", "The boolean value was expected to validate against the given subschema" ]
     }
   },
   {
@@ -1216,15 +1213,9 @@
     "valid": true,
     "fast": {},
     "exhaustive": {
-      "pre": [
-        [ "LogicalWhenType", "/properties", "#/properties", "" ]
-      ],
-      "post": [
-        [ true, "LogicalWhenType", "/properties", "#/properties", "" ]
-      ],
-      "descriptions": [
-        "The object value was expected to validate against the defined properties subschemas"
-      ]
+      "pre": [ [ "LogicalWhenType", "/properties", "#/properties", "" ] ],
+      "post": [ [ true, "LogicalWhenType", "/properties", "#/properties", "" ] ],
+      "descriptions": [ "The object value was expected to validate against the defined properties subschemas" ]
     }
   },
   {
@@ -1324,15 +1315,9 @@
     "valid": true,
     "fast": {},
     "exhaustive": {
-      "pre": [
-        [ "LogicalWhenType", "/properties", "#/properties", "" ]
-      ],
-      "post": [
-        [ true, "LogicalWhenType", "/properties", "#/properties", "" ]
-      ],
-      "descriptions": [
-        "The object value was expected to validate against the single defined property subschema"
-      ]
+      "pre": [ [ "LogicalWhenType", "/properties", "#/properties", "" ] ],
+      "post": [ [ true, "LogicalWhenType", "/properties", "#/properties", "" ] ],
+      "descriptions": [ "The object value was expected to validate against the single defined property subschema" ]
     }
   },
   {
@@ -3745,10 +3730,7 @@
         [ true, "LogicalWhenType", "/properties/foo/properties", "#/properties/foo/properties", "/foo" ],
         [ true, "LogicalWhenType", "/properties", "#/properties", "" ]
       ],
-      "descriptions": [
-        "The object value was expected to validate against the single defined property subschema",
-        "The object value was expected to validate against the single defined property subschema"
-      ]
+      "descriptions": [ "The object value was expected to validate against the single defined property subschema", "The object value was expected to validate against the single defined property subschema" ]
     }
   },
   {
@@ -9973,15 +9955,9 @@
     "valid": true,
     "fast": {},
     "exhaustive": {
-      "pre": [
-        [ "LoopItems", "/items", "#/items", "" ]
-      ],
-      "post": [
-        [ true, "LoopItems", "/items", "#/items", "" ]
-      ],
-      "descriptions": [
-        "Every item in the array value was expected to validate against the given subschema"
-      ]
+      "pre": [ [ "LoopItems", "/items", "#/items", "" ] ],
+      "post": [ [ true, "LoopItems", "/items", "#/items", "" ] ],
+      "descriptions": [ "Every item in the array value was expected to validate against the given subschema" ]
     }
   },
   {
@@ -10861,15 +10837,9 @@
     "valid": true,
     "fast": {},
     "exhaustive": {
-      "pre": [
-        [ "LogicalWhenType", "/properties", "#/properties", "" ]
-      ],
-      "post": [
-        [ true, "LogicalWhenType", "/properties", "#/properties", "" ]
-      ],
-      "descriptions": [
-        "The object value was expected to validate against the single defined property subschema"
-      ]
+      "pre": [ [ "LogicalWhenType", "/properties", "#/properties", "" ] ],
+      "post": [ [ true, "LogicalWhenType", "/properties", "#/properties", "" ] ],
+      "descriptions": [ "The object value was expected to validate against the single defined property subschema" ]
     }
   },
   {
@@ -11027,15 +10997,9 @@
     "valid": true,
     "fast": {},
     "exhaustive": {
-      "pre": [
-        [ "LogicalWhenType", "/properties", "#/properties", "" ]
-      ],
-      "post": [
-        [ true, "LogicalWhenType", "/properties", "#/properties", "" ]
-      ],
-      "descriptions": [
-        "The object value was expected to validate against the single defined property subschema"
-      ]
+      "pre": [ [ "LogicalWhenType", "/properties", "#/properties", "" ] ],
+      "post": [ [ true, "LogicalWhenType", "/properties", "#/properties", "" ] ],
+      "descriptions": [ "The object value was expected to validate against the single defined property subschema" ]
     }
   },
   {

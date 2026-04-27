@@ -1,0 +1,893 @@
+[
+  {
+    "description": "success_1",
+    "schema": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "properties": { "foo": { "type": "string" } }
+    },
+    "instance": { "foo": "bar" },
+    "valid": true,
+    "fast": { "valid": true },
+    "exhaustive": {
+      "valid": true,
+      "annotations": [
+        {
+          "keywordLocation": "/properties",
+          "absoluteKeywordLocation": "#/properties",
+          "instanceLocation": "",
+          "annotation": [ "foo" ]
+        }
+      ]
+    }
+  },
+  {
+    "description": "success_2",
+    "schema": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "anyOf": [
+        { "title": "#1", "type": "string" },
+        { "title": "#2", "type": "integer" }
+      ]
+    },
+    "instance": 5,
+    "valid": true,
+    "fast": { "valid": true },
+    "exhaustive": {
+      "valid": true,
+      "annotations": [
+        {
+          "keywordLocation": "/anyOf/1/title",
+          "absoluteKeywordLocation": "#/anyOf/1/title",
+          "instanceLocation": "",
+          "annotation": [ "#2" ]
+        }
+      ]
+    }
+  },
+  {
+    "description": "success_3",
+    "schema": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "not": { "title": "Negation", "type": "integer" }
+    },
+    "instance": "foo",
+    "valid": true,
+    "fast": { "valid": true },
+    "exhaustive": { "valid": true }
+  },
+  {
+    "description": "success_oneof_1",
+    "schema": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "oneOf": [ { "type": "string" }, { "minLength": 3 } ]
+    },
+    "instance": "fo",
+    "valid": true,
+    "fast": { "valid": true },
+    "exhaustive": { "valid": true }
+  },
+  {
+    "description": "success_oneof_2",
+    "schema": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "oneOf": [
+        { "title": "First", "type": "string" },
+        { "title": "Second", "type": "integer" }
+      ]
+    },
+    "instance": 5,
+    "valid": true,
+    "fast": { "valid": true },
+    "exhaustive": {
+      "valid": true,
+      "annotations": [
+        {
+          "keywordLocation": "/oneOf/1/title",
+          "absoluteKeywordLocation": "#/oneOf/1/title",
+          "instanceLocation": "",
+          "annotation": [ "Second" ]
+        }
+      ]
+    }
+  },
+  {
+    "description": "success_not_1",
+    "schema": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "not": { "type": "string" }
+    },
+    "instance": 42,
+    "valid": true,
+    "fast": { "valid": true },
+    "exhaustive": { "valid": true }
+  },
+  {
+    "description": "success_not_2",
+    "schema": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "not": { "title": "Negation", "type": "string" }
+    },
+    "instance": 42,
+    "valid": true,
+    "fast": { "valid": true },
+    "exhaustive": { "valid": true }
+  },
+  {
+    "description": "success_anyof_1",
+    "schema": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "anyOf": [ { "type": "string" }, { "type": "integer" } ]
+    },
+    "instance": 42,
+    "valid": true,
+    "fast": { "valid": true },
+    "exhaustive": { "valid": true }
+  },
+  {
+    "description": "success_anyof_2",
+    "schema": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "anyOf": [
+        { "title": "#1", "type": "string" },
+        { "title": "#2", "type": "integer" }
+      ]
+    },
+    "instance": 5,
+    "valid": true,
+    "fast": { "valid": true },
+    "exhaustive": {
+      "valid": true,
+      "annotations": [
+        {
+          "keywordLocation": "/anyOf/1/title",
+          "absoluteKeywordLocation": "#/anyOf/1/title",
+          "instanceLocation": "",
+          "annotation": [ "#2" ]
+        }
+      ]
+    }
+  },
+  {
+    "description": "success_if_then_1",
+    "schema": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "if": { "type": "string" },
+      "then": { "minLength": 3 }
+    },
+    "instance": "foobar",
+    "valid": true,
+    "fast": { "valid": true },
+    "exhaustive": { "valid": true }
+  },
+  {
+    "description": "success_if_then_2",
+    "schema": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "if": { "type": "string" },
+      "then": { "title": "Then Title", "minLength": 3 }
+    },
+    "instance": "foobar",
+    "valid": true,
+    "fast": { "valid": true },
+    "exhaustive": {
+      "valid": true,
+      "annotations": [
+        {
+          "keywordLocation": "/then/title",
+          "absoluteKeywordLocation": "#/then/title",
+          "instanceLocation": "",
+          "annotation": [ "Then Title" ]
+        }
+      ]
+    }
+  },
+  {
+    "description": "success_if_else_1",
+    "schema": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "if": { "type": "string" },
+      "else": { "minimum": 0 }
+    },
+    "instance": 42,
+    "valid": true,
+    "fast": { "valid": true },
+    "exhaustive": { "valid": true }
+  },
+  {
+    "description": "success_if_else_2",
+    "schema": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "if": { "type": "string" },
+      "else": { "title": "Else Title", "minimum": 0 }
+    },
+    "instance": 42,
+    "valid": true,
+    "fast": { "valid": true },
+    "exhaustive": {
+      "valid": true,
+      "annotations": [
+        {
+          "keywordLocation": "/else/title",
+          "absoluteKeywordLocation": "#/else/title",
+          "instanceLocation": "",
+          "annotation": [ "Else Title" ]
+        }
+      ]
+    }
+  },
+  {
+    "description": "success_contains_1",
+    "schema": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "contains": { "type": "string" }
+    },
+    "instance": [ 1, 2, "foo", 3 ],
+    "valid": true,
+    "fast": { "valid": true },
+    "exhaustive": {
+      "valid": true,
+      "annotations": [
+        {
+          "keywordLocation": "/contains",
+          "absoluteKeywordLocation": "#/contains",
+          "instanceLocation": "",
+          "annotation": [ 2 ]
+        }
+      ]
+    }
+  },
+  {
+    "description": "success_contains_2",
+    "schema": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "contains": { "type": "boolean" }
+    },
+    "instance": [ false, 1, true ],
+    "valid": true,
+    "fast": { "valid": true },
+    "exhaustive": {
+      "valid": true,
+      "annotations": [
+        {
+          "keywordLocation": "/contains",
+          "absoluteKeywordLocation": "#/contains",
+          "instanceLocation": "",
+          "annotation": [ 0, 2 ]
+        }
+      ]
+    }
+  },
+  {
+    "description": "failure_1",
+    "schema": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "properties": { "foo": { "type": "string" } }
+    },
+    "instance": { "foo": 1 },
+    "valid": false,
+    "fast": {
+      "valid": false,
+      "errors": [
+        {
+          "keywordLocation": "/properties/foo/type",
+          "absoluteKeywordLocation": "#/properties/foo/type",
+          "instanceLocation": "/foo",
+          "error": "The value was expected to be of type string but it was of type integer"
+        }
+      ]
+    },
+    "exhaustive": {
+      "valid": false,
+      "errors": [
+        {
+          "keywordLocation": "/properties/foo/type",
+          "absoluteKeywordLocation": "#/properties/foo/type",
+          "instanceLocation": "/foo",
+          "error": "The value was expected to be of type string but it was of type integer"
+        },
+        {
+          "keywordLocation": "/properties",
+          "absoluteKeywordLocation": "#/properties",
+          "instanceLocation": "",
+          "error": "The object value was expected to validate against the single defined property subschema"
+        }
+      ]
+    }
+  },
+  {
+    "description": "failure_oneof_1",
+    "schema": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "oneOf": [ { "type": "string" }, { "type": "integer" } ]
+    },
+    "instance": true,
+    "valid": false,
+    "fast": {
+      "valid": false,
+      "errors": [
+        {
+          "keywordLocation": "/oneOf/0/type",
+          "absoluteKeywordLocation": "#/oneOf/0/type",
+          "instanceLocation": "",
+          "error": "The value was expected to be of type string but it was of type boolean"
+        },
+        {
+          "keywordLocation": "/oneOf/1/type",
+          "absoluteKeywordLocation": "#/oneOf/1/type",
+          "instanceLocation": "",
+          "error": "The value was expected to be of type integer but it was of type boolean"
+        },
+        {
+          "keywordLocation": "/oneOf",
+          "absoluteKeywordLocation": "#/oneOf",
+          "instanceLocation": "",
+          "error": "The boolean value was expected to validate against one and only one of the 2 given subschemas"
+        }
+      ]
+    },
+    "exhaustive": {
+      "valid": false,
+      "errors": [
+        {
+          "keywordLocation": "/oneOf/0/type",
+          "absoluteKeywordLocation": "#/oneOf/0/type",
+          "instanceLocation": "",
+          "error": "The value was expected to be of type string but it was of type boolean"
+        },
+        {
+          "keywordLocation": "/oneOf/1/type",
+          "absoluteKeywordLocation": "#/oneOf/1/type",
+          "instanceLocation": "",
+          "error": "The value was expected to be of type integer but it was of type boolean"
+        },
+        {
+          "keywordLocation": "/oneOf",
+          "absoluteKeywordLocation": "#/oneOf",
+          "instanceLocation": "",
+          "error": "The boolean value was expected to validate against one and only one of the 2 given subschemas"
+        }
+      ]
+    }
+  },
+  {
+    "description": "failure_oneof_2",
+    "schema": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "oneOf": [ { "type": "string" }, { "minLength": 3 } ]
+    },
+    "instance": "foo",
+    "valid": false,
+    "fast": {
+      "valid": false,
+      "errors": [
+        {
+          "keywordLocation": "/oneOf",
+          "absoluteKeywordLocation": "#/oneOf",
+          "instanceLocation": "",
+          "error": "The string value was expected to validate against one and only one of the 2 given subschemas"
+        }
+      ]
+    },
+    "exhaustive": {
+      "valid": false,
+      "errors": [
+        {
+          "keywordLocation": "/oneOf",
+          "absoluteKeywordLocation": "#/oneOf",
+          "instanceLocation": "",
+          "error": "The string value was expected to validate against one and only one of the 2 given subschemas"
+        }
+      ]
+    }
+  },
+  {
+    "description": "failure_oneof_3",
+    "schema": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "oneOf": [
+        { "title": "First", "type": "string" },
+        { "title": "Second", "type": "integer" }
+      ]
+    },
+    "instance": true,
+    "valid": false,
+    "fast": {
+      "valid": false,
+      "errors": [
+        {
+          "keywordLocation": "/oneOf/0/type",
+          "absoluteKeywordLocation": "#/oneOf/0/type",
+          "instanceLocation": "",
+          "error": "The value was expected to be of type string but it was of type boolean"
+        },
+        {
+          "keywordLocation": "/oneOf/1/type",
+          "absoluteKeywordLocation": "#/oneOf/1/type",
+          "instanceLocation": "",
+          "error": "The value was expected to be of type integer but it was of type boolean"
+        },
+        {
+          "keywordLocation": "/oneOf",
+          "absoluteKeywordLocation": "#/oneOf",
+          "instanceLocation": "",
+          "error": "The boolean value was expected to validate against one and only one of the 2 given subschemas"
+        }
+      ]
+    },
+    "exhaustive": {
+      "valid": false,
+      "errors": [
+        {
+          "keywordLocation": "/oneOf/0/type",
+          "absoluteKeywordLocation": "#/oneOf/0/type",
+          "instanceLocation": "",
+          "error": "The value was expected to be of type string but it was of type boolean"
+        },
+        {
+          "keywordLocation": "/oneOf/1/type",
+          "absoluteKeywordLocation": "#/oneOf/1/type",
+          "instanceLocation": "",
+          "error": "The value was expected to be of type integer but it was of type boolean"
+        },
+        {
+          "keywordLocation": "/oneOf",
+          "absoluteKeywordLocation": "#/oneOf",
+          "instanceLocation": "",
+          "error": "The boolean value was expected to validate against one and only one of the 2 given subschemas"
+        }
+      ]
+    }
+  },
+  {
+    "description": "failure_not_1",
+    "schema": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "not": { "type": "string" }
+    },
+    "instance": "foo",
+    "valid": false,
+    "fast": {
+      "valid": false,
+      "errors": [
+        {
+          "keywordLocation": "/not",
+          "absoluteKeywordLocation": "#/not",
+          "instanceLocation": "",
+          "error": "The string value was expected to not validate against the given subschema, but it did"
+        }
+      ]
+    },
+    "exhaustive": {
+      "valid": false,
+      "errors": [
+        {
+          "keywordLocation": "/not",
+          "absoluteKeywordLocation": "#/not",
+          "instanceLocation": "",
+          "error": "The string value was expected to not validate against the given subschema, but it did"
+        }
+      ]
+    }
+  },
+  {
+    "description": "failure_not_not_1",
+    "schema": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "not": { "not": { "type": "string" } }
+    },
+    "instance": 1,
+    "valid": false,
+    "fast": {
+      "valid": false,
+      "errors": [
+        {
+          "keywordLocation": "/not",
+          "absoluteKeywordLocation": "#/not",
+          "instanceLocation": "",
+          "error": "The integer value was expected to not validate against the given subschema, but it did"
+        }
+      ]
+    },
+    "exhaustive": {
+      "valid": false,
+      "errors": [
+        {
+          "keywordLocation": "/not",
+          "absoluteKeywordLocation": "#/not",
+          "instanceLocation": "",
+          "error": "The integer value was expected to not validate against the given subschema, but it did"
+        }
+      ]
+    }
+  },
+  {
+    "description": "failure_anyof_1",
+    "schema": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "anyOf": [ { "type": "string" }, { "type": "integer" } ]
+    },
+    "instance": true,
+    "valid": false,
+    "fast": {
+      "valid": false,
+      "errors": [
+        {
+          "keywordLocation": "/anyOf/0/type",
+          "absoluteKeywordLocation": "#/anyOf/0/type",
+          "instanceLocation": "",
+          "error": "The value was expected to be of type string but it was of type boolean"
+        },
+        {
+          "keywordLocation": "/anyOf/1/type",
+          "absoluteKeywordLocation": "#/anyOf/1/type",
+          "instanceLocation": "",
+          "error": "The value was expected to be of type integer but it was of type boolean"
+        },
+        {
+          "keywordLocation": "/anyOf",
+          "absoluteKeywordLocation": "#/anyOf",
+          "instanceLocation": "",
+          "error": "The boolean value was expected to validate against at least one of the 2 given subschemas"
+        }
+      ]
+    },
+    "exhaustive": {
+      "valid": false,
+      "errors": [
+        {
+          "keywordLocation": "/anyOf/0/type",
+          "absoluteKeywordLocation": "#/anyOf/0/type",
+          "instanceLocation": "",
+          "error": "The value was expected to be of type string but it was of type boolean"
+        },
+        {
+          "keywordLocation": "/anyOf/1/type",
+          "absoluteKeywordLocation": "#/anyOf/1/type",
+          "instanceLocation": "",
+          "error": "The value was expected to be of type integer but it was of type boolean"
+        },
+        {
+          "keywordLocation": "/anyOf",
+          "absoluteKeywordLocation": "#/anyOf",
+          "instanceLocation": "",
+          "error": "The boolean value was expected to validate against at least one of the 2 given subschemas"
+        }
+      ]
+    }
+  },
+  {
+    "description": "failure_anyof_2",
+    "schema": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "anyOf": [
+        { "title": "First", "type": "string" },
+        { "title": "Second", "type": "integer" }
+      ]
+    },
+    "instance": true,
+    "valid": false,
+    "fast": {
+      "valid": false,
+      "errors": [
+        {
+          "keywordLocation": "/anyOf/0/type",
+          "absoluteKeywordLocation": "#/anyOf/0/type",
+          "instanceLocation": "",
+          "error": "The value was expected to be of type string but it was of type boolean"
+        },
+        {
+          "keywordLocation": "/anyOf/1/type",
+          "absoluteKeywordLocation": "#/anyOf/1/type",
+          "instanceLocation": "",
+          "error": "The value was expected to be of type integer but it was of type boolean"
+        },
+        {
+          "keywordLocation": "/anyOf",
+          "absoluteKeywordLocation": "#/anyOf",
+          "instanceLocation": "",
+          "error": "The boolean value was expected to validate against at least one of the 2 given subschemas"
+        }
+      ]
+    },
+    "exhaustive": {
+      "valid": false,
+      "errors": [
+        {
+          "keywordLocation": "/anyOf/0/type",
+          "absoluteKeywordLocation": "#/anyOf/0/type",
+          "instanceLocation": "",
+          "error": "The value was expected to be of type string but it was of type boolean"
+        },
+        {
+          "keywordLocation": "/anyOf/1/type",
+          "absoluteKeywordLocation": "#/anyOf/1/type",
+          "instanceLocation": "",
+          "error": "The value was expected to be of type integer but it was of type boolean"
+        },
+        {
+          "keywordLocation": "/anyOf",
+          "absoluteKeywordLocation": "#/anyOf",
+          "instanceLocation": "",
+          "error": "The boolean value was expected to validate against at least one of the 2 given subschemas"
+        }
+      ]
+    }
+  },
+  {
+    "description": "failure_if_then_1",
+    "schema": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "if": { "type": "string" },
+      "then": { "minLength": 10 }
+    },
+    "instance": "foo",
+    "valid": false,
+    "fast": {
+      "valid": false,
+      "errors": [
+        {
+          "keywordLocation": "/then/minLength",
+          "absoluteKeywordLocation": "#/then/minLength",
+          "instanceLocation": "",
+          "error": "The string value \"foo\" was expected to consist of at least 10 characters but it consisted of 3 characters"
+        }
+      ]
+    },
+    "exhaustive": {
+      "valid": false,
+      "errors": [
+        {
+          "keywordLocation": "/then/minLength",
+          "absoluteKeywordLocation": "#/then/minLength",
+          "instanceLocation": "",
+          "error": "The string value \"foo\" was expected to consist of at least 10 characters but it consisted of 3 characters"
+        }
+      ]
+    }
+  },
+  {
+    "description": "failure_if_then_2",
+    "schema": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "if": { "type": "string" },
+      "then": { "title": "Then Title", "minLength": 10 }
+    },
+    "instance": "foo",
+    "valid": false,
+    "fast": {
+      "valid": false,
+      "errors": [
+        {
+          "keywordLocation": "/then/minLength",
+          "absoluteKeywordLocation": "#/then/minLength",
+          "instanceLocation": "",
+          "error": "The string value \"foo\" was expected to consist of at least 10 characters but it consisted of 3 characters"
+        }
+      ]
+    },
+    "exhaustive": {
+      "valid": false,
+      "errors": [
+        {
+          "keywordLocation": "/then/minLength",
+          "absoluteKeywordLocation": "#/then/minLength",
+          "instanceLocation": "",
+          "error": "The string value \"foo\" was expected to consist of at least 10 characters but it consisted of 3 characters"
+        }
+      ]
+    }
+  },
+  {
+    "description": "failure_if_else_1",
+    "schema": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "if": { "type": "string" },
+      "else": { "minimum": 100 }
+    },
+    "instance": 42,
+    "valid": false,
+    "fast": {
+      "valid": false,
+      "errors": [
+        {
+          "keywordLocation": "/else/minimum",
+          "absoluteKeywordLocation": "#/else/minimum",
+          "instanceLocation": "",
+          "error": "The integer value 42 was expected to be greater than or equal to the integer 100"
+        }
+      ]
+    },
+    "exhaustive": {
+      "valid": false,
+      "errors": [
+        {
+          "keywordLocation": "/else/minimum",
+          "absoluteKeywordLocation": "#/else/minimum",
+          "instanceLocation": "",
+          "error": "The integer value 42 was expected to be greater than or equal to the integer 100"
+        }
+      ]
+    }
+  },
+  {
+    "description": "failure_if_else_2",
+    "schema": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "if": { "type": "string" },
+      "else": { "title": "Else Title", "minimum": 100 }
+    },
+    "instance": 42,
+    "valid": false,
+    "fast": {
+      "valid": false,
+      "errors": [
+        {
+          "keywordLocation": "/else/minimum",
+          "absoluteKeywordLocation": "#/else/minimum",
+          "instanceLocation": "",
+          "error": "The integer value 42 was expected to be greater than or equal to the integer 100"
+        }
+      ]
+    },
+    "exhaustive": {
+      "valid": false,
+      "errors": [
+        {
+          "keywordLocation": "/else/minimum",
+          "absoluteKeywordLocation": "#/else/minimum",
+          "instanceLocation": "",
+          "error": "The integer value 42 was expected to be greater than or equal to the integer 100"
+        }
+      ]
+    }
+  },
+  {
+    "description": "failure_contains_1",
+    "schema": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "contains": { "type": "string" }
+    },
+    "instance": [ 1, 2, 3 ],
+    "valid": false,
+    "fast": {
+      "valid": false,
+      "errors": [
+        {
+          "keywordLocation": "/contains/type",
+          "absoluteKeywordLocation": "#/contains/type",
+          "instanceLocation": "/0",
+          "error": "The value was expected to be of type string but it was of type integer"
+        },
+        {
+          "keywordLocation": "/contains/type",
+          "absoluteKeywordLocation": "#/contains/type",
+          "instanceLocation": "/1",
+          "error": "The value was expected to be of type string but it was of type integer"
+        },
+        {
+          "keywordLocation": "/contains/type",
+          "absoluteKeywordLocation": "#/contains/type",
+          "instanceLocation": "/2",
+          "error": "The value was expected to be of type string but it was of type integer"
+        },
+        {
+          "keywordLocation": "/contains",
+          "absoluteKeywordLocation": "#/contains",
+          "instanceLocation": "",
+          "error": "The array value was expected to contain at least 1 item that validates against the given subschema"
+        }
+      ]
+    },
+    "exhaustive": {
+      "valid": false,
+      "errors": [
+        {
+          "keywordLocation": "/contains/type",
+          "absoluteKeywordLocation": "#/contains/type",
+          "instanceLocation": "/0",
+          "error": "The value was expected to be of type string but it was of type integer"
+        },
+        {
+          "keywordLocation": "/contains/type",
+          "absoluteKeywordLocation": "#/contains/type",
+          "instanceLocation": "/1",
+          "error": "The value was expected to be of type string but it was of type integer"
+        },
+        {
+          "keywordLocation": "/contains/type",
+          "absoluteKeywordLocation": "#/contains/type",
+          "instanceLocation": "/2",
+          "error": "The value was expected to be of type string but it was of type integer"
+        },
+        {
+          "keywordLocation": "/contains",
+          "absoluteKeywordLocation": "#/contains",
+          "instanceLocation": "",
+          "error": "The array value was expected to contain at least 1 item that validates against the given subschema"
+        }
+      ]
+    }
+  },
+  {
+    "description": "failure_nested_oneof_anyof_1",
+    "schema": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "oneOf": [
+        { "anyOf": [ { "type": "string" }, { "type": "integer" } ] },
+        { "type": "boolean" }
+      ]
+    },
+    "instance": null,
+    "valid": false,
+    "fast": {
+      "valid": false,
+      "errors": [
+        {
+          "keywordLocation": "/oneOf/0/anyOf/0/type",
+          "absoluteKeywordLocation": "#/oneOf/0/anyOf/0/type",
+          "instanceLocation": "",
+          "error": "The value was expected to be of type string but it was of type null"
+        },
+        {
+          "keywordLocation": "/oneOf/0/anyOf/1/type",
+          "absoluteKeywordLocation": "#/oneOf/0/anyOf/1/type",
+          "instanceLocation": "",
+          "error": "The value was expected to be of type integer but it was of type null"
+        },
+        {
+          "keywordLocation": "/oneOf/0/anyOf",
+          "absoluteKeywordLocation": "#/oneOf/0/anyOf",
+          "instanceLocation": "",
+          "error": "The null value was expected to validate against at least one of the 2 given subschemas"
+        },
+        {
+          "keywordLocation": "/oneOf/1/type",
+          "absoluteKeywordLocation": "#/oneOf/1/type",
+          "instanceLocation": "",
+          "error": "The value was expected to be of type boolean but it was of type null"
+        },
+        {
+          "keywordLocation": "/oneOf",
+          "absoluteKeywordLocation": "#/oneOf",
+          "instanceLocation": "",
+          "error": "The null value was expected to validate against one and only one of the 2 given subschemas"
+        }
+      ]
+    },
+    "exhaustive": {
+      "valid": false,
+      "errors": [
+        {
+          "keywordLocation": "/oneOf/0/anyOf/0/type",
+          "absoluteKeywordLocation": "#/oneOf/0/anyOf/0/type",
+          "instanceLocation": "",
+          "error": "The value was expected to be of type string but it was of type null"
+        },
+        {
+          "keywordLocation": "/oneOf/0/anyOf/1/type",
+          "absoluteKeywordLocation": "#/oneOf/0/anyOf/1/type",
+          "instanceLocation": "",
+          "error": "The value was expected to be of type integer but it was of type null"
+        },
+        {
+          "keywordLocation": "/oneOf/0/anyOf",
+          "absoluteKeywordLocation": "#/oneOf/0/anyOf",
+          "instanceLocation": "",
+          "error": "The null value was expected to validate against at least one of the 2 given subschemas"
+        },
+        {
+          "keywordLocation": "/oneOf/1/type",
+          "absoluteKeywordLocation": "#/oneOf/1/type",
+          "instanceLocation": "",
+          "error": "The value was expected to be of type boolean but it was of type null"
+        },
+        {
+          "keywordLocation": "/oneOf",
+          "absoluteKeywordLocation": "#/oneOf",
+          "instanceLocation": "",
+          "error": "The null value was expected to validate against one and only one of the 2 given subschemas"
+        }
+      ]
+    }
+  }
+]
