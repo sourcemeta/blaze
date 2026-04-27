@@ -1284,3 +1284,363 @@ TEST(Evaluator_draft4, prop_type_integer_bounded_strict_decimal_3_0_fails) {
       instance, 0,
       "The value was expected to be an integer within the given range");
 }
+
+TEST(Evaluator_draft4, minimum_12) {
+  const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
+    "$schema": "http://json-schema.org/draft-04/schema#",
+    "minimum": 2.5
+  })JSON")};
+
+  const sourcemeta::core::JSON instance{3.0};
+  EVALUATE_WITH_TRACE_FAST_SUCCESS(schema, instance, 1, "");
+
+  EVALUATE_TRACE_PRE(0, AssertionGreaterEqual, "/minimum", "#/minimum", "");
+  EVALUATE_TRACE_POST_SUCCESS(0, AssertionGreaterEqual, "/minimum", "#/minimum",
+                              "");
+
+  EVALUATE_TRACE_POST_DESCRIBE(instance, 0,
+                               "The number value 3.0 was expected to be "
+                               "greater than or equal to the number 2.5");
+}
+
+TEST(Evaluator_draft4, minimum_13) {
+  const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
+    "$schema": "http://json-schema.org/draft-04/schema#",
+    "minimum": 2.5
+  })JSON")};
+
+  const sourcemeta::core::JSON instance{2.0};
+  EVALUATE_WITH_TRACE_FAST_FAILURE(schema, instance, 1, "");
+
+  EVALUATE_TRACE_PRE(0, AssertionGreaterEqual, "/minimum", "#/minimum", "");
+  EVALUATE_TRACE_POST_FAILURE(0, AssertionGreaterEqual, "/minimum", "#/minimum",
+                              "");
+
+  EVALUATE_TRACE_POST_DESCRIBE(instance, 0,
+                               "The number value 2.0 was expected to be "
+                               "greater than or equal to the number 2.5");
+}
+
+TEST(Evaluator_draft4, minimum_16) {
+  const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
+    "$schema": "http://json-schema.org/draft-04/schema#",
+    "minimum": 2.5
+  })JSON")};
+
+  const sourcemeta::core::JSON instance{3.0};
+  EVALUATE_WITH_TRACE_FAST_SUCCESS(schema, instance, 1, "");
+
+  EVALUATE_TRACE_PRE(0, AssertionGreaterEqual, "/minimum", "#/minimum", "");
+  EVALUATE_TRACE_POST_SUCCESS(0, AssertionGreaterEqual, "/minimum", "#/minimum",
+                              "");
+
+  EVALUATE_TRACE_POST_DESCRIBE(instance, 0,
+                               "The number value 3.0 was expected to be "
+                               "greater than or equal to the number 2.5");
+}
+
+TEST(Evaluator_draft4, minimum_17) {
+  const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
+    "$schema": "http://json-schema.org/draft-04/schema#",
+    "minimum": 2.5
+  })JSON")};
+
+  const sourcemeta::core::JSON instance{2.0};
+  EVALUATE_WITH_TRACE_FAST_FAILURE(schema, instance, 1, "");
+
+  EVALUATE_TRACE_PRE(0, AssertionGreaterEqual, "/minimum", "#/minimum", "");
+  EVALUATE_TRACE_POST_FAILURE(0, AssertionGreaterEqual, "/minimum", "#/minimum",
+                              "");
+
+  EVALUATE_TRACE_POST_DESCRIBE(instance, 0,
+                               "The number value 2.0 was expected to be "
+                               "greater than or equal to the number 2.5");
+}
+
+TEST(Evaluator_draft4, minimum_22) {
+  const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
+    "$schema": "http://json-schema.org/draft-04/schema#",
+    "minimum": 5.0
+  })JSON")};
+
+  const sourcemeta::core::JSON instance{10.0};
+  EVALUATE_WITH_TRACE_FAST_SUCCESS(schema, instance, 1, "");
+
+  EVALUATE_TRACE_PRE(0, AssertionGreaterEqual, "/minimum", "#/minimum", "");
+  EVALUATE_TRACE_POST_SUCCESS(0, AssertionGreaterEqual, "/minimum", "#/minimum",
+                              "");
+
+  EVALUATE_TRACE_POST_DESCRIBE(instance, 0,
+                               "The number value 10.0 was expected to be "
+                               "greater than or equal to the number 5.0");
+}
+
+TEST(Evaluator_draft4, maximum_11) {
+  const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
+    "$schema": "http://json-schema.org/draft-04/schema#",
+    "maximum": 2.5
+  })JSON")};
+
+  const sourcemeta::core::JSON instance{2.0};
+  EVALUATE_WITH_TRACE_FAST_SUCCESS(schema, instance, 1, "");
+
+  EVALUATE_TRACE_PRE(0, AssertionLessEqual, "/maximum", "#/maximum", "");
+  EVALUATE_TRACE_POST_SUCCESS(0, AssertionLessEqual, "/maximum", "#/maximum",
+                              "");
+
+  EVALUATE_TRACE_POST_DESCRIBE(instance, 0,
+                               "The number value 2.0 was expected to be less "
+                               "than or equal to the number 2.5");
+}
+
+TEST(Evaluator_draft4, maximum_12) {
+  const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
+    "$schema": "http://json-schema.org/draft-04/schema#",
+    "maximum": 2.5
+  })JSON")};
+
+  const sourcemeta::core::JSON instance{3.0};
+  EVALUATE_WITH_TRACE_FAST_FAILURE(schema, instance, 1, "");
+
+  EVALUATE_TRACE_PRE(0, AssertionLessEqual, "/maximum", "#/maximum", "");
+  EVALUATE_TRACE_POST_FAILURE(0, AssertionLessEqual, "/maximum", "#/maximum",
+                              "");
+
+  EVALUATE_TRACE_POST_DESCRIBE(instance, 0,
+                               "The number value 3.0 was expected to be less "
+                               "than or equal to the number 2.5");
+}
+
+TEST(Evaluator_draft4, maximum_15) {
+  const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
+    "$schema": "http://json-schema.org/draft-04/schema#",
+    "maximum": 2.5
+  })JSON")};
+
+  const sourcemeta::core::JSON instance{2.0};
+  EVALUATE_WITH_TRACE_FAST_SUCCESS(schema, instance, 1, "");
+
+  EVALUATE_TRACE_PRE(0, AssertionLessEqual, "/maximum", "#/maximum", "");
+  EVALUATE_TRACE_POST_SUCCESS(0, AssertionLessEqual, "/maximum", "#/maximum",
+                              "");
+
+  EVALUATE_TRACE_POST_DESCRIBE(instance, 0,
+                               "The number value 2.0 was expected to be less "
+                               "than or equal to the number 2.5");
+}
+
+TEST(Evaluator_draft4, maximum_16) {
+  const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
+    "$schema": "http://json-schema.org/draft-04/schema#",
+    "maximum": 2.5
+  })JSON")};
+
+  const sourcemeta::core::JSON instance{3.0};
+  EVALUATE_WITH_TRACE_FAST_FAILURE(schema, instance, 1, "");
+
+  EVALUATE_TRACE_PRE(0, AssertionLessEqual, "/maximum", "#/maximum", "");
+  EVALUATE_TRACE_POST_FAILURE(0, AssertionLessEqual, "/maximum", "#/maximum",
+                              "");
+
+  EVALUATE_TRACE_POST_DESCRIBE(instance, 0,
+                               "The number value 3.0 was expected to be less "
+                               "than or equal to the number 2.5");
+}
+
+TEST(Evaluator_draft4, maximum_21) {
+  const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
+    "$schema": "http://json-schema.org/draft-04/schema#",
+    "maximum": 5.0
+  })JSON")};
+
+  const sourcemeta::core::JSON instance{3.0};
+  EVALUATE_WITH_TRACE_FAST_SUCCESS(schema, instance, 1, "");
+
+  EVALUATE_TRACE_PRE(0, AssertionLessEqual, "/maximum", "#/maximum", "");
+  EVALUATE_TRACE_POST_SUCCESS(0, AssertionLessEqual, "/maximum", "#/maximum",
+                              "");
+
+  EVALUATE_TRACE_POST_DESCRIBE(instance, 0,
+                               "The number value 3.0 was expected to be less "
+                               "than or equal to the number 5.0");
+}
+
+TEST(Evaluator_draft4, exclusiveMinimum_8) {
+  const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
+    "$schema": "http://json-schema.org/draft-04/schema#",
+    "minimum": 2.5,
+    "exclusiveMinimum": true
+  })JSON")};
+
+  const sourcemeta::core::JSON instance{3.0};
+  EVALUATE_WITH_TRACE_FAST_SUCCESS(schema, instance, 1, "");
+
+  EVALUATE_TRACE_PRE(0, AssertionGreater, "/minimum", "#/minimum", "");
+  EVALUATE_TRACE_POST_SUCCESS(0, AssertionGreater, "/minimum", "#/minimum", "");
+
+  EVALUATE_TRACE_POST_DESCRIBE(
+      instance, 0,
+      "The number value 3.0 was expected to be greater than the number 2.5");
+}
+
+TEST(Evaluator_draft4, exclusiveMinimum_12) {
+  const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
+    "$schema": "http://json-schema.org/draft-04/schema#",
+    "minimum": 2.5,
+    "exclusiveMinimum": true
+  })JSON")};
+
+  const sourcemeta::core::JSON instance{3.0};
+  EVALUATE_WITH_TRACE_FAST_SUCCESS(schema, instance, 1, "");
+
+  EVALUATE_TRACE_PRE(0, AssertionGreater, "/minimum", "#/minimum", "");
+  EVALUATE_TRACE_POST_SUCCESS(0, AssertionGreater, "/minimum", "#/minimum", "");
+
+  EVALUATE_TRACE_POST_DESCRIBE(
+      instance, 0,
+      "The number value 3.0 was expected to be greater than the number 2.5");
+}
+
+TEST(Evaluator_draft4, exclusiveMaximum_8) {
+  const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
+    "$schema": "http://json-schema.org/draft-04/schema#",
+    "maximum": 2.5,
+    "exclusiveMaximum": true
+  })JSON")};
+
+  const sourcemeta::core::JSON instance{2.0};
+  EVALUATE_WITH_TRACE_FAST_SUCCESS(schema, instance, 1, "");
+
+  EVALUATE_TRACE_PRE(0, AssertionLess, "/maximum", "#/maximum", "");
+  EVALUATE_TRACE_POST_SUCCESS(0, AssertionLess, "/maximum", "#/maximum", "");
+
+  EVALUATE_TRACE_POST_DESCRIBE(
+      instance, 0,
+      "The number value 2.0 was expected to be less than the number 2.5");
+}
+
+TEST(Evaluator_draft4, exclusiveMaximum_12) {
+  const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
+    "$schema": "http://json-schema.org/draft-04/schema#",
+    "maximum": 2.5,
+    "exclusiveMaximum": true
+  })JSON")};
+
+  const sourcemeta::core::JSON instance{2.0};
+  EVALUATE_WITH_TRACE_FAST_SUCCESS(schema, instance, 1, "");
+
+  EVALUATE_TRACE_PRE(0, AssertionLess, "/maximum", "#/maximum", "");
+  EVALUATE_TRACE_POST_SUCCESS(0, AssertionLess, "/maximum", "#/maximum", "");
+
+  EVALUATE_TRACE_POST_DESCRIBE(
+      instance, 0,
+      "The number value 2.0 was expected to be less than the number 2.5");
+}
+
+TEST(Evaluator_draft4, multipleOf_5) {
+  const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
+    "$schema": "http://json-schema.org/draft-04/schema#",
+    "multipleOf": 3.2
+  })JSON")};
+
+  const sourcemeta::core::JSON instance{6.0};
+  EVALUATE_WITH_TRACE_FAST_FAILURE(schema, instance, 1, "");
+
+  EVALUATE_TRACE_PRE(0, AssertionDivisible, "/multipleOf", "#/multipleOf", "");
+  EVALUATE_TRACE_POST_FAILURE(0, AssertionDivisible, "/multipleOf",
+                              "#/multipleOf", "");
+
+  EVALUATE_TRACE_POST_DESCRIBE(
+      instance, 0,
+      "The number value 6.0 was expected to be divisible by the number 3.2");
+}
+
+TEST(Evaluator_draft4, multipleOf_11) {
+  const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
+    "$schema": "http://json-schema.org/draft-04/schema#",
+    "multipleOf": 2.5
+  })JSON")};
+
+  const sourcemeta::core::JSON instance{5.0};
+  EVALUATE_WITH_TRACE_FAST_SUCCESS(schema, instance, 1, "");
+
+  EVALUATE_TRACE_PRE(0, AssertionDivisible, "/multipleOf", "#/multipleOf", "");
+  EVALUATE_TRACE_POST_SUCCESS(0, AssertionDivisible, "/multipleOf",
+                              "#/multipleOf", "");
+
+  EVALUATE_TRACE_POST_DESCRIBE(
+      instance, 0,
+      "The number value 5.0 was expected to be divisible by the number 2.5");
+}
+
+TEST(Evaluator_draft4, multipleOf_12) {
+  const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
+    "$schema": "http://json-schema.org/draft-04/schema#",
+    "multipleOf": 2.5
+  })JSON")};
+
+  const sourcemeta::core::JSON instance{6.0};
+  EVALUATE_WITH_TRACE_FAST_FAILURE(schema, instance, 1, "");
+
+  EVALUATE_TRACE_PRE(0, AssertionDivisible, "/multipleOf", "#/multipleOf", "");
+  EVALUATE_TRACE_POST_FAILURE(0, AssertionDivisible, "/multipleOf",
+                              "#/multipleOf", "");
+
+  EVALUATE_TRACE_POST_DESCRIBE(
+      instance, 0,
+      "The number value 6.0 was expected to be divisible by the number 2.5");
+}
+
+TEST(Evaluator_draft4, multipleOf_15) {
+  const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
+    "$schema": "http://json-schema.org/draft-04/schema#",
+    "multipleOf": 2.5
+  })JSON")};
+
+  const sourcemeta::core::JSON instance{5.0};
+  EVALUATE_WITH_TRACE_FAST_SUCCESS(schema, instance, 1, "");
+
+  EVALUATE_TRACE_PRE(0, AssertionDivisible, "/multipleOf", "#/multipleOf", "");
+  EVALUATE_TRACE_POST_SUCCESS(0, AssertionDivisible, "/multipleOf",
+                              "#/multipleOf", "");
+
+  EVALUATE_TRACE_POST_DESCRIBE(
+      instance, 0,
+      "The number value 5.0 was expected to be divisible by the number 2.5");
+}
+
+TEST(Evaluator_draft4, multipleOf_16) {
+  const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
+    "$schema": "http://json-schema.org/draft-04/schema#",
+    "multipleOf": 2.5
+  })JSON")};
+
+  const sourcemeta::core::JSON instance{6.0};
+  EVALUATE_WITH_TRACE_FAST_FAILURE(schema, instance, 1, "");
+
+  EVALUATE_TRACE_PRE(0, AssertionDivisible, "/multipleOf", "#/multipleOf", "");
+  EVALUATE_TRACE_POST_FAILURE(0, AssertionDivisible, "/multipleOf",
+                              "#/multipleOf", "");
+
+  EVALUATE_TRACE_POST_DESCRIBE(
+      instance, 0,
+      "The number value 6.0 was expected to be divisible by the number 2.5");
+}
+
+TEST(Evaluator_draft4, multipleOf_21) {
+  const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
+    "$schema": "http://json-schema.org/draft-04/schema#",
+    "multipleOf": 5.0
+  })JSON")};
+
+  const sourcemeta::core::JSON instance{15.0};
+  EVALUATE_WITH_TRACE_FAST_SUCCESS(schema, instance, 1, "");
+
+  EVALUATE_TRACE_PRE(0, AssertionDivisible, "/multipleOf", "#/multipleOf", "");
+  EVALUATE_TRACE_POST_SUCCESS(0, AssertionDivisible, "/multipleOf",
+                              "#/multipleOf", "");
+
+  EVALUATE_TRACE_POST_DESCRIBE(
+      instance, 0,
+      "The number value 15.0 was expected to be divisible by the number 5.0");
+}

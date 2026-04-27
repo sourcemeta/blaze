@@ -1224,3 +1224,281 @@ TEST(Evaluator_draft6, items_6) {
   EVALUATE_TRACE_POST_DESCRIBE(
       instance, 0, "The array items were expected to be of type integer");
 }
+
+TEST(Evaluator_draft6, const_8) {
+  const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
+    "$schema": "http://json-schema.org/draft-06/schema#",
+    "type": "integer",
+    "const": 3.0
+  })JSON")};
+
+  const sourcemeta::core::JSON instance{3.0};
+  EVALUATE_WITH_TRACE_FAST_SUCCESS(schema, instance, 1, "");
+
+  EVALUATE_TRACE_PRE(0, AssertionEqual, "/const", "#/const", "");
+  EVALUATE_TRACE_POST_SUCCESS(0, AssertionEqual, "/const", "#/const", "");
+
+  EVALUATE_TRACE_POST_DESCRIBE(
+      instance, 0,
+      "The number value 3.0 was expected to equal the number constant 3.0");
+}
+
+TEST(Evaluator_draft6, const_8_exhaustive) {
+  const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
+    "$schema": "http://json-schema.org/draft-06/schema#",
+    "type": "integer",
+    "const": 3.0
+  })JSON")};
+
+  const sourcemeta::core::JSON instance{3.0};
+  EVALUATE_WITH_TRACE_EXHAUSTIVE_SUCCESS(schema, instance, 2, "");
+
+  EVALUATE_TRACE_PRE(0, AssertionEqual, "/const", "#/const", "");
+  EVALUATE_TRACE_PRE(1, AssertionType, "/type", "#/type", "");
+  EVALUATE_TRACE_POST_SUCCESS(0, AssertionEqual, "/const", "#/const", "");
+  EVALUATE_TRACE_POST_SUCCESS(1, AssertionType, "/type", "#/type", "");
+
+  EVALUATE_TRACE_POST_DESCRIBE(
+      instance, 0,
+      "The number value 3.0 was expected to equal the number constant 3.0");
+
+  EVALUATE_TRACE_POST_DESCRIBE(instance, 1,
+                               "The value was expected to be of type integer");
+}
+
+TEST(Evaluator_draft6, enum_14) {
+  const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
+    "$schema": "http://json-schema.org/draft-06/schema#",
+    "type": "integer",
+    "enum": [ 3.0 ]
+  })JSON")};
+
+  const sourcemeta::core::JSON instance{3.0};
+  EVALUATE_WITH_TRACE_FAST_SUCCESS(schema, instance, 1, "");
+
+  EVALUATE_TRACE_PRE(0, AssertionEqual, "/enum", "#/enum", "");
+  EVALUATE_TRACE_POST_SUCCESS(0, AssertionEqual, "/enum", "#/enum", "");
+
+  EVALUATE_TRACE_POST_DESCRIBE(
+      instance, 0,
+      "The number value 3.0 was expected to equal the number constant 3.0");
+}
+
+TEST(Evaluator_draft6, enum_14_exhaustive) {
+  const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
+    "$schema": "http://json-schema.org/draft-06/schema#",
+    "type": "integer",
+    "enum": [ 3.0 ]
+  })JSON")};
+
+  const sourcemeta::core::JSON instance{3.0};
+  EVALUATE_WITH_TRACE_EXHAUSTIVE_SUCCESS(schema, instance, 2, "");
+
+  EVALUATE_TRACE_PRE(0, AssertionEqual, "/enum", "#/enum", "");
+  EVALUATE_TRACE_PRE(1, AssertionType, "/type", "#/type", "");
+  EVALUATE_TRACE_POST_SUCCESS(0, AssertionEqual, "/enum", "#/enum", "");
+  EVALUATE_TRACE_POST_SUCCESS(1, AssertionType, "/type", "#/type", "");
+
+  EVALUATE_TRACE_POST_DESCRIBE(
+      instance, 0,
+      "The number value 3.0 was expected to equal the number constant 3.0");
+
+  EVALUATE_TRACE_POST_DESCRIBE(instance, 1,
+                               "The value was expected to be of type integer");
+}
+
+TEST(Evaluator_draft6, type_8) {
+  const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
+    "$schema": "http://json-schema.org/draft-06/schema#",
+    "type": ["integer", "string"]
+  })JSON")};
+
+  const sourcemeta::core::JSON instance{3.0};
+  EVALUATE_WITH_TRACE_FAST_SUCCESS(schema, instance, 1, "");
+
+  EVALUATE_TRACE_PRE(0, AssertionTypeAny, "/type", "#/type", "");
+  EVALUATE_TRACE_POST_SUCCESS(0, AssertionTypeAny, "/type", "#/type", "");
+
+  EVALUATE_TRACE_POST_DESCRIBE(instance, 0,
+                               "The value was expected to be of type integer, "
+                               "or string and it was of type number");
+}
+
+TEST(Evaluator_draft6, type_integer_bounded_5) {
+  const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
+    "$schema": "http://json-schema.org/draft-06/schema#",
+    "type": "integer",
+    "minimum": 0,
+    "maximum": 100
+  })JSON")};
+
+  const sourcemeta::core::JSON instance{3.0};
+  EVALUATE_WITH_TRACE_FAST_SUCCESS(schema, instance, 3, "");
+
+  EVALUATE_TRACE_PRE(0, AssertionLessEqual, "/maximum", "#/maximum", "");
+  EVALUATE_TRACE_PRE(1, AssertionGreaterEqual, "/minimum", "#/minimum", "");
+  EVALUATE_TRACE_PRE(2, AssertionType, "/type", "#/type", "");
+  EVALUATE_TRACE_POST_SUCCESS(0, AssertionLessEqual, "/maximum", "#/maximum",
+                              "");
+  EVALUATE_TRACE_POST_SUCCESS(1, AssertionGreaterEqual, "/minimum", "#/minimum",
+                              "");
+  EVALUATE_TRACE_POST_SUCCESS(2, AssertionType, "/type", "#/type", "");
+
+  EVALUATE_TRACE_POST_DESCRIBE(instance, 0,
+                               "The number value 3.0 was expected to be less "
+                               "than or equal to the integer 100");
+
+  EVALUATE_TRACE_POST_DESCRIBE(instance, 1,
+                               "The number value 3.0 was expected to be "
+                               "greater than or equal to the integer 0");
+
+  EVALUATE_TRACE_POST_DESCRIBE(instance, 2,
+                               "The value was expected to be of type integer");
+}
+
+TEST(Evaluator_draft6, type_integer_lower_bound_3) {
+  const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
+    "$schema": "http://json-schema.org/draft-06/schema#",
+    "type": "integer",
+    "minimum": 1
+  })JSON")};
+
+  const sourcemeta::core::JSON instance{5.0};
+  EVALUATE_WITH_TRACE_FAST_SUCCESS(schema, instance, 2, "");
+
+  EVALUATE_TRACE_PRE(0, AssertionGreaterEqual, "/minimum", "#/minimum", "");
+  EVALUATE_TRACE_PRE(1, AssertionType, "/type", "#/type", "");
+  EVALUATE_TRACE_POST_SUCCESS(0, AssertionGreaterEqual, "/minimum", "#/minimum",
+                              "");
+  EVALUATE_TRACE_POST_SUCCESS(1, AssertionType, "/type", "#/type", "");
+
+  EVALUATE_TRACE_POST_DESCRIBE(instance, 0,
+                               "The number value 5.0 was expected to be "
+                               "greater than or equal to the integer 1");
+
+  EVALUATE_TRACE_POST_DESCRIBE(instance, 1,
+                               "The value was expected to be of type integer");
+}
+
+TEST(Evaluator_draft6, prop_type_integer_bounded_6) {
+  const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
+    "$schema": "http://json-schema.org/draft-06/schema#",
+    "properties": {
+      "x": { "type": "integer", "minimum": 0, "maximum": 100 }
+    }
+  })JSON")};
+
+  const sourcemeta::core::JSON instance{
+      sourcemeta::core::parse_json(R"JSON({ "x": 3.0 })JSON")};
+  EVALUATE_WITH_TRACE_FAST_SUCCESS(schema, instance, 1, "");
+
+  EVALUATE_TRACE_PRE(0, AssertionTypeIntegerBounded, "", "#/properties", "/x");
+  EVALUATE_TRACE_POST_SUCCESS(0, AssertionTypeIntegerBounded, "",
+                              "#/properties", "/x");
+
+  EVALUATE_TRACE_POST_DESCRIBE(
+      instance, 0,
+      "The value was expected to be an integer within the given range");
+}
+
+TEST(Evaluator_draft6, prop_type_integer_bounded_6_exhaustive) {
+  const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
+    "$schema": "http://json-schema.org/draft-06/schema#",
+    "properties": {
+      "x": { "type": "integer", "minimum": 0, "maximum": 100 }
+    }
+  })JSON")};
+
+  const sourcemeta::core::JSON instance{
+      sourcemeta::core::parse_json(R"JSON({ "x": 3.0 })JSON")};
+  EVALUATE_WITH_TRACE_EXHAUSTIVE_SUCCESS(schema, instance, 4, "");
+
+  EVALUATE_TRACE_PRE(0, LogicalWhenType, "/properties", "#/properties", "");
+  EVALUATE_TRACE_PRE(1, AssertionLessEqual, "/properties/x/maximum",
+                     "#/properties/x/maximum", "/x");
+  EVALUATE_TRACE_PRE(2, AssertionGreaterEqual, "/properties/x/minimum",
+                     "#/properties/x/minimum", "/x");
+  EVALUATE_TRACE_PRE(3, AssertionType, "/properties/x/type",
+                     "#/properties/x/type", "/x");
+  EVALUATE_TRACE_POST_SUCCESS(0, AssertionLessEqual, "/properties/x/maximum",
+                              "#/properties/x/maximum", "/x");
+  EVALUATE_TRACE_POST_SUCCESS(1, AssertionGreaterEqual, "/properties/x/minimum",
+                              "#/properties/x/minimum", "/x");
+  EVALUATE_TRACE_POST_SUCCESS(2, AssertionType, "/properties/x/type",
+                              "#/properties/x/type", "/x");
+  EVALUATE_TRACE_POST_SUCCESS(3, LogicalWhenType, "/properties", "#/properties",
+                              "");
+
+  EVALUATE_TRACE_POST_DESCRIBE(instance, 0,
+                               "The number value 3.0 was expected to be less "
+                               "than or equal to the integer 100");
+
+  EVALUATE_TRACE_POST_DESCRIBE(instance, 1,
+                               "The number value 3.0 was expected to be "
+                               "greater than or equal to the integer 0");
+
+  EVALUATE_TRACE_POST_DESCRIBE(instance, 2,
+                               "The value was expected to be of type integer");
+
+  EVALUATE_TRACE_POST_DESCRIBE(instance, 3,
+                               "The object value was expected to validate "
+                               "against the single defined property subschema");
+}
+
+TEST(Evaluator_draft6, prop_type_integer_lower_bound_4) {
+  const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
+    "$schema": "http://json-schema.org/draft-06/schema#",
+    "properties": {
+      "x": { "type": "integer", "minimum": 1 }
+    }
+  })JSON")};
+
+  const sourcemeta::core::JSON instance{
+      sourcemeta::core::parse_json(R"JSON({ "x": 5.0 })JSON")};
+  EVALUATE_WITH_TRACE_FAST_SUCCESS(schema, instance, 1, "");
+
+  EVALUATE_TRACE_PRE(0, AssertionTypeIntegerLowerBound, "", "#/properties",
+                     "/x");
+  EVALUATE_TRACE_POST_SUCCESS(0, AssertionTypeIntegerLowerBound, "",
+                              "#/properties", "/x");
+
+  EVALUATE_TRACE_POST_DESCRIBE(
+      instance, 0,
+      "The value was expected to be an integer above the given minimum");
+}
+
+TEST(Evaluator_draft6, prop_type_integer_lower_bound_4_exhaustive) {
+  const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
+    "$schema": "http://json-schema.org/draft-06/schema#",
+    "properties": {
+      "x": { "type": "integer", "minimum": 1 }
+    }
+  })JSON")};
+
+  const sourcemeta::core::JSON instance{
+      sourcemeta::core::parse_json(R"JSON({ "x": 5.0 })JSON")};
+  EVALUATE_WITH_TRACE_EXHAUSTIVE_SUCCESS(schema, instance, 3, "");
+
+  EVALUATE_TRACE_PRE(0, LogicalWhenType, "/properties", "#/properties", "");
+  EVALUATE_TRACE_PRE(1, AssertionGreaterEqual, "/properties/x/minimum",
+                     "#/properties/x/minimum", "/x");
+  EVALUATE_TRACE_PRE(2, AssertionType, "/properties/x/type",
+                     "#/properties/x/type", "/x");
+  EVALUATE_TRACE_POST_SUCCESS(0, AssertionGreaterEqual, "/properties/x/minimum",
+                              "#/properties/x/minimum", "/x");
+  EVALUATE_TRACE_POST_SUCCESS(1, AssertionType, "/properties/x/type",
+                              "#/properties/x/type", "/x");
+  EVALUATE_TRACE_POST_SUCCESS(2, LogicalWhenType, "/properties", "#/properties",
+                              "");
+
+  EVALUATE_TRACE_POST_DESCRIBE(instance, 0,
+                               "The number value 5.0 was expected to be "
+                               "greater than or equal to the integer 1");
+
+  EVALUATE_TRACE_POST_DESCRIBE(instance, 1,
+                               "The value was expected to be of type integer");
+
+  EVALUATE_TRACE_POST_DESCRIBE(instance, 2,
+                               "The object value was expected to validate "
+                               "against the single defined property subschema");
+}
