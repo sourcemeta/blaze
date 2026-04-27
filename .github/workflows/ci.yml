@@ -153,7 +153,7 @@ jobs:
         with:
           node-version: 'latest'
       - run: node --version
-      - run: node --test ports/javascript/test.mjs ports/javascript/trace.mjs
+      - run: node --test "ports/javascript/*.test.mjs"
       - run: node ports/javascript/benchmark.mjs > build/benchmark-javascript.json
         if: matrix.platform.benchmark
 
