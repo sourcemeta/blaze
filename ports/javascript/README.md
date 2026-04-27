@@ -18,30 +18,24 @@ npm install --save @sourcemeta/blaze
 
 ## Usage
 
-Blaze evaluates pre-compiled schema templates. Compile your JSON Schema using
+Blaze evaluates pre-compiled schema templates. Compile your JSON Schema with
 the [JSON Schema CLI](https://github.com/sourcemeta/jsonschema) (see the
 [`compile`](https://github.com/sourcemeta/jsonschema/blob/main/docs/compile.markdown)
-command):
+command), then load the resulting template and validate instances against it.
+The mode (fast or exhaustive) is fixed at compile time, not evaluation time.
 
 ```sh
 npm install --global @sourcemeta/jsonschema
-
-cat > schema.json <<'EOF'
-{
-  "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "type": "object",
-  "properties": {
-    "name": { "type": "string" },
-    "age": { "type": "integer" }
-  },
-  "required": [ "name" ]
-}
-EOF
-
 jsonschema compile schema.json --fast > template.json
 ```
 
-Then validate instances:
+Pass a string as the second argument to `validate` to receive a JSON object
+that follows the JSON Schema [Standard Output Format](https://json-schema.org/draft/2020-12/json-schema-core#name-output-formatting)
+instead of a boolean. Two formats are supported:
+[`'flag'`](https://json-schema.org/draft/2020-12/json-schema-core#name-flag)
+(validity only) and
+[`'basic'`](https://json-schema.org/draft/2020-12/json-schema-core#name-basic)
+(errors and annotations):
 
 ```javascript
 import { readFileSync } from "node:fs";
@@ -50,54 +44,24 @@ import { Blaze } from "@sourcemeta/blaze";
 const template =
   JSON.parse(readFileSync("template.json", "utf-8"));
 const evaluator = new Blaze(template);
-
-// true or false
-console.log(evaluator.validate({ name: "John", age: 30 }));
-```
-
-With an evaluation callback for tracing:
-
-```javascript
 const instance = { name: "John", age: 30 };
-const result = evaluator.validate(instance,
-  (type, valid, instruction,
-   evaluatePath, instanceLocation, annotation) => {
-    console.log(type, evaluatePath,
-      instanceLocation, valid);
-  });
-console.log(result); // true or false
+
+// Plain boolean
+evaluator.validate(instance);
+
+// { valid: true } or { valid: false }
+evaluator.validate(instance, "flag");
+
+// { valid: true, annotations?: [ ... ] }
+// { valid: false, errors: [ ... ] }
+evaluator.validate(instance, "basic");
 ```
 
-### Human-readable descriptions
-
-The `describe` function converts a callback result into a human-readable
-message explaining what the evaluator expected at each step. Pass it the same
-arguments the callback receives, plus the original instance:
-
-```javascript
-import { Blaze, describe } from "@sourcemeta/blaze";
-
-const evaluator = new Blaze(template);
-const instance = { name: 123 };
-const errors = [];
-
-const valid = evaluator.validate(instance,
-  (type, valid, instruction,
-   evaluatePath, instanceLocation, annotation) => {
-    if (type === "post" && !valid) {
-      errors.push(describe(valid, instruction,
-        evaluatePath, instanceLocation,
-        instance, annotation));
-    }
-  });
-
-if (!valid) {
-  for (const error of errors) {
-    console.log(error);
-    // "The value was expected to be of type string but it was of type integer"
-  }
-}
-```
+For lower-level integration, `validate` also accepts a callback that fires for
+every instruction with `(type, valid, instruction, evaluatePath,
+instanceLocation, annotation)`. The exported `describe(valid, instruction,
+evaluatePath, instanceLocation, instance, annotation)` helper turns any such
+event into a human-readable message.
 
 ### Parsing large integers
 

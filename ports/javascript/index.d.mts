@@ -9,6 +9,26 @@ export type EvaluationCallback = (
   annotation: unknown
 ) => void;
 
+export type StandardOutputFormat = 'flag' | 'basic';
+
+export interface StandardOutputErrorEntry {
+  keywordLocation: string;
+  absoluteKeywordLocation: string;
+  instanceLocation: string;
+  error: string;
+}
+
+export interface StandardOutputAnnotationEntry {
+  keywordLocation: string;
+  absoluteKeywordLocation: string;
+  instanceLocation: string;
+  annotation: unknown[];
+}
+
+export type StandardOutputResult =
+  | { valid: true; annotations?: StandardOutputAnnotationEntry[] }
+  | { valid: false; errors: StandardOutputErrorEntry[] };
+
 export declare class Blaze {
   static reviver(
     key: string,
@@ -16,7 +36,9 @@ export declare class Blaze {
     context: { source: string }
   ): unknown;
   constructor(template: Template);
-  validate(instance: unknown, callback?: EvaluationCallback): boolean;
+  validate(instance: unknown): boolean;
+  validate(instance: unknown, callback: EvaluationCallback): boolean;
+  validate(instance: unknown, format: StandardOutputFormat): StandardOutputResult;
 }
 
 export declare function describe(
