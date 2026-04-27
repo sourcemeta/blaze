@@ -647,7 +647,12 @@ auto emit_row(const sourcemeta::core::JSON &schema, sourcemeta::core::JSON path,
     }
   }
 
-  if (expand_applicators && is_complex_schema(schema)) {
+  if (expand_applicators && is_complex_schema(schema) &&
+      visited.find(&schema) == visited.end()) {
+    visited.emplace(&schema,
+                    VisitedEntry{.identifier = static_cast<std::size_t>(
+                                     row.at("identifier").to_integer()),
+                                 .path = row.at("path")});
     auto row_children{sourcemeta::core::JSON::make_array()};
     walk_branches("anyOf", "Any of", schema, row_children, frame, root, visited,
                   next_identifier);
@@ -657,22 +662,10 @@ auto emit_row(const sourcemeta::core::JSON &schema, sourcemeta::core::JSON path,
                 next_identifier);
     walk_if_then_else(schema, row_children, frame, root, visited,
                       next_identifier);
-    if (schema.is_object() && schema.defines("not")) {
-      const auto &not_schema{schema.at("not")};
-      const auto has_inline{
-          not_schema.is_object() &&
-          !(not_schema.defines("anyOf") || not_schema.defines("oneOf") ||
-            not_schema.defines("allOf") || not_schema.defines("not")) &&
-          !constraints_of(not_schema).empty()};
-      if (!has_inline) {
-        walk_branching_subschema("Must NOT match", "value", not_schema,
-                                 row_children, frame, root, visited,
-                                 next_identifier, false);
-      }
-    }
     if (!row_children.empty()) {
       row.assign("children", std::move(row_children));
     }
+    visited.erase(&schema);
   }
 
   rows.push_back(std::move(row));
@@ -745,7 +738,10 @@ auto walk_properties(const sourcemeta::core::JSON &schema,
     const auto row_identifier{
         static_cast<std::size_t>(row.at("identifier").to_integer())};
 
-    if (is_complex_schema(resolved)) {
+    if (is_complex_schema(resolved) &&
+        visited.find(&resolved) == visited.end()) {
+      visited.emplace(&resolved,
+                      VisitedEntry{.identifier = row_identifier, .path = path});
       auto prop_children{sourcemeta::core::JSON::make_array()};
       walk_branches("anyOf", "Any of", resolved, prop_children, frame, root,
                     visited, next_identifier);
@@ -771,6 +767,7 @@ auto walk_properties(const sourcemeta::core::JSON &schema,
       if (!prop_children.empty()) {
         row.assign("children", std::move(prop_children));
       }
+      visited.erase(&resolved);
     }
 
     rows.push_back(std::move(row));
