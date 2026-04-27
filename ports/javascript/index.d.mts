@@ -42,10 +42,9 @@ export declare class Blaze {
     context: { source: string }
   ): unknown;
   constructor(template: Template);
-  validate(instance: unknown): boolean;
-  validate(instance: unknown, callback: EvaluationCallback): boolean;
   validate(instance: unknown, format: 'flag'): StandardOutputFlagResult;
   validate(instance: unknown, format: 'basic'): StandardOutputBasicResult;
+  validate(instance: unknown, callback?: EvaluationCallback): boolean;
 }
 
 export declare function describe(
