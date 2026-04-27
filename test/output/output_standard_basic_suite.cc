@@ -59,6 +59,8 @@ static auto register_tests(const std::filesystem::path &path,
     assert(test_case.defines("fast"));
     assert(test_case.defines("exhaustive"));
 
+    const auto test_data{test_case};
+
     for (const auto &[mode_key, mode] :
          {std::pair<const char *, sourcemeta::blaze::Mode>{
               "fast", sourcemeta::blaze::Mode::FastValidation},
@@ -72,7 +74,7 @@ static auto register_tests(const std::filesystem::path &path,
 
       testing::RegisterTest(suite_name.c_str(), title.c_str(), nullptr, nullptr,
                             __FILE__, __LINE__, [=]() -> StandardBasicTest * {
-                              return new StandardBasicTest(test_case, mode,
+                              return new StandardBasicTest(test_data, mode,
                                                            mode_key);
                             });
     }

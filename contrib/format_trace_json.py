@@ -141,7 +141,9 @@ def format_output_mode_section(mode_data, indent_level):
 def is_trace_format(test):
     """Detect whether a test entry uses trace format or output format."""
     fast = test.get("fast", {})
-    return "pre" in fast or "post" in fast
+    exhaustive = test.get("exhaustive", {})
+    return ("pre" in fast or "post" in fast
+            or "pre" in exhaustive or "post" in exhaustive)
 
 
 def format_test_entry(test):

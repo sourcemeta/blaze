@@ -1148,9 +1148,15 @@
     "valid": true,
     "fast": {},
     "exhaustive": {
-      "pre": [ [ "Annotation", "/title", "#/title", "" ] ],
-      "post": [ [ true, "Annotation", "/title", "#/title", "", "My title" ] ],
-      "descriptions": [ "The title of the instance was \"My title\"" ]
+      "pre": [
+        [ "Annotation", "/title", "#/title", "" ]
+      ],
+      "post": [
+        [ true, "Annotation", "/title", "#/title", "", "My title" ]
+      ],
+      "descriptions": [
+        "The title of the instance was \"My title\""
+      ]
     }
   },
   {
@@ -1166,11 +1172,15 @@
     "valid": true,
     "fast": {},
     "exhaustive": {
-      "pre": [ [ "Annotation", "/title", "https://example.com#/title", "" ] ],
+      "pre": [
+        [ "Annotation", "/title", "https://example.com#/title", "" ]
+      ],
       "post": [
         [ true, "Annotation", "/title", "https://example.com#/title", "", "My title" ]
       ],
-      "descriptions": [ "The title of the instance was \"My title\"" ]
+      "descriptions": [
+        "The title of the instance was \"My title\""
+      ]
     }
   },
   {
@@ -1183,11 +1193,15 @@
     "valid": true,
     "fast": {},
     "exhaustive": {
-      "pre": [ [ "Annotation", "/description", "#/description", "" ] ],
+      "pre": [
+        [ "Annotation", "/description", "#/description", "" ]
+      ],
       "post": [
         [ true, "Annotation", "/description", "#/description", "", "My description" ]
       ],
-      "descriptions": [ "The description of the instance was \"My description\"" ]
+      "descriptions": [
+        "The description of the instance was \"My description\""
+      ]
     }
   },
   {
@@ -1197,9 +1211,15 @@
     "valid": true,
     "fast": {},
     "exhaustive": {
-      "pre": [ [ "Annotation", "/default", "#/default", "" ] ],
-      "post": [ [ true, "Annotation", "/default", "#/default", "", 1 ] ],
-      "descriptions": [ "The default value of the instance was 1" ]
+      "pre": [
+        [ "Annotation", "/default", "#/default", "" ]
+      ],
+      "post": [
+        [ true, "Annotation", "/default", "#/default", "", 1 ]
+      ],
+      "descriptions": [
+        "The default value of the instance was 1"
+      ]
     }
   },
   {
@@ -1212,9 +1232,15 @@
     "valid": true,
     "fast": {},
     "exhaustive": {
-      "pre": [ [ "Annotation", "/deprecated", "#/deprecated", "" ] ],
-      "post": [ [ true, "Annotation", "/deprecated", "#/deprecated", "", true ] ],
-      "descriptions": [ "The instance was considered deprecated" ]
+      "pre": [
+        [ "Annotation", "/deprecated", "#/deprecated", "" ]
+      ],
+      "post": [
+        [ true, "Annotation", "/deprecated", "#/deprecated", "", true ]
+      ],
+      "descriptions": [
+        "The instance was considered deprecated"
+      ]
     }
   },
   {
@@ -1227,9 +1253,15 @@
     "valid": true,
     "fast": {},
     "exhaustive": {
-      "pre": [ [ "Annotation", "/deprecated", "#/deprecated", "" ] ],
-      "post": [ [ true, "Annotation", "/deprecated", "#/deprecated", "", false ] ],
-      "descriptions": [ "The instance was not considered deprecated" ]
+      "pre": [
+        [ "Annotation", "/deprecated", "#/deprecated", "" ]
+      ],
+      "post": [
+        [ true, "Annotation", "/deprecated", "#/deprecated", "", false ]
+      ],
+      "descriptions": [
+        "The instance was not considered deprecated"
+      ]
     }
   },
   {
@@ -1242,9 +1274,15 @@
     "valid": true,
     "fast": {},
     "exhaustive": {
-      "pre": [ [ "Annotation", "/readOnly", "#/readOnly", "" ] ],
-      "post": [ [ true, "Annotation", "/readOnly", "#/readOnly", "", false ] ],
-      "descriptions": [ "The instance was not considered read-only" ]
+      "pre": [
+        [ "Annotation", "/readOnly", "#/readOnly", "" ]
+      ],
+      "post": [
+        [ true, "Annotation", "/readOnly", "#/readOnly", "", false ]
+      ],
+      "descriptions": [
+        "The instance was not considered read-only"
+      ]
     }
   },
   {
@@ -1257,9 +1295,15 @@
     "valid": true,
     "fast": {},
     "exhaustive": {
-      "pre": [ [ "Annotation", "/readOnly", "#/readOnly", "" ] ],
-      "post": [ [ true, "Annotation", "/readOnly", "#/readOnly", "", true ] ],
-      "descriptions": [ "The instance was considered read-only" ]
+      "pre": [
+        [ "Annotation", "/readOnly", "#/readOnly", "" ]
+      ],
+      "post": [
+        [ true, "Annotation", "/readOnly", "#/readOnly", "", true ]
+      ],
+      "descriptions": [
+        "The instance was considered read-only"
+      ]
     }
   },
   {
@@ -1272,9 +1316,15 @@
     "valid": true,
     "fast": {},
     "exhaustive": {
-      "pre": [ [ "Annotation", "/writeOnly", "#/writeOnly", "" ] ],
-      "post": [ [ true, "Annotation", "/writeOnly", "#/writeOnly", "", false ] ],
-      "descriptions": [ "The instance was not considered write-only" ]
+      "pre": [
+        [ "Annotation", "/writeOnly", "#/writeOnly", "" ]
+      ],
+      "post": [
+        [ true, "Annotation", "/writeOnly", "#/writeOnly", "", false ]
+      ],
+      "descriptions": [
+        "The instance was not considered write-only"
+      ]
     }
   },
   {
@@ -1287,9 +1337,15 @@
     "valid": true,
     "fast": {},
     "exhaustive": {
-      "pre": [ [ "Annotation", "/writeOnly", "#/writeOnly", "" ] ],
-      "post": [ [ true, "Annotation", "/writeOnly", "#/writeOnly", "", true ] ],
-      "descriptions": [ "The instance was considered write-only" ]
+      "pre": [
+        [ "Annotation", "/writeOnly", "#/writeOnly", "" ]
+      ],
+      "post": [
+        [ true, "Annotation", "/writeOnly", "#/writeOnly", "", true ]
+      ],
+      "descriptions": [
+        "The instance was considered write-only"
+      ]
     }
   },
   {
@@ -1302,9 +1358,15 @@
     "valid": true,
     "fast": {},
     "exhaustive": {
-      "pre": [ [ "Annotation", "/examples", "#/examples", "" ] ],
-      "post": [ [ true, "Annotation", "/examples", "#/examples", "", [ 1, 2, 3 ] ] ],
-      "descriptions": [ "Examples of the instance were 1, 2, and 3" ]
+      "pre": [
+        [ "Annotation", "/examples", "#/examples", "" ]
+      ],
+      "post": [
+        [ true, "Annotation", "/examples", "#/examples", "", [1, 2, 3] ]
+      ],
+      "descriptions": [
+        "Examples of the instance were 1, 2, and 3"
+      ]
     }
   },
   {
@@ -1317,9 +1379,15 @@
     "valid": true,
     "fast": {},
     "exhaustive": {
-      "pre": [ [ "Annotation", "/format", "#/format", "" ] ],
-      "post": [ [ true, "Annotation", "/format", "#/format", "", "email" ] ],
-      "descriptions": [ "The logical type of the instance was expected to be \"email\"" ]
+      "pre": [
+        [ "Annotation", "/format", "#/format", "" ]
+      ],
+      "post": [
+        [ true, "Annotation", "/format", "#/format", "", "email" ]
+      ],
+      "descriptions": [
+        "The logical type of the instance was expected to be \"email\""
+      ]
     }
   },
   {
@@ -1343,11 +1411,15 @@
     "valid": true,
     "fast": {},
     "exhaustive": {
-      "pre": [ [ "Annotation", "/contentEncoding", "#/contentEncoding", "" ] ],
+      "pre": [
+        [ "Annotation", "/contentEncoding", "#/contentEncoding", "" ]
+      ],
       "post": [
         [ true, "Annotation", "/contentEncoding", "#/contentEncoding", "", "base64" ]
       ],
-      "descriptions": [ "The content encoding of the instance was \"base64\"" ]
+      "descriptions": [
+        "The content encoding of the instance was \"base64\""
+      ]
     }
   },
   {
@@ -1371,11 +1443,15 @@
     "valid": true,
     "fast": {},
     "exhaustive": {
-      "pre": [ [ "Annotation", "/contentMediaType", "#/contentMediaType", "" ] ],
+      "pre": [
+        [ "Annotation", "/contentMediaType", "#/contentMediaType", "" ]
+      ],
       "post": [
         [ true, "Annotation", "/contentMediaType", "#/contentMediaType", "", "application/json" ]
       ],
-      "descriptions": [ "The content media type of the instance was \"application/json\"" ]
+      "descriptions": [
+        "The content media type of the instance was \"application/json\""
+      ]
     }
   },
   {
@@ -1406,16 +1482,12 @@
       ],
       "post": [
         [ true, "Annotation", "/contentMediaType", "#/contentMediaType", "", "application/json" ],
-        [
-          true,
-          "Annotation",
-          "/contentSchema",
-          "#/contentSchema",
-          "",
-          { "type": "string" }
-        ]
+        [ true, "Annotation", "/contentSchema", "#/contentSchema", "", {"type": "string"} ]
       ],
-      "descriptions": [ "The content media type of the instance was \"application/json\"", "When decoded, the instance was expected to validate against the schema {\"type\":\"string\"}" ]
+      "descriptions": [
+        "The content media type of the instance was \"application/json\"",
+        "When decoded, the instance was expected to validate against the schema {\"type\":\"string\"}"
+      ]
     }
   },
   {
@@ -1446,16 +1518,12 @@
       ],
       "post": [
         [ true, "Annotation", "/contentMediaType", "#/contentMediaType", "", "application/json" ],
-        [
-          true,
-          "Annotation",
-          "/contentSchema",
-          "#/contentSchema",
-          "",
-          { "type": "string" }
-        ]
+        [ true, "Annotation", "/contentSchema", "#/contentSchema", "", {"type": "string"} ]
       ],
-      "descriptions": [ "The content media type of the instance was \"application/json\"", "When decoded, the instance was expected to validate against the schema {\"type\":\"string\"}" ]
+      "descriptions": [
+        "The content media type of the instance was \"application/json\"",
+        "When decoded, the instance was expected to validate against the schema {\"type\":\"string\"}"
+      ]
     }
   },
   {
@@ -1491,9 +1559,15 @@
     "valid": true,
     "fast": {},
     "exhaustive": {
-      "pre": [ [ "Annotation", "/fooBar", "#/fooBar", "" ] ],
-      "post": [ [ true, "Annotation", "/fooBar", "#/fooBar", "", "baz" ] ],
-      "descriptions": [ "The unrecognized keyword \"fooBar\" was collected as the annotation \"baz\"" ]
+      "pre": [
+        [ "Annotation", "/fooBar", "#/fooBar", "" ]
+      ],
+      "post": [
+        [ true, "Annotation", "/fooBar", "#/fooBar", "", "baz" ]
+      ],
+      "descriptions": [
+        "The unrecognized keyword \"fooBar\" was collected as the annotation \"baz\""
+      ]
     }
   },
   {
@@ -1503,9 +1577,15 @@
     "valid": true,
     "fast": {},
     "exhaustive": {
-      "pre": [ [ "Annotation", "/x-test", "#/x-test", "" ] ],
-      "post": [ [ true, "Annotation", "/x-test", "#/x-test", "", 1 ] ],
-      "descriptions": [ "The unrecognized keyword \"x-test\" was collected as the annotation 1" ]
+      "pre": [
+        [ "Annotation", "/x-test", "#/x-test", "" ]
+      ],
+      "post": [
+        [ true, "Annotation", "/x-test", "#/x-test", "", 1 ]
+      ],
+      "descriptions": [
+        "The unrecognized keyword \"x-test\" was collected as the annotation 1"
+      ]
     }
   },
   {
@@ -2328,7 +2408,10 @@
         [ true, "Annotation", "/additionalProperties", "#/additionalProperties", "", "foo" ],
         [ true, "LoopProperties", "/additionalProperties", "#/additionalProperties", "" ]
       ],
-      "descriptions": [ "The object property \"foo\" successfully validated against the additional properties subschema", "The object properties not covered by other adjacent object keywords were expected to validate against this subschema" ]
+      "descriptions": [
+        "The object property \"foo\" successfully validated against the additional properties subschema",
+        "The object properties not covered by other adjacent object keywords were expected to validate against this subschema"
+      ]
     }
   },
   {
@@ -3738,7 +3821,10 @@
         [ true, "Annotation", "/patternProperties", "#/patternProperties", "", "foo" ],
         [ true, "LoopPropertiesStartsWith", "/patternProperties", "#/patternProperties", "" ]
       ],
-      "descriptions": [ "The object property \"foo\" successfully validated against its pattern property subschema", "The object properties that start with the string \"f\" were expected to validate against the defined pattern property subschema" ]
+      "descriptions": [
+        "The object property \"foo\" successfully validated against its pattern property subschema",
+        "The object properties that start with the string \"f\" were expected to validate against the defined pattern property subschema"
+      ]
     }
   },
   {
@@ -4003,9 +4089,15 @@
     "valid": true,
     "fast": {},
     "exhaustive": {
-      "pre": [ [ "LoopKeys", "/propertyNames", "#/propertyNames", "" ] ],
-      "post": [ [ true, "LoopKeys", "/propertyNames", "#/propertyNames", "" ] ],
-      "descriptions": [ "The object property \"foo\" was expected to validate against the given subschema" ]
+      "pre": [
+        [ "LoopKeys", "/propertyNames", "#/propertyNames", "" ]
+      ],
+      "post": [
+        [ true, "LoopKeys", "/propertyNames", "#/propertyNames", "" ]
+      ],
+      "descriptions": [
+        "The object property \"foo\" was expected to validate against the given subschema"
+      ]
     }
   },
   {
@@ -4020,9 +4112,15 @@
     "valid": true,
     "fast": {},
     "exhaustive": {
-      "pre": [ [ "ControlJump", "/$ref", "https://www.example.com#/$ref", "" ] ],
-      "post": [ [ true, "ControlJump", "/$ref", "https://www.example.com#/$ref", "" ] ],
-      "descriptions": [ "The integer value was expected to validate against the referenced schema" ]
+      "pre": [
+        [ "ControlJump", "/$ref", "https://www.example.com#/$ref", "" ]
+      ],
+      "post": [
+        [ true, "ControlJump", "/$ref", "https://www.example.com#/$ref", "" ]
+      ],
+      "descriptions": [
+        "The integer value was expected to validate against the referenced schema"
+      ]
     }
   },
   {
