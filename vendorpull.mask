@@ -12,8 +12,9 @@ README.markdown
 assets
 ports/javascript/benchmark.mjs
 ports/javascript/compile.mjs
-ports/javascript/test.mjs
-ports/javascript/trace.mjs
+ports/javascript/official.test.mjs
+ports/javascript/trace.test.mjs
+ports/javascript/output.test.mjs
 schemas/canonical-draft1.test.json
 schemas/canonical-draft2.test.json
 schemas/canonical-draft3.test.json
