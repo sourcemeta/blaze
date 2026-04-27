@@ -1000,7 +1000,7 @@ export function describe(valid, instruction, evaluatePath,
           (maximum === 1 ? ' character' : ' characters');
         message += valid ? ' and' : ' but';
         message += ' it consisted of ';
-        const length = propertyName.length;
+        const length = unicodeLength(propertyName);
         message += length + (length === 1 ? ' character' : ' characters');
       } else {
         message += 'The string value ' + stringifyValue(target);
@@ -1027,7 +1027,7 @@ export function describe(valid, instruction, evaluatePath,
           (minimum === 1 ? ' character' : ' characters');
         message += valid ? ' and' : ' but';
         message += ' it consisted of ';
-        const length = propertyName.length;
+        const length = unicodeLength(propertyName);
         message += length + (length === 1 ? ' character' : ' characters');
       } else {
         message += 'The string value ' + stringifyValue(target);
