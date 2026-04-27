@@ -83,7 +83,8 @@ function escapeString(input) {
 
 function stringifyValue(value) {
   if (typeof value === 'bigint') return String(value);
-  return JSON.stringify(value);
+  return JSON.stringify(value, (key, current) =>
+    typeof current === 'bigint' ? JSON.rawJSON(String(current)) : current);
 }
 
 function resolveTarget(instance, instanceLocation) {
