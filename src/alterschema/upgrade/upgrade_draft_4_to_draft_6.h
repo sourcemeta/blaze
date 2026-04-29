@@ -1,61 +1,4 @@
 class UpgradeDraft4ToDraft6 final : public SchemaTransformRule {
-private:
-  static inline const std::string DRAFT_4_URL{
-      "http://json-schema.org/draft-04/schema#"};
-  static inline const std::string DRAFT_6_URL{
-      "http://json-schema.org/draft-06/schema#"};
-  static inline const std::array<std::string_view, 4> PROMOTED_KEYWORDS{
-      "const", "contains", "propertyNames", "examples"};
-
-  static auto
-  has_pending_draft_4_pattern(const sourcemeta::core::JSON &subschema) -> bool {
-    if (!subschema.is_object()) {
-      return false;
-    }
-
-    if (subschema.defines("$schema") && subschema.at("$schema").is_string() &&
-        subschema.at("$schema").to_string() == DRAFT_4_URL) {
-      return true;
-    }
-
-    if (subschema.defines("id") && subschema.at("id").is_string() &&
-        !subschema.defines("$id")) {
-      return true;
-    }
-
-    const auto *exclusive_minimum{subschema.try_at("exclusiveMinimum")};
-    if (exclusive_minimum != nullptr && exclusive_minimum->is_boolean()) {
-      return true;
-    }
-
-    const auto *exclusive_maximum{subschema.try_at("exclusiveMaximum")};
-    if (exclusive_maximum != nullptr && exclusive_maximum->is_boolean()) {
-      return true;
-    }
-
-    for (const auto &keyword : PROMOTED_KEYWORDS) {
-      if (subschema.defines(std::string{keyword})) {
-        return true;
-      }
-    }
-
-    return false;
-  }
-
-  static auto
-  is_strict_descendant(const sourcemeta::core::WeakPointer &ancestor,
-                       const sourcemeta::core::WeakPointer &candidate) -> bool {
-    if (candidate.size() <= ancestor.size()) {
-      return false;
-    }
-    for (std::size_t index{0}; index < ancestor.size(); ++index) {
-      if (!(ancestor.at(index) == candidate.at(index))) {
-        return false;
-      }
-    }
-    return true;
-  }
-
 public:
   using mutates = std::true_type;
   using reframe_after_transform = std::true_type;
@@ -136,5 +79,62 @@ public:
         schema.at("$schema").to_string() == DRAFT_4_URL) {
       schema.assign("$schema", sourcemeta::core::JSON{DRAFT_6_URL});
     }
+  }
+
+private:
+  static inline const std::string DRAFT_4_URL{
+      "http://json-schema.org/draft-04/schema#"};
+  static inline const std::string DRAFT_6_URL{
+      "http://json-schema.org/draft-06/schema#"};
+  static inline const std::array<std::string_view, 4> PROMOTED_KEYWORDS{
+      "const", "contains", "propertyNames", "examples"};
+
+  static auto
+  has_pending_draft_4_pattern(const sourcemeta::core::JSON &subschema) -> bool {
+    if (!subschema.is_object()) {
+      return false;
+    }
+
+    if (subschema.defines("$schema") && subschema.at("$schema").is_string() &&
+        subschema.at("$schema").to_string() == DRAFT_4_URL) {
+      return true;
+    }
+
+    if (subschema.defines("id") && subschema.at("id").is_string() &&
+        !subschema.defines("$id")) {
+      return true;
+    }
+
+    const auto *exclusive_minimum{subschema.try_at("exclusiveMinimum")};
+    if (exclusive_minimum != nullptr && exclusive_minimum->is_boolean()) {
+      return true;
+    }
+
+    const auto *exclusive_maximum{subschema.try_at("exclusiveMaximum")};
+    if (exclusive_maximum != nullptr && exclusive_maximum->is_boolean()) {
+      return true;
+    }
+
+    for (const auto &keyword : PROMOTED_KEYWORDS) {
+      if (subschema.defines(std::string{keyword})) {
+        return true;
+      }
+    }
+
+    return false;
+  }
+
+  static auto
+  is_strict_descendant(const sourcemeta::core::WeakPointer &ancestor,
+                       const sourcemeta::core::WeakPointer &candidate) -> bool {
+    if (candidate.size() <= ancestor.size()) {
+      return false;
+    }
+    for (std::size_t index{0}; index < ancestor.size(); ++index) {
+      if (!(ancestor.at(index) == candidate.at(index))) {
+        return false;
+      }
+    }
+    return true;
   }
 };

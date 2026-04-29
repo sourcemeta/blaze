@@ -1,15 +1,4 @@
 class PrefixPromotedDraft7Keywords final : public SchemaTransformRule {
-private:
-  static inline const std::array<std::string_view, 8> KEYWORDS{
-      "$comment",
-      "if",
-      "then",
-      "else",
-      "readOnly",
-      "writeOnly",
-      "contentMediaType",
-      "contentEncoding"};
-
 public:
   using mutates = std::true_type;
   using reframe_after_transform = std::true_type;
@@ -74,5 +63,15 @@ public:
   }
 
 private:
+  static inline const std::array<std::string_view, 8> KEYWORDS{
+      "$comment",
+      "if",
+      "then",
+      "else",
+      "readOnly",
+      "writeOnly",
+      "contentMediaType",
+      "contentEncoding"};
+
   mutable std::unordered_map<std::string, std::string> renames_;
 };

@@ -1,8 +1,4 @@
 class PrefixPromotedDraft6Keywords final : public SchemaTransformRule {
-private:
-  static inline const std::array<std::string_view, 4> KEYWORDS{
-      "const", "contains", "propertyNames", "examples"};
-
 public:
   using mutates = std::true_type;
   using reframe_after_transform = std::true_type;
@@ -67,5 +63,8 @@ public:
   }
 
 private:
+  static inline const std::array<std::string_view, 4> KEYWORDS{
+      "const", "contains", "propertyNames", "examples"};
+
   mutable std::unordered_map<std::string, std::string> renames_;
 };
