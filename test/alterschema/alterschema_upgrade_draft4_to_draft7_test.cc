@@ -22,6 +22,37 @@ TEST(AlterSchema_upgrade_Draft4_to_Draft7, trivial_root) {
 }
 
 TEST(AlterSchema_upgrade_Draft4_to_Draft7,
+     unknown_keyword_at_root_gets_x_prefix) {
+  auto document = sourcemeta::core::parse_json(R"JSON({
+    "$schema": "http://json-schema.org/draft-04/schema#",
+    "id": "https://example.com/root",
+    "type": "object",
+    "properties": {
+      "foo": {
+        "type": "string",
+        "myCustom": 42
+      }
+    },
+    "myAnnotation": "value"
+  })JSON");
+
+  const auto expected = sourcemeta::core::parse_json(R"JSON({
+    "$schema": "http://json-schema.org/draft-07/schema#",
+    "$id": "https://example.com/root",
+    "type": "object",
+    "properties": {
+      "foo": {
+        "type": "string",
+        "x-myCustom": 42
+      }
+    },
+    "x-myAnnotation": "value"
+  })JSON");
+
+  UPGRADE_DRAFT_7(document, expected);
+}
+
+TEST(AlterSchema_upgrade_Draft4_to_Draft7,
      empty_object_subschema_becomes_true) {
   auto document = sourcemeta::core::parse_json(R"JSON({
     "$schema": "http://json-schema.org/draft-04/schema#",

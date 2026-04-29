@@ -286,6 +286,7 @@ auto add(SchemaTransformer &bundle, const AlterSchemaMode mode) -> void {
     bundle.add<MarkDraft4AsDraft6>();
     bundle.add<FinalizeDraft4ToDraft6Dialect>();
     bundle.add<EmptyObjectAsTrue>();
+    bundle.add<UnknownKeywordsPrefix>();
 
     if (mode == AlterSchemaMode::UpgradeDraft7) {
       bundle.add<UpgradeDraft6ToDraft7>();

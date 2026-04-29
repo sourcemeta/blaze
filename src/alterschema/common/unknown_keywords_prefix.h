@@ -14,7 +14,9 @@ public:
             const SchemaFrame &, const SchemaFrame::Location &,
             const SchemaWalker &walker, const SchemaResolver &) const
       -> SchemaTransformRule::Result override {
-    ONLY_CONTINUE_IF(schema.is_object());
+    ONLY_CONTINUE_IF(
+        schema.is_object() &&
+        !schema.defines("x-sourcemeta-dialect-override-subschema"));
     std::vector<Pointer> locations;
     for (const auto &entry : schema.as_object()) {
       if (entry.first.starts_with("x-")) {

@@ -22,6 +22,69 @@ TEST(AlterSchema_upgrade_Draft4_to_Draft6, trivial_root) {
 }
 
 TEST(AlterSchema_upgrade_Draft4_to_Draft6,
+     unknown_keyword_at_root_gets_x_prefix) {
+  auto document = sourcemeta::core::parse_json(R"JSON({
+    "$schema": "http://json-schema.org/draft-04/schema#",
+    "type": "string",
+    "myAnnotation": "value"
+  })JSON");
+
+  const auto expected = sourcemeta::core::parse_json(R"JSON({
+    "$schema": "http://json-schema.org/draft-06/schema#",
+    "type": "string",
+    "x-myAnnotation": "value"
+  })JSON");
+
+  UPGRADE_DRAFT_6(document, expected);
+}
+
+TEST(AlterSchema_upgrade_Draft4_to_Draft6,
+     unknown_keyword_in_nested_subschema_gets_x_prefix) {
+  auto document = sourcemeta::core::parse_json(R"JSON({
+    "$schema": "http://json-schema.org/draft-04/schema#",
+    "id": "https://example.com/root",
+    "type": "object",
+    "properties": {
+      "foo": {
+        "type": "string",
+        "myCustom": 42
+      }
+    }
+  })JSON");
+
+  const auto expected = sourcemeta::core::parse_json(R"JSON({
+    "$schema": "http://json-schema.org/draft-06/schema#",
+    "$id": "https://example.com/root",
+    "type": "object",
+    "properties": {
+      "foo": {
+        "type": "string",
+        "x-myCustom": 42
+      }
+    }
+  })JSON");
+
+  UPGRADE_DRAFT_6(document, expected);
+}
+
+TEST(AlterSchema_upgrade_Draft4_to_Draft6,
+     keyword_already_x_prefixed_left_alone) {
+  auto document = sourcemeta::core::parse_json(R"JSON({
+    "$schema": "http://json-schema.org/draft-04/schema#",
+    "type": "string",
+    "x-already": "value"
+  })JSON");
+
+  const auto expected = sourcemeta::core::parse_json(R"JSON({
+    "$schema": "http://json-schema.org/draft-06/schema#",
+    "type": "string",
+    "x-already": "value"
+  })JSON");
+
+  UPGRADE_DRAFT_6(document, expected);
+}
+
+TEST(AlterSchema_upgrade_Draft4_to_Draft6,
      empty_object_subschema_becomes_true) {
   auto document = sourcemeta::core::parse_json(R"JSON({
     "$schema": "http://json-schema.org/draft-04/schema#",
