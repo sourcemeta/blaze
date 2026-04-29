@@ -20,6 +20,9 @@ sourcemeta_googletest(NAMESPACE sourcemeta PROJECT blaze NAME alterschema
     alterschema_lint_draft1_test.cc
     alterschema_lint_draft0_test.cc
     alterschema_lint_openapi_test.cc
+    alterschema_upgrade_draft4_to_draft6_test.cc
+    alterschema_upgrade_draft4_to_draft7_test.cc
+    alterschema_upgrade_draft6_to_draft7_test.cc
     alterschema_schema_rule_test.cc
     alterschema_transform_rule_test.cc
     alterschema_transformer_test.cc

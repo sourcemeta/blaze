@@ -259,12 +259,35 @@ auto WALK_UP_IN_PLACE_APPLICATORS(const JSON &root, const SchemaFrame &frame,
 #include "linter/valid_default.h"
 #include "linter/valid_examples.h"
 
+// Upgrade
+#include "upgrade/prefix_promoted_draft_6_keywords.h"
+#include "upgrade/prefix_promoted_draft_7_keywords.h"
+#include "upgrade/upgrade_draft_4_to_draft_6.h"
+#include "upgrade/upgrade_draft_6_to_draft_7.h"
+
 #undef ONLY_CONTINUE_IF
 } // namespace sourcemeta::blaze
 
 namespace sourcemeta::blaze {
 
 auto add(SchemaTransformer &bundle, const AlterSchemaMode mode) -> void {
+  if (mode == AlterSchemaMode::UpgradeDraft6 ||
+      mode == AlterSchemaMode::UpgradeDraft7) {
+    bundle.add<DraftOfficialDialectWithHttps>();
+    bundle.add<DraftOfficialDialectWithoutEmptyFragment>();
+    bundle.add<PrefixPromotedDraft6Keywords>();
+    bundle.add<UpgradeDraft4ToDraft6>();
+    bundle.add<EmptyObjectAsTrue>();
+
+    if (mode == AlterSchemaMode::UpgradeDraft7) {
+      bundle.add<PrefixPromotedDraft7Keywords>();
+      bundle.add<UpgradeDraft6ToDraft7>();
+      bundle.add<EnumToConst>();
+    }
+
+    return;
+  }
+
   if (mode == AlterSchemaMode::Canonicalizer) {
     bundle.add<ExclusiveMinimumBooleanIntegerFold>();
     bundle.add<ExclusiveMaximumBooleanIntegerFold>();
