@@ -7,6 +7,18 @@
 
 #include "alterschema_test_utils.h"
 
+TEST(AlterSchema_upgrade_Draft4_to_Draft6, true_boolean_schema_unchanged) {
+  auto document = sourcemeta::core::parse_json("true");
+  const auto expected = sourcemeta::core::parse_json("true");
+  UPGRADE_DRAFT_6(document, expected);
+}
+
+TEST(AlterSchema_upgrade_Draft4_to_Draft6, false_boolean_schema_unchanged) {
+  auto document = sourcemeta::core::parse_json("false");
+  const auto expected = sourcemeta::core::parse_json("false");
+  UPGRADE_DRAFT_6(document, expected);
+}
+
 TEST(AlterSchema_upgrade_Draft4_to_Draft6, trivial_root) {
   auto document = sourcemeta::core::parse_json(R"JSON({
     "$schema": "http://json-schema.org/draft-04/schema#",
