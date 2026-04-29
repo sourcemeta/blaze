@@ -259,12 +259,43 @@ auto WALK_UP_IN_PLACE_APPLICATORS(const JSON &root, const SchemaFrame &frame,
 #include "linter/valid_default.h"
 #include "linter/valid_examples.h"
 
+// Upgrade
+#include "upgrade/draft_6_to_draft_7.h"
+#include "upgrade/exclusive_maximum_boolean_to_numeric.h"
+#include "upgrade/exclusive_maximum_false_drop.h"
+#include "upgrade/exclusive_minimum_boolean_to_numeric.h"
+#include "upgrade/exclusive_minimum_false_drop.h"
+#include "upgrade/finalize_draft_4_to_draft_6_dialect.h"
+#include "upgrade/mark_draft_4_as_draft_6.h"
+#include "upgrade/redundant_dialect_override.h"
+
 #undef ONLY_CONTINUE_IF
 } // namespace sourcemeta::blaze
 
 namespace sourcemeta::blaze {
 
 auto add(SchemaTransformer &bundle, const AlterSchemaMode mode) -> void {
+  if (mode == AlterSchemaMode::UpgradeDraft6 ||
+      mode == AlterSchemaMode::UpgradeDraft7) {
+    bundle.add<DraftOfficialDialectWithHttps>();
+    bundle.add<DraftOfficialDialectWithoutEmptyFragment>();
+    bundle.add<ExclusiveMinimumBooleanToNumeric>();
+    bundle.add<ExclusiveMaximumBooleanToNumeric>();
+    bundle.add<ExclusiveMinimumFalseDrop>();
+    bundle.add<ExclusiveMaximumFalseDrop>();
+    bundle.add<MarkDraft4AsDraft6>();
+    bundle.add<FinalizeDraft4ToDraft6Dialect>();
+    bundle.add<EmptyObjectAsTrue>();
+
+    if (mode == AlterSchemaMode::UpgradeDraft7) {
+      bundle.add<UpgradeDraft6ToDraft7>();
+      bundle.add<EnumToConst>();
+    }
+
+    bundle.add<RedundantDialectOverride>();
+    return;
+  }
+
   if (mode == AlterSchemaMode::Canonicalizer) {
     bundle.add<ExclusiveMinimumBooleanIntegerFold>();
     bundle.add<ExclusiveMaximumBooleanIntegerFold>();
