@@ -270,6 +270,69 @@ TEST(AlterSchema_upgrade_Draft4_to_Draft6, already_draft_6_unchanged) {
   UPGRADE_DRAFT_6(document, expected);
 }
 
+TEST(AlterSchema_upgrade_Draft4_to_Draft6, already_draft_7_left_unchanged) {
+  auto document = sourcemeta::core::parse_json(R"JSON({
+    "$schema": "http://json-schema.org/draft-07/schema#",
+    "$id": "https://example.com/root",
+    "type": "string"
+  })JSON");
+
+  const auto expected = sourcemeta::core::parse_json(R"JSON({
+    "$schema": "http://json-schema.org/draft-07/schema#",
+    "$id": "https://example.com/root",
+    "type": "string"
+  })JSON");
+
+  UPGRADE_DRAFT_6(document, expected);
+}
+
+TEST(AlterSchema_upgrade_Draft4_to_Draft6, already_2019_09_left_unchanged) {
+  auto document = sourcemeta::core::parse_json(R"JSON({
+    "$schema": "https://json-schema.org/draft/2019-09/schema",
+    "$id": "https://example.com/root",
+    "type": "string"
+  })JSON");
+
+  const auto expected = sourcemeta::core::parse_json(R"JSON({
+    "$schema": "https://json-schema.org/draft/2019-09/schema",
+    "$id": "https://example.com/root",
+    "type": "string"
+  })JSON");
+
+  UPGRADE_DRAFT_6(document, expected);
+}
+
+TEST(AlterSchema_upgrade_Draft4_to_Draft6,
+     nested_draft_7_resource_left_unchanged) {
+  auto document = sourcemeta::core::parse_json(R"JSON({
+    "$schema": "http://json-schema.org/draft-04/schema#",
+    "id": "https://example.com/outer",
+    "type": "object",
+    "definitions": {
+      "newer": {
+        "$id": "https://example.com/newer",
+        "$schema": "http://json-schema.org/draft-07/schema#",
+        "type": "string"
+      }
+    }
+  })JSON");
+
+  const auto expected = sourcemeta::core::parse_json(R"JSON({
+    "$schema": "http://json-schema.org/draft-06/schema#",
+    "$id": "https://example.com/outer",
+    "type": "object",
+    "definitions": {
+      "newer": {
+        "$id": "https://example.com/newer",
+        "$schema": "http://json-schema.org/draft-07/schema#",
+        "type": "string"
+      }
+    }
+  })JSON");
+
+  UPGRADE_DRAFT_6(document, expected);
+}
+
 TEST(AlterSchema_upgrade_Draft4_to_Draft6,
      sub_resource_via_id_only_renamed_and_upgraded) {
   auto document = sourcemeta::core::parse_json(R"JSON({

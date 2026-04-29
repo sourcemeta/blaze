@@ -162,6 +162,53 @@ TEST(AlterSchema_upgrade_Draft6_to_Draft7, already_draft_7_unchanged) {
   UPGRADE_DRAFT_7(document, expected);
 }
 
+TEST(AlterSchema_upgrade_Draft6_to_Draft7, already_2019_09_left_unchanged) {
+  auto document = sourcemeta::core::parse_json(R"JSON({
+    "$schema": "https://json-schema.org/draft/2019-09/schema",
+    "$id": "https://example.com/root",
+    "type": "string"
+  })JSON");
+
+  const auto expected = sourcemeta::core::parse_json(R"JSON({
+    "$schema": "https://json-schema.org/draft/2019-09/schema",
+    "$id": "https://example.com/root",
+    "type": "string"
+  })JSON");
+
+  UPGRADE_DRAFT_7(document, expected);
+}
+
+TEST(AlterSchema_upgrade_Draft6_to_Draft7,
+     nested_2019_09_resource_left_unchanged) {
+  auto document = sourcemeta::core::parse_json(R"JSON({
+    "$schema": "http://json-schema.org/draft-06/schema#",
+    "$id": "https://example.com/outer",
+    "type": "object",
+    "definitions": {
+      "newer": {
+        "$id": "https://example.com/newer",
+        "$schema": "https://json-schema.org/draft/2019-09/schema",
+        "type": "string"
+      }
+    }
+  })JSON");
+
+  const auto expected = sourcemeta::core::parse_json(R"JSON({
+    "$schema": "http://json-schema.org/draft-07/schema#",
+    "$id": "https://example.com/outer",
+    "type": "object",
+    "definitions": {
+      "newer": {
+        "$id": "https://example.com/newer",
+        "$schema": "https://json-schema.org/draft/2019-09/schema",
+        "type": "string"
+      }
+    }
+  })JSON");
+
+  UPGRADE_DRAFT_7(document, expected);
+}
+
 TEST(AlterSchema_upgrade_Draft6_to_Draft7,
      embedded_older_dialect_resource_transitively_upgraded) {
   auto document = sourcemeta::core::parse_json(R"JSON({
