@@ -47,7 +47,7 @@ TEST(AlterSchema_upgrade_Draft4_to_Draft6,
     "properties": {
       "foo": {
         "type": "string",
-        "examples": "i-was-custom-in-draft-4"
+        "contains": "i-was-custom-in-draft-4"
       }
     }
   })JSON");
@@ -59,9 +59,26 @@ TEST(AlterSchema_upgrade_Draft4_to_Draft6,
     "properties": {
       "foo": {
         "type": "string",
-        "x-examples": "i-was-custom-in-draft-4"
+        "x-contains": "i-was-custom-in-draft-4"
       }
     }
+  })JSON");
+
+  UPGRADE_DRAFT_6(document, expected);
+}
+
+TEST(AlterSchema_upgrade_Draft4_to_Draft6,
+     promoted_annotation_keyword_left_unchanged) {
+  auto document = sourcemeta::core::parse_json(R"JSON({
+    "$schema": "http://json-schema.org/draft-04/schema#",
+    "type": "string",
+    "examples": "any-value-in-draft-4"
+  })JSON");
+
+  const auto expected = sourcemeta::core::parse_json(R"JSON({
+    "$schema": "http://json-schema.org/draft-06/schema#",
+    "type": "string",
+    "examples": "any-value-in-draft-4"
   })JSON");
 
   UPGRADE_DRAFT_6(document, expected);

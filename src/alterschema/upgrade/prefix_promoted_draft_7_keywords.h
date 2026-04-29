@@ -1,9 +1,7 @@
 class PrefixPromotedDraft7Keywords final : public SchemaTransformRule {
 private:
-  static inline const std::array<std::string_view, 8> KEYWORDS{
-      "$comment",  "if",                "then",
-      "else",      "readOnly",          "writeOnly",
-      "contentMediaType", "contentEncoding"};
+  static inline const std::array<std::string_view, 3> KEYWORDS{
+      "if", "then", "else"};
 
 public:
   using mutates = std::true_type;

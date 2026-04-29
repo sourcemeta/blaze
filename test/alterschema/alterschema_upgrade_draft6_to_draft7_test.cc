@@ -303,6 +303,25 @@ TEST(AlterSchema_upgrade_Draft6_to_Draft7,
 }
 
 TEST(AlterSchema_upgrade_Draft6_to_Draft7,
+     promoted_annotation_keyword_left_unchanged) {
+  auto document = sourcemeta::core::parse_json(R"JSON({
+    "$schema": "http://json-schema.org/draft-06/schema#",
+    "type": "string",
+    "$comment": "any-value-in-draft-6",
+    "readOnly": "any-value-in-draft-6"
+  })JSON");
+
+  const auto expected = sourcemeta::core::parse_json(R"JSON({
+    "$schema": "http://json-schema.org/draft-07/schema#",
+    "type": "string",
+    "$comment": "any-value-in-draft-6",
+    "readOnly": "any-value-in-draft-6"
+  })JSON");
+
+  UPGRADE_DRAFT_7(document, expected);
+}
+
+TEST(AlterSchema_upgrade_Draft6_to_Draft7,
      custom_keyword_named_after_draft_7_addition_prefixed) {
   auto document = sourcemeta::core::parse_json(R"JSON({
     "$schema": "http://json-schema.org/draft-06/schema#",
