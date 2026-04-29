@@ -3,10 +3,7 @@ public:
   using mutates = std::true_type;
   using reframe_after_transform = std::true_type;
   ExclusiveMinimumFalseDrop()
-      : SchemaTransformRule{
-            "exclusive_minimum_false_drop",
-            "A Draft 4 `exclusiveMinimum: false` is a no-op and not a "
-            "valid value in Draft 6 and later"} {};
+      : SchemaTransformRule{"exclusive_minimum_false_drop", ""} {};
 
   [[nodiscard]] auto
   condition(const sourcemeta::core::JSON &schema,
@@ -22,7 +19,7 @@ public:
         schema.is_object() && schema.defines("exclusiveMinimum") &&
         schema.at("exclusiveMinimum").is_boolean() &&
         !schema.at("exclusiveMinimum").to_boolean());
-    return APPLIES_TO_KEYWORDS("exclusiveMinimum");
+    return true;
   }
 
   auto transform(sourcemeta::core::JSON &schema, const Result &) const

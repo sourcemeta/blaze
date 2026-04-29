@@ -3,10 +3,7 @@ public:
   using mutates = std::true_type;
   using reframe_after_transform = std::true_type;
   ExclusiveMaximumFalseDrop()
-      : SchemaTransformRule{
-            "exclusive_maximum_false_drop",
-            "A Draft 4 `exclusiveMaximum: false` is a no-op and not a "
-            "valid value in Draft 6 and later"} {};
+      : SchemaTransformRule{"exclusive_maximum_false_drop", ""} {};
 
   [[nodiscard]] auto
   condition(const sourcemeta::core::JSON &schema,
@@ -22,7 +19,7 @@ public:
         schema.is_object() && schema.defines("exclusiveMaximum") &&
         schema.at("exclusiveMaximum").is_boolean() &&
         !schema.at("exclusiveMaximum").to_boolean());
-    return APPLIES_TO_KEYWORDS("exclusiveMaximum");
+    return true;
   }
 
   auto transform(sourcemeta::core::JSON &schema, const Result &) const

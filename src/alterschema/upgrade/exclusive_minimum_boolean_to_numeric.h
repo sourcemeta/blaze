@@ -3,10 +3,7 @@ public:
   using mutates = std::true_type;
   using reframe_after_transform = std::true_type;
   ExclusiveMinimumBooleanToNumeric()
-      : SchemaTransformRule{
-            "exclusive_minimum_boolean_to_numeric",
-            "Convert a Draft 4 boolean `exclusiveMinimum` paired with a "
-            "numeric `minimum` to the Draft 6+ numeric `exclusiveMinimum`"} {};
+      : SchemaTransformRule{"exclusive_minimum_boolean_to_numeric", ""} {};
 
   [[nodiscard]] auto
   condition(const sourcemeta::core::JSON &schema,
@@ -23,7 +20,7 @@ public:
         schema.at("exclusiveMinimum").is_boolean() &&
         schema.at("exclusiveMinimum").to_boolean() &&
         schema.defines("minimum") && schema.at("minimum").is_number());
-    return APPLIES_TO_KEYWORDS("exclusiveMinimum", "minimum");
+    return true;
   }
 
   auto transform(sourcemeta::core::JSON &schema, const Result &) const

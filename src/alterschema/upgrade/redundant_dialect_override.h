@@ -7,9 +7,7 @@ public:
   using mutates = std::true_type;
   using reframe_after_transform = std::true_type;
   RedundantDialectOverride()
-      : SchemaTransformRule{"redundant_dialect_override",
-                            "A dialect override that matches the dialect "
-                            "already in effect can be dropped"} {};
+      : SchemaTransformRule{"redundant_dialect_override", ""} {};
 
   [[nodiscard]] auto
   condition(const sourcemeta::core::JSON &schema,
@@ -27,7 +25,7 @@ public:
 
     if (schema.defines("$schema") && schema.at("$schema").is_string() &&
         schema.at("$schema").to_string() == override_dialect) {
-      return APPLIES_TO_KEYWORDS(KEYWORD_OVERRIDE);
+      return true;
     }
 
     auto current{location.parent};
@@ -45,7 +43,7 @@ public:
       if (enclosing_schema.is_object() && enclosing_schema.defines("$schema") &&
           enclosing_schema.at("$schema").is_string()) {
         if (enclosing_schema.at("$schema").to_string() == override_dialect) {
-          return APPLIES_TO_KEYWORDS(KEYWORD_OVERRIDE);
+          return true;
         }
         break;
       }

@@ -9,11 +9,7 @@ public:
   using mutates = std::true_type;
   using reframe_after_transform = std::true_type;
   FinalizeDraft4ToDraft6Dialect()
-      : SchemaTransformRule{
-            "finalize_draft_4_to_draft_6_dialect",
-            "Atomically rename `id` to `$id`, bump `$schema` from Draft 4 to "
-            "Draft 6, and drop the upgrade override once every Draft 4 "
-            "subschema has been processed"} {};
+      : SchemaTransformRule{"finalize_draft_4_to_draft_6_dialect", ""} {};
 
   [[nodiscard]] auto
   condition(const sourcemeta::core::JSON &schema,
@@ -57,7 +53,7 @@ public:
       }
     }
 
-    return APPLIES_TO_KEYWORDS("$schema", "id", KEYWORD_OVERRIDE);
+    return true;
   }
 
   auto transform(sourcemeta::core::JSON &schema, const Result &) const

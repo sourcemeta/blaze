@@ -7,11 +7,7 @@ public:
   using mutates = std::true_type;
   using reframe_after_transform = std::true_type;
   PrefixPromotedDraft6Keywords()
-      : SchemaTransformRule{
-            "prefix_promoted_draft_6_keywords",
-            "Prefix Draft 4 keywords whose names became standard JSON Schema "
-            "keywords in Draft 6 with `x-` to preserve their original "
-            "custom semantics across the upgrade"} {};
+      : SchemaTransformRule{"prefix_promoted_draft_6_keywords", ""} {};
 
   [[nodiscard]] auto
   condition(const sourcemeta::core::JSON &schema,

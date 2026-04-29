@@ -3,10 +3,7 @@ public:
   using mutates = std::true_type;
   using reframe_after_transform = std::true_type;
   ExclusiveMaximumBooleanToNumeric()
-      : SchemaTransformRule{
-            "exclusive_maximum_boolean_to_numeric",
-            "Convert a Draft 4 boolean `exclusiveMaximum` paired with a "
-            "numeric `maximum` to the Draft 6+ numeric `exclusiveMaximum`"} {};
+      : SchemaTransformRule{"exclusive_maximum_boolean_to_numeric", ""} {};
 
   [[nodiscard]] auto
   condition(const sourcemeta::core::JSON &schema,
@@ -23,7 +20,7 @@ public:
         schema.at("exclusiveMaximum").is_boolean() &&
         schema.at("exclusiveMaximum").to_boolean() &&
         schema.defines("maximum") && schema.at("maximum").is_number());
-    return APPLIES_TO_KEYWORDS("exclusiveMaximum", "maximum");
+    return true;
   }
 
   auto transform(sourcemeta::core::JSON &schema, const Result &) const

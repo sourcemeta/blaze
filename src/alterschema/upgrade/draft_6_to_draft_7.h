@@ -9,9 +9,7 @@ public:
   using mutates = std::true_type;
   using reframe_after_transform = std::true_type;
   UpgradeDraft6ToDraft7()
-      : SchemaTransformRule{"upgrade_draft_6_to_draft_7",
-                            "Upgrade a JSON Schema Draft 6 resource to "
-                            "JSON Schema Draft 7"} {};
+      : SchemaTransformRule{"upgrade_draft_6_to_draft_7", ""} {};
 
   [[nodiscard]] auto
   condition(const sourcemeta::core::JSON &schema,
@@ -44,7 +42,7 @@ public:
       }
     }
 
-    return APPLIES_TO_KEYWORDS("$schema");
+    return true;
   }
 
   auto transform(sourcemeta::core::JSON &schema, const Result &) const

@@ -8,11 +8,7 @@ private:
 public:
   using mutates = std::true_type;
   using reframe_after_transform = std::true_type;
-  MarkDraft4AsDraft6()
-      : SchemaTransformRule{"mark_draft_4_as_draft_6",
-                            "Mark a Draft 4 subschema as Draft 6 once its "
-                            "Draft 4 specific keywords have been "
-                            "transformed"} {};
+  MarkDraft4AsDraft6() : SchemaTransformRule{"mark_draft_4_as_draft_6", ""} {};
 
   [[nodiscard]] auto
   condition(const sourcemeta::core::JSON &schema,
@@ -27,7 +23,7 @@ public:
         vocabularies.contains(Vocabularies::Known::JSON_Schema_Draft_4) &&
         schema.is_object() && !schema.defines(KEYWORD_OVERRIDE) &&
         !schema.defines("$ref"));
-    return APPLIES_TO_KEYWORDS(KEYWORD_OVERRIDE);
+    return true;
   }
 
   auto transform(sourcemeta::core::JSON &schema, const Result &) const
