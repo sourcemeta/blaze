@@ -26,7 +26,9 @@ option(SOURCEMETA_CORE_JSONPOINTER "Build the Sourcemeta Core JSON Pointer libra
 option(SOURCEMETA_CORE_JSONL "Build the Sourcemeta Core JSONL library" ON)
 option(SOURCEMETA_CORE_YAML "Build the Sourcemeta Core YAML library" ON)
 option(SOURCEMETA_CORE_SEMVER "Build the Sourcemeta Core SemVer library" ON)
+option(SOURCEMETA_CORE_GZIP "Build the Sourcemeta Core GZIP library" ON)
 option(SOURCEMETA_CORE_HTML "Build the Sourcemeta Core HTML library" ON)
+option(SOURCEMETA_CORE_MARKDOWN "Build the Sourcemeta Core Markdown library" ON)
 option(SOURCEMETA_CORE_EXTENSION_EDITORSCHEMA "Build the Sourcemeta Core EditorSchema library" ON)
 option(SOURCEMETA_CORE_TESTS "Build the Sourcemeta Core tests" OFF)
 option(SOURCEMETA_CORE_BENCHMARK "Build the Sourcemeta Core benchmarks" OFF)
@@ -143,6 +145,12 @@ if(SOURCEMETA_CORE_JSONSCHEMA)
   add_subdirectory(src/core/jsonschema)
 endif()
 
+if(SOURCEMETA_CORE_GZIP)
+  find_package(LibDeflate REQUIRED)
+  find_package(ZLIB REQUIRED)
+  add_subdirectory(src/core/gzip)
+endif()
+
 if(SOURCEMETA_CORE_JSONL)
   add_subdirectory(src/core/jsonl)
 endif()
@@ -157,6 +165,11 @@ endif()
 
 if(SOURCEMETA_CORE_HTML)
   add_subdirectory(src/core/html)
+endif()
+
+if(SOURCEMETA_CORE_MARKDOWN)
+  find_package(CMarkGFM REQUIRED)
+  add_subdirectory(src/core/markdown)
 endif()
 
 if(SOURCEMETA_CORE_EXTENSION_EDITORSCHEMA)
@@ -266,6 +279,10 @@ if(SOURCEMETA_CORE_TESTS)
     add_subdirectory(test/jsonschema)
   endif()
 
+  if(SOURCEMETA_CORE_GZIP)
+    add_subdirectory(test/gzip)
+  endif()
+
   if(SOURCEMETA_CORE_JSONL)
     add_subdirectory(test/jsonl)
   endif()
@@ -280,6 +297,10 @@ if(SOURCEMETA_CORE_TESTS)
 
   if(SOURCEMETA_CORE_HTML)
     add_subdirectory(test/html)
+  endif()
+
+  if(SOURCEMETA_CORE_MARKDOWN)
+    add_subdirectory(test/markdown)
   endif()
 
   if(SOURCEMETA_CORE_EXTENSION_EDITORSCHEMA)

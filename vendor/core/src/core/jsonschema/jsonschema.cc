@@ -123,11 +123,12 @@ auto sourcemeta::core::to_base_dialect(const std::string_view base_dialect)
 auto sourcemeta::core::identify(const sourcemeta::core::JSON &schema,
                                 const SchemaResolver &resolver,
                                 std::string_view default_dialect,
-                                std::string_view default_id)
+                                std::string_view default_id,
+                                const bool allow_dialect_override)
     -> std::string_view {
   try {
-    const auto maybe_base_dialect{
-        sourcemeta::core::base_dialect(schema, resolver, default_dialect)};
+    const auto maybe_base_dialect{sourcemeta::core::base_dialect(
+        schema, resolver, default_dialect, allow_dialect_override)};
     if (maybe_base_dialect.has_value()) {
       return identify(schema, maybe_base_dialect.value(), default_id);
     }
@@ -218,9 +219,20 @@ auto sourcemeta::core::reidentify(JSON &schema, std::string_view new_identifier,
 }
 
 auto sourcemeta::core::dialect(const sourcemeta::core::JSON &schema,
-                               std::string_view default_dialect)
+                               std::string_view default_dialect,
+                               const bool allow_dialect_override)
     -> std::string_view {
   assert(sourcemeta::core::is_schema(schema));
+
+  if (allow_dialect_override && schema.is_object()) {
+    const auto *override_value{
+        schema.try_at("x-sourcemeta-dialect-override-subschema")};
+    if (override_value && override_value->is_string() &&
+        !override_value->to_string().empty()) {
+      return override_value->to_string();
+    }
+  }
+
   if (schema.is_boolean() || !schema.defines("$schema")) {
     return default_dialect;
   }
@@ -267,11 +279,12 @@ static auto
 base_dialect_with_visited(const sourcemeta::core::JSON &schema,
                           const sourcemeta::core::SchemaResolver &resolver,
                           std::string_view default_dialect,
-                          std::unordered_set<std::string_view> &visited)
+                          std::unordered_set<std::string_view> &visited,
+                          const bool allow_dialect_override)
     -> std::optional<sourcemeta::core::SchemaBaseDialect> {
   assert(sourcemeta::core::is_schema(schema));
-  const std::string_view effective_dialect{
-      sourcemeta::core::dialect(schema, default_dialect)};
+  const std::string_view effective_dialect{sourcemeta::core::dialect(
+      schema, default_dialect, allow_dialect_override)};
 
   // There is no metaschema information whatsoever
   // Nothing we can do at this point
@@ -317,22 +330,25 @@ base_dialect_with_visited(const sourcemeta::core::JSON &schema,
 
   // If the metaschema declares the same dialect (self-descriptive), and it's
   // not an official dialect, we cannot determine the base dialect
-  const std::string_view metaschema_dialect{
-      sourcemeta::core::dialect(metaschema.value(), effective_dialect)};
+  const std::string_view metaschema_dialect{sourcemeta::core::dialect(
+      metaschema.value(), effective_dialect, allow_dialect_override)};
   if (metaschema_dialect == effective_dialect) {
     throw sourcemeta::core::SchemaUnknownBaseDialectError();
   }
 
   return base_dialect_with_visited(metaschema.value(), resolver,
-                                   effective_dialect, visited);
+                                   effective_dialect, visited,
+                                   allow_dialect_override);
 }
 
 auto sourcemeta::core::base_dialect(
     const sourcemeta::core::JSON &schema,
     const sourcemeta::core::SchemaResolver &resolver,
-    std::string_view default_dialect) -> std::optional<SchemaBaseDialect> {
+    std::string_view default_dialect, const bool allow_dialect_override)
+    -> std::optional<SchemaBaseDialect> {
   std::unordered_set<std::string_view> visited;
-  return base_dialect_with_visited(schema, resolver, default_dialect, visited);
+  return base_dialect_with_visited(schema, resolver, default_dialect, visited,
+                                   allow_dialect_override);
 }
 
 namespace {
