@@ -22,24 +22,24 @@ TEST(AlterSchema_upgrade_Draft4_to_Draft6, trivial_root) {
 }
 
 TEST(AlterSchema_upgrade_Draft4_to_Draft6,
-     unknown_keyword_at_root_gets_x_prefix) {
+     custom_keyword_named_after_draft_6_addition_prefixed) {
   auto document = sourcemeta::core::parse_json(R"JSON({
     "$schema": "http://json-schema.org/draft-04/schema#",
     "type": "string",
-    "myAnnotation": "value"
+    "const": "i-was-custom-in-draft-4"
   })JSON");
 
   const auto expected = sourcemeta::core::parse_json(R"JSON({
     "$schema": "http://json-schema.org/draft-06/schema#",
     "type": "string",
-    "x-myAnnotation": "value"
+    "x-const": "i-was-custom-in-draft-4"
   })JSON");
 
   UPGRADE_DRAFT_6(document, expected);
 }
 
 TEST(AlterSchema_upgrade_Draft4_to_Draft6,
-     unknown_keyword_in_nested_subschema_gets_x_prefix) {
+     custom_keyword_in_nested_subschema_prefixed) {
   auto document = sourcemeta::core::parse_json(R"JSON({
     "$schema": "http://json-schema.org/draft-04/schema#",
     "id": "https://example.com/root",
@@ -47,7 +47,7 @@ TEST(AlterSchema_upgrade_Draft4_to_Draft6,
     "properties": {
       "foo": {
         "type": "string",
-        "myCustom": 42
+        "examples": "i-was-custom-in-draft-4"
       }
     }
   })JSON");
@@ -59,7 +59,7 @@ TEST(AlterSchema_upgrade_Draft4_to_Draft6,
     "properties": {
       "foo": {
         "type": "string",
-        "x-myCustom": 42
+        "x-examples": "i-was-custom-in-draft-4"
       }
     }
   })JSON");
@@ -68,17 +68,19 @@ TEST(AlterSchema_upgrade_Draft4_to_Draft6,
 }
 
 TEST(AlterSchema_upgrade_Draft4_to_Draft6,
-     keyword_already_x_prefixed_left_alone) {
+     prefixed_collision_gets_double_prefix) {
   auto document = sourcemeta::core::parse_json(R"JSON({
     "$schema": "http://json-schema.org/draft-04/schema#",
     "type": "string",
-    "x-already": "value"
+    "const": "original-custom",
+    "x-const": "already-prefixed"
   })JSON");
 
   const auto expected = sourcemeta::core::parse_json(R"JSON({
     "$schema": "http://json-schema.org/draft-06/schema#",
     "type": "string",
-    "x-already": "value"
+    "x-x-const": "original-custom",
+    "x-const": "already-prefixed"
   })JSON");
 
   UPGRADE_DRAFT_6(document, expected);

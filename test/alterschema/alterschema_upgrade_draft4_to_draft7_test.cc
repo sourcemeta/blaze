@@ -22,7 +22,7 @@ TEST(AlterSchema_upgrade_Draft4_to_Draft7, trivial_root) {
 }
 
 TEST(AlterSchema_upgrade_Draft4_to_Draft7,
-     unknown_keyword_at_root_gets_x_prefix) {
+     custom_keywords_named_after_draft_6_and_draft_7_additions_prefixed) {
   auto document = sourcemeta::core::parse_json(R"JSON({
     "$schema": "http://json-schema.org/draft-04/schema#",
     "id": "https://example.com/root",
@@ -30,10 +30,10 @@ TEST(AlterSchema_upgrade_Draft4_to_Draft7,
     "properties": {
       "foo": {
         "type": "string",
-        "myCustom": 42
+        "if": "i-was-custom-in-draft-6"
       }
     },
-    "myAnnotation": "value"
+    "const": "i-was-custom-in-draft-4"
   })JSON");
 
   const auto expected = sourcemeta::core::parse_json(R"JSON({
@@ -43,10 +43,10 @@ TEST(AlterSchema_upgrade_Draft4_to_Draft7,
     "properties": {
       "foo": {
         "type": "string",
-        "x-myCustom": 42
+        "x-if": "i-was-custom-in-draft-6"
       }
     },
-    "x-myAnnotation": "value"
+    "x-const": "i-was-custom-in-draft-4"
   })JSON");
 
   UPGRADE_DRAFT_7(document, expected);

@@ -267,6 +267,8 @@ auto WALK_UP_IN_PLACE_APPLICATORS(const JSON &root, const SchemaFrame &frame,
 #include "upgrade/exclusive_minimum_false_drop.h"
 #include "upgrade/finalize_draft_4_to_draft_6_dialect.h"
 #include "upgrade/mark_draft_4_as_draft_6.h"
+#include "upgrade/prefix_promoted_draft_6_keywords.h"
+#include "upgrade/prefix_promoted_draft_7_keywords.h"
 #include "upgrade/redundant_dialect_override.h"
 
 #undef ONLY_CONTINUE_IF
@@ -279,6 +281,7 @@ auto add(SchemaTransformer &bundle, const AlterSchemaMode mode) -> void {
       mode == AlterSchemaMode::UpgradeDraft7) {
     bundle.add<DraftOfficialDialectWithHttps>();
     bundle.add<DraftOfficialDialectWithoutEmptyFragment>();
+    bundle.add<PrefixPromotedDraft6Keywords>();
     bundle.add<ExclusiveMinimumBooleanToNumeric>();
     bundle.add<ExclusiveMaximumBooleanToNumeric>();
     bundle.add<ExclusiveMinimumFalseDrop>();
@@ -286,9 +289,9 @@ auto add(SchemaTransformer &bundle, const AlterSchemaMode mode) -> void {
     bundle.add<MarkDraft4AsDraft6>();
     bundle.add<FinalizeDraft4ToDraft6Dialect>();
     bundle.add<EmptyObjectAsTrue>();
-    bundle.add<UnknownKeywordsPrefix>();
 
     if (mode == AlterSchemaMode::UpgradeDraft7) {
+      bundle.add<PrefixPromotedDraft7Keywords>();
       bundle.add<UpgradeDraft6ToDraft7>();
       bundle.add<EnumToConst>();
     }
