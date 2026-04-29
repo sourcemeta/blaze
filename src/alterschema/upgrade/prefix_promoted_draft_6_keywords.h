@@ -1,7 +1,7 @@
 class PrefixPromotedDraft6Keywords final : public SchemaTransformRule {
 private:
-  static inline const std::array<std::string_view, 3> KEYWORDS{
-      "const", "contains", "propertyNames"};
+  static inline const std::array<std::string_view, 4> KEYWORDS{
+      "const", "contains", "propertyNames", "examples"};
 
 public:
   using mutates = std::true_type;

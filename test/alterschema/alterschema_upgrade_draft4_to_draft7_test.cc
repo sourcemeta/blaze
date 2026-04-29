@@ -22,6 +22,25 @@ TEST(AlterSchema_upgrade_Draft4_to_Draft7, trivial_root) {
 }
 
 TEST(AlterSchema_upgrade_Draft4_to_Draft7,
+     unrelated_custom_keyword_left_unchanged) {
+  auto document = sourcemeta::core::parse_json(R"JSON({
+    "$schema": "http://json-schema.org/draft-04/schema#",
+    "type": "string",
+    "myAnnotation": "value",
+    "acmeCorpFlag": true
+  })JSON");
+
+  const auto expected = sourcemeta::core::parse_json(R"JSON({
+    "$schema": "http://json-schema.org/draft-07/schema#",
+    "type": "string",
+    "myAnnotation": "value",
+    "acmeCorpFlag": true
+  })JSON");
+
+  UPGRADE_DRAFT_7(document, expected);
+}
+
+TEST(AlterSchema_upgrade_Draft4_to_Draft7,
      custom_keywords_named_after_draft_6_and_draft_7_additions_prefixed) {
   auto document = sourcemeta::core::parse_json(R"JSON({
     "$schema": "http://json-schema.org/draft-04/schema#",
