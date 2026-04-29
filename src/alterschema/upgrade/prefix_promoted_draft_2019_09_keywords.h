@@ -18,30 +18,31 @@ public:
         vocabularies.contains(Vocabularies::Known::JSON_Schema_Draft_7) &&
         schema.is_object());
 
-    std::vector<sourcemeta::core::Pointer> locations;
     for (const auto &keyword : KEYWORDS) {
       if (schema.defines(std::string{keyword})) {
-        locations.push_back(sourcemeta::core::Pointer{std::string{keyword}});
+        return true;
       }
     }
 
-    ONLY_CONTINUE_IF(!locations.empty());
-    return APPLIES_TO_POINTERS(std::move(locations));
+    return false;
   }
 
-  auto transform(sourcemeta::core::JSON &schema, const Result &result) const
+  auto transform(sourcemeta::core::JSON &schema, const Result &) const
       -> void override {
     this->renames_.clear();
-    for (const auto &location : result.locations) {
-      const auto &keyword{location.at(0).to_property()};
-      assert(schema.defines(keyword));
-      std::string prefixed_name{"x-" + keyword};
+    for (const auto &keyword : KEYWORDS) {
+      const std::string keyword_name{keyword};
+      if (!schema.defines(keyword_name)) {
+        continue;
+      }
+
+      std::string prefixed_name{"x-" + keyword_name};
       while (schema.defines(prefixed_name)) {
         prefixed_name.insert(0, "x-");
       }
 
-      this->renames_.emplace(keyword, prefixed_name);
-      schema.rename(keyword, std::move(prefixed_name));
+      this->renames_.emplace(keyword_name, prefixed_name);
+      schema.rename(keyword_name, std::move(prefixed_name));
     }
   }
 
