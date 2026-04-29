@@ -123,6 +123,27 @@ TEST(AlterSchema_upgrade_Draft4_to_Draft6,
 }
 
 TEST(AlterSchema_upgrade_Draft4_to_Draft6,
+     prefix_loop_iterates_until_no_collision) {
+  auto document = sourcemeta::core::parse_json(R"JSON({
+    "$schema": "http://json-schema.org/draft-04/schema#",
+    "type": "string",
+    "const": "original-custom",
+    "x-const": "already-prefixed",
+    "x-x-const": "double-prefixed"
+  })JSON");
+
+  const auto expected = sourcemeta::core::parse_json(R"JSON({
+    "$schema": "http://json-schema.org/draft-06/schema#",
+    "type": "string",
+    "x-x-x-const": "original-custom",
+    "x-x-const": "double-prefixed",
+    "x-const": "already-prefixed"
+  })JSON");
+
+  UPGRADE_DRAFT_6(document, expected);
+}
+
+TEST(AlterSchema_upgrade_Draft4_to_Draft6,
      empty_object_subschema_becomes_true) {
   auto document = sourcemeta::core::parse_json(R"JSON({
     "$schema": "http://json-schema.org/draft-04/schema#",
