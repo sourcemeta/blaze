@@ -64,14 +64,8 @@ public:
 
 private:
   static inline const std::array<std::string_view, 8> KEYWORDS{
-      "$comment",
-      "if",
-      "then",
-      "else",
-      "readOnly",
-      "writeOnly",
-      "contentMediaType",
-      "contentEncoding"};
+      {"$comment", "if", "then", "else", "readOnly", "writeOnly",
+       "contentMediaType", "contentEncoding"}};
 
   mutable std::unordered_map<std::string, std::string> renames_;
 };

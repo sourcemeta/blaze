@@ -64,7 +64,7 @@ public:
 
 private:
   static inline const std::array<std::string_view, 4> KEYWORDS{
-      "const", "contains", "propertyNames", "examples"};
+      {"const", "contains", "propertyNames", "examples"}};
 
   mutable std::unordered_map<std::string, std::string> renames_;
 };

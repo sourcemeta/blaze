@@ -87,7 +87,7 @@ private:
   static inline const std::string DRAFT_6_URL{
       "http://json-schema.org/draft-06/schema#"};
   static inline const std::array<std::string_view, 4> PROMOTED_KEYWORDS{
-      "const", "contains", "propertyNames", "examples"};
+      {"const", "contains", "propertyNames", "examples"}};
 
   static auto
   has_pending_draft_4_pattern(const sourcemeta::core::JSON &subschema) -> bool {

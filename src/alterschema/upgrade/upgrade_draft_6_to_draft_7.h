@@ -61,14 +61,8 @@ private:
   static inline const std::string DRAFT_7_URL{
       "http://json-schema.org/draft-07/schema#"};
   static inline const std::array<std::string_view, 8> PROMOTED_KEYWORDS{
-      "$comment",
-      "if",
-      "then",
-      "else",
-      "readOnly",
-      "writeOnly",
-      "contentMediaType",
-      "contentEncoding"};
+      {"$comment", "if", "then", "else", "readOnly", "writeOnly",
+       "contentMediaType", "contentEncoding"}};
 
   static auto has_pending_pattern(const sourcemeta::core::JSON &subschema)
       -> bool {
