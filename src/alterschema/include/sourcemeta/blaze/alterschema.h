@@ -51,6 +51,9 @@ enum class AlterSchemaMode : std::uint8_t {
 
   /// Rules that upgrade a JSON Schema document up to JSON Schema Draft 7
   UpgradeDraft7,
+
+  /// Rules that upgrade a JSON Schema document up to JSON Schema 2019-09
+  UpgradeDraft201909,
 };
 
 /// @ingroup alterschema
