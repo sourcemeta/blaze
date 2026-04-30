@@ -150,6 +150,31 @@ TEST(AlterSchema_upgrade_Draft4_to_Draft7,
   UPGRADE_DRAFT_7(document, expected);
 }
 
+TEST(AlterSchema_upgrade_Draft4_to_Draft7,
+     id_inside_definitions_no_override_leakage_through_chain) {
+  auto document = sourcemeta::core::parse_json(R"JSON({
+    "$schema": "http://json-schema.org/draft-04/schema#",
+    "definitions": {
+      "Outer": {
+        "id": "#tag",
+        "type": "string"
+      }
+    }
+  })JSON");
+
+  const auto expected = sourcemeta::core::parse_json(R"JSON({
+    "$schema": "http://json-schema.org/draft-07/schema#",
+    "definitions": {
+      "Outer": {
+        "$id": "#tag",
+        "type": "string"
+      }
+    }
+  })JSON");
+
+  UPGRADE_DRAFT_7(document, expected);
+}
+
 TEST(AlterSchema_upgrade_Draft4_to_Draft7, root_id_renamed_and_dialect_bumped) {
   auto document = sourcemeta::core::parse_json(R"JSON({
     "$schema": "http://json-schema.org/draft-04/schema#",

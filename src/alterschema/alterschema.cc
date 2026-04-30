@@ -261,6 +261,7 @@ auto WALK_UP_IN_PLACE_APPLICATORS(const JSON &root, const SchemaFrame &frame,
 #include "linter/valid_examples.h"
 
 // Upgrade
+#include "upgrade/helpers.h"
 #include "upgrade/prefix_promoted_draft_2019_09_keywords.h"
 #include "upgrade/prefix_promoted_draft_6_keywords.h"
 #include "upgrade/prefix_promoted_draft_7_keywords.h"

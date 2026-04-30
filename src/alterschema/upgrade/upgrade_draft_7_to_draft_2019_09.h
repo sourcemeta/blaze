@@ -51,7 +51,11 @@ public:
     this->prefix_ref_siblings(schema);
     this->split_id_fragment(schema);
     this->split_dependencies(schema);
-    this->bump_schema(schema);
+    if (bump_schema(schema)) {
+      drop_dialect_overrides(schema, true);
+    } else {
+      mark_dialect_override(schema, DRAFT_2019_09_URL);
+    }
   }
 
   [[nodiscard]] auto rereference(const std::string_view,
@@ -59,10 +63,9 @@ public:
                                  const sourcemeta::core::Pointer &target,
                                  const sourcemeta::core::Pointer &current) const
       -> sourcemeta::core::Pointer override {
-    for (const auto &[old_name, new_name] : this->renames_) {
-      const auto result{
-          target.rebase(current.concat(sourcemeta::core::Pointer{old_name}),
-                        current.concat(sourcemeta::core::Pointer{new_name}))};
+    for (const auto &[old_pointer, new_pointer] : this->renames_) {
+      const auto result{target.rebase(current.concat(old_pointer),
+                                      current.concat(new_pointer))};
       if (result != target) {
         return result;
       }
@@ -100,7 +103,9 @@ private:
   static inline const std::array<std::string_view, 4> PROMOTED_DRAFT_6_KEYWORDS{
       {"const", "contains", "propertyNames", "examples"}};
 
-  mutable std::unordered_map<std::string, std::string> renames_;
+  mutable std::vector<
+      std::pair<sourcemeta::core::Pointer, sourcemeta::core::Pointer>>
+      renames_;
 
   static auto is_shadow_exempt(const std::string_view keyword) -> bool {
     return std::ranges::any_of(
@@ -199,7 +204,8 @@ private:
         prefixed_name.insert(0, "x-");
       }
 
-      this->renames_.emplace(keyword, prefixed_name);
+      this->renames_.emplace_back(sourcemeta::core::Pointer{keyword},
+                                  sourcemeta::core::Pointer{prefixed_name});
       schema.rename(keyword, std::move(prefixed_name));
     }
   }
@@ -220,9 +226,9 @@ private:
 
     if (uri.is_fragment_only()) {
       if (plain_name) {
-        schema.erase("$id");
-        schema.assign("$anchor",
-                      sourcemeta::core::JSON{std::string{fragment_value}});
+        schema.rename("$id", "$anchor");
+        schema.at("$anchor").into(
+            sourcemeta::core::JSON{std::string{fragment_value}});
       } else if (fragment_value.empty()) {
         schema.erase("$id");
       }
@@ -245,7 +251,7 @@ private:
     }
   }
 
-  static auto split_dependencies(sourcemeta::core::JSON &schema) -> void {
+  auto split_dependencies(sourcemeta::core::JSON &schema) const -> void {
     if (!has_actionable_dependencies(schema)) {
       return;
     }
@@ -267,6 +273,16 @@ private:
     }
 
     if (!dependent_required.empty() && !dependent_schemas.empty()) {
+      for (const auto &entry : dependent_schemas.as_object()) {
+        this->renames_.emplace_back(
+            sourcemeta::core::Pointer{"dependencies", entry.first},
+            sourcemeta::core::Pointer{"dependentSchemas", entry.first});
+      }
+      for (const auto &entry : dependent_required.as_object()) {
+        this->renames_.emplace_back(
+            sourcemeta::core::Pointer{"dependencies", entry.first},
+            sourcemeta::core::Pointer{"dependentRequired", entry.first});
+      }
       schema.try_assign_before("dependentSchemas", dependent_schemas,
                                "dependencies");
       schema.rename("dependencies", "dependentRequired");
@@ -275,21 +291,28 @@ private:
     }
 
     if (!dependent_schemas.empty()) {
+      this->renames_.emplace_back(
+          sourcemeta::core::Pointer{"dependencies"},
+          sourcemeta::core::Pointer{"dependentSchemas"});
       schema.rename("dependencies", "dependentSchemas");
       schema.at("dependentSchemas").into(std::move(dependent_schemas));
       return;
     }
 
+    this->renames_.emplace_back(sourcemeta::core::Pointer{"dependencies"},
+                                sourcemeta::core::Pointer{"dependentRequired"});
     schema.rename("dependencies", "dependentRequired");
     schema.at("dependentRequired").into(std::move(dependent_required));
   }
 
-  static auto bump_schema(sourcemeta::core::JSON &schema) -> void {
+  static auto bump_schema(sourcemeta::core::JSON &schema) -> bool {
     if (schema.defines("$schema") && schema.at("$schema").is_string() &&
         schema.at("$schema").to_string() == DRAFT_7_URL) {
       schema.assign("$schema",
                     sourcemeta::core::JSON{std::string{DRAFT_2019_09_URL}});
+      return true;
     }
+    return false;
   }
 
   static auto has_pending_pattern(const sourcemeta::core::JSON &subschema)
