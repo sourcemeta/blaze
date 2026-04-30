@@ -51,7 +51,11 @@ public:
     this->prefix_ref_siblings(schema);
     this->split_id_fragment(schema);
     this->split_dependencies(schema);
-    this->bump_schema(schema);
+    if (bump_schema(schema)) {
+      drop_dialect_overrides(schema, true);
+    } else {
+      mark_dialect_override(schema);
+    }
   }
 
   [[nodiscard]] auto rereference(const std::string_view,
@@ -301,13 +305,54 @@ private:
     schema.at("dependentRequired").into(std::move(dependent_required));
   }
 
-  static auto bump_schema(sourcemeta::core::JSON &schema) -> void {
+  static auto bump_schema(sourcemeta::core::JSON &schema) -> bool {
     if (schema.defines("$schema") && schema.at("$schema").is_string() &&
         schema.at("$schema").to_string() == DRAFT_7_URL) {
       schema.assign("$schema",
                     sourcemeta::core::JSON{std::string{DRAFT_2019_09_URL}});
+      return true;
+    }
+    return false;
+  }
+
+  static auto mark_dialect_override(sourcemeta::core::JSON &schema) -> void {
+    if (!schema.defines(std::string{DIALECT_OVERRIDE_KEYWORD})) {
+      schema.assign(std::string{DIALECT_OVERRIDE_KEYWORD},
+                    sourcemeta::core::JSON{std::string{DRAFT_2019_09_URL}});
     }
   }
+
+  static auto drop_dialect_overrides(sourcemeta::core::JSON &schema,
+                                     const bool is_root) -> void {
+    if (schema.is_array()) {
+      for (auto &item : schema.as_array()) {
+        drop_dialect_overrides(item, false);
+      }
+      return;
+    }
+
+    if (!schema.is_object()) {
+      return;
+    }
+
+    if (!is_root && schema.defines("$schema")) {
+      return;
+    }
+
+    schema.erase(std::string{DIALECT_OVERRIDE_KEYWORD});
+
+    std::vector<std::string> keys;
+    keys.reserve(schema.size());
+    for (const auto &entry : schema.as_object()) {
+      keys.push_back(entry.first);
+    }
+    for (const auto &key : keys) {
+      drop_dialect_overrides(schema.at(key), false);
+    }
+  }
+
+  static constexpr std::string_view DIALECT_OVERRIDE_KEYWORD{
+      "x-sourcemeta-dialect-override-subschema"};
 
   static auto has_pending_pattern(const sourcemeta::core::JSON &subschema)
       -> bool {

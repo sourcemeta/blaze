@@ -498,6 +498,99 @@ TEST(AlterSchema_upgrade_Draft7_to_2019_09,
 }
 
 TEST(AlterSchema_upgrade_Draft7_to_2019_09,
+     dependencies_two_levels_deep_inside_defs) {
+  auto document = sourcemeta::core::parse_json(R"JSON({
+    "$schema": "http://json-schema.org/draft-07/schema#",
+    "definitions": {
+      "Outer": {
+        "definitions": {
+          "Inner": {
+            "dependencies": {
+              "foo": { "type": "string" }
+            }
+          }
+        }
+      }
+    }
+  })JSON");
+
+  const auto expected = sourcemeta::core::parse_json(R"JSON({
+    "$schema": "https://json-schema.org/draft/2019-09/schema",
+    "$defs": {
+      "Outer": {
+        "$defs": {
+          "Inner": {
+            "dependentSchemas": {
+              "foo": { "type": "string" }
+            }
+          }
+        }
+      }
+    }
+  })JSON");
+
+  UPGRADE_DRAFT_2019_09(document, expected);
+}
+
+TEST(AlterSchema_upgrade_Draft7_to_2019_09,
+     id_fragment_inside_dependencies_inside_defs) {
+  auto document = sourcemeta::core::parse_json(R"JSON({
+    "$schema": "http://json-schema.org/draft-07/schema#",
+    "definitions": {
+      "Outer": {
+        "dependencies": {
+          "foo": { "$id": "#tag" }
+        }
+      }
+    }
+  })JSON");
+
+  const auto expected = sourcemeta::core::parse_json(R"JSON({
+    "$schema": "https://json-schema.org/draft/2019-09/schema",
+    "$defs": {
+      "Outer": {
+        "dependentSchemas": {
+          "foo": { "$anchor": "tag" }
+        }
+      }
+    }
+  })JSON");
+
+  UPGRADE_DRAFT_2019_09(document, expected);
+}
+
+TEST(AlterSchema_upgrade_Draft7_to_2019_09,
+     dependencies_in_embedded_resource_left_alone) {
+  auto document = sourcemeta::core::parse_json(R"JSON({
+    "$schema": "http://json-schema.org/draft-07/schema#",
+    "properties": {
+      "embedded": {
+        "$id": "https://example.com/inner",
+        "$schema": "https://json-schema.org/draft/2019-09/schema",
+        "dependentSchemas": {
+          "foo": { "type": "string" }
+        }
+      }
+    }
+  })JSON");
+
+  const auto expected = sourcemeta::core::parse_json(R"JSON({
+    "$schema": "https://json-schema.org/draft/2019-09/schema",
+    "properties": {
+      "embedded": {
+        "$id": "https://example.com/inner",
+        "$schema": "https://json-schema.org/draft/2019-09/schema",
+        "dependentSchemas": {
+          "foo": { "type": "string" }
+        }
+      }
+    }
+  })JSON");
+
+  UPGRADE_DRAFT_2019_09(document, expected);
+}
+
+TEST(AlterSchema_upgrade_Draft7_to_2019_09,
      ref_through_dependencies_in_mixed_split_targets_dependentSchemas) {
   auto document = sourcemeta::core::parse_json(R"JSON({
     "$schema": "http://json-schema.org/draft-07/schema#",
