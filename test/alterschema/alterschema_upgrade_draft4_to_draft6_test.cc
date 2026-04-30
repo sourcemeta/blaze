@@ -883,3 +883,18 @@ TEST(AlterSchema_upgrade_Draft4_to_Draft6, bare_hash_id_unchanged) {
 
   UPGRADE_DRAFT_6(document, expected);
 }
+
+TEST(AlterSchema_upgrade_Draft4_to_Draft6,
+     root_only_invalid_id_no_descendants) {
+  auto document = sourcemeta::core::parse_json(R"JSON({
+    "id": "#1foo",
+    "$schema": "http://json-schema.org/draft-04/schema#"
+  })JSON");
+
+  const auto expected = sourcemeta::core::parse_json(R"JSON({
+    "$id": "#x-1foo",
+    "$schema": "http://json-schema.org/draft-06/schema#"
+  })JSON");
+
+  UPGRADE_DRAFT_6(document, expected);
+}

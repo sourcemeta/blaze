@@ -83,7 +83,9 @@ public:
         }
       }
       apply_anchor_renames_in_resource(schema, true, renames, resource_base);
-      return;
+      if (resource_has_descendant_with_pending_pattern(schema, true)) {
+        return;
+      }
     }
 
     if (schema.defines("id") && schema.at("id").is_string() &&
@@ -396,12 +398,79 @@ private:
     std::map<std::string, std::string> renames;
     std::set<std::string> in_use{existing};
     for (const auto &original : invalid) {
+      if (renames.contains(original)) {
+        continue;
+      }
       in_use.erase(original);
       const auto sanitized{sanitize_anchor_name(original, in_use)};
       renames.emplace(original, sanitized);
       in_use.insert(sanitized);
     }
     return renames;
+  }
+
+  static auto resource_has_descendant_with_pending_pattern(
+      const sourcemeta::core::JSON &subschema, const bool is_root) -> bool {
+    if (!subschema.is_object()) {
+      return false;
+    }
+    if (!is_root && subschema_starts_sub_resource(subschema)) {
+      return false;
+    }
+    if (!is_root && has_pending_draft_4_pattern(subschema)) {
+      return true;
+    }
+
+    for (const std::string_view object_keyword :
+         {"definitions", "properties", "patternProperties", "dependencies"}) {
+      if (subschema.defines(std::string{object_keyword}) &&
+          subschema.at(std::string{object_keyword}).is_object()) {
+        for (const auto &entry :
+             subschema.at(std::string{object_keyword}).as_object()) {
+          if (resource_has_descendant_with_pending_pattern(entry.second,
+                                                           false)) {
+            return true;
+          }
+        }
+      }
+    }
+
+    for (const std::string_view array_keyword : {"allOf", "anyOf", "oneOf"}) {
+      if (subschema.defines(std::string{array_keyword}) &&
+          subschema.at(std::string{array_keyword}).is_array()) {
+        for (const auto &item :
+             subschema.at(std::string{array_keyword}).as_array()) {
+          if (resource_has_descendant_with_pending_pattern(item, false)) {
+            return true;
+          }
+        }
+      }
+    }
+
+    for (const std::string_view single_keyword :
+         {"additionalProperties", "additionalItems", "not"}) {
+      if (subschema.defines(std::string{single_keyword})) {
+        if (resource_has_descendant_with_pending_pattern(
+                subschema.at(std::string{single_keyword}), false)) {
+          return true;
+        }
+      }
+    }
+
+    if (subschema.defines("items")) {
+      const auto &items{subschema.at("items")};
+      if (items.is_array()) {
+        for (const auto &item : items.as_array()) {
+          if (resource_has_descendant_with_pending_pattern(item, false)) {
+            return true;
+          }
+        }
+      } else if (resource_has_descendant_with_pending_pattern(items, false)) {
+        return true;
+      }
+    }
+
+    return false;
   }
 
   static auto apply_anchor_renames_in_resource(
