@@ -68,6 +68,7 @@
     "index.d.mts",
     "opcodes.mjs",
     "describe.mjs",
+    "messages.json",
     "README.md",
     "LICENSE"
   ]
