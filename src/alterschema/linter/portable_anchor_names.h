@@ -69,15 +69,12 @@ private:
       return;
     }
 
-    const auto fragment{
-        sourcemeta::core::URI::from_fragment(schema.at(keyword).to_string())
-            .fragment()};
-    if (!fragment.has_value() || fragment.value().empty()) {
+    const auto &value{schema.at(keyword).to_string()};
+    if (value.empty()) {
       return;
     }
 
-    if (!matches(SAFE_ANCHOR_PATTERN,
-                 sourcemeta::core::JSON::String{fragment.value()})) {
+    if (!matches(SAFE_ANCHOR_PATTERN, value)) {
       offenders.push_back(Pointer{keyword});
     }
   }
