@@ -1,85 +1,34 @@
 import {
-  ASSERTION_FAIL, ASSERTION_DEFINES, ASSERTION_DEFINES_STRICT,
-  ASSERTION_DEFINES_ALL, ASSERTION_DEFINES_ALL_STRICT,
-  ASSERTION_DEFINES_EXACTLY, ASSERTION_DEFINES_EXACTLY_STRICT,
-  ASSERTION_DEFINES_EXACTLY_STRICT_HASH3, ASSERTION_PROPERTY_DEPENDENCIES,
-  ASSERTION_TYPE, ASSERTION_TYPE_ANY, ASSERTION_TYPE_STRICT,
-  ASSERTION_TYPE_STRICT_ANY, ASSERTION_TYPE_STRING_BOUNDED,
-  ASSERTION_TYPE_STRING_UPPER, ASSERTION_TYPE_ARRAY_BOUNDED,
-  ASSERTION_TYPE_ARRAY_UPPER, ASSERTION_TYPE_OBJECT_BOUNDED,
-  ASSERTION_TYPE_OBJECT_UPPER, ASSERTION_REGEX,
-  ASSERTION_STRING_SIZE_LESS, ASSERTION_STRING_SIZE_GREATER,
-  ASSERTION_ARRAY_SIZE_LESS, ASSERTION_ARRAY_SIZE_GREATER,
-  ASSERTION_OBJECT_SIZE_LESS, ASSERTION_OBJECT_SIZE_GREATER,
-  ASSERTION_EQUAL, ASSERTION_EQUALS_ANY, ASSERTION_EQUALS_ANY_STRING_HASH,
-  ASSERTION_GREATER_EQUAL, ASSERTION_LESS_EQUAL,
-  ASSERTION_GREATER, ASSERTION_LESS,
-  ASSERTION_UNIQUE, ASSERTION_DIVISIBLE,
-  ASSERTION_TYPE_INTEGER_BOUNDED, ASSERTION_TYPE_INTEGER_BOUNDED_STRICT,
-  ASSERTION_TYPE_INTEGER_LOWER_BOUND, ASSERTION_TYPE_INTEGER_LOWER_BOUND_STRICT,
-  ASSERTION_STRING_TYPE,
-  ASSERTION_PROPERTY_TYPE, ASSERTION_PROPERTY_TYPE_EVALUATE,
-  ASSERTION_PROPERTY_TYPE_STRICT, ASSERTION_PROPERTY_TYPE_STRICT_EVALUATE,
-  ASSERTION_PROPERTY_TYPE_STRICT_ANY, ASSERTION_PROPERTY_TYPE_STRICT_ANY_EVALUATE,
-  ASSERTION_ARRAY_PREFIX, ASSERTION_ARRAY_PREFIX_EVALUATE,
-  ASSERTION_OBJECT_PROPERTIES_SIMPLE,
-  ANNOTATION_EMIT, ANNOTATION_TO_PARENT, ANNOTATION_BASENAME_TO_PARENT,
-  EVALUATE,
-  LOGICAL_NOT, LOGICAL_NOT_EVALUATE,
-  LOGICAL_OR, LOGICAL_AND, LOGICAL_XOR, LOGICAL_CONDITION,
-  LOGICAL_WHEN_TYPE, LOGICAL_WHEN_DEFINES, LOGICAL_WHEN_ARRAY_SIZE_GREATER,
-  LOOP_PROPERTIES_UNEVALUATED, LOOP_PROPERTIES_UNEVALUATED_EXCEPT,
-  LOOP_PROPERTIES_MATCH, LOOP_PROPERTIES_MATCH_CLOSED,
-  LOOP_PROPERTIES, LOOP_PROPERTIES_EVALUATE,
-  LOOP_PROPERTIES_REGEX, LOOP_PROPERTIES_REGEX_CLOSED,
-  LOOP_PROPERTIES_STARTS_WITH, LOOP_PROPERTIES_EXCEPT,
-  LOOP_PROPERTIES_TYPE, LOOP_PROPERTIES_TYPE_EVALUATE,
-  LOOP_PROPERTIES_EXACTLY_TYPE_STRICT, LOOP_PROPERTIES_EXACTLY_TYPE_STRICT_HASH,
-  LOOP_PROPERTIES_TYPE_STRICT, LOOP_PROPERTIES_TYPE_STRICT_EVALUATE,
-  LOOP_PROPERTIES_TYPE_STRICT_ANY, LOOP_PROPERTIES_TYPE_STRICT_ANY_EVALUATE,
-  LOOP_KEYS, LOOP_ITEMS, LOOP_ITEMS_FROM, LOOP_ITEMS_UNEVALUATED,
-  LOOP_ITEMS_TYPE, LOOP_ITEMS_TYPE_STRICT, LOOP_ITEMS_TYPE_STRICT_ANY,
-  LOOP_ITEMS_PROPERTIES_EXACTLY_TYPE_STRICT_HASH,
-  LOOP_ITEMS_PROPERTIES_EXACTLY_TYPE_STRICT_HASH3,
-  LOOP_ITEMS_INTEGER_BOUNDED, LOOP_ITEMS_INTEGER_BOUNDED_SIZED,
-  LOOP_CONTAINS,
-  CONTROL_DYNAMIC_ANCHOR_JUMP, CONTROL_JUMP
+  ASSERTION_FAIL,
+  ASSERTION_PROPERTY_DEPENDENCIES,
+  LOGICAL_WHEN_TYPE,
+  LOGICAL_WHEN_DEFINES,
+  INSTRUCTION_NAMES
 } from './opcodes.mjs';
+import MESSAGES from './messages.json' with { type: 'json' };
 
+const TYPE_NAMES = MESSAGES.types;
 const TYPE_INTEGER = 2;
 const TYPE_REAL = 3;
 const TYPE_OBJECT = 6;
 
-const TYPE_NAMES = [ 'null', 'boolean', 'integer', 'number',
-                     'string', 'array', 'object', 'number' ];
-
-function typeName(typeIndex) {
-  return TYPE_NAMES[typeIndex];
-}
-
 function jsonTypeOf(value) {
   if (value === null) return 0;
-  switch (typeof value) {
-    case 'boolean': return 1;
-    case 'number': return Number.isInteger(value) ? 2 : 3;
-    case 'bigint': return 2;
-    case 'string': return 4;
-    case 'object': return Array.isArray(value) ? 5 : 6;
-    default: return 0;
-  }
+  if (typeof value === 'boolean') return 1;
+  if (typeof value === 'bigint') return 2;
+  if (typeof value === 'number') return Number.isInteger(value) ? 2 : 3;
+  if (typeof value === 'string') return 4;
+  if (Array.isArray(value)) return 5;
+  return 6;
 }
 
 function valueTypeName(value) {
   if (typeof value === 'bigint') return 'integer';
-  if (typeof value === 'number') {
-    return Number.isInteger(value) ? 'integer' : 'number';
-  }
-  return typeName(jsonTypeOf(value));
+  if (typeof value === 'number') return Number.isInteger(value) ? 'integer' : 'number';
+  return TYPE_NAMES[jsonTypeOf(value)];
 }
 
-function escapeString(input) {
-  return '"' + String(input).replaceAll('"', '\\"') + '"';
-}
+const escapeString = (input) => '"' + String(input).replaceAll('"', '\\"') + '"';
 
 function stringifyValue(value) {
   if (typeof value === 'bigint') return String(value);
@@ -89,71 +38,32 @@ function stringifyValue(value) {
 
 function resolveTarget(instance, instanceLocation) {
   if (instanceLocation === '') return instance;
-  const tokens = instanceLocation.slice(1).split('/');
   let current = instance;
-  for (const raw of tokens) {
+  for (const raw of instanceLocation.slice(1).split('/')) {
     const token = raw.replaceAll('~1', '/').replaceAll('~0', '~');
-    if (Array.isArray(current)) {
-      current = current[Number(token)];
-    } else {
-      current = current[token];
-    }
+    current = Array.isArray(current) ? current[Number(token)] : current[token];
   }
   return current;
 }
 
 function extractKeyword(evaluatePath) {
-  if (evaluatePath === '') return '';
-  const lastSlash = evaluatePath.lastIndexOf('/');
-  if (lastSlash === -1) return '';
-  const token = evaluatePath.slice(lastSlash + 1)
-    .replaceAll('~1', '/').replaceAll('~0', '~');
-  if (/^[0-9]+$/.test(token)) return '';
-  return token;
+  const match = evaluatePath.match(/\/([^/]+)$/);
+  if (!match) return '';
+  const token = match[1].replaceAll('~1', '/').replaceAll('~0', '~');
+  return /^[0-9]+$/.test(token) ? '' : token;
 }
 
-function isWithinKeyword(evaluatePath, keyword) {
-  const segments = evaluatePath.split('/');
-  for (let index = 1; index < segments.length; index++) {
-    if (segments[index].replaceAll('~1', '/').replaceAll('~0', '~') === keyword) {
-      return true;
-    }
-  }
-  return false;
-}
+const isWithinKeyword = (evaluatePath, keyword) =>
+  evaluatePath.split('/').slice(1).some((segment) =>
+    segment.replaceAll('~1', '/').replaceAll('~0', '~') === keyword);
 
 function lastInstanceToken(instanceLocation) {
   if (instanceLocation === '') return null;
-  const lastSlash = instanceLocation.lastIndexOf('/');
-  return instanceLocation.slice(lastSlash + 1)
+  return instanceLocation.slice(instanceLocation.lastIndexOf('/') + 1)
     .replaceAll('~1', '/').replaceAll('~0', '~');
 }
 
-function objectSize(value) {
-  let count = 0;
-  for (const _key in value) count++;
-  return count;
-}
-
-function objectKeys(value) {
-  const keys = [];
-  for (const key in value) keys.push(key);
-  return keys;
-}
-
-function unicodeLength(string) {
-  let count = 0;
-  for (let index = 0; index < string.length; index++) {
-    count++;
-    const code = string.charCodeAt(index);
-    if (code >= 0xD800 && code <= 0xDBFF) index++;
-  }
-  return count;
-}
-
-function isObject(value) {
-  return value !== null && typeof value === 'object' && !Array.isArray(value);
-}
+const unicodeLength = (string) => [...string].length;
 
 function jsonEqual(left, right) {
   if (left === right) return true;
@@ -206,1346 +116,280 @@ function normalizeTypes(bitmask) {
   return types;
 }
 
-function describeTypeCheck(valid, currentType, expectedType) {
-  let message = 'The value was expected to be of type ' + typeName(expectedType);
-  if (!valid) {
-    message += ' but it was of type ' + typeName(currentType);
-  }
-  return message;
-}
-
-function describeTypesCheck(valid, currentType, bitmask) {
-  let types = normalizeTypes(bitmask);
-  const hasReal = (bitmask & (1 << TYPE_REAL)) !== 0;
-  const hasInteger = (bitmask & (1 << TYPE_INTEGER)) !== 0;
-
-  let popcount = 0;
-  for (let bit = 0; bit < 8; bit++) {
-    if ((types & (1 << bit)) !== 0) popcount++;
-  }
-
-  if (popcount === 1) {
-    let typeIndex = 0;
-    for (let bit = 0; bit < 8; bit++) {
-      if ((types & (1 << bit)) !== 0) { typeIndex = bit; break; }
-    }
-    return describeTypeCheck(valid, currentType, typeIndex);
-  }
-
-  let message = 'The value was expected to be of type ';
-  let first = true;
-  let lastBit = 0;
-  for (let bit = 0; bit < 8; bit++) {
-    if ((types & (1 << bit)) !== 0) lastBit = bit;
-  }
-  for (let bit = 0; bit < 8; bit++) {
-    if ((types & (1 << bit)) !== 0) {
-      if (!first) message += ', ';
-      if (bit === lastBit) message += 'or ';
-      message += typeName(bit);
-      first = false;
-    }
-  }
-
-  if (valid) {
-    message += ' and it was of type ';
-  } else {
-    message += ' but it was of type ';
-  }
-
-  if (valid && currentType === TYPE_INTEGER && hasReal) {
-    message += 'number';
-  } else if ((valid && currentType === TYPE_INTEGER && hasReal) ||
-             currentType === TYPE_REAL) {
-    message += 'number';
-  } else {
-    message += typeName(currentType);
-  }
-
-  return message;
-}
-
-function describeReference(target) {
-  return 'The ' + typeName(jsonTypeOf(target)) +
-    ' value was expected to validate against the referenced schema';
-}
-
 function describeTypeList(bitmask) {
-  let types = normalizeTypes(bitmask);
-
-  let popcount = 0;
+  const types = normalizeTypes(bitmask);
+  const names = [];
   for (let bit = 0; bit < 8; bit++) {
-    if ((types & (1 << bit)) !== 0) popcount++;
+    if ((types & (1 << bit)) !== 0) names.push(TYPE_NAMES[bit]);
   }
-
-  if (popcount === 1) {
-    for (let bit = 0; bit < 8; bit++) {
-      if ((types & (1 << bit)) !== 0) return typeName(bit);
-    }
-  }
-
-  let result = '';
-  let first = true;
-  let lastBit = 0;
-  for (let bit = 0; bit < 8; bit++) {
-    if ((types & (1 << bit)) !== 0) lastBit = bit;
-  }
-  for (let bit = 0; bit < 8; bit++) {
-    if ((types & (1 << bit)) !== 0) {
-      if (!first) result += ', ';
-      if (bit === lastBit) result += 'or ';
-      result += typeName(bit);
-      first = false;
-    }
-  }
-  return result;
+  return names.length === 1 ? names[0] : formatList(names, 'or');
 }
 
 function formatList(items, conjunction) {
-  let result = '';
-  for (let index = 0; index < items.length; index++) {
-    if (index === items.length - 1) {
-      result += conjunction + ' ' + items[index];
-    } else {
-      result += items[index] + ', ';
+  if (items.length === 0) return '';
+  if (items.length === 1) return conjunction + ' ' + items[0];
+  return items.slice(0, -1).join(', ') + ', ' + conjunction + ' ' + items.at(-1);
+}
+
+function collectRequiredFromMap(target, valid, entries, all, present, withProperties, required) {
+  for (const property in entries) {
+    all.add(property);
+    if (!Object.hasOwn(target, property)) continue;
+    present.add(property);
+    if (withProperties) withProperties.add(property);
+    for (const dep of entries[property]) {
+      if (valid || !Object.hasOwn(target, dep)) required.add(dep);
     }
   }
-  return result;
+}
+
+function analyzePropertyDependencies(ctx) {
+  const all = new Set(), present = new Set(), required = new Set();
+  collectRequiredFromMap(ctx.target, ctx.valid, ctx.value, all, present, null, required);
+  return { all, present, required, withSchemas: new Set(), withProperties: new Set() };
+}
+
+function analyzeDependencies(ctx) {
+  const all = new Set(), present = new Set(), withSchemas = new Set(),
+        withProperties = new Set(), required = new Set();
+  for (const child of ctx.children || []) {
+    if (child[0] === LOGICAL_WHEN_DEFINES) {
+      all.add(child[5]);
+      if (Object.hasOwn(ctx.target, child[5])) {
+        present.add(child[5]);
+        withSchemas.add(child[5]);
+      }
+    } else if (child[0] === ASSERTION_PROPERTY_DEPENDENCIES) {
+      collectRequiredFromMap(ctx.target, ctx.valid, child[5], all, present, withProperties, required);
+    }
+  }
+  return { all, present, required, withSchemas, withProperties };
+}
+
+function analyzeDependentSchemas(ctx) {
+  const all = new Set(), present = new Set();
+  for (const child of ctx.children || []) {
+    all.add(child[5]);
+    if (Object.hasOwn(ctx.target, child[5])) present.add(child[5]);
+  }
+  return { all, present, required: new Set(), withSchemas: new Set(), withProperties: new Set() };
+}
+
+function ensureDepsAnalysis(ctx) {
+  if (ctx.depsAnalysis !== undefined) return ctx.depsAnalysis;
+  const raw = ctx.opcode === ASSERTION_PROPERTY_DEPENDENCIES ? analyzePropertyDependencies(ctx)
+            : ctx.keyword === 'dependencies' ? analyzeDependencies(ctx)
+            : analyzeDependentSchemas(ctx);
+  return ctx.depsAnalysis = {
+    allDependencies: [...raw.all].sort(),
+    present: [...raw.present].sort(),
+    presentWithSchemas: [...raw.withSchemas].sort(),
+    presentWithProperties: [...raw.withProperties].sort(),
+    required: [...raw.required].sort()
+  };
+}
+
+function escapedList(items, conjunction) {
+  return formatList(items.map(escapeString), conjunction);
+}
+
+function equalsAnyValues(ctx) {
+  return ctx.equalsAnyValues ??= Array.isArray(ctx.value)
+    ? ctx.value : (ctx.value.values || []);
+}
+
+function missingProperties(ctx) {
+  return ctx.missingProperties ??= ctx.value
+    .filter((property) => !Object.hasOwn(ctx.target, property))
+    .sort();
+}
+
+function duplicateItems(ctx) {
+  if (ctx.duplicateItems !== undefined) return ctx.duplicateItems;
+  const duplicates = new Set();
+  for (let index = 0; index < ctx.target.length; index++) {
+    for (let other = index + 1; other < ctx.target.length; other++) {
+      if (jsonEqual(ctx.target[index], ctx.target[other])) {
+        duplicates.add(stringifyValue(ctx.target[index]));
+      }
+    }
+  }
+  return ctx.duplicateItems = [...duplicates].sort();
+}
+
+// Slot dispatch table. Each entry is a pure function from ctx to string.
+// Templates in messages.json reference slots by integer ID (their index here).
+const SLOTS = [
+  (ctx) => TYPE_NAMES[ctx.targetType],                                                   // 0  targetTypeName
+  (ctx) => valueTypeName(ctx.target),                                                    // 1  targetValueTypeName
+  (ctx) => TYPE_NAMES[ctx.value],                                                        // 2  valueTypeName
+  (ctx) => TYPE_NAMES[ctx.value[0]],                                                     // 3  firstValueTypeName
+  (ctx) => valueTypeName(ctx.value),                                                     // 4  valueValueTypeName
+  (ctx) => TYPE_NAMES[jsonTypeOf(ctx.value)],                                            // 5  valueOfTypeName
+  (ctx) => describeTypeList(ctx.value),                                                  // 6  valueTypeList
+  (ctx) => escapeString(ctx.value),                                                      // 7  escapedValue
+  (ctx) => escapeString(ctx.target),                                                     // 8  escapedTarget
+  (ctx) => escapeString(ctx.keyword),                                                    // 9  escapedKeyword
+  (ctx) => escapeString(ctx.annotation),                                                 // 10 escapedAnnotation
+  (ctx) => escapeString(ctx.value.source),                                               // 11 escapedRegexSource
+  (ctx) => escapeString(lastInstanceToken(ctx.instanceLocation)),                        // 12 escapedPropertyName
+  (ctx) => stringifyValue(ctx.target),                                                   // 13 stringifiedTarget
+  (ctx) => stringifyValue(ctx.value),                                                    // 14 stringifiedValue
+  (ctx) => stringifyValue(ctx.annotation),                                               // 15 stringifiedAnnotation
+  (ctx) => String(ctx.value),                                                            // 16 rawValue
+  (ctx) => ctx.value.source,                                                             // 17 regexSource
+  (ctx) => lastInstanceToken(ctx.instanceLocation),                                      // 18 rawLastInstanceToken
+  (ctx) => ctx.instanceLocation,                                                         // 19 instanceLocation
+  (ctx) => String(ctx.children ? ctx.children.length : 0),                               // 20 childCount
+  (ctx) => String((ctx.children ? ctx.children.length : 0) - 1),                         // 21 childCountMinusOne
+  (ctx) => String(ctx.annotation + 1),                                                   // 22 prefixItemsCountPlusOne
+  (ctx) => String(ctx.value[0]),                                                         // 23 min
+  (ctx) => String(ctx.value[1]),                                                         // 24 max
+  (ctx) => String(ctx.value - 1),                                                        // 25 valueMinusOne
+  (ctx) => String(ctx.value + 1),                                                        // 26 valuePlusOne
+  (ctx) => String(ctx.target.length),                                                    // 27 targetLengthString
+  (ctx) => String(Object.keys(ctx.target).length),                                       // 28 objectSizeString
+  (ctx) => String(unicodeLength(ctx.target)),                                            // 29 unicodeLengthString
+  (ctx) => String(unicodeLength(lastInstanceToken(ctx.instanceLocation))),               // 30 propertyUnicodeLengthString
+  (ctx) => formatList(ctx.annotation.map(stringifyValue), 'and'),                        // 31 examplesList
+  (ctx) => TYPE_NAMES[Math.log2(normalizeTypes(ctx.value))],                             // 32 firstTypeNameInBitmask
+  (ctx) => escapedList(ctx.value, 'and'),                                                // 33 valueListAnd
+  (ctx) => escapedList([...ctx.value].sort(), 'and'),                                    // 34 sortedValueListAnd
+  (ctx) => String(ctx.value[0].length),                                                  // 35 firstValueLength
+  (ctx) => escapedList(missingProperties(ctx), 'and'),                                   // 36 missingPropertiesList
+  (ctx) => escapeString(missingProperties(ctx)[0]),                                      // 37 missingPropertySingle
+  (ctx) => duplicateItems(ctx)[0],                                                       // 38 duplicateItemSingle
+  (ctx) => formatList(duplicateItems(ctx), 'and'),                                       // 39 duplicateItemsList
+  (ctx) => escapeString(Object.keys(ctx.target)[0]),                                     // 40 firstObjectKeyEscaped
+  (ctx) => escapedList(Object.keys(ctx.target), 'and'),                                  // 41 objectKeysList
+  (ctx) => escapedList(Object.keys(ctx.target).sort(), 'and'),                           // 42 sortedObjectKeysList
+  (ctx) => TYPE_NAMES[jsonTypeOf(equalsAnyValues(ctx)[0])],                              // 43 firstEqualsAnyValueTypeName
+  (ctx) => stringifyValue(equalsAnyValues(ctx)[0]),                                      // 44 firstEqualsAnyValueStringified
+  (ctx) => String(equalsAnyValues(ctx).length),                                          // 45 equalsAnyValuesLength
+  (ctx) => formatList([...equalsAnyValues(ctx)].sort(jsonCompare).map(stringifyValue), 'and'), // 46 equalsAnySortedList
+  (ctx) => String(ctx.target.length - ctx.value),                                        // 47 additionalItemCount
+  (ctx) => escapeString(ensureDepsAnalysis(ctx).allDependencies[0]),                     // 48 depsAllDependenciesSingle
+  (ctx) => escapedList(ensureDepsAnalysis(ctx).allDependencies, 'or'),                   // 49 depsAllDependenciesListOr
+  (ctx) => escapeString(ensureDepsAnalysis(ctx).present[0]),                             // 50 depsPresentSingle
+  (ctx) => escapedList(ensureDepsAnalysis(ctx).present, 'and'),                          // 51 depsPresentListAnd
+  (ctx) => escapeString(ensureDepsAnalysis(ctx).required[0]),                            // 52 depsRequiredSingle
+  (ctx) => escapedList(ensureDepsAnalysis(ctx).required, 'and'),                         // 53 depsRequiredListAnd
+  (ctx) => escapeString(ensureDepsAnalysis(ctx).presentWithSchemas[0]),                  // 54 depsPresentSchemasSingle
+  (ctx) => escapedList(ensureDepsAnalysis(ctx).presentWithSchemas, 'and')                // 55 depsPresentSchemasListAnd
+];
+
+// Selector dispatch table. Each entry is a tiny pure function from ctx to a
+// non-negative integer. The compiler does
+// `variants[Math.min(selectorFn(ctx), variants.length - 1)]`, so the last
+// variant in any array is the catch-all "otherwise". Selector 0 is `byKeyword`,
+// which is special: it pairs with a sibling `keys` array on its descriptor.
+const SELECTORS = [
+  null,                                                                                              // 0  byKeyword (special)
+  (ctx) => ctx.valid ? 1 : 0,                                                                        // 1  validity
+  (ctx) => ctx.instanceLocation === '' ? 0 : 1,                                                      // 2  instanceLocation: 0 empty, 1 present
+  (ctx) => ctx.annotation ? 1 : 0,                                                                   // 3  annotation truthy
+  (ctx) => ctx.targetType === TYPE_OBJECT ? 1 : 0,                                                   // 4  target is object
+  (ctx) => isWithinKeyword(ctx.evaluatePath, 'propertyNames') ? 1 : 0,                               // 5  is within propertyNames
+  (ctx) => ctx.targetType === TYPE_INTEGER ? 1 : 0,                                                  // 6  target is integer
+  (ctx) => ctx.targetType === TYPE_REAL ? 1 : 0,                                                     // 7  target is real
+  (ctx) => (ctx.value & (1 << TYPE_REAL)) !== 0 ? 1 : 0,                                             // 8  bitmask has real bit
+  (ctx) => { const t = normalizeTypes(ctx.value); return (t & (t - 1)) === 0 ? 1 : 0; },             // 9  bitmask popcount is 1
+  (ctx) => { const c = ctx.children; return c && c.length > 0 && c[0][0] === ASSERTION_FAIL ? 1 : 0; }, // 10 first child is fail
+  (ctx) => { const c = ctx.children; return c && c.length === 1 && c[0][0] === ASSERTION_FAIL ? 1 : 0; }, // 11 first child is fail and child count is 1
+  (ctx) => jsonEqual(ctx.target, ctx.value) ? 1 : 0,                                                 // 12 target equals value
+  (ctx) => ctx.annotation === true ? 1 : 0,                                                          // 13 annotation === true
+  (ctx) => typeof ctx.annotation === 'number' ? 1 : 0,                                               // 14 annotation is number
+  (ctx) => ctx.annotation === 0 ? 1 : 0,                                                             // 15 annotation === 0
+  (ctx) => ctx.value[1] === null ? 1 : 0,                                                            // 16 max (value[1]) is null
+  (ctx) => ctx.value[0] === 0 ? 1 : 0,                                                               // 17 min (value[0]) is zero
+  (ctx) => ctx.value[0] === ctx.value[1] ? 1 : 0,                                                    // 18 min equals max
+  (ctx) => ensureDepsAnalysis(ctx).present.length === 0 ? 1 : 0,                                     // 19 no present deps
+  (ctx) => { const d = ensureDepsAnalysis(ctx); return d.presentWithSchemas.length === 0 && d.presentWithProperties.length === 0 ? 1 : 0; }, // 20 no schemas-or-properties present deps
+  (ctx) => ctx.target.length > ctx.value ? 1 : 0,                                                    // 21 target.length > value
+  (ctx) => (ctx.children ? ctx.children.length : 0) > 1 ? 1 : 0,                                     // 22 child count > 1
+  (ctx) => (ctx.children ? ctx.children.length : 0) <= 2 ? 1 : 0,                                    // 23 child count <= 2
+  (ctx) => (ctx.children ? ctx.children.length : 0) === 1 ? 1 : 0,                                   // 24 child count === 1
+  (ctx) => ctx.value === 1 ? 1 : 0,                                                                  // 25 value === 1
+  (ctx) => (ctx.value - 1) === 1 ? 1 : 0,                                                            // 26 value - 1 === 1
+  (ctx) => (ctx.value + 1) === 1 ? 1 : 0,                                                            // 27 value + 1 === 1
+  (ctx) => ctx.value[0] === 1 ? 1 : 0,                                                               // 28 min === 1
+  (ctx) => ctx.value[1] === 1 ? 1 : 0,                                                               // 29 max === 1
+  (ctx) => ctx.target.length === 1 ? 1 : 0,                                                          // 30 target.length === 1
+  (ctx) => unicodeLength(ctx.target) === 1 ? 1 : 0,                                                  // 31 unicodeLength(target) === 1
+  (ctx) => unicodeLength(lastInstanceToken(ctx.instanceLocation)) === 1 ? 1 : 0,                     // 32 propertyName unicodeLength === 1
+  (ctx) => (ctx.target.length - ctx.value) === 1 ? 1 : 0,                                            // 33 additional item count === 1
+  (ctx) => missingProperties(ctx).length === 1 ? 1 : 0,                                              // 34 missing properties count === 1
+  (ctx) => duplicateItems(ctx).length === 1 ? 1 : 0,                                                 // 35 duplicate items count === 1
+  (ctx) => equalsAnyValues(ctx).length === 1 ? 1 : 0,                                                // 36 equalsAnyValues count === 1
+  (ctx) => ctx.value[0].length === 1 ? 1 : 0,                                                        // 37 value[0].length === 1
+  (ctx) => ensureDepsAnalysis(ctx).present.length === 1 ? 1 : 0,                                    // 38 present deps count === 1
+  (ctx) => ensureDepsAnalysis(ctx).required.length === 1 ? 1 : 0,                                   // 39 required deps count === 1
+  (ctx) => ensureDepsAnalysis(ctx).presentWithSchemas.length === 1 ? 1 : 0,                         // 40 presentWithSchemas count === 1
+  (ctx) => ensureDepsAnalysis(ctx).allDependencies.length === 1 ? 1 : 0,                            // 41 allDependencies count === 1
+  (ctx) => Math.min(ensureDepsAnalysis(ctx).required.length, 2),                                    // 42 required count clamped to 2 (3-way)
+  (ctx) => Math.min(ensureDepsAnalysis(ctx).presentWithSchemas.length, 2),                          // 43 presentWithSchemas count clamped to 2 (3-way)
+  (ctx) => Math.min(Object.keys(ctx.target).length, 2),                                              // 44 object size clamped to 2 (3-way)
+  (ctx) => ctx.value === 1 ? 1 : ctx.value > 0 ? 2 : 0                                               // 45 loop items from (0=all, 1=one, 2=many)
+];
+
+function compileDescriptor(descriptor) {
+  if (Array.isArray(descriptor)) {
+    const segments = descriptor.map((seg, index) =>
+      index % 2 === 0 ? seg : SLOTS[seg]);
+    return (ctx) => {
+      let result = '';
+      for (let index = 0; index < segments.length; index++) {
+        const segment = segments[index];
+        result += typeof segment === 'string' ? segment : segment(ctx);
+      }
+      return result;
+    };
+  }
+
+  const handlers = descriptor.variants.map(compileDescriptor);
+  const lastIndex = handlers.length - 1;
+
+  if (descriptor.select === 0) {
+    const keys = descriptor.keys;
+    return (ctx) => {
+      const index = keys.indexOf(ctx.keyword);
+      return handlers[index === -1 ? lastIndex : index](ctx);
+    };
+  }
+
+  const selectorFn = SELECTORS[descriptor.select];
+  return (ctx) => handlers[Math.min(selectorFn(ctx), lastIndex)](ctx);
+}
+
+// Sanity-check the JSON metadata against the in-memory implementation.
+if (MESSAGES.slots.length !== SLOTS.length) {
+  throw new Error('Slot count mismatch: ' + MESSAGES.slots.length + ' vs ' + SLOTS.length);
+}
+if (MESSAGES.selectors.length !== SELECTORS.length) {
+  throw new Error('Selector count mismatch: ' + MESSAGES.selectors.length + ' vs ' + SELECTORS.length);
+}
+
+const OPCODE_COUNT = Math.max(...Object.values(INSTRUCTION_NAMES)) + 1;
+const HANDLERS = new Array(OPCODE_COUNT);
+
+for (const name in MESSAGES.messages) {
+  const opcode = INSTRUCTION_NAMES[name];
+  if (opcode === undefined || opcode < 0) {
+    throw new Error('Unknown instruction name in messages.json: ' + name);
+  }
+  HANDLERS[opcode] = compileDescriptor(MESSAGES.messages[name]);
 }
 
 export function describe(valid, instruction, evaluatePath,
                          instanceLocation, instance, annotation) {
   const opcode = instruction[0];
-  const value = instruction[5];
-  const children = instruction[6];
-  const keyword = extractKeyword(evaluatePath);
+  const handler = HANDLERS[opcode];
+  if (handler === undefined) return '<unknown>';
   const target = resolveTarget(instance, instanceLocation);
-  const targetType = jsonTypeOf(target);
-
-  if (opcode === ASSERTION_FAIL) {
-    if (keyword === 'enum') {
-      return 'The ' + typeName(targetType) +
-        ' value was not expected to validate against the empty enumeration';
-    }
-    if (keyword === 'contains') {
-      return 'The constraints declared for this keyword were not satisfiable';
-    }
-    if (keyword === 'additionalProperties' ||
-        keyword === 'unevaluatedProperties') {
-      const property = lastInstanceToken(instanceLocation);
-      return 'The object value was not expected to define the property ' +
-        escapeString(property);
-    }
-    if (keyword === 'unevaluatedItems') {
-      const tokenValue = lastInstanceToken(instanceLocation);
-      return 'The array value was not expected to define the item at index ' +
-        tokenValue;
-    }
-    return 'No instance is expected to succeed against the false schema';
-  }
-
-  if (opcode === LOGICAL_OR) {
-    const childCount = children ? children.length : 0;
-    let message = 'The ' + typeName(targetType) +
-      ' value was expected to validate against ';
-    if (childCount > 1) {
-      message += 'at least one of the ' + childCount + ' given subschemas';
-    } else {
-      message += 'the given subschema';
-    }
-    return message;
-  }
-
-  if (opcode === LOGICAL_AND) {
-    if (keyword === 'allOf') {
-      const childCount = children ? children.length : 0;
-      let message = 'The ' + typeName(targetType) +
-        ' value was expected to validate against the ';
-      if (childCount > 1) {
-        message += childCount + ' given subschemas';
-      } else {
-        message += 'given subschema';
-      }
-      return message;
-    }
-    if (keyword === '$ref') {
-      return describeReference(target);
-    }
-    return '<unknown>';
-  }
-
-  if (opcode === LOGICAL_XOR) {
-    const childCount = children ? children.length : 0;
-    let message = '';
-    if (isWithinKeyword(evaluatePath, 'propertyNames') &&
-        instanceLocation !== '' && lastInstanceToken(instanceLocation) !== null) {
-      const propertyName = lastInstanceToken(instanceLocation);
-      message += 'The property name ' + escapeString(propertyName);
-    } else {
-      message += 'The ' + typeName(targetType) + ' value';
-    }
-    message += ' was expected to validate against ';
-    if (childCount > 1) {
-      message += 'one and only one of the ' + childCount + ' given subschemas';
-    } else {
-      message += 'the given subschema';
-    }
-    return message;
-  }
-
-  if (opcode === LOGICAL_CONDITION) {
-    return 'The ' + typeName(targetType) +
-      ' value was expected to validate against the given conditional';
-  }
-
-  if (opcode === LOGICAL_NOT) {
-    let message = 'The ' + typeName(targetType) +
-      ' value was expected to not validate against the given subschema';
-    if (!valid) message += ', but it did';
-    return message;
-  }
-
-  if (opcode === LOGICAL_NOT_EVALUATE) {
-    let message = 'The ' + typeName(targetType) +
-      ' value was expected to not validate against the given subschema';
-    if (!valid) message += ', but it did';
-    return message;
-  }
-
-  if (opcode === EVALUATE) {
-    return 'The instance location was marked as evaluated';
-  }
-
-  if (opcode === CONTROL_DYNAMIC_ANCHOR_JUMP) {
-    if (keyword === '$dynamicRef') {
-      return 'The ' + typeName(targetType) +
-        ' value was expected to validate against the first subschema ' +
-        'in scope that declared the dynamic anchor ' + escapeString(value);
-    }
-    return 'The ' + typeName(targetType) +
-      ' value was expected to validate against the first subschema ' +
-      'in scope that declared a recursive anchor';
-  }
-
-  if (opcode === ANNOTATION_EMIT) {
-    if (keyword === 'properties') {
-      return 'The object property ' + escapeString(annotation) +
-        ' successfully validated against its property subschema';
-    }
-
-    if ((keyword === 'items' || keyword === 'additionalItems') &&
-        annotation === true) {
-      return 'Every item in the array value was successfully validated';
-    }
-
-    if ((keyword === 'prefixItems' || keyword === 'items') &&
-        typeof annotation === 'number') {
-      if (annotation === 0) {
-        return 'The first item of the array value successfully validated ' +
-          'against the first positional subschema';
-      }
-      return 'The first ' + (annotation + 1) +
-        ' items of the array value successfully validated against the given ' +
-        'positional subschemas';
-    }
-
-    if (keyword === 'prefixItems' && annotation === true) {
-      return 'Every item of the array value validated against the given ' +
-        'positional subschemas';
-    }
-
-    if (keyword === 'title' || keyword === 'description') {
-      let message = 'The ' + keyword + ' of the';
-      if (instanceLocation === '') {
-        message += ' instance';
-      } else {
-        message += ' instance location "' + instanceLocation + '"';
-      }
-      message += ' was ' + escapeString(annotation);
-      return message;
-    }
-
-    if (keyword === 'default') {
-      let message = 'The default value of the';
-      if (instanceLocation === '') {
-        message += ' instance';
-      } else {
-        message += ' instance location "' + instanceLocation + '"';
-      }
-      message += ' was ' + stringifyValue(annotation);
-      return message;
-    }
-
-    if (keyword === 'deprecated' && typeof annotation === 'boolean') {
-      let message = '';
-      if (instanceLocation === '') {
-        message += 'The instance';
-      } else {
-        message += 'The instance location "' + instanceLocation + '"';
-      }
-      message += annotation
-        ? ' was considered deprecated'
-        : ' was not considered deprecated';
-      return message;
-    }
-
-    if (keyword === 'readOnly' && typeof annotation === 'boolean') {
-      let message = '';
-      if (instanceLocation === '') {
-        message += 'The instance';
-      } else {
-        message += 'The instance location "' + instanceLocation + '"';
-      }
-      message += annotation
-        ? ' was considered read-only'
-        : ' was not considered read-only';
-      return message;
-    }
-
-    if (keyword === 'writeOnly' && typeof annotation === 'boolean') {
-      let message = '';
-      if (instanceLocation === '') {
-        message += 'The instance';
-      } else {
-        message += 'The instance location "' + instanceLocation + '"';
-      }
-      message += annotation
-        ? ' was considered write-only'
-        : ' was not considered write-only';
-      return message;
-    }
-
-    if (keyword === 'examples') {
-      let message = '';
-      if (instanceLocation === '') {
-        message += 'Examples of the instance';
-      } else {
-        message += 'Examples of the instance location "' +
-          instanceLocation + '"';
-      }
-      message += ' were ';
-      for (let index = 0; index < annotation.length; index++) {
-        if (index === annotation.length - 1) {
-          message += 'and ' + stringifyValue(annotation[index]);
-        } else {
-          message += stringifyValue(annotation[index]) + ', ';
-        }
-      }
-      return message;
-    }
-
-    if (keyword === 'contentEncoding') {
-      let message = 'The content encoding of the';
-      if (instanceLocation === '') {
-        message += ' instance';
-      } else {
-        message += ' instance location "' + instanceLocation + '"';
-      }
-      message += ' was ' + escapeString(annotation);
-      return message;
-    }
-
-    if (keyword === 'contentMediaType') {
-      let message = 'The content media type of the';
-      if (instanceLocation === '') {
-        message += ' instance';
-      } else {
-        message += ' instance location "' + instanceLocation + '"';
-      }
-      message += ' was ' + escapeString(annotation);
-      return message;
-    }
-
-    if (keyword === 'contentSchema') {
-      let message = 'When decoded, the';
-      if (instanceLocation === '') {
-        message += ' instance';
-      } else {
-        message += ' instance location "' + instanceLocation + '"';
-      }
-      message += ' was expected to validate against the schema ' +
-        stringifyValue(annotation);
-      return message;
-    }
-
-    if (keyword === 'format') {
-      let message = 'The logical type of the';
-      if (instanceLocation === '') {
-        message += ' instance';
-      } else {
-        message += ' instance location "' + instanceLocation + '"';
-      }
-      message += ' was expected to be ' + stringifyValue(annotation);
-      return message;
-    }
-
-    return 'The unrecognized keyword ' + escapeString(keyword) +
-      ' was collected as the annotation ' + stringifyValue(annotation);
-  }
-
-  if (opcode === ANNOTATION_TO_PARENT) {
-    if (keyword === 'unevaluatedItems' && annotation === true) {
-      return 'At least one item of the array value successfully validated ' +
-        'against the subschema for unevaluated items';
-    }
-    return '<unknown>';
-  }
-
-  if (opcode === ANNOTATION_BASENAME_TO_PARENT) {
-    if (keyword === 'patternProperties') {
-      return 'The object property ' + escapeString(String(annotation)) +
-        ' successfully validated against its pattern property subschema';
-    }
-    if (keyword === 'additionalProperties') {
-      return 'The object property ' + escapeString(String(annotation)) +
-        ' successfully validated against the additional properties subschema';
-    }
-    if (keyword === 'unevaluatedProperties') {
-      return 'The object property ' + escapeString(String(annotation)) +
-        ' successfully validated against the subschema for ' +
-        'unevaluated properties';
-    }
-    if (keyword === 'contains' && typeof annotation === 'number') {
-      return 'The item at index ' + annotation +
-        ' of the array value successfully validated against the ' +
-        'containment check subschema';
-    }
-    return '<unknown>';
-  }
-
-  if (opcode === LOOP_PROPERTIES) {
-    const childCount = children ? children.length : 0;
-    if (childCount > 0 && children[0][0] === ASSERTION_FAIL) {
-      if (keyword === 'unevaluatedProperties') {
-        return 'The object value was not expected to define unevaluated properties';
-      }
-      return 'The object value was not expected to define additional properties';
-    }
-    if (keyword === 'unevaluatedProperties') {
-      return 'The object properties not covered by other object ' +
-        'keywords were expected to validate against this subschema';
-    }
-    return 'The object properties not covered by other adjacent object ' +
-      'keywords were expected to validate against this subschema';
-  }
-
-  if (opcode === LOOP_PROPERTIES_EVALUATE) {
-    const childCount = children ? children.length : 0;
-    if (childCount === 1 && children[0][0] === ASSERTION_FAIL) {
-      return 'The object value was not expected to define additional properties';
-    }
-    return 'The object properties not covered by other adjacent object ' +
-      'keywords were expected to validate against this subschema';
-  }
-
-  if (opcode === LOOP_PROPERTIES_UNEVALUATED) {
-    if (keyword === 'unevaluatedProperties') {
-      const childCount = children ? children.length : 0;
-      if (childCount > 0 && children[0][0] === ASSERTION_FAIL) {
-        return 'The object value was not expected to define unevaluated properties';
-      }
-      return 'The object properties not covered by other object ' +
-        'keywords were expected to validate against this subschema';
-    }
-    return '<unknown>';
-  }
-
-  if (opcode === LOOP_PROPERTIES_UNEVALUATED_EXCEPT) {
-    if (keyword === 'unevaluatedProperties') {
-      const childCount = children ? children.length : 0;
-      if (childCount > 0 && children[0][0] === ASSERTION_FAIL) {
-        return 'The object value was not expected to define unevaluated properties';
-      }
-      return 'The object properties not covered by other object ' +
-        'keywords were expected to validate against this subschema';
-    }
-    return '<unknown>';
-  }
-
-  if (opcode === LOOP_PROPERTIES_EXCEPT) {
-    const childCount = children ? children.length : 0;
-    if (childCount > 0 && children[0][0] === ASSERTION_FAIL) {
-      if (keyword === 'unevaluatedProperties') {
-        return 'The object value was not expected to define unevaluated properties';
-      }
-      return 'The object value was not expected to define additional properties';
-    }
-    if (keyword === 'unevaluatedProperties') {
-      return 'The object properties not covered by other object ' +
-        'keywords were expected to validate against this subschema';
-    }
-    return 'The object properties not covered by other adjacent object ' +
-      'keywords were expected to validate against this subschema';
-  }
-
-  if (opcode === LOOP_PROPERTIES_EXACTLY_TYPE_STRICT) {
-    return 'The required object properties were expected to be of type ' +
-      typeName(value[0]);
-  }
-
-  if (opcode === LOOP_PROPERTIES_EXACTLY_TYPE_STRICT_HASH) {
-    return 'The required object properties were expected to be of type ' +
-      typeName(value[0]);
-  }
-
-  if (opcode === LOOP_ITEMS_PROPERTIES_EXACTLY_TYPE_STRICT_HASH ||
-      opcode === LOOP_ITEMS_PROPERTIES_EXACTLY_TYPE_STRICT_HASH3) {
-    return 'Every item in the array was expected to be an object whose ' +
-      'required properties were of type ' + typeName(value[0]);
-  }
-
-  if (opcode === LOOP_ITEMS_INTEGER_BOUNDED ||
-      opcode === LOOP_ITEMS_INTEGER_BOUNDED_SIZED) {
-    return 'Every item in the array was expected to be a number within the given range';
-  }
-
-  if (opcode === ASSERTION_TYPE_INTEGER_BOUNDED ||
-      opcode === ASSERTION_TYPE_INTEGER_BOUNDED_STRICT) {
-    return 'The value was expected to be an integer within the given range';
-  }
-
-  if (opcode === ASSERTION_TYPE_INTEGER_LOWER_BOUND ||
-      opcode === ASSERTION_TYPE_INTEGER_LOWER_BOUND_STRICT) {
-    return 'The value was expected to be an integer above the given minimum';
-  }
-
-  if (opcode === ASSERTION_OBJECT_PROPERTIES_SIMPLE) {
-    return 'The object value was expected to validate against the defined property subschemas';
-  }
-
-  if (opcode === LOOP_PROPERTIES_TYPE ||
-      opcode === LOOP_PROPERTIES_TYPE_EVALUATE ||
-      opcode === LOOP_PROPERTIES_TYPE_STRICT ||
-      opcode === LOOP_PROPERTIES_TYPE_STRICT_EVALUATE) {
-    return 'The object properties were expected to be of type ' + typeName(value);
-  }
-
-  if (opcode === LOOP_PROPERTIES_TYPE_STRICT_ANY) {
-    return 'The object properties were expected to be of type ' +
-      describeTypeList(value);
-  }
-
-  if (opcode === LOOP_PROPERTIES_TYPE_STRICT_ANY_EVALUATE) {
-    return 'The object properties were expected to be of type ' +
-      describeTypeList(value);
-  }
-
-  if (opcode === LOOP_KEYS) {
-    const size = objectSize(target);
-    const keys = objectKeys(target);
-    if (size === 0) {
-      return 'The object is empty and no properties were expected to ' +
-        'validate against the given subschema';
-    }
-    if (size === 1) {
-      return 'The object property ' + escapeString(keys[0]) +
-        ' was expected to validate against the given subschema';
-    }
-    let message = 'The object properties ';
-    for (let index = 0; index < keys.length; index++) {
-      if (index === keys.length - 1) {
-        message += 'and ' + escapeString(keys[index]);
-      } else {
-        message += escapeString(keys[index]) + ', ';
-      }
-    }
-    message += ' were expected to validate against the given subschema';
-    return message;
-  }
-
-  if (opcode === LOOP_ITEMS) {
-    return 'Every item in the array value was expected to validate against the given subschema';
-  }
-
-  if (opcode === LOOP_ITEMS_FROM) {
-    let message = 'Every item in the array value';
-    if (value === 1) {
-      message += ' except for the first one';
-    } else if (value > 0) {
-      message += ' except for the first ' + value;
-    }
-    message += ' was expected to validate against the given subschema';
-    return message;
-  }
-
-  if (opcode === LOOP_ITEMS_UNEVALUATED) {
-    return 'The array items not covered by other array keywords, if any, ' +
-      'were expected to validate against this subschema';
-  }
-
-  if (opcode === LOOP_ITEMS_TYPE || opcode === LOOP_ITEMS_TYPE_STRICT) {
-    return 'The array items were expected to be of type ' + typeName(value);
-  }
-
-  if (opcode === LOOP_ITEMS_TYPE_STRICT_ANY) {
-    return 'The array items were expected to be of type ' + describeTypeList(value);
-  }
-
-  if (opcode === LOOP_CONTAINS) {
-    const minimum = value[0];
-    const maximum = value[1];
-    let plural = true;
-    let message = 'The array value was expected to contain ';
-    if (maximum !== null) {
-      if (minimum === maximum && minimum === 0) {
-        message += 'any number of';
-      } else if (minimum === maximum) {
-        message += 'exactly ' + minimum;
-        if (minimum === 1) plural = false;
-      } else if (minimum === 0) {
-        message += 'up to ' + maximum;
-        if (maximum === 1) plural = false;
-      } else {
-        message += minimum + ' to ' + maximum;
-        if (maximum === 1) plural = false;
-      }
-    } else {
-      message += 'at least ' + minimum;
-      if (minimum === 1) plural = false;
-    }
-    message += plural
-      ? ' items that validate against the given subschema'
-      : ' item that validates against the given subschema';
-    return message;
-  }
-
-  if (opcode === ASSERTION_DEFINES) {
-    return 'The object value was expected to define the property ' +
-      escapeString(value);
-  }
-
-  if (opcode === ASSERTION_DEFINES_STRICT) {
-    return 'The value was expected to be an object that defines the property ' +
-      escapeString(value);
-  }
-
-  if (opcode === ASSERTION_DEFINES_ALL) {
-    let message = 'The object value was expected to define properties ';
-    for (let index = 0; index < value.length; index++) {
-      if (index === value.length - 1) {
-        message += 'and ' + escapeString(value[index]);
-      } else {
-        message += escapeString(value[index]) + ', ';
-      }
-    }
-    if (valid) return message;
-
-    const missing = [];
-    for (let index = 0; index < value.length; index++) {
-      if (!Object.hasOwn(target, value[index])) {
-        missing.push(value[index]);
-      }
-    }
-    missing.sort();
-
-    if (missing.length === 1) {
-      message += ' but did not define the property ' + escapeString(missing[0]);
-    } else {
-      message += ' but did not define properties ';
-      for (let index = 0; index < missing.length; index++) {
-        if (index === missing.length - 1) {
-          message += 'and ' + escapeString(missing[index]);
-        } else {
-          message += escapeString(missing[index]) + ', ';
-        }
-      }
-    }
-    return message;
-  }
-
-  if (opcode === ASSERTION_DEFINES_ALL_STRICT) {
-    let message = 'The value was expected to be an object that defines properties ';
-    for (let index = 0; index < value.length; index++) {
-      if (index === value.length - 1) {
-        message += 'and ' + escapeString(value[index]);
-      } else {
-        message += escapeString(value[index]) + ', ';
-      }
-    }
-    return message;
-  }
-
-  if (opcode === ASSERTION_DEFINES_EXACTLY) {
-    const sorted = [...value].sort();
-    let message = 'The object value was expected to only define properties ';
-    for (let index = 0; index < sorted.length; index++) {
-      if (index === sorted.length - 1) {
-        message += 'and ' + escapeString(sorted[index]);
-      } else {
-        message += escapeString(sorted[index]) + ', ';
-      }
-    }
-    return message;
-  }
-
-  if (opcode === ASSERTION_DEFINES_EXACTLY_STRICT) {
-    const sorted = [...value].sort();
-    let message =
-      'The value was expected to be an object that only defines properties ';
-    for (let index = 0; index < sorted.length; index++) {
-      if (index === sorted.length - 1) {
-        message += 'and ' + escapeString(sorted[index]);
-      } else {
-        message += escapeString(sorted[index]) + ', ';
-      }
-    }
-    return message;
-  }
-
-  if (opcode === ASSERTION_DEFINES_EXACTLY_STRICT_HASH3) {
-    const entries = value[0];
-    return 'The value was expected to be an object that only defines the ' +
-      entries.length + ' given properties';
-  }
-
-  if (opcode === ASSERTION_TYPE || opcode === ASSERTION_TYPE_STRICT) {
-    if (isWithinKeyword(evaluatePath, 'propertyNames') &&
-        instanceLocation !== '') {
-      const propertyName = lastInstanceToken(instanceLocation);
-      return 'The property name ' + escapeString(propertyName) +
-        ' was expected to be of type ' + typeName(value);
-    }
-    return describeTypeCheck(valid, targetType, value);
-  }
-
-  if (opcode === ASSERTION_TYPE_ANY) {
-    return describeTypesCheck(valid, targetType, value);
-  }
-
-  if (opcode === ASSERTION_TYPE_STRICT_ANY) {
-    return describeTypesCheck(valid, targetType, value);
-  }
-
-  if (opcode === ASSERTION_TYPE_STRING_BOUNDED) {
-    const minimum = value[0];
-    const maximum = value[1];
-    if (minimum === 0 && maximum !== null) {
-      return 'The value was expected to consist of a string of at most ' +
-        maximum + (maximum === 1 ? ' character' : ' characters');
-    }
-    if (maximum !== null) {
-      return 'The value was expected to consist of a string of ' + minimum +
-        ' to ' + maximum + (maximum === 1 ? ' character' : ' characters');
-    }
-    return 'The value was expected to consist of a string of at least ' +
-      minimum + (minimum === 1 ? ' character' : ' characters');
-  }
-
-  if (opcode === ASSERTION_TYPE_STRING_UPPER) {
-    return 'The value was expected to consist of a string of at most ' +
-      value + (value === 1 ? ' character' : ' characters');
-  }
-
-  if (opcode === ASSERTION_TYPE_ARRAY_BOUNDED) {
-    const minimum = value[0];
-    const maximum = value[1];
-    if (minimum === 0 && maximum !== null) {
-      return 'The value was expected to consist of an array of at most ' +
-        maximum + (maximum === 1 ? ' item' : ' items');
-    }
-    if (maximum !== null) {
-      return 'The value was expected to consist of an array of ' + minimum +
-        ' to ' + maximum + (maximum === 1 ? ' item' : ' items');
-    }
-    return 'The value was expected to consist of an array of at least ' +
-      minimum + (minimum === 1 ? ' item' : ' items');
-  }
-
-  if (opcode === ASSERTION_TYPE_ARRAY_UPPER) {
-    return 'The value was expected to consist of an array of at most ' +
-      value + (value === 1 ? ' item' : ' items');
-  }
-
-  if (opcode === ASSERTION_TYPE_OBJECT_BOUNDED) {
-    const minimum = value[0];
-    const maximum = value[1];
-    if (minimum === 0 && maximum !== null) {
-      return 'The value was expected to consist of an object of at most ' +
-        maximum + (maximum === 1 ? ' property' : ' properties');
-    }
-    if (maximum !== null) {
-      return 'The value was expected to consist of an object of ' + minimum +
-        ' to ' + maximum + (maximum === 1 ? ' property' : ' properties');
-    }
-    return 'The value was expected to consist of an object of at least ' +
-      minimum + (minimum === 1 ? ' property' : ' properties');
-  }
-
-  if (opcode === ASSERTION_TYPE_OBJECT_UPPER) {
-    return 'The value was expected to consist of an object of at most ' +
-      value + (value === 1 ? ' property' : ' properties');
-  }
-
-  if (opcode === ASSERTION_REGEX) {
-    const pattern = value.source;
-    if (isWithinKeyword(evaluatePath, 'propertyNames') &&
-        instanceLocation !== '') {
-      const propertyName = lastInstanceToken(instanceLocation);
-      return 'The property name ' + escapeString(propertyName) +
-        ' was expected to match the regular expression ' +
-        escapeString(pattern);
-    }
-    return 'The string value ' + escapeString(target) +
-      ' was expected to match the regular expression ' +
-      escapeString(pattern);
-  }
-
-  if (opcode === ASSERTION_STRING_SIZE_LESS) {
-    if (keyword === 'maxLength') {
-      const maximum = value - 1;
-      let message = '';
-      if (isWithinKeyword(evaluatePath, 'propertyNames')) {
-        const propertyName = lastInstanceToken(instanceLocation);
-        message += 'The object property name ' + escapeString(propertyName);
-        message += ' was expected to consist of at most ' + maximum +
-          (maximum === 1 ? ' character' : ' characters');
-        message += valid ? ' and' : ' but';
-        message += ' it consisted of ';
-        const length = unicodeLength(propertyName);
-        message += length + (length === 1 ? ' character' : ' characters');
-      } else {
-        message += 'The string value ' + stringifyValue(target);
-        message += ' was expected to consist of at most ' + maximum +
-          (maximum === 1 ? ' character' : ' characters');
-        message += valid ? ' and' : ' but';
-        message += ' it consisted of ';
-        const length = unicodeLength(target);
-        message += length + (length === 1 ? ' character' : ' characters');
-      }
-      return message;
-    }
-    return '<unknown>';
-  }
-
-  if (opcode === ASSERTION_STRING_SIZE_GREATER) {
-    if (keyword === 'minLength') {
-      const minimum = value + 1;
-      let message = '';
-      if (isWithinKeyword(evaluatePath, 'propertyNames')) {
-        const propertyName = lastInstanceToken(instanceLocation);
-        message += 'The object property name ' + escapeString(propertyName);
-        message += ' was expected to consist of at least ' + minimum +
-          (minimum === 1 ? ' character' : ' characters');
-        message += valid ? ' and' : ' but';
-        message += ' it consisted of ';
-        const length = unicodeLength(propertyName);
-        message += length + (length === 1 ? ' character' : ' characters');
-      } else {
-        message += 'The string value ' + stringifyValue(target);
-        message += ' was expected to consist of at least ' + minimum +
-          (minimum === 1 ? ' character' : ' characters');
-        message += valid ? ' and' : ' but';
-        message += ' it consisted of ';
-        const length = unicodeLength(target);
-        message += length + (length === 1 ? ' character' : ' characters');
-      }
-      return message;
-    }
-    return '<unknown>';
-  }
-
-  if (opcode === ASSERTION_ARRAY_SIZE_LESS) {
-    if (keyword === 'maxItems') {
-      const maximum = value - 1;
-      let message = 'The array value was expected to contain at most ' +
-        maximum + (maximum === 1 ? ' item' : ' items');
-      message += valid ? ' and' : ' but';
-      message += ' it contained ' + target.length +
-        (target.length === 1 ? ' item' : ' items');
-      return message;
-    }
-    return '<unknown>';
-  }
-
-  if (opcode === ASSERTION_ARRAY_SIZE_GREATER) {
-    const minimum = value + 1;
-    let message = 'The array value was expected to contain at least ' +
-      minimum + (minimum === 1 ? ' item' : ' items');
-    message += valid ? ' and' : ' but';
-    message += ' it contained ' + target.length +
-      (target.length === 1 ? ' item' : ' items');
-    return message;
-  }
-
-  if (opcode === ASSERTION_OBJECT_SIZE_LESS) {
-    if (keyword === 'additionalProperties') {
-      return 'The object value was not expected to define additional properties';
-    }
-    if (keyword === 'maxProperties') {
-      const maximum = value - 1;
-      const size = objectSize(target);
-      let message = 'The object value was expected to contain at most ' +
-        maximum + (maximum === 1 ? ' property' : ' properties');
-      message += valid ? ' and' : ' but';
-      message += ' it contained ' + size;
-      if (size === 0) {
-        message += ' properties';
-      } else if (size === 1) {
-        message += ' property: ' + escapeString(objectKeys(target)[0]);
-      } else {
-        message += ' properties: ';
-        const properties = objectKeys(target).sort();
-        message += formatList(properties.map(escapeString), 'and');
-      }
-      return message;
-    }
-    return '<unknown>';
-  }
-
-  if (opcode === ASSERTION_OBJECT_SIZE_GREATER) {
-    if (keyword === 'minProperties') {
-      const minimum = value + 1;
-      const size = objectSize(target);
-      let message = 'The object value was expected to contain at least ' +
-        minimum + (minimum === 1 ? ' property' : ' properties');
-      message += valid ? ' and' : ' but';
-      message += ' it contained ' + size;
-      if (size === 1) {
-        message += ' property: ' + escapeString(objectKeys(target)[0]);
-      } else {
-        message += ' properties: ';
-        const properties = objectKeys(target).sort();
-        message += formatList(properties.map(escapeString), 'and');
-      }
-      return message;
-    }
-    return '<unknown>';
-  }
-
-  if (opcode === ASSERTION_EQUAL) {
-    let message = '';
-    if (isWithinKeyword(evaluatePath, 'propertyNames') &&
-        instanceLocation !== '') {
-      const propertyName = lastInstanceToken(instanceLocation);
-      message += 'The property name ' + escapeString(propertyName);
-    } else {
-      message += 'The ' + typeName(targetType) + ' value ';
-      message += stringifyValue(target);
-    }
-    message += ' was expected to equal the ' + typeName(jsonTypeOf(value)) +
-      ' constant ' + stringifyValue(value);
-    return message;
-  }
-
-  if (opcode === ASSERTION_EQUALS_ANY) {
-    let message = '';
-    if (isWithinKeyword(evaluatePath, 'propertyNames') &&
-        instanceLocation !== '') {
-      const propertyName = lastInstanceToken(instanceLocation);
-      message += 'The property name ' + escapeString(propertyName);
-    } else {
-      message += 'The ' + typeName(targetType) + ' value ';
-      message += stringifyValue(target);
-    }
-
-    const values = Array.isArray(value) ? value : (value.values || []);
-    if (values.length === 1) {
-      message += ' was expected to equal the ' +
-        typeName(jsonTypeOf(values[0])) + ' constant ' +
-        stringifyValue(values[0]);
-    } else {
-      if (valid) {
-        message += ' was expected to equal one of the ' +
-          values.length + ' declared values';
-      } else {
-        message += ' was expected to equal one of the following values: ';
-        const sorted = [...values].sort(jsonCompare);
-        for (let index = 0; index < sorted.length; index++) {
-          if (index === sorted.length - 1) {
-            message += 'and ' + stringifyValue(sorted[index]);
-          } else {
-            message += stringifyValue(sorted[index]) + ', ';
-          }
-        }
-      }
-    }
-    return message;
-  }
-
-  if (opcode === ASSERTION_EQUALS_ANY_STRING_HASH) {
-    let message = '';
-    if (isWithinKeyword(evaluatePath, 'propertyNames') &&
-        instanceLocation !== '') {
-      const propertyName = lastInstanceToken(instanceLocation);
-      message += 'The property name ' + escapeString(propertyName);
-    } else {
-      message += 'The ' + typeName(targetType) + ' value ';
-      message += stringifyValue(target);
-    }
-    const entries = value[0];
-    if (entries.length === 1) {
-      message += ' was expected to equal the given constant';
-    } else {
-      message += ' was expected to equal one of the given declared values';
-    }
-    return message;
-  }
-
-  if (opcode === ASSERTION_GREATER_EQUAL) {
-    return 'The ' + valueTypeName(target) + ' value ' +
-      stringifyValue(target) +
-      ' was expected to be greater than or equal to the ' +
-      valueTypeName(value) + ' ' + stringifyValue(value);
-  }
-
-  if (opcode === ASSERTION_LESS_EQUAL) {
-    return 'The ' + valueTypeName(target) + ' value ' +
-      stringifyValue(target) +
-      ' was expected to be less than or equal to the ' +
-      valueTypeName(value) + ' ' + stringifyValue(value);
-  }
-
-  if (opcode === ASSERTION_GREATER) {
-    let message = 'The ' + valueTypeName(target) + ' value ' +
-      stringifyValue(target) +
-      ' was expected to be greater than the ' +
-      valueTypeName(value) + ' ' + stringifyValue(value);
-    if (!valid && jsonEqual(value, target)) {
-      message += ', but they were equal';
-    }
-    return message;
-  }
-
-  if (opcode === ASSERTION_LESS) {
-    let message = 'The ' + valueTypeName(target) + ' value ' +
-      stringifyValue(target) +
-      ' was expected to be less than the ' +
-      valueTypeName(value) + ' ' + stringifyValue(value);
-    if (!valid && jsonEqual(value, target)) {
-      message += ', but they were equal';
-    }
-    return message;
-  }
-
-  if (opcode === ASSERTION_UNIQUE) {
-    if (valid) {
-      return 'The array value was expected to not contain duplicate items';
-    }
-    const duplicateStrs = new Set();
-    for (let index = 0; index < target.length; index++) {
-      for (let other = index + 1; other < target.length; other++) {
-        if (jsonEqual(target[index], target[other])) {
-          duplicateStrs.add(stringifyValue(target[index]));
-        }
-      }
-    }
-    const sorted = [...duplicateStrs].sort();
-    if (sorted.length === 1) {
-      return 'The array value contained the following duplicate item: ' + sorted[0];
-    }
-    let message = 'The array value contained the following duplicate items: ';
-    for (let index = 0; index < sorted.length; index++) {
-      if (index === sorted.length - 1) {
-        message += 'and ' + sorted[index];
-      } else {
-        message += sorted[index] + ', ';
-      }
-    }
-    return message;
-  }
-
-  if (opcode === ASSERTION_DIVISIBLE) {
-    return 'The ' + valueTypeName(target) + ' value ' +
-      stringifyValue(target) +
-      ' was expected to be divisible by the ' +
-      valueTypeName(value) + ' ' + stringifyValue(value);
-  }
-
-  if (opcode === ASSERTION_STRING_TYPE) {
-    return 'The string value ' + escapeString(target) +
-      ' was expected to represent a valid URI';
-  }
-
-  if (opcode === ASSERTION_PROPERTY_TYPE ||
-      opcode === ASSERTION_PROPERTY_TYPE_EVALUATE ||
-      opcode === ASSERTION_PROPERTY_TYPE_STRICT ||
-      opcode === ASSERTION_PROPERTY_TYPE_STRICT_EVALUATE) {
-    return describeTypeCheck(valid, targetType, value);
-  }
-
-  if (opcode === ASSERTION_PROPERTY_TYPE_STRICT_ANY ||
-      opcode === ASSERTION_PROPERTY_TYPE_STRICT_ANY_EVALUATE) {
-    return describeTypesCheck(valid, targetType, value);
-  }
-
-  if (opcode === ASSERTION_ARRAY_PREFIX ||
-      opcode === ASSERTION_ARRAY_PREFIX_EVALUATE) {
-    const childCount = children ? children.length : 0;
-    let message = 'The first ';
-    if (childCount <= 2) {
-      message += 'item of the array value was';
-    } else {
-      message += (childCount - 1) + ' items of the array value were';
-    }
-    message += ' expected to validate against the corresponding subschemas';
-    return message;
-  }
-
-  if (opcode === LOOP_PROPERTIES_MATCH) {
-    const childCount = children ? children.length : 0;
-    let message = 'The object value was expected to validate against the ';
-    if (childCount === 1) {
-      message += 'single defined property subschema';
-    } else {
-      message += childCount + ' defined properties subschemas';
-    }
-    return message;
-  }
-
-  if (opcode === LOOP_PROPERTIES_MATCH_CLOSED) {
-    const childCount = children ? children.length : 0;
-    if (childCount === 1) {
-      return 'The object value was expected to validate against the ' +
-        'single defined property subschema';
-    }
-    return 'Every object value was expected to validate against one of the ' +
-      childCount + ' defined properties subschemas';
-  }
-
-  if (opcode === LOGICAL_WHEN_DEFINES) {
-    return 'The object value defined the property "' + value + '"';
-  }
-
-  if (opcode === LOOP_PROPERTIES_REGEX) {
-    return 'The object properties that match the regular expression "' +
-      value.source + '" were expected to validate against the defined ' +
-      'pattern property subschema';
-  }
-
-  if (opcode === LOOP_PROPERTIES_REGEX_CLOSED) {
-    return 'The object properties were expected to match the regular ' +
-      'expression "' + value.source + '" and validate against the ' +
-      'defined pattern property subschema';
-  }
-
-  if (opcode === LOOP_PROPERTIES_STARTS_WITH) {
-    return 'The object properties that start with the string "' + value +
-      '" were expected to validate against the defined pattern property subschema';
-  }
-
-  if (opcode === LOGICAL_WHEN_TYPE) {
-    if (keyword === 'items') {
-      return describeTypeCheck(valid, targetType, value);
-    }
-
-    if (keyword === 'properties') {
-      const childCount = children ? children.length : 0;
-      if (targetType !== TYPE_OBJECT) {
-        return describeTypeCheck(valid, targetType, TYPE_OBJECT);
-      }
-      let message = 'The object value was expected to validate against the ';
-      if (childCount === 1) {
-        message += 'single defined property subschema';
-      } else {
-        message += 'defined properties subschemas';
-      }
-      return message;
-    }
-
-    if (keyword === 'dependencies') {
-      const childCount = children ? children.length : 0;
-      const present = new Set();
-      const presentWithSchemas = new Set();
-      const presentWithProperties = new Set();
-      const allDependencies = new Set();
-      const requiredProperties = new Set();
-
-      for (let index = 0; index < childCount; index++) {
-        const child = children[index];
-        if (child[0] === LOGICAL_WHEN_DEFINES) {
-          const property = child[5];
-          allDependencies.add(property);
-          if (!Object.hasOwn(target, property)) continue;
-          present.add(property);
-          presentWithSchemas.add(property);
-        } else if (child[0] === ASSERTION_PROPERTY_DEPENDENCIES) {
-          const entries = child[5];
-          for (const property in entries) {
-            allDependencies.add(property);
-            if (Object.hasOwn(target, property)) {
-              present.add(property);
-              presentWithProperties.add(property);
-              const dependencies = entries[property];
-              for (let depIndex = 0; depIndex < dependencies.length; depIndex++) {
-                if (valid || !Object.hasOwn(target, dependencies[depIndex])) {
-                  requiredProperties.add(dependencies[depIndex]);
-                }
-              }
-            }
-          }
-        }
-      }
-
-      const allDepsArr = [...allDependencies].sort();
-      const presentArr = [...present].sort();
-      const presentSchemasArr = [...presentWithSchemas].sort();
-      const requiredArr = [...requiredProperties].sort();
-
-      if (presentWithSchemas.size === 0 && presentWithProperties.size === 0) {
-        let message = 'The object value did not define the';
-        if (allDepsArr.length === 1) {
-          message += ' property ' + escapeString(allDepsArr[0]);
-        } else {
-          message += ' properties ';
-          message += formatList(allDepsArr.map(escapeString), 'or');
-        }
-        return message;
-      }
-
-      let message = '';
-      if (presentArr.length === 1) {
-        message += 'Because the object value defined the';
-        message += ' property ' + escapeString(presentArr[0]);
-      } else {
-        message += 'Because the object value defined the';
-        message += ' properties ';
-        message += formatList(presentArr.map(escapeString), 'and');
-      }
-
-      if (requiredArr.length > 0) {
-        message += ', it was also expected to define the';
-        if (requiredArr.length === 1) {
-          message += ' property ' + escapeString(requiredArr[0]);
-        } else {
-          message += ' properties ';
-          message += formatList(requiredArr.map(escapeString), 'and');
-        }
-      }
-
-      if (presentSchemasArr.length > 0) {
-        message += ', ';
-        if (requiredArr.length > 0) message += 'and ';
-        message += 'it was also expected to successfully validate against ' +
-          'the corresponding ';
-        if (presentSchemasArr.length === 1) {
-          message += escapeString(presentSchemasArr[0]) + ' subschema';
-        } else {
-          message += formatList(presentSchemasArr.map(escapeString), 'and');
-          message += ' subschemas';
-        }
-      }
-
-      return message;
-    }
-
-    if (keyword === 'dependentSchemas') {
-      const childCount = children ? children.length : 0;
-      const present = new Set();
-      const allDependencies = new Set();
-
-      for (let index = 0; index < childCount; index++) {
-        const child = children[index];
-        const property = child[5];
-        allDependencies.add(property);
-        if (Object.hasOwn(target, property)) {
-          present.add(property);
-        }
-      }
-
-      const allDepsArr = [...allDependencies].sort();
-      const presentArr = [...present].sort();
-
-      if (present.size === 0) {
-        let message = 'The object value did not define the';
-        if (allDepsArr.length === 1) {
-          message += ' property ' + escapeString(allDepsArr[0]);
-        } else {
-          message += ' properties ';
-          message += formatList(allDepsArr.map(escapeString), 'or');
-        }
-        return message;
-      }
-
-      if (present.size === 1) {
-        return 'Because the object value defined the property ' +
-          escapeString(presentArr[0]) +
-          ', it was also expected to validate against the corresponding subschema';
-      }
-
-      let message = 'Because the object value defined the properties ';
-      message += formatList(presentArr.map(escapeString), 'and');
-      message += ', it was also expected to validate against the ' +
-        'corresponding subschemas';
-      return message;
-    }
-
-    return '<unknown>';
-  }
-
-  if (opcode === ASSERTION_PROPERTY_DEPENDENCIES) {
-    const present = [];
-    const allDependencies = [];
-    const required = new Set();
-
-    for (const property in value) {
-      allDependencies.push(property);
-      if (Object.hasOwn(target, property)) {
-        present.push(property);
-        const dependencies = value[property];
-        for (let index = 0; index < dependencies.length; index++) {
-          if (valid || !Object.hasOwn(target, dependencies[index])) {
-            required.add(dependencies[index]);
-          }
-        }
-      }
-    }
-
-    allDependencies.sort();
-    present.sort();
-    const requiredArr = [...required].sort();
-
-    if (present.length === 0) {
-      let message = 'The object value did not define the';
-      if (allDependencies.length === 1) {
-        message += ' property ' + escapeString(allDependencies[0]);
-      } else {
-        message += ' properties ';
-        message += formatList(allDependencies.map(escapeString), 'or');
-      }
-      return message;
-    }
-
-    let message = '';
-    if (present.length === 1) {
-      message += 'Because the object value defined the';
-      message += ' property ' + escapeString(present[0]);
-    } else {
-      message += 'Because the object value defined the';
-      message += ' properties ';
-      message += formatList(present.map(escapeString), 'and');
-    }
-
-    message += ', it was also expected to define the';
-    if (requiredArr.length === 1) {
-      message += ' property ' + escapeString(requiredArr[0]);
-    } else {
-      message += ' properties ';
-      message += formatList(requiredArr.map(escapeString), 'and');
-    }
-    return message;
-  }
-
-  if (opcode === LOGICAL_WHEN_ARRAY_SIZE_GREATER) {
-    if (keyword === 'additionalItems' || keyword === 'items') {
-      if (target.length > value) {
-        const rest = target.length - value;
-        return 'The array value contains ' + rest + ' additional' +
-          (rest === 1 ? ' item' : ' items') +
-          ' not described by related keywords';
-      }
-      return 'The array value does not contain additional items not ' +
-        'described by related keywords';
-    }
-    return '<unknown>';
-  }
-
-  if (opcode === CONTROL_JUMP) {
-    if (isWithinKeyword(evaluatePath, 'propertyNames') &&
-        instanceLocation !== '') {
-      return 'The string value was expected to validate against the referenced schema';
-    }
-    return describeReference(target);
-  }
-
-  return '<unknown>';
+  return handler({
+    valid, instruction, evaluatePath, instanceLocation, instance, annotation,
+    opcode, value: instruction[5], children: instruction[6],
+    keyword: extractKeyword(evaluatePath),
+    target, targetType: jsonTypeOf(target)
+  });
 }
