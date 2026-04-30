@@ -303,6 +303,50 @@ TEST(AlterSchema_upgrade_Draft7_to_2019_09,
   UPGRADE_DRAFT_2019_09(document, expected);
 }
 
+TEST(AlterSchema_upgrade_Draft7_to_2019_09,
+     dependencies_with_invalid_value_left_alone) {
+  auto document = sourcemeta::core::parse_json(R"JSON({
+    "$schema": "http://json-schema.org/draft-07/schema#",
+    "dependencies": {
+      "foo": "not-a-valid-value"
+    }
+  })JSON");
+
+  const auto expected = sourcemeta::core::parse_json(R"JSON({
+    "$schema": "https://json-schema.org/draft/2019-09/schema",
+    "dependencies": {
+      "foo": "not-a-valid-value"
+    }
+  })JSON");
+
+  UPGRADE_DRAFT_2019_09(document, expected);
+}
+
+TEST(AlterSchema_upgrade_Draft7_to_2019_09,
+     dependencies_left_alone_when_dependent_schemas_already_present) {
+  auto document = sourcemeta::core::parse_json(R"JSON({
+    "$schema": "http://json-schema.org/draft-07/schema#",
+    "dependencies": {
+      "foo": [ "bar" ]
+    },
+    "x-dependentSchemas": {
+      "qux": { "type": "string" }
+    }
+  })JSON");
+
+  const auto expected = sourcemeta::core::parse_json(R"JSON({
+    "$schema": "https://json-schema.org/draft/2019-09/schema",
+    "dependentRequired": {
+      "foo": [ "bar" ]
+    },
+    "x-dependentSchemas": {
+      "qux": { "type": "string" }
+    }
+  })JSON");
+
+  UPGRADE_DRAFT_2019_09(document, expected);
+}
+
 TEST(AlterSchema_upgrade_Draft7_to_2019_09, dependencies_empty_object_dropped) {
   auto document = sourcemeta::core::parse_json(R"JSON({
     "$schema": "http://json-schema.org/draft-07/schema#",
@@ -403,6 +447,101 @@ TEST(AlterSchema_upgrade_Draft7_to_2019_09,
         "$ref": "#/$defs/foo",
         "x-x-type": "string",
         "x-type": "already-here"
+      }
+    }
+  })JSON");
+
+  UPGRADE_DRAFT_2019_09(document, expected);
+}
+
+TEST(AlterSchema_upgrade_Draft7_to_2019_09,
+     ref_with_read_only_sibling_left_alone) {
+  auto document = sourcemeta::core::parse_json(R"JSON({
+    "$schema": "http://json-schema.org/draft-07/schema#",
+    "definitions": {
+      "foo": { "type": "string" }
+    },
+    "properties": {
+      "value": {
+        "$ref": "#/definitions/foo",
+        "readOnly": true
+      }
+    }
+  })JSON");
+
+  const auto expected = sourcemeta::core::parse_json(R"JSON({
+    "$schema": "https://json-schema.org/draft/2019-09/schema",
+    "$defs": {
+      "foo": { "type": "string" }
+    },
+    "properties": {
+      "value": {
+        "$ref": "#/$defs/foo",
+        "readOnly": true
+      }
+    }
+  })JSON");
+
+  UPGRADE_DRAFT_2019_09(document, expected);
+}
+
+TEST(AlterSchema_upgrade_Draft7_to_2019_09,
+     ref_with_content_keywords_siblings_left_alone) {
+  auto document = sourcemeta::core::parse_json(R"JSON({
+    "$schema": "http://json-schema.org/draft-07/schema#",
+    "definitions": {
+      "foo": { "type": "string" }
+    },
+    "properties": {
+      "value": {
+        "$ref": "#/definitions/foo",
+        "contentMediaType": "text/plain",
+        "contentEncoding": "base64"
+      }
+    }
+  })JSON");
+
+  const auto expected = sourcemeta::core::parse_json(R"JSON({
+    "$schema": "https://json-schema.org/draft/2019-09/schema",
+    "$defs": {
+      "foo": { "type": "string" }
+    },
+    "properties": {
+      "value": {
+        "$ref": "#/$defs/foo",
+        "contentMediaType": "text/plain",
+        "contentEncoding": "base64"
+      }
+    }
+  })JSON");
+
+  UPGRADE_DRAFT_2019_09(document, expected);
+}
+
+TEST(AlterSchema_upgrade_Draft7_to_2019_09,
+     ref_with_dollar_id_sibling_left_alone) {
+  auto document = sourcemeta::core::parse_json(R"JSON({
+    "$schema": "http://json-schema.org/draft-07/schema#",
+    "definitions": {
+      "foo": { "type": "string" }
+    },
+    "properties": {
+      "value": {
+        "$id": "https://example.com/inner",
+        "$ref": "#/definitions/foo"
+      }
+    }
+  })JSON");
+
+  const auto expected = sourcemeta::core::parse_json(R"JSON({
+    "$schema": "https://json-schema.org/draft/2019-09/schema",
+    "$defs": {
+      "foo": { "type": "string" }
+    },
+    "properties": {
+      "value": {
+        "$id": "https://example.com/inner",
+        "$ref": "#/definitions/foo"
       }
     }
   })JSON");

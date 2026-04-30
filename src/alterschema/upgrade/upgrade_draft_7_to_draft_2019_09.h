@@ -28,7 +28,8 @@ public:
         continue;
       }
 
-      if (!is_strict_descendant(location.pointer, entry.second.pointer)) {
+      if (entry.second.pointer.size() <= location.pointer.size() ||
+          !entry.second.pointer.starts_with(location.pointer)) {
         continue;
       }
 
@@ -47,86 +48,10 @@ public:
   auto transform(sourcemeta::core::JSON &schema, const Result &) const
       -> void override {
     this->renames_.clear();
-
-    if (schema.defines("$ref")) {
-      std::vector<std::string> siblings_to_prefix;
-      for (const auto &entry : schema.as_object()) {
-        if (entry.first == "$ref" || is_annotation(entry.first) ||
-            entry.first.starts_with("x-")) {
-          continue;
-        }
-
-        siblings_to_prefix.push_back(entry.first);
-      }
-
-      for (const auto &keyword : siblings_to_prefix) {
-        std::string prefixed_name{"x-" + keyword};
-        while (schema.defines(prefixed_name)) {
-          prefixed_name.insert(0, "x-");
-        }
-
-        this->renames_.emplace(keyword, prefixed_name);
-        schema.rename(keyword, std::move(prefixed_name));
-      }
-    }
-
-    if (schema.defines("$id") && schema.at("$id").is_string()) {
-      const auto &id_value{schema.at("$id").to_string()};
-      const sourcemeta::core::URI uri{id_value};
-      const auto fragment{uri.fragment()};
-
-      if (fragment.has_value()) {
-        const auto &fragment_value{fragment.value()};
-        if (uri.is_fragment_only()) {
-          if (is_plain_name_fragment(fragment_value)) {
-            schema.erase("$id");
-            schema.assign("$anchor",
-                          sourcemeta::core::JSON{std::string{fragment_value}});
-          }
-        } else if (is_plain_name_fragment(fragment_value)) {
-          const auto without_fragment{uri.recompose_without_fragment()};
-          assert(without_fragment.has_value());
-          schema.assign("$id",
-                        sourcemeta::core::JSON{without_fragment.value()});
-          schema.assign("$anchor",
-                        sourcemeta::core::JSON{std::string{fragment_value}});
-        } else if (fragment_value.empty()) {
-          const auto without_fragment{uri.recompose_without_fragment()};
-          assert(without_fragment.has_value());
-          schema.assign("$id",
-                        sourcemeta::core::JSON{without_fragment.value()});
-        }
-      }
-    }
-
-    if (schema.defines("dependencies") &&
-        schema.at("dependencies").is_object()) {
-      auto dependent_required{sourcemeta::core::JSON::make_object()};
-      auto dependent_schemas{sourcemeta::core::JSON::make_object()};
-
-      for (const auto &entry : schema.at("dependencies").as_object()) {
-        if (entry.second.is_array()) {
-          dependent_required.assign(entry.first, entry.second);
-        } else if (entry.second.is_object() || entry.second.is_boolean()) {
-          dependent_schemas.assign(entry.first, entry.second);
-        }
-      }
-
-      schema.erase("dependencies");
-
-      if (!dependent_required.empty()) {
-        schema.assign("dependentRequired", std::move(dependent_required));
-      }
-
-      if (!dependent_schemas.empty()) {
-        schema.assign("dependentSchemas", std::move(dependent_schemas));
-      }
-    }
-
-    if (schema.defines("$schema") && schema.at("$schema").is_string() &&
-        schema.at("$schema").to_string() == DRAFT_7_URL) {
-      schema.assign("$schema", sourcemeta::core::JSON{DRAFT_2019_09_URL});
-    }
+    this->prefix_ref_siblings(schema);
+    this->split_id_fragment(schema);
+    this->split_dependencies(schema);
+    this->bump_schema(schema);
   }
 
   [[nodiscard]] auto rereference(const std::string_view,
@@ -147,17 +72,19 @@ public:
   }
 
 private:
-  static inline const std::string DRAFT_4_URL{
+  static constexpr std::string_view DRAFT_4_URL{
       "http://json-schema.org/draft-04/schema#"};
-  static inline const std::string DRAFT_6_URL{
+  static constexpr std::string_view DRAFT_6_URL{
       "http://json-schema.org/draft-06/schema#"};
-  static inline const std::string DRAFT_7_URL{
+  static constexpr std::string_view DRAFT_7_URL{
       "http://json-schema.org/draft-07/schema#"};
-  static inline const std::string DRAFT_2019_09_URL{
+  static constexpr std::string_view DRAFT_2019_09_URL{
       "https://json-schema.org/draft/2019-09/schema"};
 
-  static inline const std::array<std::string_view, 5> ANNOTATION_KEYWORDS{
-      {"title", "description", "default", "examples", "$comment"}};
+  static inline const std::array<std::string_view, 12> SHADOW_EXEMPT_KEYWORDS{
+      {"$schema", "$id", "title", "description", "default", "examples",
+       "$comment", "readOnly", "writeOnly", "deprecated", "contentMediaType",
+       "contentEncoding"}};
 
   static inline const std::array<std::string_view, 13>
       PROMOTED_2019_09_KEYWORDS{{"$anchor", "$recursiveAnchor", "$recursiveRef",
@@ -175,9 +102,9 @@ private:
 
   mutable std::unordered_map<std::string, std::string> renames_;
 
-  static auto is_annotation(const std::string_view keyword) -> bool {
+  static auto is_shadow_exempt(const std::string_view keyword) -> bool {
     return std::ranges::any_of(
-        ANNOTATION_KEYWORDS,
+        SHADOW_EXEMPT_KEYWORDS,
         [&keyword](const auto &candidate) { return candidate == keyword; });
   }
 
@@ -200,6 +127,159 @@ private:
     return true;
   }
 
+  static auto
+  has_actionable_id_fragment(const sourcemeta::core::JSON &subschema) -> bool {
+    if (!(subschema.defines("$id") && subschema.at("$id").is_string())) {
+      return false;
+    }
+
+    const sourcemeta::core::URI uri{subschema.at("$id").to_string()};
+    const auto fragment{uri.fragment()};
+    return fragment.has_value() && (fragment.value().empty() ||
+                                    is_plain_name_fragment(fragment.value()));
+  }
+
+  static auto
+  has_actionable_dependencies(const sourcemeta::core::JSON &subschema) -> bool {
+    if (!(subschema.defines("dependencies") &&
+          subschema.at("dependencies").is_object())) {
+      return false;
+    }
+
+    if (subschema.defines("dependentRequired") ||
+        subschema.defines("dependentSchemas")) {
+      return false;
+    }
+
+    for (const auto &entry : subschema.at("dependencies").as_object()) {
+      if (!entry.second.is_array() && !entry.second.is_object() &&
+          !entry.second.is_boolean()) {
+        return false;
+      }
+    }
+
+    return true;
+  }
+
+  static auto
+  has_actionable_ref_siblings(const sourcemeta::core::JSON &subschema) -> bool {
+    if (!subschema.defines("$ref")) {
+      return false;
+    }
+
+    for (const auto &entry : subschema.as_object()) {
+      if (entry.first == "$ref" || is_shadow_exempt(entry.first) ||
+          entry.first.starts_with("x-")) {
+        continue;
+      }
+      return true;
+    }
+
+    return false;
+  }
+
+  auto prefix_ref_siblings(sourcemeta::core::JSON &schema) const -> void {
+    if (!schema.defines("$ref")) {
+      return;
+    }
+
+    std::vector<std::string> siblings_to_prefix;
+    for (const auto &entry : schema.as_object()) {
+      if (entry.first == "$ref" || is_shadow_exempt(entry.first) ||
+          entry.first.starts_with("x-")) {
+        continue;
+      }
+
+      siblings_to_prefix.push_back(entry.first);
+    }
+
+    for (const auto &keyword : siblings_to_prefix) {
+      std::string prefixed_name{"x-" + keyword};
+      while (schema.defines(prefixed_name)) {
+        prefixed_name.insert(0, "x-");
+      }
+
+      this->renames_.emplace(keyword, prefixed_name);
+      schema.rename(keyword, std::move(prefixed_name));
+    }
+  }
+
+  static auto split_id_fragment(sourcemeta::core::JSON &schema) -> void {
+    if (!(schema.defines("$id") && schema.at("$id").is_string())) {
+      return;
+    }
+
+    const sourcemeta::core::URI uri{schema.at("$id").to_string()};
+    const auto fragment{uri.fragment()};
+    if (!fragment.has_value()) {
+      return;
+    }
+
+    const auto &fragment_value{fragment.value()};
+    const bool plain_name{is_plain_name_fragment(fragment_value)};
+
+    if (uri.is_fragment_only()) {
+      if (plain_name) {
+        schema.erase("$id");
+        schema.assign("$anchor",
+                      sourcemeta::core::JSON{std::string{fragment_value}});
+      } else if (fragment_value.empty()) {
+        schema.erase("$id");
+      }
+      return;
+    }
+
+    if (!plain_name && !fragment_value.empty()) {
+      return;
+    }
+
+    const auto without_fragment{uri.recompose_without_fragment()};
+    if (!without_fragment.has_value()) {
+      return;
+    }
+
+    schema.assign("$id", sourcemeta::core::JSON{without_fragment.value()});
+    if (plain_name) {
+      schema.assign("$anchor",
+                    sourcemeta::core::JSON{std::string{fragment_value}});
+    }
+  }
+
+  static auto split_dependencies(sourcemeta::core::JSON &schema) -> void {
+    if (!has_actionable_dependencies(schema)) {
+      return;
+    }
+
+    auto dependent_required{sourcemeta::core::JSON::make_object()};
+    auto dependent_schemas{sourcemeta::core::JSON::make_object()};
+
+    for (const auto &entry : schema.at("dependencies").as_object()) {
+      if (entry.second.is_array()) {
+        dependent_required.assign(entry.first, entry.second);
+      } else {
+        dependent_schemas.assign(entry.first, entry.second);
+      }
+    }
+
+    schema.erase("dependencies");
+
+    if (!dependent_required.empty()) {
+      schema.assign("dependentRequired", std::move(dependent_required));
+    }
+
+    if (!dependent_schemas.empty()) {
+      schema.assign("dependentSchemas", std::move(dependent_schemas));
+    }
+  }
+
+  static auto bump_schema(sourcemeta::core::JSON &schema) -> void {
+    if (schema.defines("$schema") && schema.at("$schema").is_string() &&
+        schema.at("$schema").to_string() == DRAFT_7_URL) {
+      schema.assign("$schema",
+                    sourcemeta::core::JSON{std::string{DRAFT_2019_09_URL}});
+    }
+  }
+
   static auto has_pending_pattern(const sourcemeta::core::JSON &subschema)
       -> bool {
     if (!subschema.is_object()) {
@@ -211,29 +291,9 @@ private:
       return true;
     }
 
-    if (subschema.defines("dependencies")) {
-      return true;
-    }
-
-    if (subschema.defines("$id") && subschema.at("$id").is_string()) {
-      const sourcemeta::core::URI uri{subschema.at("$id").to_string()};
-      const auto fragment{uri.fragment()};
-      if (fragment.has_value()) {
-        return true;
-      }
-    }
-
-    if (subschema.defines("$ref")) {
-      for (const auto &entry : subschema.as_object()) {
-        if (entry.first == "$ref" || is_annotation(entry.first) ||
-            entry.first.starts_with("x-")) {
-          continue;
-        }
-        return true;
-      }
-    }
-
-    return false;
+    return has_actionable_id_fragment(subschema) ||
+           has_actionable_dependencies(subschema) ||
+           has_actionable_ref_siblings(subschema);
   }
 
   static auto
@@ -291,24 +351,6 @@ private:
       }
     }
 
-    if (has_pending_pattern(subschema)) {
-      return true;
-    }
-
-    return false;
-  }
-
-  static auto
-  is_strict_descendant(const sourcemeta::core::WeakPointer &ancestor,
-                       const sourcemeta::core::WeakPointer &candidate) -> bool {
-    if (candidate.size() <= ancestor.size()) {
-      return false;
-    }
-    for (std::size_t index{0}; index < ancestor.size(); ++index) {
-      if (!(ancestor.at(index) == candidate.at(index))) {
-        return false;
-      }
-    }
-    return true;
+    return has_pending_pattern(subschema);
   }
 };
