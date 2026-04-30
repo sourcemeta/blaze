@@ -226,9 +226,9 @@ private:
 
     if (uri.is_fragment_only()) {
       if (plain_name) {
-        schema.erase("$id");
-        schema.assign("$anchor",
-                      sourcemeta::core::JSON{std::string{fragment_value}});
+        schema.rename("$id", "$anchor");
+        schema.at("$anchor").into(
+            sourcemeta::core::JSON{std::string{fragment_value}});
       } else if (fragment_value.empty()) {
         schema.erase("$id");
       }

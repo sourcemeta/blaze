@@ -105,6 +105,136 @@ TEST(AlterSchema_upgrade_Draft6_to_2019_09,
 }
 
 TEST(AlterSchema_upgrade_Draft6_to_2019_09,
+     ref_through_dependencies_deep_pointer_through_chain) {
+  auto document = sourcemeta::core::parse_json(R"JSON({
+    "$schema": "http://json-schema.org/draft-06/schema#",
+    "dependencies": {
+      "foo": {
+        "type": "object",
+        "properties": {
+          "x": { "type": "string" }
+        }
+      }
+    },
+    "properties": {
+      "y": { "$ref": "#/dependencies/foo/properties/x" }
+    }
+  })JSON");
+
+  const auto expected = sourcemeta::core::parse_json(R"JSON({
+    "$schema": "https://json-schema.org/draft/2019-09/schema",
+    "dependentSchemas": {
+      "foo": {
+        "type": "object",
+        "properties": {
+          "x": { "type": "string" }
+        }
+      }
+    },
+    "properties": {
+      "y": { "$ref": "#/dependentSchemas/foo/properties/x" }
+    }
+  })JSON");
+
+  UPGRADE_DRAFT_2019_09(document, expected);
+}
+
+TEST(AlterSchema_upgrade_Draft6_to_2019_09,
+     ref_through_dependencies_in_mixed_split_through_chain) {
+  auto document = sourcemeta::core::parse_json(R"JSON({
+    "$schema": "http://json-schema.org/draft-06/schema#",
+    "dependencies": {
+      "foo": { "type": "string" },
+      "qux": [ "bar" ]
+    },
+    "properties": {
+      "x": { "$ref": "#/dependencies/foo" }
+    }
+  })JSON");
+
+  const auto expected = sourcemeta::core::parse_json(R"JSON({
+    "$schema": "https://json-schema.org/draft/2019-09/schema",
+    "dependentSchemas": {
+      "foo": { "type": "string" }
+    },
+    "dependentRequired": {
+      "qux": [ "bar" ]
+    },
+    "properties": {
+      "x": { "$ref": "#/dependentSchemas/foo" }
+    }
+  })JSON");
+
+  UPGRADE_DRAFT_2019_09(document, expected);
+}
+
+TEST(AlterSchema_upgrade_Draft6_to_2019_09,
+     ref_through_dependencies_inside_defs_through_chain) {
+  auto document = sourcemeta::core::parse_json(R"JSON({
+    "$schema": "http://json-schema.org/draft-06/schema#",
+    "definitions": {
+      "Outer": {
+        "dependencies": {
+          "foo": { "type": "string" }
+        }
+      }
+    },
+    "properties": {
+      "x": { "$ref": "#/definitions/Outer/dependencies/foo" }
+    }
+  })JSON");
+
+  const auto expected = sourcemeta::core::parse_json(R"JSON({
+    "$schema": "https://json-schema.org/draft/2019-09/schema",
+    "$defs": {
+      "Outer": {
+        "dependentSchemas": {
+          "foo": { "type": "string" }
+        }
+      }
+    },
+    "properties": {
+      "x": { "$ref": "#/$defs/Outer/dependentSchemas/foo" }
+    }
+  })JSON");
+
+  UPGRADE_DRAFT_2019_09(document, expected);
+}
+
+TEST(AlterSchema_upgrade_Draft6_to_2019_09,
+     ref_with_sibling_validation_keywords_prefixed_through_chain) {
+  auto document = sourcemeta::core::parse_json(R"JSON({
+    "$schema": "http://json-schema.org/draft-06/schema#",
+    "definitions": {
+      "foo": { "type": "string" }
+    },
+    "properties": {
+      "value": {
+        "$ref": "#/definitions/foo",
+        "type": "string",
+        "minLength": 3
+      }
+    }
+  })JSON");
+
+  const auto expected = sourcemeta::core::parse_json(R"JSON({
+    "$schema": "https://json-schema.org/draft/2019-09/schema",
+    "$defs": {
+      "foo": { "type": "string" }
+    },
+    "properties": {
+      "value": {
+        "$ref": "#/$defs/foo",
+        "x-type": "string",
+        "x-minLength": 3
+      }
+    }
+  })JSON");
+
+  UPGRADE_DRAFT_2019_09(document, expected);
+}
+
+TEST(AlterSchema_upgrade_Draft6_to_2019_09,
      id_pure_fragment_becomes_anchor_through_chain) {
   auto document = sourcemeta::core::parse_json(R"JSON({
     "$schema": "http://json-schema.org/draft-06/schema#",
