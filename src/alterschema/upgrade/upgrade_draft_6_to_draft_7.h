@@ -51,6 +51,7 @@ public:
   auto transform(sourcemeta::core::JSON &schema, const Result &) const
       -> void override {
     schema.assign("$schema", sourcemeta::core::JSON{DRAFT_7_URL});
+    drop_dialect_overrides(schema, true);
   }
 
 private:
