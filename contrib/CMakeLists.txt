@@ -79,6 +79,18 @@ if(BLAZE_ALTERSCHEMA)
     PRIVATE sourcemeta::core::jsonschema)
   target_link_libraries(sourcemeta_blaze_contrib_canonicalize
     PRIVATE sourcemeta::blaze::alterschema)
+
+  sourcemeta_executable(NAMESPACE sourcemeta PROJECT blaze
+    NAME contrib_upgrade
+    FOLDER "Blaze/Contrib" SOURCES upgrade.cc)
+  target_link_libraries(sourcemeta_blaze_contrib_upgrade
+    PRIVATE sourcemeta::core::json)
+  target_link_libraries(sourcemeta_blaze_contrib_upgrade
+    PRIVATE sourcemeta::core::jsonschema)
+  target_link_libraries(sourcemeta_blaze_contrib_upgrade
+    PRIVATE sourcemeta::core::options)
+  target_link_libraries(sourcemeta_blaze_contrib_upgrade
+    PRIVATE sourcemeta::blaze::alterschema)
 endif()
 
 if(BLAZE_DOCUMENTATION)
