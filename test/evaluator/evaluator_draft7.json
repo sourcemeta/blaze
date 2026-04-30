@@ -588,5 +588,147 @@
         "Every item in the array value was expected to validate against the given subschema"
       ]
     }
+  },
+  {
+    "description": "id_empty_string_top_level",
+    "schema": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "$id": "",
+      "type": "string"
+    },
+    "instance": "foo bar",
+    "valid": true,
+    "fast": {
+      "pre": [
+        [ "AssertionTypeStrict", "/type", "#/type", "" ]
+      ],
+      "post": [
+        [ true, "AssertionTypeStrict", "/type", "#/type", "" ]
+      ],
+      "descriptions": [
+        "The value was expected to be of type string"
+      ]
+    },
+    "exhaustive": {
+      "pre": [
+        [ "AssertionTypeStrict", "/type", "#/type", "" ]
+      ],
+      "post": [
+        [ true, "AssertionTypeStrict", "/type", "#/type", "" ]
+      ],
+      "descriptions": [
+        "The value was expected to be of type string"
+      ]
+    }
+  },
+  {
+    "description": "id_hash_top_level",
+    "schema": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "$id": "#",
+      "type": "string"
+    },
+    "instance": "foo bar",
+    "valid": true,
+    "fast": {
+      "pre": [
+        [ "AssertionTypeStrict", "/type", "#/type", "" ]
+      ],
+      "post": [
+        [ true, "AssertionTypeStrict", "/type", "#/type", "" ]
+      ],
+      "descriptions": [
+        "The value was expected to be of type string"
+      ]
+    },
+    "exhaustive": {
+      "pre": [
+        [ "AssertionTypeStrict", "/type", "#/type", "" ]
+      ],
+      "post": [
+        [ true, "AssertionTypeStrict", "/type", "#/type", "" ]
+      ],
+      "descriptions": [
+        "The value was expected to be of type string"
+      ]
+    }
+  },
+  {
+    "description": "id_empty_string_nested",
+    "schema": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "$id": "https://www.example.com",
+      "allOf": [ { "$ref": "#/definitions/test" } ],
+      "definitions": { "test": { "$id": "", "type": "string" } }
+    },
+    "instance": "foo bar",
+    "valid": true,
+    "fast": {
+      "pre": [
+        [ "AssertionTypeStrict", "/allOf/0/$ref/type", "https://www.example.com#/definitions/test/type", "" ]
+      ],
+      "post": [
+        [ true, "AssertionTypeStrict", "/allOf/0/$ref/type", "https://www.example.com#/definitions/test/type", "" ]
+      ],
+      "descriptions": [
+        "The value was expected to be of type string"
+      ]
+    },
+    "exhaustive": {
+      "pre": [
+        [ "LogicalAnd", "/allOf", "https://www.example.com#/allOf", "" ],
+        [ "ControlJump", "/allOf/0/$ref", "https://www.example.com#/allOf/0/$ref", "" ],
+        [ "AssertionTypeStrict", "/allOf/0/$ref/type", "https://www.example.com#/definitions/test/type", "" ]
+      ],
+      "post": [
+        [ true, "AssertionTypeStrict", "/allOf/0/$ref/type", "https://www.example.com#/definitions/test/type", "" ],
+        [ true, "ControlJump", "/allOf/0/$ref", "https://www.example.com#/allOf/0/$ref", "" ],
+        [ true, "LogicalAnd", "/allOf", "https://www.example.com#/allOf", "" ]
+      ],
+      "descriptions": [
+        "The value was expected to be of type string",
+        "The string value was expected to validate against the referenced schema",
+        "The string value was expected to validate against the given subschema"
+      ]
+    }
+  },
+  {
+    "description": "id_hash_nested",
+    "schema": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "$id": "https://www.example.com",
+      "allOf": [ { "$ref": "#/definitions/test" } ],
+      "definitions": { "test": { "$id": "#", "type": "string" } }
+    },
+    "instance": "foo bar",
+    "valid": true,
+    "fast": {
+      "pre": [
+        [ "AssertionTypeStrict", "/allOf/0/$ref/type", "https://www.example.com#/definitions/test/type", "" ]
+      ],
+      "post": [
+        [ true, "AssertionTypeStrict", "/allOf/0/$ref/type", "https://www.example.com#/definitions/test/type", "" ]
+      ],
+      "descriptions": [
+        "The value was expected to be of type string"
+      ]
+    },
+    "exhaustive": {
+      "pre": [
+        [ "LogicalAnd", "/allOf", "https://www.example.com#/allOf", "" ],
+        [ "ControlJump", "/allOf/0/$ref", "https://www.example.com#/allOf/0/$ref", "" ],
+        [ "AssertionTypeStrict", "/allOf/0/$ref/type", "https://www.example.com#/definitions/test/type", "" ]
+      ],
+      "post": [
+        [ true, "AssertionTypeStrict", "/allOf/0/$ref/type", "https://www.example.com#/definitions/test/type", "" ],
+        [ true, "ControlJump", "/allOf/0/$ref", "https://www.example.com#/allOf/0/$ref", "" ],
+        [ true, "LogicalAnd", "/allOf", "https://www.example.com#/allOf", "" ]
+      ],
+      "descriptions": [
+        "The value was expected to be of type string",
+        "The string value was expected to validate against the referenced schema",
+        "The string value was expected to validate against the given subschema"
+      ]
+    }
   }
 ]

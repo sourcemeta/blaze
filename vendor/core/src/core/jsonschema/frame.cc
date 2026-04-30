@@ -23,6 +23,53 @@ static const std::string KEYWORD_DYNAMIC_REF{"$dynamicRef"};
 
 namespace {
 
+auto is_valid_anchor_2020_12(const std::string_view name) -> bool {
+  if (name.empty()) {
+    return false;
+  }
+
+  const auto first{name.front()};
+  if (!((first >= 'A' && first <= 'Z') || (first >= 'a' && first <= 'z') ||
+        first == '_')) {
+    return false;
+  }
+
+  for (std::size_t index{1}; index < name.size(); ++index) {
+    const auto character{name[index]};
+    if (!((character >= 'A' && character <= 'Z') ||
+          (character >= 'a' && character <= 'z') ||
+          (character >= '0' && character <= '9') || character == '-' ||
+          character == '_' || character == '.')) {
+      return false;
+    }
+  }
+
+  return true;
+}
+
+auto is_valid_anchor(const std::string_view name) -> bool {
+  if (name.empty()) {
+    return false;
+  }
+
+  const auto first{name.front()};
+  if (!((first >= 'A' && first <= 'Z') || (first >= 'a' && first <= 'z'))) {
+    return false;
+  }
+
+  for (std::size_t index{1}; index < name.size(); ++index) {
+    const auto character{name[index]};
+    if (!((character >= 'A' && character <= 'Z') ||
+          (character >= 'a' && character <= 'z') ||
+          (character >= '0' && character <= '9') || character == '-' ||
+          character == '_' || character == '.' || character == ':')) {
+      return false;
+    }
+  }
+
+  return true;
+}
+
 auto find_anchors(const sourcemeta::core::JSON &schema,
                   const sourcemeta::core::Vocabularies &vocabularies)
     -> std::vector<std::pair<std::string_view, AnchorType>> {
@@ -34,12 +81,24 @@ auto find_anchors(const sourcemeta::core::JSON &schema,
           sourcemeta::core::Vocabularies::Known::JSON_Schema_2020_12_Core)) {
     const auto *dynamic_anchor{schema.try_at("$dynamicAnchor")};
     if (dynamic_anchor && dynamic_anchor->is_string()) {
-      result.emplace_back(dynamic_anchor->to_string(), AnchorType::Dynamic);
+      const std::string_view dynamic_anchor_view{dynamic_anchor->to_string()};
+      if (!is_valid_anchor_2020_12(dynamic_anchor_view)) {
+        throw sourcemeta::core::SchemaKeywordError(
+            "$dynamicAnchor", dynamic_anchor_view,
+            "Invalid dynamic anchor value");
+      }
+
+      result.emplace_back(dynamic_anchor_view, AnchorType::Dynamic);
     }
 
     const auto *anchor_2020{schema.try_at("$anchor")};
     if (anchor_2020 && anchor_2020->is_string()) {
       const std::string_view anchor_view{anchor_2020->to_string()};
+      if (!is_valid_anchor_2020_12(anchor_view)) {
+        throw sourcemeta::core::SchemaKeywordError("$anchor", anchor_view,
+                                                   "Invalid anchor value");
+      }
+
       bool found = false;
       for (auto &entry : result) {
         if (entry.first == anchor_view) {
@@ -76,6 +135,11 @@ auto find_anchors(const sourcemeta::core::JSON &schema,
     const auto *anchor_2019{schema.try_at("$anchor")};
     if (anchor_2019 && anchor_2019->is_string()) {
       const std::string_view anchor_view{anchor_2019->to_string()};
+      if (!is_valid_anchor(anchor_view)) {
+        throw sourcemeta::core::SchemaKeywordError("$anchor", anchor_view,
+                                                   "Invalid anchor value");
+      }
+
       bool found = false;
       for (auto &entry : result) {
         if (entry.first == anchor_view) {
@@ -101,9 +165,19 @@ auto find_anchors(const sourcemeta::core::JSON &schema,
     if (id_value) {
       assert(id_value->is_string());
       const std::string_view id_view{id_value->to_string()};
-      if (id_view.starts_with('#')) {
-        // The original string is "#fragment", skip the '#'
-        result.emplace_back(id_view.substr(1), AnchorType::Static);
+      // A bare "#" carries no anchor name, so we treat it as no anchor at
+      // all.
+      if (id_view.starts_with('#') && id_view.size() > 1) {
+        const std::string_view anchor_view{id_view.substr(1)};
+        // Per Draft 7 / 6 spec, the plain-name fragment in `$id` must
+        // begin with a letter `[A-Za-z]` followed by any number of
+        // letters, digits, hyphens, underscores, colons, or periods.
+        if (!is_valid_anchor(anchor_view)) {
+          throw sourcemeta::core::SchemaKeywordError("$id", id_view,
+                                                     "Invalid anchor value");
+        }
+
+        result.emplace_back(anchor_view, AnchorType::Static);
       }
     }
   }
@@ -117,8 +191,16 @@ auto find_anchors(const sourcemeta::core::JSON &schema,
     if (id_value) {
       assert(id_value->is_string());
       const std::string_view id_view{id_value->to_string()};
-      if (id_view.starts_with('#')) {
-        // The original string is "#fragment", skip the '#'
+      // A bare "#" carries no anchor name, so we treat it as no anchor at
+      // all.
+      if (id_view.starts_with('#') && id_view.size() > 1) {
+        // Draft 4 imposes no plain-name pattern on the fragment, but the
+        // value must still be a valid URI reference per RFC 3986
+        if (!sourcemeta::core::URI::is_uri_reference(id_view)) {
+          throw sourcemeta::core::SchemaKeywordError(
+              "id", id_view, "The identifier is not a valid URI");
+        }
+
         result.emplace_back(id_view.substr(1), AnchorType::Static);
       }
     }
@@ -597,6 +679,11 @@ auto SchemaFrame::analyse(const JSON &root, const SchemaWalker &walker,
 
             const auto maybe_fragment{maybe_relative.fragment()};
 
+            // Both 2019-09 and 2020-12 state:
+            //
+            //   "$id" MUST NOT contain a non-empty fragment, and SHOULD NOT
+            //   contain an empty fragment.
+            //
             // See
             // https://json-schema.org/draft/2019-09/draft-handrews-json-schema-02#rfc.section.8.2.2
             // See

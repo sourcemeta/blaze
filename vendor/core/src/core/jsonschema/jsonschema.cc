@@ -156,7 +156,7 @@ auto sourcemeta::core::identify(const JSON &schema,
   }
 
   const auto &identifier{schema.at(keyword)};
-  if (!identifier.is_string() || identifier.empty()) {
+  if (!identifier.is_string()) {
     std::ostringstream value;
     sourcemeta::core::stringify(identifier, value);
     throw sourcemeta::core::SchemaKeywordError(
@@ -177,6 +177,19 @@ auto sourcemeta::core::identify(const JSON &schema,
        base_dialect == SchemaBaseDialect::JSON_Schema_Draft_4_Hyper ||
        base_dialect == SchemaBaseDialect::JSON_Schema_Draft_3 ||
        base_dialect == SchemaBaseDialect::JSON_Schema_Draft_3_Hyper)) {
+    return default_id;
+  }
+
+  // An empty string identifier and an identifier consisting solely of the
+  // empty-fragment marker "#" are both valid URI-references that resolve to
+  // the parent base, carrying no information. We treat them as if no
+  // identifier was declared at all (i.e. no new schema resource is
+  // introduced).
+  // See
+  // https://json-schema.org/draft/2019-09/draft-handrews-json-schema-02#rfc.section.8.2.2
+  // See
+  // https://json-schema.org/draft/2020-12/draft-bhutton-json-schema-01#section-8.2.1-5
+  if (identifier.to_string().empty() || identifier.to_string() == "#") {
     return default_id;
   }
 
