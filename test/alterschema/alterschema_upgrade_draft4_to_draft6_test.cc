@@ -618,3 +618,268 @@ TEST(AlterSchema_upgrade_Draft4_to_Draft6, embedded_draft_4_resource_upgraded) {
 
   UPGRADE_DRAFT_6(document, expected);
 }
+
+TEST(AlterSchema_upgrade_Draft4_to_Draft6,
+     id_fragment_only_leading_digit_sanitized) {
+  auto document = sourcemeta::core::parse_json(R"JSON({
+    "$schema": "http://json-schema.org/draft-04/schema#",
+    "definitions": {
+      "foo": { "id": "#1foo" }
+    }
+  })JSON");
+
+  const auto expected = sourcemeta::core::parse_json(R"JSON({
+    "$schema": "http://json-schema.org/draft-06/schema#",
+    "definitions": {
+      "foo": { "$id": "#x-1foo" }
+    }
+  })JSON");
+
+  UPGRADE_DRAFT_6(document, expected);
+}
+
+TEST(AlterSchema_upgrade_Draft4_to_Draft6,
+     id_fragment_only_leading_underscore_sanitized) {
+  auto document = sourcemeta::core::parse_json(R"JSON({
+    "$schema": "http://json-schema.org/draft-04/schema#",
+    "definitions": {
+      "foo": { "id": "#_foo" }
+    }
+  })JSON");
+
+  const auto expected = sourcemeta::core::parse_json(R"JSON({
+    "$schema": "http://json-schema.org/draft-06/schema#",
+    "definitions": {
+      "foo": { "$id": "#x-_foo" }
+    }
+  })JSON");
+
+  UPGRADE_DRAFT_6(document, expected);
+}
+
+TEST(AlterSchema_upgrade_Draft4_to_Draft6, id_fragment_only_slash_sanitized) {
+  auto document = sourcemeta::core::parse_json(R"JSON({
+    "$schema": "http://json-schema.org/draft-04/schema#",
+    "definitions": {
+      "foo": { "id": "#with/slash" }
+    }
+  })JSON");
+
+  const auto expected = sourcemeta::core::parse_json(R"JSON({
+    "$schema": "http://json-schema.org/draft-06/schema#",
+    "definitions": {
+      "foo": { "$id": "#with-slash" }
+    }
+  })JSON");
+
+  UPGRADE_DRAFT_6(document, expected);
+}
+
+TEST(AlterSchema_upgrade_Draft4_to_Draft6,
+     id_fragment_only_punctuation_sanitized) {
+  auto document = sourcemeta::core::parse_json(R"JSON({
+    "$schema": "http://json-schema.org/draft-04/schema#",
+    "definitions": {
+      "foo": { "id": "#foo!bar" }
+    }
+  })JSON");
+
+  const auto expected = sourcemeta::core::parse_json(R"JSON({
+    "$schema": "http://json-schema.org/draft-06/schema#",
+    "definitions": {
+      "foo": { "$id": "#foo-bar" }
+    }
+  })JSON");
+
+  UPGRADE_DRAFT_6(document, expected);
+}
+
+TEST(AlterSchema_upgrade_Draft4_to_Draft6,
+     id_fragment_only_local_ref_rewritten) {
+  auto document = sourcemeta::core::parse_json(R"JSON({
+    "$schema": "http://json-schema.org/draft-04/schema#",
+    "definitions": {
+      "foo": { "id": "#1foo" }
+    },
+    "properties": {
+      "p": { "$ref": "#1foo" }
+    }
+  })JSON");
+
+  const auto expected = sourcemeta::core::parse_json(R"JSON({
+    "$schema": "http://json-schema.org/draft-06/schema#",
+    "definitions": {
+      "foo": { "$id": "#x-1foo" }
+    },
+    "properties": {
+      "p": { "$ref": "#x-1foo" }
+    }
+  })JSON");
+
+  UPGRADE_DRAFT_6(document, expected);
+}
+
+TEST(AlterSchema_upgrade_Draft4_to_Draft6,
+     id_fragment_only_absolute_ref_rewritten) {
+  auto document = sourcemeta::core::parse_json(R"JSON({
+    "id": "https://example.com/schema",
+    "$schema": "http://json-schema.org/draft-04/schema#",
+    "definitions": {
+      "foo": { "id": "#1foo" }
+    },
+    "properties": {
+      "p": { "$ref": "https://example.com/schema#1foo" }
+    }
+  })JSON");
+
+  const auto expected = sourcemeta::core::parse_json(R"JSON({
+    "$id": "https://example.com/schema",
+    "$schema": "http://json-schema.org/draft-06/schema#",
+    "definitions": {
+      "foo": { "$id": "#x-1foo" }
+    },
+    "properties": {
+      "p": { "$ref": "https://example.com/schema#x-1foo" }
+    }
+  })JSON");
+
+  UPGRADE_DRAFT_6(document, expected);
+}
+
+TEST(AlterSchema_upgrade_Draft4_to_Draft6, cross_resource_anchor_isolation) {
+  auto document = sourcemeta::core::parse_json(R"JSON({
+    "id": "https://outer.example.com/schema",
+    "$schema": "http://json-schema.org/draft-04/schema#",
+    "definitions": {
+      "outer": { "id": "#1outer" },
+      "inner": {
+        "id": "https://inner.example.com/schema",
+        "definitions": {
+          "x": { "id": "#1inner" }
+        }
+      }
+    }
+  })JSON");
+
+  const auto expected = sourcemeta::core::parse_json(R"JSON({
+    "$id": "https://outer.example.com/schema",
+    "$schema": "http://json-schema.org/draft-06/schema#",
+    "definitions": {
+      "outer": { "$id": "#x-1outer" },
+      "inner": {
+        "$id": "https://inner.example.com/schema",
+        "definitions": {
+          "x": { "$id": "#x-1inner" }
+        }
+      }
+    }
+  })JSON");
+
+  UPGRADE_DRAFT_6(document, expected);
+}
+
+TEST(AlterSchema_upgrade_Draft4_to_Draft6, anchor_collision_iterates_x_prefix) {
+  auto document = sourcemeta::core::parse_json(R"JSON({
+    "$schema": "http://json-schema.org/draft-04/schema#",
+    "definitions": {
+      "first": { "id": "#1foo" },
+      "second": { "id": "#x-1foo" }
+    }
+  })JSON");
+
+  const auto expected = sourcemeta::core::parse_json(R"JSON({
+    "$schema": "http://json-schema.org/draft-06/schema#",
+    "definitions": {
+      "first": { "$id": "#x-x-1foo" },
+      "second": { "$id": "#x-1foo" }
+    }
+  })JSON");
+
+  UPGRADE_DRAFT_6(document, expected);
+}
+
+TEST(AlterSchema_upgrade_Draft4_to_Draft6,
+     anonymous_root_with_descendant_violation_sanitized) {
+  auto document = sourcemeta::core::parse_json(R"JSON({
+    "$schema": "http://json-schema.org/draft-04/schema#",
+    "definitions": {
+      "foo": { "id": "#1bad" }
+    },
+    "properties": {
+      "p": { "$ref": "#1bad" }
+    }
+  })JSON");
+
+  const auto expected = sourcemeta::core::parse_json(R"JSON({
+    "$schema": "http://json-schema.org/draft-06/schema#",
+    "definitions": {
+      "foo": { "$id": "#x-1bad" }
+    },
+    "properties": {
+      "p": { "$ref": "#x-1bad" }
+    }
+  })JSON");
+
+  UPGRADE_DRAFT_6(document, expected);
+}
+
+TEST(AlterSchema_upgrade_Draft4_to_Draft6, valid_x_dash_anchor_unchanged) {
+  auto document = sourcemeta::core::parse_json(R"JSON({
+    "$schema": "http://json-schema.org/draft-04/schema#",
+    "definitions": {
+      "foo": { "id": "#x-foo" }
+    }
+  })JSON");
+
+  const auto expected = sourcemeta::core::parse_json(R"JSON({
+    "$schema": "http://json-schema.org/draft-06/schema#",
+    "definitions": {
+      "foo": { "$id": "#x-foo" }
+    }
+  })JSON");
+
+  UPGRADE_DRAFT_6(document, expected);
+}
+
+TEST(AlterSchema_upgrade_Draft4_to_Draft6,
+     json_pointer_ref_unaffected_by_sanitization) {
+  auto document = sourcemeta::core::parse_json(R"JSON({
+    "$schema": "http://json-schema.org/draft-04/schema#",
+    "definitions": {
+      "foo": { "id": "#1bad" }
+    },
+    "properties": {
+      "p": { "$ref": "#/definitions/foo" }
+    }
+  })JSON");
+
+  const auto expected = sourcemeta::core::parse_json(R"JSON({
+    "$schema": "http://json-schema.org/draft-06/schema#",
+    "definitions": {
+      "foo": { "$id": "#x-1bad" }
+    },
+    "properties": {
+      "p": { "$ref": "#/definitions/foo" }
+    }
+  })JSON");
+
+  UPGRADE_DRAFT_6(document, expected);
+}
+
+TEST(AlterSchema_upgrade_Draft4_to_Draft6, bare_hash_id_unchanged) {
+  auto document = sourcemeta::core::parse_json(R"JSON({
+    "$schema": "http://json-schema.org/draft-04/schema#",
+    "definitions": {
+      "foo": { "id": "#" }
+    }
+  })JSON");
+
+  const auto expected = sourcemeta::core::parse_json(R"JSON({
+    "$schema": "http://json-schema.org/draft-06/schema#",
+    "definitions": {
+      "foo": { "$id": "#" }
+    }
+  })JSON");
+
+  UPGRADE_DRAFT_6(document, expected);
+}
