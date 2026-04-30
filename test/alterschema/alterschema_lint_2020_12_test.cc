@@ -11764,3 +11764,120 @@ TEST(AlterSchema_lint_2020_12,
                                    const auto &, const auto &) {})),
                sourcemeta::core::SchemaVocabularyError);
 }
+
+TEST(AlterSchema_lint_2020_12, portable_anchor_names_valid) {
+  const sourcemeta::core::JSON document = sourcemeta::core::parse_json(R"JSON({
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "title": "Test",
+    "description": "A test schema",
+    "examples": [ {} ],
+    "$anchor": "foo",
+    "$dynamicAnchor": "Bar.baz-qux"
+  })JSON");
+
+  LINT_WITHOUT_FIX(document, result, traces);
+
+  EXPECT_TRUE(result.first);
+  EXPECT_EQ(traces.size(), 0);
+}
+
+TEST(AlterSchema_lint_2020_12,
+     portable_anchor_names_anchor_leading_underscore) {
+  const sourcemeta::core::JSON document = sourcemeta::core::parse_json(R"JSON({
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "title": "Test",
+    "description": "A test schema",
+    "examples": [ {} ],
+    "$anchor": "_foo"
+  })JSON");
+
+  LINT_WITHOUT_FIX(document, result, traces);
+
+  EXPECT_FALSE(result.first);
+  EXPECT_EQ(traces.size(), 1);
+  EXPECT_LINT_TRACE(
+      traces, 0, "", "portable_anchor_names",
+      "Keep anchors within the safe allowed character set across JSON "
+      "Schema dialects (`^[A-Za-z][A-Za-z0-9_.-]*$`)",
+      false);
+}
+
+TEST(AlterSchema_lint_2020_12,
+     portable_anchor_names_dynamic_anchor_leading_underscore) {
+  const sourcemeta::core::JSON document = sourcemeta::core::parse_json(R"JSON({
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "title": "Test",
+    "description": "A test schema",
+    "examples": [ {} ],
+    "$dynamicAnchor": "_foo"
+  })JSON");
+
+  LINT_WITHOUT_FIX(document, result, traces);
+
+  EXPECT_FALSE(result.first);
+  EXPECT_EQ(traces.size(), 1);
+  EXPECT_LINT_TRACE(
+      traces, 0, "", "portable_anchor_names",
+      "Keep anchors within the safe allowed character set across JSON "
+      "Schema dialects (`^[A-Za-z][A-Za-z0-9_.-]*$`)",
+      false);
+}
+
+TEST(AlterSchema_lint_2020_12,
+     portable_anchor_names_anchor_and_dynamic_anchor) {
+  const sourcemeta::core::JSON document = sourcemeta::core::parse_json(R"JSON({
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "title": "Test",
+    "description": "A test schema",
+    "examples": [ {} ],
+    "$anchor": "_foo",
+    "$dynamicAnchor": "_bar"
+  })JSON");
+
+  LINT_WITHOUT_FIX(document, result, traces);
+
+  EXPECT_FALSE(result.first);
+  EXPECT_EQ(traces.size(), 1);
+  EXPECT_LINT_TRACE(
+      traces, 0, "", "portable_anchor_names",
+      "Keep anchors within the safe allowed character set across JSON "
+      "Schema dialects (`^[A-Za-z][A-Za-z0-9_.-]*$`)",
+      false);
+}
+
+TEST(AlterSchema_lint_2020_12, portable_anchor_names_nested) {
+  const sourcemeta::core::JSON document = sourcemeta::core::parse_json(R"JSON({
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "title": "Test",
+    "description": "A test schema",
+    "examples": [ {} ],
+    "properties": {
+      "foo": { "$anchor": "_inner" }
+    }
+  })JSON");
+
+  LINT_WITHOUT_FIX(document, result, traces);
+
+  EXPECT_FALSE(result.first);
+  EXPECT_EQ(traces.size(), 1);
+  EXPECT_LINT_TRACE(
+      traces, 0, "/properties/foo", "portable_anchor_names",
+      "Keep anchors within the safe allowed character set across JSON "
+      "Schema dialects (`^[A-Za-z][A-Za-z0-9_.-]*$`)",
+      false);
+}
+
+TEST(AlterSchema_lint_2020_12, portable_anchor_names_id_no_fragment_skipped) {
+  const sourcemeta::core::JSON document = sourcemeta::core::parse_json(R"JSON({
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "$id": "https://example.com/my-schema",
+    "title": "Test",
+    "description": "A test schema",
+    "examples": [ {} ]
+  })JSON");
+
+  LINT_WITHOUT_FIX(document, result, traces);
+
+  EXPECT_TRUE(result.first);
+  EXPECT_EQ(traces.size(), 0);
+}
