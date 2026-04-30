@@ -359,3 +359,47 @@ TEST(AlterSchema_upgrade_Draft4_to_2019_09,
 
   UPGRADE_DRAFT_2019_09(document, expected);
 }
+
+TEST(AlterSchema_upgrade_Draft4_to_2019_09,
+     id_fragment_only_leading_digit_becomes_anchor) {
+  auto document = sourcemeta::core::parse_json(R"JSON({
+    "$schema": "http://json-schema.org/draft-04/schema#",
+    "definitions": {
+      "foo": { "id": "#1foo" }
+    }
+  })JSON");
+
+  const auto expected = sourcemeta::core::parse_json(R"JSON({
+    "$schema": "https://json-schema.org/draft/2019-09/schema",
+    "$defs": {
+      "foo": { "$anchor": "x-1foo" }
+    }
+  })JSON");
+
+  UPGRADE_DRAFT_2019_09(document, expected);
+}
+
+TEST(AlterSchema_upgrade_Draft4_to_2019_09,
+     id_fragment_only_with_local_ref_chain) {
+  auto document = sourcemeta::core::parse_json(R"JSON({
+    "$schema": "http://json-schema.org/draft-04/schema#",
+    "definitions": {
+      "foo": { "id": "#with/slash" }
+    },
+    "properties": {
+      "p": { "$ref": "#with/slash" }
+    }
+  })JSON");
+
+  const auto expected = sourcemeta::core::parse_json(R"JSON({
+    "$schema": "https://json-schema.org/draft/2019-09/schema",
+    "$defs": {
+      "foo": { "$anchor": "with-slash" }
+    },
+    "properties": {
+      "p": { "$ref": "#with-slash" }
+    }
+  })JSON");
+
+  UPGRADE_DRAFT_2019_09(document, expected);
+}
