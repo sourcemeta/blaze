@@ -148,8 +148,8 @@ TEST(AlterSchema_upgrade_Draft4_to_Draft6,
     "$schema": "http://json-schema.org/draft-06/schema#",
     "type": "string",
     "x-x-x-const": "original-custom",
-    "x-x-const": "double-prefixed",
-    "x-const": "already-prefixed"
+    "x-const": "already-prefixed",
+    "x-x-const": "double-prefixed"
   })JSON");
 
   UPGRADE_DRAFT_6(document, expected);
