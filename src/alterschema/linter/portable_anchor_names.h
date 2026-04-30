@@ -58,11 +58,8 @@ private:
       "$dynamicAnchor"};
   static inline const sourcemeta::core::JSON::String ID_MODERN{"$id"};
   static inline const sourcemeta::core::JSON::String ID_DRAFT_4{"id"};
-
-  static auto safe_anchor_pattern() -> const Regex & {
-    static const Regex pattern{to_regex("^[A-Za-z][A-Za-z0-9_.-]*$").value()};
-    return pattern;
-  }
+  static inline const Regex SAFE_ANCHOR_PATTERN{
+      to_regex("^[A-Za-z][A-Za-z0-9_.-]*$").value()};
 
   static auto
   check_anchor_keyword(const sourcemeta::core::JSON &schema,
@@ -79,7 +76,7 @@ private:
       return;
     }
 
-    if (!matches(safe_anchor_pattern(),
+    if (!matches(SAFE_ANCHOR_PATTERN,
                  sourcemeta::core::JSON::String{fragment.value()})) {
       offenders.push_back(Pointer{keyword});
     }
@@ -103,7 +100,7 @@ private:
       return;
     }
 
-    if (!matches(safe_anchor_pattern(),
+    if (!matches(SAFE_ANCHOR_PATTERN,
                  sourcemeta::core::JSON::String{fragment.value()})) {
       offenders.push_back(Pointer{keyword});
     }
