@@ -1,9 +1,9 @@
-class PrefixPromotedDraft7Keywords final : public SchemaTransformRule {
+class PrefixPromoted201909Keywords final : public SchemaTransformRule {
 public:
   using mutates = std::true_type;
   using reframe_after_transform = std::true_type;
-  PrefixPromotedDraft7Keywords()
-      : SchemaTransformRule{"prefix_promoted_draft_7_keywords", ""} {};
+  PrefixPromoted201909Keywords()
+      : SchemaTransformRule{"prefix_promoted_2019_09_keywords", ""} {};
 
   [[nodiscard]] auto
   condition(const sourcemeta::core::JSON &schema,
@@ -15,7 +15,7 @@ public:
             const sourcemeta::core::SchemaResolver &) const
       -> SchemaTransformRule::Result override {
     ONLY_CONTINUE_IF(
-        vocabularies.contains(Vocabularies::Known::JSON_Schema_Draft_6) &&
+        vocabularies.contains(Vocabularies::Known::JSON_Schema_Draft_7) &&
         schema.is_object());
 
     for (const auto &keyword : KEYWORDS) {
@@ -64,9 +64,11 @@ public:
   }
 
 private:
-  static inline const std::array<std::string_view, 8> KEYWORDS{
-      {"$comment", "if", "then", "else", "readOnly", "writeOnly",
-       "contentMediaType", "contentEncoding"}};
+  static inline const std::array<std::string_view, 13> KEYWORDS{
+      {"$anchor", "$recursiveAnchor", "$recursiveRef", "$vocabulary", "$defs",
+       "dependentSchemas", "dependentRequired", "unevaluatedItems",
+       "unevaluatedProperties", "maxContains", "minContains", "contentSchema",
+       "deprecated"}};
 
   mutable std::unordered_map<std::string, std::string> renames_;
 };
