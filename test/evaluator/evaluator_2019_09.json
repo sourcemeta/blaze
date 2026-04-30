@@ -4875,5 +4875,141 @@
         "The integer value was not expected to validate against the empty enumeration"
       ]
     }
+  },
+  {
+    "description": "id_empty_string_top_level",
+    "schema": {
+      "$schema": "https://json-schema.org/draft/2019-09/schema",
+      "$id": "",
+      "type": "string"
+    },
+    "instance": "foo bar",
+    "valid": true,
+    "fast": {
+      "pre": [
+        [ "AssertionTypeStrict", "/type", "#/type", "" ]
+      ],
+      "post": [
+        [ true, "AssertionTypeStrict", "/type", "#/type", "" ]
+      ],
+      "descriptions": [
+        "The value was expected to be of type string"
+      ]
+    },
+    "exhaustive": {
+      "pre": [
+        [ "AssertionTypeStrict", "/type", "#/type", "" ]
+      ],
+      "post": [
+        [ true, "AssertionTypeStrict", "/type", "#/type", "" ]
+      ],
+      "descriptions": [
+        "The value was expected to be of type string"
+      ]
+    }
+  },
+  {
+    "description": "id_hash_top_level",
+    "schema": {
+      "$schema": "https://json-schema.org/draft/2019-09/schema",
+      "$id": "#",
+      "type": "string"
+    },
+    "instance": "foo bar",
+    "valid": true,
+    "fast": {
+      "pre": [
+        [ "AssertionTypeStrict", "/type", "#/type", "" ]
+      ],
+      "post": [
+        [ true, "AssertionTypeStrict", "/type", "#/type", "" ]
+      ],
+      "descriptions": [
+        "The value was expected to be of type string"
+      ]
+    },
+    "exhaustive": {
+      "pre": [
+        [ "AssertionTypeStrict", "/type", "#/type", "" ]
+      ],
+      "post": [
+        [ true, "AssertionTypeStrict", "/type", "#/type", "" ]
+      ],
+      "descriptions": [
+        "The value was expected to be of type string"
+      ]
+    }
+  },
+  {
+    "description": "id_empty_string_nested",
+    "schema": {
+      "$schema": "https://json-schema.org/draft/2019-09/schema",
+      "$id": "https://www.example.com",
+      "$ref": "#/$defs/test",
+      "$defs": { "test": { "$id": "", "type": "string" } }
+    },
+    "instance": "foo bar",
+    "valid": true,
+    "fast": {
+      "pre": [
+        [ "AssertionTypeStrict", "/$ref/type", "https://www.example.com#/$defs/test/type", "" ]
+      ],
+      "post": [
+        [ true, "AssertionTypeStrict", "/$ref/type", "https://www.example.com#/$defs/test/type", "" ]
+      ],
+      "descriptions": [
+        "The value was expected to be of type string"
+      ]
+    },
+    "exhaustive": {
+      "pre": [
+        [ "ControlJump", "/$ref", "https://www.example.com#/$ref", "" ],
+        [ "AssertionTypeStrict", "/$ref/type", "https://www.example.com#/$defs/test/type", "" ]
+      ],
+      "post": [
+        [ true, "AssertionTypeStrict", "/$ref/type", "https://www.example.com#/$defs/test/type", "" ],
+        [ true, "ControlJump", "/$ref", "https://www.example.com#/$ref", "" ]
+      ],
+      "descriptions": [
+        "The value was expected to be of type string",
+        "The string value was expected to validate against the referenced schema"
+      ]
+    }
+  },
+  {
+    "description": "id_hash_nested",
+    "schema": {
+      "$schema": "https://json-schema.org/draft/2019-09/schema",
+      "$id": "https://www.example.com",
+      "$ref": "#/$defs/test",
+      "$defs": { "test": { "$id": "#", "type": "string" } }
+    },
+    "instance": "foo bar",
+    "valid": true,
+    "fast": {
+      "pre": [
+        [ "AssertionTypeStrict", "/$ref/type", "https://www.example.com#/$defs/test/type", "" ]
+      ],
+      "post": [
+        [ true, "AssertionTypeStrict", "/$ref/type", "https://www.example.com#/$defs/test/type", "" ]
+      ],
+      "descriptions": [
+        "The value was expected to be of type string"
+      ]
+    },
+    "exhaustive": {
+      "pre": [
+        [ "ControlJump", "/$ref", "https://www.example.com#/$ref", "" ],
+        [ "AssertionTypeStrict", "/$ref/type", "https://www.example.com#/$defs/test/type", "" ]
+      ],
+      "post": [
+        [ true, "AssertionTypeStrict", "/$ref/type", "https://www.example.com#/$defs/test/type", "" ],
+        [ true, "ControlJump", "/$ref", "https://www.example.com#/$ref", "" ]
+      ],
+      "descriptions": [
+        "The value was expected to be of type string",
+        "The string value was expected to validate against the referenced schema"
+      ]
+    }
   }
 ]
