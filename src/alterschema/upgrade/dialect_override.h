@@ -22,7 +22,8 @@ static auto drop_dialect_overrides(sourcemeta::core::JSON &schema,
     return;
   }
 
-  if (!is_root && schema.defines("$schema")) {
+  if (!is_root && schema.defines("$schema") &&
+      schema.at("$schema").is_string()) {
     return;
   }
 
