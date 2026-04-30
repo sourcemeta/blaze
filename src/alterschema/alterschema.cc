@@ -243,6 +243,7 @@ auto WALK_UP_IN_PLACE_APPLICATORS(const JSON &root, const SchemaFrame &frame,
 #include "linter/items_schema_default.h"
 #include "linter/multiple_of_default.h"
 #include "linter/pattern_properties_default.h"
+#include "linter/portable_anchor_names.h"
 #include "linter/properties_default.h"
 #include "linter/property_names_default.h"
 #include "linter/property_names_type_default.h"
@@ -435,6 +436,7 @@ auto add(SchemaTransformer &bundle, const AlterSchemaMode mode) -> void {
     bundle.add<CommentTrim>();
     bundle.add<DuplicateExamples>();
     bundle.add<SimplePropertiesIdentifiers>();
+    bundle.add<PortableAnchorNames>();
     bundle.add<InvalidExternalRef>();
     bundle.add<ValidDefault>();
     bundle.add<ValidExamples>();

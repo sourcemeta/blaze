@@ -5243,3 +5243,75 @@ TEST(AlterSchema_lint_2019_09, recursive_ref_stays_dynamic_with_anchor) {
 
   EXPECT_EQ(document, expected);
 }
+
+TEST(AlterSchema_lint_2019_09, portable_anchor_names_valid) {
+  const sourcemeta::core::JSON document = sourcemeta::core::parse_json(R"JSON({
+    "$schema": "https://json-schema.org/draft/2019-09/schema",
+    "title": "Test",
+    "description": "A test schema",
+    "examples": [ {} ],
+    "$anchor": "Foo.bar-baz"
+  })JSON");
+
+  LINT_WITHOUT_FIX(document, result, traces);
+
+  EXPECT_TRUE(result.first);
+  EXPECT_EQ(traces.size(), 0);
+}
+
+TEST(AlterSchema_lint_2019_09, portable_anchor_names_anchor_colon) {
+  const sourcemeta::core::JSON document = sourcemeta::core::parse_json(R"JSON({
+    "$schema": "https://json-schema.org/draft/2019-09/schema",
+    "title": "Test",
+    "description": "A test schema",
+    "examples": [ {} ],
+    "$anchor": "foo:bar"
+  })JSON");
+
+  LINT_WITHOUT_FIX(document, result, traces);
+
+  EXPECT_FALSE(result.first);
+  EXPECT_EQ(traces.size(), 1);
+  EXPECT_LINT_TRACE(
+      traces, 0, "", "portable_anchor_names",
+      "Keep anchors within the safe allowed character set across JSON "
+      "Schema dialects (`^[A-Za-z][A-Za-z0-9_.-]*$`)",
+      false);
+}
+
+TEST(AlterSchema_lint_2019_09, portable_anchor_names_nested) {
+  const sourcemeta::core::JSON document = sourcemeta::core::parse_json(R"JSON({
+    "$schema": "https://json-schema.org/draft/2019-09/schema",
+    "title": "Test",
+    "description": "A test schema",
+    "examples": [ {} ],
+    "properties": {
+      "foo": { "$anchor": "inner:bad" }
+    }
+  })JSON");
+
+  LINT_WITHOUT_FIX(document, result, traces);
+
+  EXPECT_FALSE(result.first);
+  EXPECT_EQ(traces.size(), 1);
+  EXPECT_LINT_TRACE(
+      traces, 0, "/properties/foo", "portable_anchor_names",
+      "Keep anchors within the safe allowed character set across JSON "
+      "Schema dialects (`^[A-Za-z][A-Za-z0-9_.-]*$`)",
+      false);
+}
+
+TEST(AlterSchema_lint_2019_09, portable_anchor_names_id_no_fragment_skipped) {
+  const sourcemeta::core::JSON document = sourcemeta::core::parse_json(R"JSON({
+    "$schema": "https://json-schema.org/draft/2019-09/schema",
+    "$id": "https://example.com/my-schema",
+    "title": "Test",
+    "description": "A test schema",
+    "examples": [ {} ]
+  })JSON");
+
+  LINT_WITHOUT_FIX(document, result, traces);
+
+  EXPECT_TRUE(result.first);
+  EXPECT_EQ(traces.size(), 0);
+}

@@ -4501,3 +4501,105 @@ TEST(AlterSchema_lint_draft7, valid_examples_throws_on_invalid_ref_target) {
                                    const auto &, const auto &) {})),
                sourcemeta::blaze::CompilerReferenceTargetNotSchemaError);
 }
+
+TEST(AlterSchema_lint_draft7, portable_anchor_names_valid) {
+  const sourcemeta::core::JSON document = sourcemeta::core::parse_json(R"JSON({
+    "$schema": "http://json-schema.org/draft-07/schema#",
+    "$id": "#Foo.bar-baz",
+    "title": "Test",
+    "description": "A test schema",
+    "examples": [ {} ]
+  })JSON");
+
+  LINT_WITHOUT_FIX(document, result, traces);
+
+  EXPECT_TRUE(result.first);
+  EXPECT_EQ(traces.size(), 0);
+}
+
+TEST(AlterSchema_lint_draft7, portable_anchor_names_id_fragment_colon) {
+  const sourcemeta::core::JSON document = sourcemeta::core::parse_json(R"JSON({
+    "$schema": "http://json-schema.org/draft-07/schema#",
+    "$id": "#foo:bar",
+    "title": "Test",
+    "description": "A test schema",
+    "examples": [ {} ]
+  })JSON");
+
+  LINT_WITHOUT_FIX(document, result, traces);
+
+  EXPECT_FALSE(result.first);
+  EXPECT_EQ(traces.size(), 1);
+  EXPECT_LINT_TRACE(
+      traces, 0, "", "portable_anchor_names",
+      "Keep anchors within the safe allowed character set across JSON "
+      "Schema dialects (`^[A-Za-z][A-Za-z0-9_.-]*$`)",
+      false);
+}
+
+TEST(AlterSchema_lint_draft7, portable_anchor_names_id_bare_hash_skipped) {
+  const sourcemeta::core::JSON document = sourcemeta::core::parse_json(R"JSON({
+    "$schema": "http://json-schema.org/draft-07/schema#",
+    "$id": "#",
+    "title": "Test",
+    "description": "A test schema",
+    "examples": [ {} ]
+  })JSON");
+
+  LINT_WITHOUT_FIX(document, result, traces);
+
+  EXPECT_TRUE(result.first);
+  EXPECT_EQ(traces.size(), 0);
+}
+
+TEST(AlterSchema_lint_draft7, portable_anchor_names_id_empty_string_skipped) {
+  const sourcemeta::core::JSON document = sourcemeta::core::parse_json(R"JSON({
+    "$schema": "http://json-schema.org/draft-07/schema#",
+    "$id": "",
+    "title": "Test",
+    "description": "A test schema",
+    "examples": [ {} ]
+  })JSON");
+
+  LINT_WITHOUT_FIX(document, result, traces);
+
+  EXPECT_TRUE(result.first);
+  EXPECT_EQ(traces.size(), 0);
+}
+
+TEST(AlterSchema_lint_draft7, portable_anchor_names_id_no_fragment_skipped) {
+  const sourcemeta::core::JSON document = sourcemeta::core::parse_json(R"JSON({
+    "$schema": "http://json-schema.org/draft-07/schema#",
+    "$id": "https://example.com/my-schema",
+    "title": "Test",
+    "description": "A test schema",
+    "examples": [ {} ]
+  })JSON");
+
+  LINT_WITHOUT_FIX(document, result, traces);
+
+  EXPECT_TRUE(result.first);
+  EXPECT_EQ(traces.size(), 0);
+}
+
+TEST(AlterSchema_lint_draft7, portable_anchor_names_nested) {
+  const sourcemeta::core::JSON document = sourcemeta::core::parse_json(R"JSON({
+    "$schema": "http://json-schema.org/draft-07/schema#",
+    "title": "Test",
+    "description": "A test schema",
+    "examples": [ {} ],
+    "properties": {
+      "foo": { "$id": "#inner:bad" }
+    }
+  })JSON");
+
+  LINT_WITHOUT_FIX(document, result, traces);
+
+  EXPECT_FALSE(result.first);
+  EXPECT_EQ(traces.size(), 1);
+  EXPECT_LINT_TRACE(
+      traces, 0, "/properties/foo", "portable_anchor_names",
+      "Keep anchors within the safe allowed character set across JSON "
+      "Schema dialects (`^[A-Za-z][A-Za-z0-9_.-]*$`)",
+      false);
+}
