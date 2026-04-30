@@ -34,6 +34,31 @@ TEST(AlterSchema_upgrade_Draft4_to_2019_09, trivial_root) {
 }
 
 TEST(AlterSchema_upgrade_Draft4_to_2019_09,
+     ref_through_dependencies_rewritten_through_chain) {
+  auto document = sourcemeta::core::parse_json(R"JSON({
+    "$schema": "http://json-schema.org/draft-04/schema#",
+    "dependencies": {
+      "foo": { "type": "string" }
+    },
+    "properties": {
+      "x": { "$ref": "#/dependencies/foo" }
+    }
+  })JSON");
+
+  const auto expected = sourcemeta::core::parse_json(R"JSON({
+    "$schema": "https://json-schema.org/draft/2019-09/schema",
+    "dependentSchemas": {
+      "foo": { "type": "string" }
+    },
+    "properties": {
+      "x": { "$ref": "#/dependentSchemas/foo" }
+    }
+  })JSON");
+
+  UPGRADE_DRAFT_2019_09(document, expected);
+}
+
+TEST(AlterSchema_upgrade_Draft4_to_2019_09,
      id_renamed_definitions_to_defs_dependencies_split) {
   auto document = sourcemeta::core::parse_json(R"JSON({
     "$schema": "http://json-schema.org/draft-04/schema#",

@@ -59,10 +59,9 @@ public:
                                  const sourcemeta::core::Pointer &target,
                                  const sourcemeta::core::Pointer &current) const
       -> sourcemeta::core::Pointer override {
-    for (const auto &[old_name, new_name] : this->renames_) {
-      const auto result{
-          target.rebase(current.concat(sourcemeta::core::Pointer{old_name}),
-                        current.concat(sourcemeta::core::Pointer{new_name}))};
+    for (const auto &[old_pointer, new_pointer] : this->renames_) {
+      const auto result{target.rebase(current.concat(old_pointer),
+                                      current.concat(new_pointer))};
       if (result != target) {
         return result;
       }
@@ -100,7 +99,9 @@ private:
   static inline const std::array<std::string_view, 4> PROMOTED_DRAFT_6_KEYWORDS{
       {"const", "contains", "propertyNames", "examples"}};
 
-  mutable std::unordered_map<std::string, std::string> renames_;
+  mutable std::vector<
+      std::pair<sourcemeta::core::Pointer, sourcemeta::core::Pointer>>
+      renames_;
 
   static auto is_shadow_exempt(const std::string_view keyword) -> bool {
     return std::ranges::any_of(
@@ -199,7 +200,8 @@ private:
         prefixed_name.insert(0, "x-");
       }
 
-      this->renames_.emplace(keyword, prefixed_name);
+      this->renames_.emplace_back(sourcemeta::core::Pointer{keyword},
+                                  sourcemeta::core::Pointer{prefixed_name});
       schema.rename(keyword, std::move(prefixed_name));
     }
   }
@@ -245,7 +247,7 @@ private:
     }
   }
 
-  static auto split_dependencies(sourcemeta::core::JSON &schema) -> void {
+  auto split_dependencies(sourcemeta::core::JSON &schema) const -> void {
     if (!has_actionable_dependencies(schema)) {
       return;
     }
@@ -267,6 +269,16 @@ private:
     }
 
     if (!dependent_required.empty() && !dependent_schemas.empty()) {
+      for (const auto &entry : dependent_schemas.as_object()) {
+        this->renames_.emplace_back(
+            sourcemeta::core::Pointer{"dependencies", entry.first},
+            sourcemeta::core::Pointer{"dependentSchemas", entry.first});
+      }
+      for (const auto &entry : dependent_required.as_object()) {
+        this->renames_.emplace_back(
+            sourcemeta::core::Pointer{"dependencies", entry.first},
+            sourcemeta::core::Pointer{"dependentRequired", entry.first});
+      }
       schema.try_assign_before("dependentSchemas", dependent_schemas,
                                "dependencies");
       schema.rename("dependencies", "dependentRequired");
@@ -275,11 +287,16 @@ private:
     }
 
     if (!dependent_schemas.empty()) {
+      this->renames_.emplace_back(
+          sourcemeta::core::Pointer{"dependencies"},
+          sourcemeta::core::Pointer{"dependentSchemas"});
       schema.rename("dependencies", "dependentSchemas");
       schema.at("dependentSchemas").into(std::move(dependent_schemas));
       return;
     }
 
+    this->renames_.emplace_back(sourcemeta::core::Pointer{"dependencies"},
+                                sourcemeta::core::Pointer{"dependentRequired"});
     schema.rename("dependencies", "dependentRequired");
     schema.at("dependentRequired").into(std::move(dependent_required));
   }
