@@ -2,8 +2,10 @@
 #define SOURCEMETA_BLAZE_ALTERSCHEMA_TEST_UTILS_H_
 
 #include <sourcemeta/blaze/alterschema.h>
+#include <sourcemeta/core/json.h>
 #include <sourcemeta/core/jsonschema.h>
 
+#include <sstream>
 #include <tuple>
 #include <vector>
 
@@ -118,6 +120,16 @@ static auto alterschema_test_resolver(std::string_view identifier)
     EXPECT_TRUE(_evaluator.validate(compiled_template, document));             \
   }
 
+#define EXPECT_JSON_EQ_WITH_ORDERING(actual, expected)                         \
+  {                                                                            \
+    EXPECT_EQ(actual, expected);                                               \
+    std::ostringstream _actual_stream;                                         \
+    std::ostringstream _expected_stream;                                       \
+    sourcemeta::core::prettify(actual, _actual_stream);                        \
+    sourcemeta::core::prettify(expected, _expected_stream);                    \
+    EXPECT_EQ(_actual_stream.str(), _expected_stream.str());                   \
+  }
+
 #define UPGRADE_DRAFT_6(document, expected)                                    \
   {                                                                            \
     sourcemeta::blaze::SchemaTransformer _bundle;                              \
@@ -128,7 +140,7 @@ static auto alterschema_test_resolver(std::string_view identifier)
         [](const auto &, const auto &, const auto &, const auto &,             \
            const auto &) {});                                                  \
     EXPECT_TRUE(_result.first);                                                \
-    EXPECT_EQ(document, expected);                                             \
+    EXPECT_JSON_EQ_WITH_ORDERING(document, expected);                          \
   }
 
 #define UPGRADE_DRAFT_7(document, expected)                                    \
@@ -141,7 +153,7 @@ static auto alterschema_test_resolver(std::string_view identifier)
         [](const auto &, const auto &, const auto &, const auto &,             \
            const auto &) {});                                                  \
     EXPECT_TRUE(_result.first);                                                \
-    EXPECT_EQ(document, expected);                                             \
+    EXPECT_JSON_EQ_WITH_ORDERING(document, expected);                          \
   }
 
 #define UPGRADE_DRAFT_2019_09(document, expected)                              \
@@ -154,7 +166,7 @@ static auto alterschema_test_resolver(std::string_view identifier)
         [](const auto &, const auto &, const auto &, const auto &,             \
            const auto &) {});                                                  \
     EXPECT_TRUE(_result.first);                                                \
-    EXPECT_EQ(document, expected);                                             \
+    EXPECT_JSON_EQ_WITH_ORDERING(document, expected);                          \
   }
 
 #endif

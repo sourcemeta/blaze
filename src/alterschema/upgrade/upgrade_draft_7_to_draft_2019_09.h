@@ -261,15 +261,27 @@ private:
       }
     }
 
-    schema.erase("dependencies");
+    if (dependent_required.empty() && dependent_schemas.empty()) {
+      schema.erase("dependencies");
+      return;
+    }
 
-    if (!dependent_required.empty()) {
-      schema.assign("dependentRequired", std::move(dependent_required));
+    if (!dependent_required.empty() && !dependent_schemas.empty()) {
+      schema.try_assign_before("dependentSchemas", dependent_schemas,
+                               "dependencies");
+      schema.rename("dependencies", "dependentRequired");
+      schema.at("dependentRequired").into(std::move(dependent_required));
+      return;
     }
 
     if (!dependent_schemas.empty()) {
-      schema.assign("dependentSchemas", std::move(dependent_schemas));
+      schema.rename("dependencies", "dependentSchemas");
+      schema.at("dependentSchemas").into(std::move(dependent_schemas));
+      return;
     }
+
+    schema.rename("dependencies", "dependentRequired");
+    schema.at("dependentRequired").into(std::move(dependent_required));
   }
 
   static auto bump_schema(sourcemeta::core::JSON &schema) -> void {
