@@ -140,8 +140,9 @@ public:
           this->renames_.emplace_back(
               sourcemeta::core::Pointer{"contains"},
               sourcemeta::core::Pointer{
-                  "allOf", static_cast<sourcemeta::core::Pointer::Token::Index>(
-                               allof_index),
+                  "allOf",
+                  static_cast<sourcemeta::core::Pointer::Token::Index>(
+                      allof_index),
                   "not", "not", "contains"});
         } else {
           auto allof_array{sourcemeta::core::JSON::make_array()};
