@@ -213,18 +213,10 @@ private:
   static auto sanitize_anchor_name(const std::string_view original,
                                    const std::set<std::string> &existing_names)
       -> std::string {
-    std::string sanitized;
-    sanitized.reserve(original.size());
-    for (const char character : original) {
-      sanitized.push_back(is_strict_plain_name_body_char(character) ? character
-                                                                    : '-');
-    }
-    while (sanitized.empty() ||
-           !is_strict_plain_name_first_char(sanitized.front()) ||
-           existing_names.contains(sanitized)) {
-      sanitized.insert(0, "x-");
-    }
-    return sanitized;
+    static const AnchorCharPolicy POLICY{
+        .is_valid_first = &is_strict_plain_name_first_char,
+        .is_valid_body = &is_strict_plain_name_body_char};
+    return sanitize_anchor_with_policy(original, existing_names, POLICY);
   }
 
   static auto extract_id_fragment(const sourcemeta::core::JSON &id_value)
