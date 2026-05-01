@@ -124,15 +124,18 @@ public:
       auto inner_not{sourcemeta::core::JSON::make_object()};
       inner_not.assign("not", std::move(wrapper_inner));
 
-      auto outer_not{sourcemeta::core::JSON::make_object()};
-      outer_not.assign("not", std::move(inner_not));
-
-      if (schema.defines("allOf") && schema.at("allOf").is_array()) {
-        schema.at("allOf").push_back(std::move(outer_not));
+      if (!schema.defines("not")) {
+        schema.assign("not", std::move(inner_not));
       } else {
-        auto allof_array{sourcemeta::core::JSON::make_array()};
-        allof_array.push_back(std::move(outer_not));
-        schema.assign("allOf", std::move(allof_array));
+        auto outer_not{sourcemeta::core::JSON::make_object()};
+        outer_not.assign("not", std::move(inner_not));
+        if (schema.defines("allOf") && schema.at("allOf").is_array()) {
+          schema.at("allOf").push_back(std::move(outer_not));
+        } else {
+          auto allof_array{sourcemeta::core::JSON::make_array()};
+          allof_array.push_back(std::move(outer_not));
+          schema.assign("allOf", std::move(allof_array));
+        }
       }
     }
 

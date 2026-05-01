@@ -399,7 +399,8 @@ TEST(AlterSchema_upgrade_2019_09_to_2020_12,
   UPGRADE_2020_12(document, expected);
 }
 
-TEST(AlterSchema_upgrade_2019_09_to_2020_12, contains_wrapped_into_allof) {
+TEST(AlterSchema_upgrade_2019_09_to_2020_12,
+     contains_wrapped_into_top_level_not) {
   auto document = sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2019-09/schema",
     "type": "array",
@@ -411,7 +412,7 @@ TEST(AlterSchema_upgrade_2019_09_to_2020_12, contains_wrapped_into_allof) {
     "$schema": "https://json-schema.org/draft/2020-12/schema",
     "type": "array",
     "unevaluatedItems": false,
-    "allOf": [ { "not": { "not": { "contains": { "type": "string" } } } } ]
+    "not": { "not": { "contains": { "type": "string" } } }
   })JSON");
 
   UPGRADE_2020_12(document, expected);
@@ -432,8 +433,35 @@ TEST(AlterSchema_upgrade_2019_09_to_2020_12,
     "$schema": "https://json-schema.org/draft/2020-12/schema",
     "type": "array",
     "unevaluatedItems": false,
+    "not": {
+      "not": {
+        "contains": { "type": "string" },
+        "minContains": 2,
+        "maxContains": 5
+      }
+    }
+  })JSON");
+
+  UPGRADE_2020_12(document, expected);
+}
+
+TEST(AlterSchema_upgrade_2019_09_to_2020_12,
+     contains_with_existing_not_uses_allof) {
+  auto document = sourcemeta::core::parse_json(R"JSON({
+    "$schema": "https://json-schema.org/draft/2019-09/schema",
+    "type": "array",
+    "contains": { "type": "string" },
+    "unevaluatedItems": false,
+    "not": { "type": "null" }
+  })JSON");
+
+  const auto expected = sourcemeta::core::parse_json(R"JSON({
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "type": "array",
+    "unevaluatedItems": false,
+    "not": { "type": "null" },
     "allOf": [
-      { "not": { "not": { "contains": { "type": "string" }, "minContains": 2, "maxContains": 5 } } }
+      { "not": { "not": { "contains": { "type": "string" } } } }
     ]
   })JSON");
 
@@ -441,7 +469,7 @@ TEST(AlterSchema_upgrade_2019_09_to_2020_12,
 }
 
 TEST(AlterSchema_upgrade_2019_09_to_2020_12,
-     contains_appended_to_existing_allof) {
+     contains_with_existing_allof_but_no_not_uses_top_level_not) {
   auto document = sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2019-09/schema",
     "type": "array",
@@ -454,6 +482,29 @@ TEST(AlterSchema_upgrade_2019_09_to_2020_12,
     "$schema": "https://json-schema.org/draft/2020-12/schema",
     "type": "array",
     "unevaluatedItems": false,
+    "allOf": [ { "type": "array" } ],
+    "not": { "not": { "contains": { "type": "string" } } }
+  })JSON");
+
+  UPGRADE_2020_12(document, expected);
+}
+
+TEST(AlterSchema_upgrade_2019_09_to_2020_12,
+     contains_with_existing_not_and_allof_appends_to_allof) {
+  auto document = sourcemeta::core::parse_json(R"JSON({
+    "$schema": "https://json-schema.org/draft/2019-09/schema",
+    "type": "array",
+    "contains": { "type": "string" },
+    "unevaluatedItems": false,
+    "not": { "type": "null" },
+    "allOf": [ { "type": "array" } ]
+  })JSON");
+
+  const auto expected = sourcemeta::core::parse_json(R"JSON({
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "type": "array",
+    "unevaluatedItems": false,
+    "not": { "type": "null" },
     "allOf": [
       { "type": "array" },
       { "not": { "not": { "contains": { "type": "string" } } } }
@@ -478,8 +529,14 @@ TEST(AlterSchema_upgrade_2019_09_to_2020_12,
     "$schema": "https://json-schema.org/draft/2020-12/schema",
     "unevaluatedItems": false,
     "anyOf": [
-      { "type": "array", "allOf": [ { "not": { "not": { "contains": { "type": "string" } } } } ] },
-      { "type": "array", "allOf": [ { "not": { "not": { "contains": { "type": "integer" } } } } ] }
+      {
+        "type": "array",
+        "not": { "not": { "contains": { "type": "string" } } }
+      },
+      {
+        "type": "array",
+        "not": { "not": { "contains": { "type": "integer" } } }
+      }
     ]
   })JSON");
 
@@ -500,7 +557,7 @@ TEST(
     "$schema": "https://json-schema.org/draft/2020-12/schema",
     "type": "array",
     "unevaluatedItems": false,
-    "allOf": [ { "not": { "not": { "contains": { "type": "string" } } } } ]
+    "not": { "not": { "contains": { "type": "string" } } }
   })JSON");
 
   UPGRADE_2020_12(document, expected);
