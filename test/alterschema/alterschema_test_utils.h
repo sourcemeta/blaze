@@ -156,11 +156,24 @@ static auto alterschema_test_resolver(std::string_view identifier)
     EXPECT_JSON_EQ_WITH_ORDERING(document, expected);                          \
   }
 
-#define UPGRADE_DRAFT_2019_09(document, expected)                              \
+#define UPGRADE_2019_09(document, expected)                                    \
   {                                                                            \
     sourcemeta::blaze::SchemaTransformer _bundle;                              \
-    sourcemeta::blaze::add(                                                    \
-        _bundle, sourcemeta::blaze::AlterSchemaMode::UpgradeDraft201909);      \
+    sourcemeta::blaze::add(_bundle,                                            \
+                           sourcemeta::blaze::AlterSchemaMode::Upgrade201909); \
+    const auto _result = _bundle.apply(                                        \
+        document, sourcemeta::core::schema_walker, alterschema_test_resolver,  \
+        [](const auto &, const auto &, const auto &, const auto &,             \
+           const auto &) {});                                                  \
+    EXPECT_TRUE(_result.first);                                                \
+    EXPECT_JSON_EQ_WITH_ORDERING(document, expected);                          \
+  }
+
+#define UPGRADE_2020_12(document, expected)                                    \
+  {                                                                            \
+    sourcemeta::blaze::SchemaTransformer _bundle;                              \
+    sourcemeta::blaze::add(_bundle,                                            \
+                           sourcemeta::blaze::AlterSchemaMode::Upgrade202012); \
     const auto _result = _bundle.apply(                                        \
         document, sourcemeta::core::schema_walker, alterschema_test_resolver,  \
         [](const auto &, const auto &, const auto &, const auto &,             \

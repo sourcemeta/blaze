@@ -38,3 +38,24 @@ static auto drop_dialect_overrides(sourcemeta::core::JSON &schema,
     drop_dialect_overrides(schema.at(key), false);
   }
 }
+
+struct AnchorCharPolicy {
+  std::function<bool(char)> is_valid_first;
+  std::function<bool(char)> is_valid_body;
+};
+
+static auto sanitize_anchor_with_policy(const std::string_view original,
+                                        const std::set<std::string> &in_use,
+                                        const AnchorCharPolicy &policy)
+    -> std::string {
+  std::string sanitized;
+  sanitized.reserve(original.size());
+  for (const char character : original) {
+    sanitized.push_back(policy.is_valid_body(character) ? character : '-');
+  }
+  while (sanitized.empty() || !policy.is_valid_first(sanitized.front()) ||
+         in_use.contains(sanitized)) {
+    sanitized.insert(0, "x-");
+  }
+  return sanitized;
+}

@@ -10,13 +10,13 @@
 TEST(AlterSchema_upgrade_Draft7_to_2019_09, true_boolean_schema_unchanged) {
   auto document = sourcemeta::core::parse_json("true");
   const auto expected = sourcemeta::core::parse_json("true");
-  UPGRADE_DRAFT_2019_09(document, expected);
+  UPGRADE_2019_09(document, expected);
 }
 
 TEST(AlterSchema_upgrade_Draft7_to_2019_09, false_boolean_schema_unchanged) {
   auto document = sourcemeta::core::parse_json("false");
   const auto expected = sourcemeta::core::parse_json("false");
-  UPGRADE_DRAFT_2019_09(document, expected);
+  UPGRADE_2019_09(document, expected);
 }
 
 TEST(AlterSchema_upgrade_Draft7_to_2019_09, dollar_schema_bumped) {
@@ -28,7 +28,7 @@ TEST(AlterSchema_upgrade_Draft7_to_2019_09, dollar_schema_bumped) {
     "$schema": "https://json-schema.org/draft/2019-09/schema"
   })JSON");
 
-  UPGRADE_DRAFT_2019_09(document, expected);
+  UPGRADE_2019_09(document, expected);
 }
 
 TEST(AlterSchema_upgrade_Draft7_to_2019_09,
@@ -43,7 +43,7 @@ TEST(AlterSchema_upgrade_Draft7_to_2019_09,
     "type": "string"
   })JSON");
 
-  UPGRADE_DRAFT_2019_09(document, expected);
+  UPGRADE_2019_09(document, expected);
 }
 
 TEST(AlterSchema_upgrade_Draft7_to_2019_09,
@@ -58,7 +58,7 @@ TEST(AlterSchema_upgrade_Draft7_to_2019_09,
     "type": "string"
   })JSON");
 
-  UPGRADE_DRAFT_2019_09(document, expected);
+  UPGRADE_2019_09(document, expected);
 }
 
 TEST(AlterSchema_upgrade_Draft7_to_2019_09, trivial_root) {
@@ -72,7 +72,7 @@ TEST(AlterSchema_upgrade_Draft7_to_2019_09, trivial_root) {
     "type": "string"
   })JSON");
 
-  UPGRADE_DRAFT_2019_09(document, expected);
+  UPGRADE_2019_09(document, expected);
 }
 
 TEST(AlterSchema_upgrade_Draft7_to_2019_09, idempotent_after_first_pass) {
@@ -86,7 +86,7 @@ TEST(AlterSchema_upgrade_Draft7_to_2019_09, idempotent_after_first_pass) {
     "type": "string"
   })JSON");
 
-  UPGRADE_DRAFT_2019_09(document, expected);
+  UPGRADE_2019_09(document, expected);
 }
 
 TEST(AlterSchema_upgrade_Draft7_to_2019_09, already_2019_09_unchanged) {
@@ -104,7 +104,7 @@ TEST(AlterSchema_upgrade_Draft7_to_2019_09, already_2019_09_unchanged) {
     }
   })JSON");
 
-  UPGRADE_DRAFT_2019_09(document, expected);
+  UPGRADE_2019_09(document, expected);
 }
 
 TEST(AlterSchema_upgrade_Draft7_to_2019_09, already_2020_12_left_unchanged) {
@@ -118,7 +118,7 @@ TEST(AlterSchema_upgrade_Draft7_to_2019_09, already_2020_12_left_unchanged) {
     "type": "string"
   })JSON");
 
-  UPGRADE_DRAFT_2019_09(document, expected);
+  UPGRADE_2019_09(document, expected);
 }
 
 TEST(AlterSchema_upgrade_Draft7_to_2019_09, id_pure_fragment_becomes_anchor) {
@@ -132,7 +132,7 @@ TEST(AlterSchema_upgrade_Draft7_to_2019_09, id_pure_fragment_becomes_anchor) {
     "$anchor": "tag"
   })JSON");
 
-  UPGRADE_DRAFT_2019_09(document, expected);
+  UPGRADE_2019_09(document, expected);
 }
 
 TEST(AlterSchema_upgrade_Draft7_to_2019_09,
@@ -147,7 +147,7 @@ TEST(AlterSchema_upgrade_Draft7_to_2019_09,
     "$id": "https://example.com"
   })JSON");
 
-  UPGRADE_DRAFT_2019_09(document, expected);
+  UPGRADE_2019_09(document, expected);
 }
 
 TEST(AlterSchema_upgrade_Draft7_to_2019_09, id_uri_only_left_unchanged) {
@@ -161,7 +161,7 @@ TEST(AlterSchema_upgrade_Draft7_to_2019_09, id_uri_only_left_unchanged) {
     "$id": "https://example.com"
   })JSON");
 
-  UPGRADE_DRAFT_2019_09(document, expected);
+  UPGRADE_2019_09(document, expected);
 }
 
 TEST(AlterSchema_upgrade_Draft7_to_2019_09,
@@ -186,7 +186,7 @@ TEST(AlterSchema_upgrade_Draft7_to_2019_09,
     }
   })JSON");
 
-  UPGRADE_DRAFT_2019_09(document, expected);
+  UPGRADE_2019_09(document, expected);
 }
 
 TEST(AlterSchema_upgrade_Draft7_to_2019_09,
@@ -217,7 +217,7 @@ TEST(AlterSchema_upgrade_Draft7_to_2019_09,
     }
   })JSON");
 
-  UPGRADE_DRAFT_2019_09(document, expected);
+  UPGRADE_2019_09(document, expected);
 }
 
 TEST(AlterSchema_upgrade_Draft7_to_2019_09,
@@ -232,7 +232,7 @@ TEST(AlterSchema_upgrade_Draft7_to_2019_09,
     "$defs": {}
   })JSON");
 
-  UPGRADE_DRAFT_2019_09(document, expected);
+  UPGRADE_2019_09(document, expected);
 }
 
 TEST(AlterSchema_upgrade_Draft7_to_2019_09, dependencies_split_mixed) {
@@ -258,7 +258,7 @@ TEST(AlterSchema_upgrade_Draft7_to_2019_09, dependencies_split_mixed) {
     }
   })JSON");
 
-  UPGRADE_DRAFT_2019_09(document, expected);
+  UPGRADE_2019_09(document, expected);
 }
 
 TEST(AlterSchema_upgrade_Draft7_to_2019_09,
@@ -277,7 +277,7 @@ TEST(AlterSchema_upgrade_Draft7_to_2019_09,
     }
   })JSON");
 
-  UPGRADE_DRAFT_2019_09(document, expected);
+  UPGRADE_2019_09(document, expected);
 }
 
 TEST(AlterSchema_upgrade_Draft7_to_2019_09,
@@ -300,7 +300,7 @@ TEST(AlterSchema_upgrade_Draft7_to_2019_09,
     }
   })JSON");
 
-  UPGRADE_DRAFT_2019_09(document, expected);
+  UPGRADE_2019_09(document, expected);
 }
 
 TEST(AlterSchema_upgrade_Draft7_to_2019_09,
@@ -319,7 +319,7 @@ TEST(AlterSchema_upgrade_Draft7_to_2019_09,
     }
   })JSON");
 
-  UPGRADE_DRAFT_2019_09(document, expected);
+  UPGRADE_2019_09(document, expected);
 }
 
 TEST(AlterSchema_upgrade_Draft7_to_2019_09,
@@ -344,7 +344,7 @@ TEST(AlterSchema_upgrade_Draft7_to_2019_09,
     }
   })JSON");
 
-  UPGRADE_DRAFT_2019_09(document, expected);
+  UPGRADE_2019_09(document, expected);
 }
 
 TEST(AlterSchema_upgrade_Draft7_to_2019_09, dependencies_empty_object_dropped) {
@@ -357,7 +357,7 @@ TEST(AlterSchema_upgrade_Draft7_to_2019_09, dependencies_empty_object_dropped) {
     "$schema": "https://json-schema.org/draft/2019-09/schema"
   })JSON");
 
-  UPGRADE_DRAFT_2019_09(document, expected);
+  UPGRADE_2019_09(document, expected);
 }
 
 TEST(AlterSchema_upgrade_Draft7_to_2019_09,
@@ -382,7 +382,7 @@ TEST(AlterSchema_upgrade_Draft7_to_2019_09,
     }
   })JSON");
 
-  UPGRADE_DRAFT_2019_09(document, expected);
+  UPGRADE_2019_09(document, expected);
 }
 
 TEST(AlterSchema_upgrade_Draft7_to_2019_09,
@@ -417,7 +417,7 @@ TEST(AlterSchema_upgrade_Draft7_to_2019_09,
     }
   })JSON");
 
-  UPGRADE_DRAFT_2019_09(document, expected);
+  UPGRADE_2019_09(document, expected);
 }
 
 TEST(AlterSchema_upgrade_Draft7_to_2019_09,
@@ -438,7 +438,7 @@ TEST(AlterSchema_upgrade_Draft7_to_2019_09,
     }
   })JSON");
 
-  UPGRADE_DRAFT_2019_09(document, expected);
+  UPGRADE_2019_09(document, expected);
 }
 
 TEST(AlterSchema_upgrade_Draft7_to_2019_09,
@@ -461,7 +461,7 @@ TEST(AlterSchema_upgrade_Draft7_to_2019_09,
     }
   })JSON");
 
-  UPGRADE_DRAFT_2019_09(document, expected);
+  UPGRADE_2019_09(document, expected);
 }
 
 TEST(AlterSchema_upgrade_Draft7_to_2019_09,
@@ -494,7 +494,7 @@ TEST(AlterSchema_upgrade_Draft7_to_2019_09,
     }
   })JSON");
 
-  UPGRADE_DRAFT_2019_09(document, expected);
+  UPGRADE_2019_09(document, expected);
 }
 
 TEST(AlterSchema_upgrade_Draft7_to_2019_09,
@@ -529,7 +529,7 @@ TEST(AlterSchema_upgrade_Draft7_to_2019_09,
     }
   })JSON");
 
-  UPGRADE_DRAFT_2019_09(document, expected);
+  UPGRADE_2019_09(document, expected);
 }
 
 TEST(AlterSchema_upgrade_Draft7_to_2019_09,
@@ -556,7 +556,7 @@ TEST(AlterSchema_upgrade_Draft7_to_2019_09,
     }
   })JSON");
 
-  UPGRADE_DRAFT_2019_09(document, expected);
+  UPGRADE_2019_09(document, expected);
 }
 
 TEST(AlterSchema_upgrade_Draft7_to_2019_09,
@@ -587,7 +587,7 @@ TEST(AlterSchema_upgrade_Draft7_to_2019_09,
     }
   })JSON");
 
-  UPGRADE_DRAFT_2019_09(document, expected);
+  UPGRADE_2019_09(document, expected);
 }
 
 TEST(AlterSchema_upgrade_Draft7_to_2019_09,
@@ -616,7 +616,7 @@ TEST(AlterSchema_upgrade_Draft7_to_2019_09,
     }
   })JSON");
 
-  UPGRADE_DRAFT_2019_09(document, expected);
+  UPGRADE_2019_09(document, expected);
 }
 
 TEST(AlterSchema_upgrade_Draft7_to_2019_09,
@@ -649,7 +649,7 @@ TEST(AlterSchema_upgrade_Draft7_to_2019_09,
     }
   })JSON");
 
-  UPGRADE_DRAFT_2019_09(document, expected);
+  UPGRADE_2019_09(document, expected);
 }
 
 TEST(AlterSchema_upgrade_Draft7_to_2019_09, ref_with_no_siblings_left_alone) {
@@ -677,7 +677,7 @@ TEST(AlterSchema_upgrade_Draft7_to_2019_09, ref_with_no_siblings_left_alone) {
     }
   })JSON");
 
-  UPGRADE_DRAFT_2019_09(document, expected);
+  UPGRADE_2019_09(document, expected);
 }
 
 TEST(AlterSchema_upgrade_Draft7_to_2019_09,
@@ -710,7 +710,7 @@ TEST(AlterSchema_upgrade_Draft7_to_2019_09,
     }
   })JSON");
 
-  UPGRADE_DRAFT_2019_09(document, expected);
+  UPGRADE_2019_09(document, expected);
 }
 
 TEST(AlterSchema_upgrade_Draft7_to_2019_09,
@@ -741,7 +741,7 @@ TEST(AlterSchema_upgrade_Draft7_to_2019_09,
     }
   })JSON");
 
-  UPGRADE_DRAFT_2019_09(document, expected);
+  UPGRADE_2019_09(document, expected);
 }
 
 TEST(AlterSchema_upgrade_Draft7_to_2019_09,
@@ -774,7 +774,7 @@ TEST(AlterSchema_upgrade_Draft7_to_2019_09,
     }
   })JSON");
 
-  UPGRADE_DRAFT_2019_09(document, expected);
+  UPGRADE_2019_09(document, expected);
 }
 
 TEST(AlterSchema_upgrade_Draft7_to_2019_09,
@@ -805,7 +805,7 @@ TEST(AlterSchema_upgrade_Draft7_to_2019_09,
     }
   })JSON");
 
-  UPGRADE_DRAFT_2019_09(document, expected);
+  UPGRADE_2019_09(document, expected);
 }
 
 TEST(AlterSchema_upgrade_Draft7_to_2019_09,
@@ -844,7 +844,7 @@ TEST(AlterSchema_upgrade_Draft7_to_2019_09,
     }
   })JSON");
 
-  UPGRADE_DRAFT_2019_09(document, expected);
+  UPGRADE_2019_09(document, expected);
 }
 
 TEST(AlterSchema_upgrade_Draft7_to_2019_09,
@@ -881,7 +881,7 @@ TEST(AlterSchema_upgrade_Draft7_to_2019_09,
     }
   })JSON");
 
-  UPGRADE_DRAFT_2019_09(document, expected);
+  UPGRADE_2019_09(document, expected);
 }
 
 TEST(AlterSchema_upgrade_Draft7_to_2019_09, ref_alone_inside_definitions) {
@@ -901,7 +901,7 @@ TEST(AlterSchema_upgrade_Draft7_to_2019_09, ref_alone_inside_definitions) {
     }
   })JSON");
 
-  UPGRADE_DRAFT_2019_09(document, expected);
+  UPGRADE_2019_09(document, expected);
 }
 
 TEST(AlterSchema_upgrade_Draft7_to_2019_09, custom_dollar_anchor_prefixed) {
@@ -915,7 +915,7 @@ TEST(AlterSchema_upgrade_Draft7_to_2019_09, custom_dollar_anchor_prefixed) {
     "x-$anchor": "my-anchor"
   })JSON");
 
-  UPGRADE_DRAFT_2019_09(document, expected);
+  UPGRADE_2019_09(document, expected);
 }
 
 TEST(AlterSchema_upgrade_Draft7_to_2019_09,
@@ -930,7 +930,7 @@ TEST(AlterSchema_upgrade_Draft7_to_2019_09,
     "x-$recursiveAnchor": true
   })JSON");
 
-  UPGRADE_DRAFT_2019_09(document, expected);
+  UPGRADE_2019_09(document, expected);
 }
 
 TEST(AlterSchema_upgrade_Draft7_to_2019_09,
@@ -945,7 +945,7 @@ TEST(AlterSchema_upgrade_Draft7_to_2019_09,
     "x-$recursiveRef": "#"
   })JSON");
 
-  UPGRADE_DRAFT_2019_09(document, expected);
+  UPGRADE_2019_09(document, expected);
 }
 
 TEST(AlterSchema_upgrade_Draft7_to_2019_09, custom_dollar_vocabulary_prefixed) {
@@ -959,7 +959,7 @@ TEST(AlterSchema_upgrade_Draft7_to_2019_09, custom_dollar_vocabulary_prefixed) {
     "x-$vocabulary": { "https://example.com/vocab": true }
   })JSON");
 
-  UPGRADE_DRAFT_2019_09(document, expected);
+  UPGRADE_2019_09(document, expected);
 }
 
 TEST(AlterSchema_upgrade_Draft7_to_2019_09,
@@ -980,7 +980,7 @@ TEST(AlterSchema_upgrade_Draft7_to_2019_09,
     }
   })JSON");
 
-  UPGRADE_DRAFT_2019_09(document, expected);
+  UPGRADE_2019_09(document, expected);
 }
 
 TEST(AlterSchema_upgrade_Draft7_to_2019_09, custom_dependent_schemas_prefixed) {
@@ -994,7 +994,7 @@ TEST(AlterSchema_upgrade_Draft7_to_2019_09, custom_dependent_schemas_prefixed) {
     "x-dependentSchemas": "custom-value"
   })JSON");
 
-  UPGRADE_DRAFT_2019_09(document, expected);
+  UPGRADE_2019_09(document, expected);
 }
 
 TEST(AlterSchema_upgrade_Draft7_to_2019_09,
@@ -1009,7 +1009,7 @@ TEST(AlterSchema_upgrade_Draft7_to_2019_09,
     "x-dependentRequired": "custom-value"
   })JSON");
 
-  UPGRADE_DRAFT_2019_09(document, expected);
+  UPGRADE_2019_09(document, expected);
 }
 
 TEST(AlterSchema_upgrade_Draft7_to_2019_09, custom_unevaluated_items_prefixed) {
@@ -1023,7 +1023,7 @@ TEST(AlterSchema_upgrade_Draft7_to_2019_09, custom_unevaluated_items_prefixed) {
     "x-unevaluatedItems": "custom-value"
   })JSON");
 
-  UPGRADE_DRAFT_2019_09(document, expected);
+  UPGRADE_2019_09(document, expected);
 }
 
 TEST(AlterSchema_upgrade_Draft7_to_2019_09,
@@ -1038,7 +1038,7 @@ TEST(AlterSchema_upgrade_Draft7_to_2019_09,
     "x-unevaluatedProperties": "custom-value"
   })JSON");
 
-  UPGRADE_DRAFT_2019_09(document, expected);
+  UPGRADE_2019_09(document, expected);
 }
 
 TEST(AlterSchema_upgrade_Draft7_to_2019_09, custom_max_contains_prefixed) {
@@ -1052,7 +1052,7 @@ TEST(AlterSchema_upgrade_Draft7_to_2019_09, custom_max_contains_prefixed) {
     "x-maxContains": "custom-value"
   })JSON");
 
-  UPGRADE_DRAFT_2019_09(document, expected);
+  UPGRADE_2019_09(document, expected);
 }
 
 TEST(AlterSchema_upgrade_Draft7_to_2019_09, custom_min_contains_prefixed) {
@@ -1066,7 +1066,7 @@ TEST(AlterSchema_upgrade_Draft7_to_2019_09, custom_min_contains_prefixed) {
     "x-minContains": "custom-value"
   })JSON");
 
-  UPGRADE_DRAFT_2019_09(document, expected);
+  UPGRADE_2019_09(document, expected);
 }
 
 TEST(AlterSchema_upgrade_Draft7_to_2019_09, custom_content_schema_prefixed) {
@@ -1080,7 +1080,7 @@ TEST(AlterSchema_upgrade_Draft7_to_2019_09, custom_content_schema_prefixed) {
     "x-contentSchema": "custom-value"
   })JSON");
 
-  UPGRADE_DRAFT_2019_09(document, expected);
+  UPGRADE_2019_09(document, expected);
 }
 
 TEST(AlterSchema_upgrade_Draft7_to_2019_09,
@@ -1095,7 +1095,7 @@ TEST(AlterSchema_upgrade_Draft7_to_2019_09,
     "x-deprecated": "string explanation"
   })JSON");
 
-  UPGRADE_DRAFT_2019_09(document, expected);
+  UPGRADE_2019_09(document, expected);
 }
 
 TEST(AlterSchema_upgrade_Draft7_to_2019_09,
@@ -1116,7 +1116,7 @@ TEST(AlterSchema_upgrade_Draft7_to_2019_09,
     "x-maxContains": 5
   })JSON");
 
-  UPGRADE_DRAFT_2019_09(document, expected);
+  UPGRADE_2019_09(document, expected);
 }
 
 TEST(AlterSchema_upgrade_Draft7_to_2019_09,
@@ -1131,7 +1131,7 @@ TEST(AlterSchema_upgrade_Draft7_to_2019_09,
     "myAnnotation": "value"
   })JSON");
 
-  UPGRADE_DRAFT_2019_09(document, expected);
+  UPGRADE_2019_09(document, expected);
 }
 
 TEST(AlterSchema_upgrade_Draft7_to_2019_09, single_item_enum_becomes_const) {
@@ -1145,7 +1145,7 @@ TEST(AlterSchema_upgrade_Draft7_to_2019_09, single_item_enum_becomes_const) {
     "const": "single-value"
   })JSON");
 
-  UPGRADE_DRAFT_2019_09(document, expected);
+  UPGRADE_2019_09(document, expected);
 }
 
 TEST(AlterSchema_upgrade_Draft7_to_2019_09, multi_item_enum_unchanged) {
@@ -1159,7 +1159,7 @@ TEST(AlterSchema_upgrade_Draft7_to_2019_09, multi_item_enum_unchanged) {
     "enum": [ "foo", "bar" ]
   })JSON");
 
-  UPGRADE_DRAFT_2019_09(document, expected);
+  UPGRADE_2019_09(document, expected);
 }
 
 TEST(AlterSchema_upgrade_Draft7_to_2019_09,
@@ -1192,7 +1192,7 @@ TEST(AlterSchema_upgrade_Draft7_to_2019_09,
     }
   })JSON");
 
-  UPGRADE_DRAFT_2019_09(document, expected);
+  UPGRADE_2019_09(document, expected);
 }
 
 TEST(AlterSchema_upgrade_Draft7_to_2019_09,
@@ -1219,7 +1219,7 @@ TEST(AlterSchema_upgrade_Draft7_to_2019_09,
     }
   })JSON");
 
-  UPGRADE_DRAFT_2019_09(document, expected);
+  UPGRADE_2019_09(document, expected);
 }
 
 TEST(AlterSchema_upgrade_Draft7_to_2019_09,
@@ -1246,7 +1246,7 @@ TEST(AlterSchema_upgrade_Draft7_to_2019_09,
     }
   })JSON");
 
-  UPGRADE_DRAFT_2019_09(document, expected);
+  UPGRADE_2019_09(document, expected);
 }
 
 TEST(AlterSchema_upgrade_Draft7_to_2019_09,
@@ -1273,5 +1273,5 @@ TEST(AlterSchema_upgrade_Draft7_to_2019_09,
     }
   })JSON");
 
-  UPGRADE_DRAFT_2019_09(document, expected);
+  UPGRADE_2019_09(document, expected);
 }
