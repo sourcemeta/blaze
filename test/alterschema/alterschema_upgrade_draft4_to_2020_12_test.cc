@@ -67,6 +67,26 @@ TEST(AlterSchema_upgrade_Draft4_to_2020_12, items_array_to_prefix_items) {
   UPGRADE_2020_12(document, expected);
 }
 
+TEST(AlterSchema_upgrade_Draft4_to_2020_12, ref_into_items_array_rewritten) {
+  auto document = sourcemeta::core::parse_json(R"JSON({
+    "$schema": "http://json-schema.org/draft-04/schema#",
+    "items": [ { "type": "string" } ],
+    "definitions": {
+      "alias": { "$ref": "#/items/0" }
+    }
+  })JSON");
+
+  const auto expected = sourcemeta::core::parse_json(R"JSON({
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "prefixItems": [ { "type": "string" } ],
+    "$defs": {
+      "alias": { "$ref": "#/prefixItems/0" }
+    }
+  })JSON");
+
+  UPGRADE_2020_12(document, expected);
+}
+
 TEST(AlterSchema_upgrade_Draft4_to_2020_12, idempotent_after_first_pass) {
   auto document = sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2020-12/schema",

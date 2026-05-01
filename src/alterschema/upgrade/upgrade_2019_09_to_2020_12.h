@@ -11,8 +11,8 @@ public:
             const sourcemeta::core::Vocabularies &vocabularies,
             const sourcemeta::core::SchemaFrame &frame,
             const sourcemeta::core::SchemaFrame::Location &location,
-            const sourcemeta::core::SchemaWalker &,
-            const sourcemeta::core::SchemaResolver &) const
+            const sourcemeta::core::SchemaWalker &walker,
+            const sourcemeta::core::SchemaResolver &resolver) const
       -> SchemaTransformRule::Result override {
     ONLY_CONTINUE_IF(
         vocabularies.contains(Vocabularies::Known::JSON_Schema_2019_09_Core) &&
@@ -31,6 +31,9 @@ public:
             any_descendant_has_pending_pattern(root, frame, location);
         this->resource_has_recursive_anchor_ =
             compute_resource_has_recursive_anchor(root, frame, location);
+        this->document_has_unevaluated_items_ =
+            compute_document_has_unevaluated_items(root, frame, walker,
+                                                   resolver);
         this->is_inside_contains_wrapper_ = false;
         return Result{std::vector<sourcemeta::core::Pointer>{},
                       std::string{"sanitize"}};
@@ -50,6 +53,8 @@ public:
 
     this->resource_has_recursive_anchor_ =
         compute_resource_has_recursive_anchor(root, frame, location);
+    this->document_has_unevaluated_items_ =
+        compute_document_has_unevaluated_items(root, frame, walker, resolver);
     return true;
   }
 
@@ -102,7 +107,8 @@ public:
       schema.erase("additionalItems");
     }
 
-    if (schema.defines("contains") && !this->is_inside_contains_wrapper_) {
+    if (schema.defines("contains") && !this->is_inside_contains_wrapper_ &&
+        this->document_has_unevaluated_items_) {
       auto wrapper_inner{sourcemeta::core::JSON::make_object()};
       wrapper_inner.assign("contains", schema.at("contains"));
       schema.erase("contains");
@@ -178,8 +184,38 @@ private:
   mutable bool resource_has_recursive_anchor_{false};
   mutable bool is_inside_contains_wrapper_{false};
   mutable bool descendant_has_pending_pattern_{false};
+  mutable bool document_has_unevaluated_items_{false};
   mutable std::vector<AnchorRename> anchor_renames_;
   mutable std::vector<AnchorRefRewrite> anchor_ref_rewrites_;
+
+  static auto compute_document_has_unevaluated_items(
+      const sourcemeta::core::JSON &root,
+      const sourcemeta::core::SchemaFrame &frame,
+      const sourcemeta::core::SchemaWalker &walker,
+      const sourcemeta::core::SchemaResolver &resolver) -> bool {
+    for (const auto &entry : frame.locations()) {
+      if (entry.second.type !=
+              sourcemeta::core::SchemaFrame::LocationType::Resource &&
+          entry.second.type !=
+              sourcemeta::core::SchemaFrame::LocationType::Subschema) {
+        continue;
+      }
+      const auto absolute{sourcemeta::core::to_pointer(entry.second.pointer)};
+      const auto &subschema{sourcemeta::core::get(root, absolute)};
+      if (!subschema.is_object() || !subschema.defines("unevaluatedItems")) {
+        continue;
+      }
+      const auto location_vocabularies{
+          frame.vocabularies(entry.second, resolver)};
+      const auto &keyword_metadata{
+          walker("unevaluatedItems", location_vocabularies)};
+      if (keyword_metadata.type !=
+          sourcemeta::core::SchemaKeywordType::Unknown) {
+        return true;
+      }
+    }
+    return false;
+  }
 
   static auto any_descendant_has_pending_pattern(
       const sourcemeta::core::JSON &root,
@@ -255,20 +291,19 @@ private:
     if (!subschema.is_object()) {
       return false;
     }
+    if (!subschema.defines_any({"$schema", "$recursiveAnchor", "$recursiveRef",
+                                "items", "additionalItems", "contains"})) {
+      return false;
+    }
     if (subschema.defines("$schema") && subschema.at("$schema").is_string() &&
         subschema.at("$schema").to_string() == DRAFT_2019_09_URL) {
       return true;
     }
-    if (subschema.defines("$recursiveAnchor")) {
-      return true;
-    }
-    if (subschema.defines("$recursiveRef")) {
+    if (subschema.defines_any({"$recursiveAnchor", "$recursiveRef",
+                               "additionalItems"})) {
       return true;
     }
     if (subschema.defines("items") && subschema.at("items").is_array()) {
-      return true;
-    }
-    if (subschema.defines("additionalItems")) {
       return true;
     }
     if (subschema.defines("contains") &&

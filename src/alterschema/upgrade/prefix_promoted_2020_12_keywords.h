@@ -18,13 +18,7 @@ public:
         vocabularies.contains(Vocabularies::Known::JSON_Schema_2019_09_Core) &&
         schema.is_object());
 
-    for (const auto &keyword : KEYWORDS) {
-      if (schema.defines(std::string{keyword})) {
-        return true;
-      }
-    }
-
-    return false;
+    return schema.defines_any({"prefixItems", "$dynamicAnchor", "$dynamicRef"});
   }
 
   auto transform(sourcemeta::core::JSON &schema, const Result &) const

@@ -87,7 +87,53 @@ TEST(AlterSchema_upgrade_Draft7_to_2020_12, items_array_to_prefix_items) {
   UPGRADE_2020_12(document, expected);
 }
 
-TEST(AlterSchema_upgrade_Draft7_to_2020_12, contains_wrapped) {
+TEST(AlterSchema_upgrade_Draft7_to_2020_12, ref_into_items_array_rewritten) {
+  auto document = sourcemeta::core::parse_json(R"JSON({
+    "$schema": "http://json-schema.org/draft-07/schema#",
+    "items": [ { "type": "string" } ],
+    "definitions": {
+      "alias": { "$ref": "#/items/0" }
+    }
+  })JSON");
+
+  const auto expected = sourcemeta::core::parse_json(R"JSON({
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "prefixItems": [ { "type": "string" } ],
+    "$defs": {
+      "alias": { "$ref": "#/prefixItems/0" }
+    }
+  })JSON");
+
+  UPGRADE_2020_12(document, expected);
+}
+
+TEST(AlterSchema_upgrade_Draft7_to_2020_12,
+     ref_into_definitions_rewritten_to_defs) {
+  auto document = sourcemeta::core::parse_json(R"JSON({
+    "$schema": "http://json-schema.org/draft-07/schema#",
+    "definitions": {
+      "foo": { "type": "string" }
+    },
+    "properties": {
+      "x": { "$ref": "#/definitions/foo" }
+    }
+  })JSON");
+
+  const auto expected = sourcemeta::core::parse_json(R"JSON({
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "$defs": {
+      "foo": { "type": "string" }
+    },
+    "properties": {
+      "x": { "$ref": "#/$defs/foo" }
+    }
+  })JSON");
+
+  UPGRADE_2020_12(document, expected);
+}
+
+TEST(AlterSchema_upgrade_Draft7_to_2020_12,
+     contains_unchanged_when_no_unevaluated_items) {
   auto document = sourcemeta::core::parse_json(R"JSON({
     "$schema": "http://json-schema.org/draft-07/schema#",
     "type": "array",
@@ -97,7 +143,7 @@ TEST(AlterSchema_upgrade_Draft7_to_2020_12, contains_wrapped) {
   const auto expected = sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2020-12/schema",
     "type": "array",
-    "allOf": [ { "not": { "not": { "contains": { "type": "string" } } } } ]
+    "contains": { "type": "string" }
   })JSON");
 
   UPGRADE_2020_12(document, expected);
