@@ -302,8 +302,8 @@ private:
         subschema.at("$schema").to_string() == DRAFT_2019_09_URL) {
       return true;
     }
-    if (subschema.defines_any({"$recursiveAnchor", "$recursiveRef",
-                               "additionalItems"})) {
+    if (subschema.defines_any(
+            {"$recursiveAnchor", "$recursiveRef", "additionalItems"})) {
       return true;
     }
     if (subschema.defines("items") && subschema.at("items").is_array()) {
