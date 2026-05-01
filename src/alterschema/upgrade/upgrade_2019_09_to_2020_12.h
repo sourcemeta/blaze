@@ -84,9 +84,10 @@ public:
 
     if (schema.defines("$recursiveRef")) {
       schema.rename("$recursiveRef", "$dynamicRef");
-      schema.at("$dynamicRef")
-          .into(sourcemeta::core::JSON{std::string{
-              this->resource_has_recursive_anchor_ ? "#meta" : "#"}});
+      if (this->resource_has_recursive_anchor_) {
+        schema.at("$dynamicRef")
+            .into(sourcemeta::core::JSON{std::string{"#meta"}});
+      }
     }
 
     if (schema.defines("items") && schema.at("items").is_array()) {
@@ -111,7 +112,6 @@ public:
         this->document_has_unevaluated_items_) {
       auto wrapper_inner{sourcemeta::core::JSON::make_object()};
       wrapper_inner.assign("contains", schema.at("contains"));
-      schema.erase("contains");
       if (schema.defines("minContains")) {
         wrapper_inner.assign("minContains", schema.at("minContains"));
         schema.erase("minContains");
@@ -125,16 +125,34 @@ public:
       inner_not.assign("not", std::move(wrapper_inner));
 
       if (!schema.defines("not")) {
-        schema.assign("not", std::move(inner_not));
+        schema.rename("contains", "not");
+        schema.at("not").into(std::move(inner_not));
+        this->renames_.emplace_back(
+            sourcemeta::core::Pointer{"contains"},
+            sourcemeta::core::Pointer{"not", "not", "contains"});
       } else {
+        schema.erase("contains");
         auto outer_not{sourcemeta::core::JSON::make_object()};
         outer_not.assign("not", std::move(inner_not));
         if (schema.defines("allOf") && schema.at("allOf").is_array()) {
+          const auto allof_index{schema.at("allOf").size()};
           schema.at("allOf").push_back(std::move(outer_not));
+          this->renames_.emplace_back(
+              sourcemeta::core::Pointer{"contains"},
+              sourcemeta::core::Pointer{
+                  "allOf", static_cast<sourcemeta::core::Pointer::Token::Index>(
+                               allof_index),
+                  "not", "not", "contains"});
         } else {
           auto allof_array{sourcemeta::core::JSON::make_array()};
           allof_array.push_back(std::move(outer_not));
           schema.assign("allOf", std::move(allof_array));
+          this->renames_.emplace_back(
+              sourcemeta::core::Pointer{"contains"},
+              sourcemeta::core::Pointer{
+                  "allOf",
+                  static_cast<sourcemeta::core::Pointer::Token::Index>(0),
+                  "not", "not", "contains"});
         }
       }
     }

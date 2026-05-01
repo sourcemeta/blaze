@@ -411,8 +411,8 @@ TEST(AlterSchema_upgrade_2019_09_to_2020_12,
   const auto expected = sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2020-12/schema",
     "type": "array",
-    "unevaluatedItems": false,
-    "not": { "not": { "contains": { "type": "string" } } }
+    "not": { "not": { "contains": { "type": "string" } } },
+    "unevaluatedItems": false
   })JSON");
 
   UPGRADE_2020_12(document, expected);
@@ -432,14 +432,76 @@ TEST(AlterSchema_upgrade_2019_09_to_2020_12,
   const auto expected = sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2020-12/schema",
     "type": "array",
-    "unevaluatedItems": false,
     "not": {
       "not": {
         "contains": { "type": "string" },
         "minContains": 2,
         "maxContains": 5
       }
+    },
+    "unevaluatedItems": false
+  })JSON");
+
+  UPGRADE_2020_12(document, expected);
+}
+
+TEST(AlterSchema_upgrade_2019_09_to_2020_12,
+     ref_into_contains_rewritten_after_wrap) {
+  auto document = sourcemeta::core::parse_json(R"JSON({
+    "$schema": "https://json-schema.org/draft/2019-09/schema",
+    "type": "array",
+    "contains": { "type": "string" },
+    "unevaluatedItems": false,
+    "$defs": {
+      "alias": { "$ref": "#/contains" }
     }
+  })JSON");
+
+  const auto expected = sourcemeta::core::parse_json(R"JSON({
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "type": "array",
+    "not": {
+      "not": {
+        "contains": { "type": "string" }
+      }
+    },
+    "unevaluatedItems": false,
+    "$defs": {
+      "alias": { "$ref": "#/not/not/contains" }
+    }
+  })JSON");
+
+  UPGRADE_2020_12(document, expected);
+}
+
+TEST(AlterSchema_upgrade_2019_09_to_2020_12,
+     ref_into_contains_with_existing_not_rewritten_via_allof) {
+  auto document = sourcemeta::core::parse_json(R"JSON({
+    "$schema": "https://json-schema.org/draft/2019-09/schema",
+    "type": "array",
+    "contains": { "type": "string" },
+    "unevaluatedItems": false,
+    "not": { "type": "null" },
+    "$defs": {
+      "alias": { "$ref": "#/contains" }
+    }
+  })JSON");
+
+  const auto expected = sourcemeta::core::parse_json(R"JSON({
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "type": "array",
+    "unevaluatedItems": false,
+    "not": { "type": "null" },
+    "$defs": {
+      "alias": { "$ref": "#/allOf/0/not/not/contains" }
+    },
+    "allOf": [
+      {
+        "not": {
+          "not": { "contains": { "type": "string" } }
+        }
+      }
+    ]
   })JSON");
 
   UPGRADE_2020_12(document, expected);
@@ -481,9 +543,9 @@ TEST(AlterSchema_upgrade_2019_09_to_2020_12,
   const auto expected = sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2020-12/schema",
     "type": "array",
+    "not": { "not": { "contains": { "type": "string" } } },
     "unevaluatedItems": false,
-    "allOf": [ { "type": "array" } ],
-    "not": { "not": { "contains": { "type": "string" } } }
+    "allOf": [ { "type": "array" } ]
   })JSON");
 
   UPGRADE_2020_12(document, expected);
@@ -556,8 +618,8 @@ TEST(
   const auto expected = sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2020-12/schema",
     "type": "array",
-    "unevaluatedItems": false,
-    "not": { "not": { "contains": { "type": "string" } } }
+    "not": { "not": { "contains": { "type": "string" } } },
+    "unevaluatedItems": false
   })JSON");
 
   UPGRADE_2020_12(document, expected);
