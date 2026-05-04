@@ -331,55 +331,6 @@ auto compiler_draft4_applicator_not(const Context &context,
   }
 }
 
-auto compiler_draft4_applicator_dependencies(
-    const Context &context, const SchemaContext &schema_context,
-    const DynamicContext &dynamic_context, const Instructions &)
-    -> Instructions {
-  if (schema_context.schema.defines("type") &&
-      schema_context.schema.at("type").is_string() &&
-      schema_context.schema.at("type").to_string() != "object") {
-    return {};
-  }
-
-  if (!schema_context.schema.at(dynamic_context.keyword).is_object()) {
-    return {};
-  }
-
-  Instructions children;
-  ValueStringMap dependencies;
-
-  for (const auto &entry :
-       schema_context.schema.at(dynamic_context.keyword).as_object()) {
-    if (is_schema(entry.second)) {
-      if (!entry.second.is_boolean() || !entry.second.to_boolean()) {
-        children.push_back(make(
-            sourcemeta::blaze::InstructionIndex::LogicalWhenDefines, context,
-            schema_context, dynamic_context, make_property(entry.first),
-            compile(context, schema_context, relative_dynamic_context(),
-                    sourcemeta::blaze::make_weak_pointer(entry.first))));
-      }
-    } else if (entry.second.is_array()) {
-      std::vector<sourcemeta::core::JSON::String> properties;
-      for (const auto &property : entry.second.as_array()) {
-        assert(property.is_string());
-        properties.push_back(property.to_string());
-      }
-
-      if (!properties.empty()) {
-        dependencies.emplace(entry.first, properties);
-      }
-    }
-  }
-
-  if (!dependencies.empty()) {
-    children.push_back(make(
-        sourcemeta::blaze::InstructionIndex::AssertionPropertyDependencies,
-        context, schema_context, dynamic_context, std::move(dependencies)));
-  }
-
-  return children;
-}
-
 auto compiler_draft4_validation_maxproperties(
     const Context &context, const SchemaContext &schema_context,
     const DynamicContext &dynamic_context, const Instructions &)
@@ -446,29 +397,6 @@ auto compiler_draft4_validation_minproperties(
   return {make(sourcemeta::blaze::InstructionIndex::AssertionObjectSizeGreater,
                context, schema_context, dynamic_context,
                ValueUnsignedInteger{value - 1})};
-}
-
-auto compiler_draft4_validation_multipleof(
-    const Context &context, const SchemaContext &schema_context,
-    const DynamicContext &dynamic_context, const Instructions &)
-    -> Instructions {
-  if (!schema_context.schema.at(dynamic_context.keyword).is_number()) {
-    return {};
-  }
-
-  assert(schema_context.schema.at(dynamic_context.keyword).is_positive());
-
-  if (schema_context.schema.defines("type") &&
-      schema_context.schema.at("type").is_string() &&
-      schema_context.schema.at("type").to_string() != "integer" &&
-      schema_context.schema.at("type").to_string() != "number") {
-    return {};
-  }
-
-  return {make(sourcemeta::blaze::InstructionIndex::AssertionDivisible, context,
-               schema_context, dynamic_context,
-               sourcemeta::core::JSON{
-                   schema_context.schema.at(dynamic_context.keyword)})};
 }
 
 } // namespace internal
