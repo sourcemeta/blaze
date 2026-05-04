@@ -1745,5 +1745,50 @@ auto compiler_draft3_validation_minimum(const Context &context,
   }
 }
 
+auto compiler_draft3_validation_type(const Context &,
+                                     const SchemaContext &schema_context,
+                                     const DynamicContext &,
+                                     const Instructions &) -> Instructions {
+  throw sourcemeta::blaze::CompilerError(
+      schema_context.base, to_pointer(schema_context.relative_pointer),
+      "Draft 3 type compilation is not yet implemented");
+}
+
+auto compiler_draft3_validation_disallow(const Context &,
+                                         const SchemaContext &schema_context,
+                                         const DynamicContext &,
+                                         const Instructions &) -> Instructions {
+  throw sourcemeta::blaze::CompilerError(
+      schema_context.base, to_pointer(schema_context.relative_pointer),
+      "Draft 3 disallow compilation is not yet implemented");
+}
+
+auto compiler_draft3_applicator_extends(const Context &,
+                                        const SchemaContext &schema_context,
+                                        const DynamicContext &,
+                                        const Instructions &) -> Instructions {
+  throw sourcemeta::blaze::CompilerError(
+      schema_context.base, to_pointer(schema_context.relative_pointer),
+      "Draft 3 extends compilation is not yet implemented");
+}
+
+auto compiler_draft3_applicator_dependencies(
+    const Context &, const SchemaContext &schema_context,
+    const DynamicContext &, const Instructions &) -> Instructions {
+  throw sourcemeta::blaze::CompilerError(
+      schema_context.base, to_pointer(schema_context.relative_pointer),
+      "Draft 3 dependencies compilation is not yet implemented");
+}
+
+auto compiler_draft3_validation_divisibleby(const Context &,
+                                            const SchemaContext &schema_context,
+                                            const DynamicContext &,
+                                            const Instructions &)
+    -> Instructions {
+  throw sourcemeta::blaze::CompilerError(
+      schema_context.base, to_pointer(schema_context.relative_pointer),
+      "Draft 3 divisibleBy compilation is not yet implemented");
+}
+
 } // namespace internal
 #endif
