@@ -460,14 +460,23 @@ auto compiler_draft3_applicator_properties_with_options(
                            schema_context.schema.at("type").to_string() ==
                                "object"};
 
+  using Known = sourcemeta::core::Vocabularies::Known;
+  const auto imports_top_level_required{
+      schema_context.vocabularies.contains(Known::JSON_Schema_Draft_4) ||
+      schema_context.vocabularies.contains(Known::JSON_Schema_Draft_6) ||
+      schema_context.vocabularies.contains(Known::JSON_Schema_Draft_7) ||
+      schema_context.vocabularies.contains(
+          Known::JSON_Schema_2019_09_Validation) ||
+      schema_context.vocabularies.contains(
+          Known::JSON_Schema_2020_12_Validation)};
+
   auto properties{compile_properties(context, schema_context,
                                      effective_dynamic_context, current)};
 
-  if (context.mode == Mode::FastValidation &&
+  if (context.mode == Mode::FastValidation && imports_top_level_required &&
       schema_context.schema.defines("additionalProperties") &&
       schema_context.schema.at("additionalProperties").is_boolean() &&
       !schema_context.schema.at("additionalProperties").to_boolean() &&
-      // TODO: Check that the validation vocabulary is present
       schema_context.schema.defines("required") &&
       schema_context.schema.at("required").is_array() &&
       schema_context.schema.at("required").size() ==
@@ -488,7 +497,8 @@ auto compiler_draft3_applicator_properties_with_options(
 
       if (types.size() == 1 &&
           !schema_context.schema.defines("patternProperties")) {
-        if (schema_context.schema.defines("required") && assume_object) {
+        if (imports_top_level_required &&
+            schema_context.schema.defines("required") && assume_object) {
           auto required_copy = schema_context.schema.at("required");
           std::ranges::sort(required_copy.as_array());
           ValueStringSet required{json_array_to_string_set(required_copy)};
@@ -735,7 +745,8 @@ auto compiler_draft3_applicator_properties_with_options(
           substeps.front().type != InstructionIndex::ControlJump &&
           substeps.front().type != InstructionIndex::ControlDynamicAnchorJump) {
         const auto is_required{
-            assume_object && schema_context.schema.defines("required") &&
+            assume_object && imports_top_level_required &&
+            schema_context.schema.defines("required") &&
             schema_context.schema.at("required").is_array() &&
             schema_context.schema.at("required")
                 .contains(sourcemeta::core::JSON{name})};
@@ -756,8 +767,7 @@ auto compiler_draft3_applicator_properties_with_options(
       if (!substeps.empty()) {
         // As a performance shortcut
         if (effective_dynamic_context.base_instance_location.empty()) {
-          if (assume_object &&
-              // TODO: Check that the validation vocabulary is present
+          if (assume_object && imports_top_level_required &&
               schema_context.schema.defines("required") &&
               schema_context.schema.at("required").is_array() &&
               schema_context.schema.at("required")
@@ -784,7 +794,8 @@ auto compiler_draft3_applicator_properties_with_options(
 
   if (context.mode == Mode::FastValidation) {
     if (fusion_possible && !fusion_entries.empty()) {
-      if (schema_context.schema.defines("required") &&
+      if (imports_top_level_required &&
+          schema_context.schema.defines("required") &&
           schema_context.schema.at("required").is_array()) {
         for (const auto &req :
              schema_context.schema.at("required").as_array()) {
@@ -938,6 +949,16 @@ auto compiler_draft3_applicator_additionalproperties_with_options(
     return {};
   }
 
+  using Known = sourcemeta::core::Vocabularies::Known;
+  const auto imports_top_level_required{
+      schema_context.vocabularies.contains(Known::JSON_Schema_Draft_4) ||
+      schema_context.vocabularies.contains(Known::JSON_Schema_Draft_6) ||
+      schema_context.vocabularies.contains(Known::JSON_Schema_Draft_7) ||
+      schema_context.vocabularies.contains(
+          Known::JSON_Schema_2019_09_Validation) ||
+      schema_context.vocabularies.contains(
+          Known::JSON_Schema_2020_12_Validation)};
+
   Instructions children{compile(context, schema_context,
                                 relative_dynamic_context(),
                                 sourcemeta::core::empty_weak_pointer,
@@ -1007,7 +1028,8 @@ auto compiler_draft3_applicator_additionalproperties_with_options(
   if (context.mode == Mode::FastValidation && children.size() == 1 &&
       children.front().type == InstructionIndex::AssertionFail &&
       !filter_strings.empty() && filter_prefixes.empty() &&
-      filter_regexes.empty() && schema_context.schema.defines("required") &&
+      filter_regexes.empty() && imports_top_level_required &&
+      schema_context.schema.defines("required") &&
       schema_context.schema.at("required").is_array() &&
       is_closed_properties_required(
           schema_context.schema,
