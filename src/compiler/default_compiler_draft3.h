@@ -1598,15 +1598,15 @@ auto compiler_draft3_validation_minlength(const Context &context,
     return {};
   }
 
-  const auto value{static_cast<unsigned long>(
-      schema_context.schema.at(dynamic_context.keyword).as_integer())};
+  const auto value{
+      schema_context.schema.at(dynamic_context.keyword).as_integer()};
   if (value <= 0) {
     return {};
   }
 
   return {make(sourcemeta::blaze::InstructionIndex::AssertionStringSizeGreater,
                context, schema_context, dynamic_context,
-               ValueUnsignedInteger{value - 1})};
+               ValueUnsignedInteger{static_cast<unsigned long>(value - 1)})};
 }
 
 auto compiler_draft3_validation_maxitems(const Context &context,
