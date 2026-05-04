@@ -737,25 +737,33 @@ TEST(TestSuite_run, multiple_targets_mixed_results) {
   EXPECT_EQ(std::get<0>(traces[0]),
             "https://json-schema.org/draft/2020-12/schema");
   EXPECT_EQ(std::get<1>(traces[0]), 1);
+  EXPECT_EQ(std::get<2>(traces[0]), 4);
   EXPECT_EQ(std::get<3>(traces[0]), "pass");
+  EXPECT_TRUE(std::get<4>(traces[0]));
   EXPECT_TRUE(std::get<5>(traces[0]));
 
   EXPECT_EQ(std::get<0>(traces[1]),
             "https://json-schema.org/draft/2020-12/schema");
   EXPECT_EQ(std::get<1>(traces[1]), 2);
+  EXPECT_EQ(std::get<2>(traces[1]), 4);
   EXPECT_EQ(std::get<3>(traces[1]), "fail");
+  EXPECT_TRUE(std::get<4>(traces[1]));
   EXPECT_FALSE(std::get<5>(traces[1]));
 
   EXPECT_EQ(std::get<0>(traces[2]),
             "https://json-schema.org/draft/2019-09/schema");
   EXPECT_EQ(std::get<1>(traces[2]), 3);
+  EXPECT_EQ(std::get<2>(traces[2]), 4);
   EXPECT_EQ(std::get<3>(traces[2]), "pass");
+  EXPECT_TRUE(std::get<4>(traces[2]));
   EXPECT_TRUE(std::get<5>(traces[2]));
 
   EXPECT_EQ(std::get<0>(traces[3]),
             "https://json-schema.org/draft/2019-09/schema");
   EXPECT_EQ(std::get<1>(traces[3]), 4);
+  EXPECT_EQ(std::get<2>(traces[3]), 4);
   EXPECT_EQ(std::get<3>(traces[3]), "fail");
+  EXPECT_TRUE(std::get<4>(traces[3]));
   EXPECT_FALSE(std::get<5>(traces[3]));
 }
 
@@ -944,6 +952,11 @@ TEST(TestSuite_run, multiple_targets_with_default_dialect) {
       sourcemeta::blaze::default_schema_compiler,
       "https://json-schema.org/draft/2020-12/schema")};
 
+  const auto expected_no_dialect_target{sourcemeta::core::URI::from_path(
+      std::filesystem::path{STUBS_PATH} / "schema_no_dialect.json")};
+  const auto expected_schema_target{sourcemeta::core::URI::from_path(
+      std::filesystem::path{STUBS_PATH} / "schema.json")};
+
   std::vector<std::tuple<std::string, std::size_t, std::size_t, std::string,
                          bool, bool>>
       traces;
@@ -958,19 +971,35 @@ TEST(TestSuite_run, multiple_targets_with_default_dialect) {
 
   EXPECT_EQ(result.total, 4);
   EXPECT_EQ(result.passed, 4);
-  EXPECT_EQ(traces.size(), 4);
-  EXPECT_EQ(std::get<2>(traces[0]), 4);
-  EXPECT_EQ(std::get<2>(traces[1]), 4);
-  EXPECT_EQ(std::get<2>(traces[2]), 4);
-  EXPECT_EQ(std::get<2>(traces[3]), 4);
+  ASSERT_EQ(traces.size(), 4);
+
+  EXPECT_EQ(std::get<0>(traces[0]), expected_no_dialect_target.recompose());
   EXPECT_EQ(std::get<1>(traces[0]), 1);
-  EXPECT_EQ(std::get<1>(traces[1]), 2);
-  EXPECT_EQ(std::get<1>(traces[2]), 3);
-  EXPECT_EQ(std::get<1>(traces[3]), 4);
+  EXPECT_EQ(std::get<2>(traces[0]), 4);
   EXPECT_EQ(std::get<3>(traces[0]), "satisfies both");
+  EXPECT_TRUE(std::get<4>(traces[0]));
+  EXPECT_TRUE(std::get<5>(traces[0]));
+
+  EXPECT_EQ(std::get<0>(traces[1]), expected_no_dialect_target.recompose());
+  EXPECT_EQ(std::get<1>(traces[1]), 2);
+  EXPECT_EQ(std::get<2>(traces[1]), 4);
   EXPECT_EQ(std::get<3>(traces[1]), "missing required");
+  EXPECT_FALSE(std::get<4>(traces[1]));
+  EXPECT_FALSE(std::get<5>(traces[1]));
+
+  EXPECT_EQ(std::get<0>(traces[2]), expected_schema_target.recompose());
+  EXPECT_EQ(std::get<1>(traces[2]), 3);
+  EXPECT_EQ(std::get<2>(traces[2]), 4);
   EXPECT_EQ(std::get<3>(traces[2]), "satisfies both");
+  EXPECT_TRUE(std::get<4>(traces[2]));
+  EXPECT_TRUE(std::get<5>(traces[2]));
+
+  EXPECT_EQ(std::get<0>(traces[3]), expected_schema_target.recompose());
+  EXPECT_EQ(std::get<1>(traces[3]), 4);
+  EXPECT_EQ(std::get<2>(traces[3]), 4);
   EXPECT_EQ(std::get<3>(traces[3]), "missing required");
+  EXPECT_FALSE(std::get<4>(traces[3]));
+  EXPECT_FALSE(std::get<5>(traces[3]));
 }
 
 TEST(TestSuite_run, multiple_targets_with_data_path) {
@@ -1009,13 +1038,24 @@ TEST(TestSuite_run, multiple_targets_with_data_path) {
       })};
 
   EXPECT_EQ(result.total, 2);
+  EXPECT_EQ(result.passed, 2);
   ASSERT_EQ(traces.size(), 2);
+
   EXPECT_EQ(std::get<0>(traces[0]),
             "https://json-schema.org/draft/2020-12/schema");
+  EXPECT_EQ(std::get<1>(traces[0]), 1);
+  EXPECT_EQ(std::get<2>(traces[0]), 2);
   EXPECT_EQ(std::get<3>(traces[0]), "from file");
+  EXPECT_TRUE(std::get<4>(traces[0]));
+  EXPECT_TRUE(std::get<5>(traces[0]));
+
   EXPECT_EQ(std::get<0>(traces[1]),
             "https://json-schema.org/draft/2019-09/schema");
+  EXPECT_EQ(std::get<1>(traces[1]), 2);
+  EXPECT_EQ(std::get<2>(traces[1]), 2);
   EXPECT_EQ(std::get<3>(traces[1]), "from file");
+  EXPECT_TRUE(std::get<4>(traces[1]));
+  EXPECT_TRUE(std::get<5>(traces[1]));
 }
 
 TEST(TestSuite_run, multiple_targets_timestamps_ordering) {
@@ -1124,18 +1164,23 @@ TEST(TestSuite_run, multiple_targets_three_targets) {
             "https://json-schema.org/draft/2020-12/schema");
   EXPECT_EQ(std::get<1>(traces[0]), 1);
   EXPECT_EQ(std::get<2>(traces[0]), 3);
+  EXPECT_EQ(std::get<3>(traces[0]), "valid for all drafts");
+  EXPECT_TRUE(std::get<4>(traces[0]));
+  EXPECT_TRUE(std::get<5>(traces[0]));
 
   EXPECT_EQ(std::get<0>(traces[1]),
             "https://json-schema.org/draft/2019-09/schema");
   EXPECT_EQ(std::get<1>(traces[1]), 2);
   EXPECT_EQ(std::get<2>(traces[1]), 3);
+  EXPECT_EQ(std::get<3>(traces[1]), "valid for all drafts");
+  EXPECT_TRUE(std::get<4>(traces[1]));
+  EXPECT_TRUE(std::get<5>(traces[1]));
 
   EXPECT_EQ(std::get<0>(traces[2]), "http://json-schema.org/draft-07/schema");
   EXPECT_EQ(std::get<1>(traces[2]), 3);
   EXPECT_EQ(std::get<2>(traces[2]), 3);
-
-  EXPECT_TRUE(std::get<5>(traces[0]));
-  EXPECT_TRUE(std::get<5>(traces[1]));
+  EXPECT_EQ(std::get<3>(traces[2]), "valid for all drafts");
+  EXPECT_TRUE(std::get<4>(traces[2]));
   EXPECT_TRUE(std::get<5>(traces[2]));
 }
 
@@ -1173,6 +1218,11 @@ TEST(TestSuite_run, multiple_targets_per_target_validation_differs) {
       sourcemeta::blaze::default_schema_compiler,
       "https://json-schema.org/draft/2020-12/schema")};
 
+  const auto expected_schema_target{sourcemeta::core::URI::from_path(
+      std::filesystem::path{STUBS_PATH} / "schema.json")};
+  const auto expected_no_dialect_target{sourcemeta::core::URI::from_path(
+      std::filesystem::path{STUBS_PATH} / "schema_no_dialect.json")};
+
   std::vector<std::tuple<std::string, std::size_t, std::size_t, std::string,
                          bool, bool>>
       traces;
@@ -1189,6 +1239,19 @@ TEST(TestSuite_run, multiple_targets_per_target_validation_differs) {
   EXPECT_EQ(result.passed, 1);
   ASSERT_EQ(traces.size(), 2);
 
+  EXPECT_EQ(std::get<0>(traces[0]), expected_schema_target.recompose());
+  EXPECT_EQ(std::get<1>(traces[0]), 1);
+  EXPECT_EQ(std::get<2>(traces[0]), 2);
+  EXPECT_EQ(std::get<3>(traces[0]),
+            "ok for schema.json, fails for schema_no_dialect.json");
+  EXPECT_TRUE(std::get<4>(traces[0]));
   EXPECT_TRUE(std::get<5>(traces[0]));
+
+  EXPECT_EQ(std::get<0>(traces[1]), expected_no_dialect_target.recompose());
+  EXPECT_EQ(std::get<1>(traces[1]), 2);
+  EXPECT_EQ(std::get<2>(traces[1]), 2);
+  EXPECT_EQ(std::get<3>(traces[1]),
+            "ok for schema.json, fails for schema_no_dialect.json");
+  EXPECT_TRUE(std::get<4>(traces[1]));
   EXPECT_FALSE(std::get<5>(traces[1]));
 }

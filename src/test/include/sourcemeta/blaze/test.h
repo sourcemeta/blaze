@@ -195,8 +195,8 @@ struct SOURCEMETA_BLAZE_TEST_EXPORT TestSuite {
   ///
   /// assert(suite.targets.size() == 1);
   /// assert(suite.targets.front() ==
-  /// "https://json-schema.org/draft/2020-12/schema"); assert(suite.tests.size()
-  /// == 2);
+  ///   "https://json-schema.org/draft/2020-12/schema");
+  /// assert(suite.tests.size() == 2);
   /// ```
   static auto
   parse(const sourcemeta::core::JSON &document,

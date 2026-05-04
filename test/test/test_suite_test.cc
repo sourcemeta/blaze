@@ -328,12 +328,20 @@ TEST(TestSuite_parse, error_target_object) {
   sourcemeta::core::JSON document{nullptr};
   sourcemeta::core::parse_json(input, document, std::ref(tracker));
 
-  EXPECT_THROW(sourcemeta::blaze::TestSuite::parse(
-                   document, tracker, std::filesystem::path{STUBS_PATH},
-                   sourcemeta::core::schema_resolver,
-                   sourcemeta::core::schema_walker,
-                   sourcemeta::blaze::default_schema_compiler),
-               sourcemeta::blaze::TestParseError);
+  try {
+    sourcemeta::blaze::TestSuite::parse(
+        document, tracker, std::filesystem::path{STUBS_PATH},
+        sourcemeta::core::schema_resolver, sourcemeta::core::schema_walker,
+        sourcemeta::blaze::default_schema_compiler);
+    FAIL();
+  } catch (const sourcemeta::blaze::TestParseError &error) {
+    EXPECT_STREQ(error.what(),
+                 "The test document `target` property must be a URI or an "
+                 "array of URIs");
+    EXPECT_EQ(error.location(), sourcemeta::core::Pointer{"target"});
+    EXPECT_EQ(error.line(), 2);
+    EXPECT_EQ(error.column(), 5);
+  }
 }
 
 TEST(TestSuite_parse, error_target_null) {
@@ -346,12 +354,20 @@ TEST(TestSuite_parse, error_target_null) {
   sourcemeta::core::JSON document{nullptr};
   sourcemeta::core::parse_json(input, document, std::ref(tracker));
 
-  EXPECT_THROW(sourcemeta::blaze::TestSuite::parse(
-                   document, tracker, std::filesystem::path{STUBS_PATH},
-                   sourcemeta::core::schema_resolver,
-                   sourcemeta::core::schema_walker,
-                   sourcemeta::blaze::default_schema_compiler),
-               sourcemeta::blaze::TestParseError);
+  try {
+    sourcemeta::blaze::TestSuite::parse(
+        document, tracker, std::filesystem::path{STUBS_PATH},
+        sourcemeta::core::schema_resolver, sourcemeta::core::schema_walker,
+        sourcemeta::blaze::default_schema_compiler);
+    FAIL();
+  } catch (const sourcemeta::blaze::TestParseError &error) {
+    EXPECT_STREQ(error.what(),
+                 "The test document `target` property must be a URI or an "
+                 "array of URIs");
+    EXPECT_EQ(error.location(), sourcemeta::core::Pointer{"target"});
+    EXPECT_EQ(error.line(), 2);
+    EXPECT_EQ(error.column(), 5);
+  }
 }
 
 TEST(TestSuite_parse, error_target_empty_array) {
@@ -364,12 +380,20 @@ TEST(TestSuite_parse, error_target_empty_array) {
   sourcemeta::core::JSON document{nullptr};
   sourcemeta::core::parse_json(input, document, std::ref(tracker));
 
-  EXPECT_THROW(sourcemeta::blaze::TestSuite::parse(
-                   document, tracker, std::filesystem::path{STUBS_PATH},
-                   sourcemeta::core::schema_resolver,
-                   sourcemeta::core::schema_walker,
-                   sourcemeta::blaze::default_schema_compiler),
-               sourcemeta::blaze::TestParseError);
+  try {
+    sourcemeta::blaze::TestSuite::parse(
+        document, tracker, std::filesystem::path{STUBS_PATH},
+        sourcemeta::core::schema_resolver, sourcemeta::core::schema_walker,
+        sourcemeta::blaze::default_schema_compiler);
+    FAIL();
+  } catch (const sourcemeta::blaze::TestParseError &error) {
+    EXPECT_STREQ(error.what(),
+                 "The test document `target` array must contain at least "
+                 "one URI");
+    EXPECT_EQ(error.location(), sourcemeta::core::Pointer{"target"});
+    EXPECT_EQ(error.line(), 2);
+    EXPECT_EQ(error.column(), 5);
+  }
 }
 
 TEST(TestSuite_parse, error_target_array_first_element_not_string) {
@@ -385,12 +409,20 @@ TEST(TestSuite_parse, error_target_array_first_element_not_string) {
   sourcemeta::core::JSON document{nullptr};
   sourcemeta::core::parse_json(input, document, std::ref(tracker));
 
-  EXPECT_THROW(sourcemeta::blaze::TestSuite::parse(
-                   document, tracker, std::filesystem::path{STUBS_PATH},
-                   sourcemeta::core::schema_resolver,
-                   sourcemeta::core::schema_walker,
-                   sourcemeta::blaze::default_schema_compiler),
-               sourcemeta::blaze::TestParseError);
+  try {
+    sourcemeta::blaze::TestSuite::parse(
+        document, tracker, std::filesystem::path{STUBS_PATH},
+        sourcemeta::core::schema_resolver, sourcemeta::core::schema_walker,
+        sourcemeta::blaze::default_schema_compiler);
+    FAIL();
+  } catch (const sourcemeta::blaze::TestParseError &error) {
+    EXPECT_STREQ(error.what(),
+                 "Each entry in the test document `target` array must be a "
+                 "URI");
+    EXPECT_EQ(error.location(), (sourcemeta::core::Pointer{"target", 0}));
+    EXPECT_EQ(error.line(), 3);
+    EXPECT_EQ(error.column(), 7);
+  }
 }
 
 TEST(TestSuite_parse, error_target_array_trailing_element_not_string) {
@@ -406,12 +438,20 @@ TEST(TestSuite_parse, error_target_array_trailing_element_not_string) {
   sourcemeta::core::JSON document{nullptr};
   sourcemeta::core::parse_json(input, document, std::ref(tracker));
 
-  EXPECT_THROW(sourcemeta::blaze::TestSuite::parse(
-                   document, tracker, std::filesystem::path{STUBS_PATH},
-                   sourcemeta::core::schema_resolver,
-                   sourcemeta::core::schema_walker,
-                   sourcemeta::blaze::default_schema_compiler),
-               sourcemeta::blaze::TestParseError);
+  try {
+    sourcemeta::blaze::TestSuite::parse(
+        document, tracker, std::filesystem::path{STUBS_PATH},
+        sourcemeta::core::schema_resolver, sourcemeta::core::schema_walker,
+        sourcemeta::blaze::default_schema_compiler);
+    FAIL();
+  } catch (const sourcemeta::blaze::TestParseError &error) {
+    EXPECT_STREQ(error.what(),
+                 "Each entry in the test document `target` array must be a "
+                 "URI");
+    EXPECT_EQ(error.location(), (sourcemeta::core::Pointer{"target", 1}));
+    EXPECT_EQ(error.line(), 4);
+    EXPECT_EQ(error.column(), 7);
+  }
 }
 
 TEST(TestSuite_parse, error_target_array_element_null) {
@@ -427,12 +467,20 @@ TEST(TestSuite_parse, error_target_array_element_null) {
   sourcemeta::core::JSON document{nullptr};
   sourcemeta::core::parse_json(input, document, std::ref(tracker));
 
-  EXPECT_THROW(sourcemeta::blaze::TestSuite::parse(
-                   document, tracker, std::filesystem::path{STUBS_PATH},
-                   sourcemeta::core::schema_resolver,
-                   sourcemeta::core::schema_walker,
-                   sourcemeta::blaze::default_schema_compiler),
-               sourcemeta::blaze::TestParseError);
+  try {
+    sourcemeta::blaze::TestSuite::parse(
+        document, tracker, std::filesystem::path{STUBS_PATH},
+        sourcemeta::core::schema_resolver, sourcemeta::core::schema_walker,
+        sourcemeta::blaze::default_schema_compiler);
+    FAIL();
+  } catch (const sourcemeta::blaze::TestParseError &error) {
+    EXPECT_STREQ(error.what(),
+                 "Each entry in the test document `target` array must be a "
+                 "URI");
+    EXPECT_EQ(error.location(), (sourcemeta::core::Pointer{"target", 1}));
+    EXPECT_EQ(error.line(), 4);
+    EXPECT_EQ(error.column(), 7);
+  }
 }
 
 TEST(TestSuite_parse, error_target_array_element_array) {
@@ -448,12 +496,20 @@ TEST(TestSuite_parse, error_target_array_element_array) {
   sourcemeta::core::JSON document{nullptr};
   sourcemeta::core::parse_json(input, document, std::ref(tracker));
 
-  EXPECT_THROW(sourcemeta::blaze::TestSuite::parse(
-                   document, tracker, std::filesystem::path{STUBS_PATH},
-                   sourcemeta::core::schema_resolver,
-                   sourcemeta::core::schema_walker,
-                   sourcemeta::blaze::default_schema_compiler),
-               sourcemeta::blaze::TestParseError);
+  try {
+    sourcemeta::blaze::TestSuite::parse(
+        document, tracker, std::filesystem::path{STUBS_PATH},
+        sourcemeta::core::schema_resolver, sourcemeta::core::schema_walker,
+        sourcemeta::blaze::default_schema_compiler);
+    FAIL();
+  } catch (const sourcemeta::blaze::TestParseError &error) {
+    EXPECT_STREQ(error.what(),
+                 "Each entry in the test document `target` array must be a "
+                 "URI");
+    EXPECT_EQ(error.location(), (sourcemeta::core::Pointer{"target", 1}));
+    EXPECT_EQ(error.line(), 4);
+    EXPECT_EQ(error.column(), 7);
+  }
 }
 
 TEST(TestSuite_parse, error_target_array_unresolvable_entry) {
@@ -469,12 +525,17 @@ TEST(TestSuite_parse, error_target_array_unresolvable_entry) {
   sourcemeta::core::JSON document{nullptr};
   sourcemeta::core::parse_json(input, document, std::ref(tracker));
 
-  EXPECT_THROW(sourcemeta::blaze::TestSuite::parse(
-                   document, tracker, std::filesystem::path{STUBS_PATH},
-                   sourcemeta::core::schema_resolver,
-                   sourcemeta::core::schema_walker,
-                   sourcemeta::blaze::default_schema_compiler),
-               sourcemeta::core::SchemaResolutionError);
+  try {
+    sourcemeta::blaze::TestSuite::parse(
+        document, tracker, std::filesystem::path{STUBS_PATH},
+        sourcemeta::core::schema_resolver, sourcemeta::core::schema_walker,
+        sourcemeta::blaze::default_schema_compiler);
+    FAIL();
+  } catch (const sourcemeta::core::SchemaResolutionError &error) {
+    EXPECT_STREQ(error.what(),
+                 "Could not resolve the reference to an external schema");
+    EXPECT_EQ(error.identifier(), "https://example.com/non-existent-schema");
+  }
 }
 
 TEST(TestSuite_parse, valid_target_array_single_element) {
@@ -671,7 +732,12 @@ TEST(TestSuite_parse, valid_target_array_preserves_test_case_positions) {
   EXPECT_TRUE(result.tests[0].valid);
   EXPECT_EQ(result.tests[1].description, "Not an object");
   EXPECT_FALSE(result.tests[1].valid);
-  EXPECT_GT(std::get<0>(result.tests[0].position), 0);
-  EXPECT_GT(std::get<0>(result.tests[1].position),
-            std::get<0>(result.tests[0].position));
+  EXPECT_EQ(std::get<0>(result.tests[0].position), 7);
+  EXPECT_EQ(std::get<1>(result.tests[0].position), 7);
+  EXPECT_EQ(std::get<2>(result.tests[0].position), 7);
+  EXPECT_EQ(std::get<3>(result.tests[0].position), 35);
+  EXPECT_EQ(std::get<0>(result.tests[1].position), 8);
+  EXPECT_EQ(std::get<1>(result.tests[1].position), 7);
+  EXPECT_EQ(std::get<2>(result.tests[1].position), 8);
+  EXPECT_EQ(std::get<3>(result.tests[1].position), 68);
 }
