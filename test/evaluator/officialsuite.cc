@@ -208,6 +208,9 @@ static auto test_resolver(std::string_view identifier)
   READ_SCHEMA_FILE("http://localhost:1234/draft4/subSchemas.json",
                    std::filesystem::path{"draft4"} / "subSchemas.json")
 
+  READ_SCHEMA_FILE("http://localhost:1234/draft3/subSchemas.json",
+                   std::filesystem::path{"draft3"} / "subSchemas.json")
+
 #undef READ_SCHEMA_FILE
 
   return sourcemeta::core::schema_resolver(identifier);
@@ -412,6 +415,27 @@ int main(int argc, char **argv) {
                    "http://json-schema.org/draft-04/schema#",
                    // TODO: Enable all tests
                    {"date-time", "email", "hostname", "ipv4", "ipv6", "uri"});
+
+    // Draft 3
+    register_tests("draft3", "JSONSchemaOfficialSuite_Draft3",
+                   "http://json-schema.org/draft-03/schema#",
+                   // TODO: Enable all tests
+                   {"additionalItems", "additionalProperties", "default",
+                    "dependencies", "disallow", "divisibleBy", "enum",
+                    "extends", "infinite-loop-detection", "items",
+                    "patternProperties", "properties", "ref", "refRemote",
+                    "required", "type", "uniqueItems"});
+    register_tests(std::filesystem::path{"draft3"} / "optional",
+                   "JSONSchemaOfficialSuite_Draft3_Optional",
+                   "http://json-schema.org/draft-03/schema#",
+                   // TODO: Enable all tests
+                   {"bignum", "non-bmp-regex", "zeroTerminatedFloats"});
+    register_tests(std::filesystem::path{"draft3"} / "optional" / "format",
+                   "JSONSchemaOfficialSuite_Draft3_Optional_Format",
+                   "http://json-schema.org/draft-03/schema#",
+                   // TODO: Enable all tests
+                   {"color", "date-time", "date", "ecmascript-regex", "email",
+                    "host-name", "ip-address", "ipv6", "regex", "time", "uri"});
   } catch (const sourcemeta::core::SchemaResolutionError &error) {
     std::cerr << error.what() << ": " << error.identifier() << "\n";
     return EXIT_FAILURE;
