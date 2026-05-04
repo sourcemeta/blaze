@@ -268,6 +268,7 @@ auto WALK_UP_IN_PLACE_APPLICATORS(const JSON &root, const SchemaFrame &frame,
 #include "upgrade/prefix_promoted_draft_6_keywords.h"
 #include "upgrade/prefix_promoted_draft_7_keywords.h"
 #include "upgrade/upgrade_2019_09_to_2020_12.h"
+#include "upgrade/upgrade_dialect_override_cleanup.h"
 #include "upgrade/upgrade_draft_4_to_draft_6.h"
 #include "upgrade/upgrade_draft_6_to_draft_7.h"
 #include "upgrade/upgrade_draft_7_to_draft_2019_09.h"
@@ -288,12 +289,15 @@ auto add(SchemaTransformer &bundle, const AlterSchemaMode mode) -> void {
     bundle.add<UpgradeDraft4ToDraft6>();
     bundle.add<EmptyObjectAsTrue>();
 
+    std::string target_dialect{"http://json-schema.org/draft-06/schema#"};
+
     if (mode == AlterSchemaMode::UpgradeDraft7 ||
         mode == AlterSchemaMode::Upgrade201909 ||
         mode == AlterSchemaMode::Upgrade202012) {
       bundle.add<PrefixPromotedDraft7Keywords>();
       bundle.add<UpgradeDraft6ToDraft7>();
       bundle.add<EnumToConst>();
+      target_dialect = "http://json-schema.org/draft-07/schema#";
     }
 
     if (mode == AlterSchemaMode::Upgrade201909 ||
@@ -301,12 +305,16 @@ auto add(SchemaTransformer &bundle, const AlterSchemaMode mode) -> void {
       bundle.add<PrefixPromoted201909Keywords>();
       bundle.add<UpgradeDraft7To201909>();
       bundle.add<DefinitionsToDefs>();
+      target_dialect = "https://json-schema.org/draft/2019-09/schema";
     }
 
     if (mode == AlterSchemaMode::Upgrade202012) {
       bundle.add<PrefixPromoted202012Keywords>();
       bundle.add<Upgrade201909To202012>();
+      target_dialect = "https://json-schema.org/draft/2020-12/schema";
     }
+
+    bundle.add<UpgradeDialectOverrideCleanup>(std::move(target_dialect));
 
     return;
   }

@@ -641,3 +641,52 @@ TEST(AlterSchema_upgrade_2019_09_to_2020_12,
 
   UPGRADE_2020_12(document, expected);
 }
+
+TEST(AlterSchema_upgrade_2019_09_to_2020_12,
+     no_dollar_schema_with_default_dialect_2019_09) {
+  auto document = sourcemeta::core::parse_json(R"JSON({
+    "id": "https://example.com/test",
+    "type": "integer"
+  })JSON");
+
+  const auto expected = sourcemeta::core::parse_json(R"JSON({
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "id": "https://example.com/test",
+    "type": "integer"
+  })JSON");
+
+  UPGRADE_2020_12_WITH_DIALECT(document, expected,
+                               "https://json-schema.org/draft/2019-09/schema");
+}
+
+TEST(AlterSchema_upgrade_2019_09_to_2020_12,
+     no_dollar_schema_with_default_dialect_2019_09_with_recursive_anchor) {
+  auto document = sourcemeta::core::parse_json(R"JSON({
+    "$recursiveAnchor": true,
+    "type": "object"
+  })JSON");
+
+  const auto expected = sourcemeta::core::parse_json(R"JSON({
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "$dynamicAnchor": "meta",
+    "type": "object"
+  })JSON");
+
+  UPGRADE_2020_12_WITH_DIALECT(document, expected,
+                               "https://json-schema.org/draft/2019-09/schema");
+}
+
+TEST(AlterSchema_upgrade_2019_09_to_2020_12,
+     no_dollar_schema_no_actionable_content_with_default_dialect_2019_09) {
+  auto document = sourcemeta::core::parse_json(R"JSON({
+    "type": "integer"
+  })JSON");
+
+  const auto expected = sourcemeta::core::parse_json(R"JSON({
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "type": "integer"
+  })JSON");
+
+  UPGRADE_2020_12_WITH_DIALECT(document, expected,
+                               "https://json-schema.org/draft/2019-09/schema");
+}
