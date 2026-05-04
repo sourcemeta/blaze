@@ -1806,22 +1806,24 @@ auto compiler_draft3_validation_type(const Context &context,
                    context, schema_context, dynamic_context,
                    sourcemeta::core::JSON::Type::Boolean)};
     } else if (type == "object") {
-      const auto minimum{
-          unsigned_integer_property(schema_context.schema, "minProperties", 0)};
-      const auto maximum{
-          unsigned_integer_property(schema_context.schema, "maxProperties")};
+      if (!is_draft3) {
+        const auto minimum{unsigned_integer_property(schema_context.schema,
+                                                     "minProperties", 0)};
+        const auto maximum{
+            unsigned_integer_property(schema_context.schema, "maxProperties")};
 
-      if (context.mode == Mode::FastValidation) {
-        if (maximum.has_value() && minimum == 0) {
-          return {make(
-              sourcemeta::blaze::InstructionIndex::AssertionTypeObjectUpper,
-              context, schema_context, dynamic_context,
-              ValueUnsignedInteger{maximum.value()})};
-        } else if (minimum > 0 || maximum.has_value()) {
-          return {make(
-              sourcemeta::blaze::InstructionIndex::AssertionTypeObjectBounded,
-              context, schema_context, dynamic_context,
-              ValueRange{minimum, maximum, false})};
+        if (context.mode == Mode::FastValidation) {
+          if (maximum.has_value() && minimum == 0) {
+            return {make(
+                sourcemeta::blaze::InstructionIndex::AssertionTypeObjectUpper,
+                context, schema_context, dynamic_context,
+                ValueUnsignedInteger{maximum.value()})};
+          } else if (minimum > 0 || maximum.has_value()) {
+            return {make(
+                sourcemeta::blaze::InstructionIndex::AssertionTypeObjectBounded,
+                context, schema_context, dynamic_context,
+                ValueRange{minimum, maximum, false})};
+          }
         }
       }
 
@@ -1834,7 +1836,7 @@ auto compiler_draft3_validation_type(const Context &context,
         return {};
       }
 
-      if (context.mode == Mode::FastValidation &&
+      if (!is_draft3 && context.mode == Mode::FastValidation &&
           schema_context.schema.defines("required")) {
         return {};
       }
@@ -2026,21 +2028,84 @@ auto compiler_draft3_applicator_extends(const Context &,
 }
 
 auto compiler_draft3_applicator_dependencies(
-    const Context &, const SchemaContext &schema_context,
-    const DynamicContext &, const Instructions &) -> Instructions {
-  throw sourcemeta::blaze::CompilerError(
-      schema_context.base, to_pointer(schema_context.relative_pointer),
-      "Draft 3 dependencies compilation is not yet implemented");
+    const Context &context, const SchemaContext &schema_context,
+    const DynamicContext &dynamic_context, const Instructions &)
+    -> Instructions {
+  if (schema_context.schema.defines("type") &&
+      schema_context.schema.at("type").is_string() &&
+      schema_context.schema.at("type").to_string() != "object") {
+    return {};
+  }
+
+  if (!schema_context.schema.at(dynamic_context.keyword).is_object()) {
+    return {};
+  }
+
+  using Known = sourcemeta::core::Vocabularies::Known;
+  const auto is_draft3{
+      schema_context.vocabularies.contains(Known::JSON_Schema_Draft_3) ||
+      schema_context.vocabularies.contains(Known::JSON_Schema_Draft_3_Hyper)};
+
+  Instructions children;
+  ValueStringMap dependencies;
+
+  for (const auto &entry :
+       schema_context.schema.at(dynamic_context.keyword).as_object()) {
+    if (is_schema(entry.second)) {
+      if (!entry.second.is_boolean() || !entry.second.to_boolean()) {
+        children.push_back(make(
+            sourcemeta::blaze::InstructionIndex::LogicalWhenDefines, context,
+            schema_context, dynamic_context, make_property(entry.first),
+            compile(context, schema_context, relative_dynamic_context(),
+                    sourcemeta::blaze::make_weak_pointer(entry.first))));
+      }
+    } else if (entry.second.is_array()) {
+      std::vector<sourcemeta::core::JSON::String> properties;
+      for (const auto &property : entry.second.as_array()) {
+        assert(property.is_string());
+        properties.push_back(property.to_string());
+      }
+
+      if (!properties.empty()) {
+        dependencies.emplace(entry.first, properties);
+      }
+    } else if (is_draft3 && entry.second.is_string()) {
+      dependencies.emplace(entry.first,
+                           std::vector<sourcemeta::core::JSON::String>{
+                               entry.second.to_string()});
+    }
+  }
+
+  if (!dependencies.empty()) {
+    children.push_back(make(
+        sourcemeta::blaze::InstructionIndex::AssertionPropertyDependencies,
+        context, schema_context, dynamic_context, std::move(dependencies)));
+  }
+
+  return children;
 }
 
-auto compiler_draft3_validation_divisibleby(const Context &,
-                                            const SchemaContext &schema_context,
-                                            const DynamicContext &,
-                                            const Instructions &)
+auto compiler_draft3_validation_divisibleby(
+    const Context &context, const SchemaContext &schema_context,
+    const DynamicContext &dynamic_context, const Instructions &)
     -> Instructions {
-  throw sourcemeta::blaze::CompilerError(
-      schema_context.base, to_pointer(schema_context.relative_pointer),
-      "Draft 3 divisibleBy compilation is not yet implemented");
+  if (!schema_context.schema.at(dynamic_context.keyword).is_number()) {
+    return {};
+  }
+
+  assert(schema_context.schema.at(dynamic_context.keyword).is_positive());
+
+  if (schema_context.schema.defines("type") &&
+      schema_context.schema.at("type").is_string() &&
+      schema_context.schema.at("type").to_string() != "integer" &&
+      schema_context.schema.at("type").to_string() != "number") {
+    return {};
+  }
+
+  return {make(sourcemeta::blaze::InstructionIndex::AssertionDivisible, context,
+               schema_context, dynamic_context,
+               sourcemeta::core::JSON{
+                   schema_context.schema.at(dynamic_context.keyword)})};
 }
 
 } // namespace internal
