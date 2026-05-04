@@ -2027,18 +2027,17 @@ auto compiler_draft3_applicator_extends(const Context &context,
   const auto &value{schema_context.schema.at(dynamic_context.keyword)};
 
   if (value.is_object()) {
-    Instructions children{compile(context, schema_context,
-                                  relative_dynamic_context(),
-                                  sourcemeta::core::empty_weak_pointer,
-                                  sourcemeta::core::empty_weak_pointer)};
-
     if (context.mode == Mode::FastValidation) {
-      return children;
+      return compile(context, schema_context, dynamic_context,
+                     sourcemeta::core::empty_weak_pointer,
+                     sourcemeta::core::empty_weak_pointer);
     }
 
     return {make(sourcemeta::blaze::InstructionIndex::LogicalAnd, context,
                  schema_context, dynamic_context, ValueNone{},
-                 std::move(children))};
+                 compile(context, schema_context, relative_dynamic_context(),
+                         sourcemeta::core::empty_weak_pointer,
+                         sourcemeta::core::empty_weak_pointer))};
   }
 
   if (!value.is_array()) {
