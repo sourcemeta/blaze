@@ -1787,22 +1787,22 @@ auto compiler_draft3_validation_type(const Context &context,
             if (type_string == "null") {
               branch.push_back(
                   make(sourcemeta::blaze::InstructionIndex::AssertionTypeStrict,
-                       context, schema_context, dynamic_context,
+                       context, schema_context, relative_dynamic_context(),
                        sourcemeta::core::JSON::Type::Null));
             } else if (type_string == "boolean") {
               branch.push_back(
                   make(sourcemeta::blaze::InstructionIndex::AssertionTypeStrict,
-                       context, schema_context, dynamic_context,
+                       context, schema_context, relative_dynamic_context(),
                        sourcemeta::core::JSON::Type::Boolean));
             } else if (type_string == "object") {
               branch.push_back(
                   make(sourcemeta::blaze::InstructionIndex::AssertionTypeStrict,
-                       context, schema_context, dynamic_context,
+                       context, schema_context, relative_dynamic_context(),
                        sourcemeta::core::JSON::Type::Object));
             } else if (type_string == "array") {
               branch.push_back(
                   make(sourcemeta::blaze::InstructionIndex::AssertionTypeStrict,
-                       context, schema_context, dynamic_context,
+                       context, schema_context, relative_dynamic_context(),
                        sourcemeta::core::JSON::Type::Array));
             } else if (type_string == "number") {
               ValueTypes types{};
@@ -1813,18 +1813,22 @@ auto compiler_draft3_validation_type(const Context &context,
                   std::to_underlying(sourcemeta::core::JSON::Type::Decimal));
               branch.push_back(make(
                   sourcemeta::blaze::InstructionIndex::AssertionTypeStrictAny,
-                  context, schema_context, dynamic_context, types));
+                  context, schema_context, relative_dynamic_context(), types));
             } else if (type_string == "integer") {
               branch.push_back(
                   make(sourcemeta::blaze::InstructionIndex::AssertionTypeStrict,
-                       context, schema_context, dynamic_context,
+                       context, schema_context, relative_dynamic_context(),
                        sourcemeta::core::JSON::Type::Integer));
             } else if (type_string == "string") {
               branch.push_back(
                   make(sourcemeta::blaze::InstructionIndex::AssertionTypeStrict,
-                       context, schema_context, dynamic_context,
+                       context, schema_context, relative_dynamic_context(),
                        sourcemeta::core::JSON::Type::String));
+            } else {
+              continue;
             }
+          } else {
+            continue;
           }
 
           disjunctors.push_back(
