@@ -1745,13 +1745,266 @@ auto compiler_draft3_validation_minimum(const Context &context,
   }
 }
 
-auto compiler_draft3_validation_type(const Context &,
+auto compiler_draft3_validation_type(const Context &context,
                                      const SchemaContext &schema_context,
-                                     const DynamicContext &,
+                                     const DynamicContext &dynamic_context,
                                      const Instructions &) -> Instructions {
-  throw sourcemeta::blaze::CompilerError(
-      schema_context.base, to_pointer(schema_context.relative_pointer),
-      "Draft 3 type compilation is not yet implemented");
+  const auto &value{schema_context.schema.at(dynamic_context.keyword)};
+
+  using Known = sourcemeta::core::Vocabularies::Known;
+  const auto is_draft3{
+      schema_context.vocabularies.contains(Known::JSON_Schema_Draft_3) ||
+      schema_context.vocabularies.contains(Known::JSON_Schema_Draft_3_Hyper)};
+
+  if (is_draft3) {
+    if (value.is_string() && value.to_string() == "any") {
+      return {};
+    }
+
+    if (value.is_array()) {
+      for (const auto &element : value.as_array()) {
+        if (element.is_object()) {
+          throw sourcemeta::blaze::CompilerError(
+              schema_context.base, to_pointer(schema_context.relative_pointer),
+              "Draft 3 type compilation with inline schemas is not yet "
+              "implemented");
+        }
+
+        if (element.is_string() && element.to_string() == "any") {
+          return {};
+        }
+      }
+    }
+  }
+
+  if (value.is_string()) {
+    const auto &type{value.to_string()};
+    if (type == "null") {
+      if (context.mode == Mode::FastValidation &&
+          schema_context.schema.defines("enum") &&
+          schema_context.schema.at("enum").is_array() &&
+          std::ranges::all_of(
+              schema_context.schema.at("enum").as_array(),
+              [](const auto &candidate) { return candidate.is_null(); })) {
+        return {};
+      }
+
+      return {make(sourcemeta::blaze::InstructionIndex::AssertionTypeStrict,
+                   context, schema_context, dynamic_context,
+                   sourcemeta::core::JSON::Type::Null)};
+    } else if (type == "boolean") {
+      if (context.mode == Mode::FastValidation &&
+          schema_context.schema.defines("enum") &&
+          schema_context.schema.at("enum").is_array() &&
+          std::ranges::all_of(
+              schema_context.schema.at("enum").as_array(),
+              [](const auto &candidate) { return candidate.is_boolean(); })) {
+        return {};
+      }
+
+      return {make(sourcemeta::blaze::InstructionIndex::AssertionTypeStrict,
+                   context, schema_context, dynamic_context,
+                   sourcemeta::core::JSON::Type::Boolean)};
+    } else if (type == "object") {
+      const auto minimum{
+          unsigned_integer_property(schema_context.schema, "minProperties", 0)};
+      const auto maximum{
+          unsigned_integer_property(schema_context.schema, "maxProperties")};
+
+      if (context.mode == Mode::FastValidation) {
+        if (maximum.has_value() && minimum == 0) {
+          return {make(
+              sourcemeta::blaze::InstructionIndex::AssertionTypeObjectUpper,
+              context, schema_context, dynamic_context,
+              ValueUnsignedInteger{maximum.value()})};
+        } else if (minimum > 0 || maximum.has_value()) {
+          return {make(
+              sourcemeta::blaze::InstructionIndex::AssertionTypeObjectBounded,
+              context, schema_context, dynamic_context,
+              ValueRange{minimum, maximum, false})};
+        }
+      }
+
+      if (context.mode == Mode::FastValidation &&
+          schema_context.schema.defines("enum") &&
+          schema_context.schema.at("enum").is_array() &&
+          std::ranges::all_of(
+              schema_context.schema.at("enum").as_array(),
+              [](const auto &candidate) { return candidate.is_object(); })) {
+        return {};
+      }
+
+      if (context.mode == Mode::FastValidation &&
+          schema_context.schema.defines("required")) {
+        return {};
+      }
+
+      return {make(sourcemeta::blaze::InstructionIndex::AssertionTypeStrict,
+                   context, schema_context, dynamic_context,
+                   sourcemeta::core::JSON::Type::Object)};
+    } else if (type == "array") {
+      const auto minimum{
+          unsigned_integer_property(schema_context.schema, "minItems", 0)};
+      const auto maximum{
+          unsigned_integer_property(schema_context.schema, "maxItems")};
+
+      if (context.mode == Mode::FastValidation) {
+        if (maximum.has_value() && minimum == 0) {
+          return {
+              make(sourcemeta::blaze::InstructionIndex::AssertionTypeArrayUpper,
+                   context, schema_context, dynamic_context,
+                   ValueUnsignedInteger{maximum.value()})};
+        } else if (minimum > 0 || maximum.has_value()) {
+          return {make(
+              sourcemeta::blaze::InstructionIndex::AssertionTypeArrayBounded,
+              context, schema_context, dynamic_context,
+              ValueRange{minimum, maximum, false})};
+        }
+      }
+
+      if (context.mode == Mode::FastValidation &&
+          schema_context.schema.defines("enum") &&
+          schema_context.schema.at("enum").is_array() &&
+          std::ranges::all_of(
+              schema_context.schema.at("enum").as_array(),
+              [](const auto &candidate) { return candidate.is_array(); })) {
+        return {};
+      }
+
+      return {make(sourcemeta::blaze::InstructionIndex::AssertionTypeStrict,
+                   context, schema_context, dynamic_context,
+                   sourcemeta::core::JSON::Type::Array)};
+    } else if (type == "number") {
+      if (context.mode == Mode::FastValidation &&
+          schema_context.schema.defines("enum") &&
+          schema_context.schema.at("enum").is_array() &&
+          std::ranges::all_of(
+              schema_context.schema.at("enum").as_array(),
+              [](const auto &candidate) { return candidate.is_number(); })) {
+        return {};
+      }
+
+      ValueTypes types{};
+      types.set(std::to_underlying(sourcemeta::core::JSON::Type::Real));
+      types.set(std::to_underlying(sourcemeta::core::JSON::Type::Integer));
+      types.set(std::to_underlying(sourcemeta::core::JSON::Type::Decimal));
+      return {make(sourcemeta::blaze::InstructionIndex::AssertionTypeStrictAny,
+                   context, schema_context, dynamic_context, types)};
+    } else if (type == "integer") {
+      if (context.mode == Mode::FastValidation &&
+          schema_context.schema.defines("enum") &&
+          schema_context.schema.at("enum").is_array() &&
+          std::ranges::all_of(
+              schema_context.schema.at("enum").as_array(),
+              [](const auto &candidate) { return candidate.is_integer(); })) {
+        return {};
+      }
+
+      return {make(sourcemeta::blaze::InstructionIndex::AssertionTypeStrict,
+                   context, schema_context, dynamic_context,
+                   sourcemeta::core::JSON::Type::Integer)};
+    } else if (type == "string") {
+      const auto minimum{
+          unsigned_integer_property(schema_context.schema, "minLength", 0)};
+      const auto maximum{
+          unsigned_integer_property(schema_context.schema, "maxLength")};
+
+      if (context.mode == Mode::FastValidation) {
+        if (maximum.has_value() && minimum == 0) {
+          return {make(
+              sourcemeta::blaze::InstructionIndex::AssertionTypeStringUpper,
+              context, schema_context, dynamic_context,
+              ValueUnsignedInteger{maximum.value()})};
+        } else if (minimum > 0 || maximum.has_value()) {
+          return {make(
+              sourcemeta::blaze::InstructionIndex::AssertionTypeStringBounded,
+              context, schema_context, dynamic_context,
+              ValueRange{minimum, maximum, false})};
+        }
+      }
+
+      if (context.mode == Mode::FastValidation &&
+          schema_context.schema.defines("enum") &&
+          schema_context.schema.at("enum").is_array() &&
+          std::ranges::all_of(
+              schema_context.schema.at("enum").as_array(),
+              [](const auto &candidate) { return candidate.is_string(); })) {
+        return {};
+      }
+
+      return {make(sourcemeta::blaze::InstructionIndex::AssertionTypeStrict,
+                   context, schema_context, dynamic_context,
+                   sourcemeta::core::JSON::Type::String)};
+    } else {
+      return {};
+    }
+  } else if (value.is_array() && value.size() == 1 &&
+             value.front().is_string()) {
+    const auto &type{value.front().to_string()};
+    if (type == "null") {
+      return {make(sourcemeta::blaze::InstructionIndex::AssertionTypeStrict,
+                   context, schema_context, dynamic_context,
+                   sourcemeta::core::JSON::Type::Null)};
+    } else if (type == "boolean") {
+      return {make(sourcemeta::blaze::InstructionIndex::AssertionTypeStrict,
+                   context, schema_context, dynamic_context,
+                   sourcemeta::core::JSON::Type::Boolean)};
+    } else if (type == "object") {
+      return {make(sourcemeta::blaze::InstructionIndex::AssertionTypeStrict,
+                   context, schema_context, dynamic_context,
+                   sourcemeta::core::JSON::Type::Object)};
+    } else if (type == "array") {
+      return {make(sourcemeta::blaze::InstructionIndex::AssertionTypeStrict,
+                   context, schema_context, dynamic_context,
+                   sourcemeta::core::JSON::Type::Array)};
+    } else if (type == "number") {
+      ValueTypes types{};
+      types.set(std::to_underlying(sourcemeta::core::JSON::Type::Real));
+      types.set(std::to_underlying(sourcemeta::core::JSON::Type::Integer));
+      types.set(std::to_underlying(sourcemeta::core::JSON::Type::Decimal));
+      return {make(sourcemeta::blaze::InstructionIndex::AssertionTypeStrictAny,
+                   context, schema_context, dynamic_context, types)};
+    } else if (type == "integer") {
+      return {make(sourcemeta::blaze::InstructionIndex::AssertionTypeStrict,
+                   context, schema_context, dynamic_context,
+                   sourcemeta::core::JSON::Type::Integer)};
+    } else if (type == "string") {
+      return {make(sourcemeta::blaze::InstructionIndex::AssertionTypeStrict,
+                   context, schema_context, dynamic_context,
+                   sourcemeta::core::JSON::Type::String)};
+    } else {
+      return {};
+    }
+  } else if (value.is_array()) {
+    ValueTypes types{};
+    for (const auto &element : value.as_array()) {
+      assert(element.is_string());
+      const auto &type_string{element.to_string()};
+      if (type_string == "null") {
+        types.set(std::to_underlying(sourcemeta::core::JSON::Type::Null));
+      } else if (type_string == "boolean") {
+        types.set(std::to_underlying(sourcemeta::core::JSON::Type::Boolean));
+      } else if (type_string == "object") {
+        types.set(std::to_underlying(sourcemeta::core::JSON::Type::Object));
+      } else if (type_string == "array") {
+        types.set(std::to_underlying(sourcemeta::core::JSON::Type::Array));
+      } else if (type_string == "number") {
+        types.set(std::to_underlying(sourcemeta::core::JSON::Type::Integer));
+        types.set(std::to_underlying(sourcemeta::core::JSON::Type::Real));
+        types.set(std::to_underlying(sourcemeta::core::JSON::Type::Decimal));
+      } else if (type_string == "integer") {
+        types.set(std::to_underlying(sourcemeta::core::JSON::Type::Integer));
+      } else if (type_string == "string") {
+        types.set(std::to_underlying(sourcemeta::core::JSON::Type::String));
+      }
+    }
+
+    assert(types.any());
+    return {make(sourcemeta::blaze::InstructionIndex::AssertionTypeStrictAny,
+                 context, schema_context, dynamic_context, types)};
+  }
+
+  return {};
 }
 
 auto compiler_draft3_validation_disallow(const Context &,
