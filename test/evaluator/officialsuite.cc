@@ -421,7 +421,7 @@ int main(int argc, char **argv) {
                    "http://json-schema.org/draft-03/schema#",
                    // TODO: Enable all tests
                    {"disallow", "enum", "extends", "infinite-loop-detection",
-                    "ref", "refRemote", "required", "type"});
+                    "ref", "refRemote", "required"});
     register_tests(std::filesystem::path{"draft3"} / "optional",
                    "JSONSchemaOfficialSuite_Draft3_Optional",
                    "http://json-schema.org/draft-03/schema#", {});
