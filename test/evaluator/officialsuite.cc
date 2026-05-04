@@ -420,16 +420,12 @@ int main(int argc, char **argv) {
     register_tests("draft3", "JSONSchemaOfficialSuite_Draft3",
                    "http://json-schema.org/draft-03/schema#",
                    // TODO: Enable all tests
-                   {"additionalItems", "additionalProperties", "default",
-                    "dependencies", "disallow", "divisibleBy", "enum",
-                    "extends", "infinite-loop-detection", "items",
-                    "patternProperties", "properties", "ref", "refRemote",
-                    "required", "type", "uniqueItems"});
+                   {"additionalProperties", "dependencies", "disallow",
+                    "divisibleBy", "enum", "extends", "infinite-loop-detection",
+                    "ref", "refRemote", "required", "type"});
     register_tests(std::filesystem::path{"draft3"} / "optional",
                    "JSONSchemaOfficialSuite_Draft3_Optional",
-                   "http://json-schema.org/draft-03/schema#",
-                   // TODO: Enable all tests
-                   {"bignum", "non-bmp-regex", "zeroTerminatedFloats"});
+                   "http://json-schema.org/draft-03/schema#", {});
     register_tests(std::filesystem::path{"draft3"} / "optional" / "format",
                    "JSONSchemaOfficialSuite_Draft3_Optional_Format",
                    "http://json-schema.org/draft-03/schema#",

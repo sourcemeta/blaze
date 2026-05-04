@@ -488,7 +488,7 @@ auto sourcemeta::blaze::default_schema_compiler(
 
   // Any
   COMPILE_ANY(Known::JSON_Schema_Draft_4, Known::JSON_Schema_Draft_4_Hyper,
-              "type", compiler_draft4_validation_type);
+              "type", compiler_draft3_validation_type);
   COMPILE_ANY(Known::JSON_Schema_Draft_4, Known::JSON_Schema_Draft_4_Hyper,
               "enum", compiler_draft3_validation_enum);
 
