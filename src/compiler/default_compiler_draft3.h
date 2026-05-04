@@ -2018,13 +2018,60 @@ auto compiler_draft3_validation_disallow(const Context &,
       "Draft 3 disallow compilation is not yet implemented");
 }
 
-auto compiler_draft3_applicator_extends(const Context &,
+auto compiler_draft3_applicator_extends(const Context &context,
                                         const SchemaContext &schema_context,
-                                        const DynamicContext &,
+                                        const DynamicContext &dynamic_context,
                                         const Instructions &) -> Instructions {
-  throw sourcemeta::blaze::CompilerError(
-      schema_context.base, to_pointer(schema_context.relative_pointer),
-      "Draft 3 extends compilation is not yet implemented");
+  assert(!context.uses_dynamic_scopes);
+
+  const auto &value{schema_context.schema.at(dynamic_context.keyword)};
+
+  if (value.is_object()) {
+    Instructions children{compile(context, schema_context,
+                                  relative_dynamic_context(),
+                                  sourcemeta::core::empty_weak_pointer,
+                                  sourcemeta::core::empty_weak_pointer)};
+
+    if (context.mode == Mode::FastValidation) {
+      return children;
+    }
+
+    return {make(sourcemeta::blaze::InstructionIndex::LogicalAnd, context,
+                 schema_context, dynamic_context, ValueNone{},
+                 std::move(children))};
+  }
+
+  if (!value.is_array()) {
+    return {};
+  }
+
+  assert(!value.empty());
+
+  Instructions children;
+
+  if (context.mode == Mode::FastValidation) {
+    for (std::uint64_t index = 0; index < value.size(); index++) {
+      for (auto &&step : compile(
+               context, schema_context, dynamic_context,
+               {static_cast<sourcemeta::core::Pointer::Token::Index>(index)})) {
+        children.push_back(std::move(step));
+      }
+    }
+
+    return children;
+  }
+
+  for (std::uint64_t index = 0; index < value.size(); index++) {
+    for (auto &&step : compile(
+             context, schema_context, relative_dynamic_context(),
+             {static_cast<sourcemeta::core::Pointer::Token::Index>(index)})) {
+      children.push_back(std::move(step));
+    }
+  }
+
+  return {make(sourcemeta::blaze::InstructionIndex::LogicalAnd, context,
+               schema_context, dynamic_context, ValueNone{},
+               std::move(children))};
 }
 
 auto compiler_draft3_applicator_dependencies(
