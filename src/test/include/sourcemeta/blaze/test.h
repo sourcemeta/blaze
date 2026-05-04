@@ -94,13 +94,13 @@ struct SOURCEMETA_BLAZE_TEST_EXPORT TestSuite {
   std::vector<sourcemeta::core::JSON::String> targets;
   /// The list of test cases in the suite
   std::vector<TestCase> tests;
-#if defined(_MSC_VER)
-#pragma warning(default : 4251)
-#endif
   /// The compiled schema templates for fast validation
   std::vector<Template> schemas_fast;
   /// The compiled schema templates for exhaustive validation
   std::vector<Template> schemas_exhaustive;
+#if defined(_MSC_VER)
+#pragma warning(default : 4251)
+#endif
   /// The evaluator instance used for validation
   Evaluator evaluator;
 
