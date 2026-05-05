@@ -2203,14 +2203,22 @@ auto compiler_draft3_validation_disallow(const Context &context,
       if (element.is_string()) {
         draft3_set_type_bits(element.to_string(), types);
       } else if (element.is_object()) {
-        auto inner_instructions{compile(
-            context, schema_context, relative_dynamic_context(),
-            {static_cast<sourcemeta::core::Pointer::Token::Index>(index)})};
+        sourcemeta::core::WeakPointer index_suffix;
+        index_suffix.push_back(index);
+        const auto element_uri{
+            sourcemeta::core::to_uri(
+                schema_context.relative_pointer.concat(index_suffix),
+                schema_context.base)
+                .canonicalize()
+                .recompose()};
 
-        sourcemeta::core::WeakPointer index_token;
-        index_token.push_back(index);
+        auto inner_instructions{
+            compile(context, schema_context, relative_dynamic_context(),
+                    sourcemeta::core::empty_weak_pointer,
+                    sourcemeta::core::empty_weak_pointer, element_uri)};
+
         const auto element_relative_pointer{
-            schema_context.relative_pointer.concat(index_token)};
+            schema_context.relative_pointer.concat(index_suffix)};
         const SchemaContext element_schema_context{
             .relative_pointer = element_relative_pointer,
             .schema = schema_context.schema,
