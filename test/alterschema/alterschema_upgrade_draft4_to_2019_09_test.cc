@@ -403,3 +403,62 @@ TEST(AlterSchema_upgrade_Draft4_to_2019_09,
 
   UPGRADE_2019_09(document, expected);
 }
+
+TEST(AlterSchema_upgrade_Draft4_to_2019_09,
+     no_dollar_schema_with_default_dialect_draft4) {
+  auto document = sourcemeta::core::parse_json(R"JSON({
+    "id": "https://example.com/test",
+    "type": "integer"
+  })JSON");
+
+  const auto expected = sourcemeta::core::parse_json(R"JSON({
+    "$schema": "https://json-schema.org/draft/2019-09/schema",
+    "$id": "https://example.com/test",
+    "type": "integer"
+  })JSON");
+
+  UPGRADE_2019_09_WITH_DIALECT(document, expected,
+                               "http://json-schema.org/draft-04/schema#");
+}
+
+TEST(AlterSchema_upgrade_Draft4_to_2019_09,
+     top_level_ref_with_dollar_schema_draft4) {
+  auto document = sourcemeta::core::parse_json(R"JSON({
+    "$schema": "http://json-schema.org/draft-04/schema#",
+    "$ref": "#/definitions/Foo",
+    "definitions": {
+      "Foo": { "type": "string" }
+    }
+  })JSON");
+
+  const auto expected = sourcemeta::core::parse_json(R"JSON({
+    "$schema": "https://json-schema.org/draft/2019-09/schema",
+    "$ref": "#/x-definitions/Foo",
+    "x-definitions": {
+      "Foo": { "type": "string" }
+    }
+  })JSON");
+
+  UPGRADE_2019_09(document, expected);
+}
+
+TEST(AlterSchema_upgrade_Draft4_to_2019_09,
+     top_level_ref_no_dollar_schema_with_default_dialect_draft4) {
+  auto document = sourcemeta::core::parse_json(R"JSON({
+    "$ref": "#/definitions/Foo",
+    "definitions": {
+      "Foo": { "type": "string" }
+    }
+  })JSON");
+
+  const auto expected = sourcemeta::core::parse_json(R"JSON({
+    "$schema": "https://json-schema.org/draft/2019-09/schema",
+    "$ref": "#/x-definitions/Foo",
+    "x-definitions": {
+      "Foo": { "type": "string" }
+    }
+  })JSON");
+
+  UPGRADE_2019_09_WITH_DIALECT(document, expected,
+                               "http://json-schema.org/draft-04/schema#");
+}

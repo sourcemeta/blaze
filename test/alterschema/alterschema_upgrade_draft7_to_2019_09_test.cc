@@ -1275,3 +1275,37 @@ TEST(AlterSchema_upgrade_Draft7_to_2019_09,
 
   UPGRADE_2019_09(document, expected);
 }
+
+TEST(AlterSchema_upgrade_Draft7_to_2019_09,
+     no_dollar_schema_with_default_dialect_draft7) {
+  auto document = sourcemeta::core::parse_json(R"JSON({
+    "$id": "https://example.com/test",
+    "type": "integer"
+  })JSON");
+
+  const auto expected = sourcemeta::core::parse_json(R"JSON({
+    "$schema": "https://json-schema.org/draft/2019-09/schema",
+    "$id": "https://example.com/test",
+    "type": "integer"
+  })JSON");
+
+  UPGRADE_2019_09_WITH_DIALECT(document, expected,
+                               "http://json-schema.org/draft-07/schema#");
+}
+
+TEST(AlterSchema_upgrade_Draft7_to_2019_09,
+     no_dollar_schema_with_default_dialect_draft7_with_dependencies) {
+  auto document = sourcemeta::core::parse_json(R"JSON({
+    "type": "object",
+    "dependencies": { "a": [ "b" ] }
+  })JSON");
+
+  const auto expected = sourcemeta::core::parse_json(R"JSON({
+    "$schema": "https://json-schema.org/draft/2019-09/schema",
+    "type": "object",
+    "dependentRequired": { "a": [ "b" ] }
+  })JSON");
+
+  UPGRADE_2019_09_WITH_DIALECT(document, expected,
+                               "http://json-schema.org/draft-07/schema#");
+}

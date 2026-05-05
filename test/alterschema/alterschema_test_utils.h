@@ -143,6 +143,20 @@ static auto alterschema_test_resolver(std::string_view identifier)
     EXPECT_JSON_EQ_WITH_ORDERING(document, expected);                          \
   }
 
+#define UPGRADE_DRAFT_6_WITH_DIALECT(document, expected, default_dialect)      \
+  {                                                                            \
+    sourcemeta::blaze::SchemaTransformer _bundle;                              \
+    sourcemeta::blaze::add(_bundle,                                            \
+                           sourcemeta::blaze::AlterSchemaMode::UpgradeDraft6); \
+    const auto _result = _bundle.apply(                                        \
+        document, sourcemeta::core::schema_walker, alterschema_test_resolver,  \
+        [](const auto &, const auto &, const auto &, const auto &,             \
+           const auto &) {},                                                   \
+        (default_dialect));                                                    \
+    EXPECT_TRUE(_result.first);                                                \
+    EXPECT_JSON_EQ_WITH_ORDERING(document, expected);                          \
+  }
+
 #define UPGRADE_DRAFT_7(document, expected)                                    \
   {                                                                            \
     sourcemeta::blaze::SchemaTransformer _bundle;                              \
@@ -152,6 +166,20 @@ static auto alterschema_test_resolver(std::string_view identifier)
         document, sourcemeta::core::schema_walker, alterschema_test_resolver,  \
         [](const auto &, const auto &, const auto &, const auto &,             \
            const auto &) {});                                                  \
+    EXPECT_TRUE(_result.first);                                                \
+    EXPECT_JSON_EQ_WITH_ORDERING(document, expected);                          \
+  }
+
+#define UPGRADE_DRAFT_7_WITH_DIALECT(document, expected, default_dialect)      \
+  {                                                                            \
+    sourcemeta::blaze::SchemaTransformer _bundle;                              \
+    sourcemeta::blaze::add(_bundle,                                            \
+                           sourcemeta::blaze::AlterSchemaMode::UpgradeDraft7); \
+    const auto _result = _bundle.apply(                                        \
+        document, sourcemeta::core::schema_walker, alterschema_test_resolver,  \
+        [](const auto &, const auto &, const auto &, const auto &,             \
+           const auto &) {},                                                   \
+        (default_dialect));                                                    \
     EXPECT_TRUE(_result.first);                                                \
     EXPECT_JSON_EQ_WITH_ORDERING(document, expected);                          \
   }
@@ -169,6 +197,20 @@ static auto alterschema_test_resolver(std::string_view identifier)
     EXPECT_JSON_EQ_WITH_ORDERING(document, expected);                          \
   }
 
+#define UPGRADE_2019_09_WITH_DIALECT(document, expected, default_dialect)      \
+  {                                                                            \
+    sourcemeta::blaze::SchemaTransformer _bundle;                              \
+    sourcemeta::blaze::add(_bundle,                                            \
+                           sourcemeta::blaze::AlterSchemaMode::Upgrade201909); \
+    const auto _result = _bundle.apply(                                        \
+        document, sourcemeta::core::schema_walker, alterschema_test_resolver,  \
+        [](const auto &, const auto &, const auto &, const auto &,             \
+           const auto &) {},                                                   \
+        (default_dialect));                                                    \
+    EXPECT_TRUE(_result.first);                                                \
+    EXPECT_JSON_EQ_WITH_ORDERING(document, expected);                          \
+  }
+
 #define UPGRADE_2020_12(document, expected)                                    \
   {                                                                            \
     sourcemeta::blaze::SchemaTransformer _bundle;                              \
@@ -178,6 +220,20 @@ static auto alterschema_test_resolver(std::string_view identifier)
         document, sourcemeta::core::schema_walker, alterschema_test_resolver,  \
         [](const auto &, const auto &, const auto &, const auto &,             \
            const auto &) {});                                                  \
+    EXPECT_TRUE(_result.first);                                                \
+    EXPECT_JSON_EQ_WITH_ORDERING(document, expected);                          \
+  }
+
+#define UPGRADE_2020_12_WITH_DIALECT(document, expected, default_dialect)      \
+  {                                                                            \
+    sourcemeta::blaze::SchemaTransformer _bundle;                              \
+    sourcemeta::blaze::add(_bundle,                                            \
+                           sourcemeta::blaze::AlterSchemaMode::Upgrade202012); \
+    const auto _result = _bundle.apply(                                        \
+        document, sourcemeta::core::schema_walker, alterschema_test_resolver,  \
+        [](const auto &, const auto &, const auto &, const auto &,             \
+           const auto &) {},                                                   \
+        (default_dialect));                                                    \
     EXPECT_TRUE(_result.first);                                                \
     EXPECT_JSON_EQ_WITH_ORDERING(document, expected);                          \
   }

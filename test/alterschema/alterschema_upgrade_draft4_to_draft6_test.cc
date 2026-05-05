@@ -898,3 +898,20 @@ TEST(AlterSchema_upgrade_Draft4_to_Draft6,
 
   UPGRADE_DRAFT_6(document, expected);
 }
+
+TEST(AlterSchema_upgrade_Draft4_to_Draft6,
+     no_dollar_schema_with_default_dialect_draft4) {
+  auto document = sourcemeta::core::parse_json(R"JSON({
+    "id": "https://example.com/test",
+    "type": "integer"
+  })JSON");
+
+  const auto expected = sourcemeta::core::parse_json(R"JSON({
+    "$schema": "http://json-schema.org/draft-06/schema#",
+    "$id": "https://example.com/test",
+    "type": "integer"
+  })JSON");
+
+  UPGRADE_DRAFT_6_WITH_DIALECT(document, expected,
+                               "http://json-schema.org/draft-04/schema#");
+}
