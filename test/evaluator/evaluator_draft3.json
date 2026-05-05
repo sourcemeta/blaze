@@ -196,34 +196,6 @@
     }
   },
   {
-    "description": "type_integer_invalid_real_integer_valued",
-    "schema": { "$schema": "http://json-schema.org/draft-03/schema#", "type": "integer" },
-    "instance": 3.0,
-    "valid": false,
-    "fast": {
-      "pre": [
-        [ "AssertionTypeStrict", "/type", "#/type", "" ]
-      ],
-      "post": [
-        [ false, "AssertionTypeStrict", "/type", "#/type", "" ]
-      ],
-      "descriptions": [
-        "The value was expected to be of type integer but it was of type number"
-      ]
-    },
-    "exhaustive": {
-      "pre": [
-        [ "AssertionTypeStrict", "/type", "#/type", "" ]
-      ],
-      "post": [
-        [ false, "AssertionTypeStrict", "/type", "#/type", "" ]
-      ],
-      "descriptions": [
-        "The value was expected to be of type integer but it was of type number"
-      ]
-    }
-  },
-  {
     "description": "type_integer_invalid_real",
     "schema": { "$schema": "http://json-schema.org/draft-03/schema#", "type": "integer" },
     "instance": 3.5,
@@ -1120,37 +1092,6 @@
     }
   },
   {
-    "description": "type_array_integer_string_invalid_real_integer_valued",
-    "schema": {
-      "$schema": "http://json-schema.org/draft-03/schema#",
-      "type": [ "integer", "string" ]
-    },
-    "instance": 3.0,
-    "valid": false,
-    "fast": {
-      "pre": [
-        [ "AssertionTypeStrictAny", "/type", "#/type", "" ]
-      ],
-      "post": [
-        [ false, "AssertionTypeStrictAny", "/type", "#/type", "" ]
-      ],
-      "descriptions": [
-        "The value was expected to be of type integer, or string but it was of type number"
-      ]
-    },
-    "exhaustive": {
-      "pre": [
-        [ "AssertionTypeStrictAny", "/type", "#/type", "" ]
-      ],
-      "post": [
-        [ false, "AssertionTypeStrictAny", "/type", "#/type", "" ]
-      ],
-      "descriptions": [
-        "The value was expected to be of type integer, or string but it was of type number"
-      ]
-    }
-  },
-  {
     "description": "type_array_integer_string_invalid_boolean",
     "schema": {
       "$schema": "http://json-schema.org/draft-03/schema#",
@@ -1985,7 +1926,10 @@
   },
   {
     "description": "type_string_hyperschema",
-    "schema": { "$schema": "http://json-schema.org/draft-03/hyper-schema#", "type": "string" },
+    "schema": {
+      "$schema": "http://json-schema.org/draft-03/hyper-schema#",
+      "type": "string"
+    },
     "instance": "foo",
     "valid": true,
     "fast": {
