@@ -107,7 +107,12 @@ auto describe_not_type_check(const bool valid,
   message << type_name(expected);
   if (!valid) {
     message << " but it was of type ";
-    if (current == sourcemeta::core::JSON::Type::Decimal) {
+    if (current == sourcemeta::core::JSON::Type::Decimal &&
+        expected == sourcemeta::core::JSON::Type::Integer) {
+      message << "integer";
+    } else if ((current == sourcemeta::core::JSON::Type::Integer &&
+                expected == sourcemeta::core::JSON::Type::Real) ||
+               current == sourcemeta::core::JSON::Type::Decimal) {
       message << "number";
     } else {
       message << type_name(current);
@@ -259,10 +264,10 @@ auto describe_not_types_check(const bool valid,
     message << " but it was of type ";
   }
 
-  if (valid && current == sourcemeta::core::JSON::Type::Decimal &&
+  if (!valid && current == sourcemeta::core::JSON::Type::Decimal &&
       has_integer && !has_real) {
     message << "integer";
-  } else if ((valid && current == sourcemeta::core::JSON::Type::Integer &&
+  } else if ((!valid && current == sourcemeta::core::JSON::Type::Integer &&
               has_real) ||
              current == sourcemeta::core::JSON::Type::Decimal) {
     message << "number";

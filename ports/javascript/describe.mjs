@@ -313,9 +313,9 @@ function describeNotTypesCheck(valid, currentType, bitmask) {
     message += ' but it was of type ';
   }
 
-  if (valid && currentType === TYPE_INTEGER && hasReal) {
+  if (!valid && currentType === TYPE_INTEGER && hasReal) {
     message += 'number';
-  } else if ((valid && currentType === TYPE_INTEGER && hasReal) ||
+  } else if ((!valid && currentType === TYPE_INTEGER && hasReal) ||
              currentType === TYPE_REAL) {
     message += 'number';
   } else {
