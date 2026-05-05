@@ -1762,17 +1762,84 @@ auto compiler_draft3_validation_type(const Context &context,
     }
 
     if (value.is_array()) {
+      bool has_object{false};
       for (const auto &element : value.as_array()) {
-        if (element.is_object()) {
-          throw sourcemeta::blaze::CompilerError(
-              schema_context.base, to_pointer(schema_context.relative_pointer),
-              "Draft 3 type compilation with inline schemas is not yet "
-              "implemented");
-        }
-
         if (element.is_string() && element.to_string() == "any") {
           return {};
         }
+        if (element.is_object()) {
+          has_object = true;
+        }
+      }
+
+      if (has_object) {
+        Instructions disjunctors;
+        for (std::uint64_t index = 0; index < value.size(); index++) {
+          const auto &element{value.at(index)};
+          Instructions branch;
+
+          if (element.is_object()) {
+            branch = compile(
+                context, schema_context, relative_dynamic_context(),
+                {static_cast<sourcemeta::core::Pointer::Token::Index>(index)});
+          } else if (element.is_string()) {
+            const auto &type_string{element.to_string()};
+            if (type_string == "null") {
+              branch.push_back(
+                  make(sourcemeta::blaze::InstructionIndex::AssertionTypeStrict,
+                       context, schema_context, relative_dynamic_context(),
+                       sourcemeta::core::JSON::Type::Null));
+            } else if (type_string == "boolean") {
+              branch.push_back(
+                  make(sourcemeta::blaze::InstructionIndex::AssertionTypeStrict,
+                       context, schema_context, relative_dynamic_context(),
+                       sourcemeta::core::JSON::Type::Boolean));
+            } else if (type_string == "object") {
+              branch.push_back(
+                  make(sourcemeta::blaze::InstructionIndex::AssertionTypeStrict,
+                       context, schema_context, relative_dynamic_context(),
+                       sourcemeta::core::JSON::Type::Object));
+            } else if (type_string == "array") {
+              branch.push_back(
+                  make(sourcemeta::blaze::InstructionIndex::AssertionTypeStrict,
+                       context, schema_context, relative_dynamic_context(),
+                       sourcemeta::core::JSON::Type::Array));
+            } else if (type_string == "number") {
+              ValueTypes types{};
+              types.set(std::to_underlying(sourcemeta::core::JSON::Type::Real));
+              types.set(
+                  std::to_underlying(sourcemeta::core::JSON::Type::Integer));
+              types.set(
+                  std::to_underlying(sourcemeta::core::JSON::Type::Decimal));
+              branch.push_back(make(
+                  sourcemeta::blaze::InstructionIndex::AssertionTypeStrictAny,
+                  context, schema_context, relative_dynamic_context(), types));
+            } else if (type_string == "integer") {
+              branch.push_back(
+                  make(sourcemeta::blaze::InstructionIndex::AssertionTypeStrict,
+                       context, schema_context, relative_dynamic_context(),
+                       sourcemeta::core::JSON::Type::Integer));
+            } else if (type_string == "string") {
+              branch.push_back(
+                  make(sourcemeta::blaze::InstructionIndex::AssertionTypeStrict,
+                       context, schema_context, relative_dynamic_context(),
+                       sourcemeta::core::JSON::Type::String));
+            } else {
+              continue;
+            }
+          } else {
+            continue;
+          }
+
+          disjunctors.push_back(
+              make(sourcemeta::blaze::InstructionIndex::ControlGroup, context,
+                   schema_context, relative_dynamic_context(), ValueNone{},
+                   std::move(branch)));
+        }
+
+        return {make(sourcemeta::blaze::InstructionIndex::LogicalOr, context,
+                     schema_context, dynamic_context, ValueBoolean{false},
+                     std::move(disjunctors))};
       }
     }
   }
