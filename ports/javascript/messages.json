@@ -1,0 +1,3926 @@
+{
+  "version": 1,
+  "types": [
+    "null",
+    "boolean",
+    "integer",
+    "number",
+    "string",
+    "array",
+    "object",
+    "number"
+  ],
+  "slots": [
+    "targetTypeName",
+    "targetValueTypeName",
+    "valueTypeName",
+    "firstValueTypeName",
+    "valueValueTypeName",
+    "valueOfTypeName",
+    "valueTypeList",
+    "escapedValue",
+    "escapedTarget",
+    "escapedKeyword",
+    "escapedAnnotation",
+    "escapedRegexSource",
+    "escapedPropertyName",
+    "stringifiedTarget",
+    "stringifiedValue",
+    "stringifiedAnnotation",
+    "rawValue",
+    "regexSource",
+    "rawLastInstanceToken",
+    "instanceLocation",
+    "childCount",
+    "childCountMinusOne",
+    "prefixItemsCountPlusOne",
+    "min",
+    "max",
+    "valueMinusOne",
+    "valuePlusOne",
+    "targetLengthString",
+    "objectSizeString",
+    "unicodeLengthString",
+    "propertyUnicodeLengthString",
+    "examplesList",
+    "firstTypeNameInBitmask",
+    "valueListAnd",
+    "sortedValueListAnd",
+    "firstValueLength",
+    "missingPropertiesList",
+    "missingPropertySingle",
+    "duplicateItemSingle",
+    "duplicateItemsList",
+    "firstObjectKeyEscaped",
+    "objectKeysList",
+    "sortedObjectKeysList",
+    "firstEqualsAnyValueTypeName",
+    "firstEqualsAnyValueStringified",
+    "equalsAnyValuesLength",
+    "equalsAnySortedList",
+    "additionalItemCount",
+    "depsAllDependenciesSingle",
+    "depsAllDependenciesListOr",
+    "depsPresentSingle",
+    "depsPresentListAnd",
+    "depsRequiredSingle",
+    "depsRequiredListAnd",
+    "depsPresentSchemasSingle",
+    "depsPresentSchemasListAnd"
+  ],
+  "selectors": [
+    "byKeyword",
+    "byValidity",
+    "byInstanceLocationPresent",
+    "byAnnotationTruthy",
+    "byTargetIsObject",
+    "byIsWithinPropertyNames",
+    "byTargetIsInteger",
+    "byTargetIsReal",
+    "byBitmaskHasReal",
+    "byBitmaskIsSingle",
+    "byFirstChildIsFail",
+    "byFirstChildIsFailExactlyOne",
+    "byTargetEqualsValue",
+    "byAnnotationIsTrue",
+    "byAnnotationIsNumber",
+    "byAnnotationIsZero",
+    "byMaxIsNull",
+    "byMinIsZero",
+    "byMinEqualsMax",
+    "byNoPresentDeps",
+    "byNoSchemasOrPropertiesDeps",
+    "byTargetLengthGreaterThanValue",
+    "byChildCountGreaterThanOne",
+    "byChildCountAtMostTwo",
+    "byChildCountIsOne",
+    "byPluralOfValue",
+    "byPluralOfValueMinusOne",
+    "byPluralOfValuePlusOne",
+    "byPluralOfMin",
+    "byPluralOfMax",
+    "byPluralOfTargetLength",
+    "byPluralOfUnicodeLength",
+    "byPluralOfPropertyUnicodeLength",
+    "byPluralOfAdditionalItemCount",
+    "byPluralOfMissingProperties",
+    "byPluralOfDuplicateItems",
+    "byPluralOfEqualsAnyValues",
+    "byPluralOfFirstValueLength",
+    "byPluralOfPresentDeps",
+    "byPluralOfRequiredDeps",
+    "byPluralOfPresentSchemasDeps",
+    "byPluralOfAllDependencies",
+    "byCountOfRequired",
+    "byCountOfPresentSchemas",
+    "byObjectSize",
+    "byLoopItemsFrom"
+  ],
+  "messages": {
+    "Evaluate": [
+      "The instance location was marked as evaluated"
+    ],
+    "LoopItems": [
+      "Every item in the array value was expected to validate against the given subschema"
+    ],
+    "LoopItemsUnevaluated": [
+      "The array items not covered by other array keywords, if any, were expected to validate against this subschema"
+    ],
+    "LoopItemsIntegerBounded": [
+      "Every item in the array was expected to be a number within the given range"
+    ],
+    "LoopItemsIntegerBoundedSized": [
+      "Every item in the array was expected to be a number within the given range"
+    ],
+    "AssertionTypeIntegerBounded": [
+      "The value was expected to be an integer within the given range"
+    ],
+    "AssertionTypeIntegerBoundedStrict": [
+      "The value was expected to be an integer within the given range"
+    ],
+    "AssertionTypeIntegerLowerBound": [
+      "The value was expected to be an integer above the given minimum"
+    ],
+    "AssertionTypeIntegerLowerBoundStrict": [
+      "The value was expected to be an integer above the given minimum"
+    ],
+    "AssertionObjectPropertiesSimple": [
+      "The object value was expected to validate against the defined property subschemas"
+    ],
+    "LogicalCondition": [
+      "The ",
+      0,
+      " value was expected to validate against the given conditional"
+    ],
+    "LoopPropertiesExactlyTypeStrict": [
+      "The required object properties were expected to be of type ",
+      3,
+      ""
+    ],
+    "LoopPropertiesExactlyTypeStrictHash": [
+      "The required object properties were expected to be of type ",
+      3,
+      ""
+    ],
+    "LoopItemsPropertiesExactlyTypeStrictHash": [
+      "Every item in the array was expected to be an object whose required properties were of type ",
+      3,
+      ""
+    ],
+    "LoopItemsPropertiesExactlyTypeStrictHash3": [
+      "Every item in the array was expected to be an object whose required properties were of type ",
+      3,
+      ""
+    ],
+    "LoopPropertiesType": [
+      "The object properties were expected to be of type ",
+      2,
+      ""
+    ],
+    "LoopPropertiesTypeEvaluate": [
+      "The object properties were expected to be of type ",
+      2,
+      ""
+    ],
+    "LoopPropertiesTypeStrict": [
+      "The object properties were expected to be of type ",
+      2,
+      ""
+    ],
+    "LoopPropertiesTypeStrictEvaluate": [
+      "The object properties were expected to be of type ",
+      2,
+      ""
+    ],
+    "LoopPropertiesTypeStrictAny": [
+      "The object properties were expected to be of type ",
+      6,
+      ""
+    ],
+    "LoopPropertiesTypeStrictAnyEvaluate": [
+      "The object properties were expected to be of type ",
+      6,
+      ""
+    ],
+    "LoopItemsType": [
+      "The array items were expected to be of type ",
+      2,
+      ""
+    ],
+    "LoopItemsTypeStrict": [
+      "The array items were expected to be of type ",
+      2,
+      ""
+    ],
+    "LoopItemsTypeStrictAny": [
+      "The array items were expected to be of type ",
+      6,
+      ""
+    ],
+    "AssertionDefines": [
+      "The object value was expected to define the property ",
+      7,
+      ""
+    ],
+    "AssertionDefinesStrict": [
+      "The value was expected to be an object that defines the property ",
+      7,
+      ""
+    ],
+    "AssertionDivisible": [
+      "The ",
+      1,
+      " value ",
+      13,
+      " was expected to be divisible by the ",
+      4,
+      " ",
+      14,
+      ""
+    ],
+    "AssertionGreaterEqual": [
+      "The ",
+      1,
+      " value ",
+      13,
+      " was expected to be greater than or equal to the ",
+      4,
+      " ",
+      14,
+      ""
+    ],
+    "AssertionLessEqual": [
+      "The ",
+      1,
+      " value ",
+      13,
+      " was expected to be less than or equal to the ",
+      4,
+      " ",
+      14,
+      ""
+    ],
+    "AssertionStringType": [
+      "The string value ",
+      8,
+      " was expected to represent a valid URI"
+    ],
+    "LogicalWhenDefines": [
+      "The object value defined the property \"",
+      16,
+      "\""
+    ],
+    "LoopPropertiesRegex": [
+      "The object properties that match the regular expression \"",
+      17,
+      "\" were expected to validate against the defined pattern property subschema"
+    ],
+    "LoopPropertiesRegexClosed": [
+      "The object properties were expected to match the regular expression \"",
+      17,
+      "\" and validate against the defined pattern property subschema"
+    ],
+    "LoopPropertiesStartsWith": [
+      "The object properties that start with the string \"",
+      16,
+      "\" were expected to validate against the defined pattern property subschema"
+    ],
+    "AssertionFail": {
+      "select": 0,
+      "keys": [
+        "enum",
+        "contains",
+        "additionalProperties",
+        "unevaluatedProperties",
+        "unevaluatedItems"
+      ],
+      "variants": [
+        [
+          "The ",
+          0,
+          " value was not expected to validate against the empty enumeration"
+        ],
+        [
+          "The constraints declared for this keyword were not satisfiable"
+        ],
+        [
+          "The object value was not expected to define the property ",
+          12,
+          ""
+        ],
+        [
+          "The object value was not expected to define the property ",
+          12,
+          ""
+        ],
+        [
+          "The array value was not expected to define the item at index ",
+          18,
+          ""
+        ],
+        [
+          "No instance is expected to succeed against the false schema"
+        ]
+      ]
+    },
+    "LogicalOr": {
+      "select": 22,
+      "variants": [
+        [
+          "The ",
+          0,
+          " value was expected to validate against the given subschema"
+        ],
+        [
+          "The ",
+          0,
+          " value was expected to validate against at least one of the ",
+          20,
+          " given subschemas"
+        ]
+      ]
+    },
+    "LogicalAnd": {
+      "select": 0,
+      "keys": [
+        "allOf",
+        "$ref"
+      ],
+      "variants": [
+        {
+          "select": 22,
+          "variants": [
+            [
+              "The ",
+              0,
+              " value was expected to validate against the given subschema"
+            ],
+            [
+              "The ",
+              0,
+              " value was expected to validate against the ",
+              20,
+              " given subschemas"
+            ]
+          ]
+        },
+        [
+          "The ",
+          0,
+          " value was expected to validate against the referenced schema"
+        ],
+        [
+          "<unknown>"
+        ]
+      ]
+    },
+    "LogicalXor": {
+      "select": 5,
+      "variants": [
+        {
+          "select": 22,
+          "variants": [
+            [
+              "The ",
+              0,
+              " value was expected to validate against the given subschema"
+            ],
+            [
+              "The ",
+              0,
+              " value was expected to validate against one and only one of the ",
+              20,
+              " given subschemas"
+            ]
+          ]
+        },
+        {
+          "select": 2,
+          "variants": [
+            {
+              "select": 22,
+              "variants": [
+                [
+                  "The ",
+                  0,
+                  " value was expected to validate against the given subschema"
+                ],
+                [
+                  "The ",
+                  0,
+                  " value was expected to validate against one and only one of the ",
+                  20,
+                  " given subschemas"
+                ]
+              ]
+            },
+            {
+              "select": 22,
+              "variants": [
+                [
+                  "The property name ",
+                  12,
+                  " was expected to validate against the given subschema"
+                ],
+                [
+                  "The property name ",
+                  12,
+                  " was expected to validate against one and only one of the ",
+                  20,
+                  " given subschemas"
+                ]
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    "LogicalNot": {
+      "select": 1,
+      "variants": [
+        [
+          "The ",
+          0,
+          " value was expected to not validate against the given subschema, but it did"
+        ],
+        [
+          "The ",
+          0,
+          " value was expected to not validate against the given subschema"
+        ]
+      ]
+    },
+    "LogicalNotEvaluate": {
+      "select": 1,
+      "variants": [
+        [
+          "The ",
+          0,
+          " value was expected to not validate against the given subschema, but it did"
+        ],
+        [
+          "The ",
+          0,
+          " value was expected to not validate against the given subschema"
+        ]
+      ]
+    },
+    "ControlDynamicAnchorJump": {
+      "select": 0,
+      "keys": [
+        "$dynamicRef"
+      ],
+      "variants": [
+        [
+          "The ",
+          0,
+          " value was expected to validate against the first subschema in scope that declared the dynamic anchor ",
+          7,
+          ""
+        ],
+        [
+          "The ",
+          0,
+          " value was expected to validate against the first subschema in scope that declared a recursive anchor"
+        ]
+      ]
+    },
+    "LoopProperties": {
+      "select": 0,
+      "keys": [
+        "unevaluatedProperties"
+      ],
+      "variants": [
+        {
+          "select": 10,
+          "variants": [
+            [
+              "The object properties not covered by other object keywords were expected to validate against this subschema"
+            ],
+            [
+              "The object value was not expected to define unevaluated properties"
+            ]
+          ]
+        },
+        {
+          "select": 10,
+          "variants": [
+            [
+              "The object properties not covered by other adjacent object keywords were expected to validate against this subschema"
+            ],
+            [
+              "The object value was not expected to define additional properties"
+            ]
+          ]
+        }
+      ]
+    },
+    "LoopPropertiesEvaluate": {
+      "select": 11,
+      "variants": [
+        [
+          "The object properties not covered by other adjacent object keywords were expected to validate against this subschema"
+        ],
+        [
+          "The object value was not expected to define additional properties"
+        ]
+      ]
+    },
+    "LoopPropertiesUnevaluated": {
+      "select": 0,
+      "keys": [
+        "unevaluatedProperties"
+      ],
+      "variants": [
+        {
+          "select": 10,
+          "variants": [
+            [
+              "The object properties not covered by other object keywords were expected to validate against this subschema"
+            ],
+            [
+              "The object value was not expected to define unevaluated properties"
+            ]
+          ]
+        },
+        [
+          "<unknown>"
+        ]
+      ]
+    },
+    "LoopPropertiesUnevaluatedExcept": {
+      "select": 0,
+      "keys": [
+        "unevaluatedProperties"
+      ],
+      "variants": [
+        {
+          "select": 10,
+          "variants": [
+            [
+              "The object properties not covered by other object keywords were expected to validate against this subschema"
+            ],
+            [
+              "The object value was not expected to define unevaluated properties"
+            ]
+          ]
+        },
+        [
+          "<unknown>"
+        ]
+      ]
+    },
+    "LoopPropertiesExcept": {
+      "select": 0,
+      "keys": [
+        "unevaluatedProperties"
+      ],
+      "variants": [
+        {
+          "select": 10,
+          "variants": [
+            [
+              "The object properties not covered by other object keywords were expected to validate against this subschema"
+            ],
+            [
+              "The object value was not expected to define unevaluated properties"
+            ]
+          ]
+        },
+        {
+          "select": 10,
+          "variants": [
+            [
+              "The object properties not covered by other adjacent object keywords were expected to validate against this subschema"
+            ],
+            [
+              "The object value was not expected to define additional properties"
+            ]
+          ]
+        }
+      ]
+    },
+    "AnnotationEmit": {
+      "select": 0,
+      "keys": [
+        "properties",
+        "items",
+        "additionalItems",
+        "prefixItems",
+        "title",
+        "description",
+        "default",
+        "deprecated",
+        "readOnly",
+        "writeOnly",
+        "examples",
+        "contentEncoding",
+        "contentMediaType",
+        "contentSchema",
+        "format"
+      ],
+      "variants": [
+        [
+          "The object property ",
+          10,
+          " successfully validated against its property subschema"
+        ],
+        {
+          "select": 13,
+          "variants": [
+            {
+              "select": 14,
+              "variants": [
+                [
+                  "<unknown>"
+                ],
+                {
+                  "select": 15,
+                  "variants": [
+                    [
+                      "The first ",
+                      22,
+                      " items of the array value successfully validated against the given positional subschemas"
+                    ],
+                    [
+                      "The first item of the array value successfully validated against the first positional subschema"
+                    ]
+                  ]
+                }
+              ]
+            },
+            [
+              "Every item in the array value was successfully validated"
+            ]
+          ]
+        },
+        {
+          "select": 13,
+          "variants": [
+            {
+              "select": 14,
+              "variants": [
+                [
+                  "<unknown>"
+                ],
+                {
+                  "select": 15,
+                  "variants": [
+                    [
+                      "<unknown>"
+                    ],
+                    [
+                      "<unknown>"
+                    ]
+                  ]
+                }
+              ]
+            },
+            [
+              "Every item in the array value was successfully validated"
+            ]
+          ]
+        },
+        {
+          "select": 13,
+          "variants": [
+            {
+              "select": 14,
+              "variants": [
+                [
+                  "<unknown>"
+                ],
+                {
+                  "select": 15,
+                  "variants": [
+                    [
+                      "The first ",
+                      22,
+                      " items of the array value successfully validated against the given positional subschemas"
+                    ],
+                    [
+                      "The first item of the array value successfully validated against the first positional subschema"
+                    ]
+                  ]
+                }
+              ]
+            },
+            [
+              "Every item of the array value validated against the given positional subschemas"
+            ]
+          ]
+        },
+        {
+          "select": 2,
+          "variants": [
+            [
+              "The title of the instance was ",
+              10,
+              ""
+            ],
+            [
+              "The title of the instance location \"",
+              19,
+              "\" was ",
+              10,
+              ""
+            ]
+          ]
+        },
+        {
+          "select": 2,
+          "variants": [
+            [
+              "The description of the instance was ",
+              10,
+              ""
+            ],
+            [
+              "The description of the instance location \"",
+              19,
+              "\" was ",
+              10,
+              ""
+            ]
+          ]
+        },
+        {
+          "select": 2,
+          "variants": [
+            [
+              "The default value of the instance was ",
+              15,
+              ""
+            ],
+            [
+              "The default value of the instance location \"",
+              19,
+              "\" was ",
+              15,
+              ""
+            ]
+          ]
+        },
+        {
+          "select": 3,
+          "variants": [
+            {
+              "select": 2,
+              "variants": [
+                [
+                  "The instance was not considered deprecated"
+                ],
+                [
+                  "The instance location \"",
+                  19,
+                  "\" was not considered deprecated"
+                ]
+              ]
+            },
+            {
+              "select": 2,
+              "variants": [
+                [
+                  "The instance was considered deprecated"
+                ],
+                [
+                  "The instance location \"",
+                  19,
+                  "\" was considered deprecated"
+                ]
+              ]
+            }
+          ]
+        },
+        {
+          "select": 3,
+          "variants": [
+            {
+              "select": 2,
+              "variants": [
+                [
+                  "The instance was not considered read-only"
+                ],
+                [
+                  "The instance location \"",
+                  19,
+                  "\" was not considered read-only"
+                ]
+              ]
+            },
+            {
+              "select": 2,
+              "variants": [
+                [
+                  "The instance was considered read-only"
+                ],
+                [
+                  "The instance location \"",
+                  19,
+                  "\" was considered read-only"
+                ]
+              ]
+            }
+          ]
+        },
+        {
+          "select": 3,
+          "variants": [
+            {
+              "select": 2,
+              "variants": [
+                [
+                  "The instance was not considered write-only"
+                ],
+                [
+                  "The instance location \"",
+                  19,
+                  "\" was not considered write-only"
+                ]
+              ]
+            },
+            {
+              "select": 2,
+              "variants": [
+                [
+                  "The instance was considered write-only"
+                ],
+                [
+                  "The instance location \"",
+                  19,
+                  "\" was considered write-only"
+                ]
+              ]
+            }
+          ]
+        },
+        {
+          "select": 2,
+          "variants": [
+            [
+              "Examples of the instance were ",
+              31,
+              ""
+            ],
+            [
+              "Examples of the instance location \"",
+              19,
+              "\" were ",
+              31,
+              ""
+            ]
+          ]
+        },
+        {
+          "select": 2,
+          "variants": [
+            [
+              "The content encoding of the instance was ",
+              10,
+              ""
+            ],
+            [
+              "The content encoding of the instance location \"",
+              19,
+              "\" was ",
+              10,
+              ""
+            ]
+          ]
+        },
+        {
+          "select": 2,
+          "variants": [
+            [
+              "The content media type of the instance was ",
+              10,
+              ""
+            ],
+            [
+              "The content media type of the instance location \"",
+              19,
+              "\" was ",
+              10,
+              ""
+            ]
+          ]
+        },
+        {
+          "select": 2,
+          "variants": [
+            [
+              "When decoded, the instance was expected to validate against the schema ",
+              15,
+              ""
+            ],
+            [
+              "When decoded, the instance location \"",
+              19,
+              "\" was expected to validate against the schema ",
+              15,
+              ""
+            ]
+          ]
+        },
+        {
+          "select": 2,
+          "variants": [
+            [
+              "The logical type of the instance was expected to be ",
+              15,
+              ""
+            ],
+            [
+              "The logical type of the instance location \"",
+              19,
+              "\" was expected to be ",
+              15,
+              ""
+            ]
+          ]
+        },
+        [
+          "The unrecognized keyword ",
+          9,
+          " was collected as the annotation ",
+          15,
+          ""
+        ]
+      ]
+    },
+    "AnnotationToParent": {
+      "select": 0,
+      "keys": [
+        "unevaluatedItems"
+      ],
+      "variants": [
+        [
+          "At least one item of the array value successfully validated against the subschema for unevaluated items"
+        ],
+        [
+          "<unknown>"
+        ]
+      ]
+    },
+    "AnnotationBasenameToParent": {
+      "select": 0,
+      "keys": [
+        "patternProperties",
+        "additionalProperties",
+        "unevaluatedProperties",
+        "contains"
+      ],
+      "variants": [
+        [
+          "The object property ",
+          10,
+          " successfully validated against its pattern property subschema"
+        ],
+        [
+          "The object property ",
+          10,
+          " successfully validated against the additional properties subschema"
+        ],
+        [
+          "The object property ",
+          10,
+          " successfully validated against the subschema for unevaluated properties"
+        ],
+        [
+          "The item at index ",
+          15,
+          " of the array value successfully validated against the containment check subschema"
+        ],
+        [
+          "<unknown>"
+        ]
+      ]
+    },
+    "AssertionType": {
+      "select": 5,
+      "variants": [
+        {
+          "select": 1,
+          "variants": [
+            [
+              "The value was expected to be of type ",
+              2,
+              " but it was of type ",
+              0,
+              ""
+            ],
+            [
+              "The value was expected to be of type ",
+              2,
+              ""
+            ]
+          ]
+        },
+        {
+          "select": 2,
+          "variants": [
+            {
+              "select": 1,
+              "variants": [
+                [
+                  "The value was expected to be of type ",
+                  2,
+                  " but it was of type ",
+                  0,
+                  ""
+                ],
+                [
+                  "The value was expected to be of type ",
+                  2,
+                  ""
+                ]
+              ]
+            },
+            [
+              "The property name ",
+              12,
+              " was expected to be of type ",
+              2,
+              ""
+            ]
+          ]
+        }
+      ]
+    },
+    "AssertionTypeStrict": {
+      "select": 5,
+      "variants": [
+        {
+          "select": 1,
+          "variants": [
+            [
+              "The value was expected to be of type ",
+              2,
+              " but it was of type ",
+              0,
+              ""
+            ],
+            [
+              "The value was expected to be of type ",
+              2,
+              ""
+            ]
+          ]
+        },
+        {
+          "select": 2,
+          "variants": [
+            {
+              "select": 1,
+              "variants": [
+                [
+                  "The value was expected to be of type ",
+                  2,
+                  " but it was of type ",
+                  0,
+                  ""
+                ],
+                [
+                  "The value was expected to be of type ",
+                  2,
+                  ""
+                ]
+              ]
+            },
+            [
+              "The property name ",
+              12,
+              " was expected to be of type ",
+              2,
+              ""
+            ]
+          ]
+        }
+      ]
+    },
+    "AssertionTypeAny": {
+      "select": 9,
+      "variants": [
+        {
+          "select": 1,
+          "variants": [
+            {
+              "select": 7,
+              "variants": [
+                {
+                  "select": 6,
+                  "variants": [
+                    [
+                      "The value was expected to be of type ",
+                      6,
+                      " but it was of type ",
+                      0,
+                      ""
+                    ],
+                    {
+                      "select": 1,
+                      "variants": [
+                        [
+                          "The value was expected to be of type ",
+                          6,
+                          " but it was of type ",
+                          0,
+                          ""
+                        ],
+                        {
+                          "select": 8,
+                          "variants": [
+                            [
+                              "The value was expected to be of type ",
+                              6,
+                              " but it was of type ",
+                              0,
+                              ""
+                            ],
+                            [
+                              "The value was expected to be of type ",
+                              6,
+                              " but it was of type number"
+                            ]
+                          ]
+                        }
+                      ]
+                    }
+                  ]
+                },
+                [
+                  "The value was expected to be of type ",
+                  6,
+                  " but it was of type number"
+                ]
+              ]
+            },
+            {
+              "select": 7,
+              "variants": [
+                {
+                  "select": 6,
+                  "variants": [
+                    [
+                      "The value was expected to be of type ",
+                      6,
+                      " and it was of type ",
+                      0,
+                      ""
+                    ],
+                    {
+                      "select": 1,
+                      "variants": [
+                        [
+                          "The value was expected to be of type ",
+                          6,
+                          " and it was of type ",
+                          0,
+                          ""
+                        ],
+                        {
+                          "select": 8,
+                          "variants": [
+                            [
+                              "The value was expected to be of type ",
+                              6,
+                              " and it was of type ",
+                              0,
+                              ""
+                            ],
+                            [
+                              "The value was expected to be of type ",
+                              6,
+                              " and it was of type number"
+                            ]
+                          ]
+                        }
+                      ]
+                    }
+                  ]
+                },
+                [
+                  "The value was expected to be of type ",
+                  6,
+                  " and it was of type number"
+                ]
+              ]
+            }
+          ]
+        },
+        {
+          "select": 1,
+          "variants": [
+            [
+              "The value was expected to be of type ",
+              32,
+              " but it was of type ",
+              0,
+              ""
+            ],
+            [
+              "The value was expected to be of type ",
+              32,
+              ""
+            ]
+          ]
+        }
+      ]
+    },
+    "AssertionTypeStrictAny": {
+      "select": 9,
+      "variants": [
+        {
+          "select": 1,
+          "variants": [
+            {
+              "select": 7,
+              "variants": [
+                {
+                  "select": 6,
+                  "variants": [
+                    [
+                      "The value was expected to be of type ",
+                      6,
+                      " but it was of type ",
+                      0,
+                      ""
+                    ],
+                    {
+                      "select": 1,
+                      "variants": [
+                        [
+                          "The value was expected to be of type ",
+                          6,
+                          " but it was of type ",
+                          0,
+                          ""
+                        ],
+                        {
+                          "select": 8,
+                          "variants": [
+                            [
+                              "The value was expected to be of type ",
+                              6,
+                              " but it was of type ",
+                              0,
+                              ""
+                            ],
+                            [
+                              "The value was expected to be of type ",
+                              6,
+                              " but it was of type number"
+                            ]
+                          ]
+                        }
+                      ]
+                    }
+                  ]
+                },
+                [
+                  "The value was expected to be of type ",
+                  6,
+                  " but it was of type number"
+                ]
+              ]
+            },
+            {
+              "select": 7,
+              "variants": [
+                {
+                  "select": 6,
+                  "variants": [
+                    [
+                      "The value was expected to be of type ",
+                      6,
+                      " and it was of type ",
+                      0,
+                      ""
+                    ],
+                    {
+                      "select": 1,
+                      "variants": [
+                        [
+                          "The value was expected to be of type ",
+                          6,
+                          " and it was of type ",
+                          0,
+                          ""
+                        ],
+                        {
+                          "select": 8,
+                          "variants": [
+                            [
+                              "The value was expected to be of type ",
+                              6,
+                              " and it was of type ",
+                              0,
+                              ""
+                            ],
+                            [
+                              "The value was expected to be of type ",
+                              6,
+                              " and it was of type number"
+                            ]
+                          ]
+                        }
+                      ]
+                    }
+                  ]
+                },
+                [
+                  "The value was expected to be of type ",
+                  6,
+                  " and it was of type number"
+                ]
+              ]
+            }
+          ]
+        },
+        {
+          "select": 1,
+          "variants": [
+            [
+              "The value was expected to be of type ",
+              32,
+              " but it was of type ",
+              0,
+              ""
+            ],
+            [
+              "The value was expected to be of type ",
+              32,
+              ""
+            ]
+          ]
+        }
+      ]
+    },
+    "AssertionPropertyType": {
+      "select": 1,
+      "variants": [
+        [
+          "The value was expected to be of type ",
+          2,
+          " but it was of type ",
+          0,
+          ""
+        ],
+        [
+          "The value was expected to be of type ",
+          2,
+          ""
+        ]
+      ]
+    },
+    "AssertionPropertyTypeEvaluate": {
+      "select": 1,
+      "variants": [
+        [
+          "The value was expected to be of type ",
+          2,
+          " but it was of type ",
+          0,
+          ""
+        ],
+        [
+          "The value was expected to be of type ",
+          2,
+          ""
+        ]
+      ]
+    },
+    "AssertionPropertyTypeStrict": {
+      "select": 1,
+      "variants": [
+        [
+          "The value was expected to be of type ",
+          2,
+          " but it was of type ",
+          0,
+          ""
+        ],
+        [
+          "The value was expected to be of type ",
+          2,
+          ""
+        ]
+      ]
+    },
+    "AssertionPropertyTypeStrictEvaluate": {
+      "select": 1,
+      "variants": [
+        [
+          "The value was expected to be of type ",
+          2,
+          " but it was of type ",
+          0,
+          ""
+        ],
+        [
+          "The value was expected to be of type ",
+          2,
+          ""
+        ]
+      ]
+    },
+    "AssertionPropertyTypeStrictAny": {
+      "select": 9,
+      "variants": [
+        {
+          "select": 1,
+          "variants": [
+            {
+              "select": 7,
+              "variants": [
+                {
+                  "select": 6,
+                  "variants": [
+                    [
+                      "The value was expected to be of type ",
+                      6,
+                      " but it was of type ",
+                      0,
+                      ""
+                    ],
+                    {
+                      "select": 1,
+                      "variants": [
+                        [
+                          "The value was expected to be of type ",
+                          6,
+                          " but it was of type ",
+                          0,
+                          ""
+                        ],
+                        {
+                          "select": 8,
+                          "variants": [
+                            [
+                              "The value was expected to be of type ",
+                              6,
+                              " but it was of type ",
+                              0,
+                              ""
+                            ],
+                            [
+                              "The value was expected to be of type ",
+                              6,
+                              " but it was of type number"
+                            ]
+                          ]
+                        }
+                      ]
+                    }
+                  ]
+                },
+                [
+                  "The value was expected to be of type ",
+                  6,
+                  " but it was of type number"
+                ]
+              ]
+            },
+            {
+              "select": 7,
+              "variants": [
+                {
+                  "select": 6,
+                  "variants": [
+                    [
+                      "The value was expected to be of type ",
+                      6,
+                      " and it was of type ",
+                      0,
+                      ""
+                    ],
+                    {
+                      "select": 1,
+                      "variants": [
+                        [
+                          "The value was expected to be of type ",
+                          6,
+                          " and it was of type ",
+                          0,
+                          ""
+                        ],
+                        {
+                          "select": 8,
+                          "variants": [
+                            [
+                              "The value was expected to be of type ",
+                              6,
+                              " and it was of type ",
+                              0,
+                              ""
+                            ],
+                            [
+                              "The value was expected to be of type ",
+                              6,
+                              " and it was of type number"
+                            ]
+                          ]
+                        }
+                      ]
+                    }
+                  ]
+                },
+                [
+                  "The value was expected to be of type ",
+                  6,
+                  " and it was of type number"
+                ]
+              ]
+            }
+          ]
+        },
+        {
+          "select": 1,
+          "variants": [
+            [
+              "The value was expected to be of type ",
+              32,
+              " but it was of type ",
+              0,
+              ""
+            ],
+            [
+              "The value was expected to be of type ",
+              32,
+              ""
+            ]
+          ]
+        }
+      ]
+    },
+    "AssertionPropertyTypeStrictAnyEvaluate": {
+      "select": 9,
+      "variants": [
+        {
+          "select": 1,
+          "variants": [
+            {
+              "select": 7,
+              "variants": [
+                {
+                  "select": 6,
+                  "variants": [
+                    [
+                      "The value was expected to be of type ",
+                      6,
+                      " but it was of type ",
+                      0,
+                      ""
+                    ],
+                    {
+                      "select": 1,
+                      "variants": [
+                        [
+                          "The value was expected to be of type ",
+                          6,
+                          " but it was of type ",
+                          0,
+                          ""
+                        ],
+                        {
+                          "select": 8,
+                          "variants": [
+                            [
+                              "The value was expected to be of type ",
+                              6,
+                              " but it was of type ",
+                              0,
+                              ""
+                            ],
+                            [
+                              "The value was expected to be of type ",
+                              6,
+                              " but it was of type number"
+                            ]
+                          ]
+                        }
+                      ]
+                    }
+                  ]
+                },
+                [
+                  "The value was expected to be of type ",
+                  6,
+                  " but it was of type number"
+                ]
+              ]
+            },
+            {
+              "select": 7,
+              "variants": [
+                {
+                  "select": 6,
+                  "variants": [
+                    [
+                      "The value was expected to be of type ",
+                      6,
+                      " and it was of type ",
+                      0,
+                      ""
+                    ],
+                    {
+                      "select": 1,
+                      "variants": [
+                        [
+                          "The value was expected to be of type ",
+                          6,
+                          " and it was of type ",
+                          0,
+                          ""
+                        ],
+                        {
+                          "select": 8,
+                          "variants": [
+                            [
+                              "The value was expected to be of type ",
+                              6,
+                              " and it was of type ",
+                              0,
+                              ""
+                            ],
+                            [
+                              "The value was expected to be of type ",
+                              6,
+                              " and it was of type number"
+                            ]
+                          ]
+                        }
+                      ]
+                    }
+                  ]
+                },
+                [
+                  "The value was expected to be of type ",
+                  6,
+                  " and it was of type number"
+                ]
+              ]
+            }
+          ]
+        },
+        {
+          "select": 1,
+          "variants": [
+            [
+              "The value was expected to be of type ",
+              32,
+              " but it was of type ",
+              0,
+              ""
+            ],
+            [
+              "The value was expected to be of type ",
+              32,
+              ""
+            ]
+          ]
+        }
+      ]
+    },
+    "AssertionRegex": {
+      "select": 5,
+      "variants": [
+        [
+          "The string value ",
+          8,
+          " was expected to match the regular expression ",
+          11,
+          ""
+        ],
+        {
+          "select": 2,
+          "variants": [
+            [
+              "The string value ",
+              8,
+              " was expected to match the regular expression ",
+              11,
+              ""
+            ],
+            [
+              "The property name ",
+              12,
+              " was expected to match the regular expression ",
+              11,
+              ""
+            ]
+          ]
+        }
+      ]
+    },
+    "ControlJump": {
+      "select": 5,
+      "variants": [
+        [
+          "The ",
+          0,
+          " value was expected to validate against the referenced schema"
+        ],
+        {
+          "select": 2,
+          "variants": [
+            [
+              "The ",
+              0,
+              " value was expected to validate against the referenced schema"
+            ],
+            [
+              "The string value was expected to validate against the referenced schema"
+            ]
+          ]
+        }
+      ]
+    },
+    "AssertionTypeStringBounded": {
+      "select": 16,
+      "variants": [
+        {
+          "select": 17,
+          "variants": [
+            {
+              "select": 29,
+              "variants": [
+                [
+                  "The value was expected to consist of a string of ",
+                  23,
+                  " to ",
+                  24,
+                  " characters"
+                ],
+                [
+                  "The value was expected to consist of a string of ",
+                  23,
+                  " to ",
+                  24,
+                  " character"
+                ]
+              ]
+            },
+            {
+              "select": 29,
+              "variants": [
+                [
+                  "The value was expected to consist of a string of at most ",
+                  24,
+                  " characters"
+                ],
+                [
+                  "The value was expected to consist of a string of at most ",
+                  24,
+                  " character"
+                ]
+              ]
+            }
+          ]
+        },
+        {
+          "select": 28,
+          "variants": [
+            [
+              "The value was expected to consist of a string of at least ",
+              23,
+              " characters"
+            ],
+            [
+              "The value was expected to consist of a string of at least ",
+              23,
+              " character"
+            ]
+          ]
+        }
+      ]
+    },
+    "AssertionTypeStringUpper": {
+      "select": 25,
+      "variants": [
+        [
+          "The value was expected to consist of a string of at most ",
+          16,
+          " characters"
+        ],
+        [
+          "The value was expected to consist of a string of at most ",
+          16,
+          " character"
+        ]
+      ]
+    },
+    "AssertionTypeArrayBounded": {
+      "select": 16,
+      "variants": [
+        {
+          "select": 17,
+          "variants": [
+            {
+              "select": 29,
+              "variants": [
+                [
+                  "The value was expected to consist of an array of ",
+                  23,
+                  " to ",
+                  24,
+                  " items"
+                ],
+                [
+                  "The value was expected to consist of an array of ",
+                  23,
+                  " to ",
+                  24,
+                  " item"
+                ]
+              ]
+            },
+            {
+              "select": 29,
+              "variants": [
+                [
+                  "The value was expected to consist of an array of at most ",
+                  24,
+                  " items"
+                ],
+                [
+                  "The value was expected to consist of an array of at most ",
+                  24,
+                  " item"
+                ]
+              ]
+            }
+          ]
+        },
+        {
+          "select": 28,
+          "variants": [
+            [
+              "The value was expected to consist of an array of at least ",
+              23,
+              " items"
+            ],
+            [
+              "The value was expected to consist of an array of at least ",
+              23,
+              " item"
+            ]
+          ]
+        }
+      ]
+    },
+    "AssertionTypeArrayUpper": {
+      "select": 25,
+      "variants": [
+        [
+          "The value was expected to consist of an array of at most ",
+          16,
+          " items"
+        ],
+        [
+          "The value was expected to consist of an array of at most ",
+          16,
+          " item"
+        ]
+      ]
+    },
+    "AssertionTypeObjectBounded": {
+      "select": 16,
+      "variants": [
+        {
+          "select": 17,
+          "variants": [
+            {
+              "select": 29,
+              "variants": [
+                [
+                  "The value was expected to consist of an object of ",
+                  23,
+                  " to ",
+                  24,
+                  " properties"
+                ],
+                [
+                  "The value was expected to consist of an object of ",
+                  23,
+                  " to ",
+                  24,
+                  " property"
+                ]
+              ]
+            },
+            {
+              "select": 29,
+              "variants": [
+                [
+                  "The value was expected to consist of an object of at most ",
+                  24,
+                  " properties"
+                ],
+                [
+                  "The value was expected to consist of an object of at most ",
+                  24,
+                  " property"
+                ]
+              ]
+            }
+          ]
+        },
+        {
+          "select": 28,
+          "variants": [
+            [
+              "The value was expected to consist of an object of at least ",
+              23,
+              " properties"
+            ],
+            [
+              "The value was expected to consist of an object of at least ",
+              23,
+              " property"
+            ]
+          ]
+        }
+      ]
+    },
+    "AssertionTypeObjectUpper": {
+      "select": 25,
+      "variants": [
+        [
+          "The value was expected to consist of an object of at most ",
+          16,
+          " properties"
+        ],
+        [
+          "The value was expected to consist of an object of at most ",
+          16,
+          " property"
+        ]
+      ]
+    },
+    "AssertionGreater": {
+      "select": 1,
+      "variants": [
+        {
+          "select": 12,
+          "variants": [
+            [
+              "The ",
+              1,
+              " value ",
+              13,
+              " was expected to be greater than the ",
+              4,
+              " ",
+              14,
+              ""
+            ],
+            [
+              "The ",
+              1,
+              " value ",
+              13,
+              " was expected to be greater than the ",
+              4,
+              " ",
+              14,
+              ", but they were equal"
+            ]
+          ]
+        },
+        [
+          "The ",
+          1,
+          " value ",
+          13,
+          " was expected to be greater than the ",
+          4,
+          " ",
+          14,
+          ""
+        ]
+      ]
+    },
+    "AssertionLess": {
+      "select": 1,
+      "variants": [
+        {
+          "select": 12,
+          "variants": [
+            [
+              "The ",
+              1,
+              " value ",
+              13,
+              " was expected to be less than the ",
+              4,
+              " ",
+              14,
+              ""
+            ],
+            [
+              "The ",
+              1,
+              " value ",
+              13,
+              " was expected to be less than the ",
+              4,
+              " ",
+              14,
+              ", but they were equal"
+            ]
+          ]
+        },
+        [
+          "The ",
+          1,
+          " value ",
+          13,
+          " was expected to be less than the ",
+          4,
+          " ",
+          14,
+          ""
+        ]
+      ]
+    },
+    "LoopPropertiesMatch": {
+      "select": 24,
+      "variants": [
+        [
+          "The object value was expected to validate against the ",
+          20,
+          " defined properties subschemas"
+        ],
+        [
+          "The object value was expected to validate against the single defined property subschema"
+        ]
+      ]
+    },
+    "LoopPropertiesMatchClosed": {
+      "select": 24,
+      "variants": [
+        [
+          "Every object value was expected to validate against one of the ",
+          20,
+          " defined properties subschemas"
+        ],
+        [
+          "The object value was expected to validate against the single defined property subschema"
+        ]
+      ]
+    },
+    "AssertionArrayPrefix": {
+      "select": 23,
+      "variants": [
+        [
+          "The first ",
+          21,
+          " items of the array value were expected to validate against the corresponding subschemas"
+        ],
+        [
+          "The first item of the array value was expected to validate against the corresponding subschemas"
+        ]
+      ]
+    },
+    "AssertionArrayPrefixEvaluate": {
+      "select": 23,
+      "variants": [
+        [
+          "The first ",
+          21,
+          " items of the array value were expected to validate against the corresponding subschemas"
+        ],
+        [
+          "The first item of the array value was expected to validate against the corresponding subschemas"
+        ]
+      ]
+    },
+    "LoopItemsFrom": {
+      "select": 45,
+      "variants": [
+        [
+          "Every item in the array value was expected to validate against the given subschema"
+        ],
+        [
+          "Every item in the array value except for the first one was expected to validate against the given subschema"
+        ],
+        [
+          "Every item in the array value except for the first ",
+          16,
+          " was expected to validate against the given subschema"
+        ]
+      ]
+    },
+    "AssertionStringSizeLess": {
+      "select": 0,
+      "keys": [
+        "maxLength"
+      ],
+      "variants": [
+        {
+          "select": 5,
+          "variants": [
+            {
+              "select": 1,
+              "variants": [
+                {
+                  "select": 26,
+                  "variants": [
+                    {
+                      "select": 31,
+                      "variants": [
+                        [
+                          "The string value ",
+                          13,
+                          " was expected to consist of at most ",
+                          25,
+                          " characters but it consisted of ",
+                          29,
+                          " characters"
+                        ],
+                        [
+                          "The string value ",
+                          13,
+                          " was expected to consist of at most ",
+                          25,
+                          " characters but it consisted of 1 character"
+                        ]
+                      ]
+                    },
+                    {
+                      "select": 31,
+                      "variants": [
+                        [
+                          "The string value ",
+                          13,
+                          " was expected to consist of at most 1 character but it consisted of ",
+                          29,
+                          " characters"
+                        ],
+                        [
+                          "The string value ",
+                          13,
+                          " was expected to consist of at most 1 character but it consisted of 1 character"
+                        ]
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "select": 26,
+                  "variants": [
+                    {
+                      "select": 31,
+                      "variants": [
+                        [
+                          "The string value ",
+                          13,
+                          " was expected to consist of at most ",
+                          25,
+                          " characters and it consisted of ",
+                          29,
+                          " characters"
+                        ],
+                        [
+                          "The string value ",
+                          13,
+                          " was expected to consist of at most ",
+                          25,
+                          " characters and it consisted of 1 character"
+                        ]
+                      ]
+                    },
+                    {
+                      "select": 31,
+                      "variants": [
+                        [
+                          "The string value ",
+                          13,
+                          " was expected to consist of at most 1 character and it consisted of ",
+                          29,
+                          " characters"
+                        ],
+                        [
+                          "The string value ",
+                          13,
+                          " was expected to consist of at most 1 character and it consisted of 1 character"
+                        ]
+                      ]
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "select": 2,
+              "variants": [
+                {
+                  "select": 1,
+                  "variants": [
+                    {
+                      "select": 26,
+                      "variants": [
+                        {
+                          "select": 31,
+                          "variants": [
+                            [
+                              "The string value ",
+                              13,
+                              " was expected to consist of at most ",
+                              25,
+                              " characters but it consisted of ",
+                              29,
+                              " characters"
+                            ],
+                            [
+                              "The string value ",
+                              13,
+                              " was expected to consist of at most ",
+                              25,
+                              " characters but it consisted of 1 character"
+                            ]
+                          ]
+                        },
+                        {
+                          "select": 31,
+                          "variants": [
+                            [
+                              "The string value ",
+                              13,
+                              " was expected to consist of at most 1 character but it consisted of ",
+                              29,
+                              " characters"
+                            ],
+                            [
+                              "The string value ",
+                              13,
+                              " was expected to consist of at most 1 character but it consisted of 1 character"
+                            ]
+                          ]
+                        }
+                      ]
+                    },
+                    {
+                      "select": 26,
+                      "variants": [
+                        {
+                          "select": 31,
+                          "variants": [
+                            [
+                              "The string value ",
+                              13,
+                              " was expected to consist of at most ",
+                              25,
+                              " characters and it consisted of ",
+                              29,
+                              " characters"
+                            ],
+                            [
+                              "The string value ",
+                              13,
+                              " was expected to consist of at most ",
+                              25,
+                              " characters and it consisted of 1 character"
+                            ]
+                          ]
+                        },
+                        {
+                          "select": 31,
+                          "variants": [
+                            [
+                              "The string value ",
+                              13,
+                              " was expected to consist of at most 1 character and it consisted of ",
+                              29,
+                              " characters"
+                            ],
+                            [
+                              "The string value ",
+                              13,
+                              " was expected to consist of at most 1 character and it consisted of 1 character"
+                            ]
+                          ]
+                        }
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "select": 1,
+                  "variants": [
+                    {
+                      "select": 26,
+                      "variants": [
+                        {
+                          "select": 32,
+                          "variants": [
+                            [
+                              "The object property name ",
+                              12,
+                              " was expected to consist of at most ",
+                              25,
+                              " characters but it consisted of ",
+                              30,
+                              " characters"
+                            ],
+                            [
+                              "The object property name ",
+                              12,
+                              " was expected to consist of at most ",
+                              25,
+                              " characters but it consisted of 1 character"
+                            ]
+                          ]
+                        },
+                        {
+                          "select": 32,
+                          "variants": [
+                            [
+                              "The object property name ",
+                              12,
+                              " was expected to consist of at most 1 character but it consisted of ",
+                              30,
+                              " characters"
+                            ],
+                            [
+                              "The object property name ",
+                              12,
+                              " was expected to consist of at most 1 character but it consisted of 1 character"
+                            ]
+                          ]
+                        }
+                      ]
+                    },
+                    {
+                      "select": 26,
+                      "variants": [
+                        {
+                          "select": 32,
+                          "variants": [
+                            [
+                              "The object property name ",
+                              12,
+                              " was expected to consist of at most ",
+                              25,
+                              " characters and it consisted of ",
+                              30,
+                              " characters"
+                            ],
+                            [
+                              "The object property name ",
+                              12,
+                              " was expected to consist of at most ",
+                              25,
+                              " characters and it consisted of 1 character"
+                            ]
+                          ]
+                        },
+                        {
+                          "select": 32,
+                          "variants": [
+                            [
+                              "The object property name ",
+                              12,
+                              " was expected to consist of at most 1 character and it consisted of ",
+                              30,
+                              " characters"
+                            ],
+                            [
+                              "The object property name ",
+                              12,
+                              " was expected to consist of at most 1 character and it consisted of 1 character"
+                            ]
+                          ]
+                        }
+                      ]
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        },
+        [
+          "<unknown>"
+        ]
+      ]
+    },
+    "AssertionStringSizeGreater": {
+      "select": 0,
+      "keys": [
+        "minLength"
+      ],
+      "variants": [
+        {
+          "select": 5,
+          "variants": [
+            {
+              "select": 1,
+              "variants": [
+                {
+                  "select": 27,
+                  "variants": [
+                    {
+                      "select": 31,
+                      "variants": [
+                        [
+                          "The string value ",
+                          13,
+                          " was expected to consist of at least ",
+                          26,
+                          " characters but it consisted of ",
+                          29,
+                          " characters"
+                        ],
+                        [
+                          "The string value ",
+                          13,
+                          " was expected to consist of at least ",
+                          26,
+                          " characters but it consisted of 1 character"
+                        ]
+                      ]
+                    },
+                    {
+                      "select": 31,
+                      "variants": [
+                        [
+                          "The string value ",
+                          13,
+                          " was expected to consist of at least 1 character but it consisted of ",
+                          29,
+                          " characters"
+                        ],
+                        [
+                          "The string value ",
+                          13,
+                          " was expected to consist of at least 1 character but it consisted of 1 character"
+                        ]
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "select": 27,
+                  "variants": [
+                    {
+                      "select": 31,
+                      "variants": [
+                        [
+                          "The string value ",
+                          13,
+                          " was expected to consist of at least ",
+                          26,
+                          " characters and it consisted of ",
+                          29,
+                          " characters"
+                        ],
+                        [
+                          "The string value ",
+                          13,
+                          " was expected to consist of at least ",
+                          26,
+                          " characters and it consisted of 1 character"
+                        ]
+                      ]
+                    },
+                    {
+                      "select": 31,
+                      "variants": [
+                        [
+                          "The string value ",
+                          13,
+                          " was expected to consist of at least 1 character and it consisted of ",
+                          29,
+                          " characters"
+                        ],
+                        [
+                          "The string value ",
+                          13,
+                          " was expected to consist of at least 1 character and it consisted of 1 character"
+                        ]
+                      ]
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "select": 2,
+              "variants": [
+                {
+                  "select": 1,
+                  "variants": [
+                    {
+                      "select": 27,
+                      "variants": [
+                        {
+                          "select": 31,
+                          "variants": [
+                            [
+                              "The string value ",
+                              13,
+                              " was expected to consist of at least ",
+                              26,
+                              " characters but it consisted of ",
+                              29,
+                              " characters"
+                            ],
+                            [
+                              "The string value ",
+                              13,
+                              " was expected to consist of at least ",
+                              26,
+                              " characters but it consisted of 1 character"
+                            ]
+                          ]
+                        },
+                        {
+                          "select": 31,
+                          "variants": [
+                            [
+                              "The string value ",
+                              13,
+                              " was expected to consist of at least 1 character but it consisted of ",
+                              29,
+                              " characters"
+                            ],
+                            [
+                              "The string value ",
+                              13,
+                              " was expected to consist of at least 1 character but it consisted of 1 character"
+                            ]
+                          ]
+                        }
+                      ]
+                    },
+                    {
+                      "select": 27,
+                      "variants": [
+                        {
+                          "select": 31,
+                          "variants": [
+                            [
+                              "The string value ",
+                              13,
+                              " was expected to consist of at least ",
+                              26,
+                              " characters and it consisted of ",
+                              29,
+                              " characters"
+                            ],
+                            [
+                              "The string value ",
+                              13,
+                              " was expected to consist of at least ",
+                              26,
+                              " characters and it consisted of 1 character"
+                            ]
+                          ]
+                        },
+                        {
+                          "select": 31,
+                          "variants": [
+                            [
+                              "The string value ",
+                              13,
+                              " was expected to consist of at least 1 character and it consisted of ",
+                              29,
+                              " characters"
+                            ],
+                            [
+                              "The string value ",
+                              13,
+                              " was expected to consist of at least 1 character and it consisted of 1 character"
+                            ]
+                          ]
+                        }
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "select": 1,
+                  "variants": [
+                    {
+                      "select": 27,
+                      "variants": [
+                        {
+                          "select": 32,
+                          "variants": [
+                            [
+                              "The object property name ",
+                              12,
+                              " was expected to consist of at least ",
+                              26,
+                              " characters but it consisted of ",
+                              30,
+                              " characters"
+                            ],
+                            [
+                              "The object property name ",
+                              12,
+                              " was expected to consist of at least ",
+                              26,
+                              " characters but it consisted of 1 character"
+                            ]
+                          ]
+                        },
+                        {
+                          "select": 32,
+                          "variants": [
+                            [
+                              "The object property name ",
+                              12,
+                              " was expected to consist of at least 1 character but it consisted of ",
+                              30,
+                              " characters"
+                            ],
+                            [
+                              "The object property name ",
+                              12,
+                              " was expected to consist of at least 1 character but it consisted of 1 character"
+                            ]
+                          ]
+                        }
+                      ]
+                    },
+                    {
+                      "select": 27,
+                      "variants": [
+                        {
+                          "select": 32,
+                          "variants": [
+                            [
+                              "The object property name ",
+                              12,
+                              " was expected to consist of at least ",
+                              26,
+                              " characters and it consisted of ",
+                              30,
+                              " characters"
+                            ],
+                            [
+                              "The object property name ",
+                              12,
+                              " was expected to consist of at least ",
+                              26,
+                              " characters and it consisted of 1 character"
+                            ]
+                          ]
+                        },
+                        {
+                          "select": 32,
+                          "variants": [
+                            [
+                              "The object property name ",
+                              12,
+                              " was expected to consist of at least 1 character and it consisted of ",
+                              30,
+                              " characters"
+                            ],
+                            [
+                              "The object property name ",
+                              12,
+                              " was expected to consist of at least 1 character and it consisted of 1 character"
+                            ]
+                          ]
+                        }
+                      ]
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        },
+        [
+          "<unknown>"
+        ]
+      ]
+    },
+    "AssertionArraySizeLess": {
+      "select": 0,
+      "keys": [
+        "maxItems"
+      ],
+      "variants": [
+        {
+          "select": 1,
+          "variants": [
+            {
+              "select": 26,
+              "variants": [
+                {
+                  "select": 30,
+                  "variants": [
+                    [
+                      "The array value was expected to contain at most ",
+                      25,
+                      " items but it contained ",
+                      27,
+                      " items"
+                    ],
+                    [
+                      "The array value was expected to contain at most ",
+                      25,
+                      " items but it contained 1 item"
+                    ]
+                  ]
+                },
+                {
+                  "select": 30,
+                  "variants": [
+                    [
+                      "The array value was expected to contain at most 1 item but it contained ",
+                      27,
+                      " items"
+                    ],
+                    [
+                      "The array value was expected to contain at most 1 item but it contained 1 item"
+                    ]
+                  ]
+                }
+              ]
+            },
+            {
+              "select": 26,
+              "variants": [
+                {
+                  "select": 30,
+                  "variants": [
+                    [
+                      "The array value was expected to contain at most ",
+                      25,
+                      " items and it contained ",
+                      27,
+                      " items"
+                    ],
+                    [
+                      "The array value was expected to contain at most ",
+                      25,
+                      " items and it contained 1 item"
+                    ]
+                  ]
+                },
+                {
+                  "select": 30,
+                  "variants": [
+                    [
+                      "The array value was expected to contain at most 1 item and it contained ",
+                      27,
+                      " items"
+                    ],
+                    [
+                      "The array value was expected to contain at most 1 item and it contained 1 item"
+                    ]
+                  ]
+                }
+              ]
+            }
+          ]
+        },
+        [
+          "<unknown>"
+        ]
+      ]
+    },
+    "AssertionArraySizeGreater": {
+      "select": 1,
+      "variants": [
+        {
+          "select": 27,
+          "variants": [
+            {
+              "select": 30,
+              "variants": [
+                [
+                  "The array value was expected to contain at least ",
+                  26,
+                  " items but it contained ",
+                  27,
+                  " items"
+                ],
+                [
+                  "The array value was expected to contain at least ",
+                  26,
+                  " items but it contained 1 item"
+                ]
+              ]
+            },
+            {
+              "select": 30,
+              "variants": [
+                [
+                  "The array value was expected to contain at least 1 item but it contained ",
+                  27,
+                  " items"
+                ],
+                [
+                  "The array value was expected to contain at least 1 item but it contained 1 item"
+                ]
+              ]
+            }
+          ]
+        },
+        {
+          "select": 27,
+          "variants": [
+            {
+              "select": 30,
+              "variants": [
+                [
+                  "The array value was expected to contain at least ",
+                  26,
+                  " items and it contained ",
+                  27,
+                  " items"
+                ],
+                [
+                  "The array value was expected to contain at least ",
+                  26,
+                  " items and it contained 1 item"
+                ]
+              ]
+            },
+            {
+              "select": 30,
+              "variants": [
+                [
+                  "The array value was expected to contain at least 1 item and it contained ",
+                  27,
+                  " items"
+                ],
+                [
+                  "The array value was expected to contain at least 1 item and it contained 1 item"
+                ]
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    "AssertionObjectSizeLess": {
+      "select": 0,
+      "keys": [
+        "additionalProperties",
+        "maxProperties"
+      ],
+      "variants": [
+        [
+          "The object value was not expected to define additional properties"
+        ],
+        {
+          "select": 1,
+          "variants": [
+            {
+              "select": 26,
+              "variants": [
+                {
+                  "select": 44,
+                  "variants": [
+                    [
+                      "The object value was expected to contain at most ",
+                      25,
+                      " properties but it contained 0 properties"
+                    ],
+                    [
+                      "The object value was expected to contain at most ",
+                      25,
+                      " properties but it contained 1 property: ",
+                      40,
+                      ""
+                    ],
+                    [
+                      "The object value was expected to contain at most ",
+                      25,
+                      " properties but it contained ",
+                      28,
+                      " properties: ",
+                      42,
+                      ""
+                    ]
+                  ]
+                },
+                {
+                  "select": 44,
+                  "variants": [
+                    [
+                      "The object value was expected to contain at most 1 property but it contained 0 properties"
+                    ],
+                    [
+                      "The object value was expected to contain at most 1 property but it contained 1 property: ",
+                      40,
+                      ""
+                    ],
+                    [
+                      "The object value was expected to contain at most 1 property but it contained ",
+                      28,
+                      " properties: ",
+                      42,
+                      ""
+                    ]
+                  ]
+                }
+              ]
+            },
+            {
+              "select": 26,
+              "variants": [
+                {
+                  "select": 44,
+                  "variants": [
+                    [
+                      "The object value was expected to contain at most ",
+                      25,
+                      " properties and it contained 0 properties"
+                    ],
+                    [
+                      "The object value was expected to contain at most ",
+                      25,
+                      " properties and it contained 1 property: ",
+                      40,
+                      ""
+                    ],
+                    [
+                      "The object value was expected to contain at most ",
+                      25,
+                      " properties and it contained ",
+                      28,
+                      " properties: ",
+                      42,
+                      ""
+                    ]
+                  ]
+                },
+                {
+                  "select": 44,
+                  "variants": [
+                    [
+                      "The object value was expected to contain at most 1 property and it contained 0 properties"
+                    ],
+                    [
+                      "The object value was expected to contain at most 1 property and it contained 1 property: ",
+                      40,
+                      ""
+                    ],
+                    [
+                      "The object value was expected to contain at most 1 property and it contained ",
+                      28,
+                      " properties: ",
+                      42,
+                      ""
+                    ]
+                  ]
+                }
+              ]
+            }
+          ]
+        },
+        [
+          "<unknown>"
+        ]
+      ]
+    },
+    "AssertionObjectSizeGreater": {
+      "select": 0,
+      "keys": [
+        "minProperties"
+      ],
+      "variants": [
+        {
+          "select": 1,
+          "variants": [
+            {
+              "select": 27,
+              "variants": [
+                {
+                  "select": 44,
+                  "variants": [
+                    [
+                      "The object value was expected to contain at least ",
+                      26,
+                      " properties but it contained 0 properties: "
+                    ],
+                    [
+                      "The object value was expected to contain at least ",
+                      26,
+                      " properties but it contained 1 property: ",
+                      40,
+                      ""
+                    ],
+                    [
+                      "The object value was expected to contain at least ",
+                      26,
+                      " properties but it contained ",
+                      28,
+                      " properties: ",
+                      42,
+                      ""
+                    ]
+                  ]
+                },
+                {
+                  "select": 44,
+                  "variants": [
+                    [
+                      "The object value was expected to contain at least 1 property but it contained 0 properties: "
+                    ],
+                    [
+                      "The object value was expected to contain at least 1 property but it contained 1 property: ",
+                      40,
+                      ""
+                    ],
+                    [
+                      "The object value was expected to contain at least 1 property but it contained ",
+                      28,
+                      " properties: ",
+                      42,
+                      ""
+                    ]
+                  ]
+                }
+              ]
+            },
+            {
+              "select": 27,
+              "variants": [
+                {
+                  "select": 44,
+                  "variants": [
+                    [
+                      "The object value was expected to contain at least ",
+                      26,
+                      " properties and it contained 0 properties: "
+                    ],
+                    [
+                      "The object value was expected to contain at least ",
+                      26,
+                      " properties and it contained 1 property: ",
+                      40,
+                      ""
+                    ],
+                    [
+                      "The object value was expected to contain at least ",
+                      26,
+                      " properties and it contained ",
+                      28,
+                      " properties: ",
+                      42,
+                      ""
+                    ]
+                  ]
+                },
+                {
+                  "select": 44,
+                  "variants": [
+                    [
+                      "The object value was expected to contain at least 1 property and it contained 0 properties: "
+                    ],
+                    [
+                      "The object value was expected to contain at least 1 property and it contained 1 property: ",
+                      40,
+                      ""
+                    ],
+                    [
+                      "The object value was expected to contain at least 1 property and it contained ",
+                      28,
+                      " properties: ",
+                      42,
+                      ""
+                    ]
+                  ]
+                }
+              ]
+            }
+          ]
+        },
+        [
+          "<unknown>"
+        ]
+      ]
+    },
+    "AssertionEqual": {
+      "select": 5,
+      "variants": [
+        [
+          "The ",
+          0,
+          " value ",
+          13,
+          " was expected to equal the ",
+          5,
+          " constant ",
+          14,
+          ""
+        ],
+        {
+          "select": 2,
+          "variants": [
+            [
+              "The ",
+              0,
+              " value ",
+              13,
+              " was expected to equal the ",
+              5,
+              " constant ",
+              14,
+              ""
+            ],
+            [
+              "The property name ",
+              12,
+              " was expected to equal the ",
+              5,
+              " constant ",
+              14,
+              ""
+            ]
+          ]
+        }
+      ]
+    },
+    "AssertionEqualsAny": {
+      "select": 5,
+      "variants": [
+        {
+          "select": 36,
+          "variants": [
+            {
+              "select": 1,
+              "variants": [
+                [
+                  "The ",
+                  0,
+                  " value ",
+                  13,
+                  " was expected to equal one of the following values: ",
+                  46,
+                  ""
+                ],
+                [
+                  "The ",
+                  0,
+                  " value ",
+                  13,
+                  " was expected to equal one of the ",
+                  45,
+                  " declared values"
+                ]
+              ]
+            },
+            [
+              "The ",
+              0,
+              " value ",
+              13,
+              " was expected to equal the ",
+              43,
+              " constant ",
+              44,
+              ""
+            ]
+          ]
+        },
+        {
+          "select": 2,
+          "variants": [
+            {
+              "select": 36,
+              "variants": [
+                {
+                  "select": 1,
+                  "variants": [
+                    [
+                      "The ",
+                      0,
+                      " value ",
+                      13,
+                      " was expected to equal one of the following values: ",
+                      46,
+                      ""
+                    ],
+                    [
+                      "The ",
+                      0,
+                      " value ",
+                      13,
+                      " was expected to equal one of the ",
+                      45,
+                      " declared values"
+                    ]
+                  ]
+                },
+                [
+                  "The ",
+                  0,
+                  " value ",
+                  13,
+                  " was expected to equal the ",
+                  43,
+                  " constant ",
+                  44,
+                  ""
+                ]
+              ]
+            },
+            {
+              "select": 36,
+              "variants": [
+                {
+                  "select": 1,
+                  "variants": [
+                    [
+                      "The property name ",
+                      12,
+                      " was expected to equal one of the following values: ",
+                      46,
+                      ""
+                    ],
+                    [
+                      "The property name ",
+                      12,
+                      " was expected to equal one of the ",
+                      45,
+                      " declared values"
+                    ]
+                  ]
+                },
+                [
+                  "The property name ",
+                  12,
+                  " was expected to equal the ",
+                  43,
+                  " constant ",
+                  44,
+                  ""
+                ]
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    "AssertionEqualsAnyStringHash": {
+      "select": 5,
+      "variants": [
+        {
+          "select": 37,
+          "variants": [
+            [
+              "The ",
+              0,
+              " value ",
+              13,
+              " was expected to equal one of the given declared values"
+            ],
+            [
+              "The ",
+              0,
+              " value ",
+              13,
+              " was expected to equal the given constant"
+            ]
+          ]
+        },
+        {
+          "select": 2,
+          "variants": [
+            {
+              "select": 37,
+              "variants": [
+                [
+                  "The ",
+                  0,
+                  " value ",
+                  13,
+                  " was expected to equal one of the given declared values"
+                ],
+                [
+                  "The ",
+                  0,
+                  " value ",
+                  13,
+                  " was expected to equal the given constant"
+                ]
+              ]
+            },
+            {
+              "select": 37,
+              "variants": [
+                [
+                  "The property name ",
+                  12,
+                  " was expected to equal one of the given declared values"
+                ],
+                [
+                  "The property name ",
+                  12,
+                  " was expected to equal the given constant"
+                ]
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    "AssertionDefinesAll": {
+      "select": 1,
+      "variants": [
+        {
+          "select": 34,
+          "variants": [
+            [
+              "The object value was expected to define properties ",
+              33,
+              " but did not define properties ",
+              36,
+              ""
+            ],
+            [
+              "The object value was expected to define properties ",
+              33,
+              " but did not define the property ",
+              37,
+              ""
+            ]
+          ]
+        },
+        [
+          "The object value was expected to define properties ",
+          33,
+          ""
+        ]
+      ]
+    },
+    "AssertionDefinesAllStrict": [
+      "The value was expected to be an object that defines properties ",
+      33,
+      ""
+    ],
+    "AssertionDefinesExactly": [
+      "The object value was expected to only define properties ",
+      34,
+      ""
+    ],
+    "AssertionDefinesExactlyStrict": [
+      "The value was expected to be an object that only defines properties ",
+      34,
+      ""
+    ],
+    "AssertionDefinesExactlyStrictHash3": [
+      "The value was expected to be an object that only defines the ",
+      35,
+      " given properties"
+    ],
+    "AssertionUnique": {
+      "select": 1,
+      "variants": [
+        {
+          "select": 35,
+          "variants": [
+            [
+              "The array value contained the following duplicate items: ",
+              39,
+              ""
+            ],
+            [
+              "The array value contained the following duplicate item: ",
+              38,
+              ""
+            ]
+          ]
+        },
+        [
+          "The array value was expected to not contain duplicate items"
+        ]
+      ]
+    },
+    "LoopKeys": {
+      "select": 44,
+      "variants": [
+        [
+          "The object is empty and no properties were expected to validate against the given subschema"
+        ],
+        [
+          "The object property ",
+          40,
+          " was expected to validate against the given subschema"
+        ],
+        [
+          "The object properties ",
+          41,
+          " were expected to validate against the given subschema"
+        ]
+      ]
+    },
+    "LoopContains": {
+      "select": 16,
+      "variants": [
+        {
+          "select": 18,
+          "variants": [
+            {
+              "select": 17,
+              "variants": [
+                {
+                  "select": 29,
+                  "variants": [
+                    [
+                      "The array value was expected to contain ",
+                      23,
+                      " to ",
+                      24,
+                      " items that validate against the given subschema"
+                    ],
+                    [
+                      "The array value was expected to contain ",
+                      23,
+                      " to ",
+                      24,
+                      " item that validates against the given subschema"
+                    ]
+                  ]
+                },
+                {
+                  "select": 29,
+                  "variants": [
+                    [
+                      "The array value was expected to contain up to ",
+                      24,
+                      " items that validate against the given subschema"
+                    ],
+                    [
+                      "The array value was expected to contain up to ",
+                      24,
+                      " item that validates against the given subschema"
+                    ]
+                  ]
+                }
+              ]
+            },
+            {
+              "select": 17,
+              "variants": [
+                {
+                  "select": 28,
+                  "variants": [
+                    [
+                      "The array value was expected to contain exactly ",
+                      23,
+                      " items that validate against the given subschema"
+                    ],
+                    [
+                      "The array value was expected to contain exactly ",
+                      23,
+                      " item that validates against the given subschema"
+                    ]
+                  ]
+                },
+                [
+                  "The array value was expected to contain any number of items that validate against the given subschema"
+                ]
+              ]
+            }
+          ]
+        },
+        {
+          "select": 28,
+          "variants": [
+            [
+              "The array value was expected to contain at least ",
+              23,
+              " items that validate against the given subschema"
+            ],
+            [
+              "The array value was expected to contain at least ",
+              23,
+              " item that validates against the given subschema"
+            ]
+          ]
+        }
+      ]
+    },
+    "LogicalWhenArraySizeGreater": {
+      "select": 0,
+      "keys": [
+        "additionalItems",
+        "items"
+      ],
+      "variants": [
+        {
+          "select": 21,
+          "variants": [
+            [
+              "The array value does not contain additional items not described by related keywords"
+            ],
+            {
+              "select": 33,
+              "variants": [
+                [
+                  "The array value contains ",
+                  47,
+                  " additional items not described by related keywords"
+                ],
+                [
+                  "The array value contains ",
+                  47,
+                  " additional item not described by related keywords"
+                ]
+              ]
+            }
+          ]
+        },
+        {
+          "select": 21,
+          "variants": [
+            [
+              "The array value does not contain additional items not described by related keywords"
+            ],
+            {
+              "select": 33,
+              "variants": [
+                [
+                  "The array value contains ",
+                  47,
+                  " additional items not described by related keywords"
+                ],
+                [
+                  "The array value contains ",
+                  47,
+                  " additional item not described by related keywords"
+                ]
+              ]
+            }
+          ]
+        },
+        [
+          "<unknown>"
+        ]
+      ]
+    },
+    "LogicalWhenType": {
+      "select": 0,
+      "keys": [
+        "items",
+        "properties",
+        "dependentSchemas",
+        "dependencies"
+      ],
+      "variants": [
+        {
+          "select": 1,
+          "variants": [
+            [
+              "The value was expected to be of type ",
+              2,
+              " but it was of type ",
+              0,
+              ""
+            ],
+            [
+              "The value was expected to be of type ",
+              2,
+              ""
+            ]
+          ]
+        },
+        {
+          "select": 4,
+          "variants": [
+            {
+              "select": 1,
+              "variants": [
+                [
+                  "The value was expected to be of type object but it was of type ",
+                  0,
+                  ""
+                ],
+                [
+                  "The value was expected to be of type object"
+                ]
+              ]
+            },
+            {
+              "select": 24,
+              "variants": [
+                [
+                  "The object value was expected to validate against the defined properties subschemas"
+                ],
+                [
+                  "The object value was expected to validate against the single defined property subschema"
+                ]
+              ]
+            }
+          ]
+        },
+        {
+          "select": 19,
+          "variants": [
+            {
+              "select": 38,
+              "variants": [
+                [
+                  "Because the object value defined the properties ",
+                  51,
+                  ", it was also expected to validate against the corresponding subschemas"
+                ],
+                [
+                  "Because the object value defined the property ",
+                  50,
+                  ", it was also expected to validate against the corresponding subschema"
+                ]
+              ]
+            },
+            {
+              "select": 41,
+              "variants": [
+                [
+                  "The object value did not define the properties ",
+                  49,
+                  ""
+                ],
+                [
+                  "The object value did not define the property ",
+                  48,
+                  ""
+                ]
+              ]
+            }
+          ]
+        },
+        {
+          "select": 20,
+          "variants": [
+            {
+              "select": 38,
+              "variants": [
+                {
+                  "select": 42,
+                  "variants": [
+                    {
+                      "select": 43,
+                      "variants": [
+                        [
+                          "Because the object value defined the properties ",
+                          51,
+                          ""
+                        ],
+                        [
+                          "Because the object value defined the properties ",
+                          51,
+                          ", it was also expected to successfully validate against the corresponding ",
+                          54,
+                          " subschema"
+                        ],
+                        [
+                          "Because the object value defined the properties ",
+                          51,
+                          ", it was also expected to successfully validate against the corresponding ",
+                          55,
+                          " subschemas"
+                        ]
+                      ]
+                    },
+                    {
+                      "select": 43,
+                      "variants": [
+                        [
+                          "Because the object value defined the properties ",
+                          51,
+                          ", it was also expected to define the property ",
+                          52,
+                          ""
+                        ],
+                        [
+                          "Because the object value defined the properties ",
+                          51,
+                          ", it was also expected to define the property ",
+                          52,
+                          ", and it was also expected to successfully validate against the corresponding ",
+                          54,
+                          " subschema"
+                        ],
+                        [
+                          "Because the object value defined the properties ",
+                          51,
+                          ", it was also expected to define the property ",
+                          52,
+                          ", and it was also expected to successfully validate against the corresponding ",
+                          55,
+                          " subschemas"
+                        ]
+                      ]
+                    },
+                    {
+                      "select": 43,
+                      "variants": [
+                        [
+                          "Because the object value defined the properties ",
+                          51,
+                          ", it was also expected to define the properties ",
+                          53,
+                          ""
+                        ],
+                        [
+                          "Because the object value defined the properties ",
+                          51,
+                          ", it was also expected to define the properties ",
+                          53,
+                          ", and it was also expected to successfully validate against the corresponding ",
+                          54,
+                          " subschema"
+                        ],
+                        [
+                          "Because the object value defined the properties ",
+                          51,
+                          ", it was also expected to define the properties ",
+                          53,
+                          ", and it was also expected to successfully validate against the corresponding ",
+                          55,
+                          " subschemas"
+                        ]
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "select": 42,
+                  "variants": [
+                    {
+                      "select": 43,
+                      "variants": [
+                        [
+                          "Because the object value defined the property ",
+                          50,
+                          ""
+                        ],
+                        [
+                          "Because the object value defined the property ",
+                          50,
+                          ", it was also expected to successfully validate against the corresponding ",
+                          54,
+                          " subschema"
+                        ],
+                        [
+                          "Because the object value defined the property ",
+                          50,
+                          ", it was also expected to successfully validate against the corresponding ",
+                          55,
+                          " subschemas"
+                        ]
+                      ]
+                    },
+                    {
+                      "select": 43,
+                      "variants": [
+                        [
+                          "Because the object value defined the property ",
+                          50,
+                          ", it was also expected to define the property ",
+                          52,
+                          ""
+                        ],
+                        [
+                          "Because the object value defined the property ",
+                          50,
+                          ", it was also expected to define the property ",
+                          52,
+                          ", and it was also expected to successfully validate against the corresponding ",
+                          54,
+                          " subschema"
+                        ],
+                        [
+                          "Because the object value defined the property ",
+                          50,
+                          ", it was also expected to define the property ",
+                          52,
+                          ", and it was also expected to successfully validate against the corresponding ",
+                          55,
+                          " subschemas"
+                        ]
+                      ]
+                    },
+                    {
+                      "select": 43,
+                      "variants": [
+                        [
+                          "Because the object value defined the property ",
+                          50,
+                          ", it was also expected to define the properties ",
+                          53,
+                          ""
+                        ],
+                        [
+                          "Because the object value defined the property ",
+                          50,
+                          ", it was also expected to define the properties ",
+                          53,
+                          ", and it was also expected to successfully validate against the corresponding ",
+                          54,
+                          " subschema"
+                        ],
+                        [
+                          "Because the object value defined the property ",
+                          50,
+                          ", it was also expected to define the properties ",
+                          53,
+                          ", and it was also expected to successfully validate against the corresponding ",
+                          55,
+                          " subschemas"
+                        ]
+                      ]
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "select": 41,
+              "variants": [
+                [
+                  "The object value did not define the properties ",
+                  49,
+                  ""
+                ],
+                [
+                  "The object value did not define the property ",
+                  48,
+                  ""
+                ]
+              ]
+            }
+          ]
+        },
+        [
+          "<unknown>"
+        ]
+      ]
+    },
+    "AssertionPropertyDependencies": {
+      "select": 19,
+      "variants": [
+        {
+          "select": 38,
+          "variants": [
+            {
+              "select": 39,
+              "variants": [
+                [
+                  "Because the object value defined the properties ",
+                  51,
+                  ", it was also expected to define the properties ",
+                  53,
+                  ""
+                ],
+                [
+                  "Because the object value defined the properties ",
+                  51,
+                  ", it was also expected to define the property ",
+                  52,
+                  ""
+                ]
+              ]
+            },
+            {
+              "select": 39,
+              "variants": [
+                [
+                  "Because the object value defined the property ",
+                  50,
+                  ", it was also expected to define the properties ",
+                  53,
+                  ""
+                ],
+                [
+                  "Because the object value defined the property ",
+                  50,
+                  ", it was also expected to define the property ",
+                  52,
+                  ""
+                ]
+              ]
+            }
+          ]
+        },
+        {
+          "select": 41,
+          "variants": [
+            [
+              "The object value did not define the properties ",
+              49,
+              ""
+            ],
+            [
+              "The object value did not define the property ",
+              48,
+              ""
+            ]
+          ]
+        }
+      ]
+    }
+  }
+}
