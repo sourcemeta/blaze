@@ -1954,5 +1954,873 @@
         "The value was expected to be of type string"
       ]
     }
+  },
+  {
+    "description": "enum_mixed_object_match",
+    "schema": {
+      "$schema": "http://json-schema.org/draft-03/schema#",
+      "enum": [ 1, {}, "foo" ]
+    },
+    "instance": {},
+    "valid": true,
+    "fast": {
+      "pre": [
+        [ "AssertionEqualsAny", "/enum", "#/enum", "" ]
+      ],
+      "post": [
+        [ true, "AssertionEqualsAny", "/enum", "#/enum", "" ]
+      ],
+      "descriptions": [
+        "The object value {} was expected to equal one of the 3 declared values"
+      ]
+    },
+    "exhaustive": {
+      "pre": [
+        [ "AssertionEqualsAny", "/enum", "#/enum", "" ]
+      ],
+      "post": [
+        [ true, "AssertionEqualsAny", "/enum", "#/enum", "" ]
+      ],
+      "descriptions": [
+        "The object value {} was expected to equal one of the 3 declared values"
+      ]
+    }
+  },
+  {
+    "description": "enum_mixed_object_no_match",
+    "schema": {
+      "$schema": "http://json-schema.org/draft-03/schema#",
+      "enum": [ 1, {}, "foo" ]
+    },
+    "instance": { "foo": 1 },
+    "valid": false,
+    "fast": {
+      "pre": [
+        [ "AssertionEqualsAny", "/enum", "#/enum", "" ]
+      ],
+      "post": [
+        [ false, "AssertionEqualsAny", "/enum", "#/enum", "" ]
+      ],
+      "descriptions": [
+        "The object value {\"foo\":1} was expected to equal one of the following values: 1, \"foo\", and {}"
+      ]
+    },
+    "exhaustive": {
+      "pre": [
+        [ "AssertionEqualsAny", "/enum", "#/enum", "" ]
+      ],
+      "post": [
+        [ false, "AssertionEqualsAny", "/enum", "#/enum", "" ]
+      ],
+      "descriptions": [
+        "The object value {\"foo\":1} was expected to equal one of the following values: 1, \"foo\", and {}"
+      ]
+    }
+  },
+  {
+    "description": "enum_singleton_integer_match",
+    "schema": { "$schema": "http://json-schema.org/draft-03/schema#", "enum": [ 1 ] },
+    "instance": 1,
+    "valid": true,
+    "fast": {
+      "pre": [
+        [ "AssertionEqual", "/enum", "#/enum", "" ]
+      ],
+      "post": [
+        [ true, "AssertionEqual", "/enum", "#/enum", "" ]
+      ],
+      "descriptions": [
+        "The integer value 1 was expected to equal the integer constant 1"
+      ]
+    },
+    "exhaustive": {
+      "pre": [
+        [ "AssertionEqual", "/enum", "#/enum", "" ]
+      ],
+      "post": [
+        [ true, "AssertionEqual", "/enum", "#/enum", "" ]
+      ],
+      "descriptions": [
+        "The integer value 1 was expected to equal the integer constant 1"
+      ]
+    }
+  },
+  {
+    "description": "enum_singleton_integer_no_match",
+    "schema": { "$schema": "http://json-schema.org/draft-03/schema#", "enum": [ 1 ] },
+    "instance": 2,
+    "valid": false,
+    "fast": {
+      "pre": [
+        [ "AssertionEqual", "/enum", "#/enum", "" ]
+      ],
+      "post": [
+        [ false, "AssertionEqual", "/enum", "#/enum", "" ]
+      ],
+      "descriptions": [
+        "The integer value 2 was expected to equal the integer constant 1"
+      ]
+    },
+    "exhaustive": {
+      "pre": [
+        [ "AssertionEqual", "/enum", "#/enum", "" ]
+      ],
+      "post": [
+        [ false, "AssertionEqual", "/enum", "#/enum", "" ]
+      ],
+      "descriptions": [
+        "The integer value 2 was expected to equal the integer constant 1"
+      ]
+    }
+  },
+  {
+    "description": "enum_singleton_string_with_type_match",
+    "schema": {
+      "$schema": "http://json-schema.org/draft-03/schema#",
+      "type": "string",
+      "enum": [ "foo" ]
+    },
+    "instance": "foo",
+    "valid": true,
+    "fast": {
+      "pre": [
+        [ "AssertionEqual", "/enum", "#/enum", "" ]
+      ],
+      "post": [
+        [ true, "AssertionEqual", "/enum", "#/enum", "" ]
+      ],
+      "descriptions": [
+        "The string value \"foo\" was expected to equal the string constant \"foo\""
+      ]
+    },
+    "exhaustive": {
+      "pre": [
+        [ "AssertionEqual", "/enum", "#/enum", "" ],
+        [ "AssertionTypeStrict", "/type", "#/type", "" ]
+      ],
+      "post": [
+        [ true, "AssertionEqual", "/enum", "#/enum", "" ],
+        [ true, "AssertionTypeStrict", "/type", "#/type", "" ]
+      ],
+      "descriptions": [
+        "The string value \"foo\" was expected to equal the string constant \"foo\"",
+        "The value was expected to be of type string"
+      ]
+    }
+  },
+  {
+    "description": "enum_singleton_string_with_type_no_match",
+    "schema": {
+      "$schema": "http://json-schema.org/draft-03/schema#",
+      "type": "string",
+      "enum": [ "foo" ]
+    },
+    "instance": "bar",
+    "valid": false,
+    "fast": {
+      "pre": [
+        [ "AssertionEqual", "/enum", "#/enum", "" ]
+      ],
+      "post": [
+        [ false, "AssertionEqual", "/enum", "#/enum", "" ]
+      ],
+      "descriptions": [
+        "The string value \"bar\" was expected to equal the string constant \"foo\""
+      ]
+    },
+    "exhaustive": {
+      "pre": [
+        [ "AssertionEqual", "/enum", "#/enum", "" ]
+      ],
+      "post": [
+        [ false, "AssertionEqual", "/enum", "#/enum", "" ]
+      ],
+      "descriptions": [
+        "The string value \"bar\" was expected to equal the string constant \"foo\""
+      ]
+    }
+  },
+  {
+    "description": "enum_singleton_boolean_with_type_match",
+    "schema": {
+      "$schema": "http://json-schema.org/draft-03/schema#",
+      "type": "boolean",
+      "enum": [ true ]
+    },
+    "instance": true,
+    "valid": true,
+    "fast": {
+      "pre": [
+        [ "AssertionEqual", "/enum", "#/enum", "" ]
+      ],
+      "post": [
+        [ true, "AssertionEqual", "/enum", "#/enum", "" ]
+      ],
+      "descriptions": [
+        "The boolean value true was expected to equal the boolean constant true"
+      ]
+    },
+    "exhaustive": {
+      "pre": [
+        [ "AssertionEqual", "/enum", "#/enum", "" ],
+        [ "AssertionTypeStrict", "/type", "#/type", "" ]
+      ],
+      "post": [
+        [ true, "AssertionEqual", "/enum", "#/enum", "" ],
+        [ true, "AssertionTypeStrict", "/type", "#/type", "" ]
+      ],
+      "descriptions": [
+        "The boolean value true was expected to equal the boolean constant true",
+        "The value was expected to be of type boolean"
+      ]
+    }
+  },
+  {
+    "description": "enum_singleton_boolean_with_type_no_match",
+    "schema": {
+      "$schema": "http://json-schema.org/draft-03/schema#",
+      "type": "boolean",
+      "enum": [ true ]
+    },
+    "instance": false,
+    "valid": false,
+    "fast": {
+      "pre": [
+        [ "AssertionEqual", "/enum", "#/enum", "" ]
+      ],
+      "post": [
+        [ false, "AssertionEqual", "/enum", "#/enum", "" ]
+      ],
+      "descriptions": [
+        "The boolean value false was expected to equal the boolean constant true"
+      ]
+    },
+    "exhaustive": {
+      "pre": [
+        [ "AssertionEqual", "/enum", "#/enum", "" ]
+      ],
+      "post": [
+        [ false, "AssertionEqual", "/enum", "#/enum", "" ]
+      ],
+      "descriptions": [
+        "The boolean value false was expected to equal the boolean constant true"
+      ]
+    }
+  },
+  {
+    "description": "enum_singleton_real_with_type_number_match",
+    "schema": {
+      "$schema": "http://json-schema.org/draft-03/schema#",
+      "type": "number",
+      "enum": [ 3.14 ]
+    },
+    "instance": 3.14,
+    "valid": true,
+    "fast": {
+      "pre": [
+        [ "AssertionEqual", "/enum", "#/enum", "" ]
+      ],
+      "post": [
+        [ true, "AssertionEqual", "/enum", "#/enum", "" ]
+      ],
+      "descriptions": [
+        "The number value 3.14 was expected to equal the number constant 3.14"
+      ]
+    },
+    "exhaustive": {
+      "pre": [
+        [ "AssertionEqual", "/enum", "#/enum", "" ],
+        [ "AssertionTypeStrictAny", "/type", "#/type", "" ]
+      ],
+      "post": [
+        [ true, "AssertionEqual", "/enum", "#/enum", "" ],
+        [ true, "AssertionTypeStrictAny", "/type", "#/type", "" ]
+      ],
+      "descriptions": [
+        "The number value 3.14 was expected to equal the number constant 3.14",
+        "The value was expected to be of type number"
+      ]
+    }
+  },
+  {
+    "description": "enum_singleton_real_with_type_number_no_match",
+    "schema": {
+      "$schema": "http://json-schema.org/draft-03/schema#",
+      "type": "number",
+      "enum": [ 3.14 ]
+    },
+    "instance": 2.71,
+    "valid": false,
+    "fast": {
+      "pre": [
+        [ "AssertionEqual", "/enum", "#/enum", "" ]
+      ],
+      "post": [
+        [ false, "AssertionEqual", "/enum", "#/enum", "" ]
+      ],
+      "descriptions": [
+        "The number value 2.71 was expected to equal the number constant 3.14"
+      ]
+    },
+    "exhaustive": {
+      "pre": [
+        [ "AssertionEqual", "/enum", "#/enum", "" ]
+      ],
+      "post": [
+        [ false, "AssertionEqual", "/enum", "#/enum", "" ]
+      ],
+      "descriptions": [
+        "The number value 2.71 was expected to equal the number constant 3.14"
+      ]
+    }
+  },
+  {
+    "description": "enum_singleton_integer_with_type_integer_match",
+    "schema": {
+      "$schema": "http://json-schema.org/draft-03/schema#",
+      "type": "integer",
+      "enum": [ 3 ]
+    },
+    "instance": 3,
+    "valid": true,
+    "fast": {
+      "pre": [
+        [ "AssertionEqual", "/enum", "#/enum", "" ]
+      ],
+      "post": [
+        [ true, "AssertionEqual", "/enum", "#/enum", "" ]
+      ],
+      "descriptions": [
+        "The integer value 3 was expected to equal the integer constant 3"
+      ]
+    },
+    "exhaustive": {
+      "pre": [
+        [ "AssertionEqual", "/enum", "#/enum", "" ],
+        [ "AssertionTypeStrict", "/type", "#/type", "" ]
+      ],
+      "post": [
+        [ true, "AssertionEqual", "/enum", "#/enum", "" ],
+        [ true, "AssertionTypeStrict", "/type", "#/type", "" ]
+      ],
+      "descriptions": [
+        "The integer value 3 was expected to equal the integer constant 3",
+        "The value was expected to be of type integer"
+      ]
+    }
+  },
+  {
+    "description": "enum_strings_only_with_type_match",
+    "schema": {
+      "$schema": "http://json-schema.org/draft-03/schema#",
+      "type": "string",
+      "enum": [ "foo", "bar", "baz" ]
+    },
+    "instance": "foo",
+    "valid": true,
+    "fast": {
+      "pre": [
+        [ "AssertionEqualsAnyStringHash", "/enum", "#/enum", "" ]
+      ],
+      "post": [
+        [ true, "AssertionEqualsAnyStringHash", "/enum", "#/enum", "" ]
+      ],
+      "descriptions": [
+        "The string value \"foo\" was expected to equal one of the given declared values"
+      ]
+    },
+    "exhaustive": {
+      "pre": [
+        [ "AssertionEqualsAny", "/enum", "#/enum", "" ],
+        [ "AssertionTypeStrict", "/type", "#/type", "" ]
+      ],
+      "post": [
+        [ true, "AssertionEqualsAny", "/enum", "#/enum", "" ],
+        [ true, "AssertionTypeStrict", "/type", "#/type", "" ]
+      ],
+      "descriptions": [
+        "The string value \"foo\" was expected to equal one of the 3 declared values",
+        "The value was expected to be of type string"
+      ]
+    }
+  },
+  {
+    "description": "enum_strings_only_with_type_no_match",
+    "schema": {
+      "$schema": "http://json-schema.org/draft-03/schema#",
+      "type": "string",
+      "enum": [ "foo", "bar", "baz" ]
+    },
+    "instance": "qux",
+    "valid": false,
+    "fast": {
+      "pre": [
+        [ "AssertionEqualsAnyStringHash", "/enum", "#/enum", "" ]
+      ],
+      "post": [
+        [ false, "AssertionEqualsAnyStringHash", "/enum", "#/enum", "" ]
+      ],
+      "descriptions": [
+        "The string value \"qux\" was expected to equal one of the given declared values"
+      ]
+    },
+    "exhaustive": {
+      "pre": [
+        [ "AssertionEqualsAny", "/enum", "#/enum", "" ]
+      ],
+      "post": [
+        [ false, "AssertionEqualsAny", "/enum", "#/enum", "" ]
+      ],
+      "descriptions": [
+        "The string value \"qux\" was expected to equal one of the following values: \"bar\", \"baz\", and \"foo\""
+      ]
+    }
+  },
+  {
+    "description": "enum_mixed_with_type_string_match",
+    "schema": {
+      "$schema": "http://json-schema.org/draft-03/schema#",
+      "type": "string",
+      "enum": [ "foo", 1 ]
+    },
+    "instance": "foo",
+    "valid": true,
+    "fast": {
+      "pre": [
+        [ "AssertionEqualsAny", "/enum", "#/enum", "" ],
+        [ "AssertionTypeStrict", "/type", "#/type", "" ]
+      ],
+      "post": [
+        [ true, "AssertionEqualsAny", "/enum", "#/enum", "" ],
+        [ true, "AssertionTypeStrict", "/type", "#/type", "" ]
+      ],
+      "descriptions": [
+        "The string value \"foo\" was expected to equal one of the 2 declared values",
+        "The value was expected to be of type string"
+      ]
+    },
+    "exhaustive": {
+      "pre": [
+        [ "AssertionEqualsAny", "/enum", "#/enum", "" ],
+        [ "AssertionTypeStrict", "/type", "#/type", "" ]
+      ],
+      "post": [
+        [ true, "AssertionEqualsAny", "/enum", "#/enum", "" ],
+        [ true, "AssertionTypeStrict", "/type", "#/type", "" ]
+      ],
+      "descriptions": [
+        "The string value \"foo\" was expected to equal one of the 2 declared values",
+        "The value was expected to be of type string"
+      ]
+    }
+  },
+  {
+    "description": "enum_mixed_with_type_string_member_present_but_type_fails",
+    "schema": {
+      "$schema": "http://json-schema.org/draft-03/schema#",
+      "type": "string",
+      "enum": [ "foo", 1 ]
+    },
+    "instance": 1,
+    "valid": false,
+    "fast": {
+      "pre": [
+        [ "AssertionEqualsAny", "/enum", "#/enum", "" ],
+        [ "AssertionTypeStrict", "/type", "#/type", "" ]
+      ],
+      "post": [
+        [ true, "AssertionEqualsAny", "/enum", "#/enum", "" ],
+        [ false, "AssertionTypeStrict", "/type", "#/type", "" ]
+      ],
+      "descriptions": [
+        "The integer value 1 was expected to equal one of the 2 declared values",
+        "The value was expected to be of type string but it was of type integer"
+      ]
+    },
+    "exhaustive": {
+      "pre": [
+        [ "AssertionEqualsAny", "/enum", "#/enum", "" ],
+        [ "AssertionTypeStrict", "/type", "#/type", "" ]
+      ],
+      "post": [
+        [ true, "AssertionEqualsAny", "/enum", "#/enum", "" ],
+        [ false, "AssertionTypeStrict", "/type", "#/type", "" ]
+      ],
+      "descriptions": [
+        "The integer value 1 was expected to equal one of the 2 declared values",
+        "The value was expected to be of type string but it was of type integer"
+      ]
+    }
+  },
+  {
+    "description": "enum_singleton_array_with_type_array_match",
+    "schema": {
+      "$schema": "http://json-schema.org/draft-03/schema#",
+      "type": "array",
+      "enum": [ [ 1 ] ]
+    },
+    "instance": [ 1 ],
+    "valid": true,
+    "fast": {
+      "pre": [
+        [ "AssertionEqual", "/enum", "#/enum", "" ]
+      ],
+      "post": [
+        [ true, "AssertionEqual", "/enum", "#/enum", "" ]
+      ],
+      "descriptions": [
+        "The array value [1] was expected to equal the array constant [1]"
+      ]
+    },
+    "exhaustive": {
+      "pre": [
+        [ "AssertionEqual", "/enum", "#/enum", "" ],
+        [ "AssertionTypeStrict", "/type", "#/type", "" ]
+      ],
+      "post": [
+        [ true, "AssertionEqual", "/enum", "#/enum", "" ],
+        [ true, "AssertionTypeStrict", "/type", "#/type", "" ]
+      ],
+      "descriptions": [
+        "The array value [1] was expected to equal the array constant [1]",
+        "The value was expected to be of type array"
+      ]
+    }
+  },
+  {
+    "description": "enum_singleton_array_with_type_array_no_match",
+    "schema": {
+      "$schema": "http://json-schema.org/draft-03/schema#",
+      "type": "array",
+      "enum": [ [ 1 ] ]
+    },
+    "instance": [ 2 ],
+    "valid": false,
+    "fast": {
+      "pre": [
+        [ "AssertionEqual", "/enum", "#/enum", "" ]
+      ],
+      "post": [
+        [ false, "AssertionEqual", "/enum", "#/enum", "" ]
+      ],
+      "descriptions": [
+        "The array value [2] was expected to equal the array constant [1]"
+      ]
+    },
+    "exhaustive": {
+      "pre": [
+        [ "AssertionEqual", "/enum", "#/enum", "" ]
+      ],
+      "post": [
+        [ false, "AssertionEqual", "/enum", "#/enum", "" ]
+      ],
+      "descriptions": [
+        "The array value [2] was expected to equal the array constant [1]"
+      ]
+    }
+  },
+  {
+    "description": "enum_singleton_object_with_type_object_match",
+    "schema": {
+      "$schema": "http://json-schema.org/draft-03/schema#",
+      "type": "object",
+      "enum": [ {} ]
+    },
+    "instance": {},
+    "valid": true,
+    "fast": {
+      "pre": [
+        [ "AssertionEqual", "/enum", "#/enum", "" ]
+      ],
+      "post": [
+        [ true, "AssertionEqual", "/enum", "#/enum", "" ]
+      ],
+      "descriptions": [
+        "The object value {} was expected to equal the object constant {}"
+      ]
+    },
+    "exhaustive": {
+      "pre": [
+        [ "AssertionEqual", "/enum", "#/enum", "" ],
+        [ "AssertionTypeStrict", "/type", "#/type", "" ]
+      ],
+      "post": [
+        [ true, "AssertionEqual", "/enum", "#/enum", "" ],
+        [ true, "AssertionTypeStrict", "/type", "#/type", "" ]
+      ],
+      "descriptions": [
+        "The object value {} was expected to equal the object constant {}",
+        "The value was expected to be of type object"
+      ]
+    }
+  },
+  {
+    "description": "enum_singleton_null_with_type_null_match",
+    "schema": {
+      "$schema": "http://json-schema.org/draft-03/schema#",
+      "type": "null",
+      "enum": [ null ]
+    },
+    "instance": null,
+    "valid": true,
+    "fast": {
+      "pre": [
+        [ "AssertionEqual", "/enum", "#/enum", "" ]
+      ],
+      "post": [
+        [ true, "AssertionEqual", "/enum", "#/enum", "" ]
+      ],
+      "descriptions": [
+        "The null value null was expected to equal the null constant null"
+      ]
+    },
+    "exhaustive": {
+      "pre": [
+        [ "AssertionEqual", "/enum", "#/enum", "" ],
+        [ "AssertionTypeStrict", "/type", "#/type", "" ]
+      ],
+      "post": [
+        [ true, "AssertionEqual", "/enum", "#/enum", "" ],
+        [ true, "AssertionTypeStrict", "/type", "#/type", "" ]
+      ],
+      "descriptions": [
+        "The null value null was expected to equal the null constant null",
+        "The value was expected to be of type null"
+      ]
+    }
+  },
+  {
+    "description": "enum_with_type_any_match",
+    "schema": {
+      "$schema": "http://json-schema.org/draft-03/schema#",
+      "type": "any",
+      "enum": [ "foo" ]
+    },
+    "instance": "foo",
+    "valid": true,
+    "fast": {
+      "pre": [
+        [ "AssertionEqual", "/enum", "#/enum", "" ]
+      ],
+      "post": [
+        [ true, "AssertionEqual", "/enum", "#/enum", "" ]
+      ],
+      "descriptions": [
+        "The string value \"foo\" was expected to equal the string constant \"foo\""
+      ]
+    },
+    "exhaustive": {
+      "pre": [
+        [ "AssertionEqual", "/enum", "#/enum", "" ],
+        [ "AssertionTypeStrictAny", "/type", "#/type", "" ]
+      ],
+      "post": [
+        [ true, "AssertionEqual", "/enum", "#/enum", "" ],
+        [ true, "AssertionTypeStrictAny", "/type", "#/type", "" ]
+      ],
+      "descriptions": [
+        "The string value \"foo\" was expected to equal the string constant \"foo\"",
+        "The value was expected to be of type null, boolean, number, string, array, or object and it was of type string"
+      ]
+    }
+  },
+  {
+    "description": "enum_with_type_any_no_match",
+    "schema": {
+      "$schema": "http://json-schema.org/draft-03/schema#",
+      "type": "any",
+      "enum": [ "foo" ]
+    },
+    "instance": "bar",
+    "valid": false,
+    "fast": {
+      "pre": [
+        [ "AssertionEqual", "/enum", "#/enum", "" ]
+      ],
+      "post": [
+        [ false, "AssertionEqual", "/enum", "#/enum", "" ]
+      ],
+      "descriptions": [
+        "The string value \"bar\" was expected to equal the string constant \"foo\""
+      ]
+    },
+    "exhaustive": {
+      "pre": [
+        [ "AssertionEqual", "/enum", "#/enum", "" ]
+      ],
+      "post": [
+        [ false, "AssertionEqual", "/enum", "#/enum", "" ]
+      ],
+      "descriptions": [
+        "The string value \"bar\" was expected to equal the string constant \"foo\""
+      ]
+    }
+  },
+  {
+    "description": "enum_with_type_array_form_match",
+    "schema": {
+      "$schema": "http://json-schema.org/draft-03/schema#",
+      "type": [ "string", "integer" ],
+      "enum": [ "foo", 1 ]
+    },
+    "instance": "foo",
+    "valid": true,
+    "fast": {
+      "pre": [
+        [ "AssertionEqualsAny", "/enum", "#/enum", "" ],
+        [ "AssertionTypeStrictAny", "/type", "#/type", "" ]
+      ],
+      "post": [
+        [ true, "AssertionEqualsAny", "/enum", "#/enum", "" ],
+        [ true, "AssertionTypeStrictAny", "/type", "#/type", "" ]
+      ],
+      "descriptions": [
+        "The string value \"foo\" was expected to equal one of the 2 declared values",
+        "The value was expected to be of type integer, or string and it was of type string"
+      ]
+    },
+    "exhaustive": {
+      "pre": [
+        [ "AssertionEqualsAny", "/enum", "#/enum", "" ],
+        [ "AssertionTypeStrictAny", "/type", "#/type", "" ]
+      ],
+      "post": [
+        [ true, "AssertionEqualsAny", "/enum", "#/enum", "" ],
+        [ true, "AssertionTypeStrictAny", "/type", "#/type", "" ]
+      ],
+      "descriptions": [
+        "The string value \"foo\" was expected to equal one of the 2 declared values",
+        "The value was expected to be of type integer, or string and it was of type string"
+      ]
+    }
+  },
+  {
+    "description": "enum_with_string_minLength_combo_match",
+    "schema": {
+      "$schema": "http://json-schema.org/draft-03/schema#",
+      "type": "string",
+      "minLength": 1,
+      "enum": [ "foo" ]
+    },
+    "instance": "foo",
+    "valid": true,
+    "fast": {
+      "pre": [
+        [ "AssertionEqual", "/enum", "#/enum", "" ],
+        [ "AssertionTypeStringBounded", "/type", "#/type", "" ]
+      ],
+      "post": [
+        [ true, "AssertionEqual", "/enum", "#/enum", "" ],
+        [ true, "AssertionTypeStringBounded", "/type", "#/type", "" ]
+      ],
+      "descriptions": [
+        "The string value \"foo\" was expected to equal the string constant \"foo\"",
+        "The value was expected to consist of a string of at least 1 character"
+      ]
+    },
+    "exhaustive": {
+      "pre": [
+        [ "AssertionEqual", "/enum", "#/enum", "" ],
+        [ "AssertionStringSizeGreater", "/minLength", "#/minLength", "" ],
+        [ "AssertionTypeStrict", "/type", "#/type", "" ]
+      ],
+      "post": [
+        [ true, "AssertionEqual", "/enum", "#/enum", "" ],
+        [ true, "AssertionStringSizeGreater", "/minLength", "#/minLength", "" ],
+        [ true, "AssertionTypeStrict", "/type", "#/type", "" ]
+      ],
+      "descriptions": [
+        "The string value \"foo\" was expected to equal the string constant \"foo\"",
+        "The string value \"foo\" was expected to consist of at least 1 character and it consisted of 3 characters",
+        "The value was expected to be of type string"
+      ]
+    }
+  },
+  {
+    "description": "enum_empty_string_instance",
+    "schema": { "$schema": "http://json-schema.org/draft-03/schema#", "enum": [] },
+    "instance": "foo",
+    "valid": false,
+    "fast": {
+      "pre": [
+        [ "AssertionFail", "/enum", "#/enum", "" ]
+      ],
+      "post": [
+        [ false, "AssertionFail", "/enum", "#/enum", "" ]
+      ],
+      "descriptions": [
+        "The string value was not expected to validate against the empty enumeration"
+      ]
+    },
+    "exhaustive": {
+      "pre": [
+        [ "AssertionFail", "/enum", "#/enum", "" ]
+      ],
+      "post": [
+        [ false, "AssertionFail", "/enum", "#/enum", "" ]
+      ],
+      "descriptions": [
+        "The string value was not expected to validate against the empty enumeration"
+      ]
+    }
+  },
+  {
+    "description": "enum_empty_integer_instance",
+    "schema": { "$schema": "http://json-schema.org/draft-03/schema#", "enum": [] },
+    "instance": 42,
+    "valid": false,
+    "fast": {
+      "pre": [
+        [ "AssertionFail", "/enum", "#/enum", "" ]
+      ],
+      "post": [
+        [ false, "AssertionFail", "/enum", "#/enum", "" ]
+      ],
+      "descriptions": [
+        "The integer value was not expected to validate against the empty enumeration"
+      ]
+    },
+    "exhaustive": {
+      "pre": [
+        [ "AssertionFail", "/enum", "#/enum", "" ]
+      ],
+      "post": [
+        [ false, "AssertionFail", "/enum", "#/enum", "" ]
+      ],
+      "descriptions": [
+        "The integer value was not expected to validate against the empty enumeration"
+      ]
+    }
+  },
+  {
+    "description": "enum_singleton_hyperschema",
+    "schema": {
+      "$schema": "http://json-schema.org/draft-03/hyper-schema#",
+      "enum": [ "foo" ]
+    },
+    "instance": "foo",
+    "valid": true,
+    "fast": {
+      "pre": [
+        [ "AssertionEqual", "/enum", "#/enum", "" ]
+      ],
+      "post": [
+        [ true, "AssertionEqual", "/enum", "#/enum", "" ]
+      ],
+      "descriptions": [
+        "The string value \"foo\" was expected to equal the string constant \"foo\""
+      ]
+    },
+    "exhaustive": {
+      "pre": [
+        [ "AssertionEqual", "/enum", "#/enum", "" ]
+      ],
+      "post": [
+        [ true, "AssertionEqual", "/enum", "#/enum", "" ]
+      ],
+      "descriptions": [
+        "The string value \"foo\" was expected to equal the string constant \"foo\""
+      ]
+    }
   }
 ]
