@@ -232,17 +232,11 @@ auto properties_as_loop(const Context &context,
           Known::JSON_Schema_2019_09_Validation) ||
       schema_context.vocabularies.contains(
           Known::JSON_Schema_2020_12_Validation);
-  std::set<std::string> required;
-  if (imports_validation_vocabulary &&
-      schema_context.schema.defines("required") &&
-      schema_context.schema.at("required").is_array()) {
-    for (const auto &property :
-         schema_context.schema.at("required").as_array()) {
-      if (property.is_string() &&
-          // Only count the required property if its indeed in "properties"
-          properties.defines(property.to_string())) {
-        required.insert(property.to_string());
-      }
+  ValueStringSet required;
+  for (const auto &entry : required_properties(schema_context)) {
+    // Only count the required property if its indeed in "properties"
+    if (properties.defines(entry.first)) {
+      required.insert(entry.first);
     }
   }
 
@@ -460,30 +454,19 @@ auto compiler_draft3_applicator_properties_with_options(
                            schema_context.schema.at("type").to_string() ==
                                "object"};
 
-  using Known = sourcemeta::core::Vocabularies::Known;
-  const auto imports_top_level_required{
-      schema_context.vocabularies.contains(Known::JSON_Schema_Draft_4) ||
-      schema_context.vocabularies.contains(Known::JSON_Schema_Draft_6) ||
-      schema_context.vocabularies.contains(Known::JSON_Schema_Draft_7) ||
-      schema_context.vocabularies.contains(
-          Known::JSON_Schema_2019_09_Validation) ||
-      schema_context.vocabularies.contains(
-          Known::JSON_Schema_2020_12_Validation)};
+  ValueStringSet required{required_properties(schema_context)};
 
   auto properties{compile_properties(context, schema_context,
                                      effective_dynamic_context, current)};
 
-  if (context.mode == Mode::FastValidation && imports_top_level_required &&
+  if (context.mode == Mode::FastValidation && !required.empty() &&
       schema_context.schema.defines("additionalProperties") &&
       schema_context.schema.at("additionalProperties").is_boolean() &&
       !schema_context.schema.at("additionalProperties").to_boolean() &&
-      schema_context.schema.defines("required") &&
-      schema_context.schema.at("required").is_array() &&
-      schema_context.schema.at("required").size() ==
+      required.size() ==
           schema_context.schema.at(dynamic_context.keyword).size() &&
-      std::ranges::all_of(properties, [&schema_context](const auto &property) {
-        return schema_context.schema.at("required")
-            .contains(sourcemeta::core::JSON{property.first});
+      std::ranges::all_of(properties, [&required](const auto &property) {
+        return required.contains(property.first);
       })) {
     if (std::ranges::all_of(properties, [](const auto &property) {
           return property.second.size() == 1 &&
@@ -497,11 +480,7 @@ auto compiler_draft3_applicator_properties_with_options(
 
       if (types.size() == 1 &&
           !schema_context.schema.defines("patternProperties")) {
-        if (imports_top_level_required &&
-            schema_context.schema.defines("required") && assume_object) {
-          auto required_copy = schema_context.schema.at("required");
-          std::ranges::sort(required_copy.as_array());
-          ValueStringSet required{json_array_to_string_set(required_copy)};
+        if (assume_object) {
           if (is_closed_properties_required(schema_context.schema, required)) {
             sourcemeta::core::PropertyHashJSON<ValueString> hasher;
             std::vector<std::pair<ValueString, ValueStringSet::hash_type>>
@@ -744,12 +723,7 @@ auto compiler_draft3_applicator_properties_with_options(
       if (fusion_possible && substeps.size() == 1 &&
           substeps.front().type != InstructionIndex::ControlJump &&
           substeps.front().type != InstructionIndex::ControlDynamicAnchorJump) {
-        const auto is_required{
-            assume_object && imports_top_level_required &&
-            schema_context.schema.defines("required") &&
-            schema_context.schema.at("required").is_array() &&
-            schema_context.schema.at("required")
-                .contains(sourcemeta::core::JSON{name})};
+        const auto is_required{assume_object && required.contains(name)};
         auto prop{make_property(name)};
         auto fusion_child{substeps.front()};
         fusion_child.relative_instance_location = {};
@@ -767,11 +741,7 @@ auto compiler_draft3_applicator_properties_with_options(
       if (!substeps.empty()) {
         // As a performance shortcut
         if (effective_dynamic_context.base_instance_location.empty()) {
-          if (assume_object && imports_top_level_required &&
-              schema_context.schema.defines("required") &&
-              schema_context.schema.at("required").is_array() &&
-              schema_context.schema.at("required")
-                  .contains(sourcemeta::core::JSON{name})) {
+          if (assume_object && required.contains(name)) {
             for (auto &&step : substeps) {
               children.push_back(std::move(step));
             }
@@ -794,26 +764,18 @@ auto compiler_draft3_applicator_properties_with_options(
 
   if (context.mode == Mode::FastValidation) {
     if (fusion_possible && !fusion_entries.empty()) {
-      if (imports_top_level_required &&
-          schema_context.schema.defines("required") &&
-          schema_context.schema.at("required").is_array()) {
-        for (const auto &req :
-             schema_context.schema.at("required").as_array()) {
-          if (!req.is_string()) {
-            continue;
+      for (const auto &req : required) {
+        const auto &req_name{req.first};
+        bool already_tracked{false};
+        for (const auto &entry : fusion_entries) {
+          if (std::get<0>(entry) == req_name) {
+            already_tracked = true;
+            break;
           }
-          const auto &req_name{req.to_string()};
-          bool already_tracked{false};
-          for (const auto &entry : fusion_entries) {
-            if (std::get<0>(entry) == req_name) {
-              already_tracked = true;
-              break;
-            }
-          }
-          if (!already_tracked) {
-            auto prop{make_property(req_name)};
-            fusion_entries.emplace_back(prop.first, prop.second, true);
-          }
+        }
+        if (!already_tracked) {
+          auto prop{make_property(req_name)};
+          fusion_entries.emplace_back(prop.first, prop.second, true);
         }
       }
 
@@ -949,16 +911,6 @@ auto compiler_draft3_applicator_additionalproperties_with_options(
     return {};
   }
 
-  using Known = sourcemeta::core::Vocabularies::Known;
-  const auto imports_top_level_required{
-      schema_context.vocabularies.contains(Known::JSON_Schema_Draft_4) ||
-      schema_context.vocabularies.contains(Known::JSON_Schema_Draft_6) ||
-      schema_context.vocabularies.contains(Known::JSON_Schema_Draft_7) ||
-      schema_context.vocabularies.contains(
-          Known::JSON_Schema_2019_09_Validation) ||
-      schema_context.vocabularies.contains(
-          Known::JSON_Schema_2020_12_Validation)};
-
   Instructions children{compile(context, schema_context,
                                 relative_dynamic_context(),
                                 sourcemeta::core::empty_weak_pointer,
@@ -1028,12 +980,9 @@ auto compiler_draft3_applicator_additionalproperties_with_options(
   if (context.mode == Mode::FastValidation && children.size() == 1 &&
       children.front().type == InstructionIndex::AssertionFail &&
       !filter_strings.empty() && filter_prefixes.empty() &&
-      filter_regexes.empty() && imports_top_level_required &&
-      schema_context.schema.defines("required") &&
-      schema_context.schema.at("required").is_array() &&
-      is_closed_properties_required(
-          schema_context.schema,
-          json_array_to_string_set(schema_context.schema.at("required")))) {
+      filter_regexes.empty() &&
+      is_closed_properties_required(schema_context.schema,
+                                    required_properties(schema_context))) {
     return {};
   }
 
