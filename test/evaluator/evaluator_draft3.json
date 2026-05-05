@@ -8024,5 +8024,294 @@
         "The integer value 99999999999999999999999999999999999 was expected to be divisible by the number 0.5"
       ]
     }
+  },
+  {
+    "description": "extends_single_object_match",
+    "schema": {
+      "$schema": "http://json-schema.org/draft-03/schema#",
+      "extends": { "type": "string" }
+    },
+    "instance": "hello",
+    "valid": true,
+    "fast": {
+      "pre": [
+        [ "AssertionTypeStrict", "/extends/type", "#/extends/type", "" ]
+      ],
+      "post": [
+        [ true, "AssertionTypeStrict", "/extends/type", "#/extends/type", "" ]
+      ],
+      "descriptions": [
+        "The value was expected to be of type string"
+      ]
+    },
+    "exhaustive": {
+      "pre": [
+        [ "LogicalAnd", "/extends", "#/extends", "" ],
+        [ "AssertionTypeStrict", "/extends/type", "#/extends/type", "" ]
+      ],
+      "post": [
+        [ true, "AssertionTypeStrict", "/extends/type", "#/extends/type", "" ],
+        [ true, "LogicalAnd", "/extends", "#/extends", "" ]
+      ],
+      "descriptions": [
+        "The value was expected to be of type string",
+        "The string value was expected to validate against the given subschema"
+      ]
+    }
+  },
+  {
+    "description": "extends_single_object_no_match",
+    "schema": {
+      "$schema": "http://json-schema.org/draft-03/schema#",
+      "extends": { "type": "string" }
+    },
+    "instance": 5,
+    "valid": false,
+    "fast": {
+      "pre": [
+        [ "AssertionTypeStrict", "/extends/type", "#/extends/type", "" ]
+      ],
+      "post": [
+        [ false, "AssertionTypeStrict", "/extends/type", "#/extends/type", "" ]
+      ],
+      "descriptions": [
+        "The value was expected to be of type string but it was of type integer"
+      ]
+    },
+    "exhaustive": {
+      "pre": [
+        [ "LogicalAnd", "/extends", "#/extends", "" ],
+        [ "AssertionTypeStrict", "/extends/type", "#/extends/type", "" ]
+      ],
+      "post": [
+        [ false, "AssertionTypeStrict", "/extends/type", "#/extends/type", "" ],
+        [ false, "LogicalAnd", "/extends", "#/extends", "" ]
+      ],
+      "descriptions": [
+        "The value was expected to be of type string but it was of type integer",
+        "The integer value was expected to validate against the given subschema"
+      ]
+    }
+  },
+  {
+    "description": "extends_empty_object",
+    "schema": { "$schema": "http://json-schema.org/draft-03/schema#", "extends": {} },
+    "instance": "anything",
+    "valid": true,
+    "fast": {},
+    "exhaustive": {}
+  },
+  {
+    "description": "extends_empty_array",
+    "schema": { "$schema": "http://json-schema.org/draft-03/schema#", "extends": [] },
+    "instance": "anything",
+    "valid": true,
+    "fast": {},
+    "exhaustive": {}
+  },
+  {
+    "description": "extends_array_with_empty_subschema",
+    "schema": { "$schema": "http://json-schema.org/draft-03/schema#", "extends": [ {} ] },
+    "instance": "anything",
+    "valid": true,
+    "fast": {},
+    "exhaustive": {}
+  },
+  {
+    "description": "extends_array_single_match",
+    "schema": {
+      "$schema": "http://json-schema.org/draft-03/schema#",
+      "extends": [ { "type": "string" } ]
+    },
+    "instance": "hello",
+    "valid": true,
+    "fast": {
+      "pre": [
+        [ "AssertionTypeStrict", "/extends/0/type", "#/extends/0/type", "" ]
+      ],
+      "post": [
+        [ true, "AssertionTypeStrict", "/extends/0/type", "#/extends/0/type", "" ]
+      ],
+      "descriptions": [
+        "The value was expected to be of type string"
+      ]
+    },
+    "exhaustive": {
+      "pre": [
+        [ "LogicalAnd", "/extends", "#/extends", "" ],
+        [ "AssertionTypeStrict", "/extends/0/type", "#/extends/0/type", "" ]
+      ],
+      "post": [
+        [ true, "AssertionTypeStrict", "/extends/0/type", "#/extends/0/type", "" ],
+        [ true, "LogicalAnd", "/extends", "#/extends", "" ]
+      ],
+      "descriptions": [
+        "The value was expected to be of type string",
+        "The string value was expected to validate against the given subschema"
+      ]
+    }
+  },
+  {
+    "description": "extends_array_single_no_match",
+    "schema": {
+      "$schema": "http://json-schema.org/draft-03/schema#",
+      "extends": [ { "type": "string" } ]
+    },
+    "instance": 5,
+    "valid": false,
+    "fast": {
+      "pre": [
+        [ "AssertionTypeStrict", "/extends/0/type", "#/extends/0/type", "" ]
+      ],
+      "post": [
+        [ false, "AssertionTypeStrict", "/extends/0/type", "#/extends/0/type", "" ]
+      ],
+      "descriptions": [
+        "The value was expected to be of type string but it was of type integer"
+      ]
+    },
+    "exhaustive": {
+      "pre": [
+        [ "LogicalAnd", "/extends", "#/extends", "" ],
+        [ "AssertionTypeStrict", "/extends/0/type", "#/extends/0/type", "" ]
+      ],
+      "post": [
+        [ false, "AssertionTypeStrict", "/extends/0/type", "#/extends/0/type", "" ],
+        [ false, "LogicalAnd", "/extends", "#/extends", "" ]
+      ],
+      "descriptions": [
+        "The value was expected to be of type string but it was of type integer",
+        "The integer value was expected to validate against the given subschema"
+      ]
+    }
+  },
+  {
+    "description": "extends_array_two_subschemas_match",
+    "schema": {
+      "$schema": "http://json-schema.org/draft-03/schema#",
+      "extends": [
+        { "type": "object" },
+        { "properties": { "foo": { "type": "integer", "required": true } } }
+      ]
+    },
+    "instance": { "foo": 5 },
+    "valid": true,
+    "fast": {
+      "pre": [
+        [ "AssertionTypeStrict", "/extends/0/type", "#/extends/0/type", "" ],
+        [ "AssertionDefines", "/extends/1/properties", "#/extends/1/properties", "" ],
+        [ "AssertionPropertyTypeStrict", "/extends/1/properties/foo/type", "#/extends/1/properties/foo/type", "/foo" ]
+      ],
+      "post": [
+        [ true, "AssertionTypeStrict", "/extends/0/type", "#/extends/0/type", "" ],
+        [ true, "AssertionDefines", "/extends/1/properties", "#/extends/1/properties", "" ],
+        [ true, "AssertionPropertyTypeStrict", "/extends/1/properties/foo/type", "#/extends/1/properties/foo/type", "/foo" ]
+      ],
+      "descriptions": [
+        "The value was expected to be of type object",
+        "The object value was expected to define the property \"foo\"",
+        "The value was expected to be of type integer"
+      ]
+    },
+    "exhaustive": {
+      "pre": [
+        [ "LogicalAnd", "/extends", "#/extends", "" ],
+        [ "AssertionTypeStrict", "/extends/0/type", "#/extends/0/type", "" ],
+        [ "AssertionDefines", "/extends/1/properties", "#/extends/1/properties", "" ],
+        [ "LogicalWhenType", "/extends/1/properties", "#/extends/1/properties", "" ],
+        [ "AssertionTypeStrict", "/extends/1/properties/foo/type", "#/extends/1/properties/foo/type", "/foo" ]
+      ],
+      "post": [
+        [ true, "AssertionTypeStrict", "/extends/0/type", "#/extends/0/type", "" ],
+        [ true, "AssertionDefines", "/extends/1/properties", "#/extends/1/properties", "" ],
+        [ true, "AssertionTypeStrict", "/extends/1/properties/foo/type", "#/extends/1/properties/foo/type", "/foo" ],
+        [ true, "LogicalWhenType", "/extends/1/properties", "#/extends/1/properties", "" ],
+        [ true, "LogicalAnd", "/extends", "#/extends", "" ]
+      ],
+      "descriptions": [
+        "The value was expected to be of type object",
+        "The object value was expected to define the property \"foo\"",
+        "The value was expected to be of type integer",
+        "The object value was expected to validate against the single defined property subschema",
+        "The object value was expected to validate against the 2 given subschemas"
+      ]
+    }
+  },
+  {
+    "description": "extends_array_two_subschemas_no_match_required_missing",
+    "schema": {
+      "$schema": "http://json-schema.org/draft-03/schema#",
+      "extends": [
+        { "type": "object" },
+        { "properties": { "foo": { "type": "integer", "required": true } } }
+      ]
+    },
+    "instance": {},
+    "valid": false,
+    "fast": {
+      "pre": [
+        [ "AssertionTypeStrict", "/extends/0/type", "#/extends/0/type", "" ],
+        [ "AssertionDefines", "/extends/1/properties", "#/extends/1/properties", "" ]
+      ],
+      "post": [
+        [ true, "AssertionTypeStrict", "/extends/0/type", "#/extends/0/type", "" ],
+        [ false, "AssertionDefines", "/extends/1/properties", "#/extends/1/properties", "" ]
+      ],
+      "descriptions": [
+        "The value was expected to be of type object",
+        "The object value was expected to define the property \"foo\""
+      ]
+    },
+    "exhaustive": {
+      "pre": [
+        [ "LogicalAnd", "/extends", "#/extends", "" ],
+        [ "AssertionTypeStrict", "/extends/0/type", "#/extends/0/type", "" ],
+        [ "AssertionDefines", "/extends/1/properties", "#/extends/1/properties", "" ]
+      ],
+      "post": [
+        [ true, "AssertionTypeStrict", "/extends/0/type", "#/extends/0/type", "" ],
+        [ false, "AssertionDefines", "/extends/1/properties", "#/extends/1/properties", "" ],
+        [ false, "LogicalAnd", "/extends", "#/extends", "" ]
+      ],
+      "descriptions": [
+        "The value was expected to be of type object",
+        "The object value was expected to define the property \"foo\"",
+        "The object value was expected to validate against the 2 given subschemas"
+      ]
+    }
+  },
+  {
+    "description": "extends_hyperschema",
+    "schema": {
+      "$schema": "http://json-schema.org/draft-03/hyper-schema#",
+      "extends": { "type": "string" }
+    },
+    "instance": "hello",
+    "valid": true,
+    "fast": {
+      "pre": [
+        [ "AssertionTypeStrict", "/extends/type", "#/extends/type", "" ]
+      ],
+      "post": [
+        [ true, "AssertionTypeStrict", "/extends/type", "#/extends/type", "" ]
+      ],
+      "descriptions": [
+        "The value was expected to be of type string"
+      ]
+    },
+    "exhaustive": {
+      "pre": [
+        [ "LogicalAnd", "/extends", "#/extends", "" ],
+        [ "AssertionTypeStrict", "/extends/type", "#/extends/type", "" ]
+      ],
+      "post": [
+        [ true, "AssertionTypeStrict", "/extends/type", "#/extends/type", "" ],
+        [ true, "LogicalAnd", "/extends", "#/extends", "" ]
+      ],
+      "descriptions": [
+        "The value was expected to be of type string",
+        "The string value was expected to validate against the given subschema"
+      ]
+    }
   }
 ]
