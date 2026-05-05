@@ -6941,5 +6941,1088 @@
         "The integer value 99999999999999999999999999999999999 was expected to be less than the integer 99999999999999999999999999999999999, but they were equal"
       ]
     }
+  },
+  {
+    "description": "ref_3",
+    "schema": {
+      "id": "https://example.com",
+      "$schema": "http://json-schema.org/draft-03/schema#",
+      "type": "object",
+      "properties": { "foo": { "$ref": "https://example.com" } }
+    },
+    "instance": { "foo": {} },
+    "valid": true,
+    "fast": {
+      "pre": [
+        [ "ControlJump", "/properties/foo/$ref", "https://example.com#/properties/foo/$ref", "/foo" ],
+        [ "AssertionTypeStrict", "/properties/foo/$ref/type", "https://example.com#/type", "/foo" ],
+        [ "AssertionTypeStrict", "/type", "https://example.com#/type", "" ]
+      ],
+      "post": [
+        [ true, "AssertionTypeStrict", "/properties/foo/$ref/type", "https://example.com#/type", "/foo" ],
+        [ true, "ControlJump", "/properties/foo/$ref", "https://example.com#/properties/foo/$ref", "/foo" ],
+        [ true, "AssertionTypeStrict", "/type", "https://example.com#/type", "" ]
+      ],
+      "descriptions": [
+        "The value was expected to be of type object",
+        "The object value was expected to validate against the referenced schema",
+        "The value was expected to be of type object"
+      ]
+    },
+    "exhaustive": {
+      "pre": [
+        [ "LogicalWhenType", "/properties", "https://example.com#/properties", "" ],
+        [ "ControlJump", "/properties/foo/$ref", "https://example.com#/properties/foo/$ref", "/foo" ],
+        [ "LogicalWhenType", "/properties/foo/$ref/properties", "https://example.com#/properties", "/foo" ],
+        [ "AssertionTypeStrict", "/properties/foo/$ref/type", "https://example.com#/type", "/foo" ],
+        [ "AssertionTypeStrict", "/type", "https://example.com#/type", "" ]
+      ],
+      "post": [
+        [ true, "LogicalWhenType", "/properties/foo/$ref/properties", "https://example.com#/properties", "/foo" ],
+        [ true, "AssertionTypeStrict", "/properties/foo/$ref/type", "https://example.com#/type", "/foo" ],
+        [ true, "ControlJump", "/properties/foo/$ref", "https://example.com#/properties/foo/$ref", "/foo" ],
+        [ true, "LogicalWhenType", "/properties", "https://example.com#/properties", "" ],
+        [ true, "AssertionTypeStrict", "/type", "https://example.com#/type", "" ]
+      ],
+      "descriptions": [
+        "The object value was expected to validate against the single defined property subschema",
+        "The value was expected to be of type object",
+        "The object value was expected to validate against the referenced schema",
+        "The object value was expected to validate against the single defined property subschema",
+        "The value was expected to be of type object"
+      ]
+    }
+  },
+  {
+    "description": "ref_4",
+    "schema": {
+      "id": "https://example.com",
+      "$schema": "http://json-schema.org/draft-03/schema#",
+      "type": "object",
+      "properties": { "foo": { "$ref": "https://example.com" } }
+    },
+    "instance": { "foo": { "foo": {} } },
+    "valid": true,
+    "fast": {
+      "pre": [
+        [ "ControlJump", "/properties/foo/$ref", "https://example.com#/properties/foo/$ref", "/foo" ],
+        [ "ControlJump", "/properties/foo/$ref/properties/foo/$ref", "https://example.com#/properties/foo/$ref", "/foo/foo" ],
+        [ "AssertionTypeStrict", "/properties/foo/$ref/properties/foo/$ref/type", "https://example.com#/type", "/foo/foo" ],
+        [ "AssertionTypeStrict", "/properties/foo/$ref/type", "https://example.com#/type", "/foo" ],
+        [ "AssertionTypeStrict", "/type", "https://example.com#/type", "" ]
+      ],
+      "post": [
+        [ true, "AssertionTypeStrict", "/properties/foo/$ref/properties/foo/$ref/type", "https://example.com#/type", "/foo/foo" ],
+        [ true, "ControlJump", "/properties/foo/$ref/properties/foo/$ref", "https://example.com#/properties/foo/$ref", "/foo/foo" ],
+        [ true, "AssertionTypeStrict", "/properties/foo/$ref/type", "https://example.com#/type", "/foo" ],
+        [ true, "ControlJump", "/properties/foo/$ref", "https://example.com#/properties/foo/$ref", "/foo" ],
+        [ true, "AssertionTypeStrict", "/type", "https://example.com#/type", "" ]
+      ],
+      "descriptions": [
+        "The value was expected to be of type object",
+        "The object value was expected to validate against the referenced schema",
+        "The value was expected to be of type object",
+        "The object value was expected to validate against the referenced schema",
+        "The value was expected to be of type object"
+      ]
+    },
+    "exhaustive": {
+      "pre": [
+        [ "LogicalWhenType", "/properties", "https://example.com#/properties", "" ],
+        [ "ControlJump", "/properties/foo/$ref", "https://example.com#/properties/foo/$ref", "/foo" ],
+        [ "LogicalWhenType", "/properties/foo/$ref/properties", "https://example.com#/properties", "/foo" ],
+        [ "ControlJump", "/properties/foo/$ref/properties/foo/$ref", "https://example.com#/properties/foo/$ref", "/foo/foo" ],
+        [ "LogicalWhenType", "/properties/foo/$ref/properties/foo/$ref/properties", "https://example.com#/properties", "/foo/foo" ],
+        [ "AssertionTypeStrict", "/properties/foo/$ref/properties/foo/$ref/type", "https://example.com#/type", "/foo/foo" ],
+        [ "AssertionTypeStrict", "/properties/foo/$ref/type", "https://example.com#/type", "/foo" ],
+        [ "AssertionTypeStrict", "/type", "https://example.com#/type", "" ]
+      ],
+      "post": [
+        [ true, "LogicalWhenType", "/properties/foo/$ref/properties/foo/$ref/properties", "https://example.com#/properties", "/foo/foo" ],
+        [ true, "AssertionTypeStrict", "/properties/foo/$ref/properties/foo/$ref/type", "https://example.com#/type", "/foo/foo" ],
+        [ true, "ControlJump", "/properties/foo/$ref/properties/foo/$ref", "https://example.com#/properties/foo/$ref", "/foo/foo" ],
+        [ true, "LogicalWhenType", "/properties/foo/$ref/properties", "https://example.com#/properties", "/foo" ],
+        [ true, "AssertionTypeStrict", "/properties/foo/$ref/type", "https://example.com#/type", "/foo" ],
+        [ true, "ControlJump", "/properties/foo/$ref", "https://example.com#/properties/foo/$ref", "/foo" ],
+        [ true, "LogicalWhenType", "/properties", "https://example.com#/properties", "" ],
+        [ true, "AssertionTypeStrict", "/type", "https://example.com#/type", "" ]
+      ],
+      "descriptions": [
+        "The object value was expected to validate against the single defined property subschema",
+        "The value was expected to be of type object",
+        "The object value was expected to validate against the referenced schema",
+        "The object value was expected to validate against the single defined property subschema",
+        "The value was expected to be of type object",
+        "The object value was expected to validate against the referenced schema",
+        "The object value was expected to validate against the single defined property subschema",
+        "The value was expected to be of type object"
+      ]
+    }
+  },
+  {
+    "description": "ref_5",
+    "schema": {
+      "id": "https://example.com",
+      "$schema": "http://json-schema.org/draft-03/schema#",
+      "type": "object",
+      "properties": { "foo": { "$ref": "https://example.com" } }
+    },
+    "instance": { "foo": { "foo": 1 } },
+    "valid": false,
+    "fast": {
+      "pre": [
+        [ "ControlJump", "/properties/foo/$ref", "https://example.com#/properties/foo/$ref", "/foo" ],
+        [ "ControlJump", "/properties/foo/$ref/properties/foo/$ref", "https://example.com#/properties/foo/$ref", "/foo/foo" ],
+        [ "AssertionTypeStrict", "/properties/foo/$ref/properties/foo/$ref/type", "https://example.com#/type", "/foo/foo" ]
+      ],
+      "post": [
+        [ false, "AssertionTypeStrict", "/properties/foo/$ref/properties/foo/$ref/type", "https://example.com#/type", "/foo/foo" ],
+        [ false, "ControlJump", "/properties/foo/$ref/properties/foo/$ref", "https://example.com#/properties/foo/$ref", "/foo/foo" ],
+        [ false, "ControlJump", "/properties/foo/$ref", "https://example.com#/properties/foo/$ref", "/foo" ]
+      ],
+      "descriptions": [
+        "The value was expected to be of type object but it was of type integer",
+        "The integer value was expected to validate against the referenced schema",
+        "The object value was expected to validate against the referenced schema"
+      ]
+    },
+    "exhaustive": {
+      "pre": [
+        [ "LogicalWhenType", "/properties", "https://example.com#/properties", "" ],
+        [ "ControlJump", "/properties/foo/$ref", "https://example.com#/properties/foo/$ref", "/foo" ],
+        [ "LogicalWhenType", "/properties/foo/$ref/properties", "https://example.com#/properties", "/foo" ],
+        [ "ControlJump", "/properties/foo/$ref/properties/foo/$ref", "https://example.com#/properties/foo/$ref", "/foo/foo" ],
+        [ "AssertionTypeStrict", "/properties/foo/$ref/properties/foo/$ref/type", "https://example.com#/type", "/foo/foo" ]
+      ],
+      "post": [
+        [ false, "AssertionTypeStrict", "/properties/foo/$ref/properties/foo/$ref/type", "https://example.com#/type", "/foo/foo" ],
+        [ false, "ControlJump", "/properties/foo/$ref/properties/foo/$ref", "https://example.com#/properties/foo/$ref", "/foo/foo" ],
+        [ false, "LogicalWhenType", "/properties/foo/$ref/properties", "https://example.com#/properties", "/foo" ],
+        [ false, "ControlJump", "/properties/foo/$ref", "https://example.com#/properties/foo/$ref", "/foo" ],
+        [ false, "LogicalWhenType", "/properties", "https://example.com#/properties", "" ]
+      ],
+      "descriptions": [
+        "The value was expected to be of type object but it was of type integer",
+        "The integer value was expected to validate against the referenced schema",
+        "The object value was expected to validate against the single defined property subschema",
+        "The object value was expected to validate against the referenced schema",
+        "The object value was expected to validate against the single defined property subschema"
+      ]
+    }
+  },
+  {
+    "description": "ref_6",
+    "schema": {
+      "$schema": "http://json-schema.org/draft-03/schema#",
+      "type": "object",
+      "properties": { "foo": { "$ref": "#" } }
+    },
+    "instance": { "foo": {} },
+    "valid": true,
+    "fast": {
+      "pre": [
+        [ "ControlJump", "/properties/foo/$ref", "#/properties/foo/$ref", "/foo" ],
+        [ "AssertionTypeStrict", "/properties/foo/$ref/type", "#/type", "/foo" ],
+        [ "AssertionTypeStrict", "/type", "#/type", "" ]
+      ],
+      "post": [
+        [ true, "AssertionTypeStrict", "/properties/foo/$ref/type", "#/type", "/foo" ],
+        [ true, "ControlJump", "/properties/foo/$ref", "#/properties/foo/$ref", "/foo" ],
+        [ true, "AssertionTypeStrict", "/type", "#/type", "" ]
+      ],
+      "descriptions": [
+        "The value was expected to be of type object",
+        "The object value was expected to validate against the referenced schema",
+        "The value was expected to be of type object"
+      ]
+    },
+    "exhaustive": {
+      "pre": [
+        [ "LogicalWhenType", "/properties", "#/properties", "" ],
+        [ "ControlJump", "/properties/foo/$ref", "#/properties/foo/$ref", "/foo" ],
+        [ "LogicalWhenType", "/properties/foo/$ref/properties", "#/properties", "/foo" ],
+        [ "AssertionTypeStrict", "/properties/foo/$ref/type", "#/type", "/foo" ],
+        [ "AssertionTypeStrict", "/type", "#/type", "" ]
+      ],
+      "post": [
+        [ true, "LogicalWhenType", "/properties/foo/$ref/properties", "#/properties", "/foo" ],
+        [ true, "AssertionTypeStrict", "/properties/foo/$ref/type", "#/type", "/foo" ],
+        [ true, "ControlJump", "/properties/foo/$ref", "#/properties/foo/$ref", "/foo" ],
+        [ true, "LogicalWhenType", "/properties", "#/properties", "" ],
+        [ true, "AssertionTypeStrict", "/type", "#/type", "" ]
+      ],
+      "descriptions": [
+        "The object value was expected to validate against the single defined property subschema",
+        "The value was expected to be of type object",
+        "The object value was expected to validate against the referenced schema",
+        "The object value was expected to validate against the single defined property subschema",
+        "The value was expected to be of type object"
+      ]
+    }
+  },
+  {
+    "description": "ref_7",
+    "schema": {
+      "$schema": "http://json-schema.org/draft-03/schema#",
+      "properties": {
+        "a": { "$ref": "#" },
+        "b": { "$ref": "#" },
+        "c": { "$ref": "#" },
+        "d": { "$ref": "#" },
+        "e": { "$ref": "#" },
+        "f": { "$ref": "#" }
+      }
+    },
+    "instance": { "foo": 1 },
+    "valid": true,
+    "fast": {
+      "pre": [
+        [ "LoopPropertiesMatch", "/properties", "#/properties", "" ]
+      ],
+      "post": [
+        [ true, "LoopPropertiesMatch", "/properties", "#/properties", "" ]
+      ],
+      "descriptions": [
+        "The object value was expected to validate against the 6 defined properties subschemas"
+      ]
+    },
+    "exhaustive": {
+      "pre": [
+        [ "LoopPropertiesMatch", "/properties", "#/properties", "" ]
+      ],
+      "post": [
+        [ true, "LoopPropertiesMatch", "/properties", "#/properties", "" ]
+      ],
+      "descriptions": [
+        "The object value was expected to validate against the 6 defined properties subschemas"
+      ]
+    }
+  },
+  {
+    "description": "ref_9",
+    "schema": {
+      "$schema": "http://json-schema.org/draft-03/schema#",
+      "additionalProperties": { "$ref": "#/definitions/one" },
+      "definitions": { "one": { "$ref": "#/definitions/two" }, "two": { "type": "boolean" } }
+    },
+    "instance": { "foo": true },
+    "valid": true,
+    "fast": {
+      "pre": [
+        [ "LoopPropertiesTypeStrict", "/additionalProperties/$ref/$ref/type", "#/definitions/two/type", "" ]
+      ],
+      "post": [
+        [ true, "LoopPropertiesTypeStrict", "/additionalProperties/$ref/$ref/type", "#/definitions/two/type", "" ]
+      ],
+      "descriptions": [
+        "The object properties were expected to be of type boolean"
+      ]
+    },
+    "exhaustive": {
+      "pre": [
+        [ "LoopProperties", "/additionalProperties", "#/additionalProperties", "" ],
+        [ "ControlJump", "/additionalProperties/$ref", "#/additionalProperties/$ref", "/foo" ],
+        [ "ControlJump", "/additionalProperties/$ref/$ref", "#/definitions/one/$ref", "/foo" ],
+        [ "AssertionTypeStrict", "/additionalProperties/$ref/$ref/type", "#/definitions/two/type", "/foo" ]
+      ],
+      "post": [
+        [ true, "AssertionTypeStrict", "/additionalProperties/$ref/$ref/type", "#/definitions/two/type", "/foo" ],
+        [ true, "ControlJump", "/additionalProperties/$ref/$ref", "#/definitions/one/$ref", "/foo" ],
+        [ true, "ControlJump", "/additionalProperties/$ref", "#/additionalProperties/$ref", "/foo" ],
+        [ true, "LoopProperties", "/additionalProperties", "#/additionalProperties", "" ]
+      ],
+      "descriptions": [
+        "The value was expected to be of type boolean",
+        "The boolean value was expected to validate against the referenced schema",
+        "The boolean value was expected to validate against the referenced schema",
+        "The object properties not covered by other adjacent object keywords were expected to validate against this subschema"
+      ]
+    }
+  },
+  {
+    "description": "ref_10",
+    "schema": {
+      "$schema": "http://json-schema.org/draft-03/schema#",
+      "items": { "$ref": "#/definitions/one" },
+      "additionalProperties": { "$ref": "#/definitions/one" },
+      "definitions": { "one": { "$ref": "#/definitions/two" }, "two": { "type": "boolean" } }
+    },
+    "instance": { "foo": true },
+    "valid": true,
+    "fast": {
+      "pre": [
+        [ "LoopPropertiesTypeStrict", "/additionalProperties/$ref/$ref/type", "#/definitions/two/type", "" ]
+      ],
+      "post": [
+        [ true, "LoopPropertiesTypeStrict", "/additionalProperties/$ref/$ref/type", "#/definitions/two/type", "" ]
+      ],
+      "descriptions": [
+        "The object properties were expected to be of type boolean"
+      ]
+    },
+    "exhaustive": {
+      "pre": [
+        [ "LoopProperties", "/additionalProperties", "#/additionalProperties", "" ],
+        [ "ControlJump", "/additionalProperties/$ref", "#/additionalProperties/$ref", "/foo" ],
+        [ "ControlJump", "/additionalProperties/$ref/$ref", "#/definitions/one/$ref", "/foo" ],
+        [ "AssertionTypeStrict", "/additionalProperties/$ref/$ref/type", "#/definitions/two/type", "/foo" ]
+      ],
+      "post": [
+        [ true, "AssertionTypeStrict", "/additionalProperties/$ref/$ref/type", "#/definitions/two/type", "/foo" ],
+        [ true, "ControlJump", "/additionalProperties/$ref/$ref", "#/definitions/one/$ref", "/foo" ],
+        [ true, "ControlJump", "/additionalProperties/$ref", "#/additionalProperties/$ref", "/foo" ],
+        [ true, "LoopProperties", "/additionalProperties", "#/additionalProperties", "" ]
+      ],
+      "descriptions": [
+        "The value was expected to be of type boolean",
+        "The boolean value was expected to validate against the referenced schema",
+        "The boolean value was expected to validate against the referenced schema",
+        "The object properties not covered by other adjacent object keywords were expected to validate against this subschema"
+      ]
+    }
+  },
+  {
+    "description": "ref_15",
+    "schema": {
+      "$schema": "http://json-schema.org/draft-03/schema#",
+      "properties": { "foo": { "$ref": "#/definitions/three" } },
+      "definitions": {
+        "three": { "$ref": "#/definitions/four" },
+        "four": { "$ref": "#/definitions/five" },
+        "five": {
+          "properties": { "requires": { "additionalProperties": { "type": "string" } } }
+        }
+      }
+    },
+    "instance": { "foo": { "bar": {} } },
+    "valid": true,
+    "fast": {
+      "pre": [
+        [ "ControlJump", "/properties/foo/$ref/$ref", "#/definitions/three/$ref", "/foo" ]
+      ],
+      "post": [
+        [ true, "ControlJump", "/properties/foo/$ref/$ref", "#/definitions/three/$ref", "/foo" ]
+      ],
+      "descriptions": [
+        "The object value was expected to validate against the referenced schema"
+      ]
+    },
+    "exhaustive": {
+      "pre": [
+        [ "LogicalWhenType", "/properties", "#/properties", "" ],
+        [ "ControlJump", "/properties/foo/$ref", "#/properties/foo/$ref", "/foo" ],
+        [ "ControlJump", "/properties/foo/$ref/$ref", "#/definitions/three/$ref", "/foo" ],
+        [ "ControlJump", "/properties/foo/$ref/$ref/$ref", "#/definitions/four/$ref", "/foo" ],
+        [ "LogicalWhenType", "/properties/foo/$ref/$ref/$ref/properties", "#/definitions/five/properties", "/foo" ]
+      ],
+      "post": [
+        [ true, "LogicalWhenType", "/properties/foo/$ref/$ref/$ref/properties", "#/definitions/five/properties", "/foo" ],
+        [ true, "ControlJump", "/properties/foo/$ref/$ref/$ref", "#/definitions/four/$ref", "/foo" ],
+        [ true, "ControlJump", "/properties/foo/$ref/$ref", "#/definitions/three/$ref", "/foo" ],
+        [ true, "ControlJump", "/properties/foo/$ref", "#/properties/foo/$ref", "/foo" ],
+        [ true, "LogicalWhenType", "/properties", "#/properties", "" ]
+      ],
+      "descriptions": [
+        "The object value was expected to validate against the single defined property subschema",
+        "The object value was expected to validate against the referenced schema",
+        "The object value was expected to validate against the referenced schema",
+        "The object value was expected to validate against the referenced schema",
+        "The object value was expected to validate against the single defined property subschema"
+      ]
+    }
+  },
+  {
+    "description": "id_empty_string_top_level",
+    "schema": {
+      "$schema": "http://json-schema.org/draft-03/schema#",
+      "id": "",
+      "type": "string"
+    },
+    "instance": "foo bar",
+    "valid": true,
+    "fast": {
+      "pre": [
+        [ "AssertionTypeStrict", "/type", "#/type", "" ]
+      ],
+      "post": [
+        [ true, "AssertionTypeStrict", "/type", "#/type", "" ]
+      ],
+      "descriptions": [
+        "The value was expected to be of type string"
+      ]
+    },
+    "exhaustive": {
+      "pre": [
+        [ "AssertionTypeStrict", "/type", "#/type", "" ]
+      ],
+      "post": [
+        [ true, "AssertionTypeStrict", "/type", "#/type", "" ]
+      ],
+      "descriptions": [
+        "The value was expected to be of type string"
+      ]
+    }
+  },
+  {
+    "description": "id_hash_top_level",
+    "schema": {
+      "$schema": "http://json-schema.org/draft-03/schema#",
+      "id": "#",
+      "type": "string"
+    },
+    "instance": "foo bar",
+    "valid": true,
+    "fast": {
+      "pre": [
+        [ "AssertionTypeStrict", "/type", "#/type", "" ]
+      ],
+      "post": [
+        [ true, "AssertionTypeStrict", "/type", "#/type", "" ]
+      ],
+      "descriptions": [
+        "The value was expected to be of type string"
+      ]
+    },
+    "exhaustive": {
+      "pre": [
+        [ "AssertionTypeStrict", "/type", "#/type", "" ]
+      ],
+      "post": [
+        [ true, "AssertionTypeStrict", "/type", "#/type", "" ]
+      ],
+      "descriptions": [
+        "The value was expected to be of type string"
+      ]
+    }
+  },
+  {
+    "description": "ref_1",
+    "schema": {
+      "$schema": "http://json-schema.org/draft-03/schema#",
+      "definitions": { "string": { "type": "string" } },
+      "extends": { "$ref": "#/definitions/string" }
+    },
+    "instance": 5,
+    "valid": false,
+    "fast": {
+      "pre": [
+        [ "AssertionTypeStrict", "/extends/$ref/type", "#/definitions/string/type", "" ]
+      ],
+      "post": [
+        [ false, "AssertionTypeStrict", "/extends/$ref/type", "#/definitions/string/type", "" ]
+      ],
+      "descriptions": [
+        "The value was expected to be of type string but it was of type integer"
+      ]
+    },
+    "exhaustive": {
+      "pre": [
+        [ "LogicalAnd", "/extends", "#/extends", "" ],
+        [ "ControlJump", "/extends/$ref", "#/extends/$ref", "" ],
+        [ "AssertionTypeStrict", "/extends/$ref/type", "#/definitions/string/type", "" ]
+      ],
+      "post": [
+        [ false, "AssertionTypeStrict", "/extends/$ref/type", "#/definitions/string/type", "" ],
+        [ false, "ControlJump", "/extends/$ref", "#/extends/$ref", "" ],
+        [ false, "LogicalAnd", "/extends", "#/extends", "" ]
+      ],
+      "descriptions": [
+        "The value was expected to be of type string but it was of type integer",
+        "The integer value was expected to validate against the referenced schema",
+        "The integer value was expected to validate against the given subschema"
+      ]
+    }
+  },
+  {
+    "description": "ref_2",
+    "schema": {
+      "$schema": "http://json-schema.org/draft-03/schema#",
+      "definitions": { "string": { "type": "string" } },
+      "extends": { "$ref": "#/definitions/string" }
+    },
+    "instance": "foo",
+    "valid": true,
+    "fast": {
+      "pre": [
+        [ "AssertionTypeStrict", "/extends/$ref/type", "#/definitions/string/type", "" ]
+      ],
+      "post": [
+        [ true, "AssertionTypeStrict", "/extends/$ref/type", "#/definitions/string/type", "" ]
+      ],
+      "descriptions": [
+        "The value was expected to be of type string"
+      ]
+    },
+    "exhaustive": {
+      "pre": [
+        [ "LogicalAnd", "/extends", "#/extends", "" ],
+        [ "ControlJump", "/extends/$ref", "#/extends/$ref", "" ],
+        [ "AssertionTypeStrict", "/extends/$ref/type", "#/definitions/string/type", "" ]
+      ],
+      "post": [
+        [ true, "AssertionTypeStrict", "/extends/$ref/type", "#/definitions/string/type", "" ],
+        [ true, "ControlJump", "/extends/$ref", "#/extends/$ref", "" ],
+        [ true, "LogicalAnd", "/extends", "#/extends", "" ]
+      ],
+      "descriptions": [
+        "The value was expected to be of type string",
+        "The string value was expected to validate against the referenced schema",
+        "The string value was expected to validate against the given subschema"
+      ]
+    }
+  },
+  {
+    "description": "ref_8",
+    "schema": {
+      "$schema": "http://json-schema.org/draft-03/schema#",
+      "definitions": {
+        "foo": { "additionalProperties": { "$ref": "#/definitions/bar" } },
+        "bar": { "additionalProperties": { "$ref": "#/definitions/foo" } }
+      },
+      "extends": { "$ref": "#/definitions/foo" }
+    },
+    "instance": true,
+    "valid": true,
+    "fast": {},
+    "exhaustive": {
+      "pre": [
+        [ "LogicalAnd", "/extends", "#/extends", "" ],
+        [ "ControlJump", "/extends/$ref", "#/extends/$ref", "" ]
+      ],
+      "post": [
+        [ true, "ControlJump", "/extends/$ref", "#/extends/$ref", "" ],
+        [ true, "LogicalAnd", "/extends", "#/extends", "" ]
+      ],
+      "descriptions": [
+        "The boolean value was expected to validate against the referenced schema",
+        "The boolean value was expected to validate against the given subschema"
+      ]
+    }
+  },
+  {
+    "description": "id_empty_string_nested",
+    "schema": {
+      "$schema": "http://json-schema.org/draft-03/schema#",
+      "id": "https://www.example.com",
+      "definitions": { "test": { "id": "", "type": "string" } },
+      "extends": { "$ref": "#/definitions/test" }
+    },
+    "instance": "foo bar",
+    "valid": true,
+    "fast": {
+      "pre": [
+        [ "AssertionTypeStrict", "/extends/$ref/type", "https://www.example.com#/definitions/test/type", "" ]
+      ],
+      "post": [
+        [ true, "AssertionTypeStrict", "/extends/$ref/type", "https://www.example.com#/definitions/test/type", "" ]
+      ],
+      "descriptions": [
+        "The value was expected to be of type string"
+      ]
+    },
+    "exhaustive": {
+      "pre": [
+        [ "LogicalAnd", "/extends", "https://www.example.com#/extends", "" ],
+        [ "ControlJump", "/extends/$ref", "https://www.example.com#/extends/$ref", "" ],
+        [ "AssertionTypeStrict", "/extends/$ref/type", "https://www.example.com#/definitions/test/type", "" ]
+      ],
+      "post": [
+        [ true, "AssertionTypeStrict", "/extends/$ref/type", "https://www.example.com#/definitions/test/type", "" ],
+        [ true, "ControlJump", "/extends/$ref", "https://www.example.com#/extends/$ref", "" ],
+        [ true, "LogicalAnd", "/extends", "https://www.example.com#/extends", "" ]
+      ],
+      "descriptions": [
+        "The value was expected to be of type string",
+        "The string value was expected to validate against the referenced schema",
+        "The string value was expected to validate against the given subschema"
+      ]
+    }
+  },
+  {
+    "description": "id_hash_nested",
+    "schema": {
+      "$schema": "http://json-schema.org/draft-03/schema#",
+      "id": "https://www.example.com",
+      "definitions": { "test": { "id": "#", "type": "string" } },
+      "extends": { "$ref": "#/definitions/test" }
+    },
+    "instance": "foo bar",
+    "valid": true,
+    "fast": {
+      "pre": [
+        [ "AssertionTypeStrict", "/extends/$ref/type", "https://www.example.com#/definitions/test/type", "" ]
+      ],
+      "post": [
+        [ true, "AssertionTypeStrict", "/extends/$ref/type", "https://www.example.com#/definitions/test/type", "" ]
+      ],
+      "descriptions": [
+        "The value was expected to be of type string"
+      ]
+    },
+    "exhaustive": {
+      "pre": [
+        [ "LogicalAnd", "/extends", "https://www.example.com#/extends", "" ],
+        [ "ControlJump", "/extends/$ref", "https://www.example.com#/extends/$ref", "" ],
+        [ "AssertionTypeStrict", "/extends/$ref/type", "https://www.example.com#/definitions/test/type", "" ]
+      ],
+      "post": [
+        [ true, "AssertionTypeStrict", "/extends/$ref/type", "https://www.example.com#/definitions/test/type", "" ],
+        [ true, "ControlJump", "/extends/$ref", "https://www.example.com#/extends/$ref", "" ],
+        [ true, "LogicalAnd", "/extends", "https://www.example.com#/extends", "" ]
+      ],
+      "descriptions": [
+        "The value was expected to be of type string",
+        "The string value was expected to validate against the referenced schema",
+        "The string value was expected to validate against the given subschema"
+      ]
+    }
+  },
+  {
+    "description": "divisibleBy_1",
+    "schema": { "$schema": "http://json-schema.org/draft-03/schema#", "divisibleBy": 3 },
+    "instance": "foo",
+    "valid": true,
+    "fast": {},
+    "exhaustive": {}
+  },
+  {
+    "description": "divisibleBy_2",
+    "schema": { "$schema": "http://json-schema.org/draft-03/schema#", "divisibleBy": 3 },
+    "instance": 6,
+    "valid": true,
+    "fast": {
+      "pre": [
+        [ "AssertionDivisible", "/divisibleBy", "#/divisibleBy", "" ]
+      ],
+      "post": [
+        [ true, "AssertionDivisible", "/divisibleBy", "#/divisibleBy", "" ]
+      ],
+      "descriptions": [
+        "The integer value 6 was expected to be divisible by the integer 3"
+      ]
+    },
+    "exhaustive": {
+      "pre": [
+        [ "AssertionDivisible", "/divisibleBy", "#/divisibleBy", "" ]
+      ],
+      "post": [
+        [ true, "AssertionDivisible", "/divisibleBy", "#/divisibleBy", "" ]
+      ],
+      "descriptions": [
+        "The integer value 6 was expected to be divisible by the integer 3"
+      ]
+    }
+  },
+  {
+    "description": "divisibleBy_3",
+    "schema": { "$schema": "http://json-schema.org/draft-03/schema#", "divisibleBy": 3 },
+    "instance": 7,
+    "valid": false,
+    "fast": {
+      "pre": [
+        [ "AssertionDivisible", "/divisibleBy", "#/divisibleBy", "" ]
+      ],
+      "post": [
+        [ false, "AssertionDivisible", "/divisibleBy", "#/divisibleBy", "" ]
+      ],
+      "descriptions": [
+        "The integer value 7 was expected to be divisible by the integer 3"
+      ]
+    },
+    "exhaustive": {
+      "pre": [
+        [ "AssertionDivisible", "/divisibleBy", "#/divisibleBy", "" ]
+      ],
+      "post": [
+        [ false, "AssertionDivisible", "/divisibleBy", "#/divisibleBy", "" ]
+      ],
+      "descriptions": [
+        "The integer value 7 was expected to be divisible by the integer 3"
+      ]
+    }
+  },
+  {
+    "description": "divisibleBy_4",
+    "schema": { "$schema": "http://json-schema.org/draft-03/schema#", "divisibleBy": 3.2 },
+    "instance": 6.4,
+    "valid": true,
+    "fast": {
+      "pre": [
+        [ "AssertionDivisible", "/divisibleBy", "#/divisibleBy", "" ]
+      ],
+      "post": [
+        [ true, "AssertionDivisible", "/divisibleBy", "#/divisibleBy", "" ]
+      ],
+      "descriptions": [
+        "The number value 6.4 was expected to be divisible by the number 3.2"
+      ]
+    },
+    "exhaustive": {
+      "pre": [
+        [ "AssertionDivisible", "/divisibleBy", "#/divisibleBy", "" ]
+      ],
+      "post": [
+        [ true, "AssertionDivisible", "/divisibleBy", "#/divisibleBy", "" ]
+      ],
+      "descriptions": [
+        "The number value 6.4 was expected to be divisible by the number 3.2"
+      ]
+    }
+  },
+  {
+    "description": "divisibleBy_6",
+    "schema": {
+      "$schema": "http://json-schema.org/draft-03/schema#",
+      "divisibleBy": "not-a-number"
+    },
+    "instance": "foo",
+    "valid": true,
+    "fast": {},
+    "exhaustive": {}
+  },
+  {
+    "description": "divisibleBy_7",
+    "schema": { "$schema": "http://json-schema.org/draft-03/schema#", "divisibleBy": 3 },
+    "instance": 9,
+    "valid": true,
+    "fast": {
+      "pre": [
+        [ "AssertionDivisible", "/divisibleBy", "#/divisibleBy", "" ]
+      ],
+      "post": [
+        [ true, "AssertionDivisible", "/divisibleBy", "#/divisibleBy", "" ]
+      ],
+      "descriptions": [
+        "The integer value 9 was expected to be divisible by the integer 3"
+      ]
+    },
+    "exhaustive": {
+      "pre": [
+        [ "AssertionDivisible", "/divisibleBy", "#/divisibleBy", "" ]
+      ],
+      "post": [
+        [ true, "AssertionDivisible", "/divisibleBy", "#/divisibleBy", "" ]
+      ],
+      "descriptions": [
+        "The integer value 9 was expected to be divisible by the integer 3"
+      ]
+    }
+  },
+  {
+    "description": "divisibleBy_8",
+    "schema": { "$schema": "http://json-schema.org/draft-03/schema#", "divisibleBy": 3 },
+    "instance": 10,
+    "valid": false,
+    "fast": {
+      "pre": [
+        [ "AssertionDivisible", "/divisibleBy", "#/divisibleBy", "" ]
+      ],
+      "post": [
+        [ false, "AssertionDivisible", "/divisibleBy", "#/divisibleBy", "" ]
+      ],
+      "descriptions": [
+        "The integer value 10 was expected to be divisible by the integer 3"
+      ]
+    },
+    "exhaustive": {
+      "pre": [
+        [ "AssertionDivisible", "/divisibleBy", "#/divisibleBy", "" ]
+      ],
+      "post": [
+        [ false, "AssertionDivisible", "/divisibleBy", "#/divisibleBy", "" ]
+      ],
+      "descriptions": [
+        "The integer value 10 was expected to be divisible by the integer 3"
+      ]
+    }
+  },
+  {
+    "description": "divisibleBy_9",
+    "schema": { "$schema": "http://json-schema.org/draft-03/schema#", "divisibleBy": 3 },
+    "instance": 9,
+    "valid": true,
+    "fast": {
+      "pre": [
+        [ "AssertionDivisible", "/divisibleBy", "#/divisibleBy", "" ]
+      ],
+      "post": [
+        [ true, "AssertionDivisible", "/divisibleBy", "#/divisibleBy", "" ]
+      ],
+      "descriptions": [
+        "The integer value 9 was expected to be divisible by the integer 3"
+      ]
+    },
+    "exhaustive": {
+      "pre": [
+        [ "AssertionDivisible", "/divisibleBy", "#/divisibleBy", "" ]
+      ],
+      "post": [
+        [ true, "AssertionDivisible", "/divisibleBy", "#/divisibleBy", "" ]
+      ],
+      "descriptions": [
+        "The integer value 9 was expected to be divisible by the integer 3"
+      ]
+    }
+  },
+  {
+    "description": "divisibleBy_10",
+    "schema": { "$schema": "http://json-schema.org/draft-03/schema#", "divisibleBy": 3 },
+    "instance": 10,
+    "valid": false,
+    "fast": {
+      "pre": [
+        [ "AssertionDivisible", "/divisibleBy", "#/divisibleBy", "" ]
+      ],
+      "post": [
+        [ false, "AssertionDivisible", "/divisibleBy", "#/divisibleBy", "" ]
+      ],
+      "descriptions": [
+        "The integer value 10 was expected to be divisible by the integer 3"
+      ]
+    },
+    "exhaustive": {
+      "pre": [
+        [ "AssertionDivisible", "/divisibleBy", "#/divisibleBy", "" ]
+      ],
+      "post": [
+        [ false, "AssertionDivisible", "/divisibleBy", "#/divisibleBy", "" ]
+      ],
+      "descriptions": [
+        "The integer value 10 was expected to be divisible by the integer 3"
+      ]
+    }
+  },
+  {
+    "description": "divisibleBy_13",
+    "schema": { "$schema": "http://json-schema.org/draft-03/schema#", "divisibleBy": 3 },
+    "instance": 9,
+    "valid": true,
+    "fast": {
+      "pre": [
+        [ "AssertionDivisible", "/divisibleBy", "#/divisibleBy", "" ]
+      ],
+      "post": [
+        [ true, "AssertionDivisible", "/divisibleBy", "#/divisibleBy", "" ]
+      ],
+      "descriptions": [
+        "The integer value 9 was expected to be divisible by the integer 3"
+      ]
+    },
+    "exhaustive": {
+      "pre": [
+        [ "AssertionDivisible", "/divisibleBy", "#/divisibleBy", "" ]
+      ],
+      "post": [
+        [ true, "AssertionDivisible", "/divisibleBy", "#/divisibleBy", "" ]
+      ],
+      "descriptions": [
+        "The integer value 9 was expected to be divisible by the integer 3"
+      ]
+    }
+  },
+  {
+    "description": "divisibleBy_14",
+    "schema": { "$schema": "http://json-schema.org/draft-03/schema#", "divisibleBy": 3 },
+    "instance": 10,
+    "valid": false,
+    "fast": {
+      "pre": [
+        [ "AssertionDivisible", "/divisibleBy", "#/divisibleBy", "" ]
+      ],
+      "post": [
+        [ false, "AssertionDivisible", "/divisibleBy", "#/divisibleBy", "" ]
+      ],
+      "descriptions": [
+        "The integer value 10 was expected to be divisible by the integer 3"
+      ]
+    },
+    "exhaustive": {
+      "pre": [
+        [ "AssertionDivisible", "/divisibleBy", "#/divisibleBy", "" ]
+      ],
+      "post": [
+        [ false, "AssertionDivisible", "/divisibleBy", "#/divisibleBy", "" ]
+      ],
+      "descriptions": [
+        "The integer value 10 was expected to be divisible by the integer 3"
+      ]
+    }
+  },
+  {
+    "description": "divisibleBy_20",
+    "schema": { "$schema": "http://json-schema.org/draft-03/schema#", "divisibleBy": 0.1 },
+    "instance": 0.35,
+    "valid": false,
+    "fast": {
+      "pre": [
+        [ "AssertionDivisible", "/divisibleBy", "#/divisibleBy", "" ]
+      ],
+      "post": [
+        [ false, "AssertionDivisible", "/divisibleBy", "#/divisibleBy", "" ]
+      ],
+      "descriptions": [
+        "The number value 0.35 was expected to be divisible by the number 0.1"
+      ]
+    },
+    "exhaustive": {
+      "pre": [
+        [ "AssertionDivisible", "/divisibleBy", "#/divisibleBy", "" ]
+      ],
+      "post": [
+        [ false, "AssertionDivisible", "/divisibleBy", "#/divisibleBy", "" ]
+      ],
+      "descriptions": [
+        "The number value 0.35 was expected to be divisible by the number 0.1"
+      ]
+    }
+  },
+  {
+    "description": "divisibleBy_22",
+    "schema": { "$schema": "http://json-schema.org/draft-03/schema#", "divisibleBy": 1.5 },
+    "instance": 3,
+    "valid": true,
+    "fast": {
+      "pre": [
+        [ "AssertionDivisible", "/divisibleBy", "#/divisibleBy", "" ]
+      ],
+      "post": [
+        [ true, "AssertionDivisible", "/divisibleBy", "#/divisibleBy", "" ]
+      ],
+      "descriptions": [
+        "The integer value 3 was expected to be divisible by the number 1.5"
+      ]
+    },
+    "exhaustive": {
+      "pre": [
+        [ "AssertionDivisible", "/divisibleBy", "#/divisibleBy", "" ]
+      ],
+      "post": [
+        [ true, "AssertionDivisible", "/divisibleBy", "#/divisibleBy", "" ]
+      ],
+      "descriptions": [
+        "The integer value 3 was expected to be divisible by the number 1.5"
+      ]
+    }
+  },
+  {
+    "description": "divisibleBy_23",
+    "schema": {
+      "$schema": "http://json-schema.org/draft-03/schema#",
+      "divisibleBy": 0.01
+    },
+    "instance": 1280.32,
+    "valid": true,
+    "fast": {
+      "pre": [
+        [ "AssertionDivisible", "/divisibleBy", "#/divisibleBy", "" ]
+      ],
+      "post": [
+        [ true, "AssertionDivisible", "/divisibleBy", "#/divisibleBy", "" ]
+      ],
+      "descriptions": [
+        "The number value 1280.32 was expected to be divisible by the number 0.01"
+      ]
+    },
+    "exhaustive": {
+      "pre": [
+        [ "AssertionDivisible", "/divisibleBy", "#/divisibleBy", "" ]
+      ],
+      "post": [
+        [ true, "AssertionDivisible", "/divisibleBy", "#/divisibleBy", "" ]
+      ],
+      "descriptions": [
+        "The number value 1280.32 was expected to be divisible by the number 0.01"
+      ]
+    }
+  },
+  {
+    "description": "divisibleBy_17",
+    "schema": {
+      "$schema": "http://json-schema.org/draft-03/schema#",
+      "divisibleBy": 99999999999999999999999999999999999
+    },
+    "instance": 299999999999999999999999999999999997,
+    "valid": true,
+    "fast": {
+      "pre": [
+        [ "AssertionDivisible", "/divisibleBy", "#/divisibleBy", "" ]
+      ],
+      "post": [
+        [ true, "AssertionDivisible", "/divisibleBy", "#/divisibleBy", "" ]
+      ],
+      "descriptions": [
+        "The integer value 299999999999999999999999999999999997 was expected to be divisible by the integer 99999999999999999999999999999999999"
+      ]
+    },
+    "exhaustive": {
+      "pre": [
+        [ "AssertionDivisible", "/divisibleBy", "#/divisibleBy", "" ]
+      ],
+      "post": [
+        [ true, "AssertionDivisible", "/divisibleBy", "#/divisibleBy", "" ]
+      ],
+      "descriptions": [
+        "The integer value 299999999999999999999999999999999997 was expected to be divisible by the integer 99999999999999999999999999999999999"
+      ]
+    }
+  },
+  {
+    "description": "divisibleBy_18",
+    "schema": {
+      "$schema": "http://json-schema.org/draft-03/schema#",
+      "divisibleBy": 99999999999999999999999999999999999
+    },
+    "instance": 299999999999999999999999999999999998,
+    "valid": false,
+    "fast": {
+      "pre": [
+        [ "AssertionDivisible", "/divisibleBy", "#/divisibleBy", "" ]
+      ],
+      "post": [
+        [ false, "AssertionDivisible", "/divisibleBy", "#/divisibleBy", "" ]
+      ],
+      "descriptions": [
+        "The integer value 299999999999999999999999999999999998 was expected to be divisible by the integer 99999999999999999999999999999999999"
+      ]
+    },
+    "exhaustive": {
+      "pre": [
+        [ "AssertionDivisible", "/divisibleBy", "#/divisibleBy", "" ]
+      ],
+      "post": [
+        [ false, "AssertionDivisible", "/divisibleBy", "#/divisibleBy", "" ]
+      ],
+      "descriptions": [
+        "The integer value 299999999999999999999999999999999998 was expected to be divisible by the integer 99999999999999999999999999999999999"
+      ]
+    }
+  },
+  {
+    "description": "divisibleBy_21",
+    "schema": { "$schema": "http://json-schema.org/draft-03/schema#", "divisibleBy": 0.5 },
+    "instance": 99999999999999999999999999999999999,
+    "valid": true,
+    "fast": {
+      "pre": [
+        [ "AssertionDivisible", "/divisibleBy", "#/divisibleBy", "" ]
+      ],
+      "post": [
+        [ true, "AssertionDivisible", "/divisibleBy", "#/divisibleBy", "" ]
+      ],
+      "descriptions": [
+        "The integer value 99999999999999999999999999999999999 was expected to be divisible by the number 0.5"
+      ]
+    },
+    "exhaustive": {
+      "pre": [
+        [ "AssertionDivisible", "/divisibleBy", "#/divisibleBy", "" ]
+      ],
+      "post": [
+        [ true, "AssertionDivisible", "/divisibleBy", "#/divisibleBy", "" ]
+      ],
+      "descriptions": [
+        "The integer value 99999999999999999999999999999999999 was expected to be divisible by the number 0.5"
+      ]
+    }
   }
 ]
