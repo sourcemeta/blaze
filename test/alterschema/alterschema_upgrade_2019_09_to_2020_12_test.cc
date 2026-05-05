@@ -690,3 +690,19 @@ TEST(AlterSchema_upgrade_2019_09_to_2020_12,
   UPGRADE_2020_12_WITH_DIALECT(document, expected,
                                "https://json-schema.org/draft/2019-09/schema");
 }
+
+TEST(AlterSchema_upgrade_2019_09_to_2020_12,
+     true_boolean_schema_unchanged_with_default_dialect_2019_09) {
+  auto document = sourcemeta::core::parse_json("true");
+  const auto expected = sourcemeta::core::parse_json("true");
+  UPGRADE_2020_12_WITH_DIALECT(document, expected,
+                               "https://json-schema.org/draft/2019-09/schema");
+}
+
+TEST(AlterSchema_upgrade_2019_09_to_2020_12,
+     false_boolean_schema_unchanged_with_default_dialect_2019_09) {
+  auto document = sourcemeta::core::parse_json("false");
+  const auto expected = sourcemeta::core::parse_json("false");
+  UPGRADE_2020_12_WITH_DIALECT(document, expected,
+                               "https://json-schema.org/draft/2019-09/schema");
+}

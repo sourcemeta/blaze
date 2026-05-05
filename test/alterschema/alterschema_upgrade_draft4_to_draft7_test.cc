@@ -357,3 +357,24 @@ TEST(AlterSchema_upgrade_Draft4_to_Draft7,
   UPGRADE_DRAFT_7_WITH_DIALECT(document, expected,
                                "http://json-schema.org/draft-04/schema#");
 }
+
+TEST(AlterSchema_upgrade_Draft4_to_Draft7,
+     top_level_ref_no_dollar_schema_with_default_dialect_draft4) {
+  auto document = sourcemeta::core::parse_json(R"JSON({
+    "$ref": "#/definitions/Foo",
+    "definitions": {
+      "Foo": { "type": "string" }
+    }
+  })JSON");
+
+  const auto expected = sourcemeta::core::parse_json(R"JSON({
+    "$schema": "http://json-schema.org/draft-07/schema#",
+    "$ref": "#/definitions/Foo",
+    "definitions": {
+      "Foo": { "type": "string" }
+    }
+  })JSON");
+
+  UPGRADE_DRAFT_7_WITH_DIALECT(document, expected,
+                               "http://json-schema.org/draft-04/schema#");
+}

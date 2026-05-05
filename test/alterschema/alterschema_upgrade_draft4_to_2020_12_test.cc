@@ -132,3 +132,19 @@ TEST(AlterSchema_upgrade_Draft4_to_2020_12,
   UPGRADE_2020_12_WITH_DIALECT(document, expected,
                                "http://json-schema.org/draft-04/schema#");
 }
+
+TEST(AlterSchema_upgrade_Draft4_to_2020_12,
+     true_boolean_schema_unchanged_with_default_dialect_draft4) {
+  auto document = sourcemeta::core::parse_json("true");
+  const auto expected = sourcemeta::core::parse_json("true");
+  UPGRADE_2020_12_WITH_DIALECT(document, expected,
+                               "http://json-schema.org/draft-04/schema#");
+}
+
+TEST(AlterSchema_upgrade_Draft4_to_2020_12,
+     false_boolean_schema_unchanged_with_default_dialect_draft4) {
+  auto document = sourcemeta::core::parse_json("false");
+  const auto expected = sourcemeta::core::parse_json("false");
+  UPGRADE_2020_12_WITH_DIALECT(document, expected,
+                               "http://json-schema.org/draft-04/schema#");
+}
