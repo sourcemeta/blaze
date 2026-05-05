@@ -379,6 +379,25 @@ inline auto required_properties(const SchemaContext &schema_context)
         result.insert(entry.to_string());
       }
     }
+
+    return result;
+  }
+
+  const auto imports_draft3_vocabulary{
+      schema_context.vocabularies.contains(Known::JSON_Schema_Draft_3) ||
+      schema_context.vocabularies.contains(Known::JSON_Schema_Draft_3_Hyper)};
+
+  if (imports_draft3_vocabulary && schema_context.schema.is_object() &&
+      schema_context.schema.defines("properties") &&
+      schema_context.schema.at("properties").is_object()) {
+    for (const auto &entry :
+         schema_context.schema.at("properties").as_object()) {
+      if (entry.second.is_object() && entry.second.defines("required") &&
+          entry.second.at("required").is_boolean() &&
+          entry.second.at("required").to_boolean()) {
+        result.insert(entry.first);
+      }
+    }
   }
 
   return result;

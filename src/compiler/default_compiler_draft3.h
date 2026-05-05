@@ -181,6 +181,107 @@ static auto to_string_hashes(
 namespace internal {
 using namespace sourcemeta::blaze;
 
+auto compile_required_assertions(const Context &context,
+                                 const SchemaContext &schema_context,
+                                 const DynamicContext &dynamic_context,
+                                 const Instructions &current,
+                                 ValueStringSet properties_set)
+    -> Instructions {
+  if (schema_context.schema.defines("type") &&
+      schema_context.schema.at("type").is_string() &&
+      schema_context.schema.at("type").to_string() != "object") {
+    return {};
+  }
+
+  const auto assume_object{schema_context.schema.defines("type") &&
+                           schema_context.schema.at("type").is_string() &&
+                           schema_context.schema.at("type").to_string() ==
+                               "object"};
+
+  if (properties_set.empty()) {
+    return {};
+  } else if (properties_set.size() > 1) {
+    if (is_closed_properties_required(schema_context.schema, properties_set)) {
+      if (context.mode == Mode::FastValidation && assume_object) {
+        static const std::string properties_keyword{"properties"};
+        const SchemaContext new_schema_context{
+            .relative_pointer =
+                schema_context.relative_pointer.initial().concat(
+                    sourcemeta::blaze::make_weak_pointer(properties_keyword)),
+            .schema = schema_context.schema,
+            .vocabularies = schema_context.vocabularies,
+            .base = schema_context.base,
+            .is_property_name = schema_context.is_property_name};
+        const DynamicContext new_dynamic_context{
+            .keyword = KEYWORD_PROPERTIES,
+            .base_schema_location = sourcemeta::core::empty_weak_pointer,
+            .base_instance_location = sourcemeta::core::empty_weak_pointer};
+        auto properties{compile_properties(context, new_schema_context,
+                                           new_dynamic_context, current)};
+        if (std::ranges::all_of(properties, [](const auto &property) {
+              return property.second.size() == 1 &&
+                     property.second.front().type ==
+                         InstructionIndex::AssertionTypeStrict;
+            })) {
+          std::set<ValueType> types;
+          for (const auto &property : properties) {
+            types.insert(std::get<ValueType>(property.second.front().value));
+          }
+
+          if (types.size() == 1) {
+            // Handled in `properties`
+            return {};
+          }
+        }
+
+        sourcemeta::core::PropertyHashJSON<ValueString> hasher;
+        if (context.mode == Mode::FastValidation &&
+            properties_set.size() == 3 &&
+            std::ranges::all_of(properties_set,
+                                [&hasher](const auto &property) {
+                                  return hasher.is_perfect(property.second);
+                                })) {
+          std::vector<std::pair<ValueString, ValueStringSet::hash_type>> hashes;
+          for (const auto &property : properties_set) {
+            hashes.emplace_back(property.first, property.second);
+          }
+
+          return {make(sourcemeta::blaze::InstructionIndex::
+                           AssertionDefinesExactlyStrictHash3,
+                       context, schema_context, dynamic_context,
+                       to_string_hashes(hashes))};
+        }
+
+        return {make(
+            sourcemeta::blaze::InstructionIndex::AssertionDefinesExactlyStrict,
+            context, schema_context, dynamic_context,
+            std::move(properties_set))};
+      } else {
+        return {
+            make(sourcemeta::blaze::InstructionIndex::AssertionDefinesExactly,
+                 context, schema_context, dynamic_context,
+                 std::move(properties_set))};
+      }
+    } else if (assume_object) {
+      return {make(
+          sourcemeta::blaze::InstructionIndex::AssertionDefinesAllStrict,
+          context, schema_context, dynamic_context, std::move(properties_set))};
+    } else {
+      return {make(sourcemeta::blaze::InstructionIndex::AssertionDefinesAll,
+                   context, schema_context, dynamic_context,
+                   std::move(properties_set))};
+    }
+  } else if (assume_object) {
+    return {make(sourcemeta::blaze::InstructionIndex::AssertionDefinesStrict,
+                 context, schema_context, dynamic_context,
+                 make_property(properties_set.begin()->first))};
+  } else {
+    return {make(sourcemeta::blaze::InstructionIndex::AssertionDefines, context,
+                 schema_context, dynamic_context,
+                 make_property(properties_set.begin()->first))};
+  }
+}
+
 auto compiler_draft3_core_ref(const Context &context,
                               const SchemaContext &schema_context,
                               const DynamicContext &dynamic_context,
@@ -803,8 +904,33 @@ auto compiler_draft3_applicator_properties(
     const Context &context, const SchemaContext &schema_context,
     const DynamicContext &dynamic_context, const Instructions &current)
     -> Instructions {
-  return compiler_draft3_applicator_properties_with_options(
-      context, schema_context, dynamic_context, current, false, false);
+  auto property_instructions{compiler_draft3_applicator_properties_with_options(
+      context, schema_context, dynamic_context, current, false, false)};
+
+  using Known = sourcemeta::core::Vocabularies::Known;
+  const auto is_draft3{
+      schema_context.vocabularies.contains(Known::JSON_Schema_Draft_3) ||
+      schema_context.vocabularies.contains(Known::JSON_Schema_Draft_3_Hyper)};
+  if (!is_draft3) {
+    return property_instructions;
+  }
+
+  ValueStringSet required{required_properties(schema_context)};
+  if (required.empty()) {
+    return property_instructions;
+  }
+
+  auto required_instructions{compile_required_assertions(
+      context, schema_context, dynamic_context, current, std::move(required))};
+  if (required_instructions.empty()) {
+    return property_instructions;
+  }
+
+  Instructions result{std::move(required_instructions)};
+  for (auto &&step : property_instructions) {
+    result.push_back(std::move(step));
+  }
+  return result;
 }
 
 auto compiler_draft3_applicator_patternproperties_with_options(
