@@ -8313,5 +8313,517 @@
         "The string value was expected to validate against the given subschema"
       ]
     }
+  },
+  {
+    "description": "dependencies_1",
+    "schema": {
+      "$schema": "http://json-schema.org/draft-03/schema#",
+      "dependencies": {
+        "foo": [ "bar", "baz" ],
+        "qux": { "properties": { "extra": { "required": true } } }
+      }
+    },
+    "instance": 5,
+    "valid": true,
+    "fast": {},
+    "exhaustive": {}
+  },
+  {
+    "description": "dependencies_2",
+    "schema": {
+      "$schema": "http://json-schema.org/draft-03/schema#",
+      "dependencies": {
+        "foo": [ "bar", "baz" ],
+        "qux": { "properties": { "extra": { "required": true } } }
+      }
+    },
+    "instance": { "foo": 1, "bar": 2, "baz": 3 },
+    "valid": true,
+    "fast": {
+      "pre": [
+        [ "AssertionPropertyDependencies", "/dependencies", "#/dependencies", "" ]
+      ],
+      "post": [
+        [ true, "AssertionPropertyDependencies", "/dependencies", "#/dependencies", "" ]
+      ],
+      "descriptions": [
+        "Because the object value defined the property \"foo\", it was also expected to define the properties \"bar\", and \"baz\""
+      ]
+    },
+    "exhaustive": {
+      "pre": [
+        [ "AssertionPropertyDependencies", "/dependencies", "#/dependencies", "" ]
+      ],
+      "post": [
+        [ true, "AssertionPropertyDependencies", "/dependencies", "#/dependencies", "" ]
+      ],
+      "descriptions": [
+        "Because the object value defined the property \"foo\", it was also expected to define the properties \"bar\", and \"baz\""
+      ]
+    }
+  },
+  {
+    "description": "dependencies_3",
+    "schema": {
+      "$schema": "http://json-schema.org/draft-03/schema#",
+      "dependencies": {
+        "foo": [ "bar", "baz" ],
+        "qux": { "properties": { "extra": { "required": true } } }
+      }
+    },
+    "instance": { "foo": 1, "baz": 3 },
+    "valid": false,
+    "fast": {
+      "pre": [
+        [ "AssertionPropertyDependencies", "/dependencies", "#/dependencies", "" ]
+      ],
+      "post": [
+        [ false, "AssertionPropertyDependencies", "/dependencies", "#/dependencies", "" ]
+      ],
+      "descriptions": [
+        "Because the object value defined the property \"foo\", it was also expected to define the property \"bar\""
+      ]
+    },
+    "exhaustive": {
+      "pre": [
+        [ "AssertionPropertyDependencies", "/dependencies", "#/dependencies", "" ]
+      ],
+      "post": [
+        [ false, "AssertionPropertyDependencies", "/dependencies", "#/dependencies", "" ]
+      ],
+      "descriptions": [
+        "Because the object value defined the property \"foo\", it was also expected to define the property \"bar\""
+      ]
+    }
+  },
+  {
+    "description": "dependencies_4",
+    "schema": {
+      "$schema": "http://json-schema.org/draft-03/schema#",
+      "dependencies": {
+        "foo": [ "bar", "baz" ],
+        "qux": { "properties": { "extra": { "required": true } } }
+      }
+    },
+    "instance": { "qux": 1, "extra": 2 },
+    "valid": true,
+    "fast": {
+      "pre": [
+        [ "LogicalWhenDefines", "/dependencies", "#/dependencies", "" ],
+        [ "AssertionDefines", "/dependencies/qux/properties", "#/dependencies/qux/properties", "" ],
+        [ "AssertionPropertyDependencies", "/dependencies", "#/dependencies", "" ]
+      ],
+      "post": [
+        [ true, "AssertionDefines", "/dependencies/qux/properties", "#/dependencies/qux/properties", "" ],
+        [ true, "LogicalWhenDefines", "/dependencies", "#/dependencies", "" ],
+        [ true, "AssertionPropertyDependencies", "/dependencies", "#/dependencies", "" ]
+      ],
+      "descriptions": [
+        "The object value was expected to define the property \"extra\"",
+        "The object value defined the property \"qux\"",
+        "The object value did not define the property \"foo\""
+      ]
+    },
+    "exhaustive": {
+      "pre": [
+        [ "LogicalWhenDefines", "/dependencies", "#/dependencies", "" ],
+        [ "AssertionDefines", "/dependencies/qux/properties", "#/dependencies/qux/properties", "" ],
+        [ "AssertionPropertyDependencies", "/dependencies", "#/dependencies", "" ]
+      ],
+      "post": [
+        [ true, "AssertionDefines", "/dependencies/qux/properties", "#/dependencies/qux/properties", "" ],
+        [ true, "LogicalWhenDefines", "/dependencies", "#/dependencies", "" ],
+        [ true, "AssertionPropertyDependencies", "/dependencies", "#/dependencies", "" ]
+      ],
+      "descriptions": [
+        "The object value was expected to define the property \"extra\"",
+        "The object value defined the property \"qux\"",
+        "The object value did not define the property \"foo\""
+      ]
+    }
+  },
+  {
+    "description": "dependencies_5",
+    "schema": {
+      "$schema": "http://json-schema.org/draft-03/schema#",
+      "dependencies": {
+        "foo": [ "bar", "baz" ],
+        "qux": { "properties": { "extra": { "required": true } } }
+      }
+    },
+    "instance": { "qux": 1 },
+    "valid": false,
+    "fast": {
+      "pre": [
+        [ "LogicalWhenDefines", "/dependencies", "#/dependencies", "" ],
+        [ "AssertionDefines", "/dependencies/qux/properties", "#/dependencies/qux/properties", "" ]
+      ],
+      "post": [
+        [ false, "AssertionDefines", "/dependencies/qux/properties", "#/dependencies/qux/properties", "" ],
+        [ false, "LogicalWhenDefines", "/dependencies", "#/dependencies", "" ]
+      ],
+      "descriptions": [
+        "The object value was expected to define the property \"extra\"",
+        "The object value defined the property \"qux\""
+      ]
+    },
+    "exhaustive": {
+      "pre": [
+        [ "LogicalWhenDefines", "/dependencies", "#/dependencies", "" ],
+        [ "AssertionDefines", "/dependencies/qux/properties", "#/dependencies/qux/properties", "" ]
+      ],
+      "post": [
+        [ false, "AssertionDefines", "/dependencies/qux/properties", "#/dependencies/qux/properties", "" ],
+        [ false, "LogicalWhenDefines", "/dependencies", "#/dependencies", "" ]
+      ],
+      "descriptions": [
+        "The object value was expected to define the property \"extra\"",
+        "The object value defined the property \"qux\""
+      ]
+    }
+  },
+  {
+    "description": "dependencies_6",
+    "schema": {
+      "$schema": "http://json-schema.org/draft-03/schema#",
+      "dependencies": {
+        "foo": [ "bar", "baz" ],
+        "qux": { "properties": { "extra": { "required": true } } }
+      }
+    },
+    "instance": { "none": 1 },
+    "valid": true,
+    "fast": {
+      "pre": [
+        [ "AssertionPropertyDependencies", "/dependencies", "#/dependencies", "" ]
+      ],
+      "post": [
+        [ true, "AssertionPropertyDependencies", "/dependencies", "#/dependencies", "" ]
+      ],
+      "descriptions": [
+        "The object value did not define the property \"foo\""
+      ]
+    },
+    "exhaustive": {
+      "pre": [
+        [ "AssertionPropertyDependencies", "/dependencies", "#/dependencies", "" ]
+      ],
+      "post": [
+        [ true, "AssertionPropertyDependencies", "/dependencies", "#/dependencies", "" ]
+      ],
+      "descriptions": [
+        "The object value did not define the property \"foo\""
+      ]
+    }
+  },
+  {
+    "description": "dependencies_7",
+    "schema": {
+      "$schema": "http://json-schema.org/draft-03/schema#",
+      "dependencies": { "foo": [ "bar", "baz" ] }
+    },
+    "instance": { "none": 1 },
+    "valid": true,
+    "fast": {
+      "pre": [
+        [ "AssertionPropertyDependencies", "/dependencies", "#/dependencies", "" ]
+      ],
+      "post": [
+        [ true, "AssertionPropertyDependencies", "/dependencies", "#/dependencies", "" ]
+      ],
+      "descriptions": [
+        "The object value did not define the property \"foo\""
+      ]
+    },
+    "exhaustive": {
+      "pre": [
+        [ "AssertionPropertyDependencies", "/dependencies", "#/dependencies", "" ]
+      ],
+      "post": [
+        [ true, "AssertionPropertyDependencies", "/dependencies", "#/dependencies", "" ]
+      ],
+      "descriptions": [
+        "The object value did not define the property \"foo\""
+      ]
+    }
+  },
+  {
+    "description": "dependencies_8",
+    "schema": {
+      "$schema": "http://json-schema.org/draft-03/schema#",
+      "dependencies": {
+        "foo": [ "bar", "baz" ],
+        "qux": { "properties": { "extra": { "required": true } } }
+      }
+    },
+    "instance": { "foo": 1, "qux": 2 },
+    "valid": false,
+    "fast": {
+      "pre": [
+        [ "LogicalWhenDefines", "/dependencies", "#/dependencies", "" ],
+        [ "AssertionDefines", "/dependencies/qux/properties", "#/dependencies/qux/properties", "" ]
+      ],
+      "post": [
+        [ false, "AssertionDefines", "/dependencies/qux/properties", "#/dependencies/qux/properties", "" ],
+        [ false, "LogicalWhenDefines", "/dependencies", "#/dependencies", "" ]
+      ],
+      "descriptions": [
+        "The object value was expected to define the property \"extra\"",
+        "The object value defined the property \"qux\""
+      ]
+    },
+    "exhaustive": {
+      "pre": [
+        [ "LogicalWhenDefines", "/dependencies", "#/dependencies", "" ],
+        [ "AssertionDefines", "/dependencies/qux/properties", "#/dependencies/qux/properties", "" ]
+      ],
+      "post": [
+        [ false, "AssertionDefines", "/dependencies/qux/properties", "#/dependencies/qux/properties", "" ],
+        [ false, "LogicalWhenDefines", "/dependencies", "#/dependencies", "" ]
+      ],
+      "descriptions": [
+        "The object value was expected to define the property \"extra\"",
+        "The object value defined the property \"qux\""
+      ]
+    }
+  },
+  {
+    "description": "dependencies_9",
+    "schema": {
+      "$schema": "http://json-schema.org/draft-03/schema#",
+      "dependencies": "not-an-object"
+    },
+    "instance": "foo",
+    "valid": true,
+    "fast": {},
+    "exhaustive": {}
+  },
+  {
+    "description": "dependencies_string_form_match",
+    "schema": {
+      "$schema": "http://json-schema.org/draft-03/schema#",
+      "dependencies": { "foo": "bar" }
+    },
+    "instance": { "foo": 1, "bar": 2 },
+    "valid": true,
+    "fast": {
+      "pre": [
+        [ "AssertionPropertyDependencies", "/dependencies", "#/dependencies", "" ]
+      ],
+      "post": [
+        [ true, "AssertionPropertyDependencies", "/dependencies", "#/dependencies", "" ]
+      ],
+      "descriptions": [
+        "Because the object value defined the property \"foo\", it was also expected to define the property \"bar\""
+      ]
+    },
+    "exhaustive": {
+      "pre": [
+        [ "AssertionPropertyDependencies", "/dependencies", "#/dependencies", "" ]
+      ],
+      "post": [
+        [ true, "AssertionPropertyDependencies", "/dependencies", "#/dependencies", "" ]
+      ],
+      "descriptions": [
+        "Because the object value defined the property \"foo\", it was also expected to define the property \"bar\""
+      ]
+    }
+  },
+  {
+    "description": "dependencies_string_form_dependent_missing",
+    "schema": {
+      "$schema": "http://json-schema.org/draft-03/schema#",
+      "dependencies": { "foo": "bar" }
+    },
+    "instance": { "foo": 1 },
+    "valid": false,
+    "fast": {
+      "pre": [
+        [ "AssertionPropertyDependencies", "/dependencies", "#/dependencies", "" ]
+      ],
+      "post": [
+        [ false, "AssertionPropertyDependencies", "/dependencies", "#/dependencies", "" ]
+      ],
+      "descriptions": [
+        "Because the object value defined the property \"foo\", it was also expected to define the property \"bar\""
+      ]
+    },
+    "exhaustive": {
+      "pre": [
+        [ "AssertionPropertyDependencies", "/dependencies", "#/dependencies", "" ]
+      ],
+      "post": [
+        [ false, "AssertionPropertyDependencies", "/dependencies", "#/dependencies", "" ]
+      ],
+      "descriptions": [
+        "Because the object value defined the property \"foo\", it was also expected to define the property \"bar\""
+      ]
+    }
+  },
+  {
+    "description": "dependencies_string_form_source_missing_vacuous",
+    "schema": {
+      "$schema": "http://json-schema.org/draft-03/schema#",
+      "dependencies": { "foo": "bar" }
+    },
+    "instance": { "bar": 2 },
+    "valid": true,
+    "fast": {
+      "pre": [
+        [ "AssertionPropertyDependencies", "/dependencies", "#/dependencies", "" ]
+      ],
+      "post": [
+        [ true, "AssertionPropertyDependencies", "/dependencies", "#/dependencies", "" ]
+      ],
+      "descriptions": [
+        "The object value did not define the property \"foo\""
+      ]
+    },
+    "exhaustive": {
+      "pre": [
+        [ "AssertionPropertyDependencies", "/dependencies", "#/dependencies", "" ]
+      ],
+      "post": [
+        [ true, "AssertionPropertyDependencies", "/dependencies", "#/dependencies", "" ]
+      ],
+      "descriptions": [
+        "The object value did not define the property \"foo\""
+      ]
+    }
+  },
+  {
+    "description": "dependencies_string_form_non_object",
+    "schema": {
+      "$schema": "http://json-schema.org/draft-03/schema#",
+      "dependencies": { "foo": "bar" }
+    },
+    "instance": 5,
+    "valid": true,
+    "fast": {},
+    "exhaustive": {}
+  },
+  {
+    "description": "dependencies_string_form_self_dependency",
+    "schema": {
+      "$schema": "http://json-schema.org/draft-03/schema#",
+      "dependencies": { "foo": "foo" }
+    },
+    "instance": { "foo": 1 },
+    "valid": true,
+    "fast": {
+      "pre": [
+        [ "AssertionPropertyDependencies", "/dependencies", "#/dependencies", "" ]
+      ],
+      "post": [
+        [ true, "AssertionPropertyDependencies", "/dependencies", "#/dependencies", "" ]
+      ],
+      "descriptions": [
+        "Because the object value defined the property \"foo\", it was also expected to define the property \"foo\""
+      ]
+    },
+    "exhaustive": {
+      "pre": [
+        [ "AssertionPropertyDependencies", "/dependencies", "#/dependencies", "" ]
+      ],
+      "post": [
+        [ true, "AssertionPropertyDependencies", "/dependencies", "#/dependencies", "" ]
+      ],
+      "descriptions": [
+        "Because the object value defined the property \"foo\", it was also expected to define the property \"foo\""
+      ]
+    }
+  },
+  {
+    "description": "dependencies_string_and_array_mix_match",
+    "schema": {
+      "$schema": "http://json-schema.org/draft-03/schema#",
+      "dependencies": { "foo": "bar", "baz": [ "qux", "quux" ] }
+    },
+    "instance": { "foo": 1, "bar": 2, "baz": 3, "qux": 4, "quux": 5 },
+    "valid": true,
+    "fast": {
+      "pre": [
+        [ "AssertionPropertyDependencies", "/dependencies", "#/dependencies", "" ]
+      ],
+      "post": [
+        [ true, "AssertionPropertyDependencies", "/dependencies", "#/dependencies", "" ]
+      ],
+      "descriptions": [
+        "Because the object value defined the properties \"baz\", and \"foo\", it was also expected to define the properties \"bar\", \"quux\", and \"qux\""
+      ]
+    },
+    "exhaustive": {
+      "pre": [
+        [ "AssertionPropertyDependencies", "/dependencies", "#/dependencies", "" ]
+      ],
+      "post": [
+        [ true, "AssertionPropertyDependencies", "/dependencies", "#/dependencies", "" ]
+      ],
+      "descriptions": [
+        "Because the object value defined the properties \"baz\", and \"foo\", it was also expected to define the properties \"bar\", \"quux\", and \"qux\""
+      ]
+    }
+  },
+  {
+    "description": "dependencies_string_and_array_mix_array_branch_fails",
+    "schema": {
+      "$schema": "http://json-schema.org/draft-03/schema#",
+      "dependencies": { "foo": "bar", "baz": [ "qux", "quux" ] }
+    },
+    "instance": { "baz": 3 },
+    "valid": false,
+    "fast": {
+      "pre": [
+        [ "AssertionPropertyDependencies", "/dependencies", "#/dependencies", "" ]
+      ],
+      "post": [
+        [ false, "AssertionPropertyDependencies", "/dependencies", "#/dependencies", "" ]
+      ],
+      "descriptions": [
+        "Because the object value defined the property \"baz\", it was also expected to define the properties \"quux\", and \"qux\""
+      ]
+    },
+    "exhaustive": {
+      "pre": [
+        [ "AssertionPropertyDependencies", "/dependencies", "#/dependencies", "" ]
+      ],
+      "post": [
+        [ false, "AssertionPropertyDependencies", "/dependencies", "#/dependencies", "" ]
+      ],
+      "descriptions": [
+        "Because the object value defined the property \"baz\", it was also expected to define the properties \"quux\", and \"qux\""
+      ]
+    }
+  },
+  {
+    "description": "dependencies_hyperschema",
+    "schema": {
+      "$schema": "http://json-schema.org/draft-03/hyper-schema#",
+      "dependencies": { "foo": "bar" }
+    },
+    "instance": { "foo": 1, "bar": 2 },
+    "valid": true,
+    "fast": {
+      "pre": [
+        [ "AssertionPropertyDependencies", "/dependencies", "#/dependencies", "" ]
+      ],
+      "post": [
+        [ true, "AssertionPropertyDependencies", "/dependencies", "#/dependencies", "" ]
+      ],
+      "descriptions": [
+        "Because the object value defined the property \"foo\", it was also expected to define the property \"bar\""
+      ]
+    },
+    "exhaustive": {
+      "pre": [
+        [ "AssertionPropertyDependencies", "/dependencies", "#/dependencies", "" ]
+      ],
+      "post": [
+        [ true, "AssertionPropertyDependencies", "/dependencies", "#/dependencies", "" ]
+      ],
+      "descriptions": [
+        "Because the object value defined the property \"foo\", it was also expected to define the property \"bar\""
+      ]
+    }
   }
 ]
