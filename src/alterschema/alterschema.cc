@@ -289,15 +289,12 @@ auto add(SchemaTransformer &bundle, const AlterSchemaMode mode) -> void {
     bundle.add<UpgradeDraft4ToDraft6>();
     bundle.add<EmptyObjectAsTrue>();
 
-    std::string target_dialect{"http://json-schema.org/draft-06/schema#"};
-
     if (mode == AlterSchemaMode::UpgradeDraft7 ||
         mode == AlterSchemaMode::Upgrade201909 ||
         mode == AlterSchemaMode::Upgrade202012) {
       bundle.add<PrefixPromotedDraft7Keywords>();
       bundle.add<UpgradeDraft6ToDraft7>();
       bundle.add<EnumToConst>();
-      target_dialect = "http://json-schema.org/draft-07/schema#";
     }
 
     if (mode == AlterSchemaMode::Upgrade201909 ||
@@ -305,16 +302,14 @@ auto add(SchemaTransformer &bundle, const AlterSchemaMode mode) -> void {
       bundle.add<PrefixPromoted201909Keywords>();
       bundle.add<UpgradeDraft7To201909>();
       bundle.add<DefinitionsToDefs>();
-      target_dialect = "https://json-schema.org/draft/2019-09/schema";
     }
 
     if (mode == AlterSchemaMode::Upgrade202012) {
       bundle.add<PrefixPromoted202012Keywords>();
       bundle.add<Upgrade201909To202012>();
-      target_dialect = "https://json-schema.org/draft/2020-12/schema";
     }
 
-    bundle.add<UpgradeDialectOverrideCleanup>(std::move(target_dialect));
+    bundle.add<UpgradeDialectOverrideCleanup>();
 
     return;
   }

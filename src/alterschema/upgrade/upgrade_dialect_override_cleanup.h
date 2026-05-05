@@ -2,9 +2,8 @@ class UpgradeDialectOverrideCleanup final : public SchemaTransformRule {
 public:
   using mutates = std::true_type;
   using reframe_after_transform = std::true_type;
-  UpgradeDialectOverrideCleanup(std::string target_dialect)
-      : SchemaTransformRule{"upgrade_dialect_override_cleanup", ""},
-        target_dialect_{std::move(target_dialect)} {};
+  UpgradeDialectOverrideCleanup()
+      : SchemaTransformRule{"upgrade_dialect_override_cleanup", ""} {};
 
   [[nodiscard]] auto
   condition(const sourcemeta::core::JSON &schema,
@@ -19,8 +18,7 @@ public:
 
     const auto *override_value{
         schema.try_at(std::string{DIALECT_OVERRIDE_KEYWORD})};
-    ONLY_CONTINUE_IF(override_value != nullptr && override_value->is_string() &&
-                     override_value->to_string() == this->target_dialect_);
+    ONLY_CONTINUE_IF(override_value != nullptr && override_value->is_string());
 
     return true;
   }
@@ -48,7 +46,4 @@ public:
 
     drop_dialect_overrides(schema, true);
   }
-
-private:
-  std::string target_dialect_;
 };
