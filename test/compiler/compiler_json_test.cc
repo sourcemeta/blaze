@@ -31,7 +31,7 @@ TEST(Compiler_JSON, example_1) {
                                  sourcemeta::blaze::default_schema_compiler)};
 
   const sourcemeta::core::JSON expected{sourcemeta::core::parse_json(R"JSON([
-    4,
+    5,
     false,
     false,
     [
@@ -67,13 +67,13 @@ TEST(Compiler_JSON, example_2) {
                                  sourcemeta::blaze::default_schema_compiler)};
 
   const sourcemeta::core::JSON expected{sourcemeta::core::parse_json(R"JSON([
-    4,
+    5,
     false,
     false,
     [
       [
         [
-          66,
+          67,
           [ "additionalProperties" ],
           [],
           "#/additionalProperties",
@@ -81,7 +81,7 @@ TEST(Compiler_JSON, example_2) {
           [ 0 ],
           [
             [
-              34,
+              35,
               [ "multipleOf" ],
               [],
               "#/additionalProperties/multipleOf",
@@ -118,13 +118,13 @@ TEST(Compiler_JSON, example_3) {
                                  sourcemeta::blaze::default_schema_compiler)};
 
   const sourcemeta::core::JSON expected{sourcemeta::core::parse_json(R"JSON([
-    4,
+    5,
     false,
     false,
     [
       [
         [
-          19,
+          20,
           [ "pattern" ],
           [],
           "#/pattern",
@@ -156,13 +156,13 @@ TEST(Compiler_JSON, example_4) {
                                  sourcemeta::blaze::default_schema_compiler)};
 
   const sourcemeta::core::JSON expected{sourcemeta::core::parse_json(R"JSON([
-    4,
+    5,
     false,
     false,
     [
       [
         [
-          66,
+          67,
           [ "additionalProperties" ],
           [],
           "https://example.com/top#/additionalProperties",
@@ -170,7 +170,7 @@ TEST(Compiler_JSON, example_4) {
           [ 0 ],
           [
             [
-              34,
+              35,
               [ "multipleOf" ],
               [],
               "https://other.com/nested#/multipleOf",
@@ -233,13 +233,13 @@ TEST(Compiler_JSON, example_5) {
                                  sourcemeta::blaze::Mode::Exhaustive)};
 
   const sourcemeta::core::JSON expected{sourcemeta::core::parse_json(R"JSON([
-    4,
+    5,
     false,
     true,
     [
       [
         [
-          49,
+          50,
           [ "foo%" ],
           [],
           "https://example.com/top#/foo%25",
@@ -278,13 +278,13 @@ TEST(Compiler_JSON, example_6) {
                                  sourcemeta::blaze::Mode::Exhaustive)};
 
   const sourcemeta::core::JSON expected{sourcemeta::core::parse_json(R"JSON([
-    4,
+    5,
     false,
     true,
     [
       [
         [
-          66,
+          67,
           [ "additionalProperties" ],
           [],
           "https://example.com/top#/additionalProperties",
@@ -300,7 +300,7 @@ TEST(Compiler_JSON, example_6) {
               [ 8, 4 ]
             ],
             [
-              51,
+              52,
               [],
               [],
               "https://example.com/top#/additionalProperties",
@@ -408,7 +408,7 @@ TEST(Compiler_JSON, invalid_1) {
 
 TEST(Compiler_JSON, invalid_version) {
   const auto input{sourcemeta::core::parse_json(R"JSON([
-    5,
+    6,
     false,
     false,
     [
