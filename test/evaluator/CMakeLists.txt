@@ -4,6 +4,7 @@ sourcemeta_googletest(NAMESPACE sourcemeta PROJECT blaze NAME evaluator
     evaluator_utils.h
     evaluator_2019_09_test.cc
     evaluator_2020_12_test.cc
+    evaluator_draft3_test.cc
     evaluator_draft4_test.cc
     evaluator_draft6_test.cc
     evaluator_draft7_test.cc

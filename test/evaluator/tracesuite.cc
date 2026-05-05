@@ -185,6 +185,9 @@ auto main(int argc, char **argv) -> int {
     register_tests(std::filesystem::path{TRACE_SUITE_PATH} /
                        "evaluator_draft4.json",
                    "Evaluator_trace_draft4");
+    register_tests(std::filesystem::path{TRACE_SUITE_PATH} /
+                       "evaluator_draft3.json",
+                   "Evaluator_trace_draft3");
   } catch (const std::exception &error) {
     std::fprintf(stderr, "Error: %s\n", error.what());
     return EXIT_FAILURE;
