@@ -389,6 +389,28 @@ auto properties_as_loop(const Context &context,
        }));
 }
 
+auto draft3_any_type_instructions(const Context &context,
+                                  const SchemaContext &schema_context,
+                                  const DynamicContext &dynamic_context)
+    -> Instructions {
+  if (context.mode != Mode::Exhaustive) {
+    return {};
+  }
+
+  using sourcemeta::core::JSON;
+  ValueTypes types{};
+  types.set(std::to_underlying(JSON::Type::Null));
+  types.set(std::to_underlying(JSON::Type::Boolean));
+  types.set(std::to_underlying(JSON::Type::Object));
+  types.set(std::to_underlying(JSON::Type::Array));
+  types.set(std::to_underlying(JSON::Type::Integer));
+  types.set(std::to_underlying(JSON::Type::Real));
+  types.set(std::to_underlying(JSON::Type::Decimal));
+  types.set(std::to_underlying(JSON::Type::String));
+  return {make(sourcemeta::blaze::InstructionIndex::AssertionTypeStrictAny,
+               context, schema_context, dynamic_context, types)};
+}
+
 auto draft3_set_type_bits(const std::string &name, ValueTypes &types) -> bool {
   using sourcemeta::core::JSON;
   if (name == "null") {
@@ -1857,14 +1879,16 @@ auto compiler_draft3_validation_type(const Context &context,
 
   if (is_draft3) {
     if (value.is_string() && value.to_string() == "any") {
-      return {};
+      return draft3_any_type_instructions(context, schema_context,
+                                          dynamic_context);
     }
 
     if (value.is_array()) {
       bool has_object{false};
       for (const auto &element : value.as_array()) {
         if (element.is_string() && element.to_string() == "any") {
-          return {};
+          return draft3_any_type_instructions(context, schema_context,
+                                              dynamic_context);
         }
         if (element.is_object()) {
           has_object = true;
@@ -1872,6 +1896,12 @@ auto compiler_draft3_validation_type(const Context &context,
       }
 
       if (has_object) {
+        if (context.mode == Mode::FastValidation && value.size() == 1) {
+          return compile(
+              context, schema_context, dynamic_context,
+              {static_cast<sourcemeta::core::Pointer::Token::Index>(0)});
+        }
+
         Instructions disjunctors;
         for (std::uint64_t index = 0; index < value.size(); index++) {
           const auto &element{value.at(index)};
@@ -2167,7 +2197,11 @@ auto compiler_draft3_validation_type(const Context &context,
       }
     }
 
-    assert(types.any());
+    if (!types.any()) {
+      return {make(sourcemeta::blaze::InstructionIndex::AssertionFail, context,
+                   schema_context, dynamic_context, ValueNone{})};
+    }
+
     return {make(sourcemeta::blaze::InstructionIndex::AssertionTypeStrictAny,
                  context, schema_context, dynamic_context, types)};
   }
