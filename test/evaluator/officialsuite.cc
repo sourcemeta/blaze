@@ -418,9 +418,7 @@ int main(int argc, char **argv) {
 
     // Draft 3
     register_tests("draft3", "JSONSchemaOfficialSuite_Draft3",
-                   "http://json-schema.org/draft-03/schema#",
-                   // TODO: Enable all tests
-                   {"disallow"});
+                   "http://json-schema.org/draft-03/schema#", {});
     register_tests(std::filesystem::path{"draft3"} / "optional",
                    "JSONSchemaOfficialSuite_Draft3_Optional",
                    "http://json-schema.org/draft-03/schema#", {});
