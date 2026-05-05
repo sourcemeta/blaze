@@ -16,8 +16,7 @@ public:
       -> SchemaTransformRule::Result override {
     ONLY_CONTINUE_IF(location.pointer.empty() && schema.is_object());
 
-    const auto *override_value{
-        schema.try_at(std::string{DIALECT_OVERRIDE_KEYWORD})};
+    const auto *override_value{schema.try_at(DIALECT_OVERRIDE_KEYWORD)};
     ONLY_CONTINUE_IF(override_value != nullptr && override_value->is_string());
 
     return true;
@@ -27,20 +26,19 @@ public:
       -> void override {
     if (!schema.defines("$schema")) {
       sourcemeta::core::JSON dialect_value{
-          schema.at(std::string{DIALECT_OVERRIDE_KEYWORD}).to_string()};
+          schema.at(DIALECT_OVERRIDE_KEYWORD).to_string()};
 
-      std::optional<std::string> anchor_key;
+      bool placed{false};
       for (const auto &entry : schema.as_object()) {
         if (entry.first != DIALECT_OVERRIDE_KEYWORD) {
-          anchor_key = entry.first;
+          schema.try_assign_before("$schema", dialect_value, entry.first);
+          placed = true;
           break;
         }
       }
 
-      if (anchor_key.has_value()) {
-        schema.try_assign_before("$schema", dialect_value, anchor_key.value());
-      } else {
-        schema.assign("$schema", dialect_value);
+      if (!placed) {
+        schema.assign("$schema", std::move(dialect_value));
       }
     }
 

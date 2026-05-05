@@ -1,9 +1,9 @@
-static constexpr std::string_view DIALECT_OVERRIDE_KEYWORD{
+static const std::string DIALECT_OVERRIDE_KEYWORD{
     "x-sourcemeta-dialect-override-subschema"};
 
 static auto mark_dialect_override(sourcemeta::core::JSON &schema,
                                   const std::string_view dialect) -> void {
-  schema.assign(std::string{DIALECT_OVERRIDE_KEYWORD},
+  schema.assign(DIALECT_OVERRIDE_KEYWORD,
                 sourcemeta::core::JSON{std::string{dialect}});
 }
 
@@ -12,8 +12,7 @@ static auto current_dialect_or_override(const sourcemeta::core::JSON &schema)
   if (!schema.is_object()) {
     return {};
   }
-  const auto *override_value{
-      schema.try_at(std::string{DIALECT_OVERRIDE_KEYWORD})};
+  const auto *override_value{schema.try_at(DIALECT_OVERRIDE_KEYWORD)};
   if (override_value != nullptr && override_value->is_string()) {
     return override_value->to_string();
   }
@@ -27,14 +26,11 @@ static auto
 subschema_at_dialect(const sourcemeta::core::JSON &schema,
                      const sourcemeta::core::SchemaFrame::Location &location,
                      const std::string_view dialect) -> bool {
-  if (!schema.is_object()) {
-    return false;
-  }
   const auto current{current_dialect_or_override(schema)};
   if (!current.empty()) {
     return current == dialect;
   }
-  return location.pointer.empty();
+  return schema.is_object() && location.pointer.empty();
 }
 
 static auto drop_dialect_overrides(sourcemeta::core::JSON &schema,
@@ -55,7 +51,7 @@ static auto drop_dialect_overrides(sourcemeta::core::JSON &schema,
     return;
   }
 
-  schema.erase(std::string{DIALECT_OVERRIDE_KEYWORD});
+  schema.erase(DIALECT_OVERRIDE_KEYWORD);
 
   std::vector<std::string> keys;
   keys.reserve(schema.size());
