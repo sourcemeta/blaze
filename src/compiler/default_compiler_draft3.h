@@ -2303,18 +2303,25 @@ auto compiler_draft3_applicator_extends(const Context &context,
                      sourcemeta::core::empty_weak_pointer);
     }
 
+    auto inner{compile(context, schema_context, relative_dynamic_context(),
+                       sourcemeta::core::empty_weak_pointer,
+                       sourcemeta::core::empty_weak_pointer)};
+    if (inner.empty()) {
+      return {};
+    }
+
     return {make(sourcemeta::blaze::InstructionIndex::LogicalAnd, context,
                  schema_context, dynamic_context, ValueNone{},
-                 compile(context, schema_context, relative_dynamic_context(),
-                         sourcemeta::core::empty_weak_pointer,
-                         sourcemeta::core::empty_weak_pointer))};
+                 std::move(inner))};
   }
 
   if (!value.is_array()) {
     return {};
   }
 
-  assert(!value.empty());
+  if (value.empty()) {
+    return {};
+  }
 
   Instructions children;
 
@@ -2331,11 +2338,19 @@ auto compiler_draft3_applicator_extends(const Context &context,
   }
 
   for (std::uint64_t index = 0; index < value.size(); index++) {
-    for (auto &&step : compile(
-             context, schema_context, relative_dynamic_context(),
-             {static_cast<sourcemeta::core::Pointer::Token::Index>(index)})) {
-      children.push_back(std::move(step));
+    auto arm{
+        compile(context, schema_context, relative_dynamic_context(),
+                {static_cast<sourcemeta::core::Pointer::Token::Index>(index)})};
+    if (arm.empty()) {
+      continue;
     }
+    children.push_back(make(sourcemeta::blaze::InstructionIndex::ControlGroup,
+                            context, schema_context, relative_dynamic_context(),
+                            ValueNone{}, std::move(arm)));
+  }
+
+  if (children.empty()) {
+    return {};
   }
 
   return {make(sourcemeta::blaze::InstructionIndex::LogicalAnd, context,

@@ -417,7 +417,7 @@ export function describe(valid, instruction, evaluatePath,
   }
 
   if (opcode === LOGICAL_AND) {
-    if (keyword === 'allOf') {
+    if (keyword === 'allOf' || keyword === 'extends') {
       const childCount = children ? children.length : 0;
       let message = 'The ' + typeName(targetType) +
         ' value was expected to validate against the ';

@@ -365,7 +365,7 @@ auto describe(const bool valid, const Instruction &step,
   }
 
   if (step.type == sourcemeta::blaze::InstructionIndex::LogicalAnd) {
-    if (keyword == "allOf") {
+    if (keyword == "allOf" || keyword == "extends") {
       assert(!step.children.empty());
       std::ostringstream message;
       message << "The " << type_name(target.type())
