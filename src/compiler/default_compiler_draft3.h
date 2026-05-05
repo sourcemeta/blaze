@@ -389,6 +389,30 @@ auto properties_as_loop(const Context &context,
        }));
 }
 
+auto draft3_set_type_bits(const std::string &name, ValueTypes &types) -> bool {
+  using sourcemeta::core::JSON;
+  if (name == "null") {
+    types.set(std::to_underlying(JSON::Type::Null));
+  } else if (name == "boolean") {
+    types.set(std::to_underlying(JSON::Type::Boolean));
+  } else if (name == "object") {
+    types.set(std::to_underlying(JSON::Type::Object));
+  } else if (name == "array") {
+    types.set(std::to_underlying(JSON::Type::Array));
+  } else if (name == "integer") {
+    types.set(std::to_underlying(JSON::Type::Integer));
+  } else if (name == "string") {
+    types.set(std::to_underlying(JSON::Type::String));
+  } else if (name == "number") {
+    types.set(std::to_underlying(JSON::Type::Real));
+    types.set(std::to_underlying(JSON::Type::Integer));
+    types.set(std::to_underlying(JSON::Type::Decimal));
+  } else {
+    return false;
+  }
+  return true;
+}
+
 auto is_integer_type_check(const Instruction &instruction) -> bool {
   return (instruction.type == InstructionIndex::AssertionType ||
           instruction.type == InstructionIndex::AssertionTypeStrict) &&
@@ -2151,13 +2175,75 @@ auto compiler_draft3_validation_type(const Context &context,
   return {};
 }
 
-auto compiler_draft3_validation_disallow(const Context &,
+auto compiler_draft3_validation_disallow(const Context &context,
                                          const SchemaContext &schema_context,
-                                         const DynamicContext &,
+                                         const DynamicContext &dynamic_context,
                                          const Instructions &) -> Instructions {
-  throw sourcemeta::blaze::CompilerError(
-      schema_context.base, to_pointer(schema_context.relative_pointer),
-      "Draft 3 disallow compilation is not yet implemented");
+  const auto &value{schema_context.schema.at(dynamic_context.keyword)};
+
+  const auto contains_any{
+      (value.is_string() && value.to_string() == "any") ||
+      (value.is_array() &&
+       std::ranges::any_of(value.as_array(), [](const auto &element) {
+         return element.is_string() && element.to_string() == "any";
+       }))};
+  if (contains_any) {
+    return {make(sourcemeta::blaze::InstructionIndex::AssertionFail, context,
+                 schema_context, dynamic_context, ValueNone{})};
+  }
+
+  ValueTypes types{};
+  Instructions subschema_nots;
+
+  if (value.is_string()) {
+    draft3_set_type_bits(value.to_string(), types);
+  } else if (value.is_array()) {
+    for (std::uint64_t index = 0; index < value.size(); index++) {
+      const auto &element{value.at(index)};
+      if (element.is_string()) {
+        draft3_set_type_bits(element.to_string(), types);
+      } else if (element.is_object()) {
+        auto inner_instructions{compile(
+            context, schema_context, relative_dynamic_context(),
+            {static_cast<sourcemeta::core::Pointer::Token::Index>(index)})};
+
+        sourcemeta::core::WeakPointer index_token;
+        index_token.push_back(index);
+        const auto element_relative_pointer{
+            schema_context.relative_pointer.concat(index_token)};
+        const SchemaContext element_schema_context{
+            .relative_pointer = element_relative_pointer,
+            .schema = schema_context.schema,
+            .vocabularies = schema_context.vocabularies,
+            .base = schema_context.base,
+            .is_property_name = schema_context.is_property_name};
+
+        const auto element_base_schema_location{
+            sourcemeta::blaze::make_weak_pointer(dynamic_context.keyword,
+                                                 index)};
+        const DynamicContext element_dynamic_context{
+            .keyword = KEYWORD_EMPTY,
+            .base_schema_location = element_base_schema_location,
+            .base_instance_location = dynamic_context.base_instance_location};
+
+        subschema_nots.push_back(
+            make(sourcemeta::blaze::InstructionIndex::LogicalNot, context,
+                 element_schema_context, element_dynamic_context, ValueNone{},
+                 std::move(inner_instructions)));
+      }
+    }
+  }
+
+  Instructions result;
+  if (types.any()) {
+    result.push_back(
+        make(sourcemeta::blaze::InstructionIndex::AssertionNotTypeStrictAny,
+             context, schema_context, dynamic_context, types));
+  }
+  for (auto &&instruction : subschema_nots) {
+    result.push_back(std::move(instruction));
+  }
+  return result;
 }
 
 auto compiler_draft3_applicator_extends(const Context &context,
