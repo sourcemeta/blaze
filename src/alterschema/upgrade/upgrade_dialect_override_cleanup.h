@@ -19,8 +19,7 @@ public:
 
     const auto *override_value{
         schema.try_at(std::string{DIALECT_OVERRIDE_KEYWORD})};
-    ONLY_CONTINUE_IF(override_value != nullptr &&
-                     override_value->is_string() &&
+    ONLY_CONTINUE_IF(override_value != nullptr && override_value->is_string() &&
                      override_value->to_string() == this->target_dialect_);
 
     return true;
