@@ -1281,7 +1281,7 @@ TEST(AlterSchema_lint_draft3, unknown_keywords_prefix_9) {
   const sourcemeta::core::JSON expected = sourcemeta::core::parse_json(R"JSON({
     "$schema": "http://json-schema.org/draft-03/schema#",
     "type": "object",
-    "x-definitions": {
+    "definitions": {
       "MyType": {
         "type": "string"
       }
