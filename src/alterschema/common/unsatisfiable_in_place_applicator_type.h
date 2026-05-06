@@ -29,6 +29,7 @@ public:
          Vocabularies::Known::JSON_Schema_Draft_1,
          Vocabularies::Known::JSON_Schema_Draft_0}));
     const auto parent_types{parse_schema_type(schema.at("type"))};
+    ONLY_CONTINUE_IF(parent_types.any());
 
     std::vector<Pointer> locations;
 

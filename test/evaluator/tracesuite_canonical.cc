@@ -120,6 +120,10 @@ auto main(int argc, char **argv) -> int {
                        "evaluator_draft4.json",
                    "Canonicalize_draft4",
                    sourcemeta::blaze::AlterSchemaMode::Canonicalizer);
+    register_tests(std::filesystem::path{TRACE_SUITE_CANONICAL_PATH} /
+                       "evaluator_draft3.json",
+                   "Canonicalize_draft3",
+                   sourcemeta::blaze::AlterSchemaMode::Canonicalizer);
   } catch (const std::exception &error) {
     std::fprintf(stderr, "Error: %s\n", error.what());
     return EXIT_FAILURE;
