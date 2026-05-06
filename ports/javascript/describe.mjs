@@ -50,6 +50,7 @@ import {
 const TYPE_INTEGER = 2;
 const TYPE_REAL = 3;
 const TYPE_OBJECT = 6;
+const TYPE_DECIMAL = 7;
 
 const TYPE_NAMES = [ 'null', 'boolean', 'integer', 'number',
                      'string', 'array', 'object', 'number' ];
@@ -218,7 +219,15 @@ function describeTypeCheck(valid, currentType, expectedType) {
 function describeNotTypeCheck(valid, currentType, expectedType) {
   let message = 'The value was expected to NOT be of type ' + typeName(expectedType);
   if (!valid) {
-    message += ' but it was of type ' + typeName(currentType);
+    message += ' but it was of type ';
+    if (currentType === TYPE_DECIMAL && expectedType === TYPE_INTEGER) {
+      message += 'integer';
+    } else if ((currentType === TYPE_INTEGER && expectedType === TYPE_REAL) ||
+               currentType === TYPE_DECIMAL) {
+      message += 'number';
+    } else {
+      message += typeName(currentType);
+    }
   }
   return message;
 }
