@@ -345,6 +345,71 @@
       }
     },
     {
+      "description": "Bare type any is canonical",
+      "valid": true,
+      "data": {
+        "type": "any"
+      }
+    },
+    {
+      "description": "Type any with required is canonical",
+      "valid": true,
+      "data": {
+        "type": "any",
+        "required": true
+      }
+    },
+    {
+      "description": "Type any with annotations is canonical",
+      "valid": true,
+      "data": {
+        "type": "any",
+        "title": "Anything",
+        "description": "Accepts any value",
+        "default": null
+      }
+    },
+    {
+      "description": "Type any with $schema is canonical",
+      "valid": true,
+      "data": {
+        "type": "any",
+        "$schema": "http://json-schema.org/draft-03/schema#"
+      }
+    },
+    {
+      "description": "Type any with x-keyword is canonical",
+      "valid": true,
+      "data": {
+        "type": "any",
+        "x-custom": "value"
+      }
+    },
+    {
+      "description": "Type any with minLength is rejected",
+      "valid": false,
+      "data": {
+        "type": "any",
+        "minLength": 5
+      }
+    },
+    {
+      "description": "Type any with properties is rejected",
+      "valid": false,
+      "data": {
+        "type": "any",
+        "properties": {}
+      }
+    },
+    {
+      "description": "Type any with enum is rejected",
+      "valid": false,
+      "data": {
+        "type": "any",
+        "enum": [ 1, 2 ]
+      }
+    },
+    {
       "description": "String with minLength is canonical",
       "valid": true,
       "data": {

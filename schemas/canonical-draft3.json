@@ -119,6 +119,28 @@
               "$ref": "#/$defs/core"
             }
           ],
+          "required": [ "type" ],
+          "properties": {
+            "type": {
+              "const": "any"
+            },
+            "required": {
+              "type": "boolean"
+            }
+          },
+          "unevaluatedProperties": false
+        },
+        {
+          "x-lint-exclude": "simple_properties_identifiers",
+          "type": "object",
+          "allOf": [
+            {
+              "$ref": "#/$defs/metadata"
+            },
+            {
+              "$ref": "#/$defs/core"
+            }
+          ],
           "required": [ "type", "minLength" ],
           "properties": {
             "type": {

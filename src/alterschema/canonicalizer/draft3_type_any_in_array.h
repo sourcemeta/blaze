@@ -3,10 +3,7 @@ public:
   using mutates = std::true_type;
   using reframe_after_transform = std::true_type;
   Draft3TypeAnyInArray()
-      : SchemaTransformRule{
-            "draft3_type_any_in_array",
-            "A `type` array that contains `any` accepts any value, "
-            "and is equivalent to just `type: any`"} {};
+      : SchemaTransformRule{"draft3_type_any_in_array", ""} {};
 
   [[nodiscard]] auto
   condition(const sourcemeta::core::JSON &schema,
@@ -19,17 +16,21 @@ public:
       -> SchemaTransformRule::Result override {
     ONLY_CONTINUE_IF(
         vocabularies.contains(Vocabularies::Known::JSON_Schema_Draft_3) &&
-        schema.is_object() && schema.defines("type") &&
-        schema.at("type").is_array());
+        schema.is_object());
 
-    for (const auto &element : schema.at("type").as_array()) {
+    const auto *type{schema.try_at("type")};
+    ONLY_CONTINUE_IF(type && type->is_array());
+
+    for (const auto &element : type->as_array()) {
       if (element.is_string() && element.to_string() == "any") {
         return true;
       }
-      if (element.is_object() && element.defines("type") &&
-          element.at("type").is_string() &&
-          element.at("type").to_string() == "any") {
-        return true;
+      if (element.is_object() && element.size() == 1) {
+        const auto *element_type{element.try_at("type")};
+        if (element_type && element_type->is_string() &&
+            element_type->to_string() == "any") {
+          return true;
+        }
       }
     }
 
@@ -37,6 +38,6 @@ public:
   }
 
   auto transform(JSON &schema, const Result &) const -> void override {
-    schema.assign("type", sourcemeta::core::JSON{"any"});
+    schema.erase("type");
   }
 };

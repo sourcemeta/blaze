@@ -372,6 +372,94 @@ TEST_F(CanonicalizerDraft3Test, object_with_ref_property) {
   CANONICALIZE_AND_VALIDATE(document, expected, *compiled_meta_);
 }
 
+TEST_F(CanonicalizerDraft3Test,
+       draft3_type_any_in_array_with_extras_preserved) {
+  auto document = sourcemeta::core::parse_json(R"JSON({
+    "$schema": "http://json-schema.org/draft-03/schema#",
+    "type": [
+      { "type": "any", "title": "Anything goes" }
+    ]
+  })JSON");
+
+  const auto expected = sourcemeta::core::parse_json(R"JSON({
+    "$schema": "http://json-schema.org/draft-03/schema#",
+    "type": [
+      { "type": "any", "title": "Anything goes" }
+    ]
+  })JSON");
+
+  CANONICALIZE_AND_VALIDATE(document, expected, *compiled_meta_);
+}
+
+TEST_F(CanonicalizerDraft3Test,
+       draft3_type_any_in_array_string_form_collapses) {
+  auto document = sourcemeta::core::parse_json(R"JSON({
+    "$schema": "http://json-schema.org/draft-03/schema#",
+    "type": [ "any", "string" ]
+  })JSON");
+
+  const auto expected = sourcemeta::core::parse_json(R"JSON({
+    "$schema": "http://json-schema.org/draft-03/schema#",
+    "type": [
+      { "enum": [ null ] },
+      { "enum": [ false, true ] },
+      { "type": "object", "properties": {}, "patternProperties": {}, "additionalProperties": {} },
+      { "type": "array", "minItems": 0, "uniqueItems": false, "items": {} },
+      { "type": "string", "minLength": 0 },
+      { "type": "number" }
+    ]
+  })JSON");
+
+  CANONICALIZE_AND_VALIDATE(document, expected, *compiled_meta_);
+}
+
+TEST_F(CanonicalizerDraft3Test,
+       draft3_type_any_in_array_bare_object_form_collapses) {
+  auto document = sourcemeta::core::parse_json(R"JSON({
+    "$schema": "http://json-schema.org/draft-03/schema#",
+    "type": [ "string", { "type": "any" } ]
+  })JSON");
+
+  const auto expected = sourcemeta::core::parse_json(R"JSON({
+    "$schema": "http://json-schema.org/draft-03/schema#",
+    "type": [
+      { "enum": [ null ] },
+      { "enum": [ false, true ] },
+      { "type": "object", "properties": {}, "patternProperties": {}, "additionalProperties": {} },
+      { "type": "array", "minItems": 0, "uniqueItems": false, "items": {} },
+      { "type": "string", "minLength": 0 },
+      { "type": "number" }
+    ]
+  })JSON");
+
+  CANONICALIZE_AND_VALIDATE(document, expected, *compiled_meta_);
+}
+
+TEST_F(CanonicalizerDraft3Test,
+       unsatisfiable_in_place_branch_with_any_type_kept) {
+  auto document = sourcemeta::core::parse_json(R"JSON({
+    "$schema": "http://json-schema.org/draft-03/schema#",
+    "type": "string",
+    "extends": [
+      { "type": "any" }
+    ]
+  })JSON");
+
+  const auto expected = sourcemeta::core::parse_json(R"JSON({
+    "$schema": "http://json-schema.org/draft-03/schema#",
+    "extends": [
+      {
+        "extends": [
+          { "type": "any" }
+        ]
+      },
+      { "type": "string", "minLength": 0 }
+    ]
+  })JSON");
+
+  CANONICALIZE_AND_VALIDATE(document, expected, *compiled_meta_);
+}
+
 TEST_F(CanonicalizerDraft3Test, additionalProperties_false) {
   auto document = sourcemeta::core::parse_json(R"JSON({
     "$schema": "http://json-schema.org/draft-03/schema#",
