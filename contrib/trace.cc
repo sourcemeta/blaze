@@ -96,8 +96,8 @@ auto main(int argc, char **argv) noexcept -> int {
 
           if (entry.type == sourcemeta::blaze::TraceOutput::EntryType::Push) {
             global_steps_count[entry.name] += 1;
-            if (!entry.evaluate_path.empty()) {
-              assert(entry.evaluate_path.back().is_property());
+            if (!entry.evaluate_path.empty() &&
+                entry.evaluate_path.back().is_property()) {
               const auto &keyword{entry.evaluate_path.back().to_property()};
               global_keywords_count[keyword] += 1;
             }

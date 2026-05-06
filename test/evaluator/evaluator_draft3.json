@@ -8825,5 +8825,960 @@
         "Because the object value defined the property \"foo\", it was also expected to define the property \"bar\""
       ]
     }
+  },
+  {
+    "description": "disallow_string_valid",
+    "schema": {
+      "$schema": "http://json-schema.org/draft-03/schema#",
+      "disallow": "string"
+    },
+    "instance": 5,
+    "valid": true,
+    "fast": {
+      "pre": [
+        [ "AssertionNotTypeStrictAny", "/disallow", "#/disallow", "" ]
+      ],
+      "post": [
+        [ true, "AssertionNotTypeStrictAny", "/disallow", "#/disallow", "" ]
+      ],
+      "descriptions": [
+        "The value was expected to NOT be of type string"
+      ]
+    },
+    "exhaustive": {
+      "pre": [
+        [ "AssertionNotTypeStrictAny", "/disallow", "#/disallow", "" ]
+      ],
+      "post": [
+        [ true, "AssertionNotTypeStrictAny", "/disallow", "#/disallow", "" ]
+      ],
+      "descriptions": [
+        "The value was expected to NOT be of type string"
+      ]
+    }
+  },
+  {
+    "description": "disallow_string_invalid",
+    "schema": {
+      "$schema": "http://json-schema.org/draft-03/schema#",
+      "disallow": "string"
+    },
+    "instance": "x",
+    "valid": false,
+    "fast": {
+      "pre": [
+        [ "AssertionNotTypeStrictAny", "/disallow", "#/disallow", "" ]
+      ],
+      "post": [
+        [ false, "AssertionNotTypeStrictAny", "/disallow", "#/disallow", "" ]
+      ],
+      "descriptions": [
+        "The value was expected to NOT be of type string but it was of type string"
+      ]
+    },
+    "exhaustive": {
+      "pre": [
+        [ "AssertionNotTypeStrictAny", "/disallow", "#/disallow", "" ]
+      ],
+      "post": [
+        [ false, "AssertionNotTypeStrictAny", "/disallow", "#/disallow", "" ]
+      ],
+      "descriptions": [
+        "The value was expected to NOT be of type string but it was of type string"
+      ]
+    }
+  },
+  {
+    "description": "disallow_number_valid",
+    "schema": {
+      "$schema": "http://json-schema.org/draft-03/schema#",
+      "disallow": "number"
+    },
+    "instance": "x",
+    "valid": true,
+    "fast": {
+      "pre": [
+        [ "AssertionNotTypeStrictAny", "/disallow", "#/disallow", "" ]
+      ],
+      "post": [
+        [ true, "AssertionNotTypeStrictAny", "/disallow", "#/disallow", "" ]
+      ],
+      "descriptions": [
+        "The value was expected to NOT be of type number"
+      ]
+    },
+    "exhaustive": {
+      "pre": [
+        [ "AssertionNotTypeStrictAny", "/disallow", "#/disallow", "" ]
+      ],
+      "post": [
+        [ true, "AssertionNotTypeStrictAny", "/disallow", "#/disallow", "" ]
+      ],
+      "descriptions": [
+        "The value was expected to NOT be of type number"
+      ]
+    }
+  },
+  {
+    "description": "disallow_number_invalid_real",
+    "schema": {
+      "$schema": "http://json-schema.org/draft-03/schema#",
+      "disallow": "number"
+    },
+    "instance": 3.14,
+    "valid": false,
+    "fast": {
+      "pre": [
+        [ "AssertionNotTypeStrictAny", "/disallow", "#/disallow", "" ]
+      ],
+      "post": [
+        [ false, "AssertionNotTypeStrictAny", "/disallow", "#/disallow", "" ]
+      ],
+      "descriptions": [
+        "The value was expected to NOT be of type number but it was of type number"
+      ]
+    },
+    "exhaustive": {
+      "pre": [
+        [ "AssertionNotTypeStrictAny", "/disallow", "#/disallow", "" ]
+      ],
+      "post": [
+        [ false, "AssertionNotTypeStrictAny", "/disallow", "#/disallow", "" ]
+      ],
+      "descriptions": [
+        "The value was expected to NOT be of type number but it was of type number"
+      ]
+    }
+  },
+  {
+    "description": "disallow_integer_valid_real",
+    "schema": {
+      "$schema": "http://json-schema.org/draft-03/schema#",
+      "disallow": "integer"
+    },
+    "instance": 3.14,
+    "valid": true,
+    "fast": {
+      "pre": [
+        [ "AssertionNotTypeStrictAny", "/disallow", "#/disallow", "" ]
+      ],
+      "post": [
+        [ true, "AssertionNotTypeStrictAny", "/disallow", "#/disallow", "" ]
+      ],
+      "descriptions": [
+        "The value was expected to NOT be of type integer"
+      ]
+    },
+    "exhaustive": {
+      "pre": [
+        [ "AssertionNotTypeStrictAny", "/disallow", "#/disallow", "" ]
+      ],
+      "post": [
+        [ true, "AssertionNotTypeStrictAny", "/disallow", "#/disallow", "" ]
+      ],
+      "descriptions": [
+        "The value was expected to NOT be of type integer"
+      ]
+    }
+  },
+  {
+    "description": "disallow_integer_invalid",
+    "schema": {
+      "$schema": "http://json-schema.org/draft-03/schema#",
+      "disallow": "integer"
+    },
+    "instance": 5,
+    "valid": false,
+    "fast": {
+      "pre": [
+        [ "AssertionNotTypeStrictAny", "/disallow", "#/disallow", "" ]
+      ],
+      "post": [
+        [ false, "AssertionNotTypeStrictAny", "/disallow", "#/disallow", "" ]
+      ],
+      "descriptions": [
+        "The value was expected to NOT be of type integer but it was of type integer"
+      ]
+    },
+    "exhaustive": {
+      "pre": [
+        [ "AssertionNotTypeStrictAny", "/disallow", "#/disallow", "" ]
+      ],
+      "post": [
+        [ false, "AssertionNotTypeStrictAny", "/disallow", "#/disallow", "" ]
+      ],
+      "descriptions": [
+        "The value was expected to NOT be of type integer but it was of type integer"
+      ]
+    }
+  },
+  {
+    "description": "disallow_boolean_valid",
+    "schema": {
+      "$schema": "http://json-schema.org/draft-03/schema#",
+      "disallow": "boolean"
+    },
+    "instance": "x",
+    "valid": true,
+    "fast": {
+      "pre": [
+        [ "AssertionNotTypeStrictAny", "/disallow", "#/disallow", "" ]
+      ],
+      "post": [
+        [ true, "AssertionNotTypeStrictAny", "/disallow", "#/disallow", "" ]
+      ],
+      "descriptions": [
+        "The value was expected to NOT be of type boolean"
+      ]
+    },
+    "exhaustive": {
+      "pre": [
+        [ "AssertionNotTypeStrictAny", "/disallow", "#/disallow", "" ]
+      ],
+      "post": [
+        [ true, "AssertionNotTypeStrictAny", "/disallow", "#/disallow", "" ]
+      ],
+      "descriptions": [
+        "The value was expected to NOT be of type boolean"
+      ]
+    }
+  },
+  {
+    "description": "disallow_boolean_invalid",
+    "schema": {
+      "$schema": "http://json-schema.org/draft-03/schema#",
+      "disallow": "boolean"
+    },
+    "instance": true,
+    "valid": false,
+    "fast": {
+      "pre": [
+        [ "AssertionNotTypeStrictAny", "/disallow", "#/disallow", "" ]
+      ],
+      "post": [
+        [ false, "AssertionNotTypeStrictAny", "/disallow", "#/disallow", "" ]
+      ],
+      "descriptions": [
+        "The value was expected to NOT be of type boolean but it was of type boolean"
+      ]
+    },
+    "exhaustive": {
+      "pre": [
+        [ "AssertionNotTypeStrictAny", "/disallow", "#/disallow", "" ]
+      ],
+      "post": [
+        [ false, "AssertionNotTypeStrictAny", "/disallow", "#/disallow", "" ]
+      ],
+      "descriptions": [
+        "The value was expected to NOT be of type boolean but it was of type boolean"
+      ]
+    }
+  },
+  {
+    "description": "disallow_null_valid",
+    "schema": { "$schema": "http://json-schema.org/draft-03/schema#", "disallow": "null" },
+    "instance": 0,
+    "valid": true,
+    "fast": {
+      "pre": [
+        [ "AssertionNotTypeStrictAny", "/disallow", "#/disallow", "" ]
+      ],
+      "post": [
+        [ true, "AssertionNotTypeStrictAny", "/disallow", "#/disallow", "" ]
+      ],
+      "descriptions": [
+        "The value was expected to NOT be of type null"
+      ]
+    },
+    "exhaustive": {
+      "pre": [
+        [ "AssertionNotTypeStrictAny", "/disallow", "#/disallow", "" ]
+      ],
+      "post": [
+        [ true, "AssertionNotTypeStrictAny", "/disallow", "#/disallow", "" ]
+      ],
+      "descriptions": [
+        "The value was expected to NOT be of type null"
+      ]
+    }
+  },
+  {
+    "description": "disallow_null_invalid",
+    "schema": { "$schema": "http://json-schema.org/draft-03/schema#", "disallow": "null" },
+    "instance": null,
+    "valid": false,
+    "fast": {
+      "pre": [
+        [ "AssertionNotTypeStrictAny", "/disallow", "#/disallow", "" ]
+      ],
+      "post": [
+        [ false, "AssertionNotTypeStrictAny", "/disallow", "#/disallow", "" ]
+      ],
+      "descriptions": [
+        "The value was expected to NOT be of type null but it was of type null"
+      ]
+    },
+    "exhaustive": {
+      "pre": [
+        [ "AssertionNotTypeStrictAny", "/disallow", "#/disallow", "" ]
+      ],
+      "post": [
+        [ false, "AssertionNotTypeStrictAny", "/disallow", "#/disallow", "" ]
+      ],
+      "descriptions": [
+        "The value was expected to NOT be of type null but it was of type null"
+      ]
+    }
+  },
+  {
+    "description": "disallow_object_valid",
+    "schema": {
+      "$schema": "http://json-schema.org/draft-03/schema#",
+      "disallow": "object"
+    },
+    "instance": [ 1, 2 ],
+    "valid": true,
+    "fast": {
+      "pre": [
+        [ "AssertionNotTypeStrictAny", "/disallow", "#/disallow", "" ]
+      ],
+      "post": [
+        [ true, "AssertionNotTypeStrictAny", "/disallow", "#/disallow", "" ]
+      ],
+      "descriptions": [
+        "The value was expected to NOT be of type object"
+      ]
+    },
+    "exhaustive": {
+      "pre": [
+        [ "AssertionNotTypeStrictAny", "/disallow", "#/disallow", "" ]
+      ],
+      "post": [
+        [ true, "AssertionNotTypeStrictAny", "/disallow", "#/disallow", "" ]
+      ],
+      "descriptions": [
+        "The value was expected to NOT be of type object"
+      ]
+    }
+  },
+  {
+    "description": "disallow_object_invalid",
+    "schema": {
+      "$schema": "http://json-schema.org/draft-03/schema#",
+      "disallow": "object"
+    },
+    "instance": { "foo": 1 },
+    "valid": false,
+    "fast": {
+      "pre": [
+        [ "AssertionNotTypeStrictAny", "/disallow", "#/disallow", "" ]
+      ],
+      "post": [
+        [ false, "AssertionNotTypeStrictAny", "/disallow", "#/disallow", "" ]
+      ],
+      "descriptions": [
+        "The value was expected to NOT be of type object but it was of type object"
+      ]
+    },
+    "exhaustive": {
+      "pre": [
+        [ "AssertionNotTypeStrictAny", "/disallow", "#/disallow", "" ]
+      ],
+      "post": [
+        [ false, "AssertionNotTypeStrictAny", "/disallow", "#/disallow", "" ]
+      ],
+      "descriptions": [
+        "The value was expected to NOT be of type object but it was of type object"
+      ]
+    }
+  },
+  {
+    "description": "disallow_array_valid",
+    "schema": {
+      "$schema": "http://json-schema.org/draft-03/schema#",
+      "disallow": "array"
+    },
+    "instance": { "foo": 1 },
+    "valid": true,
+    "fast": {
+      "pre": [
+        [ "AssertionNotTypeStrictAny", "/disallow", "#/disallow", "" ]
+      ],
+      "post": [
+        [ true, "AssertionNotTypeStrictAny", "/disallow", "#/disallow", "" ]
+      ],
+      "descriptions": [
+        "The value was expected to NOT be of type array"
+      ]
+    },
+    "exhaustive": {
+      "pre": [
+        [ "AssertionNotTypeStrictAny", "/disallow", "#/disallow", "" ]
+      ],
+      "post": [
+        [ true, "AssertionNotTypeStrictAny", "/disallow", "#/disallow", "" ]
+      ],
+      "descriptions": [
+        "The value was expected to NOT be of type array"
+      ]
+    }
+  },
+  {
+    "description": "disallow_array_invalid",
+    "schema": {
+      "$schema": "http://json-schema.org/draft-03/schema#",
+      "disallow": "array"
+    },
+    "instance": [ 1, 2 ],
+    "valid": false,
+    "fast": {
+      "pre": [
+        [ "AssertionNotTypeStrictAny", "/disallow", "#/disallow", "" ]
+      ],
+      "post": [
+        [ false, "AssertionNotTypeStrictAny", "/disallow", "#/disallow", "" ]
+      ],
+      "descriptions": [
+        "The value was expected to NOT be of type array but it was of type array"
+      ]
+    },
+    "exhaustive": {
+      "pre": [
+        [ "AssertionNotTypeStrictAny", "/disallow", "#/disallow", "" ]
+      ],
+      "post": [
+        [ false, "AssertionNotTypeStrictAny", "/disallow", "#/disallow", "" ]
+      ],
+      "descriptions": [
+        "The value was expected to NOT be of type array but it was of type array"
+      ]
+    }
+  },
+  {
+    "description": "disallow_any_string",
+    "schema": { "$schema": "http://json-schema.org/draft-03/schema#", "disallow": "any" },
+    "instance": "x",
+    "valid": false,
+    "fast": {
+      "pre": [
+        [ "AssertionFail", "/disallow", "#/disallow", "" ]
+      ],
+      "post": [
+        [ false, "AssertionFail", "/disallow", "#/disallow", "" ]
+      ],
+      "descriptions": [
+        "No instance is expected to succeed against the false schema"
+      ]
+    },
+    "exhaustive": {
+      "pre": [
+        [ "AssertionFail", "/disallow", "#/disallow", "" ]
+      ],
+      "post": [
+        [ false, "AssertionFail", "/disallow", "#/disallow", "" ]
+      ],
+      "descriptions": [
+        "No instance is expected to succeed against the false schema"
+      ]
+    }
+  },
+  {
+    "description": "disallow_any_object",
+    "schema": { "$schema": "http://json-schema.org/draft-03/schema#", "disallow": "any" },
+    "instance": {},
+    "valid": false,
+    "fast": {
+      "pre": [
+        [ "AssertionFail", "/disallow", "#/disallow", "" ]
+      ],
+      "post": [
+        [ false, "AssertionFail", "/disallow", "#/disallow", "" ]
+      ],
+      "descriptions": [
+        "No instance is expected to succeed against the false schema"
+      ]
+    },
+    "exhaustive": {
+      "pre": [
+        [ "AssertionFail", "/disallow", "#/disallow", "" ]
+      ],
+      "post": [
+        [ false, "AssertionFail", "/disallow", "#/disallow", "" ]
+      ],
+      "descriptions": [
+        "No instance is expected to succeed against the false schema"
+      ]
+    }
+  },
+  {
+    "description": "disallow_any_null",
+    "schema": { "$schema": "http://json-schema.org/draft-03/schema#", "disallow": "any" },
+    "instance": null,
+    "valid": false,
+    "fast": {
+      "pre": [
+        [ "AssertionFail", "/disallow", "#/disallow", "" ]
+      ],
+      "post": [
+        [ false, "AssertionFail", "/disallow", "#/disallow", "" ]
+      ],
+      "descriptions": [
+        "No instance is expected to succeed against the false schema"
+      ]
+    },
+    "exhaustive": {
+      "pre": [
+        [ "AssertionFail", "/disallow", "#/disallow", "" ]
+      ],
+      "post": [
+        [ false, "AssertionFail", "/disallow", "#/disallow", "" ]
+      ],
+      "descriptions": [
+        "No instance is expected to succeed against the false schema"
+      ]
+    }
+  },
+  {
+    "description": "disallow_array_single_string_valid",
+    "schema": {
+      "$schema": "http://json-schema.org/draft-03/schema#",
+      "disallow": [ "string" ]
+    },
+    "instance": 5,
+    "valid": true,
+    "fast": {
+      "pre": [
+        [ "AssertionNotTypeStrictAny", "/disallow", "#/disallow", "" ]
+      ],
+      "post": [
+        [ true, "AssertionNotTypeStrictAny", "/disallow", "#/disallow", "" ]
+      ],
+      "descriptions": [
+        "The value was expected to NOT be of type string"
+      ]
+    },
+    "exhaustive": {
+      "pre": [
+        [ "AssertionNotTypeStrictAny", "/disallow", "#/disallow", "" ]
+      ],
+      "post": [
+        [ true, "AssertionNotTypeStrictAny", "/disallow", "#/disallow", "" ]
+      ],
+      "descriptions": [
+        "The value was expected to NOT be of type string"
+      ]
+    }
+  },
+  {
+    "description": "disallow_array_single_string_invalid",
+    "schema": {
+      "$schema": "http://json-schema.org/draft-03/schema#",
+      "disallow": [ "string" ]
+    },
+    "instance": "x",
+    "valid": false,
+    "fast": {
+      "pre": [
+        [ "AssertionNotTypeStrictAny", "/disallow", "#/disallow", "" ]
+      ],
+      "post": [
+        [ false, "AssertionNotTypeStrictAny", "/disallow", "#/disallow", "" ]
+      ],
+      "descriptions": [
+        "The value was expected to NOT be of type string but it was of type string"
+      ]
+    },
+    "exhaustive": {
+      "pre": [
+        [ "AssertionNotTypeStrictAny", "/disallow", "#/disallow", "" ]
+      ],
+      "post": [
+        [ false, "AssertionNotTypeStrictAny", "/disallow", "#/disallow", "" ]
+      ],
+      "descriptions": [
+        "The value was expected to NOT be of type string but it was of type string"
+      ]
+    }
+  },
+  {
+    "description": "disallow_array_empty_string_instance",
+    "schema": { "$schema": "http://json-schema.org/draft-03/schema#", "disallow": [] },
+    "instance": "x",
+    "valid": true,
+    "fast": {},
+    "exhaustive": {}
+  },
+  {
+    "description": "disallow_array_empty_object_instance",
+    "schema": { "$schema": "http://json-schema.org/draft-03/schema#", "disallow": [] },
+    "instance": { "foo": 1 },
+    "valid": true,
+    "fast": {},
+    "exhaustive": {}
+  },
+  {
+    "description": "disallow_array_string_number_valid",
+    "schema": {
+      "$schema": "http://json-schema.org/draft-03/schema#",
+      "disallow": [ "string", "number" ]
+    },
+    "instance": true,
+    "valid": true,
+    "fast": {
+      "pre": [
+        [ "AssertionNotTypeStrictAny", "/disallow", "#/disallow", "" ]
+      ],
+      "post": [
+        [ true, "AssertionNotTypeStrictAny", "/disallow", "#/disallow", "" ]
+      ],
+      "descriptions": [
+        "The value was expected to NOT be of type number, or string and it was of type boolean"
+      ]
+    },
+    "exhaustive": {
+      "pre": [
+        [ "AssertionNotTypeStrictAny", "/disallow", "#/disallow", "" ]
+      ],
+      "post": [
+        [ true, "AssertionNotTypeStrictAny", "/disallow", "#/disallow", "" ]
+      ],
+      "descriptions": [
+        "The value was expected to NOT be of type number, or string and it was of type boolean"
+      ]
+    }
+  },
+  {
+    "description": "disallow_array_string_number_invalid_string",
+    "schema": {
+      "$schema": "http://json-schema.org/draft-03/schema#",
+      "disallow": [ "string", "number" ]
+    },
+    "instance": "x",
+    "valid": false,
+    "fast": {
+      "pre": [
+        [ "AssertionNotTypeStrictAny", "/disallow", "#/disallow", "" ]
+      ],
+      "post": [
+        [ false, "AssertionNotTypeStrictAny", "/disallow", "#/disallow", "" ]
+      ],
+      "descriptions": [
+        "The value was expected to NOT be of type number, or string but it was of type string"
+      ]
+    },
+    "exhaustive": {
+      "pre": [
+        [ "AssertionNotTypeStrictAny", "/disallow", "#/disallow", "" ]
+      ],
+      "post": [
+        [ false, "AssertionNotTypeStrictAny", "/disallow", "#/disallow", "" ]
+      ],
+      "descriptions": [
+        "The value was expected to NOT be of type number, or string but it was of type string"
+      ]
+    }
+  },
+  {
+    "description": "disallow_array_string_number_invalid_integer",
+    "schema": {
+      "$schema": "http://json-schema.org/draft-03/schema#",
+      "disallow": [ "string", "number" ]
+    },
+    "instance": 5,
+    "valid": false,
+    "fast": {
+      "pre": [
+        [ "AssertionNotTypeStrictAny", "/disallow", "#/disallow", "" ]
+      ],
+      "post": [
+        [ false, "AssertionNotTypeStrictAny", "/disallow", "#/disallow", "" ]
+      ],
+      "descriptions": [
+        "The value was expected to NOT be of type number, or string but it was of type number"
+      ]
+    },
+    "exhaustive": {
+      "pre": [
+        [ "AssertionNotTypeStrictAny", "/disallow", "#/disallow", "" ]
+      ],
+      "post": [
+        [ false, "AssertionNotTypeStrictAny", "/disallow", "#/disallow", "" ]
+      ],
+      "descriptions": [
+        "The value was expected to NOT be of type number, or string but it was of type number"
+      ]
+    }
+  },
+  {
+    "description": "disallow_array_with_any",
+    "schema": {
+      "$schema": "http://json-schema.org/draft-03/schema#",
+      "disallow": [ "any", "string" ]
+    },
+    "instance": "x",
+    "valid": false,
+    "fast": {
+      "pre": [
+        [ "AssertionFail", "/disallow", "#/disallow", "" ]
+      ],
+      "post": [
+        [ false, "AssertionFail", "/disallow", "#/disallow", "" ]
+      ],
+      "descriptions": [
+        "No instance is expected to succeed against the false schema"
+      ]
+    },
+    "exhaustive": {
+      "pre": [
+        [ "AssertionFail", "/disallow", "#/disallow", "" ]
+      ],
+      "post": [
+        [ false, "AssertionFail", "/disallow", "#/disallow", "" ]
+      ],
+      "descriptions": [
+        "No instance is expected to succeed against the false schema"
+      ]
+    }
+  },
+  {
+    "description": "disallow_array_with_any_anywhere",
+    "schema": {
+      "$schema": "http://json-schema.org/draft-03/schema#",
+      "disallow": [ "string", "any", "integer" ]
+    },
+    "instance": null,
+    "valid": false,
+    "fast": {
+      "pre": [
+        [ "AssertionFail", "/disallow", "#/disallow", "" ]
+      ],
+      "post": [
+        [ false, "AssertionFail", "/disallow", "#/disallow", "" ]
+      ],
+      "descriptions": [
+        "No instance is expected to succeed against the false schema"
+      ]
+    },
+    "exhaustive": {
+      "pre": [
+        [ "AssertionFail", "/disallow", "#/disallow", "" ]
+      ],
+      "post": [
+        [ false, "AssertionFail", "/disallow", "#/disallow", "" ]
+      ],
+      "descriptions": [
+        "No instance is expected to succeed against the false schema"
+      ]
+    }
+  },
+  {
+    "description": "disallow_subschema_single_object_disallows",
+    "schema": {
+      "$schema": "http://json-schema.org/draft-03/schema#",
+      "disallow": [ { "type": "string" } ]
+    },
+    "instance": "x",
+    "valid": false,
+    "fast": {
+      "pre": [
+        [ "LogicalNot", "/disallow/0", "#/disallow/0", "" ],
+        [ "AssertionTypeStrict", "/disallow/0/type", "#/disallow/0/type", "" ]
+      ],
+      "post": [
+        [ true, "AssertionTypeStrict", "/disallow/0/type", "#/disallow/0/type", "" ],
+        [ false, "LogicalNot", "/disallow/0", "#/disallow/0", "" ]
+      ],
+      "descriptions": [
+        "The value was expected to be of type string",
+        "The string value was expected to not validate against the given subschema, but it did"
+      ]
+    },
+    "exhaustive": {
+      "pre": [
+        [ "LogicalNot", "/disallow/0", "#/disallow/0", "" ],
+        [ "AssertionTypeStrict", "/disallow/0/type", "#/disallow/0/type", "" ]
+      ],
+      "post": [
+        [ true, "AssertionTypeStrict", "/disallow/0/type", "#/disallow/0/type", "" ],
+        [ false, "LogicalNot", "/disallow/0", "#/disallow/0", "" ]
+      ],
+      "descriptions": [
+        "The value was expected to be of type string",
+        "The string value was expected to not validate against the given subschema, but it did"
+      ]
+    }
+  },
+  {
+    "description": "disallow_subschema_single_object_passes",
+    "schema": {
+      "$schema": "http://json-schema.org/draft-03/schema#",
+      "disallow": [ { "type": "string" } ]
+    },
+    "instance": 5,
+    "valid": true,
+    "fast": {
+      "pre": [
+        [ "LogicalNot", "/disallow/0", "#/disallow/0", "" ],
+        [ "AssertionTypeStrict", "/disallow/0/type", "#/disallow/0/type", "" ]
+      ],
+      "post": [
+        [ false, "AssertionTypeStrict", "/disallow/0/type", "#/disallow/0/type", "" ],
+        [ true, "LogicalNot", "/disallow/0", "#/disallow/0", "" ]
+      ],
+      "descriptions": [
+        "The value was expected to be of type string but it was of type integer",
+        "The integer value was expected to not validate against the given subschema"
+      ]
+    },
+    "exhaustive": {
+      "pre": [
+        [ "LogicalNot", "/disallow/0", "#/disallow/0", "" ],
+        [ "AssertionTypeStrict", "/disallow/0/type", "#/disallow/0/type", "" ]
+      ],
+      "post": [
+        [ false, "AssertionTypeStrict", "/disallow/0/type", "#/disallow/0/type", "" ],
+        [ true, "LogicalNot", "/disallow/0", "#/disallow/0", "" ]
+      ],
+      "descriptions": [
+        "The value was expected to be of type string but it was of type integer",
+        "The integer value was expected to not validate against the given subschema"
+      ]
+    }
+  },
+  {
+    "description": "disallow_subschema_string_plus_object_passes",
+    "schema": {
+      "$schema": "http://json-schema.org/draft-03/schema#",
+      "disallow": [ "string", { "type": "number" } ]
+    },
+    "instance": true,
+    "valid": true,
+    "fast": {
+      "pre": [
+        [ "AssertionNotTypeStrictAny", "/disallow", "#/disallow", "" ],
+        [ "LogicalNot", "/disallow/1", "#/disallow/1", "" ],
+        [ "AssertionTypeStrictAny", "/disallow/1/type", "#/disallow/1/type", "" ]
+      ],
+      "post": [
+        [ true, "AssertionNotTypeStrictAny", "/disallow", "#/disallow", "" ],
+        [ false, "AssertionTypeStrictAny", "/disallow/1/type", "#/disallow/1/type", "" ],
+        [ true, "LogicalNot", "/disallow/1", "#/disallow/1", "" ]
+      ],
+      "descriptions": [
+        "The value was expected to NOT be of type string",
+        "The value was expected to be of type number but it was of type boolean",
+        "The boolean value was expected to not validate against the given subschema"
+      ]
+    },
+    "exhaustive": {
+      "pre": [
+        [ "AssertionNotTypeStrictAny", "/disallow", "#/disallow", "" ],
+        [ "LogicalNot", "/disallow/1", "#/disallow/1", "" ],
+        [ "AssertionTypeStrictAny", "/disallow/1/type", "#/disallow/1/type", "" ]
+      ],
+      "post": [
+        [ true, "AssertionNotTypeStrictAny", "/disallow", "#/disallow", "" ],
+        [ false, "AssertionTypeStrictAny", "/disallow/1/type", "#/disallow/1/type", "" ],
+        [ true, "LogicalNot", "/disallow/1", "#/disallow/1", "" ]
+      ],
+      "descriptions": [
+        "The value was expected to NOT be of type string",
+        "The value was expected to be of type number but it was of type boolean",
+        "The boolean value was expected to not validate against the given subschema"
+      ]
+    }
+  },
+  {
+    "description": "disallow_subschema_string_plus_object_plus_any",
+    "schema": {
+      "$schema": "http://json-schema.org/draft-03/schema#",
+      "disallow": [ "string", { "type": "number" }, "any" ]
+    },
+    "instance": true,
+    "valid": false,
+    "fast": {
+      "pre": [
+        [ "AssertionFail", "/disallow", "#/disallow", "" ]
+      ],
+      "post": [
+        [ false, "AssertionFail", "/disallow", "#/disallow", "" ]
+      ],
+      "descriptions": [
+        "No instance is expected to succeed against the false schema"
+      ]
+    },
+    "exhaustive": {
+      "pre": [
+        [ "AssertionFail", "/disallow", "#/disallow", "" ]
+      ],
+      "post": [
+        [ false, "AssertionFail", "/disallow", "#/disallow", "" ]
+      ],
+      "descriptions": [
+        "No instance is expected to succeed against the false schema"
+      ]
+    }
+  },
+  {
+    "description": "disallow_hyperschema",
+    "schema": {
+      "$schema": "http://json-schema.org/draft-03/hyper-schema#",
+      "disallow": "string"
+    },
+    "instance": 5,
+    "valid": true,
+    "fast": {
+      "pre": [
+        [ "AssertionNotTypeStrictAny", "/disallow", "#/disallow", "" ]
+      ],
+      "post": [
+        [ true, "AssertionNotTypeStrictAny", "/disallow", "#/disallow", "" ]
+      ],
+      "descriptions": [
+        "The value was expected to NOT be of type string"
+      ]
+    },
+    "exhaustive": {
+      "pre": [
+        [ "AssertionNotTypeStrictAny", "/disallow", "#/disallow", "" ]
+      ],
+      "post": [
+        [ true, "AssertionNotTypeStrictAny", "/disallow", "#/disallow", "" ]
+      ],
+      "descriptions": [
+        "The value was expected to NOT be of type string"
+      ]
+    }
+  },
+  {
+    "description": "disallow_number_invalid_integer",
+    "schema": {
+      "$schema": "http://json-schema.org/draft-03/schema#",
+      "disallow": "number"
+    },
+    "instance": 5,
+    "valid": false,
+    "fast": {
+      "pre": [
+        [ "AssertionNotTypeStrictAny", "/disallow", "#/disallow", "" ]
+      ],
+      "post": [
+        [ false, "AssertionNotTypeStrictAny", "/disallow", "#/disallow", "" ]
+      ],
+      "descriptions": [
+        "The value was expected to NOT be of type number but it was of type number"
+      ]
+    },
+    "exhaustive": {
+      "pre": [
+        [ "AssertionNotTypeStrictAny", "/disallow", "#/disallow", "" ]
+      ],
+      "post": [
+        [ false, "AssertionNotTypeStrictAny", "/disallow", "#/disallow", "" ]
+      ],
+      "descriptions": [
+        "The value was expected to NOT be of type number but it was of type number"
+      ]
+    }
   }
 ]
