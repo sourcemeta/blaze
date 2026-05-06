@@ -3622,7 +3622,7 @@
       "$schema": "http://json-schema.org/draft-03/schema#",
       "items": { "type": "integer" }
     },
-    "instance": [ 1e+35 ],
+    "instance": [ 12345678910111213141516171819202122232425262728293031 ],
     "valid": true,
     "fast": {
       "pre": [
@@ -3656,7 +3656,7 @@
       "$schema": "http://json-schema.org/draft-03/schema#",
       "items": { "type": [ "integer", "string" ] }
     },
-    "instance": [ 1e+35 ],
+    "instance": [ 12345678910111213141516171819202122232425262728293031 ],
     "valid": true,
     "fast": {
       "pre": [
@@ -10333,7 +10333,7 @@
       "$schema": "http://json-schema.org/draft-03/schema#",
       "properties": { "foo": { "type": "integer" } }
     },
-    "instance": { "foo": 1e+35 },
+    "instance": { "foo": 12345678910111213141516171819202122232425262728293031 },
     "valid": true,
     "fast": {
       "pre": [
@@ -10367,7 +10367,7 @@
       "$schema": "http://json-schema.org/draft-03/schema#",
       "properties": { "foo": { "type": [ "integer", "string" ] } }
     },
-    "instance": { "foo": 1e+35 },
+    "instance": { "foo": 12345678910111213141516171819202122232425262728293031 },
     "valid": true,
     "fast": {
       "pre": [
@@ -10732,7 +10732,7 @@
       "$schema": "http://json-schema.org/draft-03/schema#",
       "additionalProperties": { "type": [ "integer", "string" ] }
     },
-    "instance": { "foo": 1e+35 },
+    "instance": { "foo": 12345678910111213141516171819202122232425262728293031 },
     "valid": true,
     "fast": {
       "pre": [
@@ -11581,7 +11581,10 @@
         "bar": { "type": "integer", "required": true }
       }
     },
-    "instance": { "foo": 1e+35, "bar": 1e+35 },
+    "instance": {
+      "foo": 12345678910111213141516171819202122232425262728293031,
+      "bar": 12345678910111213141516171819202122232425262728293031
+    },
     "valid": true,
     "fast": {
       "pre": [
@@ -12105,7 +12108,12 @@
         }
       }
     },
-    "instance": [ { "foo": 1e+35, "bar": 1e+35 } ],
+    "instance": [
+      {
+        "foo": 12345678910111213141516171819202122232425262728293031,
+        "bar": 12345678910111213141516171819202122232425262728293031
+      }
+    ],
     "valid": true,
     "fast": {
       "pre": [
@@ -12168,7 +12176,13 @@
         }
       }
     },
-    "instance": [ { "foo": 1e+35, "bar": 1e+35, "baz": 1e+35 } ],
+    "instance": [
+      {
+        "foo": 12345678910111213141516171819202122232425262728293031,
+        "bar": 12345678910111213141516171819202122232425262728293031,
+        "baz": 12345678910111213141516171819202122232425262728293031
+      }
+    ],
     "valid": true,
     "fast": {
       "pre": [
@@ -12231,7 +12245,10 @@
         "bar": { "type": "integer", "required": true }
       }
     },
-    "instance": { "foo": 1e+35, "bar": 1e+35 },
+    "instance": {
+      "foo": 12345678910111213141516171819202122232425262728293031,
+      "bar": 12345678910111213141516171819202122232425262728293031
+    },
     "valid": true,
     "fast": {
       "pre": [
@@ -12286,8 +12303,8 @@
       }
     },
     "instance": {
-      "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx": 1e+35,
-      "yyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyy": 1e+35
+      "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx": 12345678910111213141516171819202122232425262728293031,
+      "yyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyy": 12345678910111213141516171819202122232425262728293031
     },
     "valid": true,
     "fast": {
