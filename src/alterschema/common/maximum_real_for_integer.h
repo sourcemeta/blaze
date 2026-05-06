@@ -30,9 +30,8 @@ public:
                      schema.at("type").is_string() &&
                      schema.at("type").to_string() == "integer" &&
                      schema.defines("maximum") &&
-                     (schema.at("maximum").is_real() ||
-                      (schema.at("maximum").is_decimal() &&
-                       !schema.at("maximum").to_decimal().is_integer())));
+                     schema.at("maximum").is_number() &&
+                     !schema.at("maximum").is_integral());
     return APPLIES_TO_KEYWORDS("maximum");
   }
 

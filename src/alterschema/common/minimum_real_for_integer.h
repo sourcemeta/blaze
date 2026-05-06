@@ -30,9 +30,8 @@ public:
                      schema.at("type").is_string() &&
                      schema.at("type").to_string() == "integer" &&
                      schema.defines("minimum") &&
-                     (schema.at("minimum").is_real() ||
-                      (schema.at("minimum").is_decimal() &&
-                       !schema.at("minimum").to_decimal().is_integer())));
+                     schema.at("minimum").is_number() &&
+                     !schema.at("minimum").is_integral());
     return APPLIES_TO_KEYWORDS("minimum");
   }
 

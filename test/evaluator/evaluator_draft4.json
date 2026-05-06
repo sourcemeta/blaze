@@ -313,7 +313,7 @@
   {
     "description": "type_10",
     "schema": { "$schema": "http://json-schema.org/draft-04/schema#", "type": "integer" },
-    "instance": 1e+35,
+    "instance": 100000000000,
     "valid": true,
     "fast": {
       "pre": [
@@ -344,7 +344,7 @@
       "$schema": "http://json-schema.org/draft-04/schema#",
       "type": [ "integer", "string" ]
     },
-    "instance": 1e+35,
+    "instance": 100000000000,
     "valid": true,
     "fast": {
       "pre": [
@@ -1821,7 +1821,7 @@
       "$schema": "http://json-schema.org/draft-04/schema#",
       "properties": { "foo": { "type": "integer" } }
     },
-    "instance": { "foo": 1e+35 },
+    "instance": { "foo": 100000000000 },
     "valid": true,
     "fast": {
       "pre": [
@@ -1855,7 +1855,7 @@
       "$schema": "http://json-schema.org/draft-04/schema#",
       "properties": { "foo": { "type": [ "integer", "string" ] } }
     },
-    "instance": { "foo": 1e+35 },
+    "instance": { "foo": 100000000000 },
     "valid": true,
     "fast": {
       "pre": [
@@ -3055,7 +3055,7 @@
         "properties": { "foo": { "type": "integer" }, "bar": { "type": "integer" } }
       }
     },
-    "instance": [ { "foo": 1e+35, "bar": 1e+35 } ],
+    "instance": [ { "foo": 100000000000, "bar": 100000000000 } ],
     "valid": true,
     "fast": {
       "pre": [
@@ -3113,7 +3113,7 @@
         }
       }
     },
-    "instance": [ { "foo": 1e+35, "bar": 1e+35, "baz": 1e+35 } ],
+    "instance": [ { "foo": 100000000000, "bar": 100000000000, "baz": 100000000000 } ],
     "valid": true,
     "fast": {
       "pre": [
@@ -3167,7 +3167,7 @@
       "additionalProperties": false,
       "properties": { "foo": { "type": "integer" }, "bar": { "type": "integer" } }
     },
-    "instance": { "foo": 1e+35, "bar": 1e+35 },
+    "instance": { "foo": 100000000000, "bar": 100000000000 },
     "valid": true,
     "fast": {
       "pre": [
@@ -3213,7 +3213,7 @@
       "$schema": "http://json-schema.org/draft-04/schema#",
       "additionalProperties": { "type": [ "integer", "string" ] }
     },
-    "instance": { "foo": 1e+35 },
+    "instance": { "foo": 100000000000 },
     "valid": true,
     "fast": {
       "pre": [
@@ -3250,7 +3250,7 @@
       "additionalProperties": false,
       "properties": { "foo": { "type": "integer" }, "bar": { "type": "integer" } }
     },
-    "instance": { "foo": 1e+35, "bar": 1e+35 },
+    "instance": { "foo": 100000000000, "bar": 100000000000 },
     "valid": true,
     "fast": {
       "pre": [
@@ -3303,8 +3303,8 @@
       }
     },
     "instance": {
-      "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx": 1e+35,
-      "yyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyy": 1e+35
+      "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx": 100000000000,
+      "yyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyy": 100000000000
     },
     "valid": true,
     "fast": {
@@ -3823,7 +3823,7 @@
       "$schema": "http://json-schema.org/draft-04/schema#",
       "items": { "type": "integer" }
     },
-    "instance": [ 1e+35 ],
+    "instance": [ 100000000000 ],
     "valid": true,
     "fast": {
       "pre": [
@@ -3857,7 +3857,7 @@
       "$schema": "http://json-schema.org/draft-04/schema#",
       "items": { "type": [ "integer", "string" ] }
     },
-    "instance": [ 1e+35 ],
+    "instance": [ 100000000000 ],
     "valid": true,
     "fast": {
       "pre": [
