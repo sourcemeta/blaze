@@ -372,8 +372,7 @@ TEST_F(CanonicalizerDraft3Test, object_with_ref_property) {
   CANONICALIZE_AND_VALIDATE(document, expected, *compiled_meta_);
 }
 
-TEST_F(CanonicalizerDraft3Test,
-       draft3_type_any_in_array_with_extras_preserved) {
+TEST_F(CanonicalizerDraft3Test, draft3_type_any_in_array_with_extras_expanded) {
   auto document = sourcemeta::core::parse_json(R"JSON({
     "$schema": "http://json-schema.org/draft-03/schema#",
     "type": [
@@ -384,7 +383,17 @@ TEST_F(CanonicalizerDraft3Test,
   const auto expected = sourcemeta::core::parse_json(R"JSON({
     "$schema": "http://json-schema.org/draft-03/schema#",
     "type": [
-      { "type": "any", "title": "Anything goes" }
+      {
+        "title": "Anything goes",
+        "type": [
+          { "enum": [ null ] },
+          { "enum": [ false, true ] },
+          { "type": "object", "properties": {}, "patternProperties": {}, "additionalProperties": {} },
+          { "type": "array", "minItems": 0, "uniqueItems": false, "items": {} },
+          { "type": "string", "minLength": 0 },
+          { "type": "number" }
+        ]
+      }
     ]
   })JSON");
 
@@ -448,11 +457,7 @@ TEST_F(CanonicalizerDraft3Test,
   const auto expected = sourcemeta::core::parse_json(R"JSON({
     "$schema": "http://json-schema.org/draft-03/schema#",
     "extends": [
-      {
-        "extends": [
-          { "type": "any" }
-        ]
-      },
+      { "extends": [ {} ] },
       { "type": "string", "minLength": 0 }
     ]
   })JSON");

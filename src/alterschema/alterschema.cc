@@ -119,6 +119,7 @@ auto WALK_UP_IN_PLACE_APPLICATORS(const JSON &root, const SchemaFrame &frame,
 #include "canonicalizer/deprecated_false_drop.h"
 #include "canonicalizer/disallow_to_array_of_schemas.h"
 #include "canonicalizer/divisible_by_implicit.h"
+#include "canonicalizer/draft3_type_any_as_string.h"
 #include "canonicalizer/draft3_type_any_in_array.h"
 #include "canonicalizer/empty_definitions_drop.h"
 #include "canonicalizer/empty_defs_drop.h"
@@ -360,6 +361,7 @@ auto add(SchemaTransformer &bundle, const AlterSchemaMode mode) -> void {
   bundle.add<DuplicateAnyOfBranches>();
   bundle.add<FlattenNestedAllOf>();
   bundle.add<FlattenNestedAnyOf>();
+  bundle.add<Draft3TypeAnyAsString>();
   bundle.add<Draft3TypeAnyInArray>();
   bundle.add<UnsatisfiableInPlaceApplicatorType>();
   bundle.add<AllOfFalseSimplify>();
