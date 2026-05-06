@@ -1,12 +1,8 @@
-class Draft3TypeAnyAsString final : public SchemaTransformRule {
+class Draft3TypeAny final : public SchemaTransformRule {
 public:
   using mutates = std::true_type;
   using reframe_after_transform = std::true_type;
-  Draft3TypeAnyAsString()
-      : SchemaTransformRule{
-            "draft3_type_any_as_string",
-            "A `type` of `any` accepts any value, which is equivalent "
-            "to omitting the `type` keyword altogether"} {};
+  Draft3TypeAny() : SchemaTransformRule{"draft3_type_any", ""} {};
 
   [[nodiscard]] auto
   condition(const sourcemeta::core::JSON &schema,
@@ -22,9 +18,33 @@ public:
         schema.is_object());
 
     const auto *type{schema.try_at("type")};
-    ONLY_CONTINUE_IF(type && type->is_string() && type->to_string() == "any");
+    ONLY_CONTINUE_IF(type);
 
-    return true;
+    if (type->is_string()) {
+      return type->to_string() == "any";
+    }
+
+    if (type->is_array()) {
+      for (const auto &element : type->as_array()) {
+        if (element.is_string() && element.to_string() == "any") {
+          return true;
+        }
+        if (element.is_object()) {
+          if (element.empty()) {
+            return true;
+          }
+          if (element.size() == 1) {
+            const auto *element_type{element.try_at("type")};
+            if (element_type && element_type->is_string() &&
+                element_type->to_string() == "any") {
+              return true;
+            }
+          }
+        }
+      }
+    }
+
+    return false;
   }
 
   auto transform(JSON &schema, const Result &) const -> void override {

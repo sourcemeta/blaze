@@ -11,8 +11,7 @@ sourcemeta_library(NAMESPACE sourcemeta PROJECT blaze NAME alterschema
     canonicalizer/dependent_required_to_any_of.h
     canonicalizer/dependent_schemas_to_any_of.h
     canonicalizer/deprecated_false_drop.h
-    canonicalizer/draft3_type_any_as_string.h
-    canonicalizer/draft3_type_any_in_array.h
+    canonicalizer/draft3_type_any.h
     canonicalizer/disallow_to_array_of_schemas.h
     canonicalizer/divisible_by_implicit.h
     canonicalizer/empty_definitions_drop.h
