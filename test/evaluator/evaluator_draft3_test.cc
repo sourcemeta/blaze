@@ -8,6 +8,63 @@
 
 #include "evaluator_utils.h"
 
+TEST(Evaluator_draft3, metaschema_1) {
+  const auto metaschema{sourcemeta::core::schema_resolver(
+      "http://json-schema.org/draft-03/schema#")};
+  EXPECT_TRUE(metaschema.has_value());
+
+  const sourcemeta::core::JSON instance{sourcemeta::core::parse_json("{}")};
+  EVALUATE_WITH_TRACE_FAST_SUCCESS(metaschema.value(), instance, 3, "");
+}
+
+TEST(Evaluator_draft3, metaschema_2) {
+  const auto metaschema{sourcemeta::core::schema_resolver(
+      "http://json-schema.org/draft-03/schema#")};
+  EXPECT_TRUE(metaschema.has_value());
+
+  const auto instance{sourcemeta::core::parse_json(R"JSON({
+    "$schema": "http://json-schema.org/draft-03/schema#",
+    "type": "object",
+    "properties": {
+      "foo": { "type": "string", "required": true }
+    }
+  })JSON")};
+
+  EVALUATE_WITH_TRACE_FAST_SUCCESS(metaschema.value(), instance, 13, "");
+}
+
+TEST(Evaluator_draft3, metaschema_self) {
+  const auto metaschema{sourcemeta::core::schema_resolver(
+      "http://json-schema.org/draft-03/schema#")};
+  EXPECT_TRUE(metaschema.has_value());
+  EVALUATE_WITH_TRACE_FAST_SUCCESS(metaschema.value(), metaschema.value(), 312,
+                                   "");
+}
+
+TEST(Evaluator_draft3, metaschema_self_exhaustive) {
+  const auto metaschema{sourcemeta::core::schema_resolver(
+      "http://json-schema.org/draft-03/schema#")};
+  EXPECT_TRUE(metaschema.has_value());
+  EVALUATE_WITH_TRACE_EXHAUSTIVE_SUCCESS(metaschema.value(), metaschema.value(),
+                                         328, "");
+}
+
+TEST(Evaluator_draft3, metaschema_hyper_self) {
+  const auto metaschema{sourcemeta::core::schema_resolver(
+      "http://json-schema.org/draft-03/hyper-schema#")};
+  EXPECT_TRUE(metaschema.has_value());
+  EVALUATE_WITH_TRACE_FAST_SUCCESS(metaschema.value(), metaschema.value(), 73,
+                                   "");
+}
+
+TEST(Evaluator_draft3, metaschema_hyper_self_exhaustive) {
+  const auto metaschema{sourcemeta::core::schema_resolver(
+      "http://json-schema.org/draft-03/hyper-schema#")};
+  EXPECT_TRUE(metaschema.has_value());
+  EVALUATE_WITH_TRACE_EXHAUSTIVE_SUCCESS(metaschema.value(), metaschema.value(),
+                                         83, "");
+}
+
 TEST(Evaluator_draft3, type_integer_invalid_real_integer_valued_fast) {
   const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
     "$schema": "http://json-schema.org/draft-03/schema#",
