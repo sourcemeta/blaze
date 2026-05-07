@@ -5244,6 +5244,27 @@ TEST(AlterSchema_lint_2019_09, recursive_ref_stays_dynamic_with_anchor) {
   EXPECT_EQ(document, expected);
 }
 
+TEST(AlterSchema_lint_2019_09,
+     recursive_ref_rewrites_when_recursive_anchor_is_false) {
+  sourcemeta::core::JSON document = sourcemeta::core::parse_json(R"JSON({
+    "$schema": "https://json-schema.org/draft/2019-09/schema",
+    "$recursiveAnchor": false,
+    "$recursiveRef": "#"
+  })JSON");
+
+  LINT_AND_FIX(document, result, traces);
+
+  EXPECT_FALSE(result.first);
+
+  const sourcemeta::core::JSON expected = sourcemeta::core::parse_json(R"JSON({
+    "$schema": "https://json-schema.org/draft/2019-09/schema",
+    "$recursiveAnchor": false,
+    "$ref": "#"
+  })JSON");
+
+  EXPECT_EQ(document, expected);
+}
+
 TEST(AlterSchema_lint_2019_09, portable_anchor_names_valid) {
   const sourcemeta::core::JSON document = sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2019-09/schema",

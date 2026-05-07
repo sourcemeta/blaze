@@ -3154,7 +3154,8 @@ TEST_F(Canonicalizer202012Test, dynamic_ref_to_static_ref_no_anchor) {
   CANONICALIZE_AND_VALIDATE(document, expected, *compiled_meta_);
 }
 
-TEST_F(Canonicalizer202012Test, dynamic_ref_to_static_ref_single_anchor) {
+TEST_F(Canonicalizer202012Test,
+       dynamic_ref_stays_dynamic_when_target_is_dynamic_anchor) {
   auto document = sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2020-12/schema",
     "$dynamicRef": "#foo",
@@ -3177,7 +3178,7 @@ TEST_F(Canonicalizer202012Test, dynamic_ref_to_static_ref_single_anchor) {
     },
     "allOf": [
       {
-        "$ref": "#foo"
+        "$dynamicRef": "#foo"
       }
     ]
   })JSON");
