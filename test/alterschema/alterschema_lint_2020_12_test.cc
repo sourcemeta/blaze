@@ -7288,6 +7288,289 @@ TEST(AlterSchema_lint_2020_12, orphan_definitions_28) {
   EXPECT_EQ(document, expected);
 }
 
+TEST(AlterSchema_lint_2020_12, orphan_definitions_29) {
+  sourcemeta::core::JSON document = sourcemeta::core::parse_json(R"JSON({
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "$ref": "https://example.com/external/eventbridge.json",
+    "$defs": {
+      "Detail": {
+        "$dynamicAnchor": "Detail",
+        "type": "object",
+        "required": ["foo", "id"],
+        "properties": {
+          "id": { "type": "string" },
+          "foo": { "type": "number" }
+        }
+      }
+    },
+    "properties": {
+      "detail-type": { "const": "new-data" }
+    }
+  })JSON");
+
+  LINT_AND_FIX(document, result, traces);
+
+  EXPECT_FALSE(result.first);
+
+  const sourcemeta::core::JSON expected = sourcemeta::core::parse_json(R"JSON({
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "$ref": "https://example.com/external/eventbridge.json",
+    "$defs": {
+      "Detail": {
+        "$dynamicAnchor": "Detail",
+        "type": "object",
+        "required": ["foo", "id"],
+        "properties": {
+          "id": { "type": "string" },
+          "foo": { "type": "number" }
+        }
+      }
+    },
+    "properties": {
+      "detail-type": { "const": "new-data" }
+    }
+  })JSON");
+
+  EXPECT_EQ(document, expected);
+}
+
+TEST(AlterSchema_lint_2020_12, orphan_definitions_30) {
+  sourcemeta::core::JSON document = sourcemeta::core::parse_json(R"JSON({
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "$ref": "https://no-such-host.invalid/external.json",
+    "$defs": {
+      "Outer": {
+        "type": "object",
+        "$defs": {
+          "Inner": {
+            "$dynamicAnchor": "InnerAnchor",
+            "type": "string"
+          }
+        }
+      }
+    }
+  })JSON");
+
+  LINT_AND_FIX(document, result, traces);
+
+  EXPECT_FALSE(result.first);
+
+  const sourcemeta::core::JSON expected = sourcemeta::core::parse_json(R"JSON({
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "$ref": "https://no-such-host.invalid/external.json",
+    "$defs": {
+      "Outer": {
+        "type": "object",
+        "$defs": {
+          "Inner": {
+            "$dynamicAnchor": "InnerAnchor",
+            "type": "string"
+          }
+        }
+      }
+    }
+  })JSON");
+
+  EXPECT_EQ(document, expected);
+}
+
+TEST(AlterSchema_lint_2020_12, orphan_definitions_31) {
+  sourcemeta::core::JSON document = sourcemeta::core::parse_json(R"JSON({
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "type": "object",
+    "$defs": {
+      "Unused": {
+        "$dynamicAnchor": "Unused",
+        "type": "string"
+      }
+    }
+  })JSON");
+
+  LINT_AND_FIX(document, result, traces);
+
+  EXPECT_FALSE(result.first);
+
+  const sourcemeta::core::JSON expected = sourcemeta::core::parse_json(R"JSON({
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "type": "object"
+  })JSON");
+
+  EXPECT_EQ(document, expected);
+}
+
+TEST(AlterSchema_lint_2020_12, orphan_definitions_32) {
+  sourcemeta::core::JSON document = sourcemeta::core::parse_json(R"JSON({
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "$ref": "https://no-such-host.invalid/external.json",
+    "$defs": {
+      "PlainOrphan": {
+        "type": "string"
+      }
+    }
+  })JSON");
+
+  LINT_AND_FIX(document, result, traces);
+
+  EXPECT_FALSE(result.first);
+
+  const sourcemeta::core::JSON expected = sourcemeta::core::parse_json(R"JSON({
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "$ref": "https://no-such-host.invalid/external.json"
+  })JSON");
+
+  EXPECT_EQ(document, expected);
+}
+
+TEST(AlterSchema_lint_2020_12, orphan_definitions_33) {
+  sourcemeta::core::JSON document = sourcemeta::core::parse_json(R"JSON({
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "$dynamicRef": "https://no-such-host.invalid/external.json#Detail",
+    "$defs": {
+      "Detail": {
+        "$dynamicAnchor": "Detail",
+        "type": "object"
+      }
+    }
+  })JSON");
+
+  LINT_AND_FIX(document, result, traces);
+
+  EXPECT_FALSE(result.first);
+
+  const sourcemeta::core::JSON expected = sourcemeta::core::parse_json(R"JSON({
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "$dynamicRef": "https://no-such-host.invalid/external.json#Detail",
+    "$defs": {
+      "Detail": {
+        "$dynamicAnchor": "Detail",
+        "type": "object"
+      }
+    }
+  })JSON");
+
+  EXPECT_EQ(document, expected);
+}
+
+TEST(AlterSchema_lint_2020_12, orphan_definitions_34) {
+  sourcemeta::core::JSON document = sourcemeta::core::parse_json(R"JSON({
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "$ref": "https://no-such-host.invalid/external.json",
+    "$defs": {
+      "Detail": {
+        "$dynamicAnchor": "Detail",
+        "type": "object"
+      },
+      "Unused": {
+        "type": "string"
+      }
+    }
+  })JSON");
+
+  LINT_AND_FIX(document, result, traces);
+
+  EXPECT_FALSE(result.first);
+
+  const sourcemeta::core::JSON expected = sourcemeta::core::parse_json(R"JSON({
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "$ref": "https://no-such-host.invalid/external.json",
+    "$defs": {
+      "Detail": {
+        "$dynamicAnchor": "Detail",
+        "type": "object"
+      }
+    }
+  })JSON");
+
+  EXPECT_EQ(document, expected);
+}
+
+TEST(AlterSchema_lint_2020_12, orphan_definitions_35) {
+  sourcemeta::core::JSON document = sourcemeta::core::parse_json(R"JSON({
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "$ref": "https://no-such-host.invalid/external.json",
+    "$dynamicAnchor": "Root",
+    "$defs": {
+      "PlainOrphan": {
+        "type": "string"
+      }
+    }
+  })JSON");
+
+  LINT_AND_FIX(document, result, traces);
+
+  EXPECT_FALSE(result.first);
+
+  const sourcemeta::core::JSON expected = sourcemeta::core::parse_json(R"JSON({
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "$ref": "https://no-such-host.invalid/external.json",
+    "$dynamicAnchor": "Root"
+  })JSON");
+
+  EXPECT_EQ(document, expected);
+}
+
+TEST(AlterSchema_lint_2020_12, orphan_definitions_36) {
+  sourcemeta::core::JSON document = sourcemeta::core::parse_json(R"JSON({
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "$ref": "https://no-such-host.invalid/external.json",
+    "$defs": {
+      "Wrapper": {
+        "properties": {
+          "child": { "$dynamicAnchor": "Buried", "type": "string" }
+        }
+      }
+    }
+  })JSON");
+
+  LINT_AND_FIX(document, result, traces);
+
+  EXPECT_FALSE(result.first);
+
+  const sourcemeta::core::JSON expected = sourcemeta::core::parse_json(R"JSON({
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "$ref": "https://no-such-host.invalid/external.json",
+    "$defs": {
+      "Wrapper": {
+        "properties": {
+          "child": { "$dynamicAnchor": "Buried", "type": "string" }
+        }
+      }
+    }
+  })JSON");
+
+  EXPECT_EQ(document, expected);
+}
+
+TEST(AlterSchema_lint_2020_12, orphan_definitions_37) {
+  sourcemeta::core::JSON document = sourcemeta::core::parse_json(R"JSON({
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "$ref": "#/$defs/Used",
+    "$defs": {
+      "Used": {
+        "$dynamicAnchor": "Used",
+        "type": "string"
+      }
+    }
+  })JSON");
+
+  LINT_AND_FIX(document, result, traces);
+
+  EXPECT_FALSE(result.first);
+
+  const sourcemeta::core::JSON expected = sourcemeta::core::parse_json(R"JSON({
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "$ref": "#/$defs/Used",
+    "$defs": {
+      "Used": {
+        "$dynamicAnchor": "Used",
+        "type": "string"
+      }
+    }
+  })JSON");
+
+  EXPECT_EQ(document, expected);
+}
+
 TEST(AlterSchema_lint_2020_12,
      unnecessary_allof_wrapper_unevaluated_properties_depends_on_properties) {
   sourcemeta::core::JSON document = sourcemeta::core::parse_json(R"JSON({

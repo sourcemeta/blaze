@@ -3095,6 +3095,29 @@ TEST(AlterSchema_lint_draft7, orphan_definitions_3) {
   EXPECT_EQ(document, expected);
 }
 
+TEST(AlterSchema_lint_draft7, orphan_definitions_4) {
+  sourcemeta::core::JSON document = sourcemeta::core::parse_json(R"JSON({
+    "$schema": "http://json-schema.org/draft-07/schema#",
+    "$ref": "https://no-such-host.invalid/external.json",
+    "definitions": {
+      "Unused": {
+        "type": "string"
+      }
+    }
+  })JSON");
+
+  LINT_AND_FIX(document, result, traces);
+
+  EXPECT_FALSE(result.first);
+
+  const sourcemeta::core::JSON expected = sourcemeta::core::parse_json(R"JSON({
+    "$schema": "http://json-schema.org/draft-07/schema#",
+    "$ref": "https://no-such-host.invalid/external.json"
+  })JSON");
+
+  EXPECT_EQ(document, expected);
+}
+
 TEST(AlterSchema_lint_draft7,
      unnecessary_allof_wrapper_inner_additional_properties_outer_properties) {
   sourcemeta::core::JSON document = sourcemeta::core::parse_json(R"JSON({

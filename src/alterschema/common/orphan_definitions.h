@@ -64,6 +64,24 @@ public:
   }
 
 private:
+  static auto
+  subtree_has_dynamic_anchor(const sourcemeta::core::SchemaFrame &frame,
+                             const WeakPointer &entry_pointer) -> bool {
+    for (const auto &[key, location] : frame.locations()) {
+      if (key.first != sourcemeta::core::SchemaReferenceType::Dynamic) {
+        continue;
+      }
+      if (location.type !=
+          sourcemeta::core::SchemaFrame::LocationType::Anchor) {
+        continue;
+      }
+      if (location.pointer.starts_with(entry_pointer)) {
+        return true;
+      }
+    }
+    return false;
+  }
+
   static auto has_reachable_reference_through(
       const sourcemeta::core::SchemaFrame &frame,
       const sourcemeta::core::SchemaFrame::Location &base,
@@ -119,7 +137,9 @@ private:
       if (entry_location.has_value() &&
           !frame.is_reachable(base, entry_location->get(), walker, resolver) &&
           !has_reachable_reference_through(frame, base, walker, resolver,
-                                           absolute_entry_pointer)) {
+                                           absolute_entry_pointer) &&
+          !(!frame.standalone() &&
+            subtree_has_dynamic_anchor(frame, absolute_entry_pointer))) {
         orphans.push_back(Pointer{container, entry.first});
       }
     }
