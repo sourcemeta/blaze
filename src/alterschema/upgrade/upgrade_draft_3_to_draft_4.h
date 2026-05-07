@@ -310,7 +310,7 @@ private:
       for (const auto &name : newly_required) {
         fresh.push_back(sourcemeta::core::JSON{name});
       }
-      schema.assign("required", std::move(fresh));
+      schema.try_assign_before("required", fresh, "properties");
       return;
     }
 

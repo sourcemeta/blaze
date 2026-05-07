@@ -39,14 +39,14 @@ TEST(AlterSchema_upgrade_Draft3_to_Draft6, full_pipeline_combined) {
     "$schema": "http://json-schema.org/draft-06/schema#",
     "$id": "https://example.com/root",
     "type": "object",
+    "required": [ "name" ],
     "properties": {
       "name": { "type": "string" },
       "age": { "type": "number", "exclusiveMinimum": 0 }
     },
     "multipleOf": 1,
-    "dependencies": { "name": ["age"] },
-    "allOf": [ { "type": "object" } ],
-    "required": ["name"]
+    "dependencies": { "name": [ "age" ] },
+    "allOf": [ { "type": "object" } ]
   })JSON");
 
   UPGRADE_DRAFT_6(document, expected);
