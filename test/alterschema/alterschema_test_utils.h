@@ -130,6 +130,33 @@ static auto alterschema_test_resolver(std::string_view identifier)
     EXPECT_EQ(_actual_stream.str(), _expected_stream.str());                   \
   }
 
+#define UPGRADE_DRAFT_4(document, expected)                                    \
+  {                                                                            \
+    sourcemeta::blaze::SchemaTransformer _bundle;                              \
+    sourcemeta::blaze::add(_bundle,                                            \
+                           sourcemeta::blaze::AlterSchemaMode::UpgradeDraft4); \
+    const auto _result = _bundle.apply(                                        \
+        document, sourcemeta::core::schema_walker, alterschema_test_resolver,  \
+        [](const auto &, const auto &, const auto &, const auto &,             \
+           const auto &) {});                                                  \
+    EXPECT_TRUE(_result.first);                                                \
+    EXPECT_JSON_EQ_WITH_ORDERING(document, expected);                          \
+  }
+
+#define UPGRADE_DRAFT_4_WITH_DIALECT(document, expected, default_dialect)      \
+  {                                                                            \
+    sourcemeta::blaze::SchemaTransformer _bundle;                              \
+    sourcemeta::blaze::add(_bundle,                                            \
+                           sourcemeta::blaze::AlterSchemaMode::UpgradeDraft4); \
+    const auto _result = _bundle.apply(                                        \
+        document, sourcemeta::core::schema_walker, alterschema_test_resolver,  \
+        [](const auto &, const auto &, const auto &, const auto &,             \
+           const auto &) {},                                                   \
+        (default_dialect));                                                    \
+    EXPECT_TRUE(_result.first);                                                \
+    EXPECT_JSON_EQ_WITH_ORDERING(document, expected);                          \
+  }
+
 #define UPGRADE_DRAFT_6(document, expected)                                    \
   {                                                                            \
     sourcemeta::blaze::SchemaTransformer _bundle;                              \
