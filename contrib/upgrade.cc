@@ -10,6 +10,10 @@
 
 static auto target_to_mode(const std::string_view target)
     -> std::optional<sourcemeta::blaze::AlterSchemaMode> {
+  if (target == "draft4") {
+    return sourcemeta::blaze::AlterSchemaMode::UpgradeDraft4;
+  }
+
   if (target == "draft6") {
     return sourcemeta::blaze::AlterSchemaMode::UpgradeDraft6;
   }
@@ -37,7 +41,8 @@ auto main(int argc, char *argv[]) -> int {
   const auto &files{options.positional()};
   if (files.size() != 1 || !options.contains("target")) {
     std::cerr << "Usage: " << argv[0]
-              << " -t|--target <draft6|draft7|2019-09|2020-12> <schema.json>\n";
+              << " -t|--target <draft4|draft6|draft7|2019-09|2020-12> "
+                 "<schema.json>\n";
     return EXIT_FAILURE;
   }
 
@@ -45,7 +50,7 @@ auto main(int argc, char *argv[]) -> int {
   const auto mode{target_to_mode(target)};
   if (!mode.has_value()) {
     std::cerr << "Error: unknown target dialect '" << target
-              << "'. Supported: draft6, draft7, 2019-09, 2020-12\n";
+              << "'. Supported: draft4, draft6, draft7, 2019-09, 2020-12\n";
     return EXIT_FAILURE;
   }
 
