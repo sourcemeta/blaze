@@ -3817,14 +3817,8 @@ TEST_F(Documentation202012Test, dynamic_ref_with_anchor) {
           "type": {
             "kind": "array",
             "items": {
-              "kind": "recursiveRef",
-              "identifier": 1,
-              "path": [
-                {
-                  "type": "synthetic",
-                  "value": "root"
-                }
-              ]
+              "kind": "dynamicRef",
+              "anchor": "node"
             }
           },
           "required": false
@@ -3842,14 +3836,8 @@ TEST_F(Documentation202012Test, dynamic_ref_with_anchor) {
             }
           ],
           "type": {
-            "kind": "recursiveRef",
-            "identifier": 1,
-            "path": [
-              {
-                "type": "synthetic",
-                "value": "root"
-              }
-            ]
+            "kind": "dynamicRef",
+            "anchor": "node"
           }
         },
         {
