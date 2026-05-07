@@ -52,11 +52,13 @@ public:
       schema.at(container).erase(pointer.at(1).to_property());
     }
 
-    if (schema.defines("$defs") && schema.at("$defs").empty()) {
+    const auto *defs{schema.try_at("$defs")};
+    if (defs && defs->empty()) {
       schema.erase("$defs");
     }
 
-    if (schema.defines("definitions") && schema.at("definitions").empty()) {
+    const auto *definitions{schema.try_at("definitions")};
+    if (definitions && definitions->empty()) {
       schema.erase("definitions");
     }
   }
