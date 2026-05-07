@@ -105,11 +105,16 @@ private:
       }
     }
 
-    if (subschema.defines("disallow")) {
+    const auto *disallow_value{subschema.try_at("disallow")};
+    if (disallow_value != nullptr &&
+        (disallow_value->is_string() || disallow_value->is_array() ||
+         disallow_value->is_object())) {
       return true;
     }
 
-    if (subschema.defines("extends")) {
+    const auto *extends_value{subschema.try_at("extends")};
+    if (extends_value != nullptr &&
+        (extends_value->is_array() || extends_value->is_object())) {
       return true;
     }
 
@@ -210,8 +215,28 @@ private:
     if (!schema.defines("disallow") || schema.defines("not")) {
       return;
     }
-    auto disallow{schema.at("disallow")};
-    schema.erase("disallow");
+
+    const auto &disallow{schema.at("disallow")};
+    if (!disallow.is_string() && !disallow.is_array() &&
+        !disallow.is_object()) {
+      return;
+    }
+
+    if (disallow.is_string() && disallow.to_string() == "any") {
+      schema.erase("disallow");
+      schema.assign("not", sourcemeta::core::JSON::make_object());
+      return;
+    }
+
+    if (disallow.is_array()) {
+      for (const auto &element : disallow.as_array()) {
+        if (element.is_string() && element.to_string() == "any") {
+          schema.erase("disallow");
+          schema.assign("not", sourcemeta::core::JSON::make_object());
+          return;
+        }
+      }
+    }
 
     auto negated{sourcemeta::core::JSON::make_object()};
     if (disallow.is_string()) {
@@ -237,12 +262,11 @@ private:
         }
         negated.assign("anyOf", std::move(branches));
       }
-    } else if (disallow.is_object()) {
-      negated = disallow;
     } else {
-      return;
+      negated = disallow;
     }
 
+    schema.erase("disallow");
     schema.assign("not", std::move(negated));
   }
 
@@ -250,18 +274,23 @@ private:
     if (!schema.defines("extends") || schema.defines("allOf")) {
       return;
     }
-    auto extends{schema.at("extends")};
-    schema.erase("extends");
 
-    if (extends.is_array()) {
-      schema.assign("allOf", std::move(extends));
+    const auto &extends{schema.at("extends")};
+    if (!extends.is_array() && !extends.is_object()) {
       return;
     }
-    if (extends.is_object()) {
-      auto array{sourcemeta::core::JSON::make_array()};
-      array.push_back(std::move(extends));
-      schema.assign("allOf", std::move(array));
+
+    auto value{extends};
+    schema.erase("extends");
+
+    if (value.is_array()) {
+      schema.assign("allOf", std::move(value));
+      return;
     }
+
+    auto array{sourcemeta::core::JSON::make_array()};
+    array.push_back(std::move(value));
+    schema.assign("allOf", std::move(array));
   }
 
   static auto rewrite_divisible_by(sourcemeta::core::JSON &schema) -> void {

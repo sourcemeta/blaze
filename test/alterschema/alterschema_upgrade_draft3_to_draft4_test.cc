@@ -890,3 +890,78 @@ TEST(AlterSchema_upgrade_Draft3_to_Draft4,
 
   UPGRADE_DRAFT_4(document, expected);
 }
+
+TEST(AlterSchema_upgrade_Draft3_to_Draft4,
+     disallow_string_any_collapses_to_unsatisfiable) {
+  auto document = sourcemeta::core::parse_json(R"JSON({
+    "$schema": "http://json-schema.org/draft-03/schema#",
+    "disallow": "any"
+  })JSON");
+
+  const auto expected = sourcemeta::core::parse_json(R"JSON({
+    "$schema": "http://json-schema.org/draft-04/schema#",
+    "not": {}
+  })JSON");
+
+  UPGRADE_DRAFT_4(document, expected);
+}
+
+TEST(AlterSchema_upgrade_Draft3_to_Draft4,
+     disallow_array_with_any_collapses_to_unsatisfiable) {
+  auto document = sourcemeta::core::parse_json(R"JSON({
+    "$schema": "http://json-schema.org/draft-03/schema#",
+    "disallow": [ "string", "any" ]
+  })JSON");
+
+  const auto expected = sourcemeta::core::parse_json(R"JSON({
+    "$schema": "http://json-schema.org/draft-04/schema#",
+    "not": {}
+  })JSON");
+
+  UPGRADE_DRAFT_4(document, expected);
+}
+
+TEST(AlterSchema_upgrade_Draft3_to_Draft4,
+     disallow_array_with_any_and_subschema_collapses_to_unsatisfiable) {
+  auto document = sourcemeta::core::parse_json(R"JSON({
+    "$schema": "http://json-schema.org/draft-03/schema#",
+    "disallow": [ "any", { "type": "object" } ]
+  })JSON");
+
+  const auto expected = sourcemeta::core::parse_json(R"JSON({
+    "$schema": "http://json-schema.org/draft-04/schema#",
+    "not": {}
+  })JSON");
+
+  UPGRADE_DRAFT_4(document, expected);
+}
+
+TEST(AlterSchema_upgrade_Draft3_to_Draft4,
+     disallow_with_unexpected_value_type_left_intact) {
+  auto document = sourcemeta::core::parse_json(R"JSON({
+    "$schema": "http://json-schema.org/draft-03/schema#",
+    "disallow": 42
+  })JSON");
+
+  const auto expected = sourcemeta::core::parse_json(R"JSON({
+    "$schema": "http://json-schema.org/draft-04/schema#",
+    "disallow": 42
+  })JSON");
+
+  UPGRADE_DRAFT_4(document, expected);
+}
+
+TEST(AlterSchema_upgrade_Draft3_to_Draft4,
+     extends_with_unexpected_value_type_left_intact) {
+  auto document = sourcemeta::core::parse_json(R"JSON({
+    "$schema": "http://json-schema.org/draft-03/schema#",
+    "extends": 42
+  })JSON");
+
+  const auto expected = sourcemeta::core::parse_json(R"JSON({
+    "$schema": "http://json-schema.org/draft-04/schema#",
+    "extends": 42
+  })JSON");
+
+  UPGRADE_DRAFT_4(document, expected);
+}
