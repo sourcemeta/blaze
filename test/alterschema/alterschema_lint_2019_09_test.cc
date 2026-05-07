@@ -4396,6 +4396,114 @@ TEST(AlterSchema_lint_2019_09, orphan_definitions_7) {
   EXPECT_EQ(document, expected);
 }
 
+TEST(AlterSchema_lint_2019_09, orphan_definitions_8) {
+  sourcemeta::core::JSON document = sourcemeta::core::parse_json(R"JSON({
+    "$schema": "https://json-schema.org/draft/2019-09/schema",
+    "$ref": "https://no-such-host.invalid/external.json",
+    "$defs": {
+      "Recursive": {
+        "$recursiveAnchor": true,
+        "type": "object"
+      }
+    }
+  })JSON");
+
+  LINT_AND_FIX(document, result, traces);
+
+  EXPECT_FALSE(result.first);
+
+  const sourcemeta::core::JSON expected = sourcemeta::core::parse_json(R"JSON({
+    "$schema": "https://json-schema.org/draft/2019-09/schema",
+    "$ref": "https://no-such-host.invalid/external.json",
+    "$defs": {
+      "Recursive": {
+        "$recursiveAnchor": true,
+        "type": "object"
+      }
+    }
+  })JSON");
+
+  EXPECT_EQ(document, expected);
+}
+
+TEST(AlterSchema_lint_2019_09, orphan_definitions_9) {
+  sourcemeta::core::JSON document = sourcemeta::core::parse_json(R"JSON({
+    "$schema": "https://json-schema.org/draft/2019-09/schema",
+    "$ref": "https://no-such-host.invalid/external.json",
+    "$defs": {
+      "NotRecursive": {
+        "$recursiveAnchor": false,
+        "type": "object"
+      }
+    }
+  })JSON");
+
+  LINT_AND_FIX(document, result, traces);
+
+  EXPECT_FALSE(result.first);
+
+  const sourcemeta::core::JSON expected = sourcemeta::core::parse_json(R"JSON({
+    "$schema": "https://json-schema.org/draft/2019-09/schema",
+    "$ref": "https://no-such-host.invalid/external.json"
+  })JSON");
+
+  EXPECT_EQ(document, expected);
+}
+
+TEST(AlterSchema_lint_2019_09, orphan_definitions_10) {
+  sourcemeta::core::JSON document = sourcemeta::core::parse_json(R"JSON({
+    "$schema": "https://json-schema.org/draft/2019-09/schema",
+    "type": "object",
+    "$defs": {
+      "Unused": {
+        "$recursiveAnchor": true,
+        "type": "string"
+      }
+    }
+  })JSON");
+
+  LINT_AND_FIX(document, result, traces);
+
+  EXPECT_FALSE(result.first);
+
+  const sourcemeta::core::JSON expected = sourcemeta::core::parse_json(R"JSON({
+    "$schema": "https://json-schema.org/draft/2019-09/schema",
+    "type": "object"
+  })JSON");
+
+  EXPECT_EQ(document, expected);
+}
+
+TEST(AlterSchema_lint_2019_09, orphan_definitions_11) {
+  sourcemeta::core::JSON document = sourcemeta::core::parse_json(R"JSON({
+    "$schema": "https://json-schema.org/draft/2019-09/schema",
+    "$ref": "https://no-such-host.invalid/external.json",
+    "definitions": {
+      "Recursive": {
+        "$recursiveAnchor": true,
+        "type": "object"
+      }
+    }
+  })JSON");
+
+  LINT_AND_FIX(document, result, traces);
+
+  EXPECT_FALSE(result.first);
+
+  const sourcemeta::core::JSON expected = sourcemeta::core::parse_json(R"JSON({
+    "$schema": "https://json-schema.org/draft/2019-09/schema",
+    "$ref": "https://no-such-host.invalid/external.json",
+    "$defs": {
+      "Recursive": {
+        "$recursiveAnchor": true,
+        "type": "object"
+      }
+    }
+  })JSON");
+
+  EXPECT_EQ(document, expected);
+}
+
 TEST(AlterSchema_lint_2019_09,
      unnecessary_allof_wrapper_inner_additional_properties_outer_properties) {
   sourcemeta::core::JSON document = sourcemeta::core::parse_json(R"JSON({
