@@ -178,6 +178,7 @@ auto WALK_UP_IN_PLACE_APPLICATORS(const JSON &root, const SchemaFrame &frame,
 #include "common/content_schema_without_media_type.h"
 #include "common/dependencies_property_tautology.h"
 #include "common/dependent_required_tautology.h"
+#include "common/disallow_narrows_type.h"
 #include "common/double_negation_elimination.h"
 #include "common/draft_official_dialect_with_https.h"
 #include "common/draft_official_dialect_without_empty_fragment.h"
@@ -208,6 +209,7 @@ auto WALK_UP_IN_PLACE_APPLICATORS(const JSON &root, const SchemaFrame &frame,
 #include "common/modern_official_dialect_with_empty_fragment.h"
 #include "common/modern_official_dialect_with_http.h"
 #include "common/non_applicable_additional_items.h"
+#include "common/non_applicable_disallow_types.h"
 #include "common/non_applicable_enum_validation_keywords.h"
 #include "common/non_applicable_type_specific_keywords.h"
 #include "common/not_false.h"
@@ -249,7 +251,6 @@ auto WALK_UP_IN_PLACE_APPLICATORS(const JSON &root, const SchemaFrame &frame,
 #include "linter/items_array_default.h"
 #include "linter/items_schema_default.h"
 #include "linter/multiple_of_default.h"
-#include "linter/non_applicable_disallow_types.h"
 #include "linter/pattern_properties_default.h"
 #include "linter/portable_anchor_names.h"
 #include "linter/properties_default.h"
@@ -371,6 +372,8 @@ auto add(SchemaTransformer &bundle, const AlterSchemaMode mode) -> void {
   bundle.add<DraftOfficialDialectWithHttps>();
   bundle.add<DraftOfficialDialectWithoutEmptyFragment>();
   bundle.add<NonApplicableTypeSpecificKeywords>();
+  bundle.add<NonApplicableDisallowTypes>();
+  bundle.add<DisallowNarrowsType>();
   bundle.add<AnyOfRemoveFalseSchemas>();
   bundle.add<AnyOfTrueSimplify>();
   bundle.add<DuplicateAllOfBranches>();
@@ -452,7 +455,6 @@ auto add(SchemaTransformer &bundle, const AlterSchemaMode mode) -> void {
     bundle.add<DisallowDefault>();
     bundle.add<DivisibleByDefault>();
     bundle.add<MultipleOfDefault>();
-    bundle.add<NonApplicableDisallowTypes>();
     bundle.add<PatternPropertiesDefault>();
     bundle.add<PropertiesDefault>();
     bundle.add<PropertyNamesDefault>();

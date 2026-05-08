@@ -72,6 +72,7 @@ sourcemeta_library(NAMESPACE sourcemeta PROJECT blaze NAME alterschema
     common/content_schema_without_media_type.h
     common/dependencies_property_tautology.h
     common/dependent_required_tautology.h
+    common/disallow_narrows_type.h
     common/double_negation_elimination.h
     common/draft_official_dialect_with_https.h
     common/draft_official_dialect_without_empty_fragment.h
@@ -102,6 +103,7 @@ sourcemeta_library(NAMESPACE sourcemeta PROJECT blaze NAME alterschema
     common/modern_official_dialect_with_empty_fragment.h
     common/modern_official_dialect_with_http.h
     common/non_applicable_additional_items.h
+    common/non_applicable_disallow_types.h
     common/non_applicable_enum_validation_keywords.h
     common/non_applicable_type_specific_keywords.h
     common/not_false.h
@@ -138,7 +140,6 @@ sourcemeta_library(NAMESPACE sourcemeta PROJECT blaze NAME alterschema
     linter/items_array_default.h
     linter/items_schema_default.h
     linter/multiple_of_default.h
-    linter/non_applicable_disallow_types.h
     linter/pattern_properties_default.h
     linter/portable_anchor_names.h
     linter/properties_default.h
