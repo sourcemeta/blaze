@@ -1863,7 +1863,7 @@ TEST(AlterSchema_lint_draft3, unsatisfiable_drop_validation_hyper) {
 
   LINT_AND_FIX(document, result, traces);
 
-  EXPECT_TRUE(result.first);
+  EXPECT_FALSE(result.first);
 
   const sourcemeta::core::JSON expected = sourcemeta::core::parse_json(R"JSON({
     "$schema": "http://json-schema.org/draft-03/hyper-schema#",
@@ -1911,7 +1911,7 @@ TEST(AlterSchema_lint_draft3, enum_with_type_hyper) {
 
   LINT_AND_FIX(document, result, traces);
 
-  EXPECT_TRUE(result.first);
+  EXPECT_FALSE(result.first);
 
   const sourcemeta::core::JSON expected = sourcemeta::core::parse_json(R"JSON({
     "$schema": "http://json-schema.org/draft-03/hyper-schema#",
@@ -1934,7 +1934,7 @@ TEST(AlterSchema_lint_draft3, dependent_required_tautology_hyper) {
 
   LINT_AND_FIX(document, result, traces);
 
-  EXPECT_TRUE(result.first);
+  EXPECT_FALSE(result.first);
 
   const sourcemeta::core::JSON expected = sourcemeta::core::parse_json(R"JSON({
     "$schema": "http://json-schema.org/draft-03/hyper-schema#",

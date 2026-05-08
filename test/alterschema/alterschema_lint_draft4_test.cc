@@ -1844,10 +1844,7 @@ TEST(AlterSchema_lint_draft4, not_false_5) {
 
   const sourcemeta::core::JSON expected = sourcemeta::core::parse_json(R"JSON({
     "$schema": "http://json-schema.org/draft-04/schema#",
-    "type": "string",
-    "not": {
-      "type": "number"
-    }
+    "type": "string"
   })JSON");
 
   EXPECT_EQ(document, expected);
