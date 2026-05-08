@@ -11,31 +11,34 @@ public:
   condition(const sourcemeta::core::JSON &schema,
             const sourcemeta::core::JSON &,
             const sourcemeta::core::Vocabularies &vocabularies,
-            const sourcemeta::core::SchemaFrame &,
-            const sourcemeta::core::SchemaFrame::Location &,
+            const sourcemeta::core::SchemaFrame &frame,
+            const sourcemeta::core::SchemaFrame::Location &location,
             const sourcemeta::core::SchemaWalker &,
             const sourcemeta::core::SchemaResolver &) const
       -> SchemaTransformRule::Result override {
+    static const JSON::String KEYWORD{"extends"};
     ONLY_CONTINUE_IF(vocabularies.contains_any(
                          {Vocabularies::Known::JSON_Schema_Draft_3,
                           Vocabularies::Known::JSON_Schema_Draft_3_Hyper}) &&
                      schema.is_object());
 
-    const auto *extends{schema.try_at("extends")};
+    const auto *extends{schema.try_at(KEYWORD)};
     ONLY_CONTINUE_IF(extends);
 
     if (sourcemeta::core::is_empty_schema(*extends)) {
-      return APPLIES_TO_POINTERS({Pointer{"extends"}});
+      return APPLIES_TO_POINTERS({Pointer{KEYWORD}});
     }
 
     if (extends->is_array() && !extends->empty()) {
       std::vector<Pointer> locations;
       for (std::size_t index = 0; index < extends->size(); ++index) {
         if (sourcemeta::core::is_empty_schema(extends->at(index))) {
-          locations.push_back(Pointer{"extends", index});
+          locations.push_back(Pointer{KEYWORD, index});
         }
       }
       ONLY_CONTINUE_IF(!locations.empty());
+      ONLY_CONTINUE_IF(!frame.has_references_through(
+          location.pointer, WeakPointer::Token{std::cref(KEYWORD)}));
       return APPLIES_TO_POINTERS(std::move(locations));
     }
 
