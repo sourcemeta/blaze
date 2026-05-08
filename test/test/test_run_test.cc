@@ -295,7 +295,7 @@ TEST(TestSuite_run, file_path_target) {
   sourcemeta::core::parse_json(input, document, std::ref(tracker));
   const auto test_resolver{
       [](std::string_view identifier) -> std::optional<sourcemeta::core::JSON> {
-        const sourcemeta::core::URI uri{std::string{identifier}};
+        const sourcemeta::core::URI uri{identifier};
         if (uri.is_file()) {
           return sourcemeta::core::read_yaml_or_json(uri.to_path());
         }
@@ -389,7 +389,7 @@ TEST(TestSuite_run, default_dialect) {
   sourcemeta::core::parse_json(input, document, std::ref(tracker));
   const auto test_resolver{
       [](std::string_view identifier) -> std::optional<sourcemeta::core::JSON> {
-        const sourcemeta::core::URI uri{std::string{identifier}};
+        const sourcemeta::core::URI uri{identifier};
         if (uri.is_file()) {
           return sourcemeta::core::read_yaml_or_json(uri.to_path());
         }
@@ -865,7 +865,7 @@ TEST(TestSuite_run, multiple_targets_with_file_path_targets) {
   sourcemeta::core::parse_json(input, document, std::ref(tracker));
   const auto test_resolver{
       [](std::string_view identifier) -> std::optional<sourcemeta::core::JSON> {
-        const sourcemeta::core::URI uri{std::string{identifier}};
+        const sourcemeta::core::URI uri{identifier};
         if (uri.is_file()) {
           return sourcemeta::core::read_yaml_or_json(uri.to_path());
         }
@@ -938,7 +938,7 @@ TEST(TestSuite_run, multiple_targets_with_default_dialect) {
   sourcemeta::core::parse_json(input, document, std::ref(tracker));
   const auto test_resolver{
       [](std::string_view identifier) -> std::optional<sourcemeta::core::JSON> {
-        const sourcemeta::core::URI uri{std::string{identifier}};
+        const sourcemeta::core::URI uri{identifier};
         if (uri.is_file()) {
           return sourcemeta::core::read_yaml_or_json(uri.to_path());
         }
@@ -1204,7 +1204,7 @@ TEST(TestSuite_run, multiple_targets_per_target_validation_differs) {
   sourcemeta::core::parse_json(input, document, std::ref(tracker));
   const auto test_resolver{
       [](std::string_view identifier) -> std::optional<sourcemeta::core::JSON> {
-        const sourcemeta::core::URI uri{std::string{identifier}};
+        const sourcemeta::core::URI uri{identifier};
         if (uri.is_file()) {
           return sourcemeta::core::read_yaml_or_json(uri.to_path());
         }

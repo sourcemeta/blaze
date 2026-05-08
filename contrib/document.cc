@@ -277,7 +277,7 @@ auto main(int argc, char *argv[]) -> int {
   bool first{true};
 
   for (const auto &file : files) {
-    const auto document{sourcemeta::core::read_json(std::string{file})};
+    const auto document{sourcemeta::core::read_json(file)};
 
     if (has_pointer && document.is_array()) {
       std::size_t index{0};
