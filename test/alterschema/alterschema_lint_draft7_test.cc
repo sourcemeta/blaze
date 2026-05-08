@@ -4626,3 +4626,43 @@ TEST(AlterSchema_lint_draft7, portable_anchor_names_nested) {
       "Schema dialects (`^[A-Za-z][A-Za-z0-9_.-]*$`)",
       false);
 }
+
+TEST(AlterSchema_lint_draft7, unsatisfiable_drop_validation_1) {
+  sourcemeta::core::JSON document = sourcemeta::core::parse_json(R"JSON({
+    "$schema": "http://json-schema.org/draft-07/schema#",
+    "type": "string",
+    "minLength": 1,
+    "not": {}
+  })JSON");
+
+  LINT_AND_FIX(document, result, traces);
+
+  EXPECT_FALSE(result.first);
+
+  const sourcemeta::core::JSON expected = sourcemeta::core::parse_json(R"JSON({
+    "$schema": "http://json-schema.org/draft-07/schema#",
+    "not": true
+  })JSON");
+
+  EXPECT_EQ(document, expected);
+}
+
+TEST(AlterSchema_lint_draft7, unsatisfiable_drop_validation_2) {
+  sourcemeta::core::JSON document = sourcemeta::core::parse_json(R"JSON({
+    "$schema": "http://json-schema.org/draft-07/schema#",
+    "type": "string",
+    "disallow": "any"
+  })JSON");
+
+  LINT_AND_FIX(document, result, traces);
+
+  EXPECT_FALSE(result.first);
+
+  const sourcemeta::core::JSON expected = sourcemeta::core::parse_json(R"JSON({
+    "$schema": "http://json-schema.org/draft-07/schema#",
+    "type": "string",
+    "x-disallow": "any"
+  })JSON");
+
+  EXPECT_EQ(document, expected);
+}
