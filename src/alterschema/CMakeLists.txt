@@ -126,6 +126,7 @@ sourcemeta_library(NAMESPACE sourcemeta PROJECT blaze NAME alterschema
     linter/dependent_required_default.h
     linter/description_trailing_period.h
     linter/description_trim.h
+    linter/disallow_default.h
     linter/divisible_by_default.h
     linter/duplicate_examples.h
     linter/else_empty.h
@@ -137,6 +138,7 @@ sourcemeta_library(NAMESPACE sourcemeta PROJECT blaze NAME alterschema
     linter/items_array_default.h
     linter/items_schema_default.h
     linter/multiple_of_default.h
+    linter/non_applicable_disallow_types.h
     linter/pattern_properties_default.h
     linter/portable_anchor_names.h
     linter/properties_default.h

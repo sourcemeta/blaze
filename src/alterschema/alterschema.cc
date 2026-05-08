@@ -238,6 +238,7 @@ auto WALK_UP_IN_PLACE_APPLICATORS(const JSON &root, const SchemaFrame &frame,
 #include "linter/dependent_required_default.h"
 #include "linter/description_trailing_period.h"
 #include "linter/description_trim.h"
+#include "linter/disallow_default.h"
 #include "linter/divisible_by_default.h"
 #include "linter/duplicate_examples.h"
 #include "linter/enum_to_const.h"
@@ -248,6 +249,7 @@ auto WALK_UP_IN_PLACE_APPLICATORS(const JSON &root, const SchemaFrame &frame,
 #include "linter/items_array_default.h"
 #include "linter/items_schema_default.h"
 #include "linter/multiple_of_default.h"
+#include "linter/non_applicable_disallow_types.h"
 #include "linter/pattern_properties_default.h"
 #include "linter/portable_anchor_names.h"
 #include "linter/properties_default.h"
@@ -447,8 +449,10 @@ auto add(SchemaTransformer &bundle, const AlterSchemaMode mode) -> void {
     bundle.add<DependentRequiredDefault>();
     bundle.add<ItemsArrayDefault>();
     bundle.add<ItemsSchemaDefault>();
+    bundle.add<DisallowDefault>();
     bundle.add<DivisibleByDefault>();
     bundle.add<MultipleOfDefault>();
+    bundle.add<NonApplicableDisallowTypes>();
     bundle.add<PatternPropertiesDefault>();
     bundle.add<PropertiesDefault>();
     bundle.add<PropertyNamesDefault>();
