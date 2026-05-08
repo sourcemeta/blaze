@@ -54,7 +54,7 @@ auto main(int argc, char *argv[]) -> int {
     return EXIT_FAILURE;
   }
 
-  auto document{sourcemeta::core::read_json(std::string{files.front()})};
+  auto document{sourcemeta::core::read_json(files.front())};
 
   sourcemeta::blaze::SchemaTransformer bundle;
   sourcemeta::blaze::add(bundle, mode.value());

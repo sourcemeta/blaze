@@ -11,7 +11,6 @@
 
 #include <filesystem> // std::filesystem::path
 #include <optional>   // std::optional, std::nullopt
-#include <string>     // std::string
 #include <tuple>      // std::get
 
 TEST(TestSuite_parse, error_not_an_object) {
@@ -210,7 +209,7 @@ TEST(TestSuite_parse, valid_with_file_path_target) {
   sourcemeta::core::parse_json(input, document, std::ref(tracker));
   const auto test_resolver{
       [](std::string_view identifier) -> std::optional<sourcemeta::core::JSON> {
-        const sourcemeta::core::URI uri{std::string{identifier}};
+        const sourcemeta::core::URI uri{identifier};
         if (uri.is_file()) {
           return sourcemeta::core::read_yaml_or_json(uri.to_path());
         }
@@ -255,7 +254,7 @@ TEST(TestSuite_parse, error_no_dialect_without_default) {
   sourcemeta::core::parse_json(input, document, std::ref(tracker));
   const auto test_resolver{
       [](std::string_view identifier) -> std::optional<sourcemeta::core::JSON> {
-        const sourcemeta::core::URI uri{std::string{identifier}};
+        const sourcemeta::core::URI uri{identifier};
         if (uri.is_file()) {
           return sourcemeta::core::read_yaml_or_json(uri.to_path());
         }
@@ -284,7 +283,7 @@ TEST(TestSuite_parse, valid_with_default_dialect) {
   sourcemeta::core::parse_json(input, document, std::ref(tracker));
   const auto test_resolver{
       [](std::string_view identifier) -> std::optional<sourcemeta::core::JSON> {
-        const sourcemeta::core::URI uri{std::string{identifier}};
+        const sourcemeta::core::URI uri{identifier};
         if (uri.is_file()) {
           return sourcemeta::core::read_yaml_or_json(uri.to_path());
         }
@@ -605,7 +604,7 @@ TEST(TestSuite_parse, valid_target_array_with_file_paths) {
   sourcemeta::core::parse_json(input, document, std::ref(tracker));
   const auto test_resolver{
       [](std::string_view identifier) -> std::optional<sourcemeta::core::JSON> {
-        const sourcemeta::core::URI uri{std::string{identifier}};
+        const sourcemeta::core::URI uri{identifier};
         if (uri.is_file()) {
           return sourcemeta::core::read_yaml_or_json(uri.to_path());
         }
@@ -643,7 +642,7 @@ TEST(TestSuite_parse, valid_target_array_mixed_uri_and_file_path) {
   sourcemeta::core::parse_json(input, document, std::ref(tracker));
   const auto test_resolver{
       [](std::string_view identifier) -> std::optional<sourcemeta::core::JSON> {
-        const sourcemeta::core::URI uri{std::string{identifier}};
+        const sourcemeta::core::URI uri{identifier};
         if (uri.is_file()) {
           return sourcemeta::core::read_yaml_or_json(uri.to_path());
         }
@@ -682,7 +681,7 @@ TEST(TestSuite_parse, valid_target_array_with_default_dialect) {
   sourcemeta::core::parse_json(input, document, std::ref(tracker));
   const auto test_resolver{
       [](std::string_view identifier) -> std::optional<sourcemeta::core::JSON> {
-        const sourcemeta::core::URI uri{std::string{identifier}};
+        const sourcemeta::core::URI uri{identifier};
         if (uri.is_file()) {
           return sourcemeta::core::read_yaml_or_json(uri.to_path());
         }
