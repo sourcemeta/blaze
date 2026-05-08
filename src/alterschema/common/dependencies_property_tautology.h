@@ -18,18 +18,20 @@ public:
             const sourcemeta::core::SchemaWalker &,
             const sourcemeta::core::SchemaResolver &) const
       -> SchemaTransformRule::Result override {
-    ONLY_CONTINUE_IF(
-        vocabularies.contains_any({Vocabularies::Known::JSON_Schema_Draft_7,
-                                   Vocabularies::Known::JSON_Schema_Draft_6,
-                                   Vocabularies::Known::JSON_Schema_Draft_4,
-                                   Vocabularies::Known::JSON_Schema_Draft_3}) &&
-        schema.is_object());
+    ONLY_CONTINUE_IF(vocabularies.contains_any(
+                         {Vocabularies::Known::JSON_Schema_Draft_7,
+                          Vocabularies::Known::JSON_Schema_Draft_6,
+                          Vocabularies::Known::JSON_Schema_Draft_4,
+                          Vocabularies::Known::JSON_Schema_Draft_3,
+                          Vocabularies::Known::JSON_Schema_Draft_3_Hyper}) &&
+                     schema.is_object());
 
     const auto *dependencies{schema.try_at("dependencies")};
     ONLY_CONTINUE_IF(dependencies && dependencies->is_object());
 
-    const bool is_draft_3{
-        vocabularies.contains(Vocabularies::Known::JSON_Schema_Draft_3)};
+    const bool is_draft_3{vocabularies.contains_any(
+        {Vocabularies::Known::JSON_Schema_Draft_3,
+         Vocabularies::Known::JSON_Schema_Draft_3_Hyper})};
 
     if (is_draft_3) {
       const auto *properties{schema.try_at("properties")};
@@ -66,11 +68,16 @@ public:
     return APPLIES_TO_KEYWORDS("dependencies", "required");
   }
 
-  auto transform(JSON &schema, const Result &) const -> void override {
-    if (schema.defines("required") && schema.at("required").is_array()) {
-      this->transform_array(schema);
-    } else {
+  auto transform(JSON &schema, const Result &result) const -> void override {
+    const bool is_draft_3_path{
+        std::ranges::any_of(result.locations, [](const auto &pointer) {
+          return pointer.size() == 1 && pointer.at(0).is_property() &&
+                 pointer.at(0).to_property() == "properties";
+        })};
+    if (is_draft_3_path) {
       this->transform_boolean(schema);
+    } else {
+      this->transform_array(schema);
     }
   }
 

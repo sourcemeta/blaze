@@ -1856,3 +1856,97 @@ TEST(AlterSchema_lint_draft3, unsatisfiable_drop_validation_4) {
 
   EXPECT_EQ(document, expected);
 }
+
+TEST(AlterSchema_lint_draft3, unsatisfiable_drop_validation_hyper) {
+  sourcemeta::core::JSON document = sourcemeta::core::parse_json(R"JSON({
+    "$schema": "http://json-schema.org/draft-03/hyper-schema#",
+    "type": "string",
+    "minLength": 1,
+    "disallow": "any"
+  })JSON");
+
+  LINT_AND_FIX(document, result, traces);
+
+  EXPECT_TRUE(result.first);
+
+  const sourcemeta::core::JSON expected = sourcemeta::core::parse_json(R"JSON({
+    "$schema": "http://json-schema.org/draft-03/hyper-schema#",
+    "disallow": "any"
+  })JSON");
+
+  EXPECT_EQ(document, expected);
+}
+
+TEST(AlterSchema_lint_draft3,
+     dependent_required_tautology_with_array_required) {
+  sourcemeta::core::JSON document = sourcemeta::core::parse_json(R"JSON({
+    "$schema": "http://json-schema.org/draft-03/schema#",
+    "properties": {
+      "foo": { "required": true }
+    },
+    "required": [ "foo" ],
+    "dependencies": {
+      "foo": "bar"
+    }
+  })JSON");
+
+  LINT_AND_FIX(document, result, traces);
+
+  EXPECT_FALSE(result.first);
+
+  const sourcemeta::core::JSON expected = sourcemeta::core::parse_json(R"JSON({
+    "$schema": "http://json-schema.org/draft-03/schema#",
+    "properties": {
+      "foo": { "required": true },
+      "bar": { "required": true }
+    },
+    "required": [ "foo" ]
+  })JSON");
+
+  EXPECT_EQ(document, expected);
+}
+
+TEST(AlterSchema_lint_draft3, enum_with_type_hyper) {
+  sourcemeta::core::JSON document = sourcemeta::core::parse_json(R"JSON({
+    "$schema": "http://json-schema.org/draft-03/hyper-schema#",
+    "type": "any",
+    "enum": [ 1, "foo", true ]
+  })JSON");
+
+  LINT_AND_FIX(document, result, traces);
+
+  EXPECT_TRUE(result.first);
+
+  const sourcemeta::core::JSON expected = sourcemeta::core::parse_json(R"JSON({
+    "$schema": "http://json-schema.org/draft-03/hyper-schema#",
+    "enum": [ 1, "foo", true ]
+  })JSON");
+
+  EXPECT_EQ(document, expected);
+}
+
+TEST(AlterSchema_lint_draft3, dependent_required_tautology_hyper) {
+  sourcemeta::core::JSON document = sourcemeta::core::parse_json(R"JSON({
+    "$schema": "http://json-schema.org/draft-03/hyper-schema#",
+    "properties": {
+      "foo": { "required": true }
+    },
+    "dependencies": {
+      "foo": "bar"
+    }
+  })JSON");
+
+  LINT_AND_FIX(document, result, traces);
+
+  EXPECT_TRUE(result.first);
+
+  const sourcemeta::core::JSON expected = sourcemeta::core::parse_json(R"JSON({
+    "$schema": "http://json-schema.org/draft-03/hyper-schema#",
+    "properties": {
+      "foo": { "required": true },
+      "bar": { "required": true }
+    }
+  })JSON");
+
+  EXPECT_EQ(document, expected);
+}

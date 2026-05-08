@@ -21,7 +21,8 @@ public:
                           Vocabularies::Known::JSON_Schema_2019_09_Applicator,
                           Vocabularies::Known::JSON_Schema_Draft_7,
                           Vocabularies::Known::JSON_Schema_Draft_6,
-                          Vocabularies::Known::JSON_Schema_Draft_3}) &&
+                          Vocabularies::Known::JSON_Schema_Draft_3,
+                          Vocabularies::Known::JSON_Schema_Draft_3_Hyper}) &&
                      schema.is_object());
 
     const bool is_draft_3{vocabularies.contains_any(
