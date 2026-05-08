@@ -25,6 +25,10 @@ public:
     const auto *extends{schema.try_at(KEYWORD)};
     ONLY_CONTINUE_IF(extends);
 
+    auto keyword_pointer{location.pointer};
+    keyword_pointer.push_back(std::cref(KEYWORD));
+    ONLY_CONTINUE_IF(!frame.has_references_through(keyword_pointer));
+
     if (sourcemeta::core::is_empty_schema(*extends)) {
       return APPLIES_TO_POINTERS({Pointer{KEYWORD}});
     }
@@ -37,8 +41,6 @@ public:
         }
       }
       ONLY_CONTINUE_IF(!locations.empty());
-      ONLY_CONTINUE_IF(!frame.has_references_through(
-          location.pointer, WeakPointer::Token{std::cref(KEYWORD)}));
       return APPLIES_TO_POINTERS(std::move(locations));
     }
 

@@ -1801,6 +1801,28 @@ TEST(AlterSchema_lint_draft3, drop_extends_empty_schemas_with_ref_through) {
   EXPECT_EQ(document, expected);
 }
 
+TEST(AlterSchema_lint_draft3, drop_extends_empty_schemas_single_with_ref) {
+  sourcemeta::core::JSON document = sourcemeta::core::parse_json(R"JSON({
+    "$schema": "http://json-schema.org/draft-03/schema#",
+    "type": "string",
+    "extends": {},
+    "additionalProperties": { "$ref": "#/extends" }
+  })JSON");
+
+  LINT_AND_FIX(document, result, traces);
+
+  EXPECT_FALSE(result.first);
+
+  const sourcemeta::core::JSON expected = sourcemeta::core::parse_json(R"JSON({
+    "$schema": "http://json-schema.org/draft-03/schema#",
+    "type": "string",
+    "extends": {},
+    "additionalProperties": { "$ref": "#/extends" }
+  })JSON");
+
+  EXPECT_EQ(document, expected);
+}
+
 TEST(AlterSchema_lint_draft3, unsatisfiable_drop_validation_1) {
   sourcemeta::core::JSON document = sourcemeta::core::parse_json(R"JSON({
     "$schema": "http://json-schema.org/draft-03/schema#",
@@ -2921,6 +2943,33 @@ TEST(AlterSchema_lint_draft3,
     "disallow": [ { "type": "string" }, { "type": "number" } ],
     "properties": {
       "self": { "$ref": "#/disallow/1" }
+    }
+  })JSON");
+
+  EXPECT_EQ(document, expected);
+}
+
+TEST(AlterSchema_lint_draft3, disallow_narrows_type_with_unrelated_ref) {
+  sourcemeta::core::JSON document = sourcemeta::core::parse_json(R"JSON({
+    "$schema": "http://json-schema.org/draft-03/schema#",
+    "type": [ "string", "number", "boolean" ],
+    "disallow": [ { "type": "string" }, { "type": "number" } ],
+    "properties": {
+      "x": { "type": "string" },
+      "y": { "$ref": "#/properties/x" }
+    }
+  })JSON");
+
+  LINT_AND_FIX(document, result, traces);
+
+  EXPECT_FALSE(result.first);
+
+  const sourcemeta::core::JSON expected = sourcemeta::core::parse_json(R"JSON({
+    "$schema": "http://json-schema.org/draft-03/schema#",
+    "type": "boolean",
+    "properties": {
+      "x": { "type": "string" },
+      "y": { "$ref": "#/properties/x" }
     }
   })JSON");
 

@@ -59,8 +59,10 @@ public:
 
     ONLY_CONTINUE_IF(!locations.empty());
     ONLY_CONTINUE_IF(narrowed_types.size() < parent_type_names.size());
-    ONLY_CONTINUE_IF(!frame.has_references_through(
-        location.pointer, WeakPointer::Token{std::cref(KEYWORD)}));
+
+    auto keyword_pointer{location.pointer};
+    keyword_pointer.push_back(std::cref(KEYWORD));
+    ONLY_CONTINUE_IF(!frame.has_references_through(keyword_pointer));
 
     return APPLIES_TO_POINTERS(std::move(locations));
   }
