@@ -553,10 +553,6 @@ TEST(AlterSchema_lint_draft3, dependent_required_tautology_1) {
     "dependencies": {
       "xxx": { "type": "string" },
       "yyy": [ "extra" ]
-    },
-    "properties": {
-      "foo": true,
-      "bar": true
     }
   })JSON");
 
@@ -579,12 +575,7 @@ TEST(AlterSchema_lint_draft3, dependent_required_tautology_2) {
 
   const sourcemeta::core::JSON expected = sourcemeta::core::parse_json(R"JSON({
     "$schema": "http://json-schema.org/draft-03/schema#",
-    "required": [ "foo", "bar", "baz" ],
-    "properties": {
-      "foo": true,
-      "bar": true,
-      "baz": true
-    }
+    "required": [ "foo", "bar", "baz" ]
   })JSON");
 
   EXPECT_EQ(document, expected);
@@ -839,6 +830,54 @@ TEST(AlterSchema_lint_draft3, equal_numeric_bounds_to_enum_1) {
   const sourcemeta::core::JSON expected = sourcemeta::core::parse_json(R"JSON({
     "$schema": "http://json-schema.org/draft-03/schema#",
     "enum": [ 3 ]
+  })JSON");
+
+  EXPECT_EQ(document, expected);
+}
+
+TEST(AlterSchema_lint_draft3, equal_numeric_bounds_to_enum_2) {
+  sourcemeta::core::JSON document = sourcemeta::core::parse_json(R"JSON({
+    "$schema": "http://json-schema.org/draft-03/schema#",
+    "type": "integer",
+    "minimum": 3,
+    "maximum": 3,
+    "exclusiveMinimum": true
+  })JSON");
+
+  LINT_AND_FIX(document, result, traces);
+
+  EXPECT_FALSE(result.first);
+
+  const sourcemeta::core::JSON expected = sourcemeta::core::parse_json(R"JSON({
+    "$schema": "http://json-schema.org/draft-03/schema#",
+    "type": "integer",
+    "minimum": 3,
+    "maximum": 3,
+    "exclusiveMinimum": true
+  })JSON");
+
+  EXPECT_EQ(document, expected);
+}
+
+TEST(AlterSchema_lint_draft3, equal_numeric_bounds_to_enum_3) {
+  sourcemeta::core::JSON document = sourcemeta::core::parse_json(R"JSON({
+    "$schema": "http://json-schema.org/draft-03/schema#",
+    "type": "integer",
+    "minimum": 3,
+    "maximum": 3,
+    "exclusiveMaximum": true
+  })JSON");
+
+  LINT_AND_FIX(document, result, traces);
+
+  EXPECT_FALSE(result.first);
+
+  const sourcemeta::core::JSON expected = sourcemeta::core::parse_json(R"JSON({
+    "$schema": "http://json-schema.org/draft-03/schema#",
+    "type": "integer",
+    "minimum": 3,
+    "maximum": 3,
+    "exclusiveMaximum": true
   })JSON");
 
   EXPECT_EQ(document, expected);
