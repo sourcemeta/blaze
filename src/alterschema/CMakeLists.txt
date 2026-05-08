@@ -81,6 +81,7 @@ sourcemeta_library(NAMESPACE sourcemeta PROJECT blaze NAME alterschema
     common/duplicate_allof_branches.h
     common/flatten_nested_allof.h
     common/flatten_nested_anyof.h
+    common/flatten_nested_extends.h
     common/duplicate_anyof_branches.h
     common/dynamic_ref_to_static_ref.h
     common/duplicate_enum_values.h
@@ -113,6 +114,7 @@ sourcemeta_library(NAMESPACE sourcemeta PROJECT blaze NAME alterschema
     common/unknown_local_ref.h
     common/unsatisfiable_drop_validation.h
     common/unnecessary_allof_ref_wrapper_draft.h
+    common/unnecessary_extends_ref_wrapper.h
     common/unsatisfiable_in_place_applicator_type.h
 
     # Linter
@@ -124,6 +126,7 @@ sourcemeta_library(NAMESPACE sourcemeta PROJECT blaze NAME alterschema
     linter/dependent_required_default.h
     linter/description_trailing_period.h
     linter/description_trim.h
+    linter/divisible_by_default.h
     linter/duplicate_examples.h
     linter/else_empty.h
     linter/enum_to_const.h
@@ -151,6 +154,7 @@ sourcemeta_library(NAMESPACE sourcemeta PROJECT blaze NAME alterschema
     linter/unevaluated_properties_default.h
     linter/unnecessary_allof_ref_wrapper_modern.h
     linter/unnecessary_allof_wrapper.h
+    linter/unnecessary_extends_wrapper.h
     linter/unsatisfiable_max_contains.h
     linter/unsatisfiable_min_properties.h
     linter/valid_default.h

@@ -198,6 +198,7 @@ auto WALK_UP_IN_PLACE_APPLICATORS(const JSON &root, const SchemaFrame &frame,
 #include "common/exclusive_minimum_number_and_minimum.h"
 #include "common/flatten_nested_allof.h"
 #include "common/flatten_nested_anyof.h"
+#include "common/flatten_nested_extends.h"
 #include "common/if_without_then_else.h"
 #include "common/ignored_metaschema.h"
 #include "common/max_contains_without_contains.h"
@@ -219,12 +220,14 @@ auto WALK_UP_IN_PLACE_APPLICATORS(const JSON &root, const SchemaFrame &frame,
 #include "common/unknown_keywords_prefix.h"
 #include "common/unknown_local_ref.h"
 #include "common/unnecessary_allof_ref_wrapper_draft.h"
+#include "common/unnecessary_extends_ref_wrapper.h"
 #include "common/unsatisfiable_drop_validation.h"
 #include "common/unsatisfiable_in_place_applicator_type.h"
 #include "linter/else_empty.h"
 #include "linter/then_empty.h"
 #include "linter/unnecessary_allof_ref_wrapper_modern.h"
 #include "linter/unnecessary_allof_wrapper.h"
+#include "linter/unnecessary_extends_wrapper.h"
 
 // Linter
 #include "linter/comment_trim.h"
@@ -235,6 +238,7 @@ auto WALK_UP_IN_PLACE_APPLICATORS(const JSON &root, const SchemaFrame &frame,
 #include "linter/dependent_required_default.h"
 #include "linter/description_trailing_period.h"
 #include "linter/description_trim.h"
+#include "linter/divisible_by_default.h"
 #include "linter/duplicate_examples.h"
 #include "linter/enum_to_const.h"
 #include "linter/equal_numeric_bounds_to_const.h"
@@ -370,6 +374,7 @@ auto add(SchemaTransformer &bundle, const AlterSchemaMode mode) -> void {
   bundle.add<DuplicateAllOfBranches>();
   bundle.add<DuplicateAnyOfBranches>();
   bundle.add<FlattenNestedAllOf>();
+  bundle.add<FlattenNestedExtends>();
   bundle.add<FlattenNestedAnyOf>();
   if (mode == AlterSchemaMode::Canonicalizer) {
     bundle.add<Draft3TypeAny>();
@@ -442,6 +447,7 @@ auto add(SchemaTransformer &bundle, const AlterSchemaMode mode) -> void {
     bundle.add<DependentRequiredDefault>();
     bundle.add<ItemsArrayDefault>();
     bundle.add<ItemsSchemaDefault>();
+    bundle.add<DivisibleByDefault>();
     bundle.add<MultipleOfDefault>();
     bundle.add<PatternPropertiesDefault>();
     bundle.add<PropertiesDefault>();
@@ -475,9 +481,11 @@ auto add(SchemaTransformer &bundle, const AlterSchemaMode mode) -> void {
     bundle.add<UnnecessaryAllOfRefWrapperModern>();
   }
   bundle.add<UnnecessaryAllOfRefWrapperDraft>();
+  bundle.add<UnnecessaryExtendsRefWrapper>();
 
   if (mode != AlterSchemaMode::Canonicalizer) {
     bundle.add<UnnecessaryAllOfWrapper>();
+    bundle.add<UnnecessaryExtendsWrapper>();
   }
 
   bundle.add<DropAllOfEmptySchemas>();
