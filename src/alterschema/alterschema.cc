@@ -178,6 +178,7 @@ auto WALK_UP_IN_PLACE_APPLICATORS(const JSON &root, const SchemaFrame &frame,
 #include "common/content_schema_without_media_type.h"
 #include "common/dependencies_property_tautology.h"
 #include "common/dependent_required_tautology.h"
+#include "common/disallow_narrows_type.h"
 #include "common/double_negation_elimination.h"
 #include "common/draft_official_dialect_with_https.h"
 #include "common/draft_official_dialect_without_empty_fragment.h"
@@ -208,6 +209,7 @@ auto WALK_UP_IN_PLACE_APPLICATORS(const JSON &root, const SchemaFrame &frame,
 #include "common/modern_official_dialect_with_empty_fragment.h"
 #include "common/modern_official_dialect_with_http.h"
 #include "common/non_applicable_additional_items.h"
+#include "common/non_applicable_disallow_types.h"
 #include "common/non_applicable_enum_validation_keywords.h"
 #include "common/non_applicable_type_specific_keywords.h"
 #include "common/not_false.h"
@@ -238,6 +240,7 @@ auto WALK_UP_IN_PLACE_APPLICATORS(const JSON &root, const SchemaFrame &frame,
 #include "linter/dependent_required_default.h"
 #include "linter/description_trailing_period.h"
 #include "linter/description_trim.h"
+#include "linter/disallow_default.h"
 #include "linter/divisible_by_default.h"
 #include "linter/duplicate_examples.h"
 #include "linter/enum_to_const.h"
@@ -369,6 +372,8 @@ auto add(SchemaTransformer &bundle, const AlterSchemaMode mode) -> void {
   bundle.add<DraftOfficialDialectWithHttps>();
   bundle.add<DraftOfficialDialectWithoutEmptyFragment>();
   bundle.add<NonApplicableTypeSpecificKeywords>();
+  bundle.add<NonApplicableDisallowTypes>();
+  bundle.add<DisallowNarrowsType>();
   bundle.add<AnyOfRemoveFalseSchemas>();
   bundle.add<AnyOfTrueSimplify>();
   bundle.add<DuplicateAllOfBranches>();
@@ -447,6 +452,7 @@ auto add(SchemaTransformer &bundle, const AlterSchemaMode mode) -> void {
     bundle.add<DependentRequiredDefault>();
     bundle.add<ItemsArrayDefault>();
     bundle.add<ItemsSchemaDefault>();
+    bundle.add<DisallowDefault>();
     bundle.add<DivisibleByDefault>();
     bundle.add<MultipleOfDefault>();
     bundle.add<PatternPropertiesDefault>();
