@@ -119,7 +119,6 @@ auto WALK_UP_IN_PLACE_APPLICATORS(const JSON &root, const SchemaFrame &frame,
 #include "canonicalizer/deprecated_false_drop.h"
 #include "canonicalizer/disallow_to_array_of_schemas.h"
 #include "canonicalizer/divisible_by_implicit.h"
-#include "canonicalizer/draft3_drop_extends_empty_schemas.h"
 #include "canonicalizer/draft3_type_any.h"
 #include "canonicalizer/empty_definitions_drop.h"
 #include "canonicalizer/empty_defs_drop.h"
@@ -128,7 +127,6 @@ auto WALK_UP_IN_PLACE_APPLICATORS(const JSON &root, const SchemaFrame &frame,
 #include "canonicalizer/empty_dependent_schemas_drop.h"
 #include "canonicalizer/enum_drop_redundant_validation.h"
 #include "canonicalizer/enum_filter_by_type.h"
-#include "canonicalizer/exclusive_bounds_false_drop.h"
 #include "canonicalizer/exclusive_maximum_boolean_integer_fold.h"
 #include "canonicalizer/exclusive_maximum_integer_to_maximum.h"
 #include "canonicalizer/exclusive_minimum_boolean_integer_fold.h"
@@ -185,6 +183,7 @@ auto WALK_UP_IN_PLACE_APPLICATORS(const JSON &root, const SchemaFrame &frame,
 #include "common/draft_official_dialect_without_empty_fragment.h"
 #include "common/draft_ref_siblings.h"
 #include "common/drop_allof_empty_schemas.h"
+#include "common/drop_extends_empty_schemas.h"
 #include "common/duplicate_allof_branches.h"
 #include "common/duplicate_anyof_branches.h"
 #include "common/duplicate_enum_values.h"
@@ -194,6 +193,7 @@ auto WALK_UP_IN_PLACE_APPLICATORS(const JSON &root, const SchemaFrame &frame,
 #include "common/empty_object_as_true.h"
 #include "common/enum_with_type.h"
 #include "common/equal_numeric_bounds_to_enum.h"
+#include "common/exclusive_bounds_false_drop.h"
 #include "common/exclusive_maximum_number_and_maximum.h"
 #include "common/exclusive_minimum_number_and_minimum.h"
 #include "common/flatten_nested_allof.h"
@@ -330,7 +330,6 @@ auto add(SchemaTransformer &bundle, const AlterSchemaMode mode) -> void {
   if (mode == AlterSchemaMode::Canonicalizer) {
     bundle.add<ExclusiveMinimumBooleanIntegerFold>();
     bundle.add<ExclusiveMaximumBooleanIntegerFold>();
-    bundle.add<ExclusiveBoundsFalseDrop>();
     bundle.add<UnsatisfiableExclusiveEqualBounds>();
     bundle.add<MinimumCanEqualIntegerFold>();
     bundle.add<MaximumCanEqualIntegerFold>();
@@ -410,6 +409,7 @@ auto add(SchemaTransformer &bundle, const AlterSchemaMode mode) -> void {
   bundle.add<ModernOfficialDialectWithHttp>();
   bundle.add<ExclusiveMaximumNumberAndMaximum>();
   bundle.add<ExclusiveMinimumNumberAndMinimum>();
+  bundle.add<ExclusiveBoundsFalseDrop>();
   bundle.add<DraftRefSiblings>();
   bundle.add<DynamicRefToStaticRef>();
   bundle.add<UnknownKeywordsPrefix>();
@@ -481,9 +481,7 @@ auto add(SchemaTransformer &bundle, const AlterSchemaMode mode) -> void {
   }
 
   bundle.add<DropAllOfEmptySchemas>();
-  if (mode == AlterSchemaMode::Canonicalizer) {
-    bundle.add<Draft3DropExtendsEmptySchemas>();
-  }
+  bundle.add<DropExtendsEmptySchemas>();
   bundle.add<EmptyObjectAsTrue>();
 
   if (mode == AlterSchemaMode::Canonicalizer) {
