@@ -2461,10 +2461,7 @@ TEST(AlterSchema_lint_draft7, not_false_5) {
 
   const sourcemeta::core::JSON expected = sourcemeta::core::parse_json(R"JSON({
     "$schema": "http://json-schema.org/draft-07/schema#",
-    "type": "string",
-    "not": {
-      "type": "number"
-    }
+    "type": "string"
   })JSON");
 
   EXPECT_EQ(document, expected);
@@ -4663,6 +4660,128 @@ TEST(AlterSchema_lint_draft7, unsatisfiable_drop_validation_2) {
     "$schema": "http://json-schema.org/draft-07/schema#",
     "type": "string",
     "x-disallow": "any"
+  })JSON");
+
+  EXPECT_EQ(document, expected);
+}
+
+TEST(AlterSchema_lint_draft7,
+     equal_numeric_bounds_to_const_preserves_unsat_exclusive_minimum) {
+  sourcemeta::core::JSON document = sourcemeta::core::parse_json(R"JSON({
+    "$schema": "http://json-schema.org/draft-07/schema#",
+    "type": "integer",
+    "minimum": 3,
+    "maximum": 3,
+    "exclusiveMinimum": 3
+  })JSON");
+
+  LINT_AND_FIX(document, result, traces);
+
+  EXPECT_FALSE(result.first);
+
+  const sourcemeta::core::JSON expected = sourcemeta::core::parse_json(R"JSON({
+    "$schema": "http://json-schema.org/draft-07/schema#",
+    "type": "integer",
+    "maximum": 3,
+    "exclusiveMinimum": 3
+  })JSON");
+
+  EXPECT_EQ(document, expected);
+}
+
+TEST(AlterSchema_lint_draft7,
+     equal_numeric_bounds_to_const_preserves_unsat_exclusive_maximum) {
+  sourcemeta::core::JSON document = sourcemeta::core::parse_json(R"JSON({
+    "$schema": "http://json-schema.org/draft-07/schema#",
+    "type": "integer",
+    "minimum": 3,
+    "maximum": 3,
+    "exclusiveMaximum": 3
+  })JSON");
+
+  LINT_AND_FIX(document, result, traces);
+
+  EXPECT_FALSE(result.first);
+
+  const sourcemeta::core::JSON expected = sourcemeta::core::parse_json(R"JSON({
+    "$schema": "http://json-schema.org/draft-07/schema#",
+    "type": "integer",
+    "minimum": 3,
+    "exclusiveMaximum": 3
+  })JSON");
+
+  EXPECT_EQ(document, expected);
+}
+
+TEST(AlterSchema_lint_draft7,
+     equal_numeric_bounds_to_const_with_loose_exclusive) {
+  sourcemeta::core::JSON document = sourcemeta::core::parse_json(R"JSON({
+    "$schema": "http://json-schema.org/draft-07/schema#",
+    "type": "integer",
+    "minimum": 3,
+    "maximum": 3,
+    "exclusiveMinimum": 1,
+    "exclusiveMaximum": 5
+  })JSON");
+
+  LINT_AND_FIX(document, result, traces);
+
+  EXPECT_FALSE(result.first);
+
+  const sourcemeta::core::JSON expected = sourcemeta::core::parse_json(R"JSON({
+    "$schema": "http://json-schema.org/draft-07/schema#",
+    "const": 3
+  })JSON");
+
+  EXPECT_EQ(document, expected);
+}
+
+TEST(AlterSchema_lint_draft7,
+     unsatisfiable_in_place_applicator_type_not_disjoint) {
+  sourcemeta::core::JSON document = sourcemeta::core::parse_json(R"JSON({
+    "$schema": "http://json-schema.org/draft-07/schema#",
+    "type": "string",
+    "minLength": 1,
+    "not": {
+      "type": "number"
+    }
+  })JSON");
+
+  LINT_AND_FIX(document, result, traces);
+
+  EXPECT_FALSE(result.first);
+
+  const sourcemeta::core::JSON expected = sourcemeta::core::parse_json(R"JSON({
+    "$schema": "http://json-schema.org/draft-07/schema#",
+    "type": "string",
+    "minLength": 1
+  })JSON");
+
+  EXPECT_EQ(document, expected);
+}
+
+TEST(AlterSchema_lint_draft7,
+     unsatisfiable_in_place_applicator_type_not_overlap_no_change) {
+  sourcemeta::core::JSON document = sourcemeta::core::parse_json(R"JSON({
+    "$schema": "http://json-schema.org/draft-07/schema#",
+    "type": "string",
+    "not": {
+      "type": "string",
+      "minLength": 5
+    }
+  })JSON");
+
+  LINT_AND_FIX(document, result, traces);
+
+  EXPECT_FALSE(result.first);
+
+  const sourcemeta::core::JSON expected = sourcemeta::core::parse_json(R"JSON({
+    "$schema": "http://json-schema.org/draft-07/schema#",
+    "type": "string",
+    "not": {
+      "type": "string",
+      "minLength": 5
+    }
   })JSON");
 
   EXPECT_EQ(document, expected);
