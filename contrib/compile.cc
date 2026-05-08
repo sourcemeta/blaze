@@ -132,8 +132,8 @@ auto main(int argc, char **argv) noexcept -> int {
     std::cerr << "Input: " << positional.front() << "\n";
 
     if (options.contains("path")) {
-      const auto pointer{sourcemeta::core::to_pointer(
-          std::string{options.at("path").front()})};
+      const auto pointer{
+          sourcemeta::core::to_pointer(options.at("path").front())};
       const auto *result{sourcemeta::core::try_get(document, pointer)};
       if (result == nullptr) {
         std::cerr << "error: path not found in input: "
