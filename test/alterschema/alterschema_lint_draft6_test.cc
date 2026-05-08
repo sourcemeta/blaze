@@ -1448,6 +1448,7 @@ TEST(AlterSchema_lint_draft6, multiple_of_default_2) {
 
   const sourcemeta::core::JSON expected = sourcemeta::core::parse_json(R"JSON({
     "$schema": "http://json-schema.org/draft-06/schema#",
+    "multipleOf": 1.0,
     "maximum": 100
   })JSON");
 
