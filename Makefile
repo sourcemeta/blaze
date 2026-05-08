@@ -38,7 +38,7 @@ compile: .always
 test: .always
 	$(CMAKE) -E env UBSAN_OPTIONS=print_stacktrace=1 \
 		$(CTEST) --test-dir ./build --build-config $(PRESET) \
-			--output-on-failure --parallel
+			--output-on-failure --parallel --timeout 60
 
 benchmark: .always
 	$(CMAKE) --build ./build --config $(PRESET) --target benchmark_all
