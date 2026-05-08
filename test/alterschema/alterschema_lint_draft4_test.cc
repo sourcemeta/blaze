@@ -2980,3 +2980,116 @@ TEST(AlterSchema_lint_draft4, portable_anchor_names_nested) {
       "Schema dialects (`^[A-Za-z][A-Za-z0-9_.-]*$`)",
       false);
 }
+
+TEST(AlterSchema_lint_draft4, exclusive_bounds_false_drop_1) {
+  sourcemeta::core::JSON document = sourcemeta::core::parse_json(R"JSON({
+    "$schema": "http://json-schema.org/draft-04/schema#",
+    "type": "integer",
+    "minimum": 0,
+    "exclusiveMinimum": false
+  })JSON");
+
+  LINT_AND_FIX(document, result, traces);
+
+  EXPECT_FALSE(result.first);
+
+  const sourcemeta::core::JSON expected = sourcemeta::core::parse_json(R"JSON({
+    "$schema": "http://json-schema.org/draft-04/schema#",
+    "type": "integer",
+    "minimum": 0
+  })JSON");
+
+  EXPECT_EQ(document, expected);
+}
+
+TEST(AlterSchema_lint_draft4, exclusive_bounds_false_drop_2) {
+  sourcemeta::core::JSON document = sourcemeta::core::parse_json(R"JSON({
+    "$schema": "http://json-schema.org/draft-04/schema#",
+    "type": "integer",
+    "maximum": 100,
+    "exclusiveMaximum": false
+  })JSON");
+
+  LINT_AND_FIX(document, result, traces);
+
+  EXPECT_FALSE(result.first);
+
+  const sourcemeta::core::JSON expected = sourcemeta::core::parse_json(R"JSON({
+    "$schema": "http://json-schema.org/draft-04/schema#",
+    "type": "integer",
+    "maximum": 100
+  })JSON");
+
+  EXPECT_EQ(document, expected);
+}
+
+TEST(AlterSchema_lint_draft4, exclusive_bounds_false_drop_3) {
+  sourcemeta::core::JSON document = sourcemeta::core::parse_json(R"JSON({
+    "$schema": "http://json-schema.org/draft-04/schema#",
+    "type": "number",
+    "minimum": 0,
+    "maximum": 100,
+    "exclusiveMinimum": false,
+    "exclusiveMaximum": false
+  })JSON");
+
+  LINT_AND_FIX(document, result, traces);
+
+  EXPECT_FALSE(result.first);
+
+  const sourcemeta::core::JSON expected = sourcemeta::core::parse_json(R"JSON({
+    "$schema": "http://json-schema.org/draft-04/schema#",
+    "type": "number",
+    "minimum": 0,
+    "maximum": 100
+  })JSON");
+
+  EXPECT_EQ(document, expected);
+}
+
+TEST(AlterSchema_lint_draft4, exclusive_bounds_false_drop_4) {
+  sourcemeta::core::JSON document = sourcemeta::core::parse_json(R"JSON({
+    "$schema": "http://json-schema.org/draft-04/schema#",
+    "type": "integer",
+    "minimum": 0,
+    "maximum": 100,
+    "exclusiveMinimum": true,
+    "exclusiveMaximum": false
+  })JSON");
+
+  LINT_AND_FIX(document, result, traces);
+
+  EXPECT_FALSE(result.first);
+
+  const sourcemeta::core::JSON expected = sourcemeta::core::parse_json(R"JSON({
+    "$schema": "http://json-schema.org/draft-04/schema#",
+    "type": "integer",
+    "minimum": 0,
+    "maximum": 100,
+    "exclusiveMinimum": true
+  })JSON");
+
+  EXPECT_EQ(document, expected);
+}
+
+TEST(AlterSchema_lint_draft4, exclusive_bounds_false_drop_5) {
+  sourcemeta::core::JSON document = sourcemeta::core::parse_json(R"JSON({
+    "$schema": "http://json-schema.org/draft-04/schema#",
+    "type": "integer",
+    "minimum": 0,
+    "exclusiveMinimum": true
+  })JSON");
+
+  LINT_AND_FIX(document, result, traces);
+
+  EXPECT_FALSE(result.first);
+
+  const sourcemeta::core::JSON expected = sourcemeta::core::parse_json(R"JSON({
+    "$schema": "http://json-schema.org/draft-04/schema#",
+    "type": "integer",
+    "minimum": 0,
+    "exclusiveMinimum": true
+  })JSON");
+
+  EXPECT_EQ(document, expected);
+}
