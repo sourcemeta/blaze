@@ -22,6 +22,10 @@ public:
                           Vocabularies::Known::JSON_Schema_Draft_3_Hyper}) &&
                      schema.is_object());
 
+    const auto *type{schema.try_at("type")};
+    ONLY_CONTINUE_IF(type && type->is_string() &&
+                     type->to_string() == "integer");
+
     const auto *divisible_by{schema.try_at("divisibleBy")};
     ONLY_CONTINUE_IF(
         divisible_by &&

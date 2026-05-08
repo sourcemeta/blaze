@@ -1176,7 +1176,7 @@ TEST(AlterSchema_lint_draft4, multiple_of_default_1) {
 TEST(AlterSchema_lint_draft4, multiple_of_default_2) {
   sourcemeta::core::JSON document = sourcemeta::core::parse_json(R"JSON({
     "$schema": "http://json-schema.org/draft-04/schema#",
-    "type": "number",
+    "type": "integer",
     "multipleOf": 1.0
   })JSON");
 
@@ -1186,7 +1186,7 @@ TEST(AlterSchema_lint_draft4, multiple_of_default_2) {
 
   const sourcemeta::core::JSON expected = sourcemeta::core::parse_json(R"JSON({
     "$schema": "http://json-schema.org/draft-04/schema#",
-    "type": "number"
+    "type": "integer"
   })JSON");
 
   EXPECT_EQ(document, expected);
@@ -1205,6 +1205,7 @@ TEST(AlterSchema_lint_draft4, multiple_of_default_3) {
 
   const sourcemeta::core::JSON expected = sourcemeta::core::parse_json(R"JSON({
     "$schema": "http://json-schema.org/draft-04/schema#",
+    "multipleOf": 1,
     "minimum": 0
   })JSON");
 
@@ -3089,6 +3090,26 @@ TEST(AlterSchema_lint_draft4, exclusive_bounds_false_drop_5) {
     "type": "integer",
     "minimum": 0,
     "exclusiveMinimum": true
+  })JSON");
+
+  EXPECT_EQ(document, expected);
+}
+
+TEST(AlterSchema_lint_draft4, multiple_of_default_no_change_number_type) {
+  sourcemeta::core::JSON document = sourcemeta::core::parse_json(R"JSON({
+    "$schema": "http://json-schema.org/draft-04/schema#",
+    "type": "number",
+    "multipleOf": 1
+  })JSON");
+
+  LINT_AND_FIX(document, result, traces);
+
+  EXPECT_FALSE(result.first);
+
+  const sourcemeta::core::JSON expected = sourcemeta::core::parse_json(R"JSON({
+    "$schema": "http://json-schema.org/draft-04/schema#",
+    "type": "number",
+    "multipleOf": 1
   })JSON");
 
   EXPECT_EQ(document, expected);

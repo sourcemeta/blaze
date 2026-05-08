@@ -3033,6 +3033,7 @@ TEST(AlterSchema_lint_2020_12, multiple_of_default_2) {
 
   const sourcemeta::core::JSON expected = sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "multipleOf": 1.0,
     "unevaluatedProperties": false
   })JSON");
 
