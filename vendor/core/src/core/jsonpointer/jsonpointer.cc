@@ -323,12 +323,13 @@ auto to_pointer(const JSON &document) -> Pointer {
   return parse_pointer<false>(stream);
 }
 
-auto to_pointer(const std::basic_string<JSON::Char, JSON::CharTraits,
-                                        std::allocator<JSON::Char>> &input)
+auto to_pointer(
+    const std::basic_string_view<JSON::Char, JSON::CharTraits> input)
     -> Pointer {
   std::basic_istringstream<JSON::Char, JSON::CharTraits,
                            std::allocator<JSON::Char>>
-      stream{input};
+      stream{std::basic_string<JSON::Char, JSON::CharTraits,
+                               std::allocator<JSON::Char>>{input}};
   return parse_pointer<false>(stream);
 }
 
