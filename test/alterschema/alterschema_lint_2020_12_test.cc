@@ -13000,3 +13000,100 @@ TEST(AlterSchema_lint_2020_12,
 
   EXPECT_EQ(document, expected);
 }
+
+TEST(AlterSchema_lint_2020_12,
+     unnecessary_allof_wrapper_annotation_elevates_with_its_branch) {
+  sourcemeta::core::JSON document = sourcemeta::core::parse_json(R"JSON({
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "allOf": [
+      {
+        "maxLength": 10,
+        "description": "must be a short string",
+        "title": "Short String",
+        "$comment": "added in v2"
+      }
+    ]
+  })JSON");
+
+  LINT_AND_FIX(document, result, traces);
+
+  EXPECT_FALSE(result.first);
+
+  const sourcemeta::core::JSON expected = sourcemeta::core::parse_json(R"JSON({
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "maxLength": 10,
+    "description": "must be a short string",
+    "title": "Short String",
+    "$comment": "added in v2"
+  })JSON");
+
+  EXPECT_EQ(document, expected);
+}
+
+TEST(AlterSchema_lint_2020_12,
+     unnecessary_allof_wrapper_annotation_elevates_alongside_unique_keyword) {
+  sourcemeta::core::JSON document = sourcemeta::core::parse_json(R"JSON({
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "allOf": [
+      { "maxLength": 10, "description": "first entry annotation" },
+      { "minLength": 1 }
+    ]
+  })JSON");
+
+  LINT_AND_FIX(document, result, traces);
+
+  EXPECT_FALSE(result.first);
+
+  const sourcemeta::core::JSON expected = sourcemeta::core::parse_json(R"JSON({
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "minLength": 1,
+    "maxLength": 10,
+    "description": "first entry annotation"
+  })JSON");
+
+  EXPECT_EQ(document, expected);
+}
+
+TEST(AlterSchema_lint_2020_12,
+     unnecessary_allof_wrapper_annotation_only_entry_elevates) {
+  sourcemeta::core::JSON document = sourcemeta::core::parse_json(R"JSON({
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "allOf": [
+      { "description": "an aside about the schema" }
+    ]
+  })JSON");
+
+  LINT_AND_FIX(document, result, traces);
+
+  EXPECT_FALSE(result.first);
+
+  const sourcemeta::core::JSON expected = sourcemeta::core::parse_json(R"JSON({
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "description": "an aside about the schema"
+  })JSON");
+
+  EXPECT_EQ(document, expected);
+}
+
+TEST(AlterSchema_lint_2020_12,
+     unnecessary_allof_wrapper_annotation_only_entry_among_others_elevates) {
+  sourcemeta::core::JSON document = sourcemeta::core::parse_json(R"JSON({
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "allOf": [
+      { "maxLength": 10 },
+      { "description": "a separate aside" }
+    ]
+  })JSON");
+
+  LINT_AND_FIX(document, result, traces);
+
+  EXPECT_FALSE(result.first);
+
+  const sourcemeta::core::JSON expected = sourcemeta::core::parse_json(R"JSON({
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "description": "a separate aside",
+    "maxLength": 10
+  })JSON");
+
+  EXPECT_EQ(document, expected);
+}
