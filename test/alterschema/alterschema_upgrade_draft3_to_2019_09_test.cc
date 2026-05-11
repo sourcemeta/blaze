@@ -41,3 +41,28 @@ TEST(AlterSchema_upgrade_Draft3_to_2019_09,
 
   UPGRADE_2019_09(document, expected);
 }
+
+TEST(AlterSchema_upgrade_Draft3_to_2019_09,
+     format_host_name_and_ip_address_renamed) {
+  auto document = sourcemeta::core::parse_json(R"JSON({
+    "$schema": "http://json-schema.org/draft-03/schema#",
+    "type": "object",
+    "properties": {
+      "host": { "type": "string", "format": "host-name" },
+      "ip": { "type": "string", "format": "ip-address" },
+      "custom": { "type": "string", "format": "my-acme-format" }
+    }
+  })JSON");
+
+  const auto expected = sourcemeta::core::parse_json(R"JSON({
+    "$schema": "https://json-schema.org/draft/2019-09/schema",
+    "type": "object",
+    "properties": {
+      "host": { "type": "string", "format": "hostname" },
+      "ip": { "type": "string", "format": "ipv4" },
+      "custom": { "type": "string", "format": "my-acme-format" }
+    }
+  })JSON");
+
+  UPGRADE_2019_09(document, expected);
+}

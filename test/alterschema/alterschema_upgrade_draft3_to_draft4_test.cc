@@ -965,3 +965,288 @@ TEST(AlterSchema_upgrade_Draft3_to_Draft4,
 
   UPGRADE_DRAFT_4(document, expected);
 }
+
+TEST(AlterSchema_upgrade_Draft3_to_Draft4, format_host_name_renamed) {
+  auto document = sourcemeta::core::parse_json(R"JSON({
+    "$schema": "http://json-schema.org/draft-03/schema#",
+    "type": "string",
+    "format": "host-name"
+  })JSON");
+
+  const auto expected = sourcemeta::core::parse_json(R"JSON({
+    "$schema": "http://json-schema.org/draft-04/schema#",
+    "type": "string",
+    "format": "hostname"
+  })JSON");
+
+  UPGRADE_DRAFT_4(document, expected);
+}
+
+TEST(AlterSchema_upgrade_Draft3_to_Draft4, format_ip_address_renamed) {
+  auto document = sourcemeta::core::parse_json(R"JSON({
+    "$schema": "http://json-schema.org/draft-03/schema#",
+    "type": "string",
+    "format": "ip-address"
+  })JSON");
+
+  const auto expected = sourcemeta::core::parse_json(R"JSON({
+    "$schema": "http://json-schema.org/draft-04/schema#",
+    "type": "string",
+    "format": "ipv4"
+  })JSON");
+
+  UPGRADE_DRAFT_4(document, expected);
+}
+
+TEST(AlterSchema_upgrade_Draft3_to_Draft4,
+     format_unchanged_values_are_preserved) {
+  auto document = sourcemeta::core::parse_json(R"JSON({
+    "$schema": "http://json-schema.org/draft-03/schema#",
+    "type": "object",
+    "properties": {
+      "a": { "type": "string", "format": "date-time" },
+      "b": { "type": "string", "format": "email" },
+      "c": { "type": "string", "format": "ipv6" },
+      "d": { "type": "string", "format": "uri" }
+    }
+  })JSON");
+
+  const auto expected = sourcemeta::core::parse_json(R"JSON({
+    "$schema": "http://json-schema.org/draft-04/schema#",
+    "type": "object",
+    "properties": {
+      "a": { "type": "string", "format": "date-time" },
+      "b": { "type": "string", "format": "email" },
+      "c": { "type": "string", "format": "ipv6" },
+      "d": { "type": "string", "format": "uri" }
+    }
+  })JSON");
+
+  UPGRADE_DRAFT_4(document, expected);
+}
+
+TEST(AlterSchema_upgrade_Draft3_to_Draft4,
+     format_removed_values_are_preserved_verbatim) {
+  auto document = sourcemeta::core::parse_json(R"JSON({
+    "$schema": "http://json-schema.org/draft-03/schema#",
+    "type": "object",
+    "properties": {
+      "a": { "type": "string", "format": "date" },
+      "b": { "type": "string", "format": "time" },
+      "c": { "type": "string", "format": "regex" },
+      "d": { "type": "number", "format": "utc-millisec" },
+      "e": { "type": "string", "format": "color" },
+      "f": { "type": "string", "format": "style" },
+      "g": { "type": "string", "format": "phone" }
+    }
+  })JSON");
+
+  const auto expected = sourcemeta::core::parse_json(R"JSON({
+    "$schema": "http://json-schema.org/draft-04/schema#",
+    "type": "object",
+    "properties": {
+      "a": { "type": "string", "format": "date" },
+      "b": { "type": "string", "format": "time" },
+      "c": { "type": "string", "format": "regex" },
+      "d": { "type": "number", "format": "utc-millisec" },
+      "e": { "type": "string", "format": "color" },
+      "f": { "type": "string", "format": "style" },
+      "g": { "type": "string", "format": "phone" }
+    }
+  })JSON");
+
+  UPGRADE_DRAFT_4(document, expected);
+}
+
+TEST(AlterSchema_upgrade_Draft3_to_Draft4, format_rename_triggers_rule_alone) {
+  auto document = sourcemeta::core::parse_json(R"JSON({
+    "$schema": "http://json-schema.org/draft-03/schema#",
+    "format": "host-name"
+  })JSON");
+
+  const auto expected = sourcemeta::core::parse_json(R"JSON({
+    "$schema": "http://json-schema.org/draft-04/schema#",
+    "format": "hostname"
+  })JSON");
+
+  UPGRADE_DRAFT_4(document, expected);
+}
+
+TEST(AlterSchema_upgrade_Draft3_to_Draft4, format_rename_inside_properties) {
+  auto document = sourcemeta::core::parse_json(R"JSON({
+    "$schema": "http://json-schema.org/draft-03/schema#",
+    "type": "object",
+    "properties": {
+      "host": { "type": "string", "format": "host-name" },
+      "ip": { "type": "string", "format": "ip-address" }
+    }
+  })JSON");
+
+  const auto expected = sourcemeta::core::parse_json(R"JSON({
+    "$schema": "http://json-schema.org/draft-04/schema#",
+    "type": "object",
+    "properties": {
+      "host": { "type": "string", "format": "hostname" },
+      "ip": { "type": "string", "format": "ipv4" }
+    }
+  })JSON");
+
+  UPGRADE_DRAFT_4(document, expected);
+}
+
+TEST(AlterSchema_upgrade_Draft3_to_Draft4,
+     format_rename_with_other_draft_3_rewrites) {
+  auto document = sourcemeta::core::parse_json(R"JSON({
+    "$schema": "http://json-schema.org/draft-03/schema#",
+    "type": "string",
+    "format": "host-name",
+    "disallow": "number",
+    "divisibleBy": 2
+  })JSON");
+
+  const auto expected = sourcemeta::core::parse_json(R"JSON({
+    "$schema": "http://json-schema.org/draft-04/schema#",
+    "type": "string",
+    "format": "hostname",
+    "multipleOf": 2,
+    "not": { "type": "number" }
+  })JSON");
+
+  UPGRADE_DRAFT_4(document, expected);
+}
+
+TEST(AlterSchema_upgrade_Draft3_to_Draft4,
+     format_non_string_value_left_unchanged) {
+  auto document = sourcemeta::core::parse_json(R"JSON({
+    "$schema": "http://json-schema.org/draft-03/schema#",
+    "type": "string",
+    "format": 42
+  })JSON");
+
+  const auto expected = sourcemeta::core::parse_json(R"JSON({
+    "$schema": "http://json-schema.org/draft-04/schema#",
+    "type": "string",
+    "format": 42
+  })JSON");
+
+  UPGRADE_DRAFT_4(document, expected);
+}
+
+TEST(AlterSchema_upgrade_Draft3_to_Draft4, format_rename_is_idempotent) {
+  auto document = sourcemeta::core::parse_json(R"JSON({
+    "$schema": "http://json-schema.org/draft-03/schema#",
+    "type": "string",
+    "format": "host-name"
+  })JSON");
+
+  const auto expected = sourcemeta::core::parse_json(R"JSON({
+    "$schema": "http://json-schema.org/draft-04/schema#",
+    "type": "string",
+    "format": "hostname"
+  })JSON");
+
+  UPGRADE_DRAFT_4(document, expected);
+  UPGRADE_DRAFT_4(document, expected);
+}
+
+TEST(AlterSchema_upgrade_Draft3_to_Draft4,
+     format_host_name_under_draft_4_unchanged) {
+  auto document = sourcemeta::core::parse_json(R"JSON({
+    "$schema": "http://json-schema.org/draft-04/schema#",
+    "type": "string",
+    "format": "host-name"
+  })JSON");
+
+  const auto expected = sourcemeta::core::parse_json(R"JSON({
+    "$schema": "http://json-schema.org/draft-04/schema#",
+    "type": "string",
+    "format": "host-name"
+  })JSON");
+
+  UPGRADE_DRAFT_4(document, expected);
+}
+
+TEST(AlterSchema_upgrade_Draft3_to_Draft4,
+     format_rename_inside_nested_draft_3_resource) {
+  auto document = sourcemeta::core::parse_json(R"JSON({
+    "$schema": "http://json-schema.org/draft-03/schema#",
+    "id": "https://example.com/outer",
+    "type": "object",
+    "properties": {
+      "inner": {
+        "$schema": "http://json-schema.org/draft-03/schema#",
+        "id": "https://example.com/inner",
+        "type": "string",
+        "format": "ip-address"
+      }
+    }
+  })JSON");
+
+  const auto expected = sourcemeta::core::parse_json(R"JSON({
+    "$schema": "http://json-schema.org/draft-04/schema#",
+    "id": "https://example.com/outer",
+    "type": "object",
+    "properties": {
+      "inner": {
+        "$schema": "http://json-schema.org/draft-04/schema#",
+        "id": "https://example.com/inner",
+        "type": "string",
+        "format": "ipv4"
+      }
+    }
+  })JSON");
+
+  UPGRADE_DRAFT_4(document, expected);
+}
+
+TEST(AlterSchema_upgrade_Draft3_to_Draft4, format_rename_inside_definitions) {
+  auto document = sourcemeta::core::parse_json(R"JSON({
+    "$schema": "http://json-schema.org/draft-03/schema#",
+    "definitions": {
+      "host": { "type": "string", "format": "host-name" }
+    }
+  })JSON");
+
+  const auto expected = sourcemeta::core::parse_json(R"JSON({
+    "$schema": "http://json-schema.org/draft-04/schema#",
+    "definitions": {
+      "host": { "type": "string", "format": "hostname" }
+    }
+  })JSON");
+
+  UPGRADE_DRAFT_4(document, expected);
+}
+
+TEST(AlterSchema_upgrade_Draft3_to_Draft4,
+     format_rename_inside_items_subschema) {
+  auto document = sourcemeta::core::parse_json(R"JSON({
+    "$schema": "http://json-schema.org/draft-03/schema#",
+    "type": "array",
+    "items": { "type": "string", "format": "ip-address" }
+  })JSON");
+
+  const auto expected = sourcemeta::core::parse_json(R"JSON({
+    "$schema": "http://json-schema.org/draft-04/schema#",
+    "type": "array",
+    "items": { "type": "string", "format": "ipv4" }
+  })JSON");
+
+  UPGRADE_DRAFT_4(document, expected);
+}
+
+TEST(AlterSchema_upgrade_Draft3_to_Draft4,
+     format_value_unrelated_to_known_names_is_preserved) {
+  auto document = sourcemeta::core::parse_json(R"JSON({
+    "$schema": "http://json-schema.org/draft-03/schema#",
+    "type": "string",
+    "format": "my-acme-format"
+  })JSON");
+
+  const auto expected = sourcemeta::core::parse_json(R"JSON({
+    "$schema": "http://json-schema.org/draft-04/schema#",
+    "type": "string",
+    "format": "my-acme-format"
+  })JSON");
+
+  UPGRADE_DRAFT_4(document, expected);
+}
