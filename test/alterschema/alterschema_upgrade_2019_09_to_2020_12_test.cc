@@ -706,3 +706,61 @@ TEST(AlterSchema_upgrade_2019_09_to_2020_12,
   UPGRADE_2020_12_WITH_DIALECT(document, expected,
                                "https://json-schema.org/draft/2019-09/schema");
 }
+
+TEST(AlterSchema_upgrade_2019_09_to_2020_12, format_values_preserved) {
+  auto document = sourcemeta::core::parse_json(R"JSON({
+    "$schema": "https://json-schema.org/draft/2019-09/schema",
+    "type": "object",
+    "properties": {
+      "a": { "type": "string", "format": "hostname" },
+      "b": { "type": "string", "format": "ipv4" },
+      "c": { "type": "string", "format": "ipv6" },
+      "d": { "type": "string", "format": "email" },
+      "e": { "type": "string", "format": "uri" },
+      "f": { "type": "string", "format": "date-time" },
+      "g": { "type": "string", "format": "uri-reference" },
+      "h": { "type": "string", "format": "uri-template" },
+      "i": { "type": "string", "format": "json-pointer" },
+      "j": { "type": "string", "format": "date" },
+      "k": { "type": "string", "format": "time" },
+      "l": { "type": "string", "format": "regex" },
+      "m": { "type": "string", "format": "idn-email" },
+      "n": { "type": "string", "format": "idn-hostname" },
+      "o": { "type": "string", "format": "iri" },
+      "p": { "type": "string", "format": "iri-reference" },
+      "q": { "type": "string", "format": "relative-json-pointer" },
+      "r": { "type": "string", "format": "duration" },
+      "s": { "type": "string", "format": "uuid" },
+      "z": { "type": "string", "format": "my-acme-format" }
+    }
+  })JSON");
+
+  const auto expected = sourcemeta::core::parse_json(R"JSON({
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "type": "object",
+    "properties": {
+      "a": { "type": "string", "format": "hostname" },
+      "b": { "type": "string", "format": "ipv4" },
+      "c": { "type": "string", "format": "ipv6" },
+      "d": { "type": "string", "format": "email" },
+      "e": { "type": "string", "format": "uri" },
+      "f": { "type": "string", "format": "date-time" },
+      "g": { "type": "string", "format": "uri-reference" },
+      "h": { "type": "string", "format": "uri-template" },
+      "i": { "type": "string", "format": "json-pointer" },
+      "j": { "type": "string", "format": "date" },
+      "k": { "type": "string", "format": "time" },
+      "l": { "type": "string", "format": "regex" },
+      "m": { "type": "string", "format": "idn-email" },
+      "n": { "type": "string", "format": "idn-hostname" },
+      "o": { "type": "string", "format": "iri" },
+      "p": { "type": "string", "format": "iri-reference" },
+      "q": { "type": "string", "format": "relative-json-pointer" },
+      "r": { "type": "string", "format": "duration" },
+      "s": { "type": "string", "format": "uuid" },
+      "z": { "type": "string", "format": "my-acme-format" }
+    }
+  })JSON");
+
+  UPGRADE_2020_12(document, expected);
+}

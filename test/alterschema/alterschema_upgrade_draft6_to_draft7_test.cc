@@ -416,3 +416,41 @@ TEST(AlterSchema_upgrade_Draft6_to_Draft7,
   UPGRADE_DRAFT_7_WITH_DIALECT(document, expected,
                                "http://json-schema.org/draft-06/schema#");
 }
+
+TEST(AlterSchema_upgrade_Draft6_to_Draft7, format_values_preserved) {
+  auto document = sourcemeta::core::parse_json(R"JSON({
+    "$schema": "http://json-schema.org/draft-06/schema#",
+    "type": "object",
+    "properties": {
+      "a": { "type": "string", "format": "hostname" },
+      "b": { "type": "string", "format": "ipv4" },
+      "c": { "type": "string", "format": "ipv6" },
+      "d": { "type": "string", "format": "email" },
+      "e": { "type": "string", "format": "uri" },
+      "f": { "type": "string", "format": "date-time" },
+      "g": { "type": "string", "format": "uri-reference" },
+      "h": { "type": "string", "format": "uri-template" },
+      "i": { "type": "string", "format": "json-pointer" },
+      "z": { "type": "string", "format": "my-acme-format" }
+    }
+  })JSON");
+
+  const auto expected = sourcemeta::core::parse_json(R"JSON({
+    "$schema": "http://json-schema.org/draft-07/schema#",
+    "type": "object",
+    "properties": {
+      "a": { "type": "string", "format": "hostname" },
+      "b": { "type": "string", "format": "ipv4" },
+      "c": { "type": "string", "format": "ipv6" },
+      "d": { "type": "string", "format": "email" },
+      "e": { "type": "string", "format": "uri" },
+      "f": { "type": "string", "format": "date-time" },
+      "g": { "type": "string", "format": "uri-reference" },
+      "h": { "type": "string", "format": "uri-template" },
+      "i": { "type": "string", "format": "json-pointer" },
+      "z": { "type": "string", "format": "my-acme-format" }
+    }
+  })JSON");
+
+  UPGRADE_DRAFT_7(document, expected);
+}
