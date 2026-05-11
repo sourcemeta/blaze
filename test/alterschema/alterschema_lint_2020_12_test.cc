@@ -6039,7 +6039,7 @@ TEST(AlterSchema_lint_2020_12, description_trim_7) {
   EXPECT_LINT_TRACE(
       traces, 1, "", "unnecessary_allof_wrapper",
       "Keywords inside `allOf` that do not conflict with the parent schema "
-      "and do not break a sibling pattern can be elevated",
+      "can be elevated",
       true);
   EXPECT_LINT_TRACE(
       traces, 2, "", "duplicate_allof_branches",
@@ -6105,7 +6105,7 @@ TEST(AlterSchema_lint_2020_12, unfixable_allof_renumber_1) {
   EXPECT_LINT_TRACE(
       traces, 1, "", "unnecessary_allof_wrapper",
       "Keywords inside `allOf` that do not conflict with the parent schema "
-      "and do not break a sibling pattern can be elevated",
+      "can be elevated",
       true);
   EXPECT_LINT_TRACE(traces, 2, "", "drop_allof_empty_schemas",
                     "Empty schemas in `allOf` are redundant and can be removed",
@@ -10184,7 +10184,7 @@ TEST(AlterSchema_lint_2020_12, object_oneof_required_not_required_6) {
   EXPECT_LINT_TRACE(
       traces, 1, "", "unnecessary_allof_wrapper",
       "Keywords inside `allOf` that do not conflict with the parent schema "
-      "and do not break a sibling pattern can be elevated",
+      "can be elevated",
       true);
 }
 

@@ -6,10 +6,9 @@ public:
   using mutates = std::true_type;
   using reframe_after_transform = std::true_type;
   UnnecessaryAllOfWrapper()
-      : SchemaTransformRule{
-            "unnecessary_allof_wrapper",
-            "Keywords inside `allOf` that do not conflict with the parent "
-            "schema and do not break a sibling pattern can be elevated"} {};
+      : SchemaTransformRule{"unnecessary_allof_wrapper",
+                            "Keywords inside `allOf` that do not conflict with "
+                            "the parent schema can be elevated"} {};
 
   [[nodiscard]] auto
   condition(const JSON &schema, const JSON &, const Vocabularies &vocabularies,
