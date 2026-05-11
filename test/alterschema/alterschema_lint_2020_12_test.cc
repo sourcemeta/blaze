@@ -6039,7 +6039,7 @@ TEST(AlterSchema_lint_2020_12, description_trim_7) {
   EXPECT_LINT_TRACE(
       traces, 1, "", "unnecessary_allof_wrapper",
       "Keywords inside `allOf` that do not conflict with the parent schema "
-      "and are unique across sibling entries can be elevated",
+      "and do not break a sibling pattern can be elevated",
       true);
   EXPECT_LINT_TRACE(
       traces, 2, "", "duplicate_allof_branches",
@@ -6105,7 +6105,7 @@ TEST(AlterSchema_lint_2020_12, unfixable_allof_renumber_1) {
   EXPECT_LINT_TRACE(
       traces, 1, "", "unnecessary_allof_wrapper",
       "Keywords inside `allOf` that do not conflict with the parent schema "
-      "and are unique across sibling entries can be elevated",
+      "and do not break a sibling pattern can be elevated",
       true);
   EXPECT_LINT_TRACE(traces, 2, "", "drop_allof_empty_schemas",
                     "Empty schemas in `allOf` are redundant and can be removed",
@@ -10184,7 +10184,7 @@ TEST(AlterSchema_lint_2020_12, object_oneof_required_not_required_6) {
   EXPECT_LINT_TRACE(
       traces, 1, "", "unnecessary_allof_wrapper",
       "Keywords inside `allOf` that do not conflict with the parent schema "
-      "and are unique across sibling entries can be elevated",
+      "and do not break a sibling pattern can be elevated",
       true);
 }
 
@@ -12828,9 +12828,12 @@ TEST(AlterSchema_lint_2020_12,
 
   const sourcemeta::core::JSON expected = sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2020-12/schema",
-    "description": "first",
     "allOf": [
-      { "if": { "const": "x" }, "then": { "type": "string" } },
+      {
+        "if": { "const": "x" },
+        "then": { "type": "string" },
+        "description": "first"
+      },
       { "if": { "const": "y" }, "then": { "type": "number" } }
     ]
   })JSON");
@@ -12908,6 +12911,91 @@ TEST(AlterSchema_lint_2020_12,
     "type": "object",
     "maxProperties": 5,
     "minProperties": 1
+  })JSON");
+
+  EXPECT_EQ(document, expected);
+}
+
+TEST(AlterSchema_lint_2020_12,
+     unnecessary_allof_wrapper_dollar_comment_stays_with_its_branch) {
+  sourcemeta::core::JSON document = sourcemeta::core::parse_json(R"JSON({
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "allOf": [
+      {
+        "if": { "const": "x" },
+        "then": { "type": "string" },
+        "$comment": "first branch"
+      },
+      { "if": { "const": "y" }, "then": { "type": "number" } }
+    ]
+  })JSON");
+
+  LINT_AND_FIX(document, result, traces);
+
+  EXPECT_FALSE(result.first);
+
+  const sourcemeta::core::JSON expected = sourcemeta::core::parse_json(R"JSON({
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "allOf": [
+      {
+        "if": { "const": "x" },
+        "then": { "type": "string" },
+        "$comment": "first branch"
+      },
+      { "if": { "const": "y" }, "then": { "type": "number" } }
+    ]
+  })JSON");
+
+  EXPECT_EQ(document, expected);
+}
+
+TEST(AlterSchema_lint_2020_12,
+     unnecessary_allof_wrapper_ref_sibling_protects_non_ref_keyword) {
+  sourcemeta::core::JSON document = sourcemeta::core::parse_json(R"JSON({
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "allOf": [
+      { "$ref": "https://example.com", "maxLength": 5 },
+      { "maxLength": 10 }
+    ]
+  })JSON");
+
+  LINT_AND_FIX(document, result, traces);
+
+  EXPECT_FALSE(result.first);
+
+  const sourcemeta::core::JSON expected = sourcemeta::core::parse_json(R"JSON({
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "$ref": "https://example.com",
+    "allOf": [
+      { "maxLength": 5 },
+      { "maxLength": 10 }
+    ]
+  })JSON");
+
+  EXPECT_EQ(document, expected);
+}
+
+TEST(AlterSchema_lint_2020_12,
+     unnecessary_allof_wrapper_named_sibling_protects_anonymous_keyword) {
+  sourcemeta::core::JSON document = sourcemeta::core::parse_json(R"JSON({
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "allOf": [
+      { "$id": "https://example.com/named", "type": "string" },
+      { "type": "string", "maxLength": 10 }
+    ]
+  })JSON");
+
+  LINT_AND_FIX(document, result, traces);
+
+  EXPECT_FALSE(result.first);
+
+  const sourcemeta::core::JSON expected = sourcemeta::core::parse_json(R"JSON({
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "maxLength": 10,
+    "allOf": [
+      { "$id": "https://example.com/named", "type": "string" },
+      { "type": "string" }
+    ]
   })JSON");
 
   EXPECT_EQ(document, expected);

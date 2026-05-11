@@ -9,7 +9,7 @@ public:
       : SchemaTransformRule{
             "unnecessary_allof_wrapper",
             "Keywords inside `allOf` that do not conflict with the parent "
-            "schema and are unique across sibling entries can be elevated"} {};
+            "schema and do not break a sibling pattern can be elevated"} {};
 
   [[nodiscard]] auto
   condition(const JSON &schema, const JSON &, const Vocabularies &vocabularies,
@@ -105,27 +105,27 @@ public:
         continue;
       }
 
-      for (const auto &keyword_entry : entry.as_object()) {
+      const auto try_elevate_keyword = [&](const auto &keyword_entry) -> bool {
         const auto &keyword{keyword_entry.first};
         const auto &metadata{walker(keyword, vocabularies)};
 
         if (elevated.contains(keyword) ||
             (schema.defines(keyword) &&
              schema.at(keyword) != keyword_entry.second)) {
-          continue;
+          return false;
         }
 
         if (dependency_blocked.contains(keyword)) {
-          continue;
+          return false;
         }
 
         if (keyword_frequency[keyword] > 1) {
-          continue;
+          return false;
         }
 
         if (metadata.instances.any() && parent_types.any() &&
             (metadata.instances & parent_types).none()) {
-          continue;
+          return false;
         }
 
         if (std::ranges::any_of(metadata.dependencies,
@@ -134,7 +134,7 @@ public:
                                          (schema.defines(dependency) ||
                                           elevated.contains(dependency));
                                 })) {
-          continue;
+          return false;
         }
 
         locations.push_back(Pointer{KEYWORD, index - 1, keyword});
@@ -150,6 +150,33 @@ public:
               dependency_blocked.emplace(dependency);
             }
           }
+        }
+
+        return true;
+      };
+
+      bool entry_has_non_annotation = false;
+      bool non_annotation_elevated = false;
+      for (const auto &keyword_entry : entry.as_object()) {
+        const auto &metadata{walker(keyword_entry.first, vocabularies)};
+        if (metadata.type == SchemaKeywordType::Annotation ||
+            metadata.type == SchemaKeywordType::Comment) {
+          continue;
+        }
+        entry_has_non_annotation = true;
+        if (try_elevate_keyword(keyword_entry)) {
+          non_annotation_elevated = true;
+        }
+      }
+
+      if (!entry_has_non_annotation || non_annotation_elevated) {
+        for (const auto &keyword_entry : entry.as_object()) {
+          const auto &metadata{walker(keyword_entry.first, vocabularies)};
+          if (metadata.type != SchemaKeywordType::Annotation &&
+              metadata.type != SchemaKeywordType::Comment) {
+            continue;
+          }
+          try_elevate_keyword(keyword_entry);
         }
       }
     }
