@@ -4786,3 +4786,101 @@ TEST(AlterSchema_lint_draft7,
 
   EXPECT_EQ(document, expected);
 }
+
+TEST(AlterSchema_lint_draft7, unknown_format_prefix_recognized) {
+  sourcemeta::core::JSON document = sourcemeta::core::parse_json(R"JSON({
+    "$schema": "http://json-schema.org/draft-07/schema#",
+    "type": "object",
+    "properties": {
+      "a": { "type": "string", "format": "date" },
+      "b": { "type": "string", "format": "time" },
+      "c": { "type": "string", "format": "regex" },
+      "d": { "type": "string", "format": "idn-email" },
+      "e": { "type": "string", "format": "idn-hostname" },
+      "f": { "type": "string", "format": "iri" },
+      "g": { "type": "string", "format": "iri-reference" },
+      "h": { "type": "string", "format": "relative-json-pointer" }
+    }
+  })JSON");
+
+  LINT_AND_FIX(document, result, traces);
+
+  EXPECT_FALSE(result.first);
+
+  const sourcemeta::core::JSON expected = sourcemeta::core::parse_json(R"JSON({
+    "$schema": "http://json-schema.org/draft-07/schema#",
+    "type": "object",
+    "properties": {
+      "a": { "type": "string", "format": "date" },
+      "b": { "type": "string", "format": "time" },
+      "c": { "type": "string", "format": "regex" },
+      "d": { "type": "string", "format": "idn-email" },
+      "e": { "type": "string", "format": "idn-hostname" },
+      "f": { "type": "string", "format": "iri" },
+      "g": { "type": "string", "format": "iri-reference" },
+      "h": { "type": "string", "format": "relative-json-pointer" }
+    }
+  })JSON");
+
+  EXPECT_EQ(document, expected);
+}
+
+TEST(AlterSchema_lint_draft7, unknown_format_prefix_demote_duration) {
+  sourcemeta::core::JSON document = sourcemeta::core::parse_json(R"JSON({
+    "$schema": "http://json-schema.org/draft-07/schema#",
+    "type": "string",
+    "format": "duration"
+  })JSON");
+
+  LINT_AND_FIX(document, result, traces);
+
+  EXPECT_FALSE(result.first);
+
+  const sourcemeta::core::JSON expected = sourcemeta::core::parse_json(R"JSON({
+    "$schema": "http://json-schema.org/draft-07/schema#",
+    "type": "string",
+    "x-format": "duration"
+  })JSON");
+
+  EXPECT_EQ(document, expected);
+}
+
+TEST(AlterSchema_lint_draft7, unknown_format_prefix_demote_uuid) {
+  sourcemeta::core::JSON document = sourcemeta::core::parse_json(R"JSON({
+    "$schema": "http://json-schema.org/draft-07/schema#",
+    "type": "string",
+    "format": "uuid"
+  })JSON");
+
+  LINT_AND_FIX(document, result, traces);
+
+  EXPECT_FALSE(result.first);
+
+  const sourcemeta::core::JSON expected = sourcemeta::core::parse_json(R"JSON({
+    "$schema": "http://json-schema.org/draft-07/schema#",
+    "type": "string",
+    "x-format": "uuid"
+  })JSON");
+
+  EXPECT_EQ(document, expected);
+}
+
+TEST(AlterSchema_lint_draft7, unknown_format_prefix_demote_host_name) {
+  sourcemeta::core::JSON document = sourcemeta::core::parse_json(R"JSON({
+    "$schema": "http://json-schema.org/draft-07/schema#",
+    "type": "string",
+    "format": "host-name"
+  })JSON");
+
+  LINT_AND_FIX(document, result, traces);
+
+  EXPECT_FALSE(result.first);
+
+  const sourcemeta::core::JSON expected = sourcemeta::core::parse_json(R"JSON({
+    "$schema": "http://json-schema.org/draft-07/schema#",
+    "type": "string",
+    "x-format": "host-name"
+  })JSON");
+
+  EXPECT_EQ(document, expected);
+}
