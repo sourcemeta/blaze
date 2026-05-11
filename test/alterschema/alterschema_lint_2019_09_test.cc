@@ -5442,3 +5442,99 @@ TEST(AlterSchema_lint_2019_09, portable_anchor_names_id_no_fragment_skipped) {
   EXPECT_TRUE(result.first);
   EXPECT_EQ(traces.size(), 0);
 }
+
+TEST(AlterSchema_lint_2019_09, unknown_format_prefix_recognized) {
+  sourcemeta::core::JSON document = sourcemeta::core::parse_json(R"JSON({
+    "$schema": "https://json-schema.org/draft/2019-09/schema",
+    "type": "object",
+    "properties": {
+      "a": { "type": "string", "format": "duration" },
+      "b": { "type": "string", "format": "uuid" },
+      "c": { "type": "string", "format": "date" },
+      "d": { "type": "string", "format": "time" },
+      "e": { "type": "string", "format": "regex" },
+      "f": { "type": "string", "format": "idn-email" },
+      "g": { "type": "string", "format": "iri" }
+    }
+  })JSON");
+
+  LINT_AND_FIX(document, result, traces);
+
+  EXPECT_FALSE(result.first);
+
+  const sourcemeta::core::JSON expected = sourcemeta::core::parse_json(R"JSON({
+    "$schema": "https://json-schema.org/draft/2019-09/schema",
+    "type": "object",
+    "properties": {
+      "a": { "type": "string", "format": "duration" },
+      "b": { "type": "string", "format": "uuid" },
+      "c": { "type": "string", "format": "date" },
+      "d": { "type": "string", "format": "time" },
+      "e": { "type": "string", "format": "regex" },
+      "f": { "type": "string", "format": "idn-email" },
+      "g": { "type": "string", "format": "iri" }
+    }
+  })JSON");
+
+  EXPECT_EQ(document, expected);
+}
+
+TEST(AlterSchema_lint_2019_09, unknown_format_prefix_demote_color) {
+  sourcemeta::core::JSON document = sourcemeta::core::parse_json(R"JSON({
+    "$schema": "https://json-schema.org/draft/2019-09/schema",
+    "type": "string",
+    "format": "color"
+  })JSON");
+
+  LINT_AND_FIX(document, result, traces);
+
+  EXPECT_FALSE(result.first);
+
+  const sourcemeta::core::JSON expected = sourcemeta::core::parse_json(R"JSON({
+    "$schema": "https://json-schema.org/draft/2019-09/schema",
+    "type": "string",
+    "x-format": "color"
+  })JSON");
+
+  EXPECT_EQ(document, expected);
+}
+
+TEST(AlterSchema_lint_2019_09, unknown_format_prefix_demote_host_name) {
+  sourcemeta::core::JSON document = sourcemeta::core::parse_json(R"JSON({
+    "$schema": "https://json-schema.org/draft/2019-09/schema",
+    "type": "string",
+    "format": "host-name"
+  })JSON");
+
+  LINT_AND_FIX(document, result, traces);
+
+  EXPECT_FALSE(result.first);
+
+  const sourcemeta::core::JSON expected = sourcemeta::core::parse_json(R"JSON({
+    "$schema": "https://json-schema.org/draft/2019-09/schema",
+    "type": "string",
+    "x-format": "host-name"
+  })JSON");
+
+  EXPECT_EQ(document, expected);
+}
+
+TEST(AlterSchema_lint_2019_09, unknown_format_prefix_demote_custom) {
+  sourcemeta::core::JSON document = sourcemeta::core::parse_json(R"JSON({
+    "$schema": "https://json-schema.org/draft/2019-09/schema",
+    "type": "string",
+    "format": "my-acme-format"
+  })JSON");
+
+  LINT_AND_FIX(document, result, traces);
+
+  EXPECT_FALSE(result.first);
+
+  const sourcemeta::core::JSON expected = sourcemeta::core::parse_json(R"JSON({
+    "$schema": "https://json-schema.org/draft/2019-09/schema",
+    "type": "string",
+    "x-format": "my-acme-format"
+  })JSON");
+
+  EXPECT_EQ(document, expected);
+}
