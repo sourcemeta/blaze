@@ -436,8 +436,7 @@ TEST(AlterSchema_lint_draft4, duplicate_allof_branches_1) {
 
   const sourcemeta::core::JSON expected = sourcemeta::core::parse_json(R"JSON({
     "$schema": "http://json-schema.org/draft-04/schema#",
-    "type": "integer",
-    "allOf": [ false ]
+    "allOf": [ { "type": "string" }, { "type": "integer" } ]
   })JSON");
 
   EXPECT_EQ(document, expected);
@@ -3314,6 +3313,32 @@ TEST(AlterSchema_lint_draft4, unknown_format_prefix_mixed_subschemas) {
       "ok": { "type": "string", "format": "email" },
       "bad": { "type": "string", "x-format": "color" }
     }
+  })JSON");
+
+  EXPECT_EQ(document, expected);
+}
+
+TEST(AlterSchema_lint_draft4, unnecessary_allof_wrapper_parallel_pattern) {
+  sourcemeta::core::JSON document = sourcemeta::core::parse_json(R"JSON({
+    "$schema": "http://json-schema.org/draft-04/schema#",
+    "allOf": [
+      { "minLength": 1 },
+      { "minLength": 2 },
+      { "minLength": 3 }
+    ]
+  })JSON");
+
+  LINT_AND_FIX(document, result, traces);
+
+  EXPECT_FALSE(result.first);
+
+  const sourcemeta::core::JSON expected = sourcemeta::core::parse_json(R"JSON({
+    "$schema": "http://json-schema.org/draft-04/schema#",
+    "allOf": [
+      { "minLength": 1 },
+      { "minLength": 2 },
+      { "minLength": 3 }
+    ]
   })JSON");
 
   EXPECT_EQ(document, expected);
