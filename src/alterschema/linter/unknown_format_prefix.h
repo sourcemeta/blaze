@@ -49,16 +49,20 @@ private:
   recognized_formats_for(const sourcemeta::core::Vocabularies &vocabularies)
       -> const std::unordered_set<std::string_view> * {
     using Known = sourcemeta::core::Vocabularies::Known;
-    if (vocabularies.contains(Known::JSON_Schema_Draft_3)) {
+    if (vocabularies.contains_any(
+            {Known::JSON_Schema_Draft_3, Known::JSON_Schema_Draft_3_Hyper})) {
       return &DRAFT_3_FORMATS;
     }
-    if (vocabularies.contains(Known::JSON_Schema_Draft_4)) {
+    if (vocabularies.contains_any(
+            {Known::JSON_Schema_Draft_4, Known::JSON_Schema_Draft_4_Hyper})) {
       return &DRAFT_4_FORMATS;
     }
-    if (vocabularies.contains(Known::JSON_Schema_Draft_6)) {
+    if (vocabularies.contains_any(
+            {Known::JSON_Schema_Draft_6, Known::JSON_Schema_Draft_6_Hyper})) {
       return &DRAFT_6_FORMATS;
     }
-    if (vocabularies.contains(Known::JSON_Schema_Draft_7)) {
+    if (vocabularies.contains_any(
+            {Known::JSON_Schema_Draft_7, Known::JSON_Schema_Draft_7_Hyper})) {
       return &DRAFT_7_FORMATS;
     }
     if (vocabularies.contains(Known::JSON_Schema_2019_09_Format)) {
