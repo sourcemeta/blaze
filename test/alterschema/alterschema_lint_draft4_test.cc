@@ -3328,10 +3328,18 @@ TEST(AlterSchema_lint_draft4, unnecessary_allof_wrapper_parallel_pattern) {
     ]
   })JSON");
 
-  const auto expected = document;
-
   LINT_AND_FIX(document, result, traces);
 
   EXPECT_FALSE(result.first);
+
+  const sourcemeta::core::JSON expected = sourcemeta::core::parse_json(R"JSON({
+    "$schema": "http://json-schema.org/draft-04/schema#",
+    "allOf": [
+      { "minLength": 1 },
+      { "minLength": 2 },
+      { "minLength": 3 }
+    ]
+  })JSON");
+
   EXPECT_EQ(document, expected);
 }

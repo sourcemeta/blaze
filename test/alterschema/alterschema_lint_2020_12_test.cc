@@ -12791,11 +12791,20 @@ TEST(AlterSchema_lint_2020_12, unnecessary_allof_wrapper_two_parallel_groups) {
     ]
   })JSON");
 
-  const auto expected = document;
-
   LINT_AND_FIX(document, result, traces);
 
   EXPECT_FALSE(result.first);
+
+  const sourcemeta::core::JSON expected = sourcemeta::core::parse_json(R"JSON({
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "allOf": [
+      { "if": { "const": "x" }, "then": { "type": "string" } },
+      { "minProperties": 1 },
+      { "if": { "const": "y" }, "then": { "type": "number" } },
+      { "minProperties": 2 }
+    ]
+  })JSON");
+
   EXPECT_EQ(document, expected);
 }
 
@@ -12839,11 +12848,18 @@ TEST(AlterSchema_lint_2020_12,
     ]
   })JSON");
 
-  const auto expected = document;
-
   LINT_AND_FIX(document, result, traces);
 
   EXPECT_FALSE(result.first);
+
+  const sourcemeta::core::JSON expected = sourcemeta::core::parse_json(R"JSON({
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "allOf": [
+      { "type": "string" },
+      { "type": "number" }
+    ]
+  })JSON");
+
   EXPECT_EQ(document, expected);
 }
 
@@ -12857,11 +12873,18 @@ TEST(AlterSchema_lint_2020_12,
     ]
   })JSON");
 
-  const auto expected = document;
-
   LINT_AND_FIX(document, result, traces);
 
   EXPECT_FALSE(result.first);
+
+  const sourcemeta::core::JSON expected = sourcemeta::core::parse_json(R"JSON({
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "allOf": [
+      { "properties": { "a": { "type": "string" } } },
+      { "properties": { "b": { "type": "number" } } }
+    ]
+  })JSON");
+
   EXPECT_EQ(document, expected);
 }
 

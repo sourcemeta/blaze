@@ -4894,10 +4894,17 @@ TEST(AlterSchema_lint_draft7, unnecessary_allof_wrapper_parallel_gates) {
     ]
   })JSON");
 
-  const auto expected = document;
-
   LINT_AND_FIX(document, result, traces);
 
   EXPECT_FALSE(result.first);
+
+  const sourcemeta::core::JSON expected = sourcemeta::core::parse_json(R"JSON({
+    "$schema": "http://json-schema.org/draft-07/schema#",
+    "allOf": [
+      { "if": { "const": "x" }, "then": { "type": "string" } },
+      { "if": { "const": "y" }, "then": { "type": "number" } }
+    ]
+  })JSON");
+
   EXPECT_EQ(document, expected);
 }
