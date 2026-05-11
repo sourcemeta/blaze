@@ -1297,7 +1297,7 @@ TEST(AlterSchema_lint_2020_12, duplicate_allof_branches_1) {
 
   const sourcemeta::core::JSON expected = sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2020-12/schema",
-    "not": true
+    "allOf": [ { "type": "string" }, { "type": "integer" } ]
   })JSON");
 
   EXPECT_EQ(document, expected);
@@ -2469,9 +2469,9 @@ TEST(AlterSchema_lint_2020_12, unnecessary_allof_wrapper_4) {
   const sourcemeta::core::JSON expected = sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2020-12/schema",
     "$ref": "https://example.com",
-    "type": "integer",
     "allOf": [
-      { "type": "number" }
+      { "type": "number" },
+      { "type": "integer" }
     ]
   })JSON");
 
@@ -2646,9 +2646,9 @@ TEST(AlterSchema_lint_2020_12, unnecessary_allof_wrapper_10) {
   const sourcemeta::core::JSON expected = sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2020-12/schema",
     "$ref": "https://example.com",
-    "type": "integer",
     "allOf": [
-      { "type": "number" }
+      { "type": "number" },
+      { "type": "integer" }
     ]
   })JSON");
 
@@ -2670,10 +2670,9 @@ TEST(AlterSchema_lint_2020_12, unnecessary_allof_wrapper_11) {
 
   const sourcemeta::core::JSON expected = sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2020-12/schema",
-    "if": { "type": "integer" },
-    "then": { "minimum": 1 },
     "allOf": [
-      { "if": { "type": "string" }, "then": { "minLength": 1 } }
+      { "if": { "type": "string" }, "then": { "minLength": 1 } },
+      { "if": { "type": "integer" }, "then": { "minimum": 1 } }
     ]
   })JSON");
 
@@ -4310,9 +4309,9 @@ TEST(AlterSchema_lint_2020_12, required_properties_in_properties_10) {
   const sourcemeta::core::JSON expected = sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2020-12/schema",
     "properties": { "foo": true, "bar": true },
-    "required": [ "bar" ],
     "allOf": [
-      { "required": [ "foo" ] }
+      { "required": [ "foo" ] },
+      { "required": [ "bar" ] }
     ]
   })JSON");
 
@@ -4335,10 +4334,13 @@ TEST(AlterSchema_lint_2020_12, required_properties_in_properties_11) {
 
   const sourcemeta::core::JSON expected = sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2020-12/schema",
-    "properties": { "foo": true, "bar": true, "baz": true },
-    "required": [ "bar", "baz" ],
+    "properties": { "foo": true, "bar": true },
     "allOf": [
-      { "required": [ "foo" ] }
+      { "required": [ "foo" ] },
+      {
+        "required": [ "bar", "baz" ],
+        "properties": { "baz": true }
+      }
     ]
   })JSON");
 
@@ -6036,8 +6038,8 @@ TEST(AlterSchema_lint_2020_12, description_trim_7) {
       true);
   EXPECT_LINT_TRACE(
       traces, 1, "", "unnecessary_allof_wrapper",
-      "Keywords inside `allOf` that do not conflict with the parent schema can "
-      "be elevated",
+      "Keywords inside `allOf` that do not conflict with the parent schema "
+      "and are unique across sibling entries can be elevated",
       true);
   EXPECT_LINT_TRACE(
       traces, 2, "", "duplicate_allof_branches",
@@ -6102,8 +6104,8 @@ TEST(AlterSchema_lint_2020_12, unfixable_allof_renumber_1) {
       true);
   EXPECT_LINT_TRACE(
       traces, 1, "", "unnecessary_allof_wrapper",
-      "Keywords inside `allOf` that do not conflict with the parent schema can "
-      "be elevated",
+      "Keywords inside `allOf` that do not conflict with the parent schema "
+      "and are unique across sibling entries can be elevated",
       true);
   EXPECT_LINT_TRACE(traces, 2, "", "drop_allof_empty_schemas",
                     "Empty schemas in `allOf` are redundant and can be removed",
@@ -10182,7 +10184,7 @@ TEST(AlterSchema_lint_2020_12, object_oneof_required_not_required_6) {
   EXPECT_LINT_TRACE(
       traces, 1, "", "unnecessary_allof_wrapper",
       "Keywords inside `allOf` that do not conflict with the parent schema "
-      "can be elevated",
+      "and are unique across sibling entries can be elevated",
       true);
 }
 
@@ -12608,6 +12610,281 @@ TEST(AlterSchema_lint_2020_12, unknown_format_prefix_collision_iterates) {
     "type": "string",
     "x-format": "already-present",
     "x-x-format": "color"
+  })JSON");
+
+  EXPECT_EQ(document, expected);
+}
+
+TEST(AlterSchema_lint_2020_12, unnecessary_allof_wrapper_parallel_three_gates) {
+  sourcemeta::core::JSON document = sourcemeta::core::parse_json(R"JSON({
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "$id": "https://example.com/example.schema.json",
+    "type": "object",
+    "properties": {
+      "lifecycle": { "enum": [ "active", "paused", "archived" ] }
+    },
+    "allOf": [
+      {
+        "if": {
+          "required": [ "lifecycle" ],
+          "properties": { "lifecycle": { "const": "active" } }
+        },
+        "then": { "required": [ "activeUntil" ] }
+      },
+      {
+        "if": {
+          "required": [ "lifecycle" ],
+          "properties": { "lifecycle": { "const": "paused" } }
+        },
+        "then": { "required": [ "pauseReason" ] }
+      },
+      {
+        "if": {
+          "required": [ "lifecycle" ],
+          "properties": { "lifecycle": { "const": "archived" } }
+        },
+        "then": { "required": [ "archivedAt" ] }
+      }
+    ]
+  })JSON");
+
+  LINT_AND_FIX(document, result, traces);
+
+  EXPECT_FALSE(result.first);
+
+  const sourcemeta::core::JSON expected = sourcemeta::core::parse_json(R"JSON({
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "$id": "https://example.com/example.schema.json",
+    "type": "object",
+    "properties": {
+      "lifecycle": { "enum": [ "active", "paused", "archived" ] }
+    },
+    "allOf": [
+      {
+        "if": {
+          "required": [ "lifecycle" ],
+          "properties": { "lifecycle": { "const": "active" } }
+        },
+        "then": {
+          "required": [ "activeUntil" ],
+          "properties": { "activeUntil": true }
+        }
+      },
+      {
+        "if": {
+          "required": [ "lifecycle" ],
+          "properties": { "lifecycle": { "const": "paused" } }
+        },
+        "then": {
+          "required": [ "pauseReason" ],
+          "properties": { "pauseReason": true }
+        }
+      },
+      {
+        "if": {
+          "required": [ "lifecycle" ],
+          "properties": { "lifecycle": { "const": "archived" } }
+        },
+        "then": {
+          "required": [ "archivedAt" ],
+          "properties": { "archivedAt": true }
+        }
+      }
+    ]
+  })JSON");
+
+  EXPECT_EQ(document, expected);
+}
+
+TEST(AlterSchema_lint_2020_12, unnecessary_allof_wrapper_outlier_elevates) {
+  sourcemeta::core::JSON document = sourcemeta::core::parse_json(R"JSON({
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "allOf": [
+      { "if": { "const": "x" }, "then": { "type": "string" } },
+      { "if": { "const": "y" }, "then": { "type": "number" } },
+      { "minProperties": 1 }
+    ]
+  })JSON");
+
+  LINT_AND_FIX(document, result, traces);
+
+  EXPECT_FALSE(result.first);
+
+  const sourcemeta::core::JSON expected = sourcemeta::core::parse_json(R"JSON({
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "minProperties": 1,
+    "allOf": [
+      { "if": { "const": "x" }, "then": { "type": "string" } },
+      { "if": { "const": "y" }, "then": { "type": "number" } }
+    ]
+  })JSON");
+
+  EXPECT_EQ(document, expected);
+}
+
+TEST(AlterSchema_lint_2020_12,
+     unnecessary_allof_wrapper_sandwiched_outlier_elevates) {
+  sourcemeta::core::JSON document = sourcemeta::core::parse_json(R"JSON({
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "allOf": [
+      { "if": { "const": "x" }, "then": { "type": "string" } },
+      { "minProperties": 1 },
+      { "if": { "const": "y" }, "then": { "type": "number" } }
+    ]
+  })JSON");
+
+  LINT_AND_FIX(document, result, traces);
+
+  EXPECT_FALSE(result.first);
+
+  const sourcemeta::core::JSON expected = sourcemeta::core::parse_json(R"JSON({
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "minProperties": 1,
+    "allOf": [
+      { "if": { "const": "x" }, "then": { "type": "string" } },
+      { "if": { "const": "y" }, "then": { "type": "number" } }
+    ]
+  })JSON");
+
+  EXPECT_EQ(document, expected);
+}
+
+TEST(AlterSchema_lint_2020_12, unnecessary_allof_wrapper_mixed_shape_outlier) {
+  sourcemeta::core::JSON document = sourcemeta::core::parse_json(R"JSON({
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "allOf": [
+      { "if": { "const": "x" }, "then": { "type": "string" } },
+      { "if": { "const": "y" }, "then": { "type": "number" } },
+      {
+        "if": { "const": "z" },
+        "then": { "type": "boolean" },
+        "minProperties": 1
+      }
+    ]
+  })JSON");
+
+  LINT_AND_FIX(document, result, traces);
+
+  EXPECT_FALSE(result.first);
+
+  const sourcemeta::core::JSON expected = sourcemeta::core::parse_json(R"JSON({
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "minProperties": 1,
+    "allOf": [
+      { "if": { "const": "x" }, "then": { "type": "string" } },
+      { "if": { "const": "y" }, "then": { "type": "number" } },
+      { "if": { "const": "z" }, "then": { "type": "boolean" } }
+    ]
+  })JSON");
+
+  EXPECT_EQ(document, expected);
+}
+
+TEST(AlterSchema_lint_2020_12, unnecessary_allof_wrapper_two_parallel_groups) {
+  sourcemeta::core::JSON document = sourcemeta::core::parse_json(R"JSON({
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "allOf": [
+      { "if": { "const": "x" }, "then": { "type": "string" } },
+      { "minProperties": 1 },
+      { "if": { "const": "y" }, "then": { "type": "number" } },
+      { "minProperties": 2 }
+    ]
+  })JSON");
+
+  const auto expected = document;
+
+  LINT_AND_FIX(document, result, traces);
+
+  EXPECT_FALSE(result.first);
+  EXPECT_EQ(document, expected);
+}
+
+TEST(AlterSchema_lint_2020_12,
+     unnecessary_allof_wrapper_annotation_difference_preserves_gates) {
+  sourcemeta::core::JSON document = sourcemeta::core::parse_json(R"JSON({
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "allOf": [
+      {
+        "if": { "const": "x" },
+        "then": { "type": "string" },
+        "description": "first"
+      },
+      { "if": { "const": "y" }, "then": { "type": "number" } }
+    ]
+  })JSON");
+
+  LINT_AND_FIX(document, result, traces);
+
+  EXPECT_FALSE(result.first);
+
+  const sourcemeta::core::JSON expected = sourcemeta::core::parse_json(R"JSON({
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "description": "first",
+    "allOf": [
+      { "if": { "const": "x" }, "then": { "type": "string" } },
+      { "if": { "const": "y" }, "then": { "type": "number" } }
+    ]
+  })JSON");
+
+  EXPECT_EQ(document, expected);
+}
+
+TEST(AlterSchema_lint_2020_12,
+     unnecessary_allof_wrapper_parallel_type_unchanged) {
+  sourcemeta::core::JSON document = sourcemeta::core::parse_json(R"JSON({
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "allOf": [
+      { "type": "string" },
+      { "type": "number" }
+    ]
+  })JSON");
+
+  const auto expected = document;
+
+  LINT_AND_FIX(document, result, traces);
+
+  EXPECT_FALSE(result.first);
+  EXPECT_EQ(document, expected);
+}
+
+TEST(AlterSchema_lint_2020_12,
+     unnecessary_allof_wrapper_parallel_properties_unchanged) {
+  sourcemeta::core::JSON document = sourcemeta::core::parse_json(R"JSON({
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "allOf": [
+      { "properties": { "a": { "type": "string" } } },
+      { "properties": { "b": { "type": "number" } } }
+    ]
+  })JSON");
+
+  const auto expected = document;
+
+  LINT_AND_FIX(document, result, traces);
+
+  EXPECT_FALSE(result.first);
+  EXPECT_EQ(document, expected);
+}
+
+TEST(AlterSchema_lint_2020_12,
+     unnecessary_allof_wrapper_all_unique_keywords_elevate) {
+  sourcemeta::core::JSON document = sourcemeta::core::parse_json(R"JSON({
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "allOf": [
+      { "type": "object" },
+      { "maxProperties": 5 },
+      { "minProperties": 1 }
+    ]
+  })JSON");
+
+  LINT_AND_FIX(document, result, traces);
+
+  EXPECT_FALSE(result.first);
+
+  const sourcemeta::core::JSON expected = sourcemeta::core::parse_json(R"JSON({
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "type": "object",
+    "maxProperties": 5,
+    "minProperties": 1
   })JSON");
 
   EXPECT_EQ(document, expected);

@@ -757,7 +757,7 @@ TEST(AlterSchema_lint_draft7, duplicate_allof_branches_1) {
 
   const sourcemeta::core::JSON expected = sourcemeta::core::parse_json(R"JSON({
     "$schema": "http://json-schema.org/draft-07/schema#",
-    "not": true
+    "allOf": [ { "type": "string" }, { "type": "integer" } ]
   })JSON");
 
   EXPECT_EQ(document, expected);
@@ -4882,5 +4882,22 @@ TEST(AlterSchema_lint_draft7, unknown_format_prefix_demote_host_name) {
     "x-format": "host-name"
   })JSON");
 
+  EXPECT_EQ(document, expected);
+}
+
+TEST(AlterSchema_lint_draft7, unnecessary_allof_wrapper_parallel_gates) {
+  sourcemeta::core::JSON document = sourcemeta::core::parse_json(R"JSON({
+    "$schema": "http://json-schema.org/draft-07/schema#",
+    "allOf": [
+      { "if": { "const": "x" }, "then": { "type": "string" } },
+      { "if": { "const": "y" }, "then": { "type": "number" } }
+    ]
+  })JSON");
+
+  const auto expected = document;
+
+  LINT_AND_FIX(document, result, traces);
+
+  EXPECT_FALSE(result.first);
   EXPECT_EQ(document, expected);
 }

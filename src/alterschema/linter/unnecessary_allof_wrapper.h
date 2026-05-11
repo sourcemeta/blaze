@@ -6,9 +6,10 @@ public:
   using mutates = std::true_type;
   using reframe_after_transform = std::true_type;
   UnnecessaryAllOfWrapper()
-      : SchemaTransformRule{"unnecessary_allof_wrapper",
-                            "Keywords inside `allOf` that do not conflict with "
-                            "the parent schema can be elevated"} {};
+      : SchemaTransformRule{
+            "unnecessary_allof_wrapper",
+            "Keywords inside `allOf` that do not conflict with the parent "
+            "schema and are unique across sibling entries can be elevated"} {};
 
   [[nodiscard]] auto
   condition(const JSON &schema, const JSON &, const Vocabularies &vocabularies,
@@ -26,6 +27,21 @@ public:
     const auto *all_of_value{schema.try_at(KEYWORD)};
     ONLY_CONTINUE_IF(all_of_value && all_of_value->is_array() &&
                      !all_of_value->empty());
+
+    std::unordered_map<std::string_view, std::size_t> keyword_frequency;
+    for (const auto &entry : all_of_value->as_array()) {
+      if (!entry.is_object()) {
+        continue;
+      }
+      for (const auto &property : entry.as_object()) {
+        const auto &metadata{walker(property.first, vocabularies)};
+        if (metadata.type == SchemaKeywordType::Annotation ||
+            metadata.type == SchemaKeywordType::Comment) {
+          continue;
+        }
+        keyword_frequency[property.first]++;
+      }
+    }
 
     std::unordered_set<std::string_view> dependency_blocked;
     for (const auto &entry : schema.as_object()) {
@@ -100,6 +116,10 @@ public:
         }
 
         if (dependency_blocked.contains(keyword)) {
+          continue;
+        }
+
+        if (keyword_frequency[keyword] > 1) {
           continue;
         }
 

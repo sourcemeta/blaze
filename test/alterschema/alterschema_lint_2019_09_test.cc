@@ -1450,7 +1450,7 @@ TEST(AlterSchema_lint_2019_09, duplicate_allof_branches_1) {
 
   const sourcemeta::core::JSON expected = sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2019-09/schema",
-    "not": true
+    "allOf": [ { "type": "string" }, { "type": "integer" } ]
   })JSON");
 
   EXPECT_EQ(document, expected);
@@ -2562,9 +2562,9 @@ TEST(AlterSchema_lint_2019_09, unnecessary_allof_wrapper_4) {
   const sourcemeta::core::JSON expected = sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2019-09/schema",
     "$ref": "https://example.com",
-    "type": "integer",
     "allOf": [
-      { "type": "number" }
+      { "type": "number" },
+      { "type": "integer" }
     ]
   })JSON");
 
