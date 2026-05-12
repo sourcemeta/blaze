@@ -2,11 +2,11 @@
 
 #include <sourcemeta/blaze/codegen.h>
 
+#include <sourcemeta/core/io.h>
 #include <sourcemeta/core/json.h>
 #include <sourcemeta/core/jsonschema.h>
 
 #include <filesystem> // std::filesystem
-#include <fstream>    // std::ifstream
 #include <sstream>    // std::ostringstream
 #include <string>     // std::string
 
@@ -23,10 +23,7 @@ public:
     const auto schema{sourcemeta::core::read_json(schema_path)};
     const auto options{sourcemeta::core::read_json(options_path)};
 
-    std::ifstream expected_stream{expected_path};
-    expected_stream.exceptions(std::ios_base::badbit);
-    const std::string expected{std::istreambuf_iterator<char>(expected_stream),
-                               std::istreambuf_iterator<char>()};
+    const auto expected{sourcemeta::core::read_file_to_string(expected_path)};
 
     const auto result{
         sourcemeta::blaze::compile(schema, sourcemeta::core::schema_walker,

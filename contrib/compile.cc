@@ -1,4 +1,5 @@
 #include <sourcemeta/blaze/compiler.h>
+#include <sourcemeta/core/io.h>
 #include <sourcemeta/core/json.h>
 #include <sourcemeta/core/jsonpointer.h>
 #include <sourcemeta/core/options.h>
@@ -41,7 +42,7 @@ static auto resolve_schema(const std::string_view identifier,
       suffix.remove_prefix(1);
     }
 
-    const auto file_path{std::filesystem::weakly_canonical(
+    const auto file_path{sourcemeta::core::weakly_canonical(
         directory / std::filesystem::path{suffix})};
     const auto directory_string{directory.string()};
     const auto file_string{file_path.string()};
@@ -107,7 +108,7 @@ auto main(int argc, char **argv) noexcept -> int {
         }
 
         const auto canonical{
-            std::filesystem::weakly_canonical(entry.value().second)};
+            sourcemeta::core::weakly_canonical(entry.value().second)};
         if (!std::filesystem::is_directory(canonical)) {
           std::cerr << "error: not a directory: " << entry.value().second
                     << "\n";
