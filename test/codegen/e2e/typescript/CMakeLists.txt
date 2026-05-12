@@ -4,6 +4,8 @@ sourcemeta_googletest(NAMESPACE sourcemeta PROJECT blaze NAME codegen_e2e_typesc
 
 target_link_libraries(sourcemeta_blaze_codegen_e2e_typescript_unit
   PRIVATE sourcemeta::blaze::codegen)
+target_link_libraries(sourcemeta_blaze_codegen_e2e_typescript_unit
+  PRIVATE sourcemeta::core::io)
 target_compile_definitions(sourcemeta_blaze_codegen_e2e_typescript_unit
   PRIVATE E2E_TYPESCRIPT_PATH="${CMAKE_CURRENT_SOURCE_DIR}")
 
