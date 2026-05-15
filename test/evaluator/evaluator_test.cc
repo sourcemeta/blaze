@@ -315,7 +315,8 @@ TEST(Evaluator, format_assertion_vocabulary_unsupported) {
   }
 }
 
-TEST(Evaluator, unevaluated_properties_with_root_dynamic_anchor_and_default_id) {
+TEST(Evaluator,
+     unevaluated_properties_with_root_dynamic_anchor_and_default_id) {
   const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2020-12/schema",
     "$id": "https://example.com/metadata-tree",
@@ -377,7 +378,8 @@ TEST(Evaluator, unevaluated_items_with_root_dynamic_anchor_and_default_id) {
   EXPECT_TRUE(result);
 }
 
-TEST(Evaluator, unevaluated_properties_with_root_recursive_anchor_and_default_id_2019_09) {
+TEST(Evaluator,
+     unevaluated_properties_with_root_recursive_anchor_and_default_id_2019_09) {
   const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2019-09/schema",
     "$id": "https://example.com/metadata-tree",
@@ -408,7 +410,8 @@ TEST(Evaluator, unevaluated_properties_with_root_recursive_anchor_and_default_id
   EXPECT_TRUE(result);
 }
 
-TEST(Evaluator, unevaluated_properties_schema_with_root_dynamic_anchor_and_default_id) {
+TEST(Evaluator,
+     unevaluated_properties_schema_with_root_dynamic_anchor_and_default_id) {
   const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2020-12/schema",
     "$id": "https://example.com/metadata-tree",
