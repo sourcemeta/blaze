@@ -314,3 +314,130 @@ TEST(Evaluator, format_assertion_vocabulary_unsupported) {
     FAIL() << "The compile function was expected to throw a vocabulary error";
   }
 }
+
+TEST(Evaluator,
+     unevaluated_properties_with_root_dynamic_anchor_and_default_id) {
+  const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "$id": "https://example.com/metadata-tree",
+    "$dynamicAnchor": "member",
+    "unevaluatedProperties": false
+  })JSON")};
+
+  const auto bundled{sourcemeta::core::bundle(
+      schema, sourcemeta::core::schema_walker,
+      sourcemeta::core::schema_resolver, "", "https://example.com/default")};
+
+  sourcemeta::core::SchemaFrame frame{
+      sourcemeta::core::SchemaFrame::Mode::References};
+  frame.analyse(bundled, sourcemeta::core::schema_walker,
+                sourcemeta::core::schema_resolver, "",
+                "https://example.com/default");
+
+  const auto compiled_schema{sourcemeta::blaze::compile(
+      bundled, sourcemeta::core::schema_walker,
+      sourcemeta::core::schema_resolver,
+      sourcemeta::blaze::default_schema_compiler, frame, frame.root(),
+      sourcemeta::blaze::Mode::FastValidation)};
+
+  sourcemeta::blaze::Evaluator evaluator;
+  const sourcemeta::core::JSON instance{
+      sourcemeta::core::parse_json(R"JSON({ "foo": "bar" })JSON")};
+  const auto result{evaluator.validate(compiled_schema, instance)};
+  EXPECT_FALSE(result);
+}
+
+TEST(Evaluator, unevaluated_items_with_root_dynamic_anchor_and_default_id) {
+  const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "$id": "https://example.com/metadata-tree",
+    "$dynamicAnchor": "member",
+    "unevaluatedItems": false
+  })JSON")};
+
+  const auto bundled{sourcemeta::core::bundle(
+      schema, sourcemeta::core::schema_walker,
+      sourcemeta::core::schema_resolver, "", "https://example.com/default")};
+
+  sourcemeta::core::SchemaFrame frame{
+      sourcemeta::core::SchemaFrame::Mode::References};
+  frame.analyse(bundled, sourcemeta::core::schema_walker,
+                sourcemeta::core::schema_resolver, "",
+                "https://example.com/default");
+
+  const auto compiled_schema{sourcemeta::blaze::compile(
+      bundled, sourcemeta::core::schema_walker,
+      sourcemeta::core::schema_resolver,
+      sourcemeta::blaze::default_schema_compiler, frame, frame.root(),
+      sourcemeta::blaze::Mode::FastValidation)};
+
+  sourcemeta::blaze::Evaluator evaluator;
+  const sourcemeta::core::JSON instance{
+      sourcemeta::core::parse_json(R"JSON([ 1 ])JSON")};
+  const auto result{evaluator.validate(compiled_schema, instance)};
+  EXPECT_FALSE(result);
+}
+
+TEST(Evaluator,
+     unevaluated_properties_with_root_recursive_anchor_and_default_id_2019_09) {
+  const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
+    "$schema": "https://json-schema.org/draft/2019-09/schema",
+    "$id": "https://example.com/metadata-tree",
+    "$recursiveAnchor": true,
+    "unevaluatedProperties": false
+  })JSON")};
+
+  const auto bundled{sourcemeta::core::bundle(
+      schema, sourcemeta::core::schema_walker,
+      sourcemeta::core::schema_resolver, "", "https://example.com/default")};
+
+  sourcemeta::core::SchemaFrame frame{
+      sourcemeta::core::SchemaFrame::Mode::References};
+  frame.analyse(bundled, sourcemeta::core::schema_walker,
+                sourcemeta::core::schema_resolver, "",
+                "https://example.com/default");
+
+  const auto compiled_schema{sourcemeta::blaze::compile(
+      bundled, sourcemeta::core::schema_walker,
+      sourcemeta::core::schema_resolver,
+      sourcemeta::blaze::default_schema_compiler, frame, frame.root(),
+      sourcemeta::blaze::Mode::FastValidation)};
+
+  sourcemeta::blaze::Evaluator evaluator;
+  const sourcemeta::core::JSON instance{
+      sourcemeta::core::parse_json(R"JSON({ "foo": "bar" })JSON")};
+  const auto result{evaluator.validate(compiled_schema, instance)};
+  EXPECT_FALSE(result);
+}
+
+TEST(Evaluator,
+     unevaluated_properties_schema_with_root_dynamic_anchor_and_default_id) {
+  const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "$id": "https://example.com/metadata-tree",
+    "$dynamicAnchor": "member",
+    "unevaluatedProperties": { "type": "string" }
+  })JSON")};
+
+  const auto bundled{sourcemeta::core::bundle(
+      schema, sourcemeta::core::schema_walker,
+      sourcemeta::core::schema_resolver, "", "https://example.com/default")};
+
+  sourcemeta::core::SchemaFrame frame{
+      sourcemeta::core::SchemaFrame::Mode::References};
+  frame.analyse(bundled, sourcemeta::core::schema_walker,
+                sourcemeta::core::schema_resolver, "",
+                "https://example.com/default");
+
+  const auto compiled_schema{sourcemeta::blaze::compile(
+      bundled, sourcemeta::core::schema_walker,
+      sourcemeta::core::schema_resolver,
+      sourcemeta::blaze::default_schema_compiler, frame, frame.root(),
+      sourcemeta::blaze::Mode::FastValidation)};
+
+  sourcemeta::blaze::Evaluator evaluator;
+  const sourcemeta::core::JSON instance{
+      sourcemeta::core::parse_json(R"JSON({ "foo": "bar" })JSON")};
+  const auto result{evaluator.validate(compiled_schema, instance)};
+  EXPECT_TRUE(result);
+}
