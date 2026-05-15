@@ -509,24 +509,5 @@ auto compiler_2019_09_content_contentschema(
                ValueType::String, std::move(children))};
 }
 
-auto compiler_2019_09_format_format(const Context &context,
-                                    const SchemaContext &schema_context,
-                                    const DynamicContext &dynamic_context,
-                                    const Instructions &) -> Instructions {
-  if (context.mode == Mode::FastValidation) {
-    return {};
-  }
-
-  Instructions children{
-      make(sourcemeta::blaze::InstructionIndex::AnnotationEmit, context,
-           schema_context, dynamic_context,
-           sourcemeta::core::JSON{
-               schema_context.schema.at(dynamic_context.keyword)})};
-
-  return {make(sourcemeta::blaze::InstructionIndex::ControlGroupWhenType,
-               context, schema_context, relative_dynamic_context(),
-               ValueType::String, std::move(children))};
-}
-
 } // namespace internal
 #endif

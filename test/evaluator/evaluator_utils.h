@@ -96,6 +96,52 @@ inline auto FIRST_PROPERTY_IS(const sourcemeta::core::JSON &document,
   EVALUATE_WITH_TRACE(compiled_schema, instance, count)                        \
   EXPECT_FALSE(result);
 
+#define EVALUATE_WITH_TRACE_FAST_SUCCESS_TWEAKED(schema, instance, count,      \
+                                                 entrypoint, tweaks)           \
+  const auto compiled_schema{                                                  \
+      sourcemeta::blaze::compile(schema, sourcemeta::core::schema_walker,      \
+                                 sourcemeta::core::schema_resolver,            \
+                                 sourcemeta::blaze::default_schema_compiler,   \
+                                 sourcemeta::blaze::Mode::FastValidation, "",  \
+                                 "", (entrypoint), (tweaks))};                 \
+  __ASSERT_TEMPLATE_JSON_SERIALISATION(compiled_schema);                       \
+  EVALUATE_WITH_TRACE(compiled_schema, instance, count)                        \
+  EXPECT_TRUE(result);
+
+#define EVALUATE_WITH_TRACE_FAST_FAILURE_TWEAKED(schema, instance, count,      \
+                                                 entrypoint, tweaks)           \
+  const auto compiled_schema{                                                  \
+      sourcemeta::blaze::compile(schema, sourcemeta::core::schema_walker,      \
+                                 sourcemeta::core::schema_resolver,            \
+                                 sourcemeta::blaze::default_schema_compiler,   \
+                                 sourcemeta::blaze::Mode::FastValidation, "",  \
+                                 "", (entrypoint), (tweaks))};                 \
+  __ASSERT_TEMPLATE_JSON_SERIALISATION(compiled_schema);                       \
+  EVALUATE_WITH_TRACE(compiled_schema, instance, count)                        \
+  EXPECT_FALSE(result);
+
+#define EVALUATE_WITH_TRACE_EXHAUSTIVE_SUCCESS_TWEAKED(                        \
+    schema, instance, count, entrypoint, tweaks)                               \
+  const auto compiled_schema{sourcemeta::blaze::compile(                       \
+      schema, sourcemeta::core::schema_walker,                                 \
+      sourcemeta::core::schema_resolver,                                       \
+      sourcemeta::blaze::default_schema_compiler,                              \
+      sourcemeta::blaze::Mode::Exhaustive, "", "", (entrypoint), (tweaks))};   \
+  __ASSERT_TEMPLATE_JSON_SERIALISATION(compiled_schema);                       \
+  EVALUATE_WITH_TRACE(compiled_schema, instance, count)                        \
+  EXPECT_TRUE(result);
+
+#define EVALUATE_WITH_TRACE_EXHAUSTIVE_FAILURE_TWEAKED(                        \
+    schema, instance, count, entrypoint, tweaks)                               \
+  const auto compiled_schema{sourcemeta::blaze::compile(                       \
+      schema, sourcemeta::core::schema_walker,                                 \
+      sourcemeta::core::schema_resolver,                                       \
+      sourcemeta::blaze::default_schema_compiler,                              \
+      sourcemeta::blaze::Mode::Exhaustive, "", "", (entrypoint), (tweaks))};   \
+  __ASSERT_TEMPLATE_JSON_SERIALISATION(compiled_schema);                       \
+  EVALUATE_WITH_TRACE(compiled_schema, instance, count)                        \
+  EXPECT_FALSE(result);
+
 #define __EVALUATE_TRACE_PRE(index, instruction_type, evaluate_path,           \
                              expected_keyword_location,                        \
                              expected_instance_location)                       \
