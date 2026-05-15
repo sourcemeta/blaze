@@ -342,9 +342,9 @@ TEST(Evaluator,
 
   sourcemeta::blaze::Evaluator evaluator;
   const sourcemeta::core::JSON instance{
-      sourcemeta::core::parse_json(R"JSON({})JSON")};
+      sourcemeta::core::parse_json(R"JSON({ "foo": "bar" })JSON")};
   const auto result{evaluator.validate(compiled_schema, instance)};
-  EXPECT_TRUE(result);
+  EXPECT_FALSE(result);
 }
 
 TEST(Evaluator, unevaluated_items_with_root_dynamic_anchor_and_default_id) {
@@ -373,9 +373,9 @@ TEST(Evaluator, unevaluated_items_with_root_dynamic_anchor_and_default_id) {
 
   sourcemeta::blaze::Evaluator evaluator;
   const sourcemeta::core::JSON instance{
-      sourcemeta::core::parse_json(R"JSON([])JSON")};
+      sourcemeta::core::parse_json(R"JSON([ 1 ])JSON")};
   const auto result{evaluator.validate(compiled_schema, instance)};
-  EXPECT_TRUE(result);
+  EXPECT_FALSE(result);
 }
 
 TEST(Evaluator,
@@ -405,9 +405,9 @@ TEST(Evaluator,
 
   sourcemeta::blaze::Evaluator evaluator;
   const sourcemeta::core::JSON instance{
-      sourcemeta::core::parse_json(R"JSON({})JSON")};
+      sourcemeta::core::parse_json(R"JSON({ "foo": "bar" })JSON")};
   const auto result{evaluator.validate(compiled_schema, instance)};
-  EXPECT_TRUE(result);
+  EXPECT_FALSE(result);
 }
 
 TEST(Evaluator,
