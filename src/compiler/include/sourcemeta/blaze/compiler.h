@@ -95,7 +95,7 @@ struct Tweaks {
   bool properties_reorder{true};
   /// Inline jump targets with fewer instructions than this threshold
   std::size_t target_inline_threshold{50};
-  /// When set, force-enable treating `format` as an assertion
+  /// When set, force `format` to be compiled as an assertion
   bool format_assertion{false};
 };
 

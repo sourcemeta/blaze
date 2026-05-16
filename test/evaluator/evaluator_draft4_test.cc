@@ -2116,7 +2116,7 @@ TEST(Evaluator_draft4, type_number_valid_decimal_lexical_bignum_fast) {
                                "The value was expected to be of type number");
 }
 
-TEST(Evaluator_draft4, format_date_time_valid_fast) {
+TEST(Evaluator_draft4, format_date_time_valid_with_tweak_fast) {
   const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
     "$schema": "http://json-schema.org/draft-04/schema#",
     "format": "date-time"
@@ -2138,7 +2138,7 @@ TEST(Evaluator_draft4, format_date_time_valid_fast) {
       "valid RFC 3339 date-time");
 }
 
-TEST(Evaluator_draft4, format_date_time_invalid_fast) {
+TEST(Evaluator_draft4, format_date_time_invalid_with_tweak_fast) {
   const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
     "$schema": "http://json-schema.org/draft-04/schema#",
     "format": "date-time"
@@ -2171,7 +2171,7 @@ TEST(Evaluator_draft4, format_date_time_no_tweak_fast) {
   EVALUATE_WITH_TRACE_FAST_SUCCESS(schema, instance, 0, "");
 }
 
-TEST(Evaluator_draft4, format_email_valid_fast) {
+TEST(Evaluator_draft4, format_email_valid_with_tweak_fast) {
   const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
     "$schema": "http://json-schema.org/draft-04/schema#",
     "format": "email"
@@ -2193,7 +2193,7 @@ TEST(Evaluator_draft4, format_email_valid_fast) {
       "valid email address");
 }
 
-TEST(Evaluator_draft4, format_email_invalid_fast) {
+TEST(Evaluator_draft4, format_email_invalid_with_tweak_fast) {
   const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
     "$schema": "http://json-schema.org/draft-04/schema#",
     "format": "email"
@@ -2226,7 +2226,7 @@ TEST(Evaluator_draft4, format_email_no_tweak_fast) {
   EVALUATE_WITH_TRACE_FAST_SUCCESS(schema, instance, 0, "");
 }
 
-TEST(Evaluator_draft4, format_hostname_valid_fast) {
+TEST(Evaluator_draft4, format_hostname_valid_with_tweak_fast) {
   const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
     "$schema": "http://json-schema.org/draft-04/schema#",
     "format": "hostname"
@@ -2248,7 +2248,7 @@ TEST(Evaluator_draft4, format_hostname_valid_fast) {
       "valid hostname");
 }
 
-TEST(Evaluator_draft4, format_hostname_invalid_fast) {
+TEST(Evaluator_draft4, format_hostname_invalid_with_tweak_fast) {
   const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
     "$schema": "http://json-schema.org/draft-04/schema#",
     "format": "hostname"
@@ -2281,7 +2281,7 @@ TEST(Evaluator_draft4, format_hostname_no_tweak_fast) {
   EVALUATE_WITH_TRACE_FAST_SUCCESS(schema, instance, 0, "");
 }
 
-TEST(Evaluator_draft4, format_ipv4_valid_fast) {
+TEST(Evaluator_draft4, format_ipv4_valid_with_tweak_fast) {
   const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
     "$schema": "http://json-schema.org/draft-04/schema#",
     "format": "ipv4"
@@ -2303,7 +2303,7 @@ TEST(Evaluator_draft4, format_ipv4_valid_fast) {
       "valid IPv4 address");
 }
 
-TEST(Evaluator_draft4, format_ipv4_invalid_fast) {
+TEST(Evaluator_draft4, format_ipv4_invalid_with_tweak_fast) {
   const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
     "$schema": "http://json-schema.org/draft-04/schema#",
     "format": "ipv4"
@@ -2336,7 +2336,7 @@ TEST(Evaluator_draft4, format_ipv4_no_tweak_fast) {
   EVALUATE_WITH_TRACE_FAST_SUCCESS(schema, instance, 0, "");
 }
 
-TEST(Evaluator_draft4, format_ipv6_valid_fast) {
+TEST(Evaluator_draft4, format_ipv6_valid_with_tweak_fast) {
   const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
     "$schema": "http://json-schema.org/draft-04/schema#",
     "format": "ipv6"
@@ -2358,7 +2358,7 @@ TEST(Evaluator_draft4, format_ipv6_valid_fast) {
       "valid IPv6 address");
 }
 
-TEST(Evaluator_draft4, format_ipv6_invalid_fast) {
+TEST(Evaluator_draft4, format_ipv6_invalid_with_tweak_fast) {
   const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
     "$schema": "http://json-schema.org/draft-04/schema#",
     "format": "ipv6"
@@ -2391,7 +2391,7 @@ TEST(Evaluator_draft4, format_ipv6_no_tweak_fast) {
   EVALUATE_WITH_TRACE_FAST_SUCCESS(schema, instance, 0, "");
 }
 
-TEST(Evaluator_draft4, format_uri_valid_fast) {
+TEST(Evaluator_draft4, format_uri_valid_with_tweak_fast) {
   const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
     "$schema": "http://json-schema.org/draft-04/schema#",
     "format": "uri"
@@ -2413,7 +2413,7 @@ TEST(Evaluator_draft4, format_uri_valid_fast) {
       "a valid URI");
 }
 
-TEST(Evaluator_draft4, format_uri_invalid_fast) {
+TEST(Evaluator_draft4, format_uri_invalid_with_tweak_fast) {
   const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
     "$schema": "http://json-schema.org/draft-04/schema#",
     "format": "uri"
@@ -2460,7 +2460,7 @@ TEST(Evaluator_draft4, format_unknown_with_tweak_fast) {
   EVALUATE_WITH_TRACE_FAST_SUCCESS_TWEAKED(schema, instance, 0, "", tweaks);
 }
 
-TEST(Evaluator_draft4, format_date_time_valid_exhaustive) {
+TEST(Evaluator_draft4, format_date_time_valid_with_tweak_exhaustive) {
   const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
     "$schema": "http://json-schema.org/draft-04/schema#",
     "format": "date-time"
@@ -2483,7 +2483,7 @@ TEST(Evaluator_draft4, format_date_time_valid_exhaustive) {
       "valid RFC 3339 date-time");
 }
 
-TEST(Evaluator_draft4, format_date_time_invalid_exhaustive) {
+TEST(Evaluator_draft4, format_date_time_invalid_with_tweak_exhaustive) {
   const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
     "$schema": "http://json-schema.org/draft-04/schema#",
     "format": "date-time"
@@ -2517,7 +2517,7 @@ TEST(Evaluator_draft4, format_date_time_no_tweak_exhaustive) {
   EVALUATE_WITH_TRACE_EXHAUSTIVE_SUCCESS(schema, instance, 0, "");
 }
 
-TEST(Evaluator_draft4, format_email_valid_exhaustive) {
+TEST(Evaluator_draft4, format_email_valid_with_tweak_exhaustive) {
   const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
     "$schema": "http://json-schema.org/draft-04/schema#",
     "format": "email"
@@ -2540,7 +2540,7 @@ TEST(Evaluator_draft4, format_email_valid_exhaustive) {
       "valid email address");
 }
 
-TEST(Evaluator_draft4, format_email_invalid_exhaustive) {
+TEST(Evaluator_draft4, format_email_invalid_with_tweak_exhaustive) {
   const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
     "$schema": "http://json-schema.org/draft-04/schema#",
     "format": "email"
@@ -2574,7 +2574,7 @@ TEST(Evaluator_draft4, format_email_no_tweak_exhaustive) {
   EVALUATE_WITH_TRACE_EXHAUSTIVE_SUCCESS(schema, instance, 0, "");
 }
 
-TEST(Evaluator_draft4, format_hostname_valid_exhaustive) {
+TEST(Evaluator_draft4, format_hostname_valid_with_tweak_exhaustive) {
   const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
     "$schema": "http://json-schema.org/draft-04/schema#",
     "format": "hostname"
@@ -2597,7 +2597,7 @@ TEST(Evaluator_draft4, format_hostname_valid_exhaustive) {
       "valid hostname");
 }
 
-TEST(Evaluator_draft4, format_hostname_invalid_exhaustive) {
+TEST(Evaluator_draft4, format_hostname_invalid_with_tweak_exhaustive) {
   const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
     "$schema": "http://json-schema.org/draft-04/schema#",
     "format": "hostname"
@@ -2631,7 +2631,7 @@ TEST(Evaluator_draft4, format_hostname_no_tweak_exhaustive) {
   EVALUATE_WITH_TRACE_EXHAUSTIVE_SUCCESS(schema, instance, 0, "");
 }
 
-TEST(Evaluator_draft4, format_ipv4_valid_exhaustive) {
+TEST(Evaluator_draft4, format_ipv4_valid_with_tweak_exhaustive) {
   const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
     "$schema": "http://json-schema.org/draft-04/schema#",
     "format": "ipv4"
@@ -2654,7 +2654,7 @@ TEST(Evaluator_draft4, format_ipv4_valid_exhaustive) {
       "valid IPv4 address");
 }
 
-TEST(Evaluator_draft4, format_ipv4_invalid_exhaustive) {
+TEST(Evaluator_draft4, format_ipv4_invalid_with_tweak_exhaustive) {
   const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
     "$schema": "http://json-schema.org/draft-04/schema#",
     "format": "ipv4"
@@ -2688,7 +2688,7 @@ TEST(Evaluator_draft4, format_ipv4_no_tweak_exhaustive) {
   EVALUATE_WITH_TRACE_EXHAUSTIVE_SUCCESS(schema, instance, 0, "");
 }
 
-TEST(Evaluator_draft4, format_ipv6_valid_exhaustive) {
+TEST(Evaluator_draft4, format_ipv6_valid_with_tweak_exhaustive) {
   const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
     "$schema": "http://json-schema.org/draft-04/schema#",
     "format": "ipv6"
@@ -2711,7 +2711,7 @@ TEST(Evaluator_draft4, format_ipv6_valid_exhaustive) {
       "valid IPv6 address");
 }
 
-TEST(Evaluator_draft4, format_ipv6_invalid_exhaustive) {
+TEST(Evaluator_draft4, format_ipv6_invalid_with_tweak_exhaustive) {
   const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
     "$schema": "http://json-schema.org/draft-04/schema#",
     "format": "ipv6"
@@ -2745,7 +2745,7 @@ TEST(Evaluator_draft4, format_ipv6_no_tweak_exhaustive) {
   EVALUATE_WITH_TRACE_EXHAUSTIVE_SUCCESS(schema, instance, 0, "");
 }
 
-TEST(Evaluator_draft4, format_uri_valid_exhaustive) {
+TEST(Evaluator_draft4, format_uri_valid_with_tweak_exhaustive) {
   const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
     "$schema": "http://json-schema.org/draft-04/schema#",
     "format": "uri"
@@ -2768,7 +2768,7 @@ TEST(Evaluator_draft4, format_uri_valid_exhaustive) {
       "a valid URI");
 }
 
-TEST(Evaluator_draft4, format_uri_invalid_exhaustive) {
+TEST(Evaluator_draft4, format_uri_invalid_with_tweak_exhaustive) {
   const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
     "$schema": "http://json-schema.org/draft-04/schema#",
     "format": "uri"
@@ -2823,7 +2823,7 @@ TEST(Evaluator_draft4, format_uri_reference_no_tweak_fast) {
     "format": "uri-reference"
   })JSON")};
 
-  const sourcemeta::core::JSON instance{"https://example.com/path"};
+  const sourcemeta::core::JSON instance{"://bad"};
 
   EVALUATE_WITH_TRACE_FAST_SUCCESS(schema, instance, 0, "");
 }
@@ -2834,7 +2834,7 @@ TEST(Evaluator_draft4, format_uri_reference_with_tweak_fast) {
     "format": "uri-reference"
   })JSON")};
 
-  const sourcemeta::core::JSON instance{"https://example.com/path"};
+  const sourcemeta::core::JSON instance{"://bad"};
 
   sourcemeta::blaze::Tweaks tweaks;
   tweaks.format_assertion = true;
@@ -2848,7 +2848,7 @@ TEST(Evaluator_draft4, format_uri_template_no_tweak_fast) {
     "format": "uri-template"
   })JSON")};
 
-  const sourcemeta::core::JSON instance{"http://example.com/{var}"};
+  const sourcemeta::core::JSON instance{"{bad"};
 
   EVALUATE_WITH_TRACE_FAST_SUCCESS(schema, instance, 0, "");
 }
@@ -2859,7 +2859,7 @@ TEST(Evaluator_draft4, format_uri_template_with_tweak_fast) {
     "format": "uri-template"
   })JSON")};
 
-  const sourcemeta::core::JSON instance{"http://example.com/{var}"};
+  const sourcemeta::core::JSON instance{"{bad"};
 
   sourcemeta::blaze::Tweaks tweaks;
   tweaks.format_assertion = true;
@@ -2873,7 +2873,7 @@ TEST(Evaluator_draft4, format_json_pointer_no_tweak_fast) {
     "format": "json-pointer"
   })JSON")};
 
-  const sourcemeta::core::JSON instance{"/foo/bar"};
+  const sourcemeta::core::JSON instance{"no-leading-slash"};
 
   EVALUATE_WITH_TRACE_FAST_SUCCESS(schema, instance, 0, "");
 }
@@ -2884,7 +2884,7 @@ TEST(Evaluator_draft4, format_json_pointer_with_tweak_fast) {
     "format": "json-pointer"
   })JSON")};
 
-  const sourcemeta::core::JSON instance{"/foo/bar"};
+  const sourcemeta::core::JSON instance{"no-leading-slash"};
 
   sourcemeta::blaze::Tweaks tweaks;
   tweaks.format_assertion = true;
@@ -3124,7 +3124,7 @@ TEST(Evaluator_draft4, format_keyword_value_null_with_tweak_exhaustive) {
                                                  tweaks);
 }
 
-TEST(Evaluator_draft4, format_under_properties_valid_fast) {
+TEST(Evaluator_draft4, format_under_properties_valid_with_tweak_fast) {
   const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
     "$schema": "http://json-schema.org/draft-04/schema#",
     "properties": {
@@ -3150,7 +3150,7 @@ TEST(Evaluator_draft4, format_under_properties_valid_fast) {
       "valid URI");
 }
 
-TEST(Evaluator_draft4, format_under_properties_invalid_fast) {
+TEST(Evaluator_draft4, format_under_properties_invalid_with_tweak_fast) {
   const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
     "$schema": "http://json-schema.org/draft-04/schema#",
     "properties": {
@@ -3176,7 +3176,7 @@ TEST(Evaluator_draft4, format_under_properties_invalid_fast) {
       "URI");
 }
 
-TEST(Evaluator_draft4, format_under_items_valid_fast) {
+TEST(Evaluator_draft4, format_under_items_valid_with_tweak_fast) {
   const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
     "$schema": "http://json-schema.org/draft-04/schema#",
     "items": { "format": "uri" }
@@ -3210,7 +3210,7 @@ TEST(Evaluator_draft4, format_under_items_valid_fast) {
       "valid URI");
 }
 
-TEST(Evaluator_draft4, format_under_items_invalid_fast) {
+TEST(Evaluator_draft4, format_under_items_invalid_with_tweak_fast) {
   const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
     "$schema": "http://json-schema.org/draft-04/schema#",
     "items": { "format": "uri" }
@@ -3244,7 +3244,7 @@ TEST(Evaluator_draft4, format_under_items_invalid_fast) {
       "URI");
 }
 
-TEST(Evaluator_draft4, format_with_type_string_valid_fast) {
+TEST(Evaluator_draft4, format_with_type_string_valid_with_tweak_fast) {
   const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
     "$schema": "http://json-schema.org/draft-04/schema#",
     "type": "string",
@@ -3271,7 +3271,7 @@ TEST(Evaluator_draft4, format_with_type_string_valid_fast) {
                                "The value was expected to be of type string");
 }
 
-TEST(Evaluator_draft4, format_with_type_string_invalid_format_fast) {
+TEST(Evaluator_draft4, format_with_type_string_invalid_format_with_tweak_fast) {
   const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
     "$schema": "http://json-schema.org/draft-04/schema#",
     "type": "string",
@@ -3294,7 +3294,7 @@ TEST(Evaluator_draft4, format_with_type_string_invalid_format_fast) {
       "URI");
 }
 
-TEST(Evaluator_draft4, format_with_type_string_non_string_fast) {
+TEST(Evaluator_draft4, format_with_type_string_non_string_with_tweak_fast) {
   const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
     "$schema": "http://json-schema.org/draft-04/schema#",
     "type": "string",
@@ -3315,7 +3315,8 @@ TEST(Evaluator_draft4, format_with_type_string_non_string_fast) {
       "The value was expected to be of type string but it was of type integer");
 }
 
-TEST(Evaluator_draft4, format_with_type_integer_short_circuits_fast) {
+TEST(Evaluator_draft4,
+     format_with_type_integer_short_circuits_with_tweak_fast) {
   const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
     "$schema": "http://json-schema.org/draft-04/schema#",
     "type": "integer",
