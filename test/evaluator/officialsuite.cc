@@ -246,10 +246,11 @@ private:
   sourcemeta::blaze::Evaluator evaluator;
 };
 
-static auto register_tests(const std::filesystem::path &subdirectory,
-                           const std::string &suite_name,
-                           const std::string &default_dialect,
-                           const std::set<std::string> &blacklist) -> void {
+static auto register_tests(
+    const std::filesystem::path &subdirectory, const std::string &suite_name,
+    const std::string &default_dialect, const std::set<std::string> &blacklist,
+    const std::optional<sourcemeta::blaze::Tweaks> &tweaks = std::nullopt)
+    -> void {
   for (const std::filesystem::directory_entry &entry :
        std::filesystem::directory_iterator(
            std::filesystem::path{OFFICIAL_SUITE_PATH} / "tests" /
@@ -283,7 +284,8 @@ static auto register_tests(const std::filesystem::path &subdirectory,
                               sourcemeta::blaze::Mode::Exhaustive}) {
         const auto schema_template{sourcemeta::blaze::compile(
             test.at("schema"), sourcemeta::core::schema_walker, test_resolver,
-            sourcemeta::blaze::default_schema_compiler, mode, default_dialect)};
+            sourcemeta::blaze::default_schema_compiler, mode, default_dialect,
+            "", "", tweaks)};
 
         for (const auto &test_case : test.at("tests").as_array()) {
           std::ostringstream title;
@@ -398,11 +400,8 @@ int main(int argc, char **argv) {
                    "http://json-schema.org/draft-06/schema#", {});
     register_tests(std::filesystem::path{"draft6"} / "optional" / "format",
                    "JSONSchemaOfficialSuite_Draft6_Optional_Format",
-                   "http://json-schema.org/draft-06/schema#",
-                   // TODO: Enable all tests
-                   {"date-time", "email", "hostname", "ipv4", "ipv6",
-                    "json-pointer", "unknown", "uri-reference", "uri-template",
-                    "uri"});
+                   "http://json-schema.org/draft-06/schema#", {},
+                   sourcemeta::blaze::Tweaks{.format_assertion = true});
 
     // Draft4
     register_tests("draft4", "JSONSchemaOfficialSuite_Draft4",
@@ -412,9 +411,8 @@ int main(int argc, char **argv) {
                    "http://json-schema.org/draft-04/schema#", {});
     register_tests(std::filesystem::path{"draft4"} / "optional" / "format",
                    "JSONSchemaOfficialSuite_Draft4_Optional_Format",
-                   "http://json-schema.org/draft-04/schema#",
-                   // TODO: Enable all tests
-                   {"date-time", "email", "hostname", "ipv4", "ipv6", "uri"});
+                   "http://json-schema.org/draft-04/schema#", {},
+                   sourcemeta::blaze::Tweaks{.format_assertion = true});
 
     // Draft 3
     register_tests("draft3", "JSONSchemaOfficialSuite_Draft3",
@@ -425,9 +423,9 @@ int main(int argc, char **argv) {
     register_tests(std::filesystem::path{"draft3"} / "optional" / "format",
                    "JSONSchemaOfficialSuite_Draft3_Optional_Format",
                    "http://json-schema.org/draft-03/schema#",
-                   // TODO: Enable all tests
-                   {"color", "date-time", "date", "ecmascript-regex", "email",
-                    "host-name", "ip-address", "ipv6", "regex", "time", "uri"});
+                   // TODO: Support all formats
+                   {"color", "date", "ecmascript-regex", "regex", "time"},
+                   sourcemeta::blaze::Tweaks{.format_assertion = true});
   } catch (const sourcemeta::core::SchemaResolutionError &error) {
     std::cerr << error.what() << ": " << error.identifier() << "\n";
     return EXIT_FAILURE;
