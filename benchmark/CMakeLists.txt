@@ -2,6 +2,7 @@ set(BENCHMARK_SOURCES)
 
 if(BLAZE_COMPILER AND BLAZE_EVALUATOR AND BLAZE_OUTPUT)
   list(APPEND BENCHMARK_SOURCES
+    micro/allocator_profile.cc
     e2e/runner.cc
     micro/draft4.cc
     micro/draft6.cc
@@ -45,6 +46,10 @@ if(BENCHMARK_SOURCES)
     target_link_libraries(sourcemeta_blaze_benchmark
       PRIVATE sourcemeta::blaze::alterschema)
   endif()
+  
+  # Phase 2: Allocator abstraction (explicit backend selection)
+  target_link_libraries(sourcemeta_blaze_benchmark
+    PRIVATE sourcemeta_blaze_allocator)
 
   add_custom_target(benchmark_all
     COMMAND sourcemeta_blaze_benchmark

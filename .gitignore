@@ -9,6 +9,7 @@ compile_commands.json
 CTestTestfile.cmake
 _deps
 /build
+build_*/
 Brewfile.lock.json
 .DS_Store
 .cache
