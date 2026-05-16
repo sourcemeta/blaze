@@ -25,7 +25,6 @@ Alterschema_Check_Readibility_ISO_Language_Set_3(benchmark::State &state) {
                                   const auto &, const auto &) {});
     assert(result.first);
     assert(result.second == 100);
-    benchmark::DoNotOptimize(result);
   }
 }
 

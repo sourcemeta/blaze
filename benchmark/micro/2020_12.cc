@@ -67,7 +67,6 @@ static void Micro_2020_12_Dynamic_Ref(benchmark::State &state) {
   for (auto _ : state) {
     auto result{evaluator.validate(schema_template, instance)};
     assert(result);
-    benchmark::DoNotOptimize(result);
   }
 }
 
@@ -94,7 +93,6 @@ static void Micro_2020_12_Dynamic_Ref_Single(benchmark::State &state) {
   for (auto _ : state) {
     auto result{evaluator.validate(schema_template, instance)};
     assert(result);
-    benchmark::DoNotOptimize(result);
   }
 }
 
@@ -166,7 +164,6 @@ static void Micro_2020_12_Simple_Output_Mask(benchmark::State &state) {
     auto result{
         evaluator.validate(schema_template, instance, std::ref(output))};
     assert(result);
-    benchmark::DoNotOptimize(result);
   }
 }
 
@@ -210,7 +207,6 @@ static void Micro_2020_12_Simple_Output_Annotations(benchmark::State &state) {
     auto result{
         evaluator.validate(schema_template, instance, std::ref(output))};
     assert(result);
-    benchmark::DoNotOptimize(result);
   }
 }
 
@@ -295,7 +291,6 @@ static void Micro_2020_12_Exhaustive_Deep_Numeric(benchmark::State &state) {
   for (auto _ : state) {
     auto result{evaluator.validate(schema_template, instance)};
     assert(result);
-    benchmark::DoNotOptimize(result);
   }
 }
 
@@ -318,7 +313,6 @@ Micro_2020_12_Exhaustive_Deep_Numeric_SimpleOutput(benchmark::State &state) {
     auto result{
         evaluator.validate(schema_template, instance, std::ref(output))};
     assert(result);
-    benchmark::DoNotOptimize(result);
   }
 }
 
@@ -344,7 +338,6 @@ Micro_2020_12_Exhaustive_Deep_Numeric_TraceOutput(benchmark::State &state) {
     auto result{
         evaluator.validate(schema_template, instance, std::ref(output))};
     assert(result);
-    benchmark::DoNotOptimize(result);
     benchmark::DoNotOptimize(count);
   }
 }
@@ -366,7 +359,6 @@ Micro_2020_12_Exhaustive_Deep_Numeric_Fail(benchmark::State &state) {
   for (auto _ : state) {
     auto result{evaluator.validate(schema_template, instance)};
     assert(!result);
-    benchmark::DoNotOptimize(result);
   }
 }
 
@@ -389,7 +381,6 @@ static void Micro_2020_12_Exhaustive_Deep_Numeric_Fail_SimpleOutput(
     auto result{
         evaluator.validate(schema_template, instance, std::ref(output))};
     assert(!result);
-    benchmark::DoNotOptimize(result);
   }
 }
 

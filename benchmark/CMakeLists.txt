@@ -29,37 +29,6 @@ endif()
 
 if(BLAZE_ALTERSCHEMA)
   list(APPEND BENCHMARK_SOURCES alterschema.cc)
-set(BENCHMARK_SOURCES)
-
-if(BLAZE_FOUNDATION)
-  list(APPEND BENCHMARK_SOURCES foundation.cc)
-endif()
-
-if(BLAZE_FRAME)
-  list(APPEND BENCHMARK_SOURCES frame.cc)
-endif()
-
-if(BLAZE_BUNDLE)
-  list(APPEND BENCHMARK_SOURCES bundle.cc)
-endif()
-
-if(BLAZE_FORMAT)
-  list(APPEND BENCHMARK_SOURCES format.cc)
-endif()
-
-if(BLAZE_COMPILER AND BLAZE_EVALUATOR AND BLAZE_OUTPUT)
-  list(APPEND BENCHMARK_SOURCES
-    micro/allocator_profile.cc
-    e2e/runner.cc
-    micro/draft4.cc
-    micro/draft6.cc
-    micro/draft7.cc
-    micro/2019_09.cc
-    micro/2020_12.cc)
-endif()
-
-if(BLAZE_ALTERSCHEMA)
-  list(APPEND BENCHMARK_SOURCES alterschema.cc)
 endif()
 
 if(BENCHMARK_SOURCES)

@@ -41,7 +41,6 @@ static void Micro_2019_09_Unevaluated_Properties(benchmark::State &state) {
   for (auto _ : state) {
     auto result{evaluator.validate(schema_template, instance)};
     assert(result);
-    benchmark::DoNotOptimize(result);
   }
 }
 

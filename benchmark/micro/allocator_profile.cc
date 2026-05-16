@@ -5,9 +5,9 @@
 #include <sourcemeta/core/json.h>
 #include <sourcemeta/core/jsonschema.h>
 
+#include <sourcemeta/blaze/allocator.h>
 #include <sourcemeta/blaze/compiler.h>
 #include <sourcemeta/blaze/evaluator.h>
-#include <sourcemeta/blaze/allocator.h>
 
 namespace {
 
@@ -90,10 +90,10 @@ namespace {
 
 [[nodiscard]] auto make_template() -> sourcemeta::blaze::Template {
   const auto schema{sample_schema()};
-  return sourcemeta::blaze::compile(
-      schema, sourcemeta::core::schema_walker,
-      sourcemeta::core::schema_resolver, sourcemeta::blaze::default_schema_compiler,
-      sourcemeta::blaze::Mode::FastValidation);
+  return sourcemeta::blaze::compile(schema, sourcemeta::core::schema_walker,
+                                    sourcemeta::core::schema_resolver,
+                                    sourcemeta::blaze::default_schema_compiler,
+                                    sourcemeta::blaze::Mode::FastValidation);
 }
 
 } // namespace
@@ -101,11 +101,11 @@ namespace {
 static void Allocator_Profile_Compile(benchmark::State &state) {
   const auto schema{sample_schema()};
   for (auto _ : state) {
-    auto schema_template{sourcemeta::blaze::compile(
-        schema, sourcemeta::core::schema_walker,
-        sourcemeta::core::schema_resolver,
-        sourcemeta::blaze::default_schema_compiler,
-        sourcemeta::blaze::Mode::FastValidation)};
+    auto schema_template{
+        sourcemeta::blaze::compile(schema, sourcemeta::core::schema_walker,
+                                   sourcemeta::core::schema_resolver,
+                                   sourcemeta::blaze::default_schema_compiler,
+                                   sourcemeta::blaze::Mode::FastValidation)};
     benchmark::DoNotOptimize(schema_template);
   }
 }
@@ -118,7 +118,6 @@ static void Allocator_Profile_Validate(benchmark::State &state) {
   for (auto _ : state) {
     const auto result{evaluator.validate(schema_template, instance)};
     assert(result);
-    benchmark::DoNotOptimize(result);
   }
 
   state.SetItemsProcessed(state.iterations());
@@ -132,7 +131,6 @@ static void Allocator_Profile_Concurrent_Validate(benchmark::State &state) {
   for (auto _ : state) {
     const auto result{evaluator.validate(schema_template, instance)};
     assert(result);
-    benchmark::DoNotOptimize(result);
   }
 
   state.SetItemsProcessed(state.iterations());
@@ -144,18 +142,17 @@ BENCHMARK(Allocator_Profile_Concurrent_Validate)->ThreadRange(1, 8);
 
 // Initialize allocator backend at benchmark startup
 // Use standard backend by default (no override)
-// To test rpmalloc: rebuild with -DBLAZE_ALLOCATOR_RPMALLOC=ON and set env var
+// To test rpmalloc: rebuild with -DBLAZE_ALLOCATOR_RPMALLOC=ON
 namespace {
 struct AllocatorInitializer {
   AllocatorInitializer() {
     sourcemeta::blaze::allocator::Config config;
     // Backend selection: default is Standard
-    // In Phase 2, we're not globally enabling rpmalloc, just making it available
+    // In Phase 2, we're not globally enabling rpmalloc, just making it
+    // available
     sourcemeta::blaze::allocator::initialize(config);
   }
-  ~AllocatorInitializer() {
-    sourcemeta::blaze::allocator::finalize();
-  }
+  ~AllocatorInitializer() { sourcemeta::blaze::allocator::finalize(); }
 };
 static AllocatorInitializer g_allocator;
 } // namespace

@@ -8,7 +8,7 @@ namespace sourcemeta::blaze::allocator {
 
 static Config g_config;
 
-void initialize(const Config& config) {
+void initialize(const Config &config) {
   g_config = config;
   switch (g_config.backend) {
     case Backend::Standard:
@@ -18,9 +18,8 @@ void initialize(const Config& config) {
 #ifdef BLAZE_ALLOCATOR_RPMALLOC
       rpmalloc_initialize();
 #else
-      throw std::runtime_error(
-          "rpmalloc backend not compiled; "
-          "rebuild with -DBLAZE_ALLOCATOR_RPMALLOC=ON");
+      throw std::runtime_error("rpmalloc backend not compiled; "
+                               "rebuild with -DBLAZE_ALLOCATOR_RPMALLOC=ON");
 #endif
       break;
   }
@@ -62,8 +61,6 @@ void thread_finalize() {
   }
 }
 
-Config current_config() noexcept {
-  return g_config;
-}
+Config current_config() noexcept { return g_config; }
 
 } // namespace sourcemeta::blaze::allocator

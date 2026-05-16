@@ -17,24 +17,22 @@ namespace sourcemeta::blaze {
 
 /// @brief Custom allocator adapter for use with STL containers
 /// @tparam T Value type
-/// 
+///
 /// When BLAZE_ALLOCATOR_RPMALLOC is enabled, uses rpmalloc.
 /// Otherwise falls back to standard malloc/free.
-template <typename T>
-class RpmallocAdapter {
+template <typename T> class RpmallocAdapter {
 public:
   using value_type = T;
-  using pointer = T*;
-  using const_pointer = const T*;
-  using reference = T&;
-  using const_reference = const T&;
+  using pointer = T *;
+  using const_pointer = const T *;
+  using reference = T &;
+  using const_reference = const T &;
   using size_type = std::size_t;
   using difference_type = std::ptrdiff_t;
 
   RpmallocAdapter() = default;
 
-  template <typename U>
-  RpmallocAdapter(const RpmallocAdapter<U>&) {}
+  template <typename U> RpmallocAdapter(const RpmallocAdapter<U> &) {}
 
   /// @brief Allocate memory for n elements
   [[nodiscard]] pointer allocate(size_type n) {
@@ -54,8 +52,8 @@ public:
 #endif
   }
 
-  bool operator==(const RpmallocAdapter&) const { return true; }
-  bool operator!=(const RpmallocAdapter&) const { return false; }
+  bool operator==(const RpmallocAdapter &) const { return true; }
+  bool operator!=(const RpmallocAdapter &) const { return false; }
 };
 
 } // namespace sourcemeta::blaze
