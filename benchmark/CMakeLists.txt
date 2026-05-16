@@ -20,6 +20,8 @@ if(BENCHMARK_SOURCES)
     FOLDER "Blaze" SOURCES ${BENCHMARK_SOURCES})
   target_compile_definitions(sourcemeta_blaze_benchmark
     PRIVATE CURRENT_DIRECTORY="${CMAKE_CURRENT_SOURCE_DIR}")
+  target_include_directories(sourcemeta_blaze_benchmark
+    PRIVATE ${PROJECT_SOURCE_DIR}/src/allocator/include)
 
   target_link_libraries(sourcemeta_blaze_benchmark
     PRIVATE sourcemeta::core::io)
@@ -28,7 +30,8 @@ if(BENCHMARK_SOURCES)
   target_link_libraries(sourcemeta_blaze_benchmark
     PRIVATE sourcemeta::core::jsonl)
   target_link_libraries(sourcemeta_blaze_benchmark
-    PRIVATE sourcemeta::core::jsonschema)
+    PRIVATE sourcemeta::core::jsonschema
+            sourcemeta_blaze_allocator)
 
   if(BLAZE_COMPILER)
     target_link_libraries(sourcemeta_blaze_benchmark
@@ -46,10 +49,6 @@ if(BENCHMARK_SOURCES)
     target_link_libraries(sourcemeta_blaze_benchmark
       PRIVATE sourcemeta::blaze::alterschema)
   endif()
-  
-  # Phase 2: Allocator abstraction (explicit backend selection)
-  target_link_libraries(sourcemeta_blaze_benchmark
-    PRIVATE sourcemeta_blaze_allocator)
 
   add_custom_target(benchmark_all
     COMMAND sourcemeta_blaze_benchmark
