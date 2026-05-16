@@ -11,6 +11,9 @@ if(PROJECT_IS_TOP_LEVEL)
   sourcemeta_add_vectorization_diagnostics(sourcemeta_blaze_evaluator)
 endif()
 
+target_include_directories(sourcemeta_blaze_evaluator PRIVATE
+  ${PROJECT_SOURCE_DIR}/src/allocator/include)
+
 target_link_libraries(sourcemeta_blaze_evaluator PUBLIC
   sourcemeta::core::json)
 target_link_libraries(sourcemeta_blaze_evaluator PUBLIC

@@ -1,4 +1,5 @@
 #include <sourcemeta/blaze/evaluator.h>
+#include <sourcemeta/blaze/allocator_adapter.h>
 
 #include <algorithm>   // std::ranges::any_of
 #include <cassert>     // assert
@@ -1264,7 +1265,7 @@ auto describe(const bool valid, const Instruction &step,
     const auto &value{instruction_value<ValueStringSet>(step)};
     assert(value.size() > 1);
 
-    std::vector<ValueString> value_vector;
+    std::vector<ValueString, sourcemeta::blaze::RpmallocAdapter<ValueString>> value_vector;
     for (const auto &entry : value) {
       value_vector.push_back(entry.first);
     }
@@ -1316,7 +1317,7 @@ auto describe(const bool valid, const Instruction &step,
     const auto &value{instruction_value<ValueStringSet>(step)};
     assert(value.size() > 1);
 
-    std::vector<ValueString> value_vector;
+    std::vector<ValueString, sourcemeta::blaze::RpmallocAdapter<ValueString>> value_vector;
     for (const auto &entry : value) {
       value_vector.push_back(entry.first);
     }
@@ -1340,7 +1341,7 @@ auto describe(const bool valid, const Instruction &step,
       sourcemeta::blaze::InstructionIndex::AssertionDefinesExactly) {
     const auto &value{instruction_value<ValueStringSet>(step)};
     assert(value.size() > 1);
-    std::vector<ValueString> value_vector;
+    std::vector<ValueString, sourcemeta::blaze::RpmallocAdapter<ValueString>> value_vector;
     for (const auto &entry : value) {
       value_vector.push_back(entry.first);
     }
@@ -1395,7 +1396,7 @@ auto describe(const bool valid, const Instruction &step,
       sourcemeta::blaze::InstructionIndex::AssertionDefinesExactlyStrict) {
     const auto &value{instruction_value<ValueStringSet>(step)};
     assert(value.size() > 1);
-    std::vector<ValueString> value_vector;
+    std::vector<ValueString, sourcemeta::blaze::RpmallocAdapter<ValueString>> value_vector;
     for (const auto &entry : value) {
       value_vector.push_back(entry.first);
     }
