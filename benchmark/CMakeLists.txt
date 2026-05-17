@@ -2,6 +2,7 @@ set(BENCHMARK_SOURCES)
 
 if(BLAZE_COMPILER AND BLAZE_EVALUATOR AND BLAZE_OUTPUT)
   list(APPEND BENCHMARK_SOURCES
+    micro/allocator_profile.cc
     e2e/runner.cc
     micro/draft4.cc
     micro/draft6.cc
@@ -19,6 +20,8 @@ if(BENCHMARK_SOURCES)
     FOLDER "Blaze" SOURCES ${BENCHMARK_SOURCES})
   target_compile_definitions(sourcemeta_blaze_benchmark
     PRIVATE CURRENT_DIRECTORY="${CMAKE_CURRENT_SOURCE_DIR}")
+  target_include_directories(sourcemeta_blaze_benchmark
+    PRIVATE ${PROJECT_SOURCE_DIR}/src/allocator/include)
 
   target_link_libraries(sourcemeta_blaze_benchmark
     PRIVATE sourcemeta::core::io)
@@ -27,7 +30,8 @@ if(BENCHMARK_SOURCES)
   target_link_libraries(sourcemeta_blaze_benchmark
     PRIVATE sourcemeta::core::jsonl)
   target_link_libraries(sourcemeta_blaze_benchmark
-    PRIVATE sourcemeta::core::jsonschema)
+    PRIVATE sourcemeta::core::jsonschema
+            sourcemeta_blaze_allocator)
 
   if(BLAZE_COMPILER)
     target_link_libraries(sourcemeta_blaze_benchmark
