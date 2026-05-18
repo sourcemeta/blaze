@@ -121,6 +121,7 @@ sourcemeta_library(NAMESPACE sourcemeta PROJECT blaze NAME alterschema
 
     # Linter
     linter/comment_trim.h
+    linter/conflicting_readonly_writeonly.h
     linter/const_not_in_enum.h
     linter/content_schema_default.h
     linter/definitions_to_defs.h
