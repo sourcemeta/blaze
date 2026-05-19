@@ -2417,6 +2417,92 @@ TEST(AlterSchema_lint_2019_09, incoherent_min_max_contains_9) {
                     true);
 }
 
+TEST(AlterSchema_lint_2019_09, incoherent_exclusive_limits_1) {
+  const sourcemeta::core::JSON document = sourcemeta::core::parse_json(R"JSON({
+    "$schema": "https://json-schema.org/draft/2019-09/schema",
+    "title": "Test",
+    "description": "A test schema",
+    "examples": [ "foo" ],
+    "exclusiveMinimum": 1,
+    "exclusiveMaximum": 5
+  })JSON");
+
+  LINT_WITHOUT_FIX(document, result, traces);
+
+  EXPECT_TRUE(result.first);
+  EXPECT_EQ(traces.size(), 0);
+}
+
+TEST(AlterSchema_lint_2019_09, incoherent_exclusive_limits_2) {
+  const sourcemeta::core::JSON document = sourcemeta::core::parse_json(R"JSON({
+    "$schema": "https://json-schema.org/draft/2019-09/schema",
+    "title": "Test",
+    "description": "A test schema",
+    "examples": [ "foo" ],
+    "exclusiveMinimum": 1
+  })JSON");
+
+  LINT_WITHOUT_FIX(document, result, traces);
+
+  EXPECT_TRUE(result.first);
+  EXPECT_EQ(traces.size(), 0);
+}
+
+TEST(AlterSchema_lint_2019_09, incoherent_exclusive_limits_3) {
+  const sourcemeta::core::JSON document = sourcemeta::core::parse_json(R"JSON({
+    "$schema": "https://json-schema.org/draft/2019-09/schema",
+    "title": "Test",
+    "description": "A test schema",
+    "examples": [ "foo" ],
+    "exclusiveMinimum": 3,
+    "exclusiveMaximum": 3
+  })JSON");
+
+  LINT_WITHOUT_FIX(document, result, traces);
+
+  EXPECT_FALSE(result.first);
+  EXPECT_EQ(traces.size(), 1);
+  EXPECT_LINT_TRACE(traces, 0, "", "incoherent_exclusive_limits",
+                    "`exclusiveMinimum` greater than or equal to "
+                    "`exclusiveMaximum` makes the schema unsatisfiable",
+                    true);
+}
+
+TEST(AlterSchema_lint_2019_09, incoherent_exclusive_limits_4) {
+  const sourcemeta::core::JSON document = sourcemeta::core::parse_json(R"JSON({
+    "$schema": "https://json-schema.org/draft/2019-09/schema",
+    "title": "Test",
+    "description": "A test schema",
+    "examples": [ "foo" ],
+    "exclusiveMinimum": 5,
+    "exclusiveMaximum": 2
+  })JSON");
+
+  LINT_WITHOUT_FIX(document, result, traces);
+
+  EXPECT_FALSE(result.first);
+  EXPECT_EQ(traces.size(), 1);
+  EXPECT_LINT_TRACE(traces, 0, "", "incoherent_exclusive_limits",
+                    "`exclusiveMinimum` greater than or equal to "
+                    "`exclusiveMaximum` makes the schema unsatisfiable",
+                    true);
+}
+
+TEST(AlterSchema_lint_2019_09, incoherent_exclusive_limits_5) {
+  const sourcemeta::core::JSON document = sourcemeta::core::parse_json(R"JSON({
+    "$schema": "https://json-schema.org/draft/2019-09/schema",
+    "title": "Test",
+    "description": "A test schema",
+    "examples": [ "foo" ],
+    "exclusiveMaximum": 5
+  })JSON");
+
+  LINT_WITHOUT_FIX(document, result, traces);
+
+  EXPECT_TRUE(result.first);
+  EXPECT_EQ(traces.size(), 0);
+}
+
 TEST(AlterSchema_lint_2019_09, equal_numeric_bounds_to_const_1) {
   sourcemeta::core::JSON document = sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2019-09/schema",

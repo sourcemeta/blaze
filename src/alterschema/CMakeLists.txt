@@ -96,6 +96,7 @@ sourcemeta_library(NAMESPACE sourcemeta PROJECT blaze NAME alterschema
     common/exclusive_minimum_number_and_minimum.h
     common/if_without_then_else.h
     common/ignored_metaschema.h
+    common/incoherent_exclusive_limits.h
     common/max_contains_without_contains.h
     common/maximum_real_for_integer.h
     common/min_contains_without_contains.h

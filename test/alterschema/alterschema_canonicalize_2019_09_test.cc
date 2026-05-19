@@ -324,6 +324,199 @@ TEST_F(Canonicalizer201909Test, exclusive_minimum_integer_to_minimum_3) {
   CANONICALIZE_AND_VALIDATE(document, expected, *compiled_meta_);
 }
 
+TEST_F(Canonicalizer201909Test, incoherent_exclusive_limits_1) {
+  auto document = sourcemeta::core::parse_json(R"JSON({
+    "$schema": "https://json-schema.org/draft/2019-09/schema",
+    "exclusiveMinimum": 3,
+    "exclusiveMaximum": 3
+  })JSON");
+
+  const auto expected = sourcemeta::core::parse_json(R"JSON({
+    "$schema": "https://json-schema.org/draft/2019-09/schema",
+    "not": { "type": "number" }
+  })JSON");
+
+  CANONICALIZE_AND_VALIDATE(document, expected, *compiled_meta_);
+}
+
+TEST_F(Canonicalizer201909Test, incoherent_exclusive_limits_2) {
+  auto document = sourcemeta::core::parse_json(R"JSON({
+    "$schema": "https://json-schema.org/draft/2019-09/schema",
+    "exclusiveMinimum": 5,
+    "exclusiveMaximum": 2
+  })JSON");
+
+  const auto expected = sourcemeta::core::parse_json(R"JSON({
+    "$schema": "https://json-schema.org/draft/2019-09/schema",
+    "not": { "type": "number" }
+  })JSON");
+
+  CANONICALIZE_AND_VALIDATE(document, expected, *compiled_meta_);
+}
+
+TEST_F(Canonicalizer201909Test, incoherent_exclusive_limits_3) {
+  auto document = sourcemeta::core::parse_json(R"JSON({
+    "$schema": "https://json-schema.org/draft/2019-09/schema",
+    "exclusiveMinimum": 5,
+    "exclusiveMaximum": 2,
+    "not": { "type": "string" }
+  })JSON");
+
+  const auto expected = sourcemeta::core::parse_json(R"JSON({
+    "$schema": "https://json-schema.org/draft/2019-09/schema",
+    "allOf": [
+      {
+        "not": { "type": "string", "minLength": 0 }
+      },
+      {
+        "not": { "type": "number" }
+      }
+    ]
+  })JSON");
+
+  CANONICALIZE_AND_VALIDATE(document, expected, *compiled_meta_);
+}
+
+TEST_F(Canonicalizer201909Test, incoherent_exclusive_limits_4) {
+  auto document = sourcemeta::core::parse_json(R"JSON({
+    "$schema": "https://json-schema.org/draft/2019-09/schema",
+    "$ref": "#/$defs/test/additionalProperties",
+    "$defs": {
+      "test": {
+        "additionalProperties": {
+          "type": "string"
+        },
+        "exclusiveMaximum": 5,
+        "exclusiveMinimum": 8
+      }
+    }
+  })JSON");
+
+  const auto expected = sourcemeta::core::parse_json(R"JSON({
+    "$schema": "https://json-schema.org/draft/2019-09/schema",
+    "$defs": {
+      "test": {
+        "allOf": [
+          {
+            "not": { "type": "number" }
+          },
+          {
+            "anyOf": [
+              {
+                "enum": [ null ]
+              },
+              {
+                "enum": [ false, true ]
+              },
+              {
+                "type": "object",
+                "additionalProperties": {
+                  "type": "string",
+                  "minLength": 0
+                },
+                "patternProperties": {},
+                "propertyNames": true,
+                "minProperties": 0,
+                "properties": {}
+              },
+              {
+                "type": "array",
+                "uniqueItems": false,
+                "minItems": 0,
+                "contains": true,
+                "minContains": 0,
+                "items": true
+              },
+              {
+                "type": "string",
+                "minLength": 0
+              },
+              {
+                "type": "number"
+              }
+            ]
+          }
+        ]
+      }
+    },
+    "allOf": [
+      {
+        "$ref": "#/$defs/test/allOf/1/anyOf/2/additionalProperties"
+      }
+    ]
+  })JSON");
+
+  CANONICALIZE_AND_VALIDATE(document, expected, *compiled_meta_);
+}
+
+TEST_F(Canonicalizer201909Test, incoherent_exclusive_limits_5) {
+  auto document = sourcemeta::core::parse_json(R"JSON({
+    "$schema": "https://json-schema.org/draft/2019-09/schema",
+    "type": "number",
+    "exclusiveMinimum": 5,
+    "exclusiveMaximum": 2
+  })JSON");
+
+  const auto expected = sourcemeta::core::parse_json(R"JSON({
+    "$schema": "https://json-schema.org/draft/2019-09/schema",
+    "not": true
+  })JSON");
+
+  CANONICALIZE_AND_VALIDATE(document, expected, *compiled_meta_);
+}
+
+TEST_F(Canonicalizer201909Test, incoherent_exclusive_limits_6) {
+  auto document = sourcemeta::core::parse_json(R"JSON({
+    "$schema": "https://json-schema.org/draft/2019-09/schema",
+    "type": "integer",
+    "exclusiveMinimum": 5,
+    "exclusiveMaximum": 2
+  })JSON");
+
+  const auto expected = sourcemeta::core::parse_json(R"JSON({
+    "$schema": "https://json-schema.org/draft/2019-09/schema",
+    "not": true
+  })JSON");
+
+  CANONICALIZE_AND_VALIDATE(document, expected, *compiled_meta_);
+}
+
+TEST_F(Canonicalizer201909Test, incoherent_exclusive_limits_7) {
+  auto document = sourcemeta::core::parse_json(R"JSON({
+    "$schema": "https://json-schema.org/draft/2019-09/schema",
+    "type": ["string", "number"],
+    "exclusiveMinimum": 5,
+    "exclusiveMaximum": 2
+  })JSON");
+
+  const auto expected = sourcemeta::core::parse_json(R"JSON({
+    "$schema": "https://json-schema.org/draft/2019-09/schema",
+    "type": "string",
+    "minLength": 0
+  })JSON");
+
+  CANONICALIZE_AND_VALIDATE(document, expected, *compiled_meta_);
+}
+
+TEST_F(Canonicalizer201909Test, incoherent_exclusive_limits_8) {
+  auto document = sourcemeta::core::parse_json(R"JSON({
+    "$schema": "https://json-schema.org/draft/2019-09/schema",
+    "allOf": [ { "type": "string" } ],
+    "exclusiveMinimum": 5,
+    "exclusiveMaximum": 2
+  })JSON");
+
+  const auto expected = sourcemeta::core::parse_json(R"JSON({
+    "$schema": "https://json-schema.org/draft/2019-09/schema",
+    "allOf": [
+      { "type": "string", "minLength": 0 },
+      { "not": { "type": "number" } }
+    ]
+  })JSON");
+
+  CANONICALIZE_AND_VALIDATE(document, expected, *compiled_meta_);
+}
+
 TEST_F(Canonicalizer201909Test, exclusive_minimum_integer_to_minimum_5) {
   auto document = sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2019-09/schema",
