@@ -10,6 +10,7 @@ option(SOURCEMETA_CORE_LANG_PARALLEL "Build the Sourcemeta Core language paralle
 option(SOURCEMETA_CORE_LANG_NUMERIC "Build the Sourcemeta Core language numeric library" ON)
 option(SOURCEMETA_CORE_LANG_ERROR "Build the Sourcemeta Core language error library" ON)
 option(SOURCEMETA_CORE_LANG_OPTIONS "Build the Sourcemeta Core Options library" ON)
+option(SOURCEMETA_CORE_LANG_TEXT "Build the Sourcemeta Core language text library" ON)
 option(SOURCEMETA_CORE_UNICODE "Build the Sourcemeta Core Unicode library" ON)
 option(SOURCEMETA_CORE_PUNYCODE "Build the Sourcemeta Core Punycode library" ON)
 option(SOURCEMETA_CORE_TIME "Build the Sourcemeta Core time library" ON)
@@ -91,6 +92,10 @@ endif()
 
 if(SOURCEMETA_CORE_LANG_OPTIONS)
   add_subdirectory(src/lang/options)
+endif()
+
+if(SOURCEMETA_CORE_LANG_TEXT)
+  add_subdirectory(src/lang/text)
 endif()
 
 if(SOURCEMETA_CORE_UNICODE)
@@ -229,6 +234,10 @@ if(SOURCEMETA_CORE_TESTS)
 
   if(SOURCEMETA_CORE_LANG_OPTIONS)
     add_subdirectory(test/options)
+  endif()
+
+  if(SOURCEMETA_CORE_LANG_TEXT)
+    add_subdirectory(test/text)
   endif()
 
   if(SOURCEMETA_CORE_UNICODE)
