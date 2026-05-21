@@ -24,17 +24,6 @@ sourcemeta_googletest(NAMESPACE sourcemeta PROJECT blaze NAME foundation
     foundation_frame_draft1_test.cc
     foundation_frame_draft0_test.cc
     foundation_frame_test.cc
-    foundation_bundle_2020_12_test.cc
-    foundation_bundle_2019_09_test.cc
-    foundation_bundle_draft7_test.cc
-    foundation_bundle_draft6_test.cc
-    foundation_bundle_draft4_test.cc
-    foundation_bundle_draft3_test.cc
-    foundation_bundle_draft2_test.cc
-    foundation_bundle_draft1_test.cc
-    foundation_bundle_draft0_test.cc
-    foundation_bundle_test.cc
-    foundation_dependencies_test.cc
     foundation_metaschema_test.cc
     foundation_dialect_test.cc
     foundation_dialect_2020_12_test.cc

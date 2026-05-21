@@ -1,6 +1,8 @@
 #include <gtest/gtest.h>
 
+#include <sourcemeta/blaze/bundle.h>
 #include <sourcemeta/blaze/foundation.h>
+
 #include <sourcemeta/core/json.h>
 
 #include <string>      // std::string
@@ -87,7 +89,7 @@ static auto test_resolver(std::string_view identifier)
   }
 }
 
-TEST(Foundation_dependencies, multiple_refs) {
+TEST(Bundle_dependencies, multiple_refs) {
   sourcemeta::core::JSON document = sourcemeta::core::parse_json(R"JSON({
     "$id": "https://www.example.com",
     "$schema": "https://json-schema.org/draft/2020-12/schema",
@@ -124,7 +126,7 @@ TEST(Foundation_dependencies, multiple_refs) {
                     "/allOf/0/$ref", "https://www.sourcemeta.com/test-4");
 }
 
-TEST(Foundation_dependencies, across_dialects) {
+TEST(Bundle_dependencies, across_dialects) {
   sourcemeta::core::JSON document = sourcemeta::core::parse_json(R"JSON({
     "$id": "https://www.example.com",
     "$schema": "https://json-schema.org/draft/2020-12/schema",
@@ -152,7 +154,7 @@ TEST(Foundation_dependencies, across_dialects) {
                     "/allOf/0/$ref", "https://www.sourcemeta.com/test-4");
 }
 
-TEST(Foundation_dependencies, across_dialects_top_level_ref_draft) {
+TEST(Bundle_dependencies, across_dialects_top_level_ref_draft) {
   sourcemeta::core::JSON document = sourcemeta::core::parse_json(R"JSON({
     "$id": "https://www.example.com",
     "$schema": "https://json-schema.org/draft/2020-12/schema",
@@ -179,8 +181,7 @@ TEST(Foundation_dependencies, across_dialects_top_level_ref_draft) {
                     "https://www.sourcemeta.com/test-4");
 }
 
-TEST(Foundation_dependencies,
-     across_dialects_from_top_level_ref_draft_absolute) {
+TEST(Bundle_dependencies, across_dialects_from_top_level_ref_draft_absolute) {
   sourcemeta::core::JSON document = sourcemeta::core::parse_json(R"JSON({
     "$id": "https://www.example.com",
     "$schema": "http://json-schema.org/draft-07/schema#",
@@ -204,8 +205,7 @@ TEST(Foundation_dependencies,
                     "https://www.sourcemeta.com/test-4");
 }
 
-TEST(Foundation_dependencies,
-     across_dialects_from_top_level_ref_draft_relative) {
+TEST(Bundle_dependencies, across_dialects_from_top_level_ref_draft_relative) {
   sourcemeta::core::JSON document = sourcemeta::core::parse_json(R"JSON({
     "$id": "https://www.example.com",
     "$schema": "http://json-schema.org/draft-07/schema#",
@@ -225,7 +225,7 @@ TEST(Foundation_dependencies,
                sourcemeta::blaze::SchemaResolutionError);
 }
 
-TEST(Foundation_dependencies,
+TEST(Bundle_dependencies,
      across_dialects_from_top_level_ref_draft_with_default_dialect) {
   sourcemeta::core::JSON document = sourcemeta::core::parse_json(R"JSON({
     "$ref": "https://www.sourcemeta.com/test-4"
@@ -249,7 +249,7 @@ TEST(Foundation_dependencies,
                     "https://www.sourcemeta.com/test-4");
 }
 
-TEST(Foundation_dependencies, across_dialects_const) {
+TEST(Bundle_dependencies, across_dialects_const) {
   const sourcemeta::core::JSON document = sourcemeta::core::parse_json(R"JSON({
     "$id": "https://www.example.com",
     "$schema": "https://json-schema.org/draft/2020-12/schema",
@@ -277,7 +277,7 @@ TEST(Foundation_dependencies, across_dialects_const) {
                     "/allOf/0/$ref", "https://www.sourcemeta.com/test-4");
 }
 
-TEST(Foundation_dependencies, with_default_id) {
+TEST(Bundle_dependencies, with_default_id) {
   sourcemeta::core::JSON document = sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2020-12/schema",
     "items": { "$ref": "test-2" }
@@ -305,7 +305,7 @@ TEST(Foundation_dependencies, with_default_id) {
                     "/allOf/0/$ref", "https://www.sourcemeta.com/test-4");
 }
 
-TEST(Foundation_dependencies, with_default_dialect) {
+TEST(Bundle_dependencies, with_default_dialect) {
   sourcemeta::core::JSON document = sourcemeta::core::parse_json(R"JSON({
     "properties": {
       "foo": { "$ref": "https://www.sourcemeta.com/test-1" }
@@ -330,7 +330,7 @@ TEST(Foundation_dependencies, with_default_dialect) {
                     "https://www.sourcemeta.com/test-1");
 }
 
-TEST(Foundation_dependencies, without_default_dialect) {
+TEST(Bundle_dependencies, without_default_dialect) {
   sourcemeta::core::JSON document = sourcemeta::core::parse_json(R"JSON({
     "properties": {
       "foo": { "$ref": "https://www.sourcemeta.com/test-1" }
@@ -344,7 +344,7 @@ TEST(Foundation_dependencies, without_default_dialect) {
       sourcemeta::blaze::SchemaUnknownBaseDialectError);
 }
 
-TEST(Foundation_dependencies, target_no_dialect) {
+TEST(Bundle_dependencies, target_no_dialect) {
   sourcemeta::core::JSON document = sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2020-12/schema",
     "properties": {
@@ -359,7 +359,7 @@ TEST(Foundation_dependencies, target_no_dialect) {
       sourcemeta::blaze::SchemaReferenceError);
 }
 
-TEST(Foundation_dependencies, target_array) {
+TEST(Bundle_dependencies, target_array) {
   sourcemeta::core::JSON document = sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2020-12/schema",
     "properties": {
@@ -374,7 +374,7 @@ TEST(Foundation_dependencies, target_array) {
       sourcemeta::blaze::SchemaReferenceError);
 }
 
-TEST(Foundation_dependencies, custom_paths_no_external) {
+TEST(Bundle_dependencies, custom_paths_no_external) {
   auto document{sourcemeta::core::parse_json(R"JSON({
     "wrapper": {
       "$ref": "#/common/test"
@@ -414,7 +414,7 @@ TEST(Foundation_dependencies, custom_paths_no_external) {
   EXPECT_EQ(traces.size(), 0);
 }
 
-TEST(Foundation_dependencies, custom_paths_with_externals) {
+TEST(Bundle_dependencies, custom_paths_with_externals) {
   auto document{sourcemeta::core::parse_json(R"JSON({
     "wrapper": {
       "$ref": "#/common/test"
@@ -462,7 +462,7 @@ TEST(Foundation_dependencies, custom_paths_with_externals) {
                     "/allOf/0/$ref", "https://www.sourcemeta.com/test-4");
 }
 
-TEST(Foundation_dependencies, multiple_refs_to_same_target_within_schema) {
+TEST(Bundle_dependencies, multiple_refs_to_same_target_within_schema) {
   sourcemeta::core::JSON document = sourcemeta::core::parse_json(R"JSON({
     "$id": "https://www.example.com",
     "$schema": "https://json-schema.org/draft/2020-12/schema",
@@ -503,7 +503,7 @@ TEST(Foundation_dependencies, multiple_refs_to_same_target_within_schema) {
                     "https://www.sourcemeta.com/test-1");
 }
 
-TEST(Foundation_dependencies, sibling_schemas_with_shared_dependency) {
+TEST(Bundle_dependencies, sibling_schemas_with_shared_dependency) {
   sourcemeta::core::JSON document = sourcemeta::core::parse_json(R"JSON({
     "$id": "https://www.example.com",
     "$schema": "https://json-schema.org/draft/2020-12/schema",

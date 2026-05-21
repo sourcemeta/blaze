@@ -1,6 +1,8 @@
 #include <gtest/gtest.h>
 
+#include <sourcemeta/blaze/bundle.h>
 #include <sourcemeta/blaze/foundation.h>
+
 #include <sourcemeta/core/json.h>
 
 #include <string>      // std::string
@@ -254,7 +256,7 @@ static auto test_resolver(std::string_view identifier)
   }
 }
 
-TEST(Foundation_bundle_2020_12, no_references_no_id) {
+TEST(Bundle_2020_12, no_references_no_id) {
   sourcemeta::core::JSON document = sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2020-12/schema"
   })JSON");
@@ -269,7 +271,7 @@ TEST(Foundation_bundle_2020_12, no_references_no_id) {
   EXPECT_EQ(document, expected);
 }
 
-TEST(Foundation_bundle_2020_12, const_no_references_no_id) {
+TEST(Bundle_2020_12, const_no_references_no_id) {
   const sourcemeta::core::JSON document = sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2020-12/schema"
   })JSON");
@@ -284,7 +286,7 @@ TEST(Foundation_bundle_2020_12, const_no_references_no_id) {
   EXPECT_EQ(result, expected);
 }
 
-TEST(Foundation_bundle_2020_12, simple_with_id) {
+TEST(Bundle_2020_12, simple_with_id) {
   sourcemeta::core::JSON document = sourcemeta::core::parse_json(R"JSON({
     "$id": "https://example.com",
     "$schema": "https://json-schema.org/draft/2020-12/schema",
@@ -342,7 +344,7 @@ TEST(Foundation_bundle_2020_12, simple_with_id) {
   EXPECT_EQ(document, expected);
 }
 
-TEST(Foundation_bundle_2020_12, simple_without_id) {
+TEST(Bundle_2020_12, simple_without_id) {
   sourcemeta::core::JSON document = sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2020-12/schema",
     "properties": {
@@ -398,7 +400,7 @@ TEST(Foundation_bundle_2020_12, simple_without_id) {
   EXPECT_EQ(document, expected);
 }
 
-TEST(Foundation_bundle_2020_12, schema_not_found) {
+TEST(Bundle_2020_12, schema_not_found) {
   sourcemeta::core::JSON document = sourcemeta::core::parse_json(R"JSON({
     "$id": "https://example.com",
     "$schema": "https://json-schema.org/draft/2020-12/schema",
@@ -412,7 +414,7 @@ TEST(Foundation_bundle_2020_12, schema_not_found) {
                sourcemeta::blaze::SchemaResolutionError);
 }
 
-TEST(Foundation_bundle_2020_12, anchor_not_found) {
+TEST(Bundle_2020_12, anchor_not_found) {
   sourcemeta::core::JSON document = sourcemeta::core::parse_json(R"JSON({
     "$id": "https://example.com",
     "$schema": "https://json-schema.org/draft/2020-12/schema",
@@ -426,7 +428,7 @@ TEST(Foundation_bundle_2020_12, anchor_not_found) {
                sourcemeta::blaze::SchemaReferenceError);
 }
 
-TEST(Foundation_bundle_2020_12, idempotency) {
+TEST(Bundle_2020_12, idempotency) {
   sourcemeta::core::JSON document = sourcemeta::core::parse_json(R"JSON({
     "$id": "https://example.com",
     "$schema": "https://json-schema.org/draft/2020-12/schema",
@@ -470,7 +472,7 @@ TEST(Foundation_bundle_2020_12, idempotency) {
   EXPECT_EQ(document, expected);
 }
 
-TEST(Foundation_bundle_2020_12, pre_embedded) {
+TEST(Bundle_2020_12, pre_embedded) {
   sourcemeta::core::JSON document = sourcemeta::core::parse_json(R"JSON({
     "$id": "https://example.com",
     "$schema": "https://json-schema.org/draft/2020-12/schema",
@@ -517,7 +519,7 @@ TEST(Foundation_bundle_2020_12, pre_embedded) {
   EXPECT_EQ(document, expected);
 }
 
-TEST(Foundation_bundle_2020_12, taken_definitions_entry) {
+TEST(Bundle_2020_12, taken_definitions_entry) {
   sourcemeta::core::JSON document = sourcemeta::core::parse_json(R"JSON({
     "$id": "https://example.com",
     "$schema": "https://json-schema.org/draft/2020-12/schema",
@@ -564,7 +566,7 @@ TEST(Foundation_bundle_2020_12, taken_definitions_entry) {
   EXPECT_EQ(document, expected);
 }
 
-TEST(Foundation_bundle_2020_12, recursive) {
+TEST(Bundle_2020_12, recursive) {
   sourcemeta::core::JSON document = sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2020-12/schema",
     "$ref": "https://www.sourcemeta.com/recursive"
@@ -590,7 +592,7 @@ TEST(Foundation_bundle_2020_12, recursive) {
   EXPECT_EQ(document, expected);
 }
 
-TEST(Foundation_bundle_2020_12, recursive_empty_fragment) {
+TEST(Bundle_2020_12, recursive_empty_fragment) {
   sourcemeta::core::JSON document = sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2020-12/schema",
     "$ref": "https://www.sourcemeta.com/recursive-empty-fragment#"
@@ -616,7 +618,7 @@ TEST(Foundation_bundle_2020_12, recursive_empty_fragment) {
   EXPECT_EQ(document, expected);
 }
 
-TEST(Foundation_bundle_2020_12, anonymous_no_dialect) {
+TEST(Bundle_2020_12, anonymous_no_dialect) {
   sourcemeta::core::JSON document = sourcemeta::core::parse_json(R"JSON({
     "$ref": "https://www.sourcemeta.com/anonymous"
   })JSON");
@@ -638,7 +640,7 @@ TEST(Foundation_bundle_2020_12, anonymous_no_dialect) {
   EXPECT_EQ(document, expected);
 }
 
-TEST(Foundation_bundle_2020_12, relative_in_target_without_id) {
+TEST(Bundle_2020_12, relative_in_target_without_id) {
   sourcemeta::core::JSON document = sourcemeta::core::parse_json(R"JSON({
     "$id": "https://example.com/test",
     "$schema": "https://json-schema.org/draft/2020-12/schema",
@@ -669,7 +671,7 @@ TEST(Foundation_bundle_2020_12, relative_in_target_without_id) {
   EXPECT_EQ(document, expected);
 }
 
-TEST(Foundation_bundle_2020_12, relative_base_uri_with_ref) {
+TEST(Bundle_2020_12, relative_base_uri_with_ref) {
   sourcemeta::core::JSON document = sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2020-12/schema",
     "$id": "common",
@@ -698,7 +700,7 @@ TEST(Foundation_bundle_2020_12, relative_base_uri_with_ref) {
   EXPECT_EQ(document, expected);
 }
 
-TEST(Foundation_bundle_2020_12, metaschema) {
+TEST(Bundle_2020_12, metaschema) {
   sourcemeta::core::JSON document = sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://example.com/meta/1.json",
     "type": "string"
@@ -727,7 +729,7 @@ TEST(Foundation_bundle_2020_12, metaschema) {
   EXPECT_EQ(document, expected);
 }
 
-TEST(Foundation_bundle_2020_12, openapi_3_1_dialect) {
+TEST(Bundle_2020_12, openapi_3_1_dialect) {
   sourcemeta::core::JSON document = sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://spec.openapis.org/oas/3.1/dialect/base",
     "type": "object"
@@ -794,7 +796,7 @@ TEST(Foundation_bundle_2020_12, openapi_3_1_dialect) {
                 .value());
 }
 
-TEST(Foundation_bundle_2020_12, hyperschema_smoke) {
+TEST(Bundle_2020_12, hyperschema_smoke) {
   sourcemeta::core::JSON document = sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2020-12/schema",
     "$ref": "https://json-schema.org/draft/2020-12/hyper-schema"
@@ -806,7 +808,7 @@ TEST(Foundation_bundle_2020_12, hyperschema_smoke) {
   EXPECT_TRUE(document.is_object());
 }
 
-TEST(Foundation_bundle_2020_12, hyperschema_1) {
+TEST(Bundle_2020_12, hyperschema_1) {
   sourcemeta::core::JSON document = sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2020-12/schema",
     "allOf": [
@@ -846,7 +848,7 @@ TEST(Foundation_bundle_2020_12, hyperschema_1) {
       "https://json-schema.org/draft/2020-12/hyper-schema"));
 }
 
-TEST(Foundation_bundle_2020_12, bundle_to_definitions) {
+TEST(Bundle_2020_12, bundle_to_definitions) {
   sourcemeta::core::JSON document = sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2020-12/schema",
     "$ref": "https://www.sourcemeta.com/recursive"
@@ -873,7 +875,7 @@ TEST(Foundation_bundle_2020_12, bundle_to_definitions) {
   EXPECT_EQ(document, expected);
 }
 
-TEST(Foundation_bundle_2020_12, custom_nested_object_path_non_existent) {
+TEST(Bundle_2020_12, custom_nested_object_path_non_existent) {
   sourcemeta::core::JSON document = sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2020-12/schema",
     "$ref": "https://www.sourcemeta.com/recursive"
@@ -904,7 +906,7 @@ TEST(Foundation_bundle_2020_12, custom_nested_object_path_non_existent) {
   EXPECT_EQ(document, expected);
 }
 
-TEST(Foundation_bundle_2020_12, custom_nested_object_path_half_existent) {
+TEST(Bundle_2020_12, custom_nested_object_path_half_existent) {
   sourcemeta::core::JSON document = sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2020-12/schema",
     "$ref": "https://www.sourcemeta.com/recursive",
@@ -936,8 +938,7 @@ TEST(Foundation_bundle_2020_12, custom_nested_object_path_half_existent) {
   EXPECT_EQ(document, expected);
 }
 
-TEST(Foundation_bundle_2020_12,
-     custom_nested_object_path_half_existent_with_array) {
+TEST(Bundle_2020_12, custom_nested_object_path_half_existent_with_array) {
   sourcemeta::core::JSON document = sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2020-12/schema",
     "$ref": "https://www.sourcemeta.com/recursive",
@@ -971,7 +972,7 @@ TEST(Foundation_bundle_2020_12,
   EXPECT_EQ(document, expected);
 }
 
-TEST(Foundation_bundle_2020_12, custom_nested_object_path_not_object) {
+TEST(Bundle_2020_12, custom_nested_object_path_not_object) {
   sourcemeta::core::JSON document = sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2020-12/schema",
     "$ref": "https://www.sourcemeta.com/recursive",
@@ -985,7 +986,7 @@ TEST(Foundation_bundle_2020_12, custom_nested_object_path_not_object) {
                sourcemeta::blaze::SchemaError);
 }
 
-TEST(Foundation_bundle_2020_12, default_id_with_different_ref_target_id) {
+TEST(Bundle_2020_12, default_id_with_different_ref_target_id) {
   sourcemeta::core::JSON document = sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2020-12/schema",
     "title": "Entry",
@@ -1016,8 +1017,7 @@ TEST(Foundation_bundle_2020_12, default_id_with_different_ref_target_id) {
   EXPECT_EQ(document, expected);
 }
 
-TEST(Foundation_bundle_2020_12,
-     default_id_with_different_ref_target_id_duplicate_refs) {
+TEST(Bundle_2020_12, default_id_with_different_ref_target_id_duplicate_refs) {
   sourcemeta::core::JSON document = sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2020-12/schema",
     "properties": {
@@ -1052,8 +1052,7 @@ TEST(Foundation_bundle_2020_12,
   EXPECT_EQ(document, expected);
 }
 
-TEST(Foundation_bundle_2020_12,
-     default_id_with_different_ref_target_id_with_fragment) {
+TEST(Bundle_2020_12, default_id_with_different_ref_target_id_with_fragment) {
   sourcemeta::core::JSON document = sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2020-12/schema",
     "properties": {
@@ -1086,7 +1085,7 @@ TEST(Foundation_bundle_2020_12,
   EXPECT_EQ(document, expected);
 }
 
-TEST(Foundation_bundle_2020_12, deduplicate_embedded_from_prebundled) {
+TEST(Bundle_2020_12, deduplicate_embedded_from_prebundled) {
   sourcemeta::core::JSON document = sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2020-12/schema",
     "$id": "https://example.com/dedup-entry",
@@ -1128,7 +1127,7 @@ TEST(Foundation_bundle_2020_12, deduplicate_embedded_from_prebundled) {
   EXPECT_EQ(document, expected);
 }
 
-TEST(Foundation_bundle_2020_12, conflicting_embedded_from_prebundled) {
+TEST(Bundle_2020_12, conflicting_embedded_from_prebundled) {
   sourcemeta::core::JSON document = sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2020-12/schema",
     "$id": "https://example.com/dedup-conflict-entry",
@@ -1143,7 +1142,7 @@ TEST(Foundation_bundle_2020_12, conflicting_embedded_from_prebundled) {
                sourcemeta::blaze::SchemaError);
 }
 
-TEST(Foundation_bundle_2020_12, elevate_embedded_from_single_prebundled) {
+TEST(Bundle_2020_12, elevate_embedded_from_single_prebundled) {
   sourcemeta::core::JSON document = sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2020-12/schema",
     "$id": "https://example.com/elevate-entry",
@@ -1174,7 +1173,7 @@ TEST(Foundation_bundle_2020_12, elevate_embedded_from_single_prebundled) {
   EXPECT_EQ(document, expected);
 }
 
-TEST(Foundation_bundle_2020_12, direct_and_embedded_reference_no_duplicate) {
+TEST(Bundle_2020_12, direct_and_embedded_reference_no_duplicate) {
   sourcemeta::core::JSON document = sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2020-12/schema",
     "$id": "https://example.com/direct-and-embedded-entry",
@@ -1211,7 +1210,7 @@ TEST(Foundation_bundle_2020_12, direct_and_embedded_reference_no_duplicate) {
   EXPECT_EQ(document, expected);
 }
 
-TEST(Foundation_bundle_2020_12, elevate_embedded_cross_dialect) {
+TEST(Bundle_2020_12, elevate_embedded_cross_dialect) {
   sourcemeta::core::JSON document = sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2020-12/schema",
     "$id": "https://example.com/cross-dialect-entry",
@@ -1242,7 +1241,7 @@ TEST(Foundation_bundle_2020_12, elevate_embedded_cross_dialect) {
   EXPECT_EQ(document, expected);
 }
 
-TEST(Foundation_bundle_2020_12, no_elevate_relative_id) {
+TEST(Bundle_2020_12, no_elevate_relative_id) {
   sourcemeta::core::JSON document = sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2020-12/schema",
     "$id": "https://example.com/relative-entry",
@@ -1274,8 +1273,7 @@ TEST(Foundation_bundle_2020_12, no_elevate_relative_id) {
   EXPECT_EQ(document, expected);
 }
 
-TEST(Foundation_bundle_2020_12,
-     deduplicate_embedded_with_preexisting_key_collision) {
+TEST(Bundle_2020_12, deduplicate_embedded_with_preexisting_key_collision) {
   sourcemeta::core::JSON document = sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2020-12/schema",
     "$id": "https://example.com/collision-entry",

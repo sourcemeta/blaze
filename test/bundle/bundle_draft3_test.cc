@@ -1,6 +1,8 @@
 #include <gtest/gtest.h>
 
+#include <sourcemeta/blaze/bundle.h>
 #include <sourcemeta/blaze/foundation.h>
+
 #include <sourcemeta/core/json.h>
 
 #include <string>      // std::string
@@ -45,7 +47,7 @@ static auto test_resolver(std::string_view identifier)
   }
 }
 
-TEST(Foundation_bundle_draft3, no_references_no_id) {
+TEST(Bundle_draft3, no_references_no_id) {
   sourcemeta::core::JSON document = sourcemeta::core::parse_json(R"JSON({
     "$schema": "http://json-schema.org/draft-03/schema#"
   })JSON");
@@ -60,7 +62,7 @@ TEST(Foundation_bundle_draft3, no_references_no_id) {
   EXPECT_EQ(document, expected);
 }
 
-TEST(Foundation_bundle_draft3, const_no_references_no_id) {
+TEST(Bundle_draft3, const_no_references_no_id) {
   const sourcemeta::core::JSON document = sourcemeta::core::parse_json(R"JSON({
     "$schema": "http://json-schema.org/draft-03/schema#"
   })JSON");
@@ -75,7 +77,7 @@ TEST(Foundation_bundle_draft3, const_no_references_no_id) {
   EXPECT_EQ(result, expected);
 }
 
-TEST(Foundation_bundle_draft3, simple_bundling) {
+TEST(Bundle_draft3, simple_bundling) {
   sourcemeta::core::JSON document = sourcemeta::core::parse_json(R"JSON({
     "id": "https://example.com",
     "$schema": "http://json-schema.org/draft-03/schema#",
@@ -105,7 +107,7 @@ TEST(Foundation_bundle_draft3, simple_bundling) {
   EXPECT_EQ(document, expected);
 }
 
-TEST(Foundation_bundle_draft3, simple_with_id) {
+TEST(Bundle_draft3, simple_with_id) {
   sourcemeta::core::JSON document = sourcemeta::core::parse_json(R"JSON({
     "id": "https://example.com",
     "$schema": "http://json-schema.org/draft-03/schema#",
@@ -153,7 +155,7 @@ TEST(Foundation_bundle_draft3, simple_with_id) {
   EXPECT_EQ(document, expected);
 }
 
-TEST(Foundation_bundle_draft3, schema_not_found) {
+TEST(Bundle_draft3, schema_not_found) {
   sourcemeta::core::JSON document = sourcemeta::core::parse_json(R"JSON({
     "id": "https://example.com",
     "$schema": "http://json-schema.org/draft-03/schema#",
@@ -167,7 +169,7 @@ TEST(Foundation_bundle_draft3, schema_not_found) {
                sourcemeta::blaze::SchemaResolutionError);
 }
 
-TEST(Foundation_bundle_draft3, idempotency) {
+TEST(Bundle_draft3, idempotency) {
   sourcemeta::core::JSON document = sourcemeta::core::parse_json(R"JSON({
     "id": "https://example.com",
     "$schema": "http://json-schema.org/draft-03/schema#",
@@ -211,7 +213,7 @@ TEST(Foundation_bundle_draft3, idempotency) {
   EXPECT_EQ(document, expected);
 }
 
-TEST(Foundation_bundle_draft3, pre_embedded) {
+TEST(Bundle_draft3, pre_embedded) {
   sourcemeta::core::JSON document = sourcemeta::core::parse_json(R"JSON({
     "id": "https://example.com",
     "$schema": "http://json-schema.org/draft-03/schema#",
@@ -258,7 +260,7 @@ TEST(Foundation_bundle_draft3, pre_embedded) {
   EXPECT_EQ(document, expected);
 }
 
-TEST(Foundation_bundle_draft3, taken_definitions_entry) {
+TEST(Bundle_draft3, taken_definitions_entry) {
   sourcemeta::core::JSON document = sourcemeta::core::parse_json(R"JSON({
     "id": "https://example.com",
     "$schema": "http://json-schema.org/draft-03/schema#",
@@ -305,7 +307,7 @@ TEST(Foundation_bundle_draft3, taken_definitions_entry) {
   EXPECT_EQ(document, expected);
 }
 
-TEST(Foundation_bundle_draft3, recursive) {
+TEST(Bundle_draft3, recursive) {
   sourcemeta::core::JSON document = sourcemeta::core::parse_json(R"JSON({
     "$schema": "http://json-schema.org/draft-03/schema#",
     "extends": { "$ref": "https://www.sourcemeta.com/recursive" }
@@ -331,7 +333,7 @@ TEST(Foundation_bundle_draft3, recursive) {
   EXPECT_EQ(document, expected);
 }
 
-TEST(Foundation_bundle_draft3, standalone_ref_with_default_dialect) {
+TEST(Bundle_draft3, standalone_ref_with_default_dialect) {
   sourcemeta::core::JSON document = sourcemeta::core::parse_json(R"JSON({
     "$ref": "https://www.sourcemeta.com/test-1"
   })JSON");

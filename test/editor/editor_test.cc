@@ -1,5 +1,6 @@
 #include <gtest/gtest.h>
 
+#include <sourcemeta/blaze/bundle.h>
 #include <sourcemeta/blaze/editor.h>
 
 static auto test_resolver_2020_12(std::string_view identifier)
