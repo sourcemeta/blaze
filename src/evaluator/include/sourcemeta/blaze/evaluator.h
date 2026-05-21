@@ -99,7 +99,7 @@ public:
   /// const auto schema_template{sourcemeta::blaze::compile(
   ///     schema, sourcemeta::blaze::schema_walker,
   ///     sourcemeta::blaze::schema_resolver,
-  ///     sourcemeta::core::default_schema_compiler)};
+  ///     sourcemeta::blaze::default_schema_compiler)};
   ///
   /// sourcemeta::blaze::Evaluator evaluator;
   /// const sourcemeta::core::JSON instance{"foo bar"};
@@ -148,7 +148,7 @@ public:
   /// const auto schema_template{sourcemeta::blaze::compile(
   ///     schema, sourcemeta::blaze::schema_walker,
   ///     sourcemeta::blaze::schema_resolver,
-  ///     sourcemeta::core::default_schema_compiler)};
+  ///     sourcemeta::blaze::default_schema_compiler)};
   ///
   /// static auto callback(
   ///     bool result,

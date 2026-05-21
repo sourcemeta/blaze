@@ -162,7 +162,7 @@ auto SOURCEMETA_BLAZE_COMPILER_EXPORT default_schema_compiler(
 /// const auto schema_template{sourcemeta::blaze::compile(
 ///     schema, sourcemeta::blaze::schema_walker,
 ///     sourcemeta::blaze::schema_resolver,
-///     sourcemeta::core::default_schema_compiler)};
+///     sourcemeta::blaze::default_schema_compiler)};
 ///
 /// // Evaluate or encode
 /// ```

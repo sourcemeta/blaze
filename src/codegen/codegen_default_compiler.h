@@ -245,8 +245,6 @@ auto handle_array(const sourcemeta::core::JSON &schema,
                            "default",        "deprecated",  "readOnly",
                            "writeOnly",      "examples"});
 
-  using Vocabularies = sourcemeta::blaze::Vocabularies;
-
   if (vocabularies.contains(
           Vocabularies::Known::JSON_Schema_2020_12_Applicator) &&
       subschema.defines("prefixItems")) {
@@ -685,7 +683,6 @@ auto default_compiler(const sourcemeta::core::JSON &schema,
   assert(!vocabularies.empty());
 
   // Be strict with vocabulary support
-  using Vocabularies = sourcemeta::blaze::Vocabularies;
   static const std::unordered_set<Vocabularies::URI> supported{
       Vocabularies::Known::JSON_Schema_2020_12_Core,
       Vocabularies::Known::JSON_Schema_2020_12_Applicator,

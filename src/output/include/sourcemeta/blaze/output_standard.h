@@ -52,7 +52,7 @@ enum class StandardOutput : std::uint8_t {
 /// const auto schema_template{sourcemeta::blaze::compile(
 ///     schema, sourcemeta::blaze::schema_walker,
 ///     sourcemeta::blaze::schema_resolver,
-///     sourcemeta::core::default_schema_compiler)};
+///     sourcemeta::blaze::default_schema_compiler)};
 ///
 /// const sourcemeta::core::JSON instance{"foo bar"};
 ///
