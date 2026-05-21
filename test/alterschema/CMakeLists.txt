@@ -38,6 +38,7 @@ sourcemeta_googletest(NAMESPACE sourcemeta PROJECT blaze NAME alterschema
     alterschema_schema_rule_test.cc
     alterschema_transform_rule_test.cc
     alterschema_transformer_test.cc
+    alterschema_wrap_test.cc
     alterschema_transform_rules.h
     alterschema_test_utils.h)
 
