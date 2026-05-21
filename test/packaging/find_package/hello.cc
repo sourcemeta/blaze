@@ -6,6 +6,7 @@
 #include <sourcemeta/blaze/compiler.h>
 #include <sourcemeta/blaze/configuration.h>
 #include <sourcemeta/blaze/documentation.h>
+#include <sourcemeta/blaze/editor.h>
 #include <sourcemeta/blaze/evaluator.h>
 #include <sourcemeta/blaze/output.h>
 #include <sourcemeta/blaze/test.h>
@@ -30,6 +31,13 @@ auto main() -> int {
     std::cerr << "JSON Schema validation failed\n";
     return EXIT_FAILURE;
   }
+
+  auto editor_schema{sourcemeta::core::parse_json(R"JSON({
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "type": "string"
+  })JSON")};
+  sourcemeta::blaze::for_editor(editor_schema, sourcemeta::core::schema_walker,
+                                sourcemeta::core::schema_resolver);
 
   return EXIT_SUCCESS;
 }
