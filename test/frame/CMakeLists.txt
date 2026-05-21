@@ -22,10 +22,6 @@ target_link_libraries(sourcemeta_blaze_frame_unit
 target_link_libraries(sourcemeta_blaze_frame_unit
   PRIVATE sourcemeta::blaze::frame)
 
-if(MSVC)
-  target_compile_options(sourcemeta_blaze_frame_unit PRIVATE /bigobj)
-endif()
-
 # JSON Schema Referencing Suite
 # See https://github.com/python-jsonschema/referencing-suite
 sourcemeta_googletest(NAMESPACE sourcemeta PROJECT blaze NAME frame_referencing_suite

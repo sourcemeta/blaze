@@ -69,7 +69,3 @@ target_link_libraries(sourcemeta_blaze_foundation_unit
   PRIVATE sourcemeta::blaze::foundation)
 target_link_libraries(sourcemeta_blaze_foundation_unit
   PRIVATE sourcemeta::core::uri)
-
-if(MSVC)
-  target_compile_options(sourcemeta_blaze_foundation_unit PRIVATE /bigobj)
-endif()
