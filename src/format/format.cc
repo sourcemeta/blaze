@@ -1,3 +1,5 @@
+#include <sourcemeta/blaze/format.h>
+
 #include <sourcemeta/blaze/foundation.h>
 
 #include <cstdint>       // std::uint64_t

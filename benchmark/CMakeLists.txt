@@ -1,7 +1,15 @@
 set(BENCHMARK_SOURCES)
 
-if(BLAZE_FOUNDATION AND BLAZE_BUNDLE)
+if(BLAZE_FOUNDATION)
   list(APPEND BENCHMARK_SOURCES foundation.cc)
+endif()
+
+if(BLAZE_BUNDLE)
+  list(APPEND BENCHMARK_SOURCES bundle.cc)
+endif()
+
+if(BLAZE_FORMAT)
+  list(APPEND BENCHMARK_SOURCES format.cc)
 endif()
 
 if(BLAZE_COMPILER AND BLAZE_EVALUATOR AND BLAZE_OUTPUT)
@@ -56,6 +64,10 @@ if(BENCHMARK_SOURCES)
   if(BLAZE_BUNDLE)
     target_link_libraries(sourcemeta_blaze_benchmark
       PRIVATE sourcemeta::blaze::bundle)
+  endif()
+  if(BLAZE_FORMAT)
+    target_link_libraries(sourcemeta_blaze_benchmark
+      PRIVATE sourcemeta::blaze::format)
   endif()
 
   add_custom_target(benchmark_all

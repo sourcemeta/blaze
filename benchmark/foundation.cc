@@ -4,7 +4,6 @@
 #include <filesystem> // std::filesystem
 #include <vector>     // std::vector
 
-#include <sourcemeta/blaze/bundle.h>
 #include <sourcemeta/blaze/foundation.h>
 
 #include <sourcemeta/core/json.h>
@@ -180,32 +179,6 @@ static void Schema_Tracker_ISO_Language_To_JSON(benchmark::State &state) {
   }
 }
 
-static void Schema_Format_ISO_Language_To_JSON(benchmark::State &state) {
-  for (auto _ : state) {
-    state.PauseTiming();
-    auto schema{sourcemeta::core::read_json(
-        std::filesystem::path{CURRENT_DIRECTORY} / "files" /
-        "2020_12_iso_language_2023_set_3.json")};
-    state.ResumeTiming();
-    sourcemeta::blaze::format(schema, sourcemeta::blaze::schema_walker,
-                              sourcemeta::blaze::schema_resolver);
-    assert(schema.is_object());
-  }
-}
-
-static void Schema_Bundle_Meta_2020_12(benchmark::State &state) {
-  for (auto _ : state) {
-    state.PauseTiming();
-    auto schema{sourcemeta::blaze::schema_resolver(
-                    "https://json-schema.org/draft/2020-12/schema")
-                    .value()};
-    state.ResumeTiming();
-    sourcemeta::blaze::bundle(schema, sourcemeta::blaze::schema_walker,
-                              sourcemeta::blaze::schema_resolver);
-    benchmark::DoNotOptimize(schema);
-  }
-}
-
 static void Schema_Frame_Many_Resources_References(benchmark::State &state) {
   const auto schema{
       sourcemeta::core::read_json(std::filesystem::path{CURRENT_DIRECTORY} /
@@ -230,6 +203,4 @@ BENCHMARK(Schema_Iterator_ISO_Language);
 BENCHMARK(Schema_Frame_ISO_Language_Locations_To_JSON);
 BENCHMARK(Schema_Tracker_ISO_Language);
 BENCHMARK(Schema_Tracker_ISO_Language_To_JSON);
-BENCHMARK(Schema_Format_ISO_Language_To_JSON);
-BENCHMARK(Schema_Bundle_Meta_2020_12);
 BENCHMARK(Schema_Frame_Many_Resources_References);

@@ -419,32 +419,6 @@ auto vocabularies(const SchemaResolver &resolver,
 
 /// @ingroup foundation
 ///
-/// Format a JSON Schema document by reordering all object properties throughout
-/// the entire document according to an opinionated JSON Schema aware ordering.
-/// This function modifies the schema in-place. For example:
-///
-/// ```cpp
-/// #include <sourcemeta/core/json.h>
-/// #include <sourcemeta/blaze/foundation.h>
-/// #include <iostream>
-/// #include <sstream>
-///
-/// sourcemeta::core::JSON schema =
-///   sourcemeta::core::parse_json(
-///     "{ \"type\": \"string\", \"minLength\": 3 }");
-/// sourcemeta::blaze::format(schema, sourcemeta::blaze::schema_walker,
-///                          sourcemeta::blaze::schema_resolver);
-/// std::ostringstream stream;
-/// sourcemeta::core::prettify(schema, stream);
-/// std::cout << stream.str() << std::endl;
-/// ```
-SOURCEMETA_BLAZE_FOUNDATION_EXPORT
-auto format(sourcemeta::core::JSON &schema, const SchemaWalker &walker,
-            const SchemaResolver &resolver,
-            std::string_view default_dialect = "") -> void;
-
-/// @ingroup foundation
-///
 /// Parse the value of a JSON Schema `type` keyword (which can be a string or
 /// an array of strings) into a set of native JSON types. For example:
 ///
