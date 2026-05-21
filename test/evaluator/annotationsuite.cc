@@ -4,9 +4,9 @@
 #include <sourcemeta/blaze/evaluator.h>
 #include <sourcemeta/blaze/output.h>
 
+#include <sourcemeta/blaze/foundation.h>
 #include <sourcemeta/core/json.h>
 #include <sourcemeta/core/jsonpointer.h>
-#include <sourcemeta/core/jsonschema.h>
 
 #include <algorithm>
 #include <cassert>
@@ -27,7 +27,7 @@ static auto slugify(const std::string &input, std::ostream &output) -> void {
 
 static auto schema_location_matches(const std::string &actual,
                                     const std::string &expected,
-                                    const sourcemeta::core::SchemaFrame &frame)
+                                    const sourcemeta::blaze::SchemaFrame &frame)
     -> bool {
   if (actual == expected) {
     return true;
@@ -51,7 +51,7 @@ has_annotation(const sourcemeta::blaze::SimpleOutput &output,
                const sourcemeta::core::WeakPointer &instance_location,
                const std::string &schema_location,
                const sourcemeta::core::JSON &value,
-               const sourcemeta::core::SchemaFrame &frame) -> bool {
+               const sourcemeta::blaze::SchemaFrame &frame) -> bool {
   std::cerr << "Looking for ";
   sourcemeta::core::stringify(value, std::cerr);
   std::cerr << " at instance location \""
@@ -112,12 +112,12 @@ public:
       : schema_json{std::move(test_schema_json)},
         instance{std::move(test_instance)},
         assertions{std::move(test_assertions)} {
-    this->frame.analyse(this->schema_json, sourcemeta::core::schema_walker,
-                        sourcemeta::core::schema_resolver,
+    this->frame.analyse(this->schema_json, sourcemeta::blaze::schema_walker,
+                        sourcemeta::blaze::schema_resolver,
                         test_default_dialect);
     this->schema = sourcemeta::blaze::compile(
-        this->schema_json, sourcemeta::core::schema_walker,
-        sourcemeta::core::schema_resolver,
+        this->schema_json, sourcemeta::blaze::schema_walker,
+        sourcemeta::blaze::schema_resolver,
         sourcemeta::blaze::default_schema_compiler, this->frame,
         this->frame.root(), sourcemeta::blaze::Mode::Exhaustive);
   }
@@ -161,8 +161,8 @@ public:
 
 private:
   sourcemeta::core::JSON schema_json;
-  sourcemeta::core::SchemaFrame frame{
-      sourcemeta::core::SchemaFrame::Mode::References};
+  sourcemeta::blaze::SchemaFrame frame{
+      sourcemeta::blaze::SchemaFrame::Mode::References};
   sourcemeta::blaze::Template schema;
   sourcemeta::core::JSON instance;
   sourcemeta::core::JSON::Array assertions;
@@ -215,7 +215,7 @@ static auto register_tests(const std::string &suite_name,
     std::cerr << "-- Compiling " << category.str() << "\n";
     assert(entry.defines("schema"));
     const auto &schema{entry.at("schema")};
-    assert(sourcemeta::core::is_schema(schema));
+    assert(sourcemeta::blaze::is_schema(schema));
 
     assert(entry.defines("tests"));
     assert(entry.at("tests").is_array());

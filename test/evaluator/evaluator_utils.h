@@ -56,8 +56,8 @@ inline auto FIRST_PROPERTY_IS(const sourcemeta::core::JSON &document,
 
 #define EVALUATE_WITH_TRACE_FAST_SUCCESS(schema, instance, count, entrypoint)  \
   const auto compiled_schema{sourcemeta::blaze::compile(                       \
-      schema, sourcemeta::core::schema_walker,                                 \
-      sourcemeta::core::schema_resolver,                                       \
+      schema, sourcemeta::blaze::schema_walker,                                \
+      sourcemeta::blaze::schema_resolver,                                      \
       sourcemeta::blaze::default_schema_compiler,                              \
       sourcemeta::blaze::Mode::FastValidation, "", "", (entrypoint))};         \
   __ASSERT_TEMPLATE_JSON_SERIALISATION(compiled_schema);                       \
@@ -66,8 +66,8 @@ inline auto FIRST_PROPERTY_IS(const sourcemeta::core::JSON &document,
 
 #define EVALUATE_WITH_TRACE_FAST_FAILURE(schema, instance, count, entrypoint)  \
   const auto compiled_schema{sourcemeta::blaze::compile(                       \
-      schema, sourcemeta::core::schema_walker,                                 \
-      sourcemeta::core::schema_resolver,                                       \
+      schema, sourcemeta::blaze::schema_walker,                                \
+      sourcemeta::blaze::schema_resolver,                                      \
       sourcemeta::blaze::default_schema_compiler,                              \
       sourcemeta::blaze::Mode::FastValidation, "", "", (entrypoint))};         \
   __ASSERT_TEMPLATE_JSON_SERIALISATION(compiled_schema);                       \
@@ -77,8 +77,8 @@ inline auto FIRST_PROPERTY_IS(const sourcemeta::core::JSON &document,
 #define EVALUATE_WITH_TRACE_EXHAUSTIVE_SUCCESS(schema, instance, count,        \
                                                entrypoint)                     \
   const auto compiled_schema{sourcemeta::blaze::compile(                       \
-      schema, sourcemeta::core::schema_walker,                                 \
-      sourcemeta::core::schema_resolver,                                       \
+      schema, sourcemeta::blaze::schema_walker,                                \
+      sourcemeta::blaze::schema_resolver,                                      \
       sourcemeta::blaze::default_schema_compiler,                              \
       sourcemeta::blaze::Mode::Exhaustive, "", "", (entrypoint))};             \
   __ASSERT_TEMPLATE_JSON_SERIALISATION(compiled_schema);                       \
@@ -88,8 +88,8 @@ inline auto FIRST_PROPERTY_IS(const sourcemeta::core::JSON &document,
 #define EVALUATE_WITH_TRACE_EXHAUSTIVE_FAILURE(schema, instance, count,        \
                                                entrypoint)                     \
   const auto compiled_schema{sourcemeta::blaze::compile(                       \
-      schema, sourcemeta::core::schema_walker,                                 \
-      sourcemeta::core::schema_resolver,                                       \
+      schema, sourcemeta::blaze::schema_walker,                                \
+      sourcemeta::blaze::schema_resolver,                                      \
       sourcemeta::blaze::default_schema_compiler,                              \
       sourcemeta::blaze::Mode::Exhaustive, "", "", (entrypoint))};             \
   __ASSERT_TEMPLATE_JSON_SERIALISATION(compiled_schema);                       \
@@ -99,8 +99,8 @@ inline auto FIRST_PROPERTY_IS(const sourcemeta::core::JSON &document,
 #define EVALUATE_WITH_TRACE_FAST_SUCCESS_TWEAKED(schema, instance, count,      \
                                                  entrypoint, tweaks)           \
   const auto compiled_schema{                                                  \
-      sourcemeta::blaze::compile(schema, sourcemeta::core::schema_walker,      \
-                                 sourcemeta::core::schema_resolver,            \
+      sourcemeta::blaze::compile(schema, sourcemeta::blaze::schema_walker,     \
+                                 sourcemeta::blaze::schema_resolver,           \
                                  sourcemeta::blaze::default_schema_compiler,   \
                                  sourcemeta::blaze::Mode::FastValidation, "",  \
                                  "", (entrypoint), (tweaks))};                 \
@@ -111,8 +111,8 @@ inline auto FIRST_PROPERTY_IS(const sourcemeta::core::JSON &document,
 #define EVALUATE_WITH_TRACE_FAST_FAILURE_TWEAKED(schema, instance, count,      \
                                                  entrypoint, tweaks)           \
   const auto compiled_schema{                                                  \
-      sourcemeta::blaze::compile(schema, sourcemeta::core::schema_walker,      \
-                                 sourcemeta::core::schema_resolver,            \
+      sourcemeta::blaze::compile(schema, sourcemeta::blaze::schema_walker,     \
+                                 sourcemeta::blaze::schema_resolver,           \
                                  sourcemeta::blaze::default_schema_compiler,   \
                                  sourcemeta::blaze::Mode::FastValidation, "",  \
                                  "", (entrypoint), (tweaks))};                 \
@@ -123,8 +123,8 @@ inline auto FIRST_PROPERTY_IS(const sourcemeta::core::JSON &document,
 #define EVALUATE_WITH_TRACE_EXHAUSTIVE_SUCCESS_TWEAKED(                        \
     schema, instance, count, entrypoint, tweaks)                               \
   const auto compiled_schema{sourcemeta::blaze::compile(                       \
-      schema, sourcemeta::core::schema_walker,                                 \
-      sourcemeta::core::schema_resolver,                                       \
+      schema, sourcemeta::blaze::schema_walker,                                \
+      sourcemeta::blaze::schema_resolver,                                      \
       sourcemeta::blaze::default_schema_compiler,                              \
       sourcemeta::blaze::Mode::Exhaustive, "", "", (entrypoint), (tweaks))};   \
   __ASSERT_TEMPLATE_JSON_SERIALISATION(compiled_schema);                       \
@@ -134,8 +134,8 @@ inline auto FIRST_PROPERTY_IS(const sourcemeta::core::JSON &document,
 #define EVALUATE_WITH_TRACE_EXHAUSTIVE_FAILURE_TWEAKED(                        \
     schema, instance, count, entrypoint, tweaks)                               \
   const auto compiled_schema{sourcemeta::blaze::compile(                       \
-      schema, sourcemeta::core::schema_walker,                                 \
-      sourcemeta::core::schema_resolver,                                       \
+      schema, sourcemeta::blaze::schema_walker,                                \
+      sourcemeta::blaze::schema_resolver,                                      \
       sourcemeta::blaze::default_schema_compiler,                              \
       sourcemeta::blaze::Mode::Exhaustive, "", "", (entrypoint), (tweaks))};   \
   __ASSERT_TEMPLATE_JSON_SERIALISATION(compiled_schema);                       \

@@ -1,8 +1,8 @@
 #include <sourcemeta/blaze/codegen.h>
 #include <sourcemeta/blaze/codegen_error.h>
 
+#include <sourcemeta/blaze/foundation.h>
 #include <sourcemeta/core/json.h>
-#include <sourcemeta/core/jsonschema.h>
 #include <sourcemeta/core/options.h>
 
 #include <cstdlib>    // EXIT_SUCCESS, EXIT_FAILURE
@@ -28,8 +28,8 @@ auto main(int argc, char *argv[]) -> int {
     const auto schema{sourcemeta::core::read_json(schema_path)};
 
     const auto result{
-        sourcemeta::blaze::compile(schema, sourcemeta::core::schema_walker,
-                                   sourcemeta::core::schema_resolver,
+        sourcemeta::blaze::compile(schema, sourcemeta::blaze::schema_walker,
+                                   sourcemeta::blaze::schema_resolver,
                                    sourcemeta::blaze::default_compiler)};
 
     const std::string prefix{

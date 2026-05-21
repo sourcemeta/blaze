@@ -1,8 +1,8 @@
 #include <sourcemeta/blaze/documentation.h>
 
+#include <sourcemeta/blaze/foundation.h>
 #include <sourcemeta/core/html.h>
 #include <sourcemeta/core/json.h>
-#include <sourcemeta/core/jsonschema.h>
 #include <sourcemeta/core/options.h>
 
 #include <cstdlib>  // EXIT_SUCCESS, EXIT_FAILURE
@@ -16,8 +16,8 @@ static auto emit_schema(const sourcemeta::core::JSON &schema,
     -> bool {
   try {
     const auto documentation{sourcemeta::blaze::to_documentation(
-        schema, sourcemeta::core::schema_walker,
-        sourcemeta::core::schema_resolver)};
+        schema, sourcemeta::blaze::schema_walker,
+        sourcemeta::blaze::schema_resolver)};
 
     if (divider) {
       std::cout << "<hr>\n";

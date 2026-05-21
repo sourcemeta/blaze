@@ -4560,7 +4560,7 @@ TEST(AlterSchema_lint_draft7, valid_default_throws_on_invalid_ref_target) {
   sourcemeta::blaze::SchemaTransformer bundle;
   sourcemeta::blaze::add(bundle, sourcemeta::blaze::AlterSchemaMode::Linter);
   EXPECT_THROW(static_cast<void>(
-                   bundle.check(document, sourcemeta::core::schema_walker,
+                   bundle.check(document, sourcemeta::blaze::schema_walker,
                                 alterschema_test_resolver,
                                 [](const auto &, const auto &, const auto &,
                                    const auto &, const auto &) {})),
@@ -4582,7 +4582,7 @@ TEST(AlterSchema_lint_draft7, valid_examples_throws_on_invalid_ref_target) {
   sourcemeta::blaze::SchemaTransformer bundle;
   sourcemeta::blaze::add(bundle, sourcemeta::blaze::AlterSchemaMode::Linter);
   EXPECT_THROW(static_cast<void>(
-                   bundle.check(document, sourcemeta::core::schema_walker,
+                   bundle.check(document, sourcemeta::blaze::schema_walker,
                                 alterschema_test_resolver,
                                 [](const auto &, const auto &, const auto &,
                                    const auto &, const auto &) {})),

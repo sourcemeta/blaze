@@ -2,8 +2,8 @@
 
 #include <cassert> // assert
 
+#include <sourcemeta/blaze/foundation.h>
 #include <sourcemeta/core/json.h>
-#include <sourcemeta/core/jsonschema.h>
 
 #include <sourcemeta/blaze/compiler.h>
 #include <sourcemeta/blaze/evaluator.h>
@@ -46,8 +46,8 @@ static void Micro_Draft6_Property_Names(benchmark::State &state) {
       })JSON")};
 
   const auto schema_template{
-      sourcemeta::blaze::compile(schema, sourcemeta::core::schema_walker,
-                                 sourcemeta::core::schema_resolver,
+      sourcemeta::blaze::compile(schema, sourcemeta::blaze::schema_walker,
+                                 sourcemeta::blaze::schema_resolver,
                                  sourcemeta::blaze::default_schema_compiler)};
   sourcemeta::blaze::Evaluator evaluator;
   for (auto _ : state) {
@@ -64,8 +64,8 @@ static void Micro_Draft6_Compile_FHIR(benchmark::State &state) {
 
   for (auto _ : state) {
     auto schema_template{
-        sourcemeta::blaze::compile(schema, sourcemeta::core::schema_walker,
-                                   sourcemeta::core::schema_resolver,
+        sourcemeta::blaze::compile(schema, sourcemeta::blaze::schema_walker,
+                                   sourcemeta::blaze::schema_resolver,
                                    sourcemeta::blaze::default_schema_compiler)};
     benchmark::DoNotOptimize(schema_template);
   }

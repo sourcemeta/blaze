@@ -2,8 +2,8 @@
 
 #include <sourcemeta/blaze/documentation.h>
 
+#include <sourcemeta/blaze/foundation.h>
 #include <sourcemeta/core/json.h>
-#include <sourcemeta/core/jsonschema.h>
 
 TEST(Documentation_HTML, 2020_12_type_string) {
   const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
@@ -12,8 +12,8 @@ TEST(Documentation_HTML, 2020_12_type_string) {
   })JSON")};
 
   const auto documentation{sourcemeta::blaze::to_documentation(
-      schema, sourcemeta::core::schema_walker,
-      sourcemeta::core::schema_resolver)};
+      schema, sourcemeta::blaze::schema_walker,
+      sourcemeta::blaze::schema_resolver)};
 
   EXPECT_EQ(sourcemeta::blaze::to_html(documentation),
             "<table class=\"sourcemeta-blaze-documentation\">"
@@ -46,8 +46,8 @@ TEST(Documentation_HTML, 2020_12_pattern_property_path) {
   })JSON")};
 
   const auto documentation{sourcemeta::blaze::to_documentation(
-      schema, sourcemeta::core::schema_walker,
-      sourcemeta::core::schema_resolver)};
+      schema, sourcemeta::blaze::schema_walker,
+      sourcemeta::blaze::schema_resolver)};
 
   EXPECT_EQ(sourcemeta::blaze::to_html(documentation),
             "<table class=\"sourcemeta-blaze-documentation\">"
@@ -94,8 +94,8 @@ TEST(Documentation_HTML, draft4_pattern_property_path) {
   })JSON")};
 
   const auto documentation{sourcemeta::blaze::to_documentation(
-      schema, sourcemeta::core::schema_walker,
-      sourcemeta::core::schema_resolver)};
+      schema, sourcemeta::blaze::schema_walker,
+      sourcemeta::blaze::schema_resolver)};
 
   EXPECT_EQ(sourcemeta::blaze::to_html(documentation),
             "<table class=\"sourcemeta-blaze-documentation\">"
@@ -142,8 +142,8 @@ TEST(Documentation_HTML, draft4_recursive_ref_display) {
   })JSON")};
 
   const auto documentation{sourcemeta::blaze::to_documentation(
-      schema, sourcemeta::core::schema_walker,
-      sourcemeta::core::schema_resolver)};
+      schema, sourcemeta::blaze::schema_walker,
+      sourcemeta::blaze::schema_resolver)};
 
   EXPECT_EQ(sourcemeta::blaze::to_html(documentation),
             "<table class=\"sourcemeta-blaze-documentation\">"
@@ -189,8 +189,8 @@ TEST(Documentation_HTML, 2020_12_array_type_no_inline_items) {
   })JSON")};
 
   const auto documentation{sourcemeta::blaze::to_documentation(
-      schema, sourcemeta::core::schema_walker,
-      sourcemeta::core::schema_resolver)};
+      schema, sourcemeta::blaze::schema_walker,
+      sourcemeta::blaze::schema_resolver)};
 
   EXPECT_EQ(sourcemeta::blaze::to_html(documentation),
             "<table class=\"sourcemeta-blaze-documentation\">"
@@ -227,8 +227,8 @@ TEST(Documentation_HTML, 2020_12_external_ref) {
   })JSON")};
 
   const auto documentation{sourcemeta::blaze::to_documentation(
-      schema, sourcemeta::core::schema_walker,
-      sourcemeta::core::schema_resolver)};
+      schema, sourcemeta::blaze::schema_walker,
+      sourcemeta::blaze::schema_resolver)};
 
   EXPECT_EQ(sourcemeta::blaze::to_html(documentation),
             "<table class=\"sourcemeta-blaze-documentation\">"

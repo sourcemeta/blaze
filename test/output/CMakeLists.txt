@@ -8,7 +8,7 @@ sourcemeta_googletest(NAMESPACE sourcemeta PROJECT blaze NAME output
 target_link_libraries(sourcemeta_blaze_output_unit
   PRIVATE sourcemeta::core::json)
 target_link_libraries(sourcemeta_blaze_output_unit
-  PRIVATE sourcemeta::core::jsonschema)
+  PRIVATE sourcemeta::blaze::foundation)
 target_link_libraries(sourcemeta_blaze_output_unit
   PRIVATE sourcemeta::blaze::output)
 target_link_libraries(sourcemeta_blaze_output_unit
@@ -25,7 +25,7 @@ target_compile_definitions(sourcemeta_blaze_output_standard_basic_suite_unit
 target_link_libraries(sourcemeta_blaze_output_standard_basic_suite_unit
   PRIVATE sourcemeta::core::json)
 target_link_libraries(sourcemeta_blaze_output_standard_basic_suite_unit
-  PRIVATE sourcemeta::core::jsonschema)
+  PRIVATE sourcemeta::blaze::foundation)
 target_link_libraries(sourcemeta_blaze_output_standard_basic_suite_unit
   PRIVATE sourcemeta::blaze::output)
 target_link_libraries(sourcemeta_blaze_output_standard_basic_suite_unit
@@ -42,7 +42,7 @@ target_compile_definitions(sourcemeta_blaze_output_standard_flag_suite_unit
 target_link_libraries(sourcemeta_blaze_output_standard_flag_suite_unit
   PRIVATE sourcemeta::core::json)
 target_link_libraries(sourcemeta_blaze_output_standard_flag_suite_unit
-  PRIVATE sourcemeta::core::jsonschema)
+  PRIVATE sourcemeta::blaze::foundation)
 target_link_libraries(sourcemeta_blaze_output_standard_flag_suite_unit
   PRIVATE sourcemeta::blaze::output)
 target_link_libraries(sourcemeta_blaze_output_standard_flag_suite_unit

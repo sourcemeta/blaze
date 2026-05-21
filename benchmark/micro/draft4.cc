@@ -2,8 +2,8 @@
 
 #include <cassert> // assert
 
+#include <sourcemeta/blaze/foundation.h>
 #include <sourcemeta/core/json.h>
-#include <sourcemeta/core/jsonschema.h>
 
 #include <sourcemeta/blaze/compiler.h>
 #include <sourcemeta/blaze/evaluator.h>
@@ -17,11 +17,11 @@ static void Micro_Draft4_Meta_1_No_Callback(benchmark::State &state) {
     }
   })JSON")};
 
-  const auto metaschema{
-      sourcemeta::core::metaschema(schema, sourcemeta::core::schema_resolver)};
+  const auto metaschema{sourcemeta::blaze::metaschema(
+      schema, sourcemeta::blaze::schema_resolver)};
   const auto metaschema_template{
-      sourcemeta::blaze::compile(metaschema, sourcemeta::core::schema_walker,
-                                 sourcemeta::core::schema_resolver,
+      sourcemeta::blaze::compile(metaschema, sourcemeta::blaze::schema_walker,
+                                 sourcemeta::blaze::schema_resolver,
                                  sourcemeta::blaze::default_schema_compiler)};
 
   sourcemeta::blaze::Evaluator evaluator;
@@ -100,8 +100,8 @@ static void Micro_Draft4_Required_Properties(benchmark::State &state) {
   })JSON")};
 
   const auto schema_template{
-      sourcemeta::blaze::compile(schema, sourcemeta::core::schema_walker,
-                                 sourcemeta::core::schema_resolver,
+      sourcemeta::blaze::compile(schema, sourcemeta::blaze::schema_walker,
+                                 sourcemeta::blaze::schema_resolver,
                                  sourcemeta::blaze::default_schema_compiler)};
 
   sourcemeta::blaze::Evaluator evaluator;
@@ -151,8 +151,8 @@ Micro_Draft4_Many_Optional_Properties_Minimal_Match(benchmark::State &state) {
   })JSON")};
 
   const auto schema_template{
-      sourcemeta::blaze::compile(schema, sourcemeta::core::schema_walker,
-                                 sourcemeta::core::schema_resolver,
+      sourcemeta::blaze::compile(schema, sourcemeta::blaze::schema_walker,
+                                 sourcemeta::blaze::schema_resolver,
                                  sourcemeta::blaze::default_schema_compiler)};
 
   sourcemeta::blaze::Evaluator evaluator;
@@ -202,8 +202,8 @@ Micro_Draft4_Few_Optional_Properties_Minimal_Match(benchmark::State &state) {
   })JSON")};
 
   const auto schema_template{
-      sourcemeta::blaze::compile(schema, sourcemeta::core::schema_walker,
-                                 sourcemeta::core::schema_resolver,
+      sourcemeta::blaze::compile(schema, sourcemeta::blaze::schema_walker,
+                                 sourcemeta::blaze::schema_resolver,
                                  sourcemeta::blaze::default_schema_compiler)};
 
   sourcemeta::blaze::Evaluator evaluator;
@@ -280,8 +280,8 @@ static void Micro_Draft4_Items_Schema(benchmark::State &state) {
   ])JSON")};
 
   const auto schema_template{
-      sourcemeta::blaze::compile(schema, sourcemeta::core::schema_walker,
-                                 sourcemeta::core::schema_resolver,
+      sourcemeta::blaze::compile(schema, sourcemeta::blaze::schema_walker,
+                                 sourcemeta::blaze::schema_resolver,
                                  sourcemeta::blaze::default_schema_compiler)};
 
   sourcemeta::blaze::Evaluator evaluator;
@@ -416,8 +416,8 @@ static void Micro_Draft4_Nested_Object(benchmark::State &state) {
   )JSON")};
 
   const auto schema_template{
-      sourcemeta::blaze::compile(schema, sourcemeta::core::schema_walker,
-                                 sourcemeta::core::schema_resolver,
+      sourcemeta::blaze::compile(schema, sourcemeta::blaze::schema_walker,
+                                 sourcemeta::blaze::schema_resolver,
                                  sourcemeta::blaze::default_schema_compiler)};
 
   sourcemeta::blaze::Evaluator evaluator;
@@ -458,8 +458,8 @@ static void Micro_Draft4_Properties_Triad_Optional(benchmark::State &state) {
   })JSON")};
 
   const auto schema_template{
-      sourcemeta::blaze::compile(schema, sourcemeta::core::schema_walker,
-                                 sourcemeta::core::schema_resolver,
+      sourcemeta::blaze::compile(schema, sourcemeta::blaze::schema_walker,
+                                 sourcemeta::blaze::schema_resolver,
                                  sourcemeta::blaze::default_schema_compiler)};
 
   sourcemeta::blaze::Evaluator evaluator;
@@ -501,8 +501,8 @@ static void Micro_Draft4_Properties_Triad_Required(benchmark::State &state) {
   })JSON")};
 
   const auto schema_template{
-      sourcemeta::blaze::compile(schema, sourcemeta::core::schema_walker,
-                                 sourcemeta::core::schema_resolver,
+      sourcemeta::blaze::compile(schema, sourcemeta::blaze::schema_walker,
+                                 sourcemeta::blaze::schema_resolver,
                                  sourcemeta::blaze::default_schema_compiler)};
 
   sourcemeta::blaze::Evaluator evaluator;
@@ -540,8 +540,8 @@ static void Micro_Draft4_Properties_Triad_Closed(benchmark::State &state) {
   })JSON")};
 
   const auto schema_template{
-      sourcemeta::blaze::compile(schema, sourcemeta::core::schema_walker,
-                                 sourcemeta::core::schema_resolver,
+      sourcemeta::blaze::compile(schema, sourcemeta::blaze::schema_walker,
+                                 sourcemeta::blaze::schema_resolver,
                                  sourcemeta::blaze::default_schema_compiler)};
 
   sourcemeta::blaze::Evaluator evaluator;
@@ -586,8 +586,8 @@ static void Micro_Draft4_Properties_Closed(benchmark::State &state) {
   })JSON")};
 
   const auto schema_template{
-      sourcemeta::blaze::compile(schema, sourcemeta::core::schema_walker,
-                                 sourcemeta::core::schema_resolver,
+      sourcemeta::blaze::compile(schema, sourcemeta::blaze::schema_walker,
+                                 sourcemeta::blaze::schema_resolver,
                                  sourcemeta::blaze::default_schema_compiler)};
 
   sourcemeta::blaze::Evaluator evaluator;
@@ -631,8 +631,8 @@ static void Micro_Draft4_Non_Recursive_Ref(benchmark::State &state) {
   })JSON")};
 
   const auto schema_template{
-      sourcemeta::blaze::compile(schema, sourcemeta::core::schema_walker,
-                                 sourcemeta::core::schema_resolver,
+      sourcemeta::blaze::compile(schema, sourcemeta::blaze::schema_walker,
+                                 sourcemeta::blaze::schema_resolver,
                                  sourcemeta::blaze::default_schema_compiler)};
 
   sourcemeta::blaze::Evaluator evaluator;
@@ -671,8 +671,8 @@ static void Micro_Draft4_Pattern_Properties_True(benchmark::State &state) {
   })JSON")};
 
   const auto schema_template{
-      sourcemeta::blaze::compile(schema, sourcemeta::core::schema_walker,
-                                 sourcemeta::core::schema_resolver,
+      sourcemeta::blaze::compile(schema, sourcemeta::blaze::schema_walker,
+                                 sourcemeta::blaze::schema_resolver,
                                  sourcemeta::blaze::default_schema_compiler)};
 
   sourcemeta::blaze::Evaluator evaluator;
@@ -729,8 +729,8 @@ static void Micro_Draft4_Ref_To_Single_Property(benchmark::State &state) {
   })JSON")};
 
   const auto schema_template{
-      sourcemeta::blaze::compile(schema, sourcemeta::core::schema_walker,
-                                 sourcemeta::core::schema_resolver,
+      sourcemeta::blaze::compile(schema, sourcemeta::blaze::schema_walker,
+                                 sourcemeta::blaze::schema_resolver,
                                  sourcemeta::blaze::default_schema_compiler)};
 
   sourcemeta::blaze::Evaluator evaluator;
@@ -777,8 +777,8 @@ static void Micro_Draft4_Additional_Properties_Type(benchmark::State &state) {
   })JSON")};
 
   const auto schema_template{
-      sourcemeta::blaze::compile(schema, sourcemeta::core::schema_walker,
-                                 sourcemeta::core::schema_resolver,
+      sourcemeta::blaze::compile(schema, sourcemeta::blaze::schema_walker,
+                                 sourcemeta::blaze::schema_resolver,
                                  sourcemeta::blaze::default_schema_compiler)};
 
   sourcemeta::blaze::Evaluator evaluator;
@@ -819,8 +819,8 @@ static void Micro_Draft4_Nested_Oneof(benchmark::State &state) {
       })JSON")};
 
   const auto schema_template{
-      sourcemeta::blaze::compile(schema, sourcemeta::core::schema_walker,
-                                 sourcemeta::core::schema_resolver,
+      sourcemeta::blaze::compile(schema, sourcemeta::blaze::schema_walker,
+                                 sourcemeta::blaze::schema_resolver,
                                  sourcemeta::blaze::default_schema_compiler)};
   sourcemeta::blaze::Evaluator evaluator;
   for (auto _ : state) {
@@ -839,8 +839,8 @@ static void Micro_Draft4_Short_Enum(benchmark::State &state) {
   const sourcemeta::core::JSON instance{"production"};
 
   const auto schema_template{
-      sourcemeta::blaze::compile(schema, sourcemeta::core::schema_walker,
-                                 sourcemeta::core::schema_resolver,
+      sourcemeta::blaze::compile(schema, sourcemeta::blaze::schema_walker,
+                                 sourcemeta::blaze::schema_resolver,
                                  sourcemeta::blaze::default_schema_compiler)};
   sourcemeta::blaze::Evaluator evaluator;
   for (auto _ : state) {
@@ -901,8 +901,8 @@ static void Micro_Draft4_Long_Enum(benchmark::State &state) {
   const sourcemeta::core::JSON instance{"verdant_bamboo_grove"};
 
   const auto schema_template{
-      sourcemeta::blaze::compile(schema, sourcemeta::core::schema_walker,
-                                 sourcemeta::core::schema_resolver,
+      sourcemeta::blaze::compile(schema, sourcemeta::blaze::schema_walker,
+                                 sourcemeta::blaze::schema_resolver,
                                  sourcemeta::blaze::default_schema_compiler)};
   sourcemeta::blaze::Evaluator evaluator;
   for (auto _ : state) {
@@ -963,8 +963,8 @@ static void Micro_Draft4_Long_Enum_Short_Strings(benchmark::State &state) {
   const sourcemeta::core::JSON instance{"verdant_bamboo"};
 
   const auto schema_template{
-      sourcemeta::blaze::compile(schema, sourcemeta::core::schema_walker,
-                                 sourcemeta::core::schema_resolver,
+      sourcemeta::blaze::compile(schema, sourcemeta::blaze::schema_walker,
+                                 sourcemeta::blaze::schema_resolver,
                                  sourcemeta::blaze::default_schema_compiler)};
   sourcemeta::blaze::Evaluator evaluator;
   for (auto _ : state) {
@@ -983,8 +983,8 @@ static void Micro_Draft4_Type_Object(benchmark::State &state) {
   const sourcemeta::core::JSON instance{sourcemeta::core::parse_json("{}")};
 
   const auto schema_template{
-      sourcemeta::blaze::compile(schema, sourcemeta::core::schema_walker,
-                                 sourcemeta::core::schema_resolver,
+      sourcemeta::blaze::compile(schema, sourcemeta::blaze::schema_walker,
+                                 sourcemeta::blaze::schema_resolver,
                                  sourcemeta::blaze::default_schema_compiler)};
   sourcemeta::blaze::Evaluator evaluator;
   for (auto _ : state) {
@@ -1107,8 +1107,8 @@ static void Micro_Draft4_Ref_Single_100(benchmark::State &state) {
 
   for (auto _ : state) {
     auto result{
-        sourcemeta::blaze::compile(schema, sourcemeta::core::schema_walker,
-                                   sourcemeta::core::schema_resolver,
+        sourcemeta::blaze::compile(schema, sourcemeta::blaze::schema_walker,
+                                   sourcemeta::blaze::schema_resolver,
                                    sourcemeta::blaze::default_schema_compiler)};
     benchmark::DoNotOptimize(result.targets);
   }
@@ -1150,8 +1150,8 @@ static void Micro_Draft4_Compile_Ref_Many_Nested(benchmark::State &state) {
 
   for (auto _ : state) {
     auto result{
-        sourcemeta::blaze::compile(schema, sourcemeta::core::schema_walker,
-                                   sourcemeta::core::schema_resolver,
+        sourcemeta::blaze::compile(schema, sourcemeta::blaze::schema_walker,
+                                   sourcemeta::blaze::schema_resolver,
                                    sourcemeta::blaze::default_schema_compiler)};
     benchmark::DoNotOptimize(result.targets);
   }
@@ -1200,8 +1200,8 @@ static void Micro_Draft4_Compile_Wrap(benchmark::State &state) {
 
   for (auto _ : state) {
     auto result{
-        sourcemeta::blaze::compile(schema, sourcemeta::core::schema_walker,
-                                   sourcemeta::core::schema_resolver,
+        sourcemeta::blaze::compile(schema, sourcemeta::blaze::schema_walker,
+                                   sourcemeta::blaze::schema_resolver,
                                    sourcemeta::blaze::default_schema_compiler)};
     benchmark::DoNotOptimize(result.targets);
   }

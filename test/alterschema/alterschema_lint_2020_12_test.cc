@@ -2,8 +2,8 @@
 
 #include <sourcemeta/blaze/alterschema.h>
 #include <sourcemeta/blaze/compiler.h>
+#include <sourcemeta/blaze/foundation.h>
 #include <sourcemeta/core/json.h>
-#include <sourcemeta/core/jsonschema.h>
 
 #include "alterschema_test_utils.h"
 
@@ -11395,7 +11395,7 @@ TEST(AlterSchema_lint_2020_12, valid_examples_11) {
   sourcemeta::blaze::SchemaTransformer bundle;
   sourcemeta::blaze::add(bundle, sourcemeta::blaze::AlterSchemaMode::Linter);
   const auto result = bundle.apply(
-      document, sourcemeta::core::schema_walker, alterschema_test_resolver,
+      document, sourcemeta::blaze::schema_walker, alterschema_test_resolver,
       [&traces](const auto &pointer, const auto &name, const auto &message,
                 const auto &outcome, const auto &fixable) {
         traces.emplace_back(pointer, name, message, outcome, fixable);
@@ -11425,7 +11425,7 @@ TEST(AlterSchema_lint_2020_12, valid_examples_12) {
   sourcemeta::blaze::SchemaTransformer bundle;
   sourcemeta::blaze::add(bundle, sourcemeta::blaze::AlterSchemaMode::Linter);
   const auto result = bundle.apply(
-      document, sourcemeta::core::schema_walker, alterschema_test_resolver,
+      document, sourcemeta::blaze::schema_walker, alterschema_test_resolver,
       [&traces](const auto &pointer, const auto &name, const auto &message,
                 const auto &outcome, const auto &fixable) {
         traces.emplace_back(pointer, name, message, outcome, fixable);
@@ -11455,7 +11455,7 @@ TEST(AlterSchema_lint_2020_12, valid_examples_17) {
   sourcemeta::blaze::SchemaTransformer bundle;
   sourcemeta::blaze::add(bundle, sourcemeta::blaze::AlterSchemaMode::Linter);
   const auto result = bundle.apply(
-      document, sourcemeta::core::schema_walker, alterschema_test_resolver,
+      document, sourcemeta::blaze::schema_walker, alterschema_test_resolver,
       [&traces](const auto &pointer, const auto &name, const auto &message,
                 const auto &outcome, const auto &fixable) {
         traces.emplace_back(pointer, name, message, outcome, fixable);
@@ -11508,7 +11508,7 @@ TEST(AlterSchema_lint_2020_12, valid_default_10) {
   sourcemeta::blaze::SchemaTransformer bundle;
   sourcemeta::blaze::add(bundle, sourcemeta::blaze::AlterSchemaMode::Linter);
   const auto result = bundle.apply(
-      document, sourcemeta::core::schema_walker, alterschema_test_resolver,
+      document, sourcemeta::blaze::schema_walker, alterschema_test_resolver,
       [&traces](const auto &pointer, const auto &name, const auto &message,
                 const auto &outcome, const auto &fixable) {
         traces.emplace_back(pointer, name, message, outcome, fixable);
@@ -11538,7 +11538,7 @@ TEST(AlterSchema_lint_2020_12, valid_default_11) {
   sourcemeta::blaze::SchemaTransformer bundle;
   sourcemeta::blaze::add(bundle, sourcemeta::blaze::AlterSchemaMode::Linter);
   const auto result = bundle.apply(
-      document, sourcemeta::core::schema_walker, alterschema_test_resolver,
+      document, sourcemeta::blaze::schema_walker, alterschema_test_resolver,
       [&traces](const auto &pointer, const auto &name, const auto &message,
                 const auto &outcome, const auto &fixable) {
         traces.emplace_back(pointer, name, message, outcome, fixable);
@@ -11568,7 +11568,7 @@ TEST(AlterSchema_lint_2020_12, valid_default_18) {
   sourcemeta::blaze::SchemaTransformer bundle;
   sourcemeta::blaze::add(bundle, sourcemeta::blaze::AlterSchemaMode::Linter);
   const auto result = bundle.apply(
-      document, sourcemeta::core::schema_walker, alterschema_test_resolver,
+      document, sourcemeta::blaze::schema_walker, alterschema_test_resolver,
       [&traces](const auto &pointer, const auto &name, const auto &message,
                 const auto &outcome, const auto &fixable) {
         traces.emplace_back(pointer, name, message, outcome, fixable);
@@ -12421,11 +12421,11 @@ TEST(AlterSchema_lint_2020_12, valid_default_throws_on_unsupported_vocabulary) {
   sourcemeta::blaze::SchemaTransformer bundle;
   sourcemeta::blaze::add(bundle, sourcemeta::blaze::AlterSchemaMode::Linter);
   EXPECT_THROW(static_cast<void>(
-                   bundle.check(document, sourcemeta::core::schema_walker,
+                   bundle.check(document, sourcemeta::blaze::schema_walker,
                                 alterschema_test_resolver,
                                 [](const auto &, const auto &, const auto &,
                                    const auto &, const auto &) {})),
-               sourcemeta::core::SchemaVocabularyError);
+               sourcemeta::blaze::SchemaVocabularyError);
 }
 
 TEST(AlterSchema_lint_2020_12,
@@ -12439,11 +12439,11 @@ TEST(AlterSchema_lint_2020_12,
   sourcemeta::blaze::SchemaTransformer bundle;
   sourcemeta::blaze::add(bundle, sourcemeta::blaze::AlterSchemaMode::Linter);
   EXPECT_THROW(static_cast<void>(
-                   bundle.check(document, sourcemeta::core::schema_walker,
+                   bundle.check(document, sourcemeta::blaze::schema_walker,
                                 alterschema_test_resolver,
                                 [](const auto &, const auto &, const auto &,
                                    const auto &, const auto &) {})),
-               sourcemeta::core::SchemaVocabularyError);
+               sourcemeta::blaze::SchemaVocabularyError);
 }
 
 TEST(AlterSchema_lint_2020_12, portable_anchor_names_valid) {

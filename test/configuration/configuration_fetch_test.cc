@@ -1,8 +1,8 @@
 #include <gtest/gtest.h>
 
 #include <sourcemeta/blaze/configuration.h>
+#include <sourcemeta/blaze/foundation.h>
 #include <sourcemeta/core/json.h>
-#include <sourcemeta/core/jsonschema.h>
 
 #include "configuration_test_utils.h"
 

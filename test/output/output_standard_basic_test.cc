@@ -15,8 +15,8 @@ TEST(Output_standard_basic, prettify_annotations) {
   })JSON")};
 
   const auto schema_template{
-      sourcemeta::blaze::compile(schema, sourcemeta::core::schema_walker,
-                                 sourcemeta::core::schema_resolver,
+      sourcemeta::blaze::compile(schema, sourcemeta::blaze::schema_walker,
+                                 sourcemeta::blaze::schema_resolver,
                                  sourcemeta::blaze::default_schema_compiler,
                                  sourcemeta::blaze::Mode::Exhaustive)};
 
@@ -56,8 +56,8 @@ TEST(Output_standard_basic, prettify_annotations_with_instance_positions) {
   })JSON")};
 
   const auto schema_template{
-      sourcemeta::blaze::compile(schema, sourcemeta::core::schema_walker,
-                                 sourcemeta::core::schema_resolver,
+      sourcemeta::blaze::compile(schema, sourcemeta::blaze::schema_walker,
+                                 sourcemeta::blaze::schema_resolver,
                                  sourcemeta::blaze::default_schema_compiler,
                                  sourcemeta::blaze::Mode::Exhaustive)};
 
@@ -101,8 +101,8 @@ TEST(Output_standard_basic, prettify_errors) {
   })JSON")};
 
   const auto schema_template{
-      sourcemeta::blaze::compile(schema, sourcemeta::core::schema_walker,
-                                 sourcemeta::core::schema_resolver,
+      sourcemeta::blaze::compile(schema, sourcemeta::blaze::schema_walker,
+                                 sourcemeta::blaze::schema_resolver,
                                  sourcemeta::blaze::default_schema_compiler,
                                  sourcemeta::blaze::Mode::FastValidation)};
 
@@ -142,8 +142,8 @@ TEST(Output_standard_basic, prettify_errors_with_instance_positions) {
   })JSON")};
 
   const auto schema_template{
-      sourcemeta::blaze::compile(schema, sourcemeta::core::schema_walker,
-                                 sourcemeta::core::schema_resolver,
+      sourcemeta::blaze::compile(schema, sourcemeta::blaze::schema_walker,
+                                 sourcemeta::blaze::schema_resolver,
                                  sourcemeta::blaze::default_schema_compiler,
                                  sourcemeta::blaze::Mode::FastValidation)};
 

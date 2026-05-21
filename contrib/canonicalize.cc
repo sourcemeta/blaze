@@ -1,6 +1,6 @@
 #include <sourcemeta/blaze/alterschema.h>
+#include <sourcemeta/blaze/foundation.h>
 #include <sourcemeta/core/json.h>
-#include <sourcemeta/core/jsonschema.h>
 
 #include <cstdlib>  // EXIT_SUCCESS, EXIT_FAILURE
 #include <iostream> // std::cerr, std::cout
@@ -17,16 +17,16 @@ auto main(int argc, char *argv[]) -> int {
   sourcemeta::blaze::add(bundle,
                          sourcemeta::blaze::AlterSchemaMode::Canonicalizer);
   const auto result{
-      bundle.apply(document, sourcemeta::core::schema_walker,
-                   sourcemeta::core::schema_resolver,
+      bundle.apply(document, sourcemeta::blaze::schema_walker,
+                   sourcemeta::blaze::schema_resolver,
                    [](const auto &pointer, const auto &name,
                       const auto &message, const auto &, const auto &) {
                      std::cerr << sourcemeta::core::to_string(pointer) << ": "
                                << name << ": " << message << "\n";
                    })};
 
-  sourcemeta::core::format(document, sourcemeta::core::schema_walker,
-                           sourcemeta::core::schema_resolver);
+  sourcemeta::blaze::format(document, sourcemeta::blaze::schema_walker,
+                            sourcemeta::blaze::schema_resolver);
   sourcemeta::core::prettify(document, std::cout);
   std::cout << "\n";
 

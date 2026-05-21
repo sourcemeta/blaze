@@ -86,7 +86,7 @@ public:
   /// #include <sourcemeta/blaze/compiler.h>
   ///
   /// #include <sourcemeta/core/json.h>
-  /// #include <sourcemeta/core/jsonschema.h>
+  /// #include <sourcemeta/blaze/foundation.h>
   ///
   /// #include <cassert>
   ///
@@ -97,8 +97,8 @@ public:
   /// })JSON");
   ///
   /// const auto schema_template{sourcemeta::blaze::compile(
-  ///     schema, sourcemeta::core::schema_walker,
-  ///     sourcemeta::core::schema_resolver,
+  ///     schema, sourcemeta::blaze::schema_walker,
+  ///     sourcemeta::blaze::schema_resolver,
   ///     sourcemeta::core::default_schema_compiler)};
   ///
   /// sourcemeta::blaze::Evaluator evaluator;
@@ -134,7 +134,7 @@ public:
   /// #include <sourcemeta/blaze/compiler.h>
   ///
   /// #include <sourcemeta/core/json.h>
-  /// #include <sourcemeta/core/jsonschema.h>
+  /// #include <sourcemeta/blaze/foundation.h>
   ///
   /// #include <cassert>
   /// #include <iostream>
@@ -146,8 +146,8 @@ public:
   /// })JSON");
   ///
   /// const auto schema_template{sourcemeta::blaze::compile(
-  ///     schema, sourcemeta::core::schema_walker,
-  ///     sourcemeta::core::schema_resolver,
+  ///     schema, sourcemeta::blaze::schema_walker,
+  ///     sourcemeta::blaze::schema_resolver,
   ///     sourcemeta::core::default_schema_compiler)};
   ///
   /// static auto callback(

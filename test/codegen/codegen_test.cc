@@ -1,7 +1,7 @@
 #include <gtest/gtest.h>
 
 #include <sourcemeta/blaze/codegen.h>
-#include <sourcemeta/core/jsonschema.h>
+#include <sourcemeta/blaze/foundation.h>
 
 TEST(Codegen, unsupported_dialect_draft3) {
   const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
@@ -10,10 +10,10 @@ TEST(Codegen, unsupported_dialect_draft3) {
   })JSON")};
 
   EXPECT_THROW(sourcemeta::blaze::compile(schema,
-                                          sourcemeta::core::schema_walker,
-                                          sourcemeta::core::schema_resolver,
+                                          sourcemeta::blaze::schema_walker,
+                                          sourcemeta::blaze::schema_resolver,
                                           sourcemeta::blaze::default_compiler),
-               sourcemeta::core::SchemaVocabularyError);
+               sourcemeta::blaze::SchemaVocabularyError);
 }
 
 TEST(Codegen, unsupported_keyword_error_not) {
@@ -23,8 +23,8 @@ TEST(Codegen, unsupported_keyword_error_not) {
   })JSON")};
 
   EXPECT_THROW(sourcemeta::blaze::compile(schema,
-                                          sourcemeta::core::schema_walker,
-                                          sourcemeta::core::schema_resolver,
+                                          sourcemeta::blaze::schema_walker,
+                                          sourcemeta::blaze::schema_resolver,
                                           sourcemeta::blaze::default_compiler),
                sourcemeta::blaze::CodegenUnsupportedKeywordError);
 }
@@ -36,8 +36,8 @@ TEST(Codegen, unsupported_keyword_value_error_type_not_string) {
   })JSON")};
 
   EXPECT_THROW(sourcemeta::blaze::compile(schema,
-                                          sourcemeta::core::schema_walker,
-                                          sourcemeta::core::schema_resolver,
+                                          sourcemeta::blaze::schema_walker,
+                                          sourcemeta::blaze::schema_resolver,
                                           sourcemeta::blaze::default_compiler),
                sourcemeta::blaze::CodegenUnsupportedKeywordValueError);
 }
@@ -49,8 +49,8 @@ TEST(Codegen, unsupported_keyword_value_error_unknown_type) {
   })JSON")};
 
   EXPECT_THROW(sourcemeta::blaze::compile(schema,
-                                          sourcemeta::core::schema_walker,
-                                          sourcemeta::core::schema_resolver,
+                                          sourcemeta::blaze::schema_walker,
+                                          sourcemeta::blaze::schema_resolver,
                                           sourcemeta::blaze::default_compiler),
                sourcemeta::blaze::CodegenUnsupportedKeywordValueError);
 }

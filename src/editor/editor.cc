@@ -10,7 +10,7 @@ namespace {
 // massively grow, plus such case is quite uncommon in practice.
 // See https://arxiv.org/abs/2503.11288 for an academic study of this topic
 auto top_dynamic_anchor_location(
-    const sourcemeta::core::SchemaFrame &frame,
+    const sourcemeta::blaze::SchemaFrame &frame,
     const sourcemeta::core::WeakPointer &current,
     const std::string_view fragment,
     const sourcemeta::core::JSON::String &default_uri)
@@ -66,23 +66,23 @@ struct ReferenceChange {
 // Collected information about a subschema to modify
 struct SubschemaChange {
   sourcemeta::core::Pointer pointer;
-  sourcemeta::core::SchemaBaseDialect base_dialect;
+  sourcemeta::blaze::SchemaBaseDialect base_dialect;
   bool add_schema_declaration;
   bool erase_2020_12_keywords;
   bool erase_2019_09_keywords;
 };
 
 auto for_editor(sourcemeta::core::JSON &schema,
-                const sourcemeta::core::SchemaWalker &walker,
-                const sourcemeta::core::SchemaResolver &resolver,
+                const sourcemeta::blaze::SchemaWalker &walker,
+                const sourcemeta::blaze::SchemaResolver &resolver,
                 std::string_view default_dialect) -> void {
   // (1) Frame the schema and collect all changes we need to make
   std::vector<ReferenceChange> reference_changes;
   std::vector<SubschemaChange> subschema_changes;
 
   {
-    sourcemeta::core::SchemaFrame frame{
-        sourcemeta::core::SchemaFrame::Mode::References};
+    sourcemeta::blaze::SchemaFrame frame{
+        sourcemeta::blaze::SchemaFrame::Mode::References};
     frame.analyse(schema, walker, resolver, default_dialect);
 
     // Otherwise the input is not bundled
@@ -104,7 +104,7 @@ auto for_editor(sourcemeta::core::JSON &schema,
       assert(key.second.back().is_property());
       const auto &keyword{key.second.back().to_property()};
 
-      if (key.first == sourcemeta::core::SchemaReferenceType::Dynamic) {
+      if (key.first == sourcemeta::blaze::SchemaReferenceType::Dynamic) {
         if (reference.fragment.has_value()) {
           const auto destination{top_dynamic_anchor_location(
               frame, key.second, reference.fragment.value(),
@@ -130,7 +130,7 @@ auto for_editor(sourcemeta::core::JSON &schema,
           assert(origin.has_value());
           reference_changes.push_back(
               {sourcemeta::core::to_pointer(key.second),
-               sourcemeta::core::JSON::String{sourcemeta::core::to_string(
+               sourcemeta::core::JSON::String{sourcemeta::blaze::to_string(
                    origin.value().get().base_dialect)},
                keyword, false});
           continue;
@@ -155,9 +155,9 @@ auto for_editor(sourcemeta::core::JSON &schema,
     // Collect subschema changes
     for (const auto &entry : frame.locations()) {
       if (entry.second.type !=
-              sourcemeta::core::SchemaFrame::LocationType::Resource &&
+              sourcemeta::blaze::SchemaFrame::LocationType::Resource &&
           entry.second.type !=
-              sourcemeta::core::SchemaFrame::LocationType::Subschema) {
+              sourcemeta::blaze::SchemaFrame::LocationType::Subschema) {
         continue;
       }
 
@@ -174,9 +174,9 @@ auto for_editor(sourcemeta::core::JSON &schema,
       subschema_changes.push_back(
           {sourcemeta::core::to_pointer(entry.second.pointer),
            entry.second.base_dialect, add_schema,
-           vocabularies.contains(
-               sourcemeta::core::Vocabularies::Known::JSON_Schema_2020_12_Core),
-           vocabularies.contains(sourcemeta::core::Vocabularies::Known::
+           vocabularies.contains(sourcemeta::blaze::Vocabularies::Known::
+                                     JSON_Schema_2020_12_Core),
+           vocabularies.contains(sourcemeta::blaze::Vocabularies::Known::
                                      JSON_Schema_2019_09_Core)});
     }
   }
@@ -200,10 +200,10 @@ auto for_editor(sourcemeta::core::JSON &schema,
     if (change.add_schema_declaration) {
       subschema.assign_assume_new(
           "$schema", sourcemeta::core::JSON{sourcemeta::core::JSON::String{
-                         sourcemeta::core::to_string(change.base_dialect)}});
+                         sourcemeta::blaze::to_string(change.base_dialect)}});
     }
 
-    sourcemeta::core::anonymize(subschema, change.base_dialect);
+    sourcemeta::blaze::anonymize(subschema, change.base_dialect);
 
     if (change.erase_2020_12_keywords) {
       subschema.erase_keys({"$vocabulary", "$anchor", "$dynamicAnchor"});

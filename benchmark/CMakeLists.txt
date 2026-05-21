@@ -1,5 +1,9 @@
 set(BENCHMARK_SOURCES)
 
+if(BLAZE_FOUNDATION)
+  list(APPEND BENCHMARK_SOURCES foundation.cc)
+endif()
+
 if(BLAZE_COMPILER AND BLAZE_EVALUATOR AND BLAZE_OUTPUT)
   list(APPEND BENCHMARK_SOURCES
     e2e/runner.cc
@@ -27,7 +31,7 @@ if(BENCHMARK_SOURCES)
   target_link_libraries(sourcemeta_blaze_benchmark
     PRIVATE sourcemeta::core::jsonl)
   target_link_libraries(sourcemeta_blaze_benchmark
-    PRIVATE sourcemeta::core::jsonschema)
+    PRIVATE sourcemeta::blaze::foundation)
 
   if(BLAZE_COMPILER)
     target_link_libraries(sourcemeta_blaze_benchmark
@@ -44,6 +48,10 @@ if(BENCHMARK_SOURCES)
   if(BLAZE_ALTERSCHEMA)
     target_link_libraries(sourcemeta_blaze_benchmark
       PRIVATE sourcemeta::blaze::alterschema)
+  endif()
+  if(BLAZE_FOUNDATION)
+    target_link_libraries(sourcemeta_blaze_benchmark
+      PRIVATE sourcemeta::blaze::foundation)
   endif()
 
   add_custom_target(benchmark_all

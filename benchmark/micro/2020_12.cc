@@ -3,8 +3,8 @@
 #include <cassert>    // assert
 #include <filesystem> // std::filesystem::path
 
+#include <sourcemeta/blaze/foundation.h>
 #include <sourcemeta/core/json.h>
-#include <sourcemeta/core/jsonschema.h>
 
 #include <sourcemeta/blaze/compiler.h>
 #include <sourcemeta/blaze/evaluator.h>
@@ -60,8 +60,8 @@ static void Micro_2020_12_Dynamic_Ref(benchmark::State &state) {
   ])JSON")};
 
   const auto schema_template{
-      sourcemeta::blaze::compile(schema, sourcemeta::core::schema_walker,
-                                 sourcemeta::core::schema_resolver,
+      sourcemeta::blaze::compile(schema, sourcemeta::blaze::schema_walker,
+                                 sourcemeta::blaze::schema_resolver,
                                  sourcemeta::blaze::default_schema_compiler)};
   sourcemeta::blaze::Evaluator evaluator;
   for (auto _ : state) {
@@ -87,8 +87,8 @@ static void Micro_2020_12_Dynamic_Ref_Single(benchmark::State &state) {
   const auto instance{sourcemeta::core::JSON{true}};
 
   const auto schema_template{
-      sourcemeta::blaze::compile(schema, sourcemeta::core::schema_walker,
-                                 sourcemeta::core::schema_resolver,
+      sourcemeta::blaze::compile(schema, sourcemeta::blaze::schema_walker,
+                                 sourcemeta::blaze::schema_resolver,
                                  sourcemeta::blaze::default_schema_compiler)};
   sourcemeta::blaze::Evaluator evaluator;
   for (auto _ : state) {
@@ -157,8 +157,8 @@ static void Micro_2020_12_Simple_Output_Mask(benchmark::State &state) {
   })JSON")};
 
   const auto schema_template{
-      sourcemeta::blaze::compile(schema, sourcemeta::core::schema_walker,
-                                 sourcemeta::core::schema_resolver,
+      sourcemeta::blaze::compile(schema, sourcemeta::blaze::schema_walker,
+                                 sourcemeta::blaze::schema_resolver,
                                  sourcemeta::blaze::default_schema_compiler)};
   sourcemeta::blaze::Evaluator evaluator;
   for (auto _ : state) {
@@ -201,8 +201,8 @@ static void Micro_2020_12_Simple_Output_Annotations(benchmark::State &state) {
   ])JSON")};
 
   const auto schema_template{
-      sourcemeta::blaze::compile(schema, sourcemeta::core::schema_walker,
-                                 sourcemeta::core::schema_resolver,
+      sourcemeta::blaze::compile(schema, sourcemeta::blaze::schema_walker,
+                                 sourcemeta::blaze::schema_resolver,
                                  sourcemeta::blaze::default_schema_compiler)};
   sourcemeta::blaze::Evaluator evaluator;
   for (auto _ : state) {
@@ -272,8 +272,8 @@ Micro_2020_12_Compile_NonCircular_Shared_Refs(benchmark::State &state) {
 
   for (auto _ : state) {
     auto schema_template{
-        sourcemeta::blaze::compile(schema, sourcemeta::core::schema_walker,
-                                   sourcemeta::core::schema_resolver,
+        sourcemeta::blaze::compile(schema, sourcemeta::blaze::schema_walker,
+                                   sourcemeta::blaze::schema_resolver,
                                    sourcemeta::blaze::default_schema_compiler)};
     benchmark::DoNotOptimize(schema_template);
   }
@@ -287,8 +287,8 @@ static void Micro_2020_12_Exhaustive_Deep_Numeric(benchmark::State &state) {
       std::filesystem::path{CURRENT_DIRECTORY} / "micro" / "instances" /
       "2020_12_deep_numeric.json")};
   const auto schema_template{
-      sourcemeta::blaze::compile(schema, sourcemeta::core::schema_walker,
-                                 sourcemeta::core::schema_resolver,
+      sourcemeta::blaze::compile(schema, sourcemeta::blaze::schema_walker,
+                                 sourcemeta::blaze::schema_resolver,
                                  sourcemeta::blaze::default_schema_compiler,
                                  sourcemeta::blaze::Mode::Exhaustive)};
   sourcemeta::blaze::Evaluator evaluator;
@@ -308,8 +308,8 @@ Micro_2020_12_Exhaustive_Deep_Numeric_SimpleOutput(benchmark::State &state) {
       std::filesystem::path{CURRENT_DIRECTORY} / "micro" / "instances" /
       "2020_12_deep_numeric.json")};
   const auto schema_template{
-      sourcemeta::blaze::compile(schema, sourcemeta::core::schema_walker,
-                                 sourcemeta::core::schema_resolver,
+      sourcemeta::blaze::compile(schema, sourcemeta::blaze::schema_walker,
+                                 sourcemeta::blaze::schema_resolver,
                                  sourcemeta::blaze::default_schema_compiler,
                                  sourcemeta::blaze::Mode::Exhaustive)};
   sourcemeta::blaze::Evaluator evaluator;
@@ -331,15 +331,15 @@ Micro_2020_12_Exhaustive_Deep_Numeric_TraceOutput(benchmark::State &state) {
       std::filesystem::path{CURRENT_DIRECTORY} / "micro" / "instances" /
       "2020_12_deep_numeric.json")};
   const auto schema_template{
-      sourcemeta::blaze::compile(schema, sourcemeta::core::schema_walker,
-                                 sourcemeta::core::schema_resolver,
+      sourcemeta::blaze::compile(schema, sourcemeta::blaze::schema_walker,
+                                 sourcemeta::blaze::schema_resolver,
                                  sourcemeta::blaze::default_schema_compiler,
                                  sourcemeta::blaze::Mode::Exhaustive)};
   sourcemeta::blaze::Evaluator evaluator;
   for (auto _ : state) {
     std::size_t count{0};
     sourcemeta::blaze::TraceOutput output{
-        sourcemeta::core::schema_walker, sourcemeta::core::schema_resolver,
+        sourcemeta::blaze::schema_walker, sourcemeta::blaze::schema_resolver,
         [&count](const sourcemeta::blaze::TraceOutput::Entry &) { count++; }};
     auto result{
         evaluator.validate(schema_template, instance, std::ref(output))};
@@ -358,8 +358,8 @@ Micro_2020_12_Exhaustive_Deep_Numeric_Fail(benchmark::State &state) {
       std::filesystem::path{CURRENT_DIRECTORY} / "micro" / "instances" /
       "2020_12_deep_numeric_invalid.json")};
   const auto schema_template{
-      sourcemeta::blaze::compile(schema, sourcemeta::core::schema_walker,
-                                 sourcemeta::core::schema_resolver,
+      sourcemeta::blaze::compile(schema, sourcemeta::blaze::schema_walker,
+                                 sourcemeta::blaze::schema_resolver,
                                  sourcemeta::blaze::default_schema_compiler,
                                  sourcemeta::blaze::Mode::Exhaustive)};
   sourcemeta::blaze::Evaluator evaluator;
@@ -379,8 +379,8 @@ static void Micro_2020_12_Exhaustive_Deep_Numeric_Fail_SimpleOutput(
       std::filesystem::path{CURRENT_DIRECTORY} / "micro" / "instances" /
       "2020_12_deep_numeric_invalid.json")};
   const auto schema_template{
-      sourcemeta::blaze::compile(schema, sourcemeta::core::schema_walker,
-                                 sourcemeta::core::schema_resolver,
+      sourcemeta::blaze::compile(schema, sourcemeta::blaze::schema_walker,
+                                 sourcemeta::blaze::schema_resolver,
                                  sourcemeta::blaze::default_schema_compiler,
                                  sourcemeta::blaze::Mode::Exhaustive)};
   sourcemeta::blaze::Evaluator evaluator;

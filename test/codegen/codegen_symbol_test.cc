@@ -2,7 +2,7 @@
 
 #include <sourcemeta/blaze/codegen.h>
 
-#include <sourcemeta/core/jsonschema.h>
+#include <sourcemeta/blaze/foundation.h>
 
 TEST(Codegen_symbol, nested_additional_properties_items) {
   const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
@@ -21,10 +21,10 @@ TEST(Codegen_symbol, nested_additional_properties_items) {
     }
   })JSON")};
 
-  sourcemeta::core::SchemaFrame frame{
-      sourcemeta::core::SchemaFrame::Mode::References};
-  frame.analyse(schema, sourcemeta::core::schema_walker,
-                sourcemeta::core::schema_resolver,
+  sourcemeta::blaze::SchemaFrame frame{
+      sourcemeta::blaze::SchemaFrame::Mode::References};
+  frame.analyse(schema, sourcemeta::blaze::schema_walker,
+                sourcemeta::blaze::schema_resolver,
                 "https://json-schema.org/draft/2020-12/schema");
 
   const auto location{
@@ -54,10 +54,10 @@ TEST(Codegen_symbol, inside_defs) {
     }
   })JSON")};
 
-  sourcemeta::core::SchemaFrame frame{
-      sourcemeta::core::SchemaFrame::Mode::References};
-  frame.analyse(schema, sourcemeta::core::schema_walker,
-                sourcemeta::core::schema_resolver,
+  sourcemeta::blaze::SchemaFrame frame{
+      sourcemeta::blaze::SchemaFrame::Mode::References};
+  frame.analyse(schema, sourcemeta::blaze::schema_walker,
+                sourcemeta::blaze::schema_resolver,
                 "https://json-schema.org/draft/2020-12/schema");
 
   const auto location{frame.traverse("#/$defs/MyType/properties/name")};
@@ -81,10 +81,10 @@ TEST(Codegen_symbol, property_named_properties) {
     }
   })JSON")};
 
-  sourcemeta::core::SchemaFrame frame{
-      sourcemeta::core::SchemaFrame::Mode::References};
-  frame.analyse(schema, sourcemeta::core::schema_walker,
-                sourcemeta::core::schema_resolver,
+  sourcemeta::blaze::SchemaFrame frame{
+      sourcemeta::blaze::SchemaFrame::Mode::References};
+  frame.analyse(schema, sourcemeta::blaze::schema_walker,
+                sourcemeta::blaze::schema_resolver,
                 "https://json-schema.org/draft/2020-12/schema");
 
   const auto location{frame.traverse("#/properties/properties")};
@@ -105,10 +105,10 @@ TEST(Codegen_symbol, anyof_child) {
     ]
   })JSON")};
 
-  sourcemeta::core::SchemaFrame frame{
-      sourcemeta::core::SchemaFrame::Mode::References};
-  frame.analyse(schema, sourcemeta::core::schema_walker,
-                sourcemeta::core::schema_resolver,
+  sourcemeta::blaze::SchemaFrame frame{
+      sourcemeta::blaze::SchemaFrame::Mode::References};
+  frame.analyse(schema, sourcemeta::blaze::schema_walker,
+                sourcemeta::blaze::schema_resolver,
                 "https://json-schema.org/draft/2020-12/schema");
 
   const auto location{frame.traverse("#/anyOf/1")};

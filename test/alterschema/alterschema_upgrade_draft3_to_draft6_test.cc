@@ -2,8 +2,8 @@
 
 #include <sourcemeta/blaze/alterschema.h>
 
+#include <sourcemeta/blaze/foundation.h>
 #include <sourcemeta/core/json.h>
-#include <sourcemeta/core/jsonschema.h>
 
 #include "alterschema_test_utils.h"
 

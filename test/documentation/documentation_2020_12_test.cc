@@ -4,8 +4,8 @@
 #include <sourcemeta/blaze/documentation.h>
 #include <sourcemeta/blaze/evaluator.h>
 
+#include <sourcemeta/blaze/foundation.h>
 #include <sourcemeta/core/json.h>
-#include <sourcemeta/core/jsonschema.h>
 
 #include <filesystem> // std::filesystem::path
 #include <memory>     // std::unique_ptr
@@ -18,8 +18,9 @@ protected:
     const auto meta_schema = sourcemeta::core::read_json(
         std::filesystem::path{SCHEMAS_PATH} / "documentation.json");
     compiled_schema_ = std::make_unique<sourcemeta::blaze::Template>(
-        sourcemeta::blaze::compile(meta_schema, sourcemeta::core::schema_walker,
-                                   sourcemeta::core::schema_resolver,
+        sourcemeta::blaze::compile(meta_schema,
+                                   sourcemeta::blaze::schema_walker,
+                                   sourcemeta::blaze::schema_resolver,
                                    sourcemeta::blaze::default_schema_compiler));
   }
 
@@ -46,8 +47,8 @@ TEST_F(Documentation202012Test, type_string) {
     ]
   })JSON")};
 
-  EXPECT_DOCUMENTATION(schema, sourcemeta::core::schema_walker,
-                       sourcemeta::core::schema_resolver, *compiled_schema_,
+  EXPECT_DOCUMENTATION(schema, sourcemeta::blaze::schema_walker,
+                       sourcemeta::blaze::schema_resolver, *compiled_schema_,
                        expected);
 }
 
@@ -90,8 +91,8 @@ TEST_F(Documentation202012Test, required_covered_by_properties_no_constraint) {
     ]
   })JSON")};
 
-  EXPECT_DOCUMENTATION(schema, sourcemeta::core::schema_walker,
-                       sourcemeta::core::schema_resolver, *compiled_schema_,
+  EXPECT_DOCUMENTATION(schema, sourcemeta::blaze::schema_walker,
+                       sourcemeta::blaze::schema_resolver, *compiled_schema_,
                        expected);
 }
 
@@ -183,8 +184,8 @@ TEST_F(Documentation202012Test, object_required_with_annotations) {
     }
   )JSON")};
 
-  EXPECT_DOCUMENTATION(schema, sourcemeta::core::schema_walker,
-                       sourcemeta::core::schema_resolver, *compiled_schema_,
+  EXPECT_DOCUMENTATION(schema, sourcemeta::blaze::schema_walker,
+                       sourcemeta::blaze::schema_resolver, *compiled_schema_,
                        expected);
 }
 
@@ -215,8 +216,8 @@ TEST_F(Documentation202012Test, object_additional_properties_false) {
     ]
   })JSON")};
 
-  EXPECT_DOCUMENTATION(schema, sourcemeta::core::schema_walker,
-                       sourcemeta::core::schema_resolver, *compiled_schema_,
+  EXPECT_DOCUMENTATION(schema, sourcemeta::blaze::schema_walker,
+                       sourcemeta::blaze::schema_resolver, *compiled_schema_,
                        expected);
 }
 
@@ -252,8 +253,8 @@ TEST_F(Documentation202012Test, object_additional_properties_true) {
     ]
   })JSON")};
 
-  EXPECT_DOCUMENTATION(schema, sourcemeta::core::schema_walker,
-                       sourcemeta::core::schema_resolver, *compiled_schema_,
+  EXPECT_DOCUMENTATION(schema, sourcemeta::blaze::schema_walker,
+                       sourcemeta::blaze::schema_resolver, *compiled_schema_,
                        expected);
 }
 
@@ -288,8 +289,8 @@ TEST_F(Documentation202012Test, object_open_implicit) {
     ]
   })JSON")};
 
-  EXPECT_DOCUMENTATION(schema, sourcemeta::core::schema_walker,
-                       sourcemeta::core::schema_resolver, *compiled_schema_,
+  EXPECT_DOCUMENTATION(schema, sourcemeta::blaze::schema_walker,
+                       sourcemeta::blaze::schema_resolver, *compiled_schema_,
                        expected);
 }
 
@@ -320,8 +321,8 @@ TEST_F(Documentation202012Test, object_closed_unevaluated_false) {
     ]
   })JSON")};
 
-  EXPECT_DOCUMENTATION(schema, sourcemeta::core::schema_walker,
-                       sourcemeta::core::schema_resolver, *compiled_schema_,
+  EXPECT_DOCUMENTATION(schema, sourcemeta::blaze::schema_walker,
+                       sourcemeta::blaze::schema_resolver, *compiled_schema_,
                        expected);
 }
 
@@ -352,8 +353,8 @@ TEST_F(Documentation202012Test, object_closed_additional_false) {
     ]
   })JSON")};
 
-  EXPECT_DOCUMENTATION(schema, sourcemeta::core::schema_walker,
-                       sourcemeta::core::schema_resolver, *compiled_schema_,
+  EXPECT_DOCUMENTATION(schema, sourcemeta::blaze::schema_walker,
+                       sourcemeta::blaze::schema_resolver, *compiled_schema_,
                        expected);
 }
 
@@ -389,8 +390,8 @@ TEST_F(Documentation202012Test, object_additional_properties_typed) {
     ]
   })JSON")};
 
-  EXPECT_DOCUMENTATION(schema, sourcemeta::core::schema_walker,
-                       sourcemeta::core::schema_resolver, *compiled_schema_,
+  EXPECT_DOCUMENTATION(schema, sourcemeta::blaze::schema_walker,
+                       sourcemeta::blaze::schema_resolver, *compiled_schema_,
                        expected);
 }
 
@@ -438,8 +439,8 @@ TEST_F(Documentation202012Test, array_items_string) {
     }
   )JSON")};
 
-  EXPECT_DOCUMENTATION(schema, sourcemeta::core::schema_walker,
-                       sourcemeta::core::schema_resolver, *compiled_schema_,
+  EXPECT_DOCUMENTATION(schema, sourcemeta::blaze::schema_walker,
+                       sourcemeta::blaze::schema_resolver, *compiled_schema_,
                        expected);
 }
 
@@ -557,8 +558,8 @@ TEST_F(Documentation202012Test, nested_object_with_default) {
     }
   )JSON")};
 
-  EXPECT_DOCUMENTATION(schema, sourcemeta::core::schema_walker,
-                       sourcemeta::core::schema_resolver, *compiled_schema_,
+  EXPECT_DOCUMENTATION(schema, sourcemeta::blaze::schema_walker,
+                       sourcemeta::blaze::schema_resolver, *compiled_schema_,
                        expected);
 }
 
@@ -581,8 +582,8 @@ TEST_F(Documentation202012Test, string_min_length) {
     ]
   })JSON")};
 
-  EXPECT_DOCUMENTATION(schema, sourcemeta::core::schema_walker,
-                       sourcemeta::core::schema_resolver, *compiled_schema_,
+  EXPECT_DOCUMENTATION(schema, sourcemeta::blaze::schema_walker,
+                       sourcemeta::blaze::schema_resolver, *compiled_schema_,
                        expected);
 }
 
@@ -605,8 +606,8 @@ TEST_F(Documentation202012Test, string_max_length) {
     ]
   })JSON")};
 
-  EXPECT_DOCUMENTATION(schema, sourcemeta::core::schema_walker,
-                       sourcemeta::core::schema_resolver, *compiled_schema_,
+  EXPECT_DOCUMENTATION(schema, sourcemeta::blaze::schema_walker,
+                       sourcemeta::blaze::schema_resolver, *compiled_schema_,
                        expected);
 }
 
@@ -630,8 +631,8 @@ TEST_F(Documentation202012Test, string_min_max_length) {
     ]
   })JSON")};
 
-  EXPECT_DOCUMENTATION(schema, sourcemeta::core::schema_walker,
-                       sourcemeta::core::schema_resolver, *compiled_schema_,
+  EXPECT_DOCUMENTATION(schema, sourcemeta::blaze::schema_walker,
+                       sourcemeta::blaze::schema_resolver, *compiled_schema_,
                        expected);
 }
 
@@ -655,8 +656,8 @@ TEST_F(Documentation202012Test, string_exact_length) {
     ]
   })JSON")};
 
-  EXPECT_DOCUMENTATION(schema, sourcemeta::core::schema_walker,
-                       sourcemeta::core::schema_resolver, *compiled_schema_,
+  EXPECT_DOCUMENTATION(schema, sourcemeta::blaze::schema_walker,
+                       sourcemeta::blaze::schema_resolver, *compiled_schema_,
                        expected);
 }
 
@@ -680,8 +681,8 @@ TEST_F(Documentation202012Test, number_minimum_maximum) {
     ]
   })JSON")};
 
-  EXPECT_DOCUMENTATION(schema, sourcemeta::core::schema_walker,
-                       sourcemeta::core::schema_resolver, *compiled_schema_,
+  EXPECT_DOCUMENTATION(schema, sourcemeta::blaze::schema_walker,
+                       sourcemeta::blaze::schema_resolver, *compiled_schema_,
                        expected);
 }
 
@@ -705,8 +706,8 @@ TEST_F(Documentation202012Test, integer_exclusive_bounds) {
     ]
   })JSON")};
 
-  EXPECT_DOCUMENTATION(schema, sourcemeta::core::schema_walker,
-                       sourcemeta::core::schema_resolver, *compiled_schema_,
+  EXPECT_DOCUMENTATION(schema, sourcemeta::blaze::schema_walker,
+                       sourcemeta::blaze::schema_resolver, *compiled_schema_,
                        expected);
 }
 
@@ -760,8 +761,8 @@ TEST_F(Documentation202012Test, array_min_max_items) {
     }
   )JSON")};
 
-  EXPECT_DOCUMENTATION(schema, sourcemeta::core::schema_walker,
-                       sourcemeta::core::schema_resolver, *compiled_schema_,
+  EXPECT_DOCUMENTATION(schema, sourcemeta::blaze::schema_walker,
+                       sourcemeta::blaze::schema_resolver, *compiled_schema_,
                        expected);
 }
 
@@ -813,8 +814,8 @@ TEST_F(Documentation202012Test, array_unique_items) {
     }
   )JSON")};
 
-  EXPECT_DOCUMENTATION(schema, sourcemeta::core::schema_walker,
-                       sourcemeta::core::schema_resolver, *compiled_schema_,
+  EXPECT_DOCUMENTATION(schema, sourcemeta::blaze::schema_walker,
+                       sourcemeta::blaze::schema_resolver, *compiled_schema_,
                        expected);
 }
 
@@ -863,8 +864,8 @@ TEST_F(Documentation202012Test, array_unique_items_false) {
     }
   )JSON")};
 
-  EXPECT_DOCUMENTATION(schema, sourcemeta::core::schema_walker,
-                       sourcemeta::core::schema_resolver, *compiled_schema_,
+  EXPECT_DOCUMENTATION(schema, sourcemeta::blaze::schema_walker,
+                       sourcemeta::blaze::schema_resolver, *compiled_schema_,
                        expected);
 }
 
@@ -898,8 +899,8 @@ TEST_F(Documentation202012Test, array_items_with_constraints) {
     ]
   })JSON")};
 
-  EXPECT_DOCUMENTATION(schema, sourcemeta::core::schema_walker,
-                       sourcemeta::core::schema_resolver, *compiled_schema_,
+  EXPECT_DOCUMENTATION(schema, sourcemeta::blaze::schema_walker,
+                       sourcemeta::blaze::schema_resolver, *compiled_schema_,
                        expected);
 }
 
@@ -947,8 +948,8 @@ TEST_F(Documentation202012Test, object_min_max_properties) {
     }
   )JSON")};
 
-  EXPECT_DOCUMENTATION(schema, sourcemeta::core::schema_walker,
-                       sourcemeta::core::schema_resolver, *compiled_schema_,
+  EXPECT_DOCUMENTATION(schema, sourcemeta::blaze::schema_walker,
+                       sourcemeta::blaze::schema_resolver, *compiled_schema_,
                        expected);
 }
 
@@ -971,8 +972,8 @@ TEST_F(Documentation202012Test, string_pattern) {
     ]
   })JSON")};
 
-  EXPECT_DOCUMENTATION(schema, sourcemeta::core::schema_walker,
-                       sourcemeta::core::schema_resolver, *compiled_schema_,
+  EXPECT_DOCUMENTATION(schema, sourcemeta::blaze::schema_walker,
+                       sourcemeta::blaze::schema_resolver, *compiled_schema_,
                        expected);
 }
 
@@ -995,8 +996,8 @@ TEST_F(Documentation202012Test, number_multiple_of) {
     ]
   })JSON")};
 
-  EXPECT_DOCUMENTATION(schema, sourcemeta::core::schema_walker,
-                       sourcemeta::core::schema_resolver, *compiled_schema_,
+  EXPECT_DOCUMENTATION(schema, sourcemeta::blaze::schema_walker,
+                       sourcemeta::blaze::schema_resolver, *compiled_schema_,
                        expected);
 }
 
@@ -1020,8 +1021,8 @@ TEST_F(Documentation202012Test, enum_single_string) {
     ]
   })JSON")};
 
-  EXPECT_DOCUMENTATION(schema, sourcemeta::core::schema_walker,
-                       sourcemeta::core::schema_resolver, *compiled_schema_,
+  EXPECT_DOCUMENTATION(schema, sourcemeta::blaze::schema_walker,
+                       sourcemeta::blaze::schema_resolver, *compiled_schema_,
                        expected);
 }
 
@@ -1045,8 +1046,8 @@ TEST_F(Documentation202012Test, enum_multiple_strings) {
     ]
   })JSON")};
 
-  EXPECT_DOCUMENTATION(schema, sourcemeta::core::schema_walker,
-                       sourcemeta::core::schema_resolver, *compiled_schema_,
+  EXPECT_DOCUMENTATION(schema, sourcemeta::blaze::schema_walker,
+                       sourcemeta::blaze::schema_resolver, *compiled_schema_,
                        expected);
 }
 
@@ -1078,8 +1079,8 @@ TEST_F(Documentation202012Test, enum_mixed_types) {
     ]
   })JSON")};
 
-  EXPECT_DOCUMENTATION(schema, sourcemeta::core::schema_walker,
-                       sourcemeta::core::schema_resolver, *compiled_schema_,
+  EXPECT_DOCUMENTATION(schema, sourcemeta::blaze::schema_walker,
+                       sourcemeta::blaze::schema_resolver, *compiled_schema_,
                        expected);
 }
 
@@ -1114,8 +1115,8 @@ TEST_F(Documentation202012Test, enum_exactly_ten) {
     ]
   })JSON")};
 
-  EXPECT_DOCUMENTATION(schema, sourcemeta::core::schema_walker,
-                       sourcemeta::core::schema_resolver, *compiled_schema_,
+  EXPECT_DOCUMENTATION(schema, sourcemeta::blaze::schema_walker,
+                       sourcemeta::blaze::schema_resolver, *compiled_schema_,
                        expected);
 }
 
@@ -1140,8 +1141,8 @@ TEST_F(Documentation202012Test, enum_overflow) {
     ]
   })JSON")};
 
-  EXPECT_DOCUMENTATION(schema, sourcemeta::core::schema_walker,
-                       sourcemeta::core::schema_resolver, *compiled_schema_,
+  EXPECT_DOCUMENTATION(schema, sourcemeta::blaze::schema_walker,
+                       sourcemeta::blaze::schema_resolver, *compiled_schema_,
                        expected);
 }
 
@@ -1195,8 +1196,8 @@ TEST_F(Documentation202012Test, contains_flat_inline) {
     }
   )JSON")};
 
-  EXPECT_DOCUMENTATION(schema, sourcemeta::core::schema_walker,
-                       sourcemeta::core::schema_resolver, *compiled_schema_,
+  EXPECT_DOCUMENTATION(schema, sourcemeta::blaze::schema_walker,
+                       sourcemeta::blaze::schema_resolver, *compiled_schema_,
                        expected);
 }
 
@@ -1251,8 +1252,8 @@ TEST_F(Documentation202012Test, contains_with_min_contains) {
     }
   )JSON")};
 
-  EXPECT_DOCUMENTATION(schema, sourcemeta::core::schema_walker,
-                       sourcemeta::core::schema_resolver, *compiled_schema_,
+  EXPECT_DOCUMENTATION(schema, sourcemeta::blaze::schema_walker,
+                       sourcemeta::blaze::schema_resolver, *compiled_schema_,
                        expected);
 }
 
@@ -1308,8 +1309,8 @@ TEST_F(Documentation202012Test, contains_with_max_contains) {
     }
   )JSON")};
 
-  EXPECT_DOCUMENTATION(schema, sourcemeta::core::schema_walker,
-                       sourcemeta::core::schema_resolver, *compiled_schema_,
+  EXPECT_DOCUMENTATION(schema, sourcemeta::blaze::schema_walker,
+                       sourcemeta::blaze::schema_resolver, *compiled_schema_,
                        expected);
 }
 
@@ -1366,8 +1367,8 @@ TEST_F(Documentation202012Test, contains_with_min_and_max_contains) {
     }
   )JSON")};
 
-  EXPECT_DOCUMENTATION(schema, sourcemeta::core::schema_walker,
-                       sourcemeta::core::schema_resolver, *compiled_schema_,
+  EXPECT_DOCUMENTATION(schema, sourcemeta::blaze::schema_walker,
+                       sourcemeta::blaze::schema_resolver, *compiled_schema_,
                        expected);
 }
 
@@ -1422,8 +1423,8 @@ TEST_F(Documentation202012Test, contains_min_contains_zero) {
     }
   )JSON")};
 
-  EXPECT_DOCUMENTATION(schema, sourcemeta::core::schema_walker,
-                       sourcemeta::core::schema_resolver, *compiled_schema_,
+  EXPECT_DOCUMENTATION(schema, sourcemeta::blaze::schema_walker,
+                       sourcemeta::blaze::schema_resolver, *compiled_schema_,
                        expected);
 }
 
@@ -1455,8 +1456,8 @@ TEST_F(Documentation202012Test, string_all_annotations) {
     ]
   })JSON")};
 
-  EXPECT_DOCUMENTATION(schema, sourcemeta::core::schema_walker,
-                       sourcemeta::core::schema_resolver, *compiled_schema_,
+  EXPECT_DOCUMENTATION(schema, sourcemeta::blaze::schema_walker,
+                       sourcemeta::blaze::schema_resolver, *compiled_schema_,
                        expected);
 }
 
@@ -1521,8 +1522,8 @@ TEST_F(Documentation202012Test, property_write_only) {
     }
   )JSON")};
 
-  EXPECT_DOCUMENTATION(schema, sourcemeta::core::schema_walker,
-                       sourcemeta::core::schema_resolver, *compiled_schema_,
+  EXPECT_DOCUMENTATION(schema, sourcemeta::blaze::schema_walker,
+                       sourcemeta::blaze::schema_resolver, *compiled_schema_,
                        expected);
 }
 
@@ -1621,8 +1622,8 @@ TEST_F(Documentation202012Test, nested_property_annotations) {
     }
   )JSON")};
 
-  EXPECT_DOCUMENTATION(schema, sourcemeta::core::schema_walker,
-                       sourcemeta::core::schema_resolver, *compiled_schema_,
+  EXPECT_DOCUMENTATION(schema, sourcemeta::blaze::schema_walker,
+                       sourcemeta::blaze::schema_resolver, *compiled_schema_,
                        expected);
 }
 
@@ -1649,8 +1650,8 @@ TEST_F(Documentation202012Test, content_encoding_and_media_type) {
     ]
   })JSON")};
 
-  EXPECT_DOCUMENTATION(schema, sourcemeta::core::schema_walker,
-                       sourcemeta::core::schema_resolver, *compiled_schema_,
+  EXPECT_DOCUMENTATION(schema, sourcemeta::blaze::schema_walker,
+                       sourcemeta::blaze::schema_resolver, *compiled_schema_,
                        expected);
 }
 
@@ -1682,8 +1683,8 @@ TEST_F(Documentation202012Test, content_schema_flat) {
     ]
   })JSON")};
 
-  EXPECT_DOCUMENTATION(schema, sourcemeta::core::schema_walker,
-                       sourcemeta::core::schema_resolver, *compiled_schema_,
+  EXPECT_DOCUMENTATION(schema, sourcemeta::blaze::schema_walker,
+                       sourcemeta::blaze::schema_resolver, *compiled_schema_,
                        expected);
 }
 
@@ -1734,8 +1735,8 @@ TEST_F(Documentation202012Test, property_names_flat) {
     }
   )JSON")};
 
-  EXPECT_DOCUMENTATION(schema, sourcemeta::core::schema_walker,
-                       sourcemeta::core::schema_resolver, *compiled_schema_,
+  EXPECT_DOCUMENTATION(schema, sourcemeta::blaze::schema_walker,
+                       sourcemeta::blaze::schema_resolver, *compiled_schema_,
                        expected);
 }
 
@@ -1784,8 +1785,8 @@ TEST_F(Documentation202012Test, property_names_flat_pattern) {
     }
   )JSON")};
 
-  EXPECT_DOCUMENTATION(schema, sourcemeta::core::schema_walker,
-                       sourcemeta::core::schema_resolver, *compiled_schema_,
+  EXPECT_DOCUMENTATION(schema, sourcemeta::blaze::schema_walker,
+                       sourcemeta::blaze::schema_resolver, *compiled_schema_,
                        expected);
 }
 
@@ -1843,8 +1844,8 @@ TEST_F(Documentation202012Test, pattern_properties_only) {
     }
   )JSON")};
 
-  EXPECT_DOCUMENTATION(schema, sourcemeta::core::schema_walker,
-                       sourcemeta::core::schema_resolver, *compiled_schema_,
+  EXPECT_DOCUMENTATION(schema, sourcemeta::blaze::schema_walker,
+                       sourcemeta::blaze::schema_resolver, *compiled_schema_,
                        expected);
 }
 
@@ -1950,8 +1951,8 @@ TEST_F(Documentation202012Test, property_with_anyof) {
     }
   )JSON")};
 
-  EXPECT_DOCUMENTATION(schema, sourcemeta::core::schema_walker,
-                       sourcemeta::core::schema_resolver, *compiled_schema_,
+  EXPECT_DOCUMENTATION(schema, sourcemeta::blaze::schema_walker,
+                       sourcemeta::blaze::schema_resolver, *compiled_schema_,
                        expected);
 }
 
@@ -2031,8 +2032,8 @@ TEST_F(Documentation202012Test, additional_properties_object_deep) {
     }
   )JSON")};
 
-  EXPECT_DOCUMENTATION(schema, sourcemeta::core::schema_walker,
-                       sourcemeta::core::schema_resolver, *compiled_schema_,
+  EXPECT_DOCUMENTATION(schema, sourcemeta::blaze::schema_walker,
+                       sourcemeta::blaze::schema_resolver, *compiled_schema_,
                        expected);
 }
 
@@ -2142,8 +2143,8 @@ TEST_F(Documentation202012Test, additional_properties_array_object_deep) {
     }
   )JSON")};
 
-  EXPECT_DOCUMENTATION(schema, sourcemeta::core::schema_walker,
-                       sourcemeta::core::schema_resolver, *compiled_schema_,
+  EXPECT_DOCUMENTATION(schema, sourcemeta::blaze::schema_walker,
+                       sourcemeta::blaze::schema_resolver, *compiled_schema_,
                        expected);
 }
 
@@ -2241,8 +2242,8 @@ TEST_F(Documentation202012Test, unevaluated_properties_object_deep) {
     }
   )JSON")};
 
-  EXPECT_DOCUMENTATION(schema, sourcemeta::core::schema_walker,
-                       sourcemeta::core::schema_resolver, *compiled_schema_,
+  EXPECT_DOCUMENTATION(schema, sourcemeta::blaze::schema_walker,
+                       sourcemeta::blaze::schema_resolver, *compiled_schema_,
                        expected);
 }
 
@@ -2364,8 +2365,8 @@ TEST_F(Documentation202012Test, property_additional_properties_object_deep) {
     }
   )JSON")};
 
-  EXPECT_DOCUMENTATION(schema, sourcemeta::core::schema_walker,
-                       sourcemeta::core::schema_resolver, *compiled_schema_,
+  EXPECT_DOCUMENTATION(schema, sourcemeta::blaze::schema_walker,
+                       sourcemeta::blaze::schema_resolver, *compiled_schema_,
                        expected);
 }
 
@@ -2471,8 +2472,8 @@ TEST_F(Documentation202012Test, additional_properties_with_anyof) {
     }
   )JSON")};
 
-  EXPECT_DOCUMENTATION(schema, sourcemeta::core::schema_walker,
-                       sourcemeta::core::schema_resolver, *compiled_schema_,
+  EXPECT_DOCUMENTATION(schema, sourcemeta::blaze::schema_walker,
+                       sourcemeta::blaze::schema_resolver, *compiled_schema_,
                        expected);
 }
 
@@ -2563,8 +2564,8 @@ TEST_F(Documentation202012Test, items_with_anyof) {
     }
   )JSON")};
 
-  EXPECT_DOCUMENTATION(schema, sourcemeta::core::schema_walker,
-                       sourcemeta::core::schema_resolver, *compiled_schema_,
+  EXPECT_DOCUMENTATION(schema, sourcemeta::blaze::schema_walker,
+                       sourcemeta::blaze::schema_resolver, *compiled_schema_,
                        expected);
 }
 
@@ -2647,8 +2648,8 @@ TEST_F(Documentation202012Test, property_with_not) {
     }
   )JSON")};
 
-  EXPECT_DOCUMENTATION(schema, sourcemeta::core::schema_walker,
-                       sourcemeta::core::schema_resolver, *compiled_schema_,
+  EXPECT_DOCUMENTATION(schema, sourcemeta::blaze::schema_walker,
+                       sourcemeta::blaze::schema_resolver, *compiled_schema_,
                        expected);
 }
 
@@ -2748,8 +2749,8 @@ TEST_F(Documentation202012Test, pattern_property_with_oneof) {
     }
   )JSON")};
 
-  EXPECT_DOCUMENTATION(schema, sourcemeta::core::schema_walker,
-                       sourcemeta::core::schema_resolver, *compiled_schema_,
+  EXPECT_DOCUMENTATION(schema, sourcemeta::blaze::schema_walker,
+                       sourcemeta::blaze::schema_resolver, *compiled_schema_,
                        expected);
 }
 
@@ -2805,8 +2806,8 @@ TEST_F(Documentation202012Test, pattern_property_nested_object) {
     ]
   })JSON")};
 
-  EXPECT_DOCUMENTATION(schema, sourcemeta::core::schema_walker,
-                       sourcemeta::core::schema_resolver, *compiled_schema_,
+  EXPECT_DOCUMENTATION(schema, sourcemeta::blaze::schema_walker,
+                       sourcemeta::blaze::schema_resolver, *compiled_schema_,
                        expected);
 }
 
@@ -2881,8 +2882,8 @@ TEST_F(Documentation202012Test, pattern_properties_with_properties) {
     }
   )JSON")};
 
-  EXPECT_DOCUMENTATION(schema, sourcemeta::core::schema_walker,
-                       sourcemeta::core::schema_resolver, *compiled_schema_,
+  EXPECT_DOCUMENTATION(schema, sourcemeta::blaze::schema_walker,
+                       sourcemeta::blaze::schema_resolver, *compiled_schema_,
                        expected);
 }
 
@@ -2917,8 +2918,8 @@ TEST_F(Documentation202012Test, pattern_properties_with_additional) {
     ]
   })JSON")};
 
-  EXPECT_DOCUMENTATION(schema, sourcemeta::core::schema_walker,
-                       sourcemeta::core::schema_resolver, *compiled_schema_,
+  EXPECT_DOCUMENTATION(schema, sourcemeta::blaze::schema_walker,
+                       sourcemeta::blaze::schema_resolver, *compiled_schema_,
                        expected);
 }
 
@@ -2971,8 +2972,8 @@ TEST_F(Documentation202012Test,
     ]
   })JSON")};
 
-  EXPECT_DOCUMENTATION(schema, sourcemeta::core::schema_walker,
-                       sourcemeta::core::schema_resolver, *compiled_schema_,
+  EXPECT_DOCUMENTATION(schema, sourcemeta::blaze::schema_walker,
+                       sourcemeta::blaze::schema_resolver, *compiled_schema_,
                        expected);
 }
 
@@ -3011,8 +3012,8 @@ TEST_F(Documentation202012Test, pattern_properties_additional_false) {
     ]
   })JSON")};
 
-  EXPECT_DOCUMENTATION(schema, sourcemeta::core::schema_walker,
-                       sourcemeta::core::schema_resolver, *compiled_schema_,
+  EXPECT_DOCUMENTATION(schema, sourcemeta::blaze::schema_walker,
+                       sourcemeta::blaze::schema_resolver, *compiled_schema_,
                        expected);
 }
 
@@ -3071,8 +3072,8 @@ TEST_F(Documentation202012Test, property_name_with_slash) {
     }
   )JSON")};
 
-  EXPECT_DOCUMENTATION(schema, sourcemeta::core::schema_walker,
-                       sourcemeta::core::schema_resolver, *compiled_schema_,
+  EXPECT_DOCUMENTATION(schema, sourcemeta::blaze::schema_walker,
+                       sourcemeta::blaze::schema_resolver, *compiled_schema_,
                        expected);
 }
 
@@ -3131,8 +3132,8 @@ TEST_F(Documentation202012Test, property_name_with_tilde) {
     }
   )JSON")};
 
-  EXPECT_DOCUMENTATION(schema, sourcemeta::core::schema_walker,
-                       sourcemeta::core::schema_resolver, *compiled_schema_,
+  EXPECT_DOCUMENTATION(schema, sourcemeta::blaze::schema_walker,
+                       sourcemeta::blaze::schema_resolver, *compiled_schema_,
                        expected);
 }
 
@@ -3191,8 +3192,8 @@ TEST_F(Documentation202012Test, property_name_with_slash_and_tilde) {
     }
   )JSON")};
 
-  EXPECT_DOCUMENTATION(schema, sourcemeta::core::schema_walker,
-                       sourcemeta::core::schema_resolver, *compiled_schema_,
+  EXPECT_DOCUMENTATION(schema, sourcemeta::blaze::schema_walker,
+                       sourcemeta::blaze::schema_resolver, *compiled_schema_,
                        expected);
 }
 
@@ -3235,8 +3236,8 @@ TEST_F(Documentation202012Test, tuple_prefix_items) {
     ]
   })JSON")};
 
-  EXPECT_DOCUMENTATION(schema, sourcemeta::core::schema_walker,
-                       sourcemeta::core::schema_resolver, *compiled_schema_,
+  EXPECT_DOCUMENTATION(schema, sourcemeta::blaze::schema_walker,
+                       sourcemeta::blaze::schema_resolver, *compiled_schema_,
                        expected);
 }
 
@@ -3286,8 +3287,8 @@ TEST_F(Documentation202012Test, tuple_prefix_items_with_tail) {
     ]
   })JSON")};
 
-  EXPECT_DOCUMENTATION(schema, sourcemeta::core::schema_walker,
-                       sourcemeta::core::schema_resolver, *compiled_schema_,
+  EXPECT_DOCUMENTATION(schema, sourcemeta::blaze::schema_walker,
+                       sourcemeta::blaze::schema_resolver, *compiled_schema_,
                        expected);
 }
 
@@ -3415,8 +3416,8 @@ TEST_F(Documentation202012Test, tuple_prefix_items_complex) {
     }
   )JSON")};
 
-  EXPECT_DOCUMENTATION(schema, sourcemeta::core::schema_walker,
-                       sourcemeta::core::schema_resolver, *compiled_schema_,
+  EXPECT_DOCUMENTATION(schema, sourcemeta::blaze::schema_walker,
+                       sourcemeta::blaze::schema_resolver, *compiled_schema_,
                        expected);
 }
 
@@ -3469,8 +3470,8 @@ TEST_F(Documentation202012Test, tuple_prefix_items_required) {
     ]
   })JSON")};
 
-  EXPECT_DOCUMENTATION(schema, sourcemeta::core::schema_walker,
-                       sourcemeta::core::schema_resolver, *compiled_schema_,
+  EXPECT_DOCUMENTATION(schema, sourcemeta::blaze::schema_walker,
+                       sourcemeta::blaze::schema_resolver, *compiled_schema_,
                        expected);
 }
 
@@ -3506,8 +3507,8 @@ TEST_F(Documentation202012Test, object_unevaluated_properties) {
     ]
   })JSON")};
 
-  EXPECT_DOCUMENTATION(schema, sourcemeta::core::schema_walker,
-                       sourcemeta::core::schema_resolver, *compiled_schema_,
+  EXPECT_DOCUMENTATION(schema, sourcemeta::blaze::schema_walker,
+                       sourcemeta::blaze::schema_resolver, *compiled_schema_,
                        expected);
 }
 
@@ -3552,8 +3553,8 @@ TEST_F(Documentation202012Test, tuple_unevaluated_items) {
     ]
   })JSON")};
 
-  EXPECT_DOCUMENTATION(schema, sourcemeta::core::schema_walker,
-                       sourcemeta::core::schema_resolver, *compiled_schema_,
+  EXPECT_DOCUMENTATION(schema, sourcemeta::blaze::schema_walker,
+                       sourcemeta::blaze::schema_resolver, *compiled_schema_,
                        expected);
 }
 
@@ -3611,8 +3612,8 @@ TEST_F(Documentation202012Test, property_boolean_true) {
     }
   )JSON")};
 
-  EXPECT_DOCUMENTATION(schema, sourcemeta::core::schema_walker,
-                       sourcemeta::core::schema_resolver, *compiled_schema_,
+  EXPECT_DOCUMENTATION(schema, sourcemeta::blaze::schema_walker,
+                       sourcemeta::blaze::schema_resolver, *compiled_schema_,
                        expected);
 }
 
@@ -3670,8 +3671,8 @@ TEST_F(Documentation202012Test, property_boolean_false) {
     }
   )JSON")};
 
-  EXPECT_DOCUMENTATION(schema, sourcemeta::core::schema_walker,
-                       sourcemeta::core::schema_resolver, *compiled_schema_,
+  EXPECT_DOCUMENTATION(schema, sourcemeta::blaze::schema_walker,
+                       sourcemeta::blaze::schema_resolver, *compiled_schema_,
                        expected);
 }
 
@@ -3730,8 +3731,8 @@ TEST_F(Documentation202012Test, external_ref_property) {
     }
   )JSON")};
 
-  EXPECT_DOCUMENTATION(schema, sourcemeta::core::schema_walker,
-                       sourcemeta::core::schema_resolver, *compiled_schema_,
+  EXPECT_DOCUMENTATION(schema, sourcemeta::blaze::schema_walker,
+                       sourcemeta::blaze::schema_resolver, *compiled_schema_,
                        expected);
 }
 
@@ -3755,8 +3756,8 @@ TEST_F(Documentation202012Test, external_ref_root) {
     ]
   })JSON")};
 
-  EXPECT_DOCUMENTATION(schema, sourcemeta::core::schema_walker,
-                       sourcemeta::core::schema_resolver, *compiled_schema_,
+  EXPECT_DOCUMENTATION(schema, sourcemeta::blaze::schema_walker,
+                       sourcemeta::blaze::schema_resolver, *compiled_schema_,
                        expected);
 }
 
@@ -3856,8 +3857,8 @@ TEST_F(Documentation202012Test, dynamic_ref_with_anchor) {
     }
   )JSON")};
 
-  EXPECT_DOCUMENTATION(schema, sourcemeta::core::schema_walker,
-                       sourcemeta::core::schema_resolver, *compiled_schema_,
+  EXPECT_DOCUMENTATION(schema, sourcemeta::blaze::schema_walker,
+                       sourcemeta::blaze::schema_resolver, *compiled_schema_,
                        expected);
 }
 
@@ -3878,8 +3879,8 @@ TEST_F(Documentation202012Test, dynamic_ref_standalone) {
     ]
   })JSON")};
 
-  EXPECT_DOCUMENTATION(schema, sourcemeta::core::schema_walker,
-                       sourcemeta::core::schema_resolver, *compiled_schema_,
+  EXPECT_DOCUMENTATION(schema, sourcemeta::blaze::schema_walker,
+                       sourcemeta::blaze::schema_resolver, *compiled_schema_,
                        expected);
 }
 
@@ -3900,8 +3901,8 @@ TEST_F(Documentation202012Test, no_dynamic_anchor_by_default) {
     ]
   })JSON")};
 
-  EXPECT_DOCUMENTATION(schema, sourcemeta::core::schema_walker,
-                       sourcemeta::core::schema_resolver, *compiled_schema_,
+  EXPECT_DOCUMENTATION(schema, sourcemeta::blaze::schema_walker,
+                       sourcemeta::blaze::schema_resolver, *compiled_schema_,
                        expected);
 }
 
@@ -4087,8 +4088,8 @@ TEST_F(Documentation202012Test, internal_ref_non_recursive) {
     }
   )JSON")};
 
-  EXPECT_DOCUMENTATION(schema, sourcemeta::core::schema_walker,
-                       sourcemeta::core::schema_resolver, *compiled_schema_,
+  EXPECT_DOCUMENTATION(schema, sourcemeta::blaze::schema_walker,
+                       sourcemeta::blaze::schema_resolver, *compiled_schema_,
                        expected);
 }
 
@@ -4197,8 +4198,8 @@ TEST_F(Documentation202012Test, internal_ref_recursive_root) {
     }
   )JSON")};
 
-  EXPECT_DOCUMENTATION(schema, sourcemeta::core::schema_walker,
-                       sourcemeta::core::schema_resolver, *compiled_schema_,
+  EXPECT_DOCUMENTATION(schema, sourcemeta::blaze::schema_walker,
+                       sourcemeta::blaze::schema_resolver, *compiled_schema_,
                        expected);
 }
 
@@ -4336,8 +4337,8 @@ TEST_F(Documentation202012Test, internal_ref_recursive_via_def) {
     }
   )JSON")};
 
-  EXPECT_DOCUMENTATION(schema, sourcemeta::core::schema_walker,
-                       sourcemeta::core::schema_resolver, *compiled_schema_,
+  EXPECT_DOCUMENTATION(schema, sourcemeta::blaze::schema_walker,
+                       sourcemeta::blaze::schema_resolver, *compiled_schema_,
                        expected);
 }
 
@@ -4447,8 +4448,8 @@ TEST_F(Documentation202012Test, internal_ref_recursive_with_id) {
     }
   )JSON")};
 
-  EXPECT_DOCUMENTATION(schema, sourcemeta::core::schema_walker,
-                       sourcemeta::core::schema_resolver, *compiled_schema_,
+  EXPECT_DOCUMENTATION(schema, sourcemeta::blaze::schema_walker,
+                       sourcemeta::blaze::schema_resolver, *compiled_schema_,
                        expected);
 }
 
@@ -4645,8 +4646,8 @@ TEST_F(Documentation202012Test, internal_ref_shared_def_with_recursion) {
     }
   )JSON")};
 
-  EXPECT_DOCUMENTATION(schema, sourcemeta::core::schema_walker,
-                       sourcemeta::core::schema_resolver, *compiled_schema_,
+  EXPECT_DOCUMENTATION(schema, sourcemeta::blaze::schema_walker,
+                       sourcemeta::blaze::schema_resolver, *compiled_schema_,
                        expected);
 }
 
@@ -4826,8 +4827,8 @@ TEST_F(Documentation202012Test, object_with_anyof) {
     }
   )JSON")};
 
-  EXPECT_DOCUMENTATION(schema, sourcemeta::core::schema_walker,
-                       sourcemeta::core::schema_resolver, *compiled_schema_,
+  EXPECT_DOCUMENTATION(schema, sourcemeta::blaze::schema_walker,
+                       sourcemeta::blaze::schema_resolver, *compiled_schema_,
                        expected);
 }
 
@@ -4900,8 +4901,8 @@ TEST_F(Documentation202012Test, if_then_else) {
     ]
   })JSON")};
 
-  EXPECT_DOCUMENTATION(schema, sourcemeta::core::schema_walker,
-                       sourcemeta::core::schema_resolver, *compiled_schema_,
+  EXPECT_DOCUMENTATION(schema, sourcemeta::blaze::schema_walker,
+                       sourcemeta::blaze::schema_resolver, *compiled_schema_,
                        expected);
 }
 
@@ -4958,8 +4959,8 @@ TEST_F(Documentation202012Test, allof_simple) {
     ]
   })JSON")};
 
-  EXPECT_DOCUMENTATION(schema, sourcemeta::core::schema_walker,
-                       sourcemeta::core::schema_resolver, *compiled_schema_,
+  EXPECT_DOCUMENTATION(schema, sourcemeta::blaze::schema_walker,
+                       sourcemeta::blaze::schema_resolver, *compiled_schema_,
                        expected);
 }
 
@@ -5201,8 +5202,8 @@ TEST_F(Documentation202012Test, dependent_schemas) {
     }
   )JSON")};
 
-  EXPECT_DOCUMENTATION(schema, sourcemeta::core::schema_walker,
-                       sourcemeta::core::schema_resolver, *compiled_schema_,
+  EXPECT_DOCUMENTATION(schema, sourcemeta::blaze::schema_walker,
+                       sourcemeta::blaze::schema_resolver, *compiled_schema_,
                        expected);
 }
 
@@ -5391,8 +5392,8 @@ TEST_F(Documentation202012Test, dependent_required) {
     }
   )JSON")};
 
-  EXPECT_DOCUMENTATION(schema, sourcemeta::core::schema_walker,
-                       sourcemeta::core::schema_resolver, *compiled_schema_,
+  EXPECT_DOCUMENTATION(schema, sourcemeta::blaze::schema_walker,
+                       sourcemeta::blaze::schema_resolver, *compiled_schema_,
                        expected);
 }
 
@@ -5476,8 +5477,8 @@ TEST_F(Documentation202012Test, contains_branching) {
     ]
   })JSON")};
 
-  EXPECT_DOCUMENTATION(schema, sourcemeta::core::schema_walker,
-                       sourcemeta::core::schema_resolver, *compiled_schema_,
+  EXPECT_DOCUMENTATION(schema, sourcemeta::blaze::schema_walker,
+                       sourcemeta::blaze::schema_resolver, *compiled_schema_,
                        expected);
 }
 
@@ -5564,8 +5565,8 @@ TEST_F(Documentation202012Test, content_schema_branching) {
     ]
   })JSON")};
 
-  EXPECT_DOCUMENTATION(schema, sourcemeta::core::schema_walker,
-                       sourcemeta::core::schema_resolver, *compiled_schema_,
+  EXPECT_DOCUMENTATION(schema, sourcemeta::blaze::schema_walker,
+                       sourcemeta::blaze::schema_resolver, *compiled_schema_,
                        expected);
 }
 
@@ -5622,8 +5623,8 @@ TEST_F(Documentation202012Test, oneOf_simple) {
     ]
   })JSON")};
 
-  EXPECT_DOCUMENTATION(schema, sourcemeta::core::schema_walker,
-                       sourcemeta::core::schema_resolver, *compiled_schema_,
+  EXPECT_DOCUMENTATION(schema, sourcemeta::blaze::schema_walker,
+                       sourcemeta::blaze::schema_resolver, *compiled_schema_,
                        expected);
 }
 
@@ -5744,8 +5745,8 @@ TEST_F(Documentation202012Test, property_names_branching) {
     }
   )JSON")};
 
-  EXPECT_DOCUMENTATION(schema, sourcemeta::core::schema_walker,
-                       sourcemeta::core::schema_resolver, *compiled_schema_,
+  EXPECT_DOCUMENTATION(schema, sourcemeta::blaze::schema_walker,
+                       sourcemeta::blaze::schema_resolver, *compiled_schema_,
                        expected);
 }
 
@@ -5783,8 +5784,8 @@ TEST_F(Documentation202012Test, not_type_only) {
     ]
   })JSON")};
 
-  EXPECT_DOCUMENTATION(schema, sourcemeta::core::schema_walker,
-                       sourcemeta::core::schema_resolver, *compiled_schema_,
+  EXPECT_DOCUMENTATION(schema, sourcemeta::blaze::schema_walker,
+                       sourcemeta::blaze::schema_resolver, *compiled_schema_,
                        expected);
 }
 
@@ -5834,8 +5835,8 @@ TEST_F(Documentation202012Test, not_flat) {
     ]
   })JSON")};
 
-  EXPECT_DOCUMENTATION(schema, sourcemeta::core::schema_walker,
-                       sourcemeta::core::schema_resolver, *compiled_schema_,
+  EXPECT_DOCUMENTATION(schema, sourcemeta::blaze::schema_walker,
+                       sourcemeta::blaze::schema_resolver, *compiled_schema_,
                        expected);
 }
 
@@ -5947,8 +5948,8 @@ TEST_F(Documentation202012Test, not_branching) {
     ]
   })JSON")};
 
-  EXPECT_DOCUMENTATION(schema, sourcemeta::core::schema_walker,
-                       sourcemeta::core::schema_resolver, *compiled_schema_,
+  EXPECT_DOCUMENTATION(schema, sourcemeta::blaze::schema_walker,
+                       sourcemeta::blaze::schema_resolver, *compiled_schema_,
                        expected);
 }
 
@@ -6094,8 +6095,8 @@ TEST_F(Documentation202012Test, anyof_unevaluated) {
     }
   )JSON")};
 
-  EXPECT_DOCUMENTATION(schema, sourcemeta::core::schema_walker,
-                       sourcemeta::core::schema_resolver, *compiled_schema_,
+  EXPECT_DOCUMENTATION(schema, sourcemeta::blaze::schema_walker,
+                       sourcemeta::blaze::schema_resolver, *compiled_schema_,
                        expected);
 }
 
@@ -6133,8 +6134,8 @@ TEST_F(Documentation202012Test, root_boolean_false) {
     ]
   })JSON")};
 
-  EXPECT_DOCUMENTATION(schema, sourcemeta::core::schema_walker,
-                       sourcemeta::core::schema_resolver, *compiled_schema_,
+  EXPECT_DOCUMENTATION(schema, sourcemeta::blaze::schema_walker,
+                       sourcemeta::blaze::schema_resolver, *compiled_schema_,
                        expected);
 }
 
@@ -6185,8 +6186,8 @@ TEST_F(Documentation202012Test, no_type_keyword_produces_any) {
     ]
   })JSON")};
 
-  EXPECT_DOCUMENTATION(schema, sourcemeta::core::schema_walker,
-                       sourcemeta::core::schema_resolver, *compiled_schema_,
+  EXPECT_DOCUMENTATION(schema, sourcemeta::blaze::schema_walker,
+                       sourcemeta::blaze::schema_resolver, *compiled_schema_,
                        expected);
 }
 
@@ -6249,8 +6250,8 @@ TEST_F(Documentation202012Test, default_explicit_null) {
     }
   )JSON")};
 
-  EXPECT_DOCUMENTATION(schema, sourcemeta::core::schema_walker,
-                       sourcemeta::core::schema_resolver, *compiled_schema_,
+  EXPECT_DOCUMENTATION(schema, sourcemeta::blaze::schema_walker,
+                       sourcemeta::blaze::schema_resolver, *compiled_schema_,
                        expected);
 }
 
@@ -6352,8 +6353,8 @@ TEST_F(Documentation202012Test, recursive_ref_walk_schema_cycle) {
     }
   )JSON")};
 
-  EXPECT_DOCUMENTATION(schema, sourcemeta::core::schema_walker,
-                       sourcemeta::core::schema_resolver, *compiled_schema_,
+  EXPECT_DOCUMENTATION(schema, sourcemeta::blaze::schema_walker,
+                       sourcemeta::blaze::schema_resolver, *compiled_schema_,
                        expected);
 }
 
@@ -6439,8 +6440,8 @@ TEST_F(Documentation202012Test, array_items_ref_to_object) {
     }
   )JSON")};
 
-  EXPECT_DOCUMENTATION(schema, sourcemeta::core::schema_walker,
-                       sourcemeta::core::schema_resolver, *compiled_schema_,
+  EXPECT_DOCUMENTATION(schema, sourcemeta::blaze::schema_walker,
+                       sourcemeta::blaze::schema_resolver, *compiled_schema_,
                        expected);
 }
 
@@ -6491,8 +6492,8 @@ TEST_F(Documentation202012Test, array_items_ref_to_string) {
     }
   )JSON")};
 
-  EXPECT_DOCUMENTATION(schema, sourcemeta::core::schema_walker,
-                       sourcemeta::core::schema_resolver, *compiled_schema_,
+  EXPECT_DOCUMENTATION(schema, sourcemeta::blaze::schema_walker,
+                       sourcemeta::blaze::schema_resolver, *compiled_schema_,
                        expected);
 }
 
@@ -6577,8 +6578,8 @@ TEST_F(Documentation202012Test, array_items_object_with_properties) {
     }
   )JSON")};
 
-  EXPECT_DOCUMENTATION(schema, sourcemeta::core::schema_walker,
-                       sourcemeta::core::schema_resolver, *compiled_schema_,
+  EXPECT_DOCUMENTATION(schema, sourcemeta::blaze::schema_walker,
+                       sourcemeta::blaze::schema_resolver, *compiled_schema_,
                        expected);
 }
 
@@ -6664,8 +6665,8 @@ TEST_F(Documentation202012Test, array_items_ref_to_object_with_properties) {
     }
   )JSON")};
 
-  EXPECT_DOCUMENTATION(schema, sourcemeta::core::schema_walker,
-                       sourcemeta::core::schema_resolver, *compiled_schema_,
+  EXPECT_DOCUMENTATION(schema, sourcemeta::blaze::schema_walker,
+                       sourcemeta::blaze::schema_resolver, *compiled_schema_,
                        expected);
 }
 
@@ -6792,8 +6793,8 @@ TEST_F(Documentation202012Test, object_property_array_of_objects) {
     }
   )JSON")};
 
-  EXPECT_DOCUMENTATION(schema, sourcemeta::core::schema_walker,
-                       sourcemeta::core::schema_resolver, *compiled_schema_,
+  EXPECT_DOCUMENTATION(schema, sourcemeta::blaze::schema_walker,
+                       sourcemeta::blaze::schema_resolver, *compiled_schema_,
                        expected);
 }
 
@@ -6855,8 +6856,8 @@ TEST_F(Documentation202012Test, mutual_ref_cycle_in_type_expression) {
     }
   )JSON")};
 
-  EXPECT_DOCUMENTATION(schema, sourcemeta::core::schema_walker,
-                       sourcemeta::core::schema_resolver, *compiled_schema_,
+  EXPECT_DOCUMENTATION(schema, sourcemeta::blaze::schema_walker,
+                       sourcemeta::blaze::schema_resolver, *compiled_schema_,
                        expected);
 }
 
@@ -6907,8 +6908,8 @@ TEST_F(Documentation202012Test,
     ]
   })JSON")};
 
-  EXPECT_DOCUMENTATION(schema, sourcemeta::core::schema_walker,
-                       sourcemeta::core::schema_resolver, *compiled_schema_,
+  EXPECT_DOCUMENTATION(schema, sourcemeta::blaze::schema_walker,
+                       sourcemeta::blaze::schema_resolver, *compiled_schema_,
                        expected);
 }
 
@@ -7032,8 +7033,8 @@ TEST_F(Documentation202012Test, recursive_ref_inside_array_items) {
     }
   )JSON")};
 
-  EXPECT_DOCUMENTATION(schema, sourcemeta::core::schema_walker,
-                       sourcemeta::core::schema_resolver, *compiled_schema_,
+  EXPECT_DOCUMENTATION(schema, sourcemeta::blaze::schema_walker,
+                       sourcemeta::blaze::schema_resolver, *compiled_schema_,
                        expected);
 }
 
@@ -7166,7 +7167,7 @@ TEST_F(Documentation202012Test,
     }
   )JSON")};
 
-  EXPECT_DOCUMENTATION(schema, sourcemeta::core::schema_walker,
-                       sourcemeta::core::schema_resolver, *compiled_schema_,
+  EXPECT_DOCUMENTATION(schema, sourcemeta::blaze::schema_walker,
+                       sourcemeta::blaze::schema_resolver, *compiled_schema_,
                        expected);
 }
