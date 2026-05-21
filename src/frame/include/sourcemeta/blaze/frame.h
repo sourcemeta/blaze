@@ -14,6 +14,10 @@
 #include <sourcemeta/blaze/frame_export.h>
 #endif
 
+// NOLINTBEGIN(misc-include-cleaner)
+#include <sourcemeta/blaze/frame_error.h>
+// NOLINTEND(misc-include-cleaner)
+
 #include <sourcemeta/blaze/foundation.h>
 
 #include <sourcemeta/core/json.h>

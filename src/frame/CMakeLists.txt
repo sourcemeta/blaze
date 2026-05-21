@@ -1,5 +1,6 @@
 sourcemeta_library(NAMESPACE sourcemeta PROJECT blaze NAME frame
   FOLDER "Blaze/Frame"
+  PRIVATE_HEADERS error.h
   SOURCES frame.cc helpers.h)
 
 if(BLAZE_INSTALL)
