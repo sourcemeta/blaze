@@ -1,7 +1,7 @@
 sourcemeta_library(NAMESPACE sourcemeta PROJECT blaze NAME alterschema
   FOLDER "Blaze/AlterSchema"
   PRIVATE_HEADERS error.h transformer.h
-  SOURCES alterschema.cc schema_rule.cc transformer.cc
+  SOURCES alterschema.cc schema_rule.cc transformer.cc wrap.cc
     # Canonicalizer
     canonicalizer/additional_items_implicit.h
     canonicalizer/comment_drop.h

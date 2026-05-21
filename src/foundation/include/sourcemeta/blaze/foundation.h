@@ -446,67 +446,6 @@ auto format(sourcemeta::core::JSON &schema, const SchemaWalker &walker,
 
 /// @ingroup foundation
 ///
-/// Given a schema identifier, this function creates a JSON Schema wrapper that
-/// references such schema. This is useful when trying to validate an instance
-/// against a specific subset of a schema, as the wrapper allows you to make use
-/// of JSON Schema referencing to get there without reinventing the wheel. For
-/// example:
-///
-/// ```cpp
-/// #include <sourcemeta/core/json.h>
-/// #include <sourcemeta/blaze/foundation.h>
-/// #include <iostream>
-///
-/// const sourcemeta::core::JSON result =
-///   sourcemeta::blaze::wrap("https://www.example.com#/foo/bar");
-///
-/// sourcemeta::core::prettify(result, std::cerr);
-/// std::cerr << "\n";
-/// ```
-SOURCEMETA_BLAZE_FOUNDATION_EXPORT
-auto wrap(std::string_view identifier) -> sourcemeta::core::JSON;
-
-/// @ingroup foundation
-///
-/// Wrap a schema to only access one of its subschemas. This is useful if you
-/// want to perform validation on only a specific part of the schema without
-/// having to reinvent the wheel. For example:
-///
-/// ```cpp
-/// #include <sourcemeta/core/json.h>
-/// #include <sourcemeta/blaze/foundation.h>
-/// #include <iostream>
-///
-/// const sourcemeta::core::JSON document =
-///     sourcemeta::core::parse_json(R"JSON({
-///   "$schema": "https://json-schema.org/draft/2020-12/schema",
-///   "items": { "type": "string" }
-/// })JSON");
-///
-/// sourcemeta::blaze::SchemaFrame frame{
-///     sourcemeta::blaze::SchemaFrame::Mode::References};
-/// frame.analyse(document, sourcemeta::blaze::schema_walker,
-///               sourcemeta::blaze::schema_resolver);
-///
-/// const auto location{frame.traverse(
-///     sourcemeta::core::WeakPointer{"items"},
-///     sourcemeta::blaze::SchemaFrame::LocationType::Subschema)};
-///
-/// sourcemeta::core::WeakPointer base;
-/// const sourcemeta::core::JSON result =
-///   sourcemeta::blaze::wrap(document, frame, location.value().get(),
-///     sourcemeta::blaze::schema_resolver, base);
-///
-/// sourcemeta::core::prettify(result, std::cerr);
-/// std::cerr << "\n";
-/// ```
-SOURCEMETA_BLAZE_FOUNDATION_EXPORT
-auto wrap(const sourcemeta::core::JSON &schema, const SchemaFrame &frame,
-          const SchemaFrame::Location &location, const SchemaResolver &resolver,
-          sourcemeta::core::WeakPointer &base) -> sourcemeta::core::JSON;
-
-/// @ingroup foundation
-///
 /// Parse the value of a JSON Schema `type` keyword (which can be a string or
 /// an array of strings) into a set of native JSON types. For example:
 ///
