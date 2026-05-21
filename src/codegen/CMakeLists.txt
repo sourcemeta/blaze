@@ -17,4 +17,6 @@ target_link_libraries(sourcemeta_blaze_codegen PUBLIC
 target_link_libraries(sourcemeta_blaze_codegen PUBLIC
   sourcemeta::blaze::foundation)
 target_link_libraries(sourcemeta_blaze_codegen PRIVATE
+  sourcemeta::blaze::bundle)
+target_link_libraries(sourcemeta_blaze_codegen PRIVATE
   sourcemeta::blaze::alterschema)

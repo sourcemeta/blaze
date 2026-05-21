@@ -1,4 +1,5 @@
 #include <sourcemeta/blaze/alterschema.h>
+#include <sourcemeta/blaze/bundle.h>
 #include <sourcemeta/blaze/codegen.h>
 
 #include <algorithm>     // std::ranges::sort

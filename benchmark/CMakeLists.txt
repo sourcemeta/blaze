@@ -1,6 +1,6 @@
 set(BENCHMARK_SOURCES)
 
-if(BLAZE_FOUNDATION)
+if(BLAZE_FOUNDATION AND BLAZE_BUNDLE)
   list(APPEND BENCHMARK_SOURCES foundation.cc)
 endif()
 
@@ -52,6 +52,10 @@ if(BENCHMARK_SOURCES)
   if(BLAZE_FOUNDATION)
     target_link_libraries(sourcemeta_blaze_benchmark
       PRIVATE sourcemeta::blaze::foundation)
+  endif()
+  if(BLAZE_BUNDLE)
+    target_link_libraries(sourcemeta_blaze_benchmark
+      PRIVATE sourcemeta::blaze::bundle)
   endif()
 
   add_custom_target(benchmark_all

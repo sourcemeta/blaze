@@ -1,6 +1,8 @@
 #include <gtest/gtest.h>
 
+#include <sourcemeta/blaze/bundle.h>
 #include <sourcemeta/blaze/foundation.h>
+
 #include <sourcemeta/core/json.h>
 
 #include <string>      // std::string
@@ -10,32 +12,32 @@ static auto test_resolver(std::string_view identifier)
     -> std::optional<sourcemeta::core::JSON> {
   if (identifier == "https://www.sourcemeta.com/test-1") {
     return sourcemeta::core::parse_json(R"JSON({
-      "$schema": "http://json-schema.org/draft-04/schema#",
-      "id": "https://www.sourcemeta.com/test-1",
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "$id": "https://www.sourcemeta.com/test-1",
       "type": "string"
     })JSON");
   } else if (identifier == "https://www.sourcemeta.com/test-2") {
     return sourcemeta::core::parse_json(R"JSON({
-      "$schema": "http://json-schema.org/draft-04/schema#",
-      "id": "https://www.sourcemeta.com/test-2",
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "$id": "https://www.sourcemeta.com/test-2",
       "allOf": [ { "$ref": "test-3" } ]
     })JSON");
   } else if (identifier == "https://www.sourcemeta.com/test-3") {
     return sourcemeta::core::parse_json(R"JSON({
-      "$schema": "http://json-schema.org/draft-04/schema#",
-      "id": "https://www.sourcemeta.com/test-3",
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "$id": "https://www.sourcemeta.com/test-3",
       "allOf": [ { "$ref": "test-1" } ]
     })JSON");
   } else if (identifier == "https://www.sourcemeta.com/test-4") {
     return sourcemeta::core::parse_json(R"JSON({
-      "$schema": "http://json-schema.org/draft-04/schema#",
-      "id": "https://www.sourcemeta.com/test-4",
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "$id": "https://www.sourcemeta.com/test-4",
       "type": "boolean"
     })JSON");
   } else if (identifier == "https://www.sourcemeta.com/recursive") {
     return sourcemeta::core::parse_json(R"JSON({
-      "$schema": "http://json-schema.org/draft-04/schema#",
-      "id": "https://www.sourcemeta.com/recursive",
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "$id": "https://www.sourcemeta.com/recursive",
       "properties": {
         "foo": { "$ref": "#" }
       }
@@ -43,8 +45,8 @@ static auto test_resolver(std::string_view identifier)
   } else if (identifier ==
              "https://www.sourcemeta.com/recursive-empty-fragment") {
     return sourcemeta::core::parse_json(R"JSON({
-      "$schema": "http://json-schema.org/draft-04/schema#",
-      "id": "https://www.sourcemeta.com/recursive-empty-fragment#",
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "$id": "https://www.sourcemeta.com/recursive-empty-fragment#",
       "properties": {
         "foo": { "$ref": "#" }
       }
@@ -53,38 +55,59 @@ static auto test_resolver(std::string_view identifier)
     return sourcemeta::core::parse_json(R"JSON({
       "type": "integer"
     })JSON");
+  } else if (identifier == "https://www.sourcemeta.com/trailing-hash") {
+    return sourcemeta::core::parse_json(R"JSON({
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "$id": "https://www.sourcemeta.com/trailing-hash#",
+      "definitions": {
+        "string": { "type": "string" }
+      }
+    })JSON");
   } else if (identifier == "https://example.com/meta/1.json") {
     return sourcemeta::core::parse_json(R"JSON({
       "$schema": "https://example.com/meta/2.json",
-      "id": "https://example.com/meta/1.json"
+      "$id": "https://example.com/meta/1.json"
     })JSON");
   } else if (identifier == "https://example.com/meta/2.json") {
     return sourcemeta::core::parse_json(R"JSON({
-      "$schema": "http://json-schema.org/draft-04/schema#",
-      "id": "https://example.com/meta/2.json"
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "$id": "https://example.com/meta/2.json"
     })JSON");
-  } else if (identifier == "https://example.com/draft4-dedup-a") {
+  } else if (identifier == "https://example.com/draft7-dedup-a") {
     return sourcemeta::core::parse_json(R"JSON({
-      "$schema": "http://json-schema.org/draft-04/schema#",
-      "id": "https://example.com/draft4-dedup-a",
-      "allOf": [ { "$ref": "draft4-dedup-common" } ],
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "$id": "https://example.com/draft7-dedup-a",
+      "allOf": [ { "$ref": "draft7-dedup-common" } ],
       "definitions": {
-        "https://example.com/draft4-dedup-common": {
-          "$schema": "http://json-schema.org/draft-04/schema#",
-          "id": "https://example.com/draft4-dedup-common",
+        "https://example.com/draft7-dedup-common": {
+          "$schema": "http://json-schema.org/draft-07/schema#",
+          "$id": "https://example.com/draft7-dedup-common",
           "type": "string"
         }
       }
     })JSON");
-  } else if (identifier == "https://example.com/draft4-dedup-b") {
+  } else if (identifier == "https://example.com/draft7-dedup-b") {
     return sourcemeta::core::parse_json(R"JSON({
-      "$schema": "http://json-schema.org/draft-04/schema#",
-      "id": "https://example.com/draft4-dedup-b",
-      "allOf": [ { "$ref": "draft4-dedup-common" } ],
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "$id": "https://example.com/draft7-dedup-b",
+      "allOf": [ { "$ref": "draft7-dedup-common" } ],
       "definitions": {
-        "https://example.com/draft4-dedup-common": {
-          "$schema": "http://json-schema.org/draft-04/schema#",
-          "id": "https://example.com/draft4-dedup-common",
+        "https://example.com/draft7-dedup-common": {
+          "$schema": "http://json-schema.org/draft-07/schema#",
+          "$id": "https://example.com/draft7-dedup-common",
+          "type": "string"
+        }
+      }
+    })JSON");
+  } else if (identifier == "https://example.com/draft7-elevate-single") {
+    return sourcemeta::core::parse_json(R"JSON({
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "$id": "https://example.com/draft7-elevate-single",
+      "allOf": [ { "$ref": "draft7-elevate-nested" } ],
+      "definitions": {
+        "https://example.com/draft7-elevate-nested": {
+          "$schema": "http://json-schema.org/draft-07/schema#",
+          "$id": "https://example.com/draft7-elevate-nested",
           "type": "string"
         }
       }
@@ -94,44 +117,44 @@ static auto test_resolver(std::string_view identifier)
   }
 }
 
-TEST(Foundation_bundle_draft4, no_references_no_id) {
+TEST(Bundle_draft7, no_references_no_id) {
   sourcemeta::core::JSON document = sourcemeta::core::parse_json(R"JSON({
-    "$schema": "http://json-schema.org/draft-04/schema#"
+    "$schema": "http://json-schema.org/draft-07/schema#"
   })JSON");
 
   sourcemeta::blaze::bundle(document, sourcemeta::blaze::schema_walker,
                             test_resolver);
 
   const sourcemeta::core::JSON expected = sourcemeta::core::parse_json(R"JSON({
-    "$schema": "http://json-schema.org/draft-04/schema#"
+    "$schema": "http://json-schema.org/draft-07/schema#"
   })JSON");
 
   EXPECT_EQ(document, expected);
 }
 
-TEST(Foundation_bundle_draft4, const_no_references_no_id) {
+TEST(Bundle_draft7, const_no_references_no_id) {
   const sourcemeta::core::JSON document = sourcemeta::core::parse_json(R"JSON({
-    "$schema": "http://json-schema.org/draft-04/schema#"
+    "$schema": "http://json-schema.org/draft-07/schema#"
   })JSON");
 
   const auto result = sourcemeta::blaze::bundle(
       document, sourcemeta::blaze::schema_walker, test_resolver);
 
   const sourcemeta::core::JSON expected = sourcemeta::core::parse_json(R"JSON({
-    "$schema": "http://json-schema.org/draft-04/schema#"
+    "$schema": "http://json-schema.org/draft-07/schema#"
   })JSON");
 
   EXPECT_EQ(result, expected);
 }
 
-TEST(Foundation_bundle_draft4, simple_with_id) {
+TEST(Bundle_draft7, simple_with_id) {
   sourcemeta::core::JSON document = sourcemeta::core::parse_json(R"JSON({
-    "id": "https://example.com",
-    "$schema": "http://json-schema.org/draft-04/schema#",
+    "$id": "https://example.com",
+    "$schema": "http://json-schema.org/draft-07/schema#",
     "properties": {
       "foo": { "$ref": "https://www.sourcemeta.com/test-1" },
       "bar": {
-        "id": "https://www.sourcemeta.com",
+        "$id": "https://www.sourcemeta.com",
         "allOf": [ { "$ref": "test-2" } ]
       }
     }
@@ -141,29 +164,29 @@ TEST(Foundation_bundle_draft4, simple_with_id) {
                             test_resolver);
 
   const sourcemeta::core::JSON expected = sourcemeta::core::parse_json(R"JSON({
-    "id": "https://example.com",
-    "$schema": "http://json-schema.org/draft-04/schema#",
+    "$id": "https://example.com",
+    "$schema": "http://json-schema.org/draft-07/schema#",
     "properties": {
       "foo": { "$ref": "https://www.sourcemeta.com/test-1" },
       "bar": {
-        "id": "https://www.sourcemeta.com",
+        "$id": "https://www.sourcemeta.com",
         "allOf": [ { "$ref": "test-2" } ]
       }
     },
     "definitions": {
       "https://www.sourcemeta.com/test-1": {
-        "$schema": "http://json-schema.org/draft-04/schema#",
-        "id": "https://www.sourcemeta.com/test-1",
+        "$schema": "http://json-schema.org/draft-07/schema#",
+        "$id": "https://www.sourcemeta.com/test-1",
         "type": "string"
       },
       "https://www.sourcemeta.com/test-2": {
-        "$schema": "http://json-schema.org/draft-04/schema#",
-        "id": "https://www.sourcemeta.com/test-2",
+        "$schema": "http://json-schema.org/draft-07/schema#",
+        "$id": "https://www.sourcemeta.com/test-2",
         "allOf": [ { "$ref": "test-3" } ]
       },
       "https://www.sourcemeta.com/test-3": {
-        "$schema": "http://json-schema.org/draft-04/schema#",
-        "id": "https://www.sourcemeta.com/test-3",
+        "$schema": "http://json-schema.org/draft-07/schema#",
+        "$id": "https://www.sourcemeta.com/test-3",
         "allOf": [ { "$ref": "test-1" } ]
       }
     }
@@ -172,13 +195,13 @@ TEST(Foundation_bundle_draft4, simple_with_id) {
   EXPECT_EQ(document, expected);
 }
 
-TEST(Foundation_bundle_draft4, simple_without_id) {
+TEST(Bundle_draft7, simple_without_id) {
   sourcemeta::core::JSON document = sourcemeta::core::parse_json(R"JSON({
-    "$schema": "http://json-schema.org/draft-04/schema#",
+    "$schema": "http://json-schema.org/draft-07/schema#",
     "properties": {
       "foo": { "$ref": "https://www.sourcemeta.com/test-1" },
       "bar": {
-        "id": "https://www.sourcemeta.com",
+        "$id": "https://www.sourcemeta.com",
         "allOf": [ { "$ref": "test-2" } ]
       }
     }
@@ -188,28 +211,28 @@ TEST(Foundation_bundle_draft4, simple_without_id) {
                             test_resolver);
 
   const sourcemeta::core::JSON expected = sourcemeta::core::parse_json(R"JSON({
-    "$schema": "http://json-schema.org/draft-04/schema#",
+    "$schema": "http://json-schema.org/draft-07/schema#",
     "properties": {
       "foo": { "$ref": "https://www.sourcemeta.com/test-1" },
       "bar": {
-        "id": "https://www.sourcemeta.com",
+        "$id": "https://www.sourcemeta.com",
         "allOf": [ { "$ref": "test-2" } ]
       }
     },
     "definitions": {
       "https://www.sourcemeta.com/test-1": {
-        "$schema": "http://json-schema.org/draft-04/schema#",
-        "id": "https://www.sourcemeta.com/test-1",
+        "$schema": "http://json-schema.org/draft-07/schema#",
+        "$id": "https://www.sourcemeta.com/test-1",
         "type": "string"
       },
       "https://www.sourcemeta.com/test-2": {
-        "$schema": "http://json-schema.org/draft-04/schema#",
-        "id": "https://www.sourcemeta.com/test-2",
+        "$schema": "http://json-schema.org/draft-07/schema#",
+        "$id": "https://www.sourcemeta.com/test-2",
         "allOf": [ { "$ref": "test-3" } ]
       },
       "https://www.sourcemeta.com/test-3": {
-        "$schema": "http://json-schema.org/draft-04/schema#",
-        "id": "https://www.sourcemeta.com/test-3",
+        "$schema": "http://json-schema.org/draft-07/schema#",
+        "$id": "https://www.sourcemeta.com/test-3",
         "allOf": [ { "$ref": "test-1" } ]
       }
     }
@@ -218,10 +241,10 @@ TEST(Foundation_bundle_draft4, simple_without_id) {
   EXPECT_EQ(document, expected);
 }
 
-TEST(Foundation_bundle_draft4, schema_not_found) {
+TEST(Bundle_draft7, schema_not_found) {
   sourcemeta::core::JSON document = sourcemeta::core::parse_json(R"JSON({
-    "id": "https://example.com",
-    "$schema": "http://json-schema.org/draft-04/schema#",
+    "$id": "https://example.com",
+    "$schema": "http://json-schema.org/draft-07/schema#",
     "properties": {
       "foo": { "$ref": "https://www.sourcemeta.com/xxx" }
     }
@@ -232,10 +255,10 @@ TEST(Foundation_bundle_draft4, schema_not_found) {
                sourcemeta::blaze::SchemaResolutionError);
 }
 
-TEST(Foundation_bundle_draft4, idempotency) {
+TEST(Bundle_draft7, idempotency) {
   sourcemeta::core::JSON document = sourcemeta::core::parse_json(R"JSON({
-    "id": "https://example.com",
-    "$schema": "http://json-schema.org/draft-04/schema#",
+    "$id": "https://example.com",
+    "$schema": "http://json-schema.org/draft-07/schema#",
     "properties": {
       "test": { "$ref": "https://www.sourcemeta.com/test-2" }
     }
@@ -249,25 +272,25 @@ TEST(Foundation_bundle_draft4, idempotency) {
                             test_resolver);
 
   const sourcemeta::core::JSON expected = sourcemeta::core::parse_json(R"JSON({
-    "id": "https://example.com",
-    "$schema": "http://json-schema.org/draft-04/schema#",
+    "$id": "https://example.com",
+    "$schema": "http://json-schema.org/draft-07/schema#",
     "properties": {
       "test": { "$ref": "https://www.sourcemeta.com/test-2" }
     },
     "definitions": {
       "https://www.sourcemeta.com/test-1": {
-        "$schema": "http://json-schema.org/draft-04/schema#",
-        "id": "https://www.sourcemeta.com/test-1",
+        "$schema": "http://json-schema.org/draft-07/schema#",
+        "$id": "https://www.sourcemeta.com/test-1",
         "type": "string"
       },
       "https://www.sourcemeta.com/test-2": {
-        "$schema": "http://json-schema.org/draft-04/schema#",
-        "id": "https://www.sourcemeta.com/test-2",
+        "$schema": "http://json-schema.org/draft-07/schema#",
+        "$id": "https://www.sourcemeta.com/test-2",
         "allOf": [ { "$ref": "test-3" } ]
       },
       "https://www.sourcemeta.com/test-3": {
-        "$schema": "http://json-schema.org/draft-04/schema#",
-        "id": "https://www.sourcemeta.com/test-3",
+        "$schema": "http://json-schema.org/draft-07/schema#",
+        "$id": "https://www.sourcemeta.com/test-3",
         "allOf": [ { "$ref": "test-1" } ]
       }
     }
@@ -276,17 +299,17 @@ TEST(Foundation_bundle_draft4, idempotency) {
   EXPECT_EQ(document, expected);
 }
 
-TEST(Foundation_bundle_draft4, pre_embedded) {
+TEST(Bundle_draft7, pre_embedded) {
   sourcemeta::core::JSON document = sourcemeta::core::parse_json(R"JSON({
-    "id": "https://example.com",
-    "$schema": "http://json-schema.org/draft-04/schema#",
+    "$id": "https://example.com",
+    "$schema": "http://json-schema.org/draft-07/schema#",
     "properties": {
       "test": { "$ref": "https://www.sourcemeta.com/test-2" }
     },
     "definitions": {
       "already-embedded": {
-        "$schema": "http://json-schema.org/draft-04/schema#",
-        "id": "https://www.sourcemeta.com/test-1",
+        "$schema": "http://json-schema.org/draft-07/schema#",
+        "$id": "https://www.sourcemeta.com/test-1",
         "type": "string"
       }
     }
@@ -296,25 +319,25 @@ TEST(Foundation_bundle_draft4, pre_embedded) {
                             test_resolver);
 
   const sourcemeta::core::JSON expected = sourcemeta::core::parse_json(R"JSON({
-    "id": "https://example.com",
-    "$schema": "http://json-schema.org/draft-04/schema#",
+    "$id": "https://example.com",
+    "$schema": "http://json-schema.org/draft-07/schema#",
     "properties": {
       "test": { "$ref": "https://www.sourcemeta.com/test-2" }
     },
     "definitions": {
       "already-embedded": {
-        "$schema": "http://json-schema.org/draft-04/schema#",
-        "id": "https://www.sourcemeta.com/test-1",
+        "$schema": "http://json-schema.org/draft-07/schema#",
+        "$id": "https://www.sourcemeta.com/test-1",
         "type": "string"
       },
       "https://www.sourcemeta.com/test-2": {
-        "$schema": "http://json-schema.org/draft-04/schema#",
-        "id": "https://www.sourcemeta.com/test-2",
+        "$schema": "http://json-schema.org/draft-07/schema#",
+        "$id": "https://www.sourcemeta.com/test-2",
         "allOf": [ { "$ref": "test-3" } ]
       },
       "https://www.sourcemeta.com/test-3": {
-        "$schema": "http://json-schema.org/draft-04/schema#",
-        "id": "https://www.sourcemeta.com/test-3",
+        "$schema": "http://json-schema.org/draft-07/schema#",
+        "$id": "https://www.sourcemeta.com/test-3",
         "allOf": [ { "$ref": "test-1" } ]
       }
     }
@@ -323,10 +346,10 @@ TEST(Foundation_bundle_draft4, pre_embedded) {
   EXPECT_EQ(document, expected);
 }
 
-TEST(Foundation_bundle_draft4, taken_definitions_entry) {
+TEST(Bundle_draft7, taken_definitions_entry) {
   sourcemeta::core::JSON document = sourcemeta::core::parse_json(R"JSON({
-    "id": "https://example.com",
-    "$schema": "http://json-schema.org/draft-04/schema#",
+    "$id": "https://example.com",
+    "$schema": "http://json-schema.org/draft-07/schema#",
     "properties": {
       "test": { "$ref": "https://www.sourcemeta.com/test-1" },
       "extra": { "$ref": "https://www.sourcemeta.com/test-4" }
@@ -343,8 +366,8 @@ TEST(Foundation_bundle_draft4, taken_definitions_entry) {
                             test_resolver);
 
   const sourcemeta::core::JSON expected = sourcemeta::core::parse_json(R"JSON({
-    "id": "https://example.com",
-    "$schema": "http://json-schema.org/draft-04/schema#",
+    "$id": "https://example.com",
+    "$schema": "http://json-schema.org/draft-07/schema#",
     "properties": {
       "test": { "$ref": "https://www.sourcemeta.com/test-1" },
       "extra": { "$ref": "https://www.sourcemeta.com/test-4" }
@@ -352,16 +375,16 @@ TEST(Foundation_bundle_draft4, taken_definitions_entry) {
     "definitions": {
       "https://www.sourcemeta.com/test-1": { "foo": 1 },
       "https://www.sourcemeta.com/test-1/x": {
-        "$schema": "http://json-schema.org/draft-04/schema#",
-        "id": "https://www.sourcemeta.com/test-1",
+        "$schema": "http://json-schema.org/draft-07/schema#",
+        "$id": "https://www.sourcemeta.com/test-1",
         "type": "string"
       },
       "https://www.sourcemeta.com/test-4": { "foo": 1 },
       "https://www.sourcemeta.com/test-4/x": { "foo": 1 },
       "https://www.sourcemeta.com/test-4/x/x": { "foo": 1 },
       "https://www.sourcemeta.com/test-4/x/x/x": {
-        "$schema": "http://json-schema.org/draft-04/schema#",
-        "id": "https://www.sourcemeta.com/test-4",
+        "$schema": "http://json-schema.org/draft-07/schema#",
+        "$id": "https://www.sourcemeta.com/test-4",
         "type": "boolean"
       }
     }
@@ -370,32 +393,9 @@ TEST(Foundation_bundle_draft4, taken_definitions_entry) {
   EXPECT_EQ(document, expected);
 }
 
-TEST(Foundation_bundle_draft4, allof_ref_definitions_type_no_id_no_external) {
+TEST(Bundle_draft7, recursive) {
   sourcemeta::core::JSON document = sourcemeta::core::parse_json(R"JSON({
-    "$schema": "http://json-schema.org/draft-04/schema#",
-    "allOf": [ { "$ref": "#/definitions/string" } ],
-    "definitions": {
-      "string": { "type": "string" }
-    }
-  })JSON");
-
-  sourcemeta::blaze::bundle(document, sourcemeta::blaze::schema_walker,
-                            test_resolver);
-
-  const sourcemeta::core::JSON expected = sourcemeta::core::parse_json(R"JSON({
-    "$schema": "http://json-schema.org/draft-04/schema#",
-    "allOf": [ { "$ref": "#/definitions/string" } ],
-    "definitions": {
-      "string": { "type": "string" }
-    }
-  })JSON");
-
-  EXPECT_EQ(document, expected);
-}
-
-TEST(Foundation_bundle_draft4, recursive) {
-  sourcemeta::core::JSON document = sourcemeta::core::parse_json(R"JSON({
-    "$schema": "http://json-schema.org/draft-04/schema#",
+    "$schema": "http://json-schema.org/draft-07/schema#",
     "allOf": [ { "$ref": "https://www.sourcemeta.com/recursive" } ]
   })JSON");
 
@@ -403,12 +403,12 @@ TEST(Foundation_bundle_draft4, recursive) {
                             test_resolver);
 
   const sourcemeta::core::JSON expected = sourcemeta::core::parse_json(R"JSON({
-    "$schema": "http://json-schema.org/draft-04/schema#",
+    "$schema": "http://json-schema.org/draft-07/schema#",
     "allOf": [ { "$ref": "https://www.sourcemeta.com/recursive" } ],
     "definitions": {
       "https://www.sourcemeta.com/recursive": {
-        "$schema": "http://json-schema.org/draft-04/schema#",
-        "id": "https://www.sourcemeta.com/recursive",
+        "$schema": "http://json-schema.org/draft-07/schema#",
+        "$id": "https://www.sourcemeta.com/recursive",
         "properties": {
           "foo": { "$ref": "#" }
         }
@@ -419,9 +419,9 @@ TEST(Foundation_bundle_draft4, recursive) {
   EXPECT_EQ(document, expected);
 }
 
-TEST(Foundation_bundle_draft4, recursive_empty_fragment) {
+TEST(Bundle_draft7, recursive_empty_fragment) {
   sourcemeta::core::JSON document = sourcemeta::core::parse_json(R"JSON({
-    "$schema": "http://json-schema.org/draft-04/schema#",
+    "$schema": "http://json-schema.org/draft-07/schema#",
     "allOf": [ { "$ref": "https://www.sourcemeta.com/recursive-empty-fragment#" } ]
   })JSON");
 
@@ -429,12 +429,12 @@ TEST(Foundation_bundle_draft4, recursive_empty_fragment) {
                             test_resolver);
 
   const sourcemeta::core::JSON expected = sourcemeta::core::parse_json(R"JSON({
-    "$schema": "http://json-schema.org/draft-04/schema#",
+    "$schema": "http://json-schema.org/draft-07/schema#",
     "allOf": [ { "$ref": "https://www.sourcemeta.com/recursive-empty-fragment#" } ],
     "definitions": {
       "https://www.sourcemeta.com/recursive-empty-fragment#": {
-        "$schema": "http://json-schema.org/draft-04/schema#",
-        "id": "https://www.sourcemeta.com/recursive-empty-fragment#",
+        "$schema": "http://json-schema.org/draft-07/schema#",
+        "$id": "https://www.sourcemeta.com/recursive-empty-fragment#",
         "properties": {
           "foo": { "$ref": "#" }
         }
@@ -445,20 +445,20 @@ TEST(Foundation_bundle_draft4, recursive_empty_fragment) {
   EXPECT_EQ(document, expected);
 }
 
-TEST(Foundation_bundle_draft4, anonymous_no_dialect) {
+TEST(Bundle_draft7, anonymous_no_dialect) {
   sourcemeta::core::JSON document = sourcemeta::core::parse_json(R"JSON({
     "allOf": [ { "$ref": "https://www.sourcemeta.com/anonymous" } ]
   })JSON");
 
   sourcemeta::blaze::bundle(document, sourcemeta::blaze::schema_walker,
                             test_resolver,
-                            "http://json-schema.org/draft-04/schema#");
+                            "http://json-schema.org/draft-07/schema#");
 
   const sourcemeta::core::JSON expected = sourcemeta::core::parse_json(R"JSON({
     "allOf": [ { "$ref": "https://www.sourcemeta.com/anonymous" } ],
     "definitions": {
       "https://www.sourcemeta.com/anonymous": {
-        "id": "https://www.sourcemeta.com/anonymous",
+        "$id": "https://www.sourcemeta.com/anonymous",
         "type": "integer"
       }
     }
@@ -467,7 +467,7 @@ TEST(Foundation_bundle_draft4, anonymous_no_dialect) {
   EXPECT_EQ(document, expected);
 }
 
-TEST(Foundation_bundle_draft4, metaschema) {
+TEST(Bundle_draft7, metaschema) {
   sourcemeta::core::JSON document = sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://example.com/meta/1.json",
     "type": "string"
@@ -482,11 +482,11 @@ TEST(Foundation_bundle_draft4, metaschema) {
     "definitions": {
       "https://example.com/meta/1.json": {
         "$schema": "https://example.com/meta/2.json",
-        "id": "https://example.com/meta/1.json"
+        "$id": "https://example.com/meta/1.json"
       },
       "https://example.com/meta/2.json": {
-        "$schema": "http://json-schema.org/draft-04/schema#",
-        "id": "https://example.com/meta/2.json"
+        "$schema": "http://json-schema.org/draft-07/schema#",
+        "$id": "https://example.com/meta/2.json"
       }
     }
   })JSON");
@@ -494,31 +494,14 @@ TEST(Foundation_bundle_draft4, metaschema) {
   EXPECT_EQ(document, expected);
 }
 
-TEST(Foundation_bundle_draft4, relative_base_uri_without_ref) {
+TEST(Bundle_draft7, relative_base_uri_with_ref) {
   sourcemeta::core::JSON document = sourcemeta::core::parse_json(R"JSON({
-    "$schema": "http://json-schema.org/draft-04/schema#",
-    "id": "foo"
-  })JSON");
-
-  sourcemeta::blaze::bundle(document, sourcemeta::blaze::schema_walker,
-                            test_resolver);
-
-  const sourcemeta::core::JSON expected = sourcemeta::core::parse_json(R"JSON({
-    "$schema": "http://json-schema.org/draft-04/schema#",
-    "id": "foo"
-  })JSON");
-
-  EXPECT_EQ(document, expected);
-}
-
-TEST(Foundation_bundle_draft4, relative_base_uri_with_ref) {
-  sourcemeta::core::JSON document = sourcemeta::core::parse_json(R"JSON({
-    "$schema": "http://json-schema.org/draft-04/schema#",
-    "id": "common",
+    "$schema": "http://json-schema.org/draft-07/schema#",
+    "$id": "common",
     "allOf": [ { "$ref": "#reference" } ],
     "definitions": {
       "reference": {
-        "id": "#reference"
+        "$id": "#reference"
       }
     }
   })JSON");
@@ -527,12 +510,12 @@ TEST(Foundation_bundle_draft4, relative_base_uri_with_ref) {
                             test_resolver);
 
   const sourcemeta::core::JSON expected = sourcemeta::core::parse_json(R"JSON({
-    "$schema": "http://json-schema.org/draft-04/schema#",
-    "id": "common",
+    "$schema": "http://json-schema.org/draft-07/schema#",
+    "$id": "common",
     "allOf": [ { "$ref": "#reference" } ],
     "definitions": {
       "reference": {
-        "id": "#reference"
+        "$id": "#reference"
       }
     }
   })JSON");
@@ -540,11 +523,11 @@ TEST(Foundation_bundle_draft4, relative_base_uri_with_ref) {
   EXPECT_EQ(document, expected);
 }
 
-TEST(Foundation_bundle_draft4, hyperschema_smoke) {
+TEST(Bundle_draft7, hyperschema_smoke) {
   sourcemeta::core::JSON document = sourcemeta::core::parse_json(R"JSON({
-    "$schema": "http://json-schema.org/draft-04/hyper-schema#",
+    "$schema": "http://json-schema.org/draft-07/hyper-schema#",
     "allOf": [
-      { "$ref": "http://json-schema.org/draft-04/hyper-schema#" }
+      { "$ref": "http://json-schema.org/draft-07/hyper-schema#" }
     ]
   })JSON");
 
@@ -554,12 +537,12 @@ TEST(Foundation_bundle_draft4, hyperschema_smoke) {
   EXPECT_TRUE(document.is_object());
 }
 
-TEST(Foundation_bundle_draft4, hyperschema_1) {
+TEST(Bundle_draft7, hyperschema_1) {
   sourcemeta::core::JSON document = sourcemeta::core::parse_json(R"JSON({
-    "$schema": "http://json-schema.org/draft-04/schema#",
+    "$schema": "http://json-schema.org/draft-07/schema#",
     "allOf": [
-      { "$ref": "http://json-schema.org/draft-04/schema#" },
-      { "$ref": "http://json-schema.org/draft-04/hyper-schema#" }
+      { "$ref": "http://json-schema.org/draft-07/schema#" },
+      { "$ref": "http://json-schema.org/draft-07/hyper-schema#" }
     ]
   })JSON");
 
@@ -568,19 +551,21 @@ TEST(Foundation_bundle_draft4, hyperschema_1) {
 
   EXPECT_TRUE(document.defines("definitions"));
   EXPECT_TRUE(document.at("definitions").is_object());
-  EXPECT_EQ(document.at("definitions").size(), 2);
+  EXPECT_EQ(document.at("definitions").size(), 3);
 
   EXPECT_TRUE(document.at("definitions")
-                  .defines("http://json-schema.org/draft-04/schema#"));
+                  .defines("http://json-schema.org/draft-07/schema#"));
   EXPECT_TRUE(document.at("definitions")
-                  .defines("http://json-schema.org/draft-04/hyper-schema#"));
+                  .defines("http://json-schema.org/draft-07/links#"));
+  EXPECT_TRUE(document.at("definitions")
+                  .defines("http://json-schema.org/draft-07/hyper-schema#"));
 }
 
-TEST(Foundation_bundle_draft4, hyperschema_ref_metaschema) {
+TEST(Bundle_draft7, hyperschema_ref_metaschema) {
   sourcemeta::core::JSON document = sourcemeta::core::parse_json(R"JSON({
-    "$schema": "http://json-schema.org/draft-04/hyper-schema#",
+    "$schema": "http://json-schema.org/draft-07/hyper-schema#",
     "allOf": [
-      { "$ref": "http://json-schema.org/draft-04/schema#" }
+      { "$ref": "http://json-schema.org/draft-07/schema#" }
     ]
   })JSON");
 
@@ -592,24 +577,51 @@ TEST(Foundation_bundle_draft4, hyperschema_ref_metaschema) {
   EXPECT_EQ(document.at("definitions").size(), 1);
 
   EXPECT_TRUE(document.at("definitions")
-                  .defines("http://json-schema.org/draft-04/schema#"));
+                  .defines("http://json-schema.org/draft-07/schema#"));
 }
 
-TEST(Foundation_bundle_draft4, standalone_ref_with_default_dialect) {
+TEST(Bundle_draft7, bundle_to_defs) {
+  sourcemeta::core::JSON document = sourcemeta::core::parse_json(R"JSON({
+    "$schema": "http://json-schema.org/draft-07/schema#",
+    "$ref": "https://www.sourcemeta.com/recursive"
+  })JSON");
+
+  sourcemeta::blaze::bundle(document, sourcemeta::blaze::schema_walker,
+                            test_resolver, "", "",
+                            sourcemeta::core::Pointer{"$defs"});
+
+  const sourcemeta::core::JSON expected = sourcemeta::core::parse_json(R"JSON({
+    "$schema": "http://json-schema.org/draft-07/schema#",
+    "$ref": "https://www.sourcemeta.com/recursive",
+    "$defs": {
+      "https://www.sourcemeta.com/recursive": {
+        "$schema": "http://json-schema.org/draft-07/schema#",
+        "$id": "https://www.sourcemeta.com/recursive",
+        "properties": {
+          "foo": { "$ref": "#" }
+        }
+      }
+    }
+  })JSON");
+
+  EXPECT_EQ(document, expected);
+}
+
+TEST(Bundle_draft7, standalone_ref_with_default_dialect) {
   sourcemeta::core::JSON document = sourcemeta::core::parse_json(R"JSON({
     "$ref": "https://www.sourcemeta.com/test-1"
   })JSON");
 
   sourcemeta::blaze::bundle(document, sourcemeta::blaze::schema_walker,
                             test_resolver,
-                            "http://json-schema.org/draft-04/schema#");
+                            "http://json-schema.org/draft-07/schema#");
 
   const sourcemeta::core::JSON expected = sourcemeta::core::parse_json(R"JSON({
     "allOf": [ { "$ref": "https://www.sourcemeta.com/test-1" } ],
     "definitions": {
       "https://www.sourcemeta.com/test-1": {
-        "$schema": "http://json-schema.org/draft-04/schema#",
-        "id": "https://www.sourcemeta.com/test-1",
+        "$schema": "http://json-schema.org/draft-07/schema#",
+        "$id": "https://www.sourcemeta.com/test-1",
         "type": "string"
       }
     }
@@ -618,13 +630,49 @@ TEST(Foundation_bundle_draft4, standalone_ref_with_default_dialect) {
   EXPECT_EQ(document, expected);
 }
 
-TEST(Foundation_bundle_draft4, deduplicate_embedded_from_prebundled) {
+TEST(Bundle_draft7, ref_with_fragment_to_id_with_trailing_hash) {
   sourcemeta::core::JSON document = sourcemeta::core::parse_json(R"JSON({
-    "$schema": "http://json-schema.org/draft-04/schema#",
-    "id": "https://example.com/draft4-dedup-entry",
+    "$id": "https://example.com",
+    "$schema": "http://json-schema.org/draft-07/schema#",
+    "properties": {
+      "foo": {
+        "$ref": "https://www.sourcemeta.com/trailing-hash#/definitions/string"
+      }
+    }
+  })JSON");
+
+  sourcemeta::blaze::bundle(document, sourcemeta::blaze::schema_walker,
+                            test_resolver);
+
+  const sourcemeta::core::JSON expected = sourcemeta::core::parse_json(R"JSON({
+    "$id": "https://example.com",
+    "$schema": "http://json-schema.org/draft-07/schema#",
+    "properties": {
+      "foo": {
+        "$ref": "https://www.sourcemeta.com/trailing-hash#/definitions/string"
+      }
+    },
+    "definitions": {
+      "https://www.sourcemeta.com/trailing-hash#": {
+        "$schema": "http://json-schema.org/draft-07/schema#",
+        "$id": "https://www.sourcemeta.com/trailing-hash#",
+        "definitions": {
+          "string": { "type": "string" }
+        }
+      }
+    }
+  })JSON");
+
+  EXPECT_EQ(document, expected);
+}
+
+TEST(Bundle_draft7, deduplicate_embedded_from_prebundled) {
+  sourcemeta::core::JSON document = sourcemeta::core::parse_json(R"JSON({
+    "$schema": "http://json-schema.org/draft-07/schema#",
+    "$id": "https://example.com/draft7-dedup-entry",
     "allOf": [
-      { "$ref": "draft4-dedup-a" },
-      { "$ref": "draft4-dedup-b" }
+      { "$ref": "draft7-dedup-a" },
+      { "$ref": "draft7-dedup-b" }
     ]
   })JSON");
 
@@ -632,26 +680,57 @@ TEST(Foundation_bundle_draft4, deduplicate_embedded_from_prebundled) {
                             test_resolver);
 
   const sourcemeta::core::JSON expected = sourcemeta::core::parse_json(R"JSON({
-    "$schema": "http://json-schema.org/draft-04/schema#",
-    "id": "https://example.com/draft4-dedup-entry",
+    "$schema": "http://json-schema.org/draft-07/schema#",
+    "$id": "https://example.com/draft7-dedup-entry",
     "allOf": [
-      { "$ref": "draft4-dedup-a" },
-      { "$ref": "draft4-dedup-b" }
+      { "$ref": "draft7-dedup-a" },
+      { "$ref": "draft7-dedup-b" }
     ],
     "definitions": {
-      "https://example.com/draft4-dedup-a": {
-        "$schema": "http://json-schema.org/draft-04/schema#",
-        "id": "https://example.com/draft4-dedup-a",
-        "allOf": [ { "$ref": "draft4-dedup-common" } ]
+      "https://example.com/draft7-dedup-a": {
+        "$schema": "http://json-schema.org/draft-07/schema#",
+        "$id": "https://example.com/draft7-dedup-a",
+        "allOf": [ { "$ref": "draft7-dedup-common" } ]
       },
-      "https://example.com/draft4-dedup-b": {
-        "$schema": "http://json-schema.org/draft-04/schema#",
-        "id": "https://example.com/draft4-dedup-b",
-        "allOf": [ { "$ref": "draft4-dedup-common" } ]
+      "https://example.com/draft7-dedup-b": {
+        "$schema": "http://json-schema.org/draft-07/schema#",
+        "$id": "https://example.com/draft7-dedup-b",
+        "allOf": [ { "$ref": "draft7-dedup-common" } ]
       },
-      "https://example.com/draft4-dedup-common": {
-        "$schema": "http://json-schema.org/draft-04/schema#",
-        "id": "https://example.com/draft4-dedup-common",
+      "https://example.com/draft7-dedup-common": {
+        "$schema": "http://json-schema.org/draft-07/schema#",
+        "$id": "https://example.com/draft7-dedup-common",
+        "type": "string"
+      }
+    }
+  })JSON");
+
+  EXPECT_EQ(document, expected);
+}
+
+TEST(Bundle_draft7, elevate_embedded_from_single_prebundled) {
+  sourcemeta::core::JSON document = sourcemeta::core::parse_json(R"JSON({
+    "$schema": "http://json-schema.org/draft-07/schema#",
+    "$id": "https://example.com/draft7-elevate-entry",
+    "allOf": [ { "$ref": "draft7-elevate-single" } ]
+  })JSON");
+
+  sourcemeta::blaze::bundle(document, sourcemeta::blaze::schema_walker,
+                            test_resolver);
+
+  const sourcemeta::core::JSON expected = sourcemeta::core::parse_json(R"JSON({
+    "$schema": "http://json-schema.org/draft-07/schema#",
+    "$id": "https://example.com/draft7-elevate-entry",
+    "allOf": [ { "$ref": "draft7-elevate-single" } ],
+    "definitions": {
+      "https://example.com/draft7-elevate-single": {
+        "$schema": "http://json-schema.org/draft-07/schema#",
+        "$id": "https://example.com/draft7-elevate-single",
+        "allOf": [ { "$ref": "draft7-elevate-nested" } ]
+      },
+      "https://example.com/draft7-elevate-nested": {
+        "$schema": "http://json-schema.org/draft-07/schema#",
+        "$id": "https://example.com/draft7-elevate-nested",
         "type": "string"
       }
     }

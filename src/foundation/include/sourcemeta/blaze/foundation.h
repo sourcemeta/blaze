@@ -9,7 +9,6 @@
 #include <sourcemeta/core/jsonpointer.h>
 
 // NOLINTBEGIN(misc-include-cleaner)
-#include <sourcemeta/blaze/foundation_bundle.h>
 #include <sourcemeta/blaze/foundation_error.h>
 #include <sourcemeta/blaze/foundation_frame.h>
 #include <sourcemeta/blaze/foundation_types.h>

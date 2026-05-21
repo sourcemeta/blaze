@@ -4,7 +4,9 @@
 #include <filesystem> // std::filesystem
 #include <vector>     // std::vector
 
+#include <sourcemeta/blaze/bundle.h>
 #include <sourcemeta/blaze/foundation.h>
+
 #include <sourcemeta/core/json.h>
 #include <sourcemeta/core/uri.h>
 

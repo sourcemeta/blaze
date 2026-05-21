@@ -1,9 +1,10 @@
 #include <gtest/gtest.h>
 
+#include <sourcemeta/blaze/bundle.h>
 #include <sourcemeta/blaze/compiler.h>
 #include <sourcemeta/blaze/evaluator.h>
-
 #include <sourcemeta/blaze/foundation.h>
+
 #include <sourcemeta/core/json.h>
 
 #include <type_traits> // std::is_copy_constructible_v, etc.

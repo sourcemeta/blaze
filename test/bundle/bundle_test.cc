@@ -1,6 +1,8 @@
 #include <gtest/gtest.h>
 
+#include <sourcemeta/blaze/bundle.h>
 #include <sourcemeta/blaze/foundation.h>
+
 #include <sourcemeta/core/json.h>
 
 #include <string>      // std::string
@@ -51,7 +53,7 @@ static auto test_resolver(std::string_view identifier)
   }
 }
 
-TEST(Foundation_bundle, multiple_refs) {
+TEST(Bundle, multiple_refs) {
   sourcemeta::core::JSON document = sourcemeta::core::parse_json(R"JSON({
     "$id": "https://www.example.com",
     "$schema": "https://json-schema.org/draft/2020-12/schema",
@@ -101,7 +103,7 @@ TEST(Foundation_bundle, multiple_refs) {
   EXPECT_EQ(document, expected);
 }
 
-TEST(Foundation_bundle, across_dialects) {
+TEST(Bundle, across_dialects) {
   sourcemeta::core::JSON document = sourcemeta::core::parse_json(R"JSON({
     "$id": "https://www.example.com",
     "$schema": "https://json-schema.org/draft/2020-12/schema",
@@ -137,7 +139,7 @@ TEST(Foundation_bundle, across_dialects) {
   EXPECT_EQ(document, expected);
 }
 
-TEST(Foundation_bundle, across_dialects_top_level_ref_draft) {
+TEST(Bundle, across_dialects_top_level_ref_draft) {
   sourcemeta::core::JSON document = sourcemeta::core::parse_json(R"JSON({
     "$id": "https://www.example.com",
     "$schema": "https://json-schema.org/draft/2020-12/schema",
@@ -156,7 +158,7 @@ TEST(Foundation_bundle, across_dialects_top_level_ref_draft) {
   }
 }
 
-TEST(Foundation_bundle, across_dialects_from_top_level_ref_draft_absolute) {
+TEST(Bundle, across_dialects_from_top_level_ref_draft_absolute) {
   sourcemeta::core::JSON document = sourcemeta::core::parse_json(R"JSON({
     "$id": "https://www.example.com",
     "$schema": "http://json-schema.org/draft-07/schema#",
@@ -168,7 +170,7 @@ TEST(Foundation_bundle, across_dialects_from_top_level_ref_draft_absolute) {
                sourcemeta::blaze::SchemaError);
 }
 
-TEST(Foundation_bundle, across_dialects_from_top_level_ref_draft_relative) {
+TEST(Bundle, across_dialects_from_top_level_ref_draft_relative) {
   sourcemeta::core::JSON document = sourcemeta::core::parse_json(R"JSON({
     "$id": "https://www.sourcemeta.com",
     "$schema": "http://json-schema.org/draft-07/schema#",
@@ -180,7 +182,7 @@ TEST(Foundation_bundle, across_dialects_from_top_level_ref_draft_relative) {
                sourcemeta::blaze::SchemaError);
 }
 
-TEST(Foundation_bundle, across_dialects_const) {
+TEST(Bundle, across_dialects_const) {
   const sourcemeta::core::JSON document = sourcemeta::core::parse_json(R"JSON({
     "$id": "https://www.example.com",
     "$schema": "https://json-schema.org/draft/2020-12/schema",
@@ -216,7 +218,7 @@ TEST(Foundation_bundle, across_dialects_const) {
   EXPECT_EQ(result, expected);
 }
 
-TEST(Foundation_bundle, with_default_id) {
+TEST(Bundle, with_default_id) {
   sourcemeta::core::JSON document = sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2020-12/schema",
     "items": { "$ref": "test-2" }
@@ -252,7 +254,7 @@ TEST(Foundation_bundle, with_default_id) {
   EXPECT_EQ(document, expected);
 }
 
-TEST(Foundation_bundle, with_default_dialect) {
+TEST(Bundle, with_default_dialect) {
   sourcemeta::core::JSON document = sourcemeta::core::parse_json(R"JSON({
     "properties": {
       "foo": { "$ref": "https://www.sourcemeta.com/test-1" }
@@ -279,7 +281,7 @@ TEST(Foundation_bundle, with_default_dialect) {
   EXPECT_EQ(document, expected);
 }
 
-TEST(Foundation_bundle, without_default_dialect) {
+TEST(Bundle, without_default_dialect) {
   sourcemeta::core::JSON document = sourcemeta::core::parse_json(R"JSON({
     "properties": {
       "foo": { "$ref": "https://www.sourcemeta.com/test-1" }
@@ -291,7 +293,7 @@ TEST(Foundation_bundle, without_default_dialect) {
                sourcemeta::blaze::SchemaUnknownBaseDialectError);
 }
 
-TEST(Foundation_bundle, target_no_dialect) {
+TEST(Bundle, target_no_dialect) {
   sourcemeta::core::JSON document = sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2020-12/schema",
     "properties": {
@@ -304,7 +306,7 @@ TEST(Foundation_bundle, target_no_dialect) {
                sourcemeta::blaze::SchemaReferenceError);
 }
 
-TEST(Foundation_bundle, target_array) {
+TEST(Bundle, target_array) {
   sourcemeta::core::JSON document = sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2020-12/schema",
     "properties": {
@@ -317,7 +319,7 @@ TEST(Foundation_bundle, target_array) {
                sourcemeta::blaze::SchemaReferenceError);
 }
 
-TEST(Foundation_bundle, custom_paths_no_external) {
+TEST(Bundle, custom_paths_no_external) {
   auto document{sourcemeta::core::parse_json(R"JSON({
     "wrapper": {
       "$ref": "#/common/test"
@@ -366,7 +368,7 @@ TEST(Foundation_bundle, custom_paths_no_external) {
   EXPECT_EQ(document, expected);
 }
 
-TEST(Foundation_bundle, custom_paths_with_externals) {
+TEST(Bundle, custom_paths_with_externals) {
   auto document{sourcemeta::core::parse_json(R"JSON({
     "wrapper": {
       "$ref": "#/common/test"
