@@ -536,3 +536,69 @@ auto sourcemeta::core::is_known_schema(
     const std::string_view identifier) noexcept -> bool {
   return parse_identifier(identifier) != KnownSchema::UNKNOWN;
 }
+
+auto sourcemeta::core::is_official_schema(
+    const std::string_view identifier) noexcept -> bool {
+  switch (parse_identifier(identifier)) {
+    case KnownSchema::JSONSCHEMA_2020_12:
+    case KnownSchema::HYPERSCHEMA_2020_12:
+    case KnownSchema::JSONSCHEMA_2020_12_APPLICATOR:
+    case KnownSchema::JSONSCHEMA_2020_12_CONTENT:
+    case KnownSchema::JSONSCHEMA_2020_12_CORE:
+    case KnownSchema::JSONSCHEMA_2020_12_FORMAT_ANNOTATION:
+    case KnownSchema::JSONSCHEMA_2020_12_FORMAT_ASSERTION:
+    case KnownSchema::JSONSCHEMA_2020_12_HYPER_SCHEMA:
+    case KnownSchema::JSONSCHEMA_2020_12_META_DATA:
+    case KnownSchema::JSONSCHEMA_2020_12_UNEVALUATED:
+    case KnownSchema::JSONSCHEMA_2020_12_VALIDATION:
+    case KnownSchema::LINKS_2020_12:
+    case KnownSchema::JSONSCHEMA_2020_12_OUTPUT:
+    case KnownSchema::JSONSCHEMA_2019_09:
+    case KnownSchema::HYPERSCHEMA_2019_09:
+    case KnownSchema::JSONSCHEMA_2019_09_APPLICATOR:
+    case KnownSchema::JSONSCHEMA_2019_09_CONTENT:
+    case KnownSchema::JSONSCHEMA_2019_09_CORE:
+    case KnownSchema::JSONSCHEMA_2019_09_FORMAT:
+    case KnownSchema::JSONSCHEMA_2019_09_HYPER_SCHEMA:
+    case KnownSchema::JSONSCHEMA_2019_09_META_DATA:
+    case KnownSchema::JSONSCHEMA_2019_09_VALIDATION:
+    case KnownSchema::LINKS_2019_09:
+    case KnownSchema::JSONSCHEMA_2019_09_OUTPUT:
+    case KnownSchema::HYPERSCHEMA_2019_09_OUTPUT:
+    case KnownSchema::JSONSCHEMA_DRAFT7:
+    case KnownSchema::HYPERSCHEMA_DRAFT7:
+    case KnownSchema::LINKS_DRAFT7:
+    case KnownSchema::HYPERSCHEMA_DRAFT7_OUTPUT:
+    case KnownSchema::JSONSCHEMA_DRAFT6:
+    case KnownSchema::HYPERSCHEMA_DRAFT6:
+    case KnownSchema::LINKS_DRAFT6:
+    case KnownSchema::JSONSCHEMA_DRAFT4:
+    case KnownSchema::HYPERSCHEMA_DRAFT4:
+    case KnownSchema::LINKS_DRAFT4:
+    case KnownSchema::JSONSCHEMA_DRAFT3:
+    case KnownSchema::HYPERSCHEMA_DRAFT3:
+    case KnownSchema::LINKS_DRAFT3:
+    case KnownSchema::JSON_REF_DRAFT3:
+    case KnownSchema::JSONSCHEMA_DRAFT2:
+    case KnownSchema::HYPERSCHEMA_DRAFT2:
+    case KnownSchema::LINKS_DRAFT2:
+    case KnownSchema::JSON_REF_DRAFT2:
+    case KnownSchema::JSONSCHEMA_DRAFT1:
+    case KnownSchema::HYPERSCHEMA_DRAFT1:
+    case KnownSchema::LINKS_DRAFT1:
+    case KnownSchema::JSON_REF_DRAFT1:
+    case KnownSchema::JSONSCHEMA_DRAFT0:
+    case KnownSchema::HYPERSCHEMA_DRAFT0:
+    case KnownSchema::LINKS_DRAFT0:
+    case KnownSchema::JSON_REF_DRAFT0:
+      return true;
+    case KnownSchema::OAS_3_2_DIALECT_2025_09_17:
+    case KnownSchema::OAS_3_2_META_2025_09_17:
+    case KnownSchema::OAS_3_1_DIALECT_BASE:
+    case KnownSchema::OAS_3_1_META_BASE:
+    case KnownSchema::UNKNOWN:
+      return false;
+  }
+
+  return false;
+}

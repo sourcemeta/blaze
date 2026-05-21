@@ -45,6 +45,12 @@ SOURCEMETA_CORE_JSONSCHEMA_EXPORT
 auto is_known_schema(const std::string_view identifier) noexcept -> bool;
 
 /// @ingroup jsonschema
+/// Check if a given URI corresponds to an official schema released by the
+/// JSON Schema organisation
+SOURCEMETA_CORE_JSONSCHEMA_EXPORT
+auto is_official_schema(const std::string_view identifier) noexcept -> bool;
+
+/// @ingroup jsonschema
 /// A default schema walker with support for a wide range of drafts
 SOURCEMETA_CORE_JSONSCHEMA_EXPORT
 auto schema_walker(const std::string_view keyword,

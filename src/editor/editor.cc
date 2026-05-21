@@ -1,4 +1,4 @@
-#include <sourcemeta/core/editorschema.h>
+#include <sourcemeta/blaze/editor.h>
 
 #include <cassert> // assert
 #include <map>     // std::map
@@ -53,34 +53,36 @@ auto top_dynamic_anchor_location(
 
 } // namespace
 
-namespace sourcemeta::core {
+namespace sourcemeta::blaze {
 
 // Collected information about a reference to modify
 struct ReferenceChange {
-  Pointer pointer;
-  JSON::String new_value;
-  JSON::String keyword;
+  sourcemeta::core::Pointer pointer;
+  sourcemeta::core::JSON::String new_value;
+  sourcemeta::core::JSON::String keyword;
   bool rename_to_ref;
 };
 
 // Collected information about a subschema to modify
 struct SubschemaChange {
-  Pointer pointer;
-  SchemaBaseDialect base_dialect;
+  sourcemeta::core::Pointer pointer;
+  sourcemeta::core::SchemaBaseDialect base_dialect;
   bool add_schema_declaration;
   bool erase_2020_12_keywords;
   bool erase_2019_09_keywords;
 };
 
-auto for_editor(JSON &schema, const SchemaWalker &walker,
-                const SchemaResolver &resolver,
+auto for_editor(sourcemeta::core::JSON &schema,
+                const sourcemeta::core::SchemaWalker &walker,
+                const sourcemeta::core::SchemaResolver &resolver,
                 std::string_view default_dialect) -> void {
   // (1) Frame the schema and collect all changes we need to make
   std::vector<ReferenceChange> reference_changes;
   std::vector<SubschemaChange> subschema_changes;
 
   {
-    SchemaFrame frame{SchemaFrame::Mode::References};
+    sourcemeta::core::SchemaFrame frame{
+        sourcemeta::core::SchemaFrame::Mode::References};
     frame.analyse(schema, walker, resolver, default_dialect);
 
     // Otherwise the input is not bundled
@@ -88,7 +90,8 @@ auto for_editor(JSON &schema, const SchemaWalker &walker,
 
     // Note that `std::unordered_map` is slower here due to high collision rates
     // from the simple pointer hashes
-    std::map<WeakPointer, std::reference_wrapper<const JSON::String>>
+    std::map<sourcemeta::core::WeakPointer,
+             std::reference_wrapper<const sourcemeta::core::JSON::String>>
         pointer_to_uri;
     for (const auto &entry : frame.locations()) {
       pointer_to_uri.emplace(entry.second.pointer,
@@ -101,7 +104,7 @@ auto for_editor(JSON &schema, const SchemaWalker &walker,
       assert(key.second.back().is_property());
       const auto &keyword{key.second.back().to_property()};
 
-      if (key.first == SchemaReferenceType::Dynamic) {
+      if (key.first == sourcemeta::core::SchemaReferenceType::Dynamic) {
         if (reference.fragment.has_value()) {
           const auto destination{top_dynamic_anchor_location(
               frame, key.second, reference.fragment.value(),
@@ -111,11 +114,12 @@ auto for_editor(JSON &schema, const SchemaWalker &walker,
           }
 
           reference_changes.push_back(
-              {to_pointer(key.second),
-               to_uri(destination.value().get()).recompose(), keyword, true});
+              {sourcemeta::core::to_pointer(key.second),
+               sourcemeta::core::to_uri(destination.value().get()).recompose(),
+               keyword, true});
         } else {
           reference_changes.push_back(
-              {to_pointer(key.second), "", keyword, true});
+              {sourcemeta::core::to_pointer(key.second), "", keyword, true});
         }
       } else {
         if (keyword == "$schema") {
@@ -125,8 +129,9 @@ auto for_editor(JSON &schema, const SchemaWalker &walker,
           const auto origin{frame.traverse(uri_it->second.get())};
           assert(origin.has_value());
           reference_changes.push_back(
-              {to_pointer(key.second),
-               JSON::String{to_string(origin.value().get().base_dialect)},
+              {sourcemeta::core::to_pointer(key.second),
+               sourcemeta::core::JSON::String{sourcemeta::core::to_string(
+                   origin.value().get().base_dialect)},
                keyword, false});
           continue;
         }
@@ -136,24 +141,28 @@ auto for_editor(JSON &schema, const SchemaWalker &walker,
           const bool should_rename =
               keyword == "$dynamicRef" || keyword == "$recursiveRef";
           reference_changes.push_back(
-              {to_pointer(key.second),
-               to_uri(result.value().get().pointer).recompose(), keyword,
-               should_rename});
+              {sourcemeta::core::to_pointer(key.second),
+               sourcemeta::core::to_uri(result.value().get().pointer)
+                   .recompose(),
+               keyword, should_rename});
         } else {
-          reference_changes.push_back(
-              {to_pointer(key.second), reference.destination, keyword, false});
+          reference_changes.push_back({sourcemeta::core::to_pointer(key.second),
+                                       reference.destination, keyword, false});
         }
       }
     }
 
     // Collect subschema changes
     for (const auto &entry : frame.locations()) {
-      if (entry.second.type != SchemaFrame::LocationType::Resource &&
-          entry.second.type != SchemaFrame::LocationType::Subschema) {
+      if (entry.second.type !=
+              sourcemeta::core::SchemaFrame::LocationType::Resource &&
+          entry.second.type !=
+              sourcemeta::core::SchemaFrame::LocationType::Subschema) {
         continue;
       }
 
-      const auto &subschema{get(schema, entry.second.pointer)};
+      const auto &subschema{
+          sourcemeta::core::get(schema, entry.second.pointer)};
       if (subschema.is_boolean()) {
         continue;
       }
@@ -163,34 +172,38 @@ auto for_editor(JSON &schema, const SchemaWalker &walker,
       const auto vocabularies{frame.vocabularies(entry.second, resolver)};
 
       subschema_changes.push_back(
-          {to_pointer(entry.second.pointer), entry.second.base_dialect,
-           add_schema,
-           vocabularies.contains(Vocabularies::Known::JSON_Schema_2020_12_Core),
+          {sourcemeta::core::to_pointer(entry.second.pointer),
+           entry.second.base_dialect, add_schema,
            vocabularies.contains(
-               Vocabularies::Known::JSON_Schema_2019_09_Core)});
+               sourcemeta::core::Vocabularies::Known::JSON_Schema_2020_12_Core),
+           vocabularies.contains(sourcemeta::core::Vocabularies::Known::
+                                     JSON_Schema_2019_09_Core)});
     }
   }
 
   // (2) Apply reference changes
   for (const auto &change : reference_changes) {
     if (!change.new_value.empty()) {
-      set(schema, change.pointer, JSON{change.new_value});
+      sourcemeta::core::set(schema, change.pointer,
+                            sourcemeta::core::JSON{change.new_value});
     }
     if (change.rename_to_ref) {
-      get(schema, change.pointer.initial()).rename(change.keyword, "$ref");
+      sourcemeta::core::get(schema, change.pointer.initial())
+          .rename(change.keyword, "$ref");
     }
   }
 
   // (3) Apply subschema changes
   for (const auto &change : subschema_changes) {
-    auto &subschema{get(schema, change.pointer)};
+    auto &subschema{sourcemeta::core::get(schema, change.pointer)};
 
     if (change.add_schema_declaration) {
       subschema.assign_assume_new(
-          "$schema", JSON{JSON::String{to_string(change.base_dialect)}});
+          "$schema", sourcemeta::core::JSON{sourcemeta::core::JSON::String{
+                         sourcemeta::core::to_string(change.base_dialect)}});
     }
 
-    anonymize(subschema, change.base_dialect);
+    sourcemeta::core::anonymize(subschema, change.base_dialect);
 
     if (change.erase_2020_12_keywords) {
       subschema.erase_keys({"$vocabulary", "$anchor", "$dynamicAnchor"});
@@ -200,4 +213,4 @@ auto for_editor(JSON &schema, const SchemaWalker &walker,
   }
 }
 
-} // namespace sourcemeta::core
+} // namespace sourcemeta::blaze

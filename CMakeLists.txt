@@ -13,6 +13,7 @@ option(BLAZE_CONFIGURATION "Build the Blaze configuration file library" ON)
 option(BLAZE_ALTERSCHEMA "Build the Blaze alterschema rule library" ON)
 option(BLAZE_CODEGEN "Build the Blaze codegen library" ON)
 option(BLAZE_DOCUMENTATION "Build the Blaze documentation generator library" ON)
+option(BLAZE_EDITOR "Build the Blaze editor schema compatibility library" ON)
 option(BLAZE_TESTS "Build the Blaze tests" OFF)
 option(BLAZE_BENCHMARK "Build the Blaze benchmarks" OFF)
 option(BLAZE_CONTRIB "Build the Blaze contrib programs" OFF)
@@ -75,6 +76,10 @@ endif()
 
 if(BLAZE_DOCUMENTATION)
   add_subdirectory(src/documentation)
+endif()
+
+if(BLAZE_EDITOR)
+  add_subdirectory(src/editor)
 endif()
 
 if(BLAZE_CONTRIB)
@@ -153,6 +158,10 @@ if(BLAZE_TESTS)
 
   if(BLAZE_DOCUMENTATION)
     add_subdirectory(test/documentation)
+  endif()
+
+  if(BLAZE_EDITOR)
+    add_subdirectory(test/editor)
   endif()
 
   if(PROJECT_IS_TOP_LEVEL)
