@@ -16,6 +16,7 @@ option(BLAZE_DOCUMENTATION "Build the Blaze documentation generator library" ON)
 option(BLAZE_EDITOR "Build the Blaze editor schema compatibility library" ON)
 option(BLAZE_FOUNDATION "Build the Blaze foundation JSON Schema library" ON)
 option(BLAZE_BUNDLE "Build the Blaze bundle library" ON)
+option(BLAZE_FORMAT "Build the Blaze format library" ON)
 option(BLAZE_TESTS "Build the Blaze tests" OFF)
 option(BLAZE_BENCHMARK "Build the Blaze benchmarks" OFF)
 option(BLAZE_CONTRIB "Build the Blaze contrib programs" OFF)
@@ -54,6 +55,10 @@ endif()
 
 if(BLAZE_BUNDLE)
   add_subdirectory(src/bundle)
+endif()
+
+if(BLAZE_FORMAT)
+  add_subdirectory(src/format)
 endif()
 
 if(BLAZE_COMPILER)
@@ -144,6 +149,10 @@ if(BLAZE_TESTS)
 
   if(BLAZE_BUNDLE)
     add_subdirectory(test/bundle)
+  endif()
+
+  if(BLAZE_FORMAT)
+    add_subdirectory(test/format)
   endif()
 
   if(BLAZE_COMPILER)

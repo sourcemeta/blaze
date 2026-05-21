@@ -7,7 +7,7 @@ sourcemeta_library(NAMESPACE sourcemeta PROJECT blaze NAME foundation
   PRIVATE_HEADERS walker.h frame.h error.h
                   types.h vocabularies.h
   SOURCES foundation.cc vocabularies.cc known_walker.cc
-          frame.cc walker.cc format.cc helpers.h
+          frame.cc walker.cc helpers.h
     "${CMAKE_CURRENT_BINARY_DIR}/known_resolver.cc")
 
 if(BLAZE_INSTALL)

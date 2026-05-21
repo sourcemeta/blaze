@@ -80,6 +80,8 @@ if(BLAZE_ALTERSCHEMA)
   target_link_libraries(sourcemeta_blaze_contrib_canonicalize
     PRIVATE sourcemeta::blaze::foundation)
   target_link_libraries(sourcemeta_blaze_contrib_canonicalize
+    PRIVATE sourcemeta::blaze::format)
+  target_link_libraries(sourcemeta_blaze_contrib_canonicalize
     PRIVATE sourcemeta::blaze::alterschema)
 
   sourcemeta_executable(NAMESPACE sourcemeta PROJECT blaze

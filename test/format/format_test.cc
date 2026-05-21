@@ -1,10 +1,11 @@
 #include <gtest/gtest.h>
 
+#include <sourcemeta/blaze/format.h>
 #include <sourcemeta/blaze/foundation.h>
 
 #include <sstream>
 
-TEST(Foundation_format, example_1) {
+TEST(Format, example_1) {
   sourcemeta::core::JSON document = sourcemeta::core::parse_json(R"JSON({
     "title": "My example schema",
     "type": "object",
@@ -22,7 +23,7 @@ TEST(Foundation_format, example_1) {
 })JSON");
 }
 
-TEST(Foundation_format, example_2) {
+TEST(Format, example_2) {
   sourcemeta::core::JSON document = sourcemeta::core::parse_json(R"JSON({
     "default": 1,
     "$ref": "other",
@@ -42,7 +43,7 @@ TEST(Foundation_format, example_2) {
 })JSON");
 }
 
-TEST(Foundation_format, nested_objects) {
+TEST(Format, nested_objects) {
   sourcemeta::core::JSON document = sourcemeta::core::parse_json(R"JSON({
     "type": "object",
     "$schema": "https://json-schema.org/draft/2020-12/schema",
@@ -72,7 +73,7 @@ TEST(Foundation_format, nested_objects) {
 })JSON");
 }
 
-TEST(Foundation_format, no_dialect) {
+TEST(Format, no_dialect) {
   sourcemeta::core::JSON document = sourcemeta::core::parse_json(R"JSON({
     "type": "string",
     "description": "test"
@@ -84,7 +85,7 @@ TEST(Foundation_format, no_dialect) {
                sourcemeta::blaze::SchemaUnknownBaseDialectError);
 }
 
-TEST(Foundation_format, no_dialect_with_default) {
+TEST(Format, no_dialect_with_default) {
   sourcemeta::core::JSON document = sourcemeta::core::parse_json(R"JSON({
     "type": "string",
     "description": "test"
@@ -101,7 +102,7 @@ TEST(Foundation_format, no_dialect_with_default) {
 })JSON");
 }
 
-TEST(Foundation_format, properties_container_not_reordered) {
+TEST(Format, properties_container_not_reordered) {
   sourcemeta::core::JSON document = sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2020-12/schema",
     "properties": {
@@ -134,7 +135,7 @@ TEST(Foundation_format, properties_container_not_reordered) {
 })JSON");
 }
 
-TEST(Foundation_format, enum_objects_not_reordered) {
+TEST(Format, enum_objects_not_reordered) {
   sourcemeta::core::JSON document = sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2020-12/schema",
     "type": "string",
@@ -160,7 +161,7 @@ TEST(Foundation_format, enum_objects_not_reordered) {
 })JSON");
 }
 
-TEST(Foundation_format, const_object_not_reordered) {
+TEST(Format, const_object_not_reordered) {
   sourcemeta::core::JSON document = sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2020-12/schema",
     "type": "object",
@@ -182,7 +183,7 @@ TEST(Foundation_format, const_object_not_reordered) {
 })JSON");
 }
 
-TEST(Foundation_format, default_object_not_reordered) {
+TEST(Format, default_object_not_reordered) {
   sourcemeta::core::JSON document = sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2020-12/schema",
     "type": "object",
@@ -204,7 +205,7 @@ TEST(Foundation_format, default_object_not_reordered) {
 })JSON");
 }
 
-TEST(Foundation_format, examples_objects_not_reordered) {
+TEST(Format, examples_objects_not_reordered) {
   sourcemeta::core::JSON document = sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2020-12/schema",
     "type": "object",
@@ -230,7 +231,7 @@ TEST(Foundation_format, examples_objects_not_reordered) {
 })JSON");
 }
 
-TEST(Foundation_format, typo_keyword_not_reordered) {
+TEST(Format, typo_keyword_not_reordered) {
   sourcemeta::core::JSON document = sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2020-12/schema",
     "type": "object",
@@ -254,7 +255,7 @@ TEST(Foundation_format, typo_keyword_not_reordered) {
 })JSON");
 }
 
-TEST(Foundation_format, correct_keyword_is_reordered) {
+TEST(Format, correct_keyword_is_reordered) {
   sourcemeta::core::JSON document = sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2020-12/schema",
     "type": "object",
@@ -278,7 +279,7 @@ TEST(Foundation_format, correct_keyword_is_reordered) {
 })JSON");
 }
 
-TEST(Foundation_format, nested_properties_subschemas_reordered) {
+TEST(Format, nested_properties_subschemas_reordered) {
   sourcemeta::core::JSON document = sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2020-12/schema",
     "type": "object",
@@ -318,7 +319,7 @@ TEST(Foundation_format, nested_properties_subschemas_reordered) {
 })JSON");
 }
 
-TEST(Foundation_format, pattern_properties_container_not_reordered) {
+TEST(Format, pattern_properties_container_not_reordered) {
   sourcemeta::core::JSON document = sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2020-12/schema",
     "type": "object",
@@ -353,7 +354,7 @@ TEST(Foundation_format, pattern_properties_container_not_reordered) {
 })JSON");
 }
 
-TEST(Foundation_format, definitions_container_not_reordered) {
+TEST(Format, definitions_container_not_reordered) {
   sourcemeta::core::JSON document = sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2020-12/schema",
     "$defs": {
@@ -386,7 +387,7 @@ TEST(Foundation_format, definitions_container_not_reordered) {
 })JSON");
 }
 
-TEST(Foundation_format, embedded_resource_reordered) {
+TEST(Format, embedded_resource_reordered) {
   sourcemeta::core::JSON document = sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2020-12/schema",
     "$id": "https://example.com/root",
@@ -426,7 +427,7 @@ TEST(Foundation_format, embedded_resource_reordered) {
 })JSON");
 }
 
-TEST(Foundation_format, boolean_subschema_does_not_crash) {
+TEST(Format, boolean_subschema_does_not_crash) {
   sourcemeta::core::JSON document = sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2020-12/schema",
     "type": "object",
@@ -453,7 +454,7 @@ TEST(Foundation_format, boolean_subschema_does_not_crash) {
 })JSON");
 }
 
-TEST(Foundation_format, reorder_does_not_invalidate_child_pointers) {
+TEST(Format, reorder_does_not_invalidate_child_pointers) {
   sourcemeta::core::JSON document = sourcemeta::core::parse_json(R"JSON({
     "not": {},
     "$schema": "https://json-schema.org/draft/2020-12/schema"

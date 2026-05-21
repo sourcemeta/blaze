@@ -1,5 +1,7 @@
 #include <sourcemeta/blaze/alterschema.h>
+#include <sourcemeta/blaze/format.h>
 #include <sourcemeta/blaze/foundation.h>
+
 #include <sourcemeta/core/json.h>
 
 #include <cstdlib>  // EXIT_SUCCESS, EXIT_FAILURE

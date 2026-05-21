@@ -70,7 +70,6 @@ sourcemeta_googletest(NAMESPACE sourcemeta PROJECT blaze NAME foundation
     foundation_keyword_iterator_test.cc
     foundation_resolver_test.cc
     foundation_parse_type_test.cc
-    foundation_format_test.cc
     foundation_json_auto_test.cc)
 
 target_link_libraries(sourcemeta_blaze_foundation_unit
