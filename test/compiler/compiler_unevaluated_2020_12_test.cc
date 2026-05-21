@@ -3,6 +3,7 @@
 #include <sourcemeta/blaze/compiler.h>
 
 #include <sourcemeta/blaze/foundation.h>
+#include <sourcemeta/blaze/frame.h>
 #include <sourcemeta/core/json.h>
 #include <sourcemeta/core/jsonpointer.h>
 

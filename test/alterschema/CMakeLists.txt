@@ -47,6 +47,8 @@ target_link_libraries(sourcemeta_blaze_alterschema_unit
 target_link_libraries(sourcemeta_blaze_alterschema_unit
   PRIVATE sourcemeta::blaze::foundation)
 target_link_libraries(sourcemeta_blaze_alterschema_unit
+  PRIVATE sourcemeta::blaze::frame)
+target_link_libraries(sourcemeta_blaze_alterschema_unit
   PRIVATE sourcemeta::blaze::alterschema)
 target_link_libraries(sourcemeta_blaze_alterschema_unit
   PRIVATE sourcemeta::blaze::compiler)

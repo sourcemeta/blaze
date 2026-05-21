@@ -8,6 +8,7 @@
 #include <sourcemeta/blaze/evaluator.h>
 #include <sourcemeta/blaze/format.h>
 #include <sourcemeta/blaze/foundation.h>
+#include <sourcemeta/blaze/frame.h>
 #include <sourcemeta/blaze/output.h>
 #include <sourcemeta/blaze/test.h>
 

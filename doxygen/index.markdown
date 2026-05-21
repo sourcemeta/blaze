@@ -74,6 +74,7 @@ CMake
 | `BLAZE_DOCUMENTATION`       | Boolean | `ON`    | Build the Blaze documentation library   |
 | `BLAZE_EDITOR`              | Boolean | `ON`    | Build the Blaze editor library          |
 | `BLAZE_FOUNDATION`          | Boolean | `ON`    | Build the Blaze foundation library      |
+| `BLAZE_FRAME`               | Boolean | `ON`    | Build the Blaze frame library           |
 | `BLAZE_BUNDLE`              | Boolean | `ON`    | Build the Blaze bundle library          |
 | `BLAZE_FORMAT`              | Boolean | `ON`    | Build the Blaze format library          |
 | `BLAZE_TESTS`               | Boolean | `OFF`   | Build the Blaze tests                   |

@@ -2,6 +2,7 @@
 
 #include <sourcemeta/blaze/compiler.h>
 #include <sourcemeta/blaze/evaluator.h>
+#include <sourcemeta/blaze/frame.h>
 #include <sourcemeta/blaze/output.h>
 
 #include <sourcemeta/blaze/foundation.h>

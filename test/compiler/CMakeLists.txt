@@ -11,6 +11,8 @@ target_link_libraries(sourcemeta_blaze_compiler_unit
 target_link_libraries(sourcemeta_blaze_compiler_unit
   PRIVATE sourcemeta::blaze::foundation)
 target_link_libraries(sourcemeta_blaze_compiler_unit
+  PRIVATE sourcemeta::blaze::frame)
+target_link_libraries(sourcemeta_blaze_compiler_unit
   PRIVATE sourcemeta::blaze::compiler)
 target_link_libraries(sourcemeta_blaze_compiler_unit
   PRIVATE sourcemeta::blaze::evaluator)

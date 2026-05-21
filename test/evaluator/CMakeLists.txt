@@ -17,6 +17,8 @@ target_link_libraries(sourcemeta_blaze_evaluator_unit
 target_link_libraries(sourcemeta_blaze_evaluator_unit
   PRIVATE sourcemeta::blaze::foundation)
 target_link_libraries(sourcemeta_blaze_evaluator_unit
+  PRIVATE sourcemeta::blaze::frame)
+target_link_libraries(sourcemeta_blaze_evaluator_unit
   PRIVATE sourcemeta::blaze::bundle)
 target_link_libraries(sourcemeta_blaze_evaluator_unit
   PRIVATE sourcemeta::blaze::compiler)
@@ -47,6 +49,7 @@ target_compile_definitions(sourcemeta_blaze_evaluator_annotation_suite_unit
   PRIVATE ANNOTATION_SUITE_PATH="${PROJECT_SOURCE_DIR}/vendor/jsonschema-test-suite/annotations/tests")
 target_link_libraries(sourcemeta_blaze_evaluator_annotation_suite_unit PRIVATE sourcemeta::core::json)
 target_link_libraries(sourcemeta_blaze_evaluator_annotation_suite_unit PRIVATE sourcemeta::blaze::foundation)
+target_link_libraries(sourcemeta_blaze_evaluator_annotation_suite_unit PRIVATE sourcemeta::blaze::frame)
 target_link_libraries(sourcemeta_blaze_evaluator_annotation_suite_unit PRIVATE sourcemeta::core::jsonpointer)
 target_link_libraries(sourcemeta_blaze_evaluator_annotation_suite_unit PRIVATE sourcemeta::blaze::compiler)
 target_link_libraries(sourcemeta_blaze_evaluator_annotation_suite_unit PRIVATE sourcemeta::blaze::evaluator)

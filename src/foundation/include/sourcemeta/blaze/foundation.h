@@ -10,7 +10,6 @@
 
 // NOLINTBEGIN(misc-include-cleaner)
 #include <sourcemeta/blaze/foundation_error.h>
-#include <sourcemeta/blaze/foundation_frame.h>
 #include <sourcemeta/blaze/foundation_types.h>
 #include <sourcemeta/blaze/foundation_walker.h>
 // NOLINTEND(misc-include-cleaner)
