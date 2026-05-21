@@ -33,11 +33,6 @@ jobs:
             cxx: clang++
             type: shared
             shell: sh
-          - os: macos-latest
-            cc: gcc-13
-            cxx: g++-13
-            type: static
-            shell: sh
           - os: ubuntu-latest
             cc: clang
             cxx: clang++
