@@ -25,7 +25,7 @@ configure: node_modules .always
 compile: .always
 	$(CMAKE) --build ./build --config $(PRESET) --target clang_format
 	$(CMAKE) --build ./build --config $(PRESET) --target blaze_format_trace_json
-	$(CMAKE) --build ./build --config $(PRESET) --parallel 4
+	$(CMAKE) --build ./build --config $(PRESET)
 	$(CMAKE) --install ./build --prefix ./build/dist --config $(PRESET) --verbose \
 		--component sourcemeta_core
 	$(CMAKE) --install ./build --prefix ./build/dist --config $(PRESET) --verbose \
