@@ -4,10 +4,10 @@
 #include <filesystem> // std::filesystem
 #include <vector>     // std::vector
 
+#include <sourcemeta/blaze/foundation.h>
 #include <sourcemeta/core/io.h>
 #include <sourcemeta/core/json.h>
 #include <sourcemeta/core/jsonl.h>
-#include <sourcemeta/core/jsonschema.h>
 
 #include <sourcemeta/blaze/compiler.h>
 #include <sourcemeta/blaze/evaluator.h>
@@ -20,8 +20,8 @@
                                                                                \
     for (auto _ : state) {                                                     \
       auto schema_template{sourcemeta::blaze::compile(                         \
-          schema, sourcemeta::core::schema_walker,                             \
-          sourcemeta::core::schema_resolver,                                   \
+          schema, sourcemeta::blaze::schema_walker,                            \
+          sourcemeta::blaze::schema_resolver,                                  \
           sourcemeta::blaze::default_schema_compiler,                          \
           sourcemeta::blaze::Mode::FastValidation)};                           \
       benchmark::DoNotOptimize(schema_template);                               \
@@ -35,8 +35,8 @@
                                           "/e2e/" directory_name};             \
     const auto schema{sourcemeta::core::read_json(directory / "schema.json")}; \
     const auto schema_template{                                                \
-        sourcemeta::blaze::compile(schema, sourcemeta::core::schema_walker,    \
-                                   sourcemeta::core::schema_resolver,          \
+        sourcemeta::blaze::compile(schema, sourcemeta::blaze::schema_walker,   \
+                                   sourcemeta::blaze::schema_resolver,         \
                                    sourcemeta::blaze::default_schema_compiler, \
                                    sourcemeta::blaze::Mode::FastValidation)};  \
                                                                                \

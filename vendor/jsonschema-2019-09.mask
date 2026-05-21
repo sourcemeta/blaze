@@ -1,0 +1,9 @@
+.travis.yml
+CONTRIBUTING.md
+jsonschema-core.xml
+jsonschema-hyperschema.xml
+jsonschema-validation.xml
+Makefile
+README.md
+relative-json-pointer.xml
+output/verbose-example.json

@@ -1,6 +1,6 @@
 #include <sourcemeta/blaze/alterschema.h>
+#include <sourcemeta/blaze/foundation.h>
 #include <sourcemeta/core/json.h>
-#include <sourcemeta/core/jsonschema.h>
 #include <sourcemeta/core/options.h>
 
 #include <cstdlib>     // EXIT_SUCCESS, EXIT_FAILURE
@@ -59,8 +59,8 @@ auto main(int argc, char *argv[]) -> int {
   sourcemeta::blaze::SchemaTransformer bundle;
   sourcemeta::blaze::add(bundle, mode.value());
   const auto result{
-      bundle.apply(document, sourcemeta::core::schema_walker,
-                   sourcemeta::core::schema_resolver,
+      bundle.apply(document, sourcemeta::blaze::schema_walker,
+                   sourcemeta::blaze::schema_resolver,
                    [](const auto &pointer, const auto &name,
                       const auto &message, const auto &, const auto &) {
                      std::cerr << sourcemeta::core::to_string(pointer) << ": "

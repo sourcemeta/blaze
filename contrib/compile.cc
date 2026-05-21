@@ -55,7 +55,7 @@ static auto resolve_schema(const std::string_view identifier,
     }
   }
 
-  return sourcemeta::core::schema_resolver(identifier);
+  return sourcemeta::blaze::schema_resolver(identifier);
 }
 
 auto main(int argc, char **argv) noexcept -> int {
@@ -148,7 +148,7 @@ auto main(int argc, char **argv) noexcept -> int {
 
     const auto compile_start{std::chrono::high_resolution_clock::now()};
     const auto schema_template{sourcemeta::blaze::compile(
-        document, sourcemeta::core::schema_walker, resolver,
+        document, sourcemeta::blaze::schema_walker, resolver,
         sourcemeta::blaze::default_schema_compiler, mode, default_dialect)};
     const auto compile_end{std::chrono::high_resolution_clock::now()};
     const auto compile_duration{

@@ -3,8 +3,8 @@
 #include <sourcemeta/blaze/compiler.h>
 #include <sourcemeta/blaze/evaluator.h>
 
+#include <sourcemeta/blaze/foundation.h>
 #include <sourcemeta/core/json.h>
-#include <sourcemeta/core/jsonschema.h>
 
 #include "evaluator_utils.h"
 
@@ -63,8 +63,8 @@ public:
     const auto count{pre.size()};
 
     const auto compiled_schema{sourcemeta::blaze::compile(
-        schema, sourcemeta::core::schema_walker,
-        sourcemeta::core::schema_resolver,
+        schema, sourcemeta::blaze::schema_walker,
+        sourcemeta::blaze::schema_resolver,
         sourcemeta::blaze::default_schema_compiler, this->mode)};
     __ASSERT_TEMPLATE_JSON_SERIALISATION(compiled_schema);
     EVALUATE_WITH_TRACE(compiled_schema, instance, count);

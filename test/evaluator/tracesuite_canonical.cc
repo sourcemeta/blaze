@@ -4,8 +4,8 @@
 #include <sourcemeta/blaze/compiler.h>
 #include <sourcemeta/blaze/evaluator.h>
 
+#include <sourcemeta/blaze/foundation.h>
 #include <sourcemeta/core/json.h>
-#include <sourcemeta/core/jsonschema.h>
 
 #include "evaluator_utils.h"
 
@@ -32,15 +32,15 @@ public:
     sourcemeta::blaze::SchemaTransformer bundle;
     sourcemeta::blaze::add(bundle, this->canonicalizer_mode_);
     const auto canonicalize_result{
-        bundle.apply(schema, sourcemeta::core::schema_walker,
-                     sourcemeta::core::schema_resolver,
+        bundle.apply(schema, sourcemeta::blaze::schema_walker,
+                     sourcemeta::blaze::schema_resolver,
                      [](const auto &, const auto &, const auto &, const auto &,
                         const auto &) {})};
     EXPECT_TRUE(canonicalize_result.first);
 
     const auto compiled_schema{sourcemeta::blaze::compile(
-        schema, sourcemeta::core::schema_walker,
-        sourcemeta::core::schema_resolver,
+        schema, sourcemeta::blaze::schema_walker,
+        sourcemeta::blaze::schema_resolver,
         sourcemeta::blaze::default_schema_compiler, this->mode)};
     __ASSERT_TEMPLATE_JSON_SERIALISATION(compiled_schema);
 

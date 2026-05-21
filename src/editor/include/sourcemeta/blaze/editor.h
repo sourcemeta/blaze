@@ -14,8 +14,8 @@
 #include <sourcemeta/blaze/editor_export.h>
 #endif
 
+#include <sourcemeta/blaze/foundation.h>
 #include <sourcemeta/core/json.h>
-#include <sourcemeta/core/jsonschema.h>
 
 #include <string_view> // std::string_view
 
@@ -35,7 +35,7 @@ namespace sourcemeta::blaze {
 ///
 /// ```cpp
 /// #include <sourcemeta/core/json.h>
-/// #include <sourcemeta/core/jsonschema.h>
+/// #include <sourcemeta/blaze/foundation.h>
 /// #include <sourcemeta/blaze/editor.h>
 ///
 /// auto schema = sourcemeta::core::parse_json(R"JSON({
@@ -44,17 +44,17 @@ namespace sourcemeta::blaze {
 ///   "$ref": "another"
 /// })JSON");
 ///
-/// sourcemeta::core::bundle(schema,
-///   sourcemeta::core::schema_walker,
-///   sourcemeta::core::schema_resolver);
+/// sourcemeta::blaze::bundle(schema,
+///   sourcemeta::blaze::schema_walker,
+///   sourcemeta::blaze::schema_resolver);
 /// sourcemeta::blaze::for_editor(schema,
-///   sourcemeta::core::schema_walker,
-///   sourcemeta::core::schema_resolver);
+///   sourcemeta::blaze::schema_walker,
+///   sourcemeta::blaze::schema_resolver);
 /// ```
 SOURCEMETA_BLAZE_EDITOR_EXPORT
 auto for_editor(sourcemeta::core::JSON &schema,
-                const sourcemeta::core::SchemaWalker &walker,
-                const sourcemeta::core::SchemaResolver &resolver,
+                const sourcemeta::blaze::SchemaWalker &walker,
+                const sourcemeta::blaze::SchemaResolver &resolver,
                 std::string_view default_dialect = "") -> void;
 
 } // namespace sourcemeta::blaze

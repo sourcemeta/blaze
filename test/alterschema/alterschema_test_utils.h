@@ -2,8 +2,8 @@
 #define SOURCEMETA_BLAZE_ALTERSCHEMA_TEST_UTILS_H_
 
 #include <sourcemeta/blaze/alterschema.h>
+#include <sourcemeta/blaze/foundation.h>
 #include <sourcemeta/core/json.h>
-#include <sourcemeta/core/jsonschema.h>
 
 #include <sstream>
 #include <tuple>
@@ -66,7 +66,7 @@ static auto alterschema_test_resolver(std::string_view identifier)
       }
     })JSON");
   } else {
-    return sourcemeta::core::schema_resolver(identifier);
+    return sourcemeta::blaze::schema_resolver(identifier);
   }
 }
 
@@ -78,7 +78,7 @@ static auto alterschema_test_resolver(std::string_view identifier)
   sourcemeta::blaze::SchemaTransformer bundle;                                 \
   sourcemeta::blaze::add(bundle, sourcemeta::blaze::AlterSchemaMode::Linter);  \
   const auto result = bundle.check(                                            \
-      document, sourcemeta::core::schema_walker, alterschema_test_resolver,    \
+      document, sourcemeta::blaze::schema_walker, alterschema_test_resolver,   \
       [&traces](const auto &pointer, const auto &name, const auto &message,    \
                 const auto &outcome, const auto &fixable) {                    \
         traces.emplace_back(pointer, name, message, outcome, fixable);         \
@@ -99,7 +99,7 @@ static auto alterschema_test_resolver(std::string_view identifier)
   sourcemeta::blaze::SchemaTransformer bundle;                                 \
   sourcemeta::blaze::add(bundle, sourcemeta::blaze::AlterSchemaMode::Linter);  \
   const auto result = bundle.apply(                                            \
-      document, sourcemeta::core::schema_walker, alterschema_test_resolver,    \
+      document, sourcemeta::blaze::schema_walker, alterschema_test_resolver,   \
       [&traces](const auto &pointer, const auto &name, const auto &message,    \
                 const auto &outcome, const auto &fixable) {                    \
         traces.emplace_back(pointer, name, message, outcome, fixable);         \
@@ -111,7 +111,7 @@ static auto alterschema_test_resolver(std::string_view identifier)
     sourcemeta::blaze::add(_bundle,                                            \
                            sourcemeta::blaze::AlterSchemaMode::Canonicalizer); \
     const auto _result = _bundle.apply(                                        \
-        document, sourcemeta::core::schema_walker, alterschema_test_resolver,  \
+        document, sourcemeta::blaze::schema_walker, alterschema_test_resolver, \
         [](const auto &, const auto &, const auto &, const auto &,             \
            const auto &) {});                                                  \
     EXPECT_TRUE(_result.first);                                                \
@@ -136,7 +136,7 @@ static auto alterschema_test_resolver(std::string_view identifier)
     sourcemeta::blaze::add(_bundle,                                            \
                            sourcemeta::blaze::AlterSchemaMode::UpgradeDraft4); \
     const auto _result = _bundle.apply(                                        \
-        document, sourcemeta::core::schema_walker, alterschema_test_resolver,  \
+        document, sourcemeta::blaze::schema_walker, alterschema_test_resolver, \
         [](const auto &, const auto &, const auto &, const auto &,             \
            const auto &) {});                                                  \
     EXPECT_TRUE(_result.first);                                                \
@@ -149,7 +149,7 @@ static auto alterschema_test_resolver(std::string_view identifier)
     sourcemeta::blaze::add(_bundle,                                            \
                            sourcemeta::blaze::AlterSchemaMode::UpgradeDraft4); \
     const auto _result = _bundle.apply(                                        \
-        document, sourcemeta::core::schema_walker, alterschema_test_resolver,  \
+        document, sourcemeta::blaze::schema_walker, alterschema_test_resolver, \
         [](const auto &, const auto &, const auto &, const auto &,             \
            const auto &) {},                                                   \
         (default_dialect));                                                    \
@@ -163,7 +163,7 @@ static auto alterschema_test_resolver(std::string_view identifier)
     sourcemeta::blaze::add(_bundle,                                            \
                            sourcemeta::blaze::AlterSchemaMode::UpgradeDraft6); \
     const auto _result = _bundle.apply(                                        \
-        document, sourcemeta::core::schema_walker, alterschema_test_resolver,  \
+        document, sourcemeta::blaze::schema_walker, alterschema_test_resolver, \
         [](const auto &, const auto &, const auto &, const auto &,             \
            const auto &) {});                                                  \
     EXPECT_TRUE(_result.first);                                                \
@@ -176,7 +176,7 @@ static auto alterschema_test_resolver(std::string_view identifier)
     sourcemeta::blaze::add(_bundle,                                            \
                            sourcemeta::blaze::AlterSchemaMode::UpgradeDraft6); \
     const auto _result = _bundle.apply(                                        \
-        document, sourcemeta::core::schema_walker, alterschema_test_resolver,  \
+        document, sourcemeta::blaze::schema_walker, alterschema_test_resolver, \
         [](const auto &, const auto &, const auto &, const auto &,             \
            const auto &) {},                                                   \
         (default_dialect));                                                    \
@@ -190,7 +190,7 @@ static auto alterschema_test_resolver(std::string_view identifier)
     sourcemeta::blaze::add(_bundle,                                            \
                            sourcemeta::blaze::AlterSchemaMode::UpgradeDraft7); \
     const auto _result = _bundle.apply(                                        \
-        document, sourcemeta::core::schema_walker, alterschema_test_resolver,  \
+        document, sourcemeta::blaze::schema_walker, alterschema_test_resolver, \
         [](const auto &, const auto &, const auto &, const auto &,             \
            const auto &) {});                                                  \
     EXPECT_TRUE(_result.first);                                                \
@@ -203,7 +203,7 @@ static auto alterschema_test_resolver(std::string_view identifier)
     sourcemeta::blaze::add(_bundle,                                            \
                            sourcemeta::blaze::AlterSchemaMode::UpgradeDraft7); \
     const auto _result = _bundle.apply(                                        \
-        document, sourcemeta::core::schema_walker, alterschema_test_resolver,  \
+        document, sourcemeta::blaze::schema_walker, alterschema_test_resolver, \
         [](const auto &, const auto &, const auto &, const auto &,             \
            const auto &) {},                                                   \
         (default_dialect));                                                    \
@@ -217,7 +217,7 @@ static auto alterschema_test_resolver(std::string_view identifier)
     sourcemeta::blaze::add(_bundle,                                            \
                            sourcemeta::blaze::AlterSchemaMode::Upgrade201909); \
     const auto _result = _bundle.apply(                                        \
-        document, sourcemeta::core::schema_walker, alterschema_test_resolver,  \
+        document, sourcemeta::blaze::schema_walker, alterschema_test_resolver, \
         [](const auto &, const auto &, const auto &, const auto &,             \
            const auto &) {});                                                  \
     EXPECT_TRUE(_result.first);                                                \
@@ -230,7 +230,7 @@ static auto alterschema_test_resolver(std::string_view identifier)
     sourcemeta::blaze::add(_bundle,                                            \
                            sourcemeta::blaze::AlterSchemaMode::Upgrade201909); \
     const auto _result = _bundle.apply(                                        \
-        document, sourcemeta::core::schema_walker, alterschema_test_resolver,  \
+        document, sourcemeta::blaze::schema_walker, alterschema_test_resolver, \
         [](const auto &, const auto &, const auto &, const auto &,             \
            const auto &) {},                                                   \
         (default_dialect));                                                    \
@@ -244,7 +244,7 @@ static auto alterschema_test_resolver(std::string_view identifier)
     sourcemeta::blaze::add(_bundle,                                            \
                            sourcemeta::blaze::AlterSchemaMode::Upgrade202012); \
     const auto _result = _bundle.apply(                                        \
-        document, sourcemeta::core::schema_walker, alterschema_test_resolver,  \
+        document, sourcemeta::blaze::schema_walker, alterschema_test_resolver, \
         [](const auto &, const auto &, const auto &, const auto &,             \
            const auto &) {});                                                  \
     EXPECT_TRUE(_result.first);                                                \
@@ -257,7 +257,7 @@ static auto alterschema_test_resolver(std::string_view identifier)
     sourcemeta::blaze::add(_bundle,                                            \
                            sourcemeta::blaze::AlterSchemaMode::Upgrade202012); \
     const auto _result = _bundle.apply(                                        \
-        document, sourcemeta::core::schema_walker, alterschema_test_resolver,  \
+        document, sourcemeta::blaze::schema_walker, alterschema_test_resolver, \
         [](const auto &, const auto &, const auto &, const auto &,             \
            const auto &) {},                                                   \
         (default_dialect));                                                    \

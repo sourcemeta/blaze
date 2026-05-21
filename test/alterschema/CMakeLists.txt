@@ -44,7 +44,7 @@ sourcemeta_googletest(NAMESPACE sourcemeta PROJECT blaze NAME alterschema
 target_link_libraries(sourcemeta_blaze_alterschema_unit
   PRIVATE sourcemeta::core::json)
 target_link_libraries(sourcemeta_blaze_alterschema_unit
-  PRIVATE sourcemeta::core::jsonschema)
+  PRIVATE sourcemeta::blaze::foundation)
 target_link_libraries(sourcemeta_blaze_alterschema_unit
   PRIVATE sourcemeta::blaze::alterschema)
 target_link_libraries(sourcemeta_blaze_alterschema_unit

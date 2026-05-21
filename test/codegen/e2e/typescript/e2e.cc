@@ -2,9 +2,9 @@
 
 #include <sourcemeta/blaze/codegen.h>
 
+#include <sourcemeta/blaze/foundation.h>
 #include <sourcemeta/core/io.h>
 #include <sourcemeta/core/json.h>
-#include <sourcemeta/core/jsonschema.h>
 
 #include <filesystem> // std::filesystem
 #include <sstream>    // std::ostringstream
@@ -26,8 +26,8 @@ public:
     const auto expected{sourcemeta::core::read_file_to_string(expected_path)};
 
     const auto result{
-        sourcemeta::blaze::compile(schema, sourcemeta::core::schema_walker,
-                                   sourcemeta::core::schema_resolver,
+        sourcemeta::blaze::compile(schema, sourcemeta::blaze::schema_walker,
+                                   sourcemeta::blaze::schema_resolver,
                                    sourcemeta::blaze::default_compiler)};
 
     std::ostringstream output;

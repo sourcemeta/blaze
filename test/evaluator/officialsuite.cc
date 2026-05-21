@@ -16,8 +16,8 @@
 #include <sourcemeta/blaze/compiler.h>
 #include <sourcemeta/blaze/evaluator.h>
 
+#include <sourcemeta/blaze/foundation.h>
 #include <sourcemeta/core/json.h>
-#include <sourcemeta/core/jsonschema.h>
 
 static auto test_resolver(std::string_view identifier)
     -> std::optional<sourcemeta::core::JSON> {
@@ -213,7 +213,7 @@ static auto test_resolver(std::string_view identifier)
 
 #undef READ_SCHEMA_FILE
 
-  return sourcemeta::core::schema_resolver(identifier);
+  return sourcemeta::blaze::schema_resolver(identifier);
 }
 
 static auto slugify(const std::string &input, std::ostream &output) -> void {
@@ -274,7 +274,7 @@ static auto register_tests(
       assert(test.defines("schema"));
       assert(test.defines("tests"));
       assert(test.at("description").is_string());
-      assert(sourcemeta::core::is_schema(test.at("schema")));
+      assert(sourcemeta::blaze::is_schema(test.at("schema")));
       assert(test.at("tests").is_array());
 
       std::cerr << "    Compiling: " << test.at("description").to_string()
@@ -283,7 +283,7 @@ static auto register_tests(
       for (const auto mode : {sourcemeta::blaze::Mode::FastValidation,
                               sourcemeta::blaze::Mode::Exhaustive}) {
         const auto schema_template{sourcemeta::blaze::compile(
-            test.at("schema"), sourcemeta::core::schema_walker, test_resolver,
+            test.at("schema"), sourcemeta::blaze::schema_walker, test_resolver,
             sourcemeta::blaze::default_schema_compiler, mode, default_dialect,
             "", "", tweaks)};
 
@@ -426,7 +426,7 @@ int main(int argc, char **argv) {
                    // TODO: Support all formats
                    {"color", "date", "ecmascript-regex", "regex", "time"},
                    sourcemeta::blaze::Tweaks{.format_assertion = true});
-  } catch (const sourcemeta::core::SchemaResolutionError &error) {
+  } catch (const sourcemeta::blaze::SchemaResolutionError &error) {
     std::cerr << error.what() << ": " << error.identifier() << "\n";
     return EXIT_FAILURE;
   } catch (const std::exception &error) {

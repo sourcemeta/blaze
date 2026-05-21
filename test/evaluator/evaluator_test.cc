@@ -3,8 +3,8 @@
 #include <sourcemeta/blaze/compiler.h>
 #include <sourcemeta/blaze/evaluator.h>
 
+#include <sourcemeta/blaze/foundation.h>
 #include <sourcemeta/core/json.h>
-#include <sourcemeta/core/jsonschema.h>
 
 #include <type_traits> // std::is_copy_constructible_v, etc.
 
@@ -37,7 +37,7 @@ static auto test_resolver(std::string_view identifier)
       "type": "string"
     })JSON");
   } else {
-    return sourcemeta::core::schema_resolver(identifier);
+    return sourcemeta::blaze::schema_resolver(identifier);
   }
 }
 
@@ -47,11 +47,11 @@ TEST(Evaluator, unknown_vocabulary_required) {
   })JSON")};
 
   try {
-    sourcemeta::blaze::compile(schema, sourcemeta::core::schema_walker,
+    sourcemeta::blaze::compile(schema, sourcemeta::blaze::schema_walker,
                                test_resolver,
                                sourcemeta::blaze::default_schema_compiler);
     FAIL() << "The compile function was expected to throw";
-  } catch (const sourcemeta::core::SchemaVocabularyError &error) {
+  } catch (const sourcemeta::blaze::SchemaVocabularyError &error) {
     EXPECT_EQ(error.uri(), "https://example.com/vocab/custom");
     SUCCEED();
   } catch (const std::exception &) {
@@ -66,10 +66,10 @@ TEST(Evaluator, without_default_id) {
   })JSON")};
 
   EXPECT_THROW(sourcemeta::blaze::compile(
-                   schema, sourcemeta::core::schema_walker, test_resolver,
+                   schema, sourcemeta::blaze::schema_walker, test_resolver,
                    sourcemeta::blaze::default_schema_compiler,
                    sourcemeta::blaze::Mode::FastValidation),
-               sourcemeta::core::SchemaResolutionError);
+               sourcemeta::blaze::SchemaResolutionError);
 }
 
 TEST(Evaluator, with_default_id) {
@@ -79,7 +79,7 @@ TEST(Evaluator, with_default_id) {
   })JSON")};
 
   const auto compiled_schema{sourcemeta::blaze::compile(
-      schema, sourcemeta::core::schema_walker, test_resolver,
+      schema, sourcemeta::blaze::schema_walker, test_resolver,
       sourcemeta::blaze::default_schema_compiler,
       sourcemeta::blaze::Mode::FastValidation, "",
       "https://example.com/default")};
@@ -93,8 +93,8 @@ TEST(Evaluator, boolean_true) {
   const sourcemeta::core::JSON schema{true};
 
   const auto compiled_schema{sourcemeta::blaze::compile(
-      schema, sourcemeta::core::schema_walker,
-      sourcemeta::core::schema_resolver,
+      schema, sourcemeta::blaze::schema_walker,
+      sourcemeta::blaze::schema_resolver,
       sourcemeta::blaze::default_schema_compiler,
       sourcemeta::blaze::Mode::FastValidation,
       "https://json-schema.org/draft/2020-12/schema")};
@@ -108,8 +108,8 @@ TEST(Evaluator, boolean_false) {
   const sourcemeta::core::JSON schema{false};
 
   const auto compiled_schema{sourcemeta::blaze::compile(
-      schema, sourcemeta::core::schema_walker,
-      sourcemeta::core::schema_resolver,
+      schema, sourcemeta::blaze::schema_walker,
+      sourcemeta::blaze::schema_resolver,
       sourcemeta::blaze::default_schema_compiler,
       sourcemeta::blaze::Mode::FastValidation,
       "https://json-schema.org/draft/2020-12/schema")};
@@ -133,8 +133,8 @@ TEST(Evaluator, reusable_evaluator) {
   })JSON")};
 
   const auto compiled_schema{
-      sourcemeta::blaze::compile(schema, sourcemeta::core::schema_walker,
-                                 sourcemeta::core::schema_resolver,
+      sourcemeta::blaze::compile(schema, sourcemeta::blaze::schema_walker,
+                                 sourcemeta::blaze::schema_resolver,
                                  sourcemeta::blaze::default_schema_compiler)};
 
   sourcemeta::blaze::Evaluator evaluator;
@@ -164,8 +164,8 @@ TEST(Evaluator, cross_2012_12_ref_2019_09_without_id) {
   })JSON")};
 
   const auto compiled_schema{
-      sourcemeta::blaze::compile(schema, sourcemeta::core::schema_walker,
-                                 sourcemeta::core::schema_resolver,
+      sourcemeta::blaze::compile(schema, sourcemeta::blaze::schema_walker,
+                                 sourcemeta::blaze::schema_resolver,
                                  sourcemeta::blaze::default_schema_compiler)};
 
   sourcemeta::blaze::Evaluator evaluator;
@@ -180,16 +180,16 @@ TEST(Evaluator, explicit_frame) {
   })JSON")};
 
   const sourcemeta::core::JSON result{
-      sourcemeta::core::bundle(schema, sourcemeta::core::schema_walker,
-                               sourcemeta::core::schema_resolver)};
-  sourcemeta::core::SchemaFrame frame{
-      sourcemeta::core::SchemaFrame::Mode::References};
-  frame.analyse(result, sourcemeta::core::schema_walker,
-                sourcemeta::core::schema_resolver);
+      sourcemeta::blaze::bundle(schema, sourcemeta::blaze::schema_walker,
+                                sourcemeta::blaze::schema_resolver)};
+  sourcemeta::blaze::SchemaFrame frame{
+      sourcemeta::blaze::SchemaFrame::Mode::References};
+  frame.analyse(result, sourcemeta::blaze::schema_walker,
+                sourcemeta::blaze::schema_resolver);
 
   const auto compiled_schema{sourcemeta::blaze::compile(
-      result, sourcemeta::core::schema_walker,
-      sourcemeta::core::schema_resolver,
+      result, sourcemeta::blaze::schema_walker,
+      sourcemeta::blaze::schema_resolver,
       sourcemeta::blaze::default_schema_compiler, frame, frame.root())};
 
   sourcemeta::blaze::Evaluator evaluator;
@@ -204,19 +204,19 @@ TEST(Evaluator, explicit_frame_locations_only) {
   })JSON")};
 
   const sourcemeta::core::JSON result{
-      sourcemeta::core::bundle(schema, sourcemeta::core::schema_walker,
-                               sourcemeta::core::schema_resolver)};
-  sourcemeta::core::SchemaFrame frame{
-      sourcemeta::core::SchemaFrame::Mode::Locations};
-  frame.analyse(result, sourcemeta::core::schema_walker,
-                sourcemeta::core::schema_resolver);
+      sourcemeta::blaze::bundle(schema, sourcemeta::blaze::schema_walker,
+                                sourcemeta::blaze::schema_resolver)};
+  sourcemeta::blaze::SchemaFrame frame{
+      sourcemeta::blaze::SchemaFrame::Mode::Locations};
+  frame.analyse(result, sourcemeta::blaze::schema_walker,
+                sourcemeta::blaze::schema_resolver);
 
   EXPECT_THROW(
-      sourcemeta::blaze::compile(result, sourcemeta::core::schema_walker,
-                                 sourcemeta::core::schema_resolver,
+      sourcemeta::blaze::compile(result, sourcemeta::blaze::schema_walker,
+                                 sourcemeta::blaze::schema_resolver,
                                  sourcemeta::blaze::default_schema_compiler,
                                  frame, frame.root()),
-      sourcemeta::core::SchemaReferenceError);
+      sourcemeta::blaze::SchemaReferenceError);
 }
 
 TEST(Evaluator, is_annotation) {
@@ -252,14 +252,14 @@ TEST(Evaluator, invalid_entrypoint_does_not_exist) {
     "type": "string"
   })JSON")};
 
-  sourcemeta::core::SchemaFrame frame{
-      sourcemeta::core::SchemaFrame::Mode::References};
-  frame.analyse(schema, sourcemeta::core::schema_walker,
-                sourcemeta::core::schema_resolver);
+  sourcemeta::blaze::SchemaFrame frame{
+      sourcemeta::blaze::SchemaFrame::Mode::References};
+  frame.analyse(schema, sourcemeta::blaze::schema_walker,
+                sourcemeta::blaze::schema_resolver);
 
   try {
-    sourcemeta::blaze::compile(schema, sourcemeta::core::schema_walker,
-                               sourcemeta::core::schema_resolver,
+    sourcemeta::blaze::compile(schema, sourcemeta::blaze::schema_walker,
+                               sourcemeta::blaze::schema_resolver,
                                sourcemeta::blaze::default_schema_compiler,
                                frame, "https://example.com/does-not-exist");
     FAIL() << "The compile function was expected to throw";
@@ -278,14 +278,14 @@ TEST(Evaluator, invalid_entrypoint_not_a_subschema) {
     }
   })JSON")};
 
-  sourcemeta::core::SchemaFrame frame{
-      sourcemeta::core::SchemaFrame::Mode::References};
-  frame.analyse(schema, sourcemeta::core::schema_walker,
-                sourcemeta::core::schema_resolver);
+  sourcemeta::blaze::SchemaFrame frame{
+      sourcemeta::blaze::SchemaFrame::Mode::References};
+  frame.analyse(schema, sourcemeta::blaze::schema_walker,
+                sourcemeta::blaze::schema_resolver);
 
   try {
-    sourcemeta::blaze::compile(schema, sourcemeta::core::schema_walker,
-                               sourcemeta::core::schema_resolver,
+    sourcemeta::blaze::compile(schema, sourcemeta::blaze::schema_walker,
+                               sourcemeta::blaze::schema_resolver,
                                sourcemeta::blaze::default_schema_compiler,
                                frame, "#/properties");
     FAIL() << "The compile function was expected to throw";
@@ -302,11 +302,11 @@ TEST(Evaluator, format_assertion_vocabulary_unsupported) {
   })JSON")};
 
   try {
-    sourcemeta::blaze::compile(schema, sourcemeta::core::schema_walker,
+    sourcemeta::blaze::compile(schema, sourcemeta::blaze::schema_walker,
                                test_resolver,
                                sourcemeta::blaze::default_schema_compiler);
     FAIL() << "The compile function was expected to throw";
-  } catch (const sourcemeta::core::SchemaVocabularyError &error) {
+  } catch (const sourcemeta::blaze::SchemaVocabularyError &error) {
     EXPECT_EQ(error.uri(),
               "https://json-schema.org/draft/2020-12/vocab/format-assertion");
     SUCCEED();
@@ -324,19 +324,19 @@ TEST(Evaluator,
     "unevaluatedProperties": false
   })JSON")};
 
-  const auto bundled{sourcemeta::core::bundle(
-      schema, sourcemeta::core::schema_walker,
-      sourcemeta::core::schema_resolver, "", "https://example.com/default")};
+  const auto bundled{sourcemeta::blaze::bundle(
+      schema, sourcemeta::blaze::schema_walker,
+      sourcemeta::blaze::schema_resolver, "", "https://example.com/default")};
 
-  sourcemeta::core::SchemaFrame frame{
-      sourcemeta::core::SchemaFrame::Mode::References};
-  frame.analyse(bundled, sourcemeta::core::schema_walker,
-                sourcemeta::core::schema_resolver, "",
+  sourcemeta::blaze::SchemaFrame frame{
+      sourcemeta::blaze::SchemaFrame::Mode::References};
+  frame.analyse(bundled, sourcemeta::blaze::schema_walker,
+                sourcemeta::blaze::schema_resolver, "",
                 "https://example.com/default");
 
   const auto compiled_schema{sourcemeta::blaze::compile(
-      bundled, sourcemeta::core::schema_walker,
-      sourcemeta::core::schema_resolver,
+      bundled, sourcemeta::blaze::schema_walker,
+      sourcemeta::blaze::schema_resolver,
       sourcemeta::blaze::default_schema_compiler, frame, frame.root(),
       sourcemeta::blaze::Mode::FastValidation)};
 
@@ -355,19 +355,19 @@ TEST(Evaluator, unevaluated_items_with_root_dynamic_anchor_and_default_id) {
     "unevaluatedItems": false
   })JSON")};
 
-  const auto bundled{sourcemeta::core::bundle(
-      schema, sourcemeta::core::schema_walker,
-      sourcemeta::core::schema_resolver, "", "https://example.com/default")};
+  const auto bundled{sourcemeta::blaze::bundle(
+      schema, sourcemeta::blaze::schema_walker,
+      sourcemeta::blaze::schema_resolver, "", "https://example.com/default")};
 
-  sourcemeta::core::SchemaFrame frame{
-      sourcemeta::core::SchemaFrame::Mode::References};
-  frame.analyse(bundled, sourcemeta::core::schema_walker,
-                sourcemeta::core::schema_resolver, "",
+  sourcemeta::blaze::SchemaFrame frame{
+      sourcemeta::blaze::SchemaFrame::Mode::References};
+  frame.analyse(bundled, sourcemeta::blaze::schema_walker,
+                sourcemeta::blaze::schema_resolver, "",
                 "https://example.com/default");
 
   const auto compiled_schema{sourcemeta::blaze::compile(
-      bundled, sourcemeta::core::schema_walker,
-      sourcemeta::core::schema_resolver,
+      bundled, sourcemeta::blaze::schema_walker,
+      sourcemeta::blaze::schema_resolver,
       sourcemeta::blaze::default_schema_compiler, frame, frame.root(),
       sourcemeta::blaze::Mode::FastValidation)};
 
@@ -387,19 +387,19 @@ TEST(Evaluator,
     "unevaluatedProperties": false
   })JSON")};
 
-  const auto bundled{sourcemeta::core::bundle(
-      schema, sourcemeta::core::schema_walker,
-      sourcemeta::core::schema_resolver, "", "https://example.com/default")};
+  const auto bundled{sourcemeta::blaze::bundle(
+      schema, sourcemeta::blaze::schema_walker,
+      sourcemeta::blaze::schema_resolver, "", "https://example.com/default")};
 
-  sourcemeta::core::SchemaFrame frame{
-      sourcemeta::core::SchemaFrame::Mode::References};
-  frame.analyse(bundled, sourcemeta::core::schema_walker,
-                sourcemeta::core::schema_resolver, "",
+  sourcemeta::blaze::SchemaFrame frame{
+      sourcemeta::blaze::SchemaFrame::Mode::References};
+  frame.analyse(bundled, sourcemeta::blaze::schema_walker,
+                sourcemeta::blaze::schema_resolver, "",
                 "https://example.com/default");
 
   const auto compiled_schema{sourcemeta::blaze::compile(
-      bundled, sourcemeta::core::schema_walker,
-      sourcemeta::core::schema_resolver,
+      bundled, sourcemeta::blaze::schema_walker,
+      sourcemeta::blaze::schema_resolver,
       sourcemeta::blaze::default_schema_compiler, frame, frame.root(),
       sourcemeta::blaze::Mode::FastValidation)};
 
@@ -419,19 +419,19 @@ TEST(Evaluator,
     "unevaluatedProperties": { "type": "string" }
   })JSON")};
 
-  const auto bundled{sourcemeta::core::bundle(
-      schema, sourcemeta::core::schema_walker,
-      sourcemeta::core::schema_resolver, "", "https://example.com/default")};
+  const auto bundled{sourcemeta::blaze::bundle(
+      schema, sourcemeta::blaze::schema_walker,
+      sourcemeta::blaze::schema_resolver, "", "https://example.com/default")};
 
-  sourcemeta::core::SchemaFrame frame{
-      sourcemeta::core::SchemaFrame::Mode::References};
-  frame.analyse(bundled, sourcemeta::core::schema_walker,
-                sourcemeta::core::schema_resolver, "",
+  sourcemeta::blaze::SchemaFrame frame{
+      sourcemeta::blaze::SchemaFrame::Mode::References};
+  frame.analyse(bundled, sourcemeta::blaze::schema_walker,
+                sourcemeta::blaze::schema_resolver, "",
                 "https://example.com/default");
 
   const auto compiled_schema{sourcemeta::blaze::compile(
-      bundled, sourcemeta::core::schema_walker,
-      sourcemeta::core::schema_resolver,
+      bundled, sourcemeta::blaze::schema_walker,
+      sourcemeta::blaze::schema_resolver,
       sourcemeta::blaze::default_schema_compiler, frame, frame.root(),
       sourcemeta::blaze::Mode::FastValidation)};
 

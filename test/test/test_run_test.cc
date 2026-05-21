@@ -3,9 +3,9 @@
 #include <sourcemeta/blaze/compiler.h>
 #include <sourcemeta/blaze/test.h>
 
+#include <sourcemeta/blaze/foundation.h>
 #include <sourcemeta/core/json.h>
 #include <sourcemeta/core/jsonpointer.h>
-#include <sourcemeta/core/jsonschema.h>
 #include <sourcemeta/core/uri.h>
 #include <sourcemeta/core/yaml.h>
 
@@ -27,7 +27,7 @@ TEST(TestSuite_run, empty_tests) {
   sourcemeta::core::parse_json(input, document, std::ref(tracker));
   auto suite{sourcemeta::blaze::TestSuite::parse(
       document, tracker, std::filesystem::path{STUBS_PATH},
-      sourcemeta::core::schema_resolver, sourcemeta::core::schema_walker,
+      sourcemeta::blaze::schema_resolver, sourcemeta::blaze::schema_walker,
       sourcemeta::blaze::default_schema_compiler)};
 
   std::vector<std::tuple<std::string, std::size_t, std::size_t, std::string,
@@ -72,7 +72,7 @@ TEST(TestSuite_run, all_passing) {
   sourcemeta::core::parse_json(input, document, std::ref(tracker));
   auto suite{sourcemeta::blaze::TestSuite::parse(
       document, tracker, std::filesystem::path{STUBS_PATH},
-      sourcemeta::core::schema_resolver, sourcemeta::core::schema_walker,
+      sourcemeta::blaze::schema_resolver, sourcemeta::blaze::schema_walker,
       sourcemeta::blaze::default_schema_compiler)};
 
   std::vector<std::tuple<std::string, std::size_t, std::size_t, std::string,
@@ -139,7 +139,7 @@ TEST(TestSuite_run, all_failing) {
   sourcemeta::core::parse_json(input, document, std::ref(tracker));
   auto suite{sourcemeta::blaze::TestSuite::parse(
       document, tracker, std::filesystem::path{STUBS_PATH},
-      sourcemeta::core::schema_resolver, sourcemeta::core::schema_walker,
+      sourcemeta::blaze::schema_resolver, sourcemeta::blaze::schema_walker,
       sourcemeta::blaze::default_schema_compiler)};
 
   std::vector<std::tuple<std::string, std::size_t, std::size_t, std::string,
@@ -211,7 +211,7 @@ TEST(TestSuite_run, mixed_results) {
   sourcemeta::core::parse_json(input, document, std::ref(tracker));
   auto suite{sourcemeta::blaze::TestSuite::parse(
       document, tracker, std::filesystem::path{STUBS_PATH},
-      sourcemeta::core::schema_resolver, sourcemeta::core::schema_walker,
+      sourcemeta::blaze::schema_resolver, sourcemeta::blaze::schema_walker,
       sourcemeta::blaze::default_schema_compiler)};
 
   std::vector<std::tuple<std::string, std::size_t, std::size_t, std::string,
@@ -300,12 +300,12 @@ TEST(TestSuite_run, file_path_target) {
           return sourcemeta::core::read_yaml_or_json(uri.to_path());
         }
 
-        return sourcemeta::core::schema_resolver(identifier);
+        return sourcemeta::blaze::schema_resolver(identifier);
       }};
 
   auto suite{sourcemeta::blaze::TestSuite::parse(
       document, tracker, std::filesystem::path{STUBS_PATH}, test_resolver,
-      sourcemeta::core::schema_walker,
+      sourcemeta::blaze::schema_walker,
       sourcemeta::blaze::default_schema_compiler)};
 
   const auto expected_target{sourcemeta::core::URI::from_path(
@@ -394,12 +394,12 @@ TEST(TestSuite_run, default_dialect) {
           return sourcemeta::core::read_yaml_or_json(uri.to_path());
         }
 
-        return sourcemeta::core::schema_resolver(identifier);
+        return sourcemeta::blaze::schema_resolver(identifier);
       }};
 
   auto suite{sourcemeta::blaze::TestSuite::parse(
       document, tracker, std::filesystem::path{STUBS_PATH}, test_resolver,
-      sourcemeta::core::schema_walker,
+      sourcemeta::blaze::schema_walker,
       sourcemeta::blaze::default_schema_compiler,
       "https://json-schema.org/draft/2020-12/schema")};
 
@@ -484,7 +484,7 @@ TEST(TestSuite_run, timestamps_ordering) {
   sourcemeta::core::parse_json(input, document, std::ref(tracker));
   auto suite{sourcemeta::blaze::TestSuite::parse(
       document, tracker, std::filesystem::path{STUBS_PATH},
-      sourcemeta::core::schema_resolver, sourcemeta::core::schema_walker,
+      sourcemeta::blaze::schema_resolver, sourcemeta::blaze::schema_walker,
       sourcemeta::blaze::default_schema_compiler)};
 
   std::vector<std::tuple<std::string, sourcemeta::blaze::TestTimestamp,
@@ -561,7 +561,7 @@ TEST(TestSuite_run, multiple_targets_all_passing) {
   sourcemeta::core::parse_json(input, document, std::ref(tracker));
   auto suite{sourcemeta::blaze::TestSuite::parse(
       document, tracker, std::filesystem::path{STUBS_PATH},
-      sourcemeta::core::schema_resolver, sourcemeta::core::schema_walker,
+      sourcemeta::blaze::schema_resolver, sourcemeta::blaze::schema_walker,
       sourcemeta::blaze::default_schema_compiler)};
 
   std::vector<std::tuple<std::string, std::size_t, std::size_t, std::string,
@@ -638,7 +638,7 @@ TEST(TestSuite_run, multiple_targets_all_failing) {
   sourcemeta::core::parse_json(input, document, std::ref(tracker));
   auto suite{sourcemeta::blaze::TestSuite::parse(
       document, tracker, std::filesystem::path{STUBS_PATH},
-      sourcemeta::core::schema_resolver, sourcemeta::core::schema_walker,
+      sourcemeta::blaze::schema_resolver, sourcemeta::blaze::schema_walker,
       sourcemeta::blaze::default_schema_compiler)};
 
   std::vector<std::tuple<std::string, std::size_t, std::size_t, std::string,
@@ -715,7 +715,7 @@ TEST(TestSuite_run, multiple_targets_mixed_results) {
   sourcemeta::core::parse_json(input, document, std::ref(tracker));
   auto suite{sourcemeta::blaze::TestSuite::parse(
       document, tracker, std::filesystem::path{STUBS_PATH},
-      sourcemeta::core::schema_resolver, sourcemeta::core::schema_walker,
+      sourcemeta::blaze::schema_resolver, sourcemeta::blaze::schema_walker,
       sourcemeta::blaze::default_schema_compiler)};
 
   std::vector<std::tuple<std::string, std::size_t, std::size_t, std::string,
@@ -781,7 +781,7 @@ TEST(TestSuite_run, multiple_targets_with_no_tests) {
   sourcemeta::core::parse_json(input, document, std::ref(tracker));
   auto suite{sourcemeta::blaze::TestSuite::parse(
       document, tracker, std::filesystem::path{STUBS_PATH},
-      sourcemeta::core::schema_resolver, sourcemeta::core::schema_walker,
+      sourcemeta::blaze::schema_resolver, sourcemeta::blaze::schema_walker,
       sourcemeta::blaze::default_schema_compiler)};
 
   std::vector<std::tuple<std::string, std::size_t, std::size_t, std::string,
@@ -818,7 +818,7 @@ TEST(TestSuite_run, multiple_targets_single_element_matches_string_form) {
   sourcemeta::core::parse_json(input, document, std::ref(tracker));
   auto suite{sourcemeta::blaze::TestSuite::parse(
       document, tracker, std::filesystem::path{STUBS_PATH},
-      sourcemeta::core::schema_resolver, sourcemeta::core::schema_walker,
+      sourcemeta::blaze::schema_resolver, sourcemeta::blaze::schema_walker,
       sourcemeta::blaze::default_schema_compiler)};
 
   std::vector<std::tuple<std::string, std::size_t, std::size_t, std::string,
@@ -870,12 +870,12 @@ TEST(TestSuite_run, multiple_targets_with_file_path_targets) {
           return sourcemeta::core::read_yaml_or_json(uri.to_path());
         }
 
-        return sourcemeta::core::schema_resolver(identifier);
+        return sourcemeta::blaze::schema_resolver(identifier);
       }};
 
   auto suite{sourcemeta::blaze::TestSuite::parse(
       document, tracker, std::filesystem::path{STUBS_PATH}, test_resolver,
-      sourcemeta::core::schema_walker,
+      sourcemeta::blaze::schema_walker,
       sourcemeta::blaze::default_schema_compiler)};
 
   const auto expected_file_target{sourcemeta::core::URI::from_path(
@@ -943,12 +943,12 @@ TEST(TestSuite_run, multiple_targets_with_default_dialect) {
           return sourcemeta::core::read_yaml_or_json(uri.to_path());
         }
 
-        return sourcemeta::core::schema_resolver(identifier);
+        return sourcemeta::blaze::schema_resolver(identifier);
       }};
 
   auto suite{sourcemeta::blaze::TestSuite::parse(
       document, tracker, std::filesystem::path{STUBS_PATH}, test_resolver,
-      sourcemeta::core::schema_walker,
+      sourcemeta::blaze::schema_walker,
       sourcemeta::blaze::default_schema_compiler,
       "https://json-schema.org/draft/2020-12/schema")};
 
@@ -1022,7 +1022,7 @@ TEST(TestSuite_run, multiple_targets_with_data_path) {
   sourcemeta::core::parse_json(input, document, std::ref(tracker));
   auto suite{sourcemeta::blaze::TestSuite::parse(
       document, tracker, std::filesystem::path{STUBS_PATH},
-      sourcemeta::core::schema_resolver, sourcemeta::core::schema_walker,
+      sourcemeta::blaze::schema_resolver, sourcemeta::blaze::schema_walker,
       sourcemeta::blaze::default_schema_compiler)};
 
   std::vector<std::tuple<std::string, std::size_t, std::size_t, std::string,
@@ -1083,7 +1083,7 @@ TEST(TestSuite_run, multiple_targets_timestamps_ordering) {
   sourcemeta::core::parse_json(input, document, std::ref(tracker));
   auto suite{sourcemeta::blaze::TestSuite::parse(
       document, tracker, std::filesystem::path{STUBS_PATH},
-      sourcemeta::core::schema_resolver, sourcemeta::core::schema_walker,
+      sourcemeta::blaze::schema_resolver, sourcemeta::blaze::schema_walker,
       sourcemeta::blaze::default_schema_compiler)};
 
   std::vector<std::tuple<std::string, sourcemeta::blaze::TestTimestamp,
@@ -1141,7 +1141,7 @@ TEST(TestSuite_run, multiple_targets_three_targets) {
   sourcemeta::core::parse_json(input, document, std::ref(tracker));
   auto suite{sourcemeta::blaze::TestSuite::parse(
       document, tracker, std::filesystem::path{STUBS_PATH},
-      sourcemeta::core::schema_resolver, sourcemeta::core::schema_walker,
+      sourcemeta::blaze::schema_resolver, sourcemeta::blaze::schema_walker,
       sourcemeta::blaze::default_schema_compiler)};
 
   std::vector<std::tuple<std::string, std::size_t, std::size_t, std::string,
@@ -1209,12 +1209,12 @@ TEST(TestSuite_run, multiple_targets_per_target_validation_differs) {
           return sourcemeta::core::read_yaml_or_json(uri.to_path());
         }
 
-        return sourcemeta::core::schema_resolver(identifier);
+        return sourcemeta::blaze::schema_resolver(identifier);
       }};
 
   auto suite{sourcemeta::blaze::TestSuite::parse(
       document, tracker, std::filesystem::path{STUBS_PATH}, test_resolver,
-      sourcemeta::core::schema_walker,
+      sourcemeta::blaze::schema_walker,
       sourcemeta::blaze::default_schema_compiler,
       "https://json-schema.org/draft/2020-12/schema")};
 
