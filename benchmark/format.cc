@@ -1,6 +1,5 @@
 #include <benchmark/benchmark.h>
 
-#include <cassert>    // assert
 #include <filesystem> // std::filesystem
 
 #include <sourcemeta/blaze/format.h>
@@ -17,7 +16,7 @@ static void Schema_Format_ISO_Language_To_JSON(benchmark::State &state) {
     state.ResumeTiming();
     sourcemeta::blaze::format(schema, sourcemeta::blaze::schema_walker,
                               sourcemeta::blaze::schema_resolver);
-    assert(schema.is_object());
+    benchmark::DoNotOptimize(schema);
   }
 }
 
