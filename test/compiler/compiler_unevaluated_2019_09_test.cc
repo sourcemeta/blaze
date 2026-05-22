@@ -1,6 +1,7 @@
 #include <gtest/gtest.h>
 
 #include <sourcemeta/blaze/compiler.h>
+#include <sourcemeta/blaze/frame.h>
 
 #include "compiler_test_utils.h"
 

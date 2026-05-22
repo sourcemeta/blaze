@@ -171,6 +171,8 @@ endif()
 target_link_libraries(sourcemeta_blaze_alterschema PUBLIC
   sourcemeta::blaze::foundation)
 target_link_libraries(sourcemeta_blaze_alterschema PUBLIC
+  sourcemeta::blaze::frame)
+target_link_libraries(sourcemeta_blaze_alterschema PUBLIC
   sourcemeta::blaze::compiler)
 target_link_libraries(sourcemeta_blaze_alterschema PRIVATE
   sourcemeta::blaze::evaluator)

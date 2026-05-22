@@ -18,6 +18,7 @@
 #include <sourcemeta/core/jsonpointer.h>
 
 #include <sourcemeta/blaze/foundation.h>
+#include <sourcemeta/blaze/frame.h>
 
 #include <functional>  // std::function
 #include <optional>    // std::optional, std::nullopt

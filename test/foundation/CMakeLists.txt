@@ -1,7 +1,6 @@
 sourcemeta_googletest(NAMESPACE sourcemeta PROJECT blaze NAME foundation
   FOLDER "Blaze/Foundation"
   SOURCES
-    foundation_test_utils.h
     foundation_identify_2020_12_test.cc
     foundation_identify_2019_09_test.cc
     foundation_identify_draft7_test.cc
@@ -14,16 +13,6 @@ sourcemeta_googletest(NAMESPACE sourcemeta PROJECT blaze NAME foundation
     foundation_identify_test.cc
     foundation_is_schema_test.cc
     foundation_is_empty_schema_test.cc
-    foundation_frame_2020_12_test.cc
-    foundation_frame_2019_09_test.cc
-    foundation_frame_draft7_test.cc
-    foundation_frame_draft6_test.cc
-    foundation_frame_draft4_test.cc
-    foundation_frame_draft3_test.cc
-    foundation_frame_draft2_test.cc
-    foundation_frame_draft1_test.cc
-    foundation_frame_draft0_test.cc
-    foundation_frame_test.cc
     foundation_metaschema_test.cc
     foundation_dialect_test.cc
     foundation_dialect_2020_12_test.cc
@@ -80,18 +69,3 @@ target_link_libraries(sourcemeta_blaze_foundation_unit
   PRIVATE sourcemeta::blaze::foundation)
 target_link_libraries(sourcemeta_blaze_foundation_unit
   PRIVATE sourcemeta::core::uri)
-
-if(MSVC)
-  target_compile_options(sourcemeta_blaze_foundation_unit PRIVATE /bigobj)
-endif()
-
-# JSON Schema Referencing Suite
-# See https://github.com/python-jsonschema/referencing-suite
-sourcemeta_googletest(NAMESPACE sourcemeta PROJECT blaze NAME foundation_referencing_suite
-  SOURCES referencingsuite.cc)
-target_compile_definitions(sourcemeta_blaze_foundation_referencing_suite_unit
-  PRIVATE REFERENCING_SUITE_PATH="${PROJECT_SOURCE_DIR}/vendor/referencing-suite/tests")
-target_link_libraries(sourcemeta_blaze_foundation_referencing_suite_unit PRIVATE sourcemeta::core::uri)
-target_link_libraries(sourcemeta_blaze_foundation_referencing_suite_unit PRIVATE sourcemeta::core::json)
-target_link_libraries(sourcemeta_blaze_foundation_referencing_suite_unit PRIVATE sourcemeta::blaze::foundation)
-target_link_libraries(sourcemeta_blaze_foundation_referencing_suite_unit PRIVATE sourcemeta::core::jsonpointer)

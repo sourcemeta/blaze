@@ -1,10 +1,11 @@
 #include <gtest/gtest.h>
 
 #include <sourcemeta/blaze/foundation.h>
+#include <sourcemeta/blaze/frame.h>
 #include <sourcemeta/core/json.h>
 #include <sourcemeta/core/jsonpointer.h>
 
-#include "foundation_test_utils.h"
+#include "frame_test_utils.h"
 
 #define EXPECT_FRAME_STATIC_2020_12_POINTER(                                   \
     frame, reference, root_id, expected_pointer, expected_base,                \
@@ -56,7 +57,7 @@
                               expected_relative_pointer, expected_parent,      \
                               expected_property_name, expected_orphan);
 
-TEST(Foundation_frame_2020_12, anonymous_with_nested_schema_resource) {
+TEST(Frame_2020_12, anonymous_with_nested_schema_resource) {
   const sourcemeta::core::JSON document = sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2020-12/schema",
     "additionalProperties": { "$id": "https://example.com" }
@@ -120,7 +121,7 @@ TEST(Foundation_frame_2020_12, anonymous_with_nested_schema_resource) {
                                   "https://example.com");
 }
 
-TEST(Foundation_frame_2020_12, empty_schema) {
+TEST(Frame_2020_12, empty_schema) {
   const sourcemeta::core::JSON document = sourcemeta::core::parse_json(R"JSON({
     "$id": "https://www.sourcemeta.com/schema",
     "$schema": "https://json-schema.org/draft/2020-12/schema"
@@ -163,7 +164,7 @@ TEST(Foundation_frame_2020_12, empty_schema) {
       frame, Static, "https://www.sourcemeta.com/schema", frame.root());
 }
 
-TEST(Foundation_frame_2020_12, empty_schema_trailing_hash) {
+TEST(Frame_2020_12, empty_schema_trailing_hash) {
   const sourcemeta::core::JSON document = sourcemeta::core::parse_json(R"JSON({
     "$id": "https://www.sourcemeta.com/schema#",
     "$schema": "https://json-schema.org/draft/2020-12/schema"
@@ -206,7 +207,7 @@ TEST(Foundation_frame_2020_12, empty_schema_trailing_hash) {
       frame, Static, "https://www.sourcemeta.com/schema", frame.root());
 }
 
-TEST(Foundation_frame_2020_12, one_level_applicators_without_identifiers) {
+TEST(Frame_2020_12, one_level_applicators_without_identifiers) {
   const sourcemeta::core::JSON document = sourcemeta::core::parse_json(R"JSON({
     "$id": "https://www.sourcemeta.com/schema",
     "$schema": "https://json-schema.org/draft/2020-12/schema",
@@ -300,7 +301,7 @@ TEST(Foundation_frame_2020_12, one_level_applicators_without_identifiers) {
       "https://www.sourcemeta.com/schema#/properties/foo");
 }
 
-TEST(Foundation_frame_2020_12, one_level_applicators_with_identifiers) {
+TEST(Frame_2020_12, one_level_applicators_with_identifiers) {
   const sourcemeta::core::JSON document = sourcemeta::core::parse_json(R"JSON({
     "$id": "https://www.sourcemeta.com/test/qux",
     "$schema": "https://json-schema.org/draft/2020-12/schema",
@@ -441,7 +442,7 @@ TEST(Foundation_frame_2020_12, one_level_applicators_with_identifiers) {
       "https://www.sourcemeta.com/test/qux#/properties/foo");
 }
 
-TEST(Foundation_frame_2020_12, subschema_absolute_identifier) {
+TEST(Frame_2020_12, subschema_absolute_identifier) {
   const sourcemeta::core::JSON document = sourcemeta::core::parse_json(R"JSON({
     "$id": "https://www.sourcemeta.com/schema",
     "$schema": "https://json-schema.org/draft/2020-12/schema",
@@ -518,7 +519,7 @@ TEST(Foundation_frame_2020_12, subschema_absolute_identifier) {
                                   "https://www.sourcemeta.com/foo");
 }
 
-TEST(Foundation_frame_2020_12, nested_schemas) {
+TEST(Frame_2020_12, nested_schemas) {
   const sourcemeta::core::JSON document = sourcemeta::core::parse_json(R"JSON({
     "$id": "https://www.sourcemeta.com/schema",
     "$schema": "https://json-schema.org/draft/2020-12/schema",
@@ -825,7 +826,7 @@ TEST(Foundation_frame_2020_12, nested_schemas) {
                                   "https://www.sourcemeta.com/baz");
 }
 
-TEST(Foundation_frame_2020_12, id_override) {
+TEST(Frame_2020_12, id_override) {
   const sourcemeta::core::JSON document = sourcemeta::core::parse_json(R"JSON({
     "$id": "https://www.sourcemeta.com/schema",
     "$schema": "https://json-schema.org/draft/2020-12/schema",
@@ -839,7 +840,7 @@ TEST(Foundation_frame_2020_12, id_override) {
                sourcemeta::blaze::SchemaFrameError);
 }
 
-TEST(Foundation_frame_2020_12, static_anchor_override) {
+TEST(Frame_2020_12, static_anchor_override) {
   const sourcemeta::core::JSON document = sourcemeta::core::parse_json(R"JSON({
     "$id": "https://www.sourcemeta.com/schema",
     "$schema": "https://json-schema.org/draft/2020-12/schema",
@@ -862,7 +863,7 @@ TEST(Foundation_frame_2020_12, static_anchor_override) {
   }
 }
 
-TEST(Foundation_frame_2020_12, explicit_argument_id_same) {
+TEST(Frame_2020_12, explicit_argument_id_same) {
   const sourcemeta::core::JSON document = sourcemeta::core::parse_json(R"JSON({
     "$id": "https://www.sourcemeta.com/schema",
     "$schema": "https://json-schema.org/draft/2020-12/schema"
@@ -907,7 +908,7 @@ TEST(Foundation_frame_2020_12, explicit_argument_id_same) {
       frame, Static, "https://www.sourcemeta.com/schema", frame.root());
 }
 
-TEST(Foundation_frame_2020_12, anchor_top_level) {
+TEST(Frame_2020_12, anchor_top_level) {
   const sourcemeta::core::JSON document = sourcemeta::core::parse_json(R"JSON({
     "$id": "https://www.sourcemeta.com/schema",
     "$schema": "https://json-schema.org/draft/2020-12/schema",
@@ -962,7 +963,7 @@ TEST(Foundation_frame_2020_12, anchor_top_level) {
       frame, Static, "https://www.sourcemeta.com/schema#foo", frame.root());
 }
 
-TEST(Foundation_frame_2020_12, explicit_argument_id_different) {
+TEST(Frame_2020_12, explicit_argument_id_different) {
   const sourcemeta::core::JSON document = sourcemeta::core::parse_json(R"JSON({
     "$id": "https://www.sourcemeta.com/schema",
     "$schema": "https://json-schema.org/draft/2020-12/schema",
@@ -1190,7 +1191,7 @@ TEST(Foundation_frame_2020_12, explicit_argument_id_different) {
                                   "https://www.test.com");
 }
 
-TEST(Foundation_frame_2020_12, dynamic_refs_with_id) {
+TEST(Frame_2020_12, dynamic_refs_with_id) {
   const sourcemeta::core::JSON document = sourcemeta::core::parse_json(R"JSON({
     "$id": "https://www.sourcemeta.com/schema",
     "$schema": "https://json-schema.org/draft/2020-12/schema",
@@ -1597,7 +1598,7 @@ TEST(Foundation_frame_2020_12, dynamic_refs_with_id) {
       "https://www.sourcemeta.com/schema#/properties/unknown");
 }
 
-TEST(Foundation_frame_2020_12, dynamic_refs_with_no_id) {
+TEST(Frame_2020_12, dynamic_refs_with_no_id) {
   const sourcemeta::core::JSON document = sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2020-12/schema",
     "properties": {
@@ -1887,7 +1888,7 @@ TEST(Foundation_frame_2020_12, dynamic_refs_with_no_id) {
                                       "#/properties/unknown");
 }
 
-TEST(Foundation_frame_2020_12, ref_to_dynamic_anchor) {
+TEST(Frame_2020_12, ref_to_dynamic_anchor) {
   const sourcemeta::core::JSON document = sourcemeta::core::parse_json(R"JSON({
     "$id": "https://www.sourcemeta.com/schema",
     "$schema": "https://json-schema.org/draft/2020-12/schema",
@@ -2010,7 +2011,7 @@ TEST(Foundation_frame_2020_12, ref_to_dynamic_anchor) {
       "https://www.sourcemeta.com/schema#/properties/bar");
 }
 
-TEST(Foundation_frame_2020_12, different_dynamic_and_refs_in_same_object) {
+TEST(Frame_2020_12, different_dynamic_and_refs_in_same_object) {
   const sourcemeta::core::JSON document = sourcemeta::core::parse_json(R"JSON({
     "$id": "https://www.sourcemeta.com/schema",
     "$schema": "https://json-schema.org/draft/2020-12/schema",
@@ -2128,7 +2129,7 @@ TEST(Foundation_frame_2020_12, different_dynamic_and_refs_in_same_object) {
       "https://www.sourcemeta.com/schema#/properties/bar");
 }
 
-TEST(Foundation_frame_2020_12, same_dynamic_and_refs_in_same_object) {
+TEST(Frame_2020_12, same_dynamic_and_refs_in_same_object) {
   const sourcemeta::core::JSON document = sourcemeta::core::parse_json(R"JSON({
     "$id": "https://www.sourcemeta.com/schema",
     "$schema": "https://json-schema.org/draft/2020-12/schema",
@@ -2247,7 +2248,7 @@ TEST(Foundation_frame_2020_12, same_dynamic_and_refs_in_same_object) {
       "https://www.sourcemeta.com/schema#/properties/bar");
 }
 
-TEST(Foundation_frame_2020_12, dynamic_anchor_with_id) {
+TEST(Frame_2020_12, dynamic_anchor_with_id) {
   const sourcemeta::core::JSON document = sourcemeta::core::parse_json(R"JSON({
     "$id": "https://www.sourcemeta.com/schema",
     "$schema": "https://json-schema.org/draft/2020-12/schema",
@@ -2444,7 +2445,7 @@ TEST(Foundation_frame_2020_12, dynamic_anchor_with_id) {
                                   "https://www.sourcemeta.com/bar");
 }
 
-TEST(Foundation_frame_2020_12, dynamic_anchor_without_id) {
+TEST(Frame_2020_12, dynamic_anchor_without_id) {
   const sourcemeta::core::JSON document = sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2020-12/schema",
     "properties": {
@@ -2519,8 +2520,7 @@ TEST(Foundation_frame_2020_12, dynamic_anchor_without_id) {
   EXPECT_FRAME_LOCATION_REACHABLE(frame, Dynamic, "#test", "#/properties/foo");
 }
 
-TEST(Foundation_frame_2020_12,
-     dynamic_ref_to_single_dynamic_anchor_standalone) {
+TEST(Frame_2020_12, dynamic_ref_to_single_dynamic_anchor_standalone) {
   const sourcemeta::core::JSON document = sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2020-12/schema",
     "$dynamicRef": "#test",
@@ -2599,7 +2599,7 @@ TEST(Foundation_frame_2020_12,
   EXPECT_FRAME_LOCATION_REACHABLE(frame, Dynamic, "#test", "#/$defs/test");
 }
 
-TEST(Foundation_frame_2020_12, dynamic_ref_to_single_dynamic_anchor_external) {
+TEST(Frame_2020_12, dynamic_ref_to_single_dynamic_anchor_external) {
   const sourcemeta::core::JSON document = sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2020-12/schema",
     "$dynamicRef": "#test",
@@ -2701,7 +2701,7 @@ TEST(Foundation_frame_2020_12, dynamic_ref_to_single_dynamic_anchor_external) {
                                       "#/$defs/foo");
 }
 
-TEST(Foundation_frame_2020_12, dynamic_anchor_same_on_schema_resource) {
+TEST(Frame_2020_12, dynamic_anchor_same_on_schema_resource) {
   const sourcemeta::core::JSON document = sourcemeta::core::parse_json(R"JSON({
     "$id": "https://www.sourcemeta.com/schema",
     "$schema": "https://json-schema.org/draft/2020-12/schema",
@@ -2726,7 +2726,7 @@ TEST(Foundation_frame_2020_12, dynamic_anchor_same_on_schema_resource) {
   }
 }
 
-TEST(Foundation_frame_2020_12, no_id_recursive_empty_pointer) {
+TEST(Frame_2020_12, no_id_recursive_empty_pointer) {
   const sourcemeta::core::JSON document = sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2020-12/schema",
     "properties": {
@@ -2785,7 +2785,7 @@ TEST(Foundation_frame_2020_12, no_id_recursive_empty_pointer) {
                                   "#/properties/foo");
 }
 
-TEST(Foundation_frame_2020_12, ref_metaschema) {
+TEST(Frame_2020_12, ref_metaschema) {
   const sourcemeta::core::JSON document = sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2020-12/schema",
     "$ref": "https://json-schema.org/draft/2020-12/schema"
@@ -2827,7 +2827,7 @@ TEST(Foundation_frame_2020_12, ref_metaschema) {
   EXPECT_FRAME_LOCATION_REACHABLE(frame, Static, "", frame.root());
 }
 
-TEST(Foundation_frame_2020_12, location_independent_identifier_anonymous) {
+TEST(Frame_2020_12, location_independent_identifier_anonymous) {
   const sourcemeta::core::JSON document = sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2020-12/schema",
     "$defs": {
@@ -2854,7 +2854,7 @@ TEST(Foundation_frame_2020_12, location_independent_identifier_anonymous) {
   }
 }
 
-TEST(Foundation_frame_2020_12, ref_with_id) {
+TEST(Frame_2020_12, ref_with_id) {
   const sourcemeta::core::JSON document = sourcemeta::core::parse_json(R"JSON({
     "$id": "https://www.sourcemeta.com/schema",
     "$schema": "https://json-schema.org/draft/2020-12/schema",
@@ -2932,7 +2932,7 @@ TEST(Foundation_frame_2020_12, ref_with_id) {
       "https://www.sourcemeta.com/schema#/$defs/string");
 }
 
-TEST(Foundation_frame_2020_12, ref_from_definitions) {
+TEST(Frame_2020_12, ref_from_definitions) {
   const sourcemeta::core::JSON document = sourcemeta::core::parse_json(R"JSON({
     "$id": "https://www.sourcemeta.com/schema",
     "$schema": "https://json-schema.org/draft/2020-12/schema",
@@ -3044,7 +3044,7 @@ TEST(Foundation_frame_2020_12, ref_from_definitions) {
       "https://www.sourcemeta.com/schema#/definitions/string");
 }
 
-TEST(Foundation_frame_2020_12, relative_base_uri_without_ref) {
+TEST(Frame_2020_12, relative_base_uri_without_ref) {
   const sourcemeta::core::JSON document = sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2020-12/schema",
     "$id": "common"
@@ -3082,7 +3082,7 @@ TEST(Foundation_frame_2020_12, relative_base_uri_without_ref) {
   EXPECT_FRAME_LOCATION_REACHABLE(frame, Static, "common", frame.root());
 }
 
-TEST(Foundation_frame_2020_12, relative_base_uri_with_ref) {
+TEST(Frame_2020_12, relative_base_uri_with_ref) {
   const sourcemeta::core::JSON document = sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2020-12/schema",
     "$id": "common",
@@ -3170,7 +3170,7 @@ TEST(Foundation_frame_2020_12, relative_base_uri_with_ref) {
                                   "common#/$defs/foo");
 }
 
-TEST(Foundation_frame_2020_12, relative_base_with_relative_path_ref) {
+TEST(Frame_2020_12, relative_base_with_relative_path_ref) {
   const sourcemeta::core::JSON document = sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2020-12/schema",
     "$id": "foo/bar/baz",
@@ -3216,7 +3216,7 @@ TEST(Foundation_frame_2020_12, relative_base_with_relative_path_ref) {
   EXPECT_FRAME_LOCATION_REACHABLE(frame, Static, "foo/bar/baz", frame.root());
 }
 
-TEST(Foundation_frame_2020_12, idempotent_with_refs) {
+TEST(Frame_2020_12, idempotent_with_refs) {
   const sourcemeta::core::JSON document = sourcemeta::core::parse_json(R"JSON({
     "$id": "https://www.sourcemeta.com/schema",
     "$schema": "https://json-schema.org/draft/2020-12/schema",
@@ -3294,7 +3294,7 @@ TEST(Foundation_frame_2020_12, idempotent_with_refs) {
       "https://www.sourcemeta.com/schema#/$defs/string");
 }
 
-TEST(Foundation_frame_2020_12, allof_refs) {
+TEST(Frame_2020_12, allof_refs) {
   const sourcemeta::core::JSON document = sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2020-12/schema",
     "allOf": [
@@ -3376,7 +3376,7 @@ TEST(Foundation_frame_2020_12, allof_refs) {
   EXPECT_FRAME_LOCATION_REACHABLE(frame, Static, "#/allOf/1", "#/allOf/1");
 }
 
-TEST(Foundation_frame_2020_12, properties_with_refs) {
+TEST(Frame_2020_12, properties_with_refs) {
   const sourcemeta::core::JSON document = sourcemeta::core::parse_json(R"JSON({
     "$id": "https://www.sourcemeta.com/schema",
     "$schema": "https://json-schema.org/draft/2020-12/schema",
@@ -3556,7 +3556,7 @@ TEST(Foundation_frame_2020_12, properties_with_refs) {
       "https://www.sourcemeta.com/schema#/properties/baz/items");
 }
 
-TEST(Foundation_frame_2020_12, property_ref_defs) {
+TEST(Frame_2020_12, property_ref_defs) {
   const sourcemeta::core::JSON document = sourcemeta::core::parse_json(R"JSON({
     "$id": "https://www.sourcemeta.com/schema",
     "$schema": "https://json-schema.org/draft/2020-12/schema",
@@ -3808,7 +3808,7 @@ TEST(Foundation_frame_2020_12, property_ref_defs) {
       "additionalProperties");
 }
 
-TEST(Foundation_frame_2020_12, property_cross_ref) {
+TEST(Frame_2020_12, property_cross_ref) {
   const sourcemeta::core::JSON document = sourcemeta::core::parse_json(R"JSON({
     "$id": "https://www.sourcemeta.com/schema",
     "$schema": "https://json-schema.org/draft/2020-12/schema",
@@ -4003,7 +4003,7 @@ TEST(Foundation_frame_2020_12, property_cross_ref) {
       "additionalProperties");
 }
 
-TEST(Foundation_frame_2020_12, dynamic_ref_multiple_targets) {
+TEST(Frame_2020_12, dynamic_ref_multiple_targets) {
   const sourcemeta::core::JSON document = sourcemeta::core::parse_json(R"JSON({
     "$id": "https://www.example.com",
     "$schema": "https://json-schema.org/draft/2020-12/schema",
@@ -4156,7 +4156,7 @@ TEST(Foundation_frame_2020_12, dynamic_ref_multiple_targets) {
                                   "https://www.example.com#/properties/bar");
 }
 
-TEST(Foundation_frame_2020_12, cross_id_anonymous_nested) {
+TEST(Frame_2020_12, cross_id_anonymous_nested) {
   const sourcemeta::core::JSON document = sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2020-12/schema",
     "$ref": "#/$defs/schema/items",
@@ -4274,7 +4274,7 @@ TEST(Foundation_frame_2020_12, cross_id_anonymous_nested) {
                                   "#/$defs/schema/items");
 }
 
-TEST(Foundation_frame_2020_12, relative_id_with_absolute_default_id) {
+TEST(Frame_2020_12, relative_id_with_absolute_default_id) {
   const sourcemeta::core::JSON document = sourcemeta::core::parse_json(R"JSON({
     "$id": "relative",
     "$schema": "https://json-schema.org/draft/2020-12/schema"
@@ -4327,7 +4327,7 @@ TEST(Foundation_frame_2020_12, relative_id_with_absolute_default_id) {
                                   frame.root());
 }
 
-TEST(Foundation_frame_2020_12, zero_paths) {
+TEST(Frame_2020_12, zero_paths) {
   const sourcemeta::core::JSON document = sourcemeta::core::parse_json(R"JSON({
     "$id": "https://www.sourcemeta.com/schema",
     "$schema": "https://json-schema.org/draft/2020-12/schema"
@@ -4342,7 +4342,7 @@ TEST(Foundation_frame_2020_12, zero_paths) {
   EXPECT_EQ(frame.references().size(), 0);
 }
 
-TEST(Foundation_frame_2020_12, single_nested_path_recursive_with_identifier) {
+TEST(Frame_2020_12, single_nested_path_recursive_with_identifier) {
   const sourcemeta::core::JSON document = sourcemeta::core::parse_json(R"JSON({
     "wrapper": {
       "$id": "https://www.sourcemeta.com/schema",
@@ -4418,8 +4418,7 @@ TEST(Foundation_frame_2020_12, single_nested_path_recursive_with_identifier) {
                                   "https://www.sourcemeta.com/schema");
 }
 
-TEST(Foundation_frame_2020_12,
-     single_nested_path_recursive_without_identifiers) {
+TEST(Frame_2020_12, single_nested_path_recursive_without_identifiers) {
   const sourcemeta::core::JSON document = sourcemeta::core::parse_json(R"JSON({
     "wrapper": {
       "$ref": "#/wrapper"
@@ -4458,7 +4457,7 @@ TEST(Foundation_frame_2020_12,
   EXPECT_FRAME_LOCATION_REACHABLE(frame, Static, "#/wrapper", "#/wrapper");
 }
 
-TEST(Foundation_frame_2020_12, single_nested_anonymous_with_nested_resource) {
+TEST(Frame_2020_12, single_nested_anonymous_with_nested_resource) {
   const sourcemeta::core::JSON document = sourcemeta::core::parse_json(R"JSON({
     "wrapper": {
       "items": {
@@ -4549,7 +4548,7 @@ TEST(Foundation_frame_2020_12, single_nested_anonymous_with_nested_resource) {
                                   "#/wrapper/items");
 }
 
-TEST(Foundation_frame_2020_12, multiple_nested_cross_ref) {
+TEST(Frame_2020_12, multiple_nested_cross_ref) {
   const sourcemeta::core::JSON document = sourcemeta::core::parse_json(R"JSON({
     "wrapper": {
       "$ref": "#/common/test"
@@ -4696,7 +4695,7 @@ TEST(Foundation_frame_2020_12, multiple_nested_cross_ref) {
                                   "#/common/with-id");
 }
 
-TEST(Foundation_frame_2020_12, multiple_nested_cross_ref_missing_target) {
+TEST(Frame_2020_12, multiple_nested_cross_ref_missing_target) {
   const sourcemeta::core::JSON document = sourcemeta::core::parse_json(R"JSON({
     "wrapper": {
       "$ref": "#/common/test"
@@ -4763,7 +4762,7 @@ TEST(Foundation_frame_2020_12, multiple_nested_cross_ref_missing_target) {
                                   "#/common/test");
 }
 
-TEST(Foundation_frame_2020_12, multiple_nested_no_base_dialect) {
+TEST(Frame_2020_12, multiple_nested_no_base_dialect) {
   const sourcemeta::core::JSON document = sourcemeta::core::parse_json(R"JSON({
     "wrapper": {
       "$ref": "#/common/test"
@@ -4794,7 +4793,7 @@ TEST(Foundation_frame_2020_12, multiple_nested_no_base_dialect) {
                sourcemeta::blaze::SchemaUnknownBaseDialectError);
 }
 
-TEST(Foundation_frame_2020_12, multiple_nested_same_id) {
+TEST(Frame_2020_12, multiple_nested_same_id) {
   const sourcemeta::core::JSON document = sourcemeta::core::parse_json(R"JSON({
     "common": {
       "foo": {
@@ -4820,7 +4819,7 @@ TEST(Foundation_frame_2020_12, multiple_nested_same_id) {
                sourcemeta::blaze::SchemaFrameError);
 }
 
-TEST(Foundation_frame_2020_12, multiple_nested_same_anonymous_anchors) {
+TEST(Frame_2020_12, multiple_nested_same_anonymous_anchors) {
   const sourcemeta::core::JSON document = sourcemeta::core::parse_json(R"JSON({
     "common": {
       "foo": {
@@ -4853,7 +4852,7 @@ TEST(Foundation_frame_2020_12, multiple_nested_same_anonymous_anchors) {
   }
 }
 
-TEST(Foundation_frame_2020_12, multiple_nested_with_default_id) {
+TEST(Frame_2020_12, multiple_nested_with_default_id) {
   const sourcemeta::core::JSON document = sourcemeta::core::parse_json(R"JSON({
     "wrapper": {
       "$ref": "#/common/test"
@@ -4923,7 +4922,7 @@ TEST(Foundation_frame_2020_12, multiple_nested_with_default_id) {
                                   "#/common/test");
 }
 
-TEST(Foundation_frame_2020_12, anchor_with_invalid_type) {
+TEST(Frame_2020_12, anchor_with_invalid_type) {
   const sourcemeta::core::JSON document = sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2020-12/schema",
     "$anchor": 123
@@ -4958,7 +4957,7 @@ TEST(Foundation_frame_2020_12, anchor_with_invalid_type) {
   EXPECT_FRAME_LOCATION_REACHABLE(frame, Static, "", frame.root());
 }
 
-TEST(Foundation_frame_2020_12, dynamic_anchor_with_invalid_type) {
+TEST(Frame_2020_12, dynamic_anchor_with_invalid_type) {
   const sourcemeta::core::JSON document = sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2020-12/schema",
     "$dynamicAnchor": 123
@@ -4993,7 +4992,7 @@ TEST(Foundation_frame_2020_12, dynamic_anchor_with_invalid_type) {
   EXPECT_FRAME_LOCATION_REACHABLE(frame, Static, "", frame.root());
 }
 
-TEST(Foundation_frame_2020_12, dynamic_ref_with_invalid_type) {
+TEST(Frame_2020_12, dynamic_ref_with_invalid_type) {
   const sourcemeta::core::JSON document = sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2020-12/schema",
     "$dynamicRef": 123
@@ -5014,8 +5013,7 @@ TEST(Foundation_frame_2020_12, dynamic_ref_with_invalid_type) {
   }
 }
 
-TEST(Foundation_frame_2020_12,
-     ref_does_not_invalidate_sibling_subschemas_and_refs) {
+TEST(Frame_2020_12, ref_does_not_invalidate_sibling_subschemas_and_refs) {
   const sourcemeta::core::JSON document = sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2020-12/schema",
     "properties": {
@@ -5113,7 +5111,7 @@ TEST(Foundation_frame_2020_12,
       frame.root());
 }
 
-TEST(Foundation_frame_2020_12, ref_to_ref_chain) {
+TEST(Frame_2020_12, ref_to_ref_chain) {
   const sourcemeta::core::JSON document = sourcemeta::core::parse_json(R"JSON({
     "$id": "https://www.sourcemeta.com/schema",
     "$schema": "https://json-schema.org/draft/2020-12/schema",
@@ -5221,7 +5219,7 @@ TEST(Foundation_frame_2020_12, ref_to_ref_chain) {
       "https://www.sourcemeta.com/schema#/$defs/child");
 }
 
-TEST(Foundation_frame_2020_12, nested_defs_unreferenced) {
+TEST(Frame_2020_12, nested_defs_unreferenced) {
   const sourcemeta::core::JSON document = sourcemeta::core::parse_json(R"JSON({
     "$id": "https://www.sourcemeta.com/schema",
     "$schema": "https://json-schema.org/draft/2020-12/schema",
@@ -5328,7 +5326,7 @@ TEST(Foundation_frame_2020_12, nested_defs_unreferenced) {
       "https://www.sourcemeta.com/schema#/properties/foo/$defs/unused");
 }
 
-TEST(Foundation_frame_2020_12, circular_ref_through_defs) {
+TEST(Frame_2020_12, circular_ref_through_defs) {
   const sourcemeta::core::JSON document = sourcemeta::core::parse_json(R"JSON({
     "$id": "https://www.sourcemeta.com/schema",
     "$schema": "https://json-schema.org/draft/2020-12/schema",
@@ -5438,7 +5436,7 @@ TEST(Foundation_frame_2020_12, circular_ref_through_defs) {
                                   "https://www.sourcemeta.com/schema#/$defs/b");
 }
 
-TEST(Foundation_frame_2020_12, nested_invalid_schema_keyword) {
+TEST(Frame_2020_12, nested_invalid_schema_keyword) {
   const sourcemeta::core::JSON document = sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2020-12/schema",
     "properties": {
@@ -5463,7 +5461,7 @@ TEST(Foundation_frame_2020_12, nested_invalid_schema_keyword) {
   }
 }
 
-TEST(Foundation_frame_2020_12, invalid_id_not_string) {
+TEST(Frame_2020_12, invalid_id_not_string) {
   const sourcemeta::core::JSON document = sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2020-12/schema",
     "$id": 123
@@ -5484,7 +5482,7 @@ TEST(Foundation_frame_2020_12, invalid_id_not_string) {
   }
 }
 
-TEST(Foundation_frame_2020_12, invalid_id_not_uri) {
+TEST(Frame_2020_12, invalid_id_not_uri) {
   const sourcemeta::core::JSON document = sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2020-12/schema",
     "$id": "not a valid uri"
@@ -5505,7 +5503,7 @@ TEST(Foundation_frame_2020_12, invalid_id_not_uri) {
   }
 }
 
-TEST(Foundation_frame_2020_12, nested_invalid_schema_not_uri) {
+TEST(Frame_2020_12, nested_invalid_schema_not_uri) {
   const sourcemeta::core::JSON document = sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2020-12/schema",
     "properties": {
@@ -5530,7 +5528,7 @@ TEST(Foundation_frame_2020_12, nested_invalid_schema_not_uri) {
   }
 }
 
-TEST(Foundation_frame_2020_12, invalid_ref_not_string) {
+TEST(Frame_2020_12, invalid_ref_not_string) {
   const sourcemeta::core::JSON document = sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2020-12/schema",
     "$ref": 123
@@ -5551,7 +5549,7 @@ TEST(Foundation_frame_2020_12, invalid_ref_not_string) {
   }
 }
 
-TEST(Foundation_frame_2020_12, invalid_ref_not_uri) {
+TEST(Frame_2020_12, invalid_ref_not_uri) {
   const sourcemeta::core::JSON document = sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2020-12/schema",
     "$ref": "not a valid uri"
@@ -5572,7 +5570,7 @@ TEST(Foundation_frame_2020_12, invalid_ref_not_uri) {
   }
 }
 
-TEST(Foundation_frame_2020_12, invalid_dynamic_ref_not_string) {
+TEST(Frame_2020_12, invalid_dynamic_ref_not_string) {
   const sourcemeta::core::JSON document = sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2020-12/schema",
     "$dynamicRef": 123
@@ -5593,7 +5591,7 @@ TEST(Foundation_frame_2020_12, invalid_dynamic_ref_not_string) {
   }
 }
 
-TEST(Foundation_frame_2020_12, invalid_dynamic_ref_not_uri) {
+TEST(Frame_2020_12, invalid_dynamic_ref_not_uri) {
   const sourcemeta::core::JSON document = sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2020-12/schema",
     "$dynamicRef": "not a valid uri"
@@ -5614,7 +5612,7 @@ TEST(Foundation_frame_2020_12, invalid_dynamic_ref_not_uri) {
   }
 }
 
-TEST(Foundation_frame_2020_12, ref_to_orphan_chain) {
+TEST(Frame_2020_12, ref_to_orphan_chain) {
   const sourcemeta::core::JSON document = sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2020-12/schema",
     "properties": {
@@ -5743,7 +5741,7 @@ TEST(Foundation_frame_2020_12, ref_to_orphan_chain) {
   EXPECT_FRAME_LOCATION_REACHABLE(frame, Static, "#/$defs/c", "#/$defs/c");
 }
 
-TEST(Foundation_frame_2020_12, orphan_chain_unreferenced) {
+TEST(Frame_2020_12, orphan_chain_unreferenced) {
   const sourcemeta::core::JSON document = sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2020-12/schema",
     "$defs": {
@@ -5837,7 +5835,7 @@ TEST(Foundation_frame_2020_12, orphan_chain_unreferenced) {
   EXPECT_FRAME_LOCATION_REACHABLE(frame, Static, "#/$defs/c", "#/$defs/c");
 }
 
-TEST(Foundation_frame_2020_12, circular_orphan_refs) {
+TEST(Frame_2020_12, circular_orphan_refs) {
   const sourcemeta::core::JSON document = sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2020-12/schema",
     "$defs": {
@@ -5914,7 +5912,7 @@ TEST(Foundation_frame_2020_12, circular_orphan_refs) {
   EXPECT_FRAME_LOCATION_REACHABLE(frame, Static, "#/$defs/b", "#/$defs/b");
 }
 
-TEST(Foundation_frame_2020_12, ref_from_deep_nesting) {
+TEST(Frame_2020_12, ref_from_deep_nesting) {
   const sourcemeta::core::JSON document = sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2020-12/schema",
     "properties": {
@@ -6041,7 +6039,7 @@ TEST(Foundation_frame_2020_12, ref_from_deep_nesting) {
                                   "#/$defs/string");
 }
 
-TEST(Foundation_frame_2020_12, orphan_refs_reachable_target) {
+TEST(Frame_2020_12, orphan_refs_reachable_target) {
   const sourcemeta::core::JSON document = sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2020-12/schema",
     "properties": {
@@ -6153,7 +6151,7 @@ TEST(Foundation_frame_2020_12, orphan_refs_reachable_target) {
                                   "#/$defs/orphan");
 }
 
-TEST(Foundation_frame_2020_12, root_dynamic_anchor) {
+TEST(Frame_2020_12, root_dynamic_anchor) {
   const sourcemeta::core::JSON document = sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2020-12/schema",
     "$dynamicAnchor": "root",
@@ -6209,7 +6207,7 @@ TEST(Foundation_frame_2020_12, root_dynamic_anchor) {
   EXPECT_FRAME_LOCATION_REACHABLE(frame, Dynamic, "#root", frame.root());
 }
 
-TEST(Foundation_frame_2020_12, dynamic_ref_to_static_anchor) {
+TEST(Frame_2020_12, dynamic_ref_to_static_anchor) {
   const sourcemeta::core::JSON document = sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2020-12/schema",
     "properties": {
@@ -6308,7 +6306,7 @@ TEST(Foundation_frame_2020_12, dynamic_ref_to_static_anchor) {
                                   "#/$defs/string");
 }
 
-TEST(Foundation_frame_2020_12, dynamic_ref_to_pointer) {
+TEST(Frame_2020_12, dynamic_ref_to_pointer) {
   const sourcemeta::core::JSON document = sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2020-12/schema",
     "properties": {
@@ -6396,7 +6394,7 @@ TEST(Foundation_frame_2020_12, dynamic_ref_to_pointer) {
                                   "#/$defs/string");
 }
 
-TEST(Foundation_frame_2020_12, dynamic_ref_to_dynamic_anchor) {
+TEST(Frame_2020_12, dynamic_ref_to_dynamic_anchor) {
   const sourcemeta::core::JSON document = sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2020-12/schema",
     "properties": {
@@ -6505,7 +6503,7 @@ TEST(Foundation_frame_2020_12, dynamic_ref_to_dynamic_anchor) {
                                   "#/$defs/string");
 }
 
-TEST(Foundation_frame_2020_12, static_ref_to_dynamic_anchor) {
+TEST(Frame_2020_12, static_ref_to_dynamic_anchor) {
   const sourcemeta::core::JSON document = sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2020-12/schema",
     "properties": {
@@ -6685,7 +6683,7 @@ TEST(Foundation_frame_2020_12, static_ref_to_dynamic_anchor) {
       "#/$defs/string/additionalProperties/$defs/nested");
 }
 
-TEST(Foundation_frame_2020_12, unreferenced_dynamic_anchor) {
+TEST(Frame_2020_12, unreferenced_dynamic_anchor) {
   const sourcemeta::core::JSON document = sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2020-12/schema",
     "$defs": {
@@ -6764,7 +6762,7 @@ TEST(Foundation_frame_2020_12, unreferenced_dynamic_anchor) {
                                   "#/$defs/string");
 }
 
-TEST(Foundation_frame_2020_12, property_named_defs) {
+TEST(Frame_2020_12, property_named_defs) {
   const sourcemeta::core::JSON document = sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2020-12/schema",
     "$id": "https://example.com/schema",
@@ -6914,7 +6912,7 @@ TEST(Foundation_frame_2020_12, property_named_defs) {
       "https://example.com/schema#/$defs/helper/properties/definitions");
 }
 
-TEST(Foundation_frame_2020_12, nested_schema_with_dynamic_anchor_and_refs) {
+TEST(Frame_2020_12, nested_schema_with_dynamic_anchor_and_refs) {
   const sourcemeta::core::JSON document = sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2020-12/schema",
     "$defs": {
@@ -7176,8 +7174,7 @@ TEST(Foundation_frame_2020_12, nested_schema_with_dynamic_anchor_and_refs) {
                                   "__sourcemeta-core-wrap__#/$defs/baz");
 }
 
-TEST(Foundation_frame_2020_12,
-     dynamic_ref_with_unreferenced_dynamic_anchor_target) {
+TEST(Frame_2020_12, dynamic_ref_with_unreferenced_dynamic_anchor_target) {
   const sourcemeta::core::JSON document = sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2020-12/schema",
     "$id": "https://example.com/root",
@@ -7292,8 +7289,7 @@ TEST(Foundation_frame_2020_12,
                                   "https://example.com/unreferenced");
 }
 
-TEST(Foundation_frame_2020_12,
-     dynamic_ref_with_unreferenced_static_anchor_target) {
+TEST(Frame_2020_12, dynamic_ref_with_unreferenced_static_anchor_target) {
   const sourcemeta::core::JSON document = sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2020-12/schema",
     "$id": "https://example.com/root",
@@ -7399,7 +7395,7 @@ TEST(Foundation_frame_2020_12,
                                   "https://example.com/unreferenced");
 }
 
-TEST(Foundation_frame_2020_12, anchor_with_invalid_format_empty) {
+TEST(Frame_2020_12, anchor_with_invalid_format_empty) {
   const sourcemeta::core::JSON document = sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2020-12/schema",
     "$anchor": ""
@@ -7420,7 +7416,7 @@ TEST(Foundation_frame_2020_12, anchor_with_invalid_format_empty) {
   }
 }
 
-TEST(Foundation_frame_2020_12, anchor_with_invalid_format_leading_digit) {
+TEST(Frame_2020_12, anchor_with_invalid_format_leading_digit) {
   const sourcemeta::core::JSON document = sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2020-12/schema",
     "$anchor": "1foo"
@@ -7441,7 +7437,7 @@ TEST(Foundation_frame_2020_12, anchor_with_invalid_format_leading_digit) {
   }
 }
 
-TEST(Foundation_frame_2020_12, anchor_with_invalid_format_leading_hyphen) {
+TEST(Frame_2020_12, anchor_with_invalid_format_leading_hyphen) {
   const sourcemeta::core::JSON document = sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2020-12/schema",
     "$anchor": "-foo"
@@ -7462,7 +7458,7 @@ TEST(Foundation_frame_2020_12, anchor_with_invalid_format_leading_hyphen) {
   }
 }
 
-TEST(Foundation_frame_2020_12, anchor_with_invalid_format_whitespace) {
+TEST(Frame_2020_12, anchor_with_invalid_format_whitespace) {
   const sourcemeta::core::JSON document = sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2020-12/schema",
     "$anchor": "foo bar"
@@ -7483,7 +7479,7 @@ TEST(Foundation_frame_2020_12, anchor_with_invalid_format_whitespace) {
   }
 }
 
-TEST(Foundation_frame_2020_12, anchor_with_invalid_format_punctuation) {
+TEST(Frame_2020_12, anchor_with_invalid_format_punctuation) {
   const sourcemeta::core::JSON document = sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2020-12/schema",
     "$anchor": "foo!bar"
@@ -7504,7 +7500,7 @@ TEST(Foundation_frame_2020_12, anchor_with_invalid_format_punctuation) {
   }
 }
 
-TEST(Foundation_frame_2020_12, anchor_with_invalid_format_colon) {
+TEST(Frame_2020_12, anchor_with_invalid_format_colon) {
   const sourcemeta::core::JSON document = sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2020-12/schema",
     "$anchor": "foo:bar"
@@ -7525,7 +7521,7 @@ TEST(Foundation_frame_2020_12, anchor_with_invalid_format_colon) {
   }
 }
 
-TEST(Foundation_frame_2020_12, anchor_with_valid_leading_underscore) {
+TEST(Frame_2020_12, anchor_with_valid_leading_underscore) {
   const sourcemeta::core::JSON document = sourcemeta::core::parse_json(R"JSON({
     "$id": "https://www.sourcemeta.com/schema",
     "$schema": "https://json-schema.org/draft/2020-12/schema",
@@ -7580,7 +7576,7 @@ TEST(Foundation_frame_2020_12, anchor_with_valid_leading_underscore) {
       frame, Static, "https://www.sourcemeta.com/schema#_foo", frame.root());
 }
 
-TEST(Foundation_frame_2020_12, dynamic_anchor_with_invalid_format_empty) {
+TEST(Frame_2020_12, dynamic_anchor_with_invalid_format_empty) {
   const sourcemeta::core::JSON document = sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2020-12/schema",
     "$dynamicAnchor": ""
@@ -7601,8 +7597,7 @@ TEST(Foundation_frame_2020_12, dynamic_anchor_with_invalid_format_empty) {
   }
 }
 
-TEST(Foundation_frame_2020_12,
-     dynamic_anchor_with_invalid_format_leading_digit) {
+TEST(Frame_2020_12, dynamic_anchor_with_invalid_format_leading_digit) {
   const sourcemeta::core::JSON document = sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2020-12/schema",
     "$dynamicAnchor": "1foo"
@@ -7623,7 +7618,7 @@ TEST(Foundation_frame_2020_12,
   }
 }
 
-TEST(Foundation_frame_2020_12, dynamic_anchor_with_invalid_format_colon) {
+TEST(Frame_2020_12, dynamic_anchor_with_invalid_format_colon) {
   const sourcemeta::core::JSON document = sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2020-12/schema",
     "$dynamicAnchor": "foo:bar"
@@ -7644,7 +7639,7 @@ TEST(Foundation_frame_2020_12, dynamic_anchor_with_invalid_format_colon) {
   }
 }
 
-TEST(Foundation_frame_2020_12, dynamic_anchor_with_valid_leading_underscore) {
+TEST(Frame_2020_12, dynamic_anchor_with_valid_leading_underscore) {
   const sourcemeta::core::JSON document = sourcemeta::core::parse_json(R"JSON({
     "$id": "https://www.sourcemeta.com/schema",
     "$schema": "https://json-schema.org/draft/2020-12/schema",
@@ -7703,7 +7698,7 @@ TEST(Foundation_frame_2020_12, dynamic_anchor_with_valid_leading_underscore) {
       frame, Static, "https://www.sourcemeta.com/schema#_foo", frame.root());
 }
 
-TEST(Foundation_frame_2020_12, top_level_id_absolute_with_non_empty_fragment) {
+TEST(Frame_2020_12, top_level_id_absolute_with_non_empty_fragment) {
   const sourcemeta::core::JSON document = sourcemeta::core::parse_json(R"JSON({
     "$id": "https://www.sourcemeta.com/schema#foo",
     "$schema": "https://json-schema.org/draft/2020-12/schema"
@@ -7723,7 +7718,7 @@ TEST(Foundation_frame_2020_12, top_level_id_absolute_with_non_empty_fragment) {
   }
 }
 
-TEST(Foundation_frame_2020_12, nested_id_absolute_with_non_empty_fragment) {
+TEST(Frame_2020_12, nested_id_absolute_with_non_empty_fragment) {
   const sourcemeta::core::JSON document = sourcemeta::core::parse_json(R"JSON({
     "$id": "https://www.sourcemeta.com/schema",
     "$schema": "https://json-schema.org/draft/2020-12/schema",
@@ -7748,7 +7743,7 @@ TEST(Foundation_frame_2020_12, nested_id_absolute_with_non_empty_fragment) {
   }
 }
 
-TEST(Foundation_frame_2020_12, top_level_id_empty_fragment_only) {
+TEST(Frame_2020_12, top_level_id_empty_fragment_only) {
   const sourcemeta::core::JSON document = sourcemeta::core::parse_json(R"JSON({
     "$id": "#",
     "$schema": "https://json-schema.org/draft/2020-12/schema"
@@ -7788,7 +7783,7 @@ TEST(Foundation_frame_2020_12, top_level_id_empty_fragment_only) {
   EXPECT_FRAME_LOCATION_REACHABLE(frame, Static, "", frame.root());
 }
 
-TEST(Foundation_frame_2020_12, nested_id_empty_fragment_only) {
+TEST(Frame_2020_12, nested_id_empty_fragment_only) {
   const sourcemeta::core::JSON document = sourcemeta::core::parse_json(R"JSON({
     "$id": "https://www.sourcemeta.com/schema",
     "$schema": "https://json-schema.org/draft/2020-12/schema",
@@ -7849,7 +7844,7 @@ TEST(Foundation_frame_2020_12, nested_id_empty_fragment_only) {
       frame, Static, "https://www.sourcemeta.com/schema", frame.root());
 }
 
-TEST(Foundation_frame_2020_12, top_level_id_empty_string) {
+TEST(Frame_2020_12, top_level_id_empty_string) {
   const sourcemeta::core::JSON document = sourcemeta::core::parse_json(R"JSON({
     "$id": "",
     "$schema": "https://json-schema.org/draft/2020-12/schema"
@@ -7889,7 +7884,7 @@ TEST(Foundation_frame_2020_12, top_level_id_empty_string) {
   EXPECT_FRAME_LOCATION_REACHABLE(frame, Static, "", frame.root());
 }
 
-TEST(Foundation_frame_2020_12, nested_id_empty_string) {
+TEST(Frame_2020_12, nested_id_empty_string) {
   const sourcemeta::core::JSON document = sourcemeta::core::parse_json(R"JSON({
     "$id": "https://www.sourcemeta.com/schema",
     "$schema": "https://json-schema.org/draft/2020-12/schema",

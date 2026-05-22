@@ -10,6 +10,8 @@ target_link_libraries(sourcemeta_blaze_output_unit
 target_link_libraries(sourcemeta_blaze_output_unit
   PRIVATE sourcemeta::blaze::foundation)
 target_link_libraries(sourcemeta_blaze_output_unit
+  PRIVATE sourcemeta::blaze::frame)
+target_link_libraries(sourcemeta_blaze_output_unit
   PRIVATE sourcemeta::blaze::output)
 target_link_libraries(sourcemeta_blaze_output_unit
   PRIVATE sourcemeta::blaze::evaluator)
