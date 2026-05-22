@@ -479,16 +479,23 @@ TEST(Bundle_draft4, metaschema) {
                             test_resolver);
 
   const sourcemeta::core::JSON expected = sourcemeta::core::parse_json(R"JSON({
-    "$schema": "https://example.com/meta/1.json",
-    "type": "string",
+    "$schema": "http://json-schema.org/draft-04/schema#",
+    "allOf": [
+      { "$ref": "__sourcemeta-blaze-bundle__" }
+    ],
     "definitions": {
-      "https://example.com/meta/1.json": {
-        "$schema": "https://example.com/meta/2.json",
-        "id": "https://example.com/meta/1.json"
+      "__sourcemeta-blaze-bundle__": {
+        "$schema": "https://example.com/meta/1.json",
+        "id": "__sourcemeta-blaze-bundle__",
+        "type": "string"
       },
       "https://example.com/meta/2.json": {
         "$schema": "http://json-schema.org/draft-04/schema#",
         "id": "https://example.com/meta/2.json"
+      },
+      "https://example.com/meta/1.json": {
+        "$schema": "https://example.com/meta/2.json",
+        "id": "https://example.com/meta/1.json"
       }
     }
   })JSON");
@@ -568,14 +575,15 @@ TEST(Bundle_draft4, hyperschema_1) {
   sourcemeta::blaze::bundle(document, sourcemeta::blaze::schema_walker,
                             test_resolver);
 
-  EXPECT_TRUE(document.defines("definitions"));
-  EXPECT_TRUE(document.at("definitions").is_object());
-  EXPECT_EQ(document.at("definitions").size(), 2);
+  const sourcemeta::core::JSON expected = sourcemeta::core::parse_json(R"JSON({
+    "$schema": "http://json-schema.org/draft-04/schema#",
+    "allOf": [
+      { "$ref": "http://json-schema.org/draft-04/schema#" },
+      { "$ref": "http://json-schema.org/draft-04/hyper-schema#" }
+    ]
+  })JSON");
 
-  EXPECT_TRUE(document.at("definitions")
-                  .defines("http://json-schema.org/draft-04/schema#"));
-  EXPECT_TRUE(document.at("definitions")
-                  .defines("http://json-schema.org/draft-04/hyper-schema#"));
+  EXPECT_EQ(document, expected);
 }
 
 TEST(Bundle_draft4, hyperschema_ref_metaschema) {
@@ -589,12 +597,14 @@ TEST(Bundle_draft4, hyperschema_ref_metaschema) {
   sourcemeta::blaze::bundle(document, sourcemeta::blaze::schema_walker,
                             test_resolver);
 
-  EXPECT_TRUE(document.defines("definitions"));
-  EXPECT_TRUE(document.at("definitions").is_object());
-  EXPECT_EQ(document.at("definitions").size(), 1);
+  const sourcemeta::core::JSON expected = sourcemeta::core::parse_json(R"JSON({
+    "$schema": "http://json-schema.org/draft-04/hyper-schema#",
+    "allOf": [
+      { "$ref": "http://json-schema.org/draft-04/schema#" }
+    ]
+  })JSON");
 
-  EXPECT_TRUE(document.at("definitions")
-                  .defines("http://json-schema.org/draft-04/schema#"));
+  EXPECT_EQ(document, expected);
 }
 
 TEST(Bundle_draft4, standalone_ref_with_default_dialect) {

@@ -72,6 +72,29 @@ public:
 };
 
 /// @ingroup foundation
+/// An error that represents a schema identifier that collides with one
+/// reserved by this implementation for internal bookkeeping
+class SOURCEMETA_BLAZE_FOUNDATION_EXPORT SchemaReservedIdentifierError
+    : public std::exception {
+public:
+  SchemaReservedIdentifierError(const std::string_view identifier,
+                                const char *message)
+      : identifier_{identifier}, message_{message} {}
+
+  [[nodiscard]] auto what() const noexcept -> const char * override {
+    return this->message_;
+  }
+
+  [[nodiscard]] auto identifier() const noexcept -> std::string_view {
+    return this->identifier_;
+  }
+
+private:
+  std::string identifier_;
+  const char *message_;
+};
+
+/// @ingroup foundation
 /// An error that represents a schema vocabulary error
 class SOURCEMETA_BLAZE_FOUNDATION_EXPORT SchemaVocabularyError
     : public std::exception {

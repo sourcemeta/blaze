@@ -238,6 +238,29 @@ static auto test_resolver(std::string_view identifier)
         }
       }
     })JSON");
+  } else if (identifier == "https://example.com/custom-cross-ref-meta") {
+    return sourcemeta::core::parse_json(R"JSON({
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "$id": "https://example.com/custom-cross-ref-meta",
+      "allOf": [
+        { "$ref": "https://example.com/main#/$defs/Bar" }
+      ]
+    })JSON");
+  } else if (identifier == "https://example.com/custom-full-meta") {
+    return sourcemeta::core::parse_json(R"JSON({
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "$id": "https://example.com/custom-full-meta",
+      "$vocabulary": {
+        "https://json-schema.org/draft/2020-12/vocab/core": true,
+        "https://json-schema.org/draft/2020-12/vocab/applicator": true,
+        "https://json-schema.org/draft/2020-12/vocab/validation": true
+      }
+    })JSON");
+  } else if (identifier == "https://example.com/reserved-id-meta") {
+    return sourcemeta::core::parse_json(R"JSON({
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "$id": "__sourcemeta-blaze-bundle__"
+    })JSON");
   } else if (identifier == "https://example.com/prebundled-with-shared") {
     return sourcemeta::core::parse_json(R"JSON({
       "$schema": "https://json-schema.org/draft/2020-12/schema",
@@ -710,17 +733,22 @@ TEST(Bundle_2020_12, metaschema) {
                             test_resolver);
 
   const sourcemeta::core::JSON expected = sourcemeta::core::parse_json(R"JSON({
-    "$schema": "https://example.com/meta/1.json",
-    "type": "string",
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "$ref": "__sourcemeta-blaze-bundle__",
     "$defs": {
-      "https://example.com/meta/1.json": {
-        "$schema": "https://example.com/meta/2.json",
-        "$id": "https://example.com/meta/1.json",
-        "$vocabulary": { "https://json-schema.org/draft/2020-12/vocab/core": true }
+      "__sourcemeta-blaze-bundle__": {
+        "$schema": "https://example.com/meta/1.json",
+        "$id": "__sourcemeta-blaze-bundle__",
+        "type": "string"
       },
       "https://example.com/meta/2.json": {
         "$schema": "https://json-schema.org/draft/2020-12/schema",
         "$id": "https://example.com/meta/2.json",
+        "$vocabulary": { "https://json-schema.org/draft/2020-12/vocab/core": true }
+      },
+      "https://example.com/meta/1.json": {
+        "$schema": "https://example.com/meta/2.json",
+        "$id": "https://example.com/meta/1.json",
         "$vocabulary": { "https://json-schema.org/draft/2020-12/vocab/core": true }
       }
     }
@@ -738,62 +766,95 @@ TEST(Bundle_2020_12, openapi_3_1_dialect) {
   sourcemeta::blaze::bundle(document, sourcemeta::blaze::schema_walker,
                             test_resolver);
 
-  EXPECT_EQ(document.at("$schema").to_string(),
-            "https://spec.openapis.org/oas/3.1/dialect/base");
-  EXPECT_TRUE(document.defines("$defs"));
-  EXPECT_TRUE(document.at("$defs").is_object());
-  EXPECT_EQ(document.at("$defs").size(), 10);
+  const sourcemeta::core::JSON expected = sourcemeta::core::parse_json(R"JSON({
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "$ref": "__sourcemeta-blaze-bundle__",
+    "$defs": {
+      "__sourcemeta-blaze-bundle__": {
+        "$schema": "https://spec.openapis.org/oas/3.1/dialect/base",
+        "$id": "__sourcemeta-blaze-bundle__",
+        "type": "object"
+      },
+      "https://spec.openapis.org/oas/3.1/meta/base": {
+        "$id": "https://spec.openapis.org/oas/3.1/meta/base",
+        "$schema": "https://json-schema.org/draft/2020-12/schema",
+        "title": "OAS Base vocabulary",
+        "description": "A JSON Schema Vocabulary used in the OpenAPI Schema Dialect",
+        "$vocabulary": {
+          "https://spec.openapis.org/oas/3.1/vocab/base": true
+        },
+        "$dynamicAnchor": "meta",
+        "type": ["object", "boolean"],
+        "properties": {
+          "example": true,
+          "discriminator": {"$ref": "#/$defs/discriminator"},
+          "externalDocs": {"$ref": "#/$defs/external-docs"},
+          "xml": {"$ref": "#/$defs/xml"}
+        },
+        "$defs": {
+          "extensible": {"patternProperties": {"^x-": true}},
+          "discriminator": {
+            "$ref": "#/$defs/extensible",
+            "type": "object",
+            "properties": {
+              "propertyName": {"type": "string"},
+              "mapping": {
+                "type": "object",
+                "additionalProperties": {"type": "string"}
+              }
+            },
+            "required": ["propertyName"],
+            "unevaluatedProperties": false
+          },
+          "external-docs": {
+            "$ref": "#/$defs/extensible",
+            "type": "object",
+            "properties": {
+              "url": {"type": "string", "format": "uri-reference"},
+              "description": {"type": "string"}
+            },
+            "required": ["url"],
+            "unevaluatedProperties": false
+          },
+          "xml": {
+            "$ref": "#/$defs/extensible",
+            "type": "object",
+            "properties": {
+              "name": {"type": "string"},
+              "namespace": {"type": "string", "format": "uri"},
+              "prefix": {"type": "string"},
+              "attribute": {"type": "boolean"},
+              "wrapped": {"type": "boolean"}
+            },
+            "unevaluatedProperties": false
+          }
+        }
+      },
+      "https://spec.openapis.org/oas/3.1/dialect/base": {
+        "$id": "https://spec.openapis.org/oas/3.1/dialect/base",
+        "$schema": "https://json-schema.org/draft/2020-12/schema",
+        "title": "OpenAPI 3.1 Schema Object Dialect",
+        "description": "A JSON Schema dialect describing schemas found in OpenAPI documents",
+        "$vocabulary": {
+          "https://json-schema.org/draft/2020-12/vocab/core": true,
+          "https://json-schema.org/draft/2020-12/vocab/applicator": true,
+          "https://json-schema.org/draft/2020-12/vocab/unevaluated": true,
+          "https://json-schema.org/draft/2020-12/vocab/validation": true,
+          "https://json-schema.org/draft/2020-12/vocab/meta-data": true,
+          "https://json-schema.org/draft/2020-12/vocab/format-annotation": true,
+          "https://json-schema.org/draft/2020-12/vocab/content": true,
+          "https://spec.openapis.org/oas/3.1/vocab/base": false
+        },
+        "$dynamicAnchor": "meta",
+        "allOf": [
+          {"$ref": "https://json-schema.org/draft/2020-12/schema"},
+          {"$ref": "https://spec.openapis.org/oas/3.1/meta/base"}
+        ]
+      }
+    }
+  })JSON");
 
-  EXPECT_EQ(
-      document.at("$defs").at("https://spec.openapis.org/oas/3.1/dialect/base"),
-      sourcemeta::blaze::schema_resolver(
-          "https://spec.openapis.org/oas/3.1/dialect/base")
-          .value());
-  EXPECT_EQ(
-      document.at("$defs").at("https://spec.openapis.org/oas/3.1/meta/base"),
-      sourcemeta::blaze::schema_resolver(
-          "https://spec.openapis.org/oas/3.1/meta/base")
-          .value());
-  EXPECT_EQ(
-      document.at("$defs").at("https://json-schema.org/draft/2020-12/schema"),
-      sourcemeta::blaze::schema_resolver(
-          "https://json-schema.org/draft/2020-12/schema")
-          .value());
-  EXPECT_EQ(document.at("$defs").at(
-                "https://json-schema.org/draft/2020-12/meta/core"),
-            sourcemeta::blaze::schema_resolver(
-                "https://json-schema.org/draft/2020-12/meta/core")
-                .value());
-  EXPECT_EQ(document.at("$defs").at(
-                "https://json-schema.org/draft/2020-12/meta/applicator"),
-            sourcemeta::blaze::schema_resolver(
-                "https://json-schema.org/draft/2020-12/meta/applicator")
-                .value());
-  EXPECT_EQ(document.at("$defs").at(
-                "https://json-schema.org/draft/2020-12/meta/unevaluated"),
-            sourcemeta::blaze::schema_resolver(
-                "https://json-schema.org/draft/2020-12/meta/unevaluated")
-                .value());
-  EXPECT_EQ(document.at("$defs").at(
-                "https://json-schema.org/draft/2020-12/meta/validation"),
-            sourcemeta::blaze::schema_resolver(
-                "https://json-schema.org/draft/2020-12/meta/validation")
-                .value());
-  EXPECT_EQ(document.at("$defs").at(
-                "https://json-schema.org/draft/2020-12/meta/meta-data"),
-            sourcemeta::blaze::schema_resolver(
-                "https://json-schema.org/draft/2020-12/meta/meta-data")
-                .value());
-  EXPECT_EQ(document.at("$defs").at(
-                "https://json-schema.org/draft/2020-12/meta/format-annotation"),
-            sourcemeta::blaze::schema_resolver(
-                "https://json-schema.org/draft/2020-12/meta/format-annotation")
-                .value());
-  EXPECT_EQ(document.at("$defs").at(
-                "https://json-schema.org/draft/2020-12/meta/content"),
-            sourcemeta::blaze::schema_resolver(
-                "https://json-schema.org/draft/2020-12/meta/content")
-                .value());
+  EXPECT_EQ(document, expected);
 }
 
 TEST(Bundle_2020_12, hyperschema_smoke) {
@@ -820,32 +881,15 @@ TEST(Bundle_2020_12, hyperschema_1) {
   sourcemeta::blaze::bundle(document, sourcemeta::blaze::schema_walker,
                             test_resolver);
 
-  EXPECT_TRUE(document.defines("$defs"));
-  EXPECT_TRUE(document.at("$defs").is_object());
-  EXPECT_EQ(document.at("$defs").size(), 11);
+  const sourcemeta::core::JSON expected = sourcemeta::core::parse_json(R"JSON({
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "allOf": [
+      { "$ref": "https://json-schema.org/draft/2020-12/schema" },
+      { "$ref": "https://json-schema.org/draft/2020-12/meta/hyper-schema" }
+    ]
+  })JSON");
 
-  EXPECT_TRUE(document.at("$defs").defines(
-      "https://json-schema.org/draft/2020-12/schema"));
-  EXPECT_TRUE(document.at("$defs").defines(
-      "https://json-schema.org/draft/2020-12/meta/core"));
-  EXPECT_TRUE(document.at("$defs").defines(
-      "https://json-schema.org/draft/2020-12/meta/applicator"));
-  EXPECT_TRUE(document.at("$defs").defines(
-      "https://json-schema.org/draft/2020-12/meta/unevaluated"));
-  EXPECT_TRUE(document.at("$defs").defines(
-      "https://json-schema.org/draft/2020-12/meta/validation"));
-  EXPECT_TRUE(document.at("$defs").defines(
-      "https://json-schema.org/draft/2020-12/meta/meta-data"));
-  EXPECT_TRUE(document.at("$defs").defines(
-      "https://json-schema.org/draft/2020-12/meta/format-annotation"));
-  EXPECT_TRUE(document.at("$defs").defines(
-      "https://json-schema.org/draft/2020-12/meta/content"));
-  EXPECT_TRUE(document.at("$defs").defines(
-      "https://json-schema.org/draft/2020-12/meta/hyper-schema"));
-  EXPECT_TRUE(document.at("$defs").defines(
-      "https://json-schema.org/draft/2020-12/links"));
-  EXPECT_TRUE(document.at("$defs").defines(
-      "https://json-schema.org/draft/2020-12/hyper-schema"));
+  EXPECT_EQ(document, expected);
 }
 
 TEST(Bundle_2020_12, bundle_to_definitions) {
@@ -1316,6 +1360,473 @@ TEST(Bundle_2020_12, deduplicate_embedded_with_preexisting_key_collision) {
         "$schema": "https://json-schema.org/draft/2020-12/schema",
         "$id": "https://example.com/collision-common",
         "type": "string"
+      }
+    }
+  })JSON");
+
+  EXPECT_EQ(document, expected);
+}
+
+TEST(Bundle_2020_12, elevate_inner_with_absolute_id) {
+  sourcemeta::core::JSON document = sourcemeta::core::parse_json(R"JSON({
+    "$schema": "https://example.com/meta/1.json",
+    "$id": "https://example.com/main",
+    "type": "string"
+  })JSON");
+
+  sourcemeta::blaze::bundle(document, sourcemeta::blaze::schema_walker,
+                            test_resolver);
+
+  const sourcemeta::core::JSON expected = sourcemeta::core::parse_json(R"JSON({
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "$id": "https://example.com/main",
+    "$ref": "https://example.com/main/x",
+    "$defs": {
+      "https://example.com/main/x": {
+        "$schema": "https://example.com/meta/1.json",
+        "$id": "https://example.com/main/x",
+        "type": "string"
+      },
+      "https://example.com/meta/2.json": {
+        "$schema": "https://json-schema.org/draft/2020-12/schema",
+        "$id": "https://example.com/meta/2.json",
+        "$vocabulary": { "https://json-schema.org/draft/2020-12/vocab/core": true }
+      },
+      "https://example.com/meta/1.json": {
+        "$schema": "https://example.com/meta/2.json",
+        "$id": "https://example.com/meta/1.json",
+        "$vocabulary": { "https://json-schema.org/draft/2020-12/vocab/core": true }
+      }
+    }
+  })JSON");
+
+  EXPECT_EQ(document, expected);
+}
+
+TEST(Bundle_2020_12, elevate_inner_self_ref_with_fragment) {
+  sourcemeta::core::JSON document = sourcemeta::core::parse_json(R"JSON({
+    "$schema": "https://example.com/custom-full-meta",
+    "$id": "https://example.com/main",
+    "type": "object",
+    "properties": {
+      "child": { "$ref": "https://example.com/main#/$defs/Bar" }
+    },
+    "$defs": {
+      "Bar": { "type": "string" }
+    }
+  })JSON");
+
+  sourcemeta::blaze::bundle(document, sourcemeta::blaze::schema_walker,
+                            test_resolver);
+
+  const sourcemeta::core::JSON expected = sourcemeta::core::parse_json(R"JSON({
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "$id": "https://example.com/main",
+    "$ref": "https://example.com/main/x",
+    "$defs": {
+      "https://example.com/main/x": {
+        "$schema": "https://example.com/custom-full-meta",
+        "$id": "https://example.com/main/x",
+        "type": "object",
+        "properties": {
+          "child": { "$ref": "https://example.com/main/x#/$defs/Bar" }
+        },
+        "$defs": {
+          "Bar": { "type": "string" }
+        }
+      },
+      "https://example.com/custom-full-meta": {
+        "$schema": "https://json-schema.org/draft/2020-12/schema",
+        "$id": "https://example.com/custom-full-meta",
+        "$vocabulary": {
+          "https://json-schema.org/draft/2020-12/vocab/core": true,
+          "https://json-schema.org/draft/2020-12/vocab/applicator": true,
+          "https://json-schema.org/draft/2020-12/vocab/validation": true
+        }
+      }
+    }
+  })JSON");
+
+  EXPECT_EQ(document, expected);
+}
+
+TEST(Bundle_2020_12, elevate_no_id_with_default_id) {
+  sourcemeta::core::JSON document = sourcemeta::core::parse_json(R"JSON({
+    "$schema": "https://example.com/meta/1.json",
+    "type": "string"
+  })JSON");
+
+  sourcemeta::blaze::bundle(document, sourcemeta::blaze::schema_walker,
+                            test_resolver, "", "https://example.com/default");
+
+  const sourcemeta::core::JSON expected = sourcemeta::core::parse_json(R"JSON({
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "$id": "https://example.com/default",
+    "$ref": "https://example.com/default/x",
+    "$defs": {
+      "https://example.com/default/x": {
+        "$schema": "https://example.com/meta/1.json",
+        "$id": "https://example.com/default/x",
+        "type": "string"
+      },
+      "https://example.com/meta/2.json": {
+        "$schema": "https://json-schema.org/draft/2020-12/schema",
+        "$id": "https://example.com/meta/2.json",
+        "$vocabulary": { "https://json-schema.org/draft/2020-12/vocab/core": true }
+      },
+      "https://example.com/meta/1.json": {
+        "$schema": "https://example.com/meta/2.json",
+        "$id": "https://example.com/meta/1.json",
+        "$vocabulary": { "https://json-schema.org/draft/2020-12/vocab/core": true }
+      }
+    }
+  })JSON");
+
+  EXPECT_EQ(document, expected);
+}
+
+TEST(Bundle_2020_12, elevate_collision_uses_x_x) {
+  sourcemeta::core::JSON document = sourcemeta::core::parse_json(R"JSON({
+    "$schema": "https://example.com/meta/1.json",
+    "$id": "https://example.com/main",
+    "type": "object",
+    "$defs": {
+      "sub": {
+        "$id": "https://example.com/main/x",
+        "type": "integer"
+      }
+    }
+  })JSON");
+
+  sourcemeta::blaze::bundle(document, sourcemeta::blaze::schema_walker,
+                            test_resolver);
+
+  const sourcemeta::core::JSON expected = sourcemeta::core::parse_json(R"JSON({
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "$id": "https://example.com/main",
+    "$ref": "https://example.com/main/x/x",
+    "$defs": {
+      "https://example.com/main/x/x": {
+        "$schema": "https://example.com/meta/1.json",
+        "$id": "https://example.com/main/x/x",
+        "type": "object",
+        "$defs": {
+          "sub": {
+            "$id": "https://example.com/main/x",
+            "type": "integer"
+          }
+        }
+      },
+      "https://example.com/meta/2.json": {
+        "$schema": "https://json-schema.org/draft/2020-12/schema",
+        "$id": "https://example.com/meta/2.json",
+        "$vocabulary": { "https://json-schema.org/draft/2020-12/vocab/core": true }
+      },
+      "https://example.com/meta/1.json": {
+        "$schema": "https://example.com/meta/2.json",
+        "$id": "https://example.com/meta/1.json",
+        "$vocabulary": { "https://json-schema.org/draft/2020-12/vocab/core": true }
+      }
+    }
+  })JSON");
+
+  EXPECT_EQ(document, expected);
+}
+
+TEST(Bundle_2020_12, elevate_idempotent) {
+  sourcemeta::core::JSON document = sourcemeta::core::parse_json(R"JSON({
+    "$schema": "https://example.com/meta/1.json",
+    "$id": "https://example.com/main",
+    "type": "string"
+  })JSON");
+
+  sourcemeta::blaze::bundle(document, sourcemeta::blaze::schema_walker,
+                            test_resolver);
+  sourcemeta::blaze::bundle(document, sourcemeta::blaze::schema_walker,
+                            test_resolver);
+
+  const sourcemeta::core::JSON expected = sourcemeta::core::parse_json(R"JSON({
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "$id": "https://example.com/main",
+    "$ref": "https://example.com/main/x",
+    "$defs": {
+      "https://example.com/main/x": {
+        "$schema": "https://example.com/meta/1.json",
+        "$id": "https://example.com/main/x",
+        "type": "string"
+      },
+      "https://example.com/meta/2.json": {
+        "$schema": "https://json-schema.org/draft/2020-12/schema",
+        "$id": "https://example.com/meta/2.json",
+        "$vocabulary": { "https://json-schema.org/draft/2020-12/vocab/core": true }
+      },
+      "https://example.com/meta/1.json": {
+        "$schema": "https://example.com/meta/2.json",
+        "$id": "https://example.com/meta/1.json",
+        "$vocabulary": { "https://json-schema.org/draft/2020-12/vocab/core": true }
+      }
+    }
+  })JSON");
+
+  EXPECT_EQ(document, expected);
+}
+
+TEST(Bundle_2020_12, elevate_cross_referencing_meta_schema) {
+  sourcemeta::core::JSON document = sourcemeta::core::parse_json(R"JSON({
+    "$schema": "https://example.com/custom-cross-ref-meta",
+    "$id": "https://example.com/main",
+    "$defs": {
+      "Bar": { "type": "string" }
+    }
+  })JSON");
+
+  sourcemeta::blaze::bundle(document, sourcemeta::blaze::schema_walker,
+                            test_resolver);
+
+  const sourcemeta::core::JSON expected = sourcemeta::core::parse_json(R"JSON({
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "$id": "https://example.com/main",
+    "$ref": "https://example.com/main/x",
+    "$defs": {
+      "https://example.com/main/x": {
+        "$schema": "https://example.com/custom-cross-ref-meta",
+        "$id": "https://example.com/main/x",
+        "$defs": {
+          "Bar": { "type": "string" }
+        }
+      },
+      "https://example.com/custom-cross-ref-meta": {
+        "$schema": "https://json-schema.org/draft/2020-12/schema",
+        "$id": "https://example.com/custom-cross-ref-meta",
+        "allOf": [
+          { "$ref": "https://example.com/main/x#/$defs/Bar" }
+        ]
+      }
+    }
+  })JSON");
+
+  EXPECT_EQ(document, expected);
+}
+
+TEST(Bundle_2020_12, elevate_anonymous_inner_keeps_fragment_only_refs_working) {
+  sourcemeta::core::JSON document = sourcemeta::core::parse_json(R"JSON({
+    "$schema": "https://example.com/custom-full-meta",
+    "type": "object",
+    "properties": {
+      "child": { "$ref": "#/$defs/Bar" }
+    },
+    "$defs": {
+      "Bar": { "type": "string" }
+    }
+  })JSON");
+
+  sourcemeta::blaze::bundle(document, sourcemeta::blaze::schema_walker,
+                            test_resolver);
+
+  const sourcemeta::core::JSON expected = sourcemeta::core::parse_json(R"JSON({
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "$ref": "__sourcemeta-blaze-bundle__",
+    "$defs": {
+      "__sourcemeta-blaze-bundle__": {
+        "$schema": "https://example.com/custom-full-meta",
+        "$id": "__sourcemeta-blaze-bundle__",
+        "type": "object",
+        "properties": {
+          "child": { "$ref": "#/$defs/Bar" }
+        },
+        "$defs": {
+          "Bar": { "type": "string" }
+        }
+      },
+      "https://example.com/custom-full-meta": {
+        "$schema": "https://json-schema.org/draft/2020-12/schema",
+        "$id": "https://example.com/custom-full-meta",
+        "$vocabulary": {
+          "https://json-schema.org/draft/2020-12/vocab/core": true,
+          "https://json-schema.org/draft/2020-12/vocab/applicator": true,
+          "https://json-schema.org/draft/2020-12/vocab/validation": true
+        }
+      }
+    }
+  })JSON");
+
+  EXPECT_EQ(document, expected);
+}
+
+TEST(Bundle_2020_12, elevate_default_container_skips_elevation) {
+  sourcemeta::core::JSON document = sourcemeta::core::parse_json(R"JSON({
+    "$schema": "https://example.com/meta/1.json",
+    "$id": "https://example.com/main",
+    "type": "string"
+  })JSON");
+
+  sourcemeta::blaze::bundle(document, sourcemeta::blaze::schema_walker,
+                            test_resolver, "", "",
+                            sourcemeta::core::Pointer{"components"});
+
+  const sourcemeta::core::JSON expected = sourcemeta::core::parse_json(R"JSON({
+    "$schema": "https://example.com/meta/1.json",
+    "$id": "https://example.com/main",
+    "type": "string",
+    "components": {
+      "https://example.com/meta/2.json": {
+        "$schema": "https://json-schema.org/draft/2020-12/schema",
+        "$id": "https://example.com/meta/2.json",
+        "$vocabulary": { "https://json-schema.org/draft/2020-12/vocab/core": true }
+      },
+      "https://example.com/meta/1.json": {
+        "$schema": "https://example.com/meta/2.json",
+        "$id": "https://example.com/meta/1.json",
+        "$vocabulary": { "https://json-schema.org/draft/2020-12/vocab/core": true }
+      }
+    }
+  })JSON");
+
+  EXPECT_EQ(document, expected);
+}
+
+TEST(Bundle_2020_12, elevate_openapi_with_inner_id) {
+  sourcemeta::core::JSON document = sourcemeta::core::parse_json(R"JSON({
+    "$schema": "https://spec.openapis.org/oas/3.1/dialect/base",
+    "$id": "https://example.com/my-api",
+    "type": "object"
+  })JSON");
+
+  sourcemeta::blaze::bundle(document, sourcemeta::blaze::schema_walker,
+                            test_resolver);
+
+  const sourcemeta::core::JSON expected = sourcemeta::core::parse_json(R"JSON({
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "$id": "https://example.com/my-api",
+    "$ref": "https://example.com/my-api/x",
+    "$defs": {
+      "https://example.com/my-api/x": {
+        "$schema": "https://spec.openapis.org/oas/3.1/dialect/base",
+        "$id": "https://example.com/my-api/x",
+        "type": "object"
+      },
+      "https://spec.openapis.org/oas/3.1/meta/base": {
+        "$id": "https://spec.openapis.org/oas/3.1/meta/base",
+        "$schema": "https://json-schema.org/draft/2020-12/schema",
+        "title": "OAS Base vocabulary",
+        "description": "A JSON Schema Vocabulary used in the OpenAPI Schema Dialect",
+        "$vocabulary": {
+          "https://spec.openapis.org/oas/3.1/vocab/base": true
+        },
+        "$dynamicAnchor": "meta",
+        "type": ["object", "boolean"],
+        "properties": {
+          "example": true,
+          "discriminator": {"$ref": "#/$defs/discriminator"},
+          "externalDocs": {"$ref": "#/$defs/external-docs"},
+          "xml": {"$ref": "#/$defs/xml"}
+        },
+        "$defs": {
+          "extensible": {"patternProperties": {"^x-": true}},
+          "discriminator": {
+            "$ref": "#/$defs/extensible",
+            "type": "object",
+            "properties": {
+              "propertyName": {"type": "string"},
+              "mapping": {
+                "type": "object",
+                "additionalProperties": {"type": "string"}
+              }
+            },
+            "required": ["propertyName"],
+            "unevaluatedProperties": false
+          },
+          "external-docs": {
+            "$ref": "#/$defs/extensible",
+            "type": "object",
+            "properties": {
+              "url": {"type": "string", "format": "uri-reference"},
+              "description": {"type": "string"}
+            },
+            "required": ["url"],
+            "unevaluatedProperties": false
+          },
+          "xml": {
+            "$ref": "#/$defs/extensible",
+            "type": "object",
+            "properties": {
+              "name": {"type": "string"},
+              "namespace": {"type": "string", "format": "uri"},
+              "prefix": {"type": "string"},
+              "attribute": {"type": "boolean"},
+              "wrapped": {"type": "boolean"}
+            },
+            "unevaluatedProperties": false
+          }
+        }
+      },
+      "https://spec.openapis.org/oas/3.1/dialect/base": {
+        "$id": "https://spec.openapis.org/oas/3.1/dialect/base",
+        "$schema": "https://json-schema.org/draft/2020-12/schema",
+        "title": "OpenAPI 3.1 Schema Object Dialect",
+        "description": "A JSON Schema dialect describing schemas found in OpenAPI documents",
+        "$vocabulary": {
+          "https://json-schema.org/draft/2020-12/vocab/core": true,
+          "https://json-schema.org/draft/2020-12/vocab/applicator": true,
+          "https://json-schema.org/draft/2020-12/vocab/unevaluated": true,
+          "https://json-schema.org/draft/2020-12/vocab/validation": true,
+          "https://json-schema.org/draft/2020-12/vocab/meta-data": true,
+          "https://json-schema.org/draft/2020-12/vocab/format-annotation": true,
+          "https://json-schema.org/draft/2020-12/vocab/content": true,
+          "https://spec.openapis.org/oas/3.1/vocab/base": false
+        },
+        "$dynamicAnchor": "meta",
+        "allOf": [
+          {"$ref": "https://json-schema.org/draft/2020-12/schema"},
+          {"$ref": "https://spec.openapis.org/oas/3.1/meta/base"}
+        ]
+      }
+    }
+  })JSON");
+
+  EXPECT_EQ(document, expected);
+}
+
+TEST(Bundle_2020_12, elevate_fallback_collision_throws) {
+  sourcemeta::core::JSON document = sourcemeta::core::parse_json(R"JSON({
+    "$schema": "https://example.com/reserved-id-meta",
+    "type": "string"
+  })JSON");
+
+  try {
+    sourcemeta::blaze::bundle(document, sourcemeta::blaze::schema_walker,
+                              test_resolver);
+    FAIL();
+  } catch (const sourcemeta::blaze::SchemaReservedIdentifierError &error) {
+    EXPECT_EQ(error.identifier(), "__sourcemeta-blaze-bundle__");
+  } catch (...) {
+    FAIL();
+  }
+}
+
+TEST(Bundle_2020_12, fallback_collision_allowed_when_input_has_id) {
+  sourcemeta::core::JSON document = sourcemeta::core::parse_json(R"JSON({
+    "$schema": "https://example.com/reserved-id-meta",
+    "$id": "https://example.com/main",
+    "type": "string"
+  })JSON");
+
+  sourcemeta::blaze::bundle(document, sourcemeta::blaze::schema_walker,
+                            test_resolver);
+
+  const sourcemeta::core::JSON expected = sourcemeta::core::parse_json(R"JSON({
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "$id": "https://example.com/main",
+    "$ref": "https://example.com/main/x",
+    "$defs": {
+      "https://example.com/main/x": {
+        "$schema": "__sourcemeta-blaze-bundle__",
+        "$id": "https://example.com/main/x",
+        "type": "string"
+      },
+      "__sourcemeta-blaze-bundle__": {
+        "$schema": "https://json-schema.org/draft/2020-12/schema",
+        "$id": "__sourcemeta-blaze-bundle__"
       }
     }
   })JSON");
