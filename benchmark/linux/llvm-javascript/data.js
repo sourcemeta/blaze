@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1779738414951,
+  "lastUpdate": 1779825548013,
   "repoUrl": "https://github.com/sourcemeta/blaze",
   "entries": {
     "JavaScript (linux/llvm)": [
@@ -42069,6 +42069,233 @@ window.BENCHMARK_DATA = {
           {
             "name": "E2E_Evaluator_yamllint",
             "value": 19022,
+            "unit": "ns"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "name": "Juan Cruz Viotti",
+            "username": "jviotti",
+            "email": "jv@jviotti.com"
+          },
+          "committer": {
+            "name": "GitHub",
+            "username": "web-flow",
+            "email": "noreply@github.com"
+          },
+          "id": "12cec8ecfd788d399ae65ed61616a299d21dc9bd",
+          "message": "Upgrade the JSON Schema Test Suite to `584e550cf443b9f9b9f9a3f05fc0b2dbae178dfa` (#828)\n\nSigned-off-by: Juan Cruz Viotti <jv@jviotti.com>",
+          "timestamp": "2026-05-24T22:03:09Z",
+          "url": "https://github.com/sourcemeta/blaze/commit/12cec8ecfd788d399ae65ed61616a299d21dc9bd"
+        },
+        "date": 1779825547469,
+        "tool": "customSmallerIsBetter",
+        "benches": [
+          {
+            "name": "E2E_Evaluator_adaptivecard",
+            "value": 118500,
+            "unit": "ns"
+          },
+          {
+            "name": "E2E_Evaluator_ansible-meta",
+            "value": 548994,
+            "unit": "ns"
+          },
+          {
+            "name": "E2E_Evaluator_aws-cdk",
+            "value": 133923,
+            "unit": "ns"
+          },
+          {
+            "name": "E2E_Evaluator_babelrc",
+            "value": 309240,
+            "unit": "ns"
+          },
+          {
+            "name": "E2E_Evaluator_cerebrum-criminal-case",
+            "value": 2644195,
+            "unit": "ns"
+          },
+          {
+            "name": "E2E_Evaluator_clang-format",
+            "value": 282949,
+            "unit": "ns"
+          },
+          {
+            "name": "E2E_Evaluator_cmake-presets",
+            "value": 18228186,
+            "unit": "ns"
+          },
+          {
+            "name": "E2E_Evaluator_code-climate",
+            "value": 494211,
+            "unit": "ns"
+          },
+          {
+            "name": "E2E_Evaluator_cql2",
+            "value": 1265726,
+            "unit": "ns"
+          },
+          {
+            "name": "E2E_Evaluator_cspell",
+            "value": 1732011,
+            "unit": "ns"
+          },
+          {
+            "name": "E2E_Evaluator_cypress",
+            "value": 863423,
+            "unit": "ns"
+          },
+          {
+            "name": "E2E_Evaluator_deno",
+            "value": 1105427,
+            "unit": "ns"
+          },
+          {
+            "name": "E2E_Evaluator_dependabot",
+            "value": 1208179,
+            "unit": "ns"
+          },
+          {
+            "name": "E2E_Evaluator_draft-04",
+            "value": 25728766,
+            "unit": "ns"
+          },
+          {
+            "name": "E2E_Evaluator_fabric-mod",
+            "value": 2623030,
+            "unit": "ns"
+          },
+          {
+            "name": "E2E_Evaluator_geojson",
+            "value": 24964366,
+            "unit": "ns"
+          },
+          {
+            "name": "E2E_Evaluator_gitpod-configuration",
+            "value": 741081,
+            "unit": "ns"
+          },
+          {
+            "name": "E2E_Evaluator_helm-chart-lock",
+            "value": 1005599,
+            "unit": "ns"
+          },
+          {
+            "name": "E2E_Evaluator_importmap",
+            "value": 278027,
+            "unit": "ns"
+          },
+          {
+            "name": "E2E_Evaluator_jasmine",
+            "value": 290017,
+            "unit": "ns"
+          },
+          {
+            "name": "E2E_Evaluator_jsconfig",
+            "value": 1530927,
+            "unit": "ns"
+          },
+          {
+            "name": "E2E_Evaluator_jshintrc",
+            "value": 2983128,
+            "unit": "ns"
+          },
+          {
+            "name": "E2E_Evaluator_krakend",
+            "value": 634477,
+            "unit": "ns"
+          },
+          {
+            "name": "E2E_Evaluator_lazygit",
+            "value": 466571,
+            "unit": "ns"
+          },
+          {
+            "name": "E2E_Evaluator_lerna",
+            "value": 465290,
+            "unit": "ns"
+          },
+          {
+            "name": "E2E_Evaluator_nest-cli",
+            "value": 614104,
+            "unit": "ns"
+          },
+          {
+            "name": "E2E_Evaluator_omc",
+            "value": 94978,
+            "unit": "ns"
+          },
+          {
+            "name": "E2E_Evaluator_omnisharp",
+            "value": 1489597,
+            "unit": "ns"
+          },
+          {
+            "name": "E2E_Evaluator_openapi",
+            "value": 26719537,
+            "unit": "ns"
+          },
+          {
+            "name": "E2E_Evaluator_pre-commit-hooks",
+            "value": 2097488,
+            "unit": "ns"
+          },
+          {
+            "name": "E2E_Evaluator_pulumi",
+            "value": 2024996,
+            "unit": "ns"
+          },
+          {
+            "name": "E2E_Evaluator_semantic-release",
+            "value": 229458,
+            "unit": "ns"
+          },
+          {
+            "name": "E2E_Evaluator_stale",
+            "value": 382543,
+            "unit": "ns"
+          },
+          {
+            "name": "E2E_Evaluator_stylecop",
+            "value": 1238307,
+            "unit": "ns"
+          },
+          {
+            "name": "E2E_Evaluator_tmuxinator",
+            "value": 219176,
+            "unit": "ns"
+          },
+          {
+            "name": "E2E_Evaluator_ui5",
+            "value": 2373831,
+            "unit": "ns"
+          },
+          {
+            "name": "E2E_Evaluator_ui5-manifest",
+            "value": 11411973,
+            "unit": "ns"
+          },
+          {
+            "name": "E2E_Evaluator_unreal-engine-uproject",
+            "value": 1590122,
+            "unit": "ns"
+          },
+          {
+            "name": "E2E_Evaluator_users-array",
+            "value": 2549541,
+            "unit": "ns"
+          },
+          {
+            "name": "E2E_Evaluator_vercel",
+            "value": 1070363,
+            "unit": "ns"
+          },
+          {
+            "name": "E2E_Evaluator_yamllint",
+            "value": 24109,
             "unit": "ns"
           }
         ]
