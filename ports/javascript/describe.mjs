@@ -90,7 +90,7 @@ function describeExtras(valid, target, allowed) {
   }
 
   const extras = [];
-  for (const key of Object.keys(target)) {
+  for (const key in target) {
     if (!allowed.has(key)) {
       extras.push(key);
     }
