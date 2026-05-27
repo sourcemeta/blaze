@@ -60,7 +60,7 @@ auto value_type_name(const sourcemeta::core::JSON &value) -> std::string_view {
   return type_name(value.type());
 }
 
-auto escape_string(const std::string &input) -> std::string {
+auto escape_string(const std::string_view input) -> std::string {
   std::size_t size{2};
   for (const auto character : input) {
     size += (character == '"') ? 2 : 1;
@@ -1357,6 +1357,37 @@ auto describe(const bool valid, const Instruction &step,
       }
     }
 
+    if (valid) {
+      return message.str();
+    }
+
+    assert(target.is_object());
+    std::set<std::string_view> extras;
+    for (const auto &entry : target.as_object()) {
+      if (!value.contains(entry.first, entry.hash)) {
+        extras.insert(entry.first);
+      }
+    }
+
+    if (extras.empty()) {
+      return message.str();
+    }
+
+    if (extras.size() == 1) {
+      message << ", but it also defines the property "
+              << escape_string(*(extras.cbegin()));
+    } else {
+      message << ", but it also defines properties ";
+      for (auto iterator = extras.cbegin(); iterator != extras.cend();
+           ++iterator) {
+        if (std::next(iterator) == extras.cend()) {
+          message << "and " << escape_string(*iterator);
+        } else {
+          message << escape_string(*iterator) << ", ";
+        }
+      }
+    }
+
     return message.str();
   }
 
@@ -1382,6 +1413,36 @@ auto describe(const bool valid, const Instruction &step,
       }
     }
 
+    if (valid || !target.is_object()) {
+      return message.str();
+    }
+
+    std::set<std::string_view> extras;
+    for (const auto &entry : target.as_object()) {
+      if (!value.contains(entry.first, entry.hash)) {
+        extras.insert(entry.first);
+      }
+    }
+
+    if (extras.empty()) {
+      return message.str();
+    }
+
+    if (extras.size() == 1) {
+      message << ", but it also defines the property "
+              << escape_string(*(extras.cbegin()));
+    } else {
+      message << ", but it also defines properties ";
+      for (auto iterator = extras.cbegin(); iterator != extras.cend();
+           ++iterator) {
+        if (std::next(iterator) == extras.cend()) {
+          message << "and " << escape_string(*iterator);
+        } else {
+          message << escape_string(*iterator) << ", ";
+        }
+      }
+    }
+
     return message.str();
   }
 
@@ -1392,6 +1453,45 @@ auto describe(const bool valid, const Instruction &step,
     message << "The value was expected to be an object that only defines "
                "the "
             << value.size() << " given properties";
+
+    if (valid || !target.is_object()) {
+      return message.str();
+    }
+
+    std::set<std::string_view> extras;
+    for (const auto &entry : target.as_object()) {
+      bool allowed{false};
+      for (const auto &candidate : value) {
+        if (candidate.first == entry.hash && candidate.second == entry.first) {
+          allowed = true;
+          break;
+        }
+      }
+
+      if (!allowed) {
+        extras.insert(entry.first);
+      }
+    }
+
+    if (extras.empty()) {
+      return message.str();
+    }
+
+    if (extras.size() == 1) {
+      message << ", but it also defines the property "
+              << escape_string(*(extras.cbegin()));
+    } else {
+      message << ", but it also defines properties ";
+      for (auto iterator = extras.cbegin(); iterator != extras.cend();
+           ++iterator) {
+        if (std::next(iterator) == extras.cend()) {
+          message << "and " << escape_string(*iterator);
+        } else {
+          message << escape_string(*iterator) << ", ";
+        }
+      }
+    }
+
     return message.str();
   }
 
