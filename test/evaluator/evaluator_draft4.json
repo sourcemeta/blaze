@@ -2782,7 +2782,7 @@
         [ false, "AssertionDefinesExactly", "/required", "#/required", "" ]
       ],
       "descriptions": [
-        "The object value was expected to only define properties \"bar\", and \"foo\""
+        "The object value was expected to only define properties \"bar\", and \"foo\", but it also defines the property \"baz\""
       ]
     },
     "exhaustive": {
@@ -2793,7 +2793,7 @@
         [ false, "AssertionDefinesExactly", "/required", "#/required", "" ]
       ],
       "descriptions": [
-        "The object value was expected to only define properties \"bar\", and \"foo\""
+        "The object value was expected to only define properties \"bar\", and \"foo\", but it also defines the property \"baz\""
       ]
     }
   },
@@ -11839,6 +11839,175 @@
         "The value was expected to be of type string",
         "The string value was expected to validate against the referenced schema",
         "The string value was expected to validate against the given subschema"
+      ]
+    }
+  },
+  {
+    "description": "additionalProperties_30",
+    "schema": {
+      "$schema": "http://json-schema.org/draft-04/schema#",
+      "required": [ "foo", "bar" ],
+      "additionalProperties": false,
+      "properties": { "foo": { "type": "boolean" }, "bar": { "type": "boolean" } }
+    },
+    "instance": { "foo": true, "bar": false, "qux": 1, "baz": 2 },
+    "valid": false,
+    "fast": {
+      "pre": [
+        [ "AssertionDefinesExactly", "/required", "#/required", "" ]
+      ],
+      "post": [
+        [ false, "AssertionDefinesExactly", "/required", "#/required", "" ]
+      ],
+      "descriptions": [
+        "The object value was expected to only define properties \"bar\", and \"foo\", but it also defines properties \"baz\", and \"qux\""
+      ]
+    },
+    "exhaustive": {
+      "pre": [
+        [ "AssertionDefinesExactly", "/required", "#/required", "" ]
+      ],
+      "post": [
+        [ false, "AssertionDefinesExactly", "/required", "#/required", "" ]
+      ],
+      "descriptions": [
+        "The object value was expected to only define properties \"bar\", and \"foo\", but it also defines properties \"baz\", and \"qux\""
+      ]
+    }
+  },
+  {
+    "description": "additionalProperties_31",
+    "schema": {
+      "$schema": "http://json-schema.org/draft-04/schema#",
+      "type": "object",
+      "required": [ "foo", "bar" ],
+      "additionalProperties": false,
+      "properties": { "foo": {}, "bar": {} }
+    },
+    "instance": { "foo": 1, "bar": 2, "baz": 3 },
+    "valid": false,
+    "fast": {
+      "pre": [
+        [ "AssertionDefinesExactlyStrict", "/required", "#/required", "" ]
+      ],
+      "post": [
+        [ false, "AssertionDefinesExactlyStrict", "/required", "#/required", "" ]
+      ],
+      "descriptions": [
+        "The value was expected to be an object that only defines properties \"bar\", and \"foo\", but it also defines the property \"baz\""
+      ]
+    },
+    "exhaustive": {
+      "pre": [
+        [ "AssertionDefinesExactly", "/required", "#/required", "" ]
+      ],
+      "post": [
+        [ false, "AssertionDefinesExactly", "/required", "#/required", "" ]
+      ],
+      "descriptions": [
+        "The object value was expected to only define properties \"bar\", and \"foo\", but it also defines the property \"baz\""
+      ]
+    }
+  },
+  {
+    "description": "additionalProperties_32",
+    "schema": {
+      "$schema": "http://json-schema.org/draft-04/schema#",
+      "type": "object",
+      "required": [ "foo", "bar" ],
+      "additionalProperties": false,
+      "properties": { "foo": {}, "bar": {} }
+    },
+    "instance": { "foo": 1, "bar": 2, "baz": 3, "qux": 4 },
+    "valid": false,
+    "fast": {
+      "pre": [
+        [ "AssertionDefinesExactlyStrict", "/required", "#/required", "" ]
+      ],
+      "post": [
+        [ false, "AssertionDefinesExactlyStrict", "/required", "#/required", "" ]
+      ],
+      "descriptions": [
+        "The value was expected to be an object that only defines properties \"bar\", and \"foo\", but it also defines properties \"baz\", and \"qux\""
+      ]
+    },
+    "exhaustive": {
+      "pre": [
+        [ "AssertionDefinesExactly", "/required", "#/required", "" ]
+      ],
+      "post": [
+        [ false, "AssertionDefinesExactly", "/required", "#/required", "" ]
+      ],
+      "descriptions": [
+        "The object value was expected to only define properties \"bar\", and \"foo\", but it also defines properties \"baz\", and \"qux\""
+      ]
+    }
+  },
+  {
+    "description": "additionalProperties_33",
+    "schema": {
+      "$schema": "http://json-schema.org/draft-04/schema#",
+      "type": "object",
+      "required": [ "foo", "bar", "qux" ],
+      "additionalProperties": false,
+      "properties": { "foo": {}, "bar": {}, "qux": {} }
+    },
+    "instance": { "foo": 1, "bar": 2, "qux": 3, "baz": 4 },
+    "valid": false,
+    "fast": {
+      "pre": [
+        [ "AssertionDefinesExactlyStrictHash3", "/required", "#/required", "" ]
+      ],
+      "post": [
+        [ false, "AssertionDefinesExactlyStrictHash3", "/required", "#/required", "" ]
+      ],
+      "descriptions": [
+        "The value was expected to be an object that only defines the 3 given properties, but it also defines the property \"baz\""
+      ]
+    },
+    "exhaustive": {
+      "pre": [
+        [ "AssertionDefinesExactly", "/required", "#/required", "" ]
+      ],
+      "post": [
+        [ false, "AssertionDefinesExactly", "/required", "#/required", "" ]
+      ],
+      "descriptions": [
+        "The object value was expected to only define properties \"bar\", \"foo\", and \"qux\", but it also defines the property \"baz\""
+      ]
+    }
+  },
+  {
+    "description": "additionalProperties_34",
+    "schema": {
+      "$schema": "http://json-schema.org/draft-04/schema#",
+      "type": "object",
+      "required": [ "foo", "bar", "qux" ],
+      "additionalProperties": false,
+      "properties": { "foo": {}, "bar": {}, "qux": {} }
+    },
+    "instance": { "foo": 1, "bar": 2, "qux": 3, "baz": 4, "zap": 5 },
+    "valid": false,
+    "fast": {
+      "pre": [
+        [ "AssertionDefinesExactlyStrictHash3", "/required", "#/required", "" ]
+      ],
+      "post": [
+        [ false, "AssertionDefinesExactlyStrictHash3", "/required", "#/required", "" ]
+      ],
+      "descriptions": [
+        "The value was expected to be an object that only defines the 3 given properties, but it also defines properties \"baz\", and \"zap\""
+      ]
+    },
+    "exhaustive": {
+      "pre": [
+        [ "AssertionDefinesExactly", "/required", "#/required", "" ]
+      ],
+      "post": [
+        [ false, "AssertionDefinesExactly", "/required", "#/required", "" ]
+      ],
+      "descriptions": [
+        "The object value was expected to only define properties \"bar\", \"foo\", and \"qux\", but it also defines properties \"baz\", and \"zap\""
       ]
     }
   }

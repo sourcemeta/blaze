@@ -11499,7 +11499,7 @@
         [ false, "AssertionDefinesExactly", "/properties", "#/properties", "" ]
       ],
       "descriptions": [
-        "The object value was expected to only define properties \"bar\", and \"foo\""
+        "The object value was expected to only define properties \"bar\", and \"foo\", but it also defines the property \"baz\""
       ]
     },
     "exhaustive": {
@@ -11510,7 +11510,7 @@
         [ false, "AssertionDefinesExactly", "/properties", "#/properties", "" ]
       ],
       "descriptions": [
-        "The object value was expected to only define properties \"bar\", and \"foo\""
+        "The object value was expected to only define properties \"bar\", and \"foo\", but it also defines the property \"baz\""
       ]
     }
   },
