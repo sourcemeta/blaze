@@ -17,12 +17,6 @@ auto is_ascii_whitespace(const char character) noexcept -> bool {
 
 namespace sourcemeta::core {
 
-auto to_lowercase(const char character) noexcept -> char {
-  return (character >= 'A' && character <= 'Z')
-             ? static_cast<char>(character + 32)
-             : character;
-}
-
 auto to_title_case(std::string &value) -> void {
   std::size_t write{0};
   bool capitalize_next{true};

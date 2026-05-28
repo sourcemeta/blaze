@@ -133,11 +133,13 @@ enum class ValueStringType : std::uint8_t {
   DateTime,
   Date,
   Time,
+  PartialTime,
   Duration,
   JSONPointer,
   RelativeJSONPointer,
   UUID,
-  Regex
+  Regex,
+  Color
 };
 
 /// @ingroup evaluator
