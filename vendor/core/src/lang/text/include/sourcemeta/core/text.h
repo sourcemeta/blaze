@@ -52,8 +52,11 @@ auto to_title_case(std::string &value) -> void;
 /// assert(sourcemeta::core::to_lowercase('a') == 'a');
 /// assert(sourcemeta::core::to_lowercase('5') == '5');
 /// ```
-SOURCEMETA_CORE_TEXT_EXPORT
-auto to_lowercase(const char character) noexcept -> char;
+inline constexpr auto to_lowercase(const char character) noexcept -> char {
+  return (character >= 'A' && character <= 'Z')
+             ? static_cast<char>(character + ('a' - 'A'))
+             : character;
+}
 
 /// @ingroup text
 ///
