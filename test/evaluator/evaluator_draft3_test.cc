@@ -1719,56 +1719,94 @@ TEST(Evaluator_draft3, format_date_no_tweak_exhaustive) {
   EVALUATE_WITH_TRACE_EXHAUSTIVE_SUCCESS(schema, instance, 0, "");
 }
 
-TEST(Evaluator_draft3, format_date_with_tweak_throws_fast) {
+TEST(Evaluator_draft3, format_date_valid_with_tweak_fast) {
   const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
     "$schema": "http://json-schema.org/draft-03/schema#",
     "format": "date"
   })JSON")};
 
+  const sourcemeta::core::JSON instance{"2026-05-15"};
+
   sourcemeta::blaze::Tweaks tweaks;
   tweaks.format_assertion = true;
 
-  try {
-    sourcemeta::blaze::compile(schema, sourcemeta::blaze::schema_walker,
-                               sourcemeta::blaze::schema_resolver,
-                               sourcemeta::blaze::default_schema_compiler,
-                               sourcemeta::blaze::Mode::FastValidation, "", "",
-                               "", tweaks);
-    FAIL();
-  } catch (const sourcemeta::blaze::CompilerError &error) {
-    EXPECT_STREQ(error.what(),
-                 "The \"date\" format is not supported in assertion mode yet");
-    EXPECT_EQ(error.location(), sourcemeta::core::Pointer({"format"}));
-    EXPECT_EQ(error.base().recompose(), "");
-  } catch (...) {
-    FAIL();
-  }
+  EVALUATE_WITH_TRACE_FAST_SUCCESS_TWEAKED(schema, instance, 1, "", tweaks);
+
+  EVALUATE_TRACE_PRE(0, AssertionStringType, "/format", "#/format", "");
+  EVALUATE_TRACE_POST_SUCCESS(0, AssertionStringType, "/format", "#/format",
+                              "");
+  EVALUATE_TRACE_POST_DESCRIBE(
+      instance, 0,
+      "The string value \"2026-05-15\" was expected to represent a "
+      "valid RFC 3339 full-date");
 }
 
-TEST(Evaluator_draft3, format_date_with_tweak_throws_exhaustive) {
+TEST(Evaluator_draft3, format_date_invalid_with_tweak_fast) {
   const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
     "$schema": "http://json-schema.org/draft-03/schema#",
     "format": "date"
   })JSON")};
 
+  const sourcemeta::core::JSON instance{"not-a-date"};
+
   sourcemeta::blaze::Tweaks tweaks;
   tweaks.format_assertion = true;
 
-  try {
-    sourcemeta::blaze::compile(schema, sourcemeta::blaze::schema_walker,
-                               sourcemeta::blaze::schema_resolver,
-                               sourcemeta::blaze::default_schema_compiler,
-                               sourcemeta::blaze::Mode::Exhaustive, "", "", "",
-                               tweaks);
-    FAIL();
-  } catch (const sourcemeta::blaze::CompilerError &error) {
-    EXPECT_STREQ(error.what(),
-                 "The \"date\" format is not supported in assertion mode yet");
-    EXPECT_EQ(error.location(), sourcemeta::core::Pointer({"format"}));
-    EXPECT_EQ(error.base().recompose(), "");
-  } catch (...) {
-    FAIL();
-  }
+  EVALUATE_WITH_TRACE_FAST_FAILURE_TWEAKED(schema, instance, 1, "", tweaks);
+
+  EVALUATE_TRACE_PRE(0, AssertionStringType, "/format", "#/format", "");
+  EVALUATE_TRACE_POST_FAILURE(0, AssertionStringType, "/format", "#/format",
+                              "");
+  EVALUATE_TRACE_POST_DESCRIBE(
+      instance, 0,
+      "The string value \"not-a-date\" was expected to represent a valid "
+      "RFC 3339 full-date");
+}
+
+TEST(Evaluator_draft3, format_date_valid_with_tweak_exhaustive) {
+  const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
+    "$schema": "http://json-schema.org/draft-03/schema#",
+    "format": "date"
+  })JSON")};
+
+  const sourcemeta::core::JSON instance{"2026-05-15"};
+
+  sourcemeta::blaze::Tweaks tweaks;
+  tweaks.format_assertion = true;
+
+  EVALUATE_WITH_TRACE_EXHAUSTIVE_SUCCESS_TWEAKED(schema, instance, 1, "",
+                                                 tweaks);
+
+  EVALUATE_TRACE_PRE(0, AssertionStringType, "/format", "#/format", "");
+  EVALUATE_TRACE_POST_SUCCESS(0, AssertionStringType, "/format", "#/format",
+                              "");
+  EVALUATE_TRACE_POST_DESCRIBE(
+      instance, 0,
+      "The string value \"2026-05-15\" was expected to represent a "
+      "valid RFC 3339 full-date");
+}
+
+TEST(Evaluator_draft3, format_date_invalid_with_tweak_exhaustive) {
+  const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
+    "$schema": "http://json-schema.org/draft-03/schema#",
+    "format": "date"
+  })JSON")};
+
+  const sourcemeta::core::JSON instance{"not-a-date"};
+
+  sourcemeta::blaze::Tweaks tweaks;
+  tweaks.format_assertion = true;
+
+  EVALUATE_WITH_TRACE_EXHAUSTIVE_FAILURE_TWEAKED(schema, instance, 1, "",
+                                                 tweaks);
+
+  EVALUATE_TRACE_PRE(0, AssertionStringType, "/format", "#/format", "");
+  EVALUATE_TRACE_POST_FAILURE(0, AssertionStringType, "/format", "#/format",
+                              "");
+  EVALUATE_TRACE_POST_DESCRIBE(
+      instance, 0,
+      "The string value \"not-a-date\" was expected to represent a valid "
+      "RFC 3339 full-date");
 }
 
 TEST(Evaluator_draft3, format_time_no_tweak_fast) {
@@ -1943,56 +1981,94 @@ TEST(Evaluator_draft3, format_regex_no_tweak_exhaustive) {
   EVALUATE_WITH_TRACE_EXHAUSTIVE_SUCCESS(schema, instance, 0, "");
 }
 
-TEST(Evaluator_draft3, format_regex_with_tweak_throws_fast) {
+TEST(Evaluator_draft3, format_regex_valid_with_tweak_fast) {
   const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
     "$schema": "http://json-schema.org/draft-03/schema#",
     "format": "regex"
   })JSON")};
 
+  const sourcemeta::core::JSON instance{"^[abc]+$"};
+
   sourcemeta::blaze::Tweaks tweaks;
   tweaks.format_assertion = true;
 
-  try {
-    sourcemeta::blaze::compile(schema, sourcemeta::blaze::schema_walker,
-                               sourcemeta::blaze::schema_resolver,
-                               sourcemeta::blaze::default_schema_compiler,
-                               sourcemeta::blaze::Mode::FastValidation, "", "",
-                               "", tweaks);
-    FAIL();
-  } catch (const sourcemeta::blaze::CompilerError &error) {
-    EXPECT_STREQ(error.what(),
-                 "The \"regex\" format is not supported in assertion mode yet");
-    EXPECT_EQ(error.location(), sourcemeta::core::Pointer({"format"}));
-    EXPECT_EQ(error.base().recompose(), "");
-  } catch (...) {
-    FAIL();
-  }
+  EVALUATE_WITH_TRACE_FAST_SUCCESS_TWEAKED(schema, instance, 1, "", tweaks);
+
+  EVALUATE_TRACE_PRE(0, AssertionStringType, "/format", "#/format", "");
+  EVALUATE_TRACE_POST_SUCCESS(0, AssertionStringType, "/format", "#/format",
+                              "");
+  EVALUATE_TRACE_POST_DESCRIBE(
+      instance, 0,
+      "The string value \"^[abc]+$\" was expected to represent a "
+      "valid ECMA-262 regular expression");
 }
 
-TEST(Evaluator_draft3, format_regex_with_tweak_throws_exhaustive) {
+TEST(Evaluator_draft3, format_regex_invalid_with_tweak_fast) {
   const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
     "$schema": "http://json-schema.org/draft-03/schema#",
     "format": "regex"
   })JSON")};
 
+  const sourcemeta::core::JSON instance{"^(abc]"};
+
   sourcemeta::blaze::Tweaks tweaks;
   tweaks.format_assertion = true;
 
-  try {
-    sourcemeta::blaze::compile(schema, sourcemeta::blaze::schema_walker,
-                               sourcemeta::blaze::schema_resolver,
-                               sourcemeta::blaze::default_schema_compiler,
-                               sourcemeta::blaze::Mode::Exhaustive, "", "", "",
-                               tweaks);
-    FAIL();
-  } catch (const sourcemeta::blaze::CompilerError &error) {
-    EXPECT_STREQ(error.what(),
-                 "The \"regex\" format is not supported in assertion mode yet");
-    EXPECT_EQ(error.location(), sourcemeta::core::Pointer({"format"}));
-    EXPECT_EQ(error.base().recompose(), "");
-  } catch (...) {
-    FAIL();
-  }
+  EVALUATE_WITH_TRACE_FAST_FAILURE_TWEAKED(schema, instance, 1, "", tweaks);
+
+  EVALUATE_TRACE_PRE(0, AssertionStringType, "/format", "#/format", "");
+  EVALUATE_TRACE_POST_FAILURE(0, AssertionStringType, "/format", "#/format",
+                              "");
+  EVALUATE_TRACE_POST_DESCRIBE(
+      instance, 0,
+      "The string value \"^(abc]\" was expected to represent a valid "
+      "ECMA-262 regular expression");
+}
+
+TEST(Evaluator_draft3, format_regex_valid_with_tweak_exhaustive) {
+  const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
+    "$schema": "http://json-schema.org/draft-03/schema#",
+    "format": "regex"
+  })JSON")};
+
+  const sourcemeta::core::JSON instance{"^[abc]+$"};
+
+  sourcemeta::blaze::Tweaks tweaks;
+  tweaks.format_assertion = true;
+
+  EVALUATE_WITH_TRACE_EXHAUSTIVE_SUCCESS_TWEAKED(schema, instance, 1, "",
+                                                 tweaks);
+
+  EVALUATE_TRACE_PRE(0, AssertionStringType, "/format", "#/format", "");
+  EVALUATE_TRACE_POST_SUCCESS(0, AssertionStringType, "/format", "#/format",
+                              "");
+  EVALUATE_TRACE_POST_DESCRIBE(
+      instance, 0,
+      "The string value \"^[abc]+$\" was expected to represent a "
+      "valid ECMA-262 regular expression");
+}
+
+TEST(Evaluator_draft3, format_regex_invalid_with_tweak_exhaustive) {
+  const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
+    "$schema": "http://json-schema.org/draft-03/schema#",
+    "format": "regex"
+  })JSON")};
+
+  const sourcemeta::core::JSON instance{"^(abc]"};
+
+  sourcemeta::blaze::Tweaks tweaks;
+  tweaks.format_assertion = true;
+
+  EVALUATE_WITH_TRACE_EXHAUSTIVE_FAILURE_TWEAKED(schema, instance, 1, "",
+                                                 tweaks);
+
+  EVALUATE_TRACE_PRE(0, AssertionStringType, "/format", "#/format", "");
+  EVALUATE_TRACE_POST_FAILURE(0, AssertionStringType, "/format", "#/format",
+                              "");
+  EVALUATE_TRACE_POST_DESCRIBE(
+      instance, 0,
+      "The string value \"^(abc]\" was expected to represent a valid "
+      "ECMA-262 regular expression");
 }
 
 TEST(Evaluator_draft3, format_color_no_tweak_fast) {
