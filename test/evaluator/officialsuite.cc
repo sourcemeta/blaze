@@ -424,7 +424,7 @@ int main(int argc, char **argv) {
                    "JSONSchemaOfficialSuite_Draft3_Optional_Format",
                    "http://json-schema.org/draft-03/schema#",
                    // TODO: Support all formats
-                   {"color", "date", "ecmascript-regex", "regex", "time"},
+                   {"color", "time"},
                    sourcemeta::blaze::Tweaks{.format_assertion = true});
   } catch (const sourcemeta::blaze::SchemaResolutionError &error) {
     std::cerr << error.what() << ": " << error.identifier() << "\n";

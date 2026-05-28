@@ -2126,6 +2126,9 @@ auto describe(const bool valid, const Instruction &step,
       case ValueStringType::Email:
         message << " email address";
         break;
+      case ValueStringType::IDNEmail:
+        message << " internationalized email address";
+        break;
       case ValueStringType::IPv4:
         message << " IPv4 address";
         break;
@@ -2135,11 +2138,32 @@ auto describe(const bool valid, const Instruction &step,
       case ValueStringType::Hostname:
         message << " hostname";
         break;
+      case ValueStringType::IDNHostname:
+        message << " internationalized hostname";
+        break;
       case ValueStringType::DateTime:
         message << " RFC 3339 date-time";
         break;
+      case ValueStringType::Date:
+        message << " RFC 3339 full-date";
+        break;
+      case ValueStringType::Time:
+        message << " RFC 3339 full-time";
+        break;
+      case ValueStringType::Duration:
+        message << " RFC 3339 duration";
+        break;
       case ValueStringType::JSONPointer:
         message << " JSON Pointer";
+        break;
+      case ValueStringType::RelativeJSONPointer:
+        message << " relative JSON Pointer";
+        break;
+      case ValueStringType::UUID:
+        message << " UUID";
+        break;
+      case ValueStringType::Regex:
+        message << " ECMA-262 regular expression";
         break;
       default:
         return unknown();
