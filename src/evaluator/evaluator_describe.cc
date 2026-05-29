@@ -2123,6 +2123,12 @@ auto describe(const bool valid, const Instruction &step,
       case ValueStringType::URITemplate:
         message << " URI template";
         break;
+      case ValueStringType::IRI:
+        message << " IRI";
+        break;
+      case ValueStringType::IRIReference:
+        message << " IRI reference";
+        break;
       case ValueStringType::Email:
         message << " email address";
         break;

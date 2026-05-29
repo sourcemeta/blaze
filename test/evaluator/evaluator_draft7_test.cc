@@ -184,13 +184,101 @@ TEST(Evaluator_draft7, format_no_tweak_exhaustive) {
   EVALUATE_WITH_TRACE_EXHAUSTIVE_SUCCESS(schema, instance, 0, "");
 }
 
+TEST(Evaluator_draft7, format_iri_valid_with_tweak_fast) {
+  const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
+    "$schema": "http://json-schema.org/draft-07/schema#",
+    "format": "iri"
+  })JSON")};
+
+  const sourcemeta::core::JSON instance{"https://example.com/path"};
+
+  sourcemeta::blaze::Tweaks tweaks;
+  tweaks.format_assertion = true;
+
+  EVALUATE_WITH_TRACE_FAST_SUCCESS_TWEAKED(schema, instance, 1, "", tweaks);
+
+  EVALUATE_TRACE_PRE(0, AssertionStringType, "/format", "#/format", "");
+  EVALUATE_TRACE_POST_SUCCESS(0, AssertionStringType, "/format", "#/format",
+                              "");
+  EVALUATE_TRACE_POST_DESCRIBE(
+      instance, 0,
+      "The string value \"https://example.com/path\" was expected to represent "
+      "a valid IRI");
+}
+
+TEST(Evaluator_draft7, format_iri_invalid_with_tweak_fast) {
+  const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
+    "$schema": "http://json-schema.org/draft-07/schema#",
+    "format": "iri"
+  })JSON")};
+
+  const sourcemeta::core::JSON instance{"://bad"};
+
+  sourcemeta::blaze::Tweaks tweaks;
+  tweaks.format_assertion = true;
+
+  EVALUATE_WITH_TRACE_FAST_FAILURE_TWEAKED(schema, instance, 1, "", tweaks);
+
+  EVALUATE_TRACE_PRE(0, AssertionStringType, "/format", "#/format", "");
+  EVALUATE_TRACE_POST_FAILURE(0, AssertionStringType, "/format", "#/format",
+                              "");
+  EVALUATE_TRACE_POST_DESCRIBE(
+      instance, 0,
+      "The string value \"://bad\" was expected to represent a valid IRI");
+}
+
+TEST(Evaluator_draft7, format_iri_valid_with_tweak_exhaustive) {
+  const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
+    "$schema": "http://json-schema.org/draft-07/schema#",
+    "format": "iri"
+  })JSON")};
+
+  const sourcemeta::core::JSON instance{"https://example.com/path"};
+
+  sourcemeta::blaze::Tweaks tweaks;
+  tweaks.format_assertion = true;
+
+  EVALUATE_WITH_TRACE_EXHAUSTIVE_SUCCESS_TWEAKED(schema, instance, 1, "",
+                                                 tweaks);
+
+  EVALUATE_TRACE_PRE(0, AssertionStringType, "/format", "#/format", "");
+  EVALUATE_TRACE_POST_SUCCESS(0, AssertionStringType, "/format", "#/format",
+                              "");
+  EVALUATE_TRACE_POST_DESCRIBE(
+      instance, 0,
+      "The string value \"https://example.com/path\" was expected to represent "
+      "a valid IRI");
+}
+
+TEST(Evaluator_draft7, format_iri_invalid_with_tweak_exhaustive) {
+  const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
+    "$schema": "http://json-schema.org/draft-07/schema#",
+    "format": "iri"
+  })JSON")};
+
+  const sourcemeta::core::JSON instance{"://bad"};
+
+  sourcemeta::blaze::Tweaks tweaks;
+  tweaks.format_assertion = true;
+
+  EVALUATE_WITH_TRACE_EXHAUSTIVE_FAILURE_TWEAKED(schema, instance, 1, "",
+                                                 tweaks);
+
+  EVALUATE_TRACE_PRE(0, AssertionStringType, "/format", "#/format", "");
+  EVALUATE_TRACE_POST_FAILURE(0, AssertionStringType, "/format", "#/format",
+                              "");
+  EVALUATE_TRACE_POST_DESCRIBE(
+      instance, 0,
+      "The string value \"://bad\" was expected to represent a valid IRI");
+}
+
 TEST(Evaluator_draft7, format_iri_no_tweak_fast) {
   const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
     "$schema": "http://json-schema.org/draft-07/schema#",
     "format": "iri"
   })JSON")};
 
-  const sourcemeta::core::JSON instance{"http://example.com"};
+  const sourcemeta::core::JSON instance{"://bad"};
 
   EVALUATE_WITH_TRACE_FAST_SUCCESS(schema, instance, 0, "");
 }
@@ -201,61 +289,128 @@ TEST(Evaluator_draft7, format_iri_no_tweak_exhaustive) {
     "format": "iri"
   })JSON")};
 
-  const sourcemeta::core::JSON instance{"http://example.com"};
+  const sourcemeta::core::JSON instance{"://bad"};
 
   EVALUATE_WITH_TRACE_EXHAUSTIVE_SUCCESS(schema, instance, 0, "");
 }
 
-TEST(Evaluator_draft7, format_iri_with_tweak_throws_fast) {
+TEST(Evaluator_draft7, format_iri_non_string_with_tweak_fast) {
   const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
     "$schema": "http://json-schema.org/draft-07/schema#",
     "format": "iri"
   })JSON")};
 
+  const sourcemeta::core::JSON instance{3.14};
+
   sourcemeta::blaze::Tweaks tweaks;
   tweaks.format_assertion = true;
 
-  try {
-    sourcemeta::blaze::compile(schema, sourcemeta::blaze::schema_walker,
-                               sourcemeta::blaze::schema_resolver,
-                               sourcemeta::blaze::default_schema_compiler,
-                               sourcemeta::blaze::Mode::FastValidation, "", "",
-                               "", tweaks);
-    FAIL();
-  } catch (const sourcemeta::blaze::CompilerError &error) {
-    EXPECT_STREQ(error.what(),
-                 "The \"iri\" format is not supported in assertion mode yet");
-    EXPECT_EQ(error.location(), sourcemeta::core::Pointer({"format"}));
-    EXPECT_EQ(error.base().recompose(), "");
-  } catch (...) {
-    FAIL();
-  }
+  EVALUATE_WITH_TRACE_FAST_SUCCESS_TWEAKED(schema, instance, 0, "", tweaks);
 }
 
-TEST(Evaluator_draft7, format_iri_with_tweak_throws_exhaustive) {
+TEST(Evaluator_draft7, format_iri_non_string_with_tweak_exhaustive) {
   const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
     "$schema": "http://json-schema.org/draft-07/schema#",
     "format": "iri"
   })JSON")};
 
+  const sourcemeta::core::JSON instance{3.14};
+
   sourcemeta::blaze::Tweaks tweaks;
   tweaks.format_assertion = true;
 
-  try {
-    sourcemeta::blaze::compile(schema, sourcemeta::blaze::schema_walker,
-                               sourcemeta::blaze::schema_resolver,
-                               sourcemeta::blaze::default_schema_compiler,
-                               sourcemeta::blaze::Mode::Exhaustive, "", "", "",
-                               tweaks);
-    FAIL();
-  } catch (const sourcemeta::blaze::CompilerError &error) {
-    EXPECT_STREQ(error.what(),
-                 "The \"iri\" format is not supported in assertion mode yet");
-    EXPECT_EQ(error.location(), sourcemeta::core::Pointer({"format"}));
-    EXPECT_EQ(error.base().recompose(), "");
-  } catch (...) {
-    FAIL();
-  }
+  EVALUATE_WITH_TRACE_EXHAUSTIVE_SUCCESS_TWEAKED(schema, instance, 0, "",
+                                                 tweaks);
+}
+
+TEST(Evaluator_draft7, format_iri_reference_valid_with_tweak_fast) {
+  const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
+    "$schema": "http://json-schema.org/draft-07/schema#",
+    "format": "iri-reference"
+  })JSON")};
+
+  const sourcemeta::core::JSON instance{"/relative/path"};
+
+  sourcemeta::blaze::Tweaks tweaks;
+  tweaks.format_assertion = true;
+
+  EVALUATE_WITH_TRACE_FAST_SUCCESS_TWEAKED(schema, instance, 1, "", tweaks);
+
+  EVALUATE_TRACE_PRE(0, AssertionStringType, "/format", "#/format", "");
+  EVALUATE_TRACE_POST_SUCCESS(0, AssertionStringType, "/format", "#/format",
+                              "");
+  EVALUATE_TRACE_POST_DESCRIBE(
+      instance, 0,
+      "The string value \"/relative/path\" was expected to represent a valid "
+      "IRI reference");
+}
+
+TEST(Evaluator_draft7, format_iri_reference_invalid_with_tweak_fast) {
+  const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
+    "$schema": "http://json-schema.org/draft-07/schema#",
+    "format": "iri-reference"
+  })JSON")};
+
+  const sourcemeta::core::JSON instance{"://bad"};
+
+  sourcemeta::blaze::Tweaks tweaks;
+  tweaks.format_assertion = true;
+
+  EVALUATE_WITH_TRACE_FAST_FAILURE_TWEAKED(schema, instance, 1, "", tweaks);
+
+  EVALUATE_TRACE_PRE(0, AssertionStringType, "/format", "#/format", "");
+  EVALUATE_TRACE_POST_FAILURE(0, AssertionStringType, "/format", "#/format",
+                              "");
+  EVALUATE_TRACE_POST_DESCRIBE(
+      instance, 0,
+      "The string value \"://bad\" was expected to represent a valid IRI "
+      "reference");
+}
+
+TEST(Evaluator_draft7, format_iri_reference_valid_with_tweak_exhaustive) {
+  const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
+    "$schema": "http://json-schema.org/draft-07/schema#",
+    "format": "iri-reference"
+  })JSON")};
+
+  const sourcemeta::core::JSON instance{"/relative/path"};
+
+  sourcemeta::blaze::Tweaks tweaks;
+  tweaks.format_assertion = true;
+
+  EVALUATE_WITH_TRACE_EXHAUSTIVE_SUCCESS_TWEAKED(schema, instance, 1, "",
+                                                 tweaks);
+
+  EVALUATE_TRACE_PRE(0, AssertionStringType, "/format", "#/format", "");
+  EVALUATE_TRACE_POST_SUCCESS(0, AssertionStringType, "/format", "#/format",
+                              "");
+  EVALUATE_TRACE_POST_DESCRIBE(
+      instance, 0,
+      "The string value \"/relative/path\" was expected to represent a valid "
+      "IRI reference");
+}
+
+TEST(Evaluator_draft7, format_iri_reference_invalid_with_tweak_exhaustive) {
+  const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
+    "$schema": "http://json-schema.org/draft-07/schema#",
+    "format": "iri-reference"
+  })JSON")};
+
+  const sourcemeta::core::JSON instance{"://bad"};
+
+  sourcemeta::blaze::Tweaks tweaks;
+  tweaks.format_assertion = true;
+
+  EVALUATE_WITH_TRACE_EXHAUSTIVE_FAILURE_TWEAKED(schema, instance, 1, "",
+                                                 tweaks);
+
+  EVALUATE_TRACE_PRE(0, AssertionStringType, "/format", "#/format", "");
+  EVALUATE_TRACE_POST_FAILURE(0, AssertionStringType, "/format", "#/format",
+                              "");
+  EVALUATE_TRACE_POST_DESCRIBE(
+      instance, 0,
+      "The string value \"://bad\" was expected to represent a valid IRI "
+      "reference");
 }
 
 TEST(Evaluator_draft7, format_iri_reference_no_tweak_fast) {
@@ -264,7 +419,7 @@ TEST(Evaluator_draft7, format_iri_reference_no_tweak_fast) {
     "format": "iri-reference"
   })JSON")};
 
-  const sourcemeta::core::JSON instance{"http://example.com"};
+  const sourcemeta::core::JSON instance{"://bad"};
 
   EVALUATE_WITH_TRACE_FAST_SUCCESS(schema, instance, 0, "");
 }
@@ -275,63 +430,38 @@ TEST(Evaluator_draft7, format_iri_reference_no_tweak_exhaustive) {
     "format": "iri-reference"
   })JSON")};
 
-  const sourcemeta::core::JSON instance{"http://example.com"};
+  const sourcemeta::core::JSON instance{"://bad"};
 
   EVALUATE_WITH_TRACE_EXHAUSTIVE_SUCCESS(schema, instance, 0, "");
 }
 
-TEST(Evaluator_draft7, format_iri_reference_with_tweak_throws_fast) {
+TEST(Evaluator_draft7, format_iri_reference_non_string_with_tweak_fast) {
   const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
     "$schema": "http://json-schema.org/draft-07/schema#",
     "format": "iri-reference"
   })JSON")};
 
+  const sourcemeta::core::JSON instance{42};
+
   sourcemeta::blaze::Tweaks tweaks;
   tweaks.format_assertion = true;
 
-  try {
-    sourcemeta::blaze::compile(schema, sourcemeta::blaze::schema_walker,
-                               sourcemeta::blaze::schema_resolver,
-                               sourcemeta::blaze::default_schema_compiler,
-                               sourcemeta::blaze::Mode::FastValidation, "", "",
-                               "", tweaks);
-    FAIL();
-  } catch (const sourcemeta::blaze::CompilerError &error) {
-    EXPECT_STREQ(
-        error.what(),
-        "The \"iri-reference\" format is not supported in assertion mode yet");
-    EXPECT_EQ(error.location(), sourcemeta::core::Pointer({"format"}));
-    EXPECT_EQ(error.base().recompose(), "");
-  } catch (...) {
-    FAIL();
-  }
+  EVALUATE_WITH_TRACE_FAST_SUCCESS_TWEAKED(schema, instance, 0, "", tweaks);
 }
 
-TEST(Evaluator_draft7, format_iri_reference_with_tweak_throws_exhaustive) {
+TEST(Evaluator_draft7, format_iri_reference_non_string_with_tweak_exhaustive) {
   const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
     "$schema": "http://json-schema.org/draft-07/schema#",
     "format": "iri-reference"
   })JSON")};
 
+  const sourcemeta::core::JSON instance{42};
+
   sourcemeta::blaze::Tweaks tweaks;
   tweaks.format_assertion = true;
 
-  try {
-    sourcemeta::blaze::compile(schema, sourcemeta::blaze::schema_walker,
-                               sourcemeta::blaze::schema_resolver,
-                               sourcemeta::blaze::default_schema_compiler,
-                               sourcemeta::blaze::Mode::Exhaustive, "", "", "",
-                               tweaks);
-    FAIL();
-  } catch (const sourcemeta::blaze::CompilerError &error) {
-    EXPECT_STREQ(
-        error.what(),
-        "The \"iri-reference\" format is not supported in assertion mode yet");
-    EXPECT_EQ(error.location(), sourcemeta::core::Pointer({"format"}));
-    EXPECT_EQ(error.base().recompose(), "");
-  } catch (...) {
-    FAIL();
-  }
+  EVALUATE_WITH_TRACE_EXHAUSTIVE_SUCCESS_TWEAKED(schema, instance, 0, "",
+                                                 tweaks);
 }
 
 TEST(Evaluator_draft7, format_date_time_valid_with_tweak_fast) {

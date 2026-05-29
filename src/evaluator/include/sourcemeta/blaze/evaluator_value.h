@@ -124,6 +124,8 @@ enum class ValueStringType : std::uint8_t {
   URI,
   URIReference,
   URITemplate,
+  IRI,
+  IRIReference,
   Email,
   IDNEmail,
   IPv4,

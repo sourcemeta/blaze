@@ -25,7 +25,8 @@
 #include <vector>      // std::vector
 
 /// @defgroup uri URI
-/// @brief A strict RFC 3986 URI implementation.
+/// @brief A strict RFC 3986 URI implementation, with RFC 3987 IRI
+/// syntax checking.
 ///
 /// This functionality is included as follows:
 ///
@@ -639,6 +640,33 @@ public:
   /// assert(!sourcemeta::core::URI::is_uri_reference("://bad"));
   /// ```
   [[nodiscard]] static auto is_uri_reference(std::string_view input) noexcept
+      -> bool;
+
+  /// Check if the given string is a valid absolute IRI (has a scheme) per
+  /// RFC 3987 without constructing a full URI object. For example:
+  ///
+  /// ```cpp
+  /// #include <sourcemeta/core/uri.h>
+  /// #include <cassert>
+  ///
+  /// assert(sourcemeta::core::URI::is_iri("https://example.com/path"));
+  /// assert(!sourcemeta::core::URI::is_iri("relative/path"));
+  /// ```
+  [[nodiscard]] static auto is_iri(std::string_view input) noexcept -> bool;
+
+  /// Check if the given string is a valid IRI reference per RFC 3987
+  /// (absolute or relative) without constructing a full URI object.
+  /// For example:
+  ///
+  /// ```cpp
+  /// #include <sourcemeta/core/uri.h>
+  /// #include <cassert>
+  ///
+  /// assert(sourcemeta::core::URI::is_iri_reference("https://example.com"));
+  /// assert(sourcemeta::core::URI::is_iri_reference("relative/path"));
+  /// assert(!sourcemeta::core::URI::is_iri_reference("://bad"));
+  /// ```
+  [[nodiscard]] static auto is_iri_reference(std::string_view input) noexcept
       -> bool;
 
   /// Strip a URI path prefix and return the remaining suffix. For example:

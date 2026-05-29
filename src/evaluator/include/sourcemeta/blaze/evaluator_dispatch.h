@@ -882,6 +882,12 @@ INSTRUCTION_HANDLER(AssertionStringType) {
     case ValueStringType::URITemplate:
       result = URITemplate::is_uritemplate(target);
       break;
+    case ValueStringType::IRI:
+      result = URI::is_iri(target);
+      break;
+    case ValueStringType::IRIReference:
+      result = URI::is_iri_reference(target);
+      break;
     case ValueStringType::Email:
       result = is_email(target);
       break;
