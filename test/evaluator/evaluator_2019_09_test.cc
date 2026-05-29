@@ -308,9 +308,11 @@ TEST(Evaluator_2019_09, format_date_time_valid_with_tweak_exhaustive) {
 
   EVALUATE_TRACE_PRE(0, AssertionStringType, "/format", "#/format", "");
   EVALUATE_TRACE_PRE_ANNOTATION(1, "/format", "#/format", "");
+
   EVALUATE_TRACE_POST_SUCCESS(0, AssertionStringType, "/format", "#/format",
                               "");
   EVALUATE_TRACE_POST_ANNOTATION(1, "/format", "#/format", "", "date-time");
+
   EVALUATE_TRACE_POST_DESCRIBE(
       instance, 0,
       "The string value \"2026-05-15T14:00:00Z\" was expected to represent a "
@@ -460,9 +462,11 @@ TEST(Evaluator_2019_09, format_date_valid_with_tweak_exhaustive) {
 
   EVALUATE_TRACE_PRE(0, AssertionStringType, "/format", "#/format", "");
   EVALUATE_TRACE_PRE_ANNOTATION(1, "/format", "#/format", "");
+
   EVALUATE_TRACE_POST_SUCCESS(0, AssertionStringType, "/format", "#/format",
                               "");
   EVALUATE_TRACE_POST_ANNOTATION(1, "/format", "#/format", "", "date");
+
   EVALUATE_TRACE_POST_DESCRIBE(
       instance, 0,
       "The string value \"2026-05-15\" was expected to represent a valid RFC "
@@ -612,9 +616,11 @@ TEST(Evaluator_2019_09, format_time_valid_with_tweak_exhaustive) {
 
   EVALUATE_TRACE_PRE(0, AssertionStringType, "/format", "#/format", "");
   EVALUATE_TRACE_PRE_ANNOTATION(1, "/format", "#/format", "");
+
   EVALUATE_TRACE_POST_SUCCESS(0, AssertionStringType, "/format", "#/format",
                               "");
   EVALUATE_TRACE_POST_ANNOTATION(1, "/format", "#/format", "", "time");
+
   EVALUATE_TRACE_POST_DESCRIBE(
       instance, 0,
       "The string value \"14:00:00Z\" was expected to represent a valid RFC "
@@ -764,9 +770,11 @@ TEST(Evaluator_2019_09, format_duration_valid_with_tweak_exhaustive) {
 
   EVALUATE_TRACE_PRE(0, AssertionStringType, "/format", "#/format", "");
   EVALUATE_TRACE_PRE_ANNOTATION(1, "/format", "#/format", "");
+
   EVALUATE_TRACE_POST_SUCCESS(0, AssertionStringType, "/format", "#/format",
                               "");
   EVALUATE_TRACE_POST_ANNOTATION(1, "/format", "#/format", "", "duration");
+
   EVALUATE_TRACE_POST_DESCRIBE(
       instance, 0,
       "The string value \"P1D\" was expected to represent a valid RFC 3339 "
@@ -916,9 +924,11 @@ TEST(Evaluator_2019_09, format_email_valid_with_tweak_exhaustive) {
 
   EVALUATE_TRACE_PRE(0, AssertionStringType, "/format", "#/format", "");
   EVALUATE_TRACE_PRE_ANNOTATION(1, "/format", "#/format", "");
+
   EVALUATE_TRACE_POST_SUCCESS(0, AssertionStringType, "/format", "#/format",
                               "");
   EVALUATE_TRACE_POST_ANNOTATION(1, "/format", "#/format", "", "email");
+
   EVALUATE_TRACE_POST_DESCRIBE(
       instance, 0,
       "The string value \"user@example.com\" was expected to represent a "
@@ -1068,9 +1078,11 @@ TEST(Evaluator_2019_09, format_idn_email_valid_with_tweak_exhaustive) {
 
   EVALUATE_TRACE_PRE(0, AssertionStringType, "/format", "#/format", "");
   EVALUATE_TRACE_PRE_ANNOTATION(1, "/format", "#/format", "");
+
   EVALUATE_TRACE_POST_SUCCESS(0, AssertionStringType, "/format", "#/format",
                               "");
   EVALUATE_TRACE_POST_ANNOTATION(1, "/format", "#/format", "", "idn-email");
+
   EVALUATE_TRACE_POST_DESCRIBE(
       instance, 0,
       "The string value \"user@example.com\" was expected to represent a "
@@ -1220,9 +1232,11 @@ TEST(Evaluator_2019_09, format_hostname_valid_with_tweak_exhaustive) {
 
   EVALUATE_TRACE_PRE(0, AssertionStringType, "/format", "#/format", "");
   EVALUATE_TRACE_PRE_ANNOTATION(1, "/format", "#/format", "");
+
   EVALUATE_TRACE_POST_SUCCESS(0, AssertionStringType, "/format", "#/format",
                               "");
   EVALUATE_TRACE_POST_ANNOTATION(1, "/format", "#/format", "", "hostname");
+
   EVALUATE_TRACE_POST_DESCRIBE(
       instance, 0,
       "The string value \"example.com\" was expected to represent a valid "
@@ -1372,9 +1386,11 @@ TEST(Evaluator_2019_09, format_idn_hostname_valid_with_tweak_exhaustive) {
 
   EVALUATE_TRACE_PRE(0, AssertionStringType, "/format", "#/format", "");
   EVALUATE_TRACE_PRE_ANNOTATION(1, "/format", "#/format", "");
+
   EVALUATE_TRACE_POST_SUCCESS(0, AssertionStringType, "/format", "#/format",
                               "");
   EVALUATE_TRACE_POST_ANNOTATION(1, "/format", "#/format", "", "idn-hostname");
+
   EVALUATE_TRACE_POST_DESCRIBE(
       instance, 0,
       "The string value \"example.com\" was expected to represent a valid "
@@ -1524,9 +1540,11 @@ TEST(Evaluator_2019_09, format_ipv4_valid_with_tweak_exhaustive) {
 
   EVALUATE_TRACE_PRE(0, AssertionStringType, "/format", "#/format", "");
   EVALUATE_TRACE_PRE_ANNOTATION(1, "/format", "#/format", "");
+
   EVALUATE_TRACE_POST_SUCCESS(0, AssertionStringType, "/format", "#/format",
                               "");
   EVALUATE_TRACE_POST_ANNOTATION(1, "/format", "#/format", "", "ipv4");
+
   EVALUATE_TRACE_POST_DESCRIBE(
       instance, 0,
       "The string value \"192.168.1.1\" was expected to represent a valid "
@@ -1676,9 +1694,11 @@ TEST(Evaluator_2019_09, format_ipv6_valid_with_tweak_exhaustive) {
 
   EVALUATE_TRACE_PRE(0, AssertionStringType, "/format", "#/format", "");
   EVALUATE_TRACE_PRE_ANNOTATION(1, "/format", "#/format", "");
+
   EVALUATE_TRACE_POST_SUCCESS(0, AssertionStringType, "/format", "#/format",
                               "");
   EVALUATE_TRACE_POST_ANNOTATION(1, "/format", "#/format", "", "ipv6");
+
   EVALUATE_TRACE_POST_DESCRIBE(
       instance, 0,
       "The string value \"::1\" was expected to represent a valid IPv6 "
@@ -1827,9 +1847,11 @@ TEST(Evaluator_2019_09, format_uri_valid_with_tweak_exhaustive) {
 
   EVALUATE_TRACE_PRE(0, AssertionStringType, "/format", "#/format", "");
   EVALUATE_TRACE_PRE_ANNOTATION(1, "/format", "#/format", "");
+
   EVALUATE_TRACE_POST_SUCCESS(0, AssertionStringType, "/format", "#/format",
                               "");
   EVALUATE_TRACE_POST_ANNOTATION(1, "/format", "#/format", "", "uri");
+
   EVALUATE_TRACE_POST_DESCRIBE(
       instance, 0,
       "The string value \"https://example.com\" was expected to represent a "
@@ -1978,9 +2000,11 @@ TEST(Evaluator_2019_09, format_uri_reference_valid_with_tweak_exhaustive) {
 
   EVALUATE_TRACE_PRE(0, AssertionStringType, "/format", "#/format", "");
   EVALUATE_TRACE_PRE_ANNOTATION(1, "/format", "#/format", "");
+
   EVALUATE_TRACE_POST_SUCCESS(0, AssertionStringType, "/format", "#/format",
                               "");
   EVALUATE_TRACE_POST_ANNOTATION(1, "/format", "#/format", "", "uri-reference");
+
   EVALUATE_TRACE_POST_DESCRIBE(
       instance, 0,
       "The string value \"/relative/path\" was expected to represent a valid "
@@ -2129,9 +2153,11 @@ TEST(Evaluator_2019_09, format_iri_valid_with_tweak_exhaustive) {
 
   EVALUATE_TRACE_PRE(0, AssertionStringType, "/format", "#/format", "");
   EVALUATE_TRACE_PRE_ANNOTATION(1, "/format", "#/format", "");
+
   EVALUATE_TRACE_POST_SUCCESS(0, AssertionStringType, "/format", "#/format",
                               "");
   EVALUATE_TRACE_POST_ANNOTATION(1, "/format", "#/format", "", "iri");
+
   EVALUATE_TRACE_POST_DESCRIBE(
       instance, 0,
       "The string value \"https://example.com/path\" was expected to represent "
@@ -2280,9 +2306,11 @@ TEST(Evaluator_2019_09, format_iri_reference_valid_with_tweak_exhaustive) {
 
   EVALUATE_TRACE_PRE(0, AssertionStringType, "/format", "#/format", "");
   EVALUATE_TRACE_PRE_ANNOTATION(1, "/format", "#/format", "");
+
   EVALUATE_TRACE_POST_SUCCESS(0, AssertionStringType, "/format", "#/format",
                               "");
   EVALUATE_TRACE_POST_ANNOTATION(1, "/format", "#/format", "", "iri-reference");
+
   EVALUATE_TRACE_POST_DESCRIBE(
       instance, 0,
       "The string value \"/relative/path\" was expected to represent a valid "
@@ -2432,9 +2460,11 @@ TEST(Evaluator_2019_09, format_uri_template_valid_with_tweak_exhaustive) {
 
   EVALUATE_TRACE_PRE(0, AssertionStringType, "/format", "#/format", "");
   EVALUATE_TRACE_PRE_ANNOTATION(1, "/format", "#/format", "");
+
   EVALUATE_TRACE_POST_SUCCESS(0, AssertionStringType, "/format", "#/format",
                               "");
   EVALUATE_TRACE_POST_ANNOTATION(1, "/format", "#/format", "", "uri-template");
+
   EVALUATE_TRACE_POST_DESCRIBE(
       instance, 0,
       "The string value \"http://example.com/{var}\" was expected to represent "
@@ -2584,9 +2614,11 @@ TEST(Evaluator_2019_09, format_json_pointer_valid_with_tweak_exhaustive) {
 
   EVALUATE_TRACE_PRE(0, AssertionStringType, "/format", "#/format", "");
   EVALUATE_TRACE_PRE_ANNOTATION(1, "/format", "#/format", "");
+
   EVALUATE_TRACE_POST_SUCCESS(0, AssertionStringType, "/format", "#/format",
                               "");
   EVALUATE_TRACE_POST_ANNOTATION(1, "/format", "#/format", "", "json-pointer");
+
   EVALUATE_TRACE_POST_DESCRIBE(
       instance, 0,
       "The string value \"/foo/bar\" was expected to represent a valid JSON "
@@ -2737,10 +2769,12 @@ TEST(Evaluator_2019_09,
 
   EVALUATE_TRACE_PRE(0, AssertionStringType, "/format", "#/format", "");
   EVALUATE_TRACE_PRE_ANNOTATION(1, "/format", "#/format", "");
+
   EVALUATE_TRACE_POST_SUCCESS(0, AssertionStringType, "/format", "#/format",
                               "");
   EVALUATE_TRACE_POST_ANNOTATION(1, "/format", "#/format", "",
                                  "relative-json-pointer");
+
   EVALUATE_TRACE_POST_DESCRIBE(
       instance, 0,
       "The string value \"1/foo\" was expected to represent a valid relative "
@@ -2894,9 +2928,11 @@ TEST(Evaluator_2019_09, format_regex_valid_with_tweak_exhaustive) {
 
   EVALUATE_TRACE_PRE(0, AssertionStringType, "/format", "#/format", "");
   EVALUATE_TRACE_PRE_ANNOTATION(1, "/format", "#/format", "");
+
   EVALUATE_TRACE_POST_SUCCESS(0, AssertionStringType, "/format", "#/format",
                               "");
   EVALUATE_TRACE_POST_ANNOTATION(1, "/format", "#/format", "", "regex");
+
   EVALUATE_TRACE_POST_DESCRIBE(
       instance, 0,
       "The string value \"^[abc]+$\" was expected to represent a valid "
@@ -3046,9 +3082,11 @@ TEST(Evaluator_2019_09, format_uuid_valid_with_tweak_exhaustive) {
 
   EVALUATE_TRACE_PRE(0, AssertionStringType, "/format", "#/format", "");
   EVALUATE_TRACE_PRE_ANNOTATION(1, "/format", "#/format", "");
+
   EVALUATE_TRACE_POST_SUCCESS(0, AssertionStringType, "/format", "#/format",
                               "");
   EVALUATE_TRACE_POST_ANNOTATION(1, "/format", "#/format", "", "uuid");
+
   EVALUATE_TRACE_POST_DESCRIBE(
       instance, 0,
       "The string value \"550e8400-e29b-41d4-a716-446655440000\" was expected "
@@ -3296,11 +3334,13 @@ TEST(Evaluator_2019_09, format_under_items_valid_with_tweak_fast) {
                      "/0");
   EVALUATE_TRACE_PRE(2, AssertionStringType, "/items/format", "#/items/format",
                      "/1");
+
   EVALUATE_TRACE_POST_SUCCESS(0, AssertionStringType, "/items/format",
                               "#/items/format", "/0");
   EVALUATE_TRACE_POST_SUCCESS(1, AssertionStringType, "/items/format",
                               "#/items/format", "/1");
   EVALUATE_TRACE_POST_SUCCESS(2, LoopItems, "/items", "#/items", "");
+
   EVALUATE_TRACE_POST_DESCRIBE(
       instance, 0,
       "The string value \"/foo\" was expected to represent a valid JSON "
@@ -3330,11 +3370,13 @@ TEST(Evaluator_2019_09, format_under_items_invalid_with_tweak_fast) {
                      "/0");
   EVALUATE_TRACE_PRE(2, AssertionStringType, "/items/format", "#/items/format",
                      "/1");
+
   EVALUATE_TRACE_POST_SUCCESS(0, AssertionStringType, "/items/format",
                               "#/items/format", "/0");
   EVALUATE_TRACE_POST_FAILURE(1, AssertionStringType, "/items/format",
                               "#/items/format", "/1");
   EVALUATE_TRACE_POST_FAILURE(2, LoopItems, "/items", "#/items", "");
+
   EVALUATE_TRACE_POST_DESCRIBE(
       instance, 0,
       "The string value \"http://example.com/{var}\" was expected to represent "
@@ -3361,9 +3403,11 @@ TEST(Evaluator_2019_09, format_with_type_string_valid_with_tweak_fast) {
 
   EVALUATE_TRACE_PRE(0, AssertionStringType, "/format", "#/format", "");
   EVALUATE_TRACE_PRE(1, AssertionTypeStrict, "/type", "#/type", "");
+
   EVALUATE_TRACE_POST_SUCCESS(0, AssertionStringType, "/format", "#/format",
                               "");
   EVALUATE_TRACE_POST_SUCCESS(1, AssertionTypeStrict, "/type", "#/type", "");
+
   EVALUATE_TRACE_POST_DESCRIBE(
       instance, 0,
       "The string value \"https://example.com\" was expected to represent a "
