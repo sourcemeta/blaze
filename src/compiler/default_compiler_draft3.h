@@ -2492,8 +2492,54 @@ auto compiler_draft3_validation_format(const Context &context,
   const auto is_draft6{
       schema_context.vocabularies.contains(Known::JSON_Schema_Draft_6) ||
       schema_context.vocabularies.contains(Known::JSON_Schema_Draft_6_Hyper)};
+  const auto is_draft7{
+      schema_context.vocabularies.contains(Known::JSON_Schema_Draft_7) ||
+      schema_context.vocabularies.contains(Known::JSON_Schema_Draft_7_Hyper)};
 
-  if (is_draft4 || is_draft6) {
+  if (is_draft7) {
+    if (name == "date-time") {
+      type = ValueStringType::DateTime;
+    } else if (name == "date") {
+      type = ValueStringType::Date;
+    } else if (name == "time") {
+      type = ValueStringType::Time;
+    } else if (name == "email") {
+      type = ValueStringType::Email;
+    } else if (name == "idn-email") {
+      type = ValueStringType::IDNEmail;
+    } else if (name == "hostname") {
+      type = ValueStringType::Hostname;
+    } else if (name == "idn-hostname") {
+      type = ValueStringType::IDNHostname;
+    } else if (name == "ipv4") {
+      type = ValueStringType::IPv4;
+    } else if (name == "ipv6") {
+      type = ValueStringType::IPv6;
+    } else if (name == "uri") {
+      type = ValueStringType::URI;
+    } else if (name == "uri-reference") {
+      type = ValueStringType::URIReference;
+    } else if (name == "uri-template") {
+      type = ValueStringType::URITemplate;
+    } else if (name == "json-pointer") {
+      type = ValueStringType::JSONPointer;
+    } else if (name == "relative-json-pointer") {
+      type = ValueStringType::RelativeJSONPointer;
+    } else if (name == "regex") {
+      type = ValueStringType::Regex;
+    } else if (name == "iri") {
+      throw sourcemeta::blaze::CompilerError(
+          schema_context.base, to_pointer(schema_context.relative_pointer),
+          "The \"iri\" format is not supported in assertion mode yet");
+    } else if (name == "iri-reference") {
+      throw sourcemeta::blaze::CompilerError(
+          schema_context.base, to_pointer(schema_context.relative_pointer),
+          "The \"iri-reference\" format is not supported in assertion mode "
+          "yet");
+    } else {
+      return {};
+    }
+  } else if (is_draft4 || is_draft6) {
     if (name == "date-time") {
       type = ValueStringType::DateTime;
     } else if (name == "email") {
