@@ -385,12 +385,7 @@ int main(int argc, char **argv) {
                    {"content"});
     register_tests(std::filesystem::path{"draft7"} / "optional" / "format",
                    "JSONSchemaOfficialSuite_Draft7_Optional_Format",
-                   "http://json-schema.org/draft-07/schema#",
-                   // TODO: The hostname validator does not yet reject
-                   // invalid IDN A-labels (xn-- punycode prefixes) that the
-                   // official hostname suite exercises, so this directory
-                   // remains blocklisted until that gap is filled.
-                   {"hostname", "iri", "iri-reference", "unknown"},
+                   "http://json-schema.org/draft-07/schema#", {},
                    sourcemeta::blaze::Tweaks{.format_assertion = true});
 
     // Draft 6

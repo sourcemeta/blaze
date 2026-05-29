@@ -2528,14 +2528,9 @@ auto compiler_draft3_validation_format(const Context &context,
     } else if (name == "regex") {
       type = ValueStringType::Regex;
     } else if (name == "iri") {
-      throw sourcemeta::blaze::CompilerError(
-          schema_context.base, to_pointer(schema_context.relative_pointer),
-          "The \"iri\" format is not supported in assertion mode yet");
+      type = ValueStringType::IRI;
     } else if (name == "iri-reference") {
-      throw sourcemeta::blaze::CompilerError(
-          schema_context.base, to_pointer(schema_context.relative_pointer),
-          "The \"iri-reference\" format is not supported in assertion mode "
-          "yet");
+      type = ValueStringType::IRIReference;
     } else {
       return {};
     }
