@@ -365,15 +365,11 @@ int main(int argc, char **argv) {
                    "https://json-schema.org/draft/2019-09/schema",
                    // TODO: Can we make this work?
                    {"refOfUnknownKeyword"});
-    register_tests(
-        std::filesystem::path{"draft2019-09"} / "optional" / "format",
-        "JSONSchemaOfficialSuite_2019_09_Optional_Format",
-        "https://json-schema.org/draft/2019-09/schema",
-        // TODO: Enable all tests
-        {"date-time", "date", "duration", "email", "hostname", "idn-email",
-         "idn-hostname", "ipv4", "ipv6", "iri-reference", "iri", "json-pointer",
-         "regex", "relative-json-pointer", "time", "uri-reference",
-         "uri-template", "uri", "uuid"});
+    register_tests(std::filesystem::path{"draft2019-09"} / "optional" /
+                       "format",
+                   "JSONSchemaOfficialSuite_2019_09_Optional_Format",
+                   "https://json-schema.org/draft/2019-09/schema", {},
+                   sourcemeta::blaze::Tweaks{.format_assertion = true});
 
     // Draft 7
     register_tests("draft7", "JSONSchemaOfficialSuite_Draft7",
