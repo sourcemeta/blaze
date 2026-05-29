@@ -1809,13 +1809,103 @@ TEST(Evaluator_draft3, format_date_invalid_with_tweak_exhaustive) {
       "RFC 3339 full-date");
 }
 
+TEST(Evaluator_draft3, format_time_valid_with_tweak_fast) {
+  const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
+    "$schema": "http://json-schema.org/draft-03/schema#",
+    "format": "time"
+  })JSON")};
+
+  const sourcemeta::core::JSON instance{"08:30:06"};
+
+  sourcemeta::blaze::Tweaks tweaks;
+  tweaks.format_assertion = true;
+
+  EVALUATE_WITH_TRACE_FAST_SUCCESS_TWEAKED(schema, instance, 1, "", tweaks);
+
+  EVALUATE_TRACE_PRE(0, AssertionStringType, "/format", "#/format", "");
+  EVALUATE_TRACE_POST_SUCCESS(0, AssertionStringType, "/format", "#/format",
+                              "");
+  EVALUATE_TRACE_POST_DESCRIBE(
+      instance, 0,
+      "The string value \"08:30:06\" was expected to represent a valid RFC "
+      "3339 partial-time without fractional seconds");
+}
+
+TEST(Evaluator_draft3, format_time_invalid_with_tweak_fast) {
+  const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
+    "$schema": "http://json-schema.org/draft-03/schema#",
+    "format": "time"
+  })JSON")};
+
+  const sourcemeta::core::JSON instance{"25:00:00"};
+
+  sourcemeta::blaze::Tweaks tweaks;
+  tweaks.format_assertion = true;
+
+  EVALUATE_WITH_TRACE_FAST_FAILURE_TWEAKED(schema, instance, 1, "", tweaks);
+
+  EVALUATE_TRACE_PRE(0, AssertionStringType, "/format", "#/format", "");
+  EVALUATE_TRACE_POST_FAILURE(0, AssertionStringType, "/format", "#/format",
+                              "");
+  EVALUATE_TRACE_POST_DESCRIBE(
+      instance, 0,
+      "The string value \"25:00:00\" was expected to represent a valid RFC "
+      "3339 partial-time without fractional seconds");
+}
+
+TEST(Evaluator_draft3, format_time_valid_with_tweak_exhaustive) {
+  const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
+    "$schema": "http://json-schema.org/draft-03/schema#",
+    "format": "time"
+  })JSON")};
+
+  const sourcemeta::core::JSON instance{"08:30:06"};
+
+  sourcemeta::blaze::Tweaks tweaks;
+  tweaks.format_assertion = true;
+
+  EVALUATE_WITH_TRACE_EXHAUSTIVE_SUCCESS_TWEAKED(schema, instance, 1, "",
+                                                 tweaks);
+
+  EVALUATE_TRACE_PRE(0, AssertionStringType, "/format", "#/format", "");
+  EVALUATE_TRACE_POST_SUCCESS(0, AssertionStringType, "/format", "#/format",
+                              "");
+  EVALUATE_TRACE_POST_DESCRIBE(
+      instance, 0,
+      "The string value \"08:30:06\" was expected to represent a valid RFC "
+      "3339 partial-time without fractional seconds");
+}
+
+TEST(Evaluator_draft3, format_time_invalid_with_tweak_exhaustive) {
+  const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
+    "$schema": "http://json-schema.org/draft-03/schema#",
+    "format": "time"
+  })JSON")};
+
+  const sourcemeta::core::JSON instance{"25:00:00"};
+
+  sourcemeta::blaze::Tweaks tweaks;
+  tweaks.format_assertion = true;
+
+  EVALUATE_WITH_TRACE_EXHAUSTIVE_FAILURE_TWEAKED(schema, instance, 1, "",
+                                                 tweaks);
+
+  EVALUATE_TRACE_PRE(0, AssertionStringType, "/format", "#/format", "");
+  EVALUATE_TRACE_POST_FAILURE(0, AssertionStringType, "/format", "#/format",
+                              "");
+  EVALUATE_TRACE_POST_DESCRIBE(
+      instance, 0,
+      "The string value \"25:00:00\" was expected to represent a valid RFC "
+      "3339 partial-time without fractional seconds");
+}
+
 TEST(Evaluator_draft3, format_time_no_tweak_fast) {
   const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
     "$schema": "http://json-schema.org/draft-03/schema#",
     "format": "time"
   })JSON")};
 
-  const sourcemeta::core::JSON instance{"anything"};
+  const sourcemeta::core::JSON instance{"25:00:00"};
 
   EVALUATE_WITH_TRACE_FAST_SUCCESS(schema, instance, 0, "");
 }
@@ -1826,61 +1916,38 @@ TEST(Evaluator_draft3, format_time_no_tweak_exhaustive) {
     "format": "time"
   })JSON")};
 
-  const sourcemeta::core::JSON instance{"anything"};
+  const sourcemeta::core::JSON instance{"25:00:00"};
 
   EVALUATE_WITH_TRACE_EXHAUSTIVE_SUCCESS(schema, instance, 0, "");
 }
 
-TEST(Evaluator_draft3, format_time_with_tweak_throws_fast) {
+TEST(Evaluator_draft3, format_time_non_string_with_tweak_fast) {
   const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
     "$schema": "http://json-schema.org/draft-03/schema#",
     "format": "time"
   })JSON")};
 
+  const sourcemeta::core::JSON instance{42};
+
   sourcemeta::blaze::Tweaks tweaks;
   tweaks.format_assertion = true;
 
-  try {
-    sourcemeta::blaze::compile(schema, sourcemeta::blaze::schema_walker,
-                               sourcemeta::blaze::schema_resolver,
-                               sourcemeta::blaze::default_schema_compiler,
-                               sourcemeta::blaze::Mode::FastValidation, "", "",
-                               "", tweaks);
-    FAIL();
-  } catch (const sourcemeta::blaze::CompilerError &error) {
-    EXPECT_STREQ(error.what(),
-                 "The \"time\" format is not supported in assertion mode yet");
-    EXPECT_EQ(error.location(), sourcemeta::core::Pointer({"format"}));
-    EXPECT_EQ(error.base().recompose(), "");
-  } catch (...) {
-    FAIL();
-  }
+  EVALUATE_WITH_TRACE_FAST_SUCCESS_TWEAKED(schema, instance, 0, "", tweaks);
 }
 
-TEST(Evaluator_draft3, format_time_with_tweak_throws_exhaustive) {
+TEST(Evaluator_draft3, format_time_non_string_with_tweak_exhaustive) {
   const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
     "$schema": "http://json-schema.org/draft-03/schema#",
     "format": "time"
   })JSON")};
 
+  const sourcemeta::core::JSON instance{42};
+
   sourcemeta::blaze::Tweaks tweaks;
   tweaks.format_assertion = true;
 
-  try {
-    sourcemeta::blaze::compile(schema, sourcemeta::blaze::schema_walker,
-                               sourcemeta::blaze::schema_resolver,
-                               sourcemeta::blaze::default_schema_compiler,
-                               sourcemeta::blaze::Mode::Exhaustive, "", "", "",
-                               tweaks);
-    FAIL();
-  } catch (const sourcemeta::blaze::CompilerError &error) {
-    EXPECT_STREQ(error.what(),
-                 "The \"time\" format is not supported in assertion mode yet");
-    EXPECT_EQ(error.location(), sourcemeta::core::Pointer({"format"}));
-    EXPECT_EQ(error.base().recompose(), "");
-  } catch (...) {
-    FAIL();
-  }
+  EVALUATE_WITH_TRACE_EXHAUSTIVE_SUCCESS_TWEAKED(schema, instance, 0, "",
+                                                 tweaks);
 }
 
 TEST(Evaluator_draft3, format_utc_millisec_no_tweak_fast) {
@@ -2071,13 +2138,103 @@ TEST(Evaluator_draft3, format_regex_invalid_with_tweak_exhaustive) {
       "ECMA-262 regular expression");
 }
 
+TEST(Evaluator_draft3, format_color_valid_with_tweak_fast) {
+  const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
+    "$schema": "http://json-schema.org/draft-03/schema#",
+    "format": "color"
+  })JSON")};
+
+  const sourcemeta::core::JSON instance{"fuchsia"};
+
+  sourcemeta::blaze::Tweaks tweaks;
+  tweaks.format_assertion = true;
+
+  EVALUATE_WITH_TRACE_FAST_SUCCESS_TWEAKED(schema, instance, 1, "", tweaks);
+
+  EVALUATE_TRACE_PRE(0, AssertionStringType, "/format", "#/format", "");
+  EVALUATE_TRACE_POST_SUCCESS(0, AssertionStringType, "/format", "#/format",
+                              "");
+  EVALUATE_TRACE_POST_DESCRIBE(
+      instance, 0,
+      "The string value \"fuchsia\" was expected to represent a valid CSS 2 "
+      "color");
+}
+
+TEST(Evaluator_draft3, format_color_invalid_with_tweak_fast) {
+  const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
+    "$schema": "http://json-schema.org/draft-03/schema#",
+    "format": "color"
+  })JSON")};
+
+  const sourcemeta::core::JSON instance{"puce"};
+
+  sourcemeta::blaze::Tweaks tweaks;
+  tweaks.format_assertion = true;
+
+  EVALUATE_WITH_TRACE_FAST_FAILURE_TWEAKED(schema, instance, 1, "", tweaks);
+
+  EVALUATE_TRACE_PRE(0, AssertionStringType, "/format", "#/format", "");
+  EVALUATE_TRACE_POST_FAILURE(0, AssertionStringType, "/format", "#/format",
+                              "");
+  EVALUATE_TRACE_POST_DESCRIBE(
+      instance, 0,
+      "The string value \"puce\" was expected to represent a valid CSS 2 "
+      "color");
+}
+
+TEST(Evaluator_draft3, format_color_valid_with_tweak_exhaustive) {
+  const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
+    "$schema": "http://json-schema.org/draft-03/schema#",
+    "format": "color"
+  })JSON")};
+
+  const sourcemeta::core::JSON instance{"fuchsia"};
+
+  sourcemeta::blaze::Tweaks tweaks;
+  tweaks.format_assertion = true;
+
+  EVALUATE_WITH_TRACE_EXHAUSTIVE_SUCCESS_TWEAKED(schema, instance, 1, "",
+                                                 tweaks);
+
+  EVALUATE_TRACE_PRE(0, AssertionStringType, "/format", "#/format", "");
+  EVALUATE_TRACE_POST_SUCCESS(0, AssertionStringType, "/format", "#/format",
+                              "");
+  EVALUATE_TRACE_POST_DESCRIBE(
+      instance, 0,
+      "The string value \"fuchsia\" was expected to represent a valid CSS 2 "
+      "color");
+}
+
+TEST(Evaluator_draft3, format_color_invalid_with_tweak_exhaustive) {
+  const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
+    "$schema": "http://json-schema.org/draft-03/schema#",
+    "format": "color"
+  })JSON")};
+
+  const sourcemeta::core::JSON instance{"puce"};
+
+  sourcemeta::blaze::Tweaks tweaks;
+  tweaks.format_assertion = true;
+
+  EVALUATE_WITH_TRACE_EXHAUSTIVE_FAILURE_TWEAKED(schema, instance, 1, "",
+                                                 tweaks);
+
+  EVALUATE_TRACE_PRE(0, AssertionStringType, "/format", "#/format", "");
+  EVALUATE_TRACE_POST_FAILURE(0, AssertionStringType, "/format", "#/format",
+                              "");
+  EVALUATE_TRACE_POST_DESCRIBE(
+      instance, 0,
+      "The string value \"puce\" was expected to represent a valid CSS 2 "
+      "color");
+}
+
 TEST(Evaluator_draft3, format_color_no_tweak_fast) {
   const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
     "$schema": "http://json-schema.org/draft-03/schema#",
     "format": "color"
   })JSON")};
 
-  const sourcemeta::core::JSON instance{"anything"};
+  const sourcemeta::core::JSON instance{"puce"};
 
   EVALUATE_WITH_TRACE_FAST_SUCCESS(schema, instance, 0, "");
 }
@@ -2088,61 +2245,38 @@ TEST(Evaluator_draft3, format_color_no_tweak_exhaustive) {
     "format": "color"
   })JSON")};
 
-  const sourcemeta::core::JSON instance{"anything"};
+  const sourcemeta::core::JSON instance{"puce"};
 
   EVALUATE_WITH_TRACE_EXHAUSTIVE_SUCCESS(schema, instance, 0, "");
 }
 
-TEST(Evaluator_draft3, format_color_with_tweak_throws_fast) {
+TEST(Evaluator_draft3, format_color_non_string_with_tweak_fast) {
   const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
     "$schema": "http://json-schema.org/draft-03/schema#",
     "format": "color"
   })JSON")};
 
+  const sourcemeta::core::JSON instance{42};
+
   sourcemeta::blaze::Tweaks tweaks;
   tweaks.format_assertion = true;
 
-  try {
-    sourcemeta::blaze::compile(schema, sourcemeta::blaze::schema_walker,
-                               sourcemeta::blaze::schema_resolver,
-                               sourcemeta::blaze::default_schema_compiler,
-                               sourcemeta::blaze::Mode::FastValidation, "", "",
-                               "", tweaks);
-    FAIL();
-  } catch (const sourcemeta::blaze::CompilerError &error) {
-    EXPECT_STREQ(error.what(),
-                 "The \"color\" format is not supported in assertion mode yet");
-    EXPECT_EQ(error.location(), sourcemeta::core::Pointer({"format"}));
-    EXPECT_EQ(error.base().recompose(), "");
-  } catch (...) {
-    FAIL();
-  }
+  EVALUATE_WITH_TRACE_FAST_SUCCESS_TWEAKED(schema, instance, 0, "", tweaks);
 }
 
-TEST(Evaluator_draft3, format_color_with_tweak_throws_exhaustive) {
+TEST(Evaluator_draft3, format_color_non_string_with_tweak_exhaustive) {
   const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
     "$schema": "http://json-schema.org/draft-03/schema#",
     "format": "color"
   })JSON")};
 
+  const sourcemeta::core::JSON instance{42};
+
   sourcemeta::blaze::Tweaks tweaks;
   tweaks.format_assertion = true;
 
-  try {
-    sourcemeta::blaze::compile(schema, sourcemeta::blaze::schema_walker,
-                               sourcemeta::blaze::schema_resolver,
-                               sourcemeta::blaze::default_schema_compiler,
-                               sourcemeta::blaze::Mode::Exhaustive, "", "", "",
-                               tweaks);
-    FAIL();
-  } catch (const sourcemeta::blaze::CompilerError &error) {
-    EXPECT_STREQ(error.what(),
-                 "The \"color\" format is not supported in assertion mode yet");
-    EXPECT_EQ(error.location(), sourcemeta::core::Pointer({"format"}));
-    EXPECT_EQ(error.base().recompose(), "");
-  } catch (...) {
-    FAIL();
-  }
+  EVALUATE_WITH_TRACE_EXHAUSTIVE_SUCCESS_TWEAKED(schema, instance, 0, "",
+                                                 tweaks);
 }
 
 TEST(Evaluator_draft3, format_style_no_tweak_fast) {
