@@ -62,7 +62,7 @@ static auto alterschema_test_resolver(std::string_view identifier)
         "https://json-schema.org/draft/2020-12/vocab/applicator": true,
         "https://json-schema.org/draft/2020-12/vocab/validation": true,
         "https://json-schema.org/draft/2020-12/vocab/meta-data": true,
-        "https://json-schema.org/draft/2020-12/vocab/format-assertion": true
+        "https://example.com/vocab/unsupported-fictional": true
       }
     })JSON");
   } else {

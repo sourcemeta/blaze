@@ -23,13 +23,14 @@ static auto test_resolver(std::string_view identifier)
         "https://example.com/vocab/custom": true
       }
     })JSON");
-  } else if (identifier == "https://example.com/metaschema-format-assertion") {
+  } else if (identifier ==
+             "https://example.com/metaschema-unsupported-required-vocab") {
     return sourcemeta::core::parse_json(R"JSON({
       "$schema": "https://json-schema.org/draft/2020-12/schema",
-      "$id": "https://example.com/metaschema-format-assertion",
+      "$id": "https://example.com/metaschema-unsupported-required-vocab",
       "$vocabulary": {
         "https://json-schema.org/draft/2020-12/vocab/core": true,
-        "https://json-schema.org/draft/2020-12/vocab/format-assertion": true
+        "https://example.com/vocab/unsupported-fictional": true
       }
     })JSON");
   } else if (identifier == "https://example.com/schema") {
@@ -298,9 +299,9 @@ TEST(Evaluator, invalid_entrypoint_not_a_subschema) {
   }
 }
 
-TEST(Evaluator, format_assertion_vocabulary_unsupported) {
+TEST(Evaluator, unsupported_required_vocabulary) {
   const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
-    "$schema": "https://example.com/metaschema-format-assertion"
+    "$schema": "https://example.com/metaschema-unsupported-required-vocab"
   })JSON")};
 
   try {
@@ -309,8 +310,7 @@ TEST(Evaluator, format_assertion_vocabulary_unsupported) {
                                sourcemeta::blaze::default_schema_compiler);
     FAIL() << "The compile function was expected to throw";
   } catch (const sourcemeta::blaze::SchemaVocabularyError &error) {
-    EXPECT_EQ(error.uri(),
-              "https://json-schema.org/draft/2020-12/vocab/format-assertion");
+    EXPECT_EQ(error.uri(), "https://example.com/vocab/unsupported-fictional");
     SUCCEED();
   } catch (const std::exception &) {
     FAIL() << "The compile function was expected to throw a vocabulary error";

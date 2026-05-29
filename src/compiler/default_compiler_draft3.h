@@ -2451,8 +2451,12 @@ auto compiler_draft3_validation_format(const Context &context,
       schema_context.vocabularies.contains(Known::JSON_Schema_2019_09_Format)};
   const auto is_2020_12_format_annotation{schema_context.vocabularies.contains(
       Known::JSON_Schema_2020_12_Format_Annotation)};
+  const auto is_2020_12_format_assertion{schema_context.vocabularies.contains(
+      Known::JSON_Schema_2020_12_Format_Assertion)};
 
-  if (is_2019_09_format && context.tweaks.format_assertion) {
+  if ((is_2019_09_format && context.tweaks.format_assertion) ||
+      is_2020_12_format_assertion ||
+      (is_2020_12_format_annotation && context.tweaks.format_assertion)) {
     const auto &format{schema_context.schema.at(dynamic_context.keyword)};
     if (!format.is_string()) {
       return {};
@@ -2522,12 +2526,6 @@ auto compiler_draft3_validation_format(const Context &context,
   }
 
   if (is_2019_09_format || is_2020_12_format_annotation) {
-    if (context.tweaks.format_assertion) {
-      throw sourcemeta::blaze::CompilerError(
-          schema_context.base, to_pointer(schema_context.relative_pointer),
-          unsupported_dialect_message);
-    }
-
     if (context.mode == Mode::FastValidation) {
       return {};
     }
