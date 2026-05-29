@@ -2572,24 +2572,26 @@ auto compiler_draft3_validation_format(const Context &context,
     } else if (name == "date") {
       type = ValueStringType::Date;
     } else if (name == "time") {
-      throw sourcemeta::blaze::CompilerError(
-          schema_context.base, to_pointer(schema_context.relative_pointer),
-          "The \"time\" format is not supported in assertion mode yet");
+      type = ValueStringType::PartialTime;
     } else if (name == "utc-millisec") {
+      // TODO: Support this old format, even though not even the official test
+      // suite covers it
       throw sourcemeta::blaze::CompilerError(
           schema_context.base, to_pointer(schema_context.relative_pointer),
           "The \"utc-millisec\" format is not supported in assertion mode yet");
     } else if (name == "regex") {
       type = ValueStringType::Regex;
     } else if (name == "color") {
-      throw sourcemeta::blaze::CompilerError(
-          schema_context.base, to_pointer(schema_context.relative_pointer),
-          "The \"color\" format is not supported in assertion mode yet");
+      type = ValueStringType::Color;
     } else if (name == "style") {
+      // TODO: Support this old format, even though not even the official test
+      // suite covers it
       throw sourcemeta::blaze::CompilerError(
           schema_context.base, to_pointer(schema_context.relative_pointer),
           "The \"style\" format is not supported in assertion mode yet");
     } else if (name == "phone") {
+      // TODO: Support this old format, even though not even the official test
+      // suite covers it
       throw sourcemeta::blaze::CompilerError(
           schema_context.base, to_pointer(schema_context.relative_pointer),
           "The \"phone\" format is not supported in assertion mode yet");

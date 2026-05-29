@@ -418,9 +418,7 @@ int main(int argc, char **argv) {
                    "http://json-schema.org/draft-03/schema#", {});
     register_tests(std::filesystem::path{"draft3"} / "optional" / "format",
                    "JSONSchemaOfficialSuite_Draft3_Optional_Format",
-                   "http://json-schema.org/draft-03/schema#",
-                   // TODO: Support all formats
-                   {"color", "time"},
+                   "http://json-schema.org/draft-03/schema#", {},
                    sourcemeta::blaze::Tweaks{.format_assertion = true});
   } catch (const sourcemeta::blaze::SchemaResolutionError &error) {
     std::cerr << error.what() << ": " << error.identifier() << "\n";
