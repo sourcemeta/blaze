@@ -12848,6 +12848,210 @@ TEST(AlterSchema_lint_2020_12, pattern_non_ecma_regex_multiple_offenders) {
       false);
 }
 
+TEST(AlterSchema_lint_2020_12,
+     pattern_properties_non_ecma_regex_invalid_escape) {
+  const sourcemeta::core::JSON document = sourcemeta::core::parse_json(R"JSON({
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "title": "Test",
+    "description": "A test schema",
+    "examples": [ {} ],
+    "patternProperties": {
+      "\\a": { "type": "string" }
+    }
+  })JSON");
+
+  LINT_WITHOUT_FIX(document, result, traces);
+
+  EXPECT_FALSE(result.first);
+  EXPECT_EQ(traces.size(), 1);
+  EXPECT_LINT_TRACE(
+      traces, 0, "", "pattern_properties_non_ecma_regex",
+      "For interoperability reasons, only set the keys of this keyword to "
+      "regular expressions that strictly adhere to the ECMA-262 dialect",
+      false);
+}
+
+TEST(AlterSchema_lint_2020_12, pattern_properties_non_ecma_regex_valid_simple) {
+  const sourcemeta::core::JSON document = sourcemeta::core::parse_json(R"JSON({
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "title": "Test",
+    "description": "A test schema",
+    "examples": [ {} ],
+    "patternProperties": {
+      "^[a-z]+$": { "type": "string" },
+      "[0-9]{2}": { "type": "integer" }
+    }
+  })JSON");
+
+  LINT_WITHOUT_FIX(document, result, traces);
+
+  EXPECT_TRUE(result.first);
+  EXPECT_EQ(traces.size(), 0);
+}
+
+TEST(AlterSchema_lint_2020_12,
+     pattern_properties_non_ecma_regex_empty_object_ignored) {
+  const sourcemeta::core::JSON document = sourcemeta::core::parse_json(R"JSON({
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "title": "Test",
+    "description": "A test schema",
+    "examples": [ {} ],
+    "patternProperties": {}
+  })JSON");
+
+  LINT_WITHOUT_FIX(document, result, traces);
+
+  EXPECT_FALSE(result.first);
+  EXPECT_EQ(traces.size(), 1);
+  EXPECT_LINT_TRACE(
+      traces, 0, "", "pattern_properties_default",
+      "Setting the `patternProperties` keyword to the empty object "
+      "does not add any further constraint",
+      true);
+}
+
+TEST(AlterSchema_lint_2020_12,
+     pattern_properties_non_ecma_regex_unbalanced_bracket) {
+  const sourcemeta::core::JSON document = sourcemeta::core::parse_json(R"JSON({
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "title": "Test",
+    "description": "A test schema",
+    "examples": [ {} ],
+    "patternProperties": {
+      "^(abc]": { "type": "string" }
+    }
+  })JSON");
+
+  LINT_WITHOUT_FIX(document, result, traces);
+
+  EXPECT_FALSE(result.first);
+  EXPECT_EQ(traces.size(), 1);
+  EXPECT_LINT_TRACE(
+      traces, 0, "", "pattern_properties_non_ecma_regex",
+      "For interoperability reasons, only set the keys of this keyword to "
+      "regular expressions that strictly adhere to the ECMA-262 dialect",
+      false);
+}
+
+TEST(AlterSchema_lint_2020_12, pattern_properties_non_ecma_regex_posix_class) {
+  const sourcemeta::core::JSON document = sourcemeta::core::parse_json(R"JSON({
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "title": "Test",
+    "description": "A test schema",
+    "examples": [ {} ],
+    "patternProperties": {
+      "[[:alpha:]]+": { "type": "string" }
+    }
+  })JSON");
+
+  LINT_WITHOUT_FIX(document, result, traces);
+
+  EXPECT_FALSE(result.first);
+  EXPECT_EQ(traces.size(), 1);
+  EXPECT_LINT_TRACE(
+      traces, 0, "", "pattern_properties_non_ecma_regex",
+      "For interoperability reasons, only set the keys of this keyword to "
+      "regular expressions that strictly adhere to the ECMA-262 dialect",
+      false);
+}
+
+TEST(AlterSchema_lint_2020_12,
+     pattern_properties_non_ecma_regex_python_named_group) {
+  const sourcemeta::core::JSON document = sourcemeta::core::parse_json(R"JSON({
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "title": "Test",
+    "description": "A test schema",
+    "examples": [ {} ],
+    "patternProperties": {
+      "(?P<name>[a-z]+)": { "type": "string" }
+    }
+  })JSON");
+
+  LINT_WITHOUT_FIX(document, result, traces);
+
+  EXPECT_FALSE(result.first);
+  EXPECT_EQ(traces.size(), 1);
+  EXPECT_LINT_TRACE(
+      traces, 0, "", "pattern_properties_non_ecma_regex",
+      "For interoperability reasons, only set the keys of this keyword to "
+      "regular expressions that strictly adhere to the ECMA-262 dialect",
+      false);
+}
+
+TEST(AlterSchema_lint_2020_12, pattern_properties_non_ecma_regex_nested) {
+  const sourcemeta::core::JSON document = sourcemeta::core::parse_json(R"JSON({
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "title": "Test",
+    "description": "A test schema",
+    "examples": [ {} ],
+    "properties": {
+      "foo": {
+        "type": "object",
+        "patternProperties": {
+          "\\a": { "type": "string" }
+        }
+      }
+    }
+  })JSON");
+
+  LINT_WITHOUT_FIX(document, result, traces);
+
+  EXPECT_FALSE(result.first);
+  EXPECT_EQ(traces.size(), 1);
+  EXPECT_LINT_TRACE(
+      traces, 0, "/properties/foo", "pattern_properties_non_ecma_regex",
+      "For interoperability reasons, only set the keys of this keyword to "
+      "regular expressions that strictly adhere to the ECMA-262 dialect",
+      false);
+}
+
+TEST(AlterSchema_lint_2020_12, pattern_properties_non_ecma_regex_mixed_keys) {
+  const sourcemeta::core::JSON document = sourcemeta::core::parse_json(R"JSON({
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "title": "Test",
+    "description": "A test schema",
+    "examples": [ {} ],
+    "patternProperties": {
+      "^[a-z]+$": { "type": "string" },
+      "\\a": { "type": "integer" }
+    }
+  })JSON");
+
+  LINT_WITHOUT_FIX(document, result, traces);
+
+  EXPECT_FALSE(result.first);
+  EXPECT_EQ(traces.size(), 1);
+  EXPECT_LINT_TRACE(
+      traces, 0, "", "pattern_properties_non_ecma_regex",
+      "For interoperability reasons, only set the keys of this keyword to "
+      "regular expressions that strictly adhere to the ECMA-262 dialect",
+      false);
+}
+
+TEST(AlterSchema_lint_2020_12,
+     pattern_properties_non_ecma_regex_multiple_bad_keys) {
+  const sourcemeta::core::JSON document = sourcemeta::core::parse_json(R"JSON({
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "title": "Test",
+    "description": "A test schema",
+    "examples": [ {} ],
+    "patternProperties": {
+      "\\a": { "type": "string" },
+      "[[:digit:]]": { "type": "integer" }
+    }
+  })JSON");
+
+  LINT_WITHOUT_FIX(document, result, traces);
+
+  EXPECT_FALSE(result.first);
+  EXPECT_EQ(traces.size(), 1);
+  EXPECT_LINT_TRACE(
+      traces, 0, "", "pattern_properties_non_ecma_regex",
+      "For interoperability reasons, only set the keys of this keyword to "
+      "regular expressions that strictly adhere to the ECMA-262 dialect",
+      false);
+}
+
 TEST(AlterSchema_lint_2020_12, unnecessary_allof_wrapper_parallel_three_gates) {
   sourcemeta::core::JSON document = sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2020-12/schema",
