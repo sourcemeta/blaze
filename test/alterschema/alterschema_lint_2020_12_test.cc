@@ -13050,6 +13050,13 @@ TEST(AlterSchema_lint_2020_12,
       "For interoperability reasons, only set the keys of this keyword to "
       "regular expressions that strictly adhere to the ECMA-262 dialect",
       false);
+
+  const auto &outcome{std::get<3>(traces.at(0))};
+  EXPECT_EQ(outcome.locations.size(), 2);
+  EXPECT_EQ(sourcemeta::core::to_string(outcome.locations.at(0)),
+            "/patternProperties/\\a");
+  EXPECT_EQ(sourcemeta::core::to_string(outcome.locations.at(1)),
+            "/patternProperties/[[:digit:]]");
 }
 
 TEST(AlterSchema_lint_2020_12, unnecessary_allof_wrapper_parallel_three_gates) {
