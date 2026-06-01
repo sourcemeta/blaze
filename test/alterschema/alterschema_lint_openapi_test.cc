@@ -282,3 +282,42 @@ TEST(AlterSchema_lint_openapi_3_1, pattern_non_ecma_regex_valid) {
   EXPECT_TRUE(result.first);
   EXPECT_EQ(traces.size(), 0);
 }
+
+TEST(AlterSchema_lint_openapi_3_2, pattern_non_ecma_regex_invalid_escape) {
+  const sourcemeta::core::JSON document = sourcemeta::core::parse_json(R"JSON({
+    "$schema": "https://spec.openapis.org/oas/3.2/dialect/2025-09-17",
+    "title": "Test",
+    "description": "A test schema",
+    "examples": [ {} ],
+    "properties": {
+      "foo": { "type": "string", "pattern": "\\a" }
+    }
+  })JSON");
+
+  LINT_WITHOUT_FIX(document, result, traces);
+
+  EXPECT_FALSE(result.first);
+  EXPECT_EQ(traces.size(), 1);
+  EXPECT_LINT_TRACE(
+      traces, 0, "/properties/foo", "pattern_non_ecma_regex",
+      "For interoperability reasons, only set this keyword to a regular "
+      "expression that strictly adheres to the ECMA-262 dialect",
+      false);
+}
+
+TEST(AlterSchema_lint_openapi_3_2, pattern_non_ecma_regex_valid) {
+  const sourcemeta::core::JSON document = sourcemeta::core::parse_json(R"JSON({
+    "$schema": "https://spec.openapis.org/oas/3.2/dialect/2025-09-17",
+    "title": "Test",
+    "description": "A test schema",
+    "examples": [ {} ],
+    "properties": {
+      "foo": { "type": "string", "pattern": "^foo$" }
+    }
+  })JSON");
+
+  LINT_WITHOUT_FIX(document, result, traces);
+
+  EXPECT_TRUE(result.first);
+  EXPECT_EQ(traces.size(), 0);
+}
