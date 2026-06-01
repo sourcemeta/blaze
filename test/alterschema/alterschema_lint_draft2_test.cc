@@ -1113,3 +1113,40 @@ TEST(AlterSchema_lint_draft2, draft_official_dialect_with_https_1) {
 
   EXPECT_EQ(document, expected);
 }
+
+TEST(AlterSchema_lint_draft2, pattern_non_ecma_regex_invalid_escape) {
+  const sourcemeta::core::JSON document = sourcemeta::core::parse_json(R"JSON({
+    "$schema": "http://json-schema.org/draft-02/schema#",
+    "title": "Test",
+    "description": "A test schema",
+    "properties": {
+      "foo": { "type": "string", "pattern": "\\a" }
+    }
+  })JSON");
+
+  LINT_WITHOUT_FIX(document, result, traces);
+
+  EXPECT_FALSE(result.first);
+  EXPECT_EQ(traces.size(), 1);
+  EXPECT_LINT_TRACE(
+      traces, 0, "/properties/foo", "pattern_non_ecma_regex",
+      "For interoperability reasons, only set this keyword to a regular "
+      "expression that strictly adheres to the ECMA-262 dialect",
+      false);
+}
+
+TEST(AlterSchema_lint_draft2, pattern_non_ecma_regex_valid_simple) {
+  const sourcemeta::core::JSON document = sourcemeta::core::parse_json(R"JSON({
+    "$schema": "http://json-schema.org/draft-02/schema#",
+    "title": "Test",
+    "description": "A test schema",
+    "properties": {
+      "foo": { "type": "string", "pattern": "^[A-Za-z0-9_-]+$" }
+    }
+  })JSON");
+
+  LINT_WITHOUT_FIX(document, result, traces);
+
+  EXPECT_TRUE(result.first);
+  EXPECT_EQ(traces.size(), 0);
+}
