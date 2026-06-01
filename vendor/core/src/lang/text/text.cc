@@ -2,9 +2,11 @@
 
 #include <cctype>      // std::isalpha, std::toupper
 #include <cstddef>     // std::size_t
+#include <filesystem>  // std::filesystem::path
 #include <optional>    // std::optional, std::nullopt
+#include <string>      // std::string
 #include <string_view> // std::string_view
-#include <utility>     // std::pair
+#include <utility>     // std::pair, std::move
 
 namespace {
 
@@ -16,6 +18,12 @@ auto is_ascii_whitespace(const char character) noexcept -> bool {
 } // namespace
 
 namespace sourcemeta::core {
+
+auto to_lowercase(std::filesystem::path &value) -> void {
+  auto native{value.native()};
+  to_lowercase(native);
+  value = std::filesystem::path{std::move(native)};
+}
 
 auto to_title_case(std::string &value) -> void {
   std::size_t write{0};
