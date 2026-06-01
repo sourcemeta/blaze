@@ -332,6 +332,19 @@ public:
   /// ```
   class SOURCEMETA_CORE_URI_EXPORT Query {
   public:
+    /// Construct a query view over a raw RFC 3986 query string,
+    /// without a leading `?`. The view borrows the input and does not
+    /// own it. For example:
+    ///
+    /// ```cpp
+    /// #include <sourcemeta/core/uri.h>
+    /// #include <cassert>
+    ///
+    /// const sourcemeta::core::URI::Query query{"foo=bar&baz=qux"};
+    /// assert(query.at("foo").value() == "bar");
+    /// ```
+    explicit Query(const std::string_view raw);
+
     /// Get the raw RFC 3986 query string this view was constructed
     /// from. For example:
     ///
@@ -404,9 +417,6 @@ public:
     [[nodiscard]] auto end() const -> const_iterator;
 
   private:
-    friend class URI;
-    explicit Query(const std::string_view raw);
-
 #if defined(_MSC_VER)
 #pragma warning(disable : 4251)
 #endif
