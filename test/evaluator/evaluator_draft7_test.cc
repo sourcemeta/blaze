@@ -2879,3 +2879,117 @@ TEST(Evaluator_draft7,
   EVALUATE_TRACE_POST_DESCRIBE(instance, 0,
                                "The value was expected to be of type integer");
 }
+
+TEST(Evaluator_draft7, format_uri_x_assertion_true_valid_no_tweak_fast) {
+  const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
+    "$schema": "http://json-schema.org/draft-07/schema#",
+    "format": "uri",
+    "x-format-assertion": true
+  })JSON")};
+
+  const sourcemeta::core::JSON instance{"https://example.com"};
+
+  EVALUATE_WITH_TRACE_FAST_SUCCESS(schema, instance, 1, "");
+
+  EVALUATE_TRACE_PRE(0, AssertionStringType, "/format", "#/format", "");
+  EVALUATE_TRACE_POST_SUCCESS(0, AssertionStringType, "/format", "#/format",
+                              "");
+  EVALUATE_TRACE_POST_DESCRIBE(
+      instance, 0,
+      "The string value \"https://example.com\" was expected to represent a "
+      "valid URI");
+}
+
+TEST(Evaluator_draft7, format_uri_x_assertion_true_invalid_no_tweak_fast) {
+  const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
+    "$schema": "http://json-schema.org/draft-07/schema#",
+    "format": "uri",
+    "x-format-assertion": true
+  })JSON")};
+
+  const sourcemeta::core::JSON instance{"://bad"};
+
+  EVALUATE_WITH_TRACE_FAST_FAILURE(schema, instance, 1, "");
+
+  EVALUATE_TRACE_PRE(0, AssertionStringType, "/format", "#/format", "");
+  EVALUATE_TRACE_POST_FAILURE(0, AssertionStringType, "/format", "#/format",
+                              "");
+  EVALUATE_TRACE_POST_DESCRIBE(
+      instance, 0,
+      "The string value \"://bad\" was expected to represent a valid URI");
+}
+
+TEST(Evaluator_draft7, format_uri_x_assertion_true_valid_no_tweak_exhaustive) {
+  const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
+    "$schema": "http://json-schema.org/draft-07/schema#",
+    "format": "uri",
+    "x-format-assertion": true
+  })JSON")};
+
+  const sourcemeta::core::JSON instance{"https://example.com"};
+
+  EVALUATE_WITH_TRACE_EXHAUSTIVE_SUCCESS(schema, instance, 1, "");
+
+  EVALUATE_TRACE_PRE(0, AssertionStringType, "/format", "#/format", "");
+  EVALUATE_TRACE_POST_SUCCESS(0, AssertionStringType, "/format", "#/format",
+                              "");
+  EVALUATE_TRACE_POST_DESCRIBE(
+      instance, 0,
+      "The string value \"https://example.com\" was expected to represent a "
+      "valid URI");
+}
+
+TEST(Evaluator_draft7,
+     format_uri_x_assertion_true_invalid_no_tweak_exhaustive) {
+  const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
+    "$schema": "http://json-schema.org/draft-07/schema#",
+    "format": "uri",
+    "x-format-assertion": true
+  })JSON")};
+
+  const sourcemeta::core::JSON instance{"://bad"};
+
+  EVALUATE_WITH_TRACE_EXHAUSTIVE_FAILURE(schema, instance, 1, "");
+
+  EVALUATE_TRACE_PRE(0, AssertionStringType, "/format", "#/format", "");
+  EVALUATE_TRACE_POST_FAILURE(0, AssertionStringType, "/format", "#/format",
+                              "");
+  EVALUATE_TRACE_POST_DESCRIBE(
+      instance, 0,
+      "The string value \"://bad\" was expected to represent a valid URI");
+}
+
+TEST(Evaluator_draft7, format_uri_x_assertion_false_no_tweak_fast) {
+  const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
+    "$schema": "http://json-schema.org/draft-07/schema#",
+    "format": "uri",
+    "x-format-assertion": false
+  })JSON")};
+
+  const sourcemeta::core::JSON instance{"://bad"};
+
+  EVALUATE_WITH_TRACE_FAST_SUCCESS(schema, instance, 0, "");
+}
+
+TEST(Evaluator_draft7, format_uri_x_assertion_non_boolean_no_tweak_fast) {
+  const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
+    "$schema": "http://json-schema.org/draft-07/schema#",
+    "format": "uri",
+    "x-format-assertion": "yes"
+  })JSON")};
+
+  const sourcemeta::core::JSON instance{"://bad"};
+
+  EVALUATE_WITH_TRACE_FAST_SUCCESS(schema, instance, 0, "");
+}
+
+TEST(Evaluator_draft7, x_assertion_true_without_format_no_tweak_fast) {
+  const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
+    "$schema": "http://json-schema.org/draft-07/schema#",
+    "x-format-assertion": true
+  })JSON")};
+
+  const sourcemeta::core::JSON instance{"anything"};
+
+  EVALUATE_WITH_TRACE_FAST_SUCCESS(schema, instance, 0, "");
+}

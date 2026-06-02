@@ -3711,3 +3711,212 @@ TEST(Evaluator_2020_12, format_uri_with_assertion_vocab_invalid_exhaustive) {
       instance, 0,
       "The string value \"://bad\" was expected to represent a valid URI");
 }
+
+TEST(Evaluator_2020_12, format_uri_x_assertion_true_valid_no_tweak_fast) {
+  const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "format": "uri",
+    "x-format-assertion": true
+  })JSON")};
+
+  const sourcemeta::core::JSON instance{"https://example.com"};
+
+  EVALUATE_WITH_TRACE_FAST_SUCCESS(schema, instance, 1, "");
+
+  EVALUATE_TRACE_PRE(0, AssertionStringType, "/format", "#/format", "");
+  EVALUATE_TRACE_POST_SUCCESS(0, AssertionStringType, "/format", "#/format",
+                              "");
+  EVALUATE_TRACE_POST_DESCRIBE(
+      instance, 0,
+      "The string value \"https://example.com\" was expected to represent a "
+      "valid URI");
+}
+
+TEST(Evaluator_2020_12, format_uri_x_assertion_true_invalid_no_tweak_fast) {
+  const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "format": "uri",
+    "x-format-assertion": true
+  })JSON")};
+
+  const sourcemeta::core::JSON instance{"://bad"};
+
+  EVALUATE_WITH_TRACE_FAST_FAILURE(schema, instance, 1, "");
+
+  EVALUATE_TRACE_PRE(0, AssertionStringType, "/format", "#/format", "");
+  EVALUATE_TRACE_POST_FAILURE(0, AssertionStringType, "/format", "#/format",
+                              "");
+  EVALUATE_TRACE_POST_DESCRIBE(
+      instance, 0,
+      "The string value \"://bad\" was expected to represent a valid URI");
+}
+
+TEST(Evaluator_2020_12, format_uri_x_assertion_true_valid_no_tweak_exhaustive) {
+  const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "format": "uri",
+    "x-format-assertion": true
+  })JSON")};
+
+  const sourcemeta::core::JSON instance{"https://example.com"};
+
+  EVALUATE_WITH_TRACE_EXHAUSTIVE_SUCCESS(schema, instance, 3, "");
+
+  EVALUATE_TRACE_PRE(0, AssertionStringType, "/format", "#/format", "");
+  EVALUATE_TRACE_PRE_ANNOTATION(1, "/format", "#/format", "");
+  EVALUATE_TRACE_PRE_ANNOTATION(2, "/x-format-assertion",
+                                "#/x-format-assertion", "");
+
+  EVALUATE_TRACE_POST_SUCCESS(0, AssertionStringType, "/format", "#/format",
+                              "");
+  EVALUATE_TRACE_POST_ANNOTATION(1, "/format", "#/format", "", "uri");
+  EVALUATE_TRACE_POST_ANNOTATION(2, "/x-format-assertion",
+                                 "#/x-format-assertion", "", true);
+
+  EVALUATE_TRACE_POST_DESCRIBE(
+      instance, 0,
+      "The string value \"https://example.com\" was expected to represent a "
+      "valid URI");
+  EVALUATE_TRACE_POST_DESCRIBE(
+      instance, 1,
+      "The logical type of the instance was expected to be \"uri\"");
+  EVALUATE_TRACE_POST_DESCRIBE(instance, 2,
+                               "The unrecognized keyword \"x-format-assertion\""
+                               " was collected as the annotation true");
+}
+
+TEST(Evaluator_2020_12,
+     format_uri_x_assertion_true_invalid_no_tweak_exhaustive) {
+  const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "format": "uri",
+    "x-format-assertion": true
+  })JSON")};
+
+  const sourcemeta::core::JSON instance{"://bad"};
+
+  EVALUATE_WITH_TRACE_EXHAUSTIVE_FAILURE(schema, instance, 1, "");
+
+  EVALUATE_TRACE_PRE(0, AssertionStringType, "/format", "#/format", "");
+  EVALUATE_TRACE_POST_FAILURE(0, AssertionStringType, "/format", "#/format",
+                              "");
+  EVALUATE_TRACE_POST_DESCRIBE(
+      instance, 0,
+      "The string value \"://bad\" was expected to represent a valid URI");
+}
+
+TEST(Evaluator_2020_12, format_uri_x_assertion_false_no_tweak_exhaustive) {
+  const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "format": "uri",
+    "x-format-assertion": false
+  })JSON")};
+
+  const sourcemeta::core::JSON instance{"://bad"};
+
+  EVALUATE_WITH_TRACE_EXHAUSTIVE_SUCCESS(schema, instance, 2, "");
+
+  EVALUATE_TRACE_PRE_ANNOTATION(0, "/format", "#/format", "");
+  EVALUATE_TRACE_PRE_ANNOTATION(1, "/x-format-assertion",
+                                "#/x-format-assertion", "");
+
+  EVALUATE_TRACE_POST_ANNOTATION(0, "/format", "#/format", "", "uri");
+  EVALUATE_TRACE_POST_ANNOTATION(1, "/x-format-assertion",
+                                 "#/x-format-assertion", "", false);
+
+  EVALUATE_TRACE_POST_DESCRIBE(
+      instance, 0,
+      "The logical type of the instance was expected to be \"uri\"");
+  EVALUATE_TRACE_POST_DESCRIBE(instance, 1,
+                               "The unrecognized keyword \"x-format-assertion\""
+                               " was collected as the annotation false");
+}
+
+TEST(Evaluator_2020_12, x_assertion_true_without_format_no_tweak_fast) {
+  const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "x-format-assertion": true
+  })JSON")};
+
+  const sourcemeta::core::JSON instance{"anything"};
+
+  EVALUATE_WITH_TRACE_FAST_SUCCESS(schema, instance, 0, "");
+}
+
+TEST(Evaluator_2020_12, x_assertion_true_without_format_no_tweak_exhaustive) {
+  const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "x-format-assertion": true
+  })JSON")};
+
+  const sourcemeta::core::JSON instance{"anything"};
+
+  EVALUATE_WITH_TRACE_EXHAUSTIVE_SUCCESS(schema, instance, 1, "");
+
+  EVALUATE_TRACE_PRE_ANNOTATION(0, "/x-format-assertion",
+                                "#/x-format-assertion", "");
+  EVALUATE_TRACE_POST_ANNOTATION(0, "/x-format-assertion",
+                                 "#/x-format-assertion", "", true);
+  EVALUATE_TRACE_POST_DESCRIBE(instance, 0,
+                               "The unrecognized keyword \"x-format-assertion\""
+                               " was collected as the annotation true");
+}
+
+TEST(Evaluator_2020_12, x_assertion_nested_selective_no_tweak_fast) {
+  const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "properties": {
+      "relaxed": {
+        "format": "uri"
+      },
+      "strict": {
+        "format": "uri",
+        "x-format-assertion": true
+      }
+    }
+  })JSON")};
+
+  const sourcemeta::core::JSON instance{sourcemeta::core::parse_json(
+      R"JSON({ "relaxed": "://bad", "strict": "://bad" })JSON")};
+
+  EVALUATE_WITH_TRACE_FAST_FAILURE(schema, instance, 1, "");
+
+  EVALUATE_TRACE_PRE(0, AssertionStringType, "/properties/strict/format",
+                     "#/properties/strict/format", "/strict");
+  EVALUATE_TRACE_POST_FAILURE(0, AssertionStringType,
+                              "/properties/strict/format",
+                              "#/properties/strict/format", "/strict");
+  EVALUATE_TRACE_POST_DESCRIBE(
+      instance, 0,
+      "The string value \"://bad\" was expected to represent a valid URI");
+}
+
+TEST(Evaluator_2020_12, x_assertion_nested_selective_valid_no_tweak_fast) {
+  const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "properties": {
+      "relaxed": {
+        "format": "uri"
+      },
+      "strict": {
+        "format": "uri",
+        "x-format-assertion": true
+      }
+    }
+  })JSON")};
+
+  const sourcemeta::core::JSON instance{sourcemeta::core::parse_json(
+      R"JSON({ "relaxed": "://bad", "strict": "https://example.com" })JSON")};
+
+  EVALUATE_WITH_TRACE_FAST_SUCCESS(schema, instance, 1, "");
+
+  EVALUATE_TRACE_PRE(0, AssertionStringType, "/properties/strict/format",
+                     "#/properties/strict/format", "/strict");
+  EVALUATE_TRACE_POST_SUCCESS(0, AssertionStringType,
+                              "/properties/strict/format",
+                              "#/properties/strict/format", "/strict");
+  EVALUATE_TRACE_POST_DESCRIBE(
+      instance, 0,
+      "The string value \"https://example.com\" was expected to represent a "
+      "valid URI");
+}
