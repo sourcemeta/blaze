@@ -79,6 +79,12 @@ Features
   representations or (as a heuristic) if the numbers explicitly opt-in to
   exponent scientific notation
 
+- **Format Assertion:** Blaze fully implements the Format Assertion vocabulary
+  from Draft 4 to 2020-12 (with partial Draft 3 support), covering every
+  built-in format defined by the relevant specifications, including
+  [internationalised hostnames](https://datatracker.ietf.org/doc/html/rfc5890)
+  and [IRIs](https://datatracker.ietf.org/doc/html/rfc3987)
+
 Example
 -------
 
