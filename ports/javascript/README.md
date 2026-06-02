@@ -135,5 +135,5 @@ The TC39 [Decimal proposal](https://github.com/tc39/proposal-decimal) (Stage 2)
 aims to address this in the future.
 
 **No Format Assertion vocabulary support.** While the C++ implementation of
-Blaze fully implements the Format Assertion vocabulary, no such option exist
-for JavaScript yet.
+Blaze fully implements the Format Assertion vocabulary, no such option exists
+for JavaScript yet. Contributions in this area are welcomed.
