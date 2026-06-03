@@ -1070,6 +1070,86 @@ TEST(AlterSchema_upgrade_2019_09_to_2020_12,
 }
 
 TEST(AlterSchema_upgrade_2019_09_to_2020_12,
+     vocabulary_explicit_2020_12_wins_over_2019_09_equivalent) {
+  auto document = sourcemeta::core::parse_json(R"JSON({
+    "$schema": "https://json-schema.org/draft/2019-09/schema",
+    "$vocabulary": {
+      "https://json-schema.org/draft/2019-09/vocab/core": false,
+      "https://json-schema.org/draft/2020-12/vocab/core": true
+    }
+  })JSON");
+
+  const auto expected = sourcemeta::core::parse_json(R"JSON({
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "$vocabulary": {
+      "https://json-schema.org/draft/2020-12/vocab/core": true
+    }
+  })JSON");
+
+  UPGRADE_2020_12(document, expected);
+}
+
+TEST(AlterSchema_upgrade_2019_09_to_2020_12,
+     vocabulary_explicit_2020_12_wins_over_2019_09_equivalent_reversed_order) {
+  auto document = sourcemeta::core::parse_json(R"JSON({
+    "$schema": "https://json-schema.org/draft/2019-09/schema",
+    "$vocabulary": {
+      "https://json-schema.org/draft/2020-12/vocab/core": true,
+      "https://json-schema.org/draft/2019-09/vocab/core": false
+    }
+  })JSON");
+
+  const auto expected = sourcemeta::core::parse_json(R"JSON({
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "$vocabulary": {
+      "https://json-schema.org/draft/2020-12/vocab/core": true
+    }
+  })JSON");
+
+  UPGRADE_2020_12(document, expected);
+}
+
+TEST(AlterSchema_upgrade_2019_09_to_2020_12,
+     vocabulary_explicit_2020_12_applicator_wins_no_inline_unevaluated) {
+  auto document = sourcemeta::core::parse_json(R"JSON({
+    "$schema": "https://json-schema.org/draft/2019-09/schema",
+    "$vocabulary": {
+      "https://json-schema.org/draft/2019-09/vocab/applicator": false,
+      "https://json-schema.org/draft/2020-12/vocab/applicator": true
+    }
+  })JSON");
+
+  const auto expected = sourcemeta::core::parse_json(R"JSON({
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "$vocabulary": {
+      "https://json-schema.org/draft/2020-12/vocab/applicator": true
+    }
+  })JSON");
+
+  UPGRADE_2020_12(document, expected);
+}
+
+TEST(AlterSchema_upgrade_2019_09_to_2020_12,
+     vocabulary_explicit_2020_12_format_annotation_wins_over_2019_09_format) {
+  auto document = sourcemeta::core::parse_json(R"JSON({
+    "$schema": "https://json-schema.org/draft/2019-09/schema",
+    "$vocabulary": {
+      "https://json-schema.org/draft/2019-09/vocab/format": true,
+      "https://json-schema.org/draft/2020-12/vocab/format-annotation": false
+    }
+  })JSON");
+
+  const auto expected = sourcemeta::core::parse_json(R"JSON({
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "$vocabulary": {
+      "https://json-schema.org/draft/2020-12/vocab/format-annotation": false
+    }
+  })JSON");
+
+  UPGRADE_2020_12(document, expected);
+}
+
+TEST(AlterSchema_upgrade_2019_09_to_2020_12,
      vocabulary_inside_embedded_meta_schema_rewritten) {
   auto document = sourcemeta::core::parse_json(R"JSON({
     "$id": "https://example.com/outer",

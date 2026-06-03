@@ -228,17 +228,24 @@ private:
       return;
     }
 
+    std::unordered_set<std::string> source_keys;
+    for (const auto &entry : schema.at("$vocabulary").as_object()) {
+      source_keys.insert(entry.first);
+    }
+
+    const bool unevaluated_already_present{
+        source_keys.contains(std::string{UNEVALUATED_2020_12_URI})};
+
     auto fresh{sourcemeta::core::JSON::make_object()};
-    bool unevaluated_already_present{false};
 
     for (const auto &entry : schema.at("$vocabulary").as_object()) {
-      if (entry.first == UNEVALUATED_2020_12_URI) {
-        unevaluated_already_present = true;
-      }
-
       const auto iter{VOCAB_URI_MAP_2019_09_TO_2020_12.find(entry.first)};
       if (iter == VOCAB_URI_MAP_2019_09_TO_2020_12.cend()) {
         fresh.assign(entry.first, entry.second);
+        continue;
+      }
+
+      if (source_keys.contains(iter->second)) {
         continue;
       }
 
