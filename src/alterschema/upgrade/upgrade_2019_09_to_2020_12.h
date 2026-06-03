@@ -156,6 +156,8 @@ public:
       }
     }
 
+    rewrite_vocabulary(schema);
+
     if (schema.defines("$schema") && schema.at("$schema").is_string() &&
         schema.at("$schema").to_string() == DRAFT_2019_09_URL) {
       schema.assign("$schema", sourcemeta::core::JSON{DRAFT_2020_12_URL});
@@ -186,6 +188,70 @@ private:
       "https://json-schema.org/draft/2019-09/schema"};
   static constexpr std::string_view DRAFT_2020_12_URL{
       "https://json-schema.org/draft/2020-12/schema"};
+  static constexpr std::string_view APPLICATOR_2019_09_URI{
+      "https://json-schema.org/draft/2019-09/vocab/applicator"};
+  static constexpr std::string_view UNEVALUATED_2020_12_URI{
+      "https://json-schema.org/draft/2020-12/vocab/unevaluated"};
+
+  static inline const std::unordered_map<std::string, std::string>
+      VOCAB_URI_MAP_2019_09_TO_2020_12{
+          {"https://json-schema.org/draft/2019-09/vocab/core",
+           "https://json-schema.org/draft/2020-12/vocab/core"},
+          {"https://json-schema.org/draft/2019-09/vocab/applicator",
+           "https://json-schema.org/draft/2020-12/vocab/applicator"},
+          {"https://json-schema.org/draft/2019-09/vocab/validation",
+           "https://json-schema.org/draft/2020-12/vocab/validation"},
+          {"https://json-schema.org/draft/2019-09/vocab/meta-data",
+           "https://json-schema.org/draft/2020-12/vocab/meta-data"},
+          {"https://json-schema.org/draft/2019-09/vocab/format",
+           "https://json-schema.org/draft/2020-12/vocab/format-annotation"},
+          {"https://json-schema.org/draft/2019-09/vocab/content",
+           "https://json-schema.org/draft/2020-12/vocab/content"}};
+
+  static auto
+  vocabulary_has_mappable_uri(const sourcemeta::core::JSON &subschema) -> bool {
+    if (!subschema.is_object() || !subschema.defines("$vocabulary") ||
+        !subschema.at("$vocabulary").is_object()) {
+      return false;
+    }
+    for (const auto &entry : subschema.at("$vocabulary").as_object()) {
+      if (VOCAB_URI_MAP_2019_09_TO_2020_12.contains(entry.first)) {
+        return true;
+      }
+    }
+    return false;
+  }
+
+  static auto rewrite_vocabulary(sourcemeta::core::JSON &schema) -> void {
+    if (!schema.is_object() || !schema.defines("$vocabulary") ||
+        !schema.at("$vocabulary").is_object()) {
+      return;
+    }
+
+    auto fresh{sourcemeta::core::JSON::make_object()};
+    bool unevaluated_already_present{false};
+
+    for (const auto &entry : schema.at("$vocabulary").as_object()) {
+      if (entry.first == UNEVALUATED_2020_12_URI) {
+        unevaluated_already_present = true;
+      }
+
+      const auto iter{VOCAB_URI_MAP_2019_09_TO_2020_12.find(entry.first)};
+      if (iter == VOCAB_URI_MAP_2019_09_TO_2020_12.cend()) {
+        fresh.assign(entry.first, entry.second);
+        continue;
+      }
+
+      fresh.assign(iter->second, entry.second);
+
+      if (entry.first == APPLICATOR_2019_09_URI &&
+          !unevaluated_already_present) {
+        fresh.assign(std::string{UNEVALUATED_2020_12_URI}, entry.second);
+      }
+    }
+
+    schema.at("$vocabulary").into(std::move(fresh));
+  }
 
   struct AnchorRename {
     sourcemeta::core::Pointer subschema_pointer;
@@ -311,7 +377,8 @@ private:
       return false;
     }
     if (!subschema.defines_any({"$schema", "$recursiveAnchor", "$recursiveRef",
-                                "items", "additionalItems", "contains"})) {
+                                "items", "additionalItems", "contains",
+                                "$vocabulary"})) {
       return false;
     }
     if (subschema.defines("$schema") && subschema.at("$schema").is_string() &&
@@ -327,6 +394,9 @@ private:
     }
     if (subschema.defines("contains") &&
         !location_inside_contains_wrapper(location)) {
+      return true;
+    }
+    if (vocabulary_has_mappable_uri(subschema)) {
       return true;
     }
     return false;
