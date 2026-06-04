@@ -190,6 +190,8 @@ private:
       "https://json-schema.org/draft/2020-12/schema"};
   static constexpr std::string_view APPLICATOR_2019_09_URI{
       "https://json-schema.org/draft/2019-09/vocab/applicator"};
+  static constexpr std::string_view APPLICATOR_2020_12_URI{
+      "https://json-schema.org/draft/2020-12/vocab/applicator"};
   static constexpr std::string_view UNEVALUATED_2020_12_URI{
       "https://json-schema.org/draft/2020-12/vocab/unevaluated"};
 
@@ -229,12 +231,18 @@ private:
     }
 
     std::unordered_set<std::string> source_keys;
+    std::optional<sourcemeta::core::JSON> applicator_2019_09_value;
     for (const auto &entry : schema.at("$vocabulary").as_object()) {
       source_keys.insert(entry.first);
+      if (entry.first == APPLICATOR_2019_09_URI) {
+        applicator_2019_09_value = entry.second;
+      }
     }
 
     const bool unevaluated_already_present{
         source_keys.contains(std::string{UNEVALUATED_2020_12_URI})};
+    const bool should_inline_unevaluated{applicator_2019_09_value.has_value() &&
+                                         !unevaluated_already_present};
 
     auto fresh{sourcemeta::core::JSON::make_object()};
 
@@ -242,6 +250,11 @@ private:
       const auto iter{VOCAB_URI_MAP_2019_09_TO_2020_12.find(entry.first)};
       if (iter == VOCAB_URI_MAP_2019_09_TO_2020_12.cend()) {
         fresh.assign(entry.first, entry.second);
+        if (entry.first == APPLICATOR_2020_12_URI &&
+            should_inline_unevaluated) {
+          fresh.assign(std::string{UNEVALUATED_2020_12_URI},
+                       applicator_2019_09_value.value());
+        }
         continue;
       }
 
@@ -251,8 +264,7 @@ private:
 
       fresh.assign(iter->second, entry.second);
 
-      if (entry.first == APPLICATOR_2019_09_URI &&
-          !unevaluated_already_present) {
+      if (entry.first == APPLICATOR_2019_09_URI && should_inline_unevaluated) {
         fresh.assign(std::string{UNEVALUATED_2020_12_URI}, entry.second);
       }
     }
