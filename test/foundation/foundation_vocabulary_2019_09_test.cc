@@ -140,6 +140,32 @@ TEST(Foundation_vocabulary_2019_09,
   EXPECT_FALSE(result.has_value());
 }
 
+TEST(Foundation_vocabulary_2019_09,
+     parse_vocabularies_with_resolver_vocabulary_not_object) {
+  const sourcemeta::core::JSON document = sourcemeta::core::parse_json(R"JSON({
+    "$schema": "https://json-schema.org/draft/2019-09/schema",
+    "$vocabulary": "not-an-object"
+  })JSON");
+
+  const auto result{
+      sourcemeta::blaze::parse_vocabularies(document, test_resolver)};
+  EXPECT_FALSE(result.has_value());
+}
+
+TEST(Foundation_vocabulary_2019_09,
+     parse_vocabularies_with_resolver_vocabulary_entry_not_boolean) {
+  const sourcemeta::core::JSON document = sourcemeta::core::parse_json(R"JSON({
+    "$schema": "https://json-schema.org/draft/2019-09/schema",
+    "$vocabulary": {
+      "https://json-schema.org/draft/2019-09/vocab/core": "not-a-bool"
+    }
+  })JSON");
+
+  const auto result{
+      sourcemeta::blaze::parse_vocabularies(document, test_resolver)};
+  EXPECT_FALSE(result.has_value());
+}
+
 TEST(Foundation_vocabulary_2019_09, no_vocabularies) {
   const sourcemeta::core::JSON document = sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://sourcemeta.com/2019-09-no-vocabularies"
