@@ -210,3 +210,18 @@ TEST(AlterSchema_upgrade_Draft7_to_2020_12,
   UPGRADE_2020_12_WITH_DIALECT(document, expected,
                                "http://json-schema.org/draft-07/schema#");
 }
+
+TEST(AlterSchema_upgrade_Draft7_to_2020_12,
+     custom_dollar_vocabulary_remains_prefixed) {
+  auto document = sourcemeta::core::parse_json(R"JSON({
+    "$schema": "http://json-schema.org/draft-07/schema#",
+    "$vocabulary": { "https://example.com/vocab": true }
+  })JSON");
+
+  const auto expected = sourcemeta::core::parse_json(R"JSON({
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "x-$vocabulary": { "https://example.com/vocab": true }
+  })JSON");
+
+  UPGRADE_2020_12(document, expected);
+}

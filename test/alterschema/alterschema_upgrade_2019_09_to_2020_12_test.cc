@@ -764,3 +764,816 @@ TEST(AlterSchema_upgrade_2019_09_to_2020_12, format_values_preserved) {
 
   UPGRADE_2020_12(document, expected);
 }
+
+TEST(AlterSchema_upgrade_2019_09_to_2020_12, vocabulary_core_uri_rewritten) {
+  auto document = sourcemeta::core::parse_json(R"JSON({
+    "$schema": "https://json-schema.org/draft/2019-09/schema",
+    "$vocabulary": {
+      "https://json-schema.org/draft/2019-09/vocab/core": true
+    }
+  })JSON");
+
+  const auto expected = sourcemeta::core::parse_json(R"JSON({
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "$vocabulary": {
+      "https://json-schema.org/draft/2020-12/vocab/core": true
+    }
+  })JSON");
+
+  UPGRADE_2020_12(document, expected);
+}
+
+TEST(AlterSchema_upgrade_2019_09_to_2020_12,
+     vocabulary_direct_rename_uris_rewritten) {
+  auto document = sourcemeta::core::parse_json(R"JSON({
+    "$schema": "https://json-schema.org/draft/2019-09/schema",
+    "$vocabulary": {
+      "https://json-schema.org/draft/2019-09/vocab/core": true,
+      "https://json-schema.org/draft/2019-09/vocab/validation": true,
+      "https://json-schema.org/draft/2019-09/vocab/meta-data": true,
+      "https://json-schema.org/draft/2019-09/vocab/content": true
+    }
+  })JSON");
+
+  const auto expected = sourcemeta::core::parse_json(R"JSON({
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "$vocabulary": {
+      "https://json-schema.org/draft/2020-12/vocab/core": true,
+      "https://json-schema.org/draft/2020-12/vocab/validation": true,
+      "https://json-schema.org/draft/2020-12/vocab/meta-data": true,
+      "https://json-schema.org/draft/2020-12/vocab/content": true
+    }
+  })JSON");
+
+  UPGRADE_2020_12(document, expected);
+}
+
+TEST(AlterSchema_upgrade_2019_09_to_2020_12,
+     vocabulary_format_maps_to_format_annotation_required) {
+  auto document = sourcemeta::core::parse_json(R"JSON({
+    "$schema": "https://json-schema.org/draft/2019-09/schema",
+    "$vocabulary": {
+      "https://json-schema.org/draft/2019-09/vocab/core": true,
+      "https://json-schema.org/draft/2019-09/vocab/format": true
+    }
+  })JSON");
+
+  const auto expected = sourcemeta::core::parse_json(R"JSON({
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "$vocabulary": {
+      "https://json-schema.org/draft/2020-12/vocab/core": true,
+      "https://json-schema.org/draft/2020-12/vocab/format-annotation": true
+    }
+  })JSON");
+
+  UPGRADE_2020_12(document, expected);
+}
+
+TEST(AlterSchema_upgrade_2019_09_to_2020_12,
+     vocabulary_format_maps_to_format_annotation_optional) {
+  auto document = sourcemeta::core::parse_json(R"JSON({
+    "$schema": "https://json-schema.org/draft/2019-09/schema",
+    "$vocabulary": {
+      "https://json-schema.org/draft/2019-09/vocab/core": true,
+      "https://json-schema.org/draft/2019-09/vocab/format": false
+    }
+  })JSON");
+
+  const auto expected = sourcemeta::core::parse_json(R"JSON({
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "$vocabulary": {
+      "https://json-schema.org/draft/2020-12/vocab/core": true,
+      "https://json-schema.org/draft/2020-12/vocab/format-annotation": false
+    }
+  })JSON");
+
+  UPGRADE_2020_12(document, expected);
+}
+
+TEST(AlterSchema_upgrade_2019_09_to_2020_12,
+     vocabulary_applicator_emits_applicator_and_unevaluated_required) {
+  auto document = sourcemeta::core::parse_json(R"JSON({
+    "$schema": "https://json-schema.org/draft/2019-09/schema",
+    "$vocabulary": {
+      "https://json-schema.org/draft/2019-09/vocab/core": true,
+      "https://json-schema.org/draft/2019-09/vocab/applicator": true
+    }
+  })JSON");
+
+  const auto expected = sourcemeta::core::parse_json(R"JSON({
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "$vocabulary": {
+      "https://json-schema.org/draft/2020-12/vocab/core": true,
+      "https://json-schema.org/draft/2020-12/vocab/applicator": true,
+      "https://json-schema.org/draft/2020-12/vocab/unevaluated": true
+    }
+  })JSON");
+
+  UPGRADE_2020_12(document, expected);
+}
+
+TEST(AlterSchema_upgrade_2019_09_to_2020_12,
+     vocabulary_applicator_emits_applicator_and_unevaluated_optional) {
+  auto document = sourcemeta::core::parse_json(R"JSON({
+    "$schema": "https://json-schema.org/draft/2019-09/schema",
+    "$vocabulary": {
+      "https://json-schema.org/draft/2019-09/vocab/core": true,
+      "https://json-schema.org/draft/2019-09/vocab/applicator": false
+    }
+  })JSON");
+
+  const auto expected = sourcemeta::core::parse_json(R"JSON({
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "$vocabulary": {
+      "https://json-schema.org/draft/2020-12/vocab/core": true,
+      "https://json-schema.org/draft/2020-12/vocab/applicator": false,
+      "https://json-schema.org/draft/2020-12/vocab/unevaluated": false
+    }
+  })JSON");
+
+  UPGRADE_2020_12(document, expected);
+}
+
+TEST(AlterSchema_upgrade_2019_09_to_2020_12,
+     vocabulary_applicator_keeps_existing_unevaluated_value) {
+  auto document = sourcemeta::core::parse_json(R"JSON({
+    "$schema": "https://json-schema.org/draft/2019-09/schema",
+    "$vocabulary": {
+      "https://json-schema.org/draft/2019-09/vocab/core": true,
+      "https://json-schema.org/draft/2019-09/vocab/applicator": true,
+      "https://json-schema.org/draft/2020-12/vocab/unevaluated": false
+    }
+  })JSON");
+
+  const auto expected = sourcemeta::core::parse_json(R"JSON({
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "$vocabulary": {
+      "https://json-schema.org/draft/2020-12/vocab/core": true,
+      "https://json-schema.org/draft/2020-12/vocab/applicator": true,
+      "https://json-schema.org/draft/2020-12/vocab/unevaluated": false
+    }
+  })JSON");
+
+  UPGRADE_2020_12(document, expected);
+}
+
+TEST(AlterSchema_upgrade_2019_09_to_2020_12,
+     vocabulary_applicator_after_existing_unevaluated_preserves_order) {
+  auto document = sourcemeta::core::parse_json(R"JSON({
+    "$schema": "https://json-schema.org/draft/2019-09/schema",
+    "$vocabulary": {
+      "https://json-schema.org/draft/2020-12/vocab/unevaluated": false,
+      "https://json-schema.org/draft/2019-09/vocab/applicator": true
+    }
+  })JSON");
+
+  const auto expected = sourcemeta::core::parse_json(R"JSON({
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "$vocabulary": {
+      "https://json-schema.org/draft/2020-12/vocab/unevaluated": false,
+      "https://json-schema.org/draft/2020-12/vocab/applicator": true
+    }
+  })JSON");
+
+  UPGRADE_2020_12(document, expected);
+}
+
+TEST(AlterSchema_upgrade_2019_09_to_2020_12,
+     vocabulary_custom_uri_passes_through_intact) {
+  auto document = sourcemeta::core::parse_json(R"JSON({
+    "$schema": "https://json-schema.org/draft/2019-09/schema",
+    "$vocabulary": {
+      "https://json-schema.org/draft/2019-09/vocab/core": true,
+      "https://example.com/vocab/custom-required": true,
+      "https://example.com/vocab/custom-optional": false
+    }
+  })JSON");
+
+  const auto expected = sourcemeta::core::parse_json(R"JSON({
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "$vocabulary": {
+      "https://json-schema.org/draft/2020-12/vocab/core": true,
+      "https://example.com/vocab/custom-required": true,
+      "https://example.com/vocab/custom-optional": false
+    }
+  })JSON");
+
+  UPGRADE_2020_12(document, expected);
+}
+
+TEST(AlterSchema_upgrade_2019_09_to_2020_12,
+     vocabulary_hyper_schema_uri_left_intact) {
+  auto document = sourcemeta::core::parse_json(R"JSON({
+    "$schema": "https://json-schema.org/draft/2019-09/schema",
+    "$vocabulary": {
+      "https://json-schema.org/draft/2019-09/vocab/core": true,
+      "https://json-schema.org/draft/2019-09/vocab/hyper-schema": false
+    }
+  })JSON");
+
+  const auto expected = sourcemeta::core::parse_json(R"JSON({
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "$vocabulary": {
+      "https://json-schema.org/draft/2020-12/vocab/core": true,
+      "https://json-schema.org/draft/2019-09/vocab/hyper-schema": false
+    }
+  })JSON");
+
+  UPGRADE_2020_12(document, expected);
+}
+
+TEST(AlterSchema_upgrade_2019_09_to_2020_12,
+     vocabulary_full_official_set_and_custom) {
+  auto document = sourcemeta::core::parse_json(R"JSON({
+    "$id": "https://example.com/my-meta",
+    "$schema": "https://json-schema.org/draft/2019-09/schema",
+    "$vocabulary": {
+      "https://json-schema.org/draft/2019-09/vocab/core": true,
+      "https://json-schema.org/draft/2019-09/vocab/applicator": true,
+      "https://json-schema.org/draft/2019-09/vocab/validation": true,
+      "https://json-schema.org/draft/2019-09/vocab/meta-data": false,
+      "https://json-schema.org/draft/2019-09/vocab/format": false,
+      "https://json-schema.org/draft/2019-09/vocab/content": false,
+      "https://json-schema.org/draft/2019-09/vocab/hyper-schema": false,
+      "https://example.com/vocab/extra": true
+    }
+  })JSON");
+
+  const auto expected = sourcemeta::core::parse_json(R"JSON({
+    "$id": "https://example.com/my-meta",
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "$vocabulary": {
+      "https://json-schema.org/draft/2020-12/vocab/core": true,
+      "https://json-schema.org/draft/2020-12/vocab/applicator": true,
+      "https://json-schema.org/draft/2020-12/vocab/unevaluated": true,
+      "https://json-schema.org/draft/2020-12/vocab/validation": true,
+      "https://json-schema.org/draft/2020-12/vocab/meta-data": false,
+      "https://json-schema.org/draft/2020-12/vocab/format-annotation": false,
+      "https://json-schema.org/draft/2020-12/vocab/content": false,
+      "https://json-schema.org/draft/2019-09/vocab/hyper-schema": false,
+      "https://example.com/vocab/extra": true
+    }
+  })JSON");
+
+  UPGRADE_2020_12(document, expected);
+}
+
+TEST(AlterSchema_upgrade_2019_09_to_2020_12,
+     vocabulary_already_2020_12_uris_unchanged) {
+  auto document = sourcemeta::core::parse_json(R"JSON({
+    "$schema": "https://json-schema.org/draft/2019-09/schema",
+    "$vocabulary": {
+      "https://json-schema.org/draft/2020-12/vocab/core": true,
+      "https://json-schema.org/draft/2020-12/vocab/applicator": true
+    }
+  })JSON");
+
+  const auto expected = sourcemeta::core::parse_json(R"JSON({
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "$vocabulary": {
+      "https://json-schema.org/draft/2020-12/vocab/core": true,
+      "https://json-schema.org/draft/2020-12/vocab/applicator": true
+    }
+  })JSON");
+
+  UPGRADE_2020_12(document, expected);
+}
+
+TEST(AlterSchema_upgrade_2019_09_to_2020_12,
+     vocabulary_empty_object_unchanged) {
+  auto document = sourcemeta::core::parse_json(R"JSON({
+    "$schema": "https://json-schema.org/draft/2019-09/schema",
+    "$vocabulary": {}
+  })JSON");
+
+  const auto expected = sourcemeta::core::parse_json(R"JSON({
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "$vocabulary": {}
+  })JSON");
+
+  UPGRADE_2020_12(document, expected);
+}
+
+TEST(AlterSchema_upgrade_2019_09_to_2020_12,
+     vocabulary_non_object_left_untouched) {
+  auto document = sourcemeta::core::parse_json(R"JSON({
+    "$schema": "https://json-schema.org/draft/2019-09/schema",
+    "$vocabulary": "not-an-object"
+  })JSON");
+
+  const auto expected = sourcemeta::core::parse_json(R"JSON({
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "$vocabulary": "not-an-object"
+  })JSON");
+
+  UPGRADE_2020_12(document, expected);
+}
+
+TEST(AlterSchema_upgrade_2019_09_to_2020_12,
+     vocabulary_explicit_2020_12_wins_over_2019_09_equivalent) {
+  auto document = sourcemeta::core::parse_json(R"JSON({
+    "$schema": "https://json-schema.org/draft/2019-09/schema",
+    "$vocabulary": {
+      "https://json-schema.org/draft/2019-09/vocab/core": false,
+      "https://json-schema.org/draft/2020-12/vocab/core": true
+    }
+  })JSON");
+
+  const auto expected = sourcemeta::core::parse_json(R"JSON({
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "$vocabulary": {
+      "https://json-schema.org/draft/2020-12/vocab/core": true
+    }
+  })JSON");
+
+  UPGRADE_2020_12(document, expected);
+}
+
+TEST(AlterSchema_upgrade_2019_09_to_2020_12,
+     vocabulary_explicit_2020_12_wins_over_2019_09_equivalent_reversed_order) {
+  auto document = sourcemeta::core::parse_json(R"JSON({
+    "$schema": "https://json-schema.org/draft/2019-09/schema",
+    "$vocabulary": {
+      "https://json-schema.org/draft/2020-12/vocab/core": true,
+      "https://json-schema.org/draft/2019-09/vocab/core": false
+    }
+  })JSON");
+
+  const auto expected = sourcemeta::core::parse_json(R"JSON({
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "$vocabulary": {
+      "https://json-schema.org/draft/2020-12/vocab/core": true
+    }
+  })JSON");
+
+  UPGRADE_2020_12(document, expected);
+}
+
+TEST(AlterSchema_upgrade_2019_09_to_2020_12,
+     vocabulary_explicit_2020_12_applicator_wins_unevaluated_from_2019_09) {
+  auto document = sourcemeta::core::parse_json(R"JSON({
+    "$schema": "https://json-schema.org/draft/2019-09/schema",
+    "$vocabulary": {
+      "https://json-schema.org/draft/2019-09/vocab/applicator": false,
+      "https://json-schema.org/draft/2020-12/vocab/applicator": true
+    }
+  })JSON");
+
+  const auto expected = sourcemeta::core::parse_json(R"JSON({
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "$vocabulary": {
+      "https://json-schema.org/draft/2020-12/vocab/applicator": true,
+      "https://json-schema.org/draft/2020-12/vocab/unevaluated": false
+    }
+  })JSON");
+
+  UPGRADE_2020_12(document, expected);
+}
+
+TEST(AlterSchema_upgrade_2019_09_to_2020_12,
+     vocabulary_explicit_2020_12_applicator_wins_unevaluated_reversed_order) {
+  auto document = sourcemeta::core::parse_json(R"JSON({
+    "$schema": "https://json-schema.org/draft/2019-09/schema",
+    "$vocabulary": {
+      "https://json-schema.org/draft/2020-12/vocab/applicator": true,
+      "https://json-schema.org/draft/2019-09/vocab/applicator": false
+    }
+  })JSON");
+
+  const auto expected = sourcemeta::core::parse_json(R"JSON({
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "$vocabulary": {
+      "https://json-schema.org/draft/2020-12/vocab/applicator": true,
+      "https://json-schema.org/draft/2020-12/vocab/unevaluated": false
+    }
+  })JSON");
+
+  UPGRADE_2020_12(document, expected);
+}
+
+TEST(AlterSchema_upgrade_2019_09_to_2020_12,
+     vocabulary_explicit_2020_12_applicator_alone_does_not_emit_unevaluated) {
+  auto document = sourcemeta::core::parse_json(R"JSON({
+    "$schema": "https://json-schema.org/draft/2019-09/schema",
+    "$vocabulary": {
+      "https://json-schema.org/draft/2020-12/vocab/applicator": true
+    }
+  })JSON");
+
+  const auto expected = sourcemeta::core::parse_json(R"JSON({
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "$vocabulary": {
+      "https://json-schema.org/draft/2020-12/vocab/applicator": true
+    }
+  })JSON");
+
+  UPGRADE_2020_12(document, expected);
+}
+
+TEST(AlterSchema_upgrade_2019_09_to_2020_12,
+     vocabulary_both_applicators_with_explicit_unevaluated_keeps_unevaluated) {
+  auto document = sourcemeta::core::parse_json(R"JSON({
+    "$schema": "https://json-schema.org/draft/2019-09/schema",
+    "$vocabulary": {
+      "https://json-schema.org/draft/2019-09/vocab/applicator": false,
+      "https://json-schema.org/draft/2020-12/vocab/applicator": true,
+      "https://json-schema.org/draft/2020-12/vocab/unevaluated": false
+    }
+  })JSON");
+
+  const auto expected = sourcemeta::core::parse_json(R"JSON({
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "$vocabulary": {
+      "https://json-schema.org/draft/2020-12/vocab/applicator": true,
+      "https://json-schema.org/draft/2020-12/vocab/unevaluated": false
+    }
+  })JSON");
+
+  UPGRADE_2020_12(document, expected);
+}
+
+TEST(AlterSchema_upgrade_2019_09_to_2020_12,
+     vocabulary_explicit_2020_12_format_annotation_wins_over_2019_09_format) {
+  auto document = sourcemeta::core::parse_json(R"JSON({
+    "$schema": "https://json-schema.org/draft/2019-09/schema",
+    "$vocabulary": {
+      "https://json-schema.org/draft/2019-09/vocab/format": true,
+      "https://json-schema.org/draft/2020-12/vocab/format-annotation": false
+    }
+  })JSON");
+
+  const auto expected = sourcemeta::core::parse_json(R"JSON({
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "$vocabulary": {
+      "https://json-schema.org/draft/2020-12/vocab/format-annotation": false
+    }
+  })JSON");
+
+  UPGRADE_2020_12(document, expected);
+}
+
+TEST(AlterSchema_upgrade_2019_09_to_2020_12,
+     vocabulary_inside_embedded_meta_schema_rewritten) {
+  auto document = sourcemeta::core::parse_json(R"JSON({
+    "$id": "https://example.com/outer",
+    "$schema": "https://json-schema.org/draft/2019-09/schema",
+    "$defs": {
+      "inner": {
+        "$id": "https://example.com/inner-meta",
+        "$schema": "https://json-schema.org/draft/2019-09/schema",
+        "$vocabulary": {
+          "https://json-schema.org/draft/2019-09/vocab/core": true,
+          "https://json-schema.org/draft/2019-09/vocab/applicator": true
+        }
+      }
+    }
+  })JSON");
+
+  const auto expected = sourcemeta::core::parse_json(R"JSON({
+    "$id": "https://example.com/outer",
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "$defs": {
+      "inner": {
+        "$id": "https://example.com/inner-meta",
+        "$schema": "https://json-schema.org/draft/2020-12/schema",
+        "$vocabulary": {
+          "https://json-schema.org/draft/2020-12/vocab/core": true,
+          "https://json-schema.org/draft/2020-12/vocab/applicator": true,
+          "https://json-schema.org/draft/2020-12/vocab/unevaluated": true
+        }
+      }
+    }
+  })JSON");
+
+  UPGRADE_2020_12(document, expected);
+}
+
+TEST(AlterSchema_upgrade_2019_09_to_2020_12,
+     vocabulary_outer_and_embedded_meta_schema_both_rewritten) {
+  auto document = sourcemeta::core::parse_json(R"JSON({
+    "$id": "https://example.com/outer-meta",
+    "$schema": "https://json-schema.org/draft/2019-09/schema",
+    "$vocabulary": {
+      "https://json-schema.org/draft/2019-09/vocab/core": true,
+      "https://json-schema.org/draft/2019-09/vocab/validation": true
+    },
+    "$defs": {
+      "inner": {
+        "$id": "https://example.com/inner-meta",
+        "$schema": "https://json-schema.org/draft/2019-09/schema",
+        "$vocabulary": {
+          "https://json-schema.org/draft/2019-09/vocab/core": true,
+          "https://json-schema.org/draft/2019-09/vocab/applicator": true
+        }
+      }
+    }
+  })JSON");
+
+  const auto expected = sourcemeta::core::parse_json(R"JSON({
+    "$id": "https://example.com/outer-meta",
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "$vocabulary": {
+      "https://json-schema.org/draft/2020-12/vocab/core": true,
+      "https://json-schema.org/draft/2020-12/vocab/validation": true
+    },
+    "$defs": {
+      "inner": {
+        "$id": "https://example.com/inner-meta",
+        "$schema": "https://json-schema.org/draft/2020-12/schema",
+        "$vocabulary": {
+          "https://json-schema.org/draft/2020-12/vocab/core": true,
+          "https://json-schema.org/draft/2020-12/vocab/applicator": true,
+          "https://json-schema.org/draft/2020-12/vocab/unevaluated": true
+        }
+      }
+    }
+  })JSON");
+
+  UPGRADE_2020_12(document, expected);
+}
+
+TEST(AlterSchema_upgrade_2019_09_to_2020_12,
+     vocabulary_inside_embedded_meta_schema_format_mapped) {
+  auto document = sourcemeta::core::parse_json(R"JSON({
+    "$id": "https://example.com/outer",
+    "$schema": "https://json-schema.org/draft/2019-09/schema",
+    "$defs": {
+      "inner": {
+        "$id": "https://example.com/inner-meta",
+        "$schema": "https://json-schema.org/draft/2019-09/schema",
+        "$vocabulary": {
+          "https://json-schema.org/draft/2019-09/vocab/core": true,
+          "https://json-schema.org/draft/2019-09/vocab/format": false
+        }
+      }
+    }
+  })JSON");
+
+  const auto expected = sourcemeta::core::parse_json(R"JSON({
+    "$id": "https://example.com/outer",
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "$defs": {
+      "inner": {
+        "$id": "https://example.com/inner-meta",
+        "$schema": "https://json-schema.org/draft/2020-12/schema",
+        "$vocabulary": {
+          "https://json-schema.org/draft/2020-12/vocab/core": true,
+          "https://json-schema.org/draft/2020-12/vocab/format-annotation": false
+        }
+      }
+    }
+  })JSON");
+
+  UPGRADE_2020_12(document, expected);
+}
+
+TEST(AlterSchema_upgrade_2019_09_to_2020_12,
+     vocabulary_inside_embedded_meta_schema_custom_uri_passes_through) {
+  auto document = sourcemeta::core::parse_json(R"JSON({
+    "$id": "https://example.com/outer",
+    "$schema": "https://json-schema.org/draft/2019-09/schema",
+    "$defs": {
+      "inner": {
+        "$id": "https://example.com/inner-meta",
+        "$schema": "https://json-schema.org/draft/2019-09/schema",
+        "$vocabulary": {
+          "https://json-schema.org/draft/2019-09/vocab/core": true,
+          "https://example.com/vocab/custom": false
+        }
+      }
+    }
+  })JSON");
+
+  const auto expected = sourcemeta::core::parse_json(R"JSON({
+    "$id": "https://example.com/outer",
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "$defs": {
+      "inner": {
+        "$id": "https://example.com/inner-meta",
+        "$schema": "https://json-schema.org/draft/2020-12/schema",
+        "$vocabulary": {
+          "https://json-schema.org/draft/2020-12/vocab/core": true,
+          "https://example.com/vocab/custom": false
+        }
+      }
+    }
+  })JSON");
+
+  UPGRADE_2020_12(document, expected);
+}
+
+TEST(AlterSchema_upgrade_2019_09_to_2020_12,
+     vocabulary_inside_embedded_meta_schema_hyper_uri_left_intact) {
+  auto document = sourcemeta::core::parse_json(R"JSON({
+    "$id": "https://example.com/outer",
+    "$schema": "https://json-schema.org/draft/2019-09/schema",
+    "$defs": {
+      "inner": {
+        "$id": "https://example.com/inner-meta",
+        "$schema": "https://json-schema.org/draft/2019-09/schema",
+        "$vocabulary": {
+          "https://json-schema.org/draft/2019-09/vocab/core": true,
+          "https://json-schema.org/draft/2019-09/vocab/hyper-schema": false
+        }
+      }
+    }
+  })JSON");
+
+  const auto expected = sourcemeta::core::parse_json(R"JSON({
+    "$id": "https://example.com/outer",
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "$defs": {
+      "inner": {
+        "$id": "https://example.com/inner-meta",
+        "$schema": "https://json-schema.org/draft/2020-12/schema",
+        "$vocabulary": {
+          "https://json-schema.org/draft/2020-12/vocab/core": true,
+          "https://json-schema.org/draft/2019-09/vocab/hyper-schema": false
+        }
+      }
+    }
+  })JSON");
+
+  UPGRADE_2020_12(document, expected);
+}
+
+TEST(AlterSchema_upgrade_2019_09_to_2020_12,
+     vocabulary_inside_embedded_meta_schema_explicit_2020_12_wins) {
+  auto document = sourcemeta::core::parse_json(R"JSON({
+    "$id": "https://example.com/outer",
+    "$schema": "https://json-schema.org/draft/2019-09/schema",
+    "$defs": {
+      "inner": {
+        "$id": "https://example.com/inner-meta",
+        "$schema": "https://json-schema.org/draft/2019-09/schema",
+        "$vocabulary": {
+          "https://json-schema.org/draft/2019-09/vocab/core": false,
+          "https://json-schema.org/draft/2020-12/vocab/core": true
+        }
+      }
+    }
+  })JSON");
+
+  const auto expected = sourcemeta::core::parse_json(R"JSON({
+    "$id": "https://example.com/outer",
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "$defs": {
+      "inner": {
+        "$id": "https://example.com/inner-meta",
+        "$schema": "https://json-schema.org/draft/2020-12/schema",
+        "$vocabulary": {
+          "https://json-schema.org/draft/2020-12/vocab/core": true
+        }
+      }
+    }
+  })JSON");
+
+  UPGRADE_2020_12(document, expected);
+}
+
+TEST(AlterSchema_upgrade_2019_09_to_2020_12,
+     vocabulary_inside_multiple_sibling_embedded_meta_schemas_rewritten) {
+  auto document = sourcemeta::core::parse_json(R"JSON({
+    "$id": "https://example.com/outer",
+    "$schema": "https://json-schema.org/draft/2019-09/schema",
+    "$defs": {
+      "alpha": {
+        "$id": "https://example.com/alpha-meta",
+        "$schema": "https://json-schema.org/draft/2019-09/schema",
+        "$vocabulary": {
+          "https://json-schema.org/draft/2019-09/vocab/core": true,
+          "https://json-schema.org/draft/2019-09/vocab/applicator": true
+        }
+      },
+      "beta": {
+        "$id": "https://example.com/beta-meta",
+        "$schema": "https://json-schema.org/draft/2019-09/schema",
+        "$vocabulary": {
+          "https://json-schema.org/draft/2019-09/vocab/core": true,
+          "https://json-schema.org/draft/2019-09/vocab/format": true
+        }
+      }
+    }
+  })JSON");
+
+  const auto expected = sourcemeta::core::parse_json(R"JSON({
+    "$id": "https://example.com/outer",
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "$defs": {
+      "alpha": {
+        "$id": "https://example.com/alpha-meta",
+        "$schema": "https://json-schema.org/draft/2020-12/schema",
+        "$vocabulary": {
+          "https://json-schema.org/draft/2020-12/vocab/core": true,
+          "https://json-schema.org/draft/2020-12/vocab/applicator": true,
+          "https://json-schema.org/draft/2020-12/vocab/unevaluated": true
+        }
+      },
+      "beta": {
+        "$id": "https://example.com/beta-meta",
+        "$schema": "https://json-schema.org/draft/2020-12/schema",
+        "$vocabulary": {
+          "https://json-schema.org/draft/2020-12/vocab/core": true,
+          "https://json-schema.org/draft/2020-12/vocab/format-annotation": true
+        }
+      }
+    }
+  })JSON");
+
+  UPGRADE_2020_12(document, expected);
+}
+
+TEST(AlterSchema_upgrade_2019_09_to_2020_12,
+     vocabulary_inside_deeply_nested_embedded_meta_schema_rewritten) {
+  auto document = sourcemeta::core::parse_json(R"JSON({
+    "$id": "https://example.com/outer",
+    "$schema": "https://json-schema.org/draft/2019-09/schema",
+    "$defs": {
+      "middle": {
+        "$id": "https://example.com/middle-meta",
+        "$schema": "https://json-schema.org/draft/2019-09/schema",
+        "$vocabulary": {
+          "https://json-schema.org/draft/2019-09/vocab/core": true,
+          "https://json-schema.org/draft/2019-09/vocab/validation": false
+        },
+        "$defs": {
+          "inner": {
+            "$id": "https://example.com/inner-meta",
+            "$schema": "https://json-schema.org/draft/2019-09/schema",
+            "$vocabulary": {
+              "https://json-schema.org/draft/2019-09/vocab/core": true,
+              "https://json-schema.org/draft/2019-09/vocab/applicator": true,
+              "https://json-schema.org/draft/2019-09/vocab/format": false
+            }
+          }
+        }
+      }
+    }
+  })JSON");
+
+  const auto expected = sourcemeta::core::parse_json(R"JSON({
+    "$id": "https://example.com/outer",
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "$defs": {
+      "middle": {
+        "$id": "https://example.com/middle-meta",
+        "$schema": "https://json-schema.org/draft/2020-12/schema",
+        "$vocabulary": {
+          "https://json-schema.org/draft/2020-12/vocab/core": true,
+          "https://json-schema.org/draft/2020-12/vocab/validation": false
+        },
+        "$defs": {
+          "inner": {
+            "$id": "https://example.com/inner-meta",
+            "$schema": "https://json-schema.org/draft/2020-12/schema",
+            "$vocabulary": {
+              "https://json-schema.org/draft/2020-12/vocab/core": true,
+              "https://json-schema.org/draft/2020-12/vocab/applicator": true,
+              "https://json-schema.org/draft/2020-12/vocab/unevaluated": true,
+              "https://json-schema.org/draft/2020-12/vocab/format-annotation": false
+            }
+          }
+        }
+      }
+    }
+  })JSON");
+
+  UPGRADE_2020_12(document, expected);
+}
+
+TEST(AlterSchema_upgrade_2019_09_to_2020_12,
+     vocabulary_inside_embedded_meta_schema_keeps_existing_unevaluated) {
+  auto document = sourcemeta::core::parse_json(R"JSON({
+    "$id": "https://example.com/outer",
+    "$schema": "https://json-schema.org/draft/2019-09/schema",
+    "$defs": {
+      "inner": {
+        "$id": "https://example.com/inner-meta",
+        "$schema": "https://json-schema.org/draft/2019-09/schema",
+        "$vocabulary": {
+          "https://json-schema.org/draft/2019-09/vocab/core": true,
+          "https://json-schema.org/draft/2019-09/vocab/applicator": true,
+          "https://json-schema.org/draft/2020-12/vocab/unevaluated": false
+        }
+      }
+    }
+  })JSON");
+
+  const auto expected = sourcemeta::core::parse_json(R"JSON({
+    "$id": "https://example.com/outer",
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "$defs": {
+      "inner": {
+        "$id": "https://example.com/inner-meta",
+        "$schema": "https://json-schema.org/draft/2020-12/schema",
+        "$vocabulary": {
+          "https://json-schema.org/draft/2020-12/vocab/core": true,
+          "https://json-schema.org/draft/2020-12/vocab/applicator": true,
+          "https://json-schema.org/draft/2020-12/vocab/unevaluated": false
+        }
+      }
+    }
+  })JSON");
+
+  UPGRADE_2020_12(document, expected);
+}
