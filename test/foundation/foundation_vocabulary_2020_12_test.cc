@@ -134,6 +134,106 @@ TEST(Foundation_vocabulary_2020_12,
   EXPECT_VOCABULARY_REQUIRED(*result, JSON_Schema_2020_12_Core);
 }
 
+TEST(Foundation_vocabulary_2020_12,
+     parse_vocabularies_with_base_dialect_vocabulary_not_object_string) {
+  const sourcemeta::core::JSON document = sourcemeta::core::parse_json(R"JSON({
+    "$vocabulary": "not-an-object"
+  })JSON");
+
+  const auto result{sourcemeta::blaze::parse_vocabularies(
+      document, sourcemeta::blaze::SchemaBaseDialect::JSON_Schema_2020_12)};
+  EXPECT_FALSE(result.has_value());
+}
+
+TEST(Foundation_vocabulary_2020_12,
+     parse_vocabularies_with_base_dialect_vocabulary_not_object_array) {
+  const sourcemeta::core::JSON document = sourcemeta::core::parse_json(R"JSON({
+    "$vocabulary": [
+      "https://json-schema.org/draft/2020-12/vocab/core"
+    ]
+  })JSON");
+
+  const auto result{sourcemeta::blaze::parse_vocabularies(
+      document, sourcemeta::blaze::SchemaBaseDialect::JSON_Schema_2020_12)};
+  EXPECT_FALSE(result.has_value());
+}
+
+TEST(Foundation_vocabulary_2020_12,
+     parse_vocabularies_with_base_dialect_vocabulary_not_object_boolean) {
+  const sourcemeta::core::JSON document = sourcemeta::core::parse_json(R"JSON({
+    "$vocabulary": true
+  })JSON");
+
+  const auto result{sourcemeta::blaze::parse_vocabularies(
+      document, sourcemeta::blaze::SchemaBaseDialect::JSON_Schema_2020_12)};
+  EXPECT_FALSE(result.has_value());
+}
+
+TEST(Foundation_vocabulary_2020_12,
+     parse_vocabularies_with_base_dialect_vocabulary_entry_not_boolean_string) {
+  const sourcemeta::core::JSON document = sourcemeta::core::parse_json(R"JSON({
+    "$vocabulary": {
+      "https://json-schema.org/draft/2020-12/vocab/core": "not-a-bool"
+    }
+  })JSON");
+
+  const auto result{sourcemeta::blaze::parse_vocabularies(
+      document, sourcemeta::blaze::SchemaBaseDialect::JSON_Schema_2020_12)};
+  EXPECT_FALSE(result.has_value());
+}
+
+TEST(Foundation_vocabulary_2020_12,
+     parse_vocabularies_with_base_dialect_vocabulary_entry_not_boolean_object) {
+  const sourcemeta::core::JSON document = sourcemeta::core::parse_json(R"JSON({
+    "$vocabulary": {
+      "https://json-schema.org/draft/2020-12/vocab/core": {}
+    }
+  })JSON");
+
+  const auto result{sourcemeta::blaze::parse_vocabularies(
+      document, sourcemeta::blaze::SchemaBaseDialect::JSON_Schema_2020_12)};
+  EXPECT_FALSE(result.has_value());
+}
+
+TEST(Foundation_vocabulary_2020_12,
+     parse_vocabularies_with_base_dialect_vocabulary_entry_not_boolean_null) {
+  const sourcemeta::core::JSON document = sourcemeta::core::parse_json(R"JSON({
+    "$vocabulary": {
+      "https://json-schema.org/draft/2020-12/vocab/core": null
+    }
+  })JSON");
+
+  const auto result{sourcemeta::blaze::parse_vocabularies(
+      document, sourcemeta::blaze::SchemaBaseDialect::JSON_Schema_2020_12)};
+  EXPECT_FALSE(result.has_value());
+}
+
+TEST(Foundation_vocabulary_2020_12,
+     parse_vocabularies_with_resolver_vocabulary_not_object) {
+  const sourcemeta::core::JSON document = sourcemeta::core::parse_json(R"JSON({
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "$vocabulary": "not-an-object"
+  })JSON");
+
+  const auto result{
+      sourcemeta::blaze::parse_vocabularies(document, test_resolver)};
+  EXPECT_FALSE(result.has_value());
+}
+
+TEST(Foundation_vocabulary_2020_12,
+     parse_vocabularies_with_resolver_vocabulary_entry_not_boolean) {
+  const sourcemeta::core::JSON document = sourcemeta::core::parse_json(R"JSON({
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "$vocabulary": {
+      "https://json-schema.org/draft/2020-12/vocab/core": "not-a-bool"
+    }
+  })JSON");
+
+  const auto result{
+      sourcemeta::blaze::parse_vocabularies(document, test_resolver)};
+  EXPECT_FALSE(result.has_value());
+}
+
 TEST(Foundation_vocabulary_2020_12, core_vocabularies_boolean_with_default) {
   const sourcemeta::core::JSON document{true};
   const sourcemeta::blaze::Vocabularies vocabularies{
