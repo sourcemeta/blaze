@@ -1375,7 +1375,6 @@ TEST(AlterSchema_upgrade_Draft7_to_2019_09,
   const auto expected = sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2019-09/schema",
     "$id": "https://example.com/my-dialect",
-    "type": "object",
     "$vocabulary": {
       "https://json-schema.org/draft/2019-09/vocab/core": true,
       "https://json-schema.org/draft/2019-09/vocab/applicator": true,
@@ -1383,7 +1382,8 @@ TEST(AlterSchema_upgrade_Draft7_to_2019_09,
       "https://json-schema.org/draft/2019-09/vocab/meta-data": true,
       "https://json-schema.org/draft/2019-09/vocab/format": false,
       "https://json-schema.org/draft/2019-09/vocab/content": true
-    }
+    },
+    "type": "object"
   })JSON");
 
   UPGRADE_2019_09_AS_METASCHEMA(document, expected);
@@ -1420,10 +1420,6 @@ TEST(AlterSchema_upgrade_Draft7_to_2019_09,
   const auto expected = sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2019-09/schema",
     "$id": "https://example.com/my-dialect",
-    "x-$vocabulary": {
-      "https://example.com/vocab/custom-annotation": true
-    },
-    "type": "object",
     "$vocabulary": {
       "https://json-schema.org/draft/2019-09/vocab/core": true,
       "https://json-schema.org/draft/2019-09/vocab/applicator": true,
@@ -1431,7 +1427,11 @@ TEST(AlterSchema_upgrade_Draft7_to_2019_09,
       "https://json-schema.org/draft/2019-09/vocab/meta-data": true,
       "https://json-schema.org/draft/2019-09/vocab/format": false,
       "https://json-schema.org/draft/2019-09/vocab/content": true
-    }
+    },
+    "x-$vocabulary": {
+      "https://example.com/vocab/custom-annotation": true
+    },
+    "type": "object"
   })JSON");
 
   UPGRADE_2019_09_AS_METASCHEMA(document, expected);
@@ -1458,6 +1458,14 @@ TEST(AlterSchema_upgrade_Draft7_to_2019_09,
   const auto expected = sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2019-09/schema",
     "$id": "https://example.com/my-dialect",
+    "$vocabulary": {
+      "https://json-schema.org/draft/2019-09/vocab/core": true,
+      "https://json-schema.org/draft/2019-09/vocab/applicator": true,
+      "https://json-schema.org/draft/2019-09/vocab/validation": true,
+      "https://json-schema.org/draft/2019-09/vocab/meta-data": true,
+      "https://json-schema.org/draft/2019-09/vocab/format": false,
+      "https://json-schema.org/draft/2019-09/vocab/content": true
+    },
     "type": "object",
     "properties": {
       "foo": {
@@ -1468,14 +1476,6 @@ TEST(AlterSchema_upgrade_Draft7_to_2019_09,
       "Bar": {
         "type": "integer"
       }
-    },
-    "$vocabulary": {
-      "https://json-schema.org/draft/2019-09/vocab/core": true,
-      "https://json-schema.org/draft/2019-09/vocab/applicator": true,
-      "https://json-schema.org/draft/2019-09/vocab/validation": true,
-      "https://json-schema.org/draft/2019-09/vocab/meta-data": true,
-      "https://json-schema.org/draft/2019-09/vocab/format": false,
-      "https://json-schema.org/draft/2019-09/vocab/content": true
     }
   })JSON");
 

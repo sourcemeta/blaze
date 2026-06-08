@@ -357,7 +357,34 @@ private:
                         sourcemeta::core::JSON{false});
     vocabularies.assign(std::string{VOCAB_2019_09_CONTENT_URL},
                         sourcemeta::core::JSON{true});
-    schema.assign("$vocabulary", std::move(vocabularies));
+
+    std::string_view anchor;
+    if (schema.defines("$id")) {
+      anchor = "$id";
+    } else if (schema.defines("$schema")) {
+      anchor = "$schema";
+    } else {
+      schema.assign("$vocabulary", std::move(vocabularies));
+      return;
+    }
+
+    std::optional<std::string> next_key;
+    bool found_anchor{false};
+    for (const auto &entry : schema.as_object()) {
+      if (found_anchor) {
+        next_key = entry.first;
+        break;
+      }
+      if (entry.first == anchor) {
+        found_anchor = true;
+      }
+    }
+
+    if (next_key.has_value()) {
+      schema.try_assign_before("$vocabulary", vocabularies, next_key.value());
+    } else {
+      schema.assign("$vocabulary", std::move(vocabularies));
+    }
   }
 
   static auto has_pending_pattern(const sourcemeta::core::JSON &subschema)
