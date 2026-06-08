@@ -13,6 +13,8 @@ public:
       const sourcemeta::blaze::SchemaWalker &,
       const sourcemeta::blaze::SchemaResolver &, const bool is_metaschema) const
       -> SchemaTransformRule::Result override {
+    this->metaschema_synthesis_pending_ = false;
+
     ONLY_CONTINUE_IF(
         vocabularies.contains(Vocabularies::Known::JSON_Schema_Draft_7) &&
         schema.is_object());
@@ -68,7 +70,6 @@ public:
     }
 
     if (this->metaschema_synthesis_pending_) {
-      this->metaschema_synthesis_pending_ = false;
       synthesize_2019_09_vocabulary(schema);
     }
   }
