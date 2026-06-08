@@ -66,3 +66,28 @@ TEST(AlterSchema_upgrade_Draft3_to_2019_09,
 
   UPGRADE_2019_09(document, expected);
 }
+
+TEST(AlterSchema_upgrade_Draft3_to_2019_09,
+     metaschema_cascade_from_draft3_emits_2019_09_vocabulary) {
+  auto document = sourcemeta::core::parse_json(R"JSON({
+    "$schema": "http://json-schema.org/draft-03/schema#",
+    "id": "https://example.com/my-dialect",
+    "type": "object"
+  })JSON");
+
+  const auto expected = sourcemeta::core::parse_json(R"JSON({
+    "$schema": "https://json-schema.org/draft/2019-09/schema",
+    "$id": "https://example.com/my-dialect",
+    "$vocabulary": {
+      "https://json-schema.org/draft/2019-09/vocab/core": true,
+      "https://json-schema.org/draft/2019-09/vocab/applicator": true,
+      "https://json-schema.org/draft/2019-09/vocab/validation": true,
+      "https://json-schema.org/draft/2019-09/vocab/meta-data": true,
+      "https://json-schema.org/draft/2019-09/vocab/format": false,
+      "https://json-schema.org/draft/2019-09/vocab/content": true
+    },
+    "type": "object"
+  })JSON");
+
+  UPGRADE_2019_09_AS_METASCHEMA(document, expected);
+}

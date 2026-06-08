@@ -147,3 +147,29 @@ TEST(AlterSchema_upgrade_Draft6_to_2020_12,
   UPGRADE_2020_12_WITH_DIALECT(document, expected,
                                "http://json-schema.org/draft-06/schema#");
 }
+
+TEST(AlterSchema_upgrade_Draft6_to_2020_12,
+     metaschema_cascade_from_draft6_emits_2020_12_vocabulary) {
+  auto document = sourcemeta::core::parse_json(R"JSON({
+    "$schema": "http://json-schema.org/draft-06/schema#",
+    "$id": "https://example.com/my-dialect",
+    "type": "object"
+  })JSON");
+
+  const auto expected = sourcemeta::core::parse_json(R"JSON({
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "$id": "https://example.com/my-dialect",
+    "$vocabulary": {
+      "https://json-schema.org/draft/2020-12/vocab/core": true,
+      "https://json-schema.org/draft/2020-12/vocab/applicator": true,
+      "https://json-schema.org/draft/2020-12/vocab/unevaluated": true,
+      "https://json-schema.org/draft/2020-12/vocab/validation": true,
+      "https://json-schema.org/draft/2020-12/vocab/meta-data": true,
+      "https://json-schema.org/draft/2020-12/vocab/format-annotation": false,
+      "https://json-schema.org/draft/2020-12/vocab/content": true
+    },
+    "type": "object"
+  })JSON");
+
+  UPGRADE_2020_12_AS_METASCHEMA(document, expected);
+}
