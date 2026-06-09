@@ -100,6 +100,7 @@ auto Configuration::from_json(const sourcemeta::core::JSON &value,
       }
 
       result.base = base.recompose();
+      result.base_uri = std::move(base);
     } catch (const sourcemeta::core::URIParseError &) {
       CONFIGURATION_ENSURE(false,
                            "The baseUri property must represent a valid URI",
@@ -107,8 +108,8 @@ auto Configuration::from_json(const sourcemeta::core::JSON &value,
     }
   } else {
     // Otherwise the base is the directory
-    result.base =
-        sourcemeta::core::URI::from_path(result.absolute_path).recompose();
+    result.base_uri = sourcemeta::core::URI::from_path(result.absolute_path);
+    result.base = result.base_uri.recompose();
   }
 
   result.default_dialect =
