@@ -90,7 +90,7 @@ public:
     try {
       sourcemeta::core::URI ref_uri{ref_string};
       if (!base_uri.empty()) {
-        ref_uri.resolve_from(base_uri);
+        ref_uri.resolve_from(sourcemeta::core::URI{base_uri});
       }
 
       ref_uri.canonicalize();

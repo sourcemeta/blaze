@@ -30,6 +30,7 @@ option(SOURCEMETA_CORE_JSONL "Build the Sourcemeta Core JSONL library" ON)
 option(SOURCEMETA_CORE_YAML "Build the Sourcemeta Core YAML library" ON)
 option(SOURCEMETA_CORE_JSONRPC "Build the Sourcemeta Core JSON-RPC library" ON)
 option(SOURCEMETA_CORE_MCP "Build the Sourcemeta Core MCP library" ON)
+option(SOURCEMETA_CORE_HTTP "Build the Sourcemeta Core HTTP library" ON)
 option(SOURCEMETA_CORE_SEMVER "Build the Sourcemeta Core SemVer library" ON)
 option(SOURCEMETA_CORE_GZIP "Build the Sourcemeta Core GZIP library" ON)
 option(SOURCEMETA_CORE_HTML "Build the Sourcemeta Core HTML library" ON)
@@ -164,7 +165,6 @@ endif()
 
 if(SOURCEMETA_CORE_GZIP)
   find_package(LibDeflate REQUIRED)
-  find_package(ZLIB REQUIRED)
   add_subdirectory(src/core/gzip)
 endif()
 
@@ -182,6 +182,10 @@ endif()
 
 if(SOURCEMETA_CORE_MCP)
   add_subdirectory(src/core/mcp)
+endif()
+
+if(SOURCEMETA_CORE_HTTP)
+  add_subdirectory(src/core/http)
 endif()
 
 if(SOURCEMETA_CORE_SEMVER)
@@ -336,6 +340,10 @@ if(SOURCEMETA_CORE_TESTS)
 
   if(SOURCEMETA_CORE_MCP)
     add_subdirectory(test/mcp)
+  endif()
+
+  if(SOURCEMETA_CORE_HTTP)
+    add_subdirectory(test/http)
   endif()
 
   if(SOURCEMETA_CORE_SEMVER)

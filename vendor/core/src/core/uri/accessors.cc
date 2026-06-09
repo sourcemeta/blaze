@@ -76,4 +76,9 @@ auto URI::userinfo() const -> std::optional<std::string_view> {
   return this->userinfo_;
 }
 
+auto URI::has_same_authority(const URI &other) const noexcept -> bool {
+  return this->userinfo_ == other.userinfo_ && this->host_ == other.host_ &&
+         this->port_ == other.port_;
+}
+
 } // namespace sourcemeta::core
