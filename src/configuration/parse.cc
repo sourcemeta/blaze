@@ -92,14 +92,14 @@ auto Configuration::from_json(const sourcemeta::core::JSON &value,
 
   if (value.defines("baseUri")) {
     try {
-      sourcemeta::core::URI base{value.at("baseUri").to_string()};
-      base.canonicalize();
-      if (!base.is_absolute()) {
+      result.base_uri = sourcemeta::core::URI{value.at("baseUri").to_string()};
+      result.base_uri.canonicalize();
+      if (!result.base_uri.is_absolute()) {
         CONFIGURATION_ENSURE(
             false, "The baseUri property must be an absolute URI", {"baseUri"});
       }
 
-      result.base = base.recompose();
+      result.base = result.base_uri.recompose();
     } catch (const sourcemeta::core::URIParseError &) {
       CONFIGURATION_ENSURE(false,
                            "The baseUri property must represent a valid URI",
@@ -107,8 +107,8 @@ auto Configuration::from_json(const sourcemeta::core::JSON &value,
     }
   } else {
     // Otherwise the base is the directory
-    result.base =
-        sourcemeta::core::URI::from_path(result.absolute_path).recompose();
+    result.base_uri = sourcemeta::core::URI::from_path(result.absolute_path);
+    result.base = result.base_uri.recompose();
   }
 
   result.default_dialect =
