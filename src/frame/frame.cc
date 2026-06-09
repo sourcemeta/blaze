@@ -772,7 +772,8 @@ auto SchemaFrame::analyse(const sourcemeta::core::JSON &root,
                   entry.id ? std::optional<std::string_view>{*entry.id}
                            : std::nullopt)};
           if (!nearest_bases.first.empty()) {
-            metaschema.resolve_from(nearest_bases.first.front());
+            metaschema.resolve_from(
+                sourcemeta::core::URI{nearest_bases.first.front()});
           }
 
           metaschema.canonicalize();
@@ -1037,7 +1038,7 @@ auto SchemaFrame::analyse(const sourcemeta::core::JSON &root,
         }
 
         if (!nearest_bases.first.empty()) {
-          ref.resolve_from(nearest_bases.first.front());
+          ref.resolve_from(sourcemeta::core::URI{nearest_bases.first.front()});
         }
 
         ref.canonicalize();
@@ -1122,7 +1123,7 @@ auto SchemaFrame::analyse(const sourcemeta::core::JSON &root,
         }
 
         if (!nearest_bases.first.empty()) {
-          ref.resolve_from(nearest_bases.first.front());
+          ref.resolve_from(sourcemeta::core::URI{nearest_bases.first.front()});
         }
 
         ref.canonicalize();

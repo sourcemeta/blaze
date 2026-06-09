@@ -12,8 +12,9 @@ TEST(Configuration_add_dependency, single) {
   config.base = "https://example.com";
   config.base_uri = sourcemeta::core::URI{config.base};
 
-  config.add_dependency("https://json-schema.org/draft/2020-12/schema",
-                        std::filesystem::path{"/test/vendor/2020-12.json"});
+  config.add_dependency(
+      sourcemeta::core::URI{"https://json-schema.org/draft/2020-12/schema"},
+      std::filesystem::path{"/test/vendor/2020-12.json"});
 
   EXPECT_EQ(config.dependencies.size(), 1);
   EXPECT_TRUE(config.dependencies.contains(
@@ -29,10 +30,12 @@ TEST(Configuration_add_dependency, multiple) {
   config.base = "https://example.com";
   config.base_uri = sourcemeta::core::URI{config.base};
 
-  config.add_dependency("https://json-schema.org/draft/2020-12/schema",
-                        std::filesystem::path{"/test/vendor/2020-12.json"});
-  config.add_dependency("https://example.com/common.json",
-                        std::filesystem::path{"/test/vendor/common.json"});
+  config.add_dependency(
+      sourcemeta::core::URI{"https://json-schema.org/draft/2020-12/schema"},
+      std::filesystem::path{"/test/vendor/2020-12.json"});
+  config.add_dependency(
+      sourcemeta::core::URI{"https://example.com/common.json"},
+      std::filesystem::path{"/test/vendor/common.json"});
 
   EXPECT_EQ(config.dependencies.size(), 2);
   EXPECT_TRUE(config.dependencies.contains(
@@ -51,12 +54,14 @@ TEST(Configuration_add_dependency, duplicate_uri) {
   config.base = "https://example.com";
   config.base_uri = sourcemeta::core::URI{config.base};
 
-  config.add_dependency("https://json-schema.org/draft/2020-12/schema",
-                        std::filesystem::path{"/test/vendor/2020-12.json"});
+  config.add_dependency(
+      sourcemeta::core::URI{"https://json-schema.org/draft/2020-12/schema"},
+      std::filesystem::path{"/test/vendor/2020-12.json"});
 
   try {
-    config.add_dependency("https://json-schema.org/draft/2020-12/schema",
-                          std::filesystem::path{"/test/vendor/other.json"});
+    config.add_dependency(
+        sourcemeta::core::URI{"https://json-schema.org/draft/2020-12/schema"},
+        std::filesystem::path{"/test/vendor/other.json"});
     FAIL() << "The function was expected to throw";
   } catch (const sourcemeta::blaze::ConfigurationParseError &error) {
     EXPECT_STREQ(error.what(), "The dependency already exists");
@@ -74,8 +79,9 @@ TEST(Configuration_add_dependency, uri_is_canonicalised) {
   config.base = "https://example.com";
   config.base_uri = sourcemeta::core::URI{config.base};
 
-  config.add_dependency("HTTP://Example.COM:80/draft/2020-12/schema",
-                        std::filesystem::path{"/test/vendor/2020-12.json"});
+  config.add_dependency(
+      sourcemeta::core::URI{"HTTP://Example.COM:80/draft/2020-12/schema"},
+      std::filesystem::path{"/test/vendor/2020-12.json"});
 
   EXPECT_EQ(config.dependencies.size(), 1);
   EXPECT_TRUE(
@@ -90,12 +96,13 @@ TEST(Configuration_add_dependency, duplicate_uri_after_canonicalisation) {
   config.base = "https://example.com";
   config.base_uri = sourcemeta::core::URI{config.base};
 
-  config.add_dependency("http://example.com/schema.json",
+  config.add_dependency(sourcemeta::core::URI{"http://example.com/schema.json"},
                         std::filesystem::path{"/test/vendor/first.json"});
 
   try {
-    config.add_dependency("HTTP://Example.COM:80/schema.json",
-                          std::filesystem::path{"/test/vendor/second.json"});
+    config.add_dependency(
+        sourcemeta::core::URI{"HTTP://Example.COM:80/schema.json"},
+        std::filesystem::path{"/test/vendor/second.json"});
     FAIL() << "The function was expected to throw";
   } catch (const sourcemeta::blaze::ConfigurationParseError &error) {
     EXPECT_STREQ(error.what(), "The dependency already exists");
@@ -112,12 +119,14 @@ TEST(Configuration_add_dependency, duplicate_path) {
   config.base = "https://example.com";
   config.base_uri = sourcemeta::core::URI{config.base};
 
-  config.add_dependency("https://json-schema.org/draft/2020-12/schema",
-                        std::filesystem::path{"/test/vendor/schema.json"});
+  config.add_dependency(
+      sourcemeta::core::URI{"https://json-schema.org/draft/2020-12/schema"},
+      std::filesystem::path{"/test/vendor/schema.json"});
 
   try {
-    config.add_dependency("https://example.com/other.json",
-                          std::filesystem::path{"/test/vendor/schema.json"});
+    config.add_dependency(
+        sourcemeta::core::URI{"https://example.com/other.json"},
+        std::filesystem::path{"/test/vendor/schema.json"});
     FAIL() << "The function was expected to throw";
   } catch (const sourcemeta::blaze::ConfigurationParseError &error) {
     EXPECT_STREQ(error.what(),
