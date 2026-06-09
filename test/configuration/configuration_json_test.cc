@@ -2,6 +2,7 @@
 
 #include <sourcemeta/blaze/configuration.h>
 #include <sourcemeta/core/json.h>
+#include <sourcemeta/core/uri.h>
 
 #include "configuration_test_utils.h"
 
@@ -39,6 +40,7 @@ TEST(Configuration_json, read_json_valid_1) {
   EXPECT_EQ(manifest.absolute_path, std::filesystem::path{"/test"} / "schemas");
   EXPECT_TRUE(manifest.absolute_path_explicit);
   EXPECT_EQ(manifest.base, "https://schemas.sourcemeta.com");
+  EXPECT_EQ(manifest.base_uri.recompose(), "https://schemas.sourcemeta.com");
   EXPECT_TRUE(manifest.default_dialect.has_value());
   EXPECT_EQ(manifest.default_dialect.value(),
             "http://json-schema.org/draft-07/schema#");
@@ -71,9 +73,25 @@ TEST(Configuration_json, read_json_valid_without_path) {
   EXPECT_EQ(manifest.absolute_path, std::filesystem::path{"/test"});
   EXPECT_FALSE(manifest.absolute_path_explicit);
   EXPECT_EQ(manifest.base, "https://example.com");
+  EXPECT_EQ(manifest.base_uri.recompose(), "https://example.com");
   EXPECT_FALSE(manifest.default_dialect.has_value());
   EXPECT_EQ(manifest.resolve.size(), 0);
   EXPECT_EQ(manifest.extra.size(), 0);
+}
+
+TEST(Configuration_json, read_json_base_uri_defaults_to_absolute_path) {
+  std::unordered_map<std::string, std::string> files;
+  files["/test/blaze.json"] = R"JSON({
+    "path": "./schemas"
+  })JSON";
+
+  const auto manifest{sourcemeta::blaze::Configuration::read_json(
+      "/test/blaze.json", MAKE_READER(files))};
+
+  EXPECT_EQ(manifest.absolute_path, std::filesystem::path{"/test"} / "schemas");
+  EXPECT_TRUE(manifest.absolute_path_explicit);
+  EXPECT_EQ(manifest.base, "file:///test/schemas");
+  EXPECT_EQ(manifest.base_uri.recompose(), "file:///test/schemas");
 }
 
 TEST(Configuration_json, to_json_all_fields) {
@@ -87,6 +105,7 @@ TEST(Configuration_json, to_json_all_fields) {
   config.absolute_path_explicit = true;
   config.base_path = "/test/schemas";
   config.base = "https://schemas.sourcemeta.com";
+  config.base_uri = sourcemeta::core::URI{config.base};
   config.default_dialect = "http://json-schema.org/draft-07/schema#";
   config.extension = {".json", ".yaml"};
   config.resolve.emplace("https://other.com/single.json", "../single.json");
@@ -122,6 +141,7 @@ TEST(Configuration_json, to_json_minimal) {
   config.absolute_path = "/test";
   config.absolute_path_explicit = true;
   config.base = "https://example.com";
+  config.base_uri = sourcemeta::core::URI{config.base};
 
   const auto result{config.to_json()};
 
@@ -148,6 +168,7 @@ TEST(Configuration_json, to_json_with_extra) {
   config.absolute_path = "/test";
   config.absolute_path_explicit = true;
   config.base = "https://example.com";
+  config.base_uri = sourcemeta::core::URI{config.base};
   config.extra.assign("x-foo", sourcemeta::core::JSON{"bar"});
 
   const auto result{config.to_json()};
@@ -286,6 +307,7 @@ TEST(Configuration_json, to_json_with_lint_rules) {
   config.absolute_path_explicit = true;
   config.base_path = "/test";
   config.base = "https://example.com";
+  config.base_uri = sourcemeta::core::URI{config.base};
   config.lint.rules.emplace_back("/test/rules/my-rule.json");
   config.lint.rules.emplace_back("/test/rules/other-rule.json");
 
@@ -308,6 +330,7 @@ TEST(Configuration_json, to_json_with_lint_rules_parent) {
   config.absolute_path_explicit = true;
   config.base_path = "/test";
   config.base = "https://example.com";
+  config.base_uri = sourcemeta::core::URI{config.base};
   config.lint.rules.emplace_back("/other/rules/my-rule.json");
 
   const auto result{config.to_json()};
@@ -327,6 +350,7 @@ TEST(Configuration_json, to_json_empty_lint) {
   sourcemeta::blaze::Configuration config;
   config.absolute_path = "/test";
   config.base = "https://example.com";
+  config.base_uri = sourcemeta::core::URI{config.base};
 
   const auto result{config.to_json()};
 
@@ -374,6 +398,7 @@ TEST(Configuration_json, to_json_with_ignore) {
   config.absolute_path_explicit = true;
   config.base_path = "/test";
   config.base = "https://example.com";
+  config.base_uri = sourcemeta::core::URI{config.base};
   config.ignore.emplace_back("/test/vendor");
   config.ignore.emplace_back("/test/build");
 
@@ -394,6 +419,7 @@ TEST(Configuration_json, to_json_with_ignore_parent) {
   config.absolute_path_explicit = true;
   config.base_path = "/test";
   config.base = "https://example.com";
+  config.base_uri = sourcemeta::core::URI{config.base};
   config.ignore.emplace_back("/other/vendor");
 
   const auto result{config.to_json()};
@@ -411,6 +437,7 @@ TEST(Configuration_json, to_json_empty_ignore) {
   sourcemeta::blaze::Configuration config;
   config.absolute_path = "/test";
   config.base = "https://example.com";
+  config.base_uri = sourcemeta::core::URI{config.base};
 
   const auto result{config.to_json()};
 

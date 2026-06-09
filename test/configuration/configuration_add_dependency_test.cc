@@ -10,6 +10,7 @@ TEST(Configuration_add_dependency, single) {
   sourcemeta::blaze::Configuration config;
   config.absolute_path = "/test/schemas";
   config.base = "https://example.com";
+  config.base_uri = sourcemeta::core::URI{config.base};
 
   config.add_dependency("https://json-schema.org/draft/2020-12/schema",
                         std::filesystem::path{"/test/vendor/2020-12.json"});
@@ -26,6 +27,7 @@ TEST(Configuration_add_dependency, multiple) {
   sourcemeta::blaze::Configuration config;
   config.absolute_path = "/test/schemas";
   config.base = "https://example.com";
+  config.base_uri = sourcemeta::core::URI{config.base};
 
   config.add_dependency("https://json-schema.org/draft/2020-12/schema",
                         std::filesystem::path{"/test/vendor/2020-12.json"});
@@ -47,6 +49,7 @@ TEST(Configuration_add_dependency, duplicate_uri) {
   sourcemeta::blaze::Configuration config;
   config.absolute_path = "/test/schemas";
   config.base = "https://example.com";
+  config.base_uri = sourcemeta::core::URI{config.base};
 
   config.add_dependency("https://json-schema.org/draft/2020-12/schema",
                         std::filesystem::path{"/test/vendor/2020-12.json"});
@@ -69,6 +72,7 @@ TEST(Configuration_add_dependency, uri_is_canonicalised) {
   sourcemeta::blaze::Configuration config;
   config.absolute_path = "/test/schemas";
   config.base = "https://example.com";
+  config.base_uri = sourcemeta::core::URI{config.base};
 
   config.add_dependency("HTTP://Example.COM:80/draft/2020-12/schema",
                         std::filesystem::path{"/test/vendor/2020-12.json"});
@@ -84,6 +88,7 @@ TEST(Configuration_add_dependency, duplicate_uri_after_canonicalisation) {
   sourcemeta::blaze::Configuration config;
   config.absolute_path = "/test/schemas";
   config.base = "https://example.com";
+  config.base_uri = sourcemeta::core::URI{config.base};
 
   config.add_dependency("http://example.com/schema.json",
                         std::filesystem::path{"/test/vendor/first.json"});
@@ -105,6 +110,7 @@ TEST(Configuration_add_dependency, duplicate_path) {
   sourcemeta::blaze::Configuration config;
   config.absolute_path = "/test/schemas";
   config.base = "https://example.com";
+  config.base_uri = sourcemeta::core::URI{config.base};
 
   config.add_dependency("https://json-schema.org/draft/2020-12/schema",
                         std::filesystem::path{"/test/vendor/schema.json"});
