@@ -16,6 +16,16 @@ static auto test_resolver(std::string_view identifier)
       "id": "https://www.sourcemeta.com/test-1",
       "type": "string"
     })JSON");
+  } else if (identifier == "https://example.com/meta/1.json") {
+    return sourcemeta::core::parse_json(R"JSON({
+      "$schema": "https://example.com/meta/2.json",
+      "id": "https://example.com/meta/1.json"
+    })JSON");
+  } else if (identifier == "https://example.com/meta/2.json") {
+    return sourcemeta::core::parse_json(R"JSON({
+      "$schema": "http://json-schema.org/draft-01/schema#",
+      "id": "https://example.com/meta/2.json"
+    })JSON");
   } else {
     return sourcemeta::blaze::schema_resolver(identifier);
   }
@@ -66,4 +76,40 @@ TEST(Bundle_draft1, simple_bundling) {
                    document, sourcemeta::blaze::schema_walker, test_resolver,
                    sourcemeta::blaze::BundleMode::NonOfficialMetaschemas),
                sourcemeta::blaze::SchemaError);
+}
+
+TEST(Bundle_draft1, metaschema) {
+  sourcemeta::core::JSON document = sourcemeta::core::parse_json(R"JSON({
+    "$schema": "https://example.com/meta/1.json",
+    "type": "string"
+  })JSON");
+
+  sourcemeta::blaze::bundle(
+      document, sourcemeta::blaze::schema_walker, test_resolver,
+      sourcemeta::blaze::BundleMode::NonOfficialMetaschemas);
+
+  const sourcemeta::core::JSON expected = sourcemeta::core::parse_json(R"JSON({
+    "$schema": "https://example.com/meta/1.json",
+    "type": "string"
+  })JSON");
+
+  EXPECT_EQ(document, expected);
+}
+
+TEST(Bundle_draft1, metaschema_references_mode) {
+  sourcemeta::core::JSON document = sourcemeta::core::parse_json(R"JSON({
+    "$schema": "https://example.com/meta/1.json",
+    "type": "string"
+  })JSON");
+
+  sourcemeta::blaze::bundle(document, sourcemeta::blaze::schema_walker,
+                            test_resolver,
+                            sourcemeta::blaze::BundleMode::References);
+
+  const sourcemeta::core::JSON expected = sourcemeta::core::parse_json(R"JSON({
+    "$schema": "https://example.com/meta/1.json",
+    "type": "string"
+  })JSON");
+
+  EXPECT_EQ(document, expected);
 }

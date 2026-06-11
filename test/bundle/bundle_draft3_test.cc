@@ -42,6 +42,16 @@ static auto test_resolver(std::string_view identifier)
         "foo": { "$ref": "#" }
       }
     })JSON");
+  } else if (identifier == "https://example.com/meta/1.json") {
+    return sourcemeta::core::parse_json(R"JSON({
+      "$schema": "https://example.com/meta/2.json",
+      "id": "https://example.com/meta/1.json"
+    })JSON");
+  } else if (identifier == "https://example.com/meta/2.json") {
+    return sourcemeta::core::parse_json(R"JSON({
+      "$schema": "http://json-schema.org/draft-03/schema#",
+      "id": "https://example.com/meta/2.json"
+    })JSON");
   } else {
     return sourcemeta::blaze::schema_resolver(identifier);
   }
@@ -363,6 +373,52 @@ TEST(Bundle_draft3, standalone_ref_with_default_dialect) {
         "type": "string"
       }
     }
+  })JSON");
+
+  EXPECT_EQ(document, expected);
+}
+
+TEST(Bundle_draft3, metaschema) {
+  sourcemeta::core::JSON document = sourcemeta::core::parse_json(R"JSON({
+    "$schema": "https://example.com/meta/1.json",
+    "type": "string"
+  })JSON");
+
+  sourcemeta::blaze::bundle(
+      document, sourcemeta::blaze::schema_walker, test_resolver,
+      sourcemeta::blaze::BundleMode::NonOfficialMetaschemas);
+
+  const sourcemeta::core::JSON expected = sourcemeta::core::parse_json(R"JSON({
+    "$schema": "https://example.com/meta/1.json",
+    "type": "string",
+    "definitions": {
+      "https://example.com/meta/1.json": {
+        "$schema": "https://example.com/meta/2.json",
+        "id": "https://example.com/meta/1.json"
+      },
+      "https://example.com/meta/2.json": {
+        "$schema": "http://json-schema.org/draft-03/schema#",
+        "id": "https://example.com/meta/2.json"
+      }
+    }
+  })JSON");
+
+  EXPECT_EQ(document, expected);
+}
+
+TEST(Bundle_draft3, metaschema_references_mode) {
+  sourcemeta::core::JSON document = sourcemeta::core::parse_json(R"JSON({
+    "$schema": "https://example.com/meta/1.json",
+    "type": "string"
+  })JSON");
+
+  sourcemeta::blaze::bundle(document, sourcemeta::blaze::schema_walker,
+                            test_resolver,
+                            sourcemeta::blaze::BundleMode::References);
+
+  const sourcemeta::core::JSON expected = sourcemeta::core::parse_json(R"JSON({
+    "$schema": "https://example.com/meta/1.json",
+    "type": "string"
   })JSON");
 
   EXPECT_EQ(document, expected);
