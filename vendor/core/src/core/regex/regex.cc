@@ -13,23 +13,6 @@
 #include <system_error> // std::errc
 #include <utility>      // std::unreachable
 
-namespace {
-
-auto make_bounded_match_context() -> pcre2_match_context * {
-  pcre2_match_context *context{pcre2_match_context_create(nullptr)};
-  // A null context is a valid argument to the matcher and selects the default
-  // limits, so an allocation failure degrades safely rather than crashing
-  if (context == nullptr) {
-    return nullptr;
-  }
-
-  pcre2_set_match_limit(context, 1000000);
-  pcre2_set_depth_limit(context, 1000);
-  return context;
-}
-
-} // namespace
-
 namespace sourcemeta::core {
 
 auto to_regex(const std::string_view pattern) -> std::optional<Regex> {
@@ -112,17 +95,19 @@ auto matches(const Regex &regex, const std::string_view value) -> bool {
     case RegexIndex::PCRE2: {
       const RegexTypePCRE2 *pcre2_regex{std::get_if<RegexTypePCRE2>(&regex)};
       auto *pcre2_code_ptr{static_cast<pcre2_code *>(pcre2_regex->code.get())};
-      // These are intentionally never freed as they live for the lifetime of
-      // the thread and reusing them avoids allocating on every call
+      // Allocated once per thread and reused across calls to avoid
+      // allocating every time. It is intentionally never freed, as
+      // releasing it on thread exit would make matching unsafe during the
+      // destruction of other objects with thread storage duration
       thread_local pcre2_match_data *match_data{
           pcre2_match_data_create(1, nullptr)};
-      // Cap the work the matcher may perform so that pathological patterns
-      // applied to adversarial inputs terminate instead of running unbounded
-      thread_local pcre2_match_context *match_context{
-          make_bounded_match_context()};
+      // A null context selects the built-in default limits, which guarantee
+      // that pathological patterns applied to adversarial inputs terminate.
+      // Note that exhausting any matching resource, like the machine stack
+      // of the just-in-time fast path on long values, counts as a failure
       const int match_result{pcre2_match(
           pcre2_code_ptr, reinterpret_cast<PCRE2_SPTR>(value.data()),
-          value.size(), 0, PCRE2_NO_UTF_CHECK, match_data, match_context)};
+          value.size(), 0, PCRE2_NO_UTF_CHECK, match_data, nullptr)};
       return match_result >= 0;
     }
     case RegexIndex::Noop:

@@ -545,7 +545,31 @@ public:
       }
     }
 
-    this->data.push_back({key, value, key_hash});
+    this->data.push_back({std::move(key), std::move(value), key_hash});
+    return key_hash;
+  }
+
+  /// Emplace an object property
+  inline auto emplace(const Key &key, mapped_type &&value) -> hash_type {
+    const auto key_hash{this->hash(key)};
+
+    if (this->hasher.is_perfect(key_hash)) {
+      for (auto &entry : this->data) {
+        if (entry.hash == key_hash) {
+          entry.second = std::move(value);
+          return key_hash;
+        }
+      }
+    } else {
+      for (auto &entry : this->data) {
+        if (entry.hash == key_hash && entry.first == key) {
+          entry.second = std::move(value);
+          return key_hash;
+        }
+      }
+    }
+
+    this->data.push_back({key, std::move(value), key_hash});
     return key_hash;
   }
 
@@ -588,10 +612,12 @@ public:
     return key_hash;
   }
 
-  /// Emplace an object property with a pre-computed hash
+  /// Emplace an object property with a pre-computed hash, returning the
+  /// inserted value
   inline auto emplace_assume_new(Key &&key, mapped_type &&value,
-                                 const hash_type key_hash) -> void {
+                                 const hash_type key_hash) -> mapped_type & {
     this->data.push_back({std::move(key), std::move(value), key_hash});
+    return this->data.back().second;
   }
 
   /// Emplace an object property with a pre-computed hash
