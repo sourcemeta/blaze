@@ -823,9 +823,14 @@ private:
       }
     }
 
+    // The YAML core schema permits a leading plus sign on numbers, but the
+    // strict numeric parsers (like RFC 8259 JSON) do not, so it must be
+    // stripped at this layer
+    const auto number{value.front() == '+' ? value.substr(1) : value};
+
     bool has_dot{false};
     bool has_exp{false};
-    for (const char character : value) {
+    for (const char character : number) {
       if (character == '.') {
         has_dot = true;
       }
@@ -835,14 +840,14 @@ private:
     }
 
     if (has_exp) {
-      return JSON{Decimal{value}};
+      return JSON{Decimal{number}};
     }
 
     if (has_dot) {
-      return this->parse_float(value);
+      return this->parse_float(number);
     }
 
-    return this->parse_integer(value);
+    return this->parse_integer(number);
   }
 
   auto parse_integer(const std::string_view value) -> JSON {
