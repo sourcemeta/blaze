@@ -321,6 +321,79 @@ auto supports_id_anchors(
   }
 }
 
+auto uri_hex_value(const char character) -> int {
+  if (character >= '0' && character <= '9') {
+    return character - '0';
+  } else if (character >= 'A' && character <= 'F') {
+    return character - 'A' + 10;
+  } else if (character >= 'a' && character <= 'f') {
+    return character - 'a' + 10;
+  } else {
+    return -1;
+  }
+}
+
+// TODO: Upstream this function to the Core JSON Pointer module as the
+// inverse of `sourcemeta::core::to_uri`
+// A URI fragment carries percent-encoded data octets that must be decoded
+// before the fragment can be interpreted as a JSON Pointer
+// See RFC 3986, section 2.4 and RFC 6901, section 6
+auto to_pointer(const sourcemeta::core::URI &uri)
+    -> std::optional<sourcemeta::core::Pointer> {
+  const auto fragment{uri.fragment()};
+  if (!fragment.has_value()) {
+    return std::nullopt;
+  }
+
+  const auto &value{fragment.value()};
+  sourcemeta::core::JSON::String input;
+  input.reserve(value.size());
+  for (std::size_t index = 0; index < value.size(); ++index) {
+    const auto character{value[index]};
+    if (character == '%' && index + 2 < value.size()) {
+      const auto high{uri_hex_value(value[index + 1])};
+      const auto low{uri_hex_value(value[index + 2])};
+      if (high >= 0 && low >= 0) {
+        input.push_back(static_cast<char>((high * 16) + low));
+        index += 2;
+        continue;
+      }
+    }
+
+    input.push_back(character);
+  }
+
+  if (input.empty()) {
+    return sourcemeta::core::Pointer{};
+  } else if (input.front() != '/') {
+    return std::nullopt;
+  }
+
+  try {
+    return sourcemeta::core::to_pointer(input);
+  } catch (const sourcemeta::core::PointerParseError &) {
+    return std::nullopt;
+  }
+}
+
+// Generic URI normalisation only decodes unreserved characters (see RFC 3986,
+// section 6.2.2.2), so a reference destination may still spell its JSON
+// Pointer fragment with percent-encoded octets. Re-serialise such fragments
+// from their parsed form so that reference destinations match the URIs that
+// locations are framed under
+auto canonicalize_pointer_fragment(sourcemeta::core::URI &uri) -> void {
+  const auto fragment{uri.fragment()};
+  if (!fragment.has_value() ||
+      fragment.value().find('%') == std::string_view::npos) {
+    return;
+  }
+
+  const auto destination{to_pointer(uri)};
+  if (destination.has_value()) {
+    uri.fragment(sourcemeta::core::to_string(destination.value()));
+  }
+}
+
 auto set_base_and_fragment(
     sourcemeta::blaze::SchemaFrame::ReferencesEntry &entry) -> void {
   const std::string_view destination_view{entry.destination};
@@ -1042,6 +1115,7 @@ auto SchemaFrame::analyse(const sourcemeta::core::JSON &root,
         }
 
         ref.canonicalize();
+        canonicalize_pointer_fragment(ref);
         auto ref_pointer{common_pointer_weak};
         ref_pointer.push_back(std::cref(KEYWORD_REF));
         const auto [it, inserted] = this->references_.insert_or_assign(
@@ -1127,6 +1201,7 @@ auto SchemaFrame::analyse(const sourcemeta::core::JSON &root,
         }
 
         ref.canonicalize();
+        canonicalize_pointer_fragment(ref);
         auto ref_string{ref.recompose()};
 
         // Note that here we cannot enforce the bookending requirement,

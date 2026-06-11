@@ -117,8 +117,7 @@ auto URI::recompose_relative() const -> std::string {
       const auto first_slash = path_value.find('/');
       const auto first_segment_length =
           first_slash == std::string::npos ? path_value.size() : first_slash;
-      const std::string_view first_segment{path_value.data(),
-                                           first_segment_length};
+      const auto first_segment{path_value.substr(0, first_segment_length)};
       if (first_segment.contains(':')) {
         std::string encoded;
         encoded.reserve(first_segment_length + 4);

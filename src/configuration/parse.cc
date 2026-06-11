@@ -58,21 +58,22 @@ auto Configuration::from_json(const sourcemeta::core::JSON &value,
       !value.defines("dependencies") || value.at("dependencies").is_object(),
       "The dependencies property must be an object", {"dependencies"});
 
+  const sourcemeta::core::JSON null_value{nullptr};
   result.title =
       sourcemeta::core::from_json<decltype(result.title)::value_type>(
-          value.at_or("title", sourcemeta::core::JSON{nullptr}));
+          value.at_or("title", null_value));
   result.description =
       sourcemeta::core::from_json<decltype(result.description)::value_type>(
-          value.at_or("description", sourcemeta::core::JSON{nullptr}));
+          value.at_or("description", null_value));
   result.email =
       sourcemeta::core::from_json<decltype(result.email)::value_type>(
-          value.at_or("email", sourcemeta::core::JSON{nullptr}));
+          value.at_or("email", null_value));
   result.github =
       sourcemeta::core::from_json<decltype(result.github)::value_type>(
-          value.at_or("github", sourcemeta::core::JSON{nullptr}));
+          value.at_or("github", null_value));
   result.website =
       sourcemeta::core::from_json<decltype(result.website)::value_type>(
-          value.at_or("website", sourcemeta::core::JSON{nullptr}));
+          value.at_or("website", null_value));
 
   if (value.defines("path")) {
     const std::filesystem::path path{value.at("path").to_string()};
@@ -113,7 +114,7 @@ auto Configuration::from_json(const sourcemeta::core::JSON &value,
 
   result.default_dialect =
       sourcemeta::core::from_json<decltype(result.default_dialect)::value_type>(
-          value.at_or("defaultDialect", sourcemeta::core::JSON{nullptr}));
+          value.at_or("defaultDialect", null_value));
 
   if (value.defines("extension")) {
     result.extension.clear();
