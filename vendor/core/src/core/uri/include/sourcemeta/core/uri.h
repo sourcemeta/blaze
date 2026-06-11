@@ -209,11 +209,13 @@ public:
   ///
   /// const sourcemeta::core::URI uri{"https://www.sourcemeta.com"};
   /// assert(uri.host().has_value());
-  /// assert(uri.host().value() == "sourcemeta.com");
+  /// assert(uri.host().value() == "www.sourcemeta.com");
   /// ```
   [[nodiscard]] auto host() const -> std::optional<std::string_view>;
 
-  /// Get the port part of the URI, if any. For example:
+  /// Get the port part of the URI, if any. Parsing rejects a port that does not
+  /// fit in 32 bits even though RFC 3986 leaves the production unbounded. For
+  /// example:
   ///
   /// ```cpp
   /// #include <sourcemeta/core/uri.h>
@@ -236,7 +238,7 @@ public:
   /// assert(uri.path().has_value());
   /// assert(uri.path().value() == "/foo/bar");
   /// ```
-  [[nodiscard]] auto path() const -> std::optional<std::string>;
+  [[nodiscard]] auto path() const -> std::optional<std::string_view>;
 
   /// Set the path part of the URI. For example:
   ///
@@ -495,7 +497,7 @@ public:
   ///
   /// const sourcemeta::core::URI
   ///   uri{"https://www.sourcemeta.com/foo/../bar"};
-  /// assert(uri.recompose() == "https://sourcemeta.com/bar");
+  /// assert(uri.recompose() == "https://www.sourcemeta.com/foo/../bar");
   /// ```
   [[nodiscard]] auto recompose() const -> std::string;
 
@@ -526,7 +528,7 @@ public:
   ///   uri{"https://www.sourcemeta.com/foo#bar"};
   /// assert(uri.recompose_without_fragment().has_value());
   /// assert(uri.recompose_without_fragment().value() ==
-  /// "https://sourcemeta.com/foo");
+  /// "https://www.sourcemeta.com/foo");
   /// ```
   [[nodiscard]] auto recompose_without_fragment() const
       -> std::optional<std::string>;
@@ -565,7 +567,7 @@ public:
   /// const sourcemeta::core::URI base{"https://www.sourcemeta.com"};
   /// sourcemeta::core::URI result{"foo"};
   /// result.resolve_from(base);
-  /// assert(result.recompose() == "https://sourcemeta.com/foo");
+  /// assert(result.recompose() == "https://www.sourcemeta.com/foo");
   /// ```
   auto resolve_from(const URI &base) -> URI &;
 

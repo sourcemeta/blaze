@@ -2,7 +2,6 @@
 
 #include "normalize.h"
 
-#include <cassert>  // assert
 #include <optional> // std::optional
 #include <string>   // std::string
 
@@ -37,11 +36,6 @@ namespace sourcemeta::core {
 
 auto URI::resolve_from(const URI &base) -> URI & {
   // RFC 3986 Section 5.2.2: Transform References
-
-  // Check if this is a dot reference ("." or "./") before we modify the path
-  const bool was_dot_reference =
-      this->path_.has_value() &&
-      (this->path_.value() == "." || this->path_.value() == "./");
 
   // Reference has a scheme - use as-is (already absolute)
   if (this->scheme_.has_value()) {
@@ -97,18 +91,6 @@ auto URI::resolve_from(const URI &base) -> URI & {
 
   // Reference has empty path
   if (!this->path_.has_value() || this->path_.value().empty()) {
-    // Special case: "." or "./" resolves to the containing directory
-    if (was_dot_reference) {
-      const auto base_path = base.path_.value_or("");
-      const auto last_slash = base_path.rfind('/');
-      if (last_slash != std::string::npos) {
-        this->path_ = base_path.substr(0, last_slash + 1);
-      } else {
-        this->path_ = std::nullopt;
-      }
-      return *this;
-    }
-
     // Empty path with query or fragment means use base path
     this->path_ = base.path_;
     if (!this->query_.has_value()) {

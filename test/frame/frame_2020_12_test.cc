@@ -2932,6 +2932,76 @@ TEST(Frame_2020_12, ref_with_id) {
       "https://www.sourcemeta.com/schema#/$defs/string");
 }
 
+TEST(Frame_2020_12, ref_with_percent_encoded_colon_in_fragment) {
+  const sourcemeta::core::JSON document = sourcemeta::core::parse_json(R"JSON({
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "$ref": "#/$defs/https%3A~1~1example.com~1schema~1type",
+    "$defs": {
+      "https://example.com/schema/type": { "type": "string" }
+    }
+  })JSON");
+
+  sourcemeta::blaze::SchemaFrame frame{
+      sourcemeta::blaze::SchemaFrame::Mode::References};
+  frame.analyse(document, sourcemeta::blaze::schema_walker,
+                sourcemeta::blaze::schema_resolver);
+
+  EXPECT_EQ(frame.locations().size(), 6);
+
+  // JSON Pointers
+
+  EXPECT_ANONYMOUS_FRAME_STATIC_SUBSCHEMA(
+      frame, "", "", "https://json-schema.org/draft/2020-12/schema",
+      JSON_Schema_2020_12, std::nullopt, false, false);
+  EXPECT_ANONYMOUS_FRAME_STATIC_POINTER(
+      frame, "#/$schema", "/$schema",
+      "https://json-schema.org/draft/2020-12/schema", JSON_Schema_2020_12, "",
+      false, false);
+  EXPECT_ANONYMOUS_FRAME_STATIC_POINTER(
+      frame, "#/$ref", "/$ref", "https://json-schema.org/draft/2020-12/schema",
+      JSON_Schema_2020_12, "", false, false);
+  EXPECT_ANONYMOUS_FRAME_STATIC_POINTER(
+      frame, "#/$defs", "/$defs",
+      "https://json-schema.org/draft/2020-12/schema", JSON_Schema_2020_12, "",
+      false, false);
+  EXPECT_ANONYMOUS_FRAME_STATIC_SUBSCHEMA(
+      frame, "#/$defs/https:~1~1example.com~1schema~1type",
+      "/$defs/https:~1~1example.com~1schema~1type",
+      "https://json-schema.org/draft/2020-12/schema", JSON_Schema_2020_12, "",
+      false, true);
+  EXPECT_ANONYMOUS_FRAME_STATIC_POINTER(
+      frame, "#/$defs/https:~1~1example.com~1schema~1type/type",
+      "/$defs/https:~1~1example.com~1schema~1type/type",
+      "https://json-schema.org/draft/2020-12/schema", JSON_Schema_2020_12,
+      "/$defs/https:~1~1example.com~1schema~1type", false, true);
+
+  // References
+
+  EXPECT_EQ(frame.references().size(), 2);
+
+  EXPECT_STATIC_REFERENCE(
+      frame, "/$schema", "https://json-schema.org/draft/2020-12/schema",
+      "https://json-schema.org/draft/2020-12/schema", std::nullopt,
+      "https://json-schema.org/draft/2020-12/schema");
+  EXPECT_STATIC_REFERENCE(frame, "/$ref",
+                          "#/$defs/https:~1~1example.com~1schema~1type", "",
+                          "/$defs/https:~1~1example.com~1schema~1type",
+                          "#/$defs/https%3A~1~1example.com~1schema~1type");
+
+  // Reachability
+
+  EXPECT_FRAME_LOCATION_REACHABLE(frame, Static, "", frame.root());
+  EXPECT_FRAME_LOCATION_REACHABLE(frame, Static,
+                                  "#/$defs/https:~1~1example.com~1schema~1type",
+                                  frame.root());
+
+  EXPECT_FRAME_LOCATION_NON_REACHABLE(
+      frame, Static, "", "#/$defs/https:~1~1example.com~1schema~1type");
+  EXPECT_FRAME_LOCATION_REACHABLE(
+      frame, Static, "#/$defs/https:~1~1example.com~1schema~1type",
+      "#/$defs/https:~1~1example.com~1schema~1type");
+}
+
 TEST(Frame_2020_12, ref_from_definitions) {
   const sourcemeta::core::JSON document = sourcemeta::core::parse_json(R"JSON({
     "$id": "https://www.sourcemeta.com/schema",

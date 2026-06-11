@@ -163,14 +163,19 @@ private:
     for (auto &length : distance_lengths) {
       length = 5;
     }
-    this->distance_tree_.build(distance_lengths.data(),
-                               distance_lengths.size());
+    this->distance_tree_.build(distance_lengths.data(), distance_lengths.size(),
+                               true);
   }
 
   auto read_dynamic_header() -> void {
     const auto hlit{this->reader_->read_bits(5) + 257};
     const auto hdist{this->reader_->read_bits(5) + 1};
     const auto hclen{this->reader_->read_bits(4) + 4};
+
+    // RFC 1951 section 3.2.7 caps the literal/length alphabet at 286 symbols
+    if (hlit > 286) {
+      throw GZIPError{"Too many literal/length codes"};
+    }
 
     std::array<std::uint8_t, 19> code_length_lengths{};
     for (std::size_t index = 0; index < hclen; ++index) {

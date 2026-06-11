@@ -10,7 +10,6 @@
 #include <cstdint>     // std::uint8_t, std::uint16_t, std::uint32_t
 #include <istream>     // std::istream
 #include <string_view> // std::string_view
-#include <vector>      // std::vector
 
 namespace sourcemeta::core {
 
@@ -34,72 +33,88 @@ struct GZIPStreamBuffer::Internal {
 
 namespace {
 
-auto try_read_first_byte(BitReader &reader, std::uint8_t &first_byte) -> bool {
-  try {
-    first_byte = reader.read_byte();
-    return true;
-  } catch (const GZIPError &) {
-    return false;
+// Accumulates the running CRC-32 over the header bytes that the FHCRC check
+// covers, computing it only when the FHCRC flag is present
+class HeaderChecksum {
+public:
+  HeaderChecksum(const bool track) : track_{track} {}
+
+  auto feed(const std::uint8_t byte) -> void {
+    if (this->track_) {
+      const auto data{static_cast<char>(byte)};
+      this->checksum_ =
+          crc32_update(this->checksum_, std::string_view{&data, 1});
+    }
   }
+
+  [[nodiscard]] auto low16() const -> std::uint16_t {
+    return static_cast<std::uint16_t>(this->checksum_ & 0xffffu);
+  }
+
+private:
+  bool track_;
+  std::uint32_t checksum_{0};
+};
+
+auto read_header_byte(BitReader &reader, HeaderChecksum &checksum)
+    -> std::uint8_t {
+  const auto byte{reader.read_byte()};
+  checksum.feed(byte);
+  return byte;
 }
 
-auto parse_member_header(BitReader &reader, const std::uint8_t first_byte,
-                         std::vector<std::uint8_t> &header_bytes) -> void {
+auto parse_member_header(BitReader &reader, const std::uint8_t first_byte)
+    -> void {
+  // RFC 1952 section 2.3.1.2: FHCRC covers every header byte up to but not
+  // including the CRC16 itself, so feeding each byte as it is read produces
+  // exactly the right value. The bytes are not retained, removing an
+  // unbounded-memory path through FNAME and FCOMMENT
+
   // Caller already consumed the ID1 byte and verified it is 0x1f
-  header_bytes.push_back(first_byte);
   const auto id2{reader.read_byte()};
-  header_bytes.push_back(id2);
   if (id2 != 0x8b) {
     throw GZIPError{"Invalid gzip magic bytes"};
   }
   const auto compression_method{reader.read_byte()};
-  header_bytes.push_back(compression_method);
   if (compression_method != 8) {
     throw GZIPError{"Unsupported gzip compression method"};
   }
   const auto flag_byte{reader.read_byte()};
-  header_bytes.push_back(flag_byte);
   if ((flag_byte & 0xe0) != 0) {
     throw GZIPError{"Reserved gzip FLG bits must be zero"};
   }
 
+  HeaderChecksum checksum{(flag_byte & 0x02) != 0};
+  checksum.feed(first_byte);
+  checksum.feed(id2);
+  checksum.feed(compression_method);
+  checksum.feed(flag_byte);
+
   // MTIME (4 bytes) + XFL (1 byte) + OS (1 byte) are informational
   for (std::size_t index = 0; index < 6; ++index) {
-    header_bytes.push_back(reader.read_byte());
+    read_header_byte(reader, checksum);
   }
 
   if ((flag_byte & 0x04) != 0) {
     // FEXTRA
-    const auto xlen_lo{reader.read_byte()};
-    const auto xlen_hi{reader.read_byte()};
-    header_bytes.push_back(xlen_lo);
-    header_bytes.push_back(xlen_hi);
+    const auto xlen_lo{read_header_byte(reader, checksum)};
+    const auto xlen_hi{read_header_byte(reader, checksum)};
     const auto xlen{static_cast<std::size_t>(xlen_lo) |
                     (static_cast<std::size_t>(xlen_hi) << 8)};
     for (std::size_t index = 0; index < xlen; ++index) {
-      header_bytes.push_back(reader.read_byte());
+      read_header_byte(reader, checksum);
     }
   }
 
   if ((flag_byte & 0x08) != 0) {
     // FNAME (null-terminated)
-    while (true) {
-      const auto byte{reader.read_byte()};
-      header_bytes.push_back(byte);
-      if (byte == 0) {
-        break;
-      }
+    while (read_header_byte(reader, checksum) != 0) {
     }
   }
 
   if ((flag_byte & 0x10) != 0) {
     // FCOMMENT (null-terminated)
-    while (true) {
-      const auto byte{reader.read_byte()};
-      header_bytes.push_back(byte);
-      if (byte == 0) {
-        break;
-      }
+    while (read_header_byte(reader, checksum) != 0) {
     }
   }
 
@@ -111,14 +126,22 @@ auto parse_member_header(BitReader &reader, const std::uint8_t first_byte,
         static_cast<std::uint16_t>(stored_lo) |
         static_cast<std::uint16_t>(static_cast<std::uint16_t>(stored_hi)
                                    << 8))};
-    const auto checksum{crc32(
-        std::string_view{reinterpret_cast<const char *>(header_bytes.data()),
-                         header_bytes.size()})};
-    const std::uint16_t computed{
-        static_cast<std::uint16_t>(checksum & 0xffffu)};
-    if (stored != computed) {
+    if (stored != checksum.low16()) {
       throw GZIPError{"FHCRC mismatch"};
     }
+  }
+}
+
+// Used for members past the first, where gzip(1) tolerates trailing
+// non-member data, so a header that fails to validate is reported as
+// trailing garbage rather than propagated as an error
+auto try_parse_member_header(BitReader &reader, const std::uint8_t first_byte)
+    -> bool {
+  try {
+    parse_member_header(reader, first_byte);
+    return true;
+  } catch (const GZIPError &) {
+    return false;
   }
 }
 
@@ -140,23 +163,29 @@ auto GZIPStreamBuffer::underflow() -> int_type {
   while (true) {
     if (!this->internal->member_started) {
       std::uint8_t first_byte{0};
-      if (!try_read_first_byte(this->internal->reader, first_byte)) {
+      if (!this->internal->reader.try_read_byte(first_byte)) {
         if (!this->internal->any_member_completed) {
           throw GZIPError{"Empty source stream"};
         }
         this->internal->stream_ended = true;
         return traits_type::eof();
       }
-      if (first_byte != 0x1f) {
-        if (!this->internal->any_member_completed) {
+      if (this->internal->any_member_completed) {
+        // gzip(1) silently ignores any trailing data after a complete member
+        // rather than treating it as the start of a new member. Bytes that do
+        // not form a valid member header end the stream without error,
+        // independent of the first byte value
+        if (first_byte != 0x1f ||
+            !try_parse_member_header(this->internal->reader, first_byte)) {
+          this->internal->stream_ended = true;
+          return traits_type::eof();
+        }
+      } else {
+        if (first_byte != 0x1f) {
           throw GZIPError{"Invalid gzip magic bytes"};
         }
-        // Trailing garbage after a complete member is silently ignored
-        this->internal->stream_ended = true;
-        return traits_type::eof();
+        parse_member_header(this->internal->reader, first_byte);
       }
-      std::vector<std::uint8_t> header_bytes;
-      parse_member_header(this->internal->reader, first_byte, header_bytes);
 
       this->internal->deflate.reset();
       this->internal->member_started = true;
