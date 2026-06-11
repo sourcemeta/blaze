@@ -35,6 +35,7 @@ namespace sourcemeta::blaze {
 ///
 /// ```cpp
 /// #include <sourcemeta/core/json.h>
+/// #include <sourcemeta/blaze/bundle.h>
 /// #include <sourcemeta/blaze/foundation.h>
 /// #include <sourcemeta/blaze/editor.h>
 ///
