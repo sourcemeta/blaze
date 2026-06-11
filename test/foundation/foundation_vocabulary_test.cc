@@ -856,3 +856,45 @@ TEST(Foundation_vocabulary, embedded_custom_metaschema_wrong_container) {
     FAIL();
   }
 }
+
+TEST(Foundation_vocabulary, embedded_custom_metaschema_precedence) {
+  const sourcemeta::core::JSON document = sourcemeta::core::parse_json(R"JSON({
+    "$schema": "https://example.com/meta",
+    "$id": "https://example.com/schema",
+    "type": "string",
+    "$defs": {
+      "https://example.com/meta": {
+        "$id": "https://example.com/meta",
+        "$schema": "https://json-schema.org/draft/2020-12/schema",
+        "$vocabulary": {
+          "https://json-schema.org/draft/2020-12/vocab/core": true,
+          "https://json-schema.org/draft/2020-12/vocab/validation": true
+        },
+        "type": "object"
+      }
+    }
+  })JSON");
+
+  // A resolver that knows about the custom meta-schema, but with a
+  // different vocabulary set than the embedded copy
+  const auto resolver =
+      [](std::string_view identifier) -> std::optional<sourcemeta::core::JSON> {
+    if (identifier == "https://example.com/meta") {
+      return sourcemeta::core::parse_json(R"JSON({
+        "$id": "https://example.com/meta",
+        "$schema": "https://json-schema.org/draft/2020-12/schema",
+        "$vocabulary": {
+          "https://json-schema.org/draft/2020-12/vocab/core": true
+        }
+      })JSON");
+    }
+
+    return sourcemeta::blaze::schema_resolver(identifier);
+  };
+
+  const sourcemeta::blaze::Vocabularies vocabularies{
+      sourcemeta::blaze::vocabularies(document, resolver)};
+  EXPECT_EQ(vocabularies.size(), 2);
+  EXPECT_VOCABULARY_REQUIRED(vocabularies, JSON_Schema_2020_12_Core);
+  EXPECT_VOCABULARY_REQUIRED(vocabularies, JSON_Schema_2020_12_Validation);
+}

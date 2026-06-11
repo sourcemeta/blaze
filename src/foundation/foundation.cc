@@ -371,15 +371,17 @@ auto sourcemeta::blaze::metaschema(
     throw sourcemeta::blaze::SchemaUnknownDialectError();
   }
 
+  // A meta-schema that is embedded in the schema itself takes precedence
+  // over what the resolver knows about, as the schema pins the exact
+  // meta-schema it is described by
+  const auto *embedded{sourcemeta::blaze::metaschema_try_embedded(
+      schema, effective_dialect, resolver)};
+  if (embedded) {
+    return *embedded;
+  }
+
   const auto maybe_metaschema{resolver(effective_dialect)};
   if (!maybe_metaschema.has_value()) {
-    // The meta-schema may still be embedded in the schema itself
-    const auto *embedded{sourcemeta::blaze::metaschema_try_embedded(
-        schema, effective_dialect, resolver)};
-    if (embedded) {
-      return *embedded;
-    }
-
     // Relative meta-schema references are invalid according to the
     // JSON Schema specifications. They must be absolute ones
     const sourcemeta::core::URI effective_dialect_uri{effective_dialect};
@@ -424,25 +426,26 @@ base_dialect_with_visited(const sourcemeta::core::JSON &schema,
     throw sourcemeta::blaze::SchemaUnknownBaseDialectError();
   }
 
+  // A meta-schema that is embedded in the original document itself takes
+  // precedence over what the resolver knows about, as the document pins
+  // the exact meta-schema it is described by
+  const auto *embedded{sourcemeta::blaze::metaschema_try_embedded(
+      document, effective_dialect, resolver)};
+  if (embedded) {
+    const std::string_view embedded_dialect{sourcemeta::blaze::dialect(
+        *embedded, effective_dialect, allow_dialect_override)};
+    if (embedded_dialect == effective_dialect) {
+      throw sourcemeta::blaze::SchemaUnknownBaseDialectError();
+    }
+
+    return base_dialect_with_visited(*embedded, resolver, effective_dialect,
+                                     visited, allow_dialect_override, document);
+  }
+
   // Otherwise, traverse the metaschema hierarchy up
   const std::optional<sourcemeta::core::JSON> metaschema{
       resolver(effective_dialect)};
   if (!metaschema.has_value()) {
-    // The meta-schema may still be embedded in the original document itself
-    const auto *embedded{sourcemeta::blaze::metaschema_try_embedded(
-        document, effective_dialect, resolver)};
-    if (embedded) {
-      const std::string_view embedded_dialect{sourcemeta::blaze::dialect(
-          *embedded, effective_dialect, allow_dialect_override)};
-      if (embedded_dialect == effective_dialect) {
-        throw sourcemeta::blaze::SchemaUnknownBaseDialectError();
-      }
-
-      return base_dialect_with_visited(*embedded, resolver, effective_dialect,
-                                       visited, allow_dialect_override,
-                                       document);
-    }
-
     sourcemeta::core::URI effective_dialect_uri;
     try {
       effective_dialect_uri = sourcemeta::core::URI{effective_dialect};
@@ -681,23 +684,19 @@ auto sourcemeta::blaze::vocabularies(
     throw sourcemeta::blaze::SchemaUnknownDialectError();
   }
 
-  // The meta-schema may not be known to the resolver but still be embedded
-  // in the schema itself
+  // A meta-schema that is embedded in the schema itself takes precedence
+  // over what the resolver knows about, as the schema pins the exact
+  // meta-schema it is described by
   return vocabularies(
       [&schema, &resolver](const std::string_view identifier)
           -> std::optional<sourcemeta::core::JSON> {
-        auto result{resolver(identifier)};
-        if (result.has_value()) {
-          return result;
-        }
-
         const auto *embedded{sourcemeta::blaze::metaschema_try_embedded(
             schema, identifier, resolver)};
         if (embedded) {
           return *embedded;
         }
 
-        return std::nullopt;
+        return resolver(identifier);
       },
       resolved_base_dialect.value(), resolved_dialect);
 }

@@ -1646,3 +1646,48 @@ TEST(Bundle_2020_12, deduplicate_embedded_with_preexisting_key_collision) {
 
   EXPECT_EQ(document, expected);
 }
+
+TEST(Bundle_2020_12, metaschema_offline_idempotent) {
+  sourcemeta::core::JSON document = sourcemeta::core::parse_json(R"JSON({
+    "$schema": "https://example.com/meta/1.json",
+    "type": "string",
+    "$defs": {
+      "https://example.com/meta/1.json": {
+        "$schema": "https://example.com/meta/2.json",
+        "$id": "https://example.com/meta/1.json",
+        "$vocabulary": { "https://json-schema.org/draft/2020-12/vocab/core": true }
+      },
+      "https://example.com/meta/2.json": {
+        "$schema": "https://json-schema.org/draft/2020-12/schema",
+        "$id": "https://example.com/meta/2.json",
+        "$vocabulary": { "https://json-schema.org/draft/2020-12/vocab/core": true }
+      }
+    }
+  })JSON");
+
+  // Note that we bundle with a resolver that does not know about
+  // the custom meta-schemas embedded in the document
+  sourcemeta::blaze::bundle(
+      document, sourcemeta::blaze::schema_walker,
+      sourcemeta::blaze::schema_resolver,
+      sourcemeta::blaze::BundleMode::NonOfficialMetaschemas);
+
+  const sourcemeta::core::JSON expected = sourcemeta::core::parse_json(R"JSON({
+    "$schema": "https://example.com/meta/1.json",
+    "type": "string",
+    "$defs": {
+      "https://example.com/meta/1.json": {
+        "$schema": "https://example.com/meta/2.json",
+        "$id": "https://example.com/meta/1.json",
+        "$vocabulary": { "https://json-schema.org/draft/2020-12/vocab/core": true }
+      },
+      "https://example.com/meta/2.json": {
+        "$schema": "https://json-schema.org/draft/2020-12/schema",
+        "$id": "https://example.com/meta/2.json",
+        "$vocabulary": { "https://json-schema.org/draft/2020-12/vocab/core": true }
+      }
+    }
+  })JSON");
+
+  EXPECT_EQ(document, expected);
+}
