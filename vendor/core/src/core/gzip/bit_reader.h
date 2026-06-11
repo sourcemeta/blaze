@@ -34,6 +34,10 @@ public:
   }
 
   auto consume_bits(const unsigned int count) -> void {
+    // Consuming more bits than are buffered would underflow the unsigned
+    // counter. Every call site is preceded by a peek or refill that
+    // guarantees enough bits, so the assert documents the contract
+    assert(count <= this->bits_available_);
     this->accumulator_ >>= count;
     this->bits_available_ -= count;
   }
@@ -45,6 +49,10 @@ public:
   }
 
   auto read_byte() -> std::uint8_t {
+    // Reading a byte while 1 to 7 bits are buffered would return a byte from
+    // ahead of them. Every call site is byte-aligned, so the assert documents
+    // the invariant without paying a release-build cost
+    assert(this->bits_available_ % 8 == 0);
     if (this->bits_available_ >= 8) {
       const auto value{static_cast<std::uint8_t>(this->accumulator_ & 0xff)};
       this->accumulator_ >>= 8;
@@ -52,6 +60,22 @@ public:
       return value;
     }
     return this->pull_source_byte();
+  }
+
+  auto try_read_byte(std::uint8_t &byte) -> bool {
+    assert(this->bits_available_ % 8 == 0);
+    if (this->bits_available_ >= 8) {
+      byte = static_cast<std::uint8_t>(this->accumulator_ & 0xff);
+      this->accumulator_ >>= 8;
+      this->bits_available_ -= 8;
+      return true;
+    }
+    if (this->buffer_position_ >= this->buffer_size_ &&
+        !this->try_refill_buffer()) {
+      return false;
+    }
+    byte = this->buffer_[this->buffer_position_++];
+    return true;
   }
 
   auto read_bytes(std::uint8_t *destination, const std::size_t count) -> void {
@@ -101,14 +125,21 @@ private:
   }
 
   auto refill_buffer() -> void {
+    if (!this->try_refill_buffer()) {
+      throw GZIPError{"Unexpected end of source stream"};
+    }
+  }
+
+  auto try_refill_buffer() -> bool {
     this->source_->read(reinterpret_cast<char *>(this->buffer_.data()),
                         SOURCE_BUFFER_SIZE);
     const auto bytes_read{static_cast<std::size_t>(this->source_->gcount())};
     if (bytes_read == 0) {
-      throw GZIPError{"Unexpected end of source stream"};
+      return false;
     }
     this->buffer_size_ = bytes_read;
     this->buffer_position_ = 0;
+    return true;
   }
 
   std::istream *source_;

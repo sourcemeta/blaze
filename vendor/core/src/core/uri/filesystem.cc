@@ -47,7 +47,7 @@ auto append_raw_segment(std::optional<std::string> &path,
 namespace sourcemeta::core {
 
 auto URI::to_path() const -> std::filesystem::path {
-  auto path = this->path().value_or("");
+  std::string path{this->path().value_or("")};
 
   // For non-file URIs, just return the path as-is
   if (!this->is_file()) {

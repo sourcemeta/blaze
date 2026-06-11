@@ -56,37 +56,50 @@ public:
 
   auto operator<(const JSONObject<Key, Value, Hash> &other) const noexcept
       -> bool {
-    // The `std::unordered_map` container, by definition, does not provide
-    // ordering. However, we still want some level of ordering to allow
-    // arrays of objects to be sorted.
-
-    // First try a size comparison
+    // Objects have no inherent order, but a deterministic strict weak ordering
+    // independent of insertion order is needed so that collections of objects
+    // can be sorted. Smaller objects come first, and objects of equal size are
+    // ordered as their entries would compare in key order. That outcome is
+    // decided entirely by the smallest key at which the two objects differ,
+    // which is found by scanning the entries in place to avoid allocating
     if (this->data.size() != other.data.size()) {
       return this->data.size() < other.data.size();
     }
 
-    // Otherwise do value comparison for common properties
-    for (const auto &entry : *this) {
-      const auto other_entry{other.find(entry.first)};
-      if (other_entry != other.cend() && entry.second < other_entry->second) {
-        return true;
+    const Key *decisive_key{nullptr};
+    bool decision{false};
+    for (const auto &entry : this->data) {
+      const auto match{other.find(entry.first)};
+      const bool differs{match == other.cend() ||
+                         !(entry.second == match->second)};
+      if (differs && (decisive_key == nullptr || entry.first < *decisive_key)) {
+        decisive_key = &entry.first;
+        decision = match == other.cend() || entry.second < match->second;
       }
     }
 
-    return false;
+    for (const auto &entry : other.data) {
+      if (this->find(entry.first) == this->cend() &&
+          (decisive_key == nullptr || entry.first < *decisive_key)) {
+        decisive_key = &entry.first;
+        decision = false;
+      }
+    }
+
+    return decision;
   }
 
   auto operator<=(const JSONObject<Key, Value, Hash> &other) const noexcept
       -> bool {
-    return this->data <= other.data;
+    return !(other < *this);
   }
   auto operator>(const JSONObject<Key, Value, Hash> &other) const noexcept
       -> bool {
-    return this->data > other.data;
+    return other < *this;
   }
   auto operator>=(const JSONObject<Key, Value, Hash> &other) const noexcept
       -> bool {
-    return this->data >= other.data;
+    return !(*this < other);
   }
 
   auto operator==(const JSONObject<Key, Value, Hash> &other) const noexcept

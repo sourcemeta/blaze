@@ -28,8 +28,11 @@ public:
 
   HuffmanDecoder() = default;
 
-  auto build(const std::uint8_t *lengths, const std::size_t length_count)
-      -> void {
+  // The fixed distance tree of RFC 1951 section 3.2.6 is intentionally
+  // incomplete (30 codes of length five over a 32-slot space), so the
+  // completeness check is suppressed for it and enforced everywhere else
+  auto build(const std::uint8_t *lengths, const std::size_t length_count,
+             const bool allow_incomplete = false) -> void {
     std::ranges::fill(this->count_, std::uint16_t{0});
     std::ranges::fill(this->lut_, std::uint16_t{0});
 
@@ -52,6 +55,15 @@ public:
       if (left < 0) {
         throw GZIPError{"Over-subscribed Huffman code"};
       }
+    }
+
+    // Reject incomplete codes, matching zlib and puff. RFC 1951 sanctions
+    // incompleteness only for the single-code case (a tree built from one
+    // used code of length one), where every length is either zero or one
+    if (left > 0 && !allow_incomplete &&
+        length_count != static_cast<std::size_t>(this->count_[0]) +
+                            static_cast<std::size_t>(this->count_[1])) {
+      throw GZIPError{"Incomplete Huffman code"};
     }
 
     std::array<std::uint16_t, MAX_HUFFMAN_BITS + 1> offsets{};

@@ -998,6 +998,11 @@ public:
   [[nodiscard]] auto at_or(const String &key, const JSON &otherwise) const
       -> const JSON &;
 
+  /// This overload avoids misuses of returning a const reference parameter as a
+  /// constant reference.
+  [[nodiscard]] auto at_or(const String &key, JSON &&otherwise) const
+      -> const JSON & = delete;
+
   /// This method retrieves an object property given a pre-calculated property
   /// hash, or a user provided value if such property is not defined.
   ///
@@ -1018,13 +1023,8 @@ public:
                            const typename Object::hash_type hash,
                            const JSON &otherwise) const -> const JSON &;
 
-  // Constant reference parameters can accept xvalues which will be destructed
-  // after the call. When the function returns such a parameter also as constant
-  // reference, then the returned reference can be used after the object it
-  // refers to has been destroyed.
-  // https://clang.llvm.org/extra/clang-tidy/checks/bugprone/return-const-ref-from-parameter.html
-  // This overload avoids mis-uses of retuning const reference parameter as
-  // constant reference.
+  /// This overload avoids misuses of returning a const reference parameter as a
+  /// constant reference.
   [[nodiscard]] auto at_or(const String &key,
                            const typename Object::hash_type hash,
                            JSON &&otherwise) const -> const JSON & = delete;

@@ -39,6 +39,45 @@ auto normalize_fragment(const std::string_view input) -> std::string {
   return std::string{input.starts_with('#') ? input.substr(1) : input};
 }
 
+// Raw string validation against the RFC 3986 Section 3.3 path productions. The
+// input is not parsed as a URI because that would misclassify ':' in the first
+// segment as a scheme delimiter and silently drop a '?' or '#' suffix
+auto validate_raw_path(const std::string_view path) -> void {
+  if (path.starts_with("//")) {
+    throw sourcemeta::core::URIError{
+        "You cannot set a path that contains an authority"};
+  }
+
+  for (std::size_t index = 0; index < path.size(); ++index) {
+    const char character = path[index];
+    if (character == '%') {
+      if (index + 2 >= path.size() ||
+          !std::isxdigit(static_cast<unsigned char>(path[index + 1])) ||
+          !std::isxdigit(static_cast<unsigned char>(path[index + 2]))) {
+        throw sourcemeta::core::URIError{
+            "You cannot set a path with an invalid percent-encoded sequence"};
+      }
+      index += 2;
+      continue;
+    }
+    if (sourcemeta::core::uri_is_unreserved(character) ||
+        sourcemeta::core::uri_is_sub_delim(character) || character == ':' ||
+        character == '@' || character == '/') {
+      continue;
+    }
+    if (character == '?') {
+      throw sourcemeta::core::URIError{
+          "You cannot set a path that contains a query"};
+    }
+    if (character == '#') {
+      throw sourcemeta::core::URIError{
+          "You cannot set a path that contains a fragment"};
+    }
+    throw sourcemeta::core::URIError{
+        "You cannot set a path that contains an invalid character"};
+  }
+}
+
 } // namespace
 
 namespace sourcemeta::core {
@@ -53,8 +92,7 @@ auto URI::path(const std::string &path) -> URI & {
     throw URIError{"You cannot set a relative path to an absolute URI"};
   }
 
-  // Parse the path string to extract its normalized value
-  const auto parsed_path = URI{path}.path_;
+  validate_raw_path(path);
 
   // Determine if this URI needs a leading slash
   // (URIs with scheme/authority need leading slash, except URNs/tags/mailto)
@@ -63,7 +101,8 @@ auto URI::path(const std::string &path) -> URI & {
        this->scheme_.has_value()) ||
       this->port_.has_value() || this->host_.has_value();
 
-  this->path_ = apply_leading_slash_transform(parsed_path, needs_leading_slash);
+  this->path_ = apply_leading_slash_transform(std::optional<std::string>{path},
+                                              needs_leading_slash);
   return *this;
 }
 
@@ -77,8 +116,7 @@ auto URI::path(std::string &&path) -> URI & {
     throw URIError{"You cannot set a relative path to an absolute URI"};
   }
 
-  // Parse the path string to extract its normalized value
-  const auto parsed_path = URI{path}.path_;
+  validate_raw_path(path);
 
   // Determine if this URI needs a leading slash
   // (URIs with scheme/authority need leading slash, except URNs/tags/mailto)
@@ -87,7 +125,8 @@ auto URI::path(std::string &&path) -> URI & {
        this->scheme_.has_value()) ||
       this->port_.has_value() || this->host_.has_value();
 
-  this->path_ = apply_leading_slash_transform(parsed_path, needs_leading_slash);
+  this->path_ = apply_leading_slash_transform(
+      std::optional<std::string>{std::move(path)}, needs_leading_slash);
   return *this;
 }
 
@@ -284,7 +323,9 @@ auto URI::extension(std::string &&extension) -> URI & {
 }
 
 auto URI::fragment(const std::string_view fragment) -> URI & {
-  this->fragment_ = normalize_fragment(std::string{fragment});
+  auto value{normalize_fragment(fragment)};
+  uri_unescape_unreserved_inplace(value);
+  this->fragment_ = std::move(value);
   return *this;
 }
 
