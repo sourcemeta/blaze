@@ -43,6 +43,8 @@ auto value_from_json(const sourcemeta::core::JSON &wrapper)
     case 22: return sourcemeta::core::from_json<ValueIntegerBounds>(value);
     case 23: return sourcemeta::core::from_json<ValueIntegerBoundsWithSize>(value);
     case 24: return sourcemeta::core::from_json<ValueObjectProperties>(value);
+    case 25: return sourcemeta::core::from_json<ValuePropertySwitch>(value);
+    case 26: return sourcemeta::core::from_json<ValueTypesWithSize>(value);
     // clang-format on
     default:
       std::unreachable();
@@ -108,7 +110,10 @@ auto instructions_from_json(
          .schema_resource = std::move(schema_resource_result).value()});
 
     // TODO: Maybe we should emplace here?
+    // Note that we conservatively consider every instruction as tracking,
+    // as the granular flags are not part of the serialised format
     result.push_back({.type = std::move(type_result).value(),
+                      .track = true,
                       .relative_instance_location =
                           std::move(relative_instance_location_result).value(),
                       .value = std::move(value_result).value(),

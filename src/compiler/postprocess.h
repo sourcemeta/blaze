@@ -9,6 +9,7 @@
 #include <string> // std::string
 #include <unordered_map>
 #include <unordered_set> // std::unordered_set
+#include <utility>       // std::to_underlying
 #include <vector>
 
 // TODO: Move all `FastValidation` conditional optimisations from the default
@@ -43,6 +44,7 @@ inline auto is_noop_without_children(const InstructionIndex type) noexcept
     case InstructionIndex::LoopContains:
     case InstructionIndex::ControlGroupWhenDefines:
     case InstructionIndex::ControlGroupWhenDefinesDirect:
+    case InstructionIndex::ControlGroupWhenDefinesResolved:
     case InstructionIndex::ControlGroupWhenType:
       return true;
     default:
@@ -142,6 +144,7 @@ inline auto collect_statistics(const Instructions &instructions,
     }
 
     if (instruction.type == InstructionIndex::ControlGroupWhenDefinesDirect ||
+        instruction.type == InstructionIndex::ControlGroupWhenDefinesResolved ||
         instruction.type == InstructionIndex::ControlGroupWhenType) {
       statistics.requires_empty_instance_location = true;
     }
@@ -156,7 +159,8 @@ transform_instruction(Instruction &instruction, Instructions &output,
                       const std::vector<Instructions> &targets,
                       const std::vector<TargetStatistics> &statistics,
                       TargetStatistics &current_stats, const Tweaks &tweaks,
-                      const bool uses_dynamic_scopes) -> bool {
+                      const bool uses_dynamic_scopes,
+                      const bool allow_adjacent_fusion) -> bool {
   if (instruction.type == InstructionIndex::ControlJump) {
     const auto jump_target_index{
         std::get<ValueUnsignedInteger>(instruction.value)};
@@ -330,6 +334,46 @@ transform_instruction(Instruction &instruction, Instructions &output,
     }
   }
 
+  // An array items type check followed by an array type plus bounds check
+  // on the same location (or vice versa) collapses into a single pass. This
+  // must not happen inside children vectors that parents index by position
+  if (allow_adjacent_fusion && !output.empty() &&
+      output.back().relative_instance_location ==
+          instruction.relative_instance_location) {
+    auto &previous{output.back()};
+    if (instruction.type == InstructionIndex::AssertionTypeArrayBounded &&
+        (previous.type == InstructionIndex::LoopItemsTypeStrictAny ||
+         previous.type == InstructionIndex::LoopItemsTypeStrict)) {
+      ValueTypes types{};
+      if (previous.type == InstructionIndex::LoopItemsTypeStrict) {
+        types.set(std::to_underlying(std::get<ValueType>(previous.value)));
+      } else {
+        types = std::get<ValueTypes>(previous.value);
+      }
+
+      previous.type = InstructionIndex::LoopItemsTypeStrictAnySized;
+      previous.value =
+          ValueTypesWithSize{types, std::get<ValueRange>(instruction.value)};
+      return true;
+    }
+
+    if ((instruction.type == InstructionIndex::LoopItemsTypeStrictAny ||
+         instruction.type == InstructionIndex::LoopItemsTypeStrict) &&
+        previous.type == InstructionIndex::AssertionTypeArrayBounded) {
+      ValueTypes types{};
+      if (instruction.type == InstructionIndex::LoopItemsTypeStrict) {
+        types.set(std::to_underlying(std::get<ValueType>(instruction.value)));
+      } else {
+        types = std::get<ValueTypes>(instruction.value);
+      }
+
+      previous.type = InstructionIndex::LoopItemsTypeStrictAnySized;
+      previous.value =
+          ValueTypesWithSize{types, std::get<ValueRange>(previous.value)};
+      return true;
+    }
+  }
+
   if (is_parent_to_children_instruction(instruction.type)) {
     convert_to_property_type_assertions(instruction.children);
   }
@@ -381,6 +425,7 @@ inline auto postprocess(std::vector<Instructions> &targets,
       auto &current_stats{statistics[current_target_index]};
 
       std::vector<Instructions *> worklist;
+      std::unordered_set<const Instructions *> position_indexed;
       std::vector<std::pair<Instructions *, std::size_t>> stack;
       stack.emplace_back(&target, 0);
 
@@ -394,6 +439,10 @@ inline auto postprocess(std::vector<Instructions> &targets,
         }
 
         if (index < current->size()) {
+          if ((*current)[index].type == InstructionIndex::LogicalCondition) {
+            position_indexed.insert(&(*current)[index].children);
+          }
+
           stack.emplace_back(current, index + 1);
           stack.emplace_back(&(*current)[index].children, 0);
         } else {
@@ -460,7 +509,8 @@ inline auto postprocess(std::vector<Instructions> &targets,
 
           if (transform_instruction(instruction, result, extra, targets,
                                     statistics, current_stats, tweaks,
-                                    uses_dynamic_scopes))
+                                    uses_dynamic_scopes,
+                                    !position_indexed.contains(current)))
             changed = true;
         }
 

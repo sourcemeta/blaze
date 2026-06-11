@@ -191,13 +191,26 @@ using ValueObjectProperties = std::vector<
     std::tuple<ValueString, sourcemeta::core::JSON::Object::hash_type, bool>>;
 
 /// @ingroup evaluator
+/// Represents a discriminator property along with a map from its possible
+/// string values to the index of the disjunct that pins each of those values.
+/// The last component is the index plus one of the only disjunct that can
+/// match non-object instances, where zero means no such disjunct exists
+using ValuePropertySwitch =
+    std::tuple<ValueProperty, ValueNamedIndexes, ValueUnsignedInteger>;
+
+/// @ingroup evaluator
+/// Represents a JSON types bitmask combined with an array size range
+using ValueTypesWithSize = std::pair<ValueTypes, ValueRange>;
+
+/// @ingroup evaluator
 using Value = std::variant<
     ValueNone, ValueJSON, ValueSet, ValueString, ValueProperty, ValueStrings,
     ValueStringSet, ValueTypes, ValueType, ValueRegex, ValueUnsignedInteger,
     ValueRange, ValueBoolean, ValueNamedIndexes, ValueStringType,
     ValueStringMap, ValuePropertyFilter, ValueIndexPair, ValuePointer,
     ValueTypedProperties, ValueStringHashes, ValueTypedHashes,
-    ValueIntegerBounds, ValueIntegerBoundsWithSize, ValueObjectProperties>;
+    ValueIntegerBounds, ValueIntegerBoundsWithSize, ValueObjectProperties,
+    ValuePropertySwitch, ValueTypesWithSize>;
 
 } // namespace sourcemeta::blaze
 

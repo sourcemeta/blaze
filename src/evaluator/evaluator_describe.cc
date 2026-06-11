@@ -415,6 +415,21 @@ auto describe(const bool valid, const Instruction &step,
     return message.str();
   }
 
+  if (step.type ==
+      sourcemeta::blaze::InstructionIndex::LogicalSwitchPropertyString) {
+    assert(!step.children.empty());
+    std::ostringstream message;
+    message << "The " << type_name(target.type())
+            << " value was expected to validate against ";
+    if (step.children.size() > 1) {
+      message << "one of the " << step.children.size() << " given subschemas";
+    } else {
+      message << "the given subschema";
+    }
+
+    return message.str();
+  }
+
   if (step.type == sourcemeta::blaze::InstructionIndex::LogicalCondition) {
     std::ostringstream message;
     message << "The " << type_name(target.type())
@@ -1200,6 +1215,27 @@ auto describe(const bool valid, const Instruction &step,
       }
     }
 
+    return message.str();
+  }
+
+  if (step.type ==
+      sourcemeta::blaze::InstructionIndex::LoopItemsTypeStrictAnySized) {
+    std::ostringstream message;
+    const auto &value{instruction_value<ValueTypesWithSize>(step)};
+    const auto &[minimum, maximum, exhaustive] = value.second;
+    if (minimum == 0 && maximum.has_value()) {
+      message << "The value was expected to consist of an array of at most "
+              << maximum.value() << (maximum.value() == 1 ? " item" : " items");
+    } else if (maximum.has_value()) {
+      message << "The value was expected to consist of an array of " << minimum
+              << " to " << maximum.value()
+              << (maximum.value() == 1 ? " item" : " items");
+    } else {
+      message << "The value was expected to consist of an array of at least "
+              << minimum << (minimum == 1 ? " item" : " items");
+    }
+
+    message << " where every item is of the expected type";
     return message.str();
   }
 

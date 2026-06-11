@@ -14,6 +14,12 @@
 #include <utility>       // std::move, std::pair
 #include <vector>        // std::vector
 
+#if defined(SOURCEMETA_BLAZE_DEBUG_TRACK_FLAGS)
+#include <cstdio>     // stderr
+#include <functional> // std::function
+#include <print>      // std::println
+#endif
+
 #include "compile_helpers.h"
 #include "postprocess.h"
 
@@ -145,6 +151,139 @@ auto schema_frame_populate_target_types(
       }
     }
   }
+}
+
+auto is_evaluation_mark_instruction(
+    const sourcemeta::blaze::InstructionIndex type) -> bool {
+  using sourcemeta::blaze::InstructionIndex;
+  switch (type) {
+    case InstructionIndex::AssertionArrayPrefixEvaluate:
+    case InstructionIndex::AssertionPropertyTypeEvaluate:
+    case InstructionIndex::AssertionPropertyTypeStrictEvaluate:
+    case InstructionIndex::AssertionPropertyTypeStrictAnyEvaluate:
+    case InstructionIndex::Evaluate:
+    case InstructionIndex::LogicalNotEvaluate:
+    case InstructionIndex::LoopPropertiesUnevaluated:
+    case InstructionIndex::LoopPropertiesUnevaluatedExcept:
+    case InstructionIndex::LoopPropertiesEvaluate:
+    case InstructionIndex::LoopPropertiesTypeEvaluate:
+    case InstructionIndex::LoopPropertiesTypeStrictEvaluate:
+    case InstructionIndex::LoopPropertiesTypeStrictAnyEvaluate:
+    case InstructionIndex::LoopItemsUnevaluated:
+    case InstructionIndex::ControlEvaluate:
+      return true;
+    default:
+      return false;
+  }
+}
+
+auto contains_evaluation_marks(const sourcemeta::blaze::Instructions &steps,
+                               const std::vector<bool> &target_marks,
+                               const bool dynamic_marks) -> bool {
+  using sourcemeta::blaze::InstructionIndex;
+  for (const auto &step : steps) {
+    if (is_evaluation_mark_instruction(step.type)) {
+      return true;
+    }
+
+    if (step.type == InstructionIndex::ControlJump &&
+        target_marks[std::get<sourcemeta::blaze::ValueUnsignedInteger>(
+            step.value)]) {
+      return true;
+    }
+
+    if (step.type == InstructionIndex::ControlDynamicAnchorJump &&
+        dynamic_marks) {
+      return true;
+    }
+
+    if (contains_evaluation_marks(step.children, target_marks, dynamic_marks)) {
+      return true;
+    }
+  }
+
+  return false;
+}
+
+auto flag_evaluation_marks(sourcemeta::blaze::Instructions &steps,
+                           const std::vector<bool> &target_marks,
+                           const bool dynamic_marks) -> bool {
+  using sourcemeta::blaze::InstructionIndex;
+  bool result{false};
+  for (auto &step : steps) {
+    step.track =
+        is_evaluation_mark_instruction(step.type) ||
+        (step.type == InstructionIndex::ControlJump &&
+         target_marks[std::get<sourcemeta::blaze::ValueUnsignedInteger>(
+             step.value)]) ||
+        (step.type == InstructionIndex::ControlDynamicAnchorJump &&
+         dynamic_marks);
+    if (flag_evaluation_marks(step.children, target_marks, dynamic_marks)) {
+      step.track = true;
+    }
+
+    result = result || step.track;
+  }
+
+  return result;
+}
+
+// Determine which instructions can produce or consume evaluation marks
+// somewhere in their subtree, including through static and dynamic jumps,
+// so that the evaluator only maintains the evaluate path on the spines that
+// lead to those instructions. Note that the evaluate path of every mark and
+// of every mark consumer is preserved exactly: all of their ancestors are
+// flagged, and only instructions that no mark or consumer can ever observe
+// stop pushing
+auto flag_evaluation_tracking(
+    std::vector<sourcemeta::blaze::Instructions> &targets,
+    const std::vector<std::pair<std::size_t, std::size_t>> &labels) -> void {
+  std::vector<bool> target_marks(targets.size(), false);
+  bool dynamic_marks{false};
+  bool changed{true};
+  while (changed) {
+    changed = false;
+    for (std::size_t index = 0; index < targets.size(); index++) {
+      if (!target_marks[index] &&
+          contains_evaluation_marks(targets[index], target_marks,
+                                    dynamic_marks)) {
+        target_marks[index] = true;
+        changed = true;
+      }
+    }
+
+    if (!dynamic_marks &&
+        std::ranges::any_of(labels, [&target_marks](const auto &label) -> bool {
+          return target_marks[label.second];
+        })) {
+      dynamic_marks = true;
+      changed = true;
+    }
+  }
+
+  for (auto &target : targets) {
+    flag_evaluation_marks(target, target_marks, dynamic_marks);
+  }
+
+#if defined(SOURCEMETA_BLAZE_DEBUG_TRACK_FLAGS)
+  std::size_t flagged{0};
+  std::size_t total{0};
+  // NOLINTNEXTLINE(misc-no-recursion)
+  const std::function<void(const sourcemeta::blaze::Instructions &)> count{
+      [&flagged, &total,
+       &count](const sourcemeta::blaze::Instructions &steps) -> void {
+        for (const auto &step : steps) {
+          total += 1;
+          flagged += step.track ? 1 : 0;
+          count(step.children);
+        }
+      }};
+  for (const auto &target : targets) {
+    count(target);
+  }
+
+  std::println(stderr, "TRACK FLAGS: {} / {}", flagged, total);
+#endif
 }
 
 } // namespace
@@ -421,6 +560,11 @@ auto compile(const sourcemeta::core::JSON &schema,
           context.unevaluated, [](const auto &dependency) -> auto {
             return dependency.first.ends_with("unevaluatedItems");
           })};
+
+  if (track) {
+    flag_evaluation_tracking(compiled_targets, labels_map);
+  }
+
   return {.dynamic = uses_dynamic_scopes,
           .track = track,
           .targets = std::move(compiled_targets),

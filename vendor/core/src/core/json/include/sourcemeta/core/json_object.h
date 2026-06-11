@@ -460,16 +460,29 @@ public:
     const auto object_size{this->size()};
     assert(start <= object_size);
     if (this->hasher.is_perfect(key_hash)) {
-      for (size_type count = 0; count < object_size; count++) {
-        const auto index{(start + count) % object_size};
+      for (size_type index = start; index < object_size; index++) {
+        if (this->data[index].hash == key_hash) {
+          start = index + 1;
+          return &this->data[index].second;
+        }
+      }
+
+      for (size_type index = 0; index < start; index++) {
         if (this->data[index].hash == key_hash) {
           start = index + 1;
           return &this->data[index].second;
         }
       }
     } else {
-      for (size_type count = 0; count < object_size; count++) {
-        const auto index{(start + count) % object_size};
+      for (size_type index = start; index < object_size; index++) {
+        if (this->data[index].hash == key_hash &&
+            this->data[index].first == key) {
+          start = index + 1;
+          return &this->data[index].second;
+        }
+      }
+
+      for (size_type index = 0; index < start; index++) {
         if (this->data[index].hash == key_hash &&
             this->data[index].first == key) {
           start = index + 1;
@@ -492,16 +505,29 @@ public:
     const auto object_size{this->size()};
     assert(start <= object_size);
     if (this->hasher.is_perfect(key_hash)) {
-      for (size_type count = 0; count < object_size; count++) {
-        const auto index{(start + count) % object_size};
+      for (size_type index = start; index < object_size; index++) {
+        if (this->data[index].hash == key_hash) {
+          start = index + 1;
+          return &this->data[index].second;
+        }
+      }
+
+      for (size_type index = 0; index < start; index++) {
         if (this->data[index].hash == key_hash) {
           start = index + 1;
           return &this->data[index].second;
         }
       }
     } else {
-      for (size_type count = 0; count < object_size; count++) {
-        const auto index{(start + count) % object_size};
+      for (size_type index = start; index < object_size; index++) {
+        if (this->data[index].hash == key_hash &&
+            this->data[index].first == key) {
+          start = index + 1;
+          return &this->data[index].second;
+        }
+      }
+
+      for (size_type index = 0; index < start; index++) {
         if (this->data[index].hash == key_hash &&
             this->data[index].first == key) {
           start = index + 1;
