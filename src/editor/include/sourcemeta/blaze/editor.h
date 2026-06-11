@@ -46,7 +46,8 @@ namespace sourcemeta::blaze {
 ///
 /// sourcemeta::blaze::bundle(schema,
 ///   sourcemeta::blaze::schema_walker,
-///   sourcemeta::blaze::schema_resolver);
+///   sourcemeta::blaze::schema_resolver,
+///   sourcemeta::blaze::BundleMode::NonOfficialMetaschemas);
 /// sourcemeta::blaze::for_editor(schema,
 ///   sourcemeta::blaze::schema_walker,
 ///   sourcemeta::blaze::schema_resolver);

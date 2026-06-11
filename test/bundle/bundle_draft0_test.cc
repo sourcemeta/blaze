@@ -26,8 +26,9 @@ TEST(Bundle_draft0, no_references_no_id) {
     "$schema": "http://json-schema.org/draft-00/schema#"
   })JSON");
 
-  sourcemeta::blaze::bundle(document, sourcemeta::blaze::schema_walker,
-                            test_resolver);
+  sourcemeta::blaze::bundle(
+      document, sourcemeta::blaze::schema_walker, test_resolver,
+      sourcemeta::blaze::BundleMode::NonOfficialMetaschemas);
 
   const sourcemeta::core::JSON expected = sourcemeta::core::parse_json(R"JSON({
     "$schema": "http://json-schema.org/draft-00/schema#"
@@ -42,7 +43,8 @@ TEST(Bundle_draft0, const_no_references_no_id) {
   })JSON");
 
   const auto result = sourcemeta::blaze::bundle(
-      document, sourcemeta::blaze::schema_walker, test_resolver);
+      document, sourcemeta::blaze::schema_walker, test_resolver,
+      sourcemeta::blaze::BundleMode::NonOfficialMetaschemas);
 
   const sourcemeta::core::JSON expected = sourcemeta::core::parse_json(R"JSON({
     "$schema": "http://json-schema.org/draft-00/schema#"
@@ -61,6 +63,7 @@ TEST(Bundle_draft0, simple_bundling) {
   })JSON");
 
   EXPECT_THROW(sourcemeta::blaze::bundle(
-                   document, sourcemeta::blaze::schema_walker, test_resolver),
+                   document, sourcemeta::blaze::schema_walker, test_resolver,
+                   sourcemeta::blaze::BundleMode::NonOfficialMetaschemas),
                sourcemeta::blaze::SchemaError);
 }

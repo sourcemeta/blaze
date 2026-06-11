@@ -10,8 +10,10 @@ static void Schema_Bundle_Meta_2020_12(benchmark::State &state) {
                     "https://json-schema.org/draft/2020-12/schema")
                     .value()};
     state.ResumeTiming();
-    sourcemeta::blaze::bundle(schema, sourcemeta::blaze::schema_walker,
-                              sourcemeta::blaze::schema_resolver);
+    sourcemeta::blaze::bundle(
+        schema, sourcemeta::blaze::schema_walker,
+        sourcemeta::blaze::schema_resolver,
+        sourcemeta::blaze::BundleMode::NonOfficialMetaschemas);
     benchmark::DoNotOptimize(schema);
   }
 }

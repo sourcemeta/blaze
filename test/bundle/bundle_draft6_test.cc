@@ -83,8 +83,9 @@ TEST(Bundle_draft6, no_references_no_id) {
     "$schema": "http://json-schema.org/draft-06/schema#"
   })JSON");
 
-  sourcemeta::blaze::bundle(document, sourcemeta::blaze::schema_walker,
-                            test_resolver);
+  sourcemeta::blaze::bundle(
+      document, sourcemeta::blaze::schema_walker, test_resolver,
+      sourcemeta::blaze::BundleMode::NonOfficialMetaschemas);
 
   const sourcemeta::core::JSON expected = sourcemeta::core::parse_json(R"JSON({
     "$schema": "http://json-schema.org/draft-06/schema#"
@@ -99,7 +100,8 @@ TEST(Bundle_draft6, const_no_references_no_id) {
   })JSON");
 
   const auto result = sourcemeta::blaze::bundle(
-      document, sourcemeta::blaze::schema_walker, test_resolver);
+      document, sourcemeta::blaze::schema_walker, test_resolver,
+      sourcemeta::blaze::BundleMode::NonOfficialMetaschemas);
 
   const sourcemeta::core::JSON expected = sourcemeta::core::parse_json(R"JSON({
     "$schema": "http://json-schema.org/draft-06/schema#"
@@ -121,8 +123,9 @@ TEST(Bundle_draft6, simple_with_id) {
     }
   })JSON");
 
-  sourcemeta::blaze::bundle(document, sourcemeta::blaze::schema_walker,
-                            test_resolver);
+  sourcemeta::blaze::bundle(
+      document, sourcemeta::blaze::schema_walker, test_resolver,
+      sourcemeta::blaze::BundleMode::NonOfficialMetaschemas);
 
   const sourcemeta::core::JSON expected = sourcemeta::core::parse_json(R"JSON({
     "$id": "https://example.com",
@@ -168,8 +171,9 @@ TEST(Bundle_draft6, simple_without_id) {
     }
   })JSON");
 
-  sourcemeta::blaze::bundle(document, sourcemeta::blaze::schema_walker,
-                            test_resolver);
+  sourcemeta::blaze::bundle(
+      document, sourcemeta::blaze::schema_walker, test_resolver,
+      sourcemeta::blaze::BundleMode::NonOfficialMetaschemas);
 
   const sourcemeta::core::JSON expected = sourcemeta::core::parse_json(R"JSON({
     "$schema": "http://json-schema.org/draft-06/schema#",
@@ -212,7 +216,8 @@ TEST(Bundle_draft6, schema_not_found) {
   })JSON");
 
   EXPECT_THROW(sourcemeta::blaze::bundle(
-                   document, sourcemeta::blaze::schema_walker, test_resolver),
+                   document, sourcemeta::blaze::schema_walker, test_resolver,
+                   sourcemeta::blaze::BundleMode::NonOfficialMetaschemas),
                sourcemeta::blaze::SchemaResolutionError);
 }
 
@@ -225,12 +230,15 @@ TEST(Bundle_draft6, idempotency) {
     }
   })JSON");
 
-  sourcemeta::blaze::bundle(document, sourcemeta::blaze::schema_walker,
-                            test_resolver);
-  sourcemeta::blaze::bundle(document, sourcemeta::blaze::schema_walker,
-                            test_resolver);
-  sourcemeta::blaze::bundle(document, sourcemeta::blaze::schema_walker,
-                            test_resolver);
+  sourcemeta::blaze::bundle(
+      document, sourcemeta::blaze::schema_walker, test_resolver,
+      sourcemeta::blaze::BundleMode::NonOfficialMetaschemas);
+  sourcemeta::blaze::bundle(
+      document, sourcemeta::blaze::schema_walker, test_resolver,
+      sourcemeta::blaze::BundleMode::NonOfficialMetaschemas);
+  sourcemeta::blaze::bundle(
+      document, sourcemeta::blaze::schema_walker, test_resolver,
+      sourcemeta::blaze::BundleMode::NonOfficialMetaschemas);
 
   const sourcemeta::core::JSON expected = sourcemeta::core::parse_json(R"JSON({
     "$id": "https://example.com",
@@ -276,8 +284,9 @@ TEST(Bundle_draft6, pre_embedded) {
     }
   })JSON");
 
-  sourcemeta::blaze::bundle(document, sourcemeta::blaze::schema_walker,
-                            test_resolver);
+  sourcemeta::blaze::bundle(
+      document, sourcemeta::blaze::schema_walker, test_resolver,
+      sourcemeta::blaze::BundleMode::NonOfficialMetaschemas);
 
   const sourcemeta::core::JSON expected = sourcemeta::core::parse_json(R"JSON({
     "$id": "https://example.com",
@@ -323,8 +332,9 @@ TEST(Bundle_draft6, taken_definitions_entry) {
     }
   })JSON");
 
-  sourcemeta::blaze::bundle(document, sourcemeta::blaze::schema_walker,
-                            test_resolver);
+  sourcemeta::blaze::bundle(
+      document, sourcemeta::blaze::schema_walker, test_resolver,
+      sourcemeta::blaze::BundleMode::NonOfficialMetaschemas);
 
   const sourcemeta::core::JSON expected = sourcemeta::core::parse_json(R"JSON({
     "$id": "https://example.com",
@@ -360,8 +370,9 @@ TEST(Bundle_draft6, recursive) {
     "allOf": [ { "$ref": "https://www.sourcemeta.com/recursive" } ]
   })JSON");
 
-  sourcemeta::blaze::bundle(document, sourcemeta::blaze::schema_walker,
-                            test_resolver);
+  sourcemeta::blaze::bundle(
+      document, sourcemeta::blaze::schema_walker, test_resolver,
+      sourcemeta::blaze::BundleMode::NonOfficialMetaschemas);
 
   const sourcemeta::core::JSON expected = sourcemeta::core::parse_json(R"JSON({
     "$schema": "http://json-schema.org/draft-06/schema#",
@@ -386,8 +397,9 @@ TEST(Bundle_draft6, recursive_empty_fragment) {
     "allOf": [ { "$ref": "https://www.sourcemeta.com/recursive-empty-fragment#" } ]
   })JSON");
 
-  sourcemeta::blaze::bundle(document, sourcemeta::blaze::schema_walker,
-                            test_resolver);
+  sourcemeta::blaze::bundle(
+      document, sourcemeta::blaze::schema_walker, test_resolver,
+      sourcemeta::blaze::BundleMode::NonOfficialMetaschemas);
 
   const sourcemeta::core::JSON expected = sourcemeta::core::parse_json(R"JSON({
     "$schema": "http://json-schema.org/draft-06/schema#",
@@ -411,9 +423,10 @@ TEST(Bundle_draft6, anonymous_no_dialect) {
     "allOf": [ { "$ref": "https://www.sourcemeta.com/anonymous" } ]
   })JSON");
 
-  sourcemeta::blaze::bundle(document, sourcemeta::blaze::schema_walker,
-                            test_resolver,
-                            "http://json-schema.org/draft-06/schema#");
+  sourcemeta::blaze::bundle(
+      document, sourcemeta::blaze::schema_walker, test_resolver,
+      sourcemeta::blaze::BundleMode::NonOfficialMetaschemas,
+      "http://json-schema.org/draft-06/schema#");
 
   const sourcemeta::core::JSON expected = sourcemeta::core::parse_json(R"JSON({
     "allOf": [ { "$ref": "https://www.sourcemeta.com/anonymous" } ],
@@ -434,8 +447,9 @@ TEST(Bundle_draft6, metaschema) {
     "type": "string"
   })JSON");
 
-  sourcemeta::blaze::bundle(document, sourcemeta::blaze::schema_walker,
-                            test_resolver);
+  sourcemeta::blaze::bundle(
+      document, sourcemeta::blaze::schema_walker, test_resolver,
+      sourcemeta::blaze::BundleMode::NonOfficialMetaschemas);
 
   const sourcemeta::core::JSON expected = sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://example.com/meta/1.json",
@@ -467,8 +481,9 @@ TEST(Bundle_draft6, relative_base_uri_with_ref) {
     }
   })JSON");
 
-  sourcemeta::blaze::bundle(document, sourcemeta::blaze::schema_walker,
-                            test_resolver);
+  sourcemeta::blaze::bundle(
+      document, sourcemeta::blaze::schema_walker, test_resolver,
+      sourcemeta::blaze::BundleMode::NonOfficialMetaschemas);
 
   const sourcemeta::core::JSON expected = sourcemeta::core::parse_json(R"JSON({
     "$schema": "http://json-schema.org/draft-06/schema#",
@@ -492,8 +507,9 @@ TEST(Bundle_draft6, hyperschema_smoke) {
     ]
   })JSON");
 
-  sourcemeta::blaze::bundle(document, sourcemeta::blaze::schema_walker,
-                            test_resolver);
+  sourcemeta::blaze::bundle(
+      document, sourcemeta::blaze::schema_walker, test_resolver,
+      sourcemeta::blaze::BundleMode::NonOfficialMetaschemas);
 
   EXPECT_TRUE(document.is_object());
 }
@@ -507,8 +523,9 @@ TEST(Bundle_draft6, hyperschema_1) {
     ]
   })JSON");
 
-  sourcemeta::blaze::bundle(document, sourcemeta::blaze::schema_walker,
-                            test_resolver);
+  sourcemeta::blaze::bundle(
+      document, sourcemeta::blaze::schema_walker, test_resolver,
+      sourcemeta::blaze::BundleMode::NonOfficialMetaschemas);
 
   EXPECT_TRUE(document.defines("definitions"));
   EXPECT_TRUE(document.at("definitions").is_object());
@@ -528,8 +545,9 @@ TEST(Bundle_draft6, hyperschema_ref_metaschema) {
     ]
   })JSON");
 
-  sourcemeta::blaze::bundle(document, sourcemeta::blaze::schema_walker,
-                            test_resolver);
+  sourcemeta::blaze::bundle(
+      document, sourcemeta::blaze::schema_walker, test_resolver,
+      sourcemeta::blaze::BundleMode::NonOfficialMetaschemas);
 
   EXPECT_TRUE(document.defines("definitions"));
   EXPECT_TRUE(document.at("definitions").is_object());
@@ -544,9 +562,10 @@ TEST(Bundle_draft6, standalone_ref_with_default_dialect) {
     "$ref": "https://www.sourcemeta.com/test-1"
   })JSON");
 
-  sourcemeta::blaze::bundle(document, sourcemeta::blaze::schema_walker,
-                            test_resolver,
-                            "http://json-schema.org/draft-06/schema#");
+  sourcemeta::blaze::bundle(
+      document, sourcemeta::blaze::schema_walker, test_resolver,
+      sourcemeta::blaze::BundleMode::NonOfficialMetaschemas,
+      "http://json-schema.org/draft-06/schema#");
 
   const sourcemeta::core::JSON expected = sourcemeta::core::parse_json(R"JSON({
     "allOf": [ { "$ref": "https://www.sourcemeta.com/test-1" } ],
@@ -573,8 +592,9 @@ TEST(Bundle_draft6, ref_with_fragment_to_id_with_trailing_hash) {
     }
   })JSON");
 
-  sourcemeta::blaze::bundle(document, sourcemeta::blaze::schema_walker,
-                            test_resolver);
+  sourcemeta::blaze::bundle(
+      document, sourcemeta::blaze::schema_walker, test_resolver,
+      sourcemeta::blaze::BundleMode::NonOfficialMetaschemas);
 
   const sourcemeta::core::JSON expected = sourcemeta::core::parse_json(R"JSON({
     "$id": "https://example.com",
