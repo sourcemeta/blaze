@@ -161,17 +161,12 @@ embedded_metaschema_candidate(const sourcemeta::core::JSON &document,
 }
 
 // A meta-schema that is not known to the resolver may still be embedded in
-// the document itself, as `bundle()` does for custom meta-schemas. Across
-// every official base dialect, the only containers that can hold embedded
-// resources are `$defs` (2019-09 and 2020-12, where it belongs to the
-// mandatory core vocabulary) and `definitions` (Draft 7 and older, which
-// have no vocabulary mechanism), so no custom dialect can redefine them away.
-// A candidate only counts if its entire meta-schema chain terminates at an
-// official base dialect and every embedded link of the chain sits in the
-// exact container that such base dialect prescribes, which is the container
-// `bundle()` would have used. For example, a chain that terminates in Draft 7
-// but whose links are embedded in `$defs` (which means nothing in Draft 7)
-// is rejected
+// the document itself. Across every official base dialect, the only
+// containers that can hold embedded resources are `$defs` and `definitions`,
+// which no custom dialect can redefine away. A candidate only counts if its
+// entire meta-schema chain terminates at an official base dialect and every
+// embedded link sits in the exact container that such base dialect
+// prescribes
 inline auto find_embedded_metaschema(const sourcemeta::core::JSON &document,
                                      const std::string_view identifier,
                                      const SchemaResolver &resolver)
