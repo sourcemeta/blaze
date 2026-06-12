@@ -278,7 +278,7 @@ auto sourcemeta::blaze::metaschema(
   const auto maybe_metaschema{resolver(effective_dialect)};
   if (!maybe_metaschema.has_value()) {
     // The meta-schema may still be embedded in the schema itself
-    const auto *embedded{sourcemeta::blaze::find_embedded_metaschema(
+    const auto *embedded{sourcemeta::blaze::try_embedded_metaschema(
         schema, effective_dialect, resolver)};
     if (embedded) {
       return *embedded;
@@ -333,7 +333,7 @@ base_dialect_with_visited(const sourcemeta::core::JSON &schema,
       resolver(effective_dialect)};
   if (!metaschema.has_value()) {
     // The meta-schema may still be embedded in the original document itself
-    const auto *embedded{sourcemeta::blaze::find_embedded_metaschema(
+    const auto *embedded{sourcemeta::blaze::try_embedded_metaschema(
         document, effective_dialect, resolver)};
     if (embedded) {
       const std::string_view embedded_dialect{sourcemeta::blaze::dialect(
@@ -595,7 +595,7 @@ auto sourcemeta::blaze::vocabularies(
           return result;
         }
 
-        const auto *embedded{sourcemeta::blaze::find_embedded_metaschema(
+        const auto *embedded{sourcemeta::blaze::try_embedded_metaschema(
             schema, identifier, resolver)};
         if (embedded) {
           return *embedded;

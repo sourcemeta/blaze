@@ -6,6 +6,7 @@
 #include <sourcemeta/core/uri.h>
 
 #include <cassert>          // assert
+#include <deque>            // std::deque
 #include <initializer_list> // std::initializer_list
 #include <optional>         // std::optional
 #include <string_view>      // std::string_view
@@ -95,7 +96,8 @@ inline auto embedded_metaschema_identifier_matches(
     const sourcemeta::core::JSON &candidate, const std::string_view keyword,
     const std::string_view identifier,
     const std::optional<sourcemeta::core::JSON::String> &canonical) -> bool {
-  const auto *value{candidate.try_at(sourcemeta::core::JSON::String{keyword})};
+  const auto *value{
+      candidate.try_at(sourcemeta::core::JSON::StringView{keyword})};
   if (!value || !value->is_string()) {
     return false;
   }
@@ -155,7 +157,7 @@ embedded_metaschema_candidate(const sourcemeta::core::JSON &document,
     }
 
     const auto *direct{
-        entries->try_at(sourcemeta::core::JSON::String{identifier})};
+        entries->try_at(sourcemeta::core::JSON::StringView{identifier})};
     if (direct && embedded_metaschema_matches(*direct, identifier, canonical)) {
       return {direct, container};
     }
@@ -206,7 +208,7 @@ inline auto embedded_metaschema_link_valid(const sourcemeta::core::JSON &link,
 
 struct EmbeddedMetaschemaLink {
   const sourcemeta::core::JSON *schema;
-  sourcemeta::core::JSON::String identifier;
+  sourcemeta::core::JSON::StringView identifier;
   std::string_view container;
 };
 
@@ -217,25 +219,25 @@ struct EmbeddedMetaschemaLink {
 // entire meta-schema chain terminates at an official base dialect and every
 // embedded link declares its identifier and sits in a container in a way
 // that is valid for such base dialect
-inline auto find_embedded_metaschema(const sourcemeta::core::JSON &document,
-                                     const std::string_view identifier,
-                                     const SchemaResolver &resolver)
+inline auto try_embedded_metaschema(const sourcemeta::core::JSON &document,
+                                    const std::string_view identifier,
+                                    const SchemaResolver &resolver)
     -> const sourcemeta::core::JSON * {
   const auto candidate{embedded_metaschema_candidate(document, identifier)};
   if (!candidate.first) {
     return nullptr;
   }
 
-  std::unordered_set<sourcemeta::core::JSON::String> visited;
-  std::vector<EmbeddedMetaschemaLink> links{
-      {.schema = candidate.first,
-       .identifier = sourcemeta::core::JSON::String{identifier},
-       .container = candidate.second}};
+  std::unordered_set<std::string_view> visited;
+  std::vector<EmbeddedMetaschemaLink> links{{.schema = candidate.first,
+                                             .identifier = identifier,
+                                             .container = candidate.second}};
   // Chain links that the resolver knows about are returned by value, so we
-  // need to keep them alive while we keep walking the chain
-  std::vector<sourcemeta::core::JSON> resolved;
+  // keep them alive while we walk the chain, in a container that never
+  // relocates its elements, as we hold views into them
+  std::deque<sourcemeta::core::JSON> resolved;
   const auto *current{candidate.first};
-  sourcemeta::core::JSON::String current_identifier{identifier};
+  std::string_view current_identifier{identifier};
   std::optional<SchemaBaseDialect> terminal;
 
   while (true) {
