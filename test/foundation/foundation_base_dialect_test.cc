@@ -981,3 +981,30 @@ TEST(Foundation_base_dialect, embedded_custom_metaschema_not_found) {
     FAIL();
   }
 }
+
+TEST(Foundation_base_dialect, embedded_custom_metaschema_relative_dialect) {
+  const sourcemeta::core::JSON document = sourcemeta::core::parse_json(R"JSON({
+    "$schema": "meta",
+    "$id": "https://example.com/schema",
+    "$defs": {
+      "meta": {
+        "$id": "meta",
+        "$schema": "https://json-schema.org/draft/2020-12/schema",
+        "$vocabulary": {
+          "https://json-schema.org/draft/2020-12/vocab/core": true
+        },
+        "type": "object"
+      }
+    }
+  })JSON");
+
+  try {
+    sourcemeta::blaze::base_dialect(document, test_resolver);
+    FAIL();
+  } catch (
+      const sourcemeta::blaze::SchemaRelativeMetaschemaResolutionError &error) {
+    EXPECT_EQ(error.identifier(), "meta");
+  } catch (...) {
+    FAIL();
+  }
+}

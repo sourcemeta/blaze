@@ -191,3 +191,30 @@ TEST(Foundation_metaschema, embedded_custom_metaschema_chain) {
 
   EXPECT_EQ(metaschema, expected);
 }
+
+TEST(Foundation_metaschema, embedded_custom_metaschema_relative_dialect) {
+  const auto schema{sourcemeta::core::parse_json(R"JSON({
+    "$schema": "meta",
+    "$id": "https://example.com/schema",
+    "$defs": {
+      "meta": {
+        "$id": "meta",
+        "$schema": "https://json-schema.org/draft/2020-12/schema",
+        "$vocabulary": {
+          "https://json-schema.org/draft/2020-12/vocab/core": true
+        },
+        "type": "object"
+      }
+    }
+  })JSON")};
+
+  try {
+    sourcemeta::blaze::metaschema(schema, sourcemeta::blaze::schema_resolver);
+    FAIL();
+  } catch (
+      const sourcemeta::blaze::SchemaRelativeMetaschemaResolutionError &error) {
+    EXPECT_EQ(error.identifier(), "meta");
+  } catch (...) {
+    FAIL();
+  }
+}

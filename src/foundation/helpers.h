@@ -223,6 +223,12 @@ inline auto try_embedded_metaschema(const sourcemeta::core::JSON &document,
                                     const std::string_view identifier,
                                     const SchemaResolver &resolver)
     -> const sourcemeta::core::JSON * {
+  // Relative or invalid meta-schema references are not acceptable
+  // according to the JSON Schema specifications
+  if (!sourcemeta::core::URI::is_uri(identifier)) {
+    return nullptr;
+  }
+
   const auto candidate{embedded_metaschema_candidate(document, identifier)};
   if (!candidate.first) {
     return nullptr;
@@ -270,6 +276,10 @@ inline auto try_embedded_metaschema(const sourcemeta::core::JSON &document,
       current = &resolved.back();
       current_identifier = dialect_uri;
       continue;
+    }
+
+    if (!sourcemeta::core::URI::is_uri(dialect_uri)) {
+      return nullptr;
     }
 
     const auto next{embedded_metaschema_candidate(document, dialect_uri)};
