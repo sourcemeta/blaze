@@ -188,8 +188,10 @@ inline auto static_frame_entry(const Context &context,
 }
 
 // Whether the current keyword value, as a schema, contains any nested
-// subschema. Note that the schema context of a keyword compiler already
-// points at the keyword value
+// subschema. Note that while the schema of the schema context of a keyword
+// compiler is the parent subschema, its relative pointer already targets
+// the keyword value, so the frame entry we look up corresponds to the
+// keyword value and not to the parent subschema
 inline auto defines_nested_subschemas(const Context &context,
                                       const SchemaContext &schema_context)
     -> bool {
