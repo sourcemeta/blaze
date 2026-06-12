@@ -26,17 +26,17 @@ TEST(Foundation_keyword_iterator, draft_2020_12) {
     "else": true
   })JSON");
 
+  const auto vocabularies{sourcemeta::blaze::vocabularies(
+      document, sourcemeta::blaze::schema_resolver)};
+
   std::vector<sourcemeta::blaze::SchemaIteratorEntry> entries;
   for (const auto &entry : sourcemeta::blaze::SchemaKeywordIterator(
-           document, sourcemeta::blaze::schema_walker,
-           sourcemeta::blaze::schema_resolver)) {
+           document, sourcemeta::blaze::schema_walker, vocabularies)) {
     entries.push_back(entry);
 
     // The same for all entries
-    EXPECT_EQ(entry.dialect, "https://json-schema.org/draft/2020-12/schema");
-    EXPECT_TRUE(entry.base_dialect.has_value());
-    EXPECT_EQ(entry.base_dialect.value(),
-              sourcemeta::blaze::SchemaBaseDialect::JSON_Schema_2020_12);
+    EXPECT_TRUE(entry.dialect.empty());
+    EXPECT_FALSE(entry.base_dialect.has_value());
     EXPECT_EQ(entry.vocabularies.size(), 7);
   }
 
@@ -118,17 +118,17 @@ TEST(Foundation_keyword_iterator, draft_2019_09) {
     "else": true
   })JSON");
 
+  const auto vocabularies{sourcemeta::blaze::vocabularies(
+      document, sourcemeta::blaze::schema_resolver)};
+
   std::vector<sourcemeta::blaze::SchemaIteratorEntry> entries;
   for (const auto &entry : sourcemeta::blaze::SchemaKeywordIterator(
-           document, sourcemeta::blaze::schema_walker,
-           sourcemeta::blaze::schema_resolver)) {
+           document, sourcemeta::blaze::schema_walker, vocabularies)) {
     entries.push_back(entry);
 
     // The same for all entries
-    EXPECT_EQ(entry.dialect, "https://json-schema.org/draft/2019-09/schema");
-    EXPECT_TRUE(entry.base_dialect.has_value());
-    EXPECT_EQ(entry.base_dialect.value(),
-              sourcemeta::blaze::SchemaBaseDialect::JSON_Schema_2019_09);
+    EXPECT_TRUE(entry.dialect.empty());
+    EXPECT_FALSE(entry.base_dialect.has_value());
     EXPECT_EQ(entry.vocabularies.size(), 6);
   }
 
@@ -206,17 +206,17 @@ TEST(Foundation_keyword_iterator, draft7) {
     "else": true
   })JSON");
 
+  const auto vocabularies{sourcemeta::blaze::vocabularies(
+      document, sourcemeta::blaze::schema_resolver)};
+
   std::vector<sourcemeta::blaze::SchemaIteratorEntry> entries;
   for (const auto &entry : sourcemeta::blaze::SchemaKeywordIterator(
-           document, sourcemeta::blaze::schema_walker,
-           sourcemeta::blaze::schema_resolver)) {
+           document, sourcemeta::blaze::schema_walker, vocabularies)) {
     entries.push_back(entry);
 
     // The same for all entries
-    EXPECT_EQ(entry.dialect, "http://json-schema.org/draft-07/schema#");
-    EXPECT_TRUE(entry.base_dialect.has_value());
-    EXPECT_EQ(entry.base_dialect.value(),
-              sourcemeta::blaze::SchemaBaseDialect::JSON_Schema_Draft_7);
+    EXPECT_TRUE(entry.dialect.empty());
+    EXPECT_FALSE(entry.base_dialect.has_value());
     EXPECT_EQ(entry.vocabularies.size(), 1);
   }
 
@@ -273,17 +273,17 @@ TEST(Foundation_keyword_iterator, draft6) {
     "items": []
   })JSON");
 
+  const auto vocabularies{sourcemeta::blaze::vocabularies(
+      document, sourcemeta::blaze::schema_resolver)};
+
   std::vector<sourcemeta::blaze::SchemaIteratorEntry> entries;
   for (const auto &entry : sourcemeta::blaze::SchemaKeywordIterator(
-           document, sourcemeta::blaze::schema_walker,
-           sourcemeta::blaze::schema_resolver)) {
+           document, sourcemeta::blaze::schema_walker, vocabularies)) {
     entries.push_back(entry);
 
     // The same for all entries
-    EXPECT_EQ(entry.dialect, "http://json-schema.org/draft-06/schema#");
-    EXPECT_TRUE(entry.base_dialect.has_value());
-    EXPECT_EQ(entry.base_dialect.value(),
-              sourcemeta::blaze::SchemaBaseDialect::JSON_Schema_Draft_6);
+    EXPECT_TRUE(entry.dialect.empty());
+    EXPECT_FALSE(entry.base_dialect.has_value());
     EXPECT_EQ(entry.vocabularies.size(), 1);
   }
 
@@ -331,17 +331,17 @@ TEST(Foundation_keyword_iterator, draft4) {
     "items": []
   })JSON");
 
+  const auto vocabularies{sourcemeta::blaze::vocabularies(
+      document, sourcemeta::blaze::schema_resolver)};
+
   std::vector<sourcemeta::blaze::SchemaIteratorEntry> entries;
   for (const auto &entry : sourcemeta::blaze::SchemaKeywordIterator(
-           document, sourcemeta::blaze::schema_walker,
-           sourcemeta::blaze::schema_resolver)) {
+           document, sourcemeta::blaze::schema_walker, vocabularies)) {
     entries.push_back(entry);
 
     // The same for all entries
-    EXPECT_EQ(entry.dialect, "http://json-schema.org/draft-04/schema#");
-    EXPECT_TRUE(entry.base_dialect.has_value());
-    EXPECT_EQ(entry.base_dialect.value(),
-              sourcemeta::blaze::SchemaBaseDialect::JSON_Schema_Draft_4);
+    EXPECT_TRUE(entry.dialect.empty());
+    EXPECT_FALSE(entry.base_dialect.has_value());
     EXPECT_EQ(entry.vocabularies.size(), 1);
   }
 
@@ -388,17 +388,17 @@ TEST(Foundation_keyword_iterator, draft3) {
     "items": []
   })JSON");
 
+  const auto vocabularies{sourcemeta::blaze::vocabularies(
+      document, sourcemeta::blaze::schema_resolver)};
+
   std::vector<sourcemeta::blaze::SchemaIteratorEntry> entries;
   for (const auto &entry : sourcemeta::blaze::SchemaKeywordIterator(
-           document, sourcemeta::blaze::schema_walker,
-           sourcemeta::blaze::schema_resolver)) {
+           document, sourcemeta::blaze::schema_walker, vocabularies)) {
     entries.push_back(entry);
 
     // The same for all entries
-    EXPECT_EQ(entry.dialect, "http://json-schema.org/draft-03/schema#");
-    EXPECT_TRUE(entry.base_dialect.has_value());
-    EXPECT_EQ(entry.base_dialect.value(),
-              sourcemeta::blaze::SchemaBaseDialect::JSON_Schema_Draft_3);
+    EXPECT_TRUE(entry.dialect.empty());
+    EXPECT_FALSE(entry.base_dialect.has_value());
     EXPECT_EQ(entry.vocabularies.size(), 1);
   }
 
@@ -438,17 +438,17 @@ TEST(Foundation_keyword_iterator, draft2) {
     "additionalProperties": true
   })JSON");
 
+  const auto vocabularies{sourcemeta::blaze::vocabularies(
+      document, sourcemeta::blaze::schema_resolver)};
+
   std::vector<sourcemeta::blaze::SchemaIteratorEntry> entries;
   for (const auto &entry : sourcemeta::blaze::SchemaKeywordIterator(
-           document, sourcemeta::blaze::schema_walker,
-           sourcemeta::blaze::schema_resolver)) {
+           document, sourcemeta::blaze::schema_walker, vocabularies)) {
     entries.push_back(entry);
 
     // The same for all entries
-    EXPECT_EQ(entry.dialect, "http://json-schema.org/draft-02/schema#");
-    EXPECT_TRUE(entry.base_dialect.has_value());
-    EXPECT_EQ(entry.base_dialect.value(),
-              sourcemeta::blaze::SchemaBaseDialect::JSON_Schema_Draft_2_Hyper);
+    EXPECT_TRUE(entry.dialect.empty());
+    EXPECT_FALSE(entry.base_dialect.has_value());
     EXPECT_EQ(entry.vocabularies.size(), 1);
   }
 
@@ -477,17 +477,17 @@ TEST(Foundation_keyword_iterator, draft1) {
     "additionalProperties": true
   })JSON");
 
+  const auto vocabularies{sourcemeta::blaze::vocabularies(
+      document, sourcemeta::blaze::schema_resolver)};
+
   std::vector<sourcemeta::blaze::SchemaIteratorEntry> entries;
   for (const auto &entry : sourcemeta::blaze::SchemaKeywordIterator(
-           document, sourcemeta::blaze::schema_walker,
-           sourcemeta::blaze::schema_resolver)) {
+           document, sourcemeta::blaze::schema_walker, vocabularies)) {
     entries.push_back(entry);
 
     // The same for all entries
-    EXPECT_EQ(entry.dialect, "http://json-schema.org/draft-01/schema#");
-    EXPECT_TRUE(entry.base_dialect.has_value());
-    EXPECT_EQ(entry.base_dialect.value(),
-              sourcemeta::blaze::SchemaBaseDialect::JSON_Schema_Draft_1_Hyper);
+    EXPECT_TRUE(entry.dialect.empty());
+    EXPECT_FALSE(entry.base_dialect.has_value());
     EXPECT_EQ(entry.vocabularies.size(), 1);
   }
 
@@ -516,17 +516,17 @@ TEST(Foundation_keyword_iterator, draft0) {
     "additionalProperties": true
   })JSON");
 
+  const auto vocabularies{sourcemeta::blaze::vocabularies(
+      document, sourcemeta::blaze::schema_resolver)};
+
   std::vector<sourcemeta::blaze::SchemaIteratorEntry> entries;
   for (const auto &entry : sourcemeta::blaze::SchemaKeywordIterator(
-           document, sourcemeta::blaze::schema_walker,
-           sourcemeta::blaze::schema_resolver)) {
+           document, sourcemeta::blaze::schema_walker, vocabularies)) {
     entries.push_back(entry);
 
     // The same for all entries
-    EXPECT_EQ(entry.dialect, "http://json-schema.org/draft-00/schema#");
-    EXPECT_TRUE(entry.base_dialect.has_value());
-    EXPECT_EQ(entry.base_dialect.value(),
-              sourcemeta::blaze::SchemaBaseDialect::JSON_Schema_Draft_0_Hyper);
+    EXPECT_TRUE(entry.dialect.empty());
+    EXPECT_FALSE(entry.base_dialect.has_value());
     EXPECT_EQ(entry.vocabularies.size(), 1);
   }
 
@@ -553,10 +553,12 @@ TEST(Foundation_keyword_iterator, unknown_keyword) {
     "foobar": 0
   })JSON");
 
+  const auto vocabularies{sourcemeta::blaze::vocabularies(
+      document, sourcemeta::blaze::schema_resolver)};
+
   std::vector<sourcemeta::blaze::SchemaIteratorEntry> entries;
   for (const auto &entry : sourcemeta::blaze::SchemaKeywordIterator(
-           document, sourcemeta::blaze::schema_walker,
-           sourcemeta::blaze::schema_resolver)) {
+           document, sourcemeta::blaze::schema_walker, vocabularies)) {
     entries.push_back(entry);
   }
 
@@ -566,18 +568,14 @@ TEST(Foundation_keyword_iterator, unknown_keyword) {
   EXPECT_EQ(
       entries.at(0).subschema.get(),
       sourcemeta::core::JSON{"https://json-schema.org/draft/2020-12/schema"});
-  EXPECT_EQ(entries.at(0).dialect,
-            "https://json-schema.org/draft/2020-12/schema");
-  EXPECT_EQ(entries.at(0).base_dialect,
-            sourcemeta::blaze::SchemaBaseDialect::JSON_Schema_2020_12);
+  EXPECT_TRUE(entries.at(0).dialect.empty());
+  EXPECT_FALSE(entries.at(0).base_dialect.has_value());
   EXPECT_EQ(entries.at(0).vocabularies.size(), 7);
 
   EXPECT_EQ(sourcemeta::core::to_string(entries.at(1).pointer), "/foobar");
   EXPECT_EQ(entries.at(1).subschema.get(), sourcemeta::core::JSON{0});
-  EXPECT_EQ(entries.at(1).dialect,
-            "https://json-schema.org/draft/2020-12/schema");
-  EXPECT_EQ(entries.at(1).base_dialect,
-            sourcemeta::blaze::SchemaBaseDialect::JSON_Schema_2020_12);
+  EXPECT_TRUE(entries.at(1).dialect.empty());
+  EXPECT_FALSE(entries.at(1).base_dialect.has_value());
   EXPECT_EQ(entries.at(1).vocabularies.size(), 7);
 }
 
@@ -588,18 +586,18 @@ TEST(Foundation_keyword_iterator, with_default_dialect) {
     "additionalProperties": true
   })JSON");
 
+  const auto vocabularies{sourcemeta::blaze::vocabularies(
+      document, sourcemeta::blaze::schema_resolver,
+      "https://json-schema.org/draft/2020-12/schema")};
+
   std::vector<sourcemeta::blaze::SchemaIteratorEntry> entries;
   for (const auto &entry : sourcemeta::blaze::SchemaKeywordIterator(
-           document, sourcemeta::blaze::schema_walker,
-           sourcemeta::blaze::schema_resolver,
-           "https://json-schema.org/draft/2020-12/schema")) {
+           document, sourcemeta::blaze::schema_walker, vocabularies)) {
     entries.push_back(entry);
 
     // The same for all entries
-    EXPECT_EQ(entry.dialect, "https://json-schema.org/draft/2020-12/schema");
-    EXPECT_TRUE(entry.base_dialect.has_value());
-    EXPECT_EQ(entry.base_dialect.value(),
-              sourcemeta::blaze::SchemaBaseDialect::JSON_Schema_2020_12);
+    EXPECT_TRUE(entry.dialect.empty());
+    EXPECT_FALSE(entry.base_dialect.has_value());
     EXPECT_EQ(entry.vocabularies.size(), 7);
   }
 
@@ -627,7 +625,7 @@ TEST(Foundation_keyword_iterator, no_default_dialect) {
   std::vector<sourcemeta::blaze::SchemaIteratorEntry> entries;
   for (const auto &entry : sourcemeta::blaze::SchemaKeywordIterator(
            document, sourcemeta::blaze::schema_walker,
-           sourcemeta::blaze::schema_resolver)) {
+           sourcemeta::blaze::Vocabularies{})) {
     entries.push_back(entry);
 
     // The same for all entries
@@ -656,7 +654,7 @@ TEST(Foundation_keyword_iterator, boolean_true) {
   std::vector<sourcemeta::blaze::SchemaIteratorEntry> entries;
   for (const auto &entry : sourcemeta::blaze::SchemaKeywordIterator(
            document, sourcemeta::blaze::schema_walker,
-           sourcemeta::blaze::schema_resolver)) {
+           sourcemeta::blaze::Vocabularies{})) {
     entries.push_back(entry);
   }
 
@@ -669,7 +667,7 @@ TEST(Foundation_keyword_iterator, boolean_false) {
   std::vector<sourcemeta::blaze::SchemaIteratorEntry> entries;
   for (const auto &entry : sourcemeta::blaze::SchemaKeywordIterator(
            document, sourcemeta::blaze::schema_walker,
-           sourcemeta::blaze::schema_resolver)) {
+           sourcemeta::blaze::Vocabularies{})) {
     entries.push_back(entry);
   }
 
