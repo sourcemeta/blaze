@@ -730,5 +730,83 @@
         "The string value was expected to validate against the given subschema"
       ]
     }
+  },
+  {
+    "description": "embedded_custom_metaschema_success",
+    "schema": {
+      "$schema": "https://example.com/meta",
+      "$id": "https://example.com/schema",
+      "type": "string",
+      "definitions": {
+        "https://example.com/meta": {
+          "$id": "https://example.com/meta",
+          "$schema": "http://json-schema.org/draft-07/schema#",
+          "type": "object"
+        }
+      }
+    },
+    "instance": "hello",
+    "valid": true,
+    "fast": {
+      "pre": [
+        [ "AssertionTypeStrict", "/type", "https://example.com/schema#/type", "" ]
+      ],
+      "post": [
+        [ true, "AssertionTypeStrict", "/type", "https://example.com/schema#/type", "" ]
+      ],
+      "descriptions": [
+        "The value was expected to be of type string"
+      ]
+    },
+    "exhaustive": {
+      "pre": [
+        [ "AssertionTypeStrict", "/type", "https://example.com/schema#/type", "" ]
+      ],
+      "post": [
+        [ true, "AssertionTypeStrict", "/type", "https://example.com/schema#/type", "" ]
+      ],
+      "descriptions": [
+        "The value was expected to be of type string"
+      ]
+    }
+  },
+  {
+    "description": "embedded_custom_metaschema_failure",
+    "schema": {
+      "$schema": "https://example.com/meta",
+      "$id": "https://example.com/schema",
+      "type": "string",
+      "definitions": {
+        "https://example.com/meta": {
+          "$id": "https://example.com/meta",
+          "$schema": "http://json-schema.org/draft-07/schema#",
+          "type": "object"
+        }
+      }
+    },
+    "instance": 1,
+    "valid": false,
+    "fast": {
+      "pre": [
+        [ "AssertionTypeStrict", "/type", "https://example.com/schema#/type", "" ]
+      ],
+      "post": [
+        [ false, "AssertionTypeStrict", "/type", "https://example.com/schema#/type", "" ]
+      ],
+      "descriptions": [
+        "The value was expected to be of type string but it was of type integer"
+      ]
+    },
+    "exhaustive": {
+      "pre": [
+        [ "AssertionTypeStrict", "/type", "https://example.com/schema#/type", "" ]
+      ],
+      "post": [
+        [ false, "AssertionTypeStrict", "/type", "https://example.com/schema#/type", "" ]
+      ],
+      "descriptions": [
+        "The value was expected to be of type string but it was of type integer"
+      ]
+    }
   }
 ]

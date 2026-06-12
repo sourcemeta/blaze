@@ -4364,5 +4364,121 @@
         "The string value was expected to validate against the referenced schema"
       ]
     }
+  },
+  {
+    "description": "embedded_custom_metaschema_success",
+    "schema": {
+      "$schema": "https://example.com/meta",
+      "$id": "https://example.com/schema",
+      "type": "string",
+      "$defs": {
+        "https://example.com/meta": {
+          "$id": "https://example.com/meta",
+          "$schema": "https://json-schema.org/draft/2020-12/schema",
+          "$vocabulary": {
+            "https://json-schema.org/draft/2020-12/vocab/core": true,
+            "https://json-schema.org/draft/2020-12/vocab/validation": true
+          },
+          "type": "object"
+        }
+      }
+    },
+    "instance": "hello",
+    "valid": true,
+    "fast": {
+      "pre": [
+        [ "AssertionTypeStrict", "/type", "https://example.com/schema#/type", "" ]
+      ],
+      "post": [
+        [ true, "AssertionTypeStrict", "/type", "https://example.com/schema#/type", "" ]
+      ],
+      "descriptions": [
+        "The value was expected to be of type string"
+      ]
+    },
+    "exhaustive": {
+      "pre": [
+        [ "AssertionTypeStrict", "/type", "https://example.com/schema#/type", "" ]
+      ],
+      "post": [
+        [ true, "AssertionTypeStrict", "/type", "https://example.com/schema#/type", "" ]
+      ],
+      "descriptions": [
+        "The value was expected to be of type string"
+      ]
+    }
+  },
+  {
+    "description": "embedded_custom_metaschema_failure",
+    "schema": {
+      "$schema": "https://example.com/meta",
+      "$id": "https://example.com/schema",
+      "type": "string",
+      "$defs": {
+        "https://example.com/meta": {
+          "$id": "https://example.com/meta",
+          "$schema": "https://json-schema.org/draft/2020-12/schema",
+          "$vocabulary": {
+            "https://json-schema.org/draft/2020-12/vocab/core": true,
+            "https://json-schema.org/draft/2020-12/vocab/validation": true
+          },
+          "type": "object"
+        }
+      }
+    },
+    "instance": 1,
+    "valid": false,
+    "fast": {
+      "pre": [
+        [ "AssertionTypeStrict", "/type", "https://example.com/schema#/type", "" ]
+      ],
+      "post": [
+        [ false, "AssertionTypeStrict", "/type", "https://example.com/schema#/type", "" ]
+      ],
+      "descriptions": [
+        "The value was expected to be of type string but it was of type integer"
+      ]
+    },
+    "exhaustive": {
+      "pre": [
+        [ "AssertionTypeStrict", "/type", "https://example.com/schema#/type", "" ]
+      ],
+      "post": [
+        [ false, "AssertionTypeStrict", "/type", "https://example.com/schema#/type", "" ]
+      ],
+      "descriptions": [
+        "The value was expected to be of type string but it was of type integer"
+      ]
+    }
+  },
+  {
+    "description": "embedded_custom_metaschema_vocabulary_subset",
+    "schema": {
+      "$schema": "https://example.com/meta",
+      "$id": "https://example.com/schema",
+      "type": "string",
+      "$defs": {
+        "https://example.com/meta": {
+          "$id": "https://example.com/meta",
+          "$schema": "https://json-schema.org/draft/2020-12/schema",
+          "$vocabulary": { "https://json-schema.org/draft/2020-12/vocab/core": true },
+          "type": "object"
+        }
+      }
+    },
+    "instance": 1,
+    "valid": true,
+    "fast": {},
+    "exhaustive": {
+      "pre": [
+        [ "Annotation", "/type", "https://example.com/schema#/type", "" ]
+      ],
+      "post": [
+        [ true, "Annotation", "/type", "https://example.com/schema#/type", "", "string" ]
+      ],
+      "descriptions": [
+        "The unrecognized keyword \"type\" was collected as the annotation \"string\""
+      ]
+    }
   }
 ]

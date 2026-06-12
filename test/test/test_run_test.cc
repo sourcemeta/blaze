@@ -1255,3 +1255,78 @@ TEST(TestSuite_run, multiple_targets_per_target_validation_differs) {
   EXPECT_TRUE(std::get<4>(traces[1]));
   EXPECT_FALSE(std::get<5>(traces[1]));
 }
+
+TEST(TestSuite_run, embedded_custom_metaschema) {
+  const auto input{R"JSON({
+    "target": "https://example.com/schema",
+    "tests": [
+      {
+        "data": "hello",
+        "valid": true,
+        "description": "a string is valid"
+      },
+      {
+        "data": 1,
+        "valid": false,
+        "description": "a number is invalid"
+      }
+    ]
+  })JSON"};
+
+  sourcemeta::core::PointerPositionTracker tracker;
+  sourcemeta::core::JSON document{nullptr};
+  sourcemeta::core::parse_json(input, document, std::ref(tracker));
+
+  // Note that the resolver knows about the bundled schema itself,
+  // but not about the custom meta-schema embedded in it
+  const auto resolver =
+      [](std::string_view identifier) -> std::optional<sourcemeta::core::JSON> {
+    if (identifier == "https://example.com/schema") {
+      return sourcemeta::core::parse_json(R"JSON({
+        "$schema": "https://example.com/meta",
+        "$id": "https://example.com/schema",
+        "type": "string",
+        "$defs": {
+          "https://example.com/meta": {
+            "$id": "https://example.com/meta",
+            "$schema": "https://json-schema.org/draft/2020-12/schema",
+            "$vocabulary": {
+              "https://json-schema.org/draft/2020-12/vocab/core": true,
+              "https://json-schema.org/draft/2020-12/vocab/validation": true
+            },
+            "type": "object"
+          }
+        }
+      })JSON");
+    }
+
+    return sourcemeta::blaze::schema_resolver(identifier);
+  };
+
+  auto suite{sourcemeta::blaze::TestSuite::parse(
+      document, tracker, std::filesystem::path{STUBS_PATH}, resolver,
+      sourcemeta::blaze::schema_walker,
+      sourcemeta::blaze::default_schema_compiler)};
+
+  std::vector<std::tuple<std::string, std::size_t, std::size_t, std::string,
+                         bool, bool>>
+      traces;
+  const auto result{suite.run(
+      [&traces](const sourcemeta::core::JSON::String &target, std::size_t index,
+                std::size_t total, const sourcemeta::blaze::TestCase &test_case,
+                bool actual, sourcemeta::blaze::TestTimestamp,
+                sourcemeta::blaze::TestTimestamp) {
+        traces.emplace_back(target, index, total, test_case.description,
+                            test_case.valid, actual);
+      })};
+
+  EXPECT_EQ(result.total, 2);
+  EXPECT_EQ(result.passed, 2);
+  EXPECT_EQ(traces.size(), 2);
+  EXPECT_EQ(std::get<3>(traces.at(0)), "a string is valid");
+  EXPECT_TRUE(std::get<4>(traces.at(0)));
+  EXPECT_TRUE(std::get<5>(traces.at(0)));
+  EXPECT_EQ(std::get<3>(traces.at(1)), "a number is invalid");
+  EXPECT_FALSE(std::get<4>(traces.at(1)));
+  EXPECT_FALSE(std::get<5>(traces.at(1)));
+}

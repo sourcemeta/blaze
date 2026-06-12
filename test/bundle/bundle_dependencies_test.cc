@@ -607,3 +607,39 @@ TEST(Bundle_dependencies, sibling_schemas_with_shared_dependency) {
   EXPECT_DEPENDENCY(traces, 3, "https://www.sourcemeta.com/shared", "/$ref",
                     "https://www.sourcemeta.com/deep");
 }
+
+TEST(Bundle_dependencies, embedded_custom_metaschema_offline) {
+  const sourcemeta::core::JSON document = sourcemeta::core::parse_json(R"JSON({
+    "$schema": "https://example.com/meta",
+    "$id": "https://example.com/schema",
+    "type": "string",
+    "$defs": {
+      "https://example.com/meta": {
+        "$id": "https://example.com/meta",
+        "$schema": "https://json-schema.org/draft/2020-12/schema",
+        "$vocabulary": {
+          "https://json-schema.org/draft/2020-12/vocab/core": true,
+          "https://json-schema.org/draft/2020-12/vocab/validation": true
+        },
+        "type": "object"
+      }
+    }
+  })JSON");
+
+  std::vector<std::tuple<std::string, sourcemeta::core::Pointer, std::string>>
+      traces;
+
+  // Note that we use a resolver that does not know about
+  // the custom meta-schema embedded in the document
+  sourcemeta::blaze::dependencies(
+      document, sourcemeta::blaze::schema_walker,
+      sourcemeta::blaze::schema_resolver,
+      [&traces](const auto &origin, const auto &pointer, const auto &target,
+                const auto &) {
+        traces.emplace_back(std::string{origin},
+                            sourcemeta::core::to_pointer(pointer),
+                            std::string{target});
+      });
+
+  EXPECT_TRUE(traces.empty());
+}

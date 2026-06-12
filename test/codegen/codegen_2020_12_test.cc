@@ -1712,3 +1712,43 @@ TEST(Codegen_2020_12, if_then_else_nested_in_object_property) {
   EXPECT_IR_CONDITIONAL(result, 3, "/properties/value", "/properties/value/if",
                         "/properties/value/then", "/properties/value/else");
 }
+
+TEST(Codegen_2020_12, embedded_custom_metaschema) {
+  const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
+    "$schema": "https://example.com/meta",
+    "$id": "https://example.com/schema",
+    "type": "string",
+    "$defs": {
+      "https://example.com/meta": {
+        "$id": "https://example.com/meta",
+        "$schema": "https://json-schema.org/draft/2020-12/schema",
+        "$vocabulary": {
+          "https://json-schema.org/draft/2020-12/vocab/core": true,
+          "https://json-schema.org/draft/2020-12/vocab/validation": true
+        },
+        "type": "object"
+      }
+    }
+  })JSON")};
+
+  const auto result{sourcemeta::blaze::compile(
+      schema, sourcemeta::blaze::schema_walker,
+      sourcemeta::blaze::schema_resolver, sourcemeta::blaze::default_compiler)};
+
+  using namespace sourcemeta::blaze;
+
+  EXPECT_EQ(result.size(), 2);
+
+  EXPECT_TRUE(std::holds_alternative<CodegenIRObject>(result.at(0)));
+  EXPECT_AS_STRING(std::get<CodegenIRObject>(result.at(0)).pointer,
+                   "/$defs/https:~1~1example.com~1meta");
+  EXPECT_SYMBOL(std::get<CodegenIRObject>(result.at(0)).symbol, "meta");
+  EXPECT_TRUE(std::get<CodegenIRObject>(result.at(0)).members.empty());
+  EXPECT_TRUE(std::holds_alternative<bool>(
+      std::get<CodegenIRObject>(result.at(0)).additional));
+  EXPECT_TRUE(
+      std::get<bool>(std::get<CodegenIRObject>(result.at(0)).additional));
+
+  EXPECT_IR_SCALAR(result, 1, String, "");
+  EXPECT_SYMBOL(std::get<CodegenIRScalar>(result.at(1)).symbol);
+}

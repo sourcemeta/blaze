@@ -777,3 +777,40 @@ TEST(Editor, draft4_bundle_metaschema) {
 
   EXPECT_EQ(document, expected);
 }
+
+TEST(Editor, 2020_12_bundle_metaschema_offline) {
+  auto document = sourcemeta::core::parse_json(R"JSON({
+    "$schema": "https://example.com/meta",
+    "$id": "https://example.com/schema",
+    "type": "string",
+    "$defs": {
+      "https://example.com/meta": {
+        "$id": "https://example.com/meta",
+        "$schema": "https://json-schema.org/draft/2020-12/schema",
+        "$vocabulary": {
+          "https://json-schema.org/draft/2020-12/vocab/core": true,
+          "https://json-schema.org/draft/2020-12/vocab/validation": true
+        },
+        "type": "object"
+      }
+    }
+  })JSON");
+
+  // Note that we use a resolver that does not know about
+  // the custom meta-schema embedded in the document
+  sourcemeta::blaze::for_editor(document, sourcemeta::blaze::schema_walker,
+                                sourcemeta::blaze::schema_resolver);
+
+  const auto expected = sourcemeta::core::parse_json(R"JSON({
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "type": "string",
+    "$defs": {
+      "https://example.com/meta": {
+        "$schema": "https://json-schema.org/draft/2020-12/schema",
+        "type": "object"
+      }
+    }
+  })JSON");
+
+  EXPECT_EQ(document, expected);
+}

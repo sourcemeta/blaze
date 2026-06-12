@@ -3508,3 +3508,178 @@ TEST(Frame_2019_09, nested_id_empty_string) {
   EXPECT_FRAME_LOCATION_REACHABLE(
       frame, Static, "https://www.sourcemeta.com/schema", frame.root());
 }
+
+TEST(Frame_2019_09, embedded_custom_metaschema) {
+  const sourcemeta::core::JSON document = sourcemeta::core::parse_json(R"JSON({
+    "$schema": "https://example.com/meta",
+    "$id": "https://example.com/schema",
+    "type": "string",
+    "$defs": {
+      "https://example.com/meta": {
+        "$id": "https://example.com/meta",
+        "$schema": "https://json-schema.org/draft/2019-09/schema",
+        "$vocabulary": {
+          "https://json-schema.org/draft/2019-09/vocab/core": true,
+          "https://json-schema.org/draft/2019-09/vocab/validation": true
+        },
+        "type": "object"
+      }
+    }
+  })JSON");
+
+  sourcemeta::blaze::SchemaFrame frame{
+      sourcemeta::blaze::SchemaFrame::Mode::References};
+  frame.analyse(document, sourcemeta::blaze::schema_walker,
+                sourcemeta::blaze::schema_resolver);
+
+  EXPECT_EQ(frame.locations().size(), 19);
+
+  EXPECT_FRAME_STATIC_RESOURCE(
+      frame, "https://example.com/schema", "https://example.com/schema", "",
+      "https://example.com/meta", JSON_Schema_2019_09,
+      "https://example.com/schema", "", std::nullopt, false, false);
+  EXPECT_FRAME_STATIC_2019_09_RESOURCE(
+      frame, "https://example.com/meta", "https://example.com/schema",
+      "/$defs/https:~1~1example.com~1meta", "https://example.com/meta", "", "",
+      false, true);
+
+  // JSON Pointers
+
+  EXPECT_FRAME_STATIC_POINTER(frame, "https://example.com/schema#/$schema",
+                              "https://example.com/schema", "/$schema",
+                              "https://example.com/meta", JSON_Schema_2019_09,
+                              "https://example.com/schema", "/$schema", "",
+                              false, false);
+  EXPECT_FRAME_STATIC_POINTER(
+      frame, "https://example.com/schema#/$id", "https://example.com/schema",
+      "/$id", "https://example.com/meta", JSON_Schema_2019_09,
+      "https://example.com/schema", "/$id", "", false, false);
+  EXPECT_FRAME_STATIC_POINTER(
+      frame, "https://example.com/schema#/type", "https://example.com/schema",
+      "/type", "https://example.com/meta", JSON_Schema_2019_09,
+      "https://example.com/schema", "/type", "", false, false);
+  EXPECT_FRAME_STATIC_POINTER(
+      frame, "https://example.com/schema#/$defs", "https://example.com/schema",
+      "/$defs", "https://example.com/meta", JSON_Schema_2019_09,
+      "https://example.com/schema", "/$defs", "", false, false);
+  EXPECT_FRAME_STATIC_2019_09_SUBSCHEMA(
+      frame, "https://example.com/schema#/$defs/https:~1~1example.com~1meta",
+      "https://example.com/schema", "/$defs/https:~1~1example.com~1meta",
+      "https://example.com/meta", "", "", false, true);
+  EXPECT_FRAME_STATIC_2019_09_POINTER(
+      frame,
+      "https://example.com/schema#/$defs/https:~1~1example.com~1meta/$id",
+      "https://example.com/schema", "/$defs/https:~1~1example.com~1meta/$id",
+      "https://example.com/meta", "/$id", "/$defs/https:~1~1example.com~1meta",
+      false, true);
+  EXPECT_FRAME_STATIC_2019_09_POINTER(
+      frame,
+      "https://example.com/schema#/$defs/https:~1~1example.com~1meta/$schema",
+      "https://example.com/schema",
+      "/$defs/https:~1~1example.com~1meta/$schema", "https://example.com/meta",
+      "/$schema", "/$defs/https:~1~1example.com~1meta", false, true);
+  EXPECT_FRAME_STATIC_2019_09_POINTER(
+      frame,
+      "https://example.com/schema#/$defs/https:~1~1example.com~1meta/"
+      "$vocabulary",
+      "https://example.com/schema",
+      "/$defs/https:~1~1example.com~1meta/$vocabulary",
+      "https://example.com/meta", "/$vocabulary",
+      "/$defs/https:~1~1example.com~1meta", false, true);
+  EXPECT_FRAME_STATIC_2019_09_POINTER(
+      frame,
+      "https://example.com/schema#/$defs/https:~1~1example.com~1meta/"
+      "$vocabulary/https:~1~1json-schema.org~1draft~12019-09~1vocab~1core",
+      "https://example.com/schema",
+      "/$defs/https:~1~1example.com~1meta/$vocabulary/"
+      "https:~1~1json-schema.org~1draft~12019-09~1vocab~1core",
+      "https://example.com/meta",
+      "/$vocabulary/https:~1~1json-schema.org~1draft~12019-09~1vocab~1core",
+      "/$defs/https:~1~1example.com~1meta", false, true);
+  EXPECT_FRAME_STATIC_2019_09_POINTER(
+      frame,
+      "https://example.com/schema#/$defs/https:~1~1example.com~1meta/"
+      "$vocabulary/"
+      "https:~1~1json-schema.org~1draft~12019-09~1vocab~1validation",
+      "https://example.com/schema",
+      "/$defs/https:~1~1example.com~1meta/$vocabulary/"
+      "https:~1~1json-schema.org~1draft~12019-09~1vocab~1validation",
+      "https://example.com/meta",
+      "/$vocabulary/"
+      "https:~1~1json-schema.org~1draft~12019-09~1vocab~1validation",
+      "/$defs/https:~1~1example.com~1meta", false, true);
+  EXPECT_FRAME_STATIC_2019_09_POINTER(
+      frame,
+      "https://example.com/schema#/$defs/https:~1~1example.com~1meta/type",
+      "https://example.com/schema", "/$defs/https:~1~1example.com~1meta/type",
+      "https://example.com/meta", "/type", "/$defs/https:~1~1example.com~1meta",
+      false, true);
+  EXPECT_FRAME_STATIC_2019_09_POINTER(
+      frame, "https://example.com/meta#/$id", "https://example.com/schema",
+      "/$defs/https:~1~1example.com~1meta/$id", "https://example.com/meta",
+      "/$id", "/$defs/https:~1~1example.com~1meta", false, true);
+  EXPECT_FRAME_STATIC_2019_09_POINTER(
+      frame, "https://example.com/meta#/$schema", "https://example.com/schema",
+      "/$defs/https:~1~1example.com~1meta/$schema", "https://example.com/meta",
+      "/$schema", "/$defs/https:~1~1example.com~1meta", false, true);
+  EXPECT_FRAME_STATIC_2019_09_POINTER(
+      frame, "https://example.com/meta#/$vocabulary",
+      "https://example.com/schema",
+      "/$defs/https:~1~1example.com~1meta/$vocabulary",
+      "https://example.com/meta", "/$vocabulary",
+      "/$defs/https:~1~1example.com~1meta", false, true);
+  EXPECT_FRAME_STATIC_2019_09_POINTER(
+      frame,
+      "https://example.com/meta#/$vocabulary/"
+      "https:~1~1json-schema.org~1draft~12019-09~1vocab~1core",
+      "https://example.com/schema",
+      "/$defs/https:~1~1example.com~1meta/$vocabulary/"
+      "https:~1~1json-schema.org~1draft~12019-09~1vocab~1core",
+      "https://example.com/meta",
+      "/$vocabulary/https:~1~1json-schema.org~1draft~12019-09~1vocab~1core",
+      "/$defs/https:~1~1example.com~1meta", false, true);
+  EXPECT_FRAME_STATIC_2019_09_POINTER(
+      frame,
+      "https://example.com/meta#/$vocabulary/"
+      "https:~1~1json-schema.org~1draft~12019-09~1vocab~1validation",
+      "https://example.com/schema",
+      "/$defs/https:~1~1example.com~1meta/$vocabulary/"
+      "https:~1~1json-schema.org~1draft~12019-09~1vocab~1validation",
+      "https://example.com/meta",
+      "/$vocabulary/"
+      "https:~1~1json-schema.org~1draft~12019-09~1vocab~1validation",
+      "/$defs/https:~1~1example.com~1meta", false, true);
+  EXPECT_FRAME_STATIC_2019_09_POINTER(
+      frame, "https://example.com/meta#/type", "https://example.com/schema",
+      "/$defs/https:~1~1example.com~1meta/type", "https://example.com/meta",
+      "/type", "/$defs/https:~1~1example.com~1meta", false, true);
+
+  // References
+
+  EXPECT_EQ(frame.references().size(), 2);
+
+  EXPECT_STATIC_REFERENCE(frame, "/$schema", "https://example.com/meta",
+                          "https://example.com/meta", std::nullopt,
+                          "https://example.com/meta");
+  EXPECT_STATIC_REFERENCE(frame, "/$defs/https:~1~1example.com~1meta/$schema",
+                          "https://json-schema.org/draft/2019-09/schema",
+                          "https://json-schema.org/draft/2019-09/schema",
+                          std::nullopt,
+                          "https://json-schema.org/draft/2019-09/schema");
+
+  // Reachability
+
+  EXPECT_FRAME_LOCATION_REACHABLE(frame, Static, "https://example.com/meta",
+                                  frame.root());
+  EXPECT_FRAME_LOCATION_REACHABLE(frame, Static, "https://example.com/schema",
+                                  frame.root());
+  EXPECT_FRAME_LOCATION_REACHABLE(
+      frame, Static,
+      "https://example.com/schema#/$defs/https:~1~1example.com~1meta",
+      frame.root());
+
+  EXPECT_FRAME_LOCATION_NON_REACHABLE(
+      frame, Static, "https://example.com/schema", "https://example.com/meta");
+  EXPECT_FRAME_LOCATION_REACHABLE(frame, Static, "https://example.com/meta",
+                                  "https://example.com/meta");
+}

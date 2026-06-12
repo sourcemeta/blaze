@@ -1423,3 +1423,154 @@ TEST(Frame_draft7, id_fragment_invalid_leading_underscore) {
     FAIL();
   }
 }
+
+TEST(Frame_draft7, embedded_custom_metaschema) {
+  const sourcemeta::core::JSON document = sourcemeta::core::parse_json(R"JSON({
+    "$schema": "https://example.com/meta",
+    "$id": "https://example.com/schema",
+    "type": "string",
+    "definitions": {
+      "https://example.com/meta": {
+        "$id": "https://example.com/meta",
+        "$schema": "http://json-schema.org/draft-07/schema#",
+        "type": "object"
+      }
+    }
+  })JSON");
+
+  sourcemeta::blaze::SchemaFrame frame{
+      sourcemeta::blaze::SchemaFrame::Mode::References};
+  frame.analyse(document, sourcemeta::blaze::schema_walker,
+                sourcemeta::blaze::schema_resolver);
+
+  EXPECT_EQ(frame.locations().size(), 13);
+
+  EXPECT_FRAME_STATIC_RESOURCE(
+      frame, "https://example.com/schema", "https://example.com/schema", "",
+      "https://example.com/meta", JSON_Schema_Draft_7,
+      "https://example.com/schema", "", std::nullopt, false, false);
+  EXPECT_FRAME_STATIC_DRAFT7_RESOURCE(
+      frame, "https://example.com/meta", "https://example.com/schema",
+      "/definitions/https:~1~1example.com~1meta", "https://example.com/meta",
+      "", "", false, true);
+
+  // JSON Pointers
+
+  EXPECT_FRAME_STATIC_POINTER(frame, "https://example.com/schema#/$schema",
+                              "https://example.com/schema", "/$schema",
+                              "https://example.com/meta", JSON_Schema_Draft_7,
+                              "https://example.com/schema", "/$schema", "",
+                              false, false);
+  EXPECT_FRAME_STATIC_POINTER(
+      frame, "https://example.com/schema#/$id", "https://example.com/schema",
+      "/$id", "https://example.com/meta", JSON_Schema_Draft_7,
+      "https://example.com/schema", "/$id", "", false, false);
+  EXPECT_FRAME_STATIC_POINTER(
+      frame, "https://example.com/schema#/type", "https://example.com/schema",
+      "/type", "https://example.com/meta", JSON_Schema_Draft_7,
+      "https://example.com/schema", "/type", "", false, false);
+  EXPECT_FRAME_STATIC_POINTER(frame, "https://example.com/schema#/definitions",
+                              "https://example.com/schema", "/definitions",
+                              "https://example.com/meta", JSON_Schema_Draft_7,
+                              "https://example.com/schema", "/definitions", "",
+                              false, false);
+  EXPECT_FRAME_STATIC_DRAFT7_SUBSCHEMA(
+      frame,
+      "https://example.com/schema#/definitions/https:~1~1example.com~1meta",
+      "https://example.com/schema", "/definitions/https:~1~1example.com~1meta",
+      "https://example.com/meta", "", "", false, true);
+  EXPECT_FRAME_STATIC_DRAFT7_POINTER(
+      frame,
+      "https://example.com/schema#/definitions/https:~1~1example.com~1meta/$id",
+      "https://example.com/schema",
+      "/definitions/https:~1~1example.com~1meta/$id",
+      "https://example.com/meta", "/$id",
+      "/definitions/https:~1~1example.com~1meta", false, true);
+  EXPECT_FRAME_STATIC_DRAFT7_POINTER(
+      frame,
+      "https://example.com/schema#/definitions/https:~1~1example.com~1meta/"
+      "$schema",
+      "https://example.com/schema",
+      "/definitions/https:~1~1example.com~1meta/$schema",
+      "https://example.com/meta", "/$schema",
+      "/definitions/https:~1~1example.com~1meta", false, true);
+  EXPECT_FRAME_STATIC_DRAFT7_POINTER(
+      frame,
+      "https://example.com/schema#/definitions/https:~1~1example.com~1meta/"
+      "type",
+      "https://example.com/schema",
+      "/definitions/https:~1~1example.com~1meta/type",
+      "https://example.com/meta", "/type",
+      "/definitions/https:~1~1example.com~1meta", false, true);
+  EXPECT_FRAME_STATIC_DRAFT7_POINTER(
+      frame, "https://example.com/meta#/$id", "https://example.com/schema",
+      "/definitions/https:~1~1example.com~1meta/$id",
+      "https://example.com/meta", "/$id",
+      "/definitions/https:~1~1example.com~1meta", false, true);
+  EXPECT_FRAME_STATIC_DRAFT7_POINTER(
+      frame, "https://example.com/meta#/$schema", "https://example.com/schema",
+      "/definitions/https:~1~1example.com~1meta/$schema",
+      "https://example.com/meta", "/$schema",
+      "/definitions/https:~1~1example.com~1meta", false, true);
+  EXPECT_FRAME_STATIC_DRAFT7_POINTER(
+      frame, "https://example.com/meta#/type", "https://example.com/schema",
+      "/definitions/https:~1~1example.com~1meta/type",
+      "https://example.com/meta", "/type",
+      "/definitions/https:~1~1example.com~1meta", false, true);
+
+  // References
+
+  EXPECT_EQ(frame.references().size(), 2);
+
+  EXPECT_STATIC_REFERENCE(frame, "/$schema", "https://example.com/meta",
+                          "https://example.com/meta", std::nullopt,
+                          "https://example.com/meta");
+  EXPECT_STATIC_REFERENCE(
+      frame, "/definitions/https:~1~1example.com~1meta/$schema",
+      "http://json-schema.org/draft-07/schema",
+      "http://json-schema.org/draft-07/schema", std::nullopt,
+      "http://json-schema.org/draft-07/schema#");
+
+  // Reachability
+
+  EXPECT_FRAME_LOCATION_REACHABLE(frame, Static, "https://example.com/meta",
+                                  frame.root());
+  EXPECT_FRAME_LOCATION_REACHABLE(frame, Static, "https://example.com/schema",
+                                  frame.root());
+  EXPECT_FRAME_LOCATION_REACHABLE(
+      frame, Static,
+      "https://example.com/schema#/definitions/https:~1~1example.com~1meta",
+      frame.root());
+
+  EXPECT_FRAME_LOCATION_NON_REACHABLE(
+      frame, Static, "https://example.com/schema", "https://example.com/meta");
+  EXPECT_FRAME_LOCATION_REACHABLE(frame, Static, "https://example.com/meta",
+                                  "https://example.com/meta");
+}
+
+TEST(Frame_draft7, embedded_custom_metaschema_wrong_container) {
+  const sourcemeta::core::JSON document = sourcemeta::core::parse_json(R"JSON({
+    "$schema": "https://example.com/meta",
+    "$id": "https://example.com/schema",
+    "$defs": {
+      "https://example.com/meta": {
+        "$id": "https://example.com/meta",
+        "$schema": "http://json-schema.org/draft-07/schema#",
+        "type": "object"
+      }
+    }
+  })JSON");
+
+  sourcemeta::blaze::SchemaFrame frame{
+      sourcemeta::blaze::SchemaFrame::Mode::References};
+
+  try {
+    frame.analyse(document, sourcemeta::blaze::schema_walker,
+                  sourcemeta::blaze::schema_resolver);
+    FAIL();
+  } catch (const sourcemeta::blaze::SchemaResolutionError &error) {
+    EXPECT_EQ(error.identifier(), "https://example.com/meta");
+  } catch (...) {
+    FAIL();
+  }
+}

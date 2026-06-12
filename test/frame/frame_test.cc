@@ -3360,3 +3360,103 @@ TEST(Frame, override_hides_anchor_under_draft7) {
       "https://json-schema.org/draft/2019-09/schema", std::nullopt,
       "https://json-schema.org/draft/2019-09/schema");
 }
+
+TEST(Frame, vocabularies_embedded_custom_metaschema) {
+  const sourcemeta::core::JSON document = sourcemeta::core::parse_json(R"JSON({
+    "$schema": "https://example.com/meta",
+    "$id": "https://example.com/schema",
+    "type": "string",
+    "$defs": {
+      "https://example.com/meta": {
+        "$id": "https://example.com/meta",
+        "$schema": "https://json-schema.org/draft/2020-12/schema",
+        "$vocabulary": {
+          "https://json-schema.org/draft/2020-12/vocab/core": true,
+          "https://json-schema.org/draft/2020-12/vocab/validation": true
+        },
+        "type": "object"
+      }
+    }
+  })JSON");
+
+  sourcemeta::blaze::SchemaFrame frame{
+      sourcemeta::blaze::SchemaFrame::Mode::References};
+  frame.analyse(document, sourcemeta::blaze::schema_walker,
+                sourcemeta::blaze::schema_resolver);
+
+  const auto root_location{frame.traverse("https://example.com/schema")};
+  EXPECT_TRUE(root_location.has_value());
+  const auto root_vocabularies{frame.vocabularies(
+      root_location->get(), sourcemeta::blaze::schema_resolver)};
+  EXPECT_EQ(root_vocabularies.size(), 2);
+  EXPECT_VOCABULARY_REQUIRED(root_vocabularies, JSON_Schema_2020_12_Core);
+  EXPECT_VOCABULARY_REQUIRED(root_vocabularies, JSON_Schema_2020_12_Validation);
+
+  const auto metaschema_location{frame.traverse("https://example.com/meta")};
+  EXPECT_TRUE(metaschema_location.has_value());
+  const auto metaschema_vocabularies{frame.vocabularies(
+      metaschema_location->get(), sourcemeta::blaze::schema_resolver)};
+  EXPECT_EQ(metaschema_vocabularies.size(), 7);
+  EXPECT_VOCABULARY_REQUIRED(metaschema_vocabularies, JSON_Schema_2020_12_Core);
+  EXPECT_VOCABULARY_REQUIRED(metaschema_vocabularies,
+                             JSON_Schema_2020_12_Applicator);
+  EXPECT_VOCABULARY_REQUIRED(metaschema_vocabularies,
+                             JSON_Schema_2020_12_Unevaluated);
+  EXPECT_VOCABULARY_REQUIRED(metaschema_vocabularies,
+                             JSON_Schema_2020_12_Validation);
+  EXPECT_VOCABULARY_REQUIRED(metaschema_vocabularies,
+                             JSON_Schema_2020_12_Meta_Data);
+  EXPECT_VOCABULARY_REQUIRED(metaschema_vocabularies,
+                             JSON_Schema_2020_12_Format_Annotation);
+  EXPECT_VOCABULARY_REQUIRED(metaschema_vocabularies,
+                             JSON_Schema_2020_12_Content);
+}
+
+TEST(Frame, vocabularies_embedded_custom_metaschema_precedence) {
+  const sourcemeta::core::JSON document = sourcemeta::core::parse_json(R"JSON({
+    "$schema": "https://example.com/meta",
+    "$id": "https://example.com/schema",
+    "type": "string",
+    "$defs": {
+      "https://example.com/meta": {
+        "$id": "https://example.com/meta",
+        "$schema": "https://json-schema.org/draft/2020-12/schema",
+        "$vocabulary": {
+          "https://json-schema.org/draft/2020-12/vocab/core": true,
+          "https://json-schema.org/draft/2020-12/vocab/validation": true
+        },
+        "type": "object"
+      }
+    }
+  })JSON");
+
+  // A resolver that knows about the custom meta-schema, but with a
+  // different vocabulary set than the embedded copy, used to assert that
+  // meta-schemas embedded in the document take precedence over the resolver
+  const auto resolver =
+      [](std::string_view identifier) -> std::optional<sourcemeta::core::JSON> {
+    if (identifier == "https://example.com/meta") {
+      return sourcemeta::core::parse_json(R"JSON({
+        "$id": "https://example.com/meta",
+        "$schema": "https://json-schema.org/draft/2020-12/schema",
+        "$vocabulary": {
+          "https://json-schema.org/draft/2020-12/vocab/core": true
+        }
+      })JSON");
+    }
+
+    return sourcemeta::blaze::schema_resolver(identifier);
+  };
+
+  sourcemeta::blaze::SchemaFrame frame{
+      sourcemeta::blaze::SchemaFrame::Mode::References};
+  frame.analyse(document, sourcemeta::blaze::schema_walker, resolver);
+
+  const auto root_location{frame.traverse("https://example.com/schema")};
+  EXPECT_TRUE(root_location.has_value());
+  const auto root_vocabularies{
+      frame.vocabularies(root_location->get(), resolver)};
+  EXPECT_EQ(root_vocabularies.size(), 2);
+  EXPECT_VOCABULARY_REQUIRED(root_vocabularies, JSON_Schema_2020_12_Core);
+  EXPECT_VOCABULARY_REQUIRED(root_vocabularies, JSON_Schema_2020_12_Validation);
+}
