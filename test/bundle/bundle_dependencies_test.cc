@@ -84,6 +84,21 @@ static auto test_resolver(std::string_view identifier)
       "$id": "https://www.sourcemeta.com/deep",
       "type": "string"
     })JSON");
+  } else if (identifier == "https://www.sourcemeta.com/custom-metaschema") {
+    return sourcemeta::core::parse_json(R"JSON({
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "$id": "https://www.sourcemeta.com/custom-metaschema",
+      "$vocabulary": {
+        "https://json-schema.org/draft/2020-12/vocab/core": true,
+        "https://json-schema.org/draft/2020-12/vocab/applicator": true,
+        "https://json-schema.org/draft/2020-12/vocab/validation": true
+      },
+      "allOf": [
+        { "$ref": "https://json-schema.org/draft/2020-12/meta/core" },
+        { "$ref": "https://json-schema.org/draft/2020-12/meta/applicator" },
+        { "$ref": "https://json-schema.org/draft/2020-12/meta/validation" }
+      ]
+    })JSON");
   } else {
     return sourcemeta::blaze::schema_resolver(identifier);
   }
@@ -501,6 +516,63 @@ TEST(Bundle_dependencies, multiple_refs_to_same_target_within_schema) {
   EXPECT_DEPENDENCY(traces, 0, "https://www.example.com",
                     "/anyOf/0/properties/foo/$ref",
                     "https://www.sourcemeta.com/test-1");
+}
+
+TEST(Bundle_dependencies, ref_to_official_schema_without_recursion) {
+  sourcemeta::core::JSON document = sourcemeta::core::parse_json(R"JSON({
+    "$id": "https://www.example.com",
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "items": { "$ref": "https://json-schema.org/draft/2020-12/schema" }
+  })JSON");
+
+  std::vector<std::tuple<std::string, sourcemeta::core::Pointer, std::string>>
+      traces;
+
+  sourcemeta::blaze::dependencies(
+      document, sourcemeta::blaze::schema_walker, test_resolver,
+      [&traces](const auto &origin, const auto &pointer, const auto &target,
+                const auto &) {
+        traces.emplace_back(origin, sourcemeta::core::to_pointer(pointer),
+                            target);
+      });
+
+  EXPECT_EQ(traces.size(), 1);
+
+  EXPECT_DEPENDENCY(traces, 0, "https://www.example.com", "/items/$ref",
+                    "https://json-schema.org/draft/2020-12/schema");
+}
+
+TEST(Bundle_dependencies, custom_metaschema_official_boundary) {
+  sourcemeta::core::JSON document = sourcemeta::core::parse_json(R"JSON({
+    "$id": "https://www.example.com",
+    "$schema": "https://www.sourcemeta.com/custom-metaschema",
+    "type": "string"
+  })JSON");
+
+  std::vector<std::tuple<std::string, sourcemeta::core::Pointer, std::string>>
+      traces;
+
+  sourcemeta::blaze::dependencies(
+      document, sourcemeta::blaze::schema_walker, test_resolver,
+      [&traces](const auto &origin, const auto &pointer, const auto &target,
+                const auto &) {
+        traces.emplace_back(origin, sourcemeta::core::to_pointer(pointer),
+                            target);
+      });
+
+  EXPECT_EQ(traces.size(), 4);
+
+  EXPECT_DEPENDENCY(traces, 0, "https://www.example.com", "/$schema",
+                    "https://www.sourcemeta.com/custom-metaschema");
+  EXPECT_DEPENDENCY(traces, 1, "https://www.sourcemeta.com/custom-metaschema",
+                    "/allOf/0/$ref",
+                    "https://json-schema.org/draft/2020-12/meta/core");
+  EXPECT_DEPENDENCY(traces, 2, "https://www.sourcemeta.com/custom-metaschema",
+                    "/allOf/1/$ref",
+                    "https://json-schema.org/draft/2020-12/meta/applicator");
+  EXPECT_DEPENDENCY(traces, 3, "https://www.sourcemeta.com/custom-metaschema",
+                    "/allOf/2/$ref",
+                    "https://json-schema.org/draft/2020-12/meta/validation");
 }
 
 TEST(Bundle_dependencies, sibling_schemas_with_shared_dependency) {
