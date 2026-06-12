@@ -808,7 +808,7 @@ TEST(Foundation_vocabulary, embedded_custom_metaschema_without_vocabulary) {
   EXPECT_VOCABULARY_REQUIRED(vocabularies, JSON_Schema_2020_12_Core);
 }
 
-TEST(Foundation_vocabulary, embedded_custom_metaschema_wrong_container) {
+TEST(Foundation_vocabulary, embedded_custom_metaschema_definitions_2020_12) {
   const sourcemeta::core::JSON document = sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://example.com/meta",
     "$id": "https://example.com/schema",
@@ -819,6 +819,28 @@ TEST(Foundation_vocabulary, embedded_custom_metaschema_wrong_container) {
         "$vocabulary": {
           "https://json-schema.org/draft/2020-12/vocab/core": true
         },
+        "type": "object"
+      }
+    }
+  })JSON");
+
+  // In 2019-09 and 2020-12, `definitions` is still supported
+  // for backwards compatibility
+  const sourcemeta::blaze::Vocabularies vocabularies{
+      sourcemeta::blaze::vocabularies(document,
+                                      sourcemeta::blaze::schema_resolver)};
+  EXPECT_EQ(vocabularies.size(), 1);
+  EXPECT_VOCABULARY_REQUIRED(vocabularies, JSON_Schema_2020_12_Core);
+}
+
+TEST(Foundation_vocabulary, embedded_custom_metaschema_wrong_container) {
+  const sourcemeta::core::JSON document = sourcemeta::core::parse_json(R"JSON({
+    "$schema": "https://example.com/meta",
+    "$id": "https://example.com/schema",
+    "$defs": {
+      "https://example.com/meta": {
+        "$id": "https://example.com/meta",
+        "$schema": "http://json-schema.org/draft-07/schema#",
         "type": "object"
       }
     }

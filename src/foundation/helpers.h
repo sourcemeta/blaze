@@ -91,6 +91,31 @@ ref_overrides_adjacent_keywords(const SchemaBaseDialect base_dialect) -> bool {
   }
 }
 
+inline auto embedded_metaschema_identifier_matches(
+    const sourcemeta::core::JSON &candidate, const std::string_view keyword,
+    const std::string_view identifier,
+    const std::optional<sourcemeta::core::JSON::String> &canonical) -> bool {
+  const auto *value{candidate.try_at(sourcemeta::core::JSON::String{keyword})};
+  if (!value || !value->is_string()) {
+    return false;
+  }
+
+  const auto &current{value->to_string()};
+  if (current == identifier) {
+    return true;
+  }
+
+  if (canonical.has_value()) {
+    try {
+      return sourcemeta::core::URI::canonicalize(current) == canonical.value();
+    } catch (const sourcemeta::core::URIParseError &) {
+      return false;
+    }
+  }
+
+  return false;
+}
+
 inline auto embedded_metaschema_matches(
     const sourcemeta::core::JSON &candidate, const std::string_view identifier,
     const std::optional<sourcemeta::core::JSON::String> &canonical) -> bool {
@@ -99,24 +124,9 @@ inline auto embedded_metaschema_matches(
   }
 
   for (const auto *const keyword : {"$id", "id"}) {
-    const auto *value{candidate.try_at(keyword)};
-    if (!value || !value->is_string()) {
-      continue;
-    }
-
-    const auto &current{value->to_string()};
-    if (current == identifier) {
+    if (embedded_metaschema_identifier_matches(candidate, keyword, identifier,
+                                               canonical)) {
       return true;
-    }
-
-    if (canonical.has_value()) {
-      try {
-        if (sourcemeta::core::URI::canonicalize(current) == canonical.value()) {
-          return true;
-        }
-      } catch (const sourcemeta::core::URIParseError &) {
-        continue;
-      }
     }
   }
 
@@ -160,13 +170,53 @@ embedded_metaschema_candidate(const sourcemeta::core::JSON &document,
   return {nullptr, ""};
 }
 
+inline auto embedded_metaschema_link_valid(const sourcemeta::core::JSON &link,
+                                           const std::string_view identifier,
+                                           const std::string_view container,
+                                           const SchemaBaseDialect base_dialect)
+    -> bool {
+  // In 2019-09 and 2020-12, `definitions` is still supported
+  // for backwards compatibility
+  switch (base_dialect) {
+    case SchemaBaseDialect::JSON_Schema_2020_12:
+    case SchemaBaseDialect::JSON_Schema_2020_12_Hyper:
+    case SchemaBaseDialect::JSON_Schema_2019_09:
+    case SchemaBaseDialect::JSON_Schema_2019_09_Hyper:
+      if (container != "$defs" && container != "definitions") {
+        return false;
+      }
+
+      break;
+    default:
+      if (container != definitions_keyword(base_dialect)) {
+        return false;
+      }
+  }
+
+  std::optional<sourcemeta::core::JSON::String> canonical;
+  try {
+    canonical = sourcemeta::core::URI::canonicalize(identifier);
+  } catch (const sourcemeta::core::URIParseError &) {
+    canonical = std::nullopt;
+  }
+
+  return embedded_metaschema_identifier_matches(link, id_keyword(base_dialect),
+                                                identifier, canonical);
+}
+
+struct EmbeddedMetaschemaLink {
+  const sourcemeta::core::JSON *schema;
+  sourcemeta::core::JSON::String identifier;
+  std::string_view container;
+};
+
 // A meta-schema that is not known to the resolver may still be embedded in
 // the document itself. Across every official base dialect, the only
 // containers that can hold embedded resources are `$defs` and `definitions`,
 // which no custom dialect can redefine away. A candidate only counts if its
 // entire meta-schema chain terminates at an official base dialect and every
-// embedded link sits in the exact container that such base dialect
-// prescribes
+// embedded link declares its identifier and sits in a container in a way
+// that is valid for such base dialect
 inline auto find_embedded_metaschema(const sourcemeta::core::JSON &document,
                                      const std::string_view identifier,
                                      const SchemaResolver &resolver)
@@ -177,7 +227,10 @@ inline auto find_embedded_metaschema(const sourcemeta::core::JSON &document,
   }
 
   std::unordered_set<sourcemeta::core::JSON::String> visited;
-  std::vector<std::string_view> containers{candidate.second};
+  std::vector<EmbeddedMetaschemaLink> links{
+      {.schema = candidate.first,
+       .identifier = sourcemeta::core::JSON::String{identifier},
+       .container = candidate.second}};
   // Chain links that the resolver knows about are returned by value, so we
   // need to keep them alive while we keep walking the chain
   std::vector<sourcemeta::core::JSON> resolved;
@@ -186,17 +239,20 @@ inline auto find_embedded_metaschema(const sourcemeta::core::JSON &document,
   std::optional<SchemaBaseDialect> terminal;
 
   while (true) {
+    // The meta-schema is present, but its chain can never terminate at an
+    // official base dialect, just like a self-descriptive or cyclic
+    // meta-schema that the resolver knows about
     if (!visited.emplace(current_identifier).second) {
-      return nullptr;
+      throw SchemaUnknownBaseDialectError();
     }
 
     if (!current->is_object()) {
-      return nullptr;
+      throw SchemaUnknownBaseDialectError();
     }
 
     const auto *metaschema_dialect{current->try_at("$schema")};
     if (!metaschema_dialect || !metaschema_dialect->is_string()) {
-      return nullptr;
+      throw SchemaUnknownBaseDialectError();
     }
 
     const auto &dialect_uri{metaschema_dialect->to_string()};
@@ -219,15 +275,17 @@ inline auto find_embedded_metaschema(const sourcemeta::core::JSON &document,
       return nullptr;
     }
 
-    containers.push_back(next.second);
+    links.push_back({.schema = next.first,
+                     .identifier = dialect_uri,
+                     .container = next.second});
     current = next.first;
     current_identifier = dialect_uri;
   }
 
   assert(terminal.has_value());
-  const auto expected{definitions_keyword(terminal.value())};
-  for (const auto container : containers) {
-    if (container != expected) {
+  for (const auto &link : links) {
+    if (!embedded_metaschema_link_valid(*(link.schema), link.identifier,
+                                        link.container, terminal.value())) {
       return nullptr;
     }
   }
