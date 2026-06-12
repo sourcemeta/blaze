@@ -654,3 +654,72 @@ TEST(Foundation_base_dialect, override_disallowed_with_default_dialect) {
   EXPECT_EQ(base_dialect.value(),
             sourcemeta::blaze::SchemaBaseDialect::JSON_Schema_Draft_7);
 }
+
+TEST(Foundation_base_dialect, embedded_custom_metaschema) {
+  const sourcemeta::core::JSON document = sourcemeta::core::parse_json(R"JSON({
+    "$schema": "https://example.com/meta",
+    "$id": "https://example.com/schema",
+    "type": "string",
+    "$defs": {
+      "https://example.com/meta": {
+        "$id": "https://example.com/meta",
+        "$schema": "https://json-schema.org/draft/2020-12/schema",
+        "$vocabulary": {
+          "https://json-schema.org/draft/2020-12/vocab/core": true
+        },
+        "type": "object"
+      }
+    }
+  })JSON");
+
+  const auto base_dialect{
+      sourcemeta::blaze::base_dialect(document, test_resolver)};
+  EXPECT_TRUE(base_dialect.has_value());
+  EXPECT_EQ(base_dialect.value(),
+            sourcemeta::blaze::SchemaBaseDialect::JSON_Schema_2020_12);
+}
+
+TEST(Foundation_base_dialect, embedded_custom_metaschema_chain) {
+  const sourcemeta::core::JSON document = sourcemeta::core::parse_json(R"JSON({
+    "$schema": "https://example.com/meta-a",
+    "$id": "https://example.com/schema",
+    "$defs": {
+      "https://example.com/meta-a": {
+        "$id": "https://example.com/meta-a",
+        "$schema": "https://example.com/meta-b",
+        "type": "object"
+      },
+      "https://example.com/meta-b": {
+        "$id": "https://example.com/meta-b",
+        "$schema": "https://json-schema.org/draft/2020-12/schema",
+        "$vocabulary": {
+          "https://json-schema.org/draft/2020-12/vocab/core": true
+        },
+        "type": "object"
+      }
+    }
+  })JSON");
+
+  const auto base_dialect{
+      sourcemeta::blaze::base_dialect(document, test_resolver)};
+  EXPECT_TRUE(base_dialect.has_value());
+  EXPECT_EQ(base_dialect.value(),
+            sourcemeta::blaze::SchemaBaseDialect::JSON_Schema_2020_12);
+}
+
+TEST(Foundation_base_dialect, embedded_custom_metaschema_wrong_container) {
+  const sourcemeta::core::JSON document = sourcemeta::core::parse_json(R"JSON({
+    "$schema": "https://example.com/meta",
+    "$id": "https://example.com/schema",
+    "$defs": {
+      "https://example.com/meta": {
+        "$id": "https://example.com/meta",
+        "$schema": "http://json-schema.org/draft-07/schema#",
+        "type": "object"
+      }
+    }
+  })JSON");
+
+  EXPECT_THROW(sourcemeta::blaze::base_dialect(document, test_resolver),
+               sourcemeta::blaze::SchemaResolutionError);
+}

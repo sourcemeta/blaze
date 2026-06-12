@@ -277,6 +277,14 @@ auto sourcemeta::blaze::metaschema(
 
   const auto maybe_metaschema{resolver(effective_dialect)};
   if (!maybe_metaschema.has_value()) {
+    // The meta-schema may still be embedded in the schema itself,
+    // as `bundle()` does for custom meta-schemas
+    const auto *embedded{sourcemeta::blaze::find_embedded_metaschema(
+        schema, effective_dialect, resolver)};
+    if (embedded) {
+      return *embedded;
+    }
+
     // Relative meta-schema references are invalid according to the
     // JSON Schema specifications. They must be absolute ones
     const sourcemeta::core::URI effective_dialect_uri{effective_dialect};
@@ -297,7 +305,8 @@ base_dialect_with_visited(const sourcemeta::core::JSON &schema,
                           const sourcemeta::blaze::SchemaResolver &resolver,
                           std::string_view default_dialect,
                           std::unordered_set<std::string_view> &visited,
-                          const bool allow_dialect_override)
+                          const bool allow_dialect_override,
+                          const sourcemeta::core::JSON &document)
     -> std::optional<sourcemeta::blaze::SchemaBaseDialect> {
   assert(sourcemeta::blaze::is_schema(schema));
   const std::string_view effective_dialect{sourcemeta::blaze::dialect(
@@ -324,6 +333,22 @@ base_dialect_with_visited(const sourcemeta::core::JSON &schema,
   const std::optional<sourcemeta::core::JSON> metaschema{
       resolver(effective_dialect)};
   if (!metaschema.has_value()) {
+    // The meta-schema may still be embedded in the original document
+    // itself, as `bundle()` does for custom meta-schemas
+    const auto *embedded{sourcemeta::blaze::find_embedded_metaschema(
+        document, effective_dialect, resolver)};
+    if (embedded) {
+      const std::string_view embedded_dialect{sourcemeta::blaze::dialect(
+          *embedded, effective_dialect, allow_dialect_override)};
+      if (embedded_dialect == effective_dialect) {
+        throw sourcemeta::blaze::SchemaUnknownBaseDialectError();
+      }
+
+      return base_dialect_with_visited(*embedded, resolver, effective_dialect,
+                                       visited, allow_dialect_override,
+                                       document);
+    }
+
     sourcemeta::core::URI effective_dialect_uri;
     try {
       effective_dialect_uri = sourcemeta::core::URI{effective_dialect};
@@ -353,7 +378,7 @@ base_dialect_with_visited(const sourcemeta::core::JSON &schema,
 
   return base_dialect_with_visited(metaschema.value(), resolver,
                                    effective_dialect, visited,
-                                   allow_dialect_override);
+                                   allow_dialect_override, document);
 }
 
 auto sourcemeta::blaze::base_dialect(
@@ -363,7 +388,7 @@ auto sourcemeta::blaze::base_dialect(
     -> std::optional<SchemaBaseDialect> {
   std::unordered_set<std::string_view> visited;
   return base_dialect_with_visited(schema, resolver, default_dialect, visited,
-                                   allow_dialect_override);
+                                   allow_dialect_override, schema);
 }
 
 namespace {
@@ -562,8 +587,25 @@ auto sourcemeta::blaze::vocabularies(
     throw sourcemeta::blaze::SchemaUnknownDialectError();
   }
 
-  return vocabularies(resolver, resolved_base_dialect.value(),
-                      resolved_dialect);
+  // The meta-schema may not be known to the resolver but still be embedded
+  // in the schema itself, as `bundle()` does for custom meta-schemas
+  return vocabularies(
+      [&schema, &resolver](const std::string_view identifier)
+          -> std::optional<sourcemeta::core::JSON> {
+        auto result{resolver(identifier)};
+        if (result.has_value()) {
+          return result;
+        }
+
+        const auto *embedded{sourcemeta::blaze::find_embedded_metaschema(
+            schema, identifier, resolver)};
+        if (embedded) {
+          return *embedded;
+        }
+
+        return std::nullopt;
+      },
+      resolved_base_dialect.value(), resolved_dialect);
 }
 
 auto sourcemeta::blaze::vocabularies(const SchemaResolver &resolver,

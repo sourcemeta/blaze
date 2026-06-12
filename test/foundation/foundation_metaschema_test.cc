@@ -100,3 +100,26 @@ TEST(Foundation_metaschema, override_unresolvable) {
       sourcemeta::blaze::metaschema(schema, sourcemeta::blaze::schema_resolver),
       sourcemeta::blaze::SchemaResolutionError);
 }
+
+TEST(Foundation_metaschema, embedded_custom_metaschema) {
+  const auto schema{sourcemeta::core::parse_json(R"JSON({
+    "$schema": "https://example.com/meta",
+    "$id": "https://example.com/schema",
+    "type": "string",
+    "$defs": {
+      "https://example.com/meta": {
+        "$id": "https://example.com/meta",
+        "$schema": "https://json-schema.org/draft/2020-12/schema",
+        "$vocabulary": {
+          "https://json-schema.org/draft/2020-12/vocab/core": true
+        },
+        "type": "object"
+      }
+    }
+  })JSON")};
+
+  const auto metaschema{sourcemeta::blaze::metaschema(
+      schema, sourcemeta::blaze::schema_resolver)};
+  EXPECT_TRUE(metaschema.is_object());
+  EXPECT_EQ(metaschema, schema.at("$defs").at("https://example.com/meta"));
+}
