@@ -380,8 +380,8 @@ auto compile(const sourcemeta::core::JSON &schema,
     }
 
     auto subschema{sourcemeta::core::get(context.root, entry.pointer)};
-    auto nested_vocabularies{sourcemeta::blaze::vocabularies(
-        subschema, context.resolver, entry.dialect)};
+    auto nested_vocabularies{
+        context.frame.vocabularies(entry, context.resolver)};
     const auto nested_relative_pointer{
         entry.pointer.slice(entry.relative_pointer)};
     const sourcemeta::core::URI nested_base{entry.base};
@@ -495,8 +495,7 @@ auto compile(const Context &context, const SchemaContext &schema_context,
       context,
       {.relative_pointer = new_relative_pointer,
        .schema = new_schema,
-       .vocabularies =
-           vocabularies(new_schema, context.resolver, entry.dialect),
+       .vocabularies = context.frame.vocabularies(entry, context.resolver),
        .base = new_base,
        .is_property_name = schema_context.is_property_name},
       {.keyword = dynamic_context.keyword,
