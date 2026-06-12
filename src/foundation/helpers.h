@@ -3,8 +3,16 @@
 
 #include <sourcemeta/blaze/foundation.h>
 
-#include <cassert>     // assert
-#include <string_view> // std::string_view
+#include <sourcemeta/core/uri.h>
+
+#include <cassert>          // assert
+#include <deque>            // std::deque
+#include <initializer_list> // std::initializer_list
+#include <optional>         // std::optional
+#include <string_view>      // std::string_view
+#include <unordered_set>    // std::unordered_set
+#include <utility>          // std::pair, std::move
+#include <vector>           // std::vector
 
 namespace sourcemeta::blaze {
 
@@ -82,6 +90,219 @@ ref_overrides_adjacent_keywords(const SchemaBaseDialect base_dialect) -> bool {
     default:
       return false;
   }
+}
+
+inline auto embedded_metaschema_identifier_matches(
+    const sourcemeta::core::JSON &candidate, const std::string_view keyword,
+    const std::string_view identifier,
+    const std::optional<sourcemeta::core::JSON::String> &canonical) -> bool {
+  const auto *value{
+      candidate.try_at(sourcemeta::core::JSON::StringView{keyword})};
+  if (!value || !value->is_string()) {
+    return false;
+  }
+
+  const auto &current{value->to_string()};
+  if (current == identifier) {
+    return true;
+  }
+
+  if (canonical.has_value()) {
+    try {
+      return sourcemeta::core::URI::canonicalize(current) == canonical.value();
+    } catch (const sourcemeta::core::URIParseError &) {
+      return false;
+    }
+  }
+
+  return false;
+}
+
+inline auto embedded_metaschema_matches(
+    const sourcemeta::core::JSON &candidate, const std::string_view identifier,
+    const std::optional<sourcemeta::core::JSON::String> &canonical) -> bool {
+  if (!candidate.is_object()) {
+    return false;
+  }
+
+  for (const auto *const keyword : {"$id", "id"}) {
+    if (embedded_metaschema_identifier_matches(candidate, keyword, identifier,
+                                               canonical)) {
+      return true;
+    }
+  }
+
+  return false;
+}
+
+inline auto
+embedded_metaschema_candidate(const sourcemeta::core::JSON &document,
+                              const std::string_view identifier)
+    -> std::pair<const sourcemeta::core::JSON *, std::string_view> {
+  if (!document.is_object()) {
+    return {nullptr, ""};
+  }
+
+  std::optional<sourcemeta::core::JSON::String> canonical;
+  try {
+    canonical = sourcemeta::core::URI::canonicalize(identifier);
+  } catch (const sourcemeta::core::URIParseError &) {
+    canonical = std::nullopt;
+  }
+
+  for (const auto *const container : {"$defs", "definitions"}) {
+    const auto *entries{document.try_at(container)};
+    if (!entries || !entries->is_object()) {
+      continue;
+    }
+
+    const auto *direct{
+        entries->try_at(sourcemeta::core::JSON::StringView{identifier})};
+    if (direct && embedded_metaschema_matches(*direct, identifier, canonical)) {
+      return {direct, container};
+    }
+
+    for (const auto &entry : entries->as_object()) {
+      if (embedded_metaschema_matches(entry.second, identifier, canonical)) {
+        return {&entry.second, container};
+      }
+    }
+  }
+
+  return {nullptr, ""};
+}
+
+inline auto embedded_metaschema_link_valid(const sourcemeta::core::JSON &link,
+                                           const std::string_view identifier,
+                                           const std::string_view container,
+                                           const SchemaBaseDialect base_dialect)
+    -> bool {
+  // In 2019-09 and 2020-12, `definitions` is still supported
+  // for backwards compatibility
+  switch (base_dialect) {
+    case SchemaBaseDialect::JSON_Schema_2020_12:
+    case SchemaBaseDialect::JSON_Schema_2020_12_Hyper:
+    case SchemaBaseDialect::JSON_Schema_2019_09:
+    case SchemaBaseDialect::JSON_Schema_2019_09_Hyper:
+      if (container != "$defs" && container != "definitions") {
+        return false;
+      }
+
+      break;
+    default:
+      if (container != definitions_keyword(base_dialect)) {
+        return false;
+      }
+  }
+
+  std::optional<sourcemeta::core::JSON::String> canonical;
+  try {
+    canonical = sourcemeta::core::URI::canonicalize(identifier);
+  } catch (const sourcemeta::core::URIParseError &) {
+    canonical = std::nullopt;
+  }
+
+  return embedded_metaschema_identifier_matches(link, id_keyword(base_dialect),
+                                                identifier, canonical);
+}
+
+struct EmbeddedMetaschemaLink {
+  const sourcemeta::core::JSON *schema;
+  sourcemeta::core::JSON::StringView identifier;
+  std::string_view container;
+};
+
+// A meta-schema that is not known to the resolver may still be embedded in
+// the document itself. Across every official base dialect, the only
+// containers that can hold embedded resources are `$defs` and `definitions`,
+// which no custom dialect can redefine away. A candidate only counts if its
+// entire meta-schema chain terminates at an official base dialect and every
+// embedded link declares its identifier and sits in a container in a way
+// that is valid for such base dialect
+inline auto try_embedded_metaschema(const sourcemeta::core::JSON &document,
+                                    const std::string_view identifier,
+                                    const SchemaResolver &resolver)
+    -> const sourcemeta::core::JSON * {
+  // Relative or invalid meta-schema references are not acceptable
+  // according to the JSON Schema specifications
+  if (!sourcemeta::core::URI::is_uri(identifier)) {
+    return nullptr;
+  }
+
+  const auto candidate{embedded_metaschema_candidate(document, identifier)};
+  if (!candidate.first) {
+    return nullptr;
+  }
+
+  std::unordered_set<std::string_view> visited;
+  std::vector<EmbeddedMetaschemaLink> links{{.schema = candidate.first,
+                                             .identifier = identifier,
+                                             .container = candidate.second}};
+  // Chain links that the resolver knows about are returned by value, so we
+  // keep them alive while we walk the chain, in a container that never
+  // relocates its elements, as we hold views into them
+  std::deque<sourcemeta::core::JSON> resolved;
+  const auto *current{candidate.first};
+  std::string_view current_identifier{identifier};
+  std::optional<SchemaBaseDialect> terminal;
+
+  while (true) {
+    // The meta-schema is present, but its chain can never terminate at an
+    // official base dialect, just like a self-descriptive or cyclic
+    // meta-schema that the resolver knows about
+    if (!visited.emplace(current_identifier).second) {
+      throw SchemaUnknownBaseDialectError();
+    }
+
+    if (!current->is_object()) {
+      throw SchemaUnknownBaseDialectError();
+    }
+
+    const auto *metaschema_dialect{current->try_at("$schema")};
+    if (!metaschema_dialect || !metaschema_dialect->is_string()) {
+      throw SchemaUnknownBaseDialectError();
+    }
+
+    const auto &dialect_uri{metaschema_dialect->to_string()};
+    const auto known{to_base_dialect(dialect_uri)};
+    if (known.has_value()) {
+      terminal = known;
+      break;
+    }
+
+    auto remote{resolver(dialect_uri)};
+    if (remote.has_value()) {
+      resolved.push_back(std::move(remote).value());
+      current = &resolved.back();
+      current_identifier = dialect_uri;
+      continue;
+    }
+
+    if (!sourcemeta::core::URI::is_uri(dialect_uri)) {
+      return nullptr;
+    }
+
+    const auto next{embedded_metaschema_candidate(document, dialect_uri)};
+    if (!next.first) {
+      return nullptr;
+    }
+
+    links.push_back({.schema = next.first,
+                     .identifier = dialect_uri,
+                     .container = next.second});
+    current = next.first;
+    current_identifier = dialect_uri;
+  }
+
+  assert(terminal.has_value());
+  for (const auto &link : links) {
+    if (!embedded_metaschema_link_valid(*(link.schema), link.identifier,
+                                        link.container, terminal.value())) {
+      return nullptr;
+    }
+  }
+
+  return candidate.first;
 }
 
 } // namespace sourcemeta::blaze

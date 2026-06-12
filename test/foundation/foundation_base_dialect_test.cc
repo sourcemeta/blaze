@@ -654,3 +654,357 @@ TEST(Foundation_base_dialect, override_disallowed_with_default_dialect) {
   EXPECT_EQ(base_dialect.value(),
             sourcemeta::blaze::SchemaBaseDialect::JSON_Schema_Draft_7);
 }
+
+TEST(Foundation_base_dialect, embedded_custom_metaschema) {
+  const sourcemeta::core::JSON document = sourcemeta::core::parse_json(R"JSON({
+    "$schema": "https://example.com/meta",
+    "$id": "https://example.com/schema",
+    "type": "string",
+    "$defs": {
+      "https://example.com/meta": {
+        "$id": "https://example.com/meta",
+        "$schema": "https://json-schema.org/draft/2020-12/schema",
+        "$vocabulary": {
+          "https://json-schema.org/draft/2020-12/vocab/core": true
+        },
+        "type": "object"
+      }
+    }
+  })JSON");
+
+  const auto base_dialect{
+      sourcemeta::blaze::base_dialect(document, test_resolver)};
+  EXPECT_TRUE(base_dialect.has_value());
+  EXPECT_EQ(base_dialect.value(),
+            sourcemeta::blaze::SchemaBaseDialect::JSON_Schema_2020_12);
+}
+
+TEST(Foundation_base_dialect, embedded_custom_metaschema_2019_09) {
+  const sourcemeta::core::JSON document = sourcemeta::core::parse_json(R"JSON({
+    "$schema": "https://example.com/meta",
+    "$id": "https://example.com/schema",
+    "type": "string",
+    "$defs": {
+      "https://example.com/meta": {
+        "$id": "https://example.com/meta",
+        "$schema": "https://json-schema.org/draft/2019-09/schema",
+        "$vocabulary": {
+          "https://json-schema.org/draft/2019-09/vocab/core": true
+        },
+        "type": "object"
+      }
+    }
+  })JSON");
+
+  const auto base_dialect{
+      sourcemeta::blaze::base_dialect(document, test_resolver)};
+  EXPECT_TRUE(base_dialect.has_value());
+  EXPECT_EQ(base_dialect.value(),
+            sourcemeta::blaze::SchemaBaseDialect::JSON_Schema_2019_09);
+}
+
+TEST(Foundation_base_dialect, embedded_custom_metaschema_draft7) {
+  const sourcemeta::core::JSON document = sourcemeta::core::parse_json(R"JSON({
+    "$schema": "https://example.com/meta",
+    "$id": "https://example.com/schema",
+    "type": "string",
+    "definitions": {
+      "https://example.com/meta": {
+        "$id": "https://example.com/meta",
+        "$schema": "http://json-schema.org/draft-07/schema#",
+        "type": "object"
+      }
+    }
+  })JSON");
+
+  const auto base_dialect{
+      sourcemeta::blaze::base_dialect(document, test_resolver)};
+  EXPECT_TRUE(base_dialect.has_value());
+  EXPECT_EQ(base_dialect.value(),
+            sourcemeta::blaze::SchemaBaseDialect::JSON_Schema_Draft_7);
+}
+
+TEST(Foundation_base_dialect, embedded_custom_metaschema_draft4) {
+  const sourcemeta::core::JSON document = sourcemeta::core::parse_json(R"JSON({
+    "$schema": "https://example.com/meta",
+    "id": "https://example.com/schema",
+    "type": "string",
+    "definitions": {
+      "https://example.com/meta": {
+        "id": "https://example.com/meta",
+        "$schema": "http://json-schema.org/draft-04/schema#",
+        "type": "object"
+      }
+    }
+  })JSON");
+
+  const auto base_dialect{
+      sourcemeta::blaze::base_dialect(document, test_resolver)};
+  EXPECT_TRUE(base_dialect.has_value());
+  EXPECT_EQ(base_dialect.value(),
+            sourcemeta::blaze::SchemaBaseDialect::JSON_Schema_Draft_4);
+}
+
+TEST(Foundation_base_dialect, embedded_custom_metaschema_chain) {
+  const sourcemeta::core::JSON document = sourcemeta::core::parse_json(R"JSON({
+    "$schema": "https://example.com/meta-a",
+    "$id": "https://example.com/schema",
+    "$defs": {
+      "https://example.com/meta-a": {
+        "$id": "https://example.com/meta-a",
+        "$schema": "https://example.com/meta-b",
+        "type": "object"
+      },
+      "https://example.com/meta-b": {
+        "$id": "https://example.com/meta-b",
+        "$schema": "https://json-schema.org/draft/2020-12/schema",
+        "$vocabulary": {
+          "https://json-schema.org/draft/2020-12/vocab/core": true
+        },
+        "type": "object"
+      }
+    }
+  })JSON");
+
+  const auto base_dialect{
+      sourcemeta::blaze::base_dialect(document, test_resolver)};
+  EXPECT_TRUE(base_dialect.has_value());
+  EXPECT_EQ(base_dialect.value(),
+            sourcemeta::blaze::SchemaBaseDialect::JSON_Schema_2020_12);
+}
+
+TEST(Foundation_base_dialect, embedded_custom_metaschema_chain_draft7) {
+  const sourcemeta::core::JSON document = sourcemeta::core::parse_json(R"JSON({
+    "$schema": "https://example.com/meta-a",
+    "$id": "https://example.com/schema",
+    "definitions": {
+      "https://example.com/meta-a": {
+        "$id": "https://example.com/meta-a",
+        "$schema": "https://example.com/meta-b",
+        "type": "object"
+      },
+      "https://example.com/meta-b": {
+        "$id": "https://example.com/meta-b",
+        "$schema": "http://json-schema.org/draft-07/schema#",
+        "type": "object"
+      }
+    }
+  })JSON");
+
+  const auto base_dialect{
+      sourcemeta::blaze::base_dialect(document, test_resolver)};
+  EXPECT_TRUE(base_dialect.has_value());
+  EXPECT_EQ(base_dialect.value(),
+            sourcemeta::blaze::SchemaBaseDialect::JSON_Schema_Draft_7);
+}
+
+TEST(Foundation_base_dialect,
+     embedded_custom_metaschema_non_canonical_dialect_uri) {
+  const sourcemeta::core::JSON document = sourcemeta::core::parse_json(R"JSON({
+    "$schema": "https://example.com/meta#",
+    "$id": "https://example.com/schema",
+    "$defs": {
+      "https://example.com/meta": {
+        "$id": "https://example.com/meta",
+        "$schema": "https://json-schema.org/draft/2020-12/schema",
+        "$vocabulary": {
+          "https://json-schema.org/draft/2020-12/vocab/core": true
+        },
+        "type": "object"
+      }
+    }
+  })JSON");
+
+  const auto base_dialect{
+      sourcemeta::blaze::base_dialect(document, test_resolver)};
+  EXPECT_TRUE(base_dialect.has_value());
+  EXPECT_EQ(base_dialect.value(),
+            sourcemeta::blaze::SchemaBaseDialect::JSON_Schema_2020_12);
+}
+
+TEST(Foundation_base_dialect, embedded_custom_metaschema_wrong_container) {
+  const sourcemeta::core::JSON document = sourcemeta::core::parse_json(R"JSON({
+    "$schema": "https://example.com/meta",
+    "$id": "https://example.com/schema",
+    "$defs": {
+      "https://example.com/meta": {
+        "$id": "https://example.com/meta",
+        "$schema": "http://json-schema.org/draft-07/schema#",
+        "type": "object"
+      }
+    }
+  })JSON");
+
+  try {
+    sourcemeta::blaze::base_dialect(document, test_resolver);
+    FAIL();
+  } catch (const sourcemeta::blaze::SchemaResolutionError &error) {
+    EXPECT_EQ(error.identifier(), "https://example.com/meta");
+  } catch (...) {
+    FAIL();
+  }
+}
+
+TEST(Foundation_base_dialect, embedded_custom_metaschema_definitions_2020_12) {
+  const sourcemeta::core::JSON document = sourcemeta::core::parse_json(R"JSON({
+    "$schema": "https://example.com/meta",
+    "$id": "https://example.com/schema",
+    "definitions": {
+      "https://example.com/meta": {
+        "$id": "https://example.com/meta",
+        "$schema": "https://json-schema.org/draft/2020-12/schema",
+        "$vocabulary": {
+          "https://json-schema.org/draft/2020-12/vocab/core": true
+        },
+        "type": "object"
+      }
+    }
+  })JSON");
+
+  // In 2019-09 and 2020-12, `definitions` is still supported
+  // for backwards compatibility
+  const auto base_dialect{
+      sourcemeta::blaze::base_dialect(document, test_resolver)};
+  EXPECT_TRUE(base_dialect.has_value());
+  EXPECT_EQ(base_dialect.value(),
+            sourcemeta::blaze::SchemaBaseDialect::JSON_Schema_2020_12);
+}
+
+TEST(Foundation_base_dialect, embedded_custom_metaschema_wrong_id_keyword) {
+  const sourcemeta::core::JSON document = sourcemeta::core::parse_json(R"JSON({
+    "$schema": "https://example.com/meta",
+    "$id": "https://example.com/schema",
+    "$defs": {
+      "https://example.com/meta": {
+        "id": "https://example.com/meta",
+        "$schema": "https://json-schema.org/draft/2020-12/schema",
+        "$vocabulary": {
+          "https://json-schema.org/draft/2020-12/vocab/core": true
+        },
+        "type": "object"
+      }
+    }
+  })JSON");
+
+  try {
+    sourcemeta::blaze::base_dialect(document, test_resolver);
+    FAIL();
+  } catch (const sourcemeta::blaze::SchemaResolutionError &error) {
+    EXPECT_EQ(error.identifier(), "https://example.com/meta");
+  } catch (...) {
+    FAIL();
+  }
+}
+
+TEST(Foundation_base_dialect,
+     embedded_custom_metaschema_draft4_wrong_id_keyword) {
+  const sourcemeta::core::JSON document = sourcemeta::core::parse_json(R"JSON({
+    "$schema": "https://example.com/meta",
+    "id": "https://example.com/schema",
+    "definitions": {
+      "https://example.com/meta": {
+        "$id": "https://example.com/meta",
+        "$schema": "http://json-schema.org/draft-04/schema#",
+        "type": "object"
+      }
+    }
+  })JSON");
+
+  try {
+    sourcemeta::blaze::base_dialect(document, test_resolver);
+    FAIL();
+  } catch (const sourcemeta::blaze::SchemaResolutionError &error) {
+    EXPECT_EQ(error.identifier(), "https://example.com/meta");
+  } catch (...) {
+    FAIL();
+  }
+}
+
+TEST(Foundation_base_dialect, embedded_custom_metaschema_self_descriptive) {
+  const sourcemeta::core::JSON document = sourcemeta::core::parse_json(R"JSON({
+    "$schema": "https://example.com/meta",
+    "$id": "https://example.com/schema",
+    "$defs": {
+      "https://example.com/meta": {
+        "$id": "https://example.com/meta",
+        "$schema": "https://example.com/meta",
+        "type": "object"
+      }
+    }
+  })JSON");
+
+  EXPECT_THROW(sourcemeta::blaze::base_dialect(document, test_resolver),
+               sourcemeta::blaze::SchemaUnknownBaseDialectError);
+}
+
+TEST(Foundation_base_dialect, embedded_custom_metaschema_cyclic) {
+  const sourcemeta::core::JSON document = sourcemeta::core::parse_json(R"JSON({
+    "$schema": "https://example.com/meta-a",
+    "$id": "https://example.com/schema",
+    "$defs": {
+      "https://example.com/meta-a": {
+        "$id": "https://example.com/meta-a",
+        "$schema": "https://example.com/meta-b",
+        "type": "object"
+      },
+      "https://example.com/meta-b": {
+        "$id": "https://example.com/meta-b",
+        "$schema": "https://example.com/meta-a",
+        "type": "object"
+      }
+    }
+  })JSON");
+
+  EXPECT_THROW(sourcemeta::blaze::base_dialect(document, test_resolver),
+               sourcemeta::blaze::SchemaUnknownBaseDialectError);
+}
+
+TEST(Foundation_base_dialect, embedded_custom_metaschema_not_found) {
+  const sourcemeta::core::JSON document = sourcemeta::core::parse_json(R"JSON({
+    "$schema": "https://example.com/meta",
+    "$id": "https://example.com/schema",
+    "$defs": {
+      "https://example.com/other": {
+        "$id": "https://example.com/other",
+        "$schema": "https://json-schema.org/draft/2020-12/schema",
+        "type": "object"
+      }
+    }
+  })JSON");
+
+  try {
+    sourcemeta::blaze::base_dialect(document, test_resolver);
+    FAIL();
+  } catch (const sourcemeta::blaze::SchemaResolutionError &error) {
+    EXPECT_EQ(error.identifier(), "https://example.com/meta");
+  } catch (...) {
+    FAIL();
+  }
+}
+
+TEST(Foundation_base_dialect, embedded_custom_metaschema_relative_dialect) {
+  const sourcemeta::core::JSON document = sourcemeta::core::parse_json(R"JSON({
+    "$schema": "meta",
+    "$id": "https://example.com/schema",
+    "$defs": {
+      "meta": {
+        "$id": "meta",
+        "$schema": "https://json-schema.org/draft/2020-12/schema",
+        "$vocabulary": {
+          "https://json-schema.org/draft/2020-12/vocab/core": true
+        },
+        "type": "object"
+      }
+    }
+  })JSON");
+
+  try {
+    sourcemeta::blaze::base_dialect(document, test_resolver);
+    FAIL();
+  } catch (
+      const sourcemeta::blaze::SchemaRelativeMetaschemaResolutionError &error) {
+    EXPECT_EQ(error.identifier(), "meta");
+  } catch (...) {
+    FAIL();
+  }
+}
