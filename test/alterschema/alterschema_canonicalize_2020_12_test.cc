@@ -2620,16 +2620,34 @@ TEST_F(Canonicalizer202012Test, dependent_schemas_to_any_of) {
     "$schema": "https://json-schema.org/draft/2020-12/schema",
     "anyOf": [
       {
-        "not": {
-          "type": "object",
-          "required": [ "foo" ],
-          "patternProperties": {},
-          "propertyNames": true,
-          "minProperties": 1,
-          "properties": {
-            "foo": true
-          }
-        }
+        "enum": [ null ]
+      },
+      {
+        "enum": [ false, true ]
+      },
+      {
+        "type": "object",
+        "properties": {
+          "foo": false
+        },
+        "patternProperties": {},
+        "propertyNames": true,
+        "minProperties": 0
+      },
+      {
+        "type": "array",
+        "uniqueItems": false,
+        "minItems": 0,
+        "contains": true,
+        "minContains": 0,
+        "items": true
+      },
+      {
+        "type": "string",
+        "minLength": 0
+      },
+      {
+        "type": "number"
       },
       {
         "allOf": [
@@ -2677,16 +2695,13 @@ TEST_F(Canonicalizer202012Test, dependent_required_to_any_of) {
           {
             "anyOf": [
               {
-                "not": {
-                  "type": "object",
-                  "required": [ "foo" ],
-                  "patternProperties": {},
-                  "propertyNames": true,
-                  "minProperties": 1,
-                  "properties": {
-                    "foo": true
-                  }
-                }
+                "type": "object",
+                "properties": {
+                  "foo": false
+                },
+                "patternProperties": {},
+                "propertyNames": true,
+                "minProperties": 0
               },
               {
                 "type": "object",
@@ -2729,6 +2744,62 @@ TEST_F(Canonicalizer202012Test, dependent_required_to_any_of) {
   })JSON");
 
   CANONICALIZE_AND_VALIDATE(document, expected, *compiled_meta_);
+}
+
+TEST_F(Canonicalizer202012Test,
+       dependent_required_to_any_of_without_applicator) {
+  auto document = sourcemeta::core::parse_json(R"JSON({
+    "$schema": "https://sourcemeta.com/2020-12-validation-without-applicator",
+    "dependentRequired": {
+      "foo": [ "bar" ]
+    }
+  })JSON");
+
+  sourcemeta::blaze::SchemaTransformer bundle;
+  sourcemeta::blaze::add(bundle,
+                         sourcemeta::blaze::AlterSchemaMode::Canonicalizer);
+
+  try {
+    [[maybe_unused]] const auto result{bundle.apply(
+        document, sourcemeta::blaze::schema_walker, alterschema_test_resolver,
+        [](const auto &, const auto &, const auto &, const auto &,
+           const auto &) {})};
+    FAIL();
+  } catch (const sourcemeta::blaze::SchemaError &error) {
+    EXPECT_STREQ(error.what(),
+                 "Cannot canonicalise `dependentRequired` without the "
+                 "Applicator vocabulary");
+  } catch (...) {
+    FAIL();
+  }
+}
+
+TEST_F(Canonicalizer202012Test,
+       dependent_schemas_to_any_of_without_validation) {
+  auto document = sourcemeta::core::parse_json(R"JSON({
+    "$schema": "https://sourcemeta.com/2020-12-applicator-without-validation",
+    "dependentSchemas": {
+      "foo": { "type": "string", "minLength": 0 }
+    }
+  })JSON");
+
+  sourcemeta::blaze::SchemaTransformer bundle;
+  sourcemeta::blaze::add(bundle,
+                         sourcemeta::blaze::AlterSchemaMode::Canonicalizer);
+
+  try {
+    [[maybe_unused]] const auto result{bundle.apply(
+        document, sourcemeta::blaze::schema_walker, alterschema_test_resolver,
+        [](const auto &, const auto &, const auto &, const auto &,
+           const auto &) {})};
+    FAIL();
+  } catch (const sourcemeta::blaze::SchemaError &error) {
+    EXPECT_STREQ(error.what(),
+                 "Cannot canonicalise `dependentSchemas` without the "
+                 "Validation vocabulary");
+  } catch (...) {
+    FAIL();
+  }
 }
 
 TEST_F(Canonicalizer202012Test, empty_defs_drop) {

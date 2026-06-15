@@ -5026,32 +5026,33 @@ TEST_F(Documentation202012Test, dependent_schemas) {
                             }
                           ],
                           "type": {
+                            "kind": "object"
+                          }
+                        },
+                        {
+                          "identifier": 6,
+                          "path": [
+                            {
+                              "type": "literal",
+                              "value": "a"
+                            }
+                          ],
+                          "type": {
+                            "kind": "never"
+                          },
+                          "required": false
+                        },
+                        {
+                          "identifier": 7,
+                          "path": [
+                            {
+                              "type": "wildcard",
+                              "value": "*"
+                            }
+                          ],
+                          "type": {
                             "kind": "any"
                           }
-                        }
-                      ],
-                      "children": [
-                        {
-                          "label": "Must NOT match",
-                          "children": [
-                            {
-                              "identifier": 6,
-                              "rows": [
-                                {
-                                  "identifier": 7,
-                                  "path": [
-                                    {
-                                      "type": "synthetic",
-                                      "value": "value"
-                                    }
-                                  ],
-                                  "type": {
-                                    "kind": "object"
-                                  }
-                                }
-                              ]
-                            }
-                          ]
                         }
                       ]
                     },
@@ -5269,32 +5270,33 @@ TEST_F(Documentation202012Test, dependent_required) {
                             }
                           ],
                           "type": {
+                            "kind": "object"
+                          }
+                        },
+                        {
+                          "identifier": 6,
+                          "path": [
+                            {
+                              "type": "literal",
+                              "value": "a"
+                            }
+                          ],
+                          "type": {
+                            "kind": "never"
+                          },
+                          "required": false
+                        },
+                        {
+                          "identifier": 7,
+                          "path": [
+                            {
+                              "type": "wildcard",
+                              "value": "*"
+                            }
+                          ],
+                          "type": {
                             "kind": "any"
                           }
-                        }
-                      ],
-                      "children": [
-                        {
-                          "label": "Must NOT match",
-                          "children": [
-                            {
-                              "identifier": 6,
-                              "rows": [
-                                {
-                                  "identifier": 7,
-                                  "path": [
-                                    {
-                                      "type": "synthetic",
-                                      "value": "value"
-                                    }
-                                  ],
-                                  "type": {
-                                    "kind": "object"
-                                  }
-                                }
-                              ]
-                            }
-                          ]
                         }
                       ]
                     },

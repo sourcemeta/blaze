@@ -53,6 +53,26 @@ static auto alterschema_test_resolver(std::string_view identifier)
       "type": "integer"
     })JSON");
   } else if (identifier ==
+             "https://sourcemeta.com/2020-12-validation-without-applicator") {
+    return sourcemeta::core::parse_json(R"JSON({
+      "$id": "https://sourcemeta.com/2020-12-validation-without-applicator",
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "$vocabulary": {
+        "https://json-schema.org/draft/2020-12/vocab/core": true,
+        "https://json-schema.org/draft/2020-12/vocab/validation": true
+      }
+    })JSON");
+  } else if (identifier ==
+             "https://sourcemeta.com/2020-12-applicator-without-validation") {
+    return sourcemeta::core::parse_json(R"JSON({
+      "$id": "https://sourcemeta.com/2020-12-applicator-without-validation",
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "$vocabulary": {
+        "https://json-schema.org/draft/2020-12/vocab/core": true,
+        "https://json-schema.org/draft/2020-12/vocab/applicator": true
+      }
+    })JSON");
+  } else if (identifier ==
              "https://example.com/unsupported-vocabulary-metaschema") {
     return sourcemeta::core::parse_json(R"JSON({
       "$id": "https://example.com/unsupported-vocabulary-metaschema",
