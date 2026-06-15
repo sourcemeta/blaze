@@ -18,6 +18,9 @@ public:
         vocabularies.contains_any(
             {Vocabularies::Known::JSON_Schema_2019_09_Applicator,
              Vocabularies::Known::JSON_Schema_2020_12_Applicator}) &&
+        vocabularies.contains_any(
+            {Vocabularies::Known::JSON_Schema_2019_09_Validation,
+             Vocabularies::Known::JSON_Schema_2020_12_Validation}) &&
         schema.is_object());
 
     const auto *dependent_schemas{schema.try_at("dependentSchemas")};

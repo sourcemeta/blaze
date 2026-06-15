@@ -2746,6 +2746,44 @@ TEST_F(Canonicalizer202012Test, dependent_required_to_any_of) {
   CANONICALIZE_AND_VALIDATE(document, expected, *compiled_meta_);
 }
 
+TEST_F(Canonicalizer202012Test,
+       dependent_required_to_any_of_without_applicator) {
+  auto document = sourcemeta::core::parse_json(R"JSON({
+    "$schema": "https://sourcemeta.com/2020-12-validation-without-applicator",
+    "dependentRequired": {
+      "foo": [ "bar" ]
+    }
+  })JSON");
+
+  const auto expected = sourcemeta::core::parse_json(R"JSON({
+    "$schema": "https://sourcemeta.com/2020-12-validation-without-applicator",
+    "dependentRequired": {
+      "foo": [ "bar" ]
+    }
+  })JSON");
+
+  CANONICALIZE_WITHOUT_VALIDATE(document, expected);
+}
+
+TEST_F(Canonicalizer202012Test,
+       dependent_schemas_to_any_of_without_validation) {
+  auto document = sourcemeta::core::parse_json(R"JSON({
+    "$schema": "https://sourcemeta.com/2020-12-applicator-without-validation",
+    "dependentSchemas": {
+      "foo": { "type": "string", "minLength": 0 }
+    }
+  })JSON");
+
+  const auto expected = sourcemeta::core::parse_json(R"JSON({
+    "$schema": "https://sourcemeta.com/2020-12-applicator-without-validation",
+    "dependentSchemas": {
+      "foo": { "type": "string", "minLength": 0 }
+    }
+  })JSON");
+
+  CANONICALIZE_WITHOUT_VALIDATE(document, expected);
+}
+
 TEST_F(Canonicalizer202012Test, empty_defs_drop) {
   auto document = sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2020-12/schema",

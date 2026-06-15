@@ -53,6 +53,26 @@ static auto alterschema_test_resolver(std::string_view identifier)
       "type": "integer"
     })JSON");
   } else if (identifier ==
+             "https://sourcemeta.com/2020-12-validation-without-applicator") {
+    return sourcemeta::core::parse_json(R"JSON({
+      "$id": "https://sourcemeta.com/2020-12-validation-without-applicator",
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "$vocabulary": {
+        "https://json-schema.org/draft/2020-12/vocab/core": true,
+        "https://json-schema.org/draft/2020-12/vocab/validation": true
+      }
+    })JSON");
+  } else if (identifier ==
+             "https://sourcemeta.com/2020-12-applicator-without-validation") {
+    return sourcemeta::core::parse_json(R"JSON({
+      "$id": "https://sourcemeta.com/2020-12-applicator-without-validation",
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "$vocabulary": {
+        "https://json-schema.org/draft/2020-12/vocab/core": true,
+        "https://json-schema.org/draft/2020-12/vocab/applicator": true
+      }
+    })JSON");
+  } else if (identifier ==
              "https://example.com/unsupported-vocabulary-metaschema") {
     return sourcemeta::core::parse_json(R"JSON({
       "$id": "https://example.com/unsupported-vocabulary-metaschema",
@@ -118,6 +138,19 @@ static auto alterschema_test_resolver(std::string_view identifier)
     EXPECT_EQ(document, expected);                                             \
     sourcemeta::blaze::Evaluator _evaluator;                                   \
     EXPECT_TRUE(_evaluator.validate(compiled_template, document));             \
+  }
+
+#define CANONICALIZE_WITHOUT_VALIDATE(document, expected)                      \
+  {                                                                            \
+    sourcemeta::blaze::SchemaTransformer _bundle;                              \
+    sourcemeta::blaze::add(_bundle,                                            \
+                           sourcemeta::blaze::AlterSchemaMode::Canonicalizer); \
+    const auto _result = _bundle.apply(                                        \
+        document, sourcemeta::blaze::schema_walker, alterschema_test_resolver, \
+        [](const auto &, const auto &, const auto &, const auto &,             \
+           const auto &) {});                                                  \
+    EXPECT_TRUE(_result.first);                                                \
+    EXPECT_EQ(document, expected);                                             \
   }
 
 #define EXPECT_JSON_EQ_WITH_ORDERING(actual, expected)                         \
