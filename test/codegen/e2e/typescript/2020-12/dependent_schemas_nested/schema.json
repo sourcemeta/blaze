@@ -1,0 +1,21 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "type": "object",
+  "properties": {
+    "category": { "type": "string" }
+  },
+  "dependentSchemas": {
+    "category": {
+      "properties": {
+        "details": {
+          "type": "object",
+          "properties": {
+            "code": { "type": "integer" }
+          },
+          "required": [ "code" ]
+        }
+      },
+      "required": [ "details" ]
+    }
+  }
+}
