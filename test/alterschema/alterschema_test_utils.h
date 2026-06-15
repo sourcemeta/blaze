@@ -140,19 +140,6 @@ static auto alterschema_test_resolver(std::string_view identifier)
     EXPECT_TRUE(_evaluator.validate(compiled_template, document));             \
   }
 
-#define CANONICALIZE_WITHOUT_VALIDATE(document, expected)                      \
-  {                                                                            \
-    sourcemeta::blaze::SchemaTransformer _bundle;                              \
-    sourcemeta::blaze::add(_bundle,                                            \
-                           sourcemeta::blaze::AlterSchemaMode::Canonicalizer); \
-    const auto _result = _bundle.apply(                                        \
-        document, sourcemeta::blaze::schema_walker, alterschema_test_resolver, \
-        [](const auto &, const auto &, const auto &, const auto &,             \
-           const auto &) {});                                                  \
-    EXPECT_TRUE(_result.first);                                                \
-    EXPECT_EQ(document, expected);                                             \
-  }
-
 #define EXPECT_JSON_EQ_WITH_ORDERING(actual, expected)                         \
   {                                                                            \
     EXPECT_EQ(actual, expected);                                               \

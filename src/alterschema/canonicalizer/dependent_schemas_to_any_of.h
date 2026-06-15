@@ -18,14 +18,20 @@ public:
         vocabularies.contains_any(
             {Vocabularies::Known::JSON_Schema_2019_09_Applicator,
              Vocabularies::Known::JSON_Schema_2020_12_Applicator}) &&
-        vocabularies.contains_any(
-            {Vocabularies::Known::JSON_Schema_2019_09_Validation,
-             Vocabularies::Known::JSON_Schema_2020_12_Validation}) &&
         schema.is_object());
 
     const auto *dependent_schemas{schema.try_at("dependentSchemas")};
     ONLY_CONTINUE_IF(dependent_schemas && dependent_schemas->is_object() &&
                      !dependent_schemas->empty());
+
+    if (!vocabularies.contains_any(
+            {Vocabularies::Known::JSON_Schema_2019_09_Validation,
+             Vocabularies::Known::JSON_Schema_2020_12_Validation})) {
+      throw SchemaError(
+          "Cannot canonicalise `dependentSchemas` without the Validation "
+          "vocabulary");
+    }
+
     return true;
   }
 

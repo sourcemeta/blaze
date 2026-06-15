@@ -2755,14 +2755,23 @@ TEST_F(Canonicalizer202012Test,
     }
   })JSON");
 
-  const auto expected = sourcemeta::core::parse_json(R"JSON({
-    "$schema": "https://sourcemeta.com/2020-12-validation-without-applicator",
-    "dependentRequired": {
-      "foo": [ "bar" ]
-    }
-  })JSON");
+  sourcemeta::blaze::SchemaTransformer bundle;
+  sourcemeta::blaze::add(bundle,
+                         sourcemeta::blaze::AlterSchemaMode::Canonicalizer);
 
-  CANONICALIZE_WITHOUT_VALIDATE(document, expected);
+  try {
+    [[maybe_unused]] const auto result{bundle.apply(
+        document, sourcemeta::blaze::schema_walker, alterschema_test_resolver,
+        [](const auto &, const auto &, const auto &, const auto &,
+           const auto &) {})};
+    FAIL();
+  } catch (const sourcemeta::blaze::SchemaError &error) {
+    EXPECT_STREQ(error.what(),
+                 "Cannot canonicalise `dependentRequired` without the "
+                 "Applicator vocabulary");
+  } catch (...) {
+    FAIL();
+  }
 }
 
 TEST_F(Canonicalizer202012Test,
@@ -2774,14 +2783,23 @@ TEST_F(Canonicalizer202012Test,
     }
   })JSON");
 
-  const auto expected = sourcemeta::core::parse_json(R"JSON({
-    "$schema": "https://sourcemeta.com/2020-12-applicator-without-validation",
-    "dependentSchemas": {
-      "foo": { "type": "string", "minLength": 0 }
-    }
-  })JSON");
+  sourcemeta::blaze::SchemaTransformer bundle;
+  sourcemeta::blaze::add(bundle,
+                         sourcemeta::blaze::AlterSchemaMode::Canonicalizer);
 
-  CANONICALIZE_WITHOUT_VALIDATE(document, expected);
+  try {
+    [[maybe_unused]] const auto result{bundle.apply(
+        document, sourcemeta::blaze::schema_walker, alterschema_test_resolver,
+        [](const auto &, const auto &, const auto &, const auto &,
+           const auto &) {})};
+    FAIL();
+  } catch (const sourcemeta::blaze::SchemaError &error) {
+    EXPECT_STREQ(error.what(),
+                 "Cannot canonicalise `dependentSchemas` without the "
+                 "Validation vocabulary");
+  } catch (...) {
+    FAIL();
+  }
 }
 
 TEST_F(Canonicalizer202012Test, empty_defs_drop) {
