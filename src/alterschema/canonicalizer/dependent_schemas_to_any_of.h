@@ -30,12 +30,9 @@ public:
     auto result_branches{JSON::make_array()};
 
     for (const auto &entry : schema.at("dependentSchemas").as_object()) {
-      auto not_required{JSON::make_object()};
-      not_required.assign("type", JSON{"object"});
-      not_required.assign("required", JSON::make_array());
-      not_required.at("required").push_back(JSON{entry.first});
-      auto not_branch{JSON::make_object()};
-      not_branch.assign("not", std::move(not_required));
+      auto absence_branch{JSON::make_object()};
+      absence_branch.assign("properties", JSON::make_object());
+      absence_branch.at("properties").assign(entry.first, JSON{false});
 
       auto required_obj{JSON::make_object()};
       required_obj.assign("type", JSON{"object"});
@@ -50,7 +47,7 @@ public:
       allof_branch.assign("allOf", std::move(all_of));
 
       auto pair{JSON::make_array()};
-      pair.push_back(std::move(not_branch));
+      pair.push_back(std::move(absence_branch));
       pair.push_back(std::move(allof_branch));
 
       auto wrapper{JSON::make_object()};

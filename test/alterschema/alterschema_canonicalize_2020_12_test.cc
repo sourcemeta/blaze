@@ -2620,16 +2620,34 @@ TEST_F(Canonicalizer202012Test, dependent_schemas_to_any_of) {
     "$schema": "https://json-schema.org/draft/2020-12/schema",
     "anyOf": [
       {
-        "not": {
-          "type": "object",
-          "required": [ "foo" ],
-          "patternProperties": {},
-          "propertyNames": true,
-          "minProperties": 1,
-          "properties": {
-            "foo": true
-          }
-        }
+        "enum": [ null ]
+      },
+      {
+        "enum": [ false, true ]
+      },
+      {
+        "type": "object",
+        "properties": {
+          "foo": false
+        },
+        "patternProperties": {},
+        "propertyNames": true,
+        "minProperties": 0
+      },
+      {
+        "type": "array",
+        "uniqueItems": false,
+        "minItems": 0,
+        "contains": true,
+        "minContains": 0,
+        "items": true
+      },
+      {
+        "type": "string",
+        "minLength": 0
+      },
+      {
+        "type": "number"
       },
       {
         "allOf": [
@@ -2677,16 +2695,13 @@ TEST_F(Canonicalizer202012Test, dependent_required_to_any_of) {
           {
             "anyOf": [
               {
-                "not": {
-                  "type": "object",
-                  "required": [ "foo" ],
-                  "patternProperties": {},
-                  "propertyNames": true,
-                  "minProperties": 1,
-                  "properties": {
-                    "foo": true
-                  }
-                }
+                "type": "object",
+                "properties": {
+                  "foo": false
+                },
+                "patternProperties": {},
+                "propertyNames": true,
+                "minProperties": 0
               },
               {
                 "type": "object",
