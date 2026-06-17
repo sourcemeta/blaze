@@ -2328,8 +2328,8 @@
       }
     },
     {
-      "description": "Disallow with required is rejected",
-      "valid": false,
+      "description": "Disallow with boolean required is canonical",
+      "valid": true,
       "data": {
         "disallow": [
           {
@@ -2337,6 +2337,18 @@
           }
         ],
         "required": false
+      }
+    },
+    {
+      "description": "Disallow with non-boolean required is rejected",
+      "valid": false,
+      "data": {
+        "disallow": [
+          {
+            "enum": [ 1 ]
+          }
+        ],
+        "required": "yes"
       }
     },
     {
