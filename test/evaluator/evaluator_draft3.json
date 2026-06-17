@@ -12573,5 +12573,125 @@
         "The object properties not covered by other adjacent object keywords were expected to validate against this subschema"
       ]
     }
+  },
+  {
+    "description": "required_sibling_to_ref_is_ignored",
+    "schema": {
+      "$schema": "http://json-schema.org/draft-03/schema#",
+      "type": "object",
+      "properties": { "foo": { "$ref": "#/definitions/target", "required": true } },
+      "definitions": { "target": { "type": "string" } }
+    },
+    "instance": {},
+    "valid": true,
+    "fast": {
+      "pre": [
+        [ "AssertionTypeStrict", "/type", "#/type", "" ]
+      ],
+      "post": [
+        [ true, "AssertionTypeStrict", "/type", "#/type", "" ]
+      ],
+      "descriptions": [
+        "The value was expected to be of type object"
+      ]
+    },
+    "exhaustive": {
+      "pre": [
+        [ "LogicalWhenType", "/properties", "#/properties", "" ],
+        [ "AssertionTypeStrict", "/type", "#/type", "" ]
+      ],
+      "post": [
+        [ true, "LogicalWhenType", "/properties", "#/properties", "" ],
+        [ true, "AssertionTypeStrict", "/type", "#/type", "" ]
+      ],
+      "descriptions": [
+        "The object value was expected to validate against the single defined property subschema",
+        "The value was expected to be of type object"
+      ]
+    }
+  },
+  {
+    "description": "required_sibling_to_ref_present_valid",
+    "schema": {
+      "$schema": "http://json-schema.org/draft-03/schema#",
+      "type": "object",
+      "properties": { "foo": { "$ref": "#/definitions/target", "required": true } },
+      "definitions": { "target": { "type": "string" } }
+    },
+    "instance": { "foo": "x" },
+    "valid": true,
+    "fast": {
+      "pre": [
+        [ "AssertionPropertyTypeStrict", "/properties/foo/$ref/type", "#/definitions/target/type", "/foo" ],
+        [ "AssertionTypeStrict", "/type", "#/type", "" ]
+      ],
+      "post": [
+        [ true, "AssertionPropertyTypeStrict", "/properties/foo/$ref/type", "#/definitions/target/type", "/foo" ],
+        [ true, "AssertionTypeStrict", "/type", "#/type", "" ]
+      ],
+      "descriptions": [
+        "The value was expected to be of type string",
+        "The value was expected to be of type object"
+      ]
+    },
+    "exhaustive": {
+      "pre": [
+        [ "LogicalWhenType", "/properties", "#/properties", "" ],
+        [ "ControlJump", "/properties/foo/$ref", "#/properties/foo/$ref", "/foo" ],
+        [ "AssertionTypeStrict", "/properties/foo/$ref/type", "#/definitions/target/type", "/foo" ],
+        [ "AssertionTypeStrict", "/type", "#/type", "" ]
+      ],
+      "post": [
+        [ true, "AssertionTypeStrict", "/properties/foo/$ref/type", "#/definitions/target/type", "/foo" ],
+        [ true, "ControlJump", "/properties/foo/$ref", "#/properties/foo/$ref", "/foo" ],
+        [ true, "LogicalWhenType", "/properties", "#/properties", "" ],
+        [ true, "AssertionTypeStrict", "/type", "#/type", "" ]
+      ],
+      "descriptions": [
+        "The value was expected to be of type string",
+        "The string value was expected to validate against the referenced schema",
+        "The object value was expected to validate against the single defined property subschema",
+        "The value was expected to be of type object"
+      ]
+    }
+  },
+  {
+    "description": "required_sibling_to_ref_present_invalid",
+    "schema": {
+      "$schema": "http://json-schema.org/draft-03/schema#",
+      "type": "object",
+      "properties": { "foo": { "$ref": "#/definitions/target", "required": true } },
+      "definitions": { "target": { "type": "string" } }
+    },
+    "instance": { "foo": 1 },
+    "valid": false,
+    "fast": {
+      "pre": [
+        [ "AssertionPropertyTypeStrict", "/properties/foo/$ref/type", "#/definitions/target/type", "/foo" ]
+      ],
+      "post": [
+        [ false, "AssertionPropertyTypeStrict", "/properties/foo/$ref/type", "#/definitions/target/type", "/foo" ]
+      ],
+      "descriptions": [
+        "The value was expected to be of type string but it was of type integer"
+      ]
+    },
+    "exhaustive": {
+      "pre": [
+        [ "LogicalWhenType", "/properties", "#/properties", "" ],
+        [ "ControlJump", "/properties/foo/$ref", "#/properties/foo/$ref", "/foo" ],
+        [ "AssertionTypeStrict", "/properties/foo/$ref/type", "#/definitions/target/type", "/foo" ]
+      ],
+      "post": [
+        [ false, "AssertionTypeStrict", "/properties/foo/$ref/type", "#/definitions/target/type", "/foo" ],
+        [ false, "ControlJump", "/properties/foo/$ref", "#/properties/foo/$ref", "/foo" ],
+        [ false, "LogicalWhenType", "/properties", "#/properties", "" ]
+      ],
+      "descriptions": [
+        "The value was expected to be of type string but it was of type integer",
+        "The integer value was expected to validate against the referenced schema",
+        "The object value was expected to validate against the single defined property subschema"
+      ]
+    }
   }
 ]

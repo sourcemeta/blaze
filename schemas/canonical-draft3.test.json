@@ -233,11 +233,19 @@
       }
     },
     {
-      "description": "Enum with required is rejected",
-      "valid": false,
+      "description": "Enum with boolean required is canonical",
+      "valid": true,
       "data": {
         "enum": [ 1 ],
         "required": true
+      }
+    },
+    {
+      "description": "Enum with non-boolean required is rejected",
+      "valid": false,
+      "data": {
+        "enum": [ 1 ],
+        "required": "yes"
       }
     },
     {
