@@ -1005,6 +1005,30 @@ TEST(Frame_draft3, id_fragment_invalid_whitespace) {
   }
 }
 
+TEST(Frame_draft3, non_string_id_throws) {
+  const sourcemeta::core::JSON document = sourcemeta::core::parse_json(R"JSON({
+    "$schema": "http://json-schema.org/draft-03/schema#",
+    "type": "object",
+    "properties": {
+      "a": { "id": 42, "type": "string" }
+    }
+  })JSON");
+
+  sourcemeta::blaze::SchemaFrame frame{
+      sourcemeta::blaze::SchemaFrame::Mode::References};
+
+  try {
+    frame.analyse(document, sourcemeta::blaze::schema_walker,
+                  sourcemeta::blaze::schema_resolver);
+    FAIL();
+  } catch (const sourcemeta::blaze::SchemaKeywordError &error) {
+    EXPECT_EQ(error.keyword(), "id");
+    EXPECT_EQ(error.value(), "42");
+  } catch (...) {
+    FAIL();
+  }
+}
+
 TEST(Frame_draft3, definitions_subschemas) {
   const sourcemeta::core::JSON document = sourcemeta::core::parse_json(R"JSON({
     "$schema": "http://json-schema.org/draft-03/schema#",
