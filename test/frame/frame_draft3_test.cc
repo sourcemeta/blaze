@@ -903,24 +903,85 @@ TEST(Frame_draft3, top_level_id_empty_string) {
   EXPECT_FRAME_LOCATION_REACHABLE(frame, Static, "", frame.root());
 }
 
-TEST(Frame_draft3, id_fragment_rejected) {
+TEST(Frame_draft3, location_independent_identifier_anonymous) {
   const sourcemeta::core::JSON document = sourcemeta::core::parse_json(R"JSON({
-    "id": "#foo",
-    "$schema": "http://json-schema.org/draft-03/schema#"
+    "$schema": "http://json-schema.org/draft-03/schema#",
+    "definitions": {
+      "foo": {
+        "id": "#foo"
+      },
+      "bar": {
+        "$ref": "#foo"
+      }
+    }
   })JSON");
 
   sourcemeta::blaze::SchemaFrame frame{
       sourcemeta::blaze::SchemaFrame::Mode::References};
+  frame.analyse(document, sourcemeta::blaze::schema_walker,
+                sourcemeta::blaze::schema_resolver);
 
-  try {
-    frame.analyse(document, sourcemeta::blaze::schema_walker,
-                  sourcemeta::blaze::schema_resolver);
-    FAIL();
-  } catch (const sourcemeta::blaze::SchemaFrameError &error) {
-    EXPECT_EQ(error.identifier(), "#foo");
-  } catch (...) {
-    FAIL();
-  }
+  EXPECT_EQ(frame.locations().size(), 8);
+
+  // Pointers
+  EXPECT_ANONYMOUS_FRAME_STATIC_SUBSCHEMA(
+      frame, "", "", "http://json-schema.org/draft-03/schema#",
+      JSON_Schema_Draft_3, std::nullopt, false, false);
+  EXPECT_ANONYMOUS_FRAME_STATIC_POINTER(
+      frame, "#/$schema", "/$schema", "http://json-schema.org/draft-03/schema#",
+      JSON_Schema_Draft_3, "", false, false);
+  EXPECT_ANONYMOUS_FRAME_STATIC_POINTER(
+      frame, "#/definitions", "/definitions",
+      "http://json-schema.org/draft-03/schema#", JSON_Schema_Draft_3, "", false,
+      false);
+
+  // Foo
+  EXPECT_ANONYMOUS_FRAME_STATIC_SUBSCHEMA(
+      frame, "#/definitions/foo", "/definitions/foo",
+      "http://json-schema.org/draft-03/schema#", JSON_Schema_Draft_3, "", false,
+      true);
+  EXPECT_ANONYMOUS_FRAME_STATIC_POINTER(
+      frame, "#/definitions/foo/id", "/definitions/foo/id",
+      "http://json-schema.org/draft-03/schema#", JSON_Schema_Draft_3,
+      "/definitions/foo", false, true);
+
+  // Bar
+  EXPECT_ANONYMOUS_FRAME_STATIC_SUBSCHEMA(
+      frame, "#/definitions/bar", "/definitions/bar",
+      "http://json-schema.org/draft-03/schema#", JSON_Schema_Draft_3, "", false,
+      true);
+  EXPECT_ANONYMOUS_FRAME_STATIC_POINTER(
+      frame, "#/definitions/bar/$ref", "/definitions/bar/$ref",
+      "http://json-schema.org/draft-03/schema#", JSON_Schema_Draft_3,
+      "/definitions/bar", false, true);
+
+  // Anchors
+  EXPECT_ANONYMOUS_FRAME_STATIC_ANCHOR(
+      frame, "#foo", "/definitions/foo",
+      "http://json-schema.org/draft-03/schema#", JSON_Schema_Draft_3, "", false,
+      true);
+
+  // References
+
+  EXPECT_EQ(frame.references().size(), 2);
+
+  EXPECT_STATIC_REFERENCE(
+      frame, "/$schema", "http://json-schema.org/draft-03/schema",
+      "http://json-schema.org/draft-03/schema", std::nullopt,
+      "http://json-schema.org/draft-03/schema#");
+  EXPECT_STATIC_REFERENCE(frame, "/definitions/bar/$ref", "#foo", "", "foo",
+                          "#foo");
+
+  // Reachability
+
+  EXPECT_FRAME_LOCATION_REACHABLE(frame, Static, "", frame.root());
+  EXPECT_FRAME_LOCATION_NON_REACHABLE(frame, Static, "#/definitions/foo",
+                                      frame.root());
+  EXPECT_FRAME_LOCATION_NON_REACHABLE(frame, Static, "#/definitions/bar",
+                                      frame.root());
+  EXPECT_FRAME_LOCATION_NON_REACHABLE(frame, Static, "#foo", frame.root());
+
+  EXPECT_FRAME_LOCATION_REACHABLE(frame, Static, "#foo", "#/definitions/bar");
 }
 
 TEST(Frame_draft3, id_fragment_invalid_whitespace) {
@@ -939,6 +1000,30 @@ TEST(Frame_draft3, id_fragment_invalid_whitespace) {
   } catch (const sourcemeta::blaze::SchemaKeywordError &error) {
     EXPECT_EQ(error.keyword(), "id");
     EXPECT_EQ(error.value(), "#foo bar");
+  } catch (...) {
+    FAIL();
+  }
+}
+
+TEST(Frame_draft3, non_string_id_throws) {
+  const sourcemeta::core::JSON document = sourcemeta::core::parse_json(R"JSON({
+    "$schema": "http://json-schema.org/draft-03/schema#",
+    "type": "object",
+    "properties": {
+      "a": { "id": 42, "type": "string" }
+    }
+  })JSON");
+
+  sourcemeta::blaze::SchemaFrame frame{
+      sourcemeta::blaze::SchemaFrame::Mode::References};
+
+  try {
+    frame.analyse(document, sourcemeta::blaze::schema_walker,
+                  sourcemeta::blaze::schema_resolver);
+    FAIL();
+  } catch (const sourcemeta::blaze::SchemaKeywordError &error) {
+    EXPECT_EQ(error.keyword(), "id");
+    EXPECT_EQ(error.value(), "42");
   } catch (...) {
     FAIL();
   }

@@ -983,3 +983,32 @@ TEST_F(CanonicalizerDraft3Test, required_sibling_to_ref_dropped) {
 
   CANONICALIZE_AND_VALIDATE(document, expected, *compiled_meta_);
 }
+
+TEST_F(CanonicalizerDraft3Test, fragment_id_anchor_with_ref) {
+  auto document = sourcemeta::core::parse_json(R"JSON({
+    "$schema": "http://json-schema.org/draft-03/schema#",
+    "type": "object",
+    "properties": {
+      "a": { "id": "#target", "type": "string" },
+      "b": { "$ref": "#target" }
+    }
+  })JSON");
+
+  const auto expected = sourcemeta::core::parse_json(R"JSON({
+    "$schema": "http://json-schema.org/draft-03/schema#",
+    "type": "object",
+    "properties": {
+      "a": {
+        "id": "#target",
+        "type": "string",
+        "minLength": 0,
+        "required": false
+      },
+      "b": { "$ref": "#target" }
+    },
+    "patternProperties": {},
+    "additionalProperties": {}
+  })JSON");
+
+  CANONICALIZE_AND_VALIDATE(document, expected, *compiled_meta_);
+}
