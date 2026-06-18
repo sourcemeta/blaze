@@ -1564,7 +1564,12 @@ TEST_F(CanonicalizerDraft3Test,
         "required": false
       },
       "b": {
-        "$ref": "#/properties/a"
+        "extends": [
+          {
+            "$ref": "#/properties/a"
+          }
+        ],
+        "required": false
       }
     },
     "patternProperties": {},

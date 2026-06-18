@@ -16,7 +16,7 @@ public:
             const sourcemeta::blaze::Vocabularies &vocabularies,
             const sourcemeta::blaze::SchemaFrame &frame,
             const sourcemeta::blaze::SchemaFrame::Location &location,
-            const sourcemeta::blaze::SchemaWalker &,
+            const sourcemeta::blaze::SchemaWalker &walker,
             const sourcemeta::blaze::SchemaResolver &, const bool) const
       -> SchemaTransformRule::Result override {
     static const JSON::String KEYWORD{"disallow"};
@@ -28,6 +28,12 @@ public:
     const auto *disallow{schema.try_at(KEYWORD)};
     ONLY_CONTINUE_IF(disallow && disallow->is_array() && disallow->size() == 1);
     ONLY_CONTINUE_IF(is_single_negation(disallow->at(0)));
+
+    // Lifting the inner schema merges its keywords into this node, so the node
+    // must assert nothing besides `disallow` (otherwise a sibling constraint
+    // sharing a key with the inner schema would be silently clobbered)
+    ONLY_CONTINUE_IF(
+        wraps_single_constraint(schema, "disallow", walker, vocabularies));
 
     ONLY_CONTINUE_IF(!frame.has_references_through(
         location.pointer, WeakPointer::Token{std::cref(KEYWORD)}));
@@ -54,5 +60,27 @@ private:
     return schema.is_object() && schema.size() == 1 &&
            schema.defines("disallow") && schema.at("disallow").is_array() &&
            schema.at("disallow").size() == 1;
+  }
+
+  static auto wraps_single_constraint(
+      const sourcemeta::core::JSON &schema, const std::string_view keyword,
+      const sourcemeta::blaze::SchemaWalker &walker,
+      const sourcemeta::blaze::Vocabularies &vocabularies) -> bool {
+    for (const auto &entry : schema.as_object()) {
+      if (entry.first == keyword) {
+        continue;
+      }
+
+      const auto type{walker(entry.first, vocabularies).type};
+      if (type != SchemaKeywordType::Annotation &&
+          type != SchemaKeywordType::Comment &&
+          type != SchemaKeywordType::Other &&
+          type != SchemaKeywordType::Unknown &&
+          type != SchemaKeywordType::LocationMembers) {
+        return false;
+      }
+    }
+
+    return true;
   }
 };
