@@ -126,6 +126,7 @@ auto WALK_UP_IN_PLACE_APPLICATORS(const JSON &root, const SchemaFrame &frame,
 #include "canonicalizer/empty_dependencies_drop.h"
 #include "canonicalizer/empty_dependent_required_drop.h"
 #include "canonicalizer/empty_dependent_schemas_drop.h"
+#include "canonicalizer/empty_disallow_drop.h"
 #include "canonicalizer/enum_drop_redundant_validation.h"
 #include "canonicalizer/enum_filter_by_type.h"
 #include "canonicalizer/exclusive_maximum_boolean_integer_fold.h"
@@ -158,6 +159,7 @@ auto WALK_UP_IN_PLACE_APPLICATORS(const JSON &root, const SchemaFrame &frame,
 #include "canonicalizer/type_boolean_as_enum.h"
 #include "canonicalizer/type_inherit_in_place.h"
 #include "canonicalizer/type_null_as_enum.h"
+#include "canonicalizer/type_union_distribute_keywords.h"
 #include "canonicalizer/type_union_implicit.h"
 #include "canonicalizer/type_union_to_schemas.h"
 #include "canonicalizer/type_with_applicator_to_allof.h"
@@ -511,6 +513,7 @@ auto add(SchemaTransformer &bundle, const AlterSchemaMode mode) -> void {
     bundle.add<UnsatisfiableTypeAndEnum>();
     bundle.add<EnumFilterByType>();
     bundle.add<TypeUnionToSchemas>();
+    bundle.add<TypeUnionDistributeKeywords>();
     bundle.add<DependenciesToAnyOf>();
     bundle.add<DependenciesToExtendsDisallow>();
     bundle.add<DependentSchemasToAnyOf>();
@@ -523,6 +526,7 @@ auto add(SchemaTransformer &bundle, const AlterSchemaMode mode) -> void {
     bundle.add<EmptyDependenciesDrop>();
     bundle.add<EmptyDependentSchemasDrop>();
     bundle.add<EmptyDependentRequiredDrop>();
+    bundle.add<EmptyDisallowDrop>();
     bundle.add<AdditionalItemsImplicit>();
     bundle.add<RequiredPropertyImplicit>();
     bundle.add<OptionalPropertyImplicit>();

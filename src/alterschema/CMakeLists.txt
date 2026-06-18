@@ -19,6 +19,7 @@ sourcemeta_library(NAMESPACE sourcemeta PROJECT blaze NAME alterschema
     canonicalizer/empty_dependencies_drop.h
     canonicalizer/empty_dependent_required_drop.h
     canonicalizer/empty_dependent_schemas_drop.h
+    canonicalizer/empty_disallow_drop.h
     canonicalizer/enum_drop_redundant_validation.h
     canonicalizer/enum_filter_by_type.h
     canonicalizer/exclusive_maximum_boolean_integer_fold.h
@@ -50,6 +51,7 @@ sourcemeta_library(NAMESPACE sourcemeta PROJECT blaze NAME alterschema
     canonicalizer/type_boolean_as_enum.h
     canonicalizer/type_inherit_in_place.h
     canonicalizer/type_null_as_enum.h
+    canonicalizer/type_union_distribute_keywords.h
     canonicalizer/type_union_implicit.h
     canonicalizer/type_union_to_schemas.h
     canonicalizer/type_with_applicator_to_allof.h
