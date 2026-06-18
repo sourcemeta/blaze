@@ -1828,3 +1828,51 @@ TEST_F(CanonicalizerDraft3Test, ref_through_wrapped_property_rereferenced) {
 
   CANONICALIZE_AND_VALIDATE(document, expected, *compiled_meta_);
 }
+
+TEST_F(CanonicalizerDraft3Test,
+       required_to_extends_preserves_existing_extends) {
+  auto document = sourcemeta::core::parse_json(R"JSON({
+    "$schema": "http://json-schema.org/draft-03/schema#",
+    "type": "object",
+    "properties": {
+      "foo": { "extends": [ { "type": "string" } ], "minLength": 3 }
+    }
+  })JSON");
+
+  const auto expected = sourcemeta::core::parse_json(R"JSON({
+    "$schema": "http://json-schema.org/draft-03/schema#",
+    "type": "object",
+    "properties": {
+      "foo": {
+        "extends": [
+          { "type": "string", "minLength": 0 },
+          {
+            "type": [
+              { "enum": [ null ] },
+              { "enum": [ false, true ] },
+              {
+                "type": "object",
+                "properties": {},
+                "patternProperties": {},
+                "additionalProperties": {}
+              },
+              {
+                "type": "array",
+                "minItems": 0,
+                "uniqueItems": false,
+                "items": {}
+              },
+              { "type": "string", "minLength": 3 },
+              { "type": "number" }
+            ]
+          }
+        ],
+        "required": false
+      }
+    },
+    "patternProperties": {},
+    "additionalProperties": {}
+  })JSON");
+
+  CANONICALIZE_AND_VALIDATE(document, expected, *compiled_meta_);
+}

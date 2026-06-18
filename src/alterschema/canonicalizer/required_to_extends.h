@@ -55,6 +55,14 @@ public:
     if (schema.defines("extends") && schema.at("extends").is_array()) {
       this->branch_index_ = schema.at("extends").size();
       schema.at("extends").push_back(std::move(branch));
+    } else if (schema.defines("extends")) {
+      // Draft 3 allows `extends` to be a single schema; preserve it as the
+      // first branch of the new array
+      auto extends{JSON::make_array()};
+      extends.push_back(schema.at("extends"));
+      this->branch_index_ = extends.size();
+      extends.push_back(std::move(branch));
+      schema.assign("extends", std::move(extends));
     } else {
       this->branch_index_ = 0;
       auto extends{JSON::make_array()};

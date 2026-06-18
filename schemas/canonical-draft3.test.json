@@ -952,6 +952,22 @@
       }
     },
     {
+      "description": "Object property with required but no extends wrapper is rejected",
+      "valid": false,
+      "data": {
+        "type": "object",
+        "properties": {
+          "foo": {
+            "type": "string",
+            "minLength": 0,
+            "required": false
+          }
+        },
+        "patternProperties": {},
+        "additionalProperties": {}
+      }
+    },
+    {
       "description": "Object with all keywords is canonical",
       "valid": true,
       "data": {
