@@ -152,6 +152,7 @@ auto WALK_UP_IN_PLACE_APPLICATORS(const JSON &root, const SchemaFrame &frame,
 #include "canonicalizer/optional_property_implicit.h"
 #include "canonicalizer/recursive_anchor_false_drop.h"
 #include "canonicalizer/required_property_implicit.h"
+#include "canonicalizer/required_to_extends.h"
 #include "canonicalizer/single_branch_allof.h"
 #include "canonicalizer/single_branch_anyof.h"
 #include "canonicalizer/single_branch_oneof.h"
@@ -530,6 +531,7 @@ auto add(SchemaTransformer &bundle, const AlterSchemaMode mode) -> void {
     bundle.add<AdditionalItemsImplicit>();
     bundle.add<RequiredPropertyImplicit>();
     bundle.add<OptionalPropertyImplicit>();
+    bundle.add<RequiredToExtends>();
     bundle.add<SingleBranchAllOf>();
     bundle.add<SingleBranchAnyOf>();
     bundle.add<SingleBranchOneOf>();

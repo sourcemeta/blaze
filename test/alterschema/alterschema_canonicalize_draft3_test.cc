@@ -250,7 +250,15 @@ TEST_F(CanonicalizerDraft3Test, object_with_property_required_implicit) {
     "$schema": "http://json-schema.org/draft-03/schema#",
     "type": "object",
     "properties": {
-      "name": { "type": "string", "minLength": 0, "required": false }
+      "name": {
+        "extends": [
+          {
+            "type": "string",
+            "minLength": 0
+          }
+        ],
+        "required": false
+      }
     },
     "patternProperties": {},
     "additionalProperties": {}
@@ -272,7 +280,15 @@ TEST_F(CanonicalizerDraft3Test, object_with_property_required_true) {
     "$schema": "http://json-schema.org/draft-03/schema#",
     "type": "object",
     "properties": {
-      "name": { "type": "string", "minLength": 0, "required": true }
+      "name": {
+        "extends": [
+          {
+            "type": "string",
+            "minLength": 0
+          }
+        ],
+        "required": true
+      }
     },
     "patternProperties": {},
     "additionalProperties": {}
@@ -363,8 +379,18 @@ TEST_F(CanonicalizerDraft3Test, object_with_ref_property) {
     "$schema": "http://json-schema.org/draft-03/schema#",
     "type": "object",
     "properties": {
-      "foo": { "type": "string", "minLength": 0, "required": false },
-      "bar": { "$ref": "#" }
+      "foo": {
+        "extends": [
+          {
+            "type": "string",
+            "minLength": 0
+          }
+        ],
+        "required": false
+      },
+      "bar": {
+        "$ref": "#"
+      }
     },
     "patternProperties": {},
     "additionalProperties": {}
@@ -767,8 +793,12 @@ TEST_F(CanonicalizerDraft3Test, embedded_id_typed_property) {
     "properties": {
       "foo": {
         "id": "https://example.com/embedded",
-        "type": "string",
-        "minLength": 0,
+        "extends": [
+          {
+            "type": "string",
+            "minLength": 0
+          }
+        ],
         "required": false
       }
     },
@@ -800,13 +830,19 @@ TEST_F(CanonicalizerDraft3Test, embedded_id_self_recursive_ref) {
     "properties": {
       "foo": {
         "id": "https://example.com/embedded",
-        "type": "object",
-        "required": false,
-        "properties": {
-          "bar": { "$ref": "#" }
-        },
-        "patternProperties": {},
-        "additionalProperties": {}
+        "extends": [
+          {
+            "type": "object",
+            "properties": {
+              "bar": {
+                "$ref": "#"
+              }
+            },
+            "patternProperties": {},
+            "additionalProperties": {}
+          }
+        ],
+        "required": false
       }
     },
     "patternProperties": {},
@@ -836,8 +872,12 @@ TEST_F(CanonicalizerDraft3Test, nested_embedded_ids) {
     "properties": {
       "foo": {
         "id": "https://example.com/a/b",
-        "type": "string",
-        "minLength": 0,
+        "extends": [
+          {
+            "type": "string",
+            "minLength": 0
+          }
+        ],
         "required": false
       }
     },
@@ -870,15 +910,29 @@ TEST_F(CanonicalizerDraft3Test, ref_into_embedded_resource_pointer) {
     "properties": {
       "a": {
         "id": "https://example.com/embedded",
-        "type": "object",
-        "required": false,
-        "properties": {
-          "x": { "type": "string", "minLength": 0, "required": false }
-        },
-        "patternProperties": {},
-        "additionalProperties": {}
+        "extends": [
+          {
+            "type": "object",
+            "properties": {
+              "x": {
+                "extends": [
+                  {
+                    "type": "string",
+                    "minLength": 0
+                  }
+                ],
+                "required": false
+              }
+            },
+            "patternProperties": {},
+            "additionalProperties": {}
+          }
+        ],
+        "required": false
       },
-      "b": { "$ref": "https://example.com/embedded#/properties/x" }
+      "b": {
+        "$ref": "https://example.com/embedded#/extends/0/properties/x"
+      }
     },
     "patternProperties": {},
     "additionalProperties": {}
@@ -901,7 +955,11 @@ TEST_F(CanonicalizerDraft3Test, required_enum_property_preserves_required) {
     "type": "object",
     "properties": {
       "foo": {
-        "enum": [ 1, 2 ],
+        "extends": [
+          {
+            "enum": [ 1, 2 ]
+          }
+        ],
         "required": true
       }
     },
@@ -926,7 +984,11 @@ TEST_F(CanonicalizerDraft3Test, optional_enum_property_stays_compact) {
     "type": "object",
     "properties": {
       "foo": {
-        "enum": [ 1, 2 ],
+        "extends": [
+          {
+            "enum": [ 1, 2 ]
+          }
+        ],
         "required": false
       }
     },
@@ -951,7 +1013,11 @@ TEST_F(CanonicalizerDraft3Test, required_boolean_property_preserves_required) {
     "type": "object",
     "properties": {
       "foo": {
-        "enum": [ false, true ],
+        "extends": [
+          {
+            "enum": [ false, true ]
+          }
+        ],
         "required": true
       }
     },
@@ -1000,11 +1066,17 @@ TEST_F(CanonicalizerDraft3Test, fragment_id_anchor_with_ref) {
     "properties": {
       "a": {
         "id": "#target",
-        "type": "string",
-        "minLength": 0,
+        "extends": [
+          {
+            "type": "string",
+            "minLength": 0
+          }
+        ],
         "required": false
       },
-      "b": { "$ref": "#target" }
+      "b": {
+        "$ref": "#target"
+      }
     },
     "patternProperties": {},
     "additionalProperties": {}
@@ -1303,7 +1375,15 @@ TEST_F(CanonicalizerDraft3Test, disallow_object_with_properties) {
       {
         "type": "object",
         "properties": {
-          "a": { "type": "string", "minLength": 0, "required": false }
+          "a": {
+            "extends": [
+              {
+                "type": "string",
+                "minLength": 0
+              }
+            ],
+            "required": false
+          }
         },
         "patternProperties": {},
         "additionalProperties": {}
@@ -1688,7 +1768,105 @@ TEST_F(CanonicalizerDraft3Test, disallow_property_keeps_required) {
     "type": "object",
     "properties": {
       "a": {
-        "disallow": [ { "type": "string", "minLength": 0 } ],
+        "extends": [
+          {
+            "disallow": [
+              {
+                "type": "string",
+                "minLength": 0
+              }
+            ]
+          }
+        ],
+        "required": false
+      }
+    },
+    "patternProperties": {},
+    "additionalProperties": {}
+  })JSON");
+
+  CANONICALIZE_AND_VALIDATE(document, expected, *compiled_meta_);
+}
+
+TEST_F(CanonicalizerDraft3Test, ref_through_wrapped_property_rereferenced) {
+  auto document = sourcemeta::core::parse_json(R"JSON({
+    "$schema": "http://json-schema.org/draft-03/schema#",
+    "type": "object",
+    "properties": {
+      "a": { "type": "object", "properties": { "x": { "type": "string" } } },
+      "b": { "$ref": "#/properties/a/properties/x" }
+    }
+  })JSON");
+
+  const auto expected = sourcemeta::core::parse_json(R"JSON({
+    "$schema": "http://json-schema.org/draft-03/schema#",
+    "type": "object",
+    "properties": {
+      "a": {
+        "extends": [
+          {
+            "type": "object",
+            "properties": {
+              "x": {
+                "extends": [
+                  { "type": "string", "minLength": 0 }
+                ],
+                "required": false
+              }
+            },
+            "patternProperties": {},
+            "additionalProperties": {}
+          }
+        ],
+        "required": false
+      },
+      "b": { "$ref": "#/properties/a/extends/0/properties/x" }
+    },
+    "patternProperties": {},
+    "additionalProperties": {}
+  })JSON");
+
+  CANONICALIZE_AND_VALIDATE(document, expected, *compiled_meta_);
+}
+
+TEST_F(CanonicalizerDraft3Test,
+       required_to_extends_preserves_existing_extends) {
+  auto document = sourcemeta::core::parse_json(R"JSON({
+    "$schema": "http://json-schema.org/draft-03/schema#",
+    "type": "object",
+    "properties": {
+      "foo": { "extends": [ { "type": "string" } ], "minLength": 3 }
+    }
+  })JSON");
+
+  const auto expected = sourcemeta::core::parse_json(R"JSON({
+    "$schema": "http://json-schema.org/draft-03/schema#",
+    "type": "object",
+    "properties": {
+      "foo": {
+        "extends": [
+          { "type": "string", "minLength": 0 },
+          {
+            "type": [
+              { "enum": [ null ] },
+              { "enum": [ false, true ] },
+              {
+                "type": "object",
+                "properties": {},
+                "patternProperties": {},
+                "additionalProperties": {}
+              },
+              {
+                "type": "array",
+                "minItems": 0,
+                "uniqueItems": false,
+                "items": {}
+              },
+              { "type": "string", "minLength": 3 },
+              { "type": "number" }
+            ]
+          }
+        ],
         "required": false
       }
     },

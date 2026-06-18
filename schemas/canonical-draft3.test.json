@@ -233,8 +233,8 @@
       }
     },
     {
-      "description": "Enum with boolean required is canonical",
-      "valid": true,
+      "description": "Enum with boolean required is rejected",
+      "valid": false,
       "data": {
         "enum": [ 1 ],
         "required": true
@@ -383,8 +383,8 @@
       }
     },
     {
-      "description": "String with required is canonical",
-      "valid": true,
+      "description": "String with required is rejected",
+      "valid": false,
       "data": {
         "type": "string",
         "minLength": 0,
@@ -554,8 +554,8 @@
       }
     },
     {
-      "description": "Integer with required is canonical",
-      "valid": true,
+      "description": "Integer with required is rejected",
+      "valid": false,
       "data": {
         "type": "integer",
         "divisibleBy": 1,
@@ -748,8 +748,8 @@
       }
     },
     {
-      "description": "Number with required is canonical",
-      "valid": true,
+      "description": "Number with required is rejected",
+      "valid": false,
       "data": {
         "type": "number",
         "required": false
@@ -918,8 +918,12 @@
         "type": "object",
         "properties": {
           "name": {
-            "type": "string",
-            "minLength": 0,
+            "extends": [
+              {
+                "type": "string",
+                "minLength": 0
+              }
+            ],
             "required": true
           }
         },
@@ -934,13 +938,33 @@
         "type": "object",
         "properties": {
           "name": {
+            "extends": [
+              {
+                "type": "string",
+                "minLength": 0
+              }
+            ],
+            "required": false
+          }
+        },
+        "patternProperties": {},
+        "additionalProperties": false
+      }
+    },
+    {
+      "description": "Object property with required but no extends wrapper is rejected",
+      "valid": false,
+      "data": {
+        "type": "object",
+        "properties": {
+          "foo": {
             "type": "string",
             "minLength": 0,
             "required": false
           }
         },
         "patternProperties": {},
-        "additionalProperties": false
+        "additionalProperties": {}
       }
     },
     {
@@ -950,13 +974,21 @@
         "type": "object",
         "properties": {
           "name": {
-            "type": "string",
-            "minLength": 0,
+            "extends": [
+              {
+                "type": "string",
+                "minLength": 0
+              }
+            ],
             "required": true
           },
           "age": {
-            "type": "integer",
-            "divisibleBy": 1,
+            "extends": [
+              {
+                "type": "integer",
+                "divisibleBy": 1
+              }
+            ],
             "required": false
           }
         },
@@ -1135,8 +1167,12 @@
         "type": "object",
         "properties": {
           "name": {
-            "type": "string",
-            "minLength": 0,
+            "extends": [
+              {
+                "type": "string",
+                "minLength": 0
+              }
+            ],
             "required": true
           },
           "ref_prop": {
@@ -1345,8 +1381,8 @@
       }
     },
     {
-      "description": "Array schema items with required is canonical",
-      "valid": true,
+      "description": "Array schema items with required is rejected",
+      "valid": false,
       "data": {
         "type": "array",
         "minItems": 0,
@@ -2088,8 +2124,8 @@
       }
     },
     {
-      "description": "Extends with required is rejected",
-      "valid": false,
+      "description": "Extends with required is canonical",
+      "valid": true,
       "data": {
         "extends": [
           {
@@ -2328,8 +2364,8 @@
       }
     },
     {
-      "description": "Disallow with boolean required is canonical",
-      "valid": true,
+      "description": "Disallow with boolean required is rejected",
+      "valid": false,
       "data": {
         "disallow": [
           {
@@ -2578,30 +2614,46 @@
         "title": "Person",
         "properties": {
           "name": {
-            "type": "string",
-            "minLength": 1,
+            "extends": [
+              {
+                "type": "string",
+                "minLength": 1
+              }
+            ],
             "required": true
           },
           "age": {
-            "type": "integer",
-            "divisibleBy": 1,
-            "minimum": 0,
+            "extends": [
+              {
+                "type": "integer",
+                "divisibleBy": 1,
+                "minimum": 0
+              }
+            ],
             "required": false
           },
           "email": {
-            "type": "string",
-            "minLength": 0,
-            "format": "email",
+            "extends": [
+              {
+                "type": "string",
+                "minLength": 0,
+                "format": "email"
+              }
+            ],
             "required": false
           },
           "tags": {
-            "type": "array",
-            "minItems": 0,
-            "uniqueItems": false,
-            "items": {
-              "type": "string",
-              "minLength": 0
-            },
+            "extends": [
+              {
+                "type": "array",
+                "minItems": 0,
+                "uniqueItems": false,
+                "items": {
+                  "type": "string",
+                  "minLength": 0
+                }
+              }
+            ],
             "required": false
           }
         },
