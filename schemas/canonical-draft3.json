@@ -401,6 +401,7 @@
           "properties": {
             "disallow": {
               "type": "array",
+              "maxItems": 1,
               "minItems": 1,
               "items": {
                 "$ref": "#/$defs/schema"

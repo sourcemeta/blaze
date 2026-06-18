@@ -2302,8 +2302,8 @@
       }
     },
     {
-      "description": "Disallow with canonical branches is canonical",
-      "valid": true,
+      "description": "Disallow with multiple elements is rejected",
+      "valid": false,
       "data": {
         "disallow": [
           {
@@ -2312,6 +2312,43 @@
           },
           {
             "type": "number"
+          }
+        ]
+      }
+    },
+    {
+      "description": "Disallow as string is rejected",
+      "valid": false,
+      "data": {
+        "disallow": "string"
+      }
+    },
+    {
+      "description": "Disallow with string element is rejected",
+      "valid": false,
+      "data": {
+        "disallow": [ "string" ]
+      }
+    },
+    {
+      "description": "Multi-way negation as extends of single disallows is canonical",
+      "valid": true,
+      "data": {
+        "extends": [
+          {
+            "disallow": [
+              {
+                "type": "string",
+                "minLength": 0
+              }
+            ]
+          },
+          {
+            "disallow": [
+              {
+                "type": "number"
+              }
+            ]
           }
         ]
       }
