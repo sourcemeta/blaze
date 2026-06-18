@@ -1679,13 +1679,17 @@ TEST_F(CanonicalizerDraft3Test, disallow_wrapping_extends) {
 
   const auto expected = sourcemeta::core::parse_json(R"JSON({
     "$schema": "http://json-schema.org/draft-03/schema#",
-    "disallow": [
+    "type": [
       {
-        "extends": [
+        "disallow": [
           {
             "type": "string",
             "minLength": 3
-          },
+          }
+        ]
+      },
+      {
+        "disallow": [
           {
             "type": "string",
             "pattern": "^a",
@@ -1694,6 +1698,196 @@ TEST_F(CanonicalizerDraft3Test, disallow_wrapping_extends) {
         ]
       }
     ]
+  })JSON");
+
+  CANONICALIZE_AND_VALIDATE(document, expected, *compiled_meta_);
+}
+
+TEST_F(CanonicalizerDraft3Test, disallow_extends_single_branch) {
+  auto document = sourcemeta::core::parse_json(R"JSON({
+    "$schema": "http://json-schema.org/draft-03/schema#",
+    "disallow": [
+      {
+        "extends": [
+          {
+            "type": "string",
+            "minLength": 3
+          }
+        ]
+      }
+    ]
+  })JSON");
+
+  const auto expected = sourcemeta::core::parse_json(R"JSON({
+    "$schema": "http://json-schema.org/draft-03/schema#",
+    "type": [
+      {
+        "disallow": [
+          {
+            "type": "string",
+            "minLength": 3
+          }
+        ]
+      }
+    ]
+  })JSON");
+
+  CANONICALIZE_AND_VALIDATE(document, expected, *compiled_meta_);
+}
+
+TEST_F(CanonicalizerDraft3Test,
+       disallow_over_extends_with_reference_into_subtree_not_pushed) {
+  auto document = sourcemeta::core::parse_json(R"JSON({
+    "$schema": "http://json-schema.org/draft-03/schema#",
+    "type": "object",
+    "properties": {
+      "a": {
+        "disallow": [
+          {
+            "extends": [
+              { "type": "object", "properties": { "x": { "type": "string" } } },
+              { "type": "object", "properties": { "y": { "type": "number" } } }
+            ]
+          }
+        ]
+      },
+      "b": { "$ref": "#/properties/a/disallow/0/extends/1/properties/y" }
+    }
+  })JSON");
+
+  const auto expected = sourcemeta::core::parse_json(R"JSON({
+    "$schema": "http://json-schema.org/draft-03/schema#",
+    "type": "object",
+    "properties": {
+      "a": {
+        "extends": [
+          {
+            "disallow": [
+              {
+                "extends": [
+                  {
+                    "type": "object",
+                    "properties": {
+                      "x": {
+                        "extends": [
+                          {
+                            "type": "string",
+                            "minLength": 0
+                          }
+                        ],
+                        "required": false
+                      }
+                    },
+                    "patternProperties": {},
+                    "additionalProperties": {}
+                  },
+                  {
+                    "type": "object",
+                    "properties": {
+                      "y": {
+                        "extends": [
+                          {
+                            "type": "number"
+                          }
+                        ],
+                        "required": false
+                      }
+                    },
+                    "patternProperties": {},
+                    "additionalProperties": {}
+                  }
+                ]
+              }
+            ]
+          }
+        ],
+        "required": false
+      },
+      "b": {
+        "$ref": "#/properties/a/extends/0/disallow/0/extends/1/properties/y"
+      }
+    },
+    "patternProperties": {},
+    "additionalProperties": {}
+  })JSON");
+
+  CANONICALIZE_AND_VALIDATE(document, expected, *compiled_meta_);
+}
+
+TEST_F(CanonicalizerDraft3Test,
+       disallow_over_extends_with_reference_to_wrapper_not_pushed) {
+  auto document = sourcemeta::core::parse_json(R"JSON({
+    "$schema": "http://json-schema.org/draft-03/schema#",
+    "type": "object",
+    "properties": {
+      "a": {
+        "disallow": [
+          {
+            "extends": [
+              { "type": "object", "properties": { "x": { "type": "string" } } },
+              { "type": "object", "properties": { "y": { "type": "number" } } }
+            ]
+          }
+        ]
+      },
+      "b": { "$ref": "#/properties/a/disallow/0" }
+    }
+  })JSON");
+
+  const auto expected = sourcemeta::core::parse_json(R"JSON({
+    "$schema": "http://json-schema.org/draft-03/schema#",
+    "type": "object",
+    "properties": {
+      "a": {
+        "extends": [
+          {
+            "disallow": [
+              {
+                "extends": [
+                  {
+                    "type": "object",
+                    "properties": {
+                      "x": {
+                        "extends": [
+                          {
+                            "type": "string",
+                            "minLength": 0
+                          }
+                        ],
+                        "required": false
+                      }
+                    },
+                    "patternProperties": {},
+                    "additionalProperties": {}
+                  },
+                  {
+                    "type": "object",
+                    "properties": {
+                      "y": {
+                        "extends": [
+                          {
+                            "type": "number"
+                          }
+                        ],
+                        "required": false
+                      }
+                    },
+                    "patternProperties": {},
+                    "additionalProperties": {}
+                  }
+                ]
+              }
+            ]
+          }
+        ],
+        "required": false
+      },
+      "b": {
+        "$ref": "#/properties/a/extends/0/disallow/0"
+      }
+    },
+    "patternProperties": {},
+    "additionalProperties": {}
   })JSON");
 
   CANONICALIZE_AND_VALIDATE(document, expected, *compiled_meta_);
