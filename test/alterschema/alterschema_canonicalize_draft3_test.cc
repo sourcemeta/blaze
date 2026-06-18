@@ -1640,19 +1640,217 @@ TEST_F(CanonicalizerDraft3Test, disallow_wrapping_type_union) {
 
   const auto expected = sourcemeta::core::parse_json(R"JSON({
     "$schema": "http://json-schema.org/draft-03/schema#",
-    "disallow": [
+    "extends": [
       {
-        "type": [
+        "disallow": [
           {
             "type": "string",
             "minLength": 0
-          },
+          }
+        ]
+      },
+      {
+        "disallow": [
           {
             "type": "number"
           }
         ]
       }
     ]
+  })JSON");
+
+  CANONICALIZE_AND_VALIDATE(document, expected, *compiled_meta_);
+}
+
+TEST_F(CanonicalizerDraft3Test,
+       disallow_over_type_union_with_reference_into_subtree_rereferenced) {
+  auto document = sourcemeta::core::parse_json(R"JSON({
+    "$schema": "http://json-schema.org/draft-03/schema#",
+    "type": "object",
+    "properties": {
+      "a": {
+        "disallow": [
+          {
+            "type": [
+              {
+                "type": "object",
+                "properties": {
+                  "x": {
+                    "type": "string"
+                  }
+                }
+              },
+              {
+                "type": "object",
+                "properties": {
+                  "y": {
+                    "type": "number"
+                  }
+                }
+              }
+            ]
+          }
+        ]
+      },
+      "b": {
+        "$ref": "#/properties/a/disallow/0/type/1/properties/y"
+      }
+    }
+  })JSON");
+
+  const auto expected = sourcemeta::core::parse_json(R"JSON({
+    "$schema": "http://json-schema.org/draft-03/schema#",
+    "type": "object",
+    "properties": {
+      "a": {
+        "extends": [
+          {
+            "extends": [
+              {
+                "disallow": [
+                  {
+                    "type": "object",
+                    "properties": {
+                      "x": {
+                        "extends": [
+                          {
+                            "type": "string",
+                            "minLength": 0
+                          }
+                        ],
+                        "required": false
+                      }
+                    },
+                    "patternProperties": {},
+                    "additionalProperties": {}
+                  }
+                ]
+              },
+              {
+                "disallow": [
+                  {
+                    "type": "object",
+                    "properties": {
+                      "y": {
+                        "extends": [
+                          {
+                            "type": "number"
+                          }
+                        ],
+                        "required": false
+                      }
+                    },
+                    "patternProperties": {},
+                    "additionalProperties": {}
+                  }
+                ]
+              }
+            ]
+          }
+        ],
+        "required": false
+      },
+      "b": {
+        "$ref": "#/properties/a/extends/0/extends/1/disallow/0/properties/y"
+      }
+    },
+    "patternProperties": {},
+    "additionalProperties": {}
+  })JSON");
+
+  CANONICALIZE_AND_VALIDATE(document, expected, *compiled_meta_);
+}
+
+TEST_F(CanonicalizerDraft3Test,
+       disallow_over_type_union_with_reference_to_wrapper_not_pushed) {
+  auto document = sourcemeta::core::parse_json(R"JSON({
+    "$schema": "http://json-schema.org/draft-03/schema#",
+    "type": "object",
+    "properties": {
+      "a": {
+        "disallow": [
+          {
+            "type": [
+              {
+                "type": "object",
+                "properties": {
+                  "x": {
+                    "type": "string"
+                  }
+                }
+              },
+              {
+                "type": "object",
+                "properties": {
+                  "y": {
+                    "type": "number"
+                  }
+                }
+              }
+            ]
+          }
+        ]
+      },
+      "b": {
+        "$ref": "#/properties/a/disallow/0"
+      }
+    }
+  })JSON");
+
+  const auto expected = sourcemeta::core::parse_json(R"JSON({
+    "$schema": "http://json-schema.org/draft-03/schema#",
+    "type": "object",
+    "properties": {
+      "a": {
+        "extends": [
+          {
+            "disallow": [
+              {
+                "type": [
+                  {
+                    "type": "object",
+                    "properties": {
+                      "x": {
+                        "extends": [
+                          {
+                            "type": "string",
+                            "minLength": 0
+                          }
+                        ],
+                        "required": false
+                      }
+                    },
+                    "patternProperties": {},
+                    "additionalProperties": {}
+                  },
+                  {
+                    "type": "object",
+                    "properties": {
+                      "y": {
+                        "extends": [
+                          {
+                            "type": "number"
+                          }
+                        ],
+                        "required": false
+                      }
+                    },
+                    "patternProperties": {},
+                    "additionalProperties": {}
+                  }
+                ]
+              }
+            ]
+          }
+        ],
+        "required": false
+      },
+      "b": {
+        "$ref": "#/properties/a/extends/0/disallow/0"
+      }
+    },
+    "patternProperties": {},
+    "additionalProperties": {}
   })JSON");
 
   CANONICALIZE_AND_VALIDATE(document, expected, *compiled_meta_);
@@ -1736,7 +1934,7 @@ TEST_F(CanonicalizerDraft3Test, disallow_extends_single_branch) {
 }
 
 TEST_F(CanonicalizerDraft3Test,
-       disallow_over_extends_with_reference_into_subtree_not_pushed) {
+       disallow_over_extends_with_reference_into_subtree_rereferenced) {
   auto document = sourcemeta::core::parse_json(R"JSON({
     "$schema": "http://json-schema.org/draft-03/schema#",
     "type": "object",
@@ -1745,13 +1943,29 @@ TEST_F(CanonicalizerDraft3Test,
         "disallow": [
           {
             "extends": [
-              { "type": "object", "properties": { "x": { "type": "string" } } },
-              { "type": "object", "properties": { "y": { "type": "number" } } }
+              {
+                "type": "object",
+                "properties": {
+                  "x": {
+                    "type": "string"
+                  }
+                }
+              },
+              {
+                "type": "object",
+                "properties": {
+                  "y": {
+                    "type": "number"
+                  }
+                }
+              }
             ]
           }
         ]
       },
-      "b": { "$ref": "#/properties/a/disallow/0/extends/1/properties/y" }
+      "b": {
+        "$ref": "#/properties/a/disallow/0/extends/1/properties/y"
+      }
     }
   })JSON");
 
@@ -1762,9 +1976,9 @@ TEST_F(CanonicalizerDraft3Test,
       "a": {
         "extends": [
           {
-            "disallow": [
+            "type": [
               {
-                "extends": [
+                "disallow": [
                   {
                     "type": "object",
                     "properties": {
@@ -1780,7 +1994,11 @@ TEST_F(CanonicalizerDraft3Test,
                     },
                     "patternProperties": {},
                     "additionalProperties": {}
-                  },
+                  }
+                ]
+              },
+              {
+                "disallow": [
                   {
                     "type": "object",
                     "properties": {
@@ -1804,7 +2022,7 @@ TEST_F(CanonicalizerDraft3Test,
         "required": false
       },
       "b": {
-        "$ref": "#/properties/a/extends/0/disallow/0/extends/1/properties/y"
+        "$ref": "#/properties/a/extends/0/type/1/disallow/0/properties/y"
       }
     },
     "patternProperties": {},
@@ -2431,26 +2649,42 @@ TEST_F(CanonicalizerDraft3Test, type_with_typeless_disallow_distributes) {
     "extends": [
       {
         "disallow": [
+          { "enum": [ null ] }
+        ]
+      },
+      {
+        "disallow": [
+          { "enum": [ false, true ] }
+        ]
+      },
+      {
+        "disallow": [
           {
-            "type": [
-              { "enum": [ null ] },
-              { "enum": [ false, true ] },
-              {
-                "type": "object",
-                "properties": {},
-                "patternProperties": {},
-                "additionalProperties": {}
-              },
-              {
-                "type": "array",
-                "minItems": 0,
-                "uniqueItems": false,
-                "items": {}
-              },
-              { "type": "string", "pattern": "^x", "minLength": 0 },
-              { "type": "number" }
-            ]
+            "type": "object",
+            "properties": {},
+            "patternProperties": {},
+            "additionalProperties": {}
           }
+        ]
+      },
+      {
+        "disallow": [
+          {
+            "type": "array",
+            "minItems": 0,
+            "uniqueItems": false,
+            "items": {}
+          }
+        ]
+      },
+      {
+        "disallow": [
+          { "type": "string", "pattern": "^x", "minLength": 0 }
+        ]
+      },
+      {
+        "disallow": [
+          { "type": "number" }
         ]
       },
       { "type": "string", "minLength": 0 }
@@ -2468,24 +2702,44 @@ TEST_F(CanonicalizerDraft3Test, disallow_typeless_scalar_distributes) {
 
   const auto expected = sourcemeta::core::parse_json(R"JSON({
     "$schema": "http://json-schema.org/draft-03/schema#",
-    "disallow": [
+    "extends": [
       {
-        "type": [
-          { "enum": [ null ] },
-          { "enum": [ false, true ] },
+        "disallow": [
+          { "enum": [ null ] }
+        ]
+      },
+      {
+        "disallow": [
+          { "enum": [ false, true ] }
+        ]
+      },
+      {
+        "disallow": [
           {
             "type": "object",
             "properties": {},
             "patternProperties": {},
             "additionalProperties": {}
-          },
+          }
+        ]
+      },
+      {
+        "disallow": [
           {
             "type": "array",
             "minItems": 0,
             "uniqueItems": false,
             "items": {}
-          },
-          { "type": "string", "minLength": 3 },
+          }
+        ]
+      },
+      {
+        "disallow": [
+          { "type": "string", "minLength": 3 }
+        ]
+      },
+      {
+        "disallow": [
           { "type": "number" }
         ]
       }

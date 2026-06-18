@@ -121,6 +121,7 @@ auto WALK_UP_IN_PLACE_APPLICATORS(const JSON &root, const SchemaFrame &frame,
 #include "canonicalizer/disallow_array_to_extends.h"
 #include "canonicalizer/disallow_extends_to_type.h"
 #include "canonicalizer/disallow_to_array_of_schemas.h"
+#include "canonicalizer/disallow_type_union_to_extends.h"
 #include "canonicalizer/divisible_by_implicit.h"
 #include "canonicalizer/draft3_type_any.h"
 #include "canonicalizer/duplicate_disallow_entries.h"
@@ -537,6 +538,7 @@ auto add(SchemaTransformer &bundle, const AlterSchemaMode mode) -> void {
     bundle.add<DuplicateDisallowEntries>();
     bundle.add<DisallowArrayToExtends>();
     bundle.add<DisallowExtendsToType>();
+    bundle.add<DisallowTypeUnionToExtends>();
     bundle.add<RequiredToExtends>();
     bundle.add<SingleBranchAllOf>();
     bundle.add<SingleBranchAnyOf>();
