@@ -1519,7 +1519,7 @@ TEST_F(CanonicalizerDraft3Test,
 }
 
 TEST_F(CanonicalizerDraft3Test,
-       ref_into_duplicate_disallow_element_rereferenced) {
+       disallow_duplicate_with_reference_into_array_not_compacted) {
   auto document = sourcemeta::core::parse_json(R"JSON({
     "$schema": "http://json-schema.org/draft-03/schema#",
     "type": "object",
@@ -1541,12 +1541,85 @@ TEST_F(CanonicalizerDraft3Test,
                 "enum": [ 1, 2 ]
               }
             ]
+          },
+          {
+            "disallow": [
+              {
+                "enum": [ 1, 2 ]
+              }
+            ]
           }
         ],
         "required": false
       },
       "b": {
-        "$ref": "#/properties/a/extends/0/disallow/0"
+        "$ref": "#/properties/a/extends/1/disallow/0"
+      }
+    },
+    "patternProperties": {},
+    "additionalProperties": {}
+  })JSON");
+
+  CANONICALIZE_AND_VALIDATE(document, expected, *compiled_meta_);
+}
+
+TEST_F(CanonicalizerDraft3Test,
+       disallow_duplicate_with_reference_into_middle_entry_not_aliased) {
+  auto document = sourcemeta::core::parse_json(R"JSON({
+    "$schema": "http://json-schema.org/draft-03/schema#",
+    "type": "object",
+    "properties": {
+      "a": {
+        "disallow": [
+          { "enum": [ 1 ] },
+          { "enum": [ 2 ] },
+          { "enum": [ 2 ] },
+          { "enum": [ 3 ] }
+        ]
+      },
+      "b": { "$ref": "#/properties/a/disallow/2" }
+    }
+  })JSON");
+
+  const auto expected = sourcemeta::core::parse_json(R"JSON({
+    "$schema": "http://json-schema.org/draft-03/schema#",
+    "type": "object",
+    "properties": {
+      "a": {
+        "extends": [
+          {
+            "disallow": [
+              {
+                "enum": [ 1 ]
+              }
+            ]
+          },
+          {
+            "disallow": [
+              {
+                "enum": [ 2 ]
+              }
+            ]
+          },
+          {
+            "disallow": [
+              {
+                "enum": [ 2 ]
+              }
+            ]
+          },
+          {
+            "disallow": [
+              {
+                "enum": [ 3 ]
+              }
+            ]
+          }
+        ],
+        "required": false
+      },
+      "b": {
+        "$ref": "#/properties/a/extends/2/disallow/0"
       }
     },
     "patternProperties": {},
