@@ -39,12 +39,14 @@ public:
         wraps_single_constraint(schema, "disallow", walker, vocabularies) &&
         wraps_single_constraint(element, "extends", walker, vocabularies));
 
-    // A reference into the `disallow` subtree cannot survive the rewrite: the
-    // wrapper schema is dissolved rather than relocated, so leave such cases
-    // for the engine and let other rules normalize them
-    const std::string keyword{"disallow"};
-    ONLY_CONTINUE_IF(!frame.has_references_through(
-        location.pointer, WeakPointer::Token{std::cref(keyword)}));
+    // The conjuncts relocate to distinct `type` branches (handled by
+    // `rereference`), but the wrapper schema itself is dissolved rather than
+    // moved, so a reference straight at it has no new home: bail in that case
+    static const JSON::String DISALLOW{"disallow"};
+    auto wrapper_pointer{location.pointer};
+    wrapper_pointer.push_back(std::cref(DISALLOW));
+    wrapper_pointer.push_back(static_cast<std::size_t>(0));
+    ONLY_CONTINUE_IF(!frame.has_references_to(wrapper_pointer));
 
     return true;
   }
@@ -61,6 +63,25 @@ public:
 
     schema.erase("disallow");
     schema.assign("type", std::move(branches));
+  }
+
+  [[nodiscard]] auto rereference(const std::string_view, const Pointer &,
+                                 const Pointer &target,
+                                 const Pointer &current) const
+      -> Pointer override {
+    const auto extends_prefix{current.concat({"disallow", 0, "extends"})};
+    if (!target.starts_with(extends_prefix)) {
+      return target;
+    }
+
+    const auto relative{target.resolve_from(extends_prefix)};
+    if (relative.empty() || !relative.at(0).is_index()) {
+      return target;
+    }
+
+    const auto index{relative.at(0).to_index()};
+    return target.rebase(extends_prefix.concat({index}),
+                         current.concat({"type", index, "disallow", 0}));
   }
 
 private:
