@@ -15,6 +15,7 @@ sourcemeta_library(NAMESPACE sourcemeta PROJECT blaze NAME alterschema
     canonicalizer/disallow_array_to_extends.h
     canonicalizer/disallow_to_array_of_schemas.h
     canonicalizer/divisible_by_implicit.h
+    canonicalizer/duplicate_disallow_entries.h
     canonicalizer/empty_definitions_drop.h
     canonicalizer/empty_defs_drop.h
     canonicalizer/empty_dependencies_drop.h
