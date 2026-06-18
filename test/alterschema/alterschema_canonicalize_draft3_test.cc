@@ -2009,3 +2009,25 @@ TEST_F(CanonicalizerDraft3Test, ref_into_disallow_element_rereferenced) {
 
   CANONICALIZE_AND_VALIDATE(document, expected, *compiled_meta_);
 }
+
+TEST_F(CanonicalizerDraft3Test, disallow_split_preserves_existing_extends) {
+  auto document = sourcemeta::core::parse_json(R"JSON({
+    "$schema": "http://json-schema.org/draft-03/schema#",
+    "extends": [ { "type": "number" } ],
+    "disallow": [
+      { "type": "string", "minLength": 0 },
+      { "enum": [ 1 ] }
+    ]
+  })JSON");
+
+  const auto expected = sourcemeta::core::parse_json(R"JSON({
+    "$schema": "http://json-schema.org/draft-03/schema#",
+    "extends": [
+      { "type": "number" },
+      { "disallow": [ { "type": "string", "minLength": 0 } ] },
+      { "disallow": [ { "enum": [ 1 ] } ] }
+    ]
+  })JSON");
+
+  CANONICALIZE_AND_VALIDATE(document, expected, *compiled_meta_);
+}
