@@ -1735,7 +1735,8 @@ TEST_F(CanonicalizerDraft3Test, disallow_extends_single_branch) {
   CANONICALIZE_AND_VALIDATE(document, expected, *compiled_meta_);
 }
 
-TEST_F(CanonicalizerDraft3Test, ref_into_disallow_over_extends_rereferenced) {
+TEST_F(CanonicalizerDraft3Test,
+       disallow_over_extends_with_reference_into_subtree_not_pushed) {
   auto document = sourcemeta::core::parse_json(R"JSON({
     "$schema": "http://json-schema.org/draft-03/schema#",
     "type": "object",
@@ -1761,9 +1762,9 @@ TEST_F(CanonicalizerDraft3Test, ref_into_disallow_over_extends_rereferenced) {
       "a": {
         "extends": [
           {
-            "type": [
+            "disallow": [
               {
-                "disallow": [
+                "extends": [
                   {
                     "type": "object",
                     "properties": {
@@ -1779,11 +1780,7 @@ TEST_F(CanonicalizerDraft3Test, ref_into_disallow_over_extends_rereferenced) {
                     },
                     "patternProperties": {},
                     "additionalProperties": {}
-                  }
-                ]
-              },
-              {
-                "disallow": [
+                  },
                   {
                     "type": "object",
                     "properties": {
@@ -1807,7 +1804,86 @@ TEST_F(CanonicalizerDraft3Test, ref_into_disallow_over_extends_rereferenced) {
         "required": false
       },
       "b": {
-        "$ref": "#/properties/a/extends/0/type/1/disallow/0/properties/y"
+        "$ref": "#/properties/a/extends/0/disallow/0/extends/1/properties/y"
+      }
+    },
+    "patternProperties": {},
+    "additionalProperties": {}
+  })JSON");
+
+  CANONICALIZE_AND_VALIDATE(document, expected, *compiled_meta_);
+}
+
+TEST_F(CanonicalizerDraft3Test,
+       disallow_over_extends_with_reference_to_wrapper_not_pushed) {
+  auto document = sourcemeta::core::parse_json(R"JSON({
+    "$schema": "http://json-schema.org/draft-03/schema#",
+    "type": "object",
+    "properties": {
+      "a": {
+        "disallow": [
+          {
+            "extends": [
+              { "type": "object", "properties": { "x": { "type": "string" } } },
+              { "type": "object", "properties": { "y": { "type": "number" } } }
+            ]
+          }
+        ]
+      },
+      "b": { "$ref": "#/properties/a/disallow/0" }
+    }
+  })JSON");
+
+  const auto expected = sourcemeta::core::parse_json(R"JSON({
+    "$schema": "http://json-schema.org/draft-03/schema#",
+    "type": "object",
+    "properties": {
+      "a": {
+        "extends": [
+          {
+            "disallow": [
+              {
+                "extends": [
+                  {
+                    "type": "object",
+                    "properties": {
+                      "x": {
+                        "extends": [
+                          {
+                            "type": "string",
+                            "minLength": 0
+                          }
+                        ],
+                        "required": false
+                      }
+                    },
+                    "patternProperties": {},
+                    "additionalProperties": {}
+                  },
+                  {
+                    "type": "object",
+                    "properties": {
+                      "y": {
+                        "extends": [
+                          {
+                            "type": "number"
+                          }
+                        ],
+                        "required": false
+                      }
+                    },
+                    "patternProperties": {},
+                    "additionalProperties": {}
+                  }
+                ]
+              }
+            ]
+          }
+        ],
+        "required": false
+      },
+      "b": {
+        "$ref": "#/properties/a/extends/0/disallow/0"
       }
     },
     "patternProperties": {},

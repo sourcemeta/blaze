@@ -13,9 +13,9 @@ public:
   condition(const sourcemeta::core::JSON &schema,
             const sourcemeta::core::JSON &,
             const sourcemeta::blaze::Vocabularies &vocabularies,
-            const sourcemeta::blaze::SchemaFrame &,
-            const sourcemeta::blaze::SchemaFrame::Location &,
-            const sourcemeta::blaze::SchemaWalker &,
+            const sourcemeta::blaze::SchemaFrame &frame,
+            const sourcemeta::blaze::SchemaFrame::Location &location,
+            const sourcemeta::blaze::SchemaWalker &walker,
             const sourcemeta::blaze::SchemaResolver &, const bool) const
       -> SchemaTransformRule::Result override {
     ONLY_CONTINUE_IF(vocabularies.contains_any(
@@ -30,6 +30,22 @@ public:
     ONLY_CONTINUE_IF(element.is_object() && element.defines("extends") &&
                      element.at("extends").is_array() &&
                      !element.at("extends").empty());
+
+    // Only a pure negation can be distributed: the schema must assert nothing
+    // besides `disallow` (otherwise the new `type` would clobber a sibling
+    // constraint), and the negated schema must assert nothing besides `extends`
+    // (otherwise those conjuncts would be silently dropped)
+    ONLY_CONTINUE_IF(
+        wraps_single_constraint(schema, "disallow", walker, vocabularies) &&
+        wraps_single_constraint(element, "extends", walker, vocabularies));
+
+    // A reference into the `disallow` subtree cannot survive the rewrite: the
+    // wrapper schema is dissolved rather than relocated, so leave such cases
+    // for the engine and let other rules normalize them
+    const std::string keyword{"disallow"};
+    ONLY_CONTINUE_IF(!frame.has_references_through(
+        location.pointer, WeakPointer::Token{std::cref(keyword)}));
+
     return true;
   }
 
@@ -47,22 +63,26 @@ public:
     schema.assign("type", std::move(branches));
   }
 
-  [[nodiscard]] auto rereference(const std::string_view, const Pointer &,
-                                 const Pointer &target,
-                                 const Pointer &current) const
-      -> Pointer override {
-    const auto extends_prefix{current.concat({"disallow", 0, "extends"})};
-    if (!target.starts_with(extends_prefix)) {
-      return target;
+private:
+  static auto wraps_single_constraint(
+      const sourcemeta::core::JSON &schema, const std::string_view keyword,
+      const sourcemeta::blaze::SchemaWalker &walker,
+      const sourcemeta::blaze::Vocabularies &vocabularies) -> bool {
+    for (const auto &entry : schema.as_object()) {
+      if (entry.first == keyword) {
+        continue;
+      }
+
+      const auto type{walker(entry.first, vocabularies).type};
+      if (type != SchemaKeywordType::Annotation &&
+          type != SchemaKeywordType::Comment &&
+          type != SchemaKeywordType::Other &&
+          type != SchemaKeywordType::Unknown &&
+          type != SchemaKeywordType::LocationMembers) {
+        return false;
+      }
     }
 
-    const auto relative{target.resolve_from(extends_prefix)};
-    if (relative.empty() || !relative.at(0).is_index()) {
-      return target;
-    }
-
-    const auto index{relative.at(0).to_index()};
-    return target.rebase(extends_prefix.concat({index}),
-                         current.concat({"type", index, "disallow", 0}));
+    return true;
   }
 };
