@@ -1456,7 +1456,7 @@ TEST_F(CanonicalizerDraft3Test, disallow_quadruple_negation) {
 }
 
 TEST_F(CanonicalizerDraft3Test,
-       disallow_double_negation_with_reference_into_subtree_not_eliminated) {
+       disallow_double_negation_with_reference_into_subtree_rereferenced) {
   auto document = sourcemeta::core::parse_json(R"JSON({
     "$schema": "http://json-schema.org/draft-03/schema#",
     "type": "object",
@@ -1490,34 +1490,26 @@ TEST_F(CanonicalizerDraft3Test,
       "a": {
         "extends": [
           {
-            "disallow": [
-              {
-                "disallow": [
+            "type": "object",
+            "properties": {
+              "x": {
+                "extends": [
                   {
-                    "type": "object",
-                    "properties": {
-                      "x": {
-                        "extends": [
-                          {
-                            "type": "string",
-                            "minLength": 0
-                          }
-                        ],
-                        "required": false
-                      }
-                    },
-                    "patternProperties": {},
-                    "additionalProperties": {}
+                    "type": "string",
+                    "minLength": 0
                   }
-                ]
+                ],
+                "required": false
               }
-            ]
+            },
+            "patternProperties": {},
+            "additionalProperties": {}
           }
         ],
         "required": false
       },
       "b": {
-        "$ref": "#/properties/a/extends/0/disallow/0/disallow/0/properties/x"
+        "$ref": "#/properties/a/extends/0/properties/x"
       }
     },
     "patternProperties": {},
@@ -1642,6 +1634,78 @@ TEST_F(CanonicalizerDraft3Test,
           }
         ],
         "required": false
+      }
+    },
+    "patternProperties": {},
+    "additionalProperties": {}
+  })JSON");
+
+  CANONICALIZE_AND_VALIDATE(document, expected, *compiled_meta_);
+}
+
+TEST_F(CanonicalizerDraft3Test,
+       disallow_double_negation_deep_with_reference_into_subtree_rereferenced) {
+  auto document = sourcemeta::core::parse_json(R"JSON({
+    "$schema": "http://json-schema.org/draft-03/schema#",
+    "type": "object",
+    "properties": {
+      "a": {
+        "disallow": [
+          {
+            "disallow": [
+              {
+                "disallow": [
+                  {
+                    "disallow": [
+                      {
+                        "type": "object",
+                        "properties": {
+                          "x": {
+                            "type": "string"
+                          }
+                        }
+                      }
+                    ]
+                  }
+                ]
+              }
+            ]
+          }
+        ]
+      },
+      "b": {
+        "$ref": "#/properties/a/disallow/0/disallow/0/disallow/0/disallow/0/properties/x"
+      }
+    }
+  })JSON");
+
+  const auto expected = sourcemeta::core::parse_json(R"JSON({
+    "$schema": "http://json-schema.org/draft-03/schema#",
+    "type": "object",
+    "properties": {
+      "a": {
+        "extends": [
+          {
+            "type": "object",
+            "properties": {
+              "x": {
+                "extends": [
+                  {
+                    "type": "string",
+                    "minLength": 0
+                  }
+                ],
+                "required": false
+              }
+            },
+            "patternProperties": {},
+            "additionalProperties": {}
+          }
+        ],
+        "required": false
+      },
+      "b": {
+        "$ref": "#/properties/a/extends/0/properties/x"
       }
     },
     "patternProperties": {},
