@@ -4535,5 +4535,63 @@
         "The object value was expected to validate against the single defined property subschema"
       ]
     }
+  },
+  {
+    "description": "single_required_property_closed",
+    "schema": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "required": [ "handle" ],
+      "properties": { "handle": { "enum": [ "filesystem" ] } },
+      "additionalProperties": false
+    },
+    "instance": { "extra": "x", "handle": "filesystem" },
+    "valid": false,
+    "fast": {
+      "pre": [
+        [ "AssertionDefinesStrict", "/required", "#/required", "" ],
+        [ "AssertionEqual", "/properties/handle/enum", "#/properties/handle/enum", "/handle" ],
+        [ "LoopPropertiesExcept", "/additionalProperties", "#/additionalProperties", "" ],
+        [ "AssertionFail", "/additionalProperties", "#/additionalProperties", "/extra" ]
+      ],
+      "post": [
+        [ true, "AssertionDefinesStrict", "/required", "#/required", "" ],
+        [ true, "AssertionEqual", "/properties/handle/enum", "#/properties/handle/enum", "/handle" ],
+        [ false, "AssertionFail", "/additionalProperties", "#/additionalProperties", "/extra" ],
+        [ false, "LoopPropertiesExcept", "/additionalProperties", "#/additionalProperties", "" ]
+      ],
+      "descriptions": [
+        "The value was expected to be an object that defines the property \"handle\"",
+        "The string value \"filesystem\" was expected to equal the string constant \"filesystem\"",
+        "The object value was not expected to define the property \"extra\"",
+        "The object value was not expected to define additional properties"
+      ]
+    },
+    "exhaustive": {
+      "pre": [
+        [ "AssertionDefinesStrict", "/required", "#/required", "" ],
+        [ "LogicalWhenType", "/properties", "#/properties", "" ],
+        [ "AssertionEqual", "/properties/handle/enum", "#/properties/handle/enum", "/handle" ],
+        [ "Annotation", "/properties", "#/properties", "" ],
+        [ "LoopPropertiesExcept", "/additionalProperties", "#/additionalProperties", "" ],
+        [ "AssertionFail", "/additionalProperties", "#/additionalProperties", "/extra" ]
+      ],
+      "post": [
+        [ true, "AssertionDefinesStrict", "/required", "#/required", "" ],
+        [ true, "AssertionEqual", "/properties/handle/enum", "#/properties/handle/enum", "/handle" ],
+        [ true, "Annotation", "/properties", "#/properties", "", "handle" ],
+        [ true, "LogicalWhenType", "/properties", "#/properties", "" ],
+        [ false, "AssertionFail", "/additionalProperties", "#/additionalProperties", "/extra" ],
+        [ false, "LoopPropertiesExcept", "/additionalProperties", "#/additionalProperties", "" ]
+      ],
+      "descriptions": [
+        "The value was expected to be an object that defines the property \"handle\"",
+        "The string value \"filesystem\" was expected to equal the string constant \"filesystem\"",
+        "The object property \"handle\" successfully validated against its property subschema",
+        "The object value was expected to validate against the defined properties subschemas",
+        "The object value was not expected to define the property \"extra\"",
+        "The object value was not expected to define additional properties"
+      ]
+    }
   }
 ]
