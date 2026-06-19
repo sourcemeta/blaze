@@ -42,17 +42,17 @@ public:
     ONLY_CONTINUE_IF(enumeration && enumeration->is_array() &&
                      !enumeration->empty());
 
-    unsigned kinds{0};
+    JSON::TypeSet kinds;
     for (const auto &value : enumeration->as_array()) {
-      kinds |= (1U << kind_of(value));
+      kinds.set(static_cast<std::size_t>(kind_of(value)));
     }
-    ONLY_CONTINUE_IF(std::popcount(kinds) > 1);
+    ONLY_CONTINUE_IF(kinds.count() > 1);
 
     // The split moves only the `enum` values into branches and leaves every
     // sibling on this node, so it must not strand an assertion/applicator next
     // to the new union. Identity, metadata, and reference-into siblings ride
-    // along; validation siblings are isolated into an `allOf`/`extends` by
-    // `enum_drop_redundant_validation` before this rule runs
+    // along, while validation siblings are isolated into an `allOf`/`extends`
+    // by `enum_drop_redundant_validation` before this rule runs
     ONLY_CONTINUE_IF(
         wraps_single_constraint(schema, "enum", walker, vocabularies));
 
@@ -87,22 +87,14 @@ public:
   }
 
 private:
-  static auto kind_of(const sourcemeta::core::JSON &value) -> std::size_t {
-    switch (value.type()) {
-      case sourcemeta::core::JSON::Type::Null:
-        return 0;
-      case sourcemeta::core::JSON::Type::Boolean:
-        return 1;
-      case sourcemeta::core::JSON::Type::Integer:
-      case sourcemeta::core::JSON::Type::Real:
-        return 2;
-      case sourcemeta::core::JSON::Type::String:
-        return 3;
-      case sourcemeta::core::JSON::Type::Array:
-        return 4;
-      default:
-        return 5;
-    }
+  static auto kind_of(const sourcemeta::core::JSON &value)
+      -> sourcemeta::core::JSON::Type {
+    // Fold integers and reals into a single `number` kind, as an `enum` that
+    // mixes them is still single-type
+    const auto type{value.type()};
+    return type == sourcemeta::core::JSON::Type::Integer
+               ? sourcemeta::core::JSON::Type::Real
+               : type;
   }
 
   static auto wraps_single_constraint(
