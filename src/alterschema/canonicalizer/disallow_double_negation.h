@@ -35,8 +35,13 @@ public:
     ONLY_CONTINUE_IF(
         wraps_single_constraint(schema, "disallow", walker, vocabularies));
 
-    ONLY_CONTINUE_IF(!frame.has_references_through(
-        location.pointer, WeakPointer::Token{std::cref(KEYWORD)}));
+    // The doubly-negated schema relocates up (handled by `rereference`), but
+    // the inner `disallow` wrapper itself dissolves, so a reference straight at
+    // it has no new home: bail only in that case
+    auto wrapper{location.pointer};
+    wrapper.push_back(std::cref(KEYWORD));
+    wrapper.push_back(static_cast<std::size_t>(0));
+    ONLY_CONTINUE_IF(!frame.has_references_to(wrapper));
     return true;
   }
 
@@ -53,6 +58,23 @@ public:
     if (inner.is_object()) {
       schema.merge(inner.as_object());
     }
+  }
+
+  [[nodiscard]] auto rereference(const std::string_view, const Pointer &,
+                                 const Pointer &target,
+                                 const Pointer &current) const
+      -> Pointer override {
+    auto old_prefix{current.concat({"disallow", 0, "disallow", 0})};
+    while (
+        target.starts_with(old_prefix.concat({"disallow", 0, "disallow", 0}))) {
+      old_prefix = old_prefix.concat({"disallow", 0, "disallow", 0});
+    }
+
+    if (!target.starts_with(old_prefix)) {
+      return target;
+    }
+
+    return target.rebase(old_prefix, current);
   }
 
 private:
