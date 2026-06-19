@@ -204,10 +204,13 @@ auto compile_required_assertions(const Context &context,
     if (is_closed_properties_required(schema_context.schema, properties_set)) {
       if (context.mode == Mode::FastValidation && assume_object) {
         static const std::string properties_keyword{"properties"};
+        // `SchemaContext::relative_pointer` is a reference, so the concatenated
+        // pointer must outlive `new_schema_context`
+        const auto properties_pointer{
+            schema_context.relative_pointer.initial().concat(
+                sourcemeta::blaze::make_weak_pointer(properties_keyword))};
         const SchemaContext new_schema_context{
-            .relative_pointer =
-                schema_context.relative_pointer.initial().concat(
-                    sourcemeta::blaze::make_weak_pointer(properties_keyword)),
+            .relative_pointer = properties_pointer,
             .schema = schema_context.schema,
             .vocabularies = schema_context.vocabularies,
             .base = schema_context.base,
@@ -1090,9 +1093,13 @@ properties_enforce_closed_object(const Context &context,
     return false;
   }
 
+  // `SchemaContext::relative_pointer` is a reference, so the concatenated
+  // pointer must outlive `new_schema_context`
+  const auto properties_pointer{
+      schema_context.relative_pointer.initial().concat(
+          sourcemeta::blaze::make_weak_pointer(KEYWORD_PROPERTIES))};
   const SchemaContext new_schema_context{
-      .relative_pointer = schema_context.relative_pointer.initial().concat(
-          sourcemeta::blaze::make_weak_pointer(KEYWORD_PROPERTIES)),
+      .relative_pointer = properties_pointer,
       .schema = schema_context.schema,
       .vocabularies = schema_context.vocabularies,
       .base = schema_context.base,
