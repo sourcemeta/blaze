@@ -1643,6 +1643,78 @@ TEST_F(CanonicalizerDraft3Test,
   CANONICALIZE_AND_VALIDATE(document, expected, *compiled_meta_);
 }
 
+TEST_F(CanonicalizerDraft3Test,
+       disallow_double_negation_deep_with_reference_into_subtree_rereferenced) {
+  auto document = sourcemeta::core::parse_json(R"JSON({
+    "$schema": "http://json-schema.org/draft-03/schema#",
+    "type": "object",
+    "properties": {
+      "a": {
+        "disallow": [
+          {
+            "disallow": [
+              {
+                "disallow": [
+                  {
+                    "disallow": [
+                      {
+                        "type": "object",
+                        "properties": {
+                          "x": {
+                            "type": "string"
+                          }
+                        }
+                      }
+                    ]
+                  }
+                ]
+              }
+            ]
+          }
+        ]
+      },
+      "b": {
+        "$ref": "#/properties/a/disallow/0/disallow/0/disallow/0/disallow/0/properties/x"
+      }
+    }
+  })JSON");
+
+  const auto expected = sourcemeta::core::parse_json(R"JSON({
+    "$schema": "http://json-schema.org/draft-03/schema#",
+    "type": "object",
+    "properties": {
+      "a": {
+        "extends": [
+          {
+            "type": "object",
+            "properties": {
+              "x": {
+                "extends": [
+                  {
+                    "type": "string",
+                    "minLength": 0
+                  }
+                ],
+                "required": false
+              }
+            },
+            "patternProperties": {},
+            "additionalProperties": {}
+          }
+        ],
+        "required": false
+      },
+      "b": {
+        "$ref": "#/properties/a/extends/0/properties/x"
+      }
+    },
+    "patternProperties": {},
+    "additionalProperties": {}
+  })JSON");
+
+  CANONICALIZE_AND_VALIDATE(document, expected, *compiled_meta_);
+}
+
 TEST_F(CanonicalizerDraft3Test, disallow_double_negation_over_type_union) {
   auto document = sourcemeta::core::parse_json(R"JSON({
     "$schema": "http://json-schema.org/draft-03/schema#",
