@@ -4480,5 +4480,60 @@
         "The unrecognized keyword \"type\" was collected as the annotation \"string\""
       ]
     }
+  },
+  {
+    "description": "prefix_items_type_union_inside_property",
+    "schema": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "properties": {
+        "presets": {
+          "type": "array",
+          "items": {
+            "type": [ "string", "array" ],
+            "prefixItems": [ { "type": "string" }, { "type": "object" } ]
+          }
+        }
+      }
+    },
+    "instance": { "presets": [ [ true, {} ] ] },
+    "valid": false,
+    "fast": {
+      "pre": [
+        [ "LoopItemsFrom", "/properties/presets/items", "#/properties/presets/items", "/presets" ],
+        [ "AssertionArrayPrefix", "/properties/presets/items/prefixItems", "#/properties/presets/items/prefixItems", "/presets/0" ],
+        [ "AssertionTypeStrict", "/properties/presets/items/prefixItems/0/type", "#/properties/presets/items/prefixItems/0/type", "/presets/0/0" ]
+      ],
+      "post": [
+        [ false, "AssertionTypeStrict", "/properties/presets/items/prefixItems/0/type", "#/properties/presets/items/prefixItems/0/type", "/presets/0/0" ],
+        [ false, "AssertionArrayPrefix", "/properties/presets/items/prefixItems", "#/properties/presets/items/prefixItems", "/presets/0" ],
+        [ false, "LoopItemsFrom", "/properties/presets/items", "#/properties/presets/items", "/presets" ]
+      ],
+      "descriptions": [
+        "The value was expected to be of type string but it was of type boolean",
+        "The first 2 items of the array value were expected to validate against the corresponding subschemas",
+        "Every item in the array value was expected to validate against the given subschema"
+      ]
+    },
+    "exhaustive": {
+      "pre": [
+        [ "LogicalWhenType", "/properties", "#/properties", "" ],
+        [ "LoopItemsFrom", "/properties/presets/items", "#/properties/presets/items", "/presets" ],
+        [ "AssertionArrayPrefix", "/properties/presets/items/prefixItems", "#/properties/presets/items/prefixItems", "/presets/0" ],
+        [ "AssertionTypeStrict", "/properties/presets/items/prefixItems/0/type", "#/properties/presets/items/prefixItems/0/type", "/presets/0/0" ]
+      ],
+      "post": [
+        [ false, "AssertionTypeStrict", "/properties/presets/items/prefixItems/0/type", "#/properties/presets/items/prefixItems/0/type", "/presets/0/0" ],
+        [ false, "AssertionArrayPrefix", "/properties/presets/items/prefixItems", "#/properties/presets/items/prefixItems", "/presets/0" ],
+        [ false, "LoopItemsFrom", "/properties/presets/items", "#/properties/presets/items", "/presets" ],
+        [ false, "LogicalWhenType", "/properties", "#/properties", "" ]
+      ],
+      "descriptions": [
+        "The value was expected to be of type string but it was of type boolean",
+        "The first 2 items of the array value were expected to validate against the corresponding subschemas",
+        "Every item in the array value was expected to validate against the given subschema",
+        "The object value was expected to validate against the single defined property subschema"
+      ]
+    }
   }
 ]
