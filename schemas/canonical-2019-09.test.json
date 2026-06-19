@@ -1274,22 +1274,6 @@
       }
     },
     {
-      "description": "Enum with mixed types is canonical",
-      "valid": true,
-      "data": {
-        "enum": [
-          1,
-          "two",
-          true,
-          null,
-          {
-            "three": 3
-          },
-          [ 4 ]
-        ]
-      }
-    },
-    {
       "description": "Enum with single value is canonical",
       "valid": true,
       "data": {
@@ -8754,6 +8738,27 @@
         "additionalProperties": false,
         "propertyNames": true,
         "minProperties": 0
+      }
+    },
+    {
+      "description": "Enum with a single type is canonical",
+      "valid": true,
+      "data": {
+        "enum": [ "a", "b" ]
+      }
+    },
+    {
+      "description": "Enum mixing integers and reals is canonical",
+      "valid": true,
+      "data": {
+        "enum": [ 1, 2.5 ]
+      }
+    },
+    {
+      "description": "Enum with mixed types is rejected",
+      "valid": false,
+      "data": {
+        "enum": [ 1, "two", true, null ]
       }
     }
   ]
