@@ -35,13 +35,22 @@ public:
     ONLY_CONTINUE_IF(
         wraps_single_constraint(schema, "disallow", walker, vocabularies));
 
-    // The doubly-negated schema relocates up (handled by `rereference`), but
-    // the inner `disallow` wrapper itself dissolves, so a reference straight at
-    // it has no new home: bail only in that case
+    // Collapsing the chain dissolves every intermediate `disallow` wrapper, so
+    // a reference targeting any of them has no valid new home: bail. A
+    // reference into the surviving innermost schema relocates with it (handled
+    // by `rereference`)
     auto wrapper{location.pointer};
-    wrapper.push_back(std::cref(KEYWORD));
-    wrapper.push_back(static_cast<std::size_t>(0));
-    ONLY_CONTINUE_IF(!frame.has_references_to(wrapper));
+    const sourcemeta::core::JSON *node{&disallow->at(0)};
+    while (is_single_negation(*node)) {
+      wrapper.push_back(std::cref(KEYWORD));
+      wrapper.push_back(static_cast<std::size_t>(0));
+      if (frame.has_references_to(wrapper)) {
+        return false;
+      }
+
+      node = &node->at(KEYWORD).at(0);
+    }
+
     return true;
   }
 
