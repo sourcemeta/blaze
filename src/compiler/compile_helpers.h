@@ -336,6 +336,13 @@ inline auto requires_evaluation(const Context &context,
   return requires_evaluation(context, entry.pointer);
 }
 
+inline auto annotations_enabled(const Context &context,
+                                const std::string_view keyword) -> bool {
+  return context.mode == Mode::Exhaustive &&
+         (!context.tweaks.annotations.has_value() ||
+          context.tweaks.annotations.value().contains(keyword));
+}
+
 // TODO: Elevate to Core and test
 
 inline auto

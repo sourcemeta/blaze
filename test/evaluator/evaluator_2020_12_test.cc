@@ -3,6 +3,7 @@
 #include <optional>
 #include <string>
 #include <string_view>
+#include <unordered_set>
 
 #include <sourcemeta/blaze/compiler.h>
 #include <sourcemeta/blaze/evaluator.h>
@@ -305,6 +306,160 @@ TEST(Evaluator_2020_12, prop_type_integer_bounded_6_exhaustive) {
   EVALUATE_TRACE_POST_DESCRIBE(instance, 4,
                                "The object value was expected to validate "
                                "against the single defined property subschema");
+}
+
+TEST(Evaluator_2020_12,
+     prop_type_integer_bounded_6_exhaustive_annotations_none) {
+  const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "properties": {
+      "x": { "type": "integer", "minimum": 0, "maximum": 100 }
+    }
+  })JSON")};
+
+  const sourcemeta::core::JSON instance{
+      sourcemeta::core::parse_json(R"JSON({ "x": 3.0 })JSON")};
+
+  sourcemeta::blaze::Tweaks tweaks;
+  tweaks.annotations.emplace();
+
+  EVALUATE_WITH_TRACE_EXHAUSTIVE_SUCCESS_TWEAKED(schema, instance, 4, "",
+                                                 tweaks);
+
+  EVALUATE_TRACE_PRE(0, LogicalWhenType, "/properties", "#/properties", "");
+  EVALUATE_TRACE_PRE(1, AssertionType, "/properties/x/type",
+                     "#/properties/x/type", "/x");
+  EVALUATE_TRACE_PRE(2, AssertionLessEqual, "/properties/x/maximum",
+                     "#/properties/x/maximum", "/x");
+  EVALUATE_TRACE_PRE(3, AssertionGreaterEqual, "/properties/x/minimum",
+                     "#/properties/x/minimum", "/x");
+  EVALUATE_TRACE_POST_SUCCESS(0, AssertionType, "/properties/x/type",
+                              "#/properties/x/type", "/x");
+  EVALUATE_TRACE_POST_SUCCESS(1, AssertionLessEqual, "/properties/x/maximum",
+                              "#/properties/x/maximum", "/x");
+  EVALUATE_TRACE_POST_SUCCESS(2, AssertionGreaterEqual, "/properties/x/minimum",
+                              "#/properties/x/minimum", "/x");
+  EVALUATE_TRACE_POST_SUCCESS(3, LogicalWhenType, "/properties", "#/properties",
+                              "");
+}
+
+TEST(Evaluator_2020_12,
+     prop_type_integer_bounded_6_exhaustive_annotations_selected) {
+  const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "properties": {
+      "x": { "type": "integer", "minimum": 0, "maximum": 100 }
+    }
+  })JSON")};
+
+  const sourcemeta::core::JSON instance{
+      sourcemeta::core::parse_json(R"JSON({ "x": 3.0 })JSON")};
+
+  sourcemeta::blaze::Tweaks tweaks;
+  tweaks.annotations = std::unordered_set<std::string_view>{"properties"};
+
+  EVALUATE_WITH_TRACE_EXHAUSTIVE_SUCCESS_TWEAKED(schema, instance, 5, "",
+                                                 tweaks);
+
+  EVALUATE_TRACE_PRE(0, LogicalWhenType, "/properties", "#/properties", "");
+  EVALUATE_TRACE_PRE(1, AssertionType, "/properties/x/type",
+                     "#/properties/x/type", "/x");
+  EVALUATE_TRACE_PRE(2, AssertionLessEqual, "/properties/x/maximum",
+                     "#/properties/x/maximum", "/x");
+  EVALUATE_TRACE_PRE(3, AssertionGreaterEqual, "/properties/x/minimum",
+                     "#/properties/x/minimum", "/x");
+  EVALUATE_TRACE_PRE_ANNOTATION(4, "/properties", "#/properties", "");
+  EVALUATE_TRACE_POST_SUCCESS(0, AssertionType, "/properties/x/type",
+                              "#/properties/x/type", "/x");
+  EVALUATE_TRACE_POST_SUCCESS(1, AssertionLessEqual, "/properties/x/maximum",
+                              "#/properties/x/maximum", "/x");
+  EVALUATE_TRACE_POST_SUCCESS(2, AssertionGreaterEqual, "/properties/x/minimum",
+                              "#/properties/x/minimum", "/x");
+  EVALUATE_TRACE_POST_ANNOTATION(3, "/properties", "#/properties", "", "x");
+  EVALUATE_TRACE_POST_SUCCESS(4, LogicalWhenType, "/properties", "#/properties",
+                              "");
+}
+
+TEST(Evaluator_2020_12, annotation_contains_nested_not_short_circuited) {
+  const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "contains": { "title": "x", "type": "string" }
+  })JSON")};
+
+  const sourcemeta::core::JSON instance{
+      sourcemeta::core::parse_json(R"JSON([ "a", "b" ])JSON")};
+
+  sourcemeta::blaze::Tweaks tweaks;
+  tweaks.annotations = std::unordered_set<std::string_view>{"title"};
+
+  EVALUATE_WITH_TRACE_EXHAUSTIVE_SUCCESS_TWEAKED(schema, instance, 5, "",
+                                                 tweaks);
+
+  EVALUATE_TRACE_PRE(0, LoopContains, "/contains", "#/contains", "");
+  EVALUATE_TRACE_PRE_ANNOTATION(1, "/contains/title", "#/contains/title", "/0");
+  EVALUATE_TRACE_PRE(2, AssertionTypeStrict, "/contains/type",
+                     "#/contains/type", "/0");
+  EVALUATE_TRACE_PRE_ANNOTATION(3, "/contains/title", "#/contains/title", "/1");
+  EVALUATE_TRACE_PRE(4, AssertionTypeStrict, "/contains/type",
+                     "#/contains/type", "/1");
+  EVALUATE_TRACE_POST_ANNOTATION(0, "/contains/title", "#/contains/title", "/0",
+                                 "x");
+  EVALUATE_TRACE_POST_SUCCESS(1, AssertionTypeStrict, "/contains/type",
+                              "#/contains/type", "/0");
+  EVALUATE_TRACE_POST_ANNOTATION(2, "/contains/title", "#/contains/title", "/1",
+                                 "x");
+  EVALUATE_TRACE_POST_SUCCESS(3, AssertionTypeStrict, "/contains/type",
+                              "#/contains/type", "/1");
+  EVALUATE_TRACE_POST_SUCCESS(4, LoopContains, "/contains", "#/contains", "");
+}
+
+TEST(Evaluator_2020_12, annotation_custom_keyword_selected) {
+  const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "title": "My title",
+    "x-test-custom": "hello"
+  })JSON")};
+
+  const sourcemeta::core::JSON instance{"foo"};
+
+  sourcemeta::blaze::Tweaks tweaks;
+  tweaks.annotations = std::unordered_set<std::string_view>{"x-test-custom"};
+
+  EVALUATE_WITH_TRACE_EXHAUSTIVE_SUCCESS_TWEAKED(schema, instance, 1, "",
+                                                 tweaks);
+
+  EVALUATE_TRACE_PRE_ANNOTATION(0, "/x-test-custom", "#/x-test-custom", "");
+  EVALUATE_TRACE_POST_ANNOTATION(0, "/x-test-custom", "#/x-test-custom", "",
+                                 "hello");
+}
+
+TEST(Evaluator_2020_12, unevaluated_properties_annotations_none_still_tracks) {
+  const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "properties": { "a": { "type": "integer" } },
+    "unevaluatedProperties": false
+  })JSON")};
+
+  const sourcemeta::core::JSON instance{
+      sourcemeta::core::parse_json(R"JSON({ "a": 1, "b": 2 })JSON")};
+
+  sourcemeta::blaze::Tweaks tweaks;
+  tweaks.annotations.emplace();
+
+  const auto compiled_schema{sourcemeta::blaze::compile(
+      schema, sourcemeta::blaze::schema_walker,
+      sourcemeta::blaze::schema_resolver,
+      sourcemeta::blaze::default_schema_compiler,
+      sourcemeta::blaze::Mode::Exhaustive, "", "", "", tweaks)};
+
+  // Even with all annotations filtered out, evaluation tracking still marks "a"
+  // as evaluated, so the unevaluated "b" is rejected
+  sourcemeta::blaze::Evaluator evaluator;
+  EXPECT_FALSE(evaluator.validate(compiled_schema, instance));
+
+  const sourcemeta::core::JSON evaluated{
+      sourcemeta::core::parse_json(R"JSON({ "a": 1 })JSON")};
+  EXPECT_TRUE(evaluator.validate(compiled_schema, evaluated));
 }
 
 TEST(Evaluator_2020_12, prop_type_integer_lower_bound_4) {
