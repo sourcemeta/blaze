@@ -898,3 +898,45 @@ TEST(Foundation_vocabulary, embedded_custom_metaschema_precedence) {
   EXPECT_VOCABULARY_REQUIRED(vocabularies, JSON_Schema_2020_12_Core);
   EXPECT_VOCABULARY_REQUIRED(vocabularies, JSON_Schema_2020_12_Validation);
 }
+
+TEST(Foundation_vocabulary, embedded_custom_metaschema_draft6) {
+  const sourcemeta::core::JSON document = sourcemeta::core::parse_json(R"JSON({
+    "$schema": "https://example.com/meta",
+    "$id": "https://example.com/schema",
+    "type": "string",
+    "definitions": {
+      "https://example.com/meta": {
+        "$id": "https://example.com/meta",
+        "$schema": "http://json-schema.org/draft-06/schema#",
+        "type": "object"
+      }
+    }
+  })JSON");
+
+  const sourcemeta::blaze::Vocabularies vocabularies{
+      sourcemeta::blaze::vocabularies(document,
+                                      sourcemeta::blaze::schema_resolver)};
+  EXPECT_EQ(vocabularies.size(), 1);
+  EXPECT_VOCABULARY_REQUIRED(vocabularies, JSON_Schema_Draft_6);
+}
+
+TEST(Foundation_vocabulary, embedded_custom_metaschema_draft3) {
+  const sourcemeta::core::JSON document = sourcemeta::core::parse_json(R"JSON({
+    "$schema": "https://example.com/meta",
+    "id": "https://example.com/schema",
+    "type": "string",
+    "definitions": {
+      "https://example.com/meta": {
+        "id": "https://example.com/meta",
+        "$schema": "http://json-schema.org/draft-03/schema#",
+        "type": "object"
+      }
+    }
+  })JSON");
+
+  const sourcemeta::blaze::Vocabularies vocabularies{
+      sourcemeta::blaze::vocabularies(document,
+                                      sourcemeta::blaze::schema_resolver)};
+  EXPECT_EQ(vocabularies.size(), 1);
+  EXPECT_VOCABULARY_REQUIRED(vocabularies, JSON_Schema_Draft_3);
+}

@@ -423,3 +423,44 @@ TEST(Bundle_draft3, metaschema_references_mode) {
 
   EXPECT_EQ(document, expected);
 }
+
+TEST(Bundle_draft3, metaschema_offline_idempotent) {
+  sourcemeta::core::JSON document = sourcemeta::core::parse_json(R"JSON({
+    "$schema": "https://example.com/meta/1.json",
+    "type": "string",
+    "definitions": {
+      "https://example.com/meta/1.json": {
+        "$schema": "https://example.com/meta/2.json",
+        "id": "https://example.com/meta/1.json"
+      },
+      "https://example.com/meta/2.json": {
+        "$schema": "http://json-schema.org/draft-03/schema#",
+        "id": "https://example.com/meta/2.json"
+      }
+    }
+  })JSON");
+
+  // Note that we bundle with a resolver that does not know about
+  // the custom meta-schemas embedded in the document
+  sourcemeta::blaze::bundle(
+      document, sourcemeta::blaze::schema_walker,
+      sourcemeta::blaze::schema_resolver,
+      sourcemeta::blaze::BundleMode::NonOfficialMetaschemas);
+
+  const sourcemeta::core::JSON expected = sourcemeta::core::parse_json(R"JSON({
+    "$schema": "https://example.com/meta/1.json",
+    "type": "string",
+    "definitions": {
+      "https://example.com/meta/1.json": {
+        "$schema": "https://example.com/meta/2.json",
+        "id": "https://example.com/meta/1.json"
+      },
+      "https://example.com/meta/2.json": {
+        "$schema": "http://json-schema.org/draft-03/schema#",
+        "id": "https://example.com/meta/2.json"
+      }
+    }
+  })JSON");
+
+  EXPECT_EQ(document, expected);
+}
