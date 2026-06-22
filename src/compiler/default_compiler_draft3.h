@@ -546,6 +546,9 @@ auto compiler_draft3_applicator_properties_with_options(
     return {};
   }
 
+  const bool emit_annotation{
+      annotate && annotations_enabled(context, dynamic_context.keyword)};
+
   if (properties_as_loop(context, schema_context,
                          schema_context.schema.at(dynamic_context.keyword))) {
     ValueNamedIndexes indexes;
@@ -562,7 +565,7 @@ auto compiler_draft3_applicator_properties_with_options(
             schema_context, relative_dynamic_context(), ValuePointer{name}));
       }
 
-      if (annotate) {
+      if (emit_annotation) {
         substeps.push_back(
             make(sourcemeta::blaze::InstructionIndex::AnnotationEmit, context,
                  schema_context, relative_dynamic_context(),
@@ -715,7 +718,7 @@ auto compiler_draft3_applicator_properties_with_options(
   bool fusion_possible{attempt_object_fusion};
 
   for (auto &&[name, substeps] : properties) {
-    if (annotate) {
+    if (emit_annotation) {
       substeps.push_back(
           make(sourcemeta::blaze::InstructionIndex::AnnotationEmit, context,
                schema_context, effective_dynamic_context,
@@ -1016,7 +1019,7 @@ auto compiler_draft3_applicator_patternproperties_with_options(
     auto substeps{compile(context, schema_context, relative_dynamic_context(),
                           sourcemeta::blaze::make_weak_pointer(pattern))};
 
-    if (annotate) {
+    if (annotate && annotations_enabled(context, dynamic_context.keyword)) {
       substeps.push_back(make(
           sourcemeta::blaze::InstructionIndex::AnnotationBasenameToParent,
           context, schema_context, relative_dynamic_context(), ValueNone{}));
@@ -1141,7 +1144,7 @@ auto compiler_draft3_applicator_additionalproperties_with_options(
                                 sourcemeta::core::empty_weak_pointer,
                                 sourcemeta::core::empty_weak_pointer)};
 
-  if (annotate) {
+  if (annotate && annotations_enabled(context, dynamic_context.keyword)) {
     children.push_back(
         make(sourcemeta::blaze::InstructionIndex::AnnotationBasenameToParent,
              context, schema_context, relative_dynamic_context(), ValueNone{}));
@@ -1316,6 +1319,9 @@ auto compiler_draft3_applicator_items_array(
     return {};
   }
 
+  const bool emit_annotation{
+      annotate && annotations_enabled(context, dynamic_context.keyword)};
+
   // Precompile subschemas
   std::vector<Instructions> subschemas;
   subschemas.reserve(items_size);
@@ -1336,7 +1342,7 @@ auto compiler_draft3_applicator_items_array(
       }
     }
 
-    if (annotate) {
+    if (emit_annotation) {
       subchildren.push_back(
           make(sourcemeta::blaze::InstructionIndex::AnnotationEmit, context,
                schema_context, relative_dynamic_context(),
@@ -1355,7 +1361,7 @@ auto compiler_draft3_applicator_items_array(
     }
   }
 
-  if (annotate) {
+  if (emit_annotation) {
     tail.push_back(make(sourcemeta::blaze::InstructionIndex::AnnotationEmit,
                         context, schema_context, relative_dynamic_context(),
                         sourcemeta::core::JSON{children.size() - 1}));
@@ -1433,8 +1439,11 @@ auto compiler_draft3_applicator_items_with_options(
     return {};
   }
 
+  const bool emit_annotation{
+      annotate && annotations_enabled(context, dynamic_context.keyword)};
+
   if (is_schema(schema_context.schema.at(dynamic_context.keyword))) {
-    if (annotate || track_evaluation) {
+    if (emit_annotation || track_evaluation) {
       Instructions subchildren{compile(context, schema_context,
                                        relative_dynamic_context(),
                                        sourcemeta::core::empty_weak_pointer,
@@ -1448,13 +1457,13 @@ auto compiler_draft3_applicator_items_with_options(
                                 ValueNone{}, std::move(subchildren)));
       }
 
-      if (!annotate && !track_evaluation) {
+      if (!emit_annotation && !track_evaluation) {
         return children;
       }
 
       Instructions tail;
 
-      if (annotate) {
+      if (emit_annotation) {
         tail.push_back(make(sourcemeta::blaze::InstructionIndex::AnnotationEmit,
                             context, schema_context, relative_dynamic_context(),
                             sourcemeta::core::JSON{true}));
@@ -1562,6 +1571,9 @@ auto compiler_draft3_applicator_additionalitems_from_cursor(
     return {};
   }
 
+  const bool emit_annotation{
+      annotate && annotations_enabled(context, dynamic_context.keyword)};
+
   Instructions subchildren{compile(context, schema_context,
                                    relative_dynamic_context(),
                                    sourcemeta::core::empty_weak_pointer,
@@ -1586,13 +1598,13 @@ auto compiler_draft3_applicator_additionalitems_from_cursor(
   }
 
   // Avoid one extra wrapper instruction if possible
-  if (!annotate && !track_evaluation) {
+  if (!emit_annotation && !track_evaluation) {
     return children;
   }
 
   Instructions tail;
 
-  if (annotate) {
+  if (emit_annotation) {
     tail.push_back(make(sourcemeta::blaze::InstructionIndex::AnnotationEmit,
                         context, schema_context, relative_dynamic_context(),
                         sourcemeta::core::JSON{true}));
@@ -2577,7 +2589,7 @@ auto compiler_draft3_validation_format(const Context &context,
         make(sourcemeta::blaze::InstructionIndex::AssertionStringType, context,
              schema_context, dynamic_context, type)};
 
-    if (context.mode == Mode::Exhaustive) {
+    if (annotations_enabled(context, dynamic_context.keyword)) {
       Instructions annotation_children{
           make(sourcemeta::blaze::InstructionIndex::AnnotationEmit, context,
                schema_context, dynamic_context,
@@ -2593,7 +2605,7 @@ auto compiler_draft3_validation_format(const Context &context,
   }
 
   if (is_2019_09_format || is_2020_12_format_annotation) {
-    if (context.mode == Mode::FastValidation) {
+    if (!annotations_enabled(context, dynamic_context.keyword)) {
       return {};
     }
 

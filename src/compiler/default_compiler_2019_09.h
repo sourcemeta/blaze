@@ -158,7 +158,7 @@ auto compiler_2019_09_applicator_contains_with_options(
                                 sourcemeta::core::empty_weak_pointer,
                                 sourcemeta::core::empty_weak_pointer)};
 
-  if (annotate) {
+  if (annotate && annotations_enabled(context, dynamic_context.keyword)) {
     children.push_back(
         make(sourcemeta::blaze::InstructionIndex::AnnotationBasenameToParent,
              context, schema_context, relative_dynamic_context(), ValueNone{}));
@@ -282,7 +282,7 @@ auto compiler_2019_09_applicator_unevaluateditems(
                                 sourcemeta::core::empty_weak_pointer,
                                 sourcemeta::core::empty_weak_pointer)};
 
-  if (context.mode == Mode::Exhaustive) {
+  if (annotations_enabled(context, dynamic_context.keyword)) {
     children.push_back(
         make(sourcemeta::blaze::InstructionIndex::AnnotationToParent, context,
              schema_context, relative_dynamic_context(),
@@ -322,7 +322,7 @@ auto compiler_2019_09_applicator_unevaluatedproperties(
                                 sourcemeta::core::empty_weak_pointer,
                                 sourcemeta::core::empty_weak_pointer)};
 
-  if (context.mode == Mode::Exhaustive) {
+  if (annotations_enabled(context, dynamic_context.keyword)) {
     children.push_back(
         make(sourcemeta::blaze::InstructionIndex::AnnotationBasenameToParent,
              context, schema_context, relative_dynamic_context(), ValueNone{}));
@@ -451,7 +451,7 @@ auto compiler_2019_09_content_contentencoding(
     const Context &context, const SchemaContext &schema_context,
     const DynamicContext &dynamic_context, const Instructions &)
     -> Instructions {
-  if (context.mode == Mode::FastValidation) {
+  if (!annotations_enabled(context, dynamic_context.keyword)) {
     return {};
   }
 
@@ -470,7 +470,7 @@ auto compiler_2019_09_content_contentmediatype(
     const Context &context, const SchemaContext &schema_context,
     const DynamicContext &dynamic_context, const Instructions &)
     -> Instructions {
-  if (context.mode == Mode::FastValidation) {
+  if (!annotations_enabled(context, dynamic_context.keyword)) {
     return {};
   }
 
@@ -489,7 +489,7 @@ auto compiler_2019_09_content_contentschema(
     const Context &context, const SchemaContext &schema_context,
     const DynamicContext &dynamic_context, const Instructions &)
     -> Instructions {
-  if (context.mode == Mode::FastValidation) {
+  if (!annotations_enabled(context, dynamic_context.keyword)) {
     return {};
   }
 
