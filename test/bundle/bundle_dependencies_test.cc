@@ -643,3 +643,167 @@ TEST(Bundle_dependencies, embedded_custom_metaschema_offline) {
 
   EXPECT_TRUE(traces.empty());
 }
+
+TEST(Bundle_dependencies, embedded_custom_metaschema_offline_2019_09) {
+  const sourcemeta::core::JSON document = sourcemeta::core::parse_json(R"JSON({
+    "$schema": "https://example.com/meta",
+    "$id": "https://example.com/schema",
+    "type": "string",
+    "$defs": {
+      "https://example.com/meta": {
+        "$id": "https://example.com/meta",
+        "$schema": "https://json-schema.org/draft/2019-09/schema",
+        "$vocabulary": {
+          "https://json-schema.org/draft/2019-09/vocab/core": true,
+          "https://json-schema.org/draft/2019-09/vocab/validation": true
+        },
+        "type": "object"
+      }
+    }
+  })JSON");
+
+  std::vector<std::tuple<std::string, sourcemeta::core::Pointer, std::string>>
+      traces;
+
+  // Note that we use a resolver that does not know about
+  // the custom meta-schema embedded in the document
+  sourcemeta::blaze::dependencies(
+      document, sourcemeta::blaze::schema_walker,
+      sourcemeta::blaze::schema_resolver,
+      [&traces](const auto &origin, const auto &pointer, const auto &target,
+                const auto &) {
+        traces.emplace_back(std::string{origin},
+                            sourcemeta::core::to_pointer(pointer),
+                            std::string{target});
+      });
+
+  EXPECT_TRUE(traces.empty());
+}
+
+TEST(Bundle_dependencies, embedded_custom_metaschema_offline_draft7) {
+  const sourcemeta::core::JSON document = sourcemeta::core::parse_json(R"JSON({
+    "$schema": "https://example.com/meta",
+    "$id": "https://example.com/schema",
+    "type": "string",
+    "definitions": {
+      "https://example.com/meta": {
+        "$id": "https://example.com/meta",
+        "$schema": "http://json-schema.org/draft-07/schema#",
+        "type": "object"
+      }
+    }
+  })JSON");
+
+  std::vector<std::tuple<std::string, sourcemeta::core::Pointer, std::string>>
+      traces;
+
+  // Note that we use a resolver that does not know about
+  // the custom meta-schema embedded in the document
+  sourcemeta::blaze::dependencies(
+      document, sourcemeta::blaze::schema_walker,
+      sourcemeta::blaze::schema_resolver,
+      [&traces](const auto &origin, const auto &pointer, const auto &target,
+                const auto &) {
+        traces.emplace_back(std::string{origin},
+                            sourcemeta::core::to_pointer(pointer),
+                            std::string{target});
+      });
+
+  EXPECT_TRUE(traces.empty());
+}
+
+TEST(Bundle_dependencies, embedded_custom_metaschema_offline_draft6) {
+  const sourcemeta::core::JSON document = sourcemeta::core::parse_json(R"JSON({
+    "$schema": "https://example.com/meta",
+    "$id": "https://example.com/schema",
+    "type": "string",
+    "definitions": {
+      "https://example.com/meta": {
+        "$id": "https://example.com/meta",
+        "$schema": "http://json-schema.org/draft-06/schema#",
+        "type": "object"
+      }
+    }
+  })JSON");
+
+  std::vector<std::tuple<std::string, sourcemeta::core::Pointer, std::string>>
+      traces;
+
+  // Note that we use a resolver that does not know about
+  // the custom meta-schema embedded in the document
+  sourcemeta::blaze::dependencies(
+      document, sourcemeta::blaze::schema_walker,
+      sourcemeta::blaze::schema_resolver,
+      [&traces](const auto &origin, const auto &pointer, const auto &target,
+                const auto &) {
+        traces.emplace_back(std::string{origin},
+                            sourcemeta::core::to_pointer(pointer),
+                            std::string{target});
+      });
+
+  EXPECT_TRUE(traces.empty());
+}
+
+TEST(Bundle_dependencies, embedded_custom_metaschema_offline_draft4) {
+  const sourcemeta::core::JSON document = sourcemeta::core::parse_json(R"JSON({
+    "$schema": "https://example.com/meta",
+    "id": "https://example.com/schema",
+    "type": "string",
+    "definitions": {
+      "https://example.com/meta": {
+        "id": "https://example.com/meta",
+        "$schema": "http://json-schema.org/draft-04/schema#",
+        "type": "object"
+      }
+    }
+  })JSON");
+
+  std::vector<std::tuple<std::string, sourcemeta::core::Pointer, std::string>>
+      traces;
+
+  // Note that we use a resolver that does not know about
+  // the custom meta-schema embedded in the document
+  sourcemeta::blaze::dependencies(
+      document, sourcemeta::blaze::schema_walker,
+      sourcemeta::blaze::schema_resolver,
+      [&traces](const auto &origin, const auto &pointer, const auto &target,
+                const auto &) {
+        traces.emplace_back(std::string{origin},
+                            sourcemeta::core::to_pointer(pointer),
+                            std::string{target});
+      });
+
+  EXPECT_TRUE(traces.empty());
+}
+
+TEST(Bundle_dependencies, embedded_custom_metaschema_offline_draft3) {
+  const sourcemeta::core::JSON document = sourcemeta::core::parse_json(R"JSON({
+    "$schema": "https://example.com/meta",
+    "id": "https://example.com/schema",
+    "type": "string",
+    "definitions": {
+      "https://example.com/meta": {
+        "id": "https://example.com/meta",
+        "$schema": "http://json-schema.org/draft-03/schema#",
+        "type": "object"
+      }
+    }
+  })JSON");
+
+  std::vector<std::tuple<std::string, sourcemeta::core::Pointer, std::string>>
+      traces;
+
+  // Note that we use a resolver that does not know about
+  // the custom meta-schema embedded in the document
+  sourcemeta::blaze::dependencies(
+      document, sourcemeta::blaze::schema_walker,
+      sourcemeta::blaze::schema_resolver,
+      [&traces](const auto &origin, const auto &pointer, const auto &target,
+                const auto &) {
+        traces.emplace_back(std::string{origin},
+                            sourcemeta::core::to_pointer(pointer),
+                            std::string{target});
+      });
+
+  EXPECT_TRUE(traces.empty());
+}

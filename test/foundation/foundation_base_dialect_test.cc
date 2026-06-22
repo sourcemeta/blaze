@@ -1008,3 +1008,45 @@ TEST(Foundation_base_dialect, embedded_custom_metaschema_relative_dialect) {
     FAIL();
   }
 }
+
+TEST(Foundation_base_dialect, embedded_custom_metaschema_draft6) {
+  const sourcemeta::core::JSON document = sourcemeta::core::parse_json(R"JSON({
+    "$schema": "https://example.com/meta",
+    "$id": "https://example.com/schema",
+    "type": "string",
+    "definitions": {
+      "https://example.com/meta": {
+        "$id": "https://example.com/meta",
+        "$schema": "http://json-schema.org/draft-06/schema#",
+        "type": "object"
+      }
+    }
+  })JSON");
+
+  const auto base_dialect{
+      sourcemeta::blaze::base_dialect(document, test_resolver)};
+  EXPECT_TRUE(base_dialect.has_value());
+  EXPECT_EQ(base_dialect.value(),
+            sourcemeta::blaze::SchemaBaseDialect::JSON_Schema_Draft_6);
+}
+
+TEST(Foundation_base_dialect, embedded_custom_metaschema_draft3) {
+  const sourcemeta::core::JSON document = sourcemeta::core::parse_json(R"JSON({
+    "$schema": "https://example.com/meta",
+    "id": "https://example.com/schema",
+    "type": "string",
+    "definitions": {
+      "https://example.com/meta": {
+        "id": "https://example.com/meta",
+        "$schema": "http://json-schema.org/draft-03/schema#",
+        "type": "object"
+      }
+    }
+  })JSON");
+
+  const auto base_dialect{
+      sourcemeta::blaze::base_dialect(document, test_resolver)};
+  EXPECT_TRUE(base_dialect.has_value());
+  EXPECT_EQ(base_dialect.value(),
+            sourcemeta::blaze::SchemaBaseDialect::JSON_Schema_Draft_3);
+}

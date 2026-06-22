@@ -602,3 +602,48 @@ TEST(Bundle_2019_09, hyperschema_2) {
   EXPECT_TRUE(document.at("$defs").is_object());
   EXPECT_EQ(document.at("$defs").size(), 9);
 }
+
+TEST(Bundle_2019_09, metaschema_offline_idempotent) {
+  sourcemeta::core::JSON document = sourcemeta::core::parse_json(R"JSON({
+    "$schema": "https://example.com/meta/1.json",
+    "type": "string",
+    "$defs": {
+      "https://example.com/meta/1.json": {
+        "$schema": "https://example.com/meta/2.json",
+        "$id": "https://example.com/meta/1.json",
+        "$vocabulary": { "https://json-schema.org/draft/2019-09/vocab/core": true }
+      },
+      "https://example.com/meta/2.json": {
+        "$schema": "https://json-schema.org/draft/2019-09/schema",
+        "$id": "https://example.com/meta/2.json",
+        "$vocabulary": { "https://json-schema.org/draft/2019-09/vocab/core": true }
+      }
+    }
+  })JSON");
+
+  // Note that we bundle with a resolver that does not know about
+  // the custom meta-schemas embedded in the document
+  sourcemeta::blaze::bundle(
+      document, sourcemeta::blaze::schema_walker,
+      sourcemeta::blaze::schema_resolver,
+      sourcemeta::blaze::BundleMode::NonOfficialMetaschemas);
+
+  const sourcemeta::core::JSON expected = sourcemeta::core::parse_json(R"JSON({
+    "$schema": "https://example.com/meta/1.json",
+    "type": "string",
+    "$defs": {
+      "https://example.com/meta/1.json": {
+        "$schema": "https://example.com/meta/2.json",
+        "$id": "https://example.com/meta/1.json",
+        "$vocabulary": { "https://json-schema.org/draft/2019-09/vocab/core": true }
+      },
+      "https://example.com/meta/2.json": {
+        "$schema": "https://json-schema.org/draft/2019-09/schema",
+        "$id": "https://example.com/meta/2.json",
+        "$vocabulary": { "https://json-schema.org/draft/2019-09/vocab/core": true }
+      }
+    }
+  })JSON");
+
+  EXPECT_EQ(document, expected);
+}
