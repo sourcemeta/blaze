@@ -629,6 +629,17 @@ TEST(Foundation_metaschema, try_embedded_2019_09) {
 
   EXPECT_TRUE(metaschema);
   EXPECT_EQ(metaschema, &document.at("$defs").at("https://example.com/meta"));
+
+  const auto expected{sourcemeta::core::parse_json(R"JSON({
+    "$id": "https://example.com/meta",
+    "$schema": "https://json-schema.org/draft/2019-09/schema",
+    "$vocabulary": {
+      "https://json-schema.org/draft/2019-09/vocab/core": true
+    },
+    "type": "object"
+  })JSON")};
+
+  EXPECT_EQ(*metaschema, expected);
 }
 
 TEST(Foundation_metaschema, try_embedded_draft7) {
@@ -651,6 +662,14 @@ TEST(Foundation_metaschema, try_embedded_draft7) {
   EXPECT_TRUE(metaschema);
   EXPECT_EQ(metaschema,
             &document.at("definitions").at("https://example.com/meta"));
+
+  const auto expected{sourcemeta::core::parse_json(R"JSON({
+    "$id": "https://example.com/meta",
+    "$schema": "http://json-schema.org/draft-07/schema#",
+    "type": "object"
+  })JSON")};
+
+  EXPECT_EQ(*metaschema, expected);
 }
 
 TEST(Foundation_metaschema, try_embedded_draft6) {
@@ -673,6 +692,14 @@ TEST(Foundation_metaschema, try_embedded_draft6) {
   EXPECT_TRUE(metaschema);
   EXPECT_EQ(metaschema,
             &document.at("definitions").at("https://example.com/meta"));
+
+  const auto expected{sourcemeta::core::parse_json(R"JSON({
+    "$id": "https://example.com/meta",
+    "$schema": "http://json-schema.org/draft-06/schema#",
+    "type": "object"
+  })JSON")};
+
+  EXPECT_EQ(*metaschema, expected);
 }
 
 TEST(Foundation_metaschema, try_embedded_draft4) {
@@ -695,6 +722,14 @@ TEST(Foundation_metaschema, try_embedded_draft4) {
   EXPECT_TRUE(metaschema);
   EXPECT_EQ(metaschema,
             &document.at("definitions").at("https://example.com/meta"));
+
+  const auto expected{sourcemeta::core::parse_json(R"JSON({
+    "id": "https://example.com/meta",
+    "$schema": "http://json-schema.org/draft-04/schema#",
+    "type": "object"
+  })JSON")};
+
+  EXPECT_EQ(*metaschema, expected);
 }
 
 TEST(Foundation_metaschema, try_embedded_draft3) {
@@ -717,4 +752,12 @@ TEST(Foundation_metaschema, try_embedded_draft3) {
   EXPECT_TRUE(metaschema);
   EXPECT_EQ(metaschema,
             &document.at("definitions").at("https://example.com/meta"));
+
+  const auto expected{sourcemeta::core::parse_json(R"JSON({
+    "id": "https://example.com/meta",
+    "$schema": "http://json-schema.org/draft-03/schema#",
+    "type": "object"
+  })JSON")};
+
+  EXPECT_EQ(*metaschema, expected);
 }
