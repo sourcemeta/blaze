@@ -10031,6 +10031,1441 @@ TEST(Frame_2020_12, embedded_custom_metaschema_nested_inside_instance_data) {
   }
 }
 
+TEST(Frame_2020_12, embedded_custom_metaschema_nested_in_applicator) {
+  const sourcemeta::core::JSON document = sourcemeta::core::parse_json(R"JSON({
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "$id": "https://example.com/schema",
+    "allOf": [
+      {
+        "$id": "https://example.com/foo",
+        "$schema": "https://example.com/meta",
+        "$defs": {
+          "https://example.com/meta": {
+            "$id": "https://example.com/meta",
+            "$schema": "https://json-schema.org/draft/2020-12/schema",
+            "type": "object"
+          }
+        }
+      }
+    ]
+  })JSON");
+
+  sourcemeta::blaze::SchemaFrame frame{
+      sourcemeta::blaze::SchemaFrame::Mode::References};
+  frame.analyse(document, sourcemeta::blaze::schema_walker,
+                sourcemeta::blaze::schema_resolver);
+
+  EXPECT_EQ(frame.locations().size(), 24);
+
+  EXPECT_FRAME_STATIC_2020_12_RESOURCE(
+      frame, "https://example.com/schema", "https://example.com/schema", "",
+      "https://example.com/schema", "", std::nullopt, false, false);
+  EXPECT_FRAME_STATIC_RESOURCE(frame, "https://example.com/foo",
+                               "https://example.com/schema", "/allOf/0",
+                               "https://example.com/meta", JSON_Schema_2020_12,
+                               "https://example.com/foo", "", "", false, false);
+  EXPECT_FRAME_STATIC_2020_12_RESOURCE(
+      frame, "https://example.com/meta", "https://example.com/schema",
+      "/allOf/0/$defs/https:~1~1example.com~1meta", "https://example.com/meta",
+      "", "/allOf/0", false, true);
+
+  // JSON Pointers
+
+  EXPECT_FRAME_STATIC_2020_12_POINTER(
+      frame, "https://example.com/schema#/$id", "https://example.com/schema",
+      "/$id", "https://example.com/schema", "/$id", "", false, false);
+  EXPECT_FRAME_STATIC_2020_12_POINTER(
+      frame, "https://example.com/schema#/$schema",
+      "https://example.com/schema", "/$schema", "https://example.com/schema",
+      "/$schema", "", false, false);
+  EXPECT_FRAME_STATIC_2020_12_POINTER(
+      frame, "https://example.com/schema#/allOf", "https://example.com/schema",
+      "/allOf", "https://example.com/schema", "/allOf", "", false, false);
+  EXPECT_FRAME_STATIC_SUBSCHEMA(
+      frame, "https://example.com/schema#/allOf/0",
+      "https://example.com/schema", "/allOf/0", "https://example.com/meta",
+      JSON_Schema_2020_12, "https://example.com/foo", "", "", false, false);
+  EXPECT_FRAME_STATIC_POINTER(
+      frame, "https://example.com/schema#/allOf/0/$defs",
+      "https://example.com/schema", "/allOf/0/$defs",
+      "https://example.com/meta", JSON_Schema_2020_12,
+      "https://example.com/foo", "/$defs", "/allOf/0", false, false);
+  EXPECT_FRAME_STATIC_2020_12_SUBSCHEMA(
+      frame,
+      "https://example.com/schema#/allOf/0/$defs/https:~1~1example.com~1meta",
+      "https://example.com/schema",
+      "/allOf/0/$defs/https:~1~1example.com~1meta", "https://example.com/meta",
+      "", "/allOf/0", false, true);
+  EXPECT_FRAME_STATIC_2020_12_POINTER(
+      frame,
+      "https://example.com/schema#/allOf/0/$defs/https:~1~1example.com~1meta/"
+      "$id",
+      "https://example.com/schema",
+      "/allOf/0/$defs/https:~1~1example.com~1meta/$id",
+      "https://example.com/meta", "/$id",
+      "/allOf/0/$defs/https:~1~1example.com~1meta", false, true);
+  EXPECT_FRAME_STATIC_2020_12_POINTER(
+      frame,
+      "https://example.com/schema#/allOf/0/$defs/https:~1~1example.com~1meta/"
+      "$schema",
+      "https://example.com/schema",
+      "/allOf/0/$defs/https:~1~1example.com~1meta/$schema",
+      "https://example.com/meta", "/$schema",
+      "/allOf/0/$defs/https:~1~1example.com~1meta", false, true);
+  EXPECT_FRAME_STATIC_2020_12_POINTER(
+      frame,
+      "https://example.com/schema#/allOf/0/$defs/https:~1~1example.com~1meta/"
+      "type",
+      "https://example.com/schema",
+      "/allOf/0/$defs/https:~1~1example.com~1meta/type",
+      "https://example.com/meta", "/type",
+      "/allOf/0/$defs/https:~1~1example.com~1meta", false, true);
+  EXPECT_FRAME_STATIC_POINTER(frame, "https://example.com/schema#/allOf/0/$id",
+                              "https://example.com/schema", "/allOf/0/$id",
+                              "https://example.com/meta", JSON_Schema_2020_12,
+                              "https://example.com/foo", "/$id", "/allOf/0",
+                              false, false);
+  EXPECT_FRAME_STATIC_POINTER(
+      frame, "https://example.com/schema#/allOf/0/$schema",
+      "https://example.com/schema", "/allOf/0/$schema",
+      "https://example.com/meta", JSON_Schema_2020_12,
+      "https://example.com/foo", "/$schema", "/allOf/0", false, false);
+
+  EXPECT_FRAME_STATIC_POINTER(
+      frame, "https://example.com/foo#/$defs", "https://example.com/schema",
+      "/allOf/0/$defs", "https://example.com/meta", JSON_Schema_2020_12,
+      "https://example.com/foo", "/$defs", "/allOf/0", false, false);
+  EXPECT_FRAME_STATIC_2020_12_SUBSCHEMA(
+      frame, "https://example.com/foo#/$defs/https:~1~1example.com~1meta",
+      "https://example.com/schema",
+      "/allOf/0/$defs/https:~1~1example.com~1meta", "https://example.com/meta",
+      "", "/allOf/0", false, true);
+  EXPECT_FRAME_STATIC_2020_12_POINTER(
+      frame, "https://example.com/foo#/$defs/https:~1~1example.com~1meta/$id",
+      "https://example.com/schema",
+      "/allOf/0/$defs/https:~1~1example.com~1meta/$id",
+      "https://example.com/meta", "/$id",
+      "/allOf/0/$defs/https:~1~1example.com~1meta", false, true);
+  EXPECT_FRAME_STATIC_2020_12_POINTER(
+      frame,
+      "https://example.com/foo#/$defs/https:~1~1example.com~1meta/$schema",
+      "https://example.com/schema",
+      "/allOf/0/$defs/https:~1~1example.com~1meta/$schema",
+      "https://example.com/meta", "/$schema",
+      "/allOf/0/$defs/https:~1~1example.com~1meta", false, true);
+  EXPECT_FRAME_STATIC_2020_12_POINTER(
+      frame, "https://example.com/foo#/$defs/https:~1~1example.com~1meta/type",
+      "https://example.com/schema",
+      "/allOf/0/$defs/https:~1~1example.com~1meta/type",
+      "https://example.com/meta", "/type",
+      "/allOf/0/$defs/https:~1~1example.com~1meta", false, true);
+  EXPECT_FRAME_STATIC_POINTER(
+      frame, "https://example.com/foo#/$id", "https://example.com/schema",
+      "/allOf/0/$id", "https://example.com/meta", JSON_Schema_2020_12,
+      "https://example.com/foo", "/$id", "/allOf/0", false, false);
+  EXPECT_FRAME_STATIC_POINTER(
+      frame, "https://example.com/foo#/$schema", "https://example.com/schema",
+      "/allOf/0/$schema", "https://example.com/meta", JSON_Schema_2020_12,
+      "https://example.com/foo", "/$schema", "/allOf/0", false, false);
+
+  EXPECT_FRAME_STATIC_2020_12_POINTER(
+      frame, "https://example.com/meta#/$id", "https://example.com/schema",
+      "/allOf/0/$defs/https:~1~1example.com~1meta/$id",
+      "https://example.com/meta", "/$id",
+      "/allOf/0/$defs/https:~1~1example.com~1meta", false, true);
+  EXPECT_FRAME_STATIC_2020_12_POINTER(
+      frame, "https://example.com/meta#/$schema", "https://example.com/schema",
+      "/allOf/0/$defs/https:~1~1example.com~1meta/$schema",
+      "https://example.com/meta", "/$schema",
+      "/allOf/0/$defs/https:~1~1example.com~1meta", false, true);
+  EXPECT_FRAME_STATIC_2020_12_POINTER(
+      frame, "https://example.com/meta#/type", "https://example.com/schema",
+      "/allOf/0/$defs/https:~1~1example.com~1meta/type",
+      "https://example.com/meta", "/type",
+      "/allOf/0/$defs/https:~1~1example.com~1meta", false, true);
+
+  // References
+
+  EXPECT_EQ(frame.references().size(), 3);
+
+  EXPECT_STATIC_REFERENCE(
+      frame, "/$schema", "https://json-schema.org/draft/2020-12/schema",
+      "https://json-schema.org/draft/2020-12/schema", std::nullopt,
+      "https://json-schema.org/draft/2020-12/schema");
+  EXPECT_STATIC_REFERENCE(
+      frame, "/allOf/0/$defs/https:~1~1example.com~1meta/$schema",
+      "https://json-schema.org/draft/2020-12/schema",
+      "https://json-schema.org/draft/2020-12/schema", std::nullopt,
+      "https://json-schema.org/draft/2020-12/schema");
+  EXPECT_STATIC_REFERENCE(frame, "/allOf/0/$schema", "https://example.com/meta",
+                          "https://example.com/meta", std::nullopt,
+                          "https://example.com/meta");
+
+  // Reachability
+
+  EXPECT_FRAME_LOCATION_REACHABLE(frame, Static, "https://example.com/schema",
+                                  frame.root());
+  EXPECT_FRAME_LOCATION_REACHABLE(frame, Static, "https://example.com/foo",
+                                  frame.root());
+  EXPECT_FRAME_LOCATION_REACHABLE(frame, Static, "https://example.com/meta",
+                                  frame.root());
+  EXPECT_FRAME_LOCATION_REACHABLE(frame, Static, "https://example.com/meta",
+                                  "https://example.com/meta");
+
+  EXPECT_FRAME_LOCATION_NON_REACHABLE(
+      frame, Static, "https://example.com/schema", "https://example.com/meta");
+}
+
+TEST(Frame_2020_12, embedded_custom_metaschema_nested_uses_root_metaschema) {
+  const sourcemeta::core::JSON document = sourcemeta::core::parse_json(R"JSON({
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "$id": "https://example.com/schema",
+    "$defs": {
+      "https://example.com/meta": {
+        "$id": "https://example.com/meta",
+        "$schema": "https://json-schema.org/draft/2020-12/schema",
+        "type": "object"
+      }
+    },
+    "properties": {
+      "foo": {
+        "$id": "https://example.com/foo",
+        "$schema": "https://example.com/meta"
+      }
+    }
+  })JSON");
+
+  sourcemeta::blaze::SchemaFrame frame{
+      sourcemeta::blaze::SchemaFrame::Mode::References};
+  frame.analyse(document, sourcemeta::blaze::schema_walker,
+                sourcemeta::blaze::schema_resolver);
+
+  EXPECT_EQ(frame.locations().size(), 19);
+
+  EXPECT_FRAME_STATIC_2020_12_RESOURCE(
+      frame, "https://example.com/schema", "https://example.com/schema", "",
+      "https://example.com/schema", "", std::nullopt, false, false);
+  EXPECT_FRAME_STATIC_RESOURCE(frame, "https://example.com/foo",
+                               "https://example.com/schema", "/properties/foo",
+                               "https://example.com/meta", JSON_Schema_2020_12,
+                               "https://example.com/foo", "", "", false, false);
+  EXPECT_FRAME_STATIC_2020_12_RESOURCE(
+      frame, "https://example.com/meta", "https://example.com/schema",
+      "/$defs/https:~1~1example.com~1meta", "https://example.com/meta", "", "",
+      false, true);
+
+  // JSON Pointers
+
+  EXPECT_FRAME_STATIC_2020_12_POINTER(
+      frame, "https://example.com/schema#/$id", "https://example.com/schema",
+      "/$id", "https://example.com/schema", "/$id", "", false, false);
+  EXPECT_FRAME_STATIC_2020_12_POINTER(
+      frame, "https://example.com/schema#/$schema",
+      "https://example.com/schema", "/$schema", "https://example.com/schema",
+      "/$schema", "", false, false);
+  EXPECT_FRAME_STATIC_2020_12_POINTER(
+      frame, "https://example.com/schema#/$defs", "https://example.com/schema",
+      "/$defs", "https://example.com/schema", "/$defs", "", false, false);
+  EXPECT_FRAME_STATIC_2020_12_POINTER(
+      frame, "https://example.com/schema#/properties",
+      "https://example.com/schema", "/properties", "https://example.com/schema",
+      "/properties", "", false, false);
+  EXPECT_FRAME_STATIC_2020_12_SUBSCHEMA(
+      frame, "https://example.com/schema#/$defs/https:~1~1example.com~1meta",
+      "https://example.com/schema", "/$defs/https:~1~1example.com~1meta",
+      "https://example.com/meta", "", "", false, true);
+  EXPECT_FRAME_STATIC_2020_12_POINTER(
+      frame,
+      "https://example.com/schema#/$defs/https:~1~1example.com~1meta/$id",
+      "https://example.com/schema", "/$defs/https:~1~1example.com~1meta/$id",
+      "https://example.com/meta", "/$id", "/$defs/https:~1~1example.com~1meta",
+      false, true);
+  EXPECT_FRAME_STATIC_2020_12_POINTER(
+      frame,
+      "https://example.com/schema#/$defs/https:~1~1example.com~1meta/$schema",
+      "https://example.com/schema",
+      "/$defs/https:~1~1example.com~1meta/$schema", "https://example.com/meta",
+      "/$schema", "/$defs/https:~1~1example.com~1meta", false, true);
+  EXPECT_FRAME_STATIC_2020_12_POINTER(
+      frame,
+      "https://example.com/schema#/$defs/https:~1~1example.com~1meta/type",
+      "https://example.com/schema", "/$defs/https:~1~1example.com~1meta/type",
+      "https://example.com/meta", "/type", "/$defs/https:~1~1example.com~1meta",
+      false, true);
+  EXPECT_FRAME_STATIC_SUBSCHEMA(
+      frame, "https://example.com/schema#/properties/foo",
+      "https://example.com/schema", "/properties/foo",
+      "https://example.com/meta", JSON_Schema_2020_12,
+      "https://example.com/foo", "", "", false, false);
+  EXPECT_FRAME_STATIC_POINTER(
+      frame, "https://example.com/schema#/properties/foo/$id",
+      "https://example.com/schema", "/properties/foo/$id",
+      "https://example.com/meta", JSON_Schema_2020_12,
+      "https://example.com/foo", "/$id", "/properties/foo", false, false);
+  EXPECT_FRAME_STATIC_POINTER(
+      frame, "https://example.com/schema#/properties/foo/$schema",
+      "https://example.com/schema", "/properties/foo/$schema",
+      "https://example.com/meta", JSON_Schema_2020_12,
+      "https://example.com/foo", "/$schema", "/properties/foo", false, false);
+
+  EXPECT_FRAME_STATIC_POINTER(
+      frame, "https://example.com/foo#/$id", "https://example.com/schema",
+      "/properties/foo/$id", "https://example.com/meta", JSON_Schema_2020_12,
+      "https://example.com/foo", "/$id", "/properties/foo", false, false);
+  EXPECT_FRAME_STATIC_POINTER(
+      frame, "https://example.com/foo#/$schema", "https://example.com/schema",
+      "/properties/foo/$schema", "https://example.com/meta",
+      JSON_Schema_2020_12, "https://example.com/foo", "/$schema",
+      "/properties/foo", false, false);
+
+  EXPECT_FRAME_STATIC_2020_12_POINTER(
+      frame, "https://example.com/meta#/$id", "https://example.com/schema",
+      "/$defs/https:~1~1example.com~1meta/$id", "https://example.com/meta",
+      "/$id", "/$defs/https:~1~1example.com~1meta", false, true);
+  EXPECT_FRAME_STATIC_2020_12_POINTER(
+      frame, "https://example.com/meta#/$schema", "https://example.com/schema",
+      "/$defs/https:~1~1example.com~1meta/$schema", "https://example.com/meta",
+      "/$schema", "/$defs/https:~1~1example.com~1meta", false, true);
+  EXPECT_FRAME_STATIC_2020_12_POINTER(
+      frame, "https://example.com/meta#/type", "https://example.com/schema",
+      "/$defs/https:~1~1example.com~1meta/type", "https://example.com/meta",
+      "/type", "/$defs/https:~1~1example.com~1meta", false, true);
+
+  // References
+
+  EXPECT_EQ(frame.references().size(), 3);
+
+  EXPECT_STATIC_REFERENCE(frame, "/$defs/https:~1~1example.com~1meta/$schema",
+                          "https://json-schema.org/draft/2020-12/schema",
+                          "https://json-schema.org/draft/2020-12/schema",
+                          std::nullopt,
+                          "https://json-schema.org/draft/2020-12/schema");
+  EXPECT_STATIC_REFERENCE(
+      frame, "/$schema", "https://json-schema.org/draft/2020-12/schema",
+      "https://json-schema.org/draft/2020-12/schema", std::nullopt,
+      "https://json-schema.org/draft/2020-12/schema");
+  EXPECT_STATIC_REFERENCE(
+      frame, "/properties/foo/$schema", "https://example.com/meta",
+      "https://example.com/meta", std::nullopt, "https://example.com/meta");
+
+  // Reachability
+
+  EXPECT_FRAME_LOCATION_REACHABLE(frame, Static, "https://example.com/schema",
+                                  frame.root());
+  EXPECT_FRAME_LOCATION_REACHABLE(frame, Static, "https://example.com/foo",
+                                  frame.root());
+  EXPECT_FRAME_LOCATION_REACHABLE(frame, Static, "https://example.com/meta",
+                                  frame.root());
+  EXPECT_FRAME_LOCATION_REACHABLE(frame, Static, "https://example.com/meta",
+                                  "https://example.com/meta");
+
+  EXPECT_FRAME_LOCATION_NON_REACHABLE(
+      frame, Static, "https://example.com/schema", "https://example.com/meta");
+}
+
+TEST(Frame_2020_12, embedded_custom_metaschema_nested_in_sibling) {
+  const sourcemeta::core::JSON document = sourcemeta::core::parse_json(R"JSON({
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "$id": "https://example.com/schema",
+    "properties": {
+      "foo": {
+        "$id": "https://example.com/foo",
+        "$schema": "https://example.com/meta"
+      },
+      "bar": {
+        "$id": "https://example.com/bar",
+        "$schema": "https://example.com/meta",
+        "$defs": {
+          "https://example.com/meta": {
+            "$id": "https://example.com/meta",
+            "$schema": "https://json-schema.org/draft/2020-12/schema",
+            "type": "object"
+          }
+        }
+      }
+    }
+  })JSON");
+
+  sourcemeta::blaze::SchemaFrame frame{
+      sourcemeta::blaze::SchemaFrame::Mode::References};
+
+  try {
+    frame.analyse(document, sourcemeta::blaze::schema_walker,
+                  sourcemeta::blaze::schema_resolver);
+    FAIL();
+  } catch (const sourcemeta::blaze::SchemaResolutionError &error) {
+    EXPECT_EQ(error.identifier(), "https://example.com/meta");
+  } catch (...) {
+    FAIL();
+  }
+}
+
+TEST(Frame_2020_12, embedded_custom_metaschema_triple_nested) {
+  const sourcemeta::core::JSON document = sourcemeta::core::parse_json(R"JSON({
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "$id": "https://example.com/schema",
+    "properties": {
+      "a": {
+        "$id": "https://example.com/a",
+        "$schema": "https://example.com/meta-a",
+        "$defs": {
+          "https://example.com/meta-a": {
+            "$id": "https://example.com/meta-a",
+            "$schema": "https://json-schema.org/draft/2020-12/schema",
+            "$vocabulary": {
+              "https://json-schema.org/draft/2020-12/vocab/core": true,
+              "https://json-schema.org/draft/2020-12/vocab/applicator": true
+            }
+          }
+        },
+        "properties": {
+          "b": {
+            "$id": "https://example.com/b",
+            "$schema": "https://example.com/meta-b",
+            "$defs": {
+              "https://example.com/meta-b": {
+                "$id": "https://example.com/meta-b",
+                "$schema": "https://json-schema.org/draft/2020-12/schema",
+                "$vocabulary": {
+                  "https://json-schema.org/draft/2020-12/vocab/core": true,
+                  "https://json-schema.org/draft/2020-12/vocab/applicator": true
+                }
+              }
+            },
+            "properties": {
+              "c": {
+                "$id": "https://example.com/c",
+                "$schema": "https://example.com/meta-c",
+                "$defs": {
+                  "https://example.com/meta-c": {
+                    "$id": "https://example.com/meta-c",
+                    "$schema": "https://json-schema.org/draft/2020-12/schema",
+                    "$vocabulary": {
+                      "https://json-schema.org/draft/2020-12/vocab/core": true,
+                      "https://json-schema.org/draft/2020-12/vocab/applicator": true
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  })JSON");
+
+  sourcemeta::blaze::SchemaFrame frame{
+      sourcemeta::blaze::SchemaFrame::Mode::References};
+  frame.analyse(document, sourcemeta::blaze::schema_walker,
+                sourcemeta::blaze::schema_resolver);
+
+  EXPECT_EQ(frame.locations().size(), 117);
+
+  EXPECT_FRAME_STATIC_RESOURCE(
+      frame, "https://example.com/a", "https://example.com/schema",
+      "/properties/a", "https://example.com/meta-a", JSON_Schema_2020_12,
+      "https://example.com/a", "", "", false, false);
+  EXPECT_FRAME_STATIC_POINTER(
+      frame, "https://example.com/a#/$defs", "https://example.com/schema",
+      "/properties/a/$defs", "https://example.com/meta-a", JSON_Schema_2020_12,
+      "https://example.com/a", "/$defs", "/properties/a", false, false);
+  EXPECT_FRAME_STATIC_2020_12_SUBSCHEMA(
+      frame, "https://example.com/a#/$defs/https:~1~1example.com~1meta-a",
+      "https://example.com/schema",
+      "/properties/a/$defs/https:~1~1example.com~1meta-a",
+      "https://example.com/meta-a", "", "/properties/a", false, true);
+  EXPECT_FRAME_STATIC_2020_12_POINTER(
+      frame, "https://example.com/a#/$defs/https:~1~1example.com~1meta-a/$id",
+      "https://example.com/schema",
+      "/properties/a/$defs/https:~1~1example.com~1meta-a/$id",
+      "https://example.com/meta-a", "/$id",
+      "/properties/a/$defs/https:~1~1example.com~1meta-a", false, true);
+  EXPECT_FRAME_STATIC_2020_12_POINTER(
+      frame,
+      "https://example.com/a#/$defs/https:~1~1example.com~1meta-a/$schema",
+      "https://example.com/schema",
+      "/properties/a/$defs/https:~1~1example.com~1meta-a/$schema",
+      "https://example.com/meta-a", "/$schema",
+      "/properties/a/$defs/https:~1~1example.com~1meta-a", false, true);
+  EXPECT_FRAME_STATIC_2020_12_POINTER(
+      frame,
+      "https://example.com/a#/$defs/https:~1~1example.com~1meta-a/$vocabulary",
+      "https://example.com/schema",
+      "/properties/a/$defs/https:~1~1example.com~1meta-a/$vocabulary",
+      "https://example.com/meta-a", "/$vocabulary",
+      "/properties/a/$defs/https:~1~1example.com~1meta-a", false, true);
+  EXPECT_FRAME_STATIC_2020_12_POINTER(
+      frame,
+      "https://example.com/a#/$defs/https:~1~1example.com~1meta-a/$vocabulary/"
+      "https:~1~1json-schema.org~1draft~12020-12~1vocab~1applicator",
+      "https://example.com/schema",
+      "/properties/a/$defs/https:~1~1example.com~1meta-a/$vocabulary/"
+      "https:~1~1json-schema.org~1draft~12020-12~1vocab~1applicator",
+      "https://example.com/meta-a",
+      "/$vocabulary/"
+      "https:~1~1json-schema.org~1draft~12020-12~1vocab~1applicator",
+      "/properties/a/$defs/https:~1~1example.com~1meta-a", false, true);
+  EXPECT_FRAME_STATIC_2020_12_POINTER(
+      frame,
+      "https://example.com/a#/$defs/https:~1~1example.com~1meta-a/$vocabulary/"
+      "https:~1~1json-schema.org~1draft~12020-12~1vocab~1core",
+      "https://example.com/schema",
+      "/properties/a/$defs/https:~1~1example.com~1meta-a/$vocabulary/"
+      "https:~1~1json-schema.org~1draft~12020-12~1vocab~1core",
+      "https://example.com/meta-a",
+      "/$vocabulary/https:~1~1json-schema.org~1draft~12020-12~1vocab~1core",
+      "/properties/a/$defs/https:~1~1example.com~1meta-a", false, true);
+  EXPECT_FRAME_STATIC_POINTER(
+      frame, "https://example.com/a#/$id", "https://example.com/schema",
+      "/properties/a/$id", "https://example.com/meta-a", JSON_Schema_2020_12,
+      "https://example.com/a", "/$id", "/properties/a", false, false);
+  EXPECT_FRAME_STATIC_POINTER(
+      frame, "https://example.com/a#/$schema", "https://example.com/schema",
+      "/properties/a/$schema", "https://example.com/meta-a",
+      JSON_Schema_2020_12, "https://example.com/a", "/$schema", "/properties/a",
+      false, false);
+  EXPECT_FRAME_STATIC_POINTER(
+      frame, "https://example.com/a#/properties", "https://example.com/schema",
+      "/properties/a/properties", "https://example.com/meta-a",
+      JSON_Schema_2020_12, "https://example.com/a", "/properties",
+      "/properties/a", false, false);
+  EXPECT_FRAME_STATIC_SUBSCHEMA(
+      frame, "https://example.com/a#/properties/b",
+      "https://example.com/schema", "/properties/a/properties/b",
+      "https://example.com/meta-b", JSON_Schema_2020_12,
+      "https://example.com/b", "", "/properties/a", false, false);
+  EXPECT_FRAME_STATIC_POINTER(
+      frame, "https://example.com/a#/properties/b/$defs",
+      "https://example.com/schema", "/properties/a/properties/b/$defs",
+      "https://example.com/meta-b", JSON_Schema_2020_12,
+      "https://example.com/b", "/$defs", "/properties/a/properties/b", false,
+      false);
+  EXPECT_FRAME_STATIC_2020_12_SUBSCHEMA(
+      frame,
+      "https://example.com/a#/properties/b/$defs/https:~1~1example.com~1meta-b",
+      "https://example.com/schema",
+      "/properties/a/properties/b/$defs/https:~1~1example.com~1meta-b",
+      "https://example.com/meta-b", "", "/properties/a/properties/b", false,
+      true);
+  EXPECT_FRAME_STATIC_2020_12_POINTER(
+      frame,
+      "https://example.com/a#/properties/b/$defs/https:~1~1example.com~1meta-b/"
+      "$id",
+      "https://example.com/schema",
+      "/properties/a/properties/b/$defs/https:~1~1example.com~1meta-b/$id",
+      "https://example.com/meta-b", "/$id",
+      "/properties/a/properties/b/$defs/https:~1~1example.com~1meta-b", false,
+      true);
+  EXPECT_FRAME_STATIC_2020_12_POINTER(
+      frame,
+      "https://example.com/a#/properties/b/$defs/https:~1~1example.com~1meta-b/"
+      "$schema",
+      "https://example.com/schema",
+      "/properties/a/properties/b/$defs/https:~1~1example.com~1meta-b/$schema",
+      "https://example.com/meta-b", "/$schema",
+      "/properties/a/properties/b/$defs/https:~1~1example.com~1meta-b", false,
+      true);
+  EXPECT_FRAME_STATIC_2020_12_POINTER(
+      frame,
+      "https://example.com/a#/properties/b/$defs/https:~1~1example.com~1meta-b/"
+      "$vocabulary",
+      "https://example.com/schema",
+      "/properties/a/properties/b/$defs/https:~1~1example.com~1meta-b/"
+      "$vocabulary",
+      "https://example.com/meta-b", "/$vocabulary",
+      "/properties/a/properties/b/$defs/https:~1~1example.com~1meta-b", false,
+      true);
+  EXPECT_FRAME_STATIC_2020_12_POINTER(
+      frame,
+      "https://example.com/a#/properties/b/$defs/https:~1~1example.com~1meta-b/"
+      "$vocabulary/"
+      "https:~1~1json-schema.org~1draft~12020-12~1vocab~1applicator",
+      "https://example.com/schema",
+      "/properties/a/properties/b/$defs/https:~1~1example.com~1meta-b/"
+      "$vocabulary/"
+      "https:~1~1json-schema.org~1draft~12020-12~1vocab~1applicator",
+      "https://example.com/meta-b",
+      "/$vocabulary/"
+      "https:~1~1json-schema.org~1draft~12020-12~1vocab~1applicator",
+      "/properties/a/properties/b/$defs/https:~1~1example.com~1meta-b", false,
+      true);
+  EXPECT_FRAME_STATIC_2020_12_POINTER(
+      frame,
+      "https://example.com/a#/properties/b/$defs/https:~1~1example.com~1meta-b/"
+      "$vocabulary/https:~1~1json-schema.org~1draft~12020-12~1vocab~1core",
+      "https://example.com/schema",
+      "/properties/a/properties/b/$defs/https:~1~1example.com~1meta-b/"
+      "$vocabulary/https:~1~1json-schema.org~1draft~12020-12~1vocab~1core",
+      "https://example.com/meta-b",
+      "/$vocabulary/https:~1~1json-schema.org~1draft~12020-12~1vocab~1core",
+      "/properties/a/properties/b/$defs/https:~1~1example.com~1meta-b", false,
+      true);
+  EXPECT_FRAME_STATIC_POINTER(frame, "https://example.com/a#/properties/b/$id",
+                              "https://example.com/schema",
+                              "/properties/a/properties/b/$id",
+                              "https://example.com/meta-b", JSON_Schema_2020_12,
+                              "https://example.com/b", "/$id",
+                              "/properties/a/properties/b", false, false);
+  EXPECT_FRAME_STATIC_POINTER(
+      frame, "https://example.com/a#/properties/b/$schema",
+      "https://example.com/schema", "/properties/a/properties/b/$schema",
+      "https://example.com/meta-b", JSON_Schema_2020_12,
+      "https://example.com/b", "/$schema", "/properties/a/properties/b", false,
+      false);
+  EXPECT_FRAME_STATIC_POINTER(
+      frame, "https://example.com/a#/properties/b/properties",
+      "https://example.com/schema", "/properties/a/properties/b/properties",
+      "https://example.com/meta-b", JSON_Schema_2020_12,
+      "https://example.com/b", "/properties", "/properties/a/properties/b",
+      false, false);
+  EXPECT_FRAME_STATIC_SUBSCHEMA(
+      frame, "https://example.com/a#/properties/b/properties/c",
+      "https://example.com/schema", "/properties/a/properties/b/properties/c",
+      "https://example.com/meta-c", JSON_Schema_2020_12,
+      "https://example.com/c", "", "/properties/a/properties/b", false, false);
+  EXPECT_FRAME_STATIC_POINTER(
+      frame, "https://example.com/a#/properties/b/properties/c/$defs",
+      "https://example.com/schema",
+      "/properties/a/properties/b/properties/c/$defs",
+      "https://example.com/meta-c", JSON_Schema_2020_12,
+      "https://example.com/c", "/$defs",
+      "/properties/a/properties/b/properties/c", false, false);
+  EXPECT_FRAME_STATIC_2020_12_SUBSCHEMA(
+      frame,
+      "https://example.com/a#/properties/b/properties/c/$defs/"
+      "https:~1~1example.com~1meta-c",
+      "https://example.com/schema",
+      "/properties/a/properties/b/properties/c/$defs/"
+      "https:~1~1example.com~1meta-c",
+      "https://example.com/meta-c", "",
+      "/properties/a/properties/b/properties/c", false, true);
+  EXPECT_FRAME_STATIC_2020_12_POINTER(
+      frame,
+      "https://example.com/a#/properties/b/properties/c/$defs/"
+      "https:~1~1example.com~1meta-c/$id",
+      "https://example.com/schema",
+      "/properties/a/properties/b/properties/c/$defs/"
+      "https:~1~1example.com~1meta-c/$id",
+      "https://example.com/meta-c", "/$id",
+      "/properties/a/properties/b/properties/c/$defs/"
+      "https:~1~1example.com~1meta-c",
+      false, true);
+  EXPECT_FRAME_STATIC_2020_12_POINTER(
+      frame,
+      "https://example.com/a#/properties/b/properties/c/$defs/"
+      "https:~1~1example.com~1meta-c/$schema",
+      "https://example.com/schema",
+      "/properties/a/properties/b/properties/c/$defs/"
+      "https:~1~1example.com~1meta-c/$schema",
+      "https://example.com/meta-c", "/$schema",
+      "/properties/a/properties/b/properties/c/$defs/"
+      "https:~1~1example.com~1meta-c",
+      false, true);
+  EXPECT_FRAME_STATIC_2020_12_POINTER(
+      frame,
+      "https://example.com/a#/properties/b/properties/c/$defs/"
+      "https:~1~1example.com~1meta-c/$vocabulary",
+      "https://example.com/schema",
+      "/properties/a/properties/b/properties/c/$defs/"
+      "https:~1~1example.com~1meta-c/$vocabulary",
+      "https://example.com/meta-c", "/$vocabulary",
+      "/properties/a/properties/b/properties/c/$defs/"
+      "https:~1~1example.com~1meta-c",
+      false, true);
+  EXPECT_FRAME_STATIC_2020_12_POINTER(
+      frame,
+      "https://example.com/a#/properties/b/properties/c/$defs/"
+      "https:~1~1example.com~1meta-c/$vocabulary/"
+      "https:~1~1json-schema.org~1draft~12020-12~1vocab~1applicator",
+      "https://example.com/schema",
+      "/properties/a/properties/b/properties/c/$defs/"
+      "https:~1~1example.com~1meta-c/$vocabulary/"
+      "https:~1~1json-schema.org~1draft~12020-12~1vocab~1applicator",
+      "https://example.com/meta-c",
+      "/$vocabulary/"
+      "https:~1~1json-schema.org~1draft~12020-12~1vocab~1applicator",
+      "/properties/a/properties/b/properties/c/$defs/"
+      "https:~1~1example.com~1meta-c",
+      false, true);
+  EXPECT_FRAME_STATIC_2020_12_POINTER(
+      frame,
+      "https://example.com/a#/properties/b/properties/c/$defs/"
+      "https:~1~1example.com~1meta-c/$vocabulary/"
+      "https:~1~1json-schema.org~1draft~12020-12~1vocab~1core",
+      "https://example.com/schema",
+      "/properties/a/properties/b/properties/c/$defs/"
+      "https:~1~1example.com~1meta-c/$vocabulary/"
+      "https:~1~1json-schema.org~1draft~12020-12~1vocab~1core",
+      "https://example.com/meta-c",
+      "/$vocabulary/https:~1~1json-schema.org~1draft~12020-12~1vocab~1core",
+      "/properties/a/properties/b/properties/c/$defs/"
+      "https:~1~1example.com~1meta-c",
+      false, true);
+  EXPECT_FRAME_STATIC_POINTER(
+      frame, "https://example.com/a#/properties/b/properties/c/$id",
+      "https://example.com/schema",
+      "/properties/a/properties/b/properties/c/$id",
+      "https://example.com/meta-c", JSON_Schema_2020_12,
+      "https://example.com/c", "/$id",
+      "/properties/a/properties/b/properties/c", false, false);
+  EXPECT_FRAME_STATIC_POINTER(
+      frame, "https://example.com/a#/properties/b/properties/c/$schema",
+      "https://example.com/schema",
+      "/properties/a/properties/b/properties/c/$schema",
+      "https://example.com/meta-c", JSON_Schema_2020_12,
+      "https://example.com/c", "/$schema",
+      "/properties/a/properties/b/properties/c", false, false);
+  EXPECT_FRAME_STATIC_RESOURCE(
+      frame, "https://example.com/b", "https://example.com/schema",
+      "/properties/a/properties/b", "https://example.com/meta-b",
+      JSON_Schema_2020_12, "https://example.com/b", "", "/properties/a", false,
+      false);
+  EXPECT_FRAME_STATIC_POINTER(
+      frame, "https://example.com/b#/$defs", "https://example.com/schema",
+      "/properties/a/properties/b/$defs", "https://example.com/meta-b",
+      JSON_Schema_2020_12, "https://example.com/b", "/$defs",
+      "/properties/a/properties/b", false, false);
+  EXPECT_FRAME_STATIC_2020_12_SUBSCHEMA(
+      frame, "https://example.com/b#/$defs/https:~1~1example.com~1meta-b",
+      "https://example.com/schema",
+      "/properties/a/properties/b/$defs/https:~1~1example.com~1meta-b",
+      "https://example.com/meta-b", "", "/properties/a/properties/b", false,
+      true);
+  EXPECT_FRAME_STATIC_2020_12_POINTER(
+      frame, "https://example.com/b#/$defs/https:~1~1example.com~1meta-b/$id",
+      "https://example.com/schema",
+      "/properties/a/properties/b/$defs/https:~1~1example.com~1meta-b/$id",
+      "https://example.com/meta-b", "/$id",
+      "/properties/a/properties/b/$defs/https:~1~1example.com~1meta-b", false,
+      true);
+  EXPECT_FRAME_STATIC_2020_12_POINTER(
+      frame,
+      "https://example.com/b#/$defs/https:~1~1example.com~1meta-b/$schema",
+      "https://example.com/schema",
+      "/properties/a/properties/b/$defs/https:~1~1example.com~1meta-b/$schema",
+      "https://example.com/meta-b", "/$schema",
+      "/properties/a/properties/b/$defs/https:~1~1example.com~1meta-b", false,
+      true);
+  EXPECT_FRAME_STATIC_2020_12_POINTER(
+      frame,
+      "https://example.com/b#/$defs/https:~1~1example.com~1meta-b/$vocabulary",
+      "https://example.com/schema",
+      "/properties/a/properties/b/$defs/https:~1~1example.com~1meta-b/"
+      "$vocabulary",
+      "https://example.com/meta-b", "/$vocabulary",
+      "/properties/a/properties/b/$defs/https:~1~1example.com~1meta-b", false,
+      true);
+  EXPECT_FRAME_STATIC_2020_12_POINTER(
+      frame,
+      "https://example.com/b#/$defs/https:~1~1example.com~1meta-b/$vocabulary/"
+      "https:~1~1json-schema.org~1draft~12020-12~1vocab~1applicator",
+      "https://example.com/schema",
+      "/properties/a/properties/b/$defs/https:~1~1example.com~1meta-b/"
+      "$vocabulary/"
+      "https:~1~1json-schema.org~1draft~12020-12~1vocab~1applicator",
+      "https://example.com/meta-b",
+      "/$vocabulary/"
+      "https:~1~1json-schema.org~1draft~12020-12~1vocab~1applicator",
+      "/properties/a/properties/b/$defs/https:~1~1example.com~1meta-b", false,
+      true);
+  EXPECT_FRAME_STATIC_2020_12_POINTER(
+      frame,
+      "https://example.com/b#/$defs/https:~1~1example.com~1meta-b/$vocabulary/"
+      "https:~1~1json-schema.org~1draft~12020-12~1vocab~1core",
+      "https://example.com/schema",
+      "/properties/a/properties/b/$defs/https:~1~1example.com~1meta-b/"
+      "$vocabulary/https:~1~1json-schema.org~1draft~12020-12~1vocab~1core",
+      "https://example.com/meta-b",
+      "/$vocabulary/https:~1~1json-schema.org~1draft~12020-12~1vocab~1core",
+      "/properties/a/properties/b/$defs/https:~1~1example.com~1meta-b", false,
+      true);
+  EXPECT_FRAME_STATIC_POINTER(
+      frame, "https://example.com/b#/$id", "https://example.com/schema",
+      "/properties/a/properties/b/$id", "https://example.com/meta-b",
+      JSON_Schema_2020_12, "https://example.com/b", "/$id",
+      "/properties/a/properties/b", false, false);
+  EXPECT_FRAME_STATIC_POINTER(
+      frame, "https://example.com/b#/$schema", "https://example.com/schema",
+      "/properties/a/properties/b/$schema", "https://example.com/meta-b",
+      JSON_Schema_2020_12, "https://example.com/b", "/$schema",
+      "/properties/a/properties/b", false, false);
+  EXPECT_FRAME_STATIC_POINTER(
+      frame, "https://example.com/b#/properties", "https://example.com/schema",
+      "/properties/a/properties/b/properties", "https://example.com/meta-b",
+      JSON_Schema_2020_12, "https://example.com/b", "/properties",
+      "/properties/a/properties/b", false, false);
+  EXPECT_FRAME_STATIC_SUBSCHEMA(
+      frame, "https://example.com/b#/properties/c",
+      "https://example.com/schema", "/properties/a/properties/b/properties/c",
+      "https://example.com/meta-c", JSON_Schema_2020_12,
+      "https://example.com/c", "", "/properties/a/properties/b", false, false);
+  EXPECT_FRAME_STATIC_POINTER(
+      frame, "https://example.com/b#/properties/c/$defs",
+      "https://example.com/schema",
+      "/properties/a/properties/b/properties/c/$defs",
+      "https://example.com/meta-c", JSON_Schema_2020_12,
+      "https://example.com/c", "/$defs",
+      "/properties/a/properties/b/properties/c", false, false);
+  EXPECT_FRAME_STATIC_2020_12_SUBSCHEMA(
+      frame,
+      "https://example.com/b#/properties/c/$defs/https:~1~1example.com~1meta-c",
+      "https://example.com/schema",
+      "/properties/a/properties/b/properties/c/$defs/"
+      "https:~1~1example.com~1meta-c",
+      "https://example.com/meta-c", "",
+      "/properties/a/properties/b/properties/c", false, true);
+  EXPECT_FRAME_STATIC_2020_12_POINTER(frame,
+                                      "https://example.com/b#/properties/c/"
+                                      "$defs/https:~1~1example.com~1meta-c/$id",
+                                      "https://example.com/schema",
+                                      "/properties/a/properties/b/properties/c/"
+                                      "$defs/https:~1~1example.com~1meta-c/$id",
+                                      "https://example.com/meta-c", "/$id",
+                                      "/properties/a/properties/b/properties/c/"
+                                      "$defs/https:~1~1example.com~1meta-c",
+                                      false, true);
+  EXPECT_FRAME_STATIC_2020_12_POINTER(
+      frame,
+      "https://example.com/b#/properties/c/$defs/https:~1~1example.com~1meta-c/"
+      "$schema",
+      "https://example.com/schema",
+      "/properties/a/properties/b/properties/c/$defs/"
+      "https:~1~1example.com~1meta-c/$schema",
+      "https://example.com/meta-c", "/$schema",
+      "/properties/a/properties/b/properties/c/$defs/"
+      "https:~1~1example.com~1meta-c",
+      false, true);
+  EXPECT_FRAME_STATIC_2020_12_POINTER(
+      frame,
+      "https://example.com/b#/properties/c/$defs/https:~1~1example.com~1meta-c/"
+      "$vocabulary",
+      "https://example.com/schema",
+      "/properties/a/properties/b/properties/c/$defs/"
+      "https:~1~1example.com~1meta-c/$vocabulary",
+      "https://example.com/meta-c", "/$vocabulary",
+      "/properties/a/properties/b/properties/c/$defs/"
+      "https:~1~1example.com~1meta-c",
+      false, true);
+  EXPECT_FRAME_STATIC_2020_12_POINTER(
+      frame,
+      "https://example.com/b#/properties/c/$defs/https:~1~1example.com~1meta-c/"
+      "$vocabulary/"
+      "https:~1~1json-schema.org~1draft~12020-12~1vocab~1applicator",
+      "https://example.com/schema",
+      "/properties/a/properties/b/properties/c/$defs/"
+      "https:~1~1example.com~1meta-c/$vocabulary/"
+      "https:~1~1json-schema.org~1draft~12020-12~1vocab~1applicator",
+      "https://example.com/meta-c",
+      "/$vocabulary/"
+      "https:~1~1json-schema.org~1draft~12020-12~1vocab~1applicator",
+      "/properties/a/properties/b/properties/c/$defs/"
+      "https:~1~1example.com~1meta-c",
+      false, true);
+  EXPECT_FRAME_STATIC_2020_12_POINTER(
+      frame,
+      "https://example.com/b#/properties/c/$defs/https:~1~1example.com~1meta-c/"
+      "$vocabulary/https:~1~1json-schema.org~1draft~12020-12~1vocab~1core",
+      "https://example.com/schema",
+      "/properties/a/properties/b/properties/c/$defs/"
+      "https:~1~1example.com~1meta-c/$vocabulary/"
+      "https:~1~1json-schema.org~1draft~12020-12~1vocab~1core",
+      "https://example.com/meta-c",
+      "/$vocabulary/https:~1~1json-schema.org~1draft~12020-12~1vocab~1core",
+      "/properties/a/properties/b/properties/c/$defs/"
+      "https:~1~1example.com~1meta-c",
+      false, true);
+  EXPECT_FRAME_STATIC_POINTER(frame, "https://example.com/b#/properties/c/$id",
+                              "https://example.com/schema",
+                              "/properties/a/properties/b/properties/c/$id",
+                              "https://example.com/meta-c", JSON_Schema_2020_12,
+                              "https://example.com/c", "/$id",
+                              "/properties/a/properties/b/properties/c", false,
+                              false);
+  EXPECT_FRAME_STATIC_POINTER(
+      frame, "https://example.com/b#/properties/c/$schema",
+      "https://example.com/schema",
+      "/properties/a/properties/b/properties/c/$schema",
+      "https://example.com/meta-c", JSON_Schema_2020_12,
+      "https://example.com/c", "/$schema",
+      "/properties/a/properties/b/properties/c", false, false);
+  EXPECT_FRAME_STATIC_RESOURCE(
+      frame, "https://example.com/c", "https://example.com/schema",
+      "/properties/a/properties/b/properties/c", "https://example.com/meta-c",
+      JSON_Schema_2020_12, "https://example.com/c", "",
+      "/properties/a/properties/b", false, false);
+  EXPECT_FRAME_STATIC_POINTER(
+      frame, "https://example.com/c#/$defs", "https://example.com/schema",
+      "/properties/a/properties/b/properties/c/$defs",
+      "https://example.com/meta-c", JSON_Schema_2020_12,
+      "https://example.com/c", "/$defs",
+      "/properties/a/properties/b/properties/c", false, false);
+  EXPECT_FRAME_STATIC_2020_12_SUBSCHEMA(
+      frame, "https://example.com/c#/$defs/https:~1~1example.com~1meta-c",
+      "https://example.com/schema",
+      "/properties/a/properties/b/properties/c/$defs/"
+      "https:~1~1example.com~1meta-c",
+      "https://example.com/meta-c", "",
+      "/properties/a/properties/b/properties/c", false, true);
+  EXPECT_FRAME_STATIC_2020_12_POINTER(
+      frame, "https://example.com/c#/$defs/https:~1~1example.com~1meta-c/$id",
+      "https://example.com/schema",
+      "/properties/a/properties/b/properties/c/$defs/"
+      "https:~1~1example.com~1meta-c/$id",
+      "https://example.com/meta-c", "/$id",
+      "/properties/a/properties/b/properties/c/$defs/"
+      "https:~1~1example.com~1meta-c",
+      false, true);
+  EXPECT_FRAME_STATIC_2020_12_POINTER(
+      frame,
+      "https://example.com/c#/$defs/https:~1~1example.com~1meta-c/$schema",
+      "https://example.com/schema",
+      "/properties/a/properties/b/properties/c/$defs/"
+      "https:~1~1example.com~1meta-c/$schema",
+      "https://example.com/meta-c", "/$schema",
+      "/properties/a/properties/b/properties/c/$defs/"
+      "https:~1~1example.com~1meta-c",
+      false, true);
+  EXPECT_FRAME_STATIC_2020_12_POINTER(
+      frame,
+      "https://example.com/c#/$defs/https:~1~1example.com~1meta-c/$vocabulary",
+      "https://example.com/schema",
+      "/properties/a/properties/b/properties/c/$defs/"
+      "https:~1~1example.com~1meta-c/$vocabulary",
+      "https://example.com/meta-c", "/$vocabulary",
+      "/properties/a/properties/b/properties/c/$defs/"
+      "https:~1~1example.com~1meta-c",
+      false, true);
+  EXPECT_FRAME_STATIC_2020_12_POINTER(
+      frame,
+      "https://example.com/c#/$defs/https:~1~1example.com~1meta-c/$vocabulary/"
+      "https:~1~1json-schema.org~1draft~12020-12~1vocab~1applicator",
+      "https://example.com/schema",
+      "/properties/a/properties/b/properties/c/$defs/"
+      "https:~1~1example.com~1meta-c/$vocabulary/"
+      "https:~1~1json-schema.org~1draft~12020-12~1vocab~1applicator",
+      "https://example.com/meta-c",
+      "/$vocabulary/"
+      "https:~1~1json-schema.org~1draft~12020-12~1vocab~1applicator",
+      "/properties/a/properties/b/properties/c/$defs/"
+      "https:~1~1example.com~1meta-c",
+      false, true);
+  EXPECT_FRAME_STATIC_2020_12_POINTER(
+      frame,
+      "https://example.com/c#/$defs/https:~1~1example.com~1meta-c/$vocabulary/"
+      "https:~1~1json-schema.org~1draft~12020-12~1vocab~1core",
+      "https://example.com/schema",
+      "/properties/a/properties/b/properties/c/$defs/"
+      "https:~1~1example.com~1meta-c/$vocabulary/"
+      "https:~1~1json-schema.org~1draft~12020-12~1vocab~1core",
+      "https://example.com/meta-c",
+      "/$vocabulary/https:~1~1json-schema.org~1draft~12020-12~1vocab~1core",
+      "/properties/a/properties/b/properties/c/$defs/"
+      "https:~1~1example.com~1meta-c",
+      false, true);
+  EXPECT_FRAME_STATIC_POINTER(
+      frame, "https://example.com/c#/$id", "https://example.com/schema",
+      "/properties/a/properties/b/properties/c/$id",
+      "https://example.com/meta-c", JSON_Schema_2020_12,
+      "https://example.com/c", "/$id",
+      "/properties/a/properties/b/properties/c", false, false);
+  EXPECT_FRAME_STATIC_POINTER(
+      frame, "https://example.com/c#/$schema", "https://example.com/schema",
+      "/properties/a/properties/b/properties/c/$schema",
+      "https://example.com/meta-c", JSON_Schema_2020_12,
+      "https://example.com/c", "/$schema",
+      "/properties/a/properties/b/properties/c", false, false);
+  EXPECT_FRAME_STATIC_2020_12_RESOURCE(
+      frame, "https://example.com/meta-a", "https://example.com/schema",
+      "/properties/a/$defs/https:~1~1example.com~1meta-a",
+      "https://example.com/meta-a", "", "/properties/a", false, true);
+  EXPECT_FRAME_STATIC_2020_12_POINTER(
+      frame, "https://example.com/meta-a#/$id", "https://example.com/schema",
+      "/properties/a/$defs/https:~1~1example.com~1meta-a/$id",
+      "https://example.com/meta-a", "/$id",
+      "/properties/a/$defs/https:~1~1example.com~1meta-a", false, true);
+  EXPECT_FRAME_STATIC_2020_12_POINTER(
+      frame, "https://example.com/meta-a#/$schema",
+      "https://example.com/schema",
+      "/properties/a/$defs/https:~1~1example.com~1meta-a/$schema",
+      "https://example.com/meta-a", "/$schema",
+      "/properties/a/$defs/https:~1~1example.com~1meta-a", false, true);
+  EXPECT_FRAME_STATIC_2020_12_POINTER(
+      frame, "https://example.com/meta-a#/$vocabulary",
+      "https://example.com/schema",
+      "/properties/a/$defs/https:~1~1example.com~1meta-a/$vocabulary",
+      "https://example.com/meta-a", "/$vocabulary",
+      "/properties/a/$defs/https:~1~1example.com~1meta-a", false, true);
+  EXPECT_FRAME_STATIC_2020_12_POINTER(
+      frame,
+      "https://example.com/meta-a#/$vocabulary/"
+      "https:~1~1json-schema.org~1draft~12020-12~1vocab~1applicator",
+      "https://example.com/schema",
+      "/properties/a/$defs/https:~1~1example.com~1meta-a/$vocabulary/"
+      "https:~1~1json-schema.org~1draft~12020-12~1vocab~1applicator",
+      "https://example.com/meta-a",
+      "/$vocabulary/"
+      "https:~1~1json-schema.org~1draft~12020-12~1vocab~1applicator",
+      "/properties/a/$defs/https:~1~1example.com~1meta-a", false, true);
+  EXPECT_FRAME_STATIC_2020_12_POINTER(
+      frame,
+      "https://example.com/meta-a#/$vocabulary/"
+      "https:~1~1json-schema.org~1draft~12020-12~1vocab~1core",
+      "https://example.com/schema",
+      "/properties/a/$defs/https:~1~1example.com~1meta-a/$vocabulary/"
+      "https:~1~1json-schema.org~1draft~12020-12~1vocab~1core",
+      "https://example.com/meta-a",
+      "/$vocabulary/https:~1~1json-schema.org~1draft~12020-12~1vocab~1core",
+      "/properties/a/$defs/https:~1~1example.com~1meta-a", false, true);
+  EXPECT_FRAME_STATIC_2020_12_RESOURCE(
+      frame, "https://example.com/meta-b", "https://example.com/schema",
+      "/properties/a/properties/b/$defs/https:~1~1example.com~1meta-b",
+      "https://example.com/meta-b", "", "/properties/a/properties/b", false,
+      true);
+  EXPECT_FRAME_STATIC_2020_12_POINTER(
+      frame, "https://example.com/meta-b#/$id", "https://example.com/schema",
+      "/properties/a/properties/b/$defs/https:~1~1example.com~1meta-b/$id",
+      "https://example.com/meta-b", "/$id",
+      "/properties/a/properties/b/$defs/https:~1~1example.com~1meta-b", false,
+      true);
+  EXPECT_FRAME_STATIC_2020_12_POINTER(
+      frame, "https://example.com/meta-b#/$schema",
+      "https://example.com/schema",
+      "/properties/a/properties/b/$defs/https:~1~1example.com~1meta-b/$schema",
+      "https://example.com/meta-b", "/$schema",
+      "/properties/a/properties/b/$defs/https:~1~1example.com~1meta-b", false,
+      true);
+  EXPECT_FRAME_STATIC_2020_12_POINTER(
+      frame, "https://example.com/meta-b#/$vocabulary",
+      "https://example.com/schema",
+      "/properties/a/properties/b/$defs/https:~1~1example.com~1meta-b/"
+      "$vocabulary",
+      "https://example.com/meta-b", "/$vocabulary",
+      "/properties/a/properties/b/$defs/https:~1~1example.com~1meta-b", false,
+      true);
+  EXPECT_FRAME_STATIC_2020_12_POINTER(
+      frame,
+      "https://example.com/meta-b#/$vocabulary/"
+      "https:~1~1json-schema.org~1draft~12020-12~1vocab~1applicator",
+      "https://example.com/schema",
+      "/properties/a/properties/b/$defs/https:~1~1example.com~1meta-b/"
+      "$vocabulary/"
+      "https:~1~1json-schema.org~1draft~12020-12~1vocab~1applicator",
+      "https://example.com/meta-b",
+      "/$vocabulary/"
+      "https:~1~1json-schema.org~1draft~12020-12~1vocab~1applicator",
+      "/properties/a/properties/b/$defs/https:~1~1example.com~1meta-b", false,
+      true);
+  EXPECT_FRAME_STATIC_2020_12_POINTER(
+      frame,
+      "https://example.com/meta-b#/$vocabulary/"
+      "https:~1~1json-schema.org~1draft~12020-12~1vocab~1core",
+      "https://example.com/schema",
+      "/properties/a/properties/b/$defs/https:~1~1example.com~1meta-b/"
+      "$vocabulary/https:~1~1json-schema.org~1draft~12020-12~1vocab~1core",
+      "https://example.com/meta-b",
+      "/$vocabulary/https:~1~1json-schema.org~1draft~12020-12~1vocab~1core",
+      "/properties/a/properties/b/$defs/https:~1~1example.com~1meta-b", false,
+      true);
+  EXPECT_FRAME_STATIC_2020_12_RESOURCE(
+      frame, "https://example.com/meta-c", "https://example.com/schema",
+      "/properties/a/properties/b/properties/c/$defs/"
+      "https:~1~1example.com~1meta-c",
+      "https://example.com/meta-c", "",
+      "/properties/a/properties/b/properties/c", false, true);
+  EXPECT_FRAME_STATIC_2020_12_POINTER(frame, "https://example.com/meta-c#/$id",
+                                      "https://example.com/schema",
+                                      "/properties/a/properties/b/properties/c/"
+                                      "$defs/https:~1~1example.com~1meta-c/$id",
+                                      "https://example.com/meta-c", "/$id",
+                                      "/properties/a/properties/b/properties/c/"
+                                      "$defs/https:~1~1example.com~1meta-c",
+                                      false, true);
+  EXPECT_FRAME_STATIC_2020_12_POINTER(
+      frame, "https://example.com/meta-c#/$schema",
+      "https://example.com/schema",
+      "/properties/a/properties/b/properties/c/$defs/"
+      "https:~1~1example.com~1meta-c/$schema",
+      "https://example.com/meta-c", "/$schema",
+      "/properties/a/properties/b/properties/c/$defs/"
+      "https:~1~1example.com~1meta-c",
+      false, true);
+  EXPECT_FRAME_STATIC_2020_12_POINTER(
+      frame, "https://example.com/meta-c#/$vocabulary",
+      "https://example.com/schema",
+      "/properties/a/properties/b/properties/c/$defs/"
+      "https:~1~1example.com~1meta-c/$vocabulary",
+      "https://example.com/meta-c", "/$vocabulary",
+      "/properties/a/properties/b/properties/c/$defs/"
+      "https:~1~1example.com~1meta-c",
+      false, true);
+  EXPECT_FRAME_STATIC_2020_12_POINTER(
+      frame,
+      "https://example.com/meta-c#/$vocabulary/"
+      "https:~1~1json-schema.org~1draft~12020-12~1vocab~1applicator",
+      "https://example.com/schema",
+      "/properties/a/properties/b/properties/c/$defs/"
+      "https:~1~1example.com~1meta-c/$vocabulary/"
+      "https:~1~1json-schema.org~1draft~12020-12~1vocab~1applicator",
+      "https://example.com/meta-c",
+      "/$vocabulary/"
+      "https:~1~1json-schema.org~1draft~12020-12~1vocab~1applicator",
+      "/properties/a/properties/b/properties/c/$defs/"
+      "https:~1~1example.com~1meta-c",
+      false, true);
+  EXPECT_FRAME_STATIC_2020_12_POINTER(
+      frame,
+      "https://example.com/meta-c#/$vocabulary/"
+      "https:~1~1json-schema.org~1draft~12020-12~1vocab~1core",
+      "https://example.com/schema",
+      "/properties/a/properties/b/properties/c/$defs/"
+      "https:~1~1example.com~1meta-c/$vocabulary/"
+      "https:~1~1json-schema.org~1draft~12020-12~1vocab~1core",
+      "https://example.com/meta-c",
+      "/$vocabulary/https:~1~1json-schema.org~1draft~12020-12~1vocab~1core",
+      "/properties/a/properties/b/properties/c/$defs/"
+      "https:~1~1example.com~1meta-c",
+      false, true);
+  EXPECT_FRAME_STATIC_2020_12_RESOURCE(
+      frame, "https://example.com/schema", "https://example.com/schema", "",
+      "https://example.com/schema", "", std::nullopt, false, false);
+  EXPECT_FRAME_STATIC_2020_12_POINTER(
+      frame, "https://example.com/schema#/$id", "https://example.com/schema",
+      "/$id", "https://example.com/schema", "/$id", "", false, false);
+  EXPECT_FRAME_STATIC_2020_12_POINTER(
+      frame, "https://example.com/schema#/$schema",
+      "https://example.com/schema", "/$schema", "https://example.com/schema",
+      "/$schema", "", false, false);
+  EXPECT_FRAME_STATIC_2020_12_POINTER(
+      frame, "https://example.com/schema#/properties",
+      "https://example.com/schema", "/properties", "https://example.com/schema",
+      "/properties", "", false, false);
+  EXPECT_FRAME_STATIC_SUBSCHEMA(
+      frame, "https://example.com/schema#/properties/a",
+      "https://example.com/schema", "/properties/a",
+      "https://example.com/meta-a", JSON_Schema_2020_12,
+      "https://example.com/a", "", "", false, false);
+  EXPECT_FRAME_STATIC_POINTER(
+      frame, "https://example.com/schema#/properties/a/$defs",
+      "https://example.com/schema", "/properties/a/$defs",
+      "https://example.com/meta-a", JSON_Schema_2020_12,
+      "https://example.com/a", "/$defs", "/properties/a", false, false);
+  EXPECT_FRAME_STATIC_2020_12_SUBSCHEMA(
+      frame,
+      "https://example.com/schema#/properties/a/$defs/"
+      "https:~1~1example.com~1meta-a",
+      "https://example.com/schema",
+      "/properties/a/$defs/https:~1~1example.com~1meta-a",
+      "https://example.com/meta-a", "", "/properties/a", false, true);
+  EXPECT_FRAME_STATIC_2020_12_POINTER(
+      frame,
+      "https://example.com/schema#/properties/a/$defs/"
+      "https:~1~1example.com~1meta-a/$id",
+      "https://example.com/schema",
+      "/properties/a/$defs/https:~1~1example.com~1meta-a/$id",
+      "https://example.com/meta-a", "/$id",
+      "/properties/a/$defs/https:~1~1example.com~1meta-a", false, true);
+  EXPECT_FRAME_STATIC_2020_12_POINTER(
+      frame,
+      "https://example.com/schema#/properties/a/$defs/"
+      "https:~1~1example.com~1meta-a/$schema",
+      "https://example.com/schema",
+      "/properties/a/$defs/https:~1~1example.com~1meta-a/$schema",
+      "https://example.com/meta-a", "/$schema",
+      "/properties/a/$defs/https:~1~1example.com~1meta-a", false, true);
+  EXPECT_FRAME_STATIC_2020_12_POINTER(
+      frame,
+      "https://example.com/schema#/properties/a/$defs/"
+      "https:~1~1example.com~1meta-a/$vocabulary",
+      "https://example.com/schema",
+      "/properties/a/$defs/https:~1~1example.com~1meta-a/$vocabulary",
+      "https://example.com/meta-a", "/$vocabulary",
+      "/properties/a/$defs/https:~1~1example.com~1meta-a", false, true);
+  EXPECT_FRAME_STATIC_2020_12_POINTER(
+      frame,
+      "https://example.com/schema#/properties/a/$defs/"
+      "https:~1~1example.com~1meta-a/$vocabulary/"
+      "https:~1~1json-schema.org~1draft~12020-12~1vocab~1applicator",
+      "https://example.com/schema",
+      "/properties/a/$defs/https:~1~1example.com~1meta-a/$vocabulary/"
+      "https:~1~1json-schema.org~1draft~12020-12~1vocab~1applicator",
+      "https://example.com/meta-a",
+      "/$vocabulary/"
+      "https:~1~1json-schema.org~1draft~12020-12~1vocab~1applicator",
+      "/properties/a/$defs/https:~1~1example.com~1meta-a", false, true);
+  EXPECT_FRAME_STATIC_2020_12_POINTER(
+      frame,
+      "https://example.com/schema#/properties/a/$defs/"
+      "https:~1~1example.com~1meta-a/$vocabulary/"
+      "https:~1~1json-schema.org~1draft~12020-12~1vocab~1core",
+      "https://example.com/schema",
+      "/properties/a/$defs/https:~1~1example.com~1meta-a/$vocabulary/"
+      "https:~1~1json-schema.org~1draft~12020-12~1vocab~1core",
+      "https://example.com/meta-a",
+      "/$vocabulary/https:~1~1json-schema.org~1draft~12020-12~1vocab~1core",
+      "/properties/a/$defs/https:~1~1example.com~1meta-a", false, true);
+  EXPECT_FRAME_STATIC_POINTER(
+      frame, "https://example.com/schema#/properties/a/$id",
+      "https://example.com/schema", "/properties/a/$id",
+      "https://example.com/meta-a", JSON_Schema_2020_12,
+      "https://example.com/a", "/$id", "/properties/a", false, false);
+  EXPECT_FRAME_STATIC_POINTER(
+      frame, "https://example.com/schema#/properties/a/$schema",
+      "https://example.com/schema", "/properties/a/$schema",
+      "https://example.com/meta-a", JSON_Schema_2020_12,
+      "https://example.com/a", "/$schema", "/properties/a", false, false);
+  EXPECT_FRAME_STATIC_POINTER(
+      frame, "https://example.com/schema#/properties/a/properties",
+      "https://example.com/schema", "/properties/a/properties",
+      "https://example.com/meta-a", JSON_Schema_2020_12,
+      "https://example.com/a", "/properties", "/properties/a", false, false);
+  EXPECT_FRAME_STATIC_SUBSCHEMA(
+      frame, "https://example.com/schema#/properties/a/properties/b",
+      "https://example.com/schema", "/properties/a/properties/b",
+      "https://example.com/meta-b", JSON_Schema_2020_12,
+      "https://example.com/b", "", "/properties/a", false, false);
+  EXPECT_FRAME_STATIC_POINTER(
+      frame, "https://example.com/schema#/properties/a/properties/b/$defs",
+      "https://example.com/schema", "/properties/a/properties/b/$defs",
+      "https://example.com/meta-b", JSON_Schema_2020_12,
+      "https://example.com/b", "/$defs", "/properties/a/properties/b", false,
+      false);
+  EXPECT_FRAME_STATIC_2020_12_SUBSCHEMA(
+      frame,
+      "https://example.com/schema#/properties/a/properties/b/$defs/"
+      "https:~1~1example.com~1meta-b",
+      "https://example.com/schema",
+      "/properties/a/properties/b/$defs/https:~1~1example.com~1meta-b",
+      "https://example.com/meta-b", "", "/properties/a/properties/b", false,
+      true);
+  EXPECT_FRAME_STATIC_2020_12_POINTER(
+      frame,
+      "https://example.com/schema#/properties/a/properties/b/$defs/"
+      "https:~1~1example.com~1meta-b/$id",
+      "https://example.com/schema",
+      "/properties/a/properties/b/$defs/https:~1~1example.com~1meta-b/$id",
+      "https://example.com/meta-b", "/$id",
+      "/properties/a/properties/b/$defs/https:~1~1example.com~1meta-b", false,
+      true);
+  EXPECT_FRAME_STATIC_2020_12_POINTER(
+      frame,
+      "https://example.com/schema#/properties/a/properties/b/$defs/"
+      "https:~1~1example.com~1meta-b/$schema",
+      "https://example.com/schema",
+      "/properties/a/properties/b/$defs/https:~1~1example.com~1meta-b/$schema",
+      "https://example.com/meta-b", "/$schema",
+      "/properties/a/properties/b/$defs/https:~1~1example.com~1meta-b", false,
+      true);
+  EXPECT_FRAME_STATIC_2020_12_POINTER(
+      frame,
+      "https://example.com/schema#/properties/a/properties/b/$defs/"
+      "https:~1~1example.com~1meta-b/$vocabulary",
+      "https://example.com/schema",
+      "/properties/a/properties/b/$defs/https:~1~1example.com~1meta-b/"
+      "$vocabulary",
+      "https://example.com/meta-b", "/$vocabulary",
+      "/properties/a/properties/b/$defs/https:~1~1example.com~1meta-b", false,
+      true);
+  EXPECT_FRAME_STATIC_2020_12_POINTER(
+      frame,
+      "https://example.com/schema#/properties/a/properties/b/$defs/"
+      "https:~1~1example.com~1meta-b/$vocabulary/"
+      "https:~1~1json-schema.org~1draft~12020-12~1vocab~1applicator",
+      "https://example.com/schema",
+      "/properties/a/properties/b/$defs/https:~1~1example.com~1meta-b/"
+      "$vocabulary/"
+      "https:~1~1json-schema.org~1draft~12020-12~1vocab~1applicator",
+      "https://example.com/meta-b",
+      "/$vocabulary/"
+      "https:~1~1json-schema.org~1draft~12020-12~1vocab~1applicator",
+      "/properties/a/properties/b/$defs/https:~1~1example.com~1meta-b", false,
+      true);
+  EXPECT_FRAME_STATIC_2020_12_POINTER(
+      frame,
+      "https://example.com/schema#/properties/a/properties/b/$defs/"
+      "https:~1~1example.com~1meta-b/$vocabulary/"
+      "https:~1~1json-schema.org~1draft~12020-12~1vocab~1core",
+      "https://example.com/schema",
+      "/properties/a/properties/b/$defs/https:~1~1example.com~1meta-b/"
+      "$vocabulary/https:~1~1json-schema.org~1draft~12020-12~1vocab~1core",
+      "https://example.com/meta-b",
+      "/$vocabulary/https:~1~1json-schema.org~1draft~12020-12~1vocab~1core",
+      "/properties/a/properties/b/$defs/https:~1~1example.com~1meta-b", false,
+      true);
+  EXPECT_FRAME_STATIC_POINTER(
+      frame, "https://example.com/schema#/properties/a/properties/b/$id",
+      "https://example.com/schema", "/properties/a/properties/b/$id",
+      "https://example.com/meta-b", JSON_Schema_2020_12,
+      "https://example.com/b", "/$id", "/properties/a/properties/b", false,
+      false);
+  EXPECT_FRAME_STATIC_POINTER(
+      frame, "https://example.com/schema#/properties/a/properties/b/$schema",
+      "https://example.com/schema", "/properties/a/properties/b/$schema",
+      "https://example.com/meta-b", JSON_Schema_2020_12,
+      "https://example.com/b", "/$schema", "/properties/a/properties/b", false,
+      false);
+  EXPECT_FRAME_STATIC_POINTER(
+      frame, "https://example.com/schema#/properties/a/properties/b/properties",
+      "https://example.com/schema", "/properties/a/properties/b/properties",
+      "https://example.com/meta-b", JSON_Schema_2020_12,
+      "https://example.com/b", "/properties", "/properties/a/properties/b",
+      false, false);
+  EXPECT_FRAME_STATIC_SUBSCHEMA(
+      frame,
+      "https://example.com/schema#/properties/a/properties/b/properties/c",
+      "https://example.com/schema", "/properties/a/properties/b/properties/c",
+      "https://example.com/meta-c", JSON_Schema_2020_12,
+      "https://example.com/c", "", "/properties/a/properties/b", false, false);
+  EXPECT_FRAME_STATIC_POINTER(frame,
+                              "https://example.com/schema#/properties/a/"
+                              "properties/b/properties/c/$defs",
+                              "https://example.com/schema",
+                              "/properties/a/properties/b/properties/c/$defs",
+                              "https://example.com/meta-c", JSON_Schema_2020_12,
+                              "https://example.com/c", "/$defs",
+                              "/properties/a/properties/b/properties/c", false,
+                              false);
+  EXPECT_FRAME_STATIC_2020_12_SUBSCHEMA(
+      frame,
+      "https://example.com/schema#/properties/a/properties/b/properties/c/"
+      "$defs/https:~1~1example.com~1meta-c",
+      "https://example.com/schema",
+      "/properties/a/properties/b/properties/c/$defs/"
+      "https:~1~1example.com~1meta-c",
+      "https://example.com/meta-c", "",
+      "/properties/a/properties/b/properties/c", false, true);
+  EXPECT_FRAME_STATIC_2020_12_POINTER(
+      frame,
+      "https://example.com/schema#/properties/a/properties/b/properties/c/"
+      "$defs/https:~1~1example.com~1meta-c/$id",
+      "https://example.com/schema",
+      "/properties/a/properties/b/properties/c/$defs/"
+      "https:~1~1example.com~1meta-c/$id",
+      "https://example.com/meta-c", "/$id",
+      "/properties/a/properties/b/properties/c/$defs/"
+      "https:~1~1example.com~1meta-c",
+      false, true);
+  EXPECT_FRAME_STATIC_2020_12_POINTER(
+      frame,
+      "https://example.com/schema#/properties/a/properties/b/properties/c/"
+      "$defs/https:~1~1example.com~1meta-c/$schema",
+      "https://example.com/schema",
+      "/properties/a/properties/b/properties/c/$defs/"
+      "https:~1~1example.com~1meta-c/$schema",
+      "https://example.com/meta-c", "/$schema",
+      "/properties/a/properties/b/properties/c/$defs/"
+      "https:~1~1example.com~1meta-c",
+      false, true);
+  EXPECT_FRAME_STATIC_2020_12_POINTER(
+      frame,
+      "https://example.com/schema#/properties/a/properties/b/properties/c/"
+      "$defs/https:~1~1example.com~1meta-c/$vocabulary",
+      "https://example.com/schema",
+      "/properties/a/properties/b/properties/c/$defs/"
+      "https:~1~1example.com~1meta-c/$vocabulary",
+      "https://example.com/meta-c", "/$vocabulary",
+      "/properties/a/properties/b/properties/c/$defs/"
+      "https:~1~1example.com~1meta-c",
+      false, true);
+  EXPECT_FRAME_STATIC_2020_12_POINTER(
+      frame,
+      "https://example.com/schema#/properties/a/properties/b/properties/c/"
+      "$defs/https:~1~1example.com~1meta-c/$vocabulary/"
+      "https:~1~1json-schema.org~1draft~12020-12~1vocab~1applicator",
+      "https://example.com/schema",
+      "/properties/a/properties/b/properties/c/$defs/"
+      "https:~1~1example.com~1meta-c/$vocabulary/"
+      "https:~1~1json-schema.org~1draft~12020-12~1vocab~1applicator",
+      "https://example.com/meta-c",
+      "/$vocabulary/"
+      "https:~1~1json-schema.org~1draft~12020-12~1vocab~1applicator",
+      "/properties/a/properties/b/properties/c/$defs/"
+      "https:~1~1example.com~1meta-c",
+      false, true);
+  EXPECT_FRAME_STATIC_2020_12_POINTER(
+      frame,
+      "https://example.com/schema#/properties/a/properties/b/properties/c/"
+      "$defs/https:~1~1example.com~1meta-c/$vocabulary/"
+      "https:~1~1json-schema.org~1draft~12020-12~1vocab~1core",
+      "https://example.com/schema",
+      "/properties/a/properties/b/properties/c/$defs/"
+      "https:~1~1example.com~1meta-c/$vocabulary/"
+      "https:~1~1json-schema.org~1draft~12020-12~1vocab~1core",
+      "https://example.com/meta-c",
+      "/$vocabulary/https:~1~1json-schema.org~1draft~12020-12~1vocab~1core",
+      "/properties/a/properties/b/properties/c/$defs/"
+      "https:~1~1example.com~1meta-c",
+      false, true);
+  EXPECT_FRAME_STATIC_POINTER(
+      frame,
+      "https://example.com/schema#/properties/a/properties/b/properties/c/$id",
+      "https://example.com/schema",
+      "/properties/a/properties/b/properties/c/$id",
+      "https://example.com/meta-c", JSON_Schema_2020_12,
+      "https://example.com/c", "/$id",
+      "/properties/a/properties/b/properties/c", false, false);
+  EXPECT_FRAME_STATIC_POINTER(frame,
+                              "https://example.com/schema#/properties/a/"
+                              "properties/b/properties/c/$schema",
+                              "https://example.com/schema",
+                              "/properties/a/properties/b/properties/c/$schema",
+                              "https://example.com/meta-c", JSON_Schema_2020_12,
+                              "https://example.com/c", "/$schema",
+                              "/properties/a/properties/b/properties/c", false,
+                              false);
+
+  EXPECT_EQ(frame.references().size(), 7);
+
+  EXPECT_STATIC_REFERENCE(
+      frame, "/$schema", "https://json-schema.org/draft/2020-12/schema",
+      "https://json-schema.org/draft/2020-12/schema", std::nullopt,
+      "https://json-schema.org/draft/2020-12/schema");
+  EXPECT_STATIC_REFERENCE(
+      frame, "/properties/a/$defs/https:~1~1example.com~1meta-a/$schema",
+      "https://json-schema.org/draft/2020-12/schema",
+      "https://json-schema.org/draft/2020-12/schema", std::nullopt,
+      "https://json-schema.org/draft/2020-12/schema");
+  EXPECT_STATIC_REFERENCE(
+      frame, "/properties/a/$schema", "https://example.com/meta-a",
+      "https://example.com/meta-a", std::nullopt, "https://example.com/meta-a");
+  EXPECT_STATIC_REFERENCE(
+      frame,
+      "/properties/a/properties/b/$defs/https:~1~1example.com~1meta-b/$schema",
+      "https://json-schema.org/draft/2020-12/schema",
+      "https://json-schema.org/draft/2020-12/schema", std::nullopt,
+      "https://json-schema.org/draft/2020-12/schema");
+  EXPECT_STATIC_REFERENCE(
+      frame, "/properties/a/properties/b/$schema", "https://example.com/meta-b",
+      "https://example.com/meta-b", std::nullopt, "https://example.com/meta-b");
+  EXPECT_STATIC_REFERENCE(frame,
+                          "/properties/a/properties/b/properties/c/$defs/"
+                          "https:~1~1example.com~1meta-c/$schema",
+                          "https://json-schema.org/draft/2020-12/schema",
+                          "https://json-schema.org/draft/2020-12/schema",
+                          std::nullopt,
+                          "https://json-schema.org/draft/2020-12/schema");
+  EXPECT_STATIC_REFERENCE(
+      frame, "/properties/a/properties/b/properties/c/$schema",
+      "https://example.com/meta-c", "https://example.com/meta-c", std::nullopt,
+      "https://example.com/meta-c");
+
+  // Reachability
+
+  EXPECT_FRAME_LOCATION_REACHABLE(frame, Static, "https://example.com/schema",
+                                  frame.root());
+  EXPECT_FRAME_LOCATION_REACHABLE(frame, Static, "https://example.com/a",
+                                  frame.root());
+  EXPECT_FRAME_LOCATION_REACHABLE(frame, Static, "https://example.com/b",
+                                  frame.root());
+  EXPECT_FRAME_LOCATION_REACHABLE(frame, Static, "https://example.com/c",
+                                  frame.root());
+  EXPECT_FRAME_LOCATION_REACHABLE(frame, Static, "https://example.com/meta-a",
+                                  frame.root());
+  EXPECT_FRAME_LOCATION_REACHABLE(frame, Static, "https://example.com/meta-b",
+                                  frame.root());
+  EXPECT_FRAME_LOCATION_REACHABLE(frame, Static, "https://example.com/meta-c",
+                                  frame.root());
+}
+
 TEST(Frame_2020_12, embedded_custom_metaschema_boolean) {
   const sourcemeta::core::JSON document = sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://example.com/meta",
