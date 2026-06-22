@@ -683,6 +683,27 @@ auto SchemaFrame::analyse(const sourcemeta::core::JSON &root,
            DialectAtPointer{.dialects = {entry.dialect},
                             .base_dialect = entry.base_dialect.value()}});
 
+      // A nested resource may pin a custom meta-schema inside its own
+      // containers. Cache it here, just like we do for the root, so that later
+      // vocabulary lookups (which consult this cache) can resolve it. If the
+      // same meta-schema identifier is embedded in more than one place with a
+      // different definition, that is an ambiguity we refuse to resolve
+      if (!sourcemeta::blaze::to_base_dialect(entry.dialect).has_value()) {
+        const sourcemeta::core::JSON::String dialect_key{entry.dialect};
+        const auto *embedded{sourcemeta::blaze::metaschema_try_embedded(
+            entry.subschema.get(), entry.dialect, resolver)};
+        if (embedded) {
+          const auto match{this->probed_metaschemas_.find(dialect_key)};
+          if (match == this->probed_metaschemas_.cend()) {
+            this->probed_metaschemas_.emplace(dialect_key, embedded);
+          } else if (*(match->second) != *embedded) {
+            throw SchemaResolutionError(
+                entry.dialect,
+                "The same meta-schema is embedded in more than one place");
+          }
+        }
+      }
+
       // Schema identifier
       // We need to store the default_id in a local variable to ensure
       // it survives the identify() call, as identify() returns a string_view
