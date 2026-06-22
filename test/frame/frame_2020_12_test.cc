@@ -9800,7 +9800,7 @@ TEST(Frame_2020_12, embedded_custom_metaschema_conflicting_resources) {
     frame.analyse(document, sourcemeta::blaze::schema_walker,
                   sourcemeta::blaze::schema_resolver);
     FAIL();
-  } catch (const sourcemeta::blaze::SchemaResolutionError &error) {
+  } catch (const sourcemeta::blaze::SchemaFrameError &error) {
     EXPECT_EQ(error.identifier(), "https://example.com/meta");
   } catch (...) {
     FAIL();

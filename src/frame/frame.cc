@@ -697,9 +697,7 @@ auto SchemaFrame::analyse(const sourcemeta::core::JSON &root,
           if (match == this->probed_metaschemas_.cend()) {
             this->probed_metaschemas_.emplace(dialect_key, embedded);
           } else if (*(match->second) != *embedded) {
-            throw SchemaResolutionError(
-                entry.dialect,
-                "The same meta-schema is embedded in more than one place");
+            throw_already_exists(dialect_key);
           }
         }
       }
