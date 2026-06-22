@@ -333,6 +333,7 @@ TEST(Evaluator_2020_12,
                      "#/properties/x/maximum", "/x");
   EVALUATE_TRACE_PRE(3, AssertionGreaterEqual, "/properties/x/minimum",
                      "#/properties/x/minimum", "/x");
+
   EVALUATE_TRACE_POST_SUCCESS(0, AssertionType, "/properties/x/type",
                               "#/properties/x/type", "/x");
   EVALUATE_TRACE_POST_SUCCESS(1, AssertionLessEqual, "/properties/x/maximum",
@@ -341,6 +342,18 @@ TEST(Evaluator_2020_12,
                               "#/properties/x/minimum", "/x");
   EVALUATE_TRACE_POST_SUCCESS(3, LogicalWhenType, "/properties", "#/properties",
                               "");
+
+  EVALUATE_TRACE_POST_DESCRIBE(instance, 0,
+                               "The value was expected to be of type integer");
+  EVALUATE_TRACE_POST_DESCRIBE(instance, 1,
+                               "The number value 3.0 was expected to be less "
+                               "than or equal to the integer 100");
+  EVALUATE_TRACE_POST_DESCRIBE(instance, 2,
+                               "The number value 3.0 was expected to be "
+                               "greater than or equal to the integer 0");
+  EVALUATE_TRACE_POST_DESCRIBE(instance, 3,
+                               "The object value was expected to validate "
+                               "against the single defined property subschema");
 }
 
 TEST(Evaluator_2020_12,
@@ -356,7 +369,8 @@ TEST(Evaluator_2020_12,
       sourcemeta::core::parse_json(R"JSON({ "x": 3.0 })JSON")};
 
   sourcemeta::blaze::Tweaks tweaks;
-  tweaks.annotations = std::unordered_set<std::string_view>{"properties"};
+  tweaks.annotations =
+      std::unordered_set<sourcemeta::core::JSON::StringView>{"properties"};
 
   EVALUATE_WITH_TRACE_EXHAUSTIVE_SUCCESS_TWEAKED(schema, instance, 5, "",
                                                  tweaks);
@@ -369,6 +383,7 @@ TEST(Evaluator_2020_12,
   EVALUATE_TRACE_PRE(3, AssertionGreaterEqual, "/properties/x/minimum",
                      "#/properties/x/minimum", "/x");
   EVALUATE_TRACE_PRE_ANNOTATION(4, "/properties", "#/properties", "");
+
   EVALUATE_TRACE_POST_SUCCESS(0, AssertionType, "/properties/x/type",
                               "#/properties/x/type", "/x");
   EVALUATE_TRACE_POST_SUCCESS(1, AssertionLessEqual, "/properties/x/maximum",
@@ -378,6 +393,21 @@ TEST(Evaluator_2020_12,
   EVALUATE_TRACE_POST_ANNOTATION(3, "/properties", "#/properties", "", "x");
   EVALUATE_TRACE_POST_SUCCESS(4, LogicalWhenType, "/properties", "#/properties",
                               "");
+
+  EVALUATE_TRACE_POST_DESCRIBE(instance, 0,
+                               "The value was expected to be of type integer");
+  EVALUATE_TRACE_POST_DESCRIBE(instance, 1,
+                               "The number value 3.0 was expected to be less "
+                               "than or equal to the integer 100");
+  EVALUATE_TRACE_POST_DESCRIBE(instance, 2,
+                               "The number value 3.0 was expected to be "
+                               "greater than or equal to the integer 0");
+  EVALUATE_TRACE_POST_DESCRIBE(instance, 3,
+                               "The object property \"x\" successfully "
+                               "validated against its property subschema");
+  EVALUATE_TRACE_POST_DESCRIBE(instance, 4,
+                               "The object value was expected to validate "
+                               "against the single defined property subschema");
 }
 
 TEST(Evaluator_2020_12, annotation_contains_nested_not_short_circuited) {
@@ -390,7 +420,8 @@ TEST(Evaluator_2020_12, annotation_contains_nested_not_short_circuited) {
       sourcemeta::core::parse_json(R"JSON([ "a", "b" ])JSON")};
 
   sourcemeta::blaze::Tweaks tweaks;
-  tweaks.annotations = std::unordered_set<std::string_view>{"title"};
+  tweaks.annotations =
+      std::unordered_set<sourcemeta::core::JSON::StringView>{"title"};
 
   EVALUATE_WITH_TRACE_EXHAUSTIVE_SUCCESS_TWEAKED(schema, instance, 5, "",
                                                  tweaks);
@@ -402,6 +433,7 @@ TEST(Evaluator_2020_12, annotation_contains_nested_not_short_circuited) {
   EVALUATE_TRACE_PRE_ANNOTATION(3, "/contains/title", "#/contains/title", "/1");
   EVALUATE_TRACE_PRE(4, AssertionTypeStrict, "/contains/type",
                      "#/contains/type", "/1");
+
   EVALUATE_TRACE_POST_ANNOTATION(0, "/contains/title", "#/contains/title", "/0",
                                  "x");
   EVALUATE_TRACE_POST_SUCCESS(1, AssertionTypeStrict, "/contains/type",
@@ -411,6 +443,19 @@ TEST(Evaluator_2020_12, annotation_contains_nested_not_short_circuited) {
   EVALUATE_TRACE_POST_SUCCESS(3, AssertionTypeStrict, "/contains/type",
                               "#/contains/type", "/1");
   EVALUATE_TRACE_POST_SUCCESS(4, LoopContains, "/contains", "#/contains", "");
+
+  EVALUATE_TRACE_POST_DESCRIBE(
+      instance, 0, "The title of the instance location \"/0\" was \"x\"");
+  EVALUATE_TRACE_POST_DESCRIBE(instance, 1,
+                               "The value was expected to be of type string");
+  EVALUATE_TRACE_POST_DESCRIBE(
+      instance, 2, "The title of the instance location \"/1\" was \"x\"");
+  EVALUATE_TRACE_POST_DESCRIBE(instance, 3,
+                               "The value was expected to be of type string");
+  EVALUATE_TRACE_POST_DESCRIBE(instance, 4,
+                               "The array value was expected to contain at "
+                               "least 1 item that validates against the given "
+                               "subschema");
 }
 
 TEST(Evaluator_2020_12, annotation_custom_keyword_selected) {
@@ -423,7 +468,8 @@ TEST(Evaluator_2020_12, annotation_custom_keyword_selected) {
   const sourcemeta::core::JSON instance{"foo"};
 
   sourcemeta::blaze::Tweaks tweaks;
-  tweaks.annotations = std::unordered_set<std::string_view>{"x-test-custom"};
+  tweaks.annotations =
+      std::unordered_set<sourcemeta::core::JSON::StringView>{"x-test-custom"};
 
   EVALUATE_WITH_TRACE_EXHAUSTIVE_SUCCESS_TWEAKED(schema, instance, 1, "",
                                                  tweaks);
@@ -431,6 +477,30 @@ TEST(Evaluator_2020_12, annotation_custom_keyword_selected) {
   EVALUATE_TRACE_PRE_ANNOTATION(0, "/x-test-custom", "#/x-test-custom", "");
   EVALUATE_TRACE_POST_ANNOTATION(0, "/x-test-custom", "#/x-test-custom", "",
                                  "hello");
+  EVALUATE_TRACE_POST_DESCRIBE(instance, 0,
+                               "The unrecognized keyword \"x-test-custom\" was "
+                               "collected as the annotation \"hello\"");
+}
+
+TEST(Evaluator_2020_12, annotation_fast_mode_ignores_tweak) {
+  const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "type": "string",
+    "title": "My title"
+  })JSON")};
+
+  const sourcemeta::core::JSON instance{"foo"};
+
+  sourcemeta::blaze::Tweaks tweaks;
+  tweaks.annotations =
+      std::unordered_set<sourcemeta::core::JSON::StringView>{"title"};
+
+  EVALUATE_WITH_TRACE_FAST_SUCCESS_TWEAKED(schema, instance, 1, "", tweaks);
+
+  EVALUATE_TRACE_PRE(0, AssertionTypeStrict, "/type", "#/type", "");
+  EVALUATE_TRACE_POST_SUCCESS(0, AssertionTypeStrict, "/type", "#/type", "");
+  EVALUATE_TRACE_POST_DESCRIBE(instance, 0,
+                               "The value was expected to be of type string");
 }
 
 TEST(Evaluator_2020_12, unevaluated_properties_annotations_none_still_tracks) {

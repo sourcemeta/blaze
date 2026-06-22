@@ -3017,6 +3017,7 @@ TEST(Evaluator_draft7, additionalitems_annotations_none_no_empty_wrapper) {
                      "");
   EVALUATE_TRACE_PRE(3, AssertionTypeStrictAny, "/additionalItems/type",
                      "#/additionalItems/type", "/1");
+
   EVALUATE_TRACE_POST_SUCCESS(0, AssertionTypeStrict, "/items/0/type",
                               "#/items/0/type", "/0");
   EVALUATE_TRACE_POST_SUCCESS(1, AssertionArrayPrefix, "/items", "#/items", "");
@@ -3025,4 +3026,17 @@ TEST(Evaluator_draft7, additionalitems_annotations_none_no_empty_wrapper) {
                               "/1");
   EVALUATE_TRACE_POST_SUCCESS(3, LoopItemsFrom, "/additionalItems",
                               "#/additionalItems", "");
+
+  EVALUATE_TRACE_POST_DESCRIBE(instance, 0,
+                               "The value was expected to be of type string");
+  EVALUATE_TRACE_POST_DESCRIBE(instance, 1,
+                               "The first item of the array value was expected "
+                               "to validate against the corresponding "
+                               "subschemas");
+  EVALUATE_TRACE_POST_DESCRIBE(instance, 2,
+                               "The value was expected to be of type number");
+  EVALUATE_TRACE_POST_DESCRIBE(instance, 3,
+                               "Every item in the array value except for the "
+                               "first one was expected to validate against the "
+                               "given subschema");
 }
