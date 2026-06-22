@@ -191,7 +191,13 @@ export type ApiResponseAppliedFiltersTypes = ApiResponseAppliedFiltersTypesItems
 
 export type ApiResponseAppliedFiltersSortOrder = "asc" | "desc";
 
-export type ApiResponseAppliedFiltersSortBy = "name" | "createdAt" | "updatedAt" | null;
+export type ApiResponseAppliedFiltersSortBy_1 = null;
+
+export type ApiResponseAppliedFiltersSortBy_0 = "name" | "createdAt" | "updatedAt";
+
+export type ApiResponseAppliedFiltersSortBy =
+  ApiResponseAppliedFiltersSortBy_0 |
+  ApiResponseAppliedFiltersSortBy_1;
 
 export type ApiResponseAppliedFiltersSearch_1 = null;
 

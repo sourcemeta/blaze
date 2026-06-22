@@ -1588,7 +1588,32 @@ TEST_F(CanonicalizerDraft6Test, enum_mixed_types) {
 
   const auto expected = sourcemeta::core::parse_json(R"JSON({
     "$schema": "http://json-schema.org/draft-06/schema#",
-    "enum": [ 1, "two", true, null, { "x": 1 }, [ 1 ] ]
+    "anyOf": [
+      {
+        "enum": [ 1 ]
+      },
+      {
+        "enum": [ "two" ]
+      },
+      {
+        "enum": [ true ]
+      },
+      {
+        "enum": [ null ]
+      },
+      {
+        "enum": [
+          {
+            "x": 1
+          }
+        ]
+      },
+      {
+        "enum": [
+          [ 1 ]
+        ]
+      }
+    ]
   })JSON");
 
   CANONICALIZE_AND_VALIDATE(document, expected, *compiled_meta_);

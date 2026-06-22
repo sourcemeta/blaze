@@ -1062,19 +1062,105 @@ TEST_F(Documentation202012Test, enum_mixed_types) {
     "rows": [
       {
         "identifier": 1,
-        "path": [ { "type": "synthetic", "value": "root" } ],
+        "path": [
+          {
+            "type": "synthetic",
+            "value": "root"
+          }
+        ],
         "type": {
-          "kind": "enum",
-          "values": [
-            "yes",
-            "no",
-            1,
-            0,
-            true,
-            false,
-            null
-          ]
+          "kind": "any"
         }
+      }
+    ],
+    "children": [
+      {
+        "label": "Any of",
+        "children": [
+          {
+            "identifier": 2,
+            "rows": [
+              {
+                "identifier": 3,
+                "path": [
+                  {
+                    "type": "synthetic",
+                    "value": "root"
+                  }
+                ],
+                "type": {
+                  "kind": "enum",
+                  "values": [
+                    "yes",
+                    "no"
+                  ]
+                }
+              }
+            ]
+          },
+          {
+            "identifier": 4,
+            "rows": [
+              {
+                "identifier": 5,
+                "path": [
+                  {
+                    "type": "synthetic",
+                    "value": "root"
+                  }
+                ],
+                "type": {
+                  "kind": "enum",
+                  "values": [
+                    1,
+                    0
+                  ]
+                }
+              }
+            ]
+          },
+          {
+            "identifier": 6,
+            "rows": [
+              {
+                "identifier": 7,
+                "path": [
+                  {
+                    "type": "synthetic",
+                    "value": "root"
+                  }
+                ],
+                "type": {
+                  "kind": "enum",
+                  "values": [
+                    true,
+                    false
+                  ]
+                }
+              }
+            ]
+          },
+          {
+            "identifier": 8,
+            "rows": [
+              {
+                "identifier": 9,
+                "path": [
+                  {
+                    "type": "synthetic",
+                    "value": "root"
+                  }
+                ],
+                "type": {
+                  "kind": "enum",
+                  "values": [
+                    null
+                  ]
+                }
+              }
+            ]
+          }
+        ]
       }
     ]
   })JSON")};
