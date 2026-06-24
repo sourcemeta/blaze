@@ -1,6 +1,6 @@
 export type FallbackName = string;
 
-export type FallbackAz_id = number;
+export type FallbackAZ_id = number;
 
 export interface Fallback {
   "name"?: FallbackName;
