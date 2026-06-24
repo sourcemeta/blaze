@@ -214,8 +214,8 @@ auto compiler_2019_09_applicator_items(const Context &context,
                                        const Instructions &) -> Instructions {
   // TODO: Be smarter about how we treat `unevaluatedItems` like how we do for
   // `unevaluatedProperties`
-  const bool track{
-      std::ranges::any_of(context.unevaluated, [](const auto &dependency) {
+  const bool track{std::ranges::any_of(
+      context.unevaluated, [](const auto &dependency) -> auto {
         return dependency.first.ends_with("unevaluatedItems");
       })};
 
@@ -237,8 +237,8 @@ auto compiler_2019_09_applicator_additionalitems(
     -> Instructions {
   // TODO: Be smarter about how we treat `unevaluatedItems` like how we do for
   // `unevaluatedProperties`
-  const bool track{
-      std::ranges::any_of(context.unevaluated, [](const auto &dependency) {
+  const bool track{std::ranges::any_of(
+      context.unevaluated, [](const auto &dependency) -> auto {
         return dependency.first.ends_with("unevaluatedItems");
       })};
 
@@ -358,11 +358,12 @@ auto compiler_2019_09_applicator_unevaluatedproperties(
             static const std::string pattern_properties_keyword{
                 "patternProperties"};
             filter_regexes.push_back(
-                {parse_regex(property.first, schema_context.base,
-                             schema_context.relative_pointer.initial().concat(
-                                 sourcemeta::blaze::make_weak_pointer(
-                                     pattern_properties_keyword))),
-                 property.first});
+                {.first = parse_regex(
+                     property.first, schema_context.base,
+                     schema_context.relative_pointer.initial().concat(
+                         sourcemeta::blaze::make_weak_pointer(
+                             pattern_properties_keyword))),
+                 .second = property.first});
           }
         }
       }

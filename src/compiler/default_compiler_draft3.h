@@ -36,7 +36,7 @@ relative_schema_location_size(const sourcemeta::blaze::Context &context,
 static auto
 defines_direct_enumeration(const sourcemeta::blaze::Instructions &steps)
     -> std::optional<std::size_t> {
-  const auto iterator{std::ranges::find_if(steps, [](const auto &step) {
+  const auto iterator{std::ranges::find_if(steps, [](const auto &step) -> auto {
     return step.type == sourcemeta::blaze::InstructionIndex::AssertionEqual ||
            step.type == sourcemeta::blaze::InstructionIndex::AssertionEqualsAny;
   })};
@@ -77,7 +77,7 @@ is_closed_properties_required(const sourcemeta::core::JSON &schema,
          !schema.at("additionalProperties").to_boolean() &&
          schema.defines("properties") && schema.at("properties").is_object() &&
          schema.at("properties").size() == required.size() &&
-         std::ranges::all_of(required, [&schema](const auto &property) {
+         std::ranges::all_of(required, [&schema](const auto &property) -> auto {
            return schema.at("properties")
                .defines(property.first, property.second);
          });
@@ -104,37 +104,38 @@ compile_properties(const sourcemeta::blaze::Context &context,
   // we prefer to evaluate smaller subschemas first, in the hope of failing
   // earlier without spending a lot of time on other subschemas
   if (context.tweaks.properties_reorder) {
-    std::ranges::sort(properties, [&context](const auto &left,
-                                             const auto &right) {
-      const auto left_size{recursive_template_size(left.second)};
-      const auto right_size{recursive_template_size(right.second)};
-      if (left_size == right_size) {
-        const auto left_direct_enumeration{
-            defines_direct_enumeration(left.second)};
-        const auto right_direct_enumeration{
-            defines_direct_enumeration(right.second)};
+    std::ranges::sort(
+        properties, [&context](const auto &left, const auto &right) -> auto {
+          const auto left_size{recursive_template_size(left.second)};
+          const auto right_size{recursive_template_size(right.second)};
+          if (left_size == right_size) {
+            const auto left_direct_enumeration{
+                defines_direct_enumeration(left.second)};
+            const auto right_direct_enumeration{
+                defines_direct_enumeration(right.second)};
 
-        // Enumerations always take precedence
-        if (left_direct_enumeration.has_value() &&
-            right_direct_enumeration.has_value()) {
-          // If both options have a direct enumeration, we choose
-          // the one with the shorter relative schema location
-          return relative_schema_location_size(
-                     context, left.second.at(left_direct_enumeration.value())) <
-                 relative_schema_location_size(
-                     context,
-                     right.second.at(right_direct_enumeration.value()));
-        } else if (left_direct_enumeration.has_value()) {
-          return true;
-        } else if (right_direct_enumeration.has_value()) {
-          return false;
-        }
+            // Enumerations always take precedence
+            if (left_direct_enumeration.has_value() &&
+                right_direct_enumeration.has_value()) {
+              // If both options have a direct enumeration, we choose
+              // the one with the shorter relative schema location
+              return relative_schema_location_size(
+                         context,
+                         left.second.at(left_direct_enumeration.value())) <
+                     relative_schema_location_size(
+                         context,
+                         right.second.at(right_direct_enumeration.value()));
+            } else if (left_direct_enumeration.has_value()) {
+              return true;
+            } else if (right_direct_enumeration.has_value()) {
+              return false;
+            }
 
-        return left.first < right.first;
-      } else {
-        return left_size < right_size;
-      }
-    });
+            return left.first < right.first;
+          } else {
+            return left_size < right_size;
+          }
+        });
   }
 
   return properties;
@@ -145,7 +146,7 @@ static auto to_string_hashes(
                           sourcemeta::blaze::ValueStringSet::hash_type>>
         &hashes) -> sourcemeta::blaze::ValueStringHashes {
   assert(!hashes.empty());
-  std::ranges::sort(hashes, [](const auto &left, const auto &right) {
+  std::ranges::sort(hashes, [](const auto &left, const auto &right) -> auto {
     return left.first.size() < right.first.size();
   });
 
@@ -221,7 +222,7 @@ auto compile_required_assertions(const Context &context,
             .base_instance_location = sourcemeta::core::empty_weak_pointer};
         auto properties{compile_properties(context, new_schema_context,
                                            new_dynamic_context, current)};
-        if (std::ranges::all_of(properties, [](const auto &property) {
+        if (std::ranges::all_of(properties, [](const auto &property) -> auto {
               return property.second.size() == 1 &&
                      property.second.front().type ==
                          InstructionIndex::AssertionTypeStrict;
@@ -241,7 +242,7 @@ auto compile_required_assertions(const Context &context,
         if (context.mode == Mode::FastValidation &&
             properties_set.size() == 3 &&
             std::ranges::all_of(properties_set,
-                                [&hasher](const auto &property) {
+                                [&hasher](const auto &property) -> auto {
                                   return hasher.is_perfect(property.second);
                                 })) {
           std::vector<std::pair<ValueString, ValueStringSet::hash_type>> hashes;
@@ -350,7 +351,7 @@ auto properties_as_loop(const Context &context,
       // Check if any reference from `anyOf` or `oneOf` points to us
       std::ranges::any_of(
           context.frame.references(),
-          [&context, &current_entry](const auto &reference) {
+          [&context, &current_entry](const auto &reference) -> auto {
             if (!context.frame.locations().contains(
                     {sourcemeta::blaze::SchemaReferenceType::Static,
                      reference.second.destination})) {
@@ -384,12 +385,13 @@ auto properties_as_loop(const Context &context,
       // Always unroll inside `oneOf` or `anyOf`, to have a
       // better chance at quickly short-circuiting
       (!inside_disjunctor ||
-       std::ranges::none_of(properties.as_object(), [&](const auto &pair) {
-         return pair.second.is_object() &&
-                ((imports_validation_vocabulary &&
-                  pair.second.defines("enum")) ||
-                 (imports_const && pair.second.defines("const")));
-       }));
+       std::ranges::none_of(
+           properties.as_object(), [&](const auto &pair) -> auto {
+             return pair.second.is_object() &&
+                    ((imports_validation_vocabulary &&
+                      pair.second.defines("enum")) ||
+                     (imports_const && pair.second.defines("const")));
+           }));
 }
 
 auto draft3_any_type_instructions(const Context &context,
@@ -618,10 +620,11 @@ auto compiler_draft3_applicator_properties_with_options(
       !schema_context.schema.at("additionalProperties").to_boolean() &&
       required.size() ==
           schema_context.schema.at(dynamic_context.keyword).size() &&
-      std::ranges::all_of(properties, [&required](const auto &property) {
-        return required.contains(property.first);
-      })) {
-    if (std::ranges::all_of(properties, [](const auto &property) {
+      std::ranges::all_of(properties,
+                          [&required](const auto &property) -> auto {
+                            return required.contains(property.first);
+                          })) {
+    if (std::ranges::all_of(properties, [](const auto &property) -> auto {
           return property.second.size() == 1 &&
                  property.second.front().type ==
                      InstructionIndex::AssertionTypeStrict;
@@ -667,7 +670,7 @@ auto compiler_draft3_applicator_properties_with_options(
       }
     }
 
-    if (std::ranges::all_of(properties, [](const auto &property) {
+    if (std::ranges::all_of(properties, [](const auto &property) -> auto {
           return property.second.size() == 1 &&
                  property.second.front().type ==
                      InstructionIndex::AssertionType;
@@ -852,11 +855,11 @@ auto compiler_draft3_applicator_properties_with_options(
       }
 
       if (fusion_possible && substeps.size() >= 2 &&
-          std::ranges::any_of(substeps, [](const auto &step) {
+          std::ranges::any_of(substeps, [](const auto &step) -> auto {
             return step.type ==
                    InstructionIndex::AssertionObjectPropertiesSimple;
           })) {
-        std::erase_if(substeps, [](const auto &step) {
+        std::erase_if(substeps, [](const auto &step) -> auto {
           if (step.type == InstructionIndex::AssertionDefinesAllStrict ||
               step.type == InstructionIndex::AssertionDefinesAll) {
             return true;
@@ -1113,7 +1116,7 @@ properties_enforce_closed_object(const Context &context,
       .base_instance_location = sourcemeta::core::empty_weak_pointer};
   const auto properties{
       compile_properties(context, new_schema_context, new_dynamic_context, {})};
-  if (!std::ranges::all_of(properties, [](const auto &property) {
+  if (!std::ranges::all_of(properties, [](const auto &property) -> auto {
         return property.second.size() == 1 &&
                property.second.front().type ==
                    InstructionIndex::AssertionTypeStrict;
@@ -1173,11 +1176,12 @@ auto compiler_draft3_applicator_additionalproperties_with_options(
         static const std::string pattern_properties_keyword{
             "patternProperties"};
         filter_regexes.push_back(
-            {parse_regex(entry.first, schema_context.base,
-                         schema_context.relative_pointer.initial().concat(
-                             sourcemeta::blaze::make_weak_pointer(
-                                 pattern_properties_keyword))),
-             entry.first});
+            {.first =
+                 parse_regex(entry.first, schema_context.base,
+                             schema_context.relative_pointer.initial().concat(
+                                 sourcemeta::blaze::make_weak_pointer(
+                                     pattern_properties_keyword))),
+             .second = entry.first});
       }
     }
   }
@@ -2051,9 +2055,10 @@ auto compiler_draft3_validation_type(const Context &context,
       if (context.mode == Mode::FastValidation &&
           schema_context.schema.defines("enum") &&
           schema_context.schema.at("enum").is_array() &&
-          std::ranges::all_of(
-              schema_context.schema.at("enum").as_array(),
-              [](const auto &candidate) { return candidate.is_null(); })) {
+          std::ranges::all_of(schema_context.schema.at("enum").as_array(),
+                              [](const auto &candidate) -> auto {
+                                return candidate.is_null();
+                              })) {
         return {};
       }
 
@@ -2064,9 +2069,10 @@ auto compiler_draft3_validation_type(const Context &context,
       if (context.mode == Mode::FastValidation &&
           schema_context.schema.defines("enum") &&
           schema_context.schema.at("enum").is_array() &&
-          std::ranges::all_of(
-              schema_context.schema.at("enum").as_array(),
-              [](const auto &candidate) { return candidate.is_boolean(); })) {
+          std::ranges::all_of(schema_context.schema.at("enum").as_array(),
+                              [](const auto &candidate) -> auto {
+                                return candidate.is_boolean();
+                              })) {
         return {};
       }
 
@@ -2098,9 +2104,10 @@ auto compiler_draft3_validation_type(const Context &context,
       if (context.mode == Mode::FastValidation &&
           schema_context.schema.defines("enum") &&
           schema_context.schema.at("enum").is_array() &&
-          std::ranges::all_of(
-              schema_context.schema.at("enum").as_array(),
-              [](const auto &candidate) { return candidate.is_object(); })) {
+          std::ranges::all_of(schema_context.schema.at("enum").as_array(),
+                              [](const auto &candidate) -> auto {
+                                return candidate.is_object();
+                              })) {
         return {};
       }
 
@@ -2135,9 +2142,10 @@ auto compiler_draft3_validation_type(const Context &context,
       if (context.mode == Mode::FastValidation &&
           schema_context.schema.defines("enum") &&
           schema_context.schema.at("enum").is_array() &&
-          std::ranges::all_of(
-              schema_context.schema.at("enum").as_array(),
-              [](const auto &candidate) { return candidate.is_array(); })) {
+          std::ranges::all_of(schema_context.schema.at("enum").as_array(),
+                              [](const auto &candidate) -> auto {
+                                return candidate.is_array();
+                              })) {
         return {};
       }
 
@@ -2148,9 +2156,10 @@ auto compiler_draft3_validation_type(const Context &context,
       if (context.mode == Mode::FastValidation &&
           schema_context.schema.defines("enum") &&
           schema_context.schema.at("enum").is_array() &&
-          std::ranges::all_of(
-              schema_context.schema.at("enum").as_array(),
-              [](const auto &candidate) { return candidate.is_number(); })) {
+          std::ranges::all_of(schema_context.schema.at("enum").as_array(),
+                              [](const auto &candidate) -> auto {
+                                return candidate.is_number();
+                              })) {
         return {};
       }
 
@@ -2164,9 +2173,10 @@ auto compiler_draft3_validation_type(const Context &context,
       if (context.mode == Mode::FastValidation &&
           schema_context.schema.defines("enum") &&
           schema_context.schema.at("enum").is_array() &&
-          std::ranges::all_of(
-              schema_context.schema.at("enum").as_array(),
-              [](const auto &candidate) { return candidate.is_integer(); })) {
+          std::ranges::all_of(schema_context.schema.at("enum").as_array(),
+                              [](const auto &candidate) -> auto {
+                                return candidate.is_integer();
+                              })) {
         return {};
       }
 
@@ -2196,9 +2206,10 @@ auto compiler_draft3_validation_type(const Context &context,
       if (context.mode == Mode::FastValidation &&
           schema_context.schema.defines("enum") &&
           schema_context.schema.at("enum").is_array() &&
-          std::ranges::all_of(
-              schema_context.schema.at("enum").as_array(),
-              [](const auto &candidate) { return candidate.is_string(); })) {
+          std::ranges::all_of(schema_context.schema.at("enum").as_array(),
+                              [](const auto &candidate) -> auto {
+                                return candidate.is_string();
+                              })) {
         return {};
       }
 
@@ -2290,7 +2301,7 @@ auto compiler_draft3_validation_disallow(const Context &context,
   const auto contains_any{
       (value.is_string() && value.to_string() == "any") ||
       (value.is_array() &&
-       std::ranges::any_of(value.as_array(), [](const auto &element) {
+       std::ranges::any_of(value.as_array(), [](const auto &element) -> auto {
          return element.is_string() && element.to_string() == "any";
        }))};
   if (contains_any) {
