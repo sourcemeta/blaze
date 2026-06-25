@@ -10211,9 +10211,13 @@ TEST(AlterSchema_lint_2020_12, object_oneof_required_not_required_5) {
   LINT_WITHOUT_FIX(document, result, traces);
 
   EXPECT_FALSE(result.first);
-  EXPECT_EQ(traces.size(), 1);
+  EXPECT_EQ(traces.size(), 2);
+  EXPECT_LINT_TRACE(traces, 0, "", "oneof_min_branches",
+                    "The `oneOf` keyword should have at least 2 branches to be "
+                    "meaningful",
+                    false);
   EXPECT_LINT_TRACE(
-      traces, 0, "/oneOf/0/items/not", "required_properties_in_properties",
+      traces, 1, "/oneOf/0/items/not", "required_properties_in_properties",
       "Every property listed in the `required` keyword must be explicitly "
       "defined using the `properties` keyword",
       true);
@@ -13582,4 +13586,57 @@ TEST(AlterSchema_lint_2020_12, embedded_custom_metaschema) {
   })JSON");
 
   EXPECT_EQ(document, expected);
+}
+
+TEST(AlterSchema_lint_2020_12, oneof_min_branches_1) {
+  const sourcemeta::core::JSON document = sourcemeta::core::parse_json(R"JSON({
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "title": "My Schema",
+    "description": "A schema",
+    "examples": [ "hello" ],
+    "oneOf": [ { "type": "string", "minLength": 5 }, { "type": "string", "maxLength": 3 } ]
+  })JSON");
+
+  LINT_WITHOUT_FIX(document, result, traces);
+
+  EXPECT_TRUE(result.first);
+  EXPECT_EQ(traces.size(), 0);
+}
+
+TEST(AlterSchema_lint_2020_12, oneof_min_branches_2) {
+  const sourcemeta::core::JSON document = sourcemeta::core::parse_json(R"JSON({
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "title": "My Schema",
+    "description": "A schema",
+    "examples": [ "hello" ],
+    "oneOf": [ { "type": "string" } ]
+  })JSON");
+
+  LINT_WITHOUT_FIX(document, result, traces);
+
+  EXPECT_FALSE(result.first);
+  EXPECT_EQ(traces.size(), 1);
+  EXPECT_LINT_TRACE(traces, 0, "", "oneof_min_branches",
+                    "The `oneOf` keyword should have at least 2 branches to "
+                    "be meaningful",
+                    false);
+}
+
+TEST(AlterSchema_lint_2020_12, oneof_min_branches_3) {
+  const sourcemeta::core::JSON document = sourcemeta::core::parse_json(R"JSON({
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "title": "My Schema",
+    "description": "A schema",
+    "examples": [ "hello" ],
+    "not": { "oneOf": [] }
+  })JSON");
+
+  LINT_WITHOUT_FIX(document, result, traces);
+
+  EXPECT_FALSE(result.first);
+  EXPECT_EQ(traces.size(), 1);
+  EXPECT_LINT_TRACE(traces, 0, "/not", "oneof_min_branches",
+                    "The `oneOf` keyword should have at least 2 branches to "
+                    "be meaningful",
+                    false);
 }

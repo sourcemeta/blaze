@@ -3812,3 +3812,56 @@ TEST(AlterSchema_lint_draft6,
   EXPECT_EQ(sourcemeta::core::to_string(outcome.locations.at(1)),
             "/patternProperties/[[:digit:]]");
 }
+
+TEST(AlterSchema_lint_draft6, oneof_min_branches_1) {
+  const sourcemeta::core::JSON document = sourcemeta::core::parse_json(R"JSON({
+    "$schema": "http://json-schema.org/draft-06/schema#",
+    "title": "My Schema",
+    "description": "A schema",
+    "examples": [ "hello" ],
+    "oneOf": [ { "type": "string", "minLength": 5 }, { "type": "string", "maxLength": 3 } ]
+  })JSON");
+
+  LINT_WITHOUT_FIX(document, result, traces);
+
+  EXPECT_TRUE(result.first);
+  EXPECT_EQ(traces.size(), 0);
+}
+
+TEST(AlterSchema_lint_draft6, oneof_min_branches_2) {
+  const sourcemeta::core::JSON document = sourcemeta::core::parse_json(R"JSON({
+    "$schema": "http://json-schema.org/draft-06/schema#",
+    "title": "My Schema",
+    "description": "A schema",
+    "examples": [ "hello" ],
+    "oneOf": [ { "type": "string" } ]
+  })JSON");
+
+  LINT_WITHOUT_FIX(document, result, traces);
+
+  EXPECT_FALSE(result.first);
+  EXPECT_EQ(traces.size(), 1);
+  EXPECT_LINT_TRACE(traces, 0, "", "oneof_min_branches",
+                    "The `oneOf` keyword should have at least 2 branches to "
+                    "be meaningful",
+                    false);
+}
+
+TEST(AlterSchema_lint_draft6, oneof_min_branches_3) {
+  const sourcemeta::core::JSON document = sourcemeta::core::parse_json(R"JSON({
+    "$schema": "http://json-schema.org/draft-06/schema#",
+    "title": "My Schema",
+    "description": "A schema",
+    "examples": [ "hello" ],
+    "not": { "oneOf": [] }
+  })JSON");
+
+  LINT_WITHOUT_FIX(document, result, traces);
+
+  EXPECT_FALSE(result.first);
+  EXPECT_EQ(traces.size(), 1);
+  EXPECT_LINT_TRACE(traces, 0, "/not", "oneof_min_branches",
+                    "The `oneOf` keyword should have at least 2 branches to "
+                    "be meaningful",
+                    false);
+}

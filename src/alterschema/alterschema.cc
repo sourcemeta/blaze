@@ -262,6 +262,7 @@ auto WALK_UP_IN_PLACE_APPLICATORS(const JSON &root, const SchemaFrame &frame,
 #include "linter/items_array_default.h"
 #include "linter/items_schema_default.h"
 #include "linter/multiple_of_default.h"
+#include "linter/oneof_min_branches.h"
 #include "linter/pattern_non_ecma_regex.h"
 #include "linter/pattern_properties_default.h"
 #include "linter/pattern_properties_non_ecma_regex.h"
@@ -482,6 +483,7 @@ auto add(SchemaTransformer &bundle, const AlterSchemaMode mode) -> void {
     bundle.add<UnsatisfiableMinProperties>();
     bundle.add<EnumToConst>();
     bundle.add<ForbidEmptyEnum>();
+    bundle.add<OneofMinBranches>();
     bundle.add<TopLevelTitle>();
     bundle.add<TopLevelDescription>();
     bundle.add<TopLevelExamples>();
