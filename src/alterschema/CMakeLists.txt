@@ -155,6 +155,7 @@ sourcemeta_library(NAMESPACE sourcemeta PROJECT blaze NAME alterschema
     linter/properties_default.h
     linter/property_names_default.h
     linter/property_names_type_default.h
+    linter/require_schema_declaration.h
     linter/simple_properties_identifiers.h
     linter/then_empty.h
     linter/title_description_equal.h

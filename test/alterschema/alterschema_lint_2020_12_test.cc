@@ -13583,3 +13583,47 @@ TEST(AlterSchema_lint_2020_12, embedded_custom_metaschema) {
 
   EXPECT_EQ(document, expected);
 }
+
+TEST(AlterSchema_lint_2020_12, require_schema_declaration_1) {
+  const sourcemeta::core::JSON document = sourcemeta::core::parse_json(R"JSON({
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "title": "My Schema",
+    "description": "A schema",
+    "examples": [ "hello" ],
+    "type": "string"
+  })JSON");
+
+  LINT_WITHOUT_FIX(document, result, traces);
+
+  EXPECT_TRUE(result.first);
+  EXPECT_EQ(traces.size(), 0);
+}
+
+TEST(AlterSchema_lint_2020_12, require_schema_declaration_2) {
+  const sourcemeta::core::JSON document = sourcemeta::core::parse_json(R"JSON({
+    "title": "My Schema",
+    "description": "A schema",
+    "examples": [ "hello" ],
+    "type": "string"
+  })JSON");
+
+  std::vector<std::tuple<sourcemeta::core::Pointer, std::string, std::string,
+                         sourcemeta::blaze::SchemaTransformRule::Result, bool>>
+      traces;
+  sourcemeta::blaze::SchemaTransformer bundle;
+  sourcemeta::blaze::add(bundle, sourcemeta::blaze::AlterSchemaMode::Linter);
+  const auto result = bundle.check(
+      document, sourcemeta::blaze::schema_walker, alterschema_test_resolver,
+      [&traces](const auto &pointer, const auto &name, const auto &message,
+                const auto &outcome, const auto &fixable) {
+        traces.emplace_back(pointer, name, message, outcome, fixable);
+      },
+      "https://json-schema.org/draft/2020-12/schema");
+
+  EXPECT_FALSE(result.first);
+  EXPECT_EQ(traces.size(), 1);
+  EXPECT_LINT_TRACE(traces, 0, "", "require_schema_declaration",
+                    "A schema should declare its dialect using the `$schema` "
+                    "keyword",
+                    false);
+}
