@@ -1642,9 +1642,7 @@ TEST(Codegen_2020_12, if_then_else_with_type_sibling) {
 
   using namespace sourcemeta::blaze;
 
-  EXPECT_IR_CONDITIONAL(result, result.size() - 2, "/allOf/0", "/allOf/0/if",
-                        "/allOf/0/then", "/allOf/0/else");
-  EXPECT_IR_INTERSECTION(result, result.size() - 1, "", 2);
+  EXPECT_IR_CONDITIONAL(result, result.size() - 1, "", "/if", "/then", "/else");
 }
 
 TEST(Codegen_2020_12, if_then_else_with_ref_branches) {

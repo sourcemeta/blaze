@@ -166,6 +166,7 @@ auto WALK_UP_IN_PLACE_APPLICATORS(const JSON &root, const SchemaFrame &frame,
 #include "canonicalizer/type_boolean_as_enum.h"
 #include "canonicalizer/type_inherit_in_place.h"
 #include "canonicalizer/type_null_as_enum.h"
+#include "canonicalizer/type_subsumed_by_branches.h"
 #include "canonicalizer/type_union_distribute_keywords.h"
 #include "canonicalizer/type_union_implicit.h"
 #include "canonicalizer/type_union_to_schemas.h"
@@ -349,6 +350,7 @@ auto add(SchemaTransformer &bundle, const AlterSchemaMode mode) -> void {
   }
 
   if (mode == AlterSchemaMode::Canonicalizer) {
+    bundle.add<TypeSubsumedByBranches>();
     bundle.add<ExclusiveMinimumBooleanIntegerFold>();
     bundle.add<ExclusiveMaximumBooleanIntegerFold>();
     bundle.add<UnsatisfiableExclusiveEqualBounds>();

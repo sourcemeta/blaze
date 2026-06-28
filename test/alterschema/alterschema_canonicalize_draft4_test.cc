@@ -1953,40 +1953,29 @@ TEST_F(CanonicalizerDraft4Test, anyof_with_type_sibling) {
   const auto expected = sourcemeta::core::parse_json(R"JSON(
     {
       "$schema": "http://json-schema.org/draft-04/schema#",
-      "allOf": [
+      "anyOf": [
         {
-          "anyOf": [
-            {
-              "type": "object",
-              "required": [
-                "a"
-              ],
-              "patternProperties": {},
-              "minProperties": 1,
-              "properties": {
-                "a": true
-              },
-              "additionalProperties": true
-            },
-            {
-              "type": "object",
-              "required": [
-                "b"
-              ],
-              "patternProperties": {},
-              "minProperties": 1,
-              "properties": {
-                "b": true
-              },
-              "additionalProperties": true
-            }
-          ]
+          "type": "object",
+          "required": [
+            "a"
+          ],
+          "patternProperties": {},
+          "minProperties": 1,
+          "properties": {
+            "a": true
+          },
+          "additionalProperties": true
         },
         {
           "type": "object",
+          "required": [
+            "b"
+          ],
           "patternProperties": {},
-          "minProperties": 0,
-          "properties": {},
+          "minProperties": 1,
+          "properties": {
+            "b": true
+          },
           "additionalProperties": true
         }
       ]

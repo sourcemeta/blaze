@@ -81,6 +81,248 @@ TEST_F(Canonicalizer202012Test, duplicate_allof_branches_3) {
   CANONICALIZE_AND_VALIDATE(document, expected, *compiled_meta_);
 }
 
+TEST_F(Canonicalizer202012Test, type_subsumed_by_oneof) {
+  auto document = sourcemeta::core::parse_json(R"JSON({
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "type": "object",
+    "oneOf": [
+      { "type": "object", "required": [ "a" ] },
+      { "type": "object", "required": [ "b" ] }
+    ]
+  })JSON");
+
+  const auto expected = sourcemeta::core::parse_json(R"JSON({
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "oneOf": [
+      {
+        "type": "object",
+        "required": [ "a" ],
+        "minProperties": 1,
+        "propertyNames": true,
+        "properties": { "a": true },
+        "patternProperties": {}
+      },
+      {
+        "type": "object",
+        "required": [ "b" ],
+        "minProperties": 1,
+        "propertyNames": true,
+        "properties": { "b": true },
+        "patternProperties": {}
+      }
+    ]
+  })JSON");
+
+  CANONICALIZE_AND_VALIDATE(document, expected, *compiled_meta_);
+}
+
+TEST_F(Canonicalizer202012Test, type_subsumed_by_anyof) {
+  auto document = sourcemeta::core::parse_json(R"JSON({
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "type": "object",
+    "anyOf": [
+      { "type": "object", "required": [ "a" ] },
+      { "type": "object", "required": [ "b" ] }
+    ]
+  })JSON");
+
+  const auto expected = sourcemeta::core::parse_json(R"JSON({
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "anyOf": [
+      {
+        "type": "object",
+        "required": [ "a" ],
+        "minProperties": 1,
+        "propertyNames": true,
+        "properties": { "a": true },
+        "patternProperties": {}
+      },
+      {
+        "type": "object",
+        "required": [ "b" ],
+        "minProperties": 1,
+        "propertyNames": true,
+        "properties": { "b": true },
+        "patternProperties": {}
+      }
+    ]
+  })JSON");
+
+  CANONICALIZE_AND_VALIDATE(document, expected, *compiled_meta_);
+}
+
+TEST_F(Canonicalizer202012Test, type_subsumed_by_if_then_else) {
+  auto document = sourcemeta::core::parse_json(R"JSON({
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "type": "object",
+    "if": { "type": "object", "required": [ "kind" ] },
+    "then": { "type": "object", "required": [ "a" ] },
+    "else": { "type": "object", "required": [ "b" ] }
+  })JSON");
+
+  const auto expected = sourcemeta::core::parse_json(R"JSON({
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "if": {
+      "type": "object",
+      "required": [ "kind" ],
+      "minProperties": 1,
+      "propertyNames": true,
+      "properties": { "kind": true },
+      "patternProperties": {}
+    },
+    "then": {
+      "type": "object",
+      "required": [ "a" ],
+      "minProperties": 1,
+      "propertyNames": true,
+      "properties": { "a": true },
+      "patternProperties": {}
+    },
+    "else": {
+      "type": "object",
+      "required": [ "b" ],
+      "minProperties": 1,
+      "propertyNames": true,
+      "properties": { "b": true },
+      "patternProperties": {}
+    }
+  })JSON");
+
+  CANONICALIZE_AND_VALIDATE(document, expected, *compiled_meta_);
+}
+
+TEST_F(Canonicalizer202012Test, type_not_subsumed_by_if_then_else_open_else) {
+  auto document = sourcemeta::core::parse_json(R"JSON({
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "type": "object",
+    "if": { "type": "object", "required": [ "kind" ] },
+    "then": { "type": "object", "required": [ "a" ] },
+    "else": true
+  })JSON");
+
+  const auto expected = sourcemeta::core::parse_json(R"JSON({
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "allOf": [
+      {
+        "if": {
+          "type": "object",
+          "required": [ "kind" ],
+          "minProperties": 1,
+          "propertyNames": true,
+          "properties": { "kind": true },
+          "patternProperties": {}
+        },
+        "then": {
+          "type": "object",
+          "required": [ "a" ],
+          "minProperties": 1,
+          "propertyNames": true,
+          "properties": { "a": true },
+          "patternProperties": {}
+        },
+        "else": true
+      },
+      {
+        "type": "object",
+        "minProperties": 0,
+        "propertyNames": true,
+        "properties": {},
+        "patternProperties": {}
+      }
+    ]
+  })JSON");
+
+  CANONICALIZE_AND_VALIDATE(document, expected, *compiled_meta_);
+}
+
+TEST_F(Canonicalizer202012Test, type_not_subsumed_when_branches_differ) {
+  auto document = sourcemeta::core::parse_json(R"JSON({
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "type": "object",
+    "oneOf": [
+      { "type": "object", "required": [ "a" ] },
+      { "type": "string" }
+    ]
+  })JSON");
+
+  const auto expected = sourcemeta::core::parse_json(R"JSON({
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "allOf": [
+      {
+        "oneOf": [
+          {
+            "type": "object",
+            "required": [ "a" ],
+            "minProperties": 1,
+            "propertyNames": true,
+            "properties": { "a": true },
+            "patternProperties": {}
+          },
+          false
+        ]
+      },
+      {
+        "type": "object",
+        "minProperties": 0,
+        "propertyNames": true,
+        "properties": {},
+        "patternProperties": {}
+      }
+    ]
+  })JSON");
+
+  CANONICALIZE_AND_VALIDATE(document, expected, *compiled_meta_);
+}
+
+TEST_F(Canonicalizer202012Test, type_not_subsumed_when_property_sibling) {
+  auto document = sourcemeta::core::parse_json(R"JSON({
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "type": "object",
+    "properties": { "name": { "type": "string" } },
+    "oneOf": [
+      { "type": "object", "required": [ "a" ] },
+      { "type": "object", "required": [ "b" ] }
+    ]
+  })JSON");
+
+  const auto expected = sourcemeta::core::parse_json(R"JSON({
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "allOf": [
+      {
+        "oneOf": [
+          {
+            "type": "object",
+            "required": [ "a" ],
+            "minProperties": 1,
+            "propertyNames": true,
+            "properties": { "a": true },
+            "patternProperties": {}
+          },
+          {
+            "type": "object",
+            "required": [ "b" ],
+            "minProperties": 1,
+            "propertyNames": true,
+            "properties": { "b": true },
+            "patternProperties": {}
+          }
+        ]
+      },
+      {
+        "type": "object",
+        "minProperties": 0,
+        "propertyNames": true,
+        "properties": {
+          "name": { "type": "string", "minLength": 0 }
+        },
+        "patternProperties": {}
+      }
+    ]
+  })JSON");
+
+  CANONICALIZE_AND_VALIDATE(document, expected, *compiled_meta_);
+}
+
 TEST_F(Canonicalizer202012Test, duplicate_allof_branches_4) {
   auto document = sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2020-12/schema",

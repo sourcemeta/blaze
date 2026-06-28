@@ -1977,43 +1977,31 @@ TEST_F(CanonicalizerDraft7Test, anyof_with_type_sibling) {
   const auto expected = sourcemeta::core::parse_json(R"JSON(
     {
       "$schema": "http://json-schema.org/draft-07/schema#",
-      "allOf": [
+      "anyOf": [
         {
-          "anyOf": [
-            {
-              "type": "object",
-              "required": [
-                "a"
-              ],
-              "patternProperties": {},
-              "propertyNames": true,
-              "minProperties": 1,
-              "properties": {
-                "a": true
-              },
-              "additionalProperties": true
-            },
-            {
-              "type": "object",
-              "required": [
-                "b"
-              ],
-              "patternProperties": {},
-              "propertyNames": true,
-              "minProperties": 1,
-              "properties": {
-                "b": true
-              },
-              "additionalProperties": true
-            }
-          ]
+          "type": "object",
+          "required": [
+            "a"
+          ],
+          "patternProperties": {},
+          "propertyNames": true,
+          "minProperties": 1,
+          "properties": {
+            "a": true
+          },
+          "additionalProperties": true
         },
         {
           "type": "object",
+          "required": [
+            "b"
+          ],
           "patternProperties": {},
           "propertyNames": true,
-          "minProperties": 0,
-          "properties": {},
+          "minProperties": 1,
+          "properties": {
+            "b": true
+          },
           "additionalProperties": true
         }
       ]
@@ -4758,17 +4746,9 @@ TEST_F(CanonicalizerDraft7Test, if_then_else_with_type_string) {
 
   const auto expected = sourcemeta::core::parse_json(R"JSON({
     "$schema": "http://json-schema.org/draft-07/schema#",
-    "allOf": [
-      {
-        "if": { "type": "string", "minLength": 5 },
-        "then": { "type": "string", "minLength": 0, "pattern": "^[a-z]+$" },
-        "else": { "type": "string", "minLength": 0, "maxLength": 10 }
-      },
-      {
-        "type": "string",
-        "minLength": 0
-      }
-    ]
+    "if": { "type": "string", "minLength": 5 },
+    "then": { "type": "string", "minLength": 0, "pattern": "^[a-z]+$" },
+    "else": { "type": "string", "minLength": 0, "maxLength": 10 }
   })JSON");
 
   CANONICALIZE_AND_VALIDATE(document, expected, *compiled_meta_);
@@ -5917,14 +5897,6 @@ TEST_F(CanonicalizerDraft7Test, if_then_else_with_type_not_anyof) {
             "additionalProperties": true
           },
           "else": true
-        },
-        {
-          "type": "object",
-          "patternProperties": {},
-          "propertyNames": true,
-          "minProperties": 0,
-          "properties": {},
-          "additionalProperties": true
         }
       ]
     }

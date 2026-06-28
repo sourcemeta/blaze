@@ -29,6 +29,41 @@ protected:
 std::unique_ptr<sourcemeta::blaze::Template>
     Canonicalizer201909Test::compiled_meta_ = nullptr;
 
+TEST_F(Canonicalizer201909Test, type_subsumed_by_oneof) {
+  auto document = sourcemeta::core::parse_json(R"JSON({
+    "$schema": "https://json-schema.org/draft/2019-09/schema",
+    "type": "object",
+    "oneOf": [
+      { "type": "object", "required": [ "a" ] },
+      { "type": "object", "required": [ "b" ] }
+    ]
+  })JSON");
+
+  const auto expected = sourcemeta::core::parse_json(R"JSON({
+    "$schema": "https://json-schema.org/draft/2019-09/schema",
+    "oneOf": [
+      {
+        "type": "object",
+        "required": [ "a" ],
+        "minProperties": 1,
+        "propertyNames": true,
+        "properties": { "a": true },
+        "patternProperties": {}
+      },
+      {
+        "type": "object",
+        "required": [ "b" ],
+        "minProperties": 1,
+        "propertyNames": true,
+        "properties": { "b": true },
+        "patternProperties": {}
+      }
+    ]
+  })JSON");
+
+  CANONICALIZE_AND_VALIDATE(document, expected, *compiled_meta_);
+}
+
 TEST_F(Canonicalizer201909Test, duplicate_allof_branches_2) {
   auto document = sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2019-09/schema",
