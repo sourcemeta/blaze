@@ -1,12 +1,12 @@
-class OneofMinBranches final : public SchemaTransformRule {
+class DisjunctorMinBranches final : public SchemaTransformRule {
 public:
   using mutates = std::false_type;
   using reframe_after_transform = std::false_type;
-  OneofMinBranches()
+  DisjunctorMinBranches()
       : SchemaTransformRule{
-            "oneof_min_branches",
-            "The `oneOf` keyword should have at least 2 branches to be "
-            "meaningful"} {};
+            "disjunctor_min_branches",
+            "A `oneOf` or `anyOf` keyword should have at least 2 "
+            "branches to be meaningful"} {};
   [[nodiscard]] auto
   condition(const sourcemeta::core::JSON &schema,
             const sourcemeta::core::JSON &,
@@ -24,8 +24,16 @@ public:
          Vocabularies::Known::JSON_Schema_Draft_4}));
     ONLY_CONTINUE_IF(schema.is_object());
     const auto *oneof_value{schema.try_at("oneOf")};
-    ONLY_CONTINUE_IF(oneof_value && oneof_value->is_array());
-    ONLY_CONTINUE_IF(oneof_value->size() < 2);
-    return APPLIES_TO_KEYWORDS("oneOf");
+    const auto *anyof_value{schema.try_at("anyOf")};
+    const bool oneof_bad{oneof_value && oneof_value->is_array() &&
+                         oneof_value->size() < 2};
+    const bool anyof_bad{anyof_value && anyof_value->is_array() &&
+                         anyof_value->size() < 2};
+    ONLY_CONTINUE_IF(oneof_bad || anyof_bad);
+    if (oneof_bad && anyof_bad) {
+      return APPLIES_TO_KEYWORDS("oneOf", "anyOf");
+    }
+    return oneof_bad ? APPLIES_TO_KEYWORDS("oneOf")
+                     : APPLIES_TO_KEYWORDS("anyOf");
   }
 };

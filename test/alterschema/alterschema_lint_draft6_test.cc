@@ -3813,7 +3813,7 @@ TEST(AlterSchema_lint_draft6,
             "/patternProperties/[[:digit:]]");
 }
 
-TEST(AlterSchema_lint_draft6, oneof_min_branches_1) {
+TEST(AlterSchema_lint_draft6, disjunctor_min_branches_1) {
   const sourcemeta::core::JSON document = sourcemeta::core::parse_json(R"JSON({
     "$schema": "http://json-schema.org/draft-06/schema#",
     "title": "My Schema",
@@ -3828,7 +3828,7 @@ TEST(AlterSchema_lint_draft6, oneof_min_branches_1) {
   EXPECT_EQ(traces.size(), 0);
 }
 
-TEST(AlterSchema_lint_draft6, oneof_min_branches_2) {
+TEST(AlterSchema_lint_draft6, disjunctor_min_branches_2) {
   const sourcemeta::core::JSON document = sourcemeta::core::parse_json(R"JSON({
     "$schema": "http://json-schema.org/draft-06/schema#",
     "title": "My Schema",
@@ -3841,13 +3841,13 @@ TEST(AlterSchema_lint_draft6, oneof_min_branches_2) {
 
   EXPECT_FALSE(result.first);
   EXPECT_EQ(traces.size(), 1);
-  EXPECT_LINT_TRACE(traces, 0, "", "oneof_min_branches",
-                    "The `oneOf` keyword should have at least 2 branches to "
-                    "be meaningful",
+  EXPECT_LINT_TRACE(traces, 0, "", "disjunctor_min_branches",
+                    "A `oneOf` or `anyOf` keyword should have at least 2 "
+                    "branches to be meaningful",
                     false);
 }
 
-TEST(AlterSchema_lint_draft6, oneof_min_branches_3) {
+TEST(AlterSchema_lint_draft6, disjunctor_min_branches_3) {
   const sourcemeta::core::JSON document = sourcemeta::core::parse_json(R"JSON({
     "$schema": "http://json-schema.org/draft-06/schema#",
     "title": "My Schema",
@@ -3860,8 +3860,27 @@ TEST(AlterSchema_lint_draft6, oneof_min_branches_3) {
 
   EXPECT_FALSE(result.first);
   EXPECT_EQ(traces.size(), 1);
-  EXPECT_LINT_TRACE(traces, 0, "/not", "oneof_min_branches",
-                    "The `oneOf` keyword should have at least 2 branches to "
-                    "be meaningful",
+  EXPECT_LINT_TRACE(traces, 0, "/not", "disjunctor_min_branches",
+                    "A `oneOf` or `anyOf` keyword should have at least 2 "
+                    "branches to be meaningful",
+                    false);
+}
+
+TEST(AlterSchema_lint_draft6, disjunctor_min_branches_4) {
+  const sourcemeta::core::JSON document = sourcemeta::core::parse_json(R"JSON({
+    "$schema": "http://json-schema.org/draft-06/schema#",
+    "title": "My Schema",
+    "description": "A schema",
+    "examples": [ "hello" ],
+    "anyOf": [ { "type": "string" } ]
+  })JSON");
+
+  LINT_WITHOUT_FIX(document, result, traces);
+
+  EXPECT_FALSE(result.first);
+  EXPECT_EQ(traces.size(), 1);
+  EXPECT_LINT_TRACE(traces, 0, "", "disjunctor_min_branches",
+                    "A `oneOf` or `anyOf` keyword should have at least 2 "
+                    "branches to be meaningful",
                     false);
 }
