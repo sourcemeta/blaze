@@ -4793,3 +4793,41 @@ TEST(Evaluator_2020_12, annotation_fast_unknown_keyword) {
                                "The unrecognized keyword \"x-custom\" was "
                                "collected as the annotation \"hello\"");
 }
+
+TEST(Evaluator_2020_12,
+     annotation_exhaustive_empty_whitelist_no_short_circuit) {
+  const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "contains": { "type": "integer" }
+  })JSON")};
+
+  const sourcemeta::core::JSON instance{
+      sourcemeta::core::parse_json(R"JSON([ 1, 2 ])JSON")};
+
+  sourcemeta::blaze::Tweaks tweaks;
+  tweaks.annotations.emplace();
+
+  EVALUATE_WITH_TRACE_EXHAUSTIVE_SUCCESS_TWEAKED(schema, instance, 3, "",
+                                                 tweaks);
+
+  EVALUATE_TRACE_PRE(0, LoopContains, "/contains", "#/contains", "");
+  EVALUATE_TRACE_PRE(1, AssertionType, "/contains/type", "#/contains/type",
+                     "/0");
+  EVALUATE_TRACE_PRE(2, AssertionType, "/contains/type", "#/contains/type",
+                     "/1");
+
+  EVALUATE_TRACE_POST_SUCCESS(0, AssertionType, "/contains/type",
+                              "#/contains/type", "/0");
+  EVALUATE_TRACE_POST_SUCCESS(1, AssertionType, "/contains/type",
+                              "#/contains/type", "/1");
+  EVALUATE_TRACE_POST_SUCCESS(2, LoopContains, "/contains", "#/contains", "");
+
+  EVALUATE_TRACE_POST_DESCRIBE(instance, 0,
+                               "The value was expected to be of type integer");
+  EVALUATE_TRACE_POST_DESCRIBE(instance, 1,
+                               "The value was expected to be of type integer");
+  EVALUATE_TRACE_POST_DESCRIBE(
+      instance, 2,
+      "The array value was expected to contain at least 1 item that validates "
+      "against the given subschema");
+}

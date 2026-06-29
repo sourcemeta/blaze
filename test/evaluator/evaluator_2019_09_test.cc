@@ -8,8 +8,6 @@
 
 #include "evaluator_utils.h"
 
-#include <iostream>
-
 TEST(Evaluator_2019_09, metaschema_1) {
   const auto metaschema{sourcemeta::blaze::schema_resolver(
       "https://json-schema.org/draft/2019-09/schema")};
