@@ -4593,5 +4593,57 @@
         "The object value was not expected to define additional properties"
       ]
     }
+  },
+  {
+    "description": "properties_closed_object_fast_path",
+    "schema": {
+      "type": "object",
+      "required": [ "foo" ],
+      "additionalProperties": false,
+      "properties": { "foo": { "type": "string" } },
+      "$schema": "https://json-schema.org/draft/2020-12/schema"
+    },
+    "instance": { "foo": "bar" },
+    "valid": true,
+    "fast": {
+      "pre": [
+        [ "AssertionDefinesStrict", "/required", "#/required", "" ],
+        [ "LoopPropertiesExactlyTypeStrictHash", "/properties", "#/properties", "" ]
+      ],
+      "post": [
+        [ true, "AssertionDefinesStrict", "/required", "#/required", "" ],
+        [ true, "LoopPropertiesExactlyTypeStrictHash", "/properties", "#/properties", "" ]
+      ],
+      "descriptions": [
+        "The value was expected to be an object that defines the property \"foo\"",
+        "The required object properties were expected to be of type string"
+      ]
+    },
+    "exhaustive": {
+      "pre": [
+        [ "AssertionDefinesStrict", "/required", "#/required", "" ],
+        [ "LogicalWhenType", "/properties", "#/properties", "" ],
+        [ "AssertionTypeStrict", "/properties/foo/type", "#/properties/foo/type", "/foo" ],
+        [ "Annotation", "/properties", "#/properties", "" ],
+        [ "LoopPropertiesExcept", "/additionalProperties", "#/additionalProperties", "" ],
+        [ "AssertionTypeStrict", "/type", "#/type", "" ]
+      ],
+      "post": [
+        [ true, "AssertionDefinesStrict", "/required", "#/required", "" ],
+        [ true, "AssertionTypeStrict", "/properties/foo/type", "#/properties/foo/type", "/foo" ],
+        [ true, "Annotation", "/properties", "#/properties", "", "foo" ],
+        [ true, "LogicalWhenType", "/properties", "#/properties", "" ],
+        [ true, "LoopPropertiesExcept", "/additionalProperties", "#/additionalProperties", "" ],
+        [ true, "AssertionTypeStrict", "/type", "#/type", "" ]
+      ],
+      "descriptions": [
+        "The value was expected to be an object that defines the property \"foo\"",
+        "The value was expected to be of type string",
+        "The object property \"foo\" successfully validated against its property subschema",
+        "The object value was expected to validate against the defined properties subschemas",
+        "The object value was not expected to define additional properties",
+        "The value was expected to be of type object"
+      ]
+    }
   }
 ]
