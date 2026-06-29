@@ -482,7 +482,7 @@ TEST(Evaluator_2020_12, annotation_custom_keyword_selected) {
                                "collected as the annotation \"hello\"");
 }
 
-TEST(Evaluator_2020_12, annotation_fast_mode_ignores_tweak) {
+TEST(Evaluator_2020_12, annotation_fast_mode_respects_tweak) {
   const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2020-12/schema",
     "type": "string",
@@ -495,12 +495,74 @@ TEST(Evaluator_2020_12, annotation_fast_mode_ignores_tweak) {
   tweaks.annotations =
       std::unordered_set<sourcemeta::core::JSON::StringView>{"title"};
 
-  EVALUATE_WITH_TRACE_FAST_SUCCESS_TWEAKED(schema, instance, 1, "", tweaks);
+  EVALUATE_WITH_TRACE_FAST_SUCCESS_TWEAKED(schema, instance, 2, "", tweaks);
 
-  EVALUATE_TRACE_PRE(0, AssertionTypeStrict, "/type", "#/type", "");
-  EVALUATE_TRACE_POST_SUCCESS(0, AssertionTypeStrict, "/type", "#/type", "");
+  EVALUATE_TRACE_PRE_ANNOTATION(0, "/title", "#/title", "");
+  EVALUATE_TRACE_PRE(1, AssertionTypeStrict, "/type", "#/type", "");
+
+  EVALUATE_TRACE_POST_ANNOTATION(0, "/title", "#/title", "", "My title");
+  EVALUATE_TRACE_POST_SUCCESS(1, AssertionTypeStrict, "/type", "#/type", "");
+
   EVALUATE_TRACE_POST_DESCRIBE(instance, 0,
+                               "The title of the instance was \"My title\"");
+  EVALUATE_TRACE_POST_DESCRIBE(instance, 1,
                                "The value was expected to be of type string");
+}
+
+TEST(Evaluator_2020_12,
+     annotation_properties_closed_object_fast_keeps_closure) {
+  const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "type": "object",
+    "required": [ "foo" ],
+    "additionalProperties": false,
+    "properties": { "foo": { "type": "string" } }
+  })JSON")};
+
+  const sourcemeta::core::JSON instance{
+      sourcemeta::core::parse_json(R"JSON({ "foo": "bar", "extra": 1 })JSON")};
+
+  sourcemeta::blaze::Tweaks tweaks;
+  tweaks.annotations =
+      std::unordered_set<sourcemeta::core::JSON::StringView>{"properties"};
+
+  EVALUATE_WITH_TRACE_FAST_FAILURE_TWEAKED(schema, instance, 5, "", tweaks);
+
+  EVALUATE_TRACE_PRE(0, AssertionDefinesStrict, "/required", "#/required", "");
+  EVALUATE_TRACE_PRE(1, AssertionPropertyTypeStrict, "/properties/foo/type",
+                     "#/properties/foo/type", "/foo");
+  EVALUATE_TRACE_PRE_ANNOTATION(2, "/properties", "#/properties", "");
+  EVALUATE_TRACE_PRE(3, LoopPropertiesExcept, "/additionalProperties",
+                     "#/additionalProperties", "");
+  EVALUATE_TRACE_PRE(4, AssertionFail, "/additionalProperties",
+                     "#/additionalProperties", "/extra");
+
+  EVALUATE_TRACE_POST_SUCCESS(0, AssertionDefinesStrict, "/required",
+                              "#/required", "");
+  EVALUATE_TRACE_POST_SUCCESS(1, AssertionPropertyTypeStrict,
+                              "/properties/foo/type", "#/properties/foo/type",
+                              "/foo");
+  EVALUATE_TRACE_POST_ANNOTATION(2, "/properties", "#/properties", "", "foo");
+  EVALUATE_TRACE_POST_FAILURE(3, AssertionFail, "/additionalProperties",
+                              "#/additionalProperties", "/extra");
+  EVALUATE_TRACE_POST_FAILURE(4, LoopPropertiesExcept, "/additionalProperties",
+                              "#/additionalProperties", "");
+
+  EVALUATE_TRACE_POST_DESCRIBE(
+      instance, 0,
+      "The value was expected to be an object that defines the property "
+      "\"foo\"");
+  EVALUATE_TRACE_POST_DESCRIBE(instance, 1,
+                               "The value was expected to be of type string");
+  EVALUATE_TRACE_POST_DESCRIBE(instance, 2,
+                               "The object property \"foo\" successfully "
+                               "validated against its property subschema");
+  EVALUATE_TRACE_POST_DESCRIBE(
+      instance, 3,
+      "The object value was not expected to define the property \"extra\"");
+  EVALUATE_TRACE_POST_DESCRIBE(
+      instance, 4,
+      "The object value was not expected to define additional properties");
 }
 
 TEST(Evaluator_2020_12, unevaluated_properties_annotations_none_still_tracks) {
@@ -4144,4 +4206,551 @@ TEST(Evaluator_2020_12, x_assertion_nested_selective_valid_no_tweak_fast) {
       instance, 0,
       "The string value \"https://example.com\" was expected to represent a "
       "valid URI");
+}
+
+TEST(Evaluator_2020_12, annotation_fast_metadata_title) {
+  const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON(
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Test title"
+})JSON")};
+
+  const sourcemeta::core::JSON instance{
+      sourcemeta::core::parse_json(R"JSON(5)JSON")};
+
+  sourcemeta::blaze::Tweaks tweaks;
+  tweaks.annotations =
+      std::unordered_set<sourcemeta::core::JSON::StringView>{"title"};
+
+  EVALUATE_WITH_TRACE_FAST_SUCCESS_TWEAKED(schema, instance, 1, "", tweaks);
+
+  EVALUATE_TRACE_PRE_ANNOTATION(0, "/title", "#/title", "");
+
+  EVALUATE_TRACE_POST_ANNOTATION(0, "/title", "#/title", "", "Test title");
+
+  EVALUATE_TRACE_POST_DESCRIBE(instance, 0,
+                               "The title of the instance was \"Test title\"");
+}
+
+TEST(Evaluator_2020_12, annotation_fast_metadata_selective) {
+  const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON(
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "T",
+  "description": "D"
+})JSON")};
+
+  const sourcemeta::core::JSON instance{
+      sourcemeta::core::parse_json(R"JSON(5)JSON")};
+
+  sourcemeta::blaze::Tweaks tweaks;
+  tweaks.annotations =
+      std::unordered_set<sourcemeta::core::JSON::StringView>{"title"};
+
+  EVALUATE_WITH_TRACE_FAST_SUCCESS_TWEAKED(schema, instance, 1, "", tweaks);
+
+  EVALUATE_TRACE_PRE_ANNOTATION(0, "/title", "#/title", "");
+
+  EVALUATE_TRACE_POST_ANNOTATION(0, "/title", "#/title", "", "T");
+
+  EVALUATE_TRACE_POST_DESCRIBE(instance, 0,
+                               "The title of the instance was \"T\"");
+}
+
+TEST(Evaluator_2020_12, annotation_fast_format) {
+  const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON(
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "format": "email"
+})JSON")};
+
+  const sourcemeta::core::JSON instance{
+      sourcemeta::core::parse_json(R"JSON("a@b.com")JSON")};
+
+  sourcemeta::blaze::Tweaks tweaks;
+  tweaks.annotations =
+      std::unordered_set<sourcemeta::core::JSON::StringView>{"format"};
+
+  EVALUATE_WITH_TRACE_FAST_SUCCESS_TWEAKED(schema, instance, 1, "", tweaks);
+
+  EVALUATE_TRACE_PRE_ANNOTATION(0, "/format", "#/format", "");
+
+  EVALUATE_TRACE_POST_ANNOTATION(0, "/format", "#/format", "", "email");
+
+  EVALUATE_TRACE_POST_DESCRIBE(
+      instance, 0,
+      "The logical type of the instance was expected to be \"email\"");
+}
+
+TEST(Evaluator_2020_12, annotation_fast_content_media_type) {
+  const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON(
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "contentMediaType": "text/plain"
+})JSON")};
+
+  const sourcemeta::core::JSON instance{
+      sourcemeta::core::parse_json(R"JSON("hi")JSON")};
+
+  sourcemeta::blaze::Tweaks tweaks;
+  tweaks.annotations = std::unordered_set<sourcemeta::core::JSON::StringView>{
+      "contentMediaType"};
+
+  EVALUATE_WITH_TRACE_FAST_SUCCESS_TWEAKED(schema, instance, 1, "", tweaks);
+
+  EVALUATE_TRACE_PRE_ANNOTATION(0, "/contentMediaType", "#/contentMediaType",
+                                "");
+
+  EVALUATE_TRACE_POST_ANNOTATION(0, "/contentMediaType", "#/contentMediaType",
+                                 "", "text/plain");
+
+  EVALUATE_TRACE_POST_DESCRIBE(
+      instance, 0, "The content media type of the instance was \"text/plain\"");
+}
+
+TEST(Evaluator_2020_12, annotation_fast_properties) {
+  const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON(
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "properties": {
+    "foo": {
+      "type": "string"
+    }
+  }
+})JSON")};
+
+  const sourcemeta::core::JSON instance{
+      sourcemeta::core::parse_json(R"JSON({ "foo": "x" })JSON")};
+
+  sourcemeta::blaze::Tweaks tweaks;
+  tweaks.annotations =
+      std::unordered_set<sourcemeta::core::JSON::StringView>{"properties"};
+
+  EVALUATE_WITH_TRACE_FAST_SUCCESS_TWEAKED(schema, instance, 2, "", tweaks);
+
+  EVALUATE_TRACE_PRE(0, AssertionPropertyTypeStrict, "/properties/foo/type",
+                     "#/properties/foo/type", "/foo");
+  EVALUATE_TRACE_PRE_ANNOTATION(1, "/properties", "#/properties", "");
+
+  EVALUATE_TRACE_POST_SUCCESS(0, AssertionPropertyTypeStrict,
+                              "/properties/foo/type", "#/properties/foo/type",
+                              "/foo");
+  EVALUATE_TRACE_POST_ANNOTATION(1, "/properties", "#/properties", "", "foo");
+
+  EVALUATE_TRACE_POST_DESCRIBE(instance, 0,
+                               "The value was expected to be of type string");
+  EVALUATE_TRACE_POST_DESCRIBE(instance, 1,
+                               "The object property \"foo\" successfully "
+                               "validated against its property subschema");
+}
+
+TEST(Evaluator_2020_12, annotation_fast_pattern_properties) {
+  const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON(
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "patternProperties": {
+    "^x": {
+      "type": "string"
+    }
+  }
+})JSON")};
+
+  const sourcemeta::core::JSON instance{
+      sourcemeta::core::parse_json(R"JSON({ "xa": "y" })JSON")};
+
+  sourcemeta::blaze::Tweaks tweaks;
+  tweaks.annotations = std::unordered_set<sourcemeta::core::JSON::StringView>{
+      "patternProperties"};
+
+  EVALUATE_WITH_TRACE_FAST_SUCCESS_TWEAKED(schema, instance, 3, "", tweaks);
+
+  EVALUATE_TRACE_PRE(0, LoopPropertiesStartsWith, "/patternProperties",
+                     "#/patternProperties", "");
+  EVALUATE_TRACE_PRE(1, AssertionTypeStrict, "/patternProperties/^x/type",
+                     "#/patternProperties/%5Ex/type", "/xa");
+  EVALUATE_TRACE_PRE_ANNOTATION(2, "/patternProperties", "#/patternProperties",
+                                "");
+
+  EVALUATE_TRACE_POST_SUCCESS(0, AssertionTypeStrict,
+                              "/patternProperties/^x/type",
+                              "#/patternProperties/%5Ex/type", "/xa");
+  EVALUATE_TRACE_POST_ANNOTATION(1, "/patternProperties", "#/patternProperties",
+                                 "", "xa");
+  EVALUATE_TRACE_POST_SUCCESS(2, LoopPropertiesStartsWith, "/patternProperties",
+                              "#/patternProperties", "");
+
+  EVALUATE_TRACE_POST_DESCRIBE(instance, 0,
+                               "The value was expected to be of type string");
+  EVALUATE_TRACE_POST_DESCRIBE(
+      instance, 1,
+      "The object property \"xa\" successfully validated against its pattern "
+      "property subschema");
+  EVALUATE_TRACE_POST_DESCRIBE(
+      instance, 2,
+      "The object properties that start with the string \"x\" were expected to "
+      "validate against the defined pattern property subschema");
+}
+
+TEST(Evaluator_2020_12, annotation_fast_additional_properties) {
+  const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON(
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "properties": {
+    "foo": {
+      "type": "integer"
+    }
+  },
+  "additionalProperties": {
+    "type": "string"
+  }
+})JSON")};
+
+  const sourcemeta::core::JSON instance{
+      sourcemeta::core::parse_json(R"JSON({ "foo": 1, "bar": "y" })JSON")};
+
+  sourcemeta::blaze::Tweaks tweaks;
+  tweaks.annotations = std::unordered_set<sourcemeta::core::JSON::StringView>{
+      "additionalProperties"};
+
+  EVALUATE_WITH_TRACE_FAST_SUCCESS_TWEAKED(schema, instance, 4, "", tweaks);
+
+  EVALUATE_TRACE_PRE(0, AssertionPropertyType, "/properties/foo/type",
+                     "#/properties/foo/type", "/foo");
+  EVALUATE_TRACE_PRE(1, LoopPropertiesExcept, "/additionalProperties",
+                     "#/additionalProperties", "");
+  EVALUATE_TRACE_PRE(2, AssertionTypeStrict, "/additionalProperties/type",
+                     "#/additionalProperties/type", "/bar");
+  EVALUATE_TRACE_PRE_ANNOTATION(3, "/additionalProperties",
+                                "#/additionalProperties", "");
+
+  EVALUATE_TRACE_POST_SUCCESS(0, AssertionPropertyType, "/properties/foo/type",
+                              "#/properties/foo/type", "/foo");
+  EVALUATE_TRACE_POST_SUCCESS(1, AssertionTypeStrict,
+                              "/additionalProperties/type",
+                              "#/additionalProperties/type", "/bar");
+  EVALUATE_TRACE_POST_ANNOTATION(2, "/additionalProperties",
+                                 "#/additionalProperties", "", "bar");
+  EVALUATE_TRACE_POST_SUCCESS(3, LoopPropertiesExcept, "/additionalProperties",
+                              "#/additionalProperties", "");
+
+  EVALUATE_TRACE_POST_DESCRIBE(instance, 0,
+                               "The value was expected to be of type integer");
+  EVALUATE_TRACE_POST_DESCRIBE(instance, 1,
+                               "The value was expected to be of type string");
+  EVALUATE_TRACE_POST_DESCRIBE(
+      instance, 2,
+      "The object property \"bar\" successfully validated against the "
+      "additional properties subschema");
+  EVALUATE_TRACE_POST_DESCRIBE(
+      instance, 3,
+      "The object properties not covered by other adjacent object keywords "
+      "were expected to validate against this subschema");
+}
+
+TEST(Evaluator_2020_12, annotation_fast_prefix_items) {
+  const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON(
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "prefixItems": [
+    {
+      "type": "integer"
+    }
+  ]
+})JSON")};
+
+  const sourcemeta::core::JSON instance{
+      sourcemeta::core::parse_json(R"JSON([ 1 ])JSON")};
+
+  sourcemeta::blaze::Tweaks tweaks;
+  tweaks.annotations =
+      std::unordered_set<sourcemeta::core::JSON::StringView>{"prefixItems"};
+
+  EVALUATE_WITH_TRACE_FAST_SUCCESS_TWEAKED(schema, instance, 4, "", tweaks);
+
+  EVALUATE_TRACE_PRE(0, AssertionArrayPrefix, "/prefixItems", "#/prefixItems",
+                     "");
+  EVALUATE_TRACE_PRE(1, AssertionType, "/prefixItems/0/type",
+                     "#/prefixItems/0/type", "/0");
+  EVALUATE_TRACE_PRE_ANNOTATION(2, "/prefixItems", "#/prefixItems", "");
+  EVALUATE_TRACE_PRE_ANNOTATION(3, "/prefixItems", "#/prefixItems", "");
+
+  EVALUATE_TRACE_POST_SUCCESS(0, AssertionType, "/prefixItems/0/type",
+                              "#/prefixItems/0/type", "/0");
+  EVALUATE_TRACE_POST_ANNOTATION(1, "/prefixItems", "#/prefixItems", "", 0);
+  EVALUATE_TRACE_POST_ANNOTATION(2, "/prefixItems", "#/prefixItems", "", true);
+  EVALUATE_TRACE_POST_SUCCESS(3, AssertionArrayPrefix, "/prefixItems",
+                              "#/prefixItems", "");
+
+  EVALUATE_TRACE_POST_DESCRIBE(instance, 0,
+                               "The value was expected to be of type integer");
+  EVALUATE_TRACE_POST_DESCRIBE(
+      instance, 1,
+      "The first item of the array value successfully validated against the "
+      "first positional subschema");
+  EVALUATE_TRACE_POST_DESCRIBE(instance, 2,
+                               "Every item of the array value validated "
+                               "against the given positional subschemas");
+  EVALUATE_TRACE_POST_DESCRIBE(
+      instance, 3,
+      "The first item of the array value was expected to validate against the "
+      "corresponding subschemas");
+}
+
+TEST(Evaluator_2020_12, annotation_fast_items) {
+  const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON(
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "prefixItems": [
+    {
+      "type": "integer"
+    }
+  ],
+  "items": {
+    "type": "string"
+  }
+})JSON")};
+
+  const sourcemeta::core::JSON instance{
+      sourcemeta::core::parse_json(R"JSON([ 1, "a" ])JSON")};
+
+  sourcemeta::blaze::Tweaks tweaks;
+  tweaks.annotations =
+      std::unordered_set<sourcemeta::core::JSON::StringView>{"items"};
+
+  EVALUATE_WITH_TRACE_FAST_SUCCESS_TWEAKED(schema, instance, 6, "", tweaks);
+
+  EVALUATE_TRACE_PRE(0, AssertionArrayPrefix, "/prefixItems", "#/prefixItems",
+                     "");
+  EVALUATE_TRACE_PRE(1, AssertionType, "/prefixItems/0/type",
+                     "#/prefixItems/0/type", "/0");
+  EVALUATE_TRACE_PRE(2, LoopItemsFrom, "/items", "#/items", "");
+  EVALUATE_TRACE_PRE(3, AssertionTypeStrict, "/items/type", "#/items/type",
+                     "/1");
+  EVALUATE_TRACE_PRE(4, LogicalWhenArraySizeGreater, "/items", "#/items", "");
+  EVALUATE_TRACE_PRE_ANNOTATION(5, "/items", "#/items", "");
+
+  EVALUATE_TRACE_POST_SUCCESS(0, AssertionType, "/prefixItems/0/type",
+                              "#/prefixItems/0/type", "/0");
+  EVALUATE_TRACE_POST_SUCCESS(1, AssertionArrayPrefix, "/prefixItems",
+                              "#/prefixItems", "");
+  EVALUATE_TRACE_POST_SUCCESS(2, AssertionTypeStrict, "/items/type",
+                              "#/items/type", "/1");
+  EVALUATE_TRACE_POST_SUCCESS(3, LoopItemsFrom, "/items", "#/items", "");
+  EVALUATE_TRACE_POST_ANNOTATION(4, "/items", "#/items", "", true);
+  EVALUATE_TRACE_POST_SUCCESS(5, LogicalWhenArraySizeGreater, "/items",
+                              "#/items", "");
+
+  EVALUATE_TRACE_POST_DESCRIBE(instance, 0,
+                               "The value was expected to be of type integer");
+  EVALUATE_TRACE_POST_DESCRIBE(
+      instance, 1,
+      "The first item of the array value was expected to validate against the "
+      "corresponding subschemas");
+  EVALUATE_TRACE_POST_DESCRIBE(instance, 2,
+                               "The value was expected to be of type string");
+  EVALUATE_TRACE_POST_DESCRIBE(
+      instance, 3,
+      "Every item in the array value except for the first one was expected to "
+      "validate against the given subschema");
+  EVALUATE_TRACE_POST_DESCRIBE(
+      instance, 4, "Every item in the array value was successfully validated");
+  EVALUATE_TRACE_POST_DESCRIBE(instance, 5,
+                               "The array value contains 1 additional item not "
+                               "described by related keywords");
+}
+
+TEST(Evaluator_2020_12, annotation_fast_contains) {
+  const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON(
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "contains": {
+    "type": "integer"
+  }
+})JSON")};
+
+  const sourcemeta::core::JSON instance{
+      sourcemeta::core::parse_json(R"JSON([ 1, 2 ])JSON")};
+
+  sourcemeta::blaze::Tweaks tweaks;
+  tweaks.annotations =
+      std::unordered_set<sourcemeta::core::JSON::StringView>{"contains"};
+
+  EVALUATE_WITH_TRACE_FAST_SUCCESS_TWEAKED(schema, instance, 5, "", tweaks);
+
+  EVALUATE_TRACE_PRE(0, LoopContains, "/contains", "#/contains", "");
+  EVALUATE_TRACE_PRE(1, AssertionType, "/contains/type", "#/contains/type",
+                     "/0");
+  EVALUATE_TRACE_PRE_ANNOTATION(2, "/contains", "#/contains", "");
+  EVALUATE_TRACE_PRE(3, AssertionType, "/contains/type", "#/contains/type",
+                     "/1");
+  EVALUATE_TRACE_PRE_ANNOTATION(4, "/contains", "#/contains", "");
+
+  EVALUATE_TRACE_POST_SUCCESS(0, AssertionType, "/contains/type",
+                              "#/contains/type", "/0");
+  EVALUATE_TRACE_POST_ANNOTATION(1, "/contains", "#/contains", "", 0);
+  EVALUATE_TRACE_POST_SUCCESS(2, AssertionType, "/contains/type",
+                              "#/contains/type", "/1");
+  EVALUATE_TRACE_POST_ANNOTATION(3, "/contains", "#/contains", "", 1);
+  EVALUATE_TRACE_POST_SUCCESS(4, LoopContains, "/contains", "#/contains", "");
+
+  EVALUATE_TRACE_POST_DESCRIBE(instance, 0,
+                               "The value was expected to be of type integer");
+  EVALUATE_TRACE_POST_DESCRIBE(
+      instance, 1,
+      "The item at index 0 of the array value successfully validated against "
+      "the containment check subschema");
+  EVALUATE_TRACE_POST_DESCRIBE(instance, 2,
+                               "The value was expected to be of type integer");
+  EVALUATE_TRACE_POST_DESCRIBE(
+      instance, 3,
+      "The item at index 1 of the array value successfully validated against "
+      "the containment check subschema");
+  EVALUATE_TRACE_POST_DESCRIBE(
+      instance, 4,
+      "The array value was expected to contain at least 1 item that validates "
+      "against the given subschema");
+}
+
+TEST(Evaluator_2020_12, annotation_fast_unevaluated_properties) {
+  const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON(
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "properties": {
+    "foo": {
+      "type": "integer"
+    }
+  },
+  "unevaluatedProperties": {
+    "type": "string"
+  }
+})JSON")};
+
+  const sourcemeta::core::JSON instance{
+      sourcemeta::core::parse_json(R"JSON({ "foo": 1, "bar": "y" })JSON")};
+
+  sourcemeta::blaze::Tweaks tweaks;
+  tweaks.annotations = std::unordered_set<sourcemeta::core::JSON::StringView>{
+      "unevaluatedProperties"};
+
+  EVALUATE_WITH_TRACE_FAST_SUCCESS_TWEAKED(schema, instance, 4, "", tweaks);
+
+  EVALUATE_TRACE_PRE(0, AssertionPropertyType, "/properties/foo/type",
+                     "#/properties/foo/type", "/foo");
+  EVALUATE_TRACE_PRE(1, LoopPropertiesExcept, "/unevaluatedProperties",
+                     "#/unevaluatedProperties", "");
+  EVALUATE_TRACE_PRE(2, AssertionTypeStrict, "/unevaluatedProperties/type",
+                     "#/unevaluatedProperties/type", "/bar");
+  EVALUATE_TRACE_PRE_ANNOTATION(3, "/unevaluatedProperties",
+                                "#/unevaluatedProperties", "");
+
+  EVALUATE_TRACE_POST_SUCCESS(0, AssertionPropertyType, "/properties/foo/type",
+                              "#/properties/foo/type", "/foo");
+  EVALUATE_TRACE_POST_SUCCESS(1, AssertionTypeStrict,
+                              "/unevaluatedProperties/type",
+                              "#/unevaluatedProperties/type", "/bar");
+  EVALUATE_TRACE_POST_ANNOTATION(2, "/unevaluatedProperties",
+                                 "#/unevaluatedProperties", "", "bar");
+  EVALUATE_TRACE_POST_SUCCESS(3, LoopPropertiesExcept, "/unevaluatedProperties",
+                              "#/unevaluatedProperties", "");
+
+  EVALUATE_TRACE_POST_DESCRIBE(instance, 0,
+                               "The value was expected to be of type integer");
+  EVALUATE_TRACE_POST_DESCRIBE(instance, 1,
+                               "The value was expected to be of type string");
+  EVALUATE_TRACE_POST_DESCRIBE(
+      instance, 2,
+      "The object property \"bar\" successfully validated against the "
+      "subschema for unevaluated properties");
+  EVALUATE_TRACE_POST_DESCRIBE(
+      instance, 3,
+      "The object properties not covered by other object keywords were "
+      "expected to validate against this subschema");
+}
+
+TEST(Evaluator_2020_12, annotation_fast_unevaluated_items) {
+  const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON(
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "prefixItems": [
+    {
+      "type": "integer"
+    }
+  ],
+  "unevaluatedItems": {
+    "type": "string"
+  }
+})JSON")};
+
+  const sourcemeta::core::JSON instance{
+      sourcemeta::core::parse_json(R"JSON([ 1, "a" ])JSON")};
+
+  sourcemeta::blaze::Tweaks tweaks;
+  tweaks.annotations = std::unordered_set<sourcemeta::core::JSON::StringView>{
+      "unevaluatedItems"};
+
+  EVALUATE_WITH_TRACE_FAST_SUCCESS_TWEAKED(schema, instance, 5, "", tweaks);
+
+  EVALUATE_TRACE_PRE(0, AssertionArrayPrefixEvaluate, "/prefixItems",
+                     "#/prefixItems", "");
+  EVALUATE_TRACE_PRE(1, AssertionType, "/prefixItems/0/type",
+                     "#/prefixItems/0/type", "/0");
+  EVALUATE_TRACE_PRE(2, LoopItemsUnevaluated, "/unevaluatedItems",
+                     "#/unevaluatedItems", "");
+  EVALUATE_TRACE_PRE(3, AssertionTypeStrict, "/unevaluatedItems/type",
+                     "#/unevaluatedItems/type", "/1");
+  EVALUATE_TRACE_PRE_ANNOTATION(4, "/unevaluatedItems", "#/unevaluatedItems",
+                                "");
+
+  EVALUATE_TRACE_POST_SUCCESS(0, AssertionType, "/prefixItems/0/type",
+                              "#/prefixItems/0/type", "/0");
+  EVALUATE_TRACE_POST_SUCCESS(1, AssertionArrayPrefixEvaluate, "/prefixItems",
+                              "#/prefixItems", "");
+  EVALUATE_TRACE_POST_SUCCESS(2, AssertionTypeStrict, "/unevaluatedItems/type",
+                              "#/unevaluatedItems/type", "/1");
+  EVALUATE_TRACE_POST_ANNOTATION(3, "/unevaluatedItems", "#/unevaluatedItems",
+                                 "", true);
+  EVALUATE_TRACE_POST_SUCCESS(4, LoopItemsUnevaluated, "/unevaluatedItems",
+                              "#/unevaluatedItems", "");
+
+  EVALUATE_TRACE_POST_DESCRIBE(instance, 0,
+                               "The value was expected to be of type integer");
+  EVALUATE_TRACE_POST_DESCRIBE(
+      instance, 1,
+      "The first item of the array value was expected to validate against the "
+      "corresponding subschemas");
+  EVALUATE_TRACE_POST_DESCRIBE(instance, 2,
+                               "The value was expected to be of type string");
+  EVALUATE_TRACE_POST_DESCRIBE(
+      instance, 3,
+      "At least one item of the array value successfully validated against the "
+      "subschema for unevaluated items");
+  EVALUATE_TRACE_POST_DESCRIBE(
+      instance, 4,
+      "The array items not covered by other array keywords, if any, were "
+      "expected to validate against this subschema");
+}
+
+TEST(Evaluator_2020_12, annotation_fast_unknown_keyword) {
+  const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON(
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "x-custom": "hello"
+})JSON")};
+
+  const sourcemeta::core::JSON instance{
+      sourcemeta::core::parse_json(R"JSON(5)JSON")};
+
+  sourcemeta::blaze::Tweaks tweaks;
+  tweaks.annotations =
+      std::unordered_set<sourcemeta::core::JSON::StringView>{"x-custom"};
+
+  EVALUATE_WITH_TRACE_FAST_SUCCESS_TWEAKED(schema, instance, 1, "", tweaks);
+
+  EVALUATE_TRACE_PRE_ANNOTATION(0, "/x-custom", "#/x-custom", "");
+
+  EVALUATE_TRACE_POST_ANNOTATION(0, "/x-custom", "#/x-custom", "", "hello");
+
+  EVALUATE_TRACE_POST_DESCRIBE(instance, 0,
+                               "The unrecognized keyword \"x-custom\" was "
+                               "collected as the annotation \"hello\"");
 }

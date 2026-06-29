@@ -340,9 +340,23 @@ inline auto requires_evaluation(const Context &context,
 
 inline auto annotations_enabled(const Context &context,
                                 const std::string_view keyword) -> bool {
-  return context.mode == Mode::Exhaustive &&
-         (!context.tweaks.annotations.has_value() ||
-          context.tweaks.annotations.value().contains(keyword));
+  if (context.tweaks.annotations.has_value()) {
+    return context.tweaks.annotations.value().contains(keyword);
+  }
+
+  return context.mode == Mode::Exhaustive;
+}
+
+// Whether any annotation may be collected anywhere in this compilation. Drives
+// the "do not short-circuit / keep iterating" behavior of applicators like
+// `contains` so that nested annotations are reached on every instance location,
+// independently of whether the applicator's own annotation was whitelisted.
+inline auto annotations_collected(const Context &context) -> bool {
+  if (context.tweaks.annotations.has_value()) {
+    return !context.tweaks.annotations.value().empty();
+  }
+
+  return context.mode == Mode::Exhaustive;
 }
 
 // TODO: Elevate to Core and test
