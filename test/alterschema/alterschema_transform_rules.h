@@ -412,8 +412,8 @@ public:
                                  const sourcemeta::core::Pointer &target,
                                  const sourcemeta::core::Pointer &current) const
       -> sourcemeta::core::Pointer override {
-    return target.rebase(current.concat({"definitions"}),
-                         current.concat({"$defs"}));
+    return target.rebase(current.concat("definitions"),
+                         current.concat("$defs"));
   }
 };
 
