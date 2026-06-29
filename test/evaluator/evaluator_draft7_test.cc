@@ -3042,15 +3042,13 @@ TEST(Evaluator_draft7, additionalitems_annotations_none_no_empty_wrapper) {
 }
 
 TEST(Evaluator_draft7, annotation_fast_metadata_no_effect) {
-  const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON(
-{
-  "$schema": "http://json-schema.org/draft-07/schema#",
-  "title": "T",
-  "type": "string"
-})JSON")};
+  const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
+    "$schema": "http://json-schema.org/draft-07/schema#",
+    "title": "T",
+    "type": "string"
+  })JSON")};
 
-  const sourcemeta::core::JSON instance{
-      sourcemeta::core::parse_json(R"JSON("x")JSON")};
+  const sourcemeta::core::JSON instance{"x"};
 
   sourcemeta::blaze::Tweaks tweaks;
   tweaks.annotations =
@@ -3067,15 +3065,13 @@ TEST(Evaluator_draft7, annotation_fast_metadata_no_effect) {
 }
 
 TEST(Evaluator_draft7, annotation_fast_unknown_no_effect) {
-  const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON(
-{
-  "$schema": "http://json-schema.org/draft-07/schema#",
-  "x-custom": "hi",
-  "type": "integer"
-})JSON")};
+  const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
+    "$schema": "http://json-schema.org/draft-07/schema#",
+    "x-custom": "hi",
+    "type": "integer"
+  })JSON")};
 
-  const sourcemeta::core::JSON instance{
-      sourcemeta::core::parse_json(R"JSON(5)JSON")};
+  const sourcemeta::core::JSON instance{5};
 
   sourcemeta::blaze::Tweaks tweaks;
   tweaks.annotations =
@@ -3092,15 +3088,10 @@ TEST(Evaluator_draft7, annotation_fast_unknown_no_effect) {
 }
 
 TEST(Evaluator_draft7, annotation_fast_properties_no_effect) {
-  const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON(
-{
-  "$schema": "http://json-schema.org/draft-07/schema#",
-  "properties": {
-    "foo": {
-      "type": "string"
-    }
-  }
-})JSON")};
+  const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
+    "$schema": "http://json-schema.org/draft-07/schema#",
+    "properties": { "foo": { "type": "string" } }
+  })JSON")};
 
   const sourcemeta::core::JSON instance{
       sourcemeta::core::parse_json(R"JSON({ "foo": "x" })JSON")};

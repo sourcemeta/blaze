@@ -3622,14 +3622,12 @@ TEST(Evaluator_2019_09, x_assertion_true_without_format_no_tweak_exhaustive) {
 }
 
 TEST(Evaluator_2019_09, annotation_fast_metadata_title) {
-  const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON(
-{
-  "$schema": "https://json-schema.org/draft/2019-09/schema",
-  "title": "Test title"
-})JSON")};
+  const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
+    "$schema": "https://json-schema.org/draft/2019-09/schema",
+    "title": "Test title"
+  })JSON")};
 
-  const sourcemeta::core::JSON instance{
-      sourcemeta::core::parse_json(R"JSON(5)JSON")};
+  const sourcemeta::core::JSON instance{5};
 
   sourcemeta::blaze::Tweaks tweaks;
   tweaks.annotations =
@@ -3646,14 +3644,12 @@ TEST(Evaluator_2019_09, annotation_fast_metadata_title) {
 }
 
 TEST(Evaluator_2019_09, annotation_fast_format) {
-  const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON(
-{
-  "$schema": "https://json-schema.org/draft/2019-09/schema",
-  "format": "email"
-})JSON")};
+  const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
+    "$schema": "https://json-schema.org/draft/2019-09/schema",
+    "format": "email"
+  })JSON")};
 
-  const sourcemeta::core::JSON instance{
-      sourcemeta::core::parse_json(R"JSON("a@b.com")JSON")};
+  const sourcemeta::core::JSON instance{"a@b.com"};
 
   sourcemeta::blaze::Tweaks tweaks;
   tweaks.annotations =
@@ -3671,14 +3667,12 @@ TEST(Evaluator_2019_09, annotation_fast_format) {
 }
 
 TEST(Evaluator_2019_09, annotation_fast_content_media_type) {
-  const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON(
-{
-  "$schema": "https://json-schema.org/draft/2019-09/schema",
-  "contentMediaType": "text/plain"
-})JSON")};
+  const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
+    "$schema": "https://json-schema.org/draft/2019-09/schema",
+    "contentMediaType": "text/plain"
+  })JSON")};
 
-  const sourcemeta::core::JSON instance{
-      sourcemeta::core::parse_json(R"JSON("hi")JSON")};
+  const sourcemeta::core::JSON instance{"hi"};
 
   sourcemeta::blaze::Tweaks tweaks;
   tweaks.annotations = std::unordered_set<sourcemeta::core::JSON::StringView>{
@@ -3697,15 +3691,10 @@ TEST(Evaluator_2019_09, annotation_fast_content_media_type) {
 }
 
 TEST(Evaluator_2019_09, annotation_fast_properties) {
-  const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON(
-{
-  "$schema": "https://json-schema.org/draft/2019-09/schema",
-  "properties": {
-    "foo": {
-      "type": "string"
-    }
-  }
-})JSON")};
+  const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
+    "$schema": "https://json-schema.org/draft/2019-09/schema",
+    "properties": { "foo": { "type": "string" } }
+  })JSON")};
 
   const sourcemeta::core::JSON instance{
       sourcemeta::core::parse_json(R"JSON({ "foo": "x" })JSON")};
@@ -3733,15 +3722,10 @@ TEST(Evaluator_2019_09, annotation_fast_properties) {
 }
 
 TEST(Evaluator_2019_09, annotation_fast_pattern_properties) {
-  const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON(
-{
-  "$schema": "https://json-schema.org/draft/2019-09/schema",
-  "patternProperties": {
-    "^x": {
-      "type": "string"
-    }
-  }
-})JSON")};
+  const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
+    "$schema": "https://json-schema.org/draft/2019-09/schema",
+    "patternProperties": { "^x": { "type": "string" } }
+  })JSON")};
 
   const sourcemeta::core::JSON instance{
       sourcemeta::core::parse_json(R"JSON({ "xa": "y" })JSON")};
@@ -3780,18 +3764,11 @@ TEST(Evaluator_2019_09, annotation_fast_pattern_properties) {
 }
 
 TEST(Evaluator_2019_09, annotation_fast_additional_properties) {
-  const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON(
-{
-  "$schema": "https://json-schema.org/draft/2019-09/schema",
-  "properties": {
-    "foo": {
-      "type": "integer"
-    }
-  },
-  "additionalProperties": {
-    "type": "string"
-  }
-})JSON")};
+  const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
+    "$schema": "https://json-schema.org/draft/2019-09/schema",
+    "properties": { "foo": { "type": "integer" } },
+    "additionalProperties": { "type": "string" }
+  })JSON")};
 
   const sourcemeta::core::JSON instance{
       sourcemeta::core::parse_json(R"JSON({ "foo": 1, "bar": "y" })JSON")};
@@ -3836,18 +3813,11 @@ TEST(Evaluator_2019_09, annotation_fast_additional_properties) {
 }
 
 TEST(Evaluator_2019_09, annotation_fast_items_array) {
-  const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON(
-{
-  "$schema": "https://json-schema.org/draft/2019-09/schema",
-  "items": [
-    {
-      "type": "integer"
-    }
-  ],
-  "additionalItems": {
-    "type": "string"
-  }
-})JSON")};
+  const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
+    "$schema": "https://json-schema.org/draft/2019-09/schema",
+    "items": [ { "type": "integer" } ],
+    "additionalItems": { "type": "string" }
+  })JSON")};
 
   const sourcemeta::core::JSON instance{
       sourcemeta::core::parse_json(R"JSON([ 1, "a" ])JSON")};
@@ -3894,18 +3864,11 @@ TEST(Evaluator_2019_09, annotation_fast_items_array) {
 }
 
 TEST(Evaluator_2019_09, annotation_fast_additional_items) {
-  const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON(
-{
-  "$schema": "https://json-schema.org/draft/2019-09/schema",
-  "items": [
-    {
-      "type": "integer"
-    }
-  ],
-  "additionalItems": {
-    "type": "string"
-  }
-})JSON")};
+  const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
+    "$schema": "https://json-schema.org/draft/2019-09/schema",
+    "items": [ { "type": "integer" } ],
+    "additionalItems": { "type": "string" }
+  })JSON")};
 
   const sourcemeta::core::JSON instance{
       sourcemeta::core::parse_json(R"JSON([ 1, "a" ])JSON")};
@@ -3958,13 +3921,10 @@ TEST(Evaluator_2019_09, annotation_fast_additional_items) {
 }
 
 TEST(Evaluator_2019_09, annotation_fast_items_schema) {
-  const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON(
-{
-  "$schema": "https://json-schema.org/draft/2019-09/schema",
-  "items": {
-    "type": "string"
-  }
-})JSON")};
+  const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
+    "$schema": "https://json-schema.org/draft/2019-09/schema",
+    "items": { "type": "string" }
+  })JSON")};
 
   const sourcemeta::core::JSON instance{
       sourcemeta::core::parse_json(R"JSON([ "a" ])JSON")};
@@ -3999,13 +3959,10 @@ TEST(Evaluator_2019_09, annotation_fast_items_schema) {
 }
 
 TEST(Evaluator_2019_09, annotation_fast_contains) {
-  const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON(
-{
-  "$schema": "https://json-schema.org/draft/2019-09/schema",
-  "contains": {
-    "type": "integer"
-  }
-})JSON")};
+  const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
+    "$schema": "https://json-schema.org/draft/2019-09/schema",
+    "contains": { "type": "integer" }
+  })JSON")};
 
   const sourcemeta::core::JSON instance{
       sourcemeta::core::parse_json(R"JSON([ 1, 2 ])JSON")};
@@ -4033,18 +3990,11 @@ TEST(Evaluator_2019_09, annotation_fast_contains) {
 }
 
 TEST(Evaluator_2019_09, annotation_fast_unevaluated_properties) {
-  const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON(
-{
-  "$schema": "https://json-schema.org/draft/2019-09/schema",
-  "properties": {
-    "foo": {
-      "type": "integer"
-    }
-  },
-  "unevaluatedProperties": {
-    "type": "string"
-  }
-})JSON")};
+  const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
+    "$schema": "https://json-schema.org/draft/2019-09/schema",
+    "properties": { "foo": { "type": "integer" } },
+    "unevaluatedProperties": { "type": "string" }
+  })JSON")};
 
   const sourcemeta::core::JSON instance{
       sourcemeta::core::parse_json(R"JSON({ "foo": 1, "bar": "y" })JSON")};
@@ -4089,18 +4039,11 @@ TEST(Evaluator_2019_09, annotation_fast_unevaluated_properties) {
 }
 
 TEST(Evaluator_2019_09, annotation_fast_unevaluated_items) {
-  const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON(
-{
-  "$schema": "https://json-schema.org/draft/2019-09/schema",
-  "items": [
-    {
-      "type": "integer"
-    }
-  ],
-  "unevaluatedItems": {
-    "type": "string"
-  }
-})JSON")};
+  const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
+    "$schema": "https://json-schema.org/draft/2019-09/schema",
+    "items": [ { "type": "integer" } ],
+    "unevaluatedItems": { "type": "string" }
+  })JSON")};
 
   const sourcemeta::core::JSON instance{
       sourcemeta::core::parse_json(R"JSON([ 1, "a" ])JSON")};
@@ -4150,14 +4093,12 @@ TEST(Evaluator_2019_09, annotation_fast_unevaluated_items) {
 }
 
 TEST(Evaluator_2019_09, annotation_fast_unknown_keyword) {
-  const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON(
-{
-  "$schema": "https://json-schema.org/draft/2019-09/schema",
-  "x-custom": "hello"
-})JSON")};
+  const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
+    "$schema": "https://json-schema.org/draft/2019-09/schema",
+    "x-custom": "hello"
+  })JSON")};
 
-  const sourcemeta::core::JSON instance{
-      sourcemeta::core::parse_json(R"JSON(5)JSON")};
+  const sourcemeta::core::JSON instance{5};
 
   sourcemeta::blaze::Tweaks tweaks;
   tweaks.annotations =
