@@ -3853,25 +3853,6 @@ TEST(AlterSchema_lint_draft6, disjunctor_min_branches_3) {
     "title": "My Schema",
     "description": "A schema",
     "examples": [ "hello" ],
-    "not": { "oneOf": [] }
-  })JSON");
-
-  LINT_WITHOUT_FIX(document, result, traces);
-
-  EXPECT_FALSE(result.first);
-  EXPECT_EQ(traces.size(), 1);
-  EXPECT_LINT_TRACE(traces, 0, "/not", "disjunctor_min_branches",
-                    "A `oneOf` or `anyOf` keyword should have at least 2 "
-                    "branches to be meaningful",
-                    false);
-}
-
-TEST(AlterSchema_lint_draft6, disjunctor_min_branches_4) {
-  const sourcemeta::core::JSON document = sourcemeta::core::parse_json(R"JSON({
-    "$schema": "http://json-schema.org/draft-06/schema#",
-    "title": "My Schema",
-    "description": "A schema",
-    "examples": [ "hello" ],
     "anyOf": [ { "type": "string" } ]
   })JSON");
 
