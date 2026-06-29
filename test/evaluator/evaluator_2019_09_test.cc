@@ -3636,9 +3636,7 @@ TEST(Evaluator_2019_09, annotation_fast_metadata_title) {
   EVALUATE_WITH_TRACE_FAST_SUCCESS_TWEAKED(schema, instance, 1, "", tweaks);
 
   EVALUATE_TRACE_PRE_ANNOTATION(0, "/title", "#/title", "");
-
   EVALUATE_TRACE_POST_ANNOTATION(0, "/title", "#/title", "", "Test title");
-
   EVALUATE_TRACE_POST_DESCRIBE(instance, 0,
                                "The title of the instance was \"Test title\"");
 }
@@ -3658,9 +3656,7 @@ TEST(Evaluator_2019_09, annotation_fast_format) {
   EVALUATE_WITH_TRACE_FAST_SUCCESS_TWEAKED(schema, instance, 1, "", tweaks);
 
   EVALUATE_TRACE_PRE_ANNOTATION(0, "/format", "#/format", "");
-
   EVALUATE_TRACE_POST_ANNOTATION(0, "/format", "#/format", "", "email");
-
   EVALUATE_TRACE_POST_DESCRIBE(
       instance, 0,
       "The logical type of the instance was expected to be \"email\"");
@@ -3682,10 +3678,8 @@ TEST(Evaluator_2019_09, annotation_fast_content_media_type) {
 
   EVALUATE_TRACE_PRE_ANNOTATION(0, "/contentMediaType", "#/contentMediaType",
                                 "");
-
   EVALUATE_TRACE_POST_ANNOTATION(0, "/contentMediaType", "#/contentMediaType",
                                  "", "text/plain");
-
   EVALUATE_TRACE_POST_DESCRIBE(
       instance, 0, "The content media type of the instance was \"text/plain\"");
 }
@@ -3989,6 +3983,88 @@ TEST(Evaluator_2019_09, annotation_fast_contains) {
       "against the given subschema");
 }
 
+TEST(Evaluator_2019_09, annotation_fast_contains_min_max) {
+  const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
+    "$schema": "https://json-schema.org/draft/2019-09/schema",
+    "contains": { "type": "integer" },
+    "minContains": 1,
+    "maxContains": 3
+  })JSON")};
+
+  const sourcemeta::core::JSON instance{
+      sourcemeta::core::parse_json(R"JSON([ 1, 2, "x" ])JSON")};
+
+  sourcemeta::blaze::Tweaks tweaks;
+  tweaks.annotations =
+      std::unordered_set<sourcemeta::core::JSON::StringView>{"contains"};
+
+  EVALUATE_WITH_TRACE_FAST_SUCCESS_TWEAKED(schema, instance, 4, "", tweaks);
+
+  EVALUATE_TRACE_PRE(0, LoopContains, "/contains", "#/contains", "");
+  EVALUATE_TRACE_PRE(1, AssertionType, "/contains/type", "#/contains/type",
+                     "/0");
+  EVALUATE_TRACE_PRE(2, AssertionType, "/contains/type", "#/contains/type",
+                     "/1");
+  EVALUATE_TRACE_PRE(3, AssertionType, "/contains/type", "#/contains/type",
+                     "/2");
+
+  EVALUATE_TRACE_POST_SUCCESS(0, AssertionType, "/contains/type",
+                              "#/contains/type", "/0");
+  EVALUATE_TRACE_POST_SUCCESS(1, AssertionType, "/contains/type",
+                              "#/contains/type", "/1");
+  EVALUATE_TRACE_POST_FAILURE(2, AssertionType, "/contains/type",
+                              "#/contains/type", "/2");
+  EVALUATE_TRACE_POST_SUCCESS(3, LoopContains, "/contains", "#/contains", "");
+
+  EVALUATE_TRACE_POST_DESCRIBE(instance, 0,
+                               "The value was expected to be of type integer");
+  EVALUATE_TRACE_POST_DESCRIBE(instance, 1,
+                               "The value was expected to be of type integer");
+  EVALUATE_TRACE_POST_DESCRIBE(
+      instance, 2,
+      "The value was expected to be of type integer but it was of type string");
+  EVALUATE_TRACE_POST_DESCRIBE(
+      instance, 3,
+      "The array value was expected to contain 1 to 3 items that validate "
+      "against the given subschema");
+}
+
+TEST(Evaluator_2019_09, annotation_fast_contains_nested_annotation) {
+  const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
+    "$schema": "https://json-schema.org/draft/2019-09/schema",
+    "contains": { "title": "hit", "type": "integer" }
+  })JSON")};
+
+  const sourcemeta::core::JSON instance{
+      sourcemeta::core::parse_json(R"JSON([ 1, 2 ])JSON")};
+
+  sourcemeta::blaze::Tweaks tweaks;
+  tweaks.annotations =
+      std::unordered_set<sourcemeta::core::JSON::StringView>{"title"};
+
+  EVALUATE_WITH_TRACE_FAST_SUCCESS_TWEAKED(schema, instance, 3, "", tweaks);
+
+  EVALUATE_TRACE_PRE(0, LoopContains, "/contains", "#/contains", "");
+  EVALUATE_TRACE_PRE_ANNOTATION(1, "/contains/title", "#/contains/title", "/0");
+  EVALUATE_TRACE_PRE(2, AssertionType, "/contains/type", "#/contains/type",
+                     "/0");
+
+  EVALUATE_TRACE_POST_ANNOTATION(0, "/contains/title", "#/contains/title", "/0",
+                                 "hit");
+  EVALUATE_TRACE_POST_SUCCESS(1, AssertionType, "/contains/type",
+                              "#/contains/type", "/0");
+  EVALUATE_TRACE_POST_SUCCESS(2, LoopContains, "/contains", "#/contains", "");
+
+  EVALUATE_TRACE_POST_DESCRIBE(
+      instance, 0, "The title of the instance location \"/0\" was \"hit\"");
+  EVALUATE_TRACE_POST_DESCRIBE(instance, 1,
+                               "The value was expected to be of type integer");
+  EVALUATE_TRACE_POST_DESCRIBE(
+      instance, 2,
+      "The array value was expected to contain at least 1 item that validates "
+      "against the given subschema");
+}
+
 TEST(Evaluator_2019_09, annotation_fast_unevaluated_properties) {
   const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2019-09/schema",
@@ -4107,9 +4183,7 @@ TEST(Evaluator_2019_09, annotation_fast_unknown_keyword) {
   EVALUATE_WITH_TRACE_FAST_SUCCESS_TWEAKED(schema, instance, 1, "", tweaks);
 
   EVALUATE_TRACE_PRE_ANNOTATION(0, "/x-custom", "#/x-custom", "");
-
   EVALUATE_TRACE_POST_ANNOTATION(0, "/x-custom", "#/x-custom", "", "hello");
-
   EVALUATE_TRACE_POST_DESCRIBE(instance, 0,
                                "The unrecognized keyword \"x-custom\" was "
                                "collected as the annotation \"hello\"");
