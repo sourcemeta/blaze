@@ -13,8 +13,6 @@
 
 #include "evaluator_utils.h"
 
-#include <iostream>
-
 static const std::string FORMAT_ASSERTION_METASCHEMA_URI{
     "https://example.com/2020-12-format-assertion-meta"};
 

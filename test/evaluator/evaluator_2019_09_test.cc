@@ -8,6 +8,8 @@
 
 #include "evaluator_utils.h"
 
+#include <iostream>
+
 TEST(Evaluator_2019_09, metaschema_1) {
   const auto metaschema{sourcemeta::blaze::schema_resolver(
       "https://json-schema.org/draft/2019-09/schema")};
@@ -3965,20 +3967,38 @@ TEST(Evaluator_2019_09, annotation_fast_contains) {
   tweaks.annotations =
       std::unordered_set<sourcemeta::core::JSON::StringView>{"contains"};
 
-  EVALUATE_WITH_TRACE_FAST_SUCCESS_TWEAKED(schema, instance, 2, "", tweaks);
+  EVALUATE_WITH_TRACE_FAST_SUCCESS_TWEAKED(schema, instance, 5, "", tweaks);
 
   EVALUATE_TRACE_PRE(0, LoopContains, "/contains", "#/contains", "");
   EVALUATE_TRACE_PRE(1, AssertionType, "/contains/type", "#/contains/type",
                      "/0");
+  EVALUATE_TRACE_PRE_ANNOTATION(2, "/contains", "#/contains", "");
+  EVALUATE_TRACE_PRE(3, AssertionType, "/contains/type", "#/contains/type",
+                     "/1");
+  EVALUATE_TRACE_PRE_ANNOTATION(4, "/contains", "#/contains", "");
 
   EVALUATE_TRACE_POST_SUCCESS(0, AssertionType, "/contains/type",
                               "#/contains/type", "/0");
-  EVALUATE_TRACE_POST_SUCCESS(1, LoopContains, "/contains", "#/contains", "");
+  EVALUATE_TRACE_POST_ANNOTATION(1, "/contains", "#/contains", "", 0);
+  EVALUATE_TRACE_POST_SUCCESS(2, AssertionType, "/contains/type",
+                              "#/contains/type", "/1");
+  EVALUATE_TRACE_POST_ANNOTATION(3, "/contains", "#/contains", "", 1);
+  EVALUATE_TRACE_POST_SUCCESS(4, LoopContains, "/contains", "#/contains", "");
 
   EVALUATE_TRACE_POST_DESCRIBE(instance, 0,
                                "The value was expected to be of type integer");
   EVALUATE_TRACE_POST_DESCRIBE(
       instance, 1,
+      "The item at index 0 of the array value successfully validated against "
+      "the containment check subschema");
+  EVALUATE_TRACE_POST_DESCRIBE(instance, 2,
+                               "The value was expected to be of type integer");
+  EVALUATE_TRACE_POST_DESCRIBE(
+      instance, 3,
+      "The item at index 1 of the array value successfully validated against "
+      "the containment check subschema");
+  EVALUATE_TRACE_POST_DESCRIBE(
+      instance, 4,
       "The array value was expected to contain at least 1 item that validates "
       "against the given subschema");
 }
@@ -3998,33 +4018,45 @@ TEST(Evaluator_2019_09, annotation_fast_contains_min_max) {
   tweaks.annotations =
       std::unordered_set<sourcemeta::core::JSON::StringView>{"contains"};
 
-  EVALUATE_WITH_TRACE_FAST_SUCCESS_TWEAKED(schema, instance, 4, "", tweaks);
+  EVALUATE_WITH_TRACE_FAST_SUCCESS_TWEAKED(schema, instance, 6, "", tweaks);
 
   EVALUATE_TRACE_PRE(0, LoopContains, "/contains", "#/contains", "");
   EVALUATE_TRACE_PRE(1, AssertionType, "/contains/type", "#/contains/type",
                      "/0");
-  EVALUATE_TRACE_PRE(2, AssertionType, "/contains/type", "#/contains/type",
-                     "/1");
+  EVALUATE_TRACE_PRE_ANNOTATION(2, "/contains", "#/contains", "");
   EVALUATE_TRACE_PRE(3, AssertionType, "/contains/type", "#/contains/type",
+                     "/1");
+  EVALUATE_TRACE_PRE_ANNOTATION(4, "/contains", "#/contains", "");
+  EVALUATE_TRACE_PRE(5, AssertionType, "/contains/type", "#/contains/type",
                      "/2");
 
   EVALUATE_TRACE_POST_SUCCESS(0, AssertionType, "/contains/type",
                               "#/contains/type", "/0");
-  EVALUATE_TRACE_POST_SUCCESS(1, AssertionType, "/contains/type",
+  EVALUATE_TRACE_POST_ANNOTATION(1, "/contains", "#/contains", "", 0);
+  EVALUATE_TRACE_POST_SUCCESS(2, AssertionType, "/contains/type",
                               "#/contains/type", "/1");
-  EVALUATE_TRACE_POST_FAILURE(2, AssertionType, "/contains/type",
+  EVALUATE_TRACE_POST_ANNOTATION(3, "/contains", "#/contains", "", 1);
+  EVALUATE_TRACE_POST_FAILURE(4, AssertionType, "/contains/type",
                               "#/contains/type", "/2");
-  EVALUATE_TRACE_POST_SUCCESS(3, LoopContains, "/contains", "#/contains", "");
+  EVALUATE_TRACE_POST_SUCCESS(5, LoopContains, "/contains", "#/contains", "");
 
   EVALUATE_TRACE_POST_DESCRIBE(instance, 0,
                                "The value was expected to be of type integer");
-  EVALUATE_TRACE_POST_DESCRIBE(instance, 1,
+  EVALUATE_TRACE_POST_DESCRIBE(
+      instance, 1,
+      "The item at index 0 of the array value successfully validated against "
+      "the containment check subschema");
+  EVALUATE_TRACE_POST_DESCRIBE(instance, 2,
                                "The value was expected to be of type integer");
   EVALUATE_TRACE_POST_DESCRIBE(
-      instance, 2,
+      instance, 3,
+      "The item at index 1 of the array value successfully validated against "
+      "the containment check subschema");
+  EVALUATE_TRACE_POST_DESCRIBE(
+      instance, 4,
       "The value was expected to be of type integer but it was of type string");
   EVALUATE_TRACE_POST_DESCRIBE(
-      instance, 3,
+      instance, 5,
       "The array value was expected to contain 1 to 3 items that validate "
       "against the given subschema");
 }
@@ -4042,25 +4074,36 @@ TEST(Evaluator_2019_09, annotation_fast_contains_nested_annotation) {
   tweaks.annotations =
       std::unordered_set<sourcemeta::core::JSON::StringView>{"title"};
 
-  EVALUATE_WITH_TRACE_FAST_SUCCESS_TWEAKED(schema, instance, 3, "", tweaks);
+  EVALUATE_WITH_TRACE_FAST_SUCCESS_TWEAKED(schema, instance, 5, "", tweaks);
 
   EVALUATE_TRACE_PRE(0, LoopContains, "/contains", "#/contains", "");
   EVALUATE_TRACE_PRE_ANNOTATION(1, "/contains/title", "#/contains/title", "/0");
   EVALUATE_TRACE_PRE(2, AssertionType, "/contains/type", "#/contains/type",
                      "/0");
+  EVALUATE_TRACE_PRE_ANNOTATION(3, "/contains/title", "#/contains/title", "/1");
+  EVALUATE_TRACE_PRE(4, AssertionType, "/contains/type", "#/contains/type",
+                     "/1");
 
   EVALUATE_TRACE_POST_ANNOTATION(0, "/contains/title", "#/contains/title", "/0",
                                  "hit");
   EVALUATE_TRACE_POST_SUCCESS(1, AssertionType, "/contains/type",
                               "#/contains/type", "/0");
-  EVALUATE_TRACE_POST_SUCCESS(2, LoopContains, "/contains", "#/contains", "");
+  EVALUATE_TRACE_POST_ANNOTATION(2, "/contains/title", "#/contains/title", "/1",
+                                 "hit");
+  EVALUATE_TRACE_POST_SUCCESS(3, AssertionType, "/contains/type",
+                              "#/contains/type", "/1");
+  EVALUATE_TRACE_POST_SUCCESS(4, LoopContains, "/contains", "#/contains", "");
 
   EVALUATE_TRACE_POST_DESCRIBE(
       instance, 0, "The title of the instance location \"/0\" was \"hit\"");
   EVALUATE_TRACE_POST_DESCRIBE(instance, 1,
                                "The value was expected to be of type integer");
   EVALUATE_TRACE_POST_DESCRIBE(
-      instance, 2,
+      instance, 2, "The title of the instance location \"/1\" was \"hit\"");
+  EVALUATE_TRACE_POST_DESCRIBE(instance, 3,
+                               "The value was expected to be of type integer");
+  EVALUATE_TRACE_POST_DESCRIBE(
+      instance, 4,
       "The array value was expected to contain at least 1 item that validates "
       "against the given subschema");
 }

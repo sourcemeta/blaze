@@ -194,7 +194,8 @@ auto compiler_2019_09_applicator_contains(const Context &context,
                                           const Instructions &current)
     -> Instructions {
   return compiler_2019_09_applicator_contains_with_options(
-      context, schema_context, dynamic_context, current, false, false);
+      context, schema_context, dynamic_context, current,
+      annotations_collected(context), false);
 }
 
 auto compiler_2019_09_applicator_additionalproperties(
