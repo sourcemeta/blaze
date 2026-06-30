@@ -4,24 +4,40 @@
 
 #include "jsonld_keywords.h"
 
-#include <algorithm> // std::ranges::sort
-#include <cstddef>   // std::size_t
-#include <optional>  // std::optional, std::nullopt
-#include <utility>   // std::move, std::unreachable
-#include <variant>   // std::holds_alternative, std::get
-#include <vector>    // std::vector
+#include <algorithm>   // std::ranges::sort
+#include <cstddef>     // std::size_t
+#include <functional>  // std::reference_wrapper, std::cref
+#include <optional>    // std::optional, std::nullopt
+#include <type_traits> // std::is_same_v
+#include <utility>     // std::move, std::unreachable
+#include <variant>     // std::holds_alternative, std::get
+#include <vector>      // std::vector
 
 namespace sourcemeta::core {
 
 namespace {
 
-auto materialize_value(const JSON &value, Pointer &pointer,
-                       const JSONLDAnnotationMap &map,
+template <typename PointerT>
+auto materialize_value(const JSON &value, PointerT &pointer,
+                       const JSONLDBasicAnnotationMap<PointerT> &map,
                        std::vector<JSON> &standalone) -> std::optional<JSON>;
 
-auto fill_node(JSON &node, const JSON &instance_object, Pointer &pointer,
-               const JSONLDAnnotationMap &map, std::vector<JSON> &standalone)
-    -> void;
+template <typename PointerT>
+auto fill_node(JSON &node, const JSON &instance_object, PointerT &pointer,
+               const JSONLDBasicAnnotationMap<PointerT> &map,
+               std::vector<JSON> &standalone) -> void;
+
+// Append an object key to the pointer, copying it for an owning pointer and
+// taking a non-owning view for a weak pointer.
+template <typename PointerT>
+auto push_property(PointerT &pointer, const JSON::String &key) -> void {
+  if constexpr (std::is_same_v<typename PointerT::Token::Property,
+                               JSON::String>) {
+    pointer.push_back(key);
+  } else {
+    pointer.push_back(std::cref(key));
+  }
+}
 
 // A node object is any map that is neither a value object nor a list object.
 auto is_node_object(const JSON &value) -> bool {
@@ -139,8 +155,9 @@ auto materialize_reference(const JSONLDReference &descriptor) -> JSON {
   return result;
 }
 
-auto build_collection(const JSON &value, Pointer &pointer,
-                      const JSONLDAnnotationMap &map,
+template <typename PointerT>
+auto build_collection(const JSON &value, PointerT &pointer,
+                      const JSONLDBasicAnnotationMap<PointerT> &map,
                       std::vector<JSON> &standalone, const bool ordered)
     -> JSON {
   auto elements{JSON::make_array()};
@@ -172,8 +189,10 @@ auto build_collection(const JSON &value, Pointer &pointer,
   return result;
 }
 
+template <typename PointerT>
 auto materialize_node(const JSONLDNode &descriptor, const JSON &value,
-                      Pointer &pointer, const JSONLDAnnotationMap &map,
+                      PointerT &pointer,
+                      const JSONLDBasicAnnotationMap<PointerT> &map,
                       std::vector<JSON> &standalone) -> JSON {
   auto node{JSON::make_object()};
   if (descriptor.id.has_value()) {
@@ -215,8 +234,9 @@ auto materialize_node(const JSONLDNode &descriptor, const JSON &value,
   return node;
 }
 
-auto materialize_value(const JSON &value, Pointer &pointer,
-                       const JSONLDAnnotationMap &map,
+template <typename PointerT>
+auto materialize_value(const JSON &value, PointerT &pointer,
+                       const JSONLDBasicAnnotationMap<PointerT> &map,
                        std::vector<JSON> &standalone) -> std::optional<JSON> {
   if (value.is_null()) {
     return std::nullopt;
@@ -258,21 +278,24 @@ auto materialize_value(const JSON &value, Pointer &pointer,
   return build_collection(value, pointer, map, standalone, collection.ordered);
 }
 
-auto fill_node(JSON &node, const JSON &instance_object, Pointer &pointer,
-               const JSONLDAnnotationMap &map, std::vector<JSON> &standalone)
-    -> void {
-  std::vector<JSON::StringView> keys;
+template <typename PointerT>
+auto fill_node(JSON &node, const JSON &instance_object, PointerT &pointer,
+               const JSONLDBasicAnnotationMap<PointerT> &map,
+               std::vector<JSON> &standalone) -> void {
+  std::vector<std::reference_wrapper<const JSON::String>> keys;
   keys.reserve(instance_object.object_size());
   for (const auto &entry : instance_object.as_object()) {
-    keys.push_back(entry.first);
+    keys.push_back(std::cref(entry.first));
   }
-  std::ranges::sort(keys);
+  std::ranges::sort(keys, [](const auto &left, const auto &right) -> bool {
+    return left.get() < right.get();
+  });
 
   for (const auto key : keys) {
-    pointer.push_back(JSON::String{key});
+    push_property(pointer, key.get());
     const auto child_iterator{map.find(pointer)};
-    auto child_value{
-        materialize_value(instance_object.at(key), pointer, map, standalone)};
+    auto child_value{materialize_value(instance_object.at(key.get()), pointer,
+                                       map, standalone)};
     pointer.pop_back();
     if (!child_value.has_value()) {
       continue;
@@ -294,12 +317,11 @@ auto fill_node(JSON &node, const JSON &instance_object, Pointer &pointer,
   }
 }
 
-} // namespace
-
-auto jsonld_materialize(const JSON &instance, const JSONLDAnnotationMap &map)
-    -> JSON {
+template <typename PointerT>
+auto materialize_root(const JSON &instance,
+                      const JSONLDBasicAnnotationMap<PointerT> &map) -> JSON {
   std::vector<JSON> standalone;
-  Pointer pointer;
+  PointerT pointer;
   auto root{materialize_value(instance, pointer, map, standalone)};
 
   auto result{JSON::make_array()};
@@ -323,6 +345,18 @@ auto jsonld_materialize(const JSON &instance, const JSONLDAnnotationMap &map)
   }
 
   return result;
+}
+
+} // namespace
+
+auto jsonld_materialize(const JSON &instance, const JSONLDAnnotationMap &map)
+    -> JSON {
+  return materialize_root<Pointer>(instance, map);
+}
+
+auto jsonld_materialize(const JSON &instance,
+                        const JSONLDWeakAnnotationMap &map) -> JSON {
+  return materialize_root<WeakPointer>(instance, map);
 }
 
 } // namespace sourcemeta::core
