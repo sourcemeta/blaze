@@ -622,16 +622,22 @@
       "pre": [
         [ "LoopContains", "/contains", "#/contains", "" ],
         [ "AssertionTypeStrict", "/contains/type", "#/contains/type", "/0" ],
-        [ "AssertionTypeStrict", "/contains/type", "#/contains/type", "/1" ]
+        [ "AssertionTypeStrict", "/contains/type", "#/contains/type", "/1" ],
+        [ "Annotation", "/contains", "#/contains", "" ],
+        [ "AssertionTypeStrict", "/contains/type", "#/contains/type", "/2" ]
       ],
       "post": [
         [ false, "AssertionTypeStrict", "/contains/type", "#/contains/type", "/0" ],
         [ true, "AssertionTypeStrict", "/contains/type", "#/contains/type", "/1" ],
+        [ true, "Annotation", "/contains", "#/contains", "", 1 ],
+        [ false, "AssertionTypeStrict", "/contains/type", "#/contains/type", "/2" ],
         [ true, "LoopContains", "/contains", "#/contains", "" ]
       ],
       "descriptions": [
         "The value was expected to be of type string but it was of type integer",
         "The value was expected to be of type string",
+        "The item at index 1 of the array value successfully validated against the containment check subschema",
+        "The value was expected to be of type string but it was of type integer",
         "The array value was expected to contain at least 1 item that validates against the given subschema"
       ]
     }
@@ -710,14 +716,29 @@
     "exhaustive": {
       "pre": [
         [ "LoopContains", "/contains", "#/contains", "" ],
-        [ "AssertionTypeStrict", "/contains/type", "#/contains/type", "/0" ]
+        [ "AssertionTypeStrict", "/contains/type", "#/contains/type", "/0" ],
+        [ "Annotation", "/contains", "#/contains", "" ],
+        [ "AssertionTypeStrict", "/contains/type", "#/contains/type", "/1" ],
+        [ "Annotation", "/contains", "#/contains", "" ],
+        [ "AssertionTypeStrict", "/contains/type", "#/contains/type", "/2" ],
+        [ "Annotation", "/contains", "#/contains", "" ]
       ],
       "post": [
         [ true, "AssertionTypeStrict", "/contains/type", "#/contains/type", "/0" ],
+        [ true, "Annotation", "/contains", "#/contains", "", 0 ],
+        [ true, "AssertionTypeStrict", "/contains/type", "#/contains/type", "/1" ],
+        [ true, "Annotation", "/contains", "#/contains", "", 1 ],
+        [ true, "AssertionTypeStrict", "/contains/type", "#/contains/type", "/2" ],
+        [ true, "Annotation", "/contains", "#/contains", "", 2 ],
         [ true, "LoopContains", "/contains", "#/contains", "" ]
       ],
       "descriptions": [
         "The value was expected to be of type string",
+        "The item at index 0 of the array value successfully validated against the containment check subschema",
+        "The value was expected to be of type string",
+        "The item at index 1 of the array value successfully validated against the containment check subschema",
+        "The value was expected to be of type string",
+        "The item at index 2 of the array value successfully validated against the containment check subschema",
         "The array value was expected to contain at least 1 item that validates against the given subschema"
       ]
     }
@@ -756,18 +777,24 @@
         [ "LoopContains", "/contains", "#/contains", "" ],
         [ "AssertionTypeStrict", "/contains/type", "#/contains/type", "/0" ],
         [ "AssertionTypeStrict", "/contains/type", "#/contains/type", "/1" ],
-        [ "AssertionTypeStrict", "/contains/type", "#/contains/type", "/2" ]
+        [ "Annotation", "/contains", "#/contains", "" ],
+        [ "AssertionTypeStrict", "/contains/type", "#/contains/type", "/2" ],
+        [ "Annotation", "/contains", "#/contains", "" ]
       ],
       "post": [
         [ false, "AssertionTypeStrict", "/contains/type", "#/contains/type", "/0" ],
         [ true, "AssertionTypeStrict", "/contains/type", "#/contains/type", "/1" ],
+        [ true, "Annotation", "/contains", "#/contains", "", 1 ],
         [ true, "AssertionTypeStrict", "/contains/type", "#/contains/type", "/2" ],
+        [ true, "Annotation", "/contains", "#/contains", "", 2 ],
         [ true, "LoopContains", "/contains", "#/contains", "" ]
       ],
       "descriptions": [
         "The value was expected to be of type string but it was of type integer",
         "The value was expected to be of type string",
+        "The item at index 1 of the array value successfully validated against the containment check subschema",
         "The value was expected to be of type string",
+        "The item at index 2 of the array value successfully validated against the containment check subschema",
         "The array value was expected to contain at least 2 items that validate against the given subschema"
       ]
     }
@@ -806,18 +833,30 @@
         [ "LoopContains", "/contains", "#/contains", "" ],
         [ "AssertionTypeStrict", "/contains/type", "#/contains/type", "/0" ],
         [ "AssertionTypeStrict", "/contains/type", "#/contains/type", "/1" ],
-        [ "AssertionTypeStrict", "/contains/type", "#/contains/type", "/2" ]
+        [ "Annotation", "/contains", "#/contains", "" ],
+        [ "AssertionTypeStrict", "/contains/type", "#/contains/type", "/2" ],
+        [ "Annotation", "/contains", "#/contains", "" ],
+        [ "AssertionTypeStrict", "/contains/type", "#/contains/type", "/3" ],
+        [ "Annotation", "/contains", "#/contains", "" ]
       ],
       "post": [
         [ false, "AssertionTypeStrict", "/contains/type", "#/contains/type", "/0" ],
         [ true, "AssertionTypeStrict", "/contains/type", "#/contains/type", "/1" ],
+        [ true, "Annotation", "/contains", "#/contains", "", 1 ],
         [ true, "AssertionTypeStrict", "/contains/type", "#/contains/type", "/2" ],
+        [ true, "Annotation", "/contains", "#/contains", "", 2 ],
+        [ true, "AssertionTypeStrict", "/contains/type", "#/contains/type", "/3" ],
+        [ true, "Annotation", "/contains", "#/contains", "", 3 ],
         [ true, "LoopContains", "/contains", "#/contains", "" ]
       ],
       "descriptions": [
         "The value was expected to be of type string but it was of type integer",
         "The value was expected to be of type string",
+        "The item at index 1 of the array value successfully validated against the containment check subschema",
         "The value was expected to be of type string",
+        "The item at index 2 of the array value successfully validated against the containment check subschema",
+        "The value was expected to be of type string",
+        "The item at index 3 of the array value successfully validated against the containment check subschema",
         "The array value was expected to contain at least 2 items that validate against the given subschema"
       ]
     }
@@ -856,17 +895,20 @@
         [ "LoopContains", "/contains", "#/contains", "" ],
         [ "AssertionTypeStrict", "/contains/type", "#/contains/type", "/0" ],
         [ "AssertionTypeStrict", "/contains/type", "#/contains/type", "/1" ],
+        [ "Annotation", "/contains", "#/contains", "" ],
         [ "AssertionTypeStrict", "/contains/type", "#/contains/type", "/2" ]
       ],
       "post": [
         [ false, "AssertionTypeStrict", "/contains/type", "#/contains/type", "/0" ],
         [ true, "AssertionTypeStrict", "/contains/type", "#/contains/type", "/1" ],
+        [ true, "Annotation", "/contains", "#/contains", "", 1 ],
         [ false, "AssertionTypeStrict", "/contains/type", "#/contains/type", "/2" ],
         [ false, "LoopContains", "/contains", "#/contains", "" ]
       ],
       "descriptions": [
         "The value was expected to be of type string but it was of type integer",
         "The value was expected to be of type string",
+        "The item at index 1 of the array value successfully validated against the containment check subschema",
         "The value was expected to be of type string but it was of type integer",
         "The array value was expected to contain at least 2 items that validate against the given subschema"
       ]
@@ -906,18 +948,24 @@
         [ "LoopContains", "/contains", "#/contains", "" ],
         [ "AssertionTypeStrict", "/contains/type", "#/contains/type", "/0" ],
         [ "AssertionTypeStrict", "/contains/type", "#/contains/type", "/1" ],
-        [ "AssertionTypeStrict", "/contains/type", "#/contains/type", "/2" ]
+        [ "Annotation", "/contains", "#/contains", "" ],
+        [ "AssertionTypeStrict", "/contains/type", "#/contains/type", "/2" ],
+        [ "Annotation", "/contains", "#/contains", "" ]
       ],
       "post": [
         [ false, "AssertionTypeStrict", "/contains/type", "#/contains/type", "/0" ],
         [ true, "AssertionTypeStrict", "/contains/type", "#/contains/type", "/1" ],
+        [ true, "Annotation", "/contains", "#/contains", "", 1 ],
         [ true, "AssertionTypeStrict", "/contains/type", "#/contains/type", "/2" ],
+        [ true, "Annotation", "/contains", "#/contains", "", 2 ],
         [ true, "LoopContains", "/contains", "#/contains", "" ]
       ],
       "descriptions": [
         "The value was expected to be of type string but it was of type integer",
         "The value was expected to be of type string",
+        "The item at index 1 of the array value successfully validated against the containment check subschema",
         "The value was expected to be of type string",
+        "The item at index 2 of the array value successfully validated against the containment check subschema",
         "The array value was expected to contain 1 to 2 items that validate against the given subschema"
       ]
     }
@@ -955,19 +1003,28 @@
       "pre": [
         [ "LoopContains", "/contains", "#/contains", "" ],
         [ "AssertionTypeStrict", "/contains/type", "#/contains/type", "/0" ],
+        [ "Annotation", "/contains", "#/contains", "" ],
         [ "AssertionTypeStrict", "/contains/type", "#/contains/type", "/1" ],
-        [ "AssertionTypeStrict", "/contains/type", "#/contains/type", "/2" ]
+        [ "Annotation", "/contains", "#/contains", "" ],
+        [ "AssertionTypeStrict", "/contains/type", "#/contains/type", "/2" ],
+        [ "Annotation", "/contains", "#/contains", "" ]
       ],
       "post": [
         [ true, "AssertionTypeStrict", "/contains/type", "#/contains/type", "/0" ],
+        [ true, "Annotation", "/contains", "#/contains", "", 0 ],
         [ true, "AssertionTypeStrict", "/contains/type", "#/contains/type", "/1" ],
+        [ true, "Annotation", "/contains", "#/contains", "", 1 ],
         [ true, "AssertionTypeStrict", "/contains/type", "#/contains/type", "/2" ],
+        [ true, "Annotation", "/contains", "#/contains", "", 2 ],
         [ false, "LoopContains", "/contains", "#/contains", "" ]
       ],
       "descriptions": [
         "The value was expected to be of type string",
+        "The item at index 0 of the array value successfully validated against the containment check subschema",
         "The value was expected to be of type string",
+        "The item at index 1 of the array value successfully validated against the containment check subschema",
         "The value was expected to be of type string",
+        "The item at index 2 of the array value successfully validated against the containment check subschema",
         "The array value was expected to contain 1 to 2 items that validate against the given subschema"
       ]
     }
@@ -1006,18 +1063,24 @@
       "pre": [
         [ "LoopContains", "/contains", "#/contains", "" ],
         [ "AssertionTypeStrict", "/contains/type", "#/contains/type", "/0" ],
+        [ "Annotation", "/contains", "#/contains", "" ],
         [ "AssertionTypeStrict", "/contains/type", "#/contains/type", "/1" ],
+        [ "Annotation", "/contains", "#/contains", "" ],
         [ "AssertionTypeStrict", "/contains/type", "#/contains/type", "/2" ]
       ],
       "post": [
         [ true, "AssertionTypeStrict", "/contains/type", "#/contains/type", "/0" ],
+        [ true, "Annotation", "/contains", "#/contains", "", 0 ],
         [ true, "AssertionTypeStrict", "/contains/type", "#/contains/type", "/1" ],
+        [ true, "Annotation", "/contains", "#/contains", "", 1 ],
         [ false, "AssertionTypeStrict", "/contains/type", "#/contains/type", "/2" ],
         [ true, "LoopContains", "/contains", "#/contains", "" ]
       ],
       "descriptions": [
         "The value was expected to be of type string",
+        "The item at index 0 of the array value successfully validated against the containment check subschema",
         "The value was expected to be of type string",
+        "The item at index 1 of the array value successfully validated against the containment check subschema",
         "The value was expected to be of type string but it was of type integer",
         "The array value was expected to contain exactly 2 items that validate against the given subschema"
       ]
@@ -1057,19 +1120,28 @@
       "pre": [
         [ "LoopContains", "/contains", "#/contains", "" ],
         [ "AssertionTypeStrict", "/contains/type", "#/contains/type", "/0" ],
+        [ "Annotation", "/contains", "#/contains", "" ],
         [ "AssertionTypeStrict", "/contains/type", "#/contains/type", "/1" ],
-        [ "AssertionTypeStrict", "/contains/type", "#/contains/type", "/2" ]
+        [ "Annotation", "/contains", "#/contains", "" ],
+        [ "AssertionTypeStrict", "/contains/type", "#/contains/type", "/2" ],
+        [ "Annotation", "/contains", "#/contains", "" ]
       ],
       "post": [
         [ true, "AssertionTypeStrict", "/contains/type", "#/contains/type", "/0" ],
+        [ true, "Annotation", "/contains", "#/contains", "", 0 ],
         [ true, "AssertionTypeStrict", "/contains/type", "#/contains/type", "/1" ],
+        [ true, "Annotation", "/contains", "#/contains", "", 1 ],
         [ true, "AssertionTypeStrict", "/contains/type", "#/contains/type", "/2" ],
+        [ true, "Annotation", "/contains", "#/contains", "", 2 ],
         [ false, "LoopContains", "/contains", "#/contains", "" ]
       ],
       "descriptions": [
         "The value was expected to be of type string",
+        "The item at index 0 of the array value successfully validated against the containment check subschema",
         "The value was expected to be of type string",
+        "The item at index 1 of the array value successfully validated against the containment check subschema",
         "The value was expected to be of type string",
+        "The item at index 2 of the array value successfully validated against the containment check subschema",
         "The array value was expected to contain exactly 2 items that validate against the given subschema"
       ]
     }
@@ -1128,13 +1200,22 @@
     },
     "exhaustive": {
       "pre": [
-        [ "AssertionArraySizeGreater", "/contains", "#/contains", "" ]
+        [ "LoopContains", "/contains", "#/contains", "" ],
+        [ "Annotation", "/contains", "#/contains", "" ],
+        [ "Annotation", "/contains", "#/contains", "" ],
+        [ "Annotation", "/contains", "#/contains", "" ]
       ],
       "post": [
-        [ true, "AssertionArraySizeGreater", "/contains", "#/contains", "" ]
+        [ true, "Annotation", "/contains", "#/contains", "", 0 ],
+        [ true, "Annotation", "/contains", "#/contains", "", 1 ],
+        [ true, "Annotation", "/contains", "#/contains", "", 2 ],
+        [ true, "LoopContains", "/contains", "#/contains", "" ]
       ],
       "descriptions": [
-        "The array value was expected to contain at least 1 item and it contained 3 items"
+        "The item at index 0 of the array value successfully validated against the containment check subschema",
+        "The item at index 1 of the array value successfully validated against the containment check subschema",
+        "The item at index 2 of the array value successfully validated against the containment check subschema",
+        "The array value was expected to contain at least 1 item that validates against the given subschema"
       ]
     }
   },
@@ -3349,17 +3430,20 @@
       "pre": [
         [ "LoopContains", "/contains", "#/contains", "" ],
         [ "AssertionTypeStrict", "/contains/type", "#/contains/type", "/0" ],
+        [ "Annotation", "/contains", "#/contains", "" ],
         [ "LoopItemsUnevaluated", "/unevaluatedItems", "#/unevaluatedItems", "" ],
         [ "AssertionFail", "/unevaluatedItems", "#/unevaluatedItems", "/0" ]
       ],
       "post": [
         [ true, "AssertionTypeStrict", "/contains/type", "#/contains/type", "/0" ],
+        [ true, "Annotation", "/contains", "#/contains", "", 0 ],
         [ true, "LoopContains", "/contains", "#/contains", "" ],
         [ false, "AssertionFail", "/unevaluatedItems", "#/unevaluatedItems", "/0" ],
         [ false, "LoopItemsUnevaluated", "/unevaluatedItems", "#/unevaluatedItems", "" ]
       ],
       "descriptions": [
         "The value was expected to be of type boolean",
+        "The item at index 0 of the array value successfully validated against the containment check subschema",
         "The array value was expected to contain at least 1 item that validates against the given subschema",
         "The array value was not expected to define the item at index 0",
         "The array items not covered by other array keywords, if any, were expected to validate against this subschema"

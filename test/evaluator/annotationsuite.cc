@@ -116,19 +116,34 @@ public:
     this->frame.analyse(this->schema_json, sourcemeta::blaze::schema_walker,
                         sourcemeta::blaze::schema_resolver,
                         test_default_dialect);
-    this->schema = sourcemeta::blaze::compile(
+    this->exhaustive_schema = sourcemeta::blaze::compile(
         this->schema_json, sourcemeta::blaze::schema_walker,
         sourcemeta::blaze::schema_resolver,
         sourcemeta::blaze::default_schema_compiler, this->frame,
         this->frame.root(), sourcemeta::blaze::Mode::Exhaustive);
+
+    for (const auto &assertion : this->assertions) {
+      assert(assertion.is_object());
+      assert(assertion.defines("keyword"));
+      assert(assertion.at("keyword").is_string());
+      this->keywords.insert(assertion.at("keyword").to_string());
+    }
+
+    std::unordered_set<sourcemeta::core::JSON::StringView> whitelist;
+    for (const auto &keyword : this->keywords) {
+      whitelist.insert(keyword);
+    }
+
+    sourcemeta::blaze::Tweaks tweaks;
+    tweaks.annotations = std::move(whitelist);
+    this->fast_validation_schema = sourcemeta::blaze::compile(
+        this->schema_json, sourcemeta::blaze::schema_walker,
+        sourcemeta::blaze::schema_resolver,
+        sourcemeta::blaze::default_schema_compiler, this->frame,
+        this->frame.root(), sourcemeta::blaze::Mode::FastValidation, tweaks);
   }
 
-  auto TestBody() -> void override {
-    sourcemeta::blaze::SimpleOutput output{this->instance};
-    const auto result{this->evaluator.validate(this->schema, this->instance,
-                                               std::ref(output))};
-    EXPECT_TRUE(result);
-
+  auto check_assertions(const sourcemeta::blaze::SimpleOutput &output) -> void {
     for (const auto &assertion : this->assertions) {
       assert(assertion.is_object());
       assert(assertion.defines("location"));
@@ -160,11 +175,29 @@ public:
     }
   }
 
+  auto TestBody() -> void override {
+    sourcemeta::blaze::SimpleOutput output{this->instance};
+    const auto result{this->evaluator.validate(
+        this->exhaustive_schema, this->instance, std::ref(output))};
+    EXPECT_TRUE(result);
+    this->check_assertions(output);
+
+    // The same annotations must be collected in fast validation mode when the
+    // relevant keywords are whitelisted via tweaks
+    sourcemeta::blaze::SimpleOutput fast_output{this->instance};
+    const auto fast_result{this->evaluator.validate(
+        this->fast_validation_schema, this->instance, std::ref(fast_output))};
+    EXPECT_TRUE(fast_result);
+    this->check_assertions(fast_output);
+  }
+
 private:
   sourcemeta::core::JSON schema_json;
   sourcemeta::blaze::SchemaFrame frame{
       sourcemeta::blaze::SchemaFrame::Mode::References};
-  sourcemeta::blaze::Template schema;
+  sourcemeta::blaze::Template exhaustive_schema;
+  std::unordered_set<sourcemeta::core::JSON::String> keywords;
+  sourcemeta::blaze::Template fast_validation_schema;
   sourcemeta::core::JSON instance;
   sourcemeta::core::JSON::Array assertions;
   sourcemeta::blaze::Evaluator evaluator;
