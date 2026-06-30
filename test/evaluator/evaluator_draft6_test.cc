@@ -3072,3 +3072,144 @@ TEST(Evaluator_draft6,
   EVALUATE_TRACE_POST_DESCRIBE(instance, 0,
                                "The value was expected to be of type integer");
 }
+
+TEST(Evaluator_draft6, switch_property_string_const_fast) {
+  const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
+    "$schema": "http://json-schema.org/draft-06/schema#",
+    "anyOf": [
+      {
+        "type": "object",
+        "required": [ "shape", "radius" ],
+        "properties": {
+          "shape": { "const": "circle" },
+          "radius": { "type": "number" }
+        }
+      },
+      {
+        "type": "object",
+        "required": [ "shape", "side" ],
+        "properties": {
+          "shape": { "const": "square" },
+          "side": { "type": "number" }
+        }
+      }
+    ]
+  })JSON")};
+
+  const sourcemeta::core::JSON instance{sourcemeta::core::parse_json(R"JSON({
+    "shape": "square",
+    "side": 3
+  })JSON")};
+
+  EVALUATE_WITH_TRACE_FAST_SUCCESS(schema, instance, 2, "");
+
+  EVALUATE_TRACE_PRE(0, LogicalSwitchPropertyString, "/anyOf", "#/anyOf", "");
+  EVALUATE_TRACE_PRE(1, AssertionObjectPropertiesSimple, "/anyOf/1/properties",
+                     "#/anyOf/1/properties", "");
+  EVALUATE_TRACE_POST_SUCCESS(0, AssertionObjectPropertiesSimple,
+                              "/anyOf/1/properties", "#/anyOf/1/properties",
+                              "");
+  EVALUATE_TRACE_POST_SUCCESS(1, LogicalSwitchPropertyString, "/anyOf",
+                              "#/anyOf", "");
+
+  EVALUATE_TRACE_POST_DESCRIBE(instance, 0,
+                               "The object value was expected to validate "
+                               "against the defined property subschemas");
+  EVALUATE_TRACE_POST_DESCRIBE(instance, 1,
+                               "The object value was expected to validate "
+                               "against one of the 2 given subschemas");
+}
+
+TEST(Evaluator_draft6, switch_property_string_through_references_fast) {
+  const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
+    "$schema": "http://json-schema.org/draft-06/schema#",
+    "definitions": {
+      "circle": {
+        "type": "object",
+        "required": [ "shape", "radius" ],
+        "properties": {
+          "shape": { "const": "circle" },
+          "radius": { "type": "number" }
+        }
+      },
+      "square": {
+        "type": "object",
+        "required": [ "shape", "side" ],
+        "properties": {
+          "shape": { "const": "square" },
+          "side": { "type": "number" }
+        }
+      }
+    },
+    "anyOf": [
+      { "allOf": [ { "$ref": "#/definitions/circle" } ] },
+      { "allOf": [ { "$ref": "#/definitions/square" } ] }
+    ]
+  })JSON")};
+
+  const sourcemeta::core::JSON instance{sourcemeta::core::parse_json(R"JSON({
+    "shape": "square",
+    "side": 3
+  })JSON")};
+
+  EVALUATE_WITH_TRACE_FAST_SUCCESS(schema, instance, 2, "");
+
+  EVALUATE_TRACE_PRE(0, LogicalSwitchPropertyString, "/anyOf", "#/anyOf", "");
+  EVALUATE_TRACE_PRE(1, AssertionObjectPropertiesSimple,
+                     "/anyOf/1/allOf/0/$ref/properties",
+                     "#/definitions/square/properties", "");
+  EVALUATE_TRACE_POST_SUCCESS(0, AssertionObjectPropertiesSimple,
+                              "/anyOf/1/allOf/0/$ref/properties",
+                              "#/definitions/square/properties", "");
+  EVALUATE_TRACE_POST_SUCCESS(1, LogicalSwitchPropertyString, "/anyOf",
+                              "#/anyOf", "");
+
+  EVALUATE_TRACE_POST_DESCRIBE(instance, 0,
+                               "The object value was expected to validate "
+                               "against the defined property subschemas");
+  EVALUATE_TRACE_POST_DESCRIBE(instance, 1,
+                               "The object value was expected to validate "
+                               "against one of the 2 given subschemas");
+}
+
+TEST(Evaluator_draft6, switch_property_string_through_references_failure_fast) {
+  const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
+    "$schema": "http://json-schema.org/draft-06/schema#",
+    "definitions": {
+      "circle": {
+        "type": "object",
+        "required": [ "shape", "radius" ],
+        "properties": {
+          "shape": { "const": "circle" },
+          "radius": { "type": "number" }
+        }
+      },
+      "square": {
+        "type": "object",
+        "required": [ "shape", "side" ],
+        "properties": {
+          "shape": { "const": "square" },
+          "side": { "type": "number" }
+        }
+      }
+    },
+    "anyOf": [
+      { "allOf": [ { "$ref": "#/definitions/circle" } ] },
+      { "allOf": [ { "$ref": "#/definitions/square" } ] }
+    ]
+  })JSON")};
+
+  const sourcemeta::core::JSON instance{sourcemeta::core::parse_json(R"JSON({
+    "shape": "oval"
+  })JSON")};
+
+  EVALUATE_WITH_TRACE_FAST_FAILURE(schema, instance, 1, "");
+
+  EVALUATE_TRACE_PRE(0, LogicalSwitchPropertyString, "/anyOf", "#/anyOf", "");
+  EVALUATE_TRACE_POST_FAILURE(0, LogicalSwitchPropertyString, "/anyOf",
+                              "#/anyOf", "");
+
+  EVALUATE_TRACE_POST_DESCRIBE(instance, 0,
+                               "The object value was expected to validate "
+                               "against one of the 2 given subschemas");
+}

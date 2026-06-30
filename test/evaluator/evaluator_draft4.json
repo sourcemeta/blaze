@@ -1350,12 +1350,12 @@
       "pre": [
         [ "AssertionPropertyTypeStrict", "/properties/bar/type", "#/properties/bar/type", "/bar" ],
         [ "AssertionRegex", "/properties/foo/pattern", "#/properties/foo/pattern", "/foo" ],
-        [ "AssertionPropertyTypeStrict", "/properties/foo/type", "#/properties/foo/type", "/foo" ]
+        [ "AssertionTypeStrict", "/properties/foo/type", "#/properties/foo/type", "/foo" ]
       ],
       "post": [
         [ true, "AssertionPropertyTypeStrict", "/properties/bar/type", "#/properties/bar/type", "/bar" ],
         [ true, "AssertionRegex", "/properties/foo/pattern", "#/properties/foo/pattern", "/foo" ],
-        [ true, "AssertionPropertyTypeStrict", "/properties/foo/type", "#/properties/foo/type", "/foo" ]
+        [ true, "AssertionTypeStrict", "/properties/foo/type", "#/properties/foo/type", "/foo" ]
       ],
       "descriptions": [
         "The value was expected to be of type integer",
@@ -1399,12 +1399,12 @@
       "pre": [
         [ "AssertionPropertyTypeStrict", "/properties/foo/type", "#/properties/foo/type", "/foo" ],
         [ "AssertionRegex", "/properties/bar/pattern", "#/properties/bar/pattern", "/bar" ],
-        [ "AssertionPropertyTypeStrict", "/properties/bar/type", "#/properties/bar/type", "/bar" ]
+        [ "AssertionTypeStrict", "/properties/bar/type", "#/properties/bar/type", "/bar" ]
       ],
       "post": [
         [ true, "AssertionPropertyTypeStrict", "/properties/foo/type", "#/properties/foo/type", "/foo" ],
         [ true, "AssertionRegex", "/properties/bar/pattern", "#/properties/bar/pattern", "/bar" ],
-        [ true, "AssertionPropertyTypeStrict", "/properties/bar/type", "#/properties/bar/type", "/bar" ]
+        [ true, "AssertionTypeStrict", "/properties/bar/type", "#/properties/bar/type", "/bar" ]
       ],
       "descriptions": [
         "The value was expected to be of type integer",
@@ -1518,7 +1518,7 @@
     "fast": {
       "pre": [
         [ "AssertionRegex", "/properties/bar/pattern", "#/properties/bar/pattern", "/bar" ],
-        [ "AssertionPropertyTypeStrict", "/properties/bar/type", "#/properties/bar/type", "/bar" ],
+        [ "AssertionTypeStrict", "/properties/bar/type", "#/properties/bar/type", "/bar" ],
         [ "LoopItems", "/properties/foo/items", "#/properties/foo/items", "/foo" ],
         [ "AssertionLessEqual", "/properties/foo/items/maximum", "#/properties/foo/items/maximum", "/foo/0" ],
         [ "AssertionDivisible", "/properties/foo/items/multipleOf", "#/properties/foo/items/multipleOf", "/foo/0" ],
@@ -1526,7 +1526,7 @@
       ],
       "post": [
         [ true, "AssertionRegex", "/properties/bar/pattern", "#/properties/bar/pattern", "/bar" ],
-        [ true, "AssertionPropertyTypeStrict", "/properties/bar/type", "#/properties/bar/type", "/bar" ],
+        [ true, "AssertionTypeStrict", "/properties/bar/type", "#/properties/bar/type", "/bar" ],
         [ true, "AssertionLessEqual", "/properties/foo/items/maximum", "#/properties/foo/items/maximum", "/foo/0" ],
         [ true, "AssertionDivisible", "/properties/foo/items/multipleOf", "#/properties/foo/items/multipleOf", "/foo/0" ],
         [ true, "AssertionTypeStrictAny", "/properties/foo/items/type", "#/properties/foo/items/type", "/foo/0" ],

@@ -4831,3 +4831,47 @@ TEST(Evaluator_2020_12,
       "The array value was expected to contain at least 1 item that validates "
       "against the given subschema");
 }
+
+TEST(Evaluator_2020_12, switch_property_string_const_fast) {
+  const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "oneOf": [
+      {
+        "type": "object",
+        "required": [ "kind" ],
+        "properties": {
+          "kind": { "const": "first" }
+        }
+      },
+      {
+        "type": "object",
+        "required": [ "kind" ],
+        "properties": {
+          "kind": { "const": "second" }
+        }
+      }
+    ]
+  })JSON")};
+
+  const sourcemeta::core::JSON instance{sourcemeta::core::parse_json(R"JSON({
+    "kind": "first"
+  })JSON")};
+
+  EVALUATE_WITH_TRACE_FAST_SUCCESS(schema, instance, 2, "");
+
+  EVALUATE_TRACE_PRE(0, LogicalSwitchPropertyString, "/oneOf", "#/oneOf", "");
+  EVALUATE_TRACE_PRE(1, AssertionObjectPropertiesSimple, "/oneOf/0/properties",
+                     "#/oneOf/0/properties", "");
+  EVALUATE_TRACE_POST_SUCCESS(0, AssertionObjectPropertiesSimple,
+                              "/oneOf/0/properties", "#/oneOf/0/properties",
+                              "");
+  EVALUATE_TRACE_POST_SUCCESS(1, LogicalSwitchPropertyString, "/oneOf",
+                              "#/oneOf", "");
+
+  EVALUATE_TRACE_POST_DESCRIBE(instance, 0,
+                               "The object value was expected to validate "
+                               "against the defined property subschemas");
+  EVALUATE_TRACE_POST_DESCRIBE(instance, 1,
+                               "The object value was expected to validate "
+                               "against one of the 2 given subschemas");
+}

@@ -3137,3 +3137,518 @@ TEST(Evaluator_draft7, annotation_fast_contains_no_effect) {
       "The array value was expected to contain at least 1 item that validates "
       "against the given subschema");
 }
+
+TEST(Evaluator_draft7, switch_property_string_first_disjunct_fast) {
+  const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
+    "$schema": "http://json-schema.org/draft-07/schema#",
+    "oneOf": [
+      {
+        "type": "object",
+        "required": [ "kind" ],
+        "properties": {
+          "kind": { "enum": [ "first" ] },
+          "value": { "type": "integer" }
+        }
+      },
+      {
+        "type": "object",
+        "required": [ "kind" ],
+        "properties": {
+          "kind": { "enum": [ "second" ] },
+          "name": { "type": "string" }
+        }
+      }
+    ]
+  })JSON")};
+
+  const sourcemeta::core::JSON instance{sourcemeta::core::parse_json(R"JSON({
+    "kind": "first",
+    "value": 1
+  })JSON")};
+
+  EVALUATE_WITH_TRACE_FAST_SUCCESS(schema, instance, 2, "");
+
+  EVALUATE_TRACE_PRE(0, LogicalSwitchPropertyString, "/oneOf", "#/oneOf", "");
+  EVALUATE_TRACE_PRE(1, AssertionObjectPropertiesSimple, "/oneOf/0/properties",
+                     "#/oneOf/0/properties", "");
+  EVALUATE_TRACE_POST_SUCCESS(0, AssertionObjectPropertiesSimple,
+                              "/oneOf/0/properties", "#/oneOf/0/properties",
+                              "");
+  EVALUATE_TRACE_POST_SUCCESS(1, LogicalSwitchPropertyString, "/oneOf",
+                              "#/oneOf", "");
+
+  EVALUATE_TRACE_POST_DESCRIBE(instance, 0,
+                               "The object value was expected to validate "
+                               "against the defined property subschemas");
+  EVALUATE_TRACE_POST_DESCRIBE(instance, 1,
+                               "The object value was expected to validate "
+                               "against one of the 2 given subschemas");
+}
+
+TEST(Evaluator_draft7, switch_property_string_second_disjunct_fast) {
+  const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
+    "$schema": "http://json-schema.org/draft-07/schema#",
+    "oneOf": [
+      {
+        "type": "object",
+        "required": [ "kind" ],
+        "properties": {
+          "kind": { "enum": [ "first" ] },
+          "value": { "type": "integer" }
+        }
+      },
+      {
+        "type": "object",
+        "required": [ "kind" ],
+        "properties": {
+          "kind": { "enum": [ "second" ] },
+          "name": { "type": "string" }
+        }
+      }
+    ]
+  })JSON")};
+
+  const sourcemeta::core::JSON instance{sourcemeta::core::parse_json(R"JSON({
+    "kind": "second",
+    "name": "foo"
+  })JSON")};
+
+  EVALUATE_WITH_TRACE_FAST_SUCCESS(schema, instance, 2, "");
+
+  EVALUATE_TRACE_PRE(0, LogicalSwitchPropertyString, "/oneOf", "#/oneOf", "");
+  EVALUATE_TRACE_PRE(1, AssertionObjectPropertiesSimple, "/oneOf/1/properties",
+                     "#/oneOf/1/properties", "");
+  EVALUATE_TRACE_POST_SUCCESS(0, AssertionObjectPropertiesSimple,
+                              "/oneOf/1/properties", "#/oneOf/1/properties",
+                              "");
+  EVALUATE_TRACE_POST_SUCCESS(1, LogicalSwitchPropertyString, "/oneOf",
+                              "#/oneOf", "");
+
+  EVALUATE_TRACE_POST_DESCRIBE(instance, 0,
+                               "The object value was expected to validate "
+                               "against the defined property subschemas");
+  EVALUATE_TRACE_POST_DESCRIBE(instance, 1,
+                               "The object value was expected to validate "
+                               "against one of the 2 given subschemas");
+}
+
+TEST(Evaluator_draft7, switch_property_string_unknown_value_fast) {
+  const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
+    "$schema": "http://json-schema.org/draft-07/schema#",
+    "oneOf": [
+      {
+        "type": "object",
+        "required": [ "kind" ],
+        "properties": {
+          "kind": { "enum": [ "first" ] }
+        }
+      },
+      {
+        "type": "object",
+        "required": [ "kind" ],
+        "properties": {
+          "kind": { "enum": [ "second" ] }
+        }
+      }
+    ]
+  })JSON")};
+
+  const sourcemeta::core::JSON instance{sourcemeta::core::parse_json(R"JSON({
+    "kind": "third"
+  })JSON")};
+
+  EVALUATE_WITH_TRACE_FAST_FAILURE(schema, instance, 1, "");
+
+  EVALUATE_TRACE_PRE(0, LogicalSwitchPropertyString, "/oneOf", "#/oneOf", "");
+  EVALUATE_TRACE_POST_FAILURE(0, LogicalSwitchPropertyString, "/oneOf",
+                              "#/oneOf", "");
+
+  EVALUATE_TRACE_POST_DESCRIBE(instance, 0,
+                               "The object value was expected to validate "
+                               "against one of the 2 given subschemas");
+}
+
+TEST(Evaluator_draft7, switch_property_string_missing_discriminator_fast) {
+  const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
+    "$schema": "http://json-schema.org/draft-07/schema#",
+    "oneOf": [
+      {
+        "type": "object",
+        "required": [ "kind" ],
+        "properties": {
+          "kind": { "enum": [ "first" ] }
+        }
+      },
+      {
+        "type": "object",
+        "required": [ "kind" ],
+        "properties": {
+          "kind": { "enum": [ "second" ] }
+        }
+      }
+    ]
+  })JSON")};
+
+  const sourcemeta::core::JSON instance{sourcemeta::core::parse_json(R"JSON({
+    "other": 1
+  })JSON")};
+
+  EVALUATE_WITH_TRACE_FAST_FAILURE(schema, instance, 1, "");
+
+  EVALUATE_TRACE_PRE(0, LogicalSwitchPropertyString, "/oneOf", "#/oneOf", "");
+  EVALUATE_TRACE_POST_FAILURE(0, LogicalSwitchPropertyString, "/oneOf",
+                              "#/oneOf", "");
+
+  EVALUATE_TRACE_POST_DESCRIBE(instance, 0,
+                               "The object value was expected to validate "
+                               "against one of the 2 given subschemas");
+}
+
+TEST(Evaluator_draft7, switch_property_string_non_string_discriminator_fast) {
+  const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
+    "$schema": "http://json-schema.org/draft-07/schema#",
+    "oneOf": [
+      {
+        "type": "object",
+        "required": [ "kind" ],
+        "properties": {
+          "kind": { "enum": [ "first" ] }
+        }
+      },
+      {
+        "type": "object",
+        "required": [ "kind" ],
+        "properties": {
+          "kind": { "enum": [ "second" ] }
+        }
+      }
+    ]
+  })JSON")};
+
+  const sourcemeta::core::JSON instance{sourcemeta::core::parse_json(R"JSON({
+    "kind": 5
+  })JSON")};
+
+  EVALUATE_WITH_TRACE_FAST_FAILURE(schema, instance, 1, "");
+
+  EVALUATE_TRACE_PRE(0, LogicalSwitchPropertyString, "/oneOf", "#/oneOf", "");
+  EVALUATE_TRACE_POST_FAILURE(0, LogicalSwitchPropertyString, "/oneOf",
+                              "#/oneOf", "");
+
+  EVALUATE_TRACE_POST_DESCRIBE(instance, 0,
+                               "The object value was expected to validate "
+                               "against one of the 2 given subschemas");
+}
+
+TEST(Evaluator_draft7, switch_property_string_non_object_instance_fast) {
+  const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
+    "$schema": "http://json-schema.org/draft-07/schema#",
+    "oneOf": [
+      {
+        "type": "object",
+        "required": [ "kind" ],
+        "properties": {
+          "kind": { "enum": [ "first" ] }
+        }
+      },
+      {
+        "type": "object",
+        "required": [ "kind" ],
+        "properties": {
+          "kind": { "enum": [ "second" ] }
+        }
+      }
+    ]
+  })JSON")};
+
+  const sourcemeta::core::JSON instance{"foo"};
+
+  EVALUATE_WITH_TRACE_FAST_FAILURE(schema, instance, 1, "");
+
+  EVALUATE_TRACE_PRE(0, LogicalSwitchPropertyString, "/oneOf", "#/oneOf", "");
+  EVALUATE_TRACE_POST_FAILURE(0, LogicalSwitchPropertyString, "/oneOf",
+                              "#/oneOf", "");
+
+  EVALUATE_TRACE_POST_DESCRIBE(instance, 0,
+                               "The string value was expected to validate "
+                               "against one of the 2 given subschemas");
+}
+
+TEST(Evaluator_draft7, switch_property_string_nullable_null_instance_fast) {
+  const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
+    "$schema": "http://json-schema.org/draft-07/schema#",
+    "oneOf": [
+      { "type": "null" },
+      {
+        "type": "object",
+        "required": [ "kind" ],
+        "properties": {
+          "kind": { "enum": [ "first" ] }
+        }
+      },
+      {
+        "type": "object",
+        "required": [ "kind" ],
+        "properties": {
+          "kind": { "enum": [ "second" ] }
+        }
+      }
+    ]
+  })JSON")};
+
+  const sourcemeta::core::JSON instance{nullptr};
+
+  EVALUATE_WITH_TRACE_FAST_SUCCESS(schema, instance, 2, "");
+
+  EVALUATE_TRACE_PRE(0, LogicalSwitchPropertyString, "/oneOf", "#/oneOf", "");
+  EVALUATE_TRACE_PRE(1, AssertionTypeStrict, "/oneOf/0/type", "#/oneOf/0/type",
+                     "");
+  EVALUATE_TRACE_POST_SUCCESS(0, AssertionTypeStrict, "/oneOf/0/type",
+                              "#/oneOf/0/type", "");
+  EVALUATE_TRACE_POST_SUCCESS(1, LogicalSwitchPropertyString, "/oneOf",
+                              "#/oneOf", "");
+
+  EVALUATE_TRACE_POST_DESCRIBE(instance, 0,
+                               "The value was expected to be of type null");
+  EVALUATE_TRACE_POST_DESCRIBE(instance, 1,
+                               "The null value was expected to validate "
+                               "against one of the 3 given subschemas");
+}
+
+TEST(Evaluator_draft7, switch_property_string_nullable_object_instance_fast) {
+  const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
+    "$schema": "http://json-schema.org/draft-07/schema#",
+    "oneOf": [
+      { "type": "null" },
+      {
+        "type": "object",
+        "required": [ "kind" ],
+        "properties": {
+          "kind": { "enum": [ "first" ] }
+        }
+      },
+      {
+        "type": "object",
+        "required": [ "kind" ],
+        "properties": {
+          "kind": { "enum": [ "second" ] }
+        }
+      }
+    ]
+  })JSON")};
+
+  const sourcemeta::core::JSON instance{sourcemeta::core::parse_json(R"JSON({
+    "kind": "first"
+  })JSON")};
+
+  EVALUATE_WITH_TRACE_FAST_SUCCESS(schema, instance, 2, "");
+
+  EVALUATE_TRACE_PRE(0, LogicalSwitchPropertyString, "/oneOf", "#/oneOf", "");
+  EVALUATE_TRACE_PRE(1, AssertionObjectPropertiesSimple, "/oneOf/1/properties",
+                     "#/oneOf/1/properties", "");
+  EVALUATE_TRACE_POST_SUCCESS(0, AssertionObjectPropertiesSimple,
+                              "/oneOf/1/properties", "#/oneOf/1/properties",
+                              "");
+  EVALUATE_TRACE_POST_SUCCESS(1, LogicalSwitchPropertyString, "/oneOf",
+                              "#/oneOf", "");
+
+  EVALUATE_TRACE_POST_DESCRIBE(instance, 0,
+                               "The object value was expected to validate "
+                               "against the defined property subschemas");
+  EVALUATE_TRACE_POST_DESCRIBE(instance, 1,
+                               "The object value was expected to validate "
+                               "against one of the 3 given subschemas");
+}
+
+TEST(Evaluator_draft7, switch_property_string_nullable_string_instance_fast) {
+  const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
+    "$schema": "http://json-schema.org/draft-07/schema#",
+    "oneOf": [
+      { "type": "null" },
+      {
+        "type": "object",
+        "required": [ "kind" ],
+        "properties": {
+          "kind": { "enum": [ "first" ] }
+        }
+      },
+      {
+        "type": "object",
+        "required": [ "kind" ],
+        "properties": {
+          "kind": { "enum": [ "second" ] }
+        }
+      }
+    ]
+  })JSON")};
+
+  const sourcemeta::core::JSON instance{"foo"};
+
+  EVALUATE_WITH_TRACE_FAST_FAILURE(schema, instance, 2, "");
+
+  EVALUATE_TRACE_PRE(0, LogicalSwitchPropertyString, "/oneOf", "#/oneOf", "");
+  EVALUATE_TRACE_PRE(1, AssertionTypeStrict, "/oneOf/0/type", "#/oneOf/0/type",
+                     "");
+  EVALUATE_TRACE_POST_FAILURE(0, AssertionTypeStrict, "/oneOf/0/type",
+                              "#/oneOf/0/type", "");
+  EVALUATE_TRACE_POST_FAILURE(1, LogicalSwitchPropertyString, "/oneOf",
+                              "#/oneOf", "");
+
+  EVALUATE_TRACE_POST_DESCRIBE(instance, 0,
+                               "The value was expected to be of type null "
+                               "but it was of type string");
+  EVALUATE_TRACE_POST_DESCRIBE(instance, 1,
+                               "The string value was expected to validate "
+                               "against one of the 3 given subschemas");
+}
+
+TEST(Evaluator_draft7, switch_property_string_exhaustive_keeps_disjunction) {
+  const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
+    "$schema": "http://json-schema.org/draft-07/schema#",
+    "oneOf": [
+      {
+        "type": "object",
+        "required": [ "kind" ],
+        "properties": {
+          "kind": { "enum": [ "first" ] }
+        }
+      },
+      {
+        "type": "object",
+        "required": [ "kind" ],
+        "properties": {
+          "kind": { "enum": [ "second" ] }
+        }
+      }
+    ]
+  })JSON")};
+
+  const sourcemeta::core::JSON instance{sourcemeta::core::parse_json(R"JSON({
+    "kind": "first"
+  })JSON")};
+
+  EVALUATE_WITH_TRACE_EXHAUSTIVE_SUCCESS(schema, instance, 8, "");
+
+  EVALUATE_TRACE_PRE(0, LogicalXor, "/oneOf", "#/oneOf", "");
+  EVALUATE_TRACE_PRE(1, AssertionDefinesStrict, "/oneOf/0/required",
+                     "#/oneOf/0/required", "");
+  EVALUATE_TRACE_PRE(2, LogicalWhenType, "/oneOf/0/properties",
+                     "#/oneOf/0/properties", "");
+  EVALUATE_TRACE_PRE(3, AssertionEqual, "/oneOf/0/properties/kind/enum",
+                     "#/oneOf/0/properties/kind/enum", "/kind");
+  EVALUATE_TRACE_PRE(4, AssertionTypeStrict, "/oneOf/0/type", "#/oneOf/0/type",
+                     "");
+  EVALUATE_TRACE_PRE(5, AssertionDefinesStrict, "/oneOf/1/required",
+                     "#/oneOf/1/required", "");
+  EVALUATE_TRACE_PRE(6, LogicalWhenType, "/oneOf/1/properties",
+                     "#/oneOf/1/properties", "");
+  EVALUATE_TRACE_PRE(7, AssertionEqual, "/oneOf/1/properties/kind/enum",
+                     "#/oneOf/1/properties/kind/enum", "/kind");
+}
+
+TEST(Evaluator_draft7, resolved_property_group_multiple_assertions_fast) {
+  const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
+    "$schema": "http://json-schema.org/draft-07/schema#",
+    "properties": {
+      "foo": {
+        "minimum": 0,
+        "multipleOf": 2
+      }
+    }
+  })JSON")};
+
+  const sourcemeta::core::JSON instance{sourcemeta::core::parse_json(R"JSON({
+    "foo": 4
+  })JSON")};
+
+  EVALUATE_WITH_TRACE_FAST_SUCCESS(schema, instance, 2, "");
+
+  EVALUATE_TRACE_PRE(0, AssertionGreaterEqual, "/properties/foo/minimum",
+                     "#/properties/foo/minimum", "/foo");
+  EVALUATE_TRACE_PRE(1, AssertionDivisible, "/properties/foo/multipleOf",
+                     "#/properties/foo/multipleOf", "/foo");
+  EVALUATE_TRACE_POST_SUCCESS(0, AssertionGreaterEqual,
+                              "/properties/foo/minimum",
+                              "#/properties/foo/minimum", "/foo");
+  EVALUATE_TRACE_POST_SUCCESS(1, AssertionDivisible,
+                              "/properties/foo/multipleOf",
+                              "#/properties/foo/multipleOf", "/foo");
+
+  EVALUATE_TRACE_POST_DESCRIBE(instance, 0,
+                               "The integer value 4 was expected to be "
+                               "greater than or equal to the integer 0");
+  EVALUATE_TRACE_POST_DESCRIBE(
+      instance, 1,
+      "The integer value 4 was expected to be divisible by the integer 2");
+}
+
+TEST(Evaluator_draft7,
+     resolved_property_group_multiple_assertions_failure_fast) {
+  const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
+    "$schema": "http://json-schema.org/draft-07/schema#",
+    "properties": {
+      "foo": {
+        "minimum": 0,
+        "multipleOf": 2
+      }
+    }
+  })JSON")};
+
+  const sourcemeta::core::JSON instance{sourcemeta::core::parse_json(R"JSON({
+    "foo": 3
+  })JSON")};
+
+  EVALUATE_WITH_TRACE_FAST_FAILURE(schema, instance, 2, "");
+
+  EVALUATE_TRACE_PRE(0, AssertionGreaterEqual, "/properties/foo/minimum",
+                     "#/properties/foo/minimum", "/foo");
+  EVALUATE_TRACE_PRE(1, AssertionDivisible, "/properties/foo/multipleOf",
+                     "#/properties/foo/multipleOf", "/foo");
+  EVALUATE_TRACE_POST_SUCCESS(0, AssertionGreaterEqual,
+                              "/properties/foo/minimum",
+                              "#/properties/foo/minimum", "/foo");
+  EVALUATE_TRACE_POST_FAILURE(1, AssertionDivisible,
+                              "/properties/foo/multipleOf",
+                              "#/properties/foo/multipleOf", "/foo");
+
+  EVALUATE_TRACE_POST_DESCRIBE(instance, 0,
+                               "The integer value 3 was expected to be "
+                               "greater than or equal to the integer 0");
+  EVALUATE_TRACE_POST_DESCRIBE(
+      instance, 1,
+      "The integer value 3 was expected to be divisible by the integer 2");
+}
+
+TEST(Evaluator_draft7, resolved_property_group_missing_property_fast) {
+  const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
+    "$schema": "http://json-schema.org/draft-07/schema#",
+    "properties": {
+      "foo": {
+        "minimum": 0,
+        "multipleOf": 2
+      }
+    }
+  })JSON")};
+
+  const sourcemeta::core::JSON instance{sourcemeta::core::parse_json(R"JSON({
+    "bar": 1
+  })JSON")};
+
+  EVALUATE_WITH_TRACE_FAST_SUCCESS(schema, instance, 0, "");
+}
+
+TEST(Evaluator_draft7, resolved_property_group_non_object_instance_fast) {
+  const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
+    "$schema": "http://json-schema.org/draft-07/schema#",
+    "properties": {
+      "foo": {
+        "minimum": 0,
+        "multipleOf": 2
+      }
+    }
+  })JSON")};
+
+  const sourcemeta::core::JSON instance{"nope"};
+
+  EVALUATE_WITH_TRACE_FAST_SUCCESS(schema, instance, 0, "");
+}

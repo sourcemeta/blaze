@@ -7,10 +7,11 @@
 
 #include <sourcemeta/core/json.h>
 
-#include <algorithm> // std::ranges::sort
-#include <optional>  // std::optional
-#include <utility>   // std::pair, std::move
-#include <vector>    // std::vector
+#include <algorithm>  // std::ranges::lower_bound
+#include <functional> // std::ranges::less
+#include <optional>   // std::optional
+#include <utility>    // std::pair, std::move
+#include <vector>     // std::vector
 
 namespace sourcemeta::blaze {
 
@@ -57,21 +58,21 @@ public:
   inline auto insert(const string_type &value) -> void {
     const auto hash{this->hasher(value)};
     if (!this->contains(value, hash)) {
-      this->data.emplace_back(value, hash);
-      std::ranges::sort(this->data,
-                        [](const auto &left, const auto &right) -> bool {
-                          return left.first < right.first;
-                        });
+      this->data.emplace(
+          std::ranges::lower_bound(
+              this->data, value, std::ranges::less{},
+              [](const auto &entry) -> const auto & { return entry.first; }),
+          value, hash);
     }
   }
   inline auto insert(string_type &&value) -> void {
     const auto hash{this->hasher(value)};
     if (!this->contains(value, hash)) {
-      this->data.emplace_back(std::move(value), hash);
-      std::ranges::sort(this->data,
-                        [](const auto &left, const auto &right) -> bool {
-                          return left.first < right.first;
-                        });
+      this->data.emplace(
+          std::ranges::lower_bound(
+              this->data, value, std::ranges::less{},
+              [](const auto &entry) -> const auto & { return entry.first; }),
+          std::move(value), hash);
     }
   }
 

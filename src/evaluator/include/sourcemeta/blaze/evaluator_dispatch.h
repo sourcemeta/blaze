@@ -12,6 +12,14 @@
 #include <sourcemeta/core/time.h>
 #include <sourcemeta/core/uritemplate.h>
 
+#if defined(SOURCEMETA_BLAZE_EVALUATOR_TRACE_OPCODES)
+#include <algorithm> // std::ranges::sort
+#include <array>     // std::array
+#include <cstdint>   // std::uint64_t
+#include <cstdlib>   // std::atexit
+#include <iostream>  // std::cerr
+#endif
+
 // TODO(C++23): Replace SOURCEMETA_ASSUME with [[assume]] when available
 // across all compilers (Clang 19, GCC 13)
 #if defined(__clang__)
@@ -26,9 +34,13 @@
 
 #define EVALUATE_PUSH()                                                        \
   if constexpr (Track) {                                                       \
-    context.evaluator->evaluate_path.push_back(                                \
-        context.schema->extra[instruction.extra_index]                         \
-            .relative_schema_location);                                        \
+    /* Without a callback, only instructions whose subtree can produce or */   \
+    /* consume evaluation marks need to maintain the evaluate path */          \
+    if (HasCallback || instruction.track) {                                    \
+      context.evaluator->evaluate_path.push_back(                              \
+          context.schema->extra[instruction.extra_index]                       \
+              .relative_schema_location);                                      \
+    }                                                                          \
   }                                                                            \
   if constexpr (HasCallback) {                                                 \
     context.evaluator->instance_location.push_back(                            \
@@ -55,9 +67,11 @@
                         Evaluator::null);                                      \
   }                                                                            \
   if constexpr (Track) {                                                       \
-    context.evaluator->evaluate_path.pop_back(                                 \
-        context.schema->extra[instruction.extra_index]                         \
-            .relative_schema_location.size());                                 \
+    if (HasCallback || instruction.track) {                                    \
+      context.evaluator->evaluate_path.pop_back(                               \
+          context.schema->extra[instruction.extra_index]                       \
+              .relative_schema_location.size());                               \
+    }                                                                          \
   }                                                                            \
   if constexpr (HasCallback) {                                                 \
     context.evaluator->instance_location.pop_back(                             \
@@ -188,6 +202,45 @@
 
 namespace sourcemeta::blaze::dispatch {
 using namespace sourcemeta::core;
+
+#if defined(SOURCEMETA_BLAZE_EVALUATOR_TRACE_OPCODES)
+// An opt-in debug measurement mode that aggregates per-opcode execution
+// counts and prints a histogram to standard error on process exit
+// NOLINTNEXTLINE(cppcoreguidelines-avoid-non-const-global-variables)
+inline std::array<std::uint64_t, 103> opcode_counters{};
+
+inline auto dump_opcode_counters() -> void {
+  std::array<std::size_t, 103> order{};
+  for (std::size_t index = 0; index < order.size(); index++) {
+    order[index] = index;
+  }
+  std::ranges::sort(order, [](const auto left, const auto right) {
+    return opcode_counters[left] > opcode_counters[right];
+  });
+
+  std::uint64_t total{0};
+  for (const auto count : opcode_counters) {
+    total += count;
+  }
+
+  std::cerr << "== Blaze evaluator opcode histogram (total " << total << ")\n";
+  for (const auto index : order) {
+    if (opcode_counters[index] == 0) {
+      continue;
+    }
+
+    std::cerr << opcode_counters[index] << "\t"
+              << sourcemeta::blaze::InstructionNames[index] << "\n";
+  }
+}
+
+inline auto register_opcode_counters() -> bool {
+  return std::atexit(dump_opcode_counters) == 0;
+}
+
+// NOLINTNEXTLINE(cppcoreguidelines-avoid-non-const-global-variables)
+inline const bool opcode_counters_registered{register_opcode_counters()};
+#endif
 
 inline auto resolve_target(const JSON::String *property_target,
                            const JSON &instance) noexcept -> const JSON & {
@@ -1300,6 +1353,58 @@ INSTRUCTION_HANDLER(LogicalXor) {
   EVALUATE_END(LogicalXor);
 }
 
+INSTRUCTION_HANDLER(LogicalSwitchPropertyString) {
+  EVALUATE_BEGIN_NO_PRECONDITION(LogicalSwitchPropertyString);
+  // Otherwise why are we emitting this instruction?
+  assert(!instruction.children.empty());
+  const auto &target{
+      resolve_instance(instance, instruction.relative_instance_location)};
+
+  // Every disjunct statically requires the discriminator property to be
+  // set to one of the strings in the map, on top of requiring the instance
+  // to be an object, so anything that doesn't match the map cannot
+  // possibly validate against any of the disjuncts. The only exception is
+  // the optional disjunct that can match non-object instances
+  const auto &value{assume_value<ValuePropertySwitch>(instruction.value)};
+  const std::size_t selected{[&instruction, &target, &value]() -> std::size_t {
+    if (target.is_object()) [[likely]] {
+      const auto &property{std::get<0>(value)};
+      const auto *discriminator{target.try_at(property.first, property.second)};
+      if (discriminator && discriminator->is_string()) [[likely]] {
+        const auto &indexes{std::get<1>(value)};
+        const auto &content{discriminator->to_string()};
+        const auto *index{indexes.try_at(content, indexes.hash(content))};
+        if (index) [[likely]] {
+          return *index;
+        }
+      }
+
+      return instruction.children.size();
+    } else {
+      // Note that on no match, this expression results in the
+      // out-of-bounds sentinel we want anyway
+      return std::get<2>(value) - 1;
+    }
+  }()};
+
+  if (selected < instruction.children.size()) [[likely]] {
+    const auto &subinstruction{instruction.children[selected]};
+    assert(subinstruction.type ==
+           sourcemeta::blaze::InstructionIndex::ControlGroup);
+    SOURCEMETA_ASSUME(subinstruction.type ==
+                      sourcemeta::blaze::InstructionIndex::ControlGroup);
+    result = true;
+    for (const auto &child : subinstruction.children) {
+      if (!EVALUATE_RECURSE(child, target)) [[unlikely]] {
+        result = false;
+        break;
+      }
+    }
+  }
+
+  EVALUATE_END(LogicalSwitchPropertyString);
+}
+
 INSTRUCTION_HANDLER(LogicalCondition) {
   EVALUATE_BEGIN_NO_PRECONDITION(LogicalCondition);
   result = true;
@@ -1331,8 +1436,8 @@ INSTRUCTION_HANDLER(LogicalCondition) {
                                                           : children_size};
   result = true;
   if (consequence_start > 0) {
-    if constexpr (Track || HasCallback) {
-      if (track) {
+    if constexpr (Track) {
+      if (HasCallback || instruction.track) {
         context.evaluator->evaluate_path.pop_back(
             context.schema->extra[instruction.extra_index]
                 .relative_schema_location.size());
@@ -1346,8 +1451,8 @@ INSTRUCTION_HANDLER(LogicalCondition) {
       }
     }
 
-    if constexpr (Track || HasCallback) {
-      if (track) {
+    if constexpr (Track) {
+      if (HasCallback || instruction.track) {
         context.evaluator->evaluate_path.push_back(
             context.schema->extra[instruction.extra_index]
                 .relative_schema_location);
@@ -1408,6 +1513,37 @@ INSTRUCTION_HANDLER(ControlGroupWhenDefinesDirect) {
   }
 
   EVALUATE_END_PASS_THROUGH(ControlGroupWhenDefinesDirect);
+}
+
+INSTRUCTION_HANDLER(ControlGroupWhenDefinesResolved) {
+  EVALUATE_BEGIN_PASS_THROUGH(ControlGroupWhenDefinesResolved);
+  assert(!instruction.children.empty());
+  assert(instruction.relative_instance_location.empty());
+  const auto &value{assume_value<ValueProperty>(instruction.value)};
+
+  if (instance.is_object()) [[likely]] {
+    // Note that in this control instruction, we resolve the property just
+    // once and let the children evaluate directly against its value
+    const auto *entry{instance.try_at(value.first, value.second)};
+    if (entry) {
+      if constexpr (HasCallback) {
+        context.evaluator->instance_location.push_back(value.first);
+      }
+
+      for (const auto &child : instruction.children) {
+        if (!EVALUATE_RECURSE(child, *entry)) [[unlikely]] {
+          result = false;
+          break;
+        }
+      }
+
+      if constexpr (HasCallback) {
+        context.evaluator->instance_location.pop_back();
+      }
+    }
+  }
+
+  EVALUATE_END_PASS_THROUGH(ControlGroupWhenDefinesResolved);
 }
 
 INSTRUCTION_HANDLER(ControlGroupWhenType) {
@@ -2344,6 +2480,37 @@ INSTRUCTION_HANDLER(LoopItemsTypeStrictAny) {
   EVALUATE_END(LoopItemsTypeStrictAny);
 }
 
+INSTRUCTION_HANDLER(LoopItemsTypeStrictAnySized) {
+  EVALUATE_BEGIN_NO_PRECONDITION(LoopItemsTypeStrictAnySized);
+  const auto &target{
+      resolve_instance(instance, instruction.relative_instance_location)};
+  const auto &value{assume_value<ValueTypesWithSize>(instruction.value)};
+  assert(value.first.any());
+  const auto &[minimum, maximum, exhaustive] = value.second;
+  assert(!maximum.has_value() || maximum.value() >= minimum);
+  // Require early breaking
+  assert(!exhaustive);
+  SOURCEMETA_ASSUME(!exhaustive);
+
+  if (target.type() == JSON::Type::Array) [[likely]] {
+    const auto size{target.array_size()};
+    if (size >= minimum && (!maximum.has_value() || size <= maximum.value()))
+        [[likely]] {
+      result = true;
+      for (const auto &entry : target.as_array()) {
+        const auto type_index{
+            std::to_underlying(effective_type_strict_real(entry))};
+        if (!value.first.test(type_index)) [[unlikely]] {
+          result = false;
+          break;
+        }
+      }
+    }
+  }
+
+  EVALUATE_END(LoopItemsTypeStrictAnySized);
+}
+
 INSTRUCTION_HANDLER(LoopItemsPropertiesExactlyTypeStrictHash) {
   EVALUATE_BEGIN_NO_PRECONDITION(LoopItemsPropertiesExactlyTypeStrictHash);
   const auto &target{
@@ -2652,7 +2819,7 @@ using DispatchHandler = bool (*)(
 template <bool Track, bool Dynamic, bool HasCallback>
 // Must have same order as InstructionIndex
 // NOLINTNEXTLINE(modernize-avoid-c-arrays)
-static constexpr DispatchHandler<Track, Dynamic, HasCallback> handlers[100] = {
+static constexpr DispatchHandler<Track, Dynamic, HasCallback> handlers[103] = {
     AssertionFail,
     AssertionDefines,
     AssertionDefinesStrict,
@@ -2712,6 +2879,7 @@ static constexpr DispatchHandler<Track, Dynamic, HasCallback> handlers[100] = {
     LogicalOr,
     LogicalAnd,
     LogicalXor,
+    LogicalSwitchPropertyString,
     LogicalCondition,
     LogicalWhenType,
     LogicalWhenDefines,
@@ -2741,6 +2909,7 @@ static constexpr DispatchHandler<Track, Dynamic, HasCallback> handlers[100] = {
     LoopItemsType,
     LoopItemsTypeStrict,
     LoopItemsTypeStrictAny,
+    LoopItemsTypeStrictAnySized,
     LoopItemsPropertiesExactlyTypeStrictHash,
     LoopItemsPropertiesExactlyTypeStrictHash3,
     LoopItemsIntegerBounded,
@@ -2749,6 +2918,7 @@ static constexpr DispatchHandler<Track, Dynamic, HasCallback> handlers[100] = {
     ControlGroup,
     ControlGroupWhenDefines,
     ControlGroupWhenDefinesDirect,
+    ControlGroupWhenDefinesResolved,
     ControlGroupWhenType,
     ControlEvaluate,
     ControlDynamicAnchorJump,
@@ -2767,6 +2937,10 @@ evaluate_instruction(const sourcemeta::blaze::Instruction &instruction,
                           "likely due to infinite recursion");
   }
 
+#if defined(SOURCEMETA_BLAZE_EVALUATOR_TRACE_OPCODES)
+  opcode_counters[std::to_underlying(instruction.type)] += 1;
+#endif
+
   return handlers<Track, Dynamic, HasCallback>[std::to_underlying(
       instruction.type)](instruction, instance, depth, context);
 }
@@ -2781,6 +2955,10 @@ inline auto evaluate_instruction_without_callback(
     throw EvaluationError("The evaluation path depth limit was reached "
                           "likely due to infinite recursion");
   }
+
+#if defined(SOURCEMETA_BLAZE_EVALUATOR_TRACE_OPCODES)
+  opcode_counters[std::to_underlying(instruction.type)] += 1;
+#endif
 
   DispatchContext<false, Dynamic, false> plain_context{
       context.schema, context.callback, context.evaluator,

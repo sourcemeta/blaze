@@ -79,6 +79,7 @@ enum class InstructionIndex : std::uint8_t {
   LogicalOr,
   LogicalAnd,
   LogicalXor,
+  LogicalSwitchPropertyString,
   LogicalCondition,
   LogicalWhenType,
   LogicalWhenDefines,
@@ -108,6 +109,7 @@ enum class InstructionIndex : std::uint8_t {
   LoopItemsType,
   LoopItemsTypeStrict,
   LoopItemsTypeStrictAny,
+  LoopItemsTypeStrictAnySized,
   LoopItemsPropertiesExactlyTypeStrictHash,
   LoopItemsPropertiesExactlyTypeStrictHash3,
   LoopItemsIntegerBounded,
@@ -116,6 +118,7 @@ enum class InstructionIndex : std::uint8_t {
   ControlGroup,
   ControlGroupWhenDefines,
   ControlGroupWhenDefinesDirect,
+  ControlGroupWhenDefinesResolved,
   ControlGroupWhenType,
   ControlEvaluate,
   ControlDynamicAnchorJump,
@@ -184,6 +187,7 @@ constexpr std::string_view InstructionNames[] = {
     "LogicalOr",
     "LogicalAnd",
     "LogicalXor",
+    "LogicalSwitchPropertyString",
     "LogicalCondition",
     "LogicalWhenType",
     "LogicalWhenDefines",
@@ -213,6 +217,7 @@ constexpr std::string_view InstructionNames[] = {
     "LoopItemsType",
     "LoopItemsTypeStrict",
     "LoopItemsTypeStrictAny",
+    "LoopItemsTypeStrictAnySized",
     "LoopItemsPropertiesExactlyTypeStrictHash",
     "LoopItemsPropertiesExactlyTypeStrictHash3",
     "LoopItemsIntegerBounded",
@@ -221,6 +226,7 @@ constexpr std::string_view InstructionNames[] = {
     "ControlGroup",
     "ControlGroupWhenDefines",
     "ControlGroupWhenDefinesDirect",
+    "ControlGroupWhenDefinesResolved",
     "ControlGroupWhenType",
     "ControlEvaluate",
     "ControlDynamicAnchorJump",
@@ -260,10 +266,14 @@ struct InstructionExtra {
 };
 
 /// @ingroup evaluator
-/// Represents a single instruction to be evaluated
+/// Represents a single instruction to be evaluated. The `track` member
+/// notes whether the instruction must maintain the evaluate path when
+/// running a tracking template without a callback: only instructions
+/// whose subtree can produce or consume evaluation marks need to
 // NOLINTNEXTLINE(bugprone-exception-escape)
 struct Instruction {
   InstructionIndex type;
+  bool track{true};
   sourcemeta::core::Pointer relative_instance_location;
   Value value;
   Instructions children;

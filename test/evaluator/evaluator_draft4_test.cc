@@ -3335,3 +3335,84 @@ TEST(Evaluator_draft4,
   EVALUATE_TRACE_POST_DESCRIBE(instance, 0,
                                "The value was expected to be of type integer");
 }
+
+TEST(Evaluator_draft4, switch_property_string_enum_fast) {
+  const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
+    "$schema": "http://json-schema.org/draft-04/schema#",
+    "anyOf": [
+      {
+        "type": "object",
+        "required": [ "kind" ],
+        "properties": {
+          "kind": { "enum": [ "first", "alias" ] }
+        }
+      },
+      {
+        "type": "object",
+        "required": [ "kind" ],
+        "properties": {
+          "kind": { "enum": [ "second" ] }
+        }
+      }
+    ]
+  })JSON")};
+
+  const sourcemeta::core::JSON instance{sourcemeta::core::parse_json(R"JSON({
+    "kind": "alias"
+  })JSON")};
+
+  EVALUATE_WITH_TRACE_FAST_SUCCESS(schema, instance, 2, "");
+
+  EVALUATE_TRACE_PRE(0, LogicalSwitchPropertyString, "/anyOf", "#/anyOf", "");
+  EVALUATE_TRACE_PRE(1, AssertionObjectPropertiesSimple, "/anyOf/0/properties",
+                     "#/anyOf/0/properties", "");
+  EVALUATE_TRACE_POST_SUCCESS(0, AssertionObjectPropertiesSimple,
+                              "/anyOf/0/properties", "#/anyOf/0/properties",
+                              "");
+  EVALUATE_TRACE_POST_SUCCESS(1, LogicalSwitchPropertyString, "/anyOf",
+                              "#/anyOf", "");
+
+  EVALUATE_TRACE_POST_DESCRIBE(instance, 0,
+                               "The object value was expected to validate "
+                               "against the defined property subschemas");
+  EVALUATE_TRACE_POST_DESCRIBE(instance, 1,
+                               "The object value was expected to validate "
+                               "against one of the 2 given subschemas");
+}
+
+TEST(Evaluator_draft4, switch_property_string_duplicate_values_fast) {
+  const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
+    "$schema": "http://json-schema.org/draft-04/schema#",
+    "anyOf": [
+      {
+        "type": "object",
+        "required": [ "kind" ],
+        "properties": {
+          "kind": { "enum": [ "first" ] },
+          "value": { "type": "integer" }
+        }
+      },
+      {
+        "type": "object",
+        "required": [ "kind" ],
+        "properties": {
+          "kind": { "enum": [ "first" ] },
+          "value": { "type": "string" }
+        }
+      }
+    ]
+  })JSON")};
+
+  const sourcemeta::core::JSON instance{sourcemeta::core::parse_json(R"JSON({
+    "kind": "first",
+    "value": "foo"
+  })JSON")};
+
+  sourcemeta::blaze::Evaluator evaluator;
+  const auto compiled_schema{
+      sourcemeta::blaze::compile(schema, sourcemeta::blaze::schema_walker,
+                                 sourcemeta::blaze::schema_resolver,
+                                 sourcemeta::blaze::default_schema_compiler,
+                                 sourcemeta::blaze::Mode::FastValidation)};
+  EXPECT_TRUE(evaluator.validate(compiled_schema, instance));
+}

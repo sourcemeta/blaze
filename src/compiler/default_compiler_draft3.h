@@ -8,8 +8,11 @@
 
 #include <algorithm> // std::sort, std::ranges::any_of, std::ranges::all_of, std::find_if, std::ranges::none_of
 #include <cassert>   // assert
+#include <map>       // std::map
 #include <set>       // std::set
-#include <utility>   // std::move, std::to_underlying
+#include <string>    // std::string
+#include <unordered_map> // std::unordered_map
+#include <utility>       // std::move, std::to_underlying
 
 #include "compile_helpers.h"
 
@@ -104,10 +107,19 @@ compile_properties(const sourcemeta::blaze::Context &context,
   // we prefer to evaluate smaller subschemas first, in the hope of failing
   // earlier without spending a lot of time on other subschemas
   if (context.tweaks.properties_reorder) {
+    std::unordered_map<std::string, std::size_t> template_sizes;
+    template_sizes.reserve(properties.size());
+    for (const auto &property : properties) {
+      template_sizes.emplace(property.first,
+                             recursive_template_size(property.second));
+    }
+
     std::ranges::sort(
-        properties, [&context](const auto &left, const auto &right) -> auto {
-          const auto left_size{recursive_template_size(left.second)};
-          const auto right_size{recursive_template_size(right.second)};
+        properties,
+        [&context, &template_sizes](const auto &left,
+                                    const auto &right) -> auto {
+          const auto left_size{template_sizes.at(left.first)};
+          const auto right_size{template_sizes.at(right.first)};
           if (left_size == right_size) {
             const auto left_direct_enumeration{
                 defines_direct_enumeration(left.second)};
@@ -556,10 +568,11 @@ auto compiler_draft3_applicator_properties_with_options(
     ValueNamedIndexes indexes;
     Instructions children;
     std::size_t cursor = 0;
+    std::map<sourcemeta::core::JSON::String, std::size_t> child_positions;
 
     for (auto &&[name, substeps] : compile_properties(
              context, schema_context, relative_dynamic_context(), current)) {
-      indexes.emplace(name, cursor);
+      child_positions.emplace(name, cursor);
 
       if (track_evaluation) {
         substeps.push_back(make(
@@ -580,6 +593,17 @@ auto compiler_draft3_applicator_properties_with_options(
                               relative_dynamic_context(), ValueNone{},
                               std::move(substeps)));
       cursor += 1;
+    }
+
+    // Lay the lookup table out in schema declaration order, as instances
+    // commonly follow it, which makes scanning the table for each instance
+    // property terminate sooner on average
+    for (const auto &entry :
+         schema_context.schema.at(dynamic_context.keyword).as_object()) {
+      const auto match{child_positions.find(entry.first)};
+      if (match != child_positions.cend()) {
+        indexes.emplace(entry.first, match->second);
+      }
     }
 
     if (context.mode == Mode::FastValidation && !track_evaluation &&
@@ -903,6 +927,47 @@ auto compiler_draft3_applicator_properties_with_options(
             for (auto &&step : substeps) {
               children.push_back(std::move(step));
             }
+          } else if (
+              context.mode == Mode::FastValidation && substeps.size() > 1 &&
+              std::ranges::all_of(substeps, [&name](const auto &step) -> bool {
+                if (step.relative_instance_location.empty() ||
+                    !step.relative_instance_location.at(0).is_property() ||
+                    step.relative_instance_location.at(0).to_property() !=
+                        name) {
+                  return false;
+                }
+
+                if (step.relative_instance_location.size() > 1) {
+                  return true;
+                }
+
+                // These instructions require a non-empty
+                // instance location of their own
+                switch (step.type) {
+                  case InstructionIndex::AssertionPropertyType:
+                  case InstructionIndex::AssertionPropertyTypeEvaluate:
+                  case InstructionIndex::AssertionPropertyTypeStrict:
+                  case InstructionIndex::AssertionPropertyTypeStrictEvaluate:
+                  case InstructionIndex::AssertionPropertyTypeStrictAny:
+                  case InstructionIndex::AssertionPropertyTypeStrictAnyEvaluate:
+                  case InstructionIndex::ControlGroupWhenDefines:
+                    return false;
+                  default:
+                    return true;
+                }
+              })) {
+            // When every step navigates into the property, we can resolve
+            // it once and evaluate the steps against its value directly
+            for (auto &step : substeps) {
+              step.relative_instance_location =
+                  step.relative_instance_location.slice(1);
+            }
+
+            children.push_back(make(sourcemeta::blaze::InstructionIndex::
+                                        ControlGroupWhenDefinesResolved,
+                                    context, schema_context,
+                                    effective_dynamic_context,
+                                    make_property(name), std::move(substeps)));
           } else {
             children.push_back(make(sourcemeta::blaze::InstructionIndex::
                                         ControlGroupWhenDefinesDirect,
