@@ -212,6 +212,7 @@ auto WALK_UP_IN_PLACE_APPLICATORS(const JSON &root, const SchemaFrame &frame,
 #include "common/flatten_nested_extends.h"
 #include "common/if_without_then_else.h"
 #include "common/ignored_metaschema.h"
+#include "common/incoherent_exclusive_limits.h"
 #include "common/max_contains_without_contains.h"
 #include "common/maximum_real_for_integer.h"
 #include "common/min_contains_without_contains.h"
@@ -351,6 +352,7 @@ auto add(SchemaTransformer &bundle, const AlterSchemaMode mode) -> void {
   if (mode == AlterSchemaMode::Canonicalizer) {
     bundle.add<ExclusiveMinimumBooleanIntegerFold>();
     bundle.add<ExclusiveMaximumBooleanIntegerFold>();
+    bundle.add<IncoherentExclusiveLimits>();
     bundle.add<UnsatisfiableExclusiveEqualBounds>();
     bundle.add<MinimumCanEqualIntegerFold>();
     bundle.add<MaximumCanEqualIntegerFold>();
@@ -478,6 +480,7 @@ auto add(SchemaTransformer &bundle, const AlterSchemaMode mode) -> void {
     bundle.add<UnevaluatedItemsDefault>();
     bundle.add<UnevaluatedPropertiesDefault>();
     bundle.add<UnsatisfiableMaxContains>();
+    bundle.add<IncoherentExclusiveLimits>();
     bundle.add<IncoherentMinMaxContains>();
     bundle.add<UnsatisfiableMinProperties>();
     bundle.add<EnumToConst>();
